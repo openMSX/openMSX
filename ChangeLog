@@ -1,5 +1,8 @@
 $Id$
 
+2003-05-31 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* VDPCmdEngine cleanups
+
 2003-05-31 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Changed console save file into ascii. When loading the history,
 	  empty lines are ignored.

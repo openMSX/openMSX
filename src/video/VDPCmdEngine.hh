@@ -16,25 +16,6 @@ class VDPVRAM;
 class VDPCmdEngine
 {
 public:
-	enum Reg {
-		REG_SXL = 0x00, // VDP R#32: source X low
-		REG_SXH = 0x01, // VDP R#32: source X high
-		REG_SYL = 0x02, // VDP R#34: source Y low
-		REG_SYH = 0x03, // VDP R#35: source Y high
-		REG_DXL = 0x04, // VDP R#36: destination X low
-		REG_DXH = 0x05, // VDP R#37: destination X high
-		REG_DYL = 0x06, // VDP R#38: destination Y low
-		REG_DYH = 0x07, // VDP R#39: destination Y high
-		REG_NXL = 0x08, // VDP R#40: number X low
-		REG_NXH = 0x09, // VDP R#41: number X high
-		REG_NYL = 0x0A, // VDP R#42: number Y low
-		REG_NYH = 0x0B, // VDP R#43: number Y high
-		REG_COL = 0x0C, // VDP R#44: colour
-		REG_ARG = 0x0D, // VDP R#45: argument
-		REG_CMD = 0x0E, // VDP R#46: command
-		NUM_REGS = 15
-	};
-
 	/** Constructor.
 	  */
 	VDPCmdEngine(VDP *vdp);
@@ -54,11 +35,11 @@ public:
 	  * @param time The moment in emulated time to sync to.
 	  */
 	inline void sync(const EmuTime &time) {
-		if (!(status & 0x01)) {
+		if (!CMD) {
 			// no command in progress
 			return;
 		}
-		commands[(cmdReg[REG_CMD] & 0xF0) >> 4]->execute(time);
+		commands[CMD]->execute(time);
 	}
 
 	/** Gets the command engine status (part of S#2).
@@ -68,8 +49,7 @@ public:
 	  * Bit 0 (CE) is set when a command is in progress.
 	  */
 	inline byte getStatus(const EmuTime &time) {
-		byte cmd = (cmdReg[REG_CMD] & 0xF0) >> 4;
-		if (commands[cmd]->willStatusChange(time)) {
+		if (commands[CMD]->willStatusChange(time)) {
 			sync(time);
 		}
 		return status;
@@ -83,7 +63,7 @@ public:
 	inline byte readColour(const EmuTime &time) {
 		sync(time);
 		status &= 0x7F;
-		return cmdReg[REG_COL];
+		return COL;
 	}
 
 	/** Gets the X coordinate of a border detected by SRCH.
@@ -99,15 +79,7 @@ public:
 	  * @param value The new value for the specified register.
 	  * @param time The moment in emulated time this write occurs.
 	  */
-	inline void setCmdReg(byte index, byte value, const EmuTime &time) {
-		sync(time);
-		cmdReg[index] = value;
-		if (index == REG_COL) {
-			status &= 0x7F;
-		} else if (index == REG_CMD) {
-			executeCommand(time);
-		}
-	}
+	void setCmdReg(byte index, byte value, const EmuTime &time);
 
 	/** Informs the command engine of a VDP display mode change.
 	  * @param mode The new display mode.
@@ -123,13 +95,7 @@ private:
 		OP_TIMP = 0x8, OP_TAND = 0x9, OP_TOR  = 0xA, OP_TXOR = 0xB,
 		OP_TNOT = 0xC, OP_D    = 0xD, OP_E    = 0xE, OP_F    = 0xF,
 	};
-	enum Cmd {
-		CM_ABRT  = 0x0, CM_1     = 0x1, CM_2     = 0x2, CM_3     = 0x3,
-		CM_POINT = 0x4, CM_PSET  = 0x5, CM_SRCH  = 0x6, CM_LINE  = 0x7,
-		CM_LMMV  = 0x8, CM_LMMM  = 0x9, CM_LMCM  = 0xA, CM_LMMC  = 0xB,
-		CM_HMMV  = 0xC, CM_HMMM  = 0xD, CM_YMMM  = 0xE, CM_HMMC  = 0xF,
-	};
-
+	
 	void executeCommand(const EmuTime &time);
 	
 	/** Report to stdout the VDP command specified in the registers.
@@ -139,7 +105,10 @@ private:
 
 	/** VDP command registers.
 	  */
-	byte cmdReg[NUM_REGS];
+	word SX, SY, DX, DY, NX, NY;
+	byte COL, ARG, CMD;
+	LogOp LOG;
+	
 
 	/** The command engine status (part of S#2).
 	  * Bit 7 (TR) is set when the command engine is ready for
@@ -247,8 +216,6 @@ private:
 		int getVdpTimingValue(const int *timingValues);
 
 	protected:
-		byte &cmdReg(Reg reg) { return engine->cmdReg[reg]; } 
-		
 		VDPCmdEngine *engine;
 		VDPVRAM *vram;
 		EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;

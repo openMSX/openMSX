@@ -49,24 +49,27 @@ VDPCmdEngine::VDPCmdEngine(VDP *vdp_)
 {
 	VDPVRAM *vram = vdp->getVRAM();
 	AbortCmd *abort = new AbortCmd(this, vram);
-	commands[CM_ABRT]  = abort;
-	commands[CM_1]     = abort;
-	commands[CM_2]     = abort;
-	commands[CM_3]     = abort;
-	commands[CM_POINT] = new PointCmd(this, vram);
-	commands[CM_PSET]  = new PsetCmd (this, vram);
-	commands[CM_SRCH]  = new SrchCmd (this, vram);
-	commands[CM_LINE]  = new LineCmd (this, vram);
-	commands[CM_LMMV]  = new LmmvCmd (this, vram);
-	commands[CM_LMMM]  = new LmmmCmd (this, vram);
-	commands[CM_LMCM]  = new LmcmCmd (this, vram);
-	commands[CM_LMMC]  = new LmmcCmd (this, vram);
-	commands[CM_HMMV]  = new HmmvCmd (this, vram);
-	commands[CM_HMMM]  = new HmmmCmd (this, vram);
-	commands[CM_YMMM]  = new YmmmCmd (this, vram);
-	commands[CM_HMMC]  = new HmmcCmd (this, vram);
+	commands[0x0] = abort;
+	commands[0x1] = abort;
+	commands[0x2] = abort;
+	commands[0x3] = abort;
+	commands[0x4] = new PointCmd(this, vram);
+	commands[0x5] = new PsetCmd (this, vram);
+	commands[0x6] = new SrchCmd (this, vram);
+	commands[0x7] = new LineCmd (this, vram);
+	commands[0x8] = new LmmvCmd (this, vram);
+	commands[0x9] = new LmmmCmd (this, vram);
+	commands[0xA] = new LmcmCmd (this, vram);
+	commands[0xB] = new LmmcCmd (this, vram);
+	commands[0xC] = new HmmvCmd (this, vram);
+	commands[0xD] = new HmmmCmd (this, vram);
+	commands[0xE] = new YmmmCmd (this, vram);
+	commands[0xF] = new HmmcCmd (this, vram);
 
 	status = 0;
+	SX = SY = DX = DY = NX = NY = 0;
+	COL = ARG = CMD = 0;
+	LOG = OP_IMP;
 }
 
 VDPCmdEngine::~VDPCmdEngine()
@@ -81,13 +84,74 @@ VDPCmdEngine::~VDPCmdEngine()
 void VDPCmdEngine::reset(const EmuTime &time)
 {
 	sync(time);
-	for (int i = 0; i < 15; i++) {
-		cmdReg[i] = 0;
-	}
 	status = 0;
 	borderX = 0;
+	scrMode = -1;
+	for (int i = 0; i < 15; i++) {
+		setCmdReg(i, 0, time);
+	}
 
 	updateDisplayMode(vdp->getDisplayMode(), time);
+}
+
+void VDPCmdEngine::setCmdReg(byte index, byte value, const EmuTime &time)
+{
+	sync(time);
+	switch (index) {
+	case 0x00: // source X low
+		SX = (SX & 0x100) | value;
+		break;
+	case 0x01: // source X high
+		SX = (SX & 0x0FF) | ((value & 0x01) << 8); 
+		break;
+	case 0x02: // source Y low
+		SY = (SY & 0x300) | value;
+		break;
+	case 0x03: // source Y high
+		SY = (SY & 0x0FF) | ((value & 0x03) << 8);
+		break;
+		
+	case 0x04: // destination X low
+		DX = (DX & 0x100) | value;
+		break;
+	case 0x05: // destination X high
+		DX = (DX & 0x0FF) | ((value & 0x01) << 8);
+		break;
+	case 0x06: // destination Y low
+		DY = (DY & 0x300) | value;
+		break;
+	case 0x07: // destination Y high
+		DY = (DY & 0x0FF) | ((value & 0x03) << 8);
+		break;
+		
+	case 0x08: // number X low
+		NX = (NX & 0x100) | value;
+		break;
+	case 0x09: // number X high
+		NX = (NX & 0x0FF) | ((value & 0x01) << 8);
+		break;
+	case 0x0A: // number Y low
+		NY = (NY & 0x300) | value;
+		break;
+	case 0x0B: // number Y high
+		NY = (NY & 0x0FF) | ((value & 0x03) << 8);
+		break;
+		
+	case 0x0C: // colour
+		COL = value;
+		status &= 0x7F;
+		break;
+	case 0x0D: // argument
+		ARG = value;
+		break;
+	case 0x0E: // command
+		LOG = (LogOp)(value & 0x0F);
+		CMD = value >> 4;
+		executeCommand(time);
+		break;
+	default:
+		assert(false);
+	}
 }
 
 void VDPCmdEngine::updateDisplayMode(DisplayMode mode, const EmuTime &time)
@@ -129,7 +193,7 @@ void VDPCmdEngine::executeCommand(const EmuTime &time)
 
 	// start command
 	status |= 0x01;
-	VDPCmd *cmd = commands[(cmdReg[REG_CMD] & 0xF0) >> 4];
+	VDPCmd *cmd = commands[CMD];
 	cmd->start(time);
 
 	// finish command now if instantaneous command timing is active
@@ -149,32 +213,21 @@ void VDPCmdEngine::reportVdpCommand()
 		" LMMV"," LMMM"," LMCM"," LMMC"," HMMV"," HMMM"," YMMM"," HMMC"
 	};
 
-	// Fetch arguments.
-	byte cl = cmdReg[REG_COL];
-	int sx = (cmdReg[REG_SXL] + (cmdReg[REG_SXH] << 8)) &  511;
-	int sy = (cmdReg[REG_SYL] + (cmdReg[REG_SYH] << 8)) & 1023;
-	int dx = (cmdReg[REG_DXL] + (cmdReg[REG_DXH] << 8)) &  511;
-	int dy = (cmdReg[REG_DYL] + (cmdReg[REG_DYH] << 8)) & 1023;
-	int nx = (cmdReg[REG_NXL] + (cmdReg[REG_NXH] << 8)) & 1023;
-	int ny = (cmdReg[REG_NYL] + (cmdReg[REG_NYH] << 8)) & 1023;
-	byte cm = cmdReg[REG_CMD] >> 4;
-	LogOp lo = (LogOp)(cmdReg[REG_CMD] & 0x0F);
-
 	fprintf(stderr,
-		"V9938: Opcode %02Xh %s-%s (%d,%d)->(%d,%d),%d [%d,%d]%s\n",
-		cmdReg[REG_CMD], COMMANDS[cm], OPS[lo],
-		sx,sy, dx,dy, cl, ((cmdReg[REG_ARG] & 0x04) ? -nx : nx),
-		((cmdReg[REG_ARG] & 0x08) ? -ny : ny),
-		((cmdReg[REG_ARG] & 0x70) ? " on ExtVRAM" : ""));
+		"V9938: Opcode %s-%s (%d,%d)->(%d,%d),%d [%d,%d]%s\n",
+		COMMANDS[CMD], OPS[LOG], SX, SY, DX, DY, COL,
+		((ARG & 0x04) ? -NX : NX),
+		((ARG & 0x08) ? -NY : NY),
+		((ARG & 0x70) ? " on ExtVRAM" : ""));
 }
 
 
 // Inline methods first, to make sure they are actually inlined.
 
-#define VDP_VRMP5(X, Y) (((Y&1023)<<7) + ((X&255)>>1))
-#define VDP_VRMP6(X, Y) (((Y&1023)<<7) + ((X&511)>>2))
-#define VDP_VRMP7(X, Y) (((X&2)<<15) + ((Y&511)<<7) + ((X&511)>>2))
-#define VDP_VRMP8(X, Y) (((X&1)<<16) + ((Y&511)<<7) + ((X&255)>>1))
+#define VDP_VRMP5(X, Y) (((Y & 1023) << 7) + ((X & 255) >> 1))
+#define VDP_VRMP6(X, Y) (((Y & 1023) << 7) + ((X & 511) >> 2))
+#define VDP_VRMP7(X, Y) (((X & 2) << 15) + ((Y & 511) << 7) + ((X & 511) >> 2))
+#define VDP_VRMP8(X, Y) (((X & 1) << 16) + ((Y & 511) << 7) + ((X & 255) >> 1))
 
 inline int VDPCmdEngine::VDPCmd::vramAddr(int x, int y)
 {
@@ -183,23 +236,26 @@ inline int VDPCmdEngine::VDPCmd::vramAddr(int x, int y)
 	case 1: return VDP_VRMP6(x, y);
 	case 2: return VDP_VRMP7(x, y);
 	case 3: return VDP_VRMP8(x, y);
-	default: assert(false); return 0;
+	default: assert(false); return 0; // avoid warning
 	}
 }
 
 inline byte VDPCmdEngine::VDPCmd::point5(int sx, int sy)
 {
-	return (vram->cmdReadWindow.readNP(VDP_VRMP5(sx, sy)) >> (((~sx)&1)<<2) ) & 15;
+	return (vram->cmdReadWindow.readNP(VDP_VRMP5(sx, sy)) >>
+	       (((~sx) & 1) << 2)) & 15;
 }
 
 inline byte VDPCmdEngine::VDPCmd::point6(int sx, int sy)
 {
-	return (vram->cmdReadWindow.readNP(VDP_VRMP6(sx, sy)) >> (((~sx)&3)<<1) ) & 3;
+	return (vram->cmdReadWindow.readNP(VDP_VRMP6(sx, sy)) >>
+	       (((~sx) & 3) << 1)) & 3;
 }
 
 inline byte VDPCmdEngine::VDPCmd::point7(int sx, int sy)
 {
-	return (vram->cmdReadWindow.readNP(VDP_VRMP7(sx, sy)) >> (((~sx)&1)<<2) ) & 15;
+	return (vram->cmdReadWindow.readNP(VDP_VRMP7(sx, sy)) >>
+	       (((~sx) & 1) << 2)) & 15;
 }
 
 inline byte VDPCmdEngine::VDPCmd::point8(int sx, int sy)
@@ -281,19 +337,19 @@ inline void VDPCmdEngine::VDPCmd::psetLowLevel(
 inline void VDPCmdEngine::VDPCmd::pset5(int dx, int dy, byte cl, LogOp op)
 {
 	byte sh = ((~dx) & 1) << 2;
-	psetLowLevel(VDP_VRMP5(dx, dy), cl << sh, ~(15<<sh), op);
+	psetLowLevel(VDP_VRMP5(dx, dy), cl << sh, ~(15 << sh), op);
 }
 
 inline void VDPCmdEngine::VDPCmd::pset6(int dx, int dy, byte cl, LogOp op)
 {
 	byte sh = ((~dx) & 3) << 1;
-	psetLowLevel(VDP_VRMP6(dx, dy), cl << sh, ~(3<<sh), op);
+	psetLowLevel(VDP_VRMP6(dx, dy), cl << sh, ~(3 << sh), op);
 }
 
 inline void VDPCmdEngine::VDPCmd::pset7(int dx, int dy, byte cl, LogOp op)
 {
 	byte sh = ((~dx) & 1) << 2;
-	psetLowLevel(VDP_VRMP7(dx, dy), cl << sh, ~(15<<sh), op);
+	psetLowLevel(VDP_VRMP7(dx, dy), cl << sh, ~(15 << sh), op);
 }
 
 inline void VDPCmdEngine::VDPCmd::pset8(int dx, int dy, byte cl, LogOp op)
@@ -318,11 +374,10 @@ int VDPCmdEngine::VDPCmd::getVdpTimingValue(const int *timingValues)
 	       : timingValues[engine->vdp->getAccessTiming()];
 }
 
-
-
 void VDPCmdEngine::VDPCmd::commandDone()
 {
 	engine->status &= 0xFE;
+	engine->CMD = 0;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.disable(currentTime);
 }
@@ -340,39 +395,39 @@ void VDPCmdEngine::VDPCmd::commandDone()
 
 // Loop over DX, DY.
 #define post__x_y(MX) \
-		if (!--ANX || ((ADX+=TX)&MX)) { \
-			if (!(--NY&1023) || (DY+=TY)==-1) { \
+		if (!--ANX || ((ADX += TX) & MX)) { \
+			if (!(--NY & 1023) || (DY += TY) == -1) { \
 				finished = true; \
 				break; \
 			} else { \
-				ADX=DX; \
-				ANX=NX; \
+				ADX = DX; \
+				ANX = NX; \
 			} \
 		} \
 	}
 
 // Loop over DX, SY, DY.
 #define post__xyy(MX) \
-		if ((ADX+=TX)&MX) { \
-			if (!(--NY&1023) || (SY+=TY)==-1 || (DY+=TY)==-1) { \
+		if ((ADX += TX) & MX) { \
+			if (!(--NY & 1023) || (SY += TY) == -1 || (DY += TY) == -1) { \
 				finished = true; \
 				break; \
 			} else { \
-				ADX=DX; \
+				ADX = DX; \
 			} \
 		} \
 	}
 
 // Loop over SX, DX, SY, DY.
 #define post_xxyy(MX) \
-		if (!--ANX || ((ASX+=TX)&MX) || ((ADX+=TX)&MX)) { \
-			if (!(--NY&1023) || (SY+=TY)==-1 || (DY+=TY)==-1) { \
+		if (!--ANX || ((ASX += TX) & MX) || ((ADX += TX) & MX)) { \
+			if (!(--NY & 1023) || (SY += TY) == -1 || (DY += TY) == -1) { \
 				finished = true; \
 				break; \
 			} else { \
-				ASX=SX; \
-				ADX=DX; \
-				ANX=NX; \
+				ASX = SX; \
+				ADX = DX; \
+				ANX = NX; \
 			} \
 		} \
 	}
@@ -399,8 +454,7 @@ void VDPCmdEngine::PointCmd::start(const EmuTime &time)
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.disable(currentTime);
 	
-	cmdReg(REG_COL) = point(cmdReg(REG_SXL) + (cmdReg(REG_SXH) << 8),
-	                        cmdReg(REG_SYL) + (cmdReg(REG_SYH) << 8));
+	engine->COL = point(engine->SX, engine->SY);
 	commandDone();
 }
 
@@ -418,10 +472,8 @@ void VDPCmdEngine::PsetCmd::start(const EmuTime &time)
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	
-	cmdReg(REG_COL) &= MASK[engine->scrMode];
-	pset(cmdReg(REG_DXL) + (cmdReg(REG_DXH) << 8),
-	     cmdReg(REG_DYL) + (cmdReg(REG_DYH) << 8),
-	     cmdReg(REG_COL), (LogOp)(cmdReg(REG_CMD) & 0x0F));
+	byte col = engine->COL & MASK[engine->scrMode];
+	pset(engine->DX, engine->DY, col, engine->LOG);
 	commandDone();
 }
 
@@ -437,13 +489,12 @@ void VDPCmdEngine::SrchCmd::start(const EmuTime &time)
 {
 	opsCount = 0;
 	currentTime = time;
-	cmdReg(REG_COL) &= MASK[engine->scrMode];
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.disable(currentTime);
-	SX = (cmdReg(REG_SXL) + (cmdReg(REG_SXH) << 8)) & 511;
-	SY = (cmdReg(REG_SYL) + (cmdReg(REG_SYH) << 8)) & 1023;
-	CL = cmdReg(REG_COL);
-	ANX = (cmdReg(REG_ARG) & 0x02) != 0; // TODO: Do we look for "==" or "!="?
+	SX = engine->SX;
+	SY = engine->SY;
+	CL = engine->COL & MASK[engine->scrMode];
+	ANX = (engine->ARG & 0x02) != 0; // TODO: Do we look for "==" or "!="?
 }
 
 void VDPCmdEngine::SrchCmd::execute(const EmuTime &time)
@@ -495,17 +546,16 @@ void VDPCmdEngine::LineCmd::start(const EmuTime &time)
 {
 	opsCount = 0;
 	currentTime = time;
-	cmdReg(REG_COL) &= MASK[engine->scrMode];
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	DX = (cmdReg(REG_DXL) + (cmdReg(REG_DXH) << 8)) & 511;
-	DY = (cmdReg(REG_DYL) + (cmdReg(REG_DYH) << 8)) & 1023;
-	NY = (cmdReg(REG_NYL) + (cmdReg(REG_NYH) << 8)) & 1023;
-	TY = (cmdReg(REG_ARG) & 0x08) ? -1 : 1;
-	CL = cmdReg(REG_COL);
-	LO = (LogOp)(cmdReg(REG_CMD) & 0x0F);
-	TX = (cmdReg(REG_ARG) & 0x04) ? -1 : 1;
-	NX = (cmdReg(REG_NXL) + (cmdReg(REG_NXH) << 8)) & 1023;
+	DX = engine->DX;
+	DY = engine->DY;
+	NX = engine->NX;
+	NY = engine->NY;
+	TX = (engine->ARG & 0x04) ? -1 : 1;
+	TY = (engine->ARG & 0x08) ? -1 : 1;
+	CL = engine->COL & MASK[engine->scrMode];
+	LO = engine->LOG;
 	ASX = ((NX - 1) >> 1);
 	ADX = 0;
 }
@@ -542,7 +592,7 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 		} \
 	}
 
-	if ((cmdReg(REG_ARG) & 0x01) == 0) {
+	if ((engine->ARG & 0x01) == 0) {
 		// X-Axis is major direction.
 		switch (engine->scrMode) {
 		case 0: pre_loop pset5(DX, DY, CL, LO); post_linexmaj(256)
@@ -571,8 +621,7 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 	if (finished) {
 		// Command execution done.
 		commandDone();
-		cmdReg(REG_DYL) = DY & 0xFF;
-		cmdReg(REG_DYH) = (DY >> 8) & 0x03;
+		engine->DY = DY;
 	}
 }
 
@@ -583,17 +632,16 @@ void VDPCmdEngine::LmmvCmd::start(const EmuTime &time)
 {
 	opsCount = 0;
 	currentTime = time;
-	cmdReg(REG_COL) &= MASK[engine->scrMode];
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	DX = (cmdReg(REG_DXL) + (cmdReg(REG_DXH) << 8)) & 511;
-	DY = (cmdReg(REG_DYL) + (cmdReg(REG_DYH) << 8)) & 1023;
-	NY = (cmdReg(REG_NYL) + (cmdReg(REG_NYH) << 8)) & 1023;
-	TY = (cmdReg(REG_ARG) & 0x08) ? -1 : 1;
-	CL = cmdReg(REG_COL);
-	LO = (LogOp)(cmdReg(REG_CMD) & 0x0F);
-	TX = (cmdReg(REG_ARG) & 0x04) ? -1 : 1;
-	NX = (cmdReg(REG_NXL) + (cmdReg(REG_NXH) << 8)) & 1023;
+	DX = engine->DX;
+	DY = engine->DY;
+	NX = engine->NX;
+	NY = engine->NY;
+	TX = (engine->ARG & 0x04) ? -1 : 1;
+	TY = (engine->ARG & 0x08) ? -1 : 1;
+	CL = engine->COL & MASK[engine->scrMode];
+	LO = engine->LOG;
 	ADX = DX;
 	ANX = NX;
 }
@@ -606,24 +654,30 @@ void VDPCmdEngine::LmmvCmd::execute(const EmuTime &time)
 	bool finished = false;
 
 	switch (engine->scrMode) {
-	case 0: pre_loop pset5(ADX, DY, CL, LO); post__x_y(256)
-			break;
-	case 1: pre_loop pset6(ADX, DY, CL, LO); post__x_y(512)
-			break;
-	case 2: pre_loop pset7(ADX, DY, CL, LO); post__x_y(512)
-			break;
-	case 3: pre_loop pset8(ADX, DY, CL, LO); post__x_y(256)
-			break;
+	case 0: pre_loop
+		pset5(ADX, DY, CL, LO);
+		post__x_y(256)
+		break;
+	case 1: pre_loop
+		pset6(ADX, DY, CL, LO);
+		post__x_y(512)
+		break;
+	case 2: pre_loop
+		pset7(ADX, DY, CL, LO);
+		post__x_y(512)
+		break;
+	case 3: pre_loop
+		pset8(ADX, DY, CL, LO);
+		post__x_y(256)
+		break;
 	}
 
 	if (finished) {
 		// Command execution done.
 		commandDone();
 		if (!NY) DY += TY;
-		cmdReg(REG_DYL) = DY & 0xFF;
-		cmdReg(REG_DYH) = (DY >> 8) & 0x03;
-		cmdReg(REG_NYL) = NY & 0xFF;
-		cmdReg(REG_NYH) = (NY >> 8) & 0x03;
+		engine->DY = DY;
+		engine->NY = NY;
 	}
 }
 
@@ -634,18 +688,17 @@ void VDPCmdEngine::LmmmCmd::start(const EmuTime &time)
 {
 	opsCount = 0;
 	currentTime = time;
-	cmdReg(REG_COL) &= MASK[engine->scrMode];
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	SX = (cmdReg(REG_SXL) + (cmdReg(REG_SXH) << 8)) & 511;
-	SY = (cmdReg(REG_SYL) + (cmdReg(REG_SYH) << 8)) & 1023;
-	DX = (cmdReg(REG_DXL) + (cmdReg(REG_DXH) << 8)) & 511;
-	DY = (cmdReg(REG_DYL) + (cmdReg(REG_DYH) << 8)) & 1023;
-	NY = (cmdReg(REG_NYL) + (cmdReg(REG_NYH) << 8)) & 1023;
-	TY = (cmdReg(REG_ARG) & 0x08) ? -1 : 1;
-	LO = (LogOp)(cmdReg(REG_CMD) & 0x0F);
-	TX = (cmdReg(REG_ARG) & 0x04) ? -1 : 1;
-	NX = (cmdReg(REG_NXL) + (cmdReg(REG_NXH) << 8)) & 1023;
+	SX = engine->SX;
+	SY = engine->SY;
+	DX = engine->DX;
+	DY = engine->DY;
+	NX = engine->NX;
+	NY = engine->NY;
+	TX = (engine->ARG & 0x04) ? -1 : 1;
+	TY = (engine->ARG & 0x08) ? -1 : 1;
+	LO = engine->LOG;
 	ASX = SX;
 	ADX = DX;
 	ANX = NX;
@@ -659,14 +712,22 @@ void VDPCmdEngine::LmmmCmd::execute(const EmuTime &time)
 	bool finished = false;
 
 	switch (engine->scrMode) {
-	case 0: pre_loop pset5(ADX, DY, point5(ASX, SY), LO); post_xxyy(256)
-			break;
-	case 1: pre_loop pset6(ADX, DY, point6(ASX, SY), LO); post_xxyy(512)
-			break;
-	case 2: pre_loop pset7(ADX, DY, point7(ASX, SY), LO); post_xxyy(512)
-			break;
-	case 3: pre_loop pset8(ADX, DY, point8(ASX, SY), LO); post_xxyy(256)
-			break;
+	case 0: pre_loop
+	        pset5(ADX, DY, point5(ASX, SY), LO);
+		post_xxyy(256)
+		break;
+	case 1: pre_loop
+		pset6(ADX, DY, point6(ASX, SY), LO);
+		post_xxyy(512)
+		break;
+	case 2: pre_loop
+		pset7(ADX, DY, point7(ASX, SY), LO);
+		post_xxyy(512)
+		break;
+	case 3: pre_loop
+		pset8(ADX, DY, point8(ASX, SY), LO);
+		post_xxyy(256)
+		break;
 	}
 
 	if (finished) {
@@ -678,12 +739,9 @@ void VDPCmdEngine::LmmmCmd::execute(const EmuTime &time)
 		} else if (SY == -1) {
 			DY += TY;
 		}
-		cmdReg(REG_NYL) = NY & 0xFF;
-		cmdReg(REG_NYH) = (NY >> 8) & 0x03;
-		cmdReg(REG_SYL) = SY & 0xFF;
-		cmdReg(REG_SYH) = (SY >> 8) & 0x03;
-		cmdReg(REG_DYL) = DY & 0xFF;
-		cmdReg(REG_DYH) = (DY >> 8) & 0x03;
+		engine->NY = NY;
+		engine->SY = SY;
+		engine->DY = DY;
 	}
 }
 
@@ -694,16 +752,15 @@ void VDPCmdEngine::LmcmCmd::start(const EmuTime &time)
 {
 	opsCount = 0;
 	currentTime = time;
-	cmdReg(REG_COL) &= MASK[engine->scrMode];
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.disable(currentTime);
-	SX = (cmdReg(REG_SXL) + (cmdReg(REG_SXH) << 8)) & 511;
-	SY = (cmdReg(REG_SYL) + (cmdReg(REG_SYH) << 8)) & 1023;
-	DY = (cmdReg(REG_DYL) + (cmdReg(REG_DYH) << 8)) & 1023;
-	NX = (cmdReg(REG_NXL) + (cmdReg(REG_NXH) << 8)) & 1023;
-	NY = (cmdReg(REG_NYL) + (cmdReg(REG_NYH) << 8)) & 1023;
-	TX = (cmdReg(REG_ARG) & 0x04) ? -1 : 1;
-	TY = (cmdReg(REG_ARG) & 0x08) ? -1 : 1;
+	SX = engine->SX;
+	SY = engine->SY;
+	DY = engine->DY;
+	NX = engine->NX;
+	NY = engine->NY;
+	TX = (engine->ARG & 0x04) ? -1 : 1;
+	TY = (engine->ARG & 0x08) ? -1 : 1;
 	MX = PPL[engine->scrMode];
 	ASX = SX;
 	ANX = NX;
@@ -714,7 +771,7 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
 	if ((engine->status & 0x80) != 0x80) {
-		cmdReg(REG_COL) = point(ASX, SY);
+		engine->COL = point(ASX, SY);
 		opsCount -= getVdpTimingValue(LMMV_TIMING);
 		engine->status |= 0x80;
 
@@ -723,10 +780,8 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 				// Command execution done.
 				commandDone();
 				if (!NY) DY += TY;
-				cmdReg(REG_NYL) = NY & 0xFF;
-				cmdReg(REG_NYH) = (NY >> 8) & 0x03;
-				cmdReg(REG_SYL) = SY & 0xFF;
-				cmdReg(REG_SYH) = (SY >> 8) & 0x03;
+				engine->NY = NY;
+				engine->SY = SY;
 			} else {
 				ASX = SX;
 				ANX = NX;
@@ -742,17 +797,16 @@ void VDPCmdEngine::LmmcCmd::start(const EmuTime &time)
 {
 	opsCount = 0;
 	currentTime = time;
-	cmdReg(REG_COL) &= MASK[engine->scrMode];
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	DX = (cmdReg(REG_DXL) + (cmdReg(REG_DXH) << 8)) & 511;
-	DY = (cmdReg(REG_DYL) + (cmdReg(REG_DYH) << 8)) & 1023;
-	NX = (cmdReg(REG_NXL) + (cmdReg(REG_NXH) << 8)) & 1023;
-	NY = (cmdReg(REG_NYL) + (cmdReg(REG_NYH) << 8)) & 1023;
-	TX = (cmdReg(REG_ARG) & 0x04) ? -1 : 1;
-	TY = (cmdReg(REG_ARG) & 0x08) ? -1 : 1;
+	DX = engine->DX;
+	DY = engine->DY;
+	NX = engine->NX;
+	NY = engine->NY;
+	TX = (engine->ARG & 0x04) ? -1 : 1;
+	TY = (engine->ARG & 0x08) ? -1 : 1;
 	MX = PPL[engine->scrMode];
-	LO = (LogOp)(cmdReg(REG_CMD) & 0x0F);
+	LO = engine->LOG;
 	ADX = DX;
 	ANX = NX;
 }
@@ -762,8 +816,8 @@ void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
 	if ((engine->status & 0x80) != 0x80) {
-		cmdReg(REG_COL) &= MASK[engine->scrMode];
-		pset(ADX, DY, cmdReg(REG_COL), LO);
+		byte col = engine->COL & MASK[engine->scrMode];
+		pset(ADX, DY, col, LO);
 		opsCount -= getVdpTimingValue(LMMV_TIMING);
 		engine->status |= 0x80;
 
@@ -772,10 +826,8 @@ void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
 				// Command execution done.
 				commandDone();
 				if (!NY) DY += TY;
-				cmdReg(REG_NYL) = NY & 0xFF;
-				cmdReg(REG_NYH) = (NY >> 8) & 0x03;
-				cmdReg(REG_DYL) = DY & 0xFF;
-				cmdReg(REG_DYH) = (DY >> 8) & 0x03;
+				engine->NY = NY;
+				engine->DY = DY;
 			} else {
 				ADX = DX;
 				ANX = NX;
@@ -794,13 +846,13 @@ void VDPCmdEngine::HmmvCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	DX = (cmdReg(REG_DXL) + (cmdReg(REG_DXH) << 8)) & 511;
-	DY = (cmdReg(REG_DYL) + (cmdReg(REG_DYH) << 8)) & 1023;
-	NX = ((cmdReg(REG_NXL) + (cmdReg(REG_NXH) << 8)) & 1023) / PPB[engine->scrMode];
-	NY = (cmdReg(REG_NYL) + (cmdReg(REG_NYH) << 8)) & 1023;
-	TX = (cmdReg(REG_ARG) & 0x04) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
-	TY = (cmdReg(REG_ARG) & 0x08) ? -1 : 1;
-	CL = cmdReg(REG_COL);
+	DX = engine->DX;
+	DY = engine->DY;
+	NX = engine->NX / PPB[engine->scrMode];
+	NY = engine->NY;
+	TX = (engine->ARG & 0x04) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
+	TY = (engine->ARG & 0x08) ? -1 : 1;
+	CL = engine->COL;
 	ADX = DX;
 	ANX = NX;
 }
@@ -839,10 +891,8 @@ void VDPCmdEngine::HmmvCmd::execute(const EmuTime &time)
 		// Command execution done.
 		commandDone();
 		if (!NY) DY += TY;
-		cmdReg(REG_NYL) = NY & 0xFF;
-		cmdReg(REG_NYH) = (NY >> 8) & 0x03;
-		cmdReg(REG_DYL) = DY & 0xFF;
-		cmdReg(REG_DYH) = (DY >> 8) & 0x03;
+		engine->NY = NY;
+		engine->DY = DY;
 	}
 }
 
@@ -855,14 +905,14 @@ void VDPCmdEngine::HmmmCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	SX = (cmdReg(REG_SXL) + (cmdReg(REG_SXH) << 8)) & 511;
-	SY = (cmdReg(REG_SYL) + (cmdReg(REG_SYH) << 8)) & 1023;
-	DX = (cmdReg(REG_DXL) + (cmdReg(REG_DXH) << 8)) & 511;
-	DY = (cmdReg(REG_DYL) + (cmdReg(REG_DYH) << 8)) & 1023;
-	NX = ((cmdReg(REG_NXL) + (cmdReg(REG_NXH) << 8)) & 1023) / PPB[engine->scrMode];
-	NY = (cmdReg(REG_NYL) + (cmdReg(REG_NYH) << 8)) & 1023;
-	TX = (cmdReg(REG_ARG) & 0x04) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
-	TY = (cmdReg(REG_ARG) & 0x08) ? -1 : 1;
+	SX = engine->SX;
+	SY = engine->SY;
+	DX = engine->DX;
+	DY = engine->DY;
+	NX = engine->NX / PPB[engine->scrMode];
+	NY = engine->NY;
+	TX = (engine->ARG & 0x04) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
+	TY = (engine->ARG & 0x08) ? -1 : 1;
 	ASX = SX;
 	ADX = DX;
 	ANX = NX;
@@ -919,12 +969,9 @@ void VDPCmdEngine::HmmmCmd::execute(const EmuTime &time)
 		} else if (SY == -1) {
 			DY += TY;
 		}
-		cmdReg(REG_NYL) = NY & 0xFF;
-		cmdReg(REG_NYH) = (NY >> 8) & 0x03;
-		cmdReg(REG_SYL) = SY & 0xFF;
-		cmdReg(REG_SYH) = (SY >> 8) & 0x03;
-		cmdReg(REG_DYL) = DY & 0xFF;
-		cmdReg(REG_DYH) = (DY >> 8) & 0x03;
+		engine->NY = NY;
+		engine->SY = SY;
+		engine->DY = DY;
 	}
 }
 
@@ -937,12 +984,12 @@ void VDPCmdEngine::YmmmCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	SY = (cmdReg(REG_SYL) + (cmdReg(REG_SYH) << 8)) & 1023;
-	DX = (cmdReg(REG_DXL) + (cmdReg(REG_DXH) << 8)) & 511;
-	DY = (cmdReg(REG_DYL) + (cmdReg(REG_DYH) << 8)) & 1023;
-	NY = (cmdReg(REG_NYL) + (cmdReg(REG_NYH) << 8)) & 1023;
-	TX = (cmdReg(REG_ARG) & 0x04) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
-	TY = (cmdReg(REG_ARG) & 0x08) ? -1 : 1;
+	SY = engine->SY;
+	DX = engine->DX;
+	DY = engine->DY;
+	NY = engine->NY;
+	TX = (engine->ARG & 0x04) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
+	TY = (engine->ARG & 0x08) ? -1 : 1;
 	ADX = DX;
 }
 
@@ -997,12 +1044,9 @@ void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
 		} else if (SY == -1) {
 			DY += TY;
 		}
-		cmdReg(REG_NYL) = NY & 0xFF;
-		cmdReg(REG_NYH) = (NY >> 8) & 0x03;
-		cmdReg(REG_SYL) = SY & 0xFF;
-		cmdReg(REG_SYH) = (SY >> 8) & 0x03;
-		cmdReg(REG_DYL) = DY & 0xFF;
-		cmdReg(REG_DYH) = (DY >> 8) & 0x03;
+		engine->NY = NY;
+		engine->SY = SY;
+		engine->DY = DY;
 	}
 }
 
@@ -1015,12 +1059,12 @@ void VDPCmdEngine::HmmcCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	DX = (cmdReg(REG_DXL) + (cmdReg(REG_DXH) << 8)) & 511;
-	DY = (cmdReg(REG_DYL) + (cmdReg(REG_DYH) << 8)) & 1023;
-	NX = ((cmdReg(REG_NXL) + (cmdReg(REG_NXH) << 8)) & 1023) / PPB[engine->scrMode];
-	NY = (cmdReg(REG_NYL) + (cmdReg(REG_NYH) << 8)) & 1023;
-	TX = (cmdReg(REG_ARG) & 0x04) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
-	TY = (cmdReg(REG_ARG) & 0x08) ? -1 : 1;
+	DX = engine->DX;
+	DY = engine->DY;
+	NX = engine->NX / PPB[engine->scrMode];
+	NY = engine->NY;
+	TX = (engine->ARG & 0x04) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
+	TY = (engine->ARG & 0x08) ? -1 : 1;
 	MX = PPL[engine->scrMode];
 	ADX = DX;
 	ANX = NX;
@@ -1031,8 +1075,7 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
 	if ((engine->status & 0x80) != 0x80) {
-		vram->cmdWrite(vramAddr(ADX, DY),
-			cmdReg(REG_COL), currentTime);
+		vram->cmdWrite(vramAddr(ADX, DY), engine->COL, currentTime);
 		opsCount -= getVdpTimingValue(HMMV_TIMING);
 		engine->status |= 0x80;
 
@@ -1041,10 +1084,8 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 				// Command execution done.
 				commandDone();
 				if (!NY) DY += TY;
-				cmdReg(REG_NYL) = NY & 0xFF;
-				cmdReg(REG_NYH) = (NY >> 8) & 0x03;
-				cmdReg(REG_DYL) = DY & 0xFF;
-				cmdReg(REG_DYH) = (DY >> 8) & 0x03;
+				engine->NY = NY;
+				engine->DY = DY;
 			} else {
 				ADX = DX;
 				ANX = NX;
