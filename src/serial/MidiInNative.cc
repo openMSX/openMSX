@@ -87,7 +87,7 @@ void MidiInNative::procLongMsg(LPMIDIHDR p)
 		for (unsigned i = 0; i < p->dwBytesRecorded; ++i) {
 			queue.push_back(p->lpData[i]);
 		}
-		Scheduler::instance().setSyncPoint(Scheduler::ASAP, this);
+		Scheduler::instance().setAsyncPoint(this);
 		lock.up();
 	}
 }
@@ -108,7 +108,7 @@ void MidiInNative::procShortMsg(DWORD param)
 		queue.push_back(param & 0xFF);
 		param >>= 8;
 	}
-	Scheduler::instance().setSyncPoint(Scheduler::ASAP, this);
+	Scheduler::instance().setAsyncPoint(this);
 	lock.up();
 }
 

@@ -66,6 +66,12 @@ public:
 	                  int userData = 0);
 
 	/**
+	 * Like setSyncPoint, but safe to call from another thread.
+	 * Always schedules ASAP.
+	 */
+	void setAsyncPoint(Schedulable* device, int userData = 0);
+
+	/**
 	 * Removes a syncPoint of a given device that matches the given
 	 * userData.
 	 * If there is more than one match only one will be removed,
@@ -78,7 +84,7 @@ public:
 	void removeSyncPoint(Schedulable* device, int userdata = 0);
 
 	/**
-	 * Get the current schedueler time. 
+	 * Get the current scheduler time.
 	 */
 	const EmuTime& getCurrentTime() const;
 	

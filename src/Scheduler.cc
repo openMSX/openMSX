@@ -63,22 +63,43 @@ Scheduler& Scheduler::instance()
 
 void Scheduler::setSyncPoint(const EmuTime &timeStamp, Schedulable *device, int userData)
 {
-	assert((timeStamp == ASAP) || (scheduleTime <= timeStamp));
 	if (device) {
 		//PRT_DEBUG("Sched: registering " << device->schedName() <<
 		//          " " << userData << " for emulation at " << timeStamp);
 	}
 
 	sem.down();
+	EmuTime time = timeStamp == ASAP ? scheduleTime : timeStamp;
+	assert(scheduleTime <= time);
+
 	// Push sync point into queue.
 	syncPoints.push_back(SynchronizationPoint(timeStamp, device, userData));
 	push_heap(syncPoints.begin(), syncPoints.end());
 	// Tell CPU emulation to return early if necessary.
 	// TODO: Emulation may run in parallel in a seperate thread.
 	//       What we're doing here is not thread safe.
-	if (timeStamp < cpu.getTargetTime()) {
-		cpu.setTargetTime(timeStamp);
+	if (time < cpu.getTargetTime()) {
+		cpu.setTargetTime(time);
 	}
+	sem.up();
+
+	if (pauseCounter > 0) {
+		eventDistributor.notify();
+	}
+}
+
+void Scheduler::setAsyncPoint(Schedulable* device, int userData)
+{
+	assert(device);
+	//PRT_DEBUG("Sched: registering " << device->schedName() <<
+	//          " " << userData << " async for emulation ASAP");
+
+	sem.down();
+
+	// Push sync point into queue.
+	syncPoints.push_back(SynchronizationPoint(ASAP, device, userData));
+	push_heap(syncPoints.begin(), syncPoints.end());
+
 	sem.up();
 
 	if (pauseCounter > 0) {
@@ -132,7 +153,7 @@ void Scheduler::schedule(const EmuTime& from, const EmuTime& limit)
 				pauseCounter = 0; // unpause, we have to quit
 			}
 		}
-		
+
 		// Get next sync point.
 		sem.down();
 		const SynchronizationPoint sp =

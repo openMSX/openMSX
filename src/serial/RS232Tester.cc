@@ -89,7 +89,7 @@ void RS232Tester::run() throw()
 		assert(connector);
 		lock.down();
 		queue.push_back(buf);
-		Scheduler::instance().setSyncPoint(Scheduler::ASAP, this);
+		Scheduler::instance().setAsyncPoint(this);
 		lock.up();
 	}
 }

@@ -1,5 +1,10 @@
 $Id$
 
+2004-01-15 Maarten ter Huurne <maarten@treewalker.org>
+	* Added Scheduler::setAsyncPoint, which works like setSyncPoint,
+	  but is safe to call from other threads.
+	  Fixes asserts with "-control" and MIDI in.
+
 2004-01-11 Maarten ter Huurne <maarten@treewalker.org>
 	* Added "dist" target to alternative.mk. Now it is possible to make
 	  a release tarball in the alternative build system.
