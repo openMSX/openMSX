@@ -7,6 +7,7 @@
 #include <string>
 #include "Console.hh"
 #include "CircularBuffer.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 
@@ -43,7 +44,7 @@ private:
 	void clearCommand();
 	void backspace();
 	void delete_key();
-	void normalKey(char chr);
+	void normalKey(word chr);
 	void putCommandHistory(const std::string &command);
 	void newLineConsole(const std::string &line);
 	void putPrompt();

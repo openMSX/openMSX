@@ -118,7 +118,7 @@ void CommandConsole::getCursorPosition(unsigned& xPosition, unsigned& yPosition)
 {
 	xPosition = cursorLocationX;
 	yPosition = cursorLocationY;
-} 
+}
 
 unsigned CommandConsole::getScrollBack() const
 {
@@ -138,10 +138,10 @@ void CommandConsole::setConsoleDimensions(unsigned columns, unsigned rows)
 		return;
 	}
 	consoleColumns = columns;
-	
+
 	CircularBuffer<string, LINESHISTORY> linesbackup;
 	CircularBuffer<bool, LINESHISTORY> flowbackup;
-	
+
 	while (lines.size() > 0) {
 		linesbackup.addBack(lines[0]);
 		flowbackup.addBack(lineOverflows[0]);
@@ -159,13 +159,15 @@ void CommandConsole::setConsoleDimensions(unsigned columns, unsigned rows)
 bool CommandConsole::signalEvent(const Event& event)
 {
 	Display::INSTANCE->repaintDelayed(40000); // 25fps
-	
+
 	if (event.getType() == KEY_UP_EVENT) {
 		return false;	// don't pass event to MSX-Keyboard
 	}
 
-	Keys::KeyCode key = static_cast<const KeyEvent&>(event).getKeyCode();
-	switch (key) {
+	const KeyEvent& keyEvent = dynamic_cast<const KeyEvent&>(event);
+	assert(&keyEvent);
+	Keys::KeyCode keyCode = keyEvent.getKeyCode();
+	switch (keyCode) {
 		case (Keys::K_PAGEUP | Keys::KM_SHIFT):
 			scroll(max(static_cast<int>(getRows()) - 1, 1));
 			break;
@@ -225,7 +227,7 @@ bool CommandConsole::signalEvent(const Event& event)
 			combineLines(lines, lineOverflows);
 			cursorPosition = prompt.length();
 			splitLines();
-			break;	
+			break;
 		case Keys::K_C | Keys::KM_CTRL:
 			clearCommand();
 			break;
@@ -235,7 +237,9 @@ bool CommandConsole::signalEvent(const Event& event)
 			splitLines();
 			break;
 		default:
-			normalKey((char)static_cast<const KeyEvent&>(event).getUnicode());
+			if (!(keyCode & ~Keys::K_MASK)) { // no modifiers?
+				normalKey(keyEvent.getUnicode());
+			}
 	}
 	return false;	// don't pass event to MSX-Keyboard
 }
@@ -247,10 +251,10 @@ void CommandConsole::combineLines(CircularBuffer<string, LINESHISTORY> &buffer,
 	int startline;
 	int totallines = 0;
 	editLine = "";
-	
+
 	if (fromTop) {
 		startline = buffer.size() - 1;
-		while (((startline - totallines) > 0) && 
+		while (((startline - totallines) > 0) &&
 		       (overflows[startline - totallines])) {
 			totallines++;
 		}
@@ -264,7 +268,7 @@ void CommandConsole::combineLines(CircularBuffer<string, LINESHISTORY> &buffer,
 		}
 	} else {
 		startline = 0;
-		while (((startline + totallines + 1) < (int)buffer.size()) && 
+		while (((startline + totallines + 1) < (int)buffer.size()) &&
 		       (overflows[startline + totallines + 1])) {
 			totallines++;
 		}
@@ -276,7 +280,7 @@ void CommandConsole::combineLines(CircularBuffer<string, LINESHISTORY> &buffer,
 			overflows.removeFront();
 		}
 	}
-	
+
 	int temp = totallines - cursorLocationY;
 	cursorPosition = (consoleColumns * temp) + cursorLocationX;
 }
@@ -306,7 +310,7 @@ void CommandConsole::print(const string& text)
 		if ((end - start) > (consoleColumns - 1)) {
 			end = start + consoleColumns;
 			newLineConsole(text.substr(start, end - start));
-			lineOverflows[0] = true; 
+			lineOverflows[0] = true;
 		} else {
 			newLineConsole(text.substr(start, end - start));
 			lineOverflows[0] = false;
@@ -319,7 +323,7 @@ void CommandConsole::newLineConsole(const string& line)
 {
 	if (lines.isFull()) {
 		lines.removeBack();
-		lineOverflows.removeBack();	
+		lineOverflows.removeBack();
 	}
 	lines.addFront(line);
 	lineOverflows.addFront(false);
@@ -486,11 +490,10 @@ void CommandConsole::delete_key()
 	splitLines();
 }
 
-void CommandConsole::normalKey(char chr)
+void CommandConsole::normalKey(word chr)
 {
-	if (!chr) {
-		return;
-	}
+	if (!chr) return;
+	if (chr >= 0x100) return; // TODO: Support Unicode (how?).
 	resetScrollBack();
 	combineLines(lines, lineOverflows);
 	string temp;
