@@ -206,11 +206,14 @@ int MSXGameCartridge::guessMapperType()
 byte MSXGameCartridge::readMem(word address, const EmuTime &time)
 {
 	//TODO optimize this!!!
-	if ((mapperType == 2) && enabledSCC) {
-		// TODO: Not entire area is overlayed by SCC.
-		if ((address-0x5000)>>13 == 2) {
-			return cartridgeSCC->readMemInterface(address & 0xFF, time);
-		}
+	// One way to optimise would be to register an SCC supporting
+	// device only if mapperType is 2 and only in 8000..BFFF.
+	// That way, there is no SCC overhead in non-SCC pages.
+	// If MSXMotherBoard would support hot-plugging of devices,
+	// it would be possible to insert an SCC supporting device
+	// only when the SCC is enabled.
+	if (enabledSCC && 0x9800 <= address && address < 0xA000) {
+		return cartridgeSCC->readMemInterface(address & 0xFF, time);
 	}
 	return internalMemoryBank[address>>13][address&0x1fff];
 }
@@ -230,7 +233,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		// Unlike fMSX, our generic 8kB mapper does not have an SCC.
 		// After all, such hardware does not exist in reality.
 		// If you want an SCC, use the Konami5 mapper type.
-		
+
 		if (address<0x4000 || address>=0xC000) return;
 		// change internal mapper
 		value &= mapperMask;
@@ -345,6 +348,9 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 
 void MSXGameCartridge::setBank(int region, byte* value)
 {
+	// Do not cache if SCC is in this region.
+	if (enabledSCC && region == 4) value = NULL;
+
 	internalMemoryBank[region] = value;
 	MSXCPU::instance()->invalidateCache(region*0x2000, 0x2000/CPU::CACHE_LINE_SIZE);
 }
