@@ -11,7 +11,6 @@
 
 class Mixer
 {
-	// TODO remove static declarations
 	public:
 		static const int MAX_VOLUME = 32767;
 		enum ChannelMode { MONO, MONO_LEFT, MONO_RIGHT, STEREO };
@@ -20,28 +19,46 @@ class Mixer
 		~Mixer();
 		static Mixer *instance();
 		
-		void registerSound(SoundDevice *device, ChannelMode mode=MONO);
+		/**
+		 * Use this method to register a given sounddevice.
+		 *
+		 * While registering, the device its setSampleRate() method is
+		 * called (see SoundDevice for more info).
+		 * After registration the device its updateBuffer() method is
+		 * 'regularly' called. It asks the device to fill a buffer with
+		 * a certain number of samples. (see SoundDevice for more info)
+		 * The maximum number of samples asked for is returned by this
+		 * method.
+		 */
+		int registerSound(SoundDevice *device, ChannelMode mode=MONO);
+		
 		//void unregisterSound(SoundDevice *device);
+		
+		/**
+		 * Use this method to force an 'early' call to all
+		 * updateBuffer() methods. 
+		 */
 		void updateStream(const Emutime &time);
 		
 	private:
 		Mixer();
 		void reInit();
 		void updtStrm(int samples);
+		static void audioCallbackHelper(void *userdata, Uint8 *stream, int len);
+		void audioCallback(short* stream);
 		
 		static Mixer *oneInstance;
 
-		static void audioCallback(void *userdata, Uint8 *stream, int len);
-
-		static SDL_AudioSpec audioSpec;
-		static int nbAllDevices;
-		static int nbDevices[NB_MODES];
-		static std::vector<SoundDevice*> devices[NB_MODES];
-		static std::vector<short*> buffers[NB_MODES];
-
-		static int samplesLeft;
-		static int offset;
-		static Emutime prevTime;
+		SDL_AudioSpec audioSpec;
+		int nbAllDevices;
+		int nbDevices[NB_MODES];
+		std::vector<SoundDevice*> devices[NB_MODES];
+		std::vector<short*> buffers[NB_MODES];
+		
+		short* mixBuffer;
+		int samplesLeft;
+		int offset;
+		Emutime prevTime;
 };
 
 #endif //__MIXER_HH__

@@ -30,13 +30,13 @@ class SoundDevice
 
 		/**
 		 * This method is regularly called from the Mixer, it should
-		 * just fill the given buffer with the required number of
-		 * samples. Samples are always 16-bit signed
+		 * return a pointer to a buffer filled with the required number
+		 * of samples. Samples are always 16-bit signed
 		 *
 		 * Note: this method runs in a different thread, you can
 		 *       (un)lock this thread with SDL_LockAudio() and
 		 *       SDL_UnlockAudio()
 		 */
-		virtual void updateBuffer (short *buffer, int length) = 0;
+		virtual short* updateBuffer (int length) = 0;
 };
 #endif

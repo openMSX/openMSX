@@ -31,7 +31,8 @@ void AY8910::init()
 {
 	setVolume(Mixer::MAX_VOLUME);
 	reset();
-	Mixer::instance()->registerSound(this);
+	int bufSize = Mixer::instance()->registerSound(this);
+	buffer = new short[bufSize];	// TODO fix race
 }
 
 
@@ -235,7 +236,7 @@ void AY8910::setSampleRate (int sampleRate)
 }
 
 
-void AY8910::updateBuffer(short *buffer, int length)
+short* AY8910::updateBuffer(int length)
 {
 	// The 8910 has three outputs, each output is the mix of one of the three
 	// tone generators and of the (single) noise generator. The two are mixed
@@ -249,6 +250,7 @@ void AY8910::updateBuffer(short *buffer, int length)
 	// Setting the output to 1 is necessary because a disabled channel is locked
 	// into the ON state (see above); and it has no effect if the volume is 0.
 	// If the volume is 0, increase the counter, but don't touch the output.
+
 	if (regs[AY_ENABLE] & 0x01) {	// disabled
 		if (countA <= length*FP_UNIT) countA += length*FP_UNIT;
 		outputA = 1;
@@ -278,6 +280,7 @@ void AY8910::updateBuffer(short *buffer, int length)
 	int outn = (outputN | regs[AY_ENABLE]);
 
 	// buffering loop
+	short* buf = buffer;
 	while (length) {
 		// semiVolA, semiVolB and semiVolC keep track of how long each
 		// square wave stays in the 1 position during the sample period.
@@ -429,7 +432,8 @@ void AY8910::updateBuffer(short *buffer, int length)
 		int chA = (semiVolA * volA) / FP_UNIT;
 		int chB = (semiVolB * volB) / FP_UNIT;
 		int chC = (semiVolC * volC) / FP_UNIT;
-		*(buffer++) = chA + chB + chC;
+		*(buf++) = chA + chB + chC;
 		length--;
 	}
+	return buffer;
 }
