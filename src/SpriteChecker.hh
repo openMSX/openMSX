@@ -80,7 +80,7 @@ public:
 	  */
 	inline void updateDisplayMode(int mode, const EmuTime &time) {
 		sync(time);
-		if (mode < 8) {
+		if ((mode & 0x1F) < 8) {
 			updateSpritesMethod = &SpriteChecker::updateSprites1;
 		} else {
 			updateSpritesMethod = &SpriteChecker::updateSprites2;

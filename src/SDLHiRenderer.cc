@@ -222,7 +222,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	VDP *vdp, SDL_Surface *screen, bool fullScreen, const EmuTime &time)
 	: PixelRenderer(vdp, fullScreen, time)
 	, characterConverter(vdp, palFg, palBg)
-	, bitmapConverter(palFg, PALETTE256)
+	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 {
 	console = new SDLConsole(screen);
 
@@ -286,6 +286,19 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 						(int)(pow((float)g / 7.0, gamma) * 255),
 						(int)(pow((float)b / 7.0, gamma) * 255)
 						);
+				}
+			}
+		}
+		for (int r = 0; r < 32; r++) {
+			for (int g = 0; g < 32; g++) {
+				for (int b = 0; b < 32; b++) {
+					const float gamma = 2.2 / 2.8;
+					V9958_COLOURS[(r<<10) + (g<<5) + b] = SDL_MapRGB(
+						screen->format,
+						(int)(pow((float)r / 31.0, gamma) * 255),
+						(int)(pow((float)g / 31.0, gamma) * 255),
+						(int)(pow((float)b / 31.0, gamma) * 255)
+					);
 				}
 			}
 		}
@@ -471,7 +484,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayMode(
 	int mode, const EmuTime &time)
 {
 	sync(time);
-	dirtyChecker = modeToDirtyChecker[mode];
+	dirtyChecker = modeToDirtyChecker[mode & 0x1F];
 	if (vdp->isBitmapMode(mode)) {
 		bitmapConverter.setDisplayMode(mode);
 	} else {

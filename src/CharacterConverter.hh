@@ -130,8 +130,8 @@ public:
 	  */
 	inline void setDisplayMode(int mode)
 	{
-		assert(mode < 0x0C);
-		renderMethod = modeToRenderMethod[mode];
+		assert((mode & 0x1F) < 0x0C);
+		renderMethod = modeToRenderMethod[mode & 0x1F];
 	}
 
 	void setBlendMask(int blendMask);

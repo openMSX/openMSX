@@ -11,8 +11,6 @@ TODO:
   Since it is not accessed by the renderer, it is possible allocate
   it here.
   But maybe it makes more sense to have all RAM managed by the VDP?
-- Command engine should be updated by VDP if sprite enable or display
-  enable changes, because those affect the execution speed.
 */
 
 #include "VDPCmdEngine.hh"
@@ -959,7 +957,7 @@ void VDPCmdEngine::reset(const EmuTime &time)
 void VDPCmdEngine::updateDisplayMode(int mode, const EmuTime &time)
 {
 	sync(time);
-	switch (mode) {
+	switch (mode & 0x1F) {
 	case 0x0C: // SCREEN5
 		scrMode = 0;
 		break;

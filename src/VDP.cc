@@ -252,6 +252,9 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		break;
 	case HOR_ADJUST: {
 		int newHorAdjust = (controlRegs[18] & 0x0F) ^ 0x07;
+		if (controlRegs[25] & 0x08) {
+			newHorAdjust += 4;
+		}
 		renderer->updateHorizontalAdjust(newHorAdjust, time);
 		horizontalAdjust = newHorAdjust;
 		break;
@@ -662,7 +665,8 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 	switch (reg) {
 	case 0:
 		if (change & 0x0E) {
-			updateDisplayMode(val, controlRegs[1], time);
+			updateDisplayMode(val, controlRegs[1], controlRegs[25],
+			                  time);
 		}
 		break;
 	case 1:
@@ -672,7 +676,8 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		}
 		// TODO: Reset vertical IRQ if IE0 is reset?
 		if (change & 0x18) {
-			updateDisplayMode(controlRegs[0], val, time);
+			updateDisplayMode(controlRegs[0], val, controlRegs[25],
+			                  time);
 		}
 		if (change & 0x40) {
 			bool newDisplayEnabled = isDisplayArea && (val & 0x40);
@@ -749,15 +754,21 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		break;
 	case 18:
 		if (change & 0x0F) {
-			int line = getTicksThisFrame(time) / TICKS_PER_LINE;
-			int ticks = (line + 1) * TICKS_PER_LINE;
-			EmuTime nextTime = frameStartTime + ticks;
-			Scheduler::instance()->setSyncPoint(nextTime, this, HOR_ADJUST);
+			setHorAdjust(time);
 		}
 		break;
 	case 23:
 		spriteChecker->updateVerticalScroll(val, time);
 		renderer->updateVerticalScroll(val, time);
+		break;
+	case 25:
+		if (change & 0x18) {
+			updateDisplayMode(controlRegs[0], controlRegs[1], val,
+			                  time);
+		}
+		if (change & 0x08) {
+			setHorAdjust(time);
+		}
 		break;
 	}
 
@@ -818,6 +829,14 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 	}
 }
 
+void VDP::setHorAdjust(const EmuTime &time)
+{
+	int line = getTicksThisFrame(time) / TICKS_PER_LINE;
+	int ticks = (line + 1) * TICKS_PER_LINE;
+	EmuTime nextTime = frameStartTime + ticks;
+	Scheduler::instance()->setSyncPoint(nextTime, this, HOR_ADJUST);
+}
+
 void VDP::updateSpriteAttributeBase(const EmuTime &time)
 {
 	int base = ((controlRegs[11] << 15) | (controlRegs[5] << 7)
@@ -836,12 +855,14 @@ void VDP::updateSpritePatternBase(const EmuTime &time)
 	vram->spritePatternTable.setMask(base, 11);
 }
 
-void VDP::updateDisplayMode(byte reg0, byte reg1, const EmuTime &time)
+void VDP::updateDisplayMode(byte reg0, byte reg1, byte reg25,
+                            const EmuTime &time)
 {
 	int newMode =
-		  ((reg0 & 0x0E) << 1)  // M5..M3
-		| ((reg1 & 0x08) >> 2)  // M2
-		| ((reg1 & 0x10) >> 4); // M1
+		  ((reg0  & 0x0E) << 1)  // M5..M3
+		| ((reg1  & 0x08) >> 2)  // M2
+		| ((reg1  & 0x10) >> 4)  // M1
+		| ((reg25 & 0x18) << 2); // YAE YJK
 	if (newMode != displayMode) {
 		//PRT_DEBUG("VDP: mode " << newMode);
 		vram->updateDisplayMode(newMode, time);

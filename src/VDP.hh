@@ -482,6 +482,8 @@ private:
 	  */
 	void changeRegister(byte reg, byte val, const EmuTime &time);
 
+	void setHorAdjust(const EmuTime &time);
+	
 	/** Sprite attribute base mask has changed.
 	  * Inform the SpriteChecker and the VRAM.
 	  */
@@ -495,7 +497,8 @@ private:
 	/** Display mode may have changed.
 	  * If it has, update displayMode's value and inform the Renderer.
 	  */
-	void updateDisplayMode(byte reg0, byte reg1, const EmuTime &time);
+	void updateDisplayMode(byte reg0, byte reg1, byte reg25,
+	                       const EmuTime &time);
 
 	/** Renderer that converts this VDP's state into an image.
 	  */

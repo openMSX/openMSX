@@ -24,7 +24,8 @@ public:
 	  *   are immediately picked up by convertLine.
 	  *   Used for display mode Graphic7.
 	  */
-	BitmapConverter(const Pixel *palette16, const Pixel *palette256);
+	BitmapConverter(const Pixel *palette16, const Pixel *palette256,
+	                const Pixel *palette32768);
 
 	/** Convert a line of V9938 VRAM to 512 host pixels.
 	  * Call this method in non-planar display modes (Graphic4 and Graphic5).
@@ -55,7 +56,7 @@ public:
 	  */
 	inline void setDisplayMode(int mode)
 	{
-		switch (mode) {
+		switch (mode & 0x3F) {
 		case 0x0C:
 			renderMethod = &BitmapConverter::renderGraphic4;
 			break;
@@ -67,6 +68,14 @@ public:
 			break;
 		case 0x1C:
 			renderMethod = &BitmapConverter::renderGraphic7;
+			break;
+		case 0x34:
+		case 0x3C:
+			if (mode & 0x40) {
+				renderMethod = &BitmapConverter::renderYAE;
+			} else {
+				renderMethod = &BitmapConverter::renderYJK;
+			}
 			break;
 		default:
 			renderMethod = &BitmapConverter::renderBogus;
@@ -90,6 +99,10 @@ private:
 		Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1);
 	void renderGraphic7(
 		Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1);
+	void renderYJK(
+		Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1);
+	void renderYAE(
+		Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1);
 	void renderBogus(
 		Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1);
 
@@ -99,6 +112,7 @@ private:
 
 	const Pixel *palette16;
 	const Pixel *palette256;
+	const Pixel *palette32768;
 
 	int blendMask;
 };

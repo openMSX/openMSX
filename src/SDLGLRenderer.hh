@@ -185,6 +185,10 @@ private:
 	  * Used by BitmapConverter.
 	  */
 	Pixel PALETTE256[256];
+	
+	/** SDL colours corresponding to each possible V9958 colour.
+	  */
+	Pixel V9958_COLOURS[32768];
 
 	/** Dirty checker: update dirty tables on VRAM write.
 	  */
