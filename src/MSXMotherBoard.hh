@@ -27,12 +27,19 @@ class MSXMotherBoard : public CPUInterface
 		static MSXMotherBoard *instance();
 	 
 		/**
-		 * Devices can register their IO ports. 
+		 * Devices can register their In ports. 
 		 * This should be done during in their init() method.
-		 * Once device are registered, their readIO() / writeIO() methods
+		 * Once device are registered, their readIO() method
 		 * can get called.
 		 */
 		void register_IO_In(byte port,MSXDevice *device);
+		
+		/**
+		 * Devices can register their Out ports. 
+		 * This should be done during in their init() method.
+		 * Once device are registered, their writeIO() method
+		 * can get called.
+		 */
 		void register_IO_Out(byte port,MSXDevice *device);
 
 		/**
@@ -88,25 +95,63 @@ class MSXMotherBoard : public CPUInterface
 		 */
 		void DestroyMSX();
 
+
 		/**
 		 * TODO
 		 */
 		void RestoreMSX();	// TODO unimplemented!!
+		/**
+		 * TODO
+		 */
 		void SaveStateMSX(std::ofstream &savestream);
 
 
 		// CPUInterface //
-		// This will be used by CPU to read data from "visual" devices
-		byte readMem(word address, EmuTime &time);
-		void writeMem(word address, byte value, EmuTime &time);
-		byte readIO(word port, EmuTime &time);
-		void writeIO(word port, byte value, EmuTime &time);
-		bool IRQStatus();
 		
-		void raiseIRQ();
-		void lowerIRQ();
+		/**
+		 * This reads a byte from the currently selected device
+		 */
+		byte readMem(word address, EmuTime &time);
 
 		/**
+		 * This writes a byte to the currently selected device
+		 */
+		void writeMem(word address, byte value, EmuTime &time);
+
+		/**
+		 * This read a byte from the given IO-port
+		 */
+		byte readIO(word port, EmuTime &time);
+
+		/**
+		 * This writes a byte to the given IO-port
+		 */
+		void writeIO(word port, byte value, EmuTime &time);
+
+		/**
+		 * This returns the current IRQ status
+		 *    true ->    IRQ pending
+		 *   false -> no IRQ pending
+		 */
+		bool IRQStatus();
+		
+		/**
+		 * This method must we called _exactly_once_ by each device that
+		 * wishes to raise an IRQ. The MSXDevice class offers helper methods
+		 * to ensure this.
+		 */
+		void raiseIRQ();
+
+		/**
+		 * If a device wishes to lower the IRQ, it must call this method.
+		 * This method may only be called (once) if the device had previously
+		 * called raiseIRQ(). The MSXDevice class offers helper methods to
+		 * ensure this.
+		 */
+		void lowerIRQ();
+
+
+		/*
 		 * Should only be used by PPI
 		 *  TODO make friend
 		 */

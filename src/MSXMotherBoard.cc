@@ -205,28 +205,20 @@ void MSXMotherBoard::writeIO(word prt, byte value, EmuTime &time)
 	IO_Out[port]->writeIO((byte)port, value, time);
 }
 
+
 bool MSXMotherBoard::IRQStatus()
 {
 	return (bool)IRQLine;
 }
 
-
 void MSXMotherBoard::raiseIRQ()
 {
 	IRQLine++;
-	//if (IRQLine == 1) {
-	//	// low -> high
-	//	MSXCPU::instance()->IRQ(true);
-	//}
 }
 
 void MSXMotherBoard::lowerIRQ()
 {
 	assert (IRQLine != 0);
 	IRQLine--;
-	//if (IRQLine == 0) {
-	//	// high -> low
-	//	MSXCPU::instance()->IRQ(false);
-	//}
 }
 
