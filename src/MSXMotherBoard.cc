@@ -23,10 +23,32 @@ MSXMotherBoard::MSXMotherBoard()
 {
 	CommandController::instance().registerCommand(&resetCmd, "reset");
 	powerSetting.addListener(this);
+	
+	// Initialise devices.
+	MSXConfig& config = MSXConfig::instance();
+	config.initDeviceIterator();
+	Device* d;
+	while ((d = config.getNextDevice()) != 0) {
+		PRT_DEBUG("Instantiating: " << d->getType());
+		MSXDevice* device = DeviceFactory::create(d, EmuTime::zero);
+		if (device) {
+			addDevice(device);
+		}
+	}
+	// Register all postponed slots.
+	MSXCPUInterface::instance().registerPostSlots();
 }
 
 MSXMotherBoard::~MSXMotherBoard()
 {
+	// Destroy emulated MSX machine.
+	for (list<MSXDevice*>::iterator it = availableDevices.begin();
+	     it != availableDevices.end(); ++it) {
+		MSXDevice* device = *it;
+		delete device;
+	}
+	availableDevices.clear();
+
 	powerSetting.removeListener(this);
 	CommandController::instance().unregisterCommand(&resetCmd, "reset");
 }
@@ -66,20 +88,6 @@ void MSXMotherBoard::reInitMSX()
 
 void MSXMotherBoard::run(bool powerOn)
 {
-	// Initialise devices.
-	MSXConfig& config = MSXConfig::instance();
-	config.initDeviceIterator();
-	Device* d;
-	while ((d = config.getNextDevice()) != 0) {
-		PRT_DEBUG("Instantiating: " << d->getType());
-		MSXDevice* device = DeviceFactory::create(d, EmuTime::zero);
-		if (device) {
-			addDevice(device);
-		}
-	}
-	// Register all postponed slots.
-	MSXCPUInterface::instance().registerPostSlots();
-
 	// First execute auto commands.
 	CommandController::instance().autoCommands();
 
@@ -96,14 +104,6 @@ void MSXMotherBoard::run(bool powerOn)
 	}
 	Scheduler::instance().schedule(EmuTime::infinity);
 	Scheduler::instance().powerOff();
-
-	// Destroy emulated MSX machine.
-	for (list<MSXDevice*>::iterator it = availableDevices.begin();
-	     it != availableDevices.end(); ++it) {
-		MSXDevice* device = *it;
-		delete device;
-	}
-	availableDevices.clear();
 }
 
 void MSXMotherBoard::update(const SettingLeafNode* setting) throw()
