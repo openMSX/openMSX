@@ -20,13 +20,11 @@ Device::Device(XML::Element *element)
 	{
 		if ((*i)->name=="slotted")
 		{
-			std::cout << "BLA BLA" << element->name << std::endl;
 			int PS=-1;
 			int SS=-1;
 			int Page=-1;
 			for (std::list<XML::Element*>::iterator j = (*i)->children.begin(); j != (*i)->children.end(); j++)
 			{
-				std::cout << (*j)->name << std::endl;
 				if ((*j)->name=="ps") PS = MSXConfig::Config::Parameter::stringToInt((*j)->pcdata);
 				if ((*j)->name=="ss") SS = MSXConfig::Config::Parameter::stringToInt((*j)->pcdata);
 				if ((*j)->name=="page") Page = MSXConfig::Config::Parameter::stringToInt((*j)->pcdata);
