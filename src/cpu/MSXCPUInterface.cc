@@ -88,13 +88,19 @@ MSXCPUInterface::~MSXCPUInterface()
 	commandController.unregisterCommand(&slotMapCmd,    "slotmap");
 	commandController.unregisterCommand(&slotSelectCmd, "slotselect");
 
-	for (set<byte>::const_iterator it = multiIn.begin();
-	     it != multiIn.end(); ++it) {
-		delete IO_In[*it];
+	assert(multiIn.empty());
+	assert(multiOut.empty());
+	for (int port = 0; port < 256; ++port) {
+		assert(IO_In [port] == &dummyDevice);
+		assert(IO_Out[port] == &dummyDevice);
 	}
-	for (set<byte>::const_iterator it = multiOut.begin();
-	     it != multiOut.end(); ++it) {
-		delete IO_Out[*it];
+	for (int primSlot = 0; primSlot < 4; ++primSlot) {
+		// TODO assert(!isSubSlotted[primSlot]);
+		for (int secSlot = 0; secSlot < 4; ++secSlot) {
+			for (int page = 0; page < 4; ++page) {
+				assert(slotLayout[primSlot][secSlot][page] == &dummyDevice);
+			}
+		}
 	}
 }
 
@@ -131,6 +137,25 @@ void MSXCPUInterface::register_IO_In(byte port, MSXIODevice* device)
 	}
 }
 
+void MSXCPUInterface::unregister_IO_In(byte port, MSXIODevice* device)
+{
+	if (multiIn.find(port) == multiIn.end()) {
+		assert(IO_In[port] == device);
+		IO_In[port] = &dummyDevice;
+	} else {
+		assert(dynamic_cast<MSXMultiIODevice*>(IO_In[port]));
+		MSXMultiIODevice* multi =
+			static_cast<MSXMultiIODevice*>(IO_In[port]);
+		multi->removeDevice(device);
+		MSXMultiIODevice::Devices& devices = multi->getDevices();
+		if (devices.size() == 1) {
+			IO_In[port] = devices.front();
+			delete multi;
+			multiIn.erase(port);
+		}
+	}
+}
+
 void MSXCPUInterface::register_IO_Out(byte port, MSXIODevice* device)
 {
 	PRT_DEBUG(device->getName() << " registers Out-port " <<
@@ -153,6 +178,26 @@ void MSXCPUInterface::register_IO_Out(byte port, MSXIODevice* device)
 		}
 	}
 }
+
+void MSXCPUInterface::unregister_IO_Out(byte port, MSXIODevice* device)
+{
+	if (multiOut.find(port) == multiOut.end()) {
+		assert(IO_Out[port] == device);
+		IO_Out[port] = &dummyDevice;
+	} else {
+		assert(dynamic_cast<MSXMultiIODevice*>(IO_Out[port]));
+		MSXMultiIODevice* multi =
+			static_cast<MSXMultiIODevice*>(IO_Out[port]);
+		multi->removeDevice(device);
+		MSXMultiIODevice::Devices& devices = multi->getDevices();
+		if (devices.size() == 1) {
+			IO_Out[port] = devices.front();
+			delete multi;
+			multiOut.erase(port);
+		}
+	}
+}
+
 
 void MSXCPUInterface::registerSlot(MSXMemDevice* device,
                                    int primSl, int secSl, int page)
@@ -178,6 +223,17 @@ void MSXCPUInterface::registerMemDevice(MSXMemDevice& device,
 	for (int i = 0; i < 4; ++i) {
 		if (pages & (1 << i)) {
 			registerSlot(&device, primSl, secSl, i);
+		}
+	}
+}
+
+void MSXCPUInterface::unregisterMemDevice(MSXMemDevice& device,
+                                          int primSl, int secSl, int pages)
+{
+	for (int i = 0; i < 4; ++i) {
+		if (pages & (1 << i)) {
+			assert(slotLayout[primSl][secSl][i] == &device);
+			slotLayout[primSl][secSl][i] = &dummyDevice;
 		}
 	}
 }
@@ -521,24 +577,41 @@ TurborCPUInterface::~TurborCPUInterface()
 void TurborCPUInterface::register_IO_In(byte port, MSXIODevice* device)
 {
 	if ((0x98 <= port) && (port <= 0x9B)) {
-		device = getDelayDevice(device);
+		device = getDelayDevice(*device);
 	}
 	MSXCPUInterface::register_IO_In(port, device);
+}
+
+void TurborCPUInterface::unregister_IO_In(byte port, MSXIODevice* device)
+{
+	if ((0x98 <= port) && (port <= 0x9B)) {
+		device = getDelayDevice(*device);
+	}
+	MSXCPUInterface::unregister_IO_In(port, device);
 }
 
 void TurborCPUInterface::register_IO_Out(byte port, MSXIODevice* device)
 {
 	if ((0x98 <= port) && (port <= 0x9B)) {
-		device = getDelayDevice(device);
+		device = getDelayDevice(*device);
 	}
 	MSXCPUInterface::register_IO_Out(port, device);
 }
 
-MSXIODevice* TurborCPUInterface::getDelayDevice(MSXIODevice* device)
+void TurborCPUInterface::unregister_IO_Out(byte port, MSXIODevice* device)
+{
+	if ((0x98 <= port) && (port <= 0x9B)) {
+		device = getDelayDevice(*device);
+	}
+	MSXCPUInterface::unregister_IO_Out(port, device);
+}
+
+MSXIODevice* TurborCPUInterface::getDelayDevice(MSXIODevice& device)
 {
 	if (!delayDevice.get()) {
 		delayDevice.reset(new VDPIODelay(device, EmuTime::zero));
 	}
+	assert(&delayDevice->getDevice() == &device);
 	return delayDevice.get();
 }
 

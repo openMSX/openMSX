@@ -28,8 +28,6 @@ class CliCommOutput;
 class MSXCPUInterface : public CPUInterface
 {
 public:
-	virtual ~MSXCPUInterface();
-	
 	static MSXCPUInterface& instance();
 	
 	/**
@@ -39,6 +37,7 @@ public:
 	 * TODO: implement automatic registration for MSXIODevice
 	 */
 	virtual void register_IO_In(byte port, MSXIODevice* device);
+	virtual void unregister_IO_In(byte port, MSXIODevice* device);
 
 	/**
 	 * Devices can register their Out ports. This is normally done
@@ -47,6 +46,7 @@ public:
 	 * TODO: implement automatic registration for MSXIODevice
 	 */
 	virtual void register_IO_Out(byte port, MSXIODevice* device);
+	virtual void unregister_IO_Out(byte port, MSXIODevice* device);
 
 	/**
 	 * Devices can register themself in the MSX slotstructure.
@@ -58,6 +58,8 @@ public:
 	 */
 	void registerMemDevice(MSXMemDevice& device,
 	                       int primSl, int secSL, int pages);
+	void unregisterMemDevice(MSXMemDevice& device,
+	                         int primSl, int secSL, int pages);
 
 	// TODO implement unregister methods
 	
@@ -71,24 +73,24 @@ public:
 	/**
 	 * This reads a byte from the currently selected device
 	 */
-	byte readMem(word address, const EmuTime& time);
+	virtual byte readMem(word address, const EmuTime& time);
 
 	/**
 	 * This writes a byte to the currently selected device
 	 */
-	void writeMem(word address, byte value, const EmuTime& time);
+	virtual void writeMem(word address, byte value, const EmuTime& time);
 
 	/**
 	 * This read a byte from the given IO-port
 	 * @see MSXMemDevice::readIO()
 	 */
-	byte readIO(word port, const EmuTime& time);
+	virtual byte readIO(word port, const EmuTime& time);
 
 	/**
 	 * This writes a byte to the given IO-port
 	 * @see MSXMemDevice::writeIO()
 	 */
-	void writeIO(word port, byte value, const EmuTime& time);
+	virtual void writeIO(word port, byte value, const EmuTime& time);
 
 	/**
 	 * Gets read cache
@@ -128,6 +130,7 @@ public:
 
 protected:
 	MSXCPUInterface();
+	virtual ~MSXCPUInterface();
 
 private:
 	void registerSlot(MSXMemDevice* device,
@@ -226,10 +229,12 @@ public:
 	virtual ~TurborCPUInterface();
 
 	virtual void register_IO_In(byte port, MSXIODevice* device);
+	virtual void unregister_IO_In(byte port, MSXIODevice* device);
 	virtual void register_IO_Out(byte port, MSXIODevice* device);
+	virtual void unregister_IO_Out(byte port, MSXIODevice* device);
 
 private:
-	MSXIODevice* getDelayDevice(MSXIODevice* device);
+	MSXIODevice* getDelayDevice(MSXIODevice& device);
 	
 	auto_ptr<VDPIODelay> delayDevice;
 };

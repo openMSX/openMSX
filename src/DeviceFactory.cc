@@ -2,7 +2,6 @@
 
 #include "xmlx.hh"
 #include "DeviceFactory.hh"
-#include "MSXCPUInterface.hh"
 #include "MSXRam.hh"
 #include "MSXPPI.hh"
 #include "VDP.hh"
@@ -45,20 +44,6 @@
 
 namespace openmsx {
 
-// TODO: Add the switched device to the config files.
-static void createDeviceSwitch()
-{
-	static bool deviceSwitchCreated = false;
-	if (!deviceSwitchCreated) {
-		MSXDeviceSwitch *deviceSwitch = &MSXDeviceSwitch::instance();
-		for (byte port = 0x40; port < 0x50; port++) {
-			MSXCPUInterface::instance().register_IO_Out(port, deviceSwitch);
-			MSXCPUInterface::instance().register_IO_In(port, deviceSwitch);
-		}
-		deviceSwitchCreated = true;
-	}
-}
-
 auto_ptr<MSXDevice> DeviceFactory::create(const XMLElement& conf, const EmuTime& time)
 {
 	const string& type = conf.getName();
@@ -87,7 +72,6 @@ auto_ptr<MSXDevice> DeviceFactory::create(const XMLElement& conf, const EmuTime&
 		return auto_ptr<MSXDevice>(new MSXTurboRPCM(conf, time));
 	}
 	if (type == "S1985") {
-		createDeviceSwitch();
 		return auto_ptr<MSXDevice>(new MSXS1985(conf, time));
 	}
 	if (type == "S1990") {
@@ -151,11 +135,9 @@ auto_ptr<MSXDevice> DeviceFactory::create(const XMLElement& conf, const EmuTime&
 		return auto_ptr<MSXDevice>(new SunriseIDE(conf, time));
 	}
 	if (type == "Matsushita") {
-		createDeviceSwitch();
 		return auto_ptr<MSXDevice>(new MSXMatsushita(conf, time));
 	}
 	if (type == "Kanji12") {
-		createDeviceSwitch();
 		return auto_ptr<MSXDevice>(new MSXKanji12(conf, time));
 	}
 	if (type == "MSX-MIDI") {

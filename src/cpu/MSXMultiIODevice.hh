@@ -13,12 +13,14 @@ namespace openmsx {
 class MSXMultiIODevice : public MSXIODevice
 {
 public:
+	typedef vector<MSXIODevice*> Devices;
+
 	MSXMultiIODevice();
 	virtual ~MSXMultiIODevice();
 
 	void addDevice(MSXIODevice* device);
 	void removeDevice(MSXIODevice* device);
-	unsigned numDevices() const;
+	Devices& getDevices();
 	
 	// MSXDevice
 	virtual void reset(const EmuTime& time);
@@ -33,7 +35,7 @@ private:
 	static const XMLElement& getMultiConfig();
 	void preCalcName();
 	
-	vector<MSXIODevice*> devices;
+	Devices devices;
 	string name;
 };
 

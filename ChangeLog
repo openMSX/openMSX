@@ -1,5 +1,9 @@
 $Id$
 
+2004-07-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Preparartion for insert remove at run time:
+	   unregister memory / IO ports
+
 2004-07-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Config file change: FDC type is no longer a sub type
 	* Fixed RenShaTurbo

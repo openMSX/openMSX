@@ -13,8 +13,8 @@ namespace openmsx {
 
 class MSXRomPatchInterface;
 
-
-class CPUInterface {
+class CPUInterface
+{
 public:
 	/**
 	 * Memory and IO read/write operations
@@ -58,11 +58,6 @@ public:
 	 */
 	virtual void retn(CPU::CPURegs& regs);
 
-	/*
-	 * Destructor
-	 */
-	 virtual ~CPUInterface();
-
 	/**
 	 * Test that the memory in the interval [start, start+CACHE_LINE_SIZE)
 	 * is cacheable for reading. If it is, a pointer to a buffer
@@ -92,10 +87,8 @@ public:
 	virtual byte* getWriteCacheLine(word start) const = 0;
 
 protected:
-	/*
-	 * Constructor
-	 */
 	CPUInterface();
+	virtual ~CPUInterface();
 
 	/*
 	 * Returns true when NMI line is active.

@@ -72,6 +72,16 @@ void MSXMemoryMapper::destroyMapperIO()
 {
 	--counter;
 	if (!counter) {
+		MSXCPUInterface& cpuInterface = MSXCPUInterface::instance();
+		cpuInterface.unregister_IO_Out(0xFC, mapperIO);
+		cpuInterface.unregister_IO_Out(0xFD, mapperIO);
+		cpuInterface.unregister_IO_Out(0xFE, mapperIO);
+		cpuInterface.unregister_IO_Out(0xFF, mapperIO);
+		cpuInterface.unregister_IO_In(0xFC, mapperIO);
+		cpuInterface.unregister_IO_In(0xFD, mapperIO);
+		cpuInterface.unregister_IO_In(0xFE, mapperIO);
+		cpuInterface.unregister_IO_In(0xFF, mapperIO);
+
 		assert(mapperIO && config);
 		delete mapperIO;
 		delete config;

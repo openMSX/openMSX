@@ -4,6 +4,7 @@
 #include "EmuTime.hh"
 #include "xmlx.hh"
 #include "FileContext.hh"
+#include "MSXCPUInterface.hh"
 
 namespace openmsx {
 
@@ -34,16 +35,25 @@ MSXDeviceSwitch::MSXDeviceSwitch(const XMLElement& config, const EmuTime& time)
 		devices[i] = NULL;
 	}
 	selected = 0;
+	
+	for (byte port = 0x40; port < 0x50; ++port) {
+		MSXCPUInterface::instance().register_IO_In (port, this);
+		MSXCPUInterface::instance().register_IO_Out(port, this);
+	}
 }
 
 MSXDeviceSwitch::~MSXDeviceSwitch()
 {
-/*
+	for (byte port = 0x40; port < 0x50; ++port) {
+		MSXCPUInterface::instance().unregister_IO_Out(port, this);
+		MSXCPUInterface::instance().unregister_IO_In (port, this);
+	}
+	/*
 	for (int i = 0; i < 256; i++) {
 		// all devices must be unregistered
 		assert(devices[i] == NULL);
 	}
-*/
+	*/
 }
 
 

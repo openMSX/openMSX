@@ -47,9 +47,9 @@ void MSXMultiIODevice::removeDevice(MSXIODevice* device)
 	preCalcName();
 }
 
-unsigned MSXMultiIODevice::numDevices() const
+MSXMultiIODevice::Devices& MSXMultiIODevice::getDevices()
 {
-	return devices.size();
+	return devices;
 }
 
 void MSXMultiIODevice::preCalcName()

@@ -20,7 +20,7 @@ MSXMemDevice::MSXMemDevice(const XMLElement& config, const EmuTime& time)
 
 MSXMemDevice::~MSXMemDevice()
 {
-	// TODO unregister slots
+	unregisterSlots();
 }
 
 void MSXMemDevice::init()
@@ -83,13 +83,13 @@ void MSXMemDevice::registerSlots(const XMLElement& config)
 		throw FatalError("Invalid memory specification");
 	}
 	int page = base / 0x4000;
-	int pages = 0;
+	pages = 0;
 	for (unsigned i = 0; i < (size / 0x4000); ++i, ++page) {
 		pages |= 1 << page;
 	}
 
-	int ps = 0;
-	int ss = 0;
+	ps = 0;
+	ss = 0;
 	const XMLElement* parent = config.getParent();
 	while (true) {
 		const string& name = parent->getName();
@@ -110,19 +110,19 @@ void MSXMemDevice::registerSlots(const XMLElement& config)
 	if (ps == -256) {
 		// any slot
 		CartridgeSlotManager::instance().getSlot(ps, ss);
-		MSXCPUInterface::instance().registerMemDevice(*this, ps, ss, pages);
 	} else if (ps < 0) {
 		// specified slot by name (carta, cartb, ...)
 		CartridgeSlotManager::instance().getSlot(-ps - 1, ps, ss);
-		MSXCPUInterface::instance().registerMemDevice(*this, ps, ss, pages);
 	} else {
 		// numerical specified slot (0, 1, 2, 3)
-		MSXCPUInterface::instance().registerMemDevice(*this, ps, ss, pages);
 	}
+	MSXCPUInterface::instance().registerMemDevice(*this, ps, ss, pages);
 }
-	void getSlot(int slot, int& ps, int& ss);
-	void getSlot(int& ps, int& ss);
-	void getSlot(int& ps);
+
+void MSXMemDevice::unregisterSlots()
+{
+	MSXCPUInterface::instance().unregisterMemDevice(*this, ps, ss, pages);
+}
 
 } // namespace openmsx
 
