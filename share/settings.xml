@@ -43,7 +43,7 @@
   <config id="Console">
     <type>Console</type>
     <parameter name="font">skins/ConsoleFont.png</parameter>
-    <parameter name="background">ConsoleBackground.png</parameter>
+    <parameter name="background">skins/ConsoleBackground.png</parameter>
   </config>
 
  <!-- Commands that should be executed automatically after boot -->
