@@ -81,9 +81,9 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 	if (newCPU != activeCPU) {
 		newCPU->advance(activeCPU->getCurrentTime());
 		newCPU->invalidateCache(0x0000, 0x10000/CPU::CACHE_LINE_SIZE);
+		exitCPULoop();
 		activeCPU = newCPU;
 	}
-	exitCPULoop();
 }
 
 void MSXCPU::execute()
