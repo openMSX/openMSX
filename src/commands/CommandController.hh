@@ -38,7 +38,7 @@ public:
 	/**
 	 * Execute a given command
 	 */
-	string executeCommand(const string &command);
+	string executeCommand(const string& command) throw (CommandException);
 
 	/**
 	 * Complete a given command

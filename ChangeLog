@@ -1,5 +1,11 @@
 $Id$
 
+2003-11-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed crash on resursive aliasses:
+	   - these commands
+	       alias foo bar ; alias bar foo ; foo
+	     generate an error now
+
 2003-11-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Refactored MSXMapperIO:
 	   - MSXMapperIO is no longer a singleton, this solves the destruction

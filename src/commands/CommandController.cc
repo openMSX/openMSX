@@ -188,7 +188,10 @@ string CommandController::join(const vector<string>& tokens, char delimiter)
 
 
 string CommandController::executeCommand(const string &cmd)
+	throw (CommandException)
 {
+	static set<string> cmdsInProgress;
+	
 	vector<string> subcmds;
 	split(cmd, subcmds, ';');
 
@@ -206,11 +209,22 @@ string CommandController::executeCommand(const string &cmd)
 			continue;
 		}
 
-		CommandMap::iterator it = commands.find(tokens.front());
+		const string& cmd = tokens.front();
+		CommandMap::iterator it = commands.find(cmd);
 		if (it == commands.end()) {
-			throw CommandException(tokens.front() + ": unknown command");
+			throw CommandException(cmd + ": unknown command");
 		}
-		result += it->second->execute(tokens);
+		if (cmdsInProgress.find(command) != cmdsInProgress.end()) {
+			throw CommandException(cmd + ": recursion error");
+		}
+		try {
+			cmdsInProgress.insert(cmd);
+			result += it->second->execute(tokens);
+			cmdsInProgress.erase(cmd);
+		} catch (CommandException& e) {
+			cmdsInProgress.erase(cmd);
+			throw;
+		}
 	}
 	return result;
 }
