@@ -65,6 +65,8 @@ VDPCmdEngine::VDPCmdEngine(VDP *vdp_)
 	commands[CM_HMMM]  = new HmmmCmd (this, vram);
 	commands[CM_YMMM]  = new YmmmCmd (this, vram);
 	commands[CM_HMMC]  = new HmmcCmd (this, vram);
+
+	status = 0;
 }
 
 VDPCmdEngine::~VDPCmdEngine()
