@@ -56,12 +56,16 @@ Mixer::Mixer()
 	// default values
 	XMLElement& freqElem = config.getCreateChild("frequency", "44100");
 	XMLElement& samplesElem = config.getCreateChild("samples", "1024");
-	int freq = freqElem.getDataAsInt();
-	int samples = samplesElem.getDataAsInt();
+	frequencySetting.reset(new IntegerSetting(freqElem,
+		"mixer frequency (takes effect next time openMSX is started",
+		11025, 44100)); // TODO stricter value checks
+	samplesSetting.reset(new IntegerSetting(samplesElem,
+		"mixer samples (takes effect next time openMSX is started",
+		256, 4096)); // TODO stricter value checks
 
 	SDL_AudioSpec desired;
-	desired.freq     = freq;
-	desired.samples  = samples;
+	desired.freq     = frequencySetting->getValue();
+	desired.samples  = samplesSetting->getValue();
 	desired.channels = 2;			// stereo
 	desired.format   = OPENMSX_BIGENDIAN ? AUDIO_S16MSB : AUDIO_S16LSB;
 	desired.callback = audioCallbackHelper;	// must be a static method

@@ -125,6 +125,8 @@ private:
 
 	auto_ptr<BooleanSetting> muteSetting;
 	auto_ptr<IntegerSetting> masterVolume;
+	auto_ptr<IntegerSetting> frequencySetting;
+	auto_ptr<IntegerSetting> samplesSetting;
 	BooleanSetting& pauseSetting;
 
 	int prevLeft, outLeft;
