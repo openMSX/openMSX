@@ -1,0 +1,10 @@
+<!ELEMENT msxconfig (device)+>
+<!ELEMENT device (type,slotted?,parameter+)>
+<!ELEMENT type (#PCDATA)>
+<!ELEMENT slotted (page,ps,ss)>
+<!ELEMENT page (#PCDATA)>
+<!ELEMENT ps (#PCDATA)>
+<!ELEMENT ss (#PCDATA)>
+<!ELEMENT parameter (#PCDATA)>
+<!ATTLIST parameter
+                    name CDATA #IMPLIED>

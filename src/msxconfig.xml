@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
   <device>
     <type>DummyDevice</type>
