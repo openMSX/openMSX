@@ -62,11 +62,18 @@ bool Display::signalEvent(const Event& event)
 
 void Display::repaint()
 {
+	assert(videoSystem.get());
+	// TODO: Is this the proper way to react?
+	//       Behind this abstraction is SDL_LockSurface,
+	//       which is severely underdocumented:
+	//       it is unknown whether a failure is transient or permanent.
+	if (!videoSystem->prepare()) return;
+	
 	vector<LayerInfo*>::iterator it = baseLayer();
 	bool mustPaint = forceRepaint;
 	for (; it != layers.end(); ++it) {
 		// TODO: Dirty check is wrong.
-		//       Correct approach: draw if any layer is dirty.
+		//       Correct approach: draw if any visible layer is dirty.
 		//if ((*it)->alpha != 0 && (mustPaint || (*it)->dirty)) {
 		if ((*it)->alpha != 0) {
 			assert(isActive((*it)->layer));
@@ -79,7 +86,7 @@ void Display::repaint()
 		}
 	}
 	forceRepaint = false;
-	assert(videoSystem.get());
+	
 	videoSystem->flush();
 }
 

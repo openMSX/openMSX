@@ -16,6 +16,7 @@ public:
 	virtual ~SDLVideoSystem();
 
 	// VideoSystem interface:
+	virtual bool prepare();
 	virtual void flush();
 	virtual void takeScreenShot(const string& filename);
 

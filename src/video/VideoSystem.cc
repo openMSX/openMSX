@@ -11,6 +11,11 @@ VideoSystem::~VideoSystem()
 {
 }
 
+bool VideoSystem::prepare()
+{
+	return true;
+}
+
 void VideoSystem::takeScreenShot(const string& /*filename*/)
 {
 	throw CommandException(

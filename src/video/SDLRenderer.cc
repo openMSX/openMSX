@@ -111,12 +111,6 @@ void SDLRenderer<Pixel, zoom>::paint()
 		currScalerID = scalerID;
 	}
 
-	// Lock surface, because we will access pixels directly.
-	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
-		// Display will be wrong, but this is not really critical.
-		return;
-	}
-
 	// Scale image.
 	int deltaY = interlaced && vdp->getEvenOdd() ? 1 : 0;
 	
@@ -186,9 +180,6 @@ void SDLRenderer<Pixel, zoom>::paint()
 	
 	// Apply scanlines.
 	drawScanlines();
-
-	// Unlock surface.
-	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
 }
 
 template <class Pixel, Renderer::Zoom zoom>

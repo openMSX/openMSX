@@ -43,13 +43,6 @@ static int random() {
 template <class Pixel>
 void SDLSnow<Pixel>::paint()
 {
-	// Lock surface, because we will access pixels directly.
-	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
-		// Display will be wrong, but this is not really critical.
-		// TODO: Try again next frame.
-		return; 
-	}
-
 	const unsigned WIDTH = screen->w;
 	const unsigned HEIGHT = screen->h;
 	Pixel* pixels = (Pixel*)screen->pixels;
@@ -61,9 +54,6 @@ void SDLSnow<Pixel>::paint()
 		}
 		memcpy(p + WIDTH, p, WIDTH * sizeof(Pixel));
 	}
-
-	// Unlock surface.
-	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
 
 	// TODO: Mark dirty in 100ms.
 }
