@@ -9,12 +9,11 @@
 #include "IRQHelper.hh"
 #include "IRQHelper.ii"
 #include "EmuTime.hh"
-#include "Renderer.hh"
 #include "ConsoleSource/Command.hh"
 
 #include <string>
 
-class EmuTime;
+class Renderer;
 class VDPCmdEngine;
 class VDPVRAM;
 class SpriteChecker;
