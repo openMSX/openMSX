@@ -40,6 +40,7 @@ MSXTapePatch::MSXTapePatch()
 
 MSXTapePatch::~MSXTapePatch()
 {
+	CommandController::instance()->unregisterCommand("tape");
 	delete file;
 }
 

@@ -19,6 +19,7 @@ MSXMotherBoard::MSXMotherBoard(MSXConfig::Config *config) : MSXCPUInterface(conf
 MSXMotherBoard::~MSXMotherBoard()
 {
 	PRT_DEBUG("Destructing an MSXMotherBoard object");
+	CommandController::instance()->unregisterCommand("reset");
 }
 
 MSXMotherBoard *MSXMotherBoard::instance()

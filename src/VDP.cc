@@ -123,12 +123,13 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	// Register console commands.
 	CommandController::instance()->registerCommand(paletteCmd, "palette");
 	CommandController::instance()->registerCommand(rendererCmd, "renderer");
-
 }
 
 VDP::~VDP()
 {
 	PRT_DEBUG("Destroying a VDP object");
+	CommandController::instance()->unregisterCommand("palette");
+	CommandController::instance()->unregisterCommand("renderer");
 	delete(cmdEngine);
 	delete(renderer);
 }

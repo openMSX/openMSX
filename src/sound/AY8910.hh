@@ -54,7 +54,7 @@ class AY8910 : public SoundDevice
 			AY_CFINE = 4, AY_CCOARSE = 5, AY_NOISEPER = 6, AY_ENABLE = 7,
 			AY_AVOL = 8, AY_BVOL = 9, AY_CVOL = 10, AY_EFINE = 11,
 			AY_ECOARSE = 12, AY_ESHAPE = 13, AY_PORTA = 14, AY_PORTB = 15
-			};
+		};
 		static const int PORT_A_DIRECTION = 0x40;
 		static const int PORT_B_DIRECTION = 0x80;
 

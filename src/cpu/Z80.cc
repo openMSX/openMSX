@@ -36,6 +36,9 @@ Z80::Z80(CPUInterface *interf, int waitCycl, const EmuTime &time) : CPU(interf)
 }
 Z80::~Z80()
 {
+	#ifdef CPU_DEBUG
+	CommandController::instance()->unregisterCommand("cpudebug");
+	#endif
 }
 
 void Z80::setCurrentTime(const EmuTime &time)

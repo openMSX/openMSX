@@ -52,6 +52,7 @@ SDLConsole::~SDLConsole()
 {
 	PRT_DEBUG("Destroying a SDLConsole object");
 	
+	CommandController::instance()->unregisterCommand("console");
 	delete font;
 }
 

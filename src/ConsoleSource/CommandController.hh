@@ -24,7 +24,7 @@ class CommandController
 		/**
 		 * TODO
 		 */
-		void unRegisterCommand(const std::string &str);
+		void unregisterCommand(const std::string &str);
 
 		/**
 		 * Executes all defined auto commands

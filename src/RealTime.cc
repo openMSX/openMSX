@@ -37,6 +37,10 @@ RealTime::RealTime()
 RealTime::~RealTime()
 {
 	PRT_DEBUG("Destroying a RealTime object");
+	
+	CommandController::instance()->unregisterCommand("pause");
+	CommandController::instance()->unregisterCommand("throttle");
+	CommandController::instance()->unregisterCommand("speed");
 }
 
 RealTime *RealTime::instance()

@@ -21,6 +21,7 @@ CommandController::CommandController()
 
 CommandController::~CommandController()
 {
+	unregisterCommand("help");
 }
 
 CommandController *CommandController::instance()
@@ -38,9 +39,9 @@ void CommandController::registerCommand(Command &command, const std::string &str
 	commands[str] = &command;
 }
 
-void CommandController::unRegisterCommand(const std::string &str)
+void CommandController::unregisterCommand(const std::string &str)
 {
-	assert(false);	// unimplemented
+	commands.erase(str);
 }
 
 

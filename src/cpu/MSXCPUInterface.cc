@@ -36,12 +36,12 @@ MSXCPUInterface::MSXCPUInterface(MSXConfig::Config *config)
 	subslotted_list = config->getParametersWithClass("subslotted");
 	std::list<MSXConfig::Device::Parameter*>::const_iterator i;
 	for (i=subslotted_list->begin(); i != subslotted_list->end(); i++) {
-		bool hasSubs=false;
+		bool hasSubs = false;
 		if ((*i)->value == "true") {
-			hasSubs=true;
+			hasSubs = true;
 		}
-		int counter=atoi((*i)->name.c_str());
-		isSubSlotted[counter]=hasSubs;
+		int counter = atoi((*i)->name.c_str());
+		isSubSlotted[counter] = hasSubs;
 		PRT_DEBUG("Slot: " << counter << " expanded: " << hasSubs);
 	}
 	config->getParametersWithClassClean(subslotted_list);
@@ -50,9 +50,16 @@ MSXCPUInterface::MSXCPUInterface(MSXConfig::Config *config)
 	//       initialised at reset.
 
 	// Register console commands.
-	CommandController::instance()->registerCommand(slotMapCmd, "slotmap");
+	CommandController::instance()->registerCommand(slotMapCmd,    "slotmap");
 	CommandController::instance()->registerCommand(slotSelectCmd, "slotselect");
 }
+
+MSXCPUInterface::~MSXCPUInterface()
+{
+	CommandController::instance()->unregisterCommand("slotmap");
+	CommandController::instance()->unregisterCommand("slotselect");
+}
+
 
 void MSXCPUInterface::register_IO_In(byte port, MSXIODevice *device)
 {

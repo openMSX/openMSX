@@ -19,7 +19,7 @@ class EmuTime;
 class SCC : public SoundDevice
 {
 	public:
-		enum ChipMode {SCC_Real,SCC_Compatible,SCC_plusmode };
+		enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};
 		
 		SCC(short volume);
 		virtual ~SCC();

@@ -22,11 +22,11 @@ class Command
 		/**
 		 * called by the console when a command is typed
 		 */
-		virtual void execute(const std::vector<std::string> &tokens)=0;
+		virtual void execute(const std::vector<std::string> &tokens) = 0;
 		/**
 		 * called by the console when a help command is typed
 		 */
-		virtual void help   (const std::vector<std::string> &tokens)=0;
+		virtual void help   (const std::vector<std::string> &tokens) = 0;
 		/**
 		 * tab completeion for this command
 		 * @param tokens A set of tokens, the last is incomplete, this

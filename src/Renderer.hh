@@ -45,6 +45,10 @@ public:
 	  */
 	Renderer(bool fullScreen);
 
+	/** Destroy this Renderer.
+	  */
+	virtual ~Renderer();
+
 	/** Is this Renderer currently displaying full screen?
 	  * @return true if full screen; false if windowed.
 	  */

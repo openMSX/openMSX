@@ -126,6 +126,10 @@ MSXDiskRomPatch::MSXDiskRomPatch()
 
 MSXDiskRomPatch::~MSXDiskRomPatch()
 {
+	CommandController::instance()->unregisterCommand("disk");
+	CommandController::instance()->unregisterCommand("diska");
+	CommandController::instance()->unregisterCommand("diskb");
+	
 	for (int i=0; i<LAST_DRIVE; i++) {
 		if (disk[i] != NULL) delete disk[i];
 	}

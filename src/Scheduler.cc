@@ -30,6 +30,8 @@ Scheduler::Scheduler()
 
 Scheduler::~Scheduler()
 {
+	CommandController::instance()->unregisterCommand("quit");
+	CommandController::instance()->unregisterCommand("mute");
 }
 
 Scheduler* Scheduler::instance()

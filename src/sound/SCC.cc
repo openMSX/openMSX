@@ -23,14 +23,14 @@ SCC::~SCC()
 	delete[] buffer;
 }
 
-byte SCC::readMemInterface(byte address,const EmuTime &time)
+byte SCC::readMemInterface(byte address, const EmuTime &time)
 {
 	return memInterface[address];
 }
 
 void SCC::setChipMode(ChipMode chip)
 {
-	if (currentChipMode==chip)
+	if (currentChipMode == chip)
 		return;
 	currentChipMode = chip;
 	// lower 128 bytes are always the same
@@ -173,7 +173,7 @@ void SCC::setDeformReg(byte value)
 
 void SCC::setFreqVol(byte value, byte address)
 {
-	address &= 0x0f; //regio is twice visible
+	address &= 0x0f; // regio is twice visible
 	if (address < 0x0a) {
 		// change frequency
 		byte channel = address/2;
@@ -207,13 +207,11 @@ void SCC::setFreqVol(byte value, byte address)
 
 void SCC::reset()
 {
-	//TODO update memInterface[]
-	
-	currentChipMode = SCC_Real;
+	setChipMode(SCC_Real);
 	deformationRegister = 0;
 
-	for(int i=0; i<5; i++) {
-		for(int j=0; j<32 ; j++) {
+	for (int i=0; i<5; i++) {
+		for (int j=0; j<32 ; j++) {
 			wave[i][j] = 0;
 			volAdjustedWave[i][j] = 0;
 		}
@@ -270,7 +268,7 @@ int *SCC::updateBuffer(int length)
 
 void SCC::checkMute()
 {
-	// SCC is mute unless an enabled channel with non-zero volume exists.
+	// SCC is muted unless an enabled channel with non-zero volume exists.
 	bool mute = true;
 	unsigned enable = ch_enable & 0x1F;
 	byte *volumePtr = volume;

@@ -88,10 +88,6 @@ class Mixer
 		MSXCPU *cpu;
 		RealTime *realTime; 
 
-#ifdef FILTER
-		int prevLeft, prevOutLeft;
-		int prevRight, prevOutRight;
-#endif
 #ifdef DEBUG
 		int nbClipped;
 #endif

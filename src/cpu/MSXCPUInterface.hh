@@ -14,6 +14,11 @@ class MSXCPUInterface : public CPUInterface
 {
 	public:
 		/**
+		 * Destructor
+		 */
+		~MSXCPUInterface();
+		
+		/**
 		 * Devices can register their In ports. This is normally done
 		 * in their constructor. Once device are registered, their
 		 * readIO() method can get called.
