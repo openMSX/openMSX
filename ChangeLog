@@ -1,5 +1,8 @@
 $Id$
 
+2002-05-01 David Heremans <david.heremans@gnu-linux.net>
+	* Skeleton files for JoyNet device
+
 2002-04-30 Joost Yervante Damad <andete@worldcity.nl>
 	* s/-fhuge-objects//g
 	* verious g++-3.0 fixes

@@ -9,6 +9,7 @@
 // forward declaration
 class DummyJoystick;
 class Mouse;
+class JoyNet;
 class Joystick;
 
 
@@ -48,6 +49,7 @@ class JoystickPorts
 		JoystickPort* ports[2];
 
 		Mouse* mouse;
+		JoyNet* joynet;
 		Joystick* joystick[10];
 };
 #endif

@@ -7,6 +7,7 @@
 #include "PluggingController.hh"
 #include "Mouse.hh"
 #include "Joystick.hh"
+#include "JoyNet.hh"
 
 
 JoystickPort::JoystickPort(const std::string &nm, const EmuTime &time)
@@ -68,6 +69,7 @@ JoystickPorts::JoystickPorts(const EmuTime &time)
 	ports[1] = new JoystickPort("joyportb", time);
 
 	mouse = new Mouse();
+	joynet = new JoyNet(0);
 	int i=0;
 	try {
 		for (; i<10; i++)
