@@ -7,33 +7,52 @@
 
 
 WavImage::WavImage(FileContext *context, const string &fileName)
-	: audioLength(0), audioBuffer(0)
+	: length(0), buffer(0), freq(44100)
 {
-	// TODO throw exceptions instead of PRT_ERROR
 	File file(context->resolve(fileName));
 	const char* name = file.getLocalName().c_str();
-	if (SDL_LoadWAV(name, &audioSpec, &audioBuffer, &audioLength) == NULL) {
+	
+	SDL_AudioSpec wavSpec;
+	Uint8* wavBuf;
+	Uint32 wavLen;
+	if (SDL_LoadWAV(name, &wavSpec, &wavBuf, &wavLen) == NULL) {
 		string msg = string("CassettePlayer error: ") + SDL_GetError();
 		throw MSXException(msg);
 	}
-	if (audioSpec.format != AUDIO_S16) {
-		// TODO convert sample
-		throw MSXException("CassettePlayer error: unsupported WAV format");
+	
+	freq = wavSpec.freq;
+	SDL_AudioCVT audioCVT;
+	if (SDL_BuildAudioCVT(&audioCVT,
+		              wavSpec.format, wavSpec.channels, freq,
+			      AUDIO_S16,      1,                freq) == -1) {
+		SDL_FreeWAV(wavBuf);
+		throw MSXException("Couldn't build wav converter");
 	}
+	
+	buffer = (Uint8*)malloc(wavLen * audioCVT.len_mult);
+	audioCVT.buf = buffer;
+	audioCVT.len = wavLen;
+	memcpy(buffer, wavBuf, wavLen);
+	SDL_FreeWAV(wavBuf);
+
+	if (SDL_ConvertAudio(&audioCVT) == -1) {
+		throw MSXException("Couldn't convert wav");
+	}
+	length = (int)(audioCVT.len * audioCVT.len_ratio) / 2;
 }
 
 WavImage::~WavImage()
 {
-	if (audioBuffer) {
-		SDL_FreeWAV(audioBuffer);
+	if (buffer) {
+		free(buffer);
 	}
 }
 
 short WavImage::getSampleAt(const EmuTime &time)
 {
-	int pos = time.getTicksAt(audioSpec.freq);
-	if (pos < (audioLength / 2)) {
-		return ((short*)audioBuffer)[pos];
+	int pos = time.getTicksAt(freq);
+	if (pos < length) {
+		return ((short*)buffer)[pos];
 	} else {
 		return 0;
 	}

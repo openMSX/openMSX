@@ -1,5 +1,8 @@
 $Id$
 
+2003-07-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented stereo/mono and 8/16-bit conversion for wav files
+
 2003-07-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* On turbor use big 4mb rom also for MSX-MUSIC ROM and DISK ROM
 

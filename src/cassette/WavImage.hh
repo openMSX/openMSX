@@ -22,9 +22,9 @@ class WavImage : public CassetteImage
 		virtual short getSampleAt(const EmuTime &time);
 
 	private:
-		SDL_AudioSpec audioSpec;
-		Uint32 audioLength;	// 0 means no tape inserted
-		Uint8 *audioBuffer;	// 0 means no tape inserted
+		int length;
+		Uint8* buffer;
+		int freq;
 };
 
 #endif
