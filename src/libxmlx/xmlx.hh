@@ -28,6 +28,7 @@
 #include <libxml/parser.h>
 
 // libstdc++
+#include <iostream>
 #include <string>
 #include <list>
 #include <stdexcept>

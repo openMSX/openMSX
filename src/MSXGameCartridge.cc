@@ -195,7 +195,7 @@ int MSXGameCartridge::retrieveMapperType()
 			std::string  type = deviceConfig->getParameter("mappertype");
 			PRT_DEBUG("Using mapper type " << type);
 
-			map<const char*, int, ltstr> mappertype;
+			std::map<const char*, int, ltstr> mappertype;
 
 			mappertype["0"]=0;
 			mappertype["8kB"]=0;

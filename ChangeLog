@@ -1,5 +1,9 @@
 $Id$
 
+2002-04-28 Bas Wijnen <b.wijnen@student.rug.nl>
+	* Added includes, std:: prefixes and unsigned char casts
+	  to allow compile with g++-3
+
 2002-04-27 Maarten ter Huurne <mth@stack.nl>
 	* Display mode changes now go through VDPVRAM.
 	  It also performs planar reorder on single-byte reads and writes.

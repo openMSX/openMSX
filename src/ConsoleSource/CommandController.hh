@@ -51,7 +51,7 @@ class CommandController
 
 	private:
 		CommandController();
-		void tokenize(const std::string &str, vector<std::string> &tokens, const std::string &delimiters = " ");
+		void tokenize(const std::string &str, std::vector<std::string> &tokens, const std::string &delimiters = " ");
 
 		static CommandController* oneInstance;
 		

@@ -34,7 +34,7 @@ class MSXFmPac : public MSXYM2413, public MSXMemDevice, public MSXRom
 	private:
 		void checkSramEnable();
 		
-		static const char* PAC_Header;
+		static const unsigned char* PAC_Header;
 	
 		bool sramEnabled;
 		byte bank;

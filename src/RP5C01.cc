@@ -18,7 +18,7 @@ RP5C01::RP5C01(bool emuMode, const EmuTime &time)
 	initializeTime();
 	reset(time);
 }
-RP5C01::RP5C01(bool emuMode, char* data, const EmuTime &time) 
+RP5C01::RP5C01(bool emuMode, unsigned char* data, const EmuTime &time) 
 {
 	reference = time;
 	emuTimeBased = emuMode;
@@ -205,7 +205,7 @@ void RP5C01::resetAlarm()
 	}
 }
 
-char* RP5C01::getRegs()
+unsigned char* RP5C01::getRegs()
 {
-	return (char*) reg;
+	return reinterpret_cast <unsigned char*>(reg);
 }

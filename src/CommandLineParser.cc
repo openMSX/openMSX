@@ -390,13 +390,13 @@ void CommandLineParser::configureKeyInsert(const char *const arg)
 	try
 	{
 		IFILETYPE* file = FileOpener::openFileRO(std::string(arg));
-		char buffer[2];
+		unsigned char buffer[2];
 		while (!file->fail())
 		{
 			file->read(buffer, 1);
 			buffer[1] = '\0';
 			std::cerr << buffer;
-			std::string temp(buffer);
+			std::string temp(reinterpret_cast <char *>(buffer));
 			if (buffer[0] == '\n')
 			{
 				s << "&#x0D;";

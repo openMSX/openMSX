@@ -841,7 +841,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::putImage(
 {
 	// Render changes from this last frame.
 	if (time < currentTime) {
-		cout << "Rendered into next frame's time: "
+		std::cout << "Rendered into next frame's time: "
 			<< "frame end = " << time
 			<< ", renderer time = " << currentTime
 			<< "\n";

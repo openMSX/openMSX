@@ -38,7 +38,7 @@ MSXDiskRomPatch::DiskImage::DiskImage(std::string fileName,std::string defaultSi
 	file = FileOpener::openFilePreferRW(fileName);
 	if (!file->fail()){
 	    file->seekg(0,std::ios::end);
-	    if (file->tellg()==0){
+	    if (!file->tellg()){
 		    // For the moment I assume that
 		    // if the file as zero length that is is just created
 		    // Ofcourse it is possible that the file existed but

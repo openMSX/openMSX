@@ -17,7 +17,7 @@ MSXRTC::MSXRTC(MSXConfig::Device *config, const EmuTime &time)
 		if (deviceConfig->getParameterAsBool("load")) {
 			std::string filename = deviceConfig->getParameter("filename");
 			IFILETYPE* file = FileOpener::openFileRO(filename);
-			char buffer[4*13];
+			unsigned char buffer[4*13];
 			file->read(buffer, 4*13);
 			rp5c01 = new RP5C01(emuTimeBased, buffer, time);	// use data from buffer
 			file->close();

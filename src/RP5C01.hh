@@ -18,14 +18,14 @@ class RP5C01
 {
 	public:
 		RP5C01(bool emuMode, const EmuTime &time);
-		RP5C01(bool emuMode, char* data, const EmuTime &time);
+		RP5C01(bool emuMode, unsigned char* data, const EmuTime &time);
 		~RP5C01(); 
 		
 		void reset(const EmuTime &time);
 		nibble readPort(nibble port, const EmuTime &time);
 		void writePort(nibble port, nibble value, const EmuTime &time);
 		
-		char* getRegs();
+		unsigned char* getRegs();
 		
 	private:
 		void initializeTime();

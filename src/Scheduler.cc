@@ -101,7 +101,7 @@ void Scheduler::scheduleEmulation()
 				// nothing scheduled, emulate CPU
 				schedMutex.release();
 				PRT_DEBUG ("Sched: Scheduling CPU till infinity");
-				const EmuTime infinity = EmuTime(EmuTime::INFINITY);
+				const EmuTime infinity = EmuTime(EmuTime::INFTY);
 				cpu->executeUntilTarget(infinity);
 			} else {
 				const SynchronizationPoint sp = *(syncPoints.begin());

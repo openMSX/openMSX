@@ -3,6 +3,7 @@
 #ifndef __MSXTapePatch_HH__
 #define __MSXTapePatch_HH__
 
+#include <iostream>
 #include <fstream>
 #include <string>
 #include "openmsx.hh"

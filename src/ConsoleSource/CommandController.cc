@@ -44,7 +44,7 @@ void CommandController::unRegisterCommand(const std::string &str)
 }
 
 
-void CommandController::tokenize(const std::string &str, vector<std::string> &tokens, const std::string &delimiters = " ")
+void CommandController::tokenize(const std::string &str, std::vector<std::string> &tokens, const std::string &delimiters = " ")
 {
 	// TODO implement "backslash before space"
 	// Skip delimiters at beginning

@@ -204,7 +204,7 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 	*/
 	/*
 	int ticksThisFrame = getTicksThisFrame(time);
-	cout << (userData == VSYNC ? "VSYNC" :
+	std::cout << (userData == VSYNC ? "VSYNC" :
 			(userData == VSCAN ? "VSCAN" : "HSCAN"))
 		<< " at (" << (ticksThisFrame % TICKS_PER_LINE)
 		<< "," << ((ticksThisFrame - displayStart) / TICKS_PER_LINE)
@@ -389,10 +389,10 @@ void VDP::frameStart(const EmuTime &time)
 
 	if (switchRenderer) {
 		switchRenderer = false;
-		cout << "VDP: switching renderer to " << rendererName << "\n";
+		std::cout << "VDP: switching renderer to " << rendererName << "\n";
 		bool fullScreen = renderer->isFullScreen();
 		delete renderer;
-		cout << "VDP: delete successful\n";
+		std::cout << "VDP: delete successful\n";
 		// TODO: Handle invalid names more gracefully.
 		renderer = PlatformFactory::createRenderer(
 			rendererName, this, fullScreen, time);
@@ -439,7 +439,7 @@ void VDP::frameStart(const EmuTime &time)
 	spriteChecker->frameStart(time);
 
 	/*
-	cout << "--> frameStart = " << frameStartTime
+	   std::cout << "--> frameStart = " << frameStartTime
 		<< ", frameEnd = " << (frameStartTime + getTicksPerFrame())
 		<< ", hscan = " << hScanSyncTime
 		<< ", displayStart = " << displayStart
@@ -547,7 +547,7 @@ byte VDP::readIO(byte port, const EmuTime &time)
 		// Abort any port 0x99 writes in progress.
 		firstByte = -1;
 
-		//cout << "read S#" << (int)controlRegs[15] << "\n";
+		//std::cout << "read S#" << (int)controlRegs[15] << "\n";
 
 		// Calculate status register contents.
 		switch (controlRegs[15]) {
@@ -560,7 +560,7 @@ byte VDP::readIO(byte port, const EmuTime &time)
 		case 1: {
 			/*
 			int ticksThisFrame = getTicksThisFrame(time);
-			cout << "S#1 read at (" << (ticksThisFrame % TICKS_PER_LINE)
+			std::cout << "S#1 read at (" << (ticksThisFrame % TICKS_PER_LINE)
 				<< "," << ((ticksThisFrame - displayStart) / TICKS_PER_LINE)
 				<< "), IRQ_H = " << (int)irqHorizontal.getState()
 				<< " IRQ_V = " << (int)irqVertical.getState()

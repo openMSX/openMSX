@@ -141,11 +141,11 @@ void MSXTapePatch::TAPION(CPU::CPURegs& R) const
 	int filePosition=(file->tellg() & 7);
 	if (filePosition) {
 		PRT_DEBUG("TAPION : filePosition " << filePosition);
-		file->seekg(8-filePosition , ios::cur);
+		file->seekg(8-filePosition , std::ios::cur);
 		if (file->fail()) {
 			PRT_DEBUG("TAPION : Read error");
 			//rewind the tape
-			file->seekg(0, ios::beg);
+			file->seekg(0, std::ios::beg);
 			return;
 		}
 	}
@@ -166,7 +166,7 @@ void MSXTapePatch::TAPION(CPU::CPURegs& R) const
 
 	PRT_DEBUG("TAPION : No header found");
 	//rewind the tape
-	file->seekg(0, ios::beg);
+	file->seekg(0, std::ios::beg);
 }
 
 void MSXTapePatch::TAPIN(CPU::CPURegs& R) const
@@ -280,7 +280,7 @@ void MSXTapePatch::TAPOON(CPU::CPURegs& R) const
 		// again some stuff from fmsx about positioning
 		int filePosition = (file->tellg() & 7);
 		if (filePosition) {
-			file->seekg(8-filePosition , ios::cur);
+			file->seekg(8-filePosition , std::ios::cur);
 		}
 		if (!file->fail()) { 
 			file->write(TapeHeader,8);
