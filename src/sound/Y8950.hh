@@ -7,7 +7,7 @@
 #include "SoundDevice.hh"
 #include "IRQHelper.hh"
 #include "Mixer.hh"
-#include "Timer.hh"
+#include "EmuTimer.hh"
 #include "Y8950Adpcm.hh"
 #include "Y8950KeyboardConnector.hh"
 #include "DACSound16S.hh"
@@ -15,7 +15,7 @@
 
 namespace openmsx {
 
-class Y8950: private SoundDevice, private TimerCallback, private Debuggable
+class Y8950: private SoundDevice, private EmuTimerCallback, private Debuggable
 {
 	class Patch {
 	public:
@@ -332,9 +332,9 @@ private:
 
 	// Timers
 	/** 80us timer. */
-	Timer<12500, STATUS_T1> timer1;
+	EmuTimer<12500, STATUS_T1> timer1;
 	/** 320us timer. */
-	Timer< 3125, STATUS_T2> timer2;
+	EmuTimer< 3125, STATUS_T2> timer2;
 
 	// ADPCM
 	Y8950Adpcm adpcm;

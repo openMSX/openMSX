@@ -11,19 +11,19 @@ namespace openmsx {
 
 class Scheduler;
 
-class TimerCallback
+class EmuTimerCallback
 {
 public:
-	virtual ~TimerCallback() {}
+	virtual ~EmuTimerCallback() {}
 	virtual void callback(byte value) throw() = 0;
 };
 
 template<int freq, byte flag>
-class Timer : private Schedulable
+class EmuTimer : private Schedulable
 {
 public:
-	Timer(TimerCallback* cb);
-	virtual ~Timer();
+	EmuTimer(EmuTimerCallback* cb);
+	virtual ~EmuTimer();
 	void setValue(byte value);
 	void setStart(bool start, const EmuTime& time);
 
@@ -35,7 +35,7 @@ private:
 
 	int count;
 	bool counting;
-	TimerCallback* cb;
+	EmuTimerCallback* cb;
 	Scheduler& scheduler;
 };
 

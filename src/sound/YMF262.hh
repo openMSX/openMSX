@@ -44,7 +44,7 @@
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "IRQHelper.hh"
-#include "Timer.hh"
+#include "EmuTimer.hh"
 
 
 namespace openmsx {
@@ -128,7 +128,7 @@ public:
 	byte extended;	// set to 1 if this channel forms up a 4op channel with another channel(only used by first of pair of channels, ie 0,1,2 and 9,10,11) 
 };
 
-class YMF262 : private SoundDevice, private TimerCallback, private Debuggable
+class YMF262 : private SoundDevice, private EmuTimerCallback, private Debuggable
 {
 public:
 	YMF262(short volume, const EmuTime& time);
@@ -217,8 +217,8 @@ private:
 	static const int STATUS_T2      = R04_MASK_T2;
 	static const int STATUS_T1      = R04_MASK_T1;
 	// Timers
-	Timer<12500, STATUS_T1> timer1;	//  80us
-	Timer< 3125, STATUS_T2> timer2;	// 320us
+	EmuTimer<12500, STATUS_T1> timer1;	//  80us
+	EmuTimer< 3125, STATUS_T2> timer2;	// 320us
 
 	int chanout[18];		// 18 channels 
 	int* buffer;

@@ -10,7 +10,7 @@ SRC_HDR:= \
 	KeyClick \
 	SCC MSXSCCPlusCart \
 	MSXAudio \
-	Timer \
+	EmuTimer \
 	Y8950 Y8950Adpcm Y8950KeyboardConnector Y8950KeyboardDevice \
 	MC6850 \
 	MSXFmPac MSXMusic \
