@@ -2,6 +2,28 @@ COMMANDS
 ========
 
 
+after
+-----
+
+  [ This is an advanced command, mainly usefull to run openMSX in 'demo' mode ]
+
+  Execute a command after a certain time, or after a certain time of being
+  idle. It is possible the query a list of postponed commands and also to
+  cancel postponed commands.
+
+  usage:
+    after time <seconds> <command>  execute a command after some time
+    after idle <seconds> <command>  execute a command after some time being idle
+    after info                      list all postponed commands
+    after cancel <id>               cancel the postponed command with given id
+
+  examples:
+    after time 10 "set renderer SDLGL"
+    after idle 100 quit
+    after info
+    after cancel 2
+    
+
 alias / unalias
 ---------------
 

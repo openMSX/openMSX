@@ -75,6 +75,39 @@ private:
 		virtual string help(const vector<string>& tokens) const throw();
 	} quitCommand;
 	friend class QuitCommand;
+
+	class AfterCommand : public Command {
+	public:
+		virtual string execute(const vector<string>& tokens)
+			throw(CommandException);
+		virtual string help(const vector<string>& tokens) const
+			throw();
+		virtual void tabCompletion(const vector<string>& tokens) const
+			throw();
+	private:
+		string afterTime(const vector<string>& tokens);
+		string afterIdle(const vector<string>& tokens);
+		string afterInfo(const vector<string>& tokens);
+		string afterCancel(const vector<string>& tokens);
+	} afterCommand;
+	friend class AfterCommand;
+	
+	enum AfterType { TIME, IDLE };
+	string afterNew(const vector<string>& tokens, AfterType type);
+
+	struct AfterCmd : public Schedulable {
+		virtual ~AfterCmd() {}
+		unsigned id;
+		AfterType type;
+		float time;
+		string command;
+	private:
+		virtual void executeUntil(const EmuTime& time, int userData)
+			throw();
+		virtual const string& schedName() const;
+	};
+	map<unsigned, AfterCmd*> afterCmds;
+	unsigned lastAfterId;
 };
 
 } // namespace openmsx

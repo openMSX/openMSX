@@ -2,6 +2,7 @@ $Id$
 
 2003-11-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "info time"
+	* Implemented "after" command (see doc/commands.txt)
 
 2003-11-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Refactored Scheduler:
