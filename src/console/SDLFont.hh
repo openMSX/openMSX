@@ -7,9 +7,11 @@
 
 struct SDL_Surface;
 
+
 namespace openmsx {
 
 class File;
+
 
 class SDLFont : public Font
 {
@@ -27,4 +29,4 @@ private:
 
 } // namespace openmsx
 
-#endif
+#endif // __SDLFONT_HH__

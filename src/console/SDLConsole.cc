@@ -6,29 +6,36 @@
  *  in any of your programs.
  */
 
-#include <cassert>
-
 #include "SDLConsole.hh"
 #include "SDLFont.hh"
 #include "MSXConfig.hh"
 #include "File.hh"
 #include "CommandConsole.hh"
 #include "DebugConsole.hh"
+#include <cassert>
+
+#include "config.h"
+#ifdef HAVE_SDL_IMAGE_H
+#include <SDL_image.h>
+#else
+#include <SDL/SDL_image.h>
+#endif
+
 
 namespace openmsx {
 
 SDLConsole::SDLConsole(Console& console_, SDL_Surface* screen)
 	: OSDConsoleRenderer(console_),
 	  console(console_)
-{ 
+{
 	string temp = console.getId();
 	blink = false;
 	lastBlinkTime = 0;
-	
+
 	outputScreen = screen;
 
 	fontSetting = new FontSetting(this, temp + "font", console.getFont());
-	
+
 	initConsoleSize();
 	OSDConsoleRenderer::updateConsoleRect(destRect);
 
@@ -38,7 +45,7 @@ SDLConsole::SDLConsole(Console& console_, SDL_Surface* screen)
 		format->Rmask, format->Gmask, format->Bmask, format->Amask);
 	SDL_SetAlpha(backgroundImage, SDL_SRCALPHA, CONSOLE_ALPHA);
 
-	backgroundSetting = new BackgroundSetting(this, temp + "background", 
+	backgroundSetting = new BackgroundSetting(this, temp + "background",
 	                                          console.getBackground());
 }
 
@@ -47,7 +54,7 @@ SDLConsole::~SDLConsole()
 	if (backgroundImage) {
 		SDL_FreeSurface(backgroundImage);
 	}
-	
+
 	delete fontSetting;
 	delete backgroundSetting;
 }
@@ -79,7 +86,7 @@ void SDLConsole::drawConsole()
 		return;
 	}
 	updateConsoleRect();
-	
+
 	// draw the background image if there is one
 	if (backgroundImage) {
 		SDL_BlitSurface(backgroundImage, NULL, outputScreen, &destRect);
@@ -135,7 +142,7 @@ bool SDLConsole::loadBackground(const string& filename)
 	if (pictureSurface == NULL) {
 		return false;
 	}
-	
+
 	if (backgroundImage) {
 		SDL_FreeSurface(backgroundImage);
 	}
@@ -153,7 +160,7 @@ bool SDLConsole::loadBackground(const string& filename)
 	bmask = 0x00ff0000;
 	amask = 0xff000000;
 #endif
-	SDL_Surface * scaled32Surface = SDL_CreateRGBSurface(
+	SDL_Surface* scaled32Surface = SDL_CreateRGBSurface(
 		SDL_SWSURFACE, destRect.w, destRect.h, 32, rmask, gmask, bmask, amask);
 	SDL_Surface* picture32Surface =
 		SDL_ConvertSurface(pictureSurface, scaled32Surface->format, SDL_SWSURFACE);
@@ -179,7 +186,7 @@ bool SDLConsole::loadBackground(const string& filename)
 		}
 		if (!constant) break;
 	}
-	
+
 	// convert the background to the right format
 	if (constant) {
 		backgroundImage = SDL_DisplayFormat(scaled32Surface);

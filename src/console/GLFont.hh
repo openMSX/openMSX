@@ -13,15 +13,15 @@ namespace openmsx {
 
 class GLFont : public Font
 {
-	public:
-		GLFont(GLuint texture, int width, int height, GLfloat *texCoord);
-		virtual ~GLFont();
+public:
+	GLFont(GLuint texture, int width, int height, GLfloat* texCoord);
+	virtual ~GLFont();
 
-		virtual void drawText(const string &string, int x, int y);
+	virtual void drawText(const string& string, int x, int y);
 
-	private:
-		GLuint fontTexture;
-		int listBase;
+private:
+	GLuint fontTexture;
+	int listBase;
 };
 
 } // namespace openmsx

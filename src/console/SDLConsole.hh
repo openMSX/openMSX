@@ -4,12 +4,13 @@
 #define __SDLCONSOLE_HH__
 
 #include "OSDConsoleRenderer.hh"
+#include <SDL/SDL.h>
 
-struct SDL_Surface;
 
 namespace openmsx {
 
 class Console;
+
 
 class SDLConsole : public OSDConsoleRenderer
 {
@@ -21,7 +22,7 @@ public:
 	virtual bool loadBackground(const string& filename);
 	virtual void drawConsole();
 	virtual void updateConsole();
-	
+
 private:
 	SDL_Surface* outputScreen;
 	SDL_Surface* backgroundImage;
@@ -31,7 +32,7 @@ private:
 	Console& console;
 
 	SDL_Rect destRect;
-	
+
 	void updateConsoleRect();
 	int zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth);
 };

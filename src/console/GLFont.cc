@@ -3,13 +3,6 @@
 #include "GLFont.hh"
 #ifdef __OPENGL_AVAILABLE__
 
-#include "SDL/SDL.h"
-
-#ifdef HAVE_SDL_IMAGE_H
-#include "SDL_image.h"
-#else
-#include "SDL/SDL_image.h"
-#endif
 
 namespace openmsx {
 
@@ -18,7 +11,7 @@ const int CHARS_PER_ROW = 16;
 const int CHARS_PER_COL = NUM_CHRS / CHARS_PER_ROW;
 
 
-GLFont::GLFont(GLuint texture, int width, int height, GLfloat *texCoord)
+GLFont::GLFont(GLuint texture, int width, int height, GLfloat* texCoord)
 {
 	fontTexture = texture;
 	charWidth  = width  / CHARS_PER_ROW;
@@ -36,13 +29,13 @@ GLFont::GLFont(GLuint texture, int width, int height, GLfloat *texCoord)
 			GLfloat y = v * texChrHeight;
 			glNewList(listBase + n, GL_COMPILE);
 			  glBegin(GL_QUADS);
-			    glTexCoord2f(x, y);					// top left
+			    glTexCoord2f(x, y); // top left
 			    glVertex2i(0, 0);
-			    glTexCoord2f(x, y + texChrHeight);			// bottom left
+			    glTexCoord2f(x, y + texChrHeight); // bottom left
 			    glVertex2i(0, charHeight);
-			    glTexCoord2f(x + texChrWidth, y + texChrHeight);	// bottom right
+			    glTexCoord2f(x + texChrWidth, y + texChrHeight); // bottom right
 			    glVertex2i(charWidth, charHeight);
-			    glTexCoord2f(x + texChrWidth, y);			// top right
+			    glTexCoord2f(x + texChrWidth, y); // top right
 			    glVertex2i(charWidth, 0);
 			  glEnd();
 			  glTranslated(charWidth, 0, 0);
@@ -57,8 +50,7 @@ GLFont::~GLFont()
 	glDeleteTextures(1, &fontTexture);
 }
 
-
-void GLFont::drawText(const string &string, int x, int y)
+void GLFont::drawText(const string& string, int x, int y)
 {
 	glBindTexture(GL_TEXTURE_2D, fontTexture);
 	glTranslated(x, y, 0);

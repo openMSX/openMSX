@@ -1,26 +1,28 @@
 // $Id$
 
-#include <algorithm>
 #include "OSDConsoleRenderer.hh"
 #include "MSXConfig.hh"
 #include "Config.hh"
 #include "CommandConsole.hh"
 #include "File.hh"
+#include <algorithm>
+#include <SDL/SDL.h>
+
 
 namespace openmsx {
 
-
 // class BackgroundSetting
 
-BackgroundSetting::BackgroundSetting(OSDConsoleRenderer *console_, const string settingName,
-                                     const string &filename)
-	: FilenameSetting(settingName, "console background file", ""),
-	  console(console_)
+BackgroundSetting::BackgroundSetting(
+	OSDConsoleRenderer* console_, const string settingName,
+	const string& filename
+)	: FilenameSetting(settingName, "console background file", "")
+	, console(console_)
 {
 	setValueString(filename);
 }
 
-bool BackgroundSetting::checkFile(const string &filename)
+bool BackgroundSetting::checkFile(const string& filename)
 {
 	bool ok = console->loadBackground(filename);
 	if (ok) {
@@ -32,15 +34,16 @@ bool BackgroundSetting::checkFile(const string &filename)
 
 // class FontSetting
 
-FontSetting::FontSetting(OSDConsoleRenderer *console_, const string settingName,
-                         const string &filename)
-	: FilenameSetting(settingName, "console font file", ""),
-	  console(console_)
+FontSetting::FontSetting(
+	OSDConsoleRenderer* console_, const string settingName,
+	const string& filename
+)	: FilenameSetting(settingName, "console font file", "")
+	, console(console_)
 {
 	setValueString(filename);
 }
 
-bool FontSetting::checkFile(const string &filename)
+bool FontSetting::checkFile(const string& filename)
 {
 	bool ok = console->loadFont(filename);
 	if (ok) {
@@ -72,7 +75,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 				fontName = context->resolve(fontName);
 				console.setFont(fontName);
 			}
-		} catch (FileException &e) {
+		} catch (FileException& e) {
 			// nothing
 		}
 
@@ -82,11 +85,11 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 				backgroundName = context->resolve(backgroundName);
 				console.setBackground(backgroundName);
 			}
-		} catch (FileException &e) {
+		} catch (FileException& e) {
 			// nothing
 		}
 
-	} catch (ConfigException &e) {
+	} catch (ConfigException& e) {
 		// no Console section
 		context = new SystemFileContext();
 	}
@@ -117,12 +120,12 @@ OSDConsoleRenderer::~OSDConsoleRenderer()
 	delete context;
 }
 
-void OSDConsoleRenderer::setBackgroundName(const string &name)
+void OSDConsoleRenderer::setBackgroundName(const string& name)
 {
 	console.setBackground(name);
 }
 
-void OSDConsoleRenderer::setFontName(const string &name)
+void OSDConsoleRenderer::setFontName(const string& name)
 {
 	console.setFont(name);
 }
@@ -145,11 +148,11 @@ void OSDConsoleRenderer::initConsoleSize()
 
 	string tempconfig = console.getId();
 	tempconfig[0]=::toupper(tempconfig[0]);
-	Config *config = MSXConfig::instance().getConfigById(tempconfig);
+	Config* config = MSXConfig::instance().getConfigById(tempconfig);
 	// check if this console is already initiated
 	if (initsDone.find(tempconfig) == initsDone.end()) {
 		initsDone.insert(tempconfig);
-		SDL_Surface *screen = SDL_GetVideoSurface();
+		SDL_Surface* screen = SDL_GetVideoSurface();
 		console.setColumns(config->getParameterAsInt("columns",
 			(((screen->w - CHAR_BORDER) / font->getWidth()) * 30) / 32));
 		console.setRows(config->getParameterAsInt("rows", 
@@ -186,7 +189,7 @@ void OSDConsoleRenderer::initConsoleSize()
 
 void OSDConsoleRenderer::adjustColRow()
 {
-	SDL_Surface *screen = SDL_GetVideoSurface();
+	SDL_Surface* screen = SDL_GetVideoSurface();
 	if (console.getColumns() > (unsigned)((screen->w - CHAR_BORDER) / font->getWidth())) {
 		consoleColumns = (screen->w - CHAR_BORDER) / font->getWidth();
 	} else {
@@ -199,9 +202,9 @@ void OSDConsoleRenderer::adjustColRow()
 	}
 }
 
-void OSDConsoleRenderer::updateConsoleRect(SDL_Rect & rect)
+void OSDConsoleRenderer::updateConsoleRect(SDL_Rect& rect)
 {
-	SDL_Surface *screen = SDL_GetVideoSurface();
+	SDL_Surface* screen = SDL_GetVideoSurface();
 	
 	// TODO use setting listener in the future
 	console.setRows(consoleRowsSetting->getValue());

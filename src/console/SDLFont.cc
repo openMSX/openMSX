@@ -5,17 +5,19 @@
  *  in any of your programs.
  */
 
-#ifdef HAVE_SDL_IMAGE_H
-#include "SDL_image.h"
-#else
-#include "SDL/SDL_image.h"
-#endif
-
-#include "SDL/SDL.h"
 #include "SDLFont.hh"
 #include "openmsx.hh"
 #include "MSXException.hh"
 #include "File.hh"
+#include <SDL/SDL.h>
+
+#include "config.h"
+#ifdef HAVE_SDL_IMAGE_H
+#include <SDL_image.h>
+#else
+#include <SDL/SDL_image.h>
+#endif
+
 
 namespace openmsx {
 
@@ -31,7 +33,7 @@ SDLFont::SDLFont(File* file)
 	if (!(image1 = IMG_Load(file->getLocalName().c_str()))) {
 		throw MSXException("Can't load font");
 	}
-	
+
 	fontSurface = SDL_DisplayFormatAlpha(image1);
 	
 	charWidth  = fontSurface->w / CHARS_PER_ROW;
@@ -48,7 +50,7 @@ void SDLFont::setSurface(SDL_Surface* surface)
 	drawSurface = surface;
 }
 
-void SDLFont::drawText(const string &string, int x, int y)
+void SDLFont::drawText(const string& string, int x, int y)
 {
 	// see how many characters can fit on the screen
 	if ((drawSurface->w <= x) || (drawSurface->h <= y)) {

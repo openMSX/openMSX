@@ -4,13 +4,20 @@
 
 #ifdef __OPENGL_AVAILABLE__
 
-#include <cassert>
 #include "MSXConfig.hh"
 #include "DummyFont.hh"
 #include "GLFont.hh"
 #include "File.hh"
 #include "Console.hh"
 #include "CliCommOutput.hh"
+#include <cassert>
+
+#include "config.h"
+#ifdef HAVE_SDL_IMAGE_H
+#include <SDL_image.h>
+#else
+#include <SDL/SDL_image.h>
+#endif
 
 
 namespace openmsx {
