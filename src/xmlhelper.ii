@@ -9,6 +9,11 @@ template <class T> XMLHelper<T>::XMLHelper<T>(XMLNode *anode):node(anode),emptyS
 {
 }
 
+template <class T> void XMLHelper<T>::setNode(XMLNode *anode)
+{
+	node = anode;
+}
+
 template <class T> void XMLHelper<T>::checkName(const std::string &name)
 {
 	std::ostringstream buffer;
@@ -16,6 +21,38 @@ template <class T> void XMLHelper<T>::checkName(const std::string &name)
 	{
 		buffer << "Expected <" << name << "> node, ";
 		buffer << "got <" << node->name() << ">";
+		throw T(buffer);
+	}
+}
+
+template <class T> bool XMLHelper<T>::justCheckName(const std::string &name)
+{
+	return (node->name()==name);
+}
+
+template <class T> void XMLHelper<T>::checkName(const std::list<string> &nameList)
+{
+	bool found = false;
+	std::list<string>::const_iterator i = nameList.begin();
+	for (; i!=nameList.end(); ++i)
+	{
+		if (node->name() == *i)
+			found = true;
+	}
+	if (!found)
+	{
+		std::ostringstream buffer;
+		buffer << "Expected ";
+		i = nameList.begin();
+		bool first = true;
+		for (; i!=nameList.end(); ++i)
+		{
+			if (!first)
+				buffer << " or ";
+			else
+				first = false;
+			buffer << "<" << *i << ">";
+		}
 		throw T(buffer);
 	}
 }
@@ -37,7 +74,7 @@ template <class T> const string &XMLHelper<T>::getProperty(const std::string &na
 	{
 		return emptyString;
 	}
-	return node->property("id")->value();
+	return node->property(name)->value();
 
 }
 
@@ -47,7 +84,75 @@ template <class T> const string &XMLHelper<T>::getProperty(const std::string &na
 	{
 		return defaultValue;
 	}
-	return node->property("id").value();
+	return node->property(name).value();
+}
+
+template <class T> void XMLHelper<T>::checkChildrenAtLeast(unsigned int num)
+{
+	std::ostringstream buffer;
+	if (node->children().size()<num)
+	{
+		buffer << "Expected at least " << num;
+		buffer << " child-nodes for node <" << node->name();
+		buffer << ">";
+		throw T(buffer);
+	}
+}
+
+template <class T> unsigned int XMLHelper<T>::childrenSize()
+{
+	// TODO, make this a descent C++ cast
+	return (int)node->children().size();
+}
+
+template <class T> void XMLHelper<T>::checkContentNode()
+{
+	std::ostringstream buffer;
+	if (node->children().size()!=1)
+	{
+		buffer << "Missing content node for <";
+		buffer << node->name() << ">";
+		throw T(buffer);
+	}
+	XMLNodeList::const_iterator i = node->children().begin();
+	if ( ! (*i)->is_content() )
+	{
+		buffer << "Child node of node <" << node->name();
+		buffer << "> is not a content node.";
+		throw T(buffer);
+	}
+}
+
+template <class T> const string &XMLHelper<T>::getContent()
+{
+	XMLNodeList::const_iterator i = node->children().begin();
+	return (*i)->content();
+}
+
+string space(int depth)
+	{
+		std::ostringstream t;
+		if (depth>0)
+		{
+			for (int i=0;i<depth*4;i++)
+				t << " ";
+		}
+		return t.str();
+	}
+
+template <class T> void XMLHelper<T>::dump(int depth=0)
+{
+	// dump a node, recursivly
+	std::cout << space(depth) << "name: " << node->name() << std::endl;
+	if (node->children().size()>0)
+	{
+		XMLNodeList::const_iterator i = node->children().begin();
+		for (; i!=node->children().end(); ++i)
+		{
+			XMLHelper<T> xh(*i);
+			xh.dump(depth+1);
+		}
+	}
 }
 
 #endif

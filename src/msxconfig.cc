@@ -14,23 +14,6 @@
 // TODO page,ps,ss value errors
 
 
-int getSlottedSub(const std::string &subname, XMLNodeList::const_iterator &slotted_children_i, const std::string &id)
-{
-	std::ostringstream buffer;
-	if ((*slotted_children_i)->children().size()!=1)
-	{
-		buffer << "Missing content node for <" << subname << "> for <device id='" << id << "'>.";
-		throw MSXConfig::XMLParseException(buffer);
-	}
-	XMLNodeList::const_iterator content_node = (*slotted_children_i)->children().begin();
-	if (!((*content_node)->is_content()))
-	{
-		buffer << "Child node of <" << subname << "> for <device id='" << id << "'> is not a content node.";
-	throw MSXConfig::XMLParseException(buffer);
-	}
-	return atoi((*content_node)->content().c_str());
-}
-
 MSXConfig *volatile MSXConfig::oneInstance;
 
 MSXConfig *MSXConfig::instance()
@@ -98,150 +81,94 @@ MSXConfig::Device::Device(XMLNode *deviceNode):desc(""),rem("")
 	std::ostringstream buffer;
 
 // device - <!ELEMENT msxconfig (device)+>
-	XMLHelper<MSXConfig::XMLParseException> xh(deviceNode);
+	XMLHelper<MSXConfig::XMLParseException> xh_device(deviceNode);
 	// check if it is a devicenode
-	xh.checkName("device");
+	xh_device.checkName("device");
 
 // id - ATTLIST device id CDATA #IMPLIED>
-	xh.checkProperty("id");
-	id = xh.getProperty("id");
+	xh_device.checkProperty("id");
+	id = xh_device.getProperty("id");
 
 // type - <!ELEMENT device (type,slotted*,parameter*,desc?,rem?)>
 
-	XMLNodeList::size_type device_children_count;
-	if ((device_children_count=deviceNode->children().size())<1)
-	{
-		buffer << "Expecting at least one child node for <device id='" << id << "'>.";
-		throw MSXConfig::XMLParseException(buffer);
-	}
+	xh_device.checkChildrenAtLeast(1);
+	unsigned int device_children_count = xh_device.childrenSize();
 	XMLNodeList::const_iterator device_children_i = deviceNode->children().begin();
-	if ((*device_children_i)->name()!="type")
-	{
-		buffer << "Missing mandatory first child node <type> for <device id='" << id << "'>.";
-		throw MSXConfig::XMLParseException(buffer);
-	}
-	if ((*device_children_i)->children().size()!=1)
-	{
-		buffer << "Missing content node for <type> for <device id='" << id << "'>.";
-		throw MSXConfig::XMLParseException(buffer);
-	}
-	XMLNodeList::const_iterator content_node = (*device_children_i)->children().begin();
-	if (!((*content_node)->is_content()))
-	{
-		buffer << "Child node of <type> for <device id='" << id << "'> is not a content node.";
-		throw MSXConfig::XMLParseException(buffer);
-	}
-	deviceType = ((*content_node)->content());
+	XMLHelper<MSXConfig::XMLParseException> xh_device_child(*device_children_i);
+	xh_device_child.checkName("type");
+	xh_device_child.checkContentNode();
+	deviceType = xh_device_child.getContent();
 	if (device_children_count==1)
 		return; // it was only one child node, soo we can return
 	// else: either a slotted structure, or the first parameter
 
 // slotted*,parameter* - <!ELEMENT device (type,slotted*,parameter*,desc?,rem?)>
 
-	device_children_i++;
-	if ((*device_children_i)->name()!="slotted" 
-		&& (*device_children_i)->name()!="parameter"
-		&& (*device_children_i)->name()!="rem"
-		&& (*device_children_i)->name()!="desc")
-	{
-		buffer << "Either <slotted> or <parameter> or <desc> or <rem> expected as second child node for <device id='" << id << "'>.";
-		throw MSXConfig::XMLParseException(buffer);
-	}
+	++device_children_i;
+	xh_device_child.setNode(*device_children_i);
+	std::list<string> string_list;
+	string_list.push_back("slotted");
+	string_list.push_back("parameter");
+	string_list.push_back("rem");
+	string_list.push_back("desc");
+	xh_device_child.checkName(string_list);
 
 // slotted*,parameter* - <!ELEMENT device (type,slotted*,parameter*)>
 
 	while (device_children_i!=deviceNode->children().end())
 	{
-		if ((*device_children_i)->name()=="slotted")
+		xh_device_child.setNode(*device_children_i);
+		if (xh_device_child.justCheckName("slotted"))
 		{
 
 // slotted* - <!ELEMENT device (type,slotted*,parameter*)>
 
-			if ((*device_children_i)->children().size()<1)
-			{
-				buffer << "Expected at least 1 child node for <slotted> node in <device id='" << id << "'>.";
-				throw MSXConfig::XMLParseException(buffer);
-			} // end ((*device_children_i)->children().size()<1)
+			xh_device_child.checkChildrenAtLeast(1);
 			XMLNodeList::const_iterator slotted_children_i = (*device_children_i)->children().begin();
 			int ps = -1;
 			int ss = -1;
 			int page = -1;
 			while (slotted_children_i!=(*device_children_i)->children().end())
 			{
-				if ((*slotted_children_i)->name()=="ps") // ps - <!ELEMENT ps (#PCDATA)>
-					ps = getSlottedSub(string("ps"), slotted_children_i, id);
-				else if ((*slotted_children_i)->name()=="ss") // ss - <!ELEMENT ss (#PCDATA)>
-					ss = getSlottedSub(string("ss"), slotted_children_i, id);
-				else if ((*slotted_children_i)->name()=="page") // page - <!ELEMENT page (#PCDATA)>
-					page = getSlottedSub(string("page"), slotted_children_i, id);
+				XMLHelper<MSXConfig::XMLParseException> xh_slotted_child(*slotted_children_i);
+				xh_slotted_child.checkContentNode();
+				if (xh_slotted_child.justCheckName("ps")) // ps - <!ELEMENT ps (#PCDATA)>
+					ps = atoi(xh_slotted_child.getContent().c_str());
+				else if (xh_slotted_child.justCheckName("ss")) // ss - <!ELEMENT ss (#PCDATA)>
+					ss = atoi(xh_slotted_child.getContent().c_str());
+				else if (xh_slotted_child.justCheckName("page")) // page - <!ELEMENT page (#PCDATA)>
+					page =  atoi(xh_slotted_child.getContent().c_str());
 				slotted_children_i++;
 			}
 			slotted.push_back(new Slotted(ps,ss,page));
 			// increment on the <slotted> and <parameter> level
 			device_children_i++;
 		}
-		else if ((*device_children_i)->name()=="parameter")
+		else if (xh_device_child.justCheckName("parameter"))
 
 // parameter* - <!ELEMENT device (type,slotted*,parameter*)>
 
 		{
-			if ((*device_children_i)->property("name")==0)
-			{
-				buffer << "Expected mandatory 'name' property in <parameter> child node in <device id='" << id << "'>.";
-				throw MSXConfig::XMLParseException(buffer);
-			}
-			string name((*device_children_i)->property("name")->value());
+			xh_device_child.checkProperty("name");
+			string name(xh_device_child.getProperty("name"));
 			// class is optional
-			string clasz("");
-			if ((*device_children_i)->property("class")!=0)
-			{
-				clasz=(*device_children_i)->property("class")->value();
-			}
-			if ((*device_children_i)->children().size()!=1)
-			{
-				buffer << "Missing content node for <parameter name='" << name << "'> for <device id='" << id << "'>.";
-				throw MSXConfig::XMLParseException(buffer);
-			}
-			content_node = (*device_children_i)->children().begin();
-			if (!((*content_node)->is_content()))
-			{
-				buffer << "Child node of <parameter name='" << name << "'> for <device id='" << id << "'> is not a content node.";
-				throw MSXConfig::XMLParseException(buffer);
-			}
-			string value((*content_node)->content());
+			string clasz(xh_device_child.getProperty("class"));
+			xh_device_child.checkContentNode();
+			string value(xh_device_child.getContent());
+			//
 			parameters.push_back(new Parameter(name,value,clasz));
 			device_children_i++;
 		}
-		else if ((*device_children_i)->name()=="desc")
+		else if (xh_device_child.justCheckName("desc"))
 		{
-			if ((*device_children_i)->children().size()!=1)
-			{
-				buffer << "Missing content node for <desc> for <device id='" << id << "'>.";
-				throw MSXConfig::XMLParseException(buffer);
-		}
-			content_node = (*device_children_i)->children().begin();
-			if (!((*content_node)->is_content()))
-			{
-				buffer << "Child node of <desc> for <device id='" << id << "'> is not a content node.";
-				throw MSXConfig::XMLParseException(buffer);
-			}
-			desc = (*content_node)->content();
+			xh_device_child.checkContentNode();
+			desc = xh_device_child.getContent();
 			device_children_i++;
 		}
-		else if ((*device_children_i)->name()=="rem")
+		else if (xh_device_child.justCheckName("rem"))
 		{
-			if ((*device_children_i)->children().size()!=1)
-			{
-				buffer << "Missing content node for <rem> for <device id='" << id << "'>.";
-				throw MSXConfig::XMLParseException(buffer);
-			}
-			content_node = (*device_children_i)->children().begin();
-			if (!((*content_node)->is_content()))
-			{
-				buffer << "Child node of <rem> for <device id='" << id << "'> is not a content node.";
-				throw MSXConfig::XMLParseException(buffer);
-			}
-			rem = (*content_node)->content();
+			xh_device_child.checkContentNode();
+			desc = xh_device_child.getContent();
 			device_children_i++;
 		}
 	}

@@ -4,62 +4,62 @@
 <msxconfig>
   <device id="MotherBoard">
     <type>MotherBoard</type>
-	<parameter name="0" class="subslotted">false</parameter>
-	<parameter name="1" class="subslotted">false</parameter>
-	<parameter name="2" class="subslotted">false</parameter>
-	<parameter name="3" class="subslotted">true</parameter>
+    <parameter name="0" class="subslotted">false</parameter>
+    <parameter name="1" class="subslotted">false</parameter>
+    <parameter name="2" class="subslotted">false</parameter>
+    <parameter name="3" class="subslotted">true</parameter>
   </device>
   <device id="myram1">
     <type>Simple64KB</type>
-	<slotted>
-	  <ps>3</ps>
-	  <ss>3</ss>
-	  <page>0</page>
-	</slotted>
-	<slotted>
-	  <ps>3</ps>
-	  <ss>3</ss>
-	  <page>1</page>
-	</slotted>
-	<slotted>
-	  <ps>3</ps>
-	  <ss>3</ss>
-	  <page>2</page>
-	</slotted>
-	<slotted>
-	  <ps>3</ps>
-	  <ss>3</ss>
-	  <page>3</page>
-	</slotted>
-	<parameter name="slow_drain_on_reset">true</parameter>
+    <slotted>
+      <ps>3</ps>
+      <ss>3</ss>
+      <page>0</page>
+    </slotted>
+    <slotted>
+      <ps>3</ps>
+      <ss>3</ss>
+      <page>1</page>
+    </slotted>
+    <slotted>
+      <ps>3</ps>
+      <ss>3</ss>
+      <page>2</page>
+    </slotted>
+    <slotted>
+      <ps>3</ps>
+      <ss>3</ss>
+      <page>3</page>
+    </slotted>
+    <parameter name="slow_drain_on_reset">true</parameter>
   </device>
   <device id="biosrom">
     <type>Rom16KB</type>
-	<slotted>
-	  <page>0</page>
-	  <ps>0</ps>
-	  <ss>0</ss>
-	</slotted>
-	<parameter name="romfile">MSX.ROM</parameter>
-	<parameter name="skip_headerbytes">0</parameter>
+    <slotted>
+      <page>0</page>
+      <ps>0</ps>
+      <ss>0</ss>
+    </slotted>
+    <parameter name="romfile">MSX.ROM</parameter>
+    <parameter name="skip_headerbytes">0</parameter>
   </device>
   <device id="basicrom">
     <type>Rom16KB</type>
-	<slotted>
-	  <page>1</page>
-	  <ps>0</ps>
-	  <ss>0</ss>
-	</slotted>
-	<parameter name="romfile">MSX.ROM</parameter>
-	<parameter name="skip_headerbytes">16384</parameter>
+    <slotted>
+      <page>1</page>
+      <ps>0</ps>
+      <ss>0</ss>
+    </slotted>
+    <parameter name="romfile">MSX.ROM</parameter>
+    <parameter name="skip_headerbytes">16384</parameter>
   </device>
   <device id="ppi">
     <type>PPI</type>
-	<parameter name="foo_bug">no</parameter>
+    <parameter name="foo_bug">no</parameter>
   </device>
   <device id="msx1vdp">
     <type>TMS9928a</type>
-	<parameter name="frequency">PAL</parameter>
+    <parameter name="frequency">PAL</parameter>
   </device>
   <device id="cpu">
     <type>Z80</type>

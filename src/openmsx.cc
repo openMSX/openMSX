@@ -54,7 +54,6 @@ int main (int argc, char **argv)
 	// Here comes the Real Stuff(tm) :-)
 	// (Actualy David's test stuff)
 	
-
 	//Werkt SDL ?
 	if (SDL_Init(SDL_INIT_VIDEO)<0) {
 		PRT_ERROR("Couldn't init SDL: " << SDL_GetError());

@@ -1,6 +1,10 @@
 $Id$
 
-2001-09-13 Joost Damad <j.damad@qahwah.net>
+2001-09-15 Joost Yervante Damad <j.damad@qahwah.net>
+	* reworked msxconfig.cc by using the xmlhelper
+	* xmlhelper is a simplified xml interface
+
+2001-09-13 Joost Yervante Damad <j.damad@qahwah.net>
 	* added xmlhelper class, which I will start using
 	  to make xmlconfig code cleaner
 	* made msxconfig more standards-compliant
