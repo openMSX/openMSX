@@ -131,7 +131,7 @@ void JoyNet::sendByte(byte value)
 	if (!IPwritable) setupWriter();
 
 	//TODO: make write non-blocking!!!
-	if (sockfd) std::write(sockfd,&value,1);
+	if (sockfd) ::write(sockfd,&value,1);
 
 	/* Joynet cable looped for Maartens test program
 	status=value;
@@ -193,11 +193,11 @@ void JoyNet::connectionListener::run()
 	  return;
 	}
 	//Accept only one connection!
-	std::close(listenfd);
+	close(listenfd);
 	
 	//TODO: check if read is blocking.(preferable)
 	int charcounter;
-	while ( (charcounter=std::read(connectfd,&buf,1)) > 0) {
+	while ( (charcounter=::read(connectfd,&buf,1)) > 0) {
 	  PRT_DEBUG("got from TCP/IP code " << std::hex << (int)buf << std::dec );
 	  *statuspointer=buf;
 	};

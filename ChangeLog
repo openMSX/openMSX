@@ -1,5 +1,8 @@
 $Id$
 
+2002-05-15 Bas Wijnen <b.wijnen@student.rug.nl>
+	* g++-3.0 fixes
+
 2002-05-15 David Heremans <david.heremans@gnu-linux.net>
 	* JoyNet cable using TCP/IP implemented
 

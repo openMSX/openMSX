@@ -2,6 +2,7 @@
 #define __FILETYPE_HH__
 
 #include <fstream>
+#include "config.h"
 
 #ifdef HAVE_FSTREAM_TEMPL
 	class IFileType : public std::ifstream <signed_byte> {
@@ -18,6 +19,7 @@
 	class OFileType : public std::ofstream <signed_byte> {
 		public:
 			OFileType (const char *name) : std::ofstream (name) {}
+			OFileType (const char *name, std::ios::openmode mode) : std::ofstream (name, mode) {}
 			void write (const byte *p, size_t s) {
 				std::ofstream <signed_byte>::write(reinterpret_cast <const signed_byte *>(p), s);
 			}
