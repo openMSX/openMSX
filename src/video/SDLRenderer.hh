@@ -105,6 +105,11 @@ private:
 	  */
 	inline Pixel getBorderColour();
 
+	/** Precalc several values that depend on the display mode.
+	  * @param mode The new display mode.
+	  */
+	void setDisplayMode(DisplayMode mode);
+
 	/** Change an entry in the palette.
 	  * Used to implement updatePalette.
 	  */

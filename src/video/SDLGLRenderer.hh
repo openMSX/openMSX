@@ -88,11 +88,6 @@ private:
 	inline void renderGraphic2(int vramLine, int screenLine, int count);
 	inline void renderGraphic2Row(int row, int screenLine);
 
-	/** Precalc several values that depend on the display mode.
-	  * @param mode The new display mode.
-	  */
-	inline void setDisplayMode(DisplayMode mode);
-
 	/** Get a pointer to the start of a VRAM line in the cache.
 	  * @param displayCache The display cache to use.
 	  * @param line The VRAM line, range depends on display cache.
@@ -108,6 +103,11 @@ private:
 	  * TODO: Implement the case that even_colour != odd_colour.
 	  */
 	inline Pixel getBorderColour();
+
+	/** Precalc several values that depend on the display mode.
+	  * @param mode The new display mode.
+	  */
+	void setDisplayMode(DisplayMode mode);
 
 	/** Change an entry in the palette.
 	  * Used to implement updatePalette.

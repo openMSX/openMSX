@@ -204,19 +204,6 @@ inline static int translateX(int absoluteX)
 	return screenX < 0 ? 0 : screenX;
 }
 
-inline void SDLGLRenderer::setDisplayMode(DisplayMode mode)
-{
-	dirtyChecker = modeToDirtyChecker[mode.getBase()];
-	if (mode.isBitmapMode()) {
-		bitmapConverter.setDisplayMode(mode);
-	} else {
-		characterConverter.setDisplayMode(mode);
-	}
-	lineWidth = mode.getLineWidth();
-	palSprites =
-		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg;
-}
-
 void SDLGLRenderer::finishFrame()
 {
 	// Determine which effects to apply.
@@ -498,8 +485,7 @@ SDLGLRenderer::SDLGLRenderer(VDP *vdp, SDL_Surface *screen)
 				| (TMS99X8A_PALETTE[i][2] << 16)
 				| 0xFF000000;
 		}
-	}
-	else {
+	} else {
 		// Precalculate SDL palette for V9938 colours.
 		for (int r = 0; r < 8; r++) {
 			for (int g = 0; g < 8; g++) {
@@ -554,9 +540,9 @@ void SDLGLRenderer::reset(const EmuTime &time)
 	
 	// Init renderer state.
 	setDisplayMode(vdp->getDisplayMode());
+
 	setDirty(true);
 	dirtyForeground = dirtyBackground = true;
-
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 
 	if (!vdp->isMSX1VDP()) {
@@ -587,6 +573,19 @@ void SDLGLRenderer::setFullScreen(
 	if (((screen->flags & SDL_FULLSCREEN) != 0) != fullScreen) {
 		SDL_WM_ToggleFullScreen(screen);
 	}
+}
+
+void SDLGLRenderer::setDisplayMode(DisplayMode mode)
+{
+	dirtyChecker = modeToDirtyChecker[mode.getBase()];
+	if (mode.isBitmapMode()) {
+		bitmapConverter.setDisplayMode(mode);
+	} else {
+		characterConverter.setDisplayMode(mode);
+	}
+	lineWidth = mode.getLineWidth();
+	palSprites =
+		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg;
 }
 
 void SDLGLRenderer::updateTransparency(

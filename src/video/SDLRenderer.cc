@@ -12,10 +12,10 @@ TODO:
 #include "SDLRenderer.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
-#include "RealTime.hh"
-#include <math.h>
-#include "SDLConsole.hh"
 #include "RenderSettings.hh"
+#include "RealTime.hh"
+#include "SDLConsole.hh"
+#include <math.h>
 #include "util.hh"
 
 
@@ -82,11 +82,12 @@ inline Pixel SDLRenderer<Pixel, zoom>::getBorderColour()
 	// TODO: Used knowledge of V9938 to merge two 4-bit colours
 	//       into a single 8 bit colour for SCREEN8.
 	//       Keep doing that or make VDP handle SCREEN8 differently?
+	int baseMode = vdp->getDisplayMode().getBase();
 	return
-		( vdp->getDisplayMode().getBase() == DisplayMode::GRAPHIC7
+		( baseMode == DisplayMode::GRAPHIC7
 		? PALETTE256[
-			vdp->getBackgroundColour() | (vdp->getForegroundColour() << 4)]
-		: palBg[ vdp->getDisplayMode().getBase() == DisplayMode::GRAPHIC5
+			vdp->getBackgroundColour() | (vdp->getForegroundColour() << 4) ]
+		: palBg[ baseMode == DisplayMode::GRAPHIC5
 		       ? vdp->getBackgroundColour() & 3
 		       : vdp->getBackgroundColour()
 		       ]
@@ -107,7 +108,7 @@ inline void SDLRenderer<Pixel, zoom>::renderBitmapLines(
 	// Which bits in the name mask determine the page?
 	int pageMask = 0x200 | vdp->getEvenOddMask();
 	while (count--) {
-		// TODO: Optimise addr and line; too many connversions right now.
+		// TODO: Optimise addr and line; too many conversions right now.
 		int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
 		if (lineValidInMode[vramLine] != mode) {
 			const byte *vramPtr = vram->bitmapWindow.readArea(vramLine << 7);
@@ -136,7 +137,7 @@ inline void SDLRenderer<Pixel, zoom>::renderPlanarBitmapLines(
 	// Which bits in the name mask determine the page?
 	int pageMask = vdp->getEvenOddMask();
 	while (count--) {
-		// TODO: Optimise addr and line; too many connversions right now.
+		// TODO: Optimise addr and line; too many conversions right now.
 		int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
 		if ( lineValidInMode[vramLine] != mode
 		|| lineValidInMode[vramLine | 512] != mode ) {
@@ -343,16 +344,8 @@ void SDLRenderer<Pixel, zoom>::reset(const EmuTime &time)
 	PixelRenderer::reset(time);
 	
 	// Init renderer state.
-	DisplayMode mode = vdp->getDisplayMode();
-	dirtyChecker = modeToDirtyChecker[mode.getBase()];
-	if (mode.isBitmapMode()) {
-		bitmapConverter.setDisplayMode(mode);
-	} else {
-		characterConverter.setDisplayMode(mode);
-	}
-
+	setDisplayMode(vdp->getDisplayMode());
 	spriteConverter.setTransparency(vdp->getTransparency());
-	spriteConverter.setPalette(palBg);
 
 	setDirty(true);
 	dirtyForeground = dirtyBackground = true;
@@ -389,6 +382,20 @@ void SDLRenderer<Pixel, zoom>::setFullScreen(
 	if (((screen->flags & SDL_FULLSCREEN) != 0) != fullScreen) {
 		SDL_WM_ToggleFullScreen(screen);
 	}
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::setDisplayMode(DisplayMode mode)
+{
+	dirtyChecker = modeToDirtyChecker[mode.getBase()];
+	if (mode.isBitmapMode()) {
+		bitmapConverter.setDisplayMode(mode);
+	} else {
+		characterConverter.setDisplayMode(mode);
+	}
+	spriteConverter.setPalette(
+		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg
+		);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -518,15 +525,7 @@ void SDLRenderer<Pixel, zoom>::updateDisplayMode(
 	DisplayMode mode, const EmuTime &time)
 {
 	sync(time);
-	dirtyChecker = modeToDirtyChecker[mode.getBase()];
-	if (mode.isBitmapMode()) {
-		bitmapConverter.setDisplayMode(mode);
-	} else {
-		characterConverter.setDisplayMode(mode);
-	}
-	spriteConverter.setPalette(
-		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg
-		);
+	setDisplayMode(mode);
 	setDirty(true);
 }
 
