@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "../../hardwareconfig.dtd">
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
   <info>
     <manufacturer>Sony</manufacturer>
     <code>HB-101P</code>
-    <release_year>?</release_year>
+    <release_year>1985?</release_year>
     <description></description>
     <type>MSX</type>
   </info>
