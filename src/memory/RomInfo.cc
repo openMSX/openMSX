@@ -239,6 +239,16 @@ static void parseNewEntry(
 	}
 }
 
+static string parseStart(const XMLElement& rom)
+{
+	string start = rom.getChildData("start", "");
+	if      (start == "0x0000") return "0000";
+	else if (start == "0x4000") return "4000";
+	else if (start == "0x8000") return "8000";
+	else if (start == "0xC000") return "C000";
+	else return "";
+}
+
 static void parseDB(const XMLElement& doc, DBMap& result)
 {
 	const XMLElement::Children& children = doc.getChildren();
@@ -274,15 +284,11 @@ static void parseDB(const XMLElement& doc, DBMap& result)
 				parseNewEntry(*megarom, result, title, year, company,
 				              remark, megarom->getChildData("type"));
 			} else if (const XMLElement* rom = dump.findChild("rom")) {
-				string type = "mirrored";
-				if (rom->findChild("type")) {
-					type = rom->getChildData("type");
-				} else {
-					string start = rom->getChildData("start", "");
-					if      (start == "0x0000") type = "normal0000";
-					else if (start == "0x4000") type = "normal4000";
-					else if (start == "0x8000") type = "normal8000";
-					else if (start == "0xC000") type = "normalC000";
+				string type = rom->getChildData("type", "mirrored");
+				if (type == "normal") {
+					type += parseStart(*rom);
+				} else if (type == "mirrored") {
+					type += parseStart(*rom);
 				}
 				parseNewEntry(*rom, result, title, year, company,
 				              remark, type);

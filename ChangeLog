@@ -1,5 +1,10 @@
 $Id$
 
+2005-03-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Last minute db format change:
+	   type for normal roms is now structured like this
+	   <rom> <type>normal</type> <start>0x4000</start> ... </rom>
+
 2005-03-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Don't send LED events when LED status didn't change:
 	   fixes the slowdowns in sphere
