@@ -22,7 +22,7 @@
 namespace openmsx {
 
 MSXMotherBoard::MSXMotherBoard()
-	: paused(false), powered(false), needReset(false)
+	: paused(false), powered(false), needReset(false), needReInit(false)
 	, blockedCounter(1) // power off
 	, emulationRunning(true)
         , pauseSetting(GlobalSettings::instance().getPauseSetting())
@@ -136,6 +136,10 @@ void MSXMotherBoard::run(bool power)
 			Scheduler& scheduler = Scheduler::instance();
 			scheduler.schedule(scheduler.getCurrentTime());
 		} else {
+			if (needReInit) {
+				needReInit = false;
+				reInitMSX();
+			}
 			if (needReset) {
 				needReset = false;
 				resetMSX();
@@ -195,7 +199,7 @@ void MSXMotherBoard::update(const SettingLeafNode* setting)
 			powerOn();
 		} else {
 			powerOff();
-			reInitMSX();
+			needReInit = true;
 		}
 	} else if (setting == &pauseSetting) {
 		if (pauseSetting.getValue()) {

@@ -67,6 +67,7 @@ private:
 	bool paused;
 	bool powered;
 	bool needReset;
+	bool needReInit;
 
 	int blockedCounter;
 	bool emulationRunning;
