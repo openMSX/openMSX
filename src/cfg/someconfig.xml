@@ -300,6 +300,7 @@
     </slotted>
     <parameter name="filename">MUSIC.ROM</parameter>
     <parameter name="volume">9000</parameter>
+    <parameter name="mode">mono</parameter>    
   </device>
 
   <device id="MSX-Audio">
