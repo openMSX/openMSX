@@ -1,5 +1,13 @@
 $Id$
 
+2004-02-29 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed bug in command engine: when switching display mode while a
+	  command is running, the command's progress was lost.
+	  This bug was introduced in the refactoring of 2004-02-17.
+	* Improved rendering of transparent pixels in Graphic5 (SCREEN6).
+	  It's still not perfect though: real VDP can render even and odd
+	  transparent pixels in different colours, just like the border.
+
 2004-02-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed 2nd drive detection bug on MB8877 based machines
 
