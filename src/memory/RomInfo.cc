@@ -245,6 +245,6 @@ void RomInfo::print()
 			"  Year:        " << year << "\n"
 			"  Company:     " << company);
 	if (this->getRemark().length()!=0)
-	PRT_INFO("\n" << "  Remark:      " << this->getRemark());
+	PRT_INFO("  Remark:      " << this->getRemark());
 }
 
