@@ -39,7 +39,7 @@ class Scheduler : public EventListener
 		static Scheduler *instance();
 		void setSyncPoint(Emutime &timestamp, Schedulable &activedevice);
 		void scheduleEmulation();
-		
+		void stopScheduling();
 		// EventListener
 		void signalEvent(SDL_Event &event);
 		

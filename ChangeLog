@@ -1,12 +1,20 @@
 $Id$
 
+2001-11-13 David Heremans
+	* openMSX now stops when using the WM close button:
+	* Correct close behaviour:
+	    Set a sync point so that if the CPU is scheduled until
+	    infinite we still can stop openMSX.
+	    Wouter will look into the HotKey event distribution,
+	    it is temporarly fixed using if comands.
+
+
 2001-11-09 David Heremans
 	* quickly add a fullscreen flag in the TMS code:
 	    extra parameter in config.xml file
 	    use PrintScreen key to togle
 	* openMSX now stops when pressing F12:
 	    however make sure that openMSx is full screen when you press F12
-	    there are some issues with the HotKey event distribution.
 
 2001-11-07 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* reworked CPU related classes:

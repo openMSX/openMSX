@@ -122,7 +122,7 @@
       <ss>0</ss>
       <page>2</page>
     </slotted>
-    <parameter name="romfile">NEMESIS.ROM</parameter>
+    <parameter name="romfile">PENGUIN.ROM</parameter>
     <parameter name="filesize">131072</parameter>
     <parameter name="skip_headerbytes">0</parameter>
   </device>

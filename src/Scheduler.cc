@@ -65,6 +65,14 @@ void Scheduler::removeFirstSP()
 	scheduleList.erase(scheduleList.begin());
 }
 
+void Scheduler::stopScheduling()
+{
+	runningScheduler=false;
+	//CPU can always be run :-)
+	// We set current time as SP (maybe schedule INFINITE running ?)
+	Emutime now = MSXCPU::instance()->getCurrentTime();
+	setSyncPoint(now, *(MSXCPU::instance())); 
+}
 
 void Scheduler::scheduleEmulation()
 {
@@ -129,5 +137,5 @@ void Scheduler::signalEvent(SDL_Event &event) {
 	}
   } else
     // F12 pressed
-    runningScheduler=false;
+    stopScheduling();
 }

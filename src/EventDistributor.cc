@@ -2,7 +2,7 @@
 
 #include "EventDistributor.hh"
 #include "openmsx.hh"
-
+#include "Scheduler.hh"
 #include <iostream>
 
 #include "config.h"
@@ -13,7 +13,7 @@ EventDistributor::EventDistributor()
 	syncMutex  = SDL_CreateMutex();
 	queueMutex = SDL_CreateMutex();
 //#ifndef NO_SDL_QUIT_EVENT
-	//registerAsyncListener(SDL_QUIT, this);
+	registerAsyncListener(SDL_QUIT, this);
 //#endif
 }
 
@@ -71,7 +71,7 @@ void EventDistributor::signalEvent(SDL_Event &event)
 	// TODO handling of SDL_QUIT should be done in a different class
 	if (event.type == SDL_QUIT) {
 		//TODO: more clean shutdown
-		exit(1);
+		Scheduler::instance()->stopScheduling();
 	}
 	// all (other) events are later handled synchronously, now just queue them
 	SDL_mutexP(queueMutex);
