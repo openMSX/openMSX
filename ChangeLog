@@ -4,6 +4,7 @@ $Id$
 	* fixed pause:
 	   - <F12> now works when paused
 	   - after pause emulation isn't too fast
+	* correct inline in Z80
 	     
 2001-12-01 Maarten ter Huurne <mth@stack.nl>
 	* Fixed compile error in CassettePlayer.cc:
