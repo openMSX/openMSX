@@ -103,7 +103,10 @@ int TCLInterp::commandProc(ClientData clientData, Tcl_Interp* interp,
 	vector<string> tokens;
 	tokens.reserve(objc);
 	for (int i = 0; i < objc; ++i) {
-		tokens.push_back(Tcl_GetString(objv[i]));
+		// TODO optimization: use TCL objects to avoid string conversion
+		int length;
+		char* data = (char*)Tcl_GetByteArrayFromObj(objv[i], &length);
+		tokens.push_back(string(data, length));
 	}
 	TCLCommandResult result(interp);
 	try {

@@ -2,6 +2,11 @@ $Id$
 
 2004-05-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* really fixed TCL_STDOUT redirection
+	* fixed passing of binary data in console command:
+	   was needed for "debug write_block" command
+	* updated "save_debuggable.tcl" script with "load_debuggable"
+	  and "load_all" commands:
+	   This is no savestate script! Most of the times it won't work!
 
 2004-05-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed redirecting the TCL_STDOUT channel:
