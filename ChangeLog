@@ -1,6 +1,9 @@
 $Id$
 
 2004-08-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Don't copy HostCPU
+
+2004-08-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Changed blur scaler for 16bpp:
 	   - do calculations in 24bpp mode to avoid visible rounding errors
 	     (not tested)

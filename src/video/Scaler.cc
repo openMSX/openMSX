@@ -45,7 +45,7 @@ void Scaler<Pixel>::copyLine(
 	byte* srcLine = (byte*)linePtr(src, srcY);
 	byte* dstLine = (byte*)linePtr(dst, dstY);
 	const int nBytes = dst->w * sizeof(Pixel);
-	const HostCPU cpu = HostCPU::getInstance();
+	const HostCPU& cpu = HostCPU::getInstance();
 	if (ASM_X86 && cpu.hasMMXEXT()) {
 		asm (
 			"xorl	%%eax, %%eax;"
@@ -85,7 +85,7 @@ void Scaler<Pixel>::scaleLine(
 	assert(dst->w == width * 2);
 	byte* srcLine = (byte*)linePtr(src, srcY);
 	byte* dstLine = (byte*)linePtr(dst, dstY);
-	const HostCPU cpu = HostCPU::getInstance();
+	const HostCPU& cpu = HostCPU::getInstance();
 	if (ASM_X86 && cpu.hasMMXEXT()) {
 		asm (
 			"xorl	%%eax, %%eax;"
@@ -129,7 +129,7 @@ void Scaler<Pixel>::scaleBlank(
 	Pixel colour,
 	SDL_Surface* dst, int dstY, int endDstY
 ) {
-	const HostCPU cpu = HostCPU::getInstance();
+	const HostCPU& cpu = HostCPU::getInstance();
 	if (ASM_X86 && cpu.hasMMXEXT()) {
 		const unsigned col32 =
 				sizeof(Pixel) == 2

@@ -119,7 +119,7 @@ void SimpleScaler<Pixel>::scaleBlank(
 		// This is a special case that occurs very often.
 		Scaler<Pixel>::scaleBlank(colour, dst, dstY, endDstY);
 	} else {
-		const HostCPU cpu = HostCPU::getInstance();
+		const HostCPU& cpu = HostCPU::getInstance();
 		int darkenFactor = 256 - scanlineAlpha;
 		Pixel scanlineColour = UniversalDarken::darken(
 			darkenFactor, dst->format, colour );
@@ -223,7 +223,7 @@ void SimpleScaler<Pixel>::scale256(
 
 	int darkenFactor = 256 - scanlineAlpha;
 	const int width = dst->w / 2;
-	const HostCPU cpu = HostCPU::getInstance();
+	const HostCPU& cpu = HostCPU::getInstance();
 	while (srcY < endSrcY) {
 		const Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY++);
 		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
@@ -339,7 +339,7 @@ void SimpleScaler<Pixel>::scale512(
 	int darkenFactor = 256 - scanlineAlpha;
 	const unsigned width = dst->w;
 	
-	const HostCPU cpu = HostCPU::getInstance();
+	const HostCPU& cpu = HostCPU::getInstance();
 	while (srcY < endSrcY) {
 		Scaler<Pixel>::copyLine(src, srcY, dst, dstY++);
 		if (dstY == dst->h) break;

@@ -36,6 +36,11 @@ public:
 
 private:
 	HostCPU();
+
+	// disable copy constructor and assignment operator
+	HostCPU(const HostCPU& hostCPU);
+	const HostCPU& operator=(const HostCPU& hostCPU);
+	
 	bool mmxFlag;
 	bool mmxExtFlag;
 };
