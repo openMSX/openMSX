@@ -11,6 +11,7 @@ TODO:
 #include "VideoSystem.hh"
 #include "RenderSettings.hh"
 #include "IntegerSetting.hh"
+#include "BooleanSetting.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
@@ -117,7 +118,7 @@ PixelRenderer::PixelRenderer(VDP* vdp)
 
 	frameSkipCounter = 999; // force drawing of frame
 	finishFrameDuration = 0;
-	drawFrame = false; // don't draw before frameStart is called
+	prevDrawFrame = drawFrame = renderFrame = false; // don't draw before frameStart is called
 	displayEnabled = vdp->isDisplayEnabled();
 	rasterizer->reset();
 
@@ -146,25 +147,29 @@ void PixelRenderer::updateDisplayEnabled(bool enabled, const EmuTime& time)
 
 void PixelRenderer::frameStart(const EmuTime& time)
 {
+	bool draw = false;
 	if (rasterizer->getZ() == Layer::Z_MSX_PASSIVE) {
 		// V9990 is active
 		frameSkipCounter = 0;
-		drawFrame = false;
 	} else if (frameSkipCounter < settings.getMinFrameSkip()->getValue()) {
 		++frameSkipCounter;
-		drawFrame = false;
 	} else if (frameSkipCounter >= settings.getMaxFrameSkip()->getValue()) {
 		frameSkipCounter = 0;
-		drawFrame = true;
+		draw = true;
 	} else {
 		++frameSkipCounter;
-		drawFrame = RealTime::instance().timeLeft(
+		draw = RealTime::instance().timeLeft(
 			(unsigned)finishFrameDuration, time);
-		if (drawFrame) {
+		if (draw) {
 			frameSkipCounter = 0;
 		}
 	}
-	if (!drawFrame) return;
+	prevDrawFrame = drawFrame;
+	drawFrame = draw;
+	renderFrame = drawFrame ||
+	     (prevDrawFrame && vdp->isInterlaced() &&
+	      RenderSettings::instance().getDeinterlace()->getValue());
+	if (!renderFrame) return;
 
 	rasterizer->frameStart();
 
@@ -179,10 +184,10 @@ void PixelRenderer::frameStart(const EmuTime& time)
 
 void PixelRenderer::frameEnd(const EmuTime& time)
 {
-	if (drawFrame) {
+	if (renderFrame) {
 		// Render changes from this last frame.
 		sync(time, true);
-
+		
 		// Let underlying graphics system finish rendering this frame.
 		unsigned long long time1 = Timer::getTime();
 		rasterizer->frameEnd();
@@ -192,8 +197,10 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 		finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
 		                      current * ALPHA;
 	
-		FinishFrameEvent* f = new FinishFrameEvent(VIDEO_MSX);
-		EventDistributor::instance().distributeEvent(f);
+		if (drawFrame) {
+			FinishFrameEvent* f = new FinishFrameEvent(VIDEO_MSX);
+			EventDistributor::instance().distributeEvent(f);
+		}
 	}
 }
 
@@ -446,7 +453,7 @@ void PixelRenderer::updateVRAM(unsigned offset, const EmuTime& time)
 {
 	// Note: No need to sync if display is disabled, because then the
 	//       output does not depend on VRAM (only on background colour).
-	if (drawFrame && displayEnabled && checkSync(offset, time)) {
+	if (renderFrame && displayEnabled && checkSync(offset, time)) {
 		/*
 		fprintf(stderr, "vram sync @ line %d\n",
 			vdp->getTicksThisFrame(time) / VDP::TICKS_PER_LINE
@@ -467,7 +474,7 @@ void PixelRenderer::updateWindow(bool /*enabled*/, const EmuTime& /*time*/)
 
 void PixelRenderer::sync(const EmuTime &time, bool force)
 {
-	if (!drawFrame) return;
+	if (!renderFrame) return;
 
 	// Synchronisation is done in two phases:
 	// 1. update VRAM

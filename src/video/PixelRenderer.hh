@@ -132,7 +132,9 @@ private:
 
 	/** Should current frame be draw or can it be skipped.
 	  */ 
+	bool prevDrawFrame;
 	bool drawFrame;
+	bool renderFrame;
 
 	int frameSkipCounter;
 	double finishFrameDuration;
