@@ -18,7 +18,7 @@ namespace openmsx {
 // class BackgroundSetting
 
 BackgroundSetting::BackgroundSetting(
-	OSDConsoleRenderer* console_, const string& settingName,
+	OSDConsoleRenderer& console_, const string& settingName,
 	const string& filename, XMLElement* node)
 	: FilenameSettingBase(settingName, "console background file", "", node)
 	, console(console_)
@@ -34,18 +34,14 @@ BackgroundSetting::~BackgroundSetting()
 
 bool BackgroundSetting::checkFile(const string& filename)
 {
-	bool ok = console->loadBackground(filename);
-	if (ok) {
-		console->setBackgroundName(filename);
-	}
-	return ok;
+	return console.loadBackground(filename);
 }
 
 
 // class FontSetting
 
 FontSetting::FontSetting(
-	OSDConsoleRenderer* console_, const string& settingName,
+	OSDConsoleRenderer& console_, const string& settingName,
 	const string& filename, XMLElement* node)
 	: FilenameSettingBase(settingName, "console font file", "", node)
 	, console(console_)
@@ -61,11 +57,7 @@ FontSetting::~FontSetting()
 
 bool FontSetting::checkFile(const string& filename)
 {
-	bool ok = console->loadFont(filename);
-	if (ok) {
-		console->setFontName(filename);
-	}
-	return ok;
+	return console.loadFont(filename);
 }
 
 
@@ -79,33 +71,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	, eventDistributor(EventDistributor::instance())
 	, inputEventGenerator(InputEventGenerator::instance())
 {
-	string tempconfig = console.getId();
-	
-	XMLElement& config = SettingsConfig::instance().getCreateChild(tempconfig);
-	FileContext& context = config.getFileContext();
-
-	XMLElement& fontElem = config.getCreateChild("font", console.getFont());
-	try {
-		string fontName = fontElem.getData();
-		fontName = context.resolve(fontName);
-		console.setFont(fontName);
-	} catch (FileException& e) {
-		// nothing
-	}
-
-	XMLElement& backgroundElem = config.getCreateChild("background", console.getBackground());
-	try {
-		string backgroundName = backgroundElem.getData();
-		backgroundName = context.resolve(backgroundName);
-		console.setBackground(backgroundName);
-	} catch (FileException& e) {
-		// nothing
-	}
-
 	font.reset(new DummyFont());
-	if (!console.getFont().empty()) {
-		console.registerConsole(this);
-	}
 	blink = false;
 	lastBlinkTime = 0;
 	unsigned cursorY;
@@ -121,77 +87,75 @@ OSDConsoleRenderer::~OSDConsoleRenderer()
 {
 	consoleSetting.removeListener(this);
 	setActive(false);
-	if (!console.getFont().empty()) {
-		console.unregisterConsole(this);
+}
+
+void OSDConsoleRenderer::initConsole()
+{
+	XMLElement& config = SettingsConfig::instance().getCreateChild("console");
+	FileContext& context = config.getFileContext();
+
+	// font
+	XMLElement& fontElem = config.getCreateChild("font", "");
+	string fontName;
+	try {
+		fontName = context.resolve(fontElem.getData());
+	} catch (FileException& e) {
+		// nothing
 	}
-}
-
-void OSDConsoleRenderer::setBackgroundName(const string& name)
-{
-	console.setBackground(name);
-}
-
-void OSDConsoleRenderer::setFontName(const string& name)
-{
-	console.setFont(name);
-}
-
-void OSDConsoleRenderer::initConsoleSize()
-{
-	// define all possible positions
-	typedef EnumSetting<Console::Placement>::Map PlaceMap;
-	PlaceMap placeMap;
-	placeMap["topleft"]     = Console::CP_TOPLEFT;
-	placeMap["top"]         = Console::CP_TOP;
-	placeMap["topright"]    = Console::CP_TOPRIGHT;
-	placeMap["left"]        = Console::CP_LEFT;
-	placeMap["center"]      = Console::CP_CENTER;
-	placeMap["right"]       = Console::CP_RIGHT;
-	placeMap["bottomleft"]  = Console::CP_BOTTOMLEFT;
-	placeMap["bottom"]      = Console::CP_BOTTOM;
-	placeMap["bottomright"] = Console::CP_BOTTOMRIGHT;
-
-	string tempconfig = console.getId();
-
+	fontSetting.reset(new FontSetting(*this, "consolefont", fontName, &fontElem));
+	
+	// rows / columns
 	SDL_Surface* screen = SDL_GetVideoSurface();
 	int columns = (((screen->w - CHAR_BORDER) / font->getWidth()) * 30) / 32;
 	int rows = ((screen->h / font->getHeight()) * 6) / 15;
-	string placementString = "bottom";
-
-	SettingsConfig& settings = SettingsConfig::instance();
-	XMLElement& config = settings.getCreateChild(tempconfig);
 	XMLElement& columnsElem = config.getCreateChild("columns", columns);
 	XMLElement& rowsElem    = config.getCreateChild("rows",    rows);
-	XMLElement& placeElem   = config.getCreateChild("placement", placementString);
-	
-	columns = columnsElem.getDataAsInt();
-	rows    = rowsElem.getDataAsInt();
-	placementString = placeElem.getData();
-	
-	console.setColumns(columns);
-	console.setRows(rows);
-	
-	PlaceMap::const_iterator it = placeMap.find(placementString);
-	Console::Placement consolePlacement;
-	if (it != placeMap.end()) {
-		consolePlacement = it->second;
-	} else {
-		consolePlacement = Console::CP_BOTTOM; //not found, default
-	}
-	console.setPlacement(consolePlacement);
-	
+	console.setColumns(columnsElem.getDataAsInt());
+	console.setRows(rowsElem.getDataAsInt());
 	adjustColRow();
 	console.setConsoleDimensions(consoleColumns, consoleRows);
-	string tempname = console.getId();
 	consoleColumnsSetting.reset(new IntegerSetting(
-		tempname + "columns", "number of columns in the console",
+		"consolecolumns", "number of columns in the console",
 		console.getColumns(), 32, 999, &columnsElem));
 	consoleRowsSetting.reset(new IntegerSetting(
-		tempname + "rows", "number of rows in the console",
+		"consolerows", "number of rows in the console",
 		console.getRows(), 1, 99, &rowsElem));
-	consolePlacementSetting.reset(new EnumSetting<Console::Placement>(
-		tempname + "placement", "position of the console within the emulator",
-		console.getPlacement(), placeMap, &placeElem));
+	
+	// placement
+	typedef EnumSetting<Placement>::Map PlaceMap;
+	PlaceMap placeMap;
+	placeMap["topleft"]     = CP_TOPLEFT;
+	placeMap["top"]         = CP_TOP;
+	placeMap["topright"]    = CP_TOPRIGHT;
+	placeMap["left"]        = CP_LEFT;
+	placeMap["center"]      = CP_CENTER;
+	placeMap["right"]       = CP_RIGHT;
+	placeMap["bottomleft"]  = CP_BOTTOMLEFT;
+	placeMap["bottom"]      = CP_BOTTOM;
+	placeMap["bottomright"] = CP_BOTTOMRIGHT;
+	XMLElement& placeElem   = config.getCreateChild("placement", "bottom");
+	Placement placement = CP_BOTTOM;
+	PlaceMap::const_iterator it = placeMap.find(placeElem.getData());
+	if (it != placeMap.end()) {
+		placement = it->second;
+	}
+	consolePlacementSetting.reset(new EnumSetting<Placement>(
+		"consoleplacement", "position of the console within the emulator",
+		placement, placeMap, &placeElem));
+	
+	updateConsoleRect(destRect);
+	
+	// background
+	XMLElement& backgroundElem = config.getCreateChild("background", "");
+	string backgroundName;
+	try {
+		backgroundName = context.resolve(backgroundElem.getData());
+	} catch (FileException& e) {
+		// nothing
+	}
+	backgroundSetting.reset(
+		new BackgroundSetting(*this, "consolebackground",
+		                      backgroundName, &backgroundElem));
 }
 
 void OSDConsoleRenderer::adjustColRow()
@@ -251,39 +215,38 @@ void OSDConsoleRenderer::updateConsoleRect(SDL_Rect& rect)
 	console.setConsoleDimensions(consoleColumns, consoleRows);
 	
 	// TODO use setting listener in the future
-	console.setPlacement(consolePlacementSetting->getValue());
-	switch (console.getPlacement()) {
-		case Console::CP_TOPLEFT:
-		case Console::CP_LEFT:
-		case Console::CP_BOTTOMLEFT:
+	switch (consolePlacementSetting->getValue()) {
+		case CP_TOPLEFT:
+		case CP_LEFT:
+		case CP_BOTTOMLEFT:
 			rect.x = 0;
 			break;
-		case Console::CP_TOPRIGHT:
-		case Console::CP_RIGHT:
-		case Console::CP_BOTTOMRIGHT:
+		case CP_TOPRIGHT:
+		case CP_RIGHT:
+		case CP_BOTTOMRIGHT:
 			rect.x = (screen->w - rect.w);
 			break;
-		case Console::CP_TOP:
-		case Console::CP_CENTER:
-		case Console::CP_BOTTOM:
+		case CP_TOP:
+		case CP_CENTER:
+		case CP_BOTTOM:
 		default:
 			rect.x = (screen->w - rect.w) / 2;
 			break;
 	}
-	switch (console.getPlacement()) {
-		case Console::CP_TOPLEFT:
-		case Console::CP_TOP:
-		case Console::CP_TOPRIGHT:
+	switch (consolePlacementSetting->getValue()) {
+		case CP_TOPLEFT:
+		case CP_TOP:
+		case CP_TOPRIGHT:
 			rect.y = 0;
 			break;
-		case Console::CP_LEFT:
-		case Console::CP_CENTER:
-		case Console::CP_RIGHT:
+		case CP_LEFT:
+		case CP_CENTER:
+		case CP_RIGHT:
 			rect.y = (screen->h - rect.h) / 2;
 			break;
-		case Console::CP_BOTTOMLEFT:
-		case Console::CP_BOTTOM:
-		case Console::CP_BOTTOMRIGHT:
+		case CP_BOTTOMLEFT:
+		case CP_BOTTOM:
+		case CP_BOTTOMRIGHT:
 		default:
 			rect.y = (screen->h - rect.h);
 			break;

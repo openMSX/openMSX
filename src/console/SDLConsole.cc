@@ -16,28 +16,20 @@
 namespace openmsx {
 
 SDLConsole::SDLConsole(Console& console_, SDL_Surface* screen)
-	: OSDConsoleRenderer(console_),
-	  console(console_)
+	: OSDConsoleRenderer(console_)
 {
-	string temp = console.getId();
 	blink = false;
 	lastBlinkTime = 0;
 
 	outputScreen = screen;
-
-	fontSetting.reset(new FontSetting(this, temp + "font", console.getFont()));
-
-	initConsoleSize();
-	OSDConsoleRenderer::updateConsoleRect(destRect);
-
+	
 	SDL_PixelFormat* format = outputScreen->format;
 	backgroundImage = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
 		destRect.w, destRect.h, format->BitsPerPixel,
 		format->Rmask, format->Gmask, format->Bmask, format->Amask);
 	SDL_SetAlpha(backgroundImage, SDL_SRCALPHA, CONSOLE_ALPHA);
 
-	backgroundSetting.reset(new BackgroundSetting(this, temp + "background",
-	                                              console.getBackground()));
+	initConsole();
 }
 
 SDLConsole::~SDLConsole()
@@ -45,11 +37,6 @@ SDLConsole::~SDLConsole()
 	if (backgroundImage) {
 		SDL_FreeSurface(backgroundImage);
 	}
-}
-
-// Updates the console buffer
-void SDLConsole::updateConsole()
-{
 }
 
 void SDLConsole::updateConsoleRect()
@@ -62,7 +49,7 @@ void SDLConsole::updateConsoleRect()
 		destRect.w = rect.w;
 		destRect.x = rect.x;
 		destRect.y = rect.y;
-		loadBackground(console.getBackground());
+		loadBackground(backgroundName);
 	}
 }
 
@@ -189,6 +176,7 @@ bool SDLConsole::loadBackground(const string& filename)
 	}
 	SDL_FreeSurface(scaled32Surface);
 
+	backgroundName = filename;
 	return true;
 }
 

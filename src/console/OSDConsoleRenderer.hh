@@ -31,28 +31,28 @@ class BackgroundSetting : public FilenameSettingBase,
                           NON_INHERITABLE(BackgroundSetting)
 {
 public:
-	BackgroundSetting(OSDConsoleRenderer* console, const string& settingName,
+	BackgroundSetting(OSDConsoleRenderer& console, const string& settingName,
 	                  const string& filename, XMLElement* node = NULL);
 	virtual ~BackgroundSetting();
 
 	virtual bool checkFile(const string& filename);
 
 private:
-	OSDConsoleRenderer* console;
+	OSDConsoleRenderer& console;
 };
 
 NON_INHERITABLE_PRE(FontSetting)
 class FontSetting : public FilenameSettingBase, NON_INHERITABLE(FontSetting)
 {
 public:
-	FontSetting(OSDConsoleRenderer* console, const string& settingName,
+	FontSetting(OSDConsoleRenderer& console, const string& settingName,
 	            const string& filename, XMLElement* node = NULL);
 	virtual ~FontSetting();
 
 	virtual bool checkFile(const string& filename);
 
 private:
-	OSDConsoleRenderer* console;
+	OSDConsoleRenderer& console;
 };
 
 class OSDConsoleRenderer: public Layer, private SettingListener
@@ -62,14 +62,10 @@ public:
 	virtual ~OSDConsoleRenderer();
 	virtual bool loadBackground(const string& filename) = 0;
 	virtual bool loadFont(const string& filename) = 0;
-	virtual void updateConsole() = 0;
-
-	void setBackgroundName(const string& name);
-	void setFontName(const string& name);
 
 protected:
+	void initConsole();
 	void updateConsoleRect(SDL_Rect& rect);
-	void initConsoleSize(void);
 
 	/** How transparent is the console? (0=invisible, 255=opaque)
 	  * Note that when using a background image on the GLConsole,
@@ -79,15 +75,25 @@ protected:
 	static const int BLINK_RATE = 500;
 	static const int CHAR_BORDER = 4;
 
+	enum Placement {
+		CP_TOPLEFT,    CP_TOP,    CP_TOPRIGHT,
+		CP_LEFT,       CP_CENTER, CP_RIGHT,
+		CP_BOTTOMLEFT, CP_BOTTOM, CP_BOTTOMRIGHT
+	};
+
 	int consoleRows;
 	int consoleColumns;
-	auto_ptr<EnumSetting<Console::Placement> > consolePlacementSetting;
+	auto_ptr<EnumSetting<Placement> > consolePlacementSetting;
 	auto_ptr<IntegerSetting> consoleRowsSetting;
 	auto_ptr<IntegerSetting> consoleColumnsSetting;
+	auto_ptr<BackgroundSetting> backgroundSetting;
+	auto_ptr<FontSetting> fontSetting;
 	auto_ptr<Font> font;
 	bool blink;
 	unsigned lastBlinkTime;
 	unsigned lastCursorPosition;
+	SDL_Rect destRect;
+	Console& console;
 
 private:
 	static BooleanSetting consoleSetting;
@@ -97,9 +103,6 @@ private:
 	void setActive(bool active);
 
 	bool active;
-	int currentMaxX;
-	int currentMaxY;
-	Console& console;
 	EventDistributor& eventDistributor;
 	InputEventGenerator& inputEventGenerator;
 };

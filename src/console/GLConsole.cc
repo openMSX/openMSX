@@ -13,25 +13,10 @@
 namespace openmsx {
 
 GLConsole::GLConsole(Console& console_)
-	: OSDConsoleRenderer(console_),
-	  console(console_)
+	: OSDConsoleRenderer(console_)
+	, backgroundTexture(0)
 {
-	string temp = console.getId();
-	fontSetting.reset(new FontSetting(this, temp + "font", console.getFont()));
-	initConsoleSize();
-	
-	SDL_Rect rect;
-	OSDConsoleRenderer::updateConsoleRect(rect);
-	dispX = rect.x;
-	dispY = rect.y;
-	consoleHeight = rect.h;
-	consoleWidth = rect.w;
-	
-	// load background
-	backgroundTexture = 0;
-	
-	backgroundSetting.reset(new BackgroundSetting(this, temp + "background",
-	                                              console.getBackground()));
+	initConsole();
 }
 
 GLConsole::~GLConsole()
@@ -86,7 +71,7 @@ bool GLConsole::loadBackground(const string &filename)
 bool GLConsole::loadTexture(const string &filename, GLuint &texture,
 		int &width, int &height, GLfloat *texCoord)
 {
-	SDL_Surface *image1;
+	SDL_Surface* image1;
 	try {
 		File file(filename);
 		image1 = IMG_Load(file.getLocalName().c_str());
@@ -142,20 +127,6 @@ bool GLConsole::loadTexture(const string &filename, GLuint &texture,
 	return true;
 }
 
-void GLConsole::updateConsole()
-{
-}
-
-void GLConsole::updateConsoleRect()
-{
-	SDL_Rect rect;
-	OSDConsoleRenderer::updateConsoleRect(rect);
-	dispX = rect.x;
-	dispY = rect.y;
-	consoleHeight = rect.h;
-	consoleWidth = rect.w;
-}
-
 void GLConsole::paint()
 {
 	glPushAttrib(GL_ENABLE_BIT);
@@ -164,9 +135,9 @@ void GLConsole::paint()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	SDL_Surface *screen = SDL_GetVideoSurface();
+	SDL_Surface* screen = SDL_GetVideoSurface();
 
-	updateConsoleRect();
+	OSDConsoleRenderer::updateConsoleRect(destRect);
 
 	glViewport(0, 0, screen->w, screen->h);
 	glMatrixMode(GL_PROJECTION);
@@ -177,7 +148,7 @@ void GLConsole::paint()
 	glPushMatrix();
 	glLoadIdentity();
 
-	glTranslated(dispX, dispY, 0);
+	glTranslated(destRect.x, destRect.y, 0);
 	// Draw the background image if there is one, otherwise a solid rectangle.
 	if (backgroundTexture) {
 		glEnable(GL_TEXTURE_2D);
@@ -191,21 +162,21 @@ void GLConsole::paint()
 	glTexCoord2f(backTexCoord[0], backTexCoord[1]);
 	glVertex2i(0, 0);
 	glTexCoord2f(backTexCoord[0], backTexCoord[3]);
-	glVertex2i(0, consoleHeight);
+	glVertex2i(0, destRect.h);
 	glTexCoord2f(backTexCoord[2], backTexCoord[3]);
-	glVertex2i(consoleWidth, consoleHeight);
+	glVertex2i(destRect.w, destRect.h);
 	glTexCoord2f(backTexCoord[2], backTexCoord[1]);
-	glVertex2i(consoleWidth, 0);
+	glVertex2i(destRect.w, 0);
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	int screenlines = consoleHeight / font->getHeight();
+	int screenlines = destRect.h / font->getHeight();
 	for (int loop = 0; loop < screenlines; loop++) {
 		int num = loop + console.getScrollBack();
 		glPushMatrix();
 		font->drawText(console.getLine(num), CHAR_BORDER,
-		               consoleHeight - (1 + loop) * font->getHeight());
+		               destRect.h - (1 + loop) * font->getHeight());
 		glPopMatrix();
 	}
 
@@ -228,7 +199,7 @@ void GLConsole::paint()
 			// Print cursor if there is enough room
 			font->drawText(string("_"),
 				CHAR_BORDER + cursorX * font->getWidth(),
-				consoleHeight - (font->getHeight() * (cursorY + 1)));
+				destRect.h - (font->getHeight() * (cursorY + 1)));
 
 		}
 	}

@@ -1,5 +1,9 @@
 $Id$
 
+2004-08-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Simplified console code
+	* All console settings are saved now
+
 2004-08-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed Uncaught exception on "openmsx -v"
 

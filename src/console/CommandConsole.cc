@@ -290,7 +290,7 @@ void CommandConsole::splitLines()
 	cursorLocationY = numberOfLines - 1 - temp;
 }
 
-void CommandConsole::printFast(const string& text)
+void CommandConsole::print(const string& text)
 {
 	string::size_type end = 0;
 	do {
@@ -309,17 +309,6 @@ void CommandConsole::printFast(const string& text)
 			++end; // skip newline
 		}
 	} while (end < text.length());
-}
-
-void CommandConsole::printFlush()
-{
-	updateConsole();
-}
-
-void CommandConsole::print(const string& text)
-{
-	printFast(text);
-	printFlush();
 }
 
 void CommandConsole::newLineConsole(const string& line)
@@ -511,12 +500,6 @@ void CommandConsole::normalKey(char chr)
 void CommandConsole::resetScrollBack()
 {
 	consoleScrollBack = 0;
-}
-
-const string& CommandConsole::getId() const
-{
-	static const string ID("console");
-	return ID;
 }
 
 } // namespace openmsx

@@ -357,9 +357,8 @@ bool CommandController::completeString2(string &str, set<string>& st,
 		// print all possibilities
 		for (it = st.begin(); it != st.end(); ++it) {
 			// TODO print more on one line
-			cmdConsole->printFast(*it);
+			cmdConsole->print(*it);
 		}
-		cmdConsole->printFlush();
 	}
 	return false;
 }

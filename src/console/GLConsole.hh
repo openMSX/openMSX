@@ -3,17 +3,10 @@
 #ifndef __GLCONSOLE_HH__
 #define __GLCONSOLE_HH__
 
-#include <memory>
 #include "OSDConsoleRenderer.hh"
 #include "GLUtil.hh"
 
-using std::auto_ptr;
-
-struct SDL_Surface;
-
 namespace openmsx {
-
-class Console;
 
 class GLConsole : public OSDConsoleRenderer
 {
@@ -23,7 +16,6 @@ public:
 
 	virtual bool loadFont(const string& filename);
 	virtual bool loadBackground(const string& filename);
-	virtual void updateConsole();
 
 	virtual void paint();
 	virtual const string& getName();
@@ -31,18 +23,10 @@ public:
 private:
 	int powerOfTwo(int a);
 	bool loadTexture(const string& filename, GLuint& texture,
-			int& width, int& height, GLfloat* texCoord);
-	void updateConsoleRect();
+	                 int& width, int& height, GLfloat* texCoord);
 
 	GLuint backgroundTexture;
-	auto_ptr<BackgroundSetting> backgroundSetting;
-	auto_ptr<FontSetting> fontSetting;
 	GLfloat backTexCoord[4];
-	int consoleWidth;
-	int consoleHeight;
-	int dispX;
-	int dispY;
-	Console& console;
 };
 
 } // namespace openmsx

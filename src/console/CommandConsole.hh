@@ -25,8 +25,6 @@ public:
 
 	/** Prints a string on the console.
 	  */
-	void printFast(const string &text);
-	void printFlush();
 	void print(const string &text);
 
 	virtual unsigned getScrollBack() const;
@@ -34,7 +32,6 @@ public:
 	virtual void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const;
 	virtual void setCursorPosition(unsigned xPosition, unsigned yPosition);
 	virtual void setConsoleDimensions(unsigned columns, unsigned rows);
-	virtual const string& getId() const;
 
 private:
 	static const int LINESHISTORY = 100;
