@@ -7,7 +7,7 @@
 #include "EmuTime.hh"
 #include "AY8910.hh"
 #include "JoystickPorts.hh"
-#include "MSXCassettePort.hh"
+#include "CassettePort.hh"
 
 class MSXPSG : public MSXIODevice, public AY8910Interface
 {

@@ -18,7 +18,7 @@ openmsx_SOURCES=openmsx.cc \
 	MSXMotherBoard.hh MSXMotherBoard.cc \
 	MSXPPI.hh MSXPPI.cc I8255.hh I8255.cc \
 	KeyClick.hh KeyClick.cc \
-	MSXCassettePort.hh MSXCassettePort.cc \
+	CassettePort.hh CassettePort.cc \
 	CassetteDevice.hh DummyCassetteDevice.hh DummyCassetteDevice.cc \
 	CassettePlayer.hh CassettePlayer.cc \
 	MSXRom16KB.hh MSXRom16KB.cc \
@@ -71,10 +71,10 @@ openmsx_SOURCES=openmsx.cc \
 #openmsx_LDADD= /usr/local/lib/libxml++.la -lSDL -lpthread
 
 # we want most warnings
-AM_CXXFLAGS = -Wall -DDEBUG -g3 -fno-rtti -pipe
+AM_CXXFLAGS = -Wall -DDEBUG -g3 -pipe
 #AM_CXXFLAGS = -Wall -DDEBUG -g3 -pipe
 
 # or perhaps sometimes even more:
-# AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -fno-rtti -pipe
+# AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
 MAINTAINERCLEANFILES = Makefile.in config.h.in stamp-h.in

@@ -57,7 +57,7 @@
     <parameter name="filename">MSX.ROM</parameter>
     <parameter name="skip_headerbytes">16384</parameter>
   </device>
-
+<!--
   <device id="diskrom">
     <type>Rom16KB</type>
     <slotted>
@@ -84,7 +84,7 @@
     <parameter name="0x0021" class="patch">0xC9</parameter>
     <parameter name="" class="patchcode">MSXDiskRomPatch</parameter>
   </device>
-
+-->
   <device id="ppi">
     <type>PPI</type>
     <parameter name="volume">16000</parameter>
@@ -110,7 +110,7 @@
     <type>PSG</type>
     <parameter name="volume">21000</parameter>
   </device>
-
+<!--
   <device id="Kanji ROM">
     <type>Kanji</type>
     <parameter name="filename">KANJI.ROM</parameter>
@@ -147,7 +147,7 @@
     <parameter name="slow_drain_on_reset">false</parameter>
     <parameter name="size">512</parameter>
   </device>
-
+-->
   <device id="Real time clock">
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
@@ -251,7 +251,11 @@
     <parameter name="frequency">22050</parameter>
     <parameter name="samples">512</parameter>
   </config>
-  
+
+  <config id="CassettePort">
+    <type>CassettePort</type>
+  </config>
+
 </msxconfig>
 
 

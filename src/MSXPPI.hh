@@ -33,7 +33,7 @@
 #include "I8255.hh"
 #include "Keyboard.hh"
 #include "KeyClick.hh"
-#include "MSXCassettePort.hh"
+#include "CassettePort.hh"
 
 // David Hermans original comments 
 // This class implements the PPI

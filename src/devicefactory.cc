@@ -5,7 +5,6 @@
 #include "MSXSimple64KB.hh"
 #include "MSXRom16KB.hh"
 #include "MSXPPI.hh"
-#include "MSXCassettePort.hh"
 #include "VDP.hh"
 #include "MSXE6Timer.hh"
 #include "MSXCPU.hh"

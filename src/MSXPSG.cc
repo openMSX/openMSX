@@ -15,7 +15,7 @@ MSXPSG::MSXPSG(MSXConfig::Device *config, const EmuTime &time)
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	ay8910 = new AY8910(*this, volume, time);
 	joyPorts = JoystickPorts::instance();
-	cassette = MSXCassettePort::instance();
+	cassette = CassettePortFactory::instance();
 	
 	MSXMotherBoard::instance()->register_IO_Out(0xA0,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xA1,this);

@@ -1,5 +1,9 @@
 $Id$
 
+2001-12-18 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* fixed CassettePort: 
+	  exceptions don't work if you compile with -fno-rtti, removed it
+
 2001-12-18 David Heremans <david.heremans@gnu-linux.net>
 	* MapperType guesser can be turned on/off
 	* MapperType now configurable in MSXGameCartrdige.

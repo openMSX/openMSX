@@ -117,8 +117,8 @@ nibble MSXPPI::readC0(const EmuTime &time) {
 	return 15;	// TODO check this
 }
 void MSXPPI::writeC1(nibble value, const EmuTime &time) {
-	MSXCassettePort::instance()->setMotor(!(value&1), time);	// 0=0n, 1=Off
-	MSXCassettePort::instance()->cassetteOut(value&2, time);
+	CassettePortFactory::instance()->setMotor(!(value&1), time);	// 0=0n, 1=Off
+	CassettePortFactory::instance()->cassetteOut(value&2, time);
 	
 	Leds::LEDCommand caps = (value&4) ? Leds::CAPS_OFF : Leds::CAPS_ON;
 	Leds::instance()->setLed(caps);
