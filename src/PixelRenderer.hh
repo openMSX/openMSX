@@ -6,8 +6,8 @@
 #include "openmsx.hh"
 #include "Renderer.hh"
 #include "VDPVRAM.hh"
-#include "Command.hh"
 #include "CircularBuffer.hh"
+#include "Settings.hh"
 
 class VDP;
 class SpriteChecker;
@@ -183,19 +183,18 @@ private:
 	  */
 	int nextY;
 
-	/** Frame skip command
+	/** Frame skip setting
 	  */
-	class FrameSkipCmd : public Command {
+	class FrameSkipSetting : public Setting {
 		public:
-			FrameSkipCmd(PixelRenderer *rend);
-			virtual void execute(const std::vector<std::string> &tokens,
-			                     const EmuTime &time);
-			virtual void help(const std::vector<std::string> &tokens) const;
+			FrameSkipSetting(PixelRenderer *rend);
+			std::string getValueString() const;
+			void setValueString(const std::string &valueString,
+			                    const EmuTime &time);
 		private:
 			PixelRenderer *renderer;
-	};
-	friend class FrameSkipCmd;
-	FrameSkipCmd frameSkipCmd;
+	} frameSkipSetting;
+	friend class FrameSkipSetting;
 	bool autoFrameSkip;
 	int frameSkip;
 	int curFrameSkip;

@@ -1,5 +1,8 @@
 $Id$
 
+2003-03-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Converted "frameskip" console command into a setting
+
 2003-03-01 Maarten ter Huurne <maarten@treewalker.org>
 	* Updated C-BIOS to version 0.15.
 

@@ -1,13 +1,12 @@
 // $Id$
 
+#include <sstream>
 #include "PixelRenderer.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "RealTime.hh"
-#include "CommandController.hh"
 #include "RenderSettings.hh"
-#include <stdio.h>
 
 /*
 TODO:
@@ -129,14 +128,12 @@ inline void PixelRenderer::renderUntil(const EmuTime &time)
 }
 
 PixelRenderer::PixelRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
-	: Renderer(fullScreen), frameSkipCmd(this)
+	: Renderer(fullScreen), frameSkipSetting(this)
 {
 	this->vdp = vdp;
 	vram = vdp->getVRAM();
 	spriteChecker = vdp->getSpriteChecker();
 
-	frameSkip = curFrameSkip = 0;
-	autoFrameSkip = false;
 	frameSkipShortAvg = 10.0;
 	frameSkipLongAvg  = 100.0;
 	frameSkipDelay = 0;
@@ -144,15 +141,12 @@ PixelRenderer::PixelRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 		buffer.addFront(1.0);
 	}
 
-	CommandController::instance()->registerCommand(&frameSkipCmd, "frameskip");
-
 	// Now we're ready to start rendering the first frame.
 	reset(time);
 }
 
 PixelRenderer::~PixelRenderer()
 {
-	CommandController::instance()->unregisterCommand(&frameSkipCmd, "frameskip");
 }
 
 
@@ -216,49 +210,44 @@ void PixelRenderer::putImage(const EmuTime &time)
 }
 
 
-// Frame skip command
-PixelRenderer::FrameSkipCmd::FrameSkipCmd(PixelRenderer *rend)
+// class FramsSkipSetting
+
+PixelRenderer::FrameSkipSetting::FrameSkipSetting(PixelRenderer* renderer_)
+	: Setting("frameskip", "set the amount of frameskip"),
+	  renderer(renderer_)
 {
-	renderer = rend;
-}
-void PixelRenderer::FrameSkipCmd::execute(const std::vector<std::string> &tokens,
-                                          const EmuTime &time)
-{
-	switch (tokens.size()) {
-	case 1: {
-		char message[100];
-		if ( renderer->autoFrameSkip ){
-			sprintf(message, "Self configurating frame skip (current %d)", renderer->frameSkip);
-		} else {
-			sprintf(message, "Frame skip: %d", renderer->frameSkip);
-		};
-		print(std::string(message));
-		break;
-	}
-	case 2: {
-		if ( 0 == strcasecmp(tokens[1].c_str(),"auto")) {
-			renderer->autoFrameSkip=true;
-		} else {
-			renderer->autoFrameSkip=false;
-			int tmp = strtol(tokens[1].c_str(), NULL, 0);
-			if (tmp >= 0) {
-				renderer->frameSkip = tmp;
-				renderer->curFrameSkip = 0;
-			} else {
-				throw CommandException("Illegal argument");
-			}
-		}
-		break;
-	}
-	default:
-		throw CommandException("Syntax error");
-	}
-}
-void PixelRenderer::FrameSkipCmd::help(const std::vector<std::string> &tokens) const
-{
-	print("This command sets the frameskip setting");
-	print(" frameskip:       displays the current setting");
-	print(" frameskip <num>: set the amount of frameskip, 0 is no skips");
-	print(" frameskip auto : set frameskip depending on CPU usage");
+	type = "0 - 100 / auto";
+	
+	renderer->autoFrameSkip = false;
+	renderer->frameSkip = 0;
+	renderer->curFrameSkip = 0;
 }
 
+std::string PixelRenderer::FrameSkipSetting::getValueString() const
+{
+	if (renderer->autoFrameSkip) {
+		return "auto";
+	} else {
+		std::ostringstream out;
+		out << renderer->frameSkip;
+		return out.str();
+	}
+}
+
+void PixelRenderer::FrameSkipSetting::setValueString(
+	const std::string &valueString, const EmuTime &time)
+{
+	if (valueString == "auto") {
+		renderer->autoFrameSkip = true;
+	} else {
+		int tmp = strtol(valueString.c_str(), NULL, 0);
+		if ((0 <= tmp) && (tmp <= 100)) {
+			renderer->autoFrameSkip = false;
+			renderer->frameSkip = tmp;
+			renderer->curFrameSkip = 0;
+		} else {
+			throw CommandException("Not a valid value");
+		}
+	}
+}
+                                                      

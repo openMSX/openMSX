@@ -63,18 +63,6 @@ diska / diskb
     diska eject        remove disk from virtual drive "diska"
 
 
-frameskip
----------
-
-  Set or query the number of frame skips. Frame skip here means: "show a frame
-  and then skip <number> frames". So 0 means show everything, 1 means show
-  every second frame, ...
-
-  usage:
-    frameskip           shows the current setting
-    frameskip <number>  sets the number of frame skips
-
-
 help
 ----
 
@@ -287,6 +275,19 @@ deinterlace
     set deinterlace      shows the current setting
     set deinterlace on   turns deinterlacing on
     set deinterlace off  turns deinterlacing off
+
+
+frameskip
+---------
+
+  Set the amount of frame skips. Frame skip here means: "show a frame and
+  then skip <number> frames". So 0 means show everything, 1 means show every
+  second frame, ...
+
+  usage:
+    frameskip           shows the current setting
+    frameskip <number>  sets the number of frame skips
+    frameskip auto      automatically set frameskip depending on CPU load
 
 
 fullscreen
