@@ -9,7 +9,7 @@
 #include "CartridgeSlotManager.hh"
 #include "File.hh"
 
-// TODO fix PANSONIC
+// TODO fix PANASONIC
 // TODO NATIONAL seems to work, but needs some more testing
 
 
@@ -640,20 +640,25 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 			int region = (address & 0x1C00) >> 10;
 			if ((region == 5) || (region == 6)) region ^= 3;
 			int bank = bankSelect[region];
-			bank = (bank & ~0xFF) | value;
-			bankSelect[region] = bank;
-			setROM8kB(region, bank);
-			PRT_DEBUG("PANASONIC: region 0x" << std::hex << (int)0x2000*region << " 0x" << (int)bank);
+			int newBank = (bank & ~0xFF) | value;
+			if (newBank != bank) {
+				bankSelect[region] = newBank;
+				setROM8kB(region, newBank);
+			}
 		} else if (address == 0x7FF8) {
 			// set mapper state (9th bit)
 			for (int region = 0; region < 8; region++) {
 				if (value & 1) {
-					bankSelect[region] |= 0x100;
+					if (!(bankSelect[region] & 0x100)) {
+						bankSelect[region] |= 0x100;
+						setROM8kB(region, bankSelect[region]);
+					}
 				} else {
-					bankSelect[region] &= ~0x100;
+					if (bankSelect[region] & 0x100) {
+						bankSelect[region] &= ~0x100;
+						setROM8kB(region, bankSelect[region]);
+					}
 				}
-				setROM8kB(region, bankSelect[region]);
-				PRT_DEBUG("PANASONIC: region 0x" << std::hex << (int)0x2000*region << " 0x" << (int)bankSelect[region]);
 				value >>= 1;
 			}
 		} else if (address == 0x7FF9) {
@@ -661,9 +666,9 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 			control = value;
 		} else if ((0x8000 <= address) && (address < 0xC000)) {
 			// SRAM TODO check
-			PRT_DEBUG("PANASONIC: SRAM");
 			int region = (address & 0x1C00) >> 10;
 			if ((0x80 <= region) && (region < 0x84)) {
+				PRT_DEBUG("PANASONIC: SRAM");
 				internalMemoryBank[address>>12][address&0x0FFF] = value;
 			}
 		}
