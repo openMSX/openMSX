@@ -1,5 +1,8 @@
 $Id$
 
+2002-04-17 Joost Yervante Damad <andete@worldcity.nl>
+	* added tools/ dir and bin2c tool
+
 2002-04-16 Maarten ter Huurne <mth@stack.nl>
 	* More VDPVRAM and related cleanups.
 

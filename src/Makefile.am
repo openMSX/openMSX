@@ -16,7 +16,7 @@ endif
 # or perhaps sometimes even more:
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
-SUBDIRS = cfg libxmlx ConsoleSource cpu sound config
+SUBDIRS = cfg libxmlx ConsoleSource cpu sound config tools
 
 #bin_PROGRAMS=openmsx cfgtest
 bin_PROGRAMS=openmsx
