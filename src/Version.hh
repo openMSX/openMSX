@@ -10,7 +10,7 @@ namespace openmsx {
 class Version {
 public:
 	// Defined by build system:
-	static const bool Version::RELEASE;
+	static const bool RELEASE;
 	static const std::string VERSION;
 	static const std::string CHANGELOG_REVISION;
 
