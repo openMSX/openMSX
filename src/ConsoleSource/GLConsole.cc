@@ -17,6 +17,7 @@ GLConsole::GLConsole()
 {
 	console = Console::instance();
 	fontSetting = new FontSetting(this, fontName);	
+	initConsoleSize();
 	
 	SDL_Rect rect;
 	OSDConsoleRenderer::updateConsoleRect(rect);

@@ -53,7 +53,7 @@ class OSDConsoleRenderer : public ConsoleRenderer
 		virtual bool loadBackground(const std::string &filename) = 0;
 		virtual bool loadFont(const std::string &filename) = 0;
 		virtual void drawConsole() = 0;
-		void updateConsoleRect(SDL_Rect & rect);
+		
 		enum Placement {CP_TOPLEFT,CP_TOP,CP_TOPRIGHT,
 						CP_LEFT,CP_CENTER,CP_RIGHT,
 						CP_BOTTOMLEFT,CP_BOTTOM,CP_BOTTOMRIGHT};
@@ -62,6 +62,9 @@ class OSDConsoleRenderer : public ConsoleRenderer
 		  * Note that when using a background image on the GLConsole,
 		  * that image's alpha channel is used instead.
 		  */
+		
+		void updateConsoleRect(SDL_Rect & rect);
+		void initConsoleSize(void);
 		static const int CONSOLE_ALPHA = 180;
 		static const int BLINK_RATE = 500;
 		static const int CHAR_BORDER = 4;
