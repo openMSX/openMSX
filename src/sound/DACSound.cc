@@ -10,7 +10,7 @@
 #include <cassert>
 #include "DACSound.hh"
 #include "Mixer.hh"
-#include "MSXCPU.hh"
+#include "../cpu/MSXCPU.hh"
 
 
 DACSound::DACSound(short maxVolume, int typicalFreq, const EmuTime &time)

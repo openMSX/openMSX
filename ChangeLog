@@ -1,5 +1,8 @@
 $Id$
 
+2002-02-28 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* moved sound related files to new directory "sound"
+
 2002-02-27 Joost Yervante Damad <andete@worldcity.nl>
 	* doxygen cleanups
 	* updated homepage

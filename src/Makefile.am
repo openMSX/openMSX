@@ -2,7 +2,7 @@
 
 # we want most warnings
 
-AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -fhuge-objects -Icpu @XML_CFLAGS@ @SDL_CFLAGS@
+AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -fhuge-objects -Icpu -Isound @XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
 else
@@ -16,7 +16,7 @@ endif
 # or perhaps sometimes even more:
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
-SUBDIRS = cfg libxmlx ConsoleSource cpu
+SUBDIRS = cfg libxmlx ConsoleSource cpu sound
 
 #bin_PROGRAMS=openmsx cfgtest
 bin_PROGRAMS=openmsx
@@ -31,7 +31,6 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	MSXIODevice.hh MSXIODevice.cc MSXMemDevice.hh MSXMemDevice.cc \
 	MSXMotherBoard.hh MSXMotherBoard.cc \
 	MSXPPI.hh MSXPPI.cc I8255.hh I8255.cc \
-	KeyClick.hh KeyClick.cc \
 	CassettePort.hh CassettePort.cc \
 	CassetteDevice.hh DummyCassetteDevice.hh DummyCassetteDevice.cc \
 	CassettePlayer.hh CassettePlayer.cc \
@@ -52,11 +51,6 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	Leds.hh Leds.cc \
 	MSXE6Timer.hh MSXE6Timer.cc \
 	DummyDevice.hh DummyDevice.cc \
-	Mixer.hh Mixer.cc SoundDevice.hh SoundDevice.cc \
-	MSXPSG.hh MSXPSG.cc AY8910.hh AY8910.cc \
-	YM2413.hh YM2413.cc MSXYM2413.hh MSXYM2413.cc\
-	MSXMusic.hh MSXMusic.cc MSXFmPac.hh MSXFmPac.cc \
-	Y8950.hh Y8950.cc MSXAudio.hh MSXAudio.cc \
 	JoystickPorts.hh JoystickPorts.cc JoystickDevice.hh \
 	DummyJoystick.hh DummyJoystick.cc \
 	Joystick.hh Joystick.cc Mouse.hh Mouse.cc \
@@ -68,11 +62,8 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	MSXRTC.hh MSXRTC.cc RP5C01.hh RP5C01.cc \
 	RealTime.hh RealTime.cc \
 	MSXGameCartridge.hh MSXGameCartridge.cc \
-	DACSound.cc DACSound.hh \
 	KeyEventInserter.cc KeyEventInserter.hh \
 	SDLEventInserter.cc SDLEventInserter.hh \
-	SCC.hh SCC.cc \
-	MSXSCCPlusCart.hh MSXSCCPlusCart.cc \
 	MSXRom.cc MSXRom.hh \
 	MSXRomPatchInterface.hh MSXRomPatchInterface.cc \
 	MSXTapePatch.cc MSXTapePatch.hh \
@@ -87,7 +78,12 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 #	MSXPrinter.cc MSXPrinter.hh \
 #	SDLLoRenderer.hh SDLLoRenderer.cc \
 
-openmsx_LDADD = libxmlx/libxmlx.la ConsoleSource/libSDL_console.la cpu/libCPU.la @XML_LIBS@ @SDL_LIBS@
+openmsx_LDADD = \
+	libxmlx/libxmlx.la \
+	ConsoleSource/libSDL_console.la \
+	cpu/libCPU.la \
+	sound/libSound.la \
+	@XML_LIBS@ @SDL_LIBS@
 
 #cfgtest_SOURCES = MSXConfig.hh MSXConfig.cc \
 #	cfgtest.cc EmuTime.hh \

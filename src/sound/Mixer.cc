@@ -3,7 +3,7 @@
 #include <SDL/SDL.h>
 #include <cassert>
 #include "Mixer.hh"
-#include "MSXCPU.hh"
+#include "../cpu/MSXCPU.hh"
 #include "RealTime.hh"
 #include "SoundDevice.hh"
 #include "MSXConfig.hh"

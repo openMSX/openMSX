@@ -108,6 +108,11 @@ class Scheduler : private EventListener
 		void stopScheduling();
 
 		/**
+		 * TODO
+		 */
+		void reschedule();
+
+		/**
 		 * This pauses the emulation.
 		 */
 		void pause();

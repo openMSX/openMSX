@@ -95,11 +95,16 @@ void Scheduler::stopScheduling()
 {
 	exitScheduler = true;
 	runningScheduler = false;
-	// We set current time as SP, this means reschedule as sson as possible.
-	// We must give a device, we choose MSXCPU.
+	reschedule();
+	unpause();
+}
+
+void Scheduler::reschedule()
+{
+	// Set current time as SP, this means reschedule as soon as possible.
+	// We must give a device, choose MSXCPU.
 	EmuTime now = cpu->getCurrentTime();
 	setSyncPoint(now, cpu);
-	unpause();
 }
 
 void Scheduler::scheduleEmulation()
