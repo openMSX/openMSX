@@ -4,7 +4,7 @@
 #include <cassert>
 
 
-MSXE6Timer::MSXE6Timer(MSXConfig::Device *config, const EmuTime &time)
+MSXE6Timer::MSXE6Timer(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	reset(time);

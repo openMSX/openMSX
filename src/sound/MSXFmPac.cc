@@ -23,7 +23,7 @@ const std::string& MSXFmPacCLI::optionHelp() const
 	static const std::string text("Inserts an FM-PAC into the MSX machine");
 	return text;
 }
-void MSXFmPacCLI::execute(MSXConfig::Backend *config)
+void MSXFmPacCLI::execute(MSXConfig *config)
 {
 	int ps, ss;
 	CartridgeSlotManager::instance()->getSlot(ps, ss);
@@ -46,7 +46,7 @@ void MSXFmPacCLI::execute(MSXConfig::Backend *config)
 
 
 
-MSXFmPac::MSXFmPac(MSXConfig::Device *config, const EmuTime &time)
+MSXFmPac::MSXFmPac(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXYM2413(config, time), 
 	  sram(0x1FFE, config, PAC_Header)
 {

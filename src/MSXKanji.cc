@@ -4,7 +4,7 @@
 #include "MSXKanji.hh"
 
 
-MSXKanji::MSXKanji(MSXConfig::Device *config, const EmuTime &time)
+MSXKanji::MSXKanji(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  rom(config, time)
 {

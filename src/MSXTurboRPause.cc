@@ -4,7 +4,7 @@
 #include "MSXCPUInterface.hh"
 
 
-MSXTurboRPause::MSXTurboRPause(MSXConfig::Device *config, const EmuTime &time)
+MSXTurboRPause::MSXTurboRPause(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	MSXCPUInterface::instance()->register_IO_In(0xA7, this);

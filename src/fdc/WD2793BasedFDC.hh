@@ -12,7 +12,7 @@ class DriveMultiplexer;
 class WD2793BasedFDC : public MSXFDC
 {
 	public:
-		WD2793BasedFDC(MSXConfig::Device *config, const EmuTime &time);
+		WD2793BasedFDC(Device *config, const EmuTime &time);
 		virtual ~WD2793BasedFDC();
 		
 		virtual void reset(const EmuTime &time);

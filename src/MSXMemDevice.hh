@@ -11,7 +11,7 @@ class MSXMemDevice : virtual public MSXDevice
 		/**
 		 * Constructor
 		 */
-		MSXMemDevice(MSXConfig::Device *config, const EmuTime &time);
+		MSXMemDevice(Device *config, const EmuTime &time);
 		
 		/**
 		 * Read a byte from a location at a certain time from this

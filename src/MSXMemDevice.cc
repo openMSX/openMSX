@@ -4,7 +4,7 @@
 #include "MSXMemDevice.hh"
 
 
-MSXMemDevice::MSXMemDevice(MSXConfig::Device *config, const EmuTime &time)
+MSXMemDevice::MSXMemDevice(Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
 {
 	registerSlots();
@@ -28,7 +28,7 @@ void MSXMemDevice::registerSlots()
 {
 	// register in slot-structure
 	if (deviceConfig == NULL) return;	// for DummyDevice
-	std::list<MSXConfig::Device::Slotted*>::const_iterator i;
+	std::list<Device::Slotted*>::const_iterator i;
 	for (i=deviceConfig->slotted.begin(); i!=deviceConfig->slotted.end(); i++) {
 		int ps = (*i)->getPS();
 		int ss = (*i)->getSS();

@@ -12,6 +12,6 @@ class MSXDevice;
 class FDCFactory
 {
 	public:
-		static MSXDevice* create(MSXConfig::Device *config, const EmuTime &time);
+		static MSXDevice* create(Device *config, const EmuTime &time);
 };
 #endif

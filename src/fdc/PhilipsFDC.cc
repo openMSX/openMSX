@@ -6,7 +6,7 @@
 #include "DriveMultiplexer.hh"
 
 
-PhilipsFDC::PhilipsFDC(MSXConfig::Device *config, const EmuTime &time)
+PhilipsFDC::PhilipsFDC(Device *config, const EmuTime &time)
 	: WD2793BasedFDC(config, time), MSXDevice(config, time)
 {
 	emptyRom = new byte[CPU::CACHE_LINE_SIZE];

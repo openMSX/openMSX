@@ -13,7 +13,7 @@ class MSXARCdebug : public MSXMemDevice
 		/**
 		 * Constructor
 		 */
-		MSXARCdebug(MSXConfig::Device *config, const EmuTime &time);
+		MSXARCdebug(Device *config, const EmuTime &time);
 
 		/**
 		 * Destructor

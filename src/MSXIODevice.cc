@@ -3,7 +3,7 @@
 #include "MSXIODevice.hh"
 
 
-MSXIODevice::MSXIODevice(MSXConfig::Device *config, const EmuTime &time)
+MSXIODevice::MSXIODevice(Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
 {
 	// TODO registerIO();

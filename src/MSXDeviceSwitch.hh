@@ -81,7 +81,7 @@ class MSXDeviceSwitch : public MSXIODevice
 		virtual void writeIO(byte port, byte value, const EmuTime &time);
 	
 	private:
-		MSXDeviceSwitch(MSXConfig::Device *config, const EmuTime &time);
+		MSXDeviceSwitch(Device *config, const EmuTime &time);
 		
 		static MSXDeviceSwitch* oneInstance;
 		byte selected;

@@ -10,7 +10,7 @@
 class MicrosolFDC : public WD2793BasedFDC, public MSXIODevice
 {
 	public:
-		MicrosolFDC(MSXConfig::Device *config, const EmuTime &time);
+		MicrosolFDC(Device *config, const EmuTime &time);
 		virtual ~MicrosolFDC();
 		
 		virtual byte readIO(byte port, const EmuTime &time);

@@ -12,7 +12,7 @@ class MSXRam : public MSXMemDevice
 		/**
 		 * Constructor
 		 */
-		MSXRam(MSXConfig::Device *config, const EmuTime &time);
+		MSXRam(Device *config, const EmuTime &time);
 
 		/**
 		 * Destructor

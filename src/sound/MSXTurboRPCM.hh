@@ -12,7 +12,7 @@ class DACSound;
 class MSXTurboRPCM : public MSXIODevice
 {
 	public:
-		MSXTurboRPCM(MSXConfig::Device *config, const EmuTime &time);
+		MSXTurboRPCM(Device *config, const EmuTime &time);
 		virtual ~MSXTurboRPCM(); 
 		
 		virtual void reset(const EmuTime &time);

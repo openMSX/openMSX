@@ -13,7 +13,7 @@ class YM2413;
 class MSXYM2413 : public MSXIODevice, public MSXMemDevice
 {
 	public:
-		MSXYM2413(MSXConfig::Device *config, const EmuTime &time);
+		MSXYM2413(Device *config, const EmuTime &time);
 		virtual ~MSXYM2413(); 
 		
 		virtual void reset(const EmuTime &time);

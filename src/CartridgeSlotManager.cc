@@ -31,7 +31,7 @@ void CartridgeSlotManager::reserveSlot(int slot)
 void CartridgeSlotManager::readConfig()
 {
 	try {
-		MSXConfig::Config *config = MSXConfig::Backend::instance()->
+		Config *config = MSXConfig::instance()->
 					       getConfigById("ExternalSlots");
 		std::string slotName("slota");
 		for (int slot = 0; slot < 16; slot++) {

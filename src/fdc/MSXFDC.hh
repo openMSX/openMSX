@@ -12,7 +12,7 @@ class DiskDrive;
 class MSXFDC : public MSXMemDevice
 {
 	public:
-		MSXFDC(MSXConfig::Device *config, const EmuTime &time);
+		MSXFDC(Device *config, const EmuTime &time);
 		virtual ~MSXFDC();
 
 		virtual byte readMem(word address, const EmuTime &time) const;

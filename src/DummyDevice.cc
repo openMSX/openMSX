@@ -4,7 +4,7 @@
 #include <cassert>
 
 
-DummyDevice::DummyDevice(MSXConfig::Device *config, const EmuTime &time) 
+DummyDevice::DummyDevice(Device *config, const EmuTime &time) 
 	: MSXDevice(config, time), MSXIODevice(config, time), MSXMemDevice(config, time)
 {
 	PRT_DEBUG ("Instantiating dummy device");

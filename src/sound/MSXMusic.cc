@@ -2,7 +2,7 @@
 
 #include "MSXMusic.hh"
 
-MSXMusic::MSXMusic(MSXConfig::Device *config, const EmuTime &time)
+MSXMusic::MSXMusic(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXYM2413(config, time)
 {
 	enable = 1;

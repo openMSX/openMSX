@@ -37,7 +37,7 @@ TODO:
 
 // Init and cleanup:
 
-VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
+VDP::VDP(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 	, vdpRegsCmd(this)
 	, paletteCmd(this)
@@ -94,8 +94,7 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	vram->setCmdEngine(cmdEngine);
 
 	// Get renderer type and parameters from config.
-	MSXConfig::Config *renderConfig =
-		MSXConfig::Backend::instance()->getConfigById("renderer");
+	Config *renderConfig = MSXConfig::instance()->getConfigById("renderer");
 	bool fullScreen = renderConfig->getParameterAsBool("full_screen");
 	rendererName = renderConfig->getType();
 	// Create renderer.

@@ -4,7 +4,7 @@
 #include "Leds.hh"
 
 
-MSXTurboRLeds::MSXTurboRLeds(MSXConfig::Device *config, const EmuTime &time)
+MSXTurboRLeds::MSXTurboRLeds(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	reset(time);

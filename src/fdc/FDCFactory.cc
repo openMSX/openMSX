@@ -8,7 +8,7 @@
 #include "MSXCPUInterface.hh"
 
 
-MSXDevice* FDCFactory::create(MSXConfig::Device *config, const EmuTime &time)
+MSXDevice* FDCFactory::create(Device *config, const EmuTime &time)
 {
 	const std::string &type = config->getParameter("type");
 	if (type == "Philips") {

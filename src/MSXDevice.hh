@@ -53,9 +53,9 @@ class MSXDevice
 		  * @param time the moment in emulated time this MSXDevice is
 		  *   created (typically at time zero: power-up).
 		  */
-		MSXDevice(MSXConfig::Device *config, const EmuTime &time);
+		MSXDevice(Device *config, const EmuTime &time);
 
-		MSXConfig::Device *deviceConfig;
+		Device *deviceConfig;
 };
 
 #endif //__MSXDEVICE_HH__

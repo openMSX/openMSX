@@ -3,7 +3,7 @@
 #include "MSXDevice.hh"
 
 
-MSXDevice::MSXDevice(MSXConfig::Device *config, const EmuTime &time)
+MSXDevice::MSXDevice(Device *config, const EmuTime &time)
 {
 	deviceConfig = config;
 	//PRT_DEBUG("Instantiating MSXDevice: " << getName());

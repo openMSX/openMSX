@@ -11,7 +11,7 @@ class EmuTime;
 class DeviceFactory
 {
 	public:
-		static MSXDevice *create(MSXConfig::Device *conf, const EmuTime &time);
+		static MSXDevice *create(Device *conf, const EmuTime &time);
 };
 
 #endif

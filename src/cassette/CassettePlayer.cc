@@ -42,7 +42,7 @@ void MSXCassettePlayerCLI::parseFileType(const std::string &filename_)
 	s << " </config>";
 	s << "</msxconfig>";
 
-	MSXConfig::Backend *config = MSXConfig::Backend::instance();
+	MSXConfig *config = MSXConfig::instance();
 	config->loadStream(s);
 }
 const std::string& MSXCassettePlayerCLI::fileTypeHelp() const
@@ -57,8 +57,8 @@ CassettePlayer::CassettePlayer()
 	motor = false;
 	audioLength = 0;	// no tape inserted (yet)
 	try {
-		MSXConfig::Config *config =
-			MSXConfig::Backend::instance()->getConfigById("cassetteplayer");
+		Config *config =
+			MSXConfig::instance()->getConfigById("cassetteplayer");
 		std::string filename = config->getParameter("filename");
 		insertTape(filename);
 	} catch (MSXException& e) {

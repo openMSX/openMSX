@@ -9,7 +9,7 @@
 class NationalFDC : public WD2793BasedFDC
 {
 	public:
-		NationalFDC(MSXConfig::Device *config, const EmuTime &time);
+		NationalFDC(Device *config, const EmuTime &time);
 		virtual ~NationalFDC();
 		
 		virtual byte readMem(word address, const EmuTime &time);

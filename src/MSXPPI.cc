@@ -10,7 +10,7 @@
 
 // MSXDevice
 
-MSXPPI::MSXPPI(MSXConfig::Device *config, const EmuTime &time)
+MSXPPI::MSXPPI(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");

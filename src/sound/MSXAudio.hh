@@ -25,7 +25,7 @@ class MSXAudio : public MSXIODevice
 		/**
 		 * Constructor
 		 */
-		MSXAudio(MSXConfig::Device *config, const EmuTime &time);
+		MSXAudio(Device *config, const EmuTime &time);
 
 		/**
 		 * Destructor

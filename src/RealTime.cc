@@ -11,7 +11,7 @@
 
 RealTime::RealTime()
 {
-	MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById("RealTime");
+	Config *config = MSXConfig::instance()->getConfigById("RealTime");
 	syncInterval     = config->getParameterAsInt("sync_interval");
 	maxCatchUpTime   = config->getParameterAsInt("max_catch_up_time");
 	maxCatchUpFactor = config->getParameterAsInt("max_catch_up_factor");

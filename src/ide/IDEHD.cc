@@ -40,7 +40,7 @@ byte IDEHD::identifyBlock[512] = {
 };
 
 
-IDEHD::IDEHD(MSXConfig::Config *config, const EmuTime &time)
+IDEHD::IDEHD(Config *config, const EmuTime &time)
 {
 	buffer = new byte[512 * 256];
 

@@ -53,11 +53,11 @@ FileBase* File::searchFile(const std::string &url, std::string &newURL,
 	}
 	
 	try {
-		MSXConfig::Config *config = MSXConfig::Backend::instance()->
+		Config *config = MSXConfig::instance()->
 			getConfigById("SearchPaths");
-		std::list<MSXConfig::Device::Parameter*>* pathList;
+		std::list<Device::Parameter*>* pathList;
 		pathList = config->getParametersWithClass(type);
-		std::list<MSXConfig::Device::Parameter*>::const_iterator it;
+		std::list<Device::Parameter*>::const_iterator it;
 		for (it = pathList->begin(); it != pathList->end(); it++) {
 			std::string path = (*it)->value;
 			newURL = path + SEPARATOR + url;

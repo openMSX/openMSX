@@ -8,7 +8,7 @@
 #include "CPU.hh"
 
 
-MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
+MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	short volume = (short)config->getParameterAsInt("volume");

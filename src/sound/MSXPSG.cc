@@ -6,7 +6,7 @@
 #include "CassettePort.hh"
 
 // MSXDevice
-MSXPSG::MSXPSG(MSXConfig::Device *config, const EmuTime &time)
+MSXPSG::MSXPSG(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");

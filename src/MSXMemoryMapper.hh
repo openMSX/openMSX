@@ -15,7 +15,7 @@ class MSXMemoryMapper : public MSXMemDevice
 		/**
 		 * Constructor
 		 */
-		MSXMemoryMapper(MSXConfig::Device *config, const EmuTime &time);
+		MSXMemoryMapper(Device *config, const EmuTime &time);
 
 		/**
 		 * Destructor

@@ -5,7 +5,7 @@
 #include "DriveMultiplexer.hh"
 
 
-MicrosolFDC::MicrosolFDC(MSXConfig::Device *config, const EmuTime &time)
+MicrosolFDC::MicrosolFDC(Device *config, const EmuTime &time)
 	: WD2793BasedFDC(config, time), MSXDevice(config, time),
 	  MSXIODevice(config, time)
 {

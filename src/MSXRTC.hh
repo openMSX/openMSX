@@ -15,7 +15,7 @@ class MSXRTC : public MSXIODevice
 		/**
 		 * Constructor
 		 */
-		MSXRTC(MSXConfig::Device *config, const EmuTime &time);
+		MSXRTC(Device *config, const EmuTime &time);
 
 		/**
 		 * Destructor

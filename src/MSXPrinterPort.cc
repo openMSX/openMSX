@@ -7,7 +7,7 @@
 #include "PrinterPortLogger.hh"
 
 
-MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
+MSXPrinterPort::MSXPrinterPort(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	dummy = new DummyPrinterPortDevice();

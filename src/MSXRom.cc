@@ -47,7 +47,7 @@ MSXRomPostName::MSXRomPostName(int slot_, const std::string &arg)
 	: MSXRomCLIPost(arg), slot(slot_)
 {
 }
-void MSXRomPostName::execute(MSXConfig::Backend *config)
+void MSXRomPostName::execute(MSXConfig *config)
 {
 	CartridgeSlotManager::instance()->getSlot(slot, ps, ss);
 	MSXRomCLIPost::execute(config);
@@ -66,7 +66,7 @@ MSXRomPostNoName::MSXRomPostNoName(const std::string &arg)
 	: MSXRomCLIPost(arg)
 {
 }
-void MSXRomPostNoName::execute(MSXConfig::Backend *config)
+void MSXRomPostNoName::execute(MSXConfig *config)
 {
 	CartridgeSlotManager::instance()->getSlot(ps, ss);
 	MSXRomCLIPost::execute(config);
@@ -76,7 +76,7 @@ MSXRomCLIPost::MSXRomCLIPost(const std::string &arg_)
 	: arg(arg_)
 {
 }
-void MSXRomCLIPost::execute(MSXConfig::Backend *config)
+void MSXRomCLIPost::execute(MSXConfig *config)
 {
 	std::string filename, mapper;
 	int pos = arg.find_last_of(',');
@@ -113,7 +113,7 @@ void MSXRomCLIPost::execute(MSXConfig::Backend *config)
 }
 
 
-MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
+MSXRom::MSXRom(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time), rom(config, time)
 {
 	retrieveMapperType();
@@ -333,7 +333,7 @@ word MSXRom::guessLocation()
 	}
 
 	int lowest = 4;
-	std::list<MSXConfig::Device::Slotted*>::const_iterator i;
+	std::list<Device::Slotted*>::const_iterator i;
 	for (i =  deviceConfig->slotted.begin(); 
 	     i != deviceConfig->slotted.end();
 	     i++) {

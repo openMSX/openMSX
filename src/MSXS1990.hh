@@ -16,7 +16,7 @@
 class MSXS1990 : public MSXIODevice
 {
 	public:
-		MSXS1990(MSXConfig::Device *config, const EmuTime &time);
+		MSXS1990(Device *config, const EmuTime &time);
 		virtual ~MSXS1990();
 		
 		virtual void reset(const EmuTime &time);

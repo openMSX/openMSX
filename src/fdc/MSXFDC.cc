@@ -7,7 +7,7 @@
 DiskImageCLI diskImageCLI;
 
 
-MSXFDC::MSXFDC(MSXConfig::Device *config, const EmuTime &time)
+MSXFDC::MSXFDC(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(config, time) 
 {

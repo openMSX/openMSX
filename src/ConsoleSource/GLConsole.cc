@@ -29,7 +29,7 @@ GLConsole::GLConsole()
 	
 	int width, height;
 	GLfloat fontTexCoord[4];
-	MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById("Console");
+	Config *config = MSXConfig::instance()->getConfigById("Console");
 	std::string fontName = config->getParameter("font");
 	GLuint fontTexture = loadTexture(fontName,width, height, fontTexCoord);
 	font = new GLFont(fontTexture, width, height, fontTexCoord);

@@ -3,7 +3,7 @@
 #include "MC6850.hh"
 
 
-MC6850::MC6850(MSXConfig::Device *config, const EmuTime &time)
+MC6850::MC6850(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	reset(time);

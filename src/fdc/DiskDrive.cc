@@ -128,7 +128,7 @@ RealDrive::RealDrive(const std::string &driveName, const EmuTime &time)
 	name = driveName;
 	disk = NULL;
 	try {
-		MSXConfig::Config *config = MSXConfig::Backend::instance()->
+		Config *config = MSXConfig::instance()->
 			getConfigById(driveName);
 		std::string disk = config->getParameter("filename");
 		insertDisk(disk);

@@ -9,7 +9,7 @@
 class MC6850 : public MSXIODevice
 {
 	public:
-		MC6850(MSXConfig::Device *config, const EmuTime &time);
+		MC6850(Device *config, const EmuTime &time);
 		virtual ~MC6850(); 
 		
 		virtual void reset(const EmuTime &time);

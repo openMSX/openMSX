@@ -15,7 +15,7 @@ class DummyDevice : public MSXIODevice, public MSXMemDevice
 		virtual void reset(const EmuTime &time);
 	
 	private:
-		DummyDevice(MSXConfig::Device *config, const EmuTime &time);
+		DummyDevice(Device *config, const EmuTime &time);
 };
 
 #endif //__DUMMYDEVICE_HH__

@@ -9,7 +9,7 @@
 #include "R800.hh"
 
 
-MSXCPU::MSXCPU(MSXConfig::Device *config, const EmuTime &time)
+MSXCPU::MSXCPU(Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXCPU object");
@@ -30,7 +30,7 @@ MSXCPU::~MSXCPU()
 MSXCPU* MSXCPU::instance()
 {
 	if (oneInstance == NULL) {
-		MSXConfig::Device* config = MSXConfig::Backend::instance()->getDeviceById("cpu");
+		Device* config = MSXConfig::instance()->getDeviceById("cpu");
 		EmuTime zero;
 		new MSXCPU(config, zero);
 	}

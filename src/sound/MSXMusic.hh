@@ -14,7 +14,7 @@
 class MSXMusic : public MSXYM2413
 {
 	public:
-		MSXMusic(MSXConfig::Device *config, const EmuTime &time);
+		MSXMusic(Device *config, const EmuTime &time);
 		virtual ~MSXMusic();
 		
 		virtual void reset(const EmuTime &time);

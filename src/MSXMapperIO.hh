@@ -37,7 +37,7 @@ class MSXMapperIO : public MSXIODevice
 		byte getSelectedPage(int bank);
 
 	private:
-		MSXMapperIO(MSXConfig::Device *config, const EmuTime &time);
+		MSXMapperIO(Device *config, const EmuTime &time);
 		
 		MapperMask* mapperMask;
 		std::list<int> mapperSizes;

@@ -1,5 +1,8 @@
 $Id$
 
+2003-01-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Removed possibility to use other than XML config files
+
 2003-01-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed Kanji12
 	* Removed some unused classes from config directory

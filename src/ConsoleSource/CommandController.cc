@@ -117,14 +117,14 @@ void CommandController::executeCommand(const std::string &cmd,
 void CommandController::autoCommands(const EmuTime &time)
 {
 	try {
-		MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById("AutoCommands");
-		std::list<MSXConfig::Device::Parameter*>* commandList;
+		Config *config = MSXConfig::instance()->getConfigById("AutoCommands");
+		std::list<Device::Parameter*>* commandList;
 		commandList = config->getParametersWithClass("");
-		std::list<MSXConfig::Device::Parameter*>::const_iterator i;
+		std::list<Device::Parameter*>::const_iterator i;
 		for (i = commandList->begin(); i != commandList->end(); i++) {
 			executeCommand((*i)->value, time);
 		}
-	} catch (MSXConfig::Exception &e) {
+	} catch (ConfigException &e) {
 		// no auto commands defined
 	}
 }

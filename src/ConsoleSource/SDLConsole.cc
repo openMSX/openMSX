@@ -31,7 +31,7 @@ SDLConsole::SDLConsole(SDL_Surface *screen)
 	inputBackground = NULL;
 	consoleAlpha = SDL_ALPHA_OPAQUE;
 	
-	MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById("Console");
+	Config *config = MSXConfig::instance()->getConfigById("Console");
 	std::string fontName = config->getParameter("font");
 	font = new SDLFont(File::findName(fontName, CONFIG));
 	

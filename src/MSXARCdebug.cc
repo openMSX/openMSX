@@ -3,7 +3,7 @@
 #include "MSXARCdebug.hh"
 
 
-MSXARCdebug::MSXARCdebug(MSXConfig::Device *config, const EmuTime &time)
+MSXARCdebug::MSXARCdebug(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	std::string filename = config->getParameter("filename");

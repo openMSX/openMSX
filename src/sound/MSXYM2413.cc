@@ -6,7 +6,7 @@
 #include "YM2413.hh"
 
 
-MSXYM2413::MSXYM2413(MSXConfig::Device *config, const EmuTime &time)
+MSXYM2413::MSXYM2413(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  MSXMemDevice(config, time), rom(config, time)
 {

@@ -37,7 +37,7 @@ class MSXRomCLIPost : public CLIPostConfig
 	public:
 		MSXRomCLIPost(const std::string &arg);
 		virtual ~MSXRomCLIPost() {}
-		virtual void execute(MSXConfig::Backend *config);
+		virtual void execute(MSXConfig *config);
 	protected:
 		int ps, ss;
 		const std::string arg;
@@ -47,7 +47,7 @@ class MSXRomPostName : public MSXRomCLIPost
 	public:
 		MSXRomPostName(int slot, const std::string &arg);
 		virtual ~MSXRomPostName() {}
-		virtual void execute(MSXConfig::Backend *config);
+		virtual void execute(MSXConfig *config);
 	private:
 		int slot;
 };
@@ -56,14 +56,14 @@ class MSXRomPostNoName : public MSXRomCLIPost
 	public:
 		MSXRomPostNoName(const std::string &arg);
 		virtual ~MSXRomPostNoName() {}
-		virtual void execute(MSXConfig::Backend *config);
+		virtual void execute(MSXConfig *config);
 };
 
 
 class MSXRom : public MSXMemDevice
 {
 	public:
-		MSXRom(MSXConfig::Device *config, const EmuTime &time);
+		MSXRom(Device *config, const EmuTime &time);
 		virtual ~MSXRom();
 
 		virtual void reset(const EmuTime &time);

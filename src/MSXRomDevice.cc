@@ -9,7 +9,7 @@
 #include "File.hh"
 
 
-MSXRomDevice::MSXRomDevice(MSXConfig::Device* config, const EmuTime &time)
+MSXRomDevice::MSXRomDevice(Device* config, const EmuTime &time)
 {
 	if (config->hasParameter("filename")) {
 		std::string filename = config->getParameter("filename");
@@ -25,7 +25,7 @@ MSXRomDevice::MSXRomDevice(const std::string &filename, const EmuTime &time)
 	read(NULL, filename, time);
 }
 
-void MSXRomDevice::read(MSXConfig::Device* config,
+void MSXRomDevice::read(Device* config,
                         const std::string &filename, const EmuTime &time)
 {
 	// open file
@@ -65,9 +65,9 @@ void MSXRomDevice::read(MSXConfig::Device* config,
 	}
 	// for each patchcode parameter, construct apropriate patch
 	// object and register it at MSXCPUInterface
-	std::list<MSXConfig::Config::Parameter*>* parameters =
+	std::list<Config::Parameter*>* parameters =
 		config->getParametersWithClass("patchcode");
-	std::list<MSXConfig::Config::Parameter*>::const_iterator it;
+	std::list<Config::Parameter*>::const_iterator it;
 	for (it=parameters->begin(); it!=parameters->end(); it++) {
 		MSXRomPatchInterface* patchInterface;
 		if ((*it)->value == "MSXDiskRomPatch") {
@@ -83,9 +83,9 @@ void MSXRomDevice::read(MSXConfig::Device* config,
 	config->getParametersWithClassClean(parameters);
 	
 	// also patch the file if needed:
-	std::list<MSXConfig::Config::Parameter*>* parameters2 =
+	std::list<Config::Parameter*>* parameters2 =
 		config->getParametersWithClass("patch");
-	std::list<MSXConfig::Config::Parameter*>::const_iterator i;
+	std::list<Config::Parameter*>::const_iterator i;
 	for (i=parameters2->begin(); i!=parameters2->end(); i++) {
 		int offset = strtol((*i)->name.c_str(), 0, 0);
 		int value  = (*i)->getAsInt();

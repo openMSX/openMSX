@@ -14,7 +14,7 @@ class File;
 class MSXRomDevice
 {
 	public:
-		MSXRomDevice(MSXConfig::Device *config, const EmuTime &time);
+		MSXRomDevice(Device *config, const EmuTime &time);
 		MSXRomDevice(const std::string &filename, const EmuTime &time);
 		virtual ~MSXRomDevice();
 
@@ -31,7 +31,7 @@ class MSXRomDevice
 		}
 
 	private:
-		void read(MSXConfig::Device *config, 
+		void read(Device *config, 
 		          const std::string &filename, const EmuTime &time);
 		
 		byte* rom;

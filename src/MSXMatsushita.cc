@@ -5,7 +5,7 @@
 
 const byte ID = 0x08;
 
-MSXMatsushita::MSXMatsushita(MSXConfig::Device *config, const EmuTime &time)
+MSXMatsushita::MSXMatsushita(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXSwitchedDevice(ID),
 	  sram(0x800, config)
 {

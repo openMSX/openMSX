@@ -39,11 +39,11 @@ MSXCPUInterface::MSXCPUInterface()
 		visibleDevices[page] = 0;
 	}
 
-	MSXConfig::Config* config = MSXConfig::Backend::instance()->
+	Config* config = MSXConfig::instance()->
 		getConfigById("MotherBoard");
-	std::list<MSXConfig::Device::Parameter*>* subslotted_list;
+	std::list<Device::Parameter*>* subslotted_list;
 	subslotted_list = config->getParametersWithClass("subslotted");
-	std::list<MSXConfig::Device::Parameter*>::const_iterator it;
+	std::list<Device::Parameter*>::const_iterator it;
 	for (it = subslotted_list->begin(); it != subslotted_list->end(); it++) {
 		bool hasSubs = false;
 		if ((*it)->value == "true") {

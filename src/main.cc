@@ -45,16 +45,14 @@ void initializeSDL()
 
 int main(int argc, char **argv)
 {
-	// create configuration backend
-	// for now there is only one, "xml" based
-	MSXConfig::Backend* config = MSXConfig::Backend::createBackend("xml");
 	try {
 		CommandLineParser::instance()->parse(argc, argv);
 		initializeSDL();
 
 		EmuTime zero;
+		MSXConfig* config = MSXConfig::instance();
 		config->initDeviceIterator();
-		MSXConfig::Device* d;
+		Device* d;
 		while ((d = config->getNextDevice()) != 0) {
 			PRT_DEBUG ("Instantiating: " << d->getType());
 			MSXDevice *device = DeviceFactory::create(d, zero);

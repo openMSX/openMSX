@@ -30,7 +30,7 @@ class CLIFileType
 class CLIPostConfig
 {
 	public:
-		virtual void execute(MSXConfig::Backend *config) = 0;
+		virtual void execute(MSXConfig *config) = 0;
 };
 
 class CommandLineParser

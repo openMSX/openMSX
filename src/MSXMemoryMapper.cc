@@ -13,7 +13,7 @@ inline int MSXMemoryMapper::calcAddress(word address) const
 }
 
 
-MSXMemoryMapper::MSXMemoryMapper(MSXConfig::Device *config, const EmuTime &time)
+MSXMemoryMapper::MSXMemoryMapper(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	slowDrainOnReset = deviceConfig->getParameterAsBool("slow_drain_on_reset");

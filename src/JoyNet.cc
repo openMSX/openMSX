@@ -50,7 +50,7 @@ void JoyNet::write(byte value, const EmuTime &time)
 
 void JoyNet::setupConnections()
 {
-	MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById("joynet");
+	Config *config = MSXConfig::instance()->getConfigById("joynet");
 	hostname = config->getParameter("connecthost");
 	portname = config->getParameterAsInt("connectport");
 	int listenport = config->getParameterAsInt("listenport");

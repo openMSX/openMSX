@@ -10,7 +10,7 @@
 #include "MSXCPU.hh"
 
 
-TurboRFDC::TurboRFDC(MSXConfig::Device *config, const EmuTime &time)
+TurboRFDC::TurboRFDC(Device *config, const EmuTime &time)
 	: MSXFDC(config, time), MSXDevice(config, time)
 {
 	emptyRom = new byte[CPU::CACHE_LINE_SIZE];

@@ -20,7 +20,7 @@ MSXSwitchedDevice::~MSXSwitchedDevice()
 
 /// class MSXDeviceSwitch ///
 
-MSXDeviceSwitch::MSXDeviceSwitch(MSXConfig::Device *config, const EmuTime &time)
+MSXDeviceSwitch::MSXDeviceSwitch(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	for (int i = 0; i < 256; i++) {

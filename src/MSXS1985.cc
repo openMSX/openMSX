@@ -5,7 +5,7 @@
 
 const byte ID = 0xFE;
 
-MSXS1985::MSXS1985(MSXConfig::Device *config, const EmuTime &time)
+MSXS1985::MSXS1985(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXSwitchedDevice(ID)
 {
 	// TODO load ram

@@ -7,7 +7,7 @@
 #include "CPU.hh"
 
 
-MSXMapperIO::MSXMapperIO(MSXConfig::Device *config, const EmuTime &time)
+MSXMapperIO::MSXMapperIO(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	std::string type = config->getParameter("type");
@@ -32,7 +32,7 @@ MSXMapperIO* MSXMapperIO::instance()
 {
 	static MSXMapperIO* oneInstance = NULL;
 	if (oneInstance == NULL) {
-		MSXConfig::Device* config = MSXConfig::Backend::instance()->getDeviceById("MapperIO");
+		Device* config = MSXConfig::instance()->getDeviceById("MapperIO");
 		EmuTime dummy;
 		oneInstance = new MSXMapperIO(config, dummy);
 	}

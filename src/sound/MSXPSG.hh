@@ -18,7 +18,7 @@ class MSXPSG : public MSXIODevice, public AY8910Interface
 		/**
 		 * Constructor
 		 */
-		MSXPSG(MSXConfig::Device *config, const EmuTime &time);
+		MSXPSG(Device *config, const EmuTime &time);
 
 		/**
 		 * Destructor

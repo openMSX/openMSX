@@ -14,10 +14,10 @@ CassettePortInterface *CassettePortFactory::instance(const EmuTime &time)
 	static CassettePortInterface* oneInstance = NULL;
 	if (oneInstance == NULL) {
 		try {
-			MSXConfig::Backend::instance()->getConfigById("CassettePort");
+			MSXConfig::instance()->getConfigById("CassettePort");
 			// there is a CassettePort in config
 			oneInstance = new CassettePort(time);
-		} catch (MSXConfig::Exception& e) {
+		} catch (ConfigException& e) {
 			// there is no CassettePort in config
 			oneInstance = new DummyCassettePort(time);
 		}

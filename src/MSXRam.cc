@@ -4,7 +4,7 @@
 #include "CPU.hh"
 
 
-MSXRam::MSXRam(MSXConfig::Device *config, const EmuTime &time)
+MSXRam::MSXRam(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	// slow drain on reset

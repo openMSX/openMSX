@@ -12,7 +12,7 @@
 class MSXMatsushita : public MSXDevice, public MSXSwitchedDevice
 {
 	public:
-		MSXMatsushita(MSXConfig::Device *config, const EmuTime &time);
+		MSXMatsushita(Device *config, const EmuTime &time);
 		virtual ~MSXMatsushita();
 
 		virtual void reset(const EmuTime &time);

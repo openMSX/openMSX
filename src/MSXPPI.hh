@@ -45,7 +45,7 @@ class MSXPPI : public MSXIODevice, public I8255Interface
 		/**
 		 * Constructor.
 		 */
-		MSXPPI(MSXConfig::Device *config, const EmuTime &time); 
+		MSXPPI(Device *config, const EmuTime &time); 
 
 		/**
 		 * Destructor

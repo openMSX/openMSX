@@ -8,7 +8,7 @@
 IDEDevice* IDEDeviceFactory::create(const std::string &name,
                                     const EmuTime &time)
 {
-	MSXConfig::Config *config = MSXConfig::Backend::instance()->
+	Config *config = MSXConfig::instance()->
 		getConfigById(name);
 	const std::string type = config->getType();
 

@@ -61,7 +61,7 @@ class MSXCPU : public MSXDevice
 		/**
 		 * Constructor.
 		 */
-		MSXCPU(MSXConfig::Device *config, const EmuTime &time);
+		MSXCPU(Device *config, const EmuTime &time);
 		
 		// only for Scheduler
 		void executeUntilTarget(const EmuTime &time);

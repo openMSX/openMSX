@@ -23,6 +23,10 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  
 //
 
+#ifndef __XMLX_HH__
+#define __XMLX_HH__
+
+
 // libxml
 #include <libxml/tree.h>
 #include <libxml/parser.h>
@@ -200,3 +204,4 @@ const std::string &Escape(std::string &str);
 
 }; // end namespace XML
 
+#endif // __XMLX_HH__

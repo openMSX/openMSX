@@ -5,7 +5,7 @@
 #include "File.hh"
 
 
-MSXRTC::MSXRTC(MSXConfig::Device *config, const EmuTime &time)
+MSXRTC::MSXRTC(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	bool emuTimeBased = deviceConfig->getParameter("mode") != "RealTime";

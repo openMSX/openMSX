@@ -18,7 +18,7 @@
 class MSXTurboRPause : public MSXIODevice
 {
 	public:
-		MSXTurboRPause(MSXConfig::Device *config, const EmuTime &time);
+		MSXTurboRPause(Device *config, const EmuTime &time);
 		virtual ~MSXTurboRPause();
 		
 		virtual void reset(const EmuTime &time);

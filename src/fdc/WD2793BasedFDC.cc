@@ -5,7 +5,7 @@
 #include "DriveMultiplexer.hh"
 
 
-WD2793BasedFDC::WD2793BasedFDC(MSXConfig::Device *config, const EmuTime &time)
+WD2793BasedFDC::WD2793BasedFDC(Device *config, const EmuTime &time)
 	: MSXFDC(config, time), MSXDevice(config, time)
 {
 	multiplexer = new DriveMultiplexer(drives);

@@ -15,14 +15,14 @@ class MSXFmPacCLI : public CLIOption, public CLIPostConfig
 		virtual void parseOption(const std::string &option,
 		                         std::list<std::string> &cmdLine);
 		virtual const std::string& optionHelp() const;
-		virtual void execute(MSXConfig::Backend *config);
+		virtual void execute(MSXConfig *config);
 };
 
 
 class MSXFmPac : public MSXYM2413
 {
 	public:
-		MSXFmPac(MSXConfig::Device *config, const EmuTime &time);
+		MSXFmPac(Device *config, const EmuTime &time);
 		virtual ~MSXFmPac(); 
 		
 		virtual void reset(const EmuTime &time);

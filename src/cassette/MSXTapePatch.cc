@@ -41,7 +41,7 @@ void MSXCasCLI::parseFileType(const std::string &filename_)
 	s << " </config>";
 	s << "</msxconfig>";
 
-	MSXConfig::Backend *config = MSXConfig::Backend::instance();
+	MSXConfig *config = MSXConfig::instance();
 	config->loadStream(s);
 }
 const std::string& MSXCasCLI::fileTypeHelp() const
@@ -74,8 +74,8 @@ MSXTapePatch::MSXTapePatch()
 	CommandController::instance()->registerCommand(*this, "cas");
 
 	try {
-		MSXConfig::Config *config =
-			MSXConfig::Backend::instance()->getConfigById("cas");
+		Config *config =
+			MSXConfig::instance()->getConfigById("cas");
 		std::string filename = config->getParameter("filename");
 		insertTape(filename);
 	} catch (MSXException& e) {

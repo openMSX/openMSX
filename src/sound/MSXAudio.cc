@@ -30,7 +30,7 @@ void MSXAudioCLI::parseOption(const std::string &option,
 	s << "</device>";
 	s << "</msxconfig>";
 	
-	MSXConfig::Backend *config = MSXConfig::Backend::instance();
+	MSXConfig *config = MSXConfig::instance();
 	config->loadStream(s);
 }
 const std::string& MSXAudioCLI::optionHelp() const
@@ -40,7 +40,7 @@ const std::string& MSXAudioCLI::optionHelp() const
 }
 
 
-MSXAudio::MSXAudio(MSXConfig::Device *config, const EmuTime &time)
+MSXAudio::MSXAudio(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");

@@ -75,7 +75,7 @@ public:
 
 	/** Constructor.
 	  */
-	VDP(MSXConfig::Device *config, const EmuTime &time);
+	VDP(Device *config, const EmuTime &time);
 
 	/** Destructor.
 	  */

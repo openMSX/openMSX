@@ -12,7 +12,7 @@ class File;
 class IDEHD : public IDEDevice
 {
 	public:
-		IDEHD(MSXConfig::Config *config, const EmuTime &time);
+		IDEHD(Config *config, const EmuTime &time);
 		virtual ~IDEHD();
 	
 		virtual void reset(const EmuTime &time);

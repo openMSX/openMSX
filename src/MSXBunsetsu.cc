@@ -4,7 +4,7 @@
 #include "CPU.hh"
 
 
-MSXBunsetsu::MSXBunsetsu(MSXConfig::Device *config, const EmuTime &time)
+MSXBunsetsu::MSXBunsetsu(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(config, time),
 	  jisyoRom(config->getParameter("jisyofilename"), time)

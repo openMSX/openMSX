@@ -11,7 +11,7 @@ class TC8566AF;
 class TurboRFDC : public MSXFDC
 {
 	public:
-		TurboRFDC(MSXConfig::Device *config, const EmuTime &time);
+		TurboRFDC(Device *config, const EmuTime &time);
 		virtual ~TurboRFDC();
 		
 		virtual void reset(const EmuTime &time);

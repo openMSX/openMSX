@@ -9,7 +9,7 @@
 class PhilipsFDC : public WD2793BasedFDC
 {
 	public:
-		PhilipsFDC(MSXConfig::Device *config, const EmuTime &time);
+		PhilipsFDC(Device *config, const EmuTime &time);
 		virtual ~PhilipsFDC();
 		
 		virtual void reset(const EmuTime &time);

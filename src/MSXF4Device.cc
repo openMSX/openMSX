@@ -3,7 +3,7 @@
 #include "MSXF4Device.hh"
 
 
-MSXF4Device::MSXF4Device(MSXConfig::Device *config, const EmuTime &time)
+MSXF4Device::MSXF4Device(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	inverted = config->hasParameter("inverted")

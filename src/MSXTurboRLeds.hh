@@ -17,7 +17,7 @@
 class MSXTurboRLeds : public MSXIODevice
 {
 	public:
-		MSXTurboRLeds(MSXConfig::Device *config, const EmuTime &time);
+		MSXTurboRLeds(Device *config, const EmuTime &time);
 		virtual ~MSXTurboRLeds();
 		
 		virtual void reset(const EmuTime &time);

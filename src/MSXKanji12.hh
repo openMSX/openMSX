@@ -11,7 +11,7 @@
 class MSXKanji12 : public MSXDevice, public MSXSwitchedDevice
 {
 	public:
-		MSXKanji12(MSXConfig::Device *config, const EmuTime &time);
+		MSXKanji12(Device *config, const EmuTime &time);
 		virtual ~MSXKanji12();
 		
 		virtual void reset(const EmuTime &time);

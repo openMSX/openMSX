@@ -4,7 +4,7 @@
 #include "MSXCPU.hh"
 
 
-MSXS1990::MSXS1990(MSXConfig::Device *config, const EmuTime &time)
+MSXS1990::MSXS1990(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	reset(time);

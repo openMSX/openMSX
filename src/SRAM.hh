@@ -9,7 +9,7 @@
 class SRAM
 {
 	public:
-		SRAM(int size, MSXConfig::Device *config,
+		SRAM(int size, Device *config,
 		     const char* header = NULL);
 		virtual ~SRAM();
 
@@ -31,7 +31,7 @@ class SRAM
 		
 	private:
 		int size;
-		MSXConfig::Device *config;
+		Device *config;
 		const char* header;
 		byte* sram;
 };

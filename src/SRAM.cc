@@ -4,7 +4,7 @@
 #include "File.hh"
 
 
-SRAM::SRAM(int size_, MSXConfig::Device *config_, const char *header_)
+SRAM::SRAM(int size_, Device *config_, const char *header_)
 {
 	size = size_;
 	config = config_;

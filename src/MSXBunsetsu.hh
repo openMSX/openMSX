@@ -10,7 +10,7 @@
 class MSXBunsetsu : public MSXMemDevice
 {
 	public:
-		MSXBunsetsu(MSXConfig::Device *config, const EmuTime &time);
+		MSXBunsetsu(Device *config, const EmuTime &time);
 		virtual ~MSXBunsetsu();
 		
 		virtual void reset(const EmuTime &time);

@@ -6,7 +6,7 @@
 #include "DriveMultiplexer.hh"
 
 
-NationalFDC::NationalFDC(MSXConfig::Device *config, const EmuTime &time)
+NationalFDC::NationalFDC(Device *config, const EmuTime &time)
 	: WD2793BasedFDC(config, time), MSXDevice(config, time)
 {
 	emptyRom = new byte[CPU::CACHE_LINE_SIZE];

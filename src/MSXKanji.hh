@@ -13,7 +13,7 @@ class MSXKanji : public MSXIODevice
 		/**
 		 * Constructor
 		 */
-		MSXKanji(MSXConfig::Device *config, const EmuTime &time);
+		MSXKanji(Device *config, const EmuTime &time);
 
 		/**
 		 * Destructor

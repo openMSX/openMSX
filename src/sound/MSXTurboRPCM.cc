@@ -4,7 +4,7 @@
 #include "DACSound.hh"
 
 
-MSXTurboRPCM::MSXTurboRPCM(MSXConfig::Device *config, const EmuTime &time)
+MSXTurboRPCM::MSXTurboRPCM(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");

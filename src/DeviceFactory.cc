@@ -49,7 +49,7 @@ static void createDeviceSwitch() {
 	}
 }
 
-MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time)
+MSXDevice *DeviceFactory::create(Device *conf, const EmuTime &time)
 {
 	const std::string type = conf->getType();
 	MSXCPUInterface *cpuInterface = MSXCPUInterface::instance();

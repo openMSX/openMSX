@@ -68,7 +68,7 @@ void KeyEventInserterCLI::parseOption(const std::string &option,
 	s << "</config>";
 	s << "</msxconfig>";
 	
-	MSXConfig::Backend *config = MSXConfig::Backend::instance();
+	MSXConfig *config = MSXConfig::instance();
 	config->loadStream(s);
 }
 const std::string& KeyEventInserterCLI::optionHelp() const
@@ -81,7 +81,7 @@ const std::string& KeyEventInserterCLI::optionHelp() const
 KeyEventInserter::KeyEventInserter(const EmuTime &time)
 {
 	try {
-		MSXConfig::Config *config = MSXConfig::Backend::instance()->
+		Config *config = MSXConfig::instance()->
 		                            getConfigById("KeyEventInserter");
 		enter(config->getParameter("keys"), time);
 	} catch(MSXException &e) {

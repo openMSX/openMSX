@@ -23,7 +23,7 @@ class DummyPrinterPortDevice : public PrinterPortDevice
 class MSXPrinterPort : public MSXIODevice , public Connector
 {
 	public:
-		MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time);
+		MSXPrinterPort(Device *config, const EmuTime &time);
 		virtual ~MSXPrinterPort();
 
 		// MSXDevice

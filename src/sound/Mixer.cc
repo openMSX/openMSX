@@ -14,7 +14,7 @@ Mixer::Mixer()
 	nbClipped = 0;
 #endif
 	
-	MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById("Mixer");
+	Config *config = MSXConfig::instance()->getConfigById("Mixer");
 	int freq    = config->getParameterAsInt("frequency");
 	int samples = config->getParameterAsInt("samples");
 	SDL_AudioSpec desired;
