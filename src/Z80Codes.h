@@ -31,27 +31,27 @@ inline void Z80::M_CALL() {
 	M_PUSH(R.PC.W.l);
 	R.PC.W.l = q;
 #ifdef R800CPU
-	R.ICount-=2;
+	R.ICount += 2;
 #else
-	R.ICount-=7;
+	R.ICount += 7;
 #endif
 }
 
 inline void Z80::M_JR() {
 	R.PC.W.l += ((offset)Z80_RDOP_ARG(R.PC.W.l))+1;
 #ifdef R800CPU
-	R.ICount -= 1;
+	R.ICount += 1;
 #else
-	R.ICount -= 5;
+	R.ICount += 5;
 #endif
 }
 
 inline void Z80::M_RET() {
 	M_POP(R.PC.W.l);
 #ifdef R800CPU
-	R.ICount -= 2;
+	R.ICount += 2;
 #else
-	R.ICount -= 6;
+	R.ICount += 6;
 #endif
 }
 

@@ -18,10 +18,6 @@
 #include "Z80.hh"
 #include "Z80Tables.hh"
 
-#ifdef DEBUG
-//#define Z80DEBUG
-#endif
-
 #ifdef Z80DEBUG
 #include "Z80Dasm.h"
 #endif
@@ -83,34 +79,42 @@ void Z80::reset()
 /****************************************************************************/
 int Z80::Z80_SingleInstruction() 
 {
-	byte opcode = 0;	// prevent warning
-	if (interface->NMIStatus()) {
+	byte opcode;
+	
+	if (interface->NMIStatus()) { 
+		// TODO what prevents ack an NMI more than once????
+		// NMI occured
 		R.HALT = false; 
 		R.IFF1 = R.nextIFF1 = false;
 		M_PUSH (R.PC.W.l);
 		R.PC.W.l=0x0066;
 		return 10;	//TODO this value is wrong
-	} else if (R.IFF1 && interface->IRQStatus()) {
+				//TODO ++R.R
+	} 
+	if (R.IFF1 && interface->IRQStatus()) {
+		// normal interrupt
 		R.HALT = false; 
 		R.IFF1 = R.nextIFF1 = false;
 		switch (R.IM) {
 		case 2:
-			// Interrupt mode 2. Call [R.I:databyte]
+			// Interrupt mode 2  Call [R.I:databyte]
 			M_PUSH (R.PC.W.l);
 			R.PC.W.l=Z80_RDMEM_WORD((interface->dataBus())|(R.I<<8));
 			return 10;	//TODO this value is wrong
+					//TODO ++R.R
 		case 1:
-			// Interrupt mode 1. RST 38h
+			// Interrupt mode 1  RST 38h
 			opcode = 0xff;
 			break;
 		case 0:
-			// Interrupt mode 0.
+			// Interrupt mode 0
 			// TODO current implementation only works for 1-byte instructions
 			//      ok for MSX 
 			opcode = interface->dataBus();
 			break;
 		default:
 			assert(false);
+			opcode = 0;	// prevent warning
 		}
 	} else if (R.HALT) {
 		opcode = 0;	// nop
@@ -119,18 +123,20 @@ int Z80::Z80_SingleInstruction()
 	}
 	R.IFF1 = R.nextIFF1;
 	#ifdef Z80DEBUG
-		word start_pc = R.PC.W.l;
+		word start_pc = R.PC.W.l-1;
 	#endif
 	++R.R;
 	R.ICount = cycles_main[opcode];
-	(this->*opcode_main[opcode])();;	// R.ICount can be raised extra
+	(this->*opcode_main[opcode])();	// R.ICount can be raised extra
 	#ifdef Z80DEBUG
 		printf("%04x : instruction ", start_pc);
 		Z80_Dasm(&debugmemory[start_pc], to_print_string, start_pc );
 		printf("%s\n", to_print_string );
 		printf("      A=%02x F=%02x \n", R.AF.B.h, R.AF.B.l);
 		printf("      BC=%04x DE=%04x HL=%04x \n", R.BC.W.l, R.DE.W.l, R.HL.W.l);
+		printf("  took %d Tstates\n", R.ICount);
 	#endif
+	//assert(R.ICount>0);
 	return R.ICount;
 }
 
@@ -147,6 +153,7 @@ void Z80::Z80_SetWaitStates (int n)
 		cycles_cb[i]   += diff;
 		cycles_ed[i]   += diff;
 		cycles_xx[i]   += diff;
+		//cycles_xx_cb[i]+= diff;	//TODO check this not needed
 	}
 }
 int Z80::waitStates = 0;

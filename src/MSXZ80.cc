@@ -38,7 +38,9 @@ void MSXZ80::reset()
 void MSXZ80::executeUntilTarget()
 {
 	while (currentTime < cpu->getTargetTime()) {
-		currentTime += z80->Z80_SingleInstruction();
+		int tStates = z80->Z80_SingleInstruction();
+		//assert(tStates>0);
+		currentTime += (uint64)tStates;
 	}
 }
 

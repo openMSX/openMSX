@@ -17,6 +17,9 @@
 #include "config.h"
 #include "openmsx.hh"
 
+#ifdef DEBUG
+//#define Z80DEBUG
+#endif
 
 class Z80Interface {
 	public:
@@ -177,18 +180,18 @@ typedef struct {
 		static opcode_fn opcode_fd[256];
 		static opcode_fn opcode_main[256];
 
-		#ifdef DEBUG
+		#ifdef Z80DEBUG
 			byte debugmemory[65536];
 			char to_print_string[300];
 		#endif
 		
 		//TODO should not be static
 		static int waitStates;
-		static unsigned cycles_main[256];
-		static unsigned cycles_cb[256];
-		static unsigned cycles_xx_cb[256];
-		static unsigned cycles_xx[256];
-		static unsigned cycles_ed[256];
+		static int cycles_main[256];
+		static int cycles_cb[256];
+		static int cycles_xx_cb[256];
+		static int cycles_xx[256];
+		static int cycles_ed[256];
 		
 		Z80Interface *interface;
 

@@ -8,6 +8,8 @@
 #include <cassert>
 
 
+// Schedulable 
+
 const std::string &Schedulable::getName()
 {
 	return defaultName;
@@ -15,6 +17,7 @@ const std::string &Schedulable::getName()
 const std::string Schedulable::defaultName = "no name";
 
 
+// Scheduler
 
 Scheduler::Scheduler()
 {
@@ -40,6 +43,8 @@ Scheduler *Scheduler::oneInstance = NULL;
 
 void Scheduler::setSyncPoint(Emutime &time, Schedulable &device) 
 {
+	PRT_DEBUG("Sched: registering " << device.getName() << " for emulation at " << time);
+	PRT_DEBUG("Sched:  CPU is at " << MSXCPU::instance()->getCurrentTime());
 	assert (time >= MSXCPU::instance()->getCurrentTime());
 	if (time < MSXCPU::instance()->getTargetTime())
 		MSXCPU::instance()->setTargetTime(time);
@@ -81,7 +86,7 @@ void Scheduler::scheduleEmulation()
 
 		if (scheduleList.empty()) {
 			// nothing scheduled, emulate CPU
-			PRT_DEBUG ("Scheduling CPU till infinity");
+			PRT_DEBUG ("Sched: Scheduling CPU till infinity");
 			MSXCPU::instance()->executeUntilTarget(infinity);
 		} else {
 			const SynchronizationPoint &sp = getFirstSP();
@@ -89,12 +94,12 @@ void Scheduler::scheduleEmulation()
 			if (MSXCPU::instance()->getCurrentTime() < time) {
 				// emulate CPU till first SP, don't immediately emulate
 				// device since CPU could not have reached SP
-				PRT_DEBUG ("Scheduling CPU till " << time);
+				PRT_DEBUG ("Sched: Scheduling CPU till " << time);
 				MSXCPU::instance()->executeUntilTarget(time);
 			} else {
 				// if CPU has reached SP, emulate the device
 				Schedulable *device = &(sp.getDevice());
-				PRT_DEBUG ("Scheduling " << device->getName() << " till " << time);
+				PRT_DEBUG ("Sched: Scheduling " << device->getName() << " till " << time);
 				device->executeUntilEmuTime(time);
 				removeFirstSP();
 			}

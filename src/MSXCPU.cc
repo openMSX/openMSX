@@ -68,7 +68,7 @@ void MSXCPU::executeUntilTarget(const Emutime &time)
 
 void MSXCPU::setTargetTime(const Emutime &time)
 {
-	assert(getCurrentTime() <= time);
+	//assert(getCurrentTime() <= time);
 	targetTime = time;
 }
 const Emutime &MSXCPU::getTargetTime()

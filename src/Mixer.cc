@@ -46,7 +46,7 @@ Mixer *Mixer::oneInstance = NULL;
 
 int Mixer::registerSound(SoundDevice *device, ChannelMode mode=MONO)
 {
-	PRT_DEBUG("Registering sound device");
+	PRT_DEBUG("Mix: Registering sound device");
 	SDL_LockAudio();
 	device->setSampleRate(audioSpec.freq);
 	buffers[mode].push_back(NULL);	// make room for one more
@@ -86,6 +86,8 @@ void Mixer::updateStream(const Emutime &time)
 {
 	assert(prevTime<=time);
 	float duration = MSXRealTime::instance()->getRealDuration(prevTime, time);
+	PRT_DEBUG("Mix: update, duration " << duration << "s");
+	assert(duration>=0);
 	prevTime = time;
 	SDL_LockAudio();
 	updtStrm(audioSpec.freq * duration);
@@ -93,9 +95,10 @@ void Mixer::updateStream(const Emutime &time)
 }
 void Mixer::updtStrm(int samples)
 {
+	assert(samples>=0);
 	if (samples == 0) return;
 	if (samples > samplesLeft) samples = samplesLeft;
-	PRT_DEBUG("Generate " << samples << " samples");
+	PRT_DEBUG("Mix: Generate " << samples << " samples");
 	for (int mode=0; mode<NB_MODES; mode++) {
 		int unmuted = 0;
 		for (int i=0; i<nbDevices[mode]; i++) {

@@ -1,5 +1,9 @@
 $Id$
 
+2001-10-31 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* fixed bug in Z80, some instruction had a negative T-State count!!
+	  Road Fighter works again
+
 2001-10-30 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* added MSX-MUSIC, code largly taken from Mitsutaka Okazaki
 		http://www.angel.ne.jp/~okazaki/ym2413/
