@@ -85,8 +85,16 @@ public:
 	std::list<Attribute*> attributes;
 
 	void dump(int recursion=0);
-
+	
+	/**
+	 * get attribute's value from attribute with name 'name' from 
+	 * attributelist
+	 */
 	const std::string &getAttribute(const std::string &name);
+
+	/**
+	 * get pcdata from element from children with name 'name'
+	 */
 	const std::string &getElementPcdata(const std::string &name);
 
 private:
@@ -106,6 +114,12 @@ public:
 
 	void dump();
 
+	/**
+	 * convert back to libxml xmlDoc
+	 * for saving back to disk
+	 */
+	xmlDocPtr convertToXmlDoc();
+	
 private:
 	Document();                               // block usage
 	Document(const Document &foo);            // block usage

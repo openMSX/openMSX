@@ -191,4 +191,12 @@ const std::string &Element::getElementPcdata(const std::string &name)
 	return empty;
 }
 
+xmlDocPtr Document::convertToXmlDoc()
+{
+	//xmlDocPtr d = xmlNewDoc("1.0");
+	// xmlNewDtd(d, root->name, const xmlChar *ExternalID, const xmlChar *SystemID);
+	return 0;
+}
+
+
 }; // end namespace XML
