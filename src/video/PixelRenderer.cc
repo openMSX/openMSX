@@ -7,7 +7,7 @@ TODO:
 
 #include "PixelRenderer.hh"
 #include "Rasterizer.hh"
-#include "VideoSystem.hh"
+#include "Display.hh"
 #include "RenderSettings.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
@@ -110,10 +110,8 @@ void PixelRenderer::subdivide(
 	if (drawLast) draw(clipL, endY, endX, endY + 1, drawType, false);
 }
 
-PixelRenderer::PixelRenderer(
-	RendererFactory::RendererID id, VDP* vdp, Rasterizer* rasterizer )
-	: Renderer(id)
-	, powerSetting(GlobalSettings::instance().getPowerSetting())
+PixelRenderer::PixelRenderer(VDP* vdp, Rasterizer* rasterizer)
+	: powerSetting(GlobalSettings::instance().getPowerSetting())
 {
 	this->vdp = vdp;
 	vram = vdp->getVRAM();
@@ -129,7 +127,7 @@ PixelRenderer::PixelRenderer(
 		frameDurationSum += 20;
 	}
 	prevTimeStamp = Timer::getTime();
-	
+
 	settings.getMaxFrameSkip()->addListener(this);
 	settings.getMinFrameSkip()->addListener(this);
 	powerSetting.addListener(this);
@@ -147,13 +145,6 @@ void PixelRenderer::reset(const EmuTime& time)
 	rasterizer->reset();
 	displayEnabled = vdp->isDisplayEnabled();
 	frameStart(time);
-}
-
-bool PixelRenderer::checkSettings()
-{
-	// TODO: Move this check away from Renderer entirely?
-	return Renderer::checkSettings() // right renderer?
-		&& Display::INSTANCE->getVideoSystem()->checkSettings();
 }
 
 void PixelRenderer::updateDisplayEnabled(bool enabled, const EmuTime& time)

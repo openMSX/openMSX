@@ -11,7 +11,7 @@ struct SDL_Surface;
 namespace openmsx {
 
 class VDP;
-class Renderer;
+class Rasterizer;
 
 class SDLGLVideoSystem: public VideoSystem
 {
@@ -32,8 +32,8 @@ public:
 	virtual void flush();
 	virtual void takeScreenShot(const string& filename);
 
-	/** TODO: Only here for backwards compatibility. */
-	Renderer* renderer;
+	/** TODO: Here to stay? */
+	Rasterizer* rasterizer;
 
 private:
 	SDL_Surface* screen;

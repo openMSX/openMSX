@@ -54,7 +54,10 @@ vector<Display::LayerInfo*>::iterator Display::baseLayer()
 	while (true) {
 		if (it == layers.begin()) {
 			// There should always be at least one opaque layer.
-			assert(false);
+			// TODO: This is not true for DummyVideoSystem.
+			//       Anyway, a missing layer will probably stand out visually,
+			//       so do we really have to assert on it?
+			//assert(false);
 			return it;
 		}
 		--it;

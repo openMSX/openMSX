@@ -6,8 +6,11 @@
 #include <memory>
 #include "RendererFactory.hh"
 #include "Scaler.hh"
+#include "SettingListener.hh"
+#include "EventListener.hh"
 
 using std::auto_ptr;
+
 
 namespace openmsx {
 
@@ -22,7 +25,7 @@ class BooleanSetting;
   * Keeping the settings here makes sure they are preserved when the user
   * switches to another renderer.
   */
-class RenderSettings
+class RenderSettings: private SettingListener, private EventListener
 {
 public:
 	/** Render accuracy: granularity of the rendered area.
@@ -66,20 +69,30 @@ public:
 
 private:
 	RenderSettings();
-	~RenderSettings();
+	virtual ~RenderSettings();
+
+	// SettingListener interface:
+	virtual void update(const SettingLeafNode* setting);
+
+	// EventListener interface:
+	virtual bool signalEvent(const Event& event);
+
+	void checkRendererSwitch();
 
 	// Please keep the settings ordered alphabetically.
 	auto_ptr<EnumSetting<Accuracy> > accuracy;
 	auto_ptr<BooleanSetting> deinterlace;
-	auto_ptr<IntegerSetting> maxFrameSkip;
-	auto_ptr<IntegerSetting> minFrameSkip;
 	auto_ptr<BooleanSetting> fullScreen;
 	auto_ptr<FloatSetting> gamma;
 	auto_ptr<IntegerSetting> glow;
 	auto_ptr<IntegerSetting> horizontalBlur;
+	auto_ptr<IntegerSetting> maxFrameSkip;
+	auto_ptr<IntegerSetting> minFrameSkip;
 	auto_ptr<RendererFactory::RendererSetting> renderer;
 	auto_ptr<EnumSetting<ScalerID> > scaler;
 	auto_ptr<IntegerSetting> scanlineAlpha;
+
+	RendererFactory::RendererID currentRenderer;
 };
 
 } // namespace openmsx

@@ -1,12 +1,10 @@
 // $Id$
 
 #include "SDLVideoSystem.hh"
-#include "PixelRenderer.hh"
 #include "SDLRasterizer.hh"
 #include "SDLSnow.hh"
 #include "SDLConsole.hh"
 #include "Display.hh"
-#include "RendererFactory.hh"
 #include "RenderSettings.hh"
 #include "SDLUtil.hh"
 #include "CommandConsole.hh"
@@ -35,7 +33,6 @@ SDLVideoSystem::SDLVideoSystem(
 
 	Display* display = new Display(auto_ptr<VideoSystem>(this));
 	Display::INSTANCE.reset(display);
-	Rasterizer* rasterizer;
 	Layer* background;
 	switch (screen->format->BytesPerPixel) {
 	case 2:
@@ -65,13 +62,10 @@ SDLVideoSystem::SDLVideoSystem(
 	display->addLayer(rasterizer);
 	display->setAlpha(rasterizer, 255);
 	new SDLConsole(CommandConsole::instance(), screen);
-
-	this->renderer = new PixelRenderer(id, vdp, rasterizer);
 }
 
 SDLVideoSystem::~SDLVideoSystem()
 {
-	delete renderer;
 	closeSDLVideo(screen);
 }
 

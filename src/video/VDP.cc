@@ -29,14 +29,15 @@ TODO:
 #include "Scheduler.hh"
 #include "SettingsConfig.hh"
 #include "xmlx.hh"
-#include "RenderSettings.hh"
-#include "RendererFactory.hh"
 #include "Debugger.hh"
+#include "RendererFactory.hh"
 
 using std::setw;
 
 
 namespace openmsx {
+
+VDP* VDP::instance = 0;
 
 // Inlined methods first, to make sure they are actually inlined:
 // TODO: None left?
@@ -99,38 +100,33 @@ VDP::VDP(const XMLElement& config, const EmuTime& time)
 	cmdEngine.reset(new VDPCmdEngine(this));
 	vram->setCmdEngine(cmdEngine.get());
 
-	// Get renderer type from config.
-	const XMLElement* rendererConfig =
-		SettingsConfig::instance().findChild("renderer");
-	rendererName = "SDLHi";
-	if (rendererConfig) {
-		rendererName = rendererConfig->getChildData("type", rendererName);
-	}
-
 	resetInit(time); // must be done early to avoid UMRs
-	
-	// Create renderer.
-	renderer = RendererFactory::createRenderer(this);
-	vram->setRenderer(renderer, time);
+
+	// Initialise time stamps.
+	// This will be done again by frameStart, but these have to be
+	// initialised before switchRenderer() and reset() are called.
+	// TODO: Can this be simplified with a different design?
+	frameStartTime.advance(time);
+	displayStartSyncTime = time;
+	vScanSyncTime = time;
+	hScanSyncTime = time;
+
+	// Initialise renderer.
+	renderer = 0;
+	switchRenderer();
+
+	// Reset state.
+	reset(time);
 
 	// Register console commands.
 	CommandController::instance().registerCommand(&vdpRegsCmd, "vdpregs");
 	CommandController::instance().registerCommand(&paletteCmd, "palette");
 
 	Debugger::instance().registerDebuggable("VDP regs", vdpRegDebug);
-	Debugger::instance().registerDebuggable("VDP status regs", vdpStatusRegDebug);
+	Debugger::instance().registerDebuggable(
+		"VDP status regs", vdpStatusRegDebug );
 
-	// Initialise time stamps.
-	// This will be done again by frameStart, but these have to be
-	// initialised before reset() is called.
-	// TODO: Can this be simplified with a different design?
-	frameStartTime.advance(time);
-	displayStartSyncTime = time;
-	vScanSyncTime = time;
-	hScanSyncTime = time;
-	
-	// Reset state.
-	reset(time);
+	instance = this;
 }
 
 VDP::~VDP()
@@ -138,8 +134,21 @@ VDP::~VDP()
 	Debugger::instance().unregisterDebuggable("VDP status regs", vdpStatusRegDebug);
 	Debugger::instance().unregisterDebuggable("VDP regs", vdpRegDebug);
 
-	CommandController::instance().unregisterCommand(&vdpRegsCmd,  "vdpregs");
-	CommandController::instance().unregisterCommand(&paletteCmd,  "palette");
+	CommandController::instance().unregisterCommand(&vdpRegsCmd, "vdpregs");
+	CommandController::instance().unregisterCommand(&paletteCmd, "palette");
+
+	delete renderer;
+	instance = 0;
+}
+
+void VDP::switchRenderer()
+{
+	delete renderer;
+	renderer = RendererFactory::createRenderer(this);
+	// TODO: Is it safe to use frameStartTime,
+	//       which is most likely in the past?
+	renderer->reset(frameStartTime.getTime());
+	vram->setRenderer(renderer, frameStartTime.getTime());
 }
 
 void VDP::resetInit(const EmuTime& /*time*/)
@@ -219,7 +228,7 @@ void VDP::reset(const EmuTime& time)
 	spriteChecker->reset(time);
 	cmdEngine->reset(time);
 	renderer->reset(time);
-	
+
 	// Tell the subsystems of the new mask values.
 	resetMasks(time);
 
@@ -436,15 +445,6 @@ void VDP::scheduleHScan(const EmuTime& time)
 void VDP::frameStart(const EmuTime& time)
 {
 	//cerr << "VDP::frameStart @ " << time << "\n";
-
-	// Tell renderer to sync with render settings.
-	if (!renderer->checkSettings()) {
-		// TODO: Switch VideoSystem, not just Renderer.
-		// Renderer failed to sync; replace it.
-		renderer = RendererFactory::createRenderer(this);
-		renderer->reset(time);
-		vram->setRenderer(renderer, time);
-	}
 
 	// Toggle E/O.
 	// Actually this should occur half a line earlier,

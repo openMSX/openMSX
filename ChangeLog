@@ -1,5 +1,8 @@
 $Id$
 
+2004-09-14 Maarten ter Huurne <maarten@treewalker.org>
+	* Cleaned up renderer switching in the new layered display system.
+
 2004-09-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Don't assert when there are two Moonsounds (not really usefull, but
 	  in a real MSX it's also possible to have multiple Moonsounds)
@@ -14,13 +17,17 @@ $Id$
 2004-09-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Bindings are saved in settings.xml
 
+2004-09-11 Maarten ter Huurne <maarten@treewalker.org>
+	* Return "true" or "false" when printing value of boolean setting.
+	  Before, it was "on" and "false" (found by Herman).
+
 2004-09-11 Manuel Bilderbeek <manuel@msxnet.org>
-	* Added iomap command to chech what devices is on which I/O port
+	* Added iomap command to check what devices is on which I/O port
 
 2004-09-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented RTC mode as a setting, is now saveable
 	* "set <setting> <newvalue>" now returns the actual new value of the
-	  setting  (e.g. "set gamma -1" return 0.1 iso -1)
+	  setting  (e.g. "set gamma -1" returns 0.1 iso -1)
 
 2004-09-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* default machine is now configurable via a setting. Of course this

@@ -48,11 +48,11 @@ public:
 	virtual const string& getName();
 
 private:
-	friend class DummyVideoSystem;
+	friend class RendererFactory;
 
-	/** Constructor, called by DummyRendererFactory.
+	/** Constructor, called by RendererFactory.
 	  */
-	DummyRenderer(RendererFactory::RendererID id);
+	DummyRenderer();
 
 	/** Destructor.
 	  */

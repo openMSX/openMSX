@@ -67,8 +67,8 @@ const word Renderer::GRAPHIC7_SPRITE_PALETTE[16] = {
 	0x472, 0x007, 0x070, 0x077, 0x700, 0x707, 0x770, 0x777
 };
 
-Renderer::Renderer(RendererFactory::RendererID id_)
-	: settings(RenderSettings::instance()), id(id_), fpsInfo(*this)
+Renderer::Renderer()
+	: settings(RenderSettings::instance()), fpsInfo(*this)
 {
 	InfoCommand::instance().registerTopic("fps", &fpsInfo);
 }
@@ -76,11 +76,6 @@ Renderer::Renderer(RendererFactory::RendererID id_)
 Renderer::~Renderer()
 {
 	InfoCommand::instance().unregisterTopic("fps", &fpsInfo);
-}
-
-bool Renderer::checkSettings()
-{
-	return settings.getRenderer()->getValue() == id;
 }
 
 // class FpsInfoTopic

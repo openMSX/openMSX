@@ -6,6 +6,12 @@
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "BooleanSetting.hh"
+#include "Display.hh"
+#include "VideoSystem.hh"
+#include "VDP.hh"
+#include "Event.hh"
+#include "EventDistributor.hh"
+
 
 namespace openmsx {
 
@@ -62,6 +68,7 @@ RenderSettings::RenderSettings()
 	// Get user-preferred renderer from config.
 	XMLElement& rendererElem = config.getCreateChild("renderer", "SDLHi");
 	renderer = RendererFactory::createRendererSetting(rendererElem);
+	currentRenderer = renderer->getValue();
 
 	EnumSetting<ScalerID>::Map scalerMap;
 	scalerMap["simple"] = SCALER_SIMPLE;
@@ -81,18 +88,58 @@ RenderSettings::RenderSettings()
 
 	XMLElement& scanElem = config.getCreateChild("scanline", "20");
 	scanlineAlpha.reset(new IntegerSetting(
-		scanElem, "amount of scanline effect: 0 = none, 100 = full",
-		0, 100));
+		scanElem, "amount of scanline effect: 0 = none, 100 = full", 0, 100
+		));
+
+	renderer->addListener(this);
+	fullScreen->addListener(this);
+	EventDistributor::instance().registerEventListener(
+		RENDERER_SWITCH_EVENT, *this, EventDistributor::EMU );
 }
 
 RenderSettings::~RenderSettings()
 {
+	EventDistributor::instance().unregisterEventListener(
+		RENDERER_SWITCH_EVENT, *this, EventDistributor::EMU );
+	fullScreen->removeListener(this);
+	renderer->removeListener(this);
 }
 
 RenderSettings& RenderSettings::instance()
 {
 	static RenderSettings oneInstance;
 	return oneInstance;
+}
+
+void RenderSettings::update(const SettingLeafNode* setting)
+{
+	if (setting == renderer.get()) {
+		checkRendererSwitch();
+	} else if (setting == fullScreen.get()) {
+		checkRendererSwitch();
+	} else {
+		assert(false);
+	}
+}
+
+void RenderSettings::checkRendererSwitch()
+{
+	// Tell renderer to sync with render settings.
+	if (renderer->getValue() != currentRenderer
+	|| !Display::INSTANCE->getVideoSystem()->checkSettings() ) {
+		currentRenderer = renderer->getValue();
+		// Renderer failed to sync; replace it.
+		Event* rendererSwitchEvent = new SimpleEvent<RENDERER_SWITCH_EVENT>();
+		EventDistributor::instance().distributeEvent(rendererSwitchEvent);
+	}
+}
+
+bool RenderSettings::signalEvent(const Event& event)
+{
+	assert(event.getType() == RENDERER_SWITCH_EVENT);
+	// TODO: Switch video system here, not in RendererFactory.
+	VDP::instance->switchRenderer();
+	return true;
 }
 
 } // namespace openmsx

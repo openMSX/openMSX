@@ -6,8 +6,7 @@
 
 namespace openmsx {
 
-DummyRenderer::DummyRenderer(RendererFactory::RendererID id)
-: Renderer(id) {
+DummyRenderer::DummyRenderer() {
 }
 
 DummyRenderer::~DummyRenderer () {

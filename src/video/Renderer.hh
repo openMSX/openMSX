@@ -5,10 +5,10 @@
 
 #include "openmsx.hh"
 #include "Command.hh"
-#include "RendererFactory.hh"
 #include "VRAMObserver.hh"
 #include "CommandException.hh"
 #include "InfoTopic.hh"
+
 
 namespace openmsx {
 
@@ -45,7 +45,7 @@ public:
 
 	/** Creates a new Renderer.
 	  */
-	Renderer(RendererFactory::RendererID id);
+	Renderer();
 
 	/** Destroy this Renderer.
 	  */
@@ -55,18 +55,6 @@ public:
 	  * @param time The moment in time this reset occurs.
 	  */
 	virtual void reset(const EmuTime& time) = 0;
-
-	/** Requests that this renderer checks its settings against the
-	  * current RenderSettings. If possible, update the settings of this
-	  * renderer.
-	  * The implementation in the Renderer base class checks whether the
-	  * right renderer is selected. Subclasses are encouraged to check
-	  * more settings.
-	  * @return True if the settings were still in sync
-	  * 	or were succesfully synced;
-	  * 	false if the renderer is unable to bring the settings in sync.
-	  */
-	virtual bool checkSettings();
 
 	/** Signals the start of a new frame.
 	  * The Renderer can use this to get fixed-per-frame settings from
@@ -227,8 +215,6 @@ protected:
 	RenderSettings& settings;
 
 private:
-	RendererFactory::RendererID id;
-
 	class FpsInfoTopic : public InfoTopic {
 	public:
 		FpsInfoTopic(Renderer& parent);

@@ -13,6 +13,10 @@
 #endif
 #include "XRenderer.hh"
 
+// Renderers:
+#include "DummyRenderer.hh"
+#include "PixelRenderer.hh"
+
 
 namespace openmsx {
 
@@ -20,21 +24,21 @@ Renderer* RendererFactory::createRenderer(VDP* vdp)
 {
 	switch (RenderSettings::instance().getRenderer()->getValue()) {
 	case DUMMY: {
-		DummyVideoSystem* videoSystem = new DummyVideoSystem();
-		return videoSystem->renderer;
+		new DummyVideoSystem();
+		return new DummyRenderer();
 	}
 	case SDLHI: {
 		SDLVideoSystem* videoSystem = new SDLVideoSystem(vdp, SDLHI);
-		return videoSystem->renderer;
+		return new PixelRenderer(vdp, videoSystem->rasterizer);
 	}
 	case SDLLO: {
 		SDLVideoSystem* videoSystem = new SDLVideoSystem(vdp, SDLLO);
-		return videoSystem->renderer;
+		return new PixelRenderer(vdp, videoSystem->rasterizer);
 	}
 #ifdef COMPONENT_GL
 	case SDLGL: {
 		SDLGLVideoSystem* videoSystem = new SDLGLVideoSystem(vdp);
-		return videoSystem->renderer;
+		return new PixelRenderer(vdp, videoSystem->rasterizer);
 	}
 #endif
 #ifdef HAVE_X11

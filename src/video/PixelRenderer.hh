@@ -27,8 +27,7 @@ class PixelRenderer : public Renderer, private SettingListener
 public:
 	/** Constructor.
 	  */
-	PixelRenderer(
-		RendererFactory::RendererID id, VDP* vdp, Rasterizer* rasterizer );
+	PixelRenderer(VDP* vdp, Rasterizer* rasterizer );
 
 	/** Destructor.
 	  */
@@ -36,7 +35,6 @@ public:
 
 	// Renderer interface:
 	virtual void reset(const EmuTime& time);
-	virtual bool checkSettings();
 	virtual void frameStart(const EmuTime &time);
 	virtual void frameEnd(const EmuTime &time);
 	virtual void updateHorizontalScrollLow(byte scroll, const EmuTime &time);

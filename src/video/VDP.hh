@@ -93,6 +93,14 @@ public:
 	virtual void executeUntil(const EmuTime &time, int userData);
 	virtual const string& schedName() const;
 
+	/** Create a new renderer.
+	  */
+	void switchRenderer();
+
+	// TODO: We should support multiple VDPs in one machine eventually,
+	//       but this is a rare situation, so for now 1 VDP is enough.
+	static VDP* instance;
+
 	/** Is this an MSX1 VDP?
 	  * @return True if this is an MSX1 VDP (TMS99X8A or TMS9929A),
 	  *   False otherwise.
@@ -611,12 +619,6 @@ private:
 	/** Renderer that converts this VDP's state into an image.
 	  */
 	Renderer* renderer;
-
-	/** Name of the current Renderer.
-	  * TODO: Retrieve this from the Renderer object?
-	  *       Possible, but avoid duplication of name->class mapping.
-	  */
-	string rendererName;
 
 	/** Command engine: the part of the V9938/58 that executes commands.
 	  */
