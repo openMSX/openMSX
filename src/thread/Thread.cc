@@ -1,6 +1,7 @@
 // $Id$
 
 #include "Thread.hh"
+#include <cstddef>
 
 
 Thread::Thread(Runnable *runnable)
