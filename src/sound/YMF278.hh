@@ -85,7 +85,7 @@ class YMF278 : public SoundDevice
 		YMF278Slot slots[24];
 		
 		unsigned eg_cnt;	// global envelope generator counter
-		unsigned eg_timer;	// global envelope generator counter works at frequencychipclock/288 (288=8*36)	TODO
+		unsigned eg_timer;	// global envelope generator counter
 		unsigned eg_timer_add;		// step of eg_timer
 		unsigned eg_timer_overflow;	// envelope generator timer overlfows every 1 sample (on real chip)
 		

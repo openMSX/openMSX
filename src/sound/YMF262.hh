@@ -155,6 +155,8 @@ class YMF262 : public SoundDevice, public TimerCallback
 		void set_ar_dr(byte sl, byte v);
 		void set_sl_rr(byte sl, byte v);
 		void update_channels(YMF262Channel &ch);
+		void checkMute();
+		bool checkMuteHelper();
 
 		byte reg[512];
 		YMF262Channel channels[18];	// OPL3 chips have 18 channels

@@ -796,11 +796,11 @@ void Y8950::checkMute()
 }
 bool Y8950::checkMuteHelper()
 {
-	for (int i=0; i<6; i++) {
+	for (int i = 0; i < 6; i++) {
 		if (ch[i].car.eg_mode != FINISH) return false;
 	}
 	if (!rythm_mode) {
-		for(int i=6; i<9; i++) {
+		for(int i = 6; i < 9; i++) {
 			if (ch[i].car.eg_mode != FINISH) return false;
 		}
 	} else {
@@ -823,7 +823,7 @@ int* Y8950::updateBuffer(int length)
 	}
 
 	int channelMask = 0;
-	for (int i=9; i--; ) {
+	for (int i = 9; i--; ) {
 		channelMask <<= 1;
 		if (ch[i].car.eg_mode != FINISH) channelMask |= 1;
 	}

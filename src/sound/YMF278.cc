@@ -45,24 +45,24 @@ const unsigned dl_tab[16] = {
 const byte RATE_STEPS = 8;
 const byte eg_inc[15 * RATE_STEPS] = {
 //cycle:0 1  2 3  4 5  6 7
-	0,1, 0,1, 0,1, 0,1, //  0  rates 00..12 0 (increment by 0 or 1)
-	0,1, 0,1, 1,1, 0,1, //  1  rates 00..12 1
-	0,1, 1,1, 0,1, 1,1, //  2  rates 00..12 2
-	0,1, 1,1, 1,1, 1,1, //  3  rates 00..12 3
+	 1, 1,  1, 1,  1, 1,  1, 1, //  0  rates 00..12 0 (increment by 0 or 1)
+	 1, 2,  1, 1,  1, 2,  1, 1, //  1  rates 00..12 1
+	 1, 2,  1, 2,  1, 2,  1, 2, //  2  rates 00..12 2
+	 1, 2,  2, 2,  1, 2,  2, 2, //  3  rates 00..12 3
 
-	1,1, 1,1, 1,1, 1,1, //  4  rate 13 0 (increment by 1)
-	1,1, 1,2, 1,1, 1,2, //  5  rate 13 1
-	1,2, 1,2, 1,2, 1,2, //  6  rate 13 2
-	1,2, 2,2, 1,2, 2,2, //  7  rate 13 3
+	 2, 2,  2, 2,  2, 2,  2, 2, //  4  rate 13 0 (increment by 1)
+	 2, 3,  2, 3,  2, 3,  2, 3, //  5  rate 13 1
+	 3, 3,  3, 3,  3, 3,  3, 3, //  6  rate 13 2
+	 3, 4,  3, 4,  3, 4,  3, 4, //  7  rate 13 3
 
-	2,2, 2,2, 2,2, 2,2, //  8  rate 14 0 (increment by 2)
-	2,2, 2,4, 2,2, 2,4, //  9  rate 14 1
-	2,4, 2,4, 2,4, 2,4, // 10  rate 14 2
-	2,4, 4,4, 2,4, 4,4, // 11  rate 14 3
+	 4, 4,  4, 4,  4, 4,  4, 4, //  8  rate 14 0 (increment by 2)
+	 5, 5,  5, 5,  5, 5,  5, 5, //  9  rate 14 1
+	 6, 6,  6, 6,  6, 6,  6, 6, // 10  rate 14 2
+	 7, 7,  7, 7,  7, 7,  7, 7, // 11  rate 14 3
 
-	4,4, 4,4, 4,4, 4,4, // 12  rates 15 0, 15 1, 15 2, 15 3 for decay
-	8,8, 8,8, 8,8, 8,8, // 13  rates 15 0, 15 1, 15 2, 15 3 for attack (zero time)
-	0,0, 0,0, 0,0, 0,0, // 14  infinity rates for attack and decay(s)
+	 8, 8,  8, 8,  8, 8,  8, 8, // 12  rates 15 0, 15 1, 15 2, 15 3 for decay
+	16,16, 16,16, 16,16, 16,16, // 13  rates 15 0, 15 1, 15 2, 15 3 for attack (zero time)
+	 0, 0,  0, 0,  0, 0,  0, 0, // 14  infinity rates for attack and decay(s)
 };
 
 #define O(a) (a*RATE_STEPS)
@@ -174,7 +174,7 @@ void YMF278::advance()
 				byte shift = eg_rate_shift[rate];
 				if (!(eg_cnt & ((1 << shift) -1))) {
 					byte select = eg_rate_select[rate];
-					op.env_vol += (~op.env_vol * 2 * eg_inc[select + ((eg_cnt >> shift) & 7)]) >> 3;
+					op.env_vol += (~op.env_vol * eg_inc[select + ((eg_cnt >> shift) & 7)]) >> 3;
 					if (op.env_vol <= MIN_ATT_INDEX) {
 						op.env_vol = MIN_ATT_INDEX;
 						op.state = EG_DEC;
@@ -190,7 +190,7 @@ void YMF278::advance()
 				byte shift = eg_rate_shift[rate];
 				if (!(eg_cnt & ((1 << shift) -1))) {
 					byte select = eg_rate_select[rate];
-					op.env_vol += 2 * eg_inc[select + ((eg_cnt >> shift) & 7)];
+					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
 					if (op.env_vol >= op.DL) {
 						op.state = EG_SUS;
 					}
@@ -205,7 +205,7 @@ void YMF278::advance()
 				byte shift = eg_rate_shift[rate];
 				if (!(eg_cnt & ((1 << shift) -1))) {
 					byte select = eg_rate_select[rate];
-					op.env_vol += 2 * eg_inc[select + ((eg_cnt >> shift) & 7)];
+					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
 					if (op.env_vol >= MAX_ATT_INDEX) {
 						op.env_vol = MAX_ATT_INDEX;
 						op.active = false;
@@ -222,7 +222,7 @@ void YMF278::advance()
 				byte shift = eg_rate_shift[rate];
 				if (!(eg_cnt & ((1 << shift) -1))) {
 					byte select = eg_rate_select[rate];
-					op.env_vol += 2 * eg_inc[select + ((eg_cnt >> shift) & 7)];
+					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
 					if (op.env_vol >= MAX_ATT_INDEX) {
 						op.env_vol = MAX_ATT_INDEX;
 						op.active = false;
