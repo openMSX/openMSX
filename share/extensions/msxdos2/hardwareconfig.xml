@@ -10,8 +10,8 @@
           <sha1>c36c9e0f96738a340381e23b4f97245388801a46</sha1>
           <sha1>51a1467d73d26c91aab7923e3be66490daaffdee</sha1>
           <filename>roms/msxdos22.rom</filename>
-          <mappertype>MSXDOS2</mappertype>
         </rom>
+        <mappertype>MSXDOS2</mappertype>
       </ROM>
     </secondary>
   </primary>
