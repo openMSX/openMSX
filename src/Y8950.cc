@@ -417,7 +417,7 @@ void Y8950::Channel::reset()
 }
 
 
-Y8950::Y8950(short volume)
+Y8950::Y8950(short volume, const EmuTime &time)
 {
 	makePmTable();
 	makeAmTable();
@@ -433,7 +433,7 @@ Y8950::Y8950(short volume)
 	for (int i=0; i<10; i++) 
 		mask[i] = 0;
 	//adpcm = new ADPCM(0,0);	// TODO
-	reset();
+	reset(time);
 
 	setVolume(volume);
 	int bufSize = Mixer::instance()->registerSound(this);
@@ -459,7 +459,7 @@ void Y8950::setSampleRate(int sampleRate)
 }
 
 // Reset whole of opl except patch datas. 
-void Y8950::reset()
+void Y8950::reset(const EmuTime &time)
 {
 	for (int i=0; i<9; i++) 
 		ch[i].reset();
@@ -473,6 +473,8 @@ void Y8950::reset()
 	am_phase = 0;
 	noise_seed =0xffff;
 
+	// update the output buffer before changing the register
+	Mixer::instance()->updateStream(time);
 	for (int i=0; i<0xFF; i++) 
 		reg[i] = 0x00;
 	for (int i=0; i<18; i++) 

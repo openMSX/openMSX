@@ -14,7 +14,7 @@ MSXAudio::MSXAudio(MSXConfig::Device *config, const EmuTime &time)
 	MSXMotherBoard::instance()->register_IO_In (0xc0, this);
 	MSXMotherBoard::instance()->register_IO_In (0xc1, this);
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
-	y8950 = new Y8950(volume);
+	y8950 = new Y8950(volume, time);
 	reset(time);
 }
 
@@ -26,7 +26,7 @@ MSXAudio::~MSXAudio()
 
 void MSXAudio::reset(const EmuTime &time)
 {
-	y8950->reset();
+	y8950->reset(time);
 	registerLatch = 0;	// TODO check
 }
 

@@ -135,10 +135,10 @@ class Y8950 : public SoundDevice
 	};
 
 	public:
-		Y8950(short volume);
+		Y8950(short volume, const EmuTime &time);
 		virtual ~Y8950();
 
-		void reset();
+		void reset(const EmuTime &time);
 		void writeReg(byte reg, byte data, const EmuTime &time);
 		byte readReg(byte reg);
 		byte readStatus();
