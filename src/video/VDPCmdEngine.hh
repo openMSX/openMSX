@@ -121,7 +121,6 @@ private:
 	/** Represents V9938 Graphic 4 mode (SCREEN5).
 	  */
 	class Graphic4Mode {
-		friend class VDPCmd;
 	public:
 		static const byte COLOUR_MASK = 0x0F;
 		static const byte PIXELS_PER_BYTE = 2;
@@ -136,7 +135,6 @@ private:
 	/** Represents V9938 Graphic 5 mode (SCREEN6).
 	  */
 	class Graphic5Mode {
-		friend class VDPCmd;
 	public:
 		static const byte COLOUR_MASK = 0x03;
 		static const byte PIXELS_PER_BYTE = 4;
@@ -151,7 +149,6 @@ private:
 	/** Represents V9938 Graphic 6 mode (SCREEN7).
 	  */
 	class Graphic6Mode {
-		friend class VDPCmd;
 	public:
 		static const byte COLOUR_MASK = 0x0F;
 		static const byte PIXELS_PER_BYTE = 2;
@@ -166,7 +163,6 @@ private:
 	/** Represents V9938 Graphic 7 mode (SCREEN8).
 	  */
 	class Graphic7Mode {
-		friend class VDPCmd;
 	public:
 		static const byte COLOUR_MASK = 0xFF;
 		static const byte PIXELS_PER_BYTE = 1;
@@ -209,7 +205,6 @@ private:
 
 		word ASX, ADX, ANX;
 	};
-	friend class VDPCmd;
 
 	template <template <class Mode> class Command>
 	void createEngines(int cmd);
@@ -222,7 +217,6 @@ private:
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
-	friend class AbortCmd;
 
 	/** Point
 	  */
@@ -233,10 +227,6 @@ private:
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
-	friend class PointCmd<Graphic4Mode>;
-	friend class PointCmd<Graphic5Mode>;
-	friend class PointCmd<Graphic6Mode>;
-	friend class PointCmd<Graphic7Mode>;
 
 	/** Pset
 	  */
@@ -247,10 +237,6 @@ private:
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
-	friend class PsetCmd<Graphic4Mode>;
-	friend class PsetCmd<Graphic5Mode>;
-	friend class PsetCmd<Graphic6Mode>;
-	friend class PsetCmd<Graphic7Mode>;
 
 	/** Search a dot.
 	  */
@@ -261,10 +247,6 @@ private:
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
-	friend class SrchCmd<Graphic4Mode>;
-	friend class SrchCmd<Graphic5Mode>;
-	friend class SrchCmd<Graphic6Mode>;
-	friend class SrchCmd<Graphic7Mode>;
 
 	/** Draw a line.
 	  */
@@ -275,10 +257,6 @@ private:
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
-	friend class LineCmd<Graphic4Mode>;
-	friend class LineCmd<Graphic5Mode>;
-	friend class LineCmd<Graphic6Mode>;
-	friend class LineCmd<Graphic7Mode>;
 	
 	/** Abstract base class for block commands.
 	  */
@@ -290,7 +268,6 @@ private:
 
 		const int* timing;
 	};
-	friend class BlockCmd;
 
 	/** Logical move VDP -> VRAM.
 	  */
@@ -301,10 +278,6 @@ private:
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
-	friend class LmmvCmd<Graphic4Mode>;
-	friend class LmmvCmd<Graphic5Mode>;
-	friend class LmmvCmd<Graphic6Mode>;
-	friend class LmmvCmd<Graphic7Mode>;
 
 	/** Logical move VRAM -> VRAM.
 	  */
@@ -315,10 +288,6 @@ private:
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
-	friend class LmmmCmd<Graphic4Mode>;
-	friend class LmmmCmd<Graphic5Mode>;
-	friend class LmmmCmd<Graphic6Mode>;
-	friend class LmmmCmd<Graphic7Mode>;
 
 	/** Logical move VRAM -> CPU.
 	  */
@@ -329,10 +298,6 @@ private:
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
-	friend class LmcmCmd<Graphic4Mode>;
-	friend class LmcmCmd<Graphic5Mode>;
-	friend class LmcmCmd<Graphic6Mode>;
-	friend class LmcmCmd<Graphic7Mode>;
 
 	/** Logical move CPU -> VRAM.
 	  */
@@ -343,10 +308,6 @@ private:
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
-	friend class LmmcCmd<Graphic4Mode>;
-	friend class LmmcCmd<Graphic5Mode>;
-	friend class LmmcCmd<Graphic6Mode>;
-	friend class LmmcCmd<Graphic7Mode>;
 
 	/** High-speed move VDP -> VRAM.
 	  */
@@ -357,10 +318,6 @@ private:
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
-	friend class HmmvCmd<Graphic4Mode>;
-	friend class HmmvCmd<Graphic5Mode>;
-	friend class HmmvCmd<Graphic6Mode>;
-	friend class HmmvCmd<Graphic7Mode>;
 
 	/** High-speed move VRAM -> VRAM.
 	  */
@@ -371,10 +328,6 @@ private:
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
-	friend class HmmmCmd<Graphic4Mode>;
-	friend class HmmmCmd<Graphic5Mode>;
-	friend class HmmmCmd<Graphic6Mode>;
-	friend class HmmmCmd<Graphic7Mode>;
 
 	/** High-speed move VRAM -> VRAM (Y direction only).
 	  */
@@ -385,10 +338,6 @@ private:
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
-	friend class YmmmCmd<Graphic4Mode>;
-	friend class YmmmCmd<Graphic5Mode>;
-	friend class YmmmCmd<Graphic6Mode>;
-	friend class YmmmCmd<Graphic7Mode>;
 
 	/** High-speed move CPU -> VRAM.
 	  */
@@ -399,10 +348,6 @@ private:
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
-	friend class HmmcCmd<Graphic4Mode>;
-	friend class HmmcCmd<Graphic5Mode>;
-	friend class HmmcCmd<Graphic6Mode>;
-	friend class HmmcCmd<Graphic7Mode>;
 
 
 	virtual void update(const SettingLeafNode* setting) throw();
