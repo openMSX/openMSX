@@ -11,6 +11,7 @@
 #include "openmsx.hh"
 #include "InfoCommand.hh"
 #include "CommandResult.hh"
+#include "CliCommOutput.hh"
 
 namespace openmsx {
 
@@ -143,6 +144,8 @@ string PluggingController::PlugCmd::execute(const vector<string>& tokens)
 			connector->unplug(time);
 			try {
 				connector->plug(pluggable, time);
+				CliCommOutput::instance().update(
+					CliCommOutput::PLUG, tokens[1], tokens[2]);
 			} catch (PlugException &e) {
 				throw CommandException("plug: plug failed: " + e.getMessage());
 			}
@@ -210,6 +213,7 @@ string PluggingController::UnplugCmd::execute(const vector<string>& tokens)
 	}
 	const EmuTime &time = parent.scheduler.getCurrentTime();
 	connector->unplug(time);
+	CliCommOutput::instance().update(CliCommOutput::UNPLUG, tokens[1], "");
 	return "";
 }
 
