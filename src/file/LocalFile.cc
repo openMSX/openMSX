@@ -1,7 +1,9 @@
 // $Id$
 
 #include <unistd.h>
+#ifndef	NO_MMAP
 #include <sys/mman.h>
+#endif
 #include "LocalFile.hh"
 #include "FileOperations.hh"
 
@@ -76,6 +78,7 @@ void LocalFile::write(const byte* buffer, int num)
 	}
 }
 
+#ifndef	NO_MMAP
 byte* LocalFile::mmap(bool writeBack)
 {
 	if (!mmem) {
@@ -96,6 +99,7 @@ void LocalFile::munmap()
 		mmem = NULL;
 	}
 }
+#endif
 
 int LocalFile::getSize()
 {

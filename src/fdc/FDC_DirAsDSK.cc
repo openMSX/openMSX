@@ -16,6 +16,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#ifdef	NO_BZERO
+#define	bzero(x,y)	memset(x,0,y)
+#endif
+
 using std::transform;
 
 /* macros to change DirEntries */

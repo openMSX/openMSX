@@ -74,7 +74,9 @@ JoystickPorts::JoystickPorts(const EmuTime &time)
 	ports[1] = new JoystickPort("joyportb", time);
 
 	mouse = new Mouse(time);
+#ifndef	NO_SOCKET
 	joynet = new JoyNet();
+#endif
 	keyJoystick = new KeyJoystick();
 	int i = 0;
 	try {
@@ -95,7 +97,9 @@ JoystickPorts::~JoystickPorts()
 	
 	delete keyJoystick;
 	delete mouse;
+#ifndef	NO_SOCKET
 	delete joynet;
+#endif
 	for (int i = 0; i < 10; i++) {
 		delete joystick[i];
 	}

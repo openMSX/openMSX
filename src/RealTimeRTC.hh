@@ -3,6 +3,8 @@
 #ifndef __MSXREALTIMERTC_HH__
 #define __MSXREALTIMERTC_HH__
 
+#ifndef	NO_LINUX_RTC
+
 #include "RealTime.hh"
 
 
@@ -37,4 +39,6 @@ class RealTimeRTC : public RealTime
 
 } // namespace openmsx
 
-#endif
+#endif	// !NO_LINUX_RTC
+
+#endif	// !__MSXREALTIMERTC_HH__

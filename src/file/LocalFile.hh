@@ -18,8 +18,10 @@ class LocalFile : public FileBase
 		virtual ~LocalFile();
 		virtual void read (byte* buffer, int num);
 		virtual void write(const byte* buffer, int num);
+#ifndef	NO_MMAP
 		virtual byte* mmap(bool writeBack);
 		virtual void munmap();
+#endif
 		virtual int getSize();
 		virtual void seek(int pos);
 		virtual int getPos();

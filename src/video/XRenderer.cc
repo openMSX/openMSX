@@ -1,5 +1,7 @@
 // $Id$
 
+#ifndef	NO_X11
+
 #include "XRenderer.hh"
 #include <SDL/SDL.h>
 #include <SDL/SDL_thread.h>
@@ -205,3 +207,5 @@ map<KeySym, SDLKey> *XRenderer::convert::makemap() {
 map<KeySym, SDLKey> *XRenderer::convert::keymap = XRenderer::convert::makemap();
 
 } // namespace openmsx
+
+#endif

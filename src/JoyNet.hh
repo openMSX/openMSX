@@ -3,6 +3,8 @@
 #ifndef __JOYNET_HH__
 #define __JOYNET_HH__
 
+#ifndef	NO_SOCKET
+
 #include "JoystickDevice.hh"
 #include "Thread.hh"
 #include <sys/socket.h>
@@ -87,4 +89,7 @@ class JoyNet : public JoystickDevice
 };
 
 } // namespace openmsx
-#endif
+
+#endif	// !NO_SOCKET
+
+#endif	// !__JOYNET_HH__

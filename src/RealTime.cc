@@ -11,7 +11,9 @@
 
 #include <cassert>
 
+#ifndef	NO_LINUX_RTC
 #define HAVE_RTC	// TODO check this in configure
+#endif
 
 
 namespace openmsx {

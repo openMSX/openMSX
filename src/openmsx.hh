@@ -38,10 +38,15 @@ typedef unsigned short word;
 typedef unsigned int dword;
 
 #ifdef __WIN32__
+#ifdef	__MINGW32__
+#include <_mingw.h>	// for __int64
+#endif
+#define	uint	unsigned int
+// Use define instead of typedef. See _mingw.h.
 /** 64 bit signed integer */
-typedef __int64 int64;
+#define	int64	__int64
 /** 64 bit unsigned integer */
-typedef unsigned __int64 uint64;
+#define	uint64	unsigned __int64
 #else
 // this is not portable to 64bit platforms? -> TODO check
 /** 64 bit signed integer */

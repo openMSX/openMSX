@@ -1,5 +1,8 @@
 $Id$
 
+2003-08-18 Reikan <openMSX4Win32@ranpub.com>
+	* Adjusted as a first step to support win32.
+
 2003-08-17 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* fixed a serious bug in the commandlineparser. -diska (and b),
 	  -carta (and b,c and d) work again.

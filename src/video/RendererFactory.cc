@@ -22,8 +22,10 @@ RendererFactory *RendererFactory::getCurrent()
 	case SDLGL:
 		return new SDLGLRendererFactory();
 #endif
+#ifndef	NO_X11
 	case XLIB:
 		return new XRendererFactory();
+#endif
 	default:
 		throw MSXException("Unknown renderer");
 	}
@@ -51,8 +53,10 @@ RendererFactory::RendererSetting *RendererFactory::createRendererSetting()
 #ifdef __OPENGL_AVAILABLE__
 	rendererMap["SDLGL"] = SDLGL;
 #endif
+#ifndef	NO_X11
 	// XRenderer is not ready for users.
 	// rendererMap["Xlib" ] = XLIB;
+#endif
 	return new RendererSetting(
 		"renderer", "rendering back-end used to display the MSX screen",
 		SDLHI, rendererMap
@@ -222,6 +226,8 @@ Renderer *SDLGLRendererFactory::create(VDP *vdp)
 
 #endif // __OPENGL_AVAILABLE__
 
+
+#ifndef	NO_X11
 // Xlib ====================================================================
 
 bool XRendererFactory::isAvailable()
@@ -233,6 +239,7 @@ Renderer *XRendererFactory::create(VDP *vdp)
 {
 	return new XRenderer(XLIB, vdp);
 }
+#endif
 
 } // namespace openmsx
 

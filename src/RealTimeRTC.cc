@@ -1,5 +1,7 @@
 // $Id$
 
+#ifndef	NO_LINUX_RTC
+
 #include "RealTimeRTC.hh"
 
 #include <linux/rtc.h>
@@ -150,3 +152,5 @@ void RealTimeRTC::reset(const EmuTime &time)
 }
 
 } // namespace openmsx
+
+#endif	// !NO_LINUX_RTC

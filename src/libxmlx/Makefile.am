@@ -3,8 +3,14 @@
 noinst_LTLIBRARIES = libxmlx.la
 libxmlx_la_SOURCES = libxmlx.cc xmlx.hh
 
+AM_CXXFLAGS_BASE = -Wall -I$(srcdir)/.. @XML_CFLAGS@
 #AM_CXXFLAGS = -Wall -DXMLX_DEBUG -g3 -pipe
-AM_CXXFLAGS = -Wall -g3 -pipe -I$(srcdir)/.. @XML_CFLAGS@
+#AM_CXXFLAGS = -Wall -g3 -pipe -I$(srcdir)/.. @XML_CFLAGS@
+if RELEASE
+AM_CXXFLAGS = $(AM_CXXFLAGS_BASE)
+else
+AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -g3
+endif
 
 #  uncomment the following if libxmlx requires the math library
 #libxmlx_LDADD=-lm

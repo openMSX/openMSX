@@ -3,6 +3,8 @@
 #ifndef __XRENDERER_HH__
 #define __XRENDERER_HH__
 
+#ifndef	NO_X11
+
 #include "openmsx.hh"
 #include "Renderer.hh"
 //#include "CharacterConverter.hh"
@@ -98,5 +100,7 @@ private:
 };
 
 } // namespace openmsx
+
+#endif	// !NO_X11
 
 #endif // __XRENDERER_HH__

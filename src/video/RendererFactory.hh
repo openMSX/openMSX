@@ -191,6 +191,7 @@ public:
 
 #endif // __OPENGL_AVAILABLE__
 
+#ifndef	NO_X11
 /** RendererFactory for XRenderer.
   */
 class XRendererFactory: public RendererFactory
@@ -209,6 +210,7 @@ public:
 
 	Renderer *create(VDP *vdp);
 };
+#endif
 
 } // namespace openmsx
 
