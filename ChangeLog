@@ -1,5 +1,9 @@
 $Id$
 
+2004-05-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Renamed "keylayoutbit" setting in PSG to "keyboardlayout". Also
+	  instead of the values true/false it now takes "JIS"/"ANSI"
+
 2004-05-23 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed glitches in SDLHi when deinterlacing.
 	* Fixed pause in SDLGL in monochrome character modes (SCREEN0.40/0.80/1).

@@ -14,7 +14,7 @@ MSXPSG::MSXPSG(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  cassette(CassettePortFactory::instance())
 {
-	keyLayoutBit = deviceConfig->getParameterAsBool("keylayoutbit", false);
+	keyLayoutBit = deviceConfig->getParameter("keyboardlayout") == "JIS";
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	ay8910 = new AY8910(*this, volume, time);
 
