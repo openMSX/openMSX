@@ -36,9 +36,9 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 		Slot(bool type);
 		void reset(bool type);
 
-		inline void slotOn(byte stat);
-		inline void slotOn2(byte stat);
-		inline void slotOff(byte stat);
+		inline void slotOn();
+		inline void slotOn2();
+		inline void slotOff();
 		inline void setPatch(Patch* patch);
 		inline void setVolume(int volume);
 		inline void calc_phase(int lfo_pm);
@@ -62,7 +62,7 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 	
 		Patch* patch;  
 		bool type;		// 0 : modulator 1 : carrier 
-		bool slotStatus;
+		bool slot_on_flag;
 
 		// OUTPUT
 		int feedback;
@@ -97,11 +97,11 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 		inline void setVol(int volume);
 		inline void setFnumber(int fnum);
 		inline void setBlock(int block);
-		inline void keyOn(byte stat);
-		inline void keyOff(byte stat);
+		inline void keyOn();
+		inline void keyOff();
 
 		Patch* patches;
-		bool userPatch;
+		bool patch_number;
 		Slot mod, car;
 	};
 
@@ -147,7 +147,8 @@ private:
 	inline void keyOff_TOM();
 	inline void keyOff_HH();
 	inline void keyOff_CYM();
-	inline void setRhythmMode(int data);
+	inline void update_rhythm_mode();
+	inline void update_key_status();
 	inline void update_noise();
 	inline void update_ampm();
 
@@ -225,9 +226,6 @@ private:
 
 	// Register
 	byte reg[0x40];
-
-	// Rhythm Mode
-	bool rhythm_mode;
 
 	// Pitch Modulator
 	unsigned int pm_phase;

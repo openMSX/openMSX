@@ -85,7 +85,7 @@ static inline unsigned int rate_adjust(double x, int rate)
 	return (unsigned int)tmp;
 }
 
-static inline int BIT(int s, int b)
+static inline bool BIT(int s, int b)
 {
 	return (s >> b) & 1;
 }
@@ -355,7 +355,7 @@ void YM2413::Slot::reset(bool type_)
 	pgout = 0;
 	egout = 0;
 	patch = &nullPatch;
-	slotStatus = false;
+	slot_on_flag = false;
 }
 
 
@@ -423,43 +423,32 @@ void YM2413::Slot::updateAll()
 
 
 // Slot key on
-void YM2413::Slot::slotOn(byte stat)
+void YM2413::Slot::slotOn()
 {
-	if (!slotStatus) {
-		eg_mode = ATTACK;
-		phase = 0;
-		eg_phase = 0;
-		updateEG();
-	}
-	slotStatus |= stat;
+	eg_mode = ATTACK;
+	eg_phase = 0;
+	phase = 0;
+	updateEG();
 }
 
 // Slot key on, without resetting the phase
-void YM2413::Slot::slotOn2(byte stat)
+void YM2413::Slot::slotOn2()
 {
-	if (!slotStatus) {
-		eg_mode = ATTACK;
-		eg_phase = 0;
-		updateEG();
-	}
-	slotStatus |= stat;
+	eg_mode = ATTACK;
+	eg_phase = 0;
+	updateEG();
 }
 
 // Slot key off
-void YM2413::Slot::slotOff(byte stat)
+void YM2413::Slot::slotOff()
 {
-	if (slotStatus) {
-		slotStatus &= ~stat;
-		if (!slotStatus) {
-			if (eg_mode == ATTACK)
-				eg_phase = EXPAND_BITS(
-					AR_ADJUST_TABLE[HIGHBITS(
-						eg_phase, EG_DP_BITS - EG_BITS)],
-					EG_BITS, EG_DP_BITS);
-			eg_mode = RELEASE;
-			updateEG();
-		}
-	}
+	if (eg_mode == ATTACK)
+		eg_phase = EXPAND_BITS(
+			AR_ADJUST_TABLE[HIGHBITS(
+				eg_phase, EG_DP_BITS - EG_BITS)],
+			EG_BITS, EG_DP_BITS);
+	eg_mode = RELEASE;
+	updateEG();
 }
 
 
@@ -500,7 +489,7 @@ void YM2413::Channel::reset()
 // Change a voice
 void YM2413::Channel::setPatch(int num)
 {
-	userPatch = (num == 0);
+	patch_number = num;
 	mod.setPatch(&patches[2 * num + 0]);
 	car.setPatch(&patches[2 * num + 1]);
 }
@@ -535,17 +524,17 @@ void YM2413::Channel::setBlock(int block)
 }
 
 // Channel key on
-void YM2413::Channel::keyOn(byte stat)
+void YM2413::Channel::keyOn()
 {
-	mod.slotOn(stat);
-	car.slotOn(stat);
+	if (!mod.slot_on_flag) mod.slotOn();
+	if (!car.slot_on_flag) car.slotOn();
 }
 
 // Channel key off
-void YM2413::Channel::keyOff(byte stat)
+void YM2413::Channel::keyOff()
 {
-	//mod.slotOff(stat); // TODO original code does not have this!!!
-	car.slotOff(stat);
+	// Note: no mod.slotOff() in original code!!!
+	if (car.slot_on_flag) car.slotOff();
 }
 
 
@@ -579,7 +568,7 @@ static byte inst_data[16 + 3][8] = {
 };
 
 YM2413::YM2413(const string& name_, const XMLElement& config, const EmuTime& time)
-	: rhythm_mode(false), name(name_)
+	: name(name_)
 {
 	for (int i = 0; i < 16 + 3; ++i) {
 		patches[2 * i + 0] = Patch(0, inst_data[i]);
@@ -651,48 +640,80 @@ void YM2413::setSampleRate(int sampleRate)
 
 
 // Drum key on
-void YM2413::keyOn_BD()  { ch[6].keyOn(2); }
-void YM2413::keyOn_HH()  { ch[7].mod.slotOn2(2); }
-void YM2413::keyOn_SD()  { ch[7].car.slotOn (2); }
-void YM2413::keyOn_TOM() { ch[8].mod.slotOn (2); }
-void YM2413::keyOn_CYM() { ch[8].car.slotOn2(2); }
+void YM2413::keyOn_BD()  { ch[6].keyOn(); }
+void YM2413::keyOn_HH()  { if (!ch[7].mod.slot_on_flag) ch[7].mod.slotOn2(); }
+void YM2413::keyOn_SD()  { if (!ch[7].car.slot_on_flag) ch[7].car.slotOn (); }
+void YM2413::keyOn_TOM() { if (!ch[8].mod.slot_on_flag) ch[8].mod.slotOn (); }
+void YM2413::keyOn_CYM() { if (!ch[8].car.slot_on_flag) ch[8].car.slotOn2(); }
 
 // Drum key off
-void YM2413::keyOff_BD() { ch[6].keyOff(2); }
-void YM2413::keyOff_HH() { ch[7].mod.slotOff(2); }
-void YM2413::keyOff_SD() { ch[7].car.slotOff(2); }
-void YM2413::keyOff_TOM(){ ch[8].mod.slotOff(2); }
-void YM2413::keyOff_CYM(){ ch[8].car.slotOff(2); }
+void YM2413::keyOff_BD() { ch[6].keyOff(); }
+void YM2413::keyOff_HH() { if (ch[7].mod.slot_on_flag) ch[7].mod.slotOff(); }
+void YM2413::keyOff_SD() { if (ch[7].car.slot_on_flag) ch[7].car.slotOff(); }
+void YM2413::keyOff_TOM(){ if (ch[8].mod.slot_on_flag) ch[8].mod.slotOff(); }
+void YM2413::keyOff_CYM(){ if (ch[8].car.slot_on_flag) ch[8].car.slotOff(); }
 
-void YM2413::setRhythmMode(int data)
+void YM2413::update_rhythm_mode()
 {
-	bool newMode = (data & 32) != 0;
-	if (rhythm_mode != newMode) {
-		rhythm_mode = newMode;
-		if (newMode) {
-			// OFF->ON
-			ch[6].setPatch(16);
-			ch[7].setPatch(17);
-			ch[8].setPatch(18);
-			ch[7].mod.type = true;
-			ch[8].mod.type = true;
-		} else {
-			// ON->OFF
+	if (ch[6].patch_number & 0x10) {
+		if (!(ch[6].car.slot_on_flag ||
+		      (reg[0x0e] & 0x20))) {
+			ch[6].mod.eg_mode = FINISH;
+			ch[6].car.eg_mode = FINISH;
 			ch[6].setPatch(reg[0x36] >> 4);
-			ch[7].setPatch(reg[0x37] >> 4);
-			ch[8].setPatch(reg[0x38] >> 4);
-			ch[7].mod.type = false;
-			ch[8].mod.type = false;
 		}
-		ch[6].mod.eg_mode = FINISH; // BD1
-		ch[6].car.eg_mode = FINISH; // BD2 
-		ch[7].mod.eg_mode = FINISH; // HH
-		ch[7].car.eg_mode = FINISH; // SD
-		ch[8].mod.eg_mode = FINISH; // TOM
-		ch[8].car.eg_mode = FINISH; // CYM
+	} else if (reg[0x0e] & 0x20) {
+		ch[6].mod.eg_mode = FINISH;
+		ch[6].car.eg_mode = FINISH;
+		ch[6].setPatch(16);
+	}
+
+	if (ch[7].patch_number & 0x10) {
+		if (!((ch[7].mod.slot_on_flag && ch[7].car.slot_on_flag) ||
+		      (reg[0x0e] & 0x20))) {
+			ch[7].mod.type = false;
+			ch[7].mod.eg_mode = FINISH;
+			ch[7].car.eg_mode = FINISH;
+			ch[7].setPatch(reg[0x37] >> 4);
+		}
+	} else if (reg[0x0e] & 0x20) {
+		ch[7].mod.type = true;
+		ch[7].mod.eg_mode = FINISH;
+		ch[7].car.eg_mode = FINISH;
+		ch[7].setPatch(17);
+	}
+
+	if (ch[8].patch_number & 0x10) {
+		if (!((ch[8].mod.slot_on_flag && ch[8].car.slot_on_flag) ||
+		      (reg[0x0e] & 0x20))) {
+			ch[8].mod.type = false;
+			ch[8].mod.eg_mode = FINISH;
+			ch[8].car.eg_mode = FINISH;
+			ch[8].setPatch(reg[0x38] >> 4);
+		}
+	} else if (reg[0x0e] & 0x20) {
+		ch[8].mod.type = true;
+		ch[8].mod.eg_mode = FINISH;
+		ch[8].car.eg_mode = FINISH;
+		ch[8].setPatch(18);
 	}
 }
 
+void YM2413::update_key_status()
+{
+	for (int i = 0; i < 9; ++i) {
+		ch[i].mod.slot_on_flag = ch[i].car.slot_on_flag =
+			reg[0x20 + i] & 0x10;
+	}
+	if (reg[0x0e] & 0x20) {
+		ch[6].mod.slot_on_flag |= reg[0x0e] & 0x10; // BD1
+		ch[6].car.slot_on_flag |= reg[0x0e] & 0x10; // BD2
+		ch[7].mod.slot_on_flag |= reg[0x0e] & 0x01; // HH
+		ch[7].car.slot_on_flag |= reg[0x0e] & 0x08; // SD
+		ch[8].mod.slot_on_flag |= reg[0x0e] & 0x04; // TOM
+		ch[8].car.slot_on_flag |= reg[0x0e] & 0x02; // SYM
+	}
+}
 
 
 //******************************************************//
@@ -933,21 +954,32 @@ inline int YM2413::calcSample()
 	}
 
 	int mix = 0;
-	if (rhythm_mode) {
-		if (channelMask & (1 << 6))
+	if (ch[6].patch_number & 0x10) {
+		if (channelMask & (1 << 6)) {
 			mix += ch[6].car.calc_slot_car(ch[6].mod.calc_slot_mod());
-		if (ch[7].mod.eg_mode != FINISH)
-			mix += ch[7].mod.calc_slot_hat(ch[8].car.pgout, noise_seed & 1);
-		if (channelMask & (1 << 7))
-			mix -= ch[7].car.calc_slot_snare(noise_seed & 1);
-		if (ch[8].mod.eg_mode != FINISH)
-			mix += ch[8].mod.calc_slot_tom();
-		if (channelMask & (1 << 8))
-			mix -= ch[8].car.calc_slot_cym(ch[7].mod.pgout);
-
-		channelMask &= (1 << 6) - 1;
-		mix *= 2;
+			channelMask &= ~(1 << 6);
+		}
 	}
+	if (ch[7].patch_number & 0x10) {
+		if (ch[7].mod.eg_mode != FINISH) {
+			mix += ch[7].mod.calc_slot_hat(ch[8].car.pgout, noise_seed & 1);
+		}
+		if (channelMask & (1 << 7)) {
+			mix -= ch[7].car.calc_slot_snare(noise_seed & 1);
+			channelMask &= ~(1 << 7);
+		}
+	}
+	if (ch[8].patch_number & 0x10) {
+		if (ch[8].mod.eg_mode != FINISH) {
+			mix += ch[8].mod.calc_slot_tom();
+		}
+		if (channelMask & (1 << 8)) {
+			mix -= ch[8].car.calc_slot_cym(ch[7].mod.pgout);
+			channelMask &= ~(1 << 8);
+		}
+	}
+	mix *= 2;
+
 	for (Channel* cp = ch; channelMask; channelMask >>= 1, ++cp) {
 		if (channelMask & 1) {
 			mix += cp->car.calc_slot_car(cp->mod.calc_slot_mod());
@@ -965,7 +997,7 @@ bool YM2413::checkMuteHelper()
 	for (int i = 0; i < 6; i++) {
 		if (ch[i].car.eg_mode != FINISH) return false;
 	}
-	if (!rhythm_mode) {
+	if (!(reg[0x0e] & 0x20)) {
 		for(int i = 6; i < 9; i++) {
 			 if (ch[i].car.eg_mode != FINISH) return false;
 		}
@@ -1019,7 +1051,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		patches[0].KR = (data >> 4) & 1;
 		patches[0].ML = (data >> 0) & 15;
 		for (int i = 0; i < 9; ++i) {
-			if (ch[i].userPatch) {
+			if (ch[i].patch_number == 0) {
 				ch[i].mod.updatePG();
 				ch[i].mod.updateRKS();
 				ch[i].mod.updateEG();
@@ -1033,7 +1065,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		patches[1].KR = (data >> 4) & 1;
 		patches[1].ML = (data >> 0) & 15;
 		for (int i = 0; i < 9; ++i) {
-			if(ch[i].userPatch) {
+			if(ch[i].patch_number == 0) {
 				ch[i].car.updatePG();
 				ch[i].car.updateRKS();
 				ch[i].car.updateEG();
@@ -1044,7 +1076,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		patches[0].KL = (data >> 6) & 3;
 		patches[0].TL = (data >> 0) & 63;
 		for (int i = 0; i < 9; ++i) {
-			if (ch[i].userPatch) {
+			if (ch[i].patch_number == 0) {
 				ch[i].mod.updateTLL();
 			}
 		}
@@ -1055,7 +1087,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		patches[0].WF = (data >> 3) & 1;
 		patches[0].FB = (data >> 0) & 7;
 		for (int i = 0; i < 9; ++i) {
-			if (ch[i].userPatch) {
+			if (ch[i].patch_number == 0) {
 				ch[i].mod.updateWF();
 				ch[i].car.updateWF();
 			}
@@ -1065,7 +1097,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		patches[0].AR = (data >> 4) & 15;
 		patches[0].DR = (data >> 0) & 15;
 		for (int i = 0; i < 9; ++i) {
-			if(ch[i].userPatch) {
+			if(ch[i].patch_number == 0) {
 				ch[i].mod.updateEG();
 			}
 		}
@@ -1074,7 +1106,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		patches[1].AR = (data >> 4) & 15;
 		patches[1].DR = (data >> 0) & 15;
 		for (int i = 0; i < 9; ++i) {
-			if (ch[i].userPatch) {
+			if (ch[i].patch_number == 0) {
 				ch[i].car.updateEG();
 			}
 		}
@@ -1083,7 +1115,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		patches[0].SL = (data >> 4) & 15;
 		patches[0].RR = (data >> 0) & 15;
 		for (int i = 0; i < 9; ++i) {
-			if (ch[i].userPatch) {
+			if (ch[i].patch_number == 0) {
 				ch[i].mod.updateEG();
 			}
 		}
@@ -1092,20 +1124,22 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		patches[1].SL = (data >> 4) & 15;
 		patches[1].RR = (data >> 0) & 15;
 		for (int i = 0; i < 9; i++) {
-			if (ch[i].userPatch) {
+			if (ch[i].patch_number == 0) {
 				ch[i].car.updateEG();
 			}
 		}
 		break;
 	case 0x0e:
-		setRhythmMode(data);
-		if (rhythm_mode) {
+		update_rhythm_mode();
+		if (data & 0x20) {
 			if (data & 0x10) keyOn_BD();  else keyOff_BD();
 			if (data & 0x08) keyOn_SD();  else keyOff_SD();
 			if (data & 0x04) keyOn_TOM(); else keyOff_TOM();
 			if (data & 0x02) keyOn_CYM(); else keyOff_CYM();
 			if (data & 0x01) keyOn_HH();  else keyOff_HH();
 		}
+		update_key_status();
+
 		ch[6].mod.updateAll();
 		ch[6].car.updateAll();
 		ch[7].mod.updateAll();
@@ -1135,12 +1169,14 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		ch[cha].setBlock(block);
 		ch[cha].setSustine((data >> 5) & 1);
 		if (data & 0x10) {
-			ch[cha].keyOn(1);
+			ch[cha].keyOn();
 		} else {
-			ch[cha].keyOff(1);
+			ch[cha].keyOff();
 		}
 		ch[cha].mod.updateAll();
 		ch[cha].car.updateAll();
+		update_key_status();
+		update_rhythm_mode();
 		break;
 	}
 	case 0x30: case 0x31: case 0x32: case 0x33: case 0x34:
@@ -1149,13 +1185,13 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		int cha = regis & 0x0F;
 		int j = (data >> 4) & 15;
 		int v = data & 15;
-		if ((rhythm_mode) && (regis >= 0x36)) {
+		if ((reg[0x0e] & 0x20) && (regis >= 0x36)) {
 			switch(regis) {
 			case 0x37:
-				ch[7].mod.setVolume(j<<2);
+				ch[7].mod.setVolume(j << 2);
 				break;
 			case 0x38:
-				ch[8].mod.setVolume(j<<2);
+				ch[8].mod.setVolume(j << 2);
 				break;
 			}
 		} else { 
