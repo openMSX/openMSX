@@ -217,8 +217,8 @@
   <config id="RealTime">
     <type>RealTime</type>
     <parameter name="sync_interval">50</parameter>
-    <parameter name="max_catch_up_time">1500</parameter>
-    <parameter name="max_catch_up_factor">125</parameter>
+    <parameter name="max_catch_up_time">2000</parameter>
+    <parameter name="max_catch_up_factor">105</parameter>
   </config>
 <!--  
   <device id="SCC+ Cartridge">
@@ -278,7 +278,7 @@
       <page>1</page>
     </slotted>
     <parameter name="filename">FMPAC.ROM</parameter>
-    <parameter name="volume">20000</parameter>
+    <parameter name="volume">9000</parameter>
     <parameter name="mode">left</parameter>
     <parameter name="load">true</parameter>
     <parameter name="save">true</parameter>
@@ -293,12 +293,12 @@
       <page>1</page>
     </slotted>
     <parameter name="filename">MUSIC.ROM</parameter>
-    <parameter name="volume">20000</parameter>
+    <parameter name="volume">9000</parameter>
   </device>
 
   <device id="MSX-Audio">
     <type>Audio</type>
-    <parameter name="volume">20000</parameter>
+    <parameter name="volume">9000</parameter>
     <parameter name="mode">right</parameter>
   </device>
 -->    
@@ -330,7 +330,24 @@
     <parameter name="filename">printer.log</parameter>
   </device>
 
-
+  <device id="Empty SCC Cartridge">
+    <type>GameCartridge</type>
+    <slotted>
+      <ps>1</ps>
+      <ss>0</ss>
+      <page>1</page>
+    </slotted>
+    <slotted>
+      <ps>1</ps>
+      <ss>0</ss>
+      <page>2</page>
+    </slotted>
+    <parameter name="filename">/dev/zero</parameter>
+    <parameter name="filesize">131072</parameter>
+    <parameter name="volume">11500</parameter>
+    <parameter name="automappertype">false</parameter>
+    <parameter name="mappertype">2</parameter>
+  </device>
 
 </msxconfig>
 

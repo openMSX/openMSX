@@ -1,5 +1,8 @@
 $Id$
 
+2002-03-19 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* updated config files
+
 2002-03-19 Joost Yervante Damad <andete@worldcity.nl>
 	* started on CustomConfig
 	* added src/config/ dir, moved initial files
