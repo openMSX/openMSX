@@ -3,15 +3,16 @@
 #ifndef __DISKDRIVE_HH__
 #define __DISKDRIVE_HH__
 
-#include <string>
+#include <memory>
 #include "EmuTime.hh"
 #include "Command.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
 class Disk;
 class FileContext;
-
 
 /**
  * This (abstract) class defines the DiskDrive interface
@@ -44,52 +45,52 @@ public:
 	 *                  true  = in.
 	 * @param time The moment in emulated time this action takes place.
 	 */
-	virtual void step(bool direction, const EmuTime &time) = 0;
+	virtual void step(bool direction, const EmuTime& time) = 0;
 
 	/** Head above track 0
 	 */
-	virtual bool track00(const EmuTime &time) = 0;
+	virtual bool track00(const EmuTime& time) = 0;
 
 	/** Set motor on/off
 	 * @param status false = off,
 	 *               true  = on.
 	 * @param time The moment in emulated time this action takes place.
 	 */
-	virtual void setMotor(bool status, const EmuTime &time) = 0;
+	virtual void setMotor(bool status, const EmuTime& time) = 0;
 
 	/** Gets the state of the index pulse.
 	 * @param time The moment in emulated time to get the pulse state for.
 	 */
-	virtual bool indexPulse(const EmuTime &time) = 0;
+	virtual bool indexPulse(const EmuTime& time) = 0;
 
 	/** Count the number index pulses in an interval.
 	 * @param begin Begin time of interval.
 	 * @param end End time of interval.
 	 * @return The number of index pulses between "begin" and "end".
 	 */
-	virtual int indexPulseCount(const EmuTime &begin,
-				    const EmuTime &end) = 0;
+	virtual int indexPulseCount(const EmuTime& begin,
+	                            const EmuTime& end) = 0;
 
 	/** Set head loaded status.
 	 * @param status false = not loaded,
 	 *               true  = loaded.
 	 * @param time The moment in emulated time this action takes place.
 	 */
-	virtual void setHeadLoaded(bool status, const EmuTime &time) = 0;
+	virtual void setHeadLoaded(bool status, const EmuTime& time) = 0;
 
 	/** Is head loaded?
 	 */
-	virtual bool headLoaded(const EmuTime &time) = 0;
+	virtual bool headLoaded(const EmuTime& time) = 0;
 
 	// TODO
 	// Read / write methods, mostly copied from Disk,
 	// but needs to be reworked
 	virtual void read (byte sector, byte* buf,
-			   byte &onDiskTrack, byte &onDiskSector,
-			   byte &onDiskSide,  int  &onDiskSize) = 0;
+			   byte& onDiskTrack, byte& onDiskSector,
+			   byte& onDiskSide,  int& onDiskSize) = 0;
 	virtual void write(byte sector, const byte* buf,
-			   byte &onDiskTrack, byte &onDiskSector,
-			   byte &onDiskSide,  int  &onDiskSize) = 0;
+			   byte& onDiskTrack, byte& onDiskSector,
+			   byte& onDiskSide,  int& onDiskSize) = 0;
 	virtual void getSectorHeader(byte sector, byte* buf) = 0;
 	virtual void getTrackHeader(byte* buf) = 0;
 	virtual void initWriteTrack() = 0;
@@ -98,7 +99,6 @@ public:
 	/** Is disk changed?
 	 */
 	virtual bool diskChanged() = 0;
-
 };
 
 
@@ -114,20 +114,20 @@ public:
 	virtual bool writeProtected();
 	virtual bool doubleSided();
 	virtual void setSide(bool side);
-	virtual void step(bool direction, const EmuTime &time);
-	virtual bool track00(const EmuTime &time);
-	virtual void setMotor(bool status, const EmuTime &time);
-	virtual bool indexPulse(const EmuTime &time);
+	virtual void step(bool direction, const EmuTime& time);
+	virtual bool track00(const EmuTime& time);
+	virtual void setMotor(bool status, const EmuTime& time);
+	virtual bool indexPulse(const EmuTime& time);
 	virtual int indexPulseCount(const EmuTime &begin,
 				    const EmuTime &end);
-	virtual void setHeadLoaded(bool status, const EmuTime &time);
-	virtual bool headLoaded(const EmuTime &time);
+	virtual void setHeadLoaded(bool status, const EmuTime& time);
+	virtual bool headLoaded(const EmuTime& time);
 	virtual void read (byte sector, byte* buf,
-			   byte &onDiskTrack, byte &onDiskSector,
-			   byte &onDiskSide,  int  &onDiskSize);
+			   byte& onDiskTrack, byte& onDiskSector,
+			   byte& onDiskSide,  int&  onDiskSize);
 	virtual void write(byte sector, const byte* buf,
-			   byte &onDiskTrack, byte &onDiskSector,
-			   byte &onDiskSide,  int  &onDiskSize);
+			   byte& onDiskTrack, byte& onDiskSector,
+			   byte& onDiskSide,  int&  onDiskSize);
 	virtual void getSectorHeader(byte sector, byte* buf);
 	virtual void getTrackHeader(byte* buf);
 	virtual void initWriteTrack();
@@ -143,20 +143,20 @@ public:
 class RealDrive : public DiskDrive, public SimpleCommand
 {
 public:
-	RealDrive(const string &drivename, const EmuTime &time);
+	RealDrive(const string &drivename, const EmuTime& time);
 	virtual ~RealDrive();
 
 	// DiskDrive interface
 	virtual bool ready();
 	virtual bool writeProtected();
-	virtual void step(bool direction, const EmuTime &time);
-	virtual bool track00(const EmuTime &time);
-	virtual void setMotor(bool status, const EmuTime &time);
-	virtual bool indexPulse(const EmuTime &time);
-	virtual int indexPulseCount(const EmuTime &begin,
-				    const EmuTime &end);
-	virtual void setHeadLoaded(bool status, const EmuTime &time);
-	virtual bool headLoaded(const EmuTime &time);
+	virtual void step(bool direction, const EmuTime& time);
+	virtual bool track00(const EmuTime& time);
+	virtual void setMotor(bool status, const EmuTime& time);
+	virtual bool indexPulse(const EmuTime& time);
+	virtual int indexPulseCount(const EmuTime& begin,
+	                            const EmuTime& end);
+	virtual void setHeadLoaded(bool status, const EmuTime& time);
+	virtual bool headLoaded(const EmuTime& time);
 	virtual bool diskChanged();
 
 protected:
@@ -165,7 +165,7 @@ protected:
 	static const int ROTATIONS_PER_SECOND = 5;
 	static const int INDEX_DURATION = TICKS_PER_ROTATION / 50;
 
-	Disk* disk;
+	auto_ptr<Disk> disk;
 	int headPos;
 	bool motorStatus;
 	EmuTimeFreq<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> motorTime;
@@ -174,14 +174,10 @@ protected:
 
 private:
 	// Command interface
-	virtual string execute(const vector<string> &tokens)
-		throw(CommandException);
-	virtual string help   (const vector<string> &tokens) const
-		throw();
-	virtual void tabCompletion(vector<string> &tokens) const
-		throw();
-	void insertDisk(FileContext &context,
-			const string &disk);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help   (const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+	void insertDisk(FileContext& context, const string& disk);
 	void ejectDisk();
 
 	string name;
@@ -196,17 +192,17 @@ private:
 class SingleSidedDrive : public RealDrive
 {
 public:
-	SingleSidedDrive(const string &drivename,
-			 const EmuTime &time);
+	SingleSidedDrive(const string& drivename,
+			 const EmuTime& time);
 	virtual ~SingleSidedDrive();
 	virtual bool doubleSided();
 	virtual void setSide(bool side);
 	virtual void read (byte sector, byte* buf,
-			   byte &onDiskTrack, byte &onDiskSector,
-			   byte &onDiskSide,  int  &onDiskSize);
+			   byte& onDiskTrack, byte& onDiskSector,
+			   byte& onDiskSide,  int&  onDiskSize);
 	virtual void write(byte sector, const byte* buf,
-			   byte &onDiskTrack, byte &onDiskSector,
-			   byte &onDiskSide,  int  &onDiskSize);
+			   byte& onDiskTrack, byte& onDiskSector,
+			   byte& onDiskSide,  int&  onDiskSize);
 	virtual void getSectorHeader(byte sector, byte* buf);
 	virtual void getTrackHeader(byte* buf);
 	virtual void initWriteTrack();
@@ -220,17 +216,17 @@ public:
 class DoubleSidedDrive : public RealDrive
 {
 public:
-	DoubleSidedDrive(const string &drivename,
-			 const EmuTime &time);
+	DoubleSidedDrive(const string& drivename,
+			 const EmuTime& time);
 	virtual ~DoubleSidedDrive();
 	virtual bool doubleSided();
 	virtual void setSide(bool side);
 	virtual void read (byte sector, byte* buf,
-			   byte &onDiskTrack, byte &onDiskSector,
-			   byte &onDiskSide,  int  &onDiskSize);
+			   byte& onDiskTrack, byte& onDiskSector,
+			   byte& onDiskSide,  int& onDiskSize);
 	virtual void write(byte sector, const byte* buf,
-			   byte &onDiskTrack, byte &onDiskSector,
-			   byte &onDiskSide,  int  &onDiskSize);
+			   byte& onDiskTrack, byte& onDiskSector,
+			   byte& onDiskSide,  int&  onDiskSize);
 	virtual void getSectorHeader(byte sector, byte* buf);
 	virtual void getTrackHeader(byte* buf);
 	virtual void initWriteTrack();
@@ -245,6 +241,5 @@ private:
 };
 
 } // namespace openmsx
-
 
 #endif

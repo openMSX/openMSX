@@ -39,8 +39,7 @@ public:
 
 	// Implementation of Setting interface:
 	virtual string getValueString() const;
-	virtual void setValueString(const string& valueString)
-		throw(CommandException);
+	virtual void setValueString(const string& valueString);
 	virtual void tabCompletion(vector<string>& tokens) const;
 	void getPossibleValues(set<string>& result) const;
 
@@ -62,8 +61,8 @@ private:
 	public:
 		EnumInfo(EnumSettingBase& parent);
 		virtual void execute(const vector<string>& tokens,
-		                     CommandResult& result) const throw();
-		virtual string help(const vector<string>& tokens) const throw();
+		                     CommandResult& result) const;
+		virtual string help(const vector<string>& tokens) const;
 	private:
 		EnumSettingBase& parent;
 	} enumInfo;
@@ -149,7 +148,6 @@ string EnumSettingBase<ValueType>::getValueString() const
 
 template<typename ValueType>
 void EnumSettingBase<ValueType>::setValueString(const string& valueString)
-	throw(CommandException)
 {
 	typename Map::const_iterator it = enumMap.find(valueString);
 	if (it == enumMap.end()) {
@@ -196,7 +194,7 @@ EnumSettingBase<ValueType>::EnumInfo::EnumInfo(EnumSettingBase& parent_)
 
 template<typename ValueType>
 void EnumSettingBase<ValueType>::EnumInfo::execute(
-	const vector<string>& tokens, CommandResult& result) const throw()
+	const vector<string>& tokens, CommandResult& result) const
 {
 	set<string> values;
 	parent.getPossibleValues(values);
@@ -207,8 +205,7 @@ void EnumSettingBase<ValueType>::EnumInfo::execute(
 }
 
 template<typename ValueType>
-string EnumSettingBase<ValueType>::EnumInfo::help(const vector<string>& tokens)
-	const throw()
+string EnumSettingBase<ValueType>::EnumInfo::help(const vector<string>& tokens) const
 {
 	return "Returns all possible values for this setting.";
 }

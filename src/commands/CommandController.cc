@@ -222,7 +222,6 @@ bool CommandController::isComplete(const string& command) const
 }
 
 string CommandController::executeCommand(const string& cmd)
-	throw (CommandException)
 {
 	return interpreter.execute(cmd);
 }
@@ -453,7 +452,6 @@ CommandController::HelpCmd::HelpCmd(CommandController& parent_)
 }
 
 string CommandController::HelpCmd::execute(const vector<string> &tokens)
-	throw(CommandException)
 {
 	string result;
 	switch (tokens.size()) {
@@ -480,12 +478,10 @@ string CommandController::HelpCmd::execute(const vector<string> &tokens)
 	return result;
 }
 string CommandController::HelpCmd::help(const vector<string> &tokens) const
-	throw()
 {
 	return "prints help information for commands\n";
 }
 void CommandController::HelpCmd::tabCompletion(vector<string> &tokens) const
-	throw()
 {
 	string front = tokens.front();
 	tokens.erase(tokens.begin());

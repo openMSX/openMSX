@@ -83,7 +83,6 @@ bool Renderer::checkSettings()
 }
 
 void Renderer::takeScreenShot(const string& filename)
-	throw (CommandException)
 {
 	throw CommandException("Taking screenshot not possible with current renderer.");
 }

@@ -42,7 +42,6 @@ void InfoCommand::unregisterTopic(const string& name,
 // Command
 
 void InfoCommand::execute(const vector<string>& tokens, CommandResult& result)
-	throw (CommandException)
 {
 	switch (tokens.size()) {
 	case 1:
@@ -65,8 +64,7 @@ void InfoCommand::execute(const vector<string>& tokens, CommandResult& result)
 	}
 }
 
-string InfoCommand::help(const vector<string> &tokens) const
-	throw(CommandException)
+string InfoCommand::help(const vector<string>& tokens) const
 {
 	string result;
 	switch (tokens.size()) {
@@ -89,7 +87,7 @@ string InfoCommand::help(const vector<string> &tokens) const
 	return result;
 }
 
-void InfoCommand::tabCompletion(vector<string> &tokens) const throw()
+void InfoCommand::tabCompletion(vector<string>& tokens) const
 {
 	switch (tokens.size()) {
 	case 2: {
@@ -116,15 +114,13 @@ void InfoCommand::tabCompletion(vector<string> &tokens) const throw()
 
 // Version info
 
-void InfoCommand::VersionInfo::execute(const vector<string> &tokens,
+void InfoCommand::VersionInfo::execute(const vector<string>& tokens,
                                        CommandResult& result) const
-	throw()
 {
 	result.setString(Version::FULL_VERSION);
 }
 
-string InfoCommand::VersionInfo::help(const vector<string> &tokens) const
-	throw()
+string InfoCommand::VersionInfo::help(const vector<string>& tokens) const
 {
 	return "Prints openMSX version.";
 }

@@ -84,7 +84,6 @@ done:
 }
 
 void ScreenShotSaver::save(SDL_Surface* surface, const string& filename)
-	throw (CommandException)
 {
 	// TODO: save screenshots in specific directory, like HOMEDIR/screenshots
 	// Create the array of pointers to image data
@@ -128,7 +127,6 @@ void ScreenShotSaver::save(SDL_Surface* surface, const string& filename)
 
 void ScreenShotSaver::save(unsigned width, unsigned height,
                  byte** row_pointers, const string& filename)
-	throw (CommandException)
 {
 	if (!IMG_SavePNG_RW(width, height, (png_bytep*)row_pointers, filename)) {
 		throw CommandException("Failed to write " + filename);

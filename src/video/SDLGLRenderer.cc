@@ -270,7 +270,6 @@ void SDLGLRenderer::putImage()
 }
 
 void SDLGLRenderer::takeScreenShot(const string& filename)
-	throw(CommandException)
 {
 	byte* row_pointers[HEIGHT];
 	byte buffer[WIDTH * HEIGHT * 3];

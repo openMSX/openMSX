@@ -114,7 +114,6 @@ static unsigned getType(const string& name)
 }
 
 string CliCommOutput::UpdateCmd::execute(const vector<string>& tokens)
-	throw (CommandException)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -130,14 +129,12 @@ string CliCommOutput::UpdateCmd::execute(const vector<string>& tokens)
 }
 
 string CliCommOutput::UpdateCmd::help(const vector<string>& tokens) const
-	throw()
 {
 	static const string helpText = "TODO";
 	return helpText;
 }
 
 void CliCommOutput::UpdateCmd::tabCompletion(vector<string>& tokens) const
-	throw()
 {
 	switch (tokens.size()) {
 		case 2: {

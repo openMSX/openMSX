@@ -23,9 +23,6 @@ public:
 	 */
 	Keyboard(bool keyGhosting);
 
-	/**
-	 * Destructor
-	 */
 	virtual ~Keyboard();
 
 	/**
@@ -48,10 +45,8 @@ private:
 	class KeyMatrixUpCmd : public SimpleCommand {
 	public:
 		KeyMatrixUpCmd(Keyboard& parent);
-		virtual string execute(const vector<string> &tokens)
-			throw(CommandException);
-		virtual string help(const vector<string> &tokens) const
-			throw();
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
 	private:
 		Keyboard& parent;
 	} keyMatrixUpCmd;
@@ -59,10 +54,8 @@ private:
 	class KeyMatrixDownCmd : public SimpleCommand {
 	public:
 		KeyMatrixDownCmd(Keyboard& parent);
-		virtual string execute(const vector<string> &tokens)
-			throw(CommandException);
-		virtual string help(const vector<string> &tokens) const
-			throw();
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
 	private:
 		Keyboard& parent;
 	} keyMatrixDownCmd;
@@ -77,10 +70,8 @@ private:
 		void type(const string& str);
 
 		// Command
-		virtual string execute(const vector<string>& tokens)
-			throw (CommandException);
-		virtual string help(const vector<string>& tokens) const
-			throw(CommandException);
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
 
 		// Schedulable
 		virtual void executeUntil(const EmuTime& time, int userData)

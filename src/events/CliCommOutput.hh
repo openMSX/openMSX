@@ -55,12 +55,9 @@ private:
 	class UpdateCmd : public SimpleCommand {
 	public:
 		UpdateCmd(CliCommOutput& parent);
-		virtual string execute(const vector<string>& tokens)
-			throw (CommandException);
-		virtual string help(const vector<string>& tokens) const
-			throw();
-		virtual void tabCompletion(vector<string>& tokens) const
-			throw();
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
+		virtual void tabCompletion(vector<string>& tokens) const;
 	private:
 		CliCommOutput& parent;
 	} updateCmd;

@@ -3,8 +3,8 @@
 #ifndef __TCLINTERP_HH__
 #define __TCLINTERP_HH__
 
-#include "Interpreter.hh"
 #include <tcl.h>
+#include "Interpreter.hh"
 
 namespace openmsx {
 
@@ -19,8 +19,8 @@ public:
 	virtual void unregisterCommand(const string& name, Command& command);
 	virtual void getCommandNames(set<string>& result);
 	virtual bool isComplete(const string& command) const;
-	virtual string execute(const string& command) throw(CommandException);
-	virtual string executeFile(const string& filename) throw(CommandException);
+	virtual string execute(const string& command);
+	virtual string executeFile(const string& filename);
 	
 	virtual void setVariable(const string& name, const string& value);
 	virtual void unsetVariable(const string& name);

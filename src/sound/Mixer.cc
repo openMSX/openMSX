@@ -376,7 +376,7 @@ Mixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(Mixer& parent_)
 }
 
 void Mixer::SoundDeviceInfoTopic::execute(const vector<string>& tokens,
-	CommandResult& result) const throw(CommandException)
+	CommandResult& result) const
 {
 	switch (tokens.size()) {
 	case 2:
@@ -399,13 +399,11 @@ void Mixer::SoundDeviceInfoTopic::execute(const vector<string>& tokens,
 }
 
 string Mixer::SoundDeviceInfoTopic::help(const vector<string>& tokens) const
-	throw()
 {
 	return "Shows a list of available sound devices.\n";
 }
 
 void Mixer::SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
-	throw()
 {
 	if (tokens.size() == 3) {
 		set<string> devices;

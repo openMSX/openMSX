@@ -66,8 +66,7 @@ public:
 	  * @param valueString The new value for this setting, in string format.
 	  * @throw CommandException If the valueString is invalid.
 	  */
-	virtual void setValueString(const string& valueString)
-		throw(CommandException) = 0;
+	virtual void setValueString(const string& valueString) = 0;
 
 	/** Restore the default value.
 	 */

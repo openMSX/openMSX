@@ -19,8 +19,7 @@ protected:
 public:
 	// Implementation of Setting interface:
 	virtual string getValueString() const;
-	virtual void setValueString(const string& valueString)
-		throw(CommandException);
+	virtual void setValueString(const string& valueString);
 };
 
 NON_INHERITABLE_PRE(StringSetting)

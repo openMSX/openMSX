@@ -35,12 +35,9 @@ private:
 	class DebugCmd : public Command {
 	public:
 		DebugCmd(Debugger& parent);
-		virtual void execute(const vector<string>& tokens, CommandResult& result)
-			throw(CommandException);
-		virtual string help(const vector<string>& tokens) const
-			throw();
-		virtual void tabCompletion(vector<string>& tokens) const
-			throw();
+		virtual void execute(const vector<string>& tokens, CommandResult& result);
+		virtual string help(const vector<string>& tokens) const;
+		virtual void tabCompletion(vector<string>& tokens) const;
 
 	private:
 		void list(CommandResult& result);

@@ -18,12 +18,9 @@ public:
 	AfterCommand();
 	virtual ~AfterCommand();
 	
-	virtual string execute(const vector<string>& tokens)
-		throw(CommandException);
-	virtual string help(const vector<string>& tokens) const
-		throw();
-	virtual void tabCompletion(vector<string>& tokens) const
-		throw();
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 
 private:
 	string afterTime(const vector<string>& tokens);
@@ -43,7 +40,7 @@ private:
 		const string& getCommand() const;
 		const string& getId() const;
 		virtual const string& getType() const = 0;
-		void execute() throw();
+		void execute();
 	protected:
 		AfterCmd(const string& command);
 	private:

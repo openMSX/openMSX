@@ -95,8 +95,7 @@ public:
 	/** Take a screenshot.
 	  * @param filename Name of the file to save the screenshot to.
 	  */
-	virtual void takeScreenShot(const string& filename)
-		throw (CommandException);
+	virtual void takeScreenShot(const string& filename);
 
 	/** Informs the renderer of a VDP transparency enable/disable change.
 	  * @param enabled The new transparency state.

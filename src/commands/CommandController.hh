@@ -57,7 +57,7 @@ public:
 	/**
 	 * Execute a given command
 	 */
-	string executeCommand(const string& command) throw (CommandException);
+	string executeCommand(const string& command);
 
 	/**
 	 * Complete a given command
@@ -100,12 +100,9 @@ private:
 	class HelpCmd : public SimpleCommand {
 	public:
 		HelpCmd(CommandController& parent);
-		virtual string execute(const vector<string>& tokens)
-			throw(CommandException);
-		virtual string help(const vector<string>& tokens) const
-			throw();
-		virtual void tabCompletion(vector<string>& tokens) const
-			throw();
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
+		virtual void tabCompletion(vector<string>& tokens) const;
 	private:
 		CommandController& parent;
 	} helpCmd;

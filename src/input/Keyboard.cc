@@ -223,14 +223,12 @@ Keyboard::KeyMatrixUpCmd::KeyMatrixUpCmd(Keyboard& parent_)
 {
 }
 
-string Keyboard::KeyMatrixUpCmd::execute(const vector<string> &tokens)
-	throw(CommandException)
+string Keyboard::KeyMatrixUpCmd::execute(const vector<string>& tokens)
 {
 	return parent.processCmd(tokens, true);
 }
 
-string Keyboard::KeyMatrixUpCmd::help(const vector<string> &tokens) const
-	throw()
+string Keyboard::KeyMatrixUpCmd::help(const vector<string>& tokens) const
 {
 	static const string helpText = 
 		"keymatrixup <row> <bitmask>  release a key in the keyboardmatrix\n";
@@ -245,14 +243,12 @@ Keyboard::KeyMatrixDownCmd::KeyMatrixDownCmd(Keyboard& parent_)
 {
 }
 
-string Keyboard::KeyMatrixDownCmd::execute(const vector<string> &tokens)
-	throw(CommandException)
+string Keyboard::KeyMatrixDownCmd::execute(const vector<string>& tokens)
 {
 	return parent.processCmd(tokens, false);
 }
 
-string Keyboard::KeyMatrixDownCmd::help(const vector<string> &tokens) const
-	throw()
+string Keyboard::KeyMatrixDownCmd::help(const vector<string>& tokens) const
 {
 	static const string helpText= 
 		"keymatrixdown <row> <bitmask>  press a key in the keyboardmatrix\n";
@@ -272,7 +268,6 @@ Keyboard::KeyInserter::~KeyInserter()
 }
 
 string Keyboard::KeyInserter::execute(const vector<string>& tokens)
-	throw (CommandException)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -282,7 +277,6 @@ string Keyboard::KeyInserter::execute(const vector<string>& tokens)
 }
 
 string Keyboard::KeyInserter::help(const vector<string>& tokens) const
-	throw(CommandException)
 {
 	// TODO
 	static const string helpText = "TODO";

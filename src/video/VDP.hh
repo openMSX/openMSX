@@ -453,8 +453,8 @@ private:
 	class VDPRegsCmd : public SimpleCommand {
 	public:
 		VDPRegsCmd(VDP& vdp);
-		virtual string execute(const vector<string> &tokens) throw();
-		virtual string help(const vector<string> &tokens) const throw();
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
 	private:
 		VDP& vdp;
 	} vdpRegsCmd;
@@ -462,8 +462,8 @@ private:
 	class PaletteCmd : public SimpleCommand {
 	public:
 		PaletteCmd(VDP& vdp);
-		virtual string execute(const vector<string> &tokens) throw();
-		virtual string help(const vector<string> &tokens) const throw();
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
 	private:
 		VDP& vdp;
 	} paletteCmd;
@@ -471,10 +471,8 @@ private:
 	class ScreenShotCmd : public SimpleCommand {
 	public:
 		ScreenShotCmd(VDP& vdp);
-		virtual string execute(const vector<string> &tokens)
-			throw(CommandException);
-		virtual string help(const vector<string> &tokens) const
-			throw();
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
 	private:
 		VDP& vdp;
 	} screenShotCmd;

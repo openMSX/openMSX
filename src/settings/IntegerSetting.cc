@@ -46,7 +46,6 @@ string IntegerSetting::getValueString() const
 }
 
 void IntegerSetting::setValueString(const string &valueString)
-	throw(CommandException)
 {
 	char* endPtr;
 	int newValue = strtol(valueString.c_str(), &endPtr, 0);

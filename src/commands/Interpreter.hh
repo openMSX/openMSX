@@ -24,8 +24,8 @@ public:
 	virtual void unregisterCommand(const string& name, Command& command) = 0;
 	virtual void getCommandNames(set<string>& result) = 0;
 	virtual bool isComplete(const string& command) const = 0;
-	virtual string execute(const string& command) throw(CommandException) = 0;
-	virtual string executeFile(const string& filename) throw(CommandException) = 0;
+	virtual string execute(const string& command) = 0;
+	virtual string executeFile(const string& filename) = 0;
 	
 	virtual void setVariable(const string& name, const string& value) = 0;
 	virtual void unsetVariable(const string& name) = 0;

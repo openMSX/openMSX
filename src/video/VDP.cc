@@ -1108,7 +1108,7 @@ VDP::VDPRegsCmd::VDPRegsCmd(VDP& vdp_)
 {
 }
 
-string VDP::VDPRegsCmd::execute(const vector<string>& tokens) throw()
+string VDP::VDPRegsCmd::execute(const vector<string>& tokens)
 {
 	// Print palette in 4x4 table.
 	ostringstream out;
@@ -1126,7 +1126,7 @@ string VDP::VDPRegsCmd::execute(const vector<string>& tokens) throw()
 	return out.str();
 }
 
-string VDP::VDPRegsCmd::help(const vector<string>& tokens) const throw()
+string VDP::VDPRegsCmd::help(const vector<string>& tokens) const
 {
 	return "Prints the current state of the VDP registers.\n";
 }
@@ -1138,7 +1138,7 @@ VDP::PaletteCmd::PaletteCmd(VDP& vdp_)
 {
 }
 
-string VDP::PaletteCmd::execute(const vector<string>& tokens) throw()
+string VDP::PaletteCmd::execute(const vector<string>& tokens)
 {
 	// Print palette in 4x4 table.
 	ostringstream out;
@@ -1155,7 +1155,7 @@ string VDP::PaletteCmd::execute(const vector<string>& tokens) throw()
 	return out.str();
 }
 
-string VDP::PaletteCmd::help(const vector<string>& tokens) const throw()
+string VDP::PaletteCmd::help(const vector<string>& tokens) const
 {
 	return "Prints the current VDP palette (i:rgb).\n";
 }
@@ -1167,7 +1167,6 @@ VDP::ScreenShotCmd::ScreenShotCmd(VDP& vdp_)
 }
 
 string VDP::ScreenShotCmd::execute(const vector<string>& tokens)
-	throw(CommandException)
 {
 	string filename;
 	switch (tokens.size()) {
@@ -1186,7 +1185,7 @@ string VDP::ScreenShotCmd::execute(const vector<string>& tokens)
 	return filename;
 }
 
-string VDP::ScreenShotCmd::help(const vector<string>& tokens) const throw()
+string VDP::ScreenShotCmd::help(const vector<string>& tokens) const
 {
 	return "screenshot             Write screenshot to file \"openmsxNNNN.png\"\n"
 	       "screenshot <filename>  Write screenshot to indicated file\n";

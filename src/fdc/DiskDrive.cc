@@ -138,7 +138,6 @@ RealDrive::RealDrive(const string& driveName, const EmuTime& time)
 	
 	name = driveName;
 	diskName = "";
-	disk = NULL;
 	diskChangedFlag = false;
 
 	SettingsConfig& conf = SettingsConfig::instance();
@@ -164,7 +163,6 @@ RealDrive::RealDrive(const string& driveName, const EmuTime& time)
 RealDrive::~RealDrive()
 {
 	CommandController::instance().unregisterCommand(this, name);
-	delete disk;
 }
 
 bool RealDrive::ready()
@@ -249,14 +247,15 @@ bool RealDrive::headLoaded(const EmuTime& time)
 	       (headLoadTime.getTicksTill(time) > 10);
 }
 
-void RealDrive::insertDisk(FileContext &context,
+void RealDrive::insertDisk(FileContext& context,
                            const string& diskImage)
 {
-	Disk* tmp;
+	ejectDisk();
+	
 	try {
 		// first try XSA
 		PRT_DEBUG("Trying an XSA diskimage...");
-		tmp = new XSADiskImage(context, diskImage);
+		disk.reset(new XSADiskImage(context, diskImage));
 		PRT_DEBUG("Succeeded");
 	} catch (MSXException &e) {
 		try {
@@ -266,30 +265,25 @@ void RealDrive::insertDisk(FileContext &context,
 			//can be resolved and will be accepted as dsk name
 			PRT_DEBUG("Trying a DirAsDSK approach...");
 			// try to create fake DSK from a dir on host OS
-			tmp = new FDC_DirAsDSK(context, diskImage);
+			disk.reset(new FDC_DirAsDSK(context, diskImage));
 			PRT_DEBUG("Succeeded");
 		} catch (MSXException &e) {
 			// then try normal DSK
 			PRT_DEBUG("Trying a DSK diskimage...");
-			tmp = new DSKDiskImage(context, diskImage);
+			disk.reset(new DSKDiskImage(context, diskImage));
 			PRT_DEBUG("Succeeded");
 		}
 	}
-	delete disk;
-	disk = tmp;
 	diskName = diskImage;
 }
 
 void RealDrive::ejectDisk()
 {
-	PRT_DEBUG("Ejecting disk");
-	delete disk;
-	diskName = "";
-	disk = new DummyDisk();
+	diskName.clear();
+	disk.reset(new DummyDisk());
 }
 
 string RealDrive::execute(const vector<string>& tokens)
-	throw (CommandException)
 {
 	string result;
 	if (tokens.size() == 1) {
@@ -319,13 +313,13 @@ string RealDrive::execute(const vector<string>& tokens)
 	return result;
 }
 
-string RealDrive::help(const vector<string>& tokens) const throw()
+string RealDrive::help(const vector<string>& tokens) const
 {
 	return name + " eject      : remove disk from virtual drive\n" +
 	       name + " <filename> : change the disk file\n";
 }
 
-void RealDrive::tabCompletion(vector<string>& tokens) const throw()
+void RealDrive::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2)
 		CommandController::completeFileName(tokens);

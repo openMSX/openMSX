@@ -182,7 +182,6 @@ void CassettePlayer::unplugHelper(const EmuTime& time)
 
 
 string CassettePlayer::execute(const vector<string> &tokens)
-	throw (CommandException)
 {
 	string result;
 	if (tokens.size() != 2) {
@@ -214,7 +213,7 @@ string CassettePlayer::execute(const vector<string> &tokens)
 	return result;
 }
 
-string CassettePlayer::help(const vector<string> &tokens) const throw()
+string CassettePlayer::help(const vector<string> &tokens) const
 {
 	return "cassetteplayer eject         : remove tape from virtual player\n"
 	       "cassetteplayer rewind        : rewind tape in virtual player\n"
@@ -223,7 +222,7 @@ string CassettePlayer::help(const vector<string> &tokens) const throw()
 	       "cassetteplayer <filename>    : change the tape file\n";
 }
 
-void CassettePlayer::tabCompletion(vector<string> &tokens) const throw()
+void CassettePlayer::tabCompletion(vector<string> &tokens) const
 {
 	if (tokens.size() == 2) {
 		CommandController::completeFileName(tokens);

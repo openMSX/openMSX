@@ -71,10 +71,8 @@ private:
 	class BindCmd : public SimpleCommand {
 	public:
 		BindCmd(HotKey& parent);
-		virtual string execute(const vector<string>& tokens)
-			throw (CommandException);
-		virtual string help(const vector<string>& tokens) const
-			throw();
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
 	private:
 		HotKey& parent;
 	} bindCmd;
@@ -82,10 +80,8 @@ private:
 	class UnbindCmd : public SimpleCommand {
 	public:
 		UnbindCmd(HotKey& parent);
-		virtual string execute(const vector<string>& tokens)
-			throw (CommandException);
-		virtual string help(const vector<string>& tokens) const
-			throw();
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
 	private:
 		HotKey& parent;
 	} unbindCmd;

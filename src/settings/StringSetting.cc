@@ -20,7 +20,6 @@ string StringSettingBase::getValueString() const
 }
 
 void StringSettingBase::setValueString(const string& newValue)
-	throw(CommandException)
 {
 	setValue(newValue);
 }

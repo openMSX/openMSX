@@ -38,12 +38,12 @@ void SettingLeafNode::notify() const
 	                                 getValueString());
 }
 
-void SettingLeafNode::addListener(SettingListener*listener)
+void SettingLeafNode::addListener(SettingListener* listener)
 {
 	listeners.push_back(listener);
 }
 
-void SettingLeafNode::removeListener(SettingListener*listener)
+void SettingLeafNode::removeListener(SettingListener* listener)
 {
 	listeners.remove(listener);
 }

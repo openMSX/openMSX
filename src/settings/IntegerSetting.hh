@@ -26,8 +26,7 @@ public:
 
 	// Implementation of Setting interface:
 	virtual string getValueString() const;
-	virtual void setValueString(const string& valueString)
-		throw(CommandException);
+	virtual void setValueString(const string& valueString);
 	virtual void setValue(const int& newValue);
 
 protected:

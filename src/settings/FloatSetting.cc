@@ -9,7 +9,6 @@
 
 using std::ostringstream;
 
-
 namespace openmsx {
 
 FloatSetting::FloatSetting(
@@ -59,8 +58,7 @@ string FloatSetting::getValueString() const
 	*/
 }
 
-void FloatSetting::setValueString(const string &valueString)
-	throw(CommandException)
+void FloatSetting::setValueString(const string& valueString)
 {
 	float newValue;
 	int converted = sscanf(valueString.c_str(), "%f", &newValue);
@@ -71,7 +69,7 @@ void FloatSetting::setValueString(const string &valueString)
 	setValue(newValue);
 }
 
-void FloatSetting::setValue(const float &newValue)
+void FloatSetting::setValue(const float& newValue)
 {
 	// TODO: Almost identical copy of IntegerSetting::setValue.
 	//       A definate sign Ranged/OrdinalSetting is a good idea.

@@ -67,7 +67,6 @@ AfterCommand::~AfterCommand()
 }
 
 string AfterCommand::execute(const vector<string>& tokens)
-	throw(CommandException)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
@@ -164,7 +163,6 @@ string AfterCommand::afterCancel(const vector<string>& tokens)
 }
 
 string AfterCommand::help(const vector<string>& tokens) const
-	throw()
 {
 	return "after time <seconds> <command>  execute a command after some time\n"
 	       "after idle <seconds> <command>  execute a command after some time being idle\n"
@@ -174,8 +172,7 @@ string AfterCommand::help(const vector<string>& tokens) const
 	       "after cancel <id>               cancel the postponed command with given id\n";
 }
 
-void AfterCommand::tabCompletion(vector<string>& tokens)
-	const throw()
+void AfterCommand::tabCompletion(vector<string>& tokens) const
 {
 	// TODO
 }
@@ -243,7 +240,7 @@ const string& AfterCommand::AfterCmd::getId() const
 	return id;
 }
 
-void AfterCommand::AfterCmd::execute() throw()
+void AfterCommand::AfterCmd::execute()
 {
 	try {
 		CommandController::instance().executeCommand(command);

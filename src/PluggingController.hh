@@ -61,12 +61,9 @@ private:
 	class PlugCmd : public SimpleCommand {
 	public:
 		PlugCmd(PluggingController& parent);
-		virtual string execute(const vector<string>& tokens)
-			throw(CommandException);
-		virtual string help   (const vector<string>& tokens) const
-			throw();
-		virtual void tabCompletion(vector<string>& tokens) const
-			throw();
+		virtual string execute(const vector<string>& tokens);
+		virtual string help   (const vector<string>& tokens) const;
+		virtual void tabCompletion(vector<string>& tokens) const;
 	private:
 		PluggingController& parent;
 	} plugCmd;
@@ -74,12 +71,9 @@ private:
 	class UnplugCmd : public SimpleCommand {
 	public:
 		UnplugCmd(PluggingController& parent);
-		virtual string execute(const vector<string>& tokens)
-			throw(CommandException);
-		virtual string help   (const vector<string>& tokens) const
-			throw();
-		virtual void tabCompletion(vector<string>& tokens) const
-			throw();
+		virtual string execute(const vector<string>& tokens);
+		virtual string help   (const vector<string>& tokens) const;
+		virtual void tabCompletion(vector<string>& tokens) const;
 	private:
 		PluggingController& parent;
 	} unplugCmd;
@@ -88,12 +82,9 @@ private:
 	public:
 		PluggableInfo(PluggingController& parent);
 		virtual void execute(const vector<string>& tokens,
-		                     CommandResult& result) const
-			throw(CommandException);
-		virtual string help   (const vector<string>& tokens) const
-			throw();
-		virtual void tabCompletion(vector<string>& tokens) const
-			throw();
+		                     CommandResult& result) const;
+		virtual string help   (const vector<string>& tokens) const;
+		virtual void tabCompletion(vector<string>& tokens) const;
 	private:
 		PluggingController& parent;
 	} pluggableInfo;
@@ -102,12 +93,9 @@ private:
 	public:
 		ConnectorInfo(PluggingController& parent);
 		virtual void execute(const vector<string>& tokens,
-		                     CommandResult& result) const
-			throw(CommandException);
-		virtual string help   (const vector<string>& tokens) const
-			throw();
-		virtual void tabCompletion(vector<string>& tokens) const
-			throw();
+		                     CommandResult& result) const;
+		virtual string help   (const vector<string>& tokens) const;
+		virtual void tabCompletion(vector<string>& tokens) const;
 	private:
 		PluggingController& parent;
 	} connectorInfo;
@@ -116,12 +104,9 @@ private:
 	public:
 		ConnectionClassInfo(PluggingController& parent);
 		virtual void execute(const vector<string>& tokens,
-		                     CommandResult& result) const
-			throw(CommandException);
-		virtual string help   (const vector<string>& tokens) const
-			throw();
-		virtual void tabCompletion(vector<string>& tokens) const
-			throw();
+		                     CommandResult& result) const;
+		virtual string help   (const vector<string>& tokens) const;
+		virtual void tabCompletion(vector<string>& tokens) const;
 	private:
 		PluggingController& parent;
 	} connectionClassInfo;

@@ -36,8 +36,7 @@ public:
 	virtual void frameEnd(const EmuTime& time);
 	virtual void putImage();
 	virtual int putPowerOffImage();
-	virtual void takeScreenShot(const string& filename)
-		throw(CommandException);
+	virtual void takeScreenShot(const string& filename);
 	virtual void updateTransparency(bool enabled, const EmuTime& time);
 	virtual void updateForegroundColour(int colour, const EmuTime& time);
 	virtual void updateBackgroundColour(int colour, const EmuTime& time);

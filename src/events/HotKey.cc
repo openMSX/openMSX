@@ -129,7 +129,6 @@ HotKey::BindCmd::BindCmd(HotKey& parent_)
 }
 
 string HotKey::BindCmd::execute(const vector<string>& tokens)
-	throw (CommandException)
 {
 	string result;
 	switch (tokens.size()) {
@@ -174,7 +173,7 @@ string HotKey::BindCmd::execute(const vector<string>& tokens)
 	}
 	return result;
 }
-string HotKey::BindCmd::help(const vector<string>& tokens) const throw()
+string HotKey::BindCmd::help(const vector<string>& tokens) const
 {
 	return "bind             : show all bounded keys\n"
 	       "bind <key>       : show binding for this key\n"
@@ -190,7 +189,6 @@ HotKey::UnbindCmd::UnbindCmd(HotKey& parent_)
 }
 
 string HotKey::UnbindCmd::execute(const vector<string>& tokens)
-	throw (CommandException)
 {
 	string result;
 	switch (tokens.size()) {
@@ -208,7 +206,7 @@ string HotKey::UnbindCmd::execute(const vector<string>& tokens)
 	}
 	return result;
 }
-string HotKey::UnbindCmd::help(const vector<string>& tokens) const throw()
+string HotKey::UnbindCmd::help(const vector<string>& tokens) const
 {
 	return "unbind <key> : unbind this key\n";
 }

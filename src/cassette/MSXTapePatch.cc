@@ -19,8 +19,7 @@ MSXCasCLI::MSXCasCLI()
 	CommandLineParser::instance().registerFileClass("cassetteimages", this);
 }
 
-bool MSXCasCLI::parseOption(const string &option,
-                            list<string> &cmdLine)
+bool MSXCasCLI::parseOption(const string& option, list<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine));
 	return true;
@@ -33,7 +32,7 @@ const string& MSXCasCLI::optionHelp() const
 	return text;
 }
 
-void MSXCasCLI::parseFileType(const string &filename)
+void MSXCasCLI::parseFileType(const string& filename)
 {
 	XMLElement config("config");
 	config.addAttribute("id", "cas");
@@ -70,8 +69,6 @@ static const byte TapeHeader[8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
 
 MSXTapePatch::MSXTapePatch()
 {
-	file = NULL;
-
 	SettingsConfig& conf = SettingsConfig::instance();
 	if (conf.hasConfigWithId("cas")) {
 		Config *config = conf.getConfigById("cas");
@@ -90,7 +87,6 @@ MSXTapePatch::MSXTapePatch()
 MSXTapePatch::~MSXTapePatch()
 {
 	CommandController::instance().unregisterCommand(this, "cas");
-	delete file;
 }
 
 void MSXTapePatch::patch(CPU::CPURegs& R)
@@ -123,24 +119,19 @@ void MSXTapePatch::patch(CPU::CPURegs& R)
 	}
 }
 
-void MSXTapePatch::insertTape(FileContext &context,
-                              const string &filename)
+void MSXTapePatch::insertTape(FileContext& context, const string& filename)
 {
 	ejectTape();
-	PRT_DEBUG("Loading file " << filename << " as tape ...");
 	try {
-		file = new File(context.resolve(filename));
+		file.reset(new File(context.resolve(filename)));
 	} catch (FileException &e) {
 		PRT_DEBUG("Loading file failed");
-		file = NULL;
 	}
 }
 
 void MSXTapePatch::ejectTape()
 {
-	PRT_DEBUG("Ejecting tape from virtual tapedeck...");
-	delete file;
-	file = NULL;
+	file.reset();
 }
 
 void MSXTapePatch::TAPION(CPU::CPURegs& R)
@@ -167,7 +158,7 @@ void MSXTapePatch::TAPION(CPU::CPURegs& R)
 	   and HI cycles.
 	 */
 
-	if (!file) {
+	if (!file.get()) {
 		PRT_DEBUG("TAPION: No tape file opened");
 		R.AF.B.l |= CPU::C_FLAG;
 		return;
@@ -195,7 +186,7 @@ void MSXTapePatch::TAPION(CPU::CPURegs& R)
 				return;
 			} 
 		}
-	} catch (FileException &e) {
+	} catch (FileException& e) {
 		PRT_DEBUG("TAPION : No header found");
 		//rewind the tape
 		file->seek(0);
@@ -232,7 +223,7 @@ void MSXTapePatch::TAPIN(CPU::CPURegs& R)
 	 */
 	PRT_DEBUG("TAPIN");
 
-	if (!file) {
+	if (!file.get()) {
 		R.AF.B.l |= CPU::C_FLAG;
 		return;
 	}
@@ -240,7 +231,7 @@ void MSXTapePatch::TAPIN(CPU::CPURegs& R)
 	try {
 		file->read(&R.AF.B.h, 1);
 		R.AF.B.l &= ~CPU::C_FLAG;
-	} catch (FileException &e) {
+	} catch (FileException& e) {
 		R.AF.B.l |= CPU::C_FLAG;
 	}
 }
@@ -309,7 +300,7 @@ void MSXTapePatch::TAPOON(CPU::CPURegs& R)
 	 */
 	PRT_DEBUG("TAPOON");
 
-	if (!file) {
+	if (!file.get()) {
 		R.AF.B.l |= CPU::C_FLAG;
 		return;
 	}
@@ -322,7 +313,7 @@ void MSXTapePatch::TAPOON(CPU::CPURegs& R)
 		file->write(TapeHeader, 8);
 		R.AF.B.l &= ~CPU::C_FLAG;
 		R.di();
-	} catch (FileException &e) {
+	} catch (FileException& e) {
 		R.AF.B.l |= CPU::C_FLAG;
 	}
 	
@@ -352,7 +343,7 @@ void MSXTapePatch::TAPOUT(CPU::CPURegs& R)
 	   Hz but the format is otherwise unchanged.
 	 */
 	PRT_DEBUG("TAPOUT");
-	if (!file) {
+	if (!file.get()) {
 		R.AF.B.l |= CPU::C_FLAG;
 		return;
 	}
@@ -360,7 +351,7 @@ void MSXTapePatch::TAPOUT(CPU::CPURegs& R)
 	try {
 		file->write(&R.AF.B.h, 1);
 		R.AF.B.l &= ~CPU::C_FLAG;
-	} catch (FileException &e) {
+	} catch (FileException& e) {
 		R.AF.B.l |= CPU::C_FLAG;
 	}
 }
@@ -400,8 +391,7 @@ void MSXTapePatch::STMOTR(CPU::CPURegs& R)
 }
 
 
-string MSXTapePatch::execute(const vector<string> &tokens)
-	throw (CommandException)
+string MSXTapePatch::execute(const vector<string>& tokens)
 {
 	string result;
 	if (tokens.size() != 2) {
@@ -414,7 +404,7 @@ string MSXTapePatch::execute(const vector<string> &tokens)
 		                                 "cas", "");
 	} else if (tokens[1] == "rewind") {
 		result += "Tape rewinded\n";
-		if (file) {
+		if (file.get()) {
 			file->seek(0);
 		}
 	} else {
@@ -427,16 +417,17 @@ string MSXTapePatch::execute(const vector<string> &tokens)
 	return result;
 }
 
-string MSXTapePatch::help(const vector<string> &tokens) const throw()
+string MSXTapePatch::help(const vector<string> &tokens) const
 {
 	return "tape eject      : remove tape from virtual player\n"
 	       "tape <filename> : change the tape file\n";
 }
 
-void MSXTapePatch::tabCompletion(vector<string> &tokens) const throw()
+void MSXTapePatch::tabCompletion(vector<string> &tokens) const
 {
-	if (tokens.size()==2)
+	if (tokens.size() == 2) {
 		CommandController::completeFileName(tokens);
+	}
 }
 
 } // namespace openmsx

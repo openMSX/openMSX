@@ -142,7 +142,7 @@ bool TCLInterp::isComplete(const string& command) const
 	return Tcl_CommandComplete(command.c_str());
 }
 
-string TCLInterp::execute(const string& command) throw(CommandException)
+string TCLInterp::execute(const string& command)
 {
 	int success = Tcl_Eval(interp, command.c_str());
 	string result =  Tcl_GetStringResult(interp);
@@ -152,7 +152,7 @@ string TCLInterp::execute(const string& command) throw(CommandException)
 	return result;
 }
 
-string TCLInterp::executeFile(const string& filename) throw(CommandException)
+string TCLInterp::executeFile(const string& filename)
 {
 	int success = Tcl_EvalFile(interp, filename.c_str());
 	string result =  Tcl_GetStringResult(interp);

@@ -77,7 +77,6 @@ Debugger::DebugCmd::DebugCmd(Debugger& parent_)
 }
 
 void Debugger::DebugCmd::execute(const vector<string>& tokens, CommandResult& result)
-	throw(CommandException)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
@@ -222,7 +221,6 @@ void Debugger::DebugCmd::writeBlock(const vector<string>& tokens, CommandResult&
 }
 
 string Debugger::DebugCmd::help(const vector<string>& tokens) const
-	throw()
 {
 	static const string helpText =
 		"debug list                       returns a list of all debuggables\n"
@@ -240,7 +238,6 @@ string Debugger::DebugCmd::help(const vector<string>& tokens) const
 }
 
 void Debugger::DebugCmd::tabCompletion(vector<string>& tokens) const
-	throw()
 {
 	switch (tokens.size()) {
 		case 2: {

@@ -150,7 +150,6 @@ void SDLRenderer<Pixel, zoom>::putImage()
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::takeScreenShot(const string& filename)
-	throw(CommandException)
 {
 	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
 		return;

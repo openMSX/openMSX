@@ -108,7 +108,6 @@ PluggingController::PlugCmd::PlugCmd(PluggingController& parent_)
 }
 
 string PluggingController::PlugCmd::execute(const vector<string>& tokens)
-	throw(CommandException)
 {
 	string result;
 	const EmuTime &time = parent.scheduler.getCurrentTime();
@@ -161,14 +160,12 @@ string PluggingController::PlugCmd::execute(const vector<string>& tokens)
 }
 
 string PluggingController::PlugCmd::help(const vector<string>& tokens) const
-	throw()
 {
 	return "Plugs a plug into a connector\n"
 	       " plug [connector] [plug]\n";
 }
 
 void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
-	throw()
 {
 	if (tokens.size() == 2) {
 		// complete connector
@@ -205,7 +202,6 @@ PluggingController::UnplugCmd::UnplugCmd(PluggingController& parent_)
 }
 
 string PluggingController::UnplugCmd::execute(const vector<string>& tokens)
-	throw(CommandException)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -221,14 +217,12 @@ string PluggingController::UnplugCmd::execute(const vector<string>& tokens)
 }
 
 string PluggingController::UnplugCmd::help(const vector<string>& tokens) const
-	throw()
 {
 	return "Unplugs a plug from a connector\n"
 	       " unplug [connector]\n";
 }
 
 void PluggingController::UnplugCmd::tabCompletion(vector<string>& tokens) const
-	throw()
 {
 	if (tokens.size() == 2) {
 		// complete connector
@@ -276,7 +270,7 @@ PluggingController::PluggableInfo::PluggableInfo(PluggingController& parent_)
 }
 
 void PluggingController::PluggableInfo::execute(const vector<string>& tokens,
-	CommandResult& result) const throw(CommandException)
+	CommandResult& result) const
 {
 	switch (tokens.size()) {
 	case 2:
@@ -300,14 +294,12 @@ void PluggingController::PluggableInfo::execute(const vector<string>& tokens,
 }
 
 string PluggingController::PluggableInfo::help(const vector<string>& tokens) const
-	throw()
 {
 	return "Shows a list of available pluggables. "
 	       "Or show info on a specific pluggable.\n";
 }
 
 void PluggingController::PluggableInfo::tabCompletion(vector<string>& tokens) const
-	throw()
 {
 	if (tokens.size() == 3) {
 		set<string> pluggables;
@@ -328,7 +320,7 @@ PluggingController::ConnectorInfo::ConnectorInfo(PluggingController& parent_)
 }
 
 void PluggingController::ConnectorInfo::execute(const vector<string>& tokens,
-	CommandResult& result) const throw(CommandException)
+	CommandResult& result) const
 {
 	switch (tokens.size()) {
 	case 2:
@@ -352,13 +344,11 @@ void PluggingController::ConnectorInfo::execute(const vector<string>& tokens,
 }
 
 string PluggingController::ConnectorInfo::help(const vector<string>& tokens) const
-	throw()
 {
 	return "Shows a list of available connectors.\n";
 }
 
 void PluggingController::ConnectorInfo::tabCompletion(vector<string>& tokens) const
-	throw()
 {
 	if (tokens.size() == 3) {
 		set<string> connectors;
@@ -379,7 +369,7 @@ PluggingController::ConnectionClassInfo::ConnectionClassInfo(PluggingController&
 }
 
 void PluggingController::ConnectionClassInfo::execute(const vector<string>& tokens,
-	CommandResult& result) const throw(CommandException)
+	CommandResult& result) const
 {
 	switch (tokens.size()) {
 	case 2: {
@@ -420,13 +410,11 @@ void PluggingController::ConnectionClassInfo::execute(const vector<string>& toke
 }
 
 string PluggingController::ConnectionClassInfo::help(const vector<string>& tokens) const
-	throw()
 {
 	return "Shows the class a connector or pluggable belongs to.";
 }
 
 void PluggingController::ConnectionClassInfo::tabCompletion(vector<string>& tokens) const
-	throw()
 {
 	if (tokens.size() == 3) {
 		set<string> names;

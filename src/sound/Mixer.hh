@@ -16,7 +16,6 @@
 #include "SettingListener.hh"
 #include "InfoTopic.hh"
 
-
 namespace openmsx {
 
 class SoundDevice;
@@ -26,7 +25,6 @@ class RealTime;
 class CliCommOutput;
 class InfoCommand;
 class VolumeSetting;
-
 
 class Mixer : private SettingListener
 {
@@ -137,12 +135,9 @@ private:
 	public:
 		SoundDeviceInfoTopic(Mixer& parent);
 		virtual void execute(const vector<string>& tokens,
-		                     CommandResult& result) const
-			throw(CommandException);
-		virtual string help   (const vector<string>& tokens) const
-			throw();
-		virtual void tabCompletion(vector<string>& tokens) const
-			throw();
+		                     CommandResult& result) const;
+		virtual string help   (const vector<string>& tokens) const;
+		virtual void tabCompletion(vector<string>& tokens) const;
 	private:
 		Mixer& parent;
 	} soundDeviceInfo;

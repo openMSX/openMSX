@@ -3,19 +3,18 @@
 #ifndef __SETTINGSMANAGER_HH__
 #define __SETTINGSMANAGER_HH__
 
-#include "SettingNode.hh"
-#include "Command.hh"
 #include <cassert>
 #include <map>
 #include <set>
 #include <string>
 #include <vector>
+#include "SettingNode.hh"
+#include "Command.hh"
 
 using std::map;
 using std::set;
 using std::string;
 using std::vector;
-
 
 namespace openmsx {
 
@@ -27,7 +26,8 @@ class Interpreter;
 class SettingsManager
 {
 private:
-	map<string, SettingNode*> settingsMap;
+	typedef map<string, SettingNode*> SettingsMap;
+	SettingsMap settingsMap;
 
 public:
 	static SettingsManager& instance();
@@ -37,8 +37,7 @@ public:
 	  *   or NULL if there is no such SettingLeafNode.
 	  */
 	SettingLeafNode* getByName(const string& name) const {
-		map<string, SettingNode*>::const_iterator it =
-			settingsMap.find(name);
+		SettingsMap::const_iterator it = settingsMap.find(name);
 		// TODO: The cast is valid because currently all nodes are leaves.
 		//       In the future this will no longer be the case.
 		return it == settingsMap.end()
@@ -65,8 +64,7 @@ private:
 	class SetCompleter : public CommandCompleter {
 	public:
 		SetCompleter(SettingsManager* manager);
-		virtual void tabCompletion(vector<string>& tokens) const
-			throw();
+		virtual void tabCompletion(vector<string>& tokens) const;
 	private:
 		SettingsManager* manager;
 	} setCompleter;
@@ -74,8 +72,7 @@ private:
 	class SettingCompleter : public CommandCompleter {
 	public:
 		SettingCompleter(SettingsManager* manager);
-		virtual void tabCompletion(vector<string>& tokens) const
-			throw();
+		virtual void tabCompletion(vector<string>& tokens) const;
 	private:
 		SettingsManager* manager;
 	} settingCompleter;
@@ -83,12 +80,9 @@ private:
 	class ToggleCommand : public SimpleCommand {
 	public:
 		ToggleCommand(SettingsManager* manager);
-		virtual string execute(const vector<string>& tokens)
-			throw (CommandException);
-		virtual string help(const vector<string>& tokens) const
-			throw();
-		virtual void tabCompletion(vector<string>& tokens) const
-			throw();
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
+		virtual void tabCompletion(vector<string>& tokens) const;
 	private:
 		SettingsManager* manager;
 	} toggleCommand;

@@ -65,8 +65,7 @@ void SettingsManager::unregisterSetting(SettingNode& setting)
 template <typename T>
 void SettingsManager::getSettingNames(string& result) const
 {
-	for (map<string, SettingNode*>::const_iterator it =
-	       settingsMap.begin();
+	for (SettingsMap::const_iterator it = settingsMap.begin();
 	     it != settingsMap.end(); ++it) {
 		if (dynamic_cast<T*>(it->second)) {
 			result += it->first + '\n';
@@ -77,8 +76,7 @@ void SettingsManager::getSettingNames(string& result) const
 template <typename T>
 void SettingsManager::getSettingNames(set<string>& result) const
 {
-	for (map<string, SettingNode *>::const_iterator it
-		 = settingsMap.begin();
+	for (SettingsMap::const_iterator it = settingsMap.begin();
 	     it != settingsMap.end(); ++it) {
 		if (dynamic_cast<T*>(it->second)) {
 			result.insert(it->first);
@@ -105,13 +103,12 @@ T* SettingsManager::getByName(const string& cmd, const string& name) const
 
 // SetCompleter implementation:
 
-SettingsManager::SetCompleter::SetCompleter(SettingsManager *manager_)
+SettingsManager::SetCompleter::SetCompleter(SettingsManager* manager_)
 	: manager(manager_)
 {
 }
 
-void SettingsManager::SetCompleter::tabCompletion(vector<string> &tokens) const
-	throw()
+void SettingsManager::SetCompleter::tabCompletion(vector<string>& tokens) const
 {
 	switch (tokens.size()) {
 		case 2: {
@@ -123,7 +120,7 @@ void SettingsManager::SetCompleter::tabCompletion(vector<string> &tokens) const
 		}
 		case 3: {
 			// complete setting value
-			map<string, SettingNode *>::iterator it =
+			SettingsMap::iterator it =
 				manager->settingsMap.find(tokens[1]);
 			if (it != manager->settingsMap.end()) {
 				it->second->tabCompletion(tokens);
@@ -136,13 +133,12 @@ void SettingsManager::SetCompleter::tabCompletion(vector<string> &tokens) const
 
 // SettingCompleter implementation
 
-SettingsManager::SettingCompleter::SettingCompleter(SettingsManager *manager_)
+SettingsManager::SettingCompleter::SettingCompleter(SettingsManager* manager_)
 	: manager(manager_)
 {
 }
 
-void SettingsManager::SettingCompleter::tabCompletion(vector<string> &tokens) const
-	throw()
+void SettingsManager::SettingCompleter::tabCompletion(vector<string>& tokens) const
 {
 	switch (tokens.size()) {
 		case 2: {
@@ -158,13 +154,12 @@ void SettingsManager::SettingCompleter::tabCompletion(vector<string> &tokens) co
 
 // ToggleCommand implementation:
 
-SettingsManager::ToggleCommand::ToggleCommand(SettingsManager *manager_)
+SettingsManager::ToggleCommand::ToggleCommand(SettingsManager* manager_)
 	: manager(manager_)
 {
 }
 
-string SettingsManager::ToggleCommand::execute(const vector<string> &tokens)
-	throw(CommandException)
+string SettingsManager::ToggleCommand::execute(const vector<string>& tokens)
 {
 	string result;
 	switch (tokens.size()) {
@@ -185,15 +180,13 @@ string SettingsManager::ToggleCommand::execute(const vector<string> &tokens)
 	return result;
 }
 
-string SettingsManager::ToggleCommand::help(const vector<string> &tokens) const
-	throw()
+string SettingsManager::ToggleCommand::help(const vector<string>& tokens) const
 {
 	return "toggle      : list all boolean settings\n"
 	       "toggle name : toggles a boolean setting\n";
 }
 
-void SettingsManager::ToggleCommand::tabCompletion(vector<string> &tokens) const
-	throw()
+void SettingsManager::ToggleCommand::tabCompletion(vector<string>& tokens) const
 {
 	switch (tokens.size()) {
 		case 2: {
