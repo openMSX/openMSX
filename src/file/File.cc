@@ -11,7 +11,7 @@ namespace openmsx {
 File::File(const string& url, OpenMode mode)
 {
 	string protocol, name;
-	unsigned pos = url.find("://");
+	string::size_type pos = url.find("://");
 	if (pos == string::npos) {
 		// no explicit protocol, take "file"
 		protocol = "file";

@@ -30,7 +30,7 @@ void HardwareConfig::loadHardware(XMLElement& root, FileContext& context,
 
 	// get url
 	string url(file.getURL());
-	unsigned pos = url.find_last_of('/');
+	string::size_type pos = url.find_last_of('/');
 	assert(pos != string::npos);	// protocol must contain a '/'
 	url = url.substr(0, pos);
 	PRT_DEBUG("Hardware config: url "<<url);

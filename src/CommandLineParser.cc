@@ -140,10 +140,10 @@ bool CommandLineParser::parseOption(const string& arg, list<string>& cmdLine, by
 
 bool CommandLineParser::parseFileName(const string& arg, list<string>& /*cmdLine*/)
 {
-	unsigned begin = arg.find_last_of('.');
+	string::size_type begin = arg.find_last_of('.');
 	if (begin != string::npos) {
 		// there is an extension
-		unsigned end = arg.find_last_of(',');
+		string::size_type end = arg.find_last_of(',');
 		string extension;
 		if ((end == string::npos) || (end <= begin)) {
 			extension = arg.substr(begin + 1);
@@ -282,7 +282,7 @@ bool CommandLineParser::ControlOption::parseOption(const string& option,
 		list<string>& cmdLine)
 {
 	string arg(getArgument(option, cmdLine));
-	unsigned colon = arg.find(':');
+	string::size_type colon = arg.find(':');
 	string type_name;
 	if (colon == string::npos) {
 		type_name = arg;
@@ -315,10 +315,10 @@ const string& CommandLineParser::ControlOption::optionHelp() const
 
 // Help option
 
-static string formatSet(const set<string>& inputSet, unsigned columns)
+static string formatSet(const set<string>& inputSet, string::size_type columns)
 {
 	string outString;
-	unsigned totalLength = 0; // ignore the starting spaces for now
+	string::size_type totalLength = 0; // ignore the starting spaces for now
 	for (set<string>::const_iterator it = inputSet.begin();
 	     it != inputSet.end(); ++it) {
 		string temp = *it;
@@ -343,12 +343,13 @@ static string formatSet(const set<string>& inputSet, unsigned columns)
 	return outString;
 }
 
-static string formatHelptext(const string& helpText, unsigned maxlength, unsigned indent)
+static string formatHelptext(const string& helpText,
+	string::size_type maxlength, string::size_type indent)
 {
 	string outText;
-	unsigned index = 0;
+	string::size_type index = 0;
 	while (helpText.substr(index).length() > maxlength) {
-		unsigned pos = helpText.substr(index).rfind(' ', maxlength);
+		string::size_type pos = helpText.substr(index).rfind(' ', maxlength);
 		if (pos == string::npos) {
 			pos = helpText.substr(maxlength).find(' ');
 			if (pos == string::npos) {

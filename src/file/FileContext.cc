@@ -54,7 +54,7 @@ const string FileContext::resolve(const vector<string>& pathList,
 	     it != pathList.end();
 	     ++it) {
 		string name = FileOperations::expandTilde(*it + filename);
-		unsigned pos = name.find("://");
+		string::size_type pos = name.find("://");
 		if (pos != string::npos) {
 			name = name.substr(pos + 3);
 		}
@@ -162,9 +162,9 @@ SettingFileContext::SettingFileContext(const string& url)
 	PRT_DEBUG("SettingFileContext: " << path);
 
 	string home = FileOperations::getUserDataDir();
-	unsigned pos1 = path.find(home);
+	string::size_type pos1 = path.find(home);
 	if (pos1 != string::npos) {
-		unsigned len1 = home.length();
+		string::size_type len1 = home.length();
 		string path1 = path.replace(pos1, len1, FileOperations::getSystemDataDir());
 		paths.push_back(path1);
 		PRT_DEBUG("SettingFileContext: " << path1);

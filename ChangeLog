@@ -22,6 +22,9 @@ $Id$
 	   New code still needs cleanups, but I wanted to check it in early
 	   beacuse the CoRoutine stuff didn't compile yet on win32 (although
 	   it was easy to fix).
+	* Use "string::size_type" iso "unsigned" in STL string manipulations:
+	   on x86_64 sizeof(string::size_type) is 8 while sizeof(unsigned) is
+	   only 4
 
 2004-07-30 Maarten ter Huurne <maarten@treewalker.org>
 	* Added CPU detection.

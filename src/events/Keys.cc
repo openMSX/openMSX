@@ -12,9 +12,9 @@ Keys::KeyCode Keys::getCode(const string& name)
 	initialize();
 
 	KeyCode result = static_cast<KeyCode>(0);
-	unsigned lastPos = 0;
+	string::size_type lastPos = 0;
 	while (lastPos != string::npos) {
-		unsigned pos = name.find_first_of(",+/", lastPos);
+		string::size_type pos = name.find_first_of(",+/", lastPos);
 		string part = (pos != string::npos)
 		            ? name.substr(lastPos, pos - lastPos)
 			    : name.substr(lastPos);

@@ -20,7 +20,7 @@ LocalFile::LocalFile(const string& filename_, OpenMode mode)
 	PRT_DEBUG("LocalFile: " << filename);
 
 	if (mode == SAVE_PERSISTENT) {
-		unsigned pos = filename.find_last_of('/');
+		string::size_type pos = filename.find_last_of('/');
 		if (pos != string::npos) {
 			FileOperations::mkdirp(filename.substr(0, pos));
 		}

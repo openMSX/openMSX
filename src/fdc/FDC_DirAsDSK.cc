@@ -105,7 +105,7 @@ int FDC_DirAsDSK::findFirstFreeCluster()
 bool FDC_DirAsDSK::checkMSXFileExists(const string& msxfilename)
 {
 	//TODO: complete this
-	unsigned pos = msxfilename.find_last_of('/');
+	string::size_type pos = msxfilename.find_last_of('/');
 	string tmp;
 	if (pos != string::npos) {
 		tmp = msxfilename.substr(pos + 1);
@@ -144,7 +144,7 @@ static char toMSXChr(char a)
 }
 string FDC_DirAsDSK::makeSimpleMSXFileName(const string& fullfilename)
 {
-	unsigned pos = fullfilename.find_last_of('/');
+	string::size_type pos = fullfilename.find_last_of('/');
 	string tmp;
 	if (pos != string::npos) {
 		tmp = fullfilename.substr(pos + 1);

@@ -40,28 +40,25 @@ static	struct maint_setenv_table {
  */
 static void cleanSetEnv(void)
 {
-	struct maint_setenv_table *p,*q;
-
-	p = maint_setenv_table_p;
+	struct maint_setenv_table* p = maint_setenv_table_p;
 	while (p) {
 		if (p->env) {
-			unsigned int i;
-			for (i=0;i<strlen(p->env);i++) {
-				if (*(p->env+i)=='=') {
-					char buf[i+3];
-					strncpy(buf,p->env,i+1);
-					buf[i+2]='\0';
-					/* when no string after '=',
-					   it works as unset.
-					   so, the buf will be ok
-					   even if it is auto variable... */
+			unsigned len = strlen(p->env);
+			for (unsigned i = 0; i < len; ++i) {
+				if (p->env[i] == '=') {
+					char buf[i + 3];
+					strncpy(buf, p->env, i+1);
+					buf[i + 2] = '\0';
+					// when no string after '=' it works as
+					// unset. So buf will be ok even if it
+					// is auto variable...
 					_putenv(buf);
 					break;
 				}
 			}
 			free(p->env);
 		}
-		q = p;
+		struct maint_setenv_table q = p;
 		p = p->next;
 		free(q);
 	}
@@ -164,7 +161,7 @@ void FileOperations::mkdirp(const string& path_)
 	}
 	string path = expandTilde(path_);
 
-	unsigned pos = 0;
+	string::size_type pos = 0;
 	do {
 		pos = path.find_first_of('/', pos + 1);
 		if (doMkdir(getNativePath(path).substr(0, pos).c_str(), 0755) &&
@@ -181,7 +178,7 @@ void FileOperations::mkdirp(const string& path_)
 
 string FileOperations::getFilename(const string& path)
 {
-	unsigned pos = path.rfind('/');
+	string::size_type pos = path.rfind('/');
 	if (pos == string::npos) {
 		return path;
 	} else {
@@ -191,7 +188,7 @@ string FileOperations::getFilename(const string& path)
 
 string FileOperations::getBaseName(const string& path)
 {
-	unsigned pos = path.rfind('/');
+	string::size_type pos = path.rfind('/');
 	if (pos == string::npos) {
 		return "";
 	} else {

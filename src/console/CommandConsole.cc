@@ -290,11 +290,11 @@ void CommandConsole::splitLines()
 	cursorLocationY = numberOfLines - 1 - temp;
 }
 
-void CommandConsole::printFast(const string &text)
+void CommandConsole::printFast(const string& text)
 {
-	unsigned end = 0;
+	string::size_type end = 0;
 	do {
-		unsigned start = end;
+		string::size_type start = end;
 		end = text.find('\n', start);
 		if (end == string::npos) {
 			end = text.length();
@@ -316,13 +316,13 @@ void CommandConsole::printFlush()
 	updateConsole();
 }
 
-void CommandConsole::print(const string &text)
+void CommandConsole::print(const string& text)
 {
 	printFast(text);
 	printFlush();
 }
 
-void CommandConsole::newLineConsole(const string &line)
+void CommandConsole::newLineConsole(const string& line)
 {
 	if (lines.isFull()) {
 		lines.removeBack();
@@ -332,7 +332,7 @@ void CommandConsole::newLineConsole(const string &line)
 	lineOverflows.addFront(false);
 }
 
-void CommandConsole::putCommandHistory(const string &command)
+void CommandConsole::putCommandHistory(const string& command)
 {
 	// TODO don't store PROMPT as part of history
 	if (command == prompt) {
@@ -386,7 +386,7 @@ void CommandConsole::putPrompt()
 
 void CommandConsole::tabCompletion()
 {
-	unsigned pl = prompt.length();
+	string::size_type pl = prompt.length();
 
 	resetScrollBack();
 	combineLines(lines, lineOverflows);
