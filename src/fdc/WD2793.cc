@@ -20,13 +20,15 @@ WD2793::~WD2793()
 
 void WD2793::reset(const EmuTime &time)
 {
-	PRT_DEBUG("WD2793::reset()");
+	//PRT_DEBUG("WD2793::reset()");
+	Scheduler::instance().removeSyncPoint(this);
+	fsmState = FSM_NONE;
+
 	statusReg = 0;
 	trackReg = 0;
 	dataReg = 0;
-
 	directionIn = true;
-
+	
 	// According to the specs it nows issues a RestoreCommando (0x03)
 	// Afterwards the stepping rate can still be changed so that the
 	// remaining steps of the restorecommand can go faster. On an MSX this
@@ -63,11 +65,13 @@ bool WD2793::getDTRQ(const EmuTime &time)
 			endCmd();
 		}
 	}
+	//PRT_DEBUG("WD2793::getDTRQ() " << DRQ);
 	return DRQ;
 }
 
 bool WD2793::getIRQ(const EmuTime &time)
 {
+	//PRT_DEBUG("WD2793::getIRQ() " << INTRQ);
 	return INTRQ;
 }
 
@@ -83,6 +87,7 @@ void WD2793::resetIRQ()
 
 void WD2793::setCommandReg(byte value, const EmuTime &time)
 {
+	//PRT_DEBUG("WD2793::setCommandReg() 0x" << hex << (int)value);
 	commandReg = value;
 	resetIRQ();
 	switch (commandReg & 0xF0) {
@@ -160,11 +165,13 @@ byte WD2793::getStatusReg(const EmuTime &time)
 	}
 
 	resetIRQ();
+	//PRT_DEBUG("WD2793::getStatusReg() 0x" << hex << (int)statusReg);
 	return statusReg;
 }
 
-void WD2793::setTrackReg(byte value,const EmuTime &time)
+void WD2793::setTrackReg(byte value, const EmuTime &time)
 {
+	//PRT_DEBUG("WD2793::setTrackReg() 0x" << hex << (int)value);
 	trackReg = value;
 }
 
@@ -173,8 +180,9 @@ byte WD2793::getTrackReg(const EmuTime &time)
 	return trackReg;
 }
 
-void WD2793::setSectorReg(byte value,const EmuTime &time)
+void WD2793::setSectorReg(byte value, const EmuTime &time)
 {
+	//PRT_DEBUG("WD2793::setSectorReg() 0x" << hex << (int)value);
 	sectorReg = value;
 }
 
@@ -185,6 +193,7 @@ byte WD2793::getSectorReg(const EmuTime &time)
 
 void WD2793::setDataReg(byte value, const EmuTime &time)
 {
+	//PRT_DEBUG("WD2793::setDataReg() 0x" << hex << (int)value);
 	// TODO Is this also true in case of sector write?
 	//      Not so according to ASM of brMSX
 	dataReg = value;
@@ -194,7 +203,7 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 		dataCurrent++;
 		dataAvailable--;
 		if (dataAvailable == 0) {
-			PRT_DEBUG("FDC: Now we call the backend to write a sector");
+			PRT_DEBUG("WD2793: Now we call the backend to write a sector");
 			try {
 				dataCurrent = 0;
 				drive->write(sectorReg, dataBuffer,
@@ -203,7 +212,7 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 				dataAvailable = onDiskSize;
 				if (onDiskTrack != trackReg) {
 					// TODO we should wait for 6 index holes
-					PRT_DEBUG("FDC: Record not found");
+					PRT_DEBUG("WD2793: Record not found");
 					statusReg |= RECORD_NOT_FOUND;
 					endCmd();
 					return;
@@ -212,7 +221,7 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 				// If we wait too long we should also write a
 				// partialy filled sector ofcourse and set the
 				// correct status bits!
-				statusReg &= ~0x03;	// reset status on Busy and DRQ
+				statusReg &= ~(BUSY | S_DRQ);
 				if (!(commandReg & M_FLAG)) {
 					//TODO verify this !
 					setIRQ();
@@ -305,10 +314,10 @@ byte WD2793::getDataReg(const EmuTime &time)
 		dataAvailable--;
 		if (dataAvailable == 0) {
 			if (!(commandReg & M_FLAG)) {
-				statusReg &= ~0x03;	// reset status on Busy and DRQ
+				statusReg &= ~(BUSY | S_DRQ);
 				DRQ = false;
 				setIRQ();
-				PRT_DEBUG("FDC: Now we terminate the read sector command");
+				PRT_DEBUG("WD2793: Now we terminate the read sector command");
 			} else {
 				// TODO ceck in tech data (or on real machine)
 				// if implementation multi sector read is
@@ -321,7 +330,7 @@ byte WD2793::getDataReg(const EmuTime &time)
 	return dataReg;
 }
 
-void WD2793::tryToReadSector(void)
+void WD2793::tryToReadSector()
 {
 	try {
 		drive->read(sectorReg, dataBuffer,
@@ -337,16 +346,25 @@ void WD2793::tryToReadSector(void)
 		dataAvailable = onDiskSize;
 		DRQ = true;	// data ready to be read
 	} catch (MSXException &e) {
-		PRT_DEBUG("FDC: read sector failed: " << e.getMessage());
+		PRT_DEBUG("WD2793: read sector failed: " << e.getMessage());
 		DRQ = false;	// TODO data not ready (read error)
 		statusReg = 0;	// reset flags
 	}
 }
 
 
-void WD2793::executeUntil(const EmuTime& time, int state) throw()
+void WD2793::schedule(FSMState state, const EmuTime& time)
 {
-	switch ((FSMState)state) {
+	Scheduler::instance().removeSyncPoint(this);
+	fsmState = state;
+	Scheduler::instance().setSyncPoint(time, this);
+}
+
+void WD2793::executeUntil(const EmuTime& time, int userData) throw()
+{
+	FSMState state = fsmState;
+	fsmState = FSM_NONE;
+	switch (state) {
 		case FSM_SEEK:
 			if ((commandReg & 0x80) == 0x00) {
 				// Type I command
@@ -447,7 +465,7 @@ void WD2793::step(const EmuTime &time)
 		drive->step(directionIn, time);
 		EmuTimeFreq<1000> next(time);	// ms
 		next += timePerStep[commandReg & STEP_SPEED];
-		Scheduler::instance().setSyncPoint(next, this, FSM_SEEK);
+		schedule(FSM_SEEK, next);
 	}
 }
 
@@ -488,8 +506,7 @@ void WD2793::startType2Cmd(const EmuTime &time)
 			if (commandReg & E_FLAG) {
 				EmuTimeFreq<1000> next(time);	// ms
 				next += 30;	// when 1MHz clock
-				Scheduler::instance().setSyncPoint(next, this,
-				                                 FSM_TYPE2_WAIT_LOAD);
+				schedule(FSM_TYPE2_WAIT_LOAD, next);
 			} else {
 				type2WaitLoad(time);
 			}
@@ -505,7 +522,7 @@ void WD2793::type2WaitLoad(const EmuTime& time)
 
 	if (((commandReg & 0xE0) == 0xA0) && (drive->writeProtected())) {
 		// write command and write protected
-		PRT_DEBUG("FDC: write protected");
+		PRT_DEBUG("WD2793: write protected");
 		statusReg |= WRITE_PROTECTED;
 		endCmd();
 	} else {
@@ -542,8 +559,7 @@ void WD2793::startType3Cmd(const EmuTime &time)
 			if (commandReg & E_FLAG) {
 				EmuTimeFreq<1000> next(time);	// ms
 				next += 30;	// when 1MHz clock
-				Scheduler::instance().setSyncPoint(next, this,
-				                                 FSM_TYPE3_WAIT_LOAD);
+				schedule(FSM_TYPE3_WAIT_LOAD, next);
 			} else {
 				type3WaitLoad(time);
 			}
@@ -575,23 +591,25 @@ void WD2793::type3WaitLoad(const EmuTime& time)
 
 void WD2793::readAddressCmd(const EmuTime &time)
 {
-	PRT_DEBUG("FDC command: read address");
+	PRT_DEBUG("WD2793 command: read address");
 	assert(false);	// not yet implemented
+	endCmd();
 }
 
 void WD2793::readTrackCmd(const EmuTime &time)
 {
-	PRT_DEBUG("FDC command: read track   NOT YET IMPLEMENTED");
+	PRT_DEBUG("WD2793 command: read track   NOT YET IMPLEMENTED");
 	// just continue iso assert(false)  'fixes' TNT
+	endCmd();
 }
 
 void WD2793::writeTrackCmd(const EmuTime &time)
 {
-	PRT_DEBUG("FDC command: write track");
+	PRT_DEBUG("WD2793 command: write track");
 
 	if (drive->writeProtected()) {
 		// write track command and write protected
-		PRT_DEBUG("FDC: write protected");
+		PRT_DEBUG("WD2793: write protected");
 		statusReg |= WRITE_PROTECTED;
 		endCmd();
 	} else {
@@ -608,12 +626,12 @@ void WD2793::writeTrackCmd(const EmuTime &time)
 void WD2793::startType4Cmd(const EmuTime &time)
 {
 	// Force interrupt
-	PRT_DEBUG("FDC command: Force interrupt");
+	PRT_DEBUG("WD2793 command: Force interrupt");
 	
 	byte flags = commandReg & 0x0F;
 	if ((flags & 0x07) != 0x00) {
 		// all flags not yet supported
-		PRT_DEBUG("FDC type 4 cmd, unimplemented bits " << (int)flags);
+		PRT_DEBUG("WD2793 type 4 cmd, unimplemented bits " << (int)flags);
 	}
 
 	if (flags == 0x00) {

@@ -57,10 +57,11 @@ private:
 	static const int M_FLAG     = 0x10;
 	
 	enum FSMState {
+		FSM_NONE,
 		FSM_SEEK,
 		FSM_TYPE2_WAIT_LOAD,
 		FSM_TYPE3_WAIT_LOAD,
-	};
+	} fsmState;
 	virtual void executeUntil(const EmuTime& time, int state) throw();
 	virtual const string& schedName() const;
 
@@ -87,6 +88,8 @@ private:
 	void tryToReadSector();
 	inline void resetIRQ();
 	inline void setIRQ();
+
+	void schedule(FSMState state, const EmuTime& time);
 
 	DiskDrive* drive;
 	

@@ -55,7 +55,7 @@ void DummyDrive::step(bool direction, const EmuTime &time)
 
 bool DummyDrive::track00(const EmuTime &time)
 {
-	return false;
+	return true;	// TODO check
 }
 
 void DummyDrive::setMotor(bool status, const EmuTime &time)

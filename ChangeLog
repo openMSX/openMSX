@@ -1,6 +1,11 @@
 $Id$
 
-2004-02-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-02-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* FDC code changes:
+	   - code cleanups / maybe fixes (at least more robust code now)
+	   - changed track0 signal value for not connected drive
+
+2004-02-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Refactored EventDistributor to be SDL independent (WIP)
 
 2004-02-08 Maarten ter Huurne <maarten@treewalker.org>
