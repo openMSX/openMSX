@@ -453,7 +453,8 @@ string CommandController::HelpCmd::execute(const vector<string> &tokens)
 		if (it == parent.commands.end()) {
 			throw CommandException(tokens[1] + ": unknown command");
 		}
-		vector<string> tokens2(++tokens.begin(), tokens.end());
+		vector<string>::const_iterator remainder = tokens.begin();
+		vector<string> tokens2(++remainder, tokens.end());
 		result += it->second->help(tokens2);
 		break;
 	}

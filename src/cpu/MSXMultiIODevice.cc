@@ -1,8 +1,12 @@
 // $Id$
 
+#include <algorithm>
 #include <cassert>
 #include "EmuTime.hh"
 #include "MSXMultiIODevice.hh"
+
+using std::remove;
+
 
 namespace openmsx {
 
