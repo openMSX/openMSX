@@ -683,6 +683,13 @@ printerlogfilename
     set printerlogfilename myprinterlog.txt  log to myprinterlog.txt
 
 
+r800_freq and r800_freq_locked
+------------------------------
+
+  These two settings control the R800 clock frequency. See z80_freq and
+  z80_freq_locked for more details.
+
+
 renderer
 --------
 
@@ -835,3 +842,22 @@ vdpcmdtrace
 
   Enable/disable VDP command tracing.
   [ mainly useful for debugging purposes ]
+
+
+z80_freq and z80_freq_locked
+----------------------------
+
+  These two settings control the Z80 clock frequency. When z80_freq_locked is
+  true the emulated Z80 runs at the normal 3.5MHz (or optionally 5.3MHz on some
+  machines). When z80_freq_locked is false the value of z80_freq is taken as
+  Z80 clock frequency.
+
+  usage:
+    set z80_freq 14318180
+    set z80_freq_locked false
+       overclock Z80 to 14MHz
+       
+    set Z80_freq 7159090
+    bind F8 "toggle z80_freq_locked"
+       F8 now switches between 3.5MHz and 7MHz
+       
