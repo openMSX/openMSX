@@ -76,7 +76,7 @@ MSXCPUInterface::MSXCPUInterface()
 	// Register console commands
 	commandController.registerCommand(&slotMapCmd,    "slotmap");
 	commandController.registerCommand(&slotSelectCmd, "slotselect");
-	commandController.registerCommand(&ioMapCmd,    "iomap");
+	commandController.registerCommand(&ioMapCmd,      "iomap");
 
 	debugger.registerDebuggable("memory", memoryDebug);
 	debugger.registerDebuggable("slotted memory", slottedMemoryDebug);
@@ -95,7 +95,7 @@ MSXCPUInterface::~MSXCPUInterface()
 
 	commandController.unregisterCommand(&slotMapCmd,    "slotmap");
 	commandController.unregisterCommand(&slotSelectCmd, "slotselect");
-	commandController.unregisterCommand(&ioMapCmd,    "iomap");
+	commandController.unregisterCommand(&ioMapCmd,      "iomap");
 
 	assert(multiIn.empty());
 	assert(multiOut.empty());
@@ -378,31 +378,61 @@ string MSXCPUInterface::getSlotMap() const
 string MSXCPUInterface::getIOMap() const
 {
 	ostringstream out;
-	string prevDevName;
-	for (int port = 0; port < 256; ++port) {
-		string devNameIn = IO_In[port]->getName();
-		string devNameOut = IO_Out[port]->getName();
-		if (devNameIn != "empty" || devNameOut != "empty")
-		{
-			string iostr, devName;
-			if (devNameIn != "empty" && devNameOut != "empty")
-			{
-				iostr="I/O";
-				devName=devNameIn;
-			}
-			else if (devNameIn == "empty" && devNameOut != "empty") 
-			{
-				iostr="O  ";
-				devName=devNameOut;
-			}
-			else if (devNameIn != "empty" && devNameOut == "empty") 
-			{
+	string spec="", prevSpec;
+	string devNameIn;
+	string devNameOut;
+	string iostr, devName="";
+	string prevDevName="";
+	int lines;
+	int prevLines=0;
+	int firstPort = 0;
+	for (int port = 0; port <= 256; ++port) { // 256 is a marker to finish the last range
+	devNameIn="empty";
+	devNameOut="empty";		
+	if (port < 256){	
+		devNameIn  = IO_In[port]->getName();
+		devNameOut = IO_Out[port]->getName();
+	}
+		lines=1;
+		if (devNameIn != "empty" && devNameOut != "empty"){
+			devName=devNameIn;
+			if (devNameIn != devNameOut){
 				iostr="I  ";
-				devName=devNameIn;
+				lines=2;
 			}
-		
-			out << "port " << hex << std::setw(2) << std::setfill('0') << port << ": " << iostr << " " << devName << "\n";
+			else iostr="I/O";
 		}
+		else if (devNameIn == "empty" && devNameOut != "empty"){
+			iostr="  O";
+			devName=devNameOut;
+		}
+		else {
+			iostr="I  ";
+			devName=devNameIn;
+		}
+		
+		prevSpec = spec;
+		spec = iostr + " " + devName;
+													
+		if ((spec != prevSpec) &&  (prevSpec != "")){
+			if (prevDevName != "empty"){
+				for (int i=0; i < prevLines; ++i){
+					if (i>0){ // multiline, first I device was printed, now do O device
+						prevSpec = "  O " + IO_Out[port-1]->getName(); // cheating a little bit
+					}
+					out << "port " << hex << std::setw(2) << std::setfill('0') << std::uppercase;
+					if ((port-1) == firstPort) // a normal 1 port thing
+						out << (port-1) << ":   ";
+					else // a multi port thing
+						out << firstPort << "-" << hex << std::setw(2) << std::setfill('0') << std::uppercase << (port-1) << ":";
+					out <<  " " << prevSpec << "\n";
+				}
+				
+			}
+			firstPort=port;				
+		}
+		prevDevName = devName;
+		prevLines = lines;
 	}
 	return out.str();
 }
