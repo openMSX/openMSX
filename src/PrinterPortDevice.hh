@@ -34,7 +34,7 @@ class PrinterPortDevice : public Pluggable
 		virtual void writeData(byte data, const EmuTime &time) = 0;
 
 
-		virtual const std::string &getClass();
+		virtual const std::string &getClass() const;
 };
 
 #endif

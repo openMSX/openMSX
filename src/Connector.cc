@@ -20,7 +20,7 @@ void Connector::unplug(const EmuTime &time)
 	//pluggable = DUMMY_DEVICE;
 }
 
-Pluggable* Connector::getPlug()
+Pluggable* Connector::getPlug() const
 {
 	return pluggable;
 }

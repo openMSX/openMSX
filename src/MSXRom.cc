@@ -396,7 +396,7 @@ byte MSXRom::readMem(word address, const EmuTime &time)
 	return internalMemoryBank[address>>12][address&0x0FFF];
 }
 
-byte* MSXRom::getReadCacheLine(word start)
+const byte* MSXRom::getReadCacheLine(word start) const
 {
 	if (enabledSCC && (0x9800 <= start) && (start < 0xA000)) {
 		// don't cache SCC

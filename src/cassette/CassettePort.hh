@@ -52,8 +52,8 @@ class CassettePortInterface : public Connector
 		virtual void flushOutput(const EmuTime &time) = 0;
 		
 		// Connector
-		virtual const std::string &getName();
-		virtual const std::string &getClass();
+		virtual const std::string &getName() const;
+		virtual const std::string &getClass() const;
 		virtual void plug(Pluggable *dev, const EmuTime &time);
 		virtual void unplug(const EmuTime &time);
 

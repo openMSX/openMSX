@@ -257,13 +257,13 @@ void RealDrive::execute(const std::vector<std::string> &tokens)
 	}
 }
 
-void RealDrive::help(const std::vector<std::string> &tokens)
+void RealDrive::help(const std::vector<std::string> &tokens) const
 {
 	print(name + " eject      : remove disk from virtual drive");
 	print(name + " <filename> : change the disk file");
 }
 
-void RealDrive::tabCompletion(std::vector<std::string> &tokens)
+void RealDrive::tabCompletion(std::vector<std::string> &tokens) const
 {
 	if (tokens.size() == 2)
 		CommandController::completeFileName(tokens);

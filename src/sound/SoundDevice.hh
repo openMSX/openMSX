@@ -26,7 +26,7 @@ class SoundDevice
 		 * This method can be used to show the current volume settings
 		 * of the devices in some sort of UI
 		 */
-		short getVolume();
+		short getVolume() const;
 
 		/**
 		 * This method mutes this SoundDevice
@@ -44,7 +44,7 @@ class SoundDevice
 		 * This method should only be used by the UI, checking if the
 		 * devices needs to be mixed must be done with isInternalMute()
 		 */
-		bool isMuted();
+		bool isMuted() const;
 
 
 	protected:
@@ -73,7 +73,7 @@ class SoundDevice
 		 * Returns true when for some reason this device is muted.  
 		 * (methods setMute() and setInternalMute())
 		 */
-		bool isInternalMuted();
+		bool isInternalMuted() const;
 		
 	// may only be called by Mixer
 	public:

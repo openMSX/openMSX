@@ -256,7 +256,7 @@ void PixelRenderer::FrameSkipCmd::execute(const std::vector<std::string> &tokens
 		throw CommandException("Syntax error");
 	}
 }
-void PixelRenderer::FrameSkipCmd::help(const std::vector<std::string> &tokens)
+void PixelRenderer::FrameSkipCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("This command sets the frameskip setting");
 	print(" frameskip:       displays the current setting");

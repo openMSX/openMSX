@@ -151,7 +151,7 @@ void HotKey::BindCmd::execute(const std::vector<std::string> &tokens)
 		throw CommandException("Syntax error");
 	}
 }
-void HotKey::BindCmd::help(const std::vector<std::string> &tokens)
+void HotKey::BindCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("bind             : show all bounded keys");
 	print("bind <key>       : show all bindings for this key");
@@ -190,7 +190,7 @@ void HotKey::UnbindCmd::execute(const std::vector<std::string> &tokens)
 		throw CommandException("Syntax error");
 	}
 }
-void HotKey::UnbindCmd::help(const std::vector<std::string> &tokens)
+void HotKey::UnbindCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("unbind <key>       : unbind all for this key");
 	print("unbind <key> <cmd> : unbind a specific command");

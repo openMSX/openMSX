@@ -19,7 +19,7 @@ void MSXDevice::reset(const EmuTime &time)
 }
 
 
-const std::string &MSXDevice::getName()
+const std::string &MSXDevice::getName() const
 {
 	static const std::string defaultName = "empty";
 

@@ -34,13 +34,13 @@ byte Y8950KeyboardConnector::read(const EmuTime &time)
 }
 
 
-const std::string &Y8950KeyboardConnector::getName()
+const std::string &Y8950KeyboardConnector::getName() const
 {
 	static const std::string name("audiokeyboardport");
 	return name;
 }
 
-const std::string &Y8950KeyboardConnector::getClass()
+const std::string &Y8950KeyboardConnector::getClass() const
 {
 	static const std::string className("Y8950 Keyboard Port");
 	return className;

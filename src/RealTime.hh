@@ -27,7 +27,7 @@ class RealTime : public Schedulable
 		static RealTime *instance();
 		
 		virtual void executeUntilEmuTime(const EmuTime &time, int userData);
-		virtual const std::string &schedName();
+		virtual const std::string &schedName() const;
 
 		float getRealDuration(const EmuTime &time1, const EmuTime &time2);
 
@@ -72,7 +72,7 @@ class RealTime : public Schedulable
 		class PauseCmd : public Command {
 			public:
 				virtual void execute(const std::vector<std::string> &tokens);
-				virtual void help   (const std::vector<std::string> &tokens);
+				virtual void help(const std::vector<std::string> &tokens) const;
 		};
 		friend class PauseCmd;
 		PauseCmd pauseCmd;
@@ -80,7 +80,7 @@ class RealTime : public Schedulable
 		class ThrottleCmd : public Command {
 			public:
 				virtual void execute(const std::vector<std::string> &tokens);
-				virtual void help   (const std::vector<std::string> &tokens);
+				virtual void help(const std::vector<std::string> &tokens) const;
 		};
 		friend class ThrottleCmd;
 		ThrottleCmd throttleCmd;
@@ -88,7 +88,7 @@ class RealTime : public Schedulable
 		class SpeedCmd : public Command {
 			public:
 				virtual void execute(const std::vector<std::string> &tokens);
-				virtual void help   (const std::vector<std::string> &tokens);
+				virtual void help(const std::vector<std::string> &tokens) const;
 		};
 		friend class SpeedCmd;
 		SpeedCmd speedCmd;

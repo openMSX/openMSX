@@ -79,7 +79,7 @@ void EventDistributor::executeUntilEmuTime(const EmuTime &time, int userdata)
 	mutex.release();
 }
 
-const std::string &EventDistributor::schedName()
+const std::string &EventDistributor::schedName() const
 {
 	static const std::string name("EventDistributor");
 	return name;

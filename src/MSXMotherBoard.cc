@@ -75,7 +75,7 @@ void MSXMotherBoard::ResetCmd::execute(const std::vector<std::string> &tokens)
 {
 	Scheduler::instance()->setSyncPoint(Scheduler::ASAP, MSXMotherBoard::instance());
 }
-void MSXMotherBoard::ResetCmd::help   (const std::vector<std::string> &tokens)
+void MSXMotherBoard::ResetCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("Resets the MSX.");
 }

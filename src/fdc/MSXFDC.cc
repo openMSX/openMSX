@@ -31,12 +31,12 @@ MSXFDC::~MSXFDC()
 	}
 }
 
-byte MSXFDC::readMem(word address, const EmuTime &time)
+byte MSXFDC::readMem(word address, const EmuTime &time) const
 {
 	return rom.read(address & 0x3FFF);
 }
 
-byte* MSXFDC::getReadCacheLine(word start)
+const byte* MSXFDC::getReadCacheLine(word start) const
 {
 	return rom.getBlock(start & 0x3FFF);
 }

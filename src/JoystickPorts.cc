@@ -28,12 +28,12 @@ JoystickPort::~JoystickPort()
 	delete dummy;
 }
 
-const std::string &JoystickPort::getName()
+const std::string &JoystickPort::getName() const
 {
 	return name;
 }
 
-const std::string &JoystickPort::getClass()
+const std::string &JoystickPort::getClass() const
 {
 	static const std::string className("Joystick Port");
 	return className;

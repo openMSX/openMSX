@@ -189,7 +189,7 @@ private:
 		public:
 			FrameSkipCmd(PixelRenderer *rend);
 			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help   (const std::vector<std::string> &tokens);
+			virtual void help(const std::vector<std::string> &tokens) const;
 		private:
 			PixelRenderer *renderer;
 	};

@@ -74,7 +74,7 @@ byte TurboRFDC::readMem(word address, const EmuTime &time)
 	return result;
 }
 
-byte* TurboRFDC::getReadCacheLine(word start)
+const byte* TurboRFDC::getReadCacheLine(word start) const
 {
 	if ((start & 0x3FF0 & CPU::CACHE_LINE_HIGH) == (0x3FF0 & CPU::CACHE_LINE_HIGH)) {
 		return NULL;

@@ -24,7 +24,7 @@ class SDLInteractiveConsole : public InteractiveConsole, private EventListener
 			public:
 				ConsoleCmd(SDLInteractiveConsole *cons);
 				virtual void execute(const std::vector<std::string> &tokens);
-				virtual void help   (const std::vector<std::string> &tokens);
+				virtual void help(const std::vector<std::string> &tokens) const;
 			private:
 				SDLInteractiveConsole *console;
 		};

@@ -26,7 +26,7 @@ class Schedulable
 		/**
 		 * This method is only used to print meaningfull debug messages
 		 */
-		virtual const std::string &schedName();
+		virtual const std::string &schedName() const;
 };
 
 #endif

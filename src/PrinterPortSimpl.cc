@@ -46,7 +46,7 @@ void PrinterPortSimpl::unplug(const EmuTime &time)
 	dac = NULL;
 }
 
-const std::string &PrinterPortSimpl::getName()
+const std::string &PrinterPortSimpl::getName() const
 {
 	static const std::string name("simpl");
 	return name;

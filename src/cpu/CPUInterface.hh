@@ -72,7 +72,7 @@ class CPUInterface {
 		 * An interval will never cross a 16KB border.
 		 * An interval will never contain the address 0xffff.
 		 */
-		virtual byte* getReadCacheLine(word start) = 0;
+		virtual const byte* getReadCacheLine(word start) const = 0;
 
 		/**
 		 * Test that the memory in the interval [start, start+CACHE_LINE_SIZE)
@@ -86,7 +86,7 @@ class CPUInterface {
 		 * An interval will never cross a 16KB border.
 		 * An interval will never contain the address 0xffff.
 		 */
-		virtual byte* getWriteCacheLine(word start) = 0;
+		virtual byte* getWriteCacheLine(word start) const = 0;
 	
 	protected:
 		/*

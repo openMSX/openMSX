@@ -22,8 +22,8 @@ class MSXSCCPlusCart : public MSXMemDevice
 		virtual void reset(const EmuTime &time);
 		virtual byte readMem(word address, const EmuTime &time);
 		virtual void writeMem(word address, byte value, const EmuTime &time);
-		virtual byte* getReadCacheLine(word start);
-		virtual byte* getWriteCacheLine(word start);
+		virtual const byte* getReadCacheLine(word start) const;
+		virtual byte* getWriteCacheLine(word start) const;
 
 	private:
 		void setMapper(int regio, byte value);

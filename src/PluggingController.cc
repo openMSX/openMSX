@@ -134,13 +134,13 @@ void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens
 	}
 }
 
-void PluggingController::PlugCmd::help(const std::vector<std::string> &tokens)
+void PluggingController::PlugCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("Plugs a plug into a connector");
 	print(" plug [connector] [plug]");
 }
 
-void PluggingController::PlugCmd::tabCompletion(std::vector<std::string> &tokens)
+void PluggingController::PlugCmd::tabCompletion(std::vector<std::string> &tokens) const
 {
 	PluggingController* controller = PluggingController::instance();
 	if (tokens.size() == 2) {
@@ -184,13 +184,13 @@ void PluggingController::UnplugCmd::execute(const std::vector<std::string> &toke
 	connector->unplug(time);
 }
 
-void PluggingController::UnplugCmd::help   (const std::vector<std::string> &tokens)
+void PluggingController::UnplugCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("Unplugs a plug from a connector");
 	print(" unplug [connector]");
 }
 
-void PluggingController::UnplugCmd::tabCompletion(std::vector<std::string> &tokens)
+void PluggingController::UnplugCmd::tabCompletion(std::vector<std::string> &tokens) const
 {
 	PluggingController* controller = PluggingController::instance();
 	if (tokens.size() == 2) {

@@ -27,14 +27,14 @@ class Command
 		/**
 		 * called by the console when a help command is typed
 		 */
-		virtual void help   (const std::vector<std::string> &tokens) = 0;
+		virtual void help(const std::vector<std::string> &tokens) const = 0;
 		/**
 		 * tab completeion for this command
 		 * @param tokens A set of tokens, the last is incomplete, this
 		 *               method tries to complete it.
 		 * Default implementation does nothing
 		 */
-		virtual void tabCompletion(std::vector<std::string> &tokens) {}
+		virtual void tabCompletion(std::vector<std::string> &tokens) const {}
 
 	/** 
 	 * These are just helper functions
@@ -43,7 +43,7 @@ class Command
 		/**
 		 * Prints a message to the console
 		 */
-		void print(const std::string &message);
+		void print(const std::string &message) const;
 };
 
 #endif //_COMMAND_HH__

@@ -154,7 +154,7 @@ int CassettePlayer::getWriteSampleRate()
 }
 
 
-const std::string &CassettePlayer::getName()
+const std::string &CassettePlayer::getName() const
 {
 	static const std::string name("cassetteplayer");
 	return name;
@@ -174,13 +174,13 @@ void CassettePlayer::execute(const std::vector<std::string> &tokens)
 	}
 }
 
-void CassettePlayer::help(const std::vector<std::string> &tokens)
+void CassettePlayer::help(const std::vector<std::string> &tokens) const
 {
 	print("tape eject      : remove tape from virtual player");
 	print("tape <filename> : change the tape file");
 }
 
-void CassettePlayer::tabCompletion(std::vector<std::string> &tokens)
+void CassettePlayer::tabCompletion(std::vector<std::string> &tokens) const
 {
 	if (tokens.size() == 2)
 		CommandController::completeFileName(tokens);

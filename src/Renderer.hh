@@ -218,7 +218,7 @@ private:
 		public:
 			FullScreenCmd(Renderer *rend);
 			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help   (const std::vector<std::string> &tokens);
+			virtual void help(const std::vector<std::string> &tokens) const;
 		private:
 			Renderer *renderer;
 	};

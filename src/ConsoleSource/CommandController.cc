@@ -293,11 +293,11 @@ void CommandController::HelpCmd::execute(const std::vector<std::string> &tokens)
 		}
 	}
 }
-void CommandController::HelpCmd::help(const std::vector<std::string> &tokens)
+void CommandController::HelpCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("prints help information for commands");
 }
-void CommandController::HelpCmd::tabCompletion(std::vector<std::string> &tokens)
+void CommandController::HelpCmd::tabCompletion(std::vector<std::string> &tokens) const
 {
 	std::string front = tokens.front();
 	tokens.erase(tokens.begin());

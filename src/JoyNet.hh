@@ -48,7 +48,7 @@ class JoyNet : public JoystickDevice
 		virtual ~JoyNet();
 
 		//Pluggable
-		virtual const std::string &getName();
+		virtual const std::string &getName() const;
 
 		//JoystickDevice
 		virtual byte read(const EmuTime &time);

@@ -116,7 +116,7 @@ void CPU::DebugCmd::execute(const std::vector<std::string> &tokens)
 {
 	CPU::cpudebug = !CPU::cpudebug;
 }
-void CPU::DebugCmd::help(const std::vector<std::string> &tokens)
+void CPU::DebugCmd::help(const std::vector<std::string> &tokens) const
 {
 }
 bool CPU::cpudebug = false;

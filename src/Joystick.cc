@@ -40,7 +40,7 @@ Joystick::~Joystick()
 }
 
 //Pluggable
-const std::string &Joystick::getName()
+const std::string &Joystick::getName() const
 {
 	return name;
 }

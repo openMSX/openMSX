@@ -179,7 +179,7 @@ void Scheduler::QuitCmd::execute(const std::vector<std::string> &tokens)
 {
 	Scheduler::instance()->stopScheduling();
 }
-void Scheduler::QuitCmd::help   (const std::vector<std::string> &tokens)
+void Scheduler::QuitCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("Use this command to stop the emulator");
 }
@@ -207,7 +207,7 @@ void Scheduler::MuteCmd::execute(const std::vector<std::string> &tokens)
 	}
 	Mixer::instance()->pause(sch->noSound||sch->isPaused());
 }
-void Scheduler::MuteCmd::help   (const std::vector<std::string> &tokens)
+void Scheduler::MuteCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("Use this command to mute/unmute the emulator");
 	print(" mute:     toggle mute");

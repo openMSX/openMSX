@@ -28,7 +28,7 @@ JoyNet::~JoyNet()
 }
 
 //Pluggable
-const std::string &JoyNet::getName()
+const std::string &JoyNet::getName() const
 {
 	static const std::string name("joynet");
 	return name;

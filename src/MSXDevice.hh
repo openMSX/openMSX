@@ -37,7 +37,7 @@ class MSXDevice
 		 * print debug info.
 		 * Default implementation is normally ok.
 		 */
-		virtual const std::string &getName();
+		virtual const std::string &getName() const;
 
 	protected:
 		/** Every MSXDevice has a config entry; this constructor gets

@@ -71,7 +71,7 @@ byte MSXSCCPlusCart::readMem(word address, const EmuTime &time)
 	}
 }
 
-byte* MSXSCCPlusCart::getReadCacheLine(word start)
+const byte* MSXSCCPlusCart::getReadCacheLine(word start) const
 {
 	if (((enable == EN_SCC)     && (0x9800 <= start) && (start < 0xA000)) ||
 	    ((enable == EN_SCCPLUS) && (0xB800 <= start) && (start < 0xC000))) {
@@ -146,7 +146,7 @@ void MSXSCCPlusCart::writeMem(word address, byte value, const EmuTime &time)
 	}
 }
 
-byte* MSXSCCPlusCart::getWriteCacheLine(word start)
+byte* MSXSCCPlusCart::getWriteCacheLine(word start) const
 {
 	if ((0x4000 <= start) && (start < 0xC000)) {
 		if (start == (0xBFFF & CPU::CACHE_LINE_HIGH)) {

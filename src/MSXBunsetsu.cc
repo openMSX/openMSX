@@ -51,7 +51,7 @@ void MSXBunsetsu::writeMem(word address, byte value, const EmuTime &time)
 	}
 }
 
-byte* MSXBunsetsu::getReadCacheLine(word start)
+const byte* MSXBunsetsu::getReadCacheLine(word start) const
 {
 	if ((start & 0xBFFC & CPU::CACHE_LINE_HIGH) == 
 	    (0xBFFC & CPU::CACHE_LINE_HIGH)) {

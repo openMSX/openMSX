@@ -65,7 +65,7 @@ class HotKey : private EventListener
 		class BindCmd : public Command {
 			public:
 				virtual void execute(const std::vector<std::string> &tokens);
-				virtual void help   (const std::vector<std::string> &tokens);
+				virtual void help(const std::vector<std::string> &tokens) const;
 		};
 		friend class BindCmd;
 		BindCmd bindCmd;
@@ -73,7 +73,7 @@ class HotKey : private EventListener
 		class UnbindCmd : public Command {
 			public:
 				virtual void execute(const std::vector<std::string> &tokens);
-				virtual void help   (const std::vector<std::string> &tokens);
+				virtual void help(const std::vector<std::string> &tokens) const;
 		};
 		friend class UnbindCmd;
 		UnbindCmd unbindCmd;

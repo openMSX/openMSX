@@ -221,7 +221,7 @@ void SettingsManager::SetCommand::execute(
 }
 
 void SettingsManager::SetCommand::help(
-	const std::vector<std::string> &tokens)
+	const std::vector<std::string> &tokens) const
 {
 	print("set            : list all settings");
 	print("set name       : information on setting");
@@ -229,7 +229,7 @@ void SettingsManager::SetCommand::help(
 }
 
 void SettingsManager::SetCommand::tabCompletion(
-	std::vector<std::string> &tokens)
+	std::vector<std::string> &tokens) const
 {
 	switch (tokens.size()) {
 		case 2: {

@@ -21,7 +21,7 @@ class Joystick : public JoystickDevice, EventListener
 		virtual ~Joystick();
 
 		//Pluggable
-		virtual const std::string &getName();
+		virtual const std::string &getName() const;
 		
 		//JoystickDevice
 		virtual byte read(const EmuTime &time);

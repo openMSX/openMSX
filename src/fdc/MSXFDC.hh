@@ -15,8 +15,8 @@ class MSXFDC : public MSXMemDevice
 		MSXFDC(MSXConfig::Device *config, const EmuTime &time);
 		virtual ~MSXFDC();
 
-		virtual byte readMem(word address, const EmuTime &time);
-		virtual byte* getReadCacheLine(word start);
+		virtual byte readMem(word address, const EmuTime &time) const;
+		virtual const byte* getReadCacheLine(word start) const;
 	
 	protected:
 		MSXRomDevice rom;

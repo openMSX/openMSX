@@ -99,7 +99,7 @@ void SDLInteractiveConsole::ConsoleCmd::execute(const std::vector<std::string> &
 	}
 }
 
-void SDLInteractiveConsole::ConsoleCmd::help(const std::vector<std::string> &tokens)
+void SDLInteractiveConsole::ConsoleCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("This command turns console display on/off");
 	print(" console:     toggle console display");

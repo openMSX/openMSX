@@ -52,7 +52,7 @@ void RealTime::executeUntilEmuTime(const EmuTime &curEmu, int userData)
 	internalSync(curEmu);
 }
 
-const std::string &RealTime::schedName()
+const std::string &RealTime::schedName() const
 {
 	static const std::string name("RealTime");
 	return name;
@@ -179,7 +179,7 @@ void RealTime::PauseCmd::execute(const std::vector<std::string> &tokens)
 		throw CommandException("Syntax error");
 	}
 }
-void RealTime::PauseCmd::help   (const std::vector<std::string> &tokens)
+void RealTime::PauseCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("Use this command to pause/unpause the emulator");
 	print(" pause:     toggle pause");
@@ -208,7 +208,7 @@ void RealTime::ThrottleCmd::execute(const std::vector<std::string> &tokens)
 		throw CommandException("Syntax error");
 	}
 }
-void RealTime::ThrottleCmd::help   (const std::vector<std::string> &tokens)
+void RealTime::ThrottleCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("This command turns speed throttling on/off");
 	print(" throttle:     toggle throttling");
@@ -240,7 +240,7 @@ void RealTime::SpeedCmd::execute(const std::vector<std::string> &tokens)
 		throw CommandException("Syntax error");
 	}
 }
-void RealTime::SpeedCmd::help   (const std::vector<std::string> &tokens)
+void RealTime::SpeedCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("This command controls the emulation speed");
 	print("A higher value means faster emualtion, normal speed is 100.");

@@ -64,7 +64,7 @@ void MSXRam::reset(const EmuTime &time)
 	}
 }
 
-bool MSXRam::isInside(word address)
+bool MSXRam::isInside(word address) const
 {
 	return ((base <= address) && (address < end));
 }
@@ -87,7 +87,7 @@ void MSXRam::writeMem(word address, byte value, const EmuTime &time)
 	}
 }
 
-byte* MSXRam::getReadCacheLine(word start)
+const byte* MSXRam::getReadCacheLine(word start) const
 {
 	if (isInside(start)) {
 		return &memoryBank[start - base];
@@ -96,7 +96,7 @@ byte* MSXRam::getReadCacheLine(word start)
 	}
 }
 
-byte* MSXRam::getWriteCacheLine(word start)
+byte* MSXRam::getWriteCacheLine(word start) const
 {
 	if (isInside(start)) {
 		return &memoryBank[start - base];

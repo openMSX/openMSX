@@ -171,7 +171,7 @@ class CPU
 		static const byte breg_tmp2[256];
 	
 	private:
-		byte* readCacheLine [CACHE_LINE_NUM];
+		const byte* readCacheLine[CACHE_LINE_NUM];
 		byte* writeCacheLine[CACHE_LINE_NUM];
 		bool readCacheTried [CACHE_LINE_NUM];
 		bool writeCacheTried[CACHE_LINE_NUM];
@@ -184,7 +184,7 @@ class CPU
 
 		class DebugCmd : public Command {
 			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help   (const std::vector<std::string> &tokens);
+			virtual void help(const std::vector<std::string> &tokens) const;
 		};
 		DebugCmd debugCmd;
 	#endif

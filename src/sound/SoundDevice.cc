@@ -17,7 +17,7 @@ void SoundDevice::setVolume (short newVolume)
 	setInternalVolume(volume);
 }
 
-short SoundDevice::getVolume()
+short SoundDevice::getVolume() const
 {
 	return volume;
 }
@@ -27,7 +27,7 @@ void SoundDevice::setMute (bool muted)
 	userMuted = muted;
 }
 
-bool SoundDevice::isMuted()
+bool SoundDevice::isMuted() const
 {
 	return userMuted;
 }
@@ -37,7 +37,7 @@ void SoundDevice::setInternalMute (bool muted)
 	internalMuted = muted;
 }
 
-bool SoundDevice::isInternalMuted()
+bool SoundDevice::isInternalMuted() const
 {
 	return (internalMuted || userMuted);
 }

@@ -54,13 +54,13 @@ void CassettePortInterface::unplug(const EmuTime &time)
 	plug(dummy, time);
 }
 
-const std::string &CassettePortInterface::getName()
+const std::string &CassettePortInterface::getName() const
 {
 	static const std::string name("cassetteport");
 	return name;
 }
 
-const std::string &CassettePortInterface::getClass()
+const std::string &CassettePortInterface::getClass() const
 {
 	static const std::string className("Cassette Port");
 	return className;

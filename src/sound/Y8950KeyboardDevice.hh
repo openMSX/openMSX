@@ -29,7 +29,7 @@ class Y8950KeyboardDevice : public Pluggable
 		virtual byte read(const EmuTime &time) = 0;
 
 
-		virtual const std::string &getClass();
+		virtual const std::string &getClass() const;
 };
 
 #endif

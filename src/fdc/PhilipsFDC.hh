@@ -15,7 +15,7 @@ class PhilipsFDC : public WD2793BasedFDC
 		virtual void reset(const EmuTime &time);
 		virtual byte readMem(word address, const EmuTime &time);
 		virtual void writeMem(word address, byte value, const EmuTime &time);  
-		virtual byte* getReadCacheLine(word start);
+		virtual const byte* getReadCacheLine(word start) const;
 
 	private:
 		byte* emptyRom;

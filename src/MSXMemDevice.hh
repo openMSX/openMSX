@@ -38,7 +38,7 @@ class MSXMemDevice : virtual public MSXDevice
 		 * The default implementation always returns a null pointer.
 		 * The start of the interval is CACHE_LINE_SIZE alligned.
 		 */
-		virtual byte* getReadCacheLine(word start);
+		virtual const byte* getReadCacheLine(word start) const;
 		
 		/**
 		 * Test that the memory in the interval [start, start+CACHE_LINE_SIZE)
@@ -51,7 +51,7 @@ class MSXMemDevice : virtual public MSXDevice
 		 * The default implementation always returns a null pointer.
 		 * The start of the interval is CACHE_LINE_SIZE alligned.
 		 */
-		virtual byte* getWriteCacheLine(word start);
+		virtual byte* getWriteCacheLine(word start) const;
 		
 	private:
 		/**

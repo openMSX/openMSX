@@ -53,7 +53,7 @@ void PrinterPortLogger::unplug(const EmuTime &time)
 	file = NULL;
 }
 
-const std::string &PrinterPortLogger::getName()
+const std::string &PrinterPortLogger::getName() const
 {
 	static const std::string name("logger");
 	return name;

@@ -200,8 +200,8 @@ private:
 	public:
 		SetCommand(SettingsManager *manager);
 		virtual void execute(const std::vector<std::string> &tokens);
-		virtual void help   (const std::vector<std::string> &tokens);
-		virtual void tabCompletion(std::vector<std::string> &tokens);
+		virtual void help   (const std::vector<std::string> &tokens) const;
+		virtual void tabCompletion(std::vector<std::string> &tokens) const;
 	private:
 		SettingsManager *manager;
 	};

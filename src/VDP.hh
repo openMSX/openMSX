@@ -391,7 +391,7 @@ private:
 	public:
 		VDPRegsCmd(VDP *vdp);
 		virtual void execute(const std::vector<std::string> &tokens);
-		virtual void help(const std::vector<std::string> &tokens);
+		virtual void help(const std::vector<std::string> &tokens) const;
 	private:
 		VDP *vdp;
 	};
@@ -401,7 +401,7 @@ private:
 	public:
 		PaletteCmd(VDP *vdp);
 		virtual void execute(const std::vector<std::string> &tokens);
-		virtual void help(const std::vector<std::string> &tokens);
+		virtual void help(const std::vector<std::string> &tokens) const;
 	private:
 		VDP *vdp;
 	};
@@ -410,7 +410,7 @@ private:
 	public:
 		RendererCmd(VDP *vdp);
 		virtual void execute(const std::vector<std::string> &tokens);
-		virtual void help(const std::vector<std::string> &tokens);
+		virtual void help(const std::vector<std::string> &tokens) const;
 	private:
 		VDP *vdp;
 	};

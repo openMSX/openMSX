@@ -407,13 +407,13 @@ void MSXTapePatch::execute(const std::vector<std::string> &tokens)
 	}
 }
 
-void MSXTapePatch::help(const std::vector<std::string> &tokens)
+void MSXTapePatch::help(const std::vector<std::string> &tokens) const
 {
 	print("tape eject      : remove tape from virtual player");
 	print("tape <filename> : change the tape file");
 }
 
-void MSXTapePatch::tabCompletion(std::vector<std::string> &tokens)
+void MSXTapePatch::tabCompletion(std::vector<std::string> &tokens) const
 {
 	if (tokens.size()==2)
 		CommandController::completeFileName(tokens);

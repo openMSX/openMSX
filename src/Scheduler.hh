@@ -127,13 +127,13 @@ class Scheduler : private EventListener
 		class QuitCmd : public Command {
 		public:
 			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help   (const std::vector<std::string> &tokens);
+			virtual void help(const std::vector<std::string> &tokens) const;
 		};
 		QuitCmd quitCmd;
 		class MuteCmd : public Command {
 		public:
 			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help   (const std::vector<std::string> &tokens);
+			virtual void help(const std::vector<std::string> &tokens) const;
 		};
 		friend class MuteCmd;
 		MuteCmd muteCmd;

@@ -23,11 +23,11 @@ class MSXRam : public MSXMemDevice
 		
 		virtual byte readMem(word address, const EmuTime &time);
 		virtual void writeMem(word address, byte value, const EmuTime &time);  
-		virtual byte* getReadCacheLine(word start);
-		virtual byte* getWriteCacheLine(word start);
+		virtual const byte* getReadCacheLine(word start) const;
+		virtual byte* getWriteCacheLine(word start) const;
 
 	private:
-		inline bool isInside(word address);
+		inline bool isInside(word address) const;
 	
 		int base;
 		int end;

@@ -5,7 +5,7 @@
 
 
 // Inlined methods first, to make sure they are actually inlined
-inline int MSXMemoryMapper::calcAddress(word address)
+inline int MSXMemoryMapper::calcAddress(word address) const
 {
 	int page = mapperIO->getSelectedPage(address >> 14);
 	page = (page < nbBlocks) ? page : page & (nbBlocks-1);
@@ -57,12 +57,12 @@ void MSXMemoryMapper::writeMem(word address, byte value, const EmuTime &time)
 	buffer[calcAddress(address)] = value;
 }
 
-byte* MSXMemoryMapper::getReadCacheLine(word start)
+const byte* MSXMemoryMapper::getReadCacheLine(word start) const
 {
 	return &buffer[calcAddress(start)];
 }
 
-byte* MSXMemoryMapper::getWriteCacheLine(word start)
+byte* MSXMemoryMapper::getWriteCacheLine(word start) const
 {
 	return &buffer[calcAddress(start)];
 }

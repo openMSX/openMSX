@@ -19,8 +19,8 @@ class JoystickPort : public Connector
 		JoystickPort(const std::string &name, const EmuTime &time);
 		virtual ~JoystickPort();
 
-		virtual const std::string &getName();
-		virtual const std::string &getClass();
+		virtual const std::string &getName() const;
+		virtual const std::string &getClass() const;
 		virtual void plug(Pluggable *device, const EmuTime &time);
 		virtual void unplug(const EmuTime &time);
 

@@ -62,7 +62,7 @@ byte SunriseIDE::readMem(word address, const EmuTime &time)
 	return 0xFF;
 }
 
-byte* SunriseIDE::getReadCacheLine(word start)
+const byte* SunriseIDE::getReadCacheLine(word start) const
 {
 	if (ideRegsEnabled && ((start & 0x3E00) == 0x3C00)) {
 		return NULL;

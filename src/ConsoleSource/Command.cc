@@ -4,7 +4,7 @@
 #include "ConsoleManager.hh"
 
 
-void Command::print(const std::string &message)
+void Command::print(const std::string &message) const
 {
 	ConsoleManager::instance()->print(message);
 }

@@ -14,7 +14,7 @@ class NationalFDC : public WD2793BasedFDC
 		
 		virtual byte readMem(word address, const EmuTime &time);
 		virtual void writeMem(word address, byte value, const EmuTime &time);  
-		virtual byte* getReadCacheLine(word start);
+		virtual const byte* getReadCacheLine(word start) const;
 
 	private:
 		byte* emptyRom;

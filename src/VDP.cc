@@ -926,7 +926,7 @@ void VDP::VDPRegsCmd::execute(const std::vector<std::string> &tokens)
 	print(out.str());
 }
 
-void VDP::VDPRegsCmd::help(const std::vector<std::string> &tokens)
+void VDP::VDPRegsCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("Prints the current state of the VDP registers.");
 }
@@ -955,7 +955,7 @@ void VDP::PaletteCmd::execute(const std::vector<std::string> &tokens)
 	print(out.str());
 }
 
-void VDP::PaletteCmd::help(const std::vector<std::string> &tokens)
+void VDP::PaletteCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("Prints the current VDP palette (i:rgb).");
 }
@@ -984,7 +984,7 @@ void VDP::RendererCmd::execute(const std::vector<std::string> &tokens)
 	}
 }
 
-void VDP::RendererCmd::help(const std::vector<std::string> &tokens)
+void VDP::RendererCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("Select a new renderer or print the current renderer.");
 }

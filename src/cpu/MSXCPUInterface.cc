@@ -181,7 +181,7 @@ void MSXCPUInterface::writeIO(word prt, byte value, const EmuTime &time)
 	IO_Out[port]->writeIO(port, value, time);
 }
 
-byte* MSXCPUInterface::getReadCacheLine(word start)
+const byte* MSXCPUInterface::getReadCacheLine(word start) const
 {
 	if ((start == 0x10000-CPU::CACHE_LINE_SIZE) &&	// contains 0xffff
 	    (isSubSlotted[primarySlotState[3]]))
@@ -189,7 +189,7 @@ byte* MSXCPUInterface::getReadCacheLine(word start)
 	return visibleDevices[start>>14]->getReadCacheLine(start);
 }
 
-byte* MSXCPUInterface::getWriteCacheLine(word start)
+byte* MSXCPUInterface::getWriteCacheLine(word start) const
 {
 	if ((start == 0x10000-CPU::CACHE_LINE_SIZE) &&	// contains 0xffff
 	    (isSubSlotted[primarySlotState[3]]))
@@ -256,7 +256,7 @@ void MSXCPUInterface::SlotMapCmd::execute(const std::vector<std::string> &tokens
 {
 	print(MSXCPUInterface::instance()->getSlotMap());
 }
-void MSXCPUInterface::SlotMapCmd::help   (const std::vector<std::string> &tokens)
+void MSXCPUInterface::SlotMapCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("Prints which slots contain which devices.");
 }
@@ -265,7 +265,7 @@ void MSXCPUInterface::SlotSelectCmd::execute(const std::vector<std::string> &tok
 {
 	print(MSXCPUInterface::instance()->getSlotSelection());
 }
-void MSXCPUInterface::SlotSelectCmd::help   (const std::vector<std::string> &tokens)
+void MSXCPUInterface::SlotSelectCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("Prints which slots are currently selected.");
 }

@@ -111,7 +111,7 @@ void Renderer::FullScreenCmd::execute(const std::vector<std::string> &tokens)
 		throw CommandException("Syntax error");
 	}
 }
-void Renderer::FullScreenCmd::help(const std::vector<std::string> &tokens)
+void Renderer::FullScreenCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("This command turns full-screen display on/off");
 	print(" fullscreen:     toggle full-screen");

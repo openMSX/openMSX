@@ -40,7 +40,7 @@ class EventDistributor : public Runnable , public Schedulable
 	private:
 		EventDistributor();
 		virtual void executeUntilEmuTime(const EmuTime &time, int userdata);
-		virtual const std::string &schedName();
+		virtual const std::string &schedName() const;
 		virtual void run();
 
 		std::multimap <int, EventListener*> lowMap;

@@ -32,8 +32,8 @@ class MSXPrinterPort : public MSXIODevice , public Connector
 		virtual void writeIO(byte port, byte value, const EmuTime &time);
 		
 		// Connector
-		virtual const std::string &getName();
-		virtual const std::string &getClass();
+		virtual const std::string &getName() const;
+		virtual const std::string &getClass() const;
 		virtual void plug(Pluggable *dev, const EmuTime &time);
 		virtual void unplug(const EmuTime &time);
 

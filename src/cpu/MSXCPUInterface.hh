@@ -78,8 +78,8 @@ class MSXCPUInterface : public CPUInterface
 		 */
 		void writeIO(word port, byte value, const EmuTime &time);
 
-		virtual byte* getReadCacheLine(word start);
-		virtual byte* getWriteCacheLine(word start);
+		virtual const byte* getReadCacheLine(word start) const;
+		virtual byte* getWriteCacheLine(word start) const;
 
 
 		/*
@@ -106,11 +106,11 @@ class MSXCPUInterface : public CPUInterface
 		
 		class SlotMapCmd : public Command {
 			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help   (const std::vector<std::string> &tokens);
+			virtual void help(const std::vector<std::string> &tokens) const;
 		};
 		class SlotSelectCmd : public Command {
 			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help   (const std::vector<std::string> &tokens);
+			virtual void help(const std::vector<std::string> &tokens) const;
 		};
 
 		/** Updated visibleDevices for a given page and clears the cache

@@ -38,7 +38,7 @@ class CassettePlayer : public CassetteDevice, private Command
 		virtual int getWriteSampleRate();
 
 		// Pluggable
-		virtual const std::string &getName();
+		virtual const std::string &getName() const;
 
 	private:
 		int calcSamples(const EmuTime &time);
@@ -55,8 +55,8 @@ class CassettePlayer : public CassetteDevice, private Command
 
 		// Tape Command
 		virtual void execute(const std::vector<std::string> &tokens);
-		virtual void help   (const std::vector<std::string> &tokens);
-		virtual void tabCompletion(std::vector<std::string> &tokens);
+		virtual void help   (const std::vector<std::string> &tokens) const;
+		virtual void tabCompletion(std::vector<std::string> &tokens) const;
 };
 
 #endif

@@ -63,7 +63,7 @@ class MSXMotherBoard : public Schedulable
 		
 		class ResetCmd : public Command {
 			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help   (const std::vector<std::string> &tokens);
+			virtual void help(const std::vector<std::string> &tokens) const;
 		};
 		ResetCmd resetCmd;
 
