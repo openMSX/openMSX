@@ -1,4 +1,4 @@
-body, h1, h2, h3, h4 {
+body, h1, h2, h3, h4, h5 {
 	color: black;
 	background-color: white;
 }
@@ -6,14 +6,14 @@ ol.toc {
 	list-style: none;
 	padding-left: 16pt;
 }
-p, dl, ul {
+p, dl, ul, h5 {
 	margin-left: 16pt;
 }
 table {
 	margin-left: 32pt;
 }
 p.image {
-        text-align: center;
+	text-align: center;
 }
 p.version {
 	padding-top: 1em;
