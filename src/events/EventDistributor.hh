@@ -18,8 +18,6 @@ using std::deque;
 namespace openmsx {
 
 class EventListener;
-class RealTime;
-class Scheduler;
 
 class EventDistributor : private Schedulable
 {
@@ -92,10 +90,7 @@ private:
 
 	EmuTime prevEmu;
 	unsigned long long prevReal;
-	FloatSetting delaySetting;
-
-	RealTime& realTime;
-	Scheduler& scheduler;
+	//FloatSetting delaySetting;
 };
 
 } // namespace openmsx

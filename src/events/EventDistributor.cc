@@ -13,10 +13,8 @@ using std::pair;
 namespace openmsx {
 
 EventDistributor::EventDistributor()
-	: delaySetting("inputdelay", "EXPERIMENTAL: delay input to avoid keyskips",
-	               0.03, 0.0, 10.0),
-	  realTime(RealTime::instance()),
-	  scheduler(Scheduler::instance())
+	//: delaySetting("inputdelay", "EXPERIMENTAL: delay input to avoid keyskips",
+	//               0.03, 0.0, 10.0)
 {
 	prevReal = Timer::getTime();
 }
@@ -110,7 +108,7 @@ void EventDistributor::distributeEvent(Event* event)
 		detachedListeners.equal_range(event->getType());
 	if (bounds2.first != bounds2.second) {
 		scheduledEvents.push_front(event);
-		scheduler.setSyncPoint(Scheduler::ASAP, this, DETACHED);
+		Scheduler::instance().setSyncPoint(Scheduler::ASAP, this, DETACHED);
 		// TODO: We cannot deliver the event to an EMU listener as well,
 		//       because the object will be deleted after the DETACHED
 		//       listener gets it.
@@ -129,7 +127,10 @@ void EventDistributor::sync(const EmuTime& emuTime)
 	EmuDuration emuDuration = emuTime - prevEmu;
 
 	double factor = emuDuration.toDouble() / realDuration;
-	EmuDuration extraDelay = realTime.getEmuDuration(delaySetting.getValue());
+	//EmuDuration extraDelay =
+	//	RealTime::instance().getEmuDuration(delaySetting.getValue());
+	EmuDuration extraDelay =
+		RealTime::instance().getEmuDuration(0.03);
 	EmuTime time = prevEmu + extraDelay;
 	for (vector<EventTime>::const_iterator it = toBeScheduledEvents.begin();
 	     it != toBeScheduledEvents.end(); ++it) {
@@ -142,7 +143,7 @@ void EventDistributor::sync(const EmuTime& emuTime)
 			//PRT_DEBUG("input delay too short");
 			schedTime = emuTime;
 		}
-		scheduler.setSyncPoint(schedTime, this, EMU);
+		Scheduler::instance().setSyncPoint(schedTime, this, EMU);
 	}
 	toBeScheduledEvents.clear();
 	
