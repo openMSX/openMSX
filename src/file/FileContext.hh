@@ -13,6 +13,8 @@ class FileContext
 	public:
 		virtual ~FileContext();
 		const std::string resolve(const std::string &filename);
+		virtual const std::string resolveSave(
+		                          const std::string &filename);
 		
 	protected:
 		virtual const std::list<std::string> &getPaths() = 0;
@@ -27,14 +29,15 @@ class ConfigFileContext : public FileContext
 		ConfigFileContext(const std::string &path,
                                   const std::string &hwDescr,
                                   const std::string &userName);
-		const std::string resolveSave(const std::string &filename);
+		virtual const std::string resolveSave(
+		                          const std::string &filename);
 		
 	protected:
 		virtual const std::list<std::string> &getPaths();
 	
 	private:
 		std::list<std::string> paths;
-		std::list<std::string> savePaths;
+		std::string savePath;
 		static std::map<std::string, int> nonames;
 };
 

@@ -50,6 +50,13 @@ const std::string FileContext::resolve(const std::list<std::string> &pathList,
 	return filename;
 }
 
+const std::string FileContext::resolveSave(const std::string &filename)
+{
+	assert(false);
+	return filename;
+}
+
+
 
 // class ConfigFileContext
 
@@ -68,14 +75,14 @@ ConfigFileContext::ConfigFileContext(const std::string &path,
 		snprintf(buf, 20, "untitled%d", num);
 		userName = buf;
 	}
-	std::string savePath = "~/.openMSX/persistent/" + hwDescr +
+	savePath = "~/.openMSX/persistent/" + hwDescr +
 	                       '/' + userName + '/';
-	savePaths.push_back(savePath);
 }
 
 const std::string ConfigFileContext::resolveSave(const std::string &filename)
 {
-	return resolve(savePaths, filename);
+	FileOperations::mkdirp(savePath);
+	return savePath + filename;
 }
 
 const std::list<std::string> &ConfigFileContext::getPaths()
