@@ -6,10 +6,9 @@
 
 
 MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	PRT_DEBUG("instantiating an MSXSCCPlusCart object");
-	deviceConfig=config;
-	deviceName=&config->getId();
   
 	short volume = (short)config->getParameterAsInt("volume");
 	cartridgeSCC=new SCC(volume);
