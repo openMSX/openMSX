@@ -5,18 +5,18 @@
 
 MSXDevice::MSXDevice(void)
 {
-	PRT_DEBUG("instantiating an MSXDevice object\n");
+	PRT_DEBUG("instantiating an MSXDevice object");
 };
 
 MSXDevice::~MSXDevice(void)
 {
 	PRT_DEBUG("destructing an MSXDevice object");
 };
-MSXDevice* MSXDevice::instantiate(void) 
-{
-	PRT_ERROR("Something is wrong here\nNobody should be calling MSXDevice::instantiate()");
-	//return new MSXDevice();
-};
+//MSXDevice* MSXDevice::instantiate(void) 
+//{
+//	PRT_ERROR("Something is wrong here\nNobody should be calling MSXDevice::instantiate()");
+//	//return new MSXDevice();
+//};
 
 void MSXDevice::setConfigDevice(MSXConfig::Device *config)
 {
@@ -60,20 +60,21 @@ void MSXDevice::executeUntilEmuTime(const Emutime &time)
 
 void MSXDevice::init()
 {
-	return;
+	PRT_DEBUG ("Initializing " << getName());
 }
 void MSXDevice::start()
 {
+	PRT_DEBUG ("Starting " << getName());
 	// default implementation same as reset
 	reset();
 }
 void MSXDevice::stop()
 {
-	return;
+	PRT_DEBUG ("Stopping " << getName());
 }
 void MSXDevice::reset()
 {
-	return;
+	PRT_DEBUG ("Resetting " << getName());
 }
 //
 void MSXDevice::saveState(ofstream &writestream)
@@ -111,6 +112,17 @@ const string &MSXDevice::getParamLongHelp(int nr)
 	// TODO
 }
 */
+
+
+const string &MSXDevice::getName()
+{
+	if (deviceName != 0) {
+		return *deviceName;
+	} else {
+		string *tmp = new string("No name");
+		return *tmp;
+	}
+}
 
 //protected:
 //These are used for save/restoreState see note over

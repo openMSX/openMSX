@@ -5,34 +5,35 @@
 // 01-09-2001: Fixed set_a8_register
 //#include "MSXDevice.hh"
 //#include "linkedlist.hh"
+
 #include "MSXMotherBoard.hh"
+#include "DummyDevice.hh"
 
 MSXZ80 *MSXMotherBoard::CPU;
 
 MSXMotherBoard::MSXMotherBoard()
 {
-	PRT_DEBUG("Creating an MSXMotherBoard object \n");
+	PRT_DEBUG("Creating an MSXMotherBoard object");
 	availableDevices = new vector<MSXDevice*>();
-	emptydevice = new MSXDevice();
 	for (int i=0; i<256; i++) {
-		IO_In[i]  = emptydevice;
-		IO_Out[i] = emptydevice;
+		IO_In[i]  = DummyDevice::instance();
+		IO_Out[i] = DummyDevice::instance();
 	}
 	for (int i=0; i<4; i++) {
 		isSubSlotted[i] = false;
 	}
-	for (int i=0;i<4;i++){
-	  for (int j=0;j<4;j++){
-	    for (int k=0;k<4;k++){
-	      SlotLayout[i][j][k]=emptydevice;
-	    }
-	  }
+	for (int i=0;i<4;i++) {
+		for (int j=0;j<4;j++) {
+			for (int k=0;k<4;k++) {
+				SlotLayout[i][j][k]=DummyDevice::instance();
+			}
+		}
 	}
 }
 
 MSXMotherBoard::~MSXMotherBoard()
 {
-	PRT_DEBUG("Detructing an MSXMotherBoard object \n");
+	PRT_DEBUG("Detructing an MSXMotherBoard object");
 	delete availableDevices;
 }
 
@@ -47,19 +48,23 @@ MSXMotherBoard *MSXMotherBoard::instance()
 
 void MSXMotherBoard::register_IO_In(byte port,MSXDevice *device)
 {
-	if (IO_In[port] == emptydevice){
-	  IO_In[port]=device;
+	if (IO_In[port] == DummyDevice::instance()) {
+		PRT_DEBUG (device->getName() << " registers In-port " << (int)port);
+		IO_In[port] = device;
 	} else {
-	  cerr << "Second device trying to register taken IO_In-port";
+		PRT_DEBUG (device->getName() << " trying to register taken In-port " 
+		                        << (int)port);
 	}
 }
 void MSXMotherBoard::register_IO_Out(byte port,MSXDevice *device)
 {
-  if ( IO_Out[port] == emptydevice){
-    IO_Out[port]=device;
-  } else {
-    cerr << "Second device trying to register taken IO_Out-port";
-  }
+	if ( IO_Out[port] == DummyDevice::instance()) {
+		PRT_DEBUG (device->getName() << " registers Out-port " << (int)port);
+		IO_Out[port] = device;
+	} else {
+		PRT_DEBUG (device->getName() << " trying to register taken Out-port "
+		                        << (int)port);
+	}
 }
 void MSXMotherBoard::addDevice(MSXDevice *device)
 {
@@ -71,12 +76,12 @@ void MSXMotherBoard::setActiveCPU(MSXZ80 *device)
 }
 void MSXMotherBoard::registerSlottedDevice(MSXDevice *device,int PrimSl,int SecSL,int Page)
 {
-	 PRT_DEBUG("Registering device at "<<PrimSl<<" "<<SecSL<<" "<<Page<<"\n");
+	 PRT_DEBUG("Registering device at "<<PrimSl<<" "<<SecSL<<" "<<Page);
 	 SlotLayout[PrimSl][SecSL][Page]=device;
 }
 //void MSXMotherBoard::raiseInterupt()
 //{
-//	PRT_DEBUG("Interrupt raised\n");
+//	PRT_DEBUG("Interrupt raised");
 //}
 
 void MSXMotherBoard::ResetMSX()

@@ -23,11 +23,13 @@ Scheduler::~Scheduler(void)
 
 const SchedulerNode &Scheduler::getFirstNode()
 {
+	assert (!scheduleList.empty());
 	return *(scheduleList.begin());
 }
 
 void Scheduler::removeFirstNode()
 {
+	assert (!scheduleList.empty());
 	scheduleList.erase(scheduleList.begin());
 }
 
@@ -68,11 +70,14 @@ void Scheduler::scheduleEmulation()
 		MSXDevice device = firstNode.getDevice();
 	//1. Set the target T-State of the cpu to the first SP in the list.
 	// and let the CPU execute until the target T-state.
+		PRT_DEBUG ("Scheduling CPU\n");
 		nowRunning=MSXMotherBoard::CPU;
 		MSXMotherBoard::CPU->executeUntilEmuTime(time);
 	// Time is now updated
 		currentTime=time;
 	//3. Get the device from the first SP in the list and let it reach its T-state.
+		// TODO following print gives seg fault
+		//PRT_DEBUG ("Scheduling " << device.getName() << "\n");
 		device.executeUntilEmuTime(time);
 	//4. Remove the first element from the list
 		removeFirstNode();

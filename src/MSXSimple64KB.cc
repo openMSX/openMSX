@@ -9,26 +9,27 @@
 
 MSXSimple64KB::MSXSimple64KB()
 {
-	PRT_DEBUG("Creating an MSXSimple64KB object \n");
+	PRT_DEBUG("Creating an MSXSimple64KB object");
 	slow_drain_on_reset=false;
 }
 
 MSXSimple64KB::~MSXSimple64KB()
 {
 	delete [] memoryBank; // C++ can handle null-pointers
-	PRT_DEBUG("Destructing an MSXSimple64KB object \n");
+	PRT_DEBUG("Destructing an MSXSimple64KB object");
 }
 
 void MSXSimple64KB::start()
 {
-	PRT_DEBUG("Starting an MSXSimple64KB object \n");
+	MSXDevice::start();
+	
 }
 
 void MSXSimple64KB::reset()
 {
-	PRT_DEBUG("Reseting an MSXSimple64KB object \n");
+	PRT_DEBUG("Reseting an MSXSimple64KB object");
 	if (!slow_drain_on_reset ) {
-		PRT_DEBUG("Clearing ram of MSXSimple64KB object \n");
+		PRT_DEBUG("Clearing ram of " << getName());
 		memset(memoryBank,0,65536);
 	}
 }

@@ -11,13 +11,14 @@ E6Timer::~E6Timer()
 {
 };
 
-MSXDevice* E6Timer::instantiate()
-{
-	return new E6Timer();
-};
+//MSXDevice* E6Timer::instantiate()
+//{
+//	return new E6Timer();
+//};
  
 void E6Timer::init()
 {
+	MSXDevice::init();
 	MSXMotherBoard::instance()->register_IO_In (0xE6,this);
 	MSXMotherBoard::instance()->register_IO_In (0xE7,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xE6,this);
@@ -25,6 +26,7 @@ void E6Timer::init()
 
 void E6Timer::reset()
 {
+	MSXDevice::reset();
 	reference = Emutime(255681, 0);	// 1/14 * 3.58MHz
 };
 

@@ -12,14 +12,14 @@ MSXPPI *volatile MSXPPI::oneInstance;
 
 MSXPPI::MSXPPI()
 {
-	PRT_DEBUG("Creating an MSXPPI object \n");
+	PRT_DEBUG("Creating an MSXPPI object");
 	keyboardGhosting = true;
 	i8255 = new I8255(*this);
 }
 
 MSXPPI::~MSXPPI()
 {
-	PRT_DEBUG("Destroying an MSXPPI object \n");
+	PRT_DEBUG("Destroying an MSXPPI object");
 }
 
 MSXDevice* MSXPPI::instance(void)
@@ -31,7 +31,8 @@ MSXDevice* MSXPPI::instance(void)
 }
 
 void MSXPPI::init()
-{	
+{
+	MSXDevice::init();
 	// in most cases just one PPI so we register permenantly with 
 	// Inputs object for now.
 	//
@@ -55,6 +56,7 @@ void MSXPPI::init()
 
 void MSXPPI::reset()
 {
+	MSXDevice::reset();
 	i8255->reset();
 }
 

@@ -20,7 +20,7 @@ class E6Timer : public MSXDevice
 	public:
 		E6Timer();
 		~E6Timer();
-		static MSXDevice* instantiate(void);
+		//static MSXDevice* instantiate(void);
 		
 		void init();
 		void reset();

@@ -152,13 +152,13 @@ static unsigned char TMS9928A_palette[16*3] =
 //    memcpy (palette, &TMS9928A_palette, sizeof(TMS9928A_palette));
 //}
 
-MSXTMS9928a::MSXTMS9928a() : currentTime(28636360, 0)	// TODO check freq
+MSXTMS9928a::MSXTMS9928a() : currentTime(3579545, 0)
 {
-    cout << "Creating an MSXTMS9928a object \n";
+	PRT_DEBUG ("Creating an MSXTMS9928a object");
 }
 MSXTMS9928a::~MSXTMS9928a()
 {
-    cout << "Destroying an MSXTMS9928a object \n";
+	PRT_DEBUG ("Destroying an MSXTMS9928a object");
 }
 
 /*
@@ -166,23 +166,24 @@ MSXTMS9928a::~MSXTMS9928a()
 */
 void MSXTMS9928a::reset ()
 {
-    int  i;
+	MSXDevice::reset();
 
-    for (i=0;i<8;i++) tms.Regs[i] = 0;
-    tms.StatusReg = 0;
-    tms.nametbl = tms.pattern = tms.colour = 0;
-    tms.spritepattern = tms.spriteattribute = 0;
-    tms.colourmask = tms.patternmask = 0;
-    tms.Addr = tms.ReadAhead = tms.INT = 0;
-    tms.mode = tms.BackColour = 0;
-    tms.Change = 1;
-    tms.FirstByte = -1;
-    //_TMS9928A_set_dirty (1);
+	for (int i=0;i<8;i++) tms.Regs[i] = 0;
+	tms.StatusReg = 0;
+	tms.nametbl = tms.pattern = tms.colour = 0;
+	tms.spritepattern = tms.spriteattribute = 0;
+	tms.colourmask = tms.patternmask = 0;
+	tms.Addr = tms.ReadAhead = tms.INT = 0;
+	tms.mode = tms.BackColour = 0;
+	tms.Change = 1;
+	tms.FirstByte = -1;
+	//_TMS9928A_set_dirty (1);
 }
 
 //int TMS9928A_start (int model, unsigned int vram) 
 void MSXTMS9928a::init(void)
 {
+	MSXDevice::init();
     // /* 4 or 16 kB vram please */
     // if (! ((vram == 0x1000) || (vram == 0x4000) || (vram == 0x2000)) )
     //    return 1;
@@ -248,7 +249,7 @@ void MSXTMS9928a::init(void)
   
   /* Open the display */
     //if(Verbose) printf("OK\n  Opening display...");
-    printf("OK\n  Opening display...");
+    PRT_DEBUG ("OK\n  Opening display...");
     #ifdef FULLSCREEN
       if ((screen=SDL_SetVideoMode(WIDTH,HEIGHT,8,SDL_SWSURFACE|SDL_FULLSCREEN))==NULL)
     #else
@@ -294,6 +295,7 @@ void MSXTMS9928a::init(void)
 
 void MSXTMS9928a::start()
 {
+	MSXDevice::start();
 	//First interrupt in Pal mode here
 	MSXMotherBoard::instance()->insertStamp(currentTime+71285, *this);
 	PutImage();

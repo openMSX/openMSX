@@ -25,7 +25,7 @@ class MSXDevice
 		//
 		//instantiate method used in DeviceFactory
 		//Must be overwritten in derived classes !!!!
-		static MSXDevice* instantiate(void);
+		//static MSXDevice* instantiate(void);
 		virtual void setConfigDevice(MSXConfig::Device *config);
 		
 		// interaction with CPU
@@ -52,6 +52,8 @@ class MSXDevice
 		virtual const string &getParameterTxt(int nr);
 		virtual const string &getParamShortHelp(int nr);
 		virtual const string &getParamLongHelp(int nr);*/
+		
+		virtual const string &getName();
 	protected:
 		MSXConfig::Device *deviceConfig;
 		//These are used for save/restoreState see note over
@@ -64,7 +66,6 @@ class MSXDevice
 		bool isIRQset;
 		void setInterrupt();
 		void resetInterrupt();
-
 };
 
 #endif //__MSXDEVICE_H__

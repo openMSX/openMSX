@@ -10,17 +10,19 @@
 
 MSXRom16KB::MSXRom16KB()
 {
-	PRT_DEBUG("Creating an MSXRom16KB object \n");
+	PRT_DEBUG("Creating an MSXRom16KB object");
 }
 
 MSXRom16KB::~MSXRom16KB()
 {
 	delete [] memoryBank; // C++ can handle null-pointers
-	PRT_DEBUG("Destructing an MSXRom16KB object \n");
+	PRT_DEBUG("Destructing an MSXRom16KB object");
 }
 
 void MSXRom16KB::init()
 {
+	MSXDevice::init();
+	
 	FILE *file;
 	const char *filename;
 	const char *nrbytes;
@@ -37,11 +39,11 @@ void MSXRom16KB::init()
 		nrbytes=deviceConfig->getParameter("skip_headerbytes").c_str();
 		file = fopen(filename,"r");
 		if (file) {
-			PRT_DEBUG("reading " << filename << "\n");
+			PRT_DEBUG("reading " << filename);
 			fseek(file,atol(nrbytes),SEEK_SET);
 			fread(memoryBank,16384,1,file);
 		} else {
-			PRT_ERROR("Error reading " << filename << "\n");
+			PRT_ERROR("Error reading " << filename);
 		}
 		list<MSXConfig::Device::Slotted*>::const_iterator i;
 		for (i=deviceConfig->slotted.begin(); i!=deviceConfig->slotted.end(); i++) {

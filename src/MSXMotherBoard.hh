@@ -20,7 +20,6 @@ class MSXMotherBoard : public MSXDevice
 
 		MSXDevice* IO_In[256];
 		MSXDevice* IO_Out[256];
-		MSXDevice* emptydevice;
 		vector<MSXDevice*> *availableDevices;
 		
 		MSXDevice* SlotLayout[4][4][4];

@@ -6,13 +6,13 @@ typedef unsigned char byte;	// 8 bit
 typedef unsigned short word;	// 16 bit 
 
 #ifdef DEBUG
-#define PRT_DEBUG(mes) {cout << mes; }
+#define PRT_DEBUG(mes) {cout << mes << "\n"; }
 #else
 #define PRT_DEBUG(mes) {}
 #endif
 
-#define PRT_INFO(mes) {cout << mes; }
-#define PRT_ERROR(mes) {cout << mes; exit(1); }
+#define PRT_INFO(mes) {cout << mes << "\n"; }
+#define PRT_ERROR(mes) {cout << mes << "\n"; exit(1); }
 
 #ifndef DEBUG
 #define NDEBUG		// for assert.h
