@@ -19,7 +19,8 @@ class FileBase
 		virtual int size() = 0;
 		virtual void seek(int pos) = 0;
 		virtual int pos() = 0;
-		virtual const std::string& getLocalName() = 0;
+		virtual const std::string getURL() const = 0;
+		virtual const std::string getLocalName() const = 0;
 
 	protected:
 		byte* mmem;

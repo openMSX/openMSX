@@ -88,7 +88,12 @@ int File::pos()
 	return file->pos();
 }
 
-const std::string& File::getLocalName()
+const std::string File::getURL() const
+{
+	return file->getURL();
+}
+
+const std::string File::getLocalName() const
 {
 	return file->getLocalName();
 }

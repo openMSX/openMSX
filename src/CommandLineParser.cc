@@ -100,7 +100,7 @@ void CommandLineParser::parse(int argc, char **argv)
 	
 	// load default config file in case the user didn't specify one
 	if (!haveConfig) {
-		config->loadFile(new SystemFileContext(),"msxconfig.xml");
+		config->loadFile(new SystemFileContext(), "msxconfig.xml");
 	}
 
 	// read existing cartridge slots from config

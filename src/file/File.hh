@@ -92,12 +92,18 @@ class File
 		int pos();
 
 		/**
+		 * Returns the URL of this file object.
+		 * All context substitution have already been done on this URL
+		 */
+		const std::string getURL() const;
+
+		/**
 		 * Get a local filename for this object. Useful if this object
 		 * refers to a HTTP or FTP file.
 		 * @result Filename of a local file that is identical to the
 		 *         file that this object refers to.
 		 */
-		const std::string& getLocalName();
+		const std::string getLocalName() const;
 
 	private:
 		void open(const std::string &url, int options);

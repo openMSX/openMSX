@@ -93,7 +93,13 @@ int LocalFile::pos()
 	return (int)ftell(file);
 }
 
-const std::string& LocalFile::getLocalName()
+const std::string LocalFile::getURL() const
+{
+	static const std::string prefix("file://");
+	return prefix + filename;
+}
+
+const std::string LocalFile::getLocalName() const
 {
 	return filename;
 }
