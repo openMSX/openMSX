@@ -1,7 +1,11 @@
-/* src/config.h.in.  Generated automatically from configure.in by autoheader.  */
+/* src/config.h.in.  Generated automatically from configure.in by autoheader 2.13.  */
 
 /* Define if you have the ANSI C header files.  */
 #undef STDC_HEADERS
+
+/* Define if your processor stores words with the most significant
+   byte first (like Motorola and SPARC, unlike Intel and VAX).  */
+#undef WORDS_BIGENDIAN
 
 /* Define if you have the <dlfcn.h> header file.  */
 #undef HAVE_DLFCN_H
@@ -14,4 +18,3 @@
 
 /* Version number of package */
 #undef VERSION
-

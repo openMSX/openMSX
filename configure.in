@@ -41,4 +41,7 @@ AM_PATH_XML2
 dnl libSDL
 AM_PATH_SDL
 
+dnl check ENDIAN-ness
+AC_C_BIGENDIAN
+
 AC_OUTPUT(Makefile openmsx.lsm openmsx.spec doc/Makefile src/Makefile)

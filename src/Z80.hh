@@ -14,6 +14,11 @@
 #ifndef _Z80_H
 #define _Z80_H
 
+#include "config.h"
+#ifndef WORDS_BIGENDIAN
+	#define LSB_FIRST
+#endif
+
 /****************************************************************************/
 /*** Machine dependent definitions                                        ***/
 /****************************************************************************/
