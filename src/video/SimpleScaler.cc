@@ -117,10 +117,8 @@ void SimpleScaler<Pixel>::scaleBlank(
 	if (colour == 0) {
 		// No need to draw scanlines if border is black.
 		// This is a special case that occurs very often.
-		//cerr << "scale black " << dstY << " to " << endDstY << "\n";
 		Scaler<Pixel>::scaleBlank(colour, dst, dstY, endDstY);
 	} else {
-		//cerr << "scale non-black " << dstY << " to " << endDstY << "\n";
 		// Note: SDL_FillRect is generally not allowed on locked surfaces.
 		//       However, we're using a software surface, which doesn't
 		//       have locking.
