@@ -186,18 +186,19 @@ void CommandLineParser::parse(int argc, char** argv)
 		switch (priority) {
 		case 4:
 			if (!haveSettings) {
-				// load default settings file in case the user didn't specify one
+				// Load default settings file in case the user didn't specify
+				// one.
 				try {
 					SystemFileContext context;
-					settingsConfig.loadSetting(
-						context, "settings.xml");
-					haveSettings = true;
+					settingsConfig.loadSetting(context, "settings.xml");
 				} catch (FileException& e) {
 					// settings.xml not found
 				} catch (ConfigException& e) {
 					throw FatalError("Error in default settings: "
 						+ e.getMessage());
 				}
+				// Consider an attempt to load the settings good enough.
+				haveSettings = true;
 			}
 			postRegisterFileTypes();
 			break;
@@ -241,8 +242,9 @@ void CommandLineParser::parse(int argc, char** argv)
 		}
 	}
 	if (!cmdLine.empty()) {
-		throw FatalError("Error parsing command line: " + cmdLine.front() + "\n" +
-		                 "Use \"openmsx -h\" to see a list of available options");
+		throw FatalError(
+			"Error parsing command line: " + cmdLine.front() + "\n" +
+			"Use \"openmsx -h\" to see a list of available options" );
 	}
 }
 
