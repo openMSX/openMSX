@@ -25,7 +25,8 @@ public:
 	static MSXConfig *instance();
 
 	void loadFile(const string &filename);
-	//void saveFile(const string &filename = 0);
+	void saveFile();
+	void saveFile(const string &filename);
 
 // nested classes
 #include "msxconfig_device.nn"
@@ -43,6 +44,7 @@ private:
 
 	static MSXConfig *volatile oneInstance;
 	XMLTree *tree;
+	string loaded_filename;
 };
 
 #endif

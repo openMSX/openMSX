@@ -38,7 +38,7 @@ MSXConfig *MSXConfig::instance()
 	return oneInstance;
 }
 
-MSXConfig::MSXConfig():tree(0)
+MSXConfig::MSXConfig():tree(0),loaded_filename("")
 {
 }
 
@@ -57,7 +57,7 @@ void MSXConfig::loadFile(const string &filename)
 	tree = new XMLTree();
 	if (!tree->read(filename))
 		throw MSXConfig::XMLParseException("File I/O Error.");
-
+	loaded_filename = filename;
 	XMLNodeList children=tree->root()->children();
 	for (XMLNodeList::iterator i = children.begin(); i != children.end(); i++)
 	{
@@ -68,6 +68,17 @@ void MSXConfig::loadFile(const string &filename)
 			deviceList.push_back(d);
 		}
 	}
+	delete tree;
+}
+
+void MSXConfig::saveFile()
+{
+	saveFile(loaded_filename);
+}
+
+void MSXConfig::saveFile(const string &filename)
+{
+	throw string("void MSXConfig::saveFile(const string &filename) Unimplemented");
 }
 
 MSXConfig::Device::~Device()
@@ -79,7 +90,7 @@ MSXConfig::Device::~Device()
 }
 
 //MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP),slotted(false)
-MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP),desc(""),rem("")
+MSXConfig::Device::Device(XMLNode *deviceNode):desc(""),rem("")
 {
 	ostringstream buffer;
 
