@@ -50,9 +50,8 @@ int main (int argc, char **argv)
 	// create configuration backend
 	// for now there is only one, "xml" based
 	MSXConfig::Backend* config = MSXConfig::Backend::createBackend("xml");
- 	CommandLineParser* CLIParser = new CommandLineParser(argc,argv);
 	try {
-		CLIParser->parse(config);
+		CommandLineParser::instance()->parse(config,argc,argv);
 		initializeSDL();
 
 		EmuTime zero;

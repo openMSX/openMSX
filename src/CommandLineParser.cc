@@ -4,425 +4,331 @@
 #include "MSXConfig.hh"
 #include <stdio.h>
 
-char** CommandLineParser::argv;
-int CommandLineParser::curArgc;
+CommandLineParser* CommandLineParser::oneInstance = NULL;
 
-
-/***********************************
-  implementation of Context subclas
- ***********************************/
-CommandLineParser::Context::Context(std::string contextName)
+CommandLineParser* CommandLineParser::instance()
 {
-  name=contextName;
+  if (oneInstance == NULL) {
+    oneInstance=new CommandLineParser();
+  }; 
+  return oneInstance;
+}
+
+CommandLineParser::CommandLineOption::CommandLineOption(std::string cliOption,bool usesParameter,std::string help)
+{
+	option=cliOption;
+	used=false;
+	hasParameter=usesParameter;
+	helpLine=help;
 };
 
-
-bool CommandLineParser::Context::isContext(char* contextName)
+CommandLineParser::CommandLineParser()
 {
-  //remove possible leading '-'-sign
-  if ( *contextName == '-'){contextName++;};
-  // check
-  if (strcasecmp(name.c_str(),contextName)==0) return true;
-  return false;
-};
+	nrXMLfiles=0;
+	driveLetter='A';
+	cartridgeNr=0;
+	addOption(HELP,"-?/-h/-help",false,"Shows this text");
+	addOption(MSX1,"-msx1",false,"Loads a default MSX 1 configuration");
+	addOption(MSX2,"-msx2",false,"Loads a default MSX 2 configuration");
+	addOption(MSX2PLUS,"-msx2plus",false,"Loads a default MSX 2 Plus configuration");
+	addOption(TURBOR,"-turboR",false,"Loads a MSX Turbo R configuration");
+	addOption(FMPAC,"-fmpac",false,"inserts an FM-PAC into the MSX machine");
+	addOption(MUSMOD,"-musmod",false,"inserts a Philips Music Module (rom disabled)");
+	addOption(MBSTEREO,"-mbstereo",false,"enables -fmpac and -musmod with stereo registration");
+	//addOption(JOY,"-joy <type>",true,"plug a joystick in the emulated MSX (key,stick,mouse)");
+}
 
-void CommandLineParser::Context::parse()
+char* CommandLineParser::getParameter(CLIoption id)
 {
-  Option* currentOption=getOption(argv[curArgc]);
-  if (currentOption != NULL ){
-    // add needed info to option;
-    if (currentOption->timesUsed < currentOption->max){
-      currentOption->timesUsed++;
-      // add parameters if needed
-      currentOption->parse();
-    } else {
-      //PRT_DEBUG("option "<<optionName<<" used more then " << currentOption->max << " times.");
+	return optionList[id]->parameter;
+}
+
+bool CommandLineParser::isUsed(CLIoption id)
+{
+	return optionList[id]->used;
+}
+
+void CommandLineParser::addOption(CLIoption id,std::string cliOption,bool usesParameter, std::string help)
+{
+  optionList.insert(
+      std::pair<CLIoption,CommandLineParser::CommandLineOption*>
+            ( id, new CommandLineOption(cliOption,usesParameter,help)  ) 
+      );
+}
+
+
+void CommandLineParser::showHelp()
+{
+    PRT_INFO("OpenMSX command line options");
+    PRT_INFO("============================\n");
+    std::map<CLIoption,CommandLineParser::CommandLineOption*>::iterator it;
+    for (it= optionList.begin(); it != optionList.end(); it++ ){
+        PRT_INFO ( (*it).second->option <<"  \t: " << (*it).second->helpLine );
     }
-  } else {
-    //PRT_DEBUG("Unknown option "<<std:string(optionName) <<" in "<<name<<" context");
-  }
-};
+}
 
-void CommandLineParser::Context::setFilename(std::string nameOfFile)
+int CommandLineParser::checkFileType(char* parameter,int &i, char **argv)
 {
-  filename=nameOfFile;
-  used=true;
-};
-
-CommandLineParser:: Option* CommandLineParser::Context::getOption(char* nameOfOption)
-{
-	Option* currentOption=NULL;
-	int nrOfDashes=0;
-	
-	//remove possible two leading '-'-sign
-	if (*nameOfOption == '-' ){nameOfOption++;nrOfDashes++;};
-	if (*nameOfOption == '-' ){nameOfOption++;nrOfDashes++;};
-
-	for (std::list<Option*>::const_iterator i = options.begin(); i != options.end(); i++)
-	{
-	  std::string name=(nrOfDashes==2?(*i)->longName:(*i)->shortName);
-	  int nameLength=name.length();
-	  if ( 0==strncmp((*i)->longName.c_str(),nameOfOption,nameLength)){
-	    currentOption=*i;
-	    break;
-	  };
+  int fileType=0;
+  printf("parameter: %s\n",parameter);
+  // this option does not impact the filetype of the next element :-)
+  if ( (0 == strcasecmp(parameter,"-?")) || 
+       (0 == strcasecmp(parameter,"-h")) ||
+       (0 == strcasecmp(parameter,"-help")) ) { 
+  		    showHelp();
+		    exit(0);
+		    };
+  // now we see if there is a 'general' option that matches
+  // and if it needs a parameter
+  std::map<CLIoption,CommandLineParser::CommandLineOption*>::iterator it;
+  for (it= optionList.begin(); it != optionList.end(); it++ ){
+        if ( 0 == strcasecmp(parameter,(*it).second->option.c_str())){
+		if ((*it).second->used){
+		  PRT_INFO ("Parameter "<< (*it).second->option <<" specified twice\nAborting!!");
+		  exit(1);
+		}
+		(*it).second->used=true;
+		if ((*it).second->hasParameter){
+			i++;
+			(*it).second->parameter=argv[i];
+		};
+		break;
 	}
-	return currentOption;
-};
+  }
 
-/**********************************
-  implementation of Option subclas
- **********************************/
-
-CommandLineParser::Option::Option(std::string shrt, std::string lng, int parameters, int maxUsage)
-{
-	shortName=shrt;
-	longName=lng;
-	nrParams=parameters;
-	max=maxUsage;
-};
-
-bool CommandLineParser::Option::parse()
-{
-	char* optionName=argv[curArgc];
-	int nrOfDashes=0;
-	
-	//remove possible two leading '-'-sign
-	if (*optionName == '-' ){optionName++;nrOfDashes++;};
-	if (*optionName == '-' ){optionName++;nrOfDashes++;};
-	std::string name=(nrOfDashes==2?longName:shortName);
-	int nameLength=name.length();
-
-	if (strncasecmp(name.c_str(), optionName,nameLength) ){return false;};
-	// this is the wanted option, get parameters if needed
-	if (nrOfDashes==2){
-        //TODO check for missing '=' in longoption
-		for (; (*optionName) != '=' ;optionName++){};
-		optionName++;
-		parameters.push_back(std::string(optionName));
-	} else {
-		curArgc++;
-		parameters.push_back(std::string(argv[curArgc]));
-	};
-	//TODO find out a 'standard' way to have multiple parameters with a '--*' option
-	// or delete underlying code,preventing it for '-*' options as wel :-)
-	/*
-	for(int i=0; i<nrParams ; i++){
-		data=argv[(*index)];
-		parameters.push_back( data );
-		(*index)++;
-	};
-	*/
-	return true;
-
-};
-
-
-/*********************************************
-  Implementation of CommandLineParser itself
- *********************************************/
-
-CommandLineParser::CommandLineParser(int orgArgc, char **orgArgv)
-{
-	argc=orgArgc;
-	argv=orgArgv;
-};
-
-/*
-std::string CommandLineParser::checkFileType(){
-  std::string fileType;
+  // these options do impact the filetype the next element that will be parsed later on
   if ( 0 == strcasecmp(parameter,"-config")) { fileType=1; };
   if ( 0 == strcasecmp(parameter,"-disk"))   { fileType=2; };
-  if ( 0 == strcasecmp(parameter,"-diska"))  { fileType=2; diskLetter='A'; };
-  if ( 0 == strcasecmp(parameter,"-diskb"))  { fileType=2; diskLetter='B'; };
+  if ( 0 == strcasecmp(parameter,"-diska"))  { fileType=2; driveLetter='A'; };
+  if ( 0 == strcasecmp(parameter,"-diskb"))  { fileType=2; driveLetter='B'; };
   if ( 0 == strcasecmp(parameter,"-tape"))   { fileType=3; };
   if ( 0 == strcasecmp(parameter,"-cart"))   { fileType=4;  };
-  if ( 0 == strcasecmp(parameter,"-carta"))  { fileType=4; cartridge=0; };
-  if ( 0 == strcasecmp(parameter,"-cartb"))  { fileType=4; cartridge=1; };
+  if ( 0 == strcasecmp(parameter,"-carta"))  { fileType=4; cartridgeNr=0; };
+  if ( 0 == strcasecmp(parameter,"-cartb"))  { fileType=4; cartridgeNr=1; };
   return fileType;
 }
-*/
 
-std::string CommandLineParser::checkFileExt(char* filename){
-  std::string fileType="config";
-  char* Extension=filename + strlen(filename) -4;
+int CommandLineParser::checkFileExt(char* filename){
+  int fileType=0;
+  char* Extension=filename + strlen(filename);
+  //trace back until first '.'
+  for (;(*Extension!='.') && (Extension>filename);Extension--){};
+  
   printf("Extension : %s\n",Extension);
   // check the extension caseinsensitive
-  if (0 == strcasecmp(Extension,".xml")) fileType="config";
-  if (	(0 == strcasecmp(Extension,".dsk")) ||
-	(0 == strcasecmp(Extension,".di1")) ||
-	(0 == strcasecmp(Extension,".di2")) ){
-		fileType="diska";
-		if ( (getContext(fileType))->used ){
-			fileType="diskb";
-		}
-  };
-  if (0 == strcasecmp(Extension,".cas")) fileType="tape";
-  if (0 == strcasecmp(Extension,".rom")){
-	fileType="carta";
-	if ( (getContext(fileType))->used ){
-		fileType="cartb";
-	}
-  };
+  if (0 == strncasecmp(Extension,".xml",4)) fileType=1;
+  if (0 == strncasecmp(Extension,".dsk",4)) fileType=2;
+  if (0 == strncasecmp(Extension,".di1",4)) fileType=2;
+  if (0 == strncasecmp(Extension,".di2",4)) fileType=2;
+  if (0 == strncasecmp(Extension,".cas",4)) fileType=3;
+  if (0 == strncasecmp(Extension,".rom",4)) fileType=4;
+  if (0 == strncasecmp(Extension,".crt",4)) fileType=4;
+  if (0 == strncasecmp(Extension,".ri",3)) fileType=4;
   return fileType;
 }
 
-
-void CommandLineParser::populateContexts()
+void CommandLineParser::configureTape(char* filename)
 {
-	Context* newContext;
-	Option* newOption;
-
-
-    // create a new context
-	newContext=new Context(std::string("global"));
-	  // generate new options for this context
-	  newOption=new Option(std::string("config"),std::string("config"),1,9);
-	  newContext->options.push_back(newOption);
-	  newOption=new Option(std::string("v"),std::string("volume"),1,1);
-	  newContext->options.push_back(newOption);
-	  newOption=new Option(std::string("msx1"),std::string("msx1"),1,1);
-	  newContext->options.push_back(newOption);
-	  newOption=new Option(std::string("msx2"),std::string("msx2"),1,1);
-	  newContext->options.push_back(newOption);
-	  newOption=new Option(std::string("msx2plus"),std::string("msx2plus"),1,1);
-	  newContext->options.push_back(newOption);
-	  newOption=new Option(std::string("turboR"),std::string("turboR"),1,1);
-	  newContext->options.push_back(newOption);
-	contexts.push_back(newContext);
-
-	// create a new context
-	newContext=new Context(std::string("diska"));
-	  // generate new options for this context
-	  newOption=new Option(std::string("s"),std::string("size"),1,1);
-	  newContext->options.push_back(newOption);
-	  newOption=new Option(std::string("f"),std::string("format"),1,1);
-	  newContext->options.push_back(newOption);
-	contexts.push_back(newContext);
-
-	// create a new context
-	newContext=new Context(std::string("diskb"));
-	  // generate new options for this context
-	  newOption=new Option(std::string("s"),std::string("size"),1,1);
-	  newContext->options.push_back(newOption);
-	  newOption=new Option(std::string("f"),std::string("format"),1,1);
-	  newContext->options.push_back(newOption);
-	contexts.push_back(newContext);
-
-	// create a new context
-	newContext=new Context("carta");
-	  // generate a new option for this context
-	  newOption=new Option("m","mappertype",1,1);
-	  newContext->options.push_back(newOption);
-	  newOption=new Option("ps","pslot",1,1);
-	  newContext->options.push_back(newOption);
-	  newOption=new Option("ss","sslot",1,1);
-	  newContext->options.push_back(newOption);
-	  newOption=new Option(std::string("v"),std::string("volume"),1,1);
-	  newContext->options.push_back(newOption);
-	contexts.push_back(newContext);
-
-	// create a new context
-	newContext=new Context("cas");
-	  // generate a new option for this context
-	  newOption=new Option("ro","readonly",1,1);
-	  newContext->options.push_back(newOption);
-	contexts.push_back(newContext);
-
-
-
-	// create a new context
-	newContext=new Context("cartb");
-	  // generate a new option for this context
-	  newOption=new Option("m","mappertype",1,1);
-	  newContext->options.push_back(newOption);
-	  newOption=new Option("ps","pslot",1,1);
-	  newContext->options.push_back(newOption);
-	  newOption=new Option("ss","sslot",1,1);
-	  newContext->options.push_back(newOption);
-	  newOption=new Option(std::string("v"),std::string("volume"),1,1);
-	  newContext->options.push_back(newOption);
-	contexts.push_back(newContext);
-
-
-};
-
-CommandLineParser::Context*	CommandLineParser::getContext(std::string name)
-{
-  Context* curCont = NULL;
-    for (std::list<Context*>::const_iterator i = contexts.begin(); i != contexts.end(); i++){
-      if (0==strcmp((*i)->name.c_str(), name.c_str()) ) {curCont=(*i);};
-    };
-  if (curCont){return curCont;};
-  // a few special cases needed during parsing
-  if (0==strcmp( name.c_str(),"disk")) {
-    curCont=getContext(std::string("diska"));
-    if ( curCont->used ){
-      curCont=getContext(std::string("diskb"));
-    }
-    return curCont;
-  }
-
-  if (0==strcmp( name.c_str(),"cart")) {
-    curCont=getContext(std::string("carta"));
-    if ( curCont->used ){
-      curCont=getContext(std::string("cartb"));
-    }
-    return curCont;
-  }
-  if (0==strcmp( name.c_str(),"conf")) {
-    curCont=getContext(std::string("global"));
-  }
-
-  return curCont;
-};
-
-void CommandLineParser::configDisk(MSXConfig::Backend* config,std::string diskLetter,Context* curCont)
-{
+  /*
+  // The split to test for ",ro" isn't used for the moment since tapes are always
+  // opened with openFilePreferRW
+  char* file;
+  char* readonly;
+  for (readonly=file=filename ; (*readonly!=0) && (*readonly!=',') ; readonly++){};
+  if (*readonly == ','){
+	*(readonly++)=0;
+  };
+  */
   std::ostringstream s;
   s << "<?xml version=\"1.0\"?>";
   s << "<msxconfig>";
-  s << "<config id=\"diskpatch_disk"<<diskLetter<<"\">";
-  s << "<type>disk</type>";
-  s << "<parameter name=\"filename\">"<<(curCont->filename)<<"</parameter>";
-  s << "<parameter name=\"readonly\">false</parameter>"; // TODO get from parameter
-  s << "<parameter name=\"defaultsize\">720</parameter>"; // TODO get from parameter
-  s << "</config>";
+  s << " <config id=\"tapepatch\">";
+  s << "  <type>tape</type>";
+  s << "  <parameter name=\"filename\">";
+  s << std::string(filename) << "</parameter>";
+  s << " </config>";
   s << "</msxconfig>";
   PRT_INFO(s.str());
   config->loadStream(s);
-};
+}
 
-void CommandLineParser::configCart(MSXConfig::Backend* config,int primslot,Context* curCont)
+void CommandLineParser::configureDisk(char* filename)
 {
-  std::ostringstream s;
-  int cartridgeNr=primslot;
-  /*
-  if (currentContext->getOption("-ps")){
-    cartridgeNr=atoi((*(currentContext->getOption("-ps"))->parameters.begin()).c_str() );
+  char* file;
+  char* readonly;
+  for (readonly=file=filename ; (*readonly!=0) && (*readonly!=',') ; readonly++){};
+  if (*readonly == ','){
+	*(readonly++)=0;
   };
-  */
+    std::ostringstream s;
+    s << "<?xml version=\"1.0\"?>";
+    s << "<msxconfig>";
+    s << "<config id=\"diskpatch_disk"<< driveLetter <<"\">";
+    s << "<type>disk</type>";
+    s << "<parameter name=\"filename\">"<<std::string(file)<<"</parameter>";
+    s << "<parameter name=\"readonly\">";
+    if (*readonly == 0){
+	s << "false";
+    } else {
+	s << "true";
+    }
+    s << "</parameter>";
+    s << "<parameter name=\"defaultsize\">720</parameter>";
+    s << "</config>";
+    s << "</msxconfig>";
+    PRT_INFO(s.str());
+    config->loadStream(s);
+    driveLetter++;
+}
+
+void CommandLineParser::configureCartridge(char* filename)
+{
+  char* file;
+  char* mapper;
+  for (mapper=file=filename ; (*mapper!=0) && (*mapper!=',') ; mapper++){};
+  if (*mapper == ','){
+	*(mapper++)=0;
+  };
+  std::ostringstream s;
   s << "<?xml version=\"1.0\"?>";
   s << "<msxconfig>";
   s << " <device id=\"GameCartridge"<< (int)cartridgeNr <<"\">";
   s << "  <type>GameCartridge</type><slotted><ps>";
-  s << (int)(cartridgeNr) <<"</ps><ss>0</ss><page>1</page></slotted>";
+  s << (int)(1+cartridgeNr) <<"</ps><ss>0</ss><page>1</page></slotted>";
   s << "<slotted><ps>";
-  s << (int)(cartridgeNr) <<"</ps><ss>0</ss><page>2</page></slotted>";
+  s << (int)(1+cartridgeNr) <<"</ps><ss>0</ss><page>2</page></slotted>";
   s << "<parameter name=\"filename\">";
-  s << (currentContext->filename) << "</parameter>";
+  s << std::string(file) << "</parameter>";
   s << "<parameter name=\"filesize\">0</parameter>";
   s << "<parameter name=\"volume\">13000</parameter>";
-  s << "<parameter name=\"automappertype\">true</parameter>";
-  s << "<parameter name=\"mappertype\">2</parameter>";
+  s << "<parameter name=\"automappertype\">";
+  if (*mapper != 0){
+     s << "false</parameter>";
+     s << "<parameter name=\"mappertype\">"<<std::string(mapper)<<"</parameter>";
+  } else {
+     s << "true</parameter>";
+  };
   s << " </device>";
   s << "</msxconfig>";
   PRT_INFO(s.str());
   config->loadStream(s);
   cartridgeNr++;
-};
+}
 
-void CommandLineParser::parse(MSXConfig::Backend* config)
+void CommandLineParser::configureMusMod(std::string mode)
 {
-        int nrXMLfiles=0;
-	char* tmpcharp=NULL;
-        populateContexts();
-        currentContext=getContext(std::string("global"));
+  std::ostringstream s;
+  s << "<?xml version=\"1.0\"?>";
+  s << "<msxconfig>";
+  s << " <device id=\"MSX-Audio\">";
+  s << "  <type>Audio</type>";
+  s << "<parameter name=\"volume\">20000</parameter>";
+  s << "<parameter name=\"mode\">"<< mode <<"</parameter>";
+  s << " </device>";
+  s << "</msxconfig>";
+  PRT_INFO(s.str());
+  config->loadStream(s);
+  cartridgeNr++;
+}
 
-        for (curArgc=1; curArgc<argc; curArgc++) {
-          if ( *(argv[curArgc]) == '-' ){
-            printf("need to parse regular option: %s\n",argv[curArgc]);
-	    // context names do not start with '-' so we remove them
-	    for (tmpcharp=argv[curArgc];*tmpcharp == '-';tmpcharp++){};
-	    
-            if ( getContext(std::string(tmpcharp)) != NULL ){
-	      printf("explicit context change : %s\n",tmpcharp);
-              currentContext=getContext(std::string(tmpcharp));
-              curArgc++;
-              currentContext->setFilename(std::string(argv[curArgc]));
-            } else {
-              currentContext->parse();
-            }
-          } else {
-            // no '-' as first character so it is a filename :-)
-            printf("need to parse filename option: %s\n",argv[curArgc]);
-            currentContext=getContext(checkFileExt(argv[curArgc]));
-            currentContext->setFilename(std::string(argv[curArgc]));
-          };
-        };
+void CommandLineParser::configureFmPac(std::string mode)
+{
+  std::ostringstream s;
+  s << "<?xml version=\"1.0\"?>";
+  s << "<msxconfig>";
+  s << " <device id=\"FM PAC\">";
+  s << "  <type>FM-PAC</type>";
+  s << "<slotted><ps>2</ps><ss>0</ss><page>1</page></slotted>";
+  s << "<parameter name=\"filename\">FMPAC.ROM</parameter>";
+  s << "<parameter name=\"volume\">13000</parameter>";
+  s << "<parameter name=\"mode\">"<< mode <<"</parameter>";
+  s << "<parameter name=\"load\">true</parameter>";
+  s << "<parameter name=\"save\">true</parameter>";
+  s << "<parameter name=\"sramname\">FMPAC.PAC</parameter>";
+  s << " </device>";
+  s << "</msxconfig>";
+  PRT_INFO(s.str());
+  config->loadStream(s);
+  cartridgeNr++;
+}
 
-        // use all parsed contexts stuff here, the global context is to be used elsewhere
-	currentContext=getContext(std::string("global"));
-	if (currentContext->used){
-	  //xml files
-	  Option* optie=currentContext->getOption("-config");
-	  for (std::list<std::string>::iterator i = optie->parameters.begin(); i != optie->parameters.end(); i++){
-	    config->loadFile(*i);
-	    nrXMLfiles++;
-	  };
-	  //check if msx1 specified
-	  optie=currentContext->getOption("-msx1");
-	  if (optie){
-	    config->loadFile("msx1.xml");
-	    nrXMLfiles++;
-	  };
-	  //check if msx2 specified
-	  optie=currentContext->getOption("-msx2");
-	  if (optie){
-	    config->loadFile("msx2.xml");
-	    nrXMLfiles++;
-	  };
-	  //check if msx2plus specified
-	  optie=currentContext->getOption("-msx2plus");
-	  if (optie){
-	    config->loadFile("msx2plus.xml");
-	    nrXMLfiles++;
-	  };
-	  //check if turboR specified
-	  optie=currentContext->getOption("-turboR");
-	  if (optie){
-	    config->loadFile("turbor.xml");
-	    nrXMLfiles++;
-	  };
+void CommandLineParser::parse(MSXConfig::Backend* Backconfig,int argc, char **argv)
+{
+	    int i;
+	    int fileType=0;
 
-	};
+	    config=Backconfig;
 
-	currentContext=getContext(std::string("cas"));
-	if (currentContext->used){
-              std::ostringstream s;
-              s << "<?xml version=\"1.0\"?>";
-              s << "<msxconfig>";
-              s << " <config id=\"tapepatch\">";
-              s << "  <type>tape</type>";
-              s << "  <parameter name=\"filename\">";
-              s << (currentContext->filename)<< "</parameter>";
-              s << " </config>";
-              s << "</msxconfig>";
-              PRT_INFO(s.str());
-              config->loadStream(s);
-            }
-	
-	currentContext=getContext(std::string("diska"));
-	if (currentContext->used){
-		configDisk(config,std::string("A"),currentContext);
-	};
+	    for (i=1; i<argc; i++) {
+	      // check the current option
+	      if ( *(argv[i]) == '-' ){
+		printf("need to parse general option\n");
+		fileType=checkFileType(argv[i],i,argv);
+		//if fileType has changed then the next MUST be a filename
+		if (fileType !=0) i++;
+	      } else {
+		// no '-' as first character so it is a filename :-)
+		// and we atoumagically determine the filetype
+		//printf("need to parse filename option: %s\n",argv[i]);
+		PRT_INFO("need to parse filename option: "<<argv[i]);
+		fileType=checkFileExt(argv[i]);
+	      };
 
-	currentContext=getContext(std::string("diskb"));
-	if (currentContext->used){
-		configDisk(config,std::string("B"),currentContext);
-	};
-	
-	currentContext=getContext(std::string("carta"));
-	if (currentContext->used){
-		configCart(config,1,currentContext);
-	}
-	currentContext=getContext(std::string("cartb"));
-	if (currentContext->used){
-		configCart(config,2,currentContext);
-	}
-
-	if (nrXMLfiles==0){
-	  PRT_INFO ("Using msxconfig.xml as default configuration file");
-	  config->loadFile(std::string("msxconfig.xml"));
-	} 
+	      // if there is a filetype known now then we parse the next argv
+	      
+	      switch (fileType){
+		  case 0: //no filetype determined
+		    break;
+		  case 1: //xml files
+		    config->loadFile(std::string(argv[i]));
+		    nrXMLfiles++;
+		    break;
+		  case 2: //dsk,di2,di1 files
+		    configureDisk(argv[i]);
+		    break;
+		  case 3: //cas files
+		    configureTape(argv[i]);
+		    break;
+		  case 4: //rom files
+		    configureCartridge(argv[i]);
+		    break;
+		  default:
+		    PRT_INFO("Couldn't make sense of argument\n");
+	      }
+	      fileType=0;
+	    }
+	    //load "special" configuration files
+	    if ( isUsed(MSX1)) { 
+		    config->loadFile(std::string("msx1.xml"));
+		    nrXMLfiles++;
+		    };
+	    if ( isUsed(MSX2)) { 
+		    config->loadFile(std::string("msx2.xml"));
+		    nrXMLfiles++;
+		    };
+	    if ( isUsed(MSX2PLUS)) { 
+		    config->loadFile(std::string("msx2plus.xml"));
+		    nrXMLfiles++;
+		    };
+	    if ( isUsed(TURBOR)) { 
+		    config->loadFile(std::string("turbor.xml"));
+		    nrXMLfiles++;
+		    };
+	  
+	    if (nrXMLfiles==0){
+	      PRT_INFO ("Using msxconfig.xml as default configuration file");
+	      config->loadFile(std::string("msxconfig.xml"));
+	    } 
+	    if ( isUsed(FMPAC)) { 
+	      // Alter subslotting if we need to insert fmpac 
+	      configureFmPac(std::string("mono"));
+	    }
+	    if ( isUsed(MUSMOD)) { 
+	      configureMusMod(std::string("mono"));
+	    }
+	    if ( isUsed(MBSTEREO)){
+	      // Alter subslotting if we need to insert fmpac 
+	      configureMusMod(std::string("right"));
+	      configureFmPac(std::string("left"));
+	    }
 }

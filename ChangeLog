@@ -1,5 +1,10 @@
 $Id$
 
+2002-03-21 David Heremans <david.heremans@gnu-linux.net>
+	* Again a (total) rewrite of CommandlineParser. 
+	  A simpler and cleaner design then the previous one, and
+	  easy to extend for other CLI-options.
+
 2002-03-20 Joost Yervante Damad <andete@worldcity.nl>
 	* XML::Escape support added to libxmlx
 	* usage is explained in the header
