@@ -10,6 +10,7 @@ namespace openmsx {
 
 /** A Setting with a floating point value.
   */
+NON_INHERITABLE_PRE(FloatSetting)
 class FloatSetting: public Setting<float>, NON_INHERITABLE(FloatSetting)
 {
 public:

@@ -56,7 +56,7 @@ private:
 	Map enumMap;
 };
 
-
+NON_INHERITABLE_PRE2(EnumSetting, ValueType)
 template <typename ValueType>
 class EnumSetting : public EnumSettingBase<ValueType>,
                     NON_INHERITABLE(EnumSetting<ValueType>)

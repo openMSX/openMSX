@@ -23,6 +23,7 @@ public:
 		throw(CommandException);
 };
 
+NON_INHERITABLE_PRE(StringSetting)
 class StringSetting : public StringSettingBase, NON_INHERITABLE(StringSetting)
 {
 public:

@@ -3,6 +3,8 @@
 #ifndef __OSDCONSOLERENDERER_HH__
 #define __OSDCONSOLERENDERER_HH__
 
+#include <string>
+#include <SDL/SDL.h>	// TODO get rid of this
 #include "ConsoleRenderer.hh"
 #include "EnumSetting.hh"
 #include "FilenameSetting.hh"
@@ -10,11 +12,7 @@
 #include "Console.hh"
 #include "NonInheritable.hh"
 
-#include <string>
 using std::string;
-
-#include <SDL/SDL.h>
-
 
 namespace openmsx {
 
@@ -22,7 +20,7 @@ class OSDConsoleRenderer;
 class FileContext;
 class IntegerSetting;
 
-
+NON_INHERITABLE_PRE(BackgroundSetting)
 class BackgroundSetting : public FilenameSettingBase,
                           NON_INHERITABLE(BackgroundSetting)
 {
@@ -37,6 +35,7 @@ private:
 	OSDConsoleRenderer* console;
 };
 
+NON_INHERITABLE_PRE(FontSetting)
 class FontSetting : public FilenameSettingBase, NON_INHERITABLE(FontSetting)
 {
 public:

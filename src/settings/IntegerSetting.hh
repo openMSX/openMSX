@@ -10,6 +10,7 @@ namespace openmsx {
 
 /** A Setting with an integer value.
   */
+NON_INHERITABLE_PRE(IntegerSetting)
 class IntegerSetting: public Setting<int>, NON_INHERITABLE(IntegerSetting)
 {
 public:

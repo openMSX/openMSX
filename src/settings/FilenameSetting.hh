@@ -28,7 +28,7 @@ protected:
 	virtual bool checkFile(const string& filename) = 0;
 };
 
-
+NON_INHERITABLE_PRE(FilenameSetting)
 class FilenameSetting : public FilenameSettingBase,
                         NON_INHERITABLE(FilenameSetting)
 {

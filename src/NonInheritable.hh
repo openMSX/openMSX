@@ -5,6 +5,7 @@
 // you get a compilation error
 // 
 // Usage: 
+//    NON_INHERITABLE_PRE(Foo)
 //    class Foo : NON_INHERITABLE(Foo) { ... };
 //
 // There is a small size penalty when you use this feature. However when
@@ -23,19 +24,23 @@
 // size with one pointer (4 bytes).
 //
 
-#define NON_INHERITABLE(T) virtual private NonInheritable<T>
+#define NON_INHERITABLE_PRE(T) \
+	class NonInheritable##T { \
+	private: \
+		~NonInheritable##T() {} \
+		friend class T; \
+	};
 
-template <typename T>
-class NonInheritable {
-private:
-  ~NonInheritable() { }
-  
-  // friend class T;   // doesn't work on gcc-3.x
-  struct FriendMaker {
-    typedef T FriendType;
-  };
-  friend class FriendMaker::FriendType;
-};
+#define NON_INHERITABLE_PRE2(T1, T2) \
+	template <typename T2> \
+	class NonInheritable##T1 { \
+	private: \
+		~NonInheritable##T1() {} \
+		template <typename T> \
+		friend class T1; \
+	};
+
+#define NON_INHERITABLE(T) virtual private NonInheritable##T
 
 #else
 
@@ -43,10 +48,14 @@ private:
 // Dummy version, no checking, no overhead.
 //
 
-#define NON_INHERITABLE(T) private NonInheritable
+#define NON_INHERITABLE_PRE(T) \
+	class NonInheritable##T {};
 
-class NonInheritable {
-};
+#define NON_INHERITABLE_PRE2(T1, T2) \
+	template <typename T2> \
+	class NonInheritable##T1 {};
+
+#define NON_INHERITABLE(T) private NonInheritable##T
 
 #endif // NDEBUG
 

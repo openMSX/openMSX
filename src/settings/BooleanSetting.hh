@@ -10,6 +10,7 @@ namespace openmsx {
 
 /** A Setting with a boolean value.
   */
+NON_INHERITABLE_PRE(BooleanSetting)
 class BooleanSetting : public EnumSettingBase<bool>,
                        NON_INHERITABLE(BooleanSetting)
 {

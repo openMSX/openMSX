@@ -4,6 +4,9 @@ $Id$
 	* Another config refactoring:
 	   - split MSXConfig in hardware and settings part
 	   - merge Config and Device class
+	* Use ugle macro iso template in NonInheritable class:
+	   - hopefully this works on all compilers, if not (or if it's
+	     too ugly) we can just remove this class
 
 2004-03-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "type" command:
