@@ -106,8 +106,8 @@ Pixel V9990P1Converter<Pixel, zoom>::raster(int xA, int yA,
 		int xB, int yB,
 		unsigned int nameTableB, unsigned int patternTableB)
 {
-	Pixel      p = getPixel(xA, yB, nameTableA, patternTableA);
-	if(p == 0) p = getPixel(xA, yB, nameTableB, patternTableB);
+	Pixel      p = getPixel(xA, yA, nameTableA, patternTableA);
+	if(p == 0) p = getPixel(xB, yB, nameTableB, patternTableB);
 	if(p == 0) p = vdp->getBackDropColor();
 	return p;
 }
