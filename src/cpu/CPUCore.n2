@@ -4,6 +4,7 @@
 
 #ifdef CPU_DEBUG
 #include "Z80Dasm.h"
+#include "Settings.hh"
 #endif
 
 
@@ -225,7 +226,7 @@ inline void _CPU_::executeFast() {
 	executeInstruction();
 	
 	#ifdef CPU_DEBUG
-	if (cpudebug) {
+	if (traceSetting->getValue()) {
 		Dasm(&debugmemory[start_pc], to_print_string, start_pc);
 		PRT_DEBUG(std::setfill('0') << std::hex <<
 			  std::setw(4) << start_pc <<

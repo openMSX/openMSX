@@ -7,6 +7,9 @@ $Id$
 	  - circular buffer code moved to directory "src"
 	* Moved input devices code to new directory "input".
 	  Maybe more can be moved there in the future.
+	* Changed "cpudebug" command into "cputrace" setting.
+	  Also fixed the duplicate "cpudebug" command on a turbo R (dual CPU).
+	  Note: this setting exists only if "cpu" dir is built in debug mode.
 
 2003-05-17 Maarten ter Huurne <maarten@treewalker.org>
 	* Removed EmuTime parameter from Command::execute.

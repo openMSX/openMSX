@@ -3,29 +3,22 @@
 #include "CPUInterface.hh"
 #include "CPU.hh"
 #include "CPUTables.nn"
-#ifdef CPU_DEBUG
-#include "CommandController.hh"
-#endif
 
+
+#ifdef CPU_DEBUG
+#include "Settings.hh"
+BooleanSetting *CPU::traceSetting =
+	new BooleanSetting("cputrace", "CPU tracing on/off", false);
+#endif
 
 CPU::CPU(CPUInterface *interf)
-#ifdef CPU_DEBUG
-	: cpudebug(false), debugCmd(this)
-#endif
 {
 	interface = interf;
 	makeTables();
-
-	#ifdef CPU_DEBUG
-	CommandController::instance()->registerCommand(&debugCmd, "cpudebug");
-	#endif
 }
 
 CPU::~CPU()
 {
-	#ifdef CPU_DEBUG
-	CommandController::instance()->unregisterCommand(&debugCmd, "cpudebug");
-	#endif
 }
 
 void CPU::executeUntilTarget(const EmuTime &time)
@@ -116,13 +109,3 @@ void CPU::lowerIRQ()
 	//PRT_DEBUG("CPU: lower IRQ " << IRQStatus);
 }
 
-#ifdef CPU_DEBUG
-void CPU::DebugCmd::execute(const std::vector<std::string> &tokens)
-{
-	cpu->cpudebug = !cpu->cpudebug;
-}
-void CPU::DebugCmd::help(const std::vector<std::string> &tokens) const
-{
-	print("[DEBUG] Toggle CPU debugging");
-}
-#endif

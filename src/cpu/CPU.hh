@@ -10,12 +10,9 @@
 #define CPU_DEBUG
 #endif
 
-#ifdef CPU_DEBUG
-#include "Command.hh"
-#endif
 
-
-// forward declaration
+// forward declarations
+class BooleanSetting;
 class CPUInterface;
 
 typedef signed char offset;
@@ -48,35 +45,35 @@ class CPU
 		virtual ~CPU();
 
 		/**
-		 * Reset the CPU
+		 * Reset the CPU.
 		 */
 		void reset(const EmuTime &time);
 
 		/**
-		 * Emulated CPU till a given target-time. This implicitly calls
-		 * the method setTargetTime()
+		 * Emulated CPU till a given target-time.
+		 * This implicitly calls the method setTargetTime().
 		 */
 		void executeUntilTarget(const EmuTime &time);
-		
+
 		/**
-		 * Sets the CPU its current time. This is used to 'warp' a CPU
-		 * when you switch between Z80/R800
+		 * Sets the CPU its current time.
+		 * This is used to 'warp' a CPU when you switch between Z80/R800.
 		 */
 		virtual void setCurrentTime(const EmuTime &time) = 0;
-		
+
 		/**
-		 * Returns the CPU its current time
+		 * Returns the CPU its current time.
 		 */
 		virtual const EmuTime &getCurrentTime() const = 0;
-		
+
 		/**
-		 * Alter the target time. The Scheduler uses this to announce
-		 * changes in the scheduling
+		 * Alter the target time.
+		 * The Scheduler uses this to announce changes in the scheduling.
 		 */
 		void setTargetTime(const EmuTime &time);
-		
+
 		/**
-		 * Get the target time. Only used to switch active CPU
+		 * Get the target time. Only used to switch active CPU.
 		 */
 		const EmuTime &getTargetTime() const;
 
@@ -93,8 +90,8 @@ class CPU
 		void writeMem(word address, byte value);
 
 		/**
-		 * Invalidate the CPU its cache for the interval 
-		 * [start, start+num*CACHE_LINE_SIZE)
+		 * Invalidate the CPU its cache for the interval
+		 * [start, start+num*CACHE_LINE_SIZE).
 		 */
 		void invalidateCache(word start, int num);
 
@@ -134,25 +131,27 @@ class CPU
 		static const byte C_FLAG = 0x01;
 
 	protected:
+		/** Create a new CPU.
+		  * @param interf Interface between this CPU and the bus.
+		  */
 		CPU(CPUInterface *interf);
-		
-		/* Emulate CPU till a previously set target time, the target
-		 * may change (become smaller) during emulation
-		 */
+
+		/** Emulate CPU till a previously set target time,
+		  * the target may change (become smaller) during emulation.
+		  */
 		virtual void executeCore() = 0;
 
-		/* Reset CPU core 
-		 */
+		/** Reset CPU core.
+		  */
 		virtual void resetCore() = 0;
-		
+
 		void makeTables();
-		
-		/* State machine variables
-		 */
+
+		// state machine variables
 		CPURegs R;
 		int slowInstructions;
 		int IRQStatus;
-		
+
 		z80regpair x,y;
 		byte bit;
 		byte dummy;
@@ -160,7 +159,7 @@ class CPU
 		byte* p;
 		bool repeat, increase;
 		bool stop;
-		
+
 		CPUInterface *interface;
 		EmuTime targetTime;
 
@@ -169,7 +168,7 @@ class CPU
 		static byte ZSXYTable[256];
 		static byte ZSPXYTable[256];
 		static byte ZSPTable[256];
-		
+
 		// instruction lookup tables
 		static const word DAATable[2048];
 		static const byte irep_tmp1[4][4];
@@ -183,19 +182,11 @@ class CPU
 		bool writeCacheTried[CACHE_LINE_NUM];
 	
 	#ifdef CPU_DEBUG
+		static BooleanSetting *traceSetting;
+
 	public:
 		byte debugmemory[65536];
 		char to_print_string[300];
-		bool cpudebug;
-
-		class DebugCmd : public Command {
-		public:
-			DebugCmd(CPU *cpu_) : cpu(cpu_) {}
-			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help(const std::vector<std::string> &tokens) const;
-		private:
-			CPU* cpu;
-		} debugCmd;
 	#endif
 };
 #endif //__CPU_HH__
