@@ -1,0 +1,4 @@
+# $Id$
+
+bin_PROGRAMS=openmsx
+openmsx_SOURCES=openmsx.cc openmsx.1 system.h ../aclocal.m4
