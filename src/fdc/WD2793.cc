@@ -44,7 +44,7 @@ void WD2793::reset(const EmuTime &time)
 	// Afterwards the stepping rate can still be changed so that the
 	// remaining steps of the restorecommand can go faster. On an MSX this
 	// time can be ignored since the bootstrap of the MSX takes MUCH longer
-	// then an ,even failing, Restorecommand
+	// then an, even failing, Restorecommand
 	commandReg = 0x03;
 	sectorReg = 0x01;
 	DRQ = false;
@@ -130,11 +130,11 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 	commandEnd = time;
 
 	//First we set some flags from the lower four bits of the command
-	Cflag	      = value & 2;
-	stepSpeed     = value & 3;
-	Eflag = Vflag = value & 4;
-	hflag = Sflag = value & 8;
-	mflag = Tflag = value & 16;
+	Cflag	      = value & 0x02;
+	stepSpeed     = value & 0x03;
+	Eflag = Vflag = value & 0x04;
+	hflag = Sflag = value & 0x08;
+	mflag = Tflag = value & 0x10;
 	// above code could by executed always with no if's
 	// what-so-ever. Since the flags are always written during
 	// a new command and only applicable 
@@ -147,10 +147,10 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 		PRT_DEBUG("FDC command: restore");
 
 		commandEnd += (current_track * timePerStep[stepSpeed]);
-		if (Vflag) commandEnd += 15; //Head setting time
+		if (Vflag) commandEnd += 15000; //Head setting time
 
 		// according to page 1-100 last alinea, however not sure so ommited
-		// if (Eflag) commandEnd += 15;
+		// if (Eflag) commandEnd += 15000;
 		current_track = 0;
 		trackReg = 0;
 		directionIn = false;
@@ -181,7 +181,7 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 			trackReg = dataReg;
 
 			commandEnd += (steps * timePerStep[stepSpeed]);
-			if (Vflag) commandEnd += 15;	//Head setting time
+			if (Vflag) commandEnd += 15000;	//Head setting time
 
 			//TODO actually verify
 			//PRT_DEBUG("after : track "<<(int)trackReg<<",data "
@@ -202,7 +202,7 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 		}
 
 		commandEnd += timePerStep[stepSpeed];
-		if (Vflag) commandEnd += 15; //Head setting time
+		if (Vflag) commandEnd += 15000; //Head setting time
 
 		statusReg &= ~1;	// reset status on Busy
 		break;
@@ -215,7 +215,7 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 		if (Tflag) trackReg++;
 
 		commandEnd += timePerStep[stepSpeed];
-		if (Vflag) commandEnd += 15; //Head setting time
+		if (Vflag) commandEnd += 15000; //Head setting time
 
 		statusReg &= ~1;	// reset status on Busy
 		break;
@@ -229,7 +229,7 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 		if (Tflag) trackReg++;
 
 		commandEnd += timePerStep[stepSpeed];
-		if (Vflag) commandEnd += 15;	//Head setting time
+		if (Vflag) commandEnd += 15000;	//Head setting time
 
 		statusReg &= ~1;	// reset status on Busy
 		break;
@@ -237,6 +237,7 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 	case 0x80: //read sector
 	case 0x90: //read sector (multi)
 		PRT_DEBUG("FDC command: read sector");
+		assert(!mflag);
 		INTRQ = false;
 		DRQ = false;
 		statusReg &= 0x01;	// reset lost data,record not found & status bits 5 & 6
@@ -246,12 +247,11 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 			getBackEnd(current_drive)->
 				read(current_track, trackReg, sectorReg,
 				     current_side, 512, dataBuffer);
-			statusReg |= 2;
 			DRQ = true;	// data ready to be read
 		} catch (MSXException &e) {
-			statusReg |= 2;
 			DRQ = true;	// TODO data not ready (read error)
 		}
+		commandEnd += 1000000;	// TODO hack
 		break;
 
 	case 0xA0: // write sector
@@ -261,8 +261,8 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 		statusReg &= 0x01;	// reset lost data,record not found & status bits 5 & 6
 		dataCurrent = 0;
 		dataAvailable = 512;	// TODO should come from sector header
-		statusReg |= 2;
 		DRQ = true;	// data ready to be written
+		commandEnd += 1000000;	// TODO hack
 		break;
 
 	case 0xC0: //Read Address
@@ -284,7 +284,6 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 	case 0xF0: //write track
 		PRT_DEBUG("FDC command: write track");
 		statusReg &= 0x01;	// reset lost data,record not found & status bits 5 & 6
-		statusReg |= 2;
 		DRQ = true;
 		getBackEnd(current_drive)->
 			initWriteTrack(current_track, trackReg,current_side); 
@@ -296,7 +295,7 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 		//CommandController::instance()->executeCommand(std::string("cpudebug"));
 		//statusReg &= ~1;	// reset status on Busy
 		// Variables below are a not-completely-correct hack:
-		// Correct behavior would indicate that one wiats until the
+		// Correct behavior would indicate that one waits until the
 		// next indexmark before the first byte is written and that
 		// from the command stays active until the next indexmark.
 		//
@@ -312,7 +311,7 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 byte WD2793::getStatusReg(const EmuTime &time)
 {
 	if ((commandReg & 0x80) == 0) {
-		//Type I command so bit 1 should be the index pulse
+		// Type I command so bit 1 should be the index pulse
 		if (current_drive != NO_DRIVE) {
 			int ticks = motorStartTime[current_drive].getTicksTill(time);
 			if (ticks >= 200000) {
@@ -327,14 +326,19 @@ byte WD2793::getStatusReg(const EmuTime &time)
 				statusReg |= 2;
 			}
 		}
+	} else {
+		// Not type I command so bit 1 should be DRQ
+		if (getDTRQ(time)) {
+			statusReg |= 2;
+		} else {
+			statusReg &= ~2;
+		}
 	}
-	// statusReg &= ~1;	// reset status on Busy 
-	// TODO this should be time dependend, like in:
-	// 	if (time >= endTime) statusReg &= ~1;
 	if (time >= commandEnd) {
+		// reset BUSY bit
 		statusReg &= ~1;
 	}
-	PRT_DEBUG("statusReg is "<<(int)statusReg);
+	PRT_DEBUG("FDC: statusReg is "<<(int)statusReg);
 	return statusReg;
 }
 
@@ -367,7 +371,7 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 		dataCurrent++;
 		dataAvailable--;
 		if (dataAvailable == 0) {
-			PRT_DEBUG("Now we call the backend to write a sector");
+			PRT_DEBUG("FDC: Now we call the backend to write a sector");
 			try {
 				getBackEnd(current_drive)->
 					write(current_track, trackReg,
@@ -376,7 +380,7 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 				// If we wait too long we should also write a
 				// partialy filled sector ofcourse and set the
 				// correct status bits!
-				statusReg &= ~0x82;	// reset status on Busy and DRQ
+				statusReg &= ~0x83;	// reset status on Busy and DRQ and Busy
 				if (mflag == 0) {
 					//TODO verify this !
 					INTRQ = true;
@@ -465,10 +469,10 @@ byte WD2793::getDataReg(const EmuTime &time)
 		dataCurrent++;
 		dataAvailable--;
 		if (dataAvailable == 0) {
-			statusReg &= ~0x82;	// reset status on Busy and DRQ
+			statusReg &= ~0x83;	// reset status on Busy and DRQ and Busy
 			DRQ = false;
 			if (!mflag) INTRQ = true;
-			PRT_DEBUG("Now we terminate the read sector command or skip to next sector if multi set");
+			PRT_DEBUG("FDC: Now we terminate the read sector command or skip to next sector if multi set");
 			// TODO implement multi sector read
 		}
 	}
