@@ -1,9 +1,9 @@
-DRAFT: September 4 2002, version 0.2
-Written by Jorrith Schaap & Manuel Bilderbeek
+DRAFT: September 8 2002, version 0.3
+Written by Jorrith Schaap & Manuel Bilderbeek & the openMSX developers
 
 OpenMSX compile, install, config and run HOWTO
 ==============================================
-or: get everything out of openMSX in 10 simple steps! ;-)
+or: get everything out of openMSX in 11 simple steps! ;-)
 
 This HOWTO is about openMSX, the open source MSX emulator that tries to achieve
 perfect emulation by using a novel emulation model. The homepage of openMSX can
@@ -21,7 +21,9 @@ This Howto is written by Manuel Bilderbeek, a beta tester (non-developer) of
 openMSX and Jorrith Schaap, someone who just wants to play around with the
 emulator.
 
-For the moment, this text cannot be found anywhere. ;-)
+The latest version of this HOWTO can be found in the CVS directory of openMSX.
+Try this link:
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/openmsx/openMSX/doc/openMSX-HOWTO.txt?rev=HEAD&content-type=text/vnd.viewcvs-markup
 
 Now, let's start with the Howto. Here's what to do if you want to start using
 openMSX...
@@ -99,9 +101,10 @@ The latter method also creates the CVS administrative directories necessary to
 perform commits and updates.
 
 2. Compiling
-------------
+   ---------
 
-Before compiling, you need to have certain libraries installed. On my system (which is a Debian testing one), they are called:
+Before compiling, you need to have certain libraries installed. On my system
+(which is a Debian testing one), they are called:
 
 libsdl-image1.2 - image loading library for Simple DirectMedia Layer 1.2
 libsdl-image1.2-dev - development files for SDL 1.2 image loading libray
@@ -113,17 +116,22 @@ libsdl1.2-dev - Simple DirectMedia Layer development files
 libsdl1.2debian - Simple DirectMedia Layer
 libsdl1.2debian-all - Simple DirectMedia Layer (with all available options)
 
-So, you need a lot of SDL packages; the run time ones and also the developer packages (we're compiling here!). You need the SDL_image, SDL_mixer, SDL_net (for future usage) and the general SDL libs.
+So, you need a lot of SDL packages; the run time ones and also the developer
+packages (we're compiling here!). You need the SDL_image, SDL_mixer, SDL_net
+(for future usage) and the general SDL libs.
 
 Furthermore, you need
 libxml2 - GNOME XML library
 libxml2-dev - Development files for the GNOME XML library
-g++ - The GNU C++ compiler.
-And, for some optional features of openMSX, you need openGL support (see below).
+g++ - The GNU C++ compiler. (2.95.3 or 3.2 is recommended for now)
 
-Probably you even need some more, which I don't know by heart. Most of it should
-be checked by the configure scripts anyway, although it seems to miss
-libsdl-image1.2.
+And, for some optional features of openMSX, you need openGL support, runtime and
+development; i.e. you'll need packages like xlibmesa-dev and xlibmesa3 (see
+below in section 8). This can depend on your graphics hardware.
+
+Probably you even need some more, which I don't know by heart. They should all
+be needed as dependencies for the SDL and XML packages, though. And it should be
+checked by the configure scripts anyway.
 
 If you are very experienced in compiling stuff in Linux, you can skip the rest
 of this chapter and go to chapter 3. Others, please skip the next sentence.
@@ -189,7 +197,8 @@ usable. We will do something about this in chapter 5, however.
 
 First, get the needed roms for the emulator. You need the following roms:
 
-- an MSX2 rom (other emulators may call this MSX2.ROM, it contains the BIOS and BASIC, see below)
+- an MSX2 rom (other emulators may call this MSX2.ROM, it contains the BIOS and
+  BASIC, see below)
 - a disk rom (often called DISK.ROM)
 - the subrom (often called MSX2EXT.ROM)
 - and, optional, the 64kB FMPAC.ROM, if you would like to use the FM PAC.
@@ -199,14 +208,18 @@ You can download these e.g. at:
 http://www.file-hunter.com/systemroms.php?filename=msx2_21.rom
 http://www.file-hunter.com/systemroms.php?filename=msx2ext_20.rom (rename to nms8250-sub.rom)
 http://www.file-hunter.com/roms/disk.zip (rename to nms8250-disk.rom)
-
 http://www.file-hunter.com/systemroms.php?filename=fm_pac.rom
 
 The msx2_21.rom (like MSX2.ROM) contains both the bios and the basic. To be able
-to use this with OpenMSX, we have to split the roms, since openMSX wants to have
-them seperately.
+to use this with OpenMSX, we either have to split the roms, or we can modify the
+default config file we are going to use for the test a bit.
 
-Here's a way to do it:
+The first option: splitting. This requires some extra UNIX commands to get the
+right ROM files for our default config file. The advantage is that we don't need
+to modify the latter. The other option is explained below, but please keep on
+reading.
+
+Here's a way to do the splitting:
 
 dd if=msx2_21.rom of=nms8250-bios.rom ibs=16384 count=1
 dd if=msx2_21.rom of=nms8250-basic.rom ibs=16384 count=1 skip=1
@@ -214,14 +227,29 @@ dd if=msx2_21.rom of=nms8250-basic.rom ibs=16384 count=1 skip=1
 The resulting ROM files should be exactly 16384 bytes in size. If not, they will
 probably cause the emulated MSX to hang. Try to find a better MSX2.ROM.
 
-You can also get the ROMs from your real MSX of course. I'm not going to explain
-how to do that in this Howto though.
-
 Now that you have all roms, you can place them into the src/cfg directory for
 now. You noticed I let you rename the ROMs. This is because one of the default
 configuration files (which configs openMSX to emulate a Philips NMS-8250)
 assumes those names for the ROM files.
 
+If you don't want to split a BIOS+BASIC ROM file as is explained above, you can
+also use this combined file. For this, you will need to edit the default
+configuration file we are going to use, though. You will need to change the
+following in nms8250.xml (which is in src/cfg). Look for the line <device
+id="biosrom">. In the line with <parameter name="filename", a few lines below,
+replace the string nms-8250-bios.rom with the name of the 32kB ROM file you want
+to use (e.g.  MSX2.ROM). Then, go to the piece of XML just below that, which is
+starting with <device id="basicrom">. Do the same in this block; replace
+nms8250-basic.rom with the 32kB ROM file name (thus, MSX2.ROM e.g.). Then,
+insert the following line, after the just modified line:
+    <parameter name="skip_headerbytes">16384</parameter>
+This will tell openMSX to use the second 16kB of the specified file as BASIC
+ROM. Since we didn't change the other default filenames for the ROMs, copy your
+renamed ROM files (as described at above) and your 32kB BASIC+BIOS file (e.g.
+MSX2.ROM) to the directory src/cfg for now.
+
+You can also get the ROMs from your real MSX of course. I'm not going to explain
+how to do that in this Howto though.
 
 4. Starting the emulator for the first time
    ----------------------------------------
@@ -261,12 +289,15 @@ See also man gzexe.
 Because there's no 'make install' yet, you might want to install all stuff
 manually.  Here's how Manuel Bilderbeek does it.
 
-I assume you have a directory "bin" in your home dir, which is in your search path. This is where I install the compiled binary in. However, I rename it, to hagve multiple versions there (always nice to keep a back up binary!).
+I assume you have a directory "bin" in your home dir, which is in your search
+path. This is where I install the compiled binary in. However, I rename it, to
+hagve multiple versions there (always nice to keep a back up binary!).
 
 So, I do, from the src dir:
 cp openmsx ~/bin/openmsx-BUILD-DATE-i686.bin
 
-For BUILD-DATE I fill in something like 20020903. The i686 means that I used the ./config-i686 way to configure, see step 2.
+For BUILD-DATE I fill in something like 20020903. The i686 means that I used the
+./config-i686 way to configure, see section 2.
 
 I also created a "lib" directory in my homedir, in which I created an openMSX
 directory. In this ~/lib/openMSX directory I put my ROM files and the files from
@@ -307,7 +338,8 @@ drwx------    2 manuel   manuel       4096 Mar 26 21:32 ROMs/
 -rw-------    1 manuel   manuel      16384 Mar 26 21:32 nms8250-disk.rom
 -rw-------    1 manuel   manuel      16384 Mar 26 21:32 nms8250-sub.rom
 
-I don't have the nms8250.xml config file there, because I renamed it, since I changed the configuration completely. We'll do that later.
+I don't have the nms8250.xml config file there, because I renamed it, since I
+changed the configuration completely. We'll do that later.
 
 Note that the config syntax is still subject to changes, so XML files from one
 release may not be compatible with those of other releases. If you want to be
@@ -397,7 +429,7 @@ openmsx -help
 The default key mapping is:
 F12	- Quit
 F11	- Mute audio
-F10	- Console (see below)
+F10	- Console (see section 8) 
 F9	- Throttle (maximum speed)
 F8	- MSX STOP key
 F7	- MSX SELECT key
@@ -454,6 +486,10 @@ the files that are saved by the (real) FM-PAC commander's save option.
 After saving your config and running openMSX again, you should be able to get
 the FM PAC commander with CALL FMPAC in the emulated MSX!
 
+Note that you can also add a -fmpac switch to the command line. You won't be
+able to make detailed configuration settings then, but it should give you sound,
+at least.
+
 In a similar fashion, you can also add an MSX-Audio device (<device
 id="MSX-Audio">, note that some programs also need the MSX-Audio-Midi device to
 detect the Music Module; this device is at the moment not fully implemented
@@ -463,6 +499,9 @@ can not put two devices in the same (sub)slot! You may need to add a
 slotexpander, by simply setting a slot's subslotted parameter to "true" in the
 MotherBoard config tag at the top of the file. On the other hand, not all
 devices need a slot. An example is the MSX-Audio device.
+
+Note: the MSX Audio device can also be added by a -musmod switch on the command
+line. (And -mbstereo enables -fmpac and -musmod with stereo registration.)
 
 Some more things you may want to change:
 - the amount of RAM of the MSX: change the "size" parameter in the "Main RAM"
@@ -474,7 +513,7 @@ Some more things you may want to change:
 
 If you understand the basics of XML, you should be able to compose most of your MSX now!
 
-7. Using the emulator (more advanced)
+8. Using the emulator (more advanced)
    ----------------------------------
 
 Renderers
@@ -494,8 +533,11 @@ done by the graphics hardware, the CPU load can vary a lot. Also, you need to
 have the GLX module loaded in your X server and also accelerated graphics (DRI).
 You can verify this by typing 'glxinfo' on the command line. Direct rendering
 should be enabled to benefit from this renderer. GL also makes some effects
-easier: when using the SDLGL renderer, the screen is a bit blurred, to imitate
-a TV screen. This feature cannot be switched of at the moment. 
+easier: when using the SDLGL renderer, the screen is a bit blurred, to imitate a
+TV screen. This feature cannot be switched of at the moment. Note that the GL
+renderer is only available when the openGL development files (gl.h is one of
+them) were installed on the computer at compile time. This will be checked by
+the configure script.
 
 The third working renderer is called SDLLo. This renderer uses a window of only
 320 by 200 pixels, which means that part of the MSX screen will be omitted. An
@@ -517,6 +559,11 @@ change disk images, plug in joysticks or mice, switch renderers and to define
 key bindings. You can specify a background image and the font in the config file
 (<config id="Console">). The png files need an alpha channel (transparency
 information) though.
+With openMSX builds later than 2002-09-08, you can also set the graphical
+emulation accuracy. Try `help accuracy' in the Console. Setting accuracy to
+`pixel' enables very accurate graphics rendering (the Scope part in Unknown
+Reality will almost work perfectly), but may cause slowdowns, since this is not
+optimized yet.
 
 AutoCommands and KeyEventInserter
 
@@ -526,7 +573,7 @@ examples. The KeyEventInserter section can be used to have something typed into
 the MSX after it booted. Again, see the someconfig.xml file. Examine this file
 to learn what you can configure more.
 
-8. Reporting bugs and giving feedback
+9. Reporting bugs and giving feedback
    ----------------------------------
 
 Since openMSX is still in heavy development, feedback and bug reports are very
@@ -548,8 +595,8 @@ For experienced users: if you get a crash, try to provide a gdb backtrace
 In any case, try to give as much information as possible when you describe your
 bug or request.
 
-9. Some notes
-   ----------
+10. Some notes
+    ----------
 
 Note: current openMSX was only tested on Linux.  
 If you have some C++ knowledge, please try and compile it on other systems,
@@ -569,7 +616,7 @@ Note: to use a real disk, just specify "/dev/fd0" as a disk image. This is of
 course a Linux (Unix, actually) specific feature, but for now it is usable. It
 may be a bit slow though, with the FDC emulation enabled.
 
-10. Have fun!
+11. Have fun!
     ---------
 
 OK, that's it for this Howto. You should be able to use most of the openMSX
