@@ -3801,7 +3801,7 @@
     <remark></remark>
   </rom>
   <rom id="Rotors">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>d2560e3b7d4e137bdbba8426030d2f44</md5>
     <crc32>1cdb462e</crc32>
     <year>1984</year>
