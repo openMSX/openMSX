@@ -1,5 +1,9 @@
 $Id$
 
+2003-05-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* release openmsx-0.3.0
+	* added "mbstereo" extension
+
 2003-05-04 Maarten ter Huurne <maarten@treewalker.org>
 	* Swapped the threads: event handling now occurs in the main thread,
 	  emulation occurs in a worker thread. Inspired by Reikan's UOW32 patch.
