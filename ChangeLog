@@ -1,5 +1,9 @@
 $Id$
 
+2004-06-06 Manuel Bilderbeek <manuel@msxnet.org>
+	* Moved mode setting of the RTC to settings.xml
+	  (converter still needs to be updated)
+
 2004-06-03 Manuel Bilderbeek <manuel@msxnet.org>
 	* More config file renames: 
 	  - Audio -> MSX-AUDIO

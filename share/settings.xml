@@ -17,7 +17,7 @@
   <!--
     <type>SDLGL</type>
   -->
-    <full_screen>false</full_screen>
+    <full_screen>true</full_screen>
   </config>
 
  <!-- Audio mixer settings -->
@@ -29,6 +29,10 @@
     <samples>1024</samples>
    -->
     <samples>512</samples>
+  </config>
+
+  <config id="RTC">
+    <mode>EmuTime</mode>
   </config>
 
  <!-- Console font file, decorations and other settings -->

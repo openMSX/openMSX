@@ -9,6 +9,7 @@
 namespace openmsx {
 
 class RP5C01;
+class SettingsConfig;
 
 class MSXRTC : public MSXIODevice
 {
@@ -24,6 +25,7 @@ private:
 	RP5C01* rp5c01;
 	SRAM sram;
 	nibble registerLatch;
+	SettingsConfig& settingsConfig;
 };
 
 } // namespace openmsx
