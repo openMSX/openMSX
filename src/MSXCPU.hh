@@ -14,6 +14,8 @@ class MSXZ80;
 class MSXCPU : public MSXDevice 
 {
 	public:
+		enum CPUType { Z80 };	//, R800 };
+	
 		virtual ~MSXCPU();
 		static MSXCPU *instance();
 		
@@ -22,14 +24,11 @@ class MSXCPU : public MSXDevice
 		void setTargetTime(const Emutime &time);
 		void executeUntilTarget(const Emutime &time);
 		
-		void setActiveCPU(int cpu);
+		void setActiveCPU(CPUType cpu);
 		Emutime &getCurrentTime();
 		const Emutime &getTargetTime();
 
 	private:
-		static const int CPU_Z80 = 0;
-		static const int CPU_R800 = 1;
-	
 		MSXCPU();
 		static MSXCPU *oneInstance;
 		void executeUntilEmuTime(const Emutime &time); // prevent use

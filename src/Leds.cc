@@ -24,7 +24,7 @@ Leds* Leds::instance()
 Leds* Leds::oneInstance = NULL;
 
 
-void Leds::setLed(int led)
+void Leds::setLed(LEDCommand led)
 {
 	switch (led) {
 	case POWER_ON:
@@ -63,7 +63,5 @@ void Leds::setLed(int led)
 	case FDD_OFF:
 		PRT_INFO ("FDD LED OFF");
 		break;
-	default:
-		assert (false);
 	}
 }

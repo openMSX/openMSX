@@ -44,18 +44,16 @@ void MSXCPU::reset()
 }
 
 
-void MSXCPU::setActiveCPU(int cpu)
+void MSXCPU::setActiveCPU(CPUType cpu)
 {
-	MSXCPUDevice *newCPU;
+	MSXCPUDevice *newCPU = NULL;	// prevent warning
 	switch (cpu) {
-	case CPU_Z80:
+	case Z80:
 		newCPU = z80;
 		break;
-//	case CPU_R800:
+//	case R800:
 //		newCPU = r800;
 //		break;
-	default:
-		assert(false);
 	}
 	newCPU->setCurrentTime(activeCPU->getCurrentTime());
 	activeCPU = newCPU;
