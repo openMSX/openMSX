@@ -32,7 +32,7 @@ using std::max;
 using std::min;
 
 namespace openmsx {
-	
+
 // Force template instantiation:
 template class SDLRenderer<Uint8, Renderer::ZOOM_256>;
 template class SDLRenderer<Uint8, Renderer::ZOOM_REAL>;
@@ -965,7 +965,10 @@ void SDLRenderer<Pixel, zoom>::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {
 	if (fromX == 0 && limitX == VDP::TICKS_PER_LINE) {
-		if (LINE_ZOOM == 2) {
+		// TODO: Disabled this optimisation during interlace, because 
+		//       lineContent administration is available only for current
+		//       frame, not for previous frame, which led to glitches.
+		if (LINE_ZOOM == 2 && !interlaced) {
 			//fprintf(stderr, "saved: %d-%d\n", fromY, limitY);
 			//int endY = rect.y + rect.h;
 			//for (int y = rect.y; y < endY; y++) {
@@ -1195,8 +1198,8 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 	Pixel* pixelPtr = (Pixel*)(
 		(byte*)workScreen->pixels
 		+ screenY * workScreen->pitch
-		+ translateX(vdp->getLeftSprites(), vdp->getDisplayMode().getLineWidth() == 512)
-			* sizeof(Pixel)
+		+ translateX(vdp->getLeftSprites(),
+			vdp->getDisplayMode().getLineWidth() == 512) * sizeof(Pixel)
 		);
 	for (int y = fromY; y < limitY; y++) {
 		if (spriteMode == 1) {
