@@ -63,23 +63,30 @@ void MSXRomCLI::parse(const string& arg, const string& slotname)
 	string romfile;
 	string mapper;
 
-	int pos = arg.find_last_of(':');
-	if ((pos != -1 ) && (pos != 1)) { // fix for win (<drive>:<path>)
-		romfile = arg.substr(0, pos);
-		ipsfile = arg.substr(pos + 1);
-		hasips = true;
+	int firstpos = arg.find_first_of(',');
+	int lastpos = arg.find_last_of(',');
+//	cout << "firstpos:" << firstpos <<endl;
+//	cout << "lastpos:" << lastpos <<endl;
+	if (firstpos != -1 ) {
+		romfile = arg.substr(0, firstpos);
+		if (firstpos != lastpos) {
+			ipsfile = arg.substr(lastpos + 1);
+			hasips = true;
+		}
+		if (firstpos == lastpos){
+			mapper = arg.substr(lastpos + 1);
+		} else if (firstpos == (lastpos-1)){ // a ',,' found
+			mapper = "auto";
+		} else {
+			mapper = arg.substr(firstpos + 1, lastpos - firstpos -1);
+		}
 	} else {
 		romfile = arg;
 	}
+//	cout << "mapper:" << mapper<<endl;
+//	cout << "romfile:" << romfile <<endl;
+//	cout << "ispfile:" << ipsfile<<endl;
 
-	pos = romfile.find_last_of(',');
-	int pos2 = romfile.find_last_of('.');
-	if ((pos != -1) && (pos > pos2)) {
-		mapper = romfile.substr(pos + 1);
-		romfile = romfile.substr(0, pos);
-	} else {
-		mapper = "auto";
-	}
 	string sramfile = FileOperations::getFilename(romfile);
 
 	auto_ptr<XMLElement> primary(new XMLElement("primary"));

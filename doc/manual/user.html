@@ -43,6 +43,10 @@
 	<li><a class="internal" href="#media">4. Running Media</a>
 		<ol class="toc">
 			<li><a class="internal" href="#roms">4.1. Running ROM Software</a></li>
+				<ol class="toc">
+					<li><a class="internal" href="#regularroms">4.1. Running unmodified ROM software</a></li>
+					<li><a class="internal" href="#patchingroms">4.1.2 Running on-the-fly patched ROM software</a></li>
+				</ol>
 			<li><a class="internal" href="#disks">4.2. Running Disk Software</a>
 				<ol class="toc">
 					<li><a class="internal" href="#diskimages">4.2.1. Using Disk Images</a></li>
@@ -348,6 +352,8 @@ With this information, you can run most of the existing MSX software.
 
 <h3><a id="roms">4.1. Running ROM software</a></h3>
 
+<h4><a id="regularroms">4.1.1 Running unmodified ROM software</a></h4>
+
 <p>
 Suppose you want to run the ROM file <code>galious.rom</code>. Then you simply type:
 </p>
@@ -372,6 +378,15 @@ Or, maybe openMSX didn't have the ROM in the ROM database and failed auto detect
 <p>
 Note that in practice you won't need this, since most ROM images are in the database or auto detected if they are not. Also note that the ROM type names may change in future versions of openMSX.
 </p>
+<h4><a id="patchingroms">4.1.2 Running on-the-fly patched ROM software</a></h4>
+<p>
+If wanted openMSX can apply IPS patches to ROM software before running it. This way you do not need to alter any files. To apply an IPS patch you have to provide the IPS filename after the specification of the mapper type like this:
+</p>
+<div class="commandline">openmsx -cart galious.rom,KONAMI4,galiouspatch.ips</div>
+<p>
+If you want to rely on the auto detection of the mapper type, you can use the word 'auto' as mappertyper or simply enter no mapper type at all, like this:
+</p>
+<div class="commandline">openmsx -cart Mgearj.rom,,mgr_MODERN.ips</div>
 
 <h3><a id="disks">4.2. Running Disk Software</a></h3>
 
@@ -410,18 +425,39 @@ Disk images in XSA format are also supported, use them as regular disk images, b
 The DirAsDsk feature permits you to use a directory on your host computer's
 file system as a disk image for your emulated MSX.  Note that this has nothing
 to do with harddisk emulation. It simply creates a
-virtual 720kB disk image in memory from the files that are in the directory
+virtual disk structure in memory from the files that are in the directory
 that you specified as if it were a disk image. So: </p>
 <div class="commandline">
     openmsx -diska .
 </div>
 <p>
 will try to put all files of the current dir on a disk image in memory and
-start openMSX with it. Note that this feature is still very bare bones: it
-doesn't support sub directories and it skips all remaining files if the virtual
-disk is full. 
+start openMSX with it. The actual data is still read from/written to the files
+in your directory so that if you change the content of the files, these changes
+are immediately visible to the emulated MSX.  This way you can for instance
+edit source files with your favorite texteditor but compile them imediately in
+the emulated MSX.
 </p>
-<p>However, it can be of very much use: every change in files in that directory on the host OS is immediately reflected on the virtual disk! And if you save an existing file on that disk in the emulated MSX (without increasing the file size), the change is also reflected on the directory on the host OS! Very useful for cross platform development. Adding or deleting files on the host OS doesn't have any effect on the disk in openMSX and vice versa.
+<p>
+Adding files on the host OS doesn't have any effect on the disk in openMSX and
+vice versa.
+</p>
+<p>
+<b>Be carefull when writting to files from your emulated MSX.</b><br>
+If you save an existing file on that disk in the emulated MSX (without
+increasing the file size), the change is also reflected on the directory on the
+host OS!If the files are bigger then the original size then the extra data
+sectors needed will be stored in a hidden sector cache and the extra data will
+not be reflected in the host OS files !  When stopping the emulator, or
+ejecting the fake disk, this sector cache is written in the same directory as
+the orginal files, so that it can be loaded again when restarting the emulator.
+So if you use the dir-as-disk feature on a real floppy disk, changes are that
+you'll end up with a full disk when this cache is written!
+</p>
+<p>
+Note that this feature is willfully kept very bare bones: it
+doesn't support sub directories and it skips all remaining files if the virtual
+disk is full. It's main purpose is to facilitate cross platform development.
 </p>
 
 <h4><a id="realdisks">4.2.3. Using Real Disks</a></h4>
