@@ -10,8 +10,17 @@ CURDIR:=$(CURDIR)$(SUBDIR)
 
 # Initialise node vars with empty value.
 SUBDIRS:=
+DIST:=
 SRC_HDR:=
 SRC_ONLY:=
 HDR_ONLY:=
-DIST:=
+SRC_HDR_:=
+SRC_ONLY_:=
+HDR_ONLY_:=
+SRC_HDR_true:=
+SRC_ONLY_true:=
+HDR_ONLY_true:=
+SRC_HDR_false:=
+SRC_ONLY_false:=
+HDR_ONLY_false:=
 

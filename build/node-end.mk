@@ -3,11 +3,21 @@
 
 # Process this node.
 SOURCES_FULL+=$(sort \
-	$(addprefix $(CURDIR),$(addsuffix .cc,$(SRC_HDR) $(SRC_ONLY))) \
-	)
+	$(addprefix $(CURDIR),$(addsuffix .cc, \
+	$(SRC_HDR) $(SRC_HDR_true) $(SRC_ONLY) $(SRC_ONLY_true) \
+	)))
+DIST_FULL+=$(sort \
+	$(addprefix $(CURDIR),$(addsuffix .cc, \
+	$(SRC_HDR_) $(SRC_HDR_false) $(SRC_ONLY_) $(SRC_ONLY_false) \
+	)))
 HEADERS_FULL+=$(sort \
-	$(addprefix $(CURDIR),$(addsuffix .hh,$(SRC_HDR) $(HDR_ONLY))) \
-	)
+	$(addprefix $(CURDIR),$(addsuffix .hh, \
+	$(SRC_HDR) $(SRC_HDR_true) $(HDR_ONLY) $(HDR_ONLY_true) \
+	)))
+DIST_FULL+=$(sort \
+	$(addprefix $(CURDIR),$(addsuffix .hh, \
+	$(SRC_HDR_) $(SRC_HDR_false) $(HDR_ONLY_) $(HDR_ONLY_false) \
+	)))
 DIST_FULL+=$(sort \
 	$(addprefix $(CURDIR),$(DIST) node.mk) \
 	)
