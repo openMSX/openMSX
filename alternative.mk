@@ -21,27 +21,105 @@ NODEPEND_TARGETS:=clean config
 .PHONY: $(DEPEND_TARGETS) $(NODEPEND_TARGETS)
 
 
-# Flavours
+# Settings
 # ========
+#
+# There are platform specific settings and flavour specific settings.
+#   platform: architecture, OS
+#   flavour:  optimisation levels, debugging, profiling
+
+# Function to check a variable has been defined and has a non-empty value.
+# Usage: $(call DEFCHECK,VARIABLE_NAME)
+DEFCHECK=$(strip \
+	$(if $(filter _undefined,_$(origin $(1))), \
+		$(error Variable $(1) is undefined) ) \
+	)
 
 # Function to check a boolean variable has value "true" or "false".
 # Usage: $(call BOOLCHECK,VARIABLE_NAME)
-BOOLCHECK=$(if $(filter-out true false,$($(1))), \
-	$(error Value of $(1) ("$($(1))") should be "true" or "false") )
+BOOLCHECK=$(strip \
+	$(call DEFCHECK,$(1)) \
+	$(if $(filter-out _true _false,_$($(1))), \
+		$(error Value of $(1) ("$($(1))") should be "true" or "false") ) \
+	)
 
-# Default build flavour: probably the best for most users.
-OPENMSX_FLAVOUR?=i686
-
-BUILD_BASE:=derived
-BUILD_PATH:=$(BUILD_BASE)/$(OPENMSX_FLAVOUR)
-
-# Load flavour specific settings.
+# Will be added to by platform specific Makefile, by flavour specific Makefile
+# and by this Makefile.
+# Note: LDFLAGS are passed to the linker itself, LINK_FLAGS are passed to the
+#       compiler in the link phase.
 CXXFLAGS:=
 LDFLAGS:=
-include config-$(OPENMSX_FLAVOUR).mk
+LINK_FLAGS:=
+
+
+# Platforms
+# =========
+
+# Note:
+# A platform currently specifies both the host platform (performing the build)
+# and the target platform (running the created binary). When we have real
+# experience with cross-compilation, a more sophisticated system can be
+# designed.
+
+# Default platform: probably most CVS users will have this.
+OPENMSX_PLATFORM?=linux-x86
+
+# Load platform specific settings.
+include platform-$(OPENMSX_PLATFORM).mk
+
+# Check that all expected variables were defined by platform specific Makefile:
+# - executable file name extension
+$(call DEFCHECK,EXEEXT)
+# - library names
+$(call DEFCHECK,LIBS_PLAIN)
+$(call DEFCHECK,LIBS_CONFIG)
+# - flavour (user selectable; platform specific default)
+$(call DEFCHECK,OPENMSX_FLAVOUR)
+# - platform supports symlinks?
+$(call BOOLCHECK,USE_SYMLINK)
+
+
+# Flavours
+# ========
+
+# Load flavour specific settings.
+include flavour-$(OPENMSX_FLAVOUR).mk
+
+
+# Filesets
+# ========
+
+BUILD_BASE:=derived
+BUILD_PATH:=$(BUILD_BASE)/$(OPENMSX_PLATFORM)-$(OPENMSX_FLAVOUR)
+
+SOURCES_PATH:=src
+# TODO: Use node.mk system for building sources list.
+SOURCES_FULL:=$(sort $(shell find $(SOURCES_PATH)/$(OPENMSX_SUBSET) -name "*.cc"))
+SOURCES_FULL:=$(filter-out $(SOURCES_PATH)/debugger/Debugger.cc,$(SOURCES_FULL))
+SOURCES_FULL:=$(filter-out $(SOURCES_PATH)/thread/testCondVar.cc,$(SOURCES_FULL))
+SOURCES_FULL:=$(filter-out $(SOURCES_PATH)/libxmlx/xmlxdump.cc,$(SOURCES_FULL))
+SOURCES:=$(SOURCES_FULL:$(SOURCES_PATH)/%.cc=%)
+
+HEADERS_FULL:=$(sort $(shell find $(SOURCES_PATH)/$(OPENMSX_SUBSET) -name "*.hh"))
+HEADERS:=$(HEADERS_FULL:$(SOURCES_PATH)/%=%)
+
+DEPEND_PATH:=$(BUILD_PATH)/dep
+DEPEND_FULL:=$(addsuffix .d,$(addprefix $(DEPEND_PATH)/,$(SOURCES)))
+
+OBJECTS_PATH:=$(BUILD_PATH)/obj
+OBJECTS_FULL:=$(addsuffix .o,$(addprefix $(OBJECTS_PATH)/,$(SOURCES)))
+
+BINARY_PATH:=$(BUILD_PATH)/bin
+BINARY_FULL:=$(BINARY_PATH)/openmsx$(EXEEXT)
+
+LOG_PATH:=$(BUILD_PATH)/log
+
+
+# Compiler and Flags
+# ==================
 
 # Determine compiler.
-OPENMSX_CXX?=g++
+$(call DEFCHECK,OPENMSX_CXX)
 CXX:=$(OPENMSX_CXX)
 
 # Use precompiled headers?
@@ -74,41 +152,6 @@ ifeq ($(OPENMSX_STRIP),true)
   LDFLAGS+=--strip-all
 endif
 
-
-# Filesets
-# ========
-
-SOURCES_PATH:=src
-# TODO: Use node.mk system for building sources list.
-SOURCES_FULL:=$(sort $(shell find $(SOURCES_PATH)/$(OPENMSX_SUBSET) -name "*.cc"))
-SOURCES_FULL:=$(filter-out $(SOURCES_PATH)/debugger/Debugger.cc,$(SOURCES_FULL))
-SOURCES_FULL:=$(filter-out $(SOURCES_PATH)/thread/testCondVar.cc,$(SOURCES_FULL))
-SOURCES_FULL:=$(filter-out $(SOURCES_PATH)/libxmlx/xmlxdump.cc,$(SOURCES_FULL))
-SOURCES:=$(SOURCES_FULL:$(SOURCES_PATH)/%.cc=%)
-
-HEADERS_FULL:=$(sort $(shell find $(SOURCES_PATH)/$(OPENMSX_SUBSET) -name "*.hh"))
-HEADERS:=$(HEADERS_FULL:$(SOURCES_PATH)/%=%)
-
-DEPEND_PATH:=$(BUILD_PATH)/dep
-DEPEND_FULL:=$(addsuffix .d,$(addprefix $(DEPEND_PATH)/,$(SOURCES)))
-
-OBJECTS_PATH:=$(BUILD_PATH)/obj
-OBJECTS_FULL:=$(addsuffix .o,$(addprefix $(OBJECTS_PATH)/,$(SOURCES)))
-
-BINARY_PATH:=$(BUILD_PATH)/bin
-BINARY_FULL:=$(BINARY_PATH)/openmsx
-
-LOG_PATH:=$(BUILD_PATH)/log
-
-# Libraries that do not have a lib-config script.
-LIBS_PLAIN:=stdc++ SDL_image GL
-# Libraries that have a lib-config script.
-LIBS_CONFIG:=xml2 sdl
-
-
-# Compile and Link Flags
-# ======================
-
 # Generic compilation flags.
 CXXFLAGS+=-pipe
 # Stricter warning and error reporting.
@@ -121,13 +164,9 @@ INCLUDE_FLAGS+=$(foreach lib,$(LIBS_CONFIG),$(shell $(lib)-config --cflags))
 
 # Determine link flags.
 LINK_FLAGS_PREFIX:=-Wl,
-LINK_FLAGS:=$(addprefix $(LINK_FLAGS_PREFIX),$(LDFLAGS))
+LINK_FLAGS+=$(addprefix $(LINK_FLAGS_PREFIX),$(LDFLAGS))
 LINK_FLAGS+=$(addprefix -l,$(LIBS_PLAIN))
 LINK_FLAGS+=$(foreach lib,$(LIBS_CONFIG),$(shell $(lib)-config --libs))
-ifeq ($(OPENMSX_FLAVOUR),gcc34)
-# TODO: Temp to force g++ 3.4-pre to pick up the right libs.
-LINK_FLAGS:=-L/opt/gcc-cvs/lib $(LINK_FLAGS)
-endif
 
 
 # Build Rules
@@ -139,9 +178,10 @@ all: config $(BINARY_FULL)
 
 config:
 	@echo "Build configuration:"
-	@echo "  Flavour: $(OPENMSX_FLAVOUR)"
-	@echo "  Profile: $(OPENMSX_PROFILE)"
-	@echo "  Subset:  $(if $(OPENMSX_SUBSET),$(OPENMSX_SUBSET),full build)"
+	@echo "  Platform: $(OPENMSX_PLATFORM)"
+	@echo "  Flavour:  $(OPENMSX_FLAVOUR)"
+	@echo "  Profile:  $(OPENMSX_PROFILE)"
+	@echo "  Subset:   $(if $(OPENMSX_SUBSET),$(OPENMSX_SUBSET),full build)"
 
 # Include dependency files.
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
@@ -173,8 +213,12 @@ $(BINARY_FULL): $(OBJECTS_FULL)
 ifeq ($(OPENMSX_SUBSET),)
 	@echo "Linking $(notdir $@)..."
 	@mkdir -p $(@D)
-	@$(CXX) -o $@ $(CXXFLAGS) $(LINK_FLAGS) $^
+	@$(CXX) -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
+  ifeq ($(USE_SYMLINK),true)
 	@ln -sf $(@:$(BUILD_BASE)/%=%) $(BUILD_BASE)/$(notdir $@)
+  else
+	@cp $@ $(BUILD_BASE)
+  endif
 else
 	@echo "Not linking $(notdir $@) because only a subset was built."
 endif
