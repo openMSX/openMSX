@@ -12,14 +12,17 @@ class EventListener
 		virtual void signalEvent(SDL_Event &event) = 0;
 };
 
-class EventDistributor 
+class EventDistributor : public EventListener
 {
 	public:
-		~EventDistributor();
+		virtual ~EventDistributor();
 		static EventDistributor *instance();
 
 		void run();
 		void registerListener(int type, EventListener *listener);
+
+		// EventListener
+		void signalEvent(SDL_Event &event);
 
 	private:
 		EventDistributor();

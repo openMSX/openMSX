@@ -4,6 +4,7 @@ $Id$
 	* made sperate thread for event handler
 	  other classes can ask EventDistributor to receive specific events
 	* adapted Inputs for new event model
+	* respond to SDL_QUIT event
 
 2001-09-23 Joost Yervante Damad <j.damad@qahwah.net>
 	*  various small fixes

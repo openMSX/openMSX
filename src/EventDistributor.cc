@@ -5,6 +5,7 @@
 
 EventDistributor::EventDistributor()
 {
+	registerListener(SDL_QUIT, this);
 }
 
 EventDistributor::~EventDistributor()
@@ -38,5 +39,14 @@ void EventDistributor::registerListener(int type, EventListener *listener)
 {
 	//TODO lock map
 	map.insert(pair<int, EventListener*>(type, listener));
+}
+
+
+//EventListener
+
+void EventDistributor::signalEvent(SDL_Event &event)
+{
+	//TODO: more clean shutdown
+	exit(1);
 }
 
