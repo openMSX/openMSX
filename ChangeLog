@@ -1,5 +1,8 @@
 $Id$
 
+2004-11-08 Joost Damad <joost@lumatec.be>
+	* updated debian/rules: fixes by Goedson Teixeira Paixao
+
 2004-11-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* a few small improvements
 	* clear ram on power off/on
@@ -69,7 +72,6 @@ $Id$
 2004-10-19 Joost Damad <joost@lumatec.be>
 	* sync with debian/
 	* updated manpage and control file
-	* support for using ccache to possibly speed up build
 	* support for cleaning up CVS/ dirs for "install" and "dist"; still
 	  commented out
 
