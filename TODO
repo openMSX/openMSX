@@ -17,8 +17,10 @@
  - xmlconfig save support
  - support for saving states of devices
  - http support
- - settings.xml with own DTD?
- - do key bindings in a seperate file, not with autocommands
+ - settings.xml should get its own doctype and DTD:
+   it is essentially different from hardware descriptions.
+ - Key bindings are currently stored in settings.xml, which is the right place.
+   However, they are still stored as autocommands, which is not good.
  - The following settings should be added to settings.xml:
    (Note that you can use AutoCommands in settings.xml to do this also,
    so this may be obsolete!)
@@ -33,7 +35,18 @@
    + Mixer settings
  - The following Console commands need to be converted to a settings command:
    + renderer
-   
+ - Currently a ROM file name passed on the command line is used to generate
+   XML in memory which is later used to create a Rom object. However, this
+   complicates the process of gathering the ROM meta info in RomInfo, because
+   different action has to be taken on ROMs from the command line and ROMs
+   from the machine description.
+   It would be better to skip the XML creation and just pass the ROM file name
+   to the Rom constructor.
+   When parsing the machine decription XML, incomplete ROM info should not
+   be tolerated. So essential info like id (name) and mapper type should be
+   mandatory. Other info such as manufacturer and year is desirable, but not
+   essential.
+
 * build
  - auto* improvement
  - C++ standard compliancy (gcc-3.0 e.g.)
