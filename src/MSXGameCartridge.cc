@@ -318,9 +318,9 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		//  first  16kb: 0x6000 - 0x67FF (0x6000 used)
 		//  second 16kb: 0x7000 - 0x77FF (0x7000 and 0x77FF used)
 
-		if (address<0x6000 || address>=0x7800 || address&0x800) return;
+		if (address<0x6000 || address>=0x7800 || (address&0x800)) return;
 		region = ((address>>11)&2)+2;
-		value &= (2*value)&mapperMask;
+		value = (2*value)&mapperMask;
 		setBank(region,   memoryBank+(value<<13));
 		setBank(region+1, memoryBank+(value<<13)+0x2000);
 		break;
