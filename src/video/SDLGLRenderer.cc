@@ -1001,12 +1001,13 @@ void SDLGLRenderer::drawDisplay(
 	// TODO: Complete separation of character and bitmap modes.
 	glEnable(GL_TEXTURE_2D);
 	if (mode.isBitmapMode()) {
+		// Bring bitmap cache up to date.
 		if (mode.isPlanar()) {
 			renderPlanarBitmapLines(displayY, displayHeight);
 		} else {
 			renderBitmapLines(displayY, displayHeight);
 		}
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
 		// Which bits in the name mask determine the page?
 		bool deinterlaced = settings->getDeinterlace()->getValue()
 			&& vdp->isInterlaced() && vdp->isEvenOddEnabled();
@@ -1018,6 +1019,9 @@ void SDLGLRenderer::drawDisplay(
 			pageMaskEven = pageMaskOdd =
 				(mode.isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 		}
+		
+		// Copy from cache to screen.
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		for (int y = screenY; y < screenLimitY; y += 2) {
 			int vramLine[2];
 			vramLine[0] = (vram->nameTable.getMask() >> 7)
