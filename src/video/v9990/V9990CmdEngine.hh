@@ -184,6 +184,10 @@ private:
 	  */
 	byte data;
 
+	/** Bit counter for CMMx commands
+	  */
+	byte bitsLeft;
+
 	/** All commands
 	  */
 	V9990Cmd *commands[16][BP2 + 1];
@@ -195,7 +199,7 @@ private:
 	/** Command parameters
 	  */
 	word SX, SY, DX, DY, NX, NY;
-	word fgCol, bgCol;
+	word WM, fgCol, bgCol;
 	byte ARG, CMD, LOG;
 
 	/** VRAM read/write address for xMMC and xMCM commands

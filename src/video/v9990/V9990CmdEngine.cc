@@ -240,20 +240,22 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
 		LOG = value & 0x1F;
 		break;
 	case 14: // write mask low
+		WM = (WM & 0xFF00) | value;
 		break;
 	case 15: // write mask high
+		WM = (WM & 0x00FF) | (value << 8);
 		break;
 	case 16: // Font color - FG low
 		fgCol = (fgCol & 0xFF00) | value;
 		break;
 	case 17: // Font color - FG high
-		fgCol = (fgCol & 0xFF) | (value << 8);
+		fgCol = (fgCol & 0x00FF) | (value << 8);
 		break;
 	case 18: // Font color - BG low
 		bgCol = (bgCol & 0xFF00) | value;
 		break;
 	case 19: // Font color - BG high
-		bgCol = (bgCol & 0xFF) | (value << 8);
+		bgCol = (bgCol & 0x00FF) | (value << 8);
 		break;
 	case 20: // CMD
 	{
@@ -340,6 +342,7 @@ void V9990CmdEngine::CmdLMMC<Mode>::start(const EmuTime& time)
 	          " NX=" << std::dec << engine->NX <<
 	          " NY=" << std::dec << engine->NY <<
 	          " ARG="<< std::hex << (int)engine->ARG <<
+	          " WM=" << std::hex << engine->WM <<
 	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
 
 	engine->address = Mode::addressOf(engine->DX,
@@ -427,6 +430,7 @@ void V9990CmdEngine::CmdLMMV<Mode>::start(const EmuTime& time)
 	          " NX=" << std::dec << engine->NX <<
 	          " NY=" << std::dec << engine->NY <<
 	          " ARG="<< std::hex << (int)engine->ARG <<
+	          " WM=" << std::hex << engine->WM <<
 	          " COL="<< std::hex << engine->fgCol <<
 	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
 
@@ -513,6 +517,7 @@ void V9990CmdEngine::CmdLMMM<Mode>::start(const EmuTime& time)
 	          " NY=" << std::dec << engine->NY <<
 	          " ARG="<< std::hex << (int)engine->ARG <<
 	          " LOG="<< std::hex << (int)engine->LOG <<
+	          " WM=" << std::hex << engine->WM <<
 	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
 
 	engine->ANX = engine->NX;
@@ -615,13 +620,67 @@ V9990CmdEngine::CmdCMMM<Mode>::CmdCMMM(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdCMMM<Mode>::start(const EmuTime& time)
 {
-	std::cout << "V9990: CMMM not yet implemented" << std::endl;
-	engine->cmdReady(); // TODO dummy implementation
+	engine->address = (engine->SX & 0xFF) + ((engine->SY & 0x3FF) << 8);
+
+	PRT_DEBUG("CMMM: ADR=0x" << std::hex << engine->address <<
+	          " DX=" << std::dec << engine->DX <<
+	          " DY=" << std::dec << engine->DY <<
+	          " NX=" << std::dec << engine->NX <<
+	          " NY=" << std::dec << engine->NY <<
+	          " ARG="<< std::hex << (int)engine->ARG <<
+	          " WM=" << std::hex << engine->WM <<
+	          " FC=" << std::hex << engine->fgCol <<
+	          " BC=" << std::hex << engine->bgCol <<
+	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
+
+	engine->ANX = engine->NX;
+	engine->ANY = engine->NY;
+	engine->bitsLeft = 0;
+
+	// TODO should be done by sync
+	execute(time);
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdCMMM<Mode>::execute(const EmuTime& time)
 {
+	// TODO can be optimized a lot
+	
+	int width = engine->vdp->getImageWidth();
+	if (Mode::PIXELS_PER_BYTE) {
+		// hack to avoid "warning: division by zero"
+		int ppb = Mode::PIXELS_PER_BYTE; 
+		width /= ppb;
+	}
+	int dx = (engine->ARG & 0x04) ? -1 : 1;
+	int dy = (engine->ARG & 0x08) ? -1 : 1;
+	while (true) {
+		if (!engine->bitsLeft) {
+			engine->data = vram->readVRAM(engine->address++);
+			engine->bitsLeft = 8;
+		}
+		--engine->bitsLeft;
+		bool bit = engine->data & 0x80;
+		engine->data <<= 1;
+		
+		word src = bit ? engine->fgCol : engine->bgCol;
+		word dest = Mode::point(vram, engine->DX, engine->DY, width);
+		dest = engine->logOp(Mode::shiftDown(src, engine->DX),
+		                     dest, Mode::MASK);
+		Mode::pset(vram, engine->DX, engine->DY, width, dest);
+		
+		engine->DX += dx;
+		if (!--(engine->ANX)) {
+			engine->DX -= (engine->NX * dx);
+			engine->DY += dy;
+			if (!--(engine->ANY)) {
+				engine->cmdReady();
+				return;
+			} else {
+				engine->ANX = engine->NX;
+			}
+		}
+	}
 }
 
 // ====================================================================

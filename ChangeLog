@@ -10,6 +10,7 @@ $Id$
 	   - implemented PSET cmd  shifter:
 	      shifter part in calculus now shows something, colors are still
 	      wrong because of missing WriteMask(?) in commands
+	   - implemented CMMM cmd (but not verified that it actually works)
 
 2004-12-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Tried to make the gfx900 parts in calculus work (not yet succeeded)
