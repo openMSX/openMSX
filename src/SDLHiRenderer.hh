@@ -8,9 +8,9 @@
 #include "Renderer.hh"
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
-#include "EmuTime.hh"
-#include "VDP.hh"
 
+class EmuTime;
+class VDP;
 class VDPVRAM;
 class SpriteChecker;
 class SDLConsole;
@@ -59,9 +59,8 @@ public:
 	void updateVRAM(int addr, byte data, const EmuTime &time);
 
 private:
-	// TODO: Now that "until" is here, "limit" becomes obsolete.
 	typedef void (SDLHiRenderer::*PhaseHandler)
-		(int line, int limit, const EmuTime &until);
+		(int line, int limit);
 	typedef void (SDLHiRenderer::*DirtyChecker)
 		(int addr, byte data, const EmuTime &time);
 
@@ -78,9 +77,9 @@ private:
 	  */
 	inline void renderUntil(const EmuTime &time);
 
-	inline void renderBitmapLines(byte line, const EmuTime &until);
-	inline void renderPlanarBitmapLines(byte line, const EmuTime &until);
-	inline void renderCharacterLines(byte line, const EmuTime &until);
+	inline void renderBitmapLines(byte line, int count);
+	inline void renderPlanarBitmapLines(byte line, int count);
+	inline void renderCharacterLines(byte line, int count);
 
 	/** Get width of the left border in pixels.
 	  * This is equal to the X coordinate of the display area.
@@ -109,15 +108,17 @@ private:
 
 	/** Render in background colour.
 	  * Used for borders and during blanking.
-	  * @param limit Render lines [currentLine..limit).
+	  * @param line First line to render.
+	  * @param limit Last line to render (exclusive).
 	  */
-	void blankPhase(int line, int limit, const EmuTime &until);
+	void blankPhase(int line, int limit);
 
 	/** Render pixels according to VRAM.
 	  * Used for the display part of scanning.
-	  * @param limit Render lines [currentLine..limit).
+	  * @param line First line to render.
+	  * @param limit Last line to render (exclusive).
 	  */
-	void displayPhase(int line, int limit, const EmuTime &until);
+	void displayPhase(int line, int limit);
 
 	/** Dirty checking that does nothing (but is a valid method).
 	  */
@@ -158,10 +159,6 @@ private:
 	/** The sprite checker whose sprites are rendered.
 	  */
 	SpriteChecker *spriteChecker;
-
-	/** Current time: the moment up until when the rendering is emulated.
-	  */
-	EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
 
 	/** SDL colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,

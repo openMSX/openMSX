@@ -49,14 +49,13 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 template <class Pixel> inline void SDLHiRenderer<Pixel>::renderUntil(
 	const EmuTime &time)
 {
-	// TODO: This is still line based.
-	//       First move is to replace nextLine by currentTime.
+	// TODO: Also calculate position within a line.
 	int limit =
 		(vdp->getTicksThisFrame(time) + VDP::TICKS_PER_LINE - 400)
 		/ VDP::TICKS_PER_LINE;
 	assert(limit <= (vdp->isPalTiming() ? 313 : 262));
 	if (nextLine < limit) {
-		(this->*phaseHandler)(nextLine, limit, time);
+		(this->*phaseHandler)(nextLine, limit);
 		nextLine = limit ;
 	}
 }
@@ -104,12 +103,12 @@ template <class Pixel> inline Pixel SDLHiRenderer<Pixel>::getBorderColour()
 }
 
 template <class Pixel> inline void SDLHiRenderer<Pixel>::renderBitmapLines(
-	byte line, const EmuTime &until)
+	byte line, int count)
 {
 	int mode = vdp->getDisplayMode();
 	// Which bits in the name mask determine the page?
 	int pageMask = 0x200 | vdp->getEvenOddMask();
-	do {
+	while (count--) {
 		// TODO: Optimise addr and line; too many connversions right now.
 		int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
 		if (lineValidInMode[vramLine] != mode) {
@@ -119,18 +118,17 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderBitmapLines(
 				getLinePtr(bitmapDisplayCache, vramLine), vramPtr );
 			lineValidInMode[vramLine] = mode;
 		}
-		line = (line + 1) & 0xFF;
-		currentTime += VDP::TICKS_PER_LINE;
-	} while (currentTime < until);
+		line++; // is a byte, so wraps at 256
+	}
 }
 
 template <class Pixel> inline void SDLHiRenderer<Pixel>::renderPlanarBitmapLines(
-	byte line, const EmuTime &until)
+	byte line, int count)
 {
 	int mode = vdp->getDisplayMode();
 	// Which bits in the name mask determine the page?
 	int pageMask = vdp->getEvenOddMask();
-	do {
+	while (count--) {
 		// TODO: Optimise addr and line; too many connversions right now.
 		int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
 		if ( lineValidInMode[vramLine] != mode
@@ -145,21 +143,19 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderPlanarBitmapLines
 			lineValidInMode[vramLine] =
 				lineValidInMode[vramLine | 512] = mode;
 		}
-		line = (line + 1) & 0xFF;
-		currentTime += VDP::TICKS_PER_LINE;
-	} while (currentTime < until);
+		line++; // is a byte, so wraps at 256
+	}
 }
 
 template <class Pixel> inline void SDLHiRenderer<Pixel>::renderCharacterLines(
-	byte line, const EmuTime &until)
+	byte line, int count)
 {
-	do {
+	while (count--) {
 		// Render this line.
 		characterConverter.convertLine(
 			getLinePtr(charDisplayCache, line), line);
-		line = (line + 1) & 0xFF;
-		currentTime += VDP::TICKS_PER_LINE;
-	} while (currentTime < until);
+		line++; // is a byte, so wraps at 256
+	}
 }
 
 template <class Pixel> SDLHiRenderer<Pixel>::DirtyChecker
@@ -206,7 +202,6 @@ template <class Pixel> SDLHiRenderer<Pixel>::DirtyChecker
 template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	VDP *vdp, SDL_Surface *screen, bool fullScreen, const EmuTime &time)
 	: Renderer(fullScreen)
-	, currentTime(time)
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256)
 {
@@ -671,10 +666,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
-	int line, int limit, const EmuTime &until)
+	int line, int limit)
 {
-	currentTime += (limit - line) * VDP::TICKS_PER_LINE;
-
 	// TODO: Only redraw if necessary.
 	SDL_Rect rect;
 	rect.x = 0;
@@ -692,11 +685,12 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
-	int fromLine, int limit, const EmuTime &until)
+	int fromLine, int limit)
 {
 	//cerr << "displayPhase from " << fromLine << " until " << limit << "\n";
 
 	// Check for bottom erase; even on overscan this suspends display.
+	/*
 	if (limit > lineBottomErase) {
 		limit = lineBottomErase;
 	}
@@ -704,6 +698,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		limit = lineRenderTop + HEIGHT / 2;
 	}
 	if (fromLine >= limit) return;
+	*/
 
 	// Perform vertical scroll.
 	byte scrolledLine =
@@ -720,11 +715,12 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	}
 	// Render background lines.
 	// TODO: Complete separation of character and bitmap modes.
+	int lineCount = limit - fromLine;
 	if (vdp->isBitmapMode()) {
-		if (vdp->isPlanar()) renderPlanarBitmapLines(scrolledLine, until);
-		else renderBitmapLines(scrolledLine, until);
+		if (vdp->isPlanar()) renderPlanarBitmapLines(scrolledLine, lineCount);
+		else renderBitmapLines(scrolledLine, lineCount);
 	} else {
-		renderCharacterLines(scrolledLine, until);
+		renderCharacterLines(scrolledLine, lineCount);
 	}
 	// Unlock surface.
 	if (SDL_MUSTLOCK(displayCache)) SDL_UnlockSurface(displayCache);
@@ -831,19 +827,13 @@ template <class Pixel> void SDLHiRenderer<Pixel>::putImage(
 	const EmuTime &time)
 {
 	// Render changes from this last frame.
-	if (time < currentTime) {
-		std::cout << "Rendered into next frame's time: "
-			<< (currentTime - time)
-			<< "\n";
-	}
 	sync(time);
 
 	// Render console if needed
 	console->drawConsole();
 
 	// Update screen.
-	// Note: return value ignored.
-	SDL_Flip(screen);
+	SDL_UpdateRect(screen, 0, 0, 0, 0);
 
 	// The screen will be locked for a while, so now is a good time
 	// to perform real time sync.
@@ -852,8 +842,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::putImage(
 
 Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 {
-	int flags = SDL_HWSURFACE | SDL_DOUBLEBUF
-		| (fullScreen ? SDL_FULLSCREEN : 0);
+	int flags = SDL_HWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
 
 	// Try default bpp.
 	SDL_Surface *screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);

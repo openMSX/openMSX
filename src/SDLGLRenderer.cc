@@ -98,14 +98,13 @@ inline void SDLGLRenderer::setDisplayMode(int mode)
 
 inline void SDLGLRenderer::renderUntil(const EmuTime &time)
 {
-	// TODO: This is still line based.
-	//       First move is to replace nextLine by currentTime.
+	// TODO: Also calculate position within a line.
 	int limit =
 		(vdp->getTicksThisFrame(time) + VDP::TICKS_PER_LINE - 400)
 		/ VDP::TICKS_PER_LINE;
 	assert(limit <= (vdp->isPalTiming() ? 313 : 262));
 	if (nextLine < limit) {
-		(this->*phaseHandler)(nextLine, limit, time);
+		(this->*phaseHandler)(nextLine, limit);
 		nextLine = limit ;
 	}
 }
@@ -151,12 +150,12 @@ inline SDLGLRenderer::Pixel SDLGLRenderer::getBorderColour()
 }
 
 inline void SDLGLRenderer::renderBitmapLines(
-	byte line, const EmuTime &until)
+	byte line, int count)
 {
 	int mode = vdp->getDisplayMode();
 	// Which bits in the name mask determine the page?
 	int pageMask = 0x200 | vdp->getEvenOddMask();
-	do {
+	while (count--) {
 		// TODO: Optimise addr and line; too many connversions right now.
 		int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
 		if (lineValidInMode[vramLine] != mode) {
@@ -166,18 +165,17 @@ inline void SDLGLRenderer::renderBitmapLines(
 				getLinePtr(bitmapDisplayCache, vramLine), vramPtr );
 			lineValidInMode[vramLine] = mode;
 		}
-		line = (line + 1) & 0xFF;
-		currentTime += VDP::TICKS_PER_LINE;
-	} while (currentTime < until);
+		line++; // is a byte, so wraps at 256
+	}
 }
 
 inline void SDLGLRenderer::renderPlanarBitmapLines(
-	byte line, const EmuTime &until)
+	byte line, int count)
 {
 	int mode = vdp->getDisplayMode();
 	// Which bits in the name mask determine the page?
 	int pageMask = vdp->getEvenOddMask();
-	do {
+	while (count--) {
 		// TODO: Optimise addr and line; too many connversions right now.
 		int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
 		if ( lineValidInMode[vramLine] != mode
@@ -192,21 +190,19 @@ inline void SDLGLRenderer::renderPlanarBitmapLines(
 			lineValidInMode[vramLine] =
 				lineValidInMode[vramLine | 512] = mode;
 		}
-		line = (line + 1) & 0xFF;
-		currentTime += VDP::TICKS_PER_LINE;
-	} while (currentTime < until);
+		line++; // is a byte, so wraps at 256
+	}
 }
 
 inline void SDLGLRenderer::renderCharacterLines(
-	byte line, const EmuTime &until)
+	byte line, int count)
 {
-	do {
+	while (count--) {
 		// Render this line.
 		characterConverter.convertLine(
 			getLinePtr(charDisplayCache, line), line);
-		line = (line + 1) & 0xFF;
-		currentTime += VDP::TICKS_PER_LINE;
-	} while (currentTime < until);
+		line++; // is a byte, so wraps at 256
+	}
 }
 
 SDLGLRenderer::DirtyChecker
@@ -253,7 +249,6 @@ SDLGLRenderer::DirtyChecker
 SDLGLRenderer::SDLGLRenderer(
 	VDP *vdp, SDL_Surface *screen, bool fullScreen, const EmuTime &time)
 	: Renderer(fullScreen)
-	, currentTime(time)
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256)
 {
@@ -678,11 +673,11 @@ void SDLGLRenderer::drawSprites(
 }
 
 void SDLGLRenderer::blankPhase(
-	int line, int limit, const EmuTime &until)
+	int fromLine, int limit)
 {
 	// TODO: Only redraw if necessary.
 	GLSetColour(getBorderColour());
-	int y1 = (nextLine - lineRenderTop) * 2;
+	int y1 = (fromLine - lineRenderTop) * 2;
 	int y2 = (limit - lineRenderTop) * 2;
 	glBegin(GL_QUADS);
 	glVertex2i(0, y1); // top left
@@ -693,9 +688,9 @@ void SDLGLRenderer::blankPhase(
 }
 
 void SDLGLRenderer::displayPhase(
-	int fromLine, int limit, const EmuTime &until)
+	int fromLine, int limit)
 {
-	//cerr << "displayPhase from " << nextLine << " until " << limit << "\n";
+	//cerr << "displayPhase from " << fromLine << " until " << limit << "\n";
 
 	// Check for bottom erase; even on overscan this suspends display.
 	if (limit > lineBottomErase) {
@@ -704,7 +699,7 @@ void SDLGLRenderer::displayPhase(
 	if (limit > lineRenderTop + HEIGHT / 2) {
 		limit = lineRenderTop + HEIGHT / 2;
 	}
-	if (nextLine >= limit) return;
+	if (fromLine >= limit) return;
 
 	// GL render settings.
 	glDisable(GL_BLEND);
@@ -716,18 +711,18 @@ void SDLGLRenderer::displayPhase(
 
 	// Perform vertical scroll.
 	int scrolledLine =
-		(nextLine - vdp->getLineZero() + vdp->getVerticalScroll()) & 0xFF;
+		(fromLine - vdp->getLineZero() + vdp->getVerticalScroll()) & 0xFF;
 
 	// Render background lines.
 	// TODO: Complete separation of character and bitmap modes.
 	int leftBorder = getLeftBorder();
-	int y = (nextLine - lineRenderTop) * 2;
+	int y = (fromLine - lineRenderTop) * 2;
 	if (vdp->isBitmapMode()) {
 		int line = scrolledLine;
-		int n = limit - nextLine;
+		int n = limit - fromLine;
 		bool planar = vdp->isPlanar();
-		if (planar) renderPlanarBitmapLines(line, until);
-		else renderBitmapLines(line, until);
+		if (planar) renderPlanarBitmapLines(line, n);
+		else renderBitmapLines(line, n);
 		// Which bits in the name mask determine the page?
 		int pageMask =
 			(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
@@ -753,8 +748,8 @@ void SDLGLRenderer::displayPhase(
 		} while (--n);
 	} else {
 		int line = scrolledLine;
-		int n = limit - nextLine;
-		renderCharacterLines(line, until);
+		int n = limit - fromLine;
+		renderCharacterLines(line, n);
 		do {
 			/*
 			(this->*renderMethod)
@@ -776,7 +771,7 @@ void SDLGLRenderer::displayPhase(
 	source.h = 1;
 	SDL_Rect dest;
 	dest.x = getLeftBorder();
-	dest.y = (nextLine - lineRenderTop) * 2;
+	dest.y = (fromLine - lineRenderTop) * 2;
 	int line = scrolledLine;
 	int pageMaskEven, pageMaskOdd;
 	if (vdp->isInterlaced() && vdp->isEvenOddEnabled()) {
@@ -786,7 +781,7 @@ void SDLGLRenderer::displayPhase(
 		pageMaskEven = pageMaskOdd = pageMask;
 	}
 	// TODO: Optimise.
-	for (int n = limit - nextLine; n--; ) {
+	for (int n = limit - fromLine; n--; ) {
 		source.y =
 			( vdp->isBitmapMode()
 			? (vdp->getNameMask() >> 7) & (pageMaskEven | line)
@@ -813,7 +808,7 @@ void SDLGLRenderer::displayPhase(
 	// Render sprites.
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GEQUAL, 0.5f);
-	for (int line = nextLine; line < limit; line++) {
+	for (int line = fromLine; line < limit; line++) {
 		drawSprites(line);
 	}
 	glDisable(GL_ALPHA_TEST);
@@ -823,7 +818,7 @@ void SDLGLRenderer::displayPhase(
 	// this is implemented using overdraw.
 	// TODO: Does the extended border clip sprites as well?
 	GLSetColour(getBorderColour());
-	int y1 = (nextLine - lineRenderTop) * 2;
+	int y1 = (fromLine - lineRenderTop) * 2;
 	int y2 = (limit - lineRenderTop) * 2;
 	glBegin(GL_QUADS);
 	// Left border:
@@ -867,11 +862,6 @@ void SDLGLRenderer::frameStart(const EmuTime &time)
 void SDLGLRenderer::putImage(const EmuTime &time)
 {
 	// Render changes from this last frame.
-	if (time < currentTime) {
-		std::cout << "Rendered into next frame's time: "
-			<< (currentTime - time)
-			<< "\n";
-	}
 	sync(time);
 
 	// Render console if needed

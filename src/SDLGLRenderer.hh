@@ -13,7 +13,6 @@
 #include "Renderer.hh"
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
-#include "VDP.hh"
 
 #ifdef HAVE_GL_GL_H
 #include <GL/gl.h>
@@ -21,8 +20,10 @@
 #include <gl.h>
 #endif
 
-class SpriteChecker;
+class EmuTime;
+class VDP;
 class VDPVRAM;
+class SpriteChecker;
 
 /** Factory method to create SDLGLRenderer objects.
   * TODO: Add NTSC/PAL selection
@@ -71,7 +72,7 @@ public:
 
 private:
 	typedef void (SDLGLRenderer::*PhaseHandler)
-		(int line, int limit, const EmuTime &until);
+		(int line, int limit);
 	typedef void (SDLGLRenderer::*DirtyChecker)
 		(int addr, byte data, const EmuTime &time);
 
@@ -88,9 +89,9 @@ private:
 	  */
 	inline void renderUntil(const EmuTime &time);
 
-	inline void renderBitmapLines(byte line, const EmuTime &until);
-	inline void renderPlanarBitmapLines(byte line, const EmuTime &until);
-	inline void renderCharacterLines(byte line, const EmuTime &until);
+	inline void renderBitmapLines(byte line, int count);
+	inline void renderPlanarBitmapLines(byte line, int count);
+	inline void renderCharacterLines(byte line, int count);
 
 	/** Precalc several values that depend on the display mode.
 	  * @param mode The new display mode: M5..M1.
@@ -124,15 +125,17 @@ private:
 
 	/** Render in background colour.
 	  * Used for borders and during blanking.
-	  * @param limit Render lines [currentLine..limit).
+	  * @param line First line to render.
+	  * @param limit Last line to render (exclusive).
 	  */
-	void blankPhase(int line, int limit, const EmuTime &until);
+	void blankPhase(int line, int limit);
 
 	/** Render pixels according to VRAM.
 	  * Used for the display part of scanning.
-	  * @param limit Render lines [currentLine..limit).
+	  * @param line First line to render.
+	  * @param limit Last line to render (exclusive).
 	  */
-	void displayPhase(int line, int limit, const EmuTime &until);
+	void displayPhase(int line, int limit);
 
 	/** Dirty checking that does nothing (but is a valid method).
 	  */
@@ -173,10 +176,6 @@ private:
 	/** The sprite checker whose sprites are rendered.
 	  */
 	SpriteChecker *spriteChecker;
-
-	/** Current time: the moment up until when the rendering is emulated.
-	  */
-	EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
 
 	/** RGB colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,
