@@ -1,5 +1,8 @@
 $Id$
 
+2004-06-03 Maarten ter Huurne <maarten@treewalker.org>
+	* Simplified code which stores and draws previous frame in SDLGL.
+
 2004-06-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed creation of internal datastructures to match the new XML format
 	* Removed deprecated device PanasonicRom
@@ -10,6 +13,10 @@ $Id$
 	    update of the converter, please fix this for me)
 	  - renamed Rom to ROM, PanasonicRom to PanasonicROM and PanasonicRam
 	    to PanasonicRAM and updated the converter for these changes
+
+2004-06-01 Maarten ter Huurne <maarten@treewalker.org>
+	* Wrote a converter script that updates old configurations to the new
+	  format: share/scripts/convert_hardwareconfig.py
 
 2004-06-01 Manuel Bilderbeek <manuel@msxnet.org>
 	* Corrected ASCII table for 'type' command for international layout

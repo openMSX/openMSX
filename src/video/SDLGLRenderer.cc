@@ -152,21 +152,6 @@ inline static void GLDrawColourBlock(GLuint textureId, int x, int y)
 	glEnd();
 }
 
-inline static void GLDrawBlur(int offsetX, int offsetY, float alpha)
-{
-	int left = offsetX;
-	int right = offsetX + 1024;
-	int top = HEIGHT - 512 + offsetY;
-	int bottom = HEIGHT + offsetY;
-	glColor4f(1.0, 1.0, 1.0, alpha);
-	glBegin(GL_QUADS);
-	glTexCoord2i(0, 1); glVertex2i(left, top);
-	glTexCoord2i(1, 1); glVertex2i(right, top);
-	glTexCoord2i(1, 0); glVertex2i(right, bottom);
-	glTexCoord2i(0, 0); glVertex2i(left, bottom);
-	glEnd();
-}
-
 /** Translate from absolute VDP coordinates to screen coordinates:
   * Note: In reality, there are only 569.5 visible pixels on a line.
   *       Because it looks better, the borders are extended to 640.
@@ -188,27 +173,17 @@ void SDLGLRenderer::finishFrame()
 	// Glow effect.
 	// Must be applied before storedImage is updated.
 	int glowSetting = settings.getGlow()->getValue();
-	if (glowSetting != 0 && prevStored) {
-		// Draw stored image.
-		glEnable(GL_TEXTURE_2D);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	if (glowSetting != 0 && storedFrame.isStored()) {
 		// Note:
 		// 100% glow means current frame has no influence at all.
 		// Values near 100% may have the same effect due to rounding.
 		// This formula makes sure that on 15bpp R/G/B value 0 can still pull
 		// down R/G/B value 31 of the previous frame.
-		GLDrawBlur(0, 0, glowSetting * 31 / 3200.0);
-		glDisable(GL_BLEND);
-		glDisable(GL_TEXTURE_2D);
+		storedFrame.drawBlend(0, 0, glowSetting * 31 / 3200.0);
 	}
 
 	// Store current frame as a texture.
-	glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
-	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 1024, 512, 0);
-	prevStored = true;
+	storedFrame.store();
 
 	// Avoid repainting the buffer by putImage.
 	frameDirty = false;
@@ -255,16 +230,7 @@ int SDLGLRenderer::putPowerOffImage()
 
 void SDLGLRenderer::putImage()
 {
-	if (frameDirty) {
-		// Copy stored image to screen.
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-		// Note: Without blending enabled, this method is rather efficient.
-		GLDrawBlur(0, 0, 1.0);
-		glDisable(GL_TEXTURE_2D);
-	}
-
+	if (frameDirty) storedFrame.draw(0, 0);
 	drawRest();
 	frameDirty = true; // drawRest made it dirty...
 }
@@ -295,24 +261,17 @@ void SDLGLRenderer::drawEffects()
 		// Settings for blur rendering.
 		float blurFactor = blurSetting / 200.0;
 		if (!scanlines) blurFactor *= 0.5;
-		glEnable(GL_TEXTURE_2D);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		if (horizontalBlur) {
 			// Draw stored frame with 1-pixel offsets to create a
 			// horizontal blur.
-			// TODO: Create display list(s).
-			GLDrawBlur(-1,  0, blurFactor / (1.0 - blurFactor));
-			GLDrawBlur( 1,  0, blurFactor);
+			storedFrame.drawBlend(-1,  0, blurFactor / (1.0 - blurFactor));
+			storedFrame.drawBlend( 1,  0, blurFactor);
 		}
 		if (scanlines) {
-			// Make the dark line contains the average of the visible lines
+			// Make the dark line contain the average of the visible lines
 			// above and below it.
-			GLDrawBlur( 0, -1, 0.5);
+			storedFrame.drawBlend( 0, -1, 0.5);
 		}
-		glDisable(GL_TEXTURE_2D);
 	}
 
 	// Scanlines effect.
@@ -332,8 +291,8 @@ void SDLGLRenderer::drawEffects()
 			glVertex2f(0, y + 1.5); glVertex2f(WIDTH, y + 1.5);
 		}
 		glEnd();
+		glDisable(GL_BLEND);
 	}
-	glDisable(GL_BLEND);
 }
 
 // TODO: Cache this?
@@ -471,12 +430,6 @@ SDLGLRenderer::SDLGLRenderer(
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
-	// Stored image:
-	glGenTextures(1, &storedImageTextureId);
-	glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	prevStored = false;
 
 	// create noise texture.
 	byte buf[128 * 128];
@@ -504,13 +457,14 @@ SDLGLRenderer::SDLGLRenderer(
 	vram->colourTable.setObserver(&dirtyColour);
 
 #ifdef __WIN32__
-	// Find our current location
+	// Find our current location...
 	HWND handle = GetActiveWindow();
 	RECT windowRect;
-	GetWindowRect (handle, &windowRect);
-	// and adjust if needed
-	if ((windowRect.right < 0) || (windowRect.bottom < 0)){
-		SetWindowPos(handle, HWND_TOP,lastWindowX,lastWindowY,0,0,SWP_NOSIZE);
+	GetWindowRect(handle, &windowRect);
+	// ...and adjust if needed.
+	if ((windowRect.right < 0) || (windowRect.bottom < 0)) {
+		SetWindowPos(
+			handle, HWND_TOP, lastWindowX, lastWindowY, 0, 0, SWP_NOSIZE );
 	}
 #endif
 }
@@ -518,15 +472,15 @@ SDLGLRenderer::SDLGLRenderer(
 SDLGLRenderer::~SDLGLRenderer()
 {
 #ifdef __WIN32__
-	// Find our current location
-	if ((screen->flags & SDL_FULLSCREEN) == 0){
+	// Find our current location.
+	if ((screen->flags & SDL_FULLSCREEN) == 0) {
 		HWND handle = GetActiveWindow();
 		RECT windowRect;
-		GetWindowRect (handle, &windowRect);
+		GetWindowRect(handle, &windowRect);
 		lastWindowX = windowRect.left;
 		lastWindowY = windowRect.top;
 	}
-#endif	
+#endif
 	
 	// Unregister caches with VDPVRAM.
 	vram->patternTable.resetObserver();

@@ -211,12 +211,8 @@ private:
 	/** ID of texture that stores rendered frame.
 	  * Used for effects and for putStoredImage.
 	  */
-	GLuint storedImageTextureId;
+	StoredFrame storedFrame;
 	GLuint noiseTextureId;
-
-	/** Was the previous frame image stored?
-	  */
-	bool prevStored;
 
 	/** Is the frame buffer dirty?
 	  */
