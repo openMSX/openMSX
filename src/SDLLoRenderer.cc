@@ -139,6 +139,12 @@ template <class Pixel> void SDLLoRenderer<Pixel>::setFullScreen(
 	}
 }
 
+template <class Pixel> void SDLLoRenderer<Pixel>::updateTransparency(
+	bool enabled, const EmuTime &time)
+{
+	// SDLLoRenderer does not currently support V9938 features.
+}
+
 template <class Pixel> void SDLLoRenderer<Pixel>::updateForegroundColour(
 	int colour, const EmuTime &time)
 {

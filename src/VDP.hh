@@ -131,6 +131,13 @@ public:
 		}
 	}
 
+	/** Gets the current transparency setting.
+	  * @return True iff colour 0 is transparent.
+	  */
+	inline bool getTransparency() {
+		return (controlRegs[8] & 0x20) == 0;
+	}
+
 	/** Gets the current foreground colour.
 	  * @return Colour value [0..15].
 	  */
@@ -239,6 +246,13 @@ public:
 	inline int getSprites(int line, SpriteInfo *&visibleSprites) {
 		visibleSprites = spriteBuffer[line];
 		return spriteCount[line];
+	}
+
+	/** Gets the current vertical scroll (line displayed at Y=0).
+	  * @return Vertical scroll register value.
+	  */
+	inline byte getVerticalScroll() {
+		return controlRegs[23];
 	}
 
 	/** Get VRAM access timing info.

@@ -35,6 +35,7 @@ public:
 
 	void putImage();
 	void setFullScreen(bool);
+	void updateTransparency(bool enabled, const EmuTime &time);
 	void updateForegroundColour(int colour, const EmuTime &time);
 	void updateBackgroundColour(int colour, const EmuTime &time);
 	void updateBlinkState(bool enabled, const EmuTime &time);
@@ -60,6 +61,7 @@ private:
 	void renderText2(int line);
 	void renderGraphic1(int line);
 	void renderGraphic2(int line);
+	void renderGraphic5(int line);
 	void renderMulti(int line);
 	void renderMultiQ(int line);
 	void renderBogus(int line);

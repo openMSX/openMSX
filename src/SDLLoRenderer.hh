@@ -33,6 +33,7 @@ public:
 
 	void putImage();
 	void setFullScreen(bool);
+	void updateTransparency(bool enabled, const EmuTime &time);
 	void updateForegroundColour(int colour, const EmuTime &time);
 	void updateBackgroundColour(int colour, const EmuTime &time);
 	void updateBlinkState(bool enabled, const EmuTime &time);

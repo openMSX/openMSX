@@ -84,7 +84,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::RenderMethod
 		&SDLHiRenderer::renderBogus,
 		&SDLHiRenderer::renderBogus,
 		// M5 M4 = 1 0
-		&SDLHiRenderer::renderBogus, // renderGraphic5
+		&SDLHiRenderer::renderGraphic5,
 		&SDLHiRenderer::renderBogus,
 		&SDLHiRenderer::renderBogus,
 		&SDLHiRenderer::renderBogus,
@@ -233,6 +233,18 @@ template <class Pixel> void SDLHiRenderer<Pixel>::setFullScreen(
 	}
 }
 
+template <class Pixel> void SDLHiRenderer<Pixel>::updateTransparency(
+	bool enabled, const EmuTime &time)
+{
+	// Set the right palette for pixels of colour 0.
+	palFg[0] = palBg[enabled ? vdp->getBackgroundColour() : 0];
+	// Any line containing pixels of colour 0 must be repainted.
+	// We don't know which lines contain such pixels,
+	// so we have to repaint them all.
+	anyDirtyColour = true;
+	fillBool(dirtyColour, true, sizeof(dirtyColour));
+}
+
 template <class Pixel> void SDLHiRenderer<Pixel>::updateForegroundColour(
 	int colour, const EmuTime &time)
 {
@@ -243,13 +255,15 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateBackgroundColour(
 	int colour, const EmuTime &time)
 {
 	dirtyBackground = true;
-	// Transparent pixels have background colour.
-	palFg[0] = palBg[colour];
-	// Any line containing transparent pixels must be repainted.
-	// We don't know which lines contain transparent pixels,
-	// so we have to repaint them all.
-	anyDirtyColour = true;
-	fillBool(dirtyColour, true, sizeof(dirtyColour));
+	if (vdp->getTransparency()) {
+		// Transparent pixels have background colour.
+		palFg[0] = palBg[colour];
+		// Any line containing pixels of colour 0 must be repainted.
+		// We don't know which lines contain such pixels,
+		// so we have to repaint them all.
+		anyDirtyColour = true;
+		fillBool(dirtyColour, true, sizeof(dirtyColour));
+	}
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updateBlinkState(
@@ -567,6 +581,23 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic2(
 	}
 }
 
+template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic5(
+	int line)
+{
+	Pixel *pixelPtr = cacheLinePtrs[line];
+
+	int scrolledLine = (line + vdp->getVerticalScroll()) & 0xFF;
+	int addr = vdp->getNameMask() & (0x18000 | (scrolledLine << 7));
+	int addrEnd = addr + 128;
+	for (; addr < addrEnd; addr++) {
+		byte colour = vdp->getVRAM(addr);
+		*pixelPtr++ = palFg[colour >> 6];
+		*pixelPtr++ = palFg[(colour >> 4) & 3];
+		*pixelPtr++ = palFg[(colour >> 2) & 3];
+		*pixelPtr++ = palFg[colour & 3];
+	}
+}
+
 template <class Pixel> void SDLHiRenderer<Pixel>::renderMulti(
 	int line)
 {
@@ -731,8 +762,15 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 		if (rect.h > 0) {
 			rect.y *= 2;
 			rect.h *= 2;
+			// SCREEN6 has separate even/odd pixels in the border.
+			// TODO: Implement the case that even_colour != odd_colour.
+			Pixel bgColour = palBg[
+				( vdp->getDisplayMode() == 0x10
+				? vdp->getBackgroundColour() & 3
+				: vdp->getBackgroundColour()
+				)];
 			// Note: return code ignored.
-			SDL_FillRect(screen, &rect, palBg[vdp->getBackgroundColour()]);
+			SDL_FillRect(screen, &rect, bgColour);
 		}
 		currLine = limit;
 	}
@@ -799,8 +837,15 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
-	for (int line = currLine; line < limit; line++) {
-		drawSprites(line - LINE_DISPLAY);
+	if (vdp->getDisplayMode() < 8) {
+		// Sprite mode 1 (MSX1).
+		for (int line = currLine; line < limit; line++) {
+			drawSprites(line - LINE_DISPLAY);
+		}
+	}
+	else {
+		// Sprite mode 2 (MSX2).
+		// TODO: Implement.
 	}
 	// Unlock surface.
 	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
@@ -809,7 +854,14 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	// V9958 can extend the left border over the display area,
 	// this is implemented using overdraw.
 	// TODO: Does the extended border clip sprites as well?
-	Pixel bgColour = palBg[vdp->getBackgroundColour()];
+
+	// SCREEN6 has separate even/odd pixels in the border.
+	// TODO: Implement the case that even_colour != odd_colour.
+	Pixel bgColour = palBg[
+		( vdp->getDisplayMode() == 0x10
+		? vdp->getBackgroundColour() & 3
+		: vdp->getBackgroundColour()
+		)];
 	dest.x = 0;
 	dest.y = (currLine - LINE_RENDER_TOP) * 2;
 	dest.w = DISPLAY_X;

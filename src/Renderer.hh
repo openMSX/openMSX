@@ -43,6 +43,12 @@ public:
 	  */
 	virtual void setFullScreen(bool) = 0;
 
+	/** Informs the renderer of a VDP transparency enable/disable change.
+	  * @param enabled The new transparency state.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	virtual void updateTransparency(bool enabled, const EmuTime &time) = 0;
+
 	/** Informs the renderer of a VDP foreground colour change.
 	  * @param colour The new foreground colour.
 	  * @param time The moment in emulated time this change occurs.
@@ -115,7 +121,7 @@ public:
 	  * TODO: Maybe this is a performance problem, if so think of a
 	  *   smarter way to update (for example, subscribe to VRAM
 	  *   address regions).
-	  * @param addr The address that is changed.
+	  * @param addr The address that will change.
 	  * @param data The new value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
