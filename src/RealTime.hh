@@ -19,20 +19,26 @@ class RealTime : private Schedulable, private SettingListener
 public:
 	static RealTime& instance();
 
-	/**
-	 * Convert EmuTime to RealTime and vice versa
-	 */
+	/** Convert EmuTime to RealTime.
+	  */
 	float getRealDuration(const EmuTime& time1, const EmuTime& time2);
+	
+	/** Convert RealTime to EmuTime.
+	  */
 	EmuDuration getEmuDuration(float realDur);
 
-	
+	/** Check that there is enough real time left before we reach as certain
+	  * point in emulated time.
+	  * @param us Real time duration is micro seconds.
+	  * @param time Point in emulated time.
+	  */
 	bool timeLeft(unsigned us, const EmuTime& time);
-	/**
-	 * Synchronize EmuTime with RealTime, normally this is done
-	 * automatically, but some devices have additional information
-	 * and can indicate 'good' moments to sync, eg: VDP can call
-	 * this method at the end of each frame.
-	 */
+	
+	/** Synchronize EmuTime with RealTime.
+	  * @param time The current emulation time.
+	  * @param allowSleep Is this method allowed to sleep, typically the
+	  *                   result of a previous call to timeLeft() is passed.
+	  */
 	void sync(const EmuTime& time, bool allowSleep);
 
 private:
