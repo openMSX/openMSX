@@ -209,6 +209,11 @@ void MSXTMS9928a::reset()
 	readAhead = 0;
 	firstByte = -1;
 
+	nameBase = ~(-1 << 10);
+	colourBase = ~(-1 << 6);
+	patternBase = ~(-1 << 11);
+	spriteAttributeBase = 0;
+	spritePatternBase = 0;
 	spriteAttributeBasePtr = vramData;
 	spritePatternBasePtr = vramData;
 
@@ -309,6 +314,7 @@ void MSXTMS9928a::writeIO(byte port, byte value, EmuTime &time)
 {
 	switch (port){
 	case 0x98: {
+		//fprintf(stderr, "VRAM[%04X]=%02X\n", vramPointer, value);
 		if (vramData[vramPointer] != value) {
 			vramData[vramPointer] = value;
 			renderer->updateVRAM(vramPointer, value, time);
@@ -385,81 +391,51 @@ void MSXTMS9928a::changeRegister(byte reg, byte val, EmuTime &time)
 	switch (reg) {
 	case 0:
 		if ((val ^ oldval) & 2) {
-			// Re-calculate masks and pattern generator & colour.
-			if (val & 2) {
-				int colourMask = (controlRegs[3] & 0x7f) * 8 | 7;
-				renderer->updateColourBase(
-					((controlRegs[3] & 0x80) * 64) & vramMask,
-					colourMask,
-					time
-					);
-				renderer->updatePatternBase(
-					((controlRegs[4] & 4) * 2048) & vramMask,
-					(controlRegs[4] & 3) * 256 | (colourMask & 255),
-					time
-					);
-			}
-			else {
-				renderer->updateColourBase(
-					(controlRegs[3] * 64) & vramMask, -1, time);
-				renderer->updatePatternBase(
-					(controlRegs[4] * 2048) & vramMask, -1, time);
-			}
 			updateDisplayMode(time);
 		}
 		break;
 	case 1:
-		// check for changes in the INT line
 		if ((val & 0x20) && (statusReg & 0x80)) {
-			/* Set the interrupt line !! */
 			setInterrupt();
 		}
-		updateDisplayMode(time);
+		if ((val ^ oldval) & 0x18) {
+			updateDisplayMode(time);
+		}
 		if ((val ^ oldval) & 0x40) {
-			renderer->updateBlanking((val & 0x40) == 0, time);
+			renderer->updateDisplayEnabled(time);
 		}
 		break;
 	case 2:
-		renderer->updateNameBase((val * 1024) & vramMask, time);
+		nameBase = ((val << 10) | ~(-1 << 10)) & vramMask;
+		renderer->updateNameBase(time);
 		break;
 	case 3:
-		if (controlRegs[0] & 2) {
-			renderer->updateColourBase(
-				((val & 0x80) * 64) & vramMask,
-				(val & 0x7f) * 8 | 7,
-				time
-				);
-		}
-		else {
-			renderer->updateColourBase((val * 64) & vramMask, -1, time);
-		}
+		colourBase = ((val << 6) | ~(-1 << 6)) & vramMask;
+		renderer->updateColourBase(time);
 		break;
 	case 4:
-		if (controlRegs[0] & 2) {
-			renderer->updatePatternBase(
-				((val & 4) * 2048) & vramMask,
-				(val & 3) * 256 | 255,
-				time
-				);
-		}
-		else {
-			renderer->updatePatternBase((val * 2048) & vramMask, -1, time);
-		}
+		patternBase = ((val << 11) | ~(-1 << 11)) & vramMask;
+		renderer->updatePatternBase(time);
 		break;
 	case 5: {
-		int addr = (val * 128) & vramMask;
-		spriteAttributeBasePtr = vramData + addr;
-		renderer->updateSpriteAttributeBase(addr, time);
+		spriteAttributeBase = (val << 7) & vramMask;
+		spriteAttributeBasePtr = vramData + spriteAttributeBase;
+		renderer->updateSpriteAttributeBase(time);
 		break;
 	}
 	case 6: {
-		int addr = (val * 2048) & vramMask;
-		spritePatternBasePtr = vramData + addr;
-		renderer->updateSpritePatternBase(addr, time);
+		spritePatternBase = (val << 11) & vramMask;
+		spritePatternBasePtr = vramData + spritePatternBase;
+		renderer->updateSpritePatternBase(time);
 		break;
 	}
 	case 7:
-		renderer->updateBackgroundColour(val & 0x0F, time);
+		if ((val ^ oldval) & 0xF0) {
+			renderer->updateForegroundColour(time);
+		}
+		if ((val ^ oldval) & 0x0F) {
+			renderer->updateBackgroundColour(time);
+		}
 		break;
 	}
 }
@@ -478,7 +454,7 @@ void MSXTMS9928a::updateDisplayMode(EmuTime &time)
 		| ((controlRegs[1] & 0x08) >> 1);
 	if (newMode != displayMode) {
 		displayMode = newMode;
-		renderer->updateDisplayMode(newMode, time);
+		renderer->updateDisplayMode(time);
 		printf("TMS9928A: mode %s\n", MODE_STRINGS[newMode]);
 	}
 }
