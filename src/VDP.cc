@@ -403,7 +403,7 @@ void VDP::frameStart(const EmuTime &time)
 	// TODO: Interlace is effectuated in border height, according to
 	//       the data book. Exactly when is the fixation point?
 	palTiming = controlRegs[9] & 0x02;
-	interlaced = controlRegs[9] & 0x04;
+	interlaced = controlRegs[9] & 0x08;
 	verticalAdjust = (controlRegs[18] >> 4) ^ 0x07;
 
 	// Blinking.

@@ -1,5 +1,10 @@
 $Id$
 
+2002-08-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* SDLGLRenderer:
+	   small cleanups
+	   when interlaced, display odd fields half a line lower
+
 2002-08-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* FDC supports 2 drives
 

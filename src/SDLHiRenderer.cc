@@ -789,7 +789,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	// Borders are drawn after the display area:
 	// V9958 can extend the left border over the display area,
 	// this is implemented using overdraw.
-	// TODO: Does the extended border clip sprites as well?
+	// The extended border clips sprites as well.
 	Pixel bgColour = getBorderColour();
 	dest.x = 0;
 	dest.y = fromY * 2;

@@ -820,10 +820,10 @@ void SDLGLRenderer::setDirty(
 	fillBool(dirtyPattern, dirty, sizeof(dirtyPattern) / sizeof(bool));
 }
 
-void SDLGLRenderer::drawSprites(int absLine)
+void SDLGLRenderer::drawSprites(int screenLine)
 {
 	// Check whether this line is inside the host screen.
-	int screenLine = (absLine - lineRenderTop) * 2;
+	int absLine = screenLine / 2 + lineRenderTop;
 
 	// Determine sprites visible on this line.
 	SpriteChecker::SpriteInfo *visibleSprites;
@@ -1070,9 +1070,11 @@ void SDLGLRenderer::displayPhase(
 	assert(fromX < limitX);
 	//PRT_DEBUG("DisplayPhase: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
 
-	int y1 = fromY * 2;
-	int y2 = limitY * 2 + 2;
 	int n = limitY - fromY + 1;
+	int y1 = fromY * 2;
+	if (vdp->isInterlaced() && vdp->getEvenOdd())
+		y1++;
+	int y2 = y1 + 2 * n;
 
 	// V9958 can extend the left border over the display area,
 	// The extended border clips sprites as well.
@@ -1128,7 +1130,7 @@ void SDLGLRenderer::displayPhase(
 		default:
 			renderCharacterLines(line, n);
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-			for (int y=y1; y < y2; y += 2) {
+			for (int y = y1; y < y2; y += 2) {
 				GLDrawTexture(charTextureIds[line], leftBorder, y);
 				line++;	// wraps at 256
 			}
@@ -1141,8 +1143,8 @@ void SDLGLRenderer::displayPhase(
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glPixelZoom(2.0, 2.0);
-	for (int line = fromY; line <= limitY; line++) {
-		drawSprites(lineRenderTop + line);
+	for (int y = y1; y < y2; y += 2) {
+		drawSprites(y);
 	}
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);

@@ -282,6 +282,13 @@ public:
 		return controlRegs[9] & 4;
 	}
 
+	/** Is the even or odd field being displayed?
+	  * @return True iff this field should be displayed half a line lower.
+	  */
+	inline bool getEvenOdd() {
+		return statusReg2 & 2;
+	}
+
 	/** Expresses the state of even/odd page interchange in a mask
 	  * on the line number. If even/off interchange is active, for some
 	  * frames lines 256..511 (page 1) are replaced by 0..255 (page 0)
