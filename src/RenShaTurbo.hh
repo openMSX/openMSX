@@ -3,7 +3,10 @@
 #ifndef __RENSHATURBO_HH__
 #define __RENSHATURBO_HH__
 
+#include <memory>
 #include "openmsx.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -38,8 +41,7 @@ private:
 	~RenShaTurbo();
 
 	// The Autofire circuit
-	Autofire* autofire;
-	SettingsConfig& settingsConfig;
+	auto_ptr<Autofire> autofire;
 };
 
 } // namespace openmsx

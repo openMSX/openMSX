@@ -38,28 +38,13 @@ void MSXConfig::handleDoc(const XMLDocument& doc, FileContext& context)
 				throw ConfigException(
 					"<config> or <device> is missing 'id'");
 			}
-			if (hasConfigWithId(id)) {
+			if (findConfigById(id)) {
 				throw ConfigException(
 				    "<config> or <device> with duplicate 'id':" + id);
 			}
 			loadConfig(**it, context);
 		}
 	}
-}
-
-bool MSXConfig::hasConfigWithId(const string& id)
-{
-	return findConfigById(id);
-}
-
-Config* MSXConfig::getConfigById(const string& id)
-{
-	Config* result = findConfigById(id);
-	if (!result) {
-		throw ConfigException("<config> or <device> with id:" + id +
-		                      " not found");
-	}
-	return result;
 }
 
 Config* MSXConfig::findConfigById(const string& id)

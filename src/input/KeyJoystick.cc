@@ -28,18 +28,17 @@ KeyJoystick::KeyJoystick()
 	buttonAKey = Keys::K_NONE;
 	buttonBKey = Keys::K_NONE;
 
-	try {
-		Config* config = SettingsConfig::instance().getConfigById("KeyJoystick");
+	Config* config = SettingsConfig::instance().findConfigById("KeyJoystick");
+	if (config) {
 		upKey      = getConfigKeyCode("upkey",      config);
 		rightKey   = getConfigKeyCode("rightkey",   config);
 		downKey    = getConfigKeyCode("downkey",    config);
 		leftKey    = getConfigKeyCode("leftkey",    config);
 		buttonAKey = getConfigKeyCode("buttonakey", config);
 		buttonBKey = getConfigKeyCode("buttonbkey", config);
-	} catch (ConfigException& e) {
+	} else {
 		CliCommOutput::instance().printWarning(
 			"KeyJoystick not configured, so it won't be usable...");
-		return;
 	}
 }
 

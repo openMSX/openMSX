@@ -46,9 +46,13 @@ CommandConsole::CommandConsole()
 	eventDistributor.registerEventListener(KEY_UP_EVENT,   *this,
 	                                       EventDistributor::NATIVE);
 	putPrompt();
-	Config* config = settingsConfig.getConfigById("Console");
-	maxHistory = config->getParameterAsInt("historysize", 100);
-	removeDoubles = config->getParameterAsBool("removedoubles", true);
+	maxHistory = 100;
+	removeDoubles = true;
+	Config* config = settingsConfig.findConfigById("Console");
+	if (config) {
+		maxHistory = config->getParameterAsInt("historysize", maxHistory);
+		removeDoubles = config->getParameterAsBool("removedoubles", removeDoubles);
+	}
 	loadHistory();
 	commandController.setCommandConsole(this);
 }

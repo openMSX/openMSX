@@ -76,8 +76,9 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	static set<string> initsDone;
 	string tempconfig = console.getId();
 	tempconfig[0] = ::toupper(tempconfig[0]);
-	try {
-		Config* config = SettingsConfig::instance().getConfigById(tempconfig);
+	
+	Config* config = SettingsConfig::instance().findConfigById(tempconfig);
+	if (config) {
 		context = config->getContext().clone();
 		if (initsDone.find(tempconfig) == initsDone.end()) {
 			initsDone.insert(tempconfig);
@@ -102,11 +103,11 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 		} catch (FileException& e) {
 			// nothing
 		}
-
-	} catch (ConfigException& e) {
+	} else {
 		// no Console section
 		context = new SystemFileContext();
 	}
+
 	initiated = true;
 	font = new DummyFont();
 	if (!console.getFont().empty()) {
@@ -163,15 +164,22 @@ void OSDConsoleRenderer::initConsoleSize()
 
 	string tempconfig = console.getId();
 	tempconfig[0]=::toupper(tempconfig[0]);
-	Config* config = SettingsConfig::instance().getConfigById(tempconfig);
 	// check if this console is already initiated
 	if (initsDone.find(tempconfig) == initsDone.end()) {
 		initsDone.insert(tempconfig);
+
 		SDL_Surface* screen = SDL_GetVideoSurface();
-		console.setColumns(config->getParameterAsInt("columns",
-			(((screen->w - CHAR_BORDER) / font->getWidth()) * 30) / 32));
-		console.setRows(config->getParameterAsInt("rows", 
-			((screen->h / font->getHeight()) * 6) / 15));
+		int columns = (((screen->w - CHAR_BORDER) / font->getWidth()) * 30) / 32;
+		int rows = ((screen->h / font->getHeight()) * 6) / 15;
+
+		Config* config = SettingsConfig::instance().findConfigById(tempconfig);
+		if (config) {
+			columns = config->getParameterAsInt("columns", columns);
+			rows    = config->getParameterAsInt("rows",    rows);
+		}
+		
+		console.setColumns(columns);
+		console.setRows(rows);
 		
 		string placementString;
 		placementString = config->getParameter("placement", "bottom");

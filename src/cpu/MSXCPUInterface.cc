@@ -65,9 +65,11 @@ MSXCPUInterface::MSXCPUInterface()
 		visibleDevices[page] = 0;
 	}
 
-	Config* config = hardwareConfig.getConfigById("MotherBoard");
 	Config::Children slots;
-	config->getChildren("slot", slots);
+	Config* config = hardwareConfig.findConfigById("MotherBoard");
+	if (config) {
+		config->getChildren("slot", slots);
+	}
 	for (Config::Children::const_iterator it = slots.begin();
 	     it != slots.end(); ++it) {
 		unsigned num = StringOp::stringToInt((*it)->getAttribute("num"));

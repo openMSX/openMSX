@@ -18,11 +18,7 @@ JoyNet::JoyNet()
 	listener = 0;
 	status = 255;
 
-	try {
-		setupConnections();
-	} catch (ConfigException &e) {
-		PRT_DEBUG("No correct JoyNet configuration");
-	}
+	setupConnections();
 }
 
 JoyNet::~JoyNet()
@@ -72,7 +68,11 @@ void JoyNet::write(byte value, const EmuTime& time)
 
 void JoyNet::setupConnections()
 {
-	Config* config = SettingsConfig::instance().getConfigById("joynet");
+	Config* config = SettingsConfig::instance().findConfigById("joynet");
+	if (!config) {
+		return;
+	}
+
 	hostname = config->getParameter("connecthost");
 	portname = config->getParameterAsInt("connectport");
 	int listenport = config->getParameterAsInt("listenport");

@@ -1,5 +1,8 @@
 $Id$
 
+2004-06-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Config file releated cleanups (no changes in config files)
+
 2004-06-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added Date class to convert dates to and from string:
 	   there are library fucntions that do the same (strftime, strptime)

@@ -38,12 +38,10 @@ Mixer::Mixer()
 	// default values
 	int freq = 22050;
 	int samples = 512;
-	try {
-		Config* config = settingsConfig.getConfigById("Mixer");
+	Config* config = settingsConfig.findConfigById("Mixer");
+	if (config) {
 		freq = config->getParameterAsInt("frequency", freq);
 		samples = config->getParameterAsInt("samples", samples);
-	} catch (ConfigException &e) {
-		// no Mixer section
 	}
 
 	SDL_AudioSpec desired;

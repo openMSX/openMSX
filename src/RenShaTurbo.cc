@@ -14,30 +14,23 @@ RenShaTurbo& RenShaTurbo::instance()
 }
 
 RenShaTurbo::RenShaTurbo()
-	: settingsConfig(SettingsConfig::instance())
 {
-	try {
-		Config *config = settingsConfig.getConfigById("RenShaTurbo");
+	Config* config = SettingsConfig::instance().findConfigById("RenShaTurbo");
+	if (config) {
 		int min_ints = config->getParameterAsInt("min_ints", 47);
 		int max_ints = config->getParameterAsInt("max_ints", 221);
-		autofire = new Autofire(min_ints, max_ints, "renshaturbo");
-	} catch (MSXException &e) {
-		autofire = NULL;
+		autofire.reset(new Autofire(min_ints, max_ints, "renshaturbo"));
 	}
 }
 
 RenShaTurbo::~RenShaTurbo()
 {
-	delete autofire;
 }
 
 byte RenShaTurbo::getSignal(const EmuTime &time)
 {
-	if (autofire) {
-		return autofire->getSignal(time);
-	} else {
-		return 0;
-	}
+	return (autofire.get()) ? autofire->getSignal(time)
+	                        : 0;
 }
 
 } // namespace openmsx

@@ -60,16 +60,14 @@ CassettePlayer::CassettePlayer()
 	removeTape();
 
 	SettingsConfig& conf = SettingsConfig::instance();
-	if (conf.hasConfigWithId("cassetteplayer")) {
-		Config* config = conf.getConfigById("cassetteplayer");
+	Config* config = conf.findConfigById("cassetteplayer");
+	if (config) {
 		const string& filename = config->getParameter("filename");
 		try {
 			insertTape(config->getContext(), filename);
 		} catch (MSXException& e) {
 			throw FatalError("Couldn't load tape image: " + filename);
 		}
-	} else {
-		// no cassette image specified
 	}
 	CommandController::instance().registerCommand(this, "cassetteplayer");
 

@@ -78,14 +78,14 @@ Keyboard::Keyboard(bool keyG)
 	memset(keyMatrix,     255, sizeof(keyMatrix));
 	memset(cmdKeyMatrix,  255, sizeof(cmdKeyMatrix));
 	memset(userKeyMatrix, 255, sizeof(userKeyMatrix));
-	try {
-		Config* config = SettingsConfig::instance().getConfigById("KeyMap");
+	
+	Config* config = SettingsConfig::instance().findConfigById("KeyMap");
+	if (config) {
 		string filename = config->getParameter("filename");
 		filename = config->getContext().resolve(filename);
 		loadKeymapfile(filename);
-	} catch (ConfigException &e) {
-		// no keymap settings.
 	}
+
 	EventDistributor::instance().registerEventListener(KEY_DOWN_EVENT, *this);
 	EventDistributor::instance().registerEventListener(KEY_UP_EVENT,   *this);
 

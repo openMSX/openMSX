@@ -141,8 +141,8 @@ RealDrive::RealDrive(const string& driveName, const EmuTime& time)
 	diskChangedFlag = false;
 
 	SettingsConfig& conf = SettingsConfig::instance();
-	if (conf.hasConfigWithId(driveName)) {
-		Config* config = conf.getConfigById(driveName);
+	Config* config = conf.findConfigById(driveName);
+	if (config) {
 		const string& filename = config->getParameter("filename");
 		try {
 			insertDisk(config->getContext(), filename);

@@ -22,8 +22,8 @@ const char* const FILE_CACHE = ".filecache";
 
 FilePool::FilePool()
 {
-	try {
-		Config* config = SettingsConfig::instance().getConfigById("RomPool");
+	Config* config = SettingsConfig::instance().findConfigById("RomPool");
+	if (config) {
 		XMLElement::Children dirs;
 		config->getChildren("directory", dirs);
 		for (XMLElement::Children::const_iterator it = dirs.begin();
@@ -31,8 +31,6 @@ FilePool::FilePool()
 			string dir = FileOperations::expandTilde((*it)->getData());
 			readSha1sums(dir, database[dir]);
 		}
-	} catch (ConfigException& e) {
-		// No RomPool section
 	}
 }
 

@@ -22,9 +22,7 @@ class MSXConfig
 public:
 	void loadConfig(const XMLElement& config, const FileContext& context);
 
-	Config* getConfigById(const string& id);
 	Config* findConfigById(const string& id);
-	bool hasConfigWithId(const string& id);
 
 	typedef vector<Config*> Configs;
 	const Configs& getConfigs() const { return configs; }

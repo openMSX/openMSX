@@ -35,24 +35,23 @@ void CartridgeSlotManager::reserveSlot(int slot)
 
 void CartridgeSlotManager::readConfig()
 {
-	try {
-		Config* config = hardwareConfig.getConfigById("ExternalSlots");
-		string slotName("slota");
-		for (int slot = 0; slot < 16; slot++) {
-			slotName[4] = 'a' + slot;
-			if (config->hasParameter(slotName)) {
-				string slotValue = config->getParameter(slotName);
-				int ps = slotValue[0] - '0';
-				int ss = slotValue[2] - '0';
-				if ((ps < 0) || (ps > 3) || (ss < 0) || (ss > 3) ||
-				    (slotValue[1] != '-') || (slotValue.length() != 3)) {
-					throw FatalError("Syntax error in ExternalSlots config");
-				}
-				slots[slot] |= (ss << 2) | ps | EXISTS;
+	Config* config = hardwareConfig.findConfigById("ExternalSlots");
+	if (!config) {
+		return;
+	}
+	string slotName("slota");
+	for (int slot = 0; slot < 16; slot++) {
+		slotName[4] = 'a' + slot;
+		if (config->hasParameter(slotName)) {
+			string slotValue = config->getParameter(slotName);
+			int ps = slotValue[0] - '0';
+			int ss = slotValue[2] - '0';
+			if ((ps < 0) || (ps > 3) || (ss < 0) || (ss > 3) ||
+			    (slotValue[1] != '-') || (slotValue.length() != 3)) {
+				throw FatalError("Syntax error in ExternalSlots config");
 			}
+			slots[slot] |= (ss << 2) | ps | EXISTS;
 		}
-	} catch (ConfigException &e) {
-		// do nothing
 	}
 }
 

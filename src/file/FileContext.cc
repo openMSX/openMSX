@@ -208,9 +208,9 @@ const vector<string> &UserFileContext::getPaths()
 	if (!alreadyInit) {
 		alreadyInit = true;
 		paths.push_back("./");
-		try {
-			Config* config = SettingsConfig::instance().
-				getConfigById("UserDirectories");
+		Config* config = SettingsConfig::instance().
+			findConfigById("UserDirectories");
+		if (config) {
 			Config::Children pathList;
 			config->getChildren("directory", pathList);
 			for (Config::Children::const_iterator it =
@@ -223,8 +223,6 @@ const vector<string> &UserFileContext::getPaths()
 				path = FileOperations::expandTilde(path);
 				paths.push_back(path);
 			}
-		} catch (ConfigException &e) {
-			// no UserDirectories specified
 		}
 	}
 	return paths;

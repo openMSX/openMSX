@@ -14,17 +14,14 @@ MSXRTC::MSXRTC(Config* config, const EmuTime& time)
 	  settingsConfig(SettingsConfig::instance())
 {
 	bool emuTimeBased = true;
-	
-	try {
-		Config* config = settingsConfig.getConfigById("RTC");
-		string mode = config->getParameter("mode", "EmuTime"); 
+	Config* rtcConfig = settingsConfig.findConfigById("RTC");
+	if (rtcConfig) {
+		string mode = rtcConfig->getParameter("mode", "EmuTime"); 
 		emuTimeBased = (mode == "EmuTime");
-	} catch (ConfigException &e) {
-		// No RTC section
 	}
 	
 	rp5c01 = new RP5C01(emuTimeBased, &sram[0], time);
-	registerLatch = 0; // Note: not verified on real hardware.
+	registerLatch = 0; // TODO verify on real hardware
 }
 
 MSXRTC::~MSXRTC()

@@ -20,7 +20,7 @@ CassettePortInterface& CassettePortFactory::instance()
 	static auto_ptr<CassettePortInterface> oneInstance;
 	if (!oneInstance.get()) {
 		oneInstance.reset(
-			HardwareConfig::instance().hasConfigWithId("CassettePort")
+			HardwareConfig::instance().findConfigById("CassettePort")
 			? static_cast<CassettePortInterface *>(new CassettePort())
 			: static_cast<CassettePortInterface *>(new DummyCassettePort()));
 	}

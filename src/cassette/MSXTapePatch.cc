@@ -67,16 +67,14 @@ static const byte TapeHeader[8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
 MSXTapePatch::MSXTapePatch()
 {
 	SettingsConfig& conf = SettingsConfig::instance();
-	if (conf.hasConfigWithId("cas")) {
-		Config *config = conf.getConfigById("cas");
-		const string &filename = config->getParameter("filename");
+	Config *config = conf.findConfigById("cas");
+	if (config) {
+		const string& filename = config->getParameter("filename");
 		try {
 			insertTape(config->getContext(), filename);
 		} catch (MSXException& e) {
 			throw FatalError("Couldn't load tape image: " + filename);
 		}
-	} else {
-		// no image specified
 	}
 	CommandController::instance().registerCommand(this, "cas");
 }

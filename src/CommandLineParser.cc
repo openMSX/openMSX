@@ -98,8 +98,8 @@ void CommandLineParser::registerFileClass(const string &str,
 
 void CommandLineParser::postRegisterFileTypes()
 {
-	try {
-		Config* config = settingsConfig.getConfigById("FileTypes");
+	Config* config = settingsConfig.findConfigById("FileTypes");
+	if (config) {
 		for (FileClassMap::const_iterator i = fileClassMap.begin();
 		     i != fileClassMap.end(); ++i) {
 			Config::Children extensions;
@@ -109,7 +109,7 @@ void CommandLineParser::postRegisterFileTypes()
 				fileTypeMap[(*j)->getData()] = i->second;
 			}
 		}
-	} catch (ConfigException &e) {
+	} else {
 		map<string, string> fileExtMap;
 		fileExtMap["rom"] = "romimage";
 		fileExtMap["dsk"] = "diskimage";
@@ -210,16 +210,11 @@ void CommandLineParser::parse(int argc, char **argv)
 			if (!issuedHelp && !haveConfig) {
 				// load default config file in case the user didn't specify one
 				string machine("default");
-				try {
-					Config *machineConfig =
-						settingsConfig.getConfigById("DefaultMachine");
-					if (machineConfig->hasParameter("machine")) {
-						machine = machineConfig->getParameter("machine");
-						output.printInfo(
-							"Using default machine: " + machine);
-					}
-				} catch (ConfigException &e) {
-					// no DefaultMachine section
+				Config* machineConfig =
+					settingsConfig.findConfigById("DefaultMachine");
+				if (machineConfig && machineConfig->hasParameter("machine")) {
+					machine = machineConfig->getParameter("machine");
+					output.printInfo("Using default machine: " + machine);
 				}
 				try {
 					SystemFileContext context;
