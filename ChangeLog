@@ -2,6 +2,12 @@ $Id$
 
 2002-10-23 Maarten ter Huurne <mth@stack.nl>
 	* Fixed bug in sprite drawing of SDLLo.
+	* Fixed bug in initialisation of horizontal adjust.
+	* PixelRenderer now offers left border calculation to its subclasses.
+	* Bug fixes and cleanups in coordinate calculation of
+	  SDLHiRenderer::drawDisplay; SCREEN0 no longer fails the asserts.
+	* Cleanups in SDLHiRenderer::drawSprites.
+	  Should be applied to other Renderers as well.
 
 2002-10-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Rewrite of "CommandLineParser":
