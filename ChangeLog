@@ -1,6 +1,11 @@
 $Id$
 
 2005-03-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed MSX-AUDIO sample RAM detection:
+	   UR always detected 256kb
+	   AR always detected   0kb  both are fixed now
+
+2005-03-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed minor(?) rounding error in SCC
 
 2005-03-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>

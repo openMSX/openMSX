@@ -87,6 +87,7 @@ void Y8950Adpcm::reset(const EmuTime &time)
 	addrMask = (1 << 19) - 1;
 	reg7 = 0;
 	reg15 = 0;
+	readDelay = 0;
 	writeReg(0x12, 255, time);	// volume
 	restart();
 }
@@ -153,6 +154,8 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			} else if (data & R07_START) {
 				playing = true;
 				restart();
+			} else if ((data & R07_MEMORY_DATA) && !(data & R07_REC)) {
+				readDelay = 2;
 			}
 			
 			if (playing) {
@@ -188,12 +191,12 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			// TODO check this
 			//if ((reg7 & R07_REC) && (reg7 & R07_MEMORY_DATA)) {
 			{
+				reg15 = data;
 				int tmp = ((startAddr + memPntr) & addrMask) / 2;
-				tmp = (tmp < ramSize) ? tmp : (tmp & (ramSize - 1)); 
-				if (!romBank) {
-					ramBank[tmp] = data;
+				if ((tmp < ramSize) && !romBank) {
+					ramBank[tmp] = reg15;
 				}
-				//PRT_DEBUG("Y8950Adpcm: mem " << tmp << " " << (int)data);
+				//PRT_DEBUG("Y8950Adpcm: mem " << tmp << " " << (int)reg15);
 				memPntr += 2;
 				if ((startAddr + memPntr) > stopAddr) {
 					y8950.setStatus(Y8950::STATUS_EOS);
@@ -241,15 +244,20 @@ byte Y8950Adpcm::readReg(byte rg)
 	switch (rg) {
 		case 0x0F: { // ADPCM-DATA
 			// TODO don't advance pointer when playing???
-			int adr = ((startAddr + memPntr) & addrMask) / 2;
-			if (romBank || (adr >= ramSize)) {
-				result = 0xFF;
+			if (readDelay) {
+				--readDelay;
+				result = reg15;
 			} else {
-				result = ramBank[adr];
-			}
-			memPntr += 2;
-			if ((startAddr + memPntr) > stopAddr) {
-				y8950.setStatus(Y8950::STATUS_EOS);
+				int adr = ((startAddr + memPntr) & addrMask) / 2;
+				if (romBank || (adr >= ramSize)) {
+					result = 0x00; // checked on a real machine
+				} else {
+					result = ramBank[adr];
+				}
+				memPntr += 2;
+				if ((startAddr + memPntr) > stopAddr) {
+					y8950.setStatus(Y8950::STATUS_EOS);
+				}
 			}
 			break;
 		}
@@ -287,7 +295,7 @@ int Y8950Adpcm::calcSample()
 				// n-th nibble
 				int tmp = playAddr / 2;
 				if (romBank || (tmp >= ramSize)) {
-					reg15 = 0xFF;
+					reg15 = 0x00;
 				} else {
 					reg15 = ramBank[tmp];
 				}

@@ -65,6 +65,7 @@ private:
 	
 	byte reg7;
 	byte reg15;
+	int readDelay;
 };
 
 } // namespace openmsx
