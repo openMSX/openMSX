@@ -7,6 +7,13 @@
 <!-- SOME ARE COMMENTED OUT TO PREVENT DOUBLES LATER ON -->
 
   <rom>
+    <title>Eat Blue!</title>
+    <romtype>ROMBAS</romtype>
+    <sha1>d31eb4ff4d6e4b3af645f24388c734a1d00a0c47</sha1>
+    <company>Paxanga Soft</company>
+    <year>2004</year>
+  </rom>
+  <rom>
     <title>Bubbler</title>
     <sha1>6219ec49b735e80e3c8d1d5ba2bb107390df8716</sha1>
     <romtype>KONAMI5</romtype>
