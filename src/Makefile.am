@@ -60,6 +60,7 @@ openmsx_SOURCES=openmsx.cc \
 	SDLEventInserter.cc SDLEventInserter.hh \
 	LoadFile.hh LoadFile.cc \
 	SCC.hh SCC.cc \
+	MSXSCCPlusCart.hh MSXSCCPlusCart.cc \
 	MSXRom.cc MSXRom.hh \
 	MSXRomPatchInterface.hh MSXRomPatchInterface.cc \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh

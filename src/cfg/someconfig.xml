@@ -159,6 +159,41 @@
     <parameter name="max_catch_up_time">1500</parameter>
     <parameter name="min_real_time">40</parameter>
   </config>
+<!--  
+  <device id="SCC+ Cartridge">
+    <type>SCCPlusCart</type>
+    <slotted>
+      <ps>1</ps>
+      <ss>0</ss>
+      <page>1</page>
+    </slotted>
+    <slotted>
+      <ps>1</ps>
+      <ss>0</ss>
+      <page>2</page>
+    </slotted>
+     <parameter name="readromfile">false</parameter>
+     <parameter name="filename">NEMESIS2.ROM</parameter>
+    <parameter name="filesize">131072</parameter>
+    <parameter name="skip_headerbytes">0</parameter>
+  </device>
+  <device id="Nemesis 2 Cartridge">
+    <type>MegaRom</type>
+    <slotted>
+      <ps>1</ps>
+      <ss>0</ss>
+      <page>1</page>
+    </slotted>
+    <slotted>
+      <ps>1</ps>
+      <ss>0</ss>
+      <page>2</page>
+    </slotted>
+    <parameter name="filename">NEMESIS2.ROM</parameter>
+    <parameter name="filesize">131072</parameter>
+    <parameter name="skip_headerbytes">0</parameter>
+  </device>
+
   
   <device id="Penguin Adventure Cartridge">
     <type>MegaRom</type>
@@ -176,7 +211,7 @@
     <parameter name="filesize">131072</parameter>
     <parameter name="skip_headerbytes">0</parameter>
   </device>
-<!--
+  
   <device id="FM PAC">
     <type>FM-PAC</type>
     <slotted>
