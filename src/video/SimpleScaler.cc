@@ -98,6 +98,15 @@ public:
 			: (((colour & bMask) >> 8) * darkenFactor) & bMask;
 		return r | g | b;
 	}
+	static inline Uint32 darken(
+		int darkenFactor, const SDL_PixelFormat* format, Uint32 colour
+	) {
+		return darken(
+			darkenFactor, 
+			format->Rmask, format->Gmask, format->Bmask,
+			colour
+			);
+	}
 };
 
 template <class Pixel>
@@ -110,32 +119,92 @@ void SimpleScaler<Pixel>::scaleBlank(
 		// This is a special case that occurs very often.
 		Scaler<Pixel>::scaleBlank(colour, dst, dstY, endDstY);
 	} else {
-		// Note: SDL_FillRect is generally not allowed on locked surfaces.
-		//       However, we're using a software surface, which doesn't
-		//       have locking.
-		// TODO: But it would be more generic to just write bytes.
-		assert(!SDL_MUSTLOCK(dst));
-
-		SDL_PixelFormat* format = dst->format;
-		Uint32 rMask = format->Rmask;
-		Uint32 gMask = format->Gmask;
-		Uint32 bMask = format->Bmask;
+		const HostCPU cpu = HostCPU::getInstance();
 		int darkenFactor = 256 - scanlineAlpha;
 		Pixel scanlineColour = UniversalDarken::darken(
-			darkenFactor, rMask, gMask, bMask, colour );
+			darkenFactor, dst->format, colour );
+		if (ASM_X86 && cpu.hasMMXEXT()) {
+			const unsigned col32 =
+				  sizeof(Pixel) == 2
+				? (((unsigned)colour) << 16) | colour
+				: colour;
+			const unsigned scan32 =
+				  sizeof(Pixel) == 2
+				? (((unsigned)scanlineColour) << 16) | scanlineColour
+				: scanlineColour;
+			while (dstY < endDstY) {
+				Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
+				Pixel* dstLower = Scaler<Pixel>::linePtr(dst, dstY++);
+				asm (
+					// Precalc normal colour.
+					"movd	%2, %%mm0;"
+					"punpckldq	%%mm0, %%mm0;"
+					"movq	%%mm0, %%mm1;"
+					"movq	%%mm0, %%mm2;"
+					"movq	%%mm1, %%mm3;"
 
-		SDL_Rect rect;
-		rect.x = 0;
-		rect.w = dst->w;
-		rect.h = 1;
-		for (int y = dstY; y < endDstY; y += 2) {
-			rect.y = y;
-			// Note: return code ignored.
-			SDL_FillRect(dst, &rect, colour);
-			if (y + 1 == endDstY) break;
-			rect.y = y + 1;
-			// Note: return code ignored.
-			SDL_FillRect(dst, &rect, scanlineColour);
+					"xorl	%%eax, %%eax;"
+				"0:"
+					// Store.
+					"movntq	%%mm0,   (%0,%%eax);"
+					"movntq	%%mm1,  8(%0,%%eax);"
+					"movntq	%%mm2, 16(%0,%%eax);"
+					"movntq	%%mm3, 24(%0,%%eax);"
+					// Increment.
+					"addl	$32, %%eax;"
+					"cmpl	%4, %%eax;"
+					"jl	0b;"
+
+					// Precalc darkened colour.
+					"movd	%3, %%mm4;"
+					"punpckldq	%%mm4, %%mm4;"
+					"movq	%%mm4, %%mm5;"
+					"movq	%%mm4, %%mm6;"
+					"movq	%%mm5, %%mm7;"
+
+					"xorl	%%eax, %%eax;"
+				"1:"
+					// Store.
+					"movntq	%%mm4,   (%1,%%eax);"
+					"movntq	%%mm5,  8(%1,%%eax);"
+					"movntq	%%mm6, 16(%1,%%eax);"
+					"movntq	%%mm7, 24(%1,%%eax);"
+					// Increment.
+					"addl	$32, %%eax;"
+					"cmpl	%4, %%eax;"
+					"jl	1b;"
+
+					: // no output
+					: "r" (dstUpper) // 0
+					, "r" (dstLower) // 1
+					, "rm" (col32) // 2
+					, "rm" (scan32) // 3
+					, "r" (dst->w * sizeof(Pixel)) // 4: bytes per line
+					: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+					, "eax"
+					);
+			}
+			asm volatile ("emms");
+		} else {
+			// Note: SDL_FillRect is generally not allowed on locked surfaces.
+			//       However, we're using a software surface, which doesn't
+			//       have locking.
+			// TODO: But it would be more generic to just write bytes.
+			assert(!SDL_MUSTLOCK(dst));
+	
+			SDL_Rect rect;
+			rect.x = 0;
+			rect.w = dst->w;
+			rect.h = 1;
+			for (int y = dstY; y < endDstY; y += 2) {
+				rect.y = y;
+				// Note: return code ignored.
+				SDL_FillRect(dst, &rect, colour);
+				if (y + 1 == endDstY) break;
+				rect.y = y + 1;
+				// Note: return code ignored.
+				SDL_FillRect(dst, &rect, scanlineColour);
+			}
 		}
 	}
 }
@@ -153,8 +222,7 @@ void SimpleScaler<Pixel>::scale256(
 	}
 
 	int darkenFactor = 256 - scanlineAlpha;
-	const int WIDTH = dst->w / 2;
-	assert(dst->w == WIDTH * 2);
+	const int width = dst->w / 2;
 	const HostCPU cpu = HostCPU::getInstance();
 	while (srcY < endSrcY) {
 		const Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY++);
@@ -166,7 +234,7 @@ void SimpleScaler<Pixel>::scale256(
 		} else*/ if (ASM_X86 && cpu.hasMMXEXT() && sizeof(Pixel) == 4) {
 			asm (
 				// Precalc: mm6 = darkenFactor, mm7 = 0.
-				"movd	%[darkenFactor], %%mm6;"
+				"movd	%0, %%mm6;"
 				"pxor	%%mm7, %%mm7;"
 				"punpcklwd	%%mm6, %%mm6;"
 				"punpckldq	%%mm6, %%mm6;"
@@ -177,25 +245,25 @@ void SimpleScaler<Pixel>::scale256(
 				"xorl	%%eax, %%eax;"
 			"0:"
 				// Load.
-				"movq	(%[srcLine],%%eax,4), %%mm0;"
+				"movq	(%3,%%eax,4), %%mm0;"
 				"movq	%%mm0, %%mm1;"
-				//"prefetchnta	128(%[srcLine],%%eax,4);"
+				//"prefetchnta	128(%3,%%eax,4);"
 				// Scale.
 				"punpckldq %%mm0, %%mm0;"
 				"punpckhdq %%mm1, %%mm1;"
 				// Store.
-				"movntq	%%mm0, (%[dstUpper],%%eax,8);"
-				"movntq	%%mm1, 8(%[dstUpper],%%eax,8);"
+				"movntq	%%mm0,  (%1,%%eax,8);"
+				"movntq	%%mm1, 8(%1,%%eax,8);"
 				// Increment.
 				"addl	$2, %%eax;"
-				"cmpl	%[WIDTH], %%eax;"
+				"cmpl	%4, %%eax;"
 				"jl	0b;"
 		
 				// Lower line: scale and scanline.
 				"xorl	%%eax, %%eax;"
 			"1:"
 				// Load.
-				"movq	(%[srcLine],%%eax,4), %%mm0;"
+				"movq	(%3,%%eax,4), %%mm0;"
 				"movq	%%mm0, %%mm1;"
 				// Darken and scale.
 				"punpcklbw %%mm7, %%mm0;"
@@ -207,19 +275,19 @@ void SimpleScaler<Pixel>::scale256(
 				"packuswb %%mm0, %%mm0;"
 				"packuswb %%mm1, %%mm1;"
 				// Store.
-				"movntq	%%mm0, (%[dstLower],%%eax,8);"
-				"movntq	%%mm1, 8(%[dstLower],%%eax,8);"
+				"movntq	%%mm0,  (%2,%%eax,8);"
+				"movntq	%%mm1, 8(%2,%%eax,8);"
 				// Increment.
 				"addl	$2, %%eax;"
-				"cmpl	%[WIDTH], %%eax;"
+				"cmpl	%4, %%eax;"
 				"jl	1b;"
 		
 				: // no output
-				: [darkenFactor] "m" (darkenFactor)
-				, [dstUpper] "r" (dstUpper)
-				, [dstLower] "r" (dstLower)
-				, [srcLine] "r" (srcLine)
-				, [WIDTH] "r" (WIDTH)
+				: "mr" (darkenFactor) // 0
+				, "r" (dstUpper) // 1
+				, "r" (dstLower) // 2
+				, "r" (srcLine) // 3
+				, "r" (width) // 4
 				: "mm0", "mm1", "mm6", "mm7"
 				, "eax"
 				);
@@ -232,7 +300,7 @@ void SimpleScaler<Pixel>::scale256(
 			unsigned rMask = dst->format->Rmask;
 			unsigned gMask = dst->format->Gmask;
 			unsigned bMask = dst->format->Bmask;
-			for (int x = 0; x < WIDTH; x++) {
+			for (int x = 0; x < width; x++) {
 				Pixel p = srcLine[x];
 				dstUpper[x * 2] = dstUpper[x * 2 + 1] = p;
 				if (sizeof(Pixel) == 2) {
@@ -269,13 +337,13 @@ void SimpleScaler<Pixel>::scale512(
 	Uint32 gMask = format->Gmask;
 	Uint32 bMask = format->Bmask;
 	int darkenFactor = 256 - scanlineAlpha;
-	const unsigned WIDTH = dst->w;
+	const unsigned width = dst->w;
 	while (srcY < endSrcY) {
 		Scaler<Pixel>::copyLine(src, srcY, dst, dstY++);
 		if (dstY == dst->h) break;
 		const Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY);
 		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstY++);
-		for (unsigned x = 0; x < WIDTH; x++) {
+		for (unsigned x = 0; x < width; x++) {
 			dstLine[x] = UniversalDarken::darken(
 				darkenFactor, rMask, gMask, bMask, srcLine[x] );
 		}
