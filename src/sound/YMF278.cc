@@ -125,8 +125,8 @@ void YMF278Slot::reset()
 	bits = startaddr = loopaddr = endaddr = 0;
 	env_vol = MAX_ATT_INDEX;
 	//env_vol_step = env_vol_lim = 0;
-	active = false;
 	state = EG_OFF;
+	active = false;
 }
 
 int YMF278Slot::compute_rate(int val)
@@ -209,6 +209,7 @@ void YMF278::advance()
 					if (op.env_vol >= MAX_ATT_INDEX) {
 						op.env_vol = MAX_ATT_INDEX;
 						op.active = false;
+						checkMute();
 					}
 				}
 				break;
@@ -225,6 +226,7 @@ void YMF278::advance()
 					if (op.env_vol >= MAX_ATT_INDEX) {
 						op.env_vol = MAX_ATT_INDEX;
 						op.active = false;
+						checkMute();
 					}
 				}
 				break;
@@ -241,19 +243,19 @@ void YMF278::advance()
 	}
 }
 
-short YMF278::getSample(YMF278Slot &op, unsigned pos)
+short YMF278::getSample(YMF278Slot &op)
 {
 	short sample;
 	switch (op.bits) {
 	case 0x00: {
 		// 8 bit
-		sample = readMem(op.startaddr + pos) << 8;
+		sample = readMem(op.startaddr + op.pos) << 8;
 		break;
 	}
 	case 0x40: {
 		// 12 bit
-		int addr = op.startaddr + ((pos / 2) * 3);
-		if (pos & 1) {
+		int addr = op.startaddr + ((op.pos / 2) * 3);
+		if (op.pos & 1) {
 			sample = readMem(addr + 2) << 8 |
 				 ((readMem(addr + 1) << 4) & 0xF0);
 		} else {
@@ -264,7 +266,7 @@ short YMF278::getSample(YMF278Slot &op, unsigned pos)
 	}
 	case 0x80: {
 		// 16 bit
-		int addr = op.startaddr + (pos * 2);
+		int addr = op.startaddr + (op.pos * 2);
 		sample = (readMem(addr + 0) << 8) |
 			 (readMem(addr + 1));
 		break;
@@ -276,14 +278,24 @@ short YMF278::getSample(YMF278Slot &op, unsigned pos)
 	return sample;
 }
 
+void YMF278::checkMute()
+{
+	setInternalMute(!anyActive());
+}
+
+bool YMF278::anyActive()
+{
+	for (int i = 0; i < 24; i++) {
+		if (slots[i].active) {
+			return true;
+		}
+	}
+	return false;
+}
+
 int* YMF278::updateBuffer(int length)
 {
 	if (isInternalMuted()) {
-		return NULL;
-	}
-	bool anyActive = true;	// TODO
-	if (!anyActive) {
-		setInternalMute(true);
 		return NULL;
 	}
 
@@ -299,31 +311,23 @@ int* YMF278::updateBuffer(int length)
 				continue;
 			}
 	
-			unsigned pos = sl.stepptr >> 16;
-			short sample1 = getSample(sl, pos);
-			pos++;
-			if (pos == sl.endaddr) {
-				pos = sl.loopaddr;
-			}
-			short sample2 = getSample(sl, pos);
-			int delta = sl.stepptr & 0xFFFF;
-			short sample = (sample1 * (0x10000 - delta) + sample2 * delta) >> 16;
+			short sample = (sl.sample1 * (0x10000 - sl.stepptr) +
+			                sl.sample2 * sl.stepptr) >> 16;
 			int vol = sl.TL + (sl.env_vol >> 2);
 			int volLeft  = vol + pan_left [(int)sl.pan] + vl;
 			int volRight = vol + pan_right[(int)sl.pan] + vr;
 			left  += (sample * volume[volLeft] ) >> 16;
 			right += (sample * volume[volRight]) >> 16;
 
-			// update frequency
 			sl.stepptr += sl.step;
-			if ((sl.stepptr >> 16) >= sl.endaddr) {
-				sl.stepptr -= (sl.endaddr - sl.loopaddr) << 16;
-				// If the step is bigger than the loop, finish
-				// the sample forcibly
-				if ((sl.stepptr >> 16) >= sl.endaddr) {
-					sl.env_vol = MAX_ATT_INDEX;
-					sl.active = false;
+			while (sl.stepptr >= 0x10000) {
+				sl.stepptr -= 0x10000;
+				sl.sample1 = sl.sample2;
+				sl.pos++;
+				if (sl.pos >= sl.endaddr) {
+					sl.pos = sl.loopaddr;
 				}
+				sl.sample2 = getSample(sl);
 			}
 		}
 		*buf++ = left;
@@ -417,6 +421,10 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 				slot.step = (unsigned)(step * freqbase);
 				slot.state = EG_ATT;
 				slot.stepptr = 0;
+				slot.pos = 0;
+				slot.sample1 = getSample(slot);
+				slot.pos = 1;
+				slot.sample2 = getSample(slot);
 			} else {
 				if (slot.active) {
 					slot.state = EG_REL;
@@ -558,6 +566,7 @@ void YMF278::reset(const EmuTime &time)
 	for (int i = 0; i < 24; i++) {
 		slots[i].reset();
 	}
+	setInternalMute(true);
 	wavetblhdr = memmode = memadr = 0;
 	fm_l = fm_r = pcm_l = pcm_r = 0;
 	BUSY_Time = time;

@@ -40,14 +40,16 @@ class YMF278Slot
 		char RC;   		// rate correction
 		char RR;
 
-		unsigned step;		// fixed-point frequency step
-		unsigned stepptr;	// fixed-point pointer into the sample
+		int step;		// fixed-point frequency step
+		int stepptr;		// fixed-point pointer into the sample
+		int pos;
+		short sample1, sample2;
 
 		bool active;		// slot keyed on
 		char bits;		// width of the samples
-		unsigned startaddr;
-		unsigned loopaddr;
-		unsigned endaddr;
+		int startaddr;
+		int loopaddr;
+		int endaddr;
 
 		byte state;
 		int env_vol;
@@ -73,8 +75,10 @@ class YMF278 : public SoundDevice
 	private:
 		byte readMem(unsigned address);
 		void writeMem(unsigned address, byte value);
-		short getSample(YMF278Slot &op, unsigned pos);
+		short getSample(YMF278Slot &op);
 		void advance();
+		void checkMute();
+		bool anyActive();
 
 		static const int MASTER_CLK = 33868800;
 
