@@ -1,5 +1,9 @@
 $Id$
 
+2004-02-17 Maarten ter Huurne <maarten@treewalker.org>
+	* VDPCmdEngine refactoring: replaced macros by templates and switch
+	  statements by virtual method calls. (committed by Wouter)
+
 2004-02-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Improved CPU timing, both Z80 and R800
 
