@@ -508,6 +508,7 @@ void MSXDiskRomPatch::execute(const std::vector<std::string> &tokens)
 	} else {
 		Console::instance()->print("Changing disk");
 		delete disk[0];
+		disk[0] = NULL; // following might fail
 		disk[0] = new DiskImage(tokens[1], std::string("720"));
 	}
 }

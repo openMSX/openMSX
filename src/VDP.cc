@@ -145,8 +145,7 @@ inline int VDP::checkSprites1(int line, VDP::SpriteInfo *visibleSprites)
 				SpritePattern pattern_j = visibleSprites[j].pattern;
 				if (dist < 0) {
 					pattern_j <<= -dist;
-				}
-				else if (dist > 0) {
+				} else {
 					pattern_j >>= dist;
 				}
 				if (pattern_i & pattern_j) {
@@ -259,8 +258,7 @@ inline int VDP::checkSprites2(int line, VDP::SpriteInfo *visibleSprites)
 				SpritePattern pattern_j = visibleSprites[j].pattern;
 				if (dist < 0) {
 					pattern_j <<= -dist;
-				}
-				else if (dist > 0) {
+				} else {
 					pattern_j >>= dist;
 				}
 				if (pattern_i & pattern_j) {
