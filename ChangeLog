@@ -7,6 +7,7 @@ $Id$
 2001-10-17 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* made improvements to MSXRealtime
 	* small fixes to MemoryMapper, E6Timer
+	* improvements to RP5C01 (RTC)
 
 2001-10-16 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* fixed bug in Keyboard (uninitialized variable)

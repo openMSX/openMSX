@@ -18,23 +18,36 @@ class RP5C01
 		void writePort(nibble port, nibble value);
 	private:
 		void initializeTime();
-		void updateTime();
+		void updateTimeRegs();
+		void regs2Time();
+		void time2Regs();
 		int daysInMonth(int month, int leapYear);
 		void resetAlarm();
 
 		static const nibble MODE_REG  = 13;
 		static const nibble TEST_REG  = 14;
 		static const nibble RESET_REG = 15;
+		
 		static const nibble TIME_BLOCK  = 0;
 		static const nibble ALARM_BLOCK = 1;
-		static const int daysInMonths[]; 
+		
+		static const nibble MODE_BLOKSELECT =  0x3;
+		static const nibble MODE_ALARMENABLE = 0x4;
+		static const nibble MODE_TIMERENABLE = 0x8;
 
-		nibble modeReg;
-		nibble testReg;
-		nibble resetReg;
-		nibble reg[13][4];
+		static const nibble RESET_ALARM = 0x1;
+		static const nibble RESET_FRACTION = 0x2;
+
+		static const int daysInMonths[12]; 
+
+		nibble modeReg, testReg, resetReg;
+		nibble reg[4][13];
+		static const nibble mask[4][13];
 
 		Uint32 reference;
 		int fraction;
+		int seconds, minutes, hours;
+		int dayWeek, days, months, years, leapYear;
+		
 };
 #endif
