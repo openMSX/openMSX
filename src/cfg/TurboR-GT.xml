@@ -163,6 +163,11 @@
   <device id="S1990">
     <type>S1990</type>
   </device>
+  
+  <device id="PCM">
+    <type>TurboRPCM</type>
+    <parameter name="volume">21000</parameter>
+  </device>
 
   <config id="Mixer">
     <parameter name="frequency">22050</parameter>

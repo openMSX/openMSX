@@ -11,6 +11,7 @@
 #include "MSXF4Device.hh"
 #include "MSXTurboRLeds.hh"
 #include "MSXTurboRPause.hh"
+#include "MSXTurboRPCM.hh"
 #include "MSXS1985.hh"
 #include "MSXS1990.hh"
 #include "MSXCPU.hh"
@@ -61,6 +62,9 @@ MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time)
 	} 
 	if (type == "TurboRPause") {
 		return new MSXTurboRPause(conf, time);
+	} 
+	if (type == "TurboRPCM") {
+		return new MSXTurboRPCM(conf, time);
 	} 
 	if (type == "S1985") {
 		return new MSXS1985(conf, time);

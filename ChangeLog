@@ -12,6 +12,9 @@ $Id$
 	   code mostly taken from windows port
 	* Don't abort when "romdb.xml" is missing, just print a warning.
 	* Added a lot of const qualifiers
+	* Implemented TurboR PCM device:
+	   - only playing (no recording)
+	   - sound quality is really bad (like all our DACSound based devices)
 
 2002-12-29 Maarten ter Huurne <maarten@treewalker.org>
 	* The VDPVRAM::VRAMObserver interface is put to use for the first time,
