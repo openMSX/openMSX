@@ -51,6 +51,14 @@ LocalFile::~LocalFile()
 
 void LocalFile::read(byte* buffer, int num)
 {
+	long pos = ftell(file);
+	fseek(file, 0, SEEK_END);
+	int size = (int)ftell(file);
+	fseek(file, pos, SEEK_SET);
+	if ((pos + num) > size) {
+		throw FileException("Read beyond end of file");
+	}
+	
 	fread(buffer, 1, num, file);
 	if (ferror(file)) {
 		throw FileException("Error reading file");
