@@ -36,9 +36,7 @@
   it can be compiled with the UNSIGNED and/or LONGLONG flag set
 */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 /*  #include <global.h> */
 #include <limits.h> /* for LONG_LONG_MIN etc */
@@ -53,13 +51,15 @@
 #include <strings.h>
 #endif
 
+#ifndef HAVE_STRTOLL /* this conditional encloses the rest of the file */
+
+#warning using bundled of strtoll
+
 #define UTYPE_MAX (~(unsigned long long) 0)
 #define TYPE_MIN LONG_LONG_MIN
 #define TYPE_MAX LONG_LONG_MAX
 #define longtype long long
 #define ulongtype unsigned long long
-
-#ifndef HAVE_STRTOLL /* this conditional encloses the rest of the file */
 
 #ifdef UNSIGNED
 #	define function ulongtype strtoull
@@ -207,6 +207,9 @@ noconv:
 #endif /* !HAVE_STRTOLL */
 
 #ifndef HAVE_ATOLL
+
+#warning using bundled of atoll
+
 longtype atoll(const char *str) {
   return strtoll(str, (char **)NULL, 10);
 }
