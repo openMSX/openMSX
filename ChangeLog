@@ -2,7 +2,9 @@ $Id$
 
 2001-05-06  Joost Yervante Damad <j.damad@qahwah.net>
 
-    * make a nice and clean CVS
+    * made a nice and clean CVS/automake/autoconf/libtool
+    * restructured source
+    * versioned files
 
 2001-05-04  David Heremans  <david.heremans@gnu-linux.net>
 
