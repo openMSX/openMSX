@@ -2,13 +2,14 @@
 
 AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` \
 	-I$(srcdir)/.. \
-	-I$(srcdir)/../thread \
-	-I$(srcdir)/../memory \
+	-I$(srcdir)/../config \
+	-I$(srcdir)/../console \
 	-I$(srcdir)/../cpu \
 	-I$(srcdir)/../events \
-	-I$(srcdir)/../console \
-	-I$(srcdir)/../config \
 	-I$(srcdir)/../file \
+	-I$(srcdir)/../memory \
+	-I$(srcdir)/../settings \
+	-I$(srcdir)/../thread \
 	@XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg

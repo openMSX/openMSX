@@ -70,8 +70,7 @@ libMemory_la_SOURCES = \
 	MSXPac.cc MSXPac.hh \
 	MSXHBI55.cc MSXHBI55.hh
 
-libMemory_la_LIBADD = \
-	../cassette/libCassette.la
+libMemory_la_LIBADD =
 
 nodebug: resetdebug all
 debug: setdebug all

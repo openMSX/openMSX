@@ -1,9 +1,9 @@
 // $Id$
 
 #include "Settings.hh"
-#include "CommandController.hh"
-#include "RenderSettings.hh"
-#include "OSDConsoleRenderer.hh"
+//#include "CommandController.hh"
+//#include "RenderSettings.hh"
+//#include "OSDConsoleRenderer.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include <sstream>

@@ -5,10 +5,11 @@ AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` \
 	-I$(srcdir)/../config \
 	-I$(srcdir)/../console \
 	-I$(srcdir)/../cpu \
+	-I$(srcdir)/../debugger \
 	-I$(srcdir)/../events \
 	-I$(srcdir)/../file \
+	-I$(srcdir)/../settings \
 	-I$(srcdir)/../thread \
-	-I$(srcdir)/../debugger \
 	@XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
@@ -44,9 +45,7 @@ libVideo_la_SOURCES = \
 	Blender.hh \
 	GLUtil.hh
 
-libVideo_la_LIBADD = \
-	../console/libConsole.la \
-	../cpu/libCPU.la
+libVideo_la_LIBADD =
 
 nodebug: resetdebug all
 debug: setdebug all

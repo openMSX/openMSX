@@ -4,11 +4,13 @@ $Id$
 	* Re-enabled the debuggerconsole.
 	* made sure the console is turned off when de debugger is called.
 	* added a disassembly view (still static).
-	* added the same settings for the debugger as there were for the 
+	* added the same settings for the debugger as there were for the
 	  console (rows, columns, placement, font and background).
 
 2003-07-26 Maarten ter Huurne <maarten@treewalker.org>
 	* Refactored settings code.
+	* Moved settings code into new "settings" directory.
+	* Cleaned up the linking process.
 
 2003-07-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* A few midi in related fixes. Still needs to be tested

@@ -7,17 +7,18 @@ AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` \
 	-I$(srcdir)/config \
 	-I$(srcdir)/console \
 	-I$(srcdir)/cpu \
+	-I$(srcdir)/debugger \
 	-I$(srcdir)/events \
 	-I$(srcdir)/fdc \
 	-I$(srcdir)/file \
 	-I$(srcdir)/ide \
 	-I$(srcdir)/input \
 	-I$(srcdir)/memory \
+	-I$(srcdir)/serial \
+	-I$(srcdir)/settings \
 	-I$(srcdir)/sound \
 	-I$(srcdir)/thread \
 	-I$(srcdir)/video \
-	-I$(srcdir)/serial \
-	-I$(srcdir)/debugger \
 	@XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
@@ -32,8 +33,9 @@ endif
 # or perhaps sometimes even more:
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
-SUBDIRS = libxmlx console cpu sound config \
-          fdc file ide thread cassette events memory video input serial debugger
+SUBDIRS = \
+	cassette config console cpu debugger events fdc file ide input \
+	libxmlx memory serial settings sound thread video
 
 #bin_PROGRAMS=openmsx cfgtest
 bin_PROGRAMS=openmsx
@@ -87,27 +89,34 @@ openmsx_SOURCES=\
 	PluggingController.hh PluggingController.cc \
 	Connector.hh Connector.cc \
 	Pluggable.hh Pluggable.cc \
-	Settings.hh Settings.cc \
 	DebugDevice.hh DebugDevice.cc \
 	config.h
 
+# When editing this list, make sure the following sequences are maintained:
+#   memory < cassette
+#   video < console
+#   video < cpu
+#   video < debugger
+# TODO: Get rid of this manual dependency resolution.
 openmsx_LDADD = \
+	memory/libMemory.la \
+	video/libVideo.la \
+	\
 	cassette/libCassette.la \
 	config/libConfig.la \
 	console/libConsole.la \
 	cpu/libCPU.la \
+	debugger/libDebugger.la \
 	events/libEvents.la \
 	fdc/libFdc.la \
 	file/libFile.la \
 	ide/libIDE.la \
 	input/libInput.la \
 	libxmlx/libxmlx.la \
-	memory/libMemory.la \
+	serial/libSerial.la \
+	settings/libSettings.la \
 	sound/libSound.la \
 	thread/libThread.la \
-	video/libVideo.la \
-	serial/libSerial.la \
-	debugger/libDebugger.la \
 	@XML_LIBS@ \
 	-lSDL_image @SDL_LIBS@
 
