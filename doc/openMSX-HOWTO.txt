@@ -341,14 +341,20 @@ CVS source tree version.
 
 Furthermore, I created a subdirectory extensions/ in ~/.openMSX. This is one of
 the directories openMSX searches in when you use the -ext command line option.
+
 With this option you can specify an `extension', which is in most cases an
 external cartridge with some special hardware in it (e.g., a Panasonic FS-CA1
-MSX Audio cartridge, an IDE interface, or an MSX-DOS2 cartridge). At the moment,
+MSX Audio cartridge, an IDE interface, or an MSX-DOS2 cartridge). It works
+similarly to the machines/ directory and the -machine command. At the moment,
 you can just put an XML file with the hardware discription of that cartridge in
-this directory. If you have an msxdos2.xml here, e.g., you can use `-ext
-msxdos2' on the command line. The ROM files that are needed for the extensions
-have to be in this directory also, if there is no path given in the hardware
-description XML file.
+its own subdirectory in this directory. If you have an XML file that describes
+and MSX-DOS 2 cartridge, e.g., you can create a subdirectory msxdos2 here, in
+which you put the file hardwareconfig.xml (which is that description of the MSX
+DOS 2 cartridge) and the ROM file. Then you can use `-ext msxdos2' on the
+command line to use it. 
+So, the ROM files that are needed for the extensions have to be in their
+subdirectories also, if there is no path given in the hardware description XML
+file.
 
 I also use romdb.xml and settings.xml from the CVS tree via another symbolic
 link. 
@@ -365,12 +371,21 @@ lrwxrwxrwx    1 manuel   manuel         46 Nov 26 21:18 romdb.xml -> /home/manue
 -rw-------    1 manuel   manuel       2391 Feb 18 20:46 settings.xml
 
 /home/manuel/.openMSX/extensions:
+drwx------    2 manuel   manuel       4096 Feb 24 20:41 fs-ca1/
+drwx------    2 manuel   manuel       4096 Feb 24 20:41 ide/
+drwx------    2 manuel   manuel       4096 Feb 24 20:42 msxdos2/
+
+/home/manuel/.openMSX/extensions/fs-ca1:
 -r--------    1 manuel   manuel     131072 Feb  9 10:22 FS-CA1.ROM
+-rw-------    1 manuel   manuel        517 Feb 23 16:00 hardwareconfig.xml
+
+/home/manuel/.openMSX/extensions/ide:
 -rw-------    1 manuel   manuel     131072 Nov  3 01:35 IDE210.ROM
--rw-------    1 manuel   manuel        517 Feb 23 16:00 fs-ca1.xml
+-rw-------    1 manuel   manuel        668 Dec 18 21:21 hardwareconfig.xml
 -rw-------    1 manuel   manuel   107373568 Nov 10 23:01 hd.dsk
--rw-------    1 manuel   manuel        668 Dec 18 21:21 ide.xml
--rw-------    1 manuel   manuel        477 Feb 23 15:45 msxdos2.xml
+
+/home/manuel/.openMSX/extensions/msxdos2:
+-rw-------    1 manuel   manuel        477 Feb 23 15:45 hardwareconfig.xml
 -rw-------    1 manuel   manuel      65536 Oct 14 22:00 msxdos22.rom
 
 The directory persistent is automatically created when you close openMSX. There,
@@ -528,7 +543,10 @@ the FM PAC commander with CALL FMPAC in the emulated MSX!
 
 Note that you can also add a -fmpac switch to the command line. You won't be
 able to make detailed configuration settings then, but it should give you sound,
-at least.
+at least. Alternatively, if you have setup an FM PAC description in
+~/.openMSX/extensions/fmpac e.g., you can also use `-ext fmpac' to use an FM
+PAC. But, as I just said, you need to have a hardware description in that
+subdirectory of extensions/, see chapter 5.
 
 In a similar fashion, you can also add an MSX-Audio device (<device
 id="MSX-Audio">, note that some programs also need the MSX-Audio-Midi device to
