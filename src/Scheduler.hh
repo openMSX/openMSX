@@ -153,7 +153,7 @@ class Scheduler : private EventListener, private HotKeyListener
 			virtual void execute(const char *commandLine);
 			virtual void help(const char *commandLine);
 		};
-		friend PauseCmd;
+		friend class PauseCmd;
 		PauseCmd pauseCmd;
 };
 

@@ -1,5 +1,11 @@
 $Id$
 
+2002-02-11 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Fixed some bugs in Y8950:
+	   it is usable now, both OPL part as ADPCM part
+	   but there are a few bugs left (YM2413 has the same problems)
+	   relative volume of opl vs adpcm might need some tuning
+
 2002-02-10 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Made "cpudebug" command:
 	   must be enabled in CPU.hh (#define CPU_DEBUG)

@@ -17,7 +17,7 @@ class Y8950 : public SoundDevice
 		public:
 			Patch();
 			void reset();
-			int TL,FB,EG,ML,AR,DR,SL,RR,KR,KL,AM,PM;
+			unsigned int TL,FB,EG,ML,AR,DR,SL,RR,KR,KL,AM,PM;
 	};
 	class Slot {
 		public:
@@ -34,12 +34,12 @@ class Y8950 : public SoundDevice
 			static void makeDphaseDRTable(int sampleRate);
 			static void makeDphaseTable(int sampleRate);
 			
-			inline int calc_eg_dphase();
+			inline unsigned int calc_eg_dphase();
 			inline void slotOn();
 			inline void slotOff();
 
-			inline int calc_phase(int lfo_pm);
-			inline int calc_envelope(int lfo_am);
+			inline void calc_phase(int lfo_pm);
+			inline void calc_envelope(int lfo_am);
 			inline int calc_slot_car(int lfo_pm, int lfo_am, int fm);
 			inline int calc_slot_mod(int lfo_pm, int lfo_am);
 			
@@ -55,24 +55,20 @@ class Y8950 : public SoundDevice
 			int output[5];	// Output value of slot 
 
 			// for Phase Generator (PG) 
-			int *sintbl;	// Wavetable 
-			int phase;	// Phase 
-			int dphase;	// Phase increment amount 
-			int pgout;	// output 
+			unsigned int *sintbl;	// Wavetable 
+			unsigned int phase;	// Phase 
+			unsigned int dphase;	// Phase increment amount 
+			unsigned int pgout;	// output 
 
 			// for Envelope Generator (EG) 
 			int fnum;	// F-Number 
 			int block;	// Block 
-			int tll;	// Total Level + Key scale level
-			int rks;	// Key scale offset (Rks) 
+			unsigned int tll;	// Total Level + Key scale level
+			unsigned int rks;	// Key scale offset (Rks) 
 			int eg_mode;	// Current state 
-			int eg_phase;	// Phase 
-			int eg_dphase;	// Phase increment amount 
-			int egout;	// output 
-
-			// LFO (refer to OPL->*) 
-			int *plfo_am;
-			int *plfo_pm;
+			unsigned int eg_phase;	// Phase 
+			unsigned int eg_dphase;	// Phase increment amount 
+			unsigned int egout;	// output 
 
 			Patch patch;  
 
@@ -106,22 +102,22 @@ class Y8950 : public SoundDevice
 			static const int TL_BITS = 6;
 			static const int TL_MUTE = 1<<TL_BITS;
 			// Bits for liner value 
-			static const int DB2LIN_AMP_BITS = 11;
+			static const int DB2LIN_AMP_BITS = 15; //// was 11
 			static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
 			
 			// WaveTable for each envelope amp 
-			static int fullsintable[PG_WIDTH];
+			static unsigned int fullsintable[PG_WIDTH];
 			// Phase incr table for Attack 
-			static int dphaseARTable[16][16];
+			static unsigned int dphaseARTable[16][16];
 			// Phase incr table for Decay and Release 
-			static int dphaseDRTable[16][16];
+			static unsigned int dphaseDRTable[16][16];
 			// KSL + TL Table 
-			static int tllTable[16][8][1<<TL_BITS][4];
+			static unsigned int tllTable[16][8][1<<TL_BITS][4];
 			static int rksTable[2][8][2];
 			// Phase incr table for PG 
-			static int dphaseTable[1024][8][16]; 
+			static unsigned int dphaseTable[1024][8][16]; 
 			// Liner to Log curve conversion table (for Attack rate). 
-			static int AR_ADJUST_TABLE[1<<EG_BITS];
+			static unsigned int AR_ADJUST_TABLE[1<<EG_BITS];
 	};
 
 	class Channel {
@@ -154,11 +150,9 @@ class Y8950 : public SoundDevice
 		inline static int LOWBITS(int c, int b);
 		// Expand x which is s bits to d bits. 
 		inline static int EXPAND_BITS(int x, int s, int d);
-		// Expand x which is s bits to d bits and fill expanded bits '1' 
-		inline static int EXPAND_BITS_X(int x, int s, int d);
 		
 		// Adjust envelope speed which depends on sampling rate. 
-		inline static int rate_adjust(int x, int rate); 
+		inline static unsigned int rate_adjust(double x, int rate); 
 
 	protected:
 		// Definition of envelope mode 
@@ -201,21 +195,24 @@ class Y8950 : public SoundDevice
 		inline bool update_stage();
 		inline void update_output(nibble val);
 
+		void setStatus(int flags);
+		void resetStatus(int flags);
+		void changeStatusMask(int newMask);
 
-		int adr;
+		unsigned int adr;
 		int output[2];
 		// Register 
-		unsigned char reg[0xff]; 
+		byte reg[0xff]; 
 		int slot_on_flag[18];
 		bool rythm_mode;
 		// Pitch Modulator 
 		int pm_mode;
-		int pm_phase;
+		unsigned int pm_phase;
 		// Amp Modulator 
 		int am_mode;
-		int am_phase;
+		unsigned int am_phase;
 		// Noise Generator 
-		int noise_seed;
+		unsigned int noise_seed;
 		// Channel & Slot 
 		Channel ch[9];
 		Slot *slot[18];
@@ -251,13 +248,13 @@ class Y8950 : public SoundDevice
 		int pmtable[2][PM_PG_WIDTH];
 		int amtable[2][AM_PG_WIDTH];
 		// dB to Liner table 
-		static int dB2LinTab[(2*DB_MUTE)*2];
+		static short dB2LinTab[(2*DB_MUTE)*2];
 
-		int pm_dphase;
+		unsigned int pm_dphase;
 		int lfo_pm;
-		int am_dphase;
+		unsigned int am_dphase;
 		int lfo_am;
-		int whitenoise;
+		unsigned int whitenoise;
 
 		int* buffer;
 
@@ -301,20 +298,22 @@ class Y8950 : public SoundDevice
 		static const int R08_CSM          = 0x80;
 
 		// Bitmask for status register 
-		static const int STATUS_EOS     = R04_MASK_EOS    |0x80;
-		static const int STATUS_BUF_RDY = R04_MASK_BUF_RDY|0x80;
-		static const int STATUS_T2      = R04_MASK_T2     |0x80;
-		static const int STATUS_T1      = R04_MASK_T1     |0x80;
+		static const int STATUS_EOS     = R04_MASK_EOS;
+		static const int STATUS_BUF_RDY = R04_MASK_BUF_RDY;
+		static const int STATUS_T2      = R04_MASK_T2;
+		static const int STATUS_T1      = R04_MASK_T1;
 
 		static const int GETA_BITS       = 14;
 		static const int DELTA_ADDR_MAX  = 1<<(16+GETA_BITS);
 		static const int DELTA_ADDR_MASK = DELTA_ADDR_MAX-1;
 
+		byte status;		// STATUS Register
+		byte statusMask;	//  bit=0 -> masked 
+		MSXMotherBoard::IRQHelper irq;
+		
 		byte* wave;		// ADPCM DATA
 		byte* memory[2];	// [0] RAM, [1] ROM
 
-		byte status;		// STATUS Register
-		MSXMotherBoard::IRQHelper irq;
 		bool play_start;
 		int start_addr;
 		int stop_addr;

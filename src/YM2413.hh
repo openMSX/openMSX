@@ -192,7 +192,7 @@ class YM2413 : public SoundDevice
 
 		// Bits for liner value 
 		static const int DB2LIN_AMP_BITS = 15; /////
-		static const int SLOT_AMP_BITS = (DB2LIN_AMP_BITS);
+		static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
 
 		// Bits for envelope phase incremental counter 
 		static const int EG_DP_BITS = 22;
