@@ -62,12 +62,17 @@ public:
 		V9958
 	};
 
+	/** Bitmap of length 32 describing a sprite pattern.
+	  * Visible pixels are 1, transparent pixels are 0.
+	  * If the sprite is less than 32 pixels wide,
+	  * the lower bits are unused.
+	  */
 	typedef unsigned int SpritePattern;
 
 	/** Contains all the information to draw a line of a sprite.
 	  */
 	typedef struct {
-		/** Bit mask of length 32: 1 is visible, 0 is transparent.
+		/** Pattern of this sprite line, corrected for magnification.
 		  */
 		SpritePattern pattern;
 		/** X-coordinate of sprite, corrected for early clock.
@@ -404,7 +409,18 @@ public:
 	  * @return True iff this field should be displayed half a line lower.
 	  */
 	inline bool isInterlaced() {
-		return interlaced && (statusReg2 & 2);
+		return interlaced;
+	}
+
+	/** Get interlace status.
+	  * Interlace means the odd fields are displayed half a line lower
+	  * than the even fields. Together with even/odd page alternation
+	  * this can be used to create an interlaced display.
+	  * This setting is fixed at start of frame.
+	  * @return True iff this field should be displayed half a line lower.
+	  */
+	inline bool isEvenOddEnabled() {
+		return controlRegs[9] & 4;
 	}
 
 	/** Expresses the state of even/odd page interchange in a mask
