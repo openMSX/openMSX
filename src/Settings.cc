@@ -27,56 +27,6 @@ Setting::~Setting()
 }
 
 
-// BooleanSetting implementation:
-
-BooleanSetting::BooleanSetting(
-	const std::string &name_, const std::string &description_,
-	bool initialValue)
-	: Setting(name_, description_), value(initialValue)
-{
-	type = "on - off";
-}
-
-std::string BooleanSetting::getValueString() const
-{
-	if (value) {
-		return std::string("on");
-	} else {
-		return std::string("off");
-	}
-}
-
-void BooleanSetting::setValue(bool newValue, const EmuTime &time)
-{
-	if (checkUpdate(newValue, time)) {
-		value = newValue;
-	}
-}
-
-void BooleanSetting::setValueString(const std::string &valueString,
-                                    const EmuTime &time)
-{
-	bool newValue;
-	if (valueString == "on") {
-		newValue = true;
-	} else if (valueString == "off") {
-		newValue = false;
-	} else {
-		throw CommandException(
-			"Not a valid boolean: \"" + valueString + "\"");
-	}
-	setValue(newValue, time);
-}
-
-void BooleanSetting::tabCompletion(std::vector<std::string> &tokens) const
-{
-	std::list<std::string> values;
-	values.push_back("on");
-	values.push_back("off");
-	CommandController::completeString(tokens, values);
-}
-
-
 // IntegerSetting implementation:
 
 IntegerSetting::IntegerSetting(
@@ -124,7 +74,7 @@ template <class T>
 EnumSetting<T>::EnumSetting(
 	const std::string &name_, const std::string &description_,
 	const T &initialValue,
-	const std::map<const std::string, T> &map_)
+	const std::map<std::string, T> &map_)
 	: Setting(name_, description_), value(initialValue), map(map_)
 {
 	std::ostringstream out;
@@ -151,14 +101,20 @@ std::string EnumSetting<T>::getValueString() const
 }
 
 template <class T>
+void EnumSetting<T>::setValue(T newValue, const EmuTime &time)
+{
+	if (checkUpdate(newValue, time)) {
+		value = newValue;
+	}
+}
+
+template <class T>
 void EnumSetting<T>::setValueString(const std::string &valueString,
                                     const EmuTime &time)
 {
 	MapIterator it = map.find(valueString);
 	if (it != map.end()) {
-		if (checkUpdate(it->second, time)) {
-			value = it->second;
-		}
+		setValue(it->second, time);
 	} else {
 		throw CommandException(
 			"Not a valid value: \"" + valueString + "\"");
@@ -173,6 +129,29 @@ void EnumSetting<T>::tabCompletion(std::vector<std::string> &tokens) const
 		values.push_back(it->first);
 	}
 	CommandController::completeString(tokens, values);
+}
+
+
+// BooleanSetting implementation
+
+BooleanSetting::BooleanSetting(
+	const std::string &name, const std::string &description,
+	bool initialValue)
+	: EnumSetting<bool>(name, description, initialValue, getMap())
+{
+}
+
+std::map<std::string, bool> &BooleanSetting::getMap()
+{
+	static std::map<std::string, bool> boolMap;
+	static bool alreadyInit = false;
+
+	if (!alreadyInit) {
+		alreadyInit = true;
+		boolMap["on"]  = true;
+		boolMap["off"] = false;
+	}
+	return boolMap;
 }
 
 

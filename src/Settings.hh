@@ -78,47 +78,6 @@ private:
 };
 
 
-/** A Setting with a boolean value.
-  */
-class BooleanSetting : public Setting
-{
-public:
-	BooleanSetting(
-		const std::string &name, const std::string &description,
-		bool initialValue = false);
-
-	/** Get the current value of this setting.
-	  */
-	bool getValue() const { return value; }
-
-	/** Set the current value of this setting.
-	  * @param value The new value.
-	 *  @param time The moment in time the value is changed
-	  */
-	void setValue(bool value, const EmuTime &time);
-
-	// Implementation of Setting interface:
-	virtual std::string getValueString() const;
-	virtual void setValueString(const std::string &valueString,
-	                            const EmuTime &time);
-	virtual void tabCompletion(std::vector<std::string> &tokens) const;
-
-protected:
-	/**
-	 * Called just before this setting is assigned a new value
-	 * @param newValue The new value, the variable value still
-	 *                 contains the old value
-	 * @param time The moment in time the value is changed
-	 * @return Only when the result is true the new value is assigned
-	 */
-	virtual bool checkUpdate(bool newValue, const EmuTime &time) {
-		return true;
-	}
-
-	bool value;
-};
-
-
 /** A Setting with an integer value.
   */
 class IntegerSetting: public Setting
@@ -164,11 +123,17 @@ public:
 	EnumSetting(
 		const std::string &name, const std::string &description,
 		const T &initialValue,
-		const std::map<const std::string, T> &map);
+		const std::map<std::string, T> &map);
 
 	/** Get the current value of this setting.
 	  */
 	T getValue() const { return value; }
+	
+	/** Set the current value of this setting.
+	  * @param value The new value.
+	 *  @param time The moment in time the value is changed
+	  */
+	void setValue(T value, const EmuTime &time);
 
 	// Implementation of Setting interface:
 	virtual std::string getValueString() const;
@@ -190,8 +155,22 @@ protected:
 
 	T value;
 	typedef typename
-	        std::map<const std::string, T>::const_iterator MapIterator;
-	const std::map<const std::string, T> map;
+	        std::map<std::string, T>::const_iterator MapIterator;
+	const std::map<std::string, T> map;
+};
+
+
+/** A Setting with a boolean value.
+  */
+class BooleanSetting : public EnumSetting<bool>
+{
+public:
+	BooleanSetting(
+		const std::string &name, const std::string &description,
+		bool initialValue = false);
+
+private:
+	static std::map<std::string, bool> &getMap();
 };
 
 
