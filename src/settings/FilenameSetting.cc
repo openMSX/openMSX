@@ -20,20 +20,18 @@ FilenameSettingBase::FilenameSettingBase(
 
 void FilenameSettingBase::setValue(const string& newValue)
 {
-	string resolved;
 	try {
 		UserFileContext context;
-		resolved = context.resolve(newValue);
+		string resolved = context.resolve(newValue);
+		if (checkFile(resolved)) {
+			StringSettingBase::setValue(newValue);
+		}
 	} catch (FileException& e) {
 		// File not found.
-		if (newValue != ""){
+		if (!newValue.empty()) {
 			CliCommOutput::instance().printWarning(
 				"couldn't find file: \"" + newValue + "\"");
 		}
-		return;
-	}
-	if (checkFile(resolved)) {
-		StringSettingBase::setValue(newValue);
 	}
 }
 

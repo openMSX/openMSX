@@ -910,7 +910,7 @@ template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateDisplayMode(
 	DisplayMode mode, const EmuTime& time)
 {
-	sync(time);
+	sync(time, true);
 	setDisplayMode(mode);
 }
 

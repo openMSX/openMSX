@@ -160,20 +160,21 @@ public:
 			// Calculate colour of pixel to be plotted.
 			byte colour = 0xFF;
 			for (int i = 0; i < visibleIndex; i++) {
-				SpriteChecker::SpriteInfo* sip = &visibleSprites[i];
-				int shift = pixelDone - sip->x;
+				SpriteChecker::SpriteInfo& info = visibleSprites[i];
+				int shift = pixelDone - info.x;
 				if ((0 <= shift && shift < maxSize)
-				&& ((sip->pattern << shift) & 0x80000000)) {
-					byte c = sip->colourAttrib & 0x0F;
+				&& ((info.pattern << shift) & 0x80000000)) {
+					byte c = info.colourAttrib & 0x0F;
 					if (c == 0 && transparency) continue;
 					colour = c;
 					// Merge in any following CC=1 sprites.
-					for (i++ ; i < visibleIndex; i++) {
-						sip = &visibleSprites[i];
-						if (!(sip->colourAttrib & 0x40)) break;
-						if ((0 <= shift && shift < maxSize)
-						&& ((sip->pattern << shift) & 0x80000000)) {
-							colour |= sip->colourAttrib & 0x0F;
+					for (int j = i + 1; j < visibleIndex; j++) {
+						SpriteChecker::SpriteInfo& info2 = visibleSprites[j];
+						if (!(info2.colourAttrib & 0x40)) break;
+						int shift2 = pixelDone - info2.x;
+						if ((0 <= shift2 && shift2 < maxSize)
+						&& ((info2.pattern << shift2) & 0x80000000)) {
+							colour |= info2.colourAttrib & 0x0F;
 						}
 					}
 					break;

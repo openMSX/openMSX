@@ -228,7 +228,7 @@ void PixelRenderer::updateMultiPage(
 void PixelRenderer::updateSpritesEnabled(
 	bool enabled, const EmuTime &time
 ) {
-	sync(time);
+	sync(time, true);
 }
 
 static inline bool overlap(

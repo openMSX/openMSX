@@ -805,7 +805,7 @@ void SDLGLRenderer::updateHorizontalAdjust(
 void SDLGLRenderer::updateDisplayMode(
 	DisplayMode mode, const EmuTime &time)
 {
-	sync(time);
+	sync(time, true);
 	setDisplayMode(mode);
 }
 
