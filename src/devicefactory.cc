@@ -31,11 +31,11 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	if (conf->getType()=="RealTime") {
 		device = MSXRealTime::instance();
 	} else
-	if (conf->getType()=="PPI") {
-		device = MSXPPI::instance();
-	} else
 	if (conf->getType()=="MapperIO") {
 		device = MSXMapperIO::instance();
+	} else
+	if (conf->getType()=="PPI") {
+		device = new MSXPPI(conf, time);
 	} else
 	if (conf->getType()=="Rom16KB") {
 		device = new MSXRom16KB(conf, time);

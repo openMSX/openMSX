@@ -1,5 +1,8 @@
 $Id$
 
+2001-12-07 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* MSXPPI is no longer a singleton
+
 2001-12-06 Maarten ter Huurne <mth@stack.nl>
 	* Small initialisation fix in MSXTMS9928a.
 	  Thanks to Wouter for spotting the problem.

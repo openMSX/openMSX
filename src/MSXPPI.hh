@@ -54,27 +54,20 @@ class MSXPPI : public MSXIODevice, public I8255Interface
 	// MSXDevice
 	public:
 		/**
+		 * Constructor.
+		 */
+		MSXPPI(MSXConfig::Device *config, const EmuTime &time); 
+
+		/**
 		 * Destructor
 		 */
 		~MSXPPI(); 
 
-		/**
-		 * This is a singleton class. This method returns a reference 
-		 * to the single instance of this class.
-		 */
-		static MSXPPI *instance();
-		
 		void reset(const EmuTime &time);
 		byte readIO(byte port, const EmuTime &time);
 		void writeIO(byte port, byte value, const EmuTime &time);
 
 	private:
-		/**
-		 * Constructor.
-		 */
-		MSXPPI(MSXConfig::Device *config, const EmuTime &time); 
-
-		static MSXPPI *oneInstance;
 		I8255 *i8255;
 	
 	// I8255Interface

@@ -26,7 +26,7 @@ void MSXMusic::reset(const EmuTime &time)
 {
 	ym2413->reset();
 	registerLatch = 0; // TODO check
-	enable = 1; 	// TODO check
+	enable = 0; 	// TODO check
 }
 
 void MSXMusic::writeIO(byte port, byte value, const EmuTime &time)

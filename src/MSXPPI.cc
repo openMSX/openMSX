@@ -12,7 +12,6 @@ MSXPPI::MSXPPI(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXPPI object");
-	oneInstance = this;
 	
 	keyboard = new Keyboard(true); // TODO make configurable
 	i8255 = new I8255(*this, time);
@@ -37,21 +36,6 @@ MSXPPI::~MSXPPI()
 	delete i8255;
 	delete click;
 }
-
-MSXPPI* MSXPPI::instance(void)
-{
-	if (oneInstance == NULL) {
-		std::list<MSXConfig::Device*> deviceList;
-		deviceList = MSXConfig::instance()->getDeviceByType("PPI");
-		if (deviceList.size() != 1)
-			PRT_ERROR("There must be exactly one PPI in config file");
-		MSXConfig::Device* config = deviceList.front();
-		EmuTime zero;
-		new MSXPPI(config, zero);
-	}
-	return oneInstance;
-}
-MSXPPI *MSXPPI::oneInstance = NULL;
 
 
 void MSXPPI::reset(const EmuTime &time)
