@@ -388,16 +388,19 @@ inline static int calculatePattern(byte *patternPtr, int y, int size, int mag)
 	}
 	if (mag) {
 		// Double every dot.
-		int orgPattern = pattern;
+		int doublePattern = 0;
 		for (int i = 16; i--; ) {
-			pattern <<= 2;
-			if (orgPattern & 0x80000000) {
-				pattern |= 3;
+			doublePattern <<= 2;
+			if (pattern & 0x80000000) {
+				doublePattern |= 3;
 			}
-			orgPattern <<= 1;
+			pattern <<= 1;
 		}
+		return doublePattern;
 	}
-	return pattern;
+	else {
+		return pattern;
+	}
 }
 
 int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
