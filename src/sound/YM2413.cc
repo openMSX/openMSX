@@ -6,29 +6,28 @@
   * heavily rewritten to fit openMSX structure
   */
 
-#include "YM2413.hh"
-
 #include <math.h>
 #include <cassert>
+#include "YM2413.hh"
 #include "Mixer.hh"
 
 
+int YM2413::pmtable[PM_PG_WIDTH];
+int YM2413::amtable[AM_PG_WIDTH];
+int YM2413::tllTable[16][8][1 << TL_BITS][4];
+int YM2413::rksTable[2][8][2];
+word YM2413::AR_ADJUST_TABLE[1 << EG_BITS];
 word YM2413::fullsintable[PG_WIDTH];
 word YM2413::halfsintable[PG_WIDTH];
 word* YM2413::waveform[2] = {fullsintable, halfsintable};
-int YM2413::pmtable[PM_PG_WIDTH];
-int YM2413::amtable[AM_PG_WIDTH];
-word YM2413::AR_ADJUST_TABLE[1<<EG_BITS];
-YM2413::Patch YM2413::nullPatch(false, false, false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-int YM2413::tllTable[16][8][1<<TL_BITS][4];
-int YM2413::rksTable[2][8][2];
-short YM2413::dB2LinTab[(2*DB_MUTE)*2];
+short YM2413::dB2LinTab[(2 * DB_MUTE) * 2];
 unsigned int YM2413::dphaseNoiseTable[512][8];
 unsigned int YM2413::dphaseARTable[16][16];
 unsigned int YM2413::dphaseDRTable[16][16];
 unsigned int YM2413::dphaseTable[512][8][16];
 unsigned int YM2413::pm_dphase;
 unsigned int YM2413::am_dphase;
+YM2413::Patch YM2413::nullPatch(false, false, false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 
 //***************************************************//
@@ -39,24 +38,24 @@ unsigned int YM2413::am_dphase;
 
 int YM2413::Slot::EG2DB(int d) 
 {
-	return d*(int)(EG_STEP/DB_STEP);
+	return d * (int)(EG_STEP / DB_STEP);
 }
 int YM2413::TL2EG(int d)
 { 
-	return d*(int)(TL_STEP/EG_STEP);
+	return d * (int)(TL_STEP / EG_STEP);
 }
 int YM2413::Slot::SL2EG(int d)
 {
-	return d*(int)(SL_STEP/EG_STEP);
+	return d * (int)(SL_STEP / EG_STEP);
 }
 
 int YM2413::DB_POS(int x)
 {
-	return (int)(x/DB_STEP);
+	return (int)(x / DB_STEP);
 }
 int YM2413::DB_NEG(int x)
 {
-	return (int)(2*DB_MUTE+x/DB_STEP);
+	return (int)(2 * DB_MUTE + x / DB_STEP);
 }
 
 // Cut the lower b bit off
@@ -67,17 +66,17 @@ int YM2413::HIGHBITS(int c, int b)
 // Leave the lower b bit
 int YM2413::LOWBITS(int c, int b)
 {
-	return c & ((1<<b)-1);
+	return c & ((1 << b) - 1);
 }
 // Expand x which is s bits to d bits
 int YM2413::EXPAND_BITS(int x, int s, int d)
 {
-	return x<<(d-s);
+	return x << (d - s);
 }
 // Adjust envelope speed which depends on sampling rate
 unsigned int YM2413::rate_adjust(double x, int rate)
 {
-	double tmp = x*CLOCK_FREQ/72/rate + 0.5; // +0.5 to round
+	double tmp = x * CLOCK_FREQ / 72 / rate + 0.5; // +0.5 to round
 	assert (tmp <= 4294967295U);
 	return (unsigned int)tmp;
 }
@@ -92,35 +91,37 @@ unsigned int YM2413::rate_adjust(double x, int rate)
 // Table for AR to LogCurve.
 void YM2413::makeAdjustTable()
 {
-	AR_ADJUST_TABLE[0] = (1<<EG_BITS);
-	for (int i=1; i<128; i++)
-		AR_ADJUST_TABLE[i] = (int)((double)(1<<EG_BITS) - 1 - (1<<EG_BITS) * log(i) / log(128)); 
+	AR_ADJUST_TABLE[0] = (1 << EG_BITS);
+	for (int i = 1; i < 128; i++)
+		AR_ADJUST_TABLE[i] = (int)((double)(1 << EG_BITS) - 1 -
+		                           (1 << EG_BITS) * log(i) / log(128));
 }
 
 // Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH)
 void YM2413::makeDB2LinTable()
 {
-	for (int i=0; i<2*DB_MUTE; i++) {
-		dB2LinTab[i] = (i<DB_MUTE) ? 
-		        (int)((double)((1<<DB2LIN_AMP_BITS)-1)*pow(10,-(double)i*DB_STEP/20)) :
+	for (int i = 0; i < 2 * DB_MUTE; i++) {
+		dB2LinTab[i] = (i < DB_MUTE) ? 
+		        (int)((double)((1 << DB2LIN_AMP_BITS) - 1) *
+			      pow(10, -(double)i * DB_STEP / 20)) :
 		        0;
-		dB2LinTab[i+2*DB_MUTE] = -dB2LinTab[i];
+		dB2LinTab[i + 2 * DB_MUTE] = -dB2LinTab[i];
 	}
 }
 
 // Sin Table
 void YM2413::makeSinTable()
 {
-	for (int i=0; i<PG_WIDTH/4; i++)
-		fullsintable[i] = lin2db(sin(2.0*PI*i/PG_WIDTH));
-	for (int i=0; i<PG_WIDTH/4; i++)
-		fullsintable[PG_WIDTH/2 - 1 - i] = fullsintable[i];
-	for (int i=0; i<PG_WIDTH/2; i++)
-		fullsintable[PG_WIDTH/2+i] = 2*DB_MUTE + fullsintable[i];
+	for (int i = 0; i < PG_WIDTH / 4; i++)
+		fullsintable[i] = lin2db(sin(2.0 * PI * i / PG_WIDTH));
+	for (int i = 0; i < PG_WIDTH / 4; i++)
+		fullsintable[PG_WIDTH / 2 - 1 - i] = fullsintable[i];
+	for (int i = 0; i < PG_WIDTH / 2; i++)
+		fullsintable[PG_WIDTH / 2 + i] = 2 * DB_MUTE + fullsintable[i];
 
-	for (int i=0; i<PG_WIDTH/2; i++)
+	for (int i = 0; i < PG_WIDTH / 2; i++)
 		halfsintable[i] = fullsintable[i];
-	for (int i=PG_WIDTH/2; i<PG_WIDTH; i++)
+	for (int i = PG_WIDTH / 2; i < PG_WIDTH; i++)
 		halfsintable[i] = fullsintable[0];
 }
 // Liner(+0.0 - +1.0) to dB((1<<DB_BITS) - 1 -- 0)
@@ -128,67 +129,74 @@ int YM2413::lin2db(double d)
 {
 	if (d < 1e-4) {
 		// (almost) zero
-		return DB_MUTE-1;
+		return DB_MUTE - 1;
 	} else {
-		return min(-(int)(20.0*log10(d)/DB_STEP), DB_MUTE-1); // 0 - 128
+		return min(-(int)(20.0 * log10(d) / DB_STEP), DB_MUTE - 1); // 0 - 128
 	}
 }
-int YM2413::min(int i, int j) {
-	if (i<j) return i; else return j;
+int YM2413::min(int i, int j)
+{
+	return (i < j) ? i : j;
 }
 
 
 
 void YM2413::makeDphaseNoiseTable(int sampleRate)
 {
-	for (int i=0; i<512; i++)
-		for (int j=0; j<8; j++)
-			dphaseNoiseTable[i][j] = rate_adjust(i<<j, sampleRate);
+	for (int i = 0; i < 512; i++)
+		for (int j = 0; j < 8; j++)
+			dphaseNoiseTable[i][j] = rate_adjust(i << j, sampleRate);
 }
 
 // Table for Pitch Modulator
 void YM2413::makePmTable()
 {
-	for (int i=0; i<PM_PG_WIDTH; i++)
-		pmtable[i] = (int)((double)PM_AMP * pow(2,(double)PM_DEPTH*sin(2.0*PI*i/PM_PG_WIDTH)/1200));
+	for (int i = 0; i < PM_PG_WIDTH; i++)
+		pmtable[i] = (int)((double)PM_AMP *
+		                   pow(2, (double)PM_DEPTH *
+		                          sin(2.0 * PI * i / PM_PG_WIDTH) / 1200));
 }
 
 // Table for Amp Modulator
 void YM2413::makeAmTable()
 {
-	for (int i=0; i<AM_PG_WIDTH; i++)
-		amtable[i] = (int)((double)AM_DEPTH/2/DB_STEP * (1.0 + sin(2.0*PI*i/PM_PG_WIDTH)));
+	for (int i = 0; i < AM_PG_WIDTH; i++)
+		amtable[i] = (int)((double)AM_DEPTH / 2 / DB_STEP *
+		                   (1.0 + sin(2.0 * PI * i / PM_PG_WIDTH)));
 }
 
 /* Phase increment counter table */ 
 void YM2413::makeDphaseTable(int sampleRate)
 {
 	int mltable[16] = {
-		1,1*2,2*2,3*2,4*2,5*2,6*2,7*2,8*2,9*2,10*2,10*2,12*2,12*2,15*2,15*2
+		1,   1*2,  2*2,  3*2,  4*2,  5*2,  6*2,  7*2,
+		8*2, 9*2, 10*2, 10*2, 12*2, 12*2, 15*2, 15*2
 	};
 
-	for (int fnum=0; fnum<512; fnum++)
-		for (int block=0; block<8; block++)
-			for (int ML=0; ML<16; ML++)
+	for (int fnum = 0; fnum < 512; fnum++)
+		for (int block = 0; block < 8; block++)
+			for (int ML = 0; ML < 16; ML++)
 				dphaseTable[fnum][block][ML] = 
-					rate_adjust(((fnum * mltable[ML])<<block)>>(20-DP_BITS), sampleRate);
+					rate_adjust(((fnum * mltable[ML]) << block) >>
+					            (20 - DP_BITS),
+					            sampleRate);
 }
 
 void YM2413::makeTllTable()
 {
-	#define dB2(x) (int)((x)*2)
+	#define dB2(x) (int)((x) * 2)
 	int kltable[16] = {
-		dB2( 0.000),dB2( 9.000),dB2(12.000),dB2(13.875),
-		dB2(15.000),dB2(16.125),dB2(16.875),dB2(17.625),
-		dB2(18.000),dB2(18.750),dB2(19.125),dB2(19.500),
-		dB2(19.875),dB2(20.250),dB2(20.625),dB2(21.000)
+		dB2( 0.000), dB2( 9.000), dB2(12.000), dB2(13.875),
+		dB2(15.000), dB2(16.125), dB2(16.875), dB2(17.625),
+		dB2(18.000), dB2(18.750), dB2(19.125), dB2(19.500),
+		dB2(19.875), dB2(20.250), dB2(20.625), dB2(21.000)
 	};
   
-	for (int fnum=0; fnum<16; fnum++) {
-		for (int block=0; block<8; block++) {
-			for (int TL=0; TL<64; TL++) {
-				for (int KL=0; KL<4; KL++) {
-					if (KL==0) {
+	for (int fnum = 0; fnum < 16; fnum++) {
+		for (int block = 0; block < 8; block++) {
+			for (int TL = 0; TL < 64; TL++) {
+				for (int KL = 0; KL < 4; KL++) {
+					if (KL == 0) {
 						tllTable[fnum][block][TL][KL] = TL2EG(TL);
 					} else {
 						int tmp = kltable[fnum] - dB2(3.000) * (7 - block);
@@ -196,7 +204,7 @@ void YM2413::makeTllTable()
 							tllTable[fnum][block][TL][KL] = TL2EG(TL);
 						} else { 
 							tllTable[fnum][block][TL][KL] =
-								(int)((tmp>>(3-KL))/EG_STEP) + TL2EG(TL);
+								(int)((tmp>>(3 - KL)) / EG_STEP) + TL2EG(TL);
 						}
 					}
 				}
@@ -208,11 +216,11 @@ void YM2413::makeTllTable()
 // Rate Table for Attack
 void YM2413::makeDphaseARTable(int sampleRate)
 {
-	for (int AR=0; AR<16; AR++) {
-		for (int Rks=0; Rks<16; Rks++) {
-			int RM = AR + (Rks>>2);
+	for (int AR = 0; AR < 16; AR++) {
+		for (int Rks = 0; Rks < 16; Rks++) {
+			int RM = AR + (Rks >> 2);
 			if (RM>15) RM = 15;
-			int RL = Rks&3;
+			int RL = Rks & 3;
 			switch(AR) { 
 			case 0:
 				dphaseARTable[AR][Rks] = 0;
@@ -221,7 +229,7 @@ void YM2413::makeDphaseARTable(int sampleRate)
 				dphaseARTable[AR][Rks] = EG_DP_WIDTH;
 				break;
 			default:
-				dphaseARTable[AR][Rks] = rate_adjust(3*(RL+4) << (RM+1), sampleRate);
+				dphaseARTable[AR][Rks] = rate_adjust(3 * (RL + 4) << (RM + 1), sampleRate);
 				break;
 			}
 		}
@@ -231,17 +239,17 @@ void YM2413::makeDphaseARTable(int sampleRate)
 // Rate Table for Decay
 void YM2413::makeDphaseDRTable(int sampleRate)
 {
-	for (int DR=0; DR<16; DR++) {
-		for (int Rks=0; Rks<16; Rks++) {
-			int RM = DR + (Rks>>2);
-			int RL = Rks&3;
-			if (RM>15) RM = 15;
+	for (int DR = 0; DR < 16; DR++) {
+		for (int Rks = 0; Rks < 16; Rks++) {
+			int RM = DR + (Rks >> 2);
+			int RL = Rks & 3;
+			if (RM > 15) RM = 15;
 			switch(DR) { 
 			case 0:
 				dphaseDRTable[DR][Rks] = 0;
 				break;
 			default:
-				dphaseDRTable[DR][Rks] = rate_adjust((RL+4) << (RM-1), sampleRate);
+				dphaseDRTable[DR][Rks] = rate_adjust((RL + 4) << (RM - 1), sampleRate);
 				break;
 			}
 		}
@@ -250,12 +258,12 @@ void YM2413::makeDphaseDRTable(int sampleRate)
 
 void YM2413::makeRksTable()
 {
-	for (int fnum8=0; fnum8<2; fnum8++) {
-		for (int block=0; block<8; block++) {
-			for (int KR=0; KR<2; KR++) {
+	for (int fnum8 = 0; fnum8 < 2; fnum8++) {
+		for (int block = 0; block < 8; block++) {
+			for (int KR = 0; KR < 2; KR++) {
 				rksTable[fnum8][block][KR] = (KR != 0) ?
-					(block<<1) + fnum8:
-					 block>>1;
+					(block << 1) + fnum8:
+					 block >> 1;
 			}
 		}
 	}
@@ -285,6 +293,7 @@ YM2413::Patch::Patch(bool AM_, bool PM_, bool EG_, byte KR_, byte ML_,
 YM2413::Slot::Slot(bool type_)
 	: type(type_)
 {
+	reset();
 }
 
 // Destructor
@@ -323,13 +332,13 @@ void YM2413::Slot::updatePG()
 
 void YM2413::Slot::updateTLL()
 {
-	tll = type ? tllTable[fnum>>5][block][volume]   [patch->KL]:
-	             tllTable[fnum>>5][block][patch->TL][patch->KL];
+	tll = type ? tllTable[fnum >> 5][block][volume]   [patch->KL]:
+	             tllTable[fnum >> 5][block][patch->TL][patch->KL];
 }
 
 void YM2413::Slot::updateRKS()
 {
-	rks = rksTable[fnum>>8][block][patch->KR];
+	rks = rksTable[fnum >> 8][block][patch->KR];
 }
 
 void YM2413::Slot::updateWF()
@@ -391,7 +400,8 @@ void YM2413::Slot::slotOff()
 	if (slotStatus) {
 		slotStatus = false;
 		if (eg_mode == ATTACK)
-			eg_phase = EXPAND_BITS(AR_ADJUST_TABLE[HIGHBITS(eg_phase,EG_DP_BITS-EG_BITS)],EG_BITS,EG_DP_BITS);
+			eg_phase = EXPAND_BITS(AR_ADJUST_TABLE[HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS)],
+			                       EG_BITS, EG_DP_BITS);
 		eg_mode = RELEASE;
 	}
 }
@@ -439,8 +449,8 @@ void YM2413::Channel::reset()
 void YM2413::Channel::setPatch(int num)
 {
 	userPatch = (num == 0);
-	mod.setPatch(&patches[2*num]);
-	car.setPatch(&patches[2*num+1]);
+	mod.setPatch(&patches[2 * num]);
+	car.setPatch(&patches[2 * num + 1]);
 }
 
 // Set sustine parameter
@@ -495,6 +505,7 @@ void YM2413::Channel::keyOff()
 
 // Constructor
 YM2413::YM2413(short volume_, const EmuTime &time, const Mixer::ChannelMode mode)
+	: rythm_mode(false)
 {
 	// User instrument
 	patches[ 0] = Patch(false, false, false, 0,  0, 0,  0, 0, 0,  0,  0,  0,  0);
@@ -552,7 +563,11 @@ YM2413::YM2413(short volume_, const EmuTime &time, const Mixer::ChannelMode mode
 	patches[36] = Patch(false, false,  true, 0,  5, 0,  0, 0, 0, 15,  8, 15,  8);
 	patches[37] = Patch(false, false, false, 1,  8, 0,  0, 0, 0, 13, 10,  5,  5);
 
-	for (int i=0; i<9; i++) {
+	for (int i = 0; i < 0x40; i++) {
+		reg[i] = 0; // avoid UMR
+	}
+
+	for (int i = 0; i < 9; i++) {
 		// TODO cleanup
 		ch[i].mod.plfo_am = &lfo_am;
 		ch[i].mod.plfo_pm = &lfo_pm;
@@ -568,11 +583,11 @@ YM2413::YM2413(short volume_, const EmuTime &time, const Mixer::ChannelMode mode
 	makeSinTable();
 	makeDB2LinTable();
 
-	reset(time);
-
 	setVolume(volume_);
 	int bufSize = Mixer::instance()->registerSound(this, mode);
 	buffer = new int[bufSize];
+	
+	reset(time);
 }
 
 // Destructor
@@ -589,17 +604,19 @@ void YM2413::reset(const EmuTime &time)
 	output[1] = 0;
 	pm_phase = 0;
 	am_phase = 0;
-	noise_seed =0xffff;
+	noise_seed = 0xFFFF;
 	noiseA = 0;
 	noiseB = 0;
 	noiseA_phase = 0;
 	noiseB_phase = 0;
 	noiseA_dphase = 0;
 	noiseB_dphase = 0;
-	for(int i=0; i<9; i++)
+	for(int i = 0; i < 9; i++) {
 		ch[i].reset();
-	for (int i=0; i<0x40; i++)
+	}
+	for (int i = 0; i < 0x40; i++) {
 		writeReg(i, 0, time);	// optimization: pass time only once
+	}
 	setInternalMute(true);	// set muted
 }
 
@@ -609,8 +626,8 @@ void YM2413::setSampleRate(int sampleRate)
 	makeDphaseARTable(sampleRate);
 	makeDphaseDRTable(sampleRate);
 	makeDphaseNoiseTable(sampleRate);
-	pm_dphase = rate_adjust(PM_SPEED * PM_DP_WIDTH / (CLOCK_FREQ/72), sampleRate);
-	am_dphase = rate_adjust(AM_SPEED * AM_DP_WIDTH / (CLOCK_FREQ/72), sampleRate);
+	pm_dphase = rate_adjust(PM_SPEED * PM_DP_WIDTH / (CLOCK_FREQ / 72), sampleRate);
+	am_dphase = rate_adjust(AM_SPEED * AM_DP_WIDTH / (CLOCK_FREQ / 72), sampleRate);
 }
 
 
@@ -643,9 +660,9 @@ void YM2413::setRythmMode(int data)
 			ch[8].mod.type = true;
 		} else {
 			// ON->OFF
-			ch[6].setPatch(reg[0x36]>>4);
-			ch[7].setPatch(reg[0x37]>>4);
-			ch[8].setPatch(reg[0x38]>>4);
+			ch[6].setPatch(reg[0x36] >> 4);
+			ch[7].setPatch(reg[0x37] >> 4);
+			ch[8].setPatch(reg[0x38] >> 4);
 			ch[7].mod.type = false;
 			ch[8].mod.type = false;
 			
@@ -699,25 +716,25 @@ inline void YM2413::update_noise()
 	if (noise_seed & 1)
 		noise_seed ^= 0x24000;
 	noise_seed >>= 1;
-	whitenoise = noise_seed&1 ? DB_POS(6) : DB_NEG(6);
+	whitenoise = noise_seed & 1 ? DB_POS(6) : DB_NEG(6);
 
 	noiseA_phase += noiseA_dphase;
 	noiseB_phase += noiseB_dphase;
 
-	noiseA_phase &= (0x40<<11) - 1;
-	if ((noiseA_phase>>11)==0x3f)
+	noiseA_phase &= (0x40 << 11) - 1;
+	if ((noiseA_phase >> 11) == 0x3F)
 		noiseA_phase = 0;
-	noiseA = noiseA_phase&(0x03<<11)?DB_POS(6):DB_NEG(6);
+	noiseA = noiseA_phase&(0x03 << 11) ? DB_POS(6) : DB_NEG(6);
 
-	noiseB_phase &= (0x10<<11) - 1;
-	noiseB = noiseB_phase&(0x0A<<11)?DB_POS(6):DB_NEG(6);
+	noiseB_phase &= (0x10 << 11) - 1;
+	noiseB = noiseB_phase&(0x0A << 11) ? DB_POS(6) : DB_NEG(6);
 }
 
 // Update AM, PM unit
 inline void YM2413::update_ampm()
 {
-	pm_phase = (pm_phase + pm_dphase)&(PM_DP_WIDTH - 1);
-	am_phase = (am_phase + am_dphase)&(AM_DP_WIDTH - 1);
+	pm_phase = (pm_phase + pm_dphase) & (PM_DP_WIDTH - 1);
+	am_phase = (am_phase + am_dphase) & (AM_DP_WIDTH - 1);
 	lfo_am = amtable[HIGHBITS(am_phase, AM_DP_BITS - AM_PG_BITS)];
 	lfo_pm = pmtable[HIGHBITS(pm_phase, PM_DP_BITS - PM_PG_BITS)];
 }
@@ -737,7 +754,7 @@ void YM2413::Slot::calc_phase()
 // EG
 void YM2413::Slot::calc_envelope()
 {
-	#define S2E(x) (SL2EG((unsigned int)(x/SL_STEP))<<(EG_DP_BITS-EG_BITS)) 
+	#define S2E(x) (SL2EG((unsigned int)(x / SL_STEP)) << (EG_DP_BITS - EG_BITS)) 
 	static unsigned int SL[16] = {
 		S2E( 0), S2E( 3), S2E( 6), S2E( 9), S2E(12), S2E(15), S2E(18), S2E(21),
 		S2E(24), S2E(27), S2E(30), S2E(33), S2E(36), S2E(39), S2E(42), S2E(48)
@@ -782,22 +799,22 @@ void YM2413::Slot::calc_envelope()
 	case RELEASE:
 		eg_phase += eg_dphase;
 		egout = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
-		if (egout >= (1<<EG_BITS)) {
+		if (egout >= (1 << EG_BITS)) {
 			eg_mode = FINISH;
-			egout = (1<<EG_BITS) - 1;
+			egout = (1 << EG_BITS) - 1;
 		}
 		break;
 	case FINISH:
 	default:
-		egout = (1<<EG_BITS) - 1;
+		egout = (1 << EG_BITS) - 1;
 		break;
 	}
 	if (patch->AM) 
-		egout = EG2DB(egout+tll) + (*plfo_am);
+		egout = EG2DB(egout + tll) + (*plfo_am);
 	else 
-		egout = EG2DB(egout+tll);
+		egout = EG2DB(egout + tll);
 	if (egout >= DB_MUTE)
-		egout = DB_MUTE-1;
+		egout = DB_MUTE - 1;
 }
 
 // CARRIOR
@@ -807,10 +824,10 @@ int YM2413::Slot::calc_slot_car(int fm)
 	calc_phase();
 	output[1] = output[0];
 
-	if (egout>=(DB_MUTE-1)) {
+	if (egout >= (DB_MUTE - 1)) {
 		output[0] = 0;
 	} else {
-		output[0] = dB2LinTab[sintbl[(pgout+wave2_8pi(fm))&(PG_WIDTH-1)] + egout];
+		output[0] = dB2LinTab[sintbl[(pgout + wave2_8pi(fm)) & (PG_WIDTH - 1)] + egout];
 	}
 	return (output[1] + output[0]) >> 1;
 }
@@ -822,11 +839,11 @@ int YM2413::Slot::calc_slot_mod()
 	calc_envelope();
 	calc_phase();
 
-	if(egout>=(DB_MUTE-1)) {
+	if(egout>=(DB_MUTE - 1)) {
 		output[0] = 0;
 	} else if (patch->FB != 0) {
 		int fm = wave2_4pi(feedback) >> (7 - patch->FB);
-		output[0] = dB2LinTab[sintbl[(pgout+fm)&(PG_WIDTH-1)] + egout];
+		output[0] = dB2LinTab[sintbl[(pgout + fm) & (PG_WIDTH - 1)] + egout];
 	} else {
 		output[0] = dB2LinTab[sintbl[pgout] + egout];
 	}
@@ -839,7 +856,7 @@ int YM2413::Slot::calc_slot_tom()
 {
 	calc_envelope(); 
 	calc_phase();
-	if (egout>=(DB_MUTE-1))
+	if (egout >= (DB_MUTE - 1))
 		return 0;
 	return dB2LinTab[sintbl[pgout] + egout];
 }
@@ -849,12 +866,12 @@ int YM2413::Slot::calc_slot_snare(int whitenoise)
 {
 	calc_envelope();
 	calc_phase();
-	if (egout>=(DB_MUTE-1))
+	if (egout >= (DB_MUTE - 1))
 		return 0;
-	if (pgout & (1<<(PG_BITS-1))) {
-		return (dB2LinTab[egout] + dB2LinTab[egout+whitenoise]) >> 1;
+	if (pgout & (1 << (PG_BITS - 1))) {
+		return (dB2LinTab[egout] + dB2LinTab[egout + whitenoise]) >> 1;
 	} else {
-		return (dB2LinTab[2*DB_MUTE + egout] + dB2LinTab[egout+whitenoise]) >> 1;
+		return (dB2LinTab[2 * DB_MUTE + egout] + dB2LinTab[egout + whitenoise]) >> 1;
 	}
 }
 
@@ -862,10 +879,10 @@ int YM2413::Slot::calc_slot_snare(int whitenoise)
 int YM2413::Slot::calc_slot_cym(int a, int b)
 {
 	calc_envelope();
-	if (egout>=(DB_MUTE-1)) {
+	if (egout >= (DB_MUTE - 1)) {
 		return 0;
 	} else {
-		return (dB2LinTab[egout+a] + dB2LinTab[egout+b]) >> 1;
+		return (dB2LinTab[egout + a] + dB2LinTab[egout + b]) >> 1;
 	}
 }
 
@@ -873,10 +890,10 @@ int YM2413::Slot::calc_slot_cym(int a, int b)
 int YM2413::Slot::calc_slot_hat(int a, int b, int whitenoise)
 {
 	calc_envelope();
-	if (egout>=(DB_MUTE-1)) {
+	if (egout >= (DB_MUTE - 1)) {
 		return 0;
 	} else {
-		return (dB2LinTab[egout+whitenoise] + dB2LinTab[egout+a] + dB2LinTab[egout+b]) >>2;
+		return (dB2LinTab[egout + whitenoise] + dB2LinTab[egout + a] + dB2LinTab[egout + b]) >> 2;
 	}
 }
 
@@ -923,11 +940,11 @@ void YM2413::checkMute()
 }
 bool YM2413::checkMuteHelper()
 {
-	for (int i=0; i<6; i++) {
+	for (int i = 0; i < 6; i++) {
 		if (ch[i].car.eg_mode != FINISH) return false;
 	}
 	if (!rythm_mode) {
-		for(int i=6; i<9; i++) {
+		for(int i = 6; i < 9; i++) {
 			 if (ch[i].car.eg_mode != FINISH) return false;
 		}
 	} else {
@@ -986,12 +1003,12 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	assert (regis < 0x40);
 	switch (regis) {
 	case 0x00:
-		patches[0].AM = (data>>7)&1;
-		patches[0].PM = (data>>6)&1;
-		patches[0].EG = (data>>5)&1;
-		patches[0].KR = (data>>4)&1;
-		patches[0].ML = (data)&15;
-		for (int i=0; i<9; i++) {
+		patches[0].AM = (data >> 7) & 1;
+		patches[0].PM = (data >> 6) & 1;
+		patches[0].EG = (data >> 5) & 1;
+		patches[0].KR = (data >> 4) & 1;
+		patches[0].ML = (data) & 15;
+		for (int i = 0; i < 9; i++) {
 			if (ch[i].userPatch) {
 				ch[i].mod.updatePG();
 				ch[i].mod.updateRKS();
@@ -1000,12 +1017,12 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		}
 		break;
 	case 0x01:
-		patches[1].AM = (data>>7)&1;
-		patches[1].PM = (data>>6)&1;
-		patches[1].EG = (data>>5)&1;
-		patches[1].KR = (data>>4)&1;
-		patches[1].ML = (data)&15;
-		for (int i=0; i<9; i++) {
+		patches[1].AM = (data >> 7) & 1;
+		patches[1].PM = (data >> 6) & 1;
+		patches[1].EG = (data >> 5) & 1;
+		patches[1].KR = (data >> 4) & 1;
+		patches[1].ML = (data) & 15;
+		for (int i = 0; i < 9; i++) {
 			if(ch[i].userPatch) {
 				ch[i].car.updatePG();
 				ch[i].car.updateRKS();
@@ -1014,20 +1031,20 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		}
 		break;
 	case 0x02:
-		patches[0].KL = (data>>6)&3;
-		patches[0].TL = (data)&63;
-		for (int i=0; i<9; i++) {
+		patches[0].KL = (data >> 6) & 3;
+		patches[0].TL = (data) & 63;
+		for (int i = 0; i < 9; i++) {
 			if (ch[i].userPatch) {
 				ch[i].mod.updateTLL();
 			}
 		}
 		break;
 	case 0x03:
-		patches[1].KL = (data>>6)&3;
-		patches[1].WF = (data>>4)&1;
-		patches[0].WF = (data>>3)&1;
-		patches[0].FB = (data)&7;
-		for (int i=0; i<9; i++) {
+		patches[1].KL = (data >> 6) & 3;
+		patches[1].WF = (data >> 4) & 1;
+		patches[0].WF = (data >> 3) & 1;
+		patches[0].FB = (data) & 7;
+		for (int i = 0; i < 9; i++) {
 			if (ch[i].userPatch) {
 				ch[i].mod.updateWF();
 				ch[i].car.updateWF();
@@ -1035,36 +1052,36 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		}
 		break;
 	case 0x04:
-		patches[0].AR = (data>>4)&15;
-		patches[0].DR = (data)&15;
-		for (int i=0; i<9; i++) {
+		patches[0].AR = (data >> 4) & 15;
+		patches[0].DR = (data) & 15;
+		for (int i = 0; i < 9; i++) {
 			if(ch[i].userPatch) {
 				ch[i].mod.updateEG();
 			}
 		}
 		break;
 	case 0x05:
-		patches[1].AR = (data>>4)&15;
-		patches[1].DR = (data)&15;
-		for (int i=0; i<9; i++) {
+		patches[1].AR = (data >> 4) & 15;
+		patches[1].DR = (data) & 15;
+		for (int i = 0; i < 9; i++) {
 			if (ch[i].userPatch) {
 				ch[i].car.updateEG();
 			}
 		}
 		break;
 	case 0x06:
-		patches[0].SL = (data>>4)&15;
-		patches[0].RR = (data)&15;
-		for (int i=0; i<9; i++) {
+		patches[0].SL = (data >> 4) & 15;
+		patches[0].RR = (data) & 15;
+		for (int i = 0; i < 9; i++) {
 			if (ch[i].userPatch) {
 				ch[i].mod.updateEG();
 			}
 		}
 		break;
 	case 0x07:
-		patches[1].SL = (data>>4)&15;
-		patches[1].RR = (data)&15;
-		for (int i=0; i<9; i++) {
+		patches[1].SL = (data >> 4) & 15;
+		patches[1].RR = (data) & 15;
+		for (int i = 0; i < 9; i++) {
 			if (ch[i].userPatch) {
 				ch[i].car.updateEG();
 			}
@@ -1073,11 +1090,11 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	case 0x0e:
 		setRythmMode(data);
 		if (rythm_mode) {
-			if (data&0x10) keyOn_BD();  else keyOff_BD();
-			if (data&0x08) keyOn_SD();  else keyOff_SD();
-			if (data&0x04) keyOn_TOM(); else keyOff_TOM();
-			if (data&0x02) keyOn_CYM(); else keyOff_CYM();
-			if (data&0x01) keyOn_HH();  else keyOff_HH();
+			if (data & 0x10) keyOn_BD();  else keyOff_BD();
+			if (data & 0x08) keyOn_SD();  else keyOff_SD();
+			if (data & 0x04) keyOn_TOM(); else keyOff_TOM();
+			if (data & 0x02) keyOn_CYM(); else keyOff_CYM();
+			if (data & 0x01) keyOn_HH();  else keyOff_HH();
 		}
 		ch[6].mod.updateAll();
 		ch[6].car.updateAll();
@@ -1092,9 +1109,9 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	case 0x14:  case 0x15:  case 0x16:  case 0x17:
 	case 0x18:
 	{
-		int cha = regis & 0x0f;
-		int fNum = data + ((reg[0x20+cha]&1)<<8);
-		int block = (reg[0x20+cha]>>1)&7;
+		int cha = regis & 0x0F;
+		int fNum = data + ((reg[0x20 + cha] & 1) << 8);
+		int block = (reg[0x20 + cha] >> 1) & 7;
 		ch[cha].setFnumber(fNum);
 		switch (cha) {
 			case 7: noiseA_dphase = dphaseNoiseTable[fNum][block];
@@ -1110,9 +1127,9 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	case 0x24:  case 0x25:  case 0x26:  case 0x27:
 	case 0x28:
 	{
-		int cha = regis & 0x0f;
-		int fNum = ((data&1)<<8) + reg[0x10+cha];
-		int block = (data>>1)&7;
+		int cha = regis & 0x0F;
+		int fNum = ((data & 1) << 8) + reg[0x10 + cha];
+		int block = (data >> 1) & 7;
 		ch[cha].setFnumber(fNum);
 		ch[cha].setBlock(block);
 		switch (cha) {
@@ -1121,8 +1138,8 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 			case 8: noiseB_dphase = dphaseNoiseTable[fNum][block];
 				break;
 		}
-		ch[cha].setSustine((data>>5)&1);
-		if (data&0x10) 
+		ch[cha].setSustine((data >> 5) & 1);
+		if (data & 0x10) 
 			ch[cha].keyOn();
 		else
 			ch[cha].keyOff();
@@ -1133,10 +1150,10 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	case 0x30: case 0x31: case 0x32: case 0x33: case 0x34:
 	case 0x35: case 0x36: case 0x37: case 0x38: 
 	{
-		int cha = regis & 0x0f;
-		int j = (data>>4)&15;
-		int v = data&15;
-		if ((rythm_mode) && (regis>=0x36)) {
+		int cha = regis & 0x0F;
+		int j = (data >> 4) & 15;
+		int v = data & 15;
+		if ((rythm_mode) && (regis >= 0x36)) {
 			switch(regis) {
 			case 0x37:
 				ch[7].mod.setVolume(j<<2);
@@ -1148,7 +1165,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		} else { 
 			ch[cha].setPatch(j);
 		}
-		ch[cha].setVol(v<<2);
+		ch[cha].setVol(v << 2);
 		ch[cha].mod.updateAll();
 		ch[cha].car.updateAll();
 		break;
