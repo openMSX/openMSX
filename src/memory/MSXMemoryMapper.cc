@@ -16,7 +16,7 @@ MSXMapperIO* MSXMemoryMapper::mapperIO = NULL;
 // Inlined methods first, to make sure they are actually inlined
 inline unsigned MSXMemoryMapper::calcAddress(word address) const
 {
-	byte page = mapperIO->getSelectedPage(address >> 14);
+	unsigned page = mapperIO->getSelectedPage(address >> 14);
 	page = (page < nbBlocks) ? page : page & (nbBlocks - 1);
 	return (page << 14) | (address & 0x3FFF);
 }
