@@ -73,7 +73,7 @@ public:
 	/** Read a byte from VRAM.
 	  */
 	inline byte read(int address, const EmuTime &time) {
-		if (writeWindow.isInside(address)) {
+		if (true || writeWindow.isInside(address)) {
 			cmdEngine->sync(time);
 		}
 		return cmdRead(address);
