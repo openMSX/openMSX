@@ -4,7 +4,7 @@
 #define __MSXS1990_HH__
 
 #include "MSXDevice.hh"
-#include "FrontSwitch.hh"
+#include "FirmwareSwitch.hh"
 
 namespace openmsx {
 
@@ -26,7 +26,7 @@ public:
 private:
 	void setCPUStatus(byte value);
 
-	FrontSwitch frontSwitch;
+	FirmwareSwitch firmwareSwitch;
 	byte registerSelect;
 	byte cpuStatus;
 };

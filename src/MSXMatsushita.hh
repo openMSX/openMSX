@@ -5,7 +5,7 @@
 
 #include "MSXDevice.hh"
 #include "MSXDeviceSwitch.hh"
-#include "FrontSwitch.hh"
+#include "FirmwareSwitch.hh"
 #include "SRAM.hh"
 
 namespace openmsx {
@@ -21,7 +21,7 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	FrontSwitch frontSwitch;
+	FirmwareSwitch firmwareSwitch;
 	SRAM sram;
 	word address;
 

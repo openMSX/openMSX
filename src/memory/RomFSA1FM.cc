@@ -89,7 +89,7 @@ byte RomFSA1FM1::readMem(word address, const EmuTime& /*time*/)
 		case 4:
 			return sram[address & 0x1FFF];
 		case 6:
-			return frontSwitch.getStatus() ? 0xFB : 0xFF;
+			return firmwareSwitch.getStatus() ? 0xFB : 0xFF;
 		default:
 			return 0xFF;
 		}

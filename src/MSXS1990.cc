@@ -31,7 +31,7 @@ byte MSXS1990::readIO(byte port, const EmuTime& /*time*/)
 		PRT_DEBUG("S1990: read reg "<<(int)registerSelect);
 		switch (registerSelect) {
 		case 5:
-			return frontSwitch.getStatus() ? 0x40 : 0x00;
+			return firmwareSwitch.getStatus() ? 0x40 : 0x00;
 		case 6:
 			return cpuStatus;
 		case 13:

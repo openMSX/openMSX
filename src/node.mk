@@ -30,7 +30,7 @@ SRC_HDR:= \
 	CartridgeSlotManager \
 	MSXDeviceSwitch \
 	MSXMatsushita \
-	FrontSwitch \
+	FirmwareSwitch \
 	CommandLineParser \
 	CliExtension \
 	MSXDiskRomPatch \

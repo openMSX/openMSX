@@ -6,7 +6,7 @@
 #include "MSXRom.hh"
 #include "Rom8kBBlocks.hh"
 #include "SRAM.hh"
-#include "FrontSwitch.hh"
+#include "FirmwareSwitch.hh"
 
 namespace openmsx {
 
@@ -37,7 +37,7 @@ public:
 
 private:
 	byte* sram;	// 8kb (shared) sram
-	FrontSwitch frontSwitch;
+	FirmwareSwitch firmwareSwitch;
 };
 
 class RomFSA1FM2 : public Rom8kBBlocks

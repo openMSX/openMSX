@@ -8,10 +8,10 @@
 
 namespace openmsx {
 
-class FrontSwitch
+class FirmwareSwitch
 {
 public:
-	FrontSwitch();
+	FirmwareSwitch();
 
 	bool getStatus() const;
 
