@@ -7,6 +7,7 @@
 #include "SerialDataInterface.hh"
 
 class DummyRS232Device;
+class RS232Tester;
 
 class RS232Connector : public Connector, public SerialDataInterface
 {
@@ -31,6 +32,7 @@ class RS232Connector : public Connector, public SerialDataInterface
 	private:
 		string name;
 		DummyRS232Device* dummy;
+		RS232Tester* tester;
 };
 
 #endif

@@ -3,6 +3,7 @@
 #include "RS232Connector.hh"
 #include "RS232Device.hh"
 #include "DummyRS232Device.hh"
+#include "RS232Tester.hh"
 #include "PluggingController.hh"
 
 
@@ -10,6 +11,7 @@ RS232Connector::RS232Connector(const string& name_, const EmuTime& time)
 	: name(name_)
 {
 	dummy = new DummyRS232Device();
+	tester = new RS232Tester();
 	PluggingController::instance()->registerConnector(this);
 
 	unplug(time);
@@ -18,6 +20,7 @@ RS232Connector::RS232Connector(const string& name_, const EmuTime& time)
 RS232Connector::~RS232Connector()
 {
 	PluggingController::instance()->unregisterConnector(this);
+	delete tester;
 	delete dummy;
 }
 

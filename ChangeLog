@@ -1,6 +1,12 @@
 $Id$
 
-2003-07-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-07-31 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemeted a RS232 tester pluggable:
+	   - writes to file "rs232-output"
+	   - reads from file "rs232-input"
+	   - the BASIC commands load"COM:" and save"COM:" seem to work
+
+2003-07-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added MSX-RS232 to device factory
 	* Gave MSX-RS232 16KB ROM
 

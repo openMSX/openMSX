@@ -37,7 +37,8 @@ libSerial_la_SOURCES = \
 	RS232Connector.cc RS232Connector.hh \
 	RS232Device.cc RS232Device.hh \
 	MSXRS232.cc MSXRS232.hh \
-	DummyRS232Device.cc DummyRS232Device.hh
+	DummyRS232Device.cc DummyRS232Device.hh \
+	RS232Tester.cc RS232Tester.hh
 
 nodebug: resetdebug all
 debug: setdebug all
