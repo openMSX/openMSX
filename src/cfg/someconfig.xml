@@ -22,7 +22,7 @@
   </config>
   
   <device id="myram1">
-    <type>Simple64KB</type>
+    <type>RAM</type>
     <slotted>
       <ps>3</ps>
       <ss>3</ss>
@@ -44,6 +44,8 @@
       <page>3</page>
     </slotted>
     <parameter name="slow_drain_on_reset">true</parameter>
+    <parameter name="size">8</parameter>
+    <parameter name="base">56</parameter>
   </device>
   <device id="biosrom">
     <type>Rom</type>

@@ -1,5 +1,9 @@
 $Id$
 
+2002-10-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Replaced "Simple64Kb" device with "RAM" device. This device also
+	  supports random sizes, so it is possible to make 8Kb machines.
+
 2002-10-20 Maarten ter Huurne <mth@stack.nl>
 	* Moved subdivision of area-to-be-rendered from SDLHiRenderer to
 	  PixelRenderer. Also changed subdivision approach: before, displayPhase

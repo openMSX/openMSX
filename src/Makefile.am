@@ -31,7 +31,7 @@ openmsx_SOURCES=\
 	MSXIODevice.hh MSXIODevice.cc MSXMemDevice.hh MSXMemDevice.cc \
 	MSXMotherBoard.hh MSXMotherBoard.cc \
 	MSXPPI.hh MSXPPI.cc I8255.hh I8255.cc \
-	MSXSimple64KB.hh MSXSimple64KB.cc \
+	MSXRam.hh MSXRam.cc \
 	VDP.hh VDP.cc \
 	VDPCmdEngine.hh VDPCmdEngine.cc \
 	VDPVRAM.hh VDPVRAM.cc \

@@ -4,7 +4,7 @@
 
 #include "MSXConfig.hh"
 #include "DeviceFactory.hh"
-#include "MSXSimple64KB.hh"
+#include "MSXRam.hh"
 #include "MSXPPI.hh"
 #include "VDP.hh"
 #include "MSXE6Timer.hh"
@@ -41,8 +41,8 @@ MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	if (conf->getType()=="PPI") {
 		device = new MSXPPI(conf, time);
 	} else
-	if (conf->getType()=="Simple64KB") {
-		device = new MSXSimple64KB(conf, time);
+	if (conf->getType()=="RAM") {
+		device = new MSXRam(conf, time);
 	} else
 	if (conf->getType()=="VDP") {
 		device = new VDP(conf, time);
