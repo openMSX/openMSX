@@ -10,6 +10,7 @@
 #include "Config.hh"
 #include "CartridgeSlotManager.hh"
 #include "VDPIODelay.hh"
+#include "Debugger.hh"
 
 using std::auto_ptr;
 
@@ -27,13 +28,16 @@ MSXCPUInterface& MSXCPUInterface::instance()
 }
 
 MSXCPUInterface::MSXCPUInterface()
-	: slotMapCmd(*this),
+	: memoryDebug(*this),
+	  ioDebug(*this),
+	  slotMapCmd(*this),
 	  slotSelectCmd(*this),
 	  dummyDevice(DummyDevice::instance()),
 	  msxConfig(MSXConfig::instance()),
 	  commandController(CommandController::instance()),
 	  msxcpu(MSXCPU::instance()),
-	  slotManager(CartridgeSlotManager::instance())
+	  slotManager(CartridgeSlotManager::instance()),
+	  debugger(Debugger::instance())
 {
 	for (int port = 0; port < 256; port++) {
 		IO_In [port] = &dummyDevice;
@@ -73,12 +77,18 @@ MSXCPUInterface::MSXCPUInterface()
 	commandController.registerCommand(&slotMapCmd,    "slotmap");
 	commandController.registerCommand(&slotSelectCmd, "slotselect");
 
+	debugger.registerDebuggable("memory", memoryDebug);
+	debugger.registerDebuggable("io", ioDebug);
+
 	msxcpu.setInterface(this);
 }
 
 MSXCPUInterface::~MSXCPUInterface()
 {
 	msxcpu.setInterface(NULL);
+
+	debugger.unregisterDebuggable("memory", memoryDebug);
+	debugger.unregisterDebuggable("io", ioDebug);
 
 	commandController.unregisterCommand(&slotMapCmd,    "slotmap");
 	commandController.unregisterCommand(&slotSelectCmd, "slotselect");
@@ -262,13 +272,12 @@ byte MSXCPUInterface::peekMem(word address) const
 
 byte MSXCPUInterface::peekMemBySlot(unsigned int address, int slot, int subslot, bool direct)
 {
-	if (direct){
+	if (direct) {
 		// TODO direct reading of the memorymapped
 		// requires adapting all MSXMemDevice classes.
 		return 0;
-	}
-	else{
-	return slotLayout[slot][subslot][(address & 0xffff) >> 14]->peekMem(address & 0xffff);
+	} else {
+		return slotLayout[slot][subslot][(address & 0xffff) >> 14]->peekMem(address & 0xffff);
 	}
 }
 
@@ -335,6 +344,69 @@ MSXCPUInterface::SlotSelection* MSXCPUInterface::getCurrentSlots()
 		slots->isSubSlotted[page] = isSubSlotted[slots->primary[page]];
 	}
 	return slots;
+}
+
+
+// class MemoryDebug
+ 
+MSXCPUInterface::MemoryDebug::MemoryDebug(MSXCPUInterface& parent_)
+	: parent(parent_)
+{
+}
+
+unsigned MSXCPUInterface::MemoryDebug::getSize() const
+{
+	return 0x10000;
+}
+
+const string& MSXCPUInterface::MemoryDebug::getDescription() const
+{
+	static const string desc =
+		"The memory currently visible for the CPU.";
+	return desc;
+}
+
+byte MSXCPUInterface::MemoryDebug::read(unsigned address)
+{
+	return parent.peekMem(address);
+}
+
+void MSXCPUInterface::MemoryDebug::write(unsigned address, byte value)
+{
+	const EmuTime& time = parent.msxcpu.getCurrentTime();
+	return parent.writeMem(address, value, time);
+}
+
+
+// class IODebug
+
+MSXCPUInterface::IODebug::IODebug(MSXCPUInterface& parent_)
+	: parent(parent_)
+{
+}
+
+unsigned MSXCPUInterface::IODebug::getSize() const
+{
+	return 0x100;
+}
+
+const string& MSXCPUInterface::IODebug::getDescription() const
+{
+	static const string desc =
+		"IO ports.";
+	return desc;
+}
+
+byte MSXCPUInterface::IODebug::read(unsigned address)
+{
+	const EmuTime& time = parent.msxcpu.getCurrentTime();
+	return parent.readIO((word)address, time);
+}
+
+void MSXCPUInterface::IODebug::write(unsigned address, byte value)
+{
+	const EmuTime& time = parent.msxcpu.getCurrentTime();
+	parent.writeIO((word)address, value, time);
 }
 
 

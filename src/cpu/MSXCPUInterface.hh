@@ -5,6 +5,7 @@
 
 #include "CPUInterface.hh"
 #include "Command.hh"
+#include "Debuggable.hh"
 
 namespace openmsx {
 
@@ -16,18 +17,13 @@ class MSXConfig;
 class CommandController;
 class MSXCPU;
 class CartridgeSlotManager;
+class Debugger;
 
 class MSXCPUInterface : public CPUInterface
 {
 public:
-	/**
-	 * Destructor
-	 */
-	~MSXCPUInterface();
+	virtual ~MSXCPUInterface();
 	
-	/**
-	 * this is a singleton class
-	 */
 	static MSXCPUInterface& instance();
 	
 	/**
@@ -100,14 +96,6 @@ public:
 	 */
 	virtual byte* getWriteCacheLine(word start) const;
 
-	/**
-	 * Peek memory location
-	 * @see MSXMemDevice::peekMem()
-	 */
-	byte peekMem(word address) const;
-	byte peekMemBySlot(unsigned int address, int slot, int subslot, bool direct);
-
-	
 	/*
 	 * Should only be used by PPI
 	 *  TODO: make private / friend
@@ -127,13 +115,20 @@ public:
 	  */
 	string getSlotSelection();
 	
-	struct SlotSelection
-	{
+	struct SlotSelection {
 		byte primary [4];
 		byte secondary [4];
 		bool isSubSlotted [4];
 	};
-	MSXCPUInterface::SlotSelection* getCurrentSlots();
+	SlotSelection* getCurrentSlots();
+
+	
+	/**
+	 * Peek memory location
+	 * @see MSXMemDevice::peekMem()
+	 */
+	byte peekMem(word address) const;
+	byte peekMemBySlot(unsigned int address, int slot, int subslot, bool direct);
 
 protected:
 	MSXCPUInterface();
@@ -149,6 +144,28 @@ private:
 	void registerSlot(MSXMemDevice *device,
 			  int primSl, int secSL, int page);
 	
+	class MemoryDebug : public Debuggable {
+	public:
+		MemoryDebug(MSXCPUInterface& parent);
+		virtual unsigned getSize() const;
+		virtual const string& getDescription() const;
+		virtual byte read(unsigned address);
+		virtual void write(unsigned address, byte value);
+	private:
+		MSXCPUInterface& parent;
+	} memoryDebug;
+
+	class IODebug : public Debuggable {
+	public:
+		IODebug(MSXCPUInterface& parent);
+		virtual unsigned getSize() const;
+		virtual const string& getDescription() const;
+		virtual byte read(unsigned address);
+		virtual void write(unsigned address, byte value);
+	private:
+		MSXCPUInterface& parent;
+	} ioDebug;
+
 	class SlotMapCmd : public Command {
 	public:
 		SlotMapCmd(MSXCPUInterface& parent);
@@ -159,6 +176,7 @@ private:
 	private:
 		MSXCPUInterface& parent;
 	} slotMapCmd;
+
 	class SlotSelectCmd : public Command {
 	public:
 		SlotSelectCmd(MSXCPUInterface& parent);
@@ -197,6 +215,7 @@ private:
 	CommandController& commandController;
 	MSXCPU& msxcpu;
 	CartridgeSlotManager& slotManager;
+	Debugger& debugger;
 };
 
 class TurborCPUInterface : public MSXCPUInterface

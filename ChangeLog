@@ -1,5 +1,9 @@
 $Id$
 
+2003-11-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* made memory (64kb currently visible memory) debuggable
+	* made IO ports debuggable
+
 2003-11-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added example implementation for bidirectional communication with
 	  openMSX (aka CliCommunicator) in Contrib
