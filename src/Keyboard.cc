@@ -25,6 +25,7 @@ const byte* Keyboard::getKeys()
 	EventDistributor::instance()->pollSyncEvents();
 	if (keysChanged) {
 		keysChanged = false;
+		// memcpy((void*)&keyMatrix2[0], (void*)&keyMatrix[0], NR_KEYROWS*sizeof(byte)); -> instead of next 2 lines?
 		for (int i=0; i<NR_KEYROWS; i++) 
 			keyMatrix2[i] = keyMatrix[i];	// Copy matrix -> matrix2
 		if (keyGhosting)
