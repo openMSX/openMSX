@@ -6,11 +6,17 @@
 
 
 MSXRS232::MSXRS232(Device *config, const EmuTime &time)
-	: MSXDevice(config, time), MSXIODevice(config, time),
+	: MSXDevice(config, time),
+	  MSXIODevice(config, time),
+	  MSXMemDevice(config, time),
 	  RS232Connector("msx-rs232", time),
-	  rxrdyIRQlatch(false), rxrdyIRQenabled(false),
-	  cntr0(*this), cntr1(*this), i8254(&cntr0, &cntr1, NULL, time),
-	  interf(*this), i8251(&interf, time)
+	  rxrdyIRQlatch(false),
+	  rxrdyIRQenabled(false),
+	  cntr0(*this), cntr1(*this),
+	  i8254(&cntr0, &cntr1, NULL, time),
+	  interf(*this),
+	  i8251(&interf, time),
+	  rom(config, time)
 {
 	EmuDuration total(1.0 / 1.8432e6); // 1.8432MHz
 	EmuDuration hi   (1.0 / 3.6864e6); //   half clock period
@@ -32,6 +38,16 @@ void MSXRS232::reset(const EmuTime &time)
 {
 	rxrdyIRQlatch = false;
 	rxrdyIRQenabled = false;
+}
+
+byte MSXRS232::readMem(word address, const EmuTime &time)
+{
+	return rom.read(address & 0x3FFF);
+}
+
+const byte* MSXRS232::getReadCacheLine(word start) const
+{
+	return rom.getBlock(start & 0x3FFF);
 }
 
 byte MSXRS232::readIO(byte port, const EmuTime &time)

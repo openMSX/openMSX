@@ -4,6 +4,8 @@
 #define __MSXRS232_HH__
 
 #include "MSXIODevice.hh"
+#include "MSXMemDevice.hh"
+#include "Rom.hh"
 #include "I8251.hh"
 #include "I8254.hh"
 #include "ClockPin.hh"
@@ -11,7 +13,7 @@
 #include "RS232Connector.hh"
 
 
-class MSXRS232 : public MSXIODevice, public RS232Connector
+class MSXRS232 : public MSXIODevice, public MSXMemDevice, public RS232Connector
 {
 	public:
 		MSXRS232(Device *config, const EmuTime &time);
@@ -21,6 +23,8 @@ class MSXRS232 : public MSXIODevice, public RS232Connector
 		virtual void reset(const EmuTime &time);
 		virtual byte readIO(byte port, const EmuTime &time);
 		virtual void writeIO(byte port, byte value, const EmuTime &time);
+		virtual byte readMem(word address, const EmuTime &time);
+		virtual const byte* getReadCacheLine(word start) const;
 
 		// RS232Connector  (input)
 		virtual void setDataBits(DataBits bits);
@@ -88,6 +92,7 @@ class MSXRS232 : public MSXIODevice, public RS232Connector
 		} interf;
 		
 		I8251 i8251;
+		Rom rom;
 };
 
 #endif

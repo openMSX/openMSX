@@ -38,6 +38,7 @@
 #include "MSXMatsushita.hh"
 #include "MSXKanji12.hh"
 #include "MSXMidi.hh"
+#include "MSXRS232.hh"
 #include "MSXMegaRam.hh"
 #include "MSXPac.hh"
 #include "MSXHBI55.hh"
@@ -270,6 +271,14 @@ MSXDevice *DeviceFactory::create(Device *conf, const EmuTime &time)
 			cpuInterface->register_IO_Out(port, msxmidi);
 		}
 		return msxmidi;
+	}
+	if (type == "MSX-RS232") {
+		MSXRS232 *rs232 = new MSXRS232(conf, time);
+		for (byte port = 0x80; port <= 0x87; ++port) {
+			cpuInterface->register_IO_In (port, rs232);
+			cpuInterface->register_IO_Out(port, rs232);
+		}
+		return rs232;
 	}
 	if (type == "MegaRam") {
 		MSXMegaRam *megaram = new MSXMegaRam(conf, time);

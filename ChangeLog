@@ -1,6 +1,10 @@
 $Id$
 
 2003-07-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added MSX-RS232 to device factory
+	* Gave MSX-RS232 16KB ROM
+
+2003-07-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added MSX-RS232:
 	   - there do not exist any RS232 pluggables yet
 	   - code is yet completely untested
