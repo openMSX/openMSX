@@ -1,4 +1,4 @@
-body {
+body, h1, h2, h3 {
 	color: black;
 	background-color: white;
 }
@@ -13,9 +13,6 @@ p.version {
 	font-size: 50%;
 	text-align: right;
 }
-dt {
-	/*font-style: italic;*/
-}
 dd {
 	margin-left: 16pt;
 	margin-bottom: 0.5em;
@@ -27,14 +24,18 @@ div.commandline {
 	margin-bottom: 0.5em;
 }
 p.todo {
+	background-color: white;
 	color: red;
 }
 a.internal, a.external:visited {
 	color: #000080;
+	background-color: white;
 }
 a.external:link {
 	color: #0000FF;
+	background-color: white;
 }
 a.external:active {
 	color: #8080FF;
+	background-color: white;
 }

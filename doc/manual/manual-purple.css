@@ -1,7 +1,7 @@
 @import "manual.css";
-hr {
-	border: none;
-	border-bottom: 2px groove #8070C0;
+p.version {
+	border-top: 2px groove #8070C0;
+	padding-top: 1em;
 }
 h1 {
 	border-bottom: 2px groove #8070C0;
