@@ -365,7 +365,7 @@ void Console::newLineConsole(const std::string &line)
 
 void Console::putCommandHistory(const std::string &command)
 {
-	if (!removeDoubles || (history.back()!=command)){
+	if (!removeDoubles || history.empty() || (history.back()!=command)) {
 		history.push_back(command);
 		if (history.size()>maxHistory) {
 			history.pop_front();
