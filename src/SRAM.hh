@@ -13,23 +13,19 @@ class SRAM
 		     const char* header = NULL);
 		virtual ~SRAM();
 
-		byte read(int address)
-		{
+		byte read(int address) const {
 			assert(address < size);
 			return sram[address];
 		}
-		void write(int address, byte value)
-		{
+		void write(int address, byte value) {
 			assert(address < size);
 			sram[address] = value;
 		}
-		byte* getBlock(int address = 0)
-		{
+		byte* getBlock(int address = 0) const {
 			assert(address < size);
 			return &sram[address];
 		}
-		int getSize()
-		{
+		int getSize() const {
 			return size;
 		}
 		

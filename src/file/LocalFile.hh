@@ -15,12 +15,13 @@ class LocalFile : public FileBase
 		virtual ~LocalFile();
 		virtual void read (byte* buffer, int num);
 		virtual void write(const byte* buffer, int num);
+		virtual byte* mmap(bool write = false);
+		virtual void munmap();
 		virtual int size();
 		virtual void seek(int pos);
 		virtual int pos();
 
 	private:
-		bool readOnly;
 		FILE* file;
 };
 

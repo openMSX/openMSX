@@ -9,7 +9,7 @@
 class DiskDrive;
 
 
-class MSXFDC : public MSXMemDevice, public MSXRomDevice
+class MSXFDC : public MSXMemDevice
 {
 	public:
 		MSXFDC(MSXConfig::Device *config, const EmuTime &time);
@@ -19,6 +19,7 @@ class MSXFDC : public MSXMemDevice, public MSXRomDevice
 		virtual byte* getReadCacheLine(word start);
 	
 	protected:
+		MSXRomDevice rom;
 		DiskDrive* drives[4];
 };
 #endif

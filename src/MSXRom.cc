@@ -113,7 +113,7 @@ void MSXRomCLIPost::execute(MSXConfig::Backend *config)
 
 
 MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time), MSXMemDevice(config, time), MSXRomDevice(config, time)
+	: MSXDevice(config, time), MSXMemDevice(config, time), rom(config, time)
 {
 	retrieveMapperType();
 
@@ -167,10 +167,10 @@ void MSXRom::retrieveMapperType()
 		// automatically detect type
 		try {
 			// first look in database
-			mapperType = RomTypes::searchDataBase (romBank, romSize);
+			mapperType = RomTypes::searchDataBase (rom.getBlock(), rom.getSize());
 		} catch (NotInDataBaseException &e) {
 			// not in database, try to guess
-			mapperType = RomTypes::guessMapperType(romBank, romSize);
+			mapperType = RomTypes::guessMapperType(rom.getBlock(), rom.getSize());
 		}
 	} else {
 		// explicitly specified type
@@ -202,7 +202,7 @@ void MSXRom::reset(const EmuTime &time)
 	switch (mapperType) {
 	case PLAIN:
 		// this is a simple gamerom less or equal then 64 kB
-		switch (romSize >> 14) { // blocks of 16kB
+		switch (rom.getSize() >> 14) { // blocks of 16kB
 			case 0:	//  8kB
 				for (int i=0; i<8; i++)
 					setROM8kB(i, 0);
@@ -277,7 +277,7 @@ void MSXRom::reset(const EmuTime &time)
 
 bool MSXRom::mappedOdd()
 {
-	if ((romBank[0] == 'A') && (romBank[1] == 'B'))
+	if ((rom.read(0) == 'A') && (rom.read(1) == 'B'))
 		return true;
 	
 	int lowest = 4;
@@ -546,7 +546,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 
 		if ((0x6000 <= address) && (address < 0x8000)) {
 			byte region = ((address >> 11) & 3) + 2;
-			byte SRAMEnableBit = romSize / 8192;
+			byte SRAMEnableBit = rom.getSize() / 8192;
 			if (value & SRAMEnableBit) {
 				setBank8kB(region, sram->getBlock());
 				regioSRAM |=  (1 << region);
@@ -722,19 +722,19 @@ void MSXRom::setBank16kB(int region, byte* adr)
 
 void MSXRom::setROM4kB(int region, int block)
 {
-	int nrBlocks = romSize >> 12;
+	int nrBlocks = rom.getSize() >> 12;
 	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-	setBank4kB(region, romBank + (block << 12));
+	setBank4kB(region, rom.getBlock(block << 12));
 }
 void MSXRom::setROM8kB(int region, int block)
 {
-	int nrBlocks = romSize >> 13;
+	int nrBlocks = rom.getSize() >> 13;
 	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-	setBank8kB(region, romBank + (block << 13));
+	setBank8kB(region, rom.getBlock(block << 13));
 }
 void MSXRom::setROM16kB(int region, int block)
 {
-	int nrBlocks = romSize >> 14;
+	int nrBlocks = rom.getSize() >> 14;
 	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-	setBank16kB(region, romBank + (block << 14));
+	setBank16kB(region, rom.getBlock(block << 14));
 }

@@ -4,7 +4,6 @@
 #include "MSXFmPac.hh"
 #include "File.hh"
 #include "CartridgeSlotManager.hh"
-#include "SRAM.hh"
 
 
 MSXFmPacCLI msxFmPacCLI;
@@ -49,9 +48,8 @@ void MSXFmPacCLI::execute(MSXConfig::Backend *config)
 
 MSXFmPac::MSXFmPac(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXYM2413(config, time), 
-	  MSXMemDevice(config, time), MSXRomDevice(config, time, 0x10000)
+	  sram(0x1FFE, config, PAC_Header)
 {
-	sram = new SRAM(0x1FFE, config, PAC_Header);
 	reset(time);
 }
 
@@ -60,7 +58,6 @@ const char* MSXFmPac::PAC_Header = "PAC2 BACKUP DATA";
 
 MSXFmPac::~MSXFmPac()
 {
-	delete sram;
 }
 
 void MSXFmPac::reset(const EmuTime &time)
@@ -86,9 +83,9 @@ byte MSXFmPac::readMem(word address, const EmuTime &time)
 		default:
 			address &= 0x3fff;
 			if (sramEnabled && (address < 0x1ffe)) {
-				return sram->read(address);
+				return sram.read(address);
 			} else {
-				return romBank[bank * 0x4000 + address];
+				return rom.read(bank * 0x4000 + address);
 			}
 	}
 }
@@ -121,7 +118,7 @@ void MSXFmPac::writeMem(word address, byte value, const EmuTime &time)
 			break;
 		default:
 			if (sramEnabled && (address < 0x5ffe))
-				sram->write(address - 0x4000, value);
+				sram.write(address - 0x4000, value);
 	}
 }
 

@@ -60,7 +60,7 @@ class MSXRomPostNoName : public MSXRomCLIPost
 };
 
 
-class MSXRom : public MSXMemDevice, public MSXRomDevice
+class MSXRom : public MSXMemDevice
 {
 	public:
 		MSXRom(MSXConfig::Device *config, const EmuTime &time);
@@ -86,6 +86,7 @@ class MSXRom : public MSXMemDevice, public MSXRomDevice
 		byte *internalMemoryBank[16];	// 16 blocks of 4kB
 		byte *unmapped;
 		
+		MSXRomDevice rom;
 		SRAM *sram;
 		byte regioSRAM;	//bit n=1 => SRAM in [n*0x2000, (n+1)*0x2000)
 

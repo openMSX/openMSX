@@ -10,7 +10,7 @@
 
 SunriseIDE::SunriseIDE(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
-	  MSXRomDevice(config, time)
+	  rom(config, time)
 {
 	device[0] = new IDEHD();
 	device[1] = new DummyIDEDevice();
@@ -109,11 +109,11 @@ void SunriseIDE::writeControl(byte value)
 	}
 
 	byte bank = reverse(value & 0xF8);
-	if (bank >= (romSize / 0x4000)) {
-		bank &= ((romSize / 0x4000) - 1);
+	if (bank >= (rom.getSize() / 0x4000)) {
+		bank &= ((rom.getSize() / 0x4000) - 1);
 	}
-	if (internalBank != &romBank[0x4000 * bank]) {
-		internalBank = &romBank[0x4000 * bank];
+	if (internalBank != rom.getBlock(0x4000 * bank)) {
+		internalBank = rom.getBlock(0x4000 * bank);
 		MSXCPU::instance()->invalidateCache(0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
 	}
 }

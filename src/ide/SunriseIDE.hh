@@ -9,7 +9,7 @@
 class IDEDevice;
 
 
-class SunriseIDE : public MSXMemDevice, MSXRomDevice
+class SunriseIDE : public MSXMemDevice
 {
 	public:
 		SunriseIDE(MSXConfig::Device *config, const EmuTime &time);
@@ -34,6 +34,7 @@ class SunriseIDE : public MSXMemDevice, MSXRomDevice
 		void writeData(word value, const EmuTime &time);
 		void writeReg(nibble reg, byte value, const EmuTime &time);
 
+		MSXRomDevice rom;
 		byte* internalBank;
 		bool ideRegsEnabled;
 		bool softReset;

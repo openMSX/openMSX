@@ -99,6 +99,16 @@ void File::write(const byte* buffer, int num)
 	file->write(buffer, num);
 }
 
+byte* File::mmap(bool write)
+{
+	return file->mmap(write);
+}
+
+void File::munmap()
+{
+	file->munmap();
+}
+
 int File::size()
 {
 	return file->size();

@@ -8,7 +8,8 @@
 
 
 MSXYM2413::MSXYM2413(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time), MSXIODevice(config, time)
+	: MSXDevice(config, time), MSXIODevice(config, time),
+	  MSXMemDevice(config, time), rom(config, time)
 {
 	MSXCPUInterface::instance()->register_IO_Out(0x7c, this);
 	MSXCPUInterface::instance()->register_IO_Out(0x7d, this);

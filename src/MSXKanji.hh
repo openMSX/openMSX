@@ -7,7 +7,7 @@
 #include "MSXRomDevice.hh"
 
 
-class MSXKanji : public MSXIODevice, public MSXRomDevice
+class MSXKanji : public MSXIODevice
 {
 	public:
 		/**
@@ -25,6 +25,7 @@ class MSXKanji : public MSXIODevice, public MSXRomDevice
 		virtual void reset(const EmuTime &time);
 
 	private:
+		MSXRomDevice rom;
 		int adr1, adr2;
 };
 

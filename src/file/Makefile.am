@@ -14,7 +14,7 @@ endif
 noinst_LTLIBRARIES = libFile.la
 libFile_la_SOURCES = \
 	File.cc File.hh \
-	FileBase.hh \
+	FileBase.cc FileBase.hh \
 	LocalFile.cc LocalFile.hh
 
 nodebug: resetdebug all

@@ -7,9 +7,9 @@
 
 MSXKanji::MSXKanji(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
-	  MSXRomDevice(config, time)
+	  rom(config, time)
 {
-	if (!((romSize == 0x20000) || (romSize == 0x40000))) {
+	if (!((rom.getSize() == 0x20000) || (rom.getSize() == 0x40000))) {
 		PRT_ERROR("MSXKanji: wrong kanji rom");
 	}
 	
@@ -17,7 +17,7 @@ MSXKanji::MSXKanji(MSXConfig::Device *config, const EmuTime &time)
 	MSXCPUInterface::instance()->register_IO_Out(0xD8, this);
 	MSXCPUInterface::instance()->register_IO_Out(0xD9, this);
 
-	if (romSize == 0x40000) {
+	if (rom.getSize() == 0x40000) {
 		MSXCPUInterface::instance()->register_IO_In (0xDB, this);
 		MSXCPUInterface::instance()->register_IO_Out(0xDA, this);
 		MSXCPUInterface::instance()->register_IO_Out(0xDB, this);
@@ -41,11 +41,11 @@ byte MSXKanji::readIO(byte port, const EmuTime &time)
 	byte tmp;
 	switch (port) {
 		case 0xd9:
-			tmp = romBank[adr1];
+			tmp = rom.read(adr1);
 			adr1 = (adr1 & ~0x1f) | ((adr1 + 1) & 0x1f);
 			return tmp;
 		case 0xdb:
-			tmp = romBank[adr2];
+			tmp = rom.read(adr2);
 			adr2 = (adr2 & ~0x1f) | ((adr2 + 1) & 0x1f);
 			return tmp;
 	}

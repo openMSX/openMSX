@@ -1,6 +1,20 @@
 $Id$
 
 2002-12-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented mmap() in File classes:
+	   - map a file direclty into the process memory range, the OS can
+	     perform some optimizations this way:
+	      - only read data when actually used
+	      - faster swapping
+	      - ...
+	   - I'm not sure non-UNIX OSes (windows) have a similar function,
+	     if not there is a fallback implemented in FileBase (we also
+	     need this fallback for FTP, HTTP, ... files)
+	* Simplified/updated MSXRomDevice:
+	   - simpler interface: you no longer need to inherit from MSXRomDevice
+	   - use mmap() to read files
+
+2002-12-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* added SRAM class:
 	   This is just a small helper class that offers loading and
 	   saving of a byte-array. For the moment only MSXRom and MSXFmPac

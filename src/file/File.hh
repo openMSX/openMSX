@@ -38,6 +38,8 @@ class File
 		
 		void read(byte* buffer, int num);
 		void write(const byte* buffer, int num);
+		byte* mmap(bool write = false);
+		void munmap();
 		int size();
 		void seek(int pos);
 		int pos();

@@ -85,7 +85,6 @@
     <parameter name="filename">MSXDOS-2.3.rom</parameter>
     <parameter name="type">TurboR</parameter>
     <parameter name="drivename1">diska</parameter>
-    <parameter name="drivename2">diskb</parameter>
   </device>
 
   <device id="MSX VIEW">
@@ -95,6 +94,8 @@
     <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
     <parameter name="filename">TurboR-GT-4MB.rom</parameter>
     <parameter name="mappertype">PANASONIC</parameter>
+    <parameter name="loadsram">false</parameter>
+    <parameter name="savesram">false</parameter>
   </device>
   
   <device id="ppi">

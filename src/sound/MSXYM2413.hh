@@ -3,27 +3,17 @@
 #ifndef __MSXYM2413_HH__
 #define __MSXYM2413_HH__
 
-#ifndef VERSION
-#include "config.h"
-#endif
-
 #include "MSXIODevice.hh"
+#include "MSXMemDevice.hh"
+#include "MSXRomDevice.hh"
 
-// forward declaration
 class YM2413;
 
 
-class MSXYM2413 : public MSXIODevice
+class MSXYM2413 : public MSXIODevice, public MSXMemDevice
 {
 	public:
-		/**
-		 * Constructor
-		 */
 		MSXYM2413(MSXConfig::Device *config, const EmuTime &time);
-
-		/**
-		 * Destructor
-		 */
 		virtual ~MSXYM2413(); 
 		
 		virtual void reset(const EmuTime &time);
@@ -34,6 +24,7 @@ class MSXYM2413 : public MSXIODevice
 		void writeDataPort(byte value, const EmuTime &time);
 
 		byte enable;
+		MSXRomDevice rom;
 		YM2413 *ym2413;
 		
 	private:

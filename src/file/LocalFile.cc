@@ -1,5 +1,7 @@
 // $Id$
 
+#include <unistd.h>
+#include <sys/mman.h>
 #include "LocalFile.hh"
 #include "File.hh"
 
@@ -40,6 +42,27 @@ void LocalFile::write(const byte* buffer, int num)
 	fwrite(buffer, 1, num, file);
 	if (ferror(file)) {
 		throw FileException("Error writing file");
+	}
+}
+
+byte* LocalFile::mmap(bool write)
+{
+	if (!mmem) {
+		int flags = write ? MAP_SHARED : MAP_PRIVATE;
+		mmem = (byte*)::mmap(0, size(), PROT_READ | PROT_WRITE,
+		                     flags, fileno(file), 0);
+		if ((int)mmem == -1) {
+			throw FileException("Error mmapping file");
+		}
+	}
+	return mmem;
+}
+
+void LocalFile::munmap()
+{
+	if (mmem) {
+		::munmap(mmem, size());
+		mmem = NULL;
 	}
 }
 
