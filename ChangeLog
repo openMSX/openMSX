@@ -1,6 +1,9 @@
 $Id$
 
 2005-03-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed crash on missing argument for 'debug set_bp/remove_bp'
+
+2005-03-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Tiny SDLGL improvement:
 	   - use glRect() to draw rectangles with a single color iso GL_QUADS
 	* Experimental: enable window resizing in GL renderer
