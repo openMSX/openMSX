@@ -13,6 +13,7 @@
 #include "Keys.hh"
 #include "InputEvents.hh"
 #include "Scheduler.hh"
+#include "Unicode.hh"
 
 namespace openmsx {
 
@@ -201,9 +202,9 @@ string Keyboard::processCmd(const vector<string>& tokens, bool up)
 
 void Keyboard::pressAscii(char asciiCode, bool up)
 {
-	for (int i = 0; i < 2; i++) {
-		byte row  = asciiTab[(unsigned)asciiCode][i] >> 8;
-		byte mask = asciiTab[(unsigned)asciiCode][i] & 0xFF;
+  	for (int i = 0; i < 2; i++) {
+		byte row  = asciiTab[asciiCode & 0xFF][i] >> 8;
+		byte mask = asciiTab[asciiCode & 0xFF][i] & 0xFF;
 		if (up) {
 			cmdKeyMatrix[row] |=  mask;
 		} else {
@@ -290,7 +291,8 @@ void Keyboard::KeyInserter::type(const string& str)
 	if (text.empty()) {
 		scheduler.setSyncPoint(scheduler.getCurrentTime(), this);
 	}
-	text += str;
+	string temp=Unicode::utf8ToAscii(str);
+	text += temp;
 }
 
 void Keyboard::KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
@@ -409,25 +411,32 @@ byte Keyboard::keyTab[MAX_KEYSYM][2] = {
   {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00}
 };
 
+// keypresses needed to type ascii characters 
+// for each character there are shorts S[0], S[2]
+// S[i] >> 8   adresses a row in the keyboard matrix
+// S[i] & 0xFF gives the keys that need to be pressed in that row
+// two shorts is enough because all modifier keys on MSX are in the same row
+// table is for western keyboard layout
+// TODO: provide a setting to chance to other layout
 short Keyboard::asciiTab[256][2] =
 {
-	// TODO: fix wrong ones
-
 	// 0x601, 0x	SHIFT
 	// 0x610, 0x	CODE
+	// 0x602, 0x	CTRL
 	// 0x604, 0x	GRAPH
 	// 0x611, 0x	SHIFT+CODE
+	// 0x603, 0x	SHIFT+CTRL
 	// 0x605, 0x	SHIFT+GRAPH
 
 	// 0x00
-	{},             {},             {},             {},             // 00, 01, 02, 03,
-	{},             {},             {},             {},             // 04, 05, 06, 07,
-	{0x720},        {0x708},        {},             {0x802},        // BS, TAB, LF, HOME,
-	{0x601, 0x780}, {0x780},        {},             {},             // CLS(FF), CR, 14, 15,
+	{0x603, 0x004}, {0x602, 0x240}, {0x602, 0x280}, {0x602, 0x301}, // ^@, ^A, ^B, ^C,
+	{0x602, 0x302}, {0x602, 0x304}, {0x602, 0x308}, {0x602, 0x310}, // ^D, ^E, ^F, ^G,
+	{0x720},        {0x708},        {0x602, 0x380}, {0x802},        // BS, TAB, LF, HOME,
+	{0x601, 0x802}, {0x780},        {0x602, 0x408}, {0x602, 0x410}, // CLS(FF), CR, ^N, ^O,
 	// 0x10
-	{},             {},             {0x804},        {},             // 16, 17, INS, 19,
-	{},             {},             {},             {},             // 20, 21, 22, 23,
-	{0x740},        {},             {},             {0x704},        // SEL, 25, EOF, ESC,
+	{0x602, 0x420}, {0x602, 0x440}, {0x804},        {0x602, 0x501}, // ^P, ^Q, INS, ^S,
+	{0x602, 0x502}, {0x602, 0x504}, {0x602, 0x508}, {0x602, 0x510}, // ^T, ^U, ^V, ^W,
+	{0x740},        {0x602, 0x540}, {0x602, 0x580}, {0x704},        // SEL, ^Y, EOF, ESC,
 	{0x880},        {0x810},        {0x820},        {0x840},        // RGT, LFT, UP, DWN,
 	// 0x20
 	{0x801},        {0x601, 0x002}, {0x601, 0x201}, {0x601, 0x008}, // SPC, !, ", #, 
@@ -486,8 +495,8 @@ short Keyboard::asciiTab[256][2] =
 	{0x604, 0x440}, {0x604, 0x304}, {0x605, 0x304}, {0x604, 0x510}, // 204, 205, 206, 207,
 	// 0xd0
 	{0x605, 0x510}, {0x605, 0x501}, {0x604, 0x501}, {0x605, 0x408}, // 208, 209, 210, 211,
-	{0x605, 0x308}, {0x605, 0x508}, {0x605, 0x320}, {0x611, 0x420}, // 212, 213, 214, 215,
-	{0x605, 0x001}, {0x610, 0x004}, {0x610, 0x140}, {0x604, 0x420}, // 216, 217, 218, 219,
+	{0x605, 0x308}, {0x605, 0x508}, {0x605, 0x320}, {0x605, 0x420}, // 212, 213, 214, 215,
+	{0x611, 0x001}, {0x610, 0x004}, {0x610, 0x140}, {0x604, 0x420}, // 216, 217, 218, 219,
 	{0x604, 0x340}, {0x604, 0x401}, {0x605, 0x401}, {0x605, 0x340}, // 220, 221, 222, 223,
 	// 0xe0
 	{0x610, 0x040}, {0x610, 0x080}, {0x611, 0x101}, {0x611, 0x420}, // 224, 225, 226, 227,
