@@ -1,5 +1,8 @@
 $Id$
 
+2004-04-30 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed sprites in overscan.
+
 2004-04-29 Maarten ter Huurne <maarten@treewalker.org>
 	* Optimized top and bottom border drawing in SDLHi.
 

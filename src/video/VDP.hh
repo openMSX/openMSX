@@ -193,16 +193,22 @@ public:
 		return isDisplayArea && displayEnabled;
 	}
 	
+	/** Are sprites enabled?
+	  * @return True iff blanking is off, the current mode supports
+	  *   sprites and sprites are not disabled.
+	  */
+	inline bool spritesEnabled() const {
+		return displayEnabled && !displayMode.isTextMode() &&
+		       ((controlRegs[8] & 0x02) == 0x00);
+	}
+
 	/** Is spritechecking done on this line?
 	  * This method is alomost equivalent to 
 	  *     spritesEnabled() && isDisplayEnabled()
 	  * excepts that 'display enabled' is shifted one line to above.
 	  */
 	inline bool needSpriteChecks(int line) const {
-		return spritesEnabled() &&
-		       displayEnabled &&
-		       ((lineZero - 1) <= line) &&
-		       (line <= (lineZero - 1 + getNumberOfLines())); // wrong in case of overscan
+		return spritesEnabled() && (isDisplayArea || line == lineZero - 1);
 	}
 
 	/** Gets the current vertical scroll (line displayed at Y=0).
@@ -353,15 +359,6 @@ public:
 	  */
 	inline int getSpriteMag() const {
 		return (controlRegs[1] & 1) + 1;
-	}
-
-	/** Are sprites enabled?
-	  * @return True iff blanking is off, the current mode supports
-	  *   sprites and sprites are not disabled.
-	  */
-	inline bool spritesEnabled() const {
-		return displayEnabled && !displayMode.isTextMode() &&
-		       ((controlRegs[8] & 0x02) == 0x00);
 	}
 
 	/** Are commands possible in non Graphic modes? (V9958 only)
