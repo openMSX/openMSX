@@ -273,7 +273,7 @@ inline int VDP::checkSprites2(int line, VDP::SpriteInfo *visibleSprites)
 // Init and cleanup:
 
 VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time)
+	: MSXDevice(config, time), MSXIODevice(config, time)
 	, paletteCmd(this)
 {
 	PRT_DEBUG("Creating a VDP object");

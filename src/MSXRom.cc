@@ -11,7 +11,8 @@
 #include "MSXMotherBoard.hh"
 #include "MSXRomPatchInterface.hh"
 
-MSXRom::MSXRom()
+MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	handleRomPatchInterfaces();
 }

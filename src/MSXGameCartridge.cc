@@ -8,7 +8,7 @@
 #include <map>
 
 MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time)
+	: MSXDevice(config, time), MSXMemDevice(config, time), MSXRom(config, time)
 {
 	PRT_DEBUG("Creating an MSXGameCartridge object");
 	try {

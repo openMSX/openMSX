@@ -22,7 +22,7 @@ class DummyDevice : public MSXIODevice, public MSXMemDevice
 		void saveState(std::ofstream &writestream);
 		void restoreState(std::string &devicestring, std::ifstream &readstream);
 	private:
-		DummyDevice();
+		DummyDevice(MSXConfig::Device *config, const EmuTime &time);
 		static DummyDevice *oneInstance;
 };
 

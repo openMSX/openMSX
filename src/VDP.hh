@@ -101,13 +101,6 @@ public:
 	// mainlife cycle of an MSXDevice
 	void reset(const EmuTime &time);
 
-	// TODO: This shouldn't be necessary, according to comments
-	//       in MSXDevice, but without it, VDP is called "no name".
-	virtual const std::string &getName() {
-		static std::string name("VDP");
-		return name;
-	}
-
 	// interaction with CPU
 	byte readIO(byte port, const EmuTime &time);
 	void writeIO(byte port, byte value, const EmuTime &time);

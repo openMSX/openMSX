@@ -3,7 +3,7 @@
 #ifndef __MIXER_HH__
 #define __MIXER_HH__
 
-//#define MIXER
+//#define FILTER
 
 #include <SDL/SDL.h>
 #include <list>
@@ -91,7 +91,7 @@ class Mixer
 		MSXCPU *cpu;
 		RealTime *realTime; 
 
-#ifdef MIXER
+#ifdef FILTER
 		int prevLeft, prevOutLeft;
 		int prevRight, prevOutRight;
 #endif

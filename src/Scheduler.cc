@@ -11,16 +11,23 @@
 #include <algorithm>
 
 
+
 // Schedulable
 
-Schedulable::Schedulable() {
-}
+#ifdef DEBUG
 
 const std::string &Schedulable::getName()
 {
-	return defaultName;
+	MSXDevice *dev = dynamic_cast<MSXDevice*>(this);
+	if (dev) {
+		return dev->getName();
+	} else {
+		return defaultName;
+	}
 }
-const std::string Schedulable::defaultName = "no name";
+const std::string Schedulable::defaultName = "[Schedulable, no name]";
+
+#endif
 
 
 // Scheduler

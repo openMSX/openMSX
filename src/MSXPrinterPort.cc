@@ -10,7 +10,7 @@
 
 
 MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time)
+	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	PRT_DEBUG("Creating a MSXPrinterPort");
 	MSXMotherBoard::instance()->register_IO_In (0x90, this);

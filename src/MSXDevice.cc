@@ -7,14 +7,7 @@ MSXDevice::MSXDevice(MSXConfig::Device *config, const EmuTime &time)
 {
 	PRT_DEBUG("instantiating an MSXDevice object..");
 	deviceConfig=config;
-	deviceName=&config->getId();
 	PRT_DEBUG(".." << getName());
-}
-
-MSXDevice::MSXDevice()
-{
-	PRT_DEBUG("instantiating an MSXDevice object (Dummy)");
-	deviceConfig = NULL;
 }
 
 MSXDevice::~MSXDevice()
@@ -41,11 +34,12 @@ void MSXDevice::restoreState(std::string &devicestring, std::ifstream &readstrea
 
 const std::string &MSXDevice::getName()
 {
-	if (deviceName != 0) {
-		return *deviceName;
+	if (deviceConfig) {
+		return deviceConfig->getId();
 	} else {
+		// TODO only for DummyDevice -> fix DummyDevice
 		return defaultName;
 	}
 }
-const std::string MSXDevice::defaultName = "no name";
+const std::string MSXDevice::defaultName = "empty";
 

@@ -8,7 +8,7 @@
 
 
 MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time)
+	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	PRT_DEBUG("instantiating an MSXSCCPlusCart object");
   

@@ -5,6 +5,8 @@ $Id$
 
 2002-03-19 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* various Y8950 improvements, not sure adpcm part is completely fixed
+	* fixed getName() for Schedulable (eg VDP)
+	* fixed virtual inheritance constructor invocations
 
 2002-03-18 Joost Yervante Damad <andete@worldcity.nl>
 	* small fix in src/Makefile.am, I hope this solves

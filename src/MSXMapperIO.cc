@@ -9,7 +9,7 @@
 
 
 MSXMapperIO::MSXMapperIO(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time)
+	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXMapperIO object");
 

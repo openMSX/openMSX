@@ -13,7 +13,7 @@ Mixer::Mixer()
 {
 	PRT_DEBUG("Creating a Mixer object");
 	
-#ifdef MIXER
+#ifdef FILTER
 	prevLeft = prevOutLeft = 0;
 	prevRight = prevOutRight = 0;
 #endif
@@ -160,7 +160,7 @@ void Mixer::updtStrm(int samples)
 		//   fc = f/fs
 		//   f  = cutt-off frequency
 		//   fs = sample frequency (11025Hz, 22050Hz, 44100Hz) 
-		#ifdef MIXER
+		#ifdef FILTER
 		int tmp;
 		tmp = 255*left;
 		left = (tmp - prevLeft + 254*prevOutLeft) >> 8;

@@ -4,7 +4,7 @@
 
 
 MSXSimple64KB::MSXSimple64KB(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time)
+	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXSimple64KB object");
 	slowDrainOnReset = deviceConfig->getParameterAsBool("slow_drain_on_reset");

@@ -15,7 +15,7 @@ inline int MSXMemoryMapper::calcAddress(word address)
 }
 
 MSXMemoryMapper::MSXMemoryMapper(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time)
+	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXMemoryMapper object");
 

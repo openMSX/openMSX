@@ -21,8 +21,6 @@ class MSXCPU;
 class Schedulable
 {
 	public:
-		Schedulable();
-
 		/**
 		 * When the previously registered syncPoint is reached, this
 		 * method gets called. The parameter "userData" is the same
@@ -30,6 +28,7 @@ class Schedulable
 		 */
 		virtual void executeUntilEmuTime(const EmuTime &time, int userData) = 0;
 
+#ifdef DEBUG
 		/**
 		 * This method is only used to print meaningfull debug messages
 		 */
@@ -37,6 +36,7 @@ class Schedulable
 
 	protected:
 		static const std::string defaultName;
+#endif
 };
 
 class Scheduler : private EventListener

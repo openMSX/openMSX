@@ -11,7 +11,7 @@
 // MSXDevice
 
 MSXPPI::MSXPPI(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time)
+	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXPPI object");
 	

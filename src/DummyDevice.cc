@@ -4,22 +4,22 @@
 #include <cassert>
 
 
-DummyDevice::DummyDevice()
+DummyDevice::DummyDevice(MSXConfig::Device *config, const EmuTime &time) 
+	: MSXDevice(config, time), MSXIODevice(config, time), MSXMemDevice(config, time)
 {
 	PRT_DEBUG ("Instantiating dummy device");
-	deviceName = new std::string("empty");
 }
 
 DummyDevice::~DummyDevice()
 {
 	PRT_DEBUG ("Destroying dummy device");
-	delete deviceName;
 }
 
 DummyDevice* DummyDevice::instance()
 {
 	if (oneInstance == NULL ) {
-		oneInstance = new DummyDevice();
+		EmuTime dummy;
+		oneInstance = new DummyDevice(NULL, dummy); //TODO make a MSXConfig 
 	}
 	return oneInstance;
 }

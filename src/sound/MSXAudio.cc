@@ -6,7 +6,7 @@
 #include "Y8950.hh"
 
 MSXAudio::MSXAudio(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time)
+	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXAudio object");
 

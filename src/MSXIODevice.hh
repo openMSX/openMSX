@@ -11,7 +11,7 @@ class MSXIODevice : virtual public MSXDevice
 		/**
 		 * Constructor
 		 */
-		MSXIODevice();
+		MSXIODevice(MSXConfig::Device *config, const EmuTime &time);
 		
 		/**
 		 * Read a byte from an IO port at a certain time from this device.

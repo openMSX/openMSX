@@ -18,7 +18,7 @@ class MSXRomPatchInterface;
 class MSXRom: virtual public MSXDevice
 {
 	public:
-		MSXRom();
+		MSXRom(MSXConfig::Device *config, const EmuTime &time);
 
 		/**
 		 * delete memory bank

@@ -4,7 +4,8 @@
 #include "MSXMemDevice.hh"
 
 
-MSXMemDevice::MSXMemDevice()
+MSXMemDevice::MSXMemDevice(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	registerSlots();
 }

@@ -6,7 +6,7 @@
 
 
 MSXE6Timer::MSXE6Timer(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time)
+	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	MSXMotherBoard::instance()->register_IO_In (0xE6,this);
 	MSXMotherBoard::instance()->register_IO_In (0xE7,this);

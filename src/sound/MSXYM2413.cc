@@ -6,7 +6,7 @@
 #include "YM2413.hh"
 
 MSXYM2413::MSXYM2413(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time)
+	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXYM2413 object");
 	

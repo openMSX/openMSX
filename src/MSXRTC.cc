@@ -8,7 +8,7 @@
 
 
 MSXRTC::MSXRTC(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time)
+	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXRTC object");
 	bool emuTimeBased = (deviceConfig->getParameter("mode")=="RealTime") ? 

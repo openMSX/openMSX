@@ -2,7 +2,8 @@
 
 #include "MSXIODevice.hh"
 
-MSXIODevice::MSXIODevice()
+MSXIODevice::MSXIODevice(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	// TODO registerIO();
 }

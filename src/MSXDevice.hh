@@ -70,14 +70,7 @@ class MSXDevice
 		  */
 		MSXDevice(MSXConfig::Device *config, const EmuTime &time);
 
-		/** Superclass constructor for DummyDevice, which is the only
-		  * device that has no config entry.
-		  * It has no sense of time either.
-		  */
-		MSXDevice();
-
 		MSXConfig::Device *deviceConfig;
-		const std::string* deviceName;
 		static const std::string defaultName;
 };
 
