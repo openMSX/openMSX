@@ -10,6 +10,7 @@
 #include <SDL/SDL.h>
 #include <algorithm>
 #include "EventDistributor.hh"
+#include "Schedulable.hh"
 
 
 Scheduler::Scheduler()
@@ -47,12 +48,12 @@ void Scheduler::setSyncPoint(const EmuTime &time, Schedulable* device, int userD
 	
 	PRT_DEBUG("Sched: registering " << device->getName() << " for emulation at " << time);
 	PRT_DEBUG("Sched:  CPU is at " << cpu->getCurrentTime());
-	
+
 	if (time < cpu->getTargetTime())
 		cpu->setTargetTime(time);
 	syncPoints.push_back(SynchronizationPoint (time, device, userData));
 	push_heap(syncPoints.begin(), syncPoints.end());
-	
+
 	schedMutex.release();
 }
 
@@ -60,7 +61,7 @@ bool Scheduler::removeSyncPoint(Schedulable* device, int userData)
 {
 	bool result;
 	schedMutex.grab();
-	
+
 	std::vector<SynchronizationPoint>::iterator i;
 	for (i=syncPoints.begin(); i!=syncPoints.end(); i++) {
 		if (((*i).getDevice() == device) &&
