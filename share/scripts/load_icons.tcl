@@ -1,10 +1,17 @@
 # Load a different icon set (OSD LEDs)
-#  usage:  load_icons <name>
+#  usage:  load_icons <name> <position>
 #           <name> is the name of a directory (share/skins/<name>) that
 #           contains the led images
-#  example: load_icons set1
+#           <position> can be one of the following 'bottom','top',
+#           'left' or 'right'. Default is 'top'
+#  example: load_icons set1 bottom
 
-proc load_icons { set_name } {
+proc load_icons { set_name set_position render } {
+	# TO FIX:
+	# how do I get the output of "set renderer"???
+	#
+	#set render [ set renderer ] fails, $renderer fails,...
+	#
 
 	# Check skin directory
 	set directory [data_file "skins/$set_name"]
@@ -18,8 +25,42 @@ proc load_icons { set_name } {
 	# Defaut LED positions
 	set xbase 0
 	set ybase 0
-	set spacing 50
+	set xwidth 50
+	set yheight 30
+	set xspacing 60
+	set yspacing 35
 	set horizontal 1
+
+	# but allow to override these values by the skin script
+	set script $directory/skin.tcl
+	if [file exists $script] {
+		source $script
+	}
+
+
+	# change according to <position> parameter
+	if { $set_position == "left" } {
+		set horizontal 0
+	}
+
+	if { $set_position == "right" } {
+		set horizontal 0
+		if { "SDLLo" == $render } {
+			set xbase [ expr 320 - $xwidth ]
+		} else {
+			set xbase [ expr 640 - $xwidth ]
+		}
+	}
+
+	if { $set_position == "bottom" } {
+		if { "SDLLo" == $render } {
+			set power off
+			set ybase [ expr 240 - $yheight ]
+		} else {
+			set ybase [ expr 480 - $yheight ]
+			reset
+		}
+	}
 
 	# Default fade parameters
 	set fade_delay 5000
@@ -28,8 +69,8 @@ proc load_icons { set_name } {
 	# Calculate default parameter values ...
 	for { set i 0 } { $i < [llength $leds] } { incr i } {
 		set led [lindex $leds $i]
-		set xcoord($led) [expr $xbase + $i * $spacing * $horizontal]
-		set ycoord($led) [expr $ybase + $i * $spacing * [expr !$horizontal]]
+		set xcoord($led) [expr $xbase + $i * $xspacing * $horizontal]
+		set ycoord($led) [expr $ybase + $i * $yspacing * [expr !$horizontal]]
 		set active_fade_delay($led) $fade_delay
 		set active_fade_duration($led) $fade_duration
 		set non_active_fade_delay($led) $fade_delay
@@ -38,7 +79,7 @@ proc load_icons { set_name } {
 		set non_active_image($led) ${led}-off.png
 	}
 
-	# ... but allow to override these values by the skin script
+	# ... but allow to override these calculated values (again) by the skin script
 	set script $directory/skin.tcl
 	if [file exists $script] {
 		source $script

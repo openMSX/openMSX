@@ -60,14 +60,15 @@ void IconLayer<IMAGE>::createSettings(LedEvent::Led led, const string& name)
 {
 	string icon_name = "icon." + name;
 	ledInfo[led].xcoord.reset(new IntegerSetting(icon_name + ".xcoord",
-		"X-coordinate for LED icon", ((int)led) * 50, 0, 640));
+		"X-coordinate for LED icon", ((int)led) * 60, 0, 640));
+	//Default is SDLHi and we want the default icons on the bottom
 	ledInfo[led].ycoord.reset(new IntegerSetting(icon_name + ".ycoord",
-		"Y-coordinate for LED icon", 0, 0, 480));
+		"Y-coordinate for LED icon", 444, 0, 480));
 	for (int i = 0; i < 2; ++i) {
 		string tmp = icon_name + (i ? ".active" : ".non-active");
 		ledInfo[led].name[i].reset(new FilenameSetting(tmp + ".image",
 			"Image for active LED icon",
-			i ? "skins/led.png" : "skins/led-off.png"));
+			"skins/set1/" +( i ?  name + "-on.png" : name + "-off.png")));
 		ledInfo[led].fadeTime[i].reset(new IntegerSetting(tmp + ".fade-delay",
 			"Time (in ms) after which the icons start to fade (0 means no fading)",
 			5000, 0, 1000000));
