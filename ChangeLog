@@ -1,5 +1,8 @@
 $Id$
 
+2003-12-27 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed console drawing in SDLLo during pause.
+
 2003-12-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented automatic filename generation for screenshot feature
 

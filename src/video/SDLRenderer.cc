@@ -159,9 +159,11 @@ template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::drawEffects()
 {
 	// All of the current postprocessing steps require hi-res.
-	if (LINE_ZOOM != 2) return;
-
-	int scanlineAlpha = (settings.getScanlineAlpha()->getValue() * 255) / 100;
+	if (LINE_ZOOM != 2) {
+		// Just copy the image as-is.
+		SDL_BlitSurface(workScreen, NULL, screen, NULL);
+		return;
+	}
 
 	// Lock surface, because we will access pixels directly.
 	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
@@ -206,6 +208,7 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 	// TODO: Turn off scanlines when deinterlacing.
 	// TODO: Optimize scanlineAlpha == 255.
 	// TODO: Integrate with scaler? (introduce a "darken" class like Blender)
+	int scanlineAlpha = (settings.getScanlineAlpha()->getValue() * 255) / 100;
 	if (scanlineAlpha != 0 && sizeof(Pixel) != 1) {
 		SDL_PixelFormat* format = screen->format;
 		Uint32 rMask = format->Rmask;
@@ -428,7 +431,7 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 	}
 
 	// Allocate work surface.
-	workScreen = zoom == ZOOM_256 ? screen : SDL_CreateRGBSurface(
+	workScreen = SDL_CreateRGBSurface(
 		SDL_SWSURFACE,
 		WIDTH, 240, // TODO: Vertical size should be borders + display.
 		screen->format->BitsPerPixel,
@@ -478,7 +481,7 @@ SDLRenderer<Pixel, zoom>::~SDLRenderer()
 	delete currScaler;
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
-	if (zoom != ZOOM_256) SDL_FreeSurface(workScreen);
+	SDL_FreeSurface(workScreen);
 
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
