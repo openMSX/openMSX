@@ -4,22 +4,19 @@
 #define __KEYEVENTINSERTER_HH__
 
 #include <string>
+#include <SDL/SDL.h>
 
 
 class KeyEventInserter
 {
 	public:
 		KeyEventInserter();
-		KeyEventInserter &operator<<(std::string &str);
+		KeyEventInserter &operator<<(const std::string &str);
 		KeyEventInserter &operator<<(const char* cstr);
-		void flush();
-		
+		void enter(const std::string &str);
+
 	private:
-		std::string buffer;
+		static const SDLKey keymap[256][4];
 };
-
-
-// this stream ONLY accepts the normal basic ascii and \n
-static KeyEventInserter keyi;
 
 #endif

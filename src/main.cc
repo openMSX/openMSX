@@ -20,6 +20,7 @@
 #include "CommandLineParser.hh"
 #include "icon.nn"
 #include "ConsoleSource/CommandController.hh"
+#include "KeyEventInserter.hh"
 
 
 void initializeSDL()
@@ -69,6 +70,9 @@ int main (int argc, char **argv)
 
 		// Fisrt execute auto commands
 		CommandController::instance()->autoCommands();
+
+		//
+		new KeyEventInserter();
 
 		PRT_DEBUG ("starting MSX");
 		MSXMotherBoard::instance()->startMSX();

@@ -1,5 +1,8 @@
 $Id$
 
+2002-04-15 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Extended KeyEventInserter so it can be used in Tilburg
+
 2002-04-13 Maarten ter Huurne <mth@stack.nl>
 	* VDPVRAM and related cleanups.
 

@@ -365,8 +365,10 @@
     <parameter name="savesram">true</parameter>
     <parameter name="sramname">GAME.SRAM</parameter>
   </device>
+  
+  <config id="KeyEventInserter">
+    <type>KeyEventInserter</type>                
+    <parameter name="keys">                             &#x0D;load"cas:"&#x0D;run&#x0D;</parameter>
+  </config>
 
 </msxconfig>
-
-
-
