@@ -5,9 +5,10 @@ $Id$
 	  - Fixed inlining of methods.
 	    For some reason g++ cannot inline if the methods are defined as
 	    HQ2xScaler<word>::method and <unsigned int>, but when using
-	    HQ2xScaler<Pixel>:: and an if-statement inside, inlining does work.
+	    HQ2xScaler<Pixel>:: with an if-statement inside, inlining does work.
 	  - Split the giant switch-statement into 4 smaller ones (one per output
 	    pixel). Makes a huge difference in object size (123K -> 33K).
+	  - Many small optimizations all over the code.
 
 2003-12-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented cpu debugger:

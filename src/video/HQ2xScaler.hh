@@ -8,7 +8,6 @@
 
 namespace openmsx {
 
-typedef word Pix16;
 typedef unsigned int Pix32;
 
 /** Runs the hq2x scaler algorithm.
@@ -22,12 +21,9 @@ public:
 	//void scaleLine512(SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
 private:
 
-	Pix32 LUT16to32[65536];
-	int RGBtoYUV[65536];
-
-	static inline Pix16 readPixel(Pixel *pIn);
+	static inline Pix32 readPixel(Pixel *pIn);
 	static inline void pset(Pixel *pOut, Pix32 colour);
-	inline bool edge(Pix16 w1, Pix16 w2);
+	inline bool edge(Pix32 c1, Pix32 c2);
 };
 
 } // namespace openmsx
