@@ -96,21 +96,26 @@ void Mixer::updtStrm(int samples)
 	if (samples > samplesLeft) samples = samplesLeft;
 	PRT_DEBUG("Generate " << samples << " samples");
 	for (int mode=0; mode<NB_MODES; mode++) {
+		int unmuted = 0;
 		for (int i=0; i<nbDevices[mode]; i++) {
-			buffers[mode][i] = devices[mode][i]->updateBuffer(samples);
+			if (!devices[mode][i]->isInternalMuted()) {
+				buffers[mode][unmuted] = devices[mode][i]->updateBuffer(samples);
+				unmuted++;
+			}
 		}
+		nbUnmuted[mode] = unmuted;
 	}
 	for (int j=0; j<samples; j++) {
 		int both = 0;
-		for (int i=0; i<nbDevices[MONO]; i++)
+		for (int i=0; i<nbUnmuted[MONO]; i++)
 			both  += buffers[MONO][i][j];
 		int left = both;
-		for (int i=0; i<nbDevices[MONO_LEFT]; i++)
+		for (int i=0; i<nbUnmuted[MONO_LEFT]; i++)
 			left  += buffers[MONO_LEFT][i][j];
 		int right = both;
-		for (int i=0; i<nbDevices[MONO_RIGHT]; i++)
+		for (int i=0; i<nbUnmuted[MONO_RIGHT]; i++)
 			right += buffers[MONO_RIGHT][i][j];
-		for (int i=0; i<nbDevices[STEREO]; i++) {
+		for (int i=0; i<nbUnmuted[STEREO]; i++) {
 			left  += buffers[STEREO][i][2*j];
 			right += buffers[STEREO][i][2*j+1];
 		}

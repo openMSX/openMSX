@@ -30,7 +30,7 @@ openmsx_SOURCES=openmsx.cc \
 	Leds.hh Leds.cc \
 	MSXE6Timer.hh MSXE6Timer.cc \
 	DummyDevice.hh DummyDevice.cc \
-	Mixer.hh Mixer.cc SoundDevice.hh \
+	Mixer.hh Mixer.cc SoundDevice.hh SoundDevice.cc \
 	MSXPSG.hh MSXPSG.cc AY8910.hh AY8910.cc \
 	JoystickPorts.hh JoystickPorts.cc JoystickDevice.hh \
 	DummyJoystick.hh DummyJoystick.cc \

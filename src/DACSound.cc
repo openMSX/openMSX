@@ -71,7 +71,7 @@ void DACSound::writeDAC(byte value, const Emutime &time)
 }
 
 
-void DACSound::setVolume(short newVolume)
+void DACSound::setInternalVolume(short newVolume)
 {
 	// calculate the volume->voltage conversion table
 	// The DAC uses 8 bit unsigned wave data

@@ -22,7 +22,7 @@ class DACSound : public SoundDevice
 		//SoundDevice
 		void init();
 		void reset();
-		void setVolume(short newVolume);
+		void setInternalVolume(short newVolume);
 		void setSampleRate(int sampleRate);
 		int* updateBuffer(int length);
 		

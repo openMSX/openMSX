@@ -37,12 +37,13 @@ class AY8910 : public SoundDevice
 		//SoundDevice
 		void init();
 		void reset();
-		void setVolume(short newVolume);
+		void setInternalVolume(short newVolume);
 		void setSampleRate(int sampleRate);
 		int* updateBuffer(int length);
 		
 	private:
 		void wrtReg(byte reg, byte value);
+		void checkMute();
 		
 		static const int FP_UNIT = 0x8000;	// fixed point representation of 1
 		static const int CLOCK = 3579545/2;	// real time clock frequency of AY8910

@@ -30,7 +30,7 @@ AY8910::~AY8910()
 void AY8910::init()
 {
 	//setVolume(Mixer::MAX_VOLUME);
-	setVolume(25000);
+	setVolume(21000);	// TODO find a good value and put it in config file
 	reset();
 	int bufSize = Mixer::instance()->registerSound(this);
 	buffer = new int[bufSize];	// TODO fix race
@@ -133,16 +133,19 @@ void AY8910::wrtReg(byte reg, byte value)
 		regs[AY_AVOL] &= 0x1f;
 		envelopeA = regs[AY_AVOL] & 0x10;
 		volA = envelopeA ? volE : volTable[regs[AY_AVOL]];
+		checkMute();
 		break;
 	case AY_BVOL:
 		regs[AY_BVOL] &= 0x1f;
 		envelopeB = regs[AY_BVOL] & 0x10;
 		volB = envelopeB ? volE : volTable[regs[AY_BVOL]];
+		checkMute();
 		break;
 	case AY_CVOL:
 		regs[AY_CVOL] &= 0x1f;
 		envelopeC = regs[AY_CVOL] & 0x10;
 		volC = envelopeC ? volE : volTable[regs[AY_CVOL]];
+		checkMute();
 		break;
 	case AY_EFINE:
 	case AY_ECOARSE:
@@ -195,6 +198,7 @@ void AY8910::wrtReg(byte reg, byte value)
 			wrtReg(AY_PORTB, regs[AY_PORTB]);
 		}
 		oldEnable = value;
+		checkMute();
 		break;
 	case AY_PORTA:
 		if (regs[AY_ENABLE] & PORT_A_DIRECTION)
@@ -209,8 +213,17 @@ void AY8910::wrtReg(byte reg, byte value)
 	}
 }
 
+void AY8910::checkMute()
+{
+	bool chA = (regs[AY_AVOL] == 0) || ((regs[AY_ENABLE]&0x09)==0x09);
+	bool chB = (regs[AY_BVOL] == 0) || ((regs[AY_ENABLE]&0x12)==0x12);
+	bool chC = (regs[AY_CVOL] == 0) || ((regs[AY_ENABLE]&0x24)==0x24);
+	bool muted = chA && chB && chC;
+	PRT_DEBUG("AY8910 muted: " << muted);
+	setInternalMute(muted);
+}
 
-void AY8910::setVolume(short newVolume)
+void AY8910::setInternalVolume(short newVolume)
 {
 	// calculate the volume->voltage conversion table
 	// The AY-3-8910 has 16 levels, in a logarithmic scale (3dB per step)
@@ -251,6 +264,8 @@ int* AY8910::updateBuffer(int length)
 	// Setting the output to 1 is necessary because a disabled channel is locked
 	// into the ON state (see above); and it has no effect if the volume is 0.
 	// If the volume is 0, increase the counter, but don't touch the output.
+
+	PRT_DEBUG("AY8910 updateBuffer");
 
 	if (regs[AY_ENABLE] & 0x01) {	// disabled
 		if (countA <= length*FP_UNIT) countA += length*FP_UNIT;

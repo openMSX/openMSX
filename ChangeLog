@@ -1,5 +1,9 @@
 $Id$
 
+2001-10-25 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* SoundDevices can now mute themselves, mixer doesn't ask
+	  for soundbuffer of muted devices
+
 2001-10-23 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* make DACSound compile again (doesn't work yet)
 	* add HotKey service

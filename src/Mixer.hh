@@ -52,6 +52,7 @@ class Mixer
 		SDL_AudioSpec audioSpec;
 		int nbAllDevices;
 		int nbDevices[NB_MODES];
+		int nbUnmuted[NB_MODES];
 		std::vector<SoundDevice*> devices[NB_MODES];
 		std::vector<int*> buffers[NB_MODES];
 		
