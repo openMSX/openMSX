@@ -147,29 +147,21 @@ bool Console::signalEvent(SDL_Event &event)
 			cursorPosition = lines[0].length();
 			break;
 		case Keys::K_A:
-			switch(modifier)
-			{
-			case KMOD_LCTRL:
-			case KMOD_RCTRL:
-				cursorPosition = PROMPT.length();
-				break;
-			default:
-				normalKey((char)event.key.keysym.unicode);
-				break;
+			if (modifier & (KMOD_LCTRL | KMOD_RCTRL)){
+				cursorPosition=PROMPT.length();
 			}
-			break;
+			else{
+				normalKey((char)event.key.keysym.unicode);	
+			}	
+			break;	
 		case Keys::K_E:
-			switch(modifier)
-			{
-			case KMOD_LCTRL:
-			case KMOD_RCTRL:
-				cursorPosition = lines[0].length();
-				break;
-			default:
-				normalKey((char)event.key.keysym.unicode);
-				break;
+			if (modifier & (KMOD_LCTRL | KMOD_RCTRL)){	
+				cursorPosition=lines[0].length();
 			}
-			break;
+			else{
+				normalKey((char)event.key.keysym.unicode);
+			}			
+			break;	
 		default:
 			normalKey((char)event.key.keysym.unicode);
 
@@ -224,6 +216,7 @@ void Console::putPrompt()
 
 void Console::tabCompletion()
 {
+	resetScrollBack();
 	std::string string(lines[0].substr(PROMPT.length()));
 	CommandController::instance()->tabCompletion(string);
 	lines[0] = PROMPT + string;
@@ -244,6 +237,7 @@ void Console::scrollDown()
 
 void Console::prevCommand()
 {
+	resetScrollBack();
 	if (commandScrollBack+1 < history.size()) {
 		// move back a line in the command strings and copy
 		// the command to the current input string
@@ -255,6 +249,7 @@ void Console::prevCommand()
 
 void Console::nextCommand()
 {
+	resetScrollBack();
 	if (commandScrollBack > 0) {
 		// move forward a line in the command strings and copy
 		// the command to the current input string
@@ -269,6 +264,7 @@ void Console::nextCommand()
 
 void Console::backspace()
 {
+	resetScrollBack();
 	if (cursorPosition > PROMPT.length())
 	{
 		std::string temp;
@@ -281,6 +277,7 @@ void Console::backspace()
 
 void Console::delete_key()
 {
+	resetScrollBack();
 	if (lines[0].length() >cursorPosition)
 	{
 		std::string temp;
@@ -293,6 +290,7 @@ void Console::delete_key()
 void Console::normalKey(char chr)
 {
 	if (!chr) return;
+	resetScrollBack();
 	std::string temp="";
 	temp+=chr;
 
@@ -301,4 +299,8 @@ void Console::normalKey(char chr)
 		lines[0].insert(cursorPosition,temp);
 		cursorPosition++;
 	}
+}
+
+void Console::resetScrollBack(){
+	consoleScrollBack=0;
 }

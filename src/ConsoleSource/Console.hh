@@ -56,7 +56,8 @@ class Console : private EventListener
 		void newLineConsole(const std::string &line);
 		void putPrompt();
 		void updateConsole();
-
+		void resetScrollBack();
+	
 		class ConsoleSetting : public BooleanSetting
 		{
 			public:
