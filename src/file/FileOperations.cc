@@ -253,6 +253,12 @@ const string& FileOperations::getUserHomeDir()
 			userDir = getSystemDataDir();
 			userDir.erase(userDir.length() - 6, 6);	// "/share"
 		}
+		if ((userDir.length() == 3) && (userDir.substr(1) == ":/")){
+			char drive = tolower(userDir[0]);
+			if (('a' <= drive) && (drive <= 'z')) {
+				userDir.erase(2,1);  // remove the trailing slash because other functions will add it, X:// will be seen as protocol
+			}
+		}
 #else
 		userDir = getenv("HOME");
 #endif
@@ -323,8 +329,12 @@ string FileOperations::expandCurrentDirFromDrive (const string& path)
 			if (_getdcwd(drive - 'a' +1, buffer, MAX_PATH) != NULL){
 				result = buffer;
 				result = getConventionalPath(result);
-				result.append("/");
-				result.append(path.substr(2));
+				if (result[result.size()-1] != '/'){
+					result.append("/");
+				}
+				if (path.size() >2){
+					result.append(path.substr(2));
+				}
 			}
 		}
 	}

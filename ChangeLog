@@ -1,5 +1,9 @@
 $Id$
 
+2004-10-10 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Fixed getting user dir when "My Documents" is set to the 
+	   root of a drive in windows.	
+
 2004-10-09 Maarten ter Huurne <maarten@treewalker.org>
 	* test release openmsx-0.5.0-test2 (Bussum 2004)
 
