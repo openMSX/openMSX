@@ -24,17 +24,17 @@ HotKey* HotKey::instance()
 HotKey* HotKey::oneInstance = NULL;
 
 
-void HotKey::registerHotKey(SDLKey key, HotKeyListener *listener)
+void HotKey::registerHotKey(Keys::KeyCode key, HotKeyListener *listener)
 {
-	PRT_DEBUG("HotKey registration for key " << ((int)key));
+	PRT_DEBUG("HotKey registration for key " << Keys::getName(key));
 	if (map.empty())
 		EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
-	map.insert(std::pair<SDLKey, HotKeyListener*>(key, listener));
+	map.insert(std::pair<Keys::KeyCode, HotKeyListener*>(key, listener));
 }
 
-void HotKey::unregisterHotKey(SDLKey key, HotKeyListener *listener)
+void HotKey::unregisterHotKey(Keys::KeyCode key, HotKeyListener *listener)
 {
-	std::multimap<SDLKey, HotKeyListener*>::iterator it;
+	std::multimap<Keys::KeyCode, HotKeyListener*>::iterator it;
 	for (it = map.lower_bound(key);
 			(it != map.end()) && (it->first == key);
 			it++) {
@@ -48,17 +48,17 @@ void HotKey::unregisterHotKey(SDLKey key, HotKeyListener *listener)
 }
 
 
-void HotKey::registerHotKeyCommand(SDLKey key, const std::string &command)
+void HotKey::registerHotKeyCommand(Keys::KeyCode key, const std::string &command)
 {
-	PRT_DEBUG("HotKey command registration for key " << ((int)key));
+	PRT_DEBUG("HotKey command registration for key " << Keys::getName(key));
 	HotKeyCmd *cmd = new HotKeyCmd(command);
 	registerHotKey(key, cmd);
-	cmdMap.insert(std::pair<SDLKey, HotKeyCmd*>(key, cmd));
+	cmdMap.insert(std::pair<Keys::KeyCode, HotKeyCmd*>(key, cmd));
 }
 
-void HotKey::unregisterHotKeyCommand(SDLKey key, const std::string &command)
+void HotKey::unregisterHotKeyCommand(Keys::KeyCode key, const std::string &command)
 {
-	std::multimap<SDLKey, HotKeyCmd*>::iterator it;
+	std::multimap<Keys::KeyCode, HotKeyCmd*>::iterator it;
 	for (it = cmdMap.lower_bound(key);
 			(it != cmdMap.end()) && (it->first == key);
 			it++) {
@@ -74,9 +74,9 @@ void HotKey::unregisterHotKeyCommand(SDLKey key, const std::string &command)
 
 void HotKey::signalEvent(SDL_Event &event)
 {
-	SDLKey key = event.key.keysym.sym;
-	PRT_DEBUG("HotKey event " << ((int)key));
-	std::multimap<SDLKey, HotKeyListener*>::iterator it;
+	Keys::KeyCode key = (Keys::KeyCode)event.key.keysym.sym;
+	PRT_DEBUG("HotKey event " << Keys::getName(key));
+	std::multimap<Keys::KeyCode, HotKeyListener*>::iterator it;
 	for (it = map.lower_bound(key);
 	     (it != map.end()) && (it->first == key);
 	     it++) {
@@ -96,7 +96,7 @@ const std::string &HotKey::HotKeyCmd::getCommand()
 {
 	return command;
 }
-void HotKey::HotKeyCmd::signalHotKey(SDLKey key)
+void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key)
 {
 	CommandController::instance()->executeCommand(command);
 }

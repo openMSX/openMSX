@@ -1,6 +1,6 @@
 // $Id$
 
-#include <SDL/SDL.h>
+#include "Keys.hh"
 #include "RealTime.hh"
 #include "MSXCPU.hh"
 #include "MSXConfig.hh"
@@ -30,16 +30,16 @@ RealTime::RealTime()
 	CommandController::instance()->registerCommand(pauseCmd, "pause");
 	CommandController::instance()->registerCommand(throttleCmd, "throttle");
 	CommandController::instance()->registerCommand(speedCmd, "speed");
-	HotKey::instance()->registerHotKeyCommand(SDLK_PAUSE, "pause");
-	HotKey::instance()->registerHotKeyCommand(SDLK_F9, "throttle");
+	HotKey::instance()->registerHotKeyCommand(Keys::K_PAUSE, "pause");
+	HotKey::instance()->registerHotKeyCommand(Keys::K_F9, "throttle");
 }
 
 RealTime::~RealTime()
 {
 	PRT_DEBUG("Destroying a RealTime object");
 	
-	HotKey::instance()->unregisterHotKeyCommand(SDLK_PAUSE, "pause");
-	HotKey::instance()->unregisterHotKeyCommand(SDLK_F9, "throttle");
+	HotKey::instance()->unregisterHotKeyCommand(Keys::K_PAUSE, "pause");
+	HotKey::instance()->unregisterHotKeyCommand(Keys::K_F9, "throttle");
 	CommandController::instance()->unregisterCommand("pause");
 	CommandController::instance()->unregisterCommand("throttle");
 	CommandController::instance()->unregisterCommand("speed");

@@ -53,12 +53,12 @@ SDLConsole::SDLConsole(SDL_Surface *screen) :
 	ConsoleManager::instance()->registerConsole(this);
 	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
 	CommandController::instance()->registerCommand(consoleCmd, "console");
-	HotKey::instance()->registerHotKeyCommand(SDLK_F10, "console");
+	HotKey::instance()->registerHotKeyCommand(Keys::K_F10, "console");
 }
 
 SDLConsole::~SDLConsole()
 {
-	HotKey::instance()->unregisterHotKeyCommand(SDLK_F10, "console");
+	HotKey::instance()->unregisterHotKeyCommand(Keys::K_F10, "console");
 	CommandController::instance()->unregisterCommand("console");
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
 	ConsoleManager::instance()->unregisterConsole(this);
@@ -71,26 +71,27 @@ void SDLConsole::signalEvent(SDL_Event &event)
 {
 	if (!isVisible) return;
 	
-	switch (event.key.keysym.sym) {
-		case SDLK_PAGEUP:
+	Keys::KeyCode key = (Keys::KeyCode)event.key.keysym.sym;
+	switch (key) {
+		case Keys::K_PAGEUP:
 			scrollUp();
 			break;
-		case SDLK_PAGEDOWN:
+		case Keys::K_PAGEDOWN:
 			scrollDown();
 			break;
-		case SDLK_UP:
+		case Keys::K_UP:
 			prevCommand();
 			break;
-		case SDLK_DOWN:
+		case Keys::K_DOWN:
 			nextCommand();
 			break;
-		case SDLK_BACKSPACE:
+		case Keys::K_BACKSPACE:
 			backspace();
 			break;
-		case SDLK_TAB:
+		case Keys::K_TAB:
 			tabCompletion();
 			break;
-		case SDLK_RETURN:
+		case Keys::K_RETURN:
 			commandExecute();
 			break;
 		default:

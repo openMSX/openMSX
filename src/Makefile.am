@@ -2,7 +2,7 @@
 
 # we want most warnings
 
-AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -I$(srcdir)/cpu -I$(srcdir)/sound -I$(srcdir)/config -I$(srcdir)/fdc -I$(srcdir)/thread -I$(srcdir)/ConsoleSource -I$(srcdir)/cassette @XML_CFLAGS@ @SDL_CFLAGS@
+AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -I$(srcdir)/cpu -I$(srcdir)/sound -I$(srcdir)/config -I$(srcdir)/fdc -I$(srcdir)/thread -I$(srcdir)/ConsoleSource -I$(srcdir)/cassette -I$(srcdir)/events @XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
 else
@@ -16,7 +16,7 @@ endif
 # or perhaps sometimes even more:
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
-SUBDIRS = cfg libxmlx ConsoleSource cpu sound config tools fdc thread cassette
+SUBDIRS = cfg libxmlx ConsoleSource cpu sound config tools fdc thread cassette events
 
 #bin_PROGRAMS=openmsx cfgtest
 bin_PROGRAMS=openmsx
@@ -45,8 +45,6 @@ openmsx_SOURCES=\
 	PlatformFactory.hh PlatformFactory.cc \
 	DeviceFactory.hh DeviceFactory.cc \
 	Scheduler.hh Scheduler.cc Schedulable.hh Schedulable.cc \
-	EventDistributor.hh EventDistributor.cc EventListener.hh \
-	HotKey.hh HotKey.cc \
 	Keyboard.hh Keyboard.cc \
 	Leds.hh Leds.cc \
 	MSXE6Timer.hh MSXE6Timer.cc \
@@ -67,8 +65,6 @@ openmsx_SOURCES=\
 	MSXRTC.hh MSXRTC.cc RP5C01.hh RP5C01.cc \
 	RealTime.hh RealTime.cc \
 	MSXRom.hh MSXRom.cc \
-	KeyEventInserter.cc KeyEventInserter.hh \
-	SDLEventInserter.cc SDLEventInserter.hh \
 	MSXRomDevice.cc MSXRomDevice.hh \
 	MSXRomPatchInterface.hh \
 	FileOpener.cc FileOpener.hh \
@@ -96,6 +92,7 @@ openmsx_LDADD = \
 	fdc/libFdc.la \
 	thread/libThread.la \
 	cassette/libCassette.la \
+	events/libEvents.la \
 	@XML_LIBS@ \
 	@SDL_LIBS@
 

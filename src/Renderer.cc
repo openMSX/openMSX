@@ -1,12 +1,9 @@
 // $Id$
 
 #include "Renderer.hh"
-#include "ConsoleSource/ConsoleManager.hh"
-#include "ConsoleSource/CommandController.hh"
+#include "ConsoleManager.hh"
+#include "CommandController.hh"
 #include "HotKey.hh"
-
-// TODO: Get rid of SDL specific code in this class
-//  only SDLK_PRINT left
 
 
 /*
@@ -72,12 +69,12 @@ Renderer::Renderer(bool fullScreen) :
 {
 	this->fullScreen = fullScreen;
 	CommandController::instance()->registerCommand(fullScreenCmd, "fullscreen");
-	HotKey::instance()->registerHotKeyCommand(SDLK_PRINT, "fullscreen");
+	HotKey::instance()->registerHotKeyCommand(Keys::K_PRINT, "fullscreen");
 }
 
 Renderer::~Renderer()
 {
-	HotKey::instance()->unregisterHotKeyCommand(SDLK_PRINT, "fullscreen");
+	HotKey::instance()->unregisterHotKeyCommand(Keys::K_PRINT, "fullscreen");
 	CommandController::instance()->unregisterCommand("fullscreen");
 }
 
