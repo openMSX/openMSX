@@ -61,7 +61,7 @@ proc step_over {} {
 		run_to [expr $address + [llength $l] - 1]
 	} elseif [string match "rst*" [lindex $l 0]] {
 		run_to [expr $address + [llength $l] - 1]
-	} else
+	} else {
 		debug step
 	}
 }
