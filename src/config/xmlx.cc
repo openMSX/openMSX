@@ -393,15 +393,13 @@ XMLDocument::XMLDocument(const string& filename, const string& systemID)
 	xmlDtdPtr intSubset = xmlGetIntSubset(doc);
 	if (!intSubset) {
 		throw XMLException(filename + ": Missing systemID.\n"
-			"You're probably using an old incompatible file format. Try removing\n"
-			"your old settings.xml file (openMSX will create a new one).");
+			"You're probably using an old incompatible file format.");
 	}
 	string actualID = (const char*)intSubset->SystemID;
 	if (actualID != systemID) {
-		throw XMLException(filename + ": systemID doesn't match (" +
-			systemID + ", " + actualID + ")\n"
-			"You're probably using an old incompatible file format.\n"
-			"Try upgrading your configuration files.");
+		throw XMLException(filename + ": systemID doesn't match "
+			"(expected " + systemID + ", got " + actualID + ")\n"
+			"You're probably using an old incompatible file format.");
 	}
 	init(xmlDocGetRootElement(doc));
 	xmlFreeDoc(doc);

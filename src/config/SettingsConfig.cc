@@ -1,11 +1,15 @@
 // $Id$
 
-#include "xmlx.hh"
+#include "SettingsConfig.hh"
 #include "File.hh"
 #include "FileContext.hh"
-#include "SettingsConfig.hh"
 #include "CommandController.hh"
 #include "GlobalSettings.hh"
+#include "CliCommOutput.hh"
+#include "xmlx.hh"
+#include <memory.h>
+
+using std::auto_ptr;
 
 
 namespace openmsx {
@@ -25,7 +29,8 @@ SettingsConfig::~SettingsConfig()
 		try {
 			saveSetting();
 		} catch (FileException& e) {
-			// we've tried, can't help if it fails
+			CliCommOutput::instance().printWarning(
+				"Auto-saving of settings failed: " + e.getMessage() );
 		}
 	}
 	CommandController::instance().
@@ -41,11 +46,22 @@ SettingsConfig& SettingsConfig::instance()
 void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 {
 	saveName = context.resolveCreate(filename);
-	File file(context.resolve(filename));
-	XMLDocument doc(file.getLocalName(), "settings.dtd");
+	auto_ptr<File> file;
+	try {
+		file.reset(new File(context.resolve(filename)));
+	} catch (FileException& e) {
+		autoSaveSetting = &GlobalSettings::instance().getAutoSaveSetting();
+		throw;
+	}
 	SystemFileContext systemContext;
-	handleDoc(*this, doc, systemContext);
-
+	try {
+		XMLDocument doc(file->getLocalName(), "settings.dtd");
+		handleDoc(*this, doc, systemContext);
+	} catch (XMLException& e) {
+		CliCommOutput::instance().printWarning(
+			"Loading of settings failed: " + e.getMessage() + "\n"
+			"Reverting to default settings.");
+	}
 	// This setting must be retrieved earlier than the destructor.
 	autoSaveSetting = &GlobalSettings::instance().getAutoSaveSetting();
 }
