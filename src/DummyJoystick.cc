@@ -10,15 +10,6 @@ DummyJoystick::~DummyJoystick()
 {
 }
 
-DummyJoystick* DummyJoystick::instance()
-{
-	if (oneInstance == 0 ) {
-		oneInstance = new DummyJoystick();
-	}
-	return oneInstance;
-}
-DummyJoystick* DummyJoystick::oneInstance = 0;
-
 
 byte DummyJoystick::read(const EmuTime &time)
 {
@@ -34,4 +25,4 @@ const std::string &DummyJoystick::getName()
 {
 	return name;
 }
-const std::string DummyJoystick::name("Dummy Joystick");
+const std::string DummyJoystick::name("dummy");

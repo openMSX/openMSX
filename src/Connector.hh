@@ -17,13 +17,13 @@ public:
 	/**
 	 * A connector has a name
 	 */
-	virtual std::string getName() = 0;
+	virtual const std::string &getName() = 0;
 
 	/**
 	 * A connector belong to a certain class. All pluggables of this
 	 * class can be plugged in this connector
 	 */
-	virtual std::string getClass() = 0;
+	virtual const std::string &getClass() = 0;
 
 	/**
 	 * This plugs a pluggable in this connector. The default

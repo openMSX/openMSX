@@ -5,62 +5,60 @@
 
 #include "MSXIODevice.hh"
 #include "PrinterPortDevice.hh"
-#include "ConsoleSource/Command.hh"
+#include "Connector.hh"
+
 
 class LoggingPrinterPortDevice : public PrinterPortDevice
 {
-	bool getStatus();
-	void setStrobe(bool strobe, const EmuTime &time);
-	void writeData(byte data, const EmuTime &time);
+public:
+	LoggingPrinterPortDevice();
+	virtual ~LoggingPrinterPortDevice();
+
+	virtual bool getStatus();
+	virtual void setStrobe(bool strobe, const EmuTime &time);
+	virtual void writeData(byte data, const EmuTime &time);
+	virtual const std::string &getName();
 private:
 	byte toPrint;
+	static const std::string name;
 };
 
 class DummyPrinterPortDevice : public PrinterPortDevice
 {
-	bool getStatus();
-	void setStrobe(bool strobe, const EmuTime &time);
-	void writeData(byte data, const EmuTime &time);
+	virtual bool getStatus();
+	virtual void setStrobe(bool strobe, const EmuTime &time);
+	virtual void writeData(byte data, const EmuTime &time);
+	virtual const std::string &getName();
+	static const std::string name;
 };
 
-class MSXPrinterPort : public MSXIODevice
+
+class MSXPrinterPort : public MSXIODevice , public Connector
 {
 	public:
-		/**
-		 * Constructor
-		 */
 		MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time);
-		static MSXPrinterPort *instance();
-		/**
-		 * Destructor
-		 */
 		~MSXPrinterPort();
 
 		void reset(const EmuTime &time);
 
+		// MSXIODevice
 		byte readIO(byte port, const EmuTime &time);
 		void writeIO(byte port, byte value, const EmuTime &time);
 		
-		void plug(PrinterPortDevice *dev, const EmuTime &time);
-		void unplug(const EmuTime &time);
-		static LoggingPrinterPortDevice *logger;
+		// Connector
+		virtual const std::string &getName();
+		virtual const std::string &getClass();
+		virtual void plug(Pluggable *dev, const EmuTime &time);
+		virtual void unplug(const EmuTime &time);
 
 	private:
-		static MSXPrinterPort *oneInstance;
-		PrinterPortDevice *device;
 		DummyPrinterPortDevice *dummy;
+		LoggingPrinterPortDevice *logger;
 		bool strobe;
 		byte data;
-		// Commands
-		class printPortCmd : public Command {
-		public:
-			printPortCmd();
-			virtual ~printPortCmd();
-			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help   (const std::vector<std::string> &tokens);
-		};
-		printPortCmd printPortCmd ;
+
+		static const std::string name;
+		static const std::string className;
 };
 
 #endif
-

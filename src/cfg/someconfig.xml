@@ -306,6 +306,10 @@
     <type>CPU</type>
   </device>
 
+  <device id="Printer Port">
+    <type>PrinterPort</type>
+  </device>
+
   <config id="Mixer">
     <type>Mixer</type>
     <parameter name="frequency">22050</parameter>

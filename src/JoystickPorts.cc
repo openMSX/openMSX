@@ -3,7 +3,6 @@
 #include "JoystickPorts.hh"
 #include "JoystickDevice.hh"
 #include "DummyJoystick.hh"
-#include "ConsoleSource/Console.hh"
 #include "PluggingController.hh"
 #include <cassert>
 
@@ -11,6 +10,7 @@
 JoystickPort::JoystickPort(const std::string &nm, const EmuTime &time)
 {
 	name = nm;
+	dummy = new DummyJoystick();
 	PluggingController::instance()->registerConnector(this);
 	
 	unplug(time);
@@ -20,18 +20,19 @@ JoystickPort::~JoystickPort()
 {
 	//unplug(time);
 	PluggingController::instance()->unregisterConnector(this);
+	delete dummy;
 }
 
-std::string JoystickPort::getName()
+const std::string &JoystickPort::getName()
 {
 	return name;
 }
 
-std::string JoystickPort::getClass()
+const std::string &JoystickPort::getClass()
 {
 	return className;
 }
-std::string JoystickPort::className("Joystick Port");
+const std::string JoystickPort::className("Joystick Port");
 
 void JoystickPort::plug(Pluggable *device, const EmuTime &time)
 {
@@ -42,7 +43,7 @@ void JoystickPort::plug(Pluggable *device, const EmuTime &time)
 void JoystickPort::unplug(const EmuTime &time)
 {
 	Connector::unplug(time);
-	plug(DummyJoystick::instance(), time);
+	plug(dummy, time);
 }
 
 byte JoystickPort::read(const EmuTime &time)

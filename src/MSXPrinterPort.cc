@@ -4,9 +4,7 @@
 #include "MSXPrinterPort.hh"
 #include "MSXMotherBoard.hh"
 #include "PrinterPortDevice.hh"
-#include "ConsoleSource/Console.hh"
-#include "ConsoleSource/CommandController.hh"
-#include "MSXCPU.hh"
+#include "PluggingController.hh"
 
 
 MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
@@ -18,52 +16,35 @@ MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
 	MSXMotherBoard::instance()->register_IO_Out(0x91, this);
 
 	dummy = new DummyPrinterPortDevice();
-	CommandController::instance()->registerCommand(printPortCmd, "printerport");
-	// TODO plug device as specified in config file
-	unplug(time);
-
-	//temporary hack :-) until devicefactory is fixed
-	{
-		oneInstance=this;
-		logger=new LoggingPrinterPortDevice();
-		plug(logger, time);
-	}
-
+	PluggingController::instance()->registerConnector(this);
+	unplug(time);	// TODO plug device as specified in config file
 	reset(time);
+	
+	logger = new LoggingPrinterPortDevice();
 }
 
 MSXPrinterPort::~MSXPrinterPort()
 {
+	//unplug(time)
+	PluggingController::instance()->unregisterConnector(this);
 	delete dummy;
 	delete logger;
 }
-
-MSXPrinterPort* MSXPrinterPort::instance()
-{
-/*
-  if (oneInstance == 0 ) {
-    oneInstance = new MSXPrinterPort();
-  }
-*/
-  return oneInstance;
-}
-MSXPrinterPort* MSXPrinterPort::oneInstance = 0;
-LoggingPrinterPortDevice* MSXPrinterPort::logger = 0;
 
 
 void MSXPrinterPort::reset(const EmuTime &time)
 {
 	data = 0;	// TODO check this
 	strobe = true;	// TODO 
-	device->writeData(data, time);
-	device->setStrobe(strobe, time);
+	((PrinterPortDevice*)pluggable)->writeData(data, time);
+	((PrinterPortDevice*)pluggable)->setStrobe(strobe, time);
 }
 
 
 byte MSXPrinterPort::readIO(byte port, const EmuTime &time)
 {
 	assert(port == 0x90);
-	return device->getStatus() ? 0xff : 0xfd;	// bit 1 = status / other bits always 1
+	return ((PrinterPortDevice*)pluggable)->getStatus() ? 0xff : 0xfd;	// bit 1 = status / other bits always 1
 }
 
 void MSXPrinterPort::writeIO(byte port, byte value, const EmuTime &time)
@@ -71,30 +52,45 @@ void MSXPrinterPort::writeIO(byte port, byte value, const EmuTime &time)
 	switch (port) {
 	case 0x90:
 		strobe = value&1;	// bit 0 = strobe
-		device->setStrobe(strobe, time);
+		((PrinterPortDevice*)pluggable)->setStrobe(strobe, time);
 		break;
 	case 0x91:
 		data = value;
-		device->writeData(data, time);
+		((PrinterPortDevice*)pluggable)->writeData(data, time);
 		break;
 	default:
 		assert(false);
 	}
 }
 
-void MSXPrinterPort::plug(PrinterPortDevice *dev, const EmuTime &time)
+
+const std::string &MSXPrinterPort::getName()
 {
-	device = dev;
-	device->writeData(data, time);
-	device->setStrobe(strobe, time);
+	return name;
+}
+const std::string MSXPrinterPort::name("printerport");
+
+const std::string &MSXPrinterPort::getClass()
+{
+	return className;
+}
+const std::string MSXPrinterPort::className("Printer Port");
+
+void MSXPrinterPort::plug(Pluggable *dev, const EmuTime &time)
+{
+	Connector::plug(dev, time);
+	((PrinterPortDevice*)pluggable)->writeData(data, time);
+	((PrinterPortDevice*)pluggable)->setStrobe(strobe, time);
 }
 
 void MSXPrinterPort::unplug(const EmuTime &time)
 {
+	Connector::unplug(time);
 	plug(dummy, time);
 }
 
 
+// --- DummyPrinterPortDevice ---
 
 bool DummyPrinterPortDevice::getStatus()
 {
@@ -111,36 +107,23 @@ void DummyPrinterPortDevice::writeData(byte data, const EmuTime &time)
 	// ignore data
 }
 
-MSXPrinterPort::printPortCmd::printPortCmd()
+const std::string &DummyPrinterPortDevice::getName()
 {
-   PRT_DEBUG("Creating printPortCmd");
+	return name;
+}
+const std::string DummyPrinterPortDevice::name("dummy");
+
+
+// --- LoggingPrinterPortDevice ---
+
+LoggingPrinterPortDevice::LoggingPrinterPortDevice()
+{
+	PluggingController::instance()->registerPluggable(this);
 }
 
-
-MSXPrinterPort::printPortCmd::~printPortCmd()
+LoggingPrinterPortDevice::~LoggingPrinterPortDevice()
 {
-   PRT_DEBUG("Destructing printPortCmd");
-}
-
-void MSXPrinterPort::printPortCmd::execute(const std::vector<std::string> &tokens)
-{
-	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
-	bool error = false;
-	if        (tokens[1]=="unplug") {
-		MSXPrinterPort::instance()->unplug(time);
-	} else if (tokens[1]=="log") {
-		MSXPrinterPort::instance()->plug(logger, time);
-	} else {
-		error = true;
-	}
-	if (error)
-		Console::instance()->print("syntax error");
-}
-
-void MSXPrinterPort::printPortCmd::help   (const std::vector<std::string> &tokens)
-{
-	Console::instance()->print("printerport unplug         unplugs device from port");
-	Console::instance()->print("printerport log <filename> log printerdata to file");
+	PluggingController::instance()->unregisterPluggable(this);
 }
 
 bool LoggingPrinterPortDevice::getStatus()
@@ -162,4 +145,10 @@ void LoggingPrinterPortDevice::writeData(byte data, const EmuTime &time)
 	toPrint=data;
 	PRT_DEBUG("PRINTER: setting data "<<data);
 }
+
+const std::string &LoggingPrinterPortDevice::getName()
+{
+	return name;
+}
+const std::string LoggingPrinterPortDevice::name("logger");
 

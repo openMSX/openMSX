@@ -7,9 +7,7 @@
 #include "Connector.hh"
 
 // forward declaration
-class JoystickDevice;
-class Mouse;
-class Joystick;
+class DummyJoystick;
 
 
 class JoystickPort : public Connector
@@ -18,8 +16,8 @@ public:
 	JoystickPort(const std::string &name, const EmuTime &time);
 	virtual ~JoystickPort();
 
-	virtual std::string getName();
-	virtual std::string getClass();
+	virtual const std::string &getName();
+	virtual const std::string &getClass();
 	virtual void plug(Pluggable *device, const EmuTime &time);
 	virtual void unplug(const EmuTime &time);
 
@@ -27,8 +25,9 @@ public:
 	void write(byte value, const EmuTime &time);
 
 private:
+	DummyJoystick* dummy;
 	std::string name;
-	static std::string className;
+	static const std::string className;
 
 	byte lastValue;
 };

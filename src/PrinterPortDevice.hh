@@ -4,12 +4,10 @@
 #define __PRINTERPORTDEVICE_HH__
 
 #include "openmsx.hh"
-
-// Forward declaration
-class EmuTime;
+#include "Pluggable.hh"
 
 
-class PrinterPortDevice
+class PrinterPortDevice : public Pluggable
 {
 	public:
 		/**
@@ -32,6 +30,10 @@ class PrinterPortDevice
 		 * Always use strobe to see wheter data is valid
 		 */
 		virtual void writeData(byte data, const EmuTime &time) = 0;
+
+		
+		virtual const std::string &getClass();
+		static const std::string className;
 };
 
 #endif
