@@ -232,6 +232,7 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
+		virtual bool willStatusChange(const EmuTime &time);
 	};
 	friend class AbortCmd;
 
@@ -243,6 +244,7 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
+		virtual bool willStatusChange(const EmuTime &time);
 	};
 	friend class PointCmd;
 
@@ -254,6 +256,7 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
+		virtual bool willStatusChange(const EmuTime &time);
 	};
 	friend class PsetCmd;
 

@@ -473,6 +473,10 @@ void VDPCmdEngine::AbortCmd::execute(const EmuTime &time)
 {
 }
 
+bool VDPCmdEngine::AbortCmd::willStatusChange(const EmuTime &time)
+{
+	return false;
+}
 
 // POINT
 
@@ -488,6 +492,11 @@ void VDPCmdEngine::PointCmd::start(const EmuTime &time)
 
 void VDPCmdEngine::PointCmd::execute(const EmuTime &time)
 {
+}
+
+bool VDPCmdEngine::PointCmd::willStatusChange(const EmuTime &time)
+{
+	return false;
 }
 
 
@@ -506,6 +515,11 @@ void VDPCmdEngine::PsetCmd::start(const EmuTime &time)
 
 void VDPCmdEngine::PsetCmd::execute(const EmuTime &time)
 {
+}
+
+bool VDPCmdEngine::PsetCmd::willStatusChange(const EmuTime &time)
+{
+	return false;
 }
 
 
