@@ -18,6 +18,7 @@ typedef void (R800::*R800_ResumeFunc)();
 
 class R800 : public CPU {
 	public:
+		static const int CLOCK_FREQ = 7159090;
 		R800(CPUInterface *interf, const EmuTime &time);
 		virtual ~R800();
 		virtual void setCurrentTime(const EmuTime &time);
@@ -31,7 +32,6 @@ class R800 : public CPU {
 		static const int MEM_DELAY1 = 0;
 		static const int MEM_DELAY2 = 1;
 
-		static const int CLOCK_FREQ = 7159090;
 		EmuTimeFreq<CLOCK_FREQ> currentTime;
 
 		// opcode function pointers

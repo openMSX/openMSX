@@ -25,6 +25,7 @@ typedef void (Z80::*Z80_ResumeFunc)();
 
 class Z80 : public CPU {
 	public:
+		static const int CLOCK_FREQ = 3579545;
 		Z80(CPUInterface *interf, const EmuTime &time);
 		virtual ~Z80();
 		virtual void setCurrentTime(const EmuTime &time);
@@ -39,7 +40,6 @@ class Z80 : public CPU {
 		static const int MEM_DELAY2 = 2;
 		static const int WAIT_CYCLES = 1;
 
-		static const int CLOCK_FREQ = 3579545;
 		EmuTimeFreq<CLOCK_FREQ> currentTime;
 
 		// opcode function pointers

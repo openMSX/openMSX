@@ -7,7 +7,7 @@ using std::setw;
 using std::setfill;
 
 #ifdef CPU_DEBUG
-#include "Z80Dasm.h"
+#include "Dasm.hh"
 #include "Settings.hh"
 #endif
 
@@ -2523,7 +2523,7 @@ void _CPU_::patch() {
 
 #ifdef CPU_DEBUG
 word _CPU_::start_pc;
-EmuTimeFreq<CLOCK_FREQ> _CPU_::before;
+EmuTimeFreq<_CPU_::CLOCK_FREQ> _CPU_::before;
 #endif
 
 } // namespace openmsx

@@ -4,6 +4,8 @@
 #include <string.h>
 #include "DasmTables.hh"
 
+namespace openmsx {
+
 static char Sign (unsigned char a)
 {
 	return (a & 128) ? '-' : '+';
@@ -15,10 +17,7 @@ static int Abs (unsigned char a)
 	else return a;
 }
 
-/****************************************************************************/
-/* Disassemble first opcode in buffer and return number of bytes it takes   */
-/****************************************************************************/
-static int Dasm (unsigned char *buffer,char *dest,unsigned PC)
+int Dasm (unsigned char *buffer, char *dest, unsigned int PC)
 {
 	const char *S;
 	//unsigned char buf[10];
@@ -131,6 +130,8 @@ static int Dasm (unsigned char *buffer,char *dest,unsigned PC)
 	return i;
 }
 
+} // namespace openmsx
+
 #ifdef TEST
 #include <stdlib.h>
 int main (int argc,char *argv[])
@@ -142,7 +143,7 @@ int main (int argc,char *argv[])
 	for (i=1;i<17 && i<argc;++i) buffer[i-1]=strtoul(argv[i],NULL,16);
 	for (i=0;i<16;++i) printf ("%02X ",buffer[i]);
 	printf ("\n");
-	i=Dasm (buffer,dest,0);
+	i=openmsx::Dasm (buffer,dest,0);
 	printf ("%s  - %d bytes\n",dest,i);
 	return 0;
 }
