@@ -40,7 +40,7 @@ class MSXGameCartridge : public MSXMemDevice, public MSXRom
 		byte *internalMemoryBank[8]; // 4 blocks of 8kB starting at #4000
 		bool enabledSCC;
 
-		int retriefMapperType();
+		int retrieveMapperType();
 		int guessMapperType();
 		SCC* cartridgeSCC;
 		DACSound* dac;

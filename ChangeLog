@@ -1,12 +1,15 @@
 $Id$
 
+2002-02-02 Maarten ter Huurne <mth@stack.nl>
+	* Implemented memory overlay behaviour in SCC page (0x3F).
+
 2002-01-30 David Heremans <david.heremans@gnu-linux.net>
 	* MSXTapePatch uses console:
 	  Now possible to change or eject tapes using the console
 
 2002-01-29 David Heremans <david.heremans@gnu-linux.net>
 	* Console enhancements:
-	  -calls CommandHelp when tabcomplition has 
+	  -calls CommandHelp when tabcomplition has
 	  already found a complete command
 	* DiskPatch can now reports problems with disks during
 	  initialization:

@@ -1,6 +1,6 @@
 // $Id$
 
-#include "MSXGameCartridge.hh" 
+#include "MSXGameCartridge.hh"
 #include "SCC.hh"
 #include "DACSound.hh"
 #include "MSXCPU.hh"
@@ -10,7 +10,7 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXGameCartridge object");
-	
+
 	try {
 		romSize = deviceConfig->getParameterAsInt("filesize");
 		// filesize zero is specifiying to autodetermine size
@@ -23,13 +23,13 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 		// filesize was not specified
 		romSize = loadFile(&memoryBank);
 	}
-	
+
 	// Calculate mapperMask
 	int nrblocks = romSize>>13;	//number of 8kB pages
 	for (mapperMask=1; mapperMask<nrblocks; mapperMask<<=1);
 	mapperMask--;
-	
-	mapperType = retriefMapperType();
+
+	mapperType = retrieveMapperType();
 	//only instanciate SCC if needed
 	if (mapperType==2) {
 		short volume = (short)config->getParameterAsInt("volume");
@@ -111,14 +111,14 @@ void MSXGameCartridge::reset(const EmuTime &time)
 				ptr += 0x2000;
 			}
 			break;
-		default: 
+		default:
 			// not possible
 			assert (false);
 		}
 	}
 }
 
-int MSXGameCartridge::retriefMapperType()
+int MSXGameCartridge::retrieveMapperType()
 {
 	try {
 		if (deviceConfig->getParameterAsBool("automappertype")) {
@@ -190,12 +190,12 @@ int MSXGameCartridge::guessMapperType()
 		}
 		// in case of doubt we go for type 0
 		typeGuess[0]++;
-		// in case of even type 5 and 4 we would prefer 5 
+		// in case of even type 5 and 4 we would prefer 5
 		// but we would still prefer 0 above 4 or 5 so no increment
 		if (typeGuess[4]) typeGuess[4]--; // -1 -> max_int
 		int type = 0;
 		for (int i=0; i<6; i++) {
-			if (typeGuess[i]>typeGuess[type]) 
+			if (typeGuess[i]>typeGuess[type])
 				type = i;
 		}
 		PRT_DEBUG("I Guess this is a nr " << type << " GameCartridge mapper type.")
@@ -207,6 +207,7 @@ byte MSXGameCartridge::readMem(word address, const EmuTime &time)
 {
 	//TODO optimize this!!!
 	if ((mapperType == 2) && enabledSCC) {
+		// TODO: Not entire area is overlayed by SCC.
 		if ((address-0x5000)>>13 == 2) {
 			return cartridgeSCC->readMemInterface(address & 0xFF, time);
 		}
@@ -222,85 +223,78 @@ byte* MSXGameCartridge::getReadCacheLine(word start)
 
 void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 {
-	byte regio;
-  
+	byte region;
+
 	switch (mapperType) {
-	case 0: 
+	case 0:
 		//TODO check the SCC in here, is this correct for this type?
 		// if so, implement writememinterface
 		// also in the memRead
 
 		//--==>> Generic 8kB cartridges <<==--
-		if ((address<0x4000) || (address>0xBFFF))
+		if ((address<0x4000) || (address>=0xC000))
 			return;
-		if ((address&0xe000) == 0x8000 ) {
+		if ((address&0xE000) == 0x8000) {
 			// 0x8000..0x9FFF is used as SCC switch
-			enabledSCC=((value&0x3F)==0x3F)?true:false;
+			enabledSCC = ((value&0x3F)==0x3F);
 		}
 		// change internal mapper
 		value &= mapperMask;
-		regio = (address>>13);	// 0-7
-		setBank(regio, memoryBank+(value<<13));
+		region = (address>>13);	// 0-7
+		setBank(region, memoryBank+(value<<13));
 		break;
-	case 1: 
+	case 1:
 		//--==**>> Generic 16kB cartridges (MSXDOS2, Hole in one special) <<**==--
-		if ((address<0x4000) || (address>0xBFFF))
+		if ((address<0x4000) || (address>=0xC000))
 			return;
-		regio = (address&0xc000)>>13;	// 0, 2, 4, 6
+		region = (address&0xC000)>>13;	// 0, 2, 4, 6
 		value &= (2*value)&mapperMask;
-		setBank(regio,   memoryBank+(value<<13));
-		setBank(regio+1, memoryBank+(value<<13)+0x2000);
+		setBank(region,   memoryBank+(value<<13));
+		setBank(region+1, memoryBank+(value<<13)+0x2000);
 		break;
-	case 2: 
+	case 2:
 		//--==**>> KONAMI5 8kB cartridges <<**==--
 		// this type is used by Konami cartridges that do have an SCC and some others
 		// example of catrridges: Nemesis 2, Nemesis 3, King's Valley 2, Space Manbow
 		// Solid Snake, Quarth, Ashguine 1, Animal, Arkanoid 2, ...
-		// 
+		//
 		// The address to change banks:
 		//  bank 1: 0x5000 - 0x57FF (0x5000 used)
 		//  bank 2: 0x7000 - 0x77FF (0x7000 used)
 		//  bank 3: 0x9000 - 0x97FF (0x9000 used)
 		//  bank 4: 0xB000 - 0xB7FF (0xB000 used)
-      
-		if ((address<0x5000) || (address>0xc000) )
+
+		if (address<0x5000 || address>=0xC000) return;
+		// Write to SCC?
+		if (enabledSCC && 0x9800 <= address && address < 0xA000) {
+			cartridgeSCC->writeMemInterface(address & 0xFF, value , time);
+			PRT_DEBUG("GameCartridge: writeMemInterface (" << address <<","<<(int)value<<")"<<time );
+			// No page selection in this memory range.
 			return;
-		// Enable/disable SCC
-		if ((address&0xF800) == 0x9000 )  {
-			// 0x9000-0x97ff is used as SCC switch
-			enabledSCC = ((value&0x3F)==0x3F) ? true : false;
-			if (enabledSCC)
-				// TODO find out how it changes the page in  0x9000-0x97ff
-				return; 
 		}
-		// change internal mapper
-		regio = (address-0x1000)>>13;
-		if ( (regio==4) && enabledSCC && (address >= 0x9800)){
-		  cartridgeSCC->writeMemInterface(address & 0xFF, value , time);
-		  PRT_DEBUG("GameCartridge: writeMemInterface (" << address <<","<<(int)value<<")"<<time );
-		} else {
-		  if ((address & 0x1800)!=0x1000) return;
-		  value &= mapperMask;
-		  setBank(regio, memoryBank+(value<<13));
-		  //internalMapper[regio]=value;
+		// SCC enable/disable?
+		if ((address & 0xF800) == 0x9000) {
+			enabledSCC = ((value&0x3F)==0x3F);
 		}
+		// Page selection?
+		if ((address & 0x1800) != 0x1000) return;
+		value &= mapperMask;
+		setBank(address>>13, memoryBank+(value<<13));
 		break;
-	case 3: 
+	case 3:
 		//--==**>> KONAMI4 8kB cartridges <<**==--
 		// this type is used by Konami cartridges that do not have an SCC and some others
-		// example of catrridges: Nemesis, Penguin Adventure, Usas, Metal Gear, Shalom, 
+		// example of catrridges: Nemesis, Penguin Adventure, Usas, Metal Gear, Shalom,
 		// The Maze of Galious, Aleste 1, 1942,Heaven, Mystery World, ...
 		//
 		// page at 4000 is fixed, other banks are switched
 		// by writting at 0x6000,0x8000 and 0xA000
-		 
-		if ((address<0x6000) || (address>0xa000) || (address&0x1FFF))
-			return;
-		regio = (address>>13);
+
+		if (address<0x6000 || address>=0xA000 || address&0x1FFF) return;
 		value &= mapperMask;
-		setBank(regio, memoryBank+(value<<13));
+		setBank(address>>13, memoryBank+(value<<13));
 		break;
-	case 4: 
+	case 4:
 		//--==**>> ASCII 8kB cartridges <<**==--
 		// this type is used in many japanese-only cartridges.
 		// example of cartridges: Valis(Fantasm Soldier), Dragon Slayer, Outrun, Ashguine 2, ...
@@ -310,33 +304,31 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		//  bank 2: 0x6800 - 0x6FFF (0x7000 used)
 		//  bank 3: 0x7000 - 0x77FF (0x9000 used)
 		//  bank 4: 0x7800 - 0x7FFF (0xB000 used)
-      
-		if ((address<0x6000) || (address>0x7fff))
-			return;
-		regio = ((address>>11)&3)+2;
+
+		if (address<0x6000 || address>0x7FFF) return;
+		region = ((address>>11)&3)+2;
 		value &= mapperMask;
-		setBank(regio, memoryBank+(value<<13));
+		setBank(region, memoryBank+(value<<13));
 		break;
 	case 5:
 		//--==**>> ASCII 16kB cartridges <<**==--
 		// this type is used in a few cartridges.
 		// example of cartridges: Xevious, Fantasy Zone 2, Return of Ishitar, Androgynus, ...
 		//
-		// Gallforce is a special case after a reset the second 16kb has to start with 
+		// Gallforce is a special case after a reset the second 16kb has to start with
 		// the first 16kb after a reset
 		//
 		// The address to change banks:
 		//  first  16kb: 0x6000 - 0x67FF (0x6000 used)
 		//  second 16kb: 0x7000 - 0x77FF (0x7000 and 0x77FF used)
-      
-		if ((address<0x6000) || (address>0x77ff) || (address&0x800))
-			return;
-		regio = ((address>>11)&2)+2;
+
+		if (address<0x6000 || address>=0x7800 || address&0x800) return;
+		region = ((address>>11)&2)+2;
 		value &= (2*value)&mapperMask;
-		setBank(regio,   memoryBank+(value<<13));
-		setBank(regio+1, memoryBank+(value<<13)+0x2000);
+		setBank(region,   memoryBank+(value<<13));
+		setBank(region+1, memoryBank+(value<<13)+0x2000);
 		break;
-	case 6: 
+	case 6:
 		//--==**>> GameMaster2+SRAM cartridge <<**==--
 		//// GameMaster2 mayi become an independend MSXDevice
 		assert(false);
@@ -347,8 +339,8 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		// Should be only for 0x4000, but since this isn't confirmed on a real
 		// cratridge we will simply use every write.
 		dac->writeDAC(value,time);
-		
-	case 128: 
+		// fall through:
+	case 128:
 		//--==**>> Simple romcartridge <= 64 KB <<**==--
 		// No extra writable hardware
 		break;
@@ -358,8 +350,8 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 	}
 }
 
-void MSXGameCartridge::setBank(int regio, byte* value)
+void MSXGameCartridge::setBank(int region, byte* value)
 {
-	internalMemoryBank[regio] = value;
-	MSXCPU::instance()->invalidateCache(regio*0x2000, 0x2000/CPU::CACHE_LINE_SIZE);
+	internalMemoryBank[region] = value;
+	MSXCPU::instance()->invalidateCache(region*0x2000, 0x2000/CPU::CACHE_LINE_SIZE);
 }
