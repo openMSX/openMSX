@@ -72,7 +72,8 @@ Renderer *RendererFactory::createRenderer(VDP *vdp)
 RendererFactory::RendererSetting* RendererFactory::createRendererSetting(
 	const string& defaultRenderer)
 {
-	map<string, RendererID> rendererMap;
+	typedef EnumSetting<RendererID>::Map RendererMap;
+	RendererMap rendererMap;
 	rendererMap["none"] = DUMMY; // TODO: only register when in CliComm mode
 	rendererMap["SDLHi"] = SDLHI;
 	rendererMap["SDLLo"] = SDLLO;
@@ -83,8 +84,8 @@ RendererFactory::RendererSetting* RendererFactory::createRendererSetting(
 	// XRenderer is not ready for users.
 	// rendererMap["Xlib" ] = XLIB;
 #endif
-	map<string, RendererID>::const_iterator it =
-		rendererMap.find(defaultRenderer);
+	RendererMap::const_iterator it =
+	       rendererMap.find(defaultRenderer);
 	RendererID defaultValue;
 	if (it != rendererMap.end()) {
 		defaultValue = it->second;

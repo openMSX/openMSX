@@ -3,11 +3,12 @@
 SRC_HDR:= \
 	SettingNode SettingsManager \
 	IntegerSetting FloatSetting \
-	EnumSetting BooleanSetting \
+	BooleanSetting \
 	StringSetting FilenameSetting
 
 HDR_ONLY:= \
-	Setting SettingListener
+	Setting SettingListener \
+	EnumSetting
 
 $(eval $(PROCESS_NODE))
 

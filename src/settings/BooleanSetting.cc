@@ -2,7 +2,6 @@
 
 #include "BooleanSetting.hh"
 
-
 namespace openmsx {
 
 BooleanSetting::BooleanSetting(
@@ -12,9 +11,9 @@ BooleanSetting::BooleanSetting(
 {
 }
 
-const map<string, bool> &BooleanSetting::getMap()
+const EnumSetting<bool>::Map& BooleanSetting::getMap()
 {
-	static map<string, bool> boolMap;
+	static EnumSetting<bool>::Map boolMap;
 	static bool alreadyInit = false;
 
 	if (!alreadyInit) {

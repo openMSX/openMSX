@@ -136,7 +136,8 @@ void OSDConsoleRenderer::initConsoleSize()
 	static set<string> initsDone;
 	
 	// define all possible positions
-	map<string, Console::Placement> placeMap;
+	typedef EnumSetting<Console::Placement>::Map PlaceMap;
+	PlaceMap placeMap;
 	placeMap["topleft"]     = Console::CP_TOPLEFT;
 	placeMap["top"]         = Console::CP_TOP;
 	placeMap["topright"]    = Console::CP_TOPRIGHT;
@@ -161,8 +162,7 @@ void OSDConsoleRenderer::initConsoleSize()
 		
 		string placementString;
 		placementString = config->getParameter("placement", "bottom");
-		map<string, Console::Placement>::const_iterator it;
-		it = placeMap.find(placementString);
+		PlaceMap::const_iterator it = placeMap.find(placementString);
 		Console::Placement consolePlacement;
 		if (it != placeMap.end()) {
 			consolePlacement = it->second;

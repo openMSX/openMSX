@@ -97,7 +97,7 @@ int Mixer::registerSound(SoundDevice* device, short volume, ChannelMode mode)
 	info.volumeSetting = new IntegerSetting(name + "_volume",
 			"the volume of this sound chip", volume, 0, 32767);
 
-	map<string, ChannelMode> modeMap;
+	EnumSetting<ChannelMode>::Map modeMap;
 	// once we're stereo, stay stereo. Once mono, stay mono.
 	// we could also choose not to offer any modeSetting in case we have
 	// a stereo mode initially. You can't query the mode then, though.
@@ -108,7 +108,8 @@ int Mixer::registerSound(SoundDevice* device, short volume, ChannelMode mode)
 		modeMap["left"] = MONO_LEFT;
 		modeMap["right"] = MONO_RIGHT;
 	}
-	info.modeSetting = new EnumSetting<ChannelMode>(name + "_mode", "the channel mode of this sound chip", mode, modeMap);
+	info.modeSetting = new EnumSetting<ChannelMode>(name + "_mode",
+		"the channel mode of this sound chip", mode, modeMap);
 	
 	info.mode = mode;
 	info.modeSetting->addListener(this);

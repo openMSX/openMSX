@@ -54,7 +54,8 @@ public:
 	/**
 	 * TODO
 	 */
-	static void completeString(vector<string>& tokens, set<string>& set);
+	static void completeString(vector<string>& tokens, set<string>& set,
+	                           bool caseSensitive = true);
 	static void completeFileName(vector<string>& tokens);
 
 	// should only be called by CommandConsole
@@ -72,7 +73,10 @@ private:
 	string addEscaping(const string& str, bool quote, bool finished);
 
 	void tabCompletion(vector<string>& tokens);
-	static bool completeString2(string& str, set<string>& set);
+	static bool completeString2(string& str, set<string>& set,
+	                            bool caseSensitive);
+	static bool equal(const string& s1, const string& s2,
+	                  bool caseSensitive);
 
 	typedef map<string, Command*> CommandMap;
 	CommandMap commands;

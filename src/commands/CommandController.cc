@@ -324,13 +324,24 @@ void CommandController::tabCompletion(vector<string> &tokens)
 	}
 }
 
-bool CommandController::completeString2(string &str, set<string>& st)
+bool CommandController::equal(const string& s1, const string& s2,
+                              bool caseSensitive)
+{
+	if (caseSensitive) {
+		return s1 == s2;
+	} else {
+		return strcasecmp(s1.c_str(), s2.c_str()) == 0;
+	}
+}
+
+bool CommandController::completeString2(string &str, set<string>& st,
+                                        bool caseSensitive)
 {
 	CommandConsole* cmdConsole = CommandController::instance().cmdConsole;
 	assert(cmdConsole);
 	set<string>::iterator it = st.begin();
 	while (it != st.end()) {
-		if (str == (*it).substr(0, str.size())) {
+		if (equal(str, (*it).substr(0, str.size()), caseSensitive)) {
 			++it;
 		} else {
 			set<string>::iterator it2 = it;
@@ -350,14 +361,15 @@ bool CommandController::completeString2(string &str, set<string>& st)
 	bool expanded = false;
 	while (true) {
 		it = st.begin();
-		if (str == *it) {
+		if (equal(str, *it, caseSensitive)) {
 			// match is as long as first word
 			goto out;	// TODO rewrite this
 		}
 		// expand with one char and check all strings 
-		string string2 = str + (*it)[str.size()];
+		string string2 = (*it).substr(0, str.size() + 1);
 		for (;  it != st.end(); it++) {
-			if (string2 != (*it).substr(0, string2.size())) {
+			if (!equal(string2, (*it).substr(0, string2.size()),
+				   caseSensitive)) {
 				goto out;	// TODO rewrite this
 			}
 		}
@@ -377,9 +389,10 @@ bool CommandController::completeString2(string &str, set<string>& st)
 	return false;
 }
 void CommandController::completeString(vector<string> &tokens,
-                                       set<string>& st)
+                                       set<string>& st,
+                                       bool caseSensitive)
 {
-	if (completeString2(tokens.back(), st)) {
+	if (completeString2(tokens.back(), st, caseSensitive)) {
 		tokens.push_back("");
 	}
 }
@@ -420,7 +433,7 @@ void CommandController::completeFileName(vector<string> &tokens)
 			closedir(dirp);
 		}
 	}
-	bool t = completeString2(filename, filenames);
+	bool t = completeString2(filename, filenames, true);
 	if (t && !filename.empty() && filename[filename.size() - 1] != '/') {
 		// completed filename, start new token
 		tokens.push_back("");

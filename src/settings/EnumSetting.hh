@@ -3,50 +3,18 @@
 #ifndef __ENUMSETTING_HH__
 #define __ENUMSETTING_HH__
 
-#include "Setting.hh"
-#include "CommandController.hh"
 #include <map>
 #include <set>
+#include <sstream>
+#include <cassert>
+#include "Setting.hh"
+#include "CommandController.hh"
 
 using std::map;
 using std::set;
-
+using std::ostringstream;
 
 namespace openmsx {
-
-/** Associates pairs of an a integer and a string.
-  * Used internally by EnumSetting to associate enum constants with strings.
-  */
-class IntStringMap
-{
-public:
-	typedef const map<string, int> BaseMap;
-
-	IntStringMap(BaseMap* map);
-	~IntStringMap();
-
-	/** Gets the string associated with a given integer.
-	  */
-	const string& lookupInt(int n) const;
-
-	/** Gets the string associated with a given string.
-	  */
-	int lookupString(const string& s) const;
-
-	/** Get the list of all strings, separated by commas.
-	  */
-	string getSummary() const;
-
-	/** Create a set containing all the strings in this association.
-	  * The caller becomes the owner of the newly created set object.
-	  */
-	void getStringSet(set<string>& result) const;
-
-private:
-	typedef map<string, int>::const_iterator MapIterator;
-	BaseMap* stringToInt;
-};
-
 
 /** A Setting with a string value out of a finite set.
   * The type parameter can be anything that can be converted from and to
@@ -56,68 +24,112 @@ template <typename ValueType>
 class EnumSetting : public Setting<ValueType>
 {
 public:
+	struct caseltstr {
+		bool operator()(const string& s1, const string& s2) const {
+			return strcasecmp(s1.c_str(), s2.c_str()) < 0;
+		}
+	};
+
+	typedef map<string, ValueType, caseltstr> Map;
+	
 	EnumSetting(const string& name, const string& description,
 		    const ValueType& initialValue,
-		    const map<string, ValueType>& map)
-		: Setting<ValueType>(name, description, initialValue),
-	          intStringMap(convertMap(map))
-	{
-		// GCC 3.4-pre complains if superclass is not explicit here.
-		SettingLeafNode::type = intStringMap.getSummary();
-	}
-
+		    const Map& map_);
 	EnumSetting(const string& name, const string& description,
 		    const ValueType& initialValue,
 		    const ValueType& defaultValue,
-		    const map<string, ValueType>& map)
-		: Setting<ValueType>(name, description, initialValue, defaultValue),
-	          intStringMap(convertMap(map))
-	{
-		// GCC 3.4-pre complains if superclass is not explicit here.
-		SettingLeafNode::type = intStringMap.getSummary();
-	}
-
+		    const Map& map_);
+	
 	// Implementation of Setting interface:
-	virtual string getValueString() const {
-		// GCC 3.4-pre complains if superclass is not explicit here.
-		return intStringMap.lookupInt(
-			static_cast<int>(Setting<ValueType>::getValue())
-			);
-	}
-
-	virtual void setValueString(const string& valueString) {
-		setValue(
-			static_cast<ValueType>(intStringMap.lookupString(valueString))
-			);
-	}
-
-	virtual void tabCompletion(vector<string>& tokens) const {
-		set<string> stringSet;
-		intStringMap.getStringSet(stringSet);
-		CommandController::completeString(tokens, stringSet);
-	}
-
-	void getPossibleValues(set<string>& result) const {
-		intStringMap.getStringSet(result);
-	}
-
-protected:
-	IntStringMap intStringMap;
+	virtual string getValueString() const;
+	virtual void setValueString(const string& valueString);
+	virtual void tabCompletion(vector<string>& tokens) const;
+	void getPossibleValues(set<string>& result) const;
 
 private:
-	static map<string, int>* convertMap(const map<string, ValueType>& map_);
+	string getSummary() const;
+
+	Map enumMap;
 };
 
-template <typename ValueType>
-map<string, int>* EnumSetting<ValueType>::convertMap(
-	const map<string, ValueType>& map_
-) {
-	map<string, int>* ret = new map<string, int>();
-	typename map<string, ValueType>::const_iterator it;
-	for (it = map_.begin(); it != map_.end(); ++it) {
-		(*ret)[it->first] = static_cast<int>(it->second);
+
+template<typename ValueType>
+EnumSetting<ValueType>::EnumSetting(
+	const string& name,
+	const string& description,
+	const ValueType& initialValue,
+	const Map& map_)
+	: Setting<ValueType>(name, description, initialValue),
+	  enumMap(map_)
+{
+	// GCC 3.4-pre complains if superclass is not explicit here.
+	SettingLeafNode::type = getSummary();
+}
+
+template<typename ValueType>
+EnumSetting<ValueType>::EnumSetting(
+	const string& name,
+	const string& description,
+	const ValueType& initialValue,
+	const ValueType& defaultValue,
+	const Map& map_)
+	: Setting<ValueType>(name, description, initialValue, defaultValue),
+	  enumMap(map_)
+{
+	// GCC 3.4-pre complains if superclass is not explicit here.
+	SettingLeafNode::type = getSummary();
+}
+
+template<typename ValueType>
+string EnumSetting<ValueType>::getValueString() const
+{
+	for (typename Map::const_iterator it = enumMap.begin();
+	     it != enumMap.end() ; ++it) {
+		if (it->second == getValue()) {
+			return it->first;
+		}
 	}
-	return ret;
+	assert(false);
+}
+
+template<typename ValueType>
+void EnumSetting<ValueType>::setValueString(const string& valueString)
+{
+	typename Map::const_iterator it = enumMap.find(valueString);
+	if (it == enumMap.end()) {
+		throw CommandException("set: " + valueString +
+				       ": not a valid value");
+	}
+	setValue(it->second);
+}
+
+template<typename ValueType>
+void EnumSetting<ValueType>::tabCompletion(vector<string>& tokens) const
+{
+	set<string> stringSet;
+	getPossibleValues(stringSet);
+	CommandController::completeString(tokens, stringSet, false); // case insensitive
+}
+
+template<typename ValueType>
+void EnumSetting<ValueType>::getPossibleValues(set<string>& result) const
+{
+	for (typename Map::const_iterator it = enumMap.begin();
+	     it != enumMap.end(); ++it) {
+		result.insert(it->first);
+	}
+}
+
+template<typename ValueType>
+string EnumSetting<ValueType>::getSummary() const
+{
+	ostringstream out;
+	typename Map::const_iterator it = enumMap.begin();
+	out << it->first;
+	for (++it; it != enumMap.end(); ++it) {
+		out << ", " << it->first;
+	}
+	return out.str();
 }
 
 } // namespace openmsx

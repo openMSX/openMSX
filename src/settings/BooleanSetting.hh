@@ -4,10 +4,6 @@
 #define __BOOLEANSETTING_HH__
 
 #include "EnumSetting.hh"
-#include <map>
-
-using std::map;
-
 
 namespace openmsx {
 
@@ -16,12 +12,11 @@ namespace openmsx {
 class BooleanSetting : public EnumSetting<bool>
 {
 public:
-	BooleanSetting(
-		const string& name, const string& description,
-		bool initialValue = false);
+	BooleanSetting(const string& name, const string& description,
+	               bool initialValue = false);
 
 private:
-	static const map<string, bool>& getMap();
+	static const EnumSetting<bool>::Map& getMap();
 };
 
 } // namespace openmsx

@@ -16,7 +16,7 @@ RenderSettings::RenderSettings()
 {
 	Config* config = msxConfig.getConfigById("renderer");
 
-	map<string, Accuracy> accMap;
+	EnumSetting<Accuracy>::Map accMap;
 	accMap["screen"] = ACC_SCREEN;
 	accMap["line"]   = ACC_LINE;
 	accMap["pixel"]  = ACC_PIXEL;
@@ -48,7 +48,7 @@ RenderSettings::RenderSettings()
 	string rendererName = config->getType();
 	renderer = RendererFactory::createRendererSetting(rendererName);
 
-	map<string, ScalerID> scalerMap;
+	EnumSetting<ScalerID>::Map scalerMap;
 	scalerMap["simple"] = SCALER_SIMPLE;
 	scalerMap["2xsai"] = SCALER_SAI2X;
 	scalerMap["scale2x"] = SCALER_SCALE2X;

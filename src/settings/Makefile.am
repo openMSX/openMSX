@@ -21,7 +21,7 @@ noinst_LTLIBRARIES = libSettings.la
 libSettings_la_SOURCES = \
 	SettingNode.hh SettingNode.cc \
 	BooleanSetting.cc BooleanSetting.hh \
-	EnumSetting.cc EnumSetting.hh \
+	EnumSetting.hh \
 	FilenameSetting.cc FilenameSetting.hh \
 	FloatSetting.cc FloatSetting.hh \
 	IntegerSetting.cc IntegerSetting.hh \
