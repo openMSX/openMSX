@@ -101,6 +101,16 @@
      <remark>This is a demonstration version of Konami's Synthesizer</remark>
   </rom>
 
+  <rom>
+     <title>Green Beret</title>
+     <romtype>KONAMI4</romtype>
+     <sha1>acd46021a228b2b612c82d04c124b78e7d4c25e3</sha1>
+     <year>1986</year>
+     <company>Konami UK</company>
+     <remark></remark>
+  </rom>
+
+
 <!-- THE NEW PART CONVERTED FROM JIROU KANEDA'S DB, MSX1 PART -->
 
   <rom>
