@@ -1,4 +1,4 @@
-// $Id: HotKey.cc,v 
+// $Id$
 
 #include "openmsx.hh"
 #include "HotKey.hh"

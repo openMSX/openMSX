@@ -1,3 +1,5 @@
+// $Id$
+
 #include "SDLEventInserter.hh"
 
 SDLEventInserter::SDLEventInserter(SDL_Event &evnt, const EmuTime &time)

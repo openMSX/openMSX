@@ -1,4 +1,4 @@
-// $Id: KeyClick.cc,v 
+// $Id$
 
 #include "KeyClick.hh"
 #include "openmsx.hh"

@@ -1,4 +1,4 @@
-// $Id: KeyClick.hh,v 
+// $Id$
 
 #ifndef __KEYCLICK_HH__
 #define __KEYCLICK_HH__

@@ -1,4 +1,4 @@
-// $Id: 
+// $Id$
 
 // This class implements the Intel 8254 chip (and 8253)
 //

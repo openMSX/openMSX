@@ -1,4 +1,4 @@
-// $Id: SoundDevice.hh,v 
+// $Id$
 
 #include "SoundDevice.hh"
 

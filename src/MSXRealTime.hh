@@ -1,4 +1,4 @@
-// $Id: 
+// $Id$
 
 #ifndef __MSXREALTIME_HH__
 #define __MSXREALTIME_HH__

@@ -1,3 +1,5 @@
+// $Id$
+
 #ifndef __YM2413_HH___
 #define __YM2413_HH__
 

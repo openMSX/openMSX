@@ -1,4 +1,4 @@
-// $Id: 
+// $Id$
 
 #ifndef __PRINTERPORTDEVICE_HH__
 #define __PRINTERPORTDEVICE_HH__

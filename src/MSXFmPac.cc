@@ -1,4 +1,4 @@
-// $Id: MSXFmPac.cc,v
+// $Id$
 
 #include "MSXFmPac.hh"
 

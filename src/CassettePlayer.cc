@@ -1,4 +1,4 @@
-// $Id: CassettePlayer.cc,v
+// $Id$
 
 #include "CassettePlayer.hh"
 #include <stdlib.h>

@@ -1,4 +1,4 @@
-// $Id:
+// $Id$
 
 #include <SDL/SDL.h>
 #include <cassert>

@@ -1,3 +1,5 @@
+// $Id$
+
 #ifndef __KEYEVENTINSERTER_HH__
 #define __KEYEVENTINSERTER_HH__
 

@@ -1,4 +1,4 @@
-// $Id: MSXCASSETTE.hh,v
+// $Id$
 
 #ifndef __MSXCASSETTEPORT_HH__
 #define __MSXCASSETTEPORT_HH__

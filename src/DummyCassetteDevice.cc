@@ -1,4 +1,4 @@
-// $Id: DummyCassetteDevice.cc,v
+// $Id$
 
 #include "DummyCassetteDevice.hh"
 

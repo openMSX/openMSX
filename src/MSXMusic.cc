@@ -1,4 +1,4 @@
-// $Id: MSXMusic.cc,v
+// $Id$
 
 #include "MSXMusic.hh"
 #include "MSXMotherBoard.hh"

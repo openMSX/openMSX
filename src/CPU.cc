@@ -1,4 +1,4 @@
-// $Id: CPU.cc,v
+// $Id$
 
 #include "CPU.hh"
 

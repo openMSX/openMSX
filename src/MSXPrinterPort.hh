@@ -1,4 +1,4 @@
-// $Id: 
+// $Id$
 
 #ifndef __MSXPRINTERPORT_HH__
 #define __MSXPRINTERPORT_HH__

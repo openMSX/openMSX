@@ -1,4 +1,4 @@
-// $Id: 
+// $Id$
 
 #ifndef __HOTKEY_HH__
 #define __HOTKEY_HH__

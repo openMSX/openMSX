@@ -1,3 +1,5 @@
+// $Id$
+
 // This class implements the an 8 bit unsigned DAC to produce sound
 // This are used in Konami's Synthesizer, Majutsushi (Mah Jong 2)RC 765
 // And for SIMPL 

@@ -1,4 +1,4 @@
-// $Id: MSXMusic.hh,v
+// $Id$
 
 #ifndef __MSXMUSIC_HH__
 #define __MSXMUSIC_HH__

@@ -1,4 +1,4 @@
-// $Id: MSXCASSETTE.cc,v
+// $Id$
 
 #include "MSXCassettePort.hh"
 #include "DummyCassetteDevice.hh"

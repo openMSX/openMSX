@@ -1,4 +1,4 @@
-// $Id: DummyCassetteDevice.hh,v
+// $Id$
 
 #ifndef __DUMMYCASSETTEDEVICE_HH__
 #define __DUMMYCASSETTEDEVICE_HH__

@@ -1,4 +1,4 @@
-// $Id: CPUInterface.hh,v
+// $Id$
 
 #ifndef __CPUINTERFACE_HH__
 #define __CPUINTERFACE_HH__

@@ -1,4 +1,4 @@
-// $Id: CPU.hh,v
+// $Id$
 
 #ifndef __CPU_HH__
 #define __CPU_HH__

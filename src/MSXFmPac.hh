@@ -1,4 +1,4 @@
-// $Id: MSXFmPac.hh,v
+// $Id$
 
 #ifndef __MSXFMPAC_HH__
 #define __MSXFMPAC_HH__

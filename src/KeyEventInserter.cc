@@ -1,3 +1,5 @@
+// $Id$
+
 #include "KeyEventInserter.hh"
 #include "MSXCPU.hh"
 

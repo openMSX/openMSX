@@ -1,3 +1,5 @@
+// $Id$
+
 #ifndef __SDLEVENTINSERTER_HH__
 #define __SDLEVENTINSERTER_HH__
 
