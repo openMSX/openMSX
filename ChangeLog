@@ -1,6 +1,9 @@
 $Id$
 
-2002-06-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2002-06-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Small Mixer fix, cleanups
+
+2002-06-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Enabled console background
 	* Console font and background filename are read from config file
 

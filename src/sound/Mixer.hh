@@ -39,7 +39,7 @@ class Mixer
 		/**
 		 * Every sounddevice must unregister before it is destructed
 		 */
-		void unregisterSound(SoundDevice *device, ChannelMode mode=MONO);
+		void unregisterSound(SoundDevice *device);
 		
 		/**
 		 * Use this method to force an 'early' call to all
@@ -76,9 +76,8 @@ class Mixer
 		static Mixer *oneInstance;
 
 		SDL_AudioSpec audioSpec;
-		int nbAllDevices;
 		std::list<SoundDevice*> devices[NB_MODES];
-		std::vector<int*> buffers[NB_MODES];
+		std::vector<int*> buffers;
 		
 		short* mixBuffer;
 		int samplesLeft;

@@ -27,17 +27,13 @@ Mixer::Mixer()
 	desired.format   = AUDIO_S16LSB;	// TODO check low|high endian
 	desired.callback = audioCallbackHelper;	// must be a static method
 	desired.userdata = NULL;		// not used
-	if (SDL_OpenAudio(&desired, &audioSpec) < 0 )
+	if (SDL_OpenAudio(&desired, &audioSpec) < 0)
 		PRT_ERROR("Couldn't open audio : " << SDL_GetError());
 	
 	mixBuffer = new short[audioSpec.size / sizeof(short)];
-	for (int i=0; i<NB_MODES; i++) 
-	nbAllDevices = 0;
-	samplesLeft = audioSpec.samples;
-	offset = 0;
-
 	cpu = MSXCPU::instance();
 	realTime = RealTime::instance();
+	reInit();
 }
 
 Mixer::~Mixer()
@@ -58,24 +54,27 @@ Mixer *Mixer::oneInstance = NULL;
 
 int Mixer::registerSound(SoundDevice *device, ChannelMode mode)
 {
-	PRT_DEBUG("Mix: Registering sound device");
 	lock();
-	device->setSampleRate(audioSpec.freq);
-	buffers[mode].push_back(NULL);	// make room for one more
+	if (buffers.size() == 0)
+		SDL_PauseAudio(0);	// unpause when first dev registers
+	buffers.push_back(NULL);	// make room for one more
 	devices[mode].push_back(device);
-	if (nbAllDevices++ == 0) SDL_PauseAudio(0);	// unpause when first dev registers
+	device->setSampleRate(audioSpec.freq);
 	unlock();
 
 	return audioSpec.samples;
 }
 
-void Mixer::unregisterSound(SoundDevice *device, ChannelMode mode)
+void Mixer::unregisterSound(SoundDevice *device)
 {
-	PRT_DEBUG("Mix: Unregistering sound device");
+	// Note: this code assumes the given device was registered exactly once!
+	
 	lock();
-	buffers[mode].pop_back();	// remove one entry
-	devices[mode].remove(device);
-	if (--nbAllDevices == 0) SDL_PauseAudio(1);	// pause when last dev unregisters
+	for (int mode = 0; mode < NB_MODES; mode++)
+		devices[mode].remove(device);
+	buffers.pop_back();	// remove one entry
+	if (buffers.size() == 0)
+		SDL_PauseAudio(1);	// pause when last dev unregisters
 	unlock();
 }
 
@@ -103,10 +102,10 @@ void Mixer::reInit()
 
 void Mixer::updateStream(const EmuTime &time)
 {
-	assert(prevTime<=time);
+	assert(prevTime <= time);
 	float duration = realTime->getRealDuration(prevTime, time);
 	PRT_DEBUG("Mix: update, duration " << duration << "s");
-	assert(duration>=0);
+	assert(duration >= 0);
 	prevTime = time;
 	lock();
 	updtStrm((int)(audioSpec.freq * duration));
@@ -114,38 +113,39 @@ void Mixer::updateStream(const EmuTime &time)
 }
 void Mixer::updtStrm(int samples)
 {
-	int nbUnmuted[NB_MODES];
+	if (samples > samplesLeft) 
+		samples = samplesLeft;
+	if (samples == 0) 
+		return;
+	//PRT_DEBUG("Mix: Generate " << samples << " samples");
 	
-	if (samples > samplesLeft) samples = samplesLeft;
-	if (samples == 0) return;
-	PRT_DEBUG("Mix: Generate " << samples << " samples");
-	for (int mode=0; mode<NB_MODES; mode++) {
-		int unmuted = 0;
-		for (std::list<SoundDevice*>::iterator i=devices[mode].begin();
-		     i != devices[mode].end(); i++) {
+	int modeOffset[NB_MODES];
+	int unmuted = 0;
+	for (int mode = 0; mode < NB_MODES; mode++) {
+		modeOffset[mode] = unmuted;
+		std::list<SoundDevice*>::iterator i;
+		for (i = devices[mode].begin(); i != devices[mode].end(); i++) {
 			int *buf = (*i)->updateBuffer(samples);
-			if (buf != NULL) {
-				buffers[mode][unmuted] = buf;
-				unmuted++;
-			}
+			if (buf != NULL)
+				buffers[unmuted++] = buf;
 		}
-		nbUnmuted[mode] = unmuted;
 	}
 	for (int j=0; j<samples; j++) {
+		int buf = 0;
 		int both = 0;
-		for (int i=0; i<nbUnmuted[MONO]; i++)
-			both  += buffers[MONO][i][j];
+		while (buf < modeOffset[MONO+1])
+			both  += buffers[buf++][j];
 		int left = both;
-		for (int i=0; i<nbUnmuted[MONO_LEFT]; i++)
-			left  += buffers[MONO_LEFT][i][j];
+		while (buf < modeOffset[MONO_LEFT+1])
+			left  += buffers[buf++][j];
 		int right = both;
-		for (int i=0; i<nbUnmuted[MONO_RIGHT]; i++)
-			right += buffers[MONO_RIGHT][i][j];
-		for (int i=0; i<nbUnmuted[STEREO]; i++) {
-			left  += buffers[STEREO][i][2*j];
-			right += buffers[STEREO][i][2*j+1];
+		while (buf < modeOffset[MONO_RIGHT+1])
+			right += buffers[buf++][j];
+		while (buf < unmuted) {
+			left  += buffers[buf]  [2*j+0];
+			right += buffers[buf++][2*j+1];
 		}
-
+		
 		// clip
 		#ifdef DEBUG
 		if (left>32767 || left<-32768 || right>32767 || right<-32768) {
@@ -176,7 +176,7 @@ void Mixer::unlock()
 
 void Mixer::pause(bool status)
 {
-	if (nbAllDevices == 0)
+	if (buffers.size() == 0)
 		return;
 	SDL_PauseAudio(status);
 }
