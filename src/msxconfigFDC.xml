@@ -131,6 +131,11 @@
       <ss>3</ss>
       <page>1</page>
     </slotted>
+    <slotted>
+      <ps>3</ps>
+      <ss>3</ss>
+      <page>2</page>
+    </slotted>
     <parameter name="brokenFDCread">false</parameter>
     <parameter name="filename">cfg/nms8250-disk.rom</parameter>
     <!-- use to instantiate the correct FDC -->

@@ -1,5 +1,6 @@
 #include "MSXFDC.hh"
 #include "FDC2793.hh"
+#include "CPU.hh"
 
 
 	//: MSXDevice(config, time), MSXMemDevice(config, time) , MSXRom16KB(config, time)
@@ -41,9 +42,9 @@ void MSXFDC::reset(const EmuTime &time)
 
 byte MSXFDC::readMem(word address, const EmuTime &time)
 {
-	byte value;
+	byte value=255;
 	//if address overlap 0x7ff8-0x7ffb then return FDC , else normal ROM behaviour
-	PRT_DEBUG("MSXFDC::readMem(0x" << std::hex << (int)address << ").");
+	//PRT_DEBUG("MSXFDC::readMem(0x" << std::hex << (int)address << ").");
 	switch (address & 0x3FFF){
 	case 0x3FF8:
 	  value=controller->getStatusReg(time);
@@ -59,15 +60,18 @@ byte MSXFDC::readMem(word address, const EmuTime &time)
 	  break;
 	case 0x3FFB:
 	  value=controller->getDataReg(time);
+	  //PRT_DEBUG("Got byte from disk : "<<(int)value);
 	  break;
 	case 0x3FFC:
 	   //bit 0 = side select
-	   value=0;
+	   //TODO check other bits !!
+	   value=controller->getSideSelect(time);
 	  break;
 	case 0x3FFD:
 	   //bit 1,0 -> drive number  (00 or 10: drive A, 01: drive B, 11: nothing)
 	   //bit 7 -> motor on
-	   value=0;
+	   //TODO check other bits !!
+	   value=controller->getDriveSelect(time);
 	  break;
 	case 0x3FFE:
 	   //not used
@@ -77,11 +81,17 @@ byte MSXFDC::readMem(word address, const EmuTime &time)
 	   // Drive control IRQ and DRQ lines are not connected to Z80 interrupt request
 	   // bit 6: !intrq
 	   // bit 7: !dtrq
-	   value=0;
+	   //TODO check other bits !!
+	   value=0xC0;
+	   if (controller->getIRQ(time)) value&=0xBF ;
+	   if (controller->getDTRQ(time)) value&=0x7F ;
 	  break;
 	   
 	default:
+	  if (address<0x8000)
 	  value=memoryBank [address & 0x3FFF];
+	  // quick hack to have FDC register in th 7FF8 range but not the rom
+	  // other wise calulus says to litle TPA memory !!!
 	  break;
 	}
 	return value;
@@ -89,8 +99,7 @@ byte MSXFDC::readMem(word address, const EmuTime &time)
 
 void MSXFDC::writeMem(word address, byte value, const EmuTime &time)
 {
-	PRT_DEBUG("MSXFDC::writeMem(0x" << std::hex << (int)address << std::dec
-		<< ", value "<<(int)value<<").");
+	//PRT_DEBUG("MSXFDC::writeMem(0x" << std::hex << (int)address << std::dec << ", value "<<(int)value<<").");
 	switch (address & 0x3FFF){
 	  case 0x3FF8:
 	    controller->setCommandReg(value,time);
@@ -104,13 +113,30 @@ void MSXFDC::writeMem(word address, byte value, const EmuTime &time)
 	  case 0x3FFB:
 	    controller->setDataReg(value,time);
 	    break;
+	  case 0x3FFC:
+	    //bit 0 = side select
+	    //TODO check other bits !!
+	    controller->setSideSelect(value,time);
+	    break;
+	  case 0x3FFD:
+	    //bit 1,0 -> drive number  (00 or 10: drive A, 01: drive B, 11: nothing)
+	    //bit 7 -> motor on
+	    //TODO check other bits !!
+	    controller->setDriveSelect(value,time);
+	    break;
 	}
 }
 
 byte* MSXFDC::getReadCacheLine(word start)
 {
 	//if address overlap 0x7ff8-0x7ffb then return NULL, else normal ROM behaviour
-	if ( (start&0x3F00)==0x3F00 ) return NULL;
+	if ( (start&0x3FF8&CPU::CACHE_LINE_HIGH)==(0x3FF8&CPU::CACHE_LINE_HIGH) ) return NULL;
+	if (start>0x8000) return NULL;
 	return &memoryBank[start & 0x3fff];
+	PRT_DEBUG("MSXFDC getReadCacheLine");
+	return NULL;
 }
-
+byte* MSXFDC::getWriteCacheLine(word start)
+{
+	return NULL;
+}

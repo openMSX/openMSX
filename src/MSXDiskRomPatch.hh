@@ -21,6 +21,7 @@ class MSXDiskRomPatch: public MSXRomPatchInterface, private Command
 		public:
 			DiskIOErrorException(const std::string &desc) : MSXException(desc) {}
 	};
+	public:
 	class DiskImage
 	{
 		public:
@@ -35,7 +36,6 @@ class MSXDiskRomPatch: public MSXRomPatchInterface, private Command
 			IOFILETYPE *file;
 	};
 
-	public:
 		MSXDiskRomPatch();
 		virtual ~MSXDiskRomPatch();
 

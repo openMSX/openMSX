@@ -32,6 +32,34 @@ void FDC::setDataReg(byte value,const EmuTime &time)
 {
   PRT_DEBUG("Direct FDC object method call!");
 };
+void FDC::setSideSelect(byte value, const EmuTime &time)
+{
+  PRT_DEBUG("Direct FDC object method call!");
+};
+byte FDC::getIRQ(const EmuTime &time)
+{
+  PRT_DEBUG("Direct FDC object method call!");
+  return 1;
+};
+byte FDC::getDTRQ(const EmuTime &time)
+{
+  PRT_DEBUG("Direct FDC object method call!");
+  return 1;
+};
+byte FDC::getSideSelect(const EmuTime &time)
+{
+  PRT_DEBUG("Direct FDC object method call!");
+  return 0;
+};
+void FDC::setDriveSelect(byte value,const EmuTime &time)
+{
+  PRT_DEBUG("Direct FDC object method call!");
+};
+
+byte FDC::getDriveSelect(const EmuTime &time)
+{
+  PRT_DEBUG("Direct FDC object method call!");
+};
 
 byte FDC::getStatusReg(const EmuTime &time)
 {

@@ -8,21 +8,36 @@ class FDCBackEnd;
 class FDC2793 : public FDC
 {
   public:
-	virtual ~FDC2793();
+	~FDC2793();
 
-	virtual void reset();
-	//virtual byte getStatusReg(const EmuTime &time);
-	virtual byte getTrackReg(const EmuTime &time);
-	virtual byte getSectorReg(const EmuTime &time);
-	virtual byte getDataReg(const EmuTime &time);
-	//virtual void setCommandReg(byte value,const EmuTime &time);
-	virtual void setTrackReg(byte value,const EmuTime &time);
-	virtual void setSectorReg(byte value,const EmuTime &time);
-	//virtual void setDataReg(byte value,const EmuTime &time);
+	void reset();
+	byte getStatusReg(const EmuTime &time);
+	byte getTrackReg(const EmuTime &time);
+	byte getSectorReg(const EmuTime &time);
+	byte getDataReg(const EmuTime &time);
+	void setCommandReg(byte value,const EmuTime &time);
+	void setTrackReg(byte value,const EmuTime &time);
+	void setSectorReg(byte value,const EmuTime &time);
+	void setDataReg(byte value,const EmuTime &time);
+    byte getSideSelect(const EmuTime &time);
+    byte getDriveSelect(const EmuTime &time);
+    byte getIRQ(const EmuTime &time);
+    byte getDTRQ(const EmuTime &time);
+    void setSideSelect(byte value,const EmuTime &time);
+    void setDriveSelect(byte value,const EmuTime &time);
 
 	FDC2793(MSXConfig::Device *config);
   private:
+    
+	byte timePerStep[4]; // {3,6,10,15} in ms case of of 2 mhz clock, double this if a 1mhz clock is used!
+	
   	FDCBackEnd *backend;
+
+	/*
+	EmuTime commandStart;
+	EmuTime commandEnd;
+	*/
+
 
 	byte statusReg;
 	byte commandReg;
@@ -30,8 +45,13 @@ class FDC2793 : public FDC
 	byte trackReg;
 	byte dataReg;
 
+	byte driveReg; //bestaat niet in de FDC zelf maar als externe logica
+	byte current_drive;
+	byte motor_drive;
+
 	byte current_track;
 	byte current_sector;
+	byte current_side;
 	byte stepSpeed;
 	
 	//flags could have been bools ofcourse
@@ -49,5 +69,10 @@ class FDC2793 : public FDC
 	bool directionIn;
 	bool INTRQ;
 	bool DRQ;
+
+	byte dataBuffer[1024];	// max sector size possible
+	int dataCurrent;	// which byte in dataBuffer is next to be read/write
+	int dataAvailable;	// how many bytes left in sector
+	
 };
 #endif

@@ -37,7 +37,7 @@ class MSXFDC :  virtual public MSXRom16KB
 		byte readMem(word address, const EmuTime &time);
 		void writeMem(word address, byte value, const EmuTime &time);  
 		byte* getReadCacheLine(word start);
-		//byte* getWriteCacheLine(word start);
+		byte* getWriteCacheLine(word start);
 	private:
 		FDC* controller;
 		bool brokenFDCread;
