@@ -162,16 +162,6 @@ incr
     incr renshaturbo 10
 
 
-info
-----
-
-  Shows information about a certain topic.
-
-  usage:
-    info          shows a list of all possible topics
-    info <topic>  shows info on this specific topic
-
-
 keymatrixup / keymatrixdown
 ---------------------------
 
@@ -185,6 +175,16 @@ keymatrixup / keymatrixdown
   examples:
     keymatrixup 6 0x01
     keymatrixdown 6 0x01
+
+
+openmsx_info
+------------
+
+  Shows information about a certain topic.
+
+  usage:
+    openmsx_info          shows a list of all possible topics
+    openmsx_info <topic>  shows info on this specific topic
 
 
 palette
