@@ -32,6 +32,7 @@ libCPU_la_SOURCES = \
 	R800.cc R800.hh R800Tables.nn \
 	MSXCPU.hh MSXCPU.cc \
 	MSXCPUInterface.hh MSXCPUInterface.cc \
+	MSXMultiIODevice.hh MSXMultiIODevice.cc \
 	IRQHelper.hh IRQHelper.cc \
 	VDPIODelay.hh VDPIODelay.cc
 

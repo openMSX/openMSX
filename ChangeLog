@@ -1,5 +1,14 @@
 $Id$
 
+2003-12-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented IO device multiplexing:
+	   - several IO devices can now share the same IO port. When CPU
+	     writes to a shared port, all devices receive the write. When
+	     CPU read from a shared port, all devices readIO() method is
+	     called, but the return value of only one device is returned
+	     to the CPU.
+	   - this fixes the "openmsx -machine turbor -ext fmpac" problem
+
 2003-12-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* made vdp registers debuggable
 

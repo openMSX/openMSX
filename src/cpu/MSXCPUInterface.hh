@@ -3,9 +3,12 @@
 #ifndef __MSXCPUINTERFACE_HH__
 #define __MSXCPUINTERFACE_HH__
 
+#include <set>
 #include "CPUInterface.hh"
 #include "Command.hh"
 #include "Debuggable.hh"
+
+using std::set;
 
 namespace openmsx {
 
@@ -18,6 +21,7 @@ class CommandController;
 class MSXCPU;
 class CartridgeSlotManager;
 class Debugger;
+class CliCommOutput;
 
 class MSXCPUInterface : public CPUInterface
 {
@@ -55,6 +59,8 @@ public:
 	void registerSlottedDevice(MSXMemDevice *device, int Page);
 	void registerPostSlots();
 
+	// TODO implement unregister methods
+	
 	/**
 	 * Reset (the slot state)
 	 */
@@ -202,6 +208,8 @@ private:
 	
 	MSXIODevice* IO_In [256];
 	MSXIODevice* IO_Out[256];
+	set<byte> multiIn;
+	set<byte> multiOut;
 
 	MSXMemDevice* slotLayout[4][4][4];
 	byte subSlotRegister[4];
@@ -216,6 +224,7 @@ private:
 	MSXCPU& msxcpu;
 	CartridgeSlotManager& slotManager;
 	Debugger& debugger;
+	CliCommOutput& cliCommOutput;
 };
 
 class TurborCPUInterface : public MSXCPUInterface

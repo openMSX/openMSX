@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <memory> // for auto_ptr
+#include <sstream>
 #include "MSXCPUInterface.hh"
 #include "DummyDevice.hh"
 #include "CommandController.hh"
@@ -11,8 +12,11 @@
 #include "CartridgeSlotManager.hh"
 #include "VDPIODelay.hh"
 #include "Debugger.hh"
+#include "CliCommOutput.hh"
+#include "MSXMultiIODevice.hh"
 
 using std::auto_ptr;
+using std::ostringstream;
 
 namespace openmsx {
 
@@ -37,7 +41,8 @@ MSXCPUInterface::MSXCPUInterface()
 	  commandController(CommandController::instance()),
 	  msxcpu(MSXCPU::instance()),
 	  slotManager(CartridgeSlotManager::instance()),
-	  debugger(Debugger::instance())
+	  debugger(Debugger::instance()),
+	  cliCommOutput(CliCommOutput::instance())
 {
 	for (int port = 0; port < 256; port++) {
 		IO_In [port] = &dummyDevice;
@@ -92,36 +97,66 @@ MSXCPUInterface::~MSXCPUInterface()
 
 	commandController.unregisterCommand(&slotMapCmd,    "slotmap");
 	commandController.unregisterCommand(&slotSelectCmd, "slotselect");
+
+	for (set<byte>::const_iterator it = multiIn.begin();
+	     it != multiIn.end(); ++it) {
+		delete IO_In[*it];
+	}
+	for (set<byte>::const_iterator it = multiOut.begin();
+	     it != multiOut.end(); ++it) {
+		delete IO_Out[*it];
+	}
 }
 
 
 void MSXCPUInterface::register_IO_In(byte port, MSXIODevice *device)
 {
+	PRT_DEBUG(device->getName() << " registers In-port " <<
+	          hex << (int)port << dec);
 	if (IO_In[port] == &dummyDevice) {
-		PRT_DEBUG(device->getName() << " registers In-port "
-		          << hex << (int)port << dec);
+		// first 
 		IO_In[port] = device;
 	} else {
-		ostringstream out;
-		out << "Device: \"" << device->getName()
-		    << "\" trying to register taken IN-port "
-		    << hex << (int)port;
-		throw FatalError(out.str());
+		MSXIODevice* dev2 = IO_In[port];
+		if (multiIn.find(port) == multiIn.end()) {
+			// second
+			MSXMultiIODevice* multi = new MSXMultiIODevice();
+			multiIn.insert(port);
+			multi->addDevice(dev2);
+			multi->addDevice(device);
+			IO_In[port] = multi;
+			dev2 = multi;
+		} else {
+			// third or more
+			static_cast<MSXMultiIODevice*>(dev2)->addDevice(device);
+		}
+		ostringstream os;
+		os << "Conflicting input port 0x" << hex << (int)port
+		   << "for devices " << dev2->getName();
+		cliCommOutput.printWarning(os.str());
 	}
 }
 
 void MSXCPUInterface::register_IO_Out(byte port, MSXIODevice *device)
 {
+	PRT_DEBUG(device->getName() << " registers Out-port " <<
+	          hex << (int)port << dec);
 	if (IO_Out[port] == &dummyDevice) {
-		PRT_DEBUG(device->getName() << " registers Out-port "
-		          << hex << (int)port << dec);
+		// first
 		IO_Out[port] = device;
 	} else {
-		ostringstream out;
-		out << "Device: \"" << device->getName()
-		    << "\" trying to register taken OUT-port "
-		    << hex << (int)port;
-		throw FatalError(out.str());
+		MSXIODevice* dev2 = IO_Out[port];
+		if (multiOut.find(port) == multiOut.end()) {
+			// second
+			MSXMultiIODevice* multi = new MSXMultiIODevice();
+			multiOut.insert(port);
+			multi->addDevice(dev2);
+			multi->addDevice(device);
+			IO_Out[port] = multi;
+		} else {
+			// third or more
+			static_cast<MSXMultiIODevice*>(dev2)->addDevice(device);
+		}
 	}
 }
 

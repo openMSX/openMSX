@@ -6,6 +6,7 @@ SRC_HDR:= \
 	CPUTables \
 	Dasm \
 	MSXCPUInterface MSXCPU \
+	MSXMultiIODevice \
 	IRQHelper \
 	VDPIODelay
 
