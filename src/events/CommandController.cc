@@ -61,9 +61,11 @@ void CommandController::tokenize(const string &str,
                                  const string &delimiters)
 {
 	enum ParseState {Alpha, BackSlash, Quote, Space};
+
 	ParseState state = Space;
-	tokens.push_back(string());
-	for (unsigned i=0; i<str.length(); i++) {
+	tokens.push_back("");
+
+	for (unsigned i = 0; i < str.length(); ++i) {
 		char chr = str[i];
 		switch (state) {
 			case Space:
@@ -75,7 +77,7 @@ void CommandController::tokenize(const string &str,
 					} else if (chr == '"') {
 						state = Quote;
 					} else {
-						tokens[tokens.size()-1] += chr;
+						tokens.back() += chr;
 						state = Alpha;
 					}
 				}
@@ -83,49 +85,58 @@ void CommandController::tokenize(const string &str,
 			case Alpha:
 				if (delimiters.find(chr) != string::npos) {
 					// token done, start new token
-					tokens.push_back(string());
+					tokens.push_back("");
 					state = Space;
 				} else if (chr == '\\') {
 					state = BackSlash;
 				} else if (chr == '"') {
 					state = Quote;
 				} else {
-					tokens[tokens.size()-1] += chr;
+					tokens.back() += chr;
 				}
 				break;
 			case Quote:
 				if (chr == '"') {
 					state = Alpha;
 				} else {
-					tokens[tokens.size()-1] += chr;
+					tokens.back() += chr;
 				}
 				break;
 			case BackSlash:
-				tokens[tokens.size()-1] += chr;
+				tokens.back() += chr;
 				state = Alpha;
 				break;
 		}
 	}
-	if ((tokens.size() > 1) && (tokens[0] == ""))
-		tokens.erase(tokens.begin());
 }
 
 void CommandController::executeCommand(const string &cmd)
 {
-	vector<string> tokens;
-	tokenize(cmd, tokens);
-	if (tokens[tokens.size()-1] == "")
-		tokens.resize(tokens.size()-1);
-	if (tokens.empty())
-		return;
-	multimap<const string, Command*, ltstr>::const_iterator it;
-	it = commands.lower_bound(tokens[0]);
-	if (it == commands.end() || it->first != tokens[0]) {
-		throw CommandException("Unknown command");
-	}
-	while (it != commands.end() && it->first == tokens[0]) {
-		it->second->execute(tokens);
-		it++;
+	vector<string> subcmds;
+	tokenize(cmd, subcmds, ";");
+	for (vector<string>::const_iterator it = subcmds.begin();
+	     it != subcmds.end();
+	     ++it) {
+		vector<string> tokens;
+		tokenize(*it, tokens, " ");
+		if (!tokens.empty() && tokens.front().empty()) {
+			tokens.erase(tokens.begin());
+		}
+		if (!tokens.empty() && tokens.back().empty()) {
+			tokens.pop_back();
+		}
+		if (tokens.empty()) {
+			return;
+		}
+		multimap<const string, Command*, ltstr>::const_iterator it;
+		it = commands.lower_bound(tokens.front());
+		if (it == commands.end() || it->first != tokens.front()) {
+			throw CommandException("Unknown command");
+		}
+		while (it != commands.end() && it->first == tokens.front()) {
+			it->second->execute(tokens);
+			++it;
+		}
 	}
 }
 
@@ -153,17 +164,31 @@ void CommandController::autoCommands()
 
 void CommandController::tabCompletion(string &command)
 {
+	vector<string> subcmds;
+	tokenize(command, subcmds, ";");
+	if (subcmds.empty()) {
+		return;
+	}
+	
 	// split command string in tokens
 	vector<string> tokens;
-	tokenize(command, tokens);
+	tokenize(subcmds.back(), tokens, " ");
 	
 	// complete last token
 	tabCompletion(tokens);
 	
 	// rebuild command string from tokens
-	command = string("");
-	vector<string>::const_iterator it;
-	for (it=tokens.begin(); it!=tokens.end(); it++) {
+	command = "";
+	for (unsigned i = 0; i < (subcmds.size() - 1); ++i) {
+		command += subcmds[i];
+		command += ';';
+	}
+	if (subcmds.size() > 1) {
+		command += ' ';
+	}
+	for (vector<string>::const_iterator it = tokens.begin();
+	     it != tokens.end();
+	     ++it) {
 		if (it != tokens.begin())
 			command += ' ';
 		if (it->find(' ') == string::npos) {
@@ -182,7 +207,7 @@ void CommandController::tabCompletion(vector<string> &tokens)
 		// nothing typed yet
 		return;
 	}
-	if (tokens.size()==1) {
+	if (tokens.size() == 1) {
 		// build a list of all command strings
 		set<string> cmds;
 		multimap<const string, Command*, ltstr>::const_iterator it;
@@ -192,7 +217,7 @@ void CommandController::tabCompletion(vector<string> &tokens)
 		completeString(tokens, cmds);
 	} else {
 		multimap<const string, Command*, ltstr>::const_iterator it;
-		it = commands.find(tokens[0]);	// just take one
+		it = commands.find(tokens.front());	// just take one
 		if (it != commands.end()) {
 			it->second->tabCompletion(tokens);
 		}

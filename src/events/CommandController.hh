@@ -45,7 +45,6 @@ class CommandController
 		 * Complete a given command
 		 */
 		void tabCompletion(string &command);
-		void tabCompletion(vector<string> &tokens);
 
 		/**
 		 * TODO
@@ -58,7 +57,8 @@ class CommandController
 		CommandController();
 		void tokenize(const string &str,
 		              vector<string> &tokens,
-		              const string &delimiters = " ");
+		              const string &delimiters);
+		void tabCompletion(vector<string> &tokens);
 		static bool completeString2(string &string,
 		                            set<string> &set);
 
