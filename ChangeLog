@@ -1,5 +1,8 @@
 $Id$
 
+2004-03-16 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Fixed saving persistent data in windows (SRAM, cmos, history)
+
 2004-03-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Proper XML escaping for results from comm protocol
 

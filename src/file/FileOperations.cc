@@ -33,7 +33,7 @@ static int doMkdir(const char* name, mode_t mode)
 {
 #if	defined(__MINGW32__) || defined(_MSC_VER)
 	if ((name[0]=='/' || name[0]=='\\') && name[1]=='\0' || 
-	    (name[1]==':' && name[3]=='\0' && (name[2]=='/' || name[2]=='\\')
+	    (name[1]==':' && name[3]=='\0' && (name[2]=='/' || name[2]=='\\' || name[2]=='\0')
 	    && ((name[0]>='A' && name[0]<='Z')||(name[0]>='a' && name[0]<='z')))) {
 		// *(_errno()) = EEXIST;
 		// return -1;
