@@ -163,7 +163,7 @@ After you installed at least the above mentioned packages, go to your openMSX
 source tree again. Then, run the following command, in case you used CVS to get
 the sources:
 
-sh autogen.sh
+./autogen.sh
 
 This will generate the appropriate configure and make stuff. 
 
@@ -271,6 +271,9 @@ how to do that in this HOWTO though.
 Later, you may want to emulate a specific MSX. In that case, you can get a lot
 of the specific ROM images from FUNet:
 http://www.nic.funet.fi/pub/msx/system_roms/
+ROMs that are named the same as in the included hardware configuration files are
+here:
+http://www.nic.funet.fi/pub/msx/system_roms/openMSX/System ROM/
 
 4. Starting the emulator for the first time
    ----------------------------------------
@@ -317,45 +320,46 @@ I created a directory with the name .openMSX in my home dir. This is one of the
 directories that openMSX looks in, to find the (default) settings.xml, romdb.xml
 (a ROM database to identify ROM mapper types) and msxconfig.xml (an MSX Machine
 configuration file that is loaded by default). So, this directory contains
-settings and other user specific openMSX files. I'm also having my RTC.SAVE
-files in there. Also, some decorations like ConsoleBackgrounds (see below) and
-other related files are there. ROM files that are needed to use the MSX machine
-configuration files, I keep together with those configuration files, in the cfg
-directory (which is in my case a symbolic link to the cfg directory of the CVS
-tree). Generic ROMs are in the ROMs directory, they are used by some generic
-config files that are also in .openMSX/. I also use romdb.xml and settings.xml
-from the CVS tree via another symbolic link. Note that you need settings.xml
+settings and other user specific openMSX files. It also contains the machine
+configurations, in the subdirectory machines/. The name of this subdirectory is
+important: openMSX searches here for those machine configurations. In this
+machines/ directory, all machines have their own subdirectory. I created my
+personal MSX configuration (see below) in the directory mymsx/ under machines/.
+Note that hardware configurations should have the name 'hardwareconfig.xml' in
+these machine directories. Also the ROM files needed for those machines could be
+put in their own directories. In my case, this machines/ directory is just a
+symlink to the openMSX CVS tree's src/cfg/ directory, where I put all the config
+files in different subdirectories as I have just explained.
+
+In ~/.openMSX also some decorations like ConsoleBackgrounds (see below) and
+other related files should be stored. You need settings.xml also
 here, unless you want to specify it manually on the command line with the
--setting option, as we have done above.
+-setting option, as we have done above. In settings.xml you can also specify
+what machine should be used by default. Edit the file and you will see how to do
+that. Also romdb.xml should be here. Personally, I used a symbolic link to my
+CVS source tree version.
+
+Furthermore, generic ROMs are in the ROMs subdirectory in ~/.openMSX; they are
+used by some generic config files that are also in .openMSX/. Those will get a
+special directory in a very soon to come openMSX version.
+I also use
+romdb.xml and settings.xml from the CVS tree via another symbolic link. 
 
 /home/manuel/.openMSX:
 -rw-------    1 manuel   manuel      21203 Aug 27 10:38 ConsoleBackground.png
 -rw-------    1 manuel   manuel       6016 Aug 27 10:36 ConsoleBackground1.png
 -rw-------    1 manuel   manuel       1471 Sep 25 22:33 ConsoleFont.png
 -rw-------    1 manuel   manuel       1245 Aug 26 22:46 ConsoleFont1.png
--rw-------    1 manuel   manuel       4096 Jan 16 22:51 FS4600F.SRAM
--rw-------    1 manuel   manuel       4096 Nov 14 21:48 FS4600F3.ROM.SRAM
--rw-------    1 manuel   manuel       8192 Nov 17 18:07 FSA1FX.SRAM
--rw-------    1 manuel   manuel       8192 Dec 30 00:06 FSA1GT.SRAM
--rw-------    1 manuel   manuel       8192 Dec 25 17:52 FSA1WSX.SRAM
--rw-------    1 manuel   manuel       8192 Dec 25 17:58 FSA1WX.SRAM
 drwx------    2 manuel   manuel       4096 Jan 12 18:10 ROMs/
--rw-------    1 manuel   manuel         52 Jan 27 22:54 RTC.SAVE
-lrwxrwxrwx    1 manuel   manuel         30 Jan 28 22:13 cfg -> ../cvs/openmsx/openMSX/src/cfg/
--rw-------    1 manuel   manuel       8206 Jan 27 22:54 fmpac.pac
--rw-------    1 manuel   manuel         52 Jan 26 02:00 fs-4600_fs-4600.save
--rw-------    1 manuel   manuel       4096 Jan 26 02:00 fs-4600_fs-4600.sram
--rw-------    1 manuel   manuel         52 Jan 16 22:29 fs-a1fx_fsa1fx.save
 -rw-------    1 manuel   manuel   107373568 Nov 10 23:01 hd.dsk
 -rw-------    1 manuel   manuel        668 Dec 18 21:21 ide.xml
 -rw-------    1 manuel   manuel       9634 Oct 14 22:06 ideconfig.xml
+lrwxrwxrwx    1 manuel   manuel         41 Feb 17 21:56 machines -> /home/manuel/cvs/openmsx/openMSX/src/cfg/
 -rw-------    1 manuel   manuel       2385 Apr 15  2002 msx1.xml
--rw-------    1 manuel   manuel       9641 Oct 20 22:36 msxconfig.xml
 -rw-------    1 manuel   manuel        477 Jan 12 16:41 msxdos2.xml
--rw-------    1 manuel   manuel       6018 Jan 27 22:52 mymsx.xml
--rw-------    1 manuel   manuel       6019 Jan 12 18:12 mymsx2.xml
+drwx------    4 manuel   manuel       4096 Feb 17 22:00 persistent/
 lrwxrwxrwx    1 manuel   manuel         46 Nov 26 21:18 romdb.xml -> /home/manuel/cvs/openmsx/openMSX/src/romdb.xml
-lrwxrwxrwx    1 manuel   manuel         53 Jan 27 22:28 settings.xml -> /home/manuel/cvs/openmsx/openMSX/src/cfg/settings.xml
+-rw-------    1 manuel   manuel       2391 Feb 18 20:46 settings.xml
 
 /home/manuel/.openMSX/ROMs:
 -rw-------    1 manuel   manuel      16384 Mar 26 21:32 basic.rom
@@ -364,6 +368,10 @@ lrwxrwxrwx    1 manuel   manuel         53 Jan 27 22:28 settings.xml -> /home/ma
 -rw-------    1 manuel   manuel      16384 Mar 26 21:32 bios2.rom
 -rw-------    1 manuel   manuel      16384 Mar 26 21:32 disk.rom
 -rw-------    1 manuel   manuel      65536 Mar 26 21:32 fmpac.rom
+
+The directory persistent is automatically created when you close openMSX. There,
+persistent states of your MSX machines will be saved: the Real Time Clock
+settings, SRAM contents, etc.
 
 Note that the config syntax is still subject to changes, so XML files from one
 release may not be compatible with those of other releases. If you want to be
@@ -393,37 +401,23 @@ build date. The last line executes the binary, using some default options that
 are defined in DEFAULT_OPTIONS. At the moment, this string is empty. The i686
 means that I used the ./config-i686 way to configure, see section 2.
 
-This script can be used to run openmsx with a specific MSX machine
-configuration. This should work now (from your home directory), e.g.:
-openmsx .openMSX/cfg/Philips_NMS_8250.xml
-The settings.xml file is now automatically loaded from the .openMSX directory.
+Note that you don't need this script at all. You can also simply create a
+symlink in a directory where your shell searches for programs to the openMSX
+binary.
 
-Note that the ROM files needed for this configuration will only be found by
-openMSX if you specified the right paths relative to the XML file in that XML
-file.  Normally I put the ROMs in the same directory as the XML file, so that I
-don't have to specify a path.
+As as I said above, I'm using a manually configured MSX machine, that is
+described in ~/.openMSX/machines/mymsx/hardwareconfig.xml. So, I configured in
+settings.xml that mymsx is the default machine to emulate. The default
+settings.xml also contains a UserDirectories section. In this section you can
+specify directories in which openMSX should look for to find files that you
+mention on the command line or in the Console (see below). If you have some big
+directory with a lot of disk images, e.g., you can add a line with that path to
+this section, so that you don't have to specify the whole path anymore. Use this
+to make things just a little more comfortable.
 
-Most of the time, however, I don't use an existing MSX machine. I use my own
-customised MSX, which I defined in mymsx.xml. I'll tell you more about this
-later. To run openMSX with this machine configuration, I made another small
-shell script:
----------------------BEGIN SHELL SCRIPT---------------------
-#!/bin/bash
-
-/home/manuel/bin/openmsx -config /home/manuel/.openMSX/mymsx.xml "$@"
----------------------END SHELL SCRIPT---------------------
-This script uses the one above, but specifies the configuration defined in
-mymsx.xml. This way I can easily run games or other programs in that customised
-MSX.
-
-In case you want to modify the settings, which are defined in settings.xml,
-remove the symbolic link and put your own modified copy in the .openMSX/
-directory. The default settings.xml contains a UserDirectories section. In this
-section you can specify directories in which openMSX should look for to find
-files that you mention on the command line or in the Console (see below). If you
-have some big directory with a lot of disk images, e.g., you can add a line with
-that path to this section, so that you don't have to specify the whole path
-anymore. Use this to make things just a little more comfortable.
+Make sure that starting openMSX by just typing 'openmsx' in your shell works
+now, with your default machine configuration. For now, I'm assuming that you are
+still emulating the Philips NMS 8250.
 
 This concludes this section.
 
@@ -436,22 +430,24 @@ stuff here, though.
 
 Suppose you want to run the ROM file "galious.rom". Then you simply type:
 
-openmsxmy galious.rom
+openmsx galious.rom
 
 and the emulated NMS 8250 (as it still is, now) will run the game. (Of course,
-in this case, the file galious.rom should be in the current directory.)
+in this case, the file galious.rom should be in the current directory or in one
+of the UserDirectories you specified in the settings.xml.)
+
 If things go terribly wrong, openMSX may have failed to detect that the
 specified file was a ROM file. You can then indicate this by typing:
 
-openmsxmy -cart galious.rom
+openmsx -cart galious.rom
 
 To run a disk image, you can type:
 
-openmsxmy relax.dsk
+openmsx relax.dsk
 
 for example. Or, if the auto detection of the file fails:
 
-openmsxmy -diska relax.dsk
+openmsx -diska relax.dsk
 
 With this information, you can run most of the existing MSX software.
 
@@ -479,7 +475,8 @@ Some of those, you can tweak in the settings.xml file.
 OK, a standard NMS-8250 is a bit dull. Let's add some devices.
 
 Normally, devices can be added by editing the XML config file. So, let's make a
-copy of Philips_NMS_8250.xml and call it mymsx.xml. It's the config we are going
+copy of Philips_NMS_8250.xml and put it in ~/.openMSX/machines/mymsx/ under the
+name of hardwareconfig.xml. It's the config we are going
 to play with.
 
 There is a special config file in the source tree that isn't usable by itself,
@@ -493,11 +490,7 @@ tags!):
 
   <device id="FM PAC">
     <type>FM-PAC</type>
-    <slotted>
-      <ps>2</ps>
-      <ss>0</ss>
-      <page>1</page>
-    </slotted>
+    <slotted> <ps>2</ps> <ss>0</ss> <page>1</page> </slotted>
     <parameter name="filename">fmpac.rom</parameter>
     <parameter name="volume">9000</parameter>
     <parameter name="mode">left</parameter>
