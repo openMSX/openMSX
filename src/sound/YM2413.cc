@@ -14,10 +14,12 @@
 #include "Debugger.hh"
 #include "Scheduler.hh"
 
-using std::min;
 using std::string;
 
 namespace openmsx {
+
+static const int CLOCK_FREQ = 3579545;
+static const double PI = 3.14159265358979;
 
 int YM2413::pmtable[PM_PG_WIDTH];
 int YM2413::amtable[AM_PG_WIDTH];
@@ -34,7 +36,7 @@ unsigned int YM2413::dphaseDRTable[16][16];
 unsigned int YM2413::dphaseTable[512][8][16];
 unsigned int YM2413::pm_dphase;
 unsigned int YM2413::am_dphase;
-YM2413::Patch YM2413::nullPatch(false, false, false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+YM2413::Patch YM2413::nullPatch;
 
 
 //***************************************************//
@@ -66,22 +68,18 @@ unsigned int YM2413::DB_NEG(double x)
 }
 
 // Cut the lower b bit off
-int YM2413::HIGHBITS(int c, int b)
+template <typename T>
+static inline T HIGHBITS(T c, int b)
 {
 	return c >> b;
 }
-// Leave the lower b bit
-int YM2413::LOWBITS(int c, int b)
-{
-	return c & ((1 << b) - 1);
-}
 // Expand x which is s bits to d bits
-int YM2413::EXPAND_BITS(int x, int s, int d)
+static inline unsigned EXPAND_BITS(unsigned x, int s, int d)
 {
 	return x << (d - s);
 }
 // Adjust envelope speed which depends on sampling rate
-unsigned int YM2413::rate_adjust(double x, int rate)
+static inline unsigned int rate_adjust(double x, int rate)
 {
 	double tmp = x * CLOCK_FREQ / 72 / rate + 0.5; // +0.5 to round
 	assert (tmp <= 4294967295U);
@@ -98,16 +96,17 @@ unsigned int YM2413::rate_adjust(double x, int rate)
 // Table for AR to LogCurve.
 void YM2413::makeAdjustTable()
 {
-	AR_ADJUST_TABLE[0] = (1 << EG_BITS);
-	for (int i = 1; i < 128; i++)
+	AR_ADJUST_TABLE[0] = 1 << EG_BITS;
+	for (int i = 1; i < 128; ++i) {
 		AR_ADJUST_TABLE[i] = (unsigned short)((double)(1 << EG_BITS) - 1 -
 		                     (1 << EG_BITS) * ::log(i) / ::log(128));
+	}
 }
 
-// Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH)
+// Table for dB(0 .. (1<<DB_BITS)) to lin(0 .. DB2LIN_AMP_WIDTH)
 void YM2413::makeDB2LinTable()
 {
-	for (int i = 0; i < 2 * DB_MUTE; i++) {
+	for (int i = 0; i < 2 * DB_MUTE; ++i) {
 		dB2LinTab[i] = (i < DB_MUTE) ? 
 		        (short)((double)((1 << DB2LIN_AMP_BITS) - 1) *
 			      pow(10, -(double)i * DB_STEP / 20)) :
@@ -116,98 +115,102 @@ void YM2413::makeDB2LinTable()
 	}
 }
 
+// lin(+0.0 .. +1.0) to  dB((1<<DB_BITS)-1 .. 0)
+int YM2413::lin2db(double d)
+{
+	if (d == 0) {
+		return DB_MUTE - 1;
+	} else {
+		return std::min(-(int)(20.0 * log10(d) / DB_STEP), DB_MUTE - 1); // 0 - 127
+	}
+}
+
 // Sin Table
 void YM2413::makeSinTable()
 {
-	for (int i = 0; i < PG_WIDTH / 4; i++)
+	for (int i = 0; i < PG_WIDTH / 4; ++i)
 		fullsintable[i] = lin2db(sin(2.0 * PI * i / PG_WIDTH));
-	for (int i = 0; i < PG_WIDTH / 4; i++)
+	for (int i = 0; i < PG_WIDTH / 4; ++i)
 		fullsintable[PG_WIDTH / 2 - 1 - i] = fullsintable[i];
-	for (int i = 0; i < PG_WIDTH / 2; i++)
+	for (int i = 0; i < PG_WIDTH / 2; ++i)
 		fullsintable[PG_WIDTH / 2 + i] = 2 * DB_MUTE + fullsintable[i];
 
-	for (int i = 0; i < PG_WIDTH / 2; i++)
+	for (int i = 0; i < PG_WIDTH / 2; ++i)
 		halfsintable[i] = fullsintable[i];
-	for (int i = PG_WIDTH / 2; i < PG_WIDTH; i++)
+	for (int i = PG_WIDTH / 2; i < PG_WIDTH; ++i)
 		halfsintable[i] = fullsintable[0];
-}
-// Liner(+0.0 - +1.0) to dB((1<<DB_BITS) - 1 -- 0)
-int YM2413::lin2db(double d)
-{
-	if (d < 1e-4) {
-		// (almost) zero
-		return DB_MUTE - 1;
-	} else {
-		return min(-(int)(20.0 * log10(d) / DB_STEP), DB_MUTE - 1); // 0 - 127
-	}
 }
 
 
 void YM2413::makeDphaseNoiseTable(int sampleRate)
 {
-	for (int i = 0; i < 512; i++)
-		for (int j = 0; j < 8; j++)
+	for (int i = 0; i < 512; ++i) {
+		for (int j = 0; j < 8; ++j) {
 			dphaseNoiseTable[i][j] = rate_adjust(i << j, sampleRate);
+		}
+	}
 }
 
 // Table for Pitch Modulator
 void YM2413::makePmTable()
 {
-	for (int i = 0; i < PM_PG_WIDTH; i++)
+	for (int i = 0; i < PM_PG_WIDTH; ++i) {
 		pmtable[i] = (int)((double)PM_AMP *
 		                   pow(2, (double)PM_DEPTH *
 		                          sin(2.0 * PI * i / PM_PG_WIDTH) / 1200));
+	}
 }
 
 // Table for Amp Modulator
 void YM2413::makeAmTable()
 {
-	for (int i = 0; i < AM_PG_WIDTH; i++)
+	for (int i = 0; i < AM_PG_WIDTH; ++i) {
 		amtable[i] = (int)((double)AM_DEPTH / 2 / DB_STEP *
 		                   (1.0 + sin(2.0 * PI * i / PM_PG_WIDTH)));
+	}
 }
 
-/* Phase increment counter table */ 
+// Phase increment counter table
 void YM2413::makeDphaseTable(int sampleRate)
 {
-	int mltable[16] = {
+	unsigned int mltable[16] = {
 		1,   1*2,  2*2,  3*2,  4*2,  5*2,  6*2,  7*2,
 		8*2, 9*2, 10*2, 10*2, 12*2, 12*2, 15*2, 15*2
 	};
 
-	for (int fnum = 0; fnum < 512; fnum++)
-		for (int block = 0; block < 8; block++)
-			for (int ML = 0; ML < 16; ML++)
+	for (unsigned fnum = 0; fnum < 512; ++fnum) {
+		for (unsigned block = 0; block < 8; ++block) {
+			for (unsigned ML = 0; ML < 16; ++ML) {
 				dphaseTable[fnum][block][ML] = 
 					rate_adjust(((fnum * mltable[ML]) << block) >>
 					            (20 - DP_BITS),
 					            sampleRate);
+			}
+		}
+	}
 }
 
 void YM2413::makeTllTable()
 {
-	#define dB2(x) ((x) * 2)
 	double kltable[16] = {
-		dB2( 0.000), dB2( 9.000), dB2(12.000), dB2(13.875),
-		dB2(15.000), dB2(16.125), dB2(16.875), dB2(17.625),
-		dB2(18.000), dB2(18.750), dB2(19.125), dB2(19.500),
-		dB2(19.875), dB2(20.250), dB2(20.625), dB2(21.000)
+		( 0.000 * 2), ( 9.000 * 2), (12.000 * 2), (13.875 * 2),
+		(15.000 * 2), (16.125 * 2), (16.875 * 2), (17.625 * 2),
+		(18.000 * 2), (18.750 * 2), (19.125 * 2), (19.500 * 2),
+		(19.875 * 2), (20.250 * 2), (20.625 * 2), (21.000 * 2)
 	};
   
-	for (int fnum = 0; fnum < 16; fnum++) {
-		for (int block = 0; block < 8; block++) {
-			for (int TL = 0; TL < 64; TL++) {
-				for (int KL = 0; KL < 4; KL++) {
+	for (int fnum = 0; fnum < 16; ++fnum) {
+		for (int block = 0; block < 8; ++block) {
+			for (int TL = 0; TL < 64; ++TL) {
+				for (int KL = 0; KL < 4; ++KL) {
 					if (KL == 0) {
 						tllTable[fnum][block][TL][KL] = TL2EG(TL);
 					} else {
-						double tmp = kltable[fnum] - dB2(3.000) * (7 - block);
-						if (tmp <= 0) {
-							tllTable[fnum][block][TL][KL] = TL2EG(TL);
-						} else { 
-							tllTable[fnum][block][TL][KL] =
-								(unsigned int)(((unsigned int)tmp>>(3 - KL)) / EG_STEP) + TL2EG(TL);
-						}
+						int tmp = (int)(kltable[fnum] - (3.000 * 2) * (7 - block));
+						tllTable[fnum][block][TL][KL] =
+						    (tmp <= 0) ?
+						    TL2EG(TL) :
+						    (unsigned int)((tmp >> (3 - KL)) / EG_STEP) + TL2EG(TL);
 					}
 				}
 			}
@@ -218,12 +221,12 @@ void YM2413::makeTllTable()
 // Rate Table for Attack
 void YM2413::makeDphaseARTable(int sampleRate)
 {
-	for (int AR = 0; AR < 16; AR++) {
-		for (int Rks = 0; Rks < 16; Rks++) {
+	for (int AR = 0; AR < 16; ++AR) {
+		for (int Rks = 0; Rks < 16; ++Rks) {
 			int RM = AR + (Rks >> 2);
-			if (RM>15) RM = 15;
 			int RL = Rks & 3;
-			switch(AR) { 
+			if (RM > 15) RM = 15;
+			switch (AR) { 
 			case 0:
 				dphaseARTable[AR][Rks] = 0;
 				break;
@@ -241,8 +244,8 @@ void YM2413::makeDphaseARTable(int sampleRate)
 // Rate Table for Decay
 void YM2413::makeDphaseDRTable(int sampleRate)
 {
-	for (int DR = 0; DR < 16; DR++) {
-		for (int Rks = 0; Rks < 16; Rks++) {
+	for (int DR = 0; DR < 16; ++DR) {
+		for (int Rks = 0; Rks < 16; ++Rks) {
 			int RM = DR + (Rks >> 2);
 			int RL = Rks & 3;
 			if (RM > 15) RM = 15;
@@ -260,12 +263,12 @@ void YM2413::makeDphaseDRTable(int sampleRate)
 
 void YM2413::makeRksTable()
 {
-	for (int fnum8 = 0; fnum8 < 2; fnum8++) {
-		for (int block = 0; block < 8; block++) {
-			for (int KR = 0; KR < 2; KR++) {
-				rksTable[fnum8][block][KR] = (KR != 0) ?
-					(block << 1) + fnum8:
-					 block >> 1;
+	for (int fnum8 = 0; fnum8 < 2; ++fnum8) {
+		for (int block = 0; block < 8; ++block) {
+			for (int KR = 0; KR < 2; ++KR) {
+				rksTable[fnum8][block][KR] = (KR != 0)
+					? (block << 1) + fnum8
+					:  block >> 1;
 			}
 		}
 	}
@@ -277,12 +280,44 @@ void YM2413::makeRksTable()
 //                                                            //
 //************************************************************//
 
-YM2413::Patch::Patch(bool AM_, bool PM_, bool EG_, byte KR_, byte ML_,
-                     byte KL_, byte TL_, byte FB_, byte WF_, byte AR_,
-		     byte DR_, byte SL_, byte RR_)
-	: AM(AM_), PM(PM_), EG(EG_), KR(KR_), ML(ML_), KL(KL_), TL(TL_),
-	  FB(FB_), WF(WF_), AR(AR_), DR(DR_), SL(SL_), RR(RR_)
+YM2413::Patch::Patch()
+	: AM(false), PM(false), EG(false)
+	, KR(0), ML(0), KL(0), TL(0), FB(0)
+	, WF(0), AR(0), DR(0), SL(0), RR(0)
 {
+}
+
+YM2413::Patch::Patch(int n, const byte* data)
+{
+	if (n == 0) {
+		AM = (data[0] >> 7) & 1;
+		PM = (data[0] >> 6) & 1;
+		EG = (data[0] >> 5) & 1;
+		KR = (data[0] >> 4) & 1;
+		ML = (data[0] >> 0) & 15;
+		KL = (data[2] >> 6) & 3;
+		TL = (data[2] >> 0) & 63;
+		FB = (data[3] >> 0) & 7;
+		WF = (data[3] >> 3) & 1;
+		AR = (data[4] >> 4) & 15;
+		DR = (data[4] >> 0) & 15;
+		SL = (data[6] >> 4) & 15;
+		RR = (data[6] >> 0) & 15;
+	} else {
+		AM = (data[1] >> 7) & 1;
+		PM = (data[1] >> 6) & 1;
+		EG = (data[1] >> 5) & 1;
+		KR = (data[1] >> 4) & 1;
+		ML = (data[1] >> 0) & 15;
+		KL = (data[3] >> 6) & 3;
+		TL = 0;
+		FB = 0;
+		WF = (data[3] >> 4) & 1;
+		AR = (data[5] >> 4) & 15;
+		DR = (data[5] >> 0) & 15;
+		SL = (data[7] >> 4) & 15;
+		RR = (data[7] >> 0) & 15;
+	}
 }
 
 //************************************************************//
@@ -414,7 +449,7 @@ void YM2413::Slot::slotOff(byte stat)
 }
 
 // Change a rhythm voice
-void YM2413::Slot::setPatch(Patch *ptch)
+void YM2413::Slot::setPatch(Patch* ptch)
 {
 	patch = ptch;
 }
@@ -498,7 +533,7 @@ void YM2413::Channel::keyOn(byte stat)
 // Channel key off
 void YM2413::Channel::keyOff(byte stat)
 {
-	// Note:  NO  mod.slotOff(stat);
+	mod.slotOff(stat); // TODO original code does not have this!!!
 	car.slotOff(stat);
 }
 
@@ -510,64 +545,35 @@ void YM2413::Channel::keyOff(byte stat)
 //                                                           //
 //***********************************************************//
 
+static byte inst_data[16 + 3][8] = {
+	{ 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 }, // user instrument
+	{ 0x61,0x61,0x1e,0x17,0xf0,0x7f,0x00,0x17 }, // violin
+	{ 0x13,0x41,0x16,0x0e,0xfd,0xf4,0x23,0x23 }, // guitar
+	{ 0x03,0x01,0x9a,0x04,0xf3,0xf3,0x13,0xf3 }, // piano
+	{ 0x11,0x61,0x0e,0x07,0xfa,0x64,0x70,0x17 }, // flute
+	{ 0x22,0x21,0x1e,0x06,0xf0,0x76,0x00,0x28 }, // clarinet
+	{ 0x21,0x22,0x16,0x05,0xf0,0x71,0x00,0x18 }, // oboe
+	{ 0x21,0x61,0x1d,0x07,0x82,0x80,0x17,0x17 }, // trumpet
+	{ 0x23,0x21,0x2d,0x16,0x90,0x90,0x00,0x07 }, // organ
+	{ 0x21,0x21,0x1b,0x06,0x64,0x65,0x10,0x17 }, // horn
+	{ 0x21,0x21,0x0b,0x1a,0x85,0xa0,0x70,0x07 }, // synthesizer
+	{ 0x23,0x01,0x83,0x10,0xff,0xb4,0x10,0xf4 }, // harpsichord
+	{ 0x97,0xc1,0x20,0x07,0xff,0xf4,0x22,0x22 }, // vibraphone
+	{ 0x61,0x00,0x0c,0x05,0xc2,0xf6,0x40,0x44 }, // synthesizer bass
+	{ 0x01,0x01,0x56,0x03,0x94,0xc2,0x03,0x12 }, // acoustic bass
+	{ 0x21,0x01,0x89,0x03,0xf1,0xe4,0xf0,0x23 }, // electric guitar
+	{ 0x07,0x21,0x14,0x00,0xee,0xf8,0xff,0xf8 },
+	{ 0x01,0x31,0x00,0x00,0xf8,0xf7,0xf8,0xf7 },
+	{ 0x25,0x11,0x00,0x00,0xf8,0xfa,0xf8,0x55 }
+};
+
 YM2413::YM2413(const string& name_, const XMLElement& config, const EmuTime& time)
 	: rythm_mode(false), name(name_)
 {
-	// User instrument
-	patches[ 0] = Patch(false, false, false, 0,  0, 0,  0, 0, 0,  0,  0,  0,  0);
-	patches[ 1] = Patch(false, false, false, 0,  0, 0,  0, 0, 0,  0,  0,  0,  0);
-	// Violin
-	patches[ 2] = Patch(false,  true,  true, 0,  1, 0, 30, 7, 0, 15,  0,  0,  7);
-	patches[ 3] = Patch(false,  true,  true, 0,  1, 0,  0, 0, 1,  7, 15,  1,  7);
-	// Guitar
-	patches[ 4] = Patch(false, false, false, 1,  3, 0, 15, 5, 1, 12, 14,  4,  3);
-	patches[ 5] = Patch(false,  true, false, 0,  1, 0,  0, 0, 0, 15,  5,  2,  3);
-	// Piano
-	patches[ 6] = Patch(false, false, false, 0,  3, 2, 26, 4, 0, 15,  3,  1,  3);
-	patches[ 7] = Patch(false, false, false, 0,  1, 0,  0, 0, 0, 15,  4,  2,  3);
-	// Flute
-	patches[ 8] = Patch(false, false,  true, 0,  1, 0, 29, 7, 0, 15, 10,  3,  0);
-	patches[ 9] = Patch(false,  true,  true, 0,  1, 0,  0, 0, 0,  6,  4,  2,  8);
-	// Clarinet
-	patches[10] = Patch(false, false,  true, 0,  2, 0, 30, 6, 0, 15,  0,  1,  8);
-	patches[11] = Patch(false, false,  true, 0,  1, 0,  0, 0, 0,  7,  6,  2,  8);
-	// Oboe
-	patches[12] = Patch(false, false,  true, 1,  1, 0, 22, 5, 0,  9,  0,  0,  0);
-	patches[13] = Patch(false, false, false, 0,  2, 0,  0, 0, 0,  7,  1,  1,  0);
-	// Trumpet
-	patches[14] = Patch(false, false,  true, 0,  1, 0, 29, 7, 0,  8,  2,  1,  0);
-	patches[15] = Patch(false,  true,  true, 0,  1, 0,  0, 0, 0,  8,  0,  1,  7);
-	// Organ
-	patches[16] = Patch(false, false,  true, 0,  3, 0, 45, 6, 0, 12,  0,  0,  7);
-	patches[17] = Patch(false, false,  true, 0,  1, 0,  0, 0, 1,  7,  0,  0,  7);
-	// Horn
-	patches[18] = Patch(false,  true,  true, 0,  1, 0, 27, 6, 0,  6,  4,  1,  8);
-	patches[19] = Patch(false, false,  true, 0,  1, 0,  0, 0, 0,  6,  5,  1,  8);
-	// Synthesizer
-	patches[20] = Patch(false,  true,  true, 0,  1, 0, 12, 0, 1,  8,  5,  7,  9);
-	patches[21] = Patch(false,  true,  true, 0,  1, 0,  0, 0, 1, 10,  0,  0,  7);
-	// Harpsichord
-	patches[22] = Patch(false, false,  true, 0,  3, 2,  7, 1, 0, 15,  0,  0,  0);
-	patches[23] = Patch(false, false,  true, 0,  1, 0,  0, 0, 1, 10,  4, 15,  7);
-	// Vibraphone
-	patches[24] = Patch( true, false, false, 1,  7, 0, 40, 7, 0, 15, 15,  0,  2);
-	patches[25] = Patch( true,  true,  true, 0,  1, 0,  0, 0, 0, 15,  3, 15,  8);
-	// Synthesizer bass
-	patches[26] = Patch(false,  true,  true, 0,  1, 0, 12, 5, 0, 15,  2,  4,  0);
-	patches[27] = Patch(false, false, false, 1,  0, 0,  0, 0, 0, 12,  4, 12,  8);
-	// Acoustic bass
-	patches[28] = Patch(false, false, false, 0,  1, 1, 22, 3, 0, 11,  4,  2,  3);
-	patches[29] = Patch(false, false, false, 0,  1, 0,  0, 0, 0, 11,  2,  5,  8);
-	// Electric guitar
-	patches[30] = Patch(false,  true,  true, 0,  1, 2,  9, 3, 0, 15,  1, 15,  0);
-	patches[31] = Patch(false,  true, false, 0,  1, 0,  0, 0, 0, 15,  4,  1,  3);
-	
-	patches[32] = Patch(false, false, false, 0,  4, 0, 22, 0, 0, 13, 15, 15, 15);
-	patches[33] = Patch(false, false,  true, 0,  1, 0,  0, 0, 0, 15,  8, 15,  8);
-	patches[34] = Patch(false, false,  true, 0,  3, 0,  0, 0, 0, 13,  8, 15,  8);
-	patches[35] = Patch(false, false,  true, 1,  2, 0,  0, 0, 0, 15,  7, 15,  7);
-	patches[36] = Patch(false, false,  true, 0,  5, 0,  0, 0, 0, 15,  8, 15,  8);
-	patches[37] = Patch(false, false, false, 1,  8, 0,  0, 0, 0, 13, 10,  5,  5);
+	for (int i = 0; i < 16 + 3; ++i) {
+		patches[2 * i + 0] = Patch(0, inst_data[i]);
+		patches[2 * i + 1] = Patch(1, inst_data[i]);
+	}
 
 	for (int i = 0; i < 0x40; ++i) {
 		reg[i] = 0; // avoid UMR

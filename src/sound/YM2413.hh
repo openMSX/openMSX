@@ -14,12 +14,9 @@ class EmuTime;
 
 class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 {
-	class Patch {
-	public:
-		Patch() {}
-		Patch(bool AM, bool PM, bool EG, byte KR, byte ML,
-		      byte KL, byte TL, byte FB, byte WF, byte AR,
-		      byte DR, byte SL, byte RR);
+	struct Patch {
+		Patch();
+		Patch(int n, const byte* data);
 		
 		bool AM, PM, EG;
 		byte KR; // 0-1
@@ -163,10 +160,6 @@ private:
 	inline static int TL2EG(int d);
 	inline static unsigned int DB_POS(double x);
 	inline static unsigned int DB_NEG(double x);
-	inline static int HIGHBITS(int c, int b);
-	inline static int LOWBITS(int c, int b);
-	inline static int EXPAND_BITS(int x, int s, int d);
-	inline static unsigned int rate_adjust(double x, int sampleRate);
 
 	// Debuggable
 	virtual unsigned getSize() const;
@@ -175,37 +168,34 @@ private:
 	virtual void write(unsigned address, byte value);
 
 private:
-	static const int CLOCK_FREQ = 3579545;
-	static const double PI = 3.14159265358979;
-
 	// Size of Sintable ( 1 -- 18 can be used, but 7 -- 14 recommended.)
 	static const int PG_BITS = 9;
-	static const int PG_WIDTH = (1<<PG_BITS);
+	static const int PG_WIDTH = 1 << PG_BITS;
 
 	// Phase increment counter
 	static const int DP_BITS = 18;
-	static const int DP_WIDTH = (1<<DP_BITS);
-	static const int DP_BASE_BITS = (DP_BITS - PG_BITS);
+	static const int DP_WIDTH = 1 << DP_BITS;
+	static const int DP_BASE_BITS = DP_BITS - PG_BITS;
 
 	// Dynamic range (Accuracy of sin table)
 	static const int DB_BITS = 8;
-	static const double DB_STEP = (48.0 / (1 << DB_BITS));
-	static const int DB_MUTE = (1<<DB_BITS);
+	static const double DB_STEP = 48.0 / (1 << DB_BITS);
+	static const int DB_MUTE = 1 << DB_BITS;
 
 	// Dynamic range of envelope
 	static const double EG_STEP = 0.375;
 	static const int EG_BITS = 7;
-	static const int EG_MUTE = (1<<EG_BITS);
+	static const int EG_MUTE = 1 << EG_BITS;
 
 	// Dynamic range of total level
 	static const double TL_STEP = 0.75;
 	static const int TL_BITS = 6;
-	static const int TL_MUTE = (1<<TL_BITS);
+	static const int TL_MUTE = 1 << TL_BITS;
 
 	// Dynamic range of sustine level
 	static const double SL_STEP = 3.0;
 	static const int SL_BITS = 4;
-	static const int SL_MUTE = (1<<SL_BITS);
+	static const int SL_MUTE = 1 << SL_BITS;
 
 	// Bits for liner value
 	static const int DB2LIN_AMP_BITS = 11;
@@ -213,21 +203,21 @@ private:
 
 	// Bits for envelope phase incremental counter
 	static const int EG_DP_BITS = 22;
-	static const int EG_DP_WIDTH = (1<<EG_DP_BITS);
+	static const int EG_DP_WIDTH = 1 << EG_DP_BITS;
 
 	// Bits for Pitch and Amp modulator 
 	static const int PM_PG_BITS = 8;
-	static const int PM_PG_WIDTH = (1<<PM_PG_BITS);
+	static const int PM_PG_WIDTH = 1 << PM_PG_BITS;
 	static const int PM_DP_BITS = 16;
-	static const int PM_DP_WIDTH = (1<<PM_DP_BITS);
+	static const int PM_DP_WIDTH = 1 << PM_DP_BITS;
 	static const int AM_PG_BITS = 8;
-	static const int AM_PG_WIDTH = (1<<AM_PG_BITS);
+	static const int AM_PG_WIDTH = 1 << AM_PG_BITS;
 	static const int AM_DP_BITS = 16;
-	static const int AM_DP_WIDTH = (1<<AM_DP_BITS);
+	static const int AM_DP_WIDTH = 1 << AM_DP_BITS;
 
 	// PM table is calcurated by PM_AMP * pow(2,PM_DEPTH*sin(x)/1200) 
 	static const int PM_AMP_BITS = 8;
-	static const int PM_AMP = (1<<PM_AMP_BITS);
+	static const int PM_AMP = 1 << PM_AMP_BITS;
 
 	// PM speed(Hz) and depth(cent) 
 	static const double PM_SPEED = 6.4;
@@ -267,16 +257,16 @@ private:
 
 	// Channel & Slot
 	Channel ch[9];
-	Slot *slot[18];
+	Slot* slot[18];
 
 	// Empty voice data
 	static Patch nullPatch;
 
 	// Voice Data
-	Patch patches[19*2];
+	Patch patches[19 * 2];
 
 	// dB to linear table (used by Slot)
-	static short dB2LinTab[(DB_MUTE+DB_MUTE)*2];
+	static short dB2LinTab[(DB_MUTE + DB_MUTE) * 2];
 
 	// WaveTable for each envelope amp
 	static word fullsintable[PG_WIDTH];
@@ -284,7 +274,7 @@ private:
 
 	static unsigned int dphaseNoiseTable[512][8];
 
-	static word *waveform[2];
+	static word* waveform[2];
 
 	// LFO Table
 	static int pmtable[PM_PG_WIDTH];
@@ -295,10 +285,10 @@ private:
 	static unsigned int am_dphase;
 
 	// Liner to Log curve conversion table (for Attack rate).
-	static word AR_ADJUST_TABLE[1<<EG_BITS];
+	static word AR_ADJUST_TABLE[1 << EG_BITS];
 
 	// Definition of envelope mode
-	enum { SETTLE, ATTACK,DECAY,SUSHOLD,SUSTINE,RELEASE,FINISH };
+	enum { SETTLE, ATTACK, DECAY, SUSHOLD, SUSTINE, RELEASE, FINISH };
 
 	// Phase incr table for Attack
 	static unsigned int dphaseARTable[16][16];
@@ -306,7 +296,7 @@ private:
 	static unsigned int dphaseDRTable[16][16];
 
 	// KSL + TL Table
-	static unsigned int tllTable[16][8][1<<TL_BITS][4];
+	static unsigned int tllTable[16][8][1 << TL_BITS][4];
 	static int rksTable[2][8][2];
 
 	// Phase incr table for PG 
