@@ -31,7 +31,7 @@ PluggingController::PluggingController()
 	commandController.registerCommand(&unplugCmd, "unplug");
 	infoCommand.registerTopic("pluggable", &pluggableInfo);
 	infoCommand.registerTopic("connector", &connectorInfo);
-	infoCommand.registerTopic("connectinclass", &connectionClassInfo);
+	infoCommand.registerTopic("connectionclass", &connectionClassInfo);
 }
 
 PluggingController::~PluggingController()
@@ -40,7 +40,7 @@ PluggingController::~PluggingController()
 	commandController.unregisterCommand(&unplugCmd, "unplug");
 	infoCommand.unregisterTopic("pluggable", &pluggableInfo);
 	infoCommand.unregisterTopic("connector", &connectorInfo);
-	infoCommand.unregisterTopic("connectinclass", &connectionClassInfo);
+	infoCommand.unregisterTopic("connectionclass", &connectionClassInfo);
 
 #ifndef NDEBUG
 	// This is similar to an assert: it should never print anything,
