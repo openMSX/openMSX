@@ -1,5 +1,8 @@
 $Id$
 
+2003-08-18 Reikan <openMSX4Win32@ranpub.com>
+	* Added Keymap-change and KeyLayoutBit.
+
 2003-08-18 David Heremans <david.heremans@gnu-linux.net>
 	* Added cached diskwriting to FDC_DirAsDSK. Regular file operations
 	  seem to work, formatting doesn't yet. No writes to native host OS
