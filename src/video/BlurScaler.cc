@@ -77,6 +77,35 @@ void BlurScaler<Pixel>::scaleBlank(Pixel colour, SDL_Surface* dst,
 template <class Pixel>
 void BlurScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 {
+	/* This routine is functionally equivalent to the following:
+	 * 
+	 * void blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
+	 * {
+	 *         unsigned c1 = alpha;
+	 *         unsigned c2 = 256 - c1;
+	 * 
+	 *         Pixel prev, curr, next;
+	 *         prev = curr = pIn[0];
+	 * 
+	 *         unsigned x;
+	 *         for (x = 0; x < (320 - 1); ++x) {
+	 *                 pOut[2 * x + 0] = (c1 * prev + c2 * curr) >> 8;
+	 *                 Pixel next = pIn[x + 1];
+	 *                 pOut[2 * x + 1] = (c1 * next + c2 * curr) >> 8;
+	 *                 prev = curr;
+	 *                 curr = next;
+	 *         }
+	 * 
+	 *         pOut[2 * x + 0] = (c1 * prev + c2 * curr) >> 8;
+	 *         next = curr;
+	 *         pOut[2 * x + 1] = (c1 * next + c2 * curr) >> 8;
+	 * }
+	 * 
+	 * The loop is 2x unrolled and all common subexpressions and redundant
+	 * assignments have been eliminated. 1 loop iteration processes 4
+	 * (output) pixels.
+	 */
+
 	assert(alpha <= 256);
 	unsigned c1 = alpha / 2;
 	unsigned c2 = 256 - c1;
@@ -120,6 +149,33 @@ void BlurScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 template <class Pixel>
 void BlurScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 {
+	/* This routine is functionally equivalent to the following:
+	 * 
+	 * void blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
+	 * {
+	 *         unsigned c1 = alpha / 2;
+	 *         unsigned c2 = 256 - alpha;
+	 * 
+	 *         Pixel prev, curr, next;
+	 *         prev = curr = pIn[0];
+	 * 
+	 *         unsigned x;
+	 *         for (x = 0; x < (640 - 1); ++x) {
+	 *                 next = pIn[x + 1];
+	 *                 pOut[x] = (c1 * prev + c2 * curr + c1 * next) >> 8;
+	 *                 prev = curr;
+	 *                 curr = next;
+	 *         }
+	 * 
+	 *         next = curr;
+	 *         pOut[x] = c1 * prev + c2 * curr + c1 * next;
+	 * }
+	 *
+	 * The loop is 2x unrolled and all common subexpressions and redundant
+	 * assignments have been eliminated. 1 loop iteration processes 2
+	 * pixels.
+	 */
+
 	unsigned c1 = alpha / 2;
 	unsigned c2 = 256 - alpha;
 
