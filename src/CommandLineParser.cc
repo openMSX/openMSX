@@ -122,7 +122,8 @@ bool CommandLineParser::parseFileName(const string &arg, list<string>& cmdLine)
 		} else {
 			extension = arg.substr(begin + 1, end - begin - 1);
 		}
-		if ((extension == "gz") && (begin != 0)) {
+		if (((extension == "gz") || (extension == "zip")) &&
+		    (begin != 0)) {
 			end = begin;
 			begin = arg.find_last_of('.', begin - 1);
 			if (begin != string::npos) {

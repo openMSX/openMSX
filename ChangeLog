@@ -3,6 +3,8 @@ $Id$
 2003-08-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Basic support for .zip files, for now always the first file in
 	  the .zip is taken
+	* Added filetype detection for filenames of the form
+	  "<name>.<type>.zip", e.g. "psycho.dsk.zip"
 
 2003-08-12 David Heremans <david.heremans@gnu-linux.net>
 	* Small enhancement in  FDC_DirAsDSK:
