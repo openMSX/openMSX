@@ -6,8 +6,9 @@
 #include "FileException.hh"
 #include "Timer.hh"
 #include "SDLImage.hh"
+#include "components.hh"
 #ifdef COMPONENT_GL
-	#include "GLImage.hh"
+#include "GLImage.hh"
 #endif
 #include <SDL.h>
 
@@ -16,7 +17,7 @@ namespace openmsx {
 // Force template instantiation
 template class IconLayer<SDLImage>;
 #ifdef COMPONENT_GL
-	template class IconLayer<GLImage>;
+template class IconLayer<GLImage>;
 #endif
 
 
