@@ -29,14 +29,14 @@
     <parameter name="size">128</parameter>
   </device>
 
-  <device id="mainrom">
+  <device id="MSX BIOS with BASIC ROM">
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
     <parameter name="filename">roms/nms8255_basic-bios2.rom</parameter>
   </device>
 
-  <device id="subrom">
+  <device id="MSX Sub ROM">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
     <parameter name="filename">roms/nms8255_msx2sub.rom</parameter>

@@ -38,7 +38,7 @@
     <parameter name="sramname">fs-a1gt.sram</parameter>
   </device>
 
-  <device id="MSX BIOS/BASIC ROM">
+  <device id="MSX BIOS with BASIC ROM">
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>

@@ -37,7 +37,7 @@
     <parameter name="filename">roms/nms8250_basic-bios2.rom</parameter>
   </device>
 
-  <device id="subrom">
+  <device id="MSX Sub ROM">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
     <parameter name="filename">roms/nms8250_msx2sub.rom</parameter>
