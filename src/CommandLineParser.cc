@@ -22,9 +22,6 @@
 
 namespace openmsx {
 
-const char* const MACHINE_PATH = "machines/";
-
-
 // class CLIOption
 
 const string CLIOption::getArgument(const string& option, list<string>& cmdLine)
@@ -213,17 +210,8 @@ void CommandLineParser::parse(int argc, char** argv)
 					machine = machineConfig->getData();
 					output.printInfo("Using default machine: " + machine);
 				}
-				try {
-					SystemFileContext context;
-					HardwareConfig::loadHardware(hardwareConfig, context,
-						MACHINE_PATH + machine + "/hardwareconfig.xml");
-					haveConfig = true;
-				} catch (FileException& e) {
-					throw FatalError("No machine file found!");
-				} catch (ConfigException& e) {
-					throw FatalError("Error in default machine config: "
-						+ e.getMessage());
-				}
+				loadMachine(machine);
+				haveConfig = true;
 			}
 			break;
 		default:
@@ -275,6 +263,20 @@ void CommandLineParser::getControlParameters(ControlType& type, string& argument
 {
 	type = controlOption.type;
 	argument = controlOption.arguments;
+}
+
+void CommandLineParser::loadMachine(const string& machine)
+{
+	try {
+		HardwareConfig::loadHardware(
+			hardwareConfig, "machines", machine);
+	} catch (FileException& e) {
+		throw FatalError("Machine \"" + machine + "\" not found (" +
+		                 e.getMessage() + ").");
+	} catch (ConfigException& e) {
+		throw FatalError("Error in \"" + machine + "\" machine (" +
+		                 e.getMessage() + ").");
+	}
 }
 
 // Control option
@@ -487,19 +489,10 @@ bool CommandLineParser::MachineOption::parseOption(const string &option,
 	if (parent.issuedHelp) {
 		return true;
 	}
-	try {
-		string machine(getArgument(option, cmdLine));
-		SystemFileContext context;
-		HardwareConfig::loadHardware(parent.hardwareConfig, context,
-			MACHINE_PATH + machine + "/hardwareconfig.xml");
-		parent.output.printInfo(
-			"Using specified machine: " + machine);
-		parent.haveConfig = true;
-	} catch (FileException& e) {
-		throw FatalError(e.getMessage());
-	} catch (ConfigException& e) {
-		throw FatalError(e.getMessage());
-	}
+	string machine(getArgument(option, cmdLine));
+	parent.output.printInfo("Using specified machine: " + machine);
+	parent.loadMachine(machine);
+	parent.haveConfig = true;
 	return true;
 }
 const string& CommandLineParser::MachineOption::optionHelp() const

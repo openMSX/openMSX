@@ -73,18 +73,19 @@ public:
 	bool wantSound() const;
 
 private:
+	CommandLineParser();
+	~CommandLineParser();
+	bool parseFileName(const string& arg,list<string>& cmdLine);
+	bool parseOption(const string& arg,list<string>& cmdLine, byte prio);
+	void postRegisterFileTypes();
+	void loadMachine(const string& machine);
+
 	map<string, OptionData> optionMap;
 	typedef map<string, CLIFileType*, StringOp::caseless> FileTypeMap;
 	FileTypeMap fileTypeMap;
 	typedef map<string, CLIFileType*, StringOp::caseless> FileClassMap;
 	FileClassMap fileClassMap;
 
-	bool parseFileName(const string& arg,list<string>& cmdLine);
-	bool parseOption(const string& arg,list<string>& cmdLine, byte prio);
-
-	CommandLineParser();
-	~CommandLineParser();
-	void postRegisterFileTypes();
 	bool haveConfig;
 	bool haveSettings;
 	bool issuedHelp;

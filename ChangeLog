@@ -1,6 +1,11 @@
 $Id$
 
 2004-09-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Allow machines (extensions) descriptions in both
+	    <dir>/machine.xml
+	    <dir>/machine/hardwareconfig.xml
+
+2004-09-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* renames in settings.xml:
 	    "renderer" section --> "video"
 	    "mixer"    section --> "sound"

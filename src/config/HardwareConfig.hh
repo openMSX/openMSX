@@ -12,8 +12,8 @@ class HardwareConfig : public MSXConfig
 public:
 	static HardwareConfig& instance();
 
-	static void loadHardware(XMLElement& root, FileContext& context,
-	                         const string& filename);
+	static void loadHardware(XMLElement& root, const string& path,
+	                         const string& hwName);
 
 private:
 	HardwareConfig();

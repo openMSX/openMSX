@@ -23,10 +23,19 @@ HardwareConfig& HardwareConfig::instance()
 	return oneInstance;
 }
 
-void HardwareConfig::loadHardware(XMLElement& root, FileContext& context,
-                                  const string& filename)
+void HardwareConfig::loadHardware(XMLElement& root, const string& path,
+                                  const string& hwName)
 {
-	File file(context.resolve(filename));
+	SystemFileContext context;
+	string filename;
+	try {
+		filename = context.resolve(
+			path + '/' + hwName + ".xml");
+	} catch (FileException& e) {
+		filename = context.resolve(
+			path + '/' + hwName + "/hardwareconfig.xml");
+	}
+	File file(filename);
 	XMLDocument doc(file.getLocalName());
 
 	// get url
@@ -36,19 +45,10 @@ void HardwareConfig::loadHardware(XMLElement& root, FileContext& context,
 	url = url.substr(0, pos);
 	PRT_DEBUG("Hardware config: url "<<url);
 	
-	// TODO read hwDesc from config ???
-	string hwDesc;
-	pos = url.find_last_of('/');
-	if (pos == string::npos) {
-		hwDesc = "noname";
-	} else {
-		hwDesc = url.substr(pos + 1);
-	}
-
 	// TODO get user name
 	string userName;
 	
-	ConfigFileContext context2(url + '/', hwDesc, userName);
+	ConfigFileContext context2(url + '/', hwName, userName);
 	handleDoc(root, doc, context2);
 }
 
