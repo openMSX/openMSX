@@ -41,12 +41,7 @@ MSXRomCLI msxRomCLI;
 
 MSXRom *RomFactory::create(Device *config, const EmuTime &time)
 {
-	Rom* rom;
-	try {
-		rom = new Rom(config, time);
-	} catch (FileException &e) {
-		PRT_ERROR("Couldn't load ROM: " << e.getMessage());
-	}
+	Rom* rom = new Rom(config, time);
 
 	MapperType type = rom->getInfo().getMapperType();
 	switch (type) {

@@ -45,7 +45,11 @@ void Rom::read(Device* config,
                const string &filename, const EmuTime &time)
 {
 	// open file
-	file = new File(config->getContext().resolve(filename));
+	try {
+		file = new File(config->getContext().resolve(filename));
+	} catch (FileException& e) {
+		PRT_ERROR("Error reading ROM: " << filename);
+	}
 	
 	// get filesize
 	int fileSize;
