@@ -9,6 +9,7 @@ class VDPVRAM;
 #include "openmsx.hh"
 #include "Renderer.hh"
 #include "DisplayMode.hh"
+#include "Blender.hh"
 #include <cassert>
 
 /** Utility class for converting VRAM contents to host pixels.
@@ -27,9 +28,12 @@ public:
 	  *   VDP background colour index to host pixel mapping.
 	  *   This is kept as a pointer, so any changes to the palette
 	  *   are immediately picked up by convertLine.
+	  * @param blender Blender to use for combining two narrow pixels
+	  *   into a single wide one. Only necessary for ZOOM_256.
 	  */
-	CharacterConverter(VDP *vdp, const Pixel *palFg, const Pixel *palBg);
-
+	CharacterConverter(VDP *vdp, const Pixel *palFg, const Pixel *palBg,
+		Blender<Pixel> blender = Blender<Pixel>::dummy() );
+	
 	/** Convert a line of V9938 VRAM to 512 host pixels.
 	  * Call this method in non-planar display modes (Graphic4 and Graphic5).
 	  * @param linePtr Pointer to array where host pixels will be written to.
@@ -136,11 +140,7 @@ public:
 		renderMethod = modeToRenderMethod[mode.getBase()];
 	}
 
-	void setBlendMask(Pixel blendMask);
-
 private:
-	inline Pixel blend(Pixel col1, Pixel col2);
-
 	typedef void (CharacterConverter::*RenderMethod)
 		(Pixel *pixelPtr, int line);
 
@@ -167,6 +167,8 @@ private:
 	VDP *vdp;
 	VDPVRAM *vram;
 
+	Blender<Pixel> blender;
+
 	/** Dirty tables indicate which character blocks must be repainted.
 	  * The anyDirty variables are true when there is at least one
 	  * element in the dirty table that is true.
@@ -179,7 +181,6 @@ private:
 	bool anyDirtyName, dirtyName[1 << 12];
 	bool dirtyForeground, dirtyBackground;
 
-	Pixel blendMask;
 };
 
 #endif // __CHARACTERCONVERTER_HH__

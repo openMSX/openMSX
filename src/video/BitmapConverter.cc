@@ -15,32 +15,12 @@ template class BitmapConverter<unsigned int, Renderer::ZOOM_REAL>;
 template <class Pixel, Renderer::Zoom zoom>
 BitmapConverter<Pixel, zoom>::BitmapConverter(
 	const Pixel *palette16, const Pixel *palette256,
-	const Pixel *palette32768)
+	const Pixel *palette32768, Blender<Pixel> blender)
+	: blender(blender)
 {
 	this->palette16 = palette16;
 	this->palette256 = palette256;
 	this->palette32768 = palette32768;
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-void BitmapConverter<Pixel, zoom>::setBlendMask(Pixel blendMask)
-{
-	this->blendMask = blendMask;
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-inline Pixel BitmapConverter<Pixel, zoom>::blend(
-	byte colour1, byte colour2)
-{
-	if (sizeof(Pixel) == 1) {
-		// no blending in palette mode
-		return palette16[colour1];
-	} else {
-		Pixel col1 = palette16[colour1];
-		Pixel col2 = palette16[colour2];
-		col2 = (col2 & ~blendMask) | (col1 & blendMask); 
-		return (col1 + col2) / 2;
-	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -72,10 +52,10 @@ void BitmapConverter<Pixel, zoom>::renderGraphic5(
 			*pixelPtr++ = palette16[(colour >> 2) & 3];
 			*pixelPtr++ = palette16[(colour >> 0) & 3];
 		} else {
-			*pixelPtr++ = blend((colour >> 6) & 3,
-			                    (colour >> 4) & 3);
-			*pixelPtr++ = blend((colour >> 2) & 3,
-			                    (colour >> 0) & 3);
+			*pixelPtr++ = blender.blend(palette16[(colour >> 6) & 3],
+			                            palette16[(colour >> 4) & 3]);
+			*pixelPtr++ = blender.blend(palette16[(colour >> 2) & 3],
+			                            palette16[(colour >> 0) & 3]);
 		}
 	}
 }
@@ -90,14 +70,16 @@ void BitmapConverter<Pixel, zoom>::renderGraphic6(
 			*pixelPtr++ = palette16[colour >> 4];
 			*pixelPtr++ = palette16[colour & 0x0F];
 		} else {
-			*pixelPtr++ = blend(colour >> 4, colour & 0x0F);
+			*pixelPtr++ = blender.blend(palette16[colour >> 4],
+			                            palette16[colour & 0x0F]);
 		}
 		colour = *vramPtr1++;
 		if (zoom != Renderer::ZOOM_256) {
 			*pixelPtr++ = palette16[colour >> 4];
 			*pixelPtr++ = palette16[colour & 0x0F];
 		} else {
-			*pixelPtr++ = blend(colour >> 4, colour & 0x0F);
+			*pixelPtr++ = blender.blend(palette16[colour >> 4],
+			                            palette16[colour & 0x0F]);
 		}
 	}
 }

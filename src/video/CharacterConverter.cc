@@ -36,21 +36,7 @@ TODO:
 #include "CharacterConverter.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
-#include "config.h"
-
-/** Fill a boolean array with a single value.
-  * Optimised for byte-sized booleans,
-  * but correct for every size.
-  * TODO: Find a proper location for this "toolkit" function.
-  */
-inline static void fillBool(bool *ptr, bool value, int nr)
-{
-#if SIZEOF_BOOL == 1
-	memset(ptr, value, nr);
-#else
-	for (int i = nr; i--; ) *ptr++ = value;
-#endif
-}
+#include "util.hh"
 
 // Force template instantiation for these types.
 // Without this, object file contains no method implementations.
@@ -83,7 +69,8 @@ typename CharacterConverter<Pixel, zoom>::RenderMethod
 
 template <class Pixel, Renderer::Zoom zoom>
 CharacterConverter<Pixel, zoom>::CharacterConverter(
-	VDP *vdp, const Pixel *palFg, const Pixel *palBg)
+	VDP *vdp, const Pixel *palFg, const Pixel *palBg, Blender<Pixel> blender)
+	: blender(blender)
 {
 	this->vdp = vdp;
 	this->palFg = palFg;
@@ -95,26 +82,6 @@ CharacterConverter<Pixel, zoom>::CharacterConverter(
 	fillBool(dirtyPattern, true, sizeof(dirtyPattern) / sizeof(bool));
 	fillBool(dirtyName, true, sizeof(dirtyName) / sizeof(bool));
 	dirtyForeground = dirtyBackground = true;
-}
-
-
-template <class Pixel, Renderer::Zoom zoom>
-void CharacterConverter<Pixel, zoom>::setBlendMask(Pixel blendMask)
-{
-	this->blendMask = blendMask;
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-inline Pixel CharacterConverter<Pixel, zoom>::blend(
-	Pixel col1, Pixel col2)
-{
-	if (sizeof(Pixel) == 1) {
-		// no blending in palette mode
-		return col1;
-	} else {
-		col2 = (col2 & ~blendMask) | (col1 & blendMask);
-		return (col1 + col2) / 2;
-	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -238,12 +205,12 @@ void CharacterConverter<Pixel, zoom>::renderText2(
 			int pattern = vram->patternTable.readNP(
 				patternBaseLine | (charcode * 8) );
 			if (zoom == Renderer::ZOOM_256) {
-				// TODO fix this for non 24-bit modes
-				Pixel mix = blend(fg, bg);
+				Pixel mix = blender.blend(fg, bg);
 				for (int i = 3; i--; ) {
-					*pixelPtr++ = (pattern & 0x80) ? 
-					              ((pattern & 0x40) ? fg : mix) :
-					              ((pattern & 0x40) ? mix : bg);
+					*pixelPtr++ =
+						  (pattern & 0x80)
+						? ((pattern & 0x40) ? fg : mix)
+						: ((pattern & 0x40) ? mix : bg);
 					pattern <<= 2;
 				}
 			} else {

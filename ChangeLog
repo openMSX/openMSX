@@ -1,5 +1,8 @@
 $Id$
 
+2003-04-30 Maarten ter Huurne <maarten@treewalker.org>
+	* Introduced Blender class and use it from Character/BitmapConverter.
+
 2003-04-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fix tabcompletion for absolute paths
 

@@ -250,26 +250,14 @@ template <class Pixel, Renderer::Zoom zoom>
 SDLRenderer<Pixel, zoom>::SDLRenderer(
 	VDP *vdp, SDL_Surface *screen)
 	: PixelRenderer(vdp)
-	, characterConverter(vdp, palFg, palBg)
-	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
+	, characterConverter(vdp, palFg, palBg,
+		Blender<Pixel>::createFromFormat(screen->format) )
+	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS,
+		Blender<Pixel>::createFromFormat(screen->format) )
 	, spriteConverter(vdp->getSpriteChecker())
 {
 	this->screen = screen;
 	console = new SDLConsole(screen);
-
-	if (zoom == Renderer::ZOOM_256) {
-		// Calculate blendMask:
-		//      0000BBBBGGGGRRRR 
-		//  --> 0001000100010000
-		const SDL_PixelFormat *format = screen->format;
-		int rBit = (format->Rmask << 1) & ~format->Rmask;
-		int gBit = (format->Gmask << 1) & ~format->Gmask;
-		int bBit = (format->Bmask << 1) & ~format->Bmask;
-		int blendMask = rBit | gBit | bBit;
-
-		characterConverter.setBlendMask(blendMask);
-		bitmapConverter.setBlendMask(blendMask);
-	}
 
 	// Create display caches.
 	charDisplayCache = SDL_CreateRGBSurface(
