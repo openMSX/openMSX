@@ -1,11 +1,7 @@
 // $Id$
 
-#include <cassert>
 #include "MSXConfig.hh"
-#include "xmlx.hh"
 #include "FileContext.hh"
-#include "File.hh"
-#include "ConfigException.hh"
 
 namespace openmsx {
 
@@ -22,18 +18,6 @@ void MSXConfig::handleDoc(const XMLDocument& doc, FileContext& context)
 	     it != children.end(); ++it) {
 		loadConfig(context, auto_ptr<XMLElement>(new XMLElement(**it)));
 	}
-}
-
-const XMLElement* MSXConfig::findConfigById(const string& id)
-{
-	const XMLElement::Children& children = getChildren();
-	for (XMLElement::Children::const_iterator it = children.begin();
-	     it != children.end(); ++it) {
-		if ((*it)->getId() == id) {
-			return *it;
-		}
-	}
-	return NULL;
 }
 
 } // namespace openmsx

@@ -65,7 +65,7 @@ MSXCPUInterface::MSXCPUInterface()
 	}
 
 	XMLElement::Children slots;
-	const XMLElement* config = hardwareConfig.findConfigById("MotherBoard");
+	const XMLElement* config = hardwareConfig.findChild("MotherBoard");
 	if (config) {
 		config->getChildren("slot", slots);
 	}

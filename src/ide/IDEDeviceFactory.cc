@@ -10,7 +10,7 @@ namespace openmsx {
 IDEDevice* IDEDeviceFactory::create(const string& name,
                                     const EmuTime& time)
 {
-	const XMLElement* config = HardwareConfig::instance().findConfigById(name);
+	const XMLElement* config = HardwareConfig::instance().findChild(name);
 	if (!config) {
 		throw ConfigException("Configuration for IDE device " + name +
 		                      " missing.");

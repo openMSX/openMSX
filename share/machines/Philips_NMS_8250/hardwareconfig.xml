@@ -3,21 +3,21 @@
   SYSTEM 'msxconfig.dtd'>
 <msxconfig>
 
-<config id="ExternalSlots">
+  <ExternalSlots>
     <slota>1-0</slota>
     <slotb>2-0</slotb>
-  </config>
+  </ExternalSlots>
 
-  <config id="MotherBoard">
+  <MotherBoard>
     <slot expanded="false" num="0"/>
     <slot expanded="false" num="1"/>
     <slot expanded="false" num="2"/>
     <slot expanded="true" num="3"/>
-  </config>
+  </MotherBoard>
 
-  <config id="MapperType">
-    <type>Philips</type>
-  </config>
+  <MapperType>Philips</MapperType>
+  
+  <CassettePort/>
 
   <device id="Main RAM">
     <type>MemoryMapper</type>
@@ -92,8 +92,5 @@
     <type>PrinterPort</type>
     <io base="0x90" num="2"/>
   </device>
-
-  <config id="CassettePort">
-  </config>
 
 </msxconfig>

@@ -12,19 +12,14 @@ namespace openmsx {
 MSXMapperIO::MSXMapperIO(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	const XMLElement* typeConfig =
-		HardwareConfig::instance().findConfigById("MapperType");
-	if (typeConfig) {
-		const string& type = typeConfig->getChildData("type");
-		if (type == "TurboR") {
-			mapperMask.reset(new MSXMapperIOTurboR());
-		} else if (type == "Philips") {
-			mapperMask.reset(new MSXMapperIOPhilips());
-		} else {
-			throw FatalError("Unknown mapper type");
-		}
-	} else {
+	string type = HardwareConfig::instance().
+		getChildData("MapperType", "Philips");
+	if (type == "TurboR") {
+		mapperMask.reset(new MSXMapperIOTurboR());
+	} else if (type == "Philips") {
 		mapperMask.reset(new MSXMapperIOPhilips());
+	} else {
+		throw FatalError("Unknown mapper type: \"" + type + "\".");
 	}
 	mask = mapperMask->calcMask(mapperSizes);
 

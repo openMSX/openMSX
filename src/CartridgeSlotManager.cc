@@ -34,7 +34,7 @@ void CartridgeSlotManager::reserveSlot(int slot)
 
 void CartridgeSlotManager::readConfig()
 {
-	const XMLElement* config = hardwareConfig.findConfigById("ExternalSlots");
+	const XMLElement* config = hardwareConfig.findChild("ExternalSlots");
 	if (!config) {
 		return;
 	}
