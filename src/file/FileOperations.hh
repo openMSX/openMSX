@@ -20,7 +20,7 @@ class FileOperations
 	public:
 		/**
 		 * Expand the '~' character to the users home directory
-		 * @parm path Pathname, with or without '~' character
+		 * @param path Pathname, with or without '~' character
 		 * @result The expanded pathname
 		 */
 		static string expandTilde(const string &path);
