@@ -4,6 +4,7 @@
 <msxconfig>
 
   <MSX-AUDIO id="Panasonic FS-CA1 MSX-Audio">
+    <io base="0xC0" num="2"/>
     <sound>
       <volume>12000</volume>
       <mode>mono</mode>
