@@ -1,7 +1,7 @@
 # $Id$
 
 SRC_HDR:= \
-	Settings SettingsManager
+	SettingNode Settings SettingsManager
 
 $(eval $(PROCESS_NODE))
 
