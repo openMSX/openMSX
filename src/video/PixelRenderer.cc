@@ -33,12 +33,11 @@ static const int LINE_TOP_BORDER = 3 + 13;
 void PixelRenderer::draw(
 	int startX, int startY, int endX, int endY, DrawType drawType, bool atEnd)
 {
-	switch(drawType) {
-	case DRAW_BORDER:
+	if (drawType == DRAW_BORDER) {
 		rasterizer->drawBorder(startX, startY, endX, endY);
-		break;
-	case DRAW_DISPLAY:
-	case DRAW_SPRITES: {
+	} else {
+		assert(drawType == DRAW_DISPLAY);
+
 		// Calculate display coordinates.
 		int zero = vdp->getLineZero();
 		int displayX = (startX - vdp->getLeftSprites()) / 2;
@@ -63,23 +62,18 @@ void PixelRenderer::draw(
 		assert(0 <= displayX);
 		assert(displayX + displayWidth <= 512);
 
-		if (drawType == DRAW_DISPLAY) {
-			rasterizer->drawDisplay(
-				startX, startY,
-				displayX - vdp->getHorizontalScrollLow() * 2, displayY,
-				displayWidth, displayHeight
-				);
-		} else { // DRAW_SPRITES
+		rasterizer->drawDisplay(
+			startX, startY,
+			displayX - vdp->getHorizontalScrollLow() * 2, displayY,
+			displayWidth, displayHeight
+			);
+		if (vdp->spritesEnabled()) {
 			rasterizer->drawSprites(
 				startX, startY,
 				displayX / 2, displayY,
 				(displayWidth + 1) / 2, displayHeight
 				);
 		}
-		break;
-	}
-	default:
-		assert(false);
 	}
 }
 
@@ -526,6 +520,10 @@ void PixelRenderer::renderUntil(const EmuTime& time)
 	if (limitX == nextX && limitY == nextY) return;
 
 	if (displayEnabled) {
+		if (vdp->spritesEnabled()) {
+			// Update sprite checking, so that rasterizer can call getSprites.
+			spriteChecker->checkUntil(time);
+		}
 
 		// Calculate start and end of borders in ticks since start of line.
 		// The 0..7 extra horizontal scroll low pixels should be drawn in
@@ -544,13 +542,6 @@ void PixelRenderer::renderUntil(const EmuTime& time)
 		// Display area.
 		subdivide(nextX, nextY, limitX, limitY,
 			displayL, borderR, DRAW_DISPLAY );
-		// Sprite plane.
-		if (vdp->spritesEnabled()) {
-			// Update sprite checking, so that subclass can call getSprites.
-			spriteChecker->checkUntil(time);
-			subdivide(nextX, nextY, limitX, limitY,
-				borderL, borderR, DRAW_SPRITES );
-		}
 		// Right border.
 		subdivide(nextX, nextY, limitX, limitY,
 			borderR, VDP::TICKS_PER_LINE, DRAW_BORDER );

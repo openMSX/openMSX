@@ -64,7 +64,7 @@ public:
 
 private:
 	/** Indicates whether the area to be drawn is border or display. */
-	enum DrawType { DRAW_BORDER, DRAW_DISPLAY, DRAW_SPRITES };
+	enum DrawType { DRAW_BORDER, DRAW_DISPLAY };
 
 	// SettingListener interface:
 	virtual void update(const SettingLeafNode* setting);
