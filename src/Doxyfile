@@ -43,7 +43,7 @@ OUTPUT_DIRECTORY       = doxy
 
 OUTPUT_LANGUAGE        = English
 
-# This tag can be used to specify the encoding used in the generated output. 
+# This tag can be used to specify the encoding used in the generated output.
 # The encoding is not always determined by the language that is chosen, 
 # but also whether or not the output is meant for Windows or non-Windows users. 
 # In case there is a difference, setting the USE_WINDOWS_ENCODING tag to YES 
@@ -87,7 +87,7 @@ INLINE_INHERITED_MEMB  = NO
 FULL_PATH_NAMES        = NO
 
 # If the FULL_PATH_NAMES tag is set to YES then the STRIP_FROM_PATH tag 
-# can be used to strip a user-defined part of the path. Stripping is 
+# can be used to strip a user-defined part of the path. Stripping is
 # only done if one of the specified strings matches the left-hand part of 
 # the path. It is allowed to use relative paths in the argument list.
 
@@ -222,7 +222,7 @@ HIDE_FRIEND_COMPOUNDS  = NO
 
 # If the HIDE_IN_BODY_DOCS tag is set to YES, Doxygen will hide any 
 # documentation blocks found inside the body of a function. 
-# If set to NO (the default) these blocks will be appended to the 
+# If set to NO (the default) these blocks will be appended to the
 # function's detailed documentation block.
 
 HIDE_IN_BODY_DOCS      = NO
@@ -350,62 +350,59 @@ WARN_FORMAT            = "$file:$line: $text"
 # and error messages should be written. If left blank the output is written 
 # to stderr.
 
-WARN_LOGFILE           = 
+WARN_LOGFILE           =
 
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 
-# The INPUT tag can be used to specify the files and/or directories that contain 
-# documented source files. You may enter file names like "myfile.cpp" or 
-# directories like "/usr/src/myproject". Separate the files or directories 
+# The INPUT tag can be used to specify the files and/or directories that contain
+# documented source files. You may enter file names like "myfile.cpp" or
+# directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
 INPUT                  = ./
 
-# If the value of the INPUT tag contains directories, you can use the 
-# FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
-# and *.h) to filter out the source-files in the directories. If left 
-# blank the following patterns are tested: 
-# *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx *.hpp 
+# If the value of the INPUT tag contains directories, you can use the
+# FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp
+# and *.h) to filter out the source-files in the directories. If left
+# blank the following patterns are tested:
+# *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx *.hpp
 # *.h++ *.idl *.odl *.cs *.php *.php3 *.inc
 
-FILE_PATTERNS          = *.cc \
-                         *.hh \
-                         *.ii \
-                         *.nn
+FILE_PATTERNS          = *.cc *.hh
 
-# The RECURSIVE tag can be used to turn specify whether or not subdirectories 
-# should be searched for input files as well. Possible values are YES and NO. 
+# The RECURSIVE tag can be used to turn specify whether or not subdirectories
+# should be searched for input files as well. Possible values are YES and NO.
 # If left blank NO is used.
 
 RECURSIVE              = YES
 
-# The EXCLUDE tag can be used to specify files and/or directories that should 
-# excluded from the INPUT source files. This way you can easily exclude a 
+# The EXCLUDE tag can be used to specify files and/or directories that should
+# excluded from the INPUT source files. This way you can easily exclude a
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
 EXCLUDE                = ./ufo
 
-# The EXCLUDE_SYMLINKS tag can be used select whether or not files or directories 
+# The EXCLUDE_SYMLINKS tag can be used select whether or not files or directories
 # that are symbolic links (a Unix filesystem feature) are excluded from the input.
 
 EXCLUDE_SYMLINKS       = NO
 
-# If the value of the INPUT tag contains directories, you can use the 
-# EXCLUDE_PATTERNS tag to specify one or more wildcard patterns to exclude 
+# If the value of the INPUT tag contains directories, you can use the
+# EXCLUDE_PATTERNS tag to specify one or more wildcard patterns to exclude
 # certain files from those directories.
 
-EXCLUDE_PATTERNS       = 
+EXCLUDE_PATTERNS       =
 
-# The EXAMPLE_PATH tag can be used to specify one or more files or 
-# directories that contain example code fragments that are included (see 
+# The EXAMPLE_PATH tag can be used to specify one or more files or
+# directories that contain example code fragments that are included (see
 # the \include command).
 
-EXAMPLE_PATH           = 
+EXAMPLE_PATH           =
 
-# If the value of the EXAMPLE_PATH tag contains directories, you can use the 
-# EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
+# If the value of the EXAMPLE_PATH tag contains directories, you can use the
+# EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp
 # and *.h) to filter out the source-files in the directories. If left 
 # blank all files are included.
 
