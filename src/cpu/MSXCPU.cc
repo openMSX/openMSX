@@ -145,13 +145,13 @@ static string regNames[] = {
 	"IR"
 };
 
-const string MSXCPU::getRegisterName(dword regNr) const
+const string MSXCPU::getRegisterName(unsigned regNr) const
 {
 	assert(regNr < getSize());
 	return regNames[regNr / 2];
 }
 
-dword MSXCPU::getRegisterNumber(const string& regName) const
+unsigned MSXCPU::getRegisterNumber(const string& regName) const
 {
 	for (int i = 0; i < (26 / 2); ++i) {
 		if (regName == regNames[i]) {
@@ -174,7 +174,7 @@ const string& MSXCPU::getDescription() const
 	return desc;
 }
 
-byte MSXCPU::read(dword address)
+byte MSXCPU::read(unsigned address)
 {
 	CPU::CPURegs* regs = &activeCPU->R; 
 	const CPU::z80regpair* registers[] = {
