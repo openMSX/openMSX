@@ -22,7 +22,8 @@ void FilenameSettingBase::setValue(const string& newValue)
 {
 	try {
 		UserFileContext context;
-		string resolved = context.resolve(newValue);
+		string resolved = newValue.empty() ? newValue
+		                                   : context.resolve(newValue);
 		if (checkFile(resolved)) {
 			StringSettingBase::setValue(newValue);
 		}

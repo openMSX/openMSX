@@ -116,7 +116,11 @@ const string& SDLConsole::getName()
 bool SDLConsole::loadBackground(const string& filename)
 {
 	if (filename.empty()) {
-		return false;
+		if (backgroundImage) {
+			SDL_FreeSurface(backgroundImage);
+		}
+		backgroundImage = NULL;
+		return true;
 	}
 
 	SDL_Surface* pictureSurface;

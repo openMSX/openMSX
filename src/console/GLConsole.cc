@@ -71,11 +71,16 @@ bool GLConsole::loadFont(const string &filename)
 bool GLConsole::loadBackground(const string &filename)
 {
 	if (filename.empty()) {
-		return false;
+		if (backgroundTexture) {
+			glDeleteTextures(1, &backgroundTexture);
+		}
+		backgroundTexture = 0;
+		return true;
+	} else {
+		int dummyWidth, dummyHeight;
+		return loadTexture(filename, backgroundTexture,
+			dummyWidth, dummyHeight, backTexCoord);
 	}
-	int dummyWidth, dummyHeight;
-	return loadTexture(filename, backgroundTexture,
-		dummyWidth, dummyHeight, backTexCoord);
 }
 
 bool GLConsole::loadTexture(const string &filename, GLuint &texture,
