@@ -2,6 +2,8 @@ $Id$
 
 2002-12-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Released 0.2.1
+	* Better rom placement heuristics:
+	   should solve bug 658430 point 3 (rom files without "AB" header)
 
 2002-12-28 Maarten ter Huurne <maarten@treewalker.org>
 	* Cleaned up sprite checker synchronisation.

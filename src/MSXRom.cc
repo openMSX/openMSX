@@ -214,7 +214,7 @@ void MSXRom::reset(const EmuTime &time)
 				setROM16kB(3, 0);
 				break;
 			case 2:	// 32kB
-				if (mappedOdd()) {
+				if (guessLocation() & 0x4000) {
 					setROM16kB(0, 0);
 					setROM16kB(1, 0);
 					setROM16kB(2, 1);
@@ -227,7 +227,7 @@ void MSXRom::reset(const EmuTime &time)
 				}
 				break;
 			case 3:	// 48kB
-				if (mappedOdd()) {
+				if (guessLocation() & 0x4000) {
 					setROM16kB(0, 0);
 					setROM16kB(1, 0);
 					setROM16kB(2, 1);
@@ -275,11 +275,46 @@ void MSXRom::reset(const EmuTime &time)
 	}
 }
 
-bool MSXRom::mappedOdd()
+
+
+bool MSXRom::guessHelper(word offset, word page)
 {
-	if ((rom.read(0) == 'A') && (rom.read(1) == 'B'))
-		return true;
-	
+	if ((rom.read(offset) == 'A') && (rom.read(offset + 1) == 'B')) {
+		offset += 2;
+		for (int i = 0; i < 4; i++) {
+			word addr = rom.read(offset) +
+			            rom.read(offset + 1) * 256;
+			offset += 2;
+			if (addr && ((addr & 0xC000) == page)) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+word MSXRom::guessLocation()
+{
+	if (rom.getSize() >= 0x0010) {
+		if (guessHelper(0x0000, 0x0000)) {
+			return 0x0000;
+		}
+		if (guessHelper(0x0000, 0x4000)) {
+			return 0x4000;
+		}
+		if (guessHelper(0x0000, 0x8000)) {
+			return 0x8000;
+		}
+	}
+	if (rom.getSize() >= 0x4010) {
+		if (guessHelper(0x4000, 0x4000)) {
+			return 0x0000;
+		}
+		if (guessHelper(0x4000, 0x8000)) {
+			return 0x4000;
+		}
+	}
+
 	int lowest = 4;
 	std::list<MSXConfig::Device::Slotted*>::const_iterator i;
 	for (i=deviceConfig->slotted.begin(); i!=deviceConfig->slotted.end(); i++) {
@@ -287,7 +322,7 @@ bool MSXRom::mappedOdd()
 		if (page < lowest)
 			lowest = page;
 	}
-	return lowest & 1;
+	return (lowest * 0x4000) & 0xFFFF;
 }
 
 byte MSXRom::readMem(word address, const EmuTime &time)
