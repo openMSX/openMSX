@@ -56,9 +56,48 @@ void CommandController::unregisterCommand(Command *command,
 }
 
 
-void CommandController::tokenize(const string &str,
-                                 vector<string> &tokens,
-                                 const string &delimiters)
+void CommandController::split(const string& str, vector<string>& tokens,
+                              const string& delimiters)
+{
+	enum ParseState {Alpha, BackSlash, Quote};
+
+	ParseState state = Alpha;
+
+	for (unsigned i = 0; i < str.length(); ++i) {
+		char chr = str[i];
+		switch (state) {
+			case Alpha:
+				if (delimiters.find(chr) != string::npos) {
+					// token done, start new token
+					tokens.push_back("");
+				} else {
+					if (tokens.empty()) {
+						tokens.push_back("");
+					}
+					tokens.back() += chr;
+					if (chr == '\\') {
+						state = BackSlash;
+					} else if (chr == '"') {
+						state = Quote;
+					}
+				}
+				break;
+			case Quote:
+				tokens.back() += chr;
+				if (chr == '"') {
+					state = Alpha;
+				}
+				break;
+			case BackSlash:
+				tokens.back() += chr;
+				state = Alpha;
+				break;
+		}
+	}
+}
+
+void CommandController::tokenize(const string& str, vector<string>& tokens,
+                                 const string& delimiters)
 {
 	enum ParseState {Alpha, BackSlash, Quote, Space};
 
@@ -113,7 +152,7 @@ void CommandController::tokenize(const string &str,
 void CommandController::executeCommand(const string &cmd)
 {
 	vector<string> subcmds;
-	tokenize(cmd, subcmds, ";");
+	split(cmd, subcmds, ";");
 	for (vector<string>::const_iterator it = subcmds.begin();
 	     it != subcmds.end();
 	     ++it) {
@@ -165,7 +204,7 @@ void CommandController::autoCommands()
 void CommandController::tabCompletion(string &command)
 {
 	vector<string> subcmds;
-	tokenize(command, subcmds, ";");
+	split(command, subcmds, ";");
 	if (subcmds.empty()) {
 		return;
 	}
@@ -278,8 +317,9 @@ bool CommandController::completeString2(string &str, set<string>& st)
 void CommandController::completeString(vector<string> &tokens,
                                        set<string>& st)
 {
-	if (completeString2(tokens[tokens.size()-1], st))
-		tokens.push_back(string());
+	if (completeString2(tokens.back(), st)) {
+		tokens.push_back("");
+	}
 }
 
 void CommandController::completeFileName(vector<string> &tokens)

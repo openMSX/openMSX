@@ -55,9 +55,10 @@ class CommandController
 
 	private:
 		CommandController();
-		void tokenize(const string &str,
-		              vector<string> &tokens,
+		void tokenize(const string &str, vector<string> &tokens,
 		              const string &delimiters);
+		void split(const string& str, vector<string>& tokens,
+                           const string& delimiters);
 		void tabCompletion(vector<string> &tokens);
 		static bool completeString2(string &string,
 		                            set<string> &set);
