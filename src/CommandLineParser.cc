@@ -115,8 +115,8 @@ void CommandLineParser::postRegisterFileTypes()
 		fileExtMap["di1"] = "diskimage";
 		fileExtMap["di2"] = "diskimage";
 		fileExtMap["xsa"] = "diskimage";
+		fileExtMap["wav"] = "cassetteimage";
 		fileExtMap["cas"] = "cassetteimage";
-		fileExtMap["wav"] = "rawtapeimage";
 		for (map<string, string>::const_iterator j = fileExtMap.begin();
 		     j != fileExtMap.end(); ++j) {
 			FileClassMap::const_iterator i = fileClassMap.find(j->second);

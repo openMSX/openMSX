@@ -20,7 +20,7 @@ namespace openmsx {
 MSXCassettePlayerCLI::MSXCassettePlayerCLI(CommandLineParser& cmdLineParser)
 {
 	cmdLineParser.registerOption("-cassetteplayer", this);
-	cmdLineParser.registerFileClass("rawtapeimage", this);
+	cmdLineParser.registerFileClass("cassetteimage", this);
 }
 
 bool MSXCassettePlayerCLI::parseOption(const string &option,
@@ -32,7 +32,7 @@ bool MSXCassettePlayerCLI::parseOption(const string &option,
 const string& MSXCassettePlayerCLI::optionHelp() const
 {
 	static const string text(
-	  "Put raw tape image specified in argument in virtual cassetteplayer");
+	  "Put cassette image specified in argument in virtual cassetteplayer");
 	return text;
 }
 
@@ -45,7 +45,7 @@ void MSXCassettePlayerCLI::parseFileType(const string &filename)
 }
 const string& MSXCassettePlayerCLI::fileTypeHelp() const
 {
-	static const string text("Raw tape image, as recorded from real tape");
+	static const string text("Cassette image, raw recording or fMSX CAS image");
 	return text;
 }
 
