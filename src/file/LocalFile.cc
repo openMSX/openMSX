@@ -2,13 +2,12 @@
 
 #include "LocalFile.hh"
 #include "File.hh"
-#include <ios>
 
 LocalFile::LocalFile(const std::string &filename, int options)
 {
 	// first try read/write
-	std::ios_base::openmode baseFlags = std::ios::in;
-	std::ios_base::openmode extraFlags = std::ios::binary;
+	std::ios::openmode baseFlags = std::ios::in;
+	std::ios::openmode extraFlags = std::ios::binary;
 	if (options & TRUNCATE) {
 		extraFlags |= std::ios::trunc | std::ios::out;
 	}
