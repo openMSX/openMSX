@@ -326,6 +326,9 @@ $(OLD_CONFIG_HEADER): $(CONFIG_SCRIPT)
 	@rm -f $(@D)/config.cache
 	@cd $(@D) ; CPPFLAGS="$(LIB_FLAGS)" LDFLAGS="$(LINK_FLAGS)" \
 		../../autotools/$(<F)
+# Force generated file to be timestamped, because the "smart" configure
+# won't do it if the contents didn't change.
+	@touch $@
 
 # Include dependency files.
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
