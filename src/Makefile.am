@@ -20,6 +20,7 @@ openmsx_SOURCES=openmsx.cc \
 	MSXRom16KB.hh MSXRom16KB.cc \
 	MSXSimple64KB.hh MSXSimple64KB.cc \
 	MSXTMS9928a.hh MSXTMS9928a.cc \
+	Renderer.hh \
 	SDLLoRenderer.hh SDLLoRenderer.cc \
 	MSXCPU.hh MSXCPU.cc \
 	CPU.hh CPU.cc CPUInterface.hh CPUInterface.cc \

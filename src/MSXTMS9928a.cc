@@ -32,8 +32,9 @@ Probably also easier to implement when using line buffers.
 
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
-#include "MSXTMS9928a.hh"
 #include "SDLLoRenderer.hh"
+#include "MSXTMS9928a.hh"
+#include "config.h"
 
 #include <string>
 #include <cassert>
@@ -91,8 +92,6 @@ const byte MSXTMS9928a::TMS9928A_PALETTE[16 * 3] =
 	255, 255, 255
 };
 
-// TODO: Read this information from config.h.
-#define SIZEOF_BOOL 1
 /** Fill a boolean array with a single value.
   * Optimised for byte-sized booleans,
   * but correct for every size.
@@ -277,7 +276,7 @@ void MSXTMS9928a::init()
 
 	printf("fullscreen = [%s]\n", deviceConfig->getParameter("fullscreen").c_str());
 	bool fullScreen = atoi(deviceConfig->getParameter("fullscreen").c_str());
-	renderer = new SDLLoRenderer(this, fullScreen);
+	renderer = createSDLLoRenderer(this, fullScreen);
 
 	// Register hotkey for fullscreen togling
 	HotKey::instance()->registerAsyncHotKey(SDLK_PRINT,this);

@@ -1,5 +1,12 @@
 $Id$
 
+2001-11-17 Maarten ter Huurne <mth@stack.nl>
+	* MSXTMS9928a and SDLLoRenderer respect SIZEOF_BOOL now.
+	* Introduced Renderer: pure abstract superclass to all renderers.
+	* Changed SDLLoRenderer into a template class.
+	  All supported colour depths are compiled in.
+	  A factory method selects a suitable colour depth automatically.
+
 2001-11-17 Joost Yervante Damad <j.damad@qahwah.net>
 	* added sizeof(bool) autoconf macro
 	* rearranged configure.in to avoid problems

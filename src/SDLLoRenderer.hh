@@ -4,36 +4,46 @@
 #define __SDLLORENDERER_HH__
 
 #include <SDL/SDL.h>
-#include "MSXTMS9928a.hh"
+#include "openmsx.hh"
+#include "Renderer.hh"
 
-
-
-#define WIDTH 320
-#define HEIGHT 240
-#define DEPTH 8
-
-#if DEPTH == 8
-typedef byte Pixel;
-#elif DEPTH == 15 || DEPTH == 16
-typedef word Pixel;
-#elif DEPTH == 32
-typedef unsigned int Pixel;
-#else
-#error DEPTH must be 8, 15, 16 or 32 bits per pixel.
-#endif
 
 class MSXTMS9928a;
 
-// TODO: Introduce an abstract base class to SDLLoRenderer.
-class SDLLoRenderer
+/** Factory method to create SDLLoRenderer objects.
+  */
+Renderer *createSDLLoRenderer(MSXTMS9928a *vdp, bool fullScreen);
+
+/** Low-res (320x240) renderer on SDL.
+  */
+template <class Pixel> class SDLLoRenderer : public Renderer
 {
+	// TODO: gcc gives a warning for this, but I don't think
+	//   there is anything wrong or even suspicious about it.
+	friend Renderer *createSDLLoRenderer(MSXTMS9928a *, bool);
 public:
+	virtual ~SDLLoRenderer();
+
+	void toggleFullScreen();
+
+	/** Put an image on the screen.
+	  */
+	void putImage();
+
+	void fullScreenRefresh();
+
+private:
 	typedef void (SDLLoRenderer::*RenderMethod)(Pixel *pixelPtr, int line);
+	//typedef void (SDLLoRenderer::*RenderMethod)(void *pixelPtr, int line);
 	static RenderMethod modeToRenderMethod[];
 
-	SDLLoRenderer(MSXTMS9928a *vdp, bool fullScreen);
-	~SDLLoRenderer();
-	void toggleFullScreen();
+	static const int WIDTH = 320;
+	static const int HEIGHT = 240;
+
+	/** Private: use the createSDLLoRenderer factory method instead.
+	  */
+	SDLLoRenderer(MSXTMS9928a *vdp, SDL_Surface *screen);
+
 	void mode0(Pixel *pixelPtr, int line);
 	void mode1(Pixel *pixelPtr, int line);
 	void mode2(Pixel *pixelPtr, int line);
@@ -51,15 +61,11 @@ public:
 	  */
 	bool drawSprites(Pixel *pixelPtr, int line, bool *dirty);
 
-	/** Put an image on the screen.
-	  */
-	void putImage();
+	void drawEmptyLine(Pixel *linePtr, Pixel colour);
+	void drawBorders(Pixel *linePtr, Pixel colour,
+		int displayStart, int displayStop);
 
-	void fullScreenRefresh();
-
-private:
 	MSXTMS9928a *vdp;
-
 	Pixel XPal[16];
 	Pixel currBorderColours[HEIGHT];
 
@@ -72,6 +78,12 @@ private:
 	  */
 	Pixel *linePtrs[HEIGHT];
 };
+
+/*
+#ifndef __SDLLORENDERER_CC__
+#include "SDLLoRenderer.cc"
+#endif //__SDLLORENDERER_CC__
+*/
 
 #endif //__SDLLORENDERER_HH__
 

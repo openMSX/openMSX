@@ -14,9 +14,9 @@ Probably also easier to implement when using line buffers.
 */
 
 #include "SDLLoRenderer.hh"
+#include "MSXTMS9928a.hh"
+#include "config.h"
 
-// TODO: Read this information from config.h.
-#define SIZEOF_BOOL 1
 /** Fill a boolean array with a single value.
   * Optimised for byte-sized booleans,
   * but correct for every size.
@@ -30,18 +30,20 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 #endif
 }
 
-SDLLoRenderer::RenderMethod SDLLoRenderer::modeToRenderMethod[] = {
-	&SDLLoRenderer::mode0,
-	&SDLLoRenderer::mode1,
-	&SDLLoRenderer::mode2,
-	&SDLLoRenderer::mode12,
-	&SDLLoRenderer::mode3,
-	&SDLLoRenderer::modebogus,
-	&SDLLoRenderer::mode23,
-	&SDLLoRenderer::modebogus
-};
+template <class Pixel> SDLLoRenderer<Pixel>::RenderMethod
+	SDLLoRenderer<Pixel>::modeToRenderMethod[] = {
+		&SDLLoRenderer::mode0,
+		&SDLLoRenderer::mode1,
+		&SDLLoRenderer::mode2,
+		&SDLLoRenderer::mode12,
+		&SDLLoRenderer::mode3,
+		&SDLLoRenderer::modebogus,
+		&SDLLoRenderer::mode23,
+		&SDLLoRenderer::modebogus
+	};
 
-inline static int calculatePattern(byte *patternPtr, int y, int size, int mag)
+inline static int calculatePattern(
+	byte *patternPtr, int y, int size, int mag)
 {
 	// Calculate pattern.
 	if (mag) y /= 2;
@@ -66,9 +68,11 @@ inline static int calculatePattern(byte *patternPtr, int y, int size, int mag)
 	}
 }
 
-SDLLoRenderer::SDLLoRenderer(MSXTMS9928a *vdp, bool fullScreen)
+template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
+	MSXTMS9928a *vdp, SDL_Surface *screen)
 {
 	this->vdp = vdp;
+	this->screen = screen;
 
 	// Clear bitmap.
 	memset(pixelData, 0, sizeof(pixelData));
@@ -78,15 +82,6 @@ SDLLoRenderer::SDLLoRenderer(MSXTMS9928a *vdp, bool fullScreen)
 	// Init line pointers array.
 	for (int line = 0; line < HEIGHT; line++) {
 		linePtrs[line] = pixelData + line * WIDTH;
-	}
-
-	/* Open the display */
-	PRT_DEBUG("OK\n  Opening display...");
-	screen = SDL_SetVideoMode( WIDTH, HEIGHT, DEPTH,
-		SDL_HWSURFACE | ( fullScreen ? SDL_FULLSCREEN : 0) );
-	if (screen == NULL) {
-		printf("FAILED");
-		return;
 	}
 
 	// Hide mouse cursor
@@ -102,18 +97,17 @@ SDLLoRenderer::SDLLoRenderer(MSXTMS9928a *vdp, bool fullScreen)
 
 }
 
-SDLLoRenderer::~SDLLoRenderer()
+template <class Pixel> SDLLoRenderer<Pixel>::~SDLLoRenderer()
 {
 }
 
-void SDLLoRenderer::toggleFullScreen()
+template <class Pixel> void SDLLoRenderer<Pixel>::toggleFullScreen()
 {
 	SDL_WM_ToggleFullScreen(screen);
 }
 
-// RENDERERS for line-based scanline conversion
-
-void SDLLoRenderer::mode0(Pixel *pixelPtr, int line)
+template <class Pixel> void SDLLoRenderer<Pixel>::mode0(
+	Pixel *pixelPtr, int line)
 {
 	Pixel backDropColour = XPal[vdp->tms.Regs[7] & 0x0F];
 	int name = (line / 8) * 32;
@@ -143,7 +137,8 @@ void SDLLoRenderer::mode0(Pixel *pixelPtr, int line)
 	}
 }
 
-void SDLLoRenderer::mode1(Pixel *pixelPtr, int line)
+template <class Pixel> void SDLLoRenderer<Pixel>::mode1(
+	Pixel *pixelPtr, int line)
 {
 	// Not needed since full screen refresh not executed now
 	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
@@ -177,7 +172,8 @@ void SDLLoRenderer::mode1(Pixel *pixelPtr, int line)
 	for (; x < 256; x++) *pixelPtr++ = bg;
 }
 
-void SDLLoRenderer::mode2(Pixel *pixelPtr, int line)
+template <class Pixel> void SDLLoRenderer<Pixel>::mode2(
+	Pixel *pixelPtr, int line)
 {
 	// Not needed since full screen refresh not executed now
 	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
@@ -209,7 +205,8 @@ void SDLLoRenderer::mode2(Pixel *pixelPtr, int line)
 	}
 }
 
-void SDLLoRenderer::mode12(Pixel *pixelPtr, int line)
+template <class Pixel> void SDLLoRenderer<Pixel>::mode12(
+	Pixel *pixelPtr, int line)
 {
 	// Not needed since full screen refresh not executed now
 	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
@@ -243,7 +240,8 @@ void SDLLoRenderer::mode12(Pixel *pixelPtr, int line)
 	for ( ; x < 256; x++) *pixelPtr++ = bg;
 }
 
-void SDLLoRenderer::mode3(Pixel *pixelPtr, int line)
+template <class Pixel> void SDLLoRenderer<Pixel>::mode3(
+	Pixel *pixelPtr, int line)
 {
 	// Not needed since full screen refresh not executed now
 	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
@@ -269,7 +267,8 @@ void SDLLoRenderer::mode3(Pixel *pixelPtr, int line)
 	}
 }
 
-void SDLLoRenderer::modebogus(Pixel *pixelPtr, int line)
+template <class Pixel> void SDLLoRenderer<Pixel>::modebogus(
+	Pixel *pixelPtr, int line)
 {
 	// Not needed since full screen refresh not executed now
 	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
@@ -287,7 +286,8 @@ void SDLLoRenderer::modebogus(Pixel *pixelPtr, int line)
 	for (; x < 256; x++) *pixelPtr++ = bg;
 }
 
-void SDLLoRenderer::mode23(Pixel *pixelPtr, int line)
+template <class Pixel> void SDLLoRenderer<Pixel>::mode23(
+	Pixel *pixelPtr, int line)
 {
 	// Not needed since full screen refresh not executed now
 	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
@@ -316,7 +316,8 @@ void SDLLoRenderer::mode23(Pixel *pixelPtr, int line)
 
 /** TODO: Is blanking really a mode?
   */
-void SDLLoRenderer::modeblank(Pixel *pixelPtr, int line)
+template <class Pixel> void SDLLoRenderer<Pixel>::modeblank(
+	Pixel *pixelPtr, int line)
 {
 	// Screen blanked so all background colour.
 	Pixel colour = XPal[vdp->tms.Regs[7] & 0x0F];
@@ -325,7 +326,8 @@ void SDLLoRenderer::modeblank(Pixel *pixelPtr, int line)
 	}
 }
 
-bool SDLLoRenderer::drawSprites(Pixel *pixelPtr, int line, bool *dirty)
+template <class Pixel> bool SDLLoRenderer<Pixel>::drawSprites(
+	Pixel *pixelPtr, int line, bool *dirty)
 {
 	int size = (vdp->tms.Regs[1] & 2) ? 16 : 8;
 	int mag = vdp->tms.Regs[1] & 1; // 0 = normal, 1 = double
@@ -392,14 +394,15 @@ bool SDLLoRenderer::drawSprites(Pixel *pixelPtr, int line, bool *dirty)
 	return ret;
 }
 
-inline static void drawEmptyLine(Pixel *linePtr, Pixel colour)
+template <class Pixel> inline void SDLLoRenderer<Pixel>::drawEmptyLine(
+	Pixel *linePtr, Pixel colour)
 {
 	for (int i = WIDTH; i--; ) {
 		*linePtr++ = colour;
 	}
 }
 
-inline static void drawBorders(
+template <class Pixel> inline void SDLLoRenderer<Pixel>::drawBorders(
 	Pixel *linePtr, Pixel colour, int displayStart, int displayStop)
 {
 	for (int i = displayStart; i--; ) {
@@ -411,7 +414,7 @@ inline static void drawBorders(
 	}
 }
 
-void SDLLoRenderer::fullScreenRefresh()
+template <class Pixel> void SDLLoRenderer<Pixel>::fullScreenRefresh()
 {
 	// Only redraw if needed.
 	if (!vdp->tms.Change) return;
@@ -489,7 +492,7 @@ void SDLLoRenderer::fullScreenRefresh()
 	fillBool(vdp->dirtyPattern, false, sizeof(vdp->dirtyPattern));
 }
 
-void SDLLoRenderer::putImage()
+template <class Pixel> void SDLLoRenderer<Pixel>::putImage()
 {
 	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen)<0) return;//ExitNow=1;
 
@@ -500,5 +503,47 @@ void SDLLoRenderer::putImage()
 
 	// Update screen.
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
+}
+
+Renderer *createSDLLoRenderer(MSXTMS9928a *vdp, bool fullScreen)
+{
+	int width = SDLLoRenderer<Uint32>::WIDTH;
+	int height = SDLLoRenderer<Uint32>::HEIGHT;
+	int flags = SDL_HWSURFACE | ( fullScreen ? SDL_FULLSCREEN : 0);
+
+	// Try default bpp.
+	PRT_DEBUG("OK\n  Opening display... ");
+	SDL_Surface *screen = SDL_SetVideoMode(width, height, 0, flags);
+
+	// If no screen or unsupported screen,
+	// try supported bpp in order of preference.
+	int bytepp = (screen ? screen->format->BytesPerPixel : 0);
+	if ((bytepp != 1) && (bytepp != 2) && (bytepp != 4)) {
+		if (!screen) screen = SDL_SetVideoMode(width, height, 15, flags);
+		if (!screen) screen = SDL_SetVideoMode(width, height, 16, flags);
+		if (!screen) screen = SDL_SetVideoMode(width, height, 32, flags);
+		if (!screen) screen = SDL_SetVideoMode(width, height, 8, flags);
+	}
+
+	if (!screen) {
+		printf("FAILED to open any screen!");
+		// TODO: Throw exception.
+		return NULL;
+	}
+	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
+
+	switch (screen->format->BytesPerPixel) {
+	case 1:
+		return new SDLLoRenderer<Uint8>(vdp, screen);
+	case 2:
+		return new SDLLoRenderer<Uint16>(vdp, screen);
+	case 4:
+		return new SDLLoRenderer<Uint32>(vdp, screen);
+	default:
+		printf("FAILED to open supported screen!");
+		// TODO: Throw exception.
+		return NULL;
+	}
+
 }
 

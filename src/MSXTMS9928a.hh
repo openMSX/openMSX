@@ -5,6 +5,7 @@
 
 #include <SDL/SDL.h>
 
+#include "openmsx.hh"
 #include "MSXDevice.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
@@ -12,25 +13,19 @@
 #include "HotKey.hh"
 
 
+class Renderer;
 
 class MSXTMS9928a : public MSXDevice, HotKeyListener
 {
-	// TODO: Move to black-box reuse if possible.
-	//   If this does not combine with good performance,
-	//   select a minimal number of fields to be accessible
-	//   from the renderer class.
-	friend class SDLLoRenderer;
 public:
 	static const byte TMS9928A_PALETTE[];
 
-	/**
-	 * Constructor
-	 */
+	/** Constructor
+	  */
 	MSXTMS9928a(MSXConfig::Device *config);
 
-	/**
-	 * Destructor
-	 */
+	/** Destructor
+	  */
 	~MSXTMS9928a();
 
 	// interaction with CPU
@@ -49,19 +44,11 @@ public:
 
 	// handle "toggle fullscreen"-hotkey requests
 	void signalHotKey(SDLKey key);
-private:
-	SDLLoRenderer *renderer;
 
-	Emutime currentTime;
-
-	/** Limit number of sprites per display line?
-	  * Option only affects display, not MSX state.
-	  * In other words: when false there is no limit to the number of
-	  * sprites drawn, but the status register acts like the usual limit
-	  * is still effective.
-	  */
-	bool limitSprites;
-
+	// Exposed for Renderer:
+	// TODO: Reduce this to a minimum.
+	// TODO: Is it possible to give just Renderer access to this?
+	//       "Friend" declaration didn't work, but maybe something does.
 	struct {
 		/* TMS9928A internal settings */
 		byte ReadAhead,Regs[8],StatusReg;
@@ -73,12 +60,13 @@ private:
 		int vramsize, model;
 	} tms;
 
-	byte TMS9928A_vram_r();
-
-	void _TMS9928A_change_register(byte reg, byte val);
-	/** Set all dirty / clean.
+	/** Limit number of sprites per display line?
+	  * Option only affects display, not MSX state.
+	  * In other words: when false there is no limit to the number of
+	  * sprites drawn, but the status register acts like the usual limit
+	  * is still effective.
 	  */
-	void setDirty(bool);
+	bool limitSprites;
 
 	/** Check sprite collision and number of sprites per line.
 	  * Separated from display code to make MSX behaviour consistent
@@ -99,6 +87,18 @@ private:
 	bool anyDirtyColour, dirtyColour[256 * 3];
 	bool anyDirtyPattern, dirtyPattern[256 * 3];
 	bool anyDirtyName, dirtyName[40 * 24];
+
+private:
+	Renderer *renderer;
+
+	Emutime currentTime;
+
+	byte TMS9928A_vram_r();
+
+	void _TMS9928A_change_register(byte reg, byte val);
+	/** Set all dirty / clean.
+	  */
+	void setDirty(bool);
 
 };
 
