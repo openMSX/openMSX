@@ -29,7 +29,7 @@ Z80::~Z80()
 
 inline void Z80::M1_DELAY()       { currentTime += 1 + WAIT_CYCLES; }
 inline void Z80::ADD_16_8_DELAY() { currentTime += 5; }
-inline void Z80::OP_16_16_DELAY() { currentTime += 5; }
+inline void Z80::OP_16_16_DELAY() { currentTime += 7; }
 inline void Z80::INC_16_DELAY()   { currentTime += 2; }
 inline void Z80::BLOCK_DELAY()    { currentTime += 5; }
 inline void Z80::RLD_DELAY()      { currentTime += 4; }
@@ -41,8 +41,10 @@ inline void Z80::NMI_DELAY()      { currentTime += 11; }
 inline void Z80::IM0_DELAY()      { currentTime += 2; }
 inline void Z80::IM1_DELAY()      { currentTime += 2; }
 inline void Z80::IM2_DELAY()      { currentTime += 19; }
-inline void Z80::SMALL_DELAY()    { currentTime += 1; }	// TODO more detailed?
-inline int Z80::haltStates() { return 4 + WAIT_CYCLES; }	// HALT + M1
+inline void Z80::PUSH_DELAY()     { currentTime += 1; }
+inline void Z80::INC_DELAY()      { currentTime += 1; }
+inline void Z80::SMALL_DELAY()    { currentTime += 1; }  // TODO more detailed?
+inline int Z80::haltStates() { return 4 + WAIT_CYCLES; } // HALT + M1
 
 } // namespace openmsx
 

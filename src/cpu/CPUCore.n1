@@ -21,6 +21,8 @@ inline void NMI_DELAY();
 inline void IM0_DELAY();
 inline void IM1_DELAY();
 inline void IM2_DELAY();
+inline void PUSH_DELAY();
+inline void INC_DELAY();
 inline void SMALL_DELAY();
 inline int haltStates();
 
@@ -1218,6 +1220,7 @@ void rrca();
 void rld();
 void rrd();
 
+inline void PUSH2(z80regpair reg);
 inline void PUSH(z80regpair reg);
 void push_af();
 void push_bc();

@@ -515,13 +515,13 @@ void _CPU_::ld_a_xhl() { RD_A_X(R.HL.w); }
 // LD A,(IX+e)
 void _CPU_::ld_a_xix() {   
 	RDMEM(R.PC.w++, (byte&)ofst);
-	memptr.w = R.IX.w + ofst; RD_A_X(memptr.w);
+	memptr.w = R.IX.w + ofst; ADD_16_8_DELAY(); RD_A_X(memptr.w);
 }
 
 // LD A,(IY+e)
 void _CPU_::ld_a_xiy() {   
 	RDMEM(R.PC.w++, (byte&)ofst);
-	memptr.w = R.IY.w + ofst; RD_A_X(memptr.w);
+	memptr.w = R.IY.w + ofst; ADD_16_8_DELAY(); RD_A_X(memptr.w);
 }
 
 // LD A,(nn)
@@ -566,7 +566,7 @@ inline void _CPU_::RD_R_X(byte& reg) {
 }
 inline void _CPU_::RD_R_XIX(byte& reg) {   
 	RDMEM(R.PC.w, (byte &)ofst);
-	R.PC.w++; memptr.w = R.IX.w + ofst; RD_R_X(reg);
+	R.PC.w++; memptr.w = R.IX.w + ofst; ADD_16_8_DELAY(); RD_R_X(reg);
 }
 void _CPU_::ld_b_xix()   { RD_R_XIX(R.BC.B.h); }
 void _CPU_::ld_c_xix()   { RD_R_XIX(R.BC.B.l); }
@@ -578,7 +578,7 @@ void _CPU_::ld_l_xix()   { RD_R_XIX(R.HL.B.l); }
 // LD r,(IY+e)
 inline void _CPU_::RD_R_XIY(byte& reg) {   
 	RDMEM(R.PC.w, (byte &)ofst);
-	R.PC.w++; memptr.w = R.IY.w + ofst; RD_R_X(reg);
+	R.PC.w++; memptr.w = R.IY.w + ofst; ADD_16_8_DELAY(); RD_R_X(reg);
 }
 void _CPU_::ld_b_xiy()   { RD_R_XIY(R.BC.B.h); }
 void _CPU_::ld_c_xiy()   { RD_R_XIY(R.BC.B.l); }
@@ -967,7 +967,7 @@ void _CPU_::dec_iyl() { DEC(R.IY.B.l); }
 inline void _CPU_::DEC_X(word x) {
 	byte val;
 	RDMEM(x, val);
-	DEC(val); SMALL_DELAY();
+	DEC(val); INC_DELAY();
 	WRMEM(x, val);
 }
 void _CPU_::dec_xhl() { DEC_X(R.HL.w); }
@@ -1005,7 +1005,7 @@ void _CPU_::inc_iyl() { INC(R.IY.B.l); }
 inline void _CPU_::INC_X(word x) {
 	byte val;
 	RDMEM(x, val);
-	INC(val); SMALL_DELAY();
+	INC(val); INC_DELAY();
 	WRMEM(x, val);
 }
 void _CPU_::inc_xhl() { INC_X(R.HL.w); }
@@ -1283,7 +1283,7 @@ void _CPU_::res_7_l() { RES(7, R.HL.B.l); }
 inline void _CPU_::RES_X(byte bit, byte& reg, word x) {
 	RDMEM(x, reg);
 	RES(bit, reg); 
-	SMALL_DELAY();
+	INC_DELAY();
 	WRMEM(x, reg);
 }
 inline void _CPU_::RES_X_(byte bit, byte& reg, word x) { memptr.w = x; RES_X(bit, reg, x); }
@@ -1494,7 +1494,7 @@ void _CPU_::set_7_l() { SET(7, R.HL.B.l); }
 inline void _CPU_::SET_X(byte bit, byte& reg, word x) {
 	RDMEM(x, reg);
 	SET(bit, reg); 
-	SMALL_DELAY();
+	INC_DELAY();
 	WRMEM(x, reg);
 }
 inline void _CPU_::SET_X_(byte bit, byte& reg, word x) { memptr.w = x; SET_X(bit, reg, x); }
@@ -1659,7 +1659,7 @@ void _CPU_::rl_l() { RL(R.HL.B.l); }
 
 inline void _CPU_::RL_X(byte& reg, word x) {
 	RDMEM(x, reg);
-	RL(reg); SMALL_DELAY();
+	RL(reg); INC_DELAY();
 	WRMEM(x, reg);
 }
 inline void _CPU_::RL_X_(byte& reg, word x) { memptr.w = x; RL_X(reg, x); }
@@ -1703,7 +1703,7 @@ void _CPU_::rlc_l() { RLC(R.HL.B.l); }
 
 inline void _CPU_::RLC_X(byte& reg, word x) {
 	RDMEM(x, reg);
-	RLC(reg); SMALL_DELAY();
+	RLC(reg); INC_DELAY();
 	WRMEM(x, reg);
 }
 inline void _CPU_::RLC_X_(byte& reg, word x) { memptr.w = x; RLC_X(reg, x); }
@@ -1747,7 +1747,7 @@ void _CPU_::rr_l() { RR(R.HL.B.l); }
 
 inline void _CPU_::RR_X(byte& reg, word x) {
 	RDMEM(x, reg);
-	RR(reg); SMALL_DELAY();
+	RR(reg); INC_DELAY();
 	WRMEM(x, reg);
 }
 inline void _CPU_::RR_X_(byte& reg, word x) { memptr.w = x; RR_X(reg, x); }
@@ -1791,7 +1791,7 @@ void _CPU_::rrc_l() { RRC(R.HL.B.l); }
 
 inline void _CPU_::RRC_X(byte& reg, word x) {
 	RDMEM(x, reg);
-	RRC(reg); SMALL_DELAY();
+	RRC(reg); INC_DELAY();
 	WRMEM(x, reg);
 }
 inline void _CPU_::RRC_X_(byte& reg, word x) { memptr.w = x; RRC_X(reg, x); }
@@ -1835,7 +1835,7 @@ void _CPU_::sla_l() { SLA(R.HL.B.l); }
 
 inline void _CPU_::SLA_X(byte& reg, word x) {
 	RDMEM(x, reg);
-	SLA(reg); SMALL_DELAY();
+	SLA(reg); INC_DELAY();
 	WRMEM(x, reg);
 }
 inline void _CPU_::SLA_X_(byte& reg, word x) { memptr.w = x; SLA_X(reg, x); }
@@ -1879,7 +1879,7 @@ void _CPU_::sll_l() { SLL(R.HL.B.l); }
 
 inline void _CPU_::SLL_X(byte& reg, word x) {
 	RDMEM(x, reg);
-	SLL(reg); SMALL_DELAY();
+	SLL(reg); INC_DELAY();
 	WRMEM(x, reg);
 }
 inline void _CPU_::SLL_X_(byte& reg, word x) { memptr.w = x; SLL_X(reg, x); }
@@ -1923,7 +1923,7 @@ void _CPU_::sra_l() { SRA(R.HL.B.l); }
 
 inline void _CPU_::SRA_X(byte& reg, word x) {
 	RDMEM(x, reg);
-	SRA(reg); SMALL_DELAY();
+	SRA(reg); INC_DELAY();
 	WRMEM(x, reg);
 }
 inline void _CPU_::SRA_X_(byte& reg, word x) { memptr.w = x; SRA_X(reg, x); }
@@ -1967,7 +1967,7 @@ void _CPU_::srl_l() { SRL(R.HL.B.l); }
 
 inline void _CPU_::SRL_X(byte& reg, word x) {
 	RDMEM(x, reg);
-	SRL(reg); SMALL_DELAY();
+	SRL(reg); INC_DELAY();
 	WRMEM(x, reg);
 }
 inline void _CPU_::SRL_X_(byte& reg, word x) { memptr.w = x; SRL_X(reg, x); }
@@ -2047,10 +2047,13 @@ void _CPU_::rrd() {
 
 
 // PUSH ss
-inline void _CPU_::PUSH(z80regpair reg) {
-	SMALL_DELAY();
+inline void _CPU_::PUSH2(z80regpair reg) {
 	WRMEM(--R.SP.w, reg.B.h);
 	WRMEM(--R.SP.w, reg.B.l);
+}
+inline void _CPU_::PUSH(z80regpair reg) {
+	PUSH_DELAY();
+	PUSH2(reg);
 }
 void _CPU_::push_af() { PUSH(R.AF); }
 void _CPU_::push_bc() { PUSH(R.BC); }
@@ -2077,7 +2080,8 @@ void _CPU_::pop_iy() { POP(R.IY); }
 inline void _CPU_::CALL() {
 	RDMEM(R.PC.w++, memptr.B.l);
 	RDMEM(R.PC.w++, memptr.B.h);
-	PUSH(R.PC);
+	SMALL_DELAY();
+	PUSH2(R.PC);
 	R.PC.w = memptr.w;
 }
 inline void _CPU_::SKIP_JP() {
@@ -2191,6 +2195,7 @@ void _CPU_::djnz() {
 inline void _CPU_::EX_SP(z80regpair& reg) {
 	RDMEM(R.SP.w++, memptr.B.l);
 	RDMEM(R.SP.w, memptr.B.h);
+	SMALL_DELAY();
 	WRMEM(R.SP.w--, reg.B.h);
 	reg.B.h = memptr.B.h;
 	WRMEM(R.SP.w, reg.B.l);
@@ -2463,9 +2468,10 @@ void _CPU_::ld_r_a() {
 	R.R = R.R2 = R.AF.B.h;
 }
 
-// MULUB A,r	TODO timing
+// MULUB A,r
 inline void _CPU_::MULUB(byte reg) {
 	// TODO check flags
+	currentTime += 12;
 	R.HL.w = (word)R.AF.B.h * reg;
 	R.AF.B.l = (R.AF.B.l & (N_FLAG | H_FLAG)) |
 	           (R.HL.w ? 0 : Z_FLAG) |
@@ -2480,9 +2486,10 @@ void _CPU_::mulub_a_e()   { MULUB(R.DE.B.l); }
 void _CPU_::mulub_a_h()   { } // TODO
 void _CPU_::mulub_a_l()   { } // TODO
 
-// MULUW HL,ss	TODO timing
+// MULUW HL,ss
 inline void _CPU_::MULUW(word reg) {
 	// TODO check flags
+	currentTime += 34;
 	unsigned long res = (unsigned long)R.HL.w * reg;
 	R.DE.w = res >> 16;
 	R.HL.w = res & 0xffff;

@@ -20,7 +20,7 @@ inline void R800::M1_DELAY()       { }
 inline void R800::ADD_16_8_DELAY() { currentTime += 1; }
 inline void R800::OP_16_16_DELAY() { }
 inline void R800::INC_16_DELAY()   { }
-inline void R800::BLOCK_DELAY()    { }
+inline void R800::BLOCK_DELAY()    { currentTime += 1; }
 inline void R800::RLD_DELAY()      { currentTime += 1; }
 inline void R800::EX_SP_HL_DELAY() { }
 inline void R800::LDI_DELAY()      { }
@@ -30,6 +30,8 @@ inline void R800::NMI_DELAY()      { } // TODO check this
 inline void R800::IM0_DELAY()      { } // TODO check this
 inline void R800::IM1_DELAY()      { } // TODO check this
 inline void R800::IM2_DELAY()      { currentTime += 3; } // TODO check this
+inline void R800::PUSH_DELAY()     { currentTime += 1; }
+inline void R800::INC_DELAY()      { currentTime += 1; }
 inline void R800::SMALL_DELAY()    { }
 inline int R800::haltStates() { return 1; }	// HALT + M1 // TODO check this
 

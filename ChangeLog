@@ -1,5 +1,8 @@
 $Id$
 
+2004-02-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Improved CPU timing, both Z80 and R800
+
 2004-02-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "after frame" command:
 	   - now it's possible to write a multi_screenshot TCL script (i've
