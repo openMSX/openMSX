@@ -1,0 +1,29 @@
+// $Id$
+
+/*
+ * This class implements the device found on IO-port 0xF4 on a MSX Turbo-R.
+ * 
+ *  TODO explanation  
+ */
+
+#ifndef __F4DEVICE_HH__
+#define __F4DEVICE_HH__
+
+#include "MSXIODevice.hh"
+
+
+class MSXF4Device : public MSXIODevice
+{
+	public:
+		MSXF4Device(MSXConfig::Device *config, const EmuTime &time);
+		virtual ~MSXF4Device();
+		
+		virtual void reset(const EmuTime &time);
+		virtual byte readIO(byte port, const EmuTime &time);
+		virtual void writeIO(byte port, byte value, const EmuTime &time);
+	
+	private:
+		byte status;
+};
+
+#endif

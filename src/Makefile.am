@@ -48,6 +48,10 @@ openmsx_SOURCES=\
 	Keyboard.hh Keyboard.cc \
 	Leds.hh Leds.cc \
 	MSXE6Timer.hh MSXE6Timer.cc \
+	MSXF4Device.hh MSXF4Device.cc \
+	MSXTurboRLeds.hh MSXTurboRLeds.cc \
+	MSXTurboRPause.hh MSXTurboRPause.cc \
+	MSXS1990.hh MSXS1990.cc \
 	DummyDevice.hh DummyDevice.cc \
 	JoystickPorts.hh JoystickPorts.cc \
 	JoystickDevice.hh JoystickDevice.cc \

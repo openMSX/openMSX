@@ -52,9 +52,11 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 	CPU *newCPU;
 	switch (cpu) {
 		case CPU_Z80:
+			PRT_DEBUG("Active CPU: Z80");
 			newCPU = z80;
 			break;
 		case CPU_R800:
+			PRT_DEBUG("Active CPU: R800");
 			newCPU = r800;
 			break;
 		default:
@@ -62,7 +64,9 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 			newCPU = NULL;	// prevent warning
 	}
 	if (newCPU != activeCPU) {
-		newCPU->setCurrentTime(activeCPU->getCurrentTime());
+		const EmuTime &time = activeCPU->getCurrentTime();
+		setTargetTime(time);
+		newCPU->setCurrentTime(time);
 		newCPU->invalidateCache(0x0000, 0x10000/CPU::CACHE_LINE_SIZE);
 		activeCPU = newCPU;
 	}

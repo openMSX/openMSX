@@ -8,6 +8,10 @@
 #include "MSXPPI.hh"
 #include "VDP.hh"
 #include "MSXE6Timer.hh"
+#include "MSXF4Device.hh"
+#include "MSXTurboRLeds.hh"
+#include "MSXTurboRPause.hh"
+#include "MSXS1990.hh"
 #include "MSXCPU.hh"
 #include "MSXMapperIO.hh"
 #include "MSXPSG.hh"
@@ -44,6 +48,18 @@ MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	} else
 	if (conf->getType()=="E6Timer") {
 		device = new MSXE6Timer(conf, time);
+	} else
+	if (conf->getType()=="F4Device") {
+		device = new MSXF4Device(conf, time);
+	} else
+	if (conf->getType()=="TurboRLeds") {
+		device = new MSXTurboRLeds(conf, time);
+	} else
+	if (conf->getType()=="TurboRPause") {
+		device = new MSXTurboRPause(conf, time);
+	} else
+	if (conf->getType()=="S1990") {
+		device = new MSXS1990(conf, time);
 	} else
 	if (conf->getType()=="PSG") {
 		device = new MSXPSG(conf, time);
