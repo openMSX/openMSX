@@ -1200,6 +1200,6 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	default:
 		break;
 	}
-	reg[regis] = (byte)data;
+	reg[regis] = data;
 	checkMute();
 }

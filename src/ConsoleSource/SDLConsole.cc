@@ -106,7 +106,7 @@ void SDLConsole::signalEvent(SDL_Event &event)
 		}
 		break;
 	case SDLK_BACKSPACE:
-		if (cursorLocation > 0) {
+		if (cursorLocation > PROMPT_SIZE) {
 			cursorLocation--;
 			consoleLines[0][cursorLocation] = '\0';
 		}

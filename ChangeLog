@@ -1,5 +1,8 @@
 $Id$
 
+2002-03-14 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Fixed tab completion bug
+
 2002-03-12 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* convert CassettePort to Connector-Pluggable structure
 	* MSXSimple:

@@ -91,15 +91,21 @@ void CommandController::tabCompletion(std::string &command)
 	// split command string in tokens
 	std::vector<std::string> tokens;
 	tokenize(command, tokens);
+	
 	// complete last token
 	tabCompletion(tokens);
+	
 	// rebuild command string from tokens
 	std::vector<std::string>::const_iterator it=tokens.begin();
-	command = *it; 
-	it++;
-	for (; it!=tokens.end(); it++) {
-		command += ' ';
-		command += *it;
+	if (it == tokens.end()) {
+		command = std::string("");
+	} else {
+		command = *it; 
+		it++;
+		for (; it!=tokens.end(); it++) {
+			command += ' ';
+			command += *it;
+		}
 	}
 }
 
