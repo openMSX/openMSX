@@ -7,6 +7,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
+#include "SettingsManager.hh"
 
 
 namespace openmsx {
