@@ -751,10 +751,14 @@ byte VDP::readIO(byte port, const EmuTime &time)
 
 void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 {
-	//fprintf(stderr, "VDP[%02X]=%02X\n", reg, val);
+	PRT_DEBUG("VDP[" << (int)reg << "] = " << std::hex << (int)val << std::dec);
 
-	// Pass command register writes to command engine.
-	if (32 <= reg && reg < 47) {
+	if (reg>=47) {
+		// ignore non-existing registers
+		return;
+	}
+	if (reg>=32) {
+		// Pass command register writes to command engine.
 		cmdEngine->setCmdReg(reg - 32, val, time);
 		return;
 	}
@@ -763,7 +767,6 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 	byte oldval = controlRegs[reg];
 	byte change = val ^ oldval;
 	if (!change) return;
-	//PRT_DEBUG("VDP: Reg " << (int)reg << " = " << (int)val);
 
 	// Perform additional tasks before new value becomes active.
 	switch (reg) {

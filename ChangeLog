@@ -6,6 +6,9 @@ $Id$
 	   directly after synchronization points. This also means that all 
 	   irq.set() instruction must also set a synchronization point.
 	   TODO: check this for VDP, Y8950 and document this
+	* VDP bug fix:
+	   writes to register > 46 (non existing registers) overwrite other
+	   variables
 
 2002-02-13 David Heremans <david.heremans@gnu-linux.net>
 	* MSX MUSIC/MSX AUDIO Stereo now possible:
