@@ -12,7 +12,6 @@ SRC_HDR:= \
 	Icon \
 	Renderer RendererFactory RenderSettings PixelRenderer \
 	SDLRenderer \
-	SDLGLRenderer GLUtil \
 	DummyRenderer \
 	XRenderer \
 	BitmapConverter CharacterConverter \
@@ -26,6 +25,9 @@ HDR_ONLY:= \
 	SpriteConverter \
 	Blender \
 	GLUtil
+
+SRC_HDR_$(COMPONENT_GL)+= \
+	SDLGLRenderer GLUtil
 
 include build/node-end.mk
 
