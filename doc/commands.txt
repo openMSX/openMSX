@@ -5,7 +5,7 @@ COMMANDS
 after
 -----
 
-  [ This is an advanced command, mainly usefull to run openMSX in 'demo' mode ]
+  [ This is an advanced command, mainly useful to run openMSX in 'demo' mode ]
 
   Execute a command after a certain time, or after a certain time of being
   idle. It is possible the query a list of postponed commands and also to
@@ -30,7 +30,7 @@ alias / unalias
   Create a new command that is an alias for another (group of) command(s).
 
   usage:
-    alias                   show all aliasses
+    alias                   show all aliases
     alias <name>            show the definition of this alias
     alias <name> <command>  (re)define an alias
     unalias <name>          remove the given alias
@@ -52,7 +52,7 @@ bind / unbind
     bind   <key>            shows bindings for this key
     bind   <key> <command>  make a new binding
     unbind <key>            undo all bindings for this key
-    unbind <key> <command>  undo a specfic binding
+    unbind <key> <command>  undo a specific binding
   
   examples:
     bind PAGEUP "set speed 100"
@@ -65,46 +65,46 @@ bind / unbind
 cas
 ---
 
-  Insert a tapeimage in a virtual cassette player. The image must be in .cas
+  Insert a tape image in a virtual cassette player. The image must be in .cas
   format. You only get this command if you have a MSXTapePatch installed in the
   configuration file of your machine, see exampleconfigs.xml
 
   usage:
-    cas <tapeimage>  insert tapeimage in virtual cassette player
-    cas eject        remove tape from virtual cassette player
-    cas rewind       rewind the current tape
+    cas <tape image>  insert tape image in virtual cassette player
+    cas eject         remove tape from virtual cassette player
+    cas rewind        rewind the current tape
 
 
 cassetteplayer
 --------------
 
-  Insert a tapeimage in a virtual cassette player. The file must be in .wav
-  format. Don't forget to connect the cassetteplayer to the cassetteport.
+  Insert a tape image in a virtual cassette player. The file must be in .wav
+  format. Don't forget to connect the cassetteplayer to the cassette port.
 
   usage:
-    cassetteplayer <tapeimage>    insert tapeimage in virtual cassette player
-    cassetteplayer eject          remove tape from virtual cassette player
-    cassetteplayer rewind         rewind the current tape
-    cassetteplayer force_play     play even when motor signal is not active 
-    cassetteplayer no_force_play  motor signal controls playing (default)
+    cassetteplayer <tape image>    insert tape image in virtual cassette player
+    cassetteplayer eject           remove tape from virtual cassette player
+    cassetteplayer rewind          rewind the current tape
+    cassetteplayer force_play      play even when motor signal is not active 
+    cassetteplayer no_force_play   motor signal controls playing (default)
 
     
 debug
 -----
 
-  This command implements a debugger interface. It's ment to be used by an
+  This command implements a debugger interface. It's meant to be used by an
   external debugger.
 
   usage:
-    debug list                       returns a list of all debuggables
+    debug list                       returns a list of all debugables
     debug desc <name>                returns a description of this debuggable
     debug size <name>                returns the size of this debuggable
     debug read <name> <addr>         read a byte from a debuggable
     debug write <name> <addr> <val>  write a byte to a debuggable
     debug set_bp <addr>              insert a new breakpoint
-    debug remove_bp <addr>           remove a certain breapoint
+    debug remove_bp <addr>           remove a certain breakpoint
     debug list_bp                    list the active breakpoints
-    debug cont                       continue execution aftre break
+    debug cont                       continue execution after break
     debug step                       execute one instruction
     
 
@@ -126,13 +126,13 @@ decr
 diska / diskb
 -------------
 
-  Insert a diskimage in a virtual drive.
+  Insert a disk image in a virtual drive.
   Note: the command-name is the same as the drive-name and the drive-name is
         configurable
 
   usage:
-    diska <diskimage>  insert diskimage in virtual drive "diska"
-    diska eject        remove disk from virtual drive "diska"
+    diska <disk image>  insert disk image in virtual drive "diska"
+    diska eject         remove disk from virtual drive "diska"
 
 
 help
@@ -173,7 +173,7 @@ info
 keymatrixup / keymatrixdown
 ---------------------------
 
-  Press or release keys from the MSX keyboard matrix. Mainly usefull to make
+  Press or release keys from the MSX keyboard matrix. Mainly useful to make
   an external program press MSX keys.
 
   usage:
@@ -196,7 +196,7 @@ plug / unplug
 -------------
 
   Plugs or unplugs a plug into a connector, for example plug a virtual joystick
-  into a virtual joystickport.
+  into a virtual joystick port.
 
   usage:
     plug                     shows all currently connected plugs
@@ -287,7 +287,7 @@ toggle
   Toggles any boolean (on-off) setting.
 
   usage:
-    toggle            shows all boolean settngs
+    toggle            shows all boolean settings
     toggle <setting>  toggles the specified setting
 
   examples:
@@ -320,14 +320,14 @@ accuracy
     - screen accurate: This is the fastest but also least accurate mode.
     - line accurate: This is the recommended mode. Most tricks are 
                      rendered correctly.
-    - pixel accuracte: This is the slowest but also most accuracte mode.
-                       In this mode even the 'Unknown Reality scope part'
-                       is rendered correctly.
+    - pixel accurate: This is the slowest but also most accurate mode.
+                      In this mode even the 'Unknown Reality scope part'
+                      is rendered correctly.
   Note: not all renderers support all render modes
 
   usage:
     set accuracy          shows the current setting
-    set accuracy screen   selects screen accuracte rendering
+    set accuracy screen   selects screen accurate rendering
     set accuracy line     selects line accurate rendering
     set accuracy pixel    selects pixel accurate rendering
 
@@ -433,18 +433,18 @@ consolerows
 cputrace
 --------
 
-  Enable/disable cpu instruction tracing
+  Enable/disable CPU instruction tracing
   [ only available when compiled with DEBUG option ]
  
  
 debugoutput
 -----------
 
-  Selects the file towhere the output from the debugdevice goes.
+  Selects the file to where the output from the debug device goes.
 
   usage:
-    set debugoutput               shows the curent outputfile
-    set debugoutput <outputfile>  set the specified outputfile
+    set debugoutput                shows the current output file
+    set debugoutput <output file>  set the specified output file
 
 
 deinterlace
@@ -520,7 +520,7 @@ glow
 grabinput
 ---------
 
-  Controls whether openmsx grabs all input or not. When this setting is turned
+  Controls whether openMSX grabs all input or not. When this setting is turned
   on, all input is directly passed to openMSX. The mouse pointer can't leave
   the openMSX window and the window manager won't be able to react to keyboard
   shortcuts.
@@ -585,13 +585,13 @@ pause
   usage:
     set pause      shows the current setting
     set pause on   pauses emulation
-    set pause off  unpauses emualtion
+    set pause off  unpauses emulation
 
 
 printerlogfilename
 ------------------
 
-  Sets the file(name) to which the printerlogger logs
+  Sets the file(name) to which the printer logger logs
   
   usage:
     set printerlogfilename                   shows the current setting
@@ -612,7 +612,7 @@ renderer
 renshaturbo
 -----------
 
-  Sets the speed of the built-in autofire on some Japanese MSX models (including
+  Sets the speed of the built-in auto fire on some Japanese MSX models (including
   the Turbo R machines)
 
   usage:
@@ -677,7 +677,7 @@ throttle
 [soundchip]_mode
 ------------------
 
-  Sets the channel mode for individual soundchips. Note that chips which are in
+  Sets the channel mode for individual sound chips. Note that chips which are in
   stereo mode cannot be set to another mode and chips that are not in stereo
   mode, can of course never be set to stereo mode.
 
@@ -694,7 +694,7 @@ throttle
 [soundchip]_volume
 ------------------
 
-  Sets the volume for individual soundchips.
+  Sets the volume for individual sound chips.
 
   usage:
     set [soundchip]_volume        shows the current setting
@@ -709,5 +709,5 @@ throttle
 vdpcmdtrace
 -----------
 
-  Enable/disable vdp command tracing.
+  Enable/disable VDP command tracing.
   [ mainly useful for debugging purposes ]
