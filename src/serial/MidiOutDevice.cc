@@ -5,7 +5,7 @@
 
 const string& MidiOutDevice::getClass() const
 {
-	static const string className("Midi Out Port");
+	static const string className("midi out");
 	return className;
 }
 

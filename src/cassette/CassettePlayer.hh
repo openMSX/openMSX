@@ -46,6 +46,8 @@ class CassettePlayer : public CassetteDevice, private Command, public SoundDevic
 
 		// Pluggable
 		virtual const string &getName() const;
+		virtual void plug(Connector* connector, const EmuTime& time);
+		virtual void unplug(const EmuTime& time);
 
 		// SoundDevice
 		virtual void setInternalVolume(short newVolume);

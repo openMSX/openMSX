@@ -28,7 +28,7 @@ const string& MidiInConnector::getName() const
 
 const string& MidiInConnector::getClass() const
 {
-	static const string className("Midi In Port");
+	static const string className("midi in");
 	return className;
 }
 

@@ -1,6 +1,10 @@
 $Id$
 
-2003-07-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-07-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed some MIDI bugs
+	* Added Midi Out Logger (logs to /dev/midi)
+
+2003-07-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented Midi-In and Midi-Out ports for MSX-Midi:
 	   - completely untested, so it probably won't work yet
 	   - there are no pluggables for the midi ports yet

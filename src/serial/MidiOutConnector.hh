@@ -7,6 +7,7 @@
 #include "SerialDataInterface.hh"
 
 class DummyMidiOutDevice;
+class MidiOutLogger;
 
 using namespace std;
 
@@ -31,6 +32,8 @@ class MidiOutConnector : public Connector, public SerialDataInterface
 	private:
 		string name;
 		DummyMidiOutDevice* dummy;
+
+		MidiOutLogger* logger;
 };
 
 #endif

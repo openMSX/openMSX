@@ -120,3 +120,11 @@ void DummyPrinterPortDevice::writeData(byte data, const EmuTime &time)
 {
 	// ignore data
 }
+
+void DummyPrinterPortDevice::plug(Connector* connector, const EmuTime& time)
+{
+}
+
+void DummyPrinterPortDevice::unplug(const EmuTime& time)
+{
+}

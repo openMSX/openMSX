@@ -7,10 +7,12 @@
 
 MSXMidi::MSXMidi(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
-	  MidiInConnector("MSX-Midi-In", time),
-	  interf(*this), cntr0(*this), cntr2(*this),
-	  i8251(&interf, time), i8254(&cntr0, NULL, &cntr2, time),
-	  outConnector("MSX-Midi-Out", time)
+	  MidiInConnector("msx-midi-in", time),
+	  timerIRQlatch(false), timerIRQenabled(false),
+	  rxrdyIRQlatch(false), rxrdyIRQenabled(false),
+	  cntr0(*this), cntr2(*this), i8254(&cntr0, NULL, &cntr2, time),
+	  interf(*this), i8251(&interf, time),
+	  outConnector("msx-midi-out", time)
 {
 	EmuDuration total(1.0 / 4e6); // 4MHz
 	EmuDuration hi   (1.0 / 8e6); // 8MHz half clock period

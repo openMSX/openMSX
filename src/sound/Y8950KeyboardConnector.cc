@@ -72,3 +72,11 @@ byte DummyY8950KeyboardDevice::read(const EmuTime &time)
 {
 	return 255;
 }
+
+void DummyY8950KeyboardDevice::plug(Connector* connector, const EmuTime& time)
+{
+}
+
+void DummyY8950KeyboardDevice::unplug(const EmuTime& time)
+{
+}

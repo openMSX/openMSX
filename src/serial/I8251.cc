@@ -196,7 +196,7 @@ void I8251::setMode(byte value)
 		baudrate = 1;
 	}
 
-	int factor = (((2 * ((int)dataBits + (parityEnable ? 1 : 0))) +
+	int factor = (((2 * (1 + (int)dataBits + (parityEnable ? 1 : 0))) +
 	               (int)stopBits) * baudrate) / 2;
 	charLength = clock.getTotalDuration() * factor;
 }

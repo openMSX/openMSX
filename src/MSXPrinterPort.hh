@@ -14,9 +14,13 @@ class PrinterPortLogger;
 
 class DummyPrinterPortDevice : public PrinterPortDevice
 {
-	virtual bool getStatus(const EmuTime &time);
-	virtual void setStrobe(bool strobe, const EmuTime &time);
-	virtual void writeData(byte data, const EmuTime &time);
+	public:
+		virtual bool getStatus(const EmuTime &time);
+		virtual void setStrobe(bool strobe, const EmuTime &time);
+		virtual void writeData(byte data, const EmuTime &time);
+
+		virtual void plug(Connector* connector, const EmuTime& time);
+		virtual void unplug(const EmuTime& time);
 };
 
 

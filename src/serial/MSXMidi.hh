@@ -40,24 +40,13 @@ class MSXMidi : public MSXIODevice, public SerialDataInterface,
 		virtual void setParityBits(bool enable, ParityBit parity);
 		virtual void recvByte(byte value, const EmuTime& time);
 		
-		// I8251Interface
-		class I8251Interf : public I8251Interface {
-		public:
-			I8251Interf(MSXMidi& midi);
-			virtual ~I8251Interf();
-			virtual void setRxRDY(bool status, const EmuTime& time);
-			virtual void setDTR(bool status, const EmuTime& time);
-			virtual void setRTS(bool status, const EmuTime& time);
-			virtual byte getDSR(const EmuTime& time);
-			virtual void setDataBits(DataBits bits);
-			virtual void setStopBits(StopBits bits);
-			virtual void setParityBits(bool enable, ParityBit parity);
-			virtual void recvByte(byte value, const EmuTime& time);
-			virtual void recvReady();
-		private:
-			MSXMidi& midi;
-		} interf;
-
+		bool timerIRQlatch;
+		bool timerIRQenabled;
+		IRQHelper timerIRQ;
+		bool rxrdyIRQlatch;
+		bool rxrdyIRQenabled;
+		IRQHelper rxrdyIRQ;
+		
 		// counter 0 clock pin
 		class Counter0 : public ClockPinListener {
 		public:
@@ -84,16 +73,28 @@ class MSXMidi : public MSXIODevice, public SerialDataInterface,
 			MSXMidi& midi;
 		} cntr2;
 		
-		I8251 i8251;
 		I8254 i8254;
-		MidiOutConnector outConnector;
 		
-		bool timerIRQlatch;
-		bool timerIRQenabled;
-		IRQHelper timerIRQ;
-		bool rxrdyIRQlatch;
-		bool rxrdyIRQenabled;
-		IRQHelper rxrdyIRQ;
+		// I8251Interface
+		class I8251Interf : public I8251Interface {
+		public:
+			I8251Interf(MSXMidi& midi);
+			virtual ~I8251Interf();
+			virtual void setRxRDY(bool status, const EmuTime& time);
+			virtual void setDTR(bool status, const EmuTime& time);
+			virtual void setRTS(bool status, const EmuTime& time);
+			virtual byte getDSR(const EmuTime& time);
+			virtual void setDataBits(DataBits bits);
+			virtual void setStopBits(StopBits bits);
+			virtual void setParityBits(bool enable, ParityBit parity);
+			virtual void recvByte(byte value, const EmuTime& time);
+			virtual void recvReady();
+		private:
+			MSXMidi& midi;
+		} interf;
+		
+		I8251 i8251;
+		MidiOutConnector outConnector;
 };
 
 #endif

@@ -120,6 +120,7 @@ I8254::Counter::Counter(ClockPinListener* listener, const EmuTime &time)
 {
 	gate = true;
 	counter = 0;
+	counterLoad = 0;
 	reset(time);
 }
 

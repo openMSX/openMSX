@@ -49,6 +49,8 @@ class JoyNet : public JoystickDevice
 
 		//Pluggable
 		virtual const std::string &getName() const;
+		virtual void plug(Connector* connector, const EmuTime& time);
+		virtual void unplug(const EmuTime& time);
 
 		//JoystickDevice
 		virtual byte read(const EmuTime &time);

@@ -33,6 +33,14 @@ const std::string &KeyJoystick::getName() const
 	return name;
 }
 
+void KeyJoystick::plug(Connector* connector, const EmuTime& time)
+{
+}
+
+void KeyJoystick::unplug(const EmuTime& time)
+{
+}
+
 
 // KeyJoystickDevice
 byte KeyJoystick::read(const EmuTime &time)

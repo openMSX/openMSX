@@ -20,9 +20,9 @@ class PrinterPortLogger : public PrinterPortDevice
 		virtual void writeData(byte data, const EmuTime &time);
 		
 		// Pluggable
-		virtual void plug(const EmuTime &time);
-		virtual void unplug(const EmuTime &time);
 		virtual const std::string &getName() const;
+		virtual void plug(Connector* connector, const EmuTime& time);
+		virtual void unplug(const EmuTime& time);
 
 	private:
 		byte toPrint;

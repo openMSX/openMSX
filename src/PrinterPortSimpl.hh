@@ -21,7 +21,7 @@ class PrinterPortSimpl : public PrinterPortDevice
 		
 		// Pluggable
 		virtual const std::string &getName() const;
-		virtual void plug(const EmuTime &time);
+		virtual void plug(Connector* connector, const EmuTime& time);
 		virtual void unplug(const EmuTime &time);
 		
 	private:

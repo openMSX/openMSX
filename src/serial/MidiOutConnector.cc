@@ -3,6 +3,7 @@
 #include "MidiOutConnector.hh"
 #include "MidiOutDevice.hh"
 #include "DummyMidiOutDevice.hh"
+#include "MidiOutLogger.hh"
 #include "PluggingController.hh"
 
 
@@ -10,6 +11,7 @@ MidiOutConnector::MidiOutConnector(const string& name_, const EmuTime& time)
 	: name(name_)
 {
 	dummy = new DummyMidiOutDevice();
+	logger = new MidiOutLogger();
 	PluggingController::instance()->registerConnector(this);
 
 	unplug(time);
@@ -18,6 +20,7 @@ MidiOutConnector::MidiOutConnector(const string& name_, const EmuTime& time)
 MidiOutConnector::~MidiOutConnector()
 {
 	PluggingController::instance()->unregisterConnector(this);
+	delete logger;
 	delete dummy;
 }
 
@@ -28,7 +31,7 @@ const string& MidiOutConnector::getName() const
 
 const string& MidiOutConnector::getClass() const
 {
-	static const string className("Midi Out Port");
+	static const string className("midi out");
 	return className;
 }
 

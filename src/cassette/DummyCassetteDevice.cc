@@ -26,3 +26,11 @@ int DummyCassetteDevice::getWriteSampleRate()
 {
 	return 0;	// 0 means not interested
 }
+
+void DummyCassetteDevice::plug(Connector* connector, const EmuTime& time)
+{
+}
+
+void DummyCassetteDevice::unplug(const EmuTime& time)
+{
+}

@@ -167,6 +167,14 @@ const string &CassettePlayer::getName() const
 	return name;
 }
 
+void CassettePlayer::plug(Connector* connector, const EmuTime& time)
+{
+}
+
+void CassettePlayer::unplug(const EmuTime& time)
+{
+}
+
 
 void CassettePlayer::execute(const vector<string> &tokens)
 {

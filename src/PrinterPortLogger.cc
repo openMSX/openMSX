@@ -43,7 +43,7 @@ void PrinterPortLogger::writeData(byte data, const EmuTime &time)
 	toPrint = data;
 }
 
-void PrinterPortLogger::plug(const EmuTime &time)
+void PrinterPortLogger::plug(Connector* connector, const EmuTime& time)
 {
 	const std::string filename("printer.log");	// TODO read from config
 	file = new File(filename, TRUNCATE);

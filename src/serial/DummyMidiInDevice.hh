@@ -8,7 +8,10 @@
 
 class DummyMidiInDevice : public MidiInDevice
 {
-	virtual void ready();
+	public:
+		virtual void ready();
+		virtual void plug(Connector* connector, const EmuTime& time);
+		virtual void unplug(const EmuTime& time);
 };
 
 #endif

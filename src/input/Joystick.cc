@@ -49,6 +49,14 @@ const std::string &Joystick::getName() const
 	return name;
 }
 
+void Joystick::plug(Connector* connector, const EmuTime& time)
+{
+}
+
+void Joystick::unplug(const EmuTime& time)
+{
+}
+
 
 //JoystickDevice
 byte Joystick::read(const EmuTime &time)

@@ -20,3 +20,11 @@ void DummyJoystick::write(byte value, const EmuTime &time)
 {
 	// do nothing
 }
+
+void DummyJoystick::plug(Connector* connector, const EmuTime& time)
+{
+}
+
+void DummyJoystick::unplug(const EmuTime& time)
+{
+}

@@ -36,6 +36,14 @@ const std::string &JoyNet::getName() const
 	return name;
 }
 
+void JoyNet::plug(Connector* connector, const EmuTime& time)
+{
+}
+
+void JoyNet::unplug(const EmuTime& time)
+{
+}
+
 
 //JoystickDevice
 byte JoyNet::read(const EmuTime &time)

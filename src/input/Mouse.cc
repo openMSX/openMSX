@@ -36,9 +36,13 @@ const std::string &Mouse::getName() const
 	return name;
 }
 
-void Mouse::plug(const EmuTime &time)
+void Mouse::plug(Connector* connector, const EmuTime& time)
 {
 	lastTime = time;
+}
+
+void Mouse::unplug(const EmuTime& time)
+{
 }
 
 
