@@ -1,5 +1,9 @@
 $Id$
 
+2003-07-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added midi in reader (reads from /dev/midi):
+	   - still completely untested
+
 2003-07-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* added joystick emulation for mouse:
 	   - when you plug in the mouse with the left button pressed,

@@ -4,10 +4,12 @@
 #define __MIDIINCONNECTOR_HH__
 
 #include "Connector.hh"
+#include "SerialDataInterface.hh"
 
 class DummyMidiInDevice;
+class MidiInReader;
 
-class MidiInConnector : public Connector
+class MidiInConnector : public Connector, public SerialDataInterface
 {
 	public:
 		MidiInConnector(const string& name, const EmuTime& time);
@@ -20,10 +22,13 @@ class MidiInConnector : public Connector
 		virtual void unplug(const EmuTime& time);
 
 		virtual bool ready() = 0;
+		virtual bool acceptsData() = 0;
 
 	private:
 		string name;
 		DummyMidiInDevice* dummy;
+
+		MidiInReader* reader;
 };
 
 #endif

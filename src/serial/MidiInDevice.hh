@@ -12,7 +12,7 @@ class MidiInDevice : public Pluggable
 		// Pluggable (part)
 		virtual const string& getClass() const;
 		
-		virtual void ready() = 0;
+		virtual void signal(const EmuTime& time) = 0;
 };
 
 #endif

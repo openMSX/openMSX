@@ -19,7 +19,7 @@ class I8251Interface : public SerialDataInterface
 		virtual void setDTR(bool status, const EmuTime& time) = 0;
 		virtual void setRTS(bool status, const EmuTime& time) = 0;
 		virtual byte getDSR(const EmuTime& time) = 0;
-		virtual void recvReady() = 0;
+		virtual void signal(const EmuTime& time) = 0;
 };
 
 class I8251 : public SerialDataInterface, private Schedulable
@@ -33,11 +33,12 @@ class I8251 : public SerialDataInterface, private Schedulable
 		void writeIO(byte port, byte value, const EmuTime& time);
 		ClockPin& getClockPin();
 		bool isRecvReady();
+		bool isRecvEnabled();
 
 		// SerialDataInterface
 		virtual void setDataBits(DataBits bits);
 		virtual void setStopBits(StopBits bits);
-		virtual void setParityBits(bool enable, ParityBit parity);
+		virtual void setParityBit(bool enable, ParityBit parity);
 		virtual void recvByte(byte value, const EmuTime& time);
 
 		// Schedulable

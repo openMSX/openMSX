@@ -23,7 +23,7 @@ class SerialDataInterface
 		
 		virtual void setDataBits(DataBits bits) = 0;
 		virtual void setStopBits(StopBits bits) = 0;
-		virtual void setParityBits(bool enable, ParityBit parity) = 0;
+		virtual void setParityBit(bool enable, ParityBit parity) = 0;
 		virtual void recvByte(byte value, const EmuTime& time) = 0;
 };
 

@@ -142,28 +142,6 @@ void MSXMidi::enableRxRDYIRQ(bool enabled)
 	}
 }
 
-// SerialDataInterface  (pass calls from inConnector to I8251)
-
-void MSXMidi::setDataBits(DataBits bits)
-{
-	i8251.setDataBits(bits);
-}
-
-void MSXMidi::setStopBits(StopBits bits)
-{
-	i8251.setStopBits(bits);
-}
-
-void MSXMidi::setParityBits(bool enable, ParityBit parity)
-{
-	i8251.setParityBits(enable, parity);
-}
-
-void MSXMidi::recvByte(byte value, const EmuTime& time)
-{
-	i8251.recvByte(value, time);
-}
-
 
 // I8251Interface  (pass calls from I8251 to outConnector)
 
@@ -206,9 +184,9 @@ void MSXMidi::I8251Interf::setStopBits(StopBits bits)
 	midi.outConnector.setStopBits(bits);
 }
 
-void MSXMidi::I8251Interf::setParityBits(bool enable, ParityBit parity)
+void MSXMidi::I8251Interf::setParityBit(bool enable, ParityBit parity)
 {
-	midi.outConnector.setParityBits(enable, parity);
+	midi.outConnector.setParityBit(enable, parity);
 }
 
 void MSXMidi::I8251Interf::recvByte(byte value, const EmuTime& time)
@@ -216,9 +194,9 @@ void MSXMidi::I8251Interf::recvByte(byte value, const EmuTime& time)
 	midi.outConnector.recvByte(value, time);
 }
 
-void MSXMidi::I8251Interf::recvReady()
+void MSXMidi::I8251Interf::signal(const EmuTime& time)
 {
-	((MidiInDevice*)midi.pluggable)->ready();
+	((MidiInDevice*)midi.pluggable)->signal(time);
 }
 
 
@@ -284,3 +262,29 @@ bool MSXMidi::ready()
 {
 	return i8251.isRecvReady();
 }
+
+bool MSXMidi::acceptsData()
+{
+	return i8251.isRecvEnabled();
+}
+
+void MSXMidi::setDataBits(DataBits bits)
+{
+	i8251.setDataBits(bits);
+}
+
+void MSXMidi::setStopBits(StopBits bits)
+{
+	i8251.setStopBits(bits);
+}
+
+void MSXMidi::setParityBit(bool enable, ParityBit parity)
+{
+	i8251.setParityBit(enable, parity);
+}
+
+void MSXMidi::recvByte(byte value, const EmuTime& time)
+{
+	i8251.recvByte(value, time);
+}
+

@@ -26,7 +26,7 @@ class MidiOutConnector : public Connector, public SerialDataInterface
 		// SerialDataInterface
 		virtual void setDataBits(DataBits bits);
 		virtual void setStopBits(StopBits bits);
-		virtual void setParityBits(bool enable, ParityBit parity);
+		virtual void setParityBit(bool enable, ParityBit parity);
 		virtual void recvByte(byte value, const EmuTime& time);
 	
 	private:

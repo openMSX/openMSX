@@ -13,8 +13,7 @@
 #include "SerialDataInterface.hh"
 
 
-class MSXMidi : public MSXIODevice, public SerialDataInterface,
-                public MidiInConnector
+class MSXMidi : public MSXIODevice, public MidiInConnector
 {
 	public:
 		MSXMidi(Device *config, const EmuTime &time);
@@ -27,18 +26,17 @@ class MSXMidi : public MSXIODevice, public SerialDataInterface,
 
 		// MidiInConnector
 		virtual bool ready();
+		virtual bool acceptsData();
+		virtual void setDataBits(DataBits bits);
+		virtual void setStopBits(StopBits bits);
+		virtual void setParityBit(bool enable, ParityBit parity);
+		virtual void recvByte(byte value, const EmuTime& time);
 
 	private:
 		void setTimerIRQ(bool status);
 		void enableTimerIRQ(bool enabled);
 		void setRxRDYIRQ(bool status);
 		void enableRxRDYIRQ(bool enabled);
-		
-		// SerialDataInterface
-		virtual void setDataBits(DataBits bits);
-		virtual void setStopBits(StopBits bits);
-		virtual void setParityBits(bool enable, ParityBit parity);
-		virtual void recvByte(byte value, const EmuTime& time);
 		
 		bool timerIRQlatch;
 		bool timerIRQenabled;
@@ -86,9 +84,9 @@ class MSXMidi : public MSXIODevice, public SerialDataInterface,
 			virtual byte getDSR(const EmuTime& time);
 			virtual void setDataBits(DataBits bits);
 			virtual void setStopBits(StopBits bits);
-			virtual void setParityBits(bool enable, ParityBit parity);
+			virtual void setParityBit(bool enable, ParityBit parity);
 			virtual void recvByte(byte value, const EmuTime& time);
-			virtual void recvReady();
+			virtual void signal(const EmuTime& time);
 		private:
 			MSXMidi& midi;
 		} interf;

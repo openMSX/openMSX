@@ -16,7 +16,7 @@ class MidiOutDevice : public Pluggable, public SerialDataInterface
 		// SerialDataInterface (part)
 		virtual void setDataBits(DataBits bits);
 		virtual void setStopBits(StopBits bits);
-		virtual void setParityBits(bool enable, ParityBit parity);
+		virtual void setParityBit(bool enable, ParityBit parity);
 };
 
 #endif

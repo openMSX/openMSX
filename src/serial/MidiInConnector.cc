@@ -4,12 +4,14 @@
 #include "MidiInDevice.hh"
 #include "DummyMidiInDevice.hh"
 #include "PluggingController.hh"
+#include "MidiInReader.hh"
 
 
 MidiInConnector::MidiInConnector(const string& name_, const EmuTime& time)
 	: name(name_)
 {
 	dummy = new DummyMidiInDevice();
+	reader = new MidiInReader();
 	PluggingController::instance()->registerConnector(this);
 
 	unplug(time);
@@ -18,6 +20,7 @@ MidiInConnector::MidiInConnector(const string& name_, const EmuTime& time)
 MidiInConnector::~MidiInConnector()
 {
 	PluggingController::instance()->unregisterConnector(this);
+	delete reader;
 	delete dummy;
 }
 

@@ -56,9 +56,9 @@ void MidiOutConnector::setStopBits(StopBits bits)
 	((MidiOutDevice*)pluggable)->setStopBits(bits);
 }
 
-void MidiOutConnector::setParityBits(bool enable, ParityBit parity)
+void MidiOutConnector::setParityBit(bool enable, ParityBit parity)
 {
-	((MidiOutDevice*)pluggable)->setParityBits(enable, parity);
+	((MidiOutDevice*)pluggable)->setParityBit(enable, parity);
 }
 
 void MidiOutConnector::recvByte(byte value, const EmuTime& time)

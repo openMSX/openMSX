@@ -175,7 +175,7 @@ void I8251::setMode(byte value)
 	bool parityEnable = mode & MODE_PARITYEN;
 	SerialDataInterface::ParityBit parity = (mode & MODE_PARITEVEN) ?
 		SerialDataInterface::EVEN : SerialDataInterface::ODD;
-	interf->setParityBits(parityEnable, parity);
+	interf->setParityBit(parityEnable, parity);
 
 	int baudrate;
 	switch (mode & MODE_BAUDRATE) {
@@ -203,6 +203,7 @@ void I8251::setMode(byte value)
 
 void I8251::writeCommand(byte value, const EmuTime& time)
 {
+	byte oldCommand = command;
 	command = value;
 	
 	// CMD_RESET, CMD_TXEN, CMD_RXE  handled in other routines
@@ -229,6 +230,10 @@ void I8251::writeCommand(byte value, const EmuTime& time)
 	}
 	if (command & CMD_HUNT) {
 		// TODO
+	}
+
+	if ((command ^ oldCommand) & CMD_RXE) {
+		interf->signal(time);
 	}
 }
 
@@ -278,7 +283,7 @@ void I8251::setStopBits(StopBits bits)
 	recvStopBits = bits;
 }
 
-void I8251::setParityBits(bool enable, ParityBit parity)
+void I8251::setParityBit(bool enable, ParityBit parity)
 {
 	recvParityEnabled = enable;
 	recvParityBit = parity;
@@ -306,6 +311,10 @@ bool I8251::isRecvReady()
 {
 	return recvReady;
 }
+bool I8251::isRecvEnabled()
+{
+	return command & CMD_RXE;
+}
 
 void I8251::send(byte value, const EmuTime& time)
 {
@@ -320,7 +329,7 @@ void I8251::executeUntilEmuTime(const EmuTime &time, int userData)
 	case RECV:
 		assert(command & CMD_RXE);
 		recvReady = true;
-		interf->recvReady();
+		interf->signal(time);
 		break;
 	case TRANS: 
 		assert(!(status & STAT_TXEMPTY) && (command & CMD_TXEN));

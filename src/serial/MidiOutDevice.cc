@@ -20,7 +20,7 @@ void MidiOutDevice::setStopBits(StopBits bits)
 	// ignore
 }
 
-void MidiOutDevice::setParityBits(bool enable, ParityBit parity)
+void MidiOutDevice::setParityBit(bool enable, ParityBit parity)
 {
 	// ignore
 }

@@ -32,8 +32,8 @@ libSerial_la_SOURCES = \
 	DummyMidiOutDevice.cc DummyMidiOutDevice.hh \
 	MidiInConnector.cc  MidiInConnector.hh \
 	MidiOutConnector.cc MidiOutConnector.hh \
-	MidiOutLogger.cc MidiOutLogger.hh
-	
+	MidiOutLogger.cc MidiOutLogger.hh \
+	MidiInReader.cc MidiInReader.hh 
 
 nodebug: resetdebug all
 debug: setdebug all

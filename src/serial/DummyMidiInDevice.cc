@@ -2,7 +2,7 @@
 
 #include "DummyMidiInDevice.hh"
 
-void DummyMidiInDevice::ready()
+void DummyMidiInDevice::signal(const EmuTime& time)
 {
 	// ignore
 }
