@@ -6,6 +6,7 @@
 #include "PrinterPortDevice.hh"
 #include "PluggingController.hh"
 #include "PrinterPortSimple.hh"
+#include "PrinterPortLogger.hh"
 
 
 MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
@@ -21,7 +22,7 @@ MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
 	unplug(time);	// TODO plug device as specified in config file
 	reset(time);
 	
-	logger = new LoggingPrinterPortDevice();
+	logger = new PrinterPortLogger();
 	simple = new PrinterPortSimple();
 }
 
@@ -116,43 +117,3 @@ const std::string &DummyPrinterPortDevice::getName()
 	return name;
 }
 const std::string DummyPrinterPortDevice::name("dummy");
-
-
-// --- LoggingPrinterPortDevice ---
-
-LoggingPrinterPortDevice::LoggingPrinterPortDevice()
-{
-	PluggingController::instance()->registerPluggable(this);
-}
-
-LoggingPrinterPortDevice::~LoggingPrinterPortDevice()
-{
-	PluggingController::instance()->unregisterPluggable(this);
-}
-
-bool LoggingPrinterPortDevice::getStatus(const EmuTime &time)
-{
-	return false;	// false = low = ready
-}
-
-void LoggingPrinterPortDevice::setStrobe(bool strobe, const EmuTime &time)
-{
-	if (strobe) {
-		PRT_DEBUG("PRINTER: save in printlog file "<<toPrint);
-	} else {
-		PRT_DEBUG("PRINTER: strobe off");
-	}
-}
-
-void LoggingPrinterPortDevice::writeData(byte data, const EmuTime &time)
-{
-	toPrint=data;
-	PRT_DEBUG("PRINTER: setting data "<<data);
-}
-
-const std::string &LoggingPrinterPortDevice::getName()
-{
-	return name;
-}
-const std::string LoggingPrinterPortDevice::name("logger");
-

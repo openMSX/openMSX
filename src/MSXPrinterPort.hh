@@ -6,25 +6,12 @@
 #include "MSXIODevice.hh"
 #include "PrinterPortDevice.hh"
 #include "Connector.hh"
+#include "FileOpener.hh"
 
 // forward declarations
 class PrinterPortSimple;
+class PrinterPortLogger;
 
-
-class LoggingPrinterPortDevice : public PrinterPortDevice
-{
-public:
-	LoggingPrinterPortDevice();
-	virtual ~LoggingPrinterPortDevice();
-
-	virtual bool getStatus(const EmuTime &time);
-	virtual void setStrobe(bool strobe, const EmuTime &time);
-	virtual void writeData(byte data, const EmuTime &time);
-	virtual const std::string &getName();
-private:
-	byte toPrint;
-	static const std::string name;
-};
 
 class DummyPrinterPortDevice : public PrinterPortDevice
 {
@@ -56,7 +43,7 @@ class MSXPrinterPort : public MSXIODevice , public Connector
 
 	private:
 		DummyPrinterPortDevice *dummy;
-		LoggingPrinterPortDevice *logger;
+		PrinterPortLogger *logger;
 		PrinterPortSimple *simple;
 		
 		bool strobe;

@@ -44,6 +44,7 @@ void PrinterPortSimple::plug(const EmuTime &time)
 void PrinterPortSimple::unplug(const EmuTime &time)
 {
 	delete dac;
+	dac = NULL;
 }
 
 const std::string &PrinterPortSimple::getName()

@@ -5,6 +5,9 @@ $Id$
 	* MSXSimple:
 	   - converted from MSXIODevice to PrinterPortDevice
 	   - renamed to PrinterPortSimple
+	* MSXPrinterLogger:
+	   - converted from MSXIODevice to PrinterPortDevice
+	   - renamed to PrinterPortLogger
 
 2002-03-11 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* made Connector-Pluggable aware of EmuTime

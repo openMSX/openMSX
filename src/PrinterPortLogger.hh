@@ -1,17 +1,17 @@
 // $Id$
 
-#ifndef __PRINTERPORTSIMPLE_HH__
-#define __PRINTERPORTSIMPLE_HH__
+#ifndef __MSXPRINTERPORTLOGGER_HH__
+#define __MSXPRINTERPORTLOGGER_HH__
 
 #include "PrinterPortDevice.hh"
-class DACSound;
+#include "FileOpener.hh"
 
 
-class PrinterPortSimple : public PrinterPortDevice
+class PrinterPortLogger : public PrinterPortDevice
 {
 	public:
-		PrinterPortSimple();
-		virtual ~PrinterPortSimple();
+		PrinterPortLogger();
+		virtual ~PrinterPortLogger();
 
 		// PrinterPortDevice
 		virtual bool getStatus(const EmuTime &time);
@@ -19,14 +19,14 @@ class PrinterPortSimple : public PrinterPortDevice
 		virtual void writeData(byte data, const EmuTime &time);
 		
 		// Pluggable
-		virtual const std::string &getName();
 		virtual void plug(const EmuTime &time);
 		virtual void unplug(const EmuTime &time);
-		
+		virtual const std::string &getName();
 	private:
-		DACSound* dac;
-
+		byte toPrint;
+		IOFILETYPE* file;
+		
 		static const std::string name;
 };
-#endif
 
+#endif
