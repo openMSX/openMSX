@@ -52,7 +52,7 @@ class MSXPPI : public MSXDevice, I8255Interface
 	// MSXDevice
 	public:
 		~MSXPPI(); 
-		static MSXDevice *instance();
+		static MSXPPI *instance();
 		
 		void init();
 		void reset();

@@ -13,7 +13,7 @@
 class MSXDevice
 {
 	public:
-		virtual ~MSXDevice(void);
+		virtual ~MSXDevice();
 		virtual void setConfigDevice(MSXConfig::Device *config);
 		
 		// interaction with CPU
@@ -35,7 +35,7 @@ class MSXDevice
 		virtual const std::string &getName();
 
 	protected:
-		MSXDevice(void);
+		MSXDevice();
 		
 		MSXConfig::Device *deviceConfig;
 		//These are used for save/restoreState see note over

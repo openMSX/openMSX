@@ -21,7 +21,7 @@ MSXPPI::~MSXPPI()
 	PRT_DEBUG("Destroying an MSXPPI object");
 }
 
-MSXDevice* MSXPPI::instance(void)
+MSXPPI* MSXPPI::instance(void)
 {
 	if (oneInstance == NULL ) {
 		oneInstance = new MSXPPI();

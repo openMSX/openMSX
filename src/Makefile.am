@@ -29,8 +29,11 @@ openmsx_SOURCES=openmsx.cc \
 	MSXPSG.hh MSXPSG.cc AY8910.hh AY8910.cc \
 	JoystickPorts.hh JoystickPorts.cc JoystickDevice.hh \
 	DummyJoystick.hh DummyJoystick.cc \
-	MSXKanji.hh MSXKanji.cc
-	
+	MSXKanji.hh MSXKanji.cc \
+	MSXMemoryMapper.hh MSXMemoryMapper.cc \
+	MSXMapperIO.hh MSXMapperIO.cc \
+	MSXMapperIOTurboR.hh MSXMapperIOTurboR.cc
+
 
 # libxml++ and SDL
 openmsx_LDADD= -lxml++ -lSDL -lpthread

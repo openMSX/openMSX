@@ -10,6 +10,8 @@
 #include "MSXCPU.hh"
 #include "MSXPSG.hh"
 #include "MSXKanji.hh"
+#include "MSXMemoryMapper.hh"
+#include "MSXMapperIO.hh"
 #include <assert.h>
 
 MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
@@ -41,6 +43,12 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	}
 	if ( conf->getType().compare("Kanji") == 0 ) {
 		device = new MSXKanji();
+	}
+	if ( conf->getType().compare("MemoryMapper") == 0 ) {
+		device = new MSXMemoryMapper();
+	}
+	if ( conf->getType().compare("MapperIO") == 0 ) {
+		device = MSXMapperIO::instance();
 	}
 
 	assert (device != 0);

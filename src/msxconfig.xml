@@ -73,4 +73,32 @@
   <device id="Kanji ROM">
     <type>Kanji</type>
   </device>
+  <device id="Mapper IO">
+    <type>MapperIO</type>
+  </device>
+  <device id="mymapper1">
+    <type>MemoryMapper</type>
+    <slotted>
+      <ps>1</ps>
+      <ss>0</ss>
+      <page>0</page>
+    </slotted>
+    <slotted>
+      <ps>1</ps>
+      <ss>0</ss>
+      <page>1</page>
+    </slotted>
+    <slotted>
+      <ps>1</ps>
+      <ss>0</ss>
+      <page>2</page>
+    </slotted>
+    <slotted>
+      <ps>1</ps>
+      <ss>0</ss>
+      <page>3</page>
+    </slotted>
+    <parameter name="slow_drain_on_reset">true</parameter>
+    <parameter name="size">512</parameter>
+  </device>
 </msxconfig>

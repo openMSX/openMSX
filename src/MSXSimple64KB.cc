@@ -9,7 +9,6 @@
 MSXSimple64KB::MSXSimple64KB()
 {
 	PRT_DEBUG("Creating an MSXSimple64KB object");
-	slow_drain_on_reset=false;
 }
 
 MSXSimple64KB::~MSXSimple64KB()
@@ -34,14 +33,16 @@ void MSXSimple64KB::reset()
 
 void MSXSimple64KB::init()
 {
+	MSXDevice::init();
+	
+	slow_drain_on_reset = false;	//TODO in config file
+	
 	memoryBank = new byte[65536];
-	if (memoryBank == NULL) {
+	if (memoryBank == NULL) 
 		PRT_ERROR("Couldn't create 64KB memory bank !!!!!!");
-	} else {
-		//Isn't completely true, but let's suppose that ram will 
-		//always contain all zero if started
-		memset(memoryBank,0,65536); // new doesn't fill with zero
-	}
+	//Isn't completely true, but let's suppose that ram will 
+	//always contain all zero if started
+	memset(memoryBank,0,65536); // new doesn't fill with zero
 
 	list<MSXConfig::Device::Slotted*> slotted_list = deviceConfig->slotted;
 	for (list<MSXConfig::Device::Slotted*>::const_iterator i=slotted_list.begin(); i != slotted_list.end(); i++) {
