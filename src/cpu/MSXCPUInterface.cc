@@ -378,67 +378,57 @@ string MSXCPUInterface::getSlotMap() const
 	return out.str();
 }
 
-static string ioMapHelper(const string& type, int begin, int end,
-                          const MSXDevice* device)
+static void ioMapHelper(ostringstream& out,
+                        const string& type, int begin, int end,
+                        const MSXDevice* device)
 {
-	ostringstream out;
 	out << "port " << hex << setw(2) << setfill('0') << uppercase << begin;
-	if (begin == end) {
+	if (begin == end - 1) {
 		out << ":    ";
 	} else {
-		out << "-" << setw(2) << setfill('0') << uppercase << end << ": ";
+		out << "-" << setw(2) << setfill('0') << uppercase << end - 1 << ": ";
 	}
-	out << type << " " << device->getName() << "\n";
-	return out.str();
+	out << type << " " << device->getName() << endl;
 }
 
 string MSXCPUInterface::getIOMap() const
 {
-	string result;
-	for (int port = 0; port < 256; ++port) {
-		// skip empty regions
-		for ( ; port < 256; ++port) {
-			if ((IO_In [port] != &dummyDevice) ||
-			    (IO_Out[port] != &dummyDevice)) {
-				break;
-			}
-		}
-		if (port == 256) {
-			break;
-		}
-
-		// scan over equal region
+	ostringstream result;
+	int port = 0;
+	while (port < 256) {
 		const MSXDevice* deviceIn  = IO_In [port];
 		const MSXDevice* deviceOut = IO_Out[port];
-		int port2 = port;
-		for ( ; port2 < 256; ++port2) {
-			if ((IO_In [port2 + 1] != deviceIn) ||
-			    (IO_Out[port2 + 1] != deviceOut)) {
-				break;
-			}
+
+		// Skip empty regions.
+		if (deviceIn == &dummyDevice && deviceOut == &dummyDevice) {
+			++port;
+			continue;
 		}
+
+		// Scan over equal region.
+		int endPort = port + 1; // exclusive
+		while (endPort < 256
+		    && IO_In [endPort] == deviceIn
+		    && IO_Out[endPort] == deviceOut) ++endPort;
+
 		if (deviceIn == &dummyDevice) {
-			// Out
+			// Out only
 			assert(deviceOut != &dummyDevice);
-			result += ioMapHelper("  O", port, port2, deviceOut);
+			ioMapHelper(result, "  O", port, endPort, deviceOut);
+		} else if (deviceOut == &dummyDevice) {
+			// In only
+			ioMapHelper(result, "I  ", port, endPort, deviceIn);
+		} else if (deviceIn == deviceOut) {
+			// In/Out same device
+			ioMapHelper(result, "I/O", port, endPort, deviceIn);
 		} else {
-			if (deviceOut == &dummyDevice) {
-				// In
-				result += ioMapHelper("I  ", port, port2, deviceIn);
-			} else {
-				if (deviceIn == deviceOut) {
-					// In/Out same device
-					result += ioMapHelper("I/O", port, port2, deviceIn);
-				} else {
-					// In and Out different devices
-					result += ioMapHelper("I  ", port, port2, deviceIn);
-					result += ioMapHelper("  O", port, port2, deviceOut);
-				}
-			}
+			// In and Out different devices
+			ioMapHelper(result, "I  ", port, endPort, deviceIn);
+			ioMapHelper(result, "  O", port, endPort, deviceOut);
 		}
-		port = port2;
+		port = endPort;
 	}
-	return result;
+	return result.str();
 }
 
 void MSXCPUInterface::printSlotMapPages(ostream &out,
