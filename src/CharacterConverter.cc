@@ -36,6 +36,7 @@ TODO:
 #include "CharacterConverter.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
+#include "config.h"
 
 /** Fill a boolean array with a single value.
   * Optimised for byte-sized booleans,
