@@ -1,5 +1,9 @@
 $Id$
 
+2005-03-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Split CliComm class in CliComm and CliConnection:
+	   helps to keep the c-macros defined in windows.h more local
+
 2005-03-13 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented soundlog toggle command.
 	* Implemented tabCompletion for soundlog command and partially for 
