@@ -1,10 +1,20 @@
 $Id$
 
+2003-05-08 Maarten ter Huurne <maarten@treewalker.org>
+	* Another GCC 3.3-pre fix: passing signed byte references as unsigned
+	  byte references. Typecasting to "(byte &)" instead of "(byte)" works
+	  on both GCC 3.2 and GCC 3.3-pre.
+
 2003-05-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* a few fixes in new YM2413 code. Still not made default because
 	  drums in illusion city are screwed
 
-2003-05-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-05-06 Maarten ter Huurne <maarten@treewalker.org>
+	* Compiled with GCC 3.3-pre:
+	  - Fixed missing "#include <cassert>" directives.
+	  - Fixed some warnings, suppressed others.
+
+2003-05-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* release openmsx-0.3.0
 	* added "mbstereo" extension
 
