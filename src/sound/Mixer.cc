@@ -29,7 +29,7 @@ Mixer::Mixer()
 		if (config->hasParameter("samples")) {
 			samples = config->getParameterAsInt("samples");
 		}
-	} catch (MSXException &e) {
+	} catch (ConfigException &e) {
 		// no Mixer section
 	}
 

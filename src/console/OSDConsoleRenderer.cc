@@ -61,7 +61,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console * console_)
 	bool initiated = true;
 	static set<string> initsDone;
 	string tempconfig = console->getId();
-	tempconfig[0] = ::toupper (tempconfig[0]);
+	tempconfig[0] = ::toupper(tempconfig[0]);
 	try {
 		Config *config = MSXConfig::instance()->getConfigById(tempconfig);
 		context = config->getContext();
@@ -74,16 +74,20 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console * console_)
 				fontName = config->getParameter("font");
 				fontName = context->resolve(fontName);
 			}
-		} catch (FileException &e) {}
+		} catch (FileException &e) {
+			// nothing
+		}
 
 		try {
 			if (!initiated && config->hasParameter("background")) {
 				backgroundName = config->getParameter("background");
 				backgroundName = context->resolve(backgroundName);
 			}
-		} catch (FileException &e) {}
+		} catch (FileException &e) {
+			// nothing
+		}
 
-	} catch (MSXException &e) {
+	} catch (ConfigException &e) {
 		// no Console section
 		context = new SystemFileContext();	// TODO memory leak
 	}

@@ -134,7 +134,7 @@ RealDrive::RealDrive(const string &driveName, const EmuTime &time)
 		const string &filename = config->getParameter("filename");
 		try {
 			insertDisk(config->getContext(), filename);
-		} catch (MSXException &e) {
+		} catch (FileException &e) {
 			// file not found
 			PRT_ERROR("Couldn't load diskimage: " << filename);
 		}
@@ -257,7 +257,7 @@ void RealDrive::execute(const vector<string> &tokens)
 		try {
 			UserFileContext context;
 			insertDisk(&context, tokens[1]);
-		} catch (MSXException &e) {
+		} catch (FileException &e) {
 			throw CommandException(e.getMessage());
 		}
 	}

@@ -290,8 +290,9 @@ void FilenameSetting::setValue(const string &newValue)
 		PRT_INFO("Warning: couldn't find file: \"" << newValue << "\"");
 		return;
 	}
-	bool ok = checkFile(resolved);
-	if (ok) StringSetting::setValue(newValue);
+	if (checkFile(resolved)) {
+		StringSetting::setValue(newValue);
+	}
 }
 
 void FilenameSetting::tabCompletion(vector<string> &tokens) const

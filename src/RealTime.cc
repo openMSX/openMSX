@@ -40,7 +40,7 @@ RealTime::RealTime()
 			maxCatchUpFactor =
 				config->getParameterAsInt("max_catch_up_factor");
 		}
-	} catch (MSXException &e) {
+	} catch (ConfigException &e) {
 		// no Realtime section
 	}
 

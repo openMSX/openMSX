@@ -76,7 +76,7 @@ void CommandLineParser::postRegisterFileTypes()
 				fileTypeMap[(*j)->value] = i->second;
 			}
 		}
-	} catch (MSXException &e) {
+	} catch (ConfigException &e) {
 		map<string,string> fileExtMap;
 		map<string,string>::const_iterator j;
 		fileExtMap["rom"] = "romimages";
@@ -183,7 +183,7 @@ void CommandLineParser::parse(int argc, char **argv)
 					machineConfig->getParameter("machine");
 				PRT_INFO("Using default machine: " << machine);
 			}
-		} catch (MSXException &e) {
+		} catch (ConfigException &e) {
 			// no DefaultMachine section
 		}
 		try {

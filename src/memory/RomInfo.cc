@@ -252,7 +252,7 @@ RomInfo *RomInfo::searchRomDB(const Rom *rom)
 					}
 				}
 			}
-		} catch (MSXException &e) {
+		} catch (FileException &e) {
 			PRT_INFO("Warning: couldn't open romdb.xml.\n"
 			         "Romtype detection might fail because of this.");
 		}

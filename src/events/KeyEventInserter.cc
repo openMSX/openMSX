@@ -84,7 +84,7 @@ KeyEventInserter::KeyEventInserter(const EmuTime &time)
 		Config *config = MSXConfig::instance()->
 		                            getConfigById("KeyEventInserter");
 		enter(config->getParameter("keys"), time);
-	} catch(MSXException &e) {
+	} catch (ConfigException &e) {
 		// do nothing
 	}
 }

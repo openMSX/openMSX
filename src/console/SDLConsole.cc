@@ -200,20 +200,18 @@ void SDLConsole::alpha(unsigned char newAlpha)
 // Adds background image to the console
 bool SDLConsole::loadBackground(const string &filename)
 {
-	SDL_Surface *pictureSurface = NULL;
 	if (filename.empty()) {
 		return false;
 	}
 	
-	try{
-	File file(filename);
-	pictureSurface = IMG_Load(file.getLocalName().c_str());
-	}catch(FileException &e){
-	}
-	
-	if (pictureSurface == NULL) {
+	SDL_Surface *pictureSurface;
+	try {
+		File file(filename);
+		pictureSurface = IMG_Load(file.getLocalName().c_str());
+	} catch (FileException &e) {
 		return false;
 	}
+
 	if (backgroundImage) {
 		SDL_FreeSurface(backgroundImage);
 	}
@@ -225,10 +223,10 @@ bool SDLConsole::loadBackground(const string &filename)
 					rect.w, rect.h, 32, 0, 0, 0, 0);
 	// convert the picturesurface to 32 bpp
 	SDL_PixelFormat * format=scaled32Surface->format;
-	SDL_Surface * picture32Surface = SDL_ConvertSurface(pictureSurface,format,0);
+	SDL_Surface * picture32Surface = SDL_ConvertSurface(pictureSurface, format, 0);
 
 	SDL_FreeSurface(pictureSurface);
-	zoomSurface (picture32Surface,scaled32Surface,true);
+	zoomSurface (picture32Surface,scaled32Surface, true);
 	SDL_FreeSurface(picture32Surface);
 	// convert the background to the right format
 	backgroundImage = SDL_DisplayFormat(scaled32Surface);
@@ -268,15 +266,21 @@ void SDLConsole::resize(SDL_Rect rect)
 			outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
 	SDL_Surface *temp3 = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, font->getHeight(),
 			outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
-	if (temp1 == NULL || temp2 == NULL || temp3 == NULL)
+	if (temp1 == NULL || temp2 == NULL || temp3 == NULL) {
 		return;
-	
-	if (consoleSurface)  SDL_FreeSurface(consoleSurface);
-	if (inputBackground) SDL_FreeSurface(inputBackground);
-	if (fontLayer) SDL_FreeSurface(fontLayer);
+	}
+	if (consoleSurface) {
+		SDL_FreeSurface(consoleSurface);
+	}
+	if (inputBackground) {
+		SDL_FreeSurface(inputBackground);
+	}
+	if (fontLayer) {
+		SDL_FreeSurface(fontLayer);
+	}
 	
 	consoleSurface = SDL_DisplayFormat(temp1);
-	fontLayer=SDL_DisplayFormat(temp2);
+	fontLayer = SDL_DisplayFormat(temp2);
 	
 	SDLFont* sdlFont = dynamic_cast<SDLFont*>(font);
 	if (sdlFont) {
@@ -297,8 +301,8 @@ void SDLConsole::resize(SDL_Rect rect)
 // takes a new x and y of the top left of the console window
 void SDLConsole::position(int x, int y)
 {
-	assert (!(x<0 || x > outputScreen->w - consoleSurface->w));
-	assert (!(y<0 || y > outputScreen->h - consoleSurface->h));
+	assert(!(x<0 || x > outputScreen->w - consoleSurface->w));
+	assert(!(y<0 || y > outputScreen->h - consoleSurface->h));
 	dispX = x;
 	dispY = y;
 }
@@ -329,37 +333,27 @@ int SDLConsole::zoomSurface(SDL_Surface * src, SDL_Surface * dst, bool smooth)
 	tColorRGBA *sp, *csp, *dp;
 	int sgap, dgap;
 
-	/*
-	 * Variable setup
-	 */
+	// Variable setup
 	if (smooth) {
-	/*
-	 * For interpolation: assume source dimension is one pixel
-	 */
-	/*
-	 * smaller to avoid overflow on right and bottom edge.
-	 */
-	sx = (int) (65536.0 * (float) (src->w - 1) / (float) dst->w);
-	sy = (int) (65536.0 * (float) (src->h - 1) / (float) dst->h);
+		// For interpolation: assume source dimension is one pixel
+		// smaller to avoid overflow on right and bottom edge.
+		sx = (int) (65536.0 * (float) (src->w - 1) / (float) dst->w);
+		sy = (int) (65536.0 * (float) (src->h - 1) / (float) dst->h);
 	} else {
-	sx = (int) (65536.0 * (float) src->w / (float) dst->w);
-	sy = (int) (65536.0 * (float) src->h / (float) dst->h);
+		sx = (int) (65536.0 * (float) src->w / (float) dst->w);
+		sy = (int) (65536.0 * (float) src->h / (float) dst->h);
 	}
 
-	/*
-	 * Allocate memory for row increments
-	 */
+	// Allocate memory for row increments
 	if ((sax = (int *) malloc((dst->w + 1) * sizeof(Uint32))) == NULL) {
-		return (-1);
+		return -1;
 	}
 	if ((say = (int *) malloc((dst->h + 1) * sizeof(Uint32))) == NULL) {
 		free(sax);
-	return (-1);
+		return -1;
 	}
 
-	/*
-	 * Precalculate row increments
-	 */
+	// Precalculate row increments
 	csx = 0;
 	csax = sax;
 	for (x = 0; x <= dst->w; x++) {
@@ -377,31 +371,19 @@ int SDLConsole::zoomSurface(SDL_Surface * src, SDL_Surface * dst, bool smooth)
 		csy += sy;
 	}
 
-	/*
-	 * Pointer setup
-	 */
+	// Pointer setup
 	sp = csp = (tColorRGBA *) src->pixels;
 	dp = (tColorRGBA *) dst->pixels;
 	sgap = src->pitch - src->w * 4;
 	dgap = dst->pitch - dst->w * 4;
 
-	/*
-	 * Switch between interpolating and non-interpolating code
-	 */
+	// Switch between interpolating and non-interpolating code
 	if (smooth) {
-
-		/*
-		 * Interpolating Zoom
-		 */
-
-		/*
-		 * Scan destination
-		 */
+		// Interpolating Zoom
+		// Scan destination
 		csay = say;
 		for (y = 0; y < dst->h; y++) {
-			/*
-			 * Setup color source pointers
-			 */
+			// Setup color source pointers
 			c00 = csp;
 			c01 = csp;
 			c01++;
@@ -410,10 +392,7 @@ int SDLConsole::zoomSurface(SDL_Surface * src, SDL_Surface * dst, bool smooth)
 			c11++;
 			csax = sax;
 			for (x = 0; x < dst->w; x++) {
-
-				/*
-				 * Interpolate colors
-				 */
+				// Interpolate colors
 				ex = (*csax & 0xffff);
 				ey = (*csay & 0xffff);
 				t1 = ((((c01->r - c00->r) * ex) >> 16) + c00->r) & 0xff;
@@ -429,75 +408,48 @@ int SDLConsole::zoomSurface(SDL_Surface * src, SDL_Surface * dst, bool smooth)
 				t2 = ((((c11->a - c10->a) * ex) >> 16) + c10->a) & 0xff;
 				dp->a = (((t2 - t1) * ey) >> 16) + t1;
 
-				/*
-				 * Advance source pointers
-				 */
+				// Advance source pointers
 				csax++;
 				sstep = (*csax >> 16);
 				c00 += sstep;
 				c01 += sstep;
 				c10 += sstep;
 				c11 += sstep;
-				/*
-				 * Advance destination pointer
-				 */
+				// Advance destination pointer
 				dp++;
 			}
-			/*
-			 * Advance source pointer
-			 */
+			// Advance source pointer
 			csay++;
 			csp = (tColorRGBA *) ((Uint8 *) csp + (*csay >> 16) * src->pitch);
-			/*
-			 * Advance destination pointers
-			 */
+			// Advance destination pointers
 			dp = (tColorRGBA *) ((Uint8 *) dp + dgap);
 		}
-
-	}
-	else {
-
-		/*
-		 * Non-Interpolating Zoom
-		 */
-
+	} else {
+		// Non-Interpolating Zoom
 		csay = say;
 		for (y = 0; y < dst->h; y++) {
 			sp = csp;
 			csax = sax;
 			for (x = 0; x < dst->w; x++) {
-				/*
-				 * Draw
-				 */
+				// Draw
 				*dp = *sp;
-				/*
-				 * Advance source pointers
-				 */
+				// Advance source pointers
 				csax++;
 				sp += (*csax >> 16);
-				/*
-				 * Advance destination pointer
-				 */
+				// Advance destination pointer
 				dp++;
 			}
-			/*
-			 * Advance source pointer
-			 */
+			// Advance source pointer
 			csay++;
 			csp = (tColorRGBA *) ((Uint8 *) csp + (*csay >> 16) * src->pitch);
-			/*
-			 * Advance destination pointers
-			 */
+			// Advance destination pointers
 			dp = (tColorRGBA *) ((Uint8 *) dp + dgap);
 		}
-
 	}
 
-	/*
-	 * Remove temp arrays
-	 */
+	// Remove temp arrays
 	free(sax);
 	free(say);
 
-	return (0);
+	return 0;
 }

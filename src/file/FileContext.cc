@@ -49,8 +49,9 @@ const string FileContext::resolve(const vector<string> &pathList,
 		return filename;
 	}
 	
-	vector<string>::const_iterator it;
-	for (it = pathList.begin(); it != pathList.end(); it++) {
+	for (vector<string>::const_iterator it = pathList.begin();
+	     it != pathList.end();
+	     ++it) {
 		string name = FileOperations::expandTilde(*it + filename);
 		unsigned pos = name.find("://");
 		if (pos != string::npos) {
@@ -59,8 +60,7 @@ const string FileContext::resolve(const vector<string> &pathList,
 		struct stat buf;
 		PRT_DEBUG("Context: try "<<name);
 		if (!stat(name.c_str(), &buf)) {
-			// no error
-			PRT_DEBUG("Context: found "<<name);
+			// found
 			return name;
 		}
 	}
@@ -176,7 +176,7 @@ const vector<string> &UserFileContext::getPaths()
 				path = FileOperations::expandTilde(path);
 				paths.push_back(path);
 			}
-		} catch (MSXException &e) {
+		} catch (ConfigException &e) {
 			// no UserDirectories specified
 		}
 		paths.push_back("./");

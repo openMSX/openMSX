@@ -48,7 +48,7 @@ void CartridgeSlotManager::readConfig()
 				slots[slot] |= (ss << 2) | ps | EXISTS;
 			}
 		}
-	} catch (MSXException &e) {
+	} catch (ConfigException &e) {
 		// do nothing
 	}
 }

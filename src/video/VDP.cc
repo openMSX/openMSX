@@ -96,7 +96,7 @@ VDP::VDP(Device *config, const EmuTime &time)
 	try {
 		Config *config = MSXConfig::instance()->getConfigById("renderer");
 		rendererName = config->getType();
-	} catch (MSXException &e) {
+	} catch (ConfigException &e) {
 		// no renderer section
 		rendererName = string("SDLHi");
 	}

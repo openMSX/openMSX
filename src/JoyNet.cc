@@ -14,7 +14,7 @@ JoyNet::JoyNet()
 	try {
 		setupConnections();
 		PluggingController::instance()->registerPluggable(this);
-	} catch (MSXException &e) {
+	} catch (ConfigException &e) {
 		PRT_DEBUG("No correct JoyNet configuration");
 	}
 }

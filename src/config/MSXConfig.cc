@@ -134,7 +134,7 @@ bool Config::Parameter::stringToBool(const string &str)
 int Config::Parameter::stringToInt(const string &str)
 {
 	// strtol also understands hex
-	return strtol(str.c_str(),0,0);
+	return strtol(str.c_str(), 0, 0);
 }
 
 uint64 Config::Parameter::stringToUint64(const string &str)
@@ -167,20 +167,22 @@ Device::Device(XML::Element *element_, FileContext *context_)
 	list<XML::Element*>::iterator i;
 	for (i = element->children.begin(); i != element->children.end(); i++) {
 		if ((*i)->name == "slotted") {
-			int PS=-2;
-			int SS=-1;
-			int Page=-1;
+			int PS = -2;
+			int SS = -1;
+			int Page = -1;
 			list<XML::Element*>::iterator j;
 			for (j = (*i)->children.begin(); j != (*i)->children.end(); j++) {
-				if ((*j)->name == "ps") 
+				if ((*j)->name == "ps") {
 					PS = Config::Parameter::stringToInt((*j)->pcdata);
-				if ((*j)->name == "ss")
+				} else if ((*j)->name == "ss") {
 					SS = Config::Parameter::stringToInt((*j)->pcdata);
-				if ((*j)->name == "page")
+				} else if ((*j)->name == "page") {
 					Page = Config::Parameter::stringToInt((*j)->pcdata);
+				}
 			}
-			if (PS != -2) 
+			if (PS != -2) {
 				slotted.push_back(new Device::Slotted(PS,SS,Page));
+			}
 		}
 	}
 }
@@ -241,7 +243,6 @@ MSXConfig::~MSXConfig()
 MSXConfig* MSXConfig::instance()
 {
 	static MSXConfig oneInstance;
-	
 	return &oneInstance;
 }
 
@@ -297,17 +298,18 @@ void MSXConfig::handleDoc(XML::Document* doc, FileContext *context)
 {
 	docs.push_back(doc);
 	// TODO update/append Devices/Configs
-	list<XML::Element*>::const_iterator i;
-	for (i = doc->root->children.begin(); i != doc->root->children.end(); i++) {
-		if ((*i)->name == "config" || (*i)->name == "device") {
+	for (list<XML::Element*>::const_iterator i = doc->root->children.begin();
+	     i != doc->root->children.end();
+	     ++i) {
+		if (((*i)->name == "config") || ((*i)->name == "device")) {
 			string id((*i)->getAttribute("id"));
 			if (id == "") {
-				throw ConfigException("<config> or <device> is missing 'id'");
+				throw ConfigException(
+					"<config> or <device> is missing 'id'");
 			}
 			if (hasConfigWithId(id)) {
-				ostringstream s;
-				s << "<config> or <device> with duplicate 'id':" << id;
-				throw ConfigException(s);
+				throw ConfigException(
+				    "<config> or <device> with duplicate 'id':" + id);
 			}
 			if ((*i)->name == "config") {
 				configs.push_back(new Config(*i, context));
@@ -342,36 +344,33 @@ void MSXConfig::saveFile(const string &filename)
 
 Config* MSXConfig::getConfigById(const string &id)
 {
-	list<Config*>::const_iterator i;
-	for (i = configs.begin(); i != configs.end(); i++) {
-		if ((*i)->getId()==id) {
+	for (list<Config*>::const_iterator i = configs.begin();
+	     i != configs.end();
+	     ++i) {
+		if ((*i)->getId() == id) {
 			return (*i);
 		}
 	}
-
-	list<Device*>::const_iterator j;
-	for (j = devices.begin(); j != devices.end(); j++) {
-		if ((*j)->getId()==id) {
-			return (*j);
+	for (list<Device*>::const_iterator i = devices.begin();
+	     i != devices.end();
+	     ++i) {
+		if ((*i)->getId() == id) {
+			return (*i);
 		}
 	}
-	ostringstream s;
-	s << "<config> or <device> with id:" << id << " not found";
-	throw ConfigException(s);
+	throw ConfigException("<config> or <device> with id:" + id + " not found");
 }
 
 Device* MSXConfig::getDeviceById(const string &id)
 {
-	list<Device*>::const_iterator i;
-	for (i = devices.begin(); i != devices.end(); i++) {
-		if ((*i)->getId()==id) {
+	for (list<Device*>::const_iterator i = devices.begin();
+	     i != devices.end();
+	     ++i) {
+		if ((*i)->getId() == id) {
 			return (*i);
 		}
 	}
-	// TODO XXX raise exception?
-	ostringstream s;
-	s << "<device> with id:" << id << " not found";
-	throw ConfigException(s);
+	throw ConfigException("<device> with id:" + id + " not found");
 }
 
 void MSXConfig::initDeviceIterator()
@@ -388,6 +387,7 @@ Device* MSXConfig::getNextDevice()
 	}
 	return 0;
 }
+
 void Config::getParametersWithClassClean(list<Parameter*>* lst)
 {
 	list<Parameter*>::iterator i;
