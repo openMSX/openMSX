@@ -10,7 +10,7 @@
 
 #include <SDL/SDL.h>
 #include "openmsx.hh"
-#include "Renderer.hh"
+#include "PixelRenderer.hh"
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
 
@@ -34,7 +34,7 @@ Renderer *createSDLGLRenderer(VDP *vdp, bool fullScreen, const EmuTime &time);
 
 /** Hi-res (640x480) renderer on SDL.
   */
-class SDLGLRenderer : public Renderer
+class SDLGLRenderer : public PixelRenderer
 {
 public:
 	// TODO: Make private, if it remains at all.
@@ -53,7 +53,7 @@ public:
 	// Renderer interface:
 
 	void frameStart(const EmuTime &time);
-	void putImage(const EmuTime &time);
+	//void putImage(const EmuTime &time);
 	void setFullScreen(bool);
 	void updateTransparency(bool enabled, const EmuTime &time);
 	void updateForegroundColour(int colour, const EmuTime &time);
@@ -64,40 +64,24 @@ public:
 	void updatePalette(int index, int grb, const EmuTime &time);
 	void updateVerticalScroll(int scroll, const EmuTime &time);
 	void updateHorizontalAdjust(int adjust, const EmuTime &time);
-	void updateDisplayEnabled(bool enabled, const EmuTime &time);
+	//void updateDisplayEnabled(bool enabled, const EmuTime &time);
 	void updateDisplayMode(int mode, const EmuTime &time);
 	void updateNameBase(int addr, const EmuTime &time);
 	void updatePatternBase(int addr, const EmuTime &time);
 	void updateColourBase(int addr, const EmuTime &time);
-	void updateVRAM(int addr, byte data, const EmuTime &time);
+	//void updateVRAM(int addr, byte data, const EmuTime &time);
+
+protected:
+	void finishFrame();
+	void updateVRAMCache(int addr, byte data) {
+		(this->*dirtyChecker)(addr, data);
+	}
+	void drawBorder(int fromX, int fromY, int limitX, int limitY);
+	void drawDisplay(int fromX, int fromY, int limitX, int limitY);
 
 private:
-	/** Render a rectangle on the host screen.
-	  * The units are absolute lines (Y) and VDP clockticks (X),
-	  * which span a screen larger than the area on which pixels are shown.
-	  * @param fromX X coordinate of render start (inclusive).
-	  * @param fromY Y coordinate of render start (inclusive).
-	  * @param limitX X coordinate of render end (exclusive).
-	  * @param limitY Y coordinate of render end (exclusive).
-	  */
-	typedef void (SDLGLRenderer::*PhaseHandler)
-		(int fromX, int fromY, int limitX, int limitY);
-
 	typedef void (SDLGLRenderer::*DirtyChecker)
 		(int addr, byte data);
-
-	/** Update renderer state to specified moment in time.
-	  * @param time Moment in emulated time to update to.
-	  */
-	inline void sync(const EmuTime &time);
-
-	/** Render lines until specified moment in time.
-	  * Unlike sync(), this method does not sync with VDPVRAM.
-	  * The VRAM should be to be up to date and remain unchanged
-	  * from the current time to the specified time.
-	  * @param time Moment in emulated time to render lines until.
-	  */
-	inline void renderUntil(const EmuTime &time);
 
 	inline void renderBitmapLines(byte line, int count);
 	inline void renderPlanarBitmapLines(byte line, int count);
@@ -111,15 +95,6 @@ private:
 	  * @param mode The new display mode: M5..M1.
 	  */
 	inline void setDisplayMode(int mode);
-
-	/** Get width of the left border in pixels.
-	  * This is equal to the X coordinate of the display area.
-	  */
-	inline int getLeftBorder();
-
-	/** Get width of the display area in pixels.
-	  */
-	inline int getDisplayWidth();
 
 	/** Get a pointer to the start of a VRAM line in the cache.
 	  * @param displayCache The display cache to use.
@@ -136,18 +111,6 @@ private:
 	  * TODO: Implement the case that even_colour != odd_colour.
 	  */
 	inline Pixel getBorderColour();
-
-	/** Render in background colour.
-	  * Used for borders and during blanking.
-	  * Conforms to the PhaseHandler interface.
-	  */
-	void blankPhase(int fromX, int fromY, int limitX, int limitY);
-
-	/** Render pixels according to VRAM.
-	  * Used for the display part of scanning.
-	  * Conforms to the PhaseHandler interface.
-	  */
-	void displayPhase(int fromX, int fromY, int limitX, int limitY);
 
 	/** Dirty checking that does nothing (but is a valid method).
 	  */
@@ -218,24 +181,9 @@ private:
 	  */
 	Pixel PALETTE256[256];
 
-	/** Phase handler: current drawing mode (off, blank, display).
-	  */
-	PhaseHandler phaseHandler;
-
 	/** Dirty checker: update dirty tables on VRAM write.
 	  */
 	DirtyChecker dirtyChecker;
-
-	/** Number of the next position within a line to render.
-	  * Expressed in "small pixels" (Text2, Graphics 5/6) from the
-	  * left border of the rendered screen.
-	  */
-	int nextX;
-
-	/** Number of the next line to render.
-	  * Expressed in number of lines above lineRenderTop.
-	  */
-	int nextY;
 
 	/** The surface which is visible to the user.
 	  */
@@ -266,10 +214,6 @@ private:
 	  * 0xFF means invalid in every mode.
 	  */
 	byte lineValidInMode[256 * 4];
-
-	/** Absolute line number of first bottom erase line.
-	  */
-	int lineBottomErase;
 
 	/** Line to render at top of display.
 	  * After all, our screen is 240 lines while display is 262 or 313.

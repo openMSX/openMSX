@@ -1,9 +1,13 @@
 $Id$
 
+2002-10-31 Maarten ter Huurne <mth@stack.nl>
+	* Changed SDLGLRenderer to make it a subclass of PixelRenderer.
+	* Minor cleanups in SDLHiRenderer.
+
 2002-10-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* rewrite of FDC infrastructure:
 	   - the existing diskroms are too different to handle them all
-	     in one class -> made FDCFactory that instantiates the right 
+	     in one class -> made FDCFactory that instantiates the right
 	     object
 	   - Implemented support for:
 	       - Philips based diskroms: were already supported
@@ -12,8 +16,8 @@ $Id$
 	           I also didn't test the new implementation
 	       - National based diskroms (needs better name?):
 	           also untested
-	     The three diskroms above are all build around the WD2793 (or 
-	     compatible) controller. 
+	     The three diskroms above are all build around the WD2793 (or
+	     compatible) controller.
 	   - Configuration format changed slightly, see msxconfigFDC.xml
 	     for details
 

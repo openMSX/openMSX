@@ -5,10 +5,6 @@ TODO:
 - Scanline emulation.
 - Use 8x8 textures in character mode.
 - Use GL display lists for geometry speedup.
-- Idea: make an abstract superclass for line-based Renderers, this
-  class would know when to sync etc, but not be SDL dependent.
-  Since most of the abstraction is done using <Pixel>, most code
-  is SDL independent already.
 - Implement sprite pixels in Graphic 5.
 - Is it possible to combine dirtyPattern and dirtyColour into a single
   dirty array?
@@ -51,10 +47,17 @@ TODO:
 static const int WIDTH = 640;
 static const int HEIGHT = 480;
 
-/** Line number where top border starts.
-  * This is independent of PAL/NTSC timing or number of lines per screen.
+/** VDP ticks between start of line and start of left border.
   */
-static const int LINE_TOP_BORDER = 3 + 13;
+static const int TICKS_LEFT_BORDER = 100 + 102;
+
+/** The middle of the visible (display + borders) part of a line,
+  * expressed in VDP ticks since the start of the line.
+  * TODO: Move this to PixelRenderer?
+  *       It is not used there, but it is used by multiple subclasses.
+  */
+static const int TICKS_VISIBLE_MIDDLE =
+	TICKS_LEFT_BORDER + (VDP::TICKS_PER_LINE - TICKS_LEFT_BORDER - 27) / 2;
 
 inline static void GLSetColour(SDLGLRenderer::Pixel colour)
 {
@@ -185,6 +188,19 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 #endif
 }
 
+/** Translate from absolute VDP coordinates to screen coordinates:
+  * Note: In reality, there are only 569.5 visible pixels on a line.
+  *       Because it looks better, the borders are extended to 640.
+  */
+inline static int translateX(int absoluteX)
+{
+	if (absoluteX == VDP::TICKS_PER_LINE) return WIDTH;
+	// Note: The "& ~1" forces the ticks to a pixel (2-tick) boundary.
+	//       If this is not done, rounding errors will occur.
+	int screenX = (absoluteX - (TICKS_VISIBLE_MIDDLE & ~1)) / 2 + WIDTH / 2;
+	return screenX < 0 ? 0 : screenX;
+}
+
 inline void SDLGLRenderer::setDisplayMode(int mode)
 {
 	dirtyChecker = modeToDirtyChecker[mode];
@@ -197,88 +213,13 @@ inline void SDLGLRenderer::setDisplayMode(int mode)
 	palSprites = (mode == 0x1C ? palGraphic7Sprites : palBg);
 }
 
-inline void SDLGLRenderer::renderUntil(const EmuTime &time)
+void SDLGLRenderer::finishFrame()
 {
-	int limitTicks = vdp->getTicksThisFrame(time);
+	// Render console if needed.
+	console->drawConsole();
 
-	switch (accuracy) {
-	case ACC_PIXEL: {
-		int limitX = limitTicks % VDP::TICKS_PER_LINE;
-		//limitX = (limitX - 100 - (VDP::TICKS_PER_LINE - 100) / 2 + WIDTH) / 2;
-		// TODO: Apply these transformations in the phaseHandler instead.
-		limitX = (limitX - 100 / 2 - 102) / 2;
-		if (limitX < 0) {
-			limitX = 0;
-		} else if (limitX > WIDTH) {
-			limitX = WIDTH;
-		}
-
-		int limitY = limitTicks / VDP::TICKS_PER_LINE;
-		// TODO: Because of rounding errors, this might not always be true.
-		//assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
-		int totalLines = vdp->isPalTiming() ? 313 : 262;
-		if (limitY > totalLines) {
-			limitX = WIDTH;
-			limitY = totalLines;
-		}
-
-		// Split in rectangles:
-
-		// Finish any partial top line.
-		if (0 < nextX && nextX < WIDTH) {
-			(this->*phaseHandler)(nextX, nextY, WIDTH, nextY + 1);
-			nextY++;
-		}
-		// Draw full-width middle part (multiple lines).
-		if (limitY > nextY) {
-			// middle
-			(this->*phaseHandler)(0, nextY, WIDTH, limitY);
-		}
-		// Start any partial bottom line.
-		if (0 < limitX && limitX < WIDTH) {
-			(this->*phaseHandler)(0, limitY, limitX, limitY + 1);
-		}
-
-		nextX = limitX;
-		nextY = limitY;
-		break;
-	}
-	case ACC_LINE: {
-		int limitY = limitTicks / VDP::TICKS_PER_LINE;
-		// TODO: Because of rounding errors, this might not always be true.
-		//assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
-		int totalLines = vdp->isPalTiming() ? 313 : 262;
-		if (limitY > totalLines) limitY = totalLines;
-		if (nextY < limitY) {
-			(this->*phaseHandler)(0, nextY, WIDTH, limitY);
-			nextY = limitY ;
-		}
-		break;
-	}
-	case ACC_SCREEN: {
-		// TODO
-		break;
-	}
-	default:
-		assert(false);
-	}
-}
-
-inline void SDLGLRenderer::sync(const EmuTime &time)
-{
-	vram->sync(time);
-	renderUntil(time);
-}
-
-inline int SDLGLRenderer::getLeftBorder()
-{
-	return (WIDTH - 512) / 2 - 14 + vdp->getHorizontalAdjust() * 2
-		+ (vdp->isTextMode() ? 18 : 0);
-}
-
-inline int SDLGLRenderer::getDisplayWidth()
-{
-	return vdp->isTextMode() ? 480 : 512;
+	// Update screen.
+	SDL_GL_SwapBuffers();
 }
 
 inline SDLGLRenderer::Pixel *SDLGLRenderer::getLinePtr(
@@ -401,7 +342,7 @@ SDLGLRenderer::DirtyChecker
 
 SDLGLRenderer::SDLGLRenderer(
 	VDP *vdp, SDL_Surface *screen, bool fullScreen, const EmuTime &time)
-	: Renderer(fullScreen)
+	: PixelRenderer(vdp, fullScreen, time)
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256)
 {
@@ -447,7 +388,6 @@ SDLGLRenderer::SDLGLRenderer(
 	glLoadIdentity();
 
 	// Init renderer state.
-	phaseHandler = &SDLGLRenderer::blankPhase;
 	setDisplayMode(vdp->getDisplayMode());
 	setDirty(true);
 	dirtyForeground = dirtyBackground = true;
@@ -536,14 +476,25 @@ SDLGLRenderer::SDLGLRenderer(
 		}
 	}
 
-	// Now we're ready to start rendering the first frame.
-	frameStart(time);
 }
 
 SDLGLRenderer::~SDLGLRenderer()
 {
 	delete console;
 	// TODO: Free textures.
+}
+
+void SDLGLRenderer::frameStart(const EmuTime &time)
+{
+	// Call superclass implementation.
+	PixelRenderer::frameStart(time);
+
+	// Calculate line to render at top of screen.
+	// Make sure the display area is centered.
+	// 240 - 212 = 28 lines available for top/bottom border; 14 each.
+	// NTSC: display at [32..244),
+	// PAL:  display at [59..271).
+	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
 }
 
 void SDLGLRenderer::setFullScreen(
@@ -660,14 +611,6 @@ void SDLGLRenderer::updateHorizontalAdjust(
 	sync(time);
 }
 
-void SDLGLRenderer::updateDisplayEnabled(
-	bool enabled, const EmuTime &time)
-{
-	sync(time);
-	phaseHandler = ( enabled
-		? &SDLGLRenderer::displayPhase : &SDLGLRenderer::blankPhase );
-}
-
 void SDLGLRenderer::updateDisplayMode(
 	int mode, const EmuTime &time)
 {
@@ -698,24 +641,6 @@ void SDLGLRenderer::updateColourBase(
 	sync(time);
 	anyDirtyColour = true;
 	fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
-}
-
-void SDLGLRenderer::updateVRAM(
-	int addr, byte data, const EmuTime &time)
-{
-	// TODO: Is it possible to get rid of this method?
-	//       One method call is a considerable overhead since VRAM
-	//       changes occur pretty often.
-	//       For example, register dirty checker at caller.
-
-	// If display is disabled, VRAM changes will not affect the
-	// renderer output, therefore sync is not necessary.
-	// TODO: Changes in invisible pages do not require sync either.
-	//       Maybe this is a task for the dirty checker, because what is
-	//       visible is display mode dependant.
-	if (vdp->isDisplayEnabled()) renderUntil(time);
-
-	(this->*dirtyChecker)(addr, data);
 }
 
 void SDLGLRenderer::checkDirtyNull(
@@ -915,17 +840,12 @@ void SDLGLRenderer::drawSprites(int screenLine, int leftBorder, int minX, int ma
 	}
 }
 
-void SDLGLRenderer::blankPhase(
-	int fromX, int fromY, int limitX, int limitY)
+void SDLGLRenderer::drawBorder(int fromX, int fromY, int limitX, int limitY)
 {
-	if (fromX == limitX) return;
-	assert(fromX < limitX);
-	//PRT_DEBUG("BlankPhase: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
-
 	// TODO: Only redraw if necessary.
 	GLSetColour(getBorderColour());
-	int minX = fromX;
-	int maxX = limitX;
+	int minX = translateX(fromX);
+	int maxX = translateX(limitX);
 	int minY = (fromY - lineRenderTop) * 2;
 	int maxY = (limitY - lineRenderTop) * 2;
 	glBegin(GL_QUADS);
@@ -954,8 +874,8 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 	int screenHeight = 2 * count;
 	glScissor(0, HEIGHT - screenLine - screenHeight, WIDTH, screenHeight);
 	glEnable(GL_SCISSOR_TEST);
-	
-	int leftBorder = getLeftBorder();
+
+	int leftBorder = translateX(getDisplayLeft());
 
 	int endRow = (vramLine + count + 7) / 8;
 	screenLine -= (vramLine & 7) * 2;
@@ -1016,7 +936,7 @@ void SDLGLRenderer::renderGraphic2Row(int row, int screenLine)
 	int quarter = nameStart & ~0xFF;
 	int patternMask = vram->patternTable.getMask() / 8;
 	int colourMask = vram->colourTable.getMask() / 8;
-	int x = getLeftBorder();
+	int x = translateX(getDisplayLeft());
 	for (int name = nameStart; name < nameEnd; name++) {
 		int charNr = quarter | vram->nameTable.readNP((-1 << 10) | name);
 		int colourNr = charNr & colourMask;
@@ -1041,165 +961,101 @@ void SDLGLRenderer::renderGraphic2Row(int row, int screenLine)
 	}
 }
 
-void SDLGLRenderer::displayPhase(
-	int fromX, int fromY, int limitX, int limitY)
+// TODO: Clean up this routine.
+void SDLGLRenderer::drawDisplay(int fromX, int fromY, int limitX, int limitY)
 {
 	if (fromX == limitX) return;
 	assert(fromX < limitX);
 	//PRT_DEBUG("DisplayPhase: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
 
-	int n = limitY - fromY;
+	int nrLines = limitY - fromY;
 	int minY = (fromY - lineRenderTop) * 2;
 	if (!deinterlace && vdp->isInterlaced() && vdp->getEvenOdd()) {
 		minY++;
 	}
-	int maxY = minY + 2 * n;
+	int maxY = minY + 2 * nrLines;
 
-	// V9958 can extend the left border over the display area,
-	// The extended border clips sprites as well.
-	int leftBorder = getLeftBorder();
-	int left = leftBorder;
-	// if (vdp->maskedBorder()) left += 2 * 8;
-	if (fromX < left) {
-		GLSetColour(getBorderColour());
-		glBegin(GL_QUADS);
-		glVertex2i(fromX, minY);	// top left
-		glVertex2i(left,  minY);	// top right
-		glVertex2i(left,  maxY);	// bottom right
-		glVertex2i(fromX, maxY);	// bottom left
-		glEnd();
-		fromX = left;
-		if (fromX >= limitX) return;
-	}
-	
-	// Render background lines
-	int minX = fromX - leftBorder;
+	int leftBorder = translateX(getDisplayLeft());
+	int minX = translateX(fromX) - leftBorder;
 	assert(0 <= minX);
-	if (minX < 512) {
-		int maxX = limitX - leftBorder;
-		if (maxX > 512) maxX = 512;
-		
-		// Perform vertical scroll (wraps at 256).
-		byte line = fromY - vdp->getLineZero();
-		if (!vdp->isTextMode()) {
-			line += vdp->getVerticalScroll();
-		}
+	int maxX = translateX(limitX) - leftBorder;
+	assert(maxX <= 512);
 
-		// TODO: Complete separation of character and bitmap modes.
-		glEnable(GL_TEXTURE_2D);
-		if (vdp->isBitmapMode()) {
-			if (vdp->isPlanar()) {
-				renderPlanarBitmapLines(line, n);
-			} else {
-				renderBitmapLines(line, n);
-			}
-			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-			// Which bits in the name mask determine the page?
-			bool deinterlaced = deinterlace && vdp->isInterlaced() && vdp->isEvenOddEnabled();
-			int pageMaskEven, pageMaskOdd;
+	// Perform vertical scroll (wraps at 256).
+	byte line = fromY - vdp->getLineZero();
+	if (!vdp->isTextMode()) {
+		line += vdp->getVerticalScroll();
+	}
+
+	// Render background lines.
+	// TODO: Complete separation of character and bitmap modes.
+	glEnable(GL_TEXTURE_2D);
+	if (vdp->isBitmapMode()) {
+		if (vdp->isPlanar()) {
+			renderPlanarBitmapLines(line, nrLines);
+		} else {
+			renderBitmapLines(line, nrLines);
+		}
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+		// Which bits in the name mask determine the page?
+		bool deinterlaced = deinterlace && vdp->isInterlaced() && vdp->isEvenOddEnabled();
+		int pageMaskEven, pageMaskOdd;
+		if (deinterlaced) {
+			pageMaskEven = vdp->isPlanar() ? 0x000 : 0x200;
+			pageMaskOdd  = vdp->isPlanar() ? 0x100 : 0x300;
+		} else {
+			pageMaskEven = pageMaskOdd  =
+				(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
+		}
+		for (int y = minY; y < maxY; y += 2) {
 			if (deinterlaced) {
-				pageMaskEven = vdp->isPlanar() ? 0x000 : 0x200;
-				pageMaskOdd  = vdp->isPlanar() ? 0x100 : 0x300;
+				int vramLine1 = (vram->nameTable.getMask() >> 7) & (pageMaskEven | line);
+				GLDrawTexture(bitmapTextureIds[vramLine1], leftBorder, y+0, minX, maxX, 1);
+				int vramLine2 = (vram->nameTable.getMask() >> 7) & (pageMaskOdd  | line);
+				GLDrawTexture(bitmapTextureIds[vramLine2], leftBorder, y+1, minX, maxX, 1);
 			} else {
-				pageMaskEven = pageMaskOdd  =
-					(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
+				int vramLine = (vram->nameTable.getMask() >> 7) & (pageMaskEven | line);
+				GLDrawTexture(bitmapTextureIds[vramLine], leftBorder, y, minX, maxX, 2);
 			}
+			line++;	// wraps at 256
+		}
+	} else {
+		switch (vdp->getDisplayMode()) {
+		case 1:
+			// TODO: Render only part of the line.
+			renderText1(line, minY, nrLines);
+			break;
+		case 4: // graphic2
+		case 8: // graphic4
+			// TODO: Render only part of the line.
+			renderGraphic2(line, minY, nrLines);
+			break;
+		default:
+			// TODO: Render only part of the line.
+			//       In this case, only part is plotted, but still full cache
+			//       lines are checked.
+			renderCharacterLines(line, nrLines);
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 			for (int y = minY; y < maxY; y += 2) {
-				if (deinterlaced) {
-					int vramLine1 = (vram->nameTable.getMask() >> 7) & (pageMaskEven | line);
-					GLDrawTexture(bitmapTextureIds[vramLine1], leftBorder, y+0, minX, maxX, 1);
-					int vramLine2 = (vram->nameTable.getMask() >> 7) & (pageMaskOdd  | line);
-					GLDrawTexture(bitmapTextureIds[vramLine2], leftBorder, y+1, minX, maxX, 1);
-				} else {
-					int vramLine = (vram->nameTable.getMask() >> 7) & (pageMaskEven | line);
-					GLDrawTexture(bitmapTextureIds[vramLine], leftBorder, y, minX, maxX, 2);
-				}
+				GLDrawTexture(charTextureIds[line],
+					leftBorder, y, minX, maxX, 2 );
 				line++;	// wraps at 256
 			}
-		} else {
-			switch (vdp->getDisplayMode()) {
-			case 1:
-				renderText1(line, minY, n);
-				break;
-			case 4: // graphic2
-			case 8: // graphic4
-				renderGraphic2(line, minY, n);
-				break;
-			default:
-				renderCharacterLines(line, n);
-				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-				for (int y = minY; y < maxY; y += 2) {
-					GLDrawTexture(charTextureIds[line], leftBorder, y, minX, maxX, 2);
-					line++;	// wraps at 256
-				}
-				break;
-			}
+			break;
 		}
-
-		// Render sprites.
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//glPixelZoom(2.0, 2.0);
-		for (int y = minY; y < maxY; y += 2) {
-			drawSprites(y, leftBorder, minX, maxX);
-		}
-		glDisable(GL_BLEND);
-		glDisable(GL_TEXTURE_2D);
 	}
 
-	// Right border
-	int right = leftBorder + getDisplayWidth();
-	if (right < limitX) {
-		GLSetColour(getBorderColour());
-		glBegin(GL_QUADS);
-		glVertex2i(right,  minY);	// top left
-		glVertex2i(limitX, minY);	// top right
-		glVertex2i(limitX, maxY);	// bottom right
-		glVertex2i(right,  maxY);	// bottom left
-		glEnd();
+	// Render sprites.
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glPixelZoom(2.0, 2.0);
+	for (int y = minY; y < maxY; y += 2) {
+		drawSprites(y, leftBorder, minX, maxX);
 	}
-}
+	glDisable(GL_BLEND);
 
-void SDLGLRenderer::frameStart(const EmuTime &time)
-{
-	//cerr << "timing: " << (vdp->isPalTiming() ? "PAL" : "NTSC") << "\n";
-
-	// Calculate line to render at top of screen.
-	// Make sure the display area is centered.
-	// 240 - 212 = 28 lines available for top/bottom border; 14 each.
-	// NTSC: display at [32..244),
-	// PAL:  display at [59..271).
-	// TODO: Use screen lines instead.
-	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
-
-	// Calculate important moments in frame rendering.
-	lineBottomErase = vdp->isPalTiming() ? 313 - 3 : 262 - 3;
-	nextX = 0;
-	nextY = 0;
-	
-
-	// Screen is up-to-date, so nothing is dirty.
-	// TODO: Either adapt implementation to work with incremental
-	//       rendering, or get rid of dirty tracking.
-	//setDirty(false);
-	//dirtyForeground = dirtyBackground = false;
-}
-
-void SDLGLRenderer::putImage(const EmuTime &time)
-{
-	// Render changes from this last frame.
-	sync(time);
-
-	// Render console if needed
-	console->drawConsole();
-
-	// Update screen.
-	SDL_GL_SwapBuffers();
-
-	// The screen will be locked for a while, so now is a good time
-	// to perform real time sync.
-	RealTime::instance()->sync();
+	glDisable(GL_TEXTURE_2D);
 }
 
 Renderer *createSDLGLRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
