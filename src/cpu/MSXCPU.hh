@@ -56,9 +56,15 @@ class MSXCPU : public MSXDevice, public DebugInterface
 		void lowerIRQ();
 		
 		/**
-		 * Send wait states to R800
+		 * Send wait states to the CPU
 		 */
-		bool waitR800(const EmuTime &time);
+		void wait(const EmuTime &time);
+
+		/**
+		 * Is the R800 currently active
+		 */
+		bool isR800Active();
+		
 		dword getDataSize ();
 		byte readDebugData (dword address);
 		std::string getDeviceName ();

@@ -113,14 +113,14 @@ void MSXCPU::lowerIRQ()
 	r800.lowerIRQ();
 }
 
-bool MSXCPU::waitR800(const EmuTime &time)
+bool MSXCPU::isR800Active()
 {
-	if (activeCPU == &r800) {
-		r800.wait(time);
-		return true;
-	} else {
-		return false;
-	}
+	return activeCPU == &r800;
+}
+
+void MSXCPU::wait(const EmuTime &time)
+{
+	activeCPU->wait(time);
 }
 
 dword MSXCPU::getDataSize ()
