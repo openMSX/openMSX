@@ -14,6 +14,8 @@ class EmuTimerCallback
 {
 public:
 	virtual void callback(byte value) = 0;
+protected:
+	virtual ~EmuTimerCallback() {}
 };
 
 template<int freq, byte flag>

@@ -17,6 +17,8 @@ class ClockPinListener
 public:
 	virtual void signal(ClockPin& pin, const EmuTime& time) = 0;
 	virtual void signalPosEdge(ClockPin& pin, const EmuTime& time) = 0;
+protected:
+	virtual ~ClockPinListener() {}
 };
 
 class ClockPin : private Schedulable

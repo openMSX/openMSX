@@ -1,5 +1,9 @@
 $Id$
 
+2005-02-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed more compiler warnings (all harmless):
+	    compiled with gcc version 4.0.0 20050212 (experimental)
+
 2005-02-13 Maarten ter Huurne <maarten@treewalker.org>
 	* Added build support for OpenBSD (3.6 RELEASE, to be exact).
 	  Thanks to Ariane for testing!

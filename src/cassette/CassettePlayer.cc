@@ -132,11 +132,7 @@ void CassettePlayer::setMotor(bool status, const EmuTime& time)
 
 short CassettePlayer::getSample(const EmuTime& time)
 {
-	if (motor || forcePlay) {
-		return cassette->getSampleAt(time);
-	} else {
-		return 0;
-	}
+	return (motor || forcePlay) ? cassette->getSampleAt(time) : 0;
 }
 
 short CassettePlayer::readSample(const EmuTime& time)

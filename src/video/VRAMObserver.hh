@@ -36,6 +36,9 @@ public:
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updateWindow(bool enabled, const EmuTime& time) = 0;
+
+protected:
+	virtual ~VRAMObserver() {}
 };
 
 } // namespace openmsx

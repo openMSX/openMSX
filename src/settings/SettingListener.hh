@@ -16,6 +16,9 @@ public:
 	  * @param setting The setting of which the value has changed.
 	  */
 	virtual void update(const Setting* setting) = 0;
+
+protected:
+	virtual ~SettingListener() {}
 };
 
 } // namespace openmsx

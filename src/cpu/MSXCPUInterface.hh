@@ -65,11 +65,9 @@ public:
 	 * This reads a byte from the currently selected device
 	 */
 	inline byte readMem(word address, const EmuTime& time) {
-		if ((address != 0xFFFF) || !isSubSlotted[primarySlotState[3]]) {
-			return visibleDevices[address >> 14]->readMem(address, time);
-		} else {
-			return 0xFF ^ subSlotRegister[primarySlotState[3]];
-		}
+		return ((address != 0xFFFF) || !isSubSlotted[primarySlotState[3]])
+			? visibleDevices[address >> 14]->readMem(address, time)
+			: 0xFF ^ subSlotRegister[primarySlotState[3]];
 	}
 
 	/**

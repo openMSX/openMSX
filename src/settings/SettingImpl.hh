@@ -83,6 +83,8 @@ template<typename POLICY> class SettingChecker
 public:
 	virtual void check(SettingImpl<POLICY>& setting,
 	                   typename SettingImpl<POLICY>::Type& value) = 0;
+protected:
+	virtual ~SettingChecker() {}
 };
 
 

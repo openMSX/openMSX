@@ -117,6 +117,8 @@ public:
 		virtual void pset(const EmuTime& time, VDPVRAM* vram,
 			int addr, byte colour, byte mask
 			) = 0;
+	protected:
+		virtual ~LogOp() {}
 	};
 
 private:

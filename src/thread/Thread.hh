@@ -11,6 +11,8 @@ class Runnable
 {
 public:
 	virtual void run() = 0;
+protected:
+	virtual ~Runnable() {}
 };
 
 class Thread

@@ -140,6 +140,7 @@ public:
 	
 protected:
 	CPU();
+	virtual ~CPU() {}
 	
 	// flag-register tables, initialized at run-time
 	static byte ZSTable[256];
