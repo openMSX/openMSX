@@ -1,7 +1,7 @@
 // $Id$
 
 #include "SDLGLVideoSystem.hh"
-#include "SDLGLRenderer.hh"
+#include "PixelRenderer.hh"
 #include "GLRasterizer.hh"
 #include "GLSnow.hh"
 #include "GLConsole.hh"
@@ -45,7 +45,7 @@ SDLGLVideoSystem::SDLGLVideoSystem(VDP* vdp)
 	new GLConsole(CommandConsole::instance());
 
 	this->renderer =
-		new SDLGLRenderer(RendererFactory::SDLGL, vdp, rasterizer);
+		new PixelRenderer(RendererFactory::SDLGL, vdp, rasterizer);
 }
 
 SDLGLVideoSystem::~SDLGLVideoSystem()

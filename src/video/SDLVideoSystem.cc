@@ -1,7 +1,7 @@
 // $Id$
 
 #include "SDLVideoSystem.hh"
-#include "SDLRenderer.hh"
+#include "PixelRenderer.hh"
 #include "SDLRasterizer.hh"
 #include "SDLSnow.hh"
 #include "SDLConsole.hh"
@@ -75,7 +75,7 @@ SDLVideoSystem::SDLVideoSystem(
 	display->setAlpha(rasterizer, 255);
 	new SDLConsole(CommandConsole::instance(), screen);
 
-	this->renderer = new SDLRenderer(id, vdp, rasterizer);
+	this->renderer = new PixelRenderer(id, vdp, rasterizer);
 }
 
 SDLVideoSystem::~SDLVideoSystem()

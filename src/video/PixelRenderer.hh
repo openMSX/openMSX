@@ -3,120 +3,91 @@
 #ifndef __PIXELRENDERER_HH__
 #define __PIXELRENDERER_HH__
 
-#include "openmsx.hh"
 #include "Renderer.hh"
 #include "VDPVRAM.hh"
 #include "CircularBuffer.hh"
 #include "SettingListener.hh"
 #include "RenderSettings.hh"
 #include "DisplayMode.hh"
+#include "openmsx.hh"
+
 
 namespace openmsx {
 
+class Rasterizer;
 class VDP;
 class SpriteChecker;
 
 
-/** Abstract base class for pixel-based Renderers.
-  * Provides a framework for implementing a pixel-based Renderer,
-  * thereby reducing the amount of code needed to implement one.
+/** Generic implementation of a pixel-based Renderer.
+  * Uses a Rasterizer to plot actual pixels for a specific video system.
   */
-class PixelRenderer : public Renderer, protected SettingListener
+class PixelRenderer : public Renderer, private SettingListener
 {
 public:
-	// Renderer interface:
-
-	void frameStart(const EmuTime &time);
-	void frameEnd(const EmuTime &time);
-	void updateDisplayEnabled(bool enabled, const EmuTime &time);
-	void updateHorizontalScrollLow(byte scroll, const EmuTime &time);
-	void updateHorizontalScrollHigh(byte scroll, const EmuTime &time);
-	void updateBorderMask(bool masked, const EmuTime &time);
-	void updateMultiPage(bool multiPage, const EmuTime &time);
-	/*
-	void setFullScreen(bool);
-	void updateTransparency(bool enabled, const EmuTime &time);
-	void updateForegroundColour(int colour, const EmuTime &time);
-	void updateBackgroundColour(int colour, const EmuTime &time);
-	void updateBlinkForegroundColour(int colour, const EmuTime &time);
-	void updateBlinkBackgroundColour(int colour, const EmuTime &time);
-	void updateBlinkState(bool enabled, const EmuTime &time);
-	void updatePalette(int index, int grb, const EmuTime &time);
-	void updateVerticalScroll(int scroll, const EmuTime &time);
-	void updateHorizontalAdjust(int adjust, const EmuTime &time);
-	void updateDisplayMode(DisplayMode mode, const EmuTime &time);
-	void updateNameBase(int addr, const EmuTime &time);
-	void updatePatternBase(int addr, const EmuTime &time);
-	void updateColourBase(int addr, const EmuTime &time);
-	*/
-	void updateSpritesEnabled(bool enabled, const EmuTime &time);
-	void updateVRAM(unsigned offset, const EmuTime &time);
-	void updateWindow(bool enabled, const EmuTime &time);
-	virtual float getFrameRate() const;
-
-protected:
 	/** Constructor.
 	  */
-	PixelRenderer(RendererFactory::RendererID id, VDP *vdp);
+	PixelRenderer(
+		RendererFactory::RendererID id, VDP* vdp, Rasterizer* rasterizer );
 
 	/** Destructor.
 	  */
 	virtual ~PixelRenderer();
 
-	virtual void reset(const EmuTime &time);
+	// Renderer interface:
+	virtual void reset(const EmuTime& time);
+	virtual bool checkSettings();
+	virtual void frameStart(const EmuTime &time);
+	virtual void frameEnd(const EmuTime &time);
+	virtual void updateHorizontalScrollLow(byte scroll, const EmuTime &time);
+	virtual void updateHorizontalScrollHigh(byte scroll, const EmuTime &time);
+	virtual void updateBorderMask(bool masked, const EmuTime &time);
+	virtual void updateMultiPage(bool multiPage, const EmuTime &time);
+	virtual void updateTransparency(bool enabled, const EmuTime& time);
+	virtual void updateForegroundColour(int colour, const EmuTime& time);
+	virtual void updateBackgroundColour(int colour, const EmuTime& time);
+	virtual void updateBlinkForegroundColour(int colour, const EmuTime& time);
+	virtual void updateBlinkBackgroundColour(int colour, const EmuTime& time);
+	virtual void updateBlinkState(bool enabled, const EmuTime& time);
+	virtual void updatePalette(int index, int grb, const EmuTime& time);
+	virtual void updateVerticalScroll(int scroll, const EmuTime& time);
+	virtual void updateHorizontalAdjust(int adjust, const EmuTime& time);
+	virtual void updateDisplayEnabled(bool enabled, const EmuTime &time);
+	virtual void updateDisplayMode(DisplayMode mode, const EmuTime& time);
+	virtual void updateNameBase(int addr, const EmuTime& time);
+	virtual void updatePatternBase(int addr, const EmuTime& time);
+	virtual void updateColourBase(int addr, const EmuTime& time);
+	virtual void updateSpritesEnabled(bool enabled, const EmuTime &time);
+	virtual void updateVRAM(unsigned offset, const EmuTime &time);
+	virtual void updateWindow(bool enabled, const EmuTime &time);
+	virtual float getFrameRate() const;
 
-	/** Let underlying graphics system finish rendering this frame.
-	  * The image is stored for plotting later, once or multiple times,
-	  * using Layer::paint.
-	  */
-	virtual void finishFrame() = 0;
+private:
+	/** Indicates whether the area to be drawn is border or display. */
+	enum DrawType { DRAW_BORDER, DRAW_DISPLAY, DRAW_SPRITES };
 
-	/** Render a rectangle of border pixels on the host screen.
-	  * The units are absolute lines (Y) and VDP clockticks (X).
-	  * @param fromX X coordinate of render start (inclusive).
-	  * @param fromY Y coordinate of render start (inclusive).
-	  * @param limitX X coordinate of render end (exclusive).
-	  * @param limitY Y coordinate of render end (exclusive).
-	  */
-	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY) = 0;
-
-	/** Render a rectangle of display pixels on the host screen.
-	  * @param fromX X coordinate of render start in VDP ticks.
-	  * @param fromY Y coordinate of render start in absolute lines.
-	  * @param displayX display coordinate of render start: [0..512).
-	  * @param displayY display coordinate of render start: [0..256).
-	  * @param displayWidth rectangle width in pixels (512 per line).
-	  * @param displayHeight rectangle height in lines.
-	  */
-	virtual void drawDisplay(
-		int fromX, int fromY,
-		int displayX, int displayY,
-		int displayWidth, int displayHeight
-		) = 0;
-
-	/** Render a rectangle of sprite pixels on the host screen.
-	  * Although the parameters are very similar to drawDisplay,
-	  * the displayX and displayWidth use range [0..256) instead of
-	  * [0..512) because VDP sprite coordinates work that way.
-	  * @param fromX X coordinate of render start in VDP ticks.
-	  * @param fromY Y coordinate of render start in absolute lines.
-	  * @param displayX display coordinate of render start: [0..256).
-	  * @param displayY display coordinate of render start: [0..256).
-	  * @param displayWidth rectangle width in pixels (256 per line).
-	  * @param displayHeight rectangle height in lines.
-	  */
-	virtual void drawSprites(
-		int fromX, int fromY,
-		int displayX, int displayY,
-		int displayWidth, int displayHeight
-		) = 0;
-
-	/** Notifies the VRAM cache of a VRAM write.
-	  */
-	virtual void updateVRAMCache(int address) = 0;
-
-	// SettingListener:
+	// SettingListener interface:
 	virtual void update(const SettingLeafNode* setting);
+
+	/** Call the right draw method in the subclass,
+	  * depending on passed drawType.
+	  */
+	inline void draw(
+		int startX, int startY, int endX, int endY, DrawType drawType,
+		bool atEnd);
+
+	/** Subdivide an area specified by two scan positions into a series of
+	  * rectangles.
+	  * Clips the rectangles to { (x,y) | clipL <= x < clipR }.
+	  * @param drawType
+	  *   If DRAW_BORDER, draw rectangles using drawBorder;
+	  *   if DRAW_DISPLAY, draw rectangles using drawDisplay.
+	  */
+	inline void subdivide(
+		int startX, int startY, int endX, int endY,
+		int clipL, int clipR, DrawType drawType );
+
+	inline bool checkSync(int offset, const EmuTime &time);
 
 	/** Update renderer state to specified moment in time.
 	  * @param time Moment in emulated time to update to.
@@ -142,6 +113,14 @@ protected:
 		}
 	}
 
+	/** Render lines until specified moment in time.
+	  * Unlike sync(), this method does not sync with VDPVRAM.
+	  * The VRAM should be to be up to date and remain unchanged
+	  * from the current time to the specified time.
+	  * @param time Moment in emulated time to render lines until.
+	  */
+	void renderUntil(const EmuTime &time);
+
 	/** The VDP of which the video output is being rendered.
 	  */
 	VDP *vdp;
@@ -153,38 +132,6 @@ protected:
 	/** The sprite checker whose sprites are rendered.
 	  */
 	SpriteChecker *spriteChecker;
-
-private:
-	/** Indicates whether the area to be drawn is border or display. */
-	enum DrawType { DRAW_BORDER, DRAW_DISPLAY, DRAW_SPRITES };
-
-	/** Call the right draw method in the subclass,
-	  * depending on passed drawType.
-	  */
-	inline void draw(
-		int startX, int startY, int endX, int endY, DrawType drawType,
-		bool atEnd);
-
-	/** Subdivide an area specified by two scan positions into a series of
-	  * rectangles.
-	  * Clips the rectangles to { (x,y) | clipL <= x < clipR }.
-	  * @param drawType
-	  *   If DRAW_BORDER, draw rectangles using drawBorder;
-	  *   if DRAW_DISPLAY, draw rectangles using drawDisplay.
-	  */
-	inline void subdivide(
-		int startX, int startY, int endX, int endY,
-		int clipL, int clipR, DrawType drawType );
-
-	inline bool checkSync(int offset, const EmuTime &time);
-
-	/** Render lines until specified moment in time.
-	  * Unlike sync(), this method does not sync with VDPVRAM.
-	  * The VRAM should be to be up to date and remain unchanged
-	  * from the current time to the specified time.
-	  * @param time Moment in emulated time to render lines until.
-	  */
-	void renderUntil(const EmuTime &time);
 
 	/** Accuracy setting for current frame.
 	  */
@@ -216,6 +163,10 @@ private:
 	
 	// internal VDP counter, actually belongs in VDP
 	int textModeCounter;
+
+	Rasterizer* rasterizer;
+
+	BooleanSetting& powerSetting;
 };
 
 } // namespace openmsx

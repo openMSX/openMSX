@@ -1,14 +1,24 @@
 // $Id$
 
-#include <algorithm>
-#include <sstream>
-#include <cassert>
+/*
+TODO:
+- Implement blinking (of page mask) in bitmap modes.
+*/
+
 #include "PixelRenderer.hh"
+#include "Rasterizer.hh"
+#include "VideoSystem.hh"
+#include "RenderSettings.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
+#include "EventDistributor.hh"
+#include "Scheduler.hh"
 #include "RealTime.hh"
 #include "Timer.hh"
+#include <algorithm>
+#include <cassert>
+#include <sstream>
 
 using std::max;
 
@@ -25,7 +35,7 @@ inline void PixelRenderer::draw(
 {
 	switch(drawType) {
 	case DRAW_BORDER:
-		drawBorder(startX, startY, endX, endY);
+		rasterizer->drawBorder(startX, startY, endX, endY);
 		break;
 	case DRAW_DISPLAY:
 	case DRAW_SPRITES: {
@@ -54,13 +64,13 @@ inline void PixelRenderer::draw(
 		assert(displayX + displayWidth <= 512);
 
 		if (drawType == DRAW_DISPLAY) {
-			drawDisplay(
+			rasterizer->drawDisplay(
 				startX, startY,
 				displayX - vdp->getHorizontalScrollLow() * 2, displayY,
 				displayWidth, displayHeight
 				);
 		} else { // DRAW_SPRITES
-			drawSprites(
+			rasterizer->drawSprites(
 				startX, startY,
 				displayX / 2, displayY,
 				(displayWidth + 1) / 2, displayHeight
@@ -105,12 +115,15 @@ inline void PixelRenderer::subdivide(
 	if (drawLast) draw(clipL, endY, endX, endY + 1, drawType, false);
 }
 
-PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
+PixelRenderer::PixelRenderer(
+	RendererFactory::RendererID id, VDP* vdp, Rasterizer* rasterizer )
 	: Renderer(id)
+	, powerSetting(Scheduler::instance().getPowerSetting())
 {
 	this->vdp = vdp;
 	vram = vdp->getVRAM();
 	spriteChecker = vdp->getSpriteChecker();
+	this->rasterizer = rasterizer;
 
 	frameSkipCounter = 999; // force drawing of frame
 	finishFrameDuration = 0;
@@ -124,18 +137,28 @@ PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
 	
 	settings.getMaxFrameSkip()->addListener(this);
 	settings.getMinFrameSkip()->addListener(this);
+	powerSetting.addListener(this);
 }
 
 PixelRenderer::~PixelRenderer()
 {
+	powerSetting.removeListener(this);
 	settings.getMinFrameSkip()->removeListener(this);
 	settings.getMaxFrameSkip()->removeListener(this);
 }
 
 void PixelRenderer::reset(const EmuTime& time)
 {
+	rasterizer->reset();
 	displayEnabled = vdp->isDisplayEnabled();
 	frameStart(time);
+}
+
+bool PixelRenderer::checkSettings()
+{
+	// TODO: Move this check away from Renderer entirely?
+	return Renderer::checkSettings() // right renderer?
+		&& Display::INSTANCE->getVideoSystem()->checkSettings();
 }
 
 void PixelRenderer::updateDisplayEnabled(bool enabled, const EmuTime& time)
@@ -146,6 +169,12 @@ void PixelRenderer::updateDisplayEnabled(bool enabled, const EmuTime& time)
 
 void PixelRenderer::frameStart(const EmuTime& /*time*/)
 {
+	// TODO: Maybe it's cleaner to not call frameStart on skipped frames.
+	//       Calling always works, but it's not nice:
+	//       - frameEnd is not called on skipped frames (asymmetry)
+	//       - frameStart might do precalcs that are wasted energy
+	rasterizer->frameStart();
+
 	accuracy = settings.getAccuracy()->getValue();
 
 	nextX = 0;
@@ -179,7 +208,7 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 	if (draw) {
 		// Let underlying graphics system finish rendering this frame.
 		unsigned long long time1 = Timer::getTime();
-		finishFrame();
+		rasterizer->frameEnd();
 		unsigned long long time2 = Timer::getTime();
 		unsigned long long current = time2 - time1;
 		const float ALPHA = 0.2;
@@ -191,6 +220,9 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 		prevTimeStamp = time2;
 		frameDurationSum += duration - frameDurations.removeBack();
 		frameDurations.addFront(duration);
+
+		Event* finishFrameEvent = new SimpleEvent<FINISH_FRAME_EVENT>();
+		EventDistributor::instance().distributeEvent(finishFrameEvent);
 	}
 
 	// The screen will be locked for a while, so now is a good time
@@ -219,6 +251,92 @@ void PixelRenderer::updateBorderMask(
 void PixelRenderer::updateMultiPage(
 	bool /*multiPage*/, const EmuTime& time
 ) {
+	sync(time);
+}
+
+void PixelRenderer::updateTransparency(
+	bool enabled, const EmuTime& time)
+{
+	sync(time);
+	rasterizer->setTransparency(enabled);
+}
+
+void PixelRenderer::updateForegroundColour(
+	int /*colour*/, const EmuTime& time)
+{
+	sync(time);
+}
+
+void PixelRenderer::updateBackgroundColour(
+	int colour, const EmuTime& time)
+{
+	sync(time);
+	rasterizer->setBackgroundColour(colour);
+}
+
+void PixelRenderer::updateBlinkForegroundColour(
+	int /*colour*/, const EmuTime& time)
+{
+	sync(time);
+}
+
+void PixelRenderer::updateBlinkBackgroundColour(
+	int /*colour*/, const EmuTime& time)
+{
+	sync(time);
+}
+
+void PixelRenderer::updateBlinkState(
+	bool /*enabled*/, const EmuTime& /*time*/)
+{
+	// TODO: When the sync call is enabled, the screen flashes on
+	//       every call to this method.
+	//       I don't know why exactly, but it's probably related to
+	//       being called at frame start.
+	//sync(time);
+}
+
+void PixelRenderer::updatePalette(
+	int index, int grb, const EmuTime& time)
+{
+	sync(time);
+	rasterizer->setPalette(index, grb);
+}
+
+void PixelRenderer::updateVerticalScroll(
+	int /*scroll*/, const EmuTime& time)
+{
+	sync(time);
+}
+
+void PixelRenderer::updateHorizontalAdjust(
+	int /*adjust*/, const EmuTime& time)
+{
+	sync(time);
+}
+
+void PixelRenderer::updateDisplayMode(
+	DisplayMode mode, const EmuTime& time)
+{
+	sync(time, true);
+	rasterizer->setDisplayMode(mode);
+}
+
+void PixelRenderer::updateNameBase(
+	int /*addr*/, const EmuTime& time)
+{
+	sync(time);
+}
+
+void PixelRenderer::updatePatternBase(
+	int /*addr*/, const EmuTime& time)
+{
+	sync(time);
+}
+
+void PixelRenderer::updateColourBase(
+	int /*addr*/, const EmuTime& time)
+{
 	sync(time);
 }
 
@@ -343,7 +461,7 @@ void PixelRenderer::updateVRAM(unsigned offset, const EmuTime& time) {
 		*/
 		renderUntil(time);
 	}
-	updateVRAMCache(offset);
+	rasterizer->updateVRAMCache(offset);
 }
 
 void PixelRenderer::updateWindow(bool /*enabled*/, const EmuTime& /*time*/) {
@@ -426,11 +544,19 @@ void PixelRenderer::renderUntil(const EmuTime& time)
 	nextY = limitY;
 }
 
-void PixelRenderer::update(const SettingLeafNode* /*setting*/)
+void PixelRenderer::update(const SettingLeafNode* setting)
 {
-	frameSkipCounter = 999;	// force drawing of frame
+	if (setting == &powerSetting) {
+		Display::INSTANCE->setAlpha(
+			rasterizer, powerSetting.getValue() ? 255 : 0);
+	} else if (setting == settings.getMinFrameSkip()
+	|| setting == settings.getMaxFrameSkip() ) {
+		// Force drawing of frame.
+		frameSkipCounter = 999;
+	} else {
+		assert(false);
+	}
 }
-
 
 float PixelRenderer::getFrameRate() const
 {

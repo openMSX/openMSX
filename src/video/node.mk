@@ -10,7 +10,7 @@ SRC_HDR:= \
 	VDPSettings \
 	Icon \
 	Renderer RendererFactory RenderSettings PixelRenderer \
-	SDLVideoSystem SDLRenderer SDLRasterizer SDLSnow \
+	SDLVideoSystem SDLRasterizer SDLSnow \
 	SDLUtil \
 	DummyRenderer \
 	XRenderer \
@@ -30,7 +30,7 @@ HDR_ONLY:= \
 	Rasterizer
 
 SRC_HDR_$(COMPONENT_GL)+= \
-	SDLGLVideoSystem SDLGLRenderer GLRasterizer GLSnow GLUtil
+	SDLGLVideoSystem GLRasterizer GLSnow GLUtil
 
 include build/node-end.mk
 
