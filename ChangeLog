@@ -8,6 +8,9 @@ $Id$
 	    - sound must also be paused
 	    - realtime keeps running, so after unpausing openMSX 
 	      tries to catch up and runs too fast for a while
+	* MSXKanji now supports both class 1 as class 2 Kanji
+	* Added MSXPrinterPort and DummyPrinterPortDevice (= no device
+	  connected)
 
 2001-10-22 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Changed Mixer and SoundDevice interface (David's request).
