@@ -9,7 +9,7 @@
 #include "EmuTime.hh"	// for uint64
 #include "MSXException.hh"
 #include "libxmlx/xmlx.hh"
-#include "File.hh"
+#include "FileContext.hh"
 
 
 class ConfigException: public MSXException
@@ -46,13 +46,13 @@ class Config
 			static uint64 stringToUint64(const std::string &str);
 		};
 
-		Config(XML::Element *element, const std::string &context);
+		Config(XML::Element *element, const FileContext* context);
 		virtual ~Config();
 
 		const std::string &getType() const;
 		const std::string &getId() const;
 
-		const FileContext& getContext() const;
+		const FileContext* getContext() const;
 
 		bool hasParameter(const std::string &name) const;
 		const std::string &getParameter(const std::string &name) const;
@@ -75,7 +75,7 @@ class Config
 		XML::Element* getParameterElement(const std::string &name) const;
 		
 		XML::Element* element;
-		const FileContext context;
+		const FileContext* context;
 };
 
 class Device: virtual public Config
@@ -100,7 +100,7 @@ class Device: virtual public Config
 			int page;
 		};
 
-		Device(XML::Element *element, const std::string &context);
+		Device(XML::Element *element, const FileContext *context);
 		virtual ~Device();
 
 		std::list <Slotted*> slotted;
@@ -114,9 +114,9 @@ class MSXConfig
 		 * load a config file's content, and add it to
 		 *  the config data [can be called multiple times]
 		 */
-		void loadFile(const FileContext &context,
+		void loadFile(const FileContext *context,
 		              const std::string &filename);
-		void loadStream(const std::string &context,
+		void loadStream(const FileContext *context,
 		                const std::ostringstream &stream);
 
 		/**
@@ -148,7 +148,7 @@ class MSXConfig
 		MSXConfig();
 
 		bool hasConfigWithId(const std::string &id);
-		void handleDoc(XML::Document* doc, const std::string &context);
+		void handleDoc(XML::Document* doc, const FileContext *context);
 
 		std::list<XML::Document*> docs;
 		std::list<Config*> configs;

@@ -5,6 +5,7 @@
 #include "File.hh"
 #include "CartridgeSlotManager.hh"
 #include "MSXConfig.hh"
+#include "FileContext.hh"
 
 
 MSXFmPacCLI msxFmPacCLI;
@@ -42,7 +43,7 @@ void MSXFmPacCLI::execute(MSXConfig *config)
 	s << "<parameter name=\"sramname\">FMPAC.PAC</parameter>";
 	s << "</device>";
 	s << "</msxconfig>";
-	config->loadStream("", s);
+	config->loadStream(new SystemFileContext(), s); // TODO extension
 }
 
 

@@ -28,7 +28,8 @@ void KeyEventInserterCLI::parseOption(const std::string &option,
 	s << "<parameter name=\"keys\">";
 	try {
 		// first try and treat arg as a file
-		File file(FileContext::getUserContext(), arg);
+		UserFileContext context;
+		File file(&context, arg);
 		byte buffer[2];
 		try {
 			file.read(buffer, 1);
@@ -69,7 +70,7 @@ void KeyEventInserterCLI::parseOption(const std::string &option,
 	s << "</msxconfig>";
 	
 	MSXConfig *config = MSXConfig::instance();
-	config->loadStream("", s);
+	config->loadStream(new UserFileContext(), s);
 }
 const std::string& KeyEventInserterCLI::optionHelp() const
 {

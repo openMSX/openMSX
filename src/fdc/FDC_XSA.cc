@@ -8,7 +8,7 @@ const int FDC_XSA::cpdext[TBLSIZE] = {
 };
 
 
-FDC_XSA::FDC_XSA(const FileContext &context, const std::string &fileName)
+FDC_XSA::FDC_XSA(const FileContext *context, const std::string &fileName)
 {
 	File *file = new File(context, fileName);
 	if (!isXSAImage(file)) {

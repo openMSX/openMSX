@@ -4,6 +4,7 @@
 #include "Mixer.hh"
 #include "Y8950.hh"
 #include "MSXConfig.hh"
+#include "FileContext.hh"
 
 
 MSXAudioCLI msxAudioCLI;
@@ -31,7 +32,7 @@ void MSXAudioCLI::parseOption(const std::string &option,
 	s << "</msxconfig>";
 	
 	MSXConfig *config = MSXConfig::instance();
-	config->loadStream("", s);
+	config->loadStream(new SystemFileContext(), s);	// TODO extension
 }
 const std::string& MSXAudioCLI::optionHelp() const
 {

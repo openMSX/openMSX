@@ -3,6 +3,7 @@
 #include "DiskImageCLI.hh"
 #include "MSXConfig.hh"
 #include "libxmlx/xmlx.hh"
+#include "FileContext.hh"
 
 
 DiskImageCLI::DiskImageCLI()
@@ -45,7 +46,7 @@ void DiskImageCLI::parseFileType(const std::string &filename_)
 	s << "</msxconfig>";
 	
 	MSXConfig *config = MSXConfig::instance();
-	config->loadStream("", s);
+	config->loadStream(new UserFileContext(), s);
 	driveLetter++;
 }
 const std::string& DiskImageCLI::fileTypeHelp() const

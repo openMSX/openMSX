@@ -131,8 +131,7 @@ RealDrive::RealDrive(const std::string &driveName, const EmuTime &time)
 		Config *config = MSXConfig::instance()->
 			getConfigById(driveName);
 		std::string disk = config->getParameter("filename");
-		const FileContext &context = config->getContext();
-		insertDisk(context, disk);
+		insertDisk(config->getContext(), disk);
 	} catch (MSXException &e) {
 		// nothing specified or file not found
 		ejectDisk();
@@ -223,7 +222,7 @@ bool RealDrive::headLoaded(const EmuTime &time)
 	       (headLoadTime.getTicksTill(time) > 10);
 }
 
-void RealDrive::insertDisk(const FileContext &context,
+void RealDrive::insertDisk(const FileContext *context,
                            const std::string &diskImage)
 {
 	FDCBackEnd* tmp;
@@ -253,7 +252,8 @@ void RealDrive::execute(const std::vector<std::string> &tokens,
 		ejectDisk();
 	} else {
 		try {
-			insertDisk(FileContext::getUserContext(), tokens[1]);
+			UserFileContext context;
+			insertDisk(&context, tokens[1]);
 		} catch (MSXException &e) {
 			throw CommandException(e.desc);
 		}

@@ -14,6 +14,7 @@ endif
 noinst_LTLIBRARIES = libFile.la
 libFile_la_SOURCES = \
 	File.cc File.hh \
+	FileContext.cc FileContext.hh \
 	FileBase.cc FileBase.hh \
 	LocalFile.cc LocalFile.hh
 

@@ -12,7 +12,7 @@ const int RAWTRACK_SIZE = 6850;
 class FDC_DSK : public FDCBackEnd
 {
 	public: 
-		FDC_DSK(const FileContext &context,
+		FDC_DSK(const FileContext *context,
 		        const std::string &fileName);
 		virtual ~FDC_DSK();
 		virtual void read(byte track, byte sector,

@@ -4,7 +4,7 @@
 
 
 
-FDC_DSK::FDC_DSK(const FileContext &context, const std::string &fileName)
+FDC_DSK::FDC_DSK(const FileContext *context, const std::string &fileName)
 {
 	file = new File(context, fileName);
 	nbSectors = file->size() / SECTOR_SIZE;

@@ -9,6 +9,7 @@
 #include "libxmlx/xmlx.hh"
 #include "CartridgeSlotManager.hh"
 #include "SRAM.hh"
+#include "FileContext.hh"
 
 // TODO fix PANASONIC
 // TODO NATIONAL seems to work, but needs some more testing
@@ -109,7 +110,7 @@ void MSXRomCLIPost::execute(MSXConfig *config)
 	s << "<parameter name=\"sramname\">"<<filename<<".SRAM</parameter>";
 	s << "</device>";
 	s << "</msxconfig>";
-	config->loadStream("", s);
+	config->loadStream(new UserFileContext(), s);
 	delete this;
 }
 

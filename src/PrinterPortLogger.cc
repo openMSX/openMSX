@@ -2,6 +2,7 @@
 
 #include "PrinterPortLogger.hh"
 #include "PluggingController.hh"
+#include "FileContext.hh"
 #include "File.hh"
 
 
@@ -44,8 +45,8 @@ void PrinterPortLogger::writeData(byte data, const EmuTime &time)
 void PrinterPortLogger::plug(const EmuTime &time)
 {
 	const std::string filename("printer.log");	// TODO read from config
-	const std::string context("");
-	file = new File(context, filename, TRUNCATE);
+	const ConfigFileContext context("");		// TODO context from config
+	file = new File(&context, filename, TRUNCATE);
 }
 
 void PrinterPortLogger::unplug(const EmuTime &time)

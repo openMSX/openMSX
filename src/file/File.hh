@@ -8,8 +8,9 @@
 #include "openmsx.hh"
 #include "MSXException.hh"
 
-
 class FileBase;
+class FileContext;
+
 
 enum FileOption {
 	NORMAL   = 0,
@@ -22,19 +23,6 @@ class FileException : public MSXException {
 };
 
 
-class FileContext
-{
-	public:
-		FileContext(const std::string &path);
-		static const FileContext& getSystemContext();
-		static const FileContext& getUserContext();
-		
-	private:
-		FileContext(bool isSystem);
-		std::list<std::string> paths;
-		friend class File;
-};
-
 class File
 {
 	public:
@@ -46,7 +34,7 @@ class File
 		 * @param options Mode to open the file in:
 		 *   OR'ed combination of FileOption flags.
 		 */
-		File(const FileContext &context, const std::string &url,
+		File(const FileContext *context, const std::string &url,
 		     int options = NORMAL);
 		
 		/**

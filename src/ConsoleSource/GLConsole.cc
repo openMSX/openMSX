@@ -31,8 +31,7 @@ GLConsole::GLConsole()
 	GLfloat fontTexCoord[4];
 	Config *config = MSXConfig::instance()->getConfigById("Console");
 	const std::string &fontName = config->getParameter("font");
-	const FileContext &context = config->getContext();
-	GLuint fontTexture = loadTexture(context, fontName,
+	GLuint fontTexture = loadTexture(config->getContext(), fontName,
 	                                 width, height, fontTexCoord);
 	font = new GLFont(fontTexture, width, height, fontTexCoord);
 
@@ -40,8 +39,8 @@ GLConsole::GLConsole()
 		int width, height;
 		const std::string &backgroundName =
 			config->getParameter("background");
-		backgroundTexture = loadTexture(context, backgroundName,
-		                                width, height, backTexCoord);
+		backgroundTexture = loadTexture(config->getContext(),
+		              backgroundName,width, height, backTexCoord);
 	}
 }
 
@@ -60,7 +59,7 @@ int GLConsole::powerOfTwo(int a)
 	return res;
 }
 
-GLuint GLConsole::loadTexture(const FileContext &context, 
+GLuint GLConsole::loadTexture(const FileContext *context, 
                               const std::string &filename,
                               int &width, int &height, GLfloat *texCoord)
 {

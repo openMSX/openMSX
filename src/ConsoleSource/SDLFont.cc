@@ -26,8 +26,7 @@ const int CHARS_PER_COL = NUM_CHRS / CHARS_PER_ROW;
 SDLFont::SDLFont(Config *config)
 {
 	const std::string &fontName = config->getParameter("font");
-	const FileContext &context = config->getContext();
-	File file(context, fontName);
+	File file(config->getContext(), fontName);
 
 	// load the font bitmap
 	SDL_Surface *tempSurface;

@@ -3,54 +3,18 @@
 #include "File.hh"
 #include "FileBase.hh"
 #include "LocalFile.hh"
-#include "MSXConfig.hh"
+#include "FileContext.hh"
 
 
-// class FileContext
-
-FileContext::FileContext(const std::string &path)
-{
-	paths.push_back(path);
-}
-
-FileContext::FileContext(bool isSystem)
-{
-	if (isSystem) {
-		// initialize as system context
-		paths.push_back("~/.openMSX/");
-		paths.push_back("~/openMSX/");
-		paths.push_back("/usr/local/etc/openMSX/");
-		paths.push_back("/etc/openMSX/");
-	} else {
-		// initialize as user context
-		// TODO
-	}
-}
-
-const FileContext& FileContext::getSystemContext()
-{
-	static FileContext systemContext(true);
-	return systemContext;
-}
-
-const FileContext& FileContext::getUserContext()
-{
-	static FileContext userContext(false);
-	return userContext;
-}
-
-
-// class File
-
-File::File(const FileContext &context, const std::string &url, int options)
+File::File(const FileContext *context, const std::string &url, int options)
 {
 	if (url.find("://") != std::string::npos) {
 		// protocol specified, don't use SearchPath
 		open(url, options);
 	} else {
+		const std::list<std::string> &pathList = context->getPathList();
 		std::list<std::string>::const_iterator it;
-		for (it = context.paths.begin(); 
-		     it != context.paths.end(); it++) {
+		for (it = pathList.begin(); it != pathList.end(); it++) {
 			try {
 				open(*it + url, options);
 				return;

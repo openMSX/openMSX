@@ -154,8 +154,7 @@ void SDLConsole::alpha(unsigned char alpha)
 void SDLConsole::background(Config *config, int x, int y)
 {
 	const std::string &backgroundFile = config->getParameter("background");
-	const FileContext &context = config->getContext();
-	File file(context, backgroundFile);
+	File file(config->getContext(), backgroundFile);
 	
 	SDL_Surface *temp;
 	if (!(temp = IMG_Load(file.getLocalName().c_str())))

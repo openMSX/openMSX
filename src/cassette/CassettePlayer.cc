@@ -43,7 +43,7 @@ void MSXCassettePlayerCLI::parseFileType(const std::string &filename_)
 	s << "</msxconfig>";
 
 	MSXConfig *config = MSXConfig::instance();
-	config->loadStream("", s);
+	config->loadStream(new UserFileContext(), s);
 }
 const std::string& MSXCassettePlayerCLI::fileTypeHelp() const
 {
@@ -60,8 +60,7 @@ CassettePlayer::CassettePlayer()
 		Config *config =
 			MSXConfig::instance()->getConfigById("cassetteplayer");
 		const std::string &filename = config->getParameter("filename");
-		const FileContext &context = config->getContext();
-		insertTape(context, filename);
+		insertTape(config->getContext(), filename);
 	} catch (MSXException& e) {
 		PRT_DEBUG("Incorrect tape insertion!");
 	}
@@ -76,7 +75,7 @@ CassettePlayer::~CassettePlayer()
 	removeTape();	// free memory
 }
 
-void CassettePlayer::insertTape(const FileContext &context,
+void CassettePlayer::insertTape(const FileContext *context,
                                 const std::string &filename)
 {
 	// TODO throw exceptions instead of PRT_ERROR
@@ -174,7 +173,8 @@ void CassettePlayer::execute(const std::vector<std::string> &tokens,
 		removeTape();
 	} else {
 		print("Changing tape");
-		insertTape(FileContext::getUserContext(), tokens[1]);
+		UserFileContext context;
+		insertTape(&context, tokens[1]);
 	}
 }
 

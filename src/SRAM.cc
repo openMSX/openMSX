@@ -15,11 +15,10 @@ SRAM::SRAM(int size_, Config *config_, const char *header_)
 	
 	if (config->getParameterAsBool("loadsram")) {
 		const std::string &filename = config->getParameter("sramname");
-		const FileContext &context = config->getContext();
 		PRT_DEBUG("SRAM: read " << filename);
 		try {
 			bool headerOk = true;
-			File file(context, filename);
+			File file(config->getContext(), filename);
 			if (header) {
 				int length = strlen(header);
 				byte* temp = new byte[length];
@@ -42,10 +41,9 @@ SRAM::~SRAM()
 {
 	if (config->getParameterAsBool("savesram")) {
 		const std::string &filename = config->getParameter("sramname");
-		const FileContext &context = config->getContext();
 		PRT_DEBUG("SRAM: save " << filename);
 		try {
-			File file(context, filename, TRUNCATE);
+			File file(config->getContext(), filename, TRUNCATE);
 			if (header) {
 				int length = strlen(header);
 				file.write((byte*)header, length);
