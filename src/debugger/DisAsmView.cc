@@ -8,38 +8,38 @@
 
 namespace openmsx {
 
-DisAsmView::DisAsmView (int rows_, int columns_, bool border_):
-	MemoryView (rows_, columns_, border_)
+DisAsmView::DisAsmView(unsigned rows_, unsigned columns_, bool border_)
+	: MemoryView(rows_, columns_, border_)
 {
 	displayBytes = true;
 }
 
-void DisAsmView::setByteDisplay (bool mode)
+void DisAsmView::setByteDisplay(bool mode)
 {
 	displayBytes = mode;
 }
 
-void DisAsmView::fill ()
+void DisAsmView::fill()
 {
 	lines.clear();
-	std::string hexcodes;
-	std::string disass;
-	std::string result;
+	string hexcodes;
+	string disass;
+	string result;
 	dword adr = address;
-	for (int i=0;i<rows;i++){
+	for (unsigned i = 0; i < rows; ++i) {
 		result = "";
-		byte length = createDisAsmText (adr, disass);
-		if (displayAddress){
+		byte length = createDisAsmText(adr, disass);
+		if (displayAddress) {
 			char hexbuffer[5];
-			sprintf (hexbuffer,"%04X ",adr);
+			sprintf (hexbuffer, "%04X ", adr);
 			result += hexbuffer;
 		}
-		if (displayBytes){
+		if (displayBytes) {
 			createByteText(adr, hexcodes, length);
 			byte length = hexcodes.size();
-			if (length<12){
-				string temp(12,' ');
-				hexcodes += temp.substr(length-1);
+			if (length < 12){
+				string temp(12, ' ');
+				hexcodes += temp.substr(length - 1);
 			}
 			result += hexcodes;
 		}
@@ -50,35 +50,34 @@ void DisAsmView::fill ()
 	}
 }
 
-void DisAsmView::scroll (enum ScrollDirection direction, int lines)
+void DisAsmView::scroll(enum ScrollDirection direction, unsigned lines)
 {
 }
 
-byte DisAsmView::createDisAsmText (dword address_, std::string &dest)
+byte DisAsmView::createDisAsmText(dword address_, string &dest)
 {
 	dest = "";
 	byte val;
-	std::string S;
+	string S;
 	char buf[15];
-	dword i=address_;
-	char Offset=0;
-	std::string indexReg = "";
+	dword i = address_;
+	char Offset = 0;
+	string indexReg = "";
 	val = readMemory(i);
 	switch (val) {
 		case 0xCB:
 			i += 2;
-			S=mnemonic_cb[val];
+			S = mnemonic_cb[val];
 			break;
 		case 0xED:
 			i += 2;
-			S=mnemonic_ed[val];
+			S = mnemonic_ed[val];
 			break;
 		case 0xDD:
 			i++;
-			indexReg="ix";
+			indexReg = "ix";
 			val = readMemory (i);
-			switch (val)
-			{
+			switch (val) {
 				case 0xcb:
 					Offset = readMemory(i + 1);
 					S=mnemonic_xx_cb[readMemory(i + 2)];
@@ -95,8 +94,7 @@ byte DisAsmView::createDisAsmText (dword address_, std::string &dest)
 			i++;
 			indexReg="iy";
 			val = readMemory (i);
-			switch (val)
-			{
+			switch (val) {
 				case 0xcb:
 					Offset = readMemory(i + 1);
 					S=mnemonic_xx_cb[readMemory(i + 2)];
@@ -109,7 +107,7 @@ byte DisAsmView::createDisAsmText (dword address_, std::string &dest)
 			}
 			break;
 		default:
-			S=mnemonic_main[val];
+			S = mnemonic_main[val];
 			i++;
 			break;
 	}
@@ -157,7 +155,7 @@ byte DisAsmView::createDisAsmText (dword address_, std::string &dest)
 				unsigned k = dest.length();
 				if (k<5) k=6-k;
 				else k=1;
-				std::string temp (k, ' ');
+				string temp (k, ' ');
 				dest += temp;
 				break;
 			}
@@ -171,7 +169,7 @@ byte DisAsmView::createDisAsmText (dword address_, std::string &dest)
 	return i - address_;
 }
 
-void DisAsmView::createByteText (dword address_, std::string & dest, byte size)
+void DisAsmView::createByteText(dword address_, string & dest, byte size)
 {
 	char hexbuf[5];
 	dest = "";
@@ -181,15 +179,14 @@ void DisAsmView::createByteText (dword address_, std::string & dest, byte size)
 	}
 }
 
-byte DisAsmView::sign (byte data)
+byte DisAsmView::sign(byte data)
 {
 	return (data & 128) ? '-' : '+';
 }
 
-byte DisAsmView::abs (byte data)
+byte DisAsmView::abs(byte data)
 {
-	if (data & 128) return 256 - data;
-	else return data;
+	return (data & 128) ? (256 - data) : data;
 }
 
 } // namespace openmsx

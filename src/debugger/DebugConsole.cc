@@ -1,13 +1,17 @@
 // $Id$
 
-#include <iostream>
 #include "DebugView.hh"
 #include "DisAsmView.hh"
 #include "DebugConsole.hh"
 #include "CommandConsole.hh"
-#include <iostream>
+#include "DumpView.hh"
 
 namespace openmsx {
+
+DebugConsole::ViewStruct::~ViewStruct()
+{
+	delete view;
+}
 
 DebugConsole* DebugConsole::instance()
 {
@@ -18,7 +22,7 @@ DebugConsole* DebugConsole::instance()
 DebugConsole::DebugConsole()
 	: debuggerSetting("debugger", "turns the debugger on or off", false)
 {
-	for (int i = 0; i < 20; i++) {
+	for (int i = 0; i < 20; ++i) {
 		lines.push_back(" ");
 	}
 	addView (0, 0, 50, 6, DISSASVIEW);
@@ -26,12 +30,10 @@ DebugConsole::DebugConsole()
 
 DebugConsole::~DebugConsole()
 {
-	map<int, ViewStruct*>::const_iterator it;
-	for (it = viewList.begin(); it != viewList.end(); ++it) {
-		if (it->second != NULL) {
-			delete it->second->view;
-			delete it->second;
-		}
+	for (map<unsigned, ViewStruct*>::const_iterator it = viewList.begin();
+	     it != viewList.end();
+	     ++it) {
+		delete it->second;
 	}
 }
 
@@ -47,17 +49,16 @@ bool DebugConsole::signalEvent(SDL_Event &event)
 	return false; // don't send anything to the MSX if visible
 }
 
-int DebugConsole::addView(int cursorX, int cursorY, int columns, int rows,
-                          ViewType viewType)
+unsigned DebugConsole::addView(unsigned cursorX, unsigned cursorY,
+                               unsigned columns, unsigned rows, ViewType viewType)
 {
 	ViewStruct* viewData = new ViewStruct();
 	viewData->cursorX = cursorX;
 	viewData->cursorY = cursorY;
 	viewData->columns = columns;
 	viewData->rows = rows;
-	viewData->view = NULL;
-	// determen view to create
 	
+	// determen view to create
 	switch (viewType) {
 	case DUMPVIEW:
 		viewData->view = new DumpView(rows, columns, true);
@@ -66,58 +67,48 @@ int DebugConsole::addView(int cursorX, int cursorY, int columns, int rows,
 		viewData->view = new DisAsmView(rows, columns, true);
 		break;
 	default:
-		break;
+		assert(false);
 	}
+	viewData->view->fill();
 	
-	if (viewData->view) {
-		viewData->view->fill();
+	// finally, determine which number to take for it
+	unsigned id = 0;
+	while (viewList.find(id) != viewList.end()) {
+		++id;
 	}
-	
-	//finally, determen which number to take for it
-	map<int, ViewStruct*>::iterator it;
-	for (it = viewList.begin(); it != viewList.end(); ++it) {
-		if (it->second == NULL) {
-			it->second = viewData;
-			return it->first;
-		}
-	}
-	int size=viewList.size();
-	viewList[size] = viewData;
-	return size;
+	viewList[id] = viewData;
+	return id;
 }
 
-bool DebugConsole::removeView(int id)
+void DebugConsole::removeView(unsigned id)
 {
-	map<int, ViewStruct*>::iterator it;
-	for (it = viewList.begin(); it != viewList.end(); ++it) {
-		if ((it->first == id) && (it->second != NULL)) {
-			delete it->second->view;
-			delete it->second;
-			it->second = NULL;
-			return true;
-		}
+	map<unsigned, ViewStruct*>::iterator it = viewList.find(id);
+	if (it == viewList.end()) {
+		assert(false);
 	}
-	return false;
+	delete it->second;
+	viewList.erase(it);
 }
 
 void DebugConsole::buildLayout()
 {
-	map<int, ViewStruct*>::const_iterator it;
-	for (it = viewList.begin(); it != viewList.end(); ++it) {
-		for (int i = it->second->cursorY; 
-		     i < it->second->cursorY + it->second->rows - 1;
+	for (map<unsigned, ViewStruct*>::const_iterator it = viewList.begin();
+	     it != viewList.end();
+	     ++it) {
+		ViewStruct* view = it->second;
+		for (unsigned i = view->cursorY; 
+		     i < (view->cursorY + view->rows - 1);
 		     ++i) {
 			if (i < debugRows) {
 				if (lines[debugRows - 1 - i].size() <
-				    (unsigned)it->second->cursorX + it->second->columns) {
-					string temp(it->second->cursorX +
-					            it->second->columns - 
-						    lines[debugRows - 1 - i].size(), ' ');
+				    view->cursorX + view->columns) {
+					string temp(view->cursorX + view->columns - 
+					            lines[debugRows - 1 - i].size(), ' ');
 					lines[debugRows - 1 - i] += temp;
 				}
 				lines[debugRows - 1 - i].replace(
-				  it->second->cursorX, it->second->columns,
-				  it->second->view->getLine(i - it->second->cursorY));
+				  view->cursorX, view->columns,
+				  view->view->getLine(i - view->cursorY));
 			}
 		}
 	}
@@ -133,66 +124,61 @@ void DebugConsole::saveLayout()
 	// TODO
 }
 
-void DebugConsole::resizeView(int cursorX, int cursorY, int columns, int rows, int id)
+void DebugConsole::resizeView(unsigned cursorX, unsigned cursorY,
+                              unsigned columns, unsigned rows, unsigned id)
 {
-	map<int, ViewStruct*>::const_iterator it;
-	for (it = viewList.begin(); it != viewList.end(); ++it) {
-		if ((it->first == id) && (it->second != NULL)) {
-			it->second->view->resize(columns, rows);
-			it->second->cursorX = cursorX;
-			it->second->cursorY = cursorY;
-			buildLayout();
-			return;
-		}
+	map<unsigned, ViewStruct*>::iterator it = viewList.find(id);
+	if (it == viewList.end()) {
+		assert(false);
 	}
+	it->second->view->resize(columns, rows);
+	it->second->cursorX = cursorX;
+	it->second->cursorY = cursorY;
+	buildLayout();
 }
 
 void DebugConsole::updateViews()
 {
-	map<int, ViewStruct*>::const_iterator it;
-	for (it = viewList.begin(); it != viewList.end(); ++it) {
-		if (it->second != NULL) {
-			it->second->view->update();
-		}
+	for (map<unsigned, ViewStruct*>::const_iterator it = viewList.begin();
+	     it != viewList.end();
+	     ++it) {
+		it->second->view->update();
 	}
 }
 
-void DebugConsole::getCursorPosition(int *xPosition, int *yPosition)
+void DebugConsole::getCursorPosition(unsigned& xPosition, unsigned& yPosition) const
 {
-	*xPosition = 0;
-	*yPosition = 0;
+	xPosition = 0;
+	yPosition = 0;
 } 
 
-void DebugConsole::setCursorPosition(int xPosition, int yPosition)
+void DebugConsole::setCursorPosition(unsigned xPosition, unsigned yPosition)
 {
+	// ignore
 }
 
-void DebugConsole::setCursorPosition(CursorXY pos)
-{
-	setCursorPosition(pos.x, pos.y);
-}
-
-const string& DebugConsole::getLine(unsigned line)
+const string& DebugConsole::getLine(unsigned line) const
 {
 	static string EMPTY;
 	return (unsigned)line < lines.size() ? lines[line] : EMPTY;
 }
 
-bool DebugConsole::isVisible()
+bool DebugConsole::isVisible() const
 {
 	return debuggerSetting.getValue();
 }
 
-void DebugConsole::setConsoleDimensions(int columns, int rows)
+void DebugConsole::setConsoleDimensions(unsigned columns, unsigned rows)
 {
 	debugColumns = columns;
 	debugRows = rows;
 	buildLayout();
 }
 
-std::string DebugConsole::getId ()
+const string& DebugConsole::getId() const
 {
-	return "debugger";
+	static const string ID("debugger");
+	return ID;
 }
 
 } // namespace openmsx

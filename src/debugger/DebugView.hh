@@ -7,31 +7,36 @@
 #include <string>
 #include <vector>
 
+using std::string;
+using std::vector;
+
 namespace openmsx {
 
 class DebugView
 {
 	public:
-		DebugView (int rows_, int columns_, bool border_);
-		std::string getLine (int line);
-		virtual ~DebugView ();
-		virtual void resize (int rows, int columns);
-		virtual void update()=0;
-		virtual void fill ()=0;
-	private:
-		int cursorX;
-		int cursorY;
+		DebugView(unsigned rows, unsigned columns, bool border);
+		virtual ~DebugView();
+		string getLine(unsigned line);
+		virtual void resize(unsigned rows, unsigned columns);
+		virtual void update() = 0;
+		virtual void fill() = 0;
+		
 	protected:
-		std::vector<std::string> lines;
-		int rows;
-		int columns;
-		bool border;
-		void setCursor (int rows_, int columns_);
-		void getCursor (int *rows_, int *columns_);
-		void clear ();
-		void deleteLine ();
-		void addLine (std::string message="");
+		void setCursor(unsigned rows, unsigned columns);
+		void getCursor(unsigned& rows, unsigned& columns);
+		void clear();
+		void deleteLine();
+		void addLine(string message = "");
 
+		vector<string> lines;
+		unsigned rows;
+		unsigned columns;
+		bool border;
+	
+	private:
+		unsigned cursorX;
+		unsigned cursorY;
 };
 
 } // namespace openmsx

@@ -67,7 +67,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console * console_)
 	try {
 		Config *config = MSXConfig::instance()->getConfigById(tempconfig);
 		context = config->getContext().clone();
-		if (initsDone.find(tempconfig)==initsDone.end()){
+		if (initsDone.find(tempconfig) == initsDone.end()) {
 			initsDone.insert(tempconfig);
 			initiated = false;
 		}
@@ -100,8 +100,8 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console * console_)
 	}
 	blink = false;
 	lastBlinkTime = 0;
-	int cursorY;
-	console->getCursorPosition(&lastCursorPosition, &cursorY);
+	unsigned cursorY;
+	console->getCursorPosition(lastCursorPosition, cursorY);
 	
 	consolePlacementSetting = NULL;
 	consoleRowsSetting = NULL;
@@ -153,16 +153,12 @@ void OSDConsoleRenderer::initConsoleSize()
 	if (initsDone.find(tempconfig)==initsDone.end()){
 		initsDone.insert(tempconfig);
 		SDL_Surface *screen = SDL_GetVideoSurface();
-		wantedColumns = config->hasParameter("columns") ?
-		                config->getParameterAsInt("columns") :
-		                (((screen->w - CHAR_BORDER) / font->getWidth()) * 30) / 32;
-		wantedRows = config->hasParameter("rows") ?
-		             config->getParameterAsInt("rows") :
-		             ((screen->h / font->getHeight()) * 6) / 15;
+		wantedColumns = config->getParameterAsInt("columns",
+			(((screen->w - CHAR_BORDER) / font->getWidth()) * 30) / 32);
+		wantedRows = config->getParameterAsInt("rows", 
+			((screen->h / font->getHeight()) * 6) / 15);
 		string placementString;
-		placementString = config->hasParameter("placement") ?
-		                  config->getParameter("placement") :
-		                  "bottom";
+		placementString = config->getParameter("placement", "bottom");
 		map<string, Placement>::const_iterator it;
 		it = placeMap.find(placementString);
 		if (it != placeMap.end()) {

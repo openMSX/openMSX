@@ -90,7 +90,7 @@ class OSDConsoleRenderer : public ConsoleRenderer
 		FileContext *context;
 		bool blink;
 		unsigned lastBlinkTime;
-		int lastCursorPosition;
+		unsigned lastCursorPosition;
 
 	private:
 		void adjustColRow();

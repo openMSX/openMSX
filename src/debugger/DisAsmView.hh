@@ -13,18 +13,19 @@ namespace openmsx {
 class DisAsmView: public MemoryView
 {
 	public:
-		DisAsmView (int rows, int columns, bool border);
-		void setByteDisplay (bool mode);
+		DisAsmView(unsigned rows, unsigned columns, bool border);
+		void setByteDisplay(bool mode);
 		
-	void fill();
-		void scroll (enum ScrollDirection direction, int lines);
+		void fill();
+		void scroll(enum ScrollDirection direction, unsigned lines);
+
 	private:
 		bool displayBytes;
 		bool bytesInFront;
-		byte sign (byte data);
-		byte abs (byte data);
-		byte createDisAsmText (dword address, std::string & dest);
-		void createByteText (dword address, std::string & dest, byte size);
+		byte sign(byte data);
+		byte abs(byte data);
+		byte createDisAsmText(dword address, string& dest);
+		void createByteText(dword address, string& dest, byte size);
 };
 
 } // namespace openmsx

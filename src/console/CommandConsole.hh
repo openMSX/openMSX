@@ -22,20 +22,20 @@ class CommandConsole : public Console, private EventListener,
 		  */
 		static CommandConsole *instance();
 		void registerDebugger();
+
 		/** Prints a string on the console.
 		  */
 		void printFast(const string &text);
 		void printFlush();
 		void print(const string &text);
 		
-		int getScrollBack();
-		const string &getLine(unsigned line);
-		bool isVisible();
-		void getCursorPosition(int *xPosition, int *yPosition);
-		void setCursorPosition(int xPosition, int yPosition);
-		void setCursorPosition(CursorXY pos);
-		void setConsoleDimensions(int columns, int rows);
-		std::string getId();
+		virtual unsigned getScrollBack() const;
+		virtual const string &getLine(unsigned line) const;
+		virtual bool isVisible() const;
+		virtual void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const;
+		virtual void setCursorPosition(unsigned xPosition, unsigned yPosition);
+		virtual void setConsoleDimensions(unsigned columns, unsigned rows);
+		virtual const string& getId() const;
 
 	private:
 		static const int LINESHISTORY = 100;
@@ -79,10 +79,11 @@ class CommandConsole : public Console, private EventListener,
 		// saves Current Command to enable command recall
 		string currentLine;
 		unsigned consoleScrollBack;
-		struct CursorXY cursorLocation; // full cursorcoordinates
-		int cursorPosition; // position within the current command
-		int consoleColumns;
-		int consoleRows;
+		unsigned cursorLocationX;
+		unsigned cursorLocationY;
+		unsigned cursorPosition; // position within the current command
+		unsigned consoleColumns;
+		unsigned consoleRows;
 };
 
 } // namespace openmsx

@@ -23,17 +23,9 @@ CommandConsole::CommandConsole()
 	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this);
 	putPrompt();
-	Config *config = MSXConfig::instance()->getConfigById("Console");
-	if (config->hasParameter("historysize")) {
-		maxHistory = config->getParameterAsInt("historysize");
-	} else {
-		maxHistory = 100;
-	}
-	if (config->hasParameter("removedoubles")){
-		removeDoubles = config->getParameterAsBool("removedoubles");
-	} else {
-		removeDoubles = true;
-	}
+	Config* config = MSXConfig::instance()->getConfigById("Console");
+	maxHistory = config->getParameterAsInt("historysize", 100);
+	removeDoubles = config->getParameterAsBool("removedoubles", true);
 	loadHistory();
 }
 
@@ -53,14 +45,13 @@ CommandConsole *CommandConsole::instance()
 
 void CommandConsole::update(const SettingLeafNode *setting)
 {
-	assert (setting = &consoleSetting);
+	assert(setting == &consoleSetting);
 	updateConsole();
 	if (consoleSetting.getValue()) {
 		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
-		SDL_DEFAULT_REPEAT_INTERVAL);
-	} 	
-	else {
-		SDL_EnableKeyRepeat(0,0);
+		                    SDL_DEFAULT_REPEAT_INTERVAL);
+	} else {
+		SDL_EnableKeyRepeat(0, 0);
 	}
 }
 
@@ -72,14 +63,15 @@ void CommandConsole::saveHistory()
 		ofstream outputfile(FileOperations::expandTilde(
 		        context.resolveSave(filename)).c_str());
 		if (!outputfile) {
-			throw FileException("Error writing Consolehistory");
+			throw FileException(
+				"Error while saving the consolehistory: " + filename);
 		}
 		list<string>::iterator it;
 		for (it = history.begin(); it != history.end(); it++) {
 			outputfile << it->substr(PROMPT.length()) << endl;
 		}
 	} catch (FileException &e) {
-		PRT_INFO("Error while saving the consolehistory: " << filename << "\n");
+		PRT_INFO(e.getMessage());
 	}
 }
 
@@ -92,7 +84,8 @@ void CommandConsole::loadHistory()
 		ifstream inputfile(FileOperations::expandTilde(
 		        context.resolveSave(filename)).c_str());
 		if (!inputfile) {
-			throw FileException("Error loading Consolehistory");
+			throw FileException(
+				"Error while loading the consolehistory: " + filename);
 		}
 		while (inputfile) {
 			getline(inputfile, line);
@@ -102,50 +95,45 @@ void CommandConsole::loadHistory()
 			}
 		}
 	} catch (FileException &e) {
-		PRT_DEBUG("Error while loading the consolehistory: " << filename << "\n");
+		PRT_DEBUG(e.getMessage());
 	}
 }
 
-void CommandConsole::setCursorPosition(int xPosition, int yPosition)
+void CommandConsole::setCursorPosition(unsigned xPosition, unsigned yPosition)
 {
-	if ((unsigned)xPosition > lines[0].length()) {
-		cursorLocation.x = lines[0].length();
-	} else if ((unsigned)xPosition < PROMPT.length()) {
-		cursorLocation.x = (signed)PROMPT.length();
+	if (xPosition > lines[0].length()) {
+		cursorLocationX = lines[0].length();
+	} else if (xPosition < PROMPT.length()) {
+		cursorLocationX = PROMPT.length();
 	} else {
-		cursorLocation.x = xPosition;
+		cursorLocationX = xPosition;
 	}
-	cursorLocation.y = yPosition;
+	cursorLocationY = yPosition;
 }
 
-void CommandConsole::getCursorPosition(int *xPosition, int *yPosition)
+void CommandConsole::getCursorPosition(unsigned& xPosition, unsigned& yPosition) const
 {
-	*xPosition = cursorLocation.x;
-	*yPosition = cursorLocation.y;
+	xPosition = cursorLocationX;
+	yPosition = cursorLocationY;
 } 
 
-void CommandConsole::setCursorPosition(CursorXY pos)
-{
-	setCursorPosition(pos.x,pos.y);
-}
-
-int CommandConsole::getScrollBack()
+unsigned CommandConsole::getScrollBack() const
 {
 	return consoleScrollBack;
 }
 
-const string& CommandConsole::getLine(unsigned line)
+const string& CommandConsole::getLine(unsigned line) const
 {
 	static string EMPTY;
 	return line < lines.size() ? lines[line] : EMPTY;
 }
 
-bool CommandConsole::isVisible()
+bool CommandConsole::isVisible() const
 {
 	return consoleSetting.getValue();
 }
 
-void CommandConsole::setConsoleDimensions(int columns, int rows)
+void CommandConsole::setConsoleDimensions(unsigned columns, unsigned rows)
 {
 	consoleRows = rows;
 	if (consoleColumns == columns) {
@@ -166,8 +154,8 @@ void CommandConsole::setConsoleDimensions(int columns, int rows)
 		combineLines(linesbackup, flowbackup, true);
 		splitLines();
 	}
-	cursorLocation.x = lines[0].length();
-	cursorLocation.y = 0;
+	cursorLocationX = lines[0].length();
+	cursorLocationY = 0;
 }
 
 bool CommandConsole::signalEvent(SDL_Event &event)
@@ -205,18 +193,18 @@ bool CommandConsole::signalEvent(SDL_Event &event)
 			break;
 		case Keys::K_RETURN:
 			commandExecute();
-			cursorLocation.x = PROMPT.length();
+			cursorLocationX = PROMPT.length();
 			break;
 		case Keys::K_LEFT:
 			combineLines(lines, lineOverflows);
-			if ((unsigned)cursorPosition > PROMPT.length()) {
+			if (cursorPosition > PROMPT.length()) {
 				cursorPosition--;
 			}
 			splitLines();
 			break;
 		case Keys::K_RIGHT:
 			combineLines(lines, lineOverflows);
-			if ((unsigned)cursorPosition < editLine.length()) {
+			if (cursorPosition < editLine.length()) {
 				cursorPosition++;
 			}
 			splitLines();
@@ -300,40 +288,42 @@ void CommandConsole::combineLines(CircularBuffer<string, LINESHISTORY> &buffer,
 		}
 	}
 	
-	int temp = totallines - cursorLocation.y;
-	cursorPosition = (consoleColumns * temp) + cursorLocation.x;
+	int temp = totallines - cursorLocationY;
+	cursorPosition = (consoleColumns * temp) + cursorLocationX;
 }
 
 void CommandConsole::splitLines()
 {
-	int numberOfLines = 1 + (int)(editLine.length() / consoleColumns);
-	for (int i = 1; i <= numberOfLines; ++i) {
+	unsigned numberOfLines = 1 + (editLine.length() / consoleColumns);
+	for (unsigned i = 1; i <= numberOfLines; ++i) {
 		newLineConsole(editLine.substr(consoleColumns * (i - 1),
 		               consoleColumns));
 		lineOverflows[0] = (i != numberOfLines);
 	}
-	cursorLocation.x = cursorPosition % consoleColumns;
-	int temp = (int)(cursorPosition / consoleColumns);
-	cursorLocation.y = numberOfLines - 1 - temp;
+	cursorLocationX = cursorPosition % consoleColumns;
+	unsigned temp = cursorPosition / consoleColumns;
+	cursorLocationY = numberOfLines - 1 - temp;
 }
 
 void CommandConsole::printFast(const string &text)
 {
-	int end = 0;
+	unsigned end = 0;
 	do {
-		int start = end;
+		unsigned start = end;
 		end = text.find('\n', start);
-		if (end == -1) end = text.length();
+		if (end == string::npos) {
+			end = text.length();
+		}
 		if ((end - start) > (consoleColumns - 1)) {
 			end = start + consoleColumns;
 			newLineConsole(text.substr(start, end - start));
 			lineOverflows[0] = true; 
 		} else {
-			newLineConsole(text.substr(start, end-start));
+			newLineConsole(text.substr(start, end - start));
 			lineOverflows[0] = false;
-			end++; // skip newline
+			++end; // skip newline
 		}
-	} while (end < (int)text.length());
+	} while (end < text.length());
 }
 
 void CommandConsole::printFlush()
@@ -394,8 +384,8 @@ void CommandConsole::putPrompt()
 	consoleScrollBack = 0;
 	commandScrollBack = history.end();
 	currentLine=PROMPT;
-	cursorLocation.x = PROMPT.length();
-	cursorLocation.y = 0;
+	cursorLocationX = PROMPT.length();
+	cursorLocationY = 0;
 }
 
 void CommandConsole::tabCompletion()
@@ -488,7 +478,7 @@ void CommandConsole::backspace()
 {
 	resetScrollBack();
 	combineLines(lines, lineOverflows);
-	if ((unsigned)cursorPosition > PROMPT.length()) {
+	if (cursorPosition > PROMPT.length()) {
 		string temp;
 		temp = editLine.substr(cursorPosition);
 		editLine.erase(cursorPosition - 1);
@@ -503,7 +493,7 @@ void CommandConsole::delete_key()
 {
 	resetScrollBack();
 	combineLines(lines, lineOverflows);
-	if (editLine.length() > (unsigned)cursorPosition) {
+	if (editLine.length() > cursorPosition) {
 		string temp;
 		temp = editLine.substr(cursorPosition + 1);
 		editLine.erase(cursorPosition);
@@ -535,14 +525,15 @@ void CommandConsole::resetScrollBack()
 
 void CommandConsole::registerDebugger()
 {
-	SettingLeafNode * debugSetting = dynamic_cast<SettingLeafNode *> (SettingsManager::instance()->getByName("debugger"));
+	SettingLeafNode* debugSetting = dynamic_cast<SettingLeafNode*>(
+		SettingsManager::instance()->getByName("debugger"));
 	debugSetting->addListener(this);
-	
 }
 
-std::string CommandConsole::getId ()
+const string& CommandConsole::getId() const
 {
-	return "console";
+	static const string ID("console");
+	return ID;
 }
 
 } // namespace openmsx

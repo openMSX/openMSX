@@ -1,12 +1,12 @@
 // $Id$
 
-#incude "Debugger.hh"
+#include "Debugger.hh"
 
 namespace openmsx {
 
-Debugger * Debugger::instance()
+Debugger* Debugger::instance()
 {
-	static Debugger * oneInstance;
+	static Debugger* oneInstance;
 	return oneInstance;
 }
 

@@ -14,11 +14,6 @@ using std::list;
 using std::string;
 
 
-struct CursorXY {
-	unsigned x;
-	unsigned y;
-};
-
 class Console
 {
 	public:
@@ -33,14 +28,14 @@ class Console
 		  */
 		void unregisterConsole(ConsoleRenderer *console);
 
-		virtual int getScrollBack() = 0;
-		virtual const string &getLine(unsigned line) = 0;
-		virtual bool isVisible() = 0;
-		virtual void getCursorPosition(int *xPosition, int *yPosition) = 0;
-		virtual void setCursorPosition(int xPosition, int yPosition) = 0;
-		virtual void setCursorPosition(CursorXY pos) = 0;
-		virtual void setConsoleDimensions(int columns, int rows) = 0;
-		virtual string getId() = 0;
+		virtual unsigned getScrollBack() const = 0;
+		virtual const string& getLine(unsigned line) const = 0;
+		virtual bool isVisible() const = 0;
+		virtual void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const = 0;
+		virtual void setCursorPosition(unsigned xPosition, unsigned yPosition) = 0;
+		virtual void setConsoleDimensions(unsigned columns, unsigned rows) = 0;
+		virtual const string& getId() const = 0;
+
 	protected:
 		void updateConsole();
 

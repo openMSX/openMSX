@@ -37,6 +37,14 @@ class CircularBuffer
 			last = prev(last);
 			return buffer[last];
 		}
+		const T& operator[](unsigned pos) const {
+			assert(pos < MAXSIZE);
+			unsigned tmp = first + pos;
+			if (tmp > MAXSIZE) {
+				tmp -= (MAXSIZE + 1);
+			}
+			return buffer[tmp];
+		}
 		T& operator[](unsigned pos) {
 			assert(pos < MAXSIZE);
 			unsigned tmp = first + pos;

@@ -6,6 +6,8 @@
 #include "DebugView.hh"
 #include <string>
 
+using std::string;
+
 namespace openmsx {
 
 class DebugInterface;
@@ -13,20 +15,22 @@ class DebugInterface;
 class ViewControl
 {
 	public:
-		ViewControl (MemoryView * view_);
-		~ViewControl ();
+		ViewControl(MemoryView* view_);
+		~ViewControl();
 		void setAddress(int address);
 		int getAddress();
+
 	private:
-		DebugInterface * currentDevice;
-		MemoryView * view;
+		bool linkToCriterium(DebugInterface * device, string regName);
+
+		DebugInterface* currentDevice;
+		MemoryView* view;
 		word currentCriterium;
 		bool indirect;
 		bool useGlobalSlot;
 		dword memoryAddress;
-		ViewControl * linked;
+		ViewControl* linked;
 		struct DebugSlot slot;
-		bool linkToCriterium(DebugInterface * device, std::string regName);
 };
 
 } // namespace openmsx

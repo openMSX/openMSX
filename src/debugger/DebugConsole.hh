@@ -8,10 +8,7 @@
 #include "Settings.hh"
 #include "Console.hh"
 
-#include "DumpView.hh"
-#include <map>
-
-
+using std::map;
 
 namespace openmsx {
 
@@ -26,42 +23,43 @@ class DebugConsole : public Console, private EventListener,
 		static DebugConsole* instance();
 		
 		struct ViewStruct {
-			int cursorX;
-			int cursorY;
-			int columns;
-			int rows;
+			~ViewStruct();
+			unsigned cursorX;
+			unsigned cursorY;
+			unsigned columns;
+			unsigned rows;
 			DebugView* view;
 		};
 		enum ViewType {DUMPVIEW, DISSASVIEW};
 		
-		int addView(int cursorX, int cursorY, int columns, int rows,
-		            ViewType viewType);
-		bool removeView(int id);
+		unsigned addView(unsigned cursorX, unsigned cursorY,
+		                 unsigned columns, unsigned rows, ViewType viewType);
+		void removeView(unsigned id);
 		void buildLayout();
 		void loadLayout();
 		void saveLayout();
-		void resizeView(int cursorX, int cursorY, int columns,
-		                int rows, int id);
+		void resizeView(unsigned cursorX, unsigned cursorY,
+		                unsigned columns, unsigned rows, unsigned id);
 		void updateViews();
-		int getScrollBack() { return 0; }
-		const string& getLine(unsigned line);
-		bool isVisible();
-		void getCursorPosition(int *xPosition, int *yPosition);
-		void setCursorPosition(int xPosition, int yPosition);
-		void setCursorPosition(CursorXY pos);
-		void setConsoleDimensions(int columns, int rows);
-		std::string getId();
+
+		virtual unsigned getScrollBack() const { return 0; }
+		virtual const string& getLine(unsigned line) const;
+		virtual bool isVisible() const;
+		virtual void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const;
+		virtual void setCursorPosition(unsigned xPosition, unsigned yPosition);
+		virtual void setConsoleDimensions(unsigned columns, unsigned rows);
+		virtual const string& getId() const;
 
 	private:
 		DebugConsole();
 		void update(const SettingLeafNode *setting);
 		bool signalEvent(SDL_Event &event);
 
-		map<int, ViewStruct*> viewList;
+		map<unsigned, ViewStruct*> viewList;
 		vector<string> lines;
 		BooleanSetting debuggerSetting;
-		int debugColumns;
-		int debugRows;
+		unsigned debugColumns;
+		unsigned debugRows;
 };
 
 } // namespace openmsx

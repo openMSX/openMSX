@@ -10,6 +10,7 @@ namespace openmsx {
 class ViewControl;
 
 enum ScrollDirection {SCR_UP, SCR_DOWN, SCR_LEFT, SCR_RIGHT};
+
 struct DebugSlot
 {
 	int ps[4];
@@ -22,23 +23,22 @@ struct DebugSlot
 class MemoryView: public DebugView
 {
 	public:
-		MemoryView(int rows, int columns, bool border);
+		MemoryView(unsigned rows, unsigned columns, bool border);
 		virtual ~MemoryView();
 		
-		void setAddressDisplay (bool mode); 
-		void setNumericBase (int base_);
-		void setAddress (int address_);
-		void setSlot (int page, int slot=0, int subslot=0, bool direct=false);
+		void setAddressDisplay(bool mode); 
+		void setNumericBase(int base);
+		void setAddress(int address);
+		void setSlot(int page, int slot = 0, int subslot = 0, bool direct = false);
 		void update();
-		ViewControl * getViewControl();
-		virtual void scroll (enum ScrollDirection direction, int lines)=0;
-		virtual void fill ()=0;
-		void notifyController ();
-		byte readMemory (dword address_);
+		ViewControl* getViewControl();
+		virtual void scroll(enum ScrollDirection direction, unsigned lines) = 0;
+		virtual void fill() = 0;
+		void notifyController();
+		byte readMemory(dword address);
 		
 		static const int SLOTVRAM = 4;
 		static const int SLOTDIRECT = 5;
-	private:
 		
 	protected:
 		bool useGlobalSlot;

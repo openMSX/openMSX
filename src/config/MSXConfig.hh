@@ -5,12 +5,13 @@
 
 #include <string>
 #include <list>
-#include <sstream>
 #include "openmsx.hh"
 #include "MSXException.hh"
 #include "libxmlx/xmlx.hh"
 #include "FileContext.hh"
 
+using std::string;
+using std::list;
 
 namespace openmsx {
 

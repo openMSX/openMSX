@@ -142,11 +142,11 @@ void SDLConsole::drawConsole()
 // Draws the command line the user is typing in to the screen
 void SDLConsole::drawCursor()
 {
-	int cursorX;
-	int cursorY;
-	console->getCursorPosition(&cursorX, &cursorY);
+	unsigned cursorX;
+	unsigned cursorY;
+	console->getCursorPosition(cursorX, cursorY);
 	// Check if the blink period is over
-	if (SDL_GetTicks() > lastBlinkTime){
+	if (SDL_GetTicks() > lastBlinkTime) {
 		lastBlinkTime = SDL_GetTicks() + BLINK_RATE;
 		blink = !blink;
 		if (console->getScrollBack() != 0) {
@@ -156,12 +156,12 @@ void SDLConsole::drawCursor()
 			// Print cursor if there is enough room
 			font->drawText(string("_"),
 				      CHAR_BORDER + cursorX * font->getWidth(),
-				      consoleSurface->h - (font->getHeight() * (cursorY+1)));
+				      consoleSurface->h - (font->getHeight() * (cursorY + 1)));
 		} else {
 			// Remove cursor
 			SDL_Rect rect;
 			rect.x = cursorX * font->getWidth() + CHAR_BORDER;
-			rect.y = consoleSurface->h - (font->getHeight() * (cursorY+1));
+			rect.y = consoleSurface->h - (font->getHeight() * (cursorY + 1));
 			rect.w = font->getWidth();
 			rect.h = font->getHeight();
 			SDL_FillRect(fontLayer, &rect,
@@ -173,7 +173,7 @@ void SDLConsole::drawCursor()
 				SDL_Rect rect2;
 				rect2.x = cursorX * font->getWidth() + CHAR_BORDER;
 				rect.x = rect2.x;
-				rect2.y = consoleSurface->h - (font->getHeight() * (cursorY+1));
+				rect2.y = consoleSurface->h - (font->getHeight() * (cursorY + 1));
 				rect.y = rect2.y;
 				rect2.w = rect.w = font->getWidth();
 				rect2.h = rect.h = font->getHeight();
@@ -181,16 +181,16 @@ void SDLConsole::drawCursor()
 			}
 			font->drawText(console->getLine(cursorY).substr(cursorX,cursorX),
 				CHAR_BORDER + cursorX * font->getWidth(),
-				consoleSurface->h - (font->getHeight()*(cursorY+1)));
+				consoleSurface->h - (font->getHeight()*(cursorY + 1)));
 		}
 	}
 	if (cursorX != lastCursorPosition){
-		blink=true; // force cursor
-		lastBlinkTime=SDL_GetTicks() + BLINK_RATE; // maximum time
-		lastCursorPosition=cursorX;
+		blink = true; // force cursor
+		lastBlinkTime = SDL_GetTicks() + BLINK_RATE; // maximum time
+		lastCursorPosition = cursorX;
 		font->drawText(string("_"),
 			CHAR_BORDER + cursorX * font->getWidth(),
-			consoleSurface->h - (font->getHeight()*(cursorY+1)));
+			consoleSurface->h - (font->getHeight() * (cursorY + 1)));
 	}
 }
 
@@ -223,7 +223,9 @@ bool SDLConsole::loadBackground(const string &filename)
 	}
 	// If file does exist, but cannot be read as an image,
 	// IMG_Load returns NULL.
-	if (pictureSurface == NULL) return false;
+	if (pictureSurface == NULL) {
+		return false;
+	}
 
 	if (backgroundImage) {
 		SDL_FreeSurface(backgroundImage);
@@ -232,14 +234,14 @@ bool SDLConsole::loadBackground(const string &filename)
 	OSDConsoleRenderer::updateConsoleRect(rect); // get the size
 
 	// create a 32 bpp surface that will hold the scaled version
-	SDL_Surface * scaled32Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-					rect.w, rect.h, 32, 0, 0, 0, 0);
+	SDL_Surface * scaled32Surface = SDL_CreateRGBSurface(
+		SDL_SWSURFACE, rect.w, rect.h, 32, 0, 0, 0, 0);
 	// convert the picturesurface to 32 bpp
-	SDL_PixelFormat * format=scaled32Surface->format;
-	SDL_Surface * picture32Surface = SDL_ConvertSurface(pictureSurface, format, 0);
+	SDL_PixelFormat* format = scaled32Surface->format;
+	SDL_Surface* picture32Surface = SDL_ConvertSurface(pictureSurface, format, 0);
 
 	SDL_FreeSurface(pictureSurface);
-	zoomSurface (picture32Surface,scaled32Surface, true);
+	zoomSurface (picture32Surface, scaled32Surface, true);
 	SDL_FreeSurface(picture32Surface);
 	// convert the background to the right format
 	backgroundImage = SDL_DisplayFormat(scaled32Surface);
@@ -314,8 +316,8 @@ void SDLConsole::resize(SDL_Rect rect)
 // takes a new x and y of the top left of the console window
 void SDLConsole::position(int x, int y)
 {
-	assert(!(x<0 || x > outputScreen->w - consoleSurface->w));
-	assert(!(y<0 || y > outputScreen->h - consoleSurface->h));
+	assert(!(x < 0 || x > outputScreen->w - consoleSurface->w));
+	assert(!(y < 0 || y > outputScreen->h - consoleSurface->h));
 	dispX = x;
 	dispY = y;
 }

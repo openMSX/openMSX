@@ -10,13 +10,14 @@ namespace openmsx {
 class DumpView: public MemoryView
 {
 	public:
-		DumpView (int rows, int columns, bool border);
-		void setAsciiDisplay (bool mode);
-		void setNumericSize (int size);
+		DumpView(unsigned rows, unsigned columns, bool border);
+		void setAsciiDisplay(bool mode);
+		void setNumericSize(unsigned size);
 		void fill();
-		void scroll (enum ScrollDirection direction, int lines);
+		void scroll(enum ScrollDirection direction, unsigned lines);
+
 	private:
-		int numericSize;
+		unsigned numericSize;
 		bool displayAscii;
 };
 

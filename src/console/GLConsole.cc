@@ -218,21 +218,21 @@ void GLConsole::drawConsole()
 		lastBlinkTime = SDL_GetTicks() + BLINK_RATE;
 		blink = !blink;
 	}
-	int cursorX;
-	int cursorY;	 
 	
-	console->getCursorPosition(&cursorX, &cursorY);
-	if (cursorX != lastCursorPosition){
-		blink=true; // force cursor
+	unsigned cursorX;
+	unsigned cursorY;
+	console->getCursorPosition(cursorX, cursorY);
+	if (cursorX != lastCursorPosition) {
+		blink = true; // force cursor
 		lastBlinkTime=SDL_GetTicks() + BLINK_RATE; // maximum time
-		lastCursorPosition=cursorX;
+		lastCursorPosition = cursorX;
 	}
 	if (console->getScrollBack() == 0) {
 		if (blink) {
 			// Print cursor if there is enough room
 			font->drawText(string("_"),
 				CHAR_BORDER + cursorX * font->getWidth(),
-				consoleHeight - (font->getHeight()* (cursorY+1)));
+				consoleHeight - (font->getHeight() * (cursorY + 1)));
 
 		}
 	}
