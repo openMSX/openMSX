@@ -1,5 +1,6 @@
 // $Id: 
 
+#include "openmsx.hh"
 #include "HotKey.hh"
 
 
@@ -26,11 +27,13 @@ HotKey* HotKey::oneInstance = NULL;
 
 void HotKey::registerAsyncHotKey(SDLKey key, EventListener *listener)
 {
+	PRT_DEBUG("HotKey registration for key " << ((int)key));
 	SDL_mutexP(mapMutex);
 	map.insert(std::pair<SDLKey, EventListener*>(key, listener));
 	SDL_mutexV(mapMutex);
-	if (nbListeners++ == 0)
+	if (nbListeners == 0)
 		EventDistributor::instance()->registerAsyncListener(SDL_KEYDOWN, this);
+	nbListeners++;
 }
 
 
@@ -38,6 +41,7 @@ void HotKey::registerAsyncHotKey(SDLKey key, EventListener *listener)
 //  note: runs in different thread
 void HotKey::signalEvent(SDL_Event &event)
 {
+	//PRT_DEBUG("HotKey event " << ((int)event.key.keysym.sym));
 	SDL_mutexP(mapMutex);
 	std::multimap<SDLKey, EventListener*>::iterator it;
 	for (it = map.find(event.key.keysym.sym); it!=map.end(); it++) {

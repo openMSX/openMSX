@@ -17,7 +17,7 @@ class HotKey : public EventListener
 		 * events are only passed for specific keys.
 		 * See EventDistributor::registerAsyncListener for more details
 		 */
-		void registerAsyncHotKey(SDLKey type, EventListener *listener);
+		void registerAsyncHotKey(SDLKey key, EventListener *listener);
 
 
 		// EventListener

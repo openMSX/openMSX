@@ -3,6 +3,7 @@
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
+#include "HotKey.hh"
 #include <cassert>
 
 
@@ -16,10 +17,14 @@ const std::string Schedulable::defaultName = "no name";
 
 Scheduler::Scheduler()
 {
+	pauseMutex = SDL_CreateMutex();
+	paused = false;
+	HotKey::instance()->registerAsyncHotKey(SDLK_PAUSE, this);
 }
 
 Scheduler::~Scheduler()
 {
+	SDL_DestroyMutex(pauseMutex);
 }
 
 Scheduler* Scheduler::instance()
@@ -70,6 +75,9 @@ void Scheduler::scheduleEmulation()
 //	}
 //	quakef.close();
 
+		SDL_mutexP(pauseMutex); // grab and release mutex, if unpaused this will
+		SDL_mutexV(pauseMutex); //  succeed else we sleep till unpaused
+
 		if (scheduleList.empty()) {
 			// nothing scheduled, emulate CPU
 			PRT_DEBUG ("Scheduling CPU till infinity");
@@ -93,3 +101,18 @@ void Scheduler::scheduleEmulation()
 	}
 }
 const Emutime Scheduler::infinity = Emutime(1, Emutime::INFINITY);
+
+// Note: this runs in a different thread
+void Scheduler::signalEvent(SDL_Event &event) {
+	if (paused) {
+		// unpause
+		paused = false;
+		SDL_mutexV(pauseMutex);	// release mutex;
+		PRT_DEBUG("Unpaused");
+	} else {
+		// pause
+		paused = true;
+		SDL_mutexP(pauseMutex);	// grab mutex
+		PRT_DEBUG("Paused");
+	}
+}

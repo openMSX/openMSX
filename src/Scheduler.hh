@@ -4,6 +4,8 @@
 #define __SCHEDULER_HH__
 
 #include "emutime.hh"
+#include "EventDistributor.hh"
+#include <SDL/SDL.h>
 #include <set>
 #include <string>
 
@@ -30,14 +32,17 @@ class SynchronizationPoint
 		Schedulable &device;		// alias
 };
 
-class Scheduler
+class Scheduler : public EventListener
 {
 	public:
-		~Scheduler();
+		virtual ~Scheduler();
 		static Scheduler *instance();
 		void setSyncPoint(Emutime &timestamp, Schedulable &activedevice);
 		void scheduleEmulation();
-	
+		
+		// EventListener
+		void signalEvent(SDL_Event &event);
+		
 	private:
 		Scheduler();
 		const SynchronizationPoint &getFirstSP();
@@ -47,6 +52,9 @@ class Scheduler
 		std::set<SynchronizationPoint> scheduleList;
 
 		static const Emutime infinity;
+
+		bool paused;
+		SDL_mutex *pauseMutex;
 };
 
 #endif

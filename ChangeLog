@@ -3,6 +3,11 @@ $Id$
 2001-10-23 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* make DACSound compile again (doesn't work yet)
 	* add HotKey service
+	* openMSX can be paused (pause key), added to demonstrate the
+	  use of HotKey. Problems with current pause implementation:
+	    - sound must also be paused
+	    - realtime keeps running, so after unpausing openMSX 
+	      tries to catch up and runs too fast for a while
 
 2001-10-22 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Changed Mixer and SoundDevice interface (David's request).
