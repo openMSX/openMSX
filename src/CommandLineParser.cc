@@ -221,7 +221,7 @@ void CommandLineParser::SettingOption::parseOption(const std::string &option,
 	}
 	parsed = true;
 	MSXConfig *config = MSXConfig::instance();
-	config->loadFile(new SystemFileContext(), cmdLine.front());
+	config->loadFile(new UserFileContext(), cmdLine.front());
 	cmdLine.pop_front();
 }
 const std::string& CommandLineParser::SettingOption::optionHelp() const

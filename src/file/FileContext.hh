@@ -43,7 +43,6 @@ class UserFileContext : public FileContext
 	public:
 		UserFileContext();
 		virtual const std::list<std::string> &getPathList() const;
-		
 };
 
 #endif
