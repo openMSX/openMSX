@@ -236,14 +236,12 @@ void CassettePlayer::setSampleRate(int sampleRate)
 	delta = EmuDuration(1.0 / sampleRate);
 }
 
-int *CassettePlayer::updateBuffer(int length)
+void CassettePlayer::updateBuffer(int length, int* buffer)
 {
-	int *buf = buffer;
 	while (length--) {
-		*(buf++) = (((int)getSample(playTapeTime)) * volume) >> 15;
+		*(buffer++) = (((int)getSample(playTapeTime)) * volume) >> 15;
 		playTapeTime += delta;
 	}
-	return buffer;
 }
 
 } // namespace openmsx
