@@ -5,6 +5,7 @@ $Id$
 	* CPU is no longer a special case with initialization
 	* fixed various bugs
 	* made Inputs independent from MSXPPI
+	* implemented CAPS LED + support for all other LEDs
 
 2001-09-09 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* print more usefull debug messages

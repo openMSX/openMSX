@@ -2,8 +2,9 @@
 
 #include "Inputs.hh"
 #include "MSXPPI.hh"
+#include "Leds.hh"
 #include <SDL/SDL.h>
-#include "assert.h"
+#include <assert.h>
 
 
 // MSXDevice
@@ -138,8 +139,9 @@ void MSXPPI::writeC1(nibble value) {
 	//TODO use these bits
 	//  4    CASON  Cassette motor relay        (0=On, 1=Off)
 	//  5    CASW   Cassette audio out          (Pulse)
-	//  6    CAPS   CAPS-LOCK lamp              (0=On, 1=Off)
 	//  7    SOUND  Keyboard klick bit          (Pulse)
+	int caps = (value&4) ? CAPS_OFF : CAPS_ON;
+	Leds::instance()->setLed(caps);
 }
 void MSXPPI::writeC0(nibble value) {
 	selectedRow = value;

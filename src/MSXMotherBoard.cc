@@ -8,6 +8,7 @@
 
 #include "MSXMotherBoard.hh"
 #include "DummyDevice.hh"
+#include "Leds.hh"
 
 MSXZ80 *MSXMotherBoard::CPU;
 
@@ -141,6 +142,7 @@ void MSXMotherBoard::StartMSX()
 	for (i = availableDevices->begin(); i != availableDevices->end(); i++) {
 		(*i)->start();
 	}
+	Leds::instance()->setLed(POWER_ON);
 	Scheduler::instance()->scheduleEmulation();
 }
 void MSXMotherBoard::SaveStateMSX(ofstream &savestream)

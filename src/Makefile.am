@@ -20,6 +20,7 @@ openmsx_SOURCES=openmsx.cc \
 	devicefactory.hh devicefactory.cc \
 	Scheduler.hh Scheduler.cc \
 	Inputs.hh Inputs.cc \
+	Leds.hh Leds.cc \
 	Z80.cc Z80.hh Z80DAA.h Z80Codes.h opc__Z80.h \
 	MSXE6Timer.hh MSXE6Timer.cc \
 	DummyDevice.hh DummyDevice.cc
