@@ -1,5 +1,8 @@
 $Id$
 
+2005-03-04 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added Sony HB-F1II config and corrected HB-F1 config.
+
 2005-03-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Also accept the enter key on the numerical pad in the console
 
