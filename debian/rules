@@ -69,7 +69,7 @@ install: build
 		INSTALL_BINARY_DIR=$(CURDIR)/debian/openmsx/usr/bin \
 		INSTALL_SHARE_DIR=$(CURDIR)/debian/openmsx/usr/share/openmsx \
 		INSTALL_DOC_DIR=$(CURDIR)/debian/openmsx/usr/share/doc/openmsx \
-		SOFTLINK_FOR_BINARY=false
+		SYMLINK_FOR_BINARY=false
 
 
 # Build architecture-independent files here.

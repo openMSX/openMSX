@@ -1,5 +1,12 @@
 $Id$
 
+2004-10-13 Joost Damad <joost@lumatec.be>
+	* import of debian/
+	* some non-intrusive changes to the build/ dir
+	* Contrib moved when installed to share/
+	* bad timing of changes :(
+	* not softlink, but symbolic link
+
 2004-10-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Correctly restore saved cpu freq settings:
 	   - When z80_freq_locked was saved as 'false', you had to do
