@@ -24,7 +24,7 @@ public:
 	int   getSS();
 	const string &getParameter(const string &name);
 private:
-	MSXConfigDevice() {};
+	MSXConfigDevice();
 };
 
 class MSXConfig
