@@ -36,8 +36,7 @@ class MSXMemDevice : virtual public MSXDevice
 		 * from the buffer, thus bypassing the readMem() method, and
 		 * thus also ignoring EmuTime.
 		 * The default implementation always returns a null pointer.
-		 * An interval will never cross a 16KB border.
-		 * An interval will never contain the address 0xffff.
+		 * The start of the interval is CACHE_LINE_SIZE alligned.
 		 */
 		virtual byte* getReadCacheLine(word start);
 		
@@ -50,8 +49,7 @@ class MSXMemDevice : virtual public MSXDevice
 		 * to the buffer, thus bypassing the writeMem() method, and
 		 * thus also ignoring EmuTime.
 		 * The default implementation always returns a null pointer.
-		 * An interval will never cross a 16KB border.
-		 * An interval will never contain the address 0xffff.
+		 * The start of the interval is CACHE_LINE_SIZE alligned.
 		 */
 		virtual byte* getWriteCacheLine(word start);
 		

@@ -43,12 +43,6 @@ class MSXMotherBoard : public MSXCPUInterface, public Schedulable
 		void removeDevice(MSXDevice *device);
 
 		/**
-		 * This will initialize all MSXDevices (the init() method of
-		 * all registered MSXDevices is called)
-		 */
-		void InitMSX();
-
-		/**
 		 * This starts the Scheduler.
 		 */
 		void startMSX();

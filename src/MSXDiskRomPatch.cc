@@ -161,6 +161,8 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs)
 		regs.AF.w = 0x0A01;	// I/O error
 	} catch (DriveEmptyException &e) {
 		regs.AF.w = 0x0201;	// Not Ready
+	} catch (WriteProtectedException &e) {
+		regs.AF.w = 0x0001;	// Write Protected
 	}
 
 	// restore memory settings
@@ -391,6 +393,8 @@ void MSXDiskRomPatch::DSKFMT(CPU::CPURegs& regs)
 		regs.AF.w = 0x0A01;	// I/O error
 	} catch (DriveEmptyException &e) {
 		regs.AF.w = 0x0201;	// Not Ready
+	} catch (WriteProtectedException &e) {
+		regs.AF.w = 0x0001;	// Write Protected
 	}
 }
 

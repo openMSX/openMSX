@@ -257,6 +257,7 @@ void MSXFDC::writeMem(word address, byte value, const EmuTime &time)
 		    drivenr=1;
 		    break;
 		  case 3:
+		  default:
 		    drivenr=255; //no drive selected
 		};
 		controller->setDriveSelect(drivenr, time);

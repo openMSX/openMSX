@@ -120,13 +120,13 @@ class MSXCPUInterface : public CPUInterface
 		SlotMapCmd slotMapCmd;
 		SlotSelectCmd slotSelectCmd;
 
-		MSXIODevice* IO_In[256];
+		MSXIODevice* IO_In [256];
 		MSXIODevice* IO_Out[256];
 
-		MSXMemDevice* SlotLayout[4][4][4];
-		byte SubSlot_Register[4];
-		byte PrimarySlotState[4];
-		byte SecondarySlotState[4];
+		MSXMemDevice* slotLayout[4][4][4];
+		byte subSlotRegister[4];
+		byte primarySlotState[4];
+		byte secondarySlotState[4];
 		bool isSubSlotted[4];
 		MSXMemDevice* visibleDevices[4];
 };

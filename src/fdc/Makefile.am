@@ -19,7 +19,8 @@ libFdc_la_SOURCES = \
 	FDCBackEnd.cc FDCBackEnd.hh \
 	FDCDummyBackEnd.cc FDCDummyBackEnd.hh \
 	FDC_DSK.cc FDC_DSK.hh \
-	DiskImageManager.cc DiskImageManager.hh
+	DiskImageManager.cc DiskImageManager.hh \
+	FDC_XSA.cc FDC_XSA.hh
 
 nodebug: resetdebug all
 debug: setdebug all

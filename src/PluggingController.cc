@@ -12,17 +12,13 @@
 PluggingController::PluggingController()
 {
 	CommandController::instance()->registerCommand(plugCmd,   "plug");
-	CommandController::instance()->registerCommand(plugCmd,   "insert");
 	CommandController::instance()->registerCommand(unplugCmd, "unplug");
-	CommandController::instance()->registerCommand(unplugCmd, "remove");
 }
 
 PluggingController::~PluggingController()
 {
 	CommandController::instance()->unregisterCommand("plug");
-	CommandController::instance()->unregisterCommand("insert");
 	CommandController::instance()->unregisterCommand("unplug");
-	CommandController::instance()->unregisterCommand("remove");
 }
 
 PluggingController* PluggingController::instance()

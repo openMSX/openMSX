@@ -4,6 +4,7 @@
 #include "CommandController.hh"
 #include "FDCDummyBackEnd.hh"
 #include "FDC_DSK.hh"
+#include "FDC_XSA.hh"
 
 
 DiskImageManager* DiskImageManager::instance()
@@ -70,14 +71,19 @@ void DiskImageManager::Drive::execute(const std::vector<std::string> &tokens)
 		backEnd = new FDCDummyBackEnd();
 	} else {
 		print("Changing disk");
+		FDCBackEnd* tmp;
+		// TODO find something better here
 		try {
-			// TODO other backends
-			FDCBackEnd* tmp = new FDC_DSK(tokens[1]);
-			delete backEnd;
-			backEnd = tmp;
+			tmp = new FDC_XSA(tokens[1]);
 		} catch (MSXException &e) {
-			throw CommandException(e.desc);
+			try {
+				tmp = new FDC_DSK(tokens[1]);
+			} catch (MSXException &e) {
+				throw CommandException(e.desc);
+			}
 		}
+		delete backEnd;
+		backEnd = tmp;
 	}
 }
 

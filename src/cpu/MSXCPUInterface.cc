@@ -19,10 +19,10 @@ MSXCPUInterface::MSXCPUInterface(MSXConfig::Config *config)
 	}
 	for (int primSlot=0; primSlot<4; primSlot++) {
 		isSubSlotted[primSlot] = false;
-		SubSlot_Register[primSlot] = 0;
+		subSlotRegister[primSlot] = 0;
 		for (int secSlot=0; secSlot<4; secSlot++) {
 			for (int page=0; page<4; page++) {
-				SlotLayout[primSlot][secSlot][page]=dummy;
+				slotLayout[primSlot][secSlot][page] = dummy;
 			}
 		}
 	}
@@ -32,19 +32,19 @@ MSXCPUInterface::MSXCPUInterface(MSXConfig::Config *config)
 
 	std::list<MSXConfig::Device::Parameter*>* subslotted_list;
 	subslotted_list = config->getParametersWithClass("subslotted");
-	std::list<MSXConfig::Device::Parameter*>::const_iterator i;
-	for (i=subslotted_list->begin(); i != subslotted_list->end(); i++) {
+	std::list<MSXConfig::Device::Parameter*>::const_iterator it;
+	for (it = subslotted_list->begin(); it != subslotted_list->end(); it++) {
 		bool hasSubs = false;
-		if ((*i)->value == "true") {
+		if ((*it)->value == "true") {
 			hasSubs = true;
 		}
-		int counter = atoi((*i)->name.c_str());
+		int counter = atoi((*it)->name.c_str());
 		isSubSlotted[counter] = hasSubs;
 		PRT_DEBUG("Slot: " << counter << " expanded: " << hasSubs);
 	}
 	config->getParametersWithClassClean(subslotted_list);
 
-	// Note: PrimarySlotState and SecondarySlotState will be
+	// Note: primarySlotState and secondarySlotState will be
 	//       initialised at reset.
 
 	// Register console commands.
@@ -89,9 +89,9 @@ void MSXCPUInterface::registerSlottedDevice(MSXMemDevice *device, int primSl, in
 			<< " does not exist, because slot is not expanded";
 		throw MSXException(s.str());
 	}
-	if (SlotLayout[primSl][secSl][page] == DummyDevice::instance()) {
+	if (slotLayout[primSl][secSl][page] == DummyDevice::instance()) {
 		PRT_DEBUG(device->getName() << " registers at "<<primSl<<" "<<secSl<<" "<<page);
-		SlotLayout[primSl][secSl][page] = device;
+		slotLayout[primSl][secSl][page] = device;
 	} else {
 		PRT_ERROR(device->getName() << " trying to register taken slot");
 	}
@@ -99,8 +99,8 @@ void MSXCPUInterface::registerSlottedDevice(MSXMemDevice *device, int primSl, in
 
 void MSXCPUInterface::updateVisible(int page)
 {
-	MSXMemDevice *newDevice = SlotLayout [PrimarySlotState[page]]
-	                                     [SecondarySlotState[page]]
+	MSXMemDevice *newDevice = slotLayout [primarySlotState[page]]
+	                                     [secondarySlotState[page]]
 	                                     [page];
 	if (visibleDevices[page] != newDevice) {
 		visibleDevices[page] = newDevice;
@@ -114,8 +114,8 @@ void MSXCPUInterface::setPrimarySlots(byte value)
 {
 	for (int page=0; page<4; page++, value>>=2) {
 		// Change the slot structure
-		PrimarySlotState[page] = value&3;
-		SecondarySlotState[page] = 3&(SubSlot_Register[value&3]>>(page*2));
+		primarySlotState[page] = value&3;
+		secondarySlotState[page] = 3 & (subSlotRegister[value&3] >> (page*2));
 		// Change the visible devices
 		updateVisible(page);
 	}
@@ -124,9 +124,9 @@ void MSXCPUInterface::setPrimarySlots(byte value)
 byte MSXCPUInterface::readMem(word address, const EmuTime &time)
 {
 	if (address == 0xFFFF) {
-		int CurrentSSRegister = PrimarySlotState[3];
-		if (isSubSlotted[CurrentSSRegister]) {
-			return 255^SubSlot_Register[CurrentSSRegister];
+		int currentSSRegister = primarySlotState[3];
+		if (isSubSlotted[currentSSRegister]) {
+			return 255 ^ subSlotRegister[currentSSRegister];
 		}
 	}
 	return visibleDevices[address>>14]->readMem(address, time);
@@ -135,12 +135,12 @@ byte MSXCPUInterface::readMem(word address, const EmuTime &time)
 void MSXCPUInterface::writeMem(word address, byte value, const EmuTime &time)
 {
 	if (address == 0xFFFF) {
-		int CurrentSSRegister = PrimarySlotState[3];
-		if (isSubSlotted[CurrentSSRegister]) {
-			SubSlot_Register[CurrentSSRegister] = value;
+		int currentSSRegister = primarySlotState[3];
+		if (isSubSlotted[currentSSRegister]) {
+			subSlotRegister[currentSSRegister] = value;
 			for (int page=0; page<4; page++, value>>=2) {
-				if (CurrentSSRegister == PrimarySlotState[page]) {
-					SecondarySlotState[page] = value&3;
+				if (currentSSRegister == primarySlotState[page]) {
+					secondarySlotState[page] = value&3;
 					// Change the visible devices
 					updateVisible(page);
 				}
@@ -167,7 +167,7 @@ void MSXCPUInterface::writeIO(word prt, byte value, const EmuTime &time)
 byte* MSXCPUInterface::getReadCacheLine(word start)
 {
 	if ((start == 0x10000-CPU::CACHE_LINE_SIZE) &&	// contains 0xffff
-	    (isSubSlotted[PrimarySlotState[3]]))
+	    (isSubSlotted[primarySlotState[3]]))
 		return NULL;
 	return visibleDevices[start>>14]->getReadCacheLine(start);
 }
@@ -175,7 +175,7 @@ byte* MSXCPUInterface::getReadCacheLine(word start)
 byte* MSXCPUInterface::getWriteCacheLine(word start)
 {
 	if ((start == 0x10000-CPU::CACHE_LINE_SIZE) &&	// contains 0xffff
-	    (isSubSlotted[PrimarySlotState[3]]))
+	    (isSubSlotted[primarySlotState[3]]))
 		return NULL;
 	return visibleDevices[start>>14]->getWriteCacheLine(start);
 }
@@ -187,11 +187,11 @@ std::string MSXCPUInterface::getSlotMap()
 		if (isSubSlotted[prim]) {
 			for (int sec = 0; sec < 4; sec++) {
 				out << "slot " << prim << "." << sec << ":\n";
-				printSlotMapPages(out, SlotLayout[prim][sec]);
+				printSlotMapPages(out, slotLayout[prim][sec]);
 			}
 		} else {
 			out << "slot " << prim << ":\n";
-			printSlotMapPages(out, SlotLayout[prim][0]);
+			printSlotMapPages(out, slotLayout[prim][0]);
 		}
 	}
 	return out.str();
@@ -223,8 +223,8 @@ std::string MSXCPUInterface::getSlotSelection()
 #endif
 		out << pageStr << ": ";
 
-		int prim = PrimarySlotState[page];
-		int sec = (SubSlot_Register[prim] >> (page * 2)) & 3;
+		int prim = primarySlotState[page];
+		int sec = (subSlotRegister[prim] >> (page * 2)) & 3;
 		if (isSubSlotted[prim]) {
 			out << "slot " << prim << "." << sec << "\n";
 		} else {

@@ -27,8 +27,7 @@ class MSXDevice
 
 		/**
 		 * This method is called on reset.
-		 * Default implementation resets internal IRQ flag (every
-		 * re-implementation should also call this method).
+		 * Default implementation does nothing.
 		 */
 		virtual void reset(const EmuTime &time);
 

@@ -22,6 +22,11 @@ class DriveEmptyException  : public MSXException {
 		DriveEmptyException(const std::string &desc)
 			: MSXException(desc) {}
 };
+class WriteProtectedException  : public MSXException {
+	public:
+		WriteProtectedException(const std::string &desc)
+			: MSXException(desc) {}
+};
 
 
 class FDCBackEnd 
