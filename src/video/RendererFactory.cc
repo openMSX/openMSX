@@ -59,22 +59,11 @@ RendererFactory::RendererSetting *RendererFactory::createRendererSetting()
 RendererSwitcher::RendererSwitcher(VDP *vdp) {
 	this->vdp = vdp;
 	renderer = NULL;
-//	semaphore = SDL_CreateSemaphore(0);
 }
 
 Renderer *RendererSwitcher::performSwitch() {
-/*	// Push switch event into event queue.
-	UserEvents::push(UserEvents::RENDERER_SWITCH, this);
-	// Wait until main thread has performed its work.
-	SDL_SemWait(semaphore);
-	return renderer;
-}
-
-void RendererSwitcher::handleEvent() {
-*/	// Actually create renderer.
+	// Actually create renderer.
 	renderer = RendererFactory::createRenderer(vdp);
-	// Notify emulation thread.
-//	SDL_SemPost(semaphore);
 	return renderer;
 }
 
@@ -82,21 +71,11 @@ void RendererSwitcher::handleEvent() {
 
 FullScreenToggler::FullScreenToggler(SDL_Surface *screen) {
 	this->screen = screen;
-//	semaphore = SDL_CreateSemaphore(0);
 }
 
 void FullScreenToggler::performToggle() {
-/*	// Push switch event into event queue.
-	UserEvents::push(UserEvents::FULL_SCREEN_TOGGLE, this);
-	// Wait until main thread has performed its work.
-	SDL_SemWait(semaphore);
-}
-
-void FullScreenToggler::handleEvent() {
-*/	// Actually toggle.
+	// Actually toggle.
 	SDL_WM_ToggleFullScreen(screen);
-	// Notify emulation thread.
-//	SDL_SemPost(semaphore);
 }
 
 // SDLHi ===================================================================

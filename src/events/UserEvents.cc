@@ -31,10 +31,10 @@ void UserEvents::handle(SDL_UserEvent &event) {
 		Scheduler::instance()->stopScheduling();
 		break;
 	case RENDERER_SWITCH:
-//		((RendererSwitcher *)event.data1)->handleEvent();
+		// currently not used.
 		break;
 	case FULL_SCREEN_TOGGLE:
-//		((FullScreenToggler *)event.data1)->handleEvent();
+		// currently not used.
 		break;
 	default:
 		PRT_ERROR("Cannot handle event " << id);

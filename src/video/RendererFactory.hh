@@ -89,11 +89,6 @@ private:
 	  * from the main thread to the emulation thread.
 	  */
 	Renderer * volatile renderer;
-	
-	/** Semaphore used to suspend emulation thread until main thread has
-	  * created the renderer.
-	  */
-//	SDL_sem *semaphore;
 
 public:
 	/** Create a new renderer switch operation.
@@ -103,16 +98,9 @@ public:
 	RendererSwitcher(VDP *vdp);
 	
 	/** Called by the emulation thread to initiate the renderer switch.
-	  * Sends an event to the main thread and waits until a response is
-	  * received.
 	  * @return The newly created renderer.
 	  */
 	Renderer *performSwitch();
-	
-	/** Called by the main thread to actually create the new renderer.
-	  * Wakes up the emulation thread.
-	  */
-//	void handleEvent();
 
 };
 
@@ -127,11 +115,6 @@ private:
 	/** SDL screen whose full screen state will be toggled.
 	  */
 	SDL_Surface *screen;
-	
-	/** Semaphore used to suspend emulation thread until main thread has
-	  * created the renderer.
-	  */
-//	SDL_sem *semaphore;
 
 public:
 	/** Create a new renderer switch operation.
@@ -141,15 +124,8 @@ public:
 	FullScreenToggler(SDL_Surface *screen);
 	
 	/** Called by the emulation thread to initiate the toggle.
-	  * Sends an event to the main thread and waits until a response is
-	  * received.
 	  */
 	void performToggle();
-	
-	/** Called by the main thread to actually create the new renderer.
-	  * Wakes up the emulation thread.
-	  */
-//	void handleEvent();
 
 };
 
