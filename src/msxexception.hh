@@ -7,6 +7,7 @@ class MSXException
 {
 public:
 	MSXException(const string &descs="", int errno=0):desc(descs),errno(errnos) {}
+	virtual ~MSXException() {}
 	const string desc;
 	const int    errno;
 };

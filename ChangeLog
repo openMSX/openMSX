@@ -1,5 +1,14 @@
 $Id$
 
+2001-06-22 Joost Yervante Damad <j.damad@qahwah.net>
+
+	* added MSXException exception base class.
+
+2001-06-21 Joost Yervante Damad <j.damad@qahwah.net>
+
+	* made MSXConfig code -> this code needs serious cleaning
+	  later ! :)
+
 2001-06-20 Joost Yervante Damad <j.damad@qahwah.net>
 
 	* initial MSXConfig interface/singleton skeleton
