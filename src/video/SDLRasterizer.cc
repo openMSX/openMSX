@@ -10,6 +10,7 @@
 #include <SDL.h>
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 
 using std::max;
 using std::min;
