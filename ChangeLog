@@ -1,5 +1,8 @@
 $Id$
 
+2005-03-03 David Heremans <david.heremans@gnu-linux.net>
+	* Replaced 'fallback LEDs' with variant of set1
+
 2005-03-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Last minute db format change:
 	   type for normal roms is now structured like this
