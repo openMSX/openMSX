@@ -3,6 +3,7 @@
 #include "SDLGLVideoSystem.hh"
 #include "PixelRenderer.hh"
 #include "GLRasterizer.hh"
+#include "V9990GLRasterizer.hh"
 #include "GLSnow.hh"
 #include "GLConsole.hh"
 #include "GLUtil.hh"
@@ -52,8 +53,7 @@ Rasterizer* SDLGLVideoSystem::createRasterizer(VDP* vdp)
 
 V9990Rasterizer* SDLGLVideoSystem::createV9990Rasterizer(V9990* vdp)
 {
-	// TODO: Implement V9990GLRasterizer and create it here.
-	return new V9990DummyRasterizer();
+	return new V9990GLRasterizer(vdp);
 }
 
 // TODO: If we can switch video system at any time (not just frame end),

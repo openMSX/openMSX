@@ -16,34 +16,171 @@
 
 #include "V9990VRAM.hh"
 
+/** Some useful stuff
+  */
+
+enum V9990DisplayMode {
+	INVALID_DISPLAY_MODE,
+	P1, P2, B0, B1, B2, B3, B4, B5, B6, B7 };
+enum V9990ColorMode {
+	INVALID_COLOR_MODE, 
+	PP, BYUV, BYUVP, BYJK, BYJKP, BD16, BD8, BP6, BP4, BP2 };
+
+#include "V9990Renderer.hh"
+
 using std::string;
 using std::auto_ptr;
 
 namespace openmsx {
 
 class V9990VRAM;
+class V9990Renderer;
 
-/**
-  * This class implements the V9990 video chip, as used in the
-  * Graphics9000 module, made by Sunrise.
+/** Implementation of the Yamaha V9990 VDP as used in the GFX9000
+  * cartridge by Sunrise.
   */
 class V9990 : public MSXDevice,
-              private Schedulable, private EventListener
+              private Schedulable,
+			  private EventListener
 {
 public:
+	/** The V9990 has an internal clock (MCLK @ 14MHz) and a terminal
+	  * for an external clock (XTAL1), which can be connected to a 21
+	  * or 25 MHz crystal. The Gfx9000 provides an 21 MHz crystal.
+	  * 
+	  * The emulation combines these two clocks into one unified
+	  * clock (UC) running at 42MHz - the smallest common multple
+	  * of 14 and 21 MHz.
+	  */
+	static const int UC_TICKS_PER_SEC = 42554540; // Hz
+	
+	/** Regardless of the chosen clock or timing (PAL/NTSC), one
+	  * line is always the same number of UC ticks.
+	  */
+	static const int UC_TICKS_PER_LINE = 2736;
+
+	/** Constructor
+	  */ 
 	V9990(const XMLElement& config, const EmuTime& time);
+
+	/** Destructor
+	  */ 
 	virtual ~V9990();
 
+	// MSXDevice interface:
+	virtual void reset(const EmuTime& time);
+	virtual byte readIO(byte port, const EmuTime& time);
+	virtual void writeIO(byte port, byte value, const EmuTime& time);
+
+	/** Obtain a reference to the V9990's VRAM
+	  */
+	inline V9990VRAM* getVRAM() {
+		return vram.get();
+	}
+
+	/** Get number of UC ticks in a frame.
+	  * @return Number of UC Ticks.
+	  */
+	inline int getUCTicksPerFrame() const {
+		return palTiming? UC_TICKS_PER_LINE * 313
+			            : UC_TICKS_PER_LINE * 262;
+	}
+
+	/** Get the number of elapsed UC ticks in this frame.
+	  * @param  time Point in emulated time.
+	  * @return      Number of UC ticks.
+	  */
+	inline int getUCTicksThisFrame(const EmuTime& time) const {
+		return frameStartTime.getTicksTill(time);
+	}
+
+	/** Is PAL timing active?
+	  * This setting is fixed at start of frame.
+	  * @return True if PAL timing, false if NTSC timing.
+	  */
+	inline bool isPalTiming() const {
+		return palTiming;
+	}
+
+	/** Convert UC ticks to pixel position on a line
+	  * @param ticks  UC offset
+	  * @param mode   Display mode
+	  * @return       X offset
+	  */
+	static inline int UCtoX(int ticks, V9990DisplayMode mode) {
+		int x;
+		ticks = ticks % UC_TICKS_PER_LINE;
+		switch(mode) {
+			case P1: x = ticks / 8;  break;
+			case P2: x = ticks / 4;  break;
+			case B0: x = ticks /12;  break;
+			case B1: x = ticks / 8;  break;
+			case B2: x = ticks / 6;  break;
+			case B3: x = ticks / 4;  break;
+			case B4: x = ticks / 3;  break;
+			case B5: x = 1;          break;
+			case B6: x = 1;          break;
+			case B7: x = ticks / 2;  break;
+			default: x = 1;
+		}
+		return x;
+	}
+	
+	/** Get VRAM offset for X position.  Depending on the colormode,
+	  * one byte in VRAM may span several pixels, or one pixel may span
+	  * 1 or 2 bytes.
+	  * @param x     Pointer to X position - on exit, the X position is the
+	  *              X position of the left most pixel at this VRAM address
+	  * @param mode  Color mode
+	  * @return      VRAM offset
+	  */
+	static inline int XtoVRAM(int *x, V9990ColorMode mode) {
+		int offset;
+		switch(mode) {
+			case PP:
+			case BYUV:
+			case BYUVP:
+			case BYJK:
+			case BYJKP:
+			case BD8:
+			case BP6:  offset = *x;     break;
+			case BD16: offset = *x * 2; break;
+			case BP4:  offset = *x / 2; *x &= ~1; break;
+			case BP2:  offset = *x / 4; *x &= ~3; break;
+			default:   offset = 0; break;
+		}
+		return offset;
+	}
+
+	/** Return the current display mode
+	  */
+	V9990DisplayMode getDisplayMode(void);
+
+	/** Return the current color mode
+	  */
+	V9990ColorMode getColorMode(void);
+
+	/** Return the current back drop color
+	  * @return  Index the color palette
+	  */
+	inline int getBackDropColor(void) {
+		return regs[BACK_DROP_COLOR];
+	}
+
+	/** Return the image width
+	  */
+	inline int getImageWidth(void) {
+		return (256 << ((regs[SCREEN_MODE_0] & 0x0C) >> 2));
+	}
+			
+private:
 	// Schedulable interface:
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const string& schedName() const;
 
-	// MSXDevice interface:
-	virtual byte readIO(byte port, const EmuTime& time);
-	virtual void writeIO(byte port, byte value, const EmuTime& time);
-	virtual void reset(const EmuTime& time);
-
-private:
+	// EventListener interface:
+	virtual bool signalEvent(const Event& event);
+	
 	// Debuggable:
 	class V9990RegDebug : public Debuggable {
 	public:
@@ -56,7 +193,7 @@ private:
 		V9990& parent;
 	} v9990RegDebug;
 
-	// Commands:
+	// Command:
 	class V9990RegsCmd : public SimpleCommand {
 	public:
 		V9990RegsCmd(V9990& v9990);
@@ -65,6 +202,24 @@ private:
 	private:
 		V9990& v9990;
 	} v9990RegsCmd;
+
+	// --- types ------------------------------------------------------
+
+	/** Types of V9990 Sync points that can be scheduled
+	  */
+	enum V9990SyncType {
+		/** Vertical Sync: transition to next frame.
+		  */
+		V9990_VSYNC,
+	};
+	
+	/** IRQ types
+	  */
+	enum IRQType {
+		VER_IRQ = 1,
+		HOR_IRQ = 2,
+		CMD_IRQ = 4,
+	};
 
 	/** I/O Ports
 	  */  
@@ -144,13 +299,38 @@ private:
 		CMD_PARAM_BORDER_X_1
 	};
 
+	// --- members ----------------------------------------------------
+
+	IRQHelper irq;
+	byte      pendingIRQs;
+
+	/** Registers
+	  */ 
 	byte regs[0x40];
 	byte regSelect;
 
 	/** VRAM
 	  */
 	auto_ptr<V9990VRAM> vram;
- 
+
+	/** Palette
+	  */
+	byte palette[256];
+
+	/** Renderer
+	  */
+	V9990Renderer* renderer;
+
+	/** Is PAL timing active?  False means NTSC timing
+	  */
+	bool palTiming;
+
+	/** Emulation time when this frame was started (VSYNC)
+	  */
+	Clock<UC_TICKS_PER_SEC> frameStartTime;
+	
+	// --- methods ----------------------------------------------------
+
 	/** Get VRAM read or write address from V9990 registers
 	  * @param base  VRAM_READ_ADDRESS_0 or VRAM_WRITE_ADDRESS_0
 	  * @returns     VRAM read or write address
@@ -177,29 +357,20 @@ private:
 	  */
 	void writeRegister(byte reg, byte val, const EmuTime& time);
 	
-	/** Palette
-	  */
-	byte palette[256];
-
-	/** IRQ
-	  */
-	enum IRQType {
-		VER_IRQ = 1,
-		HOR_IRQ = 2,
-		CMD_IRQ = 4,
-	};
-
-	// EventListener interface:
-	virtual bool signalEvent(const Event& event);
-
 	/** Create a new renderer.
+	  * @param time  Moment in emulated time to create the renderer
 	  */
-	void createRenderer();
+	void createRenderer(const EmuTime& time);
 
-	void raiseIRQ(IRQType irqType);
+	/** Start a new frame. 
+	  * @param time  Moment in emulated time to start the frame
+	  */
+	void frameStart(const EmuTime& time);
 	
-	IRQHelper irq;
-	byte pendingIRQs;
+	/** Raise an IRQ
+	  * @param irqType  Type of IRQ
+	  */ 
+	void raiseIRQ(IRQType irqType);
 };
 
 } // namespace openmsx

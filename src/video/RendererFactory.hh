@@ -18,7 +18,7 @@ namespace openmsx {
 class VideoSystem;
 class Renderer;
 class VDP;
-class V9990Rasterizer;
+class V9990Renderer;
 class V9990;
 class XMLElement;
 
@@ -47,6 +47,11 @@ public:
 	  * @param vdp The VDP whose display will be rendered.
 	  */
 	static Renderer* createRenderer(VDP* vdp);
+
+	/** Create the V9990 Renderer selected by the current renderer setting.
+	  * @param vdp The V9990 VDP whose display will be rendered.
+	  */
+	static V9990Renderer* createV9990Renderer(V9990* vdp);
 
 	/** Create the renderer setting.
 	  * The map of this setting contains only the available renderers.

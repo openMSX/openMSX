@@ -19,11 +19,11 @@ static const char*    DEBUG_ID  = "V9990 VRAM";
 // Constructor & Destructor
 // -------------------------------------------------------------------------
 
-V9990VRAM::V9990VRAM(V9990 *v9990, const EmuTime& time)
+V9990VRAM::V9990VRAM(V9990 *vdp_, const EmuTime& time)
+	: vdp(vdp_)
 	{
-		this->v9990 = v9990;
-		vram = new byte[VRAM_SIZE];
-		memset(vram, 0, VRAM_SIZE);
+		data = new byte[VRAM_SIZE];
+		memset(data, 0, VRAM_SIZE);
 		
 		Debugger::instance().registerDebuggable(DEBUG_ID, *this);
 	}
@@ -31,9 +31,23 @@ V9990VRAM::V9990VRAM(V9990 *v9990, const EmuTime& time)
 V9990VRAM::~V9990VRAM()
 {
 	Debugger::instance().unregisterDebuggable(DEBUG_ID, *this);
-	delete[] vram;
+	delete[] data;
 }
 
+// -------------------------------------------------------------------------
+// V9990VRAM
+// -------------------------------------------------------------------------
+
+byte V9990VRAM::readVRAM(unsigned address, const EmuTime& time)
+{
+	return data[address];
+}
+
+void V9990VRAM::writeVRAM(unsigned address, byte value, const EmuTime& time)
+{
+	data[address] = value;
+}
+	
 // -------------------------------------------------------------------------
 // Debuggable
 // -------------------------------------------------------------------------
@@ -51,26 +65,12 @@ const string& V9990VRAM::getDescription() const
 
 byte V9990VRAM::read(unsigned address)
 {
-	return vram[address];
+	return data[address];
 }
 
 void V9990VRAM::write(unsigned address, byte value)
 {
-	vram[address] = value;
+	data[address] = value;
 }
 
-// -------------------------------------------------------------------------
-// V9990VRAM
-// -------------------------------------------------------------------------
-
-byte V9990VRAM::readVRAM(unsigned address, EmuTime& time)
-{
-	return vram[address];
-}
-
-void V9990VRAM::writeVRAM(unsigned address, byte value, EmuTime& time)
-{
-	vram[address] = value;
-}
-	
 } // namespace openmsx

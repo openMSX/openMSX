@@ -1,5 +1,10 @@
 $Id$
 
+2004-10-18 Eric Boon <e.boon4@chello.nl>
+	* GFX900 emulation
+		- Bx modes & belonging palettes
+		- start of SDL Rasterizer, dummy GL rasterizer
+
 2004-10-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* forgot some "up"->"release" renames
 	* Added MMX optimizations in Scale2x scaler

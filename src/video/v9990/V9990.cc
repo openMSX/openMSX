@@ -13,7 +13,6 @@
 
 using std::setw;
 
-
 namespace openmsx {
 
 enum RegisterAccess { NO_ACCESS, RD_ONLY, WR_ONLY, RD_WR };
@@ -59,15 +58,9 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
 	// create VRAM
 	vram.reset(new V9990VRAM(this, time));
 
-	// initialize palette
-	for (int i = 0; i < 64; ++i) {
-		palette[4 * i + 0] = 0x9F;
-		palette[4 * i + 1] = 0x1F;
-		palette[4 * i + 2] = 0x1F;
-		palette[4 * i + 3] = 0x00;
-	}
-
-	reset(time);
+	// Start with NTSC timing
+	palTiming = false;
+	
 	
 	// Register debuggable
 	Debugger::instance().registerDebuggable("V9990 regs", v9990RegDebug);
@@ -76,8 +69,18 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
 	CommandController::instance().registerCommand(&v9990RegsCmd, "v9990regs");
 
 	// Initialise rendering system
-	createRenderer();
+	createRenderer(time);
 
+	// initialize palette
+	for (int i = 0; i < 64; ++i) {
+		palette[4 * i + 0] = 0x9F;
+		palette[4 * i + 1] = 0x1F;
+		palette[4 * i + 2] = 0x1F;
+		renderer->setPalette(i, 0x9F, 0x1F, 0x1F, time);
+		palette[4 * i + 3] = 0x00;
+	}
+
+	reset(time);
 	EventDistributor::instance().registerEventListener(
 		RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED );
 }
@@ -87,41 +90,14 @@ V9990::~V9990()
 {
 	PRT_DEBUG("[--now--] V9990::Destroy");
 
+	// Unregister everything that needs to be unregistered
+	CommandController::instance().unregisterCommand(&v9990RegsCmd, "v9990regs");
+	Debugger::instance().unregisterDebuggable("V9990 regs", v9990RegDebug);
 	EventDistributor::instance().unregisterEventListener(
 		RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED );
-	Debugger::instance().unregisterDebuggable("V9990 regs", v9990RegDebug);
-	CommandController::instance().unregisterCommand(&v9990RegsCmd, "v9990regs");
-}
 
-// -------------------------------------------------------------------------
-// Schedulable
-// -------------------------------------------------------------------------
-
-void V9990::executeUntil(const EmuTime &time, int userData)
-{
-	PRT_DEBUG("[" << time << "] "
-	          "V9990::executeUntil - data=0x" << hex << userData);
-}
-
-const string& V9990::schedName() const
-{
-	static const string name("V9990");
-
-	PRT_DEBUG("[--now-- ] V9990::SchedName - \"" << name << "\"");
-
-	return name;
-}
-
-// -------------------------------------------------------------------------
-// EventListener
-// -------------------------------------------------------------------------
-
-bool V9990::signalEvent(const Event& event)
-{
-	assert(event.getType() == RENDERER_SWITCH2_EVENT);
-	//delete renderer;
-	createRenderer();
-	return true;
+	// trash sub-systems
+	delete renderer;
 }
 
 // -------------------------------------------------------------------------
@@ -132,14 +108,20 @@ void V9990::reset(const EmuTime& time)
 {
 	PRT_DEBUG("[" << time << "] V9990::reset");
 
+	Scheduler::instance().removeSyncPoint(this, V9990_VSYNC);
+
 	// Reset IRQs
 	writeIO(INTERRUPT_FLAG, 0xFF, time);
 	
 	// Clear registers / ports
 	memset(regs, 0, sizeof(regs));
 	regSelect = 0xFF; // TODO check value for power-on and reset
-	
-	// Palette remains unchanged after reset
+
+	// Reset sub-systems
+	renderer->reset(time);
+
+	// Init scheduling
+	frameStart(time);
 }
 
 byte V9990::readIO(byte port, const EmuTime& time)
@@ -151,8 +133,7 @@ byte V9990::readIO(byte port, const EmuTime& time)
 		case VRAM_DATA: {
 			// read from VRAM
 			unsigned addr = getVRAMAddr(VRAM_READ_ADDRESS_0);
-			//result = readVRAM(addr, time);
-			result = 0;
+			result = vram->readVRAM(addr, time);
 			if (!(regs[VRAM_READ_ADDRESS_2] & 0x80)) {
 				setVRAMAddr(VRAM_READ_ADDRESS_0, addr + 1);
 			}
@@ -176,6 +157,10 @@ byte V9990::readIO(byte port, const EmuTime& time)
 					break;
 			}
 			break;
+			palPtr &= ~3;
+			renderer->setPalette(palPtr >> 2,
+			                     regs[palPtr], regs[palPtr+1], regs[palPtr+2],
+								 time);
 		}
 		case COMMAND_DATA:
 			// TODO
@@ -233,9 +218,9 @@ void V9990::writeIO(byte port, byte val, const EmuTime &time)
 
 	switch (port) {
 		case VRAM_DATA: {
-			// write vram
+			// write VRAM
 			unsigned addr = getVRAMAddr(VRAM_WRITE_ADDRESS_0);
-		//	writeVRAM(addr, val, time);
+			vram->writeVRAM(addr, val, time);
 			if (!(regs[VRAM_WRITE_ADDRESS_2] & 0x80)) {
 				setVRAMAddr(VRAM_WRITE_ADDRESS_0, addr + 1);
 			}
@@ -260,6 +245,12 @@ void V9990::writeIO(byte port, byte val, const EmuTime &time)
 					regs[PALETTE_POINTER] = palPtr - 3;
 					break;
 			}
+			palPtr &= ~3;
+			renderer->setPalette(palPtr >> 2,
+			                     palette[palPtr],
+								 palette[palPtr + 1],
+								 palette[palPtr + 2],
+								 time);
 			break;
 		}
 		case COMMAND_DATA:
@@ -291,8 +282,10 @@ void V9990::writeIO(byte port, byte val, const EmuTime &time)
 			break;
 		
 		case SYSTEM_CONTROL:
-			// TODO
-			break;
+			regs[SYSTEM_CONTROL] = val;	
+			renderer->setDisplayMode(getDisplayMode(), time);
+			renderer->setImageWidth(getImageWidth());
+		break;
 		
 		case KANJI_ROM_0:
 		case KANJI_ROM_1:
@@ -307,74 +300,50 @@ void V9990::writeIO(byte port, byte val, const EmuTime &time)
 	}
 }
 
-inline unsigned V9990::getVRAMAddr(RegisterId base) const
-{
-	return   regs[base + 0] +
-	        (regs[base + 1] << 8) +
-	       ((regs[base + 2] & 0x07) << 16);
-}
+// =========================================================================
+// Private stuff
+// =========================================================================
 
-inline void V9990::setVRAMAddr(RegisterId base, unsigned addr)
-{
-	regs[base + 0] =   addr &     0xFF;
-	regs[base + 1] =  (addr &   0xFF00) >> 8;
-	regs[base + 2] = ((addr & 0x070000) >> 16) | regs[base + 2] & 0x80; // TODO check
-}
+// -------------------------------------------------------------------------
+// Schedulable
+// -------------------------------------------------------------------------
 
-byte V9990::readRegister(byte reg, const EmuTime& time)
-{
-	// TODO sync(time) (if needed at all)
-	//
-	byte result;
-	if(regAccess[reg] != WR_ONLY) {
-		result = regs[reg];
-	} else {
-		result = 0xFF;
-	}
-
-	PRT_DEBUG("[" << time << "] "
-		  "V9990::readRegister - reg=0x" << hex << (int)reg <<
-		                       " val=0x" << hex << (int)result);
-	return result;
-}
-
-void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
+void V9990::executeUntil(const EmuTime &time, int userData)
 {
 	PRT_DEBUG("[" << time << "] "
-		  "V9990::writeRegister - reg=0x" << hex << int(reg) << 
-		                        " val=0x" << hex << int(val));
-
-	// TODO sync(time)
-	regs[reg] = val;
-
-	switch (reg) {
-		case INTERRUPT_0:
-			if (pendingIRQs & val) {
-				irq.set();
-			} else {
-				irq.reset();
-			}
+	          "V9990::executeUntil - data=0x" << hex << userData);
+	switch(userData)  {
+		case V9990_VSYNC:
+			renderer->frameEnd(time);
+			frameStart(time);
+			break;
+		default:
+			/* ignore */
 			break;
 	}
 }
 
-void V9990::createRenderer()
+const string& V9990::schedName() const
 {
-	Display::INSTANCE->getVideoSystem()->createV9990Rasterizer(this);
+	static const string name("V9990");
+	PRT_DEBUG("[--now---] V9990::SchedName - \"" << name << "\"");
+	return name;
 }
 
-void V9990::raiseIRQ(IRQType irqType)
+// -------------------------------------------------------------------------
+// EventListener
+// -------------------------------------------------------------------------
+
+bool V9990::signalEvent(const Event& event)
 {
-	pendingIRQs |= irqType;
-	if (pendingIRQs & regs[INTERRUPT_0]) {
-		irq.set();
-	}
+	PRT_DEBUG("[--now---] V9990::signalEvent");
+	
+	assert(event.getType() == RENDERER_SWITCH2_EVENT);
+	const EmuTime& time = Scheduler::instance().getCurrentTime();
+	delete renderer;
+	createRenderer(time);
+	return true;
 }
-
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- * Private classes
- */
 
 // -------------------------------------------------------------------------
 // V9990RegDebug
@@ -441,6 +410,172 @@ string V9990::V9990RegsCmd::execute(const vector<string>& /*tokens*/)
 string V9990::V9990RegsCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Prints the current state of the V9990 registers.\n";
+}
+
+// -------------------------------------------------------------------------
+// Private methods
+// -------------------------------------------------------------------------
+
+inline unsigned V9990::getVRAMAddr(RegisterId base) const
+{
+	return   regs[base + 0] +
+	        (regs[base + 1] << 8) +
+	       ((regs[base + 2] & 0x07) << 16);
+}
+
+inline void V9990::setVRAMAddr(RegisterId base, unsigned addr)
+{
+	regs[base + 0] =   addr &     0xFF;
+	regs[base + 1] =  (addr &   0xFF00) >> 8;
+	regs[base + 2] = ((addr & 0x070000) >> 16) | regs[base + 2] & 0x80;
+	// TODO check
+}
+
+byte V9990::readRegister(byte reg, const EmuTime& time)
+{
+	// TODO sync(time) (if needed at all)
+	//
+	byte result;
+	if(regAccess[reg] != NO_ACCESS && regAccess[reg] != WR_ONLY) {
+		result = regs[reg];
+	} else {
+		result = 0xFF;
+	}
+
+	PRT_DEBUG("[" << time << "] "
+		  "V9990::readRegister - reg=0x" << hex << (int)reg <<
+		                       " val=0x" << hex << (int)result);
+	return result;
+}
+
+void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
+{
+	PRT_DEBUG("[" << time << "] "
+		  "V9990::writeRegister - reg=0x" << hex << int(reg) << 
+		                        " val=0x" << hex << int(val));
+
+	// TODO sync(time)
+	
+	if(regAccess[reg] != NO_ACCESS && regAccess[reg] != RD_ONLY) {
+		regs[reg] = val;
+
+		switch (reg) {
+			case INTERRUPT_0:
+				if (pendingIRQs & val) {
+					irq.set();
+				} else {
+					irq.reset();
+				}
+				break;
+			case SCREEN_MODE_0:
+				renderer->setDisplayMode(getDisplayMode(), time);
+				// fall through!
+			case PALETTE_CONTROL:
+				renderer->setColorMode(getColorMode(), time);
+				break;
+			case BACK_DROP_COLOR:
+				renderer->setBackgroundColor(val & 31);
+				break;
+			default: break;
+		}
+	} else {
+		PRT_DEBUG("[" << time << "] "
+		"V9990::writeRegister: Register not writable");
+	}
+}
+
+void V9990::createRenderer(const EmuTime &time)
+{
+	renderer = RendererFactory::createV9990Renderer(this);
+	renderer->reset(time);
+}
+
+void V9990::frameStart(const EmuTime& time)
+{
+	renderer->frameStart(time);
+	// Schedule next VSYNC
+	frameStartTime.advance(time);
+			
+	Scheduler::instance().setSyncPoint(
+		frameStartTime + getUCTicksPerFrame(), this, V9990_VSYNC);
+}
+
+void V9990::raiseIRQ(IRQType irqType)
+{
+	pendingIRQs |= irqType;
+	if (pendingIRQs & regs[INTERRUPT_0]) {
+		irq.set();
+	}
+}
+
+V9990ColorMode V9990::getColorMode(void)
+{
+	V9990ColorMode mode = INVALID_COLOR_MODE;
+
+	switch(regs[PALETTE_CONTROL] & 0xC0) {
+		case 0x00:
+			switch(regs[SCREEN_MODE_0] & 0x03) {
+				case 0x00: mode = BP2; break;
+				case 0x01: if(regs[SCREEN_MODE_0] & 0x80)
+				               mode = BP4;
+				           else
+						       mode = PP;
+				           break;
+				case 0x02: mode = BP6; break;
+				case 0x03: mode = BD16; break;
+				default: assert(false); break;
+			}
+			break;
+		case 0x40:
+			if((regs[SCREEN_MODE_0] & 0x03) == 2) mode = BD8;
+			break;
+		case 0x80:
+			if((regs[SCREEN_MODE_0] & 0x03) == 2) mode = BYJK;
+			break;
+		case 0xC0:
+			if((regs[SCREEN_MODE_0] & 0x03) == 2) mode = BYUV;
+			break;
+		default: assert(false); break;
+	}
+
+	// TODO Check
+	if(mode == INVALID_COLOR_MODE) mode = BP4;
+	return mode;
+}
+
+V9990DisplayMode V9990::getDisplayMode(void)
+{
+	V9990DisplayMode mode = INVALID_DISPLAY_MODE;
+
+	switch(regs[SCREEN_MODE_0] & 0xC0) {
+		case 0x00: mode = P1;
+			break;
+		case 0x40: mode = P2;
+			break;
+		case 0x80:
+			switch((regs[SCREEN_MODE_0] & 0x30) |
+			       (regs[SYSTEM_CONTROL] & 1)) {
+				case 0x00: mode = B1; break;
+				case 0x01: mode = B0; break;
+				case 0x10: mode = B3; break;
+				case 0x11: mode = B2; break;
+				case 0x20: mode = B7; break;
+				case 0x21: mode = B4; break;
+				case 0x30:
+				case 0x31: /*mode = INVALID_DISPLAY_MODE*/; break;
+				default:
+					assert(false);
+			}
+			break;
+		case 0xC0: /*mode = INVALID_DISPLAY_MODE*/;
+			break;
+		default:
+			assert(false);
+	}
+
+	// TODO Check
+	if(mode == INVALID_DISPLAY_MODE) mode = P1;
+	return mode;
 }
 
 } // namespace openmsx

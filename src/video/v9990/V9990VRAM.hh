@@ -23,10 +23,10 @@ class V9990VRAM : private Debuggable
 {
 public:
 	/** Construct V9990 VRAM
-	  * @param v9990 The V9990
+	  * @param vdp The V9990 vdp this VRAM belongs to
 	  * @param time  Moment in time to create the V9990
 	  */ 
-	V9990VRAM(V9990* v9990, const EmuTime& time);
+	V9990VRAM(V9990* vdp, const EmuTime& time);
 
 	/** Destruct V9990 VRAM
 	  */
@@ -39,6 +39,13 @@ public:
 		// not much to do, yet
 	}
 
+	byte readVRAM(unsigned address, const EmuTime& time);
+	void writeVRAM(unsigned address, byte val, const EmuTime& time);
+
+	/** Obtain a pointer to the data
+	  */
+	inline byte *getData(void) { return data; }
+
 private:
 	// Debuggable:
 	virtual unsigned getSize() const;
@@ -46,16 +53,13 @@ private:
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 
-	/** V9990 this VRAM belongs to
+	/** V9990 VDP this VRAM belongs to
 	  */
-	V9990 *v9990;
+	V9990 *vdp;
 	
 	/** Pointer V9990 VRAM data.
 	  */
-	byte *vram;
-
-	byte readVRAM(unsigned address, EmuTime& time);
-	void writeVRAM(unsigned address, byte val, EmuTime& time);
+	byte *data;
 }; // class V9990VRAM
 
 } // namespace openmsx

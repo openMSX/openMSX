@@ -18,6 +18,9 @@
 #include "DummyRenderer.hh"
 #include "PixelRenderer.hh"
 
+#include "V9990DummyRenderer.hh"
+#include "V9990PixelRenderer.hh"
+
 // Rasterizers:
 #ifdef COMPONENT_GL
 #include "GLRasterizer.hh"
@@ -68,6 +71,30 @@ Renderer* RendererFactory::createRenderer(VDP* vdp)
 #ifdef HAVE_X11
 	case XLIB: {
 		return new XRenderer(XLIB, vdp);
+	}
+#endif
+	default:
+		assert(false);
+		return 0;
+	}
+}
+
+V9990Renderer* RendererFactory::createV9990Renderer(V9990* vdp)
+{
+	RendererID id = RenderSettings::instance().getRenderer()->getValue();
+	switch (id) {
+	case DUMMY: {
+		return new V9990DummyRenderer();
+	}
+	case SDLHI:
+	case SDLLO:
+	case SDLGL: {
+		return new V9990PixelRenderer(vdp);
+	}
+#ifdef HAVE_X11
+	case XLIB: {
+		return new V9990DummyRenderer();
+		//return new V9990XRenderer(XLIB, vdp);
 	}
 #endif
 	default:
