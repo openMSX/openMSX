@@ -2,7 +2,6 @@
 
 #include "MidiOutLogger.hh"
 #include "PluggingController.hh"
-#include <ios>
 
 namespace openmsx {
 
