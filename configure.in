@@ -48,7 +48,7 @@ dnl LIBS="$XML_LIBS $LIBS"
 
 dnl openGL
 AC_CHECK_HEADERS(gl.h GL/gl.h, break)
-AC_CHECK_LIB(GL, glBegin)
+AC_CHECK_LIB(GL, glViewport)
 
 dnl libxml++
 dnl AM_LIBXMLPP
