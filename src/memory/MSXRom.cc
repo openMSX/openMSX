@@ -19,11 +19,11 @@ MSXRom::MSXRom(Device *config, const EmuTime &time, Rom *rom)
 	std::ostringstream tmpname;
 	if (rom->getSize() == 0) {
 		tmpname << "Empty ROM (with SCC)"; // valid assumption??
-	} else if (rom->getInfo().getId().length() == 0) {
+	} else if (rom->getInfo().getTitle().empty()) {
 		tmpname << "Unknown ROM: " << rom->getFile()->getURL();
 	} else {
-		tmpname << rom->getInfo().getId();
-		if (rom->getInfo().getCompany().length() != 0) {
+		tmpname << rom->getInfo().getTitle();
+		if (!rom->getInfo().getCompany().empty()) {
 			tmpname << ", " << rom->getInfo().getCompany()
 				<< " " << rom->getInfo().getYear();
 		}

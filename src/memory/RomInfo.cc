@@ -11,19 +11,19 @@
 #include "File.hh"
 #include "MSXConfig.hh"
 
+using namespace std;
 
 struct caseltstr {
-	bool operator()(const std::string s1, const std::string s2) const {
+	bool operator()(const string s1, const string s2) const {
 		return strcasecmp(s1.c_str(), s2.c_str()) < 0;
 	}
 };
 
-RomInfo::RomInfo(
-	const std::string &nid, const std::string &nyear,
-	const std::string &ncompany, const std::string &nremark,
-	const MapperType &nmapperType
-) {
-	id = nid;
+RomInfo::RomInfo(const string &ntitle, const string &nyear,
+                 const string &ncompany, const string &nremark,
+                 const MapperType &nmapperType)
+{
+	title = ntitle;
 	year = nyear;
 	company = ncompany;
 	remark = nremark;
@@ -31,9 +31,9 @@ RomInfo::RomInfo(
 }
 
 // TODO: Turn MapperType into a class and move naming there.
-MapperType RomInfo::nameToMapperType(const std::string &name)
+MapperType RomInfo::nameToMapperType(const string &name)
 {
-	static std::map<std::string, MapperType, caseltstr> mappertype;
+	static map<string, MapperType, caseltstr> mappertype;
 	static bool init = false;
 
 	if (!init) {
@@ -113,7 +113,7 @@ MapperType RomInfo::nameToMapperType(const std::string &name)
 		mappertype["PAGE3"]       = PAGE3;
 	}
 
-	std::map<std::string, MapperType, caseltstr>::const_iterator
+	map<string, MapperType, caseltstr>::const_iterator
 		it = mappertype.find(name);
 	if (it == mappertype.end()) {
 		return UNKNOWN;
@@ -125,8 +125,9 @@ MapperType RomInfo::guessMapperType(const byte* data, int size)
 {
 	if (size <= 0x10000) {
 		if (size == 0x10000) {
-			// There are some programs convert from tape to 64kB rom cartridge
-			// these 'fake'roms are from the ASCII16 type
+			// There are some programs convert from tape to
+			// 64kB rom cartridge these 'fake'roms are from
+			// the ASCII16 type
 			return ASCII_16KB;
 		} else if ((size <= 0x4000) &&
 		           (data[0] == 'A') && (data[1] == 'B')) {
@@ -194,8 +195,10 @@ MapperType RomInfo::guessMapperType(const byte* data, int size)
 		// in case of doubt we go for type 0
 		// in case of even type 5 and 4 we would prefer 5
 		// but we would still prefer 0 above 4 or 5
-		if ((type == ASCII_16KB) && (typeGuess[GENERIC_8KB] == typeGuess[ASCII_16KB]))
+		if ((type == ASCII_16KB) &&
+		    (typeGuess[GENERIC_8KB] == typeGuess[ASCII_16KB])) {
 			type = GENERIC_8KB;
+		}
 		return type;
 	}
 }
@@ -203,8 +206,8 @@ MapperType RomInfo::guessMapperType(const byte* data, int size)
 RomInfo *RomInfo::searchRomDB(const Rom &rom)
 {
 	// TODO: Turn ROM DB into a separate class.
-	static std::map<std::string, RomInfo*> romDBSHA1;
-	static std::map<std::string, RomInfo*> romDBMD5;
+	static map<string, RomInfo*> romDBSHA1;
+	static map<string, RomInfo*> romDBMD5;
 	static bool init = false;
 
 	if (!init) {
@@ -213,13 +216,21 @@ RomInfo *RomInfo::searchRomDB(const Rom &rom)
 			SystemFileContext context;
 			File file(context.resolve("share/romdb.xml"));
 			XML::Document doc(file.getLocalName().c_str());
-			std::list<XML::Element*>::iterator it1 = doc.root->children.begin();
+			list<XML::Element*>::iterator it1 = doc.root->children.begin();
 			for ( ; it1 != doc.root->children.end(); it1++) {
-				RomInfo* romInfo = new RomInfo((*it1)->getAttribute("id"),(*it1)->getElementPcdata("year"), (*it1)->getElementPcdata("company"), (*it1)->getElementPcdata("remark"), nameToMapperType((*it1)->getElementPcdata("romtype")));
-				std::list<XML::Element*>::iterator it2 = (*it1)->children.begin();
+				// TODO there can be multiple title tags
+				string title   = (*it1)->getElementPcdata("title");
+				string year    = (*it1)->getElementPcdata("year");
+				string company = (*it1)->getElementPcdata("company");
+				string remark  = (*it1)->getElementPcdata("remark");
+				string romtype = (*it1)->getElementPcdata("romtype");
+				
+				RomInfo* romInfo = new RomInfo(title, year,
+				   company, remark, nameToMapperType(romtype));
+				list<XML::Element*>::iterator it2 = (*it1)->children.begin();
 				for ( ; it2 != (*it1)->children.end(); it2++) {
 					if ((*it2)->name == "md5") {
-						std::string md5 = (*it2)->pcdata;
+						string md5 = (*it2)->pcdata;
 						if (romDBMD5.find(md5) ==
 						    romDBMD5.end()) {
 							romDBMD5[md5] = romInfo;
@@ -227,7 +238,7 @@ RomInfo *RomInfo::searchRomDB(const Rom &rom)
 							PRT_INFO("Warning: duplicate romdb entry " << md5);
 						}
 					} else if ((*it2)->name == "sha1") {
-						std::string sha1 = (*it2)->pcdata;
+						string sha1 = (*it2)->pcdata;
 						if (romDBSHA1.find(sha1) ==
 						    romDBSHA1.end()) {
 							romDBSHA1[sha1] = romInfo;
@@ -248,28 +259,31 @@ RomInfo *RomInfo::searchRomDB(const Rom &rom)
 		return new RomInfo("", "", "", "Empty ROM", UNKNOWN);
 	}
 
-
+	// first try SHA1
 	SHA1 sha1;
 	sha1.update(rom.getBlock(), size);
 	sha1.finalize();
-	std::string digestSHA1(sha1.hex_digest());
-
+	string digestSHA1(sha1.hex_digest());
 	if (romDBSHA1.find(digestSHA1) != romDBSHA1.end()) {
 		romDBSHA1[digestSHA1]->print();
 		// Return a copy of the DB entry.
 		return new RomInfo(*romDBSHA1[digestSHA1]);
 	}
 
+	// then try MD5 (obsolete)
 	MD5 md5;
 	md5.update(rom.getBlock(), size);
 	md5.finalize();
-	std::string digestMD5(md5.hex_digest());
-	
+	string digestMD5(md5.hex_digest());
 	if (romDBMD5.find(digestMD5) != romDBMD5.end()) {
+		PRT_INFO("Warning: You're using an old romdb.xml file.");
+		PRT_INFO("         Please replace it with a recent version.");
 		romDBMD5[digestMD5]->print();
 		// Return a copy of the DB entry.
 		return new RomInfo(*romDBMD5[digestMD5]);
 	}
+
+	// no match found
 	return NULL;
 }
 
@@ -285,7 +299,7 @@ RomInfo *RomInfo::fetchRomInfo(const Rom &rom, const Device &deviceConfig)
 	
 	// Get specified mapper type from the config.
 	// Note: config may specify "auto" as well.
-	std::string typestr;
+	string typestr;
 	if (deviceConfig.hasParameter("mappertype")) {
 		typestr = deviceConfig.getParameter("mappertype");
 	} else {
@@ -295,7 +309,8 @@ RomInfo *RomInfo::fetchRomInfo(const Rom &rom, const Device &deviceConfig)
 	if (typestr == "auto") {
 		// Guess mapper type, if it was not in DB.
 		if (info->mapperType == UNKNOWN) {
-			info->mapperType = guessMapperType(rom.getBlock(), rom.getSize());
+			info->mapperType = guessMapperType(rom.getBlock(),
+			                                   rom.getSize());
 		}
 	} else {
 		// Use mapper type from config, even if this overrides DB.
@@ -308,15 +323,20 @@ RomInfo *RomInfo::fetchRomInfo(const Rom &rom, const Device &deviceConfig)
 
 void RomInfo::print()
 {
-	std::string year(this->getYear());
-	if (year.length()==0) year="(info not available)";
-	std::string company(this->getCompany());
-	if (company.length()==0) company="(info not available)";
+	string year(getYear());
+	if (year.empty()) {
+		year = "(info not available)";
+	}
+	string company(getCompany());
+	if (company.empty()) {
+		company = "(info not available)";
+	}
 	PRT_INFO("Found this ROM in the database:\n"
-			"  Title (id):  " << this->getId() << "\n"
-			"  Year:        " << year << "\n"
-			"  Company:     " << company);
-	if (this->getRemark().length()!=0)
-	PRT_INFO("  Remark:      " << this->getRemark());
+		         "  Title:    " << getTitle() << "\n"
+		         "  Year:     " << year << "\n"
+		         "  Company:  " << company);
+	if (!getRemark().empty()) {
+		PRT_INFO("  Remark:   " << getRemark());
+	}
 }
 

@@ -1,5 +1,8 @@
 $Id$
 
+2003-06-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Converted romdb.xml to use 'title' tags iso 'id' attributes
+
 2003-06-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented SHA1 support for romdb
 	* Converted most of romdb.xml to SHA1
