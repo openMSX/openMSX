@@ -639,7 +639,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::putImage()
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
 
 	// Screen is up-to-date, so nothing is dirty.
-	setDirty(true);
+	setDirty(false);
 	dirtyForeground = dirtyBackground = false;
 }
 

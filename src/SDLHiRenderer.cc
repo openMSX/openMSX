@@ -284,8 +284,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::mode1(
 	int nameEnd = nameStart + 40;
 	for (int name = nameStart; name < nameEnd; name++) {
 		int charcode = vdp->getVRAM(nameBase | name);
-		// TODO: Lines with both dirty and non-dirty pixels don't
-		//   seem to exist. Probably a bug somewhere.
 		if (dirtyColours || dirtyName[name] || dirtyPattern[charcode]) {
 			int pattern = vdp->getVRAM(patternBaseLine | (charcode * 8));
 			for (int i = 6; i--; ) {
@@ -650,7 +648,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::putImage()
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
 
 	// Screen is up-to-date, so nothing is dirty.
-	setDirty(true);
+	setDirty(false);
 	dirtyForeground = dirtyBackground = false;
 }
 
