@@ -451,3 +451,16 @@ throttle
     set throttle off  turn throttle mode off
     
 
+[soundchip]_volume
+------------------
+
+  Sets the volume for individual soundchips.
+
+  usage:
+    set [soundchip]_volume        shows the current setting
+    set [soundchip]_volume <num>  set new volume
+
+  examples:
+    set psg_volume
+    set psg_volume 18000
+    set "FM PAC_volume" 15000
