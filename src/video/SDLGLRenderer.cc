@@ -239,7 +239,7 @@ void SDLGLRenderer::finishFrame(bool store)
 
 	// Render consoles if needed.
 	console->drawConsole();
-	debugger->drawConsole();
+//	debugger->drawConsole();
 
 	// Update screen.
 	SDL_GL_SwapBuffers();

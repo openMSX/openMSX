@@ -72,7 +72,7 @@ void SDLRenderer<Pixel, zoom>::finishFrame(bool store)
 
 	// Render consoles if needed.
 	console->drawConsole();
-	debugger->drawConsole();
+//	debugger->drawConsole();
 
 	// Update screen.
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
