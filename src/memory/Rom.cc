@@ -69,7 +69,7 @@ void Rom::read(Device* config,
 	// read file
 	byte *tmp = 0;	// avoid warning
 	try {
-		byte *tmp = file->mmap() + offset;
+		tmp = file->mmap() + offset;
 		rom = tmp;
 	} catch (FileException &e) {
 		PRT_ERROR("Error reading ROM image: " << filename);
