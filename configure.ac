@@ -15,7 +15,7 @@ AM_CONFIG_HEADER(src/config.h)
 
 AC_CANONICAL_SYSTEM
 
-AM_INIT_AUTOMAKE(openmsx, OPENMSX_VERSION)
+AM_INIT_AUTOMAKE(openmsx, $OPENMSX_VERSION)
 
 AC_SUBST(VERSION)
 AC_SUBST(ISODATE)
@@ -83,4 +83,23 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 dnl Checks for library functions.
 AC_CHECK_FUNCS(strtoll atoll)
 
-AC_OUTPUT(Makefile openmsx.lsm openmsx.spec doc/Makefile src/Makefile m4/Makefile src/libxmlx/Makefile src/ConsoleSource/Makefile src/cpu/Makefile src/sound/Makefile src/config/Makefile src/fdc/Makefile src/file/Makefile src/ide/Makefile src/thread/Makefile src/cassette/Makefile src/events/Makefile src/memory/Makefile src/video/Makefile)
+AC_OUTPUT(Makefile
+openmsx.lsm 
+openmsx.spec 
+doc/Makefile 
+src/Makefile 
+m4/Makefile 
+src/libxmlx/Makefile 
+src/ConsoleSource/Makefile 
+src/cpu/Makefile 
+src/sound/Makefile 
+src/config/Makefile 
+src/fdc/Makefile 
+src/file/Makefile 
+src/ide/Makefile 
+src/thread/Makefile 
+src/cassette/Makefile 
+src/events/Makefile 
+src/memory/Makefile 
+src/video/Makefile
+)
