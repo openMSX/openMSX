@@ -2,6 +2,8 @@ $Id$
 
 2003-01-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed Doxygen warnings.
+	* Fixed I/O port handling of Matsushita switched device, which I forgot
+	  in yesterday's changes.
 
 2003-01-02 Maarten ter Huurne <maarten@treewalker.org>
 	* Moved I/O port registration out of VDP and into DeviceFactory.

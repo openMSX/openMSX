@@ -218,6 +218,7 @@ MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time)
 		return new SunriseIDE(conf, time);
 	}
 	if (type == "Matsushita") {
+		createDeviceSwitch();
 		return new MSXMatsushita(conf, time);
 	}
 	PRT_ERROR("Unknown device specified in configuration");
