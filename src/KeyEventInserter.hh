@@ -2,29 +2,20 @@
 #define __KEYEVENTINSERTER_HH__
 
 #include "emutime.hh"
-#include "Scheduler.hh"
-
+#include "SDLEventInserter.hh"
 #include <string>
 
-class KeyEventInserterEvent: public Schedulable
-{
-	public:
-	KeyEventInserterEvent(int key, bool up);
-	void executeUntilEmuTime(const Emutime &time);
-	private:
-	int key;
-	bool up;
-};
 
 class KeyEventInserter
 {
 	public:
-	KeyEventInserter();
-	KeyEventInserter &operator<<(std::string &str);
-	KeyEventInserter &operator<<(const char* cstr);
-	void flush(uint64 offset=0);
+		KeyEventInserter();
+		KeyEventInserter &operator<<(std::string &str);
+		KeyEventInserter &operator<<(const char* cstr);
+		void flush(uint64 offset=0);
+		
 	private:
-	std::string buffer;
+		std::string buffer;
 };
 
 

@@ -1,5 +1,9 @@
 $Id$
 
+2001-11-18 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* updated KeyEventInserter, it works now but it is not yet useable,
+	  needs to read text from config file or something
+
 2001-11-17 Maarten ter Huurne <mth@stack.nl>
 	* MSXTMS9928a and SDLLoRenderer respect SIZEOF_BOOL now.
 	* Introduced Renderer: pure abstract superclass to all renderers.

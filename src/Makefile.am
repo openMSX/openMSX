@@ -51,7 +51,8 @@ openmsx_SOURCES=openmsx.cc \
 	MSXMegaRom.hh MSXMegaRom.cc \
 	MSXKonamiSynthesizer.hh  MSXKonamiSynthesizer.cc \
 	DACSound.cc DACSound.hh \
-	KeyEventInserter.cc KeyEventInserter.hh
+	KeyEventInserter.cc KeyEventInserter.hh \
+	SDLEventInserter.cc SDLEventInserter.hh
 #	MSXPostLoad.hh MSXPostLoad.cc
 
 

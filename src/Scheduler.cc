@@ -45,7 +45,7 @@ Scheduler* Scheduler::instance()
 Scheduler *Scheduler::oneInstance = NULL;
 
 
-void Scheduler::setSyncPoint(Emutime &time, Schedulable &device) 
+void Scheduler::setSyncPoint(const Emutime &time, Schedulable &device) 
 {
 	PRT_DEBUG("Sched: registering " << device.getName() << " for emulation at " << time);
 	PRT_DEBUG("Sched:  CPU is at " << MSXCPU::instance()->getCurrentTime());

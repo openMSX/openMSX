@@ -37,7 +37,7 @@ class Scheduler : public EventListener, public HotKeyListener
 	public:
 		virtual ~Scheduler();
 		static Scheduler *instance();
-		void setSyncPoint(Emutime &timestamp, Schedulable &activedevice);
+		void setSyncPoint(const Emutime &timestamp, Schedulable &activedevice);
 		void scheduleEmulation();
 		void stopScheduling();
 		// EventListener

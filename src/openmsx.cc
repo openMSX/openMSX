@@ -124,8 +124,9 @@ int main (int argc, char **argv)
 		// Start a new thread for event handling
 		thread=SDL_CreateThread(eventDistributorStarter, 0);
 
-		// test thingy for Joost: [doesn't do harm YET]
-		keyi << "Hello";
+		//It works!! But commented out because this is annoying
+		//keyi << "... key inserter test ...";
+		//keyi.flush();
 
 		PRT_DEBUG ("starting MSX");
 		MSXMotherBoard::instance()->StartMSX();
