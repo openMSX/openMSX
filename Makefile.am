@@ -1,5 +1,5 @@
 bin_PROGRAMS=openmsx
-openmsx_SOURCES=openmsx.cc openmsx.1 xmalloc.c system.h aclocal.m4 getopt.c getopt1.c getopt.h
+openmsx_SOURCES=openmsx.cc openmsx.1 system.h aclocal.m4
 
 #  uncomment the following if openmsx requires the math library
 #openmsx_LDADD=-lm
@@ -12,7 +12,7 @@ EXTRA_DIST=openmsx.lsm.in #NAME.texinfo openmsx.spec.in
 
 #  build and install the .info pages
 info_TEXINFOS = openmsx.texinfo
-openmsx_TEXINFOS = gpl.texinfo
+#openmsx_TEXINFOS = gpl.texinfo
 
 #  install the man pages
 man_MANS=openmsx.1

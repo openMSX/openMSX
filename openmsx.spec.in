@@ -11,7 +11,7 @@
 Name: %{name}
 Version: %{version}
 Release: %{release}
-Copyright: GPL
+Copyright: see COPYING file
 Group: Application/Misc
 
 # optional items
