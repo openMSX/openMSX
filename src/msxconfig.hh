@@ -11,6 +11,7 @@
 // sample xml msxconfig file is available in msxconfig.xml in this dir
 
 #include "msxexception.hh"
+#include "emutime.hh"
 
 // predefines
 class XMLTree;

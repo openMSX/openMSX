@@ -21,7 +21,14 @@ public:
 		Parameter(); // block usage
 		Parameter(const Parameter &); // block usage
 		Parameter &operator=(const Parameter &); // block usage
+
+		std::string lowerValue() const;
 	public:
+		const bool getAsBool() const;
+		const int getAsInt() const ;
+		const uint64 getAsUint64() const;
+		// please let me know what types are needed exactly
+		
 		const std::string name;
 		const std::string value;
 		const std::string clasz;
@@ -56,6 +63,9 @@ public:
 	int   getSS(); // of first slotted [backward compat]
 	bool  hasParameter(const std::string &name);
 	const std::string &getParameter(const std::string &name);
+	const bool getParameterAsBool(const std::string &name);
+	const int getParameterAsInt(const std::string &name);
+	const uint64 getParameterAsUint64(const std::string &name);
 	std::list<const Parameter*> getParametersWithClass(const std::string &clasz);
 	void  dump();
 	const std::string &getDesc();
@@ -69,6 +79,7 @@ private:
 	//XMLNode *deviceNode;
 	std::string id, deviceType, desc, rem;
 	std::list<Parameter*> parameters;
+	const Parameter &getParameterByName(const std::string &name);
 };
 
 #endif

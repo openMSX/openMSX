@@ -8,7 +8,10 @@
 #include <xml++.h>
 
 // for atoi()
-#include <stdlib.h>
+#include <cstdlib>
+
+// for tolower
+#include <algorithm>
 
 // TODO page,ps,ss value errors
 // TODO turn on validation with extern libxml switch var
@@ -236,16 +239,36 @@ bool MSXConfig::Device::hasParameter(const std::string &name)
 	return false;
 }
 
-const std::string &MSXConfig::Device::getParameter(const std::string &name)
+const MSXConfig::Device::Parameter &MSXConfig::Device::getParameterByName(const std::string &name)
 {
 	std::ostringstream buffer;
 	for (std::list<Parameter*>::const_iterator i=parameters.begin(); i != parameters.end(); i++)
 	{
 		if ((*i)->name==name)
-			return ((*i)->value);
+			return *(*i);
 	}
 	buffer << "Trying to get non-existing parameter " << name << " for device i" << id;
 	throw Exception(buffer);
+}
+
+const std::string &MSXConfig::Device::getParameter(const std::string &name)
+{
+	return getParameterByName(name).value;
+}
+
+const bool MSXConfig::Device::getParameterAsBool(const std::string &name)
+{
+	return getParameterByName(name).getAsBool();
+}
+
+const int MSXConfig::Device::getParameterAsInt(const std::string &name)
+{
+	return getParameterByName(name).getAsInt();
+}
+
+const uint64 MSXConfig::Device::getParameterAsUint64(const std::string &name)
+{
+	return getParameterByName(name).getAsUint64();
 }
 
 void MSXConfig::Device::dump()
@@ -286,6 +309,30 @@ void MSXConfig::Device::dump()
 
 MSXConfig::Device::Parameter::Parameter(const std::string &nam, const std::string &valu, const std::string &clas=""):name(nam),value(valu),clasz(clas)
 {
+}
+
+std::string MSXConfig::Device::Parameter::lowerValue() const
+{
+	std::string s(value);
+	std::transform (s.begin(), s.end(), s.begin(), tolower);
+	return s;
+}
+
+const bool MSXConfig::Device::Parameter::getAsBool() const
+{
+	std::string low = lowerValue();
+	if (low == "true" || low == "yes") return true;
+	return false;
+}
+
+const int MSXConfig::Device::Parameter::getAsInt() const
+{
+	return atoi(value.c_str());
+}
+
+const uint64 MSXConfig::Device::Parameter::getAsUint64() const
+{
+	return atoll(value.c_str());
 }
 
 std::list<const MSXConfig::Device::Parameter*> MSXConfig::Device::getParametersWithClass(const std::string &clasz)
