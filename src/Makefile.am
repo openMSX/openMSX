@@ -11,6 +11,7 @@ AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` \
 	-I$(srcdir)/fdc \
 	-I$(srcdir)/file \
 	-I$(srcdir)/ide \
+	-I$(srcdir)/input \
 	-I$(srcdir)/memory \
 	-I$(srcdir)/sound \
 	-I$(srcdir)/thread \
@@ -30,7 +31,7 @@ endif
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
 SUBDIRS = libxmlx console cpu sound config \
-          fdc file ide thread cassette events memory video
+          fdc file ide thread cassette events memory video input
 
 #bin_PROGRAMS=openmsx cfgtest
 bin_PROGRAMS=openmsx
@@ -47,7 +48,6 @@ openmsx_SOURCES=\
 	PlatformFactory.hh PlatformFactory.cc \
 	DeviceFactory.hh DeviceFactory.cc \
 	Scheduler.hh Scheduler.cc Schedulable.hh Schedulable.cc \
-	Keyboard.hh Keyboard.cc \
 	Leds.hh Leds.cc \
 	MSXE6Timer.hh MSXE6Timer.cc \
 	MSXF4Device.hh MSXF4Device.cc \
@@ -59,8 +59,6 @@ openmsx_SOURCES=\
 	JoystickPorts.hh JoystickPorts.cc \
 	JoystickDevice.hh JoystickDevice.cc \
 	DummyJoystick.hh DummyJoystick.cc \
-	Joystick.hh Joystick.cc Mouse.hh Mouse.cc \
-	KeyJoystick.hh KeyJoystick.cc \
 	JoyNet.hh JoyNet.cc \
 	MSXPrinterPort.hh MSXPrinterPort.cc \
 	PrinterPortDevice.hh PrinterPortDevice.cc \
@@ -97,6 +95,7 @@ openmsx_LDADD = \
 	fdc/libFdc.la \
 	file/libFile.la \
 	ide/libIDE.la \
+	input/libInput.la \
 	libxmlx/libxmlx.la \
 	memory/libMemory.la \
 	sound/libSound.la \

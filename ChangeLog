@@ -5,6 +5,8 @@ $Id$
 	  - actual console code moved to new directory "console"
 	  - command code moved to existing directory "events"
 	  - circular buffer code moved to directory "src"
+	* Moved input devices code to new directory "input".
+	  Maybe more can be moved there in the future.
 
 2003-05-17 Maarten ter Huurne <maarten@treewalker.org>
 	* Removed EmuTime parameter from Command::execute.
