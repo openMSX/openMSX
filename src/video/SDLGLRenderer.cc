@@ -463,8 +463,10 @@ SDLGLRenderer::SDLGLRenderer(
 
 	// Clear graphics buffers.
 	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glClearAccum(0.0, 0.0, 0.0, 0.0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
+	glDrawBuffer(GL_FRONT);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glDrawBuffer(GL_BACK);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Init OpenGL settings.
 	glViewport(0, 0, WIDTH, HEIGHT);
