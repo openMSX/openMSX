@@ -117,7 +117,7 @@ def convertDoc(dom):
 		print '  already in new format, skipping'
 		return
 	elif dom.doctype.systemId != 'msxconfig.dtd':
-		print '  unknown format, skipping'
+		print '  NOTE: unknown format, skipping'
 		return
 	dom.doctype.systemId = 'msxconfig2.dtd'
 
@@ -134,8 +134,8 @@ def convertDoc(dom):
 		if node.nodeName != 'msxconfig': return False
 		return True
 	if not checkDocType(dom.childNodes[1]):
-		print 'wrong document type'
-		assert False
+		print '  NOTE: unknown document type, skipping'
+		return
 	
 	if len(dom.childNodes) != 3:
 		print 'unexpected top-level node(s)'
