@@ -10,6 +10,7 @@ openmsx_SOURCES=openmsx.cc \
 	MSXDevice.hh MSXDevice.cc \
 	MSXMotherBoard.hh MSXMotherBoard.cc \
 	MSXPPI.hh MSXPPI.cc \
+	I8255.hh I8255.cc \
 	MSXRom16KB.hh MSXRom16KB.cc \
 	MSXSimple64KB.hh MSXSimple64KB.cc \
 	MSXZ80.hh MSXZ80.cc \

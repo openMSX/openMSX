@@ -30,14 +30,12 @@
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "emutime.hh"
-
-// TODO split this class in 
-//   - generic 8255 class and
-//   - MSX-PPI-Interface class
+#include "I8255.hh"
 
 
-class MSXPPI : public MSXDevice
+class MSXPPI : public MSXDevice, I8255Interface
 {
+	// MSXDevice
 	public:
 		MSXPPI(); 
 		~MSXPPI(); 
@@ -48,62 +46,27 @@ class MSXPPI : public MSXDevice
 		byte readIO(byte port, Emutime &time);
 		void writeIO(byte port, byte value, Emutime &time);
 	private:
-		static MSXPPI *volatile oneInstance; 
+		static MSXPPI *volatile oneInstance;
+		I8255 *i8255;
+	
+	// I8255Interface
+	public:
+		byte readA();
+		byte readB();
+		byte readC0();
+		byte readC1();
+		void writeA(byte value);
+		void writeB(byte value);
+		void writeC0(byte value);
+		void writeC1(byte value);
 	
 	private:
-		static const int MODE_A   = 0x60;
-		static const int MODEA_0  = 0x00;
-		static const int MODEA_1  = 0x20;
-		static const int MODEA_2  = 0x40;
-		static const int MODEA_2_ = 0x60;
-		static const int MODE_B  = 0x04;
-		static const int MODEB_0 = 0x00;
-		static const int MODEB_1 = 0x04;
-		static const int DIRECTION_A  = 0x10;
-		static const int DIRECTION_B  = 0x02;
-		static const int DIRECTION_C0 = 0x01;
-		static const int DIRECTION_C1 = 0x08;
-		static const int SET_MODE  = 0x80;
-		static const int BIT_NR    = 0x0e;
-		static const int SET_RESET = 0x01;
-		
-	
-		byte PPIReadPortA();
-		byte PPIReadPortB();
-		byte PPIReadPortC();
-		byte PPIReadControlPort();
-		void PPIWritePortA(byte value);
-		void PPIWritePortB(byte value);
-		void PPIWritePortC(byte value);
-		void PPIWriteControlPort(byte value);
-
-		byte PPIReadC0();
-		byte PPIReadC1();
-		void PPIOutputPortA(byte value);
-		void PPIOutputPortB(byte value);
-		void PPIOutputPortC(byte value);
-
-		int control;
-		int latchPortA;
-		int latchPortB;
-		int latchPortC;
-	
-	private:
-		byte PPIInterfaceReadA();
-		byte PPIInterfaceReadB();
-		byte PPIInterfaceReadC0();
-		byte PPIInterfaceReadC1();
-		void PPIInterfaceWriteA(byte value);
-		void PPIInterfaceWriteB(byte value);
-		void PPIInterfaceWriteC0(byte value);
-		void PPIInterfaceWriteC1(byte value);
-	
 		void keyGhosting();
 		bool keyboardGhosting;
-		byte MSXKeyMatrix[16];
 
+		byte MSXKeyMatrix[16];
 		int selectedRow;
 
-        friend class Inputs;
+	friend class Inputs;
 };
 #endif

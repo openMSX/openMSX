@@ -6,12 +6,15 @@
 #include "assert.h"
 
 
+// MSXDevice
+
 MSXPPI *volatile MSXPPI::oneInstance;
 
 MSXPPI::MSXPPI()
 {
 	cout << "Creating an MSXPPI object \n";
 	keyboardGhosting = true;
+	i8255 = new I8255(*this);
 }
 
 MSXPPI::~MSXPPI()
@@ -52,7 +55,7 @@ void MSXPPI::init()
 
 void MSXPPI::reset()
 {
-	//TODO
+	i8255->reset();
 }
 
 byte MSXPPI::readIO(byte port, Emutime &time)
@@ -60,13 +63,13 @@ byte MSXPPI::readIO(byte port, Emutime &time)
 	//Note Emutime argument is ignored, I think that's ok
 	switch (port) {
 	case 0xA8:
-		return PPIReadPortA();
+		return i8255->readPortA();
 	case 0xA9:
-		return PPIReadPortB();
+		return i8255->readPortB();
 	case 0xAA:
-		return PPIReadPortC();
+		return i8255->readPortC();
 	case 0xAB:
-		return PPIReadControlPort();
+		return i8255->readControlPort();
 	default:
 		assert (false); // code should never be reached
 	}
@@ -77,16 +80,16 @@ void MSXPPI::writeIO(byte port, byte value, Emutime &time)
 	//Note Emutime argument is ignored, I think that's ok
 	switch (port) {
 	case 0xA8:
-		PPIWritePortA(value);
+		i8255->writePortA(value);
 		break;
 	case 0xA9:
-		PPIWritePortB(value);
+		i8255->writePortB(value);
 		break;
 	case 0xAA:
-		PPIWritePortC(value);
+		i8255->writePortC(value);
 		break;
 	case 0xAB:
-		PPIWriteControlPort(value);
+		i8255->writeControlPort(value);
 		break;
 	default:
 		assert (false); // code should never be reached
@@ -94,232 +97,42 @@ void MSXPPI::writeIO(byte port, byte value, Emutime &time)
 }
 
 
-byte MSXPPI::PPIReadPortA() {
-	switch (control & MODE_A) {
-	case MODEA_0:
-		if (control & DIRECTION_A) {
-			//input
-			return PPIInterfaceReadA();	// input not latched
-		} else {
-			//output
-			return latchPortA;		// output is latched
-		}
-	case MODEA_1:		//TODO but not relevant for MSX
-	case MODEA_2: case MODEA_2_:
-	default:
-		assert (false);
-	}
-}
+// I8255Interface
 
-byte MSXPPI::PPIReadPortB() {
-	switch (control & MODE_B) {
-	case MODEB_0:
-		if (control & DIRECTION_B) {
-			//input
-			return PPIInterfaceReadB();	// input not latched
-		} else {
-			//output
-			return latchPortB;		// output is latched
-		}
-	case MODEB_1:		// TODO but not relevant for MSX
-	default:
-		assert (false);
-	}
-}
-
-byte MSXPPI::PPIReadPortC() {
-	byte tmp = PPIReadC1() & PPIReadC0();
-	switch (control & MODE_A) {
-	case MODEA_0:
-		// do nothing
-		break;
-	case MODEA_1:		// TODO but not relevant for MSX
-	case MODEA_2: case MODEA_2_:
-	default:
-		assert (false);
-	}
-	switch (control & MODE_B) {
-	case MODEB_0:
-		// do nothing
-		break;
-	case MODEB_1:		// TODO but not relevant for MSX
-	default:
-		assert (false);
-	}
-	return tmp;
-}
-
-byte MSXPPI::PPIReadC1() {
-	if (control & DIRECTION_C1) {
-		//input
-		return PPIInterfaceReadC1() << 4;	// input not latched
-	} else {
-		//output
-		return latchPortC & 0xf0;		// output is latched
-	}
-}
-
-byte MSXPPI::PPIReadC0() {
-	if (control & DIRECTION_C0) {
-		//input
-		return PPIInterfaceReadC0();		// input not latched
-	} else {
-		//output
-		return latchPortC & 0x0f;			// output is latched
-	}
-}
-
-byte MSXPPI::PPIReadControlPort() {
-	return control;
-}
-
-void MSXPPI::PPIWritePortA(byte value) {
-	switch (control & MODE_A) {
-	case MODEA_0:
-		// do nothing
-		break;
-	case MODEA_1:		// TODO but not relevant for MSX
-	case MODEA_2: case MODEA_2_:
-	default:
-		assert (false);
-	}
-	PPIOutputPortA(value);
-}
-
-void MSXPPI::PPIWritePortB(byte value) {
-	switch (control & MODE_B) {
-	case MODEB_0:
-		// do nothing
-		break;
-	case MODEB_1:		// TODO but not relevant for MSX
-	default:
-		assert (false);
-	}
-	PPIOutputPortB(value);
-}
-
-void MSXPPI::PPIWritePortC(byte value) {
-	switch (control & MODE_A) {
-	case MODEA_0:
-		// do nothing
-		break;
-	case MODEA_1:		// TODO but not relevant for MSX
-	case MODEA_2: case MODEA_2_:
-	default:
-		assert (false);
-	}
-	switch (control & MODE_B) {
-	case MODEB_0:
-		// do nothing
-		break;
-	case MODEB_1:		// TODO but not relevant for MSX
-	default:
-		assert (false);
-	}
-	PPIOutputPortC(value);
-}
-
-void MSXPPI::PPIOutputPortA(byte value) {
-	latchPortA = value;
-	if (!(control & DIRECTION_A)) {
-		//output
-		PPIInterfaceWriteA(value);
-	}
-}
-	
-void MSXPPI::PPIOutputPortB(byte value) {
-	latchPortB = value;
-	if (!(control & DIRECTION_B)) {
-		//output
-		PPIInterfaceWriteB(value);
-	}
-}
-	
-void MSXPPI::PPIOutputPortC(byte value) {
-	latchPortC = value;
-	if (!(control & DIRECTION_C1)) {
-		//output
-		PPIInterfaceWriteC1(latchPortC >> 4);
-	}
-	if (!(control & DIRECTION_C0)) {
-		//output
-		PPIInterfaceWriteC0(latchPortC & 15);
-	}
-}
-
-void MSXPPI::PPIWriteControlPort(byte value) {
-	if (value & SET_MODE) {
-		// set new control mode
-		control = value;
-		// TODO check this behavior, see tech docs
-		PPIOutputPortA(latchPortA);
-		PPIOutputPortB(latchPortB);
-		PPIOutputPortC(latchPortC);
-	} else {
-		// (re)set bit of port C
-		byte bitmask = 1 << ((value & BIT_NR) >> 1);
-		if (value & SET_RESET) {
-			// set
-			latchPortC |= bitmask;
-		} else {
-			// reset
-			latchPortC &= ~bitmask;
-		}
-		PPIOutputPortC(latchPortC);
-		switch (control & MODE_A) {
-		case MODEA_0:
-			// do nothing
-			break;
-		case MODEA_1:		// TODO but not relevant for MSX
-		case MODEA_2: case MODEA_2_:
-		default:
-			assert (false);
-		}
-		switch (control & MODE_B) {
-		case MODEB_0:
-			// do nothing
-			break;
-		case MODEB_1:		// TODO but not relevant for MSX
-		default:
-			assert (false);
-		}
-	}
-}
-	
-byte MSXPPI::PPIInterfaceReadA() {
+byte MSXPPI::readA() {
 	// port A is normally an output on MSX, reading from an output port
-	// is handled internally in the PPI
+	// is handled internally in the 8255
 	return 255;	//TODO check this
 }
-void MSXPPI::PPIInterfaceWriteA(byte value) {
+void MSXPPI::writeA(byte value) {
 	MSXMotherBoard::instance()->set_A8_Register(value);
 }
 
-byte MSXPPI::PPIInterfaceReadB() {
+byte MSXPPI::readB() {
 	Inputs::instance()->getKeys(); //reading the keyboard events into the matrix
 	if (keyboardGhosting) {
 		keyGhosting();
 	}
 	return MSXKeyMatrix[selectedRow];
 }
-void MSXPPI::PPIInterfaceWriteB(byte value) {
+void MSXPPI::writeB(byte value) {
 	// probably nothing happens on a real MSX
 }
 
-byte MSXPPI::PPIInterfaceReadC1() {
+byte MSXPPI::readC1() {
 	return 15;	// TODO check this
 }
-byte MSXPPI::PPIInterfaceReadC0() {
+byte MSXPPI::readC0() {
 	return 15;	// TODO check this
 }
-void MSXPPI::PPIInterfaceWriteC1(byte value) {
+void MSXPPI::writeC1(byte value) {
 	//TODO use these bits
 	//  4    CASON  Cassette motor relay        (0=On, 1=Off)
 	//  5    CASW   Cassette audio out          (Pulse)
 	//  6    CAPS   CAPS-LOCK lamp              (0=On, 1=Off)
 	//  7    SOUND  Keyboard klick bit          (Pulse)
 }
-void MSXPPI::PPIInterfaceWriteC0(byte value) {
+void MSXPPI::writeC0(byte value) {
 	selectedRow = value;
 }
 
