@@ -535,6 +535,7 @@ SDLGLRenderer::~SDLGLRenderer()
 	vram->colourTable.setObserver(NULL);
 
 	delete console;
+	delete debugger;
 	// TODO: Free textures.
 }
 
