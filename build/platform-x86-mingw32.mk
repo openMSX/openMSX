@@ -14,18 +14,27 @@ OPENMSX_CXX?=g++
 # File name extension of executables.
 EXEEXT:=.exe
 
-# Libraries that do not have a lib-config script.
-LIBS_PLAIN:=SDL_image png z winmm opengl32
-# Libraries that have a lib-config script.
-LIBS_CONFIG:=xml2 sdl
-
 # Compiler flags.
 CXXFLAGS+= \
 	-mthreads -mconsole -mms-bitfields \
 	-I/mingw/include -I/mingw/include/w32api \
+	`if test -d /usr/local/include; then echo '-I/usr/local/include'; fi` \
 	-D__GTHREAD_HIDE_WIN32API \
 	-DFS_CASEINSENSE
 
 # Linker flags.
-LINK_FLAGS:=-L/mingw/lib -L/mingw/lib/w32api $(LINK_FLAGS)
+LINK_FLAGS:=-L/mingw/lib -L/mingw/lib/w32api \
+	`if test -d /usr/local/lib; then echo '-L/usr/local/lib'; fi` \
+	$(LINK_FLAGS)
+
+
+# Probe Overrides
+# ===============
+
+PNG_CFLAGS:=
+
+PNG_LDFLAGS:=-lpng
+PNG_RESULT:=yes
+
+GL_LDFLAGS:=-lopengl32
 
