@@ -60,9 +60,11 @@ void V9990::reset(const EmuTime& time)
 	static const byte INITIAL_PORT_VALUES[16] = {
 		0x00, 0x9F, 0xC0, 0xFF, 0xFF, 0x00, 0x03, 0xFF,
 		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-	
 	memcpy(ports, INITIAL_PORT_VALUES, 16);
 
+	// Clear registers
+	memset(regs, 0, sizeof(regs));
+	
 	// Palette remains unchanged after reset
 }
 
