@@ -7,6 +7,8 @@ $Id$
 	* Fixed crash when trying to save screenshot to read-only directory
 	* Save screenshots in ~/.openMSX/screenshots (only when filename is not
 	  explicitly given)
+	* Fixed bug in Y8950:
+	   also reset IRQ in reset() method
 
 2004-01-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Updated control-type selection code (written by tcm1998):
