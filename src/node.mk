@@ -38,15 +38,16 @@ SRC_HDR:= \
 	Autofire RenShaTurbo
 
 SRC_ONLY:= \
-	main.cc
+	main
 
 HDR_ONLY:= \
-	openmsx.hh \
-	util.hh \
-	Schedulable.hh \
-	MSXException.hh \
-	MSXRomPatchInterface.hh \
-	config.h
+	openmsx util \
+	Schedulable \
+	MSXException \
+	MSXRomPatchInterface
+
+DIST:= \
+	Doxyfile config.h.in
 
 $(eval $(PROCESS_NODE))
 

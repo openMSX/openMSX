@@ -1,5 +1,9 @@
 $Id$
 
+2004-01-11 Maarten ter Huurne <maarten@treewalker.org>
+	* Added "dist" target to alternative.mk. Now it is possible to make
+	  a release tarball in the alternative build system.
+
 2004-01-11 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added a "boosted" MSX2 config:
 	  - European MSX2 config with lots of extensions, see README in its
@@ -14,7 +18,7 @@ $Id$
 	* Fixed midi-out-logger bug:
 	   - once plugging failed (file not writable) it kept failing
 	   - same for RS232Tester
-	* Fixed "Jump Jump" part or "UR" demo for SDLGL renderer 
+	* Fixed "Jump Jump" part or "UR" demo for SDLGL renderer
 	* Made EnumSetting case-insensitive
 
 2004-01-08 Maarten ter Huurne <maarten@treewalker.org>

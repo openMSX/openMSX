@@ -11,7 +11,7 @@ SRC_HDR:= \
 	WavImage
 
 HDR_ONLY:= \
-	CassetteImage.hh
+	CassetteImage
 
 $(eval $(PROCESS_NODE))
 

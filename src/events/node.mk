@@ -9,7 +9,7 @@ SRC_HDR:= \
 	CliCommInput CliCommOutput 
 
 HDR_ONLY:= \
-	EventListener.hh
+	EventListener
 
 $(eval $(PROCESS_NODE))
 

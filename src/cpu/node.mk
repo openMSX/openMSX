@@ -10,5 +10,9 @@ SRC_HDR:= \
 	IRQHelper \
 	VDPIODelay
 
+DIST:= \
+	CPUCore.n1 CPUCore.n2 \
+	R800Tables.nn Z80Tables.nn
+
 $(eval $(PROCESS_NODE))
 

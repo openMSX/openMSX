@@ -16,11 +16,11 @@ SRC_HDR:= \
 	ScreenShotSaver
 
 HDR_ONLY:= \
-	DisplayMode.hh \
-	VRAMObserver.hh \
-	SpriteConverter.hh \
-	Blender.hh \
-	GLUtil.hh
+	DisplayMode \
+	VRAMObserver \
+	SpriteConverter \
+	Blender \
+	GLUtil
 
 $(eval $(PROCESS_NODE))
 

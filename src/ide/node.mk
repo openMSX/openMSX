@@ -7,7 +7,7 @@ SRC_HDR:= \
 	IDEHD
 
 HDR_ONLY:= \
-	IDEDevice.hh
+	IDEDevice
 
 $(eval $(PROCESS_NODE))
 

@@ -152,6 +152,7 @@ SUBDIRS:=
 SRC_HDR:=
 SRC_ONLY:=
 HDR_ONLY:=
+DIST:=
 # Include node Makefile.
 include $$(CURDIR)/node.mk
 # Pop current directory off directory stack.
@@ -160,14 +161,17 @@ DIRSTACK:=$$(wordlist 2,$$(words $$(DIRSTACK)),$$(DIRSTACK))
 endef
 
 define PROCESS_NODE
+# Backwards compatibility for auto* system:
+DIST+=$$(if $$(filter $(SOURCES_PATH)%,$$(CURDIR)),Makefile.am,)
 # Process this node.
 SOURCES_FULL+=$$(sort \
-	$$(addprefix $$(CURDIR)/,$$(addsuffix .cc,$(SRC_HDR))) \
-	$$(addprefix $$(CURDIR)/,$$(SRC_ONLY)) \
+	$$(addprefix $$(CURDIR)/,$$(addsuffix .cc,$(SRC_HDR) $(SRC_ONLY))) \
 	)
 HEADERS_FULL+=$$(sort \
-	$$(addprefix $$(CURDIR)/,$$(addsuffix .hh,$(SRC_HDR))) \
-	$$(addprefix $$(CURDIR)/,$$(HDR_ONLY)) \
+	$$(addprefix $$(CURDIR)/,$$(addsuffix .hh,$(SRC_HDR) $(HDR_ONLY))) \
+	)
+DIST_FULL+=$$(sort \
+	$$(addprefix $$(CURDIR)/,$$(DIST) node.mk) \
 	)
 # Process subnodes.
 $$(foreach dir,$$(sort $$(SUBDIRS)),$$(eval $$(call PROCESS_SUBDIR,$$(dir))))
@@ -178,13 +182,14 @@ ifeq ($(OPENMSX_PROFILE),true)
   BUILD_PATH:=$(BUILD_PATH)-profile
 endif
 
-SOURCES_PATH:=src
+SOURCES_PATH:=./src
 
 # Force evaluation upon assignment.
 SOURCES_FULL:=
 HEADERS_FULL:=
+DIST_FULL:=
 # Include root node.
-CURDIR:=$(SOURCES_PATH)
+CURDIR:=.
 include $(CURDIR)/node.mk
 # Apply subset to sources list.
 SOURCES_FULL:=$(filter $(SOURCES_PATH)/$(OPENMSX_SUBSET)%,$(SOURCES_FULL))
@@ -432,6 +437,33 @@ install: all
 	@echo "Installation complete... have fun!"
 
 
+# Packaging
+# =========
+
+VERSION:=$(shell sed -ne "s/OPENMSX_VERSION=//p" configure.ac)
+PACKAGE_NAME:=openmsx
+PACKAGE_FULL:=$(PACKAGE_NAME)-$(VERSION)
+
+DIST_BASE:=$(BUILD_BASE)/dist
+DIST_PATH:=$(DIST_BASE)/$(PACKAGE_FULL)
+
+DIST_FULL+=$(patsubst %/Makefile.am,%/Makefile.in,$(filter %/Makefile.am,$(DIST_FULL)))
+GNU_BUILD_HELPERS:=\
+	config.guess config.sub \
+	depcomp install-sh ltmain.sh missing mkinstalldirs
+dist: $(DETECTSYS_SCRIPT)
+	@echo "Removing any old distribution files..."
+	@rm -rf $(DIST_PATH)
+	@echo "Gathering files for distribution..."
+	@mkdir -p $(DIST_PATH)
+	@cp -pr --parents $(DIST_FULL) $(DIST_PATH)
+	@cp -p --parents $(HEADERS_FULL) $(DIST_PATH)
+	@cp -p --parents $(SOURCES_FULL) $(DIST_PATH)
+	@cp -p $(GNU_BUILD_HELPERS) $(DIST_PATH)
+	@echo "Creating tarball..."
+	@cd $(DIST_BASE) ; GZIP=--best tar zcf $(PACKAGE_FULL).tar.gz $(PACKAGE_FULL)
+
+
 # Precompiled Headers
 # ===================
 
@@ -455,8 +487,7 @@ $(PRECOMPH_FILE): $(PRECOMPH_COMB)
 	@echo "Precompiling headers..."
 	@$(CXX) $(CXXFLAGS) $(INCLUDE_FLAGS) $<
 
-else
-# USE_PRECOMPH == false
+else # USE_PRECOMPH == false
 PRECOMPH_FLAGS:=
 endif
 

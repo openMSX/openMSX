@@ -25,7 +25,7 @@ SRC_HDR:= \
 	MSXHBI55
 
 HDR_ONLY:= \
-	RomTypes.hh
+	RomTypes
 
 $(eval $(PROCESS_NODE))
 

@@ -10,7 +10,7 @@ SRC_HDR:= \
 	RS232Connector RS232Device MSXRS232 DummyRS232Device RS232Tester
 
 HDR_ONLY:= \
-	SerialDataInterface.hh
+	SerialDataInterface
 
 $(eval $(PROCESS_NODE))
 
