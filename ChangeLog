@@ -1,6 +1,9 @@
 $Id$
 
-2002-08-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2002-08-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Full support for .XSA disk images
+
+2002-08-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Enabled SDLConsole in SDLGL renderer:
 	   current code is only a temporary solution for the following reasons:
 	    - use of SDL_OPENGLBLIT is heavily discouraged, see

@@ -38,14 +38,15 @@ FDCBackEnd* DiskImageManager::getBackEnd(const std::string &driveName)
 DiskImageManager::Drive::Drive(const std::string &driveName)
 {
 	name = driveName;
+	backEnd = NULL;
 	try {
 		MSXConfig::Config *config = MSXConfig::Backend::instance()->
 			getConfigById("Media");
 		std::string disk = config->getParameter(driveName);
-		backEnd = new FDC_DSK(disk);
+		insertDisk(disk);
 	} catch (MSXException &e) {
 		// nothing specified or file not found
-		backEnd = new FDCDummyBackEnd();
+		ejectDisk();
 	}
 	CommandController::instance()->registerCommand(*this, name);
 }
@@ -61,29 +62,40 @@ FDCBackEnd* DiskImageManager::Drive::getBackEnd()
 	return backEnd;
 }
 
+
+void DiskImageManager::Drive::insertDisk(const std::string &disk)
+{
+	FDCBackEnd* tmp;
+	try {
+		// first try XSA
+		tmp = new FDC_XSA(disk);
+	} catch (MSXException &e) {
+		// if that fails use DSK
+		tmp = new FDC_DSK(disk);
+	}
+	delete backEnd;
+	backEnd = tmp;
+}
+
+void DiskImageManager::Drive::ejectDisk()
+{
+	delete backEnd;
+	backEnd = new FDCDummyBackEnd();
+}
+
+
 void DiskImageManager::Drive::execute(const std::vector<std::string> &tokens)
 {
 	if (tokens.size() != 2)
 		throw CommandException("Syntax error");
 	if (tokens[1] == "eject") {
-		print("Disk ejected");
-		delete backEnd;
-		backEnd = new FDCDummyBackEnd();
+		ejectDisk();
 	} else {
-		print("Changing disk");
-		FDCBackEnd* tmp;
-		// TODO find something better here
 		try {
-			tmp = new FDC_XSA(tokens[1]);
+			insertDisk(tokens[1]);
 		} catch (MSXException &e) {
-			try {
-				tmp = new FDC_DSK(tokens[1]);
-			} catch (MSXException &e) {
-				throw CommandException(e.desc);
-			}
+			throw CommandException(e.desc);
 		}
-		delete backEnd;
-		backEnd = tmp;
 	}
 }
 

@@ -139,6 +139,7 @@ int CommandLineParser::checkFileExt(char* filename){
 	if (0 == strncasecmp(Extension,".dsk",4)) fileType=2;
 	if (0 == strncasecmp(Extension,".di1",4)) fileType=2;
 	if (0 == strncasecmp(Extension,".di2",4)) fileType=2;
+	if (0 == strncasecmp(Extension,".xsa",4)) fileType=2;
 	if (0 == strncasecmp(Extension,".cas",4)) fileType=3;
 	if (0 == strncasecmp(Extension,".rom",4)) fileType=4;
 	if (0 == strncasecmp(Extension,".crt",4)) fileType=4;

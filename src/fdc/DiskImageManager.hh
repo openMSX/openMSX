@@ -22,6 +22,9 @@ class DiskImageManager
 			FDCBackEnd* getBackEnd();
 			
 		private:
+			void insertDisk(const std::string &disk);
+			void ejectDisk();
+		
 			virtual void execute(const std::vector<std::string> &tokens);
 			virtual void help   (const std::vector<std::string> &tokens);
 			virtual void tabCompletion(std::vector<std::string> &tokens);
