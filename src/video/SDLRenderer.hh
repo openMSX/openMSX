@@ -30,31 +30,33 @@ public:
 
 	// Renderer interface:
 
-	void reset(const EmuTime &time);
-	bool checkSettings();
-	void frameStart(const EmuTime &time);
-	//void putImage(const EmuTime &time);
-	void updateTransparency(bool enabled, const EmuTime &time);
-	void updateForegroundColour(int colour, const EmuTime &time);
-	void updateBackgroundColour(int colour, const EmuTime &time);
-	void updateBlinkForegroundColour(int colour, const EmuTime &time);
-	void updateBlinkBackgroundColour(int colour, const EmuTime &time);
-	void updateBlinkState(bool enabled, const EmuTime &time);
-	void updatePalette(int index, int grb, const EmuTime &time);
-	void updateVerticalScroll(int scroll, const EmuTime &time);
-	void updateHorizontalAdjust(int adjust, const EmuTime &time);
-	//void updateDisplayEnabled(bool enabled, const EmuTime &time);
-	void updateDisplayMode(DisplayMode mode, const EmuTime &time);
-	void updateNameBase(int addr, const EmuTime &time);
-	void updatePatternBase(int addr, const EmuTime &time);
-	void updateColourBase(int addr, const EmuTime &time);
-	//void updateVRAM(int offset, const EmuTime &time);
-	//void updateWindow(bool enabled, const EmuTime &time);
+	virtual void reset(const EmuTime &time);
+	virtual bool checkSettings();
+	virtual void frameStart(const EmuTime &time);
+	//virtual void putImage(const EmuTime &time);
+	virtual void putStoredImage();
+	virtual int putPowerOffImage();
+	virtual void takeScreenShot(const string& filename)
+		throw(CommandException);
+	virtual void updateTransparency(bool enabled, const EmuTime &time);
+	virtual void updateForegroundColour(int colour, const EmuTime &time);
+	virtual void updateBackgroundColour(int colour, const EmuTime &time);
+	virtual void updateBlinkForegroundColour(int colour, const EmuTime &time);
+	virtual void updateBlinkBackgroundColour(int colour, const EmuTime &time);
+	virtual void updateBlinkState(bool enabled, const EmuTime &time);
+	virtual void updatePalette(int index, int grb, const EmuTime &time);
+	virtual void updateVerticalScroll(int scroll, const EmuTime &time);
+	virtual void updateHorizontalAdjust(int adjust, const EmuTime &time);
+	//virtual void updateDisplayEnabled(bool enabled, const EmuTime &time);
+	virtual void updateDisplayMode(DisplayMode mode, const EmuTime &time);
+	virtual void updateNameBase(int addr, const EmuTime &time);
+	virtual void updatePatternBase(int addr, const EmuTime &time);
+	virtual void updateColourBase(int addr, const EmuTime &time);
+	//virtual void updateVRAM(int offset, const EmuTime &time);
+	//virtual void updateWindow(bool enabled, const EmuTime &time);
 
 protected:
 	void finishFrame();
-	void putStoredImage();
-	int putPowerOffImage();
 	void updateVRAMCache(int address);
 	void drawBorder(int fromX, int fromY, int limitX, int limitY);
 	void drawDisplay(

@@ -16,6 +16,7 @@ TODO:
 #include "DebugConsole.hh"
 #include "SDLConsole.hh"
 #include "Scalers.hh"
+#include "ScreenShotSaver.hh"
 #include "util.hh"
 #include <algorithm>
 #include <cmath>
@@ -131,6 +132,27 @@ void SDLRenderer<Pixel, zoom>::putStoredImage()
 	// Previous image will be restored from workScreen.
 	// Usual end-of-frame behaviour.
 	finishFrame();
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::takeScreenShot(const string& filename)
+	throw(CommandException)
+{
+	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
+		return;
+	}
+	try {
+		ScreenShotSaver saver(screen, filename);
+		if (SDL_MUSTLOCK(screen)) {
+			SDL_UnlockSurface(screen);
+		}
+	} catch (CommandException &e) {
+		// TODO make a SDLSurfaceLocker class to get rid of this code duplication
+		if (SDL_MUSTLOCK(screen)) {
+			SDL_UnlockSurface(screen);
+		}
+		throw;
+	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>

@@ -4,6 +4,8 @@ $Id$
 	* Fixed reset problems (again):
 	    reset could go wrong when it was given in the middle of a CPU
 	    instruction, now wait till the end of the instruction
+	* Integrated Joost's screenshot code:
+	   - no automatic filename generation yet
 
 2003-12-22 Maarten ter Huurne <maarten@treewalker.org>
 	* Separated Settings.hh into one file per class.

@@ -46,8 +46,9 @@ VDP::VDP(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 	, vdpRegDebug(*this)
 	, vdpStatusRegDebug(*this)
-	, vdpRegsCmd(this)
-	, paletteCmd(this)
+	, vdpRegsCmd(*this)
+	, paletteCmd(*this)
+	, screenShotCmd(*this)
 {
 	PRT_DEBUG("Creating a VDP object");
 
@@ -115,6 +116,7 @@ VDP::VDP(Device* config, const EmuTime& time)
 	// Register console commands.
 	CommandController::instance().registerCommand(&vdpRegsCmd, "vdpregs");
 	CommandController::instance().registerCommand(&paletteCmd, "palette");
+	CommandController::instance().registerCommand(&screenShotCmd, "screenshot");
 
 	Debugger::instance().registerDebuggable("vdp-regs", vdpRegDebug);
 	Debugger::instance().registerDebuggable("vdp-status-regs", vdpStatusRegDebug);
@@ -139,6 +141,7 @@ VDP::~VDP()
 	Debugger::instance().unregisterDebuggable("vdp-status-regs", vdpStatusRegDebug);
 	Debugger::instance().unregisterDebuggable("vdp-regs", vdpRegDebug);
 
+	CommandController::instance().unregisterCommand(&screenShotCmd, "screenshot");
 	CommandController::instance().unregisterCommand(&vdpRegsCmd,  "vdpregs");
 	CommandController::instance().unregisterCommand(&paletteCmd,  "palette");
 	delete cmdEngine;
@@ -1088,19 +1091,19 @@ void VDP::VDPStatusRegDebug::write(unsigned address, byte value)
 
 // VDPRegsCmd inner class:
 
-VDP::VDPRegsCmd::VDPRegsCmd(VDP *vdp)
+VDP::VDPRegsCmd::VDPRegsCmd(VDP& vdp_)
+	: vdp(vdp_)
 {
-	this->vdp = vdp;
 }
 
-string VDP::VDPRegsCmd::execute(const vector<string> &tokens) throw()
+string VDP::VDPRegsCmd::execute(const vector<string>& tokens) throw()
 {
 	// Print palette in 4x4 table.
 	ostringstream out;
 	for (int row = 0; row < 8; row++) {
 		for (int col = 0; col < 4; col++) {
 			int reg = col * 8 + row;
-			int value = vdp->controlRegs[reg];
+			int value = vdp.controlRegs[reg];
 			out << dec << setw(2) << reg;
 			out << " : ";
 			out << hex << setw(2) << value;
@@ -1111,26 +1114,26 @@ string VDP::VDPRegsCmd::execute(const vector<string> &tokens) throw()
 	return out.str();
 }
 
-string VDP::VDPRegsCmd::help(const vector<string> &tokens) const throw()
+string VDP::VDPRegsCmd::help(const vector<string>& tokens) const throw()
 {
 	return "Prints the current state of the VDP registers.\n";
 }
 
 // PaletteCmd inner class:
 
-VDP::PaletteCmd::PaletteCmd(VDP *vdp)
+VDP::PaletteCmd::PaletteCmd(VDP& vdp_)
+	: vdp(vdp_)
 {
-	this->vdp = vdp;
 }
 
-string VDP::PaletteCmd::execute(const vector<string> &tokens) throw()
+string VDP::PaletteCmd::execute(const vector<string>& tokens) throw()
 {
 	// Print palette in 4x4 table.
 	ostringstream out;
 	for (int row = 0; row < 4; row++) {
 		for (int col = 0; col < 4; col++) {
 			int i = col * 4 + row;
-			int grb = vdp->getPalette(i);
+			int grb = vdp.getPalette(i);
 			out << hex << i << dec << ":"
 				<< ((grb >> 4) & 7) << ((grb >> 8) & 7) << (grb & 7)
 				<< "  ";
@@ -1140,9 +1143,31 @@ string VDP::PaletteCmd::execute(const vector<string> &tokens) throw()
 	return out.str();
 }
 
-string VDP::PaletteCmd::help(const vector<string> &tokens) const throw()
+string VDP::PaletteCmd::help(const vector<string>& tokens) const throw()
 {
 	return "Prints the current VDP palette (i:rgb).\n";
+}
+
+// ScreenShotCmd inner class
+VDP::ScreenShotCmd::ScreenShotCmd(VDP& vdp_)
+	: vdp(vdp_)
+{
+}
+
+string VDP::ScreenShotCmd::execute(const vector<string>& tokens)
+	throw(CommandException)
+{
+	if (tokens.size() != 2) {
+		throw SyntaxError();
+	}
+	string filename = tokens[1]; // TODO make unique
+	vdp.renderer->takeScreenShot(filename);
+	return filename;
+}
+
+string VDP::ScreenShotCmd::help(const vector<string>& tokens) const throw()
+{
+	return "Take a screenshot."; // TODO 
 }
 
 } // namespace openmsx

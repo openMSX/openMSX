@@ -7,6 +7,7 @@
 #include "Command.hh"
 #include "RendererFactory.hh"
 #include "VRAMObserver.hh"
+#include "CommandException.hh"
 
 namespace openmsx {
 
@@ -84,6 +85,11 @@ public:
 	virtual void putStoredImage() = 0;
 	virtual int putPowerOffImage() = 0;
 
+	/** Take a screenshot
+	 */
+	virtual void takeScreenShot(const string& filename)
+		throw (CommandException);
+	
 	/** Informs the renderer of a VDP transparency enable/disable change.
 	  * @param enabled The new transparency state.
 	  * @param time The moment in emulated time this change occurs.

@@ -11,7 +11,8 @@ SRC_HDR:= \
 	DummyRenderer \
 	XRenderer \
 	BitmapConverter CharacterConverter \
-	Scalers Scale2xScaler HQ2xScaler
+	Scalers Scale2xScaler HQ2xScaler \
+	ScreenShotSaver
 
 HDR_ONLY:= \
 	DisplayMode.hh \

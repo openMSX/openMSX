@@ -24,6 +24,7 @@ TODO:
 #include "CommandConsole.hh"
 #include "DebugConsole.hh"
 #include "GLConsole.hh"
+#include "ScreenShotSaver.hh"
 #include "util.hh"
 #include <cmath>
 #include <cassert>
@@ -272,6 +273,18 @@ void SDLGLRenderer::putStoredImage()
 
 	// Update screen.
 	SDL_GL_SwapBuffers();
+}
+
+void SDLGLRenderer::takeScreenShot(const string& filename)
+	throw(CommandException)
+{
+	byte* row_pointers[HEIGHT];
+	byte buffer[WIDTH * HEIGHT * 3];
+	for (int i = 0; i < HEIGHT; ++i) {
+		row_pointers[HEIGHT - 1 - i] = &buffer[WIDTH * 3 * i];
+	}
+	glReadPixels(0, 0, WIDTH, HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+	ScreenShotSaver(WIDTH, HEIGHT, row_pointers, filename);
 }
 
 void SDLGLRenderer::drawEffects(int blurSetting, int scanlineAlpha)

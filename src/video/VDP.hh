@@ -429,22 +429,32 @@ private:
 	
 	class VDPRegsCmd : public Command {
 	public:
-		VDPRegsCmd(VDP *vdp);
+		VDPRegsCmd(VDP& vdp);
 		virtual string execute(const vector<string> &tokens) throw();
 		virtual string help(const vector<string> &tokens) const throw();
 	private:
-		VDP *vdp;
-	};
-	friend class VDPRegsCmd;
+		VDP& vdp;
+	} vdpRegsCmd;
 
 	class PaletteCmd : public Command {
 	public:
-		PaletteCmd(VDP *vdp);
+		PaletteCmd(VDP& vdp);
 		virtual string execute(const vector<string> &tokens) throw();
 		virtual string help(const vector<string> &tokens) const throw();
 	private:
-		VDP *vdp;
-	};
+		VDP& vdp;
+	} paletteCmd;
+	
+	class ScreenShotCmd : public Command {
+	public:
+		ScreenShotCmd(VDP& vdp);
+		virtual string execute(const vector<string> &tokens)
+			throw(CommandException);
+		virtual string help(const vector<string> &tokens) const
+			throw();
+	private:
+		VDP& vdp;
+	} screenShotCmd;
 
 	/** Time at which the internal VDP display line counter is reset,
 	  * expressed in ticks after vsync.
@@ -779,15 +789,6 @@ private:
 	  * Contains the lower 14 bits of the current VRAM access address.
 	  */
 	int vramPointer;
-
-	/** Implements the vdp register print command.
-	  */
-	VDPRegsCmd vdpRegsCmd;
-
-	/** Implements the palette print command.
-	  */
-	PaletteCmd paletteCmd;
-
 };
 
 } // namespace openmsx
