@@ -12,6 +12,7 @@
 #include "HardwareConfig.hh"
 #include "DeviceFactory.hh"
 #include "Leds.hh"
+#include "CliCommOutput.hh"
 #include "EventDistributor.hh"
 #include "Display.hh"
 #include "Timer.hh"
@@ -27,6 +28,7 @@ MSXMotherBoard::MSXMotherBoard()
         , pauseSetting(GlobalSettings::instance().getPauseSetting())
 	, powerSetting(GlobalSettings::instance().getPowerSetting())
 	, leds(Leds::instance())
+	, output(CliCommOutput::instance())
 	, quitCommand(*this)
 	, resetCommand(*this)
 {
@@ -149,7 +151,7 @@ void MSXMotherBoard::unpause()
 {
 	if (paused) {
 		paused = false;
-		leds.setLed(Leds::PAUSE_OFF);
+		output.update(CliCommOutput::STATUS, "paused", "false");
 		--blockedCounter;
 	}
 }
@@ -158,7 +160,7 @@ void MSXMotherBoard::pause()
 {
 	if (!paused) {
 		paused = true;
-		leds.setLed(Leds::PAUSE_ON);
+		output.update(CliCommOutput::STATUS, "paused", "true");
 		++blockedCounter;
 		MSXCPU::instance().exitCPULoop();
 	}

@@ -2,6 +2,8 @@ $Id$
 
 2004-08-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* 'set consolebackground ""' now removes the background image
+	* Don't use MSX pause LED for openMSX pause status, instead send a
+	  (new) pause event.
 
 2004-08-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed assertion on  "openmsx ok.dsk wrong.dsk"

@@ -30,6 +30,7 @@ public:
 		PLUG,
 		UNPLUG,
 		MEDIA,
+		STATUS,
 		NUM_UPDATES // must be last
 	};
 	
