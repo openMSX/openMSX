@@ -237,8 +237,8 @@ void CommandController::autoCommands()
 {
 	try {
 		Config* config = msxConfig.getConfigById("AutoCommands");
-		list<Config::Parameter*>* commandList;
-		commandList = config->getParametersWithClass("");
+		list<Config::Parameter*>* commandList =
+			config->getParametersWithClass("");
 		for (list<Config::Parameter*>::const_iterator i = commandList->begin();
 		     i != commandList->end(); ++i) {
 			try {
