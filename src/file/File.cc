@@ -27,8 +27,8 @@ File::File(const string &url, OpenMode mode)
 	} else {
 		PRT_ERROR("Unsupported protocol: " << protocol);
 	}
-	
-	if (name.rfind(".gz") == (name.size() - 3)) {
+
+	if (name.size() > 3 && name.rfind(".gz") == (name.size() - 3)) {
 		PRT_DEBUG("GZ 1");
 		file = new GZFileAdapter(file);
 	}
