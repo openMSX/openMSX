@@ -22,6 +22,8 @@
 
 #include "xmlx.hh"
 
+#include <libxml/entities.h>
+
 namespace XML {
 
 #ifdef XMLX_DEBUG
@@ -213,5 +215,14 @@ xmlDocPtr Document::convertToXmlDoc()
 	return 0;
 }
 
+const std::string &Escape(std::string &str)
+{
+	xmlChar* buffer = NULL;
+	buffer = xmlEncodeEntitiesReentrant(NULL, (const xmlChar*)str.c_str());
+	str = (const char*)buffer;
+	// buffer is allocated in C code, soo we free it the C-way:
+	if (buffer!=NULL) free(buffer);
+	return str;
+}
 
 }; // end namespace XML

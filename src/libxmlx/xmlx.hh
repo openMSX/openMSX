@@ -181,5 +181,16 @@ private:
 	void handleDoc(xmlDocPtr doc);
 };
 
+/**
+ * XML escape a string
+ * ! changes the string in place!
+ * returns const reference to changed self
+ * for easy chaining in streams
+ * sample:
+ * //std::string stest("hello & world");
+ * //std::cout << XML::Escape(stest) << std::endl;
+ */
+const std::string &Escape(std::string &str);
+
 }; // end namespace XML
 

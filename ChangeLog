@@ -1,5 +1,12 @@
 $Id$
 
+2002-03-20 Joost Yervante Damad <andete@worldcity.nl>
+	* XML::Escape support added to libxmlx
+	* usage is explained in the header
+	* if you make xml that is feeded into libxmlx,
+	  you need to escape it first, to allow entity
+	  escaping for &, <, >, ...
+
 2002-03-19 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* updated config files
 

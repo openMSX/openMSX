@@ -18,4 +18,6 @@ int main(int argc, char** argv)
 	XML::Document doc(filename);
 
 	doc.dump();
+
+	return 0;
 }
