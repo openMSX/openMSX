@@ -1,5 +1,12 @@
 $Id$
 
+2004-06-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added Date class to convert dates to and from string:
+	   there are library fucntions that do the same (strftime, strptime)
+	   but strptime is not available on win32
+	* RomPool cleanups / fixes / enhancements:
+	   it's now possible to list multiple pools in the settings file
+
 2004-06-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented RomPool:
 	    still needs heavy testing and cleanups

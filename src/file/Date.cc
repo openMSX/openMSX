@@ -37,7 +37,7 @@ time_t Date::fromString(const string& line)
 			break;
 		}
 	}
-	if ((items != 9) || (tm.tm_mon == -1)) {
+	if ((items != 7) || (tm.tm_mon == -1)) {
 		return static_cast<time_t>(-1);
 	}
 	return mktime(&tm);
