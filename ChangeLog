@@ -4,6 +4,7 @@ $Id$
 	* Fixed a problem with the consolesize when switching from SDLLo
 	  to SDLHi or SDLGL.
 	* When the console is resized, the text in it will be rebuild.
+	* Fixed a bug in the cursormovement (broke with the text rebuild).
 
 2003-05-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Split RealTime in generic part and implementation specific part.

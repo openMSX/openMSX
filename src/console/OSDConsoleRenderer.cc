@@ -191,6 +191,9 @@ void OSDConsoleRenderer::updateConsoleRect(SDL_Rect & rect)
 		(tempMaxY == currentMaxY)){
 		wantedConsoleColumns = consoleColumnsSetting->getValue();	
 		}	
+
+	int oldConsoleLines = consoleLines;
+	int oldConsoleColumns = consoleColumns;
 		
 	consoleLinesSetting->setRange(1,screen->h / font->getHeight());
 	consoleLines = consoleLinesSetting->getValue();
@@ -200,7 +203,10 @@ void OSDConsoleRenderer::updateConsoleRect(SDL_Rect & rect)
 	consoleColumns= consoleColumnsSetting->getValue();
 	rect.w = (font->getWidth() * consoleColumns) + CHAR_BORDER;
 	
-	Console::instance()->setConsoleColumns(consoleColumns);
+	if ((consoleLines != oldConsoleLines) || 
+		(consoleColumns != oldConsoleColumns)){	
+		Console::instance()->setConsoleColumns(consoleColumns);
+	}
 	
 	consolePlacement=consolePlacementSetting->getValue();
 	
