@@ -26,6 +26,7 @@ void MSXFmPac::reset(const EmuTime &time)
 	enable = 0;
 	sramEnabled = false;
 	bank = 0;
+	r1ffe = r1fff = 0xFF;	// TODO check
 }
 
 void MSXFmPac::writeIO(byte port, byte value, const EmuTime &time)

@@ -2,6 +2,7 @@ $Id$
 
 2003-06-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented MegaRam
+	* Implemented PAC  (like FM-PAC, but without FM and without ROM)
 
 2003-06-01 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Added a setting for grabbing mouse and keyboard input. When input

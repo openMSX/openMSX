@@ -38,6 +38,7 @@
 #include "MSXKanji12.hh"
 #include "MSXMidi.hh"
 #include "MSXMegaRam.hh"
+#include "MSXPac.hh"
 
 
 // TODO: Add the switched device to the config files.
@@ -265,6 +266,9 @@ MSXDevice *DeviceFactory::create(Device *conf, const EmuTime &time)
 		cpuInterface->register_IO_In (0x8E, megaram);
 		cpuInterface->register_IO_Out(0x8E, megaram);
 		return megaram;
+	}
+	if (type == "PAC") {
+		return new MSXPac(conf, time);
 	}
 	PRT_ERROR("Unknown device \""<<type<<"\" specified in configuration");
 	return NULL;
