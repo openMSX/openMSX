@@ -10,9 +10,8 @@
           <volume>11500</volume>
           <mode>mono</mode>
         </sound>
-        <rom>
-          <mappertype>SCC</mappertype>
-        </rom>
+        <mappertype>SCC</mappertype>
+        <rom/>
       </ROM>
     </secondary>
   </primary>

@@ -18,8 +18,8 @@
         <rom>
           <sha1>930eae7057af1652abae794072b296a59decd61b</sha1>
           <filename>roms/fs-ca1.rom</filename>
-          <mappertype>MSX-AUDIO</mappertype>
         </rom>
+        <mappertype>MSX-AUDIO</mappertype>
       </ROM>
     </secondary>
   </primary>

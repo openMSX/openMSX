@@ -1,5 +1,9 @@
 $Id$
 
+2004-10-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* fixed scc and Panasonic_FS-CA1 extensions:
+	    mappertype tag was moved
+
 2004-10-10 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed assert in SimpleScaler when interlace is on and deinterlace
 	  is off.
@@ -19,7 +23,7 @@ $Id$
 2004-10-07 Manuel Bilderbeek <manuel@msxnet.org>
 	* Renamed save_settings_at_exit to save_settings_on_exit
 	* Renamed FrontSwitch to FirmwareSwitch everywhere in the code
-	
+
 2004-10-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed crash on exit in FreeBSD:
 	   - was order of destruction of global objects problem
