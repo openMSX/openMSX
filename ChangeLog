@@ -10,6 +10,7 @@ $Id$
 	* Y8950 generates an IRQ on end-of-sample _in_EmuTime_ (was realtime)
 	* Implemented Y8950 keyboard connector:
 	   just the connector, no keyboard yet
+	* More accurate ADPCM readback (thanks Maarten)
 
 2002-04-11 David Heremans <david.heremans@gnu-linux.net>
 	* Royal blood works, use type ASCII8SRAM2!

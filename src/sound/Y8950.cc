@@ -1075,6 +1075,9 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 
 byte Y8950::readReg(byte rg, const EmuTime &time)
 {
+	// TODO only when necessary
+	Mixer::instance()->updateStream(time);
+	
 	byte result;
 	switch (rg) {
 		case 0x05: // (KEYBOARD IN)

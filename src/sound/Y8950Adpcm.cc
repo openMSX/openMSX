@@ -177,7 +177,7 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 
 byte Y8950Adpcm::readReg(byte rg)
 {
-	byte result = 255;
+	byte result;
 	switch (rg) {
 		case 0x0f: { // ADPCM-DATA
 			// TODO advance pointer (only when not playing??)
