@@ -3,8 +3,13 @@
 #ifndef __GLFONT_HH__
 #define __GLFONT_HH__
 
+#include "config.h"
+#ifdef HAVE_GL_GL_H
+#include <GL/gl.h>
+#else // HAVE_GL_H
+#include <gl.h>
+#endif
 #include <string>
-#include "SDL/SDL_opengl.h"
 
 
 class GLFont

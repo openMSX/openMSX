@@ -6,7 +6,12 @@
 #include "EventListener.hh"
 #include "InteractiveConsole.hh"
 #include "Command.hh"
-#include "SDL_opengl.h"
+#include "config.h"
+#ifdef HAVE_GL_GL_H
+#include <GL/gl.h>
+#else // HAVE_GL_H
+#include <gl.h>
+#endif
 
 // forward declaration
 class GLFont;
