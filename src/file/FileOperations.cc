@@ -7,6 +7,7 @@
 #include "FileOperations.hh"
 #include "openmsx.hh"
 #include "CliCommunicator.hh"
+#include "MSXException.hh"
 #ifdef	__WIN32__
 #define WIN32_LEAN_AND_MEAN
 #define	_WIN32_IE	0x0400
@@ -136,7 +137,7 @@ const string& FileOperations::getUserDir()
 			char p[MAX_PATH + 1];
 			int res = ((BOOL (*)(HWND,LPSTR,int,BOOL))funcp)(0, p, CSIDL_PERSONAL, 1);
 			if (res != TRUE) {
-				PRT_ERROR("Cannot get user directory.");
+				throw FatalError("Cannot get user directory.");
 			}
 			userDir = getConventionalPath(p);
 		} else {
@@ -161,10 +162,10 @@ const string& FileOperations::getSystemDir()
 		char p[MAX_PATH + 1];
 		int res = GetModuleFileNameA(NULL, p, MAX_PATH);
 		if ((res == 0) || (res == MAX_PATH)) {
-			PRT_ERROR("Cannot detect openMSX directory.");
+			throw FatalError("Cannot detect openMSX directory.");
 		}
 		if (!strrchr(p,'\\')) {
-			PRT_ERROR("openMSX is not in directory!?");
+			throw FatalError("openMSX is not in directory!?");
 		}
 		*(strrchr(p,'\\')) = '\0';
 		systemDir = getConventionalPath(p) + "/";

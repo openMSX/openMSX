@@ -33,13 +33,18 @@
 #define WIN32_LEAN_AND_MEAN
 #define _WIN32_IE 0x0400
 
+#include "MSXException.hh"
+
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
+#include <sstream>
 #include <windows.h>
 #include <mmsystem.h>
 
 #define MAXPATHLEN MAX_PATH
+
+using std::ostringstream;
 
 namespace openmsx {
 
