@@ -1,5 +1,11 @@
 $Id$
 
+2003-12-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed "Back to the Future" hang:
+	   romtype was wrongly detected, in romdb.xml the romtype was
+	   specified as "PLAIN", but for this type we still need to guess the
+	   start location in memory. Changed romtype in romdb.xml to "PAGE12"
+
 2003-12-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* made VDP status registers debuggable
 

@@ -364,7 +364,7 @@
   </rom>
   <rom>
     <title>Back To The Future</title>
-    <romtype>PLAIN</romtype>
+    <romtype>PAGE12</romtype>
     <sha1>469b07eef08348c9acc14e63ba0cd35aef236983</sha1>
     <year>1985</year>
     <company>Pony Canyon</company>
