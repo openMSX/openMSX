@@ -24,7 +24,6 @@ class Schedulable
 		 */
 		virtual void executeUntilEmuTime(const EmuTime &time, int userData) = 0;
 
-#ifdef DEBUG
 		/**
 		 * This method is only used to print meaningfull debug messages
 		 */
@@ -32,7 +31,6 @@ class Schedulable
 
 	protected:
 		static const std::string defaultName;
-#endif
 };
 
 #endif
