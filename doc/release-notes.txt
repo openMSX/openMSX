@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.3.4 (2004-01-17)
+Release Notes for openMSX 0.3.4 (2004-01-16)
 ============================================
 
 This new release brings you the following improvements:
@@ -41,7 +41,8 @@ This new release brings you the following improvements:
   and easier to maintain than the old system which uses GNU's auto* tools
   ("configure" and friends). The alternative system will replace the auto*
   system in the future, so please test it on your machine and report any
-  problems. You can use it with "make -f alternative.mk".
+  problems. You can use it with "make -f alternative.mk" to compile and
+  "make -f alternative.mk install" to install.
 - Added support for Intel's ICC 8.0 compiler (only in alternative.mk).
 - Added experimental support for Mac OS X (only in alternative.mk).
   Thanks to Jan Lukens (Jalu) for testing/debugging this.

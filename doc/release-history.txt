@@ -4,6 +4,74 @@ Release History
 This is an overview of the changes that were incorporated into past
 releases.
 
+openMSX 0.3.4 (2004-01-16)
+--------------------------
+
+This new release brings you the following improvements:
+- Several fixes in VDP emulation; more games and demos work correctly.
+- Added scalers for SDLHi. A scaler is an image filter which enlarges the
+  MSX screen to PC resolution. The following scalers are implemented:
+  * simple (original)
+  * 2xSaI
+  * Scale2x
+  * hq2x
+  Use "set scaler <name>" to select a scaler.
+- Scanlines now work in SDLHi (previously, they only worked in SDLGL).
+- Per-pixel alpha blending for console on SDLHi/SDLLo.
+  This makes anti-aliased console fonts look better.
+- Rendering fixes in Win32:
+  * Fixed slowdowns in fullscreen mode.
+  * Fixed console flickering.
+- Switched to Jarek Burczynski's YM2413 core (MSX-MUSIC).
+- Added high-pass IIR filter to mixer to avoid audio clipping.
+- Added I/O device multiplexing: you can now safely insert an FM-PAC in
+  an MSX turbo R, for example.
+- Added screenshot feature.
+  Default key bindings changed to put this under PrtScr.
+- Added Ren-Sha Turbo (autofire) emulation: "set renshaturbo <speed>".
+- Added emulation of the MSX turbo R pause key.
+- Added LED status of disk drives.
+- Fixed harddisk image creation: automatically create or enlarge hd-image
+  when the specified file doesn't exist or is too small.
+- New console commands:
+  * after: execute command after a certain time
+  * alias/unalias: put long commands under a named alias
+  * incr and decr: increase or decrease integer settings
+    (useful when bound to a key, see "bind" command)
+- Added a 'boosted' MSX2 configuration: a fantasy machine with lots of
+  internal hardware. More of these will be added in future releases.
+  The current configuration is still experimental; feedback is welcome.
+- Added alternative build system ("alternative.mk"), which is more flexible
+  and easier to maintain than the old system which uses GNU's auto* tools
+  ("configure" and friends). The alternative system will replace the auto*
+  system in the future, so please test it on your machine and report any
+  problems. You can use it with "make -f alternative.mk" to compile and
+  "make -f alternative.mk install" to install.
+- Added support for Intel's ICC 8.0 compiler (only in alternative.mk).
+- Added experimental support for Mac OS X (only in alternative.mk).
+  Thanks to Jan Lukens (Jalu) for testing/debugging this.
+- Dropped support for GCC 2.95 (please upgrade to GCC 3.x).
+- Added the ability to control openMSX from an external process (launcher,
+  debugger) using an XML-based control protocol. This is an experimental
+  feature; the control protocol will change incompatibly in the next
+  release.
+  For an example client implementation, see Contrib/openmsx-control.cc.
+  We're working on a new openMSX Catapult which uses this protocol.
+- New features for external control clients:
+  * renderer "none", which displays nothing.
+  * "power" setting: enable or disable power to the MSX machine.
+  * "restoredefault" command: restores a setting to the value specified in
+    settings.xml.
+  * "info" command: gets info such as lists of pluggables, renderers etc.
+  * "keymatrixup"/"keymatrixdown" commands: manipulate the keyboard matrix.
+- Added a debugger interface, accessible through the "debug" command.
+  The following devices currently support this interface: CPU, I/O ports,
+  memory, VDP and VRAM. Also it is possible to set breakpoints.
+- Small improvements in debug device.
+  The debug device is very useful for people developing MSX software in
+  openMSX; read the manual for details.
+- Added "vdpcmdtrace" setting: enable or disable VDP command tracing.
+
 openMSX 0.3.3 (2003-09-26)
 --------------------------
 
