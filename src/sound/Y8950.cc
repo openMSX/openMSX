@@ -18,6 +18,7 @@
 #include <math.h>
 #include "Y8950.hh"
 #include "Mixer.hh"
+#include "Y8950Timer.cc"
 
 
 short Y8950::dB2LinTab[(2*DB_MUTE)*2];
@@ -423,7 +424,8 @@ void Y8950::Channel::keyOff()
 //                                                          //
 //**********************************************************//
 
-Y8950::Y8950(short volume, const EmuTime &time, Mixer::ChannelMode mode)
+Y8950::Y8950(short volume, const EmuTime &time, Mixer::ChannelMode mode) :
+	timer1(this), timer2(this)
 {
 	makePmTable();
 	makeAmTable();
@@ -855,7 +857,7 @@ int Y8950::calcAdpcm()
 void Y8950::checkMute()
 {
 	bool mute = checkMuteHelper();
-	PRT_DEBUG("Y8950: muted " << mute);
+	//PRT_DEBUG("Y8950: muted " << mute);
 	setInternalMute(mute);
 }
 bool Y8950::checkMuteHelper()
@@ -917,7 +919,7 @@ void Y8950::setInternalVolume(short newVolume)
 
 void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 {
-	PRT_DEBUG("Y8950 write " << (int)rg << " " << (int)data);
+	//PRT_DEBUG("Y8950 write " << (int)rg << " " << (int)data);
 	int stbl[32] = {
 		 0, 2, 4, 1, 3, 5,-1,-1,
 		 6, 8,10, 7, 9,11,-1,-1,
@@ -963,31 +965,33 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			//
 			// 0	Reset envelopes - Envelope generator outputs forced to maximum,
 			//	so all enabled voices sound at maximum
-			reg[0x01] = data;
+			reg[rg] = data;
 			break;
 
 		case 0x02: // TIMER1 (reso. 80us)
-			// TODO
-			reg[0x02] = data;
+			timer1.setValue(data);
+			reg[rg] = data;
 			break;
 
 		case 0x03: // TIMER2 (reso. 320us) 
-			// TODO
-			reg[0x03] = data;
+			timer2.setValue(data);
+			reg[rg] = data;
 			break;
 
 		case 0x04: // FLAG CONTROL 
 			if (data & R04_IRQ_RESET) {
 				resetStatus(0x78);	// reset all flags
 			} else {
-				reg[0x04] = data;
 				changeStatusMask((~data)&0x78);
+				timer1.setStart(data&R04_ST1, time);
+				timer2.setStart(data&R04_ST2, time);
+				reg[rg] = data;
 			}
 			break;
 
 		case 0x06: // (KEYBOARD OUT) 
 			// TODO
-			reg[0x06] = data;
+			reg[rg] = data;
 			break;
 
 		case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET
@@ -1002,15 +1006,15 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 				adpcmOutput[1] = 0;
 				diff = DDEF;
 			}
-			reg[0x07] = data;
+			reg[rg] = data;
 			break;
 
 		case 0x08: // CSM/KEY BOARD SPLIT/-/-/SAMPLE/DA AD/64K/ROM 
-			reg[0x08] = data;
-			wave = reg[0x08]&R08_ROM ? memory[1] : memory[0];
-			play_addr_mask = reg[0x08]&R08_64K ? (1<<17)-1 : (1<<19)-1;
+			wave = data&R08_ROM ? memory[1] : memory[0];
+			play_addr_mask = data&R08_64K ? (1<<17)-1 : (1<<19)-1;
 			start_addr =  ((reg[0x0A]*256+reg[0x09])*8)    & play_addr_mask;
 			stop_addr  = (((reg[0x0C]*256+reg[0x0B])*8)+7) & play_addr_mask;
+			reg[rg] = data;
 			break;
 
 		case 0x09: // START ADDRESS (L) 
@@ -1032,13 +1036,13 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			break;
 
 		case 0x0F: // ADPCM-DATA 
-			reg[0x0F] = data;
 			if ((reg[0x07]&R07_REC) && (reg[0x07]&R07_MEMORY_DATA)) {
 				int tmp = (start_addr + memPntr) & play_addr_mask;
 				wave[tmp/2] = data;
 				memPntr += 2;
 			}
 			setStatus(STATUS_BUF_RDY);
+			reg[rg] = data;
 			break;
 
 		case 0x10: // DELTA-N (L) 
@@ -1048,7 +1052,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			break;
 
 		case 0x12: // ENVELOP CONTROL 
-			reg[0x12] = data;
+			reg[rg] = data;
 			break;
 
 		case 0x15: // DAC-DATA  (bit9-2)
@@ -1062,16 +1066,16 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			// TODO
 			// 0 -> input
 			// 1 -> output
-			reg[0x18] = data;
+			reg[rg] = data;
 			break;
 		
 		case 0x19: // I/O-DATA (bit3-0)
 			// TODO
-			reg[0x19] = data;
+			reg[rg] = data;
 			break;
 
 		case 0x1A: // PCM-DATA
-			reg[0x1A] = data;
+			reg[rg] = data;
 			break;
 		}
 		break;
@@ -1139,7 +1143,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			ch[8].mod.updateAll();
 			ch[8].car.updateAll();
 
-			reg[0xbd] = data;
+			reg[rg] = data;
 			break;
 		}
 		if ((rg&0xf) > 8) {

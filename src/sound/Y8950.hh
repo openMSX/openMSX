@@ -8,6 +8,7 @@
 #include "IRQHelper.hh"
 #include "IRQHelper.ii"
 #include "Mixer.hh"
+#include "Y8950Timer.hh"
 
 //forward declarations
 class EmuTime;
@@ -345,6 +346,12 @@ class Y8950 : public SoundDevice
 		int diff;
 
 		int sampleRate;
+
+		//Timers
+		Y8950Timer<12500, STATUS_T1> timer1;	//  80us
+		friend class Y8950Timer<12500, STATUS_T1>;
+		Y8950Timer< 3125, STATUS_T2> timer2;	// 320us
+		friend class Y8950Timer< 3125, STATUS_T2>;
 };
 
 #endif

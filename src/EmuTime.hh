@@ -56,7 +56,8 @@ class EmuTimeFreq : public EmuTime
 {
 	public:
 		// constructor
-		EmuTimeFreq()               { time  = 0; }
+		EmuTimeFreq()                 { time  = 0; }
+		EmuTimeFreq(const EmuTime &e) { time = e.time; }
 		//EmuTimeFreq(uint64 n)       { time  = n*(MAIN_FREQ/freq); }
 
 		void operator() (uint64 n)  { time  = n*(MAIN_FREQ/freq); }

@@ -26,6 +26,7 @@ libSound_la_SOURCES = \
 	SCC.cc SCC.hh \
 	SoundDevice.cc SoundDevice.hh \
 	Y8950.cc Y8950.hh \
+	Y8950Timer.cc Y8950Timer.hh \
 	YM2413.cc YM2413.hh
 
 nodebug: resetdebug all

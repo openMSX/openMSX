@@ -1,5 +1,14 @@
 $Id$
 
+2002-03-26 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* implemented Y8950 timers
+
+2002-03-26 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* fixed crash when a specified file did not exists:
+	   for some reason C++ doesn't throw exception beyond the constructor,
+	   even explicitly (re)throwing an exception in the constructor doesn't
+	   work
+
 2002-03-25 Joost Yervante Damad <andete@worldcity.nl>
 	* made VPATH compiles work, fixes 'make distcheck' also
 	* bumped version no
@@ -8,7 +17,7 @@ $Id$
 	* implemented RYTHM sounds for Y8950 (MSX-AUDIO): untested!
 	* reworked IRQ handling:
 	    CPU keeps IRQStatus (was CPUInterface)
-	    this was CPU can react directly on unannounced IRQs
+	    this way CPU can react directly on unannounced IRQs
 	    (eg: Y8950 end-of-sample IRQ)
 
 2002-03-24 David Heremans <david.heremans@gnu-linux.net>
