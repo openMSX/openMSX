@@ -1,5 +1,9 @@
 $Id$
 
+2004-03-29 Maarten ter Huurne <maarten@treewalker.org>
+	* Made new ("alternative") build system default:
+	  GNUmakefile is picked up by GNU Make before Makefile is.
+
 2004-03-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added generic info command to query the possible values for
 	  EnumSettings.
