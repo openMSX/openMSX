@@ -94,8 +94,8 @@ class SoundDevice
 		 * should return a null-pointer.
 		 *
 		 * Note: this method runs in a different thread, you can
-		 *       (un)lock this thread with SDL_LockAudio() and
-		 *       SDL_UnlockAudio()
+		 *       (un)lock this thread with lock() and unlock()
+		 *       methods in Mixer
 		 */
 		virtual int* updateBuffer (int length) = 0;
 

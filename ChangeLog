@@ -5,6 +5,7 @@ $Id$
 	  implemenation uses SDL
 	* made a Mutex class, analog as Thread
 	* sync MSX-MUSIC and MSX-AUDIO on register write
+	* made all sound related classes (except Mixer) SDL independent
 
 2002-01-11 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Implemented RTC load/save on power on/off 

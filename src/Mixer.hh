@@ -47,6 +47,20 @@ class Mixer
 		void updateStream(const EmuTime &time);
 
 		/**
+		 * This method locks the audio thread.
+		 * You can use this method to delay the call to the SoundDevices
+		 * updateBuffer() method. For example, this is usefull if 
+		 * you are updating a lot of registers and you don't want the
+		 * half updated set being used to produce sound
+		 */
+		void lock();
+
+		/**
+		 * This method unlocks the audio thread.
+		 */
+		void unlock();
+
+		/**
 		 * This method pauses the sound
 		 */
 		void pause(bool status);

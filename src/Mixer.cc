@@ -52,12 +52,12 @@ Mixer *Mixer::oneInstance = NULL;
 int Mixer::registerSound(SoundDevice *device, ChannelMode mode=MONO)
 {
 	PRT_DEBUG("Mix: Registering sound device");
-	SDL_LockAudio();
+	lock();
 	device->setSampleRate(audioSpec.freq);
 	buffers[mode].push_back(NULL);	// make room for one more
 	devices[mode].push_back(device);
 	if (nbAllDevices++ == 0) SDL_PauseAudio(0);	// unpause when first dev registers
-	SDL_UnlockAudio();
+	unlock();
 
 	return audioSpec.samples;
 }
@@ -65,11 +65,11 @@ int Mixer::registerSound(SoundDevice *device, ChannelMode mode=MONO)
 void Mixer::unregisterSound(SoundDevice *device, ChannelMode mode=MONO)
 {
 	PRT_DEBUG("Mix: Unregistering sound device");
-	SDL_LockAudio();
+	lock();
 	buffers[mode].pop_back();	// remove one entry
 	devices[mode].remove(device);
 	if (--nbAllDevices == 0) SDL_PauseAudio(1);	// pause when last dev unregisters
-	SDL_UnlockAudio();
+	unlock();
 }
 
 
@@ -101,9 +101,9 @@ void Mixer::updateStream(const EmuTime &time)
 	PRT_DEBUG("Mix: update, duration " << duration << "s");
 	assert(duration>=0);
 	prevTime = time;
-	SDL_LockAudio();
+	lock();
 	updtStrm(audioSpec.freq * duration);
-	SDL_UnlockAudio();
+	unlock();
 }
 void Mixer::updtStrm(int samples)
 {
@@ -147,6 +147,16 @@ void Mixer::updtStrm(int samples)
 		mixBuffer[offset++] = (short)right;
 	}
 	samplesLeft -= samples;
+}
+
+void Mixer::lock()
+{
+	SDL_LockAudio();
+}
+
+void Mixer::unlock()
+{
+	SDL_UnlockAudio();
 }
 
 void Mixer::pause(bool status)
