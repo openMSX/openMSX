@@ -110,6 +110,7 @@ void RenderSettings::checkRendererSwitch()
 
 bool RenderSettings::signalEvent(const Event& event)
 {
+	if (&event); // avoid warning
 	assert(event.getType() == RENDERER_SWITCH_EVENT);
 
 	// Switch video system.

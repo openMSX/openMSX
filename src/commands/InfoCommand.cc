@@ -44,6 +44,7 @@ void InfoCommand::registerTopic(const string& name,
 void InfoCommand::unregisterTopic(const string& name,
                                   const InfoTopic* topic)
 {
+	if (topic); // avoid warning
 	assert(infoTopics.find(name) != infoTopics.end());
 	assert(infoTopics[name] == topic);
 	infoTopics.erase(name);

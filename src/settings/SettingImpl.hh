@@ -222,6 +222,7 @@ void SettingImpl<POLICY>::tabCompletion(std::vector<std::string>& tokens) const
 template<typename POLICY>
 void SettingImpl<POLICY>::updateData(const XMLElement& element)
 {
+	if (&element); // avoid warning
 	assert(&element == xmlNode);
 	try {
 		setValueString2(xmlNode->getData(), false);

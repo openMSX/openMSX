@@ -49,7 +49,8 @@ static inline void pset(Pixel* pOut, unsigned p)
 template <int w1, int w2>
 static inline unsigned interpolate(unsigned c1, unsigned c2)
 {
-	return (c1 * w1 + c2 * w2) >> 2;
+	enum { wsum = w1 + w2 };
+	return (c1 * w1 + c2 * w2) / wsum;
 }
 
 template <int w1, int w2, int w3>

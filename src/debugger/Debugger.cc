@@ -51,6 +51,7 @@ void Debugger::registerDebuggable(const string& name, Debuggable& debuggable)
 
 void Debugger::unregisterDebuggable(const string& name, Debuggable& debuggable)
 {
+	if (&debuggable); // avoid warning
 	map<string, Debuggable*>::iterator it = debuggables.find(name);
 	assert(it != debuggables.end() && (it->second == &debuggable));
 	debuggables.erase(it);

@@ -156,6 +156,7 @@ void MSXCPU::wait(const EmuTime& time)
 
 void MSXCPU::update(const Setting* setting)
 {
+	if (setting); // avoid warning
 	assert(setting == traceSetting.get());
 	exitCPULoop();
 }

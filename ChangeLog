@@ -1,5 +1,11 @@
 $Id$
 
+2005-03-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed various warnings:
+	   - doxygen warnings
+	   - compiler warnings while compiling with -Wall -Wextra
+	   - previous compiler warings with also -DNDEBUG
+
 2005-03-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added HQ2xLite scaler:
 	   Resulting image is close to hq2x but can be calculated a lot faster

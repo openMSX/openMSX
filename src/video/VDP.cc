@@ -149,6 +149,7 @@ VDP::~VDP()
 
 bool VDP::signalEvent(const Event& event)
 {
+	if (&event); // avoid warning
 	assert(event.getType() == RENDERER_SWITCH2_EVENT);
 	delete renderer;
 	createRenderer();

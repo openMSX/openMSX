@@ -1,6 +1,6 @@
 // $Id$
 
-/**
+/*
  * Lightweight version of the hq2x scaler (http://www.hiend3d.com/hq2x.html)
  * 
  * The difference between this version and the full version of hq2x is the

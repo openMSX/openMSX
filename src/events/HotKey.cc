@@ -128,6 +128,7 @@ void HotKey::unregisterHotKeyCommand(Keys::KeyCode key)
 void HotKey::childAdded(const XMLElement& parent,
                         const XMLElement& child)
 {
+	if (&parent); // avoid warning
 	assert(&parent == &bindingsElement);
 	if (child.getName() != "bind") {
 		return;

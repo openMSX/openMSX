@@ -245,6 +245,7 @@ void MSXCPUInterface::registerMemDevice(MSXDevice& device,
 void MSXCPUInterface::unregisterMemDevice(MSXDevice& device,
                                           int primSl, int secSl, int pages)
 {
+	if (&device); // avoid warning
 	for (int i = 0; i < 4; ++i) {
 		if (pages & (1 << i)) {
 			assert(slotLayout[primSl][secSl][i] == &device);

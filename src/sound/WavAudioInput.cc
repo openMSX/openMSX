@@ -106,7 +106,8 @@ void WavAudioInput::unplugHelper(const EmuTime& /*time*/)
 
 void WavAudioInput::update(const Setting* setting)
 {
-	assert (setting == audioInputFilenameSetting.get());
+	if (setting); // avoid warning
+	assert(setting == audioInputFilenameSetting.get());
 	if (plugged) {
 		try {
 			loadWave();

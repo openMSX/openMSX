@@ -7,11 +7,9 @@ SRC_HDR:= \
 	CommandController \
 	Command \
 	InfoCommand \
+	InfoTopic \
 	Interpreter \
 	CommandArgument
-
-HDR_ONLY:= \
-	InfoTopic
 
 include build/node-end.mk
 

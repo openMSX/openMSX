@@ -129,7 +129,8 @@ public:
 	  * @param enabled The new display enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateDisplayEnabled(bool /*enabled*/, const EmuTime& time) {
+	inline void updateDisplayEnabled(bool enabled, const EmuTime& time) {
+		enabled = enabled; // avoid warning
 		sync(time);
 		// TODO: Speed up sprite checking in display disabled case.
 	}
@@ -138,7 +139,8 @@ public:
 	  * @param enabled The new sprite enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateSpritesEnabled(bool /*enabled*/, const EmuTime& time) {
+	inline void updateSpritesEnabled(bool enabled, const EmuTime& time) {
+		enabled = enabled; // avoid warning
 		sync(time);
 		// TODO: Speed up sprite checking in display disabled case.
 	}
@@ -149,7 +151,8 @@ public:
 	  *   Bit 1 is size: 0 = 8x8, 1 = 16x16.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateSpriteSizeMag(byte /*sizeMag*/, const EmuTime& time) {
+	inline void updateSpriteSizeMag(byte sizeMag, const EmuTime& time) {
+		sizeMag = sizeMag; // avoid warning
 		sync(time);
 		// TODO: Precalc something?
 	}
@@ -158,7 +161,8 @@ public:
 	  * @param scroll The new scroll value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateVerticalScroll(int /*scroll*/, const EmuTime& time) {
+	inline void updateVerticalScroll(int scroll, const EmuTime& time) {
+		scroll = scroll; // avoid warning
 		sync(time);
 		// TODO: Precalc something?
 	}
@@ -278,11 +282,13 @@ public:
 
 	// VRAMObserver implementation:
 
-	void updateVRAM(unsigned /*offset*/, const EmuTime& time) {
+	void updateVRAM(unsigned offset, const EmuTime& time) {
+		offset = offset; // avoid warning
 		checkUntil(time);
 	}
 
-	void updateWindow(bool/* enabled*/, const EmuTime& time) {
+	void updateWindow(bool enabled, const EmuTime& time) {
+		enabled = enabled; // avoid warning
 		sync(time);
 	}
 

@@ -347,8 +347,7 @@ const string& V9990::schedName() const
 
 bool V9990::signalEvent(const Event& event)
 {
-	PRT_DEBUG("[--now---] V9990::signalEvent");
-	
+	if (&event); // avoid warning
 	assert(event.getType() == RENDERER_SWITCH2_EVENT);
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
 	createRenderer(time);

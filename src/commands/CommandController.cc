@@ -77,6 +77,7 @@ void CommandController::registerCompleter(CommandCompleter* completer,
 void CommandController::unregisterCompleter(CommandCompleter* completer,
                                             const string& str)
 {
+	if (completer); // avoid warning
 	assert(commandCompleters.find(str) != commandCompleters.end());
 	assert(commandCompleters.find(str)->second == completer);
 	commandCompleters.erase(str);
