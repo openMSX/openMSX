@@ -75,7 +75,22 @@
     </slotted>
     <parameter name="filename">TurboR-GT-sub.rom</parameter>
   </device>
-
+  
+  <device id="kanji basic">
+    <type>Rom</type>
+    <slotted>
+      <ps>3</ps>
+      <ss>1</ss>
+      <page>1</page>
+    </slotted>
+    <slotted>
+      <ps>3</ps>
+      <ss>1</ss>
+      <page>2</page>
+    </slotted>
+    <parameter name="filename">TurboR-GT-kanji.rom</parameter>
+  </device>
+<!--
   <device id="diskrom">
     <type>Rom</type>
     <slotted>
@@ -109,7 +124,7 @@
     <parameter name="0x3FFC" class="patch">0xFE</parameter>
     <parameter name="0x3FFD" class="patch">0xFC</parameter>
   </device>
-
+-->
   <device id="MSX Music">
     <type>Music</type>
     <slotted>
@@ -136,7 +151,7 @@
   </device>
 
   <config id="renderer">
-    <type>SDLHi</type>
+    <type>SDLGL</type>
     <parameter name="full_screen">false</parameter>
   </config>
 
@@ -194,7 +209,7 @@
 
   <config id="Console">
     <parameter name="font">ConsoleFont.png</parameter>
-    <parameter name="background">ConsoleBackground.png</parameter>
+    <parameter name="background">ConsoleBackground2.png</parameter>
   </config>
 
 </msxconfig>
