@@ -16,10 +16,9 @@ class EmuTime;
 
 class V9990VRAMObserver {
 public:
-	/** Constructors
-	  */
-	V9990VRAMObserver(void);
-	V9990VRAMObserver(unsigned int startAddress_, unsigned int size_);
+	V9990VRAMObserver();
+	V9990VRAMObserver(unsigned startAddress, unsigned size);
+	virtual ~V9990VRAMObserver() {}
 	
 	/** Informs the observer of the VRAM content change.
 	  * @param offset  Offset in observed VRAM window of the byte that changed.
@@ -29,19 +28,19 @@ public:
 	/** Checks whether address is within observed VRAM window
 	  * @param address Address to check
 	  */
-	bool isInWindow(unsigned int address) {
-		return (startAddress <= address) && (address < (startAddress + size));
+	bool isInWindow(unsigned address) {
+		unsigned tmp = address - startAddress;
+		return tmp < size;
 	}
 
 private:
 	/** VRAM Window start address
 	  */
-	unsigned int startAddress;
+	unsigned startAddress;
 	
 	/** VRAM Window size
 	  */
-	unsigned int size;
-	
+	unsigned size;
 };
 
 }

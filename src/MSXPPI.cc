@@ -39,7 +39,7 @@ void MSXPPI::reset(const EmuTime& time)
 	click->reset(time);
 }
 
-void MSXPPI::powerDown(const EmuTime& time)
+void MSXPPI::powerDown(const EmuTime& /*time*/)
 {
 	EventDistributor::instance().distributeEvent(
 		new LedEvent(LedEvent::CAPS, false));
@@ -106,7 +106,7 @@ byte MSXPPI::readA(const EmuTime& time)
 {
 	return peekA(time);
 }
-byte MSXPPI::peekA(const EmuTime& time) const
+byte MSXPPI::peekA(const EmuTime& /*time*/) const
 {
 	// port A is normally an output on MSX, reading from an output port
 	// is handled internally in the 8255

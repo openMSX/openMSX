@@ -18,10 +18,6 @@ inline uint V9990CmdEngine::V9990Bpp2::addressOf(int x, int y, int imageWidth)
 	return ((x/PIXELS_PER_BYTE) % imageWidth) + y * imageWidth;
 }
 
-inline byte V9990CmdEngine::V9990Bpp2::writeMask(int x) {
-	return (byte) (~x & ADDRESS_MASK);
-}
-
 inline word V9990CmdEngine::V9990Bpp2::shiftDown(word value, int x)
 {
 	int  shift = (~x & 7) * BITS_PER_PIXEL;
@@ -51,10 +47,6 @@ inline void V9990CmdEngine::V9990Bpp2::pset(V9990VRAM* vram,
 inline uint V9990CmdEngine::V9990Bpp4::addressOf(int x, int y, int imageWidth)
 {
 	return ((x/PIXELS_PER_BYTE) % imageWidth) + y * imageWidth;
-}
-
-inline byte V9990CmdEngine::V9990Bpp4::writeMask(int x) {
-	return 0x00;
 }
 
 inline word V9990CmdEngine::V9990Bpp4::shiftDown(word value, int x)
@@ -88,10 +80,6 @@ inline uint V9990CmdEngine::V9990Bpp8::addressOf(int x, int y, int imageWidth)
 	return ((x/PIXELS_PER_BYTE) % imageWidth) + y * imageWidth;
 }
 
-inline byte V9990CmdEngine::V9990Bpp8::writeMask(int x) {
-	return 0x00;
-}
-
 inline word V9990CmdEngine::V9990Bpp8::shiftDown(word value, int x)
 {
 	return (x & 1) ? value >> 8 : value & 0xFF;
@@ -118,11 +106,7 @@ inline uint V9990CmdEngine::V9990Bpp16::addressOf(int x, int y, int imageWidth)
 	return ((x % imageWidth) + y * imageWidth) << 1;
 }
 
-inline byte V9990CmdEngine::V9990Bpp16::writeMask(int x) {
-	return 0x00;
-}
-
-inline word V9990CmdEngine::V9990Bpp16::shiftDown(word value, int x)
+inline word V9990CmdEngine::V9990Bpp16::shiftDown(word value, int /*x*/)
 {
 	return value;
 }
@@ -187,7 +171,7 @@ V9990CmdEngine::~V9990CmdEngine()
 	}
 }
 
-void V9990CmdEngine::reset(const EmuTime& time)
+void V9990CmdEngine::reset(const EmuTime& /*time*/)
 {
 	currentCommand = NULL;
 	status = 0;
@@ -345,12 +329,12 @@ V9990CmdEngine::CmdSTOP::CmdSTOP(V9990CmdEngine* engine_,
 {
 }
 
-void V9990CmdEngine::CmdSTOP::start(const EmuTime& time)
+void V9990CmdEngine::CmdSTOP::start(const EmuTime& /*time*/)
 {
 	engine->cmdReady();
 }
 
-void V9990CmdEngine::CmdSTOP::execute(const EmuTime& time)
+void V9990CmdEngine::CmdSTOP::execute(const EmuTime& /*time*/)
 {
 }
 
@@ -365,7 +349,7 @@ V9990CmdEngine::CmdLMMC<Mode>::CmdLMMC(V9990CmdEngine* engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLMMC<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdLMMC<Mode>::start(const EmuTime& /*time*/)
 {
 	if (Mode::BITS_PER_PIXEL == 16) {
 		engine->dstAddress = Mode::addressOf(engine->DX,
@@ -378,7 +362,8 @@ void V9990CmdEngine::CmdLMMC<Mode>::start(const EmuTime& time)
 }
 
 template <>
-void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(
+	const EmuTime& /*time*/)
 {
 	if (engine->status & TR) {
 		engine->status &= ~TR;
@@ -410,7 +395,7 @@ void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime&
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLMMC<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdLMMC<Mode>::execute(const EmuTime& /*time*/)
 {
 	if (engine->status & TR) {
 		engine->status &= ~TR;
@@ -461,7 +446,7 @@ void V9990CmdEngine::CmdLMMV<Mode>::start(const EmuTime& time)
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLMMV<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdLMMV<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO can be optimized a lot
 	
@@ -505,14 +490,14 @@ V9990CmdEngine::CmdLMCM<Mode>::CmdLMCM(V9990CmdEngine* engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLMCM<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdLMCM<Mode>::start(const EmuTime& /*time*/)
 {
 	std::cout << "V9990: LMCM not yet implemented" << std::endl;
 	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLMCM<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdLMCM<Mode>::execute(const EmuTime& /*time*/)
 {
 }
 
@@ -537,7 +522,7 @@ void V9990CmdEngine::CmdLMMM<Mode>::start(const EmuTime& time)
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLMMM<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdLMMM<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO can be optimized a lot
 	
@@ -584,7 +569,7 @@ V9990CmdEngine::CmdCMMC<Mode>::CmdCMMC(V9990CmdEngine* engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdCMMC<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdCMMC<Mode>::start(const EmuTime& /*time*/)
 {
 	engine->ANX = engine->NX;
 	engine->ANY = engine->NY;
@@ -592,7 +577,7 @@ void V9990CmdEngine::CmdCMMC<Mode>::start(const EmuTime& time)
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdCMMC<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdCMMC<Mode>::execute(const EmuTime& /*time*/)
 {
 	if (engine->status & TR) {
 		engine->status &= ~TR;
@@ -642,14 +627,14 @@ V9990CmdEngine::CmdCMMK<Mode>::CmdCMMK(V9990CmdEngine* engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdCMMK<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdCMMK<Mode>::start(const EmuTime& /*time*/)
 {
 	std::cout << "V9990: CMMK not yet implemented" << std::endl;
 	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdCMMK<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdCMMK<Mode>::execute(const EmuTime& /*time*/)
 {
 }
 
@@ -677,7 +662,7 @@ void V9990CmdEngine::CmdCMMM<Mode>::start(const EmuTime& time)
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdCMMM<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdCMMM<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO can be optimized a lot
 	
@@ -742,7 +727,8 @@ void V9990CmdEngine::CmdBMXL<Mode>::start(const EmuTime& time)
 }
 
 template <>
-void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(
+	const EmuTime& /*time*/)
 {
 	int width = engine->vdp->getImageWidth();
 	int dx = (engine->ARG & DIX) ? -1 : 1;
@@ -770,7 +756,7 @@ void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime&
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdBMXL<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdBMXL<Mode>::execute(const EmuTime& /*time*/)
 {
 	int width = engine->vdp->getImageWidth() / Mode::PIXELS_PER_BYTE;
 	int dx = (engine->ARG & DIX) ? -1 : 1;
@@ -824,7 +810,7 @@ void V9990CmdEngine::CmdBMLX<Mode>::start(const EmuTime& time)
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdBMLX<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdBMLX<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO lots of corner cases still go wrong
 	//      very dumb implementation, can be made much faster
@@ -891,7 +877,7 @@ void V9990CmdEngine::CmdBMLL<Mode>::start(const EmuTime& time)
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdBMLL<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdBMLL<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO DIX DIY?
 	//      Log op?
@@ -932,7 +918,7 @@ void V9990CmdEngine::CmdLINE<Mode>::start(const EmuTime& time)
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLINE<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdLINE<Mode>::execute(const EmuTime& /*time*/)
 {
 	int width = engine->vdp->getImageWidth();
 	if (Mode::PIXELS_PER_BYTE) {
@@ -1012,7 +998,7 @@ void V9990CmdEngine::CmdSRCH<Mode>::start(const EmuTime& time)
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdSRCH<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdSRCH<Mode>::execute(const EmuTime& /*time*/)
 {
 	int ppl = engine->vdp->getImageWidth();
 	int width = ppl;
@@ -1057,14 +1043,14 @@ V9990CmdEngine::CmdPOINT<Mode>::CmdPOINT(V9990CmdEngine* engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdPOINT<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdPOINT<Mode>::start(const EmuTime& /*time*/)
 {
 	std::cout << "V9990: POINT not yet implemented" << std::endl;
 	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdPOINT<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdPOINT<Mode>::execute(const EmuTime& /*time*/)
 {
 }
 
@@ -1079,7 +1065,7 @@ V9990CmdEngine::CmdPSET<Mode>::CmdPSET(V9990CmdEngine* engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdPSET<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdPSET<Mode>::start(const EmuTime& /*time*/)
 {
 	int width = engine->vdp->getImageWidth();
 	if (Mode::PIXELS_PER_BYTE) {
@@ -1099,7 +1085,7 @@ void V9990CmdEngine::CmdPSET<Mode>::start(const EmuTime& time)
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdPSET<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdPSET<Mode>::execute(const EmuTime& /*time*/)
 {
 }
 
@@ -1114,14 +1100,14 @@ V9990CmdEngine::CmdADVN<Mode>::CmdADVN(V9990CmdEngine* engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdADVN<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdADVN<Mode>::start(const EmuTime& /*time*/)
 {
 	std::cout << "V9990: ADVN not yet implemented" << std::endl;
 	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdADVN<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdADVN<Mode>::execute(const EmuTime& /*time*/)
 {
 }
 

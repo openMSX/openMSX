@@ -142,8 +142,8 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 }
 
 
-bool MSXRomCLI::IpsOption::parseOption(const string& option,
-                                       list<string>& cmdLine)
+bool MSXRomCLI::IpsOption::parseOption(const string& /*option*/,
+                                       list<string>& /*cmdLine*/)
 {
 	throw FatalError(
 		"-ips options should immediately follow a ROM or disk image.");
@@ -156,8 +156,8 @@ const string& MSXRomCLI::IpsOption::optionHelp() const
 	return text;
 }
 
-bool MSXRomCLI::RomTypeOption::parseOption(const string& option,
-                                       list<string>& cmdLine)
+bool MSXRomCLI::RomTypeOption::parseOption(const string& /*option*/,
+                                       list<string>& /*cmdLine*/)
 {
 	throw FatalError("-romtype options should immediately follow a ROM.");
 }

@@ -50,13 +50,13 @@ protected:
 		}
 	}
 
-	inline void PRE_RDMEM(word address)
+	inline void PRE_RDMEM(word /*address*/)
 	{
 		clock += 1;
 		lastPage = -1;
 	}
 
-	inline void PRE_WRMEM(word address)
+	inline void PRE_WRMEM(word /*address*/)
 	{
 		clock += 1;
 		lastPage = -1;

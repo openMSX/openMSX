@@ -8,19 +8,21 @@
 #include "Debugger.hh"
 #include "V9990.hh"
 #include "V9990VRAM.hh"
+#include "V9990VRAMObserver.hh"
+#include <algorithm>
 
 using std::string;
 using std::vector;
 
 namespace openmsx {
 
-static const char*    DEBUG_ID  = "V9990 VRAM";
-	
+static const char* const DEBUG_ID = "V9990 VRAM";
+
 // -------------------------------------------------------------------------
 // Constructor & Destructor
 // -------------------------------------------------------------------------
 
-V9990VRAM::V9990VRAM(V9990 *vdp_, const EmuTime& time)
+V9990VRAM::V9990VRAM(V9990* vdp_, const EmuTime& /*time*/)
 	: vdp(vdp_)
 {
 	data = new byte[VRAM_SIZE];
@@ -84,28 +86,25 @@ void V9990VRAM::writeVRAMInterleave(unsigned address, byte value)
 	data[interleave(address)] = value;
 }
 
-void V9990VRAM::addObserver(V9990VRAMObserver* observer)
+void V9990VRAM::addObserver(V9990VRAMObserver& observer)
 {
-	if(!observer) return;
-
-	for(V9990VRAMObservers::iterator it = observers.begin();
-		it != observers.end(); it++) {
-		if((*it) == observer)
-			return;
-	}
-	observers.push_back(observer);
+	assert(std::find(observers.begin(), observers.end(), &observer)
+	       == observers.end());
+	observers.push_back(&observer);
 }
 
-void V9990VRAM::removeObserver(V9990VRAMObserver* observer)
+void V9990VRAM::removeObserver(V9990VRAMObserver& observer)
 {
-	observers.erase(std::find(observers.begin(), observers.end(), observer));
+	assert(std::find(observers.begin(), observers.end(), &observer)
+	       != observers.end());
+	observers.erase(std::find(observers.begin(), observers.end(), &observer));
 }
 
 void V9990VRAM::notifyObservers(unsigned address)
 {
-	for(V9990VRAMObservers::iterator it = observers.begin();
-		it != observers.end(); it++) {
-		if((*it)->isInWindow(address)) {
+	for (V9990VRAMObservers::iterator it = observers.begin();
+	     it != observers.end(); ++it) {
+		if ((*it)->isInWindow(address)) {
 			(*it)->updateVRAM(address);
 		}
 	}

@@ -10,9 +10,9 @@ class XMLElement;
 class XMLElementListener
 {
 public:
-	virtual void updateData(const XMLElement& element) {}
-	virtual void childAdded(const XMLElement& parent,
-	                        const XMLElement& child) {}
+	virtual void updateData(const XMLElement& /*element*/) {}
+	virtual void childAdded(const XMLElement& /*parent*/,
+	                        const XMLElement& /*child*/) {}
 protected:
 	virtual ~XMLElementListener() {}
 };

@@ -42,7 +42,7 @@ byte MSXAudio::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
-byte MSXAudio::peekIO(byte port, const EmuTime& time) const
+byte MSXAudio::peekIO(byte /*port*/, const EmuTime& /*time*/) const
 {
 	// TODO not implemented
 	return 0xFF;

@@ -158,11 +158,11 @@ word* Darkener<word>::getTable()
 }
 
 
-Darkener<unsigned>::Darkener(SDL_PixelFormat* format)
+Darkener<unsigned>::Darkener(SDL_PixelFormat* /*format*/)
 {
 }
 
-void Darkener<unsigned>::setFactor(unsigned f)
+void Darkener<unsigned>::setFactor(unsigned /*f*/)
 {
 	assert(false);
 }

@@ -144,7 +144,7 @@ string SettingsConfig::LoadSettingsCommand::execute(
 }
 
 string SettingsConfig::LoadSettingsCommand::help(
-	const vector<string>& tokens) const
+	const vector<string>& /*tokens*/) const
 {
 	return "Load settings from given file.";
 }

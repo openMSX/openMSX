@@ -45,7 +45,7 @@ byte MicrosolFDC::readIO(byte port, const EmuTime& time)
 	return value;
 }
 
-byte MicrosolFDC::peekIO(byte port, const EmuTime& time) const
+byte MicrosolFDC::peekIO(byte /*port*/, const EmuTime& /*time*/) const
 {
 	// TODO peekIO not implemented
 	return 0xFF;

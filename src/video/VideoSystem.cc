@@ -12,7 +12,7 @@ VideoSystem::~VideoSystem()
 {
 }
 
-Rasterizer* VideoSystem::createRasterizer(VDP* vdp)
+Rasterizer* VideoSystem::createRasterizer(VDP* /*vdp*/)
 {
 	assert(false);
 	return 0;

@@ -713,7 +713,7 @@ byte VDP::readIO(byte port, const EmuTime& time)
 	}
 }
 
-byte VDP::peekIO(byte port, const EmuTime& time) const
+byte VDP::peekIO(byte /*port*/, const EmuTime& /*time*/) const
 {
 	// TODO not implemented
 	return 0xFF;

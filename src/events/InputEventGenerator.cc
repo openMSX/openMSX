@@ -234,7 +234,7 @@ InputEventGenerator::EscapeGrabCmd::EscapeGrabCmd(InputEventGenerator& parent_)
 {
 }
 
-string InputEventGenerator::EscapeGrabCmd::execute(const vector<string>& tokens)
+string InputEventGenerator::EscapeGrabCmd::execute(const vector<string>& /*tokens*/)
 {
 	if (parent.grabInput->getValue()) {
 		parent.escapeGrabState = ESCAPE_GRAB_WAIT_LOST;
@@ -243,7 +243,7 @@ string InputEventGenerator::EscapeGrabCmd::execute(const vector<string>& tokens)
 	return "";
 }
 
-string InputEventGenerator::EscapeGrabCmd::help(const vector<string>& tokens) const
+string InputEventGenerator::EscapeGrabCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Temporarily release input grab.";
 }

@@ -8,14 +8,14 @@
 #include "openmsx.hh"
 #include "Debuggable.hh"
 #include "V9990ModeEnum.hh"
-#include "V9990VRAMObserver.hh"
 
 namespace openmsx {
 
-typedef	std::vector<V9990VRAMObserver *> V9990VRAMObservers;
-
 class EmuTime;
 class V9990;
+class V9990VRAMObserver;
+
+typedef std::vector<V9990VRAMObserver*> V9990VRAMObservers;
 
 /** Video RAM for the V9990.
   */
@@ -39,7 +39,7 @@ public:
 	/** Update VRAM state to specified moment in time.
 	  * @param time Moment in emulated time to synchronise VRAM to
 	  */
-	inline void sync(const EmuTime& time) {
+	inline void sync(const EmuTime& /*time*/) {
 		// not much to do, yet
 	}
 
@@ -59,12 +59,12 @@ public:
 	/** Add an observer to a window of the VRAM
 	  * @param observer  The observer
 	  */ 
-	void addObserver(V9990VRAMObserver* observer);
+	void addObserver(V9990VRAMObserver& observer);
 
 	/** Remove an observer
 	  * @param observer  Observer to be removed
 	  */
-	void removeObserver(V9990VRAMObserver* observer);
+	void removeObserver(V9990VRAMObserver& observer);
 
 private:
 	// Debuggable:

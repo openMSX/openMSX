@@ -66,7 +66,7 @@ bool Alarm::pending() const
 	return result;
 }
 
-unsigned Alarm::helper(unsigned interval, void* param)
+unsigned Alarm::helper(unsigned /*interval*/, void* param)
 {
 	// At this position there is a race condition:
 	//   if the timer thread is suspended before the lock is taken and

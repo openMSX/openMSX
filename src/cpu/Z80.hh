@@ -17,7 +17,7 @@ protected:
 	static const int MEM_DELAY2 = 2;
 	static const int WAIT_CYCLES = 1;
 
-	Z80TYPE(const EmuTime& time)
+	Z80TYPE(const EmuTime& /*time*/)
 	{
 	}
 
@@ -40,17 +40,17 @@ protected:
 	inline void SMALL_DELAY()    { clock += 1; }  // TODO more detailed?
 	inline int haltStates() { return 4 + WAIT_CYCLES; } // HALT + M1
 
-	inline void PRE_RDMEM_OPCODE(word address)
+	inline void PRE_RDMEM_OPCODE(word /*address*/)
 	{
 		// nothing
 	}
 
-	inline void PRE_RDMEM(word address)
+	inline void PRE_RDMEM(word /*address*/)
 	{
 		// nothing
 	}
 
-	inline void PRE_WRMEM(word address)
+	inline void PRE_WRMEM(word /*address*/)
 	{
 		// nothing
 	}

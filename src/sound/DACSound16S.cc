@@ -35,7 +35,7 @@ void DACSound16S::setVolume(int newVolume)
 	volume = newVolume;
 }
 
-void DACSound16S::setSampleRate(int sampleRate)
+void DACSound16S::setSampleRate(int /*sampleRate*/)
 {
 	// nothing
 }

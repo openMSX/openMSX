@@ -12,7 +12,7 @@ DummyFont::DummyFont()
 }
 
 void DummyFont::drawText(const std::string& /*str*/, int /*x*/, int /*y*/,
-                         byte alpha)
+                         byte /*alpha*/)
 {
 	// do nothing
 }

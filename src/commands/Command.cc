@@ -8,8 +8,10 @@ using std::string;
 
 namespace openmsx {
 
-void Command::tabCompletion(std::vector<std::string>& tokens) const
-{ /* do nothing */ }
+void Command::tabCompletion(vector<string>& /*tokens*/) const
+{
+	// do nothing
+}
 
 void SimpleCommand::execute(const vector<CommandArgument>& tokens,
                             CommandArgument& result)

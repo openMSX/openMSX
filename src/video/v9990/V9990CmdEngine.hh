@@ -77,7 +77,6 @@ private:
 		static const word PIXELS_PER_BYTE = 4;
 		static const word ADDRESS_MASK    = 0x0003;
 		static inline uint addressOf(int x, int y, int imageWidth);
-		static inline byte writeMask(int x);
 		static inline word shiftDown(word data, int x);
 		static inline word point(V9990VRAM* vram, 
 		                         int x, int y, int imageWidth);
@@ -93,7 +92,6 @@ private:
 		static const word PIXELS_PER_BYTE = 2;
 		static const word ADDRESS_MASK    = 0x0001;
 		static inline uint addressOf(int x, int y, int imageWidth);
-		static inline byte writeMask(int x);
 		static inline word shiftDown(word data, int x);
 		static inline word point(V9990VRAM* vram, 
 		                         int x, int y, int imageWidth);
@@ -109,7 +107,6 @@ private:
 		static const word PIXELS_PER_BYTE = 1;
 		static const word ADDRESS_MASK    = 0x0000;
 		static inline uint addressOf(int x, int y, int imageWidth);
-		static inline byte writeMask(int x);
 		static inline word shiftDown(word data, int x);
 		static inline word point(V9990VRAM* vram, 
 		                         int x, int y, int imageWidth);
@@ -125,7 +122,6 @@ private:
 		static const word PIXELS_PER_BYTE = 0;
 		static const word ADDRESS_MASK    = 0x0000;
 		static inline uint addressOf(int x, int y, int imageWidth);
-		static inline byte writeMask(int x);
 		static inline word shiftDown(word data, int x);
 		static inline word point(V9990VRAM* vram, 
 		                         int x, int y, int imageWidth);

@@ -384,7 +384,7 @@ void V9990BitmapConverter<Pixel, zoom>::blend_8on3(
 
 template <class Pixel, Renderer::Zoom zoom>
 void V9990BitmapConverter<Pixel, zoom>::blend_none(
-	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
+	const Pixel* /*inPixels*/, Pixel* outPixels, int nrPixels)
 {
 	memset(outPixels, 0, nrPixels * sizeof(Pixel));
 }

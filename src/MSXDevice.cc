@@ -158,7 +158,7 @@ void MSXDevice::reset(const EmuTime& /*time*/)
 	// nothing
 }
 
-void MSXDevice::powerDown(const EmuTime& time)
+void MSXDevice::powerDown(const EmuTime& /*time*/)
 {
 	// nothing
 }

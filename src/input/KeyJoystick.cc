@@ -143,13 +143,13 @@ bool KeyJoystick::signalEvent(const Event& event)
 }
 
 // XMLElementListener
-void KeyJoystick::updateData(const XMLElement& element)
+void KeyJoystick::updateData(const XMLElement& /*element*/)
 {
 	readKeys();
 }
 
-void KeyJoystick::childAdded(const XMLElement& parent,
-                             const XMLElement& child)
+void KeyJoystick::childAdded(const XMLElement& /*parent*/,
+                             const XMLElement& /*child*/)
 {
 	readKeys();
 }

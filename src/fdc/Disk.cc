@@ -44,7 +44,7 @@ byte Disk::readTrackData()
 	return 0xF4;
 }
 
-void Disk::applyPatch(const std::string& patchFile)
+void Disk::applyPatch(const std::string& /*patchFile*/)
 {
 	throw MSXException("Patching of this disk image format not supported.");
 }

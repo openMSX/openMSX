@@ -61,18 +61,16 @@ V9990P2Converter<Pixel, zoom>::~V9990P2Converter()
 
 template <class Pixel, Renderer::Zoom zoom>
 void V9990P2Converter<Pixel, zoom>::convertLine(
-		Pixel* linePtr, int displayX, int displayWidth, int displayY)
+	Pixel* linePtr, int displayX, int /*displayWidth*/, int displayY)
 {
-	int i = 0;
-	
 	displayX = displayX + vdp->getScrollAX();
 	displayY = displayY + vdp->getScrollAY();
 	
-	for(i = 0; i < 256; i++) {
+	for (int i = 0; i < 256; ++i) {
 		Pixel pix1 = raster(displayX++, displayY, 0x7C000, 0x00000);
 		Pixel pix2 = raster(displayX++, displayY, 0x7C000, 0x00000);
 		
-		if(zoom == Renderer::ZOOM_REAL) {
+		if (zoom == Renderer::ZOOM_REAL) {
 			*linePtr++ = pix1;
 			*linePtr++ = pix2;
 		} else {

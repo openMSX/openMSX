@@ -35,7 +35,7 @@ void MSXPSG::reset(const EmuTime& time)
 	ay8910->reset(time);
 }
 
-void MSXPSG::powerDown(const EmuTime& time)
+void MSXPSG::powerDown(const EmuTime& /*time*/)
 {
 	EventDistributor::instance().distributeEvent(
 		new LedEvent(LedEvent::KANA, false));

@@ -198,12 +198,12 @@ void Display::addLayer(Layer* layer)
 	layer->display = this;
 }
 
-void Display::updateCoverage(Layer* layer, Layer::Coverage coverage)
+void Display::updateCoverage(Layer* /*layer*/, Layer::Coverage /*coverage*/)
 {
 	// Do nothing.
 }
 
-void Display::updateZ(Layer* layer, Layer::ZIndex z)
+void Display::updateZ(Layer* layer, Layer::ZIndex /*z*/)
 {
 	// Remove at old Z-index...
 	layers.erase(std::find(layers.begin(), layers.end(), layer));

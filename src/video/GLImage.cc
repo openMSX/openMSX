@@ -10,7 +10,7 @@ using std::string;
 
 namespace openmsx {
 
-GLImage::GLImage(SDL_Surface* output, const string& filename)
+GLImage::GLImage(SDL_Surface* /*output*/, const string& filename)
 {
 	texture = loadTexture(filename, width, height, texCoord);
 }

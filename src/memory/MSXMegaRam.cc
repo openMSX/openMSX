@@ -136,7 +136,7 @@ byte MSXMegaRam::peekIO(byte /*port*/, const EmuTime& /*time*/) const
 	return 0xFF;
 }
 
-void MSXMegaRam::writeIO(byte port, byte value, const EmuTime& /*time*/)
+void MSXMegaRam::writeIO(byte port, byte /*value*/, const EmuTime& /*time*/)
 {
 	switch (port) {
 		case 0x8E:

@@ -310,7 +310,7 @@ void TC8566AF::writeReg(int reg, byte data, const EmuTime& time)
 	}
 }
 
-void TC8566AF::writeDataIdlePhase(byte data, const EmuTime& time)
+void TC8566AF::writeDataIdlePhase(byte data, const EmuTime& /*time*/)
 {
 	Command = CMD_UNKNOWN;
 	if ((data & 0x1f) == 0x06) Command = CMD_READ_DATA;
@@ -550,7 +550,7 @@ void TC8566AF::writeDataCommandPhase(byte data, const EmuTime& time)
 	}
 }
 
-void TC8566AF::writeDataTransferPhase(byte data, const EmuTime& time)
+void TC8566AF::writeDataTransferPhase(byte data, const EmuTime& /*time*/)
 {
 	switch (Command) {
 	case CMD_WRITE_DATA:

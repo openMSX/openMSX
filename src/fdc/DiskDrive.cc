@@ -82,7 +82,7 @@ int DummyDrive::indexPulseCount(const EmuTime& /*begin*/,
 	return 0;
 }
 
-EmuTime DummyDrive::getTimeTillSector(byte sector, const EmuTime& time)
+EmuTime DummyDrive::getTimeTillSector(byte /*sector*/, const EmuTime& time)
 {
 	return time;
 }

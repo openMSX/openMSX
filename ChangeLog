@@ -1,6 +1,9 @@
 $Id$
 
 2005-02-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed warnings while compiling with -Wextra (all harmless)
+
+2005-02-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* video code was not exception safe, fixed it:
 	   - when an excpetion was thrown some objects were not deleted or
 	     even deleted twice

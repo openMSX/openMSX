@@ -30,7 +30,7 @@ protected:
 	
 	std::string toString(T value) const;
 	T fromString(const std::string& str) const;
-	virtual void checkSetValue(T& value) const { }
+	virtual void checkSetValue(T& value) const;
 	void tabCompletion(std::vector<std::string>& tokens) const;
 	
 private:
@@ -109,6 +109,11 @@ T EnumSettingPolicy<T>::fromString(const std::string& str) const
 		throw CommandException("not a valid value: " + str);
 	}
 	return it->second;
+}
+
+template<typename T>
+void EnumSettingPolicy<T>::checkSetValue(T& /*value*/) const
+{
 }
 
 template<typename T>
