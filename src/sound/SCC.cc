@@ -20,6 +20,7 @@ SCC::~SCC()
 {
 	PRT_DEBUG("Destructing an SCC object");
 	Mixer::instance()->unregisterSound(this);
+	delete[] buffer;
 }
 
 byte SCC::readMemInterface(byte address,const EmuTime &time)
@@ -242,7 +243,7 @@ void SCC::setInternalVolume(short maxVolume)
 
 int *SCC::updateBuffer(int length)
 {
-	PRT_DEBUG("SCC: updateBuffer called ");
+	PRT_DEBUG("SCC: updateBuffer called");
 	if (isInternalMuted()) {
 		PRT_DEBUG("SCC: muted");
 		return NULL;
