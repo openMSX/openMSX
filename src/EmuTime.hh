@@ -22,10 +22,10 @@ public:
 	friend class EmuTime;
 
 	// constructors
-	EmuDuration()                  { time = 0; }
-	explicit EmuDuration(uint64 n) { time = n; }
+	EmuDuration()                  : time(0) {}
+	explicit EmuDuration(uint64 n) : time(n) {}
 	explicit EmuDuration(double duration)
-		{ time = (uint64)(duration * MAIN_FREQ); }
+		: time((uint64)(duration * MAIN_FREQ)) {}
 
 	// conversions
 	float toFloat() const { return (float)time / MAIN_FREQ; }
@@ -79,9 +79,9 @@ public:
 	friend class DynamicClock;
 
 	// constructors
-	EmuTime()                  { time = 0; }
-	explicit EmuTime(uint64 n) { time = n; }
-	EmuTime(const EmuTime& e)  { time = e.time; }
+	EmuTime()                  : time(0) {}
+	explicit EmuTime(uint64 n) : time(n) {}
+	EmuTime(const EmuTime& e)  : time(e.time) {}
 
 	// destructor
 	virtual ~EmuTime();
