@@ -4,11 +4,11 @@
   <device id="FM PAC">
     <type>FM-PAC</type>
     <slotted><ps>-1</ps><ss>-1</ss><page>1</page></slotted>
-    <parameter name="filename">roms/FMPAC.ROM</parameter>
+    <parameter name="filename">fmpac.rom</parameter>
     <parameter name="volume">13000</parameter>
     <parameter name="mode">mono</parameter>
     <parameter name="loadsram">true</parameter>
     <parameter name="savesram">true</parameter>
-    <parameter name="sramname">FMPAC.PAC</parameter>
+    <parameter name="sramname">fmpac.pac</parameter>
   </device>
 </msxconfig>
