@@ -55,14 +55,14 @@ const string FileContext::resolve(const vector<string>& pathList,
                                   const string& filename)
 {
 	// TODO handle url-protocols better
-	
+
 	PRT_DEBUG("Context: " << filename);
 	if ((filename.find("://") != string::npos) ||
 	    FileOperations::isAbsolutePath(filename)) {
 		// protocol specified or absolute path, don't resolve
 		return filename;
 	}
-	
+
 	for (vector<string>::const_iterator it = pathList.begin();
 	     it != pathList.end();
 	     ++it) {
@@ -217,6 +217,7 @@ const vector<string> &UserFileContext::getPaths()
 {
 	if (!alreadyInit) {
 		alreadyInit = true;
+		paths.push_back("./");
 		try {
 			Config* config = MSXConfig::instance().
 				getConfigById("UserDirectories");
@@ -236,7 +237,6 @@ const vector<string> &UserFileContext::getPaths()
 		} catch (ConfigException &e) {
 			// no UserDirectories specified
 		}
-		paths.push_back("./");
 	}
 	return paths;
 }
