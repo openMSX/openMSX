@@ -56,8 +56,8 @@ Mixer::Mixer()
 Mixer::~Mixer()
 {
 	if (init) {
-		delete[] mixBuffer;
 		SDL_CloseAudio();
+		delete[] mixBuffer;
 	}
 }
 

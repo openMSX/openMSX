@@ -89,7 +89,7 @@ MSXRom* RomFactory::create(Device* config, const EmuTime &time)
 		case HALNOTE:
 			return new RomHalnote(config, time);
 		default:
-			PRT_DEBUG("Unknown mapper type");
+			PRT_ERROR("Unknown mapper type");
 			return NULL;
 	}
 }
