@@ -3,21 +3,14 @@
 #include "DACSound16S.hh"
 #include "Mixer.hh"
 #include "MSXCPU.hh"
-#include "RealTime.hh"
 
 namespace openmsx {
 
-const double DELAY = 0.08;	// TODO tune
-
 DACSound16S::DACSound16S(const string& name_, const string& desc_,
-                         const XMLElement& config, const EmuTime& time)
-	: name(name_), desc(desc_),
-	  cpu(MSXCPU::instance()),
-	  realTime(RealTime::instance())
+                         const XMLElement& config, const EmuTime& /*time*/)
+	: name(name_), desc(desc_)
 {
-	lastValue = lastWrittenValue = 0;
-	nextTime = EmuTime::infinity;
-	reset(time);
+	lastWrittenValue = sample = 0;
 	registerSound(config);
 }
 
@@ -43,7 +36,7 @@ void DACSound16S::setVolume(int newVolume)
 
 void DACSound16S::setSampleRate(int sampleRate)
 {
-	oneSampDur = 1.0 / sampleRate;
+	// nothing
 }
 
 void DACSound16S::reset(const EmuTime& time)
@@ -56,64 +49,17 @@ void DACSound16S::writeDAC(short value, const EmuTime& time)
 	if (value == lastWrittenValue) {
 		return;
 	}
+	Mixer::instance().updateStream(time);
 	lastWrittenValue = value;
-	if ((value != 0) && (isMuted())) {
-		EmuDuration delay = realTime.getEmuDuration(DELAY);
-		lastTime = time - delay;
-		setMute(false);
-	}
-	samples.push_back(Sample((volume * value) >> 15, time));
-	if (nextTime == EmuTime::infinity) {
-		nextTime = time;
-	}
-}
-
-inline int DACSound16S::getSample(const EmuTime& time)
-{
-	while (nextTime < time) {
-		assert(!samples.empty());
-		lastValue = samples.front().value;
-		samples.pop_front();
-		if (samples.empty()) {
-			nextTime = EmuTime::infinity;
-			if (lastWrittenValue == 0) {
-				setMute(true);
-			}
-		} else {
-			nextTime = samples.front().time;
-		}
-	}
-	return lastValue;
+	sample = (value * volume) >> 15;
+	setMute(value == 0);
 }
 
 int* DACSound16S::updateBuffer(int length)
 {
-	EmuTime now = cpu.getCurrentTimeUnsafe(); // can be one instruction off
-	assert(lastTime <= now);
-	EmuDuration total = now - lastTime;
-
-	double realDuration = length * oneSampDur;
-	EmuDuration duration1 = realTime.getEmuDuration(realDuration);
-	if ((lastTime + duration1) > now) {
-		duration1 = total;
-	}
-	
-	EmuDuration delay = realTime.getEmuDuration(DELAY);
-	if (now < (lastTime + delay)) {
-		delay = total;
-	}
-
-	uint64 a = duration1.length();
-	uint64 b = delay.length();
-	uint64 c = total.length();
-	EmuDuration duration = ((a + b) != 0) ?
-	                  EmuDuration((uint64)((c * a) / (length * (a + b)))) :
-	                  EmuDuration((uint64)0);
-
 	int* buf = buffer;
 	while (length--) {
-		lastTime += duration;
-		*(buf++) = getSample(lastTime);
+		*(buf++) = sample;
 	}
 	return buffer;
 }

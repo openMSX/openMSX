@@ -15,6 +15,7 @@
 #include "SettingListener.hh"
 #include "InfoTopic.hh"
 #include "EnumSetting.hh"
+#include "Schedulable.hh"
 
 namespace openmsx {
 
@@ -28,7 +29,7 @@ class VolumeSetting;
 class IntegerSetting;
 class BooleanSetting;
 
-class Mixer : private SettingListener
+class Mixer : private Schedulable, private SettingListener
 {
 public:
 	static const int MAX_VOLUME = 32767;
@@ -79,22 +80,27 @@ public:
 	 */
 	void mute();
 	void unmute();
-
+	
 private:
 	Mixer();
 	virtual ~Mixer();
 
-	void reInit();
-	void updtStrm(int samples);
+	void updtStrm(unsigned samples);
+	void updtStrm2(unsigned samples);
 	static void audioCallbackHelper(void* userdata, Uint8* stream, int len);
-	void audioCallback(short* stream);
+	void audioCallback(short* stream, unsigned len);
 	void muteHelper();
 	
 	void updateMasterVolume(int masterVolume);
+	void reInit();
 
 	// SettingListener
 	virtual void update(const SettingLeafNode* setting);
 
+	// Schedulable
+	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual const string& schedName() const;
+	
 	SoundDevice* getSoundDevice(const string& name);
 
 	bool init;
@@ -113,9 +119,11 @@ private:
 	vector<int*> buffers;
 
 	short* mixBuffer;
-	int samplesLeft;
-	int offset;
+	unsigned bufferSize;
+	unsigned readPtr, writePtr;
 	EmuTime prevTime;
+	EmuDuration interval1;
+	EmuDuration intervalAverage;
 
 	MSXCPU& cpu;
 	RealTime& realTime;
@@ -128,12 +136,11 @@ private:
 	auto_ptr<IntegerSetting> frequencySetting;
 	auto_ptr<IntegerSetting> samplesSetting;
 	BooleanSetting& pauseSetting;
+	IntegerSetting& speedSetting;
+	BooleanSetting& throttleSetting;
 
 	int prevLeft, outLeft;
 	int prevRight, outRight;
-#ifdef DEBUG_MIXER
-	int nbClipped;
-#endif
 
 	class SoundDeviceInfoTopic : public InfoTopic {
 	public:

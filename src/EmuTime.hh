@@ -53,8 +53,12 @@ public:
 	// arithmetic operators
 	const EmuDuration operator%(const EmuDuration& d) const
 		{ return EmuDuration(time % d.time); }
+	const EmuDuration operator+(const EmuDuration& d) const
+		{ return EmuDuration(time + d.time); }
 	const EmuDuration operator*(unsigned fact) const
 		{ return EmuDuration(time * fact); }
+	const EmuDuration operator/(unsigned fact) const
+		{ return EmuDuration(time / fact); }
 	unsigned operator/(const EmuDuration& d) const
 		{ return time / d.time; }
 	

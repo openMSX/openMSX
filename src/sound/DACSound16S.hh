@@ -5,13 +5,10 @@
 #ifndef __DACSOUND16S_HH__
 #define __DACSOUND16S_HH__
 
-#include <list>
 #include <string>
 #include "openmsx.hh"
 #include "SoundDevice.hh"
-#include "EmuTime.hh"
 
-using std::list;
 using std::string;
 
 namespace openmsx {
@@ -34,28 +31,12 @@ public:
 	virtual int* updateBuffer(int length);
 	
 private:
-	inline int getSample(const EmuTime& time);
-	
-	struct Sample {
-		Sample(int value_, const EmuTime& time_)
-			: value(value_), time(time_) {}
-		int value;
-		EmuTime time;
-	};
-	list<Sample> samples;
-
-	double oneSampDur;
-	int lastValue;
 	short lastWrittenValue;
-	EmuTime lastTime;
-	EmuTime nextTime;
+	int sample;
 	int volume;
 
 	const string name;
 	const string desc;
-
-	class MSXCPU& cpu;
-	class RealTime& realTime;
 };
 
 } // namespace openmsx

@@ -14,6 +14,7 @@
 #include "CommandLineParser.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
+#include "Scheduler.hh"
 
 using std::remove;
 
@@ -27,15 +28,13 @@ Mixer::Mixer()
 	, output(CliCommOutput::instance())
 	, infoCommand(InfoCommand::instance())
 	, pauseSetting(GlobalSettings::instance().getPauseSetting())
+	, speedSetting(GlobalSettings::instance().getSpeedSetting())
+	, throttleSetting(GlobalSettings::instance().getThrottleSetting())
 	, soundDeviceInfo(*this)
 {
 	init = false;
 	prevLeft = outLeft = 0;
 	prevRight = outRight = 0;
-#ifdef DEBUG_MIXER
-	nbClipped = 0;
-#endif
-	
 	muteSetting.reset(new BooleanSetting(
 		"mute", "(un)mute the emulation sound", false));
 	masterVolume.reset(new IntegerSetting(
@@ -45,6 +44,8 @@ Mixer::Mixer()
 	muteSetting->addListener(this);
 	masterVolume->addListener(this);
 	pauseSetting.addListener(this);
+	speedSetting.addListener(this);
+	throttleSetting.addListener(this);
 
 	if (!CommandLineParser::instance().wantSound()) {
 		return;
@@ -73,8 +74,14 @@ Mixer::Mixer()
 	
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) == 0) {
 		if (SDL_OpenAudio(&desired, &audioSpec) == 0) {
-			mixBuffer = new short[audioSpec.size / sizeof(short)];
+			bufferSize = 6 * audioSpec.size / (2 * sizeof(short));
+			mixBuffer = new short[2 * bufferSize];
+			memset(mixBuffer, 0, bufferSize * 2 * sizeof(short));
+			readPtr = writePtr = 0;
 			reInit();
+			prevTime = Scheduler::instance().getCurrentTime();
+			EmuDuration interval2 = interval1 * audioSpec.samples;
+			Scheduler::instance().setSyncPoint(prevTime + interval2, this);
 			init = true;
 		} else {
 			SDL_QuitSubSystem(SDL_INIT_AUDIO);
@@ -99,6 +106,8 @@ Mixer::~Mixer()
 		delete[] mixBuffer;
 	}
 	
+	throttleSetting.removeListener(this);
+	speedSetting.removeListener(this);
 	pauseSetting.removeListener(this);
 	masterVolume->removeListener(this);
 	muteSetting->removeListener(this);
@@ -179,49 +188,127 @@ void Mixer::unregisterSound(SoundDevice& device)
 }
 
 
-void Mixer::audioCallbackHelper (void* userdata, Uint8* strm, int /*len*/)
+void Mixer::audioCallbackHelper (void* userdata, Uint8* strm, int len)
 {
-	// len ignored
 	short *stream = (short*)strm;
-	((Mixer*)userdata)->audioCallback(stream);
+	((Mixer*)userdata)->audioCallback(stream, len / (2 * sizeof(short)));
 }
 
-void Mixer::audioCallback(short* stream)
+void Mixer::audioCallback(short* stream, unsigned len)
 {
-	updtStrm(samplesLeft);
-	memcpy(stream, mixBuffer, audioSpec.size);
-	reInit();
+	unsigned available = (readPtr <= writePtr)
+	                   ? writePtr - readPtr
+	                   : writePtr - readPtr + bufferSize;
+	
+	if (available < ( 3 * bufferSize / 8)) {
+		int missing = len - available;
+		if (missing <= 0) {
+			// 1/4 full, speed up a little
+			if (interval1.length() > 100) { // may not become 0
+				interval1 /= 1.005;
+			}
+			//cout << "Mixer: low      " << available << '/' << len << ' '
+			//     << 1.0 / interval1.toDouble() << endl;
+		} else {
+			// buffer underrun
+			if (interval1.length() > 100) { // may not become 0
+				interval1 /= 1.01;
+			}
+			//cout << "Mixer: underrun " << available << '/' << len << ' '
+			//     << 1.0 / interval1.toDouble() << endl;
+			updtStrm2(missing);
+		}
+		EmuDuration minDuration = (intervalAverage * 63) / 64;
+		if (interval1 < minDuration) {
+			interval1 = minDuration;
+			//cout << "Mixer: clipped  " << available << '/' << len << ' '
+			//     << 1.0 / interval1.toDouble() << endl;
+		}
+	}
+	if ((readPtr + len) < bufferSize) {
+		memcpy(stream, &mixBuffer[2 * readPtr], len * 2 * sizeof(short));
+		readPtr += len;
+	} else {
+		unsigned len1 = bufferSize - readPtr;
+		memcpy(stream, &mixBuffer[2 * readPtr], len1 * 2 * sizeof(short));
+		unsigned len2 = len - len1;
+		memcpy(&stream[2 * len1], mixBuffer, len2 * 2 * sizeof(short));
+		readPtr = len2;
+	}
+	intervalAverage = (intervalAverage * 63 + interval1) / 64;
 }
 
-void Mixer::reInit()
+
+void Mixer::executeUntil(const EmuTime& time, int /*userData*/)
 {
-	samplesLeft = audioSpec.samples;
-	offset = 0;
-	prevTime = cpu.getCurrentTimeUnsafe(); // !! can be one instruction off
+	if (!muteCount) {
+		// TODO not schedule at all if muted
+		updateStream(time);
+	}
+	EmuDuration interval2 = interval1 * audioSpec.samples;
+	Scheduler::instance().setSyncPoint(time + interval2, this);
 }
+
+const string& Mixer::schedName() const
+{
+	static const string NAME = "mixer";
+	return NAME;
+}
+
 
 void Mixer::updateStream(const EmuTime& time)
 {
 	if (!init) return;
 
-	if (prevTime < time) {
-		double duration = realTime.getRealDuration(prevTime, time);
-		//PRT_DEBUG("Mix: update, duration " << duration << "s");
-		assert(duration >= 0);
-		prevTime = time;
-		lock();
-		updtStrm((int)(audioSpec.freq * duration));
-		unlock();
-	}
-}
-void Mixer::updtStrm(int samples)
-{
-	if (samples > samplesLeft)
-		samples = samplesLeft;
-	if (samples == 0)
+	assert(prevTime <= time);
+	EmuDuration duration = time - prevTime;
+	unsigned samples = duration / interval1;
+	if (samples == 0) {
 		return;
-	//PRT_DEBUG("Mix: Generate " << samples << " samples");
+	}
+	prevTime += interval1 * samples;
+	
+	lock();
+	updtStrm(samples);
+	unlock();
+	
+}
+void Mixer::updtStrm(unsigned samples)
+{
+	if (samples > audioSpec.samples) {
+		samples = audioSpec.samples;
+	}
+	
+	unsigned available = (readPtr <= writePtr)
+	                   ? writePtr - readPtr
+	                   : writePtr - readPtr + bufferSize;
+	available += samples;
+	if (available > (7 * bufferSize / 8)) {
+		int overflow = available - (bufferSize - 1);
+		if (overflow <= 0) {
+			// 7/8 full slow down a bit
+			interval1 *= 1.005;
+			//cout << "Mixer: high     " << available << '/' << bufferSize << ' '
+			//     << 1.0 / interval1.toDouble() << endl;
+		} else {
+			// buffer overrun
+			interval1 *= 1.01;
+			//cout << "Mixer: overrun  " << available << '/' << bufferSize << ' '
+			//     << 1.0 / interval1.toDouble() << endl;
+			samples -= overflow;
+		}
+		EmuDuration maxDuration = (intervalAverage * 65) / 64;
+		if (interval1 > maxDuration) {
+			interval1 = maxDuration;
+			//cout << "Mixer: clipped  " << available << '/' << bufferSize << ' '
+			//     << 1.0 / interval1.toDouble() << endl;
+		}
+	}
+	updtStrm2(samples);
+}
 
+void Mixer::updtStrm2(unsigned samples)
+{
 	int modeOffset[NB_MODES];
 	int unmuted = 0;
 	for (int mode = 0; mode < NB_MODES -1; mode++) { // -1 for OFF mode
@@ -235,7 +322,8 @@ void Mixer::updtStrm(int samples)
 			}
 		}
 	}
-	for (int j = 0; j < samples; ++j) {
+
+	for (unsigned j = 0; j < samples; ++j) {
 		int buf = 0;
 		int both = 0;
 		while (buf < modeOffset[MONO+1]) {
@@ -266,35 +354,28 @@ void Mixer::updtStrm(int samples)
 		prevRight = right;
 		
 		// clip
-		#ifdef DEBUG_MIXER
-		if ((outleft  > 32767) || (outleft  < -32768) ||
-		    (outright > 32767) || (outright < -32768)) {
-			nbClipped++;
-			PRT_DEBUG("Mixer: clipped " << nbClipped);
-		}
-		#endif
 		if      (outLeft  > 32767)  outLeft  =  32767;
 		else if (outLeft  < -32768) outLeft  = -32768;
 		if      (outRight > 32767)  outRight =  32767;
 		else if (outRight < -32768) outRight = -32768;
 
-		mixBuffer[offset++] = (short)outLeft;
-		mixBuffer[offset++] = (short)outRight;
+		mixBuffer[2 * writePtr + 0] = (short)outLeft;
+		mixBuffer[2 * writePtr + 1] = (short)outRight;
+		if (++writePtr == bufferSize) {
+			writePtr = 0;
+		}
 	}
-	samplesLeft -= samples;
 }
 
 void Mixer::lock()
 {
 	if (!init) return;
-
 	SDL_LockAudio();
 }
 
 void Mixer::unlock()
 {
 	if (!init) return;
-
 	SDL_UnlockAudio();
 }
 
@@ -313,6 +394,14 @@ void Mixer::muteHelper()
 {
 	if (!init) return;
 	SDL_PauseAudio(buffers.size() == 0 ? 1 : muteCount);
+	reInit();
+}
+
+void Mixer::reInit()
+{
+	double percent = speedSetting.getValue();
+	interval1 = EmuDuration(percent / (audioSpec.freq * 100));
+	intervalAverage = EmuDuration(percent / (audioSpec.freq * 100));
 }
 
 void Mixer::update(const SettingLeafNode* setting)
@@ -328,6 +417,12 @@ void Mixer::update(const SettingLeafNode* setting)
 			mute();
 		} else {
 			unmute();
+		}
+	} else if (setting == &speedSetting) {
+		reInit();
+	} else if (setting == &throttleSetting) {
+		if (throttleSetting.getValue()) {
+			reInit();
 		}
 	} else if (setting == masterVolume.get()) {
 		updateMasterVolume(masterVolume->getValue());
