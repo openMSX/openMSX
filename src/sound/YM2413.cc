@@ -579,7 +579,7 @@ static byte inst_data[16 + 3][8] = {
 };
 
 YM2413::YM2413(const string& name_, const XMLElement& config, const EmuTime& time)
-	: rythm_mode(false), name(name_)
+	: rhythm_mode(false), name(name_)
 {
 	for (int i = 0; i < 16 + 3; ++i) {
 		patches[2 * i + 0] = Patch(0, inst_data[i]);
@@ -664,11 +664,11 @@ void YM2413::keyOff_SD() { ch[7].car.slotOff(2); }
 void YM2413::keyOff_TOM(){ ch[8].mod.slotOff(2); }
 void YM2413::keyOff_CYM(){ ch[8].car.slotOff(2); }
 
-void YM2413::setRythmMode(int data)
+void YM2413::setRhythmMode(int data)
 {
 	bool newMode = (data & 32) != 0;
-	if (rythm_mode != newMode) {
-		rythm_mode = newMode;
+	if (rhythm_mode != newMode) {
+		rhythm_mode = newMode;
 		if (newMode) {
 			// OFF->ON
 			ch[6].setPatch(16);
@@ -933,7 +933,7 @@ inline int YM2413::calcSample()
 	}
 
 	int mix = 0;
-	if (rythm_mode) {
+	if (rhythm_mode) {
 		if (channelMask & (1 << 6))
 			mix += ch[6].car.calc_slot_car(ch[6].mod.calc_slot_mod());
 		if (ch[7].mod.eg_mode != FINISH)
@@ -965,7 +965,7 @@ bool YM2413::checkMuteHelper()
 	for (int i = 0; i < 6; i++) {
 		if (ch[i].car.eg_mode != FINISH) return false;
 	}
-	if (!rythm_mode) {
+	if (!rhythm_mode) {
 		for(int i = 6; i < 9; i++) {
 			 if (ch[i].car.eg_mode != FINISH) return false;
 		}
@@ -1098,8 +1098,8 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		}
 		break;
 	case 0x0e:
-		setRythmMode(data);
-		if (rythm_mode) {
+		setRhythmMode(data);
+		if (rhythm_mode) {
 			if (data & 0x10) keyOn_BD();  else keyOff_BD();
 			if (data & 0x08) keyOn_SD();  else keyOff_SD();
 			if (data & 0x04) keyOn_TOM(); else keyOff_TOM();
@@ -1149,7 +1149,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		int cha = regis & 0x0F;
 		int j = (data >> 4) & 15;
 		int v = data & 15;
-		if ((rythm_mode) && (regis >= 0x36)) {
+		if ((rhythm_mode) && (regis >= 0x36)) {
 			switch(regis) {
 			case 0x37:
 				ch[7].mod.setVolume(j<<2);

@@ -147,7 +147,7 @@ private:
 	inline void keyOff_TOM();
 	inline void keyOff_HH();
 	inline void keyOff_CYM();
-	inline void setRythmMode(int data);
+	inline void setRhythmMode(int data);
 	inline void update_noise();
 	inline void update_ampm();
 
@@ -226,8 +226,8 @@ private:
 	// Register
 	byte reg[0x40];
 
-	// Rythm Mode
-	bool rythm_mode;
+	// Rhythm Mode
+	bool rhythm_mode;
 
 	// Pitch Modulator
 	unsigned int pm_phase;
