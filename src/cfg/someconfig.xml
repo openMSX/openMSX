@@ -35,7 +35,7 @@
     </slotted>
     <parameter name="slow_drain_on_reset">true</parameter>
   </device>
-  
+
   <device id="biosrom">
     <type>Rom16KB</type>
     <slotted>
@@ -58,7 +58,7 @@
     <parameter name="skip_headerbytes">16384</parameter>
   </device>
 
-    <device id="diskrom">
+  <device id="diskrom">
     <type>Rom16KB</type>
     <slotted>
       <ps>3</ps>
@@ -83,26 +83,33 @@
     <parameter name="0x0020" class="patch">0xFE</parameter>
     <parameter name="0x0021" class="patch">0xC9</parameter>
   </device>
-  
+
   <device id="ppi">
     <type>PPI</type>
     <parameter name="foo_bug">no</parameter>
   </device>
-  
+
   <device id="msx1vdp">
     <type>TMS9928a</type>
     <parameter name="frequency">PAL</parameter>
-    <parameter name="fullscreen">0</parameter>
+    <parameter name="limit_sprites">true</parameter>
   </device>
-  
+
+  <config id="renderer">
+    <type>SDLLo</type>
+    <parameter name="full_screen">false</parameter>
+  </config>
+
+<!--
   <device id="Turbo-R timer">
     <type>E6Timer</type>
   </device>
-  
+-->
+
   <device id="psg">
     <type>PSG</type>
   </device>
-  
+
   <device id="Kanji ROM">
     <type>Kanji</type>
     <parameter name="filename">KANJI.ROM</parameter>
@@ -144,7 +151,7 @@
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
   </device>
-  
+
   <device id="Real time synchronizer">
     <type>RealTime</type>
   </device>
@@ -165,7 +172,8 @@
     <parameter name="filesize">131072</parameter>
     <parameter name="skip_headerbytes">0</parameter>
   </device>
-  
+
+<!--
   <device id="FM PAC">
     <type>FM-PAC</type>
     <slotted>
@@ -176,6 +184,7 @@
     <parameter name="filename">FMPAC.ROM</parameter>
     <parameter name="skip_headerbytes">0</parameter>
   </device>
+-->
 <!--
   <device id="MSX Music">
     <type>Music</type>

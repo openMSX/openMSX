@@ -27,6 +27,7 @@ TODO:
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "SDLLoRenderer.hh"
+#include "SDLHiRenderer.hh"
 #include "MSXTMS9928a.hh"
 
 #include <string>
@@ -81,113 +82,12 @@ const byte MSXTMS9928a::TMS9928A_PALETTE[16 * 3] =
 	255, 255, 255
 };
 
-int MSXTMS9928a::doublePattern(int a)
-{
-	// bit-pattern "abcd" gets expanded to "aabbccdd"
-	a =  (a<<16)             |  a;
-	a = ((a<< 8)&0x00ffff00) | (a&0xff0000ff);
-	a = ((a<< 4)&0x0ff00ff0) | (a&0xf00ff00f);
-	a = ((a<< 2)&0x3c3c3c3c) | (a&0xc3c3c3c3);
-	a = ((a<< 1)&0x66666666) | (a&0x99999999);
-	return a;
-}
-
-int MSXTMS9928a::checkSprites(int line, MSXTMS9928a::SpriteInfo *visibleSprites)
-{
-	if (!spritesEnabled()) return 0;
-
-	// Compensate for the fact that sprites are calculated one line
-	// before they are plotted.
-	line--;
-
-	// Get sprites for this line and detect 5th sprite if any.
-	int sprite, visibleIndex = 0;
-	int size = getSpriteSize();
-	int magSize = size * (getSpriteMag() + 1);
-	int minStart = line - magSize;
-	byte *attributePtr = spriteAttributeBasePtr;
-	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
-		int y = *attributePtr;
-		if (y == 208) break;
-		if (y > 208) y -= 256;
-		if ((y > minStart) && (y <= line)) {
-			if (visibleIndex == 4) {
-				// Five sprites on a line.
-				// According to TMS9918.pdf 5th sprite detection is only
-				// active when F flag is zero.
-				if (~statusReg & 0xC0) {
-					statusReg = (statusReg & 0xE0) | 0x40 | sprite;
-				}
-				if (limitSprites) break;
-			}
-			else {
-				SpriteInfo *sip = &visibleSprites[visibleIndex++];
-				int patternIndex = ((size == 16)
-					? attributePtr[2] & 0xFC : attributePtr[2]);
-				sip->pattern = calculatePattern(patternIndex, line - y);
-				sip->x = attributePtr[1];
-				if (attributePtr[3] & 0x80) sip->x -= 32;
-				sip->colour = attributePtr[3] & 0x0F;
-			}
-		}
-	}
-	if (~statusReg & 0x40) {
-		// No 5th sprite detected, store number of latest sprite processed.
-		statusReg = (statusReg & 0xE0) | (sprite < 32 ? sprite : 31);
-	}
-
-	// Optimisation:
-	// If collision already occurred,
-	// that state is stable until it is reset by a status reg read,
-	// so no need to execute the checks.
-	// The visibleSprites array is filled now, so we can bail out.
-	if (statusReg & 0x20) return visibleIndex;
-
-	/*
-	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
-	Reset when status reg is read.
-	Set when sprite patterns overlap.
-	Colour doesn't matter: sprites of colour 0 can collide.
-	Sprites with off-screen position can collide.
-
-	Implemented by checking every pair for collisions.
-	For large numbers of sprites that would be slow,
-	but there are max 4 sprites and therefore max 6 pairs.
-	If any collision is found, method returns at once.
-	*/
-	for (int i = (visibleIndex < 4 ? visibleIndex : 4); --i >= 1; ) {
-		int x_i = visibleSprites[i].x;
-		int pattern_i = visibleSprites[i].pattern;
-		for (int j = i; --j >= 0; ) {
-			// Do sprite i and sprite j collide?
-			int x_j = visibleSprites[j].x;
-			int dist = x_j - x_i;
-			if ((-magSize < dist) && (dist < magSize)) {
-				int pattern_j = visibleSprites[j].pattern;
-				if (dist < 0) {
-					pattern_j <<= -dist;
-				}
-				else if (dist > 0) {
-					pattern_j >>= dist;
-				}
-				if (pattern_i & pattern_j) {
-					// Collision!
-					statusReg |= 0x20;
-					return visibleIndex;
-				}
-			}
-		}
-	}
-
-	return visibleIndex;
-}
-
 MSXTMS9928a::MSXTMS9928a(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXTMS9928a object");
 
-	limitSprites = true; // TODO: Read from config.
+	limitSprites = deviceConfig->getParameterAsBool("limit_sprites");
 
 	version = TMS99X8A; // MSX1 VDP
 
@@ -205,9 +105,20 @@ MSXTMS9928a::MSXTMS9928a(MSXConfig::Device *config, const EmuTime &time)
 	//   A setRenderer method would be used to provide a renderer.
 	//   It should be possible to switch the Renderer at run time,
 	//   probably on user request.
-	fullScreen = atoi(deviceConfig->getParameter("fullscreen").c_str());
+	MSXConfig::Config *renderConfig =
+		MSXConfig::instance()->getConfigById("renderer");
+	fullScreen = renderConfig->getParameterAsBool("full_screen");
+	std::string renderType = renderConfig->getType();
 	PRT_DEBUG("OK\n  Opening display... ");
-	renderer = createSDLLoRenderer(this, fullScreen, time);
+	if (renderType == "SDLLo") {
+		renderer = createSDLLoRenderer(this, fullScreen, time);
+	}
+	else if (renderType == "SDLHi") {
+		renderer = createSDLHiRenderer(this, fullScreen, time);
+	}
+	else {
+		PRT_ERROR("Unknown renderer \"" << renderType << "\"");
+	}
 
 	// Register hotkey for fullscreen togling
 	HotKey::instance()->registerAsyncHotKey(SDLK_PRINT, this);
@@ -452,5 +363,104 @@ void MSXTMS9928a::updateDisplayMode(const EmuTime &time)
 		renderer->updateDisplayMode(time);
 		PRT_DEBUG("TMS9928A: mode " << MODE_STRINGS[newMode]);
 	}
+}
+
+int MSXTMS9928a::doublePattern(int a)
+{
+	// bit-pattern "abcd" gets expanded to "aabbccdd"
+	a =  (a<<16)             |  a;
+	a = ((a<< 8)&0x00ffff00) | (a&0xff0000ff);
+	a = ((a<< 4)&0x0ff00ff0) | (a&0xf00ff00f);
+	a = ((a<< 2)&0x3c3c3c3c) | (a&0xc3c3c3c3);
+	a = ((a<< 1)&0x66666666) | (a&0x99999999);
+	return a;
+}
+
+int MSXTMS9928a::checkSprites(int line, MSXTMS9928a::SpriteInfo *visibleSprites)
+{
+	if (!spritesEnabled()) return 0;
+
+	// Compensate for the fact that sprites are calculated one line
+	// before they are plotted.
+	line--;
+
+	// Get sprites for this line and detect 5th sprite if any.
+	int sprite, visibleIndex = 0;
+	int size = getSpriteSize();
+	int magSize = size * (getSpriteMag() + 1);
+	int minStart = line - magSize;
+	byte *attributePtr = spriteAttributeBasePtr;
+	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
+		int y = *attributePtr;
+		if (y == 208) break;
+		if (y > 208) y -= 256;
+		if ((y > minStart) && (y <= line)) {
+			if (visibleIndex == 4) {
+				// Five sprites on a line.
+				// According to TMS9918.pdf 5th sprite detection is only
+				// active when F flag is zero.
+				if (~statusReg & 0xC0) {
+					statusReg = (statusReg & 0xE0) | 0x40 | sprite;
+				}
+				if (limitSprites) break;
+			}
+			SpriteInfo *sip = &visibleSprites[visibleIndex++];
+			int patternIndex = ((size == 16)
+				? attributePtr[2] & 0xFC : attributePtr[2]);
+			sip->pattern = calculatePattern(patternIndex, line - y);
+			sip->x = attributePtr[1];
+			if (attributePtr[3] & 0x80) sip->x -= 32;
+			sip->colour = attributePtr[3] & 0x0F;
+		}
+	}
+	if (~statusReg & 0x40) {
+		// No 5th sprite detected, store number of latest sprite processed.
+		statusReg = (statusReg & 0xE0) | (sprite < 32 ? sprite : 31);
+	}
+
+	// Optimisation:
+	// If collision already occurred,
+	// that state is stable until it is reset by a status reg read,
+	// so no need to execute the checks.
+	// The visibleSprites array is filled now, so we can bail out.
+	if (statusReg & 0x20) return visibleIndex;
+
+	/*
+	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
+	Reset when status reg is read.
+	Set when sprite patterns overlap.
+	Colour doesn't matter: sprites of colour 0 can collide.
+	Sprites with off-screen position can collide.
+
+	Implemented by checking every pair for collisions.
+	For large numbers of sprites that would be slow,
+	but there are max 4 sprites and therefore max 6 pairs.
+	If any collision is found, method returns at once.
+	*/
+	for (int i = (visibleIndex < 4 ? visibleIndex : 4); --i >= 1; ) {
+		int x_i = visibleSprites[i].x;
+		int pattern_i = visibleSprites[i].pattern;
+		for (int j = i; --j >= 0; ) {
+			// Do sprite i and sprite j collide?
+			int x_j = visibleSprites[j].x;
+			int dist = x_j - x_i;
+			if ((-magSize < dist) && (dist < magSize)) {
+				int pattern_j = visibleSprites[j].pattern;
+				if (dist < 0) {
+					pattern_j <<= -dist;
+				}
+				else if (dist > 0) {
+					pattern_j >>= dist;
+				}
+				if (pattern_i & pattern_j) {
+					// Collision!
+					statusReg |= 0x20;
+					return visibleIndex;
+				}
+			}
+		}
+	}
+
+	return visibleIndex;
 }
 

@@ -1,5 +1,16 @@
 $Id$
 
+2001-12-09 Maarten ter Huurne <mth@stack.nl>
+	* Introduced SDLHiRenderer.
+	  Opens 640x480 screen, although it still renders low-res.
+	* Changed configuration:
+	  - new category: "renderer"
+	    type selects renderer: "SDLLo" or "SDLHi"
+	  - "fullscreen" moved to "renderer" and renamed "full_screen"
+	    plus it's an actual boolean now
+	  - new parameter: "limit_sprites" in "msx1vdp"
+	* Setting "limit_sprites" to false actually works now.
+
 2001-12-08 Maarten ter Huurne <mth@stack.nl>
 	* Improved Doxygen comments in MSXTMS9928a and Renderer.
 	* Small optimisations in sprite rendering.
