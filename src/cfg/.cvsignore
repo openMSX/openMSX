@@ -14,9 +14,3 @@ stamp-h.in
 *.rpo
 config.h.in
 config.h.in.in
-*.rom
-*.ROM
-.xvpics
-*.dsk
-*.lo
-*.la
