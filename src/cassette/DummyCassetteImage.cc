@@ -10,7 +10,7 @@ DummyCassetteImage::~DummyCassetteImage()
 {
 }
 
-short DummyCassetteImage::getSampleAt(float pos)
+short DummyCassetteImage::getSampleAt(const EmuTime &time)
 {
 	return 0;
 }

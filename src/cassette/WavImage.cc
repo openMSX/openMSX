@@ -3,6 +3,7 @@
 #include "WavImage.hh"
 #include "FileContext.hh"
 #include "File.hh"
+#include "EmuTime.hh"
 
 
 WavImage::WavImage(FileContext *context, const string &fileName)
@@ -28,11 +29,11 @@ WavImage::~WavImage()
 	}
 }
 
-short WavImage::getSampleAt(float pos)
+short WavImage::getSampleAt(const EmuTime &time)
 {
-	unsigned index = (unsigned)(pos * audioSpec.freq);
-	if (index < (audioLength / 2)) {
-		return ((short*)audioBuffer)[index];
+	int pos = time.getTicksAt(audioSpec.freq);
+	if (pos < (audioLength / 2)) {
+		return ((short*)audioBuffer)[pos];
 	} else {
 		return 0;
 	}

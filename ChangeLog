@@ -1,5 +1,9 @@
 $Id$
 
+2003-06-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed cassette player bug:
+	   - float was not accurate enough, use 64-bit fixed point
+
 2003-06-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made casstte player audible:
 	   - you can turn it off with "set cassette_volume 0"

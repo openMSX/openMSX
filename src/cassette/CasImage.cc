@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <memory.h>
-#include <math.h>
 #include "CasImage.hh"
 #include "FileContext.hh"
 #include "File.hh"
+#include "EmuTime.hh"
 
 
 // output settings
@@ -49,11 +49,11 @@ CasImage::~CasImage()
 {
 }
 
-short CasImage::getSampleAt(float pos)
+short CasImage::getSampleAt(const EmuTime &time)
 {
-	unsigned p = (unsigned)(pos * OUTPUT_FREQUENCY);
-	if (p < output.size()) {
-		return output[p] * 256;
+	unsigned pos = time.getTicksAt(OUTPUT_FREQUENCY);
+	if (pos < output.size()) {
+		return output[pos] * 256;
 	} else {
 		return 0;
 	}
@@ -63,11 +63,14 @@ short CasImage::getSampleAt(float pos)
 // write a pulse
 void CasImage::writePulse(int f)
 {
-	double length = OUTPUT_FREQUENCY / (baudRate * (f / 1200));
-	double scale  = 2.0 * M_PI / (double)length;
+	int length = OUTPUT_FREQUENCY / (baudRate * (f / 1200));
 
-	for (long n = 0; n < (long)length; n++) {
-		output.push_back((char)(sin((double)n * scale) * 127));
+	int i = 0;
+	for ( ; i < (length / 2); i++) {
+		output.push_back(127);
+	}
+	for ( ; i < length; i++) {
+		output.push_back(-127);
 	}
 }
 
@@ -82,10 +85,7 @@ void CasImage::writeHeader(int s)
 // write silence
 void CasImage::writeSilence(int s)
 {
-	//output.insert(output.end(), s, 0);
-	for (int i = 0; i < s; i++) {
-		output.push_back(0);
-	}
+	output.insert(output.end(), s, 0);
 }
 
 // write a byte
@@ -127,7 +127,6 @@ bool CasImage::writeData()
 	}
 	while (pos < size) {
 		writeByte(buf[pos++]);
-		pos++;
 	}
 	return false;
 }

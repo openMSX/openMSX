@@ -11,7 +11,7 @@ class DummyCassetteImage : public CassetteImage
 		DummyCassetteImage();
 		virtual ~DummyCassetteImage();
 	
-		virtual short getSampleAt(float pos);
+		virtual short getSampleAt(const EmuTime &time);
 };
 
 #endif

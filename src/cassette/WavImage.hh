@@ -19,7 +19,7 @@ class WavImage : public CassetteImage
 		WavImage(FileContext *context, const string &fileName);
 		virtual ~WavImage();
 
-		virtual short getSampleAt(float pos);
+		virtual short getSampleAt(const EmuTime &time);
 
 	private:
 		SDL_AudioSpec audioSpec;

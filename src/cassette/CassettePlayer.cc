@@ -104,8 +104,7 @@ void CassettePlayer::insertTape(FileContext *context,
 	delete cassette;
 	cassette = tmp;
 	
-	position = 0.0;	// rewind tape (make configurable??)
-	playPos = 0.0;
+	rewind();
 }
 
 void CassettePlayer::removeTape()
@@ -114,42 +113,40 @@ void CassettePlayer::removeTape()
 	cassette = new DummyCassetteImage();
 }
 
-float CassettePlayer::updatePosition(const EmuTime &time)
+void CassettePlayer::rewind()
 {
-	float duration = (time - timeReference).toFloat();
-	playPos = position + duration;
-	return playPos;
+	tapeTime = EmuTime::zero;
+	playTapeTime = EmuTime::zero;
+}
+
+void CassettePlayer::updatePosition(const EmuTime &time)
+{
+	if (motor) {
+		tapeTime += (time - prevTime);
+		playTapeTime = tapeTime;
+	}
+	prevTime = time;
 }
 
 void CassettePlayer::setMotor(bool status, const EmuTime &time)
 {
-	if (motor != status) {
-		motor = status;
-		if (motor) {
-			// motor turned on
-			//PRT_DEBUG("CassettePlayer motor on");
-			timeReference = time;
-		} else {
-			// motor turned off
-			//PRT_DEBUG("CassettePlayer motor off");
-			position = updatePosition(time);
-		}
-	}
+	updatePosition(time);
+	motor = status;
 }
 
-short CassettePlayer::getSample(float pos)
+short CassettePlayer::getSample(const EmuTime &time)
 {
 	if (motor) {
-		return cassette->getSampleAt(pos);
+		return cassette->getSampleAt(time);
 	} else {
 		return 0;
 	}
 }
 
-
 short CassettePlayer::readSample(const EmuTime &time)
 {
-	return getSample(updatePosition(time));
+	updatePosition(time);
+	return getSample(tapeTime);
 }
 
 void CassettePlayer::writeWave(short *buf, int length)
@@ -173,8 +170,9 @@ const string &CassettePlayer::getName() const
 
 void CassettePlayer::execute(const vector<string> &tokens)
 {
-	if (tokens.size() != 2)
+	if (tokens.size() != 2) {
 		throw CommandException("Syntax error");
+	}
 	if (tokens[1] == "eject") {
 		print("Tape ejected");
 		removeTape();
@@ -197,8 +195,9 @@ void CassettePlayer::help(const vector<string> &tokens) const
 
 void CassettePlayer::tabCompletion(vector<string> &tokens) const
 {
-	if (tokens.size() == 2)
+	if (tokens.size() == 2) {
 		CommandController::completeFileName(tokens);
+	}
 }
 
 
@@ -209,7 +208,7 @@ void CassettePlayer::setInternalVolume(short newVolume)
 
 void CassettePlayer::setSampleRate(int sampleRate)
 {
-	delta = 1.0 / sampleRate;
+	delta = EmuDuration(1.0 / sampleRate);
 }
 
 int* CassettePlayer::updateBuffer(int length)
@@ -219,8 +218,8 @@ int* CassettePlayer::updateBuffer(int length)
 	}
 	int *buf = buffer;
 	while (length--) {
-		*(buf++) = (((int)getSample(playPos)) * volume) >> 15;
-		playPos += delta;
+		*(buf++) = (((int)getSample(playTapeTime)) * volume) >> 15;
+		playTapeTime += delta;
 	}
 	return buffer;
 }

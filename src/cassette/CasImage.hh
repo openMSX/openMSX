@@ -20,7 +20,7 @@ class CasImage : public CassetteImage
 		CasImage(FileContext *context, const string &fileName);
 		virtual ~CasImage();
 
-		virtual short getSampleAt(float pos);
+		virtual short getSampleAt(const EmuTime &time);
 
 	private:
 		void writePulse(int f);

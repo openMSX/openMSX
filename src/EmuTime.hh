@@ -22,12 +22,17 @@ class EmuDuration
 		friend class EmuTime;
 	
 		// constructors
+		EmuDuration()                { time = 0; }
 		EmuDuration(uint64 n)        { time = n; }
 		EmuDuration(double duration) { time = (uint64)(duration*MAIN_FREQ); }
 
 		// conversions
 		float toFloat() const { return (float)time / MAIN_FREQ; }
 		uint64 length() const { return time; }
+
+		// assignment operator
+		EmuDuration &operator =(const EmuDuration &d)
+			{ time = d.time; return *this; }
 
 	private:
 		uint64 time;
@@ -72,6 +77,9 @@ class EmuTime
 		EmuDuration operator -(const EmuTime &e) const
 			{ assert(time >= e.time);
 			  return EmuDuration(time-e.time); }
+		
+		// ticks
+		int getTicksAt(int freq) const { return time / (MAIN_FREQ / freq); }
 		
 		static const EmuTime zero;
 		static const EmuTime infinity;

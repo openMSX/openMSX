@@ -53,13 +53,14 @@ class CassettePlayer : public CassetteDevice, private Command, public SoundDevic
 		virtual int* updateBuffer(int length);
 
 	private:
-		float updatePosition(const EmuTime &time);
-		short getSample(float pos);
+		void rewind();
+		void updatePosition(const EmuTime &time);
+		short getSample(const EmuTime &time);
 
 		CassetteImage *cassette;
 		bool motor;
-		EmuTime timeReference;
-		float position;
+		EmuTime tapeTime;
+		EmuTime prevTime;
 
 		// Tape Command
 		virtual void execute(const vector<string> &tokens);
@@ -69,8 +70,8 @@ class CassettePlayer : public CassetteDevice, private Command, public SoundDevic
 		// SoundDevice
 		int *buffer;
 		short volume;
-		float delta;
-		float playPos;
+		EmuDuration delta;
+		EmuTime playTapeTime;
 };
 
 #endif
