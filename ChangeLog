@@ -1,5 +1,8 @@
 $Id$
 
+2001-12-14 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Fixed DACSound, KeyClick now works
+
 2001-12-11 Maarten ter Huurne <mth@stack.nl>
 	* Optimised MSX-MUSIC mixing.
 	* Removed indirection on ch array ("Channel *" -> "Channel).

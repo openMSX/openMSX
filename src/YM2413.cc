@@ -49,7 +49,7 @@ int YM2413::TL2EG(int d) { return d*(int)(TL_STEP/EG_STEP); }
 int YM2413::Slot::SL2EG(int d) { return d*(int)(SL_STEP/EG_STEP); }
 
 int YM2413::DB_POS(int x) { return (int)(x/DB_STEP); }
-int YM2413::DB_NEG(int x) { return (int)(DB_MUTE+DB_MUTE+x/DB_STEP); }
+int YM2413::DB_NEG(int x) { return (int)(2*DB_MUTE+DB_MUTE+x/DB_STEP); }
 
 // Cut the lower b bit(s) off
 int YM2413::HIGHBITS(int c, int b) { return c>>b; }
@@ -688,8 +688,8 @@ void YM2413::setSampleRate(int sampleRate)
 	makeDphaseARTable(sampleRate);
 	makeDphaseDRTable(sampleRate);
 	makeDphaseNoiseTable(sampleRate);
-	pm_dphase = (int)rate_adjust(PM_SPEED*PM_DP_WIDTH/(CLOCK_FREQ/72), sampleRate);
-	am_dphase = (int)rate_adjust(AM_SPEED*AM_DP_WIDTH/(CLOCK_FREQ/72), sampleRate);
+	pm_dphase = (int)rate_adjust((int)(PM_SPEED*PM_DP_WIDTH/(CLOCK_FREQ/72)), sampleRate);
+	am_dphase = (int)rate_adjust((int)(AM_SPEED*AM_DP_WIDTH/(CLOCK_FREQ/72)), sampleRate);
 }
 
 
@@ -725,7 +725,7 @@ inline void YM2413::update_noise()
 	if (noise_seed & 1)
 		noise_seed ^= 0x24000;
 	noise_seed >>= 1;
-	whitenoise = noise_seed&1 ? DB_POS(6.0) : DB_NEG(6.0);
+	whitenoise = noise_seed&1 ? DB_POS(6) : DB_NEG(6);
 
 	noiseA_phase += noiseA_dphase;
 	noiseB_phase += noiseB_dphase;
@@ -733,10 +733,10 @@ inline void YM2413::update_noise()
 	noiseA_phase &= (0x40<<11) - 1;
 	if ((noiseA_phase>>11)==0x3f)
 		noiseA_phase = 0;
-	noiseA = noiseA_phase&(0x03<<11)?DB_POS(6.0):DB_NEG(6.0);
+	noiseA = noiseA_phase&(0x03<<11)?DB_POS(6):DB_NEG(6);
 
 	noiseB_phase &= (0x10<<11) - 1;
-	noiseB = noiseB_phase&(0x0A<<11)?DB_POS(6.0):DB_NEG(6.0);
+	noiseB = noiseB_phase&(0x0A<<11)?DB_POS(6):DB_NEG(6);
 }
 
 // Update AM, PM unit

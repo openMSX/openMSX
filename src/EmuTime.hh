@@ -31,6 +31,9 @@ class EmuTime
 		EmuTime(uint64 n)         { time = n; }
 		EmuTime(const EmuTime &e) { time = e.time; }
 
+		static EmuTime &durationToEmuTime(float duration)
+			{ return *new EmuTime((uint64)(duration*MAIN_FREQ)); }
+
 		// assignment operator
 		EmuTime &operator =(const EmuTime &e) { time = e.time; return *this; }
 
@@ -44,6 +47,9 @@ class EmuTime
 		// distance function
 		float getDuration(const EmuTime &e) const 
 			{ return (float)(e.time-time)/MAIN_FREQ; }
+		EmuTime &operator -(const EmuTime &e) const 
+			{ return *new EmuTime(time-e.time); }
+		int subtract(const EmuTime &e) const { return (int)(time-e.time); }
 
 	//protected:
 		uint64 time;

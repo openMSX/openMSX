@@ -7,21 +7,31 @@
  */
 
 
-#include <assert.h>
+#include <cassert>
 #include "DACSound.hh"
 #include "Mixer.hh"
 #include "RealTime.hh"
+#include "MSXCPU.hh"
 
 
-DACSound::DACSound(short maxVolume, const EmuTime &time)
+DACSound::DACSound(short maxVolume, int typicalFreq, const EmuTime &time)
 {
 	PRT_DEBUG("DAC audio created");
 	
 	int bufSize = Mixer::instance()->registerSound(this);
 	buf = new int[bufSize];
 	
+	emuDelay = EmuTime::durationToEmuTime(1.0/typicalFreq);
+	
 	setVolume(maxVolume);
+
+	currentValue = nextValue = volTable[CENTER];
+	currentTime  = nextTime  = prevTime = lastTime = time;
+	readIndex = writeIndex = 0;
+	left = currentLength = 0;
+	
 	reset(time);
+
 }
 
 
@@ -30,70 +40,6 @@ DACSound::~DACSound()
 	PRT_DEBUG("Destroying DACSound device");
 	Mixer::instance()->unregisterSound(this);
 	delete[] buf;
-}
-
-void DACSound::reset(const EmuTime &time)
-{
-	ref = time;
-	bufWriteIndex = bufReadIndex = 0;	// empty sample buffer
-	DACValue = CENTER;
-	left = 1; tempVal = 0;
-	setInternalMute(true);
-}
-
-byte DACSound::readDAC(byte value, const EmuTime &time)
-{
-	return DACValue;
-}
-
-
-void DACSound::writeDAC(byte value, const EmuTime &time)
-{
-	DACValue = value;
-	
-	// duration is number of samples since last writeDAC (this is a float!!)
-	float duration = RealTime::instance()->getRealDuration(ref, time) * sampleRate;
-	ref = time;
-	
-	if (left != 1) {
-		// complete a previously written sample 
-		if (duration >= left) {
-			// complete till end of sample
-			insertSamples(1, tempVal + left*volTable[value]); // 1 interpolated sample
-			duration -= left;
-			left = 1;
-			tempVal = 0;
-		} else {
-			// not enough to complete sample
-			tempVal += duration*volTable[value];
-			left -= duration;
-			return;
-		}
-	}
-	// at the beginning of a sample,
-	assert((left == 1) && (tempVal == 0));
-	int wholeSamples = (int)duration;
-	if (wholeSamples > 0) {
-		insertSamples(wholeSamples, volTable[value]); // some samples at a constant level
-	}
-	duration -= wholeSamples;
-	if (duration > 0) {
-		// set first part of sample 
-		tempVal = duration*volTable[value];
-		left -= duration;
-	}
-
-	PRT_DEBUG("DAC unmuted");
-	setInternalMute(false);	// set not muted
-}
-
-void DACSound::insertSamples(int nbSamples, short sample)
-{
-	//TODO check for overflow
-	audioBuffer[bufWriteIndex].nbSamples = nbSamples;
-	audioBuffer[bufWriteIndex].sample    = sample;
-	bufWriteIndex = (bufWriteIndex+1) % BUFSIZE;
-	assert(bufWriteIndex!=bufReadIndex);
 }
 
 void DACSound::setInternalVolume(short newVolume)
@@ -110,44 +56,113 @@ void DACSound::setInternalVolume(short newVolume)
 	}
 }
 
-
 void DACSound::setSampleRate (int smplRt)
 {
-	sampleRate = smplRt;
 }
 
+void DACSound::reset(const EmuTime &time)
+{
+	writeDAC(CENTER, time);
+}
+
+byte DACSound::readDAC(const EmuTime &time)
+{
+	return lastValue;
+}
+
+void DACSound::writeDAC(byte value, const EmuTime &time)
+{
+	EmuTime tmp = time - emuDelay;
+	if (lastTime < tmp)
+		insertSample(volTable[lastValue], tmp);
+	insertSample(volTable[value], time);
+	lastTime = time;
+	lastValue = value;
+	
+	if (value != CENTER)
+		setInternalMute(false);
+}
+
+void DACSound::insertSample(short sample, const EmuTime &time)
+{
+	//TODO check for overflow
+	buffer[writeIndex].sample = sample;
+	buffer[writeIndex].time   = time;
+	writeIndex = (writeIndex+1) % BUFSIZE;
+	assert(writeIndex != readIndex);
+}
 
 int* DACSound::updateBuffer(int length)
 {
 	int* buffer = buf;
 	
-	while (length > 0) {
-		if (bufReadIndex == bufWriteIndex) {
-			// no more data in buffer, output is last written sample
-			for (;length>0; length--) {
-				*(buffer++) = volTable[DACValue];
-			}
-			if (DACValue == CENTER)
-				PRT_DEBUG("DAC muted");
-				setInternalMute(true);	// set muted
-		} else {
-			// update from bufreadindex
-			int nbSamples = audioBuffer[bufReadIndex].nbSamples;
-			short sample = audioBuffer[bufReadIndex].sample;
-
-			if (nbSamples <= length) {
-				length -= nbSamples;
-				for (;nbSamples>0; nbSamples--) {
-					*(buffer++) = sample;
-				}
-				bufReadIndex = (bufReadIndex+1) % BUFSIZE;
+	//EmuTime mixTime = MSXCPU::instance()->getCurrentTime() - emuDelay;
+	EmuTime mixTime = MSXCPU::instance()->getCurrentTime();
+	assert(length!=0);
+	timeUnit = mixTime.subtract(prevTime) / length;
+	prevTime = mixTime;
+	while (length) {
+		if (left==0) {
+			// at the beginning of a sample
+			if (currentLength >= timeUnit) {
+				// enough for a whole sample
+				*buffer++ = currentValue + delta/2;
+				length--;
+				currentLength -= timeUnit;
+				currentValue += delta;
 			} else {
-				audioBuffer[bufReadIndex].nbSamples -= length;
-				for (;length>0; length--) {
-					*(buffer++) = sample;
-				}
+				// not enough for a whole sample
+				assert(timeUnit!=0);
+				tmpValue = ((currentValue + delta/2) * currentLength) / timeUnit;
+				left = timeUnit - currentLength;
+				getNext();
+			}
+		} else {
+			// not at the beginning of a sample
+			if (currentLength >= left) {
+				// enough to complete sample
+				assert(timeUnit!=0);
+				*buffer++ = tmpValue + ((currentValue + delta/2) * left) / timeUnit;
+				length--;
+				left = 0;
+				currentLength -= left;
+				currentValue += (delta*left)/timeUnit;
+			} else {
+				// not enough to complete sample
+				assert(timeUnit!=0);
+				tmpValue += ((currentValue + delta/2) * currentLength) / timeUnit;
+				left -= currentLength;
+				getNext();
 			}
 		}
 	}
 	return buf;
+}
+
+void DACSound::getNext()
+{
+	// old next-values become the current-values
+	currentValue = nextValue;
+	currentTime = nextTime;
+	if (readIndex != writeIndex) {
+		// still data in buffer
+		nextValue = buffer[readIndex].sample;
+		nextTime  = buffer[readIndex].time;
+		readIndex = (readIndex+1) % BUFSIZE;
+	} else {
+		// no more data in buffer
+		//nextValue = currentValue;
+		nextTime = prevTime;	// = MixTime
+		if (lastValue == CENTER)
+			setInternalMute(true);
+	}
+	currentLength = nextTime.subtract(currentTime);
+	if (currentLength==0) currentLength=1;
+	delta = ((nextValue - currentValue) * timeUnit) / currentLength;
+	//PRT_DEBUG("DAC: currentValue  " << currentValue);
+	//PRT_DEBUG("DAC: currentTime   " << currentTime);
+	//PRT_DEBUG("DAC: nextValue     " << nextValue);
+	//PRT_DEBUG("DAC: nextTime      " << nextTime);
+	//PRT_DEBUG("DAC: currentLength " << currentLength);
+	//PRT_DEBUG("DAC: delta         " << delta);
 }

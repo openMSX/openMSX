@@ -106,9 +106,9 @@ void Mixer::updateStream(const EmuTime &time)
 }
 void Mixer::updtStrm(int samples)
 {
-	assert(samples>=0);
-	if (samples == 0) return;
 	if (samples > samplesLeft) samples = samplesLeft;
+	if (samples == 0) return;
+	assert(samples>0);
 	PRT_DEBUG("Mix: Generate " << samples << " samples");
 	for (int mode=0; mode<NB_MODES; mode++) {
 		int unmuted = 0;

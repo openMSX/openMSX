@@ -16,11 +16,11 @@
 class DACSound : public SoundDevice
 {
 	public:
-		DACSound(short maxVolume, const EmuTime &time); 
+		DACSound(short maxVolume, int typicalFreq, const EmuTime &time); 
 		virtual ~DACSound(); 
 	
 		void reset(const EmuTime &time);
-		byte readDAC(byte value, const EmuTime &time);
+		byte readDAC(const EmuTime &time);
 		void writeDAC(byte value, const EmuTime &time);
 		
 		//SoundDevice
@@ -29,26 +29,24 @@ class DACSound : public SoundDevice
 		int* updateBuffer(int length);
 		
 	private:
-		void insertSamples(int nbSamples, short sample);
+		void insertSample(short sample, const EmuTime &time);
+		void getNext();
 		
 		static const int BUFSIZE = 1024;
 		static const int CENTER = 0x80;
 	
-		EmuTime ref;
-		float left, tempVal;
-		int sampleRate;
-
+		EmuTime emuDelay;
+		EmuTime currentTime, nextTime, prevTime, lastTime;
+		int currentValue, nextValue, delta, tmpValue;
+		int timeUnit, left, currentLength;
+		byte lastValue;
 		short volTable[256];
-		
 		struct {
-		  int nbSamples;
-		  short sample;
-		} audioBuffer[BUFSIZE];
-		int bufReadIndex;
-		int bufWriteIndex;
-		
-		byte DACValue;
-
+			int sample;
+			EmuTime time;
+		} buffer[BUFSIZE];
+		int readIndex;
+		int writeIndex;
 		int* buf;
 };
 #endif

@@ -12,7 +12,7 @@ MSXKonamiSynthesizer::MSXKonamiSynthesizer(MSXConfig::Device *config, const EmuT
 	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXKonamiSynthesizer object");
-	dac = new DACSound(25000, time);	// TODO find a good value, put it into config file
+	dac = new DACSound(25000, 16000, time);	// TODO find a good value, put it into config file  // typical freq ~ 16kHz ??
 	loadFile(&memoryBank, 0x8000);
 	reset(time);
 }

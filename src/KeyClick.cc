@@ -9,7 +9,7 @@
 
 KeyClick::KeyClick(short volume, const EmuTime &time)
 {
-	dac = new DACSound(volume, time);
+	dac = new DACSound(volume, 51000, time);	// ~ 70 cycles ~ 51kHz
 	status = false;
 }
 
