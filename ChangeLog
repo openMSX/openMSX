@@ -3,6 +3,8 @@ $Id$
 2005-01-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed more #include dependencies
 	* Fixed compilation errors on icc
+	* Added missing #ifdef ASM_X86:
+	   should fix compilation on non-x86 machines
 
 2005-01-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Refactored XMLElement related classes:

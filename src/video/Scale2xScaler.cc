@@ -37,6 +37,7 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 	//             c =   .. swap n/s
 	//             d =   .. swap w/e  n/s
 
+	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
 		asm (
@@ -574,6 +575,7 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 		);
 		return;
 	};
+	#endif
 
 	// First pixel.
 	Pixel mid   = src1[0];
@@ -604,6 +606,8 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 	//    ab ef
 	// x0 12 34 5x
 	//    cd gh
+	
+	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (false && (sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
 		asm (
@@ -1034,8 +1038,8 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 		);
 		return;
 	};
+	#endif
 
-			
 	// First pixel.
 	Pixel mid =   src1[0];
 	Pixel right = src1[1];
