@@ -2,12 +2,12 @@ Source: openmsx
 Section: otherosfs
 Priority: optional
 Maintainer: Joost Yervante Damad <joost@lumatec.be>
-Build-Depends: debhelper (>= 4.0.0), docbook-to-man, autotools-dev
+Build-Depends: debhelper (>= 4.0.0), docbook-to-man, autotools-dev, libsdl1.2-dev, libsdl-image1.2-dev, libpng12-dev, tcl8.4-dev, xlibmesa-gl-dev
 Standards-Version: 3.6.1
 
 Package: openmsx
 Architecture: i386
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Suggests: openmsx-catapult
+Suggests: openmsx-catapult, python
 Description: emulate the MSX standard
-  openMSX is an open source MSX emulator that uses a unique emulation model and tries to achieve the highest level of accuracy possible. It comes with all bells and whistles, like debugging, scriptable in TCL, scalers, ... It also comes with CBIOS, a free implementation of a minimal MSX BIOS, allowing to play quite some games without needing copies of original MSX ROMS.
+openMSX is an open source MSX emulator that uses a unique emulation model and tries to achieve the highest level of accuracy possible. It comes with all bells and whistles, like debugging, scriptable in TCL, scalers, ... It also comes with CBIOS, a free implementation of a minimal MSX BIOS, allowing to play quite some games without needing copies of original MSX ROMs.

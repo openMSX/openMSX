@@ -35,7 +35,9 @@ build-stamp:  config.status
 	dh_testdir
 
 	# Add here commands to compile the package.
-	$(MAKE) DATADIR=/usr/share/openmsx
+	$(MAKE) \
+		INSTALL_SHARE_DIR=/usr/share/openmsx \
+		USE_CCACHE=true
 	docbook-to-man debian/openmsx.sgml > openmsx.1
 
 	touch build-stamp
@@ -69,7 +71,8 @@ install: build
 		INSTALL_BINARY_DIR=$(CURDIR)/debian/openmsx/usr/bin \
 		INSTALL_SHARE_DIR=$(CURDIR)/debian/openmsx/usr/share/openmsx \
 		INSTALL_DOC_DIR=$(CURDIR)/debian/openmsx/usr/share/doc/openmsx \
-		SYMLINK_FOR_BINARY=false
+		SYMLINK_FOR_BINARY=false \
+		OPENMSX_INSTALL=$(CURDIR)/debian/openmsx/usr
 
 
 # Build architecture-independent files here.
@@ -93,7 +96,7 @@ binary-arch: build install
 #	dh_installinit
 #	dh_installcron
 #	dh_installinfo
-	dh_installman
+	dh_installman openmsx.1
 	dh_link
 	dh_strip
 	dh_compress
