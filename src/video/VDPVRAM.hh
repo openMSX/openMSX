@@ -152,8 +152,8 @@ public:
 	inline void setMask(int baseMask, int indexMask, const EmuTime &time) {
 		int newBaseAddr = baseMask & indexMask;
 		int newCombiMask = ~baseMask | indexMask;
-		if (this->baseMask == baseMask && baseAddr == newBaseAddr
-		&& combiMask == newCombiMask) return;
+		if (baseAddr == newBaseAddr && combiMask == newCombiMask
+		&& this->baseMask == baseMask) return;
 		if (observer) {
 			observer->updateWindow(true, time);
 		}

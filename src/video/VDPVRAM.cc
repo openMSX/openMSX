@@ -10,8 +10,9 @@
 
 VRAMWindow::VRAMWindow() {
 	observer = NULL;
-	combiMask = 0;	// doesn't matter but makes valgrind happy
 	baseAddr = -1;
+	combiMask = 0;	// doesn't matter but makes valgrind happy
+	baseMask = 0;	// doesn't matter but makes valgrind happy
 }
 
 
