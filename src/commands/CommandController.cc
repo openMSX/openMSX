@@ -170,25 +170,33 @@ void CommandController::removeEscaping(const vector<string>& input,
 	}
 }
 
+static string escapeChars(const string& str, const string& chars)
+{
+	string result;
+	for (unsigned i = 0; i < str.length(); ++i) {
+		char chr = str[i];
+		if (chars.find(chr) != string::npos) {
+			result += '\\';
+		}
+		result += chr;
+		
+	}
+	return result;
+}
+
 string CommandController::addEscaping(const string& str, bool quote, bool finished)
 {
 	if (str.empty() && finished) {
 		quote = true;
 	}
-	string result;
+	string result = escapeChars(str, "$[]");
 	if (quote) {
-		result = '"' + str;
+		result = '"' + result;
 		if (finished) {
 			result += '"';
 		}
 	} else {
-		for (unsigned i = 0; i < str.length(); ++i) {
-			char chr = str[i];
-			if (chr == ' ') {
-				result += '\\';
-			}
-			result += chr;
-		}
+		result = escapeChars(result, " ");
 	}
 	return result;
 }
