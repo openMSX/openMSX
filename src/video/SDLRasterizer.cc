@@ -98,7 +98,7 @@ inline void SDLRasterizer<Pixel, zoom>::renderBitmapLines(
 	// Which bits in the name mask determine the page?
 	int pageMask = 0x200 | vdp->getEvenOddMask();
 	int nameMask = vram->nameTable.getMask() >> 7;
-	
+
 	while (count--) {
 		// TODO: Optimise addr and line; too many conversions right now.
 		int vramLine = nameMask & (pageMask | line);
@@ -236,7 +236,9 @@ void SDLRasterizer<Pixel, zoom>::paint()
 	// All of the current postprocessing steps require hi-res.
 	if (LINE_ZOOM != 2) {
 		// Just copy the image as-is.
+		SDL_UnlockSurface(screen);
 		SDL_BlitSurface(workScreen, NULL, screen, NULL);
+		SDL_LockSurface(screen);
 		return;
 	}
 
@@ -273,7 +275,7 @@ void SDLRasterizer<Pixel, zoom>::paint()
 					);
 				if (colour != colour2) endY = y;
 			}
-			
+
 			if (deinterlace) {
 				// TODO: This isn't 100% accurate:
 				//       on the previous frame, this area may have contained
@@ -509,7 +511,7 @@ void SDLRasterizer<Pixel, zoom>::precalcColourIndex0(
 	if (mode.getByte() == DisplayMode::GRAPHIC7) {
 		transparency = false;
 	}
-	
+
 	int tpIndex = 0;
 	if (transparency) {
 		tpIndex = vdp->getBackgroundColour();
@@ -520,7 +522,7 @@ void SDLRasterizer<Pixel, zoom>::precalcColourIndex0(
 		}
 	}
 	palFg[0] = palBg[tpIndex];
-	
+
 	// Any line containing pixels of colour 0 must be repainted.
 	// We don't know which lines contain such pixels,
 	// so we have to repaint them all.
@@ -594,7 +596,7 @@ void SDLRasterizer<Pixel, zoom>::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {
 	if (fromX == 0 && limitX == VDP::TICKS_PER_LINE) {
-		// TODO: Disabled this optimisation during interlace, because 
+		// TODO: Disabled this optimisation during interlace, because
 		//       lineContent administration is available only for current
 		//       frame, not for previous frame, which led to glitches.
 		if (LINE_ZOOM == 2 && !interlaced) {
