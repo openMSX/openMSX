@@ -444,7 +444,6 @@ void VDPCmdEngine::AbortCmd::start(const EmuTime &time)
 
 void VDPCmdEngine::AbortCmd::execute(const EmuTime &time)
 {
-	assert(false);
 }
 
 
@@ -462,7 +461,6 @@ void VDPCmdEngine::PointCmd::start(const EmuTime &time)
 
 void VDPCmdEngine::PointCmd::execute(const EmuTime &time)
 {
-	assert(false);
 }
 
 
@@ -481,7 +479,6 @@ void VDPCmdEngine::PsetCmd::start(const EmuTime &time)
 
 void VDPCmdEngine::PsetCmd::execute(const EmuTime &time)
 {
-	assert(false);
 }
 
 
