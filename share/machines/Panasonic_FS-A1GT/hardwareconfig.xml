@@ -107,7 +107,7 @@
       <lastblock>55</lastblock>
     </rom>
     <fdc_type>TC8566AF</fdc_type>
-    <drivename1>diska</drivename1>
+    <drives>1</drives>
   </device>
 
   <device id="Kanji ROM">

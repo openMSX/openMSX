@@ -55,7 +55,7 @@
     <rom>
       <filename>roms/nms8250_disk.rom</filename>
     </rom>
-    <drivename1>diska</drivename1>
+    <drives>1</drives>
   </device>
 
   <device id="ppi">

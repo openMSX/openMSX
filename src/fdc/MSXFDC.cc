@@ -3,6 +3,7 @@
 #include "MSXFDC.hh"
 #include "DiskDrive.hh"
 #include "xmlx.hh"
+#include "StringOp.hh"
 
 namespace openmsx {
 
@@ -10,23 +11,23 @@ MSXFDC::MSXFDC(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(getName() + " ROM", "rom", config) 
 {
-	string drivename("drivename1");
-	//                0123456789
-	for (int i = 0; i < 4; i++) {
-		drivename[9] = '1' + i;
-		const XMLElement* driveElem = config.findChild(drivename);
-		if (driveElem) {
-			drives[i] = new DoubleSidedDrive(
-			                     driveElem->getData(), time);
-		} else {
-			drives[i] = new DummyDrive();
-		}
+	int numDrives = config.getChildDataAsInt("drives", 1);
+	if ((0 >= numDrives) || (numDrives >= 4)) {
+		throw FatalError("Invalid number of drives: " +
+		                 StringOp::toString(numDrives));
+	}
+	int i = 0;
+	for ( ; i < numDrives; ++i) {
+		drives[i] = new DoubleSidedDrive(time);
+	}
+	for ( ; i < 4; ++i) {
+		drives[i] = new DummyDrive();
 	}
 }
 
 MSXFDC::~MSXFDC()
 {
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 4; ++i) {
 		delete drives[i];
 	}
 }

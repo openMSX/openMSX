@@ -4,10 +4,12 @@
 #define __DISKDRIVE_HH__
 
 #include <memory>
+#include <bitset>
 #include "EmuTime.hh"
 #include "Command.hh"
 
 using std::auto_ptr;
+using std::bitset;
 
 namespace openmsx {
 
@@ -142,7 +144,9 @@ public:
 class RealDrive : public DiskDrive, public SimpleCommand
 {
 public:
-	RealDrive(const string &drivename, const EmuTime& time);
+	static const int MAX_DRIVES = 26;	// a-z
+
+	RealDrive(const EmuTime& time);
 	virtual ~RealDrive();
 
 	// DiskDrive interface
@@ -182,6 +186,8 @@ private:
 	string name;
 	string diskName;
 	bool diskChangedFlag;
+
+	static bitset<MAX_DRIVES> drivesInUse;
 };
 
 
@@ -191,8 +197,7 @@ private:
 class SingleSidedDrive : public RealDrive
 {
 public:
-	SingleSidedDrive(const string& drivename,
-			 const EmuTime& time);
+	SingleSidedDrive(const EmuTime& time);
 	virtual ~SingleSidedDrive();
 	virtual bool doubleSided();
 	virtual void setSide(bool side);
@@ -215,8 +220,7 @@ public:
 class DoubleSidedDrive : public RealDrive
 {
 public:
-	DoubleSidedDrive(const string& drivename,
-			 const EmuTime& time);
+	DoubleSidedDrive(const EmuTime& time);
 	virtual ~DoubleSidedDrive();
 	virtual bool doubleSided();
 	virtual void setSide(bool side);

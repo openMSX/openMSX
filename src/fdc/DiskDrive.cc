@@ -127,7 +127,9 @@ bool DummyDrive::diskChanged()
 
 /// class RealDrive ///
 
-RealDrive::RealDrive(const string& driveName, const EmuTime& time)
+bitset<RealDrive::MAX_DRIVES> RealDrive::drivesInUse;
+
+RealDrive::RealDrive(const EmuTime& time)
 {
 	headPos = 0;
 	motorStatus = false;
@@ -135,12 +137,23 @@ RealDrive::RealDrive(const string& driveName, const EmuTime& time)
 	headLoadStatus = false;
 	headLoadTime = time;
 	
-	name = driveName;
 	diskName = "";
 	diskChangedFlag = false;
 
+	int i = 0;
+	for ( ; i < MAX_DRIVES; ++i) {
+		if (!drivesInUse[i]) {
+			name = string("disk") + static_cast<char>('a' + i);
+			drivesInUse[i] = true;
+			break;
+		}
+	}
+	if (i == MAX_DRIVES) {
+		throw FatalError("Too many disk drives.");
+	}
+	
 	SettingsConfig& conf = SettingsConfig::instance();
-	const XMLElement* config = conf.findChild(driveName);
+	const XMLElement* config = conf.findChild(name);
 	if (config) {
 		const string& filename = config->getChildData("filename");
 		try {
@@ -161,6 +174,8 @@ RealDrive::RealDrive(const string& driveName, const EmuTime& time)
 
 RealDrive::~RealDrive()
 {
+	int driveNum = name[4] - 'a';
+	drivesInUse[driveNum] = false;
 	CommandController::instance().unregisterCommand(this, name);
 }
 
@@ -333,9 +348,8 @@ bool RealDrive::diskChanged()
 
 /// class SingleSidedDrive ///
 
-SingleSidedDrive::SingleSidedDrive(const string& drivename,
-                                   const EmuTime& time)
-	: RealDrive(drivename, time)
+SingleSidedDrive::SingleSidedDrive(const EmuTime& time)
+	: RealDrive(time)
 {
 }
 
@@ -398,9 +412,8 @@ void SingleSidedDrive::writeTrackData(byte data)
 
 /// class DoubleSidedDrive ///
 
-DoubleSidedDrive::DoubleSidedDrive(const string& drivename,
-                                   const EmuTime& time)
-	: RealDrive(drivename, time)
+DoubleSidedDrive::DoubleSidedDrive(const EmuTime& time)
+	: RealDrive(time)
 {
 	side = 0;
 }

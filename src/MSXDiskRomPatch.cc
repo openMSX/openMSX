@@ -37,9 +37,8 @@ const byte MSXDiskRomPatch::bootSectorData[] = {
 MSXDiskRomPatch::MSXDiskRomPatch()
 {
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
-	// TODO make names configurable
-	drives[0].reset(new DoubleSidedDrive("diska", time));
-	drives[1].reset(new DoubleSidedDrive("diskb", time));
+	drives[0].reset(new DoubleSidedDrive(time));
+	drives[1].reset(new DoubleSidedDrive(time));
 }
 
 MSXDiskRomPatch::~MSXDiskRomPatch()
