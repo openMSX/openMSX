@@ -1,5 +1,8 @@
 $Id$
 
+2002-03-04 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* SCC cleanups and tiny tweaks
+
 2002-03-04 Joost Yervante Damad <andete@worldcity.nl>
 	* added auto* support for openGL
 
