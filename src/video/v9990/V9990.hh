@@ -16,6 +16,7 @@
 #include "MSXIODevice.hh"
 #include "EmuTime.hh"
 #include "Debuggable.hh"
+#include "IRQHelper.hh"
 
 using std::string;
 
@@ -103,6 +104,7 @@ private:
 		VRAM_RD_ADR0 =  3,
 		VRAM_RD_ADR1 =  4,
 		VRAM_RD_ADR2 =  5,
+		INT_ENABLE   =  9,
 		PALETTE_PTR  = 14,
 		/* ... */
 	};
@@ -123,6 +125,19 @@ private:
 	/** Palette
 	  */
 	byte palette[256];
+
+	/** IRQ
+	  */
+	enum IRQType {
+		VER_IRQ = 1,
+		HOR_IRQ = 2,
+		CMD_IRQ = 4,
+	};
+
+	void raiseIRQ(IRQType irqType);
+	
+	IRQHelper irq;
+	byte pendingIRQs;
 };
 
 } // namespace openmsx

@@ -19,15 +19,18 @@
 
 namespace openmsx {
 
+const unsigned VRAM_SIZE = 0x80000; // 512kB
+
 V9990::V9990(Config* config, const EmuTime& time)
 	: MSXDevice(config, time),
 	  MSXIODevice(config, time),
 	  v9990RegDebug(*this),
-	  v9990PortDebug(*this)
+	  v9990PortDebug(*this),
+	  pendingIRQs(0)
 {
 	PRT_DEBUG("[" << time << "] V9990::Create");
 
-	vram = new byte[0x080000]; // 512kb
+	vram = new byte[VRAM_SIZE];
 
 	// initialize palette
 	for (int i = 0; i < 64; ++i) {
@@ -62,6 +65,9 @@ void V9990::reset(const EmuTime& time)
 		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 	memcpy(ports, INITIAL_PORT_VALUES, 16);
 
+	// Reset IRQs
+	writeIO(INTERRUPT_FLAG, 0xFF, time);
+	
 	// Clear registers
 	memset(regs, 0, sizeof(regs));
 	
@@ -140,9 +146,12 @@ byte V9990::readIO(byte port, const EmuTime& time)
 			}
 			break;
 		}
+		case INTERRUPT_FLAG:
+			result = pendingIRQs;
+			break;
+		    
 		case COMMAND_DATA:
 		case STATUS:
-		case INTERRUPT_FLAG:
 			// TODO
 			result = ports[port];
 			break;
@@ -228,6 +237,13 @@ void V9990::writeIO(byte port, byte val, const EmuTime &time)
 			// read-only, ignore writes
 			break;
 		
+		case INTERRUPT_FLAG:
+			pendingIRQs &= ~val;
+			if (!pendingIRQs) {
+				irq.reset();
+			}
+			break;
+		
 		case KANJI_ROM_0:
 		case KANJI_ROM_1:
 		case KANJI_ROM_2:
@@ -237,7 +253,6 @@ void V9990::writeIO(byte port, byte val, const EmuTime &time)
 			break;
 			
 		case COMMAND_DATA:
-		case INTERRUPT_FLAG:
 		case SYSTEM_CONTROL:
 		default:
 			// TODO
@@ -275,8 +290,19 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 	PRT_DEBUG("[" << time << "] "
 		  "V9990::writeRegister - reg=0x" << hex << int(reg) << 
 		                        " val=0x" << hex << int(val));
+
 	// TODO sync(time)
 	regs[reg] = val;
+
+	switch (reg) {
+		case INT_ENABLE:
+			if (pendingIRQs & val) {
+				irq.set();
+			} else {
+				irq.reset();
+			}
+			break;
+	}
 }
 
 byte V9990::readVRAM(unsigned addr, const EmuTime& time)
@@ -360,5 +386,13 @@ void V9990::V9990PortDebug::write(unsigned address, byte value)
 	parent.writeIO(address, value, time);
 }
 
-} // end class V9990
+void V9990::raiseIRQ(IRQType irqType)
+{
+	pendingIRQs |= irqType;
+	if (pendingIRQs & regs[INT_ENABLE]) {
+		irq.set();
+	}
+}
+
+} // namespace openmsx
 
