@@ -49,15 +49,25 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 template <class Pixel> inline void SDLHiRenderer<Pixel>::renderUntil(
 	const EmuTime &time)
 {
-	// TODO: Also calculate position within a line.
-	int limit =
-		(vdp->getTicksThisFrame(time) + VDP::TICKS_PER_LINE - 400)
-		/ VDP::TICKS_PER_LINE;
-	assert(limit <= (vdp->isPalTiming() ? 313 : 262));
-	if (nextLine < limit) {
-		(this->*phaseHandler)(nextLine, limit);
-		nextLine = limit ;
+	int limitTicks = vdp->getTicksThisFrame(time);
+
+	int limitX = limitTicks % VDP::TICKS_PER_LINE;
+	limitX = (limitX - 100 - (VDP::TICKS_PER_LINE - 100) / 2 + WIDTH) / 2;
+	if (limitX < 0) limitX = 0;
+	else if (limitX > WIDTH) limitX = WIDTH;
+
+	int limitY = limitTicks / VDP::TICKS_PER_LINE - lineRenderTop;
+	if (limitY < 0) {
+		limitX = 0;
+		limitY = 0;
+	} else if (limitY >= HEIGHT) {
+		limitX = WIDTH;
+		limitY = HEIGHT;
 	}
+
+	(this->*phaseHandler)(nextX, nextY, limitX, limitY);
+	nextX = limitX;
+	nextY = limitY;
 }
 
 template <class Pixel> inline void SDLHiRenderer<Pixel>::sync(
@@ -664,14 +674,14 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
-	int line, int limit)
+	int fromX, int fromY, int limitX, int limitY)
 {
 	// TODO: Only redraw if necessary.
 	SDL_Rect rect;
 	rect.x = 0;
-	rect.y = (line - lineRenderTop) * 2;
+	rect.y = fromY * 2;
 	rect.w = WIDTH;
-	rect.h = (limit - line) * 2;
+	rect.h = (limitY - fromY) * 2;
 
 	// Draw lines in background colour.
 	// SDL takes care of clipping
@@ -683,37 +693,26 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
-	int fromLine, int limit)
+	int fromX, int fromY, int limitX, int limitY)
 {
-	//cerr << "displayPhase from " << fromLine << " until " << limit << "\n";
-
-	// Check for bottom erase; even on overscan this suspends display.
-	/*
-	if (limit > lineBottomErase) {
-		limit = lineBottomErase;
-	}
-	if (limit > lineRenderTop + HEIGHT / 2) {
-		limit = lineRenderTop + HEIGHT / 2;
-	}
-	if (fromLine >= limit) return;
-	*/
-
-	// Perform vertical scroll.
-	byte scrolledLine =
-		(fromLine - vdp->getLineZero() + vdp->getVerticalScroll()) & 0xFF;
-
-	// Character mode or bitmap mode?
-	SDL_Surface *displayCache =
-		vdp->isBitmapMode() ? bitmapDisplayCache : charDisplayCache;
+	//cerr << "displayPhase from "
+	//	<< "(" << fromX << "," << fromY << ") until "
+	//	<< "(" << limitX << "," << limitY << ")\n";
 
 	// Lock surface, because we will access pixels directly.
+	// TODO: Move to renderXxxLines.
+	SDL_Surface *displayCache =
+		vdp->isBitmapMode() ? bitmapDisplayCache : charDisplayCache;
 	if (SDL_MUSTLOCK(displayCache) && SDL_LockSurface(displayCache) < 0) {
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
 	// Render background lines.
 	// TODO: Complete separation of character and bitmap modes.
-	int lineCount = limit - fromLine;
+	byte scrolledLine =
+		lineRenderTop + fromY - vdp->getLineZero() + vdp->getVerticalScroll();
+	int lineCount = limitY - fromY;
+	if (limitX > 0) lineCount++;
 	if (vdp->isBitmapMode()) {
 		if (vdp->isPlanar()) renderPlanarBitmapLines(scrolledLine, lineCount);
 		else renderBitmapLines(scrolledLine, lineCount);
@@ -724,14 +723,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	if (SDL_MUSTLOCK(displayCache)) SDL_UnlockSurface(displayCache);
 
 	// Copy background image.
-	// TODO: Unify MSX1 and MSX2 modes?
-	SDL_Rect source;
-	source.x = 0;
-	source.w = getDisplayWidth();
-	source.h = 1;
-	SDL_Rect dest;
-	dest.x = getLeftBorder();
-	dest.y = (fromLine - lineRenderTop) * 2;
 	int line = scrolledLine;
 	int pageMaskEven, pageMaskOdd;
 	if (vdp->isInterlaced() && vdp->isEvenOddEnabled()) {
@@ -741,8 +732,16 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		pageMaskEven = pageMaskOdd =
 			(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 	}
-	// TODO: Optimise.
-	for (int n = limit - fromLine; n--; ) {
+
+	// TODO: Unify MSX1 and MSX2 modes?
+	SDL_Rect source;
+	source.x = 0;
+	source.w = getDisplayWidth();
+	source.h = 1;
+	SDL_Rect dest;
+	dest.x = getLeftBorder();
+	dest.y = fromY * 2;
+	for (int n = limitY - fromY; n--; ) {
 		source.y =
 			( vdp->isBitmapMode()
 			? (vdp->getNameMask() >> 7) & (pageMaskEven | line)
@@ -774,8 +773,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
-	for (int line = fromLine; line < limit; line++) {
-		drawSprites(line);
+	for (int line = fromY; line < limitY; line++) {
+		drawSprites(lineRenderTop + line);
 	}
 	// Unlock surface.
 	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
@@ -786,9 +785,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	// TODO: Does the extended border clip sprites as well?
 	Pixel bgColour = getBorderColour();
 	dest.x = 0;
-	dest.y = (fromLine - lineRenderTop) * 2;
+	dest.y = fromY * 2;
 	dest.w = getLeftBorder();
-	dest.h = (limit - fromLine) * 2;
+	dest.h = lineCount * 2;
 	// Note: SDL clipping is relied upon because interlace can push rect
 	//       one line out of the screen.
 	SDL_FillRect(screen, &dest, bgColour);
@@ -812,7 +811,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::frameStart(
 
 	// Calculate important moments in frame rendering.
 	lineBottomErase = vdp->isPalTiming() ? 313 - 3 : 262 - 3;
-	nextLine = lineRenderTop;
+	nextX = 0;
+	nextY = 0;
 
 	// Screen is up-to-date, so nothing is dirty.
 	// TODO: Either adapt implementation to work with incremental

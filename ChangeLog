@@ -1,5 +1,9 @@
 $Id$
 
+2002-05-02 Maarten ter Huurne <mth@stack.nl>
+	* Calculate pixel precision coordinates.
+	  They are approximately right, but not exactly right yet.
+
 2002-05-01 David Heremans <david.heremans@gnu-linux.net>
 	* Skeleton files for JoyNet device
 
