@@ -1449,7 +1449,7 @@ bool YM2413_2::checkMuteHelper()
 	return true;	// nothing playing, mute
 }
 
-void YM2413_2::setInternalVolume(short newVolume)
+void YM2413_2::setVolume(int newVolume)
 {
 	maxVolume = newVolume;
 }

@@ -112,7 +112,7 @@ private:
 	// SoundDevice
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
-	virtual void setInternalVolume(short newVolume);
+	virtual void setVolume(int newVolume);
 	virtual int* updateBuffer(int length) throw();
 	virtual void setSampleRate(int sampleRate);
 
@@ -124,7 +124,7 @@ private:
 
 	
 	int* buffer;
-	short maxVolume;
+	int maxVolume;
 
 	Channel channels[9];		// OPLL chips have 9 channels
 	byte instvol_r[9];		// instrument/volume (or volume/volume in percussive mode)

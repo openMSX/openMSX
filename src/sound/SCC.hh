@@ -30,7 +30,7 @@ private:
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
 	virtual void setSampleRate(int sampleRate);
-	virtual void setInternalVolume(short maxVolume);
+	virtual void setVolume(int maxVolume);
 	virtual int* updateBuffer(int length) throw();
 
 	class SCCDebuggable : public Debuggable {

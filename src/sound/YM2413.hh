@@ -125,7 +125,7 @@ public:
 	// SoundDevice
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
-	virtual void setInternalVolume(short maxVolume);
+	virtual void setVolume(int maxVolume);
 	virtual void setSampleRate(int sampleRate);
 	virtual int* updateBuffer(int length) throw();
 
@@ -240,7 +240,7 @@ private:
 	static const double AM_DEPTH = 2.4;
 
 	int* buffer;
-	short maxVolume;
+	int maxVolume;
 
 	int output[2];
 

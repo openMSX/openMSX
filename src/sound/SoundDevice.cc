@@ -13,17 +13,6 @@ SoundDevice::SoundDevice()
 	//      to read the start volume from the config file?
 }
 
-void SoundDevice::setVolume (short newVolume)
-{
-	volume = newVolume;
-	setInternalVolume(volume);
-}
-
-short SoundDevice::getVolume() const
-{
-	return volume;
-}
-
 void SoundDevice::setMute (bool muted)
 {
 	userMuted = muted;

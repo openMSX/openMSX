@@ -146,7 +146,7 @@ void SCC::setSampleRate(int sampleRate)
 	realstep = (unsigned)(((unsigned)(1 << 31)) / sampleRate);
 }
 
-void SCC::setInternalVolume(short maxVolume)
+void SCC::setVolume(int maxVolume)
 {
 	masterVolume = maxVolume;
 }

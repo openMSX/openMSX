@@ -850,7 +850,7 @@ int* Y8950::updateBuffer(int length) throw()
 	return buffer;
 }
 
-void Y8950::setInternalVolume(short newVolume)
+void Y8950::setVolume(int newVolume)
 {
 	maxVolume = newVolume;
 }

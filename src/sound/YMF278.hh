@@ -83,7 +83,7 @@ private:
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
 	virtual void setSampleRate(int sampleRate);
-	virtual void setInternalVolume(short newVolume);
+	virtual void setVolume(int newVolume);
 	virtual int* updateBuffer(int length) throw();
 
 	class DebugRegisters : public Debuggable {

@@ -995,7 +995,7 @@ int* YM2413::updateBuffer(int length) throw()
 	return buffer;
 }
 
-void YM2413::setInternalVolume(short newVolume)
+void YM2413::setVolume(int newVolume)
 {
 	maxVolume = newVolume;
 }

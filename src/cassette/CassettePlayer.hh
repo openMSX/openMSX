@@ -55,7 +55,7 @@ public:
 	virtual void unplug(const EmuTime &time);
 
 	// SoundDevice
-	virtual void setInternalVolume(short newVolume);
+	virtual void setVolume(int newVolume);
 	virtual void setSampleRate(int sampleRate);
 	virtual int* updateBuffer(int length) throw();
 
@@ -77,7 +77,7 @@ private:
 
 	// SoundDevice
 	int* buffer;
-	short volume;
+	int volume;
 	EmuDuration delta;
 	EmuTime playTapeTime;
 };

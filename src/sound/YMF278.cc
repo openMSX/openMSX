@@ -802,7 +802,7 @@ void YMF278::setSampleRate(int sampleRate)
 	eg_timer_add = (unsigned)((1 << EG_SH) * freqbase);
 }
 
-void YMF278::setInternalVolume(short newVolume)
+void YMF278::setVolume(int newVolume)
 {
 	// Volume table, 1 = -0.375dB, 8 = -3dB, 256 = -96dB
 	for (int i = 0; i < 256; i++) {

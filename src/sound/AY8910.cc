@@ -275,13 +275,13 @@ void AY8910::checkMute()
 	setInternalMute(false);
 }
 
-void AY8910::setInternalVolume(short newVolume)
+void AY8910::setVolume(int newVolume)
 {
 	// calculate the volume->voltage conversion table
 	// The AY-3-8910 has 16 levels, in a logarithmic scale (3dB per step)
 	double out = newVolume;		// avoid clipping
 	for (int i = 15; i > 0; --i) {
-		volTable[i] = (unsigned int)(out + 0.5);	// round to nearest
+		volTable[i] = (unsigned)(out + 0.5);	// round to nearest
 		out *= 0.707945784384;			// 1/(10^(3/20)) = 1/(3dB)
 	}
 	volTable[0] = 0;

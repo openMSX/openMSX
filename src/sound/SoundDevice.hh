@@ -27,20 +27,15 @@ public:
 	
 	/**
 	 * Set the relative volume for this sound device, this can be used to
-	 * make a MSX-MUSIC sound louder than a MSX-AUDIO  (0 <= newVolume <=
-	 * 32767)
+	 * make a MSX-MUSIC sound louder than a MSX-AUDIO 
 	 *
 	 * The SoundDevice itself should call this method once at
 	 * initialization (preferably with a value from the config file). Later
 	 * on the user might (interactively) alter the volume of this device
+	 * So the volume change must not necessarily have an immediate effect,
+	 * for example (short) precalculated buffers must not be discarded.
 	 */
-	void setVolume(short newVolume);
-
-	/**
-	 * This method can be used to show the current volume settings of the
-	 * devices in some sort of UI
-	 */
-	short getVolume() const;
+	virtual void setVolume(int newVolume) = 0;
 
 	/**
 	 * This method mutes this SoundDevice
@@ -61,14 +56,6 @@ public:
 	bool isMuted() const;
 
 protected:
-	/**
-	 * This method is called from within setVolume(). It is (except for
-	 * initialization) only called from user interaction, so the volume
-	 * change must not necessarily have an immediate effect, for example
-	 * (short) precalculated buffers must not be discarded.
-	 */
-	virtual void setInternalVolume(short newVolume) = 0;
-	
 	/**
 	 * This method mutes this SoundDevice
 	 *  false -> not muted
@@ -111,7 +98,6 @@ public:
 	virtual int* updateBuffer(int length) throw() = 0;
 
 private:
-	short volume;
 	bool userMuted, internalMuted;
 };
 

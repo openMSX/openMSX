@@ -143,7 +143,7 @@ private:
 	// SoundDevice
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
-	virtual void setInternalVolume(short volume);
+	virtual void setVolume(int volume);
 	virtual void setSampleRate(int sampleRate);
 	virtual int* updateBuffer(int length) throw();
 
@@ -222,7 +222,7 @@ private:
 
 	int chanout[18];		// 18 channels 
 	int* buffer;
-	short maxVolume;
+	int maxVolume;
 };
 
 } // namespace openmsx

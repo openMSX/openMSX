@@ -1974,7 +1974,7 @@ int* YMF262::updateBuffer(int length) throw()
 	return buffer;
 }
 
-void YMF262::setInternalVolume(short newVolume)
+void YMF262::setVolume(int newVolume)
 {
 	maxVolume = newVolume;
 }

@@ -228,7 +228,7 @@ void CassettePlayer::tabCompletion(vector<string> &tokens) const throw()
 }
 
 
-void CassettePlayer::setInternalVolume(short newVolume)
+void CassettePlayer::setVolume(int newVolume)
 {
 	volume = newVolume;
 }

@@ -42,7 +42,7 @@ const string& DACSound16S::getDescription() const
 	return desc;
 }
 
-void DACSound16S::setInternalVolume(short newVolume)
+void DACSound16S::setVolume(int newVolume)
 {
 	volume = newVolume;
 }

@@ -29,7 +29,7 @@ public:
 	// SoundDevice
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
-	virtual void setInternalVolume(short newVolume);
+	virtual void setVolume(int newVolume);
 	virtual void setSampleRate(int sampleRate);
 	virtual int* updateBuffer(int length) throw();
 	
