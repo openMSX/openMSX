@@ -15,7 +15,7 @@
 class EventListener;
 
 
-class EventDistributor : public Runnable , public Schedulable
+class EventDistributor : public Schedulable
 {
 	public:
 		virtual ~EventDistributor();
@@ -70,6 +70,7 @@ class EventDistributor : public Runnable , public Schedulable
 				const std::vector<std::string> &tokens, const EmuTime &time );
 			virtual void help(const std::vector<std::string> &tokens) const;
 		} quitCommand;
+		friend class QuitCommand;
 };
 
 #endif
