@@ -71,6 +71,8 @@ public:
 	inline byte readColour(const EmuTime &time) {
 		sync(time);
 		//status &= 0x7F; // dont reset TR
+		// Note: Real VDP does reset TR, but for such a short time
+		//       that the MSX won't notice it.
 		transfer = true;
 		return COL;
 	}
@@ -136,7 +138,7 @@ private:
 	  * next byte.
 	  */
 	bool transfer;
-	
+
 	/** The X coordinate of a border detected by SRCH.
 	  */
 	int borderX;
@@ -145,7 +147,7 @@ private:
 	  */
 	VDP *vdp;
 	VDPVRAM* vram;
-	
+
 	/** Current screen mode.
 	  * 0 -> SCREEN5, 1 -> SCREEN6, 2 -> SCREEN7, 3 -> SCREEN8,
 	  * -1 -> other.
@@ -153,27 +155,27 @@ private:
 	int scrMode;
 
 	/** Active timing, depends on screen/status being on/off.
-	  */  
+	  */
 	int timingValue;
 	int vdpTiming;
 
 	class VDPCmd;
 	VDPCmd* commands[16];
 
-	/** Lower bound for the time when the status register will change, IOW 
+	/** Lower bound for the time when the status register will change, IOW
 	  * the status register will not change before this time.
 	  * Can also be EmuTime::zero -> status can change any moment
 	  * or EmuTime::infinity -> this command doesn't change the status
 	  */
 	EmuTime statusChangeTime;
-	
+
 	/** This is an abstract base class the VDP commands
 	  */
 	class VDPCmd {
 	public:
 		VDPCmd(VDPCmdEngine* engine, VDPVRAM* vram);
 		virtual ~VDPCmd();
-		
+
 		/** Prepare execution of cmd
 		  */
 		virtual void start(const EmuTime &time) = 0;
@@ -214,15 +216,15 @@ private:
 		/** Set a pixel on SCREEN 5
 		  */
 		inline void pset5(int dx, int dy, byte cl, LogOp op);
-		
+
 		/** Set a pixel on SCREEN 6
 		  */
 		inline void pset6(int dx, int dy, byte cl, LogOp op);
-		
+
 		/** Set a pixel on SCREEN 7
 		  */
 		inline void pset7(int dx, int dy, byte cl, LogOp op);
-		
+
 		/** Set a pixel on SCREEN 8
 		  */
 		inline void pset8(int dx, int dy, byte cl, LogOp op);
@@ -240,8 +242,17 @@ private:
 
 		VDPCmdEngine *engine;
 		VDPVRAM *vram;
+
+		/** Time at which the next operation cycle starts.
+		  * A cycle consists of reading source VRAM (if applicable),
+		  * reading destination VRAM (if applicable),
+		  * writing destination VRAM and updating coordinates.
+		  * For perfect timing each phase within a cycle should be timed
+		  * explicitly, but for now we use an average execution time per
+		  * cycle.
+		  */
 		EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
-		int opsCount;
+
 		word ASX, ADX, ANX;
 	};
 	friend class VDPCmd;

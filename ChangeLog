@@ -1,5 +1,10 @@
 $Id$
 
+2003-09-20 Maarten ter Huurne <maarten@treewalker.org>
+	* Have VDPCmdEngine pass accurate timestamps to VRAM writes.
+	  In the process, replaced opsCount by currentTime.
+	  Should solve PA3 enemy box problem (missing bottom line).
+
 2003-09-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fix the TR status bit in the VDPCmdEngine:
 	   most programs don't even check this bit so they weren't affected,

@@ -126,7 +126,7 @@ void VDPCmdEngine::reset(const EmuTime &time)
 
 	updateDisplayMode(vdp->getDisplayMode(), time);
 }
-	
+
 void VDPCmdEngine::updateTiming(int timing, const EmuTime &time)
 {
 	vdpTiming = timing;
@@ -193,6 +193,8 @@ void VDPCmdEngine::setCmdReg(byte index, byte value, const EmuTime &time)
 	case 0x0C: // colour
 		COL = value;
 		//status &= 0x7F;	// don't reset TR
+		// Note: Real VDP does reset TR, but for such a short time
+		//       that the MSX won't notice it.
 		transfer = true;
 		break;
 	case 0x0D: // argument
@@ -501,11 +503,11 @@ void VDPCmdEngine::commandDone(const EmuTime& time)
 // that are re-used. We define the loop structures that are
 // re-used here so that they have to be entered only once.
 #define pre_loop \
-	while (opsCount >= delta) { \
-		opsCount -= delta;
+	while (currentTime < time) {
 
 // Loop over DX, DY.
 #define post__x_y() \
+		currentTime += delta; \
 		ADX += TX; \
 		if (--ANX == 0) { \
 			engine->DY += TY; --(engine->NY); \
@@ -519,6 +521,7 @@ void VDPCmdEngine::commandDone(const EmuTime& time)
 
 // Loop over SX, DX, SY, DY.
 #define post_xxyy() \
+		currentTime += delta; \
 		ASX += TX; ADX += TX; \
 		if (--ANX == 0) { \
 			engine->SY += TY; engine->DY += TY; --(engine->NY); \
@@ -601,7 +604,6 @@ VDPCmdEngine::SrchCmd::SrchCmd(VDPCmdEngine *engine, VDPVRAM *vram)
 
 void VDPCmdEngine::SrchCmd::start(const EmuTime &time)
 {
-	opsCount = 0;
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.disable(currentTime);
@@ -614,8 +616,6 @@ void VDPCmdEngine::SrchCmd::execute(const EmuTime &time)
 	byte CL = engine->COL & MASK[engine->scrMode];
 	char TX = (engine->ARG & DIX) ? -1 : 1;
 	bool AEQ = (engine->ARG & EQ) != 0; // TODO: Do we look for "==" or "!="?
-	opsCount += currentTime.getTicksTill(time);
-	currentTime = time;
 	int delta = SRCH_TIMING[engine->timingValue];
 
 #define pre_srch \
@@ -623,11 +623,13 @@ void VDPCmdEngine::SrchCmd::execute(const EmuTime &time)
 		if ((
 #define post_srch(MX) \
 		== CL) ^ AEQ) { \
+			currentTime += delta; \
 			engine->status |= 0x10; /* Border detected */ \
 			engine->commandDone(currentTime); \
 			engine->borderX = 0xFE00 | ASX; \
 			break; \
 		} \
+		currentTime += delta; \
 		if ((ASX += TX) & MX) { \
 			engine->status &= 0xEF; /* Border not detected */ \
 			engine->commandDone(currentTime); \
@@ -658,7 +660,6 @@ VDPCmdEngine::LineCmd::LineCmd(VDPCmdEngine *engine, VDPVRAM *vram)
 
 void VDPCmdEngine::LineCmd::start(const EmuTime &time)
 {
-	opsCount = 0;
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
@@ -674,11 +675,10 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 	byte CL = engine->COL & MASK[engine->scrMode];
 	char TX = (engine->ARG & DIX) ? -1 : 1;
 	char TY = (engine->ARG & DIY) ? -1 : 1;
-	opsCount += currentTime.getTicksTill(time);
-	currentTime = time;
 	int delta = LINE_TIMING[engine->timingValue];
 
 #define post_linexmaj(MX) \
+		currentTime += delta; \
 		ADX += TX; \
 		if (ASX < engine->NY) { \
 			ASX += engine->NX; \
@@ -692,6 +692,7 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 		} \
 	}
 #define post_lineymaj(MX) \
+		currentTime += delta; \
 		engine->DY += TY; \
 		if (ASX < engine->NY) { \
 			ASX += engine->NX; \
@@ -745,7 +746,7 @@ void VDPCmdEngine::BlockCmd::calcFinishTime(word NX, word NY)
 {
 	if (engine->CMD) {
 		int ticks = ((NX * (NY - 1)) + ANX) * timing[engine->timingValue]; 
-		engine->statusChangeTime = currentTime + ticks; 
+		engine->statusChangeTime = currentTime + ticks;
 	}
 }
 
@@ -759,7 +760,6 @@ VDPCmdEngine::LmmvCmd::LmmvCmd(VDPCmdEngine *engine, VDPVRAM *vram)
 
 void VDPCmdEngine::LmmvCmd::start(const EmuTime &time)
 {
-	opsCount = 0;
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
@@ -780,9 +780,6 @@ void VDPCmdEngine::LmmvCmd::execute(const EmuTime &time)
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1(ADX, ANX);
 	byte CL = engine->COL & MASK[engine->scrMode];
-	
-	opsCount += currentTime.getTicksTill(time);
-	currentTime = time;
 	int delta = LMMV_TIMING[engine->timingValue];
 
 	switch (engine->scrMode) {
@@ -816,7 +813,6 @@ VDPCmdEngine::LmmmCmd::LmmmCmd(VDPCmdEngine *engine, VDPVRAM *vram)
 
 void VDPCmdEngine::LmmmCmd::start(const EmuTime &time)
 {
-	opsCount = 0;
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
@@ -837,9 +833,6 @@ void VDPCmdEngine::LmmmCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -1 : 1;
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_2(ASX, ADX, ANX);
-
-	opsCount += currentTime.getTicksTill(time);
-	currentTime = time;
 	int delta = LMMM_TIMING[engine->timingValue];
 
 	switch (engine->scrMode) {
@@ -873,7 +866,6 @@ VDPCmdEngine::LmcmCmd::LmcmCmd(VDPCmdEngine *engine, VDPVRAM *vram)
 
 void VDPCmdEngine::LmcmCmd::start(const EmuTime &time)
 {
-	opsCount = 0;
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.disable(currentTime);
@@ -894,23 +886,23 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -1 : 1;
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1(ASX, ANX);
-	
-	opsCount += currentTime.getTicksTill(time);
-	currentTime = time;
+
 	if (engine->transfer) {
 		engine->COL = point(ASX, engine->SY);
-		opsCount -= LMMV_TIMING[engine->timingValue];
+		// Execution is emulated as instantaneous, so don't bother
+		// with the timing.
+		// Note: Correct timing would require currentTime to be set
+		//       to the moment transfer becomes true.
+		//currentTime += LMMV_TIMING[engine->timingValue];
 		engine->transfer = false;
 		ASX += TX; --ANX;
 		if (ANX == 0) {
 			engine->SY += TY; --(engine->NY);
 			ASX = engine->SX; ANX = NX;
 			if (--NY == 0) {
-				engine->commandDone(currentTime);
+				engine->commandDone(time);
 			}
 		}
-	} else {
-		// TODO do we need to adjust opsCount?
 	}
 }
 
@@ -924,7 +916,6 @@ VDPCmdEngine::LmmcCmd::LmmcCmd(VDPCmdEngine *engine, VDPVRAM *vram)
 
 void VDPCmdEngine::LmmcCmd::start(const EmuTime &time)
 {
-	opsCount = 0;
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
@@ -945,13 +936,17 @@ void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -1 : 1;
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1(ADX, ANX);
-	
-	opsCount += currentTime.getTicksTill(time);
-	currentTime = time;
+
 	if (engine->transfer) {
 		byte col = engine->COL & MASK[engine->scrMode];
+		// TODO: Write time is inaccurate.
+		currentTime = time;
 		pset(ADX, engine->DY, col, engine->LOG);
-		opsCount -= LMMV_TIMING[engine->timingValue];
+		// Execution is emulated as instantaneous, so don't bother
+		// with the timing.
+		// Note: Correct timing would require currentTime to be set
+		//       to the moment transfer becomes true.
+		//currentTime += LMMV_TIMING[engine->timingValue];
 		engine->transfer = false;
 
 		ADX += TX; --ANX;
@@ -959,11 +954,9 @@ void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
 			engine->DY += TY; --(engine->NY);
 			ADX = engine->DX; ANX = NX;
 			if (--NY == 0) {
-				engine->commandDone(currentTime);
+				engine->commandDone(time);
 			}
 		}
-	} else {
-		// TODO do we need to adjust opsCount?
 	}
 }
 
@@ -977,7 +970,6 @@ VDPCmdEngine::HmmvCmd::HmmvCmd(VDPCmdEngine *engine, VDPVRAM *vram)
 
 void VDPCmdEngine::HmmvCmd::start(const EmuTime &time)
 {
-	opsCount = 0;
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
@@ -998,9 +990,6 @@ void VDPCmdEngine::HmmvCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1(ADX, ANX << ppbs, ppbs);
-	
-	opsCount += currentTime.getTicksTill(time);
-	currentTime = time;
 	int delta = HMMV_TIMING[engine->timingValue];
 
 	switch (engine->scrMode) {
@@ -1038,7 +1027,6 @@ VDPCmdEngine::HmmmCmd::HmmmCmd(VDPCmdEngine *engine, VDPVRAM *vram)
 
 void VDPCmdEngine::HmmmCmd::start(const EmuTime &time)
 {
-	opsCount = 0;
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
@@ -1060,9 +1048,6 @@ void VDPCmdEngine::HmmmCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_2(ASX, ADX, ANX << ppbs, ppbs);
-
-	opsCount += currentTime.getTicksTill(time);
-	currentTime = time;
 	int delta = HMMM_TIMING[engine->timingValue];
 
 	switch (engine->scrMode) {
@@ -1112,7 +1097,6 @@ VDPCmdEngine::YmmmCmd::YmmmCmd(VDPCmdEngine *engine, VDPVRAM *vram)
 
 void VDPCmdEngine::YmmmCmd::start(const EmuTime &time)
 {
-	opsCount = 0;
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
@@ -1132,9 +1116,6 @@ void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1(ADX, 512, PPBS[engine->scrMode]);
-
-	opsCount += currentTime.getTicksTill(time);
-	currentTime = time;
 	int delta = YMMM_TIMING[engine->timingValue];
 
 	switch (engine->scrMode) {
@@ -1184,7 +1165,6 @@ VDPCmdEngine::HmmcCmd::HmmcCmd(VDPCmdEngine *engine, VDPVRAM *vram)
 
 void VDPCmdEngine::HmmcCmd::start(const EmuTime &time)
 {
-	opsCount = 0;
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
@@ -1206,12 +1186,15 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1(ADX, ANX << ppbs, ppbs);
-	
-	opsCount += currentTime.getTicksTill(time);
-	currentTime = time;
+
 	if (engine->transfer) {
-		vram->cmdWrite(vramAddr(ADX, engine->DY), engine->COL, currentTime);
-		opsCount -= HMMV_TIMING[engine->timingValue];
+		// TODO: Write time is inaccurate.
+		vram->cmdWrite(vramAddr(ADX, engine->DY), engine->COL, time);
+		// Execution is emulated as instantaneous, so don't bother
+		// with the timing.
+		// Note: Correct timing would require currentTime to be set
+		//       to the moment transfer becomes true.
+		//currentTime += HMMV_TIMING[engine->timingValue];
 		engine->transfer = false;
 
 		ADX += TX; --ANX;
@@ -1222,8 +1205,6 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 				engine->commandDone(currentTime);
 			}
 		}
-	} else {
-		// TODO do we need to adjust opsCount?
 	}
 }
 
