@@ -19,6 +19,7 @@
 #include "MSXTapePatch.hh"
 #include "DiskImageCLI.hh"
 #include "ConfigException.hh"
+#include "StringSetting.hh"
 
 namespace openmsx {
 
@@ -200,20 +201,21 @@ void CommandLineParser::parse(int argc, char** argv)
 			}
 			postRegisterFileTypes();
 			break;
-		case 5:
+		case 5: {
+			XMLElement& machineConfig =
+				settingsConfig.getCreateChild("machine", "cbios-msx2");
+			machineSetting.reset(new StringSetting(machineConfig,
+				"default machine (takes effect next time openMSX is started)"));
+	
 			if (!issuedHelp && !haveConfig) {
 				// load default config file in case the user didn't specify one
-				string machine = "default";
-				const XMLElement* machineConfig =
-					settingsConfig.findChild("DefaultMachine");
-				if (machineConfig) {
-					machine = machineConfig->getData();
-					output.printInfo("Using default machine: " + machine);
-				}
+				const string& machine = machineSetting->getValue();
+				output.printInfo("Using default machine: " + machine);
 				loadMachine(machine);
 				haveConfig = true;
 			}
 			break;
+		}
 		default:
 			// iterate over all arguments
 			while (!cmdLine.empty()) {

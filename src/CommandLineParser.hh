@@ -29,6 +29,7 @@ class CliExtension;
 class MSXCassettePlayerCLI;
 class MSXCasCLI;
 class DiskImageCLI;
+class StringSetting;
 
 class CLIOption
 {
@@ -169,6 +170,7 @@ private:
 	const auto_ptr<MSXCassettePlayerCLI> cassettePlayerCLI;
 	const auto_ptr<MSXCasCLI> casCLI;
 	const auto_ptr<DiskImageCLI> diskImageCLI;
+	auto_ptr<StringSetting> machineSetting;
 };
 
 } // namespace openmsx

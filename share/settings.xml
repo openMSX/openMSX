@@ -5,7 +5,7 @@
 <!-- This file contains the settings or user preferences.  -->
 
   <!-- The machine that is loaded if no machine is specified -->
-  <DefaultMachine>cbios-msx2</DefaultMachine>
+  <machine>cbios-msx2</machine>
 
   <!-- video settings: determines how openMSX outputs graphics -->
   <video>

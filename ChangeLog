@@ -1,6 +1,11 @@
 $Id$
 
 2004-09-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* default machine is now configurable via a setting. Of course this
+	  only has effect when openMSX is restarted. Although in the future
+	  we may switch machine between a power off/on cycle.
+
+2004-09-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Z80 updates:
 	   - fixed P-flag in OUTI and INI instructions
 	   - calculate DAA table 
