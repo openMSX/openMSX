@@ -10,6 +10,7 @@ $Id$
 	     needed for Linux / Windows. But some platforms probably do need
 	     it.
 	* Fixed "after time" and "after idle" console commands
+	* CPU cleanup: removed historical cruft
 
 2004-08-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made tiny optimization in DynamicClock, however this gave a speedup

@@ -37,21 +37,21 @@ inline void R800::INC_DELAY()      { clock += 1; }
 inline void R800::SMALL_DELAY()    { }
 inline int R800::haltStates() { return 1; }	// HALT + M1 // TODO check this
 
-inline void R800::RDMEM_OPCODE(word address, byte &result)
+inline byte R800::RDMEM_OPCODE(word address)
 {
 	int newPage = address >> 8;
 	if (newPage != lastPage) {
 		lastPage = newPage;
 		clock += 1;
 	}
-	RDMEM_common(address, result);
+	return RDMEM_common(address);
 }
 
-inline void R800::RDMEM(word address, byte &result)
+inline byte R800::RDMEM(word address)
 {
 	clock += 1;
 	lastPage = -1;
-	RDMEM_common(address, result);
+	return RDMEM_common(address);
 }
 
 inline void R800::WRMEM(word address, byte value)

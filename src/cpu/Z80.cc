@@ -46,14 +46,14 @@ inline void Z80::INC_DELAY()      { clock += 1; }
 inline void Z80::SMALL_DELAY()    { clock += 1; }  // TODO more detailed?
 inline int Z80::haltStates() { return 4 + WAIT_CYCLES; } // HALT + M1
 
-inline void Z80::RDMEM_OPCODE(word address, byte &result)
+inline byte Z80::RDMEM_OPCODE(word address)
 {
-	RDMEM_common(address, result);
+	return RDMEM_common(address);
 }
 
-inline void Z80::RDMEM(word address, byte &result)
+inline byte Z80::RDMEM(word address)
 {
-	RDMEM_common(address, result);
+	return RDMEM_common(address);
 }
 
 inline void Z80::WRMEM(word address, byte value)
