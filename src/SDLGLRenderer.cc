@@ -62,11 +62,13 @@ inline static void GLSetColour(SDLGLRenderer::Pixel colour)
 }
 
 inline static void GLBlitLine(
-	SDLGLRenderer::Pixel *line, int n, int x, int y)
+	GLint textureId, SDLGLRenderer::Pixel *line, int n, int x, int y)
 {
-if (0) {
-	GLuint textureId;
-	glGenTextures(1, &textureId);
+if (1) {
+	// Note: If this is re-enabled, also enable GL_TEXTURE_2D and set the
+	//       texture environment mode to REPLACE.
+	//GLuint textureId;
+	//glGenTextures(1, &textureId);
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	glTexImage2D(
 		GL_TEXTURE_2D,
@@ -79,19 +81,19 @@ if (0) {
 		GL_UNSIGNED_BYTE,
 		line
 		);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	// bind again if necessary, currently not
 	GLSetColour(0xFFFFFFu);
 	glBegin(GL_QUADS);
-	int x1 = x + 512;
+	int x1 = x + n * 2;
 	int y1 = y + 2;
 	glTexCoord2i(0, 0); glVertex2i(x,  y1); // Bottom Left
 	glTexCoord2i(1, 0); glVertex2i(x1, y1); // Bottom Right
 	glTexCoord2i(1, 1); glVertex2i(x1, y ); // Top Right
 	glTexCoord2i(0, 1); glVertex2i(x,  y ); // Top Left
 	glEnd();
-	glDeleteTextures(1, &textureId);
+	//glDeleteTextures(1, &textureId);
 
 } else {
 
@@ -129,7 +131,6 @@ inline static void GLDrawTexture(
 	GLuint textureId, int x, int y)
 {
 	glBindTexture(GL_TEXTURE_2D, textureId);
-	GLSetColour(0xFFFFFFu);
 	glBegin(GL_QUADS);
 	int x1 = x + 512;
 	int y1 = y + 2;
@@ -137,6 +138,66 @@ inline static void GLDrawTexture(
 	glTexCoord2i(1, 0); glVertex2i(x1, y1); // Bottom Right
 	glTexCoord2i(1, 1); glVertex2i(x1, y ); // Top Right
 	glTexCoord2i(0, 1); glVertex2i(x,  y ); // Top Left
+	glEnd();
+}
+
+inline static void GLBindMonoBlock(GLuint textureId, byte *pixels)
+{
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0, // level
+		GL_LUMINANCE8,
+		8, // width
+		8, // height
+		0, // border
+		GL_LUMINANCE,
+		GL_UNSIGNED_BYTE,
+		pixels
+		);
+}
+
+inline static void GLBindColourBlock(GLuint textureId, SDLGLRenderer::Pixel *pixels)
+{
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0, // level
+		GL_RGBA,
+		8, // width
+		8, // height
+		0, // border
+		GL_RGBA,
+		GL_UNSIGNED_BYTE,
+		pixels
+		);
+}
+
+inline static void GLDrawMonoBlock(
+	GLuint textureId, int x, int y, SDLGLRenderer::Pixel bg)
+{
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	GLSetColour(bg);
+	glBegin(GL_QUADS);
+	int x1 = x + 16;
+	int y1 = y + 16;
+	glTexCoord2i(0, 1); glVertex2i(x,  y1); // Bottom Left
+	glTexCoord2i(1, 1); glVertex2i(x1, y1); // Bottom Right
+	glTexCoord2i(1, 0); glVertex2i(x1, y ); // Top Right
+	glTexCoord2i(0, 0); glVertex2i(x,  y ); // Top Left
+	glEnd();
+}
+
+inline static void GLDrawColourBlock(GLuint textureId, int x, int y)
+{
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glBegin(GL_QUADS);
+	int x1 = x + 16;
+	int y1 = y + 16;
+	glTexCoord2i(0, 1); glVertex2i(x,  y1); // Bottom Left
+	glTexCoord2i(1, 1); glVertex2i(x1, y1); // Bottom Right
+	glTexCoord2i(1, 0); glVertex2i(x1, y ); // Top Right
+	glTexCoord2i(0, 0); glVertex2i(x,  y ); // Top Left
 	glEnd();
 }
 
@@ -277,16 +338,16 @@ SDLGLRenderer::DirtyChecker
 	// Use checkDirtyBitmap for every mode for which isBitmapMode is true.
 	SDLGLRenderer::modeToDirtyChecker[] = {
 		// M5 M4 = 0 0  (MSX1 modes)
-		&SDLGLRenderer::checkDirtyMSX1, // Graphic 1
-		&SDLGLRenderer::checkDirtyMSX1, // Text 1
-		&SDLGLRenderer::checkDirtyMSX1, // Multicolour
+		&SDLGLRenderer::checkDirtyMSX1Graphic, // Graphic 1
+		&SDLGLRenderer::checkDirtyMSX1Text, // Text 1
+		&SDLGLRenderer::checkDirtyMSX1Graphic, // Multicolour
 		&SDLGLRenderer::checkDirtyNull,
-		&SDLGLRenderer::checkDirtyMSX1, // Graphic 2
-		&SDLGLRenderer::checkDirtyMSX1, // Text 1 Q
-		&SDLGLRenderer::checkDirtyMSX1, // Multicolour Q
+		&SDLGLRenderer::checkDirtyMSX1Graphic, // Graphic 2
+		&SDLGLRenderer::checkDirtyMSX1Text, // Text 1 Q
+		&SDLGLRenderer::checkDirtyMSX1Graphic, // Multicolour Q
 		&SDLGLRenderer::checkDirtyNull,
 		// M5 M4 = 0 1
-		&SDLGLRenderer::checkDirtyMSX1, // Graphic 3
+		&SDLGLRenderer::checkDirtyMSX1Graphic, // Graphic 3
 		&SDLGLRenderer::checkDirtyText2,
 		&SDLGLRenderer::checkDirtyNull,
 		&SDLGLRenderer::checkDirtyNull,
@@ -320,6 +381,29 @@ SDLGLRenderer::SDLGLRenderer(
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256)
 {
+	GLint size;
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
+	printf("Max texture size: %d\n", size);
+	glTexImage2D(
+		GL_PROXY_TEXTURE_2D,
+		0,
+		GL_RGBA,
+		512,
+		1,
+		0,
+		GL_RGBA,
+		GL_UNSIGNED_BYTE,
+		NULL
+		);
+	size = -1;
+	glGetTexLevelParameteriv(
+		GL_PROXY_TEXTURE_2D,
+		0,
+		GL_TEXTURE_WIDTH,
+		&size
+		);
+	printf("512*1 texture fits: %d (512 if OK, 0 if failed)\n", size);
+
 	this->vdp = vdp;
 	this->screen = screen;
 	vram = vdp->getVRAM();
@@ -343,11 +427,26 @@ SDLGLRenderer::SDLGLRenderer(
 	dirtyForeground = dirtyBackground = true;
 
 	// Create character display cache.
+	// Line based:
 	glGenTextures(256, charTextureIds);
 	for (int i = 0; i < 256; i++) {
 		glBindTexture(GL_TEXTURE_2D, charTextureIds[i]);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+	// Block based:
+	glGenTextures(4 * 256, characterCache);
+	for (int i = 0; i < 4 * 256; i++) {
+		glBindTexture(GL_TEXTURE_2D, characterCache[i]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	}
+	// Sprites:
+	glGenTextures(313, spriteTextureIds);
+	for (int i = 0; i < 313; i++) {
+		glBindTexture(GL_TEXTURE_2D, spriteTextureIds[i]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 
 	// Create bitmap display cache.
@@ -599,7 +698,21 @@ void SDLGLRenderer::checkDirtyNull(
 	// on VRAM contents.
 }
 
-void SDLGLRenderer::checkDirtyMSX1(
+void SDLGLRenderer::checkDirtyMSX1Text(
+	int addr, byte data)
+{
+	if ((addr | ~(-1 << 10)) == vdp->getNameMask()) {
+		dirtyName[addr & ~(-1 << 10)] = anyDirtyName = true;
+	}
+	if ((addr | ~(-1 << 10)) == vdp->getColourMask()) {
+		dirtyColour[(addr / 8) & ~(-1 << 8)] = anyDirtyColour = true;
+	}
+	if ((addr | ~(-1 << 11)) == vdp->getPatternMask()) {
+		dirtyPattern[(addr / 8) & ~(-1 << 8)] = anyDirtyPattern = true;
+	}
+}
+
+void SDLGLRenderer::checkDirtyMSX1Graphic(
 	int addr, byte data)
 {
 	if ((addr | ~(-1 << 10)) == vdp->getNameMask()) {
@@ -609,7 +722,7 @@ void SDLGLRenderer::checkDirtyMSX1(
 		dirtyColour[(addr / 8) & ~(-1 << 10)] = anyDirtyColour = true;
 	}
 	if ((addr | ~(-1 << 13)) == vdp->getPatternMask()) {
-		dirtyPattern[(addr / 8) & ~(-1 << 10)] = anyDirtyPattern = true;
+		dirtyPattern[(addr / 8) & ~(-1 << 13)] = anyDirtyPattern = true;
 	}
 }
 
@@ -660,6 +773,11 @@ void SDLGLRenderer::drawSprites(int absLine)
 
 	if (vdp->getDisplayMode() < 8) {
 		// Sprite mode 1: render directly to screen using overdraw.
+
+		// Buffer to render sprite pixel to; start with all transparent.
+		memset(lineBuffer, 0, 256 * sizeof(Pixel));
+
+		// Iterate over all sprites on this line.
 		while (visibleIndex--) {
 			// Get sprite info.
 			SpriteChecker::SpriteInfo *sip = &visibleSprites[visibleIndex];
@@ -672,24 +790,33 @@ void SDLGLRenderer::drawSprites(int absLine)
 			SpriteChecker::SpritePattern pattern = sip->pattern;
 			int x = sip->x;
 			// Skip any dots that end up in the border.
-			if (x < 0) {
+			if (x <= -32) {
+				continue;
+			} else if (x < 0) {
 				pattern <<= -x;
 				x = 0;
 			} else if (x > 256 - 32) {
 				pattern &= -1 << (32 - (256 - x));
 			}
 			// Convert pattern to pixels.
-			Pixel buffer[32];
-			Pixel *p = buffer;
+			//Pixel buffer[32];
+			//Pixel *p = buffer;
+			Pixel *p = lineBuffer + x;
 			while (pattern) {
 				// Draw pixel if sprite has a dot.
-				*p++ = pattern & 0x80000000 ? colour : 0;
+				if (pattern & 0x80000000) *p = colour;
 				// Advancing behaviour.
+				p++;
 				pattern <<= 1;
 			}
-			int n = p - buffer;
-			if (n) GLBlitLine(buffer, n, leftBorder + x * 2, screenLine);
+			//int n = p - buffer;
+			//if (n) GLBlitLine(spriteTextureIds[screenLine / 2], buffer, n, leftBorder + x * 2, screenLine);
 		}
+		// TODO:
+		// Possible speedups:
+		// - create a texture in 1bpp, or in luminance
+		// - use VRAM to render sprite blocks instead of lines
+		GLBlitLine(spriteTextureIds[absLine], lineBuffer, 256, leftBorder, screenLine);
 	} else {
 		// Sprite mode 2: single pass left-to-right render.
 
@@ -742,7 +869,7 @@ void SDLGLRenderer::drawSprites(int absLine)
 				lineBuffer[pixelDone] = palSprites[colour];
 			}
 		}
-		GLBlitLine(lineBuffer, 256, leftBorder, screenLine);
+		GLBlitLine(spriteTextureIds[absLine], lineBuffer, 256, leftBorder, screenLine);
 	}
 }
 
@@ -759,6 +886,112 @@ void SDLGLRenderer::blankPhase(
 	glVertex2i(WIDTH, y2); // bottom right
 	glVertex2i(0, y2); // bottom left
 	glEnd();
+}
+
+// TODO: For now, only render full lines.
+//       Later partial lines will be supported.
+void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
+{
+	Pixel fg = palFg[vdp->getForegroundColour()];
+	Pixel bg = palBg[vdp->getBackgroundColour()];
+
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
+	float fgColour[4] = {
+		(fg & 0xFF) / 255.0f,
+		((fg >> 8) & 0xFF) / 255.0f,
+		((fg >> 16) & 0xFF) / 255.0f,
+		1.0f
+		};
+	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, fgColour);
+
+	int nameBase =
+		(-1 << 10) & vdp->getNameMask();
+	int patternBaseLine =
+		(-1 << 11) & vdp->getPatternMask();
+
+	int leftBorder = getLeftBorder();
+
+	int endRow = (vramLine + count + 7) / 8;
+	screenLine -= (vramLine & 7) * 2;
+	for (int row = vramLine / 8; row < endRow; row++) {
+		for (int col = 0; col < 40; col++) {
+			// TODO: Only bind texture once?
+			//       Currently both subdirs bind the same texture.
+			int name = row * 40 + col;
+			int charcode = vram->readNP(nameBase | name);
+			GLuint textureId = characterCache[charcode];
+			if (dirtyPattern[charcode]) {
+				// Update cache for current character.
+				dirtyPattern[charcode] = false;
+				// TODO: Read byte ranges from VRAM?
+				//       Otherwise, have CharacterConverter read individual
+				//       bytes. But what is the advantage to that?
+				int addr = patternBaseLine | (charcode * 8);
+				byte charPixels[8 * 8];
+				characterConverter.convertMonoBlock(
+					charPixels,
+					vram->readArea(addr, addr + 8)
+					);
+				GLBindMonoBlock(textureId, charPixels);
+			}
+			// Plot current character.
+			// TODO: SCREEN 0.40 characters are 12 wide, not 16.
+			GLDrawMonoBlock(textureId, leftBorder + col * 12, screenLine, bg);
+		}
+		screenLine += 16;
+	}
+}
+
+// TODO: For now, only render full lines.
+//       Later partial lines will be supported.
+void SDLGLRenderer::renderGraphic2(int vramLine, int screenLine, int count)
+{
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+	int endRow = (vramLine + count) / 8;
+	screenLine -= (vramLine & 7) * 2;
+	for (int row = vramLine / 8; row < endRow; row++) {
+		renderGraphic2Row(row, screenLine);
+		screenLine += 16;
+	}
+}
+
+void SDLGLRenderer::renderGraphic2Row(int row, int screenLine)
+{
+	int nameStart = row * 32;
+	int nameEnd = nameStart + 32;
+
+	int quarter = nameStart & ~0xFF;
+	int nameBase = (-1 << 10) & vdp->getNameMask();
+	int patternQuarter = quarter & (vdp->getPatternMask() / 8);
+	int patternBaseLine = (-1 << 13) & vdp->getPatternMask();
+	int colourNrBase = 0x3FF & (vdp->getColourMask() / 8);
+	int colourBaseLine = (-1 << 13) & vdp->getColourMask();
+	int x = getLeftBorder();
+	for (int name = nameStart; name < nameEnd; name++) {
+		int charCode = vram->readNP(nameBase | name);
+		int colourNr = (quarter | charCode) & colourNrBase;
+		int patternNr = patternQuarter | charCode;
+		GLuint textureId = characterCache[quarter | charCode];
+		if (dirtyPattern[patternNr] || dirtyColour[colourNr]) {
+			// TODO: With all the masks and quarters, is this dirty
+			//       checking really correct?
+			dirtyPattern[patternNr] = false;
+			dirtyColour[colourNr] = false;
+
+			int patternAddr = patternBaseLine | (patternNr * 8);
+			int colourAddr = colourBaseLine | (colourNr * 8);
+			Pixel charPixels[8 * 8];
+			characterConverter.convertColourBlock(
+				charPixels,
+				vram->readArea(patternAddr, patternAddr + 8),
+				vram->readArea(colourAddr, colourAddr + 8)
+				);
+			GLBindColourBlock(textureId, charPixels);
+		}
+		GLDrawColourBlock(textureId, x, screenLine);
+		x += 16;
+	}
 }
 
 void SDLGLRenderer::displayPhase(
@@ -793,6 +1026,7 @@ void SDLGLRenderer::displayPhase(
 		// Which bits in the name mask determine the page?
 		int pageMask =
 			(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		do {
 			int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
 			GLDrawTexture(bitmapTextureIds[vramLine], leftBorder, y);
@@ -802,23 +1036,39 @@ void SDLGLRenderer::displayPhase(
 	} else {
 		int line = scrolledLine;
 		int n = limit - fromLine;
-		renderCharacterLines(line, n);
-		do {
-			GLDrawTexture(charTextureIds[line], leftBorder, y);
-			line = (line + 1) & 0xFF;
-			y += 2;
-		} while (--n);
+		switch (vdp->getDisplayMode()) {
+		case 1:
+			renderText1(line, y, n);
+			break;
+		case 4: // graphic2
+		case 8: // graphic4
+			renderGraphic2(line, y, n);
+			break;
+		default:
+			renderCharacterLines(line, n);
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+			do {
+				GLDrawTexture(charTextureIds[line], leftBorder, y);
+				line = (line + 1) & 0xFF;
+				y += 2;
+			} while (--n);
+			break;
+		}
 	}
 	glDisable(GL_TEXTURE_2D);
 
 	// Render sprites.
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glPixelZoom(2.0, 2.0);
+	//glPixelZoom(2.0, 2.0);
 	for (int line = fromLine; line < limit; line++) {
 		drawSprites(line);
 	}
 	glDisable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
 
 	// Borders are drawn after the display area:
 	// V9958 can extend the left border over the display area,

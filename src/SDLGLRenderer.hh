@@ -93,6 +93,10 @@ private:
 	inline void renderPlanarBitmapLines(byte line, int count);
 	inline void renderCharacterLines(byte line, int count);
 
+	inline void renderText1(int vramLine, int screenLine, int count);
+	inline void renderGraphic2(int vramLine, int screenLine, int count);
+	inline void renderGraphic2Row(int row, int screenLine);
+
 	/** Precalc several values that depend on the display mode.
 	  * @param mode The new display mode: M5..M1.
 	  */
@@ -141,9 +145,13 @@ private:
 	  */
 	void checkDirtyNull(int addr, byte data);
 
-	/** Dirty checking for MSX1 display modes.
+	/** Dirty checking for MSX1 text modes.
 	  */
-	void checkDirtyMSX1(int addr, byte data);
+	void checkDirtyMSX1Text(int addr, byte data);
+
+	/** Dirty checking for MSX1 graphic modes.
+	  */
+	void checkDirtyMSX1Graphic(int addr, byte data);
 
 	/** Dirty checking for Text2 display mode.
 	  */
@@ -238,6 +246,10 @@ private:
 	  */
 	GLuint bitmapTextureIds[4 * 256];
 
+	/** Test.
+	  */
+	GLuint spriteTextureIds[313];
+
 	/** Display mode the line is valid in.
 	  * 0xFF means invalid in every mode.
 	  */
@@ -265,6 +277,8 @@ private:
 	bool anyDirtyPattern, dirtyPattern[1 << 10];
 	bool anyDirtyName, dirtyName[1 << 12];
 	// TODO: Introduce "allDirty" to speed up screen splits.
+
+	GLuint characterCache[4 * 256];
 
 	/** Did foreground colour change since last screen update?
 	  */

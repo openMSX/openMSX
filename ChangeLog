@@ -1,5 +1,11 @@
 $Id$
 
+2002-05-22 Maarten ter Huurne <mth@stack.nl>
+	* SDLGLRenderer uses block textures in Text1 (SCREEN0.40).
+	* SDLGLRenderer uses block textures in Graphics2 (SCREEN2).
+	* Rendering sprites in SDLGLRenderer is a lot faster now, because
+	  textures aren't immediately destroyed after drawing.
+
 2002-05-19 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* small sprite rendering optimizations
 
