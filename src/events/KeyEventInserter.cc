@@ -18,8 +18,7 @@ KeyEventInserterCLI::KeyEventInserterCLI()
 void KeyEventInserterCLI::parseOption(const std::string &option,
                          std::list<std::string> &cmdLine)
 {
-	std::string arg = cmdLine.front();
-	cmdLine.pop_front();
+	std::string arg = getArgument(option, cmdLine);
 	
 	std::ostringstream s;
 	s << "<msxconfig>";

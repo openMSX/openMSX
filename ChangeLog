@@ -1,5 +1,8 @@
 $Id$
 
+2003-03-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed crashes on missing arguments (e.g. "openmsx -ext")
+
 2003-03-29 Manuel Bilderbeek <manuel@msxnet.org>
 	* More refactoring of Rom objects to add RomInfo:
 	  - all Rom objects now have a RomInfo object
@@ -14,7 +17,7 @@ $Id$
 	  - when we decide what to do with the patches for the FDC, I'll
 	    add the others
 
-2003-03-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-03-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed RomPanasonic SRAM
 	* Optimized VDPCmdEngine for common case: no command in progress
 

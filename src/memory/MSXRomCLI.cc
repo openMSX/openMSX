@@ -19,8 +19,7 @@ MSXRomCLI::MSXRomCLI()
 void MSXRomCLI::parseOption(const std::string &option,
                          std::list<std::string> &cmdLine)
 {
-	std::string arg = cmdLine.front();
-	cmdLine.pop_front();
+	std::string arg = getArgument(option, cmdLine);
 	if (option.length() == 6) {
 		int slot = option[5] - 'a';
 		CartridgeSlotManager::instance()->reserveSlot(slot);

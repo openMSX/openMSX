@@ -20,10 +20,7 @@ MSXCassettePlayerCLI::MSXCassettePlayerCLI()
 void MSXCassettePlayerCLI::parseOption(const std::string &option,
                             std::list<std::string> &cmdLine)
 {
-	std::string filename = cmdLine.front();
-	cmdLine.pop_front();
-
-	parseFileType(filename);
+	parseFileType(getArgument(option, cmdLine));
 }
 const std::string& MSXCassettePlayerCLI::optionHelp() const
 {

@@ -13,6 +13,22 @@
 const char* const MACHINE_PATH = "share/machines/";
 
 
+// class CLIOption
+
+const std::string CLIOption::getArgument(const std::string &option,
+                                         std::list<std::string> &cmdLine)
+{
+	if (cmdLine.empty()) {
+		PRT_ERROR("Missing argument for option \"" << option <<"\"");
+	}
+	std::string argument = cmdLine.front();
+	cmdLine.pop_front();
+	return argument;
+}
+
+
+// class CommandLineParser
+
 CommandLineParser* CommandLineParser::instance()
 {
 	static CommandLineParser oneInstance;
@@ -174,8 +190,7 @@ const std::string& CommandLineParser::HelpOption::optionHelp() const
 void CommandLineParser::ConfigFile::parseOption(const std::string &option,
                                                 std::list<std::string> &cmdLine)
 {
-	parseFileType(cmdLine.front());
-	cmdLine.pop_front();
+	parseFileType(getArgument(option, cmdLine));
 }
 const std::string& CommandLineParser::ConfigFile::optionHelp() const
 {
@@ -202,8 +217,8 @@ void CommandLineParser::MachineOption::parseOption(const std::string &option,
 {
 	MSXConfig *config = MSXConfig::instance();
 	config->loadFile(new SystemFileContext(),
-	                 MACHINE_PATH + cmdLine.front() + "/hardwareconfig.xml");
-	cmdLine.pop_front();
+	                 MACHINE_PATH + getArgument(option, cmdLine) +
+			 "/hardwareconfig.xml");
 	CommandLineParser::instance()->haveConfig = true;
 }
 const std::string& CommandLineParser::MachineOption::optionHelp() const
@@ -222,8 +237,7 @@ void CommandLineParser::SettingOption::parseOption(const std::string &option,
 	}
 	parsed = true;
 	MSXConfig *config = MSXConfig::instance();
-	config->loadFile(new UserFileContext(), cmdLine.front());
-	cmdLine.pop_front();
+	config->loadFile(new UserFileContext(), getArgument(option, cmdLine));
 }
 const std::string& CommandLineParser::SettingOption::optionHelp() const
 {

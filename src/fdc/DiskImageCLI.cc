@@ -23,10 +23,7 @@ void DiskImageCLI::parseOption(const std::string &option,
                          std::list<std::string> &cmdLine)
 {
 	driveLetter = option[5];	// -disk_
-	std::string filename = cmdLine.front();
-	cmdLine.pop_front();
-
-	parseFileType(filename);
+	parseFileType(getArgument(option, cmdLine));
 }
 const std::string& DiskImageCLI::optionHelp() const
 {

@@ -34,7 +34,7 @@ CliExtension::~CliExtension()
 void CliExtension::parseOption(const std::string &option,
                                std::list<std::string> &cmdLine)
 {
-	const std::string &extension = cmdLine.front();
+	std::string extension = getArgument(option, cmdLine);
 	std::map<std::string, std::string>::const_iterator it =
 		extensions.find(extension);
 	if (it != extensions.end()) {
@@ -43,8 +43,6 @@ void CliExtension::parseOption(const std::string &option,
 	} else {
 		PRT_ERROR("Extension \"" << extension << "\" not found!");
 	}
-		
-	cmdLine.pop_front();
 }
 
 const std::string& CliExtension::optionHelp() const
