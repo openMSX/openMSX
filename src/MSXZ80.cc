@@ -12,6 +12,7 @@ MSXZ80::MSXZ80() : MSXCPUDevice(3579545)
 {
 	PRT_DEBUG("instantiating an MSXZ80 object");
 	z80 = new Z80(this);
+	z80->Z80_SetWaitStates(1);	// 1 extra clock pulse after each instruction
 }
 
 MSXZ80::~MSXZ80()

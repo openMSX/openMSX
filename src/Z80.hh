@@ -183,6 +183,7 @@ typedef struct {
 		#endif
 		
 		//TODO should not be static
+		static int waitStates;
 		static unsigned cycles_main[256];
 		static unsigned cycles_cb[256];
 		static unsigned cycles_xx_cb[256];

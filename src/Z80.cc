@@ -140,14 +140,16 @@ int Z80::Z80_SingleInstruction()
 /****************************************************************************/
 void Z80::Z80_SetWaitStates (int n)
 {
+	int diff = n - waitStates;
+	waitStates = n;
 	for (int i=0; i<256; ++i) {
-		cycles_main[i] += n;
-		cycles_cb[i]   += n;
-		cycles_ed[i]   += n;
-		cycles_xx[i]   += n;
+		cycles_main[i] += diff;
+		cycles_cb[i]   += diff;
+		cycles_ed[i]   += diff;
+		cycles_xx[i]   += diff;
 	}
 }
-
+int Z80::waitStates = 0;
 
 
 /*
