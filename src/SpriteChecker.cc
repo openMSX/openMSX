@@ -31,7 +31,6 @@ void SpriteChecker::reset(const EmuTime &time)
 	status = 0;
 	collisionX = 0;
 	collisionY = 0;
-	currentTime = time;
 
 	initFrame(time);
 
@@ -295,8 +294,12 @@ inline int SpriteChecker::checkSprites2(
 	return visibleIndex;
 }
 
-void SpriteChecker::updateSpritesDummy(int limit)
+void SpriteChecker::updateSprites0(int limit)
 {
+	while (currentLine < limit) {
+		spriteCount[currentLine] = 0;
+		currentLine++;
+	}
 }
 
 void SpriteChecker::updateSprites1(int limit)
@@ -305,23 +308,19 @@ void SpriteChecker::updateSprites1(int limit)
 		spriteCount[currentLine] =
 			checkSprites1(currentLine, spriteBuffer[currentLine]);
 		currentLine++;
-		currentTime += VDP::TICKS_PER_LINE;
 	}
 }
 
 void SpriteChecker::updateSprites2(int limit)
 {
 	/*
-	cout << "updateSprites2: currentTime = " << currentTime
-		<< ", until = " << until
-		<< ", frameStart = " << frameStartTime
-		<< "\n";
+	cout << "updateSprites2: until = " << until
+		<< ", frameStart = " << frameStartTime << "\n";
 	*/
 	while (currentLine < limit) {
 		spriteCount[currentLine] =
 			checkSprites2(currentLine, spriteBuffer[currentLine]);
 		currentLine++;
-		currentTime += VDP::TICKS_PER_LINE;
 	}
 }
 

@@ -101,7 +101,7 @@ public:
 		sync(time);
 		switch(mode.getSpriteMode()) {
 		case 0:
-			updateSpritesMethod = &SpriteChecker::updateSpritesDummy;
+			updateSpritesMethod = &SpriteChecker::updateSprites0;
 			break;
 		case 1:
 			updateSpritesMethod = &SpriteChecker::updateSprites1;
@@ -226,7 +226,6 @@ public:
 
 		visibleSprites = spriteBuffer[line];
 		assert(spriteCount[line] != -1);
-		if (spriteCount[line] < 0) return 0;
 		return spriteCount[line];
 	}
 
@@ -272,7 +271,7 @@ public:
 private:
 	/** Do not calculate sprite patterns, because this mode is spriteless.
 	  */
-	void updateSpritesDummy(int limit);
+	void updateSprites0(int limit);
 	
 	/** Calculate sprite patterns for sprite mode 1.
 	  */
@@ -361,11 +360,6 @@ private:
 	/** The emulation time when this frame was started (vsync).
 	  */
 	EmuTimeFreq<VDP::TICKS_PER_SECOND> frameStartTime;
-
-	/** The emulation time up to when sprite checking was performed.
-	  * TODO: Currently not used. Should it replace currentLine?
-	  */
-	EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
 
 	/** Sprites are checked up to and excluding this display line.
 	  * TODO: Keep this now that we have currentTime?
