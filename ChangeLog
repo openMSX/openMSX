@@ -1,5 +1,17 @@
 $Id$
 
+2003-08-12 David Heremans <david.heremans@gnu-linux.net>
+	* improved FDC_DirAsDSK:
+	   - now empty sector are generated for unmapped clusters
+	   - altered filesize also scanned for when accessing FAT sectors
+
+2003-08-11 David Heremans <david.heremans@gnu-linux.net>
+	* Added more functionality to the FDC_DirAsDSK class:
+	   - fixed an offset bug
+	   - made changes to files on the host OS visible to the emulated dsk
+	     file. Now altered filesize is detected when accessing file itself
+	     or the DIR sector and the DIR and FAT will be adjusted as needed
+
 2003-08-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Read-only support for .gz files
 
@@ -25,6 +37,14 @@ $Id$
 	   - renamed some classes
 	   - added a base class for sector based disks (those that don't
 	     store the information 'between' the sectors)
+
+2003-08-06 David Heremans <david.heremans@gnu-linux.net>
+	* Introduced to the FDC_DirAsDSK class:
+	   - it is now possible to have a directory given as value for the
+	     '-disk(a|b)' option, this will construct a read-only disk that
+	     contains the regular files in this directory. Content changes in
+	     those files are immediately visible in the emulated disks.
+	     Sizes changes of files are not incorporated yet!
 
 2003-08-02 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* fixed compile errors when using gcc version 2.95

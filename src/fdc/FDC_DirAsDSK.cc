@@ -24,6 +24,7 @@
 namespace openmsx {
 
 #define EOF_FAT 0xFFF /* signals EOF in FAT */
+#define NODIRENTRY 4000
 
 //Bootblock taken from a philips  nms8250 formatted disk
 const byte FDC_DirAsDSK::BootBlock[] =
@@ -82,6 +83,15 @@ void FDC_DirAsDSK::WriteFAT(word clnr, word val)
 		P[0] = val;
 		P[1] = (P[1] & 0xF0) + ((val >> 8) & 0x0F);
 	}
+}
+
+int FDC_DirAsDSK::findFirstFreeCluster()
+{
+	int cluster=2;
+	while ((cluster <= MAX_CLUSTER) && ReadFAT(cluster)) {
+		cluster++;
+	};
+	return cluster;
 }
 
 // check if a filename is used in the emulated MSX disk
@@ -183,9 +193,17 @@ FDC_DirAsDSK::FDC_DirAsDSK(FileContext &context, const string &fileName)
 
 	// Make a full clear FAT
 	memset(FAT, 0, SECTOR_SIZE * SECTORS_PER_FAT);
+	// for some reason the first 3bytes are used to indicate the end of a cluster, making the first available cluster nr 2
+	// some sources say that this indicates the disk fromat and FAT[0]should 0xF7 for single sided disk, and 0xF9 for double sided disks
+	// TODO: check this :-)
 	FAT[0] = 0xF9;
 	FAT[1] = 0xFF;
 	FAT[2] = 0xFF;
+
+	//clear the clustermap so that they all point to 'clean' sectors
+	for (int i = 0; i < MAX_CLUSTER; i++) {
+		clustermap[i].dirEntryNr=NODIRENTRY;
+	};
 
 	//read directory and fill the fake disk
 	struct dirent* d = readdir(dir);
@@ -212,42 +230,171 @@ void FDC_DirAsDSK::read(byte track, byte sector, byte side,
 	if (logicalSector >= nbSectors) {
 		throw NoSuchSectorException("No such sector");
 	}
+	PRT_DEBUG("Reading sector : " << logicalSector );
 	if (logicalSector == 0) {
 		//copy our fake bootsector into the buffer
+		PRT_DEBUG("Reading boot sector");
 		memcpy(buf, BootBlock, SECTOR_SIZE);
 	} else if (logicalSector < (1 + 2 * SECTORS_PER_FAT)) {
 		//copy correct sector from FAT
+		PRT_DEBUG("Reading fat sector : " << logicalSector );
+
+		// quick-and-dirty:
+		// we check all files in the faked disk for altered filesize
+		// remapping each fat entry to its direntry and do some bookkeeping
+		// to avoid multiple checks will probably be slower then this 
+		for (int i = 0; i < 112; i++) {
+			if ( ! mapdir[i].filename.empty()) {
+				checkAlterFileInDisk(i);
+			}
+		};
+
 		logicalSector = (logicalSector - 1) % SECTORS_PER_FAT;
 		memcpy(buf, FAT + logicalSector * SECTOR_SIZE, size);
 	} else if (logicalSector < 14) {
 		//create correct DIR sector 
+		PRT_DEBUG("Reading dir sector : " << logicalSector );
 		logicalSector -= (1 + 2 * SECTORS_PER_FAT);
 		int dirCount = logicalSector * 16;
 		for (int i = 0; i < 16; i++) {
-			memcpy(buf, &mapdir[dirCount++].msxinfo, 32);
+			checkAlterFileInDisk(dirCount);
+			memcpy(buf, &(mapdir[dirCount++].msxinfo), 32);
 			buf += 32;
 		}
 	} else {
+		PRT_DEBUG("Reading mapped sector : " << logicalSector );
 		// else get map from sector to file and read correct block
 		// folowing same numbering as FAT eg. first data block is cluster 2
 		int cluster = (int)((logicalSector - 14) / 2) + 2; 
-		// open file and read data
-		int offset = clustermap[cluster].fileOffset + (cluster & 1) * SECTOR_SIZE;
-		string tmp = mapdir[clustermap[cluster].dirEntryNr].filename;
-		FILE* file = fopen(tmp.c_str(), "r");
-		if (file) {
-			fseek(file,offset,SEEK_SET);
-			fread(buf, 1, SECTOR_SIZE, file);
-			fclose(file);
+		PRT_DEBUG("Reading cluster " << cluster );
+		if (clustermap[cluster].dirEntryNr == NODIRENTRY ) {
+			//return an 'empty' sector
+			// 0xE5 is the value used on the Philips VG8250
+			memset(buf, 0xE5, SECTOR_SIZE  );
 		} else {
-			// actually maybe there isn't a file for this cluster
-			// assigned, so we // should return a freshly formated
-			// sector ?
-		}
-		if (!file || ferror(file)) {
-			throw DiskIOErrorException("Disk I/O error");
+			// open file and read data
+			int offset = clustermap[cluster].fileOffset + (logicalSector & 1) * SECTOR_SIZE;
+			string tmp = mapdir[clustermap[cluster].dirEntryNr].filename;
+			PRT_DEBUG("  Reading from file " << tmp );
+			PRT_DEBUG("  Reading with offset " << offset );
+			checkAlterFileInDisk(tmp);
+			try {
+			FILE* file = fopen(tmp.c_str(), "r");
+			if (file) {
+				fseek(file,offset,SEEK_SET);
+				fread(buf, 1, SECTOR_SIZE, file);
+				fclose(file);
+			} 
+			} catch (...){
+				PRT_DEBUG("problems with file reading");
+			}
+			//if (!file || ferror(file)) {
+			//	throw DiskIOErrorException("Disk I/O error");
+			//}
 		}
 	}
+}
+
+void FDC_DirAsDSK::checkAlterFileInDisk(const string& fullfilename)
+{
+	for (int i = 0; i < 112; i++) {
+		if (mapdir[i].filename == fullfilename) {
+			checkAlterFileInDisk(i);
+		}
+	}
+}
+
+void FDC_DirAsDSK::checkAlterFileInDisk(const int dirindex)
+{
+	int fsize;
+	// compute time/date stamps
+	struct stat fst;
+	bzero(&fst,sizeof(struct stat));
+	stat(mapdir[dirindex].filename.c_str(), &fst);
+	fsize = fst.st_size;
+
+	if ( mapdir[dirindex].filesize != fsize ) {
+		updateFileInDisk(dirindex);
+	};
+}
+void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
+{
+	PRT_INFO("updateFileInDisk : " << mapdir[dirindex].filename );
+	// compute time/date stamps
+	int fsize;
+	struct stat fst;
+	bzero(&fst,sizeof(struct stat));
+	stat(mapdir[dirindex].filename.c_str(), &fst);
+	struct tm mtim = *localtime(&(fst.st_mtime));
+	int t = (mtim.tm_sec >> 1) + (mtim.tm_min << 5) +
+		(mtim.tm_hour << 11);
+	setsh(mapdir[dirindex].msxinfo.time, t);
+	t = mtim.tm_mday + ((mtim.tm_mon + 1) << 5) +
+	    ((mtim.tm_year + 1900 - 1980) << 9);
+	setsh(mapdir[dirindex].msxinfo.date, t);
+	fsize = fst.st_size;
+
+	mapdir[dirindex].filesize=fsize;
+	int curcl = 2;
+	curcl=rdsh(mapdir[dirindex].msxinfo.startcluster );
+	// if there is no cluster assigned yet to this file, then find a free cluster
+	bool followFATClusters=true;
+	if (curcl == 0) {
+		followFATClusters=false;
+		curcl=findFirstFreeCluster();
+	setsh(mapdir[dirindex].msxinfo.startcluster, curcl);
+	}
+	PRT_DEBUG("Starting at cluster " << curcl );
+
+	int size = fsize;
+	int prevcl = 0; 
+	while (size && (curcl <= MAX_CLUSTER)) {
+		clustermap[curcl].dirEntryNr = dirindex;
+		clustermap[curcl].fileOffset = fsize - size;
+
+		size -= (size > (SECTOR_SIZE * 2) ? (SECTOR_SIZE * 2) : size);
+		if (prevcl) {
+			WriteFAT(prevcl, curcl);
+		}
+		prevcl = curcl;
+		//now we check if we continue in the current clusterstring or need to allocate extra unused blocks
+		if (followFATClusters){
+			curcl=ReadFAT(curcl);
+			if ( curcl == EOF_FAT ) {
+				followFATClusters=false;
+				curcl=findFirstFreeCluster(); 
+			}
+		} else {
+			do {
+				curcl++;
+			} while((curcl <= MAX_CLUSTER) && ReadFAT(curcl));
+		}
+		PRT_DEBUG("Continuing at cluster " << curcl);
+	}
+	if ((size == 0) && (curcl <= MAX_CLUSTER)) {
+		WriteFAT(prevcl, EOF_FAT); //probably at an if(prevcl==0)WriteFAT(curcl, EOF_FAT) } else {} if I checked what an MSX does with filesize zero and fat allocation;
+
+		//clear remains of FAT if needed
+		if (followFATClusters) {
+			while((curcl <= MAX_CLUSTER) && (curcl != EOF_FAT )) {
+				prevcl=curcl;
+				curcl=ReadFAT(curcl);
+				WriteFAT(prevcl, 0);
+				clustermap[prevcl].dirEntryNr = NODIRENTRY;
+				clustermap[prevcl].fileOffset = 0;
+			}
+			WriteFAT(prevcl, 0);
+			clustermap[prevcl].dirEntryNr = NODIRENTRY;
+			clustermap[prevcl].fileOffset = 0;
+		}
+	} else {
+		//TODO: don't we need a EOF_FAT in this case as well ?
+		// find out and adjust code here
+		PRT_INFO("Fake Diskimage full: " << mapdir[dirindex].filename << " truncated.");
+	}
+	//write (possibly truncated) file size
+	setlg(mapdir[dirindex].msxinfo.size, fsize - size);
+
 }
 
 void FDC_DirAsDSK::write(byte track, byte sector, byte side, 
@@ -308,8 +455,9 @@ void FDC_DirAsDSK::updateFileInDSK(const string& fullfilename)
 		// add file to fakedisk
 		PRT_DEBUG("Going to addFileToDSK");
 		addFileToDSK(fullfilename);
-	//} else {
-		//really update file (dir entry + fat) 
+	} else {
+		//really update file
+		checkAlterFileInDisk(fullfilename);
 	}
 }
 
@@ -341,107 +489,10 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 	
 	// fill in MSX file name
 	memcpy(&(mapdir[dirindex].msxinfo.filename), MSXfilename.c_str(), 11);
-	
-	//open file
-	int fsize;
-	//FILE* file = fopen(fullfilename.c_str(), "r");
-	//if (!file) {
-		//if open file fails (read permissions perhaps) then still enter
-		//in MSX disk with zero info
-		
-		//TODO: find out if a file with size is zero also uses a cluster ! 
-		//It probably does :-(
-		//if so the code should be entered here.
-		
-		fsize = 0;	// TODO BUG nothing is done with fsize
-		//return;
-	//}
-	//fclose(file);
-	
-	// compute time/date stamps
-	struct stat fst;
-	bzero(&fst,sizeof(struct stat));
-	stat(fullfilename.c_str(), &fst);
-	struct tm mtim = *localtime(&(fst.st_mtime));
-	int t = (mtim.tm_sec >> 1) + (mtim.tm_min << 5) +
-		(mtim.tm_hour << 11);
-	setsh(mapdir[dirindex].msxinfo.time, t);
-	t = mtim.tm_mday + ((mtim.tm_mon + 1) << 5) +
-	    ((mtim.tm_year + 1900 - 1980) << 9);
-	setsh(mapdir[dirindex].msxinfo.date, t);
-	fsize = fst.st_size;
-
-	//find first 'really' free cluster (= not from a deleted string of clusters)
-	int curcl = 2;
-	while ((curcl <= MAX_CLUSTER) && ReadFAT(curcl)) {
-		curcl++;
-	}
-	PRT_DEBUG("Starting at cluster " << curcl );
-	setsh(mapdir[dirindex].msxinfo.startcluster, curcl);
-
-	int size = fsize;
-	int prevcl = 0; 
-	while (size && (curcl <= MAX_CLUSTER)) {
-		clustermap[curcl].dirEntryNr = dirindex;
-		clustermap[curcl].fileOffset = fsize - size;
-
-		size -= (size > (SECTOR_SIZE * 2) ? (SECTOR_SIZE * 2) : size);
-		if (prevcl) {
-			WriteFAT(prevcl, curcl);
-		}
-		prevcl = curcl;
-		do {
-			curcl++;
-		} while((curcl <= MAX_CLUSTER) && ReadFAT(curcl));
-		PRT_DEBUG("Continuing at cluster " << curcl);
-	}
-	if ((size == 0) && (curcl <= MAX_CLUSTER)) {
-		WriteFAT(prevcl, EOF_FAT);
-	} else {
-		PRT_INFO("Fake Diskimage full: " << MSXfilename << " truncated.");
-	}
-	//write (possibly truncated) file size
-	setlg(mapdir[dirindex].msxinfo.size, fsize - size);
-
-	/*ADAPT code from until here !!!!!*/
+	// Here actually call to updateFileInDisk!!!!
+	updateFileInDisk(dirindex);
+	return;
 }
 
-/*
-	fullpath = fullfilename.c_str() ;
-	for (i=0 ; i<11 ; name[i++]=(char)' ');
-	name[11]=(char)0;
-
-	//get rid of '/'
-	if ( !(p=strrchr(fullpath,'/')) ) {
-	  p=fullpath; //actually this shouldn't be possible since we expect a full path
-	} else {
-	  p++;
-	};
-	for( ; *p=='.'; p++); //remove 'hidden' atribute from *nix filename
-	// seek extension
-	for ( e=p ; *e ; e++ );				//go to end of string
-	while ( e-- ; e != p && *e != '.'; e-- );	// track back for ext
-	if ( e != p ) {
-		// we have a real ext
-		for(e++, i=8; (i<11) && *e ; e++,i++) {
-		  name[i]=toupper(*e);
-		}
-	}
-
-	//fill name with first 8 characters
-	e=p;
-	for(i=0; (i<8) && *p && *p !='.' ; p++,i++) {
-	  if (*p != ' ') {
-	    name[i]=toupper(p);
-	  } else {
-	    name[i]='_';
-	  }
-	}
-	// now we should check if the filename is to long, if so then we need to use the counter like abrev thsi will return always nr 1 checks for doubles is not performed in this routine
-	if ( *p != '.' && *p && i==8 ) {
-		//filename to long
-		name[6]='-';name[7]='1';
-	}
-*/
 
 } // namespace openmsx

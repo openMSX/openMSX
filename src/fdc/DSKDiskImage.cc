@@ -21,6 +21,7 @@ void DSKDiskImage::read(byte track, byte sector, byte side,
 {
 	try {
 		int logicalSector = physToLog(track, side, sector);
+		PRT_DEBUG("Reading sector : " << logicalSector );
 		if (logicalSector >= nbSectors) {
 			throw NoSuchSectorException("No such sector");
 		}

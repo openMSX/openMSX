@@ -22,6 +22,7 @@ struct MSXDirEntry {
 
 struct MappedDirEntry {
 	MSXDirEntry msxinfo;
+	int filesize; // used to dedect changes that need to be updated in the emulated disk, content changes are automatically handled :-)
 	string filename;
 };
 
@@ -53,12 +54,15 @@ class FDC_DirAsDSK : public SectorBasedDisk
 		static const int MAX_CLUSTER = 720;
 		static const int SECTORS_PER_FAT = 3;
 
-		void updateFileInDSK(const string& fullfilename);
 		bool checkFileUsedInDSK(const string& fullfilename);
 		bool checkMSXFileExists(const string& msxfilename);
 		string makeSimpleMSXFileName(const string& fullfilename);
 		void addFileToDSK(const string& fullfilename);
-		//int findFirstAvailableCluster();
+		void checkAlterFileInDisk(const string& fullfilename);
+		void checkAlterFileInDisk(const int dirindex);
+		void updateFileInDisk(const int dirindex);
+		void updateFileInDSK(const string& fullfilename);
+		int findFirstFreeCluster();
 		//int markClusterGetNext();
 		word ReadFAT(word clnr);
 		void WriteFAT(word clnr, word val);
