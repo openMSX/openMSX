@@ -7,6 +7,7 @@
 PrinterPortLogger::PrinterPortLogger()
 {
 	file = NULL;
+	prevStrobe = true;
 	PluggingController::instance()->registerPluggable(this);
 }
 
@@ -24,11 +25,16 @@ bool PrinterPortLogger::getStatus(const EmuTime &time)
 void PrinterPortLogger::setStrobe(bool strobe, const EmuTime &time)
 {
 	if (strobe) {
+		PRT_DEBUG("PRINTER: strobe high");
+	} else {
+		PRT_DEBUG("PRINTER: strobe low");
+	}
+	if (!strobe && prevStrobe) {
+		// falling edge
 		PRT_DEBUG("PRINTER: save in printlog file "<<toPrint);
 		file->write(&toPrint, 1);
-	} else {
-		PRT_DEBUG("PRINTER: strobe off");
 	}
+	prevStrobe = strobe;
 }
 
 void PrinterPortLogger::writeData(byte data, const EmuTime &time)

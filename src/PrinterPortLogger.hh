@@ -24,6 +24,7 @@ class PrinterPortLogger : public PrinterPortDevice
 		virtual const std::string &getName();
 	private:
 		byte toPrint;
+		bool prevStrobe;
 		IOFILETYPE* file;
 		
 		static const std::string name;
