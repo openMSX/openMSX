@@ -6,6 +6,7 @@
 //#include <iostream>
 //#include <fstream>
 #include <SDL/SDL.h>
+
 #include "MSXDevice.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
@@ -24,17 +25,6 @@ typedef unsigned int Pixel;
 #else
 #error DEPTH must be 8, 15, 16 or 32 bits per pixel.
 #endif
-
-struct osd_bitmap
-{
-	int width,height;       /* width and height of the bitmap */
-	int depth;              /* bits per pixel */
-	Pixel *_private;        /* don't touch! - reserved for osdepend use */
-	Pixel **line;           /* pointers to the start of each line */
-	// Here the differences from the MAME structure starts
-	int safety;
-	int safetx;
-};
 
 class MSXTMS9928a : public MSXDevice
 {
@@ -58,6 +48,9 @@ public:
 	// void restoreState(char *devicestring,ifstream readstream);
 
 private:
+	typedef void (MSXTMS9928a::*RenderMethod)(Pixel *pixelPtr, int line);
+	static RenderMethod modeToRenderMethod[];
+
 	static int debugColor;		// debug
 	Emutime currentTime;
 
@@ -82,26 +75,32 @@ private:
 	byte TMS9928A_vram_r();
 
 	Pixel XPal[16];
-	void PutImage();
-	struct osd_bitmap *bitmapscreen;
+	Pixel currBorderColours[HEIGHT];
 
-	struct osd_bitmap *alloc_bitmap(int width, int height, int depth);
-	void _TMS9928A_change_register (byte reg, byte val);
-	void _TMS9928A_set_dirty (char);
+	/** Put an image on the screen.
+	  */
+	void putImage();
+	void _TMS9928A_change_register(byte reg, byte val);
+	void _TMS9928A_set_dirty(char);
 
 	void fullScreenRefresh();
-	void full_border_fil();
 
-	void mode0(struct osd_bitmap*);
-	void mode1(struct osd_bitmap*);
-	void mode2(struct osd_bitmap*);
-	void mode12(struct osd_bitmap*);
-	void mode3(struct osd_bitmap*);
-	void modebogus(struct osd_bitmap*);
-	void mode23(struct osd_bitmap*);
-	void modeblank(struct osd_bitmap*);
-	void sprites(struct osd_bitmap*);
+	void mode0(Pixel *pixelPtr, int line);
+	void mode1(Pixel *pixelPtr, int line);
+	void mode2(Pixel *pixelPtr, int line);
+	void mode12(Pixel *pixelPtr, int line);
+	void mode3(Pixel *pixelPtr, int line);
+	void modebogus(Pixel *pixelPtr, int line);
+	void mode23(Pixel *pixelPtr, int line);
+	void modeblank(Pixel *pixelPtr, int line);
+	void sprites(Pixel *linePtrs[], int displayX);
 
+	/** Actual pixel data.
+	  */
+	Pixel pixelData[WIDTH * HEIGHT];
+	/** Pointers to the start of each line.
+	  */
+	Pixel *linePtrs[HEIGHT];
 };
 #endif //___MSXTMS9928A_HH__
 
