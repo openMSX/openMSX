@@ -14,6 +14,7 @@ Mixer::Mixer()
 	PRT_DEBUG("Creating a Mixer object");
 	
 	SDL_AudioSpec desired;
+	// TODO make these values configurable
 	desired.freq     = 22050;
 	desired.format   = AUDIO_S16LSB;
 	desired.channels = 1;
@@ -44,7 +45,7 @@ void Mixer::registerSound(SoundDevice *device)
 {
 	PRT_DEBUG("Registering sound device");
 	SDL_LockAudio();
-	short *buf = new short[audioSpec.size];
+	short *buf = new short[audioSpec.size/2];
 	buffers.push_back(buf);
 	devices.push_back(device);
 	if (++nbDevices == 1) SDL_PauseAudio(0);	// unpause when first device registers

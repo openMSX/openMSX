@@ -1,6 +1,6 @@
 // $Id$
 
-#include "Inputs.hh"
+#include "Keyboard.hh"
 #include "MSXPPI.hh"
 #include "Leds.hh"
 #include <assert.h>
@@ -115,9 +115,9 @@ void MSXPPI::writeA(byte value) {
 }
 
 byte MSXPPI::readB() {
-	const byte* src = Inputs::instance()->getKeys(); //reading the keyboard events into the matrix
+	const byte* src = Keyboard::instance()->getKeys(); //reading the keyboard events into the matrix
 	byte* dst = MSXKeyMatrix;
-	for (int i=0; i<Inputs::NR_KEYROWS; i++) {
+	for (int i=0; i<Keyboard::NR_KEYROWS; i++) {
 		*dst++ = *src++;
 	}
 	if (keyboardGhosting) {
@@ -163,8 +163,8 @@ void MSXPPI::keyGhosting(void)
 	bool changed_something;
 	do {
 		changed_something = false;
-		for (int i=0; i<=Inputs::NR_KEYROWS; i++) {
-			for (int j=0; j<=Inputs::NR_KEYROWS; j++) {
+		for (int i=0; i<=Keyboard::NR_KEYROWS; i++) {
+			for (int j=0; j<=Keyboard::NR_KEYROWS; j++) {
 				if ((MSXKeyMatrix[i]|MSXKeyMatrix[j]) != 255) {
 					byte rowanded=MSXKeyMatrix[i]&MSXKeyMatrix[j];
 					if (rowanded != MSXKeyMatrix[i]) {

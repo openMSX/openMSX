@@ -7,19 +7,19 @@
 #include "EventDistributor.hh"
 
 
-class Inputs : public EventListener 
+class Keyboard : public EventListener 
 {
 	public:
-		virtual ~Inputs(); 
-		static Inputs *instance();
+		virtual ~Keyboard(); 
+		static Keyboard *instance();
 		const byte* getKeys();
 		void signalEvent(SDL_Event &event);
 		
 		static const int NR_KEYROWS = 11;
 
 	private:
-		Inputs(); // private constructor -> can only construct self
-		static Inputs *oneInstance; 
+		Keyboard(); // private constructor -> can only construct self
+		static Keyboard *oneInstance; 
 		byte keyMatrix[NR_KEYROWS];
 		static byte Keys[336][2];
 };

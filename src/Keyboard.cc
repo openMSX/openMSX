@@ -1,37 +1,38 @@
 // $Id$
 
-#include "Inputs.hh"
+#include "Keyboard.hh"
 #include "EventDistributor.hh"
 
 
-Inputs::Inputs()
+Keyboard::Keyboard()
 {
+	for (int i=0; i<NR_KEYROWS; i++) keyMatrix[i] = 255;
 	EventDistributor::instance()->registerSyncListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->registerSyncListener(SDL_KEYUP,   this);
 }
 
-Inputs::~Inputs()
+Keyboard::~Keyboard()
 {
 }
 
-Inputs* Inputs::instance(void)
+Keyboard* Keyboard::instance(void)
 {
 	if (oneInstance == NULL ) {
-		oneInstance = new Inputs();
+		oneInstance = new Keyboard();
 	}
 	return oneInstance;
 }
-Inputs *Inputs::oneInstance = NULL;
+Keyboard *Keyboard::oneInstance = NULL;
 
 
-const byte* Inputs::getKeys()
+const byte* Keyboard::getKeys()
 {
 	EventDistributor::instance()->pollSyncEvents();
 	return keyMatrix;
 }
 
 
-void Inputs::signalEvent(SDL_Event &event)
+void Keyboard::signalEvent(SDL_Event &event)
 {
 	int key;
 	switch (event.type) {
@@ -50,11 +51,14 @@ void Inputs::signalEvent(SDL_Event &event)
 	default:
 		assert(false);
 	}
+	for (int i=0; i<NR_KEYROWS; i++)
+		PRT_DEBUG("Keymatrix row " << i << " : " << (int)keyMatrix[i]);
+		
 }
 
 
 /** Keyboard bindings ****************************************/
-byte Inputs::Keys[336][2] =
+byte Keyboard::Keys[336][2] =
 {
 /* 0000 */
   {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},

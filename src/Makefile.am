@@ -22,7 +22,7 @@ openmsx_SOURCES=openmsx.cc \
 	devicefactory.hh devicefactory.cc \
 	Scheduler.hh Scheduler.cc \
 	EventDistributor.hh EventDistributor.cc \
-	Inputs.hh Inputs.cc \
+	Keyboard.hh Keyboard.cc \
 	Leds.hh Leds.cc \
 	MSXE6Timer.hh MSXE6Timer.cc \
 	DummyDevice.hh DummyDevice.cc \
