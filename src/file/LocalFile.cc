@@ -22,6 +22,9 @@ LocalFile::LocalFile(const std::string &filename_, OpenMode mode)
 	if ((mode == SAVE_PERSISTENT) || (mode == TRUNCATE)) {
 		// open file read/write truncated
 		file = fopen(name, "wb+");
+	} else if (mode == CREATE) {
+		// open file read/write, create if it didn't exist yet
+		file = fopen(name, "ab+");
 	} else {
 		// open file read/write
 		file = fopen(name, "rb+");

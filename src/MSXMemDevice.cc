@@ -65,8 +65,9 @@ void MSXMemDevice::registerSlots()
 	for (it  = deviceConfig->slotted.begin();
 	     it != deviceConfig->slotted.end();
 	     it++) {
-		assert((*it)->getPS() == ps);
-		assert((*it)->getSS() == ss);
+		if (((*it)->getPS() != ps) || ((*it)->getSS() != ss)) {
+			PRT_ERROR("All pages of one device must be in the same slot/subslot");
+		}
 		pages |= 1 << ((*it)->getPage());
 	}
 	if (ps >= 0) {

@@ -20,6 +20,17 @@ const std::string FileContext::resolve(const std::string &filename)
 	return resolve(getPaths(), filename);
 }
 
+const std::string FileContext::resolveCreate(const std::string &filename)
+{
+	try {
+		return resolve(getPaths(), filename);
+	} catch (FileException &e) {
+		std::string path = getPaths().front();
+		FileOperations::mkdirp(path);
+		return path + filename;
+	}
+}
+
 const std::string FileContext::resolve(const std::list<std::string> &pathList,
                                        const std::string &filename)
 {

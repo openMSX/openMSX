@@ -46,8 +46,19 @@ IDEHD::IDEHD(Config *config, const EmuTime &time)
 	buffer = new byte[512 * 256];
 
 	const std::string &filename = config->getParameter("filename");
-	file = new File(config->getContext()->resolve(filename));
-	totalSectors = file->getSize() / 512;
+	file = new File(config->getContext()->resolveCreate(filename), CREATE);
+	
+	int size = config->getParameterAsInt("size");	// in MB
+	totalSectors = size * (1024 * 1024 / 512);
+	word heads = 16;
+	word sectors = 32;
+	word cylinders = (size * 1024 * 1024) / (heads  * sectors * 512);
+	identifyBlock[0x02] = cylinders & 0xFF;
+	identifyBlock[0x03] = cylinders / 0x100;
+	identifyBlock[0x06] = heads & 0xFF;
+	identifyBlock[0x07] = heads / 0x100;
+	identifyBlock[0x0C] = sectors & 0xFF;
+	identifyBlock[0x0D] = sectors / 0x100;
 }
 
 IDEHD::~IDEHD()

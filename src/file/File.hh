@@ -14,6 +14,7 @@ class FileBase;
 enum OpenMode {
 	NORMAL,
 	TRUNCATE,
+	CREATE,
 	LOAD_PERSISTENT,
 	SAVE_PERSISTENT,
 };

@@ -13,8 +13,8 @@ class FileContext
 	public:
 		virtual ~FileContext();
 		const std::string resolve(const std::string &filename);
-		const std::string resolveSave(
-		                          const std::string &filename);
+		const std::string resolveCreate(const std::string &filename);
+		const std::string resolveSave(const std::string &filename);
 		
 	protected:
 		virtual const std::list<std::string> &getPaths() = 0;
