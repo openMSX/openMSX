@@ -178,6 +178,9 @@ FDC_DirAsDSK::FDC_DirAsDSK(FileContext *context, const string &fileName)
 
 	// Make a full clear FAT
 	memset(FAT, 0, SECTOR_SIZE * SECTORS_PER_FAT);
+	FAT[0] = 0xF9;
+	FAT[1] = 0xFF;
+	FAT[2] = 0xFF;
 
 	//read directory and fill the fake disk
 	struct dirent* d = readdir(dir);
