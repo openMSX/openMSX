@@ -57,7 +57,7 @@ assumes you are reading the HOWTO that suits your openMSX version.
 
 1.a Retrieve normal releases
     ------------------------
-   
+
 This is the easy way: simply download them from the following address:
 
 http://sourceforge.net/project/showfiles.php?group_id=38274&release_id=103487
@@ -80,7 +80,7 @@ In short, you use CVS (which is a system for version management) to retrieve
 the latest version of the source code of openMSX. This means you will need to
 install a CVS client.
 
-With the following line you can login to the openMSX CVS server. 
+With the following line you can login to the openMSX CVS server.
 
 cvs -d:pserver:anonymous@cvs.openmsx.sourceforge.net:/cvsroot/openmsx login
 
@@ -96,7 +96,7 @@ Example output:
 
 jorrith@jardel openmsx $ cvs -d:pserver:anonymous@cvs.openmsx.sourceforge.net:/cvsroot/openmsx login
 Logging in to :pserver:anonymous@cvs.openmsx.sourceforge.net:2401/cvsroot/openmsx
-CVS password: 
+CVS password:
 jorrith@jardel openmsx $
 
 Now you can retrieve the latest sources with the following command
@@ -111,7 +111,7 @@ This will create a directory called openMSX for you in the current directory.
 If you want to update your source tree later, go to this directory again and
 type cvs update -d (the -d means that it will create new directories too.) This
 only works if you used the second method ("checkout").
-The latter method also creates the CVS administrative directories necessary to 
+The latter method also creates the CVS administrative directories necessary to
 perform commits and updates.
 
 2. Compiling
@@ -167,7 +167,7 @@ the sources:
 
 ./autogen.sh
 
-This will generate the appropriate configure and make stuff. 
+This will generate the appropriate configure and make stuff.
 
 If you get the following line:
 
@@ -217,7 +217,7 @@ using CBIOS: an MSX compatible BIOS made by BouKiChi, which can be used to run
 most ROM games with openMSX. For a first test, you don't need to do anything to
 use CBIOS. Otherwise, here are the instructions for using a simple machine. If
 you want to use CBIOS, you can skip the rest of this section. But you may want
-to read it later, because it contains some valuable hints. 
+to read it later, because it contains some valuable hints.
 
 First, get the needed roms for the emulator. You need the following roms:
 
@@ -272,7 +272,7 @@ to use a combined ROM (e.g. MSX2.ROM):
     <parameter name="filename">MSX2.ROM</parameter>
   </device>
 This will tell openMSX to use the first 16kB of the specified file as BIOS ROM
-in page 0 and the second 16kB as BASIC ROM file in page 1. 
+in page 0 and the second 16kB as BASIC ROM file in page 1.
 Since we didn't change the other default filenames for the ROMs, copy your
 renamed ROM files (as described at above) and your 32kB BASIC+BIOS file (e.g.
 MSX2.ROM) to the directory share/machines/Philips_NMS_8250/ for now.
@@ -290,7 +290,7 @@ You need to dump them from your own machine or find another way to get them.
 Now we can try starting the emulator for the first time!
 Go to your src directory (e.g. openMSX/src).
 
-If you didn't get ROMs, you can use CBIOS. 
+If you didn't get ROMs, you can use CBIOS.
 Give the following command:
 
 ./openmsx -setting ../share/settings.xml ../share/machines/cbios-msx2/hardware.xml
@@ -311,31 +311,38 @@ how one uses openMSX. We'll make it easier below.
 
 If you want to use real MSX ROMs, go back to step 3.
 
-4.1 (optional) Decreasing binary size
-    ---------------------------------
-
-Since we have now seen that basically our openMSX binary is working, we can
-reduce the file size of it a bit. The binary of the latest version is about
-27MB (including debug information), so this might be worth the effort. 
-
-You can try these:
-
-strip openmsx
-
-This will strip the debug symbols out of the binary.
-
-gzexe openmsx
-
-This just compresses the binary, but keeps it still executable.
-For this you need the gzip package. But probably you have that already.
-See also man gzexe. 
-
 5. Installing
    ----------
 
-Because there's no 'make install' yet, you might want to install all stuff
-manually.  Here's how Manuel Bilderbeek does it, which is for a large part how
-things will be done in the future when there is such a 'make install'.
+To install openMSX, run the following command:
+
+make install
+
+This installs openMSX, by default in /opt/openMSX. You can override this
+location by specifying "--prefix=location" to "configure"/"config-i686.sh".
+Note that only root has rights to write to system-wide directories such as
+/opt, so you may have to do "su" before "make install".
+
+The binary of the latest version is about 36MB, most of which is debugging
+symbols. If you don't plan on any debugging and want a smaller executable,
+you can "strip" the binary (reducing it to under 2MB). Instead of running
+"make install", run:
+
+make install-stripped
+
+If you want an even smaller binary, then after "make install-stripped" you
+can run gzexe on the binary:
+
+gzexe /opt/openMSX/bin/openmsx
+
+This just compresses the binary, but keeps it still executable.
+For this you need the gzip package. But probably you have that already.
+See also man gzexe.
+
+The rest of this chapter discusses setting up a ".openMSX" configuration
+directory in your home directory. This is not strictly necessary, but it allows
+you to customize the openMSX settings and add new MSX machines and hardware
+extensions to run in openMSX. Manuel Bilderbeek will tell you how he did it.
 
 I created a directory with the name .openMSX in my home dir. There, I created
 the subdirectory share/. This is one of the directories that openMSX looks in,
