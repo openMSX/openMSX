@@ -140,7 +140,7 @@ RealDrive::RealDrive(const string& driveName, const EmuTime& time)
 	diskChangedFlag = false;
 
 	SettingsConfig& conf = SettingsConfig::instance();
-	const XMLElement* config = conf.findConfigById(driveName);
+	const XMLElement* config = conf.findChild(driveName);
 	if (config) {
 		const string& filename = config->getChildData("filename");
 		try {

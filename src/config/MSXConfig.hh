@@ -14,21 +14,14 @@ namespace openmsx {
 
 class FileContext;
 
-class MSXConfig
+class MSXConfig : public XMLElement
 {
 public:
 	void loadConfig(const FileContext& context, auto_ptr<XMLElement> elem);
-
 	const XMLElement* findConfigById(const string& id);
-	const XMLElement& getRoot();
 
 protected:
-	MSXConfig();
-	~MSXConfig();
-
 	void handleDoc(const XMLDocument& doc, FileContext& context);
-
-	XMLElement root;
 };
 
 } // namespace openmsx

@@ -78,9 +78,9 @@ Keyboard::Keyboard(bool keyG)
 	memset(cmdKeyMatrix,  255, sizeof(cmdKeyMatrix));
 	memset(userKeyMatrix, 255, sizeof(userKeyMatrix));
 	
-	const XMLElement* config = SettingsConfig::instance().findConfigById("KeyMap");
+	const XMLElement* config = SettingsConfig::instance().findChild("KeyMap");
 	if (config) {
-		string filename = config->getChildData("filename");
+		string filename = config->getData();
 		loadKeymapfile(config->getFileContext().resolve(filename));
 	}
 

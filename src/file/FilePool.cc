@@ -21,7 +21,7 @@ const char* const FILE_CACHE = ".filecache";
 
 FilePool::FilePool()
 {
-	const XMLElement* config = SettingsConfig::instance().findConfigById("RomPool");
+	const XMLElement* config = SettingsConfig::instance().findChild("RomPool");
 	if (config) {
 		XMLElement::Children dirs;
 		config->getChildren("directory", dirs);

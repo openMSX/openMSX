@@ -63,7 +63,7 @@ void JoyNet::write(byte value, const EmuTime& /*time*/)
 
 void JoyNet::setupConnections()
 {
-	const XMLElement* config = SettingsConfig::instance().findConfigById("joynet");
+	const XMLElement* config = SettingsConfig::instance().findChild("joynet");
 	if (!config) {
 		return;
 	}

@@ -11,7 +11,7 @@ namespace openmsx {
 
 RenderSettings::RenderSettings()
 {
-	const XMLElement* config = SettingsConfig::instance().findConfigById("renderer");
+	const XMLElement* config = SettingsConfig::instance().findChild("renderer");
 
 	EnumSetting<Accuracy>::Map accMap;
 	accMap["screen"] = ACC_SCREEN;

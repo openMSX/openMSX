@@ -31,8 +31,7 @@ const string& MSXCasCLI::optionHelp() const
 
 void MSXCasCLI::parseFileType(const string& filename)
 {
-	auto_ptr<XMLElement> config(new XMLElement("config"));
-	config->addAttribute("id", "cas");
+	auto_ptr<XMLElement> config(new XMLElement("cas"));
 	config->addChild(
 		auto_ptr<XMLElement>(new XMLElement("filename", filename)));
 	UserFileContext context;
@@ -65,7 +64,7 @@ static const byte TapeHeader[8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
 MSXTapePatch::MSXTapePatch()
 {
 	SettingsConfig& conf = SettingsConfig::instance();
-	const XMLElement* config = conf.findConfigById("cas");
+	const XMLElement* config = conf.findChild("cas");
 	if (config) {
 		const string& filename = config->getChildData("filename");
 		try {

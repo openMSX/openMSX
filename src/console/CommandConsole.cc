@@ -47,7 +47,7 @@ CommandConsole::CommandConsole()
 	putPrompt();
 	maxHistory = 100;
 	removeDoubles = true;
-	const XMLElement* config = settingsConfig.findConfigById("Console");
+	const XMLElement* config = settingsConfig.findChild("Console");
 	if (config) {
 		maxHistory = config->getChildDataAsInt("historysize", maxHistory);
 		removeDoubles = config->getChildDataAsBool("removedoubles", removeDoubles);

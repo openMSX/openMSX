@@ -44,7 +44,7 @@ KeyJoystick::KeyJoystick()
 	buttonAKey = Keys::K_NONE;
 	buttonBKey = Keys::K_NONE;
 
-	const XMLElement* config = SettingsConfig::instance().findConfigById("KeyJoystick");
+	const XMLElement* config = SettingsConfig::instance().findChild("KeyJoystick");
 	if (config) {
 		upKey      = getConfigKeyCode("upkey",      *config);
 		rightKey   = getConfigKeyCode("rightkey",   *config);

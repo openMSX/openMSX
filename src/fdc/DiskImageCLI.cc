@@ -18,8 +18,8 @@ DiskImageCLI::DiskImageCLI(CommandLineParser& cmdLineParser)
 	driveLetter = 'a';
 }
 
-bool DiskImageCLI::parseOption(const string &option,
-                         list<string> &cmdLine)
+bool DiskImageCLI::parseOption(const string& option,
+                         list<string>& cmdLine)
 {
 	driveLetter = option[5];	// -disk_
 	parseFileType(getArgument(option, cmdLine));
@@ -31,10 +31,9 @@ const string& DiskImageCLI::optionHelp() const
 	return text;
 }
 
-void DiskImageCLI::parseFileType(const string &filename)
+void DiskImageCLI::parseFileType(const string& filename)
 {
-	auto_ptr<XMLElement> config(new XMLElement("config"));
-	config->addAttribute("id", string("disk") + driveLetter);
+	auto_ptr<XMLElement> config(new XMLElement(string("disk") + driveLetter));
 	config->addChild(
 		auto_ptr<XMLElement>(new XMLElement("filename", filename)));
 	

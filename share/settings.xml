@@ -2,41 +2,35 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
-<!--
-  This file contains the settings or user preferences.
--->
+<!-- This file contains the settings or user preferences.  -->
 
- <!-- The machine that is loaded if no machine is specified -->
-  <config id="DefaultMachine">
-    <machine>cbios-msx2</machine>
-  </config>
+  <!-- The machine that is loaded if no machine is specified -->
+  <DefaultMachine>cbios-msx2</DefaultMachine>
 
- <!-- renderer settings: determines how openMSX outputs graphics -->
-  <config id="renderer">
+  <!-- renderer settings: determines how openMSX outputs graphics -->
+  <renderer>
     <type>SDLHi</type>
-  <!--
-    <type>SDLGL</type>
-  -->
+    <!-- <type>SDLGL</type> -->
     <full_screen>true</full_screen>
-  </config>
+  </renderer>
 
- <!-- Audio mixer settings -->
-  <config id="Mixer">
-  <!-- Sample frequency, 22kHz should be enough for normal MSX, use 44.1kHz for
-       Moonsound -->
+  <!-- Audio mixer settings -->
+  <mixer>
+    <!-- Sample frequency, 22kHz should be enough for normal MSX, use 44.1kHz for
+         Moonsound -->
     <frequency>22050</frequency>
-  <!-- Use more samples when FM sound quality is bad, e.g.
+    <!-- Use more samples when FM sound quality is bad, e.g.
     <samples>1024</samples>
-   -->
+    -->
     <samples>512</samples>
-  </config>
+  </mixer>
 
-  <config id="RTC">
+  <RTC>
     <mode>EmuTime</mode>
-  </config>
+  </RTC>
 
- <!-- Console font file, decorations and other settings -->
-  <config id="Console">
+  <!-- Console font file, decorations and other settings -->
+  <console>
     <font>skins/ConsoleFont.png</font>
     <background>skins/ConsoleBackground.png</background>
     <columns>100</columns>
@@ -44,24 +38,24 @@
     <placement>bottom</placement>
     <historysize>100</historysize>
     <removedoubles>true</removedoubles>
-  </config>
+  </console>
 
- <!-- Directories that are searched in, when looking for files mentioned
+  <!-- Directories that are searched in, when looking for files mentioned
       on the command line or Console -->
-  <config id="UserDirectories">
+  <UserDirectories>
     <directory>~/openMSX/roms</directory>
     <directory>~/openMSX/disks</directory>
     <directory>~/openMSX/tapes</directory>
-  </config>
+  </UserDirectories>
 
-<!--
-  <config id="RomPool">
+  <!--
+  <RomPool>
     <directory>~/openMSX/systemroms</directory>
-  </config>
--->
+  </RomPool>
+  -->
 
- <!-- File extensions that should be bound to certain file types -->
-  <config id="FileTypes">
+  <!-- File extensions that should be bound to certain file types -->
+  <FileTypes>
     <diskimage>dsk</diskimage>
     <diskimage>di1</diskimage>
     <diskimage>di2</diskimage>
@@ -70,25 +64,22 @@
     <cassetteimage>cas</cassetteimage>
     <romimage>rom</romimage>
     <romimage>ri</romimage>
-   </config>
+  </FileTypes>
 
-<!-- These are the keybindings for the keyjoystick, a pluggable that makes you
-     able to use the keyboard in stead of a joystick in joystick-only soft -->
-   <config id="KeyJoystick">
-     <upkey>UP</upkey>
-     <rightkey>RIGHT</rightkey>
-     <downkey>DOWN</downkey>
-     <leftkey>LEFT</leftkey>
-     <buttonakey>SPACE</buttonakey>
-     <buttonbkey>M</buttonbkey>
-   </config>
+  <!-- These are the keybindings for the keyjoystick, a pluggable that makes you
+       able to use the keyboard in stead of a joystick in joystick-only soft -->
+  <KeyJoystick>
+    <upkey>UP</upkey>
+    <rightkey>RIGHT</rightkey>
+    <downkey>DOWN</downkey>
+    <leftkey>LEFT</leftkey>
+    <buttonakey>SPACE</buttonakey>
+    <buttonbkey>M</buttonbkey>
+  </KeyJoystick>
 
- <!-- Keymap definition file -->
- <!-- commented out, since an empty KeyMap section leads to errors at the moment. Won't be fixed now, since the syntax will change to <KeyMap>bla</KeyMap> anyway. -->
-   <!--
-  <config id="KeyMap">
-    <filename>keymaps/keymap.default</filename>
-  </config>
-   -->
+  <!-- Keymap definition file -->
+  <!--
+  <KeyMap>keymaps/keymap.default</KeyMap>
+  -->
 
 </msxconfig>

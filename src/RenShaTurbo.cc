@@ -14,7 +14,7 @@ RenShaTurbo& RenShaTurbo::instance()
 
 RenShaTurbo::RenShaTurbo()
 {
-	const XMLElement* config = SettingsConfig::instance().findConfigById("RenShaTurbo");
+	const XMLElement* config = SettingsConfig::instance().findChild("RenShaTurbo");
 	if (config) {
 		int min_ints = config->getChildDataAsInt("min_ints", 47);
 		int max_ints = config->getChildDataAsInt("max_ints", 221);

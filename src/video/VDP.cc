@@ -102,7 +102,7 @@ VDP::VDP(const XMLElement& config, const EmuTime& time)
 	vram->setCmdEngine(cmdEngine.get());
 
 	// Get renderer type from config.
-	const XMLElement* rendererConfig = SettingsConfig::instance().findConfigById("renderer");
+	const XMLElement* rendererConfig = SettingsConfig::instance().findChild("renderer");
 	rendererName = "SDLHi";
 	if (rendererConfig) {
 		rendererName = rendererConfig->getChildData("type", rendererName);

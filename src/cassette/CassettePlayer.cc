@@ -38,8 +38,7 @@ const string& MSXCassettePlayerCLI::optionHelp() const
 
 void MSXCassettePlayerCLI::parseFileType(const string &filename)
 {
-	auto_ptr<XMLElement> config(new XMLElement("config"));
-	config->addAttribute("id", "cassetteplayer");
+	auto_ptr<XMLElement> config(new XMLElement("cassetteplayer"));
 	config->addChild(
 		auto_ptr<XMLElement>(new XMLElement("filename", filename)));
 	UserFileContext context;
@@ -58,7 +57,7 @@ CassettePlayer::CassettePlayer()
 	removeTape();
 
 	SettingsConfig& conf = SettingsConfig::instance();
-	const XMLElement* config = conf.findConfigById("cassetteplayer");
+	const XMLElement* config = conf.findChild("cassetteplayer");
 	if (config) {
 		const string& filename = config->getChildData("filename");
 		try {

@@ -69,7 +69,7 @@ void MSXMotherBoard::run(bool powerOn)
 {
 	// Initialise devices.
 	const XMLElement::Children& configs =
-		HardwareConfig::instance().getRoot().getChildren();
+		HardwareConfig::instance().getChildren();
 	for (XMLElement::Children::const_iterator it = configs.begin();
 	     it != configs.end(); ++it) {
 		if ((*it)->getName() != "device") {

@@ -13,7 +13,7 @@ MSXRTC::MSXRTC(const XMLElement& config, const EmuTime& time)
 	  settingsConfig(SettingsConfig::instance())
 {
 	bool emuTimeBased = true;
-	const XMLElement* rtcConfig = settingsConfig.findConfigById("RTC");
+	const XMLElement* rtcConfig = settingsConfig.findChild("RTC");
 	if (rtcConfig) {
 		const XMLElement* modeParam = rtcConfig->findChild("mode");
 		if (modeParam) {

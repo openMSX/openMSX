@@ -37,7 +37,7 @@ Mixer::Mixer()
 	// default values
 	int freq = 22050;
 	int samples = 512;
-	const XMLElement* config = settingsConfig.findConfigById("Mixer");
+	const XMLElement* config = settingsConfig.findChild("mixer");
 	if (config) {
 		freq = config->getChildDataAsInt("frequency", freq);
 		samples = config->getChildDataAsInt("samples", samples);

@@ -207,7 +207,7 @@ const vector<string> &UserFileContext::getPaths()
 		alreadyInit = true;
 		paths.push_back("./");
 		const XMLElement* config = SettingsConfig::instance().
-			findConfigById("UserDirectories");
+			findChild("UserDirectories");
 		if (config) {
 			XMLElement::Children pathList;
 			config->getChildren("directory", pathList);

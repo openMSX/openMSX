@@ -6,6 +6,9 @@ $Id$
 	* A bit more robust config file parsing
 	* Config file format change:
 	   - put roms in new hierarchical <rom> tag
+	* settings.xml configuration file changes:
+	   - replaced  <config if="foo">..</config>
+	     with      <foo>..</foo>
 
 2004-06-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Compiled with -Wall -W and fixed all warnings

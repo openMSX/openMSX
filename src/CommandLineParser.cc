@@ -98,7 +98,7 @@ void CommandLineParser::registerFileClass(const string &str,
 
 void CommandLineParser::postRegisterFileTypes()
 {
-	const XMLElement* config = settingsConfig.findConfigById("FileTypes");
+	const XMLElement* config = settingsConfig.findChild("FileTypes");
 	if (config) {
 		for (FileClassMap::const_iterator i = fileClassMap.begin();
 		     i != fileClassMap.end(); ++i) {
@@ -211,9 +211,9 @@ void CommandLineParser::parse(int argc, char **argv)
 				// load default config file in case the user didn't specify one
 				string machine = "default";
 				const XMLElement* machineConfig =
-					settingsConfig.findConfigById("DefaultMachine");
+					settingsConfig.findChild("DefaultMachine");
 				if (machineConfig) {
-					machine = machineConfig->getChildData("machine", machine);
+					machine = machineConfig->getData();
 					output.printInfo("Using default machine: " + machine);
 				}
 				try {

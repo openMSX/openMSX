@@ -74,9 +74,8 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	bool initiated = true;
 	static set<string> initsDone;
 	string tempconfig = console.getId();
-	tempconfig[0] = ::toupper(tempconfig[0]);
 	
-	const XMLElement* config = SettingsConfig::instance().findConfigById(tempconfig);
+	const XMLElement* config = SettingsConfig::instance().findChild(tempconfig);
 	if (config) {
 		FileContext& context = config->getFileContext();
 		if (initsDone.find(tempconfig) == initsDone.end()) {
@@ -152,7 +151,6 @@ void OSDConsoleRenderer::initConsoleSize()
 	placeMap["bottomright"] = Console::CP_BOTTOMRIGHT;
 
 	string tempconfig = console.getId();
-	tempconfig[0]=::toupper(tempconfig[0]);
 	// check if this console is already initiated
 	if (initsDone.find(tempconfig) == initsDone.end()) {
 		initsDone.insert(tempconfig);
@@ -162,7 +160,7 @@ void OSDConsoleRenderer::initConsoleSize()
 		int rows = ((screen->h / font->getHeight()) * 6) / 15;
 
 		string placementString = "bottom";
-		const XMLElement* config = SettingsConfig::instance().findConfigById(tempconfig);
+		const XMLElement* config = SettingsConfig::instance().findChild(tempconfig);
 		if (config) {
 			columns = config->getChildDataAsInt("columns", columns);
 			rows    = config->getChildDataAsInt("rows",    rows);
