@@ -13,6 +13,13 @@
 // the backend[s]:
 #include "XMLConfig.hh"
 
+// for the autoconf defines
+#include "config.h"
+
+#ifndef HAVE_ATOLL
+extern "C" long long atoll(const char *nptr);
+#endif
+
 namespace MSXConfig
 {
 

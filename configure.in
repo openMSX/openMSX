@@ -27,6 +27,7 @@ AC_CHECK_HEADERS(unistd.h)
 dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
+AC_REPLACE_FUNCS(atoll)
 
 dnl libtool
 AC_PROG_LIBTOOL

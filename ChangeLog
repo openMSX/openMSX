@@ -1,5 +1,10 @@
 $Id$
 
+2002-02-17 Joost Yervante Damad <j.damad@qahwah.net>
+	* added atoll support for platforms that don't have
+	  that function [code taken from newlib, a libc for
+	  embedded systems]
+
 2002-02-16 Maarten ter Huurne <mth@stack.nl>
 	* Moved "display or border" calculation from renderer to VDP.
 	  This is a preparation for overscan and for accurate VRAM timing.
