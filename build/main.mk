@@ -79,6 +79,13 @@ LDFLAGS:=
 LINK_FLAGS:=
 
 
+# Customisation
+# =============
+
+include $(MAKE_PATH)/custom.mk
+$(call DEFCHECK,INSTALL_BASE)
+
+
 # Platforms
 # =========
 
@@ -188,8 +195,6 @@ COMPONENTS_HEADER:=$(CONFIG_PATH)/components.hh
 
 # Configuration
 # =============
-
-include $(MAKE_PATH)/custom.mk
 
 include $(MAKE_PATH)/version.mk
 PACKAGE_FULL:=$(PACKAGE_NAME)-$(PACKAGE_VERSION)
