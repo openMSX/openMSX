@@ -1,5 +1,18 @@
 $Id$
 
+2003-06-09 Manuel Bilderbeek <manuel@msxnet.org>
+	* Updated HOWTO (please check)
+	* Updated/cleaned up machine configs:
+	  - MSX2+ machines have a memory mapper of 64kB (tested on real
+	    Panasonic FS-A1WX)
+	  - Changed ROM names in 8250 config to match the ones used in the
+	    other configs, using a 32kB combined ROM for basic/bios
+	  - Added missing CVS Id tags
+	  - Removed unnecessary DiskRomPatches from machines with TC8566AF FDC's
+	  - Changed FDC type names to new conventions (see 2003-03-29), note
+	    that the old ones won't work anymore. The names of the FDC classes
+	    should be revised though.
+
 2003-06-09 Maarten ter Huurne <maarten@treewalker.org>
 	* Implemented user-specified gamma correction for SDLLo/SDLHi/SDLGL.
 	  Find out your PC monitor's gamma using the measurement image on the
