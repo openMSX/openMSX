@@ -15,9 +15,10 @@ OPENMSX_CXX?=g++
 EXEEXT:=
 
 # Libraries that do not have a lib-config script.
-LIBS_PLAIN:=stdc++ SDL_image GL z
+#LIBS_PLAIN:=stdc++ SDL_image GL z
+LIBS_PLAIN:=SDL_image GL z
 # Libraries that have a lib-config script.
-LIBS_CONFIG:=xml2 sdl
+LIBS_CONFIG:=xml2 sdl libpng
 
 # TODO: Temp to force g++ 3.4-pre to pick up the right libs.
 ifeq ($(OPENMSX_FLAVOUR),gcc34)
