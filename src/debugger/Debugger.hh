@@ -1,6 +1,6 @@
-namespace openmsx {
-
 // $Id$
+
+namespace openmsx {
 
 class Debugger
 {
@@ -13,6 +13,7 @@ class Debugger
 	private:
 		Debugger();
 		~Debugger();
-}
+};
 
 } // namespace openmsx
+
