@@ -122,7 +122,7 @@ void MSXMemoryMapper::writeIO(byte port, byte value, const EmuTime &time)
 {
 	assert (0xfc <= port);
 	pageNum[port-0xfc] = value;
-	MSXCPU::instance()->invalidateCache(0x4000*(port-0xfc), 0x4000);
+	MSXCPU::instance()->invalidateCache(0x4000*(port-0xfc), 0x4000/CPU::CACHE_LINE_SIZE);
 }
 
 byte MSXMemoryMapper::pageNum[4];
