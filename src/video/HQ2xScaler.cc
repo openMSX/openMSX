@@ -42,7 +42,7 @@ static inline void pset(Pixel* pOut, unsigned p)
 			((p & 0x00FC00) >> 5) |
 			((p & 0x0000F8) >> 3);
 	} else {
-		*pOut = (colour & 0xF8F8F8) | ((colour & 0xE0E0E0) >> 5);
+		*pOut = (p & 0xF8F8F8) | ((p & 0xE0E0E0) >> 5);
 	}
 }
 
