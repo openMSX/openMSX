@@ -151,7 +151,8 @@ void Mixer::unregisterSound(SoundDevice* device)
 	delete it->second.volumeSetting;
 	it->second.modeSetting->removeListener(this);
 	delete it->second.modeSetting;
-	
+	infos.erase(it);
+
 	if (buffers.size() == 0) {
 		SDL_PauseAudio(1);	// pause when last dev unregisters
 	}
