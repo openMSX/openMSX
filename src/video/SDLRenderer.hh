@@ -155,6 +155,11 @@ private:
 	  */
 	int lineRenderTop;
 
+	/** Line to render at bottom of display.
+	  * After all, our screen is 240 lines while display is 262 or 313.
+	  */
+	int lineRenderBottom;
+
 	/** SDL colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,
 	  * palBg has entry 0 set to black.

@@ -409,6 +409,7 @@ void SDLRenderer<Pixel, zoom>::frameStart(
 	// NTSC: display at [32..244),
 	// PAL:  display at [59..271).
 	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
+	lineRenderBottom = lineRenderTop + HEIGHT / LINE_ZOOM;
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -683,6 +684,16 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 		displayWidth /= 2;
 	}
 
+	// Clip to screen area.
+	if (fromY < lineRenderTop) {
+		displayHeight -= lineRenderTop - fromY;
+		fromY = lineRenderTop;
+	}
+	if (fromY + displayHeight > lineRenderBottom) {
+		displayHeight = lineRenderBottom - fromY;
+	}
+	if (displayHeight <= 0) return;
+
 	int screenY = (fromY - lineRenderTop) * LINE_ZOOM;
 	if (!(settings->getDeinterlace()->getValue())
 	&& vdp->isInterlaced()
@@ -841,6 +852,17 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 	int spriteMode = vdp->getDisplayMode().getSpriteMode();
 	if (spriteMode == 0) return;
 	
+	// Clip to screen area.
+	// TODO: Code duplicated from drawDisplay.
+	if (fromY < lineRenderTop) {
+		displayHeight -= lineRenderTop - fromY;
+		fromY = lineRenderTop;
+	}
+	if (fromY + displayHeight > lineRenderBottom) {
+		displayHeight = lineRenderBottom - fromY;
+	}
+	if (displayHeight <= 0) return;
+
 	// Render sprites.
 	// Lock surface, because we will access pixels directly.
 	// TODO: Locking the surface directly after a blit is
