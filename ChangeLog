@@ -1,5 +1,8 @@
 $Id$
 
+2001-09-30 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* second part of Z80 cleanup 
+
 2001-09-27 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* #define -> static const int   cleanup
 	* first part of Z80 cleanup
