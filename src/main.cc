@@ -10,18 +10,12 @@
 #include <exception>
 #include <SDL/SDL.h>
 #include "config.h"
-#if	defined(HAVE_TCL_H)
-#include <tcl.h>
-#elif	defined(HAVE_TCL8_4_TCL_H)
-#include <tcl8.4/tcl.h>
-#elif	defined(HAVE_TCL8_3_TCL_H)
-#include <tcl8.3/tcl.h>
-#endif
 #include "MSXMotherBoard.hh"
 #include "CommandLineParser.hh"
 #include "CliCommInput.hh"
 #include "HotKey.hh"
 #include "AfterCommand.hh"
+#include "Interpreter.hh"
 
 using std::auto_ptr;
 using std::cerr;
@@ -51,7 +45,7 @@ static int main(int argc, char **argv)
 	
 	int err = 0;
 	try {
-		Tcl_FindExecutable(argv[0]);
+		Interpreter::instance().init(argv[0]);
 		initializeSDL();
 		CommandLineParser& parser = CommandLineParser::instance();
 		parser.parse(argc, argv);

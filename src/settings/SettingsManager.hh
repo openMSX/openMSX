@@ -20,7 +20,7 @@ using std::vector;
 namespace openmsx {
 
 class CommandController;
-class TCLInterp;
+class Interpreter;
 
 /** Manages all settings.
   */
@@ -94,7 +94,7 @@ private:
 	} toggleCommand;
 
 	CommandController& commandController;
-	TCLInterp& tclInterp;
+	Interpreter& interpreter;
 };
 
 } // namespace openmsx

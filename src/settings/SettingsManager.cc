@@ -4,7 +4,7 @@
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "CommandController.hh"
-#include "TCLInterp.hh"
+#include "Interpreter.hh"
 
 namespace openmsx {
 
@@ -15,7 +15,7 @@ SettingsManager::SettingsManager()
 	  settingCompleter(this),
 	  toggleCommand(this),
 	  commandController(CommandController::instance()),
-	  tclInterp(TCLInterp::instance())
+	  interpreter(Interpreter::instance())
 {
 	commandController.registerCompleter(&setCompleter,     "set");
 	commandController.registerCompleter(&settingCompleter, "incr");
@@ -45,7 +45,7 @@ void SettingsManager::registerSetting(SettingNode& setting)
 
 	SettingLeafNode* leafNode = dynamic_cast<SettingLeafNode*>(&setting);
 	if (leafNode) {
-		tclInterp.registerSetting(*leafNode);
+		interpreter.registerSetting(*leafNode);
 	}
 }
 
@@ -53,7 +53,7 @@ void SettingsManager::unregisterSetting(SettingNode& setting)
 {
 	SettingLeafNode* leafNode = dynamic_cast<SettingLeafNode*>(&setting);
 	if (leafNode) {
-		tclInterp.unregisterSetting(*leafNode);
+		interpreter.unregisterSetting(*leafNode);
 	}
 	const string& name = setting.getName();
 	assert(settingsMap.find(name) != settingsMap.end());

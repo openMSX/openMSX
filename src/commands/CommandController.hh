@@ -20,7 +20,7 @@ class CommandConsole;
 class InfoCommand;
 class MSXConfig;
 class CliCommOutput;
-class TCLInterp;
+class Interpreter;
 
 class CommandController
 {
@@ -117,7 +117,7 @@ private:
 	InfoCommand& infoCommand;
 	MSXConfig& msxConfig;
 	CliCommOutput& output;
-	TCLInterp& tclInterp;
+	Interpreter& interpreter;
 };
 
 } // namespace openmsx

@@ -29,7 +29,8 @@ libCommands_la_SOURCES = \
 	CommandController.cc CommandController.hh \
 	InfoCommand.cc InfoCommand.hh \
 	InfoTopic.hh \
-	TCLInterp.cc TCLInterp.hh
+	TCLInterp.cc TCLInterp.hh \
+	Interpreter.cc Interpreter.hh
 
 nodebug: resetdebug all
 debug: setdebug all

@@ -13,7 +13,7 @@
 #include "Config.hh"
 #include "openmsx.hh"
 #include "CliCommOutput.hh"
-#include "TCLInterp.hh"
+#include "Interpreter.hh"
 #include "InfoCommand.hh"
 
 
@@ -24,7 +24,7 @@ CommandController::CommandController()
 	  infoCommand(InfoCommand::instance()),
 	  msxConfig(MSXConfig::instance()),
 	  output(CliCommOutput::instance()),
-	  tclInterp(TCLInterp::instance())
+	  interpreter(Interpreter::instance())
 {
 	registerCommand(&helpCmd, "help");
 	registerCommand(&infoCommand, "openmsx_info");
@@ -53,7 +53,7 @@ void CommandController::registerCommand(Command* command,
 
 	registerCompleter(command, str);
 	commands[str] = command;
-	tclInterp.registerCommand(str, *command);
+	interpreter.registerCommand(str, *command);
 }
 
 void CommandController::unregisterCommand(Command* command,
@@ -62,7 +62,7 @@ void CommandController::unregisterCommand(Command* command,
 	assert(commands.find(str) != commands.end());
 	assert(commands.find(str)->second == command);
 
-	tclInterp.unregisterCommand(str, *command);
+	interpreter.unregisterCommand(str, *command);
 	commands.erase(str);
 	unregisterCompleter(command, str);
 }
@@ -217,13 +217,13 @@ string CommandController::join(const vector<string>& tokens, char delimiter)
 
 bool CommandController::isComplete(const string& command) const
 {
-	return tclInterp.isComplete(command);
+	return interpreter.isComplete(command);
 }
 
 string CommandController::executeCommand(const string& cmd)
 	throw (CommandException)
 {
-	return tclInterp.execute(cmd);
+	return interpreter.execute(cmd);
 }
 
 void CommandController::autoCommands()
@@ -231,7 +231,7 @@ void CommandController::autoCommands()
 	try {
 		SystemFileContext context;
 		File file(context.resolve("init.tcl"));
-		tclInterp.executeFile(file.getLocalName());
+		interpreter.executeFile(file.getLocalName());
 	} catch (FileException& e) {
 		// no init.tcl
 	} catch (CommandException& e) {

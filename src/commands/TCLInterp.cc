@@ -5,6 +5,11 @@
 
 namespace openmsx {
 
+void TCLInterp::init(const char* programName)
+{
+	Tcl_FindExecutable(programName);
+}
+
 TCLInterp::TCLInterp()
 {
 	interp = Tcl_CreateInterp();
@@ -21,12 +26,6 @@ TCLInterp::~TCLInterp()
 		Tcl_DeleteInterp(interp);
 	}
 	Tcl_Release(interp);
-}
-
-TCLInterp& TCLInterp::instance()
-{
-	static TCLInterp oneInstance;
-	return oneInstance;
 }
 
 int TCLInterp::outputProc(ClientData clientData, const char* buf,

@@ -6,7 +6,8 @@ SRC_HDR:= \
 	CommandException \
 	CommandController \
 	InfoCommand \
-	TCLInterp
+	TCLInterp \
+	Interpreter
 
 HDR_ONLY:= \
 	Command \

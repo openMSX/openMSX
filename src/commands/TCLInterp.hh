@@ -12,32 +12,30 @@
 #include <tcl8.3/tcl.h>
 #endif
 
-#include <SettingNode.hh>
-#include <Command.hh>
+#include <Interpreter.hh>
 
 namespace openmsx {
 
-class TCLInterp
+class TCLInterp : public Interpreter
 {
 public:
-	static TCLInterp& instance();
+	TCLInterp();
+	virtual ~TCLInterp();
 
-	void registerCommand(const string& name, Command& command);
-	void unregisterCommand(const string& name, Command& command);
-	bool isComplete(const string& command) const;
-	string execute(const string& command) throw(CommandException);
-	string executeFile(const string& filename) throw(CommandException);
+	virtual void init(const char* programName);
+	virtual void registerCommand(const string& name, Command& command);
+	virtual void unregisterCommand(const string& name, Command& command);
+	virtual bool isComplete(const string& command) const;
+	virtual string execute(const string& command) throw(CommandException);
+	virtual string executeFile(const string& filename) throw(CommandException);
 	
-	void setVariable(const string& name, const string& value);
-	void unsetVariable(const string& name);
-	string getVariable(const string& name) const;
-	void registerSetting(SettingLeafNode& variable);
-	void unregisterSetting(SettingLeafNode& variable);
+	virtual void setVariable(const string& name, const string& value);
+	virtual void unsetVariable(const string& name);
+	virtual string getVariable(const string& name) const;
+	virtual void registerSetting(SettingLeafNode& variable);
+	virtual void unregisterSetting(SettingLeafNode& variable);
 
 private:
-	TCLInterp();
-	~TCLInterp();
-
 	static int outputProc(ClientData clientData, const char* buf,
 	        int toWrite, int* errorCodePtr);
 	static int commandProc(ClientData clientData, Tcl_Interp* interp,

@@ -1,5 +1,10 @@
 $Id$
 
+2004-02-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Made abstract Interpreter class:
+	   - TCLinterpreter is (the only) subclass
+	   - all other code is TCL independent
+
 2004-02-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* added scripts directory
 	* added multi_screenshot script
