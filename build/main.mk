@@ -496,11 +496,6 @@ install: all
 	@echo "  Data files..."
 	@mkdir -p $(INSTALL_SHARE_DIR)
 	@cp -rf share/* $(INSTALL_SHARE_DIR)/
-	@echo "  C-BIOS..."
-	@mkdir -p $(INSTALL_SHARE_DIR)/Contrib/cbios
-	@cp -f Contrib/README.cbios $(INSTALL_SHARE_DIR)/Contrib
-	@cp -f $(addprefix Contrib/cbios/,*.BIN *.txt *.rom) \
-		$(INSTALL_SHARE_DIR)/Contrib/cbios
 	@echo "  Documentation..."
 	@mkdir -p $(INSTALL_DOC_DIR)
 	@cp -f README GPL AUTHORS $(INSTALL_DOC_DIR)
@@ -508,6 +503,9 @@ install: all
 	@mkdir -p $(INSTALL_DOC_DIR)/manual
 	@cp -f $(addprefix doc/manual/,*.html *.css *.png) \
 		$(INSTALL_DOC_DIR)/manual
+	@echo "  C-BIOS..."
+	@cp -f Contrib/README.cbios $(INSTALL_DOC_DIR)/cbios.txt
+	@cp -rf Contrib/cbios/C-BIOS_* $(INSTALL_SHARE_DIR)/machines/
 ifeq ($(USE_SYMLINK),true)
 	@echo "  Creating symlinks..."
 	@ln -nsf National_CF-1200 $(INSTALL_SHARE_DIR)/machines/msx1
