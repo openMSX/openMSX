@@ -13,6 +13,11 @@ $Id$
 	    added Timer class (had to rename existing Timer class to EmuTimer)
 	    removed RTC synchronziation (linux) because it was complicated and
 	    didn't really improve anything
+	* Force a realtime sync 8 times per second (real time):
+	   - now music stays more or less ok with large frameskips
+	     (set minframeskip 100) and very low speed settings (set speed 10)
+	   - disadvantage: auto frame skip is much less effective for value
+	     above 6 or 7 (set maxframeskip 7)
 
 2004-04-05 Maarten ter Huurne <maarten@treewalker.org>
 	* Minimized usage of auto*:

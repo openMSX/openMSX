@@ -13,10 +13,9 @@
 
 namespace openmsx {
 
-const int SYNC_INTERVAL = 500000; // us
-const int MAX_LAG       = 200000; // us
-const int ALLOWED_LAG   =  20000; // us
-
+const float    SYNC_INTERVAL = 0.125;  // s
+const int      MAX_LAG       = 200000; // us
+const unsigned ALLOWED_LAG   =  20000; // us
 
 RealTime::RealTime()
 	: scheduler(Scheduler::instance()),
@@ -34,7 +33,7 @@ RealTime::RealTime()
 	powerSetting.addListener(this);
 	
 	scheduler.setSyncPoint(Scheduler::ASAP, this);
-	
+
 	resync();
 }
 
@@ -72,7 +71,9 @@ bool RealTime::timeLeft(unsigned us, const EmuTime& time)
 
 void RealTime::sync(const EmuTime& time, bool allowSleep)
 {
-	scheduler.removeSyncPoint(this);
+	if (allowSleep) {
+		scheduler.removeSyncPoint(this);
+	}
 	internalSync(time, allowSleep);
 }
 
@@ -91,10 +92,9 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 		}
 	}
 	emuTime = time;
-	
+
 	// Schedule again in future
-	EmuTimeFreq<1000000> time2(time);
-	scheduler.setSyncPoint(time2 + SYNC_INTERVAL, this);
+	scheduler.setSyncPoint(time + getEmuDuration(SYNC_INTERVAL), this);
 }
 
 void RealTime::executeUntil(const EmuTime& time, int userData) throw()
@@ -116,6 +116,8 @@ void RealTime::update(const SettingLeafNode* setting) throw()
 void RealTime::resync()
 {
 	idealRealTime = Timer::getTime();
+	scheduler.removeSyncPoint(this);
+	scheduler.setSyncPoint(Scheduler::ASAP, this);
 }
 
 } // namespace openmsx
