@@ -61,7 +61,7 @@ void CliCommInput::cb_start_element(ParseState* user_data,
 			++(user_data->unknownLevel);
 			break;
 	}
-	user_data->content = ""; // clear() doesn't compile on gcc-2.95
+	user_data->content.clear();
 }
 
 void CliCommInput::cb_end_element(ParseState* user_data, const xmlChar* /*name*/)
