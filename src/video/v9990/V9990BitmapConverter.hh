@@ -15,7 +15,6 @@ class V9990VRAM;
 
 /** Utility class to convert VRAM content to host pixels
   */
-
 template <class Pixel, Renderer::Zoom zoom>
 class V9990BitmapConverter
 {
@@ -102,7 +101,7 @@ private:
 	void blend_8on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
 	void blend_none(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
 
-	/* private Raster Methods */
+	/* private Raster methods */
 	void rasterP    (Pixel* outPixels, uint address, int nrPixels);
 	void rasterBYUV (Pixel* outPixels, uint address, int nrPixels);
 	void rasterBYUVP(Pixel* outPixels, uint address, int nrPixels);
@@ -114,6 +113,7 @@ private:
 	void rasterBP4  (Pixel* outPixels, uint address, int nrPixels);
 	void rasterBP2  (Pixel* outPixels, uint address, int nrPixels);
 
+	/* Cursor drawing methods */
 	void drawCursor(Pixel* buffer, int displayY,
 	                unsigned attrAddr, unsigned patAddr);
 	void drawCursors(Pixel* buffer, int displayY);

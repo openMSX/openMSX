@@ -11,6 +11,7 @@ namespace openmsx {
 
 class V9990;
 class V9990VRAM;
+class BooleanSetting;
 
 /** Rasterizer using SDL.
   */
@@ -53,6 +54,10 @@ private:
 	/** screenheight for SDLLo
 	  */
 	static const int SCREEN_HEIGHT = 240;
+	
+	/** Number of workscreens
+	  */
+	static const int NB_WORKSCREENS = (zoom == Renderer::ZOOM_256) ? 1 : 2;
 
 	/** The VDP of which the video output is being rendered.
 	  */
@@ -66,9 +71,9 @@ private:
 	  */
 	SDL_Surface* screen;
 
-	/** Work screen
+	/** Work screens, 2nd surface is used for deinterlace mode
 	  */
-	SDL_Surface* workScreen;
+	SDL_Surface* workScreens[NB_WORKSCREENS];
 
 	/** First display line to draw. Since the number of VDP lines >=
 	  * the screen height, lineZero is >= 0. Only part of the video
@@ -111,6 +116,14 @@ private:
 	/** Bitmap converter. Converts VRAM into pixels
 	  */
 	V9990BitmapConverter<Pixel, zoom> bitmapConverter;
+	
+	/** Deinterlace setting
+	  */
+	BooleanSetting* deinterlaceSetting;
+
+	/** Get the active workscreen (for deinterlace)
+	  */ 
+	SDL_Surface* getWorkScreen(bool prev = false) const;
 
 	/** Fill the palettes.
 	  */

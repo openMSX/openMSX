@@ -1,5 +1,8 @@
 $Id$
 
+2005-01-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented deinterlace for V9990
+
 2004-12-31 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed V9990 palette read-out
 	* Completed V9990 YUVP and YJKP modes (palette part was missing)
