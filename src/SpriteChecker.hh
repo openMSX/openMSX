@@ -155,7 +155,7 @@ private:
 			// all other lines are read one line in advance as it should be.
 			limit--;
 		} else if (limit > linesPerFrame) {
-			cout << "checkUntil: limit = " << limit << "\n";
+			std::cout << "checkUntil: limit = " << limit << "\n";
 			assert(false);
 		}
 		(this->*updateSpritesMethod)(limit);

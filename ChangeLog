@@ -1,5 +1,9 @@
 $Id$
 
+2002-04-30 Joost Yervante Damad <andete@worldcity.nl>
+	* s/-fhuge-objects//g
+	* verious g++-3.0 fixes
+
 2002-04-29 Maarten ter Huurne <mth@stack.nl>
 	* SDLGLRenderer is working again.
 	* SDLGLRenderer now uses CharacterConverter and BitmapConverter.
