@@ -76,12 +76,8 @@ inline void PixelRenderer::renderUntil(const EmuTime &time)
 {
 	if (curFrameSkip != 0) return;
 
-	// Calculate start of display in ticks since start of line.
-	int displayL = 100 + 102 + 56
-		+ (vdp->getHorizontalAdjust() - 7) * 4
-		+ (vdp->isTextMode() ? 28 : 0);
-
 	int limitTicks = vdp->getTicksThisFrame(time);
+	int displayL = getDisplayLeft();
 	int limitX, limitY;
 	switch (accuracy) {
 	case ACC_PIXEL: {
@@ -113,10 +109,13 @@ inline void PixelRenderer::renderUntil(const EmuTime &time)
 		// Calculate end of display in ticks since start of line.
 		int displayR = displayL + (vdp->isTextMode() ? 960 : 1024);
 
+		// Left border.
 		subdivide(nextX, nextY, limitX, limitY,
 			0, displayL, DRAW_BORDER );
+		// Display area.
 		subdivide(nextX, nextY, limitX, limitY,
 			displayL, displayR, DRAW_DISPLAY );
+		// Right border.
 		subdivide(nextX, nextY, limitX, limitY,
 			displayR, VDP::TICKS_PER_LINE, DRAW_BORDER );
 	} else {
@@ -138,10 +137,6 @@ PixelRenderer::PixelRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 	frameSkip = curFrameSkip = 0;
 	autoFrameSkip = false;
 	CommandController::instance()->registerCommand(frameSkipCmd, "frameskip");
-
-	// TODO: Store current time.
-	//       Does the renderer actually have to keep time?
-	//       Keeping render position should be good enough.
 
 	// Now we're ready to start rendering the first frame.
 	displayEnabled = false;

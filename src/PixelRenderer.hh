@@ -100,6 +100,14 @@ protected:
 		renderUntil(time);
 	}
 
+	/** Get start of display in ticks since start of line.
+	  */
+	int getDisplayLeft() {
+		return 100 + 102 + 56
+			+ (vdp->getHorizontalAdjust() - 7) * 4
+			+ (vdp->isTextMode() ? 28 : 0);
+	}
+
 	/** The VDP of which the video output is being rendered.
 	  */
 	VDP *vdp;
