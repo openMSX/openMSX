@@ -1,5 +1,10 @@
 $Id$
 
+2003-05-25 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Fixed a problem with the consolesize when switching from SDLLo
+	  to SDLHi or SDLGL.
+	* When the console is resized, the text in it will be rebuild.
+
 2003-05-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Split RealTime in generic part and implementation specific part.
 	  This decouples time synchronization from SDL and paves the way
