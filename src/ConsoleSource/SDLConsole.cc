@@ -194,11 +194,17 @@ void SDLConsole::alpha(unsigned char newAlpha)
 // Adds background image to the console
 bool SDLConsole::loadBackground(const std::string &filename)
 {
+	SDL_Surface *pictureSurface = NULL;
 	if (filename.empty()) {
 		return false;
 	}
+	
+	try{
 	File file(filename);
-	SDL_Surface *pictureSurface = IMG_Load(file.getLocalName().c_str());
+	pictureSurface = IMG_Load(file.getLocalName().c_str());
+	}catch(FileException &e){
+	}
+	
 	if (pictureSurface == NULL) {
 		return false;
 	}
