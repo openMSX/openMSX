@@ -436,7 +436,8 @@ void Z80::dec_sp() { --R.SP.w; currentTime += 2; }
 void Z80::di() { R.IFF1 = R.nextIFF1 = R.IFF2 = false; }
 
 void Z80::ei() {
-	R.nextIFF1 = true;	// delay one instruction
+	R.IFF1 = false;		// no ints after this instruction
+	R.nextIFF1 = true;	// but allow them after next instruction
 	R.IFF2 = true;
 }
 
