@@ -45,12 +45,9 @@ public:
 	 * While registering, the device its setSampleRate() method is
 	 * called (see SoundDevice for more info).
 	 * After registration the device its updateBuffer() method is
-	 * 'regularly' called. It asks the device to fill a buffer with
-	 * a certain number of samples. (see SoundDevice for more info)
-	 * The maximum number of samples asked for is returned by this
-	 * method.
+	 * 'regularly' called (see SoundDevice for more info).
 	 */
-	int registerSound(SoundDevice& device, short volume, ChannelMode mode);
+	void registerSound(SoundDevice& device, short volume, ChannelMode mode);
 
 	/**
 	 * Every sounddevice must unregister before it is destructed

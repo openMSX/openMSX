@@ -965,23 +965,19 @@ bool YM2413::checkMuteHelper()
 	return true;	// nothing is playing, then mute
 }
 
-int* YM2413::updateBuffer(int length)
+void YM2413::updateBuffer(int length, int* buffer)
 {
-	//PRT_DEBUG("YM2413: update buffer");
-
 	int channelMask = 0;
 	for (int i = 9; i--; ) {
 		channelMask <<= 1;
 		if (ch[i].car.eg_mode != FINISH) channelMask |= 1;
 	}
 
-	int* buf = buffer;
 	while (length--) {
-		*(buf++) = calcSample(channelMask);
+		*(buffer++) = calcSample(channelMask);
 	}
 
 	checkMute();
-	return buffer;
 }
 
 void YM2413::setVolume(int newVolume)

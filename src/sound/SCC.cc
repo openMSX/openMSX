@@ -415,9 +415,8 @@ void SCC::setDeformReg(byte value, const EmuTime& time)
 
 
 
-int *SCC::updateBuffer(int length)
+void SCC::updateBuffer(int length, int* buffer)
 {
-	int* buf = buffer;
 	if ((deformValue & 0xC0) == 0x00) {
 		// No rotation stuff, this is almost always true. So it makes
 		// sense to have a special optimized routine for this case
@@ -434,7 +433,7 @@ int *SCC::updateBuffer(int length)
 					      [(count[i] >> GETA_BITS) & 0x1F];
 				}
 			}
-			*buf++ = mixed;
+			*buffer++ = mixed;
 		}
 	} else {
 		// Rotation mode
@@ -457,10 +456,9 @@ int *SCC::updateBuffer(int length)
 					mixed += volAdjustedWave[i][pos & 0x1F];
 				}
 			}
-			*buf++ = mixed;
+			*buffer++ = mixed;
 		}
 	}
-	return buffer;
 }
 
 void SCC::checkMute()

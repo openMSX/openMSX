@@ -430,11 +430,10 @@ bool YMF278::anyActive()
 	return false;
 }
 
-int* YMF278::updateBuffer(int length)
+void YMF278::updateBuffer(int length, int* buffer)
 {
 	int vl = mix_level[pcm_l];
 	int vr = mix_level[pcm_r];
-	int *buf = buffer;
 	while (length--) {
 		int left = 0;
 		int right = 0;
@@ -486,12 +485,11 @@ int* YMF278::updateBuffer(int length)
 				sl.sample2 = getSample(sl);
 			}
 		}
-		*buf++ = left;
-		*buf++ = right;
+		*buffer++ = left;
+		*buffer++ = right;
 
 		advance();
 	}
-	return buffer;
 }
 
 void YMF278::keyOnHelper(YMF278Slot& slot)

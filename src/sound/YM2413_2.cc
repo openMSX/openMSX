@@ -1387,9 +1387,8 @@ const string& YM2413_2::getDescription() const
 	return desc;
 }
 
-int* YM2413_2::updateBuffer(int length)
+void YM2413_2::updateBuffer(int length, int* buffer)
 {
-	int* buf = buffer;
 	while (length--) {
 		int output = 0;
 		advance_lfo();
@@ -1406,11 +1405,10 @@ int* YM2413_2::updateBuffer(int length)
 		} else {
 			output += rhythm_calc(noise_rng & 1);
 		}
-		*(buf++) = (maxVolume * output) >> 11;
+		*(buffer++) = (maxVolume * output) >> 11;
 		advance();
 	}
 	checkMute();
-	return buffer;
 }
 
 void YM2413_2::checkMute()

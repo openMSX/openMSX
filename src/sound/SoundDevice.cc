@@ -40,15 +40,12 @@ void SoundDevice::registerSound(const XMLElement& config,
 			mode = Mixer::MONO;
 		}
 	}
-	unsigned samples = Mixer::instance().registerSound(*this, volume, mode);
-	unsigned bufSize = (mode == Mixer::STEREO) ? 2 * samples : samples;
-	buffer = new int[bufSize];
+	Mixer::instance().registerSound(*this, volume, mode);
 }
 
 void SoundDevice::unregisterSound()
 {
 	Mixer::instance().unregisterSound(*this);
-	delete[] buffer;
 }
 
 } // namespace openmsx

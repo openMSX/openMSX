@@ -28,7 +28,7 @@ public:
 	virtual const string& getDescription() const;
 	virtual void setVolume(int newVolume);
 	virtual void setSampleRate(int sampleRate);
-	virtual int* updateBuffer(int length);
+	virtual void updateBuffer(int length, int* buffer);
 	
 private:
 	short lastWrittenValue;

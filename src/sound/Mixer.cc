@@ -120,7 +120,7 @@ Mixer& Mixer::instance()
 	return oneInstance;
 }
 
-int Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
+void Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 {
 	const string& name = device.getName();
 	SoundDeviceInfo info;
@@ -154,15 +154,13 @@ int Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 	infos[&device] = info;
 
 	lock();
-	buffers.push_back(NULL);	// make room for one more
+	buffers.push_back(new int[2 * audioSpec.samples]);
 	devices[mode].push_back(&device);
 	device.setSampleRate(init ? audioSpec.freq : 44100);
 	device.setVolume((info.normalVolume * info.volumeSetting->getValue() *
 	                   masterVolume->getValue()) / (100 * 100));
 	muteHelper();
 	unlock();
-
-	return init ? audioSpec.samples : 1024;
 }
 
 void Mixer::unregisterSound(SoundDevice& device)
@@ -176,6 +174,7 @@ void Mixer::unregisterSound(SoundDevice& device)
 	ChannelMode mode = it->second.mode;
 	vector<SoundDevice*> &dev = devices[mode];
 	dev.erase(remove(dev.begin(), dev.end(), &device), dev.end());
+	delete[] buffers.back();
 	buffers.pop_back();
 	it->second.volumeSetting->removeListener(this);
 	delete it->second.volumeSetting;
@@ -313,12 +312,11 @@ void Mixer::updtStrm2(unsigned samples)
 	int unmuted = 0;
 	for (int mode = 0; mode < NB_MODES -1; mode++) { // -1 for OFF mode
 		modeOffset[mode] = unmuted;
-		for (vector<SoundDevice*>::const_iterator i =
+		for (vector<SoundDevice*>::const_iterator it =
 		           devices[mode].begin();
-		     i != devices[mode].end();
-		     ++i) {
-			if (!(*i)->isMuted()) {
-				buffers[unmuted++] = (*i)->updateBuffer(samples);
+		     it != devices[mode].end(); ++it) {
+			if (!(*it)->isMuted()) {
+				(*it)->updateBuffer(samples, buffers[unmuted++]);
 			}
 		}
 	}

@@ -1,5 +1,10 @@
 $Id$
 
+2004-11-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Changed buffer managment in sound code:
+	   - Mixer now allocates/deallocates buffers iso the sounddevice
+	   - preparation for run-time changeable frequency/samples settings
+
 2004-11-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Only send events on actual changes:
 	* Use different image for led on/off, fade out the image if it doesn't

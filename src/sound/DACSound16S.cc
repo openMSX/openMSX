@@ -55,13 +55,11 @@ void DACSound16S::writeDAC(short value, const EmuTime& time)
 	setMute(value == 0);
 }
 
-int* DACSound16S::updateBuffer(int length)
+void DACSound16S::updateBuffer(int length, int* buffer)
 {
-	int* buf = buffer;
 	while (length--) {
-		*(buf++) = sample;
+		*(buffer++) = sample;
 	}
-	return buffer;
 }
 
 } // namespace openmsx

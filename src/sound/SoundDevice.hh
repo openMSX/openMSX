@@ -77,12 +77,6 @@ protected:
 	 */
 	void unregisterSound();
 
-	/**
-	 * 
-	 */
-	int* buffer;
-	
-
 public: // Will be called by Mixer:
 	/**
 	 * When a SoundDevice registers itself with the Mixer, the Mixer sets
@@ -113,7 +107,7 @@ public: // Will be called by Mixer:
 	 *       (un)lock this thread with lock() and unlock()
 	 *       methods in Mixer
 	 */
-	virtual int* updateBuffer(int length) = 0;
+	virtual void updateBuffer(int length, int* buffer) = 0;
 
 private:
 	bool muted;

@@ -181,7 +181,7 @@ private:
 	virtual const string& getDescription() const;
 	virtual void setVolume(int maxVolume);
 	virtual void setSampleRate(int sampleRate);
-	virtual int* updateBuffer(int length);
+	virtual void updateBuffer(int length, int* buffer);
 
 	// Debuggable
 	virtual unsigned getSize() const;

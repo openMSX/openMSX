@@ -1876,11 +1876,10 @@ bool YMF262::checkMuteHelper()
 	return true;
 }
 
-int* YMF262::updateBuffer(int length)
+void YMF262::updateBuffer(int length, int* buffer)
 {
 	bool rhythmEnabled = rhythm & 0x20;
 
-	int* buf = buffer;
 	while (length--) {
 		advance_lfo();
 
@@ -1964,15 +1963,14 @@ int* YMF262::updateBuffer(int length)
 			c += chanout[i] & pan[4 * i + 2];
 			d += chanout[i] & pan[4 * i + 3];
 		}
-		*(buf++) = (a * maxVolume) >> 13;
-		*(buf++) = (b * maxVolume) >> 13;
+		*(buffer++) = (a * maxVolume) >> 13;
+		*(buffer++) = (b * maxVolume) >> 13;
 		// c and d unused
 
 		advance();
 	}
 
 	checkMute();
-	return buffer;
 }
 
 void YMF262::setVolume(int newVolume)

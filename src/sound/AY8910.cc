@@ -487,10 +487,8 @@ void AY8910::setSampleRate(int sampleRate)
 }
 
 
-int* AY8910::updateBuffer(int length)
+void AY8910::updateBuffer(int length, int* buffer)
 {
-	//PRT_DEBUG("AY8910: update buffer");
-
 	/*
 	static long long totalSamples = 0, noiseOff = 0, toneOff = 0, bothOff = 0;
 	static long long envSamples = 0;
@@ -545,7 +543,6 @@ int* AY8910::updateBuffer(int length)
 	}
 
 	// Calculate samples.
-	int* buf = buffer;
 	while (length) {
 		// semiVol keeps track of how long each square wave stays
 		// in the 1 position during the sample period.
@@ -611,10 +608,9 @@ int* AY8910::updateBuffer(int length)
 		if (chA + chB + chC == prevSample) sameSample += 3;
 		else prevSample = chA + chB + chC;
 		*/
-		*(buf++) = chA + chB + chC;
+		*(buffer++) = chA + chB + chC;
 		length--;
 	}
-	return buffer;
 }
 
 

@@ -824,23 +824,19 @@ bool Y8950::checkMuteHelper()
 	return adpcm.muted();
 }
 
-int* Y8950::updateBuffer(int length)
+void Y8950::updateBuffer(int length, int* buffer)
 {
-	//PRT_DEBUG("Y8950: update buffer");
-
 	int channelMask = 0;
 	for (int i = 9; i--; ) {
 		channelMask <<= 1;
 		if (ch[i].car.eg_mode != FINISH) channelMask |= 1;
 	}
 
-	int* buf = buffer;
 	while (length--) {
-		*(buf++) = calcSample(channelMask);
+		*(buffer++) = calcSample(channelMask);
 	}
 
 	checkMute();
-	return buffer;
 }
 
 void Y8950::setVolume(int newVolume)

@@ -112,7 +112,7 @@ private:
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
 	virtual void setVolume(int newVolume);
-	virtual int* updateBuffer(int length);
+	virtual void updateBuffer(int length, int* buffer);
 	virtual void setSampleRate(int sampleRate);
 
 	// Debuggable
