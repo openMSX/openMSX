@@ -1,5 +1,8 @@
 $Id$
 
+2002-08-26 Maarten ter Huurne <mth@stack.nl>
+	* Updated C-BIOS to version 0.05.
+
 2002-08-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented partial character rendering for SDLGLRenderer:
 	   - fixes top border while vertical scrolling in Space Manbow
