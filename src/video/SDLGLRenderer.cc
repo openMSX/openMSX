@@ -244,6 +244,13 @@ void SDLGLRenderer::finishFrame(bool store)
 
 void SDLGLRenderer::putStoredImage()
 {
+	// Copy stored image to screen.
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
+	// Note: Without blending enabled, this method is rather efficient.
+	GLDrawBlur(0, 0, 1.0);
+	glDisable(GL_TEXTURE_2D);
+
 	// TODO: The code below is a modified copy-paste of finishFrame.
 	//       Refactor it to remove code duplication.
 
