@@ -2,6 +2,8 @@
 
 #include "Y8950Adpcm.hh"
 #include "Y8950.hh"
+#include "Scheduler.hh"
+
 
 //**************************************************//
 //                                                  //
@@ -79,6 +81,11 @@ void Y8950Adpcm::restart()
 	volumeWStep = (int)((double)volume * step / MAX_STEP);
 }
 
+void Y8950Adpcm::executeUntilEmuTime(const EmuTime &time, int userData)
+{
+	y8950->setStatus(Y8950::STATUS_EOS);
+}
+
 void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 {
 	switch (rg) {
@@ -86,10 +93,18 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			reg7 = data;
 			if (reg7 & R07_RESET) {
 				playing = false;
-				break;
 			} else if (data & R07_START) {
 				playing = true;
 				restart();
+			}
+			
+			if (playing && !(reg7 & R07_REPEAT) && (stopAddr > playAddr)) {
+				uint64 samples = stopAddr - playAddr + 1;
+				EmuTimeFreq<Y8950::CLOCK_FREQ> stop(time);
+				stop += (samples*(72<<16)/delta);
+				Scheduler::instance()->setSyncPoint(stop, this);
+			} else {
+				Scheduler::instance()->removeSyncPoint(this);
 			}
 			break;
 
@@ -223,7 +238,7 @@ int Y8950Adpcm::calcSample()
 					restart();
 				} else {
 					playing = false;
-					y8950->setStatus(Y8950::STATUS_EOS);
+					//y8950->setStatus(Y8950::STATUS_EOS);
 				}
 			}
 		} while (nowStep >= MAX_STEP);

@@ -4,17 +4,18 @@
 #define __Y8950ADPCM_HH__
 
 #include "openmsx.hh"
+#include "Schedulable.hh"
 
 // Forward declarartions
 class EmuTime;
 class Y8950;
 
 
-class Y8950Adpcm
+class Y8950Adpcm : private Schedulable
 {
 	public:
 		Y8950Adpcm(Y8950 *y8950, int sampleRam);
-		~Y8950Adpcm();
+		virtual ~Y8950Adpcm();
 		
 		void reset();
 		void setSampleRate(int sr);
@@ -24,6 +25,7 @@ class Y8950Adpcm
 		int calcSample();
 
 	private:
+		virtual void executeUntilEmuTime(const EmuTime &time, int userData);
 		int CLAP(int min, int x, int max);
 		void restart();
 

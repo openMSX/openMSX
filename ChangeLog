@@ -6,12 +6,12 @@ $Id$
 	   use Scheduler for synchronous event delivery
 	   thanks Maarten for the idea
 	* Made Scheduler thread safe
-	* include cleanups
+	* #include cleanups
+	* Y8950 generates an IRQ on end-of-sample _in_EmuTime_ (was realtime)
 
 2002-04-11 David Heremans <david.heremans@gnu-linux.net>
 	* Royal blood works, use type ASCII8SRAM2!
 	  Xanadu resets to Basic, Hydlide2 hangs.
-
 
 2002-04-11 Maarten ter Huurne <mth@stack.nl>
 	* Introduced "renderer" command to print current renderer and switch
