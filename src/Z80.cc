@@ -189,7 +189,7 @@ inline void Z80::Z80_Out (word port,byte value) {
 /*
  * Read a byte from given memory location
  */
-inline byte Z80::Z80_RDMEM(word address) { 
+inline byte Z80::Z80_RDMEM(word address) {
 #ifdef Z80DEBUG
 	debugmemory[address] = interface->readMem(address, currentTime);
 	return debugmemory[address];
@@ -926,7 +926,11 @@ void Z80::ld_xix_d()   { M_WR_XIX(DE.B.h); }
 void Z80::ld_xix_e()   { M_WR_XIX(DE.B.l); }
 void Z80::ld_xix_h()   { M_WR_XIX(HL.B.h); }
 void Z80::ld_xix_l()   { M_WR_XIX(HL.B.l); }
-void Z80::ld_xix_byte(){ Z80_WRMEM(M_XIX(), Z80_RDMEM_OPCODE()); }
+void Z80::ld_xix_byte(){
+	int j = M_XIX();
+	byte i = Z80_RDMEM_OPCODE();
+	Z80_WRMEM(j, i);
+}
 void Z80::ld_xiy_a()   { M_WR_XIY(AF.B.h); }
 void Z80::ld_xiy_b()   { M_WR_XIY(BC.B.h); }
 void Z80::ld_xiy_c()   { M_WR_XIY(BC.B.l); }
@@ -934,7 +938,11 @@ void Z80::ld_xiy_d()   { M_WR_XIY(DE.B.h); }
 void Z80::ld_xiy_e()   { M_WR_XIY(DE.B.l); }
 void Z80::ld_xiy_h()   { M_WR_XIY(HL.B.h); }
 void Z80::ld_xiy_l()   { M_WR_XIY(HL.B.l); }
-void Z80::ld_xiy_byte(){ Z80_WRMEM(M_XIY(), Z80_RDMEM_OPCODE()); }
+void Z80::ld_xiy_byte(){
+	int j = M_XIY();
+	byte i = Z80_RDMEM_OPCODE();
+	Z80_WRMEM(j, i);
+}
 void Z80::ld_xbyte_a() { Z80_WRMEM(Z80_RDMEM_OPCODE_WORD(), AF.B.h); }
 void Z80::ld_xword_bc(){ Z80_WRMEM_WORD(Z80_RDMEM_OPCODE_WORD(), BC.w); }
 void Z80::ld_xword_de(){ Z80_WRMEM_WORD(Z80_RDMEM_OPCODE_WORD(), DE.w); }
