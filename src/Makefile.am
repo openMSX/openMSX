@@ -86,7 +86,8 @@ openmsx_SOURCES=openmsx.cc \
 # openmsx_LDADD = libxmlx/libxmlx.la
 
 cfgtest_SOURCES = MSXConfig.hh MSXConfig.cc \
-	cfgtest.cc EmuTime.hh
+	cfgtest.cc EmuTime.hh \
+	XMLConfig.hh XMLConfig.cc
 
 cfgtest_LDADD = libxmlx/libxmlx.la
 

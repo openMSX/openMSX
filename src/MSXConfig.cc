@@ -21,6 +21,11 @@ Config::~Config()
 {
 }
 
+bool Config::isDevice()
+{
+	return false;
+}
+
 Config::Parameter::Parameter(const std::string &name_, const std::string &value_, const std::string &clasz_)
 :name(name_), value(value_), clasz(clasz_)
 {
@@ -34,8 +39,7 @@ const bool Config::Parameter::getAsBool() const
 {
 	std::string low = value;
 	std::transform (low.begin(), low.end(), low.begin(), tolower);
-	if (low == "true" || low == "yes") return true;
-	return false;
+	return (low == "true" || low == "yes");
 }
 
 const int Config::Parameter::getAsInt() const
@@ -49,6 +53,61 @@ const uint64 Config::Parameter::getAsUint64() const
 	return atoll(value.c_str());
 }
 
+Device::Device()
+{
+}
+
+Device::~Device()
+{
+}
+
+bool Device::isDevice()
+{
+	return true;
+}
+
+Device::Slotted::Slotted(int PS, int SS=-1, int Page=-1)
+:ps(PS),ss(SS),page(Page)
+{
+}
+
+Device::Slotted::~Slotted()
+{
+}
+
+bool Device::Slotted::hasSS()
+{
+	return (ps!=-1);
+}
+
+bool Device::Slotted::hasPage()
+{
+	return (page!=-1);
+}
+
+int Device::Slotted::getPS()
+{
+	return ps;
+}
+
+int Device::Slotted::getSS()
+{
+	if (ss==-1)
+	{
+		throw Exception("Request for SS on a Slotted without SS");
+	}
+	return ss;
+}
+
+int Device::Slotted::getPage()
+{
+	if (page==-1)
+	{
+		throw Exception("Request for Page on a Slotted without Page");
+	}
+	return page;
+}
+
 Backend::Backend()
 {
 }
@@ -59,6 +118,12 @@ Backend::~Backend()
 
 Backend* Backend::createBackend(const std::string &name)
 {
+/*
+	if (name=="xml")
+	{
+		return new XMLConfig::Backend();
+	}
+*/
 	return 0;
 }
 

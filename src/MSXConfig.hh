@@ -6,10 +6,22 @@
 // for uint64
 #include "EmuTime.hh"
 
+// TODO XXX rework msxexception
+#include "msxexception.hh"
+
 #include <string>
+#include <list>
+#include <sstream>
 
 namespace MSXConfig
 {
+
+class Exception: public MSXException
+{
+public:
+	Exception(const std::string &descs=""):MSXException(descs,0) {}
+	Exception(const std::ostringstream &stream):MSXException(stream.str(),0) {}
+};
 
 class Config
 {
@@ -40,9 +52,50 @@ public:
 	Config();
 	virtual ~Config();
 
-	virtual bool isDevice()=0;
+	virtual bool isDevice();
 	virtual const std::string &getType()=0;
 	virtual const std::string &getId()=0;
+};
+
+class Device: public Config
+{
+public:
+
+	// a slotted is the same for all backends:
+	class Slotted
+	{
+	public:
+		Slotted(int PS, int SS=-1, int Page=-1);
+		~Slotted();
+	private:
+		Slotted(); // block usage
+		Slotted(const Slotted &); // block usage
+		Slotted &operator=(const Slotted &); // block usage
+		int ps;
+		int ss;
+		int page;
+	public:
+		bool hasSS();
+		bool hasPage();
+		int getPS();
+		int getSS();
+		int getPage();
+	};
+
+	Device();
+	virtual ~Device();
+
+	virtual bool isDevice();
+	bool  isSlotted();
+	int   getPage(); // of first slotted [backward compat]
+	int   getPS(); // of first slotted [backward compat]
+	int   getSS(); // of first slotted [backward compat]
+
+	std::list <Slotted*> slotted;
+	
+private:
+	Device(const Device &foo); // block usage
+	Device &operator=(const Device &foo); // block usage
 };
 
 class Backend
