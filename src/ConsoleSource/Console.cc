@@ -19,10 +19,7 @@
 Console::Console()
 {
 	totalConsoleLines = 0;
-	consoleScrollBack = 0;
 	totalCommands = 0;
-	cursorLocation = 0;
-	commandScrollBack = 0;
 
 	consoleLines = (char**)malloc(sizeof(char*) * NUM_LINES);
 	commandLines = (char**)malloc(sizeof(char*) * NUM_LINES);
@@ -30,6 +27,7 @@ Console::Console()
 		consoleLines[loop] = (char *)calloc(CHARS_PER_LINE, sizeof(char));
 		commandLines[loop] = (char *)calloc(CHARS_PER_LINE, sizeof(char));
 	}
+	putPrompt();
 }
 
 Console::~Console()
@@ -63,17 +61,15 @@ void Console::print(const std::string &text)
 			more = false;
 			end = text.length();
 		}
-		char line[end - start + 1];
+		char line[end-start+1];
 		text.copy(line, sizeof(line), start);
-		line[sizeof(line) - 1] = '\0';
-	
-		strncpy(consoleLines[1], line, CHARS_PER_LINE);
-		consoleLines[1][CHARS_PER_LINE - 1] = '\0';
+		line[sizeof(line)-1] = '\0';
+		strncpy(consoleLines[0], line, CHARS_PER_LINE);
+		consoleLines[0][CHARS_PER_LINE-1] = '\0';
 		newLineConsole();
 		updateConsole();
+		end++; // skip newline
 		PRT_DEBUG(line);
-	
-	end++; // skip newline
 	}
 }
 
@@ -82,19 +78,20 @@ void Console::newLineConsole()
 {
 	// Scroll
 	char *temp = consoleLines[NUM_LINES-1];
-	for (int i = NUM_LINES-1; i>1; i--) {
+	for (int i=NUM_LINES-1; i>0; i--) {
 		consoleLines[i] = consoleLines[i-1];
 	}
-	consoleLines[1] = temp;
+	consoleLines[0] = temp;
 
-	memset(consoleLines[1], 0, CHARS_PER_LINE);
+	memset(consoleLines[0], 0, CHARS_PER_LINE);
 	if (totalConsoleLines < NUM_LINES-1) {
 		totalConsoleLines++;
 	}
+	cursorLocation = 0;
 }
 
 // Increments the command lines
-void Console::newLineCommand()
+void Console::putCommandHistory(char* command)
 {
 	// Scroll
 	char *temp = commandLines[NUM_LINES-1];
@@ -103,28 +100,39 @@ void Console::newLineCommand()
 	}
 	commandLines[0] = temp;
 
-	memset(commandLines[0], 0, CHARS_PER_LINE);
+	strcpy(commandLines[0], command);
 	if (totalCommands < NUM_LINES-1) {
 		totalCommands++;
 	}
 }
 
-
-void Console::commandExecute(const std::string &cmd)
+void Console::commandExecute()
 {
+	putCommandHistory(consoleLines[0]);
 	newLineConsole();
 	try {
-		CommandController::instance()->executeCommand(cmd);
+		CommandController::instance()->
+			executeCommand(std::string(commandLines[0]+PROMPT_SIZE));
 	} catch (CommandException &e) {
 		print(e.desc);
 	}
+	putPrompt();
+}
+
+void Console::putPrompt()
+{
+	consoleScrollBack = 0;
+	commandScrollBack = -1;
+	consoleLines[0][0] = '>';
+	consoleLines[0][1] = ' ';
+	memset(consoleLines[0]+PROMPT_SIZE, 0, CHARS_PER_LINE-PROMPT_SIZE);
+	cursorLocation = PROMPT_SIZE;
 }
 
 void Console::tabCompletion()
 {
-	std::string string(consoleLines[0]);
+	std::string string(consoleLines[0]+PROMPT_SIZE);
 	CommandController::instance()->tabCompletion(string);
-	strncpy(consoleLines[0], string.c_str(), CHARS_PER_LINE);
-	cursorLocation = string.length();
-	updateConsole();
+	strncpy(consoleLines[0]+PROMPT_SIZE, string.c_str(), CHARS_PER_LINE-PROMPT_SIZE);
+	cursorLocation = string.length()+PROMPT_SIZE;
 }

@@ -29,13 +29,17 @@ class Console
 	protected:
 		Console();
 		void tabCompletion();
-		void newLineCommand();
-		void commandExecute(const std::string &cmd);
+		void commandExecute();
+		void putCommandHistory(char* command);
 		void newLineConsole();
+		void putPrompt();
+		
 		virtual void updateConsole() = 0;
+		
 		
 		static const int CHARS_PER_LINE = 128;
 		static const int NUM_LINES = 100;
+		static const int PROMPT_SIZE = 2;
 
 		static Console* oneInstance;
 		

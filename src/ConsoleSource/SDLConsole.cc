@@ -49,8 +49,6 @@ void SDLConsole::hookUpSDLConsole(SDL_Surface *screen)
 	rect.h = 180;
 	resize(rect);
 
-	print("Console initialised");
-	
 	alpha(200);
 	SDL_EnableUNICODE(1);
 	EventDistributor::instance()->registerAsyncListener(SDL_KEYDOWN, this);
@@ -71,35 +69,27 @@ void SDLConsole::signalEvent(SDL_Event &event)
 {
 	if (!isVisible) return;
 	
-	assert (event.type == SDL_KEYDOWN);
 	switch (event.key.keysym.sym) {
 	case SDLK_PAGEUP:
 		if (consoleScrollBack < totalConsoleLines &&
 		    consoleScrollBack < NUM_LINES &&
 		    NUM_LINES - consoleSurface->h / font->height() > consoleScrollBack + 1) {
 			consoleScrollBack++;
-			updateConsole();
 		}
 		break;
 	case SDLK_PAGEDOWN:
 		if (consoleScrollBack > 0) {
 			consoleScrollBack--;
-			updateConsole();
 		}
 		break;
-	case SDLK_END:
-		consoleScrollBack = 0;
-		updateConsole();
-		break;
 	case SDLK_UP:
-		if (commandScrollBack < totalCommands) {
+		if (commandScrollBack+1 < totalCommands) {
 			// move back a line in the command strings and copy
 			// the command to the current input string
 			commandScrollBack++;
 			memset(consoleLines[0], 0, CHARS_PER_LINE);
 			strcpy(consoleLines[0], commandLines[commandScrollBack]);
 			cursorLocation = strlen(commandLines[commandScrollBack]);
-			updateConsole();
 		}
 		break;
 	case SDLK_DOWN:
@@ -110,49 +100,30 @@ void SDLConsole::signalEvent(SDL_Event &event)
 			memset(consoleLines[0], 0, CHARS_PER_LINE);
 			strcpy(consoleLines[0], commandLines[commandScrollBack]);
 			cursorLocation = strlen(consoleLines[commandScrollBack]);
-			updateConsole();
+		} else if (commandScrollBack == 0) {
+			commandScrollBack = -1;
+			putPrompt();
 		}
 		break;
 	case SDLK_BACKSPACE:
-		if(cursorLocation > 0) {
-			consoleLines[0][cursorLocation-1] = '\0';
+		if (cursorLocation > 0) {
 			cursorLocation--;
-			SDL_Rect inputBackground2;
-			inputBackground2.x = 0;
-			inputBackground2.y = consoleSurface->h - font->height();
-			inputBackground2.w = consoleSurface->w;
-			inputBackground2.h = font->height();
-			SDL_BlitSurface(inputBackground, NULL, consoleSurface, &inputBackground2);
+			consoleLines[0][cursorLocation] = '\0';
 		}
 		break;
 	case SDLK_TAB:
 		tabCompletion();
 		break;
 	case SDLK_RETURN:
-		newLineCommand();
-		// copy the input into the past commands strings
-		strcpy(commandLines[0], consoleLines[0]);
-		strcpy(consoleLines[1], consoleLines[0]);
-		commandExecute(std::string(consoleLines[0]));
-
-		// zero out the current string and get it ready for new input
-		memset(consoleLines[0], 0, CHARS_PER_LINE);
-		commandScrollBack = -1;
-		cursorLocation = 0;
-		updateConsole();
+		commandExecute();
 		break;
 	default:
-		if (cursorLocation < CHARS_PER_LINE - 1 && event.key.keysym.unicode) {
+		if (cursorLocation < CHARS_PER_LINE-1 && event.key.keysym.unicode) {
 			consoleLines[0][cursorLocation] = (char)event.key.keysym.unicode;
 			cursorLocation++;
-			SDL_Rect inputBackground2;
-			inputBackground2.x = 0;
-			inputBackground2.y = consoleSurface->h - font->height();
-			inputBackground2.w = consoleSurface->w;
-			inputBackground2.h = font->height();
-			SDL_BlitSurface(inputBackground, NULL, consoleSurface, &inputBackground2);
 		}
 	}
+	updateConsole();
 }
 
 /* setAlphaGL() -- sets the alpha channel of an SDL_Surface to the
@@ -223,7 +194,6 @@ void SDLConsole::updateConsole()
 {
 	SDL_FillRect(consoleSurface, NULL, 
 	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
-
 	if (outputScreen->flags & SDL_OPENGLBLIT)
 		SDL_SetAlpha(consoleSurface, 0, SDL_ALPHA_OPAQUE);
 
@@ -245,8 +215,8 @@ void SDLConsole::updateConsole()
 		SDL_SetColorKey(font->fontSurface, SDL_SRCCOLORKEY, *pix);
 	}
 	int screenlines = consoleSurface->h / font->height();
-	for (int loop=0; loop<screenlines-1 && loop<NUM_LINES-1; loop++)
-		font->drawText(consoleLines[screenlines-loop+consoleScrollBack-1],
+	for (int loop=1; loop<=screenlines; loop++)
+		font->drawText(consoleLines[screenlines-loop+consoleScrollBack],
 		               consoleSurface, CHAR_BORDER, loop*font->height());
 	if (outputScreen->flags & SDL_OPENGLBLIT)
 		SDL_SetColorKey(font->fontSurface, 0, 0);
@@ -257,8 +227,7 @@ void SDLConsole::drawConsole()
 {
 	if (!isVisible) return;
 	
-	// Update the command line since it has a blinking cursor
-	drawCommandLine();
+	drawCursor();
 
 	// before drawing, make sure the alpha channel of the console surface is set
 	// properly.  (sigh) I wish we didn't have to do this every frame...
@@ -271,7 +240,6 @@ void SDLConsole::drawConsole()
 	destRect.y = dispY;
 	destRect.w = consoleSurface->w;
 	destRect.h = consoleSurface->h;
-
 	SDL_BlitSurface(consoleSurface, NULL, outputScreen, &destRect);
 
 	if (outputScreen->flags & SDL_OPENGLBLIT)
@@ -281,23 +249,38 @@ void SDLConsole::drawConsole()
 
 
 // Draws the command line the user is typing in to the screen
-void SDLConsole::drawCommandLine()
+void SDLConsole::drawCursor()
 {
 	// Check if the blink period is over
 	if (SDL_GetTicks() > lastBlinkTime) {
 		lastBlinkTime = SDL_GetTicks() + BLINK_RATE;
+		blink = !blink;
+		if (consoleScrollBack > 0)
+			return;
 		if (blink) {
-			blink = false;
-			// The line was being drawn before, now it must be blacked out
+			// Print cursor if there is enough room
+			if (strlen(consoleLines[0])+1 < (unsigned)CHARS_PER_LINE) {
+				if (outputScreen->flags & SDL_OPENGLBLIT) {
+					Uint32 *pix = (Uint32 *) (font->fontSurface->pixels);
+					SDL_SetColorKey(font->fontSurface, SDL_SRCCOLORKEY, *pix);
+				}
+				font->drawText("_", consoleSurface, 
+					      CHAR_BORDER+strlen(consoleLines[0])*font->width(),
+					      consoleSurface->h - font->height());
+				if (outputScreen->flags & SDL_OPENGLBLIT)
+					SDL_SetColorKey(font->fontSurface, 0, 0);
+			}
+		} else {
+			// Remove cursor
 			SDL_Rect rect;
 			rect.x = strlen(consoleLines[0]) * font->width() + CHAR_BORDER;
 			rect.y = consoleSurface->h - font->height();
 			rect.w = font->width();
 			rect.h = font->height();
 			SDL_FillRect(consoleSurface, &rect, 
-			             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
-			// Now draw the background image if applicable
+				     SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
 			if (backgroundImage) {
+				// draw the background image if applicable
 				SDL_Rect rect2;
 				rect2.x = strlen(consoleLines[0])*font->width() + CHAR_BORDER;
 				rect.x = rect2.x - backX;
@@ -307,33 +290,9 @@ void SDLConsole::drawCommandLine()
 				rect2.h = rect.h = font->height();
 				SDL_BlitSurface(backgroundImage, &rect, consoleSurface, &rect2);
 			}
-		} else {
-			blink = true;
 		}
 	}
-
-	// If there is enough buffer space add a cursor if it's time to Blink '_' */
-	// once again we're drawing text, so in OpenGL context we need to temporarily set up
-	// software-mode transparency.
-	if (outputScreen->flags & SDL_OPENGLBLIT) {
-		Uint32 *pix = (Uint32 *) (font->fontSurface->pixels);
-		SDL_SetColorKey(font->fontSurface, SDL_SRCCOLORKEY, *pix);
-	}
-	if (blink && strlen(consoleLines[0])+1 < (unsigned)CHARS_PER_LINE) {
-		char temp[CHARS_PER_LINE];
-		strcpy(temp, consoleLines[0]);
-		temp[strlen(consoleLines[0])] = '_';
-		temp[strlen(consoleLines[0]) + 1] = '\0';
-		font->drawText(temp, consoleSurface, CHAR_BORDER, consoleSurface->h - font->height());
-	} else {
-		// Not time to blink or the strings too long, just draw it
-		font->drawText(consoleLines[0], consoleSurface, CHAR_BORDER, consoleSurface->h - font->height());
-	}
-	if (outputScreen->flags & SDL_OPENGLBLIT) {
-		SDL_SetColorKey(font->fontSurface, 0, 0);
-	}
 }
-
 
 // Sets the alpha level of the console, 0 turns off alpha blending
 void SDLConsole::alpha(unsigned char alpha)
@@ -349,59 +308,24 @@ void SDLConsole::alpha(unsigned char alpha)
 	updateConsole();
 }
 
-
-// Adds  background image to the console, x and y based on consoles x and y
+// Adds  background image to the console
+//  x and y are based on console x and y
 void SDLConsole::background(const char *image, int x, int y)
 {
-	SDL_Surface *temp;
-	SDL_Rect backgroundsrc, backgrounddest;
-
-	// Free the background from the console
-	if (image == NULL && backgroundImage != NULL) {
+	SDL_Surface *temp = NULL;
+	if (image) 
+		temp = SDL_LoadBMP(image);
+	if (backgroundImage) {
 		SDL_FreeSurface(backgroundImage);
 		backgroundImage = NULL;
-		SDL_FillRect(inputBackground, NULL, 
-		             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, SDL_ALPHA_OPAQUE));
-		return; 
 	}
-
-	// Load a new background
-	if (NULL == (temp = SDL_LoadBMP(image))) {
-		print("Cannot load background");
-		return;
+	if (temp) {
+		backgroundImage = SDL_DisplayFormat(temp);
+		SDL_FreeSurface(temp);
 	}
-
-	// Remove the existing background if it's there
-	if(backgroundImage != NULL)
-		SDL_FreeSurface(backgroundImage);
-
-	backgroundImage = SDL_DisplayFormat(temp);
-	SDL_FreeSurface(temp);
 	backX = x;
 	backY = y;
-
-	backgroundsrc.x = 0;
-	backgroundsrc.y = consoleSurface->h - font->height() - backY;
-	backgroundsrc.w = backgroundImage->w;
-	backgroundsrc.h = inputBackground->h;
-
-	backgrounddest.x = backX;
-	backgrounddest.y = 0;
-	backgrounddest.w = backgroundImage->w;
-	backgrounddest.h = font->height();
-
-	SDL_FillRect(inputBackground, NULL, 
-	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, SDL_ALPHA_OPAQUE));
-	SDL_BlitSurface(backgroundImage, &backgroundsrc, inputBackground, &backgrounddest);
-}
-
-// takes a new x and y of the top left of the console window
-void SDLConsole::position(int x, int y)
-{
-	assert (!(x<0 || x > outputScreen->w - consoleSurface->w));
-	assert (!(y<0 || y > outputScreen->h - consoleSurface->h));
-	dispX = x;
-	dispY = y;
+	reloadBackground();
 }
 
 // resizes the console, has to reset alot of stuff
@@ -425,28 +349,37 @@ void SDLConsole::resize(SDL_Rect rect)
 	SDL_FreeSurface(temp2);
 	SDL_FillRect(consoleSurface, NULL, 
 	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
-	SDL_FillRect(inputBackground, NULL, 
-	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
 	
+	consoleScrollBack = 0;	// dependent on previous size
 	position(rect.x, rect.y);
+	reloadBackground();
+}
 
-	consoleScrollBack = 0;	// reset stuff dependent on previous size
+// takes a new x and y of the top left of the console window
+void SDLConsole::position(int x, int y)
+{
+	assert (!(x<0 || x > outputScreen->w - consoleSurface->w));
+	assert (!(y<0 || y > outputScreen->h - consoleSurface->h));
+	dispX = x;
+	dispY = y;
+}
 
-	// Reload the background image (for the input text area) in the console
+void SDLConsole::reloadBackground()
+{
+	SDL_FillRect(inputBackground, NULL, 
+	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, SDL_ALPHA_OPAQUE));
 	if (backgroundImage) {
-		SDL_Rect backgroundsrc;
-		backgroundsrc.x = 0;
-		backgroundsrc.y = consoleSurface->h - font->height() - backY;
-		backgroundsrc.w = backgroundImage->w;
-		backgroundsrc.h = inputBackground->h;
-
-		SDL_Rect backgrounddest;
-		backgrounddest.x = backX;
-		backgrounddest.y = 0;
-		backgrounddest.w = backgroundImage->w;
-		backgrounddest.h = font->height();
-
-		SDL_BlitSurface(backgroundImage, &backgroundsrc, inputBackground, &backgrounddest);
+		SDL_Rect src;
+			src.x = 0;
+			src.y = consoleSurface->h - font->height() - backY;
+			src.w = backgroundImage->w;
+			src.h = inputBackground->h;
+		SDL_Rect dest;
+			dest.x = backX;
+			dest.y = 0;
+			dest.w = backgroundImage->w;
+			dest.h = font->height();
+		SDL_BlitSurface(backgroundImage, &src, inputBackground, &dest);
 	}
 }
 

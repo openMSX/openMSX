@@ -36,9 +36,10 @@ class SDLConsole : public Console, private EventListener, private HotKeyListener
 		void background(const char *image, int x, int y);
 		void position(int x, int y);
 		void resize(SDL_Rect rect);
+		void reloadBackground();
 		void updateConsole();
 		void setAlphaGL(SDL_Surface *s, int alpha);
-		void drawCommandLine();
+		void drawCursor();
 		void putPixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 		Uint32 getPixel(SDL_Surface *surface, int x, int y);
 
