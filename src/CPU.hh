@@ -75,15 +75,11 @@ class CPU
 		const EmuTime &getTargetTime();
 
 		/**
-		 * Get the current CPU registers
+		 * Get the current CPU registers.
+		 * This method return a non-const alias, this means it can
+		 * also be used to change the CPU registers.
 		 */
-		const CPURegs& getCPURegs();
-
-		/**
-		 * Set the current CPU registers
-		 */
-		void setCPURegs(const CPURegs &regs);
-
+		CPURegs& getCPURegs();
 
 		/**
 		 * Read a byte from memory. If possible the byte is read from 

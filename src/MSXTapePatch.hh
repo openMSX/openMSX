@@ -8,6 +8,7 @@
 #include "openmsx.hh"
 #include "MSXRomPatchInterface.hh"
 #include "config.h"
+#include "CPU.hh"
 
 
 #ifdef HAVE_FSTREAM_TEMPL
@@ -32,25 +33,25 @@ class MSXTapePatch: public MSXRomPatchInterface
 		void insertTape(std::string filename);
 
 		// 0x00E1 Tape input ON
-		void TAPION() const;
+		void TAPION(CPU::CPURegs& R) const;
 
 		// 0x00E4 Tape input
-		void TAPIN() const;
+		void TAPIN(CPU::CPURegs& R) const;
 
 		// 0x00E7 Tape input OFF
-		void TAPIOF() const;
+		void TAPIOF(CPU::CPURegs& R) const;
 
 		// 0x00EA Tape output ON
-		void TAPOON() const;
+		void TAPOON(CPU::CPURegs& R) const;
 
 		// 0x00ED Tape output
-		void TAPOUT() const;
+		void TAPOUT(CPU::CPURegs& R) const;
 
 		// 0x00F0 Tape output OFF
-		void TAPOOF() const;
+		void TAPOOF(CPU::CPURegs& R) const;
 
 		// 0x00F3 Turn motor ON/OFF
-		void STMOTR() const;
+		void STMOTR(CPU::CPURegs& R) const;
 
 };
 

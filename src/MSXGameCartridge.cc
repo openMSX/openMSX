@@ -103,8 +103,8 @@ void MSXGameCartridge::reset(const EmuTime &time)
 			break;
 		case 3:
 			// TODO 48kb, is this possible?
-			assert (false);
-			break;
+			//assert (false);
+			//break;
 		case 4:
 			ptr = memoryBank;
 			for (int i=0; i<8; i++) {

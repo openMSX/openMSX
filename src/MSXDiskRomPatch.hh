@@ -6,6 +6,7 @@
 #include "MSXRomPatchInterface.hh"
 #include "msxconfig.hh"
 #include "config.h"
+#include "CPU.hh"
 #include <iostream>
 #include <fstream>
 
@@ -47,30 +48,30 @@ class MSXDiskRomPatch: public MSXRomPatchInterface
 		/**
 		 * read/write sectors
 		 */
-		void PHYDIO() const;
+		void PHYDIO(CPU::CPURegs& regs) const;
 		static const int A_PHYDIO;
 		/**
 		 * check disk
 		 */
-		void DSKCHG() const;
+		void DSKCHG(CPU::CPURegs& regs) const;
 		static const int A_DSKCHG;
 
 		/**
 		 * get disk format
 		 */
-		void GETDPB() const;
+		void GETDPB(CPU::CPURegs& regs) const;
 		static const int A_GETDPB;
 
 		/**
 		 * format a disk
 		 */
-		void DSKFMT() const;
+		void DSKFMT(CPU::CPURegs& regs) const;
 		static const int A_DSKFMT;
 
 		/**
 		 * stop drives
 		 */
-		void DRVOFF() const;
+		void DRVOFF(CPU::CPURegs& regs) const;
 		static const int A_DRVOFF;
 
 		// drive letters

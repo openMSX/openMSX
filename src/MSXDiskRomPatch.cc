@@ -28,7 +28,7 @@ const int MSXDiskRomPatch::A_GETDPB = 0x4016;
 const int MSXDiskRomPatch::A_DSKFMT = 0x401C;
 const int MSXDiskRomPatch::A_DRVOFF = 0x401F;
 
-MSXDiskRomPatch::File::File(std::string _filename):filename(_filename)
+MSXDiskRomPatch::File::File(std::string _filename) : filename(_filename)
 {
 	file = new IOFILETYPE(filename.c_str(), IOFILETYPE::out|IOFILETYPE::in);
 	file->seekg(0,std::ios::end);
@@ -106,43 +106,33 @@ void MSXDiskRomPatch::patch() const
 {
 	PRT_DEBUG("void MSXDiskRomPatch::patch() const");
 	
-	CPU* cpu = MSXCPU::instance()->getActiveCPU();
-	CPU::CPURegs regs(cpu->getCPURegs());
-
-	int address = regs.PC.w-2;
-	
-	switch (address)
-	{
+	CPU::CPURegs& regs = MSXCPU::instance()->getCPURegs();
+	switch (regs.PC.w-2) {
 		case A_PHYDIO:
-		PHYDIO();
-		break;
-
+			PHYDIO(regs);
+			break;
 		case A_DSKCHG:
-		DSKCHG();
-		break;
-
+			DSKCHG(regs);
+			break;
 		case A_GETDPB:
-		GETDPB();
-		break;
-
+			GETDPB(regs);
+			break;
 		case A_DSKFMT:
-		DSKFMT();
-		break;
-
+			DSKFMT(regs);
+			break;
 		case A_DRVOFF:
-		DRVOFF();
-		break;
+			DRVOFF(regs);
+			break;
+		default:
+			assert(false);
 	}
 }
 
-void MSXDiskRomPatch::PHYDIO() const
+void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs) const
 {
 	PRT_DEBUG("void MSXDiskRomPatch::PHYDIO() const");
 	
-	CPU* cpu = MSXCPU::instance()->getActiveCPU();
 	MSXMotherBoard* motherboard = MSXMotherBoard::instance();
-
-	CPU::CPURegs regs(cpu->getCPURegs());
 	
 	// TODO wouter: shouldn't this be DI???
 	// EI 
@@ -177,7 +167,6 @@ void MSXDiskRomPatch::PHYDIO() const
 #endif
 		// illegal drive letter -> "Not Ready"
 		regs.AF.w = 0x0201;
-		cpu->setCPURegs(regs);
 		return;
 	}
 
@@ -191,7 +180,6 @@ void MSXDiskRomPatch::PHYDIO() const
 	{
 		// no disk file -> "Not Ready"
 		regs.AF.w = 0x0201;
-		cpu->setCPURegs(regs);
 		return;
 	}
 
@@ -199,7 +187,6 @@ void MSXDiskRomPatch::PHYDIO() const
 	{
 		// out of bound sector -> "Record not found"
 		regs.AF.w = 0x0801;
-		cpu->setCPURegs(regs);
 		return;
 	}
 
@@ -214,7 +201,7 @@ void MSXDiskRomPatch::PHYDIO() const
 	// this is of course quite wrong
 	EmuTime dummy(0);
 	int pri_slot = motherboard->readIO(0xA8, dummy);
-	int sec_slot = cpu->readMem(0xFFFF)^0xFF;
+	int sec_slot = motherboard->readMem(0xFFFF, dummy)^0xFF;
 	PRT_DEBUG("Primary: "
 		<< "s3:" << ((pri_slot & 0xC0)>>6) << " "
 		<< "s2:" << ((pri_slot & 0x30)>>4) << " "
@@ -235,7 +222,7 @@ void MSXDiskRomPatch::PHYDIO() const
 		<< " sec:0x" << sec_slot_target << std::dec);
 
 	motherboard->writeIO(0xA8, pri_slot_target, dummy);
-	cpu->writeMem(0xFFFF,sec_slot_target);
+	motherboard->writeMem(0xFFFF,sec_slot_target, dummy);
 
 	byte buffer[MSXDiskRomPatch::sector_size];
 	if (write)
@@ -244,7 +231,7 @@ void MSXDiskRomPatch::PHYDIO() const
 		{
 			for (int i = 0 ; i < MSXDiskRomPatch::sector_size; i++)
 			{
-				buffer[i] = cpu->readMem(transfer_address);
+				buffer[i] = motherboard->readMem(transfer_address, dummy);
 				transfer_address++;
 			}
 			disk[drive]->seek(sector*MSXDiskRomPatch::sector_size);
@@ -253,8 +240,7 @@ void MSXDiskRomPatch::PHYDIO() const
 			{
 				regs.AF.w = 0x0A01;
 				motherboard->writeIO(0xA8, pri_slot, dummy);
-				cpu->writeMem(0xFFFF,sec_slot);
-				cpu->setCPURegs(regs);
+				motherboard->writeMem(0xFFFF,sec_slot, dummy);
 				return;
 			}
 			regs.BC.B.h--;
@@ -270,13 +256,12 @@ void MSXDiskRomPatch::PHYDIO() const
 			{
 				regs.AF.w = 0x0A01;
 				motherboard->writeIO(0xA8, pri_slot, dummy);
-				cpu->writeMem(0xFFFF,sec_slot);
-				cpu->setCPURegs(regs);
+				motherboard->writeMem(0xFFFF,sec_slot, dummy);
 				return;
 			}
 			for (int i = 0 ; i < MSXDiskRomPatch::sector_size; i++)
 			{
-				cpu->writeMem(transfer_address, buffer[i]);
+				motherboard->writeMem(transfer_address, buffer[i], dummy);
 				transfer_address++;
 			}
 			regs.BC.B.h--;
@@ -284,16 +269,13 @@ void MSXDiskRomPatch::PHYDIO() const
 	}
 
 	motherboard->writeIO(0xA8, pri_slot, dummy);
-	cpu->writeMem(0xFFFF,sec_slot);
+	motherboard->writeMem(0xFFFF,sec_slot, dummy);
 	regs.AF.B.l &= (~Z80::C_FLAG);
-	cpu->setCPURegs(regs);
 }
-void MSXDiskRomPatch::DSKCHG() const
+
+void MSXDiskRomPatch::DSKCHG(CPU::CPURegs& regs) const
 {
 	PRT_DEBUG("void MSXDiskRomPatch::DSKCHG() const");
-
-	CPU* cpu = MSXCPU::instance()->getActiveCPU();
-	CPU::CPURegs regs(cpu->getCPURegs());
 
 	// TODO wouter: shouldn't this be DI???
 	// EI 
@@ -316,7 +298,6 @@ void MSXDiskRomPatch::DSKCHG() const
 		PRT_DEBUG("    Illegal Drive letter " << driveletter << ":");
 		// illegal drive letter -> "Not Ready"
 		regs.AF.w = 0x0201;
-		cpu->setCPURegs(regs);
 		return;
 	}
 
@@ -325,7 +306,6 @@ void MSXDiskRomPatch::DSKCHG() const
 		PRT_DEBUG("    No Disk File For Drive " << driveletter << ":");
 		// no disk file -> "Not Ready"
 		regs.AF.w = 0x0201;
-		cpu->setCPURegs(regs);
 		return;
 	}
 
@@ -336,30 +316,23 @@ void MSXDiskRomPatch::DSKCHG() const
 	if (disk[drive]->bad()) {
 		PRT_DEBUG("    I/O error reading FAT");
 		regs.AF.w = 0x0A01; // I/O error
-		cpu->setCPURegs(regs);
 		return;
 	}
 
 	regs.BC.B.h = media_descriptor;
-	cpu->setCPURegs(regs);
-	GETDPB();
-	regs = cpu->getCPURegs();
+	GETDPB(regs);
 	if (regs.AF.B.l & Z80::C_FLAG) {
 		regs.AF.w = 0x0A01; // I/O error
-		cpu->setCPURegs(regs);
 		return;
 	}
 
 	regs.BC.B.h  = 0; // disk change unknown
 	regs.AF.B.l &= (~Z80::C_FLAG);
-	cpu->setCPURegs(regs);
 }
-void MSXDiskRomPatch::GETDPB() const
+
+void MSXDiskRomPatch::GETDPB(CPU::CPURegs& regs) const
 {
 	PRT_DEBUG("void MSXDiskRomPatch::GETDPB() const");
-
-	CPU* cpu = MSXCPU::instance()->getActiveCPU();
-	CPU::CPURegs regs(cpu->getCPURegs());
 
 	byte media_descriptor = regs.BC.B.h;
 	// According to the docs there is also a media descriptor in C,
@@ -389,51 +362,53 @@ void MSXDiskRomPatch::GETDPB() const
 			PRT_DEBUG("    Illegal media_descriptor: " << std::hex
 				<< static_cast<int>(media_descriptor) << std::dec);
 			regs.AF.B.l |= (Z80::C_FLAG);
-			cpu->setCPURegs(regs);
 			return;
 	}
 	word sect_num_of_dir = 1 + sect_per_fat * 2;
 	word sect_num_of_data = sect_num_of_dir + 7;
 
+	MSXMotherBoard* motherboard = MSXMotherBoard::instance();
+	EmuTime dummy(0);
 	// media type: passed by caller
-	cpu->writeMem(DPB_base_address + 0x01, media_descriptor);
+	motherboard->writeMem(DPB_base_address + 0x01, media_descriptor, dummy);
 	// sector size: 512
-	cpu->writeMem(DPB_base_address + 0x02, 0x00);
-	cpu->writeMem(DPB_base_address + 0x03, 0x02);
+	motherboard->writeMem(DPB_base_address + 0x02, 0x00, dummy);
+	motherboard->writeMem(DPB_base_address + 0x03, 0x02, dummy);
 	// directory mask/shift
-	cpu->writeMem(DPB_base_address + 0x04, 0x0F);
-	cpu->writeMem(DPB_base_address + 0x05, 4);
+	motherboard->writeMem(DPB_base_address + 0x04, 0x0F, dummy);
+	motherboard->writeMem(DPB_base_address + 0x05, 4,    dummy);
 	// cluster mask/shift
-	cpu->writeMem(DPB_base_address + 0x06, 0x01);
-	cpu->writeMem(DPB_base_address + 0x07, 2);
+	motherboard->writeMem(DPB_base_address + 0x06, 0x01, dummy);
+	motherboard->writeMem(DPB_base_address + 0x07, 2,    dummy);
 	// sector # of first FAT
-	cpu->writeMem(DPB_base_address + 0x08, 0x01);
-	cpu->writeMem(DPB_base_address + 0x09, 0x00);
+	motherboard->writeMem(DPB_base_address + 0x08, 0x01, dummy);
+	motherboard->writeMem(DPB_base_address + 0x09, 0x00, dummy);
 	// # of FATS
-	cpu->writeMem(DPB_base_address + 0x0A, 2);
+	motherboard->writeMem(DPB_base_address + 0x0A, 2,    dummy);
 	// # of directory entries
-	cpu->writeMem(DPB_base_address + 0x0B, 112);
+	motherboard->writeMem(DPB_base_address + 0x0B, 112,  dummy);
 	// sector # of first data sector
-	cpu->writeMem(DPB_base_address + 0x0C, sect_num_of_data & 0xFF);
-	cpu->writeMem(DPB_base_address + 0x0D, (sect_num_of_data>>8) & 0xFF);
+	motherboard->writeMem(DPB_base_address + 0x0C, sect_num_of_data & 0xFF, dummy);
+	motherboard->writeMem(DPB_base_address + 0x0D, (sect_num_of_data>>8) & 0xFF, dummy);
 	// # of clusters
-	cpu->writeMem(DPB_base_address + 0x0E, maxclus & 0xFF);
-	cpu->writeMem(DPB_base_address + 0x0F, (maxclus>>8) & 0xFF);
+	motherboard->writeMem(DPB_base_address + 0x0E, maxclus & 0xFF, dummy);
+	motherboard->writeMem(DPB_base_address + 0x0F, (maxclus>>8) & 0xFF, dummy);
 	// sectors per fat
-	cpu->writeMem(DPB_base_address + 0x10, sect_per_fat);
+	motherboard->writeMem(DPB_base_address + 0x10, sect_per_fat, dummy);
 	// sector # of dir
-	cpu->writeMem(DPB_base_address + 0x11, sect_num_of_dir & 0xFF);
-	cpu->writeMem(DPB_base_address + 0x12, (sect_num_of_dir>>8) & 0xFF);
+	motherboard->writeMem(DPB_base_address + 0x11, sect_num_of_dir & 0xFF, dummy);
+	motherboard->writeMem(DPB_base_address + 0x12, (sect_num_of_dir>>8) & 0xFF, dummy);
 
 	regs.AF.B.l &= (~Z80::C_FLAG);
-	cpu->setCPURegs(regs);
 }
-void MSXDiskRomPatch::DSKFMT() const
+
+void MSXDiskRomPatch::DSKFMT(CPU::CPURegs& regs) const
 {
 	assert(false);
 	// TODO XXX
 }
-void MSXDiskRomPatch::DRVOFF() const
+
+void MSXDiskRomPatch::DRVOFF(CPU::CPURegs& regs) const
 {
 	PRT_DEBUG("void MSXDiskRomPatch::DRVOFF() const [does nothing]");
 

@@ -5,6 +5,7 @@
 
 #include "MSXDevice.hh"
 #include "Scheduler.hh"
+#include "CPU.hh"
 
 // forward declaration
 class CPU;
@@ -37,9 +38,14 @@ class MSXCPU : public MSXDevice, public Schedulable
 		
 		void setActiveCPU(CPUType cpu);
 		
-		CPU* getActiveCPU();
-		
 		const EmuTime &getTargetTime();
+
+		/**
+		 * Get the current CPU registers.
+		 * This method return a non-const alias, this means it can
+		 * also be used to change the CPU registers.
+		 */
+		CPU::CPURegs& getCPURegs();
 
 		/**
 		 * Invalidate the CPU its cache for the interval 
