@@ -1,5 +1,9 @@
 $Id$
 
+2005-02-26 Patrick van Arkel <sf@vampier.net>
+	* Updated the softwaredb.xml thanks to Mars2000you for providing
+	  an updated version of his rom list.
+
 2005-02-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Renamed new db to softwaredb.xml
 	* added new db:
