@@ -63,13 +63,14 @@ private:
 	private:
 		Keyboard& parent;
 	} keyMatrixDownCmd;
-	
+
 	byte cmdKeyMatrix[NR_KEYROWS];
 	byte userKeyMatrix[NR_KEYROWS];
 	byte keyMatrix[NR_KEYROWS];
 	bool keyGhosting;
 	bool keysChanged;
-	static byte Keys[336][2];
+	static const int MAX_KEYSYM = 0x150;
+	static byte Keys[MAX_KEYSYM][2];
 };
 
 } // namespace openmsx

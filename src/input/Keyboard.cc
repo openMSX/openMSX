@@ -45,9 +45,10 @@ void Keyboard::parseKeymapfile(const byte* buf, unsigned size)
 					break;
 			}
 		}
-		unsigned vkey, row, bit;
-		int rdnum = sscanf(line.c_str(), "%u=%u,%u", &vkey, &row, &bit);
-		if ((rdnum == 3) && (vkey < 0x150) && (row < 12) && (bit < 256)) {
+		int vkey, row, bit;
+		int rdnum = sscanf(line.c_str(), "%i=%i,%i", &vkey, &row, &bit);
+		if ( rdnum == 3 && 0 <= vkey && vkey < MAX_KEYSYM
+		&& 0 <= row && row < 12 && 0 <= bit && bit < 256 ) {
 			Keys[vkey][0] = row;
 			Keys[vkey][1] = bit;
 		}
@@ -120,7 +121,7 @@ bool Keyboard::signalEvent(const SDL_Event& event) throw()
 	case SDL_KEYDOWN: {
 		// Key pressed: reset bit in keyMatrix
 		int key = event.key.keysym.sym;
-		if (key < 0x150) {
+		if (key < MAX_KEYSYM) {
 			userKeyMatrix[Keys[key][0]] &= ~Keys[key][1];
 		}
 		break;
@@ -128,7 +129,7 @@ bool Keyboard::signalEvent(const SDL_Event& event) throw()
 	case SDL_KEYUP: {
 		// Key released: set bit in keyMatrix
 		int key = event.key.keysym.sym;
-		if (key < 0x150) {
+		if (key < MAX_KEYSYM) {
 			userKeyMatrix[Keys[key][0]] |= Keys[key][1];
 		}
 		break;
@@ -272,7 +273,7 @@ string Keyboard::KeyMatrixDownCmd::help(const vector<string> &tokens) const
 //  11   |     |     |     |     | 'NO'|     |'YES'|     |
 //       +-----+-----+-----+-----+-----+-----+-----+-----+
 
-byte Keyboard::Keys[336][2] = {
+byte Keyboard::Keys[MAX_KEYSYM][2] = {
 /* 0000 */
   {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
   {7,0x20},{7,0x08},{0,0x00},{0,0x00},{0,0x00},{7,0x80},{0,0x00},{0,0x00},
