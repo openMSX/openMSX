@@ -1,5 +1,9 @@
 $Id$
 
+2002-03-31 Maarten ter Huurne <mth@stack.nl>
+	* Cleaned up VRAM implementation a little.
+	  Still plenty of work to be done.
+
 2002-03-30 Maarten ter Huurne <mth@stack.nl>
 	* Added new VDPVRAM class, which manages VRAM.
 	  It is far from finished, but even in the current state it should be

@@ -160,30 +160,6 @@ public:
 		return vram;
 	}
 
-	/** Write a byte to the VRAM.
-	  * Ignores planar addressing: since renderer and command engine
-	  * know the display mode there is no need to dynamically handle
-	  * planar/non-planar addressing.
-	  * @param addr The address to write.
-	  *   No bounds checking is done, so make sure it is a legal address.
-	  * @param value The value to write.
-	  * @param time The moment in emulated time this write occurs.
-	  * @return The VRAM contents at the specified address.
-	  */
-	inline void setVRAM(int addr, byte value, const EmuTime &time) {
-		//fprintf(stderr, "write VRAM @ %04X\n", addr);
-		// TODO: Remove the assert once I trust no bugs were introduced
-		//       by the command engine integration.
-		assert((addr & vramMask) == addr);
-		vram->cpuWrite(addr, value, time);
-		/*
-		if (vramData[addr] != value) {
-			renderer->updateVRAM(addr, value, time);
-			vramData[addr] = value;
-		}
-		*/
-	}
-
 	/** Gets the current transparency setting.
 	  * @return True iff colour 0 is transparent.
 	  */
@@ -479,13 +455,11 @@ private:
 	/** Write a byte to the VRAM.
 	  * Takes planar addressing into account if necessary.
 	  * @param addr The address to write.
-	  *   No bounds checking is done, so make sure it is a legal address.
 	  * @param value The value to write.
 	  * @param time The moment in emulated time this write occurs.
-	  * @return The VRAM contents at the specified address.
 	  */
 	inline void setVRAMReordered(int addr, byte value, const EmuTime &time) {
-		setVRAM(
+		vram->cpuWrite(
 			isPlanar() ? ((addr << 16) | (addr >> 1)) & vramMask : addr,
 			value, time);
 	}

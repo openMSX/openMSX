@@ -176,51 +176,51 @@ inline void VDPCmdEngine::psetLowLevel(
 {
 	switch (op) {
 	case 0:
-		vdp->setVRAM(
+		vram->cmdWrite(
 			addr, (getVRAM(addr) & mask) | colour, currentTime);
 		break;
 	case 1:
-		vdp->setVRAM(addr,
+		vram->cmdWrite(addr,
 			getVRAM(addr) & (colour | mask),
 			currentTime);
 		break;
 	case 2:
-		vdp->setVRAM(addr,
+		vram->cmdWrite(addr,
 			getVRAM(addr) | colour,
 			currentTime);
 		break;
 	case 3:
-		vdp->setVRAM(addr,
+		vram->cmdWrite(addr,
 			getVRAM(addr) ^ colour,
 			currentTime);
 		break;
 	case 4:
-		vdp->setVRAM(addr,
+		vram->cmdWrite(addr,
 			(getVRAM(addr) & mask) | ~(colour | mask),
 			currentTime);
 		break;
 	case 8:
-		if (colour) vdp->setVRAM(addr,
+		if (colour) vram->cmdWrite(addr,
 			(getVRAM(addr) & mask) | colour,
 			currentTime);
 		break;
 	case 9:
-		if (colour) vdp->setVRAM(addr,
+		if (colour) vram->cmdWrite(addr,
 			getVRAM(addr) & (colour | mask),
 			currentTime);
 		break;
 	case 10:
-		if (colour) vdp->setVRAM(addr,
+		if (colour) vram->cmdWrite(addr,
 			getVRAM(addr) | colour,
 			currentTime);
 		break;
 	case 11:
-		if (colour) vdp->setVRAM(addr,
+		if (colour) vram->cmdWrite(addr,
 			getVRAM(addr) ^ colour,
 			currentTime);
 		break;
 	case 12:
-		if (colour) vdp->setVRAM(addr,
+		if (colour) vram->cmdWrite(addr,
 			(getVRAM(addr) & mask) | ~(colour|mask),
 			currentTime);
 		break;
@@ -574,22 +574,22 @@ void VDPCmdEngine::hmmvEngine()
 	switch (scrMode) {
 	case 0:
 		pre_loop
-		vdp->setVRAM(VDP_VRMP5(ADX, DY), CL, currentTime);
+		vram->cmdWrite(VDP_VRMP5(ADX, DY), CL, currentTime);
 		post__x_y(256)
 		break;
 	case 1:
 		pre_loop
-		vdp->setVRAM(VDP_VRMP6(ADX, DY), CL, currentTime);
+		vram->cmdWrite(VDP_VRMP6(ADX, DY), CL, currentTime);
 		post__x_y(512)
 		break;
 	case 2:
 		pre_loop
-		vdp->setVRAM(VDP_VRMP7(ADX, DY), CL, currentTime);
+		vram->cmdWrite(VDP_VRMP7(ADX, DY), CL, currentTime);
 		post__x_y(512)
 		break;
 	case 3:
 		pre_loop
-		vdp->setVRAM(VDP_VRMP8(ADX, DY), CL, currentTime);
+		vram->cmdWrite(VDP_VRMP8(ADX, DY), CL, currentTime);
 		post__x_y(256)
 		break;
 	}
@@ -633,7 +633,7 @@ void VDPCmdEngine::hmmmEngine()
 	switch (scrMode) {
 	case 0:
 		pre_loop
-		vdp->setVRAM(
+		vram->cmdWrite(
 			VDP_VRMP5(ADX, DY),
 			getVRAM(VDP_VRMP5(ASX, SY)),
 			currentTime);
@@ -641,7 +641,7 @@ void VDPCmdEngine::hmmmEngine()
 		break;
 	case 1:
 		pre_loop
-		vdp->setVRAM(
+		vram->cmdWrite(
 			VDP_VRMP6(ADX, DY),
 			getVRAM(VDP_VRMP6(ASX, SY)),
 			currentTime);
@@ -649,7 +649,7 @@ void VDPCmdEngine::hmmmEngine()
 		break;
 	case 2:
 		pre_loop
-		vdp->setVRAM(
+		vram->cmdWrite(
 			VDP_VRMP7(ADX, DY),
 			getVRAM(VDP_VRMP7(ASX, SY)),
 			currentTime);
@@ -657,7 +657,7 @@ void VDPCmdEngine::hmmmEngine()
 		break;
 	case 3:
 		pre_loop
-		vdp->setVRAM(
+		vram->cmdWrite(
 			VDP_VRMP8(ADX, DY),
 			getVRAM(VDP_VRMP8(ASX, SY)),
 			currentTime);
@@ -709,7 +709,7 @@ void VDPCmdEngine::ymmmEngine()
 	switch (scrMode) {
 	case 0:
 		pre_loop
-		vdp->setVRAM(
+		vram->cmdWrite(
 			VDP_VRMP5(ADX, DY),
 			getVRAM(VDP_VRMP5(ADX, SY)),
 			currentTime);
@@ -717,7 +717,7 @@ void VDPCmdEngine::ymmmEngine()
 		break;
 	case 1:
 		pre_loop
-		vdp->setVRAM(
+		vram->cmdWrite(
 			VDP_VRMP6(ADX, DY),
 			getVRAM(VDP_VRMP6(ADX, SY)),
 			currentTime);
@@ -725,7 +725,7 @@ void VDPCmdEngine::ymmmEngine()
 		break;
 	case 2:
 		pre_loop
-		vdp->setVRAM(
+		vram->cmdWrite(
 			VDP_VRMP7(ADX, DY),
 			getVRAM(VDP_VRMP7(ADX, SY)),
 			currentTime);
@@ -733,7 +733,7 @@ void VDPCmdEngine::ymmmEngine()
 		break;
 	case 3:
 		pre_loop
-		vdp->setVRAM(
+		vram->cmdWrite(
 			VDP_VRMP8(ADX, DY),
 			getVRAM(VDP_VRMP8(ADX, SY)),
 			currentTime);
@@ -771,7 +771,7 @@ void VDPCmdEngine::hmmcEngine()
 {
 	if ((status&0x80)!=0x80) {
 
-		vdp->setVRAM(vramAddr(MMC.ADX, MMC.DY),
+		vram->cmdWrite(vramAddr(MMC.ADX, MMC.DY),
 			cmdReg[REG_COL], currentTime);
 		opsCount-=getVdpTimingValue(HMMV_TIMING);
 		status|=0x80;
