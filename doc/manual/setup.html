@@ -31,13 +31,18 @@
 			<li><a class="internal" href="#dumprom">3.2 Dumping ROMs</a>
 				<ol class="toc">
 					<li><a class="internal" href="#dumpromtools">3.2.1 Tools</a></li>
-					<li><a class="internal" href="#dumpromlocation">3.2.2 ROM Locations</a></li>
-					<li><a class="internal" href="#dumpromsplit">3.2.3 How to handle split ROMs</a></li>
-					<li><a class="internal" href="#dumpromchecksums">3.2.4 Checksums</a></li>
-					<li><a class="internal" href="#dumpromlegal">3.2.5 Legal Issues</a></li>
+					<li><a class="internal" href="#dumpromlegal">3.2.2 Legal Issues</a></li>
+
 				</ol>
 			</li>
 			<li><a class="internal" href="#downloadrom">3.3 Downloading ROMs</a></li>
+			<li><a class="internal" href="#installrom">3.4 Installing ROMs</a>
+				<ol class="toc">
+					<li><a class="internal" href="#romlocation">3.4.1 ROM Locations</a></li>
+					<li><a class="internal" href="#romsplit">3.4.2 How to handle split ROMs</a></li>
+					<li><a class="internal" href="#romchecksums">3.4.3 Checksums</a></li>
+				</ol>
+			</li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#settings">4. User Preferences</a></li>
@@ -286,70 +291,7 @@ These tools can also be used to dump cartridge ROMs, which may be useful later,
 if you want to use certain extensions or play games.
 </p>
 
-<h4><a id="dumpromlocation">3.2.2 ROM Locations</a></h4>
-
-<p>
-When the ROMs are dumped, you have a disk with a number of ROM images.
-Copy these images to the subdirectory called <code>roms</code> in the
-machine directory.
-For example, if you dumped the ROMs of a Philips NMS 8250 machine,
-copy them to <code>share/machines/Philips_NMS_8250/roms</code>.
-Look in the file hardwareconfig.xml for the file names openMSX expects
-the ROM images to have.
-</p>
-
-<p>Alternatively, since openMSX 0.5.0 there is an easier way. These
-versions support ROM pools: special directories where openMSX will look
-for ROM files. The default ROM pool is the <code>share/systemroms</code>
-directory. So, if you're using 0.5.0 or higher, you can just as well
-put all your system ROMs in that directory.
-</p>
-
-<h4><a id="dumpromsplit">3.2.3 How to handle split ROMs</a></h4>
-
-<p>
-The machine configurations bundled with openMSX often refer to ROM files
-that span multiple 16K pages.
-For example, in the NMS 8250 configuration, the BIOS and MSX-BASIC are
-expected in a single 32K ROM image.
-If you created two 16K images when dumping, you can concatenate them
-using tools included with your OS.
-In Linux and other Unix(-like) systems you can do it like this:
-</p>
-<div class="commandline">
-cat bios.rom basic.rom &gt; nms8250_basic-bios2.rom
-</div>
-<p>
-In Windows, open a command prompt and issue this command:
-</p>
-<div class="commandline">
-copy /b bios.rom + basic.rom nms8250_basic-bios2.rom
-</div>
-
-<h4><a id="dumpromchecksums">3.2.4 Checksums</a></h4>
-<p>
-You can check whether you have the same images as the machine configuration
-was tested with using the <code>SHA1SUMS</code> file.
-This file contains checksums of ROM images that are known to work.
-You can compare the checksums of your ROM images to this file with the
-<code>sha1sum</code> tool.
-It is installed by default on most Linux systems,
-on Windows you would have to download it separately.
-If the checksums match, it is almost certain you have correct system ROMs.
-If the checksums do not match, it could mean something went wrong
-dumping the ROMs, or it could mean you have a slightly older/newer model
-which contains different system ROMs.
-</p>
-
-<p>
-In openMSX versions from 0.5.0 the sha1sums are also included in the
-machine configuration files. This enables openMSX to find the right ROM
-file from one of the ROM pools. If the ROM is explicitly specified in
-the configuration file and the sha1sum doesn't match a warning will be
-printed.
-</p>
-
-<h4><a id="dumpromlegal">3.2.5 Legal Issues</a></h4>
+<h4><a id="dumpromlegal">3.2.2 Legal Issues</a></h4>
 
 <p>
 Using ROMs dumped from machines you own is generally considered
@@ -375,6 +317,72 @@ It may be illegal in your country to download system ROMs.
 Please inform yourself of the legal aspects before considering this option.
 Whatever you decide, is your own responsibility.
 </p>
+
+<h3><a id="installrom">3.4 Installing ROMs</a></h3>
+
+<h4><a id="romlocation">3.4.1 ROM Locations</a></h4>
+
+<p>
+After you dumped or downloaded the ROM images, copy them
+to the appropriate subdirectory called <code>roms</code> in the
+machine directory.
+For example, if you dumped the ROMs of a Philips NMS 8250 machine,
+copy them to <code>share/machines/Philips_NMS_8250/roms</code>.
+Look in the file hardwareconfig.xml for the file names openMSX expects
+the ROM images to have.
+</p>
+
+<p>Alternatively, since openMSX 0.5.0 there is an easier way. These
+versions support ROM pools: special directories where openMSX will look
+for ROM files. The default ROM pool is the <code>share/systemroms</code>
+directory. So, if you're using 0.5.0 or higher, you can just as well
+put all your system ROMs in that directory.
+</p>
+
+<h4><a id="romsplit">3.4.2 How to handle split ROMs</a></h4>
+
+<p>
+The machine configurations bundled with openMSX often refer to ROM files
+that span multiple 16K pages.
+For example, in the NMS 8250 configuration, the BIOS and MSX-BASIC are
+expected in a single 32K ROM image.
+If you created two 16K images when dumping or got those from downloading,
+you can concatenate them using tools included with your OS.
+In Linux and other Unix(-like) systems you can do it like this:
+</p>
+<div class="commandline">
+cat bios.rom basic.rom &gt; nms8250_basic-bios2.rom
+</div>
+<p>
+In Windows, open a command prompt and issue this command:
+</p>
+<div class="commandline">
+copy /b bios.rom + basic.rom nms8250_basic-bios2.rom
+</div>
+
+<h4><a id="romchecksums">3.4.3 Checksums</a></h4>
+<p>
+You can check whether you have the same images as the machine configuration
+was tested with using the <code>SHA1SUMS</code> file.
+This file contains checksums of ROM images that are known to work.
+You can compare the checksums of your ROM images to this file with the
+<code>sha1sum</code> tool.
+It is installed by default on most UNIX systems,
+on Windows you would have to download it separately.
+If the checksums match, it is almost certain you have correct system ROMs.
+If the checksums do not match, it could mean something went wrong
+dumping the ROMs, or it could mean you have a slightly older/newer model
+which contains different system ROMs.
+</p>
+
+<p>
+In openMSX versions from 0.5.0 the sha1sums are also included in the
+machine configuration files. This enables openMSX to find the right ROM
+file from one of the ROM pools. If the ROM is explicitly specified in
+the configuration file and the sha1sum doesn't match a warning will be
+printed.
+</p>
+
 
 <h2><a id="settings">4. User Preferences</a></h2>
 
