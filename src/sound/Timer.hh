@@ -22,23 +22,23 @@ template<int freq, byte flag>
 class Timer : private Schedulable
 {
 public:
-	Timer(TimerCallback *cb);
+	Timer(TimerCallback* cb);
 	virtual ~Timer();
 	void setValue(byte value);
-	void setStart(bool start, const EmuTime &time);
+	void setStart(bool start, const EmuTime& time);
 
 private:
-	virtual void executeUntil(const EmuTime &time, int userData) throw();
+	virtual void executeUntil(const EmuTime& time, int userData) throw();
 	virtual const string& schedName() const;
-	void schedule(const EmuTime &time);
+	void schedule(const EmuTime& time);
 	void unschedule();
 
 	int count;
 	bool counting;
-	TimerCallback *cb;
+	TimerCallback* cb;
 	Scheduler& scheduler;
 };
 
 } // namespace openmsx
 
-#endif
+#endif // __TIMER_HH__

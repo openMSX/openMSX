@@ -11,7 +11,7 @@ template class Timer< 3125, 0x20>;
 
 
 template<int freq, byte flag>
-Timer<freq, flag>::Timer(TimerCallback *cb_)
+Timer<freq, flag>::Timer(TimerCallback* cb_)
 	: count(256), counting(false), cb(cb_),
 	  scheduler(Scheduler::instance())
 {
@@ -30,7 +30,7 @@ void Timer<freq, flag>::setValue(byte value)
 }
 
 template<int freq, byte flag>
-void Timer<freq, flag>::setStart(bool start, const EmuTime &time)
+void Timer<freq, flag>::setStart(bool start, const EmuTime& time)
 {
 	if (start != counting) {
 		counting = start;
@@ -43,7 +43,7 @@ void Timer<freq, flag>::setStart(bool start, const EmuTime &time)
 }
 
 template<int freq, byte flag>
-void Timer<freq, flag>::schedule(const EmuTime &time)
+void Timer<freq, flag>::schedule(const EmuTime& time)
 {
 	EmuTimeFreq<freq> now(time);
 	scheduler.setSyncPoint(now + count, this);
@@ -56,7 +56,8 @@ void Timer<freq, flag>::unschedule()
 }
 
 template<int freq, byte flag>
-void Timer<freq, flag>::executeUntil(const EmuTime &time, int userData) throw()
+void Timer<freq, flag>::executeUntil(const EmuTime& time, int userData)
+throw()
 {
 	cb->callback(flag);
 	schedule(time);
