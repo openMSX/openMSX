@@ -4,8 +4,8 @@
 #error use msxconfig.hh
 #endif
 
-#ifndef __MSXCONFIG_DEVICE_HH__
-#define __MSXCONFIG_DEVICE_HH__
+#ifndef __MSXCONFIG_DEVICE_NN__
+#define __MSXCONFIG_DEVICE_NN__
 
 // nested class in MSXConfig
 class Device

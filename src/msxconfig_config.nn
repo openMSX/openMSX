@@ -1,0 +1,10 @@
+// $Id$
+
+#ifndef __MSXCONFIG_HH__
+#error use msxconfig.hh
+#endif
+
+#ifndef __MSXCONFIG_DEVICE_NN__
+#define __MSXCONFIG_DEVICE_NN__
+
+#endif
