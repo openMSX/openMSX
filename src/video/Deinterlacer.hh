@@ -30,7 +30,7 @@ public:
 	  * @param dstY Y-coordinate of the destination line.
 	  */
 	void deinterlaceLine256(
-		SDL_Surface* src0, SDL_Surface* src0, int srcY,
+		SDL_Surface* src0, SDL_Surface* src1, int srcY,
 		SDL_Surface* dst, int dstY
 		);
 
@@ -45,7 +45,7 @@ public:
 	  * @param dstY Y-coordinate of the destination line.
 	  */
 	void deinterlaceLine512(
-		SDL_Surface* src0, SDL_Surface* src0, int srcY,
+		SDL_Surface* src0, SDL_Surface* src1, int srcY,
 		SDL_Surface* dst, int dstY
 		);
 
