@@ -15,7 +15,6 @@ using  std::map;
 class FileContext
 {
 	public:
-		FileContext();
 		virtual ~FileContext();
 		const string resolve(const string &filename);
 		const string resolveCreate(const string &filename);
@@ -24,6 +23,7 @@ class FileContext
 		virtual FileContext* clone() const = 0;
 		
 	protected:
+		FileContext();
 		FileContext(const FileContext& rhs);
 		virtual const vector<string> &getPaths() = 0;
 		const string resolve(
