@@ -22,9 +22,9 @@ void RealTimeSDL::resync()
 
 float RealTimeSDL::doSync(const EmuTime &curEmu)
 {
-	// Resynchronize EmuTime and real time?
 	if (resyncFlag) {
 		reset(curEmu);
+		return emuFactor;
 	}
 
 	unsigned int curReal = SDL_GetTicks();

@@ -7,6 +7,10 @@
 #include "CommandController.hh"
 #include "Scheduler.hh"
 #include "RealTimeSDL.hh"
+#include "RealTimeRTC.hh"
+
+#define HAVE_RTC	// TODO check this in configure
+
 
 const int SYNC_INTERVAL = 50;
 
@@ -36,13 +40,19 @@ RealTime::RealTime()
 
 RealTime::~RealTime()
 {
+	Scheduler::instance()->removeSyncPoint(this);
 }
 
 RealTime *RealTime::instance()
 {
 	static RealTime* oneInstance = NULL;
 	if (oneInstance == NULL) {
-		oneInstance = new RealTimeSDL();
+#ifdef HAVE_RTC
+		oneInstance = RealTimeRTC::create();
+#endif
+		if (oneInstance == NULL) {
+			oneInstance = new RealTimeSDL();
+		}
 	}
 	return oneInstance;
 }
@@ -71,6 +81,7 @@ float RealTime::internalSync(const EmuTime &time)
 		speed = doSync(time);
 	} else {
 		speed = 1.0;
+		resync();
 	}
 	
 	// Schedule again in future

@@ -1,5 +1,8 @@
 $Id$
 
+2003-05-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Use RTC Timer for RealTime syncing when available
+
 2003-05-25 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Fixed a problem with the consolesize when switching from SDLLo
 	  to SDLHi or SDLGL.
