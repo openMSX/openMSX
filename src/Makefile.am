@@ -84,7 +84,11 @@ openmsx_SOURCES=\
 	atoll.c \
 	PluggingController.hh PluggingController.cc \
 	Connector.hh Connector.cc Pluggable.hh \
-	config.h
+	config.h \
+	File.cc File.hh \
+	HttpFile.cc HttpFile.hh \
+	LocalFile.cc LocalFile.hh
+
 # Very much out of date:
 #	SDLLoRenderer.hh SDLLoRenderer.cc
 
