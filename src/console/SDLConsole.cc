@@ -15,6 +15,14 @@
 #include "CommandConsole.hh"
 #include "DebugConsole.hh"
 
+// TODO: Replacing this by a 4-entry array would simplify the code.
+struct ColorRGBA {
+	Uint8 r;
+	Uint8 g;
+	Uint8 b;
+	Uint8 a;
+};
+
 SDLConsole::SDLConsole(Console * console_, SDL_Surface *screen)
 	:OSDConsoleRenderer (console_)
 { 
@@ -332,8 +340,8 @@ void SDLConsole::reloadBackground()
 int SDLConsole::zoomSurface(SDL_Surface * src, SDL_Surface * dst, bool smooth)
 {
 	int x, y, sx, sy, *sax, *say, *csax, *csay, csx, csy, ex, ey, t1, t2, sstep;
-	tColorRGBA *c00, *c01, *c10, *c11;
-	tColorRGBA *sp, *csp, *dp;
+	ColorRGBA *c00, *c01, *c10, *c11;
+	ColorRGBA *sp, *csp, *dp;
 	int sgap, dgap;
 
 	// Variable setup
@@ -375,8 +383,8 @@ int SDLConsole::zoomSurface(SDL_Surface * src, SDL_Surface * dst, bool smooth)
 	}
 
 	// Pointer setup
-	sp = csp = (tColorRGBA *) src->pixels;
-	dp = (tColorRGBA *) dst->pixels;
+	sp = csp = (ColorRGBA *) src->pixels;
+	dp = (ColorRGBA *) dst->pixels;
 	sgap = src->pitch - src->w * 4;
 	dgap = dst->pitch - dst->w * 4;
 
@@ -390,7 +398,7 @@ int SDLConsole::zoomSurface(SDL_Surface * src, SDL_Surface * dst, bool smooth)
 			c00 = csp;
 			c01 = csp;
 			c01++;
-			c10 = (tColorRGBA *) ((Uint8 *) csp + src->pitch);
+			c10 = (ColorRGBA *) ((Uint8 *) csp + src->pitch);
 			c11 = c10;
 			c11++;
 			csax = sax;
@@ -423,9 +431,9 @@ int SDLConsole::zoomSurface(SDL_Surface * src, SDL_Surface * dst, bool smooth)
 			}
 			// Advance source pointer
 			csay++;
-			csp = (tColorRGBA *) ((Uint8 *) csp + (*csay >> 16) * src->pitch);
+			csp = (ColorRGBA *) ((Uint8 *) csp + (*csay >> 16) * src->pitch);
 			// Advance destination pointers
-			dp = (tColorRGBA *) ((Uint8 *) dp + dgap);
+			dp = (ColorRGBA *) ((Uint8 *) dp + dgap);
 		}
 	} else {
 		// Non-Interpolating Zoom
@@ -444,9 +452,9 @@ int SDLConsole::zoomSurface(SDL_Surface * src, SDL_Surface * dst, bool smooth)
 			}
 			// Advance source pointer
 			csay++;
-			csp = (tColorRGBA *) ((Uint8 *) csp + (*csay >> 16) * src->pitch);
+			csp = (ColorRGBA *) ((Uint8 *) csp + (*csay >> 16) * src->pitch);
 			// Advance destination pointers
-			dp = (tColorRGBA *) ((Uint8 *) dp + dgap);
+			dp = (ColorRGBA *) ((Uint8 *) dp + dgap);
 		}
 	}
 
