@@ -40,7 +40,8 @@ SRC_HDR:= \
 	Autofire RenShaTurbo \
 	StringOp \
 	Unicode \
-	Version
+	Version \
+	HostCPU
 
 SRC_ONLY:= \
 	main

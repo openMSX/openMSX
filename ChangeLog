@@ -1,6 +1,14 @@
 $Id$
 
-2004-07-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-07-30 Maarten ter Huurne <maarten@treewalker.org>
+	* Added CPU detection.
+	  Read the Doxygen comments of HostCPU for details.
+	  For now, debug prints are enabled, please check if dected capabilities
+	  match what you would expect for your CPU.
+	* Added extended-MMX version of SimpleScaler (only 256-wide 32bpp).
+	  On my machine, it can scale 50% more pixels per second.
+
+2004-07-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Experimental:
 	   use CoRoutine to simplfy and later optimize CPU / Scheduler
 	   interaction. Current patch is very minimal: it just adds CoRoutine

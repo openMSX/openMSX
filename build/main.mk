@@ -57,11 +57,15 @@ DEFCHECK=$(strip \
 
 # Function to check a boolean variable has value "true" or "false".
 # Usage: $(call BOOLCHECK,VARIABLE_NAME)
-BOOLCHECK=$(strip \
-	$(call DEFCHECK,$(1)) \
+BOOLCHECK=$(DEFCHECK)$(strip \
 	$(if $(filter-out _true _false,_$($(1))), \
 		$(error Value of $(1) ("$($(1))") should be "true" or "false") ) \
 	)
+
+# Function to check whether a variable equals a given string.
+# If it does, the string "true" is returned, otherwise "false".
+# Usage: $(call EQUALS,VARIABLE_NAME,STRING)
+EQUALS=$(DEFCHECK)$(if $(filter $(2),$($(1))),true,false)
 
 # Shell function for indenting output.
 # Usage: command | $(INDENT)
