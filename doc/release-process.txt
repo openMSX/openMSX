@@ -13,6 +13,8 @@ Preparing for a release
   Currently most documentation is in "doc/manual".
 - Write release notes in "doc/release-notes.txt".
 - Add the change list to "doc/release-history.txt".
+- Edit the version number in configure.ac:
+    OPENMSX_VERSION=1.2.3
 
 Creating a release candidate
 ----------------------------
@@ -24,33 +26,49 @@ Creating a release candidate
     export -r RELEASE_1_2_3 openMSX
   This step makes sure that exactly the tagged code will be released.
   Export instead of checkout gets rid of the CVS admin directories.
-- Edit the version number in configure.ac:
-    OPENMSX_VERSION=1.2.3
 - Have auto* create its output:
     ./autogen.sh
     ./configure
 - Create the distribution tar.gz file:
-    make dist
+    make -f alternative.mk dist
 - Save the created file somewhere you can find it again:
-    mv openmsx-1.2.3.tar.gz <some_dir>/openmsx-1.2.3-rc1.tar.gz
+    mv derived/dist/openmsx-1.2.3.tar.gz <some_dir>/openmsx-1.2.3-rc1.tar.gz
   This is the release candidate.
 
-Test release candidate
-----------------------
+Sanity check on release candidate
+---------------------------------
 
-- Distribute tar.gz to fellow developers and testers.
-- Compile to check for warnings:
-    ./config-i686
-    make > /dev/null
-- Test installation:
-    su
-    make install
+This is a small check to be performed by the release coordinator.
+
+- Test build with auto*:
+  * Compile and check for warnings:
+      ./config-i686
+      make > /dev/null
+  * Test installation:
+      su
+      make install
+- Test build with alternative.mk:
+  * Compile and check for warnings:
+      unset OPENMSX_FLAVOUR   (and any other OPENMSX_ flags you have set)
+      make -f alternative.mk
+  * Test installation:
+      su
+      make -f alternative.mk install
+- Start openmsx with your usual config.
+- Verify the version number in the title bar.
+
+If the sanity check is passed, distribute tar.gz to fellow developers and
+testers.
+
+Full test of release candidate
+------------------------------
+
+- Check behaviour with empty ~/.openMSX dir.
 - Check that the default config (cbios-msx2) works.
 - Check random other configs.
 - Do extensive testing with things that are known to work and likely to give
   problems (like Unknown Reality, Metal Limit).
 - Do some valgrind runs to make sure there are no hidden problems.
-- Verify the version number in the title bar.
 TODO: More standard tests?
 
 Repeat until release worthy
