@@ -139,6 +139,7 @@ void MSXDevice::loadFile(byte** memoryBank, int fileSize)
 		PRT_ERROR("Couldn't allocate enough memory");
 	std::string filename = deviceConfig->getParameter("filename");
 	int offset = deviceConfig->getParameterAsInt("skip_headerbytes");
+	PRT_DEBUG("Loading file " << filename << " ...");
 #ifdef HAVE_FSTREAM_TEMPL
 	std::ifstream<byte> file(filename.c_str());
 #else

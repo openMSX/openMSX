@@ -24,6 +24,11 @@ class MSXMusic : public MSXDevice
 		void init();
 		void reset();
 		void writeIO(byte port, byte value, EmuTime &time);
+
+	protected:
+		void writeRegisterPort(byte value, EmuTime &time);
+		void writeDataPort(byte value, EmuTime &time);
+
 	private:
 		int registerLatch;
 		YM2413 *ym2413;

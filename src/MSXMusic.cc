@@ -33,13 +33,22 @@ void MSXMusic::writeIO(byte port, byte value, EmuTime &time)
 {
 	switch(port) {
 	case 0x7c:
-		registerLatch = (value & 0x3f);
+		writeRegisterPort(value, time);
 		break;
 	case 0x7d:
-		Mixer::instance()->updateStream(time);
-		ym2413->writeReg(registerLatch, value);
+		writeDataPort(value, time);
 		break;
 	default:
 		assert(false);
 	}
+}
+
+void MSXMusic::writeRegisterPort(byte value, EmuTime &time)
+{
+	registerLatch = (value & 0x3f);
+}
+void MSXMusic::writeDataPort(byte value, EmuTime &time)
+{
+	Mixer::instance()->updateStream(time);
+	ym2413->writeReg(registerLatch, value);
 }

@@ -1,6 +1,9 @@
 $Id$
 
 2001-11-30 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* added FM-PAC 
+
+2001-11-30 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* made a helper function registerSlots()
 	* made a helper function loadFile()
 	   note: config file format changed!

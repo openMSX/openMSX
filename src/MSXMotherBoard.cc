@@ -73,7 +73,7 @@ void MSXMotherBoard::addDevice(MSXDevice *device)
 void MSXMotherBoard::registerSlottedDevice(MSXDevice *device, int primSl, int secSl, int page)
 {
 	if (SlotLayout[primSl][secSl][page] == DummyDevice::instance()) {
-		PRT_DEBUG(device->getName() << "registers at "<<primSl<<" "<<secSl<<" "<<page);
+		PRT_DEBUG(device->getName() << " registers at "<<primSl<<" "<<secSl<<" "<<page);
 		SlotLayout[primSl][secSl][page] = device;
 	} else {
 		PRT_ERROR(device->getName() << " trying to register taken slot");

@@ -130,6 +130,16 @@
     <parameter name="filesize">131072</parameter>
     <parameter name="skip_headerbytes">0</parameter>
   </device>
+  <device id="FM PAC">
+    <type>FM-PAC</type>
+    <slotted>
+      <ps>2</ps>
+      <ss>0</ss>
+      <page>1</page>
+    </slotted>
+    <parameter name="filename">FMPAC.ROM</parameter>
+    <parameter name="skip_headerbytes">0</parameter>
+  </device>
   <config id="Foobar">
     <type>Test thingy</type>
     <parameter name="fred">vom.jupiter</parameter>
@@ -142,3 +152,6 @@
     </rem>
   </config>
 </msxconfig>
+
+
+
