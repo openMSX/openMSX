@@ -2,8 +2,6 @@
 
 #include "FirmwareSwitch.hh"
 
-// TODO rename this class to FirmwareSwitch
-
 namespace openmsx {
 
 FirmwareSwitch::FirmwareSwitch()
