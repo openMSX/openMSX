@@ -1,10 +1,10 @@
 # $Id$
 #
-# Alternative Makefile
+# openMSX Build System
 # ====================
 #
-# This build system will replace automake in the future.
-# We are keeping autoconf (at least for now).
+# This is the home made build system for openMSX, which replaced the
+# autoconf/automake combo.
 #
 # Used a lot of ideas from Peter Miller's excellent paper
 # "Recursive Make Considered Harmful".
@@ -192,12 +192,10 @@ BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
 
 LOG_PATH:=$(BUILD_PATH)/log
 
-AUTOTOOLS_PATH:=$(BUILD_BASE)/autotools
-CONFIG_SCRIPT:=$(AUTOTOOLS_PATH)/configure
-
 CONFIG_PATH:=$(BUILD_PATH)/config
-CONFIG_HEADER:=$(CONFIG_PATH)/config.h
-OLD_CONFIG_HEADER:=$(CONFIG_PATH)/oldconfig.h
+CONFIG_HEADER:=$(CONFIG_PATH)/build-info.hh
+PROBE_SCRIPT:=$(MAKE_PATH)/probe.mk
+PROBE_HEADER:=$(CONFIG_PATH)/probed_defs.hh
 VERSION_HEADER:=$(CONFIG_PATH)/Version.ii
 
 
@@ -218,7 +216,9 @@ CHANGELOG_REVISION:=\
 include $(MAKE_PATH)/info2code.mk
 
 # TCL.
+ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
 -include $(CONFIG_PATH)/config-tcl.mk
+endif
 $(CONFIG_PATH)/config-tcl.mk: $(MAKE_PATH)/tcl-search.sh
 	@mkdir -p $(@D)
 	@sh $< > $@
@@ -263,9 +263,13 @@ else
     #  810: "conversion from [larger type] to [smaller type] may lose
     #       significant bits"
     #       Many instances not fixed yet, but should be fixed eventually.
+    # 1125: "function [f1] is hidden by [f2] -- virtual function override
+    #       intended?"
+    #       Occurs lots of times on Command class. I don't understand why it
+    #       thinks hiding is occurring there.
     # 1469: ""cc" clobber ignored"
     #       Seems to be caused by glibc headers.
-    CXXFLAGS+=-wd111,444,530,810,1469
+    CXXFLAGS+=-wd111,444,530,810,1125,1469
   else
     $(warning Unsupported compiler: $(OPENMSX_CXX), please update Makefile)
   endif
@@ -315,7 +319,7 @@ LINK_FLAGS+=$(TCL_LDFLAGS)
 # Build Rules
 # ===========
 
-all: config $(CONFIG_HEADER) $(VERSION_HEADER) $(BINARY_FULL)
+all: $(CONFIG_HEADER) $(VERSION_HEADER) $(PROBE_HEADER) config $(BINARY_FULL)
 
 # Print configuration.
 config:
@@ -325,17 +329,10 @@ config:
 	@echo "  Profile:  $(OPENMSX_PROFILE)"
 	@echo "  Subset:   $(if $(OPENMSX_SUBSET),$(OPENMSX_SUBSET)*,full build)"
 
-# Configuration header created by "configure" script.
-# TODO: Cleaner way to calculate path to script?
-$(OLD_CONFIG_HEADER): $(CONFIG_SCRIPT)
-	@echo "Checking configuration:"
-	@mkdir -p $(@D)
-	@rm -f $(@D)/config.cache
-	@cd $(@D) ; CPPFLAGS="$(LIB_FLAGS)" LDFLAGS="$(LINK_FLAGS)" \
-		../../autotools/$(<F)
-# Force generated file to be timestamped, because the "smart" configure
-# won't do it if the contents didn't change.
-	@touch $@
+# Probe for headers and functions.
+$(PROBE_HEADER): $(PROBE_SCRIPT)
+	@echo "Probing configuration..."
+	@OUTDIR=$(@D) COMPILE=$(CXX) $(MAKE) -f $<
 
 # Include dependency files.
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
@@ -462,7 +459,6 @@ dist: $(DETECTSYS_SCRIPT)
 	@cp -pr --parents $(DIST_FULL) $(DIST_PATH)
 	@cp -p --parents $(HEADERS_FULL) $(DIST_PATH)
 	@cp -p --parents $(SOURCES_FULL) $(DIST_PATH)
-	@cp -pr --parents $(AUTOTOOLS_PATH) $(DIST_PATH)
 	@echo "Creating tarball..."
 	@cd $(DIST_BASE) ; GZIP=--best tar zcf $(PACKAGE_FULL).tar.gz $(PACKAGE_FULL)
 
