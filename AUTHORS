@@ -5,6 +5,7 @@ David Heremans       <david.heremans@gnu-linux.net>
 Wouter Vermaelen     <wouter.vermaelen@pi.be>
 Maarten ter Huurne   <mth@stack.nl>
 Manuel Bilderbeek    <manuel@msxnet.org>
+Herman Oudejans	     <hn.oudejans@quicknet.nl>
 
 Retired Developers:
 Joost Yervante Damad <joost@lumatec.be>
@@ -29,7 +30,10 @@ Y8950 and YM2413 emulator :
     written by Mitsutaka Okazaki
 TC8566AF disk controller:
     Based on code from NLMSX written by Frits Hilderink
-
+SDL surface scaling:
+    Taken from the rotozoomer written by A. Schiffler
+    http://www.ferzkopp.net/Software/SDL_gfx-2.0
+   
 
 
 With many thanks to:

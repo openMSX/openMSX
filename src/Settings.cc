@@ -60,6 +60,10 @@ void IntegerSetting::setRange (const int minvalue,const int maxvalue)
 	if (curValue < minValue) setValueInt(minValue);
 	if (curValue > maxValue) setValueInt(maxValue);
 	
+	// update the setting type to the new range
+	std::ostringstream out;
+	out << minValue << " - " << maxValue;
+	type = out.str();
 }
 
 std::string IntegerSetting::getValueString() const
