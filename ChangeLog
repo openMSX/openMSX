@@ -5,7 +5,11 @@ $Id$
 	   always store the last frame (was already like this for SDLHi/SDLLo,
 	   and also for SDLGL when some effect was used). This simplifies the
 	   pause code. It also fixes the image when breakpoints are used. And
-	   it will make the screenshot feature integration easier
+	   it will make the screenshot feature integration easier.
+	* Fixed ICC 8.0 compile warnings.
+
+2003-12-16 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed ICC 8.0 compile errors.
 
 2003-12-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* implemented "debug break"
