@@ -1,5 +1,11 @@
 $Id$
 
+2002-11-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* National mapper type fixes:
+	   - FS-4600F internal software seems to work, but I'm not certain
+	     the 1st and 2nd menu option work as they should. Can someone
+	     verify this?
+
 2002-11-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* fixed PhilipsFDC: IDEFDISK doesn't coredump anymore
 	* use old style file functions: should work with both old and new gcc

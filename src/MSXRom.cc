@@ -9,7 +9,8 @@
 #include "CartridgeSlotManager.hh"
 #include "File.hh"
 
-//TODO check / fix / cleanup  PANSONIC and NATIONAL
+// TODO fix PANSONIC
+// TODO NATIONAL seems to work, but needs some more testing
 
 
 MSXRomCLI msxRomCLI;
@@ -118,14 +119,26 @@ MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
 
 	// only if needed reserve memory for SRAM
 	if (mapperType & HAS_SRAM) {
-		memorySRAM = new byte[0x2000];
-		memset(memorySRAM, 255, 0x2000);
+		switch (mapperType) {
+		case NATIONAL:
+			sizeSRAM = 0x1000;
+			break;
+		default:
+			sizeSRAM = 0x2000;
+			break;
+		}
+		memorySRAM = new byte[sizeSRAM];
+		memset(memorySRAM, 255, sizeSRAM);
 		if (deviceConfig->hasParameter("loadsram")) {
 			if (deviceConfig->getParameterAsBool("loadsram")) {
 				std::string filename = deviceConfig->getParameter("sramname");
 				PRT_DEBUG("MSXRom: read SRAM " << filename);
-				File file(filename, STATE);
-				file.read(memorySRAM, 0x2000);
+				try {
+					File file(filename, STATE);
+					file.read(memorySRAM, sizeSRAM);
+				} catch (FileException &e) {
+					PRT_INFO("Couldn't load SRAM " << filename);
+				}
 			}
 		}
 	} else {
@@ -189,7 +202,7 @@ MSXRom::~MSXRom()
 		std::string filename = deviceConfig->getParameter("sramname");
 		PRT_DEBUG("MSXRom: save SRAM " << filename);
 		File file(filename, STATE, TRUNCATE);
-		file.write(memorySRAM, 0x2000);
+		file.write(memorySRAM, sizeSRAM);
 	}
 	delete[] memorySRAM;
 	delete[] unmapped;
@@ -269,8 +282,8 @@ void MSXRom::reset(const EmuTime &time)
 	case NATIONAL:
 		control = 0;
 		for (int region = 0; region < 4; region++) {
-			bankSelect[region] = region;
-			setROM16kB(region, region);
+			bankSelect[region] = 0;
+			setROM16kB(region, 0);
 		}
 		break;
 	
@@ -341,10 +354,10 @@ byte MSXRom::readMem(word address, const EmuTime &time)
 		}
 		if ((control & 0x02) && ((address & 0x3FFF) == 0x3FFD)) {
 			// SRAM read
-			return memorySRAM[sramAddr++ & 0x0FFF];
+			return memorySRAM[sramAddr++ & (sizeSRAM - 1)];
 		}
 		break;
-
+	
 	default:
 		// do nothing
 		break;
@@ -390,8 +403,8 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 	switch (mapperType) {
 	case GENERIC_8KB:
 		//--==**>> Generic 8kB cartridges <<**==--
-		if (0x4000<=address && address<0xc000) {
-			setROM8kB(address>>13, value);
+		if ((0x4000 <= address) && (address < 0xC000)) {
+			setROM8kB(address >> 13, value);
 		}
 		break;
 		
@@ -399,8 +412,8 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		//--==**>> Generic 16kB cartridges <<**==--
 		// examples: MSXDOS2, Hole in one special
 		
-		if (0x4000<=address && address<0xc000) {
-			byte region = (address&0xc000)>>14;	// 0..3
+		if ((0x4000 <= address) && (address < 0xC000)) {
+			byte region = (address & 0xC000) >> 14;	// 0..3
 			setROM16kB(region, value);
 		}
 		break;
@@ -417,21 +430,21 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		//  bank 3: 0x9000 - 0x97ff (0x9000 used)
 		//  bank 4: 0xB000 - 0xB7ff (0xB000 used)
 
-		if (address<0x5000 || address>=0xc000) break;
+		if ((address < 0x5000) || (address >= 0xC000)) break;
 		// Write to SCC?
-		if (enabledSCC && 0x9800<=address && address<0xa000) {
-			cartridgeSCC->writeMemInterface(address&0xff, value, time);
+		if (enabledSCC && (0x9800 <= address) && (address < 0xA000)) {
+			cartridgeSCC->writeMemInterface(address & 0xFF, value, time);
 			// No page selection in this memory range.
 			break;
 		}
 		// SCC enable/disable?
-		if ((address & 0xf800) == 0x9000) {
-			enabledSCC = ((value & 0x3f) == 0x3f);
+		if ((address & 0xF800) == 0x9000) {
+			enabledSCC = ((value & 0x3F) == 0x3F);
 			MSXCPU::instance()->invalidateCache(0x9800, 0x0800/CPU::CACHE_LINE_SIZE);
 		}
 		// Page selection?
 		if ((address & 0x1800) == 0x1000)
-			setROM8kB(address>>13, value);
+			setROM8kB(address >> 13, value);
 		break;
 	
 	case KONAMI4:
@@ -443,7 +456,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		// page at 4000 is fixed, other banks are switched
 		// by writting at 0x6000,0x8000 and 0xa000
 
-		if (address==0x6000 || address==0x8000 || address==0xa000)
+		if (address==0x6000 || address==0x8000 || address==0xA000)
 			setROM8kB(address>>13, value);
 		break;
 		
@@ -458,8 +471,8 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		//  bank 3: 0x7000 - 0x77ff (0x7000 used)
 		//  bank 4: 0x7800 - 0x7fff (0x7800 used)
 
-		if (0x6000<=address && address<0x8000) {
-			byte region = ((address>>11)&3)+2;
+		if ((0x6000 <= address) && (address < 0x8000)) {
+			byte region = ((address >> 11) & 3) + 2;
 			setROM8kB(region, value);
 		}
 		break;
@@ -475,7 +488,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		//  second 16kb: 0x7000 - 0x77ff (0x7000 and 0x77ff used)
 		
 		if (0x6000<=address && address<0x7800 && !(address&0x0800)) {
-			byte region = ((address>>12)&1)+1;
+			byte region = ((address >> 12) & 1) + 1;
 			setROM16kB(region, value);
 		}
 		break;
@@ -485,12 +498,12 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		//
 		// The address to change banks:
 		//  first  16kb: fixed at 0x0f or 0x17
-		//  second 16kb: 0x7000 - 0x7fff (0x7000 and 0x7800 used)
+		//  second 16kb: 0x7000 - 0x7FFF (0x7000 and 0x7800 used)
 		//               bit 4 selects ROM chip,
 		//                if low  bit 3-0 select page
 		//                   high     2-0 
 
-		if (0x7000<=address && address<0x8000) {
+		if ((0x7000 <= address) && (address < 0x8000)) {
 			value &= (value & 0x10) ? 0x17 : 0x1F;
 			setROM16kB(2, value);
 		}
@@ -512,25 +525,25 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		// The 2Kb SRAM (0x800 bytes) are mirrored in the 16 kB block
 		//
 		// The address to change banks (from ASCII16):
-		//  first  16kb: 0x6000 - 0x67ff (0x6000 used)
-		//  second 16kb: 0x7000 - 0x77ff (0x7000 and 0x77ff used)
+		//  first  16kb: 0x6000 - 0x67FF (0x6000 used)
+		//  second 16kb: 0x7000 - 0x77FF (0x7000 and 0x77FF used)
 
 		if (0x6000<=address && address<0x7800 && !(address&0x0800)) {
-			byte region = ((address>>12) & 1) + 1;
+			byte region = ((address >> 12) & 1) + 1;
 			if (value == 0x10) {
 				// SRAM block
-				setBank8kB(2*region,   memorySRAM);
-				setBank8kB(2*region+1, memorySRAM);
-				regioSRAM |= (region==1 ?  0x0c :  0x30);
+				setBank8kB(2 * region,     memorySRAM);
+				setBank8kB(2 * region + 1, memorySRAM);
+				regioSRAM |= (region==1 ?  0x0C :  0x30);
 			} else {
 				// Normal 16 kB ROM page
 				setROM16kB(region, value);
-				regioSRAM &= (region==1 ? ~0x0c : ~0x30);
+				regioSRAM &= (region==1 ? ~0x0C : ~0x30);
 			}
 		} else {
 			// Writting to SRAM?
-			if ((1 << (address>>13)) & regioSRAM & 0x0c) { 
-				for (word adr=address&0x7ff; adr<0x2000; adr+=0x800)
+			if ((1 << (address>>13)) & regioSRAM & 0x0C) { 
+				for (word adr=address&0x7FF; adr<0x2000; adr+=0x800)
 					memorySRAM[adr] = value;
 			}
 		}
@@ -549,8 +562,8 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		//  To select SRAM set bit 5/6/7 (depends on size) of the bank.
 		//  The SRAM can only be written to if selected in bank 3 or 4.
 
-		if (0x6000<=address && address<0x8000) {
-			byte region = ((address>>11) & 3) + 2;
+		if ((0x6000 <= address) && (address < 0x8000)) {
+			byte region = ((address >> 11) & 3) + 2;
 			byte SRAMEnableBit = romSize / 8192;
 			if (value & SRAMEnableBit) {
 				setBank8kB(region, memorySRAM);
@@ -563,21 +576,21 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 			// Writting to SRAM?
 			if ((1 << (address>>13)) & regioSRAM & 0x30) { 
 				// 0x8000 - 0xBFFF
-				memorySRAM[address & 0x1FFF] = value;
+				memorySRAM[address & (sizeSRAM - 1)] = value;
 			}
 		}
 		break;
 		
 	case GAME_MASTER2:
 		// Konami Game Master 2, 8KB cartridge with 8KB sram
-		if (0x6000<=address && address<0xc000) {
-			if (address >= 0xb000) {
+		if ((0x6000 <= address) && (address < 0xC000)) {
+			if (address >= 0xB000) {
 				// SRAM write
 				if (regioSRAM & 0x20)	// 0xA000 - 0xBFFF
-					internalMemoryBank[0xb][address&0x0fff] = value;
+					internalMemoryBank[0xB][address&0x0FFF] = value;
 			}
 			if (!(address & 0x1000)) {
-				byte region = address>>13;	// 0..7
+				byte region = address >> 13;	// 0..7
 				if (value & 0x10) {
 					// switch sram in page
 					regioSRAM |=  (1 << region);
@@ -606,10 +619,10 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 
 	case MAJUTSUSHI:
 		// Konami Majutsushi
-		if (0x6000<=address && address<0xC000) {
-			setROM8kB(address>>13, value);
-		} else if (0x5000<=address && address<0x6000) {
-			dac->writeDAC(value,time);
+		if ((0x6000 <= address) && (address < 0xC000)) {
+			setROM8kB(address >> 13, value);
+		} else if ((0x5000 <= address) && (address < 0x6000)) {
+			dac->writeDAC(value, time);
 		}
 		break;
 	
@@ -660,11 +673,11 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		// National 16KB mapper (for example used in FS-4600F)
 		// TODO bank switch address mirrored?
 		if (address == 0x6000) {
-			bankSelect[0] = value;
-			setROM16kB(0, value);
-		} else if (address == 0x6400) {
 			bankSelect[1] = value;
 			setROM16kB(1, value);
+		} else if (address == 0x6400) {
+			bankSelect[0] = value;
+			setROM16kB(0, value);
 		} else if (address == 0x7000) {
 			bankSelect[2] = value;
 			setROM16kB(2, value);
@@ -686,7 +699,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 				// SRAM address bits 7-0
 				sramAddr = (sramAddr & 0xFFFF00) | value;
 			} else if (address == 0x3FFD) {
-				memorySRAM[sramAddr++ & 0x0FFF] = value;
+				memorySRAM[sramAddr++ & (sizeSRAM - 1)] = value;
 			}
 		}
 		break;
@@ -700,38 +713,41 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 void MSXRom::setBank4kB(int region, byte* adr)
 {
 	internalMemoryBank[region] = adr;
-	MSXCPU::instance()->invalidateCache(region*0x1000, 0x1000/CPU::CACHE_LINE_SIZE);
+	MSXCPU::instance()->invalidateCache(region * 0x1000,
+	                                    0x1000 / CPU::CACHE_LINE_SIZE);
 }
 void MSXRom::setBank8kB(int region, byte* adr)
 {
-	internalMemoryBank[2*region+0] = adr+0x0000;
-	internalMemoryBank[2*region+1] = adr+0x1000;
-	MSXCPU::instance()->invalidateCache(region*0x2000, 0x2000/CPU::CACHE_LINE_SIZE);
+	internalMemoryBank[2 * region + 0] = adr + 0x0000;
+	internalMemoryBank[2 * region + 1] = adr + 0x1000;
+	MSXCPU::instance()->invalidateCache(region * 0x2000,
+	                                    0x2000 / CPU::CACHE_LINE_SIZE);
 }
 void MSXRom::setBank16kB(int region, byte* adr)
 {
-	internalMemoryBank[4*region+0] = adr+0x0000;
-	internalMemoryBank[4*region+1] = adr+0x1000;
-	internalMemoryBank[4*region+2] = adr+0x2000;
-	internalMemoryBank[4*region+3] = adr+0x3000;
-	MSXCPU::instance()->invalidateCache(region*0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
+	internalMemoryBank[4 * region + 0] = adr + 0x0000;
+	internalMemoryBank[4 * region + 1] = adr + 0x1000;
+	internalMemoryBank[4 * region + 2] = adr + 0x2000;
+	internalMemoryBank[4 * region + 3] = adr + 0x3000;
+	MSXCPU::instance()->invalidateCache(region * 0x4000,
+	                                    0x4000 / CPU::CACHE_LINE_SIZE);
 }
 
 void MSXRom::setROM4kB(int region, int block)
 {
 	int nrBlocks = romSize >> 12;
 	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-	setBank4kB(region, romBank + (block<<12));
+	setBank4kB(region, romBank + (block << 12));
 }
 void MSXRom::setROM8kB(int region, int block)
 {
 	int nrBlocks = romSize >> 13;
 	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-	setBank8kB(region, romBank + (block<<13));
+	setBank8kB(region, romBank + (block << 13));
 }
 void MSXRom::setROM16kB(int region, int block)
 {
 	int nrBlocks = romSize >> 14;
 	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-	setBank16kB(region, romBank + (block<<14));
+	setBank16kB(region, romBank + (block << 14));
 }

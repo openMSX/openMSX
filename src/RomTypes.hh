@@ -16,14 +16,14 @@ enum MapperType {
 	ASCII_16KB   = 5,
 	R_TYPE       = 6,
 	CROSS_BLAIM  = 7,
-	PANASONIC    = 8,
-	NATIONAL     = 9,
 	PLAIN        = 15,
 
 	HAS_SRAM     = 16,
 	ASCII8_8     = 16,
 	HYDLIDE2     = 17,
 	GAME_MASTER2 = 18,
+	PANASONIC    = 19,
+	NATIONAL     = 20,
 
 	HAS_DAC      = 32,
 	MAJUTSUSHI   = 32,

@@ -86,6 +86,7 @@ class MSXRom : public MSXMemDevice, public MSXRomDevice
 		byte *unmapped;
 		
 		byte *memorySRAM;
+		int sizeSRAM;
 		byte regioSRAM;	//bit n=1 => SRAM in [n*0x2000, (n+1)*0x2000)
 
 		SCC* cartridgeSCC;
