@@ -55,21 +55,6 @@ void Scheduler::insertStamp(Emutime &timestamp, MSXDevice &activedevice)
 	scheduleList.insert(SchedulerNode (timestamp, activedevice));
 }
 
-void Scheduler::raiseIRQ()
-{
-	stateIRQline++;
-}
-
-void Scheduler::lowerIRQ()
-{
-	assert (stateIRQline != 0);
-	stateIRQline--;
-}
-
-int Scheduler::getIRQ()
-{
-	return stateIRQline;
-}
 void Scheduler::scheduleEmulation()
 {
 	keepRunning=true;

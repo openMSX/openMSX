@@ -133,7 +133,7 @@ typedef struct
 #endif
 
 extern int Z80_Running;      /* When 0, emulation terminates                */
-extern int Z80_IRQ;          /* Current IRQ status. Checked after EI occurs */
+//extern int Z80_IRQ;          /* Current IRQ status. Checked after EI occurs */
 //int Z80_IRQ;          /* Current IRQ status. Checked after EI occurs */
 #define Z80_IGNORE_INT  -1   /* Ignore interrupt                            */
 #define Z80_NMI_INT     -2   /* Execute NMI                                 */

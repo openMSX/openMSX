@@ -36,9 +36,6 @@ class Scheduler
 		const SchedulerNode &getFirstNode();
 		void removeFirstNode();
 		void insertStamp(Emutime &timestamp, MSXDevice &activedevice);
-		void raiseIRQ();
-		void lowerIRQ();
-		int getIRQ();
 		void scheduleEmulation();
 		void stopEmulation();
 

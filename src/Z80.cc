@@ -15,6 +15,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "MSXMotherBoard.hh"
+
 //debugercode
 #include "Z80Dasm.h"
 
@@ -26,7 +28,7 @@ extern "C++"
 }
 */
 // added JYD 22-01-2001
-int Z80_IRQ;
+//int Z80_IRQ = Z80_IGNORE_INT;
 #ifdef DEBUG
  byte debugmemory[65536];
  char to_print_string[300];
@@ -1922,7 +1924,8 @@ static void ei(void)
   R.PC.W.l++;
   R.ICount+=cycles_main[opcode];
   (*(opcode_main[opcode]))(); // Gives wrong timing for the moment !!
-  Interrupt(Z80_IRQ);
+  if (MSXMotherBoard::instance()->IRQstatus())
+	Interrupt(Z80_NORM_INT);
  }
  else
   R.IFF2=1;

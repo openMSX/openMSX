@@ -1,9 +1,13 @@
 $Id$
 
-2001-09-16 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+2001-09-17 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* implemented kana/code led
 	* implemented joystick-ports. This is only the port, not the devices
 	  that can be plugged into the port (joystick, mouse, ...)
+	* interupt handling was seriously broken (CPU jumped to 0x38 at every
+	  di->ei transition even when there was no device that had raised an IRQ)
+	  Fixed now (I think). Also moved interrupt related methods from class
+	  Scheduler to class MSXMotherBoard.
 
 2001-09-16 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* implemented sound generation for PSG (code taken from xmame-0.37b)

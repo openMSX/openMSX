@@ -30,6 +30,7 @@ MSXMotherBoard::MSXMotherBoard()
 			}
 		}
 	}
+	IRQLine = 0;
 }
 
 MSXMotherBoard::~MSXMotherBoard()
@@ -211,8 +212,25 @@ byte MSXMotherBoard::readIO(byte port, Emutime &time)
 {
 	return IO_In[port]->readIO(port, time);
 }
+
 void MSXMotherBoard::writeIO(byte port, byte value, Emutime &time)
 {
 	IO_Out[port]->writeIO(port, value, time);
+}
+
+void MSXMotherBoard::raiseIRQ()
+{
+	IRQLine++;
+}
+
+void MSXMotherBoard::lowerIRQ()
+{
+	assert (IRQLine != 0);
+	IRQLine--;
+}
+
+bool MSXMotherBoard::IRQstatus()
+{
+	return IRQLine;
 }
 
