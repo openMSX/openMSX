@@ -53,8 +53,8 @@ public:
 	~MSXTMS9928a();
 
 	// interaction with CPU
-	byte readIO(byte port, EmuTime &time);
-	void writeIO(byte port, byte value, EmuTime &time);
+	byte readIO(byte port, const EmuTime &time);
+	void writeIO(byte port, byte value, const EmuTime &time);
 	void executeUntilEmuTime(const EmuTime &time);
 
 	// mainlife cycle of an MSXDevice
@@ -211,12 +211,12 @@ private:
 
 	/** VDP control register has changed, work out the consequences.
 	  */
-	void changeRegister(byte reg, byte val, EmuTime &time);
+	void changeRegister(byte reg, byte val, const EmuTime &time);
 
 	/** Display mode may have changed.
 	  * If it has, update displayMode's value and inform the Renderer.
 	  */
-	void updateDisplayMode(EmuTime &time);
+	void updateDisplayMode(const EmuTime &time);
 
 	/** Renderer that converts this VDP's state into an image.
 	  */

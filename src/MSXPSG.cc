@@ -37,14 +37,14 @@ void MSXPSG::reset(const EmuTime &time)
 	ay8910->reset(time);
 }
 
-byte MSXPSG::readIO(byte port, EmuTime &time)
+byte MSXPSG::readIO(byte port, const EmuTime &time)
 {
 	//Note EmuTime argument is ignored, I think that's ok
 	assert (port == 0xA2);
 	return ay8910->readRegister(registerLatch, time);
 }
 
-void MSXPSG::writeIO(byte port, byte value, EmuTime &time)
+void MSXPSG::writeIO(byte port, byte value, const EmuTime &time)
 {
 	//Note EmuTime argument is ignored, I think that's ok
 	switch (port) {

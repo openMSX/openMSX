@@ -33,16 +33,16 @@ public:
 
 	void putImage();
 	void setFullScreen(bool);
-	void updateForegroundColour(EmuTime &time);
-	void updateBackgroundColour(EmuTime &time);
-	void updateDisplayEnabled(EmuTime &time);
-	void updateDisplayMode(EmuTime &time);
-	void updateNameBase(EmuTime &time);
-	void updatePatternBase(EmuTime &time);
-	void updateColourBase(EmuTime &time);
-	void updateSpriteAttributeBase(EmuTime &time);
-	void updateSpritePatternBase(EmuTime &time);
-	void updateVRAM(int addr, byte data, EmuTime &time);
+	void updateForegroundColour(const EmuTime &time);
+	void updateBackgroundColour(const EmuTime &time);
+	void updateDisplayEnabled(const EmuTime &time);
+	void updateDisplayMode(const EmuTime &time);
+	void updateNameBase(const EmuTime &time);
+	void updatePatternBase(const EmuTime &time);
+	void updateColourBase(const EmuTime &time);
+	void updateSpriteAttributeBase(const EmuTime &time);
+	void updateSpritePatternBase(const EmuTime &time);
+	void updateVRAM(int addr, byte data, const EmuTime &time);
 
 private:
 	typedef void (SDLLoRenderer::*RenderMethod)(int line);

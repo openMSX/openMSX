@@ -22,13 +22,13 @@ class MSXMemoryMapper : public MSXMemDevice
 		 */
 		~MSXMemoryMapper();
 		
-		byte readMem(word address, EmuTime &time);
-		void writeMem(word address, byte value, EmuTime &time);
+		byte readMem(word address, const EmuTime &time);
+		void writeMem(word address, byte value, const EmuTime &time);
 		
 		void reset(const EmuTime &time);
 	
 	private:
-		int getAdr(int address);
+		word getAdr(word address);
 
 		byte *buffer;
 		int blocks;

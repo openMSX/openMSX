@@ -25,7 +25,7 @@ class MSXRealTime : public MSXDevice, public HotKeyListener
 		void reset(const EmuTime &time);
 		void executeUntilEmuTime(const EmuTime &time);
 
-		float getRealDuration(EmuTime time1, EmuTime time2);
+		float getRealDuration(const EmuTime time1, const EmuTime time2);
 
 		void signalHotKey(SDLKey key);
 

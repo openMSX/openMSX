@@ -24,8 +24,8 @@ class MSXKonamiSynthesizer : public MSXMemDevice, public MSXRom
 
 		void reset(const EmuTime &time);
 
-		byte readMem(word address, EmuTime &time);
-		void writeMem(word address, byte value, EmuTime &time);
+		byte readMem(word address, const EmuTime &time);
+		void writeMem(word address, byte value, const EmuTime &time);
 
 	private:
 		DACSound *dac;

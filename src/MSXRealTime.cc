@@ -96,7 +96,7 @@ void MSXRealTime::executeUntilEmuTime(const EmuTime &curEmu)
 	Scheduler::instance()->setSyncPoint(emuRef+SYNCINTERVAL, *this);
 }
 
-float MSXRealTime::getRealDuration(EmuTime time1, EmuTime time2)
+float MSXRealTime::getRealDuration(const EmuTime time1, const EmuTime time2)
 {
 	return time1.getDuration(time2) * factor;
 }

@@ -61,7 +61,7 @@ void MSXPPI::reset(const EmuTime &time)
 	click->reset(time);
 }
 
-byte MSXPPI::readIO(byte port, EmuTime &time)
+byte MSXPPI::readIO(byte port, const EmuTime &time)
 {
 	switch (port) {
 	case 0xA8:
@@ -78,7 +78,7 @@ byte MSXPPI::readIO(byte port, EmuTime &time)
 	}
 }
 
-void MSXPPI::writeIO(byte port, byte value, EmuTime &time)
+void MSXPPI::writeIO(byte port, byte value, const EmuTime &time)
 {
 	switch (port) {
 	case 0xA8:

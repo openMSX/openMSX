@@ -11,10 +11,10 @@ class CPUInterface {
 		/**
 		 * Memory and IO read/write operations
 		 */
-		virtual byte readIO   (word port, EmuTime &time) = 0;
-		virtual void writeIO  (word port,byte value, EmuTime &time) = 0;
-		virtual byte readMem  (word address, EmuTime &time) = 0;
-		virtual void writeMem (word address, byte value, EmuTime &time) = 0;
+		virtual byte readIO   (word port, const EmuTime &time) = 0;
+		virtual void writeIO  (word port,byte value, const EmuTime &time) = 0;
+		virtual byte readMem  (word address, const EmuTime &time) = 0;
+		virtual void writeMem (word address, byte value, const EmuTime &time) = 0;
 
 		/**
 		 * Returns true when INT line is active

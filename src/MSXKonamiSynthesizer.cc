@@ -27,12 +27,12 @@ void MSXKonamiSynthesizer::reset(const EmuTime &time)
 	dac->reset(time);
 }
 
-byte MSXKonamiSynthesizer::readMem(word address, EmuTime &time)
+byte MSXKonamiSynthesizer::readMem(word address, const EmuTime &time)
 {
 	return memoryBank [address-0x4000];
 }
 
-void MSXKonamiSynthesizer::writeMem(word address, byte value, EmuTime &time)
+void MSXKonamiSynthesizer::writeMem(word address, byte value, const EmuTime &time)
 {
 	// Should be only for 0x4000, but since this isn't confirmed on a real
 	// cratridge we will simply use every write.

@@ -301,7 +301,7 @@ void MSXTMS9928a::executeUntilEmuTime(const EmuTime &time)
 
 // The I/O functions.
 
-void MSXTMS9928a::writeIO(byte port, byte value, EmuTime &time)
+void MSXTMS9928a::writeIO(byte port, byte value, const EmuTime &time)
 {
 	switch (port){
 	case 0x98: {
@@ -349,7 +349,7 @@ byte MSXTMS9928a::vramRead()
 	return ret;
 }
 
-byte MSXTMS9928a::readIO(byte port, EmuTime &time)
+byte MSXTMS9928a::readIO(byte port, const EmuTime &time)
 {
 	switch (port) {
 	case 0x98:
@@ -368,7 +368,7 @@ byte MSXTMS9928a::readIO(byte port, EmuTime &time)
 	}
 }
 
-void MSXTMS9928a::changeRegister(byte reg, byte val, EmuTime &time)
+void MSXTMS9928a::changeRegister(byte reg, byte val, const EmuTime &time)
 {
 	static const byte REG_MASKS[8] =
 		{ 0x03, 0xfb, 0x0f, 0xff, 0x07, 0x7f, 0x07, 0xff };
@@ -431,7 +431,7 @@ void MSXTMS9928a::changeRegister(byte reg, byte val, EmuTime &time)
 	}
 }
 
-void MSXTMS9928a::updateDisplayMode(EmuTime &time)
+void MSXTMS9928a::updateDisplayMode(const EmuTime &time)
 {
 	static const char *MODE_STRINGS[] = {
 		"Mode 0 (GRAPHIC 1)", "Mode 1 (TEXT 1)", "Mode 2 (GRAPHIC 2)",

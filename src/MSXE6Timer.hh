@@ -31,8 +31,8 @@ class MSXE6Timer : public MSXIODevice
 		
 		void reset(const EmuTime &time);
 		
-		byte readIO(byte port, EmuTime &time);
-		void writeIO(byte port, byte value, EmuTime &time);
+		byte readIO(byte port, const EmuTime &time);
+		void writeIO(byte port, byte value, const EmuTime &time);
 
 	private:
 		EmuTimeFreq<255681> reference;	// 1/14 * 3.58MH

@@ -22,8 +22,8 @@ class MSXRTC : public MSXIODevice
 		~MSXRTC(); 
 
 		void reset(const EmuTime &time);
-		byte readIO(byte port, EmuTime &time);
-		void writeIO(byte port, byte value, EmuTime &time);
+		byte readIO(byte port, const EmuTime &time);
+		void writeIO(byte port, byte value, const EmuTime &time);
 	private:
 		RP5C01 *rp5c01;
 		nibble registerLatch;

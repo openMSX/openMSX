@@ -33,13 +33,13 @@ void MSXPrinterPort::reset(const EmuTime &time)
 }
 
 
-byte MSXPrinterPort::readIO(byte port, EmuTime &time)
+byte MSXPrinterPort::readIO(byte port, const EmuTime &time)
 {
 	assert(port == 0x90);
 	return device->getStatus() ? 0xff : 0xfd;	// bit 1 = status / other bits always 1
 }
 
-void MSXPrinterPort::writeIO(byte port, byte value, EmuTime &time)
+void MSXPrinterPort::writeIO(byte port, byte value, const EmuTime &time)
 {
 	switch (port) {
 	case 0x90:

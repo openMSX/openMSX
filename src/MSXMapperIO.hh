@@ -40,8 +40,8 @@ class MSXMapperIO : public MSXIODevice
 		 */
 		static MSXMapperIO *instance();
 		
-		byte readIO(byte port, EmuTime &time);
-		void writeIO(byte port, byte value, EmuTime &time);
+		byte readIO(byte port, const EmuTime &time);
+		void writeIO(byte port, byte value, const EmuTime &time);
 		
 		void reset(const EmuTime &time);
 		

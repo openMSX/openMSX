@@ -32,7 +32,7 @@ void MSXFmPac::reset(const EmuTime &time)
 	bank = 0;	// TODO check this
 }
 
-byte MSXFmPac::readMem(word address, EmuTime &time)
+byte MSXFmPac::readMem(word address, const EmuTime &time)
 {
 	switch (address) {
 	case 0x7ff4:
@@ -54,7 +54,7 @@ byte MSXFmPac::readMem(word address, EmuTime &time)
 	}
 }
 
-void MSXFmPac::writeMem(word address, byte value, EmuTime &time)
+void MSXFmPac::writeMem(word address, byte value, const EmuTime &time)
 {
 	switch (address) {
 	case 0x5ffe:

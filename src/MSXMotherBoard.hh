@@ -105,22 +105,22 @@ class MSXMotherBoard : public CPUInterface
 		/**
 		 * This reads a byte from the currently selected device
 		 */
-		byte readMem(word address, EmuTime &time);
+		byte readMem(word address, const EmuTime &time);
 
 		/**
 		 * This writes a byte to the currently selected device
 		 */
-		void writeMem(word address, byte value, EmuTime &time);
+		void writeMem(word address, byte value, const EmuTime &time);
 
 		/**
 		 * This read a byte from the given IO-port
 		 */
-		byte readIO(word port, EmuTime &time);
+		byte readIO(word port, const EmuTime &time);
 
 		/**
 		 * This writes a byte to the given IO-port
 		 */
-		void writeIO(word port, byte value, EmuTime &time);
+		void writeIO(word port, byte value, const EmuTime &time);
 
 		/**
 		 * This returns the current IRQ status

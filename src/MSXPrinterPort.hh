@@ -22,8 +22,8 @@ class MSXPrinterPort : public MSXIODevice
 
 		void reset(const EmuTime &time);
 
-		byte readIO(byte port, EmuTime &time);
-		void writeIO(byte port, byte value, EmuTime &time);
+		byte readIO(byte port, const EmuTime &time);
+		void writeIO(byte port, byte value, const EmuTime &time);
 		
 		void plug(PrinterPortDevice *dev);
 		void unplug();

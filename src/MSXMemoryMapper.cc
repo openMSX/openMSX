@@ -38,21 +38,21 @@ void MSXMemoryMapper::reset(const EmuTime &time)
 	}
 }
 
-byte MSXMemoryMapper::readMem(word address, EmuTime &time)
+byte MSXMemoryMapper::readMem(word address, const EmuTime &time)
 {
 	return buffer[getAdr(address)];
 }
 
-void MSXMemoryMapper::writeMem(word address, byte value, EmuTime &time)
+void MSXMemoryMapper::writeMem(word address, byte value, const EmuTime &time)
 {
 	buffer[getAdr(address)] = value;
 }
 
-int MSXMemoryMapper::getAdr(int address)
+word MSXMemoryMapper::getAdr(word address)
 {
 	int pageNum = MSXMapperIO::instance()->getPageNum(address>>14);
 	pageNum %= blocks;
-	int adr = pageNum*16384 + (address&0x3fff);
+	int adr = pageNum<<14 + (address&0x3fff);
 	return adr;
 }
 

@@ -149,7 +149,7 @@ void MSXMotherBoard::set_A8_Register(byte value)
 
 // CPU Interface //
 
-byte MSXMotherBoard::readMem(word address, EmuTime &time)
+byte MSXMotherBoard::readMem(word address, const EmuTime &time)
 {
 	if (address == 0xFFFF) {
 		int CurrentSSRegister = (A8_Register>>6)&3;
@@ -160,7 +160,7 @@ byte MSXMotherBoard::readMem(word address, EmuTime &time)
 	return visibleDevices[address>>14]->readMem(address, time);
 }
 
-void MSXMotherBoard::writeMem(word address, byte value, EmuTime &time)
+void MSXMotherBoard::writeMem(word address, byte value, const EmuTime &time)
 {
 	if (address == 0xFFFF) {
 		int CurrentSSRegister = (A8_Register>>6)&3;
@@ -182,13 +182,13 @@ void MSXMotherBoard::writeMem(word address, byte value, EmuTime &time)
 	visibleDevices[address>>14]->writeMem(address, value, time);
 }
 
-byte MSXMotherBoard::readIO(word prt, EmuTime &time)
+byte MSXMotherBoard::readIO(word prt, const EmuTime &time)
 {
 	byte port = (byte)prt;
 	return IO_In[port]->readIO((byte)port, time);
 }
 
-void MSXMotherBoard::writeIO(word prt, byte value, EmuTime &time)
+void MSXMotherBoard::writeIO(word prt, byte value, const EmuTime &time)
 {
 	byte port = (byte)prt;
 	IO_Out[port]->writeIO((byte)port, value, time);

@@ -2,11 +2,11 @@
  
 #include "MSXIODevice.hh"
 
-byte MSXIODevice:: readIO(byte port, EmuTime &time)
+byte MSXIODevice:: readIO(byte port, const EmuTime &time)
 {
 	return 255;
 }
-void MSXIODevice::writeIO(byte port, byte value, EmuTime &time)
+void MSXIODevice::writeIO(byte port, byte value, const EmuTime &time)
 {
 	// do nothing
 }

@@ -143,13 +143,13 @@ template <class Pixel> void SDLLoRenderer<Pixel>::setFullScreen(
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateForegroundColour(
-	EmuTime &time)
+	const EmuTime &time)
 {
 	dirtyForeground = true;
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateBackgroundColour(
-	EmuTime &time)
+	const EmuTime &time)
 {
 	dirtyBackground = true;
 	// Transparent pixels have background colour.
@@ -162,7 +162,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateBackgroundColour(
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayEnabled(
-	EmuTime &time)
+	const EmuTime &time)
 {
 	// When display is re-enabled, consider every pixel dirty.
 	if (vdp->isDisplayEnabled()) {
@@ -172,45 +172,45 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayEnabled(
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayMode(
-	EmuTime &time)
+	const EmuTime &time)
 {
 	renderMethod = modeToRenderMethod[vdp->getDisplayMode()];
 	setDirty(true);
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateNameBase(
-	EmuTime &time)
+	const EmuTime &time)
 {
 	anyDirtyName = true;
 	fillBool(dirtyName, true, sizeof(dirtyName));
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updatePatternBase(
-	EmuTime &time)
+	const EmuTime &time)
 {
 	anyDirtyPattern = true;
 	fillBool(dirtyPattern, true, sizeof(dirtyPattern));
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateColourBase(
-	EmuTime &time)
+	const EmuTime &time)
 {
 	anyDirtyColour = true;
 	fillBool(dirtyColour, true, sizeof(dirtyColour));
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateSpriteAttributeBase(
-	EmuTime &time)
+	const EmuTime &time)
 {
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateSpritePatternBase(
-	EmuTime &time)
+	const EmuTime &time)
 {
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateVRAM(
-	int addr, byte data, EmuTime &time)
+	int addr, byte data, const EmuTime &time)
 {
 	if ((addr & vdp->getNameMask()) == addr) {
 		dirtyName[addr & ~(-1 << 10)] = anyDirtyName = true;

@@ -24,8 +24,8 @@ class MSXPSG : public MSXIODevice, public AY8910Interface
 		~MSXPSG(); 
 		
 		void reset(const EmuTime &time);
-		byte readIO(byte port, EmuTime &time);
-		void writeIO(byte port, byte value, EmuTime &time);
+		byte readIO(byte port, const EmuTime &time);
+		void writeIO(byte port, byte value, const EmuTime &time);
 	private:
 		int registerLatch;
 		AY8910 *ay8910;

@@ -35,12 +35,12 @@ void MSXSimple64KB::reset(const EmuTime &time)
 	}
 }
 
-byte MSXSimple64KB::readMem(word address, EmuTime &time)
+byte MSXSimple64KB::readMem(word address, const EmuTime &time)
 {
 	return memoryBank [address];
 }
 
-void MSXSimple64KB::writeMem(word address, byte value, EmuTime &time)
+void MSXSimple64KB::writeMem(word address, byte value, const EmuTime &time)
 {
 	memoryBank[address] = value;
 }

@@ -30,43 +30,43 @@ public:
 	/** Informs the renderer of a VDP foreground colour change.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateForegroundColour(EmuTime &time) = NULL;
+	virtual void updateForegroundColour(const EmuTime &time) = NULL;
 
 	/** Informs the renderer of a VDP background colour change.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBackgroundColour(EmuTime &time) = NULL;
+	virtual void updateBackgroundColour(const EmuTime &time) = NULL;
 
 	/** Informs the renderer of a VDP display enabled change.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateDisplayEnabled(EmuTime &time) = NULL;
+	virtual void updateDisplayEnabled(const EmuTime &time) = NULL;
 
 	/** Informs the renderer of a VDP display mode change.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateDisplayMode(EmuTime &time) = NULL;
+	virtual void updateDisplayMode(const EmuTime &time) = NULL;
 
 	/** Informs the renderer of a name table base address change.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateNameBase(EmuTime &time) = NULL;
+	virtual void updateNameBase(const EmuTime &time) = NULL;
 
 	/** Informs the renderer of a pattern table base address change.
 	  */
-	virtual void updatePatternBase(EmuTime &time) = NULL;
+	virtual void updatePatternBase(const EmuTime &time) = NULL;
 
 	/** Informs the renderer of a colour table base address change.
 	  */
-	virtual void updateColourBase(EmuTime &time) = NULL;
+	virtual void updateColourBase(const EmuTime &time) = NULL;
 
 	/** Informs the renderer of a sprite attribute table base address change.
 	  */
-	virtual void updateSpriteAttributeBase(EmuTime &time) = NULL;
+	virtual void updateSpriteAttributeBase(const EmuTime &time) = NULL;
 
 	/** Informs the renderer of a sprite pattern table base address change.
 	  */
-	virtual void updateSpritePatternBase(EmuTime &time) = NULL;
+	virtual void updateSpritePatternBase(const EmuTime &time) = NULL;
 
 	/** Informs the renderer of a change in VRAM contents.
 	  * @param addr The address that is changed.
@@ -76,7 +76,7 @@ public:
 	  *   smarter way to update (for example, subscribe to VRAM
 	  *   address regions).
 	  */
-	virtual void updateVRAM(int addr, byte data, EmuTime &time) = NULL;
+	virtual void updateVRAM(int addr, byte data, const EmuTime &time) = NULL;
 
 };
 

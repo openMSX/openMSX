@@ -9,12 +9,12 @@ MSXMemDevice::MSXMemDevice()
 	registerSlots();
 }
 
-byte MSXMemDevice::readMem(word address, EmuTime &time)
+byte MSXMemDevice::readMem(word address, const EmuTime &time)
 {
 	return 255;
 }
 
-void MSXMemDevice::writeMem(word address, byte value, EmuTime &time)
+void MSXMemDevice::writeMem(word address, byte value, const EmuTime &time)
 {
 	// do nothing
 }

@@ -29,7 +29,7 @@ void MSXMusic::reset(const EmuTime &time)
 	enable = 1; 	// TODO check
 }
 
-void MSXMusic::writeIO(byte port, byte value, EmuTime &time)
+void MSXMusic::writeIO(byte port, byte value, const EmuTime &time)
 {
 	if (enable&0x01) {
 		switch(port) {
@@ -45,7 +45,7 @@ void MSXMusic::writeIO(byte port, byte value, EmuTime &time)
 	}
 }
 
-byte MSXMusic::readMem(word address, EmuTime &time)
+byte MSXMusic::readMem(word address, const EmuTime &time)
 {
 	switch (address) {
 	//case 0x7ff4:	// TODO are these two defined for MSX-MUSIC
@@ -58,7 +58,7 @@ byte MSXMusic::readMem(word address, EmuTime &time)
 	}
 }
 
-void MSXMusic::writeMem(word address, byte value, EmuTime &time)
+void MSXMusic::writeMem(word address, byte value, const EmuTime &time)
 {
 	switch (address) {
 	//case 0x7ff4:	// TODO are these two defined for MSX-MUSIC
@@ -72,11 +72,11 @@ void MSXMusic::writeMem(word address, byte value, EmuTime &time)
 	}
 }
 
-void MSXMusic::writeRegisterPort(byte value, EmuTime &time)
+void MSXMusic::writeRegisterPort(byte value, const EmuTime &time)
 {
 	registerLatch = (value & 0x3f);
 }
-void MSXMusic::writeDataPort(byte value, EmuTime &time)
+void MSXMusic::writeDataPort(byte value, const EmuTime &time)
 {
 	Mixer::instance()->updateStream(time);
 	ym2413->writeReg(registerLatch, value);

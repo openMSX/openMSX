@@ -65,8 +65,8 @@ class MSXPPI : public MSXIODevice, public I8255Interface
 		static MSXPPI *instance();
 		
 		void reset(const EmuTime &time);
-		byte readIO(byte port, EmuTime &time);
-		void writeIO(byte port, byte value, EmuTime &time);
+		byte readIO(byte port, const EmuTime &time);
+		void writeIO(byte port, byte value, const EmuTime &time);
 
 	private:
 		/**

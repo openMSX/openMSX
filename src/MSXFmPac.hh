@@ -20,8 +20,8 @@ class MSXFmPac : public MSXMusic
 		~MSXFmPac(); 
 		
 		void reset(const EmuTime &time);
-		byte readMem(word address, EmuTime &time);
-		void writeMem(word address, byte value, EmuTime &time);
+		byte readMem(word address, const EmuTime &time);
+		void writeMem(word address, byte value, const EmuTime &time);
 
 	private:
 		void checkSramEnable();

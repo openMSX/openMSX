@@ -18,14 +18,14 @@ class MSXMemDevice : virtual public MSXDevice
 		 * device.
 		 * The deafult implementation returns 255.
 		 */
-		virtual byte readMem(word address, EmuTime &time);
+		virtual byte readMem(word address, const EmuTime &time);
 
 		/**
 		 * Write a given byte to a given location at a certain time 
 		 * to this device.
 		 * The default implementation ignores the write (does nothing).
 		 */
-		virtual void writeMem(word address, byte value, EmuTime &time);
+		virtual void writeMem(word address, byte value, const EmuTime &time);
 		
 		/**
 		 * Register this device in all the slots that where specified
