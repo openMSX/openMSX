@@ -78,12 +78,12 @@ inline static void GLUpdateTexture(
 		);
 }
 
-inline static void GLDrawTexture(GLuint textureId, int leftBorder, int y, int minX, int maxX)
+inline static void GLDrawTexture(GLuint textureId, int leftBorder, int y, int minX, int maxX, int lines)
 {
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	glBegin(GL_QUADS);
-	glTexCoord2f(minX / 512.0f, 0); glVertex2i(leftBorder + minX, y + 2);	// Bottom Left
-	glTexCoord2f(maxX / 512.0f, 0); glVertex2i(leftBorder + maxX, y + 2);	// Bottom Right
+	glTexCoord2f(minX / 512.0f, 0); glVertex2i(leftBorder + minX, y + lines);	// Bottom Left
+	glTexCoord2f(maxX / 512.0f, 0); glVertex2i(leftBorder + maxX, y + lines);	// Bottom Right
 	glTexCoord2f(maxX / 512.0f, 1); glVertex2i(leftBorder + maxX, y);	// Top Right
 	glTexCoord2f(minX / 512.0f, 1); glVertex2i(leftBorder + minX, y);	// Top Left
 	glEnd();
@@ -93,7 +93,7 @@ inline static void GLBlitLine(
 	GLint textureId, const SDLGLRenderer::Pixel *data, int leftBorder, int y, int minX, int maxX)
 {
 	GLUpdateTexture(textureId, data, 256);
-	GLDrawTexture(textureId, leftBorder, y, minX, maxX);
+	GLDrawTexture(textureId, leftBorder, y, minX, maxX, 2);
 	
 	/* Alternative (outdated)
 	 
@@ -1048,7 +1048,7 @@ void SDLGLRenderer::displayPhase(
 
 	int n = limitY - fromY + 1;
 	int minY = fromY * 2;
-	if (vdp->isInterlaced() && vdp->getEvenOdd())
+	if (!deinterlace && vdp->isInterlaced() && vdp->getEvenOdd())
 		minY++;
 	int maxY = minY + 2 * n;
 
@@ -1088,13 +1088,27 @@ void SDLGLRenderer::displayPhase(
 				renderPlanarBitmapLines(line, n);
 			else
 				renderBitmapLines(line, n);
-			// Which bits in the name mask determine the page?
-			int pageMask =
-				(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+			// Which bits in the name mask determine the page?
+			bool deinterlaced = deinterlace && vdp->isInterlaced() && vdp->isEvenOddEnabled();
+			int pageMaskEven, pageMaskOdd;
+			if (deinterlaced) {
+				pageMaskEven = vdp->isPlanar() ? 0x000 : 0x200;
+				pageMaskOdd  = vdp->isPlanar() ? 0x100 : 0x300;
+			} else {
+				pageMaskEven = pageMaskOdd  =
+					(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
+			}
 			for (int y = minY; y < maxY; y += 2) {
-				int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
-				GLDrawTexture(bitmapTextureIds[vramLine], leftBorder, y, minX, maxX);
+				if (deinterlaced) {
+					int vramLine1 = (vram->nameTable.getMask() >> 7) & (pageMaskEven | line);
+					GLDrawTexture(bitmapTextureIds[vramLine1], leftBorder, y+0, minX, maxX, 1);
+					int vramLine2 = (vram->nameTable.getMask() >> 7) & (pageMaskOdd  | line);
+					GLDrawTexture(bitmapTextureIds[vramLine2], leftBorder, y+1, minX, maxX, 1);
+				} else {
+					int vramLine = (vram->nameTable.getMask() >> 7) & (pageMaskEven | line);
+					GLDrawTexture(bitmapTextureIds[vramLine], leftBorder, y, minX, maxX, 2);
+				}
 				line++;	// wraps at 256
 			}
 		} else {
@@ -1110,7 +1124,7 @@ void SDLGLRenderer::displayPhase(
 				renderCharacterLines(line, n);
 				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 				for (int y = minY; y < maxY; y += 2) {
-					GLDrawTexture(charTextureIds[line], leftBorder, y, minX, maxX);
+					GLDrawTexture(charTextureIds[line], leftBorder, y, minX, maxX, 2);
 					line++;	// wraps at 256
 				}
 				break;

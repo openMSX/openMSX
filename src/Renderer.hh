@@ -203,6 +203,8 @@ protected:
 	enum Accuracy { ACC_SCREEN, ACC_LINE, ACC_PIXEL };
 	Accuracy accuracy;
 
+	bool deinterlace;
+
 private:
 
 	/** Render full screen or windowed?
@@ -232,6 +234,17 @@ private:
 	};
 	friend class AccuracyCmd;
 	AccuracyCmd accuracyCmd;
+	
+	class DeinterlaceCmd : public Command {
+		public:
+			DeinterlaceCmd(Renderer *rend);
+			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void help   (const std::vector<std::string> &tokens);
+		private:
+			Renderer *renderer;
+	};
+	friend class DeinterlaceCmd;
+	DeinterlaceCmd deinterlaceCmd;
 };
 
 #endif //__RENDERER_HH__

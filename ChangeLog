@@ -1,5 +1,10 @@
 $Id$
 
+2002-09-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added "deinterlace" command:
+	   switch at-run-time between stable and unstable interlace
+	   only SDLHiRenderer and SDLGLRenderer
+
 2002-09-08 Maarten ter Huurne <mth@stack.nl>
 	* Updated C-BIOS to version 0.07.
 

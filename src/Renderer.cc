@@ -64,12 +64,14 @@ const word Renderer::GRAPHIC7_SPRITE_PALETTE[16] = {
 };
 
 Renderer::Renderer(bool fullScreen) :
-	fullScreenCmd(this), accuracyCmd(this)
+	fullScreenCmd(this), accuracyCmd(this), deinterlaceCmd(this)
 {
 	this->fullScreen = fullScreen;
 	accuracy = ACC_LINE;
+	deinterlace = true;
 	CommandController::instance()->registerCommand(fullScreenCmd, "fullscreen");
 	CommandController::instance()->registerCommand(accuracyCmd, "accuracy");
+	CommandController::instance()->registerCommand(deinterlaceCmd, "deinterlace");
 	HotKey::instance()->registerHotKeyCommand(Keys::K_PRINT, "fullscreen");
 }
 
@@ -168,4 +170,42 @@ void Renderer::AccuracyCmd::help(const std::vector<std::string> &tokens)
 	print(" accuracy screen:  sets screen accurate rendering");
 	print(" accuracy line:    sets line accurate rendering");
 	print(" accuracy pixel:   sets pixel accurate rendering");
+}
+
+// Deinterlace command
+Renderer::DeinterlaceCmd::DeinterlaceCmd(Renderer *rend)
+{
+	renderer = rend;
+}
+
+void Renderer::DeinterlaceCmd::execute(const std::vector<std::string> &tokens)
+{
+	switch (tokens.size()) {
+	case 1:
+		if (renderer->deinterlace) {
+			print("deinterlace: on");
+		} else {
+			print("deinterlace: off");
+		}
+		break;
+	case 2:
+		if (tokens[1] == "on") {
+			renderer->deinterlace = true;
+			break;
+		}
+		if (tokens[1] == "off") {
+			renderer->deinterlace = false;
+			break;
+		}
+		// fall through
+	default:
+		throw CommandException("Syntax error");
+	}
+}
+void Renderer::DeinterlaceCmd::help(const std::vector<std::string> &tokens)
+{
+	print("This command sets the deinterlace setting");
+	print(" deinterlace:      displays the current setting");
+	print(" deinterlace on:   turns deinterlacing on");
+	print(" deinterlace off:  turns deinterlacing off");
 }

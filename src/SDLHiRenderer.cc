@@ -777,15 +777,15 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	
 	int n = limitY - fromY + 1;
 	int minY = fromY * 2;
-	//if (vdp->isInterlaced() && vdp->getEvenOdd())
-	//	minY++;
+	if (!deinterlace && vdp->isInterlaced() && vdp->getEvenOdd())
+		minY++;
 	int maxY = minY + 2 * n;
 
 	// V9958 can extend the left border over the display area,
 	// The extended border clips sprites as well.
 	int leftBorder = getLeftBorder();
 	int left = leftBorder;
-	// if (vdp->maskedBorder()) left += 8;
+	// if (vdp->maskedBorder()) left += 2 * 8;
 	if (fromX < left) {
 		SDL_Rect dest;
 		dest.x = fromX;
@@ -817,23 +817,22 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		source.w = maxX - minX;
 		source.h = 1;
 		dest.x = fromX;
-		dest.y = minY;
 		
 		if (vdp->isBitmapMode()) {
 			if (vdp->isPlanar())
 				renderPlanarBitmapLines(line, n);
 			else
 				renderBitmapLines(line, n);
-			
+
 			int pageMaskEven, pageMaskOdd;
-			if (vdp->isInterlaced() && vdp->isEvenOddEnabled()) {
+			if (deinterlace && vdp->isInterlaced() && vdp->isEvenOddEnabled()) {
 				pageMaskEven = vdp->isPlanar() ? 0x000 : 0x200;
 				pageMaskOdd  = vdp->isPlanar() ? 0x100 : 0x300;
 			} else {
 				pageMaskEven = pageMaskOdd =
 					(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 			}
-			for (int y = minY; y < maxY; y += 2) {
+			for (dest.y = minY; dest.y < maxY; ) {
 				source.y = (vram->nameTable.getMask() >> 7) & (pageMaskEven | line);
 				// TODO: Can we safely use SDL_LowerBlit?
 				// Note: return value is ignored.
@@ -847,7 +846,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		} else {
 			renderCharacterLines(line, n);
 		
-			for (int y = minY; y < maxY; y += 2) {
+			for (dest.y = minY; dest.y < maxY; ) {
 				source.y = line;
 				// TODO: Can we safely use SDL_LowerBlit?
 				// Note: return value is ignored.

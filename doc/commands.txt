@@ -55,6 +55,18 @@ cpudebug
   [ only available when compiled with DEBUG option ]
   
 
+deinterlace
+-----------
+
+  Turns deinterlacing on/off.
+  Note: not all renderers support deinterlacing.
+
+  usage:
+    deinterlace      shows the current setting
+    deinterlace on   turns deinterlacing on
+    deinterlace off  turns deinterlacing off
+
+
 diska / diskb
 -------------
 
@@ -91,7 +103,7 @@ help
 mute
 ----
 
-  Mute : unmute the sound output.
+  Mute / unmute the sound output.
 
   usage:
     mute on   mute sound
