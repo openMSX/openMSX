@@ -39,7 +39,7 @@ inline byte _CPU_::READ_PORT(word port) {
 	// Workaround to avoid out-of-order I/O which the VDP cannot cope with.
 	//byte result = interface->readIO(port, currentTime);
 	byte result = interface->readIO( port,
-		port & 0xFC == 0x98 ? (EmuTime)before : (EmuTime)currentTime );
+		(port & 0xFC) == 0x98 ? (EmuTime)before : (EmuTime)currentTime );
 	IOPORT_DELAY2();
 	return result;
 }
@@ -51,7 +51,7 @@ inline void _CPU_::WRITE_PORT(word port, byte value) {
 	// Workaround to avoid out-of-order I/O which the VDP cannot cope with.
 	//interface->writeIO(port, value, currentTime);
 	interface->writeIO( port, value,
-		port & 0xFC == 0x98 ? (EmuTime)before : (EmuTime)currentTime );
+		(port & 0xFC) == 0x98 ? (EmuTime)before : (EmuTime)currentTime );
 	IOPORT_DELAY2();
 }
 /*
