@@ -76,7 +76,7 @@ public:
 		: Event(MOUSE_MOTION_EVENT), xrel(xrel_), yrel(yrel_) {}
 
 	int getX() const { return xrel; }
-	int getY() const { return xrel; }
+	int getY() const { return yrel; }
 
 private:
 	int xrel;
