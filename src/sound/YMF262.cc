@@ -1012,7 +1012,7 @@ void YMF262Slot::FM_KEYON(byte key_set)
 void YMF262Slot::FM_KEYOFF(byte key_clr)
 {
 	if (key) {
-		key &= key_clr;
+		key &= ~key_clr;
 		if (!key) {
 			// phase -> Release 
 			if (state > EG_REL) {
@@ -1378,48 +1378,48 @@ void YMF262::writeRegForce(int r, byte v, const EmuTime& time)
 			if (rhythm & 0x20) {
 				// BD key on/off 
 				if (v & 0x10) {
-					channels[6].slots[SLOT1].FM_KEYON ( 2);
-					channels[6].slots[SLOT2].FM_KEYON ( 2);
+					channels[6].slots[SLOT1].FM_KEYON (2);
+					channels[6].slots[SLOT2].FM_KEYON (2);
 				} else {
-					channels[6].slots[SLOT1].FM_KEYOFF(~2);
-					channels[6].slots[SLOT2].FM_KEYOFF(~2);
+					channels[6].slots[SLOT1].FM_KEYOFF(2);
+					channels[6].slots[SLOT2].FM_KEYOFF(2);
 				}
 				// HH key on/off 
 				if (v & 0x01) {
-					channels[7].slots[SLOT1].FM_KEYON ( 2);
+					channels[7].slots[SLOT1].FM_KEYON (2);
 				} else {
-					channels[7].slots[SLOT1].FM_KEYOFF(~2);
+					channels[7].slots[SLOT1].FM_KEYOFF(2);
 				}
 				// SD key on/off 
 				if (v & 0x08) {
-					channels[7].slots[SLOT2].FM_KEYON ( 2);
+					channels[7].slots[SLOT2].FM_KEYON (2);
 				} else {
-					channels[7].slots[SLOT2].FM_KEYOFF(~2);
+					channels[7].slots[SLOT2].FM_KEYOFF(2);
 				}
 				// TOM key on/off 
 				if (v & 0x04) {
-					channels[8].slots[SLOT1].FM_KEYON ( 2);
+					channels[8].slots[SLOT1].FM_KEYON (2);
 				} else {
-					channels[8].slots[SLOT1].FM_KEYOFF(~2);
+					channels[8].slots[SLOT1].FM_KEYOFF(2);
 				}
 				// TOP-CY key on/off 
 				if (v & 0x02) {
-					channels[8].slots[SLOT2].FM_KEYON ( 2);
+					channels[8].slots[SLOT2].FM_KEYON (2);
 				} else {
-					channels[8].slots[SLOT2].FM_KEYOFF(~2);
+					channels[8].slots[SLOT2].FM_KEYOFF(2);
 				}
 			} else {
 				// BD key off 
-				channels[6].slots[SLOT1].FM_KEYOFF(~2);
-				channels[6].slots[SLOT2].FM_KEYOFF(~2);
+				channels[6].slots[SLOT1].FM_KEYOFF(2);
+				channels[6].slots[SLOT2].FM_KEYOFF(2);
 				// HH key off 
-				channels[7].slots[SLOT1].FM_KEYOFF(~2);
+				channels[7].slots[SLOT1].FM_KEYOFF(2);
 				// SD key off 
-				channels[7].slots[SLOT2].FM_KEYOFF(~2);
+				channels[7].slots[SLOT2].FM_KEYOFF(2);
 				// TOM key off 
-				channels[8].slots[SLOT1].FM_KEYOFF(~2);
+				channels[8].slots[SLOT1].FM_KEYOFF(2);
 				// TOP-CY off 
-				channels[8].slots[SLOT2].FM_KEYOFF(~2);
+				channels[8].slots[SLOT2].FM_KEYOFF(2);
 			}
 			return;
 		}
@@ -1454,24 +1454,24 @@ void YMF262::writeRegForce(int r, byte v, const EmuTime& time)
 						//if this is 1st channel forming up a 4-op channel
 						//ALSO keyon/off slots of 2nd channel forming up 4-op channel
 						if (v & 0x20) {
-							ch.slots[SLOT1].FM_KEYON ( 1);
-							ch.slots[SLOT2].FM_KEYON ( 1);
-							ch3.slots[SLOT1].FM_KEYON( 1);
-							ch3.slots[SLOT2].FM_KEYON( 1);
+							ch.slots[SLOT1].FM_KEYON (1);
+							ch.slots[SLOT2].FM_KEYON (1);
+							ch3.slots[SLOT1].FM_KEYON(1);
+							ch3.slots[SLOT2].FM_KEYON(1);
 						} else {
-							ch.slots[SLOT1].FM_KEYOFF (~1);
-							ch.slots[SLOT2].FM_KEYOFF (~1);
-							ch3.slots[SLOT1].FM_KEYOFF(~1);
-							ch3.slots[SLOT2].FM_KEYOFF(~1);
+							ch.slots[SLOT1].FM_KEYOFF (1);
+							ch.slots[SLOT2].FM_KEYOFF (1);
+							ch3.slots[SLOT1].FM_KEYOFF(1);
+							ch3.slots[SLOT2].FM_KEYOFF(1);
 						}
 					} else {
 						//else normal 2 operator function keyon/off
 						if (v & 0x20) {
-							ch.slots[SLOT1].FM_KEYON ( 1);
-							ch.slots[SLOT2].FM_KEYON ( 1);
+							ch.slots[SLOT1].FM_KEYON (1);
+							ch.slots[SLOT2].FM_KEYON (1);
 						} else {
-							ch.slots[SLOT1].FM_KEYOFF(~1);
-							ch.slots[SLOT2].FM_KEYOFF(~1);
+							ch.slots[SLOT1].FM_KEYOFF(1);
+							ch.slots[SLOT2].FM_KEYOFF(1);
 						}
 					}
 					break;
@@ -1484,32 +1484,32 @@ void YMF262::writeRegForce(int r, byte v, const EmuTime& time)
 					} else {
 						//else normal 2 operator function keyon/off
 						if (v & 0x20) {
-							ch.slots[SLOT1].FM_KEYON ( 1);
-							ch.slots[SLOT2].FM_KEYON ( 1);
+							ch.slots[SLOT1].FM_KEYON (1);
+							ch.slots[SLOT2].FM_KEYON (1);
 						} else {
-							ch.slots[SLOT1].FM_KEYOFF(~1);
-							ch.slots[SLOT2].FM_KEYOFF(~1);
+							ch.slots[SLOT1].FM_KEYOFF(1);
+							ch.slots[SLOT2].FM_KEYOFF(1);
 						}
 					}
 					break;
 				}
 				default:
 					if (v & 0x20) {
-						ch.slots[SLOT1].FM_KEYON ( 1);
-						ch.slots[SLOT2].FM_KEYON ( 1);
+						ch.slots[SLOT1].FM_KEYON (1);
+						ch.slots[SLOT2].FM_KEYON (1);
 					} else {
-						ch.slots[SLOT1].FM_KEYOFF(~1);
-						ch.slots[SLOT2].FM_KEYOFF(~1);
+						ch.slots[SLOT1].FM_KEYOFF(1);
+						ch.slots[SLOT2].FM_KEYOFF(1);
 					}
 					break;
 				}
 			} else {
 				if (v & 0x20) {
-					ch.slots[SLOT1].FM_KEYON ( 1);
-					ch.slots[SLOT2].FM_KEYON ( 1);
+					ch.slots[SLOT1].FM_KEYON (1);
+					ch.slots[SLOT2].FM_KEYON (1);
 				} else {
-					ch.slots[SLOT1].FM_KEYOFF(~1);
-					ch.slots[SLOT2].FM_KEYOFF(~1);
+					ch.slots[SLOT1].FM_KEYOFF(1);
+					ch.slots[SLOT2].FM_KEYOFF(1);
 				}
 			}
 		}
@@ -1623,16 +1623,16 @@ void YMF262::writeRegForce(int r, byte v, const EmuTime& time)
 		int base = chan_no * 4;
 		if (OPL3_mode) {
 			// OPL3 mode 
-			pan[base + 0] = (v & 0x10) ? ~0 : 0;	// ch.A 
-			pan[base + 1] = (v & 0x20) ? ~0 : 0;	// ch.B 
-			pan[base + 2] = (v & 0x40) ? ~0 : 0;	// ch.C 
-			pan[base + 3] = (v & 0x80) ? ~0 : 0;	// ch.D
+			pan[base + 0] = (v & 0x10) ? (unsigned)~0 : 0;	// ch.A 
+			pan[base + 1] = (v & 0x20) ? (unsigned)~0 : 0;	// ch.B 
+			pan[base + 2] = (v & 0x40) ? (unsigned)~0 : 0;	// ch.C 
+			pan[base + 3] = (v & 0x80) ? (unsigned)~0 : 0;	// ch.D
 		} else {
 			// OPL2 mode - always enabled 
-			pan[base + 0] = ~0;	// ch.A 
-			pan[base + 1] = ~0;	// ch.B 
-			pan[base + 2] = ~0;	// ch.C 
-			pan[base + 3] = ~0;	// ch.D 
+			pan[base + 0] = (unsigned)~0;	// ch.A 
+			pan[base + 1] = (unsigned)~0;	// ch.B 
+			pan[base + 2] = (unsigned)~0;	// ch.C 
+			pan[base + 3] = (unsigned)~0;	// ch.D 
 		}
 
 		ch.slots[SLOT1].FB  = (v >> 1) & 7 ? ((v >> 1) & 7) + 7 : 0;

@@ -69,8 +69,9 @@ void RomPlain::guessHelper(word offset, int* pages)
 {
 	if (((*rom)[offset++] == 'A') && ((*rom)[offset++] =='B')) {
 		for (int i = 0; i < 4; i++) {
-			word addr = (*rom)[offset++] +
-			            (*rom)[offset++] * 256;
+			word addr = (*rom)[offset] +
+			            (*rom)[offset + 1] * 256;
+			offset += 2;
 			if (addr) {
 				int page = (addr >> 14) - (offset >> 14);
 				if ((0 <= page) && (page <= 2)) {

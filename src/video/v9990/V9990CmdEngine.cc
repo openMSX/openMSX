@@ -377,6 +377,7 @@ void V9990CmdEngine::CmdLMMC<Mode>::start(const EmuTime& time)
 	engine->status &= ~TR;
 }
 
+template <>
 void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime& time)
 {
 	if (engine->status & TR) {
@@ -740,6 +741,7 @@ void V9990CmdEngine::CmdBMXL<Mode>::start(const EmuTime& time)
 	execute(time);
 }
 
+template <>
 void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime& time)
 {
 	int width = engine->vdp->getImageWidth();

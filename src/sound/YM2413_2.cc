@@ -929,7 +929,7 @@ inline void Slot::KEY_ON(byte key_set)
 inline void Slot::KEY_OFF(byte key_clr)
 {
 	if (key) {
-		key &= key_clr;
+		key &= ~key_clr;
 		if (!key) {
 			// phase -> Release 
 			if (state > EG_REL) {
@@ -1161,16 +1161,16 @@ void YM2413_2::setRhythmMode(bool newMode)
 		load_instrument(8, 16, &inst_tab[instvol_r[8] >> 4][0]);
 		
 		// BD key off 
-		channels[6].slots[SLOT1].KEY_OFF(~2);
-		channels[6].slots[SLOT2].KEY_OFF(~2);
+		channels[6].slots[SLOT1].KEY_OFF(2);
+		channels[6].slots[SLOT2].KEY_OFF(2);
 		// HH key off 
-		channels[7].slots[SLOT1].KEY_OFF(~2);
+		channels[7].slots[SLOT1].KEY_OFF(2);
 		// SD key off 
-		channels[7].slots[SLOT2].KEY_OFF(~2);
+		channels[7].slots[SLOT2].KEY_OFF(2);
 		// TOM key off 
-		channels[8].slots[SLOT1].KEY_OFF(~2);
+		channels[8].slots[SLOT1].KEY_OFF(2);
 		// TOP-CY off 
-		channels[8].slots[SLOT2].KEY_OFF(~2);
+		channels[8].slots[SLOT2].KEY_OFF(2);
 	}
 }
 
@@ -1205,35 +1205,35 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 			if (rhythm) {
 				// BD key on/off 
 				if (v & 0x10) {
-					channels[6].slots[SLOT1].KEY_ON ( 2);
-					channels[6].slots[SLOT2].KEY_ON ( 2);
+					channels[6].slots[SLOT1].KEY_ON (2);
+					channels[6].slots[SLOT2].KEY_ON (2);
 				} else {
-					channels[6].slots[SLOT1].KEY_OFF(~2);
-					channels[6].slots[SLOT2].KEY_OFF(~2);
+					channels[6].slots[SLOT1].KEY_OFF(2);
+					channels[6].slots[SLOT2].KEY_OFF(2);
 				}
 				// HH key on/off 
 				if (v & 0x01) {
-					channels[7].slots[SLOT1].KEY_ON ( 2);
+					channels[7].slots[SLOT1].KEY_ON (2);
 				} else {
-					channels[7].slots[SLOT1].KEY_OFF(~2);
+					channels[7].slots[SLOT1].KEY_OFF(2);
 				}
 				// SD key on/off 
 				if (v & 0x08) {
-					channels[7].slots[SLOT2].KEY_ON ( 2);
+					channels[7].slots[SLOT2].KEY_ON (2);
 				} else {
-					channels[7].slots[SLOT2].KEY_OFF(~2);
+					channels[7].slots[SLOT2].KEY_OFF(2);
 				}
 				// TOM key on/off 
 				if (v & 0x04) {
-					channels[8].slots[SLOT1].KEY_ON ( 2);
+					channels[8].slots[SLOT1].KEY_ON (2);
 				} else {
-					channels[8].slots[SLOT1].KEY_OFF(~2);
+					channels[8].slots[SLOT1].KEY_OFF(2);
 				}
 				// TOP-CY key on/off 
 				if (v & 0x02) {
-					channels[8].slots[SLOT2].KEY_ON ( 2);
+					channels[8].slots[SLOT2].KEY_ON (2);
 				} else {
-					channels[8].slots[SLOT2].KEY_OFF(~2);
+					channels[8].slots[SLOT2].KEY_OFF(2);
 				}
 			}
 			break;
@@ -1254,11 +1254,11 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 			// 20-28: suson, keyon, block, FNUM 8 
 			block_fnum = ((v & 0x0F) << 8) | (ch.block_fnum & 0xFF);
 			if (v & 0x10) {
-				ch.slots[SLOT1].KEY_ON ( 1);
-				ch.slots[SLOT2].KEY_ON ( 1);
+				ch.slots[SLOT1].KEY_ON (1);
+				ch.slots[SLOT2].KEY_ON (1);
 			} else {
-				ch.slots[SLOT1].KEY_OFF(~1);
-				ch.slots[SLOT2].KEY_OFF(~1);
+				ch.slots[SLOT1].KEY_OFF(1);
+				ch.slots[SLOT2].KEY_OFF(1);
 			}
 			ch.sus = v & 0x20;
 		}

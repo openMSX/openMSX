@@ -1,5 +1,8 @@
 $Id$
 
+2005-02-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed compilation errors / warnings when compiling with gcc-4.0(exp)
+
 2005-02-09 Manuel Bilderbeek <manuel@msxnet.org>
 	* We forgot to replace "brokenFDCread" by "broken_fdc_read" in about
 	  17 different config files, before 0.5.0! OOOPS!
