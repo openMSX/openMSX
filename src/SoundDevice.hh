@@ -64,6 +64,9 @@ class SoundDevice
 		 * This method exists purely for optimizations. If the device
 		 * doesn't produce sound for the moment it can be muted, then 
 		 * the Mixer doesn't ask for buffer anymore
+		 *
+		 * Note: internalMute defaults to true after SoundDevice creation,
+		 *       don't forget to unmute it
 		 */
 		void setInternalMute (bool muted);
 

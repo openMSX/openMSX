@@ -34,7 +34,7 @@ void AY8910::init()
 	setVolume(21000);	// TODO find a good value and put it in config file
 	reset();
 	int bufSize = Mixer::instance()->registerSound(this);
-	buffer = new int[bufSize];	// TODO fix race
+	buffer = new int[bufSize];
 }
 
 
