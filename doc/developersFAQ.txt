@@ -34,8 +34,26 @@ A: If you just want to make a new device that plugs into an existing
 Example: PrinterPortLogger
 
 
-TODO
-Q: How can a device generate IRQs?
 Q: What is this EmuTime thing?
+A: Every device that is timesensitive has it own emutime object.
+   During the creation of the MSXDevice the internal emutime is set to the
+   time of instantiation (typically zero at boot). Each device can calculate
+   T-states in its own "native" time (The Z80 in 3.5MHz, the VDP in 21 Mhz,...)
+   The emutime object is the way to compare the time between two devices. The
+   emutime will internally correct for the possible different between the native
+   frequencies. The distance function getTicksTill() and getTicksTillUp() can be
+   used to find out how many native ticks are needed to catchup with an other
+   device.
+Example: CPU, Scheduler ? Anybody any good examples here ??
+
+
 Q: My device has to perform some action at a later time. Can my device be
    notified when this time has come?
+A: Use scheduler->setSyncPoint(T,D) to register the MSXDevice to be called at
+   a certain time T. When the time is arrived device D will be called by its
+   method executeUntilEmuTime.
+Example: sound/Y8950Timer.cc
+
+TODO
+Q: How can a device generate IRQs?
+

@@ -1,11 +1,13 @@
 $Id$
 
-2002-04-05 Joost Yervante Damad <andete@worldcity.nl>
+2002-04-15 David Heremans <david.heremans@gnu-linux.net>
+	* Enhancements to the developpers FAQ
+
+2002-04-15 Joost Yervante Damad <andete@worldcity.nl>
 	* extended commandline parser to support keyinserter
 
 2002-04-15 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Extended KeyEventInserter so it can be used in Tilburg
-	* Fixed YM2413 drums: playing the same drum twice now works
 
 2002-04-13 Maarten ter Huurne <mth@stack.nl>
 	* VDPVRAM and related cleanups.
