@@ -16,11 +16,11 @@
 namespace openmsx {
 
 GLConsole::GLConsole(Console * console_)
-	:OSDConsoleRenderer (console_)
+	: OSDConsoleRenderer (console_)
 {
 	console = console_;
-	std::string temp = console->getId();
-	fontSetting = new FontSetting(this, temp+"font", fontName);
+	string temp = console->getId();
+	fontSetting = new FontSetting(this, temp + "font", console->getFont());
 	initConsoleSize();
 	
 	SDL_Rect rect;
@@ -33,7 +33,8 @@ GLConsole::GLConsole(Console * console_)
 	// load background
 	backgroundTexture = 0;
 	
-	backgroundSetting = new BackgroundSetting(this, temp + "background", backgroundName);
+	backgroundSetting = new BackgroundSetting(this, temp + "background",
+	                                          console->getBackground());
 }
 
 GLConsole::~GLConsole()

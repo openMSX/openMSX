@@ -16,12 +16,12 @@ class Font
 		virtual ~Font();
 		virtual void drawText(const string &string,
 		                      int x, int y) = 0;
-		int getHeight() const;
-		int getWidth() const;
+		unsigned getHeight() const;
+		unsigned getWidth() const;
 
 	protected:
-		int charWidth;
-		int charHeight;
+		unsigned charWidth;
+		unsigned charHeight;
 };
 
 } // namespace openmsx

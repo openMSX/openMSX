@@ -39,14 +39,15 @@ SDLConsole::SDLConsole(Console * console_, SDL_Surface *screen)
 	inputBackground = NULL;
 	fontLayer = NULL;
 
-	fontSetting = new FontSetting(this, temp + "font", fontName);
+	fontSetting = new FontSetting(this, temp + "font", console->getFont());
 	initConsoleSize();
 
 	SDL_Rect rect;
 	OSDConsoleRenderer::updateConsoleRect(rect);
 
 	resize(rect);
-	backgroundSetting = new BackgroundSetting(this, temp+"background", backgroundName);
+	backgroundSetting = new BackgroundSetting(this, temp+"background", 
+	                                          console->getBackground());
 	alpha(CONSOLE_ALPHA);
 	
 }
@@ -114,7 +115,7 @@ void SDLConsole::updateConsoleRect()
 	{
 		resize(rect);
 		alpha(CONSOLE_ALPHA);
-		loadBackground(backgroundName);
+		loadBackground(console->getBackground());
 		updateConsole2();
 	}
 }

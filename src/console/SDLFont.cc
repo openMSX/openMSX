@@ -101,7 +101,7 @@ void SDLFont::drawText(const string &string, int x, int y)
 	if ((drawSurface->w <= x) || (drawSurface->h <= y)) {
 		return;
 	}
-	int characters = string.length();
+	unsigned characters = string.length();
 	if (characters > ((drawSurface->w - x) / charWidth)) {
 		characters = (drawSurface->w - x) / charWidth;
 	}
@@ -116,7 +116,7 @@ void SDLFont::drawText(const string &string, int x, int y)
 	sourceRect.h = charHeight;
 
 	// Now draw it
-	for (int loop = 0; loop < characters; loop++) {
+	for (unsigned loop = 0; loop < characters; loop++) {
 		sourceRect.x = (string[loop] % CHARS_PER_ROW) * charWidth;
 		sourceRect.y = (string[loop] / CHARS_PER_ROW) * charHeight;
 		SDL_BlitSurface(fontSurface, &sourceRect, drawSurface, &destRect);

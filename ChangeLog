@@ -1,5 +1,8 @@
 $Id$
 
+2003-10-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed command/debug console settings
+
 2003-10-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* It seems MSX-AUDIO sampleram is mirrored. This fixes sample loading
 	  in "Revolution".

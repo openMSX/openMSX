@@ -9,12 +9,12 @@ Font::~Font()
 {
 }
 
-int Font::getHeight() const
+unsigned Font::getHeight() const
 {
 	return charHeight;
 }
 
-int Font::getWidth() const
+unsigned Font::getWidth() const
 {
 	return charWidth;
 }

@@ -6,6 +6,7 @@
 #include "ConsoleRenderer.hh"
 #include "Settings.hh"
 #include "DummyFont.hh"
+#include "Console.hh"
 
 #ifdef HAVE_SDL_IMAGE_H
 #include "SDL_image.h"
@@ -20,7 +21,6 @@ using std::string;
 namespace openmsx {
 
 class OSDConsoleRenderer;
-class Console;
 class FileContext;
 
 
@@ -57,11 +57,6 @@ class OSDConsoleRenderer : public ConsoleRenderer
 		virtual bool loadFont(const string &filename) = 0;
 		virtual void drawConsole() = 0;
 
-		enum Placement {
-			CP_TOPLEFT,    CP_TOP,    CP_TOPRIGHT,
-			CP_LEFT,       CP_CENTER, CP_RIGHT,
-			CP_BOTTOMLEFT, CP_BOTTOM, CP_BOTTOMRIGHT
-		};
 		void setBackgroundName(const string &name);
 		void setFontName(const string &name);
 
@@ -77,13 +72,9 @@ class OSDConsoleRenderer : public ConsoleRenderer
 		static const int BLINK_RATE = 500;
 		static const int CHAR_BORDER = 4;
 
-		static Placement consolePlacement;
-		static string fontName;
-		static string backgroundName;
-
 		int consoleRows;
 		int consoleColumns;
-		EnumSetting<Placement> *consolePlacementSetting;
+		EnumSetting<Console::Placement> *consolePlacementSetting;
 		IntegerSetting *consoleRowsSetting;
 		IntegerSetting *consoleColumnsSetting;
 		class Font *font;
@@ -95,8 +86,6 @@ class OSDConsoleRenderer : public ConsoleRenderer
 	private:
 		void adjustColRow();
 
-		static int wantedColumns;
-		static int wantedRows;
 		int currentMaxX;
 		int currentMaxY;
 		Console *console;

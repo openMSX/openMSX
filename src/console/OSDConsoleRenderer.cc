@@ -8,12 +8,6 @@
 
 namespace openmsx {
 
-int OSDConsoleRenderer::wantedColumns;
-int OSDConsoleRenderer::wantedRows;
-string OSDConsoleRenderer::fontName;
-string OSDConsoleRenderer::backgroundName;
-OSDConsoleRenderer::Placement OSDConsoleRenderer::consolePlacement;
-
 
 // class BackgroundSetting
 
@@ -73,8 +67,9 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console * console_)
 		}
 		try {
 			if (!initiated && config->hasParameter("font")) {
-				fontName = config->getParameter("font");
+				string fontName = config->getParameter("font");
 				fontName = context->resolve(fontName);
+				console->setFont(fontName);
 			}
 		} catch (FileException &e) {
 			// nothing
@@ -82,8 +77,9 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console * console_)
 
 		try {
 			if (!initiated && config->hasParameter("background")) {
-				backgroundName = config->getParameter("background");
+				string backgroundName = config->getParameter("background");
 				backgroundName = context->resolve(backgroundName);
+				console->setBackground(backgroundName);
 			}
 		} catch (FileException &e) {
 			// nothing
@@ -95,7 +91,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console * console_)
 	}
 	initiated = true;
 	font = new DummyFont();
-	if (!fontName.empty()) {
+	if (!console->getFont().empty()) {
 		console->registerConsole(this);
 	}
 	blink = false;
@@ -110,7 +106,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console * console_)
 
 OSDConsoleRenderer::~OSDConsoleRenderer()
 {
-	if (!fontName.empty()) {
+	if (!console->getFont().empty()) {
 		console->unregisterConsole(this);
 	}
 	delete font;
@@ -122,12 +118,12 @@ OSDConsoleRenderer::~OSDConsoleRenderer()
 
 void OSDConsoleRenderer::setBackgroundName(const string &name)
 {
-	backgroundName = name;
+	console->setBackground(name);
 }
 
 void OSDConsoleRenderer::setFontName(const string &name)
 {
-	fontName = name;
+	console->setFont(name);
 }
 
 void OSDConsoleRenderer::initConsoleSize()
@@ -135,67 +131,70 @@ void OSDConsoleRenderer::initConsoleSize()
 	static set<string> initsDone;
 	
 	// define all possible positions
-	map<string, Placement> placeMap;
-	placeMap["topleft"]     = CP_TOPLEFT;
-	placeMap["top"]         = CP_TOP;
-	placeMap["topright"]    = CP_TOPRIGHT;
-	placeMap["left"]        = CP_LEFT;
-	placeMap["center"]      = CP_CENTER;
-	placeMap["right"]       = CP_RIGHT;
-	placeMap["bottomleft"]  = CP_BOTTOMLEFT;
-	placeMap["bottom"]      = CP_BOTTOM;
-	placeMap["bottomright"] = CP_BOTTOMRIGHT;
+	map<string, Console::Placement> placeMap;
+	placeMap["topleft"]     = Console::CP_TOPLEFT;
+	placeMap["top"]         = Console::CP_TOP;
+	placeMap["topright"]    = Console::CP_TOPRIGHT;
+	placeMap["left"]        = Console::CP_LEFT;
+	placeMap["center"]      = Console::CP_CENTER;
+	placeMap["right"]       = Console::CP_RIGHT;
+	placeMap["bottomleft"]  = Console::CP_BOTTOMLEFT;
+	placeMap["bottom"]      = Console::CP_BOTTOM;
+	placeMap["bottomright"] = Console::CP_BOTTOMRIGHT;
 
 	string tempconfig = console->getId();
 	tempconfig[0]=::toupper(tempconfig[0]);
 	Config *config = MSXConfig::instance()->getConfigById(tempconfig);
-	// check if this console is allready initiated
-	if (initsDone.find(tempconfig)==initsDone.end()){
+	// check if this console is already initiated
+	if (initsDone.find(tempconfig) == initsDone.end()) {
 		initsDone.insert(tempconfig);
 		SDL_Surface *screen = SDL_GetVideoSurface();
-		wantedColumns = config->getParameterAsInt("columns",
-			(((screen->w - CHAR_BORDER) / font->getWidth()) * 30) / 32);
-		wantedRows = config->getParameterAsInt("rows", 
-			((screen->h / font->getHeight()) * 6) / 15);
+		console->setColumns(config->getParameterAsInt("columns",
+			(((screen->w - CHAR_BORDER) / font->getWidth()) * 30) / 32));
+		console->setRows(config->getParameterAsInt("rows", 
+			((screen->h / font->getHeight()) * 6) / 15));
+		
 		string placementString;
 		placementString = config->getParameter("placement", "bottom");
-		map<string, Placement>::const_iterator it;
+		map<string, Console::Placement>::const_iterator it;
 		it = placeMap.find(placementString);
+		Console::Placement consolePlacement;
 		if (it != placeMap.end()) {
 			consolePlacement = it->second;
 		} else {
-			consolePlacement = CP_BOTTOM; //not found, default
+			consolePlacement = Console::CP_BOTTOM; //not found, default
 		}
+		console->setPlacement(consolePlacement);
 	}
 	adjustColRow();
 	console->setConsoleDimensions(consoleColumns, consoleRows);
 	string tempname = console->getId();
 	consoleColumnsSetting = new IntegerSetting(
 		tempname + "columns", "number of columns in the console",
-		wantedColumns, 32, 999
+		console->getColumns(), 32, 999
 		);
 	consoleRowsSetting = new IntegerSetting(
 		tempname + "rows", "number of rows in the console",
-		wantedRows, 1, 99
+		console->getRows(), 1, 99
 		);
-	consolePlacementSetting = new EnumSetting<OSDConsoleRenderer::Placement>(
+	consolePlacementSetting = new EnumSetting<Console::Placement>(
 		tempname + "placement", "position of the console within the emulator",
-		consolePlacement, placeMap
+		console->getPlacement(), placeMap
 		);
 }
 
 void OSDConsoleRenderer::adjustColRow()
 {
 	SDL_Surface *screen = SDL_GetVideoSurface();
-	if (wantedColumns > ((screen->w - CHAR_BORDER) / font->getWidth())) {
+	if (console->getColumns() > (unsigned)((screen->w - CHAR_BORDER) / font->getWidth())) {
 		consoleColumns = (screen->w - CHAR_BORDER) / font->getWidth();
 	} else {
-		consoleColumns = wantedColumns;
+		consoleColumns = console->getColumns();
 	}
-	if (wantedRows > (screen->h / font->getHeight())) {
+	if (console->getRows() > (unsigned)(screen->h / font->getHeight())) {
 		consoleRows = screen->h / font->getHeight();
 	} else {
-		consoleRows = wantedRows;
+		consoleRows = console->getRows();
 	}
 }
 
@@ -204,8 +203,8 @@ void OSDConsoleRenderer::updateConsoleRect(SDL_Rect & rect)
 	SDL_Surface *screen = SDL_GetVideoSurface();
 	
 	// TODO use setting listener in the future
-	wantedRows = consoleRowsSetting->getValue();
-	wantedColumns = consoleColumnsSetting->getValue();
+	console->setRows(consoleRowsSetting->getValue());
+	console->setColumns(consoleColumnsSetting->getValue());
 	adjustColRow();
 
 	rect.h = font->getHeight() * consoleRows;
@@ -213,39 +212,39 @@ void OSDConsoleRenderer::updateConsoleRect(SDL_Rect & rect)
 	console->setConsoleDimensions(consoleColumns, consoleRows);
 	
 	// TODO use setting listener in the future
-	consolePlacement = consolePlacementSetting->getValue();
-	switch (consolePlacement) {
-		case CP_TOPLEFT:
-		case CP_LEFT:
-		case CP_BOTTOMLEFT:
+	console->setPlacement(consolePlacementSetting->getValue());
+	switch (console->getPlacement()) {
+		case Console::CP_TOPLEFT:
+		case Console::CP_LEFT:
+		case Console::CP_BOTTOMLEFT:
 			rect.x = 0;
 			break;
-		case CP_TOPRIGHT:
-		case CP_RIGHT:
-		case CP_BOTTOMRIGHT:
+		case Console::CP_TOPRIGHT:
+		case Console::CP_RIGHT:
+		case Console::CP_BOTTOMRIGHT:
 			rect.x = (screen->w - rect.w);
 			break;
-		case CP_TOP:
-		case CP_CENTER:
-		case CP_BOTTOM:
+		case Console::CP_TOP:
+		case Console::CP_CENTER:
+		case Console::CP_BOTTOM:
 		default:
 			rect.x = (screen->w - rect.w) / 2;
 			break;
 	}
-	switch (consolePlacement) {
-		case CP_TOPLEFT:
-		case CP_TOP:
-		case CP_TOPRIGHT:
+	switch (console->getPlacement()) {
+		case Console::CP_TOPLEFT:
+		case Console::CP_TOP:
+		case Console::CP_TOPRIGHT:
 			rect.y = 0;
 			break;
-		case CP_LEFT:
-		case CP_CENTER:
-		case CP_RIGHT:
+		case Console::CP_LEFT:
+		case Console::CP_CENTER:
+		case Console::CP_RIGHT:
 			rect.y = (screen->h - rect.h) / 2;
 			break;
-		case CP_BOTTOMLEFT:
-		case CP_BOTTOM:
-		case CP_BOTTOMRIGHT:
+		case Console::CP_BOTTOMLEFT:
+		case Console::CP_BOTTOM:
+		case Console::CP_BOTTOMRIGHT:
 		default:
 			rect.y = (screen->h - rect.h);
 			break;

@@ -4,10 +4,8 @@
 #define __DEBUG_DEVICE_
 
 #include "MSXIODevice.hh"
-#include <vector>
 #include <fstream>
 
-using std::vector;
 using std::ostream;
 using std::ofstream;
 
