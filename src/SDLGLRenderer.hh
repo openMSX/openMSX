@@ -26,12 +26,6 @@ class SpriteChecker;
 class GLConsole;
 
 
-/** Factory method to create SDLGLRenderer objects.
-  * TODO: Add NTSC/PAL selection
-  *   (immutable because it is colour encoding, not refresh frequency).
-  */
-Renderer *createSDLGLRenderer(VDP *vdp, bool fullScreen, const EmuTime &time);
-
 /** Hi-res (640x480) renderer on SDL.
   */
 class SDLGLRenderer : public PixelRenderer

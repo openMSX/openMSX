@@ -20,6 +20,11 @@ TODO:
 #include "config.h"
 
 
+// Force template instantiation:
+template class SDLHiRenderer<Uint8>;
+template class SDLHiRenderer<Uint16>;
+template class SDLHiRenderer<Uint32>;
+
 /** Dimensions of screen.
   */
 static const int WIDTH = 640;
@@ -829,43 +834,5 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawDisplay(
 	// Unlock surface.
 	if (SDL_MUSTLOCK(screen))
 		SDL_UnlockSurface(screen);
-}
-
-Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
-{
-	int flags = SDL_HWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
-
-	// Try default bpp.
-	SDL_Surface *screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);
-
-	// If no screen or unsupported screen,
-	// try supported bpp in order of preference.
-	int bytepp = (screen ? screen->format->BytesPerPixel : 0);
-	if (bytepp != 1 && bytepp != 2 && bytepp != 4) {
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 15, flags);
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 16, flags);
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, flags);
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 8, flags);
-	}
-
-	if (!screen) {
-		printf("FAILED to open any screen!");
-		// TODO: Throw exception.
-		return NULL;
-	}
-	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
-
-	switch (screen->format->BytesPerPixel) {
-	case 1:
-		return new SDLHiRenderer<Uint8>(vdp, screen, fullScreen, time);
-	case 2:
-		return new SDLHiRenderer<Uint16>(vdp, screen, fullScreen, time);
-	case 4:
-		return new SDLHiRenderer<Uint32>(vdp, screen, fullScreen, time);
-	default:
-		printf("FAILED to open supported screen!");
-		// TODO: Throw exception.
-		return NULL;
-	}
 }
 

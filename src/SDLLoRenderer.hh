@@ -13,12 +13,6 @@ class VDP;
 class SDLConsole;
 
 
-/** Factory method to create SDLLoRenderer objects.
-  * TODO: Add NTSC/PAL selection
-  *   (immutable because it is colour encoding, not refresh frequency).
-  */
-Renderer *createSDLLoRenderer(VDP *vdp, bool fullScreen, const EmuTime &time);
-
 /** Low-res (320x240) renderer on SDL.
   */
 template <class Pixel> class SDLLoRenderer : public PixelRenderer

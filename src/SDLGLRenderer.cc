@@ -1165,35 +1165,4 @@ void SDLGLRenderer::drawDisplay(int fromX, int fromY, int limitX, int limitY)
 	glDisable(GL_TEXTURE_2D);
 }
 
-Renderer *createSDLGLRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
-{
-	int flags = SDL_OPENGL | SDL_HWSURFACE |
-	            (fullScreen ? SDL_FULLSCREEN : 0);
-
-	// Enables OpenGL double buffering.
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, true);
-
-	// Try default bpp.
-	SDL_Surface *screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);
-
-	// If no screen or unsupported screen,
-	// try supported bpp in order of preference.
-	int bytepp = (screen ? screen->format->BytesPerPixel : 0);
-	if (bytepp != 1 && bytepp != 2 && bytepp != 4) {
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 15, flags);
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 16, flags);
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, flags);
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 8, flags);
-	}
-
-	if (!screen) {
-		printf("FAILED to open any screen!");
-		// TODO: Throw exception.
-		return NULL;
-	}
-	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
-
-	return new SDLGLRenderer(vdp, screen, fullScreen, time);
-}
-
 #endif // __SDLGLRENDERER_AVAILABLE__
