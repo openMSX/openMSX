@@ -125,4 +125,15 @@
     <parameter name="filesize">131072</parameter>
     <parameter name="skip_headerbytes">0</parameter>
   </device>
+  <config id="Foobar">
+    <type>Test thingy</type>
+    <parameter name="fred">vom.jupiter</parameter>
+    <desc>
+      bla
+      bla
+    </desc>
+    <rem>
+      Hello, mars.
+    </rem>
+  </config>
 </msxconfig>
