@@ -1,5 +1,8 @@
 $Id$
 
+2003-10-12 Maarten ter Huurne <maarten@treewalker.org>
+	* VDP fix: fixed assert in SpriteChecker.
+
 2003-10-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added CliCommunicator:
 	   - external programs can now use stdin/stdout to pass/read commands

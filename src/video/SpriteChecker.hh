@@ -118,6 +118,13 @@ public:
 		}
 		if (mode0) {
 			currentLine = frameStartTime.getTicksTill(time) / VDP::TICKS_PER_LINE;
+			if (currentLine > 0) {
+				// Every line in mode0 has 0 sprites, but none of the lines
+				// are ever requested by the renderer, except for the last
+				// line, because sprites are checked one line before they
+				// are displayed.
+				spriteCount[currentLine - 1] = 0;
+			}
 			mode0 = false;
 		}
 		planar = mode.isPlanar();
