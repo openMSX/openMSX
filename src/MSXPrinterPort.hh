@@ -5,7 +5,7 @@
 
 #include "MSXIODevice.hh"
 #include "PrinterPortDevice.hh"
-#include "ConsoleSource/ConsoleCommand.hh"
+#include "ConsoleSource/Command.hh"
 
 class LoggingPrinterPortDevice : public PrinterPortDevice
 {
@@ -51,8 +51,8 @@ class MSXPrinterPort : public MSXIODevice
 		DummyPrinterPortDevice *dummy;
 		bool strobe;
 		byte data;
-		// ConsoleCommands
-		class printPortCmd : public ConsoleCommand {
+		// Commands
+		class printPortCmd : public Command {
 		public:
 			printPortCmd();
 			virtual ~printPortCmd();

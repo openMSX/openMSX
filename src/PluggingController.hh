@@ -4,7 +4,7 @@
 #define __PLUGGING_CONTROLLER__
 
 #include <vector>
-#include "ConsoleSource/ConsoleCommand.hh"
+#include "ConsoleSource/Command.hh"
 
 //forward declarations
 class Connector;
@@ -42,15 +42,15 @@ private:
 	vector<Connector*> connectors;
 	vector<Pluggable*> pluggables;
 
-	// ConsoleCommands
-	class PlugCmd : public ConsoleCommand {
+	// Commands
+	class PlugCmd : public Command {
 	public:
 		virtual void execute(const std::vector<std::string> &tokens);
 		virtual void help   (const std::vector<std::string> &tokens);
 	};
 	friend class PlugCmd;
 	PlugCmd plugCmd;
-	class UnplugCmd : public ConsoleCommand {
+	class UnplugCmd : public Command {
 	public:
 		virtual void execute(const std::vector<std::string> &tokens);
 		virtual void help   (const std::vector<std::string> &tokens);

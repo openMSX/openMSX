@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include "ConsoleSource/Console.hh"
+#include "ConsoleSource/CommandController.hh"
 #include "PluggingController.hh"
 #include "Connector.hh"
 #include "Pluggable.hh"
@@ -9,10 +10,10 @@
 
 PluggingController::PluggingController()
 {
-	Console::instance()->registerCommand(plugCmd, "plug");
-	Console::instance()->registerCommand(plugCmd, "insert");
-	Console::instance()->registerCommand(unplugCmd, "unplug");
-	Console::instance()->registerCommand(unplugCmd, "remove");
+	CommandController::instance()->registerCommand(plugCmd, "plug");
+	CommandController::instance()->registerCommand(plugCmd, "insert");
+	CommandController::instance()->registerCommand(unplugCmd, "unplug");
+	CommandController::instance()->registerCommand(unplugCmd, "remove");
 }
 
 PluggingController::~PluggingController()

@@ -6,7 +6,7 @@
 #include <fstream>
 #include <vector>
 #include "MSXConfig.hh"
-#include "ConsoleSource/ConsoleCommand.hh"
+#include "ConsoleSource/Command.hh"
 #include "cpu/MSXCPUInterface.hh"
 
 // forward declarations
@@ -78,7 +78,7 @@ class MSXMotherBoard : public MSXCPUInterface
 	private:
 		MSXMotherBoard(MSXConfig::Config *config);
 		
-		class ResetCmd : public ConsoleCommand {
+		class ResetCmd : public Command {
 			virtual void execute(const std::vector<std::string> &tokens);
 			virtual void help   (const std::vector<std::string> &tokens);
 		};

@@ -9,7 +9,7 @@
 #include "MSXMotherBoard.hh"
 #include "EmuTime.hh"
 #include "Renderer.hh"
-#include "ConsoleSource/ConsoleCommand.hh"
+#include "ConsoleSource/Command.hh"
 
 
 class VDPCmdEngine;
@@ -455,7 +455,7 @@ public:
 	}
 
 private:
-	class PaletteCmd : public ConsoleCommand {
+	class PaletteCmd : public Command {
 	public:
 		PaletteCmd(VDP *vdp);
 		virtual void execute(const std::vector<std::string> &tokens);

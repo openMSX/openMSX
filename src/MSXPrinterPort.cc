@@ -5,6 +5,7 @@
 #include "MSXMotherBoard.hh"
 #include "PrinterPortDevice.hh"
 #include "ConsoleSource/Console.hh"
+#include "ConsoleSource/CommandController.hh"
 #include "MSXCPU.hh"
 
 
@@ -17,7 +18,7 @@ MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
 	MSXMotherBoard::instance()->register_IO_Out(0x91, this);
 
 	dummy = new DummyPrinterPortDevice();
-	Console::instance()->registerCommand(printPortCmd, "printerport");
+	CommandController::instance()->registerCommand(printPortCmd, "printerport");
 	// TODO plug device as specified in config file
 	unplug(time);
 

@@ -6,6 +6,7 @@
 #include "CPU.hh"
 #include "MSXCPU.hh"
 #include "ConsoleSource/Console.hh"
+#include "ConsoleSource/CommandController.hh"
 
 
 const byte MSXTapePatch::TapeHeader[];
@@ -25,7 +26,7 @@ MSXTapePatch::MSXTapePatch()
 	std::string filename;
 	file = NULL;
 
-	Console::instance()->registerCommand(*this, "tape");
+	CommandController::instance()->registerCommand(*this, "tape");
 
 	try {
 		MSXConfig::Config *config =

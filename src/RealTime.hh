@@ -64,7 +64,7 @@ class RealTime : public Schedulable
 		MSXCPU *cpu;
 		Scheduler *scheduler;
 
-		class PauseCmd : public ConsoleCommand {
+		class PauseCmd : public Command {
 			public:
 				virtual void execute(const std::vector<std::string> &tokens);
 				virtual void help   (const std::vector<std::string> &tokens);

@@ -4,6 +4,7 @@
 #include "MSXCPU.hh"
 #include "HotKey.hh"
 #include "ConsoleSource/Console.hh"
+#include "ConsoleSource/CommandController.hh"
 #include "Mixer.hh"
 #include <cassert>
 #include <SDL/SDL.h>
@@ -33,8 +34,8 @@ Scheduler::Scheduler()
 	cpu = MSXCPU::instance();
 	
 	EventDistributor::instance()->registerAsyncListener(SDL_QUIT, this);
-	Console::instance()->registerCommand(quitCmd, "quit");
-	Console::instance()->registerCommand(muteCmd, "mute");
+	CommandController::instance()->registerCommand(quitCmd, "quit");
+	CommandController::instance()->registerCommand(muteCmd, "mute");
 	HotKey::instance()->registerHotKeyCommand(SDLK_F12, "quit");
 	HotKey::instance()->registerHotKeyCommand(SDLK_F11, "mute");
 }

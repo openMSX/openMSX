@@ -8,10 +8,10 @@
 #include "config.h"
 #include "CPU.hh"
 #include "FileOpener.hh"
-#include "ConsoleSource/ConsoleCommand.hh"
+#include "ConsoleSource/Command.hh"
 
 
-class MSXDiskRomPatch: public MSXRomPatchInterface, private ConsoleCommand
+class MSXDiskRomPatch: public MSXRomPatchInterface, private Command
 {
 	class NoSuchSectorException : public MSXException {
 		public:

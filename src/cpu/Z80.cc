@@ -20,7 +20,7 @@
 #ifdef CPU_DEBUG
 #include <stdio.h>
 #include "Z80Dasm.h"
-#include "ConsoleSource/Console.hh"
+#include "ConsoleSource/CommandController.hh"
 #endif
 
 
@@ -31,7 +31,7 @@ Z80::Z80(CPUInterface *interf, int waitCycl, const EmuTime &time) : CPU(interf)
 	reset(time);
 
 	#ifdef CPU_DEBUG
-	Console::instance()->registerCommand(debugCmd, "cpudebug");
+	CommandController::instance()->registerCommand(debugCmd, "cpudebug");
 	#endif
 }
 Z80::~Z80()

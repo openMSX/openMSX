@@ -7,6 +7,7 @@
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "ConsoleSource/Console.hh"
+#include "ConsoleSource/CommandController.hh"
 
 
 const int MSXDiskRomPatch::A_PHYDIO = 0x4010;
@@ -118,7 +119,7 @@ MSXDiskRomPatch::MSXDiskRomPatch()
 		name[0xE]++;
 	}
 
-	Console::instance()->registerCommand(*this, "disk");
+	CommandController::instance()->registerCommand(*this, "disk");
 }
 
 MSXDiskRomPatch::~MSXDiskRomPatch()

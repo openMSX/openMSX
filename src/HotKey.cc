@@ -2,7 +2,7 @@
 
 #include "openmsx.hh"
 #include "HotKey.hh"
-#include "ConsoleSource/Console.hh"
+#include "ConsoleSource/CommandController.hh"
 
 
 HotKey::HotKey()
@@ -68,5 +68,5 @@ HotKey::HotKeyCmd::~HotKeyCmd()
 }
 void HotKey::HotKeyCmd::signalHotKey(SDLKey key)
 {
-	Console::instance()->commandExecute(command);
+	CommandController::instance()->executeCommand(command);
 }

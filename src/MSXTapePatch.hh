@@ -7,12 +7,12 @@
 #include <string>
 #include "openmsx.hh"
 #include "MSXRomPatchInterface.hh"
-#include "ConsoleSource/ConsoleCommand.hh"
+#include "ConsoleSource/Command.hh"
 #include "config.h"
 #include "CPU.hh"
 #include "FileOpener.hh"
 
-class MSXTapePatch: public MSXRomPatchInterface, private ConsoleCommand
+class MSXTapePatch: public MSXRomPatchInterface, private Command
 {
 	public:
 		MSXTapePatch();

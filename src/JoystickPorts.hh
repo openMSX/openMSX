@@ -4,7 +4,6 @@
 #define __JOYSTICKPORTS_HH__
 
 #include "openmsx.hh"
-#include "ConsoleSource/ConsoleCommand.hh"
 #include "Connector.hh"
 
 // forward declaration

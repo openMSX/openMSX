@@ -7,7 +7,7 @@
 #include "MSXConfig.hh"
 #include "MSXIODevice.hh"
 #include "MSXMemDevice.hh"
-#include "ConsoleSource/ConsoleCommand.hh"
+#include "ConsoleSource/Command.hh"
 
 
 class MSXCPUInterface : public CPUInterface
@@ -166,11 +166,11 @@ class MSXCPUInterface : public CPUInterface
 		void resetIRQLine();
 
 	private:
-		class SlotMapCmd : public ConsoleCommand {
+		class SlotMapCmd : public Command {
 			virtual void execute(const std::vector<std::string> &tokens);
 			virtual void help   (const std::vector<std::string> &tokens);
 		};
-		class SlotSelectCmd : public ConsoleCommand {
+		class SlotSelectCmd : public Command {
 			virtual void execute(const std::vector<std::string> &tokens);
 			virtual void help   (const std::vector<std::string> &tokens);
 		};
@@ -187,7 +187,7 @@ class MSXCPUInterface : public CPUInterface
 		  */
 		void printSlotMapPages(std::ostream &, MSXMemDevice *[]);
 
-		// ConsoleCommands
+		// Commands
 		SlotMapCmd slotMapCmd;
 		SlotSelectCmd slotSelectCmd;
 

@@ -20,6 +20,7 @@
 #include "CommandLineParser.hh"
 #include "icon.nn"
 #include "ConsoleSource/SDLConsole.hh"
+#include "ConsoleSource/CommandController.hh"
 
 #include "Mouse.hh"
 #include "Joystick.hh"
@@ -73,7 +74,7 @@ int main (int argc, char **argv)
 		thread.start();
 
 		// Fisrt execute auto commands
-		Console::instance()->autoCommands();
+		CommandController::instance()->autoCommands();
 
 		// TODO this doesn't belong here
 		new Mouse();

@@ -3,8 +3,9 @@
 #include "MSXCPUInterface.hh"
 #include "DummyDevice.hh"
 #include "ConsoleSource/Console.hh"
+#include "ConsoleSource/CommandController.hh"
 #include "MSXCPU.hh"
-#include "MSXMotherBoard.hh"	//
+#include "MSXMotherBoard.hh"
 
 
 MSXCPUInterface::MSXCPUInterface(MSXConfig::Config *config)
@@ -47,8 +48,8 @@ MSXCPUInterface::MSXCPUInterface(MSXConfig::Config *config)
 	//       initialised at reset.
 
 	// Register console commands.
-	Console::instance()->registerCommand(slotMapCmd, "slotmap");
-	Console::instance()->registerCommand(slotSelectCmd, "slotselect");
+	CommandController::instance()->registerCommand(slotMapCmd, "slotmap");
+	CommandController::instance()->registerCommand(slotSelectCmd, "slotselect");
 }
 
 void MSXCPUInterface::register_IO_In(byte port, MSXIODevice *device)

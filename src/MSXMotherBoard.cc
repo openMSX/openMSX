@@ -6,12 +6,13 @@
 #include "MSXCPU.hh"
 #include "MSXDevice.hh"
 #include "ConsoleSource/Console.hh"
+#include "ConsoleSource/CommandController.hh"
 
 
 MSXMotherBoard::MSXMotherBoard(MSXConfig::Config *config) : MSXCPUInterface(config)
 {
 	PRT_DEBUG("Creating an MSXMotherBoard object");
-	Console::instance()->registerCommand(resetCmd, "reset");
+	CommandController::instance()->registerCommand(resetCmd, "reset");
 }
 
 MSXMotherBoard::~MSXMotherBoard()

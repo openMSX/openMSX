@@ -6,6 +6,7 @@
 #include "MSXConfig.hh"
 #include "HotKey.hh"
 #include "ConsoleSource/Console.hh"
+#include "ConsoleSource/CommandController.hh"
 
 
 RealTime::RealTime()
@@ -25,7 +26,7 @@ RealTime::RealTime()
 	cpu = MSXCPU::instance();
 	Scheduler::instance()->setSyncPoint(emuRef+syncInterval, this);
 	
-	Console::instance()->registerCommand(pauseCmd, "pause");
+	CommandController::instance()->registerCommand(pauseCmd, "pause");
 	HotKey::instance()->registerHotKeyCommand(SDLK_PAUSE, "pause");
 }
 

@@ -40,7 +40,7 @@ void SDLConsole::hookUpSDLConsole(SDL_Surface *screen)
 	ConRect.y = 300;
 	ConRect.w = 600;
 	ConRect.h = 180;
-	init("ConsoleFont.bmp", screen, 100, ConRect);
+	init("ConsoleFont.bmp", screen, ConRect);
 	alpha(200);
 	SDL_EnableUNICODE(1);
 	EventDistributor::instance()->registerAsyncListener(SDL_KEYDOWN, this);
@@ -65,8 +65,8 @@ void SDLConsole::signalEvent(SDL_Event &event)
 	switch (event.key.keysym.sym) {
 	case SDLK_PAGEUP:
 		if (consoleScrollBack < totalConsoleLines &&
-		    consoleScrollBack < lineBuffer &&
-		    lineBuffer - consoleSurface->h / font->height() > consoleScrollBack + 1) {
+		    consoleScrollBack < NUM_LINES &&
+		    NUM_LINES - consoleSurface->h / font->height() > consoleScrollBack + 1) {
 			consoleScrollBack++;
 			updateConsole();
 		}
@@ -236,7 +236,7 @@ void SDLConsole::updateConsole()
 		SDL_SetColorKey(font->fontSurface, SDL_SRCCOLORKEY, *pix);
 	}
 	int screenlines = consoleSurface->h / font->height();
-	for (int loop=0; loop<screenlines-1 && loop<lineBuffer-1; loop++)
+	for (int loop=0; loop<screenlines-1 && loop<NUM_LINES-1; loop++)
 		font->drawText(consoleLines[screenlines-loop+consoleScrollBack-1],
 		               consoleSurface, CHAR_BORDER, loop*font->height());
 	if (outputScreen->flags & SDL_OPENGLBLIT)
@@ -271,17 +271,10 @@ void SDLConsole::drawConsole()
 
 
 // Initializes the console
-void SDLConsole::init(const char *fontName, SDL_Surface *displayScreen, int lines, SDL_Rect rect)
+void SDLConsole::init(const char *fontName, SDL_Surface *displayScreen, SDL_Rect rect)
 {
-	consoleLines = NULL;
-	commandLines = NULL;
-	totalConsoleLines = 0;
-	consoleScrollBack = 0;
-	totalCommands = 0;
 	backgroundImage = NULL;
 	consoleAlpha = SDL_ALPHA_OPAQUE;
-	stringLocation = 0;
-	commandScrollBack = 0;
 	outputScreen = displayScreen;
 
 	// Load the consoles font
@@ -312,20 +305,6 @@ void SDLConsole::init(const char *fontName, SDL_Surface *displayScreen, int line
 	SDL_FillRect(consoleSurface, NULL, 
 	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
 
-	// We would like to have a minumum # of lines to guarentee we don't
-	// create a memory error
-	if (rect.h / font->height() > lines)
-		lineBuffer = rect.h / font->height();
-	else
-		lineBuffer = lines;
-
-	consoleLines = (char **)malloc(sizeof(char *) * lineBuffer);
-	commandLines = (char **)malloc(sizeof(char *) * lineBuffer);
-	for (int loop=0; loop <= lineBuffer-1; loop++) {
-		consoleLines[loop] = (char *)calloc(CHARS_PER_LINE, sizeof(char));
-		commandLines[loop] = (char *)calloc(CHARS_PER_LINE, sizeof(char));
-	}
-
 	// Load the dirty rectangle for user input
 	temp = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, font->height(),
 	                            outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
@@ -339,7 +318,6 @@ void SDLConsole::init(const char *fontName, SDL_Surface *displayScreen, int line
 	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
 
 	out("Console initialised.");
-	listCommands();
 }
 
 // Draws the command line the user is typing in to the screen
@@ -381,7 +359,7 @@ void SDLConsole::drawCommandLine()
 		Uint32 *pix = (Uint32 *) (font->fontSurface->pixels);
 		SDL_SetColorKey(font->fontSurface, SDL_SRCCOLORKEY, *pix);
 	}
-	if (blink && strlen(consoleLines[0])+1 < CHARS_PER_LINE) {
+	if (blink && strlen(consoleLines[0])+1 < (unsigned)CHARS_PER_LINE) {
 		char temp[CHARS_PER_LINE];
 		strcpy(temp, consoleLines[0]);
 		temp[strlen(consoleLines[0])] = '_';

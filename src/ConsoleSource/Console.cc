@@ -11,18 +11,32 @@
 #include "../openmsx.hh"
 #include "../MSXConfig.hh"
 #include "Console.hh"
-#include "ConsoleCommand.hh"
+#include "CommandController.hh"
+#include "Command.hh"
+
 
 
 Console::Console()
 {
+	totalConsoleLines = 0;
+	consoleScrollBack = 0;
+	totalCommands = 0;
+	stringLocation = 0;
+	commandScrollBack = 0;
+
+	consoleLines = (char**)malloc(sizeof(char*) * NUM_LINES);
+	commandLines = (char**)malloc(sizeof(char*) * NUM_LINES);
+	for (int loop=0; loop <= NUM_LINES-1; loop++) {
+		consoleLines[loop] = (char *)calloc(CHARS_PER_LINE, sizeof(char));
+		commandLines[loop] = (char *)calloc(CHARS_PER_LINE, sizeof(char));
+	}
 }
 
 Console::~Console()
 {
 	PRT_DEBUG("Destroying a Console object");
 	
-	for (int i=0; i<lineBuffer; i++) {
+	for (int i=0; i<NUM_LINES; i++) {
 		free(consoleLines[i]);
 		free(commandLines[i]);
 	}
@@ -36,17 +50,6 @@ Console *Console::instance()
 	return oneInstance;
 }
 Console *Console::oneInstance = NULL;
-
-
-void Console::registerCommand(ConsoleCommand &command, const std::string &str)
-{
-	commands[str] = &command;
-}
-
-void Console::unRegisterCommand(const std::string &str)
-{
-	assert(false);	// unimplemented
-}
 
 
 void Console::print(const std::string &text)
@@ -93,14 +96,14 @@ void Console::out(const char *str, ...)
 void Console::newLineConsole()
 {
 	// Scroll
-	char *temp = consoleLines[lineBuffer-1];
-	for (int i = lineBuffer-1; i>1; i--) {
+	char *temp = consoleLines[NUM_LINES-1];
+	for (int i = NUM_LINES-1; i>1; i--) {
 		consoleLines[i] = consoleLines[i-1];
 	}
 	consoleLines[1] = temp;
 
 	memset(consoleLines[1], 0, CHARS_PER_LINE);
-	if (totalConsoleLines < lineBuffer-1) {
+	if (totalConsoleLines < NUM_LINES-1) {
 		totalConsoleLines++;
 	}
 }
@@ -108,40 +111,25 @@ void Console::newLineConsole()
 // Increments the command lines
 void Console::newLineCommand()
 {
-	// Scroll.
-	char *temp = commandLines[lineBuffer-1];
-	for (int i = lineBuffer-1; i>0; i--) {
+	// Scroll
+	char *temp = commandLines[NUM_LINES-1];
+	for (int i = NUM_LINES-1; i>0; i--) {
 		commandLines[i] = commandLines[i-1];
 	}
 	commandLines[0] = temp;
 
 	memset(commandLines[0], 0, CHARS_PER_LINE);
-	if (totalCommands < lineBuffer-1) {
+	if (totalCommands < NUM_LINES-1) {
 		totalCommands++;
 	}
 }
 
 
-void Console::tokenize(const std::string &str, vector<std::string> &tokens, const std::string &delimiters = " ")
-{
-	// TODO implement "backslash before space"
-	// Skip delimiters at beginning
-	std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
-	// Find first "non-delimiter"
-	std::string::size_type pos     = str.find_first_of(delimiters, lastPos);
-	while (std::string::npos != pos || std::string::npos != lastPos) {
-		// Found a token, add it to the vector
-		tokens.push_back(str.substr(lastPos, pos - lastPos));
-		// Skip delimiters
-		lastPos = str.find_first_not_of(delimiters, pos);
-		// Find next "non-delimiter"
-		pos = str.find_first_of(delimiters, lastPos);
-	}
-}
-
 // executes the help command passed in from the string
 void Console::commandHelp()
 {
+	print("Help currently broken");
+	/*
 	std::string cmd(consoleLines[0]);
 	vector<std::string> tokens;
 	tokenize(cmd, tokens);
@@ -152,41 +140,20 @@ void Console::commandHelp()
 	std::map<const std::string, ConsoleCommand*, ltstr>::const_iterator it;
 	it = commands.find(tokens[0]);
 	if (it==commands.end()) {
-		out("No help for command");
+		print("No help for command");
 	} else {
 		it->second->help(tokens);
 	}
+	*/
 }
 
 void Console::commandExecute(const std::string &cmd)
 {
-	vector<std::string> tokens;
-	tokenize(cmd, tokens);
-	if (tokens.empty())
-		return;
-	
 	newLineConsole();
-	std::map<const std::string, ConsoleCommand*, ltstr>::const_iterator it;
-	it = commands.find(tokens[0]);
-	if (it==commands.end()) {
-		out("Unknown command");
-	} else {
-		it->second->execute(tokens);
-	}
-}
-
-void Console::autoCommands()
-{
 	try {
-		MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById("AutoCommands");
-		std::list<MSXConfig::Device::Parameter*>* commandList;
-		commandList = config->getParametersWithClass("");
-		std::list<MSXConfig::Device::Parameter*>::const_iterator i;
-		for (i = commandList->begin(); i != commandList->end(); i++) {
-			commandExecute((*i)->value);
-		}
-	} catch (MSXConfig::Exception &e) {
-		// no auto commands defined
+		CommandController::instance()->executeCommand(cmd);
+	} catch (CommandException &e) {
+		print(e.desc);
 	}
 }
 
@@ -195,6 +162,7 @@ void Console::autoCommands()
  * length will be modified if the command is completed. */
 void Console::tabCompletion()
 {
+	/*
 	int matches = 0;
 	int *location = &stringLocation;
 	char *commandLine = consoleLines[0];
@@ -247,16 +215,7 @@ void Console::tabCompletion()
 		}
 	}
 	else if (matches == 0)
-		out("No matching command found!");
-}
-
-
-// Lists all the commands to be used in the console
-void Console::listCommands()
-{
-	out(" ");
-	std::map<const std::string, ConsoleCommand*, ltstr>::const_iterator it;
-	for (it=commands.begin(); it!=commands.end(); it++) {
-		print(it->first);
-	}
+		print("No matching command found!");
+	*/
+	print("TAB completion currently broken");
 }

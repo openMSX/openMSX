@@ -17,13 +17,6 @@ class Console
 		static Console* instance();
 
 		/**
-		 * objects that want to accept commands from the console 
-		 * must register themself
-		 */
-		void registerCommand(ConsoleCommand &commandObject, const std::string &str);
-		void unRegisterCommand(const std::string &str);
-		
-		/**
 		 * Prints a string on the console
 		 */
 		void print(const std::string &text);
@@ -33,29 +26,19 @@ class Console
 		 */
 		virtual void drawConsole() = 0;
 		
-		/**
-		 * Executes all defined auto commands
-		 */
-		void autoCommands();
-		
-		/**
-		 * Execute a given command
-		 */
-		void commandExecute(const std::string &backstrings);
-		
 	protected:
 		Console();
 		void tabCompletion();
 		void newLineCommand();
-		void listCommands();
 		void commandHelp();
+		void commandExecute(const std::string &cmd);
 		void out(const char *str, ...);
 		void newLineConsole();
 		virtual void updateConsole() = 0;
-		void tokenize(const std::string &str, vector<std::string> &tokens, const std::string &delimiters = " ");
 		
 		static const int CHARS_PER_LINE = 128;
-	
+		static const int NUM_LINES = 100;
+
 		static Console* oneInstance;
 		
 		/** List of all the past lines.
@@ -79,10 +62,6 @@ class Console
 		  */
 		int totalCommands;
 
-		/** The number of lines in the console.
-		  */
-		int lineBuffer;
-
 		/** Current character location in the current string.
 		  */
 		int stringLocation;
@@ -90,19 +69,6 @@ class Console
 		/** How much the users scrolled back in the command lines.
 		  */
 		int commandScrollBack;
-		
-	private:
-		struct ltstr {
-			bool operator()(const std::string &s1, const std::string &s2) const {
-				return s1 < s2;
-			}
-		};
-		//struct eqstr {
-		//	bool operator()(const std::string &s1, const std::string &s2) const {
-		//		return s1 == s2;
-		//	}
-		//};
-		std::map<const std::string, ConsoleCommand*, ltstr> commands;
 };
 
 #endif

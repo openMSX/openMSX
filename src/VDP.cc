@@ -37,6 +37,7 @@ TODO:
 #include "VDPCmdEngine.hh"
 #include "PlatformFactory.hh"
 #include "ConsoleSource/Console.hh"
+#include "ConsoleSource/CommandController.hh"
 
 #include <string>
 #include <cassert>
@@ -344,7 +345,7 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	frameStart(time);
 
 	// Register console commands.
-	Console::instance()->registerCommand(paletteCmd, "palette");
+	CommandController::instance()->registerCommand(paletteCmd, "palette");
 
 }
 

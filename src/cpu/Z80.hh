@@ -21,7 +21,7 @@
 #include "EmuTime.hh"
 
 #ifdef CPU_DEBUG
-#include "ConsoleSource/ConsoleCommand.hh"
+#include "ConsoleSource/Command.hh"
 #endif
 
 
@@ -60,7 +60,7 @@ class Z80 : public CPU {
 			char to_print_string[300];
 			static bool cpudebug;
 
-			class DebugCmd : public ConsoleCommand {
+			class DebugCmd : public Command {
 				virtual void execute(const std::vector<std::string> &tokens);
 				virtual void help   (const std::vector<std::string> &tokens);
 			};

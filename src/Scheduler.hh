@@ -9,7 +9,7 @@
 #include "EmuTime.hh"
 #include "HotKey.hh"
 #include "Mutex.hh"
-#include "ConsoleSource/ConsoleCommand.hh"
+#include "ConsoleSource/Command.hh"
 
 //forward declarations
 class MSXCPU;
@@ -152,14 +152,14 @@ class Scheduler : private EventListener
 		Mutex pauseMutex;
 		MSXCPU *cpu;
 		
-		// Console commands
-		class QuitCmd : public ConsoleCommand {
+		// commands
+		class QuitCmd : public Command {
 		public:
 			virtual void execute(const std::vector<std::string> &tokens);
 			virtual void help   (const std::vector<std::string> &tokens);
 		};
 		QuitCmd quitCmd;
-		class MuteCmd : public ConsoleCommand {
+		class MuteCmd : public Command {
 		public:
 			virtual void execute(const std::vector<std::string> &tokens);
 			virtual void help   (const std::vector<std::string> &tokens);

@@ -1,16 +1,22 @@
 // $Id$
 
-#ifndef __CONSOLECOMMAND_HH__
-#define __CONSOLECOMMAND_HH__
+#ifndef __COMMAND_HH__
+#define __COMMAND_HH__
 
 #include <string>
 #include <vector>
+#include "../MSXException.hh"
 
+
+class CommandException : public MSXException {
+	public:
+		CommandException(const std::string &desc) : MSXException(desc) {}
+};
 
 /** These are the functions the console can call after a device
   * has registered commands with the console.
   */
-class ConsoleCommand
+class Command
 {
 	public:
 		/**
@@ -23,4 +29,4 @@ class ConsoleCommand
 		virtual void help   (const std::vector<std::string> &tokens)=0;
 };
 
-#endif //__CONSOLECOMMAND_HH__
+#endif //_COMMAND_HH__
