@@ -28,6 +28,14 @@ else
 	exit
 fi
 
+if ( libtoolize --version ) </dev/null > /dev/null 2>&1; then
+	echo "Building ltmain.sh"
+	libtoolize
+else
+	echo "libtoolize not found -- aborting"
+	exit
+fi
+
 if ( automake --version ) </dev/null > /dev/null 2>&1; then
 	echo "Building Makefiles"
 	automake -a
