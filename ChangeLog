@@ -1,5 +1,9 @@
 $Id$
 
+2005-02-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Reduced the 'black flashes' in SDLGL renderer:
+	   see comments in Display::repaintDelayed() for details
+
 2005-02-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added 'none' icon set
 	* Fixed a (the?) 'pure virtual method called' bug:

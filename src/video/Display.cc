@@ -2,6 +2,7 @@
 
 #include "Display.hh"
 #include "VideoSystem.hh"
+#include "SDLGLVideoSystem.hh" // workaround
 #include "ScreenShotSaver.hh"
 #include "EventDistributor.hh"
 #include "FinishFrameEvent.hh"
@@ -143,6 +144,18 @@ void Display::repaintDelayed(unsigned long long delta)
 		// already a pending repaint
 		return;
 	}
+
+	if (dynamic_cast<SDLGLVideoSystem*>(videoSystem.get())) {
+		// Ugly workaround: on GL limit the frame rate of the delayed
+		// repaints. Because of a limitation in the SDL GL environment
+		// we cannot render to texture (or aux buffer) and indirectly
+		// this causes black flashes when a delayed repaint comes at
+		// the wrong moment.
+		// By limiting the frame rate we hope the delayed repaint only
+		// get triggered during pause, where it's ok (is it?)
+		if (delta < 200000) delta = 200000; // at most 8fps
+	}
+	
 	alarm.schedule(delta);
 }
 
