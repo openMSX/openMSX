@@ -1,5 +1,9 @@
 $Id$
 
+2003-10-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* It seems MSX-AUDIO sampleram is mirrored. This fixes sample loading
+	  in "Revolution".
+
 2003-10-04 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* If the moderegister of the debugdevice is written to and bit 6
 	  of that same register is set, newlines will not be output.

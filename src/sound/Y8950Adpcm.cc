@@ -103,6 +103,7 @@ void Y8950Adpcm::executeUntilEmuTime(const EmuTime &time, int userData)
 
 void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 {
+	//PRT_DEBUG("Y8950Adpcm: write "<<(int)rg<<" "<<(int)data);
 	switch (rg) {
 		case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET
 			reg7 = data;
@@ -147,9 +148,9 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			//if ((reg7 & R07_REC) && (reg7 & R07_MEMORY_DATA)) {
 			{
 				int tmp = ((startAddr + memPntr) & addrMask) / 2;
-				if (tmp < ramSize) {
-					wave[tmp] = data;
-				}
+				tmp = (tmp < ramSize) ? ramSize : (tmp & (ramSize - 1)); 
+				wave[tmp] = data;
+				//PRT_DEBUG("Y8950Adpcm: mem " << tmp << " " << (int)data);
 				memPntr += 2;
 				if ((startAddr + memPntr) > stopAddr) {
 					y8950->setStatus(Y8950::STATUS_EOS);

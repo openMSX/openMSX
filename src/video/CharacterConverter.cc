@@ -221,8 +221,7 @@ void CharacterConverter<Pixel, zoom>::renderText2(
 					pattern <<= 1;
 				}
 			}
-		}
-		else {
+		} else {
 			pixelPtr += zoom == Renderer::ZOOM_256 ? 3 : 6;
 		}
 	}
