@@ -226,18 +226,41 @@ string Keyboard::processCmd(const vector<string>& tokens, bool up)
 	return "";
 }
 
-void Keyboard::pressAscii(char asciiCode, bool up)
+void Keyboard::pressAscii(char asciiCode, bool down)
 {
   	for (int i = 0; i < 2; i++) {
 		byte row  = asciiTab[asciiCode & 0xFF][i] >> 8;
 		byte mask = asciiTab[asciiCode & 0xFF][i] & 0xFF;
-		if (up) {
-			cmdKeyMatrix[row] |=  mask;
-		} else {
+		if (down) {
 			cmdKeyMatrix[row] &= ~mask;
+		} else {
+			cmdKeyMatrix[row] |=  mask;
 		}
 	}
 	keysChanged = true;
+}
+
+bool Keyboard::commonKeys(char asciiCode1, char asciiCode2)
+{
+	// get row / mask
+	byte row10  = asciiTab[asciiCode1 & 0xFF][0] >> 8;
+	byte row11  = asciiTab[asciiCode1 & 0xFF][1] >> 8;
+	byte row20  = asciiTab[asciiCode2 & 0xFF][0] >> 8;
+	byte row21  = asciiTab[asciiCode2 & 0xFF][1] >> 8;
+	byte mask10 = asciiTab[asciiCode1 & 0xFF][0] & 0xFF;
+	byte mask11 = asciiTab[asciiCode1 & 0xFF][1] & 0xFF;
+	byte mask20 = asciiTab[asciiCode2 & 0xFF][0] & 0xFF;
+	byte mask21 = asciiTab[asciiCode2 & 0xFF][1] & 0xFF;
+	
+	// ignore modifier keys (shift, ctrl, graph, code)
+	if (row10 == 6) mask10 &= ~0x17;
+	if (row11 == 6) mask11 &= ~0x17;
+
+	// common key on common row?
+	return ((row10 == row20) && (mask10 & mask20)) ||
+	       ((row10 == row21) && (mask10 & mask21)) ||
+	       ((row11 == row20) && (mask11 & mask20)) ||
+	       ((row11 == row21) && (mask11 & mask21));
 }
 
 
@@ -284,7 +307,7 @@ string Keyboard::KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
 // class KeyInserter
 
 Keyboard::KeyInserter::KeyInserter(Keyboard& parent_)
-	: parent(parent_), down(true)
+	: parent(parent_), last(-1)
 {
 }
 
@@ -321,13 +344,19 @@ void Keyboard::KeyInserter::type(const string& str)
 
 void Keyboard::KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
 {
-	assert(!text.empty());
-	down = !down;
-	parent.pressAscii(text[0], down);
-	if (down) text = text.substr(1);
-	if (!text.empty()) {
-		reschedule(time);
+	parent.pressAscii(last, false);
+	if (text.empty()) {
+		return;
 	}
+	char current = text[0];
+	if (parent.commonKeys(last, current)) {
+		last = -1;
+	} else {
+		parent.pressAscii(current, true);
+		last = current;
+		text = text.substr(1);
+	}
+	reschedule(time);
 }
 
 void Keyboard::KeyInserter::reschedule(const EmuTime& time)

@@ -4,6 +4,7 @@ $Id$
 	* Don't use exceptions to report unconnected drive in ready() method:
 	   - this was quite heavily used in the MSX boot sequence, and caused
 	     100% CPU usage for several seconds.
+	* Increased speed of type command
 
 2004-10-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed simple

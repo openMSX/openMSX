@@ -41,7 +41,8 @@ private:
 	void parseKeymapfile(const byte* buf, unsigned size);
 	void loadKeymapfile(const string& filename);
 	string processCmd(const vector<string>& tokens, bool up);
-	void pressAscii(char asciiCode, bool up);
+	void pressAscii(char asciiCode, bool down);
+	bool commonKeys(char asciiCode1, char asciiCode2);
 
 	class KeyMatrixUpCmd : public SimpleCommand {
 	public:
@@ -80,7 +81,7 @@ private:
 		virtual const string& schedName() const;
 
 		Keyboard& parent;
-		bool down;
+		char last;
 		string text;
 	} keyTypeCmd;
 
