@@ -3,12 +3,11 @@
 #ifndef __RENDERERFACTORY_HH__
 #define __RENDERERFACTORY_HH__
 
-#include <string>
-#include <map>
-#include <SDL/SDL.h>
-
 #include "Settings.hh"
 #include "GLUtil.hh" // for __OPENGL_AVAILABLE__ and X_DISPLAY_MISSING
+#include <SDL/SDL.h>
+#include <string>
+
 
 namespace openmsx {
 
@@ -37,13 +36,7 @@ public:
 	  * Use this method for initial renderer creation in the main thread.
 	  * @param vdp The VDP whose display will be rendered.
 	  */
-	static Renderer *createRenderer(VDP *vdp);
-
-	/** Create the Renderer selected by the current renderer setting.
-	  * Use this method for changing the renderer in the emulation thread.
-	  * @param vdp The VDP whose display will be rendered.
-	  */
-	static Renderer *switchRenderer(VDP *vdp);
+	static Renderer* createRenderer(VDP* vdp);
 
 	/** Create the renderer setting.
 	  * The map of this setting contains only the available renderers.
@@ -68,71 +61,16 @@ public:
 	  * @return A newly created Renderer, or NULL if creation failed.
 	  *   TODO: Throwing an exception would be cleaner.
 	  */
-	virtual Renderer *create(VDP *vdp) = 0;
+	virtual Renderer* create(VDP* vdp) = 0;
 
 protected:
 	virtual ~RendererFactory() {}
-	
+
 private:
 	/** Get the factory selected by the current renderer setting.
 	  * @return The RendererFactory that can create the renderer.
 	  */
-	static RendererFactory *getCurrent();
-};
-
-/** Coordinator for renderer switch operation.
-  * TODO: Now that we run single threaded, is there still a need to
-  *       dedicate an entire class to this task?
-  */
-class RendererSwitcher
-{
-private:
-	/** VDP whose state will be rendered.
-	  */
-	VDP *vdp;
-
-	/** This field is used to pass a pointer to the newly created renderer
-	  * from the main thread to the emulation thread.
-	  */
-	Renderer * volatile renderer;
-
-public:
-	/** Create a new renderer switch operation.
-	  * Call performSwitch() to execute the operation.
-	  * @param vdp VDP whose state will be rendered.
-	  */
-	RendererSwitcher(VDP *vdp);
-
-	/** Called by the emulation thread to initiate the renderer switch.
-	  * @return The newly created renderer.
-	  */
-	Renderer *performSwitch();
-
-};
-
-/** Coordinator for full screen toggle operation.
-  * The toggle can only be done in the main thread.
-  * TODO: Integrate with RendererSwitcher into a generic
-  *       "run in another thread" mechanism.
-  */
-class FullScreenToggler
-{
-private:
-	/** SDL screen whose full screen state will be toggled.
-	  */
-	SDL_Surface *screen;
-
-public:
-	/** Create a new renderer switch operation.
-	  * Call performToggle() to execute the operation.
-	  * @param screen SDL screen whose full screen state will be toggled.
-	  */
-	FullScreenToggler(SDL_Surface *screen);
-	
-	/** Called by the emulation thread to initiate the toggle.
-	  */
-	void performToggle();
-
+	static RendererFactory* getCurrent();
 };
 
 /** RendererFactory for DummyRenderer.
@@ -151,7 +89,7 @@ public:
 
 	bool isAvailable();
 
-	Renderer *create(VDP *vdp);
+	Renderer* create(VDP* vdp);
 };
 
 /** RendererFactory for SDLHiRenderer.
@@ -170,7 +108,7 @@ public:
 
 	bool isAvailable();
 
-	Renderer *create(VDP *vdp);
+	Renderer* create(VDP* vdp);
 };
 
 /** RendererFactory for SDLLoRenderer.
@@ -189,7 +127,7 @@ public:
 
 	bool isAvailable();
 
-	Renderer *create(VDP *vdp);
+	Renderer* create(VDP* vdp);
 };
 
 #ifdef __OPENGL_AVAILABLE__
@@ -210,12 +148,13 @@ public:
 
 	bool isAvailable();
 
-	Renderer *create(VDP *vdp);
+	Renderer* create(VDP* vdp);
 };
 
 #endif // __OPENGL_AVAILABLE__
 
-#ifndef	X_DISPLAY_MISSING
+#ifndef X_DISPLAY_MISSING
+
 /** RendererFactory for XRenderer.
   */
 class XRendererFactory: public RendererFactory
@@ -232,9 +171,10 @@ public:
 
 	bool isAvailable();
 
-	Renderer *create(VDP *vdp);
+	Renderer* create(VDP* vdp);
 };
-#endif
+
+#endif // X_DISPLAY_MISSING
 
 } // namespace openmsx
 

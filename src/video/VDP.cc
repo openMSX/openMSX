@@ -448,7 +448,7 @@ void VDP::frameStart(const EmuTime &time)
 	if (!renderer->checkSettings()) {
 		// Renderer failed to sync; replace it.
 		delete renderer;
-		renderer = RendererFactory::switchRenderer(this);
+		renderer = RendererFactory::createRenderer(this);
 		renderer->reset(time);
 		vram->setRenderer(renderer, time);
 		Scheduler::instance().setRenderer(renderer);

@@ -613,10 +613,9 @@ bool SDLGLRenderer::checkSettings() {
 	return false;
 #else
 	// Try to toggle full screen.
-	FullScreenToggler toggler(screen);
-	toggler.performToggle();
+	SDL_WM_ToggleFullScreen(screen);
 	fullScreenState =
-		((((volatile SDL_Surface *)screen)->flags & SDL_FULLSCREEN) != 0);
+		((((volatile SDL_Surface*)screen)->flags & SDL_FULLSCREEN) != 0);
 	return fullScreenState == fullScreenTarget;
 #endif
 }

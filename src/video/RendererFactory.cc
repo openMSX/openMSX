@@ -13,6 +13,7 @@
 #include "CommandLineParser.hh"
 #include "Icon.hh"
 
+
 namespace openmsx {
 
 static bool initSDLVideo()
@@ -68,12 +69,6 @@ Renderer *RendererFactory::createRenderer(VDP *vdp)
 	return result;
 }
 
-Renderer *RendererFactory::switchRenderer(VDP *vdp)
-{
-	RendererSwitcher switcher(vdp);
-	return switcher.performSwitch();
-}
-
 RendererFactory::RendererSetting* RendererFactory::createRendererSetting(
 	const string& defaultRenderer)
 {
@@ -106,30 +101,6 @@ RendererFactory::RendererSetting* RendererFactory::createRendererSetting(
 	return new RendererSetting(
 		"renderer", "rendering back-end used to display the MSX screen",
 		initialValue, defaultValue, rendererMap);
-}
-
-// RendererSwitcher ========================================================
-
-RendererSwitcher::RendererSwitcher(VDP *vdp) {
-	this->vdp = vdp;
-	renderer = NULL;
-}
-
-Renderer *RendererSwitcher::performSwitch() {
-	// Actually create renderer.
-	renderer = RendererFactory::createRenderer(vdp);
-	return renderer;
-}
-
-// FullScreenToggler =======================================================
-
-FullScreenToggler::FullScreenToggler(SDL_Surface *screen) {
-	this->screen = screen;
-}
-
-void FullScreenToggler::performToggle() {
-	// Actually toggle.
-	SDL_WM_ToggleFullScreen(screen);
 }
 
 // Dummy ===================================================================
