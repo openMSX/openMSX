@@ -77,7 +77,7 @@ class Element;
 
 /**
  * An XML attribute, also known as a property.
- * Example: <node attr="56">foo</node>
+ * Example: &lt;node attr="56"&gt;foo&lt;/node&gt;
  * here attr is an XML attribute, with name 'attr' and
  * value '56'
  */
@@ -103,13 +103,12 @@ private:
 	Attribute &operator=(const Attribute &foo); // block usage
 };
 
-/// An XML Element
 /**
  * An XML Element.
- * Example: <node attr="56" bar="qw">foo<node>
+ * Example: &lt;node attr="56" bar="qw"&gt;foo&lt;/node&gt;
  * here attr and bar are the elements' attributes,
  * and 'foo' is it's pcdata
- * Example2: <node><child1/><child2/></node>
+ * Example2: &lt;node&gt;&lt;child1/&gt;&lt;child2/&gt;&lt;/node&gt;
  * here child1 and child2 are the node's children
  */
 class Element
@@ -123,7 +122,7 @@ public:
 
 	/// content of the element
 	string pcdata;
-	
+
 	/// contained elements
 	list<Element*> children;
 
