@@ -2,7 +2,7 @@
 
 INCLUDES = `sdl-config --cflags`
 CC = g++
-OBJS = CON_console.o CON_consolecommands.o DT_drawtext.o internal.o
+OBJS = CON_console.o CON_consolecommands.o DT_drawtext.o CON_internal.o
 CFLAGS = -g
 CPPFLAGS = $(INCLUDES)
 
