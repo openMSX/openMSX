@@ -66,6 +66,9 @@ private:
 	//Exception &operator=(const Exception &foo); // block usage
 };
 
+class Document;
+class Element;
+
 /**
  * An XML attribute, also known as a property.
  * Example: <node attr="56">foo</node>
@@ -74,9 +77,9 @@ private:
  */
 class Attribute
 {
+friend class Element;
+friend class Document;
 public:
-	/// construct attribute from libxml xmlAttrPtr node
-	Attribute(xmlAttrPtr node);
 	~Attribute();
 
 	/// name of the attribute
@@ -87,6 +90,8 @@ public:
 	void dump(int recursion=0);
 
 private:
+	/// construct attribute from libxml xmlAttrPtr node
+	Attribute(xmlAttrPtr node);
 	Attribute();                                // block usage
 	Attribute(const Attribute &foo);            // block usage
 	Attribute &operator=(const Attribute &foo); // block usage
@@ -103,9 +108,8 @@ private:
  */
 class Element
 {
+friend class Document;
 public:
-	/// construct attribute from libxml xmlNodePtr node
-	Element(xmlNodePtr node);
 	~Element();
 
 	/// name of the element
@@ -134,6 +138,8 @@ public:
 	const std::string &getElementPcdata(const std::string &name);
 
 private:
+	/// construct attribute from libxml xmlNodePtr node
+	Element(xmlNodePtr node);
 	Element();                              // block usage
 	Element(const Element &foo);            // block usage
 	Element &operator=(const Element &foo); // block usage
