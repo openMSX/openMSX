@@ -1,5 +1,9 @@
 $Id$
 
+2003-10-09 David Heremans <david.heremans@gnu-linux.net>
+	* Forgot to commit some autofire code
+	* Adapted code to new Commands interface
+
 2003-10-12 Maarten ter Huurne <maarten@treewalker.org>
 	* VDP fix: fixed assert in SpriteChecker.
 

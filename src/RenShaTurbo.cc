@@ -78,8 +78,8 @@ string RenShaTurbo::SpeedCmd::execute(const std::vector<std::string> &tokens)
 	RenShaTurbo *renshaturbo = RenShaTurbo::instance();
 
         int nrTokens = tokens.size();
+	std::ostringstream out;
 	if (nrTokens == 1) {
-		std::ostringstream out;
 		out << "RenShaTurbo speed: " << renshaturbo->getSpeed();
 		result += out.str() + '\n';
 	}
@@ -100,10 +100,10 @@ string RenShaTurbo::SpeedCmd::execute(const std::vector<std::string> &tokens)
 
 string RenShaTurbo::SpeedCmd::help(const std::vector<std::string> &tokens) const
 {
-	return "renshaturbo   : show current speed\n"
-	       "renshaturbo + : increase the speed\n"
-	       "renshaturbo - : decrease the speed\n"
-	       "renshaturbo N : set speed to N (0 is off, 1 to 100 is speed)\n";
+	return	"renshaturbo   : show current speed\n"
+		"renshaturbo + : increase the speed\n"
+		"renshaturbo - : decrease the speed\n"
+		"renshaturbo N : set speed to N (0 is off, 1 to 100 is speed)\n";
 }
 
 } // namespace openmsx
