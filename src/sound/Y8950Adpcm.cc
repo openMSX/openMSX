@@ -23,7 +23,7 @@ int Y8950Adpcm::CLAP(int min, int x, int max)
 //**********************************************************//
 
 Y8950Adpcm::Y8950Adpcm(Y8950* y8950_, int sampleRam)
-	: y8950(y8950_)
+	: y8950(y8950_), volume(0)
 {
 	ramSize = sampleRam;
 	ramBank = new byte[256*1024];
@@ -38,7 +38,7 @@ Y8950Adpcm::~Y8950Adpcm()
 	delete[] romBank;
 }
 
-void Y8950Adpcm::reset()
+void Y8950Adpcm::reset(const EmuTime &time)
 {
 	playing = false;
 	startAddr = 0;
@@ -48,9 +48,9 @@ void Y8950Adpcm::reset()
 	step = 0;
 	wave = ramBank;
 	addrMask = (1 << 19) - 1;
-	volume = 0;
 	reg7 = 0;
 	reg15 = 0;
+	writeReg(0x12, 255, time);	// volume
 	restart();
 }
 
@@ -154,7 +154,7 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			break;
 
 		case 0x12: { // ENVELOP CONTROL 
-			byte oldVol = volume;
+			int oldVol = volume;
 			volume = (data * ADPCM_VOLUME) >> 8;
 			if (oldVol != 0) {
 				double factor = (double)volume / (double)oldVol;
@@ -179,7 +179,7 @@ byte Y8950Adpcm::readReg(byte rg)
 {
 	byte result;
 	switch (rg) {
-		case 0x0f: { // ADPCM-DATA
+		case 0x0F: { // ADPCM-DATA
 			// TODO advance pointer (only when not playing??)
 			int adr = ((startAddr + memPntr) & addrMask) / 2;
 			byte tmp = wave[adr];
@@ -208,29 +208,30 @@ int Y8950Adpcm::calcSample()
 	static const int F2[16] = {57,  57,  57,  57,  77, 102, 128, 153,
 				   57,  57,  57,  57,  77, 102, 128, 153};
 	
-	if (muted()) return 0;
-	
+	if (muted()) {
+		return 0;
+	}
 	nowStep += step;
 	if (nowStep >= MAX_STEP) {
 		int nowLeveling;
 		do {
 			nowStep -= MAX_STEP;
-			
 			nibble val;
 			if (!(playAddr & 1)) {
 				// n-th nibble
-				reg15 = wave[playAddr/2];
-				val = reg15>>4;
+				reg15 = wave[playAddr / 2];
+				val = reg15 >> 4;
 			} else {
 				// (n+1)-th nibble
-				val = reg15&0x0f;
+				val = reg15 & 0x0F;
 			}
 			int prevOut = out;
-			out = CLAP(DECODE_MIN, out+(diff*F1[val])/8, DECODE_MAX);
-			diff = CLAP(DMIN, (diff*F2[val])/64, DMAX);
+			out = CLAP(DECODE_MIN, out + (diff * F1[val]) / 8,
+			           DECODE_MAX);
+			diff = CLAP(DMIN, (diff * F2[val]) / 64, DMAX);
 			int deltaNext = out - prevOut;
 			nowLeveling = nextLeveling;
-			nextLeveling = prevOut + deltaNext/2;
+			nextLeveling = prevOut + deltaNext / 2;
 		
 			playAddr++;
 			if (playAddr > stopAddr) {

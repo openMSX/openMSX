@@ -496,7 +496,7 @@ void Y8950::reset(const EmuTime &time)
 	status = 0x06;	// TODO
 	statusMask = 0;
 	
-	adpcm.reset();
+	adpcm.reset(time);
 	setInternalMute(true);	// muted
 }
 

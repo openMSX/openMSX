@@ -1,5 +1,10 @@
 $Id$
 
+2003-04-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Trojka starts playing ADPCM samples without initializing the
+	  sample volume. The sample volume after a reset was set to
+	  minimum, changed it to maximum.
+
 2003-05-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Removed EmuTime parameters from Settings methods.
 	* Centralized GL header check in new GLUtil.hh file.

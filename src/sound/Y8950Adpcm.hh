@@ -16,7 +16,7 @@ class Y8950Adpcm : public Schedulable
 		Y8950Adpcm(Y8950 *y8950, int sampleRam);
 		virtual ~Y8950Adpcm();
 		
-		void reset();
+		void reset(const EmuTime &time);
 		void setSampleRate(int sr);
 		bool muted();
 		void writeReg(byte rg, byte data, const EmuTime &time);
