@@ -75,7 +75,6 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	DACSound.cc DACSound.hh \
 	KeyEventInserter.cc KeyEventInserter.hh \
 	SDLEventInserter.cc SDLEventInserter.hh \
-	LoadFile.hh LoadFile.cc \
 	SCC.hh SCC.cc \
 	MSXSCCPlusCart.hh MSXSCCPlusCart.cc \
 	MSXRom.cc MSXRom.hh \

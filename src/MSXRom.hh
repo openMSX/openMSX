@@ -7,15 +7,17 @@
 
 #include "MSXConfig.hh"
 #include "MSXDevice.hh"
-#include "LoadFile.hh"
+#include "config.h"
+#include "openmsx.hh"
+#include "FileOpener.hh"
+
 
 // forward declaration
 class MSXRomPatchInterface;
 
-class MSXRom: virtual public MSXDevice, public LoadFile
+class MSXRom: virtual public MSXDevice
 {
 	public:
-
 		MSXRom();
 
 		/**
@@ -25,9 +27,31 @@ class MSXRom: virtual public MSXDevice, public LoadFile
 
 	protected:
 		/**
-		 * Return the MSXConfig object
+		 * Load a file into memory.
+		 * A memory block is automatically allocated (don't forget to
+		 * free it later) the pointer memoryBank will point to this 
+		 * memory block. 
+		 * The filename is specified in the config file
+		 * Optionally a "skip_headerbytes" parameter can be specified in
+		 * the config file, in that case the first n bytes of the file
+		 * are ignored.
+		 * The filesize must be passed as a function parameter.
 		 */
-		MSXConfig::Device* getDeviceConfig();
+		void loadFile(byte** memoryBank, int fileSize);
+		
+		/**
+		 * Load a file into memory.
+		 * A memory block is automatically allocated (don't forget to
+		 * free it later) the pointer memoryBank will point to this 
+		 * memory block. 
+		 * The filename is specified in the config file
+		 * Optionally a "skip_headerbytes" parameter can be specified in
+		 * the config file, in that case the first n bytes of the file
+		 * are ignored.
+		 * This function will autodetect the filesize. The filesize is
+		 * also returned.
+		 */
+		int loadFile(byte** memoryBank);
 
 		/**
 		 * Byte region used by inherited classes
@@ -43,6 +67,16 @@ class MSXRom: virtual public MSXDevice, public LoadFile
 		 * object and register it at the CPU
 		 */
 		void handleRomPatchInterfaces();
+		
+		/**
+		 * patch a file after it has being loaded in the memory bank
+		 * if configured in configfile
+		 */
+		void patchFile(byte* memoryBank, int size);
+		
+		IFILETYPE* openFile();
+		void readFile(IFILETYPE* file, int fileSize, byte** memoryBank);
+		
 		std::list<MSXRomPatchInterface*> romPatchInterfaces;
 };
 

@@ -1,5 +1,9 @@
 $Id$
 
+2002-02-03 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Removed class LoadFile: it was only used by MSXRom and it was only
+	  usefull for that class (two classes merged now)
+
 2002-02-02 Maarten ter Huurne <mth@stack.nl>
 	* Implemented memory overlay behaviour in SCC page (0x3F).
 
