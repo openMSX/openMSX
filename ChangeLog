@@ -1,5 +1,8 @@
 $Id$
 
+2004-05-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* RS232 interface in Sony_HB-G900P has 2kb RAM
+
 2004-05-20 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added about 14 new machines 
 
