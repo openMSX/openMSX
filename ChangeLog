@@ -3,6 +3,10 @@ $Id$
 2004-11-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Major CPU cleanup:
 	   replaced macro hack with c++ templates
+	* Reduced size of internal mixer buffer:
+	   - should reduce sound latency a bit
+	   - sound quality seems not affected, but it needs a lot more
+	     testing. So please test!!!
 
 2004-11-27 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented a fallback for the detectGeometry function in Disk for

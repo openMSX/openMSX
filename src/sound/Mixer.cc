@@ -137,7 +137,7 @@ void Mixer::openSound()
 		if (SDL_OpenAudio(&desired, &audioSpec) == 0) {
 			frequencySetting->setValue(audioSpec.freq);
 			samplesSetting->setValue(audioSpec.samples);
-			bufferSize = 6 * audioSpec.size / (2 * sizeof(short));
+			bufferSize = 4 * audioSpec.size / (2 * sizeof(short));
 			mixBuffer = new short[2 * bufferSize];
 			memset(mixBuffer, 0, bufferSize * 2 * sizeof(short));
 			readPtr = writePtr = 0;
