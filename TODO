@@ -26,12 +26,13 @@
    + frameskip
    + mute status
    + deinterlace
+   + speed
  - The following things should be made settings (adjustable in Console):
    + Mixer settings
  - The following Console commands need to be converted to a settings command:
    + renderer
    + throttle (should also be a 'toggle' command)
-   - toggle should be documented in commands.txt. Also other new settings
+   + toggle should be documented in commands.txt. Also other new settings
      should be documented there, some still aren't.
    
 * build
