@@ -1,6 +1,6 @@
 // $Id$
 
-
+#include <cassert>
 #include <string>
 #include <algorithm>	// for tolower
 #include <cstdlib>	// for strtol() and atoll()

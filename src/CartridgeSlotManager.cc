@@ -1,5 +1,6 @@
 // $Id$
 
+#include <cassert>
 #include "CartridgeSlotManager.hh"
 #include "MSXConfig.hh"
 
@@ -77,4 +78,3 @@ void CartridgeSlotManager::getSlot(int &ps, int &ss)
 	}
 	PRT_ERROR("Not enough free cartridge slots");
 }
-

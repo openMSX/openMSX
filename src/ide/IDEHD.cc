@@ -1,5 +1,6 @@
 // $Id$
 
+#include <cassert>
 #include "IDEHD.hh"
 #include "File.hh"
 #include "MSXConfig.hh"

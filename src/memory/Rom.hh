@@ -3,6 +3,7 @@
 #ifndef __MSXROMDEVICE_HH__
 #define __MSXROMDEVICE_HH__
 
+#include <cassert>
 #include <list>
 #include "RomInfo.hh"
 #include "openmsx.hh"
