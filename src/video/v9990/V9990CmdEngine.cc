@@ -483,6 +483,7 @@ V9990CmdEngine::CmdLMCM<Mode>::CmdLMCM(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdLMCM<Mode>::start(const EmuTime& time)
 {
+	std::cout << "V9990: LMCM not yet implemented" << std::endl;
 	engine->cmdReady(); // TODO dummy implementation
 }
 
@@ -511,6 +512,7 @@ void V9990CmdEngine::CmdLMMM<Mode>::start(const EmuTime& time)
 	          " NX=" << std::dec << engine->NX <<
 	          " NY=" << std::dec << engine->NY <<
 	          " ARG="<< std::hex << (int)engine->ARG <<
+	          " LOG="<< std::hex << (int)engine->LOG <<
 	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
 
 	engine->ANX = engine->NX;
@@ -534,10 +536,10 @@ void V9990CmdEngine::CmdLMMM<Mode>::execute(const EmuTime& time)
 	int dx = (engine->ARG & 0x04) ? -1 : 1;
 	int dy = (engine->ARG & 0x08) ? -1 : 1;
 	while (true) {
-		word source = Mode::point(vram, engine->SX, engine->SY, width);
-		word value = Mode::point(vram, engine->DX, engine->DY, width);
-		value = engine->logOp(source, value, Mode::MASK);
-		Mode::pset(vram, engine->DX, engine->DY, width, value);
+		word src  = Mode::point(vram, engine->SX, engine->SY, width);
+		word dest = Mode::point(vram, engine->DX, engine->DY, width);
+		dest = engine->logOp(src, dest, Mode::MASK);
+		Mode::pset(vram, engine->DX, engine->DY, width, dest);
 		
 		engine->DX += dx;
 		engine->SX += dx;
@@ -569,6 +571,7 @@ V9990CmdEngine::CmdCMMC<Mode>::CmdCMMC(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdCMMC<Mode>::start(const EmuTime& time)
 {
+	std::cout << "V9990: CMMC not yet implemented" << std::endl;
 	engine->cmdReady(); // TODO dummy implementation
 }
 
@@ -590,6 +593,7 @@ V9990CmdEngine::CmdCMMK<Mode>::CmdCMMK(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdCMMK<Mode>::start(const EmuTime& time)
 {
+	std::cout << "V9990: CMMK not yet implemented" << std::endl;
 	engine->cmdReady(); // TODO dummy implementation
 }
 
@@ -611,6 +615,7 @@ V9990CmdEngine::CmdCMMM<Mode>::CmdCMMM(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdCMMM<Mode>::start(const EmuTime& time)
 {
+	std::cout << "V9990: CMMM not yet implemented" << std::endl;
 	engine->cmdReady(); // TODO dummy implementation
 }
 
@@ -632,6 +637,7 @@ V9990CmdEngine::CmdBMXL<Mode>::CmdBMXL(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdBMXL<Mode>::start(const EmuTime& time)
 {
+	std::cout << "V9990: BMXL not yet implemented" << std::endl;
 	engine->cmdReady(); // TODO dummy implementation
 }
 
@@ -653,6 +659,7 @@ V9990CmdEngine::CmdBMLX<Mode>::CmdBMLX(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdBMLX<Mode>::start(const EmuTime& time)
 {
+	std::cout << "V9990: BMLX not yet implemented" << std::endl;
 	engine->cmdReady(); // TODO dummy implementation
 }
 
@@ -674,6 +681,7 @@ V9990CmdEngine::CmdBMLL<Mode>::CmdBMLL(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdBMLL<Mode>::start(const EmuTime& time)
 {
+	std::cout << "V9990: BMLL not yet implemented" << std::endl;
 	engine->cmdReady(); // TODO dummy implementation
 }
 
@@ -695,6 +703,7 @@ V9990CmdEngine::CmdLINE<Mode>::CmdLINE(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdLINE<Mode>::start(const EmuTime& time)
 {
+	std::cout << "V9990: LINE not yet implemented" << std::endl;
 	engine->cmdReady(); // TODO dummy implementation
 }
 
@@ -716,6 +725,7 @@ V9990CmdEngine::CmdSRCH<Mode>::CmdSRCH(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdSRCH<Mode>::start(const EmuTime& time)
 {
+	std::cout << "V9990: SRCH not yet implemented" << std::endl;
 	engine->cmdReady(); // TODO dummy implementation
 }
 
@@ -737,6 +747,7 @@ V9990CmdEngine::CmdPOINT<Mode>::CmdPOINT(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdPOINT<Mode>::start(const EmuTime& time)
 {
+	std::cout << "V9990: POINT not yet implemented" << std::endl;
 	engine->cmdReady(); // TODO dummy implementation
 }
 
@@ -758,7 +769,20 @@ V9990CmdEngine::CmdPSET<Mode>::CmdPSET(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdPSET<Mode>::start(const EmuTime& time)
 {
-	engine->cmdReady(); // TODO dummy implementation
+	int width = engine->vdp->getImageWidth();
+	if (Mode::PIXELS_PER_BYTE) {
+		// hack to avoid "warning: division by zero"
+		int ppb = Mode::PIXELS_PER_BYTE; 
+		width /= ppb;
+	}
+	word value = Mode::point(vram, engine->DX, engine->DY, width);
+	value = engine->logOp(Mode::shiftDown(engine->fgCol, engine->DX),
+	                      value, Mode::MASK);
+	Mode::pset(vram, engine->DX, engine->DY, width, value);
+
+	// TODO advance DX DY
+	
+	engine->cmdReady();
 }
 
 template <class Mode>
@@ -779,6 +803,7 @@ V9990CmdEngine::CmdADVN<Mode>::CmdADVN(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdADVN<Mode>::start(const EmuTime& time)
 {
+	std::cout << "V9990: ADVN not yet implemented" << std::endl;
 	engine->cmdReady(); // TODO dummy implementation
 }
 
@@ -818,17 +843,16 @@ byte V9990CmdEngine::logOp(byte src, byte dest, byte mask)
 {
 	byte value = 0;
 	
-	if(!((LOG & 0x10) && (dest == 0))) {
-		for(int i = 0; i < 8; i++) {
+	if (!((LOG & 0x10) && (src == 0))) {
+		for (int i = 0; i < 8; ++i) {
 			value >>= 1;
-			value &= 0x7F;
-			if(mask & 1) {
+			if (mask & 1) {
 				int shift = ((src & 1) << 1) | (dest & 1);
-				if(LOG & (1 << shift)) {
+				if (LOG & (1 << shift)) {
 					value |= 0x80;
 				}
 			} else {
-				if(src & 1) {
+				if (dest & 1) {
 					value |= 0x80;
 				}
 			}
@@ -837,7 +861,7 @@ byte V9990CmdEngine::logOp(byte src, byte dest, byte mask)
 			mask >>= 1;
 		}
 	} else { 
-		value = src;
+		value = dest;
 	}
 
 	return value;
