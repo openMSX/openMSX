@@ -202,6 +202,9 @@
   <device id="Real time clock">
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
+    <parameter name="load">true</parameter>
+    <parameter name="save">true</parameter>
+    <parameter name="filename">RTC.SAVE</parameter>
   </device>
 
   <config id="RealTime">

@@ -24,6 +24,9 @@ class RP5C01
 		void reset(const EmuTime &time);
 		nibble readPort(nibble port, const EmuTime &time);
 		void writePort(nibble port, nibble value, const EmuTime &time);
+		
+		char* getRegs();
+		
 	private:
 		void initializeTime();
 		void updateTimeRegs(const EmuTime &time);
@@ -64,6 +67,5 @@ class RP5C01
 		int fraction;
 		int seconds, minutes, hours;
 		int dayWeek, days, months, years, leapYear;
-		
 };
 #endif

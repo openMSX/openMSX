@@ -292,7 +292,7 @@ const MSXConfig::Config::Parameter &MSXConfig::Config::getParameterByName(const 
 		if ((*i)->name==name)
 			return *(*i);
 	}
-	buffer << "Trying to get non-existing parameter " << name << " for device i" << id;
+	buffer << "Trying to get non-existing parameter " << name << " for device " << id;
 	throw Exception(buffer);
 }
 

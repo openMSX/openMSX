@@ -205,3 +205,7 @@ void RP5C01::resetAlarm()
 	}
 }
 
+char* RP5C01::getRegs()
+{
+	return (char*) reg;
+}
