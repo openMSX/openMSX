@@ -14,6 +14,7 @@ using std::bitset;
 namespace openmsx {
 
 class Disk;
+class XMLElement;
 
 /**
  * This (abstract) class defines the DiskDrive interface
@@ -184,8 +185,8 @@ private:
 	void ejectDisk();
 
 	string name;
-	string diskName;
 	bool diskChangedFlag;
+	XMLElement* diskElem;
 
 	static bitset<MAX_DRIVES> drivesInUse;
 };

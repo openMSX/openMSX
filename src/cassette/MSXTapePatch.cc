@@ -2,7 +2,8 @@
 
 #include "MSXTapePatch.hh"
 #include "CommandController.hh"
-#include "SettingsConfig.hh"
+//#include "SettingsConfig.hh"
+#include "GlobalSettings.hh"
 #include "xmlx.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -31,11 +32,11 @@ const string& MSXCasCLI::optionHelp() const
 
 void MSXCasCLI::parseFileType(const string& filename)
 {
-	auto_ptr<XMLElement> config(new XMLElement("cas"));
-	config->addChild(
-		auto_ptr<XMLElement>(new XMLElement("filename", filename)));
-	UserFileContext context;
-	SettingsConfig::loadConfig(SettingsConfig::instance(), context, config);
+	//XMLElement& config = SettingsConfig::instance().getCreateChild("media");
+	XMLElement& config = GlobalSettings::instance().getMediaConfig();
+	XMLElement& casElem = config.getCreateChild("cas");
+	casElem.setData(filename);
+	casElem.setFileContext(auto_ptr<FileContext>(new UserFileContext()));
 }
 const string& MSXCasCLI::fileTypeHelp() const
 {
@@ -63,12 +64,14 @@ static const byte TapeHeader[8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
 
 MSXTapePatch::MSXTapePatch()
 {
-	SettingsConfig& conf = SettingsConfig::instance();
-	const XMLElement* config = conf.findChild("cas");
-	if (config) {
-		const string& filename = config->getChildData("filename");
+	//XMLElement& config = SettingsConfig::instance().getCreateChild("media");
+	//config.setFileContext(auto_ptr<FileContext>(new UserFileContext()));
+	XMLElement& config = GlobalSettings::instance().getMediaConfig();
+	casElem = &config.getCreateChild("cas");
+	const string filename = casElem->getData();
+	if (!filename.empty()) {
 		try {
-			insertTape(config->getFileContext().resolve(filename));
+			insertTape(casElem->getFileContext().resolve(filename));
 		} catch (MSXException& e) {
 			throw FatalError("Couldn't load tape image: " + filename);
 		}
@@ -119,11 +122,13 @@ void MSXTapePatch::insertTape(const string& filename)
 	} catch (FileException &e) {
 		PRT_DEBUG("Loading file failed");
 	}
+	casElem->setData(filename);
 }
 
 void MSXTapePatch::ejectTape()
 {
 	file.reset();
+	casElem->setData("");
 }
 
 void MSXTapePatch::TAPION(CPU::CPURegs& R)

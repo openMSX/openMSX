@@ -16,6 +16,7 @@ using std::auto_ptr;
 namespace openmsx {
 
 class CassetteImage;
+class XMLElement;
 
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
@@ -77,6 +78,7 @@ private:
 	int volume;
 	EmuDuration delta;
 	EmuTime playTapeTime;
+	XMLElement* playerElem;
 };
 
 } // namespace openmsx

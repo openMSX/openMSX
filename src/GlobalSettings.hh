@@ -5,8 +5,13 @@
 
 #include "BooleanSetting.hh"
 #include "StringSetting.hh"
+#include <memory.h>
+
+using std::auto_ptr;
 
 namespace openmsx {
+
+class XMLElement;
 
 /**
  * This class contains settings that are used by several other class
@@ -22,6 +27,7 @@ public:
 	BooleanSetting& getPowerSetting();
 	BooleanSetting& getAutoSaveSetting();
 	StringSetting& getUserDirSetting();
+	XMLElement& getMediaConfig();
 
 private:
 	GlobalSettings();
@@ -30,6 +36,7 @@ private:
 	BooleanSetting powerSetting;
 	BooleanSetting autoSaveSetting;
 	StringSetting userDirSetting;
+	auto_ptr<XMLElement> mediaConfig;
 };
 
 } // namespace openmsx

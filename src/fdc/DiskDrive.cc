@@ -2,7 +2,8 @@
 
 #include "DiskDrive.hh"
 #include "CommandController.hh"
-#include "SettingsConfig.hh"
+//#include "SettingsConfig.hh"
+#include "GlobalSettings.hh"
 #include "DummyDisk.hh"
 #include "XSADiskImage.hh"
 #include "DSKDiskImage.hh"
@@ -134,8 +135,6 @@ RealDrive::RealDrive(const EmuTime& time)
 	, headLoadStatus(false), headLoadTimer(time)
 {
 	headPos = 0;
-	
-	diskName = "";
 	diskChangedFlag = false;
 
 	int i = 0;
@@ -150,12 +149,14 @@ RealDrive::RealDrive(const EmuTime& time)
 		throw FatalError("Too many disk drives.");
 	}
 	
-	SettingsConfig& conf = SettingsConfig::instance();
-	const XMLElement* config = conf.findChild(name);
-	if (config) {
-		const string& filename = config->getChildData("filename");
+	//XMLElement& config = SettingsConfig::instance().getCreateChild("media");
+	//config.setFileContext(auto_ptr<FileContext>(new UserFileContext()));
+	XMLElement& config = GlobalSettings::instance().getMediaConfig();
+	diskElem = &config.getCreateChild(name);
+	const string filename = diskElem->getData();
+	if (!filename.empty()) {
 		try {
-			insertDisk(config->getFileContext().resolve(filename));
+			insertDisk(diskElem->getFileContext().resolve(filename));
 		} catch (FileException &e) {
 			// file not found
 			throw FatalError("Couldn't load diskimage: " + filename);
@@ -278,19 +279,20 @@ void RealDrive::insertDisk(const string& diskImage)
 			// try to create fake DSK from a dir on host OS
 			disk.reset(new FDC_DirAsDSK(diskImage));
 			PRT_DEBUG("Succeeded");
-		} catch (MSXException &e) {
+		} catch (MSXException& e) {
 			// then try normal DSK
 			PRT_DEBUG("Trying a DSK diskimage...");
 			disk.reset(new DSKDiskImage(diskImage));
 			PRT_DEBUG("Succeeded");
 		}
 	}
-	diskName = diskImage;
+	cout << "disk: " << diskImage << endl;
+	diskElem->setData(diskImage);
 }
 
 void RealDrive::ejectDisk()
 {
-	diskName.clear();
+	diskElem->setData("");
 	disk.reset(new DummyDisk());
 }
 
@@ -298,6 +300,7 @@ string RealDrive::execute(const vector<string>& tokens)
 {
 	string result;
 	if (tokens.size() == 1) {
+		const string& diskName = diskElem->getData();
 		if (!diskName.empty()) {
 			result += "Current disk: " + diskName + '\n';
 		} else {

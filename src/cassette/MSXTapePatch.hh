@@ -13,6 +13,7 @@ using std::auto_ptr;
 namespace openmsx {
 
 class File;
+class XMLElement;
 
 class MSXCasCLI : public CLIOption, public CLIFileType
 {
@@ -64,6 +65,7 @@ private:
 	virtual void tabCompletion(vector<string>& tokens) const;
 	
 	auto_ptr<File> file;
+	XMLElement* casElem;
 };
 
 } // namespace openmsx

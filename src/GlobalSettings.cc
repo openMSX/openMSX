@@ -1,6 +1,8 @@
 // $Id$
 
 #include "GlobalSettings.hh"
+#include "xmlx.hh"
+#include "FileContext.hh"
 
 namespace openmsx {
 
@@ -11,7 +13,9 @@ GlobalSettings::GlobalSettings()
 	                  "automatically save settings when openMSX exits",
 	                  false)
 	, userDirSetting("user_directories", "list of user directories", "")
+	, mediaConfig(new XMLElement("media"))
 {
+	mediaConfig->setFileContext(auto_ptr<FileContext>(new UserFileContext()));
 }
 
 GlobalSettings& GlobalSettings::instance()
@@ -38,6 +42,11 @@ BooleanSetting& GlobalSettings::getAutoSaveSetting()
 StringSetting& GlobalSettings::getUserDirSetting()
 {
 	return userDirSetting;
+}
+
+XMLElement& GlobalSettings::getMediaConfig()
+{
+	return *mediaConfig;
 }
 
 } // namespace openmsx

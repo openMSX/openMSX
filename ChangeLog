@@ -1,7 +1,14 @@
 $Id$
 
-2004-09-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-09-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Removed settings.xml from CVS
+	* media settings (diska, diskb, cassette) were wrongly saved:
+	   - once a "save_settings" command was executed with a disk inserted
+	     from the commandline this disk was always used, even if in the
+	     next run a different disk was specified.
+	   - should media settings be saved? Current (fixed) implementation
+	     does not save them to not break catapult. But should they be
+	     saved in the future?
 
 2004-09-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Moved default keybindings from init.tcl to HotKey code
