@@ -25,7 +25,11 @@ namespace openmsx {
 
 static void initializeSDL()
 {
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) { 
+	int flags = SDL_INIT_VIDEO;
+#ifndef NDEBUG
+	flags |= SDL_INIT_NOPARACHUTE;
+#endif
+	if (SDL_Init(flags) < 0) { 
 		throw FatalError(string("Couldn't init SDL: ") + SDL_GetError());
 	}
 }
@@ -47,7 +51,7 @@ static int main(int argc, char **argv)
 		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
 		if (parseStatus != CommandLineParser::EXIT) {
 			auto_ptr<CliCommInput> cliCommInput;
-			if (parseStatus) {
+			if (parseStatus == CommandLineParser::CONTROL) {
 				CommandLineParser::ControlType type;
 				string argument;
 				parser.getControlParameters(type, argument);
