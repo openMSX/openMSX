@@ -17,10 +17,10 @@ namespace openmsx {
 class ScreenShotSaver
 {
 public:
-	ScreenShotSaver(SDL_Surface* image, const string& filename)
+	static void save(SDL_Surface* image, const string& filename)
 		throw (CommandException);
-	ScreenShotSaver(unsigned witdh, unsigned height,
-	                byte** row_pointers, const string& filename)
+	static void save(unsigned witdh, unsigned height,
+	          byte** row_pointers, const string& filename)
 		throw (CommandException);
 
 	static string getFileName();

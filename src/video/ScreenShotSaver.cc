@@ -84,7 +84,7 @@ done:
 	return result;
 }
 
-ScreenShotSaver::ScreenShotSaver(SDL_Surface* surface, const string& filename)
+void ScreenShotSaver::save(SDL_Surface* surface, const string& filename)
 	throw (CommandException)
 {
 	// TODO: save screenshots in specific directory, like HOMEDIR/screenshots
@@ -128,7 +128,7 @@ ScreenShotSaver::ScreenShotSaver(SDL_Surface* surface, const string& filename)
 	CliCommOutput::instance().printInfo("Screen saved to " + filename);
 }
 
-ScreenShotSaver::ScreenShotSaver(unsigned width, unsigned height,
+void ScreenShotSaver::save(unsigned width, unsigned height,
                  byte** row_pointers, const string& filename)
 	throw (CommandException)
 {

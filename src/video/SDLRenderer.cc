@@ -149,7 +149,7 @@ void SDLRenderer<Pixel, zoom>::takeScreenShot(const string& filename)
 		return;
 	}
 	try {
-		ScreenShotSaver saver(screen, filename);
+		ScreenShotSaver::save(screen, filename);
 		if (SDL_MUSTLOCK(screen)) {
 			SDL_UnlockSurface(screen);
 		}

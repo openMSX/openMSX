@@ -269,7 +269,7 @@ void SDLGLRenderer::takeScreenShot(const string& filename)
 		row_pointers[HEIGHT - 1 - i] = &buffer[WIDTH * 3 * i];
 	}
 	glReadPixels(0, 0, WIDTH, HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, buffer);
-	ScreenShotSaver(WIDTH, HEIGHT, row_pointers, filename);
+	ScreenShotSaver::save(WIDTH, HEIGHT, row_pointers, filename);
 }
 
 void SDLGLRenderer::drawEffects()
