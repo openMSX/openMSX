@@ -44,8 +44,24 @@ void MSXRealTime::executeUntilEmuTime(const Emutime &time)
 	PRT_DEBUG("Emu  " << emuPassed << "ms    Real " << realPassed << "ms");
 	int diff = emuPassed - realPassed;
 	if (diff>0) {
-		PRT_DEBUG("Sleeping for " << diff << " ms");
-		SDL_Delay(diff);
+	  if (catchUpTime){
+	    if (catchUpTime>=diff){
+	      catchUpTime-=diff;
+	      PRT_DEBUG("Catching up " << diff << " ms");
+	    } else {
+	      diff-=catchUpTime;
+	      PRT_DEBUG("Catched up " << catchUpTime << " ms");
+	      catchUpTime=0;
+	      PRT_DEBUG("Sleeping for " << diff << " ms");
+	      SDL_Delay(diff);
+	    }
+	  } else {
+	    PRT_DEBUG("Sleeping for " << diff << " ms");
+	    SDL_Delay(diff);
+	  }
+	} else {
+		if (catchUpTime<MAX_CATCHUPTIME) catchUpTime-=diff; // increasing catchUpTime
+		PRT_DEBUG("Time we need to catch up in the next frames : " << catchUpTime << " ms");
 	}
 
 	Scheduler::instance()->setSyncPoint(emuRef+SYNCINTERVAL, *this);

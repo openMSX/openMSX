@@ -27,6 +27,8 @@ class MSXRealTime : public MSXDevice
 
 		Emutime emuRef;
 		unsigned int realRef;
+		int catchUpTime;  // number of milliseconds overtime.
+		static const int MAX_CATCHUPTIME = 5000;  // number of milliseconds overtime.
 		float factor;
 		static const float ALPHA = 0.5;
 };
