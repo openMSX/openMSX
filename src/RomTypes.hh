@@ -25,7 +25,7 @@ enum MapperType {
 
 	HAS_DAC      = 32,
 	MAJUTSUSHI   = 32,
-	SYNTHESIZER  = 47,
+	SYNTHESIZER  = 33,
 };
 
 class NotInDataBaseException : public MSXException {

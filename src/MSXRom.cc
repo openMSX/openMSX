@@ -220,16 +220,7 @@ byte* MSXRom::getReadCacheLine(word start)
 
 void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 {
-	if (mapperType & HAS_DAC) {
-		//--==**>> <<**==--
-		// Konami Synthezier / Majutsushi
-		if (address == 0x4000) {
-			PRT_DEBUG("Konami DAC " << (int)value);
-			dac->writeDAC(value,time);
-		}
-	}
-	
-	switch (mapperType & ~HAS_DAC) {
+	switch (mapperType) {
 	case GENERIC_8KB:
 		//--==**>> Generic 8kB cartridges <<**==--
 		if (0x4000<=address && address<0xc000) {
@@ -441,6 +432,22 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 					setROM8kB(region, value);
 				}
 			}
+		}
+		break;
+	
+	case SYNTHESIZER:
+		// Konami Synthesizer
+		if (address == 0x4000) {
+			dac->writeDAC(value,time);
+		}
+		break;
+
+	case MAJUTSUSHI:
+		// Konami Majutsushi
+		if (0x6000<=address && address<0xC000) {
+			setROM8kB(address>>13, value);
+		} else if (0x5000<=address && address<0x6000) {
+			dac->writeDAC(value,time);
 		}
 		break;
 	

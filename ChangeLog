@@ -4,6 +4,7 @@ $Id$
 	* SCC+ didn't work at all, fixed it.
 	  Fixes Snatcher and SDSnatcher.
 	* Fixed RoyalBlood mapper type (not sure about Xanadu)
+	* Fixed Majutsushi, bad sound quality (DAC) though
 
 2002-09-28 Maarten ter Huurne <mth@stack.nl>
 	* Updated C-BIOS to version 0.12.
