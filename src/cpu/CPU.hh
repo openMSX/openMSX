@@ -3,6 +3,7 @@
 #ifndef __CPU_HH__
 #define __CPU_HH__
 
+#include <set>
 #include "openmsx.hh"
 #include "EmuTime.hh"
 #include "CPUTables.hh"
@@ -11,6 +12,7 @@
 #define CPU_DEBUG
 #endif
 
+using std::multiset;
 
 namespace openmsx {
 
@@ -21,7 +23,7 @@ class Scheduler;
 typedef signed char offset;
 
 
-class CPU: public CPUTables
+class CPU : public CPUTables
 {
 friend class MSXCPU;
 public:
@@ -122,7 +124,6 @@ public:
 	 */
 	void lowerIRQ();
 
-
 	// cache constants
 	static const int CACHE_LINE_BITS = 8;	// 256 bytes
 	static const int CACHE_LINE_SIZE = 1 << CACHE_LINE_BITS;
@@ -164,6 +165,15 @@ protected:
 	byte* writeCacheLine[CACHE_LINE_NUM];
 	bool readCacheTried [CACHE_LINE_NUM];
 	bool writeCacheTried[CACHE_LINE_NUM];
+
+	// debugger
+	void doBreak();
+	void doStep();
+	void doContinue();
+	
+	static multiset<word> breakPoints;
+	static bool breaked;
+	static bool step;
 
 #ifdef CPU_DEBUG
 	static BooleanSetting* traceSetting;

@@ -1,13 +1,16 @@
 // $Id$
 
+#include <sstream>
 #include "CPUInterface.hh"
 #include "CPU.hh"
 #include "Scheduler.hh"
+#include "CliCommOutput.hh"
 
 #ifdef CPU_DEBUG
 #include "Settings.hh"
 #endif
 
+using std::ostringstream;
 
 namespace openmsx {
 
@@ -15,6 +18,11 @@ namespace openmsx {
 BooleanSetting *CPU::traceSetting =
 	new BooleanSetting("cputrace", "CPU tracing on/off", false);
 #endif
+
+multiset<word> CPU::breakPoints;
+bool CPU::breaked = false;
+bool CPU::step = false;
+
 
 CPU::CPU()
 	: interface(NULL)
@@ -123,6 +131,35 @@ void CPU::extendTarget(const EmuTime& time)
 	assert(getTargetTime() <= time);
 	setTargetTime(time);
 	scheduler->schedule(time);
+}
+
+
+void CPU::doBreak()
+{
+	assert(!breaked);
+	breaked = true;
+
+	scheduler->increasePauseCounter();
+	ostringstream os;
+	os << "Break at 0x" << hex << (int)R.PC.w;
+	CliCommOutput::instance().printUpdate(os.str());
+}
+
+void CPU::doStep()
+{
+	if (breaked) {
+		breaked = false;
+		step = true;
+		scheduler->decreasePauseCounter();
+	}
+}
+
+void CPU::doContinue()
+{
+	if (breaked) {
+		breaked = false;
+		scheduler->decreasePauseCounter();
+	}
 }
 
 } // namespace openmsx

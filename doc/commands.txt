@@ -101,6 +101,11 @@ debug
     debug size <name>                returns the size of this debuggable
     debug read <name> <addr>         read a byte from a debuggable
     debug write <name> <addr> <val>  write a byte to a debuggable
+    debug set_bp <addr>              insert a new breakpoint
+    debug remove_bp <addr>           remove a certain breapoint
+    debug list_bp                    list the active breakpoints
+    debug cont                       continue execution aftre break
+    debug step                       execute one instruction
     
 
 decr

@@ -17,16 +17,16 @@ namespace openmsx {
 const EmuTime Scheduler::ASAP;
 
 Scheduler::Scheduler()
-	: sem(1), depth(0),
-	  pauseSetting("pause", "pauses the emulation", false),
-	  powerSetting("power", "turn power on/off", false),
+	: sem(1), depth(0), paused(false), powered(false),
+	  pauseSetting("pause", "pauses the emulation", paused),
+	  powerSetting("power", "turn power on/off", powered),
 	  leds(Leds::instance()),
 	  cpu(MSXCPU::instance()),
 	  commandController(CommandController::instance()),
 	  eventDistributor(EventDistributor::instance()),
 	  quitCommand(*this)
 {
-	paused = false;
+	pauseCounter = 1; // power off
 	emulationRunning = true;
 	cpu.init(this);
 	renderer = NULL;
@@ -73,7 +73,7 @@ void Scheduler::setSyncPoint(const EmuTime &timeStamp, Schedulable *device, int 
 	}
 	sem.up();
 
-	if (paused || !powerSetting.getValue()) {
+	if (pauseCounter > 0) {
 		eventDistributor.notify();
 	}
 }
@@ -117,7 +117,7 @@ void Scheduler::schedule(const EmuTime &limit)
 			if (depth == 1) {
 				break;
 			} else {
-				unpause();
+				pauseCounter = 0; // unpause, we have to quit
 			}
 		}
 		
@@ -136,25 +136,24 @@ void Scheduler::schedule(const EmuTime &limit)
 			scheduleTime = limit;
 			break;
 		}
-
 		if (time == ASAP) {
 			scheduleDevice(sp, scheduleTime);
 			eventDistributor.poll();
-		} else if (!powerSetting.getValue()) {
+		} else if (pauseCounter > 0) {
 			sem.up();
 			assert(renderer);
-			int fps = renderer->putPowerOffImage();
-			if (fps == 0) {
-				eventDistributor.wait();
+			if (!powerSetting.getValue()) {
+				int fps = renderer->putPowerOffImage();
+				if (fps == 0) {
+					eventDistributor.wait();
+				} else {
+					SDL_Delay(1000 / fps);
+					eventDistributor.poll();
+				}
 			} else {
-				SDL_Delay(1000 / fps);
-				eventDistributor.poll();
+				renderer->putStoredImage();
+				eventDistributor.wait();
 			}
-		} else if (paused) {
-			sem.up();
-			assert(renderer);
-			renderer->putStoredImage();
-			eventDistributor.wait();
 		} else {
 			if (cpu.getTargetTime() < time) {
 				sem.up();
@@ -189,24 +188,38 @@ void Scheduler::scheduleDevice(
 
 void Scheduler::unpause()
 {
-	paused = false;
+	if (paused) {
+		paused = false;
+		--pauseCounter;
+	}
 }
 
 void Scheduler::pause()
 {
-	paused = true;
+	if (!paused) {
+		paused = true;
+		++pauseCounter;
+	}
 }
 
 void Scheduler::powerOn()
 {
-	powerSetting.setValue(true);
-	leds.setLed(Leds::POWER_ON);
+	if (!powered) {
+		powered = true;
+		powerSetting.setValue(true);
+		leds.setLed(Leds::POWER_ON);
+		--pauseCounter;
+	}
 }
 
 void Scheduler::powerOff()
 {
-	powerSetting.setValue(false);
-	leds.setLed(Leds::POWER_OFF);
+	if (powered) {
+		powered = false;
+		powerSetting.setValue(false);
+		leds.setLed(Leds::POWER_OFF);
+		++pauseCounter;
+	}
 }
 
 // SettingListener

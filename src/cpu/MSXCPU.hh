@@ -79,6 +79,12 @@ public:
 
 	void setInterface(MSXCPUInterface* interf);
 
+	string doStep();
+	string doContinue();
+	string setBreakPoint(const vector<string>& tokens);
+	string removeBreakPoint(const vector<string>& tokens);
+	string listBreakPoints() const;
+
 private:
 	MSXCPU();
 	virtual ~MSXCPU();

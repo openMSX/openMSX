@@ -96,6 +96,9 @@ public:
 	void powerOn();
 	void powerOff();
 
+	void increasePauseCounter() { ++pauseCounter; }
+	void decreasePauseCounter() { --pauseCounter; }
+
 	BooleanSetting& getPauseSetting() {
 		return pauseSetting;
 	}
@@ -142,8 +145,10 @@ private:
 	/** Should the emulation continue running?
 	  */
 	bool emulationRunning;
+	int pauseCounter;
 
 	bool paused;
+	bool powered;
 	EmuTime scheduleTime;
 
 	Renderer* renderer;

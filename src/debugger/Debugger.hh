@@ -13,6 +13,7 @@ namespace openmsx {
 
 class Debuggable;
 class CommandController;
+class MSXCPU;
 
 class Debugger
 {
@@ -21,6 +22,8 @@ public:
 
 	void registerDebuggable  (const string& name, Debuggable& interface);
 	void unregisterDebuggable(const string& name, Debuggable& interface);
+
+	void setCPU(MSXCPU* cpu);
 
 private:
 	Debugger();
@@ -51,6 +54,7 @@ private:
 	
 	map<string, Debuggable*> debuggables;
 	CommandController& commandController;
+	MSXCPU* cpu;
 };
 
 } // namespace openmsx

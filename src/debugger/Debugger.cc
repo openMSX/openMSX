@@ -5,6 +5,7 @@
 #include "CommandController.hh"
 #include "Debuggable.hh"
 #include "Debugger.hh"
+#include "MSXCPU.hh"
 
 using std::ostringstream;
 
@@ -12,13 +13,15 @@ namespace openmsx {
 
 Debugger::Debugger()
 	: debugCmd(*this),
-	  commandController(CommandController::instance())
+	  commandController(CommandController::instance()),
+	  cpu(0)
 {
 	commandController.registerCommand(&debugCmd, "debug");
 }
 
 Debugger::~Debugger()
 {
+	assert(!cpu);
 	assert(debuggables.empty());
 	commandController.unregisterCommand(&debugCmd, "debug");
 }
@@ -27,6 +30,11 @@ Debugger& Debugger::instance()
 {
 	static Debugger oneInstance;
 	return oneInstance;
+}
+
+void Debugger::setCPU(MSXCPU* cpu_)
+{
+	cpu = cpu_;
 }
 
 void Debugger::registerDebuggable(const string& name, Debuggable& debuggable)
@@ -83,6 +91,16 @@ string Debugger::DebugCmd::execute(const vector<string>& tokens)
 		return desc(tokens);
 	} else if (tokens[1] == "list") {
 		return list();
+	} else if (tokens[1] == "step") {
+		return parent.cpu->doStep();
+	} else if (tokens[1] == "cont") {
+		return parent.cpu->doContinue();
+	} else if (tokens[1] == "set_bp") {
+		return parent.cpu->setBreakPoint(tokens);
+	} else if (tokens[1] == "remove_bp") {
+		return parent.cpu->removeBreakPoint(tokens);
+	} else if (tokens[1] == "list_bp") {
+		return parent.cpu->listBreakPoints();
 	}
 	throw CommandException("Syntax error.");
 }
@@ -166,7 +184,12 @@ string Debugger::DebugCmd::help(const vector<string>& tokens) const
 		"debug desc <name>                returns a description of this debuggable\n"
 		"debug size <name>                returns the size of this debuggable\n"
 		"debug read <name> <addr>         read a byte from a debuggable\n"
-		"debug write <name> <addr> <val>  write a byte to a debuggable\n"; 
+		"debug write <name> <addr> <val>  write a byte to a debuggable\n" 
+		"debug set_bp <addr>              insert a new breakpoint\n"
+		"debug remove_bp <addr>           remove a certain breapoint\n"
+		"debug list_bp                    list the active breakpoints\n"
+		"debug cont                       continue execution aftre break\n"
+		"debug step                       execute one instruction\n";
 	return helpText;
 }
 
@@ -181,6 +204,11 @@ void Debugger::DebugCmd::tabCompletion(vector<string>& tokens) const
 			cmds.insert("size");
 			cmds.insert("read");
 			cmds.insert("write");
+			cmds.insert("step");
+			cmds.insert("cont");
+			cmds.insert("set_bp");
+			cmds.insert("remove_bp");
+			cmds.insert("list_bp");
 			CommandController::completeString(tokens, cmds);
 			break;
 		}

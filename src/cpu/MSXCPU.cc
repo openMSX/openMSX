@@ -24,12 +24,14 @@ MSXCPU::MSXCPU()
 	reset(EmuTime::zero);
 
 	infoCmd.registerTopic("time", &timeInfo);
+	debugger.setCPU(this);
 	debugger.registerDebuggable("cpu-regs", *this);
 }
 
 MSXCPU::~MSXCPU()
 {
 	debugger.unregisterDebuggable("cpu-regs", *this);
+	debugger.setCPU(0);
 	infoCmd.unregisterTopic("time", &timeInfo);
 }
 
@@ -223,6 +225,57 @@ void MSXCPU::write(unsigned address, byte value)
 		}
 		break;
 	}
+}
+
+
+// Command
+
+static word getAddress(const string& str)
+{
+	char* endPtr;
+	unsigned long addr = strtoul(str.c_str(), &endPtr, 0);
+	if ((*endPtr != '\0') || (addr >= 0x10000)) {
+		throw CommandException("Invalid address");
+	}
+	return addr;
+}
+
+string MSXCPU::doStep()
+{
+	activeCPU->doStep();
+	return "";
+}
+
+string MSXCPU::doContinue()
+{
+	activeCPU->doContinue();
+	return "";
+}
+
+string MSXCPU::setBreakPoint(const vector<string>& tokens)
+{
+	activeCPU->breakPoints.insert(getAddress(tokens[2]));
+	return "";
+}
+
+string MSXCPU::removeBreakPoint(const vector<string>& tokens)
+{
+	word addr = getAddress(tokens[2]);
+	multiset<word>::iterator it = activeCPU->breakPoints.find(addr);
+	if (it != activeCPU->breakPoints.end()) {
+		activeCPU->breakPoints.erase(it);
+	}
+	return "";
+}
+
+string MSXCPU::listBreakPoints() const
+{
+	ostringstream os;
+	for (multiset<word>::const_iterator it = activeCPU->breakPoints.begin();
+	     it != activeCPU->breakPoints.end(); ++it) {
+		os << hex << *it << '\n';
+	}
+	return os.str();
 }
 
 

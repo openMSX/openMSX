@@ -240,13 +240,44 @@ inline void _CPU_::executeSlow() {
 }
 
 void _CPU_::executeCore() {
-	slowInstructions = 2;
-	while (currentTime < targetTime) {
-		if (slowInstructions == 0) {
-			executeFast();
-		} else {
-			slowInstructions--;
-			executeSlow();
+	assert(!breaked);
+	if (currentTime >= targetTime) {
+		return;
+	}
+	
+	executeSlow();
+	
+	if (step) {
+		targetTime = currentTime;
+		doBreak();
+		step = false;
+		return;
+	}
+
+	slowInstructions = 1;
+	if (breakPoints.empty()) {
+		// fast path, no breakpoints
+		while (currentTime < targetTime) {
+			if (slowInstructions == 0) {
+				executeFast();
+			} else {
+				slowInstructions--;
+				executeSlow();
+			}
+		}
+	} else {
+		while (currentTime < targetTime) {
+			if (breakPoints.find(R.PC.w) != breakPoints.end()) {
+				targetTime = currentTime;
+				doBreak();
+			} else {
+				if (slowInstructions == 0) {
+					executeFast();
+				} else {
+					slowInstructions--;
+					executeSlow();
+				}
+			}
 		}
 	}
 	//PRT_DEBUG("CPU: stopped at " << currentTime);
