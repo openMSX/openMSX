@@ -89,6 +89,14 @@ void Disk::logToPhys(int log, byte &track, byte &side, byte &sector)
 	sector = (log % sectorsPerTrack) + 1;
 }
 
+void Disk::detectGeometryFallback() // if all else fails, use statistics
+{
+	// TODO maybe also check for 8*80*512 for 8 sectors per track
+	sectorsPerTrack = 9; // most of the time (sorry 5.25" disk users...)
+	// 360k disks are likely to be single sided:
+	nbSides = (getImageSize() == 720*512) ? 1 : 2;
+}
+
 void Disk::detectGeometry()
 {
 	// From the MSX Red Book (p265):
@@ -134,8 +142,7 @@ void Disk::detectGeometry()
 			if ((sectorsPerTrack == 0) || (sectorsPerTrack > 255) ||
 			    (nbSides         == 0) || (nbSides         > 255)) {
 				// seems like bogus values, use defaults
-				sectorsPerTrack = 9;
-				nbSides         = 2;
+				detectGeometryFallback();
 			}
 		} else {
 			read(0, 2, 0, 512, buf);
@@ -145,16 +152,19 @@ void Disk::detectGeometry()
 				nbSides         = (mediaDescriptor & 1) ? 2 : 1;
 			} else {
 				// invalid media descriptor, just assume it's a
-				// normal DS/DD disk
-				sectorsPerTrack = 9;
-				nbSides         = 2;
+				// normal DS or SS DD disk
+				detectGeometryFallback();
 			}
 		}
 	} catch (MSXException& e) {
-		// read error, assume it's a 3.5" DS/DD disk
-		sectorsPerTrack = 9;
-		nbSides         = 2;
+		// read error, assume it's a 3.5" DS or SS DD disk
+		detectGeometryFallback();
 	}
+}
+
+int Disk::getImageSize()
+{
+	return 0; // by default we know nothing of the image size
 }
 
 } // namespace openmsx

@@ -149,4 +149,9 @@ void SectorBasedDisk::detectGeometry()
 	}
 }
 
+int SectorBasedDisk::getImageSize()
+{
+	return  512 * nbSectors;
+}
+
 } // namespace openmsx

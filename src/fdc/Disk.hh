@@ -62,7 +62,10 @@ protected:
 	int physToLog(byte track, byte side, byte sector);
 	void logToPhys(int log, byte &track, byte &side, byte &sector);
 
+	virtual void detectGeometryFallback();
 	virtual void detectGeometry();
+
+	virtual int getImageSize();
 
 	int sectorsPerTrack;
 	int nbSides;

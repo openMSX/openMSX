@@ -1,5 +1,10 @@
 $Id$
 
+2004-11-27 Manuel Bilderbeek <manuel@msxnet.org>
+	* Implemented a fallback for the detectGeometry function in Disk for
+	  sectorbased disk images. Fixes booting of SVI-738 CP/M disk, which
+	  doesn't have a valid MSX bootsector :)
+
 2004-11-26 Eric Boon <e.boon4@chello.nl>
 	* Add V9990 Command Engine
 	* Implemented LMMC

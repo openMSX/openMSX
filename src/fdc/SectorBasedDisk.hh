@@ -29,6 +29,8 @@ protected:
 	int nbSectors;
 
 private:
+	int getImageSize();
+
 	byte writeTrackBuf[SECTOR_SIZE];
 	int writeTrackBufCur;
 	int writeTrackSectorCur;
