@@ -1,5 +1,9 @@
 $Id$
 
+2003-08-17 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* fixed a serious bug in the commandlineparser. -diska (and b),
+	  -carta (and b,c and d) work again.
+
 2003-08-16 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Added priority to the commandline parser. When the -h option
 	  is invoked, there won't be any machines loaded.

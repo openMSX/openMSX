@@ -51,6 +51,7 @@ struct OptionData
 {
 	CLIOption * option;
 	byte prio;
+	byte length; // length in parameters
 };
 
 class CommandLineParser
@@ -58,7 +59,7 @@ class CommandLineParser
 	public:
 		static CommandLineParser* instance();
 		
-		void registerOption(const string &str, CLIOption* cliOption, byte prio=7);
+		void registerOption(const string &str, CLIOption* cliOption, byte prio=7, byte length =2);
 		void registerFileType(const string &str, CLIFileType* cliFileType);
 		void registerPostConfig(CLIPostConfig *post);
 		void parse(int argc, char **argv);

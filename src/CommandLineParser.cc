@@ -48,14 +48,15 @@ CommandLineParser::CommandLineParser()
 	registerFileType(".xml",   &configFile);
 	registerOption("-machine", &machineOption,3);
 	registerOption("-setting", &settingOption,2);
-	registerOption("-h", &helpOption,1); 
+	registerOption("-h", &helpOption,1,1); 
 }
 
-void CommandLineParser::registerOption(const string &str, CLIOption* cliOption, byte prio)
+void CommandLineParser::registerOption(const string &str, CLIOption* cliOption, byte prio, byte length)
 {
 	OptionData temp;
 	temp.option = cliOption;
 	temp.prio = prio;
+	temp.length = length;
 	optionMap[str] = temp;
 }
 
@@ -219,10 +220,16 @@ void CommandLineParser::parse(int argc, char **argv)
 					if (!parseOption(arg, cmdLine, priority)) {
 						// next try the registered filetypes (xml)
 						if (!parseFileName(arg, cmdLine)) {
-							// this pospones ONLY the argument at hand and not
-							// the parameter. So if the parameter is a known
-							// option things could go wrong.
 							backupCmdLine.push_back(arg); // no option or known file
+							map<string, OptionData>::const_iterator it1;
+							it1 = optionMap.find(arg);
+							if (it1 != optionMap.end()) {
+								for (int i = 0; i < it1->second.length -1;++i){
+									arg = cmdLine.front();
+									cmdLine.pop_front();
+									backupCmdLine.push_back(arg);
+								}
+							}
 						}
 					}
 				}
