@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
@@ -80,5 +81,8 @@
   <device id="Printer Port">
     <type>PrinterPort</type>
   </device>
+
+  <config id="CassettePort">
+  </config>
 
 </msxconfig>

@@ -87,4 +87,7 @@
     <type>PrinterPort</type>
   </device>
 
+  <config id="CassettePort">
+  </config>
+
 </msxconfig>

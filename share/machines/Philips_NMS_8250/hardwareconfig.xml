@@ -30,16 +30,11 @@
     <parameter name="size">128</parameter>
   </device>
 
-  <device id="biosrom">
+  <device id="mainrom">
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
-    <parameter name="filename">nms8250-bios.rom</parameter>
-  </device>
-
-  <device id="basicrom">
-    <type>Rom</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">nms8250-basic.rom</parameter>
+    <parameter name="filename">nms8250_basic-bios2.rom</parameter>
   </device>
 
   <device id="subrom">
@@ -89,5 +84,7 @@
     <type>PrinterPort</type>
   </device>
 
-</msxconfig>
+  <config id="CassettePort">
+  </config>
 
+</msxconfig>

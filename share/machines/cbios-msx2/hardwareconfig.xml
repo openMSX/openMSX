@@ -24,56 +24,28 @@
     <type>MemoryMapper</type>
     <parameter name="slow_drain_on_reset">false</parameter>
     <parameter name="size">512</parameter>
-    <slotted>
-      <ps>3</ps>
-      <ss>2</ss>
-      <page>0</page>
-    </slotted>
-    <slotted>
-      <ps>3</ps>
-      <ss>2</ss>
-      <page>1</page>
-    </slotted>
-    <slotted>
-      <ps>3</ps>
-      <ss>2</ss>
-      <page>2</page>
-    </slotted>
-    <slotted>
-      <ps>3</ps>
-      <ss>2</ss>
-      <page>3</page>
-    </slotted>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>0</page> </slotted>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>3</page> </slotted>
     <parameter name="slow_drain_on_reset">false</parameter>
   </device>
 
   <device id="C-BIOS main">
     <type>Rom</type>
-    <slotted>
-      <ps>0</ps>
-      <ss>0</ss>
-      <page>0</page>
-    </slotted>
+    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <parameter name="filename">../../../Contrib/cbios/CB_MAIN.BIN</parameter>
   </device>
 
   <device id="C-BIOS second half">
     <type>Rom</type>
-    <slotted>
-      <ps>0</ps>
-      <ss>0</ss>
-      <page>1</page>
-    </slotted>
+    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
     <parameter name="filename">../../../Contrib/cbios/CB_SH.BIN</parameter>
   </device>
 
   <device id="C-BIOS subrom">
     <type>Rom</type>
-    <slotted>
-      <ps>3</ps>
-      <ss>0</ss>
-      <page>0</page>
-    </slotted>
+    <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
     <parameter name="filename">../../../Contrib/cbios/CB_SUB.BIN</parameter>
   </device>
 
@@ -107,6 +79,9 @@
   <device id="Printer Port">
     <type>PrinterPort</type>
   </device>
+
+  <config id="CassettePort">
+  </config>
 
 </msxconfig>
 

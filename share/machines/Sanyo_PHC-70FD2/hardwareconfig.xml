@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
@@ -67,24 +68,7 @@
     <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
     <parameter name="filename">phc-70fd2_disk.rom</parameter>
-    <parameter name="type">Panasonic</parameter>
-    <parameter name="" class="patchcode">MSXDiskRomPatch</parameter>
-    <parameter name="0x3FF0" class="patch">0xFF</parameter>
-    <parameter name="0x3FF1" class="patch">0xFF</parameter>
-    <parameter name="0x3FF2" class="patch">0xFF</parameter>
-    <parameter name="0x3FF3" class="patch">0xFF</parameter>
-    <parameter name="0x3FF4" class="patch">0xFF</parameter>
-    <parameter name="0x3FF5" class="patch">0xFF</parameter>
-    <parameter name="0x3FF6" class="patch">0xFF</parameter>
-    <parameter name="0x3FF7" class="patch">0xFF</parameter>
-    <parameter name="0x3FF8" class="patch">0xFF</parameter>
-    <parameter name="0x3FF9" class="patch">0xFF</parameter>
-    <parameter name="0x3FFA" class="patch">0x80</parameter>
-    <parameter name="0x3FFB" class="patch">0x00</parameter>
-    <parameter name="0x3FFC" class="patch">0xFC</parameter>
-    <parameter name="0x3FFD" class="patch">0xFC</parameter>
-    <parameter name="0x3FFE" class="patch">0xFF</parameter>
-    <parameter name="0x3FFF" class="patch">0x3F</parameter>
+    <parameter name="type">TC8566AF</parameter>
     <parameter name="brokenFDCread">false</parameter>
     <parameter name="drivename1">diska</parameter>
     <parameter name="drivename2">diskb</parameter>
@@ -125,5 +109,8 @@
     <type>F4Device</type>
     <parameter name="inverted">true</parameter>
   </device>
+
+  <config id="CassettePort">
+  </config>
 
 </msxconfig>
