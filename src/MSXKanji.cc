@@ -12,7 +12,7 @@ MSXKanji::MSXKanji()
 
 MSXKanji::~MSXKanji()
 {
-	delete buffer;
+	delete [] buffer;
 }
 
 void MSXKanji::init()

@@ -19,6 +19,7 @@ class MSXRom16KB : public MSXDevice
 		byte readMem(word address, Emutime &time);
 
 	private:
+		static const int ROM_SIZE = 16384;
 		byte* memoryBank;
 };
 #endif

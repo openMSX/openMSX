@@ -7,6 +7,7 @@ $Id$
 	  MSXMotherBoard which CPU to talk to)
 	  Removed some code marked as "ugly hack"
 	* added support for Kanji ROM
+	* cleanups in MSXRom16KB 
 
 2001-09-19 Joost Yervante Damad <j.damad@qahwah.net>
 	* various small fixes around the code

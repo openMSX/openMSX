@@ -3,8 +3,9 @@
 #include "MSXRom16KB.hh" 
 #include "MSXMotherBoard.hh"
 #include <string>
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+#include <fstream>
+
 
 MSXRom16KB::MSXRom16KB()
 {
@@ -19,44 +20,34 @@ MSXRom16KB::~MSXRom16KB()
 
 void MSXRom16KB::init()
 {
-	// TODO: kill C way of file I/O and replace char* by string
 	MSXDevice::init();
 	
-	FILE *file;
-	const char *filename;
-	const char *nrbytes;
-	int ps;
-	int ss;
-	int page;
-	memoryBank=new byte[16384];
-	if (memoryBank == NULL) {
+	// allocate buffer
+	memoryBank=new byte[ROM_SIZE];
+	if (memoryBank == NULL)
 		PRT_ERROR("Couldn't create 16KB rom bank !!!!!!");
-	} else {
-		//Read the rom file
-		// from [ANSI/ISO]: the default value of non-class objects is indeterminate
-		memset(memoryBank,0,16384);
-		filename=deviceConfig->getParameter("romfile").c_str();
-		nrbytes=deviceConfig->getParameter("skip_headerbytes").c_str();
-		file = fopen(filename,"r");
-		if (file) {
-			PRT_DEBUG("reading " << filename);
-			fseek(file,atol(nrbytes),SEEK_SET);
-			fread(memoryBank,16384,1,file);
-		} else {
-			PRT_ERROR("Error reading " << filename);
-		}
-		list<MSXConfig::Device::Slotted*>::const_iterator i;
-		for (i=deviceConfig->slotted.begin(); i!=deviceConfig->slotted.end(); i++) {
-			// Registering device in slot structure
-			ps=(*i)->getPS();
-			ss=(*i)->getSS();
-			page=(*i)->getPage();
-			MSXMotherBoard::instance()->registerSlottedDevice(this,ps,ss,page);
-		}
+	
+	// read the rom file
+	string filename=deviceConfig->getParameter("romfile");
+	int offset = atoi(deviceConfig->getParameter("skip_headerbytes").c_str());
+	
+	ifstream file(filename.c_str());
+	file.seekg(offset);
+	file.read(memoryBank, ROM_SIZE);
+	if (file.fail())
+		PRT_ERROR("Error reading " << filename);
+	
+	// register in slot-structure
+	list<MSXConfig::Device::Slotted*>::const_iterator i;
+	for (i=deviceConfig->slotted.begin(); i!=deviceConfig->slotted.end(); i++) {
+		int ps=(*i)->getPS();
+		int ss=(*i)->getSS();
+		int page=(*i)->getPage();
+		MSXMotherBoard::instance()->registerSlottedDevice(this,ps,ss,page);
 	}
 }
 
 byte MSXRom16KB::readMem(word address, Emutime &time)
 {
-	return memoryBank[ address & 0x3fff] ;
-};
+	return memoryBank [address & 0x3fff];
+}
