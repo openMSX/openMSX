@@ -8,11 +8,11 @@
 #include "Renderer.hh"
 
 
-class MSXTMS9928a;
+class VDP;
 
 /** Factory method to create SDLLoRenderer objects.
   */
-Renderer *createSDLLoRenderer(MSXTMS9928a *vdp, bool fullScreen, const EmuTime &time);
+Renderer *createSDLLoRenderer(VDP *vdp, bool fullScreen, const EmuTime &time);
 
 /** Low-res (320x240) renderer on SDL.
   */
@@ -23,7 +23,7 @@ public:
 	  * It is suggested to use the createSDLLoRenderer factory
 	  * function instead, which automatically selects a colour depth.
 	  */
-	SDLLoRenderer(MSXTMS9928a *vdp, SDL_Surface *screen, const EmuTime &time);
+	SDLLoRenderer(VDP *vdp, SDL_Surface *screen, const EmuTime &time);
 
 	/** Destructor.
 	  */
@@ -76,7 +76,7 @@ private:
 
 	/** The VDP of which the video output is being rendered.
 	  */
-	MSXTMS9928a *vdp;
+	VDP *vdp;
 
 	/** SDL colours corresponding to each VDP palette entry.
 	  * PalFg has entry 0 set to the current background colour,

@@ -8,11 +8,11 @@
 #include "Renderer.hh"
 
 
-class MSXTMS9928a;
+class VDP;
 
 /** Factory method to create SDLHiRenderer objects.
   */
-Renderer *createSDLHiRenderer(MSXTMS9928a *vdp, bool fullScreen, const EmuTime &time);
+Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time);
 
 /** Hi-res (640x480) renderer on SDL.
   */
@@ -23,7 +23,7 @@ public:
 	  * It is suggested to use the createSDLHiRenderer factory
 	  * function instead, which automatically selects a colour depth.
 	  */
-	SDLHiRenderer(MSXTMS9928a *vdp, SDL_Surface *screen, const EmuTime &time);
+	SDLHiRenderer(VDP *vdp, SDL_Surface *screen, const EmuTime &time);
 
 	/** Destructor.
 	  */
@@ -76,7 +76,7 @@ private:
 
 	/** The VDP of which the video output is being rendered.
 	  */
-	MSXTMS9928a *vdp;
+	VDP *vdp;
 
 	/** SDL colours corresponding to each VDP palette entry.
 	  * PalFg has entry 0 set to the current background colour,

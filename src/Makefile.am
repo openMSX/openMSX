@@ -23,7 +23,7 @@ openmsx_SOURCES=openmsx.cc \
 	CassettePlayer.hh CassettePlayer.cc \
 	MSXRom16KB.hh MSXRom16KB.cc \
 	MSXSimple64KB.hh MSXSimple64KB.cc \
-	MSXTMS9928a.hh MSXTMS9928a.cc \
+	VDP.hh VDP.cc \
 	Renderer.hh \
 	SDLLoRenderer.hh SDLLoRenderer.cc \
 	SDLHiRenderer.hh SDLHiRenderer.cc \

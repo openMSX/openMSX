@@ -17,7 +17,7 @@ Probably also easier to implement when using line buffers.
 */
 
 #include "SDLHiRenderer.hh"
-#include "MSXTMS9928a.hh"
+#include "VDP.hh"
 #include "config.h"
 
 /** Dimensions of screen.
@@ -72,7 +72,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::RenderMethod
 	};
 
 template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
-	MSXTMS9928a *vdp, SDL_Surface *screen, const EmuTime &time)
+	VDP *vdp, SDL_Surface *screen, const EmuTime &time)
 {
 	this->vdp = vdp;
 	this->screen = screen;
@@ -119,9 +119,9 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	for (int i = 0; i < 16; i++) {
 		PalFg[i] = PalBg[i] = SDL_MapRGB(
 			screen->format,
-			MSXTMS9928a::TMS9928A_PALETTE[i * 3 + 0],
-			MSXTMS9928a::TMS9928A_PALETTE[i * 3 + 1],
-			MSXTMS9928a::TMS9928A_PALETTE[i * 3 + 2]
+			VDP::TMS9928A_PALETTE[i * 3 + 0],
+			VDP::TMS9928A_PALETTE[i * 3 + 1],
+			VDP::TMS9928A_PALETTE[i * 3 + 2]
 			);
 	}
 }
@@ -447,14 +447,14 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 	int line)
 {
 	// Determine sprites visible on this line.
-	MSXTMS9928a::SpriteInfo *visibleSprites;
+	VDP::SpriteInfo *visibleSprites;
 	int visibleIndex = vdp->getSprites(line, visibleSprites);
 	Pixel *pixelPtr0 = screenLinePtrs[line * 2];
 	Pixel *pixelPtr1 = screenLinePtrs[line * 2 + 1];
 
 	while (visibleIndex--) {
 		// Get sprite info.
-		MSXTMS9928a::SpriteInfo *sip = &visibleSprites[visibleIndex];
+		VDP::SpriteInfo *sip = &visibleSprites[visibleIndex];
 		Pixel colour = sip->colour;
 		if (colour == 0) {
 			// Don't draw transparent sprites.
@@ -652,7 +652,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::putImage()
 	dirtyForeground = dirtyBackground = false;
 }
 
-Renderer *createSDLHiRenderer(MSXTMS9928a *vdp, bool fullScreen, const EmuTime &time)
+Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 {
 	int flags = SDL_HWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
 

@@ -6,7 +6,7 @@
 #include "MSXRom16KB.hh"
 #include "MSXPPI.hh"
 #include "MSXCassettePort.hh"
-#include "MSXTMS9928a.hh"
+#include "VDP.hh"
 #include "MSXE6Timer.hh"
 #include "MSXCPU.hh"
 #include "MSXPSG.hh"
@@ -43,8 +43,8 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	if (conf->getType()=="Simple64KB") {
 		device = new MSXSimple64KB(conf, time);
 	} else
-	if (conf->getType()=="TMS9928a") {
-		device = new MSXTMS9928a(conf, time);
+	if (conf->getType()=="VDP") {
+		device = new VDP(conf, time);
 	} else
 	if (conf->getType()=="E6Timer") {
 		device = new MSXE6Timer(conf, time);
