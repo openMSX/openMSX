@@ -1,6 +1,6 @@
 // $Id$
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "RendererFactory.hh"
 #include "openmsx.hh"
 #include "RenderSettings.hh"

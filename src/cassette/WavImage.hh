@@ -3,7 +3,7 @@
 #ifndef __WAVIMAGE_HH__
 #define __WAVIMAGE_HH__
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include <string>
 #include "MSXException.hh"
 #include "CassetteImage.hh"

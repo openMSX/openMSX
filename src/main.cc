@@ -8,7 +8,7 @@
 #include <memory> // for auto_ptr
 #include <iostream>
 #include <exception>
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "config.h"
 #include "MSXMotherBoard.hh"
 #include "CommandLineParser.hh"

@@ -13,7 +13,7 @@
 #include "Deinterlacer.hh"
 #include "openmsx.hh"
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 
 namespace openmsx {

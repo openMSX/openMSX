@@ -9,7 +9,7 @@
 #include "openmsx.hh"
 #include "MSXException.hh"
 #include "File.hh"
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #include "config.h"
 #ifdef HAVE_SDL_IMAGE_H

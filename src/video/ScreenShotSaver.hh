@@ -4,7 +4,7 @@
 #define __SCREENSHOTSAVER_HH__
 
 #include <string>
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "openmsx.hh"
 #include "CommandException.hh"
 

@@ -4,7 +4,7 @@
 #define __OSDCONSOLERENDERER_HH__
 
 #include <string>
-#include <SDL/SDL.h>	// TODO get rid of this
+#include <SDL.h>	// TODO get rid of this
 #include "ConsoleRenderer.hh"
 #include "EnumSetting.hh"
 #include "FilenameSetting.hh"

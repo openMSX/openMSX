@@ -1,7 +1,7 @@
 // $Id$
 
 #include <cassert>
-#include "SDL/SDL.h"	// TODO move this
+#include <SDL.h>	// TODO move this
 #include "Joystick.hh"
 #include "PluggingController.hh"
 #include "EventDistributor.hh"

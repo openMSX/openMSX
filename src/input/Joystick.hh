@@ -6,7 +6,7 @@
 #include "JoystickDevice.hh"
 #include "EventListener.hh"
 #include "MSXException.hh"
-#include <SDL/SDL.h> // TODO move this
+#include <SDL.h> // TODO move this
 
 
 namespace openmsx {

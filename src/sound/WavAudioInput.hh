@@ -3,7 +3,7 @@
 #ifndef __WAVAUDIOINPUT_HH__
 #define __WAVAUDIOINPUT_HH__
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "AudioInputDevice.hh"
 #include "FilenameSetting.hh"
 #include "SettingListener.hh"

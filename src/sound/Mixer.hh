@@ -7,7 +7,7 @@
 //#define DEBUG_MIXER
 #endif
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include <vector>
 #include <map>
 #include "EmuTime.hh"

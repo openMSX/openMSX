@@ -3,7 +3,7 @@
 #ifndef __BLENDER_HH__
 #define __BLENDER_HH__
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 namespace openmsx {
 

@@ -3,7 +3,7 @@
 #ifndef __SCALER_HH__
 #define __SCALER_HH__
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 
 namespace openmsx {

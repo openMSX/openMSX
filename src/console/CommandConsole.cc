@@ -1,7 +1,7 @@
 // $Id$
 
 #include <fstream>
-#include "SDL/SDL.h"	// TODO 
+#include <SDL.h>	// TODO 
 #include "CommandConsole.hh"
 #include "CommandController.hh"
 #include "EventDistributor.hh"

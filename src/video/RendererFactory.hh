@@ -5,7 +5,7 @@
 
 #include "EnumSetting.hh"
 #include "GLUtil.hh" // for __OPENGL_AVAILABLE__ and X_DISPLAY_MISSING
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include <string>
 
 

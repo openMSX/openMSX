@@ -3,7 +3,7 @@
 #ifndef __SEMAPHORE_HH__
 #define __SEMAPHORE_HH__
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 
 namespace openmsx {

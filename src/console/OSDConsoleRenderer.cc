@@ -8,7 +8,7 @@
 #include "FileContext.hh"
 #include "IntegerSetting.hh"
 #include <algorithm>
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 
 namespace openmsx {

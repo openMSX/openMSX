@@ -3,7 +3,7 @@
 #ifndef __DEINTERLACER_HH__
 #define __DEINTERLACER_HH__
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 
 namespace openmsx {

@@ -6,7 +6,7 @@
 #include "GLUtil.hh"
 #ifdef __OPENGL_AVAILABLE__
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "openmsx.hh"
 #include "PixelRenderer.hh"
 #include "CharacterConverter.hh"

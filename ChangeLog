@@ -1,5 +1,9 @@
 $Id$
 
+2004-04-09 Maarten ter Huurne <maarten@treewalker.org>
+	* Added support for compilation on FreeBSD 5.
+	  Thanks to Jorito for providing a working environment to test on.
+
 2004-04-07 Maarten ter Huurne <maarten@treewalker.org>
 	* Several changes to the build system; the main visible effect is
 	  that all generated files are now in "derived".
