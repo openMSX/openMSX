@@ -2,6 +2,8 @@ $Id$
 
 2005-01-24 Manuel Bilderbeek <manuel@msxnet.org>
 	* Made a separate extension for MegaRAM Disk
+	* Updated ROM types to new names in romdb.xml; also commented out some
+	  useless ROMs, because they only occur inside machines or extensions
 
 2005-01-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed Clock<> constructor:
