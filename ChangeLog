@@ -1,6 +1,14 @@
 $Id$
 
-2003-12-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-12-22 Maarten ter Huurne <maarten@treewalker.org>
+	* Separated Settings.hh into one file per class.
+
+2003-12-21 Maarten ter Huurne <maarten@treewalker.org>
+	* Removed RendererSwitcher and FullScreenToggler. They were useful
+	  back when openMSX was multi-threaded, but are useless now.
+	* Various code layout cleanups.
+
+2003-12-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed a lot (not all) ICC compile remarks, mostly virtual
 	  destructors for base classes
 
