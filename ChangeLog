@@ -1,5 +1,8 @@
 $Id$
 
+2001-09-03 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* In class Scheduler, use "set" instead of "list" or "sortedlist" 
+
 2001-08-27 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* made a more complete PPI implementation
 	* made new device: E6Timer (TurboR)

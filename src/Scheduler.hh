@@ -4,8 +4,7 @@
 #define __SCHEDULER_HH__
 
 #include "emutime.hh"
-//#include "sortedlist.hh"
-#include <list>
+#include <set>
 
 class MSXZ80;
 
@@ -24,8 +23,7 @@ class SchedulerNode
 class Scheduler
 {
 	private:
-		//SortedList<SchedulerNode> scheduleList;
-		list<SchedulerNode> scheduleList;
+		set<SchedulerNode> scheduleList;
 		Emutime currentTime;
 		int stateIRQline;
 		bool keepRunning;
@@ -33,10 +31,9 @@ class Scheduler
 		Scheduler(void);
 		~Scheduler(void);
 		const Emutime &getCurrentTime();
-		const Emutime &getFirstStamp();
-		void removeFirstStamp();
+		const SchedulerNode &getFirstNode();
+		void removeFirstNode();
 		void insertStamp(Emutime &timestamp, MSXDevice &activedevice);
-		//void setLaterSP(Emutime &latertimestamp, MSXDevice *activedevice);
 		void raiseIRQ();
 		void lowerIRQ();
 		int getIRQ();

@@ -17,20 +17,18 @@ Scheduler::Scheduler(void) : currentTime()
 Scheduler::~Scheduler(void)
 {
 	//while (!scheduleList.empty()) {
-	//	removeFirstStamp();
+	//	removeFirstNode();
 	//}
 }
 
-const Emutime &Scheduler::getFirstStamp()
+const SchedulerNode &Scheduler::getFirstNode()
 {
-//	return scheduleList.getFirst().getTime();
-	return scheduleList.front().getTime();
+	return *(scheduleList.begin());
 }
 
-void Scheduler::removeFirstStamp()
+void Scheduler::removeFirstNode()
 {
-//	scheduleList.removeFirst();
-	scheduleList.pop_front();
+	scheduleList.erase(scheduleList.begin());
 }
 
 
@@ -42,14 +40,8 @@ const Emutime &Scheduler::getCurrentTime()
 void Scheduler::insertStamp(Emutime &timestamp, MSXDevice &activedevice) 
 {
 	assert (timestamp >= getCurrentTime());
-	scheduleList.push_back(SchedulerNode (timestamp, activedevice));
-	scheduleList.sort();
+	scheduleList.insert(SchedulerNode (timestamp, activedevice));
 }
-
-//void Scheduler::setLaterSP(UINT64 latertimestamp,MSXDevice *activedevice)
-//{
-//	insertStamp(getCurrentTime()+latertimestamp , activedevice);
-//}
 
 void Scheduler::raiseIRQ()
 {
@@ -71,7 +63,7 @@ void Scheduler::scheduleEmulation()
 	keepRunning=true;
 	while(keepRunning){
 		//const SchedulerNode &firstNode = scheduleList.getFirst();
-		const SchedulerNode &firstNode = scheduleList.front();
+		const SchedulerNode &firstNode = getFirstNode();
 		const Emutime &time = firstNode.getTime();
 		MSXDevice device = firstNode.getDevice();
 	//1. Set the target T-State of the cpu to the first SP in the list.
@@ -83,7 +75,7 @@ void Scheduler::scheduleEmulation()
 	//3. Get the device from the first SP in the list and let it reach its T-state.
 		device.executeUntilEmuTime(time);
 	//4. Remove the first element from the list
-		removeFirstStamp();
+		removeFirstNode();
 	// TODO: loop if there are other devices with the same timestamp
 	}
 }
