@@ -3,372 +3,280 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
-<!-- Defines which slots are external ones, i.e. can have carts put into them-->
-  <config id="ExternalSlots">
-    <parameter name="slota">1-0</parameter>
-    <parameter name="slotb">2-0</parameter>
-  </config>
+  <info>
+    <menufacturer>openMSX team</menufacturer>
+    <code>EC-050</code>
+    <release_year>2004</release_year>
+    <description>Example configurations</description>
+    <type>MSX2</type>
+  </info>
 
-<!-- slot configuration -->
-  <config id="MotherBoard">
-    <parameter name="0" class="subslotted">false</parameter>
-    <parameter name="1" class="subslotted">false</parameter>
-    <parameter name="2" class="subslotted">false</parameter>
-    <parameter name="3" class="subslotted">true</parameter>
-  </config>
+  <MapperType>Philips</MapperType>
+
+  <RenShaTurbo>
+    <min_ints>47</min_ints>
+    <max_ints>221</max_ints>
+  </RenShaTurbo>
+
+  <devices>
+
+<!--define slot structure (expanded slots and external slots) -->
+    <primary slot="0">
+      <some_device>...</some_device>
+    </primary>
+    <primary slot="1" external="true"/>
+    <primary slot="2">
+      <secondary slot="0" external-"true"/>
+      <secondary slot="1" external-"true"/>
+      <secondary slot="2" external-"true"/>
+      <secondary slot="3" external-"true"/>
+    </primary>
+    <primary slot="3">
+      <secondary slot="2">
+        <some_device>...</some_device>
+      </secondary>
+    </primary>
   
-  <config id="FileTypes">
-    <type>FileTypes</type>
-    <parameter class="diskimages">dsk</parameter>
-    <parameter class="diskimages">di1</parameter>
-    <parameter class="diskimages">di2</parameter>
-    <parameter class="diskimages">xsa</parameter>
-    <parameter class="rawtapeimages">wav</parameter>
-    <parameter class="cassetteimages">cas</parameter>
-    <parameter class="romimages">rom</parameter>
-    <parameter class="romimages">ri</parameter>
-   </config>
+<!-- 8kb RAM at address 0xE000-0xFFFF in slot 3-2 -->
+  <primary slot="3">
+    <secondary slot="2">
+      <RAM id="myram1">
+        <mem base="0x0000" size="0x10000"/>
+        <slow_drain_on_reset>true</slow_drain_on_reset>
+        <size>8</size>
+        <base>56</base>
+      </RAM>
+    </secondary>
+  </primary>
 
-<!-- Console commands that should be automatically executed at boot -->
-  <config id="AutoCommands">
-    <parameter>plug joyporta mouse</parameter>
-    <parameter>plug joyportb joystick1</parameter>
-  </config>
+<!-- BIOS + BASIC ROM in unexpanded slot 0.
+     ROM is patched for alternative tape support -->
+  <primary slot="0">
+    <Rom id="biosrom">
+      <mem base="0x0000" size="0x8000"/>
+      <rom>
+        <sha1>123456789b91a7dea3ff75f3fde76b8af22c4a3a</sha1>
+        <filename>MSX.ROM</filename>
+        <patchcode>MSXTapePatch</patchcode>
+        <patch addr="0x00E1" val="0xED"/>
+        <patch addr="0x00E2" val="0xFE"/>
+        <patch addr="0x00E3" val="0xC9"/>
+        <patch addr="0x00E4" val="0xED"/>
+        <patch addr="0x00E5" val="0xFE"/>
+        <patch addr="0x00E6" val="0xC9"/>
+        <patch addr="0x00E7" val="0xED"/>
+        <patch addr="0x00E8" val="0xFE"/>
+        <patch addr="0x00E9" val="0xC9"/>
+        <patch addr="0x00EA" val="0xED"/>
+        <patch addr="0x00EB" val="0xFE"/>
+        <patch addr="0x00EC" val="0xC9"/>
+        <patch addr="0x00ED" val="0xED"/>
+        <patch addr="0x00EE" val="0xFE"/>
+        <patch addr="0x00EF" val="0xC9"/>
+        <patch addr="0x00F0" val="0xED"/>
+        <patch addr="0x00F1" val="0xFE"/>
+        <patch addr="0x00F2" val="0xC9"/>
+        <patch addr="0x00F3" val="0xED"/>
+        <patch addr="0x00F4" val="0xFE"/>
+        <patch addr="0x00F5" val="0xC9"/>
+      </rom>
+    </ROM>
+  </primary>
+
+<!-- FDC controller in slot 3-3 with one physical disk drive -->
+  <primary slot="3">
+    <secondary slot="3">
+      <WD2793 id="Memory Mapped FDC">
+        <mem base="0x4000" size="0x8000"/>
+        <rom>
+          <sha1>123456789b91a7dea3ff75f3fde76b8a98765432</sha1>
+          <filename>nms8250-disk.rom</filename>
+        </rom>
+        <brokenFDCread>false</brokenFDCread> 
+        <drives>1</drive>
+      </WD2793>
+    </secondary>
+  </primary>
+
+  <PPI id="ppi">
+    <io base="0xA8" num="4"/>
+    <sound>
+      <volume>16000</volume>
+      <mode>mono</mode>
+    </sound>
+    <key_ghosting>true</key_ghosting>
+  </PPI>
+
+  <VDP id="VDP">
+    <io base="0x98" num="4" type="O"/>
+    <io base="0x98" num="2" type="I"/>
+    <version>TMS99X8A</version>
+  </VDP>
+
+  <E6Timer id="Turbo-R timer">
+    <io base="0xE6" num="2"/>
+  </E6Timer>
+
+  <PSG id="psg">
+    <io base="0xA0" num="2" type="O"/>
+    <io base="0xA2" num="1" type="I"/>
+    <sound>
+      <volume>21000</volume>
+    </sound>
+    <keyboardlayout>JIS</keyboardlayout>
+  </PSG>
   
-<!-- Example RAM configuration -->
-  <device id="myram1">
-    <type>RAM</type>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>0</page> </slotted>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
-    <parameter name="slow_drain_on_reset">true</parameter>
-    <parameter name="size">8</parameter>
-    <parameter name="base">56</parameter>
-  </device>
+  <Kanji id="Kanji ROM">
+    <io base="0xD8" num="4"/>
+    <rom>
+      <sha1>5aff2d9b6efc723bc395b0f96f0adfa83cc54a49</sha1>
+      <filename>KANJI.ROM</filename>
+    </rom>
+  </Kanji>
 
-  <device id="biosrom">
-    <type>Rom</type>
-    <slotted> <page>0</page> <ps>0</ps> <ss>0</ss> </slotted>
-  </device>
-<!--
-  <device id="biosrom">
-    <type>Rom</type>
-    <slotted>
-      <page>0</page>
-      <ps>0</ps>
-      <ss>0</ss>
-    </slotted>
-    <parameter name="filename">MSX.ROM</parameter>
-    <parameter name="0x00E1" class="patch">0xED</parameter>
-    <parameter name="0x00E2" class="patch">0xFE</parameter>
-    <parameter name="0x00E3" class="patch">0xC9</parameter>
-    <parameter name="0x00E4" class="patch">0xED</parameter>
-    <parameter name="0x00E5" class="patch">0xFE</parameter>
-    <parameter name="0x00E6" class="patch">0xC9</parameter>
-    <parameter name="0x00E7" class="patch">0xED</parameter>
-    <parameter name="0x00E8" class="patch">0xFE</parameter>
-    <parameter name="0x00E9" class="patch">0xC9</parameter>
-    <parameter name="0x00EA" class="patch">0xED</parameter>
-    <parameter name="0x00EB" class="patch">0xFE</parameter>
-    <parameter name="0x00EC" class="patch">0xC9</parameter>
-    <parameter name="0x00ED" class="patch">0xED</parameter>
-    <parameter name="0x00EE" class="patch">0xFE</parameter>
-    <parameter name="0x00EF" class="patch">0xC9</parameter>
-    <parameter name="0x00F0" class="patch">0xED</parameter>
-    <parameter name="0x00F1" class="patch">0xFE</parameter>
-    <parameter name="0x00F2" class="patch">0xC9</parameter>
-    <parameter name="0x00F3" class="patch">0xED</parameter>
-    <parameter name="0x00F4" class="patch">0xFE</parameter>
-    <parameter name="0x00F5" class="patch">0xC9</parameter>
-    <parameter name="" class="patchcode">MSXTapePatch</parameter>
-  </device>
--->  
+  <RTC id="Real time clock">
+    <io base="0xB4" num="2" type="O"/>
+    <io base="0xB5" num="1" type="I"/>
+    <sramname>RTC.SAVE</sramname>
+  </RTC>
+                      
+<!-- 2MB memory mapper that can be inserted in any slot (expanded or not),
+     usefull for extensions -->
+  <primary slot="any">
+    <secondary slot="any">
+      <MemoryMapper id="mymapper1">
+        <mem base="0x0000" size="0x10000"/>
+        <slow_drain_on_reset>false</slow_drain_on_reset>
+        <size>2048</size>
+      </MemoryMapper>
+    </secondary>
+  </primary>
 
-  <config id="tape">
-    <parameter name="filename">timecurb.cas</parameter>
-  </config>
-  
-  <config id="diska">
-    <parameter name="filename">PSYCHO.DSK</parameter>
-  </config>
+<!-- SCCPlus cartridge, starts with a preloaded NEMESIS2 -->
+  <primary slot="any">
+    <secondary slot="any">
+      <SCCplus id="SCC+ Cartridge">
+        <mem base="0x4000" size="0x8000"/>
+        <filename>NEMESIS2.ROM</filename>
+        <sound>
+          <volume>13000</volume>
+          <mode>mono</mode>
+        </sound>
+        <!-- possible subtypes "Snatcher" "SD-Snatcher" "mirrored" "expanded" -->
+        <subtype>expanded</subtype>
+      </SCCplus>
+    </secondary>
+  </primary>
 
-  <device id="basicrom">
-    <type>Rom</type>
-    <slotted>
-      <page>1</page>
-      <ps>0</ps>
-      <ss>0</ss>
-    </slotted>
-    <parameter name="filename">MSX.ROM</parameter>
-    <parameter name="skip_headerbytes">16384</parameter>
-  </device>
-
-<!--
-  <device id="diskrom">
-    <type>Rom</type>
-    <slotted>
-      <ps>3</ps>
-      <ss>1</ss>
-      <page>1</page>
-    </slotted>
-    <parameter name="filename">DISK.ROM</parameter>
-    <parameter name="0x0010" class="patch">0xED</parameter>
-    <parameter name="0x0011" class="patch">0xFE</parameter>
-    <parameter name="0x0012" class="patch">0xC9</parameter>
-    <parameter name="0x0013" class="patch">0xED</parameter>
-    <parameter name="0x0014" class="patch">0xFE</parameter>
-    <parameter name="0x0015" class="patch">0xC9</parameter>
-    <parameter name="0x0016" class="patch">0xED</parameter>
-    <parameter name="0x0017" class="patch">0xFE</parameter>
-    <parameter name="0x0018" class="patch">0xC9</parameter>
-    <parameter name="0x001C" class="patch">0xED</parameter>
-    <parameter name="0x001D" class="patch">0xFE</parameter>
-    <parameter name="0x001E" class="patch">0xC9</parameter>
-    <parameter name="0x001F" class="patch">0xED</parameter>
-    <parameter name="0x0020" class="patch">0xFE</parameter>
-    <parameter name="0x0021" class="patch">0xC9</parameter>
-    <parameter name="" class="patchcode">MSXDiskRomPatch</parameter>
-  </device>
--->
-
-  <device id="Memory Mapped FDC">
-    <type>FDC</type>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
-    <parameter name="brokenFDCread">false</parameter> 
-    <parameter name="type">Philips</parameter>
-    <parameter name="filename">nms8250-disk.rom</parameter>
-    <parameter name="drivename1">diska</parameter>
-  </device>
-
-  <device id="ppi">
-    <type>PPI</type>
-    <parameter name="volume">16000</parameter>
-    <parameter name="key_ghosting">true</parameter>
-  </device>
-
-  <device id="VDP">
-    <type>VDP</type>
-    <parameter name="version">TMS99X8A</parameter>
-  </device>
-
-<!-- This is a settings-type of configuration. See settings.xml -->
-  <config id="renderer">
-    <type>SDLLo</type>
-    <parameter name="full_screen">false</parameter>
-  </config>
-
-  <device id="Turbo-R timer">
-    <type>E6Timer</type>
-  </device>
-
-  <device id="psg">
-    <type>PSG</type>
-    <parameter name="volume">21000</parameter>
-  </device>
-  
-  <device id="Kanji ROM">
-    <type>Kanji</type>
-    <parameter name="filename">KANJI.ROM</parameter>
-  </device>
-
-  <device id="MapperIO">
-    <type>MapperIO</type>
-    <parameter name="type">Philips</parameter>
-  </device>
-
-<!--
-  <device id="mymapper1">
-    <type>MemoryMapper</type>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>0</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>3</page> </slotted>
-    <parameter name="slow_drain_on_reset">false</parameter>
-    <parameter name="size">512</parameter>
-  </device>
--->
-
-  <device id="Real time clock">
-    <type>RTC</type>
-    <parameter name="mode">EmuTime</parameter>
-    <parameter name="loadsram">true</parameter>
-    <parameter name="savesram">true</parameter>
-    <parameter name="sramname">RTC.SAVE</parameter>
-  </device>
-
-<!-- This is a settings-type of configuration. See settings.xml -->
-  <config id="RealTime">
-    <parameter name="max_catch_up_time">2000</parameter>
-    <parameter name="max_catch_up_factor">105</parameter>
-  </config>
-
-  <device id="SCC+ Cartridge">
-    <type>SCCPlusCart</type>
-    <slotted> <ps>1</ps> <ss>0</ss> <page>1</page> </slotted>
-    <slotted> <ps>1</ps> <ss>0</ss> <page>2</page> </slotted>
-    <parameter name="readromfile">false</parameter>
-    <parameter name="filename">NEMESIS2.ROM</parameter>
-    <parameter name="volume">13000</parameter>
-    <!-- possible subtypes "Snatcher" "SD-Snatcher" "mirrored" "expanded" -->
-    <parameter name="subtype">expanded</parameter>
-  </device>
-
-  <device id="Penguin Adventure Cartridge">
-    <type>Rom</type>
-    <slotted> <ps>1</ps> <ss>0</ss> <page>1</page> </slotted>
-    <slotted> <ps>1</ps> <ss>0</ss> <page>2</page> </slotted>
-    <parameter name="filename">PENGUIN.ROM</parameter>
-    <parameter name="loadsram">true</parameter>
-    <parameter name="savesram">true</parameter>
-    <parameter name="sramname">GAME.SRAM</parameter>
-  </device>
-  
-<!-- Note that Synthesizer also works from the command line, thanks to romdb.xml
-  <device id="KonamiSynthesizer">
-    <type>Rom</type>
-    <slotted>
-      <ps>1</ps>
-      <ss>0</ss>
-      <page>1</page>
-    </slotted>
-    <slotted>
-      <ps>1</ps>
-      <ss>0</ss>
-      <page>2</page>
-    </slotted>
-    <parameter name="filename">Synthesizer.rom</parameter>
-    <parameter name="mappertype">SYNTHESIZER</parameter>
-    <parameter name="volume">13000</parameter>
-    <parameter name="loadsram">true</parameter>
-    <parameter name="savesram">true</parameter>
-    <parameter name="sramname">GAME.SRAM</parameter>
-  </device>
---> 
+<!-- a rom with explicitly specified mappertype.
+     Note that Synthesizer also works from the command line, thanks to romdb.xml -->
+  <primary slot="any">
+    <secondary slot="any">
+      <ROM id="KonamiSynthesizer">
+        <mem base="0x4000" size="0x8000"/>
+        <rom>
+          <filename>Synthesizer.rom</filename>
+          <mappertype>SYNTHESIZER</mappertype>
+        </rom>
+        <sound>
+          <volume>13000</volume>
+          <mode>mono</mode>
+        </sound>
+      </ROM>
+    </secondary>
+  </primary>
 
 <!-- For an FM-PAC config, check out the share/extensions/fmpac dir -->
-  <device id="FM PAC">
-    <type>FM-PAC</type>
-    <slotted> <ps>2</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">FMPAC.ROM</parameter>
-    <parameter name="volume">9000</parameter>
-    <parameter name="mode">left</parameter>
-    <parameter name="loadsram">true</parameter>
-    <parameter name="savesram">true</parameter>
-    <parameter name="sramname">FMPAC.PAC</parameter>
-  </device>
+  <primary slot="any">
+    <secondary slot="any">
+      <FMPAC id="FM PAC">
+        <io base="0x7C" num="2" type="O"/>
+        <mem base="0x4000" size="0x4000"/>
+        <rom>
+          <sha1>9d789166e3caf28e4742fe933d962e99618c633d</sha1>
+          <filename>FMPAC.ROM</filename>
+        </rom>
+        <sound>
+          <volume>13000</volume>
+          <mode>mono</mode>
+        </sound>
+        <sramname>FMPAC.PAC</sramname>
+      </FMPAC>
+    </secondary>
+  </primary>
 
-  <device id="MSX Music">
-    <type>Music</type>
-    <slotted> <ps>2</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">MUSIC.ROM</parameter>
-    <parameter name="volume">9000</parameter>
-    <parameter name="mode">mono</parameter>    
-  </device>
+  <primary slot="any">
+    <secondary slot="any">
+      <MSX-MUSIC id="MSX Music">
+        <io base="0x7C" num="2" type="O"/>
+        <mem base="0x4000" size="0x4000"/>
+        <rom>
+          <sha1>9d789166e3caf28e4742fe933d962e99618c633d</sha1>
+          <filename>FMPAC.ROM</filename>
+        </rom>
+        <sound>
+          <volume>13000</volume>
+          <mode>mono</mode>
+        </sound>
+      </MSX-MUSIC>
+    </secondary>
+  </primary>
 
 <!-- For an MSX Audio config, check out the share/extensions/audio dir -->
-  <device id="MSX-Audio">
-    <type>Audio</type>
-    <parameter name="volume">9000</parameter>
-    <parameter name="mode">right</parameter>
-    <parameter name="sampleram">256</parameter>
-  </device>
-  
-  <device id="MSX-Audio-Midi">
-    <type>Audio-Midi</type>
-  </device>
--->    
-
+  <MSX-AUDIO id="Generic MSX-Audio">
+    <io base="0xC0" num="2"/>
+    <sound>
+      <volume>12000</volume>
+      <mode>mono</mode>
+    </sound>
+    <sampleram>256</sampleram>
+  </MSX-AUDIO>
+  <MusicModuleMIDI id="Generic MSX-Audio-MIDI">
+    <io base="0x00" num="2" type="O"/>
+    <io base="0x04" num="2" type="I"/>
+  </MusicModuleMIDI>
+                                          
 <!-- MSX-MIDI device, as can be found in the Turbo-R. Dummy for now. -->
-  <device id="MSX-Midi">
-    <type>MSX-Midi</type>
-  </device>
+  <MSX-MIDI id="MSX-Midi">
+    <io base="0xE8" num="8"/>
+  </MSX-MIDI>
 
-  <device id="cpu">
-    <type>CPU</type>
-  </device>
+  <PrinterPort id="Printer Port">
+    <io base="0x90" num="2"/>
+  </PrinterPort>
 
-  <device id="Printer Port">
-    <type>PrinterPort</type>
-  </device>
-
-<!-- This is a settings-type of configuration. See settings.xml -->
-  <config id="Mixer">
-    <parameter name="frequency">22050</parameter>
-    <parameter name="samples">512</parameter>
-  </config>
-
-  <config id="CassettePort">
-  </config>
+  <CassettePort/>
 
 <!-- For an SCC config, check out the share/extensions/scc dir -->
-<device id="Empty SCC Cartridge">
-    <type>Rom</type>
-    <slotted> <ps>1</ps> <ss>0</ss> <page>1</page> </slotted>
-    <slotted> <ps>1</ps> <ss>0</ss> <page>2</page> </slotted>
-    <parameter name="filesize">131072</parameter>
-    <parameter name="volume">11500</parameter>
-    <parameter name="mappertype">SCC</parameter>
-    <parameter name="loadsram">true</parameter>
-    <parameter name="savesram">true</parameter>
-    <parameter name="sramname">GAME.SRAM</parameter>
-  </device>
+  <primary slot="any">
+    <secondary slot="any">
+      <ROM id="Empty SCC Cartridge">
+        <mem base="0x4000" size="0x8000"/>
+        <sound>
+          <volume>11500</volume>
+          <mode>mono</mode>
+        </sound>
+        <rom>
+          <mappertype>SCC</mappertype>
+        </rom>
+      </ROM>
+    </secondary>
+  </primary>
   
-  <config id="KeyEventInserter">
-    <parameter name="keys">load"cas:"&#x0D;run&#x0D;</parameter>
-  </config>
-
-<!-- This is a settings-type of configuration. See settings.xml -->
-  <config id="Console">
-    <parameter name="font">ConsoleFont.png</parameter>
-    <parameter name="background">ConsoleBackground.png</parameter>
-    <parameter name="columns">50</parameter>
-    <parameter name="rows">7</parameter>
-    <parameter name="placement">bottom</parameter>
-    <parameter name="removedoubles">false</parameter>
-    <parameter name="historysize">100</parameter>
-
-  </config>
-
-  <config id="Debugger">
-    <type>Debugger</type>
-    <parameter name="font">skins/ConsoleFontRave.png</parameter>
-    <parameter name="background">skins/ConsoleBackground2.png</parameter>
-    <parameter name="columns">100</parameter>
-    <parameter name="rows">20</parameter>
-    <parameter name="placement">top</parameter>
-  </config>
- 
-
-<!-- For an IDE config, check out the share/extensions/ide dir -->
-  <device id="Sunrise IDE">
-    <type>SunriseIDE</type>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>0</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>3</page> </slotted>
-    <parameter name="filename">IDE210.ROM</parameter>
-    <parameter name="master">myHD</parameter>
-<!--<parameter name="slave">myCDROM</parameter>-->
-  </device>
-
-<!-- For a harddisk config, check out the share/extensions/ide dir -->
-  <config id="myHD">
-    <type>IDEHD</type>
-    <parameter name="filename">hd.dsk</parameter>
-  </config>
-  
-<!-- See the configuration of the National FS-4600 in share/machines -->
-  <device id="Kanji ROM 12x12">
-    <type>Kanji12</type>
-    <parameter name="filename">KANJI12.ROM</parameter>
-  </device>
+<!-- See the configuration of the National FS-4600 in share/machines
+     "Switched IO devices (IO region 0x40-0x4F)" don't need an <io> tag -->
+  <Kanji12 id="Kanji ROM 12x12">
+    <rom>
+      <filename>KANJI12.ROM</filename>
+    </rom>
+  </Kanji12>
 
 <!-- A debug device to be controlled from the msx -->
-  <device id="DebugDevice">
-    <type>DebugDevice</type>
-    <parameter name="filename">debugtxt.out</parameter>
-  </device>
+  <DebugDevice id="Debug Device">
+    <io base="0x2F" num="2" type="O"/>
+    <filename>stdout</filename>
+  </DebugDevice>
+
+  </devices>
 
 </msxconfig>
