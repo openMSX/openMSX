@@ -42,16 +42,16 @@ Probably also easier to implement when using line buffers.
 ** - fixed bug in tms.patternmask
 **
 ** 3 nov 2000, Raphael Nabet:
-** - fixed a nasty bug in _TMS9928A_sprites. A transparent sprite caused 
+** - fixed a nasty bug in _TMS9928A_sprites. A transparent sprite caused
 **   sprites at lower levels not to be displayed, which is wrong.
 **
 ** 3 jan 2001, Sean Young:
 ** - A few minor cleanups
-** - Changed TMS9928A_vram_[rw] and  TMS9928A_register_[rw] to READ_HANDLER 
+** - Changed TMS9928A_vram_[rw] and  TMS9928A_register_[rw] to READ_HANDLER
 **   and WRITE_HANDLER.
 ** - Got rid of the color table, unused. Also got rid of the old colors,
 **   which where commented out anyways.
-** 
+**
 **
 ** Todo:
 ** - The screen image is rendered in `one go'. Modifications during
@@ -403,20 +403,9 @@ inline static int calculatePattern(byte *patternPtr, int y, int size, int mag)
 	}
 }
 
-int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
+int MSXTMS9928a::checkSprites(
+	int line, int *visibleSprites, int size, int mag)
 {
-	// Optimisation:
-	// If both collision and 5th sprite have occurred,
-	// that state is stable until they are reset by a status reg read,
-	// so no need to execute the checks.
-	// ...Unless the caller wants to know which sprites are on this line.
-	// TODO: Is this optimisation still useful since visibleSprites
-	//       has been introduced?
-	if (((tms.StatusReg & 0x60) == 0x60) && !visibleSprites) return 0;
-
-	int size = (tms.Regs[1] & 2) ? 16 : 8;
-	int mag = tms.Regs[1] & 1; // 0 = normal, 1 = double
-
 	// Get sprites for this line and detect 5th sprite if any.
 	int sprite, visibleIndex = 0;
 	int magSize = size * (mag + 1);
@@ -508,14 +497,13 @@ int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
 
 bool MSXTMS9928a::drawSprites(Pixel *pixelPtr, int line, bool *dirty)
 {
-	// TODO: Share size and mag with checkSprites.
 	int size = (tms.Regs[1] & 2) ? 16 : 8;
 	int mag = tms.Regs[1] & 1; // 0 = normal, 1 = double
 
 	// Determine sprites visible on this line.
 	// Also sets status reg properly.
 	int visibleSprites[32];
-	int visibleIndex = checkSprites(line, visibleSprites);
+	int visibleIndex = checkSprites(line, visibleSprites, size, mag);
 
 	bool ret = false;
 	while (visibleIndex--) {
@@ -711,6 +699,7 @@ void MSXTMS9928a::reset ()
 	tms.Change = 1;
 	tms.FirstByte = -1;
 	setDirty(true);
+	stateChanged = true;
 }
 
 void MSXTMS9928a::init(void)
@@ -743,6 +732,7 @@ void MSXTMS9928a::init(void)
 	/* Open the display */
 	//if(Verbose) printf("OK\n  Opening display...");
 	PRT_DEBUG ("OK\n  Opening display...");
+	printf("fullscreen = [%s]\n", deviceConfig->getParameter("fullscreen").c_str());
 	if ( atoi(deviceConfig->getParameter("fullscreen").c_str())){
 	  screen=SDL_SetVideoMode(WIDTH,HEIGHT,DEPTH,SDL_HWSURFACE|SDL_FULLSCREEN);
 	} else {
@@ -757,7 +747,7 @@ void MSXTMS9928a::init(void)
 
 	// Register hotkey for fullscreen togling
 	HotKey::instance()->registerAsyncHotKey(SDLK_PRINT,this);
-	
+
 	// Reset the palette
 	for (int i = 0; i < 16; i++) {
 		XPal[i] = SDL_MapRGB(screen->format,

@@ -47,7 +47,7 @@ public:
 
 	// void saveState(ofstream writestream);
 	// void restoreState(char *devicestring,ifstream readstream);
-	
+
 	// handle "toggle fullscreen"-hotkey requests
 	void signalEvent(SDL_Event &event);
 private:
@@ -66,7 +66,7 @@ private:
 	SDL_Surface *screen;
 	struct {
 		/* TMS9928A internal settings */
-		byte ReadAhead,Regs[8],StatusReg,oldStatusReg;
+		byte ReadAhead,Regs[8],StatusReg;
 		int Addr,FirstByte,BackColour,Change,mode;
 		int colour,pattern,nametbl,spriteattribute,spritepattern;
 		int colourmask,patternmask;
@@ -109,11 +109,14 @@ private:
 	/** Check sprite collision and number of sprites per line.
 	  * Separated from display code to make MSX behaviour consistent
 	  * no matter how displaying is handled.
-	  * @param patterns Pointer to a 32-entry int array in which the
-	  *   numbers of the sprites to be displayed are returned.
+	  * @param line The line number for which sprites should be checked.
+	  * @param visibleSprites Pointer to a 32-entry int array in which
+	  *   the numbers of the sprites to be displayed are returned.
+	  * @param size Sprite size: 8 or 16.
+	  * @param mag Magnification: 0 (normal) or 1 (doubled).
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
-	int checkSprites(int line, int *visibleSprites = 0);
+	int checkSprites(int line, int *visibleSprites, int size, int mag);
 
 	/* emulation settings */
 	/* all or nothing dirty David Heremans */
