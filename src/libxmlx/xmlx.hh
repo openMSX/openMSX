@@ -52,11 +52,13 @@ private:
 class Attribute
 {
 public:
-	Attribute(xmlNodePtr node);
+	Attribute(xmlAttrPtr node);
 	~Attribute();
 
 	std::string name;
 	std::string value;
+
+	void dump(int recursion=0);
 
 private:
 	Attribute();                                // block usage
@@ -75,6 +77,8 @@ public:
 	std::list<Element*> children;
 	std::list<Attribute*> attributes;
 
+	void dump(int recursion=0);
+
 private:
 	Element();                              // block usage
 	Element(const Element &foo);            // block usage
@@ -88,6 +92,8 @@ public:
 	~Document();
 
 	Element *root;
+
+	void dump();
 
 private:
 	Document();                               // block usage

@@ -25,20 +25,27 @@
 namespace XML {
 
 #ifdef XMLX_DEBUG
-static void dump(xmlNodePtr node, int recursion=0)
+static void s_dump(xmlNodePtr node, int recursion=0)
 {
 	if (node==0) return;
 	for (int i=0; i< recursion; i++) std::cout << "--";
 	std::cout << " type: " << node->type;
 	std::cout << " name: " << (const char*)node->name;
+	if (node->type==3)
+	{
+		std::cout << " pcdata: " << node->content;
+	}
 	std::cout << std::endl;
 	for (xmlNodePtr c=node->children; c!=0 ; c=c->next)
 	{
-		dump(c,recursion+1);
+		s_dump(c,recursion+1);
 	}
-	if (node->type==1)for (xmlAttrPtr c=node->properties; c!=0 ; c=c->next)
+	if (node->type==1)
 	{
-		dump((xmlNodePtr)c,recursion+1);
+		for (xmlAttrPtr c=node->properties; c!=0 ; c=c->next)
+		{
+			s_dump((xmlNodePtr)c,recursion+1);
+		}
 	}
 }
 #endif
@@ -53,14 +60,20 @@ Exception::Exception(const Exception &e)
 {
 }
 
-Attribute::Attribute(xmlNodePtr node)
+Attribute::Attribute(xmlAttrPtr node)
 {
 	name  = std::string((const char*)node->name);
-	value = std::string((const char*)node->doc);
+	value = std::string((const char*)node->children->content);
 }
 
 Attribute::~Attribute()
 {
+}
+
+void Attribute::dump(int recursion=0)
+{
+	for (int i=0; i < recursion; i++) std::cout << "--";
+	std::cout << "Attribute " << name << " value:" << value << std::endl;
 }
 
 Document::Document(const std::string &filename_)
@@ -72,20 +85,17 @@ Document::Document(const std::string &filename_)
 		xmlFreeDoc(doc);
 		throw Exception("Document doesn't contain mandatory root Element");
 	}
-	// skip all non-element root-nodes and find the one
-	// root node
-	xmlNodePtr findRoot = doc->children;
-	while (findRoot != 0)
-	{
-		if (findRoot->type==XML_ELEMENT_NODE) break;
-		findRoot=findRoot->next;
-	}
-	if (findRoot == 0) assert(false);
-	root = new Element(findRoot);
+	root = new Element(xmlDocGetRootElement(doc));
 #ifdef XMLX_DEBUG
-	dump(findRoot);
+	s_dump(xmlDocGetRootElement(doc));
 #endif
 	xmlFreeDoc(doc);
+}
+
+void Document::dump()
+{
+	std::cout << "File: " << filename << std::endl;
+	root->dump(0);
 }
 
 Document::~Document()
@@ -96,16 +106,13 @@ Document::~Document()
 Element::Element(xmlNodePtr node)
 {
 	name = std::string((const char*)node->name);
-	for (xmlNodePtr x = node->children; (node->children != 0 && x->next != 0) ; x=x->next)
+	for (xmlNodePtr x = node->children; x != 0 ; x=x->next)
 	{
+		if (x==0) break;
 		switch (x->type)
 		{
 			case XML_TEXT_NODE:
 			pcdata = std::string((const char*)x->content);
-			break;
-
-			case XML_ATTRIBUTE_NODE:
-			attributes.push_back(new Attribute(x));
 			break;
 
 			case XML_ELEMENT_NODE:
@@ -113,6 +120,25 @@ Element::Element(xmlNodePtr node)
 			break;
 
 			default:
+#ifdef XMLX_DEBUG
+			std::cout << "skipping node with type: " << x->type << std::endl;
+#endif
+			break;
+		}
+	}
+	for (xmlAttrPtr x = node->properties; x != 0 ; x=x->next)
+	{
+		if (x==0) break;
+		switch (x->type)
+		{
+			case XML_ATTRIBUTE_NODE:
+			attributes.push_back(new Attribute(x));
+			break;
+
+#ifdef XMLX_DEBUG
+			default:
+			std::cout << "skipping node with type: " << x->type << std::endl;
+#endif
 			break;
 		}
 	}
@@ -127,6 +153,20 @@ Element::~Element()
 	for (std::list<Element*>::iterator i = children.begin(); i != children.end(); i++)
 	{
 		delete (*i);
+	}
+}
+
+void Element::dump(int recursion=0)
+{
+	for (int i=0; i < recursion; i++) std::cout << "--";
+	std::cout << "Element " << name << " pcdata:" << pcdata << std::endl;
+	for (std::list<Attribute*>::iterator i = attributes.begin(); i != attributes.end(); i++)
+	{
+		(*i)->dump(recursion+1);
+	}
+	for (std::list<Element*>::iterator i = children.begin(); i != children.end(); i++)
+	{
+		(*i)->dump(recursion+1);
 	}
 }
 
