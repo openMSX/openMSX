@@ -43,7 +43,7 @@ libVideo_la_SOURCES = \
 	CharacterConverter.hh CharacterConverter.cc \
 	SpriteConverter.hh \
 	Blender.hh \
-	GLUtil.hh
+	GLUtil.hh GLUtil.cc
 
 libVideo_la_LIBADD =
 

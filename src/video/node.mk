@@ -6,7 +6,7 @@ SRC_HDR:= \
 	VDPSettings FrameSkipSetting \
 	Renderer RendererFactory RenderSettings PixelRenderer \
 	SDLRenderer \
-	SDLGLRenderer \
+	SDLGLRenderer GLUtil \
 	XRenderer \
 	BitmapConverter CharacterConverter
 

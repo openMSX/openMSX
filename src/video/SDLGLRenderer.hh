@@ -192,18 +192,20 @@ private:
 	  * Cache line (N + scroll) corresponds to display line N.
 	  * It holds a single page of 256 lines.
 	  */
-	GLuint charTextureIds[256];
+	LineTexture charTextures[256];
 
 	/** Cache for rendered VRAM in bitmap modes.
 	  * Cache line N corresponds to VRAM at N * 128.
 	  * It holds up to 4 pages of 256 lines each.
 	  * In Graphics6/7 the lower two pages are used.
 	  */
-	GLuint bitmapTextureIds[4 * 256];
+	LineTexture *bitmapTextures;
 
-	/** Test.
+	/** One texture per absolute display line to draw sprite plane in.
+	  * This is not an efficient way to draw sprites, but it was easy
+	  * to implement. Will probably be replaced in the future.
 	  */
-	GLuint spriteTextureIds[313];
+	LineTexture spriteTextures[313];
 
 	/** ID of texture that stores rendered frame.
 	  * Used for effects and for putStoredImage.

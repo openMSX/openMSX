@@ -79,40 +79,6 @@ inline static void GLFillBlock(
 	glEnd();
 }
 
-inline static void GLUpdateTexture(
-	GLuint textureId, const SDLGLRenderer::Pixel *data, int lineWidth)
-{
-	glBindTexture(GL_TEXTURE_2D, textureId);
-	glTexImage2D(
-		GL_TEXTURE_2D,
-		0, // level
-		GL_RGBA,
-		lineWidth, // width
-		1, // height
-		0, // border
-		GL_RGBA,
-		GL_UNSIGNED_BYTE,
-		data
-		);
-}
-
-inline static void GLDrawTexture(
-	GLuint textureId, int texX,
-	int screenX, int screenY, int width, int height
-) {
-	float texL = texX / 512.0f;
-	float texR = (texX + width) / 512.0f;
-	int screenL = screenX;
-	int screenR = screenL + width;
-	glBindTexture(GL_TEXTURE_2D, textureId);
-	glBegin(GL_QUADS);
-	glTexCoord2f(texL, 1); glVertex2i(screenL, screenY);
-	glTexCoord2f(texR, 1); glVertex2i(screenR, screenY);
-	glTexCoord2f(texR, 0); glVertex2i(screenR, screenY + height);
-	glTexCoord2f(texL, 0); glVertex2i(screenL, screenY + height);
-	glEnd();
-}
-
 inline static void GLBindMonoBlock(GLuint textureId, const byte *pixels)
 {
 	glBindTexture(GL_TEXTURE_2D, textureId);
@@ -355,7 +321,7 @@ inline void SDLGLRenderer::renderBitmapLine(
 		const byte *vramPtr =
 			vram->bitmapCacheWindow.readArea(vramLine << 7);
 		bitmapConverter.convertLine(lineBuffer, vramPtr);
-		GLUpdateTexture(bitmapTextureIds[vramLine], lineBuffer, lineWidth);
+		bitmapTextures[vramLine].update(lineBuffer, lineWidth);
 		lineValidInMode[vramLine] = mode;
 	}
 }
@@ -390,7 +356,7 @@ inline void SDLGLRenderer::renderPlanarBitmapLine(
 		const byte *vramPtr1 =
 			vram->bitmapCacheWindow.readArea(addr1);
 		bitmapConverter.convertLinePlanar(lineBuffer, vramPtr0, vramPtr1);
-		GLUpdateTexture(bitmapTextureIds[vramLine], lineBuffer, lineWidth);
+		bitmapTextures[vramLine].update(lineBuffer, lineWidth);
 		lineValidInMode[vramLine] =
 			lineValidInMode[vramLine | 512] = mode;
 	}
@@ -420,7 +386,7 @@ inline void SDLGLRenderer::renderCharacterLines(
 	while (count--) {
 		// Render this line.
 		characterConverter.convertLine(lineBuffer, line);
-		GLUpdateTexture(charTextureIds[line], lineBuffer, lineWidth);
+		charTextures[line].update(lineBuffer, lineWidth);
 		line++; // is a byte, so wraps at 256
 	}
 }
@@ -437,9 +403,9 @@ SDLGLRenderer::SDLGLRenderer(
 	this->screen = screen;
 	console = new GLConsole(CommandConsole::instance());
 	debugger = NULL;
-	Console * debuggerconsole = DebugConsole::instance();
-	if (debuggerconsole){ 
-		debugger = new GLConsole(debuggerconsole);
+	Console *debuggerConsole = DebugConsole::instance();
+	if (debuggerConsole){
+		debugger = new GLConsole(debuggerConsole);
 	}
 	GLint size;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
@@ -478,24 +444,10 @@ SDLGLRenderer::SDLGLRenderer(
 	glLoadIdentity();
 
 	// Create character display cache.
-	// Line based:
-	glGenTextures(256, charTextureIds);
-	for (int i = 0; i < 256; i++) {
-		glBindTexture(GL_TEXTURE_2D, charTextureIds[i]);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	}
 	// Block based:
 	glGenTextures(4 * 256, characterCache);
 	for (int i = 0; i < 4 * 256; i++) {
 		glBindTexture(GL_TEXTURE_2D, characterCache[i]);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	}
-	// Sprites:
-	glGenTextures(313, spriteTextureIds);
-	for (int i = 0; i < 313; i++) {
-		glBindTexture(GL_TEXTURE_2D, spriteTextureIds[i]);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
@@ -507,17 +459,7 @@ SDLGLRenderer::SDLGLRenderer(
 	prevStored = false;
 
 	// Create bitmap display cache.
-	if (vdp->isMSX1VDP()) {
-		//bitmapDisplayCache = NULL;
-	} else {
-		//bitmapDisplayCache = new Pixel[256 * 4 * 512];
-		glGenTextures(4 * 256, bitmapTextureIds);
-		for (int i = 0; i < 4 * 256; i++) {
-			glBindTexture(GL_TEXTURE_2D, bitmapTextureIds[i]);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		}
-	}
+	bitmapTextures = vdp->isMSX1VDP() ? NULL : new LineTexture[4 * 256];
 
 	// Hide mouse cursor.
 	SDL_ShowCursor(SDL_DISABLE);
@@ -538,8 +480,9 @@ SDLGLRenderer::~SDLGLRenderer()
 	vram->colourTable.setObserver(NULL);
 
 	delete console;
-	if (debugger) delete debugger;
-	// TODO: Free textures.
+	delete debugger;
+	// TODO: Free all textures.
+	delete[] bitmapTextures;
 }
 
 void SDLGLRenderer::precalcPalette(float gamma)
@@ -1141,19 +1084,16 @@ void SDLGLRenderer::drawDisplay(
 			vramLine[1] = (vram->nameTable.getMask() >> 7)
 				& (pageMaskOdd  | displayY);
 			if (deinterlaced) {
-				GLDrawTexture(
-					bitmapTextureIds[vramLine[0]], displayX + hScroll,
-					screenX, y + 0, displayWidth, 1
+				bitmapTextures[vramLine[0]].draw(
+					displayX + hScroll, screenX, y + 0, displayWidth, 1
 					);
-				GLDrawTexture(
-					bitmapTextureIds[vramLine[1]], displayX + hScroll,
-					screenX, y + 1, displayWidth, 1
+				bitmapTextures[vramLine[1]].draw(
+					displayX + hScroll, screenX, y + 1, displayWidth, 1
 					);
 			} else {
 				int firstPageWidth = pageBorder - displayX;
 				if (firstPageWidth > 0) {
-					GLDrawTexture(
-						bitmapTextureIds[vramLine[scrollPage1]],
+					bitmapTextures[vramLine[scrollPage1]].draw(
 						displayX + hScroll,
 						screenX, y,
 						firstPageWidth, 2
@@ -1162,8 +1102,7 @@ void SDLGLRenderer::drawDisplay(
 					firstPageWidth = 0;
 				}
 				if (firstPageWidth < displayWidth) {
-					GLDrawTexture(
-						bitmapTextureIds[vramLine[scrollPage2]],
+					bitmapTextures[vramLine[scrollPage2]].draw(
 						displayX + firstPageWidth + hScroll,
 						screenX + firstPageWidth, y,
 						displayWidth - firstPageWidth, 2
@@ -1205,9 +1144,8 @@ void SDLGLRenderer::drawDisplay(
 			renderCharacterLines(displayY, displayHeight);
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 			for (int y = screenY; y < screenLimitY; y += 2) {
-				GLDrawTexture(
-					charTextureIds[displayY], displayX + hScroll,
-					screenX, y, displayWidth, 2
+				charTextures[displayY].draw(
+					displayX + hScroll, screenX, y, displayWidth, 2
 					);
 				displayY = (displayY + 1) & 255;
 			}
@@ -1257,12 +1195,10 @@ void SDLGLRenderer::drawSprites(
 
 		// Make line buffer into a texture and draw it.
 		// TODO: Make a texture of only the portion that will be drawn.
-		GLint textureId = spriteTextureIds[y];
-		GLUpdateTexture(textureId, lineBuffer, pixelZoom * 256);
-		GLDrawTexture(
-			textureId, displayX * 2,
-			screenX, screenY, displayWidth * 2, 2
-			);
+		//       Or skip that and use block sprites instead.
+		LineTexture &texture = spriteTextures[y];
+		texture.update(lineBuffer, pixelZoom * 256);
+		texture.draw(displayX * 2, screenX, screenY, displayWidth * 2, 2);
 
 		screenY += 2;
 	}
