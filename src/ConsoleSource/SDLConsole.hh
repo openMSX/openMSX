@@ -50,6 +50,10 @@ class SDLConsole : public OSDConsoleRenderer
 		  */
 		SDL_Surface *inputBackground;
 
+		/** Font Surface for the console to get unblended text
+		  */
+		SDL_Surface *fontLayer;
+	
 		/** The top-left x coordinate of the console on the display screen.
 		  */
 		int dispX;

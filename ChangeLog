@@ -1,4 +1,7 @@
 $Id$
+2003-05-11 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* SDL backgroundimage can now have any pixelformat.
+	* SDL Console characters are no longer blended.
 
 2003-05-11 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Fixed segfault in the SDL background scaling when using 8bpp.

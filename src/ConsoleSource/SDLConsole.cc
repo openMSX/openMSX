@@ -25,20 +25,18 @@ SDLConsole::SDLConsole(SDL_Surface *screen)
 	backgroundImage = NULL;
 	consoleSurface  = NULL;
 	inputBackground = NULL;
-
+	fontLayer = NULL;
+	
 	fontSetting = new FontSetting(this, fontName);
 	initConsoleSize();
 	
 	SDL_Rect rect;
 	OSDConsoleRenderer::updateConsoleRect(rect);
 	
-	rect.x=0;rect.y=0;rect.h=100;rect.w=300;
-	
-	
 	resize(rect);
-	
 	backgroundSetting = new BackgroundSetting(this, backgroundName);
 	alpha(CONSOLE_ALPHA);
+	
 }
 
 SDLConsole::~SDLConsole()
@@ -52,6 +50,10 @@ SDLConsole::~SDLConsole()
 	if (backgroundImage) {
 		SDL_FreeSurface(backgroundImage);
 	}
+	if (fontLayer){
+		SDL_FreeSurface(fontLayer);
+	}	
+		
 	delete fontSetting;
 	delete backgroundSetting;
 }
@@ -68,9 +70,11 @@ void SDLConsole::updateConsole()
 
 void SDLConsole::updateConsole2()
 {
-	SDL_FillRect(consoleSurface, NULL, 
-	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
-
+	SDL_FillRect(fontLayer, NULL, 
+	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, 0));
+	// when using SDL_RLEACCEL we get a segfault !!
+	SDL_SetColorKey(fontLayer, SDL_SRCCOLORKEY ,0);  
+	
 	// draw the background image if there is one
 	if (backgroundImage) {
 		SDL_Rect destRect;
@@ -119,6 +123,7 @@ void SDLConsole::drawConsole()
 	destRect.w = consoleSurface->w;
 	destRect.h = consoleSurface->h;
 	SDL_BlitSurface(consoleSurface, NULL, outputScreen, &destRect);
+	SDL_BlitSurface(fontLayer,NULL,outputScreen,&destRect);
 }
 
 
@@ -193,8 +198,8 @@ bool SDLConsole::loadBackground(const std::string &filename)
 		return false;
 	}
 	File file(filename);
-	SDL_Surface *temp = IMG_Load(file.getLocalName().c_str());
-	if (temp == NULL) {
+	SDL_Surface *pictureSurface = IMG_Load(file.getLocalName().c_str());
+	if (pictureSurface == NULL) {
 		return false;
 	}
 	if (backgroundImage) {
@@ -203,12 +208,20 @@ bool SDLConsole::loadBackground(const std::string &filename)
 	SDL_Rect rect;
 	OSDConsoleRenderer::updateConsoleRect(rect); // get the size
 
-	SDL_Surface * tempbackgroundImage = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, rect.h, 
-	                            32, 0, 0, 0, 0);
-	zoomSurface (temp,tempbackgroundImage,1);
-	backgroundImage = SDL_DisplayFormat(tempbackgroundImage);
-	SDL_FreeSurface(tempbackgroundImage);	
-	SDL_FreeSurface(temp);
+	// create a 32 bpp surface that will hold the scaled version
+	SDL_Surface * scaled32Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+									rect.w, rect.h, 32, 0, 0, 0, 0);
+	// convert the picturesurface to 32 bpp
+	SDL_PixelFormat * format=scaled32Surface->format;
+	SDL_Surface * picture32Surface = SDL_ConvertSurface(pictureSurface,format,0);
+
+	SDL_FreeSurface(pictureSurface);
+	zoomSurface (picture32Surface,scaled32Surface,1);
+	SDL_FreeSurface(picture32Surface);
+	// convert the background to the right format
+	backgroundImage = SDL_DisplayFormat(scaled32Surface);
+	SDL_FreeSurface(scaled32Surface);
+
 	reloadBackground();
 	return true;
 }
@@ -221,7 +234,7 @@ bool SDLConsole::loadFont(const std::string &filename)
 	try {
 		File file(filename);
 		SDLFont* newFont = new SDLFont(&file);
-		newFont->setSurface(consoleSurface);
+		newFont->setSurface(fontLayer);
 		delete font;
 		font = newFont;
 	} catch (MSXException &e) {
@@ -239,20 +252,29 @@ void SDLConsole::resize(SDL_Rect rect)
 
 	SDL_Surface *temp1 = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, rect.h, 
 	                            outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
-	SDL_Surface *temp2 = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, font->getHeight(),
+	SDL_Surface *temp2 = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, rect.h,
 	                            outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
-	if (temp1 == NULL || temp2 == NULL)
+	SDL_Surface *temp3 = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, font->getHeight(),
+	                            outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
+	if (temp1 == NULL || temp2 == NULL || temp3 == NULL)
 		return;
+	
 	if (consoleSurface)  SDL_FreeSurface(consoleSurface);
 	if (inputBackground) SDL_FreeSurface(inputBackground);
+	if (fontLayer) SDL_FreeSurface(fontLayer);
+	
 	consoleSurface = SDL_DisplayFormat(temp1);
+	fontLayer=SDL_DisplayFormat(temp2);
+	
 	SDLFont* sdlFont = dynamic_cast<SDLFont*>(font);
 	if (sdlFont) {
-		sdlFont->setSurface(consoleSurface);
+		sdlFont->setSurface(fontLayer);
 	}
-	inputBackground = SDL_DisplayFormat(temp2);
+	
+	inputBackground = SDL_DisplayFormat(temp3);
 	SDL_FreeSurface(temp1);
 	SDL_FreeSurface(temp2);
+	SDL_FreeSurface(temp3);
 	SDL_FillRect(consoleSurface, NULL, 
 	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
 	
