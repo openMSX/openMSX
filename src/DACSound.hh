@@ -29,7 +29,7 @@ class DACSound : public SoundDevice
 	private:
 		void insertSamples(int nbSamples, short sample);
 		
-		static const int BUFSIZE = 256;
+		static const int BUFSIZE = 1024;
 		static const int CENTER = 0x80;
 	
 		MSXRealTime* realtime;

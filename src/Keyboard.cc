@@ -7,10 +7,8 @@
 Keyboard::Keyboard(bool keyG)
 {
 	keyGhosting = keyG;
-	for (int i=0; i<NR_KEYROWS; i++) {
-		keyMatrix [i] = 255;
-		keyMatrix2[i] = 255;
-	}
+	memset(keyMatrix , 255, sizeof(keyMatrix) );
+	memset(keyMatrix2, 255, sizeof(keyMatrix2));
 	EventDistributor::instance()->registerSyncListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->registerSyncListener(SDL_KEYUP,   this);
 }
@@ -23,17 +21,17 @@ Keyboard::~Keyboard()
 const byte* Keyboard::getKeys()
 {
 	EventDistributor::instance()->pollSyncEvents();
-	if (keysChanged) {
-		keysChanged = false;
-		// memcpy((void*)&keyMatrix2[0], (void*)&keyMatrix[0], NR_KEYROWS*sizeof(byte)); -> instead of next 2 lines?
-		for (int i=0; i<NR_KEYROWS; i++) 
-			keyMatrix2[i] = keyMatrix[i];	// Copy matrix -> matrix2
-		if (keyGhosting)
-			doKeyGhosting();	// works on matrix2
-		for (int i=0; i<NR_KEYROWS; i++)
-		PRT_DEBUG("Keymatrix row " << i << ": " << (int)keyMatrix2[i]);
+
+	if (!keyGhosting) {
+		return keyMatrix;
+	} else {
+		if (keysChanged) {
+			keysChanged = false;
+			memcpy(keyMatrix2, keyMatrix, sizeof(keyMatrix));
+			doKeyGhosting();
+		}
+		return keyMatrix2;
 	}
-	return keyMatrix2;
 }
 
 
