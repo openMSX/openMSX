@@ -1,6 +1,9 @@
 // $Id$
 //
 // test program for libxmlx
+//
+// (c) 2002 Joost Yervante Damad
+//
 
 #include "xmlx.hh"
 
