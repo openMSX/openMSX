@@ -1,5 +1,10 @@
 $Id$
 
+2002-02-07 Maarten ter Huurne <mth@stack.nl>
+	* Fixed ASCII 16K (type 5) mapper.
+	  Re-engineered Zanac-Ex ROM works now.
+	* Made MSXMotherBoard console command inner classes private.
+
 2002-02-06 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* More cleanups in ConsoleSource:
 	   made SDLFont class, replaces DT_drawtext
