@@ -11,6 +11,7 @@ const int SYNC_INTERVAL = 50;
 
 
 RealTime::RealTime()
+	: throttleSetting("throttle", "controls speed throttling", true)
 {
 	// default values
 	maxCatchUpFactor = 105; // %
@@ -30,29 +31,20 @@ RealTime::RealTime()
 	}
 	
 	scheduler = Scheduler::instance();
-	paused = false;
-	throttle = true;
 	EmuTime zero;
 	reset(zero);
 	scheduler->setSyncPoint(emuRef + SYNC_INTERVAL, this);
-	
-	CommandController::instance()->registerCommand(&pauseCmd, "pause");
-	CommandController::instance()->registerCommand(&throttleCmd, "throttle");
 }
 
 RealTime::~RealTime()
 {
-	CommandController::instance()->unregisterCommand(&pauseCmd, "pause");
-	CommandController::instance()->unregisterCommand(&throttleCmd, "throttle");
 }
 
 RealTime *RealTime::instance()
 {
 	static RealTime oneInstance;
-	
 	return &oneInstance;
 }
-
 
 void RealTime::executeUntilEmuTime(const EmuTime &curEmu, int userData)
 {
@@ -65,7 +57,6 @@ const std::string &RealTime::schedName() const
 	return name;
 }
 
-
 float RealTime::sync(const EmuTime &time)
 {
 	scheduler->removeSyncPoint(this);
@@ -76,7 +67,8 @@ float RealTime::sync(const EmuTime &time)
 
 void RealTime::internalSync(const EmuTime &curEmu)
 {
-	if (!throttle) {
+	if (!throttleSetting.getValue()) {
+		// no throttling
 		reset(curEmu);
 		return;
 	}
@@ -160,72 +152,21 @@ void RealTime::reset(const EmuTime &time)
 	sleepAdjust = 0.0;
 }
 
-void RealTime::PauseCmd::execute(const std::vector<std::string> &tokens,
-                                 const EmuTime &time)
+RealTime::PauseSetting::PauseSetting()
+	: BooleanSetting("pause", "pauses the emulation", false)
 {
-	Scheduler *sch = Scheduler::instance();
-	switch (tokens.size()) {
-	case 1:
-		if (sch->isPaused()) {
-			RealTime::instance()->reset(time); 
-			sch->unpause();
-		} else {
-			sch->pause();
-		}
-		break;
-	case 2:
-		if (tokens[1] == "on") {
-			sch->pause();
-			break;
-		}
-		if (tokens[1] == "off") {
-			RealTime::instance()->reset(time); 
-			sch->unpause();
-			break;
-		}
-		// fall through
-	default:
-		throw CommandException("Syntax error");
-	}
-}
-void RealTime::PauseCmd::help(const std::vector<std::string> &tokens) const
-{
-	print("Use this command to pause/unpause the emulator");
-	print(" pause:     toggle pause");
-	print(" pause on:  pause emulation");
-	print(" pause off: unpause emulation");
 }
 
-void RealTime::ThrottleCmd::execute(const std::vector<std::string> &tokens,
-                                    const EmuTime &time)
+bool RealTime::PauseSetting::checkUpdate(bool newValue, const EmuTime &time)
 {
-	RealTime *rt = RealTime::instance();
-	switch (tokens.size()) {
-	case 1:
-		rt->throttle = !rt->throttle;
-		break;
-	case 2:
-		if (tokens[1] == "on") {
-			rt->throttle = true;
-			break;
-		}
-		if (tokens[1] == "off") {
-			rt->throttle = false;
-			break;
-		}
-		// fall through
-	default:
-		throw CommandException("Syntax error");
+	if (newValue) {
+		Scheduler::instance()->pause();
+	} else {
+		RealTime::instance()->reset(time);
+		Scheduler::instance()->unpause();
 	}
+	return true;
 }
-void RealTime::ThrottleCmd::help(const std::vector<std::string> &tokens) const
-{
-	print("This command turns speed throttling on/off");
-	print(" throttle:     toggle throttling");
-	print(" throttle on:  run emulation on normal speed");
-	print(" throttle off: run emulation on maximum speed");
-}
-
 
 RealTime::SpeedSetting::SpeedSetting()
 	: IntegerSetting("speed",

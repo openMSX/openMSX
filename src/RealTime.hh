@@ -45,6 +45,17 @@ class RealTime : public Schedulable
 		void reset(const EmuTime &time);
 		
 	private:
+		RealTime(); 
+		void internalSync(const EmuTime &time);
+
+		class PauseSetting : public BooleanSetting
+		{
+			public:
+				PauseSetting();
+				virtual bool checkUpdate(bool newValue,
+				                         const EmuTime &time);
+		} pauseSetting;
+		
 		class SpeedSetting : public IntegerSetting
 		{
 			public:
@@ -52,9 +63,8 @@ class RealTime : public Schedulable
 				virtual bool checkUpdate(int newValue,
 				                         const EmuTime &time);
 		} speedSetting;
-	
-		RealTime(); 
-		void internalSync(const EmuTime &time);
+
+		BooleanSetting throttleSetting;
 
 		int syncInterval;	// sync every ..ms
 		int maxCatchUpTime;	// max nb of ms overtime
@@ -72,27 +82,7 @@ class RealTime : public Schedulable
 		float totalFactor;
 		float sleepAdjust;
 
-		bool throttle;
-		bool paused;
 		Scheduler *scheduler;
-
-		class PauseCmd : public Command {
-			public:
-				virtual void execute(const std::vector<std::string> &tokens,
-				                     const EmuTime &time);
-				virtual void help(const std::vector<std::string> &tokens) const;
-		};
-		friend class PauseCmd;
-		PauseCmd pauseCmd;
-		
-		class ThrottleCmd : public Command {
-			public:
-				virtual void execute(const std::vector<std::string> &tokens,
-				                     const EmuTime &time);
-				virtual void help(const std::vector<std::string> &tokens) const;
-		};
-		friend class ThrottleCmd;
-		ThrottleCmd throttleCmd;
 };
 
 #endif

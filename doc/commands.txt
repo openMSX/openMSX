@@ -19,8 +19,8 @@ bind / unbind
     bind PAGEUP "set speed 100"
     bind PAGEDOWN "set speed 50"
     unbind F9
-    bind F9 "throttle off"
-    bind F9,up "throttle on"
+    bind F9 "set throttle off"
+    bind F9,up "set throttle on"
 
 
 cas
@@ -114,17 +114,6 @@ palette
   [ mainly usefull for debugging purposes ]
   
 
-pause
------
-
-  Pauses the emulation.
-
-  usage:
-    pause on   pauses emulation
-    pause off  unpauses emualtion
-    pause      toggles pause
-  
-
 plug / unplug
 -------------
 
@@ -209,19 +198,6 @@ slotselect
   [ mainly usefull for debugging purposes ]
 
 
-throttle
---------
-
-  Sets throttle mode. In throttle mode the emulator tries to run at the
-  specified speed (see speed command). When throttling is turned off the
-  emulator runs as fast as possible.
-
-  usage:
-    throttle on   turn throttle mode on
-    throttle off  turn throttle mode off
-    throttle      toggle throttle mode
-    
-
 toggle
 ------
 
@@ -292,8 +268,20 @@ fullscreen
   Switch to / back from fullscreen mode.
 
   usage:
+    set fullscreen      shows the current setting
     set fullscreen on   switch to fullscreen mode
     set fullscreen off  switch to normal mode
+
+
+pause
+-----
+
+  Pauses the emulation.
+
+  usage:
+    set pause      shows the current setting
+    set pause on   pauses emulation
+    set pause off  unpauses emualtion
   
 
 scanline
@@ -309,5 +297,20 @@ speed
   as fast as a real MSX.
 
   usage:
-    set speed <num>  set new emulation speed
     set speed        shows current emulation speed
+    set speed <num>  set new emulation speed
+
+
+throttle
+--------
+
+  Sets throttle mode. In throttle mode the emulator tries to run at the
+  specified speed (see speed command). When throttling is turned off the
+  emulator runs as fast as possible.
+
+  usage:
+    throttle      shows the current setting
+    throttle on   turn throttle mode on
+    throttle off  turn throttle mode off
+    
+
