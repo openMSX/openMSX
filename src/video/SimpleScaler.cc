@@ -234,16 +234,17 @@ void SimpleScaler<Pixel>::scale256(
 	const int width = dst->w / 2;
 	const HostCPU& cpu = HostCPU::getInstance();
 	while (srcY < endSrcY) {
-		Scaler<Pixel>::scaleLine(src, srcY, dst, dstY++);
-		if (dstY == dst->h) break;
-		const Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY++);
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstY++);
-
-		if (false && (sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
+		if (ASM_X86 && (sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
 			// extended-MMX routine 16bpp
+			Scaler<Pixel>::scaleLine(src, srcY, dst, dstY++);
+			if (dstY == dst->h) break;
+			
 			darkener.setFactor(darkenFactor);
 			unsigned* darkenTab = darkener.getTable();
 		
+			const Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY++);
+			Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstY++);
+
 			asm (
 				"xorl	%%ecx, %%ecx;"
 			"0:"
@@ -301,6 +302,12 @@ void SimpleScaler<Pixel>::scale256(
 			
 		} else if (ASM_X86 && (sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
 			// extended-MMX routine 32bpp
+			Scaler<Pixel>::scaleLine(src, srcY, dst, dstY++);
+			if (dstY == dst->h) break;
+			
+			const Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY++);
+			Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstY++);
+
 			asm (
 				// Scale and scanline.
 				// Precalc: mm6 = darkenFactor, mm7 = 0.
@@ -358,16 +365,28 @@ void SimpleScaler<Pixel>::scale256(
 			asm ("nosuchinstruction");
 		// End of test code.
 		} else {
+			// both destination lines in one loop is faster
+			const Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY++);
+			Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY++);
+			Pixel* dstLine2 = (dstY != dst->h)
+			                ? Scaler<Pixel>::linePtr(dst, dstY++)
+			                : dstLine1;
+
 			if (sizeof(Pixel) == 2) {
 				darkener.setFactor(darkenFactor);
-				unsigned* dst = reinterpret_cast<unsigned*>(dstLine);
+				unsigned* dst1 = reinterpret_cast<unsigned*>(dstLine1);
+				unsigned* dst2 = reinterpret_cast<unsigned*>(dstLine2);
 				for (int x = 0; x < width; x++) {
-					dst[x] = darkener.darkenDouble(srcLine[x]);
+					Pixel p = srcLine[x];
+					dst1[x] = ((unsigned)p) << 16 | p;
+					dst2[x] = darkener.darkenDouble(p);
 				}
 			} else {
 				for (int x = 0; x < width; x++) {
-					dstLine[x * 2] = dstLine[x * 2 + 1] =
-						darkener.darken(srcLine[x], darkenFactor);
+					Pixel p = srcLine[x];
+					dstLine1[x * 2] = dstLine1[x * 2 + 1] = p;
+					dstLine2[x * 2] = dstLine2[x * 2 + 1] =
+						darkener.darken(p, darkenFactor);
 				}
 			}
 		}
