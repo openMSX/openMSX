@@ -561,6 +561,70 @@ void BlurScaler<Pixel>::average(
 		asm (
 			"movd	%3, %%mm6;"
 			"pxor	%%mm7, %%mm7;"
+			"xorl	%%eax, %%eax;"
+			"pshufw $0, %%mm6, %%mm6;"
+		"1:"
+			"movq	(%0,%%eax,4), %%mm0;"
+			"pavgb	(%1,%%eax,4), %%mm0;"
+			"movq	%%mm0, %%mm4;"
+			"punpcklbw %%mm7, %%mm0;"
+			"punpckhbw %%mm7, %%mm4;"
+			"pmulhuw %%mm6, %%mm0;"
+			"pmulhuw %%mm6, %%mm4;"
+			"packuswb %%mm4, %%mm0;"
+
+			"movq	8(%0,%%eax,4), %%mm1;"
+			"pavgb	8(%1,%%eax,4), %%mm1;"
+			"movq	%%mm1, %%mm5;"
+			"punpcklbw %%mm7, %%mm1;"
+			"punpckhbw %%mm7, %%mm5;"
+			"pmulhuw %%mm6, %%mm1;"
+			"pmulhuw %%mm6, %%mm5;"
+			"packuswb %%mm5, %%mm1;"
+
+			"movq	16(%0,%%eax,4), %%mm2;"
+			"pavgb	16(%1,%%eax,4), %%mm2;"
+			"movq	%%mm2, %%mm4;"
+			"punpcklbw %%mm7, %%mm2;"
+			"punpckhbw %%mm7, %%mm4;"
+			"pmulhuw %%mm6, %%mm2;"
+			"pmulhuw %%mm6, %%mm4;"
+			"packuswb %%mm4, %%mm2;"
+
+			"movq	24(%0,%%eax,4), %%mm3;"
+			"pavgb	24(%1,%%eax,4), %%mm3;"
+			"movq	%%mm3, %%mm5;"
+			"punpcklbw %%mm7, %%mm3;"
+			"punpckhbw %%mm7, %%mm5;"
+			"pmulhuw %%mm6, %%mm3;"
+			"pmulhuw %%mm6, %%mm5;"
+			"packuswb %%mm5, %%mm3;"
+
+			"movntq %%mm0,   (%2,%%eax,4);"
+			"movntq %%mm1,  8(%2,%%eax,4);"
+			"movntq %%mm2, 16(%2,%%eax,4);"
+			"movntq %%mm3, 24(%2,%%eax,4);"
+			
+			"addl	$8, %%eax;"
+			"cmpl	$640, %%eax;"
+			"jl	1b;"
+			
+			"emms;"
+			
+			: // no output
+			: "r" (src1)  // 0
+			, "r" (src2)  // 1
+			, "r" (dst)   // 2
+			, "r" (alpha << 8) // 3
+			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+			, "eax"
+			);
+
+	} else if (ASM_X86 && (sizeof(Pixel) == 4) && cpu.hasMMX()) {
+		// MMX routine, 32bpp
+		asm (
+			"movd	%3, %%mm6;"
+			"pxor	%%mm7, %%mm7;"
 			"psrlq	$1, %%mm6;"
 			"punpcklwd %%mm6, %%mm6;"
 			"punpckldq %%mm6, %%mm6;"
@@ -588,7 +652,7 @@ void BlurScaler<Pixel>::average(
 			// pack
 			"packuswb %%mm2, %%mm0;"
 			// store
-			"movntq %%mm0, (%2,%%eax,4);"
+			"movq %%mm0, (%2,%%eax,4);"
 			
 			"addl	$2, %%eax;"
 			"cmpl	$640, %%eax;"

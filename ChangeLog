@@ -1,5 +1,9 @@
 $Id$
 
+2004-09-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Blur scaler speed-up:
+	   use ext-mmx instructions "pavgb", "pshufw", "pmulhuw"
+
 2004-09-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Converted more extensions to new config format
 	* Allow saving of settings with 'non-xml-tag' characters
