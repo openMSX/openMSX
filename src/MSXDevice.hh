@@ -90,7 +90,7 @@ public:
 	 * by a debugger.
 	 * The default implementation just returns 0xFF.
 	 */
-	virtual byte peekIO(word address, const EmuTime& time) const;
+	virtual byte peekIO(byte port, const EmuTime& time) const;
 	
 	/**
 	 * Test that the memory in the interval [start, start+CACHE_LINE_SIZE)

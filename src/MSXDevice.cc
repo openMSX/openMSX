@@ -188,7 +188,7 @@ void MSXDevice::writeIO(byte port, byte value, const EmuTime& /*time*/)
 	// do nothing
 }
 
-byte MSXDevice::peekIO(word address, const EmuTime& /*time*/) const
+byte MSXDevice::peekIO(byte /*port*/, const EmuTime& /*time*/) const
 {
 	return 0xFF;
 }
