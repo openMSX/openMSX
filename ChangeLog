@@ -2,6 +2,7 @@ $Id$
 
 2003-06-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented SHA1 support for romdb
+	* Converted most of romdb.xml to SHA1
 
 2003-06-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added new YM2413 core:
