@@ -34,5 +34,4 @@ else
 	exit
 fi
 
-
-
+rm -f config.cache
