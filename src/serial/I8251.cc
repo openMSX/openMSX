@@ -61,6 +61,7 @@ I8251::~I8251()
 void I8251::reset(const EmuTime& time)
 {
 	status = STAT_TXRDY | STAT_TXEMPTY;
+	command = 0xFF; // make sure all bits change
 	writeCommand(0, time);
 	cmdFaze = FAZE_MODE;
 }
@@ -216,12 +217,6 @@ void I8251::writeCommand(byte value, const EmuTime& time)
 		Scheduler::instance()->removeSyncPoint(this, TRANS);
 		status |= STAT_TXRDY | STAT_TXEMPTY;
 	}
-	if (!(command & CMD_RXE)) {
-		// disable receiver
-		Scheduler::instance()->removeSyncPoint(this, RECV);
-		recvReady = false;
-		status &= ~STAT_RXRDY;
-	}
 	if (command & CMD_RSTERR) {
 		status &= ~(STAT_PE | STAT_OE | STAT_FE);
 	}
@@ -234,6 +229,15 @@ void I8251::writeCommand(byte value, const EmuTime& time)
 
 	if ((command ^ oldCommand) & CMD_RXE) {
 		interf->signal(time);
+		if (command & CMD_RXE) {
+			// enable receiver
+			recvReady = true;
+		} else {
+			// disable receiver
+			Scheduler::instance()->removeSyncPoint(this, RECV);
+			recvReady = false;
+			status &= ~STAT_RXRDY;
+		}
 	}
 }
 
@@ -291,7 +295,6 @@ void I8251::setParityBit(bool enable, ParityBit parity)
 
 void I8251::recvByte(byte value, const EmuTime& time)
 {
-	// TODO who is responsible for timing
 	// TODO STAT_PE / STAT_FE / STAT_SYNBRK
 	if (!(command & CMD_RXE)) {
 		return;

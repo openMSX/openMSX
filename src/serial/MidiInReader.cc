@@ -25,12 +25,13 @@ void MidiInReader::plug(Connector* connector_, const EmuTime& time)
 	if (!file) {
 		return;
 	}
-	thread.start();
 	
 	connector = (MidiInConnector*)connector_;
 	connector->setDataBits(SerialDataInterface::DATA_8);	// 8 data bits
 	connector->setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
 	connector->setParityBit(false, SerialDataInterface::EVEN); // no parity
+	
+	thread.start();
 }
 
 void MidiInReader::unplug(const EmuTime& time)
