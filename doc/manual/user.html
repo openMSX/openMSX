@@ -23,6 +23,29 @@ read <code>openMSX-HOWTO.txt</code> inside the openMSX tree.
 
 <h2>Contents</h2>
 
+<ol class="toc">
+	<li><a class="internal" href="#intro">1. Introduction</a>
+		<ol class="toc">
+			<li><a class="internal" href="#newver">1.1. New Versions of this Document</a></li>
+			<li><a class="internal" href="#purpose">1.2. Purpose</a></li>
+			<li><a class="internal" href="#contrib">1.3. Contributors</a></li>
+			<li><a class="internal" href="#history">1.4. Revision History</a></li>
+		</ol>
+	</li>
+	<li><a class="internal" href="#runsoftsimple">2. Running MSX Software (simple)</a>
+		<ol class="toc">
+			<li><a class="internal" href="#xxxxxxxxxxx">2.x. xxxxxxxxxxxt</a></li>
+		</ol>
+	</li>
+	<li><a class="internal" href="#compile">3. Compilation</a>
+		<ol class="toc">
+			<li><a class="internal" href="#xxxxxxxxxxx">2.x. xxxxxxxxxxxt</a></li>
+		</ol>
+	</li>
+	<li><a class="internal" href="#contact">6. Contact Info</a></li>
+</ol>
+
+
 <p class="todo">
 Similar to Compile Guide.
 </p>
@@ -33,202 +56,313 @@ Similar to Compile Guide.
 Similar to Compile Guide.
 </p>
 
-<pre>
-6. Running MSX software (simple)
-   -----------------------------
+<h2><a id="runsoftsimple">2. Running MSX software (simple)</a></h2>
 
-Since step 5 made things very comfortable for us, we can try to run some
-software first, just to get used to the openMSX command line. This is very basic
-stuff here, though.
+<p>
+Suppose you want to run the ROM file <code>galious.rom</code>. Then you simply type:
+</p>
+<div class="commandline">openmsx galious.rom</div>
+<p>
+and the emulated MSX will run the game. (Of course,
+in this case, the file <code>galious.rom</code> should be in the current directory or in one
+of the UserDirectories you specified in the <code>settings.xml</code>, see below.)
+</p>
+<p class="todo">
+Fix the above reference.
+</p>
 
-Suppose you want to run the ROM file "galious.rom". Then you simply type:
-
-openmsx galious.rom
-
-and the emulated NMS 8250 (as it still is, now) will run the game. (Of course,
-in this case, the file galious.rom should be in the current directory or in one
-of the UserDirectories you specified in the settings.xml, see below.)
-
+<p>
 If things go terribly wrong, openMSX may not have the .rom extension registered
 as a ROM image (it does have that by default, though, but this is just an
 example). You can then indicate this by typing:
+</p>
+<div class="commandline">openmsx -cart galious.rom</div>
+<p>
+Or, maybe openMSX didn't have the ROM in the ROM database and failed autodetection of the mapper type. You can specify the mapper to KONAMI4 like this:
+</p>
+<div class="commandline">openmsx galious.rom,KONAMI4</div>
+<p>
+Note that in practice you won't need this, since most ROM images are in the database or autodetected if they are not.
+</p>
 
-openmsx -cart galious.rom
-
+<p>
 To run a disk image, you can type:
-
-openmsx relax.dsk
-
+</p>
+<div class="commandline">openmsx relax.dsk</div>
+<p>
 for example. Or, if you haven't registered the .dsk extension for disk images:
+</p>
+<div class="commandline">openmsx -diska relax.dsk</div>
 
-openmsx -diska relax.dsk
-
+<p>
 With this information, you can run most of the existing MSX software.
-
+</p>
+<p>
 A completer command line options help can be seen by typing:
+</p>
+<div class="commandline">openmsx -help</div>
 
-openmsx -help
+<h2><a id="keymapping">x. Default Key Mapping</a></h2>
 
-The default key mapping is:
-F12		- Quit
-F11		- Mute audio
-F10		- Console (see section 8)
-F9		- Throttle (maximum speed)
-F8		- MSX STOP key
-F7		- MSX SELECT key
-L-ALT		- MSX GRAPH key
-R-CTRL		- MSX CODE key
-L-Windows	- MSX iee (`no') key
-R-Windows	- MSX hai ('yes') key
-Pause		- Pause the emulator
-PrtScr		- Toggle full screen
+<p>
+The default key mapping is as follows:
+</p>
 
-Some of those, you can change in the settings.xml file.
-</pre>
+<p>
+<object>
+<table>
+  <tr> <td>F12</td> <td>Quit openMSX</td> </tr>
+  <tr> <td>F11</td> <td>Mute audio</td> </tr>
+  <tr> <td>F10</td> <td>Console (see section TODO)</td> </tr>
+  <tr> <td>F9</td> <td>Full Throttle (maximum speed)</td> </tr>
+  <tr> <td>F8</td> <td>MSX STOP key</td> </tr>
+  <tr> <td>F7</td> <td>MSX SELECT key</td> </tr>
+  <tr> <td>L-ALT</td> <td>MSX GRAPH key</td> </tr>
+  <tr> <td>R-CTRL</td> <td>MSX CODE key</td> </tr>
+  <tr> <td>L-Windows</td> <td>MSX iee (`no') key</td> </tr>
+  <tr> <td>R-Windows</td> <td>MSX hai (`yes') key</td> </tr>
+  <tr> <td>Pause</td> <td>Pause emulation</td> </tr>
+  <tr> <td>PrtScr</td> <td>Toggle Full Screen</td> </tr>
+</table>
+</object>
+</p>
+<p class="todo">
+Make the table look better by using cellpadding stuff in the css.
+</p>
+<p>
+The keys that do not map MSX keys, can be changed in the settings.xml file.
+</p>
 
-<pre>
-7.1 Using extensions
+<h2><a id="extensions">x. Using Extensions</a></h2>
 
-Note: while modifying the machine description belongs in the Setup Guide,
-this belongs in the User's Manual, because users will need it.
+<p> 
+If you have setup an FM PAC <code>hardwareconfig.xml</code> file in
+<code>~/.openMSX/share/extensions/fmpac</code> e.g., you can add  <code>-ext
+fmpac</code> to your command line to use an FM PAC. But, as I just said, you
+need to have a hardware description in that subdirectory of
+<code>share/extensions/</code>, see chapter TODO (SETUP GUIDE). Fortunately,
+openMSX comes with a predefined FM-PAC extension. You only need to add the
+<code>fmpac.rom</code> in <code>share/extensions/fmpac/roms/</code>; it's the ROM that is built in the FM-PAC. If you look at that <code>share/extensions</code>
+directory, you will find more extensions. E.g. using <code>-ext mbstereo</code>
+gives you the Moonblaster stereo effect: FM PAC on one channel and MSX Audio on
+the other. Try them out, if you like, but again, keep in mind that some
+extensions need a ROM image installed in their <code>roms/</code> directory.
+</p>
+<p class="todo">
+Add reference to setup guide above.
+</p>
 
-If you have setup an FM PAC hardwareconfig.xml file in
-~/.openMSX/share/extensions/fmpac e.g., you can use `-ext fmpac' to use an
-FM PAC. But, as I just said, you need to have a hardware description in that
-subdirectory of share/extensions/, see chapter 5. Fortunately, openMSX comes
-with a predefined FM-PAC extension. You only need to add the directory 'roms' in
-share/extensions/fmpac and put the fmpac.rom there. If you look at that
-share/extensions directory, you will find more extensions. E.g. using `-ext
-mbstereo' gives you the Moonblaster stereo effect: FM PAC on one channel and MSX
-Audio on the other. Try them out, if you like.
-</pre>
+<h2><a id="advanced">x. Advanced Topics</a></h2>
 
-<pre>
-8. Using the emulator (more advanced)
-   ----------------------------------
+<h3><a id="renderers">x.x Renderers</a></h3>
 
-8.1 Renderers
-
+<p>
 At the moment, there are three working renderers. A renderer is a part of the
 emulator that generates the graphical part of the emulation: the MSX 'screen'.
+</p>
 
-The default renderer is called SDLHi. This one uses a window of 640 by 480
+<p>
+The default renderer is called SDLHi. This one uses a window of 640&times;480
 pixels to be able to display all the screen lines, even when interlacing is used
 on the MSX. This renderer is not using any hardware acceleration and has a
 steady CPU time consumption. The CPU load can be quite high though. It is about
-50% on my Athlon XP 1600+, when emulating a 3.5MHz MSX.
+50% on Manuel's Athlon XP 1600+, when emulating a 3.5MHz MSX.
+</p>
 
+<p>
 A very good alternative for the Hi renderer is called SDLGL. This renderer uses
 openGL instructions to optimise the rendering. Because part of the rendering is
 done by the graphics hardware, the CPU load can vary a lot. Also, you need to
 have the GLX module loaded in your X server and also accelerated graphics (DRI).
-You can verify this by typing 'glxinfo' on the command line. Direct rendering
+You can verify this by typing <code>glxinfo</code> on the command line. Direct rendering
 should be enabled to benefit from this renderer. GL also makes some effects
-easier: when using the SDLGL renderer, there is a blur, glow (afterglow!) and
-scanline setting (see Console), to imitate a TV screen. This does not work
+easier: when using the SDLGL renderer, there is a <code>blur</code>, <code>glow</code> (afterglow!) and
+<code>scanline</code> setting (see <a class="internal" href="#console">Console</a>), to imitate a TV screen. This does not work
 properly with all graphics cards, though. It should work with nVidia cards, at
 least. Note that the GL renderer is only available when the openGL development
-files (gl.h is one of them) were installed on the computer at compile time.
-This will be checked by the configure script.
+files (<code>gl.h</code> is one of them) were installed on the computer at compile time.
+This will be checked by the <code>configure</code> script.
+</p>
 
+<p>
 The third working renderer is called SDLLo. This renderer uses a window of only
-320 by 240 pixels, which means that part of the MSX screen will be omitted. An
+320&times;240 pixels, which means that part of the MSX screen will be omitted. An
 'interpolation' (blending) algorithm to reduce this problem was added for 16
 and 24bpp visuals. I don't recommend to use this renderer, unless you have an
 extremely slow computer.
+</p>
 
-You can set the renderer in the settings.xml file. Look for &lt;config
-id="renderer"&gt;.  You can also specify there whether the emulator should switch
-to full screen when started. You can also switch renderer from the Console (see
-below).
+<p>
+You can set the renderer in the <code>settings.xml</code> file. Look for <code>&lt;config
+id="renderer"&gt;</code>.  You can also specify there whether the emulator should switch
+to full screen when started. You can also switch renderer from the <a class="internal" href="#console">console</a>.
+</p>
 
-8.2 Console
+<h3><a id="console">x.x Console</a></h3>
 
-When the emulator is running, you can get the "Console" by pressing F10 when
+<p>
+When the emulator is running, you can get the "Console" by pressing F10 (with default key mapping) when
 the focus is on the emulator window. This will give you a command line in the
-openMSX window. Typing 'help' gives a list of commands. They are described in
-the file doc/commands.txt in the source tree. The console is mostly used to
+openMSX window. Typing <code>help</code> gives a list of commands. They are described in
+the file <code>doc/commands.txt</code> in the source tree. The console is mostly used to
 change disk images, plug in joysticks or mice, make settings and to define
 key bindings. You can specify a background image and the font in the config
-file (&lt;config id="Console"&gt;). The png files need an alpha channel (transparency
+file (<code>&lt;config id="Console"&gt;</code>). The png files need an alpha channel (transparency
 information) though.
+</p>
+<p class="todo">
+Add the complete list of commands.txt somewhere.
+</p>
 
-An interesting console command is 'set'. You can use it to change the various
+<p>
+An interesting console command is <code>set</code>. You can use it to change the various
 settings. E.g., you can use it to set the renderer that is to be used. And the
-blur, glow and scanline setting of the GL renderer can be tweaked with it.
-Settings that have only two possible values can also be toggled with the toggle
-command (an example is the default key binding of Print Screen to 'toggle
-fullscreen', see also below). A complete list of settings should be in the file
-commands.txt in the doc directory.
+<code>blur</code>, <code>glow</code> and <code>scanline</code> setting of the GL renderer can be tweaked with it.
+Settings that have only two possible values can also be toggled with the <code>toggle</code>
+command (an example is the default key binding of Print Screen to <code>toggle
+fullscreen</code>, see also below). A complete list of settings should also be in the file
+<code>commands.txt</code> in the doc directory.
+</p>
+<p class="todo">
+Add the complete list of commands.txt somewhere.
+</p>
 
-8.3 Renderer accuracy
+<h3><a id="accuracy">x.x Renderer Accuracy</a></h3>
 
-Another example of the settings that you can specify in the Console is the
-accuracy of the rendering. There are three options: `screen', `line' and
-`pixel'. The latter is the slowest, but most accurate setting (it also shows
+<p>
+Another example of the settings that you can specify in the <a class="internal" href="#console">Console</a> is the
+accuracy of the rendering. There are three options: <code>screen</code>, <code>line</code> and
+<code>pixel</code>'. The latter is the slowest, but most accurate setting (it also shows
 that the timing in openMSX is not perfect yet): it will enable you to run the
-Unknown Reality real time oscilloscope almost flawlessly!  Just type "set
-accuracy pixel" in the console. You can use the default `line' accuracy for
-almost every other piece of software. `screen' is the fastest, but least
+Unknown Reality real time oscilloscope almost flawlessly!  Just type <code>set
+accuracy pixel</code> in the console. You can use the default <code>line</code> accuracy for
+almost every other piece of software. <code>screen</code> is the fastest, but least
 accurate setting. This will break a lot of software that uses raster effects.
+</p>
 
-8.4 AutoCommands and KeyEventInserter
+<h3><a id="autocommands">x.x AutoCommands and KeyEventInserter</a></h3>
 
-In the config file section AutoCommands, you can specify some console commands
-that should be executed automatically. See the settings.xml or
-exampleconfigs.xml file for some examples. The settings.xml file uses this to
+<p>
+In the config file section <code>AutoCommands</code>, you can specify some console commands
+that should be executed automatically. See the <code>settings.xml</code> or
+<code>exampleconfigs.xml</code> file for some examples. The <code>settings.xml</code> file uses this to
 create the default key bindings.
-You can also use it to make default settings that are done with Console
-commands. In my case I set blur and scanline to 0, since they don't work
-correctly with my Radeon drivers.  The KeyEventInserter section can be used to
+You can also use it to make default settings that are done with <a class="internal" href="#console">Console</a>
+commands. In my case I set <code>blur</code> and <code>scanline</code> to 0, since they don't work
+correctly with my Radeon drivers.  The <code>KeyEventInserter</code> section can be used to
 have something typed into the MSX after it booted. Again, see the
-exampleconfigs.xml file. Examine this file to learn what you can configure more.
+<code>exampleconfigs.xml</code> file. Examine this file to learn what you can configure more.
+</p>
 
-8.5 Running tape games
+<h3><a id="tape">x.x Running Tape Software</a></h3>
 
+<p>
 openMSX supports WAV files for tape emulation! Just configure your MSX with a
 cassette port (or use a premade MSX that already has it):
+</p>
+<div class="commandline">
      &lt;config id="CassettePort"&gt;
+</div>
+<div class="commandline">
      &lt;/config&gt;
+</div>
+<p>
 Then type in the console:
+</p>
+<div class="commandline">
      plug cassetteport cassetteplayer
+</div>
+<div class="commandline">
      cassetteplayer &lt;file&gt;.wav
+</div>
+<p>
 And then in MSX Basic, type:
+</p>
+<div class="commandline">
      run"cas:"
+</div>
+<p>
 (or another command to load the program on 'tape'.)
-You can also use the so-called CAS files. In the Console, type:
-     cas &lt;tapeimage&gt;
+</p>
+
+<p>
+You can also use the so-called CAS files. In the <a class="internal" href="#console">Console</a>, type:
+</p>
+<div class="commandline">
+     cas &lt;tapeimage&gt;.cas
+</div>
+<p>
 and
+</p>
+<div class="commandline">
      cas eject
+</div>
+<p>
 to remove the tape from the virtual cassette player. This only works with a
 patched BIOS ROM, though. You can find an example of the patch in
 exampleconfigs.xml.
+</p>
 
-8.6 Other Console commands
+<p>
+Because patching a BIOS is not really something you want, a new feature was recently added to openMSX. You can use CAS files with cassetteplayer as if they were WAV files now! They are automatically converted to WAV files, internally. Note that the loading time is drastically longer this way.
+</p>
 
-You can reset your MSX with the Console command `reset'.
+<p>
+Other cassetteplayer related commands/setting you need to know of are:
+<object>
+<ul>
+	<li><code>casetteplayer rewind</code>, to rewind the tape</li>
+	<li><code>casetteplayer eject</code>, to eject the tape</li>
+	<li><code>set casetteplayer_volume</code>, to set the volume of the cassette player sound (yeah, the screeching tape sounds!)</li>
+</ul>
+</object>
+</p>
 
+
+<h3><a id="other">x.x Other Important Console Commands and Settings</a></h3>
+
+<p>
+You can reset your MSX with the <a class="internal" href="#console">Console</a> command <code>reset</code>.
+</p>
+
+<p>
 If the MSX goes too fast or too slow, adjust the emulation speed with the
-`speed' setting, which has the speed percentage as parameter. So, typing `set
-speed 120', will let the emulated MSX run at 120% of normal MSX speed.
+<code>speed</code> setting, which has the speed percentage as parameter. So, typing <code>set
+speed 120</code>, will let the emulated MSX run at 120% of normal MSX speed.
+</p>
 
-To connect a mouse, you can also use the `plug' command:
+<p>
+To connect a mouse, you can also use the <code>plug</code> command:
+</p>
+<div class="commandline">
     plug joyporta mouse
+</div>
+<p>
 will connect a mouse to joystick port A.
+</p>
 
+<p>
 If you want openMSX to emulate the blinking interlace effect as can be seen on a
-real MSX, try "deinterlace off"... I recommend to turn it on though, the
+real MSX, try <code>set deinterlace off</code>... I recommend to turn it on though, the
 blinking is quite irregular on most systems and thus a pain for the eyes
-(unless you combine it with the `glow' setting in SDLGL).
+(unless you combine it with the <code>glow</code> effect in SDLGL).
+</p>
 
+<p>
 You can also change disks at run time of course. Just type
+</p>
+<div class="commandline">
     diska &lt;diskimage&gt;
-in the Console to put the specified disk image in drive A.
+</div>
+<p>
+in the <a class="internal" href="#console">Console</a> to put the specified disk image in drive A.
+</p>
 
-Again, the full list of Console commands can be found in doc/commands.txt and
-when typing `help' in the Console itself. You can also type `help &lt;command&gt;' to
-get some help about a specific Console command.
-</pre>
+<p>
+Again, the full list of <a class="internal" href="#console">Console</a> commands can be found in <code>doc/commands.txt</code> and
+when typing <code>help</code> in the <a class="internal" href="#console">Console</a> itself. You can also type <code>help &lt;command&gt;</code> to
+get some help about a specific <a class="internal" href="#console">Console</a> command.
+</p>
 
 <pre>
 10.3 Real disks (Linux)
