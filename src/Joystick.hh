@@ -4,7 +4,7 @@
 #define __JOYSTICK_HH__
 
 #include "JoystickDevice.hh"
-#include "EventDistributor.hh"
+#include "EventListener.hh"
 #include "MSXException.hh"
 #include <SDL/SDL.h>
 

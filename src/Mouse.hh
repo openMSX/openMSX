@@ -4,8 +4,7 @@
 #define __MOUSE_HH__
 
 #include "JoystickDevice.hh"
-#include "EventDistributor.hh"
-#include <SDL/SDL.h>
+#include "EventListener.hh"
 
 
 class Mouse : public JoystickDevice, EventListener

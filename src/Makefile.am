@@ -47,7 +47,7 @@ openmsx_SOURCES=\
 	PlatformFactory.hh PlatformFactory.cc \
 	devicefactory.hh devicefactory.cc \
 	Scheduler.hh Scheduler.cc Schedulable.hh Schedulable.cc \
-	EventDistributor.hh EventDistributor.cc \
+	EventDistributor.hh EventDistributor.cc EventListener.hh \
 	Thread.hh Thread.cc \
 	Mutex.hh Mutex.cc \
 	HotKey.hh HotKey.cc \

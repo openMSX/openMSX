@@ -10,17 +10,9 @@
 #include "Mutex.hh"
 #include "Schedulable.hh"
 
+// forward declaration
+class EventListener;
 
-class EventListener
-{
-	public:
-		/**
-		 * This method gets called when an event you are interested in
-		 * occurs. 
-		 * Note: asynchronous events are deliverd in a different thread!!
-		 */
-		virtual void signalEvent(SDL_Event &event) = 0;
-};
 
 class EventDistributor : public Runnable , private Schedulable
 {

@@ -9,10 +9,8 @@
 #include <cassert>
 #include <SDL/SDL.h>
 #include <algorithm>
+#include "EventDistributor.hh"
 
-
-
-// Scheduler
 
 Scheduler::Scheduler()
 {

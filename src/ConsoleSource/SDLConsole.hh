@@ -4,10 +4,12 @@
 #define __SDLCONSOLE_HH__
 
 #include <SDL/SDL.h>
-#include "../EventDistributor.hh"
-#include "SDLFont.hh"
+#include "EventListener.hh"
 #include "InteractiveConsole.hh"
 #include "Command.hh"
+
+// forward declaration
+class SDLFont;
 
 
 class SDLConsole : public InteractiveConsole, private EventListener

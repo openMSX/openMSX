@@ -7,7 +7,7 @@
 #include "EmuTime.hh"
 #include "Mutex.hh"
 #include "ConsoleSource/Command.hh"
-#include "EventDistributor.hh"
+#include "EventListener.hh"
 
 //forward declarations
 class MSXCPU;

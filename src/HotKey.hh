@@ -5,8 +5,10 @@
 
 #include <SDL/SDL.h>
 #include <string>
-#include "EventDistributor.hh"
+#include <map>
+#include "EventListener.hh"
 #include "Mutex.hh"
+
 
 class HotKeyListener
 {
@@ -29,9 +31,9 @@ class HotKey : private EventListener
 		/**
 		 * This is just an extra filter for SDL_KEYDOWN events, now
 		 * events are only passed for specific keys.
-		 * See EventDistributor::registerSyncListener for more details
+		 * See EventDistributor::registerAsyncListener for more details
 		 */
-		void registerSyncHotKey(SDLKey key, HotKeyListener *listener);
+		void registerAsyncHotKey(SDLKey key, HotKeyListener *listener);
 
 		/**
 		 * When the given hotkey is pressed the given command is

@@ -2,6 +2,7 @@
 
 #include "Mouse.hh"
 #include "PluggingController.hh"
+#include "EventDistributor.hh"
 
 
 //TODO implement timeout

@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "EventDistributor.hh"
+#include "EventListener.hh"
 #include "openmsx.hh"
 #include "config.h"
 #include "Scheduler.hh"

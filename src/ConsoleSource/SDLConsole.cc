@@ -7,12 +7,14 @@
  */
 
 #include <cassert>
-#include "../openmsx.hh"
+//#include "openmsx.hh"
 #include "SDLConsole.hh"
 #include "CommandController.hh"
 #include "HotKey.hh"
 #include "ConsoleManager.hh"
 #include "FileOpener.hh"
+#include "SDLFont.hh"
+#include "EventDistributor.hh"
 
 
 SDLConsole::SDLConsole(SDL_Surface *screen) :

@@ -3,6 +3,7 @@
 #include <cassert>
 #include "Joystick.hh"
 #include "PluggingController.hh"
+#include "EventDistributor.hh"
 
 
 Joystick::Joystick(int joyNum)

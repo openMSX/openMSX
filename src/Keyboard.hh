@@ -4,7 +4,7 @@
 #define __INPUTS_HH__
 
 #include "openmsx.hh"
-#include "EventDistributor.hh"
+#include "EventListener.hh"
 
 
 class Keyboard : public EventListener
