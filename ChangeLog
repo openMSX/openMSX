@@ -1,5 +1,10 @@
 $Id$
 
+2004-06-01 Manuel Bilderbeek <manuel@msxnet.org>
+	* Corrected ASCII table for 'type' command for international layout
+	  Thanks to Albert Beevendorp for doing the hard work!
+	* More config file changes: changed device name of FM-PAC to FMPAC
+
 2004-06-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* More config file changes:
 	   - removed <parameter class=".."> constructs
