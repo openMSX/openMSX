@@ -13,18 +13,27 @@
 
 #define WIDTH 320
 #define HEIGHT 240
+#define DEPTH 8
 
+#if DEPTH == 8
+typedef byte Pixel;
+#elif DEPTH == 15 || DEPTH == 16
+typedef word Pixel;
+#elif DEPTH == 32
+typedef unsigned int Pixel;
+#else
+#error DEPTH must be 8, 15, 16 or 32 bits per pixel.
+#endif
 
 struct osd_bitmap
 {
 	int width,height;       /* width and height of the bitmap */
-	int depth;                      /* bits per pixel */
-	byte *_private;         /* don't touch! - reserved for osdepend use */
-	byte  **line;           /* pointers to the start of each line */
+	int depth;              /* bits per pixel */
+	Pixel *_private;        /* don't touch! - reserved for osdepend use */
+	Pixel **line;           /* pointers to the start of each line */
 	// Here the differences from the MAME structure starts
-        int safety;
+	int safety;
 	int safetx;
-
 };
 
 class MSXTMS9928a : public MSXDevice
@@ -36,7 +45,7 @@ public:
 
 	// interaction with CPU
 	byte readIO(byte port, Emutime &time);
-	void writeIO(byte port,byte value, Emutime &time);
+	void writeIO(byte port, byte value, Emutime &time);
 	void executeUntilEmuTime(const Emutime &time);
 
 	// mainlife cycle of an MSXDevice
@@ -57,29 +66,26 @@ private:
 		/* TMS9928A internal settings */
 		byte ReadAhead,Regs[8],StatusReg,oldStatusReg;
 		int Addr,FirstByte,BackColour,Change,mode;
-		//int INT;
 		int colour,pattern,nametbl,spriteattribute,spritepattern;
 		int colourmask,patternmask;
-		//void (*INTCallback)(int);
 		/* memory */
 		byte *vMem, *dBackMem;
-		struct osd_bitmap *tmpbmp;
 		int vramsize, model;
 		/* emulation settings */
 		int LimitSprites; /* max 4 sprites on a row, like original TMS9918A */
 		/* all or nothing dirty David Heremans */
 		bool stateChanged;
-		/* dirty tables from Sean Young restcode*/
+		/* dirty tables from Sean Young restcode */
 		byte anyDirtyColour, anyDirtyName, anyDirtyPattern;
 		byte *DirtyColour, *DirtyName, *DirtyPattern;
 	} tms;
 	byte TMS9928A_vram_r();
 
-	unsigned int XPal[20];
+	Pixel XPal[16];
 	void PutImage();
 	struct osd_bitmap *bitmapscreen;
 
-	struct osd_bitmap* alloc_bitmap(int width,int height,int depth);
+	struct osd_bitmap *alloc_bitmap(int width, int height, int depth);
 	void _TMS9928A_change_register (byte reg, byte val);
 	void _TMS9928A_set_dirty (char);
 
