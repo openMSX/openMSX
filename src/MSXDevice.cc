@@ -84,7 +84,7 @@ const std::string &MSXDevice::getName()
 		return defaultName;
 	}
 }
-const std::string MSXDevice::defaultName = "no name";
+//const std::string MSXDevice::defaultName = "no name";
 
 
 //These are used for save/restoreState see note over

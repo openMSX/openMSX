@@ -1,10 +1,19 @@
 // $Id$
 
-#include "MSXDevice.hh"
+//#include "MSXDevice.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 #include <cassert>
+
+
+
+const std::string &Schedulable::getName()
+{
+	return defaultName;
+}
+const std::string Schedulable::defaultName = "no name";
+
 
 
 Scheduler::Scheduler()
@@ -25,7 +34,7 @@ Scheduler* Scheduler::instance()
 Scheduler *Scheduler::oneInstance = NULL;
 
 
-void Scheduler::setSyncPoint(Emutime &time, MSXDevice &device) 
+void Scheduler::setSyncPoint(Emutime &time, Schedulable &device) 
 {
 	assert (time >= MSXCPU::instance()->getCurrentTime());
 	if (time < MSXCPU::instance()->getTargetTime())
@@ -77,7 +86,7 @@ void Scheduler::scheduleEmulation()
 				MSXCPU::instance()->executeUntilTarget(time);
 			} else {
 				// if CPU has reached SP, emulate the device
-				MSXDevice *device = &(sp.getDevice());
+				Schedulable *device = &(sp.getDevice());
 				PRT_DEBUG ("Scheduling " << device->getName());
 				device->executeUntilEmuTime(time);
 				removeFirstSP();

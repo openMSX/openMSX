@@ -9,8 +9,9 @@
 #include "msxconfig.hh"
 #include "emutime.hh"
 #include "openmsx.hh"
+#include "Scheduler.hh"
 
-class MSXDevice
+class MSXDevice : public Schedulable
 {
 	public:
 		virtual ~MSXDevice();
@@ -50,8 +51,8 @@ class MSXDevice
 		void resetInterrupt();
 		bool isIRQset;
 
-	private:
-		static const std::string defaultName;
+//	private:
+//		static const std::string defaultName;
 };
 
 #endif //__MSXDEVICE_HH__
