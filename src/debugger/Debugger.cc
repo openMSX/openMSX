@@ -249,7 +249,9 @@ void Debugger::DebugCmd::tabCompletion(vector<string>& tokens) const
 			cmds.insert("desc");
 			cmds.insert("size");
 			cmds.insert("read");
+			cmds.insert("read_block");
 			cmds.insert("write");
+			cmds.insert("write_block");
 			cmds.insert("step");
 			cmds.insert("cont");
 			cmds.insert("break");
