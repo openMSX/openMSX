@@ -8,7 +8,8 @@ MSXKanji::MSXKanji(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  rom(config, time)
 {
-	if (!((rom.getSize() == 0x20000) || (rom.getSize() == 0x40000))) {
+	int size = rom.getSize();
+	if ((size != 0x20000) && (size != 0x40000)) {
 		PRT_ERROR("MSXKanji: wrong kanji rom");
 	}
 
@@ -27,6 +28,7 @@ void MSXKanji::reset(const EmuTime &time)
 
 void MSXKanji::writeIO(byte port, byte value, const EmuTime &time)
 {
+	//PRT_DEBUG("MSXKanji: write " << (int)port << " " << (int)value);
 	switch (port & 0x03) {
 	case 0:
 		adr1 = (adr1 & 0x1f800) | ((value & 0x3f) << 5);
@@ -47,21 +49,23 @@ void MSXKanji::writeIO(byte port, byte value, const EmuTime &time)
 
 byte MSXKanji::readIO(byte port, const EmuTime &time)
 {
-	byte tmp;
+	byte result;
 	switch (port & 0x03) {
 	case 1:
-		tmp = rom.read(adr1);
+		result = rom.read(adr1);
 		adr1 = (adr1 & ~0x1f) | ((adr1 + 1) & 0x1f);
-		return tmp;
+		break;
 	case 3:
-		tmp = rom.read(adr2);
+		result = rom.read(adr2);
 		adr2 = (adr2 & ~0x1f) | ((adr2 + 1) & 0x1f);
-		return tmp;
+		break;
 	default:
 		// This port should not have been registered.
 		assert(false);
-		return 0xff;
+		result = 0xFF;
 	}
+	//PRT_DEBUG("MSXKanji: read " << (int)port << " " << (int)result);
+	return result;
 }
 
 /*

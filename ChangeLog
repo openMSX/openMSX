@@ -1,6 +1,10 @@
 $Id$
 
 2003-01-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented Kanji 12x12:
+	   - not tested, I don't have correct ROM
+
+2003-01-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added powerOff() method to MSXDevice
 	* Removed getCurrentTime() calls from destructors
 

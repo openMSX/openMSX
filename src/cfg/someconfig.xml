@@ -375,5 +375,10 @@
     <type>IDEHD</type>
     <parameter name="filename">hd.dsk</parameter>
   </config>
+  
+  <device id="Kanji ROM 12x12">
+    <type>Kanji12</type>
+    <parameter name="filename">KANJI12.ROM</parameter>
+  </device>
 
 </msxconfig>

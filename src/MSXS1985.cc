@@ -1,7 +1,6 @@
 // $Id$
 
 #include "MSXS1985.hh"
-#include "MSXCPUInterface.hh"
 
 
 const byte ID = 0xFE;

@@ -32,6 +32,7 @@
 #include "FDCFactory.hh"
 #include "SunriseIDE.hh"
 #include "MSXMatsushita.hh"
+#include "MSXKanji12.hh"
 
 
 
@@ -220,6 +221,10 @@ MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time)
 	if (type == "Matsushita") {
 		createDeviceSwitch();
 		return new MSXMatsushita(conf, time);
+	}
+	if (type == "Kanji12") {
+		createDeviceSwitch();
+		return new MSXKanji12(conf, time);
 	}
 	PRT_ERROR("Unknown device specified in configuration");
 	return NULL;
