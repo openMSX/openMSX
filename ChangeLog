@@ -1,5 +1,11 @@
 $Id$
 
+2003-09-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* tab-completion improvements:
+	   - fixed bug while completing tokens that contained spaces
+	   - keep the formatting of the line the same as the original line,
+	     completion behaves a lot like the completion in bash now
+
 2003-09-20 Maarten ter Huurne <maarten@treewalker.org>
 	* Have VDPCmdEngine pass accurate timestamps to VRAM writes.
 	  In the process, replaced opsCount by currentTime.

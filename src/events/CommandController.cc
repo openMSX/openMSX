@@ -57,23 +57,22 @@ void CommandController::unregisterCommand(Command *command,
 
 
 void CommandController::split(const string& str, vector<string>& tokens,
-                              const string& delimiters)
+                              const char delimiter)
 {
 	enum ParseState {Alpha, BackSlash, Quote};
-
 	ParseState state = Alpha;
 
 	for (unsigned i = 0; i < str.length(); ++i) {
 		char chr = str[i];
 		switch (state) {
 			case Alpha:
-				if (delimiters.find(chr) != string::npos) {
+				if (tokens.empty()) {
+					tokens.push_back("");
+				}
+				if (chr == delimiter) {
 					// token done, start new token
 					tokens.push_back("");
 				} else {
-					if (tokens.empty()) {
-						tokens.push_back("");
-					}
 					tokens.back() += chr;
 					if (chr == '\\') {
 						state = BackSlash;
@@ -96,77 +95,112 @@ void CommandController::split(const string& str, vector<string>& tokens,
 	}
 }
 
-void CommandController::tokenize(const string& str, vector<string>& tokens,
-                                 const string& delimiters)
+string CommandController::removeEscaping(const string& str)
 {
-	enum ParseState {Alpha, BackSlash, Quote, Space};
+	enum ParseState {Alpha, BackSlash, Quote};
+	ParseState state = Alpha;
 
-	ParseState state = Space;
-	tokens.push_back("");
-
+	string result;
 	for (unsigned i = 0; i < str.length(); ++i) {
 		char chr = str[i];
 		switch (state) {
-			case Space:
-				if (delimiters.find(chr) != string::npos) {
-					// nothing
-				} else {
-					if (chr == '\\') {
-						state = BackSlash;
-					} else if (chr == '"') {
-						state = Quote;
-					} else {
-						tokens.back() += chr;
-						state = Alpha;
-					}
-				}
-				break;
 			case Alpha:
-				if (delimiters.find(chr) != string::npos) {
-					// token done, start new token
-					tokens.push_back("");
-					state = Space;
-				} else if (chr == '\\') {
+				if (chr == '\\') {
 					state = BackSlash;
 				} else if (chr == '"') {
 					state = Quote;
 				} else {
-					tokens.back() += chr;
+					result += chr;
 				}
 				break;
 			case Quote:
 				if (chr == '"') {
 					state = Alpha;
 				} else {
-					tokens.back() += chr;
+					result += chr;
 				}
 				break;
 			case BackSlash:
-				tokens.back() += chr;
+				result += chr;
 				state = Alpha;
 				break;
 		}
 	}
+	return result;
 }
+
+void CommandController::removeEscaping(const vector<string>& input,
+                              vector<string>& output, bool keepLastIfEmpty)
+{
+	for (vector<string>::const_iterator it = input.begin();
+	     it != input.end();
+	     ++it) {
+		if (!it->empty()) {
+			output.push_back(removeEscaping(*it));
+		}
+	}
+	if (keepLastIfEmpty && (input.empty() || input.back().empty())) {
+		output.push_back("");
+	}
+}
+
+string CommandController::addEscaping(const string& str, bool quote, bool finished)
+{
+	if (str.empty() && finished) {
+		quote = true;
+	}
+	string result;
+	if (quote) {
+		result = '"' + str;
+		if (finished) {
+			result += '"';
+		}
+	} else {
+		for (unsigned i = 0; i < str.length(); ++i) {
+			char chr = str[i];
+			if (chr == ' ') {
+				result += '\\';
+			}
+			result += chr;
+		}
+	}
+	return result;
+}
+
+string CommandController::join(const vector<string>& tokens, char delimiter)
+{
+	string result;
+	bool first = true;
+	for (vector<string>::const_iterator it = tokens.begin();
+	     it != tokens.end();
+	     ++it) {
+		if (!first) {
+			result += delimiter;
+		}
+		first = false;
+		result += *it;
+	}
+	return result;
+}
+
 
 void CommandController::executeCommand(const string &cmd)
 {
 	vector<string> subcmds;
-	split(cmd, subcmds, ";");
+	split(cmd, subcmds, ';');
+
 	for (vector<string>::const_iterator it = subcmds.begin();
 	     it != subcmds.end();
 	     ++it) {
+		vector<string> originalTokens;
+		split(*it, originalTokens, ' ');
+		
 		vector<string> tokens;
-		tokenize(*it, tokens, " ");
-		if (!tokens.empty() && tokens.front().empty()) {
-			tokens.erase(tokens.begin());
-		}
-		if (!tokens.empty() && tokens.back().empty()) {
-			tokens.pop_back();
-		}
+		removeEscaping(originalTokens, tokens, false);
 		if (tokens.empty()) {
-			return;
+			continue;
 		}
+
 		multimap<const string, Command*, ltstr>::const_iterator it;
 		it = commands.lower_bound(tokens.front());
 		if (it == commands.end() || it->first != tokens.front()) {
@@ -203,41 +237,44 @@ void CommandController::autoCommands()
 
 void CommandController::tabCompletion(string &command)
 {
+	// split in sub commands
 	vector<string> subcmds;
-	split(command, subcmds, ";");
+	split(command, subcmds, ';');
 	if (subcmds.empty()) {
-		return;
+		subcmds.push_back("");
 	}
 	
 	// split command string in tokens
-	vector<string> tokens;
-	tokenize(subcmds.back(), tokens, " ");
+	vector<string> originalTokens;
+	split(subcmds.back(), originalTokens, ' ');
+	if (originalTokens.empty()) {
+		originalTokens.push_back("");
+	}
 	
 	// complete last token
+	vector<string> tokens;
+	removeEscaping(originalTokens, tokens, true);
+	unsigned oldNum = tokens.size();
 	tabCompletion(tokens);
+	unsigned newNum = tokens.size();
+	bool tokenFinished = oldNum != newNum;
 	
-	// rebuild command string from tokens
-	command = "";
-	for (unsigned i = 0; i < (subcmds.size() - 1); ++i) {
-		command += subcmds[i];
-		command += ';';
+	// replace last token
+	string& original = originalTokens.back();
+	string& completed = tokens[oldNum - 1];
+	if (!completed.empty()) {
+		bool quote = !original.empty() && (original[0] == '"');
+		original = addEscaping(completed, quote, tokenFinished);
 	}
-	if (subcmds.size() > 1) {
-		command += ' ';
+	if (tokenFinished) {
+		assert(newNum == (oldNum + 1));
+		assert(tokens.back().empty());
+		originalTokens.push_back("");
 	}
-	for (vector<string>::const_iterator it = tokens.begin();
-	     it != tokens.end();
-	     ++it) {
-		if (it != tokens.begin())
-			command += ' ';
-		if (it->find(' ') == string::npos) {
-			command += *it;
-		} else {
-			command += '"';
-			command += *it;
-			command += '"';
-		}
-	}
+	
+	// rebuild command string
+	subcmds.back() = join(originalTokens, ' ');
+	command = join(subcmds, ';');
 }
 
 void CommandController::tabCompletion(vector<string> &tokens)
@@ -359,9 +396,9 @@ void CommandController::completeFileName(vector<string> &tokens)
 		}
 	}
 	bool t = completeString2(filename, filenames);
-	if (t && filename[filename.size() - 1] != '/') {
+	if (t && !filename.empty() && filename[filename.size() - 1] != '/') {
 		// completed filename, start new token
-		tokens.push_back(string());
+		tokens.push_back("");
 	}
 }
 

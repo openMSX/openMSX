@@ -55,13 +55,17 @@ class CommandController
 
 	private:
 		CommandController();
-		void tokenize(const string &str, vector<string> &tokens,
-		              const string &delimiters);
+		
 		void split(const string& str, vector<string>& tokens,
-                           const string& delimiters);
+                           char delimiter);
+		string join(const vector<string>& tokens, char delimiter);
+		string removeEscaping(const string& str);
+		void removeEscaping(const vector<string>& input,
+		             vector<string>& output, bool keepLastIfEmpty);
+		string addEscaping(const string& str, bool quote, bool finished);
+
 		void tabCompletion(vector<string> &tokens);
-		static bool completeString2(string &string,
-		                            set<string> &set);
+		static bool completeString2(string& str, set<string>& set);
 
 		struct ltstr {
 			bool operator()(const string &s1, const string &s2) const {
