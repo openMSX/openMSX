@@ -158,7 +158,7 @@ void Mixer::unregisterSound(SoundDevice* device)
 }
 
 
-void Mixer::audioCallbackHelper (void* userdata, Uint8* strm, int len)
+void Mixer::audioCallbackHelper (void* userdata, Uint8* strm, int /*len*/)
 {
 	// len ignored
 	short *stream = (short*)strm;
@@ -396,7 +396,7 @@ void Mixer::SoundDeviceInfoTopic::execute(const vector<CommandArgument>& tokens,
 	}
 }
 
-string Mixer::SoundDeviceInfoTopic::help(const vector<string>& tokens) const
+string Mixer::SoundDeviceInfoTopic::help(const vector<string>& /*tokens*/) const
 {
 	return "Shows a list of available sound devices.\n";
 }

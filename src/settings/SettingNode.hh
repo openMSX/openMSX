@@ -81,7 +81,7 @@ public:
 	  * subclasses can override this to complete according to their
 	  * specific value type.
 	  */
-	virtual void tabCompletion(vector<string>& tokens) const { }
+	virtual void tabCompletion(vector<string>& /*tokens*/) const { }
 
 	/** Subscribes a listener to changes of this setting.
 	  */

@@ -17,10 +17,10 @@ RomNational::~RomNational()
 {
 }
 
-void RomNational::reset(const EmuTime& time)
+void RomNational::reset(const EmuTime& /*time*/)
 {
 	control = 0;
-	for (int region = 0; region < 4; region++) {
+	for (int region = 0; region < 4; ++region) {
 		setRom(region, 0);
 		bankSelect[region] = 0;
 	}
@@ -51,7 +51,7 @@ const byte* RomNational::getReadCacheLine(word address) const
 	}
 }
 
-void RomNational::writeMem(word address, byte value, const EmuTime& time)
+void RomNational::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	// TODO bank switch address mirrored?
 	if (address == 0x6000) {

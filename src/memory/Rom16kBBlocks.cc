@@ -20,7 +20,7 @@ Rom16kBBlocks::~Rom16kBBlocks()
 {
 }
 
-byte Rom16kBBlocks::readMem(word address, const EmuTime& time)
+byte Rom16kBBlocks::readMem(word address, const EmuTime& /*time*/)
 {
 	return bank[address >> 14][address & 0x3FFF];
 }

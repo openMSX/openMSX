@@ -39,7 +39,7 @@ public:
 	  *     tokens[1] is the topic.
 	  *     The last token is incomplete, this method tries to complete it.
 	  */
-	virtual void tabCompletion(vector<string>& tokens) const {}
+	virtual void tabCompletion(vector<string>& /*tokens*/) const {}
 };
 
 } // namespace openmsx

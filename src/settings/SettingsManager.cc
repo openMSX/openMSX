@@ -180,7 +180,7 @@ string SettingsManager::ToggleCommand::execute(const vector<string>& tokens)
 	return result;
 }
 
-string SettingsManager::ToggleCommand::help(const vector<string>& tokens) const
+string SettingsManager::ToggleCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "toggle      : list all boolean settings\n"
 	       "toggle name : toggles a boolean setting\n";

@@ -14,26 +14,27 @@ Disk::~Disk()
 {
 }
 
-void Disk::getTrackHeader(byte track, byte side, byte* buf)
+void Disk::getTrackHeader(byte /*track*/, byte /*side*/, byte* /*buf*/)
 {
 	PRT_DEBUG("Disk::getTrackHeader [unimplemented]");
 }
-void Disk::getSectorHeader(byte track, byte sector, byte side, byte* buf)
+void Disk::getSectorHeader(byte /*track*/, byte /*sector*/, byte /*side*/,
+                           byte* /*buf*/)
 {
 	PRT_DEBUG("Disk::getSectorHeader [unimplemented]");
 }
 
-void Disk::initWriteTrack(byte track, byte side)
+void Disk::initWriteTrack(byte /*track*/, byte /*side*/)
 {
 	PRT_DEBUG("Disk::initWriteTrack [unimplemented]");
 }
 
-void Disk::writeTrackData(byte data)
+void Disk::writeTrackData(byte /*data*/)
 {
 	PRT_DEBUG("Disk::writeTrackData [unimplemented]");
 }
 
-void Disk::initReadTrack(byte track, byte side)
+void Disk::initReadTrack(byte /*track*/, byte /*side*/)
 {
 	PRT_DEBUG("Disk::initReadTrack [unimplemented]");
 }

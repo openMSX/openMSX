@@ -40,7 +40,7 @@ MSXRS232::~MSXRS232()
 {
 }
 
-void MSXRS232::reset(const EmuTime& time)
+void MSXRS232::reset(const EmuTime& /*time*/)
 {
 	rxrdyIRQlatch = false;
 	rxrdyIRQenabled = false;
@@ -51,7 +51,7 @@ void MSXRS232::reset(const EmuTime& time)
 	}
 }
 
-byte MSXRS232::readMem(word address, const EmuTime& time)
+byte MSXRS232::readMem(word address, const EmuTime& /*time*/)
 {
 	word addr = address & 0x3FFF;
 	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
@@ -75,7 +75,7 @@ const byte* MSXRS232::getReadCacheLine(word start) const
 	}
 }
 
-void MSXRS232::writeMem(word address, byte value, const EmuTime& time)
+void MSXRS232::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	word addr = address & 0x3FFF;
 	if (addr == 0x2682) {
@@ -202,7 +202,7 @@ MSXRS232::I8251Interf::~I8251Interf()
 {
 }
 
-void MSXRS232::I8251Interf::setRxRDY(bool status, const EmuTime& time)
+void MSXRS232::I8251Interf::setRxRDY(bool status, const EmuTime& /*time*/)
 {
 	rs232.setRxRDYIRQ(status);
 }
@@ -275,7 +275,7 @@ void MSXRS232::Counter0::signal(ClockPin& pin, const EmuTime& time)
 	}
 }
 
-void MSXRS232::Counter0::signalPosEdge(ClockPin& pin, const EmuTime& time)
+void MSXRS232::Counter0::signalPosEdge(ClockPin& /*pin*/, const EmuTime& /*time*/)
 {
 	assert(false);
 }
@@ -303,7 +303,8 @@ void MSXRS232::Counter1::signal(ClockPin& pin, const EmuTime& time)
 	}
 }
 
-void MSXRS232::Counter1::signalPosEdge(ClockPin& pin, const EmuTime& time)
+void MSXRS232::Counter1::signalPosEdge(ClockPin& /*pin*/,
+                                       const EmuTime& /*time*/)
 {
 	assert(false);
 }

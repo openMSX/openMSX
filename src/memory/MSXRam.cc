@@ -35,7 +35,7 @@ MSXRam::~MSXRam()
 {
 }
 
-void MSXRam::reset(const EmuTime& time)
+void MSXRam::reset(const EmuTime& /*time*/)
 {
 	if (!slowDrainOnReset) {
 		ram->clear();
@@ -47,7 +47,7 @@ bool MSXRam::isInside(word address) const
 	return ((base <= address) && (address < end));
 }
 
-byte MSXRam::readMem(word address, const EmuTime& time)
+byte MSXRam::readMem(word address, const EmuTime& /*time*/)
 {
 	if (isInside(address)) {
 		return (*ram)[address - base];
@@ -56,7 +56,7 @@ byte MSXRam::readMem(word address, const EmuTime& time)
 	}
 }
 
-void MSXRam::writeMem(word address, byte value, const EmuTime& time)
+void MSXRam::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	if (isInside(address)) {
 		(*ram)[address - base] = value;

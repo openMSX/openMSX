@@ -14,7 +14,7 @@ RomGeneric16kB::~RomGeneric16kB()
 {
 }
 
-void RomGeneric16kB::reset(const EmuTime& time)
+void RomGeneric16kB::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);
 	setRom (1, 0);
@@ -22,7 +22,7 @@ void RomGeneric16kB::reset(const EmuTime& time)
 	setBank(3, unmappedRead);
 }
 
-void RomGeneric16kB::writeMem(word address, byte value, const EmuTime& time)
+void RomGeneric16kB::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	setRom(address >> 14, value);
 }

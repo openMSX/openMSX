@@ -20,6 +20,10 @@ MSXSwitchedDevice::~MSXSwitchedDevice()
 	MSXDeviceSwitch::instance().unregisterDevice(id);
 }
 
+void MSXSwitchedDevice::reset(const EmuTime& /*time*/)
+{
+}
+
 
 /// class MSXDeviceSwitch ///
 

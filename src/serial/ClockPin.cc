@@ -130,7 +130,7 @@ void ClockPin::schedule(const EmuTime& time)
 	scheduler.setSyncPoint(time, this);
 }
 
-void ClockPin::executeUntil(const EmuTime& time, int userdata)
+void ClockPin::executeUntil(const EmuTime& time, int /*userdata*/)
 {
 	assert(signalEdge && periodic);
 	listener->signalPosEdge(*this, time);

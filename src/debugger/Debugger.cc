@@ -198,7 +198,8 @@ void Debugger::DebugCmd::readBlock(const vector<CommandArgument>& tokens, Comman
 	delete[] buf;
 }
 
-void Debugger::DebugCmd::write(const vector<CommandArgument>& tokens, CommandArgument& result)
+void Debugger::DebugCmd::write(const vector<CommandArgument>& tokens,
+                               CommandArgument& /*result*/)
 {
 	if (tokens.size() != 5) {
 		throw SyntaxError();
@@ -216,7 +217,8 @@ void Debugger::DebugCmd::write(const vector<CommandArgument>& tokens, CommandArg
 	device->write(addr, value);
 }
 
-void Debugger::DebugCmd::writeBlock(const vector<CommandArgument>& tokens, CommandArgument& result)
+void Debugger::DebugCmd::writeBlock(const vector<CommandArgument>& tokens,
+                                    CommandArgument& /*result*/)
 {
 	if (tokens.size() != 5) {
 		throw SyntaxError();
@@ -238,7 +240,7 @@ void Debugger::DebugCmd::writeBlock(const vector<CommandArgument>& tokens, Comma
 	}
 }
 
-string Debugger::DebugCmd::help(const vector<string>& tokens) const
+string Debugger::DebugCmd::help(const vector<string>& /*tokens*/) const
 {
 	static const string helpText =
 		"debug list                       returns a list of all debuggables\n"

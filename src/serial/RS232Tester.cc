@@ -24,7 +24,7 @@ RS232Tester::~RS232Tester()
 }
 
 // Pluggable
-void RS232Tester::plugHelper(Connector* connector_, const EmuTime& time)
+void RS232Tester::plugHelper(Connector* connector_, const EmuTime& /*time*/)
 {
 	// output
 	outFile.open(rs232OutputFilenameSetting.getValue().c_str());
@@ -49,7 +49,7 @@ void RS232Tester::plugHelper(Connector* connector_, const EmuTime& time)
 	thread.start();
 }
 
-void RS232Tester::unplugHelper(const EmuTime& time)
+void RS232Tester::unplugHelper(const EmuTime& /*time*/)
 {
 	// output
 	outFile.close();
@@ -117,7 +117,7 @@ void RS232Tester::signal(const EmuTime& time)
 }
 
 // Schedulable
-void RS232Tester::executeUntil(const EmuTime& time, int userData)
+void RS232Tester::executeUntil(const EmuTime& time, int /*userData*/)
 {
 	if (getConnector()) {
 		signal(time);
@@ -135,7 +135,7 @@ const string& RS232Tester::schedName() const
 
 
 // output
-void RS232Tester::recvByte(byte value, const EmuTime& time)
+void RS232Tester::recvByte(byte value, const EmuTime& /*time*/)
 {
 	outFile.put(value);
 	outFile.flush();

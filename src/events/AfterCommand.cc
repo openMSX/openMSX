@@ -129,7 +129,7 @@ string AfterCommand::afterEvent(const vector<string>& tokens)
 	return cmd->getId();
 }
 
-string AfterCommand::afterInfo(const vector<string>& tokens)
+string AfterCommand::afterInfo(const vector<string>& /*tokens*/)
 {
 	string result;
 	for (AfterCmdMap::const_iterator it = afterCmds.begin();
@@ -162,7 +162,7 @@ string AfterCommand::afterCancel(const vector<string>& tokens)
 	return "";
 }
 
-string AfterCommand::help(const vector<string>& tokens) const
+string AfterCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "after time <seconds> <command>  execute a command after some time\n"
 	       "after idle <seconds> <command>  execute a command after some time being idle\n"
@@ -172,7 +172,7 @@ string AfterCommand::help(const vector<string>& tokens) const
 	       "after cancel <id>               cancel the postponed command with given id\n";
 }
 
-void AfterCommand::tabCompletion(vector<string>& tokens) const
+void AfterCommand::tabCompletion(vector<string>& /*tokens*/) const
 {
 	// TODO
 }
@@ -277,7 +277,8 @@ void AfterCommand::AfterTimedCmd::reschedule()
 	Scheduler::instance().setSyncPoint(t, this);
 }
 
-void AfterCommand::AfterTimedCmd::executeUntil(const EmuTime& time, int userData)
+void AfterCommand::AfterTimedCmd::executeUntil(const EmuTime& /*time*/,
+                                               int /*userData*/)
 {
 	execute();
 }

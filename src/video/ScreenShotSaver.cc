@@ -26,14 +26,13 @@ static bool IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
 	if (!fp) {
 		return false;
 	}
-	bool result = false;
 	png_infop info_ptr = 0;
 
 	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
 	        NULL, NULL, NULL);
 	if (png_ptr == NULL) {
 		// Couldn't allocate memory for PNG file
-		goto done;
+		goto error;
 	}
 	png_ptr->io_ptr = fp;
 
@@ -41,13 +40,13 @@ static bool IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
 	info_ptr = png_create_info_struct(png_ptr);
 	if (info_ptr == NULL) {
 		// Couldn't create image information for PNG file
-		goto done;
+		goto error;
 	}
 
 	// Set error handling.
 	if (setjmp(png_ptr->jmpbuf)) {
 		// Error writing the PNG file
-		goto done;
+		goto error;
 	}
 	
 	/* Set the image information here.  Width and height are up to 2^31,
@@ -72,16 +71,23 @@ static bool IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
 	// write out the entire image data in one call
 	png_write_image(png_ptr, row_pointers);
 	png_write_end(png_ptr, info_ptr);
-	result = true;  // success!
 
-done:
 	if (info_ptr->palette) {
 		free(info_ptr->palette);
 	}
 	png_destroy_write_struct(&png_ptr, &info_ptr);
 
 	fclose(fp);
-	return result;
+	return true;
+
+error:
+	if (info_ptr->palette) {
+		free(info_ptr->palette);
+	}
+	png_destroy_write_struct(&png_ptr, &info_ptr);
+
+	fclose(fp);
+	return false;
 }
 
 void ScreenShotSaver::save(SDL_Surface* surface, const string& filename)

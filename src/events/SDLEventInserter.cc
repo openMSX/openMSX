@@ -15,7 +15,7 @@ SDLEventInserter::~SDLEventInserter()
 {
 }
 
-void SDLEventInserter::executeUntil(const EmuTime& time, int userData)
+void SDLEventInserter::executeUntil(const EmuTime& /*time*/, int /*userData*/)
 {
 	SDL_PushEvent(&event);
 	delete this;	// job is done

@@ -16,12 +16,12 @@ MSXTurboRPause::~MSXTurboRPause()
 {
 }
  
-void MSXTurboRPause::reset(const EmuTime& time)
+void MSXTurboRPause::reset(const EmuTime& /*time*/)
 {
 	turboRPauseSetting.setValue(false);
 }
 
-byte MSXTurboRPause::readIO(byte port, const EmuTime& time)
+byte MSXTurboRPause::readIO(byte /*port*/, const EmuTime& /*time*/)
 {
 	return turboRPauseSetting.getValue() ? 1 : 0;
 }

@@ -82,7 +82,7 @@ bool Renderer::checkSettings()
 	return settings.getRenderer()->getValue() == id;
 }
 
-void Renderer::takeScreenShot(const string& filename)
+void Renderer::takeScreenShot(const string& /*filename*/)
 {
 	throw CommandException("Taking screenshot not possible with current renderer.");
 }
@@ -94,13 +94,13 @@ Renderer::FpsInfoTopic::FpsInfoTopic(Renderer& parent_)
 {
 }
 
-void Renderer::FpsInfoTopic::execute(const vector<CommandArgument>& tokens,
+void Renderer::FpsInfoTopic::execute(const vector<CommandArgument>& /*tokens*/,
                                      CommandArgument& result) const
 {
 	result.setDouble(parent.getFrameRate());
 }
 
-string Renderer::FpsInfoTopic::help (const vector<string>& tokens) const
+string Renderer::FpsInfoTopic::help (const vector<string>& /*tokens*/) const
 {
 	return "Returns the current rendering speed in frames per second.";
 }

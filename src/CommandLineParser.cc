@@ -140,7 +140,7 @@ bool CommandLineParser::parseOption(const string& arg, list<string>& cmdLine, by
 	return false; // unknown
 }
 
-bool CommandLineParser::parseFileName(const string& arg, list<string>& cmdLine)
+bool CommandLineParser::parseFileName(const string& arg, list<string>& /*cmdLine*/)
 {
 	unsigned begin = arg.find_last_of('.');
 	if (begin != string::npos) {
@@ -401,8 +401,8 @@ CommandLineParser::HelpOption::~HelpOption()
 {
 }
 
-bool CommandLineParser::HelpOption::parseOption(const string &option,
-		list<string> &cmdLine)
+bool CommandLineParser::HelpOption::parseOption(const string& /*option*/,
+		list<string>& /*cmdLine*/)
 {
 	parent.issuedHelp = true;
 	if (!parent.haveSettings) {
@@ -455,8 +455,8 @@ CommandLineParser::VersionOption::~VersionOption()
 {
 }
 
-bool CommandLineParser::VersionOption::parseOption(const string &option,
-		list<string> &cmdLine)
+bool CommandLineParser::VersionOption::parseOption(const string& /*option*/,
+		list<string>& /*cmdLine*/)
 {
 	parent.issuedHelp = true;
 	cout << Version::FULL_VERSION << endl;

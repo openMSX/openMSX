@@ -28,7 +28,7 @@ MSXMidi::~MSXMidi()
 {
 }
 
-void MSXMidi::reset(const EmuTime& time)
+void MSXMidi::reset(const EmuTime& /*time*/)
 {
 	timerIRQlatch = false;
 	timerIRQenabled = false;
@@ -160,7 +160,7 @@ MSXMidi::I8251Interf::~I8251Interf()
 {
 }
 
-void MSXMidi::I8251Interf::setRxRDY(bool status, const EmuTime& time)
+void MSXMidi::I8251Interf::setRxRDY(bool status, const EmuTime& /*time*/)
 {
 	midi.setRxRDYIRQ(status);
 }
@@ -170,17 +170,17 @@ void MSXMidi::I8251Interf::setDTR(bool status, const EmuTime& time)
 	midi.enableTimerIRQ(status, time);
 }
 
-void MSXMidi::I8251Interf::setRTS(bool status, const EmuTime& time)
+void MSXMidi::I8251Interf::setRTS(bool status, const EmuTime& /*time*/)
 {
 	midi.enableRxRDYIRQ(status);
 }
 
-bool MSXMidi::I8251Interf::getDSR(const EmuTime& time)
+bool MSXMidi::I8251Interf::getDSR(const EmuTime& /*time*/)
 {
 	return midi.timerIRQ.getState();
 }
 
-bool MSXMidi::I8251Interf::getCTS(const EmuTime& time)
+bool MSXMidi::I8251Interf::getCTS(const EmuTime& /*time*/)
 {
 	return true;
 }
@@ -233,7 +233,8 @@ void MSXMidi::Counter0::signal(ClockPin& pin, const EmuTime& time)
 	}
 }
 
-void MSXMidi::Counter0::signalPosEdge(ClockPin& pin, const EmuTime& time)
+void MSXMidi::Counter0::signalPosEdge(ClockPin& /*pin*/,
+                                      const EmuTime& /*time*/)
 {
 	assert(false);
 }
@@ -261,7 +262,7 @@ void MSXMidi::Counter2::signal(ClockPin& pin, const EmuTime& time)
 	}
 }
 
-void MSXMidi::Counter2::signalPosEdge(ClockPin& pin, const EmuTime& time)
+void MSXMidi::Counter2::signalPosEdge(ClockPin& /*pin*/, const EmuTime& time)
 {
 	midi.setTimerIRQ(true, time);
 }

@@ -66,19 +66,19 @@ DummyCassettePort::DummyCassettePort()
 {
 }
 
-void DummyCassettePort::setMotor(bool status, const EmuTime& time)
+void DummyCassettePort::setMotor(bool /*status*/, const EmuTime& /*time*/)
 {
 	// do nothing
 }
-void DummyCassettePort::cassetteOut(bool output, const EmuTime& time)
+void DummyCassettePort::cassetteOut(bool /*output*/, const EmuTime& /*time*/)
 {
 	// do nothing
 }
-bool DummyCassettePort::cassetteIn(const EmuTime& time)
+bool DummyCassettePort::cassetteIn(const EmuTime& /*time*/)
 {
 	return true;	// TODO check on Turbo-R
 }
-void DummyCassettePort::flushOutput(const EmuTime& time)
+void DummyCassettePort::flushOutput(const EmuTime& /*time*/)
 {
 	// do nothing
 }
@@ -112,7 +112,7 @@ void CassettePort::setMotor(bool status, const EmuTime& time)
 	getPlugged().setMotor(status, time);
 }
 
-void CassettePort::cassetteOut(bool output, const EmuTime& time)
+void CassettePort::cassetteOut(bool output, const EmuTime& /*time*/)
 {
 	// this implements a VERY rough filter
 	//   on a transition the output is 0

@@ -16,7 +16,7 @@ RomHalnote::~RomHalnote()
 {
 }
 
-void RomHalnote::reset(const EmuTime& time)
+void RomHalnote::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -27,7 +27,7 @@ void RomHalnote::reset(const EmuTime& time)
 	setBank(7, unmappedRead);
 }
 
-void RomHalnote::writeMem(word address, byte value, const EmuTime& time)
+void RomHalnote::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		if ((address & 0x1FFF) == 0x0FFF) {

@@ -20,13 +20,13 @@ MSXPac::~MSXPac()
 {
 }
 
-void MSXPac::reset(const EmuTime& time)
+void MSXPac::reset(const EmuTime& /*time*/)
 {
 	sramEnabled = false;
 	r1ffe = r1fff = 0xFF;	// TODO check
 }
 
-byte MSXPac::readMem(word address, const EmuTime& time)
+byte MSXPac::readMem(word address, const EmuTime& /*time*/)
 {
 	byte result;
 	address &= 0x3FFF;
@@ -63,7 +63,7 @@ const byte* MSXPac::getReadCacheLine(word address) const
 	}
 }
 
-void MSXPac::writeMem(word address, byte value, const EmuTime& time)
+void MSXPac::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	//PRT_DEBUG("PAC write "<<hex<<(int)address<<" "<<(int)value<<dec);
 	address &= 0x3FFF;

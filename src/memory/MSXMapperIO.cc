@@ -48,7 +48,7 @@ void MSXMapperIO::unregisterMapper(unsigned blocks)
 }
 
 
-void MSXMapperIO::reset(const EmuTime& time)
+void MSXMapperIO::reset(const EmuTime& /*time*/)
 {
 	//TODO in what state is mapper after reset?
 	// Zeroed is most likely.
@@ -58,12 +58,12 @@ void MSXMapperIO::reset(const EmuTime& time)
 	}
 }
 
-byte MSXMapperIO::readIO(byte port, const EmuTime& time)
+byte MSXMapperIO::readIO(byte port, const EmuTime& /*time*/)
 {
 	return page[port & 0x03] | mask;
 }
 
-void MSXMapperIO::writeIO(byte port, byte value, const EmuTime& time)
+void MSXMapperIO::writeIO(byte port, byte value, const EmuTime& /*time*/)
 {
 	port &= 0x03;
 	page[port] = value;

@@ -34,7 +34,7 @@ DummyDevice& DummyDevice::instance()
 
 // Block usage of the following methods
 
-void DummyDevice::reset(const EmuTime& time)
+void DummyDevice::reset(const EmuTime& /*time*/)
 {
 	assert(false);
 }

@@ -56,7 +56,7 @@ FilenameSetting::~FilenameSetting()
 	SettingsManager::instance().unregisterSetting(*this);
 }
 
-bool FilenameSetting::checkFile(const string& filename)
+bool FilenameSetting::checkFile(const string& /*filename*/)
 {
 	return true;
 }

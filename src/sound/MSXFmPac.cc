@@ -36,7 +36,7 @@ void MSXFmPac::writeIO(byte port, byte value, const EmuTime& time)
 	}
 }
 
-byte MSXFmPac::readMem(word address, const EmuTime& time)
+byte MSXFmPac::readMem(word address, const EmuTime& /*time*/)
 {
 	address &= 0x3FFF;
 	switch (address) {

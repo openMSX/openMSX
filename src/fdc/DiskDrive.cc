@@ -44,67 +44,67 @@ bool DummyDrive::doubleSided()
 	return false;
 }
 
-void DummyDrive::setSide(bool side)
+void DummyDrive::setSide(bool /*side*/)
 {
 	// ignore
 }
 
-void DummyDrive::step(bool direction, const EmuTime& time)
+void DummyDrive::step(bool /*direction*/, const EmuTime& /*time*/)
 {
 	// ignore
 }
 
-bool DummyDrive::track00(const EmuTime& time)
+bool DummyDrive::track00(const EmuTime& /*time*/)
 {
 	return false; // National_FS-5500F1 2nd drive detection depends on this
 }
 
-void DummyDrive::setMotor(bool status, const EmuTime& time)
+void DummyDrive::setMotor(bool /*status*/, const EmuTime& /*time*/)
 {
 	// ignore
 }
 
-bool DummyDrive::indexPulse(const EmuTime& time)
+bool DummyDrive::indexPulse(const EmuTime& /*time*/)
 {
 	return false;
 }
 
-int DummyDrive::indexPulseCount(const EmuTime& begin,
-                                const EmuTime& end)
+int DummyDrive::indexPulseCount(const EmuTime& /*begin*/,
+                                const EmuTime& /*end*/)
 {
 	return 0;
 }
 
-void DummyDrive::setHeadLoaded(bool status, const EmuTime& time)
+void DummyDrive::setHeadLoaded(bool /*status*/, const EmuTime& /*time*/)
 {
 	// ignore
 }
 
-bool DummyDrive::headLoaded(const EmuTime& time)
+bool DummyDrive::headLoaded(const EmuTime& /*time*/)
 {
 	return false;
 }
 
-void DummyDrive::read(byte sector, byte* buf,
-                      byte& onDiskTrack, byte& onDiskSector,
-                      byte& onDiskSide,  int&  onDiskSize)
+void DummyDrive::read(byte /*sector*/, byte* /*buf*/,
+                      byte& /*onDiskTrack*/, byte& /*onDiskSector*/,
+                      byte& /*onDiskSide*/,  int&  /*onDiskSize*/)
 {
 	throw DriveEmptyException("No drive connected");
 }
 
-void DummyDrive::write(byte sector, const byte* buf,
-                       byte& onDiskTrack, byte& onDiskSector,
-                       byte& onDiskSide,  int& onDiskSize)
+void DummyDrive::write(byte /*sector*/, const byte* /*buf*/,
+                       byte& /*onDiskTrack*/, byte& /*onDiskSector*/,
+                       byte& /*onDiskSide*/,  int& /*onDiskSize*/)
 {
 	throw DriveEmptyException("No drive connected");
 }
 
-void DummyDrive::getSectorHeader(byte sector, byte* buf)
+void DummyDrive::getSectorHeader(byte /*sector*/, byte* /*buf*/)
 {
 	throw DriveEmptyException("No drive connected");
 }
 
-void DummyDrive::getTrackHeader(byte* buf)
+void DummyDrive::getTrackHeader(byte* /*buf*/)
 {
 	throw DriveEmptyException("No drive connected");
 }
@@ -114,7 +114,7 @@ void DummyDrive::initWriteTrack()
 	// ignore ???
 }
 
-void DummyDrive::writeTrackData(byte data)
+void DummyDrive::writeTrackData(byte /*data*/)
 {
 	// ignore ???
 }
@@ -174,7 +174,7 @@ bool RealDrive::writeProtected()
 	return disk->writeProtected();
 }
 
-void RealDrive::step(bool direction, const EmuTime& time)
+void RealDrive::step(bool direction, const EmuTime& /*time*/)
 {
 	if (direction) {
 		// step in
@@ -190,7 +190,7 @@ void RealDrive::step(bool direction, const EmuTime& time)
 	PRT_DEBUG("DiskDrive track " << headPos);
 }
 
-bool RealDrive::track00(const EmuTime& time)
+bool RealDrive::track00(const EmuTime& /*time*/)
 {
 	return headPos == 0;
 }
@@ -311,7 +311,7 @@ string RealDrive::execute(const vector<string>& tokens)
 	return result;
 }
 
-string RealDrive::help(const vector<string>& tokens) const
+string RealDrive::help(const vector<string>& /*tokens*/) const
 {
 	return name + " eject      : remove disk from virtual drive\n" +
 	       name + " <filename> : change the disk file\n";
@@ -348,7 +348,7 @@ bool SingleSidedDrive::doubleSided()
 	return false;
 }
 
-void SingleSidedDrive::setSide(bool side)
+void SingleSidedDrive::setSide(bool /*side*/)
 {
 	// ignore
 }

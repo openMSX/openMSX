@@ -14,15 +14,16 @@ const string& DummyAudioInputDevice::getDescription() const
 	return EMPTY;
 }
 
-void DummyAudioInputDevice::plugHelper(Connector* connector, const EmuTime& time)
+void DummyAudioInputDevice::plugHelper(Connector* /*connector*/,
+                                       const EmuTime& /*time*/)
 {
 }
 
-void DummyAudioInputDevice::unplugHelper(const EmuTime& time)
+void DummyAudioInputDevice::unplugHelper(const EmuTime& /*time*/)
 {
 }
 
-short DummyAudioInputDevice::readSample(const EmuTime& time)
+short DummyAudioInputDevice::readSample(const EmuTime& /*time*/)
 {
 	return 0;	// silence
 }

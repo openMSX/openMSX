@@ -40,22 +40,22 @@ const string& JoyNet::getDescription() const
 	return desc;
 }
 
-void JoyNet::plugHelper(Connector* connector, const EmuTime& time)
+void JoyNet::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
 {
 }
 
-void JoyNet::unplugHelper(const EmuTime& time)
+void JoyNet::unplugHelper(const EmuTime& /*time*/)
 {
 }
 
 
 //JoystickDevice
-byte JoyNet::read(const EmuTime& time)
+byte JoyNet::read(const EmuTime& /*time*/)
 {
 	return status;
 }
 
-void JoyNet::write(byte value, const EmuTime& time)
+void JoyNet::write(byte value, const EmuTime& /*time*/)
 {
 	sendByte(value);
 }

@@ -114,7 +114,7 @@ byte TC8566AF::makeST2()
 		(ST2_MD);		// bit 0	Missing Address Mark in data Field
 }
 
-byte TC8566AF::makeST3(const EmuTime &time)
+byte TC8566AF::makeST3()
 {
 	return  (ST3_FLT << 7) |	// bit 7	Fault
 		(ST3_WP  << 6) |	// bit 6	Write Protect
@@ -125,7 +125,7 @@ byte TC8566AF::makeST3(const EmuTime &time)
 		(ST3_DS);		// bit 1,0	Drive Select
 }
 
-byte TC8566AF::readReg(int reg, const EmuTime &time)
+byte TC8566AF::readReg(int reg, const EmuTime& /*time*/)
 {
 	byte Value = 0xFF;	// avoid warning
 
@@ -236,7 +236,7 @@ byte TC8566AF::readReg(int reg, const EmuTime &time)
 			// Result Phase
 			switch	(PhaseStep++) {
 			case 0:
-				Value = makeST3(time);
+				Value = makeST3();
 				FDCBusy = 0;
 				Phase = 0;
 				dataInputOutput = 0;

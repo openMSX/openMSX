@@ -390,7 +390,7 @@ void MSXDiskRomPatch::DSKFMT(CPU::CPURegs& regs)
 	}
 }
 
-void MSXDiskRomPatch::DRVOFF(CPU::CPURegs& regs)
+void MSXDiskRomPatch::DRVOFF(CPU::CPURegs& /*regs*/)
 {
 	PRT_DEBUG("void MSXDiskRomPatch::DRVOFF() const [does nothing]");
 

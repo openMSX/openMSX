@@ -20,7 +20,7 @@ Rom8kBBlocks::~Rom8kBBlocks()
 {
 }
 
-byte Rom8kBBlocks::readMem(word address, const EmuTime& time)
+byte Rom8kBBlocks::readMem(word address, const EmuTime& /*time*/)
 {
 	return bank[address >> 13][address & 0x1FFF];
 }

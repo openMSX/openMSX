@@ -33,12 +33,12 @@ void MSXRom::init()
 }
 
 
-void MSXRom::writeMem(word address, byte value, const EmuTime& time)
+void MSXRom::writeMem(word /*address*/, byte /*value*/, const EmuTime& /*time*/)
 {
 	// nothing
 }
 
-byte* MSXRom::getWriteCacheLine(word address) const
+byte* MSXRom::getWriteCacheLine(word /*address*/) const
 {
 	return unmappedWrite;
 }

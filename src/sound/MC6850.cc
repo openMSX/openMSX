@@ -15,11 +15,11 @@ MC6850::~MC6850()
 {
 }
 
-void MC6850::reset(const EmuTime& time)
+void MC6850::reset(const EmuTime& /*time*/)
 {
 }
 
-byte MC6850::readIO(byte port, const EmuTime& time)
+byte MC6850::readIO(byte port, const EmuTime& /*time*/)
 {
 	byte result;
 	switch (port & 0x1) {
@@ -37,7 +37,7 @@ byte MC6850::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
-void MC6850::writeIO(byte port, byte value, const EmuTime& time)
+void MC6850::writeIO(byte port, byte /*value*/, const EmuTime& /*time*/)
 {
 	switch (port & 0x01) {
 	case 0: // control

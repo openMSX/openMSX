@@ -352,7 +352,7 @@ void CharacterConverter<Pixel, zoom>::renderMultiQ(
 
 template <class Pixel, Renderer::Zoom zoom>
 void CharacterConverter<Pixel, zoom>::renderBogus(
-	Pixel *pixelPtr, int line)
+	Pixel* pixelPtr, int /*line*/)
 {
 	if (!(dirtyForeground || dirtyBackground)) return;
 

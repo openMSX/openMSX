@@ -59,7 +59,7 @@ void CompressedFileAdapter::read(byte* buffer, unsigned num)
 	memcpy(buffer, &buf[pos], num);
 }
 
-void CompressedFileAdapter::write(const byte* buffer, unsigned num)
+void CompressedFileAdapter::write(const byte* /*buffer*/, unsigned /*num*/)
 {
 	throw FileException("Writing to compressed files not yet supported");
 }
@@ -80,7 +80,7 @@ unsigned CompressedFileAdapter::getPos()
 	return pos;
 }
 
-void CompressedFileAdapter::truncate(unsigned size)
+void CompressedFileAdapter::truncate(unsigned /*size*/)
 {
 	throw FileException("Truncating compressed files not yet supported.");
 }

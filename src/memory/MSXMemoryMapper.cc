@@ -87,12 +87,12 @@ void MSXMemoryMapper::reset(const EmuTime& time)
 	mapperIO->reset(time);
 }
 
-byte MSXMemoryMapper::readMem(word address, const EmuTime& time)
+byte MSXMemoryMapper::readMem(word address, const EmuTime& /*time*/)
 {
 	return (*ram)[calcAddress(address)];
 }
 
-void MSXMemoryMapper::writeMem(word address, byte value, const EmuTime& time)
+void MSXMemoryMapper::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	(*ram)[calcAddress(address)] = value;
 }

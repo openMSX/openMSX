@@ -79,22 +79,22 @@ const string& KeyJoystick::getDescription() const
 	return desc;
 }
 
-void KeyJoystick::plugHelper(Connector* connector, const EmuTime& time)
+void KeyJoystick::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
 {
 }
 
-void KeyJoystick::unplugHelper(const EmuTime& time)
+void KeyJoystick::unplugHelper(const EmuTime& /*time*/)
 {
 }
 
 
 // KeyJoystickDevice
-byte KeyJoystick::read(const EmuTime& time)
+byte KeyJoystick::read(const EmuTime& /*time*/)
 {
 	return status;
 }
 
-void KeyJoystick::write(byte value, const EmuTime& time)
+void KeyJoystick::write(byte /*value*/, const EmuTime& /*time*/)
 {
 	//do nothing
 }

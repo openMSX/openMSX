@@ -22,7 +22,7 @@ const int BIT_NR       = 0x0e;
 const int SET_RESET    = 0x01;
 
 
-I8255::I8255(I8255Interface &interf, const EmuTime &time) : interface(interf)
+I8255::I8255(I8255Interface &interf, const EmuTime& time) : interface(interf)
 {
 	reset(time);
 }
@@ -31,7 +31,7 @@ I8255::~I8255()
 {
 }
 
-void I8255::reset(const EmuTime &time)
+void I8255::reset(const EmuTime& time)
 {
 	latchPortA = 0;
 	latchPortB = 0;
@@ -40,7 +40,7 @@ void I8255::reset(const EmuTime &time)
 	                            DIRECTION_C0 | DIRECTION_C1, time); // all input
 }
 
-byte I8255::readPortA(const EmuTime &time)
+byte I8255::readPortA(const EmuTime& time)
 {
 	switch (control & MODE_A) {
 	case MODEA_0:
@@ -59,7 +59,7 @@ byte I8255::readPortA(const EmuTime &time)
 	}
 }
 
-byte I8255::readPortB(const EmuTime &time)
+byte I8255::readPortB(const EmuTime& time)
 {
 	switch (control & MODE_B) {
 	case MODEB_0:
@@ -77,7 +77,7 @@ byte I8255::readPortB(const EmuTime &time)
 	}
 }
 
-byte I8255::readPortC(const EmuTime &time)
+byte I8255::readPortC(const EmuTime& time)
 {
 	byte tmp = readC1(time) | readC0(time);
 	switch (control & MODE_A) {
@@ -98,7 +98,7 @@ byte I8255::readPortC(const EmuTime &time)
 	return tmp;
 }
 
-byte I8255::readC1(const EmuTime &time)
+byte I8255::readC1(const EmuTime& time)
 {
 	if (control & DIRECTION_C1) {
 		//input
@@ -109,7 +109,7 @@ byte I8255::readC1(const EmuTime &time)
 	}
 }
 
-byte I8255::readC0(const EmuTime &time)
+byte I8255::readC0(const EmuTime& time)
 {
 	if (control & DIRECTION_C0) {
 		//input
@@ -120,12 +120,12 @@ byte I8255::readC0(const EmuTime &time)
 	}
 }
 
-byte I8255::readControlPort(const EmuTime &time)
+byte I8255::readControlPort(const EmuTime& /*time*/)
 {
 	return control;
 }
 
-void I8255::writePortA(byte value, const EmuTime &time)
+void I8255::writePortA(byte value, const EmuTime& time)
 {
 	switch (control & MODE_A) {
 	case MODEA_0:
@@ -138,7 +138,7 @@ void I8255::writePortA(byte value, const EmuTime &time)
 	outputPortA(value, time);
 }
 
-void I8255::writePortB(byte value, const EmuTime &time)
+void I8255::writePortB(byte value, const EmuTime& time)
 {
 	switch (control & MODE_B) {
 	case MODEB_0:
@@ -150,7 +150,7 @@ void I8255::writePortB(byte value, const EmuTime &time)
 	outputPortB(value, time);
 }
 
-void I8255::writePortC(byte value, const EmuTime &time)
+void I8255::writePortC(byte value, const EmuTime& time)
 {
 	switch (control & MODE_A) {
 	case MODEA_0:
@@ -170,7 +170,7 @@ void I8255::writePortC(byte value, const EmuTime &time)
 	outputPortC(value, time);
 }
 
-void I8255::outputPortA(byte value, const EmuTime &time)
+void I8255::outputPortA(byte value, const EmuTime& time)
 {
 	latchPortA = value;
 	if (!(control & DIRECTION_A)) {
@@ -179,7 +179,7 @@ void I8255::outputPortA(byte value, const EmuTime &time)
 	}
 }
 	
-void I8255::outputPortB(byte value, const EmuTime &time)
+void I8255::outputPortB(byte value, const EmuTime& time)
 {
 	latchPortB = value;
 	if (!(control & DIRECTION_B)) {
@@ -188,7 +188,7 @@ void I8255::outputPortB(byte value, const EmuTime &time)
 	}
 }
 	
-void I8255::outputPortC(byte value, const EmuTime &time)
+void I8255::outputPortC(byte value, const EmuTime& time)
 {
 	latchPortC = value;
 	if (!(control & DIRECTION_C1)) {
@@ -201,7 +201,7 @@ void I8255::outputPortC(byte value, const EmuTime &time)
 	}
 }
 
-void I8255::writeControlPort(byte value, const EmuTime &time)
+void I8255::writeControlPort(byte value, const EmuTime& time)
 {
 	if (value & SET_MODE) {
 		// set new control mode

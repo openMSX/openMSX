@@ -31,7 +31,7 @@ MSXFDC::~MSXFDC()
 	}
 }
 
-byte MSXFDC::readMem(word address, const EmuTime& time)
+byte MSXFDC::readMem(word address, const EmuTime& /*time*/)
 {
 	return rom[address & 0x3FFF];
 }

@@ -55,7 +55,7 @@ const byte* RomHydlide2::getReadCacheLine(word address) const
 	}
 }
 
-void RomHydlide2::writeMem(word address, byte value, const EmuTime& time)
+void RomHydlide2::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)) {
 		// bank switch

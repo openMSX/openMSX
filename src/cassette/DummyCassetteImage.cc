@@ -12,7 +12,7 @@ DummyCassetteImage::~DummyCassetteImage()
 {
 }
 
-short DummyCassetteImage::getSampleAt(const EmuTime &time)
+short DummyCassetteImage::getSampleAt(const EmuTime& /*time*/)
 {
 	return 0;
 }

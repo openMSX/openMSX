@@ -20,7 +20,7 @@ class DummyRenderer : public Renderer
 public:
 	// Renderer interface:
 
-	void reset(const EmuTime& time) {} // TODO
+	void reset(const EmuTime& /*time*/) {} // TODO
 	bool checkSettings();
 	void frameStart(const EmuTime& time);
 	void frameEnd(const EmuTime& time);

@@ -421,7 +421,7 @@ CommandController::HelpCmd::HelpCmd(CommandController& parent_)
 {
 }
 
-string CommandController::HelpCmd::execute(const vector<string> &tokens)
+string CommandController::HelpCmd::execute(const vector<string>& tokens)
 {
 	string result;
 	switch (tokens.size()) {
@@ -447,11 +447,11 @@ string CommandController::HelpCmd::execute(const vector<string> &tokens)
 	}
 	return result;
 }
-string CommandController::HelpCmd::help(const vector<string> &tokens) const
+string CommandController::HelpCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "prints help information for commands\n";
 }
-void CommandController::HelpCmd::tabCompletion(vector<string> &tokens) const
+void CommandController::HelpCmd::tabCompletion(vector<string>& tokens) const
 {
 	string front = tokens.front();
 	tokens.erase(tokens.begin());

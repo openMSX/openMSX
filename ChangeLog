@@ -1,5 +1,8 @@
 $Id$
 
+2004-06-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Compiled with -Wall -W and fixed all warnings
+
 2004-06-18 Manuel Bilderbeek <manuel@msxnet.org>
 	* Fixed Floating Point Exception in Y8950Adpcm, which was triggered
 	  by 4Trax Songbook #1. Thanks to Eric for finding it and Wouter for

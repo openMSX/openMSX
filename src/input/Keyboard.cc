@@ -226,7 +226,7 @@ string Keyboard::KeyMatrixUpCmd::execute(const vector<string>& tokens)
 	return parent.processCmd(tokens, true);
 }
 
-string Keyboard::KeyMatrixUpCmd::help(const vector<string>& tokens) const
+string Keyboard::KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
 {
 	static const string helpText = 
 		"keymatrixup <row> <bitmask>  release a key in the keyboardmatrix\n";
@@ -246,7 +246,7 @@ string Keyboard::KeyMatrixDownCmd::execute(const vector<string>& tokens)
 	return parent.processCmd(tokens, false);
 }
 
-string Keyboard::KeyMatrixDownCmd::help(const vector<string>& tokens) const
+string Keyboard::KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
 {
 	static const string helpText= 
 		"keymatrixdown <row> <bitmask>  press a key in the keyboardmatrix\n";
@@ -274,7 +274,7 @@ string Keyboard::KeyInserter::execute(const vector<string>& tokens)
 	return "";
 }
 
-string Keyboard::KeyInserter::help(const vector<string>& tokens) const
+string Keyboard::KeyInserter::help(const vector<string>& /*tokens*/) const
 {
 	// TODO
 	static const string helpText = "TODO";
@@ -293,7 +293,7 @@ void Keyboard::KeyInserter::type(const string& str)
 	text += str;
 }
 
-void Keyboard::KeyInserter::executeUntil(const EmuTime& time, int userData)
+void Keyboard::KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
 {
 	assert(!text.empty());
 	if (down) {

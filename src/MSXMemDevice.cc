@@ -32,19 +32,20 @@ void MSXMemDevice::init()
 	memset(unmappedRead, 0xFF, 0x10000);
 }
 
-byte MSXMemDevice::readMem(word address, const EmuTime& time)
+byte MSXMemDevice::readMem(word address, const EmuTime& /*time*/)
 {
 	PRT_DEBUG("MSXMemDevice: read from unmapped memory " << hex <<
 	          (int)address << dec);
 	return 0xFF;
 }
 
-const byte* MSXMemDevice::getReadCacheLine(word start) const
+const byte* MSXMemDevice::getReadCacheLine(word /*start*/) const
 {
 	return NULL;	// uncacheable
 }
 
-void MSXMemDevice::writeMem(word address, byte value, const EmuTime& time)
+void MSXMemDevice::writeMem(word address, byte /*value*/,
+                            const EmuTime& /*time*/)
 {
 	PRT_DEBUG("MSXMemDevice: write to unmapped memory " << hex <<
 	          (int)address << dec);
@@ -64,7 +65,7 @@ byte MSXMemDevice::peekMem(word address) const
 	}
 }
 
-byte* MSXMemDevice::getWriteCacheLine(word start) const
+byte* MSXMemDevice::getWriteCacheLine(word /*start*/) const
 {
 	return NULL;	// uncacheable
 }

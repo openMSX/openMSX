@@ -109,7 +109,7 @@ const string &HotKey::HotKeyCmd::getCommand() const
 	return command;
 }
 
-void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key)
+void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode /*key*/)
 {
 	try {
 		// ignore return value
@@ -173,7 +173,7 @@ string HotKey::BindCmd::execute(const vector<string>& tokens)
 	}
 	return result;
 }
-string HotKey::BindCmd::help(const vector<string>& tokens) const
+string HotKey::BindCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "bind             : show all bounded keys\n"
 	       "bind <key>       : show binding for this key\n"
@@ -206,7 +206,7 @@ string HotKey::UnbindCmd::execute(const vector<string>& tokens)
 	}
 	return result;
 }
-string HotKey::UnbindCmd::help(const vector<string>& tokens) const
+string HotKey::UnbindCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "unbind <key> : unbind this key\n";
 }

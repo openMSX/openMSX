@@ -13,12 +13,12 @@ DummyJoystick::~DummyJoystick()
 }
 
 
-byte DummyJoystick::read(const EmuTime& time)
+byte DummyJoystick::read(const EmuTime& /*time*/)
 {
 	return 0x3F;
 }
 
-void DummyJoystick::write(byte value, const EmuTime& time)
+void DummyJoystick::write(byte /*value*/, const EmuTime& /*time*/)
 {
 	// do nothing
 }
@@ -29,11 +29,12 @@ const string& DummyJoystick::getDescription() const
 	return EMPTY;
 }
 
-void DummyJoystick::plugHelper(Connector* connector, const EmuTime& time)
+void DummyJoystick::plugHelper(Connector* /*connector*/,
+                               const EmuTime& /*time*/)
 {
 }
 
-void DummyJoystick::unplugHelper(const EmuTime& time)
+void DummyJoystick::unplugHelper(const EmuTime& /*time*/)
 {
 }
 

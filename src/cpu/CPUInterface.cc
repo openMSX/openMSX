@@ -53,11 +53,11 @@ void CPUInterface::unregisterInterface(MSXRomPatchInterface* i)
 	                 romPatches.end());
 }
 
-void CPUInterface::reti(CPU::CPURegs& regs)
+void CPUInterface::reti(CPU::CPURegs& /*regs*/)
 {
 }
 
-void CPUInterface::retn(CPU::CPURegs& regs)
+void CPUInterface::retn(CPU::CPURegs& /*regs*/)
 {
 }
 

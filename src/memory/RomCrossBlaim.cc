@@ -16,7 +16,7 @@ RomCrossBlaim::~RomCrossBlaim()
 {
 }
 
-void RomCrossBlaim::reset(const EmuTime& time)
+void RomCrossBlaim::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);
 	setRom (1, 0);
@@ -24,7 +24,7 @@ void RomCrossBlaim::reset(const EmuTime& time)
 	setBank(3, unmappedRead);
 }
 
-void RomCrossBlaim::writeMem(word address, byte value, const EmuTime& time)
+void RomCrossBlaim::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	if (address == 0x4045) {
 		setRom(2, value);

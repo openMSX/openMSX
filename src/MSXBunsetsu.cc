@@ -19,12 +19,12 @@ MSXBunsetsu::~MSXBunsetsu()
 {
 }
 
-void MSXBunsetsu::reset(const EmuTime& time)
+void MSXBunsetsu::reset(const EmuTime& /*time*/)
 {
 	jisyoAddress = 0;
 }
 
-byte MSXBunsetsu::readMem(word address, const EmuTime& time)
+byte MSXBunsetsu::readMem(word address, const EmuTime& /*time*/)
 {
 	byte result;
 	if (address == 0xBFFF) {
@@ -38,7 +38,7 @@ byte MSXBunsetsu::readMem(word address, const EmuTime& time)
 	return result;
 }
 
-void MSXBunsetsu::writeMem(word address, byte value, const EmuTime& time)
+void MSXBunsetsu::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	switch (address) {
 		case 0xBFFC:

@@ -159,7 +159,7 @@ string PluggingController::PlugCmd::execute(const vector<string>& tokens)
 	return result;
 }
 
-string PluggingController::PlugCmd::help(const vector<string>& tokens) const
+string PluggingController::PlugCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Plugs a plug into a connector\n"
 	       " plug [connector] [plug]\n";
@@ -216,7 +216,7 @@ string PluggingController::UnplugCmd::execute(const vector<string>& tokens)
 	return "";
 }
 
-string PluggingController::UnplugCmd::help(const vector<string>& tokens) const
+string PluggingController::UnplugCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Unplugs a plug from a connector\n"
 	       " unplug [connector]\n";
@@ -293,7 +293,7 @@ void PluggingController::PluggableInfo::execute(const vector<CommandArgument>& t
 	}
 }
 
-string PluggingController::PluggableInfo::help(const vector<string>& tokens) const
+string PluggingController::PluggableInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Shows a list of available pluggables. "
 	       "Or show info on a specific pluggable.\n";
@@ -343,7 +343,7 @@ void PluggingController::ConnectorInfo::execute(const vector<CommandArgument>& t
 	}
 }
 
-string PluggingController::ConnectorInfo::help(const vector<string>& tokens) const
+string PluggingController::ConnectorInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Shows a list of available connectors.\n";
 }
@@ -410,7 +410,7 @@ void PluggingController::ConnectionClassInfo::execute(const vector<CommandArgume
 	}
 }
 
-string PluggingController::ConnectionClassInfo::help(const vector<string>& tokens) const
+string PluggingController::ConnectionClassInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Shows the class a connector or pluggable belongs to.";
 }

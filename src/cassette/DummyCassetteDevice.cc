@@ -8,17 +8,17 @@ DummyCassetteDevice::DummyCassetteDevice()
 {
 }
 
-void DummyCassetteDevice::setMotor(bool status, const EmuTime& time)
+void DummyCassetteDevice::setMotor(bool /*status*/, const EmuTime& /*time*/)
 {
 	// do nothing
 }
 
-short DummyCassetteDevice::readSample(const EmuTime& time)
+short DummyCassetteDevice::readSample(const EmuTime& /*time*/)
 {
 	return 32767;	// TODO check value
 }
 
-void DummyCassetteDevice::writeWave(short *buf, int length)
+void DummyCassetteDevice::writeWave(short* /*buf*/, int /*length*/)
 {
 	// do nothing
 }
@@ -33,11 +33,12 @@ const string& DummyCassetteDevice::getDescription() const
 	return EMPTY;
 }
 
-void DummyCassetteDevice::plugHelper(Connector* connector, const EmuTime& time)
+void DummyCassetteDevice::plugHelper(Connector* /*connector*/,
+                                     const EmuTime& /*time*/)
 {
 }
 
-void DummyCassetteDevice::unplugHelper(const EmuTime& time)
+void DummyCassetteDevice::unplugHelper(const EmuTime& /*time*/)
 {
 }
 

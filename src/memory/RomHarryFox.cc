@@ -16,7 +16,7 @@ RomHarryFox::~RomHarryFox()
 {
 }
 
-void RomHarryFox::reset(const EmuTime& time)
+void RomHarryFox::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);
 	setRom (1, 0);
@@ -24,7 +24,7 @@ void RomHarryFox::reset(const EmuTime& time)
 	setBank(3, unmappedRead);
 }
 
-void RomHarryFox::writeMem(word address, byte value, const EmuTime& time)
+void RomHarryFox::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	if (address == 0x6000) {
 		setRom(1, 2 * (value & 1));

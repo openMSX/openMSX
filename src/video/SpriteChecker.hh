@@ -277,11 +277,11 @@ public:
 
 	// VRAMObserver implementation:
 
-	void updateVRAM(unsigned offset, const EmuTime& time) {
+	void updateVRAM(unsigned /*offset*/, const EmuTime& time) {
 		checkUntil(time);
 	}
 
-	void updateWindow(bool enabled, const EmuTime& time) {
+	void updateWindow(bool /*enabled*/, const EmuTime& time) {
 		sync(time);
 	}
 

@@ -216,7 +216,7 @@ byte Rom::read(unsigned address)
 	return rom[address];
 }
 
-void Rom::write(unsigned address, byte value)
+void Rom::write(unsigned /*address*/, byte /*value*/)
 {
 	// ignore
 }

@@ -101,28 +101,28 @@ void MSXHBI55::writeIO(byte port, byte value, const EmuTime& time)
 
 // I8255Interface
 
-byte MSXHBI55::readA(const EmuTime& time)
+byte MSXHBI55::readA(const EmuTime& /*time*/)
 {
 	// TODO check this
 	return 255;
 }
-void MSXHBI55::writeA(byte value, const EmuTime& time)
+void MSXHBI55::writeA(byte value, const EmuTime& /*time*/)
 {
 	address = (address & 0x0F00) | value; 
 }
 
-byte MSXHBI55::readB(const EmuTime& time)
+byte MSXHBI55::readB(const EmuTime& /*time*/)
 {
 	// TODO check this
 	return 255;
 }
-void MSXHBI55::writeB(byte value, const EmuTime& time)
+void MSXHBI55::writeB(byte value, const EmuTime& /*time*/)
 {
 	address = (address & 0x00FF) | ((value & 0x0F) << 8);
 	mode = value & 0xC0;
 }
 
-nibble MSXHBI55::readC1(const EmuTime& time)
+nibble MSXHBI55::readC1(const EmuTime& /*time*/)
 {
 	byte result;
 	if (mode == 0xC0) {
@@ -134,7 +134,7 @@ nibble MSXHBI55::readC1(const EmuTime& time)
 	}
 	return result;
 }
-nibble MSXHBI55::readC0(const EmuTime& time)
+nibble MSXHBI55::readC0(const EmuTime& /*time*/)
 {
 	byte result;
 	if (mode == 0xC0) {
@@ -146,7 +146,7 @@ nibble MSXHBI55::readC0(const EmuTime& time)
 	}
 	return result;
 }
-void MSXHBI55::writeC1(nibble value, const EmuTime& time)
+void MSXHBI55::writeC1(nibble value, const EmuTime& /*time*/)
 {
 	if (mode == 0x40) {
 		// write mode
@@ -157,7 +157,7 @@ void MSXHBI55::writeC1(nibble value, const EmuTime& time)
 		// nothing 
 	}
 }
-void MSXHBI55::writeC0(nibble value, const EmuTime& time)
+void MSXHBI55::writeC0(nibble value, const EmuTime& /*time*/)
 {
 	if (mode == 0x40) {
 		// write mode

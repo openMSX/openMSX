@@ -80,13 +80,13 @@ void MSXPPI::writeIO(byte port, byte value, const EmuTime& time)
 
 // I8255Interface
 
-byte MSXPPI::readA(const EmuTime& time)
+byte MSXPPI::readA(const EmuTime& /*time*/)
 {
 	// port A is normally an output on MSX, reading from an output port
 	// is handled internally in the 8255
 	return 255;	//TODO check this
 }
-void MSXPPI::writeA(byte value, const EmuTime& time)
+void MSXPPI::writeA(byte value, const EmuTime& /*time*/)
 {
 	cpuInterface.setPrimarySlots(value);
 }
@@ -100,16 +100,16 @@ byte MSXPPI::readB(const EmuTime& time)
        }
 
 }
-void MSXPPI::writeB(byte value, const EmuTime& time)
+void MSXPPI::writeB(byte /*value*/, const EmuTime& /*time*/)
 {
 	// probably nothing happens on a real MSX
 }
 
-nibble MSXPPI::readC1(const EmuTime& time)
+nibble MSXPPI::readC1(const EmuTime& /*time*/)
 {
 	return 15;	// TODO check this
 }
-nibble MSXPPI::readC0(const EmuTime& time)
+nibble MSXPPI::readC0(const EmuTime& /*time*/)
 {
 	return 15;	// TODO check this
 }
@@ -123,7 +123,7 @@ void MSXPPI::writeC1(nibble value, const EmuTime& time)
 
 	click->setClick(value & 8, time);
 }
-void MSXPPI::writeC0(nibble value, const EmuTime& time)
+void MSXPPI::writeC0(nibble value, const EmuTime& /*time*/)
 {
 	selectedRow = value;
 }

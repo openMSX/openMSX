@@ -21,12 +21,12 @@ MSXMatsushita::~MSXMatsushita()
 {
 }
 
-void MSXMatsushita::reset(const EmuTime& time)
+void MSXMatsushita::reset(const EmuTime& /*time*/)
 {
 	address = 0;	// TODO check this
 }
 
-byte MSXMatsushita::readIO(byte port, const EmuTime& time)
+byte MSXMatsushita::readIO(byte port, const EmuTime& /*time*/)
 {
 	// TODO: Port 7 and 8 can be read as well.
 	byte result;
@@ -56,7 +56,7 @@ byte MSXMatsushita::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
-void MSXMatsushita::writeIO(byte port, byte value, const EmuTime& time)
+void MSXMatsushita::writeIO(byte port, byte value, const EmuTime& /*time*/)
 {
 	switch (port & 0x0F) {
 	case 1:

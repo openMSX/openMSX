@@ -47,7 +47,7 @@ XSADiskImage::~XSADiskImage()
 }
 
 void XSADiskImage::read(byte track, byte sector,
-                   byte side, int size, byte* buf)
+                   byte side, int /*size*/, byte* buf)
 {
 	int logSector = physToLog(track, side, sector);
 	if (logSector >= nbSectors)
@@ -55,8 +55,8 @@ void XSADiskImage::read(byte track, byte sector,
 	memcpy(buf, outbuf + logSector * 512, 512);
 }
 
-void XSADiskImage::write(byte track, byte sector,
-                    byte side, int size, const byte* buf)
+void XSADiskImage::write(byte /*track*/, byte /*sector*/,
+                         byte /*side*/, int /*size*/, const byte* /*buf*/)
 {
 	throw WriteProtectedException("Write protected");
 }

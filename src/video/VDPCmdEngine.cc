@@ -225,7 +225,8 @@ typedef VDPCmdEngine::LogOp LogOp;
 class DummyOp: public LogOp {
 public:
 	virtual void pset(
-		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask )
+		EmuTime& /*time*/, VDPVRAM* /*vram*/, int /*addr*/,
+		byte /*colour*/, byte /*mask*/)
 	{
 		// Undefined logical operations do nothing.
 	}
@@ -234,7 +235,7 @@ public:
 class ImpOp: public LogOp {
 public:
 	virtual void pset(
-		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask )
+		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask)
 	{
 		vram->cmdWrite(addr,
 			(vram->cmdWriteWindow.readNP(addr) & mask) | colour,
@@ -245,7 +246,7 @@ public:
 class AndOp: public LogOp {
 public:
 	virtual void pset(
-		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask )
+		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask)
 	{
 		vram->cmdWrite(addr,
 			vram->cmdWriteWindow.readNP(addr) & (colour | mask),
@@ -256,7 +257,7 @@ public:
 class OrOp: public LogOp {
 public:
 	virtual void pset(
-		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask )
+		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte /*mask*/)
 	{
 		vram->cmdWrite(addr,
 			vram->cmdWriteWindow.readNP(addr) | colour,
@@ -267,7 +268,7 @@ public:
 class XorOp: public LogOp {
 public:
 	virtual void pset(
-		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask )
+		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte /*mask*/)
 	{
 		vram->cmdWrite(addr,
 			vram->cmdWriteWindow.readNP(addr) ^ colour,
@@ -278,7 +279,7 @@ public:
 class NotOp: public LogOp {
 public:
 	virtual void pset(
-		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask )
+		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask)
 	{
 		vram->cmdWrite(addr,
 			(vram->cmdWriteWindow.readNP(addr) & mask) | ~(colour | mask),
@@ -290,7 +291,7 @@ template <class Op>
 class TransparentOp: public Op {
 public:
 	virtual void pset(
-		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask )
+		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask)
 	{
 		if (colour) Op::pset(time, vram, addr, colour, mask);
 	}
@@ -641,7 +642,7 @@ void VDPCmdEngine::AbortCmd::start(const EmuTime& time)
 	engine->commandDone(time);
 }
 
-void VDPCmdEngine::AbortCmd::execute(const EmuTime& time)
+void VDPCmdEngine::AbortCmd::execute(const EmuTime& /*time*/)
 {
 }
 
@@ -666,7 +667,7 @@ void VDPCmdEngine::PointCmd<Mode>::start(const EmuTime& time)
 }
 
 template <class Mode>
-void VDPCmdEngine::PointCmd<Mode>::execute(const EmuTime& time)
+void VDPCmdEngine::PointCmd<Mode>::execute(const EmuTime& /*time*/)
 {
 }
 
@@ -693,7 +694,7 @@ void VDPCmdEngine::PsetCmd<Mode>::start(const EmuTime& time)
 }
 
 template <class Mode>
-void VDPCmdEngine::PsetCmd<Mode>::execute(const EmuTime& time)
+void VDPCmdEngine::PsetCmd<Mode>::execute(const EmuTime& /*time*/)
 {
 }
 

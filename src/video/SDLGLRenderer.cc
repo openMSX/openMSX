@@ -550,7 +550,7 @@ void SDLGLRenderer::precalcPalette(float gamma)
 	}
 }
 
-void SDLGLRenderer::reset(const EmuTime &time)
+void SDLGLRenderer::reset(const EmuTime& time)
 {
 	PixelRenderer::reset(time);
 
@@ -595,7 +595,7 @@ bool SDLGLRenderer::checkSettings() {
 #endif
 }
 
-void SDLGLRenderer::frameStart(const EmuTime &time)
+void SDLGLRenderer::frameStart(const EmuTime& time)
 {
 	// Call superclass implementation.
 	PixelRenderer::frameStart(time);
@@ -636,7 +636,7 @@ void SDLGLRenderer::setDisplayMode(DisplayMode mode)
 }
 
 void SDLGLRenderer::updateTransparency(
-	bool enabled, const EmuTime &time)
+	bool enabled, const EmuTime& time)
 {
 	sync(time);
 	spriteConverter.setTransparency(enabled);
@@ -644,13 +644,13 @@ void SDLGLRenderer::updateTransparency(
 }
 
 void SDLGLRenderer::updateForegroundColour(
-	int colour, const EmuTime &time)
+	int /*colour*/, const EmuTime& time)
 {
 	sync(time);
 }
 
 void SDLGLRenderer::updateBackgroundColour(
-	int colour, const EmuTime &time)
+	int colour, const EmuTime& time)
 {
 	sync(time);
 	if (vdp->getTransparency()) {
@@ -665,19 +665,19 @@ void SDLGLRenderer::updateBackgroundColour(
 }
 
 void SDLGLRenderer::updateBlinkForegroundColour(
-	int colour, const EmuTime &time)
+	int /*colour*/, const EmuTime& time)
 {
 	sync(time);
 }
 
 void SDLGLRenderer::updateBlinkBackgroundColour(
-	int colour, const EmuTime &time)
+	int /*colour*/, const EmuTime& time)
 {
 	sync(time);
 }
 
 void SDLGLRenderer::updateBlinkState(
-	bool enabled, const EmuTime &time)
+	bool /*enabled*/, const EmuTime& /*time*/)
 {
 	// TODO: When the sync call is enabled, the screen flashes on
 	//       every call to this method.
@@ -687,7 +687,7 @@ void SDLGLRenderer::updateBlinkState(
 }
 
 void SDLGLRenderer::updatePalette(
-	int index, int grb, const EmuTime &time)
+	int index, int grb, const EmuTime& time)
 {
 	sync(time);
 	setPalette(index, grb);
@@ -739,38 +739,38 @@ void SDLGLRenderer::precalcColourIndex0(DisplayMode mode, bool transparency) {
 }
 
 void SDLGLRenderer::updateVerticalScroll(
-	int scroll, const EmuTime &time)
+	int /*scroll*/, const EmuTime& time)
 {
 	sync(time);
 }
 
 void SDLGLRenderer::updateHorizontalAdjust(
-	int adjust, const EmuTime &time)
+	int /*adjust*/, const EmuTime& time)
 {
 	sync(time);
 }
 
 void SDLGLRenderer::updateDisplayMode(
-	DisplayMode mode, const EmuTime &time)
+	DisplayMode mode, const EmuTime& time)
 {
 	sync(time, true);
 	setDisplayMode(mode);
 }
 
 void SDLGLRenderer::updateNameBase(
-	int addr, const EmuTime &time)
+	int /*addr*/, const EmuTime& time)
 {
 	sync(time);
 }
 
 void SDLGLRenderer::updatePatternBase(
-	int addr, const EmuTime &time)
+	int /*addr*/, const EmuTime& time)
 {
 	sync(time);
 }
 
 void SDLGLRenderer::updateColourBase(
-	int addr, const EmuTime &time)
+	int /*addr*/, const EmuTime& time)
 {
 	sync(time);
 }
@@ -1247,8 +1247,8 @@ void SDLGLRenderer::drawDisplay(
 }
 
 void SDLGLRenderer::drawSprites(
-	int fromX, int fromY,
-	int displayX, int displayY,
+	int /*fromX*/, int fromY,
+	int displayX, int /*displayY*/,
 	int displayWidth, int displayHeight
 ) {
 	glEnable(GL_TEXTURE_2D);

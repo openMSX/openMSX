@@ -51,12 +51,12 @@ MSXMegaRam::~MSXMegaRam()
 {
 }
 
-void MSXMegaRam::reset(const EmuTime& time)
+void MSXMegaRam::reset(const EmuTime& /*time*/)
 {
 	// selected banks nor writeMode does change after reset
 }
 
-byte MSXMegaRam::readMem(word address, const EmuTime& time)
+byte MSXMegaRam::readMem(word address, const EmuTime& /*time*/)
 {
 	address &= 0x7FFF;
 	byte page = address / 0x2000;
@@ -71,7 +71,7 @@ const byte* MSXMegaRam::getReadCacheLine(word address) const
 	return &(*ram)[bank[page] * 0x2000 + (address & 0x1FFF)];
 }
 
-void MSXMegaRam::writeMem(word address, byte value, const EmuTime& time)
+void MSXMegaRam::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	address &= 0x7FFF;
 	byte page = address / 0x2000;
@@ -93,14 +93,14 @@ byte* MSXMegaRam::getWriteCacheLine(word address) const
 	}
 }
 
-byte MSXMegaRam::readIO(byte port, const EmuTime& time)
+byte MSXMegaRam::readIO(byte /*port*/, const EmuTime& /*time*/)
 {
 	// enable writing
 	writeMode = true;
 	return 0xFF;	// return value doesn't matter
 }
 
-void MSXMegaRam::writeIO(byte port, byte value, const EmuTime& time)
+void MSXMegaRam::writeIO(byte /*port*/, byte /*value*/, const EmuTime& /*time*/)
 {
 	// enable switching
 	writeMode = false;

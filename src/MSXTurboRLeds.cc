@@ -21,7 +21,7 @@ void MSXTurboRLeds::reset(const EmuTime& time)
 	writeIO(0, 0, time);
 }
 
-void MSXTurboRLeds::writeIO(byte port, byte value, const EmuTime& time)
+void MSXTurboRLeds::writeIO(byte /*port*/, byte value, const EmuTime& /*time*/)
 {
 	if (!turborPaused) {
 		if (value & 0x01) {

@@ -804,7 +804,7 @@ void SDLRenderer<Pixel, zoom>::updateTransparency(
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateForegroundColour(
-	int colour, const EmuTime& time)
+	int /*colour*/, const EmuTime& time)
 {
 	sync(time);
 }
@@ -826,21 +826,21 @@ void SDLRenderer<Pixel, zoom>::updateBackgroundColour(
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateBlinkForegroundColour(
-	int colour, const EmuTime& time)
+	int /*colour*/, const EmuTime& time)
 {
 	sync(time);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateBlinkBackgroundColour(
-	int colour, const EmuTime& time)
+	int /*colour*/, const EmuTime& time)
 {
 	sync(time);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateBlinkState(
-	bool enabled, const EmuTime& time)
+	bool /*enabled*/, const EmuTime& /*time*/)
 {
 	// TODO: When the sync call is enabled, the screen flashes on
 	//       every call to this method.
@@ -906,14 +906,14 @@ void SDLRenderer<Pixel, zoom>::precalcColourIndex0(
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateVerticalScroll(
-	int scroll, const EmuTime& time)
+	int /*scroll*/, const EmuTime& time)
 {
 	sync(time);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateHorizontalAdjust(
-	int adjust, const EmuTime& time)
+	int /*adjust*/, const EmuTime& time)
 {
 	sync(time);
 }
@@ -928,21 +928,21 @@ void SDLRenderer<Pixel, zoom>::updateDisplayMode(
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateNameBase(
-	int addr, const EmuTime& time)
+	int /*addr*/, const EmuTime& time)
 {
 	sync(time);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updatePatternBase(
-	int addr, const EmuTime& time)
+	int /*addr*/, const EmuTime& time)
 {
 	sync(time);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateColourBase(
-	int addr, const EmuTime& time)
+	int /*addr*/, const EmuTime& time)
 {
 	sync(time);
 }
@@ -999,7 +999,7 @@ void SDLRenderer<Pixel, zoom>::drawBorder(
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::drawDisplay(
-	int fromX, int fromY,
+	int /*fromX*/, int fromY,
 	int displayX, int displayY,
 	int displayWidth, int displayHeight
 ) {
@@ -1141,7 +1141,7 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::drawSprites(
-	int fromX, int fromY,
+	int /*fromX*/, int fromY,
 	int displayX, int displayY,
 	int displayWidth, int displayHeight
 ) {

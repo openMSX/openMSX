@@ -305,7 +305,7 @@ inline int SpriteChecker::checkSprites2(
 	return visibleIndex;
 }
 
-void SpriteChecker::updateSprites0(int limit)
+void SpriteChecker::updateSprites0(int /*limit*/)
 {
 	// If this method is called, that means somewhere a check for sprite
 	// mode 0 is missing and performance is being wasted.

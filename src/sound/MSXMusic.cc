@@ -56,7 +56,7 @@ void MSXMusic::writeIO(byte port, byte value, const EmuTime& time)
 	}
 }
 
-void MSXMusic::writeRegisterPort(byte value, const EmuTime& time)
+void MSXMusic::writeRegisterPort(byte value, const EmuTime& /*time*/)
 {
 	registerLatch = value & 0x3F;
 }
@@ -68,7 +68,7 @@ void MSXMusic::writeDataPort(byte value, const EmuTime& time)
 }
 
 
-byte MSXMusic::readMem(word address, const EmuTime& time)
+byte MSXMusic::readMem(word address, const EmuTime& /*time*/)
 {
 	return rom[address & 0x3FFF];
 }

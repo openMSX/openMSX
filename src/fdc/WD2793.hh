@@ -70,18 +70,18 @@ private:
 	void seek(const EmuTime& time);
 	void step(const EmuTime& time);
 	void seekNext(const EmuTime& time);
-	void endType1Cmd(const EmuTime& time);
+	void endType1Cmd();
 	
 	void startType2Cmd(const EmuTime& time);
-	void type2WaitLoad(const EmuTime& time);
+	void type2WaitLoad();
 	
 	void startType3Cmd(const EmuTime& time);
 	void type3WaitLoad(const EmuTime& time);
-	void readAddressCmd(const EmuTime& time);
-	void readTrackCmd(const EmuTime& time);
+	void readAddressCmd();
+	void readTrackCmd();
 	void writeTrackCmd(const EmuTime& time);
 	
-	void startType4Cmd(const EmuTime& time);
+	void startType4Cmd();
 	
 	void endCmd();
 

@@ -35,7 +35,7 @@ CliCommInput::~CliCommInput()
 }
 
 void CliCommInput::cb_start_element(ParseState* user_data,
-                     const xmlChar* name, const xmlChar** attrs)
+                     const xmlChar* name, const xmlChar** /*attrs*/)
 {
 	if (user_data->unknownLevel) {
 		++(user_data->unknownLevel);
@@ -63,7 +63,7 @@ void CliCommInput::cb_start_element(ParseState* user_data,
 	user_data->content = ""; // clear() doesn't compile on gcc-2.95
 }
 
-void CliCommInput::cb_end_element(ParseState* user_data, const xmlChar* name)
+void CliCommInput::cb_end_element(ParseState* user_data, const xmlChar* /*name*/)
 {
 	if (user_data->unknownLevel) {
 		--(user_data->unknownLevel);
@@ -160,7 +160,7 @@ void CliCommInput::execute(const string& command)
 	Scheduler::instance().setAsyncPoint(this);
 }
 
-void CliCommInput::executeUntil(const EmuTime& time, int userData)
+void CliCommInput::executeUntil(const EmuTime& /*time*/, int /*userData*/)
 {
 	CommandController& controller = CommandController::instance();
 	lock.down();

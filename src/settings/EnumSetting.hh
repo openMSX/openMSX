@@ -189,7 +189,8 @@ EnumSettingBase<ValueType>::EnumInfo::EnumInfo(EnumSettingBase& parent_)
 
 template<typename ValueType>
 void EnumSettingBase<ValueType>::EnumInfo::execute(
-	const vector<CommandArgument>& tokens, CommandArgument& result) const
+	const vector<CommandArgument>& /*tokens*/,
+	CommandArgument& result) const
 {
 	set<string> values;
 	parent.getPossibleValues(values);
@@ -200,7 +201,8 @@ void EnumSettingBase<ValueType>::EnumInfo::execute(
 }
 
 template<typename ValueType>
-string EnumSettingBase<ValueType>::EnumInfo::help(const vector<string>& tokens) const
+string EnumSettingBase<ValueType>::EnumInfo::help(
+	const vector<string>& /*tokens*/) const
 {
 	return "Returns all possible values for this setting.";
 }

@@ -31,7 +31,7 @@ void MSXPrinterPort::reset(const EmuTime& time)
 }
 
 
-byte MSXPrinterPort::readIO(byte port, const EmuTime& time)
+byte MSXPrinterPort::readIO(byte /*port*/, const EmuTime& time)
 {
 	// bit 1 = status / other bits always 1
 	return getPlugged().getStatus(time)
@@ -94,17 +94,17 @@ PrinterPortDevice& MSXPrinterPort::getPlugged() const
 
 // --- DummyPrinterPortDevice ---
 
-bool DummyPrinterPortDevice::getStatus(const EmuTime& time)
+bool DummyPrinterPortDevice::getStatus(const EmuTime& /*time*/)
 {
 	return true;	// true = high = not ready
 }
 
-void DummyPrinterPortDevice::setStrobe(bool strobe, const EmuTime& time)
+void DummyPrinterPortDevice::setStrobe(bool /*strobe*/, const EmuTime& /*time*/)
 {
 	// ignore strobe
 }
 
-void DummyPrinterPortDevice::writeData(byte data, const EmuTime& time)
+void DummyPrinterPortDevice::writeData(byte /*data*/, const EmuTime& /*time*/)
 {
 	// ignore data
 }
@@ -115,11 +115,11 @@ const string& DummyPrinterPortDevice::getDescription() const
 	return EMPTY;
 }
 
-void DummyPrinterPortDevice::plugHelper(Connector* connector, const EmuTime& time)
+void DummyPrinterPortDevice::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
 {
 }
 
-void DummyPrinterPortDevice::unplugHelper(const EmuTime& time)
+void DummyPrinterPortDevice::unplugHelper(const EmuTime& /*time*/)
 {
 }
 

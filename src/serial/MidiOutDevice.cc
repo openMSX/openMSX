@@ -16,17 +16,17 @@ const string& MidiOutDevice::getClass() const
 }
 
 
-void MidiOutDevice::setDataBits(DataBits bits)
+void MidiOutDevice::setDataBits(DataBits /*bits*/)
 {
 	// ignore
 }
 
-void MidiOutDevice::setStopBits(StopBits bits)
+void MidiOutDevice::setStopBits(StopBits /*bits*/)
 {
 	// ignore
 }
 
-void MidiOutDevice::setParityBit(bool enable, ParityBit parity)
+void MidiOutDevice::setParityBit(bool /*enable*/, ParityBit /*parity*/)
 {
 	// ignore
 }

@@ -40,7 +40,7 @@ void RomKorean90in1::reset(const EmuTime& time)
 	writeIO(0x77, 0, time);
 }
 
-void RomKorean90in1::writeIO(byte port, byte value, const EmuTime& time)
+void RomKorean90in1::writeIO(byte /*port*/, byte value, const EmuTime& /*time*/)
 {
 	byte page = 2 * (value & 0x3F);
 	switch (value & 0xC0) {
@@ -68,7 +68,7 @@ void RomKorean90in1::writeIO(byte port, byte value, const EmuTime& time)
 	}
 }
 
-byte* RomKorean90in1::getWriteCacheLine(word address) const
+byte* RomKorean90in1::getWriteCacheLine(word /*address*/) const
 {
 	return unmappedWrite;
 }

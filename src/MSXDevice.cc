@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-MSXDevice::MSXDevice(const XMLElement& config, const EmuTime& time)
+MSXDevice::MSXDevice(const XMLElement& config, const EmuTime& /*time*/)
 	: deviceConfig(config)
 {
 }
@@ -15,7 +15,7 @@ MSXDevice::~MSXDevice()
 {
 }
 
-void MSXDevice::reset(const EmuTime& time)
+void MSXDevice::reset(const EmuTime& /*time*/)
 {
 }
 

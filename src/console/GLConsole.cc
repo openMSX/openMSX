@@ -139,7 +139,7 @@ void GLConsole::updateConsole()
 {
 }
 
-void GLConsole::updateConsoleRect(SDL_Surface *screen)
+void GLConsole::updateConsoleRect()
 {
 	SDL_Rect rect;
 	OSDConsoleRenderer::updateConsoleRect(rect);
@@ -164,7 +164,7 @@ void GLConsole::drawConsole()
 
 	SDL_Surface *screen = SDL_GetVideoSurface();
 
-	updateConsoleRect(screen);
+	updateConsoleRect();
 
 	glViewport(0, 0, screen->w, screen->h);
 	glMatrixMode(GL_PROJECTION);

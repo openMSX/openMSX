@@ -220,17 +220,6 @@ void XMLDocument::handleDoc(xmlDocPtr doc)
 	xmlFreeDoc(doc);
 }
 
-XMLDocument::XMLDocument(const XMLDocument& document)
-{
-	*this = document;
-}
-
-const XMLDocument& XMLDocument::operator=(const XMLDocument& document)
-{
-	this->XMLElement::operator=(document);
-	return *this;
-}
-
 
 string XMLEscape(const string& str)
 {

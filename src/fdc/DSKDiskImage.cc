@@ -15,7 +15,7 @@ DSKDiskImage::~DSKDiskImage()
 }
 
 void DSKDiskImage::read(byte track, byte sector, byte side,
-                   int size, byte* buf)
+                   int /*size*/, byte* buf)
 {
 	try {
 		int logicalSector = physToLog(track, side, sector);
@@ -31,7 +31,7 @@ void DSKDiskImage::read(byte track, byte sector, byte side,
 }
 
 void DSKDiskImage::write(byte track, byte sector, byte side, 
-                    int size, const byte* buf)
+                    int /*size*/, const byte* buf)
 {
 	if (writeProtected()) {
 		throw WriteProtectedException("");

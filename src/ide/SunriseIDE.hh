@@ -32,7 +32,7 @@ private:
 	byte readDataHigh(const EmuTime& time);
 	word readData(const EmuTime& time);
 	byte readReg(nibble reg, const EmuTime& time);
-	void writeDataLow(byte value, const EmuTime& time);
+	void writeDataLow(byte value);
 	void writeDataHigh(byte value, const EmuTime& time);
 	void writeData(word value, const EmuTime& time);
 	void writeReg(nibble reg, byte value, const EmuTime& time);

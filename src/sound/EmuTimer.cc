@@ -56,7 +56,7 @@ void EmuTimer<freq, flag>::unschedule()
 }
 
 template<int freq, byte flag>
-void EmuTimer<freq, flag>::executeUntil(const EmuTime& time, int userData)
+void EmuTimer<freq, flag>::executeUntil(const EmuTime& time, int /*userData*/)
 {
 	cb->callback(flag);
 	schedule(time);

@@ -116,13 +116,13 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 
 // Version info
 
-void InfoCommand::VersionInfo::execute(const vector<CommandArgument>& tokens,
+void InfoCommand::VersionInfo::execute(const vector<CommandArgument>& /*tokens*/,
                                        CommandArgument& result) const
 {
 	result.setString(Version::FULL_VERSION);
 }
 
-string InfoCommand::VersionInfo::help(const vector<string>& tokens) const
+string InfoCommand::VersionInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Prints openMSX version.";
 }

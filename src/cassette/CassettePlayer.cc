@@ -105,7 +105,7 @@ void CassettePlayer::rewind()
 	playTapeTime = EmuTime::zero;
 }
 
-void CassettePlayer::updatePosition(const EmuTime &time)
+void CassettePlayer::updatePosition(const EmuTime& time)
 {
 	if (motor || forcePlay) {
 		tapeTime += (time - prevTime);
@@ -114,13 +114,13 @@ void CassettePlayer::updatePosition(const EmuTime &time)
 	prevTime = time;
 }
 
-void CassettePlayer::setMotor(bool status, const EmuTime &time)
+void CassettePlayer::setMotor(bool status, const EmuTime& time)
 {
 	updatePosition(time);
 	motor = status;
 }
 
-short CassettePlayer::getSample(const EmuTime &time)
+short CassettePlayer::getSample(const EmuTime& time)
 {
 	if (motor || forcePlay) {
 		return cassette->getSampleAt(time);
@@ -129,13 +129,13 @@ short CassettePlayer::getSample(const EmuTime &time)
 	}
 }
 
-short CassettePlayer::readSample(const EmuTime &time)
+short CassettePlayer::readSample(const EmuTime& time)
 {
 	updatePosition(time);
 	return getSample(tapeTime);
 }
 
-void CassettePlayer::writeWave(short *buf, int length)
+void CassettePlayer::writeWave(short* /*buf*/, int /*length*/)
 {
 	// recording not implemented yet
 }
@@ -159,16 +159,16 @@ const string& CassettePlayer::getDescription() const
 	return desc;
 }
 
-void CassettePlayer::plugHelper(Connector* connector, const EmuTime& time)
+void CassettePlayer::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
 {
 }
 
-void CassettePlayer::unplugHelper(const EmuTime& time)
+void CassettePlayer::unplugHelper(const EmuTime& /*time*/)
 {
 }
 
 
-string CassettePlayer::execute(const vector<string> &tokens)
+string CassettePlayer::execute(const vector<string>& tokens)
 {
 	string result;
 	if (tokens.size() != 2) {
@@ -200,7 +200,7 @@ string CassettePlayer::execute(const vector<string> &tokens)
 	return result;
 }
 
-string CassettePlayer::help(const vector<string> &tokens) const
+string CassettePlayer::help(const vector<string>& /*tokens*/) const
 {
 	return "cassetteplayer eject         : remove tape from virtual player\n"
 	       "cassetteplayer rewind        : rewind tape in virtual player\n"
@@ -209,7 +209,7 @@ string CassettePlayer::help(const vector<string> &tokens) const
 	       "cassetteplayer <filename>    : change the tape file\n";
 }
 
-void CassettePlayer::tabCompletion(vector<string> &tokens) const
+void CassettePlayer::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		CommandController::completeFileName(tokens);

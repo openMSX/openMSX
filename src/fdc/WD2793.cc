@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-WD2793::WD2793(DiskDrive* drive_, const EmuTime &time)
+WD2793::WD2793(DiskDrive* drive_, const EmuTime& time)
 	: drive(drive_)
 {
 	reset(time);
@@ -18,7 +18,7 @@ WD2793::~WD2793()
 {
 }
 
-void WD2793::reset(const EmuTime &time)
+void WD2793::reset(const EmuTime& /*time*/)
 {
 	//PRT_DEBUG("WD2793::reset()");
 	Scheduler::instance().removeSyncPoint(this);
@@ -42,7 +42,7 @@ void WD2793::reset(const EmuTime &time)
 	//statusReg bit 7 (Not Ready status) is already reset
 }
 
-bool WD2793::getDTRQ(const EmuTime &time)
+bool WD2793::getDTRQ(const EmuTime& time)
 {
 	if (((commandReg & 0xF0) == 0xF0) &&
 	    (statusReg & BUSY)) {
@@ -69,7 +69,7 @@ bool WD2793::getDTRQ(const EmuTime &time)
 	return DRQ;
 }
 
-bool WD2793::getIRQ(const EmuTime &time)
+bool WD2793::getIRQ(const EmuTime& /*time*/)
 {
 	//PRT_DEBUG("WD2793::getIRQ() " << INTRQ);
 	return INTRQ;
@@ -85,7 +85,7 @@ void WD2793::resetIRQ()
 	INTRQ = immediateIRQ;
 }
 
-void WD2793::setCommandReg(byte value, const EmuTime &time)
+void WD2793::setCommandReg(byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("WD2793::setCommandReg() 0x" << hex << (int)value);
 	commandReg = value;
@@ -116,12 +116,12 @@ void WD2793::setCommandReg(byte value, const EmuTime &time)
 			break;
 		
 		case 0xD0: // Force interrupt
-			startType4Cmd(time);
+			startType4Cmd();
 			break;
 	}
 }
 
-byte WD2793::getStatusReg(const EmuTime &time)
+byte WD2793::getStatusReg(const EmuTime& time)
 {
 	if (((commandReg & 0x80) == 0) || ((commandReg & 0xF0) == 0xD0)) {
 		// Type I or type IV command 
@@ -169,29 +169,29 @@ byte WD2793::getStatusReg(const EmuTime &time)
 	return statusReg;
 }
 
-void WD2793::setTrackReg(byte value, const EmuTime &time)
+void WD2793::setTrackReg(byte value, const EmuTime& /*time*/)
 {
 	//PRT_DEBUG("WD2793::setTrackReg() 0x" << hex << (int)value);
 	trackReg = value;
 }
 
-byte WD2793::getTrackReg(const EmuTime &time)
+byte WD2793::getTrackReg(const EmuTime& /*time*/)
 {
 	return trackReg;
 }
 
-void WD2793::setSectorReg(byte value, const EmuTime &time)
+void WD2793::setSectorReg(byte value, const EmuTime& /*time*/)
 {
 	//PRT_DEBUG("WD2793::setSectorReg() 0x" << hex << (int)value);
 	sectorReg = value;
 }
 
-byte WD2793::getSectorReg(const EmuTime &time)
+byte WD2793::getSectorReg(const EmuTime& /*time*/)
 {
 	return sectorReg;
 }
 
-void WD2793::setDataReg(byte value, const EmuTime &time)
+void WD2793::setDataReg(byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("WD2793::setDataReg() 0x" << hex << (int)value);
 	// TODO Is this also true in case of sector write?
@@ -305,7 +305,7 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 	}
 }
 
-byte WD2793::getDataReg(const EmuTime &time)
+byte WD2793::getDataReg(const EmuTime& /*time*/)
 {
 	if (((commandReg & 0xE0) == 0x80) && (statusReg & BUSY)) {
 		// READ SECTOR
@@ -360,7 +360,7 @@ void WD2793::schedule(FSMState state, const EmuTime& time)
 	Scheduler::instance().setSyncPoint(time, this);
 }
 
-void WD2793::executeUntil(const EmuTime& time, int userData)
+void WD2793::executeUntil(const EmuTime& time, int /*userData*/)
 {
 	FSMState state = fsmState;
 	fsmState = FSM_NONE;
@@ -374,7 +374,7 @@ void WD2793::executeUntil(const EmuTime& time, int userData)
 		case FSM_TYPE2_WAIT_LOAD:
 			if ((commandReg & 0xC0) == 0x80)  {
 				// Type II command
-				type2WaitLoad(time);
+				type2WaitLoad();
 			}
 			break;
 		case FSM_TYPE3_WAIT_LOAD:
@@ -395,7 +395,7 @@ const string& WD2793::schedName() const
 	return name;
 }
 
-void WD2793::startType1Cmd(const EmuTime &time)
+void WD2793::startType1Cmd(const EmuTime& time)
 {
 	statusReg &= ~(SEEK_ERROR | CRC_ERROR);
 	statusReg |= BUSY;
@@ -433,17 +433,17 @@ void WD2793::startType1Cmd(const EmuTime &time)
 	}
 }
 
-void WD2793::seek(const EmuTime &time)
+void WD2793::seek(const EmuTime& time)
 {
 	if (trackReg == dataReg) {
-		endType1Cmd(time);
+		endType1Cmd();
 	} else {
 		directionIn = (dataReg > trackReg);
 		step(time);
 	}
 }
 
-void WD2793::step(const EmuTime &time)
+void WD2793::step(const EmuTime& time)
 {
 	const int timePerStep[4] = {
 		// in ms, in case a 1MHz clock is used (as in MSX)
@@ -460,7 +460,7 @@ void WD2793::step(const EmuTime &time)
 	}
 	if (!directionIn && drive->track00(time)) {
 		trackReg = 0;
-		endType1Cmd(time);
+		endType1Cmd();
 	} else {
 		drive->step(directionIn, time);
 		EmuTimeFreq<1000> next(time);	// ms
@@ -469,17 +469,17 @@ void WD2793::step(const EmuTime &time)
 	}
 }
 
-void WD2793::seekNext(const EmuTime &time)
+void WD2793::seekNext(const EmuTime& time)
 {
 	if ((commandReg & 0xE0) == 0x00) {
 		// Restore or seek
 		seek(time);
 	} else {
-		endType1Cmd(time);
+		endType1Cmd();
 	}
 }
 
-void WD2793::endType1Cmd(const EmuTime &time)
+void WD2793::endType1Cmd()
 {
 	if (commandReg & V_FLAG) {
 		// verify sequence
@@ -489,7 +489,7 @@ void WD2793::endType1Cmd(const EmuTime &time)
 }
 
 
-void WD2793::startType2Cmd(const EmuTime &time)
+void WD2793::startType2Cmd(const EmuTime& time)
 {
 	statusReg &= ~(LOST_DATA   | RECORD_NOT_FOUND |
 	               RECORD_TYPE | WRITE_PROTECTED);
@@ -508,7 +508,7 @@ void WD2793::startType2Cmd(const EmuTime &time)
 				next += 30;	// when 1MHz clock
 				schedule(FSM_TYPE2_WAIT_LOAD, next);
 			} else {
-				type2WaitLoad(time);
+				type2WaitLoad();
 			}
  		}
 	} catch (DriveEmptyException &e) {
@@ -516,7 +516,7 @@ void WD2793::startType2Cmd(const EmuTime &time)
 	}
 }
 
-void WD2793::type2WaitLoad(const EmuTime& time)
+void WD2793::type2WaitLoad()
 {
 	// TODO wait till head loaded
 
@@ -542,7 +542,7 @@ void WD2793::type2WaitLoad(const EmuTime& time)
 	}
 }
 
-void WD2793::startType3Cmd(const EmuTime &time)
+void WD2793::startType3Cmd(const EmuTime& time)
 {
 	statusReg &= ~(LOST_DATA | RECORD_NOT_FOUND | RECORD_TYPE);
 	statusReg |= BUSY;
@@ -578,10 +578,10 @@ void WD2793::type3WaitLoad(const EmuTime& time)
 	commandStart = time;
 	switch (commandReg & 0xF0) {
 	case 0xC0: // read Address
-		readAddressCmd(time);
+		readAddressCmd();
 		break;
 	case 0xE0: // read track
-		readTrackCmd(time);
+		readTrackCmd();
 		break;
 	case 0xF0: // write track
 		writeTrackCmd(time);
@@ -589,21 +589,21 @@ void WD2793::type3WaitLoad(const EmuTime& time)
 	}
 }
 
-void WD2793::readAddressCmd(const EmuTime &time)
+void WD2793::readAddressCmd()
 {
 	PRT_DEBUG("WD2793 command: read address");
 	assert(false);	// not yet implemented
 	endCmd();
 }
 
-void WD2793::readTrackCmd(const EmuTime &time)
+void WD2793::readTrackCmd()
 {
 	PRT_DEBUG("WD2793 command: read track   NOT YET IMPLEMENTED");
 	// just continue iso assert(false)  'fixes' TNT
 	endCmd();
 }
 
-void WD2793::writeTrackCmd(const EmuTime &time)
+void WD2793::writeTrackCmd(const EmuTime& time)
 {
 	PRT_DEBUG("WD2793 command: write track");
 
@@ -623,7 +623,7 @@ void WD2793::writeTrackCmd(const EmuTime &time)
 	}
 }
 
-void WD2793::startType4Cmd(const EmuTime &time)
+void WD2793::startType4Cmd()
 {
 	// Force interrupt
 	PRT_DEBUG("WD2793 command: Force interrupt");

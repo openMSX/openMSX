@@ -32,7 +32,7 @@ class TC8566AF
 		byte makeST0();
 		byte makeST1();
 		byte makeST2();
-		byte makeST3(const EmuTime &time);
+		byte makeST3();
 
 		// Control register 0
 		byte EnableIntDma;	// always 0

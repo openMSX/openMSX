@@ -16,13 +16,13 @@ MSXS1990::~MSXS1990()
 {
 }
 
-void MSXS1990::reset(const EmuTime& time)
+void MSXS1990::reset(const EmuTime& /*time*/)
 {
 	registerSelect = 0;	// TODO check this
 	setCPUStatus(96);
 }
 
-byte MSXS1990::readIO(byte port, const EmuTime& time)
+byte MSXS1990::readIO(byte port, const EmuTime& /*time*/)
 {
 	switch (port & 0x01) {
 	case 0:
@@ -49,7 +49,7 @@ byte MSXS1990::readIO(byte port, const EmuTime& time)
 	}
 }
 
-void MSXS1990::writeIO(byte port, byte value, const EmuTime& time)
+void MSXS1990::writeIO(byte port, byte value, const EmuTime& /*time*/)
 {
 	switch (port & 0x01) {
 	case 0:

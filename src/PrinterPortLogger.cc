@@ -19,12 +19,12 @@ PrinterPortLogger::~PrinterPortLogger()
 {
 }
 
-bool PrinterPortLogger::getStatus(const EmuTime &time)
+bool PrinterPortLogger::getStatus(const EmuTime& /*time*/)
 {
 	return false;	// false = low = ready
 }
 
-void PrinterPortLogger::setStrobe(bool strobe, const EmuTime &time)
+void PrinterPortLogger::setStrobe(bool strobe, const EmuTime& /*time*/)
 {
 	assert(file.get());
 	PRT_DEBUG("PRINTER: strobe " << strobe);
@@ -36,19 +36,19 @@ void PrinterPortLogger::setStrobe(bool strobe, const EmuTime &time)
 	prevStrobe = strobe;
 }
 
-void PrinterPortLogger::writeData(byte data, const EmuTime &time)
+void PrinterPortLogger::writeData(byte data, const EmuTime& /*time*/)
 {
 	PRT_DEBUG("PRINTER: setting data " << data);
 	toPrint = data;
 }
 
-void PrinterPortLogger::plugHelper(Connector* connector, const EmuTime& time)
+void PrinterPortLogger::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
 {
 	// TODO: Add exception to File class and use it here.
 	file.reset(new File(logFilenameSetting.getValue(), TRUNCATE));
 }
 
-void PrinterPortLogger::unplugHelper(const EmuTime &time)
+void PrinterPortLogger::unplugHelper(const EmuTime& /*time*/)
 {
 	file.reset();
 }

@@ -25,7 +25,7 @@ RomKonami4::~RomKonami4()
 {
 }
 
-void RomKonami4::reset(const EmuTime& time)
+void RomKonami4::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -36,7 +36,7 @@ void RomKonami4::reset(const EmuTime& time)
 	setBank(7, unmappedRead);
 }
 
-void RomKonami4::writeMem(word address, byte value, const EmuTime& time)
+void RomKonami4::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	if ((address == 0x6000) ||
 	    (address == 0x8000) ||

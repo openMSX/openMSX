@@ -35,7 +35,7 @@ void MSXPSG::reset(const EmuTime& time)
 	ay8910->reset(time);
 }
 
-byte MSXPSG::readIO(byte port, const EmuTime& time)
+byte MSXPSG::readIO(byte /*port*/, const EmuTime& time)
 {
 	byte result =  ay8910->readRegister(registerLatch, time);
 	//PRT_DEBUG("PSG read R#"<<(int)registerLatch<<" = "<<(int)result);
@@ -66,13 +66,13 @@ byte MSXPSG::readA(const EmuTime& time)
 	return joystick | keyLayout | cassetteInput;
 }
 
-byte MSXPSG::readB(const EmuTime& time)
+byte MSXPSG::readB(const EmuTime& /*time*/)
 {
 	// port B is normally an output on MSX
 	return 255;
 }
 
-void MSXPSG::writeA(byte value, const EmuTime& time)
+void MSXPSG::writeA(byte /*value*/, const EmuTime& /*time*/)
 {
 	// port A is normally an input on MSX
 	// ignore write

@@ -57,12 +57,12 @@ Y8950KeyboardDevice& Y8950KeyboardConnector::getPlugged() const
 
 // --- DummyY8950KeyboardDevice ---
 
-void DummyY8950KeyboardDevice::write(byte data, const EmuTime& time)
+void DummyY8950KeyboardDevice::write(byte /*data*/, const EmuTime& /*time*/)
 {
 	// ignore data
 }
 
-byte DummyY8950KeyboardDevice::read(const EmuTime& time)
+byte DummyY8950KeyboardDevice::read(const EmuTime& /*time*/)
 {
 	return 255;
 }
@@ -73,11 +73,12 @@ const string& DummyY8950KeyboardDevice::getDescription() const
 	return EMPTY;
 }
 
-void DummyY8950KeyboardDevice::plugHelper(Connector* connector, const EmuTime& time)
+void DummyY8950KeyboardDevice::plugHelper(Connector* /*connector*/,
+                                          const EmuTime& /*time*/)
 {
 }
 
-void DummyY8950KeyboardDevice::unplugHelper(const EmuTime& time)
+void DummyY8950KeyboardDevice::unplugHelper(const EmuTime& /*time*/)
 {
 }
 

@@ -37,7 +37,7 @@ RomAscii8_8::~RomAscii8_8()
 {
 }
 
-void RomAscii8_8::reset(const EmuTime& time)
+void RomAscii8_8::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -50,7 +50,7 @@ void RomAscii8_8::reset(const EmuTime& time)
 	sramEnabled = 0;
 }
 
-void RomAscii8_8::writeMem(word address, byte value, const EmuTime& time)
+void RomAscii8_8::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// bank switching

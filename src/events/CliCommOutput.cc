@@ -128,7 +128,7 @@ string CliCommOutput::UpdateCmd::execute(const vector<string>& tokens)
 	return "";
 }
 
-string CliCommOutput::UpdateCmd::help(const vector<string>& tokens) const
+string CliCommOutput::UpdateCmd::help(const vector<string>& /*tokens*/) const
 {
 	static const string helpText = "TODO";
 	return helpText;

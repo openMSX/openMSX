@@ -48,7 +48,7 @@ const string& Mouse::getDescription() const
 	return desc;
 }
 
-void Mouse::plugHelper(Connector* connector, const EmuTime& time)
+void Mouse::plugHelper(Connector* /*connector*/, const EmuTime& time)
 {
 	if (status & JOY_BUTTONA) {
 		// not pressed, mouse mode
@@ -60,13 +60,13 @@ void Mouse::plugHelper(Connector* connector, const EmuTime& time)
 	}
 }
 
-void Mouse::unplugHelper(const EmuTime& time)
+void Mouse::unplugHelper(const EmuTime& /*time*/)
 {
 }
 
 
 //JoystickDevice
-byte Mouse::read(const EmuTime& time)
+byte Mouse::read(const EmuTime& /*time*/)
 {
 	if (mouseMode) {
 		switch (faze) {

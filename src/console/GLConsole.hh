@@ -30,6 +30,7 @@ private:
 	int powerOfTwo(int a);
 	bool loadTexture(const string& filename, GLuint& texture,
 			int& width, int& height, GLfloat* texCoord);
+	void updateConsoleRect();
 
 	GLuint backgroundTexture;
 	auto_ptr<BackgroundSetting> backgroundSetting;
@@ -40,7 +41,6 @@ private:
 	int dispX;
 	int dispY;
 	Console& console;
-	void updateConsoleRect(SDL_Surface* screen);
 };
 
 } // namespace openmsx

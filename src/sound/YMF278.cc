@@ -705,7 +705,7 @@ byte YMF278::readRegOPL4(byte reg, const EmuTime& time)
 	return readReg(reg, time);
 }
 
-byte YMF278::readReg(byte reg, const EmuTime& time)
+byte YMF278::readReg(byte reg, const EmuTime& /*time*/)
 {
 	byte result;
 	switch(reg) {

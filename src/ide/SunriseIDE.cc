@@ -92,7 +92,7 @@ void SunriseIDE::writeMem(word address, byte value, const EmuTime& time)
 	if (ideRegsEnabled && ((address & 0x3E00) == 0x3C00)) {
 		// 0x7C00 - 0x7DFF   ide data register
 		if ((address & 1) == 0) {
-			writeDataLow(value, time);
+			writeDataLow(value);
 		} else {
 			writeDataHigh(value, time);
 		}
@@ -144,7 +144,7 @@ byte SunriseIDE::readDataLow(const EmuTime& time)
 	readLatch = temp >> 8;
 	return temp & 0xFF;
 }
-byte SunriseIDE::readDataHigh(const EmuTime& time)
+byte SunriseIDE::readDataHigh(const EmuTime& /*time*/)
 {
 	return readLatch;
 }
@@ -187,7 +187,7 @@ byte SunriseIDE::readReg(nibble reg, const EmuTime& time)
 }
 
 
-void SunriseIDE::writeDataLow(byte value, const EmuTime& time)
+void SunriseIDE::writeDataLow(byte value)
 {
 	writeLatch = value;
 }

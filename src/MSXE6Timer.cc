@@ -20,7 +20,7 @@ void MSXE6Timer::reset(const EmuTime& time)
 	reference = time;
 }
 
-void MSXE6Timer::writeIO(byte port, byte value, const EmuTime& time)
+void MSXE6Timer::writeIO(byte /*port*/, byte /*value*/, const EmuTime& time)
 {
 	reference = time;
 }

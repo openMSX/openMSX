@@ -146,7 +146,7 @@ VDP::~VDP()
 	CommandController::instance().unregisterCommand(&paletteCmd,  "palette");
 }
 
-void VDP::resetInit(const EmuTime& time)
+void VDP::resetInit(const EmuTime& /*time*/)
 {
 	for (int i = 0; i < 32; i++) {
 		controlRegs[i] = 0;
@@ -1087,7 +1087,7 @@ byte VDP::VDPStatusRegDebug::read(unsigned address)
 	return parent.peekStatusReg(address, time);
 }
 
-void VDP::VDPStatusRegDebug::write(unsigned address, byte value)
+void VDP::VDPStatusRegDebug::write(unsigned /*address*/, byte /*value*/)
 {
 	// not possible
 }
@@ -1100,7 +1100,7 @@ VDP::VDPRegsCmd::VDPRegsCmd(VDP& vdp_)
 {
 }
 
-string VDP::VDPRegsCmd::execute(const vector<string>& tokens)
+string VDP::VDPRegsCmd::execute(const vector<string>& /*tokens*/)
 {
 	// Print palette in 4x4 table.
 	ostringstream out;
@@ -1118,7 +1118,7 @@ string VDP::VDPRegsCmd::execute(const vector<string>& tokens)
 	return out.str();
 }
 
-string VDP::VDPRegsCmd::help(const vector<string>& tokens) const
+string VDP::VDPRegsCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Prints the current state of the VDP registers.\n";
 }
@@ -1130,7 +1130,7 @@ VDP::PaletteCmd::PaletteCmd(VDP& vdp_)
 {
 }
 
-string VDP::PaletteCmd::execute(const vector<string>& tokens)
+string VDP::PaletteCmd::execute(const vector<string>& /*tokens*/)
 {
 	// Print palette in 4x4 table.
 	ostringstream out;
@@ -1147,7 +1147,7 @@ string VDP::PaletteCmd::execute(const vector<string>& tokens)
 	return out.str();
 }
 
-string VDP::PaletteCmd::help(const vector<string>& tokens) const
+string VDP::PaletteCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Prints the current VDP palette (i:rgb).\n";
 }
@@ -1177,7 +1177,7 @@ string VDP::ScreenShotCmd::execute(const vector<string>& tokens)
 	return filename;
 }
 
-string VDP::ScreenShotCmd::help(const vector<string>& tokens) const
+string VDP::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "screenshot             Write screenshot to file \"openmsxNNNN.png\"\n"
 	       "screenshot <filename>  Write screenshot to indicated file\n";

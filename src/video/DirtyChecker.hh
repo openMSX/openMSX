@@ -58,7 +58,8 @@ void DirtyChecker<size, unit>::flush()
 }
 
 template <unsigned size, unsigned unit>
-void DirtyChecker<size, unit>::updateVRAM(unsigned offset, const EmuTime& time)
+void DirtyChecker<size, unit>::updateVRAM(unsigned offset,
+                                          const EmuTime& /*time*/)
 {
 	unsigned unitNr = offset / unit;
 	assert(unitNr < size);
@@ -66,7 +67,8 @@ void DirtyChecker<size, unit>::updateVRAM(unsigned offset, const EmuTime& time)
 }
 
 template <unsigned size, unsigned unit>
-void DirtyChecker<size, unit>::updateWindow(bool enabled, const EmuTime& time)
+void DirtyChecker<size, unit>::updateWindow(bool enabled,
+                                            const EmuTime& /*time*/)
 {
 	if (enabled) {
 		flush();

@@ -88,9 +88,6 @@ public:
 	XMLDocument(const string& filename);
 	XMLDocument(const ostringstream& stream);
 
-	XMLDocument(const XMLDocument& document);
-	const XMLDocument& operator=(const XMLDocument& document);
-
 private:
 	void handleDoc(xmlDocPtr doc);
 };

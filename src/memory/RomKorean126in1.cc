@@ -23,7 +23,7 @@ RomKorean126in1::~RomKorean126in1()
 {
 }
 
-void RomKorean126in1::reset(const EmuTime& time)
+void RomKorean126in1::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);
 	setRom (1, 0);
@@ -31,7 +31,7 @@ void RomKorean126in1::reset(const EmuTime& time)
 	setBank(3, unmappedRead);
 }
 
-void RomKorean126in1::writeMem(word address, byte value, const EmuTime& time)
+void RomKorean126in1::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	if (address == 0x4000) {
 		setRom(1, value);

@@ -8,18 +8,20 @@
 
 namespace openmsx {
 
-int dummyClose(ClientData instanceData, Tcl_Interp *interp)
+int dummyClose(ClientData /*instanceData*/, Tcl_Interp* /*interp*/)
 {
 	return 0;
 }
-int dummyInput(ClientData instanceData, char *buf, int bufSize, int *errorCodePtr)
+int dummyInput(ClientData /*instanceData*/, char* /*buf*/, int /*bufSize*/,
+               int* /*errorCodePtr*/)
 {
 	return 0;
 }
-void dummyWatch(ClientData instanceData, int mask)
+void dummyWatch(ClientData /*instanceData*/, int /*mask*/)
 {
 }
-int dummyGetHandle(ClientData instanceData, int direction, ClientData *handlePtr)
+int dummyGetHandle(ClientData /*instanceData*/, int /*direction*/,
+                   ClientData* /*handlePtr*/)
 {
 	return TCL_ERROR;
 }
@@ -34,6 +36,11 @@ Tcl_ChannelType Interpreter::channelType = {
 	NULL,			// Get option proc
 	dummyWatch,		// Watch for events on console
 	dummyGetHandle,		// Get a handle from the device
+	NULL,			// Tcl_DriverClose2Proc
+	NULL,			// Tcl_DriverBlockModeProc
+	NULL,			// Tcl_DriverFlushProc
+	NULL,			// Tcl_DriverHandlerProc
+	NULL,			// Tcl_DriverWideSeekProc
 };
 
 void Interpreter::init(const char* programName)
@@ -75,8 +82,8 @@ Interpreter& Interpreter::instance()
 	return oneInstance;
 }
 
-int Interpreter::outputProc(ClientData clientData, const char* buf,
-                 int toWrite, int* errorCodePtr)
+int Interpreter::outputProc(ClientData /*clientData*/, const char* buf,
+                 int toWrite, int* /*errorCodePtr*/)
 {
 	string output(buf, toWrite);
 	if (!output.empty()) {
@@ -91,7 +98,7 @@ void Interpreter::registerCommand(const string& name, Command& command)
 	                     static_cast<ClientData>(&command), NULL);
 }
 
-void Interpreter::unregisterCommand(const string& name, Command& command)
+void Interpreter::unregisterCommand(const string& name, Command& /*command*/)
 {
 	Tcl_DeleteCommand(interp, name.c_str());
 }
@@ -193,7 +200,7 @@ void Interpreter::unregisterSetting(SettingLeafNode& variable)
 }
 
 char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
-                           const char* part1, const char* part2, int flags)
+                           const char* part1, const char* /*part2*/, int flags)
 {
 	static string static_string;
 	

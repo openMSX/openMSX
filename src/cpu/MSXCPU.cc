@@ -282,14 +282,14 @@ MSXCPU::TimeInfoTopic::TimeInfoTopic(MSXCPU& parent_)
 {
 }
 
-void MSXCPU::TimeInfoTopic::execute(const vector<CommandArgument>& tokens,
+void MSXCPU::TimeInfoTopic::execute(const vector<CommandArgument>& /*tokens*/,
                                     CommandArgument& result) const
 {
 	EmuDuration dur = parent.getCurrentTimeUnsafe() - parent.reference;
 	result.setDouble(dur.toFloat());
 }
 
-string MSXCPU::TimeInfoTopic::help(const vector<string>& tokens) const
+string MSXCPU::TimeInfoTopic::help(const vector<string>& /*tokens*/) const
 {
 	return "Prints the time in seconds that the MSX is powered on\n";
 }

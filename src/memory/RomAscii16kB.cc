@@ -26,7 +26,7 @@ RomAscii16kB::~RomAscii16kB()
 {
 }
 
-void RomAscii16kB::reset(const EmuTime& time)
+void RomAscii16kB::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);
 	setRom (1, 0);
@@ -34,7 +34,7 @@ void RomAscii16kB::reset(const EmuTime& time)
 	setBank(3, unmappedRead);
 }
 
-void RomAscii16kB::writeMem(word address, byte value, const EmuTime& time)
+void RomAscii16kB::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)) {
 		byte region = ((address >> 12) & 1) + 1;

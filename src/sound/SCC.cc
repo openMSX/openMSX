@@ -116,7 +116,7 @@ const string& SCC::getDescription() const
 	                                     : desc_sccp;
 }
 
-void SCC::reset(const EmuTime& time)
+void SCC::reset(const EmuTime& /*time*/)
 {
 	if (currentChipMode != SCC_Real) {
 		setChipMode(SCC_Compatible);

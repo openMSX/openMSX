@@ -51,7 +51,7 @@ BitmapConverter<Pixel, zoom>::BitmapConverter(
 
 template <class Pixel, Renderer::Zoom zoom>
 void BitmapConverter<Pixel, zoom>::renderGraphic4(
-	Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1)
+	Pixel* pixelPtr, const byte* vramPtr0, const byte* /*vramPtr1*/)
 {
 	for (int n = 128; n--; ) {
 		byte colour = *vramPtr0++;
@@ -62,7 +62,7 @@ void BitmapConverter<Pixel, zoom>::renderGraphic4(
 
 template <class Pixel, Renderer::Zoom zoom>
 void BitmapConverter<Pixel, zoom>::renderGraphic5(
-	Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1)
+	Pixel* pixelPtr, const byte* vramPtr0, const byte* /*vramPtr1*/)
 {
 	for (int n = 128; n--; ) {
 		byte colour = *vramPtr0++;
@@ -181,7 +181,7 @@ void BitmapConverter<Pixel, zoom>::renderYAE(
 // TODO: Check what happens on real V9938.
 template <class Pixel, Renderer::Zoom zoom>
 void BitmapConverter<Pixel, zoom>::renderBogus(
-	Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1)
+	Pixel* pixelPtr, const byte* /*vramPtr0*/, const byte* /*vramPtr1*/)
 {
 	Pixel colour = palette16[0];
 	for (int n = 256; n--; ) *pixelPtr++ = colour;

@@ -46,7 +46,7 @@ byte IDEHD::identifyBlock[512] = {
 };
 
 
-IDEHD::IDEHD(const XMLElement& config, const EmuTime& time)
+IDEHD::IDEHD(const XMLElement& config, const EmuTime& /*time*/)
 {
 	buffer = new byte[512 * 256];
 
@@ -81,7 +81,7 @@ IDEHD::~IDEHD()
 }
 
 
-void IDEHD::reset(const EmuTime &time)
+void IDEHD::reset(const EmuTime& /*time*/)
 {
 	errorReg = 0x01;
 	sectorCountReg = 0x01;
@@ -95,7 +95,7 @@ void IDEHD::reset(const EmuTime &time)
 	setTransferWrite(false);
 }
 
-byte IDEHD::readReg(nibble reg, const EmuTime &time)
+byte IDEHD::readReg(nibble reg, const EmuTime& /*time*/)
 {
 	switch (reg) {
 	case 1:	// error register
@@ -138,7 +138,7 @@ byte IDEHD::readReg(nibble reg, const EmuTime &time)
 	}
 }
 
-void IDEHD::writeReg(nibble reg, byte value, const EmuTime &time)
+void IDEHD::writeReg(nibble reg, byte value, const EmuTime& /*time*/)
 {
 	switch (reg) {
 	case 1:	// feature register
@@ -189,7 +189,7 @@ void IDEHD::writeReg(nibble reg, byte value, const EmuTime &time)
 }
 
 
-word IDEHD::readData(const EmuTime &time)
+word IDEHD::readData(const EmuTime& /*time*/)
 {
 	if (!transferRead) {
 		// no read in progress
@@ -205,7 +205,7 @@ word IDEHD::readData(const EmuTime &time)
 	return result;
 }
 
-void IDEHD::writeData(word value, const EmuTime &time)
+void IDEHD::writeData(word value, const EmuTime& /*time*/)
 {
 	if (!transferWrite) {
 		// no write in progress

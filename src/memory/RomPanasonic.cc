@@ -36,10 +36,10 @@ RomPanasonic::~RomPanasonic()
 {
 }
 
-void RomPanasonic::reset(const EmuTime& time)
+void RomPanasonic::reset(const EmuTime& /*time*/)
 {
 	control = 0;
-	for (int region = 0; region < 8; region++) {
+	for (int region = 0; region < 8; ++region) {
 		bankSelect[region] = 0;
 		setRom(region, 0);
 	}
@@ -82,7 +82,7 @@ const byte* RomPanasonic::getReadCacheLine(word address) const
 	}
 }
 
-void RomPanasonic::writeMem(word address, byte value, const EmuTime& time)
+void RomPanasonic::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	//PRT_DEBUG("DEBUG write "<<hex<<(int)address<<
 	//          " "<<(int)value<<dec);

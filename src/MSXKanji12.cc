@@ -23,12 +23,12 @@ MSXKanji12::~MSXKanji12()
 {
 }
 
-void MSXKanji12::reset(const EmuTime& time)
+void MSXKanji12::reset(const EmuTime& /*time*/)
 {
 	adr = 0;	// TODO check this
 }
 
-byte MSXKanji12::readIO(byte port, const EmuTime& time)
+byte MSXKanji12::readIO(byte port, const EmuTime& /*time*/)
 {
 	byte result;
 	switch (port & 0x0F) {
@@ -54,7 +54,7 @@ byte MSXKanji12::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
-void MSXKanji12::writeIO(byte port, byte value, const EmuTime& time)
+void MSXKanji12::writeIO(byte port, byte value, const EmuTime& /*time*/)
 {
 	//PRT_DEBUG(MSXKanji12: write " << (int)port << " " << (int)value);
 	switch (port & 0x0F) {

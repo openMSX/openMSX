@@ -132,19 +132,19 @@ PixelRenderer::~PixelRenderer()
 	settings.getMaxFrameSkip()->removeListener(this);
 }
 
-void PixelRenderer::reset(const EmuTime &time)
+void PixelRenderer::reset(const EmuTime& time)
 {
 	displayEnabled = vdp->isDisplayEnabled();
 	frameStart(time);
 }
 
-void PixelRenderer::updateDisplayEnabled(bool enabled, const EmuTime &time)
+void PixelRenderer::updateDisplayEnabled(bool enabled, const EmuTime& time)
 {
 	sync(time, true);
 	displayEnabled = enabled;
 }
 
-void PixelRenderer::frameStart(const EmuTime &time)
+void PixelRenderer::frameStart(const EmuTime& /*time*/)
 {
 	accuracy = settings.getAccuracy()->getValue();
 
@@ -199,31 +199,31 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 }
 
 void PixelRenderer::updateHorizontalScrollLow(
-	byte scroll, const EmuTime &time
+	byte /*scroll*/, const EmuTime& time
 ) {
 	sync(time);
 }
 
 void PixelRenderer::updateHorizontalScrollHigh(
-	byte scroll, const EmuTime &time
+	byte /*scroll*/, const EmuTime& time
 ) {
 	sync(time);
 }
 
 void PixelRenderer::updateBorderMask(
-	bool masked, const EmuTime &time
+	bool /*masked*/, const EmuTime& time
 ) {
 	sync(time);
 }
 
 void PixelRenderer::updateMultiPage(
-	bool multiPage, const EmuTime &time
+	bool /*multiPage*/, const EmuTime& time
 ) {
 	sync(time);
 }
 
 void PixelRenderer::updateSpritesEnabled(
-	bool enabled, const EmuTime &time
+	bool /*enabled*/, const EmuTime& time
 ) {
 	sync(time, true);
 }
@@ -247,7 +247,7 @@ static inline bool overlap(
 	return false;
 }
 
-inline bool PixelRenderer::checkSync(int offset, const EmuTime &time)
+inline bool PixelRenderer::checkSync(int offset, const EmuTime& time)
 {
 	// TODO: Because range is entire VRAM, offset == address.
 
@@ -332,7 +332,7 @@ inline bool PixelRenderer::checkSync(int offset, const EmuTime &time)
 	}
 }
 
-void PixelRenderer::updateVRAM(unsigned offset, const EmuTime &time) {
+void PixelRenderer::updateVRAM(unsigned offset, const EmuTime& time) {
 	// Note: No need to sync if display is disabled, because then the
 	//       output does not depend on VRAM (only on background colour).
 	if (displayEnabled && checkSync(offset, time)) {
@@ -346,14 +346,14 @@ void PixelRenderer::updateVRAM(unsigned offset, const EmuTime &time) {
 	updateVRAMCache(offset);
 }
 
-void PixelRenderer::updateWindow(bool enabled, const EmuTime &time) {
+void PixelRenderer::updateWindow(bool /*enabled*/, const EmuTime& /*time*/) {
 	// The bitmapVisibleWindow has moved to a different area.
 	// This update is redundant: Renderer will be notified in another way
 	// as well (updateDisplayEnabled or updateNameBase, for example).
 	// TODO: Can this be used as the main update method instead?
 }
 
-void PixelRenderer::renderUntil(const EmuTime &time)
+void PixelRenderer::renderUntil(const EmuTime& time)
 {
 	// Translate from time to pixel position.
 	int limitTicks = vdp->getTicksThisFrame(time);
@@ -426,7 +426,7 @@ void PixelRenderer::renderUntil(const EmuTime &time)
 	nextY = limitY;
 }
 
-void PixelRenderer::update(const SettingLeafNode* setting)
+void PixelRenderer::update(const SettingLeafNode* /*setting*/)
 {
 	frameSkipCounter = 999;	// force drawing of frame
 }
