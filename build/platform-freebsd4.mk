@@ -1,6 +1,6 @@
 # $Id$
 #
-# Configuration for FreeBSD 4.x on x86 machines.
+# Configuration for FreeBSD 4.x.
 
 # Does platform support symlinks?
 USE_SYMLINK:=true

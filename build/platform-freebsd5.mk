@@ -1,6 +1,6 @@
 # $Id$
 #
-# Configuration for FreeBSD 5.x on x86 machines.
+# Configuration for FreeBSD 5.x.
 
 # Default compiler.
 OPENMSX_CXX?=g++
