@@ -6,7 +6,6 @@
 #include <list>
 #include "SettingListener.hh"
 #include "Command.hh"
-#include "Thread.hh"
 
 using std::list;
 
