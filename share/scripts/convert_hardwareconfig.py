@@ -27,7 +27,7 @@ ioAddresses = {
 	'Kanji1': [ (0xD8, 2, 'O'), (0xD9, 1, 'I') ],
 	'Kanji2': [ (0xDA, 2, 'O'), (0xDB, 1, 'I') ],
 	# TODO: [ (0xFC, 4, 'IO') ],
-	#       Memory mapper IO port are hardcoded in openMSX (because they are
+	#       Memory mapper IO ports are hardcoded in openMSX (because they are
 	#       shared between diffent memory mappers).
 	'MemoryMapper': [],
 	
@@ -75,6 +75,9 @@ ioAddresses = {
 	'Kanji12': [],
 	}
 
+def hexFill(number, size):
+	return ('0x%0' + str(size) + 'X') % number
+
 def getText(node):
 	assert len(node.childNodes) == 1
 	textNode = node.childNodes[0]
@@ -113,7 +116,6 @@ def convertDoc(dom):
 		if node.nodeType != dom.COMMENT_NODE: return False
 		if not node.nodeValue.startswith(' $Id'): return False
 		if not node.nodeValue.endswith('$ '): return False
-		#print 'found ID:', node.nodeValue
 		return True
 	if not isCVSId(dom.childNodes[0]):
 		print 'missing CVS id'
@@ -142,13 +144,23 @@ def convertDoc(dom):
 	convertRoot(dom.childNodes[2])
 
 def convertRoot(node):
+	doc = node.ownerDocument
+
+	# Process everything except devices.
+	externalSlotsNode = None
+	motherBoardNode = None
 	for child in list(node.childNodes):
 		if child.nodeType == node.ELEMENT_NODE:
 			if child.nodeName == 'config':
-				convertConfig(child)
-			elif child.nodeName == 'device':
-				convertDevice(child)
-			elif child.nodeName != 'info':
+				child = convertConfig(child)
+				if child is not None:
+					if child.nodeName == 'ExternalSlots':
+						externalSlotsNode = child
+						node.removeChild(child)
+					elif child.nodeName == 'MotherBoard':
+						motherBoardNode = child
+						node.removeChild(child)
+			elif child.nodeName not in ['device', 'info']:
 				print '  NOTE: ignoring new-style element at top level:', \
 					child.nodeName
 		elif child.nodeType == node.TEXT_NODE:
@@ -158,6 +170,134 @@ def convertRoot(node):
 		else:
 			print 'cannot handle node type at top level:', child
 			assert False
+
+	# Determine which slots are expanded.
+	slotExpanded = [ None ] * 4
+	if motherBoardNode is not None:
+		for child in motherBoardNode.childNodes:
+			if child.nodeType == node.ELEMENT_NODE:
+				assert child.nodeName == 'slot'
+				num = int(child.attributes['num'].nodeValue)
+				assert 0 <= num < 4
+				expanded = bool([ 'false', 'true' ].index(
+					child.attributes['expanded'].nodeValue
+					))
+				slotExpanded[num] = expanded
+		motherBoardNode.unlink()
+
+	# Determine which slots are external.
+	externalSlots = {}
+	if externalSlotsNode is not None:
+		for child in externalSlotsNode.childNodes:
+			if child.nodeType == node.ELEMENT_NODE:
+				assert child.nodeName.startswith('slot')
+				slot = map(int, getText(child).split('-'))
+				assert len(slot) == 2
+				externalSlots[tuple(slot)] = None
+
+	# Process devices.
+	devicesNode = doc.createElement('devices')
+	node.appendChild(devicesNode)
+	slottedDevices = {}
+	for child in list(node.childNodes):
+		if child.nodeType == node.ELEMENT_NODE and child.nodeName == 'device':
+			slotted, child = convertDevice(child)
+			if child is not None:
+				node.removeChild(child)
+				# Insert slot mapping, if any.
+				if slotted == []:
+					devicesNode.appendChild(child)
+				else:
+					primary, secondary, page = slotted[0]
+					pages = [ False ] * 4
+					for ps, ss, pg in slotted:
+						assert primary == ps and secondary == ss
+						assert -1 <= ps < 4
+						if ps == -1:
+							assert ss == -1
+						elif slotExpanded[ps]:
+							assert 0 <= ss < 4
+						else:
+							assert ss == 0
+						assert 0 <= pg < 4
+						pages[pg] = True
+					devices = slottedDevices.setdefault(
+						(primary, secondary), [] )
+					devices.append((child, pages))
+	def convertSlotted(parentNode, primary, secondary = 0):
+		if (primary, secondary) in externalSlots:
+			assert primary != -1
+			print '    external'
+			del externalSlots[(primary, secondary)]
+			parentNode.setAttribute('external', 'true')
+		else:
+			devices = slottedDevices.get((primary, secondary))
+			if devices is None:
+				return
+			del slottedDevices[primary, secondary]
+			for deviceNode, pages in devices:
+				page = 0
+				while page < 4:
+					# Skip empty pages.
+					while page < 4 and not pages[page]:
+						page += 1
+					if page == 4: break
+					# Iterate through non-empty pages.
+					start = page
+					while page < 4 and pages[page]:
+						page += 1
+					if page == start + 1:
+						print '    device "%s" in page %d' % (
+							deviceNode.tagName, start )
+					else:
+						print '    device "%s" in pages %d-%d' % (
+							deviceNode.tagName, start, page - 1 )
+					memNode = parentNode.ownerDocument.createElement('mem')
+					memNode.setAttribute(
+						'base', hexFill(start * 0x4000, 4) )
+					memNode.setAttribute(
+						'size', hexFill((page - start) * 0x4000, 4) )
+					deviceNode.appendChild(memNode)
+					parentNode.appendChild(deviceNode)
+	if (-1, -1) in slottedDevices:
+		print '  cartridge devices:'
+		primaryNode = doc.createElement('primary')
+		primaryNode.setAttribute('slot', 'any')
+		devicesNode.appendChild(primaryNode)
+		secondaryNode = doc.createElement('secondary')
+		secondaryNode.setAttribute('slot', 'any')
+		primaryNode.appendChild(secondaryNode)
+		convertSlotted(secondaryNode, primary, secondary)
+		if slottedDevices != {}:
+			print '  NOTE: file contains both fixed and variable slots'
+	if slottedDevices != {}:
+		for primary in range(4):
+			primaryNode = doc.createElement('primary')
+			primaryNode.setAttribute('slot', str(primary))
+			devicesNode.appendChild(primaryNode)
+			if slotExpanded[primary]:
+				for secondary in range(4):
+					print '  slot %d.%d:' % (primary, secondary)
+					secondaryNode = doc.createElement('secondary')
+					secondaryNode.setAttribute('slot', str(secondary))
+					primaryNode.appendChild(secondaryNode)
+					convertSlotted(secondaryNode, primary, secondary)
+			else:
+				print '  slot %d:' % primary
+				convertSlotted(primaryNode, primary)
+	leftoverDevices = list(slottedDevices.items())
+	leftoverDevices.sort()
+	for slot, deviceNode in leftoverDevices:
+		print '  NOTE: skipping device "%s" in unavailable ' \
+			'slot %d.%d page %d' % (
+			deviceNode.tagName, slot[0], slot[1], slot[2]
+			)
+	leftoverExternalSlots = list(externalSlots)
+	leftoverExternalSlots.sort()
+	for primary, secondary in leftoverExternalSlots:
+		print '  NOTE: skipping unavailable external slot %d.%d' % (
+			primary, secondary
+			)
 
 def convertConfig(node):
 	doc = node.ownerDocument
@@ -186,14 +326,15 @@ def convertConfig(node):
 		newNode.appendChild(doc.createTextNode(getParameter(node, 'type')))
 		node.parentNode.replaceChild(newNode, node)
 		node.unlink()
+		return None
 	elif configId not in [
 		'CassettePort', 'ExternalSlots', 'MotherBoard', 'RenShaTurbo'
 		]:
 		print '    NOTE: conversion of config type "%s" may be wrong' \
 			% configId
 		# TODO: CassettePort: if only whitespace text nodes, then remove them
-		# TODO: MotherBoard: if slot is expanded but empty, it will disappear
 		# TODO: myHD: conversion of IDE HD configuration is not implemented
+	return node
 
 def convertDevice(node):
 	print '  device:', node.attributes['id'].nodeValue
@@ -218,9 +359,10 @@ def convertDevice(node):
 		print '    removing CPU device'
 		node.parentNode.removeChild(node)
 		node.unlink()
-		return
+		return None, None
 	
 	# Convert parameters.
+	slotted = []
 	for child in list(node.childNodes):
 		if child.nodeType == node.ELEMENT_NODE:
 			if child.nodeName == 'type':
@@ -232,6 +374,9 @@ def convertDevice(node):
 				newName = getNewParameterName(deviceType, child.nodeName)
 				if deviceType == 'FDC' and newName == 'fdc_type':
 					deviceType = getText(child)
+					newName = None
+				elif newName == 'slotted':
+					slotted.append(parseSlotted(child))
 					newName = None
 				if newName is None:
 					print '    remove parameter "' + child.nodeName + '"'
@@ -274,12 +419,13 @@ def convertDevice(node):
 				assert num in [ 1, 2, 4, 8, 16]
 				assert direction in ['I', 'O', 'IO']
 				ioNode = node.ownerDocument.createElement('io')
-				ioNode.setAttribute('base', hex(base))
+				ioNode.setAttribute('base', hexFill(base, 2))
 				ioNode.setAttribute('num', str(num))
 				if direction != 'IO':
 					ioNode.setAttribute('type', direction)
 				node.appendChild(ioNode)
-				#print 'I/O node:', ioNode
+
+	return slotted, node
 
 def getNewParameterName(deviceType, name):
 	return {
@@ -310,10 +456,24 @@ def convertParameter(node):
 		assert len(node.childNodes) == 1
 		value = node.childNodes[0].nodeValue
 		assert value in [ 'true', 'false' ], value
-		node = renameElement(node, 'slot')
-		node.setAttribute('num', name)
-		node.setAttribute('expanded', value)
-		return node
+		newNode = node.ownerDocument.createElement('slot')
+		newNode.setAttribute('num', name)
+		newNode.setAttribute('expanded', value)
+		node.parentNode.replaceChild(newNode, node)
+		node.unlink()
+		return newNode
+
+def parseSlotted(node):
+	primary, secondary, page = None, None, None
+	for child in list(node.childNodes):
+		if child.nodeType == node.ELEMENT_NODE:
+			if child.nodeName == 'ps':
+				primary = int(getText(child))
+			elif child.nodeName == 'ss':
+				secondary = int(getText(child))
+			elif child.nodeName == 'page':
+				page = int(getText(child))
+	return primary, secondary, page
 
 if len(sys.argv) != 3:
 	print 'Usage: convert_hardwareconfig.py <indir> <outdir>'
@@ -331,7 +491,6 @@ for root, dirs, files in os.walk(indir):
 		dom = parse(root + '/hardwareconfig.xml')
 		dom.normalize()
 		convertDoc(dom)
-		#print dom.toxml()
 		if not os.path.isdir(outpath):
 			os.makedirs(outpath)
 		out = open(outpath + '/hardwareconfig.xml', 'w')
