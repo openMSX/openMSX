@@ -121,15 +121,16 @@ EnumSettingBase<ValueType>::EnumSettingBase(
 template<typename ValueType>
 void EnumSettingBase<ValueType>::init()
 {
-	// GCC 3.4-pre complains if superclass is not explicit here.
-	SettingLeafNode::type = getSummary();
-	InfoCommand::instance().registerTopic(getName(), &enumInfo);
+	// GCC 3.4-pre complains if "this" is not explicit here.
+	this->type = getSummary();
+	InfoCommand::instance().registerTopic(this->getName(), &enumInfo);
 }
 
 template<typename ValueType>
 EnumSettingBase<ValueType>::~EnumSettingBase()
 {
-	InfoCommand::instance().unregisterTopic(getName(), &enumInfo);
+	// GCC 3.4-pre complains if "this" is not explicit here.
+	InfoCommand::instance().unregisterTopic(this->getName(), &enumInfo);
 }
 
 template<typename ValueType>
@@ -137,7 +138,8 @@ string EnumSettingBase<ValueType>::getValueString() const
 {
 	for (typename Map::const_iterator it = enumMap.begin();
 	     it != enumMap.end() ; ++it) {
-		if (it->second == getValue()) {
+		// GCC 3.4-pre complains if "this" is not explicit here.
+		if (it->second == this->getValue()) {
 			return it->first;
 		}
 	}
