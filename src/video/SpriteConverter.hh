@@ -155,7 +155,7 @@ public:
 			}
 			if (leftMost > pixelDone) {
 				pixelDone = leftMost;
-				if (pixelDone >= 256) break;
+				if (pixelDone >= maxX) break;
 			}
 			// Calculate colour of pixel to be plotted.
 			byte colour = 0xFF;
