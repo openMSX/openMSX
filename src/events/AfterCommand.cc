@@ -5,7 +5,6 @@
 #include "CommandController.hh"
 #include "CliCommOutput.hh"
 #include "Scheduler.hh"
-#include "MSXCPU.hh"
 #include "EventDistributor.hh"
 
 using std::ostringstream;
@@ -89,7 +88,7 @@ string AfterCommand::afterNew(const vector<string>& tokens, AfterType type)
 	cmd->id = ++lastAfterId;
 	afterCmds[cmd->id] = cmd;
 	
-	EmuTime t = MSXCPU::instance().getCurrentTime() + EmuDuration(time);
+	EmuTime t = Scheduler::instance().getCurrentTime() + EmuDuration(time);
 	Scheduler::instance().setSyncPoint(t, cmd);
 
 	ostringstream str;
@@ -152,7 +151,7 @@ bool AfterCommand::signalEvent(const SDL_Event& event) throw()
 		AfterCmd* cmd = it->second;
 		if (cmd->type == IDLE) {
 			Scheduler::instance().removeSyncPoint(cmd);
-			EmuTime t = MSXCPU::instance().getCurrentTime() +
+			EmuTime t = Scheduler::instance().getCurrentTime() +
 			            EmuDuration(cmd->time);
 			Scheduler::instance().setSyncPoint(t, cmd);
 		}

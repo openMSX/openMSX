@@ -98,7 +98,7 @@ int* DACSound16S::updateBuffer(int length) throw()
 		return NULL;
 	}
 	
-	EmuTime now = cpu.getCurrentTime();
+	EmuTime now = cpu.getCurrentTimeUnsafe(); // can be one instruction off
 	assert(lastTime <= now);
 	EmuDuration total = now - lastTime;
 

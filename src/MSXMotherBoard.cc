@@ -53,7 +53,8 @@ void MSXMotherBoard::removeDevice(MSXDevice *device)
 
 void MSXMotherBoard::resetMSX()
 {
-	const EmuTime& time = MSXCPU::instance().getCurrentTime();
+	const EmuTime& time = Scheduler::instance().getCurrentTime();
+	PRT_DEBUG("MSXMotherBoard::reset() @ " << time);
 	MSXCPUInterface::instance().reset();
 	for (list<MSXDevice*>::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
@@ -64,7 +65,8 @@ void MSXMotherBoard::resetMSX()
 
 void MSXMotherBoard::reInitMSX()
 {
-	const EmuTime& time = MSXCPU::instance().getCurrentTime();
+	const EmuTime& time = Scheduler::instance().getCurrentTime();
+	PRT_DEBUG("MSXMotherBoard::reinit() @ " << time);
 	MSXCPUInterface::instance().reset();
 	for (list<MSXDevice*>::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {

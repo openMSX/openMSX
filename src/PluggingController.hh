@@ -13,7 +13,7 @@ namespace openmsx {
 
 class Connector;
 class Pluggable;
-class MSXCPU;
+class Scheduler;
 class CommandController;
 class InfoCommand;
 
@@ -114,7 +114,7 @@ private:
 	} connectorInfo;
 	friend class ConnectorInfo;
 
-	MSXCPU& msxcpu;
+	Scheduler& scheduler;
 	CommandController& commandController;
 	InfoCommand& infoCommand;
 };

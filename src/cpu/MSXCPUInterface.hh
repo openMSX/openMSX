@@ -19,6 +19,7 @@ class DummyDevice;
 class MSXConfig;
 class CommandController;
 class MSXCPU;
+class Scheduler;
 class CartridgeSlotManager;
 class Debugger;
 class CliCommOutput;
@@ -224,6 +225,7 @@ private:
 	MSXConfig& msxConfig;
 	CommandController& commandController;
 	MSXCPU& msxcpu;
+	Scheduler& scheduler;
 	CartridgeSlotManager& slotManager;
 	Debugger& debugger;
 	CliCommOutput& cliCommOutput;

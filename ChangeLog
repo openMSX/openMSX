@@ -1,5 +1,12 @@
 $Id$
 
+2003-12-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* added a 'safe' getCurrentTime() method in Scheduler, and use this
+	  instead of the getCurrentTime() method in MSXCPU. Renamed the latter
+	  to getCurrentTimeUnsafe(). See also comments in MSXCPU.hh
+	* Only quit scheduler loop when it's not being called resursively, see
+	  comments in Scheduler.cc
+
 2003-12-07 Maarten ter Huurne <maarten@treewalker.org>
 	* Integrated Scale2x algorithm:
 	    http://scale2x.sourceforge.net/

@@ -23,8 +23,17 @@ public:
 	static MSXCPU& instance();
 
 	virtual void reset(const EmuTime &time);
+
+	/**
+	 * The time returned by this method is not safe to use for Scheduler
+	 * or IO related stuff (because it can sometimes already be higher then
+	 * still to be scheduled sync points). Use Scheduler::getCurrentTime()
+	 * instead.
+	 * OTOH this time is usally more accurate, so you can use this method
+	 * for, for example, sound related calculations
+	 */
+	const EmuTime& getCurrentTimeUnsafe() const;
 	
-	const EmuTime& getCurrentTime() const;
 	void setActiveCPU(CPUType cpu);
 	
 	/**

@@ -17,7 +17,7 @@ namespace openmsx {
 const EmuTime Scheduler::ASAP;
 
 Scheduler::Scheduler()
-	: sem(1),
+	: sem(1), depth(0),
 	  pauseSetting("pause", "pauses the emulation", false),
 	  powerSetting("power", "turn power on/off", false),
 	  leds(Leds::instance()),
@@ -95,16 +95,32 @@ void Scheduler::removeSyncPoint(Schedulable* device, int userData)
 	sem.up();
 }
 
+const EmuTime& Scheduler::getCurrentTime() const
+{
+	return scheduleTime;
+}
+
 void Scheduler::stopScheduling()
 {
-	emulationRunning = false;
-	setSyncPoint(ASAP, NULL);	// dummy device
-	unpause();
+	PRT_DEBUG("schedule stop @ " << scheduleTime);
+	setSyncPoint(ASAP, this);
 }
 
 void Scheduler::schedule(const EmuTime &limit)
 {
+	++depth;
 	while (true) {
+		if (!emulationRunning) {
+			// only when not called resursivly it's safe to break
+			// the loop other cases, just unpause and really quit
+			// when we're back at top level
+			if (depth == 1) {
+				break;
+			} else {
+				unpause();
+			}
+		}
+		
 		// Get next sync point.
 		sem.down();
 		const SynchronizationPoint sp =
@@ -115,9 +131,10 @@ void Scheduler::schedule(const EmuTime &limit)
 
 		// Return when we've gone far enough.
 		// If limit and time are both infinity, scheduling will continue.
-		if (limit < time || !emulationRunning) {
+		if (limit < time) {
 			sem.up();
-			return;
+			scheduleTime = limit;
+			break;
 		}
 
 		if (time == ASAP) {
@@ -151,6 +168,7 @@ void Scheduler::schedule(const EmuTime &limit)
 			eventDistributor.poll();
 		}
 	}
+	--depth;
 }
 
 void Scheduler::scheduleDevice(
@@ -191,6 +209,7 @@ void Scheduler::powerOff()
 	leds.setLed(Leds::POWER_OFF);
 }
 
+// SettingListener
 void Scheduler::update(const SettingLeafNode* setting) throw()
 {
 	if (setting == &pauseSetting) {
@@ -212,10 +231,23 @@ void Scheduler::update(const SettingLeafNode* setting) throw()
 	}
 }
 
+// EventListener
 bool Scheduler::signalEvent(const SDL_Event& event) throw()
 {
 	stopScheduling();
 	return true;
+}
+
+// Schedulable
+void Scheduler::executeUntil(const EmuTime& time, int userData) throw()
+{
+	emulationRunning = false;
+}
+
+const string& Scheduler::schedName() const
+{
+	static const string name("Scheduler");
+	return name;
 }
 
 

@@ -9,6 +9,7 @@
 #include "SettingListener.hh"
 #include "EventListener.hh"
 #include "Semaphore.hh"
+#include "Schedulable.hh"
 
 using std::vector;
 
@@ -18,10 +19,9 @@ class Leds;
 class MSXCPU;
 class CommandController;
 class EventDistributor;
-class Schedulable;
 class Renderer;
 
-class Scheduler : private SettingListener, private EventListener
+class Scheduler : private SettingListener, private EventListener, private Schedulable
 {
 private:
 	class SynchronizationPoint
@@ -76,6 +76,11 @@ public:
 	void removeSyncPoint(Schedulable* device, int userdata = 0);
 
 	/**
+	 * Get the current schedueler time. 
+	 */
+	const EmuTime& getCurrentTime() const;
+	
+	/**
 	 * Schedule till a certain moment in time.
 	 * It's alllowed to call this method recursivly.
 	 */
@@ -123,11 +128,16 @@ private:
 	void unpause();
 	void stopScheduling();
 
+	// Schedulable
+	virtual void executeUntil(const EmuTime& time, int userData) throw();
+	virtual const string& schedName() const;
+	
 	/** Vector used as heap, not a priority queue because that
 	  * doesn't allow removal of non-top element.
 	  */
 	vector<SynchronizationPoint> syncPoints;
 	Semaphore sem;	// protects syncPoints
+	unsigned depth;	// recursion depth
 
 	/** Should the emulation continue running?
 	  */

@@ -102,7 +102,7 @@ const EmuTime &MSXCPU::getTargetTime() const
 	return activeCPU->getTargetTime();
 }
 
-const EmuTime &MSXCPU::getCurrentTime() const
+const EmuTime &MSXCPU::getCurrentTimeUnsafe() const
 {
 	return activeCPU->getCurrentTime();
 }
@@ -236,7 +236,7 @@ MSXCPU::TimeInfoTopic::TimeInfoTopic(MSXCPU& parent_)
 string MSXCPU::TimeInfoTopic::execute(const vector<string>& tokens) const
 	throw()
 {
-	EmuDuration dur = parent.getCurrentTime() - parent.reference;
+	EmuDuration dur = parent.getCurrentTimeUnsafe() - parent.reference;
 	ostringstream str;
 	str.precision(3);
 	str << std::fixed << std::showpoint << dur.toFloat() << '\n';

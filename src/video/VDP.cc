@@ -33,7 +33,7 @@ TODO:
 #include "RenderSettings.hh"
 #include "RendererFactory.hh"
 #include "Debugger.hh"
-#include "MSXCPU.hh"
+#include "Scheduler.hh"
 
 
 namespace openmsx {
@@ -1057,7 +1057,7 @@ byte VDP::VDPRegDebug::read(unsigned address)
 
 void VDP::VDPRegDebug::write(unsigned address, byte value)
 {
-	const EmuTime& time = MSXCPU::instance().getCurrentTime();
+	const EmuTime& time = Scheduler::instance().getCurrentTime();
 	parent.changeRegister(address, value, time);
 }
 
@@ -1082,7 +1082,7 @@ const string& VDP::VDPStatusRegDebug::getDescription() const
 
 byte VDP::VDPStatusRegDebug::read(unsigned address)
 {
-	const EmuTime& time = MSXCPU::instance().getCurrentTime();
+	const EmuTime& time = Scheduler::instance().getCurrentTime();
 	return parent.peekStatusReg(address, time);
 }
 

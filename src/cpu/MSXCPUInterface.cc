@@ -7,6 +7,7 @@
 #include "DummyDevice.hh"
 #include "CommandController.hh"
 #include "MSXCPU.hh"
+#include "Scheduler.hh"
 #include "MSXConfig.hh"
 #include "Config.hh"
 #include "CartridgeSlotManager.hh"
@@ -41,6 +42,7 @@ MSXCPUInterface::MSXCPUInterface()
 	  msxConfig(MSXConfig::instance()),
 	  commandController(CommandController::instance()),
 	  msxcpu(MSXCPU::instance()),
+	  scheduler(Scheduler::instance()),
 	  slotManager(CartridgeSlotManager::instance()),
 	  debugger(Debugger::instance()),
 	  cliCommOutput(CliCommOutput::instance())
@@ -426,7 +428,7 @@ byte MSXCPUInterface::MemoryDebug::read(unsigned address)
 
 void MSXCPUInterface::MemoryDebug::write(unsigned address, byte value)
 {
-	const EmuTime& time = parent.msxcpu.getCurrentTime();
+	const EmuTime& time = parent.scheduler.getCurrentTime();
 	return parent.writeMem(address, value, time);
 }
 
@@ -457,7 +459,7 @@ byte MSXCPUInterface::SlottedMemoryDebug::read(unsigned address)
 
 void MSXCPUInterface::SlottedMemoryDebug::write(unsigned address, byte value)
 {
-	const EmuTime& time = parent.msxcpu.getCurrentTime();
+	const EmuTime& time = parent.scheduler.getCurrentTime();
 	return parent.writeSlottedMem(address, value, time);
 }
 
@@ -483,13 +485,13 @@ const string& MSXCPUInterface::IODebug::getDescription() const
 
 byte MSXCPUInterface::IODebug::read(unsigned address)
 {
-	const EmuTime& time = parent.msxcpu.getCurrentTime();
+	const EmuTime& time = parent.scheduler.getCurrentTime();
 	return parent.readIO((word)address, time); // TODO make peekIO() method
 }
 
 void MSXCPUInterface::IODebug::write(unsigned address, byte value)
 {
-	const EmuTime& time = parent.msxcpu.getCurrentTime();
+	const EmuTime& time = parent.scheduler.getCurrentTime();
 	parent.writeIO((word)address, value, time);
 }
 

@@ -3,7 +3,7 @@
 #include <cassert>
 #include <cstdio>
 #include "CommandController.hh"
-#include "MSXCPU.hh"
+#include "Scheduler.hh"
 #include "PluggingController.hh"
 #include "Connector.hh"
 #include "Pluggable.hh"
@@ -19,7 +19,7 @@ PluggingController::PluggingController()
 	  unplugCmd(*this),
 	  pluggableInfo(*this),
 	  connectorInfo(*this),
-	  msxcpu(MSXCPU::instance()),
+	  scheduler(Scheduler::instance()),
 	  commandController(CommandController::instance()),
 	  infoCommand(InfoCommand::instance())
 {
@@ -109,7 +109,7 @@ string PluggingController::PlugCmd::execute(const vector<string> &tokens)
 	throw(CommandException)
 {
 	string result;
-	const EmuTime &time = parent.msxcpu.getCurrentTime();
+	const EmuTime &time = parent.scheduler.getCurrentTime();
 	switch (tokens.size()) {
 		case 1: {
 			for (vector<Connector *>::const_iterator it =
@@ -210,7 +210,7 @@ string PluggingController::UnplugCmd::execute(const vector<string> &tokens)
 	if (connector == NULL) {
 		throw CommandException("No such connector");
 	}
-	const EmuTime &time = parent.msxcpu.getCurrentTime();
+	const EmuTime &time = parent.scheduler.getCurrentTime();
 	connector->unplug(time);
 	return "";
 }

@@ -173,7 +173,7 @@ void Mixer::reInit()
 {
 	samplesLeft = audioSpec.samples;
 	offset = 0;
-	prevTime = cpu.getCurrentTime(); // !! can be one instruction off
+	prevTime = cpu.getCurrentTimeUnsafe(); // !! can be one instruction off
 }
 
 void Mixer::updateStream(const EmuTime &time)
