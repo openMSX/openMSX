@@ -4,6 +4,9 @@ $Id$
 	* lots of small C++ standard compliancy fixes
 	* Z80Core.hh -> Z80Core.nn
 	* more disk support, still partially works only
+	* disk support now works completely, but not yet
+	  for all programs [starquake, on mania036.dsk
+	  works completely]
 
 2001-12-31 Maarten ter Huurne <mth@stack.nl>
 	* Render accuracy is now one line instead of one frame.

@@ -144,7 +144,10 @@ void MSXDiskRomPatch::PHYDIO() const
 
 	CPU::CPURegs regs(cpu->getCPURegs());
 	
-	regs.IFF1 = true;
+	// stolen from Z80::ei()
+	regs.IFF1 = false;		// no ints after this instruction
+	regs.nextIFF1 = true;	// but allow them after next instruction
+	regs.IFF2 = true;
 	
 	// drive #, 0="A:", 1="B:", ..
 	byte drive = regs.AF.B.h;
@@ -158,11 +161,28 @@ void MSXDiskRomPatch::PHYDIO() const
 	byte media_descriptor = (regs.BC.B.l - 0xF8);
 	// read or write, Carry==write
 	bool write = (regs.AF.B.l & Z80::C_FLAG);
-	PRT_DEBUG("    drive: " << drive);
+#ifdef DEBUG
+	std::string driveletter("A");
+	driveletter[0] += drive;
+#endif
+	PRT_DEBUG("    drive: " << driveletter << ":");
+
+	if (drive >= MSXDiskRomPatch::LastDrive)
+	{
+		PRT_DEBUG("    Illegal Drive letter " << driveletter << ":");
+#ifdef DEBUG
+		assert(false);
+#endif
+		// illegal drive letter -> "Not Ready"
+		regs.AF.w = 0x0201;
+		cpu->setCPURegs(regs);
+		return;
+	}
+
 	PRT_DEBUG("    num_sectors: " << static_cast<int>(num_sectors));
 	PRT_DEBUG("    sector_number: " << static_cast<int>(sector_number));
-	PRT_DEBUG("    transfer_address: " << std::hex << transfer_address << std::dec);
-	PRT_DEBUG("    media_descriptor: " << std::hex << static_cast<int>(media_descriptor) << std::dec);
+	PRT_DEBUG("    transfer_address: 0x" << std::hex << transfer_address << std::dec);
+	PRT_DEBUG("    media_descriptor: 0x" << std::hex << static_cast<int>(media_descriptor) << std::dec);
 	PRT_DEBUG("    write/read: " << std::string(write?"write":"read"));
 
 	if (disk[drive] == 0)
@@ -193,6 +213,17 @@ void MSXDiskRomPatch::PHYDIO() const
 	EmuTime dummy(0);
 	int pri_slot = motherboard->readIO(0xA8, dummy);
 	int sec_slot = cpu->readMem(0xFFFF)^0xFF;
+	PRT_DEBUG("Primary: "
+		<< "s3:" << ((pri_slot & 0xC0)>>6) << " "
+		<< "s2:" << ((pri_slot & 0x30)>>4) << " "
+		<< "s1:" << ((pri_slot & 0x0C)>>2) << " "
+		<< "s0:" << ((pri_slot & 0x03)>>0));
+	PRT_DEBUG("Secundary: "
+		<< "s3:" << ((sec_slot & 0xC0)>>6) << " "
+		<< "s2:" << ((sec_slot & 0x30)>>4) << " "
+		<< "s1:" << ((sec_slot & 0x0C)>>2) << " "
+		<< "s0:" << ((sec_slot & 0x03)>>0));
+
 	motherboard->writeIO(0xA8, 0xFF, dummy);
 	cpu->writeMem(0xFFFF,0xFF);
 	
@@ -259,10 +290,27 @@ void MSXDiskRomPatch::DSKCHG() const
 	// drive #, 0="A:", 1="B:", ..
 	byte drive = regs.AF.B.h;
 
-	PRT_DEBUG("    drive: " << drive);
+#ifdef DEBUG
+	std::string driveletter("A");
+	driveletter[0] += drive;
+#endif
+	PRT_DEBUG("    drive: " << driveletter << ":");
+
+	if (drive >= MSXDiskRomPatch::LastDrive)
+	{
+		PRT_DEBUG("    Illegal Drive letter " << driveletter << ":");
+#ifdef DEBUG
+		assert(false);
+#endif
+		// illegal drive letter -> "Not Ready"
+		regs.AF.w = 0x0201;
+		cpu->setCPURegs(regs);
+		return;
+	}
 
 	if (disk[drive] == 0)
 	{
+		PRT_DEBUG("    No Disk File For Drive " << driveletter << ":");
 		// no disk file -> "Not Ready"
 		regs.AF.w = 0x0201;
 		cpu->setCPURegs(regs);
@@ -286,16 +334,33 @@ void MSXDiskRomPatch::GETDPB() const
 	// drive #, 0="A:", 1="B:", ..
 	byte drive = regs.AF.B.h;
 
+#ifdef DEBUG
+	std::string driveletter("A");
+	driveletter[0] += drive;
+#endif
+
+	if (drive >= MSXDiskRomPatch::LastDrive)
+	{
+		PRT_DEBUG("    Illegal Drive letter " << driveletter << ":");
+#ifdef DEBUG
+		assert(false);
+#endif
+		// illegal drive letter -> "Not Ready"
+		regs.AF.w = 0x0201;
+		cpu->setCPURegs(regs);
+		return;
+	}
+
 	// media descriptor?
 	byte media_descriptor1 = regs.BC.B.h;
 	byte media_descriptor2 = regs.BC.B.l;
 
 	int DPB_base_address = regs.HL.w;
 
-	PRT_DEBUG("    drive: " << drive);
+	PRT_DEBUG("    drive: " << driveletter << ":");
 	PRT_DEBUG("    media_descriptor1: " << std::hex << static_cast<int>(media_descriptor1) << std::dec);
 	PRT_DEBUG("    media_descriptor2: " << std::hex << static_cast<int>(media_descriptor2) << std::dec);
-	PRT_DEBUG("    DPB_base_address: " << std::hex << DPB_base_address << std::dec);
+	PRT_DEBUG("    DPB_base_address: 0x" << std::hex << DPB_base_address << std::dec);
 
 	if (disk[drive] == 0)
 	{
@@ -309,38 +374,83 @@ void MSXDiskRomPatch::GETDPB() const
 	disk[drive]->seek(0);
 	disk[drive]->read(buffer, MSXDiskRomPatch::sector_size);
 
-	int bytes_per_sector = (int)(buffer[0x0C]*0x100 + buffer[0x0B]);
-	int sectors_per_disk = (int)(buffer[0x14]*0x100 + buffer[0x13]);
-	int sectors_per_FAT  = (int)(buffer[0x17]*0x100 + buffer[0x16]);
-	int reserved_sectors = (int)(buffer[0x0F]*0x100 + buffer[0x0E]);
+	int bytes_per_sector = static_cast<int>(buffer[0x0C]*0x100 + buffer[0x0B]);
+	int sectors_per_disk = static_cast<int>(buffer[0x14]*0x100 + buffer[0x13]);
+	int sectors_per_FAT  = static_cast<int>(buffer[0x17]*0x100 + buffer[0x16]);
+	int reserved_sectors = static_cast<int>(buffer[0x0F]*0x100 + buffer[0x0E]);
+	PRT_DEBUG("    bytes_per_sector: 0x"
+		<< std::hex << bytes_per_sector << std::dec
+		<< " (" << bytes_per_sector << ")");
+	PRT_DEBUG("    sectors_per_disk: 0x"
+		<< std::hex << sectors_per_disk << std::dec
+		<< " (" << sectors_per_disk << ")");
+	PRT_DEBUG("    sectors_per_FAT: 0x"
+		<< std::hex << sectors_per_FAT << std::dec
+		<< " (" << sectors_per_FAT << ")");
+	PRT_DEBUG("    reserved_sectors: 0x"
+		<< std::hex << reserved_sectors << std::dec
+		<< " (" << reserved_sectors << ")");
 
+	// MEDIA [0 (1)]
 	cpu->writeMem(DPB_base_address + 0x01 , buffer[0x15]); // media type
+	PRT_DEBUG("    media type: 0x" << std::hex << static_cast<int>(buffer[0x15]) << std::dec);
+
+	// SECSIZE [1 (2)]
 	cpu->writeMem(DPB_base_address + 0x02 , buffer[0x0B]); // sector size
 	cpu->writeMem(DPB_base_address + 0x03 , buffer[0x0C]);
+
+	// DIRMSK [3 (1)]
 	// TODO rewrite next 2 lines to be readable: XXX
 	int bytes_per_sector_shift = (bytes_per_sector >> 5)-1;
 	int i;
 	for (i = 0; bytes_per_sector_shift & (1 << i); i++);
 	cpu->writeMem(DPB_base_address + 0x04 , bytes_per_sector_shift); // directory mask/shift
+	// DIRSHIFT [4 (1)]
 	cpu->writeMem(DPB_base_address + 0x05 , i);
+	PRT_DEBUG("    directory mask/shift: 0x" << std::hex << bytes_per_sector_shift << "/0x" << i << std::dec);
+
+	// CLUSMSK [5 (1)]
 	int cluster_mask_shift = buffer[0x0D]-1;
 	for (i = 0; cluster_mask_shift & (1 << i); i++);
 	cpu->writeMem(DPB_base_address + 0x06 , cluster_mask_shift); // cluster mask/shift
+	// CLUSSHFT [6 (1)]
 	cpu->writeMem(DPB_base_address + 0x07 , i+1);
+	PRT_DEBUG("    cluster mask/shift: 0x" << std::hex << cluster_mask_shift << "/0x" << i+1 << std::dec);
+
+	// FIRFAT [7 (2)]
 	cpu->writeMem(DPB_base_address + 0x08 , buffer[0x0E]); // sector # of
 	cpu->writeMem(DPB_base_address + 0x09 , buffer[0x0F]); // first FAT
+
+	// FATCNT [9 (1)]
 	cpu->writeMem(DPB_base_address + 0x0A , buffer[0x10]); // # of FATS
+	PRT_DEBUG("    number of FATS: 0x" << std::hex << static_cast<int>(buffer[0x10]) << std::dec);
+
+	// MAXENT [A (1)]
 	cpu->writeMem(DPB_base_address + 0x0B , buffer[0x11]); // # of directory entries
+	PRT_DEBUG("    number of directory entries: 0x" << std::hex << static_cast<int>(buffer[0x11]) << std::dec);
+
+	// FIRSEC [B (2)]
 	int sect_num_of_data =
 		reserved_sectors + buffer[0x10]*sectors_per_FAT
 		+ 32*buffer[0x11]/bytes_per_sector;
 	cpu->writeMem(DPB_base_address + 0x0C, sect_num_of_data & 0xFF); // sector number of data
 	cpu->writeMem(DPB_base_address + 0x0D, (sect_num_of_data>>8) & 0xFF);
-	cpu->writeMem(DPB_base_address + 0x0E, buffer[0x16]); // sectors per fat
+	PRT_DEBUG("    sector number of data: " << std::hex << sect_num_of_data << std::dec);
+
+	// MAXCLUS
+	int maxclus = (sectors_per_disk-sect_num_of_data)/buffer[0x0D];
+	cpu->writeMem(DPB_base_address + 0x0E, maxclus & 0xFF);
+	cpu->writeMem(DPB_base_address + 0x0F, (maxclus>>8) & 0xFF);
+
+	// FATSIZ [F (1)]
+	cpu->writeMem(DPB_base_address + 0x10, buffer[0x16]); // sectors per fat
+
+	// FIRDIR [10 (2)]
 	int sect_num_of_dir =
 		reserved_sectors + buffer[0x10]*sectors_per_FAT;
-	cpu->writeMem(DPB_base_address + 0x0F, sect_num_of_dir & 0xFF); // sector # of dir
-	cpu->writeMem(DPB_base_address + 0x10, (sect_num_of_dir>>8) & 0xFF);
+	cpu->writeMem(DPB_base_address + 0x11, sect_num_of_dir & 0xFF); // sector # of dir
+	cpu->writeMem(DPB_base_address + 0x12, (sect_num_of_dir>>8) & 0xFF);
+	PRT_DEBUG("    sector number of dir: " << std::hex << sect_num_of_dir << std::dec);
 
 	regs.AF.B.l &= (~Z80::C_FLAG);
 	cpu->setCPURegs(regs);
