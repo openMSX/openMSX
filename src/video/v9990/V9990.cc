@@ -9,13 +9,10 @@
 
 #include <iomanip>
 #include <cassert>
-
-#include "V9990.hh"
-
 #include "Scheduler.hh"
-#include "MSXConfig.hh"
 #include "Config.hh"
 #include "Debugger.hh"
+#include "V9990.hh"
 
 namespace openmsx {
 

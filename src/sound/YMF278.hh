@@ -13,8 +13,6 @@
 
 namespace openmsx {
 
-class MSXConfig;
-
 class YMF278Slot
 {
 public:

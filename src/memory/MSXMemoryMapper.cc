@@ -5,7 +5,6 @@
 #include "MSXMapperIO.hh"
 #include "Config.hh"
 #include "MSXCPUInterface.hh"
-#include "MSXConfig.hh"
 #include "Debugger.hh"
 #include "FileContext.hh"
 

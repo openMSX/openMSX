@@ -1,7 +1,6 @@
 // $Id$
 
 #include "RomFactory.hh"
-#include "MSXConfig.hh"
 #include "RomTypes.hh"
 #include "RomInfo.hh"
 #include "RomPageNN.hh"

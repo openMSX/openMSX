@@ -6,7 +6,7 @@
 #include "JoystickDevice.hh"
 #include "EventListener.hh"
 #include "Keys.hh"
-#include "MSXConfig.hh"
+#include "Config.hh"
 
 namespace openmsx {
 

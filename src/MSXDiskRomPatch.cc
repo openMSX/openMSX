@@ -2,7 +2,6 @@
 
 #include "openmsx.hh"
 #include "MSXDiskRomPatch.hh"
-#include "MSXConfig.hh"
 #include "CPU.hh"
 #include "MSXCPUInterface.hh"
 #include "DiskDrive.hh"

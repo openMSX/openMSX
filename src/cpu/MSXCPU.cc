@@ -4,7 +4,6 @@
 #include <sstream>
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
-#include "MSXConfig.hh"
 #include "CPU.hh"
 #include "InfoCommand.hh"
 #include "Debugger.hh"

@@ -6,14 +6,12 @@
  *  in any of your programs.
  */
 
-#include "SDLConsole.hh"
-#include "SDLFont.hh"
-#include "MSXConfig.hh"
-#include "File.hh"
-#include "CommandConsole.hh"
 #include <cassert>
 #include <SDL_image.h>
-
+#include "SDLConsole.hh"
+#include "SDLFont.hh"
+#include "File.hh"
+#include "CommandConsole.hh"
 
 namespace openmsx {
 

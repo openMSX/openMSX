@@ -1,16 +1,13 @@
 // $Id$
 
+#include <cassert>
+#include <SDL_image.h>
 #include "GLConsole.hh"
-
-#include "MSXConfig.hh"
 #include "DummyFont.hh"
 #include "GLFont.hh"
 #include "File.hh"
 #include "Console.hh"
 #include "CliCommOutput.hh"
-#include <cassert>
-#include <SDL_image.h>
-
 
 namespace openmsx {
 
