@@ -593,7 +593,10 @@ void WD2793::startType4Cmd(const EmuTime &time)
 	PRT_DEBUG("FDC command: Force interrupt");
 	
 	byte flags = commandReg & 0x0F;
-	assert((flags & 0x07) == 0x00); // all flags not yet supported
+	if ((flags & 0x07) != 0x00) {
+		// all flags not yet supported
+		PRT_DEBUG("FDC type 4 cmd, unimplemented bits " << (int)flags);
+	}
 
 	if (flags == 0x00) {
 		immediateIRQ = false;

@@ -24,7 +24,7 @@ class LocalFile : public FileBase
 		virtual void seek(int pos);
 		virtual int getPos();
 		virtual const string getURL() const;
-		virtual const string getLocalName() const;
+		virtual const string getLocalName();
 		virtual bool isReadOnly() const;
 
 	private:

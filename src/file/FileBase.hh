@@ -23,7 +23,7 @@ class FileBase
 		virtual void seek(int pos) = 0;
 		virtual int getPos() = 0;
 		virtual const string getURL() const = 0;
-		virtual const string getLocalName() const = 0;
+		virtual const string getLocalName() = 0;
 		virtual bool isReadOnly() const = 0;
 
 	protected:

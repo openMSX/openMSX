@@ -35,6 +35,9 @@ void DSKDiskImage::read(byte track, byte sector, byte side,
 void DSKDiskImage::write(byte track, byte sector, byte side, 
                     int size, const byte* buf)
 {
+	if (writeProtected()) {
+		throw WriteProtectedException("");
+	}
 	try {
 		int logicalSector = physToLog(track, side, sector);
 		if (logicalSector >= nbSectors) {

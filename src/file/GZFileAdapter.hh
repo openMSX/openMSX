@@ -4,8 +4,11 @@
 #define __GZFILEADAPTER_HH__
 
 #include <zlib.h>
+#include <string>
 #include "FileBase.hh"
 #include "File.hh"
+
+using std::string;
 
 namespace openmsx {
 
@@ -20,7 +23,7 @@ class GZFileAdapter : public FileBase
 		virtual void seek(int pos);
 		virtual int getPos();
 		virtual const string getURL() const;
-		virtual const string getLocalName() const;
+		virtual const string getLocalName();
 		virtual bool isReadOnly() const;
 
 	private:
@@ -31,6 +34,10 @@ class GZFileAdapter : public FileBase
 		byte* buf;
 		int size;
 		int pos;
+
+		static int tmpCount;	// nb of files in tmp dir
+		static string tmpDir;	// name of tmp dir (when tmpCount > 0)
+		char* localName;	// name of tmp file (when != 0)
 };
 
 } // namespace openmsx

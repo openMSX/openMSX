@@ -124,7 +124,7 @@ const string LocalFile::getURL() const
 	return prefix + filename;
 }
 
-const string LocalFile::getLocalName() const
+const string LocalFile::getLocalName()
 {
 	return filename;
 }

@@ -1,23 +1,33 @@
 // $Id$
 
+#include <sys/types.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include <sstream>
 #include <cassert>
+#include "FileOperations.hh"
 #include "GZFileAdapter.hh"
+
+using std::ostringstream;
 
 
 namespace openmsx {
 
-static const byte ASCII_FLAG   = 0x01; // bit 0 set: file probably ascii text
-static const byte HEAD_CRC     = 0x02; // bit 1 set: header CRC present
-static const byte EXTRA_FIELD  = 0x04; // bit 2 set: extra field present
-static const byte ORIG_NAME    = 0x08; // bit 3 set: original file name present
-static const byte COMMENT      = 0x10; // bit 4 set: file comment present
-static const byte RESERVED     = 0xE0; // bits 5..7: reserved
+const byte ASCII_FLAG   = 0x01; // bit 0 set: file probably ascii text
+const byte HEAD_CRC     = 0x02; // bit 1 set: header CRC present
+const byte EXTRA_FIELD  = 0x04; // bit 2 set: extra field present
+const byte ORIG_NAME    = 0x08; // bit 3 set: original file name present
+const byte COMMENT      = 0x10; // bit 4 set: file comment present
+const byte RESERVED     = 0xE0; // bits 5..7: reserved
+
+int GZFileAdapter::tmpCount = 0;
+string GZFileAdapter::tmpDir;
 
 
 GZFileAdapter::GZFileAdapter(FileBase* file_)
-	: file(file_), pos(0)
+	: file(file_), pos(0), localName(0)
 {
 	int inputSize = file->getSize();
 	byte* inputBuf = file->mmap();
@@ -60,6 +70,15 @@ GZFileAdapter::GZFileAdapter(FileBase* file_)
 
 GZFileAdapter::~GZFileAdapter()
 {
+	if (localName) {
+		unlink(localName);
+		free(localName);
+		--tmpCount;
+		if (tmpCount == 0) {
+			rmdir(tmpDir.c_str());
+		}
+	}
+	
 	free(buf);
 	delete file;
 }
@@ -145,10 +164,27 @@ const string GZFileAdapter::getURL() const
 	return file->getURL();
 }
 
-const string GZFileAdapter::getLocalName() const
+const string GZFileAdapter::getLocalName()
 {
-	assert(false); // not yet implemented
-	return file->getLocalName();
+	if (localName == 0) {
+		if (tmpCount == 0) {
+			ostringstream os;
+			os << "/tmp/openmsx." << getpid();
+			tmpDir = os.str();
+			FileOperations::mkdirp(tmpDir);
+		}
+		string templ = tmpDir + "/XXXXXX";
+		localName = strdup(templ.c_str());
+		int fd = mkstemp(localName);
+		FILE* file = fdopen(fd, "w");
+		if (!file) {
+			throw FileException("Couldn't create temp file");
+		}
+		fwrite(buf, 1, size, file);
+		fclose(file);
+		++tmpCount;
+	}
+	return localName;
 }
 
 bool GZFileAdapter::isReadOnly() const
