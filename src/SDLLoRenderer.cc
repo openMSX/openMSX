@@ -158,6 +158,12 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateBackgroundColour(
 	fillBool(dirtyColour, true, sizeof(dirtyColour));
 }
 
+template <class Pixel> void SDLLoRenderer<Pixel>::updateBlinkState(
+	const EmuTime &time)
+{
+	// SDLLoRenderer does not currently support V9938 features.
+}
+
 template <class Pixel> void SDLLoRenderer<Pixel>::updatePalette(
 	int index, const EmuTime &time)
 {
@@ -177,9 +183,9 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayEnabled(
 template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayMode(
 	const EmuTime &time)
 {
-	// Only MSX1 video modes are supported.
-	assert((vdp->getDisplayMode() & ~0x07) == 0);
-	renderMethod = modeToRenderMethod[vdp->getDisplayMode()];
+	// Only MSX1 video modes are supported by this Renderer,
+	// so mask out M5 and M4.
+	renderMethod = modeToRenderMethod[vdp->getDisplayMode() & 7];
 	setDirty(true);
 }
 

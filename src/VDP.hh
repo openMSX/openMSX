@@ -95,7 +95,7 @@ public:
 		return version == TMS99X8A || version == TMS9929A;
 	}
 
-	/** Get dispay mode: M2..M0 combined.
+	/** Get dispay mode: M5..M1 combined.
 	  * @return The current display mode.
 	  */
 	inline int getDisplayMode() {
@@ -124,6 +124,27 @@ public:
 	  */
 	inline int getBackgroundColour() {
 		return controlRegs[7] & 0x0F;
+	}
+
+	/** Gets the current blinking colour for blinking text.
+	  * @return Colour value [0..15].
+	  */
+	inline int getBlinkForegroundColour() {
+		return controlRegs[12] >> 4;
+	}
+
+	/** Gets the current blinking colour for blinking text.
+	  * @return Colour value [0..15].
+	  */
+	inline int getBlinkBackgroundColour() {
+		return controlRegs[12] & 0x0F;
+	}
+
+	/** Gets the current blink state.
+	  * @return True iff alternate colours / page should be displayed.
+	  */
+	inline bool getBlinkState() {
+		return blinkState;
 	}
 
 	/** Gets a palette entry.
@@ -328,6 +349,11 @@ private:
 	  */
 	word palette[16];
 
+	/** Blinking state: should alternate colour / page be displayed?
+	  * TODO: Implement toggling when blinking is enabled.
+	  */
+	bool blinkState;
+
 	/** First byte written through port #9A, or -1 for none.
 	  */
 	int paletteLatch;
@@ -396,7 +422,7 @@ private:
 	  */
 	byte readAhead;
 
-	/** Current dispay mode: M2..M0 combined.
+	/** Current dispay mode: M5..M1 combined.
 	  */
 	int displayMode;
 

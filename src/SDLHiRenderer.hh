@@ -37,6 +37,7 @@ public:
 	void setFullScreen(bool);
 	void updateForegroundColour(const EmuTime &time);
 	void updateBackgroundColour(const EmuTime &time);
+	void updateBlinkState(const EmuTime &time);
 	void updatePalette(int index, const EmuTime &time);
 	void updateDisplayEnabled(const EmuTime &time);
 	void updateDisplayMode(const EmuTime &time);
@@ -53,13 +54,14 @@ private:
 
 	void renderUntil(int limit);
 
-	void renderGraphic1(int line);
 	void renderText1(int line);
-	void renderGraphic2(int line);
 	void renderText1Q(int line);
+	void renderText2(int line);
+	void renderGraphic1(int line);
+	void renderGraphic2(int line);
 	void renderMulti(int line);
-	void renderBogus(int line);
 	void renderMultiQ(int line);
+	void renderBogus(int line);
 
 	void offPhase(int limit);
 	void blankPhase(int limit);
@@ -129,7 +131,7 @@ private:
 	  */
 	bool anyDirtyColour, dirtyColour[1 << 10];
 	bool anyDirtyPattern, dirtyPattern[1 << 10];
-	bool anyDirtyName, dirtyName[1 << 10];
+	bool anyDirtyName, dirtyName[1 << 12];
 
 	/** Did foreground colour change since last screen update?
 	  */

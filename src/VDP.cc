@@ -4,10 +4,6 @@
 TODO:
 - Implement PAL/NTSC timing.
   Note: TMS9928/29 timings are almost the same, but not 100%.
-- Investigate why MSX2 BASIC won't start / is invisible.
-  Some clues:
-  * when using V9938 in MSX1, BASIC starts without problems
-  * when "_FMPAC" is done in blue screen, nothing happens
 - Apply line-based scheduling.
 - Sprite attribute readout probably happens one line in advance.
   This matters when line-based scheduling is operational.
@@ -137,6 +133,7 @@ void VDP::resetInit(const EmuTime &time)
 	readAhead = 0;
 	firstByte = -1;
 	paletteLatch = -1;
+	blinkState = false;
 
 	// Init status registers.
 	memcpy(statusRegs, INIT_STATUS_REGS, 16);
@@ -410,20 +407,14 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 
 void VDP::updateDisplayMode(const EmuTime &time)
 {
-	static const char *MODE_STRINGS[] = {
-		"Mode 0 (GRAPHIC 1)", "Mode 1 (TEXT 1)", "Mode 2 (GRAPHIC 2)",
-		"Mode 1+2 (TEXT 1 variation)", "Mode 3 (MULTICOLOR)",
-		"Mode 1+3 (BOGUS)", "Mode 2+3 (MULTICOLOR variation)",
-		"Mode 1+2+3 (BOGUS)" };
-
 	int newMode =
 		  ((controlRegs[0] & 0x0E) << 1)
 		| ((controlRegs[1] & 0x08) >> 2)
 		| ((controlRegs[1] & 0x10) >> 4);
 	if (newMode != displayMode) {
+		PRT_DEBUG("VDP: mode " << newMode);
 		displayMode = newMode;
 		renderer->updateDisplayMode(time);
-		PRT_DEBUG("VDP: mode " << MODE_STRINGS[newMode]);
 	}
 }
 

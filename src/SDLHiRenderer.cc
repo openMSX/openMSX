@@ -61,8 +61,11 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 #endif
 }
 
+// TODO: Verify on real MSX2 what non-documented modes do.
+//       For now, I used renderBogus for all of them.
 template <class Pixel> SDLHiRenderer<Pixel>::RenderMethod
 	SDLHiRenderer<Pixel>::modeToRenderMethod[] = {
+		// M5 M4 = 0 0  (MSX1 modes)
 		&SDLHiRenderer::renderGraphic1,
 		&SDLHiRenderer::renderText1,
 		&SDLHiRenderer::renderMulti,
@@ -70,6 +73,33 @@ template <class Pixel> SDLHiRenderer<Pixel>::RenderMethod
 		&SDLHiRenderer::renderGraphic2,
 		&SDLHiRenderer::renderText1Q,
 		&SDLHiRenderer::renderMultiQ,
+		&SDLHiRenderer::renderBogus,
+		// M5 M4 = 0 1
+		&SDLHiRenderer::renderGraphic1, // graphic 3, actually
+		&SDLHiRenderer::renderText2,
+		&SDLHiRenderer::renderBogus,
+		&SDLHiRenderer::renderBogus,
+		&SDLHiRenderer::renderBogus, // renderGraphic4
+		&SDLHiRenderer::renderBogus,
+		&SDLHiRenderer::renderBogus,
+		&SDLHiRenderer::renderBogus,
+		// M5 M4 = 1 0
+		&SDLHiRenderer::renderBogus, // renderGraphic5
+		&SDLHiRenderer::renderBogus,
+		&SDLHiRenderer::renderBogus,
+		&SDLHiRenderer::renderBogus,
+		&SDLHiRenderer::renderBogus, // renderGraphic6
+		&SDLHiRenderer::renderBogus,
+		&SDLHiRenderer::renderBogus,
+		&SDLHiRenderer::renderBogus,
+		// M5 M4 = 1 1
+		&SDLHiRenderer::renderBogus,
+		&SDLHiRenderer::renderBogus,
+		&SDLHiRenderer::renderBogus,
+		&SDLHiRenderer::renderBogus,
+		&SDLHiRenderer::renderBogus, // renderGraphic7
+		&SDLHiRenderer::renderBogus,
+		&SDLHiRenderer::renderBogus,
 		&SDLHiRenderer::renderBogus
 	};
 
@@ -183,6 +213,18 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateBackgroundColour(
 	fillBool(dirtyColour, true, sizeof(dirtyColour));
 }
 
+template <class Pixel> void SDLHiRenderer<Pixel>::updateBlinkState(
+	const EmuTime &time)
+{
+	if (vdp->getDisplayMode() == 0x09) {
+		// Text2 with blinking text.
+		// Consider all characters dirty.
+		// TODO: Only mark characters in blink colour dirty.
+		anyDirtyName = true;
+		fillBool(dirtyName, true, sizeof(dirtyName));
+	}
+}
+
 template <class Pixel> void SDLHiRenderer<Pixel>::updatePalette(
 	int index, const EmuTime &time)
 {
@@ -218,9 +260,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayEnabled(
 template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayMode(
 	const EmuTime &time)
 {
-	// TODO: Rendering for MSX2 modes is not implemented.
-	//   As a workaround, MSX2 modes are mapped to MSX1 modes.
-	renderMethod = modeToRenderMethod[vdp->getDisplayMode() & 0x07];
+	renderMethod = modeToRenderMethod[vdp->getDisplayMode()];
 	setDirty(true);
 }
 
@@ -259,13 +299,16 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateVRAM(
 	int addr, byte data, const EmuTime &time)
 {
 	if ((addr & vdp->getNameMask()) == addr) {
-		dirtyName[addr & ~(-1 << 10)] = anyDirtyName = true;
+		dirtyName[addr & (sizeof(dirtyName) - 1)]
+			= anyDirtyName = true;
 	}
 	if ((addr & vdp->getColourMask()) == addr) {
-		dirtyColour[(addr / 8) & ~(-1 << 10)] = anyDirtyColour = true;
+		dirtyColour[(addr / 8) & (sizeof(dirtyColour) - 1)]
+			= anyDirtyColour = true;
 	}
 	if ((addr & vdp->getPatternMask()) == addr) {
-		dirtyPattern[(addr / 8) & ~(-1 << 10)] = anyDirtyPattern = true;
+		dirtyPattern[(addr / 8) & (sizeof(dirtyPattern) - 1)]
+			= anyDirtyPattern = true;
 	}
 }
 
@@ -276,41 +319,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::setDirty(
 	fillBool(dirtyName, dirty, sizeof(dirtyName));
 	fillBool(dirtyColour, dirty, sizeof(dirtyColour));
 	fillBool(dirtyPattern, dirty, sizeof(dirtyPattern));
-}
-
-template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic1(
-	int line)
-{
-	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
-
-	Pixel *pixelPtr = cacheLinePtrs[line];
-	int name = (line / 8) * 32;
-
-	int nameBase = (-1 << 10) & vdp->getNameMask();
-	int patternBaseLine = ((-1 << 11) | (line & 7)) & vdp->getPatternMask();
-	int colourBase = (-1 << 6) & vdp->getColourMask();
-
-	for (int x = 0; x < 256; x += 8) {
-		int charcode = vdp->getVRAM(nameBase | name);
-		if (dirtyName[name] || dirtyPattern[charcode]
-		|| dirtyColour[charcode / 64]) {
-			int colour = vdp->getVRAM(colourBase | (charcode / 8));
-			Pixel fg = palFg[colour >> 4];
-			Pixel bg = palFg[colour & 0x0F];
-
-			int pattern = vdp->getVRAM(patternBaseLine | (charcode * 8));
-			// TODO: Compare performance of this loop vs unrolling.
-			for (int i = 8; i--; ) {
-				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
-				pixelPtr += 2;
-				pattern <<= 1;
-			}
-		}
-		else {
-			pixelPtr += 16;
-		}
-		name++;
-	}
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::renderText1(
@@ -349,43 +357,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderText1(
 	for (int n = 16; n--; ) *pixelPtr++ = bg;
 }
 
-template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic2(
-	int line)
-{
-	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
-
-	Pixel *pixelPtr = cacheLinePtrs[line];
-	int nameStart = (line / 8) * 32;
-	int nameEnd = nameStart + 32;
-
-	int quarter = nameStart & ~0xFF;
-	int nameBase = (-1 << 10) & vdp->getNameMask();
-	int patternQuarter = quarter & (vdp->getPatternMask() / 8);
-	int patternBaseLine = ((-1 << 13) | (line & 7)) & vdp->getPatternMask();
-	int colourNrBase = 0x3FF & (vdp->getColourMask() / 8);
-	int colourBaseLine = ((-1 << 13) | (line & 7)) & vdp->getColourMask();
-	for (int name = nameStart; name < nameEnd; name++) {
-		int charCode = vdp->getVRAM(nameBase | name);
-		int colourNr = (quarter | charCode) & colourNrBase;
-		int patternNr = patternQuarter | charCode;
-		if (dirtyName[name] || dirtyPattern[patternNr]
-		|| dirtyColour[colourNr]) {
-			int pattern = vdp->getVRAM(patternBaseLine | (patternNr * 8));
-			int colour = vdp->getVRAM(colourBaseLine | (colourNr * 8));
-			Pixel fg = palFg[colour >> 4];
-			Pixel bg = palFg[colour & 0x0F];
-			for (int i = 8; i--; ) {
-				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
-				pixelPtr += 2;
-				pattern <<= 1;
-			}
-		}
-		else {
-			pixelPtr += 16;
-		}
-	}
-}
-
 template <class Pixel> void SDLHiRenderer<Pixel>::renderText1Q(
 	int line)
 {
@@ -421,6 +392,116 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderText1Q(
 	}
 	// Extended right border.
 	for (int n = 16; n--; ) *pixelPtr++ = bg;
+}
+
+template <class Pixel> void SDLHiRenderer<Pixel>::renderText2(
+	int line)
+{
+	bool dirtyColours = dirtyForeground || dirtyBackground;
+	if (!(anyDirtyName || anyDirtyPattern || dirtyColours)) return;
+
+	Pixel *pixelPtr = cacheLinePtrs[line];
+	Pixel fg = palFg[vdp->getForegroundColour()];
+	Pixel bg = palBg[vdp->getBackgroundColour()];
+
+	int nameBase = (-1 << 12) & vdp->getNameMask();
+	int nameMask = ~(-1 << 12) & vdp->getNameMask();
+	int patternBaseLine = ((-1 << 11) | (line & 7)) & vdp->getPatternMask();
+
+	// Extended left border.
+	for (int n = 16; n--; ) *pixelPtr++ = bg;
+	// Actual display.
+	// TODO: Implement blinking.
+	int nameStart = (line / 8) * 80;
+	int nameEnd = nameStart + 80;
+	for (int name = nameStart; name < nameEnd; name++) {
+		int maskedName = name & nameMask;
+		int charcode = vdp->getVRAM(nameBase | maskedName);
+		if (dirtyColours || dirtyName[maskedName] || dirtyPattern[charcode]) {
+			int pattern = vdp->getVRAM(patternBaseLine | (charcode * 8));
+			for (int i = 6; i--; ) {
+				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
+				pattern <<= 1;
+			}
+		}
+		else {
+			pixelPtr += 6;
+		}
+	}
+	// Extended right border.
+	for (int n = 16; n--; ) *pixelPtr++ = bg;
+}
+
+template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic1(
+	int line)
+{
+	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
+
+	Pixel *pixelPtr = cacheLinePtrs[line];
+	int name = (line / 8) * 32;
+
+	int nameBase = (-1 << 10) & vdp->getNameMask();
+	int patternBaseLine = ((-1 << 11) | (line & 7)) & vdp->getPatternMask();
+	int colourBase = (-1 << 6) & vdp->getColourMask();
+
+	for (int x = 0; x < 256; x += 8) {
+		int charcode = vdp->getVRAM(nameBase | name);
+		if (dirtyName[name] || dirtyPattern[charcode]
+		|| dirtyColour[charcode / 64]) {
+			int colour = vdp->getVRAM(colourBase | (charcode / 8));
+			Pixel fg = palFg[colour >> 4];
+			Pixel bg = palFg[colour & 0x0F];
+
+			int pattern = vdp->getVRAM(patternBaseLine | (charcode * 8));
+			// TODO: Compare performance of this loop vs unrolling.
+			for (int i = 8; i--; ) {
+				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
+				pixelPtr += 2;
+				pattern <<= 1;
+			}
+		}
+		else {
+			pixelPtr += 16;
+		}
+		name++;
+	}
+}
+
+template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic2(
+	int line)
+{
+	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
+
+	Pixel *pixelPtr = cacheLinePtrs[line];
+	int nameStart = (line / 8) * 32;
+	int nameEnd = nameStart + 32;
+
+	int quarter = nameStart & ~0xFF;
+	int nameBase = (-1 << 10) & vdp->getNameMask();
+	int patternQuarter = quarter & (vdp->getPatternMask() / 8);
+	int patternBaseLine = ((-1 << 13) | (line & 7)) & vdp->getPatternMask();
+	int colourNrBase = 0x3FF & (vdp->getColourMask() / 8);
+	int colourBaseLine = ((-1 << 13) | (line & 7)) & vdp->getColourMask();
+	for (int name = nameStart; name < nameEnd; name++) {
+		int charCode = vdp->getVRAM(nameBase | name);
+		int colourNr = (quarter | charCode) & colourNrBase;
+		int patternNr = patternQuarter | charCode;
+		if (dirtyName[name] || dirtyPattern[patternNr]
+		|| dirtyColour[colourNr]) {
+			int pattern = vdp->getVRAM(patternBaseLine | (patternNr * 8));
+			int colour = vdp->getVRAM(colourBaseLine | (colourNr * 8));
+			Pixel fg = palFg[colour >> 4];
+			Pixel bg = palFg[colour & 0x0F];
+			for (int i = 8; i--; ) {
+				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
+				pixelPtr += 2;
+				pattern <<= 1;
+			}
+		}
+		else {
+			pixelPtr += 16;
+		}
+	}
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::renderMulti(

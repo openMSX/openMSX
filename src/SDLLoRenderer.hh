@@ -35,6 +35,7 @@ public:
 	void setFullScreen(bool);
 	void updateForegroundColour(const EmuTime &time);
 	void updateBackgroundColour(const EmuTime &time);
+	void updateBlinkState(const EmuTime &time);
 	void updatePalette(int index, const EmuTime &time);
 	void updateDisplayEnabled(const EmuTime &time);
 	void updateDisplayMode(const EmuTime &time);

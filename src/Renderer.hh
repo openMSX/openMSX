@@ -49,6 +49,11 @@ public:
 	  */
 	virtual void updateBackgroundColour(const EmuTime &time) = 0;
 
+	/** Informs the renderer of a VDP blinking state change.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	virtual void updateBlinkState(const EmuTime &time) = 0;
+
 	/** Informs the renderer of a VDP palette change.
 	  * @param index The index [0..15] in the palette that changed.
 	  * @param time The moment in emulated time this change occurs.
