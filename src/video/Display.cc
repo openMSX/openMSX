@@ -2,7 +2,6 @@
 
 #include "Display.hh"
 #include "VideoSystem.hh"
-#include "SDLGLVideoSystem.hh" // workaround
 #include "ScreenShotSaver.hh"
 #include "EventDistributor.hh"
 #include "FinishFrameEvent.hh"
@@ -17,6 +16,10 @@
 #include "VideoSourceSetting.hh"
 #include <algorithm>
 #include <cassert>
+
+// Needed for workaround for "black flashes" problem in SDLGL renderer:
+#include "SDLGLVideoSystem.hh"
+#include "components.hh"
 
 using std::string;
 using std::vector;
@@ -65,7 +68,7 @@ Display::~Display()
 	for (Layers::iterator it = layers.begin(); it != layers.end(); ++it) {
 		delete *it;
 	}
-	
+
 	alarm.cancel();
 }
 
@@ -93,7 +96,7 @@ bool Display::signalEvent(const Event& event)
 	if (event.getType() == FINISH_FRAME_EVENT) {
 		const FinishFrameEvent& ffe = static_cast<const FinishFrameEvent&>(event);
 		VideoSource eventSource = ffe.getSource();
-		VideoSource visibleSource = 
+		VideoSource visibleSource =
 			RenderSettings::instance().getVideoSource()->getValue();
 
 		bool draw = visibleSource == eventSource;
@@ -120,14 +123,14 @@ void Display::repaint()
 	//       which is severely underdocumented:
 	//       it is unknown whether a failure is transient or permanent.
 	if (!videoSystem->prepare()) return;
-	
+
 	for(Layers::iterator it = baseLayer(); it != layers.end(); ++it) {
 		if ((*it)->coverage != Layer::COVER_NONE) {
 			//std::cout << "Painting layer " << (*it)->getName() << std::endl;
 			(*it)->paint();
 		}
 	}
-	
+
 	videoSystem->flush();
 
 	// update fps statistics
@@ -145,6 +148,7 @@ void Display::repaintDelayed(unsigned long long delta)
 		return;
 	}
 
+#ifdef COMPONENT_GL
 	if (dynamic_cast<SDLGLVideoSystem*>(videoSystem.get())) {
 		// Ugly workaround: on GL limit the frame rate of the delayed
 		// repaints. Because of a limitation in the SDL GL environment
@@ -155,7 +159,8 @@ void Display::repaintDelayed(unsigned long long delta)
 		// get triggered during pause, where it's ok (is it?)
 		if (delta < 200000) delta = 200000; // at most 8fps
 	}
-	
+#endif
+
 	alarm.schedule(delta);
 }
 
@@ -214,7 +219,7 @@ string Display::ScreenShotCmd::execute(const vector<string>& tokens)
 	default:
 		throw SyntaxError();
 	}
-	
+
 	Display::INSTANCE->getVideoSystem()->takeScreenShot(filename);
 	CliCommOutput::instance().printInfo("Screen saved to " + filename);
 	return filename;
