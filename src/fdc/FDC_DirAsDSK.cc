@@ -344,7 +344,7 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 	
 	// compute time/date stamps
 	struct stat fst;
-	bzero(&fst,sizeof(strtuct stat));
+	bzero(&fst,sizeof(struct stat));
 	stat(fullfilename.c_str(), &fst);
 	struct tm mtim = *localtime(&(fst.st_mtime));
 	int t = (mtim.tm_sec >> 1) + (mtim.tm_min << 5) +
