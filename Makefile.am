@@ -29,7 +29,7 @@ setdebug:
 install-data-hook:
 	cp -rv $(srcdir)/share $(prefix)/
 	mkdir -p $(prefix)/Contrib/cbios
-	cp -v $(srcdir)/Contrib/cbios/*.rom $(prefix)/Contrib/cbios
+	cp -v $(srcdir)/Contrib/cbios/*.BIN $(prefix)/Contrib/cbios
 ##needs find trick because otherwise find tries to descent into rm'ed dir
 #	find $(srcdir)/share -name CVS -type d -exec rm -rf $(prefix)/{} \;
 ##Creating a link for the machine configurations
