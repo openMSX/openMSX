@@ -5,11 +5,6 @@ $Id$
 	* use auto_ptr to indicate ownership transfers
 	* use stl bitset instead of an array of booleans
 
-2004-05-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
-	* Made all (S)RAM debuggable, created a base class for RAM
-	* use auto_ptr to indicate ownership transfers
-	* use stl bitset instead of an array of booleans
-
 2004-05-28 Maarten ter Huurne <maarten@treewalker.org>
 	* Released openmsx-0.4.0.
 
