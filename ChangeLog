@@ -1,5 +1,10 @@
 $Id$
 
+2002-01-28 Joost Yervante Damad <j.damad@qahwah.net>
+	* made libxmlx an 'utility' library, this implies that
+	  openmsx links this statically, which makes for easier
+	  debugging, no more 'wrapper script' for now
+
 2002-01-27 Joost Yervante Damad <j.damad@qahwah.net>
 	* Made SDL console autotools enabled
 

@@ -1,6 +1,6 @@
 # $Id$
 
-lib_LTLIBRARIES = libxmlx.la
+noinst_LTLIBRARIES = libxmlx.la
 libxmlx_la_SOURCES = libxmlx.cc xmlx.hh
 
 #AM_CXXFLAGS = -Wall -DXMLX_DEBUG -g3 -pipe
