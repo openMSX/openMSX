@@ -3,6 +3,8 @@ $Id$
 2004-09-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Moved default keybindings from init.tcl to HotKey code
 	* Updated commands.txt
+	* Use built-in default values for KeyJoystick in case the config
+	  section is missing in the settings file
 
 2004-09-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Use #ifdef iso if around asm routines

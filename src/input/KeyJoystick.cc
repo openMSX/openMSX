@@ -12,18 +12,16 @@
 namespace openmsx {
 
 static Keys::KeyCode getConfigKeyCode(const string& keyname,
-                                      const XMLElement& config)
+                                      const string& defaultValue,
+                                      XMLElement& config)
 {
-	Keys::KeyCode testKey = Keys::K_NONE;
-	const XMLElement* keyElem = config.findChild(keyname);
-	if (keyElem) {
-		string key = keyElem->getData();
-		testKey = Keys::getCode(key);
-		if (testKey == Keys::K_NONE) {
-			CliCommOutput::instance().printWarning(
-				"unknown keycode \"" + key + "\" for key \"" +
-				keyname + "\" in KeyJoystick configuration");
-		}
+	XMLElement& keyElem = config.getCreateChild(keyname, defaultValue);
+	string key = keyElem.getData();
+	Keys::KeyCode testKey = Keys::getCode(key);
+	if (testKey == Keys::K_NONE) {
+		CliCommOutput::instance().printWarning(
+			"unknown keycode \"" + key + "\" for key \"" +
+			keyname + "\" in KeyJoystick configuration");
 	}
 	return testKey;
 }
@@ -47,18 +45,14 @@ KeyJoystick::KeyJoystick()
 	buttonAKey = Keys::K_NONE;
 	buttonBKey = Keys::K_NONE;
 
-	const XMLElement* config = SettingsConfig::instance().findChild("KeyJoystick");
-	if (config) {
-		upKey      = getConfigKeyCode("upkey",      *config);
-		rightKey   = getConfigKeyCode("rightkey",   *config);
-		downKey    = getConfigKeyCode("downkey",    *config);
-		leftKey    = getConfigKeyCode("leftkey",    *config);
-		buttonAKey = getConfigKeyCode("buttonakey", *config);
-		buttonBKey = getConfigKeyCode("buttonbkey", *config);
-	} else {
-		CliCommOutput::instance().printWarning(
-			"KeyJoystick not configured, so it won't be usable...");
-	}
+	XMLElement& config =
+		SettingsConfig::instance().getCreateChild("KeyJoystick");
+	upKey      = getConfigKeyCode("upkey",      "UP",    config);
+	rightKey   = getConfigKeyCode("rightkey",   "RIGHT", config);
+	downKey    = getConfigKeyCode("downkey",    "DOWN",  config);
+	leftKey    = getConfigKeyCode("leftkey",    "LEFT",  config);
+	buttonAKey = getConfigKeyCode("buttonakey", "SPACE", config);
+	buttonBKey = getConfigKeyCode("buttonbkey", "M",     config);
 }
 
 KeyJoystick::~KeyJoystick()
