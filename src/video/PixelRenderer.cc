@@ -174,7 +174,8 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 		draw = true;
 	} else {
 		++frameSkipCounter;
-		draw = RealTime::instance().timeLeft(finishFrameDuration, time);
+		draw = RealTime::instance().timeLeft(
+			(unsigned)finishFrameDuration, time);
 	}
 
 	if (draw) {
@@ -184,7 +185,10 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 		unsigned time1 = Timer::getTime();
 		finishFrame();
 		unsigned time2 = Timer::getTime();
-		finishFrameDuration = time2 - time1;
+		unsigned current = time2 - time1;
+		const float ALPHA = 0.2;
+		finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
+		                      current * ALPHA;
 	
 		// update fps statistics
 		unsigned duration = time2 - prevTimeStamp;

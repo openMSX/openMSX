@@ -212,7 +212,7 @@ private:
 	int nextY;
 
 	int frameSkipCounter;
-	unsigned finishFrameDuration;
+	float finishFrameDuration;
 	
 	static const unsigned NUM_FRAME_DURATIONS = 50;
 	CircularBuffer<unsigned, NUM_FRAME_DURATIONS> frameDurations;
