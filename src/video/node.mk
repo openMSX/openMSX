@@ -17,7 +17,7 @@ SRC_HDR:= \
 	Scaler SimpleScaler SaI2xScaler Scale2xScaler HQ2xScaler \
 	Deinterlacer \
 	ScreenShotSaver \
-	Display \
+	Display VideoSystem \
 	DummyVideoSystem
 
 HDR_ONLY:= \

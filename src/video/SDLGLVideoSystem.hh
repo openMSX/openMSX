@@ -3,11 +3,10 @@
 #ifndef __SDLGLVIDEOSYSTEM_HH__
 #define __SDLGLVIDEOSYSTEM_HH__
 
-#include "Display.hh"
+#include "VideoSystem.hh"
 
 
 namespace openmsx {
-
 
 class SDLGLVideoSystem: public VideoSystem
 {

@@ -3,6 +3,7 @@
 #ifndef __DISPLAY_HH__
 #define __DISPLAY_HH__
 
+//#include "VideoSystem.hh"
 #include "EventListener.hh"
 #include "openmsx.hh"
 #include <memory>
@@ -14,7 +15,11 @@ using std::string;
 using std::vector;
 
 
+
+
 namespace openmsx {
+
+class VideoSystem;
 
 
 /** Interface for display layers.
@@ -31,24 +36,6 @@ public:
 	/** Returns the name of this layer. Used for debugging.
 	  */
 	virtual const string& getName() = 0;
-};
-
-
-/** Video back-end system.
-  */
-class VideoSystem
-{
-public:
-	virtual ~VideoSystem();
-
-	/** Finish pending drawing operations and make them visible to the user.
-	  */
-	virtual void flush() = 0;
-
-	/** Take a screenshot.
-	  * @param filename Name of the file to save the screenshot to.
-	  */
-	virtual void takeScreenShot(const string& filename);
 };
 
 

@@ -3,7 +3,7 @@
 #ifndef __DUMMYVIDEOSYSTEM_HH__
 #define __DUMMYVIDEOSYSTEM_HH__
 
-#include "Display.hh"
+#include "VideoSystem.hh"
 
 
 namespace openmsx {

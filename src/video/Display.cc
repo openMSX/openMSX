@@ -1,6 +1,7 @@
 // $Id$
 
 #include "Display.hh"
+#include "VideoSystem.hh"
 #include "EventDistributor.hh"
 #include "CommandException.hh"
 #include <cassert>
@@ -12,18 +13,6 @@ namespace openmsx {
 
 Layer::~Layer()
 {
-}
-
-// VideoSystem:
-
-VideoSystem::~VideoSystem()
-{
-}
-
-void VideoSystem::takeScreenShot(const string& /*filename*/)
-{
-	throw CommandException(
-		"Taking screenshot not possible with current renderer." );
 }
 
 // Display:
@@ -161,13 +150,6 @@ Display::LayerInfo::LayerInfo(Layer* layer)
 	dirty = false;
 	alpha = 0;
 }
-
-#if 0
-void Renderer::takeScreenShot(const string& /*filename*/)
-{
-	throw CommandException("Taking screenshot not possible with current renderer.");
-}
-#endif
 
 } // namespace openmsx
 

@@ -35,6 +35,7 @@ TODO:
 #include "ScreenShotSaver.hh"
 #include "CliCommOutput.hh"
 #include "Display.hh" // TODO: Remove after screenshot is moved.
+#include "VideoSystem.hh" // TODO: Remove after screenshot is moved.
 
 using std::setw;
 
