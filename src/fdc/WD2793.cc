@@ -391,7 +391,7 @@ void WD2793::step(const EmuTime &time)
 		6, 12, 20, 30
 	};
 
-	if (commandReg & T_FLAG) {
+	if ((commandReg & T_FLAG) || ((commandReg & 0xE0) == 0x00)) {
 		if (directionIn) {
 			trackReg++;
 		} else {
