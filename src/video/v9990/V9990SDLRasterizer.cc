@@ -309,17 +309,18 @@ void V9990SDLRasterizer<Pixel, zoom>::drawBxMode(
 			vramStep = imageWidth;
 			address += scrollX;
 	}
+	int lineStep = 1;
 	if (vdp->isEvenOddEnabled()) {
 		if (vdp->getEvenOdd()) {
 			address += vramStep;
 		}
-		vramStep *= 2;
+		lineStep = 2;
 	}
 	while (displayHeight--) {
 		bitmapConverter.convertLine(pixelPtr, address, displayWidth,
 		                            displayY);
-		++displayY;
-		address += vramStep;
+		displayY += lineStep;
+		address += lineStep * vramStep;
 		pixelPtr += workScreen->w;
 	}
 }
