@@ -1,26 +1,15 @@
 dnl $Id$
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(openmsx, 0.3.4[CVS])
+AC_INIT
 
-
-dnl Change default prefix.
-AC_PREFIX_DEFAULT(/opt/openMSX)
-
-dnl Put datadir in config.h.
-dnl This location will be compiled into the executable, because there doesn't
-dnl seem to be an easy and reliable way to detect this at run time.
-AC_DEFINE_DIR(DATADIR, datadir, [Directory containing platform independent data files.])
 
 dnl create a config.h file
-AC_CONFIG_HEADERS(config.h)
+AC_CONFIG_HEADERS(oldconfig.h)
 
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
-
-dnl check ENDIAN-ness
-AC_C_BIGENDIAN
 
 dnl Checks for header files.
 AC_CHECK_HEADERS(sys/mman.h, [

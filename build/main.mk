@@ -197,6 +197,8 @@ CONFIG_SCRIPT:=$(AUTOTOOLS_PATH)/configure
 
 CONFIG_PATH:=$(BUILD_PATH)/config
 CONFIG_HEADER:=$(CONFIG_PATH)/config.h
+OLD_CONFIG_HEADER:=$(CONFIG_PATH)/oldconfig.h
+VERSION_HEADER:=$(CONFIG_PATH)/Version.ii
 
 
 # Compiler and Flags
@@ -271,7 +273,7 @@ endif
 
 # Determine include flags.
 INCLUDE_INTERNAL:=$(filter-out %/CVS,$(shell find $(SOURCES_PATH) -type d))
-INCLUDE_INTERNAL+=$(dir $(CONFIG_HEADER))
+INCLUDE_INTERNAL+=$(CONFIG_PATH)
 INCLUDE_EXTERNAL:= # TODO: Define these here or platform-*.mk?
 INCLUDE_EXTERNAL+=/usr/include/tcl8.4 /usr/local/include/tcl8.4 #hack
 INCLUDE_EXTERNAL+=/usr/X11R6/include
@@ -286,10 +288,27 @@ LINK_FLAGS+=$(addprefix -l,$(LIBS_PLAIN))
 LINK_FLAGS+=$(foreach lib,$(LIBS_CONFIG),$(shell $(lib)-config --libs))
 
 
+# Configuration
+# =============
+
+OPENMSX_INSTALL?=/opt/openMSX
+
+PACKAGE_NAME:=openmsx
+PACKAGE_VERSION:=0.3.4
+PACKAGE_FULL:=$(PACKAGE_NAME)-$(PACKAGE_VERSION)
+
+RELEASE_FLAG:=false
+
+CHANGELOG_REVISION:=\
+	$(shell sed -ne "s/\$$Id: ChangeLog,v \([^ ]*\).*/\1/p" ChangeLog)
+
+include $(MAKE_PATH)/info2code.mk
+
+
 # Build Rules
 # ===========
 
-all: config $(CONFIG_HEADER) $(BINARY_FULL)
+all: config $(CONFIG_HEADER) $(VERSION_HEADER) $(BINARY_FULL)
 
 # Print configuration.
 config:
@@ -301,7 +320,7 @@ config:
 
 # Configuration header created by "configure" script.
 # TODO: Cleaner way to calculate path to script?
-$(CONFIG_HEADER): $(CONFIG_SCRIPT)
+$(OLD_CONFIG_HEADER): $(CONFIG_SCRIPT)
 	@echo "Checking configuration:"
 	@mkdir -p $(@D)
 	@rm -f $(@D)/config.cache
@@ -386,7 +405,6 @@ endif
 # Installation
 # ============
 
-OPENMSX_INSTALL?=/opt/openMSX
 INSTALL_DOCS:=release-notes.txt release-history.txt
 
 install: all
@@ -422,10 +440,6 @@ install: all
 
 # Packaging
 # =========
-
-VERSION:=$(shell sed -ne "s/AC_INIT(.*, *\(.*\))/\1/p" $(MAKE_PATH)/configure.ac)
-PACKAGE_NAME:=openmsx
-PACKAGE_FULL:=$(PACKAGE_NAME)-$(VERSION)
 
 DIST_BASE:=$(BUILD_BASE)/dist
 DIST_PATH:=$(DIST_BASE)/$(PACKAGE_FULL)
