@@ -42,8 +42,9 @@ openmsx_SOURCES=openmsx.cc \
 	MSXRTC.hh MSXRTC.cc RP5C01.hh RP5C01.cc \
 	MSXRealTime.hh MSXRealTime.cc \
 	MSXMegaRom.hh MSXMegaRom.cc \
+	MSXKonamiSynthesizer.hh  MSXKonamiSynthesizer.cc \
+	DACSound.cc DACSound.hh \
 	KeyEventInserter.cc KeyEventInserter.hh
-
 #	MSXPostLoad.hh MSXPostLoad.cc
 
 

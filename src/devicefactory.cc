@@ -15,6 +15,7 @@
 #include "MSXRTC.hh"
 #include "MSXRealTime.hh"
 #include "MSXMegaRom.hh"
+#include "MSXKonamiSynthesizer.hh"
 //#include "MSXPostLoad.hh"
 
 
@@ -62,6 +63,10 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	if (conf->getType()=="MegaRom") {
 		device = new MSXMegaRom();
 	} else
+	if (conf->getType()=="KonamiSynthesizer") {
+		device = new MSXKonamiSynthesizer();
+	}
+//	} else
 //	if (conf->getType()=="PostLoad") {
 //		device = new MSXPostLoad();
 //	}
