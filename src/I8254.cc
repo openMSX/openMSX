@@ -14,6 +14,9 @@ I8254::I8254(int freq[NR_COUNTERS], I8254Interface *interf)
 
 I8254::~I8254()
 {
+	for (int i=0; i<NR_COUNTERS; i++) {
+		delete counter[i];
+	}
 }
 
 void I8254::reset()

@@ -10,6 +10,7 @@ MSXPrinterPort::MSXPrinterPort()
 
 MSXPrinterPort::~MSXPrinterPort()
 {
+	delete dummy;
 }
 
 

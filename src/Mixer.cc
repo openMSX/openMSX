@@ -31,6 +31,7 @@ Mixer::Mixer()
 Mixer::~Mixer()
 {
 	PRT_DEBUG("Destroying a MIXER object");
+	delete[] mixBuffer;
 }
 
 Mixer* Mixer::instance(void)

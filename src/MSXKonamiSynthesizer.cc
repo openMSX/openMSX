@@ -11,7 +11,7 @@
 MSXKonamiSynthesizer::MSXKonamiSynthesizer()
 {
 	PRT_DEBUG("Creating an MSXKonamiSynthesizer object");
-	DAC = new DACSound();
+	DAC = new DACSound(25000);	// TODO find a good value, put it into config file
 }
 
 MSXKonamiSynthesizer::~MSXKonamiSynthesizer()
@@ -52,7 +52,6 @@ void MSXKonamiSynthesizer::init()
 		int page=(*i)->getPage();
 		MSXMotherBoard::instance()->registerSlottedDevice(this,ps,ss,page);
 	}
-	DAC->init();
 }
 
 byte MSXKonamiSynthesizer::readMem(word address, Emutime &time)

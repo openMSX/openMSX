@@ -14,10 +14,9 @@
 class DACSound : public SoundDevice
 {
 	public:
-		DACSound(); 
+		DACSound(short maxVolume); 
 		virtual ~DACSound(); 
 	
-		void init();
 		void reset();
 		byte readDAC(byte value, const Emutime &time);
 		void writeDAC(byte value, const Emutime &time);

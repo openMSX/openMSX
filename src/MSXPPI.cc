@@ -19,6 +19,7 @@ MSXPPI::MSXPPI()
 MSXPPI::~MSXPPI()
 {
 	PRT_DEBUG("Destroying an MSXPPI object");
+	delete keyboard;
 	delete i8255;
 	delete click;
 }

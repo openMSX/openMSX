@@ -24,6 +24,7 @@ AY8910::AY8910(AY8910Interface &interf) : interface(interf)
 
 AY8910::~AY8910()
 {
+	delete[] buffer;
 }
 
 

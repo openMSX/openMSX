@@ -11,28 +11,24 @@
 #include "MSXRealTime.hh"
 
 
-DACSound::DACSound()
+DACSound::DACSound(short maxVolume)
 {
 	PRT_DEBUG("DAC audio created");
 	realtime = MSXRealTime::instance();
+	
+	int bufSize = Mixer::instance()->registerSound(this);
+	buf = new int[bufSize];
+	
+	setVolume(maxVolume);
+	reset();
 }
 
 
 DACSound::~DACSound()
 {
 	PRT_DEBUG("DAC audio destroyed");
+	delete[] buf;
 }
-
-
-void DACSound::init()
-{
-	int bufSize = Mixer::instance()->registerSound(this);
-	buf = new int[bufSize];
-	
-	reset();
-	setVolume(Mixer::MAX_VOLUME);
-}
-
 
 void DACSound::reset()
 {
