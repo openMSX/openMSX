@@ -15,19 +15,28 @@ MSXAudio::MSXAudio(MSXConfig::Device *config, const EmuTime &time)
 	MSXMotherBoard::instance()->register_IO_In (0xc0, this);
 	MSXMotherBoard::instance()->register_IO_In (0xc1, this);
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
+	
+	// left / right / mono
 	Mixer::ChannelMode mode = Mixer::MONO;
 	try {
-	  std::string stereomode = config->getParameter("mode");
-	   if (strcmp(stereomode.c_str(), "left")==0) {
-	     mode=Mixer::MONO_LEFT;
-	   };
-	   if (strcmp(stereomode.c_str(), "right")==0) {
-	     mode=Mixer::MONO_RIGHT;
-	   };
-	} catch (MSXException& e) {
-	  PRT_ERROR("Exception: " << e.desc);
+		std::string stereomode = config->getParameter("mode");
+		if      (stereomode == "left")
+			mode=Mixer::MONO_LEFT;
+		else if (stereomode == "right")
+			mode=Mixer::MONO_RIGHT;
+	} catch (MSXException &e) {
+		PRT_ERROR("Exception: " << e.desc);
 	}
-	y8950 = new Y8950(volume, time, mode);
+	
+	// SampleRAM size
+	int ramSize = 256;	// in kb
+	try {
+		ramSize = config->getParameterAsInt("sampleram");
+	} catch (MSXException &e) {
+		//  no size specified
+	}
+	
+	y8950 = new Y8950(volume, ramSize*1024, time, mode);
 	reset(time);
 }
 

@@ -424,7 +424,8 @@ void Y8950::Channel::keyOff()
 //                                                          //
 //**********************************************************//
 
-Y8950::Y8950(short volume, const EmuTime &time, Mixer::ChannelMode mode) :
+Y8950::Y8950(short volume, int sampleRam, const EmuTime &time,
+             Mixer::ChannelMode mode) :
 	timer1(this), timer2(this)
 {
 	makePmTable();
@@ -446,10 +447,12 @@ Y8950::Y8950(short volume, const EmuTime &time, Mixer::ChannelMode mode) :
 	}
 	
 	// adpcm
-	// 256Kbytes RAM 
-	memory[0] = new byte[256*1024];
-	// 256Kbytes ROM 
-	memory[1] = new byte[256*1024];
+	// 256Kbytes ROM / RAM
+	ramSize = sampleRam;
+	memory[0] = new byte[256*1024];	// RAM
+	memory[1] = new byte[256*1024];	// ROM
+	memset(memory[0], 256, 256*1024);
+	memset(memory[1], 256, 256*1024);
 	
 	reset(time);
 
@@ -885,9 +888,9 @@ bool Y8950::checkMuteHelper()
 
 int* Y8950::updateBuffer(int length)
 {
-	PRT_DEBUG("Y8950: update buffer");
+	//PRT_DEBUG("Y8950: update buffer");
 	if (isInternalMuted()) {
-		PRT_DEBUG("Y8950: muted");
+		//PRT_DEBUG("Y8950: muted");
 		return NULL;
 	}
 
@@ -1037,8 +1040,9 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 
 		case 0x0F: // ADPCM-DATA 
 			if ((reg[0x07]&R07_REC) && (reg[0x07]&R07_MEMORY_DATA)) {
-				int tmp = (start_addr + memPntr) & play_addr_mask;
-				wave[tmp/2] = data;
+				int tmp = ((start_addr + memPntr) & play_addr_mask) / 2;
+				if (tmp < ramSize)
+					wave[tmp] = data;
 				memPntr += 2;
 			}
 			setStatus(STATUS_BUF_RDY);
@@ -1204,15 +1208,19 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 
 byte Y8950::readReg(byte rg)
 {
+	//PRT_DEBUG("Y8950 read " << (int)rg);
 	switch (rg) {
 		case 0x05: // (KEYBOARD IN)
 			// TODO
 			break;
 			
-		case 0x0f: // ADPCM-DATA
-			// TODO check
-			return reg[rg];
-			
+		case 0x0f: { // ADPCM-DATA
+			// TODO advance pointer (only when not playing??)
+			int adr = ((start_addr + memPntr) & play_addr_mask) / 2;
+			byte tmp = wave[adr];
+			//memPntr += 2; TODO ??
+			return tmp;
+		}
 		case 0x19: // I/O DATA
 			// TODO
 			break;

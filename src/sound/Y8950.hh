@@ -154,7 +154,8 @@ class Y8950 : public SoundDevice
 	};
 
 	public:
-		Y8950(short volume, const EmuTime &timeconst, Mixer::ChannelMode mode=Mixer::MONO);
+		Y8950(short volume, int sampleRam, const EmuTime &time,
+		      Mixer::ChannelMode mode=Mixer::MONO);
 		virtual ~Y8950();
 
 		void reset(const EmuTime &time);
@@ -332,6 +333,7 @@ class Y8950 : public SoundDevice
 		
 		byte* wave;		// ADPCM DATA
 		byte* memory[2];	// [0] RAM, [1] ROM
+		int ramSize;
 
 		bool adpcmPlaying;
 		int start_addr;

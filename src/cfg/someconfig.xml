@@ -300,6 +300,7 @@
     <type>Audio</type>
     <parameter name="volume">9000</parameter>
     <parameter name="mode">right</parameter>
+    <parameter name="sampleram">256</parameter>
   </device>
 -->    
   <device id="cpu">
