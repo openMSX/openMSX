@@ -136,9 +136,9 @@ Original text written as part of the openMSX HOWTO.
 
 </dl>
 
-<h2><a id="console">x Controlling the Emulator</a></h2>
+<h2><a id="controlling">2 Controlling the Emulator</a></h2>
 
-<h3><a id="console">x.x Console</a></h3>
+<h3><a id="console">2.1 Console</a></h3>
 
 <p>
 When the emulator is running, you can get the "Console" by pressing F10 (with default key mapping) when
@@ -161,13 +161,13 @@ get some help about a specific <a class="internal" href="#console">Console</a> c
 Add the complete list of commands.txt somewhere.
 </p>
 
-<h3><a id="other">x.x Some Important Console Commands</a></h3>
+<h3><a id="other">2.2 Some Important Console Commands</a></h3>
 
 <p>
 You can reset your MSX with the <a class="internal" href="#console">Console</a> command <code>reset</code>.
 </p>
 
-<h3><a id="settings">x.x Settings</a></h3>
+<h3><a id="settings">2.3 Settings</a></h3>
 
 <p>
 An interesting console command is <code>set</code>. You can use it to change the various
@@ -184,7 +184,7 @@ Fix reference.
 </p>
 
 
-<h4><a id="importantsettings">x.x.x Some Simple But Important Settings</a></h4>
+<h4><a id="importantsettings">2.3.1 Some Simple But Important Settings</a></h4>
 
 <p>
 If the MSX goes too fast or too slow, adjust the emulation speed with the
@@ -201,7 +201,7 @@ blinking is quite irregular on most systems and thus a pain for the eyes
 
 
 
-<h4><a id="renderers">x.x.x Renderers</a></h4>
+<h4><a id="renderers">2.3.2 Renderers</a></h4>
 
 <p>
 At the moment, there are three working renderers. A renderer is a part of the
@@ -245,7 +245,7 @@ id="renderer"&gt;</code>.  You can also specify there whether the emulator shoul
 to full screen when started. You can also switch renderer from the <a class="internal" href="#console">console</a>.
 </p>
 
-<h4><a id="accuracy">x.x.x Renderer Accuracy</a></h4>
+<h4><a id="accuracy">2.3.3 Renderer Accuracy</a></h4>
 
 <p>
 Another example of the settings that you can specify in the <a class="internal" href="#console">Console</a> is the
@@ -259,7 +259,7 @@ accurate setting. This will break a lot of software that uses raster effects.
 </p>
 
 
-<h2><a id="media">x. Media</a></h2>
+<h2><a id="media">3. Media</a></h2>
 
 <p>
 With this information, you can run most of the existing MSX software.
@@ -272,7 +272,7 @@ A completer command line options help can be seen by typing:
 <div class="commandline">openmsx -help</div>
 -->
 
-<h3><a id="roms">x.x Running ROM software</a></h3>
+<h3><a id="roms">3.1 Running ROM software</a></h3>
 
 <p>
 Suppose you want to run the ROM file <code>galious.rom</code>. Then you simply type:
@@ -301,9 +301,9 @@ Or, maybe openMSX didn't have the ROM in the ROM database and failed autodetecti
 Note that in practice you won't need this, since most ROM images are in the database or autodetected if they are not.
 </p>
 
-<h3><a id="disks">x.x Running Disk Software</a></h3>
+<h3><a id="disks">3.2 Running Disk Software</a></h3>
 
-<h4><a id="diskimages">x.x.x Using Disk Images</a></h4>
+<h4><a id="diskimages">3.2.1 Using Disk Images</a></h4>
 
 <p>
 To run a disk image, you can type:
@@ -327,7 +327,7 @@ in the <a class="internal" href="#console">Console</a> to put the specified disk
 <p>
 Disk images in XSA format are also supported, use them as regular disk images, but do note that they are read only.
 
-<h4><a id="realdisks">x.x.x Using Real Disks (Linux)</a></h4>
+<h4><a id="realdisks">3.2.2 Using Real Disks</a></h4>
 
 <p>
 To use a real disk, just specify <code>/dev/fd0</code> as a disk image. This is of
@@ -336,7 +336,7 @@ may be a bit slow though, with the FDC emulation enabled. It should be just as
 slow as a real disk drive, however! Don't forget that you shouldn't have it mounted to be able to use it this way.
 </p>
 
-<h3><a id="tape">x.x Running Tape Software</a></h3>
+<h3><a id="tape">3.3 Running Tape Software</a></h3>
 
 <p>
 openMSX supports WAV files for tape emulation! Just configure your MSX with a
@@ -399,9 +399,9 @@ Other cassetteplayer related commands/settings you need to know of are:
 </ul>
 
 
-<h2><a id="input">x. Input Devices</a></h2>
+<h2><a id="input">4. Input Devices</a></h2>
 
-<h3><a id="keymapping">x.x Default Key Mapping</a></h3>
+<h3><a id="keymapping">4.1 Default Key Mapping</a></h3>
 
 <p>
 The default key mapping is as follows:
@@ -428,7 +428,7 @@ Make the table look better by using cellpadding stuff in the css.
 The keys that do not map MSX keys, can be changed in the <code>settings.xml</code> file.
 </p>
 
-<h3><a id="joystick">x.x Joystick</a></h3>
+<h3><a id="joystick">4.2 Joystick</a></h3>
 
 <p>
 To connect a fake joystick (emulated with the arrow keys), you can use the <code>plug</code> command:
@@ -440,7 +440,7 @@ To connect a fake joystick (emulated with the arrow keys), you can use the <code
 will connect a fake joystick to joystick port A. Button A of the joystick is mapped to the space bar and Button B to Left-Alt (GRAPH). For now there can be only one keyjoystick.
 </p>
 
-<h3><a id="mouse">x.x Mouse</a></h3>
+<h3><a id="mouse">4.3 Mouse</a></h3>
 
 <p>
 To connect a mouse, you can also use the <code>plug</code> command:
@@ -453,7 +453,7 @@ will connect a mouse to joystick port A. If you want the joystick emulation feat
 </p>
 
 
-<h2><a id="machines-extensions">x. Using Machines and Extensions</a></h2>
+<h2><a id="machines-extensions">5. Using Machines and Extensions</a></h2>
 
 <p>
 To use a specific MSX machine that is present on your system (i.e. your openMSX installation), simply use the <code>-machine</code> command line argument, like this:

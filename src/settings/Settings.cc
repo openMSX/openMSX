@@ -95,7 +95,7 @@ void IntegerSetting::setValueString(const string &valueString)
 	long newValue = strtol(valueString.c_str(), &endPtr, 0);
 	if (*endPtr != '\0') {
 		throw CommandException(
-			"Not a valid integer: \"" + valueString + "\"");
+			"set: " + valueString + ": not a valid integer");
 	}
 	setValue(newValue);
 }
@@ -160,7 +160,7 @@ void FloatSetting::setValueString(const string &valueString)
 	int converted = sscanf(valueString.c_str(), "%f", &newValue);
 	if (converted != 1) {
 		throw CommandException(
-			"Not a valid float: \"" + valueString + "\"");
+			"set: " + valueString + ": not a valid float");
 	}
 	setValue(newValue);
 }
@@ -205,7 +205,7 @@ int IntStringMap::lookupString(const string &s) const
 	if (it != stringToInt->end()) return it->second;
 	// TODO: Don't use the knowledge that we're called inside command
 	//       processing: use a different exception.
-	throw CommandException("Not a valid value: \"" + s + "\"");
+	throw CommandException("set: " + s + ": not a valid value");
 }
 
 string IntStringMap::getSummary() const
@@ -336,7 +336,7 @@ void SettingsManager::SetCommand::execute(
 {
 	int nrTokens = tokens.size();
 	if (nrTokens == 0 || nrTokens > 3) {
-		throw CommandException("Wrong number of parameters");
+		throw CommandException("set: wrong number of parameters");
 	}
 
 	if (nrTokens == 1) {
@@ -357,8 +357,7 @@ void SettingsManager::SetCommand::execute(
 		manager->getByName(name)
 		);
 	if (!setting) {
-		throw CommandException("There is no setting named \""
-		                       + name + "\"");
+		throw CommandException("set: " + name + ": no such setting");
 	}
 
 	if (nrTokens == 2) {
@@ -423,7 +422,7 @@ void SettingsManager::ToggleCommand::execute(
 {
 	int nrTokens = tokens.size();
 	if (nrTokens == 0 || nrTokens > 2) {
-		throw CommandException("Wrong number of parameters");
+		throw CommandException("toggle: wrong number of parameters");
 	}
 
 	if (nrTokens == 1) {
@@ -443,12 +442,12 @@ void SettingsManager::ToggleCommand::execute(
 	SettingNode *setting = manager->getByName(name);
 	if (!setting) {
 		throw CommandException(
-			"There is no setting named \"" + name + "\"" );
+			"toggle: " + name + ": no such setting" );
 	}
 	BooleanSetting *boolSetting = dynamic_cast<BooleanSetting*>(setting);
 	if (!boolSetting) {
 		throw CommandException(
-			"The setting named \"" + name + "\" is not a boolean" );
+			"toggle: " + name + ": setting is not a boolean" );
 	}
 	// actual toggle
 	boolSetting->setValue(!boolSetting->getValue());

@@ -5,6 +5,9 @@ $Id$
           a debugger section, it's turned off. In this case the debuggersettings
 	  in the console won't appear either.
 
+2003-09-21 Manuel Bilderbeek <manuel@msxnet.org>
+	* Made error messages more UNIX style and thus more uniform
+
 2003-09-21 Maarten ter Huurne <maarten@treewalker.org>
 	* Workaround for bug in shutdown sequence:
 	  MSXCPU::getCurrentTime is needed by audio callback,

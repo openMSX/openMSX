@@ -201,14 +201,14 @@ void CommandController::executeCommand(const string &cmd)
 			continue;
 		}
 
-		multimap<const string, Command*, ltstr>::const_iterator it;
-		it = commands.lower_bound(tokens.front());
-		if (it == commands.end() || it->first != tokens.front()) {
-			throw CommandException("Unknown command");
+		multimap<const string, Command*, ltstr>::const_iterator it2;
+		it2 = commands.lower_bound(tokens.front());
+		if (it2 == commands.end() || it2->first != tokens.front()) {
+			throw CommandException(*it + ": unknown command");
 		}
-		while (it != commands.end() && it->first == tokens.front()) {
-			it->second->execute(tokens);
-			++it;
+		while (it2 != commands.end() && it2->first == tokens.front()) {
+			it2->second->execute(tokens);
+			++it2;
 		}
 	}
 }
@@ -421,7 +421,7 @@ void CommandController::HelpCmd::execute(const vector<string> &tokens)
 			multimap<const string, Command*, ltstr>::const_iterator it;
 			it = cc->commands.lower_bound(tokens[1]);
 			if (it == cc->commands.end() || it->first != tokens[1])
-				throw CommandException("Unknown command");
+				throw CommandException(tokens[1] + ": unknown command");
 			while (it != cc->commands.end() && it->first == tokens[1]) {
 				vector<string> tokens2(tokens);
 				tokens2.erase(tokens2.begin());

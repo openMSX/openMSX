@@ -106,7 +106,7 @@ void PluggingController::PlugCmd::execute(const vector<string> &tokens)
 		case 2: {
 			Connector *connector = controller->getConnector(tokens[1]);
 			if (connector == NULL) {
-				throw CommandException("No such connector");
+				throw CommandException("plug: " + tokens[1] + ": no such connector");
 			}
 			print(connector->getName() + ": " +
 			      connector->getPlugged()->getName());
@@ -115,25 +115,25 @@ void PluggingController::PlugCmd::execute(const vector<string> &tokens)
 		case 3: {
 			Connector *connector = controller->getConnector(tokens[1]);
 			if (connector == NULL) {
-				throw CommandException("No such connector");
+				throw CommandException("plug: " + tokens[1] + ": no such connector");
 			}
 			Pluggable *pluggable = controller->getPluggable(tokens[2]);
 			if (pluggable == NULL) {
-				throw CommandException("No such pluggable");
+				throw CommandException("plug: " + tokens[2] + ": no such pluggable");
 			}
 			if (connector->getClass() != pluggable->getClass()) {
-				throw CommandException("Doesn't fit");
+				throw CommandException("plug: " + tokens[2] + " doesn't fit in " + tokens[1]);
 			}
 			connector->unplug(time);
 			try {
 				connector->plug(pluggable, time);
 			} catch (PlugException &e) {
-				throw CommandException("Plug failed: " + e.getMessage());
+				throw CommandException("plug: plug failed: " + e.getMessage());
 			}
 			break;
 		}
 	default:
-		throw CommandException("Syntax error");
+		throw CommandException("plug: syntax error");
 	}
 }
 
