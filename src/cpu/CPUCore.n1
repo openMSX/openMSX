@@ -1,9 +1,10 @@
 // $Id$
 
-#ifdef CPU_DEBUG
 static word start_pc;
 static Clock<CLOCK_FREQ> before;
-#endif
+
+inline void cpuTracePre();
+inline void cpuTracePost();
 
 virtual void execute();
 

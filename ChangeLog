@@ -1,9 +1,14 @@
 $Id$
 
+2004-11-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Enabled "cputrace" setting also in non-debug versions:
+	   - There should now be very little overhead when tracing is not
+	     enabled. Before it was 1 if per Z80 instruction.
+
 2004-11-08 Joost Damad <joost@lumatec.be>
 	* updated debian/rules: fixes by Goedson Teixeira Paixao
 
-2004-11-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-11-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* a few small improvements
 	* clear ram on power off/on
 

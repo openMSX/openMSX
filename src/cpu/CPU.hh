@@ -14,10 +14,6 @@
 #include "IntegerSetting.hh"
 #include "SettingListener.hh"
 
-#ifdef DEBUG
-#define CPU_DEBUG
-#endif
-
 using std::multiset;
 using std::string;
 using std::auto_ptr;
@@ -198,11 +194,9 @@ protected:
 	
 	Scheduler& scheduler;
 
-#ifdef CPU_DEBUG
 public:
 	byte debugmemory[65536];
 	char to_print_string[300];
-#endif
 
 private:
 	virtual void update(const SettingLeafNode* setting);

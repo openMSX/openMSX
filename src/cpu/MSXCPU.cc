@@ -27,10 +27,14 @@ MSXCPU::MSXCPU()
 	infoCmd.registerTopic("time", &timeInfo);
 	debugger.setCPU(this);
 	debugger.registerDebuggable("CPU regs", *this);
+
+	traceSetting.addListener(this);
 }
 
 MSXCPU::~MSXCPU()
 {
+	traceSetting.removeListener(this);
+
 	debugger.unregisterDebuggable("CPU regs", *this);
 	debugger.setCPU(0);
 	infoCmd.unregisterTopic("time", &timeInfo);
@@ -145,6 +149,11 @@ void MSXCPU::wait(const EmuTime& time)
 	activeCPU->wait(time);
 }
 
+void MSXCPU::update(const SettingLeafNode* setting)
+{
+	assert(setting == &traceSetting);
+	exitCPULoop();
+}
 
 // DebugInterface
 
@@ -256,6 +265,7 @@ string MSXCPU::doBreak()
 string MSXCPU::setBreakPoint(word addr)
 {
 	activeCPU->breakPoints.insert(addr);
+	exitCPULoop();
 	return "";
 }
 
@@ -265,6 +275,7 @@ string MSXCPU::removeBreakPoint(word addr)
 	if (it != activeCPU->breakPoints.end()) {
 		activeCPU->breakPoints.erase(it);
 	}
+	exitCPULoop();
 	return "";
 }
 

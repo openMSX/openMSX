@@ -6,6 +6,7 @@
 #include "Debuggable.hh"
 #include "InfoTopic.hh"
 #include "BooleanSetting.hh"
+#include "SettingListener.hh"
 #include "Z80.hh"
 #include "R800.hh"
 
@@ -16,7 +17,7 @@ class MSXCPUInterface;
 class InfoCommand;
 class Debugger;
 
-class MSXCPU : private Debuggable
+class MSXCPU : private Debuggable, private SettingListener
 {
 public:
 	enum CPUType { CPU_Z80, CPU_R800 };
@@ -120,6 +121,9 @@ private:
 	
 	void wait(const EmuTime& time);
 	friend class VDPIODelay;
+
+	// SettingListener
+	void update(const SettingLeafNode* setting);
 
 	BooleanSetting traceSetting;
 	Z80 z80;

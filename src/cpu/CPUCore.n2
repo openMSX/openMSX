@@ -4,11 +4,8 @@
 #include <cassert>
 #include "Scheduler.hh"
 #include "MSXCPUInterface.hh"
-
-#ifdef CPU_DEBUG
 #include "Dasm.hh"
 #include "BooleanSetting.hh"
-#endif
 
 using std::setw;
 using std::setfill;
@@ -46,9 +43,7 @@ inline byte _CPU_::RDMEM_common(word address)
 		// cached, fast path
 		clock += (MEM_DELAY1 + MEM_DELAY2);
 		byte result = readCacheLine[line][address&CACHE_LINE_LOW];
-		#ifdef CPU_DEBUG
 		debugmemory[address] = result;
-		#endif
 		return result;
 	} else {
 		return RDMEMslow(address);	// not inlined
@@ -66,9 +61,7 @@ byte _CPU_::RDMEMslow(word address)
 			// cached ok
 			clock += (MEM_DELAY1 + MEM_DELAY2);
 			byte result = readCacheLine[line][address&CACHE_LINE_LOW];
-			#ifdef CPU_DEBUG
 			debugmemory[address] = result;
-			#endif
 			return result;
 		}
 	}
@@ -76,9 +69,7 @@ byte _CPU_::RDMEMslow(word address)
 	clock += MEM_DELAY1;
 	scheduler.schedule(clock.getTime());
 	byte result = interface->readMem(address, clock.getTime());
-	#ifdef CPU_DEBUG
 	debugmemory[address] = result;
-	#endif
 	clock += MEM_DELAY2;
 	return result;
 }
@@ -180,32 +171,35 @@ inline void _CPU_::executeInstruction() {
 	executeInstruction1(opcode);
 }
 
-inline void _CPU_::executeFast() {
-	#ifdef CPU_DEBUG
+inline void _CPU_::cpuTracePre()
+{
 	start_pc = R.PC.w;
 	before.advance(clock.getTime());
-	#endif
-
-	R800Refresh();
-
-	executeInstruction();
-
-	#ifdef CPU_DEBUG
+}
+inline void _CPU_::cpuTracePost()
+{
 	if (traceSetting.getValue()) {
-		Dasm(&debugmemory[start_pc], to_print_string, start_pc);
-		PRT_DEBUG(setfill('0') << hex <<
-			  setw(4) << start_pc <<
-			  " : " << to_print_string <<
-			  " AF=" << setw(4) << R.AF.w <<
-			  " BC=" << setw(4) << R.BC.w <<
-			  " DE=" << setw(4) << R.DE.w <<
-			  " HL=" << setw(4) << R.HL.w <<
-			  " IX=" << setw(4) << R.IX.w <<
-			  " IY=" << setw(4) << R.IY.w <<
-			  " SP=" << setw(4) << R.SP.w << dec);
-		//PRT_DEBUG("CPU: Took " << before.getTicksTill(clock) << "T-States");
+		Dasm(&debugmemory[start_pc], to_print_string,
+		     start_pc);
+		cout << setfill('0') << hex << setw(4) << start_pc
+		     << " : " << to_print_string
+		     << " AF=" << setw(4) << R.AF.w
+		     << " BC=" << setw(4) << R.BC.w
+		     << " DE=" << setw(4) << R.DE.w
+		     << " HL=" << setw(4) << R.HL.w
+		     << " IX=" << setw(4) << R.IX.w
+		     << " IY=" << setw(4) << R.IY.w
+		     << " SP=" << setw(4) << R.SP.w
+		     << endl << dec;
+		// cout << "CPU: Took " << before.getTicksTill(clock)
+		//      << "T-States" << endl;
 	}
-	#endif
+}
+
+inline void _CPU_::executeFast()
+{
+	R800Refresh();
+	executeInstruction();
 }
 
 void _CPU_::executeSlow()
@@ -251,7 +245,9 @@ void _CPU_::execute()
 		// at least one instruction
 		continued = false;
 		scheduler.schedule(clock.getTime());
+		cpuTracePre();
 		executeSlow();
+		cpuTracePost();
 		--slowInstructions;
 		if (step) {
 			step = false;
@@ -260,8 +256,8 @@ void _CPU_::execute()
 		}
 	}
 
-	if (breakPoints.empty()) {
-		// fast path, no breakpoints
+	if (breakPoints.empty() && !traceSetting.getValue()) {
+		// fast path, no breakpoints, no tracing
 		while (!exitLoop) {
 			if (slowInstructions) {
 				slowInstructions--;
@@ -280,6 +276,7 @@ void _CPU_::execute()
 				doBreak2();
 				return;
 			} else {
+				cpuTracePre();
 				if (slowInstructions == 0) {
 					scheduler.schedule(clock.getTime());
 					executeFast();
@@ -288,6 +285,7 @@ void _CPU_::execute()
 					scheduler.schedule(clock.getTime());
 					executeSlow();
 				}
+				cpuTracePost();
 			}
 		}
 	}
@@ -2526,11 +2524,8 @@ void _CPU_::patch() {
 }
 
 
-
-#ifdef CPU_DEBUG
 word _CPU_::start_pc;
 Clock<_CPU_::CLOCK_FREQ> _CPU_::before;
-#endif
 
 } // namespace openmsx
 
