@@ -78,6 +78,7 @@ inline void PixelRenderer::renderUntil(const EmuTime &time)
 	if (curFrameSkip != 0) return;
 
 	int limitTicks = vdp->getTicksThisFrame(time);
+	assert(limitTicks <= vdp->getTicksPerFrame());
 	int displayL = getDisplayLeft();
 	int limitX, limitY;
 	switch (settings->getAccuracy()->getValue()) {
@@ -100,11 +101,6 @@ inline void PixelRenderer::renderUntil(const EmuTime &time)
 	default:
 		assert(false);
 	}
-
-	// Note: Rounding errors might push limitTicks beyond
-	//       #lines * TICKS_PER_LINE, but never more than a line beyond.
-	// TODO: Get rid of rounding errors altogether.
-	assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
 
 	if (displayEnabled) {
 		// Update sprite checking, so that subclass can call getSprites.
