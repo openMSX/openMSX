@@ -19,6 +19,7 @@ public:
 	               bool initialValue = false);
 	BooleanSetting(XMLElement& node, const string& description);
 	virtual ~BooleanSetting();
+	virtual string getValueString() const;
 
 private:
 	static const EnumSettingBase<bool>::Map& getMap();

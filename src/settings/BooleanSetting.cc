@@ -22,6 +22,11 @@ BooleanSetting::~BooleanSetting()
 	exitSetting();
 }
 
+string BooleanSetting::getValueString() const
+{
+	return string(getValue() ? "true" : "false");
+}
+
 const EnumSetting<bool>::Map& BooleanSetting::getMap()
 {
 	static EnumSetting<bool>::Map boolMap;
