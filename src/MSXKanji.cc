@@ -66,8 +66,6 @@ byte MSXKanji::readIO(byte port, const EmuTime& /*time*/)
 		}
 		break;
 	default:
-		// This port should not have been registered.
-		assert(false);
 		result = 0xFF;
 	}
 	//PRT_DEBUG("MSXKanji: read " << (int)port << " " << (int)result);
