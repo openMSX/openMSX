@@ -23,17 +23,14 @@ TODO:
 static const int WIDTH = 640;
 static const int HEIGHT = 480;
 
-/** Line number where top border starts.
-  * This is independent of PAL/NTSC timing or number of lines per screen.
-  */
-static const int LINE_TOP_BORDER = 3 + 13;
-
 /** VDP ticks between start of line and start of left border.
   */
 static const int TICKS_LEFT_BORDER = 100 + 102;
 
 /** The middle of the visible (display + borders) part of a line,
   * expressed in VDP ticks since the start of the line.
+  * TODO: Move this to PixelRenderer?
+  *       It is not used there, but it is used by multiple subclasses.
   */
 static const int TICKS_VISIBLE_MIDDLE =
 	TICKS_LEFT_BORDER + (VDP::TICKS_PER_LINE - TICKS_LEFT_BORDER - 27) / 2;
@@ -66,16 +63,11 @@ inline static int translateX(int absoluteX)
 
 template <class Pixel> void SDLHiRenderer<Pixel>::finishFrame()
 {
-	// Render console if needed
+	// Render console if needed.
 	console->drawConsole();
 
 	// Update screen.
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
-}
-
-template <class Pixel> inline int SDLHiRenderer<Pixel>::getDisplayWidth()
-{
-	return vdp->isTextMode() ? 480 : 512;
 }
 
 template <class Pixel> inline Pixel *SDLHiRenderer<Pixel>::getLinePtr(

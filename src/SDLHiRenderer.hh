@@ -73,10 +73,6 @@ private:
 	inline void renderPlanarBitmapLines(byte line, int count);
 	inline void renderCharacterLines(byte line, int count);
 
-	/** Get width of the display area in pixels.
-	  */
-	inline int getDisplayWidth();
-
 	/** Get a pointer to the start of a VRAM line in the cache.
 	  * @param displayCache The display cache to use.
 	  * @param line The VRAM line, range depends on display cache.
