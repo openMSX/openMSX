@@ -13,7 +13,9 @@ class Runnable
 {
 public:
 	virtual ~Runnable() {}
-	virtual void run() throw() = 0;
+	virtual void run() = 0; // we must allow exceptions here because some
+	                        // thread libs use exceptions internally for
+	                        // thread cancelation
 };
 
 class Thread

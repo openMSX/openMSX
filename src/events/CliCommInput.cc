@@ -89,7 +89,7 @@ void CliCommInput::cb_text(ParseState* user_data, const xmlChar* chars, int len)
 	}
 }
 
-void CliCommInput::run() throw()
+void CliCommInput::run()
 {
 #ifdef __WIN32__
 	bool useNamedPipes = false;

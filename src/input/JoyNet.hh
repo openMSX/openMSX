@@ -68,7 +68,7 @@ private:
 	public:
 		ConnectionListener(int listenport,byte* linestatus);
 		virtual ~ConnectionListener();
-		virtual void run() throw();
+		virtual void run();
 	private:
 		int port;
 		byte* statuspointer;

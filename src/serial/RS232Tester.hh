@@ -44,7 +44,7 @@ public:
 
 private:
 	// Runnable
-	virtual void run() throw();
+	virtual void run();
 
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData) throw();

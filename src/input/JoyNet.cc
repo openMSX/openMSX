@@ -144,7 +144,7 @@ JoyNet::ConnectionListener::~ConnectionListener()
 {
 }
 
-void JoyNet::ConnectionListener::run() throw()
+void JoyNet::ConnectionListener::run()
 {
 	int listenfd;
 	int connectfd;

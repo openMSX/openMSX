@@ -78,7 +78,7 @@ const string& RS232Tester::getDescription() const
 }
 
 // Runnable
-void RS232Tester::run() throw()
+void RS232Tester::run()
 {
 	byte buf;
 	while (true) {

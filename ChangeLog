@@ -1,5 +1,9 @@
 $Id$
 
+2004-03-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed unexpected exception problem in combination with NPTL threading
+	  library (Debian unstable)
+
 2004-03-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Don't instantiate CassettePlayer when there is no CassettePort
 

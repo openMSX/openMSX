@@ -113,7 +113,7 @@ void MidiInNative::procShortMsg(DWORD param)
 }
 
 // Runnable
-void MidiInNative::run() throw()
+void MidiInNative::run()
 {
 	assert(connector);
 	thrdid = SDL_ThreadID();
