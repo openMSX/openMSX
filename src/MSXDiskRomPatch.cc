@@ -21,6 +21,7 @@ MSXDiskRomPatch::~MSXDiskRomPatch()
 void MSXDiskRomPatch::patch() const
 {
 	PRT_DEBUG("void MSXDiskRomPatch::patch() const");
+	return;
 	int address;
 	
 	// TODO: get CPU[PC] of patch instruction

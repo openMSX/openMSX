@@ -4378,7 +4378,10 @@ void Z80::xor_iyl() { M_XOR(R.IY.B.l); }
 void Z80::xor_byte(){ M_XOR(Z80_RDMEM_OPCODE()); }
 
 
-void Z80::patch() { interface->patch(); }
+void Z80::patch()
+{
+	interface->patch();
+}
 
 
 

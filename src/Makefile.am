@@ -16,7 +16,7 @@ endif
 # or perhaps sometimes even more:
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
-SUBDIRS = cfg
+SUBDIRS = cfg libxmlx
 
 bin_PROGRAMS=openmsx
 openmsx_SOURCES=openmsx.cc \
@@ -80,11 +80,9 @@ openmsx_SOURCES=openmsx.cc \
 	MSXRomPatchInterface.hh MSXRomPatchInterface.cc \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh
 
-
-# libxml++ and SDL
-#openmsx_LDADD= -lxml++ $(SDL_LIBS) -lpthread
-#I have a gcc-3.0 compatable libxml++ in /usr/local:
-#openmsx_LDADD= /usr/local/lib/libxml++.la -lSDL -lpthread
+# uncomment if you want to link with libxmlx
+# doesn't do anything yet at the moment
+# openmsx_LDADD = libxmlx/libxmlx.la
 
 MAINTAINERCLEANFILES = Makefile.in config.h.in stamp-h.in
 
