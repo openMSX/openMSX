@@ -10,6 +10,7 @@
 #include "PluggingController.hh"
 #include "Mixer.hh"
 #include "MSXConfig.hh"
+#include "Device.hh"
 #include "DeviceFactory.hh"
 #include "CommandController.hh"
 #include "KeyEventInserter.hh"

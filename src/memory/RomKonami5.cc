@@ -14,7 +14,7 @@
 //  bank 4: 0xB000 - 0xB7ff (0xB000 used)
 
 #include "RomKonami5.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 #include "SCC.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
@@ -22,7 +22,7 @@
 
 namespace openmsx {
 
-RomKonami5::RomKonami5(Device* config, const EmuTime &time, Rom *rom)
+RomKonami5::RomKonami5(Device* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	short volume = (short)config->getParameterAsInt("volume");
@@ -36,7 +36,7 @@ RomKonami5::~RomKonami5()
 	delete scc;
 }
 
-void RomKonami5::reset(const EmuTime &time)
+void RomKonami5::reset(const EmuTime& time)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -50,7 +50,7 @@ void RomKonami5::reset(const EmuTime &time)
 	scc->reset(time);
 }
 
-byte RomKonami5::readMem(word address, const EmuTime &time)
+byte RomKonami5::readMem(word address, const EmuTime& time)
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		return scc->readMemInterface(address & 0xFF, time);
@@ -69,7 +69,7 @@ const byte* RomKonami5::getReadCacheLine(word address) const
 	}
 }
 
-void RomKonami5::writeMem(word address, byte value, const EmuTime &time)
+void RomKonami5::writeMem(word address, byte value, const EmuTime& time)
 {
 	if ((address < 0x5000) || (address >= 0xC000)) {
 		return;

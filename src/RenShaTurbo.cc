@@ -2,6 +2,7 @@
 
 #include "RenShaTurbo.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
 #include "Autofire.hh"
 
 namespace openmsx {

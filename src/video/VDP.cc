@@ -26,6 +26,8 @@ TODO:
 #include "CommandController.hh"
 #include "Scheduler.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
+#include "Device.hh"
 #include "RenderSettings.hh"
 #include "RendererFactory.hh"
 #include <iomanip>
@@ -39,14 +41,14 @@ namespace openmsx {
 
 // Init and cleanup:
 
-VDP::VDP(Device *config, const EmuTime &time)
+VDP::VDP(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 	, vdpRegsCmd(this)
 	, paletteCmd(this)
 {
 	PRT_DEBUG("Creating a VDP object");
 
-	string versionString = deviceConfig->getParameter("version");
+	string versionString = config->getParameter("version");
 	if (versionString == "TMS99X8A") version = TMS99X8A;
 	else if (versionString == "TMS9929A") version = TMS9929A;
 	else if (versionString == "V9938") version = V9938;
@@ -95,7 +97,7 @@ VDP::VDP(Device *config, const EmuTime &time)
 
 	// Get renderer type from config.
 	try {
-		Config *config = MSXConfig::instance()->getConfigById("renderer");
+		Config* config = MSXConfig::instance()->getConfigById("renderer");
 		rendererName = config->getType();
 	} catch (ConfigException &e) {
 		// no renderer section

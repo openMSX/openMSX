@@ -6,11 +6,12 @@
 #include "MSXCPU.hh"
 #include "CPU.hh"
 #include "MSXConfig.hh"
+#include "Device.hh"
 
 
 namespace openmsx {
 
-MSXMapperIO::MSXMapperIO(Device *config, const EmuTime &time)
+MSXMapperIO::MSXMapperIO(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	string type = config->getParameter("type");

@@ -5,13 +5,13 @@
 #include <iomanip>
 #include "EmuTime.hh"
 #include "DebugDevice.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 #include "FileOperations.hh"
 #include "Settings.hh"
 
 namespace openmsx {
 
-DebugDevice::DebugDevice(Device *config, const EmuTime & time)
+DebugDevice::DebugDevice(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	mode = OFF;

@@ -10,6 +10,7 @@
 #include "CommandConsole.hh"
 #include "FileOperations.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
 #include "openmsx.hh"
 #include "CliCommunicator.hh"
 #include "InfoCommand.hh"
@@ -217,11 +218,11 @@ string CommandController::executeCommand(const string &cmd)
 void CommandController::autoCommands()
 {
 	try {
-		Config *config = MSXConfig::instance()->getConfigById("AutoCommands");
-		list<Device::Parameter*>* commandList;
+		Config* config = MSXConfig::instance()->getConfigById("AutoCommands");
+		list<Config::Parameter*>* commandList;
 		commandList = config->getParametersWithClass("");
-		list<Device::Parameter*>::const_iterator i;
-		for (i = commandList->begin(); i != commandList->end(); i++) {
+		for (list<Config::Parameter*>::const_iterator i = commandList->begin();
+		     i != commandList->end(); ++i) {
 			try {
 				executeCommand((*i)->value);
 			} catch (CommandException &e) {

@@ -3,14 +3,14 @@
 #include "MSXFDC.hh"
 #include "DiskDrive.hh"
 #include "DiskImageCLI.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 
 namespace openmsx {
 
 DiskImageCLI diskImageCLI;
 
 
-MSXFDC::MSXFDC(Device *config, const EmuTime &time)
+MSXFDC::MSXFDC(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(config, time) 
 {
@@ -34,7 +34,7 @@ MSXFDC::~MSXFDC()
 	}
 }
 
-byte MSXFDC::readMem(word address, const EmuTime &time) const
+byte MSXFDC::readMem(word address, const EmuTime& time) const
 {
 	return rom.read(address & 0x3FFF);
 }

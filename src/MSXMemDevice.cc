@@ -2,7 +2,7 @@
  
 #include "MSXCPUInterface.hh"
 #include "MSXMemDevice.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 
 
 namespace openmsx {
@@ -10,7 +10,7 @@ namespace openmsx {
 byte MSXMemDevice::unmappedRead[0x10000];
 byte MSXMemDevice::unmappedWrite[0x10000];
 
-MSXMemDevice::MSXMemDevice(Device *config, const EmuTime &time)
+MSXMemDevice::MSXMemDevice(Device* config, const EmuTime& time)
 	: MSXDevice(config, time)
 {
 	init();

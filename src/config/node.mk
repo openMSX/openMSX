@@ -1,7 +1,10 @@
 # $Id$
 
 SRC_HDR:= \
-	MSXConfig
+	MSXConfig Config Device
+
+HDR_ONLY:= \
+	ConfigException
 
 $(eval $(PROCESS_NODE))
 

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "OSDConsoleRenderer.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
 #include "CommandConsole.hh"
 #include "File.hh"
 
@@ -51,7 +52,7 @@ bool FontSetting::checkFile(const string &filename)
 
 // class OSDConsoleRenderer
 
-OSDConsoleRenderer::OSDConsoleRenderer(Console * console_)
+OSDConsoleRenderer::OSDConsoleRenderer(Console* console_)
 {
 	console = console_;
 	bool initiated = true;
@@ -59,7 +60,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console * console_)
 	string tempconfig = console->getId();
 	tempconfig[0] = ::toupper(tempconfig[0]);
 	try {
-		Config *config = MSXConfig::instance()->getConfigById(tempconfig);
+		Config* config = MSXConfig::instance()->getConfigById(tempconfig);
 		context = config->getContext().clone();
 		if (initsDone.find(tempconfig) == initsDone.end()) {
 			initsDone.insert(tempconfig);

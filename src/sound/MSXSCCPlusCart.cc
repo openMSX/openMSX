@@ -4,20 +4,21 @@
 
 #include "SCC.hh"
 #include "File.hh"
+#include "FileContext.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 
 
 namespace openmsx {
 
-MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
+MSXSCCPlusCart::MSXSCCPlusCart(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	memset(memoryBank, 0xFF, 0x20000);
-	if (deviceConfig->hasParameter("filename")) {
+	if (config->hasParameter("filename")) {
 		// read the rom file
-		const string &filename =
+		const string& filename =
 			deviceConfig->getParameter("filename");
 		try {
 			File file(config->getContext().resolve(filename));
@@ -27,7 +28,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 			throw FatalError("Error reading file: " + filename);
 		}
 	}
-	const string &subtype =
+	const string& subtype =
 		deviceConfig->getParameter("subtype", "expanded");
 	if (subtype == "Snatcher") {
 		mapperMask = 0x0F;
@@ -63,7 +64,7 @@ MSXSCCPlusCart::~MSXSCCPlusCart()
 	delete scc;
 }
 
-void MSXSCCPlusCart::reset(const EmuTime &time)
+void MSXSCCPlusCart::reset(const EmuTime& time)
 {
 	setModeRegister(0);
 	setMapper(0, 0);
@@ -74,7 +75,7 @@ void MSXSCCPlusCart::reset(const EmuTime &time)
 }
 
 
-byte MSXSCCPlusCart::readMem(word address, const EmuTime &time)
+byte MSXSCCPlusCart::readMem(word address, const EmuTime& time)
 {
 	byte result;
 	// modeRegister can not be read!
@@ -111,7 +112,7 @@ const byte* MSXSCCPlusCart::getReadCacheLine(word start) const
 }
 
 
-void MSXSCCPlusCart::writeMem(word address, byte value, const EmuTime &time)
+void MSXSCCPlusCart::writeMem(word address, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("SCC+ write "<< hex << address << " " << (int)value << dec);
 	

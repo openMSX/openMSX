@@ -1,6 +1,6 @@
 // $Id$
 
-#include "MSXConfig.hh"
+#include "Device.hh"
 #include "FDCFactory.hh"
 #include "PhilipsFDC.hh"
 #include "MicrosolFDC.hh"
@@ -11,14 +11,14 @@
 
 namespace openmsx {
 
-MSXDevice* FDCFactory::create(Device *config, const EmuTime &time)
+MSXDevice* FDCFactory::create(Device* config, const EmuTime& time)
 {
-	const string &type = config->getParameter("type");
+	const string& type = config->getParameter("type");
 	if (type == "WD2793") {
 		return new PhilipsFDC(config, time);
 	}
 	if (type == "Microsol") {
-		MicrosolFDC *fdc = new MicrosolFDC(config, time);
+		MicrosolFDC* fdc = new MicrosolFDC(config, time);
 		MSXCPUInterface::instance()->register_IO_Out(0xD0, fdc);
 		MSXCPUInterface::instance()->register_IO_Out(0xD1, fdc);
 		MSXCPUInterface::instance()->register_IO_Out(0xD2, fdc);

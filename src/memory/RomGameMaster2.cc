@@ -40,12 +40,12 @@
 
 
 #include "RomGameMaster2.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 
 
 namespace openmsx {
 
-RomGameMaster2::RomGameMaster2(Device* config, const EmuTime &time, Rom *rom)
+RomGameMaster2::RomGameMaster2(Device* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom4kBBlocks(config, time, rom),
 	  sram(0x2000, config)
 {
@@ -56,7 +56,7 @@ RomGameMaster2::~RomGameMaster2()
 {
 }
 
-void RomGameMaster2::reset(const EmuTime &time)
+void RomGameMaster2::reset(const EmuTime& time)
 {
 	for (int i = 0; i < 4; i++) {
 		setBank(i, unmappedRead);
@@ -70,7 +70,7 @@ void RomGameMaster2::reset(const EmuTime &time)
 	sramEnabled = false;
 }
 
-void RomGameMaster2::writeMem(word address, byte value, const EmuTime &time)
+void RomGameMaster2::writeMem(word address, byte value, const EmuTime& time)
 {
 	if ((0x6000 <= address) && (address < 0xB000)) {
 		if (!(address & 0x1000)) {

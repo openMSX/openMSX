@@ -1,12 +1,12 @@
 // $Id$
 
 #include "RomPlain.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 
 
 namespace openmsx {
 
-RomPlain::RomPlain(Device* config, const EmuTime &time, Rom *rom)
+RomPlain::RomPlain(Device* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	switch (rom->getSize()) {
@@ -63,7 +63,6 @@ RomPlain::~RomPlain()
 {
 }
 
-
 void RomPlain::guessHelper(word offset, int* pages)
 {
 	if ((rom->read(offset++) == 'A') && (rom->read(offset++) =='B')) {
@@ -106,8 +105,7 @@ word RomPlain::guessLocation()
 	int lowest = 4;
 	for (list<Device::Slotted*>::const_iterator i =
 	         deviceConfig->slotted.begin();
-	     i != deviceConfig->slotted.end();
-	     ++i) {
+	     i != deviceConfig->slotted.end(); ++i) {
 		int page = (*i)->getPage();
 		if (page < lowest) {
 			lowest = page;

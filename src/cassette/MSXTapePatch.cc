@@ -3,6 +3,7 @@
 #include "MSXTapePatch.hh"
 #include "CommandController.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
 #include "libxmlx/xmlx.hh"
 #include "File.hh"
 

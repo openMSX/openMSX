@@ -1,13 +1,13 @@
 // $Id$
 
 #include "RomNational.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 #include "CPU.hh"
 
 
 namespace openmsx {
 
-RomNational::RomNational(Device* config, const EmuTime &time, Rom *rom)
+RomNational::RomNational(Device* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom),
 	  sram(0x1000, config)
 {
@@ -18,7 +18,7 @@ RomNational::~RomNational()
 {
 }
 
-void RomNational::reset(const EmuTime &time)
+void RomNational::reset(const EmuTime& time)
 {
 	control = 0;
 	for (int region = 0; region < 4; region++) {
@@ -28,7 +28,7 @@ void RomNational::reset(const EmuTime &time)
 	sramAddr = 0;	// TODO check this
 }
 
-byte RomNational::readMem(word address, const EmuTime &time)
+byte RomNational::readMem(word address, const EmuTime& time)
 {
 	if ((control & 0x04) && ((address & 0x7FF9) == 0x7FF0)) {
 		// TODO check mirrored
@@ -52,7 +52,7 @@ const byte* RomNational::getReadCacheLine(word address) const
 	}
 }
 
-void RomNational::writeMem(word address, byte value, const EmuTime &time)
+void RomNational::writeMem(word address, byte value, const EmuTime& time)
 {
 	// TODO bank switch address mirrored?
 	if (address == 0x6000) {

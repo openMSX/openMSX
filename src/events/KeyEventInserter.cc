@@ -4,6 +4,7 @@
 #include "SDLEventInserter.hh"
 #include "EmuTime.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
 #include "libxmlx/xmlx.hh"
 #include "File.hh"
 
@@ -82,13 +83,13 @@ const string& KeyEventInserterCLI::optionHelp() const
 }
 
 
-KeyEventInserter::KeyEventInserter(const EmuTime &time)
+KeyEventInserter::KeyEventInserter(const EmuTime& time)
 {
 	try {
-		Config *config = MSXConfig::instance()->
+		Config* config = MSXConfig::instance()->
 		                            getConfigById("KeyEventInserter");
 		enter(config->getParameter("keys"), time);
-	} catch (ConfigException &e) {
+	} catch (ConfigException& e) {
 		// do nothing
 	}
 }

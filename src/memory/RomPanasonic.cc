@@ -2,7 +2,7 @@
 
 #include "RomPanasonic.hh"
 #include "PanasonicMemory.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 #include "SRAM.hh"
 #include "CPU.hh"
 
@@ -13,7 +13,7 @@ const int SRAM_BASE = 0x80;
 const int RAM_BASE  = 0x180;
 
 
-RomPanasonic::RomPanasonic(Device* config, const EmuTime &time, Rom *rom)
+RomPanasonic::RomPanasonic(Device* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	PanasonicMemory::instance()->registerRom(rom->getBlock(), rom->getSize());
@@ -39,7 +39,7 @@ RomPanasonic::~RomPanasonic()
 	delete sram;
 }
 
-void RomPanasonic::reset(const EmuTime &time)
+void RomPanasonic::reset(const EmuTime& time)
 {
 	control = 0;
 	for (int region = 0; region < 8; region++) {
@@ -48,7 +48,7 @@ void RomPanasonic::reset(const EmuTime &time)
 	}
 }
 
-byte RomPanasonic::readMem(word address, const EmuTime &time)
+byte RomPanasonic::readMem(word address, const EmuTime& time)
 {
 	byte result;
 	if ((control & 0x04) && (0x7FF0 <= address) && (address < 0x7FF8)) {
@@ -85,7 +85,7 @@ const byte* RomPanasonic::getReadCacheLine(word address) const
 	}
 }
 
-void RomPanasonic::writeMem(word address, byte value, const EmuTime &time)
+void RomPanasonic::writeMem(word address, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("DEBUG write "<<hex<<(int)address<<
 	//          " "<<(int)value<<dec);

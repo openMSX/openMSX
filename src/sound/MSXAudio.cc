@@ -3,12 +3,11 @@
 #include "MSXAudio.hh"
 #include "Mixer.hh"
 #include "Y8950.hh"
-#include "MSXConfig.hh"
-
+#include "Device.hh"
 
 namespace openmsx {
 
-MSXAudio::MSXAudio(Device *config, const EmuTime &time)
+MSXAudio::MSXAudio(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
@@ -34,13 +33,13 @@ MSXAudio::~MSXAudio()
 	delete y8950;
 }
 
-void MSXAudio::reset(const EmuTime &time)
+void MSXAudio::reset(const EmuTime& time)
 {
 	y8950->reset(time);
 	registerLatch = 0;	// TODO check
 }
 
-byte MSXAudio::readIO(byte port, const EmuTime &time)
+byte MSXAudio::readIO(byte port, const EmuTime& time)
 {
 	byte result;
 	switch (port & 0x01) {
@@ -58,7 +57,7 @@ byte MSXAudio::readIO(byte port, const EmuTime &time)
 	return result;
 }
 
-void MSXAudio::writeIO(byte port, byte value, const EmuTime &time)
+void MSXAudio::writeIO(byte port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("Audio: write "<<hex<<(int)port<<" "<<(int)value<<dec);
 	switch (port & 0x01) {

@@ -2,16 +2,16 @@
 
 #include "MSXRam.hh"
 #include "CPU.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 
 
 namespace openmsx {
 
-MSXRam::MSXRam(Device *config, const EmuTime &time)
+MSXRam::MSXRam(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	// slow drain on reset
-	slowDrainOnReset = deviceConfig->getParameterAsBool("slow_drain_on_reset", false);
+	slowDrainOnReset = config->getParameterAsBool("slow_drain_on_reset", false);
 
 	// size / base
 	int s = deviceConfig->getParameterAsInt("size", 64);

@@ -1,14 +1,14 @@
 // $Id$
 
 #include "RomSynthesizer.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 #include "DACSound8U.hh"
 #include "CPU.hh"
 
 
 namespace openmsx {
 
-RomSynthesizer::RomSynthesizer(Device* config, const EmuTime &time, Rom *rom)
+RomSynthesizer::RomSynthesizer(Device* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	setBank(0, unmappedRead);
@@ -28,12 +28,12 @@ RomSynthesizer::~RomSynthesizer()
 	delete dac;
 }
 
-void RomSynthesizer::reset(const EmuTime &time)
+void RomSynthesizer::reset(const EmuTime& time)
 {
 	dac->reset(time);
 }
 
-void RomSynthesizer::writeMem(word address, byte value, const EmuTime &time)
+void RomSynthesizer::writeMem(word address, byte value, const EmuTime& time)
 {
 	if (address == 0x4000) {
 		dac->writeDAC(value, time);

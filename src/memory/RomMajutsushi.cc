@@ -10,13 +10,13 @@
 // by writting at 0x6000,0x8000 and 0xa000
 
 #include "RomMajutsushi.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 #include "DACSound8U.hh"
 
 
 namespace openmsx {
 
-RomMajutsushi::RomMajutsushi(Device* config, const EmuTime &time, Rom *rom)
+RomMajutsushi::RomMajutsushi(Device* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	short volume = (short)config->getParameterAsInt("volume");
@@ -30,7 +30,7 @@ RomMajutsushi::~RomMajutsushi()
 	delete dac;
 }
 
-void RomMajutsushi::reset(const EmuTime &time)
+void RomMajutsushi::reset(const EmuTime& time)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -43,7 +43,7 @@ void RomMajutsushi::reset(const EmuTime &time)
 	dac->reset(time);
 }
 
-void RomMajutsushi::writeMem(word address, byte value, const EmuTime &time)
+void RomMajutsushi::writeMem(word address, byte value, const EmuTime& time)
 {
 	if ((0x6000 <= address) && (address < 0xC000)) {
 		setRom(address >> 13, value);

@@ -4,6 +4,7 @@
 #include "RealTime.hh"
 #include "MSXCPU.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
 #include "RealTimeSDL.hh"

@@ -1,7 +1,7 @@
 // $Id$
 
 #include "MSXPac.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
 

@@ -9,6 +9,8 @@
 #include "FileOperations.hh"
 #include "SettingsManager.hh"
 #include "CliCommunicator.hh"
+#include "MSXConfig.hh"
+#include "Config.hh"
 
 
 namespace openmsx {

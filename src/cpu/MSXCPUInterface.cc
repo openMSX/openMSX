@@ -7,6 +7,7 @@
 #include "CommandController.hh"
 #include "MSXCPU.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
 #include "CartridgeSlotManager.hh"
 #include "VDPIODelay.hh"
 
@@ -47,17 +48,16 @@ MSXCPUInterface::MSXCPUInterface()
 
 	Config* config = MSXConfig::instance()->
 		getConfigById("MotherBoard");
-	list<Device::Parameter*>* subslotted_list;
+	list<Config::Parameter*>* subslotted_list;
 	subslotted_list = config->getParametersWithClass("subslotted");
-	list<Device::Parameter*>::const_iterator it;
-	for (it = subslotted_list->begin(); it != subslotted_list->end(); it++) {
+	for (list<Config::Parameter*>::const_iterator it = subslotted_list->begin();
+	     it != subslotted_list->end(); ++it) {
 		bool hasSubs = false;
 		if ((*it)->value == "true") {
 			hasSubs = true;
 		}
 		int counter = atoi((*it)->name.c_str());
 		isSubSlotted[counter] = hasSubs;
-		PRT_DEBUG("Slot: " << counter << " expanded: " << hasSubs);
 	}
 	config->getParametersWithClassClean(subslotted_list);
 

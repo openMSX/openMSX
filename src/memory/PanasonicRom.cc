@@ -2,12 +2,12 @@
 
 #include "PanasonicRom.hh"
 #include "PanasonicMemory.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 #include "CliCommunicator.hh"
 
 namespace openmsx {
 
-PanasonicRom::PanasonicRom(Device *config, const EmuTime &time)
+PanasonicRom::PanasonicRom(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	CliCommunicator::instance().printWarning(
@@ -20,7 +20,7 @@ PanasonicRom::~PanasonicRom()
 {
 }
 
-byte PanasonicRom::readMem(word address, const EmuTime &time)
+byte PanasonicRom::readMem(word address, const EmuTime& time)
 {
 	int block2 = (address & 0x2000) ? block + 1 : block;
 	const byte* rom = PanasonicMemory::instance()->getRomBlock(block2);
@@ -34,7 +34,7 @@ const byte* PanasonicRom::getReadCacheLine(word address) const
 	return &rom[address & 0x1FFF];
 }
 
-void PanasonicRom::writeMem(word address, byte value, const EmuTime &time)
+void PanasonicRom::writeMem(word address, byte value, const EmuTime& time)
 {
 	// nothing
 }

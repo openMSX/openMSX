@@ -9,7 +9,7 @@
 #include "libxmlx/xmlx.hh"
 #include "FileContext.hh"
 #include "File.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 #include "CliCommunicator.hh"
 
 namespace openmsx {
@@ -20,9 +20,9 @@ struct caseltstr {
 	}
 };
 
-RomInfo::RomInfo(const string &ntitle, const string &nyear,
-                 const string &ncompany, const string &nremark,
-                 const MapperType &nmapperType)
+RomInfo::RomInfo(const string& ntitle, const string& nyear,
+                 const string& ncompany, const string& nremark,
+                 const MapperType& nmapperType)
 {
 	title = ntitle;
 	year = nyear;
@@ -32,7 +32,7 @@ RomInfo::RomInfo(const string &ntitle, const string &nyear,
 }
 
 // TODO: Turn MapperType into a class and move naming there.
-MapperType RomInfo::nameToMapperType(const string &name)
+MapperType RomInfo::nameToMapperType(const string& name)
 {
 	static map<string, MapperType, caseltstr> mappertype;
 	static bool init = false;
@@ -125,7 +125,7 @@ MapperType RomInfo::nameToMapperType(const string &name)
 	return it->second;
 }
 
-MapperType RomInfo::guessMapperType(const Rom *rom)
+MapperType RomInfo::guessMapperType(const Rom* rom)
 {
 	int size = rom->getSize();
 	if (size == 0) {
@@ -213,7 +213,7 @@ MapperType RomInfo::guessMapperType(const Rom *rom)
 	}
 }
 
-RomInfo *RomInfo::searchRomDB(const Rom *rom)
+RomInfo *RomInfo::searchRomDB(const Rom* rom)
 {
 	// TODO: Turn ROM DB into a separate class.
 	static map<string, RomInfo*> romDBSHA1;
@@ -237,8 +237,8 @@ RomInfo *RomInfo::searchRomDB(const Rom *rom)
 				
 				RomInfo* romInfo = new RomInfo(title, year,
 				   company, remark, nameToMapperType(romtype));
-				list<XML::Element*>::iterator it2 = (*it1)->children.begin();
-				for ( ; it2 != (*it1)->children.end(); it2++) {
+				for (list<XML::Element*>::iterator it2 = (*it1)->children.begin();
+				     it2 != (*it1)->children.end(); ++it2) {
 					if ((*it2)->name == "md5") {
 						string md5 = (*it2)->pcdata;
 						if (romDBMD5.find(md5) ==
@@ -260,7 +260,7 @@ RomInfo *RomInfo::searchRomDB(const Rom *rom)
 					}
 				}
 			}
-		} catch (FileException &e) {
+		} catch (FileException& e) {
 			CliCommunicator::instance().printWarning(
 				"Warning: couldn't open romdb.xml.\n"
 				"Romtype detection might fail because of this.");
@@ -301,10 +301,10 @@ RomInfo *RomInfo::searchRomDB(const Rom *rom)
 	return NULL;
 }
 
-RomInfo *RomInfo::fetchRomInfo(const Rom *rom, const Device &deviceConfig)
+RomInfo *RomInfo::fetchRomInfo(const Rom* rom, const Device& deviceConfig)
 {
 	// Look for the ROM in the ROM DB.
-	RomInfo *info = searchRomDB(rom);
+	RomInfo* info = searchRomDB(rom);
 	if (!info) {
 		info = new RomInfo(deviceConfig.getId(), "", "", "", UNKNOWN);
 	}

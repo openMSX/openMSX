@@ -3,6 +3,7 @@
 #include <cassert>
 #include "CartridgeSlotManager.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
 
 
 namespace openmsx {
@@ -34,7 +35,7 @@ void CartridgeSlotManager::reserveSlot(int slot)
 void CartridgeSlotManager::readConfig()
 {
 	try {
-		Config *config = MSXConfig::instance()->
+		Config* config = MSXConfig::instance()->
 					       getConfigById("ExternalSlots");
 		string slotName("slota");
 		for (int slot = 0; slot < 16; slot++) {

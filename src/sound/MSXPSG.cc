@@ -4,13 +4,13 @@
 #include "Leds.hh"
 #include "CassettePort.hh"
 #include "JoystickPort.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 #include "RenShaTurbo.hh"
 
 namespace openmsx {
 
 // MSXDevice
-MSXPSG::MSXPSG(Device *config, const EmuTime &time)
+MSXPSG::MSXPSG(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	keyLayoutBit = deviceConfig->getParameterAsBool("keylayoutbit", false);
@@ -32,20 +32,20 @@ MSXPSG::~MSXPSG()
 	delete ports[1];
 }
 
-void MSXPSG::reset(const EmuTime &time)
+void MSXPSG::reset(const EmuTime& time)
 {
 	registerLatch = 0;
 	ay8910->reset(time);
 }
 
-byte MSXPSG::readIO(byte port, const EmuTime &time)
+byte MSXPSG::readIO(byte port, const EmuTime& time)
 {
 	byte result =  ay8910->readRegister(registerLatch, time);
 	//PRT_DEBUG("PSG read R#"<<(int)registerLatch<<" = "<<(int)result);
 	return result;
 }
 
-void MSXPSG::writeIO(byte port, byte value, const EmuTime &time)
+void MSXPSG::writeIO(byte port, byte value, const EmuTime& time)
 {
 	switch (port & 0x03) {
 	case 0:
@@ -60,7 +60,7 @@ void MSXPSG::writeIO(byte port, byte value, const EmuTime &time)
 
 
 // AY8910Interface
-byte MSXPSG::readA(const EmuTime &time)
+byte MSXPSG::readA(const EmuTime& time)
 {
 	byte joystick = ports[selectedPort]->read(time) | 
 	                ((RenShaTurbo::instance()->getSignal(time)) << 4);
@@ -69,20 +69,20 @@ byte MSXPSG::readA(const EmuTime &time)
 	return joystick | keyLayout | cassetteInput;
 }
 
-byte MSXPSG::readB(const EmuTime &time)
+byte MSXPSG::readB(const EmuTime& time)
 {
 	// port B is normally an output on MSX
 	return 255;
 }
 
-void MSXPSG::writeA(byte value, const EmuTime &time)
+void MSXPSG::writeA(byte value, const EmuTime& time)
 {
 	// port A is normally an input on MSX
 	// ignore write
 	return;
 }
 
-void MSXPSG::writeB(byte value, const EmuTime &time)
+void MSXPSG::writeB(byte value, const EmuTime& time)
 {
 	byte val0 =  (value & 0x03)       | ((value & 0x10) >> 2);
 	byte val1 = ((value & 0x0C) >> 2) | ((value & 0x20) >> 3);

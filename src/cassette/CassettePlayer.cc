@@ -3,6 +3,7 @@
 #include "CassettePlayer.hh"
 #include "CommandController.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
 #include "libxmlx/xmlx.hh"
 #include "File.hh"
 #include "CassetteImage.hh"
@@ -48,7 +49,7 @@ void MSXCassettePlayerCLI::parseFileType(const string &filename_)
 	s << " </config>";
 	s << "</msxconfig>";
 
-	MSXConfig *config = MSXConfig::instance();
+	MSXConfig* config = MSXConfig::instance();
 	UserFileContext context;
 	config->loadStream(context, s);
 }
@@ -64,10 +65,10 @@ CassettePlayer::CassettePlayer()
 {
 	removeTape();
 
-	MSXConfig *conf = MSXConfig::instance();
+	MSXConfig* conf = MSXConfig::instance();
 	if (conf->hasConfigWithId("cassetteplayer")) {
-		Config *config = conf->getConfigById("cassetteplayer");
-		const string &filename = config->getParameter("filename");
+		Config* config = conf->getConfigById("cassetteplayer");
+		const string& filename = config->getParameter("filename");
 		try {
 			insertTape(config->getContext(), filename);
 		} catch (MSXException& e) {

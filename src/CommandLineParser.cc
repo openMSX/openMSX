@@ -8,6 +8,7 @@
 #include "CommandLineParser.hh"
 #include "libxmlx/xmlx.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
 #include "CartridgeSlotManager.hh"
 #include "CliExtension.hh"
 #include "File.hh"
@@ -71,7 +72,7 @@ void CommandLineParser::registerFileClass(const string &str,
 void CommandLineParser::postRegisterFileTypes()
 {
 	try {
-		Config *config = MSXConfig::instance()->getConfigById("FileTypes");
+		Config* config = MSXConfig::instance()->getConfigById("FileTypes");
 		for (map<string, CLIFileType*, caseltstr>::const_iterator i = fileClassMap.begin();
 		     i != fileClassMap.end(); ++i) {
 			list<Config::Parameter*> *extensions = config->getParametersWithClass(i->first);

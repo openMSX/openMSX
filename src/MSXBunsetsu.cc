@@ -2,12 +2,12 @@
 
 #include "MSXBunsetsu.hh"
 #include "CPU.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 
 
 namespace openmsx {
 
-MSXBunsetsu::MSXBunsetsu(Device *config, const EmuTime &time)
+MSXBunsetsu::MSXBunsetsu(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(config, time),
 	  jisyoRom(config, config->getParameter("jisyofilename"), time)

@@ -14,14 +14,14 @@
 //  second 16kb: 0x7000 - 0x77FF (0x7000 and 0x77FF used)
 
 #include "RomHydlide2.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
 
 
 namespace openmsx {
 
-RomHydlide2::RomHydlide2(Device* config, const EmuTime &time, Rom *rom)
+RomHydlide2::RomHydlide2(Device* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), RomAscii16kB(config, time, rom),
 	  sram(0x0800, config)
 {
@@ -32,13 +32,13 @@ RomHydlide2::~RomHydlide2()
 {
 }
 
-void RomHydlide2::reset(const EmuTime &time)
+void RomHydlide2::reset(const EmuTime& time)
 {
 	sramEnabled = 0;
 	RomAscii16kB::reset(time);
 }
 
-byte RomHydlide2::readMem(word address, const EmuTime &time)
+byte RomHydlide2::readMem(word address, const EmuTime& time)
 {
 	if ((1 << (address >> 14)) & sramEnabled) {
 		return sram.read(address & 0x07FF);
@@ -56,7 +56,7 @@ const byte* RomHydlide2::getReadCacheLine(word address) const
 	}
 }
 
-void RomHydlide2::writeMem(word address, byte value, const EmuTime &time)
+void RomHydlide2::writeMem(word address, byte value, const EmuTime& time)
 {
 	if ((0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)) {
 		// bank switch

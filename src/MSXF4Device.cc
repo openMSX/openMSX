@@ -1,12 +1,12 @@
 // $Id$
 
 #include "MSXF4Device.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 
 
 namespace openmsx {
 
-MSXF4Device::MSXF4Device(Device *config, const EmuTime &time)
+MSXF4Device::MSXF4Device(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	inverted = config->getParameterAsBool("inverted", false);
@@ -17,17 +17,17 @@ MSXF4Device::~MSXF4Device()
 {
 }
 
-void MSXF4Device::reset(const EmuTime &time)
+void MSXF4Device::reset(const EmuTime& time)
 {
 	status = inverted ? 0xFF : 0x00;
 }
 
-byte MSXF4Device::readIO(byte port, const EmuTime &time)
+byte MSXF4Device::readIO(byte port, const EmuTime& time)
 {
 	return status;
 }
 
-void MSXF4Device::writeIO(byte port, byte value, const EmuTime &time)
+void MSXF4Device::writeIO(byte port, byte value, const EmuTime& time)
 {
 	if (inverted) {
 		status = value | 0x7F;

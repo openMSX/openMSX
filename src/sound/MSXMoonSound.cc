@@ -3,13 +3,13 @@
 #include "MSXMoonSound.hh"
 #include "YMF262.hh"
 #include "YMF278.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 #include "Mixer.hh"
 
 
 namespace openmsx {
 
-MSXMoonSound::MSXMoonSound(Device *config, const EmuTime &time)
+MSXMoonSound::MSXMoonSound(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
@@ -26,7 +26,7 @@ MSXMoonSound::~MSXMoonSound()
 	delete ymf278;
 }
 
-void MSXMoonSound::reset(const EmuTime &time)
+void MSXMoonSound::reset(const EmuTime& time)
 {
 	ymf262->reset(time);
 	ymf278->reset(time);
@@ -36,7 +36,7 @@ void MSXMoonSound::reset(const EmuTime &time)
 	opl3latch = 0;
 }
 
-byte MSXMoonSound::readIO(byte port, const EmuTime &time)
+byte MSXMoonSound::readIO(byte port, const EmuTime& time)
 {
 	Mixer::instance()->updateStream(time); // TODO optimize
 	byte result;
@@ -74,7 +74,7 @@ byte MSXMoonSound::readIO(byte port, const EmuTime &time)
 	return result;
 }
 
-void MSXMoonSound::writeIO(byte port, byte value, const EmuTime &time)
+void MSXMoonSound::writeIO(byte port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("MoonSound: write "<<hex<<(int)port<<" "<<(int)value<<dec);
 	if (port < 0xC0) {

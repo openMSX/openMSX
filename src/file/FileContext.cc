@@ -7,6 +7,7 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
 #include "File.hh"
 
 
@@ -30,12 +31,12 @@ FileContext::~FileContext()
 {
 }
 
-const string FileContext::resolve(const string &filename)
+const string FileContext::resolve(const string& filename)
 {
 	return resolve(getPaths(), filename);
 }
 
-const string FileContext::resolveCreate(const string &filename)
+const string FileContext::resolveCreate(const string& filename)
 {
 	try {
 		return resolve(getPaths(), filename);
@@ -46,8 +47,8 @@ const string FileContext::resolveCreate(const string &filename)
 	}
 }
 
-const string FileContext::resolve(const vector<string> &pathList,
-                                  const string &filename)
+const string FileContext::resolve(const vector<string>& pathList,
+                                  const string& filename)
 {
 	// TODO handle url-protocols better
 	
@@ -67,7 +68,7 @@ const string FileContext::resolve(const vector<string> &pathList,
 			name = name.substr(pos + 3);
 		}
 		struct stat buf;
-		PRT_DEBUG("Context: try "<<name);
+		PRT_DEBUG("Context: try " << name);
 		if (!stat(FileOperations::getNativePath(name).c_str(), &buf)) {
 			// found
 			return name;
@@ -77,7 +78,7 @@ const string FileContext::resolve(const vector<string> &pathList,
 	throw FileException(filename + " not found in this context");
 }
 
-const string FileContext::resolveSave(const string &filename)
+const string FileContext::resolveSave(const string& filename)
 {
 	assert(!savePath.empty());
 	FileOperations::mkdirp(savePath);
@@ -94,9 +95,9 @@ FileContext::FileContext(const FileContext& rhs)
 
 map<string, int> ConfigFileContext::nonames;
 
-ConfigFileContext::ConfigFileContext(const string &path,
-                                     const string &hwDescr,
-                                     const string &userName_)
+ConfigFileContext::ConfigFileContext(const string& path,
+                                     const string& hwDescr,
+                                     const string& userName_)
 {
 	paths.push_back(path);
 
@@ -153,7 +154,7 @@ SystemFileContext::SystemFileContext(const SystemFileContext& rhs)
 
 // class SettingFileContext
 
-SettingFileContext::SettingFileContext(const string &url)
+SettingFileContext::SettingFileContext(const string& url)
 {
 	string path = FileOperations::getBaseName(url);
 	paths.push_back(path);
@@ -193,7 +194,7 @@ UserFileContext::UserFileContext()
 {
 }
 
-UserFileContext::UserFileContext(const string &savePath_)
+UserFileContext::UserFileContext(const string& savePath_)
 	: alreadyInit(false)
 {
 	savePath = string(HOMEDIR + "persistent/") + savePath_ + '/';
@@ -204,14 +205,13 @@ const vector<string> &UserFileContext::getPaths()
 	if (!alreadyInit) {
 		alreadyInit = true;
 		try {
-			Config *config = MSXConfig::instance()->
+			Config* config = MSXConfig::instance()->
 				getConfigById("UserDirectories");
-			list<Device::Parameter*>* pathList =
+			list<Config::Parameter*>* pathList =
 				config->getParametersWithClass("");
-			for (list<Device::Parameter*>::const_iterator it =
-			     pathList->begin();
-			     it != pathList->end();
-			     it++) {
+			for (list<Config::Parameter*>::const_iterator it =
+			         pathList->begin();
+			     it != pathList->end(); ++it) {
 				string path = (*it)->value;
 				if (path[path.length() - 1] != '/') {
 					path += '/';

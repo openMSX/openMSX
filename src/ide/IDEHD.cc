@@ -3,7 +3,8 @@
 #include <cassert>
 #include "IDEHD.hh"
 #include "File.hh"
-#include "MSXConfig.hh"
+#include "FileContext.hh"
+#include "Config.hh"
 #include "Leds.hh"
 
 
@@ -45,11 +46,11 @@ byte IDEHD::identifyBlock[512] = {
 };
 
 
-IDEHD::IDEHD(Config *config, const EmuTime &time)
+IDEHD::IDEHD(Config* config, const EmuTime& time)
 {
 	buffer = new byte[512 * 256];
 
-	const string &filename = config->getParameter("filename");
+	const string& filename = config->getParameter("filename");
 	file = new File(config->getContext().resolveCreate(filename), CREATE);
 	
 	int size = config->getParameterAsInt("size");	// in MB

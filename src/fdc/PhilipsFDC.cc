@@ -4,12 +4,12 @@
 #include "CPU.hh"
 #include "WD2793.hh"
 #include "DriveMultiplexer.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 
 
 namespace openmsx {
 
-PhilipsFDC::PhilipsFDC(Device *config, const EmuTime &time)
+PhilipsFDC::PhilipsFDC(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), WD2793BasedFDC(config, time)
 {
 	brokenFDCread = deviceConfig->getParameterAsBool("brokenFDCread", false);
@@ -20,14 +20,14 @@ PhilipsFDC::~PhilipsFDC()
 {
 }
 
-void PhilipsFDC::reset(const EmuTime &time)
+void PhilipsFDC::reset(const EmuTime& time)
 {
 	WD2793BasedFDC::reset(time);
 	writeMem(0x3FFC, 0x00, time);
 	writeMem(0x3FFD, 0x00, time);
 }
 
-byte PhilipsFDC::readMem(word address, const EmuTime &time)
+byte PhilipsFDC::readMem(word address, const EmuTime& time)
 {
 	byte value;
 	switch (address & 0x3FFF) {
@@ -97,7 +97,7 @@ const byte* PhilipsFDC::getReadCacheLine(word start) const
 	}
 }
 
-void PhilipsFDC::writeMem(word address, byte value, const EmuTime &time)
+void PhilipsFDC::writeMem(word address, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("PhilipsFDC write 0x" << hex << (int)address << " 0x" << (int)value << dec);
 	switch (address & 0x3FFF) {

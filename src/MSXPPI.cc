@@ -7,7 +7,7 @@
 #include "MSXCPUInterface.hh"
 #include "KeyClick.hh"
 #include "CassettePort.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 #include "RenShaTurbo.hh"
 
 
@@ -15,7 +15,7 @@ namespace openmsx {
 
 // MSXDevice
 
-MSXPPI::MSXPPI(Device *config, const EmuTime &time)
+MSXPPI::MSXPPI(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");

@@ -3,6 +3,7 @@
 #include "DiskDrive.hh"
 #include "CommandController.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
 #include "DummyDisk.hh"
 #include "XSADiskImage.hh"
 #include "DSKDiskImage.hh"
@@ -132,9 +133,9 @@ RealDrive::RealDrive(const string &driveName, const EmuTime &time)
 	diskName = "";
 	disk = NULL;
 	
-	MSXConfig *conf = MSXConfig::instance();
+	MSXConfig* conf = MSXConfig::instance();
 	if (conf->hasConfigWithId(driveName)) {
-		Config *config = conf->getConfigById(driveName);
+		Config* config = conf->getConfigById(driveName);
 		const string &filename = config->getParameter("filename");
 		try {
 			insertDisk(config->getContext(), filename);

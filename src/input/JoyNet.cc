@@ -6,6 +6,7 @@
 #include <sstream>
 #include "JoyNet.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
 #include "CliCommunicator.hh"
 
 
@@ -58,12 +59,12 @@ void JoyNet::unplug(const EmuTime& time)
 
 
 //JoystickDevice
-byte JoyNet::read(const EmuTime &time)
+byte JoyNet::read(const EmuTime& time)
 {
 	return status;
 }
 
-void JoyNet::write(byte value, const EmuTime &time)
+void JoyNet::write(byte value, const EmuTime& time)
 {
 	sendByte(value);
 }
@@ -71,7 +72,7 @@ void JoyNet::write(byte value, const EmuTime &time)
 
 void JoyNet::setupConnections()
 {
-	Config *config = MSXConfig::instance()->getConfigById("joynet");
+	Config* config = MSXConfig::instance()->getConfigById("joynet");
 	hostname = config->getParameter("connecthost");
 	portname = config->getParameterAsInt("connectport");
 	int listenport = config->getParameterAsInt("listenport");

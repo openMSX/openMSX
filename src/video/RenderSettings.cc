@@ -2,6 +2,7 @@
 
 #include "RenderSettings.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
 #include "CliCommunicator.hh"
 #include "InfoCommand.hh"
 
@@ -9,7 +10,7 @@ namespace openmsx {
 
 RenderSettings::RenderSettings()
 {
-	Config *config = MSXConfig::instance()->getConfigById("renderer");
+	Config* config = MSXConfig::instance()->getConfigById("renderer");
 
 	map<string, Accuracy> accMap;
 	accMap["screen"] = ACC_SCREEN;

@@ -7,6 +7,7 @@
 #include "Keyboard.hh"
 #include "EventDistributor.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
 #include "File.hh"
 #include "FileContext.hh"
 

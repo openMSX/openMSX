@@ -13,9 +13,10 @@ endif
 
 noinst_LTLIBRARIES = libConfig.la
 libConfig_la_SOURCES = \
-	MSXConfig.cc \
-	MSXConfig.hh
-
+	MSXConfig.cc MSXConfig.hh \
+	Config.cc Config.hh \
+	Device.cc Device.hh \
+	ConfigException.hh
 
 nodebug: resetdebug all
 debug: setdebug all

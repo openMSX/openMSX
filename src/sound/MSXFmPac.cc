@@ -1,7 +1,7 @@
 // $Id$
 
 #include "MSXFmPac.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
 
@@ -11,7 +11,7 @@ namespace openmsx {
 static const char* PAC_Header = "PAC2 BACKUP DATA";
 //                               1234567890123456
 
-MSXFmPac::MSXFmPac(Device *config, const EmuTime &time)
+MSXFmPac::MSXFmPac(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMusic(config, time), 
 	  sram(0x1FFE, config, PAC_Header)
 {
@@ -22,7 +22,7 @@ MSXFmPac::~MSXFmPac()
 {
 }
 
-void MSXFmPac::reset(const EmuTime &time)
+void MSXFmPac::reset(const EmuTime& time)
 {
 	MSXMusic::reset(time);
 	enable = 0;
@@ -31,14 +31,14 @@ void MSXFmPac::reset(const EmuTime &time)
 	r1ffe = r1fff = 0xFF;	// TODO check
 }
 
-void MSXFmPac::writeIO(byte port, byte value, const EmuTime &time)
+void MSXFmPac::writeIO(byte port, byte value, const EmuTime& time)
 {
 	if (enable & 1) {
 		MSXMusic::writeIO(port, value, time);
 	}
 }
 
-byte MSXFmPac::readMem(word address, const EmuTime &time)
+byte MSXFmPac::readMem(word address, const EmuTime& time)
 {
 	address &= 0x3FFF;
 	switch (address) {
@@ -82,7 +82,7 @@ const byte* MSXFmPac::getReadCacheLine(word address) const
 	}
 }
 
-void MSXFmPac::writeMem(word address, byte value, const EmuTime &time)
+void MSXFmPac::writeMem(word address, byte value, const EmuTime& time)
 {
 	address &= 0x3FFF;
 	switch (address) {

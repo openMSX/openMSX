@@ -6,6 +6,7 @@
 #include "EventDistributor.hh"
 #include "Keys.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
 #include "CliCommunicator.hh"
 
 namespace openmsx {
@@ -34,7 +35,7 @@ KeyJoystick::KeyJoystick()
 		leftKey    = getConfigKeyCode("leftkey",    config);
 		buttonAKey = getConfigKeyCode("buttonakey", config);
 		buttonBKey = getConfigKeyCode("buttonbkey", config);
-	} catch (ConfigException &e) {
+	} catch (ConfigException& e) {
 		CliCommunicator::instance().printWarning(
 			"KeyJoystick not configured, so it won't be usable...");
 		return;
@@ -49,8 +50,8 @@ KeyJoystick::~KeyJoystick()
 
 // auxilliary function for constructor
 
-Keys::KeyCode KeyJoystick::getConfigKeyCode(const string &keyname,
-                                            const Config *config)
+Keys::KeyCode KeyJoystick::getConfigKeyCode(const string& keyname,
+                                            const Config* config)
 {
 	Keys::KeyCode testKey = Keys::K_NONE;
 	if (config->hasParameter(keyname)) {
@@ -66,7 +67,7 @@ Keys::KeyCode KeyJoystick::getConfigKeyCode(const string &keyname,
 }
 
 // Pluggable
-const string &KeyJoystick::getName() const
+const string& KeyJoystick::getName() const
 {
 	static const string name("keyjoystick");
 	return name;
@@ -91,19 +92,19 @@ void KeyJoystick::unplug(const EmuTime& time)
 
 
 // KeyJoystickDevice
-byte KeyJoystick::read(const EmuTime &time)
+byte KeyJoystick::read(const EmuTime& time)
 {
 	return status;
 }
 
-void KeyJoystick::write(byte value, const EmuTime &time)
+void KeyJoystick::write(byte value, const EmuTime& time)
 {
 	//do nothing
 }
 
 
 // EventListener
-bool KeyJoystick::signalEvent(SDL_Event &event) throw()
+bool KeyJoystick::signalEvent(SDL_Event& event) throw()
 {
 	Keys::KeyCode theKey = Keys::getCode(event.key.keysym.sym);
 	switch (event.type) {

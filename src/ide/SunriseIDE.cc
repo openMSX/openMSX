@@ -7,12 +7,12 @@
 #include "MSXCPU.hh"
 #include "CPU.hh"
 #include "IDEDeviceFactory.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 
 
 namespace openmsx {
 
-SunriseIDE::SunriseIDE(Device *config, const EmuTime &time)
+SunriseIDE::SunriseIDE(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(config, time)
 {

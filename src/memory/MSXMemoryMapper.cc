@@ -2,7 +2,7 @@
 
 #include "MSXMemoryMapper.hh"
 #include "MSXMapperIO.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 
 
 namespace openmsx {
@@ -16,7 +16,7 @@ inline int MSXMemoryMapper::calcAddress(word address) const
 }
 
 
-MSXMemoryMapper::MSXMemoryMapper(Device *config, const EmuTime &time)
+MSXMemoryMapper::MSXMemoryMapper(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	slowDrainOnReset = deviceConfig->getParameterAsBool("slow_drain_on_reset", false);
@@ -44,7 +44,7 @@ MSXMemoryMapper::~MSXMemoryMapper()
 	delete[] buffer;
 }
 
-void MSXMemoryMapper::reset(const EmuTime &time)
+void MSXMemoryMapper::reset(const EmuTime& time)
 {
 	if (!slowDrainOnReset) {
 		PRT_DEBUG("Clearing ram of " << getName());
@@ -52,12 +52,12 @@ void MSXMemoryMapper::reset(const EmuTime &time)
 	}
 }
 
-byte MSXMemoryMapper::readMem(word address, const EmuTime &time)
+byte MSXMemoryMapper::readMem(word address, const EmuTime& time)
 {
 	return buffer[calcAddress(address)];
 }
 
-void MSXMemoryMapper::writeMem(word address, byte value, const EmuTime &time)
+void MSXMemoryMapper::writeMem(word address, byte value, const EmuTime& time)
 {
 	buffer[calcAddress(address)] = value;
 }

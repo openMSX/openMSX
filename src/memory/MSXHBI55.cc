@@ -30,14 +30,14 @@
 
 #include <cassert>
 #include "MSXHBI55.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 
 
 namespace openmsx {
 
 // MSXDevice
 
-MSXHBI55::MSXHBI55(Device *config, const EmuTime &time)
+MSXHBI55::MSXHBI55(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  sram(0x1000, config)
 {
@@ -51,12 +51,12 @@ MSXHBI55::~MSXHBI55()
 	delete i8255;
 }
 
-void MSXHBI55::reset(const EmuTime &time)
+void MSXHBI55::reset(const EmuTime& time)
 {
 	i8255->reset(time);
 }
 
-byte MSXHBI55::readIO(byte port, const EmuTime &time)
+byte MSXHBI55::readIO(byte port, const EmuTime& time)
 {
 	byte result;
 	switch (port & 0x03) {
@@ -80,7 +80,7 @@ byte MSXHBI55::readIO(byte port, const EmuTime &time)
 	return result;
 }
 
-void MSXHBI55::writeIO(byte port, byte value, const EmuTime &time)
+void MSXHBI55::writeIO(byte port, byte value, const EmuTime& time)
 {
 	PRT_DEBUG("HBI-55 write "<<hex<<(int)port<<" "<<(int)value<<dec);
 	switch (port & 0x03) {
@@ -104,28 +104,28 @@ void MSXHBI55::writeIO(byte port, byte value, const EmuTime &time)
 
 // I8255Interface
 
-byte MSXHBI55::readA(const EmuTime &time)
+byte MSXHBI55::readA(const EmuTime& time)
 {
 	// TODO check this
 	return 255;
 }
-void MSXHBI55::writeA(byte value, const EmuTime &time)
+void MSXHBI55::writeA(byte value, const EmuTime& time)
 {
 	address = (address & 0x0F00) | value; 
 }
 
-byte MSXHBI55::readB(const EmuTime &time)
+byte MSXHBI55::readB(const EmuTime& time)
 {
 	// TODO check this
 	return 255;
 }
-void MSXHBI55::writeB(byte value, const EmuTime &time)
+void MSXHBI55::writeB(byte value, const EmuTime& time)
 {
 	address = (address & 0x00FF) | ((value & 0x0F) << 8);
 	mode = value & 0xC0;
 }
 
-nibble MSXHBI55::readC1(const EmuTime &time)
+nibble MSXHBI55::readC1(const EmuTime& time)
 {
 	if (mode == 0xC0) {
 		// read mode
@@ -135,7 +135,7 @@ nibble MSXHBI55::readC1(const EmuTime &time)
 		return 15;
 	}
 }
-nibble MSXHBI55::readC0(const EmuTime &time)
+nibble MSXHBI55::readC0(const EmuTime& time)
 {
 	if (mode == 0xC0) {
 		// read mode
@@ -145,7 +145,7 @@ nibble MSXHBI55::readC0(const EmuTime &time)
 		return 15;
 	}
 }
-void MSXHBI55::writeC1(nibble value, const EmuTime &time)
+void MSXHBI55::writeC1(nibble value, const EmuTime& time)
 {
 	if (mode == 0x40) {
 		// write mode
@@ -156,7 +156,7 @@ void MSXHBI55::writeC1(nibble value, const EmuTime &time)
 		// nothing 
 	}
 }
-void MSXHBI55::writeC0(nibble value, const EmuTime &time)
+void MSXHBI55::writeC0(nibble value, const EmuTime& time)
 {
 	if (mode == 0x40) {
 		// write mode

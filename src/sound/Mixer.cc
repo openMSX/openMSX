@@ -7,6 +7,7 @@
 #include "RealTime.hh"
 #include "SoundDevice.hh"
 #include "MSXConfig.hh"
+#include "Config.hh"
 #include "CliCommunicator.hh"
 #include "InfoCommand.hh"
 
@@ -24,7 +25,7 @@ Mixer::Mixer()
 	int freq = 22050;
 	int samples = 512;
 	try {
-		Config *config = MSXConfig::instance()->getConfigById("Mixer");
+		Config* config = MSXConfig::instance()->getConfigById("Mixer");
 		freq = config->getParameterAsInt("frequency", freq);
 		samples = config->getParameterAsInt("samples", samples);
 	} catch (ConfigException &e) {

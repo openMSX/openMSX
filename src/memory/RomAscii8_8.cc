@@ -14,12 +14,12 @@
 //  The SRAM can only be written to if selected in bank 3 or 4.
 
 #include "RomAscii8_8.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 
 
 namespace openmsx {
 
-RomAscii8_8::RomAscii8_8(Device* config, const EmuTime &time, Rom *rom)
+RomAscii8_8::RomAscii8_8(Device* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom),
 	  sram(0x2000, config)
 {
@@ -30,7 +30,7 @@ RomAscii8_8::~RomAscii8_8()
 {
 }
 
-void RomAscii8_8::reset(const EmuTime &time)
+void RomAscii8_8::reset(const EmuTime& time)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -43,7 +43,7 @@ void RomAscii8_8::reset(const EmuTime &time)
 	sramEnabled = 0;
 }
 
-void RomAscii8_8::writeMem(word address, byte value, const EmuTime &time)
+void RomAscii8_8::writeMem(word address, byte value, const EmuTime& time)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// bank switching

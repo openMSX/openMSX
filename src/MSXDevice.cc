@@ -1,7 +1,7 @@
 // $Id$
 
 #include "MSXDevice.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 
 
 namespace openmsx {

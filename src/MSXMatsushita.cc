@@ -1,14 +1,14 @@
 // $Id$
 
 #include "MSXMatsushita.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 
 
 namespace openmsx {
 
 const byte ID = 0x08;
 
-MSXMatsushita::MSXMatsushita(Device *config, const EmuTime &time)
+MSXMatsushita::MSXMatsushita(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXSwitchedDevice(ID),
 	  sram(0x800, config)
 {

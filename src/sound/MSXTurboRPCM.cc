@@ -2,12 +2,11 @@
 
 #include "MSXTurboRPCM.hh"
 #include "DACSound8U.hh"
-#include "MSXConfig.hh"
-
+#include "Device.hh"
 
 namespace openmsx {
 
-MSXTurboRPCM::MSXTurboRPCM(Device *config, const EmuTime &time)
+MSXTurboRPCM::MSXTurboRPCM(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 	, AudioInputConnector("pcminput")
 {
@@ -23,14 +22,14 @@ MSXTurboRPCM::~MSXTurboRPCM()
 }
 
 
-void MSXTurboRPCM::reset(const EmuTime &time)
+void MSXTurboRPCM::reset(const EmuTime& time)
 {
 	reference = time;
 	status = 0;
 	dac->reset(time);
 }
 
-byte MSXTurboRPCM::readIO(byte port, const EmuTime &time)
+byte MSXTurboRPCM::readIO(byte port, const EmuTime& time)
 {
 	byte result;
 	switch (port & 0x01) {
@@ -62,7 +61,7 @@ byte MSXTurboRPCM::readIO(byte port, const EmuTime &time)
 	return result;
 }
 
-void MSXTurboRPCM::writeIO(byte port, byte value, const EmuTime &time)
+void MSXTurboRPCM::writeIO(byte port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("PCM: write " << hex << (int)port << " " << (int)value << dec);
 	switch (port & 0x01) {

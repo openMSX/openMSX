@@ -4,12 +4,11 @@
 #include "Mixer.hh"
 #include "YM2413.hh"
 #include "YM2413_2.hh"
-#include "MSXConfig.hh"
-
+#include "Device.hh"
 
 namespace openmsx {
 
-MSXMusic::MSXMusic(Device *config, const EmuTime &time)
+MSXMusic::MSXMusic(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  MSXMemDevice(config, time), rom(config, time)
 {
@@ -36,14 +35,14 @@ MSXMusic::~MSXMusic()
 }
 
 
-void MSXMusic::reset(const EmuTime &time)
+void MSXMusic::reset(const EmuTime& time)
 {
 	ym2413->reset(time);
 	registerLatch = 0; // TODO check
 }
 
 
-void MSXMusic::writeIO(byte port, byte value, const EmuTime &time)
+void MSXMusic::writeIO(byte port, byte value, const EmuTime& time)
 {
 	switch (port & 0x01) {
 		case 0:
@@ -55,19 +54,19 @@ void MSXMusic::writeIO(byte port, byte value, const EmuTime &time)
 	}
 }
 
-void MSXMusic::writeRegisterPort(byte value, const EmuTime &time)
+void MSXMusic::writeRegisterPort(byte value, const EmuTime& time)
 {
 	registerLatch = value & 0x3F;
 }
 
-void MSXMusic::writeDataPort(byte value, const EmuTime &time)
+void MSXMusic::writeDataPort(byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("YM2413: reg "<<(int)registerLatch<<" val "<<(int)value);
 	ym2413->writeReg(registerLatch, value, time);
 }
 
 
-byte MSXMusic::readMem(word address, const EmuTime &time)
+byte MSXMusic::readMem(word address, const EmuTime& time)
 {
 	return rom.read(address & 0x3FFF);
 }

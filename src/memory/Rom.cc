@@ -2,7 +2,7 @@
 
 #include <string>
 #include <sstream>
-#include "MSXConfig.hh"
+#include "Device.hh"
 #include "Rom.hh"
 #include "RomInfo.hh"
 #include "MSXDiskRomPatch.hh"
@@ -10,12 +10,13 @@
 #include "MSXCPUInterface.hh"
 #include "MSXRomPatchInterface.hh"
 #include "File.hh"
+#include "FileContext.hh"
 #include "PanasonicMemory.hh"
 
 
 namespace openmsx {
 
-Rom::Rom(Device* config, const EmuTime &time)
+Rom::Rom(Device* config, const EmuTime& time)
 {
 	if (config->hasParameter("filename")) {
 		string filename = config->getParameter("filename");
@@ -35,15 +36,13 @@ Rom::Rom(Device* config, const EmuTime &time)
 	info = RomInfo::fetchRomInfo(this, *config);
 }
 
-Rom::Rom(Device* config, const string &filename,
-                           const EmuTime &time)
+Rom::Rom(Device* config, const string& filename, const EmuTime& time)
 {
 	read(config, filename, time);	// TODO config
 	info = RomInfo::fetchRomInfo(this, *config);
 }
 
-void Rom::read(Device* config,
-               const string &filename, const EmuTime &time)
+void Rom::read(Device* config, const string& filename, const EmuTime& time)
 {
 	// open file
 	try {
@@ -74,7 +73,7 @@ void Rom::read(Device* config,
 	}
 	
 	// read file
-	byte *tmp = 0;	// avoid warning
+	byte* tmp = 0;	// avoid warning
 	try {
 		tmp = file->mmap() + offset;
 		rom = tmp;
@@ -90,8 +89,7 @@ void Rom::read(Device* config,
 	list<Config::Parameter*>* parameters =
 		config->getParametersWithClass("patchcode");
 	for (list<Config::Parameter*>::const_iterator it = parameters->begin();
-	     it != parameters->end();
-	     ++it) {
+	     it != parameters->end(); ++it) {
 		MSXRomPatchInterface* patchInterface;
 		if ((*it)->value == "MSXDiskRomPatch") {
 			patchInterface = new MSXDiskRomPatch(time);
@@ -109,8 +107,7 @@ void Rom::read(Device* config,
 	list<Config::Parameter*>* parameters2 =
 		config->getParametersWithClass("patch");
 	for (list<Config::Parameter*>::const_iterator i = parameters2->begin();
-	     i != parameters2->end();
-	     ++i) {
+	     i != parameters2->end(); ++i) {
 		unsigned int romOffset = strtol((*i)->name.c_str(), 0, 0);
 		int value  = (*i)->getAsInt();
 		if (romOffset >= size) {
@@ -130,8 +127,7 @@ Rom::~Rom()
 {
 	for (list<MSXRomPatchInterface*>::const_iterator it =
 	           romPatchInterfaces.begin();
-	     it != romPatchInterfaces.end();
-	     ++it) {
+	     it != romPatchInterfaces.end(); ++it) {
 		MSXCPUInterface::instance()->unregisterInterface(*it);
 		delete (*it);
 	}

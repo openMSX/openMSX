@@ -1,13 +1,14 @@
 // $Id$
 
 #include "SRAM.hh"
-#include "MSXConfig.hh"
+#include "Config.hh"
 #include "File.hh"
+#include "FileContext.hh"
 #include "CliCommunicator.hh"
 
 namespace openmsx {
 
-SRAM::SRAM(int size_, Config *config_, const char *header_)
+SRAM::SRAM(int size_, Config* config_, const char* header_)
 {
 	size = size_;
 	config = config_;
@@ -15,7 +16,7 @@ SRAM::SRAM(int size_, Config *config_, const char *header_)
 	sram = new byte[size];
 	memset(sram, 0xFF, size);
 	
-	const string &filename = config->getParameter("sramname");
+	const string& filename = config->getParameter("sramname");
 	PRT_DEBUG("SRAM: read " << filename);
 	try {
 		bool headerOk = true;
@@ -37,13 +38,14 @@ SRAM::SRAM(int size_, Config *config_, const char *header_)
 				"Warning no correct SRAM file: " + filename);
 		}
 	} catch (FileException &e) {
-		PRT_DEBUG("Couldn't load SRAM " << filename);
+		CliCommunicator::instance().printWarning(
+			"Couldn't load SRAM " + filename);
 	}
 }
 
 SRAM::~SRAM()
 {
-	const string &filename = config->getParameter("sramname");
+	const string& filename = config->getParameter("sramname");
 	PRT_DEBUG("SRAM: save " << filename);
 	try {
 		File file(config->getContext().resolveSave(filename),
@@ -53,7 +55,7 @@ SRAM::~SRAM()
 			file.write((const byte*)header, length);
 		}
 		file.write(sram, size);
-	} catch (FileException &e) {
+	} catch (FileException& e) {
 		CliCommunicator::instance().printWarning(
 			"Couldn't save SRAM " + filename);
 	}
