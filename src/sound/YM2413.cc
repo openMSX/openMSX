@@ -8,8 +8,11 @@
 
 #include <math.h>
 #include <cassert>
+#include <algorithm>
 #include "YM2413.hh"
 #include "Mixer.hh"
+
+using std::min;
 
 
 namespace openmsx {
@@ -136,11 +139,6 @@ int YM2413::lin2db(double d)
 		return min(-(int)(20.0 * log10(d) / DB_STEP), DB_MUTE - 1); // 0 - 128
 	}
 }
-int YM2413::min(int i, int j)
-{
-	return (i < j) ? i : j;
-}
-
 
 
 void YM2413::makeDphaseNoiseTable(int sampleRate)

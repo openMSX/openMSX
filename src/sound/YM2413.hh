@@ -135,7 +135,6 @@ class YM2413 : public YM2413Core, public SoundDevice
 		static void makeAdjustTable();
 		static void makeSinTable();
 		static int lin2db(double d);
-		inline static int min(int i, int j);
 		static void makeDphaseNoiseTable(int sampleRate);
 		static void makePmTable();
 		static void makeAmTable();

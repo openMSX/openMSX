@@ -34,11 +34,15 @@ TODO:
 
 #include <stdio.h>
 #include <cassert>
+#include <algorithm>
 #include "VDPCmdEngine.hh"
 #include "EmuTime.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "VDPSettings.hh"
+
+using std::min;
+using std::max;
 
 
 namespace openmsx {
@@ -274,15 +278,6 @@ static inline int VDP_VRMP7(int X, int Y)
 static inline int VDP_VRMP8(int X, int Y)
 {
 	return (((X & 1) << 16) + ((Y & 511) << 7) + ((X & 255) >> 1));
-}
-
-static inline int min(int a, int b)
-{
-	return (a < b) ? a : b; 
-}
-static inline int max(int a, int b)
-{
-	return (a > b) ? a : b; 
 }
 
 inline void VDPCmdEngine::VDPCmd::clipNX_DX()
