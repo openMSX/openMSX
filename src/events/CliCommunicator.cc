@@ -12,6 +12,7 @@ using std::flush;
 namespace openmsx {
 
 CliCommunicator::CliCommunicator()
+	: lock(1)
 {
 }
 
@@ -22,10 +23,11 @@ CliCommunicator::~CliCommunicator()
 void CliCommunicator::run()
 {
 	Scheduler* scheduler = Scheduler::instance();
-	while (true) {
-		string cmd;
-		getline(cin, cmd);
+	string cmd;
+	while (getline(cin, cmd)) {
+		lock.down();
 		cmds.push_back(cmd);
+		lock.up();
 		scheduler->setSyncPoint(Scheduler::ASAP, this);
 	}
 }
@@ -33,17 +35,18 @@ void CliCommunicator::run()
 void CliCommunicator::executeUntilEmuTime(const EmuTime& time, int userData)
 {
 	CommandController* controller = CommandController::instance();
+	lock.down();
 	while (!cmds.empty()) {
-		string cmd = cmds.front();
-		cmds.pop_front();
 		string result;
 		try {
-			result = controller->executeCommand(cmd);
+			result = controller->executeCommand(cmds.front());
 		} catch (CommandException &e) {
 			result = e.getMessage() + '\n';
 		}
 		cout << result << flush;
+		cmds.pop_front();
 	}
+	lock.up();
 }
 
 const string& CliCommunicator::schedName() const

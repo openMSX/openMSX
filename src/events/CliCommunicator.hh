@@ -7,6 +7,7 @@
 #include <string>
 #include "Thread.hh"
 #include "Schedulable.hh"
+#include "Semaphore.hh"
 
 using std::deque;
 using std::string;
@@ -26,6 +27,7 @@ private:
 	virtual const string& schedName() const;
 
 	deque<string> cmds;
+	Semaphore lock;
 };
 
 } // namespace openmsx
