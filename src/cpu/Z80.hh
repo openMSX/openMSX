@@ -1,6 +1,6 @@
 // $Id$
 
-/**
+/*
  * Based on:
  *    Z80Em: Portable Z80 emulator
  *    written by Marcel de Kogel 1996,1997
