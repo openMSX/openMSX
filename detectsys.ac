@@ -11,7 +11,10 @@ AC_CANONICAL_SYSTEM
 
 
 dnl In just before do output, do some reflection for our local use...
-OPENMSX_TARGET_OS="$target_os"
+case "$target_os" in
+  *-gnu)	OPENMSX_TARGET_OS="${target_os%-gnu}";;
+  *)		OPENMSX_TARGET_OS="$target_os";;
+esac
 case "$target_cpu" in
   i?86)		OPENMSX_TARGET_CPU=x86;;
   *)		OPENMSX_TARGET_CPU="$target_cpu";;
