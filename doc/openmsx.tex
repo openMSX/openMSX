@@ -7,6 +7,7 @@
 \documentclass[11pt, a4paper]{report}
 \title{OpenMSX internals}
 %Add your name here
+\author{David Heremans}
 \author{Wouter Vermaelen}
 
 \begin{document}
@@ -25,9 +26,8 @@ emulator can only emulate one device at a time. This creates some problems:
 
 First problem, some devices need to emulated \textit{constantly}, e.g.
 \begin{itemize}
-%%
-\item beeldopbouw VDP
-\item soundbuffers voor geluidchips
+\item screenrefresh by the VDP
+\item soundbuffers for soundcards
 \end{itemize}
 We can approximate this by emulating those devices very regularly.
 
@@ -35,11 +35,10 @@ Second problem, devices can communicate with each other. When two emulated
 devices wants to communicate we must make sure these devices have advanced
 equally far in time. Example:
 
-%%
-CPU verandert dmv IO opdracten de palet instellingen van de VDP op het 
-tijdstip t, dan moet de VDP zijn beeldopbouw doen tot aan tijdstip t, dan
-pas wordt de IO opdracht uitgevoerd. Dus de volgende keer dat VDP 
-beeldopbouw doet zal het nieuwe palet gebruikt worden
+CPU changes by means of I/O-commands the palet settings of the VDP on
+time T, therefore the VDP must calculate its screen up until time T before
+the IO command is executed. From that moment on the VDP will use the new
+palet data when calculating the rest of the screen.
 
 So we need some sort of synchronization mechanism.
 
@@ -59,16 +58,14 @@ Communication can be either predictable or unpredictable:
 \begin{itemize}
 \item Predictable communication: Most interupts are predictable, example:
 
-%%
-VDP weet 'als al mijn instellingen blijven zoals ze nu zijn dan ga ik op 
-tijdstip t een VBLANK interrupt genereren'
+The VDP knows: 'if my settings remain as they are right now, I will
+generate a VBLANK interrupt at time T'
 
 \item Unpredicatble communication, examples:
 	\begin{itemize}
-	%%
-	\item CPU voert een IO instructie uit
-	\item CPU voert een instructie uit die leest of schrijft in geheugen (!)
-	\item een externe interrupt (vb afkomstig van RS232)
+	\item CPU executes an IO instruction
+	\item CPU executes an instruction who reads from or writes to memory (!)
+	\item an external interrupt (vb RS232)
 	\end{itemize}
 \end{itemize}
 
@@ -118,11 +115,11 @@ it can further advance in time.
 
 \subsubsection{Unpredictable interupts}
 
-%%
-Ik zie hier twee mogelijke oplossingen:
+There are two possible solutions:
 \label{unpredic-irq}
 \begin{enumerate}
 \item Polling.
+%%
 Bij deze oplossing zetten we zelf de SP om de bv 50 HZ T-states.
 Blijven we bij het voorbeeld van de RS232 dan betekend dat er om de 0.02 seconden 
 gevraagd gaat worden of er een byte klaar staat. Als dit het geval is dan kan de 
@@ -151,7 +148,7 @@ SP's tussen te lassen in de bestaande structuur zou dit geen probleem zijn.
 Most important example: memory mappers (IO 0xfc \ldots 0xff)
 
 %%
-Voor dit soort zaken zou ik de voorkeur geven aan het master-slave principe
+For this kind of behaviour the most usefull principle would be a master-slave approach
 In het geval van memmorymappers heb ik dit als volgt reeds geprogrammeert:
 \begin{itemize}
 \item De classe MSXMemMapDriver(=master) registreerd zich bij het MSXMotherboard voor de 
@@ -354,6 +351,20 @@ CPU from the scheduler. However for most devices this wouldn't change
 anything, they still need to emulate up until the SP point and call the
 raiseIRQ(). Any comments ??
 
+\chapter{Implementing devices for openMSX}
+Before you start implementing a new device for openMSX make sure you have read and understand the way openMSX handles eumTime. If your device is able to generate an IRQ you must follow the rules described above.
+\section{The life cycle of an MSXDevice}
+
+\section{The life cycle of an MSXDevice}
+The life cycle of an MSXdevice follows the following basic steps
+\begin{itemize}
+\item Object is instantiated
+\item The device reads its configuration and prepares itself to run
+\item The device waits for calls made by the scheduler/CPU.
+\item When destroyed the object nicely releases it sources.
+\end{itemize}
+
+\subsection{MSXDevice instantiation}
 
 
 \end{document}
