@@ -32,6 +32,19 @@
 #include "emutime.hh"
 #include "I8255.hh"
 
+// David Hermans original comments 
+// This class implements the PPI
+// found on ports A8..AB where 
+//A8      R/W    I 8255A/ULA9RA041 PPI Port A Memory PSLOT Register (RAM/ROM)
+//			Bit   Expl.
+//			0-1   PSLOT number 0-3 for memory at 0000-3FFF
+//			2-3   PSLOT number 0-3 for memory at 4000-7FFF
+//			4-5   PSLOT number 0-3 for memory at 8000-BFFF
+//			6-7   PSLOT number 0-3 for memory at C000-FFFF
+//A9      R      I 8255A/ULA9RA041 PPI Port B Keyboard column inputs
+//AA      R/W    I 8255A/ULA9RA041 PPI Port C Kbd Row sel,LED,CASo,CASm
+//AB      W      I 8255A/ULA9RA041 Mode select and I/O setup of A,B,C
+
 
 class MSXPPI : public MSXDevice, I8255Interface
 {

@@ -13,6 +13,9 @@
 //class MSXConfig.Device;
 // is redefinition class MSXConfig { class Device;};
 
+//class MSXConfig.Device;
+// is redefinition class MSXConfig { class Device;};
+
 class MSXDevice
 {
 	public:

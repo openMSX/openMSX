@@ -43,17 +43,18 @@ main (int argc, char **argv)
 	try
 	{
 		MSXConfig::instance()->loadFile(configfile);
-	}
+    	
+        list<MSXConfig::Device*>::const_iterator i=MSXConfig::instance()->deviceList.begin();
+    	for (; i != MSXConfig::instance()->deviceList.end(); i++)
+    	{
+    		(*i)->dump();
+    	}
+    }
 	catch (MSXException e)
 	{
 		cerr << e.desc << endl;
 		exit(1);
-	}
-	list<MSXConfig::Device*>::const_iterator i=MSXConfig::instance()->deviceList.begin();
-	for (; i != MSXConfig::instance()->deviceList.end(); i++)
-	{
-		(*i)->dump();
-	}
+    }
 	// End of Joosts test routine 
 	// Here comes the Real Stuff(tm) :-)
 	// (Actualy David's test stuff)
@@ -116,6 +117,9 @@ main (int argc, char **argv)
 //	moederbord->registerSlottedDevice(geheugen,0,0,2);
 //	moederbord->registerSlottedDevice(geheugen,0,0,3);
 	
+	cout << "Initing MSX\n\n";
+	moederbord->InitMSX();
+
 	cout << "Initing MSX\n\n";
 	moederbord->InitMSX();
 	

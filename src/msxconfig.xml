@@ -8,17 +8,30 @@
 	<parameter name="1" class="subslotted">false</parameter>
 	<parameter name="2" class="subslotted">false</parameter>
 	<parameter name="3" class="subslotted">true</parameter>
-	<desc>This is a motherboard</desc>
   </device>
   <device id="myram1">
     <type>Simple64KB</type>
 	<slotted>
+	  <ps>3</ps>
+	  <ss>3</ss>
+	  <page>0</page>
+	</slotted>
+	<slotted>
+	  <ps>3</ps>
+	  <ss>3</ss>
+	  <page>1</page>
+	</slotted>
+	<slotted>
+	  <ps>3</ps>
+	  <ss>3</ss>
 	  <page>2</page>
-	  <ps>0</ps>
-	  <ss>0</ss>
+	</slotted>
+	<slotted>
+	  <ps>3</ps>
+	  <ss>3</ss>
+	  <page>3</page>
 	</slotted>
 	<parameter name="slow_drain_on_reset">true</parameter>
-	<rem>Hello, this is a comment</rem>
   </device>
   <device id="biosrom">
     <type>Rom16KB</type>
@@ -43,6 +56,10 @@
   <device id="ppi">
     <type>PPI</type>
 	<parameter name="foo_bug">no</parameter>
+  </device>
+  <device id="msx1vdp">
+    <type>TMS9928a</type>
+	<parameter name="frequency">PAL</parameter>
   </device>
   <device id="vdp">
     <type>VDP</type>

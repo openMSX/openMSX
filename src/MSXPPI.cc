@@ -69,6 +69,10 @@ byte MSXPPI::readIO(byte port, Emutime &time)
 	case 0xAA:
 		return i8255->readPortC();
 	case 0xAB:
+        //TODO: test what a real MSX returns
+        // normally after a the MSX is started 
+        // you don't tough this register, but hey
+        // we go for the perfect emulation :-)
 		return i8255->readControlPort();
 	default:
 		assert (false); // code should never be reached
@@ -83,12 +87,24 @@ void MSXPPI::writeIO(byte port, byte value, Emutime &time)
 		i8255->writePortA(value);
 		break;
 	case 0xA9:
+        //BOGUS read-only register in case of MSX
 		i8255->writePortB(value);
 		break;
 	case 0xAA:
+        //TODO use these bits
+		//4    CASON  Cassette motor relay        (0=On, 1=Off)
+		//5    CASW   Cassette audio out          (Pulse)
+		//6    CAPS   CAPS-LOCK lamp              (0=On, 1=Off)
+		//7    SOUND  Keyboard klick bit          (Pulse)
 		i8255->writePortC(value);
 		break;
 	case 0xAB:
+	//Theoretically these registers can be used as input or output 
+	//ports. However, in the MSX, PPI Port A and C are always used as output, 
+	//and PPI Port B as input. The BIOS initializes it like that by writing 
+	//82h to Port ABh on startup. Afterwards it makes no sense to change this 
+	//setting, and thus we could simply discard any write :-)
+	//but wouter wouldn't let us ;-)
 		i8255->writeControlPort(value);
 		break;
 	default:

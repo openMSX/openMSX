@@ -114,8 +114,9 @@ INLINE byte M_RDMEM_OPCODE (void)
  return retval;
 }
 
+// op 28,08,2001 bugje gevonden was byte 
 //INLINE unsigned M_RDMEM_WORD (dword A)
-INLINE byte M_RDMEM_WORD (word A)
+INLINE word M_RDMEM_WORD (word A)
 {
  int i;
  i=M_RDMEM(A);
@@ -130,7 +131,8 @@ INLINE void M_WRMEM_WORD (word A,word V)
  M_WRMEM (((A)+1)&0xFFFF,V>>8);
 }
 
-INLINE byte M_RDMEM_OPCODE_WORD (void)
+// op 28,08,2001 bugje gevonden was byte 
+INLINE word M_RDMEM_OPCODE_WORD (void)
 {
  int i;
  i=M_RDMEM_OPCODE();
@@ -1815,7 +1817,7 @@ static void sub_byte(void) { byte i=M_RDMEM_OPCODE(); M_SUB(i); }
 static void xor_xhl(void) { byte i=M_RD_XHL; M_XOR(i); }
 static void xor_xix(void) { byte i=M_RD_XIX(); M_XOR(i); }
 static void xor_xiy(void) { byte i=M_RD_XIY(); M_XOR(i); }
-static void xor_a(void) { R.AF.W.l=Z_FLAG|V_FLAG; }
+static void xor_a(void) { R.AF.W.l=Z_FLAG|V_FLAG;}
 static void xor_b(void) { M_XOR(R.BC.B.h); }
 static void xor_c(void) { M_XOR(R.BC.B.l); }
 static void xor_d(void) { M_XOR(R.DE.B.h); }
@@ -2094,6 +2096,8 @@ int Z80_SingleInstruction(void)
   printf("instruction ");
   Z80_Dasm(&debugmemory[start_pc], to_print_string,start_pc );
   printf("%s\n",to_print_string );
+  printf("      A=%02x F=%02x \n",R.AF.B.h,R.AF.B.l);
+  printf("      BC=%04x DE=%04x HL=%04x \n",R.BC.W.l,R.DE.W.l,R.HL.W.l);
 #endif
  return Z80_Running;
 }

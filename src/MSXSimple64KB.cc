@@ -43,10 +43,22 @@ void MSXSimple64KB::init()
 		//always contain all zero if started
 		memset(memoryBank,0,65536); // TODO: Possible default of C++ look-up
 	}
+	// MSXMotherBoard.register_IO_In((byte)81,this);
+	// MSXMotherBoard.register_IO_Out((byte)80,this);
+
+	list<MSXConfig::Device::Slotted*> slotted_list = deviceConfig->slotted;
+	for (list<MSXConfig::Device::Slotted*>::const_iterator i=slotted_list.begin(); i != slotted_list.end(); i++)
+	{
+	  MSXMotherBoard::instance()->registerSlottedDevice(this,
+	      (*i)->getPS(),
+	      (*i)->getSS(),
+	      (*i)->getPage() );
+	}
+
 	//MSXMotherBoard::instance()->registerSlottedDevice(this,0,0,0);
 	//MSXMotherBoard::instance()->registerSlottedDevice(this,0,0,1);
-	MSXMotherBoard::instance()->registerSlottedDevice(this,0,0,2);
-	MSXMotherBoard::instance()->registerSlottedDevice(this,0,0,3);
+	//MSXMotherBoard::instance()->registerSlottedDevice(this,0,0,2);
+	//MSXMotherBoard::instance()->registerSlottedDevice(this,0,0,3);
 
 }
 

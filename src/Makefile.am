@@ -1,5 +1,7 @@
 # $Id$
 
+# on 22/8/2001 added the DLSB_FIRST to correct wrong Z80 compile
+
 bin_PROGRAMS=openmsx
 openmsx_SOURCES=openmsx.cc \
 	system.h \
@@ -13,6 +15,7 @@ openmsx_SOURCES=openmsx.cc \
 	I8255.hh I8255.cc \
 	MSXRom16KB.hh MSXRom16KB.cc \
 	MSXSimple64KB.hh MSXSimple64KB.cc \
+	MSXTMS9928a.hh MSXTMS9928a.cc \
 	MSXZ80.hh MSXZ80.cc \
 	devicefactory.hh devicefactory.cc \
 	Scheduler.hh Scheduler.cc \
@@ -24,4 +27,4 @@ openmsx_SOURCES=openmsx.cc \
 openmsx_LDADD= -lxml++ -lSDL
 
 # we want ALL warnings
-AM_CXXFLAGS = -Wall -DDEBUG -g
+AM_CXXFLAGS = -Wall -DDEBUG -g -DLSB_FIRST
