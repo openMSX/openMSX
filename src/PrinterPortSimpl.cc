@@ -52,7 +52,7 @@ const string& PrinterPortSimpl::getName() const
 
 const string& PrinterPortSimpl::getDescription() const
 {
-	static const string desc("Play samples on your printerport.");
+	static const string desc("Play samples via your printer port.");
 	return desc;
 }
 

@@ -75,7 +75,7 @@ const string& WavAudioInput::getName() const
 const string& WavAudioInput::getDescription() const
 {
 	static const string desc(
-		"Read .wav files. Can for eample be used as input for "
+		"Read .wav files. Can for example be used as input for "
 		"samplers.");
 	return desc;
 }

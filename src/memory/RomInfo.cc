@@ -341,7 +341,7 @@ void RomInfo::print()
 	              "  Year:     " + year + "\n"
 	              "  Company:  " + company;
 	if (!getRemark().empty()) {
-		info += "  Remark:   " + getRemark();
+		info += "\n  Remark:   " + getRemark();
 	}
 	CliCommunicator::instance().printInfo(info);
 }

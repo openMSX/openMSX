@@ -59,7 +59,7 @@ const string& MidiInReader::getDescription() const
 {
 	static const string desc(
 		"Midi in file reader. Sends data from an input file to the "
-		"midi port it is connected to. The file is selected with "
+		"midi port it is connected to. The filename is set with "
 		"the 'midi-in-readfilename' setting.");
 	return desc;
 }

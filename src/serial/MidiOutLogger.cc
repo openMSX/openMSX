@@ -39,8 +39,8 @@ const string& MidiOutLogger::getName() const
 const string& MidiOutLogger::getDescription() const
 {
 	static const string desc(
-		"Midi output logger. Log all data that gets sends to this "
-		"pluggable to a file. The filename is selected with the "
+		"Midi output logger. Log all data that is sent to this "
+		"pluggable to a file. The filename is set with the "
 		"'midi-out-logfilename' setting.");
 	return desc;
 }

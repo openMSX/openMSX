@@ -44,7 +44,7 @@ const string& JoyNet::getName() const
 const string& JoyNet::getDescription() const
 {
 	static const string desc(
-		"Experimental JoyNet pluggable....");
+		"Experimental JoyNet pluggable...");
 	return desc;
 }
 

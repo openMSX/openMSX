@@ -44,7 +44,7 @@ const string &Mouse::getName() const
 
 const string& Mouse::getDescription() const
 {
-	static const string desc("MSX mouse");
+	static const string desc("MSX mouse.");
 	return desc;
 }
 

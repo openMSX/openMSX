@@ -67,8 +67,8 @@ const string& PrinterPortLogger::getName() const
 const string& PrinterPortLogger::getDescription() const
 {
 	static const string desc(
-		"Log everything that gets sends to the printer port to a "
-		"file. The filename can be selected with the "
+		"Log everything that is sent to the printer port to a "
+		"file. The filename can be set with the "
 		"'printerlogfilename' setting.");
 	return desc;
 }
