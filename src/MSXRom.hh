@@ -24,9 +24,9 @@ class MSXRomCLI : public CLIOption, public CLIFileType
 		MSXRomCLI();
 		virtual void parseOption(const std::string &option,
 			std::list<std::string> &cmdLine);
-		virtual const std::string& optionHelp();
+		virtual const std::string& optionHelp() const;
 		virtual void parseFileType(const std::string &filename);
-		virtual const std::string& fileTypeHelp();
+		virtual const std::string& fileTypeHelp() const;
 	
 	private:
 		int cartridgeNr;

@@ -72,7 +72,7 @@ void KeyEventInserterCLI::parseOption(const std::string &option,
 	MSXConfig::Backend *config = MSXConfig::Backend::instance();
 	config->loadStream(s);
 }
-const std::string& KeyEventInserterCLI::optionHelp()
+const std::string& KeyEventInserterCLI::optionHelp() const
 {
 	static const std::string text("Execute content in argument as keyinserts");
 	return text;

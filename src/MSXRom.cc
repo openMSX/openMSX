@@ -38,7 +38,7 @@ void MSXRomCLI::parseOption(const std::string &option,
 		CommandLineParser::instance()->registerPostConfig(new MSXRomPostNoName(arg));
 	}
 }
-const std::string& MSXRomCLI::optionHelp()
+const std::string& MSXRomCLI::optionHelp() const
 {
 	static const std::string text("Insert the ROM file (cartridge) specified in argument");
 	return text;
@@ -57,7 +57,7 @@ void MSXRomCLI::parseFileType(const std::string &arg)
 {
 	CommandLineParser::instance()->registerPostConfig(new MSXRomPostNoName(arg));
 }
-const std::string& MSXRomCLI::fileTypeHelp()
+const std::string& MSXRomCLI::fileTypeHelp() const
 {
 	static const std::string text("ROM image of a cartridge");
 	return text;

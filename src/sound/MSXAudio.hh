@@ -16,7 +16,7 @@ class MSXAudioCLI : public CLIOption
 		MSXAudioCLI();
 		virtual void parseOption(const std::string &option,
 			std::list<std::string> &cmdLine);
-		virtual const std::string& optionHelp();
+		virtual const std::string& optionHelp() const;
 };
 
 class MSXAudio : public MSXIODevice

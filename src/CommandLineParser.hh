@@ -16,15 +16,15 @@ class CLIOption
 {
 	public:
 		virtual void parseOption(const std::string &option,
-		                     std::list<std::string> &cmdLine) = 0;
-		virtual const std::string& optionHelp() = 0;
+		                         std::list<std::string> &cmdLine) = 0;
+		virtual const std::string& optionHelp() const = 0;
 };
 
 class CLIFileType
 {
 	public:
 		virtual void parseFileType(const std::string &filename) = 0;
-		virtual const std::string& fileTypeHelp() = 0;
+		virtual const std::string& fileTypeHelp() const = 0;
 };
 
 class CLIPostConfig
@@ -62,16 +62,16 @@ class CommandLineParser
 		public:
 			virtual void parseOption(const std::string &option,
 				std::list<std::string> &cmdLine);
-			virtual const std::string& optionHelp();
+			virtual const std::string& optionHelp() const;
 		} helpOption;
 		
 		class ConfigFile : public CLIOption, public CLIFileType {
 		public:
 			virtual void parseOption(const std::string &option,
 				std::list<std::string> &cmdLine);
-			virtual const std::string& optionHelp();
+			virtual const std::string& optionHelp() const;
 			virtual void parseFileType(const std::string &filename);
-			virtual const std::string& fileTypeHelp();
+			virtual const std::string& fileTypeHelp() const;
 		} configFile;
 		friend class ConfigFile;
 		
@@ -79,7 +79,7 @@ class CommandLineParser
 		public:
 			virtual void parseOption(const std::string &option,
 				std::list<std::string> &cmdLine);
-			virtual const std::string& optionHelp();
+			virtual const std::string& optionHelp() const;
 		} msx1Option;
 		friend class MSX1Option;
 		
@@ -87,7 +87,7 @@ class CommandLineParser
 		public:
 			virtual void parseOption(const std::string &option,
 				std::list<std::string> &cmdLine);
-			virtual const std::string& optionHelp();
+			virtual const std::string& optionHelp() const;
 		} msx2Option;
 		friend class MSX2Option;
 		
@@ -95,7 +95,7 @@ class CommandLineParser
 		public:
 			virtual void parseOption(const std::string &option,
 				std::list<std::string> &cmdLine);
-			virtual const std::string& optionHelp();
+			virtual const std::string& optionHelp() const;
 		} msx2POption;
 		friend class MSX2POption;
 		
@@ -103,7 +103,7 @@ class CommandLineParser
 		public:
 			virtual void parseOption(const std::string &option,
 				std::list<std::string> &cmdLine);
-			virtual const std::string& optionHelp();
+			virtual const std::string& optionHelp() const;
 		} msxTurboROption;
 		friend class MSXTurboROption;
 };

@@ -23,9 +23,10 @@ void MSXCasCLI::parseOption(const std::string &option,
 
 	parseFileType(filename);
 }
-const std::string& MSXCasCLI::optionHelp()
+const std::string& MSXCasCLI::optionHelp() const
 {
-	static const std::string text("Put tape image in CAS format specified in argument in\n\t\t  virtual cassette player");
+	static const std::string text("Put tape image in CAS format specified in\n"
+	                        "\t\t  argument in virtual cassette player");
 	return text;
 }
 
@@ -43,7 +44,7 @@ void MSXCasCLI::parseFileType(const std::string &filename_)
 	MSXConfig::Backend *config = MSXConfig::Backend::instance();
 	config->loadStream(s);
 }
-const std::string& MSXCasCLI::fileTypeHelp()
+const std::string& MSXCasCLI::fileTypeHelp() const
 {
 	static const std::string text("Tape image in fMSX CAS format");
 	return text;

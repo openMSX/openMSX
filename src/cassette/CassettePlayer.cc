@@ -25,7 +25,7 @@ void MSXCassettePlayerCLI::parseOption(const std::string &option,
 
 	parseFileType(filename);
 }
-const std::string& MSXCassettePlayerCLI::optionHelp()
+const std::string& MSXCassettePlayerCLI::optionHelp() const
 {
 	static const std::string text("Put raw tape image specified in argument in virtual\n\t\t\t  cassetteplayer");
 	return text;
@@ -45,7 +45,7 @@ void MSXCassettePlayerCLI::parseFileType(const std::string &filename_)
 	MSXConfig::Backend *config = MSXConfig::Backend::instance();
 	config->loadStream(s);
 }
-const std::string& MSXCassettePlayerCLI::fileTypeHelp()
+const std::string& MSXCassettePlayerCLI::fileTypeHelp() const
 {
 	static const std::string text("Raw tape image, as recorded from real tape");
 	return text;

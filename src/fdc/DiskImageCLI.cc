@@ -27,7 +27,7 @@ void DiskImageCLI::parseOption(const std::string &option,
 
 	parseFileType(filename);
 }
-const std::string& DiskImageCLI::optionHelp()
+const std::string& DiskImageCLI::optionHelp() const
 {
 	static const std::string text("Insert the disk image specified in argument");
 	return text;
@@ -48,7 +48,7 @@ void DiskImageCLI::parseFileType(const std::string &filename_)
 	config->loadStream(s);
 	driveLetter++;
 }
-const std::string& DiskImageCLI::fileTypeHelp()
+const std::string& DiskImageCLI::fileTypeHelp() const
 {
 	static const std::string text("Disk image");
 	return text;

@@ -137,7 +137,7 @@ void CommandLineParser::HelpOption::parseOption(const std::string &option,
 
 	exit(0);
 }
-const std::string& CommandLineParser::HelpOption::optionHelp()
+const std::string& CommandLineParser::HelpOption::optionHelp() const
 {
 	static const std::string text("Shows this text");
 	return text;
@@ -154,7 +154,7 @@ void CommandLineParser::ConfigFile::parseOption(const std::string &option,
 	parseFileType(filename);
 	
 }
-const std::string& CommandLineParser::ConfigFile::optionHelp()
+const std::string& CommandLineParser::ConfigFile::optionHelp() const
 {
 	static const std::string text("Use configuration file specified in argument");
 	return text;
@@ -166,7 +166,7 @@ void CommandLineParser::ConfigFile::parseFileType(const std::string &filename)
 
 	CommandLineParser::instance()->haveConfig = true;
 }
-const std::string& CommandLineParser::ConfigFile::fileTypeHelp()
+const std::string& CommandLineParser::ConfigFile::fileTypeHelp() const
 {
 	static const std::string text("Configuration file");
 	return text;
@@ -181,7 +181,7 @@ void CommandLineParser::MSX1Option::parseOption(const std::string &option,
 
 	CommandLineParser::instance()->haveConfig = true;
 }
-const std::string& CommandLineParser::MSX1Option::optionHelp()
+const std::string& CommandLineParser::MSX1Option::optionHelp() const
 {
 	static const std::string text("Loads a default MSX1 configuration");
 	return text;
@@ -196,7 +196,7 @@ void CommandLineParser::MSX2Option::parseOption(const std::string &option,
 
 	CommandLineParser::instance()->haveConfig = true;
 }
-const std::string& CommandLineParser::MSX2Option::optionHelp()
+const std::string& CommandLineParser::MSX2Option::optionHelp() const
 {
 	static const std::string text("Loads a default MSX2 configuration");
 	return text;
@@ -211,7 +211,7 @@ void CommandLineParser::MSX2POption::parseOption(const std::string &option,
 
 	CommandLineParser::instance()->haveConfig = true;
 }
-const std::string& CommandLineParser::MSX2POption::optionHelp()
+const std::string& CommandLineParser::MSX2POption::optionHelp() const
 {
 	static const std::string text("Loads a default MSX2+ configuration");
 	return text;
@@ -226,7 +226,7 @@ void CommandLineParser::MSXTurboROption::parseOption(const std::string &option,
 
 	CommandLineParser::instance()->haveConfig = true;
 }
-const std::string& CommandLineParser::MSXTurboROption::optionHelp()
+const std::string& CommandLineParser::MSXTurboROption::optionHelp() const
 {
 	static const std::string text("Loads a MSXturboR configuration");
 	return text;

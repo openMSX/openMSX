@@ -18,7 +18,7 @@ void MSXFmPacCLI::parseOption(const std::string &option,
 {
 	CommandLineParser::instance()->registerPostConfig(this);
 }
-const std::string& MSXFmPacCLI::optionHelp()
+const std::string& MSXFmPacCLI::optionHelp() const
 {
 	static const std::string text("Inserts an FM-PAC into the MSX machine");
 	return text;

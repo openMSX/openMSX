@@ -33,7 +33,7 @@ void MSXAudioCLI::parseOption(const std::string &option,
 	MSXConfig::Backend *config = MSXConfig::Backend::instance();
 	config->loadStream(s);
 }
-const std::string& MSXAudioCLI::optionHelp()
+const std::string& MSXAudioCLI::optionHelp() const
 {
 	static const std::string text("Inserts a Philips Music Module (rom disabled)");
 	return text;
