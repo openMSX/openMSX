@@ -21,15 +21,16 @@ MSXDevice::MSXDevice()
 MSXDevice::~MSXDevice()
 {
 	//PRT_DEBUG("Destructing an MSXDevice object");
+	resetInterrupt();
 }
 
 void MSXDevice::reset(const EmuTime &time)
 {
 	PRT_DEBUG ("Resetting " << getName());
-	isIRQset = false;
+	resetInterrupt();
 }
 
-//
+
 void MSXDevice::saveState(std::ofstream &writestream)
 {
 	// default implementation:
@@ -50,19 +51,6 @@ const std::string &MSXDevice::getName()
 	}
 }
 const std::string MSXDevice::defaultName = "no name";
-
-//These are used for save/restoreState see note over
-//savefile-structure
-//bool MSXDevice::writeSaveStateHeader(std::ofstream &readstream )
-//{
-//	// TODO
-//	return true;
-//}
-//bool MSXDevice::checkSaveStateHeader(std::string &devicestring)
-//{
-//	// TODO
-//	return true;
-//}
 
 
 // Helper functions 

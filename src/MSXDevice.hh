@@ -71,12 +71,6 @@ class MSXDevice
 		 */
 		MSXDevice();
 		
-		//These are used for save/restoreState see note over
-		//savefile-structure
-		//bool writeSaveStateHeader(std::ofstream &writestream);
-		//bool checkSaveStateHeader(std::string &devicestring);
-		//char* deviceVersion;
-		
 		/**
 		 * To ease the burden of keeping IRQ state.
 		 * This function raises an interrupt if this device does not

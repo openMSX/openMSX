@@ -53,7 +53,6 @@ MSXMotherBoard::MSXMotherBoard()
 	// Register console commands.
 	Console::instance()->registerCommand(this, "slotmap");
 	Console::instance()->registerCommand(this, "slotselect");
-
 }
 
 MSXMotherBoard::~MSXMotherBoard()

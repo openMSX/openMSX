@@ -139,13 +139,23 @@ class MSXMotherBoard : public CPUInterface, private ConsoleInterface
 		 * wishes to raise an IRQ. The MSXDevice class offers helper methods
 		 * to ensure this.
 		 */
+
+		/**
+		 * This method raises an interrupt. A device may call this
+		 * method more than once. If the device wants to lower the
+		 * interrupt again it must call the lowerIRQ() method exactly as
+		 * many times. 
+		 * The MSXDevice class offers helper methods to ensure this, for
+		 * simple devices the helper methods are recommended.
+		 */
 		void raiseIRQ();
 
 		/**
-		 * If a device wishes to lower the IRQ, it must call this method.
-		 * This method may only be called (once) if the device had previously
-		 * called raiseIRQ(). The MSXDevice class offers helper methods to
-		 * ensure this.
+		 * This methods lowers the interrupt again. A device may never
+		 * call this method more often than it called the method
+		 * raiseIRQ().
+		 * The MSXDevice class offers helper methods to ensure this, for 
+		 * simple devices the helper devices are recommended.
 		 */
 		void lowerIRQ();
 
