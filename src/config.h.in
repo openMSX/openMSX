@@ -3,9 +3,6 @@
 /* Define if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
-/* define if the stdc++ library supports ifstream as template */
-#undef HAVE_FSTREAM_TEMPL
-
 /* Define if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 

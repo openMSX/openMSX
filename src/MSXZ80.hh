@@ -9,11 +9,8 @@
 #include "MSXCPU.hh"
 class MSXCPU;
 
-class MSXZ80 : public MSXCPUDevice
+class MSXZ80 : public MSXCPUDevice, Z80Interface
 {
-friend void Interrupt(int i);
-friend void Z80_SingleInstruction(void);
-
 	public:
 		// constructor and destructor
 		MSXZ80();
@@ -24,5 +21,14 @@ friend void Z80_SingleInstruction(void);
 		void reset();
 		void IRQ(bool irq);
 		void executeUntilTarget();
+
+		//Z80Interface
+		byte readIO(word port);
+		void writeIO (word port, byte value);
+		byte readMem(word address);
+		void writeMem(word address, byte value);
+
+	private:
+		Z80 *z80;
 };
 #endif //__MSXZ80_HH__

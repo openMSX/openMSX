@@ -12,7 +12,7 @@
 /***     Please, notify me, if you make any changes to this file          ***/
 /****************************************************************************/
 
-static short DAATable[2048]=
+const short Z80::DAATable[2048]=
 {
 68,
 256,

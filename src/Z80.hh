@@ -11,10 +11,53 @@
 /***     Please, notify me, if you make any changes to this file          ***/
 /****************************************************************************/
 
-#ifndef _Z80_H
-#define _Z80_H
+#ifndef __Z80_H__
+#define __Z80_H__
 
 #include "config.h"
+#include "openmsx.hh"
+
+
+class Z80Interface {
+	public:
+		virtual byte readIO   (word port) = 0;
+		virtual void writeIO  (word port,byte value) = 0;
+		virtual byte readMem  (word address) = 0;
+		virtual void writeMem (word address, byte value) = 0;
+
+		/**
+		 * Called when ED FE occurs. Can be used
+		 * to emulated disk access etc.
+		 */
+		virtual void Z80_Patch () {}
+		/**
+		 * Called when RETI accurs
+		 */
+		virtual void Z80_Reti () {}
+		/**
+		 * Called when RETN occurs
+		 */
+		virtual void Z80_Retn () {}
+};
+
+class Z80;
+typedef void (Z80::*opcode_fn)();
+
+class Z80 {
+	public:
+		Z80(Z80Interface *interf);
+		~Z80();
+		void init();
+		void reset();
+
+		int Z80_SingleInstruction();  /* Execute one single CPU instruction    */
+		void Z80_SetWaitStates (int n);    /* Set number of memory wait states.     */
+                                   /* This only affects opcode fetching, so */
+                                   /* wait state adjustment is still        */
+                                   /* necessary in Z80_RDMEM, Z80_RDOP_ARG, */
+                                   /* Z80_RDSTACK and Z80_WRSTACK           */
+		void Z80_Interrupt(int j);
+
 
 /****************************************************************************/
 /*** Machine dependent definitions                                        ***/
@@ -44,13 +87,11 @@ typedef unsigned char  byte;
 typedef unsigned short word;
 typedef unsigned       dword;
 typedef signed char    offset;
-typedef unsigned long int UINT64;   // 64 bit 
 
 /****************************************************************************/
 /* Define a Z80 word. Upper bytes are always zero                           */
 /****************************************************************************/
-typedef union
-{
+typedef union {
 #ifdef __128BIT__
  #ifdef LSB_FIRST
 //   struct { byte l,h,h2,h3,h4,h5,h6,h7,
@@ -94,49 +135,57 @@ typedef union
 /* The Z80 registers. HALT is set to 1 when the CPU is halted, the refresh  */
 /* register is calculated as follows: refresh=(Regs.R&127)|(Regs.R2&128)    */
 /****************************************************************************/
-typedef struct
-{
-  z80regpair AF,BC,DE,HL,IX,IY,PC,SP;
-  z80regpair AF2,BC2,DE2,HL2;
-  unsigned IFF1,IFF2,HALT,IM,I,R,R2;
-  int ICount;       // T-state count
+typedef struct {
+	z80regpair AF,  BC,  DE,  HL, IX, IY, PC, SP;
+	z80regpair AF2, BC2, DE2, HL2;
+	bool IFF1, IFF2, HALT;
+	unsigned IM, I, R, R2;
+	int ICount;       // T-state count
 } CPU_Regs;
 
 #define Z80_IGNORE_INT  -1   /* Ignore interrupt                            */
 #define Z80_NMI_INT     -2   /* Execute NMI                                 */
 #define Z80_NORM_INT    -3   /* Execute NMI                                 */
 
-void InitTables (void);
-void Z80_SingleInstruction(void);  /* Execute one single CPU instruction    */
-void Z80_SetWaitStates (int n);    /* Set number of memory wait states.     */
-                                   /* This only affects opcode fetching, so */
-                                   /* wait state adjustment is still        */
-                                   /* necessary in Z80_RDMEM, Z80_RDOP_ARG, */
-                                   /* Z80_RDSTACK and Z80_WRSTACK           */
-int Z80_Interrupt(void);           /* This is called after IPeriod T-States */
-                                   /* have been executed. It should return  */
-                                   /* Z80_IGNORE_INT, Z80_NMI_INT or a byte */
-                                   /* identifying the device (most often    */
-                                   /* 0xFF)                                 */
+	private:
+		#include "Z80Core.hh"
 
-void Z80_Patch (CPU_Regs *Regs);   /* Called when ED FE occurs. Can be used */
-                                   /* to emulate disk access etc.           */
-void Z80_Reti (void);              /* Called when RETI occurs               */
-void Z80_Retn (void);              /* Called when RETN occurs               */
+		static const byte S_FLAG = 0x80;
+		static const byte Z_FLAG = 0x40;
+		static const byte H_FLAG = 0x10;
+		static const byte V_FLAG = 0x04;
+		static const byte N_FLAG = 0x02;
+		static const byte C_FLAG = 0x01;
 
+		static byte PTable[512];
+		static byte ZSTable[512];
+		static byte ZSPTable[512];
+		static const short DAATable[2048];
+		
+		static opcode_fn opcode_dd_cb[256];
+		static opcode_fn opcode_fd_cb[256];
+		static opcode_fn opcode_cb[256];
+		static opcode_fn opcode_dd[256];
+		static opcode_fn opcode_ed[256];
+		static opcode_fn opcode_fd[256];
+		static opcode_fn opcode_main[256];
 
-/****************************************************************************/
-/* Definitions of functions to read/write memory and I/O ports              */
-/* You can replace these with your own, inlined if necessary                */
-/****************************************************************************/
-#include "Z80IO.h"
+		#ifdef DEBUG
+			byte debugmemory[65536];
+			char to_print_string[300];
+		#endif
+		
+		//TODO should not be static
+		static unsigned cycles_main[256];
+		static unsigned cycles_cb[256];
+		static unsigned cycles_xx_cb[256];
+		static unsigned cycles_xx[256];
+		static unsigned cycles_ed[256];
+		
+		Z80Interface *interface;
 
+		CPU_Regs R;
+};
 
-extern CPU_Regs R;
-
-#ifdef DEBUG
-extern byte debugmemory[];
-#endif
-
-#endif /* _Z80_H */
+#endif // __Z80_H__
 
