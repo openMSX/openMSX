@@ -15,6 +15,7 @@ TODO:
 #include "CommandConsole.hh"
 #include "DebugConsole.hh"
 #include "SDLConsole.hh"
+#include "Scalers.hh"
 #include "util.hh"
 #include <algorithm>
 #include <cmath>
@@ -65,11 +66,36 @@ inline int SDLRenderer<Pixel, zoom>::translateX(int absoluteX)
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::finishFrame(bool store)
 {
+	// Apply postprocessing.
+	// TODO: Postprocess after store, so the user can try out postprocessing
+	//       options during pause and see the result applied immediately.
+	if (LINE_ZOOM == 2) {
+		Scaler *scaler = scalers[
+			RenderSettings::instance()->getScaler()->getValue()
+			];
+		for (int y = 0; y < HEIGHT; y += 2) {
+			//fprintf(stderr, "post processing line %d: %d\n", y, processLines[y]);
+			switch (processLines[y]) {
+			case PROC_NONE:
+				break;
+			case PROC_COPY:
+				scalers[Scaler::SIMPLE]->scaleLine(workScreen, y);
+				break;
+			case PROC_SCALE:
+				scaler->scaleLine(workScreen, y);
+				break;
+			default:
+				assert(false);
+				break;
+			}
+		}
+	}
+
 	if (store) {
 		// Update screen.
-		SDL_UpdateRect(screen, 0, 0, 0, 0);
+		SDL_UpdateRect(workScreen, 0, 0, 0, 0);
 		// Copy entire screen to stored image.
-		SDL_BlitSurface(screen, NULL, storedImage, NULL);
+		SDL_BlitSurface(workScreen, NULL, storedImage, NULL);
 	}
 
 	// Render consoles if needed.
@@ -77,6 +103,7 @@ void SDLRenderer<Pixel, zoom>::finishFrame(bool store)
 	if (debugger) debugger->drawConsole();
 
 	// Update screen.
+	SDL_BlitSurface(workScreen, NULL, screen, NULL);
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
 }
 
@@ -254,13 +281,28 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 		Blender<Pixel>::createFromFormat(screen->format) )
 {
 	this->screen = screen;
-	console = new SDLConsole(CommandConsole::instance(), screen);
+	scalers = Scaler::createScalers<Pixel>(
+		Blender<Pixel>::createFromFormat(screen->format)
+		);
+
+	// Allocate work screen.
+	workScreen = SDL_CreateRGBSurface(
+		SDL_SWSURFACE,
+		WIDTH, HEIGHT,
+		screen->format->BitsPerPixel,
+		screen->format->Rmask,
+		screen->format->Gmask,
+		screen->format->Bmask,
+		screen->format->Amask
+		);
+
+	console = new SDLConsole(CommandConsole::instance(), workScreen);
 	debugger = NULL;
-	Console * debuggerconsole = DebugConsole::instance();
-	if (debuggerconsole){ 
-		debugger = new SDLConsole(debuggerconsole, screen);
+	Console *debuggerconsole = DebugConsole::instance();
+	if (debuggerconsole){
+		debugger = new SDLConsole(debuggerconsole, workScreen);
 	}
-	
+
 	// Allocate screen which will later contain the stored image.
 	storedImage = SDL_CreateRGBSurface(
 		SDL_SWSURFACE,
@@ -274,7 +316,7 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 
 	// Create display caches.
 	charDisplayCache = SDL_CreateRGBSurface(
-		SDL_HWSURFACE,
+		SDL_SWSURFACE,
 		zoom == Renderer::ZOOM_256 ? 256 : 512,
 		vdp->isMSX1VDP() ? 192 : 256,
 		screen->format->BitsPerPixel,
@@ -286,7 +328,7 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 	bitmapDisplayCache = ( vdp->isMSX1VDP()
 		? NULL
 		: SDL_CreateRGBSurface(
-			SDL_HWSURFACE,
+			SDL_SWSURFACE,
 			zoom == Renderer::ZOOM_256 ? 256 : 512,
 			256 * 4,
 			screen->format->BitsPerPixel,
@@ -310,6 +352,8 @@ SDLRenderer<Pixel, zoom>::~SDLRenderer()
 {
 	delete console;
 	if (debugger) delete debugger;
+	Scaler::disposeScalers(scalers);
+	SDL_FreeSurface(workScreen);
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
 	SDL_FreeSurface(storedImage);
@@ -446,6 +490,12 @@ void SDLRenderer<Pixel, zoom>::frameStart(
 	if ((gamma > prevGamma) || (gamma < prevGamma)) {
 		precalcPalette(gamma);
 		resetPalette();
+	}
+
+	if (LINE_ZOOM == 2) {
+		for (int y = 0; y < HEIGHT; y++) {
+			processLines[y] = PROC_NONE;
+		}
 	}
 }
 
@@ -614,7 +664,7 @@ void SDLRenderer<Pixel, zoom>::drawBorder(
 	rect.h = (limitY - fromY) * LINE_ZOOM;
 
 	// Note: return code ignored.
-	SDL_FillRect(screen, &rect, getBorderColour());
+	SDL_FillRect(workScreen, &rect, getBorderColour());
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -721,12 +771,17 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 				source.h = 1;
 				dest.x = leftBackground + displayX;
 				dest.y = y;
-				SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
+				SDL_BlitSurface(
+					bitmapDisplayCache, &source, workScreen, &dest
+					);
 				if (LINE_ZOOM == 2) {
 					source.y = vramLine[1];
 					dest.y = y + 1;
-					SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
+					SDL_BlitSurface(
+						bitmapDisplayCache, &source, workScreen, &dest
+						);
 				}
+				if (LINE_ZOOM == 2) processLines[y] = PROC_NONE;
 			} else {
 				int firstPageWidth = pageBorder - displayX;
 				if (firstPageWidth > 0) {
@@ -736,11 +791,9 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 					source.h = 1;
 					dest.x = leftBackground + displayX;
 					dest.y = y;
-					SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
-					if (LINE_ZOOM == 2) {
-						dest.y++;
-						SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
-					}
+					SDL_BlitSurface(
+						bitmapDisplayCache, &source, workScreen, &dest
+						);
 				} else {
 					firstPageWidth = 0;
 				}
@@ -752,11 +805,19 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 					source.h = 1;
 					dest.x = leftBackground + displayX + firstPageWidth;
 					dest.y = y;
-					SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
+					SDL_BlitSurface(
+						bitmapDisplayCache, &source, workScreen, &dest
+						);
 					if (LINE_ZOOM == 2) {
 						dest.y++;
-						SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
+						SDL_BlitSurface(
+							bitmapDisplayCache, &source, workScreen, &dest
+							);
 					}
+				}
+				if (LINE_ZOOM == 2) {
+					processLines[y] =
+						(mode.getLineWidth() == 256) ? PROC_SCALE : PROC_COPY;
 				}
 			}
 			displayY = (displayY + 1) & 255;
@@ -780,10 +841,10 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 			printf("plotting character cache line %d to screen line %d\n",
 				source.y, dest.y);
 			*/
-			SDL_BlitSurface(charDisplayCache, &source, screen, &dest);
+			SDL_BlitSurface(charDisplayCache, &source, workScreen, &dest);
 			if (LINE_ZOOM == 2) {
-				dest.y++;
-				SDL_BlitSurface(charDisplayCache, &source, screen, &dest);
+				processLines[y] =
+					(mode.getLineWidth() == 256) ? PROC_SCALE : PROC_COPY;
 			}
 			displayY = (displayY + 1) & 255;
 		}
@@ -821,7 +882,7 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 	//   just before page flip?
 	//   Will only work if *all* data required is buffered, including
 	//   for example RGB colour (on V9938 palette may change).
-	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
+	if (SDL_MUSTLOCK(workScreen) && SDL_LockSurface(workScreen) < 0) {
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
@@ -838,15 +899,15 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 	int displayLimitX = displayX + displayWidth;
 	int limitY = fromY + displayHeight;
 	Pixel *pixelPtr0 = (Pixel *)(
-		(byte *)screen->pixels
-		+ screenY * screen->pitch
+		(byte *)workScreen->pixels
+		+ screenY * workScreen->pitch
 		+ translateX(vdp->getLeftSprites()) * sizeof(Pixel)
 		);
 	for (int y = fromY; y < limitY; y++) {
 		Pixel *pixelPtr1 =
 			( LINE_ZOOM == 1
 			? NULL
-			: (Pixel *)(((byte *)pixelPtr0) + screen->pitch)
+			: (Pixel *)(((byte *)pixelPtr0) + workScreen->pitch)
 			);
 
 		if (spriteMode == 1) {
@@ -857,12 +918,13 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 				y, displayX, displayLimitX, pixelPtr0, pixelPtr1 );
 		}
 
-		pixelPtr0 = (Pixel *)(((byte *)pixelPtr0) + screen->pitch * LINE_ZOOM);
+		pixelPtr0 = (Pixel *)
+			(((byte *)pixelPtr0) + workScreen->pitch * LINE_ZOOM);
 	}
 
 	// Unlock surface.
-	if (SDL_MUSTLOCK(screen))
-		SDL_UnlockSurface(screen);
+	if (SDL_MUSTLOCK(workScreen))
+		SDL_UnlockSurface(workScreen);
 }
 
 } // namespace openmsx

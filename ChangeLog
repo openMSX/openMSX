@@ -1,5 +1,13 @@
 $Id$
 
+2003-11-03 Maarten ter Huurne <maarten@treewalker.org>
+	* Added inbetween image in SDLRenderer, to allow postprocessing.
+	  Hopefully, this will also reduce flicker on Win32.
+	* Integrated 2xSaI scaler algorithm by Derek Liauw Kie Fa:
+	    http://elektron.its.tudelft.nl/~dalikifa/
+	  You can activate it with "set scaler 2xsai".
+	  For now, it only works in the SDLHi renderer.
+
 2003-11-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented 'snow effect' for GLRenderer (try set power off)
 

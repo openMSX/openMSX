@@ -10,10 +10,12 @@
 #include "BitmapConverter.hh"
 #include "SpriteConverter.hh"
 #include "DisplayMode.hh"
+#include "Blender.hh"
 
 namespace openmsx {
 
 class OSDConsoleRenderer;
+class Scaler;
 
 
 /** Renderer on SDL surface.
@@ -142,6 +144,23 @@ private:
 	  */
 	int lineRenderTop;
 
+	/** Determines what type of postprocessing a line should yet.
+	  */
+	enum LinePostProcess {
+		/** Don't post process this line.
+		  */
+		PROC_NONE,
+		/** Copy even numbered line to odd numbered line.
+		  */
+		PROC_COPY,
+		/** Apply scaling algorithm.
+		  */
+		PROC_SCALE
+	};
+	LinePostProcess processLines[HEIGHT];
+
+	Scaler **scalers;
+
 	/** SDL colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,
 	  * palBg has entry 0 set to black.
@@ -167,10 +186,15 @@ private:
 	/** SDL colours corresponding to each possible V9958 colour.
 	  */
 	Pixel V9958_COLOURS[32768];
-	
+
 	/** The surface which is visible to the user.
 	  */
 	SDL_Surface *screen;
+
+	/** Contains the image that will later be copied to the actual screen.
+	  * Image postprocessing operations can be applied to this surface.
+	  */
+	SDL_Surface *workScreen;
 
 	/** The stored image, see putImage and putStoredImage.
 	  */

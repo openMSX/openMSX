@@ -6,6 +6,7 @@
 #include "Settings.hh"
 #include "RendererFactory.hh"
 #include "FrameSkipSetting.hh"
+#include "Scalers.hh"
 #include "InfoTopic.hh"
 
 namespace openmsx {
@@ -52,6 +53,9 @@ public:
 	/** The current renderer. */
 	RendererFactory::RendererSetting *getRenderer() { return renderer; }
 
+	/** The current scaling algorithm. */
+	EnumSetting<Scaler::ScalerID> *getScaler() { return scaler; }
+
 	/** The alpha value [0..100] of the scanlines. */
 	IntegerSetting *getScanlineAlpha() { return scanlineAlpha; }
 
@@ -68,6 +72,7 @@ private:
 	IntegerSetting *glow;
 	IntegerSetting *horizontalBlur;
 	RendererFactory::RendererSetting *renderer;
+	EnumSetting<Scaler::ScalerID> *scaler;
 	IntegerSetting *scanlineAlpha;
 
 	class RendererInfo : public InfoTopic {

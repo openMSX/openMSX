@@ -50,6 +50,12 @@ RenderSettings::RenderSettings()
 		// Stick with default given by RendererFactory.
 	}
 
+	map<string, Scaler::ScalerID> scalerMap;
+	scalerMap["simple"] = Scaler::SIMPLE;
+	scalerMap["2xsai"] = Scaler::SAI2X;
+	scaler = new EnumSetting<Scaler::ScalerID>(
+		"scaler", "scaler algorithm", Scaler::SIMPLE, scalerMap);
+
 	scanlineAlpha = new IntegerSetting(
 		"scanline", "amount of scanline effect: 0 = none, 100 = full",
 		20, 0, 100);
@@ -60,7 +66,7 @@ RenderSettings::RenderSettings()
 RenderSettings::~RenderSettings()
 {
 	InfoCommand::instance().unregisterTopic("renderer", &rendererInfo);
-	
+
 	delete accuracy;
 	delete deinterlace;
 	delete horizontalBlur;

@@ -8,7 +8,8 @@ SRC_HDR:= \
 	SDLRenderer \
 	SDLGLRenderer GLUtil \
 	XRenderer \
-	BitmapConverter CharacterConverter
+	BitmapConverter CharacterConverter \
+	Scalers
 
 HDR_ONLY:= \
 	DisplayMode.hh \
