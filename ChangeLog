@@ -2,6 +2,8 @@ $Id$
 
 2004-02-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "after break" command
+	* Path calculation cleanup:
+	    moved all path calculations to the FileOperations class
 
 2004-02-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented master volume setting (range 0..100). Changed volume

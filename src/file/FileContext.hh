@@ -24,8 +24,6 @@ public:
 	
 	virtual FileContext* clone() const = 0;
 
-	static string getOpenMSXDir();
-	
 protected:
 	FileContext();
 	FileContext(const FileContext& rhs);

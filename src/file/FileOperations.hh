@@ -76,8 +76,20 @@ public:
 	 *        Not "Documents and Settings".
 	 *        This is because to support Win9x.
 	 */
-	static const string& getUserDir();
+	static const string& getUserHomeDir();
 
+	/**
+	 * Get the openMSX dir in the user's home directory.
+	 * Default value is "~/.openMSX" (UNIX) or "~/openMSX" (win)
+	 */
+	static const string& getUserOpenMSXDir();
+
+	/**
+	 * Get the openMSX data dir in the user's home directory.
+	 * Default value is "~/.openMSX/share" (UNIX) or "~/openMSX/share" (win)
+	 */
+	static const string& getUserDataDir();
+	
 	/**
 	 * Get system directory.
 	 * UNI*Y: statically defined as "/opt/openMSX/share".

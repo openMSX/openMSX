@@ -13,13 +13,6 @@
 
 namespace openmsx {
 
-#if defined(__WIN32__)
-const string OPENMSX_DIR("~/openMSX/");
-#else
-const string OPENMSX_DIR("~/.openMSX/");
-#endif
-
-
 // class FileContext
 
 FileContext::FileContext()
@@ -97,11 +90,6 @@ FileContext::FileContext(const FileContext& rhs)
 {
 }
 
-string FileContext::getOpenMSXDir()
-{
-	return FileOperations::expandTilde(OPENMSX_DIR);
-}
-
 
 // class ConfigFileContext
 
@@ -120,8 +108,8 @@ ConfigFileContext::ConfigFileContext(const string& path,
 		snprintf(buf, 20, "untitled%d", num);
 		userName = buf;
 	}
-	savePath = OPENMSX_DIR + "persistent/" + hwDescr +
-	                       '/' + userName + '/';
+	savePath = FileOperations::getUserOpenMSXDir() + "/persistent/" +
+	           hwDescr + '/' + userName + '/';
 }
 
 const vector<string> &ConfigFileContext::getPaths()
@@ -144,11 +132,11 @@ ConfigFileContext::ConfigFileContext(const ConfigFileContext& rhs)
 
 SystemFileContext::SystemFileContext()
 {
-	paths.push_back(OPENMSX_DIR + "share/"); // user directory
-	paths.push_back(FileOperations::getSystemDataDir());
+	paths.push_back(FileOperations::getUserDataDir() + "/");
+	paths.push_back(FileOperations::getSystemDataDir() + "/");
 }
 
-const vector<string> &SystemFileContext::getPaths()
+const vector<string>& SystemFileContext::getPaths()
 {
 	return paths;
 }
@@ -172,8 +160,7 @@ SettingFileContext::SettingFileContext(const string& url)
 	paths.push_back(path);
 	PRT_DEBUG("SettingFileContext: " << path);
 
-	string home(FileOperations::expandTilde(OPENMSX_DIR + "share/"));
-	
+	string home = FileOperations::getUserDataDir();
 	unsigned pos1 = path.find(home);
 	if (pos1 != string::npos) {
 		unsigned len1 = home.length();
@@ -209,7 +196,8 @@ UserFileContext::UserFileContext()
 UserFileContext::UserFileContext(const string& savePath_)
 	: alreadyInit(false)
 {
-	savePath = string(OPENMSX_DIR + "persistent/") + savePath_ + '/';
+	savePath = FileOperations::getUserOpenMSXDir() + "/persistent/" +
+	           savePath_ + '/';
 }
 
 const vector<string> &UserFileContext::getPaths()

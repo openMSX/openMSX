@@ -46,14 +46,14 @@ static int doMkdir(const char* name, mode_t mode)
 }
 
 
-string FileOperations::expandTilde(const string &path)
+string FileOperations::expandTilde(const string& path)
 {
 	if ((path.size() <= 1) || (path[0] != '~')) {
 		return path;
 	}
 	if (path[1] == '/') {
 		// current user
-		return getUserDir() + path.substr(1);
+		return getUserHomeDir() + path.substr(1);
 	} else {
 		// other user
 		CliCommOutput::instance().printWarning(
@@ -140,7 +140,7 @@ bool FileOperations::isAbsolutePath(const string& path)
 	return !path.empty() && (path[0] == '/');
 }
 
-const string& FileOperations::getUserDir()
+const string& FileOperations::getUserHomeDir()
 {
 	static string userDir;
 	if (userDir.empty()) {
@@ -160,14 +160,29 @@ const string& FileOperations::getUserDir()
 		if (userDir.empty()) {
 			// workaround for Win95 w/o IE4(||later)
 			userDir = getSystemDataDir();
-			userDir.erase(userDir.length() - 7, 7);	// "/share/"
-		//	throw FatalError("Cannot get user directory.");
+			userDir.erase(userDir.length() - 6, 6);	// "/share"
 		}
 #else
 		userDir = getenv("HOME");
 #endif
 	}
 	return userDir;
+}
+
+const string& FileOperations::getUserOpenMSXDir()
+{
+#if defined(__WIN32__)
+	static const string OPENMSX_DIR = expandTilde("~/openMSX");
+#else
+	static const string OPENMSX_DIR = expandTilde("~/.openMSX");
+#endif
+	return OPENMSX_DIR;
+}
+
+const string& FileOperations::getUserDataDir()
+{
+	static const string USER_DATA_DIR = getUserOpenMSXDir() + "/share";
+	return USER_DATA_DIR;
 }
 
 const string& FileOperations::getSystemDataDir()
@@ -180,13 +195,13 @@ const string& FileOperations::getSystemDataDir()
 		if ((res == 0) || (res == MAX_PATH)) {
 			throw FatalError("Cannot detect openMSX directory.");
 		}
-		if (!strrchr(p,'\\')) {
+		if (!strrchr(p, '\\')) {
 			throw FatalError("openMSX is not in directory!?");
 		}
-		*(strrchr(p,'\\')) = '\0';
-		systemDir = getConventionalPath(p) + "/share/";
+		*(strrchr(p, '\\')) = '\0';
+		systemDir = getConventionalPath(p) + "/share";
 #else
-		systemDir = DATADIR "/"; // defined in config.h (default /opt/openMSX/share)
+		systemDir = DATADIR; // defined in config.h (default /opt/openMSX/share)
 #endif
 	}
 	return systemDir;
