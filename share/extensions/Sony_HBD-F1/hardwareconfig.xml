@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+  <device id="Memory Mapped FDC">
+    <type>FDC</type>
+    <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
+    <parameter name="brokenFDCread">false</parameter> 
+    <parameter name="type">WD2793</parameter>
+    <parameter name="filename">roms/hbd-f1.rom</parameter>
+    <parameter name="drivename1">diska</parameter>
+  </device>
+</msxconfig>
