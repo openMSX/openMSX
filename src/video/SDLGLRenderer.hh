@@ -90,7 +90,9 @@ private:
 	  */
 	virtual ~SDLGLRenderer();
 
+	inline void renderBitmapLine(byte mode, int vramLine);
 	inline void renderBitmapLines(byte line, int count);
+	inline void renderPlanarBitmapLine(byte mode, int vramLine);
 	inline void renderPlanarBitmapLines(byte line, int count);
 	inline void renderCharacterLines(byte line, int count);
 

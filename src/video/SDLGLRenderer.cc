@@ -278,6 +278,17 @@ inline SDLGLRenderer::Pixel SDLGLRenderer::getBorderColour()
 		);
 }
 
+inline void SDLGLRenderer::renderBitmapLine(
+	byte mode, int vramLine)
+{
+	if (lineValidInMode[vramLine] != mode) {
+		const byte *vramPtr = vram->bitmapWindow.readArea(vramLine << 7);
+		bitmapConverter.convertLine(lineBuffer, vramPtr);
+		GLUpdateTexture(bitmapTextureIds[vramLine], lineBuffer, lineWidth);
+		lineValidInMode[vramLine] = mode;
+	}
+}
+
 inline void SDLGLRenderer::renderBitmapLines(
 	byte line, int count)
 {
@@ -287,13 +298,28 @@ inline void SDLGLRenderer::renderBitmapLines(
 	while (count--) {
 		// TODO: Optimise addr and line; too many conversions right now.
 		int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
-		if (lineValidInMode[vramLine] != mode) {
-			const byte *vramPtr = vram->bitmapWindow.readArea(vramLine << 7);
-			bitmapConverter.convertLine(lineBuffer, vramPtr);
-			GLUpdateTexture(bitmapTextureIds[vramLine], lineBuffer, lineWidth);
-			lineValidInMode[vramLine] = mode;
+		renderBitmapLine(mode, vramLine);
+		if (vdp->isMultiPageScrolling()) {
+			vramLine &= ~0x100;
+			renderBitmapLine(mode, vramLine);
 		}
 		line++; // is a byte, so wraps at 256
+	}
+}
+
+inline void SDLGLRenderer::renderPlanarBitmapLine(
+	byte mode, int vramLine)
+{
+	if ( lineValidInMode[vramLine] != mode
+	|| lineValidInMode[vramLine | 512] != mode ) {
+		int addr0 = vramLine << 7;
+		int addr1 = addr0 | 0x10000;
+		const byte *vramPtr0 = vram->bitmapWindow.readArea(addr0);
+		const byte *vramPtr1 = vram->bitmapWindow.readArea(addr1);
+		bitmapConverter.convertLinePlanar(lineBuffer, vramPtr0, vramPtr1);
+		GLUpdateTexture(bitmapTextureIds[vramLine], lineBuffer, lineWidth);
+		lineValidInMode[vramLine] =
+			lineValidInMode[vramLine | 512] = mode;
 	}
 }
 
@@ -306,16 +332,10 @@ inline void SDLGLRenderer::renderPlanarBitmapLines(
 	while (count--) {
 		// TODO: Optimise addr and line; too many conversions right now.
 		int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
-		if ( lineValidInMode[vramLine] != mode
-		|| lineValidInMode[vramLine | 512] != mode ) {
-			int addr0 = vramLine << 7;
-			int addr1 = addr0 | 0x10000;
-			const byte *vramPtr0 = vram->bitmapWindow.readArea(addr0);
-			const byte *vramPtr1 = vram->bitmapWindow.readArea(addr1);
-			bitmapConverter.convertLinePlanar(lineBuffer, vramPtr0, vramPtr1);
-			GLUpdateTexture(bitmapTextureIds[vramLine], lineBuffer, lineWidth);
-			lineValidInMode[vramLine] =
-				lineValidInMode[vramLine | 512] = mode;
+		renderPlanarBitmapLine(mode, vramLine);
+		if (vdp->isMultiPageScrolling()) {
+			vramLine &= ~0x100;
+			renderPlanarBitmapLine(mode, vramLine);
 		}
 		line++; // is a byte, so wraps at 256
 	}
@@ -953,9 +973,33 @@ void SDLGLRenderer::drawDisplay(
 	}
 	int screenLimitY = screenY + displayHeight * 2;
 
+	DisplayMode mode = vdp->getDisplayMode();
+	int hScroll = 
+		  mode.isTextMode()
+		? 0
+		: 16 * (vdp->getHorizontalScrollHigh() & 0x1F);
+	
+	// Page border is display X coordinate where to stop drawing current page.
+	// This is either the multi page split point, or the right edge of the
+	// rectangle to draw, whichever comes first.
+	// Note that it is possible for pageBorder to be to the left of displayX,
+	// in that case only the second page should be drawn.
+	int pageBorder = displayX + displayWidth;
+	int scrollPage1, scrollPage2;
+	if (vdp->isMultiPageScrolling()) {
+		scrollPage1 = vdp->getHorizontalScrollHigh() >> 5;
+		scrollPage2 = scrollPage1 ^ 1;
+		int pageSplit = 512 - hScroll;
+		if (pageSplit < pageBorder) {
+			pageBorder = pageSplit;
+		}
+	} else {
+		scrollPage1 = 0;
+		scrollPage2 = 0;
+	}
+
 	// TODO: Complete separation of character and bitmap modes.
 	glEnable(GL_TEXTURE_2D);
-	DisplayMode mode = vdp->getDisplayMode();
 	if (mode.isBitmapMode()) {
 		if (mode.isPlanar()) {
 			renderPlanarBitmapLines(displayY, displayHeight);
@@ -967,7 +1011,7 @@ void SDLGLRenderer::drawDisplay(
 		bool deinterlaced = settings->getDeinterlace()->getValue()
 			&& vdp->isInterlaced() && vdp->isEvenOddEnabled();
 		int pageMaskEven, pageMaskOdd;
-		if (deinterlaced) {
+		if (deinterlaced || vdp->isMultiPageScrolling()) {
 			pageMaskEven = mode.isPlanar() ? 0x000 : 0x200;
 			pageMaskOdd  = pageMaskEven | 0x100;
 		} else {
@@ -975,26 +1019,40 @@ void SDLGLRenderer::drawDisplay(
 				(mode.isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 		}
 		for (int y = screenY; y < screenLimitY; y += 2) {
+			int vramLine[2];
+			vramLine[0] = (vram->nameTable.getMask() >> 7)
+				& (pageMaskEven | displayY);
+			vramLine[1] = (vram->nameTable.getMask() >> 7)
+				& (pageMaskOdd  | displayY);
 			if (deinterlaced) {
-				int vramLine1 = (vram->nameTable.getMask() >> 7)
-					& (pageMaskEven | displayY);
 				GLDrawTexture(
-					bitmapTextureIds[vramLine1], displayX,
+					bitmapTextureIds[vramLine[0]], displayX + hScroll,
 					screenX, y + 0, displayWidth, 1
 					);
-				int vramLine2 = (vram->nameTable.getMask() >> 7)
-					& (pageMaskOdd  | displayY);
 				GLDrawTexture(
-					bitmapTextureIds[vramLine2], displayX,
+					bitmapTextureIds[vramLine[1]], displayX + hScroll,
 					screenX, y + 1, displayWidth, 1
 					);
 			} else {
-				int vramLine = (vram->nameTable.getMask() >> 7)
-					& (pageMaskEven | displayY);
-				GLDrawTexture(
-					bitmapTextureIds[vramLine], displayX,
-					screenX, y, displayWidth, 2
-					);
+				int firstPageWidth = pageBorder - displayX;
+				if (firstPageWidth > 0) {
+					GLDrawTexture(
+						bitmapTextureIds[vramLine[scrollPage1]],
+						displayX + hScroll,
+						screenX, y,
+						firstPageWidth, 2
+						);
+				} else {
+					firstPageWidth = 0;
+				}
+				if (firstPageWidth < displayWidth) {
+					GLDrawTexture(
+						bitmapTextureIds[vramLine[scrollPage2]],
+						displayX + firstPageWidth + hScroll,
+						screenX + firstPageWidth, y,
+						displayWidth - firstPageWidth, 2
+						);
+				}
 			}
 			displayY = (displayY + 1) & 255;
 		}
@@ -1008,6 +1066,7 @@ void SDLGLRenderer::drawDisplay(
 			break;
 		case DisplayMode::GRAPHIC2:
 		case DisplayMode::GRAPHIC3:
+			// TODO: Implement horizontal scroll high.
 			renderGraphic2(
 				displayY, screenY, displayHeight,
 				displayX, displayX + displayWidth
@@ -1018,7 +1077,7 @@ void SDLGLRenderer::drawDisplay(
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 			for (int y = screenY; y < screenLimitY; y += 2) {
 				GLDrawTexture(
-					charTextureIds[displayY], displayX,
+					charTextureIds[displayY], displayX + hScroll,
 					screenX, y, displayWidth, 2
 					);
 				displayY = (displayY + 1) & 255;

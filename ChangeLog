@@ -4,6 +4,8 @@ $Id$
 	* Fixed sprite colours in Graphic5 (SCREEN6).
 	  The turbo R boot logo looks OK now.
 	  However, narrow sprite pixels do not yet work in SDLGL.
+	* Implemented horizontal scroll high and multi page in SDLGL.
+	  This implementation is based on Wouter's horizontal scroll patch.
 
 2003-04-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* if an extension exists both in user as in system directory, prefer
