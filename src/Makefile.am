@@ -111,7 +111,7 @@ openmsx_LDADD = \
 #
 #cfgtest_LDADD = libxmlx/libxmlx.la
 
-EXTRA_DIST = ConsoleFont.bmp romdb.dtd romdb.xml
+EXTRA_DIST = ConsoleFont.png romdb.dtd romdb.xml
 
 MAINTAINERCLEANFILES = Makefile.in config.h.in stamp-h.in
 
