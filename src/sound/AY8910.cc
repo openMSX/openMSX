@@ -18,7 +18,7 @@
 
 
 AY8910::AY8910(AY8910Interface &interf, short volume, const EmuTime &time)
-	: interface(interf)
+	: semiMuted(false), interface(interf)
 {
 	int bufSize = Mixer::instance()->registerSound("psg",
 	                                        this, volume, Mixer::MONO);
@@ -225,13 +225,15 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 
 void AY8910::checkMute()
 {
-	if ((regs[AY_AVOL]==0)&&(regs[AY_BVOL]==0)&&(regs[AY_CVOL]==0)) {
+	if ((regs[AY_AVOL] == 0) &&
+	    (regs[AY_BVOL] == 0) &&
+	    (regs[AY_CVOL] == 0)) {
 		// all volume settings equals zero
 		//PRT_DEBUG("AY8910 muted");
 		setInternalMute(true);
 		return;
 	}
-	if ((regs[AY_ENABLE] & 0x3f) == 0x3f) {
+	if ((regs[AY_ENABLE] & 0x3F) == 0x3F) {
 		// all channels disabled
 		//PRT_DEBUG("AY8910 semi-muted");
 		setInternalMute(false);
