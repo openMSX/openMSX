@@ -3,18 +3,10 @@
 #include "DummyCassetteDevice.hh"
 #include "EmuTime.hh"
 
+
 DummyCassetteDevice::DummyCassetteDevice()
 {
 }
-
-DummyCassetteDevice *DummyCassetteDevice::instance()
-{
-	if (oneInstance == NULL) {
-		oneInstance = new DummyCassetteDevice();
-	}
-	return oneInstance;
-}
-DummyCassetteDevice *DummyCassetteDevice::oneInstance = NULL;
 
 void DummyCassetteDevice::setMotor(bool status, const EmuTime &time)
 {

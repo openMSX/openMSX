@@ -3,23 +3,22 @@
 #include "CassettePort.hh"
 #include "CassetteDevice.hh"
 #include "DummyCassetteDevice.hh"
-#include "MSXCPU.hh"
+#include "cpu/MSXCPU.hh"
 
 
 // CassettePortFactory //
 
-CassettePortInterface *CassettePortFactory::instance()
+CassettePortInterface *CassettePortFactory::instance(const EmuTime &time)
 {
 	if (oneInstance == NULL) {
 		try {
 			MSXConfig::Backend::instance()->getConfigById("CassettePort");
 			// there is a CassettePort in config
-			oneInstance = new CassettePort();
+			oneInstance = new CassettePort(time);
 		} catch (MSXConfig::Exception& e) {
 			// there is no CassettePort in config
-			oneInstance = new DummyCassettePort();
+			oneInstance = new DummyCassettePort(time);
 		}
-		oneInstance = new DummyCassettePort();
 	}
 	return oneInstance;
 }
@@ -29,26 +28,38 @@ CassettePortInterface *CassettePortFactory::oneInstance = NULL;
 
 // CassettePortInterface //
 
-void CassettePortInterface::plug(CassetteDevice *dev)
+CassettePortInterface::CassettePortInterface(const EmuTime &time)
+{
+	dummy = new DummyCassetteDevice();
+	unplug(time);
+}
+
+CassettePortInterface::~CassettePortInterface()
+{
+	unplug(MSXCPU::instance()->getCurrentTime());
+	delete dummy;
+}
+
+void CassettePortInterface::plug(CassetteDevice *dev, const EmuTime &time)
 {
 	if (device != dev) {
-		flushOutput(MSXCPU::instance()->getCurrentTime());
+		flushOutput(time);
 		device = dev;
 	}
 }
 
-void CassettePortInterface::unplug()
+void CassettePortInterface::unplug(const EmuTime &time)
 {
-	plug(DummyCassetteDevice::instance());
+	plug(dummy, time);
 }
 
 
 // DummyCassettePort //
 
-DummyCassettePort::DummyCassettePort()
+DummyCassettePort::DummyCassettePort(const EmuTime &time) : CassettePortInterface(time)
 {
-	device = DummyCassetteDevice::instance();	//unplug();
 }
+
 void DummyCassettePort::setMotor(bool status, const EmuTime &time)
 {
 	// do nothing
@@ -69,15 +80,13 @@ void DummyCassettePort::flushOutput(const EmuTime &time)
 
 // CassettePort //
 
-CassettePort::CassettePort()
+CassettePort::CassettePort(const EmuTime &time) : CassettePortInterface(time)
 {
-	device = DummyCassetteDevice::instance();	//unplug();
 	buffer = new short[BUFSIZE];
 }
 
 CassettePort::~CassettePort()
 {
-	flushOutput(MSXCPU::instance()->getCurrentTime());
 	delete[] buffer;
 }
 

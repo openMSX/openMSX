@@ -13,14 +13,10 @@ class DummyCassetteDevice : public CassetteDevice
 {
 	public:
 		DummyCassetteDevice();
-		static DummyCassetteDevice* instance();
 	
-		void setMotor(bool status, const EmuTime &time);
-		short readSample(const EmuTime &time);
-		void writeWave(short *buf, int length);
-		int getWriteSampleRate();
-
-	private:
-		static DummyCassetteDevice *oneInstance;
+		virtual void setMotor(bool status, const EmuTime &time);
+		virtual short readSample(const EmuTime &time);
+		virtual void writeWave(short *buf, int length);
+		virtual int getWriteSampleRate();
 };
 #endif

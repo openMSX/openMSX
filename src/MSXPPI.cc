@@ -21,7 +21,7 @@ MSXPPI::MSXPPI(MSXConfig::Device *config, const EmuTime &time)
 	i8255 = new I8255(*this, time);
 	click = new KeyClick(volume, time);
 	motherBoard = MSXMotherBoard::instance();
-	cassettePort = CassettePortFactory::instance();
+	cassettePort = CassettePortFactory::instance(time);
 	leds = Leds::instance();
 	
 	// Register I/O ports A8..AB for reading

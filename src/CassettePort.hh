@@ -7,11 +7,15 @@
 
 // forward declaration
 class CassetteDevice;
+class DummyCassetteDevice;
 
 
 class CassettePortInterface
 {
 	public:
+		CassettePortInterface(const EmuTime &time);
+		virtual ~CassettePortInterface();
+	
 		/**
 		 * Sets the casette motor relay
 		 *  false = off   true = on
@@ -41,12 +45,12 @@ class CassettePortInterface
 		/**
 		 * Plugs a given CassetteDevice in this CassettePort
 		 */
-		void plug(CassetteDevice *device);
+		virtual void plug(CassetteDevice *device, const EmuTime &time);
 
 		/**
 		 * Unplugs a CassetteDevice from this CassettePort
 		 */
-		void unplug();
+		virtual void unplug(const EmuTime &time);
 
 		/**
 		 * Writes all buffered data to CassetteDevice.
@@ -58,17 +62,20 @@ class CassettePortInterface
 
 	protected:
 		CassetteDevice *device;
+
+	private:
+		DummyCassetteDevice* dummy;
 };
 
 class CassettePort : public CassettePortInterface
 {
 	public:
-		CassettePort();
+		CassettePort(const EmuTime &time);
 		virtual ~CassettePort();
-		void setMotor(bool status, const EmuTime &time);
-		void cassetteOut(bool output, const EmuTime &time);
-		bool cassetteIn(const EmuTime &time);
-		void flushOutput(const EmuTime &time);
+		virtual void setMotor(bool status, const EmuTime &time);
+		virtual void cassetteOut(bool output, const EmuTime &time);
+		virtual bool cassetteIn(const EmuTime &time);
+		virtual void flushOutput(const EmuTime &time);
 	private:
 		static const int BUFSIZE = 256;
 		
@@ -81,11 +88,11 @@ class CassettePort : public CassettePortInterface
 class DummyCassettePort : public CassettePortInterface
 {
 	public:
-		DummyCassettePort();
-		void setMotor(bool status, const EmuTime &time);
-		void cassetteOut(bool output, const EmuTime &time);
-		bool cassetteIn(const EmuTime &time);
-		void flushOutput(const EmuTime &time);
+		DummyCassettePort(const EmuTime &time);
+		virtual void setMotor(bool status, const EmuTime &time);
+		virtual void cassetteOut(bool output, const EmuTime &time);
+		virtual bool cassetteIn(const EmuTime &time);
+		virtual void flushOutput(const EmuTime &time);
 };
 
 
@@ -93,11 +100,11 @@ class CassettePortFactory
 {
 	public:
 		/**
-		 * If an Cassette was specified in the conig file this method 
-		 * returns an CassettePort object, otherwise an DummyCassette
+		 * If an Cassette was specified in the config file this method 
+		 * returns n CassettePort object, otherwise a DummyCassette
 		 * object
 		 */
-		static CassettePortInterface *instance();
+		static CassettePortInterface *instance(const EmuTime &time);
 		
 	private:
 		static CassettePortInterface *oneInstance;
