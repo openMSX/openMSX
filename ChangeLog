@@ -1,8 +1,10 @@
 $Id$
 
-2003-11-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-11-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added example implementation for bidirectional communication with
 	  openMSX (aka CliCommunicator) in Contrib
+	* Implemented "debug" command infrastructure. For now only the CPU
+	  registers can be read or written.
 
 2003-11-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* When started with "-control" openmsx now automatically selects the

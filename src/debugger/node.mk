@@ -7,8 +7,11 @@ SRC_HDR:= \
 	DisAsmView \
 	DebugConsole \
 	ViewControl \
-	DebugInterface \
-	DasmTables
+	DasmTables \
+	Debugger
+
+HDR_ONLY:= \
+	Debuggable
 
 $(eval $(PROCESS_NODE))
 

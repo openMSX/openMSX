@@ -3,7 +3,7 @@
 #include "MemoryView.hh"
 #include "ViewControl.hh"
 #include "MSXCPUInterface.hh"
-#include "DebugInterface.hh"
+#include "Debuggable.hh"
 
 namespace openmsx {
 
@@ -56,17 +56,18 @@ int ViewControl::getAddress() const
 	if (!currentDevice) {
 		return -1;
 	}
-	return currentDevice->readDebugData(currentCriterium);
+	return currentDevice->read(currentCriterium);
 }
 
-bool ViewControl::linkToCriterium(DebugInterface* device, const string& criteria)
+bool ViewControl::linkToCriterium(Debuggable* device, const string& criteria)
 {
 	currentDevice = device;
 	if ((criteria[0] >= '0') && (criteria[0] <= '9')) {
 		currentCriterium = atoi(criteria.c_str());
 		return true;
 	} else {
-		currentCriterium = currentDevice->getRegisterNumber(criteria);
+		return false;
+		//currentCriterium = currentDevice->getRegisterNumber(criteria);
 	}
 	if (currentCriterium != 0xffff) {
 		return true;

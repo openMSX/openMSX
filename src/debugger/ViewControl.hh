@@ -10,7 +10,7 @@ using std::string;
 
 namespace openmsx {
 
-class DebugInterface;
+class Debuggable;
 
 class ViewControl
 {
@@ -22,9 +22,9 @@ class ViewControl
 		int getAddress() const;
 
 	private:
-		bool linkToCriterium(DebugInterface* device, const string& regName);
+		bool linkToCriterium(Debuggable* device, const string& regName);
 
-		DebugInterface* currentDevice;
+		Debuggable* currentDevice;
 		MemoryView* view;
 		word currentCriterium;
 		bool indirect;

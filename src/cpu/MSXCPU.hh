@@ -3,7 +3,7 @@
 #ifndef __MSXCPU_HH__
 #define __MSXCPU_HH__
 
-#include "DebugInterface.hh"
+#include "Debuggable.hh"
 #include "InfoTopic.hh"
 #include "Z80.hh"
 #include "R800.hh"
@@ -13,8 +13,9 @@ namespace openmsx {
 class Scheduler;
 class MSXCPUInterface;
 class InfoCommand;
+class Debugger;
 
-class MSXCPU : public DebugInterface
+class MSXCPU : private Debuggable
 {
 public:
 	enum CPUType { CPU_Z80, CPU_R800 };
@@ -61,12 +62,11 @@ public:
 	 */
 	bool isR800Active();
 	
-	// DebugInterface
-	virtual dword getDataSize() const;
-	virtual const string getRegisterName(dword regNr) const;
-	virtual dword getRegisterNumber(const string& regName) const;
-	virtual byte readDebugData (dword address) const;
-	virtual const string& getDeviceName() const;
+	// Debuggable
+	virtual unsigned getSize() const;
+	virtual const string& getDescription() const;
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value);
 
 	void setInterface(MSXCPUInterface* interf);
 
@@ -99,6 +99,7 @@ private:
 	EmuTime reference;
 
 	InfoCommand& infoCmd;
+	Debugger& debugger;
 };
 
 } // namespace openmsx

@@ -5,9 +5,9 @@
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXConfig.hh"
-#include "DebugInterface.hh"
 #include "CPU.hh"
 #include "InfoCommand.hh"
+#include "Debugger.hh"
 
 using std::ostringstream;
 
@@ -17,16 +17,19 @@ MSXCPU::MSXCPU()
 	: z80 (EmuTime::zero),
 	  r800(EmuTime::zero),
 	  timeInfo(*this),
-	  infoCmd(InfoCommand::instance())
+	  infoCmd(InfoCommand::instance()),
+	  debugger(Debugger::instance())
 {
 	activeCPU = &z80;	// setActiveCPU(CPU_Z80);
 	reset(EmuTime::zero);
 
 	infoCmd.registerTopic("time", &timeInfo);
+	debugger.registerDebuggable("cpu-regs", *this);
 }
 
 MSXCPU::~MSXCPU()
 {
+	debugger.unregisterDebuggable("cpu-regs", *this);
 	infoCmd.unregisterTopic("time", &timeInfo);
 }
 
@@ -134,6 +137,7 @@ void MSXCPU::wait(const EmuTime &time)
 
 // DebugInterface
 
+/*
 static string regNames[] = {
 	"AF",  "BC",  "DE",  "HL",
 	"AF2", "BC2", "DE2", "HL2",
@@ -141,14 +145,9 @@ static string regNames[] = {
 	"IR"
 };
 
-dword MSXCPU::getDataSize() const
-{
-	return 26; // number of 8 bits registers (16 bits = 2 registers)
-}
-
 const string MSXCPU::getRegisterName(dword regNr) const
 {
-	assert(regNr < getDataSize());
+	assert(regNr < getSize());
 	return regNames[regNr / 2];
 }
 
@@ -161,8 +160,21 @@ dword MSXCPU::getRegisterNumber(const string& regName) const
 	}
 	return 0;
 }
+*/
 
-byte MSXCPU::readDebugData(dword address) const
+unsigned MSXCPU::getSize() const
+{
+	return 26; // number of 8 bits registers (16 bits = 2 registers)
+}
+
+const string& MSXCPU::getDescription() const
+{
+	static const string desc = 
+		"Registers of the active CPU (Z80 or R800)";
+	return desc;
+}
+
+byte MSXCPU::read(dword address)
 {
 	CPU::CPURegs* regs = &activeCPU->R; 
 	const CPU::z80regpair* registers[] = {
@@ -171,7 +183,7 @@ byte MSXCPU::readDebugData(dword address) const
 		&regs->IX,  &regs->IY,  &regs->PC,  &regs->SP
 	};
 
-	assert(address < getDataSize());
+	assert(address < getSize());
 	switch (address) {
 	case 24:
 		return regs->I;
@@ -183,14 +195,34 @@ byte MSXCPU::readDebugData(dword address) const
 		} else {
 			return registers[address / 2]->B.h;
 		}
-		break;
 	}
 }
 
-const string& MSXCPU::getDeviceName() const
+void MSXCPU::write(unsigned address, byte value)
 {
-	static const string NAME("cpu");
-	return NAME;
+	CPU::CPURegs* regs = &activeCPU->R; 
+	CPU::z80regpair* registers[] = {
+		&regs->AF,  &regs->BC,  &regs->DE,  &regs->HL, 
+		&regs->AF2, &regs->BC2, &regs->DE2, &regs->HL2, 
+		&regs->IX,  &regs->IY,  &regs->PC,  &regs->SP
+	};
+
+	assert(address < getSize());
+	switch (address) {
+	case 24:
+		regs->I = value;
+		break;
+	case 25:
+		regs->R = value;
+		break;
+	default:
+		if (address & 1) {
+			registers[address / 2]->B.l = value;
+		} else {
+			registers[address / 2]->B.h = value;
+		}
+		break;
+	}
 }
 
 

@@ -89,6 +89,20 @@ cassetteplayer
     cassetteplayer no_force_play  motor signal controls playing (default)
 
     
+debug
+-----
+
+  This command implements a debugger interface. It's ment to be used by an
+  external debugger.
+
+  usage:
+    debug list                       returns a list of all debuggables
+    debug desc <name>                returns a description of this debuggable
+    debug size <name>                returns the size of this debuggable
+    debug read <name> <addr>         read a byte from a debuggable
+    debug write <name> <addr> <val>  write a byte to a debuggable
+    
+
 decr
 ----
 
