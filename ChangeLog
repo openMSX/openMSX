@@ -1,5 +1,8 @@
 $Id$
 
+2004-03-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Made openmsx_info command return lists in TCL format
+
 2004-02-29 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed bug in command engine: when switching display mode while a
 	  command is running, the command's progress was lost.
@@ -8,7 +11,7 @@ $Id$
 	  It's still not perfect though: real VDP can render even and odd
 	  transparent pixels in different colours, just like the border.
 
-2004-02-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-02-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed 2nd drive detection bug on MB8877 based machines
 
 2004-02-26 Wouter Vermaelen <wouter.vermaelen@pi.be>

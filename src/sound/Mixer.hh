@@ -49,18 +49,18 @@ public:
 	 * The maximum number of samples asked for is returned by this
 	 * method.
 	 */
-	int registerSound(SoundDevice *device, short volume, ChannelMode mode);
+	int registerSound(SoundDevice* device, short volume, ChannelMode mode);
 
 	/**
 	 * Every sounddevice must unregister before it is destructed
 	 */
-	void unregisterSound(SoundDevice *device);
+	void unregisterSound(SoundDevice* device);
 
 	/**
 	 * Use this method to force an 'early' call to all
 	 * updateBuffer() methods.
 	 */
-	void updateStream(const EmuTime &time);
+	void updateStream(const EmuTime& time);
 
 	/**
 	 * This methods (un)locks the audio thread.
@@ -136,16 +136,16 @@ private:
 	class SoundDeviceInfoTopic : public InfoTopic {
 	public:
 		SoundDeviceInfoTopic(Mixer& parent);
-		virtual string execute(const vector<string> &tokens) const
+		virtual void execute(const vector<string>& tokens,
+		                     CommandResult& result) const
 			throw(CommandException);
-		virtual string help   (const vector<string> &tokens) const
+		virtual string help   (const vector<string>& tokens) const
 			throw();
 		virtual void tabCompletion(vector<string>& tokens) const
 			throw();
 	private:
 		Mixer& parent;
 	} soundDeviceInfo;
-	friend class SoundDeviceInfoTopic;
 };
 
 } // namespace openmsx

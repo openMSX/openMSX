@@ -60,7 +60,7 @@ int TCLInterp::commandProc(ClientData clientData, Tcl_Interp* interp,
 	for (int i = 0; i < objc; ++i) {
 		tokens.push_back(Tcl_GetString(objv[i]));
 	}
-	TCLCommandResult result(Tcl_GetObjResult(interp));
+	TCLCommandResult result(interp);
 	try {
 		command.execute(tokens, result);
 		return TCL_OK;

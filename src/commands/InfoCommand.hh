@@ -11,7 +11,7 @@ using std::map;
 
 namespace openmsx {
 
-class InfoCommand : public SimpleCommand
+class InfoCommand : public Command
 {
 public:
 	static InfoCommand& instance();
@@ -19,7 +19,7 @@ public:
 	void unregisterTopic(const string& name, const InfoTopic* topic);
 	
 	// Command
-	virtual string execute(const vector<string>& tokens)
+	virtual void execute(const vector<string>& tokens, CommandResult& result)
 		throw(CommandException);
 	virtual string help(const vector<string>& tokens) const
 		throw(CommandException);
@@ -35,7 +35,8 @@ private:
 
 	class VersionInfo : public InfoTopic {
 	public:
-		virtual string execute(const vector<string>& tokens) const
+		virtual void execute(const vector<string>& tokens,
+		                     CommandResult& result) const
 			throw();
 		virtual string help   (const vector<string>& tokens) const
 			throw();

@@ -31,88 +31,86 @@ public:
 	 *       that was not registered before, in this case nothing happens
 	 *
 	 */
-	void registerConnector(Connector *connector);
-	void unregisterConnector(Connector *connector);
+	void registerConnector(Connector* connector);
+	void unregisterConnector(Connector* connector);
 
 	/**
 	 * Add a Pluggable to the registry.
 	 * PluggingController has ownership of all registered Pluggables.
 	 */
-	void registerPluggable(Pluggable *pluggable);
+	void registerPluggable(Pluggable* pluggable);
 
 	/**
 	 * Removes a Pluggable from the registry.
 	 * If you attempt to unregister a Pluggable that is not in the registry,
 	 * nothing happens.
 	 */
-	void unregisterPluggable(Pluggable *pluggable);
+	void unregisterPluggable(Pluggable* pluggable);
 
 private:
 	PluggingController();
 	~PluggingController();
 
-	Connector *getConnector(const string &name);
-	Pluggable *getPluggable(const string &name);
+	Connector* getConnector(const string& name);
+	Pluggable* getPluggable(const string& name);
 
-	vector<Connector *> connectors;
-	vector<Pluggable *> pluggables;
+	vector<Connector*> connectors;
+	vector<Pluggable*> pluggables;
 
 	// Commands
 	class PlugCmd : public SimpleCommand {
 	public:
 		PlugCmd(PluggingController& parent);
-		virtual string execute(const vector<string> &tokens)
+		virtual string execute(const vector<string>& tokens)
 			throw(CommandException);
-		virtual string help   (const vector<string> &tokens) const
+		virtual string help   (const vector<string>& tokens) const
 			throw();
-		virtual void tabCompletion(vector<string> &tokens) const
+		virtual void tabCompletion(vector<string>& tokens) const
 			throw();
 	private:
 		PluggingController& parent;
 	} plugCmd;
-	friend class PlugCmd;
 
 	class UnplugCmd : public SimpleCommand {
 	public:
 		UnplugCmd(PluggingController& parent);
-		virtual string execute(const vector<string> &tokens)
+		virtual string execute(const vector<string>& tokens)
 			throw(CommandException);
-		virtual string help   (const vector<string> &tokens) const
+		virtual string help   (const vector<string>& tokens) const
 			throw();
-		virtual void tabCompletion(vector<string> &tokens) const
+		virtual void tabCompletion(vector<string>& tokens) const
 			throw();
 	private:
 		PluggingController& parent;
 	} unplugCmd;
-	friend class UnplugCmd;
 
 	class PluggableInfo : public InfoTopic {
 	public:
 		PluggableInfo(PluggingController& parent);
-		virtual string execute(const vector<string> &tokens) const
+		virtual void execute(const vector<string>& tokens,
+		                     CommandResult& result) const
 			throw(CommandException);
-		virtual string help   (const vector<string> &tokens) const
+		virtual string help   (const vector<string>& tokens) const
 			throw();
-		virtual void tabCompletion(vector<string> &tokens) const
+		virtual void tabCompletion(vector<string>& tokens) const
 			throw();
 	private:
 		PluggingController& parent;
 	} pluggableInfo;
-	friend class PluggableInfo;
 
 	class ConnectorInfo : public InfoTopic {
 	public:
 		ConnectorInfo(PluggingController& parent);
-		virtual string execute(const vector<string> &tokens) const
+		virtual void execute(const vector<string>& tokens,
+		                     CommandResult& result) const
 			throw(CommandException);
-		virtual string help   (const vector<string> &tokens) const
+		virtual string help   (const vector<string>& tokens) const
 			throw();
-		virtual void tabCompletion(vector<string> &tokens) const
+		virtual void tabCompletion(vector<string>& tokens) const
 			throw();
 	private:
 		PluggingController& parent;
 	} connectorInfo;
-	friend class ConnectorInfo;
 
 	Scheduler& scheduler;
 	CommandController& commandController;

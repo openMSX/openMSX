@@ -8,6 +8,7 @@
 #include "CPU.hh"
 #include "InfoCommand.hh"
 #include "Debugger.hh"
+#include "CommandResult.hh"
 
 using std::ostringstream;
 
@@ -297,18 +298,14 @@ MSXCPU::TimeInfoTopic::TimeInfoTopic(MSXCPU& parent_)
 {
 }
 
-string MSXCPU::TimeInfoTopic::execute(const vector<string>& tokens) const
-	throw()
+void MSXCPU::TimeInfoTopic::execute(const vector<string>& tokens,
+                                    CommandResult& result) const throw()
 {
 	EmuDuration dur = parent.getCurrentTimeUnsafe() - parent.reference;
-	ostringstream str;
-	str.precision(3);
-	str << std::fixed << std::showpoint << dur.toFloat() << '\n';
-	return str.str();
+	result.setDouble(dur.toFloat());
 }
 
-string MSXCPU::TimeInfoTopic::help(const vector<string>& tokens) const
-	throw()
+string MSXCPU::TimeInfoTopic::help(const vector<string>& tokens) const throw()
 {
 	return "Prints the time in seconds that the MSX is powered on\n";
 }

@@ -110,9 +110,9 @@ private:
 	class TimeInfoTopic : public InfoTopic {
 	public:
 		TimeInfoTopic(MSXCPU& parent);
-		virtual string execute(const vector<string>& tokens) const
-			throw();
-		virtual string help   (const vector<string>& tokens) const
+		virtual void execute(const vector<string>& tokens,
+		                     CommandResult& result) const throw();
+		virtual string help (const vector<string>& tokens) const
 			throw();
 	private:
 		MSXCPU& parent;

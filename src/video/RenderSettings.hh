@@ -80,10 +80,9 @@ private:
 	class RendererInfo : public InfoTopic {
 	public:
 		RendererInfo(RenderSettings& parent);
-		virtual string execute(const vector<string> &tokens) const
-			throw();
-		virtual string help   (const vector<string> &tokens) const
-			throw();
+		virtual void execute(const vector<string>& tokens,
+		                     CommandResult& result) const throw();
+		virtual string help(const vector<string>& tokens) const throw();
 	private:
 		RenderSettings& parent;
 	} rendererInfo;
@@ -91,10 +90,9 @@ private:
 	class ScalerInfo : public InfoTopic {
 	public:
 		ScalerInfo(RenderSettings& parent);
-		virtual string execute(const vector<string> &tokens) const
-			throw();
-		virtual string help   (const vector<string> &tokens) const
-			throw();
+		virtual void execute(const vector<string>& tokens,
+		                     CommandResult& result) const throw();
+		virtual string help(const vector<string>& tokens) const throw();
 	private:
 		RenderSettings& parent;
 	} scalerInfo;

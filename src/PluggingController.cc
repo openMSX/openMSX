@@ -10,7 +10,7 @@
 #include "PluggableFactory.hh"
 #include "openmsx.hh"
 #include "InfoCommand.hh"
-
+#include "CommandResult.hh"
 
 namespace openmsx {
 
@@ -41,7 +41,7 @@ PluggingController::~PluggingController()
 #ifndef NDEBUG
 	// This is similar to an assert: it should never print anything,
 	// but if it does, it helps to catch an error.
-	for (vector<Connector *>::const_iterator it = connectors.begin();
+	for (vector<Connector*>::const_iterator it = connectors.begin();
 		it != connectors.end(); ++it
 	) {
 		fprintf(stderr,
@@ -62,16 +62,15 @@ PluggingController& PluggingController::instance()
 	return oneInstance;
 }
 
-void PluggingController::registerConnector(Connector *connector)
+void PluggingController::registerConnector(Connector* connector)
 {
 	connectors.push_back(connector);
 }
 
-void PluggingController::unregisterConnector(Connector *connector)
+void PluggingController::unregisterConnector(Connector* connector)
 {
-	for (vector<Connector *>::iterator it = connectors.begin();
-	     it != connectors.end();
-	     ++it) {
+	for (vector<Connector*>::iterator it = connectors.begin();
+	     it != connectors.end(); ++it) {
 		if ((*it) == connector) {
 			connectors.erase(it);
 			return;
@@ -80,16 +79,15 @@ void PluggingController::unregisterConnector(Connector *connector)
 }
 
 
-void PluggingController::registerPluggable(Pluggable *pluggable)
+void PluggingController::registerPluggable(Pluggable* pluggable)
 {
 	pluggables.push_back(pluggable);
 }
 
-void PluggingController::unregisterPluggable(Pluggable *pluggable)
+void PluggingController::unregisterPluggable(Pluggable* pluggable)
 {
-	for (vector<Pluggable *>::iterator it = pluggables.begin();
-	     it != pluggables.end();
-	     ++it) {
+	for (vector<Pluggable*>::iterator it = pluggables.begin();
+	     it != pluggables.end(); ++it) {
 		if ((*it) == pluggable) {
 			pluggables.erase(it);
 			return;
@@ -105,7 +103,7 @@ PluggingController::PlugCmd::PlugCmd(PluggingController& parent_)
 {
 }
 
-string PluggingController::PlugCmd::execute(const vector<string> &tokens)
+string PluggingController::PlugCmd::execute(const vector<string>& tokens)
 	throw(CommandException)
 {
 	string result;
@@ -156,14 +154,14 @@ string PluggingController::PlugCmd::execute(const vector<string> &tokens)
 	return result;
 }
 
-string PluggingController::PlugCmd::help(const vector<string> &tokens) const
+string PluggingController::PlugCmd::help(const vector<string>& tokens) const
 	throw()
 {
 	return "Plugs a plug into a connector\n"
 	       " plug [connector] [plug]\n";
 }
 
-void PluggingController::PlugCmd::tabCompletion(vector<string> &tokens) const
+void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
 	throw()
 {
 	if (tokens.size() == 2) {
@@ -200,7 +198,7 @@ PluggingController::UnplugCmd::UnplugCmd(PluggingController& parent_)
 {
 }
 
-string PluggingController::UnplugCmd::execute(const vector<string> &tokens)
+string PluggingController::UnplugCmd::execute(const vector<string>& tokens)
 	throw(CommandException)
 {
 	if (tokens.size() != 2) {
@@ -215,14 +213,14 @@ string PluggingController::UnplugCmd::execute(const vector<string> &tokens)
 	return "";
 }
 
-string PluggingController::UnplugCmd::help(const vector<string> &tokens) const
+string PluggingController::UnplugCmd::help(const vector<string>& tokens) const
 	throw()
 {
 	return "Unplugs a plug from a connector\n"
 	       " unplug [connector]\n";
 }
 
-void PluggingController::UnplugCmd::tabCompletion(vector<string> &tokens) const
+void PluggingController::UnplugCmd::tabCompletion(vector<string>& tokens) const
 	throw()
 {
 	if (tokens.size() == 2) {
@@ -270,16 +268,15 @@ PluggingController::PluggableInfo::PluggableInfo(PluggingController& parent_)
 {
 }
 
-string PluggingController::PluggableInfo::execute(const vector<string> &tokens)
-	const throw(CommandException)
+void PluggingController::PluggableInfo::execute(const vector<string>& tokens,
+	CommandResult& result) const throw(CommandException)
 {
-	string result;
 	switch (tokens.size()) {
 	case 2:
 		for (vector<Pluggable*>::const_iterator it =
 			 parent.pluggables.begin();
 		     it != parent.pluggables.end(); ++it) {
-			result += (*it)->getName() + '\n';
+			result.addListElement((*it)->getName());
 		}
 		break;
 	case 3: {
@@ -287,23 +284,22 @@ string PluggingController::PluggableInfo::execute(const vector<string> &tokens)
 		if (!pluggable) {
 			throw CommandException("No such pluggable");
 		}
-		result = pluggable->getDescription();
+		result.setString(pluggable->getDescription());
 		break;
 	}
 	default:
 		throw CommandException("Too many parameters");
 	}
-	return result;
 }
 
-string PluggingController::PluggableInfo::help(const vector<string> &tokens) const
+string PluggingController::PluggableInfo::help(const vector<string>& tokens) const
 	throw()
 {
 	return "Shows a list of available pluggables. "
 	       "Or show info on a specific pluggable.\n";
 }
 
-void PluggingController::PluggableInfo::tabCompletion(vector<string> &tokens) const
+void PluggingController::PluggableInfo::tabCompletion(vector<string>& tokens) const
 	throw()
 {
 	if (tokens.size() == 3) {
@@ -324,16 +320,15 @@ PluggingController::ConnectorInfo::ConnectorInfo(PluggingController& parent_)
 {
 }
 
-string PluggingController::ConnectorInfo::execute(const vector<string> &tokens)
-	const throw(CommandException)
+void PluggingController::ConnectorInfo::execute(const vector<string>& tokens,
+	CommandResult& result) const throw(CommandException)
 {
-	string result;
 	switch (tokens.size()) {
 	case 2:
 		for (vector<Connector*>::const_iterator it =
 			 parent.connectors.begin();
 		     it != parent.connectors.end(); ++it) {
-			result += (*it)->getName() + '\n';
+			result.addListElement((*it)->getName());
 		}
 		break;
 	case 3: {
@@ -341,22 +336,21 @@ string PluggingController::ConnectorInfo::execute(const vector<string> &tokens)
 		if (!connector) {
 			throw CommandException("No such connector");
 		}
-		result = connector->getDescription();
+		result.setString(connector->getDescription());
 		break;
 	}
 	default:
 		throw CommandException("Too many parameters");
 	}
-	return result;
 }
 
-string PluggingController::ConnectorInfo::help(const vector<string> &tokens) const
+string PluggingController::ConnectorInfo::help(const vector<string>& tokens) const
 	throw()
 {
 	return "Shows a list of available connectors.\n";
 }
 
-void PluggingController::ConnectorInfo::tabCompletion(vector<string> &tokens) const
+void PluggingController::ConnectorInfo::tabCompletion(vector<string>& tokens) const
 	throw()
 {
 	if (tokens.size() == 3) {

@@ -4,6 +4,7 @@
 #include "config.h"
 #include "InfoCommand.hh"
 #include "CommandController.hh"
+#include "CommandResult.hh"
 
 namespace openmsx {
 
@@ -40,16 +41,15 @@ void InfoCommand::unregisterTopic(const string& name,
 
 // Command
 
-string InfoCommand::execute(const vector<string> &tokens)
+void InfoCommand::execute(const vector<string>& tokens, CommandResult& result)
 	throw (CommandException)
 {
-	string result;
 	switch (tokens.size()) {
 	case 1:
 		// list topics
 		for (map<string, const InfoTopic*>::const_iterator it =
 		       infoTopics.begin(); it != infoTopics.end(); ++it) {
-			result += it->first + '\n';
+			result.addListElement(it->first);
 		}
 		break;
 	default:
@@ -60,10 +60,9 @@ string InfoCommand::execute(const vector<string> &tokens)
 		if (it == infoTopics.end()) {
 			throw CommandException("No info on: " + tokens[1]);
 		}
-		result = it->second->execute(tokens);
+		it->second->execute(tokens, result);
 		break;
 	}
-	return result;
 }
 
 string InfoCommand::help(const vector<string> &tokens) const
@@ -117,10 +116,11 @@ void InfoCommand::tabCompletion(vector<string> &tokens) const throw()
 
 // Version info
 
-string InfoCommand::VersionInfo::execute(const vector<string> &tokens) const
+void InfoCommand::VersionInfo::execute(const vector<string> &tokens,
+                                       CommandResult& result) const
 	throw()
 {
-	return "openMSX " VERSION " -- built on "__DATE__"\n";
+	result.setString("openMSX " VERSION " -- built on "__DATE__);
 }
 
 string InfoCommand::VersionInfo::help(const vector<string> &tokens) const

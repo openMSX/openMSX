@@ -11,6 +11,7 @@
 #include "CliCommOutput.hh"
 #include "InfoCommand.hh"
 #include "Scheduler.hh"
+#include "CommandResult.hh"
 
 namespace openmsx {
 
@@ -134,7 +135,7 @@ int Mixer::registerSound(SoundDevice* device, short volume, ChannelMode mode)
 	return audioSpec.samples;
 }
 
-void Mixer::unregisterSound(SoundDevice *device)
+void Mixer::unregisterSound(SoundDevice* device)
 {
 	if (!init) {
 		return;
@@ -161,7 +162,7 @@ void Mixer::unregisterSound(SoundDevice *device)
 }
 
 
-void Mixer::audioCallbackHelper (void *userdata, Uint8 *strm, int len)
+void Mixer::audioCallbackHelper (void* userdata, Uint8* strm, int len)
 {
 	// len ignored
 	short *stream = (short*)strm;
@@ -182,7 +183,7 @@ void Mixer::reInit()
 	prevTime = cpu.getCurrentTimeUnsafe(); // !! can be one instruction off
 }
 
-void Mixer::updateStream(const EmuTime &time)
+void Mixer::updateStream(const EmuTime& time)
 {
 	if (!init) return;
 
@@ -309,7 +310,7 @@ void Mixer::muteHelper(int muteCount)
 }
 
 
-void Mixer::update(const SettingLeafNode *setting) throw()
+void Mixer::update(const SettingLeafNode* setting) throw()
 {
 	if (setting == &muteSetting) {
 		if (muteSetting.getValue()) {
@@ -385,15 +386,14 @@ Mixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(Mixer& parent_)
 {
 }
 
-string Mixer::SoundDeviceInfoTopic::execute(const vector<string> &tokens) const
-	throw(CommandException)
+void Mixer::SoundDeviceInfoTopic::execute(const vector<string>& tokens,
+	CommandResult& result) const throw(CommandException)
 {
-	string result;
 	switch (tokens.size()) {
 	case 2:
 		for (map<SoundDevice*, SoundDeviceInfo>::const_iterator it =
 		       parent.infos.begin(); it != parent.infos.end(); ++it) {
-			result += it->first->getName() + '\n';
+			result.addListElement(it->first->getName());
 		}
 		break;
 	case 3: {
@@ -401,16 +401,15 @@ string Mixer::SoundDeviceInfoTopic::execute(const vector<string> &tokens) const
 		if (!device) {
 			throw CommandException("Unknown sound device");
 		}
-		result = device->getDescription();
+		result.setString(device->getDescription());
 		break;
 	}
 	default:
 		throw CommandException("Too many parameters");
 	}
-	return result;
 }
 
-string Mixer::SoundDeviceInfoTopic::help(const vector<string> &tokens) const
+string Mixer::SoundDeviceInfoTopic::help(const vector<string>& tokens) const
 	throw()
 {
 	return "Shows a list of available sound devices.\n";

@@ -5,6 +5,7 @@
 #include "Config.hh"
 #include "CliCommOutput.hh"
 #include "InfoCommand.hh"
+#include "CommandResult.hh"
 
 namespace openmsx {
 
@@ -89,20 +90,18 @@ RenderSettings::RendererInfo::RendererInfo(RenderSettings& parent_)
 {
 }
 
-string RenderSettings::RendererInfo::execute(const vector<string> &tokens) const
-	throw()
+void RenderSettings::RendererInfo::execute(const vector<string>& tokens,
+	CommandResult& result) const throw()
 {
-	string result;
 	set<string> renderers;
 	parent.getRenderer()->getPossibleValues(renderers);
 	for (set<string>::const_iterator it = renderers.begin();
 	     it != renderers.end(); ++it) {
-		result += *it + '\n';
+		result.addListElement(*it);
 	}
-	return result;
 }
 
-string RenderSettings::RendererInfo::help(const vector<string> &tokens) const
+string RenderSettings::RendererInfo::help(const vector<string>& tokens) const
 	throw()
 {
 	return "Shows a list of available renderers.\n";
@@ -115,20 +114,18 @@ RenderSettings::ScalerInfo::ScalerInfo(RenderSettings& parent_)
 {
 }
 
-string RenderSettings::ScalerInfo::execute(const vector<string> &tokens) const
-	throw()
+void RenderSettings::ScalerInfo::execute(const vector<string>& tokens,
+	CommandResult& result) const throw()
 {
-	string result;
 	set<string> scalers;
 	parent.getScaler()->getPossibleValues(scalers);
 	for (set<string>::const_iterator it = scalers.begin();
 	     it != scalers.end(); ++it) {
-		result += *it + '\n';
+		result.addListElement(*it);
 	}
-	return result;
 }
 
-string RenderSettings::ScalerInfo::help(const vector<string> &tokens) const
+string RenderSettings::ScalerInfo::help(const vector<string>& tokens) const
 	throw()
 {
 	return "Shows a list of available scalers.\n";
