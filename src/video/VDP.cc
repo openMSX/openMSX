@@ -55,6 +55,8 @@ VDP::VDP(const XMLElement& config, const EmuTime& time)
 {
 	PRT_DEBUG("Creating a VDP object");
 
+	interlaced=false;
+
 	string versionString = deviceConfig.getChildData("version");
 	if (versionString == "TMS99X8A") version = TMS99X8A;
 	else if (versionString == "TMS9929A") version = TMS9929A;
