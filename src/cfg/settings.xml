@@ -5,9 +5,6 @@
 <!-- 
   This file contains the settings or user preferences. 
   Use it in combination with an MSX machine configuration file.
-  Maybe you want to use openMSX in a small script, so that you don't
-  need to add this file on the command line all the time. This will
-  probably be made more comfortable later!
 -->
 
  <!-- renderer settings: determines how openMSX outputs graphics -->
@@ -45,6 +42,7 @@
     <parameter name="background">ConsoleBackground.png</parameter>
   </config>
 
+ <!-- Commands that should be executed automatically after boot -->
   <config id="AutoCommands">
     <parameter>bind print fullscreen</parameter>
     <parameter>bind pause pause</parameter>
@@ -59,6 +57,8 @@
         <parameter>plug cassetteport cassetteplayer</parameter>-->
   </config>
 
+ <!-- Directories that are searched in, when looking for files mentioned 
+      on the command line or Console -->
   <config id="UserDirectories">
     <parameter>~/openMSX/roms</parameter>
     <parameter>~/openMSX/disks</parameter>
