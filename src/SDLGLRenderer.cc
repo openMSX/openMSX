@@ -835,6 +835,11 @@ void SDLGLRenderer::setDirty(
 
 void SDLGLRenderer::drawSprites(int screenLine, int leftBorder, int minX, int maxX)
 {
+	int spriteMode = vdp->getDisplayMode().getSpriteMode();
+	if (spriteMode == 0) {
+		return;
+	}
+
 	// TODO: Pass absLine as a parameter instead of converting back.
 	int absLine = screenLine / 2 + lineRenderTop;
 
@@ -847,7 +852,7 @@ void SDLGLRenderer::drawSprites(int screenLine, int leftBorder, int minX, int ma
 	if (visibleIndex == 0) return;
 
 	// visibleIndex != 0 implies there are sprites in the current mode.
-	if (vdp->getDisplayMode().getSpriteMode() == 1) {
+	if (spriteMode == 1) {
 		// Sprite mode 1: render directly to screen using overdraw.
 
 		// Buffer to render sprite pixel to; start with all transparent.

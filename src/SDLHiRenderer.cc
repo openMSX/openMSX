@@ -602,6 +602,11 @@ template <class Pixel> void SDLHiRenderer<Pixel>::setDirty(
 template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 	int screenLine, int leftBorder, int minX, int maxX)
 {
+	int spriteMode = vdp->getDisplayMode().getSpriteMode();
+	if (spriteMode == 0) {
+		return;
+	}
+
 	// TODO: Pass absLine as a parameter instead of converting back.
 	int absLine = screenLine / 2 + lineRenderTop;
 
@@ -624,7 +629,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 	Pixel *pixelPtr1 = (Pixel *)(((byte *)pixelPtr0) + screen->pitch);
 
 	// visibleIndex != 0 implies there are sprites in the current mode.
-	if (vdp->getDisplayMode().getSpriteMode() == 1) {
+	if (spriteMode == 1) {
 		// Sprite mode 1: render directly to screen using overdraw.
 		while (visibleIndex--) {
 			// Get sprite info.
