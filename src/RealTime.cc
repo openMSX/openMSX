@@ -128,16 +128,35 @@ void RealTime::resetTiming()
 void RealTime::PauseCmd::execute(const std::vector<std::string> &tokens)
 {
 	Scheduler *sch = Scheduler::instance();
-	if (sch->isPaused()) {
-		RealTime::instance()->resetTiming(); 
-		sch->unpause();
-	} else {
-		sch->pause();
+	switch (tokens.size()) {
+	case 1:
+		if (sch->isPaused()) {
+			RealTime::instance()->resetTiming(); 
+			sch->unpause();
+		} else {
+			sch->pause();
+		}
+		break;
+	case 2:
+		if (tokens[1] == "on") {
+			sch->pause();
+			break;
+		}
+		if (tokens[1] == "off") {
+			RealTime::instance()->resetTiming(); 
+			sch->unpause();
+			break;
+		}
+	default:
+		Console::instance()->print("Syntax error");
 	}
 }
 void RealTime::PauseCmd::help   (const std::vector<std::string> &tokens)
 {
 	Console::instance()->print("Use this command to pause/unpause the emulator");
+	Console::instance()->print(" pause:     toggle pause");
+	Console::instance()->print(" pause on:  pause emulation");
+	Console::instance()->print(" pause off: unpause emulation");
 }
 
 void RealTime::ThrottleCmd::execute(const std::vector<std::string> &tokens)

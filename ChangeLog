@@ -7,6 +7,7 @@ $Id$
 	   played correctly
 	* Made console command "fullscreen", PrtScrn is bound to this command
 	* Console command "mute" takes on/off parameter
+	* Console command "pause" takes on/off parameter
 
 2002-04-01 Joost Yervante Damad <andete@worldcity.nl>
 	* FileManager sync [WIP]
