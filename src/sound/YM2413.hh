@@ -35,7 +35,7 @@ class YM2413 : public SoundDevice
 	
 	class Slot {
 		public:
-			Slot(int type);
+			Slot(bool type);
 			~Slot();
 			void reset();
 
@@ -64,6 +64,7 @@ class YM2413 : public SoundDevice
 		
 			Patch *patch;  
 			bool type;		// 0 : modulator 1 : carrier 
+			bool slotStatus;
 
 			// OUTPUT
 			int feedback;
@@ -103,10 +104,11 @@ class YM2413 : public SoundDevice
 			inline void setVol(int volume);
 			inline void setFnumber(int fnum);
 			inline void setBlock(int block);
+			inline void keyOn();
+			inline void keyOff();
 
 			Patch *patches;
 			bool userPatch;
-			bool key_status;
 			Slot mod, car;
 	};
 
@@ -141,8 +143,6 @@ class YM2413 : public SoundDevice
 		static void makeRksTable();
 		static void makeDB2LinTable();
 		
-		inline void keyOn(int i);
-		inline void keyOff(int i);
 		inline void keyOn_BD();
 		inline void keyOn_SD();
 		inline void keyOn_TOM();
@@ -228,13 +228,6 @@ class YM2413 : public SoundDevice
 		static const double AM_SPEED = 3.7;
 		static const double AM_DEPTH = 2.4;
 
-		static const int SLOT_BD1 = 12;
-		static const int SLOT_BD2 = 13;
-		static const int SLOT_HH = 14;
-		static const int SLOT_SD = 15;
-		static const int SLOT_TOM = 16;
-		static const int SLOT_CYM = 17;
-		
 		int* buffer;
 		short maxVolume;
 
@@ -242,7 +235,6 @@ class YM2413 : public SoundDevice
 
 		// Register
 		byte reg[0x40]; 
-		byte slot_on_flag[18];
 
 		// Rythm Mode 
 		bool rythm_mode;

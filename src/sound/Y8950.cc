@@ -32,7 +32,7 @@ int   Y8950::Slot::AR_ADJUST_TABLE[1<<EG_BITS];
 
 //**************************************************//
 //                                                  //
-//  Helper function                                 //
+//  Helper functions                                //
 //                                                  //
 //**************************************************//
 
@@ -46,21 +46,22 @@ int Y8950::Slot::ALIGN(int d, double SS, double SD)
 	return d*(int)(SS/SD);
 }
 
+// Cut the lower b bits off
 int Y8950::HIGHBITS(int c, int b)
 {
 	return c >> b;
 }
-
+// Leave the lower b bits
 int Y8950::LOWBITS(int c, int b)
 {
 	return c & ((1<<b)-1);
 }
-
+// Expand x which is s bits to d bits
 int Y8950::EXPAND_BITS(int x, int s, int d)
 {
 	return x << (d-s);
 }
-
+// Adjust envelope speed which depends on sampling rate
 int Y8950::rate_adjust(double x, int rate)
 {
 	return (int)(x*CLOCK_FREQ/72/rate + 0.5); // +0.5 to round
@@ -220,10 +221,9 @@ void Y8950::Slot::makeRksTable()
 	for (int fnum9=0; fnum9<2; fnum9++)
 		for (int block=0; block<8; block++)
 			for (int KR=0; KR<2; KR++) {
-				if (KR!=0)
-					rksTable[fnum9][block][KR] = (block<<1) + fnum9;
-				else
-					rksTable[fnum9][block][KR] = block >> 1;
+				rksTable[fnum9][block][KR] = (KR != 0) ?
+					(block<<1) + fnum9:
+					 block>>1;
 			}
 }
 
@@ -276,25 +276,25 @@ void Y8950::Slot::reset()
 	pgout = 0;
 	egout = 0;
 	patch.reset();
-	UPDATE_ALL();
+	updateAll();
 }
 
-void Y8950::Slot::UPDATE_PG()
+void Y8950::Slot::updatePG()
 {
 	dphase = dphaseTable[fnum][block][patch.ML];
 }
 
-void Y8950::Slot::UPDATE_TLL()
+void Y8950::Slot::updateTLL()
 {
 	tll = tllTable[fnum>>6][block][patch.TL][patch.KL];
 }
 
-void Y8950::Slot::UPDATE_RKS()
+void Y8950::Slot::updateRKS()
 {
 	rks = rksTable[fnum>>9][block][patch.KR];
 }
 
-void Y8950::Slot::UPDATE_EG()
+void Y8950::Slot::updateEG()
 {
 	switch (eg_mode) {
 		case ATTACK:
@@ -318,28 +318,34 @@ void Y8950::Slot::UPDATE_EG()
 	}
 }
 
-void Y8950::Slot::UPDATE_ALL()
+void Y8950::Slot::updateAll()
 {
-	UPDATE_PG();
-	UPDATE_TLL();
-	UPDATE_RKS();
-	UPDATE_EG(); // EG should be last 
+	updatePG();
+	updateTLL();
+	updateRKS();
+	updateEG(); // EG should be last 
 }
 
 // Slot key on  
 void Y8950::Slot::slotOn()
 {
-	eg_mode = ATTACK;
-	phase = 0;
-	eg_phase = 0;
+	if (!slotStatus) {
+		slotStatus = true;
+		eg_mode = ATTACK;
+		phase = 0;
+		eg_phase = 0;
+	}
 }
 
 // Slot key off 
 void Y8950::Slot::slotOff()
 {
-	if (eg_mode == ATTACK)
-		eg_phase = EXPAND_BITS(AR_ADJUST_TABLE[HIGHBITS(eg_phase, EG_DP_BITS-EG_BITS)], EG_BITS, EG_DP_BITS);
-	eg_mode = RELEASE;
+	if (slotStatus) {
+		slotStatus = false;
+		if (eg_mode == ATTACK)
+			eg_phase = EXPAND_BITS(AR_ADJUST_TABLE[HIGHBITS(eg_phase, EG_DP_BITS-EG_BITS)], EG_BITS, EG_DP_BITS);
+		eg_mode = RELEASE;
+	}
 }
 
 
@@ -377,6 +383,20 @@ void Y8950::Channel::setBlock(int block)
 {
 	car.block = block;
 	mod.block = block;
+}
+
+// Channel key on 
+void Y8950::Channel::keyOn()
+{
+	mod.slotOn();
+	car.slotOn();
+}
+
+// Channel key off 
+void Y8950::Channel::keyOff()
+{
+	mod.slotOff();
+	car.slotOff();
 }
 
 
@@ -428,8 +448,8 @@ void Y8950::setSampleRate(int sampleRate)
 	Y8950::Slot::makeDphaseTable(sampleRate);
 	Y8950::Slot::makeDphaseARTable(sampleRate);
 	Y8950::Slot::makeDphaseDRTable(sampleRate);
-	pm_dphase = (int)rate_adjust(PM_SPEED * PM_DP_WIDTH / (CLOCK_FREQ/72), sampleRate );
-	am_dphase = (int)rate_adjust(AM_SPEED * AM_DP_WIDTH / (CLOCK_FREQ/72), sampleRate );
+	pm_dphase = rate_adjust(PM_SPEED * PM_DP_WIDTH / (CLOCK_FREQ/72), sampleRate );
+	am_dphase = rate_adjust(AM_SPEED * AM_DP_WIDTH / (CLOCK_FREQ/72), sampleRate );
 }
 
 // Reset whole of opl except patch datas. 
@@ -451,8 +471,6 @@ void Y8950::reset(const EmuTime &time)
 	Mixer::instance()->updateStream(time);
 	for (int i=0; i<0xFF; i++) 
 		reg[i] = 0x00;
-	for (int i=0; i<18; i++) 
-		slot_on_flag[i] = 0;
 
 	// adpcm
 	reg[0x04] = 0x18;
@@ -470,30 +488,16 @@ void Y8950::reset(const EmuTime &time)
 	setInternalMute(true);	// muted
 }
 
-// Channel key on 
-void Y8950::keyOn(int i)
-{
-	ch[i].mod.slotOn();
-	ch[i].car.slotOn();
-}
-
-// Channel key off 
-void Y8950::keyOff(int i)
-{
-	ch[i].mod.slotOff();
-	ch[i].car.slotOff();
-}
-
-void Y8950::keyOn_BD  () { keyOn(6); }
-void Y8950::keyOn_SD  () { if (!slot_on_flag[SLOT_SD])  ch[7].car.slotOn(); }
-void Y8950::keyOn_TOM () { if (!slot_on_flag[SLOT_TOM]) ch[8].mod.slotOn(); }
-void Y8950::keyOn_HH  () { if (!slot_on_flag[SLOT_HH])  ch[7].mod.slotOn(); }
-void Y8950::keyOn_CYM () { if (!slot_on_flag[SLOT_CYM]) ch[8].car.slotOn(); }
-void Y8950::keyOff_BD () { keyOff(6); }
-void Y8950::keyOff_SD () { if (slot_on_flag[SLOT_SD])   ch[7].car.slotOff(); }
-void Y8950::keyOff_TOM() { if (slot_on_flag[SLOT_TOM])  ch[8].mod.slotOff(); }
-void Y8950::keyOff_HH () { if (slot_on_flag[SLOT_HH])   ch[7].mod.slotOff(); }
-void Y8950::keyOff_CYM() { if (slot_on_flag[SLOT_CYM])  ch[8].car.slotOff(); }
+void Y8950::keyOn_BD  () { ch[6].keyOn(); }
+void Y8950::keyOn_SD  () { ch[7].car.slotOn(); }
+void Y8950::keyOn_TOM () { ch[8].mod.slotOn(); }
+void Y8950::keyOn_HH  () { ch[7].mod.slotOn(); }
+void Y8950::keyOn_CYM () { ch[8].car.slotOn(); }
+void Y8950::keyOff_BD () { ch[6].keyOff(); }
+void Y8950::keyOff_SD () { ch[7].car.slotOff(); }
+void Y8950::keyOff_TOM() { ch[8].mod.slotOff(); }
+void Y8950::keyOff_HH () { ch[7].mod.slotOff(); }
+void Y8950::keyOff_CYM() { ch[8].car.slotOff(); }
 
 
 //********************************************************//
@@ -562,7 +566,7 @@ void Y8950::Slot::calc_envelope(int lfo_am)
 			egout = 0;
 			eg_phase= 0;
 			eg_mode = DECAY;
-			UPDATE_EG();
+			updateEG();
 		} else {
 			egout = AR_ADJUST_TABLE[HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS)];
 		}
@@ -575,11 +579,11 @@ void Y8950::Slot::calc_envelope(int lfo_am)
 			if (patch.EG) {
 				eg_phase = SL[patch.SL];
 				eg_mode = SUSHOLD;
-				UPDATE_EG();
+				updateEG();
 			} else {
 				eg_phase = SL[patch.SL];
 				eg_mode = SUSTINE;
-				UPDATE_EG();
+				updateEG();
 			}
 			egout = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
 		}
@@ -589,7 +593,7 @@ void Y8950::Slot::calc_envelope(int lfo_am)
 		egout = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
 		if (!patch.EG) {
 			eg_mode = SUSTINE;
-			UPDATE_EG();
+			updateEG();
 		}
 		break;
 
@@ -948,7 +952,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			slot[s]->patch.EG = (data>>5)&1;
 			slot[s]->patch.KR = (data>>4)&1;
 			slot[s]->patch.ML = (data)&15;
-			slot[s]->UPDATE_ALL();
+			slot[s]->updateAll();
 		}
 		reg[rg] = data;
 		break;
@@ -958,7 +962,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 		if (s >= 0) {
 			slot[s]->patch.KL = (data>>6)&3;
 			slot[s]->patch.TL = (data)&63;
-			slot[s]->UPDATE_ALL();
+			slot[s]->updateAll();
 		}
 		reg[rg] = data;
 		break;
@@ -968,7 +972,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 		if (s >= 0) {
 			slot[s]->patch.AR = (data>>4)&15;
 			slot[s]->patch.DR = (data)&15;
-			slot[s]->UPDATE_EG();
+			slot[s]->updateEG();
 		}
 		reg[rg] = data;
 		break;
@@ -978,7 +982,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 		if (s >= 0) {
 			slot[s]->patch.SL = (data>>4)&15;
 			slot[s]->patch.RR = (data)&15;
-			slot[s]->UPDATE_EG();
+			slot[s]->updateEG();
 		}
 		reg[rg] = data;
 		break;
@@ -999,20 +1003,20 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			// 0xa0-0xa8
 			int c = rg-0xa0;
 			ch[c].setFnumber(data + ((reg[rg+0x10]&3)<<8));
-			ch[c].car.UPDATE_ALL();
-			ch[c].mod.UPDATE_ALL();
+			ch[c].car.updateAll();
+			ch[c].mod.updateAll();
 			reg[rg] = data;
 		} else {
 			// 0xb0-0xb8
 			int c = rg-0xb0;
 			ch[c].setFnumber(((data&3)<<8) + reg[rg-0x10]);
 			ch[c].setBlock((data>>2)&7);
-			if (((reg[rg]&0x20)==0)&&(data&0x20)) 
-				keyOn(c); 
-			else if((data&0x20)==0) 
-				keyOff(c);
-			ch[c].mod.UPDATE_ALL();
-			ch[c].car.UPDATE_ALL();
+			if (data&0x20)
+				ch[c].keyOn();
+			else
+				ch[c].keyOff();
+			ch[c].mod.updateAll();
+			ch[c].car.updateAll();
 			reg[rg] = data;
 		}
 		break;

@@ -54,11 +54,11 @@ class Y8950 : public SoundDevice
 			inline int calc_slot_car(int lfo_pm, int lfo_am, int fm);
 			inline int calc_slot_mod(int lfo_pm, int lfo_am);
 			
-			inline void UPDATE_ALL();
-			inline void UPDATE_EG();
-			inline void UPDATE_RKS();
-			inline void UPDATE_TLL();
-			inline void UPDATE_PG();
+			inline void updateAll();
+			inline void updateEG();
+			inline void updateRKS();
+			inline void updateTLL();
+			inline void updatePG();
 
 
 			// OUTPUT 
@@ -80,6 +80,7 @@ class Y8950 : public SoundDevice
 			int eg_dphase;	// Phase increment amount 
 			int egout;	// output 
 
+			bool slotStatus;
 			Patch patch;  
 
 		private:
@@ -135,6 +136,8 @@ class Y8950 : public SoundDevice
 			void reset();
 			inline void setFnumber(int fnum);
 			inline void setBlock(int block);
+			inline void keyOn();
+			inline void keyOff();
 
 			bool alg;
 			Slot mod, car;
@@ -177,8 +180,6 @@ class Y8950 : public SoundDevice
 		void makePmTable();
 		void makeAmTable();
 
-		inline void keyOn(int i);
-		inline void keyOff(int i);
 		inline void keyOn_BD();
 		inline void keyOn_SD();
 		inline void keyOn_TOM();
@@ -206,7 +207,6 @@ class Y8950 : public SoundDevice
 		int output[2];
 		// Register 
 		byte reg[0xff]; 
-		int slot_on_flag[18];
 		bool rythm_mode;
 		// Pitch Modulator 
 		int pm_mode;
