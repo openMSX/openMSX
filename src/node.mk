@@ -51,7 +51,7 @@ HDR_ONLY:= \
 	NonInheritable
 
 DIST:= \
-	Doxyfile config.h.in
+	Doxyfile
 
 include build/node-end.mk
 

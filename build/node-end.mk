@@ -1,9 +1,6 @@
 # $Id$
 # Should be included at the end of each node.mk file.
 
-# Backwards compatibility for auto* system:
-DIST+=$(if $(filter ./$(SOURCES_PATH)%,$(CURDIR)),Makefile.am,)
-
 # Process this node.
 SOURCES_FULL+=$(sort \
 	$(addprefix $(CURDIR),$(addsuffix .cc,$(SRC_HDR) $(SRC_ONLY))) \
