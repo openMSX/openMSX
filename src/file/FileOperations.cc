@@ -158,7 +158,10 @@ const string& FileOperations::getUserDir()
 			FreeLibrary(sh32dll);
 		}
 		if (userDir.empty()) {
-			throw FatalError("Cannot get user directory.");
+			// workaround for Win95 w/o IE4(||later)
+			userDir = getSystemDataDir();
+			userDir.erase(userDir.length() - 7, 7);	// "/share/"
+		//	throw FatalError("Cannot get user directory.");
 		}
 #else
 		userDir = getenv("HOME");
