@@ -3458,10 +3458,10 @@ AC_MSG_CHECKING(for libxml++)
 
 if xml++-config --libs print > /dev/null 2>&1; then
     AC_MSG_RESULT(yes)
-    LIBXML_CFLAGS=`xml-config --cflags`
-    LIBXML_LIBS=`xml-config --libs`
-    AC_SUBST(LIBXML_CFLAGS)
-    AC_SUBST(LIBXML_LIBS)
+    LIBXMLPP_CFLAGS=`xml++-config --cflags`
+    LIBXMLPP_LIBS=`xml++-config --libs`
+    AC_SUBST(LIBXMLPP_CFLAGS)
+    AC_SUBST(LIBXMLPP_LIBS)
     ifelse([$1], , :, [$1])
 else
     AC_MSG_RESULT(no)

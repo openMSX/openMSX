@@ -5,6 +5,7 @@ $Id$
 	* added class property to <parameter> tag in msxconfig
 	* also slightly reworked that code
 	* bumbed version to 0.1.1
+	* added SDL auto* support
 
 2001-07-06 Joost Yervante Damad <j.damad@qahwah.net>
 
