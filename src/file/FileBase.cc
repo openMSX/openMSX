@@ -1,7 +1,7 @@
 // $Id$
 
 #include "FileBase.hh"
-
+#include <cassert>
 
 FileBase::~FileBase()
 {
