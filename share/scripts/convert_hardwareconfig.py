@@ -183,7 +183,10 @@ def convertDevice(node):
 					child.childNodes[0].nodeValue = deviceType
 			else:
 				newName = getNewParameterName(deviceType, child.nodeName)
-				if newName != child.nodeName:
+				if newName is None:
+					print '    remove parameter "' + child.nodeName + '"'
+					node.removeChild(child)
+				elif newName != child.nodeName:
 					print '    rename parameter "' + child.nodeName + '" ' \
 						'to "' + newName + '"'
 					child.tagName = newName
@@ -230,6 +233,9 @@ def getNewParameterName(deviceType, name):
 			'type': 'fdc_type',
 			'brokenFDCread': 'broken_fdc_read',
 			},
+		'RTC': {
+			'mode': None,
+			},
 		}.get(deviceType, {}).get(name, name)
 
 def convertParameter(node):
@@ -239,16 +245,19 @@ def convertParameter(node):
 		parent = node.parentNode
 		deviceType = getParameter(parent, 'type')
 		name = getNewParameterName(deviceType, name)
-		# Extract info from old-style node.
-		assert len(node.childNodes) == 1
-		text = node.childNodes[0]
-		node.removeChild(text)
-		# Store info in new-style node.
-		elem = node.ownerDocument.createElement(name)
-		elem.appendChild(text)
-		# Replace old node by new node.
-		parent.replaceChild(elem, node)
-		node.unlink()
+		if name is None:
+			parent.removeChild(node)
+		else:
+			# Extract info from old-style node.
+			assert len(node.childNodes) == 1
+			text = node.childNodes[0]
+			node.removeChild(text)
+			# Store info in new-style node.
+			elem = node.ownerDocument.createElement(name)
+			elem.appendChild(text)
+			# Replace old node by new node.
+			parent.replaceChild(elem, node)
+			node.unlink()
 	else:
 		assert len(node.attributes) == 2
 		clazz = node.attributes['class'].nodeValue
