@@ -13,83 +13,47 @@ Visit the HiEnd3D site for info:
 #include "HQ2xScaler.hh"
 #include <cassert>
 
-
 namespace openmsx {
 
 // Force template instantiation.
 template class HQ2xScaler<word>;
-template class HQ2xScaler<unsigned int>;
+template class HQ2xScaler<unsigned>;
 
 template <class Pixel>
-inline Pix32 HQ2xScaler<Pixel>::readPixel(const Pixel* pIn) {
+static inline unsigned readPixel(const Pixel* pIn)
+{
 	// TODO: Use surface info instead.
 	Pixel p = *pIn;
 	if (sizeof(Pixel) == 2) {
-		return ((p << 8) & 0xF80000) |
-		       ((p << 5) & 0x00F800) |
-		       ((p << 3) & 0x0000F8);
+		return ((p & 0xF800) << 8) |
+		       ((p & 0x07C0) << 5) | // drop lowest green bit
+		       ((p & 0x001F) << 3);
 	} else {
-		//return p;
-		//return p & 0xFCFCFC;
-		//return p & 0xF8FCF8;
 		return p & 0xF8F8F8;
 	}
 }
 
 template <class Pixel>
-inline void HQ2xScaler<Pixel>::pset(Pixel* pOut, Pix32 colour)
+static inline void pset(Pixel* pOut, unsigned p)
 {
 	// TODO: Use surface info instead.
 	if (sizeof(Pixel) == 2) {
-		*pOut = ((colour >> 8) & 0xF800) |
-		        ((colour >> 5) & 0x07E0) |
-		        ((colour >> 3) & 0x001F);
+		*pOut = ((p & 0xF80000) >> 8) |
+			((p & 0x00FC00) >> 5) |
+			((p & 0x0000F8) >> 3);
 	} else {
 		*pOut = (colour & 0xF8F8F8) | ((colour & 0xE0E0E0) >> 5);
 	}
 }
 
-template <class Pixel>
-inline bool HQ2xScaler<Pixel>::edge(Pix32 c1, Pix32 c2)
-{
-	if (c1 == c2) return false;
-
-	int r1 = c1 >> 16;
-	int g1 = (c1 >> 8) & 0xFF;
-	int b1 = c1 & 0xFF;
-	int Y1 = r1 + g1 + b1;
-
-	int r2 = c2 >> 16;
-	int g2 = (c2 >> 8) & 0xFF;
-	int b2 = c2 & 0xFF;
-	int Y2 = r2 + g2 + b2;
-
-	int dY = Y1 - Y2;
-	if (dY < -0xC0 || dY > 0xC0) return true;
-
-	//int u1 = r1 - b1;
-	//int u2 = r2 - b2;
-	//if (abs(u1 - u2) > 0x1C) return true;
-	int du = r1 - r2 + b2 - b1;
-	if (du < -0x1C || du > 0x1C) return true;
-
-	//int v1 = 3 * g1 - Y1;
-	//int v2 = 3 * g2 - Y2;
-	//if (abs(v1 - v2) > 0x30) return true;
-	int dv = 3 * (g1 - g2) - dY;
-	if (dv < -0x30 || dv > 0x30) return true;
-
-	return false;
-}
-
 template <int w1, int w2>
-inline Pix32 interpolate(Pix32 c1, Pix32 c2)
+static inline unsigned interpolate(unsigned c1, unsigned c2)
 {
 	return (c1 * w1 + c2 * w2) >> 2;
 }
 
 template <int w1, int w2, int w3>
-inline Pix32 interpolate(Pix32 c1, Pix32 c2, Pix32 c3)
+static inline unsigned interpolate(unsigned c1, unsigned c2, unsigned c3)
 {
 	enum { wsum = w1 + w2 + w3 };
 	if (wsum <= 8) {
@@ -98,95 +62,99 @@ inline Pix32 interpolate(Pix32 c1, Pix32 c2, Pix32 c3)
 		// a vector.
 		return (c1 * w1 + c2 * w2 + c3 * w3) / wsum;
 	} else {
-		return
-			(
-				(
-					(
-						(c1 & 0x00FF00) * w1 +
-						(c2 & 0x00FF00) * w2 +
-						(c3 & 0x00FF00) * w3
-					) & (0x00FF00 * wsum)
-				) | (
-					(
-						(c1 & 0xFF00FF) * w1 +
-						(c2 & 0xFF00FF) * w2 +
-						(c3 & 0xFF00FF) * w3
-					) & (0xFF00FF * wsum)
-				)
-			) / wsum;
+		return ((((c1 & 0x00FF00) * w1 +
+		          (c2 & 0x00FF00) * w2 +
+		          (c3 & 0x00FF00) * w3) & (0x00FF00 * wsum)) |
+		        (((c1 & 0xFF00FF) * w1 +
+		          (c2 & 0xFF00FF) * w2 +
+		          (c3 & 0xFF00FF) * w3) & (0xFF00FF * wsum))) / wsum;
 	}
 }
 
-inline Pix32 Interp1(Pix32 c1, Pix32 c2)
+static inline unsigned Interp1(unsigned c1, unsigned c2)
 {
 	return interpolate<3, 1>(c1, c2);
 }
 
-inline Pix32 Interp2(Pix32 c1, Pix32 c2, Pix32 c3)
+static inline unsigned Interp2(unsigned c1, unsigned c2, unsigned c3)
 {
 	return interpolate<2, 1, 1>(c1, c2, c3);
 }
 
-inline Pix32 Interp6(Pix32 c1, Pix32 c2, Pix32 c3)
+static inline unsigned Interp6(unsigned c1, unsigned c2, unsigned c3)
 {
 	return interpolate<5, 2, 1>(c1, c2, c3);
 }
 
-inline Pix32 Interp7(Pix32 c1, Pix32 c2, Pix32 c3)
+static inline unsigned Interp7(unsigned c1, unsigned c2, unsigned c3)
 {
 	return interpolate<6, 1, 1>(c1, c2, c3);
 }
 
-inline Pix32 Interp9(Pix32 c1, Pix32 c2, Pix32 c3)
+static inline unsigned Interp9(unsigned c1, unsigned c2, unsigned c3)
 {
 	return interpolate<2, 3, 3>(c1, c2, c3);
 }
 
-inline Pix32 Interp10(Pix32 c1, Pix32 c2, Pix32 c3)
+static inline unsigned Interp10(unsigned c1, unsigned c2, unsigned c3)
 {
 	return interpolate<14, 1, 1>(c1, c2, c3);
 }
 
-template <class Pixel>
-void HQ2xScaler<Pixel>::scaleLine256(
-	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY,
-	const int prevLine, const int nextLine )
+static inline bool edge(unsigned c1, unsigned c2)
 {
-	const int width = 320; // TODO: Specify this in a clean way.
+	if (c1 == c2) return false;
+
+	unsigned r1 = c1 >> 16;
+	unsigned g1 = (c1 >> 8) & 0xFF;
+	unsigned b1 = c1 & 0xFF;
+	unsigned y1 = r1 + g1 + b1;
+
+	unsigned r2 = c2 >> 16;
+	unsigned g2 = (c2 >> 8) & 0xFF;
+	unsigned b2 = c2 & 0xFF;
+	unsigned y2 = r2 + g2 + b2;
+
+	int dy = y1 - y2;
+	if (dy < -0xC0 || dy > 0xC0) return true;
+
+	int du = r1 - r2 + b2 - b1;
+	if (du < -0x1C || du > 0x1C) return true;
+
+	int dv = 3 * (g1 - g2) - dy;
+	if (dv < -0x30 || dv > 0x30) return true;
+
+	return false;
+}
+
+template <class Pixel>
+static void scaleLine256(
+	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY,
+	const int prev, const int next)
+{
+	const unsigned WIDTH = 320;
+
 	const int srcPitch = src->pitch / sizeof(Pixel);
 	const int dstPitch = dst->pitch / sizeof(Pixel);
 
-	Pixel* pIn = (Pixel*)src->pixels + srcY * srcPitch;
-	Pixel* pOut = (Pixel*)dst->pixels + dstY * dstPitch;
+	Pixel* in = (Pixel*)src->pixels + srcY * srcPitch;
+	Pixel* out = (Pixel*)dst->pixels + dstY * dstPitch;
 
-	Pix32 c1, c2, c3, c4, c5, c6, c7, c8, c9;
-
-	//   +----+----+----+
-	//   |    |    |    |
-	//   | c1 | c2 | c3 |
-	//   +----+----+----+
-	//   |    |    |    |
-	//   | c4 | c5 | c6 |
-	//   +----+----+----+
-	//   |    |    |    |
-	//   | c7 | c8 | c9 |
-	//   +----+----+----+
-
-	c1 = c2 = readPixel(pIn + prevLine);
-	c4 = c5 = readPixel(pIn);
-	c7 = c8 = readPixel(pIn + nextLine);
+	unsigned c1, c2, c3, c4, c5, c6, c7, c8, c9;
+	c1 = c2 = readPixel(in + prev);
+	c4 = c5 = readPixel(in);
+	c7 = c8 = readPixel(in + next);
 	c3 = c6 = c9 = 0; // avoid warning
-	pIn += 1;
+	in += 1;
 
-	for (int i = 0; i < width; i++) {
-
-		if (i < width - 1) {
-			c3 = readPixel(pIn + prevLine);
-			c6 = readPixel(pIn);
-			c9 = readPixel(pIn + nextLine);
+	for (unsigned x = 0; x < WIDTH; ++x) {
+		if (x != WIDTH - 1) {
+			c3 = readPixel(in + prev);
+			c6 = readPixel(in);
+			c9 = readPixel(in + next);
 		}
 
-		byte pattern = 0;
+		unsigned pattern = 0;
 		if (edge(c5, c1)) pattern |= 0x01;
 		if (edge(c5, c2)) pattern |= 0x02;
 		if (edge(c5, c3)) pattern |= 0x04;
@@ -196,1409 +164,1259 @@ void HQ2xScaler<Pixel>::scaleLine256(
 		if (edge(c5, c8)) pattern |= 0x40;
 		if (edge(c5, c9)) pattern |= 0x80;
 
-		Pix32 pixel = 0; // avoid warning
-
+		unsigned pixel1, pixel2, pixel3, pixel4;
 		switch (pattern) {
-		case 0xe:
-		case 0x2a:
-		case 0x8e:
-		case 0xaa:
-		{
-			if (edge(c4, c2)) {
-				pixel = Interp1(c5, c1);
-			} else {
-				pixel = Interp9(c5, c4, c2);
-			}
+		case 0:
+		case 1:
+		case 4:
+		case 32:
+		case 128:
+		case 5:
+		case 132:
+		case 160:
+		case 33:
+		case 129:
+		case 36:
+		case 133:
+		case 164:
+		case 161:
+		case 37:
+		case 165:
+			// manually inline this case:
+			//   default inline heuristics of gcc don't inline this
+			//   code. But because this case is so common and
+			//   inlining really does improve speed, we manually
+			//   inline it.
+			//pixel1 = Interp2(c5, c4, c2);
+			//pixel2 = Interp2(c5, c2, c6);
+			//pixel3 = Interp2(c5, c8, c4);
+			//pixel4 = Interp2(c5, c6, c8);
+			pixel1 = (2 * c5 + c4 + c2) / 4;
+			pixel2 = (2 * c5 + c2 + c6) / 4;
+			pixel3 = (2 * c5 + c8 + c4) / 4;
+			pixel4 = (2 * c5 + c6 + c8) / 4;
 			break;
-		}
-		case 0x8:
-		case 0xc:
-		case 0x18:
-		case 0x1c:
-		case 0x28:
-		case 0x2c:
-		case 0x38:
-		case 0x3c:
-		case 0x48:
-		case 0x4c:
-		case 0x58:
-		case 0x5c:
-		case 0x68:
-		case 0x6c:
-		case 0x78:
-		case 0x7c:
-		case 0x88:
-		case 0x8c:
-		case 0x98:
-		case 0x9c:
-		case 0xa8:
-		case 0xac:
-		case 0xb8:
-		case 0xbc:
-		case 0xc8:
-		case 0xcc:
-		case 0xd8:
-		case 0xdc:
-		case 0xe8:
-		case 0xec:
-		case 0xf8:
-		case 0xfc:
-		{
-			pixel = Interp2(c5, c1, c2);
-			break;
-		}
-		case 0xb:
-		case 0x1a:
-		case 0x1b:
-		case 0x1f:
-		case 0x3b:
-		case 0x4a:
-		case 0x4b:
-		case 0x4f:
-		case 0x5b:
-		case 0x5f:
-		case 0x6b:
-		case 0x7b:
-		case 0x8b:
-		case 0x9b:
-		case 0x9f:
-		case 0xcb:
-		case 0xdb:
-		case 0xdf:
-		case 0xeb:
-		case 0xfb:
-		{
-			if (edge(c4, c2)) {
-				pixel = c5;
-			} else {
-				pixel = Interp2(c5, c4, c2);
-			}
-			break;
-		}
-		case 0x2e:
-		case 0x3a:
-		case 0x4e:
-		case 0x5a:
-		case 0x5e:
-		case 0x7a:
-		case 0x9a:
-		case 0x9e:
-		case 0xae:
-		case 0xba:
-		case 0xca:
-		case 0xce:
-		case 0xda:
-		case 0xea:
-		{
-			if (edge(c4, c2)) {
-				pixel = Interp1(c5, c1);
-			} else {
-				pixel = Interp7(c5, c4, c2);
-			}
-			break;
-		}
-		case 0xf:
-		case 0x2b:
-		case 0x8f:
-		case 0xab:
-		case 0xbb:
-		case 0xcf:
-		{
-			if (edge(c4, c2)) {
-				pixel = c5;
-			} else {
-				pixel = Interp9(c5, c4, c2);
-			}
-			break;
-		}
-		case 0x3:
-		case 0x7:
-		case 0x23:
-		case 0x27:
-		case 0x43:
-		case 0x47:
-		case 0x53:
-		case 0x57:
-		case 0x63:
-		case 0x67:
-		case 0x73:
-		case 0x83:
-		case 0x87:
-		case 0x93:
-		case 0x97:
-		case 0xa3:
-		case 0xa7:
-		case 0xb3:
-		case 0xb7:
-		case 0xc3:
-		case 0xc7:
-		case 0xd3:
-		case 0xd7:
-		case 0xe3:
-		case 0xe7:
-		case 0xf3:
-		case 0xf7:
-		{
-			pixel = Interp1(c5, c4);
-			break;
-		}
-		case 0x1e:
-		case 0x3e:
-		case 0x6a:
-		case 0x6e:
-		case 0x7e:
-		case 0xbe:
-		case 0xde:
-		case 0xee:
-		case 0xfa:
-		case 0xfe:
-		{
-			pixel = Interp1(c5, c1);
-			break;
-		}
-		case 0x49:
-		case 0x4d:
-		case 0x69:
-		case 0x6d:
-		case 0x7d:
-		{
-			if (edge(c8, c4)) {
-				pixel = Interp1(c5, c2);
-			} else {
-				pixel = Interp6(c5, c4, c2);
-			}
-			break;
-		}
-		case 0x0:
-		case 0x1:
-		case 0x4:
-		case 0x5:
-		case 0x10:
-		case 0x11:
-		case 0x14:
-		case 0x15:
-		case 0x20:
-		case 0x21:
-		case 0x24:
-		case 0x25:
-		case 0x30:
-		case 0x31:
-		case 0x34:
-		case 0x35:
-		case 0x40:
-		case 0x41:
-		case 0x44:
-		case 0x45:
-		case 0x50:
-		case 0x51:
-		case 0x54:
-		case 0x55:
-		case 0x60:
-		case 0x61:
-		case 0x64:
-		case 0x65:
-		case 0x70:
-		case 0x71:
-		case 0x74:
-		case 0x75:
-		case 0x80:
-		case 0x81:
-		case 0x84:
-		case 0x85:
-		case 0x90:
-		case 0x91:
-		case 0x94:
-		case 0x95:
-		case 0xa0:
-		case 0xa1:
-		case 0xa4:
-		case 0xa5:
-		case 0xb0:
-		case 0xb1:
-		case 0xb4:
-		case 0xb5:
-		case 0xc0:
-		case 0xc1:
-		case 0xc4:
-		case 0xc5:
-		case 0xd0:
-		case 0xd1:
-		case 0xd4:
-		case 0xd5:
-		case 0xe0:
-		case 0xe1:
-		case 0xe4:
-		case 0xe5:
-		case 0xf0:
-		case 0xf1:
-		case 0xf4:
-		case 0xf5:
-		{
-			pixel = Interp2(c5, c4, c2);
-			break;
-		}
-		case 0x9:
-		case 0xd:
-		case 0x19:
-		case 0x1d:
-		case 0x29:
-		case 0x2d:
-		case 0x39:
-		case 0x3d:
-		case 0x59:
-		case 0x5d:
-		case 0x79:
-		case 0x89:
-		case 0x8d:
-		case 0x99:
-		case 0x9d:
-		case 0xa9:
-		case 0xad:
-		case 0xb9:
-		case 0xbd:
-		case 0xc9:
-		case 0xcd:
-		case 0xd9:
-		case 0xdd:
-		case 0xe9:
-		case 0xed:
-		case 0xf9:
-		case 0xfd:
-		{
-			pixel = Interp1(c5, c2);
-			break;
-		}
-		case 0x2f:
-		case 0x3f:
-		case 0x6f:
-		case 0x7f:
-		case 0xaf:
-		case 0xbf:
-		case 0xef:
-		case 0xff:
-		{
-			if (edge(c4, c2)) {
-				pixel = c5;
-			} else {
-				pixel = Interp10(c5, c4, c2);
-			}
-			break;
-		}
-		case 0x2:
-		case 0x6:
-		case 0x12:
-		case 0x16:
-		case 0x22:
-		case 0x26:
-		case 0x32:
-		case 0x36:
-		case 0x42:
-		case 0x46:
-		case 0x52:
-		case 0x56:
-		case 0x62:
-		case 0x66:
-		case 0x72:
-		case 0x76:
-		case 0x82:
-		case 0x86:
-		case 0x92:
-		case 0x96:
-		case 0xa2:
-		case 0xa6:
-		case 0xb2:
-		case 0xb6:
-		case 0xc2:
-		case 0xc6:
-		case 0xd2:
-		case 0xd6:
-		case 0xe2:
-		case 0xe6:
-		case 0xf2:
-		case 0xf6:
-		{
-			pixel = Interp2(c5, c1, c4);
-			break;
-		}
-		case 0xa:
-		case 0x8a:
-		{
-			if (edge(c4, c2)) {
-				pixel = Interp1(c5, c1);
-			} else {
-				pixel = Interp2(c5, c4, c2);
-			}
-			break;
-		}
-		case 0x13:
-		case 0x17:
-		case 0x33:
-		case 0x37:
-		case 0x77:
-		{
-			if (edge(c2, c6)) {
-				pixel = Interp1(c5, c4);
-			} else {
-				pixel = Interp6(c5, c2, c4);
-			}
-			break;
-		}
-		}
-		pset(pOut, pixel);
 
-		switch (pattern) {
-		case 0x17:
-		case 0x37:
-		case 0x77:
-		case 0x96:
-		case 0xb6:
-		case 0xbe:
-		{
-			if (edge(c2, c6)) {
-				pixel = c5;
-			} else {
-				pixel = Interp9(c5, c2, c6);
-			}
+		case 2:
+		case 34:
+		case 130:
+		case 162:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = Interp2(c5, c6, c8);
 			break;
-		}
-		case 0x2:
-		case 0x3:
-		case 0xa:
-		case 0xb:
-		case 0x22:
-		case 0x23:
-		case 0x2a:
-		case 0x2b:
-		case 0x42:
-		case 0x43:
-		case 0x4a:
-		case 0x4b:
-		case 0x62:
-		case 0x63:
-		case 0x6a:
-		case 0x6b:
-		case 0x82:
-		case 0x83:
-		case 0x8a:
-		case 0x8b:
-		case 0xa2:
-		case 0xa3:
-		case 0xaa:
-		case 0xab:
-		case 0xc2:
-		case 0xc3:
-		case 0xca:
-		case 0xcb:
-		case 0xe2:
-		case 0xe3:
-		case 0xea:
-		case 0xeb:
-		{
-			pixel = Interp2(c5, c3, c6);
-			break;
-		}
-		case 0x13:
-		case 0x33:
-		case 0x92:
-		case 0xb2:
-		{
-			if (edge(c2, c6)) {
-				pixel = Interp1(c5, c3);
-			} else {
-				pixel = Interp9(c5, c2, c6);
-			}
-			break;
-		}
-		case 0x3a:
-		case 0x3b:
-		case 0x53:
-		case 0x5a:
-		case 0x5b:
-		case 0x72:
-		case 0x73:
-		case 0x7a:
-		case 0x93:
-		case 0x9a:
-		case 0xb3:
-		case 0xba:
-		case 0xda:
-		case 0xf2:
-		{
-			if (edge(c2, c6)) {
-				pixel = Interp1(c5, c3);
-			} else {
-				pixel = Interp7(c5, c2, c6);
-			}
-			break;
-		}
-		case 0x16:
-		case 0x1a:
-		case 0x1e:
-		case 0x1f:
-		case 0x36:
-		case 0x3e:
-		case 0x3f:
-		case 0x52:
-		case 0x56:
-		case 0x57:
-		case 0x5e:
-		case 0x5f:
-		case 0x76:
-		case 0x7e:
-		case 0x7f:
-		case 0x9e:
-		case 0xd6:
-		case 0xde:
-		case 0xf6:
-		case 0xfe:
-		{
-			if (edge(c2, c6)) {
-				pixel = c5;
-			} else {
-				pixel = Interp2(c5, c2, c6);
-			}
-			break;
-		}
-		case 0x14:
-		case 0x15:
-		case 0x1c:
-		case 0x1d:
-		case 0x34:
-		case 0x35:
-		case 0x3c:
-		case 0x3d:
-		case 0x5c:
-		case 0x5d:
-		case 0x74:
-		case 0x75:
-		case 0x7c:
-		case 0x7d:
-		case 0x94:
-		case 0x95:
-		case 0x9c:
-		case 0x9d:
-		case 0xb4:
-		case 0xb5:
-		case 0xbc:
-		case 0xbd:
-		case 0xdc:
-		case 0xf4:
-		case 0xf5:
-		case 0xfc:
-		case 0xfd:
-		{
-			pixel = Interp1(c5, c2);
-			break;
-		}
-		case 0x54:
-		case 0x55:
-		case 0xd4:
-		case 0xd5:
-		case 0xdd:
-		{
-			if (edge(c6, c8)) {
-				pixel = Interp1(c5, c2);
-			} else {
-				pixel = Interp6(c5, c6, c2);
-			}
-			break;
-		}
-		case 0x1b:
-		case 0x7b:
-		case 0x9b:
-		case 0xbb:
-		case 0xd2:
-		case 0xd3:
-		case 0xdb:
-		case 0xf3:
-		case 0xfa:
-		case 0xfb:
-		{
-			pixel = Interp1(c5, c3);
-			break;
-		}
-		case 0xe:
-		case 0xf:
-		case 0x8e:
-		case 0x8f:
-		case 0xcf:
-		{
-			if (edge(c4, c2)) {
-				pixel = Interp1(c5, c6);
-			} else {
-				pixel = Interp6(c5, c2, c6);
-			}
-			break;
-		}
-		case 0x0:
-		case 0x1:
-		case 0x4:
-		case 0x5:
-		case 0x8:
-		case 0x9:
-		case 0xc:
-		case 0xd:
-		case 0x20:
-		case 0x21:
-		case 0x24:
-		case 0x25:
-		case 0x28:
-		case 0x29:
-		case 0x2c:
-		case 0x2d:
-		case 0x40:
-		case 0x41:
-		case 0x44:
-		case 0x45:
-		case 0x48:
-		case 0x49:
-		case 0x4c:
-		case 0x4d:
-		case 0x60:
-		case 0x61:
-		case 0x64:
-		case 0x65:
-		case 0x68:
-		case 0x69:
-		case 0x6c:
-		case 0x6d:
-		case 0x80:
-		case 0x81:
-		case 0x84:
-		case 0x85:
-		case 0x88:
-		case 0x89:
-		case 0x8c:
-		case 0x8d:
-		case 0xa0:
-		case 0xa1:
-		case 0xa4:
-		case 0xa5:
-		case 0xa8:
-		case 0xa9:
-		case 0xac:
-		case 0xad:
-		case 0xc0:
-		case 0xc1:
-		case 0xc4:
-		case 0xc5:
-		case 0xc8:
-		case 0xc9:
-		case 0xcc:
-		case 0xcd:
-		case 0xe0:
-		case 0xe1:
-		case 0xe4:
-		case 0xe5:
-		case 0xe8:
-		case 0xe9:
-		case 0xec:
-		case 0xed:
-		{
-			pixel = Interp2(c5, c2, c6);
-			break;
-		}
-		case 0x97:
-		case 0x9f:
-		case 0xb7:
-		case 0xbf:
-		case 0xd7:
-		case 0xdf:
-		case 0xf7:
-		case 0xff:
-		{
-			if (edge(c2, c6)) {
-				pixel = c5;
-			} else {
-				pixel = Interp10(c5, c2, c6);
-			}
-			break;
-		}
-		case 0x6:
-		case 0x7:
-		case 0x26:
-		case 0x27:
-		case 0x2e:
-		case 0x2f:
-		case 0x46:
-		case 0x47:
-		case 0x4e:
-		case 0x4f:
-		case 0x66:
-		case 0x67:
-		case 0x6e:
-		case 0x6f:
-		case 0x86:
-		case 0x87:
-		case 0xa6:
-		case 0xa7:
-		case 0xae:
-		case 0xaf:
-		case 0xc6:
-		case 0xc7:
-		case 0xce:
-		case 0xe6:
-		case 0xe7:
-		case 0xee:
-		case 0xef:
-		{
-			pixel = Interp1(c5, c6);
-			break;
-		}
-		case 0x10:
-		case 0x11:
-		case 0x18:
-		case 0x19:
-		case 0x30:
-		case 0x31:
-		case 0x38:
-		case 0x39:
-		case 0x50:
-		case 0x51:
-		case 0x58:
-		case 0x59:
-		case 0x70:
-		case 0x71:
-		case 0x78:
-		case 0x79:
-		case 0x90:
-		case 0x91:
-		case 0x98:
-		case 0x99:
-		case 0xb0:
-		case 0xb1:
-		case 0xb8:
-		case 0xb9:
-		case 0xd0:
-		case 0xd1:
-		case 0xd8:
-		case 0xd9:
-		case 0xf0:
-		case 0xf1:
-		case 0xf8:
-		case 0xf9:
-		{
-			pixel = Interp2(c5, c3, c2);
-			break;
-		}
-		case 0x12:
-		case 0x32:
-		{
-			if (edge(c2, c6)) {
-				pixel = Interp1(c5, c3);
-			} else {
-				pixel = Interp2(c5, c2, c6);
-			}
-			break;
-		}
-		}
-		pset(pOut + 1, pixel);
 
-		switch (pattern) {
-		case 0x2a:
-		case 0x2b:
-		case 0xaa:
-		case 0xab:
-		case 0xbb:
-		{
-			if (edge(c4, c2)) {
-				pixel = Interp1(c5, c8);
-			} else {
-				pixel = Interp6(c5, c4, c8);
-			}
+		case 16:
+		case 17:
+		case 48:
+		case 49:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = Interp2(c5, c9, c8);
 			break;
-		}
-		case 0x40:
-		case 0x41:
-		case 0x42:
-		case 0x43:
-		case 0x44:
-		case 0x45:
-		case 0x46:
-		case 0x47:
-		case 0x50:
-		case 0x51:
-		case 0x52:
-		case 0x53:
-		case 0x54:
-		case 0x55:
-		case 0x56:
-		case 0x57:
-		case 0xc0:
-		case 0xc1:
-		case 0xc2:
-		case 0xc3:
-		case 0xc4:
-		case 0xc5:
-		case 0xc6:
-		case 0xc7:
-		case 0xd0:
-		case 0xd1:
-		case 0xd2:
-		case 0xd3:
-		case 0xd4:
-		case 0xd5:
-		case 0xd6:
-		case 0xd7:
-		{
-			pixel = Interp2(c5, c7, c4);
-			break;
-		}
-		case 0x48:
-		case 0x4c:
-		{
-			if (edge(c8, c4)) {
-				pixel = Interp1(c5, c7);
-			} else {
-				pixel = Interp2(c5, c8, c4);
-			}
-			break;
-		}
-		case 0xe9:
-		case 0xeb:
-		case 0xed:
-		case 0xef:
-		case 0xf9:
-		case 0xfb:
-		case 0xfd:
-		case 0xff:
-		{
-			if (edge(c8, c4)) {
-				pixel = c5;
-			} else {
-				pixel = Interp10(c5, c8, c4);
-			}
-			break;
-		}
-		case 0x69:
-		case 0x6d:
-		case 0x7d:
-		case 0xe8:
-		case 0xec:
-		case 0xee:
-		{
-			if (edge(c8, c4)) {
-				pixel = c5;
-			} else {
-				pixel = Interp9(c5, c8, c4);
-			}
-			break;
-		}
-		case 0x28:
-		case 0x29:
-		case 0x2c:
-		case 0x2d:
-		case 0x2e:
-		case 0x2f:
-		case 0x38:
-		case 0x39:
-		case 0x3a:
-		case 0x3b:
-		case 0x3c:
-		case 0x3d:
-		case 0x3e:
-		case 0x3f:
-		case 0xa8:
-		case 0xa9:
-		case 0xac:
-		case 0xad:
-		case 0xae:
-		case 0xaf:
-		case 0xb8:
-		case 0xb9:
-		case 0xba:
-		case 0xbc:
-		case 0xbd:
-		case 0xbe:
-		case 0xbf:
-		{
-			pixel = Interp1(c5, c8);
-			break;
-		}
-		case 0x4b:
-		case 0x5f:
-		case 0xcb:
-		case 0xcf:
-		case 0xd8:
-		case 0xd9:
-		case 0xdb:
-		case 0xdd:
-		case 0xde:
-		case 0xdf:
-		{
-			pixel = Interp1(c5, c7);
-			break;
-		}
-		case 0x0:
-		case 0x1:
-		case 0x2:
-		case 0x3:
-		case 0x4:
-		case 0x5:
-		case 0x6:
-		case 0x7:
-		case 0x10:
-		case 0x11:
-		case 0x12:
-		case 0x13:
-		case 0x14:
-		case 0x15:
-		case 0x16:
-		case 0x17:
-		case 0x20:
-		case 0x21:
-		case 0x22:
-		case 0x23:
-		case 0x24:
-		case 0x25:
-		case 0x26:
-		case 0x27:
-		case 0x30:
-		case 0x31:
-		case 0x32:
-		case 0x33:
-		case 0x34:
-		case 0x35:
-		case 0x36:
-		case 0x37:
-		case 0x80:
-		case 0x81:
-		case 0x82:
-		case 0x83:
-		case 0x84:
-		case 0x85:
-		case 0x86:
-		case 0x87:
-		case 0x90:
-		case 0x91:
-		case 0x92:
-		case 0x93:
-		case 0x94:
-		case 0x95:
-		case 0x96:
-		case 0x97:
-		case 0xa0:
-		case 0xa1:
-		case 0xa2:
-		case 0xa3:
-		case 0xa4:
-		case 0xa5:
-		case 0xa6:
-		case 0xa7:
-		case 0xb0:
-		case 0xb1:
-		case 0xb2:
-		case 0xb3:
-		case 0xb4:
-		case 0xb5:
-		case 0xb6:
-		case 0xb7:
-		{
-			pixel = Interp2(c5, c8, c4);
-			break;
-		}
-		case 0x60:
-		case 0x61:
-		case 0x62:
-		case 0x63:
-		case 0x64:
-		case 0x65:
-		case 0x66:
-		case 0x67:
-		case 0x72:
-		case 0x73:
-		case 0x74:
-		case 0x75:
-		case 0x76:
-		case 0x77:
-		case 0xe0:
-		case 0xe1:
-		case 0xe2:
-		case 0xe3:
-		case 0xe4:
-		case 0xe5:
-		case 0xe6:
-		case 0xe7:
-		case 0xf2:
-		case 0xf4:
-		case 0xf5:
-		case 0xf6:
-		case 0xf7:
-		{
-			pixel = Interp1(c5, c4);
-			break;
-		}
-		case 0x4a:
-		case 0x58:
-		case 0x68:
-		case 0x6a:
-		case 0x6b:
-		case 0x6c:
-		case 0x6e:
-		case 0x6f:
-		case 0x78:
-		case 0x79:
-		case 0x7a:
-		case 0x7b:
-		case 0x7c:
-		case 0x7e:
-		case 0x7f:
-		case 0xea:
-		case 0xf8:
-		case 0xfa:
-		case 0xfc:
-		case 0xfe:
-		{
-			if (edge(c8, c4)) {
-				pixel = c5;
-			} else {
-				pixel = Interp2(c5, c8, c4);
-			}
-			break;
-		}
-		case 0x8:
-		case 0x9:
-		case 0xa:
-		case 0xb:
-		case 0xc:
-		case 0xd:
-		case 0xe:
-		case 0xf:
-		case 0x18:
-		case 0x19:
-		case 0x1a:
-		case 0x1b:
-		case 0x1c:
-		case 0x1d:
-		case 0x1e:
-		case 0x1f:
-		case 0x88:
-		case 0x89:
-		case 0x8a:
-		case 0x8b:
-		case 0x8c:
-		case 0x8d:
-		case 0x8e:
-		case 0x8f:
-		case 0x98:
-		case 0x99:
-		case 0x9a:
-		case 0x9b:
-		case 0x9c:
-		case 0x9d:
-		case 0x9e:
-		case 0x9f:
-		{
-			pixel = Interp2(c5, c7, c8);
-			break;
-		}
-		case 0x4e:
-		case 0x4f:
-		case 0x59:
-		case 0x5a:
-		case 0x5b:
-		case 0x5c:
-		case 0x5d:
-		case 0x5e:
-		case 0xc9:
-		case 0xca:
-		case 0xcd:
-		case 0xce:
-		case 0xda:
-		case 0xdc:
-		{
-			if (edge(c8, c4)) {
-				pixel = Interp1(c5, c7);
-			} else {
-				pixel = Interp7(c5, c8, c4);
-			}
-			break;
-		}
-		case 0x70:
-		case 0x71:
-		case 0xf0:
-		case 0xf1:
-		case 0xf3:
-		{
-			if (edge(c6, c8)) {
-				pixel = Interp1(c5, c4);
-			} else {
-				pixel = Interp6(c5, c8, c4);
-			}
-			break;
-		}
-		case 0x49:
-		case 0x4d:
-		case 0xc8:
-		case 0xcc:
-		{
-			if (edge(c8, c4)) {
-				pixel = Interp1(c5, c7);
-			} else {
-				pixel = Interp9(c5, c8, c4);
-			}
-			break;
-		}
-		}
-		pset(pOut + dstPitch, pixel);
 
-		switch (pattern) {
-		case 0x10:
-		case 0x11:
-		case 0x12:
-		case 0x13:
-		case 0x14:
-		case 0x15:
-		case 0x16:
-		case 0x17:
-		case 0x18:
-		case 0x19:
-		case 0x1a:
-		case 0x1b:
-		case 0x1c:
-		case 0x1d:
-		case 0x1e:
-		case 0x1f:
-		case 0x30:
-		case 0x31:
-		case 0x32:
-		case 0x33:
-		case 0x34:
-		case 0x35:
-		case 0x36:
-		case 0x37:
-		case 0x38:
-		case 0x39:
-		case 0x3a:
-		case 0x3b:
-		case 0x3c:
-		case 0x3d:
-		case 0x3e:
-		case 0x3f:
-		{
-			pixel = Interp2(c5, c9, c8);
+		case 64:
+		case 65:
+		case 68:
+		case 69:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = Interp2(c5, c9, c6);
 			break;
-		}
-		case 0x53:
-		case 0x57:
-		case 0x59:
-		case 0x5a:
-		case 0x5b:
-		case 0x5c:
-		case 0x5d:
-		case 0x5e:
-		case 0x72:
-		case 0x73:
-		case 0x74:
-		case 0x75:
-		case 0x79:
-		case 0x7a:
-		{
-			if (edge(c6, c8)) {
-				pixel = Interp1(c5, c9);
-			} else {
-				pixel = Interp7(c5, c6, c8);
-			}
-			break;
-		}
-		case 0x54:
-		case 0x55:
-		case 0x70:
-		case 0x71:
-		{
-			if (edge(c6, c8)) {
-				pixel = Interp1(c5, c9);
-			} else {
-				pixel = Interp9(c5, c6, c8);
-			}
-			break;
-		}
-		case 0xc0:
-		case 0xc1:
-		case 0xc2:
-		case 0xc3:
-		case 0xc4:
-		case 0xc5:
-		case 0xc6:
-		case 0xc7:
-		case 0xc9:
-		case 0xca:
-		case 0xcb:
-		case 0xcd:
-		case 0xce:
-		case 0xcf:
-		case 0xe0:
-		case 0xe1:
-		case 0xe2:
-		case 0xe3:
-		case 0xe4:
-		case 0xe5:
-		case 0xe6:
-		case 0xe7:
-		case 0xe9:
-		case 0xea:
-		case 0xeb:
-		case 0xed:
-		case 0xef:
-		{
-			pixel = Interp1(c5, c6);
-			break;
-		}
-		case 0x56:
-		case 0x5f:
-		case 0x76:
-		case 0x77:
-		case 0x78:
-		case 0x7b:
-		case 0x7c:
-		case 0x7d:
-		case 0x7e:
-		case 0x7f:
-		{
-			pixel = Interp1(c5, c9);
-			break;
-		}
-		case 0xc8:
-		case 0xcc:
-		case 0xe8:
-		case 0xec:
-		case 0xee:
-		{
-			if (edge(c8, c4)) {
-				pixel = Interp1(c5, c6);
-			} else {
-				pixel = Interp6(c5, c8, c6);
-			}
-			break;
-		}
-		case 0xd4:
-		case 0xd5:
-		case 0xdd:
-		case 0xf0:
-		case 0xf1:
-		case 0xf3:
-		{
-			if (edge(c6, c8)) {
-				pixel = c5;
-			} else {
-				pixel = Interp9(c5, c6, c8);
-			}
-			break;
-		}
-		case 0x0:
-		case 0x1:
-		case 0x2:
-		case 0x3:
-		case 0x4:
-		case 0x5:
-		case 0x6:
-		case 0x7:
-		case 0x8:
-		case 0x9:
-		case 0xa:
-		case 0xb:
-		case 0xc:
-		case 0xd:
-		case 0xe:
-		case 0xf:
-		case 0x20:
-		case 0x21:
-		case 0x22:
-		case 0x23:
-		case 0x24:
-		case 0x25:
-		case 0x26:
-		case 0x27:
-		case 0x28:
-		case 0x29:
-		case 0x2a:
-		case 0x2b:
-		case 0x2c:
-		case 0x2d:
-		case 0x2e:
-		case 0x2f:
-		case 0x80:
-		case 0x81:
-		case 0x82:
-		case 0x83:
-		case 0x84:
-		case 0x85:
-		case 0x86:
-		case 0x87:
-		case 0x88:
-		case 0x89:
-		case 0x8a:
-		case 0x8b:
-		case 0x8c:
-		case 0x8d:
-		case 0x8e:
-		case 0x8f:
-		case 0xa0:
-		case 0xa1:
-		case 0xa2:
-		case 0xa3:
-		case 0xa4:
-		case 0xa5:
-		case 0xa6:
-		case 0xa7:
-		case 0xa8:
-		case 0xa9:
-		case 0xaa:
-		case 0xab:
-		case 0xac:
-		case 0xad:
-		case 0xae:
-		case 0xaf:
-		{
-			pixel = Interp2(c5, c6, c8);
-			break;
-		}
-		case 0x50:
-		case 0x51:
-		{
-			if (edge(c6, c8)) {
-				pixel = Interp1(c5, c9);
-			} else {
-				pixel = Interp2(c5, c6, c8);
-			}
-			break;
-		}
-		case 0x90:
-		case 0x91:
-		case 0x93:
-		case 0x94:
-		case 0x95:
-		case 0x97:
-		case 0x98:
-		case 0x99:
-		case 0x9a:
-		case 0x9b:
-		case 0x9c:
-		case 0x9d:
-		case 0x9e:
-		case 0x9f:
-		case 0xb0:
-		case 0xb1:
-		case 0xb3:
-		case 0xb4:
-		case 0xb5:
-		case 0xb7:
-		case 0xb8:
-		case 0xb9:
-		case 0xba:
-		case 0xbb:
-		case 0xbc:
-		case 0xbd:
-		case 0xbf:
-		{
-			pixel = Interp1(c5, c8);
-			break;
-		}
-		case 0x40:
-		case 0x41:
-		case 0x42:
-		case 0x43:
-		case 0x44:
-		case 0x45:
-		case 0x46:
-		case 0x47:
-		case 0x48:
-		case 0x49:
-		case 0x4a:
-		case 0x4b:
-		case 0x4c:
-		case 0x4d:
-		case 0x4e:
-		case 0x4f:
-		case 0x60:
-		case 0x61:
-		case 0x62:
-		case 0x63:
-		case 0x64:
-		case 0x65:
-		case 0x66:
-		case 0x67:
-		case 0x68:
-		case 0x69:
-		case 0x6a:
-		case 0x6b:
-		case 0x6c:
-		case 0x6d:
-		case 0x6e:
-		case 0x6f:
-		{
-			pixel = Interp2(c5, c9, c6);
-			break;
-		}
-		case 0x92:
-		case 0x96:
-		case 0xb2:
-		case 0xb6:
-		case 0xbe:
-		{
-			if (edge(c2, c6)) {
-				pixel = Interp1(c5, c8);
-			} else {
-				pixel = Interp6(c5, c6, c8);
-			}
-			break;
-		}
-		case 0xf4:
-		case 0xf5:
-		case 0xf6:
-		case 0xf7:
-		case 0xfc:
-		case 0xfd:
-		case 0xfe:
-		case 0xff:
-		{
-			if (edge(c6, c8)) {
-				pixel = c5;
-			} else {
-				pixel = Interp10(c5, c6, c8);
-			}
-			break;
-		}
-		case 0x52:
-		case 0x58:
-		case 0xd0:
-		case 0xd1:
-		case 0xd2:
-		case 0xd3:
-		case 0xd6:
-		case 0xd7:
-		case 0xd8:
-		case 0xd9:
-		case 0xda:
-		case 0xdb:
-		case 0xdc:
-		case 0xde:
-		case 0xdf:
-		case 0xf2:
-		case 0xf8:
-		case 0xf9:
-		case 0xfa:
-		case 0xfb:
-		{
-			if (edge(c6, c8)) {
-				pixel = c5;
-			} else {
-				pixel = Interp2(c5, c6, c8);
-			}
-			break;
-		}
-		}
-		pset(pOut + dstPitch + 1, pixel);
 
-		c1 = c2; c4 = c5; c7 = c8;
-		c2 = c3; c5 = c6; c8 = c9;
-		pIn += 1;
-		pOut += 2;
-	}
+		case 8:
+		case 12:
+		case 136:
+		case 140:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp2(c5, c6, c8);
+			break;
+
+		case 3:
+		case 35:
+		case 131:
+		case 163:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = Interp2(c5, c6, c8);
+			break;
+
+		case 6:
+		case 38:
+		case 134:
+		case 166:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = Interp2(c5, c6, c8);
+			break;
+
+		case 20:
+		case 21:
+		case 52:
+		case 53:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 144:
+		case 145:
+		case 176:
+		case 177:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 192:
+		case 193:
+		case 196:
+		case 197:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 96:
+		case 97:
+		case 100:
+		case 101:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 40:
+		case 44:
+		case 168:
+		case 172:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp2(c5, c6, c8);
+			break;
+
+		case 9:
+		case 13:
+		case 137:
+		case 141:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp2(c5, c6, c8);
+			break;
+
+		case 18:
+		case 50:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = edge(c2, c6) ? Interp1(c5, c3) : Interp2(c5, c2, c6);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 80:
+		case 81:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = edge(c6, c8) ? Interp1(c5, c9) : Interp2(c5, c6, c8);
+			break;
+
+		case 72:
+		case 76:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp2(c5, c8, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 10:
+		case 138:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp2(c5, c4, c2);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp2(c5, c6, c8);
+			break;
+
+		case 66:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 24:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 7:
+		case 39:
+		case 135:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = Interp2(c5, c6, c8);
+			break;
+
+		case 148:
+		case 149:
+		case 180:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 224:
+		case 228:
+		case 225:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 41:
+		case 169:
+		case 45:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp2(c5, c6, c8);
+			break;
+
+		case 22:
+		case 54:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = edge(c2, c6) ? c5 : Interp2(c5, c2, c6);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 208:
+		case 209:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp2(c5, c6, c8);
+			break;
+
+		case 104:
+		case 108:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 11:
+		case 139:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp2(c5, c6, c8);
+			break;
+
+		case 19:
+		case 51:
+			pixel1 = edge(c2, c6) ? Interp1(c5, c4) : Interp6(c5, c2, c4);
+			pixel2 = edge(c2, c6) ? Interp1(c5, c3) : Interp9(c5, c2, c6);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 146:
+		case 178:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = edge(c2, c6) ? Interp1(c5, c3) : Interp9(c5, c2, c6);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = edge(c2, c6) ? Interp1(c5, c8) : Interp6(c5, c6, c8);
+			break;
+
+		case 84:
+		case 85:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = edge(c6, c8) ? Interp1(c5, c2) : Interp6(c5, c6, c2);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = edge(c6, c8) ? Interp1(c5, c9) : Interp9(c5, c6, c8);
+			break;
+
+		case 112:
+		case 113:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = edge(c6, c8) ? Interp1(c5, c4) : Interp6(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? Interp1(c5, c9) : Interp9(c5, c6, c8);
+			break;
+
+		case 200:
+		case 204:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp9(c5, c8, c4);
+			pixel4 = edge(c8, c4) ? Interp1(c5, c6) : Interp6(c5, c8, c6);
+			break;
+
+		case 73:
+		case 77:
+			pixel1 = edge(c8, c4) ? Interp1(c5, c2) : Interp6(c5, c4, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp9(c5, c8, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 42:
+		case 170:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp9(c5, c4, c2);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = edge(c4, c2) ? Interp1(c5, c8) : Interp6(c5, c4, c8);
+			pixel4 = Interp2(c5, c6, c8);
+			break;
+
+		case 14:
+		case 142:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp9(c5, c4, c2);
+			pixel2 = edge(c4, c2) ? Interp1(c5, c6) : Interp6(c5, c2, c6);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp2(c5, c6, c8);
+			break;
+
+		case 67:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 70:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 28:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 152:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 194:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 98:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 56:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 25:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 26:
+		case 31:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? c5 : Interp2(c5, c2, c6);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 82:
+		case 214:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = edge(c2, c6) ? c5 : Interp2(c5, c2, c6);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp2(c5, c6, c8);
+			break;
+
+		case 88:
+		case 248:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp2(c5, c6, c8);
+			break;
+
+		case 74:
+		case 107:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 27:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel2 = Interp1(c5, c3);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 86:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = edge(c2, c6) ? c5 : Interp2(c5, c2, c6);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = Interp1(c5, c9);
+			break;
+
+		case 216:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = Interp1(c5, c7);
+			pixel4 = edge(c6, c8) ? c5 : Interp2(c5, c6, c8);
+			break;
+
+		case 106:
+			pixel1 = Interp1(c5, c1);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 30:
+			pixel1 = Interp1(c5, c1);
+			pixel2 = edge(c2, c6) ? c5 : Interp2(c5, c2, c6);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 210:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = Interp1(c5, c3);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp2(c5, c6, c8);
+			break;
+
+		case 120:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			pixel4 = Interp1(c5, c9);
+			break;
+
+		case 75:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = Interp1(c5, c7);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 29:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 198:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 184:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 99:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 57:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 71:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 156:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 226:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 60:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 195:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 102:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 153:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 58:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? Interp1(c5, c3) : Interp7(c5, c2, c6);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 83:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = edge(c2, c6) ? Interp1(c5, c3) : Interp7(c5, c2, c6);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = edge(c6, c8) ? Interp1(c5, c9) : Interp7(c5, c6, c8);
+			break;
+
+		case 92:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? Interp1(c5, c9) : Interp7(c5, c6, c8);
+			break;
+
+		case 202:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 78:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 154:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? Interp1(c5, c3) : Interp7(c5, c2, c6);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 114:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = edge(c2, c6) ? Interp1(c5, c3) : Interp7(c5, c2, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = edge(c6, c8) ? Interp1(c5, c9) : Interp7(c5, c6, c8);
+			break;
+
+		case 89:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? Interp1(c5, c9) : Interp7(c5, c6, c8);
+			break;
+
+		case 90:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? Interp1(c5, c3) : Interp7(c5, c2, c6);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? Interp1(c5, c9) : Interp7(c5, c6, c8);
+			break;
+
+		case 55:
+		case 23:
+			pixel1 = edge(c2, c6) ? Interp1(c5, c4) : Interp6(c5, c2, c4);
+			pixel2 = edge(c2, c6) ? c5 : Interp9(c5, c2, c6);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 182:
+		case 150:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = edge(c2, c6) ? c5 : Interp9(c5, c2, c6);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = edge(c2, c6) ? Interp1(c5, c8) : Interp6(c5, c6, c8);
+			break;
+
+		case 213:
+		case 212:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = edge(c6, c8) ? Interp1(c5, c2) : Interp6(c5, c6, c2);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp9(c5, c6, c8);
+			break;
+
+		case 241:
+		case 240:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = edge(c6, c8) ? Interp1(c5, c4) : Interp6(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp9(c5, c6, c8);
+			break;
+
+		case 236:
+		case 232:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = edge(c8, c4) ? c5 : Interp9(c5, c8, c4);
+			pixel4 = edge(c8, c4) ? Interp1(c5, c6) : Interp6(c5, c8, c6);
+			break;
+
+		case 109:
+		case 105:
+			pixel1 = edge(c8, c4) ? Interp1(c5, c2) : Interp6(c5, c4, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = edge(c8, c4) ? c5 : Interp9(c5, c8, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 171:
+		case 43:
+			pixel1 = edge(c4, c2) ? c5 : Interp9(c5, c4, c2);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = edge(c4, c2) ? Interp1(c5, c8) : Interp6(c5, c4, c8);
+			pixel4 = Interp2(c5, c6, c8);
+			break;
+
+		case 143:
+		case 15:
+			pixel1 = edge(c4, c2) ? c5 : Interp9(c5, c4, c2);
+			pixel2 = edge(c4, c2) ? Interp1(c5, c6) : Interp6(c5, c2, c6);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp2(c5, c6, c8);
+			break;
+
+		case 124:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			pixel4 = Interp1(c5, c9);
+			break;
+
+		case 203:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = Interp1(c5, c7);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 62:
+			pixel1 = Interp1(c5, c1);
+			pixel2 = edge(c2, c6) ? c5 : Interp2(c5, c2, c6);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 211:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = Interp1(c5, c3);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp2(c5, c6, c8);
+			break;
+
+		case 118:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = edge(c2, c6) ? c5 : Interp2(c5, c2, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = Interp1(c5, c9);
+			break;
+
+		case 217:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = Interp1(c5, c7);
+			pixel4 = edge(c6, c8) ? c5 : Interp2(c5, c6, c8);
+			break;
+
+		case 110:
+			pixel1 = Interp1(c5, c1);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 155:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel2 = Interp1(c5, c3);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 188:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 185:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 61:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 157:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 103:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 227:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 230:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 199:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 220:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp2(c5, c6, c8);
+			break;
+
+		case 158:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? c5 : Interp2(c5, c2, c6);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 234:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 242:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = edge(c2, c6) ? Interp1(c5, c3) : Interp7(c5, c2, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp2(c5, c6, c8);
+			break;
+
+		case 59:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? Interp1(c5, c3) : Interp7(c5, c2, c6);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 121:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? Interp1(c5, c9) : Interp7(c5, c6, c8);
+			break;
+
+		case 87:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = edge(c2, c6) ? c5 : Interp2(c5, c2, c6);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = edge(c6, c8) ? Interp1(c5, c9) : Interp7(c5, c6, c8);
+			break;
+
+		case 79:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 122:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? Interp1(c5, c3) : Interp7(c5, c2, c6);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? Interp1(c5, c9) : Interp7(c5, c6, c8);
+			break;
+
+		case 94:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? c5 : Interp2(c5, c2, c6);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? Interp1(c5, c9) : Interp7(c5, c6, c8);
+			break;
+
+		case 218:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? Interp1(c5, c3) : Interp7(c5, c2, c6);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp2(c5, c6, c8);
+			break;
+
+		case 91:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? Interp1(c5, c3) : Interp7(c5, c2, c6);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? Interp1(c5, c9) : Interp7(c5, c6, c8);
+			break;
+
+		case 229:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 167:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = Interp2(c5, c6, c8);
+			break;
+
+		case 173:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp2(c5, c6, c8);
+			break;
+
+		case 181:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 186:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? Interp1(c5, c3) : Interp7(c5, c2, c6);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 115:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = edge(c2, c6) ? Interp1(c5, c3) : Interp7(c5, c2, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = edge(c6, c8) ? Interp1(c5, c9) : Interp7(c5, c6, c8);
+			break;
+
+		case 93:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? Interp1(c5, c9) : Interp7(c5, c6, c8);
+			break;
+
+		case 206:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 205:
+		case 201:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 174:
+		case 46:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp2(c5, c6, c8);
+			break;
+
+		case 179:
+		case 147:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = edge(c2, c6) ? Interp1(c5, c3) : Interp7(c5, c2, c6);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 117:
+		case 116:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = edge(c6, c8) ? Interp1(c5, c9) : Interp7(c5, c6, c8);
+			break;
+
+		case 189:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 231:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 126:
+			pixel1 = Interp1(c5, c1);
+			pixel2 = edge(c2, c6) ? c5 : Interp2(c5, c2, c6);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			pixel4 = Interp1(c5, c9);
+			break;
+
+		case 219:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel2 = Interp1(c5, c3);
+			pixel3 = Interp1(c5, c7);
+			pixel4 = edge(c6, c8) ? c5 : Interp2(c5, c6, c8);
+			break;
+
+		case 125:
+			pixel1 = edge(c8, c4) ? Interp1(c5, c2) : Interp6(c5, c4, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp9(c5, c8, c4);
+			pixel4 = Interp1(c5, c9);
+			break;
+
+		case 221:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = edge(c6, c8) ? Interp1(c5, c2) : Interp6(c5, c6, c2);
+			pixel3 = Interp1(c5, c7);
+			pixel4 = edge(c6, c8) ? c5 : Interp9(c5, c6, c8);
+			break;
+
+		case 207:
+			pixel1 = edge(c4, c2) ? c5 : Interp9(c5, c4, c2);
+			pixel2 = edge(c4, c2) ? Interp1(c5, c6) : Interp6(c5, c2, c6);
+			pixel3 = Interp1(c5, c7);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 238:
+			pixel1 = Interp1(c5, c1);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = edge(c8, c4) ? c5 : Interp9(c5, c8, c4);
+			pixel4 = edge(c8, c4) ? Interp1(c5, c6) : Interp6(c5, c8, c6);
+			break;
+
+		case 190:
+			pixel1 = Interp1(c5, c1);
+			pixel2 = edge(c2, c6) ? c5 : Interp9(c5, c2, c6);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = edge(c2, c6) ? Interp1(c5, c8) : Interp6(c5, c6, c8);
+			break;
+
+		case 187:
+			pixel1 = edge(c4, c2) ? c5 : Interp9(c5, c4, c2);
+			pixel2 = Interp1(c5, c3);
+			pixel3 = edge(c4, c2) ? Interp1(c5, c8) : Interp6(c5, c4, c8);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 243:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = Interp1(c5, c3);
+			pixel3 = edge(c6, c8) ? Interp1(c5, c4) : Interp6(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp9(c5, c6, c8);
+			break;
+
+		case 119:
+			pixel1 = edge(c2, c6) ? Interp1(c5, c4) : Interp6(c5, c2, c4);
+			pixel2 = edge(c2, c6) ? c5 : Interp9(c5, c2, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = Interp1(c5, c9);
+			break;
+
+		case 237:
+		case 233:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp2(c5, c2, c6);
+			pixel3 = edge(c8, c4) ? c5 : Interp10(c5, c8, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 175:
+		case 47:
+			pixel1 = edge(c4, c2) ? c5 : Interp10(c5, c4, c2);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp2(c5, c6, c8);
+			break;
+
+		case 183:
+		case 151:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = edge(c2, c6) ? c5 : Interp10(c5, c2, c6);
+			pixel3 = Interp2(c5, c8, c4);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 245:
+		case 244:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp10(c5, c6, c8);
+			break;
+
+		case 250:
+			pixel1 = Interp1(c5, c1);
+			pixel2 = Interp1(c5, c3);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp2(c5, c6, c8);
+			break;
+
+		case 123:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel2 = Interp1(c5, c3);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			pixel4 = Interp1(c5, c9);
+			break;
+
+		case 95:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? c5 : Interp2(c5, c2, c6);
+			pixel3 = Interp1(c5, c7);
+			pixel4 = Interp1(c5, c9);
+			break;
+
+		case 222:
+			pixel1 = Interp1(c5, c1);
+			pixel2 = edge(c2, c6) ? c5 : Interp2(c5, c2, c6);
+			pixel3 = Interp1(c5, c7);
+			pixel4 = edge(c6, c8) ? c5 : Interp2(c5, c6, c8);
+			break;
+
+		case 252:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp10(c5, c6, c8);
+			break;
+
+		case 249:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp2(c5, c3, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp10(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp2(c5, c6, c8);
+			break;
+
+		case 235:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel2 = Interp2(c5, c3, c6);
+			pixel3 = edge(c8, c4) ? c5 : Interp10(c5, c8, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 111:
+			pixel1 = edge(c4, c2) ? c5 : Interp10(c5, c4, c2);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			pixel4 = Interp2(c5, c9, c6);
+			break;
+
+		case 63:
+			pixel1 = edge(c4, c2) ? c5 : Interp10(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? c5 : Interp2(c5, c2, c6);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp2(c5, c9, c8);
+			break;
+
+		case 159:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? c5 : Interp10(c5, c2, c6);
+			pixel3 = Interp2(c5, c7, c8);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 215:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = edge(c2, c6) ? c5 : Interp10(c5, c2, c6);
+			pixel3 = Interp2(c5, c7, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp2(c5, c6, c8);
+			break;
+
+		case 246:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel2 = edge(c2, c6) ? c5 : Interp2(c5, c2, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp10(c5, c6, c8);
+			break;
+
+		case 254:
+			pixel1 = Interp1(c5, c1);
+			pixel2 = edge(c2, c6) ? c5 : Interp2(c5, c2, c6);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp10(c5, c6, c8);
+			break;
+
+		case 253:
+			pixel1 = Interp1(c5, c2);
+			pixel2 = Interp1(c5, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp10(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp10(c5, c6, c8);
+			break;
+
+		case 251:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel2 = Interp1(c5, c3);
+			pixel3 = edge(c8, c4) ? c5 : Interp10(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp2(c5, c6, c8);
+			break;
+
+		case 239:
+			pixel1 = edge(c4, c2) ? c5 : Interp10(c5, c4, c2);
+			pixel2 = Interp1(c5, c6);
+			pixel3 = edge(c8, c4) ? c5 : Interp10(c5, c8, c4);
+			pixel4 = Interp1(c5, c6);
+			break;
+
+		case 127:
+			pixel1 = edge(c4, c2) ? c5 : Interp10(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? c5 : Interp2(c5, c2, c6);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			pixel4 = Interp1(c5, c9);
+			break;
+
+		case 191:
+			pixel1 = edge(c4, c2) ? c5 : Interp10(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? c5 : Interp10(c5, c2, c6);
+			pixel3 = Interp1(c5, c8);
+			pixel4 = Interp1(c5, c8);
+			break;
+
+		case 223:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? c5 : Interp10(c5, c2, c6);
+			pixel3 = Interp1(c5, c7);
+			pixel4 = edge(c6, c8) ? c5 : Interp2(c5, c6, c8);
+			break;
+
+		case 247:
+			pixel1 = Interp1(c5, c4);
+			pixel2 = edge(c2, c6) ? c5 : Interp10(c5, c2, c6);
+			pixel3 = Interp1(c5, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp10(c5, c6, c8);
+			break;
+
+		case 255:
+			pixel1 = edge(c4, c2) ? c5 : Interp10(c5, c4, c2);
+			pixel2 = edge(c2, c6) ? c5 : Interp10(c5, c2, c6);
+			pixel3 = edge(c8, c4) ? c5 : Interp10(c5, c8, c4);
+			pixel4 = edge(c6, c8) ? c5 : Interp10(c5, c6, c8);
+			break;
+
+		default:
+			assert(false);
+			pixel1 = pixel2 = pixel3 = pixel4 = 0; // avoid warning
+		}
+
+		pset(out,                pixel1);
+		pset(out + 1,            pixel2);
+		pset(out + dstPitch,     pixel3);
+		pset(out + dstPitch + 1, pixel4);
+
+		c1 = c2; c2 = c3; c4 = c5; c5 = c6; c7 = c8; c8 = c9;
+
+		in  += 1;
+		out += 2;
+	} 
 }
 
+
 template <class Pixel>
-void HQ2xScaler<Pixel>::scaleLine512(
+static void scaleLine512(
 	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY,
 	const int prevLine, const int nextLine )
 {
@@ -1609,7 +1427,7 @@ void HQ2xScaler<Pixel>::scaleLine512(
 	Pixel* pIn = (Pixel*)src->pixels + srcY * srcPitch;
 	Pixel* pOut = (Pixel*)dst->pixels + dstY * dstPitch;
 
-	Pix32 c1, c2, c3, c4, c5, c6, c7, c8, c9;
+	unsigned c1, c2, c3, c4, c5, c6, c7, c8, c9;
 
 	//   +----+----+----+
 	//   |    |    |    |
@@ -1648,703 +1466,921 @@ void HQ2xScaler<Pixel>::scaleLine512(
 		if (edge(c5, c8)) pattern |= 0x40;
 		if (edge(c5, c9)) pattern |= 0x80;
 
-		Pix32 pixel = 0; // avoid warning
-
+		unsigned pixel1, pixel3;
 		switch (pattern) {
-		case 0xe:
-		case 0x2a:
-		case 0x8e:
-		case 0xaa:
-		{
-			if (edge(c4, c2)) {
-				pixel = Interp1(c5, c1);
-			} else {
-				pixel = Interp9(c5, c4, c2);
-			}
+		case 0:
+		case 1:
+		case 4:
+		case 32:
+		case 128:
+		case 5:
+		case 132:
+		case 160:
+		case 33:
+		case 129:
+		case 36:
+		case 133:
+		case 164:
+		case 161:
+		case 37:
+		case 165:
+			// manually inline this case:
+			//   default inline heuristics of gcc don't inline this
+			//   code. But because this case is so common and
+			//   inlining really does improve speed, we manually
+			//   inline it.
+			//pixel1 = Interp2(c5, c4, c2);
+			//pixel3 = Interp2(c5, c8, c4);
+			pixel1 = (2 * c5 + c4 + c2) / 4;
+			pixel3 = (2 * c5 + c8 + c4) / 4;
 			break;
-		}
-		case 0x8:
-		case 0xc:
-		case 0x18:
-		case 0x1c:
-		case 0x28:
-		case 0x2c:
-		case 0x38:
-		case 0x3c:
-		case 0x48:
-		case 0x4c:
-		case 0x58:
-		case 0x5c:
-		case 0x68:
-		case 0x6c:
-		case 0x78:
-		case 0x7c:
-		case 0x88:
-		case 0x8c:
-		case 0x98:
-		case 0x9c:
-		case 0xa8:
-		case 0xac:
-		case 0xb8:
-		case 0xbc:
-		case 0xc8:
-		case 0xcc:
-		case 0xd8:
-		case 0xdc:
-		case 0xe8:
-		case 0xec:
-		case 0xf8:
-		case 0xfc:
-		{
-			pixel = Interp2(c5, c1, c2);
-			break;
-		}
-		case 0xb:
-		case 0x1a:
-		case 0x1b:
-		case 0x1f:
-		case 0x3b:
-		case 0x4a:
-		case 0x4b:
-		case 0x4f:
-		case 0x5b:
-		case 0x5f:
-		case 0x6b:
-		case 0x7b:
-		case 0x8b:
-		case 0x9b:
-		case 0x9f:
-		case 0xcb:
-		case 0xdb:
-		case 0xdf:
-		case 0xeb:
-		case 0xfb:
-		{
-			if (edge(c4, c2)) {
-				pixel = c5;
-			} else {
-				pixel = Interp2(c5, c4, c2);
-			}
-			break;
-		}
-		case 0x2e:
-		case 0x3a:
-		case 0x4e:
-		case 0x5a:
-		case 0x5e:
-		case 0x7a:
-		case 0x9a:
-		case 0x9e:
-		case 0xae:
-		case 0xba:
-		case 0xca:
-		case 0xce:
-		case 0xda:
-		case 0xea:
-		{
-			if (edge(c4, c2)) {
-				pixel = Interp1(c5, c1);
-			} else {
-				pixel = Interp7(c5, c4, c2);
-			}
-			break;
-		}
-		case 0xf:
-		case 0x2b:
-		case 0x8f:
-		case 0xab:
-		case 0xbb:
-		case 0xcf:
-		{
-			if (edge(c4, c2)) {
-				pixel = c5;
-			} else {
-				pixel = Interp9(c5, c4, c2);
-			}
-			break;
-		}
-		case 0x3:
-		case 0x7:
-		case 0x23:
-		case 0x27:
-		case 0x43:
-		case 0x47:
-		case 0x53:
-		case 0x57:
-		case 0x63:
-		case 0x67:
-		case 0x73:
-		case 0x83:
-		case 0x87:
-		case 0x93:
-		case 0x97:
-		case 0xa3:
-		case 0xa7:
-		case 0xb3:
-		case 0xb7:
-		case 0xc3:
-		case 0xc7:
-		case 0xd3:
-		case 0xd7:
-		case 0xe3:
-		case 0xe7:
-		case 0xf3:
-		case 0xf7:
-		{
-			pixel = Interp1(c5, c4);
-			break;
-		}
-		case 0x1e:
-		case 0x3e:
-		case 0x6a:
-		case 0x6e:
-		case 0x7e:
-		case 0xbe:
-		case 0xde:
-		case 0xee:
-		case 0xfa:
-		case 0xfe:
-		{
-			pixel = Interp1(c5, c1);
-			break;
-		}
-		case 0x49:
-		case 0x4d:
-		case 0x69:
-		case 0x6d:
-		case 0x7d:
-		{
-			if (edge(c8, c4)) {
-				pixel = Interp1(c5, c2);
-			} else {
-				pixel = Interp6(c5, c4, c2);
-			}
-			break;
-		}
-		case 0x0:
-		case 0x1:
-		case 0x4:
-		case 0x5:
-		case 0x10:
-		case 0x11:
-		case 0x14:
-		case 0x15:
-		case 0x20:
-		case 0x21:
-		case 0x24:
-		case 0x25:
-		case 0x30:
-		case 0x31:
-		case 0x34:
-		case 0x35:
-		case 0x40:
-		case 0x41:
-		case 0x44:
-		case 0x45:
-		case 0x50:
-		case 0x51:
-		case 0x54:
-		case 0x55:
-		case 0x60:
-		case 0x61:
-		case 0x64:
-		case 0x65:
-		case 0x70:
-		case 0x71:
-		case 0x74:
-		case 0x75:
-		case 0x80:
-		case 0x81:
-		case 0x84:
-		case 0x85:
-		case 0x90:
-		case 0x91:
-		case 0x94:
-		case 0x95:
-		case 0xa0:
-		case 0xa1:
-		case 0xa4:
-		case 0xa5:
-		case 0xb0:
-		case 0xb1:
-		case 0xb4:
-		case 0xb5:
-		case 0xc0:
-		case 0xc1:
-		case 0xc4:
-		case 0xc5:
-		case 0xd0:
-		case 0xd1:
-		case 0xd4:
-		case 0xd5:
-		case 0xe0:
-		case 0xe1:
-		case 0xe4:
-		case 0xe5:
-		case 0xf0:
-		case 0xf1:
-		case 0xf4:
-		case 0xf5:
-		{
-			pixel = Interp2(c5, c4, c2);
-			break;
-		}
-		case 0x9:
-		case 0xd:
-		case 0x19:
-		case 0x1d:
-		case 0x29:
-		case 0x2d:
-		case 0x39:
-		case 0x3d:
-		case 0x59:
-		case 0x5d:
-		case 0x79:
-		case 0x89:
-		case 0x8d:
-		case 0x99:
-		case 0x9d:
-		case 0xa9:
-		case 0xad:
-		case 0xb9:
-		case 0xbd:
-		case 0xc9:
-		case 0xcd:
-		case 0xd9:
-		case 0xdd:
-		case 0xe9:
-		case 0xed:
-		case 0xf9:
-		case 0xfd:
-		{
-			pixel = Interp1(c5, c2);
-			break;
-		}
-		case 0x2f:
-		case 0x3f:
-		case 0x6f:
-		case 0x7f:
-		case 0xaf:
-		case 0xbf:
-		case 0xef:
-		case 0xff:
-		{
-			if (edge(c4, c2)) {
-				pixel = c5;
-			} else {
-				pixel = Interp10(c5, c4, c2);
-			}
-			break;
-		}
-		case 0x2:
-		case 0x6:
-		case 0x12:
-		case 0x16:
-		case 0x22:
-		case 0x26:
-		case 0x32:
-		case 0x36:
-		case 0x42:
-		case 0x46:
-		case 0x52:
-		case 0x56:
-		case 0x62:
-		case 0x66:
-		case 0x72:
-		case 0x76:
-		case 0x82:
-		case 0x86:
-		case 0x92:
-		case 0x96:
-		case 0xa2:
-		case 0xa6:
-		case 0xb2:
-		case 0xb6:
-		case 0xc2:
-		case 0xc6:
-		case 0xd2:
-		case 0xd6:
-		case 0xe2:
-		case 0xe6:
-		case 0xf2:
-		case 0xf6:
-		{
-			pixel = Interp2(c5, c1, c4);
-			break;
-		}
-		case 0xa:
-		case 0x8a:
-		{
-			if (edge(c4, c2)) {
-				pixel = Interp1(c5, c1);
-			} else {
-				pixel = Interp2(c5, c4, c2);
-			}
-			break;
-		}
-		case 0x13:
-		case 0x17:
-		case 0x33:
-		case 0x37:
-		case 0x77:
-		{
-			if (edge(c2, c6)) {
-				pixel = Interp1(c5, c4);
-			} else {
-				pixel = Interp6(c5, c2, c4);
-			}
-			break;
-		}
-		}
-		pset(pOut, pixel);
 
-		switch (pattern) {
-		case 0x2a:
-		case 0x2b:
-		case 0xaa:
-		case 0xab:
-		case 0xbb:
-		{
-			if (edge(c4, c2)) {
-				pixel = Interp1(c5, c8);
-			} else {
-				pixel = Interp6(c5, c4, c8);
-			}
+		case 2:
+		case 34:
+		case 130:
+		case 162:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp2(c5, c8, c4);
 			break;
-		}
-		case 0x40:
-		case 0x41:
-		case 0x42:
-		case 0x43:
-		case 0x44:
-		case 0x45:
-		case 0x46:
-		case 0x47:
-		case 0x50:
-		case 0x51:
-		case 0x52:
-		case 0x53:
-		case 0x54:
-		case 0x55:
-		case 0x56:
-		case 0x57:
-		case 0xc0:
-		case 0xc1:
-		case 0xc2:
-		case 0xc3:
-		case 0xc4:
-		case 0xc5:
-		case 0xc6:
-		case 0xc7:
-		case 0xd0:
-		case 0xd1:
-		case 0xd2:
-		case 0xd3:
-		case 0xd4:
-		case 0xd5:
-		case 0xd6:
-		case 0xd7:
-		{
-			pixel = Interp2(c5, c7, c4);
+
+		case 16:
+		case 17:
+		case 48:
+		case 49:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = Interp2(c5, c8, c4);
 			break;
-		}
-		case 0x48:
-		case 0x4c:
-		{
-			if (edge(c8, c4)) {
-				pixel = Interp1(c5, c7);
-			} else {
-				pixel = Interp2(c5, c8, c4);
-			}
+
+		case 64:
+		case 65:
+		case 68:
+		case 69:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = Interp2(c5, c7, c4);
 			break;
-		}
-		case 0xe9:
-		case 0xeb:
-		case 0xed:
-		case 0xef:
-		case 0xf9:
-		case 0xfb:
-		case 0xfd:
-		case 0xff:
-		{
-			if (edge(c8, c4)) {
-				pixel = c5;
-			} else {
-				pixel = Interp10(c5, c8, c4);
-			}
+
+		case 8:
+		case 12:
+		case 136:
+		case 140:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = Interp2(c5, c7, c8);
 			break;
-		}
-		case 0x69:
-		case 0x6d:
-		case 0x7d:
-		case 0xe8:
-		case 0xec:
-		case 0xee:
-		{
-			if (edge(c8, c4)) {
-				pixel = c5;
-			} else {
-				pixel = Interp9(c5, c8, c4);
-			}
+
+		case 3:
+		case 35:
+		case 131:
+		case 163:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp2(c5, c8, c4);
 			break;
-		}
-		case 0x28:
-		case 0x29:
-		case 0x2c:
-		case 0x2d:
-		case 0x2e:
-		case 0x2f:
-		case 0x38:
-		case 0x39:
-		case 0x3a:
-		case 0x3b:
-		case 0x3c:
-		case 0x3d:
-		case 0x3e:
-		case 0x3f:
-		case 0xa8:
-		case 0xa9:
-		case 0xac:
-		case 0xad:
-		case 0xae:
-		case 0xaf:
-		case 0xb8:
-		case 0xb9:
-		case 0xba:
-		case 0xbc:
-		case 0xbd:
-		case 0xbe:
-		case 0xbf:
-		{
-			pixel = Interp1(c5, c8);
+
+		case 6:
+		case 38:
+		case 134:
+		case 166:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp2(c5, c8, c4);
 			break;
-		}
-		case 0x4b:
-		case 0x5f:
-		case 0xcb:
-		case 0xcf:
-		case 0xd8:
-		case 0xd9:
-		case 0xdb:
-		case 0xdd:
-		case 0xde:
-		case 0xdf:
-		{
-			pixel = Interp1(c5, c7);
+
+		case 20:
+		case 21:
+		case 52:
+		case 53:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = Interp2(c5, c8, c4);
 			break;
-		}
-		case 0x0:
-		case 0x1:
-		case 0x2:
-		case 0x3:
-		case 0x4:
-		case 0x5:
-		case 0x6:
-		case 0x7:
-		case 0x10:
-		case 0x11:
-		case 0x12:
-		case 0x13:
-		case 0x14:
-		case 0x15:
-		case 0x16:
-		case 0x17:
-		case 0x20:
-		case 0x21:
-		case 0x22:
-		case 0x23:
-		case 0x24:
-		case 0x25:
-		case 0x26:
-		case 0x27:
-		case 0x30:
-		case 0x31:
-		case 0x32:
-		case 0x33:
-		case 0x34:
-		case 0x35:
-		case 0x36:
-		case 0x37:
-		case 0x80:
-		case 0x81:
-		case 0x82:
-		case 0x83:
-		case 0x84:
-		case 0x85:
-		case 0x86:
-		case 0x87:
-		case 0x90:
-		case 0x91:
-		case 0x92:
-		case 0x93:
-		case 0x94:
-		case 0x95:
-		case 0x96:
-		case 0x97:
-		case 0xa0:
-		case 0xa1:
-		case 0xa2:
-		case 0xa3:
-		case 0xa4:
-		case 0xa5:
-		case 0xa6:
-		case 0xa7:
-		case 0xb0:
-		case 0xb1:
-		case 0xb2:
-		case 0xb3:
-		case 0xb4:
-		case 0xb5:
-		case 0xb6:
-		case 0xb7:
-		{
-			pixel = Interp2(c5, c8, c4);
+
+		case 144:
+		case 145:
+		case 176:
+		case 177:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = Interp2(c5, c8, c4);
 			break;
-		}
-		case 0x60:
-		case 0x61:
-		case 0x62:
-		case 0x63:
-		case 0x64:
-		case 0x65:
-		case 0x66:
-		case 0x67:
-		case 0x72:
-		case 0x73:
-		case 0x74:
-		case 0x75:
-		case 0x76:
-		case 0x77:
-		case 0xe0:
-		case 0xe1:
-		case 0xe2:
-		case 0xe3:
-		case 0xe4:
-		case 0xe5:
-		case 0xe6:
-		case 0xe7:
-		case 0xf2:
-		case 0xf4:
-		case 0xf5:
-		case 0xf6:
-		case 0xf7:
-		{
-			pixel = Interp1(c5, c4);
+
+		case 192:
+		case 193:
+		case 196:
+		case 197:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = Interp2(c5, c7, c4);
 			break;
-		}
-		case 0x4a:
-		case 0x58:
-		case 0x68:
-		case 0x6a:
-		case 0x6b:
-		case 0x6c:
-		case 0x6e:
-		case 0x6f:
-		case 0x78:
-		case 0x79:
-		case 0x7a:
-		case 0x7b:
-		case 0x7c:
-		case 0x7e:
-		case 0x7f:
-		case 0xea:
-		case 0xf8:
-		case 0xfa:
-		case 0xfc:
-		case 0xfe:
-		{
-			if (edge(c8, c4)) {
-				pixel = c5;
-			} else {
-				pixel = Interp2(c5, c8, c4);
-			}
+
+		case 96:
+		case 97:
+		case 100:
+		case 101:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = Interp1(c5, c4);
 			break;
-		}
-		case 0x8:
-		case 0x9:
-		case 0xa:
-		case 0xb:
-		case 0xc:
-		case 0xd:
-		case 0xe:
-		case 0xf:
-		case 0x18:
-		case 0x19:
-		case 0x1a:
-		case 0x1b:
-		case 0x1c:
-		case 0x1d:
-		case 0x1e:
-		case 0x1f:
-		case 0x88:
-		case 0x89:
-		case 0x8a:
-		case 0x8b:
-		case 0x8c:
-		case 0x8d:
-		case 0x8e:
-		case 0x8f:
-		case 0x98:
-		case 0x99:
-		case 0x9a:
-		case 0x9b:
-		case 0x9c:
-		case 0x9d:
-		case 0x9e:
-		case 0x9f:
-		{
-			pixel = Interp2(c5, c7, c8);
+
+		case 40:
+		case 44:
+		case 168:
+		case 172:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = Interp1(c5, c8);
 			break;
-		}
-		case 0x4e:
-		case 0x4f:
-		case 0x59:
-		case 0x5a:
-		case 0x5b:
-		case 0x5c:
-		case 0x5d:
-		case 0x5e:
-		case 0xc9:
-		case 0xca:
-		case 0xcd:
-		case 0xce:
-		case 0xda:
-		case 0xdc:
-		{
-			if (edge(c8, c4)) {
-				pixel = Interp1(c5, c7);
-			} else {
-				pixel = Interp7(c5, c8, c4);
-			}
+
+		case 9:
+		case 13:
+		case 137:
+		case 141:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = Interp2(c5, c7, c8);
 			break;
-		}
-		case 0x70:
-		case 0x71:
-		case 0xf0:
-		case 0xf1:
-		case 0xf3:
-		{
-			if (edge(c6, c8)) {
-				pixel = Interp1(c5, c4);
-			} else {
-				pixel = Interp6(c5, c8, c4);
-			}
+
+		case 18:
+		case 50:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp2(c5, c8, c4);
 			break;
-		}
-		case 0x49:
-		case 0x4d:
-		case 0xc8:
-		case 0xcc:
-		{
-			if (edge(c8, c4)) {
-				pixel = Interp1(c5, c7);
-			} else {
-				pixel = Interp9(c5, c8, c4);
-			}
+
+		case 80:
+		case 81:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = Interp2(c5, c7, c4);
 			break;
+
+		case 72:
+		case 76:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp2(c5, c8, c4);
+			break;
+
+		case 10:
+		case 138:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp2(c5, c4, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 66:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 24:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 7:
+		case 39:
+		case 135:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp2(c5, c8, c4);
+			break;
+
+		case 148:
+		case 149:
+		case 180:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = Interp2(c5, c8, c4);
+			break;
+
+		case 224:
+		case 228:
+		case 225:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 41:
+		case 169:
+		case 45:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 22:
+		case 54:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp2(c5, c8, c4);
+			break;
+
+		case 208:
+		case 209:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 104:
+		case 108:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			break;
+
+		case 11:
+		case 139:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 19:
+		case 51:
+			pixel1 = edge(c2, c6) ? Interp1(c5, c4) : Interp6(c5, c2, c4);
+			pixel3 = Interp2(c5, c8, c4);
+			break;
+
+		case 146:
+		case 178:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp2(c5, c8, c4);
+			break;
+
+		case 84:
+		case 85:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 112:
+		case 113:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = edge(c6, c8) ? Interp1(c5, c4) : Interp6(c5, c8, c4);
+			break;
+
+		case 200:
+		case 204:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp9(c5, c8, c4);
+			break;
+
+		case 73:
+		case 77:
+			pixel1 = edge(c8, c4) ? Interp1(c5, c2) : Interp6(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp9(c5, c8, c4);
+			break;
+
+		case 42:
+		case 170:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp9(c5, c4, c2);
+			pixel3 = edge(c4, c2) ? Interp1(c5, c8) : Interp6(c5, c4, c8);
+			break;
+
+		case 14:
+		case 142:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp9(c5, c4, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 67:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 70:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 28:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 152:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 194:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 98:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 56:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 25:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 26:
+		case 31:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 82:
+		case 214:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 88:
+		case 248:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			break;
+
+		case 74:
+		case 107:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			break;
+
+		case 27:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 86:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 216:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = Interp1(c5, c7);
+			break;
+
+		case 106:
+			pixel1 = Interp1(c5, c1);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			break;
+
+		case 30:
+			pixel1 = Interp1(c5, c1);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 210:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 120:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			break;
+
+		case 75:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel3 = Interp1(c5, c7);
+			break;
+
+		case 29:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 198:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 184:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 99:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 57:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 71:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 156:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 226:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 60:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 195:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 102:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 153:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 58:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 83:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 92:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			break;
+
+		case 202:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			break;
+
+		case 78:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			break;
+
+		case 154:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 114:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 89:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			break;
+
+		case 90:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			break;
+
+		case 55:
+		case 23:
+			pixel1 = edge(c2, c6) ? Interp1(c5, c4) : Interp6(c5, c2, c4);
+			pixel3 = Interp2(c5, c8, c4);
+			break;
+
+		case 182:
+		case 150:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp2(c5, c8, c4);
+			break;
+
+		case 213:
+		case 212:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 241:
+		case 240:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = edge(c6, c8) ? Interp1(c5, c4) : Interp6(c5, c8, c4);
+			break;
+
+		case 236:
+		case 232:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp9(c5, c8, c4);
+			break;
+
+		case 109:
+		case 105:
+			pixel1 = edge(c8, c4) ? Interp1(c5, c2) : Interp6(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp9(c5, c8, c4);
+			break;
+
+		case 171:
+		case 43:
+			pixel1 = edge(c4, c2) ? c5 : Interp9(c5, c4, c2);
+			pixel3 = edge(c4, c2) ? Interp1(c5, c8) : Interp6(c5, c4, c8);
+			break;
+
+		case 143:
+		case 15:
+			pixel1 = edge(c4, c2) ? c5 : Interp9(c5, c4, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 124:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			break;
+
+		case 203:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel3 = Interp1(c5, c7);
+			break;
+
+		case 62:
+			pixel1 = Interp1(c5, c1);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 211:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 118:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 217:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = Interp1(c5, c7);
+			break;
+
+		case 110:
+			pixel1 = Interp1(c5, c1);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			break;
+
+		case 155:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 188:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 185:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 61:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 157:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 103:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 227:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 230:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 199:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 220:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			break;
+
+		case 158:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 234:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			break;
+
+		case 242:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 59:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 121:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			break;
+
+		case 87:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 79:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			break;
+
+		case 122:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			break;
+
+		case 94:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			break;
+
+		case 218:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			break;
+
+		case 91:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			break;
+
+		case 229:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 167:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp2(c5, c8, c4);
+			break;
+
+		case 173:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 181:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = Interp2(c5, c8, c4);
+			break;
+
+		case 186:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 115:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 93:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			break;
+
+		case 206:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			break;
+
+		case 205:
+		case 201:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = edge(c8, c4) ? Interp1(c5, c7) : Interp7(c5, c8, c4);
+			break;
+
+		case 174:
+		case 46:
+			pixel1 = edge(c4, c2) ? Interp1(c5, c1) : Interp7(c5, c4, c2);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 179:
+		case 147:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp2(c5, c8, c4);
+			break;
+
+		case 117:
+		case 116:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 189:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 231:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 126:
+			pixel1 = Interp1(c5, c1);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			break;
+
+		case 219:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel3 = Interp1(c5, c7);
+			break;
+
+		case 125:
+			pixel1 = edge(c8, c4) ? Interp1(c5, c2) : Interp6(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp9(c5, c8, c4);
+			break;
+
+		case 221:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = Interp1(c5, c7);
+			break;
+
+		case 207:
+			pixel1 = edge(c4, c2) ? c5 : Interp9(c5, c4, c2);
+			pixel3 = Interp1(c5, c7);
+			break;
+
+		case 238:
+			pixel1 = Interp1(c5, c1);
+			pixel3 = edge(c8, c4) ? c5 : Interp9(c5, c8, c4);
+			break;
+
+		case 190:
+			pixel1 = Interp1(c5, c1);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 187:
+			pixel1 = edge(c4, c2) ? c5 : Interp9(c5, c4, c2);
+			pixel3 = edge(c4, c2) ? Interp1(c5, c8) : Interp6(c5, c4, c8);
+			break;
+
+		case 243:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = edge(c6, c8) ? Interp1(c5, c4) : Interp6(c5, c8, c4);
+			break;
+
+		case 119:
+			pixel1 = edge(c2, c6) ? Interp1(c5, c4) : Interp6(c5, c2, c4);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 237:
+		case 233:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp10(c5, c8, c4);
+			break;
+
+		case 175:
+		case 47:
+			pixel1 = edge(c4, c2) ? c5 : Interp10(c5, c4, c2);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 183:
+		case 151:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp2(c5, c8, c4);
+			break;
+
+		case 245:
+		case 244:
+			pixel1 = Interp2(c5, c4, c2);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 250:
+			pixel1 = Interp1(c5, c1);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			break;
+
+		case 123:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			break;
+
+		case 95:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel3 = Interp1(c5, c7);
+			break;
+
+		case 222:
+			pixel1 = Interp1(c5, c1);
+			pixel3 = Interp1(c5, c7);
+			break;
+
+		case 252:
+			pixel1 = Interp2(c5, c1, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			break;
+
+		case 249:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp10(c5, c8, c4);
+			break;
+
+		case 235:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp10(c5, c8, c4);
+			break;
+
+		case 111:
+			pixel1 = edge(c4, c2) ? c5 : Interp10(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			break;
+
+		case 63:
+			pixel1 = edge(c4, c2) ? c5 : Interp10(c5, c4, c2);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 159:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel3 = Interp2(c5, c7, c8);
+			break;
+
+		case 215:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp2(c5, c7, c4);
+			break;
+
+		case 246:
+			pixel1 = Interp2(c5, c1, c4);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 254:
+			pixel1 = Interp1(c5, c1);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			break;
+
+		case 253:
+			pixel1 = Interp1(c5, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp10(c5, c8, c4);
+			break;
+
+		case 251:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp10(c5, c8, c4);
+			break;
+
+		case 239:
+			pixel1 = edge(c4, c2) ? c5 : Interp10(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp10(c5, c8, c4);
+			break;
+
+		case 127:
+			pixel1 = edge(c4, c2) ? c5 : Interp10(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp2(c5, c8, c4);
+			break;
+
+		case 191:
+			pixel1 = edge(c4, c2) ? c5 : Interp10(c5, c4, c2);
+			pixel3 = Interp1(c5, c8);
+			break;
+
+		case 223:
+			pixel1 = edge(c4, c2) ? c5 : Interp2(c5, c4, c2);
+			pixel3 = Interp1(c5, c7);
+			break;
+
+		case 247:
+			pixel1 = Interp1(c5, c4);
+			pixel3 = Interp1(c5, c4);
+			break;
+
+		case 255:
+			pixel1 = edge(c4, c2) ? c5 : Interp10(c5, c4, c2);
+			pixel3 = edge(c8, c4) ? c5 : Interp10(c5, c8, c4);
+			break;
+
+		default:
+			assert(false);
+			pixel1 = pixel3 = 0; // avoid warning
 		}
-		}
-		pset(pOut + dstPitch, pixel);
+		pset(pOut,            pixel1);
+		pset(pOut + dstPitch, pixel3);
 
 		++pOut;
 	}
@@ -2357,18 +2393,18 @@ void HQ2xScaler<Pixel>::scale256(
 {
 	const int srcPitch = src->pitch / sizeof(Pixel);
 	assert(srcY < endSrcY);
-	scaleLine256(src, srcY, dst, dstY,
+	scaleLine256<Pixel>(src, srcY, dst, dstY,
 		0, srcY < endSrcY - 1 ? srcPitch : 0
 		);
 	srcY += 1;
 	dstY += 2;
 	while (srcY < endSrcY - 1) {
-		scaleLine256(src, srcY, dst, dstY, -srcPitch, srcPitch);
+		scaleLine256<Pixel>(src, srcY, dst, dstY, -srcPitch, srcPitch);
 		srcY += 1;
 		dstY += 2;
 	}
 	if (srcY < endSrcY) {
-		scaleLine256(src, srcY, dst, dstY, -srcPitch, 0);
+		scaleLine256<Pixel>(src, srcY, dst, dstY, -srcPitch, 0);
 	}
 }
 
@@ -2379,19 +2415,18 @@ void HQ2xScaler<Pixel>::scale512(
 {
 	const int srcPitch = src->pitch / sizeof(Pixel);
 	assert(srcY < endSrcY);
-	scaleLine512(src, srcY, dst, dstY,
+	scaleLine512<Pixel>(src, srcY, dst, dstY,
 	             0, srcY < endSrcY - 1 ? srcPitch : 0);
 	srcY += 1;
 	dstY += 2;
 	while (srcY < endSrcY - 1) {
-		scaleLine512(src, srcY, dst, dstY, -srcPitch, srcPitch);
+		scaleLine512<Pixel>(src, srcY, dst, dstY, -srcPitch, srcPitch);
 		srcY += 1;
 		dstY += 2;
 	}
 	if (srcY < endSrcY) {
-		scaleLine512(src, srcY, dst, dstY, -srcPitch, 0);
+		scaleLine512<Pixel>(src, srcY, dst, dstY, -srcPitch, 0);
 	}
 }
 
 } // namespace openmsx
-

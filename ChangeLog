@@ -1,5 +1,8 @@
 $Id$
 
+2005-03-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* HQ2xScaler speedup
+
 2005-03-05 Maarten ter Huurne <maarten@treewalker.org>
 	* Released openmsx-0.5.1.
 
