@@ -95,13 +95,15 @@ debug
 diska / diskb
 -------------
 
-  Insert a disk image in a virtual drive.
+  Insert a disk image in a virtual drive. Optionally apply a IPS patch to the
+  disk image.
   Note: the command-name is the same as the drive-name and the drive-name is
         configurable
 
   usage:
-    diska <disk image>  insert disk image in virtual drive "diska"
-    diska eject         remove disk from virtual drive "diska"
+    diska <disk image>        insert disk image in virtual drive "diska"
+    diska <disk image> <ips>  insert disk image and apply IPS patch
+    diska eject               remove disk from virtual drive "diska"
 
 
 escape_grab
