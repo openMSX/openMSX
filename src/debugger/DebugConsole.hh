@@ -53,7 +53,7 @@ private:
 	DebugConsole();
 	~DebugConsole();
 	void update(const SettingLeafNode *setting) throw ();
-	bool signalEvent(const SDL_Event& event) throw();
+	virtual bool signalEvent(const Event& event) throw();
 
 	map<unsigned, ViewStruct*> viewList;
 	vector<string> lines;
