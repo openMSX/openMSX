@@ -22,15 +22,17 @@ public:
 	/** Create a new DirtyChecker.
 	  * Initially every unit is considered dirty.
 	  * @param size The cache size in units.
+	  * @param name Name of VRAM Window checked by this DirtyChecker.
+	  * 	Used for debugging, will be removed in the future.
 	  */
 	DirtyChecker(int size, const char *name = "unknown");
 
 	virtual ~DirtyChecker();
 
 	/** Validates an entry in the cache:
-	  * return dirty flag and mark as not dirty.
+	  * return valid/dirty flag and mark as valid.
 	  * @param unitNr Number of unit in cache.
-	  * @return true iff this entry was dirty.
+	  * @return true iff this entry was valid.
 	  */
 	inline bool validate(int unitNr) {
 		assert(0 <= unitNr && unitNr < size);
