@@ -268,6 +268,7 @@ void SDLGLRenderer::putStoredImage()
 
 	// Render console if needed.
 	console->drawConsole();
+	debugger->drawConsole();
 
 	// Update screen.
 	SDL_GL_SwapBuffers();

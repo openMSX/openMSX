@@ -86,6 +86,7 @@ void SDLRenderer<Pixel, zoom>::putStoredImage()
 
 	// Render console if needed.
 	console->drawConsole();
+	debugger->drawConsole();
 
 	// Update screen.
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
