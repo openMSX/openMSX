@@ -188,10 +188,10 @@ byte Y8950Adpcm::readReg(byte rg)
 			break;
 		}
 		case 0x13: // TODO check
-			result = output & 0xff;
+			result = out & 0xff;
 			break;
 		case 0x14: // TODO check
-			result = output / 256;
+			result = out/256;
 			break;
 		default:
 			result = 255;
