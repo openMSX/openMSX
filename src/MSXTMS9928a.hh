@@ -21,6 +21,10 @@ struct osd_bitmap
 	int depth;                      /* bits per pixel */
 	byte *_private;         /* don't touch! - reserved for osdepend use */
 	byte  **line;           /* pointers to the start of each line */
+	// Here the differences from the MAME structure starts
+        int safety;
+	int safetx;
+
 };
 
 class MSXTMS9928a : public MSXDevice
@@ -44,6 +48,14 @@ class MSXTMS9928a : public MSXDevice
 		// void saveState(ofstream writestream);
 		// void restoreState(char *devicestring,ifstream readstream);
 	
+		void mode0(struct osd_bitmap*);
+		void mode1(struct osd_bitmap*);
+		void mode2(struct osd_bitmap*);
+		void mode12(struct osd_bitmap*);
+		void mode3(struct osd_bitmap*);
+		void modebogus(struct osd_bitmap*);
+		void mode23(struct osd_bitmap*);
+
 	private:
 		static int debugColor;		// debug
 		Emutime currentTime;
@@ -68,8 +80,8 @@ class MSXTMS9928a : public MSXDevice
           byte *DirtyColour, *DirtyName, *DirtyPattern;
         } tms;
         byte TMS9928A_vram_r();
+	
         unsigned int XPal[20];
-        int safety,safetx;
         void PutImage();
         struct osd_bitmap *bitmapscreen;
 
@@ -77,6 +89,7 @@ class MSXTMS9928a : public MSXDevice
         struct osd_bitmap* alloc_bitmap(int width,int height,int depth);
         void _TMS9928A_change_register (byte reg, byte val);
 
+	void fullScreenRefresh();
 	void full_border_fil();
 };
 #endif //___MSXTMS9928A_HH__

@@ -55,6 +55,14 @@
 ** nonsens. I'm chancing tactics I remove everything, that I don't need 
 ** then restart with alloc_bitmap, then try to craeate a simple window
 ** and finally import all mode functions one by one
+** 
+** 04/10/2001
+** Did correct own version of osd_bitmap and draw border when changing reg 7
+** 
+** 08/10/2001
+** Started converting the all in one approach as a atrter
+** Did correct blanking, mode0 renderer and some other stuff
+** 
 */
 
 #include <string>
@@ -126,21 +134,208 @@ static unsigned char TMS9928A_palette[16*3] =
 /*
 ** Forward declarations of internal functions.
 **
-**static void _TMS9928A_mode0 (struct osd_bitmap*);
-**static void _TMS9928A_mode1 (struct osd_bitmap*);
-**static void _TMS9928A_mode2 (struct osd_bitmap*);
-**static void _TMS9928A_mode12 (struct osd_bitmap*);
-**static void _TMS9928A_mode3 (struct osd_bitmap*);
-**static void _TMS9928A_mode23 (struct osd_bitmap*);
-**static void _TMS9928A_modebogus (struct osd_bitmap*);
 **static void _TMS9928A_sprites (struct osd_bitmap*);
 **static void _TMS9928A_change_register (int, UINT8);
 **static void _TMS9928A_set_dirty (char);
 **
-**static void (*ModeHandlers[])(struct osd_bitmap*) = {
-**        _TMS9928A_mode0, _TMS9928A_mode1, _TMS9928A_mode2,  _TMS9928A_mode12,
-**        _TMS9928A_mode3, _TMS9928A_modebogus, _TMS9928A_mode23,
-**        _TMS9928A_modebogus };
+*/
+
+// RENDERERS for one-pass rendering
+void MSXTMS9928a::mode0(struct osd_bitmap* bmp){
+
+  int pattern,x,y,yy,xx,name,charcode,colour;
+  byte fg,bg,*patternptr;
+
+  name = 0;
+  for (y=0;y<24;y++) {
+    for (x=0;x<32;x++) {
+      charcode = tms.vMem[tms.nametbl+name];
+      /*
+      if ( !(tms.DirtyName[name] || tms.DirtyPattern[charcode] ||
+	    tms.DirtyColour[charcode/64]) )
+	continue;
+      */
+      name++; // got the ++  out of previous line
+      patternptr = tms.vMem + tms.pattern + charcode*8;
+      colour = tms.vMem[tms.colour+charcode/8];
+      fg = XPal[colour / 16];
+      bg = XPal[colour & 15];
+      for (yy=0;yy<8;yy++) {
+	pattern=*patternptr++;
+	for (xx=0;xx<8;xx++) {
+	  plot_pixel (bmp, x*8+xx, y*8+yy,
+	      (pattern & 0x80) ? fg : bg);
+	      pattern *= 2;
+	}
+      }
+    }
+  }
+  // _TMS9928A_set_dirty (0);
+};
+
+void MSXTMS9928a::mode1(struct osd_bitmap* bmp){
+  int pattern,x,y,yy,xx,name,charcode;
+  byte fg,bg,*patternptr;
+
+  //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
+  //  return;
+
+  fg = XPal[tms.Regs[7] / 16];
+  bg = XPal[tms.Regs[7] & 15];
+
+  /* colours at sides must be reset */
+  /*if (tms.anyDirtyColour) {
+    rt.min_y = 0; rt.max_y = 191;
+    rt.min_x = 0; rt.max_x = 7;
+    fillbitmap (bmp, bg, &rt);
+    rt.min_y = 0; rt.max_y = 191;
+    rt.min_x = 248; rt.max_x = 255;
+    fillbitmap (bmp, bg, &rt);
+  } */
+
+  for (y=0;y<192;y++){
+    for (x=0;x<8;x++){
+	  plot_pixel (bmp, x, y,bg);
+	  plot_pixel (bmp, 255-x, y,bg);
+    }
+  }
+
+
+  name = 0;
+  for (y=0;y<24;y++) {
+    for (x=0;x<40;x++) {
+      charcode = tms.vMem[tms.nametbl+name];
+      /*if ( !(tms.DirtyName[name] || tms.DirtyPattern[charcode]) &&
+	  !tms.anyDirtyColour)
+	continue;
+       */
+      name++; // got the ++  out of previous line
+      patternptr = tms.vMem + tms.pattern + (charcode*8);
+      for (yy=0;yy<8;yy++) {
+	pattern = *patternptr++;
+	for (xx=0;xx<6;xx++) {
+	  plot_pixel (bmp, 8+x*6+xx, y*8+yy,
+	      (pattern & 0x80) ? fg : bg);
+	  pattern *= 2;
+	}
+      }
+    }
+  }
+  //_TMS9928A_set_dirty (0);
+};
+
+void MSXTMS9928a::mode2(struct osd_bitmap* bmp){
+  int colour,name,x,y,yy,pattern,xx,charcode;
+  byte fg,bg;
+  byte *colourptr,*patternptr;
+
+  //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
+  //  return;
+
+  name = 0;
+  for (y=0;y<24;y++) {
+    for (x=0;x<32;x++) {
+      charcode = tms.vMem[tms.nametbl+name]+(y/8)*256;
+      colour = (charcode&tms.colourmask);
+      pattern = (charcode&tms.patternmask);
+      /*
+	 if ( !(tms.DirtyName[name] || tms.DirtyPattern[pattern] ||
+	    tms.DirtyColour[colour]) )
+	    continue;
+       */
+      name++; // got the ++  out of previous line
+      patternptr = tms.vMem+tms.pattern+colour*8;
+      colourptr = tms.vMem+tms.colour+pattern*8;
+      for (yy=0;yy<8;yy++) {
+	pattern = *patternptr++;
+	colour = *colourptr++;
+	fg = XPal[colour / 16];
+	bg = XPal[colour & 15];
+	for (xx=0;xx<8;xx++) {
+	  plot_pixel (bmp, x*8+xx, y*8+yy,
+	      (pattern & 0x80) ? fg : bg);
+	  pattern *= 2;
+	}
+      }
+    }
+  }
+  //_TMS9928A_set_dirty (0);
+};
+
+void MSXTMS9928a::mode12(struct osd_bitmap* bmp){
+  int pattern,x,y,yy,xx,name,charcode;
+  byte fg,bg,*patternptr;
+
+  //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
+  //  return;
+
+  fg = XPal[tms.Regs[7] / 16];
+  bg = XPal[tms.Regs[7] & 15];
+
+    /* colours at sides must be reset */
+  /*
+  if (tms.anyDirtyColour) {
+    rt.min_y = 0; rt.max_y = 191;
+    rt.min_x = 0; rt.max_x = 7;
+    fillbitmap (bmp, bg, &rt);
+    rt.min_y = 0; rt.max_y = 191;
+    rt.min_x = 248; rt.max_x = 255;
+    fillbitmap (bmp, bg, &rt);
+  }
+  */
+  for (y=0;y<192;y++){
+    for (x=0;x<8;x++){
+	  plot_pixel (bmp, x, y,bg);
+	  plot_pixel (bmp, 255-x, y,bg);
+    }
+  }
+
+  name = 0;
+  for (y=0;y<24;y++) {
+    for (x=0;x<40;x++) {
+      charcode = (tms.vMem[tms.nametbl+name]+(y/8)*256)&tms.patternmask;
+      /*
+	if ( !(tms.DirtyName[name++] || tms.DirtyPattern[charcode]) &&
+	  !tms.anyDirtyColour)
+	continue;
+      */
+      name++; // got the ++  out of previous line
+      patternptr = tms.vMem + tms.pattern + (charcode*8);
+      for (yy=0;yy<8;yy++) {
+	pattern = *patternptr++;
+	for (xx=0;xx<6;xx++) {
+	  plot_pixel (bmp, 8+x*6+xx, y*8+yy,
+	      (pattern & 0x80) ? fg : bg);
+	  pattern *= 2;
+	}
+      }
+    }
+  }
+  //_TMS9928A_set_dirty (0);
+};
+void MSXTMS9928a::mode3(struct osd_bitmap*){PRT_DEBUG("Have to implement renderer for mode3")};
+void MSXTMS9928a::modebogus(struct osd_bitmap*){PRT_DEBUG("Have to implement renderer for modebogus")};
+void MSXTMS9928a::mode23(struct osd_bitmap*){PRT_DEBUG("Have to implement renderer for mode23")};
+
+/*
+void (*ModeHandlers[])(struct osd_bitmap*) = {
+        &MSXTMS9928a::mode0, &MSXTMS9928a::mode1, &MSXTMS9928a::mode2,  &MSXTMS9928a::mode12,
+        &MSXTMS9928a::mode3, &MSXTMS9928a::modebogus, &MSXTMS9928a::mode23,
+        &MSXTMS9928a::modebogus };
+*/
+
+/*
+typedef void (MSXTMS9928a::*moderoutines)(struct osd_bitmap*);
+moderoutines ModeHandlers[] = {
+        &MSXTMS9928a::mode0, &MSXTMS9928a::mode1, &MSXTMS9928a::mode2,  &MSXTMS9928a::mode12,
+        &MSXTMS9928a::mode3, &MSXTMS9928a::modebogus, &MSXTMS9928a::mode23,
+        &MSXTMS9928a::modebogus };
+*/
+
+/*void (*ModeHandlers[])(struct osd_bitmap*) = {
+        mode0, mode1, mode2,  mode12,
+        mode3, modebogus, mode23,
+        modebogus };
 */
 #define IMAGE_SIZE (256*192)        /* size of rendered image        */
 
@@ -308,7 +503,8 @@ void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 {
 	PRT_DEBUG("Executing TMS9928a");
 
-	//TODO:: Call full screen refresh
+	//TODO:: Change from full screen refresh to emutime based!!
+	fullScreenRefresh();
 	PutImage();
 	
 	//Next SP/interrupt in Pal mode here
@@ -452,7 +648,10 @@ void MSXTMS9928a::_TMS9928A_change_register (byte reg, byte val) {
     if (oldval == val) return;
     tms.Regs[reg] = val;
 
-    printf("TMS9928A: Reg %i = %02xh\n", (int)reg, (int)val);
+    PRT_DEBUG("TMS9928A: Reg " << (int)reg << " = " << (int)val);
+            PRT_DEBUG ("TMS9928A: now in mode " << tms.mode );
+            // Next lines causes crashes
+	    //PRT_DEBUG (sprintf("TMS9928A: %s\n", modes[tms.mode]));
     tms.Change = 1;
     switch (reg) {
     case 0:
@@ -469,7 +668,8 @@ void MSXTMS9928a::_TMS9928A_change_register (byte reg, byte val) {
                 tms.pattern = (tms.Regs[4] * 2048) & (tms.vramsize - 1);
             }
             tms.mode = TMS_MODE;
-            PRT_DEBUG (sprintf("TMS9928A: %s\n", modes[tms.mode]));
+            //PRT_DEBUG ("TMS9928A: now in mode " << tms.mode );
+            //PRT_DEBUG (sprintf("TMS9928A: %s\n", modes[tms.mode]));
             //_TMS9928A_set_dirty (1);
         }
         break;
@@ -483,7 +683,8 @@ void MSXTMS9928a::_TMS9928A_change_register (byte reg, byte val) {
         if (tms.mode != mode) {
             tms.mode = mode;
             //_TMS9928A_set_dirty (1);
-            PRT_DEBUG (sprintf("TMS9928A: %s\n", modes[tms.mode]));
+            printf("TMS9928A: %s\n", modes[tms.mode]);
+            //PRT_DEBUG (sprintf("TMS9928A: %s\n", modes[tms.mode]));
         }
         break;
     case 2:
@@ -530,23 +731,92 @@ void MSXTMS9928a::_TMS9928A_change_register (byte reg, byte val) {
 };
 
 
+void MSXTMS9928a::fullScreenRefresh()
+{
+    int c,i,j;
+
+    // Change background color from value if needed
+    // TODO: If color is drawn in color 0 then get correct color from register 7 
+    // instead of fidling with the entire color table. This is currently a 
+    // remaining thing from Sean all-in-one screen build method
+    if (tms.Change) {
+        c = tms.Regs[7] & 15; if (!c) c=1;
+        if (tms.BackColour != c) {
+            tms.BackColour = c;
+	    XPal[0]=SDL_MapRGB(screen->format,
+		    TMS9928A_palette[c*3],
+		    TMS9928A_palette[c*3 + 1],
+		    TMS9928A_palette[c*3 + 2]);
+	    //full_border_fil(); // already done in changing R7 itself
+        }
+    }
+    
+    // Really redraw if needed
+    if (tms.Change) {
+        if (! (tms.Regs[1] & 0x40) ) {
+            // screen blanked so all background color
+	    c= XPal[tms.Regs[7] & 15];
+	    for (i=0;i<256;i++){
+	      for (j=0;j<192;j++){
+	        plot_pixel(bitmapscreen,i,j,c);
+	      }
+	    }
+        } else {
+	  // draw background
+          
+	  //ModeHandlers[tms.mode](bitmapscreen);
+	  switch (tms.mode){
+	    case 0: mode0(bitmapscreen);
+		    break;
+	    case 1: mode1(bitmapscreen);
+		    break;
+	    case 2: mode2(bitmapscreen);
+		    break;
+	    case 3: mode12(bitmapscreen);
+		    break;
+	    case 4: mode3(bitmapscreen);
+		    break;
+	    case 5: modebogus(bitmapscreen);
+		    break;
+	    case 6: mode23(bitmapscreen);
+		    break;
+	    case 7: modebogus(bitmapscreen);
+	  }
+	  
+	  // if sprites enabled in this mode
+	  if (TMS_SPRITES_ENABLED) {
+	    PRT_DEBUG("TMS9928A: Need to include sprite routines.");
+	    // _TMS9928A_sprites (bmp);
+	  }
+        }
+    } 
+    /*
+    else {
+		tms.StatusReg = tms.oldStatusReg;
+    }
+    */
+
+}
+
 void MSXTMS9928a::full_border_fil()
 {
      int i,j;
      int bytes_per_pixel,rowlen,offset;
 
      bytes_per_pixel=(bitmapscreen->depth+7)/8;
-     rowlen = bytes_per_pixel * (bitmapscreen->width + 2 * safetx);
-     offset = (safety + bitmapscreen->height)*rowlen;
+     rowlen = bytes_per_pixel * (bitmapscreen->width + 2 * bitmapscreen->safetx);
+     offset = (bitmapscreen->safety + bitmapscreen->height)*rowlen;
 
-     for (i=0;i<safety*rowlen;i++){
+     for (i=0;i<(bitmapscreen->safety)*rowlen;i++){
        bitmapscreen->_private[i] = XPal[tms.Regs[7] & 0xf] ;
        bitmapscreen->_private[offset + i] = XPal[tms.Regs[7] & 0xf] ;
      }
-     for (i=safety*rowlen-safetx;i<(1+bitmapscreen->height+safety)*rowlen;i+=rowlen){
-     for (j=0;j<safetx*2;j++){
-       bitmapscreen->_private[j+i] = XPal[tms.Regs[7] & 0xf] ;
-     }
+     for (i = bitmapscreen->safety * rowlen - bitmapscreen->safetx;
+	 i < (1 + bitmapscreen->height + bitmapscreen->safety )*rowlen;
+	 i+=rowlen){
+       for (j=0;j<bitmapscreen->safetx*2;j++){
+	 bitmapscreen->_private[j+i] = XPal[tms.Regs[7] & 0xf] ;
+       }
      }
 }
 
@@ -654,7 +924,8 @@ void MSXTMS9928a::PutImage(void)
 
   if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen)<0) return;//ExitNow=1;
 
-	//debug code
+  //debug code
+  /*
 	for (byte i=0; i<190 ;i++) {
 		for (byte j=0;j<30;j++){
 		  plot_pixel(bitmapscreen ,i+j,i,XPal[debugColor]);
@@ -662,24 +933,12 @@ void MSXTMS9928a::PutImage(void)
 		}
 		debugColor = (debugColor++)&0x0f;
 		}
+   */
 
   /* Copy image */
   //memcpy(screen->pixels,bitmapscreen->_private,WIDTH*HEIGHT*sizeof(pixel));
   memcpy(screen->pixels,bitmapscreen->_private,WIDTH*HEIGHT*1);
 
-//  /* Handle on-screen message */
-//  if (Message != NULL)
-//  {
-//	PutMessage();
-//
-//	if (--MessageTimer < 0)
-//	{
-//	    free(Message);
-//	    Message = NULL;
-//	    MessageTimer = 0;
-//	}
-//  }
-//
   if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
  
   /* Update screen */
@@ -692,9 +951,6 @@ void MSXTMS9928a::PutImage(void)
 
 /* code taken over from / inspired by mame/mess */
 /* Create a bitmap. */
-/* VERY IMPORTANT: the function must allocate also a "safety area" 16 pixels wide all */
-/* around the bitmap. This is required because, for performance reasons, some graphic */
-/* routines don't clip at boundaries of the bitmap. */
 struct osd_bitmap *MSXTMS9928a::alloc_bitmap(int width,int height,int depth)
 {
 	struct osd_bitmap *bitmap;
@@ -716,16 +972,16 @@ struct osd_bitmap *MSXTMS9928a::alloc_bitmap(int width,int height,int depth)
 		bitmap->depth = depth;
 		bitmap->width = width;
 		bitmap->height = height;
-
+		
 		// does the border otherwise mismatch between
 		// size of the SDL buffer and the 
 		// (osd_)bitmap_data
-		safetx=(WIDTH-width)/2;
-		safety=(HEIGHT-height)/2;
+		bitmap->safetx=(WIDTH-width)/2;
+		bitmap->safety=(HEIGHT-height)/2;
 		bytes_per_pixel=(depth+7)/8;
 
-		rowlen = bytes_per_pixel * (width + 2 * safetx);
-		y_rows = height + 2 * safety;
+		rowlen = bytes_per_pixel * (width + 2 * bitmap->safetx);
+		y_rows = height + 2 * bitmap->safety;
 
 		bitmap_size = y_rows * rowlen ;
 
@@ -738,7 +994,7 @@ struct osd_bitmap *MSXTMS9928a::alloc_bitmap(int width,int height,int depth)
 		/* side of screen is width is not a multiple of 4 */
 		memset(bitmap_data, 0, bitmap_size);
 
-		if ((bitmap->line = new byte*[height + 2 * safety ]) == 0)
+		if ((bitmap->line = new byte*[height + 2 * bitmap->safety ]) == 0)
 		{
 		    delete[] bitmap_data;
 		    delete bitmap;
@@ -747,7 +1003,7 @@ struct osd_bitmap *MSXTMS9928a::alloc_bitmap(int width,int height,int depth)
 
 		for (i = 0; i < height ; i++)
 		{
-		    bitmap->line[i] = bitmap_data + safetx + (i + safety) * rowlen ;
+		    bitmap->line[i] = bitmap_data + bitmap->safetx + (i + bitmap->safety) * rowlen ;
 		}
 
 		bitmap->_private = bitmap_data ;
