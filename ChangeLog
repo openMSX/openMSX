@@ -5,6 +5,8 @@ $Id$
 	   there is no explicit frameskip "auto" anymore, instead the framskip
 	   setting indicated the maximum allowed number of frameskip.
 	* Don't skip frames on small CPU usage spikes
+	* Renamed "frameskip" setting to "maxframeskip"
+	* Added new "minframeskip" setting
 
 2004-04-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented different frameskip and real time sync algorithm

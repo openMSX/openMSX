@@ -117,7 +117,7 @@ PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
 	vram = vdp->getVRAM();
 	spriteChecker = vdp->getSpriteChecker();
 
-	frameSkipCounter = 0;
+	frameSkipCounter = 999; // force drawing of frame
 	finishFrameDuration = 0;
 
 	frameDurationSum = 0;
@@ -127,14 +127,16 @@ PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
 	}
 	prevTimeStamp = RealTime::instance().getRealTime();
 	
-	settings.getFrameSkip()->addListener(this);
+	settings.getMaxFrameSkip()->addListener(this);
+	settings.getMinFrameSkip()->addListener(this);
 	InfoCommand::instance().registerTopic("fps", &fpsInfo);
 }
 
 PixelRenderer::~PixelRenderer()
 {
 	InfoCommand::instance().unregisterTopic("fps", &fpsInfo);
-	settings.getFrameSkip()->removeListener(this);
+	settings.getMinFrameSkip()->removeListener(this);
+	settings.getMaxFrameSkip()->removeListener(this);
 }
 
 void PixelRenderer::reset(const EmuTime &time)
@@ -163,15 +165,19 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 	sync(time, true);
 
 	bool draw;
-	if (frameSkipCounter == 0) {
-		// limit max frame skip
+	if (frameSkipCounter < settings.getMinFrameSkip()->getValue()) {
+		++frameSkipCounter;
+		draw = false;
+	} else if (frameSkipCounter >= settings.getMaxFrameSkip()->getValue()) {
+		frameSkipCounter = 0;
 		draw = true;
 	} else {
-		--frameSkipCounter;
+		++frameSkipCounter;
 		draw = RealTime::instance().timeLeft(finishFrameDuration, time);
 	}
+
 	if (draw) {
-		frameSkipCounter = settings.getFrameSkip()->getValue();
+		frameSkipCounter = settings.getMaxFrameSkip()->getValue();
 		
 		// Let underlying graphics system finish rendering this frame.
 		unsigned time1 = RealTime::instance().getRealTime();
@@ -421,7 +427,7 @@ void PixelRenderer::renderUntil(const EmuTime &time)
 
 void PixelRenderer::update(const SettingLeafNode* setting) throw()
 {
-	frameSkipCounter = 1;	// reset frameskip counter
+	frameSkipCounter = 999;	// force drawing of frame
 }
 
 

@@ -469,19 +469,6 @@ deinterlace
     set deinterlace off  turns deinterlacing off
 
 
-frameskip
----------
-
-  Set the amount of frame skips. Frame skip here means: "show a frame and
-  then skip <number> frames". So 0 means show everything, 1 means show every
-  second frame, ...
-
-  usage:
-    set frameskip           shows the current setting
-    set frameskip <number>  sets the number of frame skips
-    set frameskip auto      automatically set frameskip depending on CPU load
-
-
 frontswitch
 -----------
 
@@ -574,6 +561,30 @@ midi-out-logfilename
   usage:
     set midi-out-logfilename               shows the current setting
     set midi-out-logilename mymidilog.dat  log to mymidilog.dat
+
+
+maxframeskip
+------------
+
+  Set the max amount of frame skips. Frame skip here means: "show a frame and
+  then skip <number> frames". So 0 means show everything, 1 means show every
+  second frame, ...
+
+  usage:
+    set maxframeskip           shows the current setting
+    set maxframeskip <number>  sets the number of frame skips
+
+
+minframeskip
+------------
+
+  Set the min amount of frame skips. Frame skip here means: "show a frame and
+  then skip <number> frames". So 0 means show everything, 1 means show every
+  second frame, ...
+
+  usage:
+    set minframeskip           shows the current setting
+    set minframeskip <number>  sets the number of frame skips
 
   
 mute

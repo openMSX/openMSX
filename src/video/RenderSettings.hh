@@ -34,8 +34,11 @@ public:
 	/** Deinterlacing [on, off]. */
 	BooleanSetting* getDeinterlace() { return deinterlace; }
 
-	/** The current frameskip. */
-	IntegerSetting* getFrameSkip() { return frameSkip; }
+	/** The current max frameskip. */
+	IntegerSetting* getMaxFrameSkip() { return maxFrameSkip; }
+
+	/** The current min frameskip. */
+	IntegerSetting* getMinFrameSkip() { return minFrameSkip; }
 
 	/** Full screen [on, off]. */
 	BooleanSetting* getFullScreen() { return fullScreen; }
@@ -65,7 +68,8 @@ private:
 	// Please keep the settings ordered alphabetically.
 	EnumSetting<Accuracy>* accuracy;
 	BooleanSetting* deinterlace;
-	IntegerSetting* frameSkip;
+	IntegerSetting* maxFrameSkip;
+	IntegerSetting* minFrameSkip;
 	BooleanSetting* fullScreen;
 	FloatSetting* gamma;
 	IntegerSetting* glow;

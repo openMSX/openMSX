@@ -26,9 +26,12 @@ RenderSettings::RenderSettings()
 	deinterlace = new BooleanSetting(
 		"deinterlace", "deinterlacing on/off", true);
 
-	frameSkip = new IntegerSetting(
-		"frameskip", "set the max amount of frameskip",
+	maxFrameSkip = new IntegerSetting(
+		"maxframeskip", "set the max amount of frameskip",
 		3, 0, 100);
+	minFrameSkip = new IntegerSetting(
+		"minframeskip", "set the min amount of frameskip",
+		0, 0, 100);
 
 	bool fsBool = config->getParameterAsBool("full_screen", false);
 	fullScreen = new BooleanSetting(
@@ -65,11 +68,16 @@ RenderSettings::RenderSettings()
 
 RenderSettings::~RenderSettings()
 {
-	delete accuracy;
-	delete deinterlace;
-	delete horizontalBlur;
 	delete scanlineAlpha;
-	delete frameSkip;
+	delete scaler;
+	delete horizontalBlur;
+	delete glow;
+	delete gamma;
+	delete fullScreen;
+	delete minFrameSkip;
+	delete maxFrameSkip;
+	delete deinterlace;
+	delete accuracy;
 }
 
 RenderSettings& RenderSettings::instance()
