@@ -35,7 +35,6 @@ TODO:
 
 #include "VDP.hh"
 #include "VDPVRAM.hh"
-#include "SpriteChecker.hh"
 #include "RenderSettings.hh"
 #include "RealTime.hh"
 #include "GLConsole.hh"
@@ -391,6 +390,7 @@ SDLGLRenderer::SDLGLRenderer(VDP *vdp, SDL_Surface *screen)
 	: PixelRenderer(vdp)
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
+	, spriteConverter(vdp->getSpriteChecker())
 {
 	this->screen = screen;
 	console = new GLConsole();
@@ -540,6 +540,7 @@ void SDLGLRenderer::reset(const EmuTime &time)
 	
 	// Init renderer state.
 	setDisplayMode(vdp->getDisplayMode());
+	spriteConverter.setTransparency(vdp->getTransparency());
 
 	setDirty(true);
 	dirtyForeground = dirtyBackground = true;
@@ -584,14 +585,17 @@ void SDLGLRenderer::setDisplayMode(DisplayMode mode)
 		characterConverter.setDisplayMode(mode);
 	}
 	lineWidth = mode.getLineWidth();
-	palSprites =
-		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg;
+	spriteConverter.setPalette(
+		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg
+		);
 }
 
 void SDLGLRenderer::updateTransparency(
 	bool enabled, const EmuTime &time)
 {
 	sync(time);
+	spriteConverter.setTransparency(enabled);
+	
 	// Set the right palette for pixels of colour 0.
 	palFg[0] = palBg[enabled ? vdp->getBackgroundColour() : 0];
 	// Any line containing pixels of colour 0 must be repainted.
@@ -821,116 +825,20 @@ void SDLGLRenderer::drawSprites(int screenLine, int leftBorder, int minX, int ma
 
 	// TODO: Pass absLine as a parameter instead of converting back.
 	int absLine = screenLine / 2 + lineRenderTop;
+	
+	// Buffer to render sprite pixels to; start with all transparent.
+	memset(lineBuffer, 0, 256 * sizeof(Pixel));
 
-	// Determine sprites visible on this line.
-	SpriteChecker::SpriteInfo *visibleSprites;
-	int visibleIndex =
-		spriteChecker->getSprites(absLine, visibleSprites);
-	// Optimisation: return at once if no sprites on this line.
-	// Lines without any sprites are very common in most programs.
-	if (visibleIndex == 0) return;
-
-	// visibleIndex != 0 implies there are sprites in the current mode.
+	// TODO: Possible speedups:
+	// - for mode 1: create a texture in 1bpp, or in luminance
+	// - use VRAM to render sprite blocks instead of lines
 	if (spriteMode == 1) {
-		// Sprite mode 1: render directly to screen using overdraw.
-
-		// Buffer to render sprite pixel to; start with all transparent.
-		memset(lineBuffer, 0, 256 * sizeof(Pixel));
-
-		// Iterate over all sprites on this line.
-		while (visibleIndex--) {
-			// Get sprite info.
-			SpriteChecker::SpriteInfo *sip = &visibleSprites[visibleIndex];
-			Pixel colour = sip->colourAttrib & 0x0F;
-			// Don't draw transparent sprites in sprite mode 1.
-			// TODO: Verify on real V9938 that sprite mode 1 indeed
-			//       ignores the transparency bit.
-			if (colour == 0) continue;
-			colour = palSprites[colour];
-			SpriteChecker::SpritePattern pattern = sip->pattern;
-			int x = sip->x;
-			// Skip any dots that end up in the border.
-			if (x <= -32) {
-				continue;
-			} else if (x < 0) {
-				pattern <<= -x;
-				x = 0;
-			} else if (x > 256 - 32) {
-				pattern &= -1 << (32 - (256 - x));
-			}
-			// Convert pattern to pixels.
-			//Pixel buffer[32];
-			//Pixel *p = buffer;
-			Pixel *p = lineBuffer + x;
-			while (pattern) {
-				// Draw pixel if sprite has a dot.
-				if (pattern & 0x80000000) *p = colour;
-				// Advancing behaviour.
-				p++;
-				pattern <<= 1;
-			}
-			//int n = p - buffer;
-			//if (n) GLBlitLine(spriteTextureIds[screenLine / 2], buffer, n, leftBorder + x * 2, screenLine);
-		}
-		// TODO:
-		// Possible speedups:
-		// - create a texture in 1bpp, or in luminance
-		// - use VRAM to render sprite blocks instead of lines
-		GLBlitLine(spriteTextureIds[absLine], lineBuffer, leftBorder, screenLine, minX, maxX);
+		spriteConverter.drawMode1(absLine, minX, maxX, lineBuffer);
 	} else {
-		// Sprite mode 2: single pass left-to-right render.
-
-		// Buffer to render sprite pixel to; start with all transparent.
-		memset(lineBuffer, 0, 256 * sizeof(Pixel));
-		// Determine width of sprites.
-		SpriteChecker::SpritePattern combined = 0;
-		for (int i = 0; i < visibleIndex; i++) {
-			combined |= visibleSprites[i].pattern;
-		}
-		int maxSize = SpriteChecker::patternWidth(combined);
-		// Left-to-right scan.
-		for (int pixelDone = minX / 2; pixelDone < maxX / 2; pixelDone++) {
-			// Skip pixels if possible.
-			int minStart = pixelDone - maxSize;
-			int leftMost = 0xFFFF;
-			for (int i = 0; i < visibleIndex; i++) {
-				int x = visibleSprites[i].x;
-				if (minStart < x && x < leftMost) leftMost = x;
-			}
-			if (leftMost > pixelDone) {
-				pixelDone = leftMost;
-				if (pixelDone >= 256) break;
-			}
-			// Calculate colour of pixel to be plotted.
-			byte colour = 0xFF;
-			for (int i = 0; i < visibleIndex; i++) {
-				SpriteChecker::SpriteInfo *sip = &visibleSprites[i];
-				int shift = pixelDone - sip->x;
-				if ((0 <= shift && shift < maxSize)
-				&& ((sip->pattern << shift) & 0x80000000)) {
-					byte c = sip->colourAttrib & 0x0F;
-					if (c == 0 && vdp->getTransparency()) continue;
-					colour = c;
-					// Merge in any following CC=1 sprites.
-					for (i++ ; i < visibleIndex; i++) {
-						sip = &visibleSprites[i];
-						if (!(sip->colourAttrib & 0x40)) break;
-						int shift = pixelDone - sip->x;
-						if ((0 <= shift && shift < maxSize)
-						&& ((sip->pattern << shift) & 0x80000000)) {
-							colour |= sip->colourAttrib & 0x0F;
-						}
-					}
-					break;
-				}
-			}
-			// Plot it.
-			if (colour != 0xFF) {
-				lineBuffer[pixelDone] = palSprites[colour];
-			}
-		}
-		GLBlitLine(spriteTextureIds[absLine], lineBuffer, leftBorder, screenLine, minX, maxX);
+		spriteConverter.drawMode2(absLine, minX, maxX, lineBuffer);
 	}
+	GLBlitLine(spriteTextureIds[absLine], lineBuffer,
+		leftBorder, screenLine, minX, maxX );
 }
 
 void SDLGLRenderer::drawBorder(int fromX, int fromY, int limitX, int limitY)

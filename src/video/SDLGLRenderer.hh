@@ -13,6 +13,7 @@
 #include "PixelRenderer.hh"
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
+#include "SpriteConverter.hh"
 #include "DisplayMode.hh"
 
 #ifdef HAVE_GL_GL_H
@@ -250,6 +251,10 @@ private:
 	/** VRAM to pixels converter for bitmap display modes.
 	  */
 	BitmapConverter<Pixel, Renderer::ZOOM_REAL> bitmapConverter;
+
+	/** VRAM to pixels converter for sprites.
+	  */
+	SpriteConverter<Pixel, Renderer::ZOOM_REAL> spriteConverter;
 
 	GLConsole* console;
 
