@@ -1,5 +1,13 @@
 $Id$
 
+2003-12-09 Maarten ter Huurne <maarten@treewalker.org>
+	* Integrated hq2x algorithm:
+	    http://www.hiend3d.com/hq2x.html
+	  Use "set scaler hq2x" in the SDLHi renderer to activate it.
+	  The code can use some cleanup and tuning, but in most cases it works.
+	* Fixed bug: lines were scaled by the wrong factor when a frame contains
+	  both 256-wide and 512-wide lines, such as Psycho World intro.
+
 2003-12-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* added a 'safe' getCurrentTime() method in Scheduler, and use this
 	  instead of the getCurrentTime() method in MSXCPU. Renamed the latter
