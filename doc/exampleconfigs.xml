@@ -326,6 +326,8 @@
     <parameter name="columns">50</parameter>
     <parameter name="rows">7</parameter>
     <parameter name="placement">bottom</parameter>
+    <parameter name="removedoubles">false</parameter>
+    <parameter name="historysize">100</parameter>
   </config>
 
 <!-- For an IDE config, check out the share/extensions/ide dir -->
