@@ -355,8 +355,6 @@ string RealDrive::execute(const vector<string>& tokens)
 			result += "There is currently no disk inserted in drive with name \"" +
 			          name + "\"" + '\n';
 		}
-	} else if (tokens.size() != 2) {
-		throw SyntaxError();
 	} else if (tokens[1] == "eject") {
 		ejectDisk();
 		CliCommOutput::instance().update(CliCommOutput::MEDIA,
@@ -365,6 +363,9 @@ string RealDrive::execute(const vector<string>& tokens)
 		try {
 			UserFileContext context;
 			vector<string> patches;
+			for (unsigned i = 2; i < tokens.size(); ++i) {
+				patches.push_back(context.resolve(tokens[i]));
+			}
 			insertDisk(context.resolve(tokens[1]), patches);
 			diskChangedFlag = true;
 			CliCommOutput::instance().update(CliCommOutput::MEDIA,
@@ -384,7 +385,7 @@ string RealDrive::help(const vector<string>& /*tokens*/) const
 
 void RealDrive::tabCompletion(vector<string>& tokens) const
 {
-	if (tokens.size() == 2)
+	if (tokens.size() >= 2)
 		CommandController::completeFileName(tokens);
 }
 

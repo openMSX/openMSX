@@ -1,5 +1,9 @@
 $Id$
 
+2005-01-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Extended "disk[x]" console command to accept IPS patches:
+	   diska <dsk> [<ips1> [<ips2> [..]]]
+
 2005-01-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Allow IPS patches for disk images:
 	   only on the command line, not yet in the console
