@@ -1,5 +1,8 @@
 $Id$
 
+2004-05-28 Maarten ter Huurne <maarten@treewalker.org>
+	* Released openmsx-0.4.0.
+
 2004-05-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Renamed "keylayoutbit" setting in PSG to "keyboardlayout". Also
 	  instead of the values true/false it now takes "JIS"/"ANSI"
