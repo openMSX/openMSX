@@ -1,5 +1,10 @@
 $Id$
 
+2001-10-15 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Scheduler can now schedule "Schedulable" objects instead of
+	  only MSXDevices, this is necessary for sub-device scheduling
+	  (e.g. counters in I8254
+
 2001-10-15 Marcel Harkema <marcel@qahwah.net>
 	* * Set the MAINTAINERCLEANFILES variable in Makefile.am files
 	  (for make maintainer-clean)
@@ -13,10 +18,8 @@ $Id$
 	  code]
 	* [patch applied by joost]
 
-2001-10-15 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
-	* Scheduler can now schedule "Schedulable" objects instead of
-	  only MSXDevices, this is necessary for sub-device scheduling
-	  (e.g. counters in I8254)
+2001-10-14 Joost Yervante Damad <j.damad@qahwah.net>
+	* Made EmuTime printable [read streamable] for David
 
 2001-10-12 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Simplified MSXRealTime implementation
