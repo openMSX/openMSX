@@ -45,12 +45,6 @@ class Z80 : public CPU {
 		void setCurrentTime(const EmuTime &time);
 		const EmuTime &getCurrentTime();
 
-	private:
-		inline void executeInstruction(byte opcode);
-		inline void M1Cycle();
-		
-		#include "Z80Core.hh"
-
 		// flag positions
 		static const byte S_FLAG = 0x80;
 		static const byte Z_FLAG = 0x40;
@@ -61,6 +55,12 @@ class Z80 : public CPU {
 		static const byte P_FLAG = V_FLAG;
 		static const byte N_FLAG = 0x02;
 		static const byte C_FLAG = 0x01;
+
+	private:
+		inline void executeInstruction(byte opcode);
+		inline void M1Cycle();
+		
+		#include "Z80Core.hh"
 
 		// flag-register tables
 		static byte ZSTable[256];
