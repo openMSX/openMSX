@@ -53,7 +53,9 @@ public:
 		if (time >= statusChangeTime) {
 			sync(time);
 		}
-		return status;
+		byte ret = status;
+		if (!currentCommand) status &= 0x7F;
+		return ret;
 	}
 
 	/** Use this method to transfer pixel(s) from VDP to CPU.

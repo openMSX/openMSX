@@ -1,5 +1,14 @@
 $Id$
 
+2004-09-26 Maarten ter Huurne <maarten@treewalker.org>
+	* At end of HMMC and LMMC, CE is reset immediately, but TR is reset
+	  the next time S#2 is read.
+	  Fixes Andorogynus.
+	  Thanks to the anonymous poster on our forum who pinpointed the change
+	  which made this bug surface first. Even though reverting that change
+	  was not a solution, it did point to the HMMC command timing being the
+	  problem.
+
 2004-09-24 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed assert in Mixer on unmute if initial state was muted.
 	* Load settings file specified with "-setting" from UserContext,

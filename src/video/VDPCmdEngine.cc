@@ -323,12 +323,13 @@ void VDPCmdEngine::createEngines(int cmd) {
 }
 
 VDPCmdEngine::VDPCmdEngine(VDP* vdp_)
-	: vdp(vdp_),
-	  cmdTraceSetting("vdpcmdtrace", "VDP command tracing on/off", false)
+	: vdp(vdp_)
+	, cmdTraceSetting("vdpcmdtrace", "VDP command tracing on/off", false)
 {
 	vram = vdp->getVRAM();
 
 	status = 0;
+	transfer = false;
 	SX = SY = DX = DY = NX = NY = 0;
 	COL = ARG = CMD = LOG = 0;
 
@@ -573,7 +574,8 @@ void VDPCmdEngine::reportVdpCommand()
 
 void VDPCmdEngine::commandDone(const EmuTime& time)
 {
-	status &= 0x7E;	// reset TR CE
+	// Note: TR is not reset yet; it is reset when S#2 is read next.
+	status &= 0xFE;	// reset CE
 	CMD = 0;
 	currentCommand = NULL;
 	statusChangeTime = EmuTime::infinity;
