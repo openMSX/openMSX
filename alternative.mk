@@ -166,6 +166,12 @@ HEADERS_FULL:=
 # Include root node.
 CURDIR:=$(SOURCES_PATH)
 include $(CURDIR)/node.mk
+# Apply subset to sources list.
+SOURCES_FULL:=$(filter $(SOURCES_PATH)/$(OPENMSX_SUBSET)%,$(SOURCES_FULL))
+ifeq ($(SOURCES_FULL),)
+$(error Sources list empty $(if \
+	$(OPENMSX_SUBSET),after applying subset "$(OPENMSX_SUBSET)*"))
+endif
 # Sanity check: only .cc files are allowed in sources list,
 # because we don't have any way to build other sources.
 NON_CC_SOURCES:=$(filter-out %.cc,$(SOURCES_FULL))
@@ -253,7 +259,7 @@ config:
 	@echo "  Platform: $(OPENMSX_PLATFORM)"
 	@echo "  Flavour:  $(OPENMSX_FLAVOUR)"
 	@echo "  Profile:  $(OPENMSX_PROFILE)"
-	@echo "  Subset:   $(if $(OPENMSX_SUBSET),$(OPENMSX_SUBSET),full build)"
+	@echo "  Subset:   $(if $(OPENMSX_SUBSET),$(OPENMSX_SUBSET)*,full build)"
 
 # Include dependency files.
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
