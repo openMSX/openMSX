@@ -2,6 +2,9 @@
 #ifndef __DUMMYDEVICE_HH__
 #define __DUMMYDEVICE_HH__
 
+#include <fstream>
+#include <string>
+
 #include "MSXDevice.hh"
 #include "emutime.hh"
 
@@ -16,8 +19,8 @@ class DummyDevice : public MSXDevice
 		void start();
 		void stop();
 		void reset();
-		void saveState(ofstream &writestream);
-		void restoreState(string &devicestring, ifstream &readstream);
+		void saveState(std::ofstream &writestream);
+		void restoreState(std::string &devicestring, std::ifstream &readstream);
 	private:
 		DummyDevice();
 		static DummyDevice *oneInstance;

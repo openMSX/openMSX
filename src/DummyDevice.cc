@@ -7,12 +7,12 @@ DummyDevice::DummyDevice()
 {
 	PRT_DEBUG ("Instantiating dummy device");
 	deviceName = new string("Dummy device");
-};
+}
 
 DummyDevice::~DummyDevice()
 {
 	PRT_DEBUG ("Destroying dummy device");
-};
+}
 
 DummyDevice* DummyDevice::instance()
 {
@@ -30,37 +30,37 @@ DummyDevice* DummyDevice::instance()
 void DummyDevice::setConfigDevice(MSXConfig::Device *config)
 {
 	assert(false);
-};
+}
 
 void DummyDevice::init()
 {
 	assert(false);
-};
+}
 
 void DummyDevice::start()
 {
 	assert(false);
-};
+}
 
 void DummyDevice::stop()
 {
 	assert(false);
-};
+}
 
 void DummyDevice::reset()
 {
 	assert(false);
-};
+}
 
-void DummyDevice::saveState(ofstream &writestream)
+void DummyDevice::saveState(std::ofstream &writestream)
 {
 	assert(false);
-};
+}
 
-void DummyDevice::restoreState(string &devicestring, ifstream &readstream)
+void DummyDevice::restoreState(std::string &devicestring, std::ifstream &readstream)
 {
 	assert(false);
-};
+}
 
 DummyDevice *DummyDevice::oneInstance;
 
