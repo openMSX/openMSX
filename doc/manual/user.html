@@ -36,15 +36,7 @@
 		<ol class="toc">
 			<li><a class="internal" href="#console">3.1. Console Introduction</a></li>
 			<li><a class="internal" href="#importantconsole">3.2. Some Simple Console Commands</a></li>
-			<li><a class="internal" href="#settings">3.3. Settings</a>
-				<ol class="toc">
-					<li><a class="internal" href="#importantsettings">3.3.1. Some Simple But Important Settings </a></li>
-					<li><a class="internal" href="#renderers">3.3.2. Renderers</a></li>
-					<li><a class="internal" href="#accuracy">3.3.3. Renderer Accuracy</a></li>
-					<li><a class="internal" href="#scalers">3.3.4. Scalers</a></li>
-					<li><a class="internal" href="#setsound">3.3.5. Sound Settings</a></li>
-				</ol>
-			</li>
+			<li><a class="internal" href="#settings">3.3. Settings</a></li>
 			<li><a class="internal" href="#plug">3.4. Plug</a></li>
 		</ol>
 	</li>
@@ -63,25 +55,39 @@
 
 	<li><a class="internal" href="#input">5. Input Devices</a>
 		<ol class="toc">
-			<li><a class="internal" href="#keymapping">5.1. Default Key Mapping</a></li>
+			<li><a class="internal" href="#keymapping">5.1. Key Mapping</a></li>
 			<li><a class="internal" href="#joystick">5.2. Joystick</a></li>
 			<li><a class="internal" href="#mouse">5.3. Mouse</a></li>
 		</ol>
-
 	</li>
 
-	<li><a class="internal" href="#midi">6. MIDI</a></li>
-	
-	<li><a class="internal" href="#debugdevice">7. Debug Device</a>
+	<li><a class="internal" href="#video">6. Video</a>
 		<ol class="toc">
-			<li><a class="internal" href="#debugdeviceenable">7.1. Enabling the Debug Device</a></li>
-			<li><a class="internal" href="#debugdeviceports">7.2. The Output Ports</a></li>
-			<li><a class="internal" href="#debugdevicemode1">7.3. Single Byte Mode</a></li>
-			<li><a class="internal" href="#debugdevicemode2">7.4. Multi Byte Mode</a></li>
-			<li><a class="internal" href="#debugdeviceoutput">7.5. Controlling the Output</a></li>
+			<li><a class="internal" href="#renderers">6.1. Renderers</a></li>
+			<li><a class="internal" href="#accuracy">6.2. Accuracy</a></li>
+			<li><a class="internal" href="#scalers">6.3. Scalers</a></li>
+			<li><a class="internal" href="#gamma">6.4. Gamma Correction</a></li>
+			<li><a class="internal" href="#videoeffects">6.5. Special Effects</a></li>
 		</ol>
 	</li>
-	<li><a class="internal" href="#contact">8. Contact Info</a></li>
+	
+	<li><a class="internal" href="#audio">7. Audio</a></li>
+		<ol class="toc">
+			<li><a class="internal" href="#audiosettings">7.1. Audio Settings</a></li>
+			<li><a class="internal" href="#midi">7.2. MIDI</a></li>
+		</ol>
+	</li>
+	
+	<li><a class="internal" href="#debugdevice">8. Debug Device</a>
+		<ol class="toc">
+			<li><a class="internal" href="#debugdeviceenable">8.1. Enabling the Debug Device</a></li>
+			<li><a class="internal" href="#debugdeviceports">8.2. The Output Ports</a></li>
+			<li><a class="internal" href="#debugdevicemode1">8.3. Single Byte Mode</a></li>
+			<li><a class="internal" href="#debugdevicemode2">8.4. Multi Byte Mode</a></li>
+			<li><a class="internal" href="#debugdeviceoutput">8.5. Controlling the Output</a></li>
+		</ol>
+	</li>
+	<li><a class="internal" href="#contact">9. Contact Info</a></li>
 </ol>
 
 
@@ -92,7 +98,7 @@
 The latest version of the openMSX manual can be found on the openMSX home page:
 </p>
 <p>
-<a class="external" href="http://openmsx.sf.net/manual/">http://openmsx.sf.net/manual/</a>
+<a class="external" href="http://openmsx.sourceforge.net/manual/">http://openmsx.sourceforge.net/manual/</a>
 </p>
 <p>
 You can also use this URL to get up-to-date versions of the hyper links
@@ -104,7 +110,7 @@ if you printed out this manual.
 This manual is about openMSX, the open source MSX emulator that tries to achieve
 near-perfect emulation by using a novel emulation model.
 You can find more information about openMSX on the
-<a class="external" href="http://openmsx.sf.net/">openMSX home page</a>.
+<a class="external" href="http://openmsx.sourceforge.net/">openMSX home page</a>.
 You can also download the emulator itself from there.
 </p>
 
@@ -121,6 +127,7 @@ It explains how you can make use of the features of the emulator, once you have 
 
 <p>
 This manual tells you how you can use openMSX, once it has been installed and properly set up. You should be able to use most of the features of openMSX if you have read it.
+If you are using using openMSX with Catapult, you don't have to pay attention to the exact command and setting names. However it is still useful to read this document to find out how openMSX works and learn its terminology.
 </p>
 
 <p>
@@ -155,6 +162,11 @@ only the big picture.
 
 <dl>
 
+<dt>2004-05-20: Maarten ter Huurne</dt>
+<dd>
+Updates for release 0.4.0: restructured chapters and added more info about video settings.
+</dd>
+
 <dt>2004-01-16: Manuel Bilderbeek</dt>
 <dd>
 Updates for release 0.3.4: explanation of the scalers was added.
@@ -183,7 +195,7 @@ Original text written as part of the openMSX HOWTO.
 <h2><a id="starting">2. Starting the Emulator</a></h2>
 
 <p>
-If you start openMSX without any command line parameters, you will get the default machine, which you have set up in <code>settings.xml</code>, see the <a class="external" href="setup.html">Setup Guide</a>. When you use the shipped file, this means you will get a machine that uses C-BIOS. In this chapter we will tell you how to use other machines and how to use extensions.
+If you start openMSX without any command line parameters, you will get the default machine, which you have set up in <code>settings.xml</code>, see the <a class="external" href="setup.html#settings">Setup Guide</a>. When you use the shipped file, this means you will get a machine that uses C-BIOS. In this chapter we will tell you how to use other machines and how to use extensions.
 </p>
 
 <h3><a id="machines">2.1. Machines</a></h3>
@@ -202,15 +214,15 @@ Extensions are simply MSX cartridges (extensions to the MSX system) that you can
 </p>
 
 <p>
-If you have setup an FM PAC <code>hardwareconfig.xml</code> file in
+If you have setup an FMPAC <code>hardwareconfig.xml</code> file in
 <code>~/.openMSX/share/extensions/fmpac</code> e.g. (i.e. for Linux: in your custom extensions directory in this case), you can add  <code>-ext
-fmpac</code> to your command line to use an FM PAC. But, as I just said, you
+fmpac</code> to your command line to use an FMPAC. But, as I just said, you
 need to have a hardware description in that subdirectory of
 <code>share/extensions/</code>, see <a class="external" href="setup.html">Setup Guide</a>. Fortunately,
-openMSX comes with a predefined FM-PAC extension. You only need to add the
-<code>fmpac.rom</code> in <code>share/extensions/fmpac/roms/</code>; it's the ROM that is built in the FM-PAC. If you look at that <code>share/extensions</code>
+openMSX comes with a predefined FMPAC extension. You only need to add the
+<code>fmpac.rom</code> in <code>share/extensions/fmpac/roms/</code>; it's the ROM that is built in the FMPAC. If you look at that <code>share/extensions</code>
 directory, you will find more extensions. E.g. using <code>-ext mbstereo</code>
-gives you the Moonblaster stereo effect: FM PAC on one channel and MSX Audio on
+gives you the Moonblaster stereo effect: FMPAC on one channel and MSX Audio on
 the other. Try them out, if you like, but again, keep in mind that some
 extensions need a ROM image installed in their <code>roms/</code> directory, which is explained in the <a class="external" href="setup.html">Setup Guide</a>.
 </p>
@@ -223,7 +235,7 @@ Often used other command line options will be discussed later in this manual. Fo
 <div class="commandline">openmsx -h</div>
 
 
-<h2><a id="controlling">3 The Console and Settings</a></h2>
+<h2><a id="controlling">3. The Console and Settings</a></h2>
 
 <h3><a id="console">3.1. Console Introduction</a></h3>
 
@@ -241,8 +253,8 @@ If you type <code>help [command]</code> you will get help
 for the specified command.
 This manual describes a few important commands;
 a full list can be found in the file <code>doc/commands.txt</code>.
-The console is mostly used to change disk images, plug in joysticks or mice,
-change settings at run time and to change key bindings.
+The console can be used to change disk images, plug in joysticks or mice,
+change settings at run time and to change key bindings, among others.
 </p>
 
 <p>
@@ -267,7 +279,7 @@ You can reset your MSX with the Console command <code>reset</code> and quit open
 An interesting console command is <code>set</code>. You can use it to change the various
 settings. E.g., you can use it to set the current renderer. <!-- If you use it without parameters, you will get a list of settings.--> If you issue set with only the setting (like <code>set renderer</code>), you will get the current value of that setting.
 Settings that have only two possible values can also be toggled with the <code>toggle</code>
-command (an example is the default key binding of Print Screen to <code>toggle
+command (an example is the default key binding of F12 to <code>toggle
 fullscreen</code>, see also below). A complete list of settings should also be in the file
 <code>commands.txt</code> in the <code>doc</code> directory. Note that using the "tab completion" feature can help you a lot in getting an idea of what settings are possible, as it will only complete possible options. Just try that.
 </p>
@@ -276,9 +288,6 @@ fullscreen</code>, see also below). A complete list of settings should also be i
 Add the complete list of settings in commands.txt somewhere.<br/>
 </p>
 -->
-
-
-<h4><a id="importantsettings">3.3.1. Some Simple But Important Settings</a></h4>
 
 <p>
 If the MSX goes too fast or too slow, adjust the emulation speed with the
@@ -289,7 +298,7 @@ speed 120</code>, will let the emulated MSX run at 120% of normal MSX speed. Thi
 <p>
 If you got the MSX sped up to maximum (<code>set throttle off</code>), but
 openMSX is still not going fast enough for you, you can increase the
-maxframeskip setting: <code>set frameskip 10</code> will mean that openMSX may
+maxframeskip setting: <code>set maxframeskip 10</code> will mean that openMSX may
 skip 10 screens to be displayed, just to get to the requested speed. Note that
 you can also <em>force</em> openMSX to skip frames, with the minframeskip setting. This
 sets the amount of frames that will be skipped always. Of course frame skipping
@@ -300,113 +309,6 @@ makes emulation a lot less accurate.
 Some MSX machines like the Panasonic FS-A1GT have built in software, that can be switched on and off via a switch on the machine itself. In openMSX the internal software is switched off by default, but you can switch it on with the following setting: <code>set frontswitch on</code>.
 </p>
 
-<p>
-If you want openMSX to emulate the blinking interlace effect as can be seen on a
-real MSX, try <code>set deinterlace off</code>... I recommend to turn it on though, the
-blinking is quite irregular on most systems and thus a pain for the eyes
-(unless you combine it with the <code>glow</code> effect in SDLGL, see the <a class="internal" href="#renderers">renderers section</a>).
-</p>
-
-
-
-<h4><a id="renderers">3.3.2. Renderers</a></h4>
-
-<p>
-At the moment, there are three working renderers. A renderer is a part of the
-emulator that generates the graphical part of the emulation: the MSX 'screen'.
-</p>
-
-<p>
-The default renderer is called SDLHi. This one uses a window of 640&times;480
-pixels to be able to display all the screen lines, even when interlacing is used
-on the MSX. This renderer is not using any hardware acceleration and has a
-steady CPU time consumption. The CPU load can be quite high though. It is about
-50% on Manuel's Athlon XP 1600+, when emulating a 3.5MHz MSX.
-</p>
-
-<p>
-A very good alternative for the SDLHi renderer is called SDLGL.
-This renderer uses the OpenGL graphics library to optimise the rendering.
-Because part of the rendering is done by the graphics hardware,
-the CPU load can vary a lot.
-The SDLGL renderer is only useful if you have a hardware accelerated
-OpenGL library; a software GL implementation will be very slow.
-</p>
-
-<p>
-When using the SDLGL renderer, openMSX can do some special effects on the
-emulated MSX screen, such as <code>blur</code>, <code>glow</code> (afterglow!)
-and <code>scanline</code>, to imitate a TV screen.
-Each of these effects has an associated setting, where you can control its
-level: how much blur should be applied to the picture, how dark should the
-scanlines be etc. The scanlines are now also supported in SDLHi.
-</p>
-
-<p>
-On Linux, you need to have the GLX module loaded in your X server and
-also accelerated graphics (DRI).
-You can verify this by typing <code>glxinfo</code> on the command line.
-SDLGL runs fine on nVidia GeForce cards using nVidia's binary graphics driver
-for Linux.
-If you install the right drivers for hardware acceleration, ATI Radeon cards
-work fine as well.
-If you compiled openMSX from source, the GL renderer is only available
-when the OpenGL development files (<code>gl.h</code> is one of them)
-were installed on the computer at compile time.
-This will be checked by the <code>configure</code> script.
-</p>
-
-<p>
-The third working renderer is called SDLLo. This renderer uses a window of only
-320&times;240 pixels, which means that part of the MSX screen will be omitted. An
-'interpolation' (blending) algorithm to reduce this problem was added for 16
-and 24bpp visuals. I don't recommend to use this renderer, unless you have an
-extremely slow computer.
-</p>
-
-<p>
-You can set the renderer in the <code>settings.xml</code> file. Look for <code>&lt;config
-id="renderer"&gt;</code>.  You can also specify there whether the emulator should switch
-to full screen when started. Of course all of this can also be changed at run time via the console.
-</p>
-
-<h4><a id="accuracy">3.3.3. Renderer Accuracy</a></h4>
-
-<p>
-Another example of the settings that you can specify in the Console is the
-accuracy of the rendering. There are three options: <code>screen</code>, <code>line</code> and
-<code>pixel</code>. The latter is the slowest, but most accurate setting (it also shows
-that the timing in openMSX is not perfect yet): it will enable you to run the
-Unknown Reality real time oscilloscope almost flawlessly!  Just type <code>set
-accuracy pixel</code> in the console. You can use the default <code>line</code> accuracy for
-almost every other piece of software. <code>screen</code> is the fastest, but least
-accurate setting. This will break a lot of software that uses raster effects.
-</p>
-
-
-<h4><a id="scalers">3.3.4. Scalers</a></h4>
-
-<p>
-Most MSX screen modes are only 256&times;212 pixels big. However, the SDLHi renderer uses a 640&times;480 screen mode to display the MSX screen. In those low resolution MSX screen modes many of the pixels in the high resolution PC screen are not used very well: they are simply multiplications of the original image: every MSX pixel is represented by four pixels in the SDLHi renderer. This is a form of scaling. In stead of just multiplying the pixels by four, we could also use the extra pixels to make the MSX image look sharper. There exist several algorithms that try to do this. Some of them are implemented in openMSX.
-</p>
-
-<p>
-If you don't appreciate the `smart' scaling, you can just leave the <code>scaler</code>setting to the default value: simple. This is the simple multiplication by four as is explained above. However, if you'd like to try the other scalers, here is some information about them:
-</p>
-<ul>
-<li><a class="external" href="http://elektron.its.tudelft.nl/~dalikifa/">2xSaI</a>: this is the 2xSaI scaler. It does a pretty good job: it tries to find intermediate colours to make the image smoother. However, when using white fonts on a black background, you can get some nasty gray lines around them.</li>
-<li><a class="external" href="http://scale2x.sf.net/">Scale2x</a>: Scale2x is a simple algorithm that only uses the original colours, so it will not give any blur</li>
-<li><a class="external" href="http://www.hiend3d.com/hq2x.html">hq2x</a>: a very complex algorithm, somewhat similar to 2xSaI, with the difference that takes edges into account. Gives a very good result most of the time, but is also very CPU intensive. Only use it on very fast computers</li>
-</ul>
-<p>
-A small demonstration of the algorithms can be found on the openMSX web site.
-</p>
-
-<h4><a id="setsound">3.3.5. Sound Settings</a></h4>
-
-<p>
-For all sound devices that are available in the MSX you are emulating, there are two settings available: the volume setting and the mode setting. The latter is only available for mono sound devices; you can use it to set the channel mode to left, right or mono (both channels). Example: <code>set psg_mode left</code> or <code>set cassetteplayer_volume 0</code>.
-</p>
 
 <h3><a id="plug">3.4. Plug</a></h3>
 
@@ -570,40 +472,49 @@ A final note: saving to cassette is not supported in openMSX yet.
 
 <h2><a id="input">5. Input Devices</a></h2>
 
-<h3><a id="keymapping">5.1. Default Key Mapping</a></h3>
+<h3><a id="keymapping">5.1. Key Mapping</a></h3>
 
 <p>
-The default key mapping is as follows:
+The special MSX keys are mapped as follows:
 </p>
 
 <table>
-  <tr> <td>F12</td> <td>Toggle full screen mode</td> </tr>
-  <tr> <td>F11</td> <td>Mute audio</td> </tr>
-  <tr> <td>F10</td> <td>Toggle console display</td> </tr>
-  <tr> <td>F9</td> <td>Full Throttle (maximum speed)</td> </tr>
-  <tr> <td>F8</td> <td>MSX STOP key</td> </tr>
-  <tr> <td>F7</td> <td>MSX SELECT key</td> </tr>
+  <tr> <td>L-CTRL</td> <td>MSX CTRL key</td> </tr>
+  <tr> <td>R-CTRL</td> <td>MSX dead (accents) key</td> </tr>
   <tr> <td>L-ALT</td> <td>MSX GRAPH key</td> </tr>
   <tr> <td>R-ALT</td> <td>MSX CODE key</td> </tr>
-  <tr> <td>L-CTRL</td> <td>MSX CTRL key</td> </tr>
-  <tr> <td>R-CTRL</td> <td>MSX dead key</td> </tr>
   <tr> <td>L-Windows</td> <td>MSX iee ('no') key</td> </tr>
   <tr> <td>R-Windows</td> <td>MSX hai ('yes') key</td> </tr>
+  <tr> <td>F7</td> <td>MSX SELECT key</td> </tr>
+  <tr> <td>F8</td> <td>MSX STOP key</td> </tr>
+</table>
+
+<p>
+Several emulator functions are available under keys as well:
+</p>
+
+<table>
   <tr> <td>Pause</td> <td>Pause emulation</td> </tr>
-  <tr> <td>CTRL+Pause (Break)</td> <td>Quit openMSX</td> </tr>
+  <tr> <td>ALT+F4</td> <td>Quit openMSX</td> </tr>
+  <tr> <td>CTRL+Pause (Break)</td> <td>Quit openMSX (not in Windows)</td> </tr>
   <tr> <td>PrtScr</td> <td>Save current screen to a file (screen shot)</td> </tr>
+  <tr> <td>F9</td> <td>Toggle full throttle (maximum speed)</td> </tr>
+  <tr> <td>F10</td> <td>Toggle console display</td> </tr>
+  <tr> <td>F11</td> <td>Toggle audio mute</td> </tr>
+  <tr> <td>F12</td> <td>Toggle full screen mode</td> </tr>
 </table>
 <!--
 <p class="todo">
 Make the table look better by using cellpadding stuff in the css.
 </p>-->
 <p>
-The keys that do not map MSX keys, can be changed in the <code>init.tcl</code> file by adding "bind" commands, see the <a class="external" href="setup.html">Setup Guide</a>.
+The table above lists the default key mapping.
+It can be changed in the <code>init.tcl</code> file by using "bind" commands, see the <a class="external" href="setup.html#settings">Setup Guide</a>.
 </p>
 
 <h3><a id="joystick">5.2. Joystick</a></h3>
 
-<p>If you have a joystick connected to your PC, use the following to connect it to the emulated MSX:
+<p>If you have a joystick connected to your PC, use the following command to connect it to the emulated MSX:
 </p>
 <div class="commandline">
     plug joyporta joystick1
@@ -631,7 +542,227 @@ To connect a mouse, you can also use the <code>plug</code> command:
 will connect a mouse to joystick port A. If you want the joystick emulation feature that some mice (like the Philips SBC-3810 and the Sony MOS-1) have, keep the left mouse key pressed when plugging it in, just as on a real MSX.
 </p>
 
-<h2><a id="midi">6. MIDI</a></h2>
+<h2><a id="video">6. Video</a></h2>
+
+<h3><a id="renderers">6.1. Renderers</a></h3>
+
+<p>
+A renderer is a part of the emulator that generates the graphical part of the emulation: the MSX 'screen'. At the moment, there are three working renderers:
+</p>
+
+<dl>
+
+<dt>SDLHi</dt>
+<dd>
+This is the default renderer. It uses a window of 640&times;480 pixels. This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be quite high though. It is about 50% on Manuel's Athlon XP 1600+, when emulating a 3.5MHz MSX.
+</dd>
+
+<dt>SDLGL</dt>
+<dd>
+This renderer uses the OpenGL graphics library to optimise the rendering.
+Because part of the rendering is done by the graphics hardware,
+the CPU load can vary a lot.
+The SDLGL renderer is only useful if you have a hardware accelerated
+OpenGL library; a software GL implementation will be very slow.
+See the Setup Guide for
+<a class="external" href="setup.html#opengl">OpenGL performance tips</a>.
+</dd>
+
+<dt>SDLLo</dt>
+<dd>
+This renderer uses a window of only 320&times;240 pixels.
+For 256&times;212 MSX modes, this is a good fit.
+For 512&times;212 MSX modes, two pixels will be interpolated to produce
+a single output pixel.
+This renderer is mainly useful if you have a slow computer.
+</dd>
+
+</dl>
+
+<p>
+You can set the renderer in the <code>settings.xml</code> file. Look for <code>&lt;config
+id="renderer"&gt;</code>.  You can also specify there whether the emulator should switch
+to full screen when started. Of course all of this can also be changed at run time via the console.
+</p>
+
+<p>
+Note that openMSX can be compiled without the SDLGL renderer; if that is true for the build you're using, you will not be able to switch to the SDLGL renderer.
+</p>
+
+<h3><a id="accuracy">6.2. Accuracy</a></h3>
+
+<p>
+The <code>accuracy</code> setting controls how often the renderer is synchronized with the MSX video processor (VDP).
+There are three options:
+</p>
+ 
+<dl>
+<dt>screen</dt>
+<dd>
+Synchronize once per screen (frame).
+Good enough for most MSX1 software, but will break most raster effects.
+</dd>
+
+<dt>line</dt>
+<dd>
+Synchronize at the start of a line.
+This is the default setting;
+it is good enough for most software.
+This setting hides imperfections in raster effects,
+which could be considered a useful feature.
+</dd>
+
+<dt>pixel</dt>
+<dd>
+Synchronize at the exact pixel where a change occurs.
+This is the most realistic setting.
+To see demos like Unknown Reality (scope part) and Verti correctly,
+you should use this setting.
+Also, you will see any imperfections in raster effects
+just like they occur on a real MSX.
+</dd>
+
+</dl>
+
+<p>
+Higher accuracy creates a higher CPU load.
+However, it is not as bad as it may seem at first:
+openMSX synchronizes only when it is actually needed,
+so the amount of synchronization points depends more on the program
+you're running than on the accuracy setting.
+</p>
+
+<h3><a id="scalers">6.3. Scalers</a></h3>
+
+<p>
+Most MSX screen modes are only 256&times;212 pixels big. However, the SDLHi renderer uses a 640&times;480 screen mode to display the MSX screen. The conversion from the low resolution MSX image to the high resolution PC image is done by a <em>scaler</em>. openMSX contains several scalers:
+</p>
+
+<dl>
+
+<dt>simple</dt>
+<dd>
+This scaler simply expands each MSX pixels to a square of 2&times;2 PC pixels.
+This is the default scaler and it is fast.
+The image looks blocky, especially diagonal edges.
+</dd>
+
+<dt><a class="external" href="http://scale2x.sourceforge.net/">Scale2x</a></dt>
+<dd>
+This scaler smoothes edges by using only original colours, so it will not give any blur. It is fast and its image is less blocky than that of the simple scaler. However, all corners are rounded, which does not look good on all graphics.
+</dd>
+
+
+<dt><a class="external" href="http://elektron.its.tudelft.nl/~dalikifa/">2xSaI</a></dt>
+<dd>
+This scaler smoothes edges by interpolating neighbouring pixels.
+It is heaver on the CPU than the simple and Scale2x scalers.
+It does a good job on most graphics, except for high-contrast edges;
+for example white fonts on a black background get some nasty gray lines around them.
+Also corners are rounded, similar to Scale2x.
+</dd>
+
+<dt><a class="external" href="http://www.hiend3d.com/hq2x.html">hq2x</a></dt>
+<dd>
+This scaler looks somewhat similar to 2xSaI, but its output is sharper.
+Its complex algorithm is very heavy on the CPU; use this scaler only on fast PCs.
+It does a good job on most graphics; it avoids excessive blurring and it keeps corners sharp.
+On some graphics, it does not identify edges correctly, making those edges blocky instead of smooth.
+</dd>
+
+</dl>
+
+<p>
+A small demonstration of the algorithms can be found on <a class="external" href="http://openmsx.sourceforge.net">the openMSX web site</a>.
+</p>
+
+<h3><a id="gamma">6.4. Gamma Correction</a></h3>
+
+<p>
+PC monitors can have different gamma values than MSX monitors.
+To compensate for this, openMSX has a gamma correction feature.
+It is controlled by the <code>gamma</code> setting.
+A value of 1.0 disables gamma correction; a lower value makes the image darker; a higher value makes it brighter.
+</p>
+
+<p>
+If you want to know what gamma correction really means, read <a class="external" href="http://www.bberger.net/rwb/gamma.html">this page about monitor gamma</a>.
+The gamma correction value you can set in openMSX should be the gamma of your PC screen divided by the gamma of the MSX screen.
+I measured the gamma of my PC screen (TFT) at 2.0 and the gamma of my MSX monitor at 2.5. That puts the gamma correction at 2.0 / 2.5 = 0.8.
+So if I enter that value, the openMSX image will have comparable brightness to the MSX image.
+However, 0.8 is not the value I'm actually using: I prefer a brighter image than my MSX monitor, so I chose to use a gamma correction of 1.1.
+</p>
+
+<h3><a id="videoeffects">6.5. Special Effects</a></h3>
+
+<p>
+openMSX contains a couple of special effects that can be applied to the video output:
+</p>
+
+<dl>
+
+<dt>deinterlace</dt>
+<dd>
+Interlacing is a technique to double the vertical resolution by splitting the image into two frames: the first frame the even lines are displayed, the second frame the odd lines are displayed.
+The after glow on a TV and some processes in the human brain combine both frames into a single image. However, this process is not perfect and you can notice flickering, especially on horizontal lines.
+The deinterlace feature combines the even and the odd frames into a single output frame, thus eliminating the flicker.
+The <code>deinterlace</code> setting controls this feature:
+it can be on (enabled) or off (disabled); it is enabled by default.
+This feature works in the <code>SDLHi</code> and <code>SDLGL</code> renderers.
+</dd>
+
+<dt>scanlines</dt>
+<dd>
+On TVs and MSX monitors, you can see a small black space inbetween the display lines, especially when using NTSC.
+The scanlines feature simulates this by drawing every other line a bit darker.
+This feature works in the <code>SDLHi</code> and <code>SDLGL</code> renderers,
+but is disabled when a scaler other than <code>simple</code> is used.
+</dd>
+
+<dt>blur</dt>
+<dd>
+TVs and MSX monitors are less sharp than PC monitors:
+neighbouring pixels tend to blur into each other.
+The blur feature simulates this by interpolating neighbouring pixels.
+The <code>blur</code> settings control this:
+0 means no blur (completely sharp), 50 means some blur (like a monitor),
+100 means maximum blur (like a TV).
+All other values between 0 and 100 are also possible ofcourse.
+This feature works only in the <code>SDLGL</code> renderer.
+</dd>
+
+<dt>after glow</dt>
+<dd>
+The after glow feature blends each frame with the frame before it.
+This results in moving objects leaving a trail (motion blur).
+The <code>glow</code> setting controls the amount of after glow:
+0 means no after glow, 100 means maximum after glow.
+This feature works only in the <code>SDLGL</code> renderer.
+</dd>
+
+</dl>
+
+<h2><a id="audio">7. Audio</a></h2>
+
+<h3><a id="audiosettings">7.1. Audio Settings</a></h3>
+
+<p>
+There is a <code>master_volume</code> setting, which controls the overall output volume of openMSX (it applies to all sound devices). Volume 0 means no sound, volume 100 is maximum. 
+</p>
+
+<p>
+There is also a <code>mute</code> setting, to disable all sound from openMSX at once. It can be on (muted) or off (sound is audible). By default, mute is bound to the F11 key.
+</p>
+
+<p>
+Each sound device in the MSX you are emulating also has its own volume setting. Volume 0 means no sound, volume 100 is maximum. For example: <code>set "MSX Music_volume" 50</code>.
+</p>
+
+<p>
+All mono sound devices have an additional mode setting. You can use it to select whether this device should be audible on the left channel ("left"), the right channel ("right") or both channels ("mono"). Example: <code>set psg_mode left</code>.
+</p>
+
+<h3><a id="midi">7.2. MIDI</a></h3>
 
 <p>
 openMSX supports the MSX-MIDI interface of the MSX turbo R GT.
@@ -655,7 +786,7 @@ device node, for example <code>/dev/midi</code>, as its output file. This is don
 On Windows, real MIDI devices are separate pluggables. 
 </p>
 
-<h2><a id="debugdevice">7. Debug Device</a></h2>
+<h2><a id="debugdevice">8. Debug Device</a></h2>
 
 <p>
 This chapter describes how the debug device, built in openMSX, can be used to
@@ -663,7 +794,7 @@ the advantage of an MSX programmer. This device is an artificial MSX device that
 </p>
 
 
-<h3><a id="debugdeviceenable">7.1. Enabling the Debug Device</a></h3>
+<h3><a id="debugdeviceenable">8.1. Enabling the Debug Device</a></h3>
 
 <p>
 The easiest way to enable the debugdevice is to start openMSX with the
@@ -690,7 +821,7 @@ like, including <code>stdout</code>.
 </p>
 
 
-<h3><a id="debugdeviceports">7.2. The Output Ports</a></h3>
+<h3><a id="debugdeviceports">8.2. The Output Ports</a></h3>
 
 <p>
 Controlling the device is done from within an MSX program. For this purpose, the
@@ -728,7 +859,7 @@ The parameters for mode 2 (multi byte mode) are as follows:
   <tr> <td>0-1</td> <td> mode (0 = hex, 1 = binary, 2 = decimal, 3 = ascii mode)</td> </tr>
 </table>
 
-<h3><a id="debugdevicemode1">7.3. Single Byte Mode</a></h3>
+<h3><a id="debugdevicemode1">8.3. Single Byte Mode</a></h3>
 
 <p>
 In mode 1, any write to port 0x2F will result in output. This way, the
@@ -750,24 +881,21 @@ OUT ($2f),A
 This will give the following output:
 </p>
 
-<p>
-<code>41h 01000001b 065 'A' EmuTime:087a09c75a</code><br/>
+<pre>41h 01000001b 065 'A' EmuTime:087a09c75a
 (when all bits are on, mode register = 0x1F)
-</p>
+</pre>
 <p>
 or
 </p>
-<p>
-<code>41h 065 'A' EmuTime: 087a09c75a</code><br/>
+<pre>41h 065 'A' EmuTime: 087a09c75a
 (when the binary bit is off, mode register = 0x1D)
-</p>
+</pre>
 <p>
 or
 </p>
-<p>
-<code>41h EmuTime: 087a09c75a</code><br/>
+<pre>41h EmuTime: 087a09c75a
 (when only the hexbit is on, mode register = 0x11)
-</p>
+</pre>
 <p>
 and so on.
 </p>
@@ -785,7 +913,7 @@ the layout of the whole line.
 </p>
 
 
-<h3><a id="debugdevicemode2">7.4. Multi Byte Mode</a></h3>
+<h3><a id="debugdevicemode2">8.4. Multi Byte Mode</a></h3>
 
 <p>
 In mode 2, writing to 0x2F does not output any text. All bytes written to this
@@ -815,42 +943,30 @@ Only at this last instruction the output appears.
 <p>
 If we substitute <code>$20</code> for <code>xx</code>, we get:
 </p>
-
-<p>
-<code>41h 41h 41h</code>
-</p>
-
+<pre>41h 41h 41h</pre>
 <p>
 and if we substitute <code>$22</code> for <code>xx</code>, we get:
 </p>
-
-<p>
-<code>065 065 065</code>
-</p>
-
+<pre>065 065 065</pre>
 <p>
 The extra zero is added to keep alignment.  Finally, if we want ASCII
 output, all we need to do is change <code>xx</code> for <code>$23</code>:
 </p>
-
-<p>
-<code>AAA</code>
-</p>
-
+<pre>AAA</pre>
 <p>
 In this special case, the space in between the data is left out. Any special
 character like carriage return, linefeed, beep or tab will be printed as can be
 expected.
 </p>
 
-<h3><a id="debugdeviceoutput">7.5. Controlling the Output</a></h3>
+<h3><a id="debugdeviceoutput">8.5. Controlling the Output</a></h3>
 
 <p>
 The openMSX console can be used to control the output of the device. This is
 done by the setting <code>debugoutput</code>. You can set it to any file name or to the special settings <code>stdout</code> and <code>stderr</code>, which lets the output go to these special streams.
 </p>
 
-<h2><a id="contact">8. Contact Info</a></h2>
+<h2><a id="contact">9. Contact Info</a></h2>
 
 <p>
 Since openMSX is still in heavy development, feedback and bug reports are very
