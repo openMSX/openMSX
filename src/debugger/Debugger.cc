@@ -77,6 +77,18 @@ void Debugger::getDebuggables(set<string>& result) const
 
 // class DebugCmd
 
+static word getAddress(const vector<CommandArgument>& tokens)
+{
+	if (tokens.size() < 3) {
+		throw CommandException("Missing argument");
+	}
+	unsigned addr = tokens[2].getInt();
+	if (addr >= 0x10000) {
+		throw CommandException("Invalid address");
+	}
+	return addr;
+}
+
 Debugger::DebugCmd::DebugCmd(Debugger& parent_)
 	: parent(parent_)
 {
@@ -91,53 +103,33 @@ void Debugger::DebugCmd::execute(const vector<CommandArgument>& tokens,
 	string subCmd = tokens[1].getString();
 	if (subCmd == "read") {
 		read(tokens, result);
-		return;
 	} else if (subCmd == "read_block") {
 		readBlock(tokens, result);
-		return;
 	} else if (subCmd == "write") {
 		write(tokens, result);
-		return;
 	} else if (subCmd == "write_block") {
 		writeBlock(tokens, result);
-		return;
 	} else if (subCmd == "size") {
 		size(tokens, result);
-		return;
 	} else if (subCmd == "desc") {
 		desc(tokens, result);
-		return;
 	} else if (subCmd == "list") {
 		list(result);
-		return;
 	} else if (subCmd == "step") {
 		parent.cpu->doStep();
-		return;
 	} else if (subCmd == "cont") {
 		parent.cpu->doContinue();
-		return;
 	} else if (subCmd == "break") {
 		parent.cpu->doBreak();
-		return;
 	} else if (subCmd == "set_bp") {
-		unsigned addr = tokens[2].getInt();
-		if (addr >= 0x10000) {
-			throw CommandException("Invalid address");
-		}
-		parent.cpu->setBreakPoint(addr);
-		return;
+		parent.cpu->setBreakPoint(getAddress(tokens));
 	} else if (subCmd == "remove_bp") {
-		unsigned addr = tokens[2].getInt();
-		if (addr >= 0x10000) {
-			throw CommandException("Invalid address");
-		}
-		parent.cpu->removeBreakPoint(addr);
-		return;
+		parent.cpu->removeBreakPoint(getAddress(tokens));
 	} else if (subCmd == "list_bp") {
 		result.setString(parent.cpu->listBreakPoints());
-		return;
+	} else {
+		throw SyntaxError();
 	}
-	throw SyntaxError();
 }
 
 void Debugger::DebugCmd::list(CommandArgument& result)
