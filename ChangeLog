@@ -1,5 +1,10 @@
 $Id$
 
+2001-10-29 Joost Yervante Damad <j.damad@qahwah.net>
+	* finished migration of CVS and mailinglists to sf.net
+	* thank you sourceforge team!!
+	* http://openmsx.sf.net
+
 2001-10-27 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* fixes, improvements to DACSound (untested)
 	* updated KeyClick, the "click too short" problem should be solved now
