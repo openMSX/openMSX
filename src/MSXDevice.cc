@@ -166,15 +166,21 @@ const string& MSXDevice::getName() const
 
 byte MSXDevice::readIO(byte port, const EmuTime& /*time*/)
 {
-	PRT_DEBUG("MSXDevice::readIO (0x" << hex << (int)port << dec
-		<< ") : No device implementation.");
-	return 255;
+	PRT_DEBUG("MSXDevice::readIO (0x" << hex << (int)port << dec <<
+	          ") : No device implementation.");
+	return 0xFF;
 }
+
 void MSXDevice::writeIO(byte port, byte value, const EmuTime& /*time*/)
 {
-	PRT_DEBUG("MSXDevice::writeIO(port 0x" << hex << (int)port << dec
-		<<",value "<<(int)value<<") : No device implementation.");
+	PRT_DEBUG("MSXDevice::writeIO(port 0x" << hex << (int)port << dec <<
+	          ",value "<<(int)value<<") : No device implementation.");
 	// do nothing
+}
+
+byte MSXDevice::peekIO(word address, const EmuTime& /*time*/) const
+{
+	return 0xFF;
 }
 
 

@@ -44,6 +44,12 @@ byte MicrosolFDC::readIO(byte port, const EmuTime& time)
 	return value;
 }
 
+byte MicrosolFDC::peekIO(byte port, const EmuTime& time) const
+{
+	// TODO peekIO not implemented
+	return 0xFF;
+}
+
 void MicrosolFDC::writeIO(byte port, byte value, const EmuTime& time)
 {
 	PRT_DEBUG("MicrosolFDC: write 0x" << hex << (int)port << " 0x" << (int)value << dec);

@@ -43,6 +43,12 @@ byte MSXAudio::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
+byte MSXAudio::peekIO(byte port, const EmuTime& time) const
+{
+	// TODO not implemented
+	return 0xFF;
+}
+
 void MSXAudio::writeIO(byte port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("Audio: write "<<hex<<(int)port<<" "<<(int)value<<dec);

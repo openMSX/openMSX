@@ -28,6 +28,11 @@ void MSXTurboRPCM::reset(const EmuTime& time)
 
 byte MSXTurboRPCM::readIO(byte port, const EmuTime& time)
 {
+	return peekIO(port, time);
+}
+
+byte MSXTurboRPCM::peekIO(byte port, const EmuTime& time) const
+{
 	byte result;
 	switch (port & 0x01) {
 	case 0:
@@ -95,7 +100,7 @@ void MSXTurboRPCM::writeIO(byte port, byte value, const EmuTime& time)
 	}
 }
 
-byte MSXTurboRPCM::getSample(const EmuTime& time)
+byte MSXTurboRPCM::getSample(const EmuTime& time) const
 {
 	byte result;
 	if (status & 0x04) {
@@ -107,7 +112,7 @@ byte MSXTurboRPCM::getSample(const EmuTime& time)
 	return result;
 }
 
-bool MSXTurboRPCM::getComp(const EmuTime& time)
+bool MSXTurboRPCM::getComp(const EmuTime& time) const
 {
 	// TODO also when D/A ??
 	byte sample = (status & 0x10) ? hold : getSample(time);

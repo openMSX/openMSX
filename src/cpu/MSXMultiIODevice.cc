@@ -104,6 +104,13 @@ byte MSXMultiIODevice::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
+byte MSXMultiIODevice::peekIO(byte port, const EmuTime& time) const
+{
+	// conflict: just peek first device
+	assert(!devices.empty());
+	return devices.front()->peekIO(port, time);
+}
+
 void MSXMultiIODevice::writeIO(byte port, byte value, const EmuTime& time)
 {
 	for (vector<MSXDevice*>::iterator it = devices.begin();

@@ -83,7 +83,7 @@ MSXCPUInterface::MSXCPUInterface()
 
 	debugger.registerDebuggable("memory", memoryDebug);
 	debugger.registerDebuggable("slotted memory", slottedMemoryDebug);
-	//debugger.registerDebuggable("I/O ports", ioDebug);
+	debugger.registerDebuggable("ioports", ioDebug);
 
 	msxcpu.setInterface(this);
 }
@@ -94,7 +94,7 @@ MSXCPUInterface::~MSXCPUInterface()
 
 	debugger.unregisterDebuggable("memory", memoryDebug);
 	debugger.unregisterDebuggable("slotted memory", slottedMemoryDebug);
-	//debugger.unregisterDebuggable("I/O ports", ioDebug);
+	debugger.unregisterDebuggable("ioports", ioDebug);
 
 	commandController.unregisterCommand(&slotMapCmd,    "slotmap");
 	commandController.unregisterCommand(&slotSelectCmd, "slotselect");
@@ -550,7 +550,7 @@ const string& MSXCPUInterface::IODebug::getDescription() const
 byte MSXCPUInterface::IODebug::read(unsigned address)
 {
 	const EmuTime& time = parent.scheduler.getCurrentTime();
-	return parent.readIO((word)address, time); // TODO make peekIO() method
+	return parent.IO_In[address & 0xFF]->peekIO(address, time);
 }
 
 void MSXCPUInterface::IODebug::write(unsigned address, byte value)

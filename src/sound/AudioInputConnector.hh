@@ -19,7 +19,7 @@ public:
 	virtual const string& getClass() const;
 	virtual AudioInputDevice& getPlugged() const;
 
-	short readSample(const EmuTime& time);
+	short readSample(const EmuTime& time) const;
 };
 
 } // namespace openmsx

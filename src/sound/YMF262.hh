@@ -137,7 +137,9 @@ public:
 	virtual void reset(const EmuTime& time);
 	void writeReg(int r, byte v, const EmuTime& time);
 	byte readReg(int reg);
+	byte peekReg(int reg) const;
 	byte readStatus();
+	byte peekStatus() const;
 	
 private:
 	// SoundDevice

@@ -9,7 +9,7 @@ namespace openmsx {
 /// class I8254 ///
 
 I8254::I8254(ClockPinListener* output0, ClockPinListener* output1,
-             ClockPinListener* output2, const EmuTime &time)
+             ClockPinListener* output2, const EmuTime& time)
 	: counter0(output0, time),
 	  counter1(output1, time),
 	  counter2(output2, time)
@@ -20,14 +20,14 @@ I8254::~I8254()
 {
 }
 
-void I8254::reset(const EmuTime &time)
+void I8254::reset(const EmuTime& time)
 {
 	counter0.reset(time);
 	counter1.reset(time);
 	counter2.reset(time);
 }
 
-byte I8254::readIO(byte port, const EmuTime &time)
+byte I8254::readIO(byte port, const EmuTime& time)
 {
 	port &= 3;
 	switch (port) {
@@ -45,7 +45,25 @@ byte I8254::readIO(byte port, const EmuTime &time)
 	}
 }
 
-void I8254::writeIO(byte port, byte value, const EmuTime &time)
+byte I8254::peekIO(byte port, const EmuTime& time) const
+{
+	port &= 3;
+	switch (port) {
+		case 0: // read counter 0
+			return counter0.peekIO(time);
+		case 1: // read counter 1
+			return counter1.peekIO(time);
+		case 2: // read counter 2
+			return counter2.peekIO(time);
+		case 3: // read from control word, illegal
+			return 255;	//TODO check value
+		default:
+			assert(false);
+			return 255;
+	}
+}
+
+void I8254::writeIO(byte port, byte value, const EmuTime& time)
 {
 	port &= 3;
 	switch (port) {
@@ -80,7 +98,7 @@ void I8254::writeIO(byte port, byte value, const EmuTime &time)
 	}
 }
 
-void I8254::readBackHelper(byte value, byte cntr, const EmuTime &time)
+void I8254::readBackHelper(byte value, byte cntr, const EmuTime& time)
 {
 	Counter &c = getCounter(cntr);
 	if (!(value & RB_STATUS)) {
@@ -91,7 +109,7 @@ void I8254::readBackHelper(byte value, byte cntr, const EmuTime &time)
 	}
 }
 
-void I8254::setGate(byte cntr, bool status, const EmuTime &time)
+void I8254::setGate(byte cntr, bool status, const EmuTime& time)
 {
 	getCounter(cntr).setGateStatus(status, time);
 }
@@ -118,7 +136,7 @@ I8254::Counter& I8254::getCounter(byte cntr)
 
 /// class Counter ///
 
-I8254::Counter::Counter(ClockPinListener* listener, const EmuTime &time)
+I8254::Counter::Counter(ClockPinListener* listener, const EmuTime& time)
 	: output(listener)
 {
 	gate = true;
@@ -127,7 +145,7 @@ I8254::Counter::Counter(ClockPinListener* listener, const EmuTime &time)
 	reset(time);
 }
 
-void I8254::Counter::reset(const EmuTime &time)
+void I8254::Counter::reset(const EmuTime& time)
 {
 	currentTime = time;
 	ltchCtrl = ltchCntr = false;
@@ -137,7 +155,7 @@ void I8254::Counter::reset(const EmuTime &time)
 	counting = true;
 }
 
-byte I8254::Counter::readIO(const EmuTime &time)
+byte I8254::Counter::readIO(const EmuTime& time)
 {
 	if (ltchCtrl) {
 		ltchCtrl = false;
@@ -169,7 +187,35 @@ byte I8254::Counter::readIO(const EmuTime &time)
 	}
 }
 
-void I8254::Counter::writeIO(byte value, const EmuTime &time)
+byte I8254::Counter::peekIO(const EmuTime& time) const
+{
+	if (ltchCtrl) {
+		return latchedControl;
+	}
+	
+	const_cast<I8254::Counter*>(this)->advance(time);
+
+	word readData = ltchCntr ? latchedCounter : counter;
+	switch (control & WRT_FRMT) {
+	case WF_LATCH:
+		assert(false);
+	case WF_LOW:
+		return readData & 0x00FF;
+	case WF_HIGH:
+		return readData >> 8;
+	case WF_BOTH:
+		if (readOrder == LOW) {
+			return readData & 0x00FF;
+		} else {
+			return readData >> 8;
+		}
+	default:
+		assert(false);
+		return 0;	// avoid warning
+	}
+}
+
+void I8254::Counter::writeIO(byte value, const EmuTime& time)
 {
 	advance(time);
 	switch (control & WRT_FRMT) {
@@ -222,7 +268,7 @@ void I8254::Counter::writeLoad(word value, const EmuTime& time)
 	active = true;	// counter is (re)armed after counter is initialized
 }
 
-void I8254::Counter::writeControlWord(byte value, const EmuTime &time)
+void I8254::Counter::writeControlWord(byte value, const EmuTime& time)
 {
 	advance(time);
 	if ((value & WRT_FRMT) == 0) {
@@ -253,7 +299,7 @@ void I8254::Counter::writeControlWord(byte value, const EmuTime &time)
 	}
 }
 
-void I8254::Counter::latchStatus(const EmuTime &time)
+void I8254::Counter::latchStatus(const EmuTime& time)
 {
 	advance(time);
 	if (!ltchCtrl) {
@@ -263,7 +309,7 @@ void I8254::Counter::latchStatus(const EmuTime &time)
 	}
 }
 
-void I8254::Counter::latchCounter(const EmuTime &time)
+void I8254::Counter::latchCounter(const EmuTime& time)
 {
 	advance(time);
 	if (!ltchCntr) {
@@ -273,7 +319,7 @@ void I8254::Counter::latchCounter(const EmuTime &time)
 	}
 }
 
-void I8254::Counter::setGateStatus(bool newStatus, const EmuTime &time)
+void I8254::Counter::setGateStatus(bool newStatus, const EmuTime& time)
 {
 	advance(time);
 	if (gate != newStatus) {
@@ -320,7 +366,7 @@ void I8254::Counter::setGateStatus(bool newStatus, const EmuTime &time)
 	}
 }
 
-void I8254::Counter::advance(const EmuTime &time)
+void I8254::Counter::advance(const EmuTime& time)
 {
 	//TODO !!!! Set SP !!!!
 	//TODO BCD counting

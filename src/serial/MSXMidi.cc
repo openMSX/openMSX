@@ -65,6 +65,32 @@ byte MSXMidi::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
+byte MSXMidi::peekIO(byte port, const EmuTime& time) const
+{
+	byte result;
+	port &= 0x07;
+	switch (port) {
+		case 0: // UART data register
+		case 1: // UART status register
+			result = i8251.peekIO(port, time);
+			break;
+		case 2: // timer interrupt flag off
+		case 3: // no function
+			result = 0xFF;
+			break;
+		case 4: // counter 0 data port
+		case 5: // counter 1 data port
+		case 6: // counter 2 data port
+		case 7: // timer command register
+			result = i8254.peekIO(port - 4, time);
+			break;
+		default:
+			assert(false);
+			result = 0xFF;	// avoid warning
+	}
+	return result;
+}
+
 void MSXMidi::writeIO(byte port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("MSX-Midi write " << (int)port << " " << (int)value);

@@ -353,7 +353,6 @@ void AY8910::reset(const EmuTime& time)
 byte AY8910::readRegister(byte reg, const EmuTime& time)
 {
 	assert(reg <= 15);
-	
 	switch (reg) {
 	case AY_PORTA:
 		if (FORCE_PORTA_INPUT ||
@@ -364,6 +363,25 @@ byte AY8910::readRegister(byte reg, const EmuTime& time)
 	case AY_PORTB:
 		if (!(regs[AY_ENABLE] & PORT_B_DIRECTION)) { //input
 			regs[reg] = interface.readB(time);
+		}
+		break;
+	}
+	return regs[reg];
+}
+
+byte AY8910::peekRegister(byte reg, const EmuTime& time) const
+{
+	assert(reg <= 15);
+	switch (reg) {
+	case AY_PORTA:
+		if (FORCE_PORTA_INPUT ||
+		    !(regs[AY_ENABLE] & PORT_A_DIRECTION)) { //input
+			return interface.peekA(time);
+		}
+		break;
+	case AY_PORTB:
+		if (!(regs[AY_ENABLE] & PORT_B_DIRECTION)) { //input
+			return interface.peekB(time);
 		}
 		break;
 	}

@@ -707,6 +707,12 @@ byte VDP::readIO(byte port, const EmuTime& time)
 	}
 }
 
+byte VDP::peekIO(byte port, const EmuTime& time) const
+{
+	// TODO not implemented
+	return 0xFF;
+}
+
 void VDP::changeRegister(byte reg, byte val, const EmuTime& time)
 {
 	//PRT_DEBUG("VDP[" << (int)reg << "] = " << hex << (int)val << dec);

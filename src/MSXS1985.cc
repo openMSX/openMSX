@@ -22,7 +22,19 @@ void MSXS1985::reset(const EmuTime& /*time*/)
 {
 }
 
-byte MSXS1985::readIO(byte port, const EmuTime& /*time*/)
+byte MSXS1985::readIO(byte port, const EmuTime& time)
+{
+	byte result = peekIO(port, time);
+	switch (port & 0x0F) {
+	case 7:
+		pattern = (pattern << 1) | (pattern >> 7);
+		break;
+	}
+	//PRT_DEBUG("S1985: read " << (int) port << " " << (int)result);
+	return result;
+}
+
+byte MSXS1985::peekIO(byte port, const EmuTime& /*time*/) const
 {
 	byte result;
 	switch (port & 0x0F) {
@@ -34,12 +46,10 @@ byte MSXS1985::readIO(byte port, const EmuTime& /*time*/)
 		break;
 	case 7:
 		result = (pattern & 0x80) ? color2 : color1;
-		pattern = (pattern << 1) | (pattern >> 7);
 		break;
 	default:
 		result = 0xFF;
 	}
-	//PRT_DEBUG("S1985: read " << (int) port << " " << (int)result);
 	return result;
 }
 

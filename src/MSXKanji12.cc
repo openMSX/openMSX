@@ -28,12 +28,24 @@ void MSXKanji12::reset(const EmuTime& /*time*/)
 	adr = 0;	// TODO check this
 }
 
-byte MSXKanji12::readIO(byte port, const EmuTime& /*time*/)
+byte MSXKanji12::readIO(byte port, const EmuTime& time)
+{
+	byte result = peekIO(port, time);
+	switch (port & 0x0F) {
+		case 9:
+			adr++;
+			break;
+	}
+	//PRT_DEBUG("MSXKanji12: read " << (int)port << " " << (int)result);
+	return result;
+}
+
+byte MSXKanji12::peekIO(byte port, const EmuTime& /*time*/) const
 {
 	byte result;
 	switch (port & 0x0F) {
 		case 0:
-			result = (byte)~ID;
+			result = ~ID;
 			break;
 		case 1:
 			result = 0x08;	// TODO what is this
@@ -44,13 +56,11 @@ byte MSXKanji12::readIO(byte port, const EmuTime& /*time*/)
 			} else {
 				result = 0xFF;
 			}
-			adr++;
 			break;
 		default:
 			result = 0xFF;
 			break;
 	}
-	//PRT_DEBUG("MSXKanji12: read " << (int)port << " " << (int)result);
 	return result;
 }
 

@@ -698,11 +698,6 @@ void YMF278::writeReg(byte reg, byte data, const EmuTime& time)
 	regs[reg] = data;
 }
 
-byte YMF278::readRegOPL4(byte reg, const EmuTime& time)
-{
-	return readReg(reg, time);
-}
-
 byte YMF278::readReg(byte reg, const EmuTime& time)
 {
 	byte result;
@@ -724,7 +719,31 @@ byte YMF278::readReg(byte reg, const EmuTime& time)
 	return result;
 }
 
+byte YMF278::peekReg(byte reg) const
+{
+	byte result;
+	switch(reg) {
+		case 2: // 3 upper bits are device ID
+			result = (regs[2] & 0x1F) | 0x20;
+			break;
+			
+		case 6: // Memory Data Register
+			result = readMem(memadr);
+			break;
+
+		default:
+			result = regs[reg];
+			break;
+	}
+	return result;
+}
+
 byte YMF278::readStatus(const EmuTime& time)
+{
+	return peekStatus(time);
+}
+
+byte YMF278::peekStatus(const EmuTime& time) const
 {
 	byte result = 0;
 	if (time < busyTime) result |= 0x01;
@@ -811,7 +830,7 @@ void YMF278::setVolume(int newVolume)
 
 }
 
-byte YMF278::readMem(unsigned address)
+byte YMF278::readMem(unsigned address) const
 {
 	if (address < endRom) {
 		return rom[address];
@@ -854,7 +873,7 @@ const string& YMF278::DebugRegisters::getDescription() const
 
 byte YMF278::DebugRegisters::read(unsigned address)
 {
-	return parent.readReg(address, Scheduler::instance().getCurrentTime());
+	return parent.peekReg(address);
 }
 
 void YMF278::DebugRegisters::write(unsigned address, byte value)

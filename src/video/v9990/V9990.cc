@@ -208,6 +208,12 @@ byte V9990::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
+byte V9990::peekIO(byte port, const EmuTime& time) const
+{
+	// TODO not implemented
+	return 0xFF;
+}
+
 void V9990::writeIO(byte port, byte val, const EmuTime &time)
 {
 	port &= 0x0F;

@@ -23,6 +23,7 @@ public:
 
 	virtual void reset(const EmuTime& time);
 	virtual byte readIO(byte port, const EmuTime& time);
+	virtual byte peekIO(byte port, const EmuTime& time) const;
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
@@ -33,6 +34,8 @@ private:
 public:
 	virtual byte readA(const EmuTime& time);
 	virtual byte readB(const EmuTime& time);
+	virtual byte peekA(const EmuTime& time) const;
+	virtual byte peekB(const EmuTime& time) const;
 	virtual void writeA(byte value, const EmuTime& time);
 	virtual void writeB(byte value, const EmuTime& time);
 

@@ -21,6 +21,7 @@ class I8254
 		Counter(ClockPinListener* listener, const EmuTime& time);
 		void reset(const EmuTime& time);
 		byte readIO(const EmuTime& time);
+		byte peekIO(const EmuTime& time) const;
 		void writeIO(byte value, const EmuTime& time);
 		void setGateStatus(bool status, const EmuTime& time);
 		void writeControlWord(byte value, const EmuTime& time);
@@ -69,6 +70,7 @@ public:
 	
 	void reset(const EmuTime& time);
 	byte readIO(byte port, const EmuTime& time);
+	byte peekIO(byte port, const EmuTime& time) const;
 	void writeIO(byte port, byte value, const EmuTime& time);
 	
 	void setGate(byte counter, bool status, const EmuTime& time);

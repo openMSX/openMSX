@@ -86,6 +86,24 @@ byte I8251::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
+byte I8251::peekIO(byte port, const EmuTime& /*time*/) const
+{
+	byte result;
+	switch (port & 1) {
+	case 0:
+		result = recvBuf;
+		break;
+	case 1:
+		result = status; // TODO peekStatus()
+		break;
+	default:
+		assert(false);
+		result = 0xFF;
+	}
+	return result;
+}
+
+
 void I8251::writeIO(byte port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("I8251: write " << (int)port << " " << (int)value);

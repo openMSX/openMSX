@@ -53,7 +53,12 @@ void MSXMapperIO::reset(const EmuTime& /*time*/)
 	}
 }
 
-byte MSXMapperIO::readIO(byte port, const EmuTime& /*time*/)
+byte MSXMapperIO::readIO(byte port, const EmuTime& time)
+{
+	return peekIO(port, time);
+}
+
+byte MSXMapperIO::peekIO(byte port, const EmuTime& /*time*/) const
 {
 	return page[port & 0x03] | mask;
 }

@@ -56,6 +56,23 @@ byte MSXPPI::readIO(byte port, const EmuTime& time)
 	}
 }
 
+byte MSXPPI::peekIO(byte port, const EmuTime& time) const
+{
+	switch (port & 0x03) {
+	case 0:
+		return i8255->peekPortA(time);
+	case 1:
+		return i8255->peekPortB(time);
+	case 2:
+		return i8255->peekPortC(time);
+	case 3:
+		return i8255->readControlPort(time);
+	default: // unreachable, avoid warning
+		assert(false);
+		return 0;
+	}
+}
+
 void MSXPPI::writeIO(byte port, byte value, const EmuTime& time)
 {
 	switch (port & 0x03) {
@@ -79,7 +96,11 @@ void MSXPPI::writeIO(byte port, byte value, const EmuTime& time)
 
 // I8255Interface
 
-byte MSXPPI::readA(const EmuTime& /*time*/)
+byte MSXPPI::readA(const EmuTime& time)
+{
+	return peekA(time);
+}
+byte MSXPPI::peekA(const EmuTime& time) const
 {
 	// port A is normally an output on MSX, reading from an output port
 	// is handled internally in the 8255
@@ -92,23 +113,34 @@ void MSXPPI::writeA(byte value, const EmuTime& /*time*/)
 
 byte MSXPPI::readB(const EmuTime& time)
 {
+	return peekB(time);
+}
+byte MSXPPI::peekB(const EmuTime& time) const
+{
        if (selectedRow != 8) {
                return keyboard->getKeys()[selectedRow];
        } else {
                return keyboard->getKeys()[8] | renshaTurbo.getSignal(time);
        }
-
 }
 void MSXPPI::writeB(byte /*value*/, const EmuTime& /*time*/)
 {
 	// probably nothing happens on a real MSX
 }
 
-nibble MSXPPI::readC1(const EmuTime& /*time*/)
+nibble MSXPPI::readC1(const EmuTime& time)
+{
+	return peekC1(time);
+}
+nibble MSXPPI::peekC1(const EmuTime& /*time*/) const
 {
 	return 15;	// TODO check this
 }
-nibble MSXPPI::readC0(const EmuTime& /*time*/)
+nibble MSXPPI::readC0(const EmuTime& time)
+{
+	return peekC0(time);
+}
+nibble MSXPPI::peekC0(const EmuTime& /*time*/) const
 {
 	return 15;	// TODO check this
 }

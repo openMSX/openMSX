@@ -22,7 +22,12 @@ void MSXS1990::reset(const EmuTime& /*time*/)
 	setCPUStatus(96);
 }
 
-byte MSXS1990::readIO(byte port, const EmuTime& /*time*/)
+byte MSXS1990::readIO(byte port, const EmuTime& time)
+{
+	return peekIO(port, time);
+}
+
+byte MSXS1990::peekIO(byte port, const EmuTime& /*time*/) const
 {
 	switch (port & 0x01) {
 	case 0:

@@ -25,6 +25,8 @@ public:
 	virtual ~AY8910Interface() {}
 	virtual byte readA(const EmuTime& time) = 0;
 	virtual byte readB(const EmuTime& time) = 0;
+	virtual byte peekA(const EmuTime& time) const = 0;
+	virtual byte peekB(const EmuTime& time) const = 0;
 	virtual void writeA(byte value, const EmuTime& time) = 0;
 	virtual void writeB(byte value, const EmuTime& time) = 0;
 };
@@ -37,6 +39,7 @@ public:
 	virtual ~AY8910();
 
 	byte readRegister(byte reg, const EmuTime& time);
+	byte peekRegister(byte reg, const EmuTime& time) const;
 	void writeRegister(byte reg, byte value, const EmuTime& time);
 	void reset(const EmuTime& time);
 

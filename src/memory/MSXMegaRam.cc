@@ -99,6 +99,11 @@ byte MSXMegaRam::readIO(byte /*port*/, const EmuTime& /*time*/)
 	return 0xFF;	// return value doesn't matter
 }
 
+byte MSXMegaRam::peekIO(byte /*port*/, const EmuTime& /*time*/) const
+{
+	return 0xFF;
+}
+
 void MSXMegaRam::writeIO(byte /*port*/, byte /*value*/, const EmuTime& /*time*/)
 {
 	// enable switching

@@ -27,6 +27,7 @@ public:
 	
 	virtual byte readIO(byte port, const EmuTime& time);
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
+	virtual byte peekIO(byte port, const EmuTime& time) const;
 
 private:
 	Clock<255681> reference; // 1/14 * 3.58MHz

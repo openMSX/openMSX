@@ -30,7 +30,12 @@ void MSXPrinterPort::reset(const EmuTime& time)
 }
 
 
-byte MSXPrinterPort::readIO(byte /*port*/, const EmuTime& time)
+byte MSXPrinterPort::readIO(byte port, const EmuTime& time)
+{
+	return peekIO(port, time);
+}
+
+byte MSXPrinterPort::peekIO(byte /*port*/, const EmuTime& time) const
 {
 	// bit 1 = status / other bits always 1
 	return getPlugged().getStatus(time)

@@ -26,9 +26,23 @@ void MSXMatsushita::reset(const EmuTime& /*time*/)
 	address = 0;	// TODO check this
 }
 
-byte MSXMatsushita::readIO(byte port, const EmuTime& /*time*/)
+byte MSXMatsushita::readIO(byte port, const EmuTime& time)
 {
 	// TODO: Port 7 and 8 can be read as well.
+	byte result = peekIO(port, time);
+	switch (port & 0x0F) {
+	case 3:
+		pattern = (pattern << 2) | (pattern >> 6);
+		break;
+	case 9:
+		address = (address + 1) & 0x1FFF;
+		break;
+	}
+	return result;
+}
+
+byte MSXMatsushita::peekIO(byte port, const EmuTime& /*time*/) const
+{
 	byte result;
 	switch (port & 0x0F) {
 	case 0:
@@ -40,7 +54,6 @@ byte MSXMatsushita::readIO(byte port, const EmuTime& /*time*/)
 	case 3:
 		result = (((pattern & 0x80) ? color2 : color1) << 4)
 		        | ((pattern & 0x40) ? color2 : color1);
-		pattern = (pattern << 2) | (pattern >> 6);
 		break;
 	case 9:
 		if (address < 0x800) {
@@ -48,7 +61,6 @@ byte MSXMatsushita::readIO(byte port, const EmuTime& /*time*/)
 		} else {
 			result = 0xFF;
 		}
-		address = (address + 1) & 0x1FFF;
 		break;
 	default:
 		result = 0xFF;

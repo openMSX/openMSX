@@ -2,6 +2,12 @@ $Id$
 
 2004-10-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed SETetisDongle: unused bits should be 1 iso 0
+	* reenabled "I/O ports" debuggable, but renamed to "ioports"
+	* added MSXDevice::peekIO() method:
+	   - Reading from ioports debuggable no longer influences emulation
+	     state
+	   - Not yet implemented for all devices (not for V99x8, V9990 and
+	     MSXAudio). For these devices peekIO() returns 0xFF
 
 2004-10-19 Joost Damad <joost@lumatec.be>
 	* sync with debian/

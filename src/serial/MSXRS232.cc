@@ -124,6 +124,34 @@ byte MSXRS232::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
+byte MSXRS232::peekIO(byte port, const EmuTime& time) const
+{
+	byte result;
+	port &= 0x07;
+	switch (port) {
+		case 0: // UART data register
+		case 1: // UART status register
+			result = i8251.peekIO(port, time);
+			break;
+		case 2: // Status sense port
+			result = 0; // TODO not implemented
+			break;
+		case 3: // no function
+			result = 0xFF;
+			break;
+		case 4: // counter 0 data port
+		case 5: // counter 1 data port
+		case 6: // counter 2 data port
+		case 7: // timer command register
+			result = i8254.peekIO(port - 4, time);
+			break;
+		default:
+			assert(false);
+			result = 0xFF;	// avoid warning
+	}
+	return result;
+}
+
 void MSXRS232::writeIO(byte port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("MSXRS232 write " << (int)port << " " << (int)value);

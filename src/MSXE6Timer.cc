@@ -42,6 +42,11 @@ void MSXE6Timer::writeIO(byte /*port*/, byte /*value*/, const EmuTime& time)
 
 byte MSXE6Timer::readIO(byte port, const EmuTime& time)
 {
+	return peekIO(port, time);
+}
+
+byte MSXE6Timer::peekIO(byte port, const EmuTime& time) const
+{
 	int counter = reference.getTicksTill(time);
 	switch (port & 0x01) {
 	case 0:

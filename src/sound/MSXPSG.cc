@@ -41,6 +41,11 @@ byte MSXPSG::readIO(byte /*port*/, const EmuTime& time)
 	return result;
 }
 
+byte MSXPSG::peekIO(byte /*port*/, const EmuTime& time) const
+{
+	return ay8910->peekRegister(registerLatch, time);
+}
+
 void MSXPSG::writeIO(byte port, byte value, const EmuTime& time)
 {
 	switch (port & 0x03) {
@@ -58,6 +63,10 @@ void MSXPSG::writeIO(byte port, byte value, const EmuTime& time)
 // AY8910Interface
 byte MSXPSG::readA(const EmuTime& time)
 {
+	return peekA(time);
+}
+byte MSXPSG::peekA(const EmuTime& time) const
+{
 	byte joystick = ports[selectedPort]->read(time) | 
 	                ((RenShaTurbo::instance().getSignal(time)) << 4);
 	byte cassetteInput = cassette.cassetteIn(time) ? 0x80 : 0x00;
@@ -65,7 +74,11 @@ byte MSXPSG::readA(const EmuTime& time)
 	return joystick | keyLayout | cassetteInput;
 }
 
-byte MSXPSG::readB(const EmuTime& /*time*/)
+byte MSXPSG::readB(const EmuTime& time)
+{
+	return peekB(time);
+}
+byte MSXPSG::peekB(const EmuTime& /*time*/) const
 {
 	// port B is normally an output on MSX
 	return 255;

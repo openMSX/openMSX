@@ -34,7 +34,7 @@ AudioInputDevice& AudioInputConnector::getPlugged() const
 	return static_cast<AudioInputDevice&>(*plugged);
 }
 
-short AudioInputConnector::readSample(const EmuTime &time)
+short AudioInputConnector::readSample(const EmuTime& time) const
 {
 	return getPlugged().readSample(time);
 }

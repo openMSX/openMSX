@@ -1214,6 +1214,11 @@ void YMF262::update_channels(YMF262Channel &ch)
 
 byte YMF262::readReg(int r)
 {
+	return peekReg(r);
+}
+
+byte YMF262::peekReg(int r) const
+{
 	return reg[r];
 }
 
@@ -1844,6 +1849,11 @@ byte YMF262::readStatus()
 	return result;
 }
 
+byte YMF262::peekStatus() const
+{
+	return status | status2;
+}
+
 void YMF262::checkMute()
 {
 	bool mute = checkMuteHelper();
@@ -1979,7 +1989,7 @@ unsigned YMF262::getSize() const
 
 byte YMF262::read(unsigned address)
 {
-	return readReg(address);
+	return peekReg(address);
 }
 
 void YMF262::write(unsigned address, byte value)

@@ -23,7 +23,12 @@ void MSXRTC::reset(const EmuTime& time)
 	rp5c01->reset(time);
 }
 
-byte MSXRTC::readIO(byte /*port*/, const EmuTime& time)
+byte MSXRTC::readIO(byte port, const EmuTime& time)
+{
+	return peekIO(port, time);
+}
+
+byte MSXRTC::peekIO(byte /*port*/, const EmuTime& time) const
 {
 	return rp5c01->readPort(registerLatch, time) | 0xF0;
 }

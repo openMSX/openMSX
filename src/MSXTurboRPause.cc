@@ -21,7 +21,12 @@ void MSXTurboRPause::reset(const EmuTime& /*time*/)
 	turboRPauseSetting.setValue(false);
 }
 
-byte MSXTurboRPause::readIO(byte /*port*/, const EmuTime& /*time*/)
+byte MSXTurboRPause::readIO(byte port, const EmuTime& time)
+{
+	return peekIO(port, time);
+}
+
+byte MSXTurboRPause::peekIO(byte /*port*/, const EmuTime& /*time*/) const
 {
 	return turboRPauseSetting.getValue() ? 1 : 0;
 }

@@ -77,6 +77,29 @@ byte MSXHBI55::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
+byte MSXHBI55::peekIO(byte port, const EmuTime& time) const
+{
+	byte result;
+	switch (port & 0x03) {
+	case 0:
+		result = i8255->peekPortA(time);
+		break;
+	case 1:
+		result = i8255->peekPortB(time);
+		break;
+	case 2:
+		result = i8255->peekPortC(time);
+		break;
+	case 3:
+		result = i8255->readControlPort(time);
+		break;
+	default: // unreachable, avoid warning
+		assert(false);
+		result = 0;
+	}
+	return result;
+}
+
 void MSXHBI55::writeIO(byte port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("HBI-55 write "<<hex<<(int)port<<" "<<(int)value<<dec);
@@ -101,7 +124,11 @@ void MSXHBI55::writeIO(byte port, byte value, const EmuTime& time)
 
 // I8255Interface
 
-byte MSXHBI55::readA(const EmuTime& /*time*/)
+byte MSXHBI55::readA(const EmuTime& time)
+{
+	return peekA(time);
+}
+byte MSXHBI55::peekA(const EmuTime& /*time*/) const
 {
 	// TODO check this
 	return 255;
@@ -111,7 +138,11 @@ void MSXHBI55::writeA(byte value, const EmuTime& /*time*/)
 	address = (address & 0x0F00) | value; 
 }
 
-byte MSXHBI55::readB(const EmuTime& /*time*/)
+byte MSXHBI55::readB(const EmuTime& time)
+{
+	return peekB(time);
+}
+byte MSXHBI55::peekB(const EmuTime& /*time*/) const
 {
 	// TODO check this
 	return 255;
@@ -122,7 +153,11 @@ void MSXHBI55::writeB(byte value, const EmuTime& /*time*/)
 	mode = value & 0xC0;
 }
 
-nibble MSXHBI55::readC1(const EmuTime& /*time*/)
+nibble MSXHBI55::readC1(const EmuTime& time)
+{
+	return peekC1(time);
+}
+nibble MSXHBI55::peekC1(const EmuTime& /*time*/) const
 {
 	byte result;
 	if (mode == 0xC0) {
@@ -134,7 +169,11 @@ nibble MSXHBI55::readC1(const EmuTime& /*time*/)
 	}
 	return result;
 }
-nibble MSXHBI55::readC0(const EmuTime& /*time*/)
+nibble MSXHBI55::readC0(const EmuTime& time)
+{
+	return peekC0(time);
+}
+nibble MSXHBI55::peekC0(const EmuTime& /*time*/) const
 {
 	byte result;
 	if (mode == 0xC0) {
@@ -169,7 +208,7 @@ void MSXHBI55::writeC0(nibble value, const EmuTime& /*time*/)
 	}
 }
 
-byte MSXHBI55::readSRAM(word address)
+byte MSXHBI55::readSRAM(word address) const
 {
 	if (address != 0) {
 		return sram[address];

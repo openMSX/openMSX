@@ -73,8 +73,10 @@ public:
 	virtual ~YMF278();
 	void reset(const EmuTime& time);
 	void writeRegOPL4(byte reg, byte data, const EmuTime& time);
-	byte readRegOPL4(byte reg, const EmuTime& time);
+	byte readReg(byte reg, const EmuTime& time);
+	byte peekReg(byte reg) const;
 	byte readStatus(const EmuTime& time);
+	byte peekStatus(const EmuTime& time) const;
 	
 private:
 	// SoundDevice
@@ -107,8 +109,7 @@ private:
 	} debugMemory;
 	
 	void writeReg(byte reg, byte data, const EmuTime& time);
-	byte readReg(byte reg, const EmuTime& time);
-	byte readMem(unsigned address);
+	byte readMem(unsigned address) const;
 	void writeMem(unsigned address, byte value);
 	short getSample(YMF278Slot& op);
 	void advance();

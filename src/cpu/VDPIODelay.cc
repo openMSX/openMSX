@@ -32,6 +32,11 @@ byte VDPIODelay::readIO(byte port, const EmuTime& time)
 	return device.readIO(port, lastTime.getTime());
 }
 
+byte VDPIODelay::peekIO(byte port, const EmuTime& time) const
+{
+	return device.peekIO(port, time);
+}
+
 void VDPIODelay::writeIO(byte port, byte value, const EmuTime& time)
 {
 	delay(time);

@@ -48,18 +48,31 @@ void MSXKanji::writeIO(byte port, byte value, const EmuTime& /*time*/)
 	}
 }
 
-byte MSXKanji::readIO(byte port, const EmuTime& /*time*/)
+byte MSXKanji::readIO(byte port, const EmuTime& time)
+{
+	byte result = peekIO(port, time);
+	switch (port & 0x03) {
+	case 1:
+		adr1 = (adr1 & ~0x1f) | ((adr1 + 1) & 0x1f);
+		break;
+	case 3:
+		adr2 = (adr2 & ~0x1f) | ((adr2 + 1) & 0x1f);
+		break;
+	}
+	//PRT_DEBUG("MSXKanji: read " << (int)port << " " << (int)result);
+	return result;
+}
+
+byte MSXKanji::peekIO(byte port, const EmuTime& /*time*/) const
 {
 	byte result;
 	switch (port & 0x03) {
 	case 1:
 		result = rom[adr1];
-		adr1 = (adr1 & ~0x1f) | ((adr1 + 1) & 0x1f);
 		break;
 	case 3:
 		if (rom.getSize() == 0x40000) { // temp workaround
 			result = rom[adr2];
-			adr2 = (adr2 & ~0x1f) | ((adr2 + 1) & 0x1f);
 		} else {
 			result = 0xFF;
 		}
@@ -67,7 +80,6 @@ byte MSXKanji::readIO(byte port, const EmuTime& /*time*/)
 	default:
 		result = 0xFF;
 	}
-	//PRT_DEBUG("MSXKanji: read " << (int)port << " " << (int)result);
 	return result;
 }
 

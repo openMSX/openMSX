@@ -42,7 +42,7 @@ byte MSXMoonSound::readIO(byte port, const EmuTime& time)
 			result = 255;
 			break;
 		case 1: // read wave register
-			result = ymf278->readRegOPL4(opl4latch, time);
+			result = ymf278->readReg(opl4latch, time);
 			break;
 		default: // unreachable, avoid warning
 			assert(false);
@@ -66,6 +66,42 @@ byte MSXMoonSound::readIO(byte port, const EmuTime& time)
 		}
 	}
 	//PRT_DEBUG("MoonSound: read "<<hex<<(int)port<<" "<<(int)result<<dec);
+	return result;
+}
+
+byte MSXMoonSound::peekIO(byte port, const EmuTime& time) const
+{
+	byte result;
+	if (port < 0xC0) {
+		// WAVE part  0x7E-0x7F
+		switch (port & 0x01) {
+		case 0: // read latch, not supported
+			result = 255;
+			break;
+		case 1: // read wave register
+			result = ymf278->peekReg(opl4latch);
+			break;
+		default: // unreachable, avoid warning
+			assert(false);
+			result = 255;
+		}
+	} else {
+		// FM part  0xC4-0xC7
+		switch (port & 0x03) {
+		case 0: // read status
+		case 2:
+			result = ymf262->peekStatus() | 
+			         ymf278->peekStatus(time);
+			break;
+		case 1:
+		case 3: // read fm register
+			result = ymf262->peekReg(opl3latch);
+			break;
+		default: // unreachable, avoid warning
+			assert(false);
+			result = 255;
+		}
+	}
 	return result;
 }
 

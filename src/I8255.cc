@@ -59,6 +59,22 @@ byte I8255::readPortA(const EmuTime& time)
 	}
 }
 
+byte I8255::peekPortA(const EmuTime& time) const
+{
+	switch (control & MODE_A) {
+	case MODEA_0:
+		if (control & DIRECTION_A) {
+			return interface.peekA(time);	// input not latched
+		} else {
+			return latchPortA;		// output is latched
+		}
+	case MODEA_1:		//TODO but not relevant for MSX
+	case MODEA_2: case MODEA_2_:
+	default:
+		return 255;
+	}
+}
+
 byte I8255::readPortB(const EmuTime& time)
 {
 	switch (control & MODE_B) {
@@ -74,6 +90,21 @@ byte I8255::readPortB(const EmuTime& time)
 	default:
 		assert (false);
 		return 255;	// avoid warning
+	}
+}
+
+byte I8255::peekPortB(const EmuTime& time) const
+{
+	switch (control & MODE_B) {
+	case MODEB_0:
+		if (control & DIRECTION_B) {
+			return interface.peekB(time);	// input not latched
+		} else {
+			return latchPortB;		// output is latched
+		}
+	case MODEB_1:		// TODO but not relevant for MSX
+	default:
+		return 255;
 	}
 }
 
@@ -98,6 +129,11 @@ byte I8255::readPortC(const EmuTime& time)
 	return tmp;
 }
 
+byte I8255::peekPortC(const EmuTime& time) const
+{
+	return peekC1(time) | peekC0(time);
+}
+
 byte I8255::readC1(const EmuTime& time)
 {
 	if (control & DIRECTION_C1) {
@@ -105,6 +141,15 @@ byte I8255::readC1(const EmuTime& time)
 		return interface.readC1(time) << 4;	// input not latched
 	} else {
 		//output
+		return latchPortC & 0xf0;	// output is latched
+	}
+}
+
+byte I8255::peekC1(const EmuTime& time) const
+{
+	if (control & DIRECTION_C1) {
+		return interface.peekC1(time) << 4;	// input not latched
+	} else {
 		return latchPortC & 0xf0;	// output is latched
 	}
 }
@@ -120,7 +165,16 @@ byte I8255::readC0(const EmuTime& time)
 	}
 }
 
-byte I8255::readControlPort(const EmuTime& /*time*/)
+byte I8255::peekC0(const EmuTime& time) const
+{
+	if (control & DIRECTION_C0) {
+		return interface.peekC0(time);		// input not latched
+	} else {
+		return latchPortC & 0x0f;		// output is latched
+	}
+}
+
+byte I8255::readControlPort(const EmuTime& /*time*/) const
 {
 	return control;
 }
