@@ -7,6 +7,10 @@
   Use it in combination with an MSX machine configuration file.
 -->
 
+  <config id="DefaultMachine">
+    <parameter name="machine">nms8250</parameter>
+  </config>
+
  <!-- renderer settings: determines how openMSX outputs graphics -->
   <config id="renderer">
     <type>SDLHi</type>

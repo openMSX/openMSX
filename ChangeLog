@@ -9,6 +9,9 @@ $Id$
 	     config file?
 	   - it's not yet possible to specify <username>, so for now it's
 	     always "untitled<n>"
+	* Default machine can be specified in settings.xml:
+	   - see example settings.xml, this will load
+	      ~/.openMSX/machine/nms8250/hardwareconfig.xml
 
 2003-02-13 Maarten ter Huurne <maarten@treewalker.org>
 	* Made "full screen" into a setting.

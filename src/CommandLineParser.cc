@@ -106,7 +106,19 @@ void CommandLineParser::parse(int argc, char **argv)
 	
 	// load default config file in case the user didn't specify one
 	if (!haveConfig) {
-		config->loadFile(new SystemFileContext(), "msxconfig.xml");
+		std::string machine("default");
+		try {
+			Config *machineConfig =
+				config->getConfigById("DefaultMachine");
+			if (machineConfig->hasParameter("machine")) {
+				machine =
+					machineConfig->getParameter("machine");
+			}
+		} catch (MSXException &e) {
+			// no DefaultMachine section
+		}
+		config->loadFile(new SystemFileContext(),
+		                 "machines/" + machine + "/hardwareconfig.xml");
 	}
 
 	// read existing cartridge slots from config
