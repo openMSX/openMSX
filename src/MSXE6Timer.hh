@@ -34,7 +34,7 @@ class MSXE6Timer : public MSXIODevice
 		void writeIO(byte port, byte value, const EmuTime &time);
 
 	private:
-		EmuTimeFreq<255681> reference;	// 1/14 * 3.58MH
+		EmuTimeFreq<255681> reference;	// 1/14 * 3.58MHz
 };
 
 #endif //__E6TIMER_HH__

@@ -10,10 +10,9 @@ Joystick::Joystick(int joyNum)
 {
 	PRT_DEBUG("Creating a Joystick object for joystick " << joyNum);
 
-	if (!SDLJoysticksInitialized) {
+	if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
 		SDL_InitSubSystem(SDL_INIT_JOYSTICK);
 		SDL_JoystickEventState(SDL_ENABLE);	// joysticks generate events
-		SDLJoysticksInitialized = true;
 	}
 
 	if (SDL_NumJoysticks() <= joyNum)
@@ -30,7 +29,6 @@ Joystick::Joystick(int joyNum)
 
 	PluggingController::instance()->registerPluggable(this);
 }
-bool Joystick::SDLJoysticksInitialized = false;
 
 Joystick::~Joystick()
 {

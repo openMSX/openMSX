@@ -11,5 +11,5 @@ MSXMapperIOTurboR::MSXMapperIOTurboR(MSXConfig::Device *config, const EmuTime &t
 void  MSXMapperIOTurboR::registerMapper(int blocks)
 {
 	MSXMapperIOPhilips::registerMapper(blocks);
-	mask |= 0xe0;
+	mask |= 0xe0;	// upper 3 bits are always "1"
 }

@@ -11,6 +11,9 @@
 #include "ConsoleSource/Command.hh"
 
 
+//TODO replace DiskImage with fdc/FDCBackEnd,
+//     move "disk" console command to FDCBackEnd
+
 class MSXDiskRomPatch: public MSXRomPatchInterface, private Command
 {
 	class NoSuchSectorException : public MSXException {

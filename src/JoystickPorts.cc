@@ -88,9 +88,9 @@ JoystickPorts::~JoystickPorts()
 	delete ports[1];
 	
 	delete mouse;
+	delete joynet;
 	for (int i=0; i<10; i++)
 		delete joystick[i];
-	
 }
 
 byte JoystickPorts::read(const EmuTime &time)

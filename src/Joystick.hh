@@ -35,7 +35,6 @@ class Joystick : public JoystickDevice, EventListener
 
 		std::string name;
 
-		static bool SDLJoysticksInitialized;
 		int joyNum;
 		SDL_Joystick* joystick;
 		byte status;

@@ -17,7 +17,7 @@ DummyDevice::~DummyDevice()
 
 DummyDevice* DummyDevice::instance()
 {
-	if (oneInstance == NULL ) {
+	if (oneInstance == NULL) {
 		EmuTime dummy;
 		oneInstance = new DummyDevice(NULL, dummy); //TODO make a MSXConfig 
 	}
