@@ -3,133 +3,161 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
-  <config id="ExternalSlots">
-    <parameter name="slota">1-0</parameter>
-    <parameter name="slotb">2-1</parameter>
-  </config>
+  <info>
+    <manufacturer>openMSX Team</manufacturer>
+    <code>Boosted MSX2 EN</code>
+    <release_year>2004</release_year>
+    <description>A super-charged Philips NNMS8250</description>
+    <type>MSX2</type>
+  </info>
 
-  <config id="MotherBoard">
-    <type>MotherBoard</type>
-    <parameter name="0" class="subslotted">false</parameter>
-    <parameter name="1" class="subslotted">false</parameter>
-    <parameter name="2" class="subslotted">true</parameter>
-    <parameter name="3" class="subslotted">true</parameter>
-  </config>
+  <MapperType>Philips</MapperType>
 
-  <config id="MapperType">
-    <parameter name="type">Philips</parameter>
-  </config>
+  <CassettePort/>
 
-  <device id="Main RAM">
-    <type>MemoryMapper</type>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>0</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>3</page> </slotted>
-    <parameter name="slow_drain_on_reset">false</parameter>
-    <parameter name="size">2048</parameter>
-  </device>
+  <devices>
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <mem base="0x0000" size="0x8000"/>
+	<rom>
+	   <sha1>6103b39f1e38d1aa2d84b1c3219c44f1abb5436e</sha1>
+           <filename>roms/nms8250_basic-bios2.rom</filename>
+        </rom>
+      </ROM>
+    </primary>
 
-  <device id="MSX BIOS with BASIC ROM">
-    <type>Rom</type>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">roms/nms8250_basic-bios2.rom</parameter>
-  </device>
+    <primary slot="1" external="true"/>
+    <primary slot="2" external="true"/>
 
-  <device id="MSX Sub ROM">
-    <type>Rom</type>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
-    <parameter name="filename">roms/nms8250_msx2sub.rom</parameter>
-  </device>
+    <primary slot="3">
+      <secondary slot="0">
+        <ROM id="MSX Sub ROM">
+          <mem base="0x0000" size="0x4000"/>
+          <rom>
+	    <sha1>5c1f9c7fb655e43d38e5dd1fcc6b942b2ff68b02</sha1>
+            <filename>roms/nms8250_msx2sub.rom</filename>
+          </rom>
+        </ROM>
+      </secondary>
 
-<device id="Memory Mapped FDC">
-    <type>FDC</type>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
-    <parameter name="filename">roms/nms8250_disk.rom</parameter>
-    <parameter name="type">WD2793</parameter>
-    <parameter name="brokenFDCread">false</parameter>
-    <parameter name="drivename1">diska</parameter>
-    <parameter name="drivename2">diskb</parameter>
-  </device>
+      <secondary slot="2">
+        <MemoryMapper id="Main RAM">
+          <mem base="0x0000" size="0x10000"/>
+          <slow_drain_on_reset>false</slow_drain_on_reset>
+          <size>128</size>
+        </MemoryMapper>
+      </secondary>
 
-  <device id="ppi">
-    <type>PPI</type>
-    <parameter name="volume">16000</parameter>
-    <parameter name="key_ghosting">true</parameter>
-  </device>
+      <secondary slot="3">
+        <WD2793 id="Memory Mapped FDC">
+          <mem base="0x4000" size="0x8000"/>
+          <broken_fdc_read>false</broken_fdc_read> 
+          <rom>
+	    <sha1>c3efedda7ab947a06d9345f7b8261076fa7ceeef</sha1>
+            <filename>roms/nms8250_disk.rom</filename>
+          </rom>
+          <drives>2</drives>
+        </WD2793>
+      </secondary>
+    </primary>
 
-  <device id="VDP">
-    <type>VDP</type>
-    <parameter name="version">V9958</parameter>
-    <parameter name="vram">128</parameter>
-  </device>
+    <PPI id="ppi">
+      <io base="0xA8" num="4"/>
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <key_ghosting>true</key_ghosting>
+    </PPI>
 
-  <device id="PSG">
-    <type>PSG</type>
-    <parameter name="volume">21000</parameter>
-  </device>
+    <VDP id="VDP">
+      <io base="0x98" num="4" type="O"/>
+      <io base="0x98" num="2" type="I"/>
+      <version>V9958</version>
+      <vram>128</vram>
+    </VDP>
 
-  <device id="Real time clock">
-    <type>RTC</type>
-    <parameter name="mode">EmuTime</parameter>
-    <parameter name="sramname">Boosted_MSX2_EN.cmos</parameter>
-  </device>
+    <PSG id="PSG">
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+    </PSG>
 
-  <device id="SCC+ Cartridge">
-    <type>SCCPlusCart</type>
-    <slotted> <ps>2</ps> <ss>0</ss> <page>1</page> </slotted>
-    <slotted> <ps>2</ps> <ss>0</ss> <page>2</page> </slotted>
-    <parameter name="volume">13000</parameter>
-  </device>
+    <RTC id="Real time clock">
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+      <sramname>nms8250.cmos</sramname>
+    </RTC>
 
-  <device id="PanaSoft SW-M004 FMPAC">
-    <type>FM-PAC</type>
-    <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
-    <parameter name="filename">roms/fmpac.rom</parameter>
-    <parameter name="volume">9000</parameter>
-    <parameter name="mode">left</parameter>
-    <parameter name="sramname">fmpac.pac</parameter>
-  </device>
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
 
-  <device id="MSX-Audio">
-    <type>Audio</type>
-    <parameter name="volume">9000</parameter>
-    <parameter name="mode">right</parameter>
-    <parameter name="sampleram">256</parameter>
-  </device>
-  
-  <device id="MSX-Audio-Midi">
-    <type>Audio-Midi</type>
-  </device>
+  </devices>
 
-  <device id="MoonSound">
-    <type>MoonSound</type>
-    <parameter name="filename">roms/yrw801.rom</parameter>
-    <parameter name="volume">12000</parameter>
-    <parameter name="sampleram">640</parameter>
-  </device>
+  <primary slot="3">
+    <secondary slot="1">
+      <FMPAC id="PanaSoft SW-M004 FMPAC">
+        <io base="0x7C" num="2" type="O"/>
+        <mem base="0x4000" size="0x4000"/>
+        <sound>
+          <volume>13000</volume>
+          <mode>left</mode>
+        </sound>
+        <rom>
+          <sha1>9d789166e3caf28e4742fe933d962e99618c633d</sha1>
+          <filename>roms/fmpac.rom</filename>
+        </rom>
+        <sramname>fmpac.pac</sramname>
+      </FMPAC>
+    </secondary>
+  </primary>
 
-  <device id="MegaRam">
-    <type>MegaRam</type>
-    <slotted> <ps>2</ps> <ss>2</ss> <page>0</page> </slotted>
-    <slotted> <ps>2</ps> <ss>2</ss> <page>1</page> </slotted>
-    <slotted> <ps>2</ps> <ss>2</ss> <page>2</page> </slotted>
-    <slotted> <ps>2</ps> <ss>2</ss> <page>3</page> </slotted>
-    <parameter name="size">512</parameter>
-  </device>
+  <MSX-AUDIO id="Generic MSX-Audio">
+    <io base="0xC0" num="2"/>
+    <sound>
+      <volume>12000</volume>
+      <mode>right</mode>
+    </sound>
+    <sampleram>256</sampleram>
+  </MSX-AUDIO>
+  <MusicModuleMidi id="Generic MSX-Audio-Midi">
+    <io base="0x00" num="2" type="O"/>
+    <io base="0x04" num="2" type="I"/>
+  </MusicModuleMidi>
 
-  <device id="cpu">
-    <type>CPU</type>
-  </device>
+  <MoonSound id="Sunrise MoonSound">
+    <io base="0x7e" num="2"/>
+    <io base="0xc4" num="4"/>
+    <rom>
+      <sha1>32760893ce06dbe3930627755ba065cc3d8ec6ca</sha1>
+      <filename>roms/yrw801.rom</filename>
+    </rom>
+    <sound>
+      <volume>12000</volume>
+    </sound>
+    <sampleram>640</sampleram>
+  </MoonSound>
 
-  <device id="Printer Port">
-    <type>PrinterPort</type>
-  </device>
+  <primary slot="2">
+    <secondary slot="0">
+      <SCCplus id="Konami SCC+ Cartridge with expanded RAM">
+        <mem base="0x4000" size="0x8000"/>
+        <subtype>expanded</subtype>
+        <sound>
+          <volume>13000</volume>
+        </sound>
+      </SCCplus>
+    </secondary>
 
-  <config id="CassettePort">
-  </config>
-
+    <secondary slot="2">
+      <MegaRam id="MegaRam">
+        <io base="0x8e" num="1"/>
+        <mem base="0x0000" size="0x10000"/>
+        <size>512</size>
+      </MegaRam>
+    </secondary>
+  </primary>
 </msxconfig>
 
