@@ -9,6 +9,8 @@ JoyNet::JoyNet()
 {
 	sockfd = 0;
 	listener = 0;
+	status = 255;
+	PRT_DEBUG("instantiating JoyNet object");
 	try {
 		setupConnections();
 		PluggingController::instance()->registerPluggable(this);
@@ -43,8 +45,7 @@ byte JoyNet::read(const EmuTime &time)
 
 void JoyNet::write(byte value, const EmuTime &time)
 {
-	sendByte(value);	//do nothing
-	PRT_DEBUG("TCP/IP sending byte "<<(int)value<<" on time "<<time);
+	sendByte(value);
 }
 
 
@@ -59,7 +60,6 @@ void JoyNet::setupConnections()
 	//first listener in case the connect wants to talk to it's own listener
 	if (config->getParameterAsBool("startlisten"))
 		listener = new ConnectionListener(listenport, &status);
-
 	// Currently done when first write is tried
 	/*if (config->getParameterAsBool("startconnect")) {
 		sleep(1);	//give listener-thread some time to initialize itself
@@ -155,8 +155,8 @@ void JoyNet::ConnectionListener::run()
 	close(listenfd);
 
 	int charcounter;
-	while ((charcounter = ::read(connectfd, &statuspointer, 1)) > 0) {
-		PRT_DEBUG("got from TCP/IP code " << std::hex << (int)*statuspointer << std::dec);
+	while ((charcounter = ::read(connectfd, statuspointer, 1)) > 0) {
+		PRT_DEBUG("D:  got from TCP/IP code " << std::hex << (int)(*statuspointer) << std::dec);
 	}
 	if (charcounter < 0) {
 		PRT_INFO("TCP/IP read error ");
