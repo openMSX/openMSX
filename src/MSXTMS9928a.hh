@@ -53,7 +53,7 @@ private:
 
 	/** Limit number of sprites per display line?
 	  * Option only affects display, not MSX state.
-	  * In other words: when off all sprites are drawn,
+	  * In other words: when false all sprites are drawn,
 	  * but status registers act like they aren't.
 	  */
 	bool limitSprites;
@@ -100,20 +100,17 @@ private:
 	  * @param dirty 32-entry array that stores which characters are
 	  *   covered with sprites and must therefore be redrawn next frame.
 	  *   This method will update the array according to the sprites drawn.
-	  * @return Where any pixels drawn?
+	  * @return Were any pixels drawn?
 	  */
 	bool drawSprites(Pixel *pixelPtr, int line, bool *dirty);
 	/** Check sprite collision and number of sprites per line.
 	  * Separated from display code to make MSX behaviour consistent
 	  * no matter how displaying is handled.
-	  * @param patterns Pointer to a 4-entry int array in which the
+	  * @param patterns Pointer to a 32-entry int array in which the
 	  *   numbers of the sprites to be displayed are returned.
-	  *   If null, no such array is returned.
 	  * @return The number of sprites stored in the visibleSprites array.
-	  *   Undefined if no such array was given.
 	  */
 	int checkSprites(int line, int *visibleSprites = 0);
-	void sprites(Pixel *linePtrs[], int displayX);
 
 	/* emulation settings */
 	/* all or nothing dirty David Heremans */

@@ -407,13 +407,9 @@ int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
 	// that state is stable until they are reset by a status reg read,
 	// so no need to execute the checks.
 	// ...Unless the caller wants to know which sprites are on this line.
+	// TODO: Is this optimisation still useful since visibleSprites
+	//       has been introduced?
 	if (((tms.StatusReg & 0x60) == 0x60) && !visibleSprites) return 0;
-
-	// Make sure there is always an array to write in,
-	// even if it is not passed by the caller.
-	// This is easier than checking the pointer before every write.
-	static int dummyVisible[4];
-	if (!visibleSprites) visibleSprites = dummyVisible;
 
 	int size = (tms.Regs[1] & 2) ? 16 : 8;
 	int mag = tms.Regs[1] & 1; // 0 = normal, 1 = double
@@ -435,7 +431,7 @@ int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
 				if (~tms.StatusReg & 0xC0) {
 					tms.StatusReg = (tms.StatusReg & 0xE0) | 0x40 | sprite;
 				}
-				break;
+				if (limitSprites) break;
 			}
 			else {
 				visibleSprites[visibleIndex++] = sprite;
@@ -466,42 +462,39 @@ int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
 	but there are max 4 sprites and max 6 pairs.
 	If any collision is found, method returns at once.
 	*/
-	// Optimisation: It takes two to collide.
-	if (visibleIndex >= 2) {
-		for (int i = visibleIndex; --i; ) {
-			byte *attributePtr = tms.vMem + tms.spriteattribute +
-				visibleSprites[i] * 4;
-			int y_i = *attributePtr++;
-			int x_i = *attributePtr++;
-			byte *patternPtr_i = tms.vMem + tms.spritepattern +
+	for (int i = (visibleIndex < 4 ? visibleIndex : 4); --i >= 1; ) {
+		byte *attributePtr = tms.vMem + tms.spriteattribute +
+			visibleSprites[i] * 4;
+		int y_i = *attributePtr++;
+		int x_i = *attributePtr++;
+		byte *patternPtr_i = tms.vMem + tms.spritepattern +
+			((size == 16) ? *attributePtr & 0xFC : *attributePtr) * 8;
+		if ((*++attributePtr) & 0x80) x_i -= 32;
+
+		for (int j = i; --j >= 0; ) {
+			attributePtr = tms.vMem + tms.spriteattribute +
+				visibleSprites[j] * 4;
+			int y_j = *attributePtr++;
+			int x_j = *attributePtr++;
+			byte *patternPtr_j = tms.vMem + tms.spritepattern +
 				((size == 16) ? *attributePtr & 0xFC : *attributePtr) * 8;
-			if ((*++attributePtr) & 0x80) x_i -= 32;
+			if ((*++attributePtr) & 0x80) x_j -= 32;
 
-			for (int j = i; --j; ) {
-				attributePtr = tms.vMem + tms.spriteattribute +
-					visibleSprites[j] * 4;
-				int y_j = *attributePtr++;
-				int x_j = *attributePtr++;
-				byte *patternPtr_j = tms.vMem + tms.spritepattern +
-					((size == 16) ? *attributePtr & 0xFC : *attributePtr) * 8;
-				if ((*++attributePtr) & 0x80) x_j -= 32;
-
-				// Do sprite i and sprite j collide?
-				int dist = x_j - x_i;
-				if ((-magSize < dist) && (dist < magSize)) {
-					int pattern_i = calculatePattern(patternPtr_i, line - y_i, size, mag);
-					int pattern_j = calculatePattern(patternPtr_j, line - y_j, size, mag);
-					if (dist < 0) {
-						pattern_i >>= -dist;
-					}
-					else if (dist > 0) {
-						pattern_j >>= dist;
-					}
-					if (pattern_i & pattern_j) {
-						// Collision!
-						tms.StatusReg |= 0x20;
-						return visibleIndex;
-					}
+			// Do sprite i and sprite j collide?
+			int dist = x_j - x_i;
+			if ((-magSize < dist) && (dist < magSize)) {
+				int pattern_i = calculatePattern(patternPtr_i, line - y_i, size, mag);
+				int pattern_j = calculatePattern(patternPtr_j, line - y_j, size, mag);
+				if (dist < 0) {
+					pattern_i >>= -dist;
+				}
+				else if (dist > 0) {
+					pattern_j >>= dist;
+				}
+				if (pattern_i & pattern_j) {
+					// Collision!
+					tms.StatusReg |= 0x20;
+					return visibleIndex;
 				}
 			}
 		}
@@ -512,6 +505,7 @@ int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
 
 bool MSXTMS9928a::drawSprites(Pixel *pixelPtr, int line, bool *dirty)
 {
+	// TODO: Share size and mag with checkSprites.
 	int size = (tms.Regs[1] & 2) ? 16 : 8;
 	int mag = tms.Regs[1] & 1; // 0 = normal, 1 = double
 
@@ -519,22 +513,6 @@ bool MSXTMS9928a::drawSprites(Pixel *pixelPtr, int line, bool *dirty)
 	// Also sets status reg properly.
 	int visibleSprites[32];
 	int visibleIndex = checkSprites(line, visibleSprites);
-	// The checkSprites method will enforce the VDP's limit on the
-	// number of sprites per line. So if we want to display an unlimited
-	// number, we have to build the visibleSprites array ourselves.
-	if (!limitSprites) {
-		int minStart = line - size * (mag + 1);
-		byte *attributePtr = tms.vMem + tms.spriteattribute;
-		visibleIndex = 0;
-		for (int sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
-			int y = *attributePtr;
-			if (y == 208) break;
-			y = (y > 208 ? y - 255 : y + 1);
-			if ((y > minStart) && (y <= line)) {
-				visibleSprites[visibleIndex++] = sprite;
-			}
-		}
-	}
 
 	bool ret = false;
 	while (visibleIndex--) {
