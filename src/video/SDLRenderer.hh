@@ -211,12 +211,6 @@ private:
 	  */
 	SDL_Surface *workScreen;
 
-	/** The stored image, see putImage and putStoredImage.
-	  * TODO: When scaling, stored image is overwritten with a scaled
-	  *       version of workScreen.
-	  */
-	SDL_Surface *storedImage;
-
 	/** Cache for rendered VRAM in character modes.
 	  * Cache line (N + scroll) corresponds to display line N.
 	  * It holds a single page of 256 lines.

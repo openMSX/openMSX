@@ -69,11 +69,6 @@ inline int SDLRenderer<Pixel, zoom>::translateX(int absoluteX, bool narrow)
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::finishFrame(bool store)
 {
-	if (store) {
-		// Copy entire screen to stored image.
-		SDL_BlitSurface(screen, NULL, storedImage, NULL);
-	}
-
 	drawEffects();
 
 	// Render consoles if needed.
@@ -103,11 +98,11 @@ template <class Pixel, Renderer::Zoom zoom>
 int SDLRenderer<Pixel, zoom>::putPowerOffImage()
 {
 	// Lock surface, because we will access pixels directly.
-	if (SDL_MUSTLOCK(storedImage) && SDL_LockSurface(storedImage) < 0) {
+	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
 		// Display will be wrong, but this is not really critical.
 		return 1; // Try again next frame.
 	}
-	Pixel* pixels = (Pixel*)storedImage->pixels;
+	Pixel* pixels = (Pixel*)screen->pixels;
 	for (unsigned y = 0; y < HEIGHT; y += 2) {
 		Pixel* p = &pixels[WIDTH * y];
 		for (unsigned x = 0; x < WIDTH; x += 2) {
@@ -117,17 +112,23 @@ int SDLRenderer<Pixel, zoom>::putPowerOffImage()
 		memcpy(p + WIDTH, p, WIDTH * sizeof(Pixel));
 	}
 	// Unlock surface.
-	if (SDL_MUSTLOCK(storedImage)) SDL_UnlockSurface(storedImage);
+	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
 
-	putStoredImage();
+	// TODO: This is a copy of finishFrame, without the call to drawEffects.
+	// Render consoles if needed.
+	console->drawConsole();
+	if (debugger) debugger->drawConsole();
+
+	// Update screen.
+	SDL_Flip(screen);
+
 	return 8;
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::putStoredImage()
 {
-	// Copy stored image to screen.
-	SDL_BlitSurface(storedImage, NULL, screen, NULL);
+	// Previous image will be restored from workScreen.
 	// Usual end-of-frame behaviour.
 	finishFrame(false);
 }
@@ -415,17 +416,6 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 		screen->format->Amask
 		);
 
-	// Allocate screen which will later contain the stored image.
-	storedImage = SDL_CreateRGBSurface(
-		SDL_SWSURFACE,
-		WIDTH, HEIGHT,
-		screen->format->BitsPerPixel,
-		screen->format->Rmask,
-		screen->format->Gmask,
-		screen->format->Bmask,
-		screen->format->Amask
-		);
-
 	// Create display caches.
 	charDisplayCache = SDL_CreateRGBSurface(
 		SDL_SWSURFACE,
@@ -466,7 +456,6 @@ SDLRenderer<Pixel, zoom>::~SDLRenderer()
 	delete currScaler;
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
-	SDL_FreeSurface(storedImage);
 	if (zoom != ZOOM_256) SDL_FreeSurface(workScreen);
 
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
