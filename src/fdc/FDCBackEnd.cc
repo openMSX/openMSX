@@ -27,6 +27,17 @@ void FDCBackEnd::writeTrackData(byte data)
 	PRT_DEBUG("FDCBackEnd::writeTrackData [unimplemented]");
 }
 
+void FDCBackEnd::initReadTrack(byte phystrack, byte track, byte side)
+{
+	PRT_DEBUG("FDCBackEnd::initReadTrack [unimplemented]");
+}
+
+byte FDCBackEnd::readTrackData(byte data)
+{
+	PRT_DEBUG("FDCBackEnd::readTrackData [unimplemented]");
+	return 0xF4;
+}
+
 
 
 void FDCBackEnd::readSector(byte* buf, int logSector)
