@@ -22,3 +22,4 @@ config.h.in.in
 gmon.out
 *.vim
 .kdbgrc.openmsx
+.debug
