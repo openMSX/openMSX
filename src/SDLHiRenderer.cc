@@ -708,13 +708,13 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic7(
 	do {
 		byte rgb = vdp->getVRAM(addr);
 		pixelPtr[0] = pixelPtr[1] = V9938_COLOURS
-			[(rgb & 0xE0) >> 5]
 			[(rgb & 0x1C) >> 2]
+			[(rgb & 0xE0) >> 5]
 			[((rgb & 0x03) << 1) | ((rgb & 0x02) >> 1)];
 		rgb = vdp->getVRAM(0x10000 | addr);
 		pixelPtr[2] = pixelPtr[3] = V9938_COLOURS
-			[(rgb & 0xE0) >> 5]
 			[(rgb & 0x1C) >> 2]
+			[(rgb & 0xE0) >> 5]
 			[((rgb & 0x03) << 1) | ((rgb & 0x02) >> 1)];
 		pixelPtr += 4;
 	} while (++addr & 127);

@@ -2,6 +2,7 @@
 
 /*
 TODO:
+- Put VRAM in a separate class?
 - Run more measurements on real MSX to find out how horizontal
   scanning interrupt really works.
   Finish model and implement it.
@@ -48,13 +49,16 @@ TODO:
 
 // Inlined methods first, to make sure they are actually inlined:
 
+// TODO: Separate planar / non-planar routines.
 inline VDP::SpritePattern VDP::calculatePattern(int patternNr, int y)
 {
 	// TODO: Optimise getSpriteSize?
 	if (getSpriteMag()) y /= 2;
-	SpritePattern pattern = spritePatternBasePtr[patternNr * 8 + y] << 24;
+	SpritePattern pattern = getVRAMReordered(
+		spritePatternBase + patternNr * 8 + y) << 24;
 	if (getSpriteSize() == 16) {
-		pattern |= spritePatternBasePtr[patternNr * 8 + y + 16] << 16;
+		pattern |= getVRAMReordered(
+			spritePatternBase + patternNr * 8 + y + 16) << 16;
 	}
 	return (getSpriteMag() ? doublePattern(pattern) : pattern);
 }
@@ -72,7 +76,7 @@ inline int VDP::checkSprites1(int line, VDP::SpriteInfo *visibleSprites)
 	int size = getSpriteSize();
 	int magSize = size * (getSpriteMag() + 1);
 	int minStart = line - magSize;
-	byte *attributePtr = spriteAttributeBasePtr;
+	byte *attributePtr = vramData + spriteAttributeBase;
 	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
 		int y = *attributePtr;
 		if (y == 208) break;
@@ -152,12 +156,15 @@ inline int VDP::checkSprites1(int line, VDP::SpriteInfo *visibleSprites)
 	return visibleIndex;
 }
 
+// TODO: For higher performance, have separate routines for planar and
+//       non-planar modes.
 inline int VDP::checkSprites2(int line, VDP::SpriteInfo *visibleSprites)
 {
 	if (!spritesEnabled()) return 0;
 
 	// Compensate for the fact that sprites are calculated one line
 	// before they are plotted.
+	// TODO: Actually fetch the data one line earlier.
 	line--;
 
 	// Get sprites for this line and detect 5th sprite if any.
@@ -165,20 +172,19 @@ inline int VDP::checkSprites2(int line, VDP::SpriteInfo *visibleSprites)
 	int size = getSpriteSize();
 	int magSize = size * (getSpriteMag() + 1);
 	int minStart = line - magSize;
-	// TODO: Verify exact address calculation and maybe masks while
-	//       processing the tables.
-	byte *colourPtr = vramData + (spriteAttributeBase & 0x1FC00);
-	byte *attributePtr = colourPtr + 512;
+	// TODO: Should masks be applied while processing the tables?
+	int colourAddr = spriteAttributeBase & 0x1FC00;
+	int attributeAddr = colourAddr + 512;
 	// TODO: Verify CC implementation.
 	for (sprite = 0; sprite < 32; sprite++,
-			attributePtr += 4, colourPtr += 16) {
-		int y = *attributePtr;
+			attributeAddr += 4, colourAddr += 16) {
+		int y = getVRAMReordered(attributeAddr);
 		if (y == 216) break;
 		// Compensate for vertical scroll.
 		// TODO: Use overscan and check what really happens.
 		y = (y - getVerticalScroll()) & 0xFF;
 		if (y > 216) y -= 256;
-		if ((y > minStart) && (y <= line)) {
+		if (minStart < y && y <= line) {
 			if (visibleIndex == 8) {
 				// Nine sprites on a line.
 				// According to TMS9918.pdf 5th sprite detection is only
@@ -188,15 +194,16 @@ inline int VDP::checkSprites2(int line, VDP::SpriteInfo *visibleSprites)
 				}
 				if (limitSprites) break;
 			}
-			byte colourAttrib = colourPtr[line - y];
+			byte colourAttrib = getVRAMReordered(colourAddr + line - y);
 			// Sprites with CC=1 are only visible if preceded by
 			// a sprite with CC=0.
 			if ((colourAttrib & 0x40) && visibleIndex == 0) continue;
 			SpriteInfo *sip = &visibleSprites[visibleIndex++];
-			int patternIndex = (size == 16
-				? attributePtr[2] & 0xFC : attributePtr[2]);
+			int patternIndex = getVRAMReordered(attributeAddr + 2);
+			// TODO: Precalc pattern index mask.
+			if (size == 16) patternIndex &= 0xFC;
 			sip->pattern = calculatePattern(patternIndex, line - y);
-			sip->x = attributePtr[1];
+			sip->x = getVRAMReordered(attributeAddr + 1);
 			if (colourAttrib & 0x80) sip->x -= 32;
 			sip->colourAttrib = colourAttrib;
 		}
@@ -409,8 +416,6 @@ void VDP::resetInit(const EmuTime &time)
 	patternBase = ~(-1 << 11);
 	spriteAttributeBase = 0;
 	spritePatternBase = 0;
-	spriteAttributeBasePtr = vramData;
-	spritePatternBasePtr = vramData;
 
 	// No sprites found.
 	memset(spriteCount, 0, 212 * sizeof(int));
@@ -627,7 +632,7 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 		updateSprites(time);
 		// Then sync with the Renderer and commit the change.
 		if (isPlanar()) {
-			setVRAM(((addr >> 1) | (addr << 16)) & vramMask, value, time);
+			setVRAM(((addr << 16) | (addr >> 1)) & vramMask, value, time);
 		} else {
 			setVRAM(addr, value, time);
 		}
@@ -698,8 +703,8 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 byte VDP::vramRead()
 {
 	byte ret = readAhead;
-	readAhead = vramData[
-		((controlRegs[14] << 14) | vramPointer) & vramMask ];
+	int addr = (controlRegs[14] << 14) | vramPointer;
+	readAhead = getVRAMReordered(addr);
 	vramPointer = (vramPointer + 1) & 0x3FFF;
 	if (vramPointer == 0 && (displayMode & 0x18)) {
 		// In MSX2 video mode, pointer range is 128K.
@@ -866,7 +871,6 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		int addr = ((controlRegs[11] << 15) | (val << 7)) & vramMask;
 		renderer->updateSpriteAttributeBase(addr, time);
 		spriteAttributeBase = addr;
-		spriteAttributeBasePtr = vramData + spriteAttributeBase;
 		break;
 	}
 	case 11: {
@@ -874,7 +878,6 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		int addr = ((val << 15) | (controlRegs[5] << 7)) & vramMask;
 		renderer->updateSpriteAttributeBase(addr, time);
 		spriteAttributeBase = addr;
-		spriteAttributeBasePtr = vramData + spriteAttributeBase;
 		break;
 	}
 	case 6: {
@@ -882,7 +885,6 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		int addr = (val << 11) & vramMask;
 		renderer->updateSpritePatternBase(addr, time);
 		spritePatternBase = addr;
-		spritePatternBasePtr = vramData + spritePatternBase;
 		break;
 	}
 	case 7:

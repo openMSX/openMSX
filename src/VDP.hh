@@ -158,6 +158,9 @@ public:
 	}
 
 	/** Read a byte from the VRAM.
+	  * Ignores planar addressing: since renderer and command engine
+	  * know the display mode there is no need to dynamically handle
+	  * planar/non-planar addressing.
 	  * TODO: If called from the Renderer, sync with command engine first.
 	  * @param addr The address to read.
 	  *   No bounds checking is done, so make sure it is a legal address.
@@ -168,7 +171,21 @@ public:
 		return vramData[addr];
 	}
 
+	/** Read a byte from the VRAM.
+	  * Takes planar addressing into account if necessary.
+	  * @param addr The address to read.
+	  *   No bounds checking is done, so make sure it is a legal address.
+	  * @return The VRAM contents at the specified address.
+	  */
+	inline byte getVRAMReordered(int addr) {
+		return getVRAM(
+			isPlanar() ? ((addr << 16) | (addr >> 1)) & vramMask : addr);
+	}
+
 	/** Write a byte to the VRAM.
+	  * Ignores planar addressing: since renderer and command engine
+	  * know the display mode there is no need to dynamically handle
+	  * planar/non-planar addressing.
 	  * @param addr The address to write.
 	  *   No bounds checking is done, so make sure it is a legal address.
 	  * @param value The value to write.
@@ -184,6 +201,20 @@ public:
 			renderer->updateVRAM(addr, value, time);
 			vramData[addr] = value;
 		}
+	}
+
+	/** Write a byte to the VRAM.
+	  * Takes planar addressing into account if necessary.
+	  * @param addr The address to write.
+	  *   No bounds checking is done, so make sure it is a legal address.
+	  * @param value The value to write.
+	  * @param time The moment in emulated time this write occurs.
+	  * @return The VRAM contents at the specified address.
+	  */
+	inline void setVRAMReordered(int addr, byte value, const EmuTime &time) {
+		setVRAM(
+			isPlanar() ? ((addr << 16) | (addr >> 1)) & vramMask : addr,
+			value, time);
 	}
 
 	/** Gets the current transparency setting.
@@ -689,16 +720,6 @@ private:
 	/** VRAM address where the sprite pattern table starts.
 	  */
 	int spritePatternBase;
-
-	/** Pointer to VRAM at base address of sprite attribute table.
-	  * TODO: Keep this? Is it secure (out-of-bounds)?
-	  */
-	byte *spriteAttributeBasePtr;
-
-	/** Pointer to VRAM at base address of sprite pattern table.
-	  * TODO: Keep this? Is it secure (out-of-bounds)?
-	  */
-	byte *spritePatternBasePtr;
 
 	/** Buffer containing the sprites that are visible on each
 	  * display line.

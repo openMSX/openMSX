@@ -1,6 +1,11 @@
 $Id$
 
 2002-01-08 Maarten ter Huurne <mth@stack.nl>
+	* Red and green were swapped in Graphic7 rendering.
+	* Apply planar reorder also on CPU reading VRAM and sprite checking.
+	  Fixes Hydefos intro, all Graphic6/7 rendering should be OK now.
+
+2002-01-08 Maarten ter Huurne <mth@stack.nl>
 	* Preliminary Graphic6/7 rendering.
 	  Works somewhat, but not in all cases.
 	* Fixed transparency bug; Psycho World sky is blue again.
