@@ -162,6 +162,7 @@ def convertRoot(node):
 	# Process everything except devices.
 	externalSlotsNode = None
 	motherBoardNode = None
+	sawInfo = False
 	for child in list(node.childNodes):
 		if child.nodeType == node.ELEMENT_NODE:
 			if child.nodeName == 'config':
@@ -173,9 +174,10 @@ def convertRoot(node):
 					elif child.nodeName == 'MotherBoard':
 						motherBoardNode = child
 						node.removeChild(child)
-			elif child.nodeName not in ['device', 'info']:
-				print '  NOTE: ignoring new-style element at top level:', \
-					child.nodeName
+			elif child.nodeName == 'info':
+				sawInfo = True
+			elif child.nodeName != 'device':
+				print '  NOTE: ignoring element at top level:', child.nodeName
 		elif child.nodeType == node.TEXT_NODE:
 			pass
 		elif child.nodeType == node.COMMENT_NODE:
@@ -183,6 +185,17 @@ def convertRoot(node):
 		else:
 			print 'cannot handle node type at top level:', child
 			assert False
+
+	# Insert <info> if necessary.
+	if not sawInfo:
+		print '  NOTE: inserting empty info block, please fill it'
+		infoNode = doc.createElement('info')
+		infoNode.appendChild(doc.createElement('manufacturer'))
+		infoNode.appendChild(doc.createElement('code'))
+		infoNode.appendChild(doc.createElement('release_year'))
+		infoNode.appendChild(doc.createElement('description'))
+		infoNode.appendChild(doc.createElement('type'))
+		node.insertBefore(infoNode, node.firstChild)
 
 	# Determine which slots are expanded.
 	slotExpanded = [ None ] * 4
