@@ -169,6 +169,10 @@ private:
 	  */
 	VDPVRAM *vram;
 
+	/** The sprite checker whose sprites are rendered.
+	  */
+	SpriteChecker *spriteChecker;
+
 	/** SDL colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,
 	  * palBg has entry 0 set to black.

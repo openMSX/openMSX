@@ -42,6 +42,7 @@ openmsx_SOURCES=\
 	SpriteChecker.hh SpriteChecker.cc \
 	Renderer.hh Renderer.cc \
 	SDLHiRenderer.hh SDLHiRenderer.cc \
+	SDLGLRenderer.hh SDLGLRenderer.cc \
 	BitmapConverter.hh BitmapConverter.cc \
 	CharacterConverter.hh CharacterConverter.cc \
 	PlatformFactory.hh PlatformFactory.cc \
@@ -86,8 +87,6 @@ openmsx_SOURCES=\
 	config.h
 # Very much out of date:
 #	SDLLoRenderer.hh SDLLoRenderer.cc
-# Fix after Tilburg:
-#	SDLGLRenderer.hh SDLGLRenderer.cc
 
 openmsx_LDADD = \
 	config/libConfig.la \

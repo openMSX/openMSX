@@ -1,6 +1,9 @@
 $Id$
 
-2002-04-15 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+2002-04-23 Maarten ter Huurne <mth@stack.nl>
+	* Re-enabled SDLGLRenderer.
+
+2002-04-22 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* tuned relative volume Y8950-ADPCM / -FM (thanks Manuel)
 
 2002-04-18 Maarten ter Huurne <mth@stack.nl>
