@@ -49,7 +49,7 @@ bool WD2793::getDTRQ(const EmuTime &time)
 		// WRITE TRACK && status busy
 		if (writeTrack) {
 			int ticks = DRQTime.getTicksTill(time);
-			if (ticks >= 33) { 
+			if (ticks >= 15) { // TODO found by trial and error
 				DRQ = true;
 			}
 		} else {

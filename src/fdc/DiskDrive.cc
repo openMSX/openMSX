@@ -227,9 +227,7 @@ int RealDrive::indexPulseCount(const EmuTime& begin,
 	}
 	int t1 = (motorTime <= begin) ? motorTime.getTicksTill(begin) : 0;
 	int t2 = (motorTime <= end)   ? motorTime.getTicksTill(end)   : 0;
-	int total = t2 - t1;
-	int start = t1 % TICKS_PER_ROTATION;
-	return (total - start) / TICKS_PER_ROTATION;
+	return (t2 / TICKS_PER_ROTATION) - (t1 / TICKS_PER_ROTATION);
 }
 
 void RealDrive::setHeadLoaded(bool status, const EmuTime& time)

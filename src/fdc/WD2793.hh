@@ -94,7 +94,7 @@ private:
 	DiskDrive* drive;
 	
 	EmuTime commandStart;
-	EmuTimeFreq<1000000> DRQTime;	// ms
+	EmuTimeFreq<1000000> DRQTime;	// us
 
 	byte statusReg;
 	byte commandReg;
