@@ -10,10 +10,11 @@
 #include <sys/types.h>
 // #include "system.h" -> this bugs g++-3.0, do we need it?
 
+#include "config.h"
+
 // #define EXIT_FAILURE 1
 
 #include "msxconfig.hh"
-
 
 //David Heremans
 #include <iostream>
@@ -67,6 +68,7 @@ int main (int argc, char **argv)
 		PRT_ERROR("Couldn't init SDL: " << SDL_GetError());
 	}
 	atexit(SDL_Quit);
+	SDL_WM_SetCaption("openMSX " VERSION " [alpha]", 0);
 
 	// Een moederbord als eerste
 	MSXMotherBoard *motherboard = MSXMotherBoard::instance();
