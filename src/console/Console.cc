@@ -337,7 +337,7 @@ void Console::splitLines()
 	cursorLocation.y = numberOfLines - 1 - temp;
 }
 
-void Console::print(const std::string &text)
+void Console::printFast(const std::string &text)
 {
 	int end = 0;
 	do {
@@ -354,7 +354,17 @@ void Console::print(const std::string &text)
 			end++; // skip newline
 		}
 	} while (end < (int)text.length());
+}
+
+void Console::printFlush()
+{
 	updateConsole();
+}
+
+void Console::print(const std::string &text)
+{
+	printFast(text);
+	printFlush();
 }
 
 void Console::newLineConsole(const std::string &line)

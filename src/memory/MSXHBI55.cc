@@ -28,23 +28,31 @@ void MSXHBI55::reset(const EmuTime &time)
 
 byte MSXHBI55::readIO(byte port, const EmuTime &time)
 {
+	byte result;
 	switch (port & 0x03) {
 	case 0:
-		return i8255->readPortA(time);
+		result = i8255->readPortA(time);
+		break;
 	case 1:
-		return i8255->readPortB(time);
+		result = i8255->readPortB(time);
+		break;
 	case 2:
-		return i8255->readPortC(time);
+		result = i8255->readPortC(time);
+		break;
 	case 3:
-		return i8255->readControlPort(time);
+		result = i8255->readControlPort(time);
+		break;
 	default: // unreachable, avoid warning
 		assert(false);
-		return 0;
+		result = 0;
 	}
+	PRT_DEBUG("HBI-55 read "<<std::hex<<(int)port<<" "<<(int)result<<std::dec);
+	return result;
 }
 
 void MSXHBI55::writeIO(byte port, byte value, const EmuTime &time)
 {
+	PRT_DEBUG("HBI-55 write "<<std::hex<<(int)port<<" "<<(int)value<<std::dec);
 	switch (port & 0x03) {
 	case 0:
 		i8255->writePortA(value, time);

@@ -242,9 +242,10 @@ bool CommandController::completeString2(std::string &string,
 		// print all possibilities
 		for (it = set.begin(); it != set.end(); it++) {
 			// TODO print more on one line
-			Console::instance()->print(*it);
+			Console::instance()->printFast(*it);
 		}
-		Console::instance()->print("");	// dummy 
+		Console::instance()->printFast("");	// dummy 
+		Console::instance()->printFlush();	// dummy 
 	}
 	return false;
 }

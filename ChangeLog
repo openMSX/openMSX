@@ -1,5 +1,9 @@
 $Id$
 
+2003-06-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Improved performance for tab-completion:
+	    without this patch "diska <tab>" could take several seconds
+
 2003-06-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented HBI-55 data cartridge:
 	    according to some BASIC test progs it seems to work, but not yet

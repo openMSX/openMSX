@@ -28,6 +28,8 @@ class Console : private EventListener
 	
 		/** Prints a string on the console.
 		  */
+		void printFast(const std::string &text);
+		void printFlush();
 		void print(const std::string &text);
 		
 		/** Add a renderer for this console.
