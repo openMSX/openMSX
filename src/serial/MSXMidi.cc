@@ -75,7 +75,7 @@ void MSXMidi::writeIO(byte port, byte value, const EmuTime& time)
 			i8251.writeIO(port, value, time);
 			break;
 		case 2: // timer interrupt flag off
-			setTimerIRQ(false);
+			setTimerIRQ(false, time);
 			break;
 		case 3: // no function
 			break;
@@ -88,7 +88,7 @@ void MSXMidi::writeIO(byte port, byte value, const EmuTime& time)
 	}
 }
 
-void MSXMidi::setTimerIRQ(bool status)
+void MSXMidi::setTimerIRQ(bool status, const EmuTime& time)
 {
 	if (timerIRQlatch != status) {
 		timerIRQlatch = status;
@@ -99,12 +99,12 @@ void MSXMidi::setTimerIRQ(bool status)
 				timerIRQ.reset();
 			}
 		}
+		updateEdgeEvents(time);
 	}
 }
 
-void MSXMidi::enableTimerIRQ(bool enabled)
+void MSXMidi::enableTimerIRQ(bool enabled, const EmuTime& time)
 {
-	// TODO optimize generateEdge
 	if (timerIRQenabled != enabled) {
 		timerIRQenabled = enabled;
 		if (timerIRQlatch) {
@@ -114,7 +114,14 @@ void MSXMidi::enableTimerIRQ(bool enabled)
 				timerIRQ.reset();
 			}
 		}
+		updateEdgeEvents(time);
 	}
+}
+
+void MSXMidi::updateEdgeEvents(const EmuTime& time)
+{
+	bool wantEdges = timerIRQenabled && !timerIRQlatch;
+	i8254.getOutputPin(2).generateEdgeSignals(wantEdges, time);
 }
 
 void MSXMidi::setRxRDYIRQ(bool status)
@@ -160,7 +167,7 @@ void MSXMidi::I8251Interf::setRxRDY(bool status, const EmuTime& time)
 
 void MSXMidi::I8251Interf::setDTR(bool status, const EmuTime& time)
 {
-	midi.enableTimerIRQ(status);
+	midi.enableTimerIRQ(status, time);
 }
 
 void MSXMidi::I8251Interf::setRTS(bool status, const EmuTime& time)
@@ -256,7 +263,7 @@ void MSXMidi::Counter2::signal(ClockPin& pin, const EmuTime& time)
 
 void MSXMidi::Counter2::signalPosEdge(ClockPin& pin, const EmuTime& time)
 {
-	midi.setTimerIRQ(true);
+	midi.setTimerIRQ(true, time);
 }
 
 

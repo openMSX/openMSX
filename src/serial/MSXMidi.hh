@@ -32,8 +32,9 @@ public:
 	virtual void recvByte(byte value, const EmuTime& time);
 
 private:
-	void setTimerIRQ(bool status);
-	void enableTimerIRQ(bool enabled);
+	void setTimerIRQ(bool status, const EmuTime& time);
+	void enableTimerIRQ(bool enabled, const EmuTime& time);
+	void updateEdgeEvents(const EmuTime& time);
 	void setRxRDYIRQ(bool status);
 	void enableRxRDYIRQ(bool enabled);
 
