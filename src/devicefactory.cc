@@ -5,10 +5,11 @@
 #include "MSXSimple64KB.hh"
 #include "MSXRom16KB.hh"
 #include "MSXPPI.hh"
+#include "MSXTMS9928a.hh"
+#include "E6Timer.hh"
 
-//MSXDevice *deviceFactory::create(const string &type){
-MSXDevice *deviceFactory::create(MSXConfig::Device *conf){
-	MSXDevice *device=0;
+MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
+	MSXDevice *device = 0;
 	if ( conf->getType().compare("MotherBoard") == 0 ){
 		// if 0 then strings are equal
 		MSXMotherBoard::instance()->setConfigDevice(conf);
@@ -29,9 +30,18 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf){
 		device=new MSXPPI();
 	};
 
-	if (device != 0){
-		device->setConfigDevice(conf);
+	if ( conf->getType().compare("TMS9928a") == 0 ){ 
+		// if 0 then strings are equal
+		device=new MSXTMS9928a();
 	};
+
+	if ( conf->getType().compare("E6Timer") == 0 ){ 
+		// if 0 then strings are equal
+		device=new E6Timer();
+	};
+
+	assert (device != 0);
+	device->setConfigDevice(conf);
 	return device;
 }
 

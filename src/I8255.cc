@@ -15,9 +15,9 @@ I8255::~I8255()
 
 void I8255::reset()
 {
-	latchPortA = 255;	// TODO check this behavior
-	latchPortB = 255;
-	latchPortC = 255;
+	latchPortA = 0;
+	latchPortB = 0;
+	latchPortC = 0;
 	writeControlPort(SET_MODE | DIRECTION_A | DIRECTION_B | 
 	                            DIRECTION_C0 | DIRECTION_C1); // all input
 }

@@ -1,5 +1,8 @@
 $Id$
 
+2001-09-08 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* some fixes (yesterday discussed with Davy) 
+
 2001-09-06 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* fixed a few classes to make them compile again
 	* made some minor addition to emutime

@@ -61,15 +61,4 @@
     <type>TMS9928a</type>
 	<parameter name="frequency">PAL</parameter>
   </device>
-  <device id="vdp">
-    <type>VDP</type>
-	<slotted>
-	  <page>0</page>
-	  <ps>1</ps>
-	  <ss>2</ss>
-	</slotted>
-	<parameter name="foo_bug">no</parameter>
-	<parameter name="hello" class="greeting">world</parameter>
-	<parameter name="hi" class="greeting">alpha centauri</parameter>
-  </device>
 </msxconfig>
