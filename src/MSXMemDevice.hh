@@ -52,6 +52,20 @@ class MSXMemDevice : virtual public MSXDevice
 		 * The start of the interval is CACHE_LINE_SIZE alligned.
 		 */
 		virtual byte* getWriteCacheLine(word start) const;
+
+		/**
+		 * Read a byte from a given memory location. Reading memory
+		 * via this method has no side effects (doesn't change the
+		 * device status). If save reading is not possible this
+		 * method returns 0xFF.
+		 * This method is not used by the emulation. It can however
+		 * be used by a debugger.
+		 * The default implementation uses the cache mechanism
+		 * (getReadCacheLine() method). If a certain region is not
+		 * cacheable you cannot read it by default, Override this
+		 * method if you want to improve this behaviour.
+		 */
+		virtual byte peekMem(word address) const;
 	
 	protected:
 		static byte unmappedRead[0x10000];	// Read only

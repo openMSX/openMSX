@@ -44,6 +44,19 @@ void MSXMemDevice::writeMem(word address, byte value, const EmuTime &time)
 	// do nothing
 }
 
+byte MSXMemDevice::peekMem(word address) const
+{
+	word base = address & CPU::CACHE_LINE_HIGH;
+	const byte* cache = getReadCacheLine(base);
+	if (cache) {
+		word offset = address & CPU::CACHE_LINE_LOW;
+		return cache[offset];
+	} else {
+		PRT_DEBUG("MSXMemDevice: peek not supported for this device");
+		return 0xFF;
+	}
+}
+
 byte* MSXMemDevice::getWriteCacheLine(word start) const
 {
 	return NULL;	// uncacheable

@@ -72,17 +72,34 @@ class MSXCPUInterface : public CPUInterface
 
 		/**
 		 * This read a byte from the given IO-port
+		 * @see MSXMemDevice::readIO()
 		 */
 		byte readIO(word port, const EmuTime &time);
 
 		/**
 		 * This writes a byte to the given IO-port
+		 * @see MSXMemDevice::writeIO()
 		 */
 		void writeIO(word port, byte value, const EmuTime &time);
 
+		/**
+		 * Gets read cache
+		 * @see MSXMemDevice::getReadCacheLine()
+		 */
 		virtual const byte* getReadCacheLine(word start) const;
+		
+		/**
+		 * Gets write cache
+		 * @see MSXMemDevice::getWriteCacheLine()
+		 */
 		virtual byte* getWriteCacheLine(word start) const;
 
+		/**
+		 * Peek memory location
+		 * @see MSXMemDevice::peekMem()
+		 */
+		byte peekMem(word address) const;
+		
 		/*
 		 * Should only be used by PPI
 		 *  TODO: make private / friend

@@ -228,6 +228,11 @@ byte* MSXCPUInterface::getWriteCacheLine(word start) const
 	return visibleDevices[start >> 14]->getWriteCacheLine(start);
 }
 
+byte MSXCPUInterface::peekMem(word address) const
+{
+	return visibleDevices[address >> 14]->peekMem(address);
+}
+
 std::string MSXCPUInterface::getSlotMap()
 {
 	std::ostringstream out;
