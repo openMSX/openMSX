@@ -2,7 +2,6 @@
 
 #include "IntegerSetting.hh"
 #include "CommandException.hh"
-#include "SettingsManager.hh"
 #include <sstream>
 #include <cstdio>
 
@@ -12,16 +11,17 @@ using std::ostringstream;
 namespace openmsx {
 
 IntegerSetting::IntegerSetting(const string& name, const string& description,
-                               int initialValue, int minValue, int maxValue)
-	: Setting<int>(name, description, initialValue)
+                               int initialValue, int minValue, int maxValue,
+                               XMLElement* node)
+	: Setting<int>(name, description, initialValue, node)
 {
 	setRange(minValue, maxValue);
-	SettingsManager::instance().registerSetting(*this);
+	initSetting();
 }
 
 IntegerSetting::~IntegerSetting()
 {
-	SettingsManager::instance().unregisterSetting(*this);
+	exitSetting();
 }
 
 void IntegerSetting::setRange(int minValue, int maxValue)

@@ -9,6 +9,7 @@
 namespace openmsx {
 
 HardwareConfig::HardwareConfig()
+	: MSXConfig("hardware")
 {
 }
 

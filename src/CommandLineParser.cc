@@ -189,7 +189,8 @@ void CommandLineParser::parse(int argc, char** argv)
 				// load default settings file in case the user didn't specify one
 				try {
 					SystemFileContext context;
-					settingsConfig.loadSetting(context, "settings.xml");
+					settingsConfig.loadSetting(
+						context, "settings.xml");
 					haveSettings = true;
 				} catch (FileException& e) {
 					// settings.xml not found
@@ -527,7 +528,8 @@ bool CommandLineParser::SettingOption::parseOption(const string &option,
 	}
 	try {
 		UserFileContext context;
-		parent.settingsConfig.loadSetting(context, getArgument(option, cmdLine));
+		parent.settingsConfig.loadSetting(
+			context, getArgument(option, cmdLine));
 		parent.haveSettings = true;
 	} catch (FileException& e) {
 		throw FatalError(e.getMessage());

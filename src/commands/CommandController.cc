@@ -7,7 +7,6 @@
 #include "FileOperations.hh"
 #include "FileContext.hh"
 #include "File.hh"
-#include "SettingsConfig.hh"
 #include "openmsx.hh"
 #include "CliCommOutput.hh"
 #include "Interpreter.hh"
@@ -17,10 +16,9 @@
 namespace openmsx {
 
 CommandController::CommandController()
-	: helpCmd(*this), cmdConsole(NULL),
-	  infoCommand(InfoCommand::instance()),
-	  settingsConfig(SettingsConfig::instance()),
-	  interpreter(Interpreter::instance())
+	: helpCmd(*this), cmdConsole(NULL)
+	, infoCommand(InfoCommand::instance())
+	, interpreter(Interpreter::instance())
 {
 	registerCommand(&helpCmd, "help");
 	registerCommand(&infoCommand, "openmsx_info");

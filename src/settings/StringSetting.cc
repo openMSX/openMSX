@@ -1,7 +1,6 @@
 // $Id$
 
 #include "StringSetting.hh"
-#include "SettingsManager.hh"
 
 namespace openmsx {
 
@@ -9,8 +8,8 @@ namespace openmsx {
 
 StringSettingBase::StringSettingBase(
 	const string& name, const string& description,
-        const string& initialValue)
-	: Setting<string>(name, description, initialValue)
+        const string& initialValue, XMLElement* node)
+	: Setting<string>(name, description, initialValue, node)
 {
 }
 
@@ -28,15 +27,15 @@ void StringSettingBase::setValueString(const string& newValue)
 // class StringSetting
 
 StringSetting::StringSetting(const string& name, const string& description,
-                             const string& initialValue)
-	: StringSettingBase(name, description, initialValue)
+                             const string& initialValue, XMLElement* node)
+	: StringSettingBase(name, description, initialValue, node)
 {
-	SettingsManager::instance().registerSetting(*this);
+	initSetting();
 }
 
 StringSetting::~StringSetting()
 {
-	SettingsManager::instance().unregisterSetting(*this);
+	exitSetting();
 }
 
 } // namespace openmsx

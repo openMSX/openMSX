@@ -5,7 +5,6 @@
 #include "FileContext.hh"
 #include "CliCommOutput.hh"
 #include "CommandController.hh"
-#include "SettingsManager.hh"
 
 namespace openmsx {
 
@@ -13,8 +12,8 @@ namespace openmsx {
 
 FilenameSettingBase::FilenameSettingBase(
 	const string& name, const string& description,
-	const string& initialValue)
-	: StringSettingBase(name, description, initialValue)
+	const string& initialValue, XMLElement* node)
+	: StringSettingBase(name, description, initialValue, node)
 {
 }
 
@@ -46,15 +45,15 @@ void FilenameSettingBase::tabCompletion(vector<string>& tokens) const
 
 FilenameSetting::FilenameSetting(
 	const string& name, const string& description,
-	const string& initialValue)
-	: FilenameSettingBase(name, description, initialValue)
+	const string& initialValue, XMLElement* node)
+	: FilenameSettingBase(name, description, initialValue, node)
 {
-	SettingsManager::instance().registerSetting(*this);
+	initSetting();
 }
 
 FilenameSetting::~FilenameSetting()
 {
-	SettingsManager::instance().unregisterSetting(*this);
+	exitSetting();
 }
 
 bool FilenameSetting::checkFile(const string& /*filename*/)

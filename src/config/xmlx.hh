@@ -46,6 +46,9 @@ public:
 	
 	const string& getName() const { return name; }
 	const string& getData() const { return data; }
+	bool getDataAsBool() const;
+	int getDataAsInt() const;
+	void setData(const string& data_);
 
 	typedef vector<XMLElement*> Children;
 	const Children& getChildren() const { return children; }
@@ -54,6 +57,10 @@ public:
 	XMLElement* findChild(const string& name);
 	const XMLElement& getChild(const string& name) const;
 	XMLElement& getChild(const string& name);
+
+	XMLElement& getCreateChild(const string& name,
+	                           const string& defaultValue = "");
+	XMLElement& getCreateChild(const string& name, int defaultValue);
 	
 	const string& getChildData(const string& name) const;
 	string getChildData(const string& name,

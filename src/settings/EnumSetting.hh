@@ -10,7 +10,6 @@
 #include "Setting.hh"
 #include "CommandController.hh"
 #include "NonInheritable.hh"
-#include "SettingsManager.hh"
 #include "InfoTopic.hh"
 #include "InfoCommand.hh"
 #include "CommandArgument.hh"
@@ -40,12 +39,12 @@ public:
 
 protected:
 	EnumSettingBase(const string& name, const string& description,
-	                const ValueType& initialValue,
-	                const Map& map_);
+	                const ValueType& initialValue, const Map& map_,
+			XMLElement* node);
 	EnumSettingBase(const string& name, const string& description,
 	                const ValueType& initialValue,
-	                const ValueType& defaultValue,
-	                const Map& map_);
+	                const ValueType& defaultValue, const Map& map_,
+			XMLElement* node);
 	virtual ~EnumSettingBase();
 
 private:
@@ -75,11 +74,11 @@ public:
 
 	EnumSetting(const string& name, const string& description,
 		    const ValueType& initialValue,
-		    const Map& map_);
+		    const Map& map_, XMLElement* node = NULL);
 	EnumSetting(const string& name, const string& description,
 		    const ValueType& initialValue,
 		    const ValueType& defaultValue,
-		    const Map& map_);
+		    const Map& map_, XMLElement* node = NULL);
 	virtual ~EnumSetting();
 };
 
@@ -92,9 +91,10 @@ EnumSettingBase<ValueType>::EnumSettingBase(
 	const string& name,
 	const string& description,
 	const ValueType& initialValue,
-	const Map& map_)
-	: Setting<ValueType>(name, description, initialValue),
-	  enumInfo(*this), enumMap(map_)
+	const Map& map_,
+	XMLElement* node)
+	: Setting<ValueType>(name, description, initialValue, node)
+	, enumInfo(*this), enumMap(map_)
 {
 	init();
 }
@@ -105,9 +105,10 @@ EnumSettingBase<ValueType>::EnumSettingBase(
 	const string& description,
 	const ValueType& initialValue,
 	const ValueType& defaultValue,
-	const Map& map_)
-	: Setting<ValueType>(name, description, initialValue, defaultValue),
-	  enumInfo(*this), enumMap(map_)
+	const Map& map_,
+	XMLElement* node)
+	: Setting<ValueType>(name, description, initialValue, defaultValue, node)
+	, enumInfo(*this), enumMap(map_)
 {
 	init();
 }
@@ -213,27 +214,28 @@ string EnumSettingBase<ValueType>::EnumInfo::help(
 template<typename ValueType>
 EnumSetting<ValueType>::EnumSetting(
 	const string& name, const string& description,
-	const ValueType& initialValue, const Map& map_)
-	: EnumSettingBase<ValueType>(name, description, initialValue, map_)
+	const ValueType& initialValue, const Map& map,
+	XMLElement* node)
+	: EnumSettingBase<ValueType>(name, description, initialValue, map, node)
 {
-	SettingsManager::instance().registerSetting(*this);
+	Setting<ValueType>::initSetting();
 }
 
 template<typename ValueType>
 EnumSetting<ValueType>::EnumSetting(
 	const string& name, const string& description,
 	const ValueType& initialValue, const ValueType& defaultValue,
-	const Map& map_)
-	: EnumSettingBase<ValueType>(
-		name, description, initialValue, defaultValue, map_)
+	const Map& map, XMLElement* node)
+	: EnumSettingBase<ValueType>(name, description, initialValue,
+	                             defaultValue, map, node)
 {
-	SettingsManager::instance().registerSetting(*this);
+	Setting<ValueType>::initSetting();
 }
 
 template<typename ValueType>
 EnumSetting<ValueType>::~EnumSetting()
 {
-	SettingsManager::instance().unregisterSetting(*this);
+	Setting<ValueType>::exitSetting();
 }
 
 } // namespace openmsx

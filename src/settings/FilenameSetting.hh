@@ -19,7 +19,7 @@ public:
 
 protected:
 	FilenameSettingBase(const string& name, const string& description,
-	                    const string& initialValue);
+	                    const string& initialValue, XMLElement* node);
 
 	/** Used by subclass to check a new file name and/or contents.
 	  * @param filename The file path to an existing file.
@@ -34,7 +34,7 @@ class FilenameSetting : public FilenameSettingBase,
 {
 public:
 	FilenameSetting(const string& name, const string& description,
-	                const string& initialValue);
+	                const string& initialValue, XMLElement* node = NULL);
 	virtual ~FilenameSetting();
 	
 	virtual bool checkFile(const string& filename);

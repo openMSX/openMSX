@@ -18,7 +18,6 @@ namespace openmsx {
 
 class CommandConsole;
 class InfoCommand;
-class SettingsConfig;
 class Interpreter;
 
 class CommandController
@@ -111,7 +110,6 @@ private:
 	CommandConsole* cmdConsole;
 	
 	InfoCommand& infoCommand;
-	SettingsConfig& settingsConfig;
 	Interpreter& interpreter;
 };
 

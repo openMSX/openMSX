@@ -3,11 +3,12 @@
 #ifndef __SETTING_HH__
 #define __SETTING_HH__
 
+#include "SettingsManager.hh"
 #include "SettingNode.hh"
+#include "xmlx.hh"
 #include <string>
 
 using std::string;
-
 
 namespace openmsx {
 
@@ -40,6 +41,9 @@ public:
 		if (newValue != value) {
 			value = newValue;
 			notify();
+			if (xmlNode) {
+				xmlNode->setData(getValueString());
+			}
 		}
 	}
 
@@ -49,13 +53,33 @@ public:
 
 protected:
 	Setting(const string& name, const string& description,
-		const ValueType& initialValue)
-		: SettingLeafNode(name, description),
-	          value(initialValue), defaultValue(initialValue) { }
+		const ValueType& initialValue, XMLElement* node = NULL)
+		: SettingLeafNode(name, description)
+		, value(initialValue), defaultValue(initialValue)
+		, xmlNode(node) { }
 	Setting(const string& name, const string& description,
-		const ValueType& initialValue, const ValueType& defaultValue_)
-		: SettingLeafNode(name, description),
-	          value(initialValue), defaultValue(defaultValue_) { }
+		const ValueType& initialValue, const ValueType& defaultValue_,
+		XMLElement* node = NULL)
+		: SettingLeafNode(name, description)
+		, value(initialValue), defaultValue(defaultValue_)
+		, xmlNode(node) { }
+
+	/**
+	 * This method must be called from the constructor of the child class
+	 */
+	void initSetting() {
+		if (xmlNode) {
+			setValueString(xmlNode->getData());
+		}
+		SettingsManager::instance().registerSetting(*this);
+	}
+
+	/**
+	 * This method must be called from the destructor of the child class
+	 */
+	void exitSetting() {
+		SettingsManager::instance().unregisterSetting(*this);
+	}
 
 private:
 	/** The current value of this setting.
@@ -63,6 +87,7 @@ private:
 	  */
 	ValueType value;
 	ValueType defaultValue;
+	XMLElement* xmlNode;
 };
 
 } // namespace openmsx

@@ -5,6 +5,11 @@
 
 namespace openmsx {
 
+MSXConfig::MSXConfig(const string& name)
+	: XMLElement(name)
+{
+}
+
 void MSXConfig::loadConfig(XMLElement& root, const FileContext& context,
                            auto_ptr<XMLElement> elem)
 {

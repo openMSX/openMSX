@@ -16,7 +16,7 @@ class BooleanSetting : public EnumSettingBase<bool>,
 {
 public:
 	BooleanSetting(const string& name, const string& description,
-	               bool initialValue = false);
+	               bool initialValue = false, XMLElement* node = NULL);
 	virtual ~BooleanSetting();
 
 private:

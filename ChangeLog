@@ -6,6 +6,11 @@ $Id$
 
 2004-08-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added 16bpp MMX simple scaler routines
+	* Proof-of-concept: saving of settings  (settings.xml)
+	   - added a new command "save_settings". There is no autosave at exit
+	     yet.
+	   - for the moment only very few settings are actually saved. Only
+	       consolecolums, consolerows, consoleplacement
 
 2004-08-27 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added initial version of the openMSX FAQ: not finished at all,

@@ -19,17 +19,17 @@ namespace openmsx {
 
 BackgroundSetting::BackgroundSetting(
 	OSDConsoleRenderer* console_, const string& settingName,
-	const string& filename
-)	: FilenameSettingBase(settingName, "console background file", "")
+	const string& filename, XMLElement* node)
+	: FilenameSettingBase(settingName, "console background file", "", node)
 	, console(console_)
 {
 	setValueString(filename);
-	SettingsManager::instance().registerSetting(*this);
+	initSetting();
 }
 
 BackgroundSetting::~BackgroundSetting()
 {
-	SettingsManager::instance().unregisterSetting(*this);
+	exitSetting();
 }
 
 bool BackgroundSetting::checkFile(const string& filename)
@@ -46,17 +46,17 @@ bool BackgroundSetting::checkFile(const string& filename)
 
 FontSetting::FontSetting(
 	OSDConsoleRenderer* console_, const string& settingName,
-	const string& filename
-)	: FilenameSettingBase(settingName, "console font file", "")
+	const string& filename, XMLElement* node)
+	: FilenameSettingBase(settingName, "console font file", "", node)
 	, console(console_)
 {
 	setValueString(filename);
-	SettingsManager::instance().registerSetting(*this);
+	initSetting();
 }
 
 FontSetting::~FontSetting()
 {
-	SettingsManager::instance().unregisterSetting(*this);
+	exitSetting();
 }
 
 bool FontSetting::checkFile(const string& filename)
@@ -79,41 +79,29 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	, eventDistributor(EventDistributor::instance())
 	, inputEventGenerator(InputEventGenerator::instance())
 {
-	bool initiated = true;
-	static set<string> initsDone;
 	string tempconfig = console.getId();
 	
-	const XMLElement* config = SettingsConfig::instance().findChild(tempconfig);
-	if (config) {
-		FileContext& context = config->getFileContext();
-		if (initsDone.find(tempconfig) == initsDone.end()) {
-			initsDone.insert(tempconfig);
-			initiated = false;
-		}
-		try {
-			const XMLElement* fontElem = config->findChild("font");
-			if (!initiated && fontElem) {
-				string fontName = fontElem->getData();
-				fontName = context.resolve(fontName);
-				console.setFont(fontName);
-			}
-		} catch (FileException& e) {
-			// nothing
-		}
+	XMLElement& config = SettingsConfig::instance().getCreateChild(tempconfig);
+	FileContext& context = config.getFileContext();
 
-		try {
-			const XMLElement* backgroundElem = config->findChild("background");
-			if (!initiated && backgroundElem) {
-				string backgroundName = backgroundElem->getData();
-				backgroundName = context.resolve(backgroundName);
-				console.setBackground(backgroundName);
-			}
-		} catch (FileException& e) {
-			// nothing
-		}
+	XMLElement& fontElem = config.getCreateChild("font", console.getFont());
+	try {
+		string fontName = fontElem.getData();
+		fontName = context.resolve(fontName);
+		console.setFont(fontName);
+	} catch (FileException& e) {
+		// nothing
 	}
 
-	initiated = true;
+	XMLElement& backgroundElem = config.getCreateChild("background", console.getBackground());
+	try {
+		string backgroundName = backgroundElem.getData();
+		backgroundName = context.resolve(backgroundName);
+		console.setBackground(backgroundName);
+	} catch (FileException& e) {
+		// nothing
+	}
+
 	font.reset(new DummyFont());
 	if (!console.getFont().empty()) {
 		console.registerConsole(this);
@@ -150,8 +138,6 @@ void OSDConsoleRenderer::setFontName(const string& name)
 
 void OSDConsoleRenderer::initConsoleSize()
 {
-	static set<string> initsDone;
-	
 	// define all possible positions
 	typedef EnumSetting<Console::Placement>::Map PlaceMap;
 	PlaceMap placeMap;
@@ -166,46 +152,46 @@ void OSDConsoleRenderer::initConsoleSize()
 	placeMap["bottomright"] = Console::CP_BOTTOMRIGHT;
 
 	string tempconfig = console.getId();
-	// check if this console is already initiated
-	if (initsDone.find(tempconfig) == initsDone.end()) {
-		initsDone.insert(tempconfig);
 
-		SDL_Surface* screen = SDL_GetVideoSurface();
-		int columns = (((screen->w - CHAR_BORDER) / font->getWidth()) * 30) / 32;
-		int rows = ((screen->h / font->getHeight()) * 6) / 15;
+	SDL_Surface* screen = SDL_GetVideoSurface();
+	int columns = (((screen->w - CHAR_BORDER) / font->getWidth()) * 30) / 32;
+	int rows = ((screen->h / font->getHeight()) * 6) / 15;
+	string placementString = "bottom";
 
-		string placementString = "bottom";
-		const XMLElement* config = SettingsConfig::instance().findChild(tempconfig);
-		if (config) {
-			columns = config->getChildDataAsInt("columns", columns);
-			rows    = config->getChildDataAsInt("rows",    rows);
-			placementString = config->getChildData("placement", placementString);
-		}
-		
-		console.setColumns(columns);
-		console.setRows(rows);
-		
-		PlaceMap::const_iterator it = placeMap.find(placementString);
-		Console::Placement consolePlacement;
-		if (it != placeMap.end()) {
-			consolePlacement = it->second;
-		} else {
-			consolePlacement = Console::CP_BOTTOM; //not found, default
-		}
-		console.setPlacement(consolePlacement);
+	SettingsConfig& settings = SettingsConfig::instance();
+	XMLElement& config = settings.getCreateChild(tempconfig);
+	XMLElement& columnsElem = config.getCreateChild("columns", columns);
+	XMLElement& rowsElem    = config.getCreateChild("rows",    rows);
+	XMLElement& placeElem   = config.getCreateChild("placement", placementString);
+	
+	columns = columnsElem.getDataAsInt();
+	rows    = rowsElem.getDataAsInt();
+	placementString = placeElem.getData();
+	
+	console.setColumns(columns);
+	console.setRows(rows);
+	
+	PlaceMap::const_iterator it = placeMap.find(placementString);
+	Console::Placement consolePlacement;
+	if (it != placeMap.end()) {
+		consolePlacement = it->second;
+	} else {
+		consolePlacement = Console::CP_BOTTOM; //not found, default
 	}
+	console.setPlacement(consolePlacement);
+	
 	adjustColRow();
 	console.setConsoleDimensions(consoleColumns, consoleRows);
 	string tempname = console.getId();
 	consoleColumnsSetting.reset(new IntegerSetting(
 		tempname + "columns", "number of columns in the console",
-		console.getColumns(), 32, 999));
+		console.getColumns(), 32, 999, &columnsElem));
 	consoleRowsSetting.reset(new IntegerSetting(
 		tempname + "rows", "number of rows in the console",
-		console.getRows(), 1, 99));
+		console.getRows(), 1, 99, &rowsElem));
 	consolePlacementSetting.reset(new EnumSetting<Console::Placement>(
 		tempname + "placement", "position of the console within the emulator",
-		console.getPlacement(), placeMap));
+		console.getPlacement(), placeMap, &placeElem));
 }
 
 void OSDConsoleRenderer::adjustColRow()

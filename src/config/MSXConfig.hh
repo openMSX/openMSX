@@ -16,6 +16,7 @@ public:
 	                       auto_ptr<XMLElement> elem);
 
 protected:
+	MSXConfig(const string& name);
 	static void handleDoc(XMLElement& root, const XMLDocument& doc,
 	                      FileContext& context);
 };

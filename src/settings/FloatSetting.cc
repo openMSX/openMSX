@@ -2,7 +2,6 @@
 
 #include "FloatSetting.hh"
 #include "CommandException.hh"
-#include "SettingsManager.hh"
 #include <sstream>
 #include <iomanip>
 #include <cstdio>
@@ -13,16 +12,17 @@ namespace openmsx {
 
 FloatSetting::FloatSetting(
 	const string& name, const string& description,
-	float initialValue, float minValue, float maxValue)
-	: Setting<float>(name, description, initialValue)
+	float initialValue, float minValue, float maxValue,
+	XMLElement* node)
+	: Setting<float>(name, description, initialValue, node)
 {
 	setRange(minValue, maxValue);
-	SettingsManager::instance().registerSetting(*this);
+	initSetting();
 }
 
 FloatSetting::~FloatSetting()
 {
-	SettingsManager::instance().unregisterSetting(*this);
+	exitSetting();
 }
 
 void FloatSetting::setRange(float minValue, float maxValue)

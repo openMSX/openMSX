@@ -32,7 +32,7 @@ class BackgroundSetting : public FilenameSettingBase,
 {
 public:
 	BackgroundSetting(OSDConsoleRenderer* console, const string& settingName,
-	                  const string& filename);
+	                  const string& filename, XMLElement* node = NULL);
 	virtual ~BackgroundSetting();
 
 	virtual bool checkFile(const string& filename);
@@ -46,7 +46,7 @@ class FontSetting : public FilenameSettingBase, NON_INHERITABLE(FontSetting)
 {
 public:
 	FontSetting(OSDConsoleRenderer* console, const string& settingName,
-	            const string& filename);
+	            const string& filename, XMLElement* node = NULL);
 	virtual ~FontSetting();
 
 	virtual bool checkFile(const string& filename);

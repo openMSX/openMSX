@@ -118,6 +118,22 @@ void XMLElement::addAttribute(const string& name, const string& value)
 	attributes[name] = value;
 }
 
+bool XMLElement::getDataAsBool() const
+{
+	return StringOp::stringToBool(getData());
+}
+
+int XMLElement::getDataAsInt() const
+{
+	return StringOp::stringToInt(getData());
+}
+
+void XMLElement::setData(const string& data_)
+{
+	assert(children.empty()); // no mixed-content elements
+	data = data_;
+}
+
 void XMLElement::getChildren(const string& name, Children& result) const
 {
 	for (Children::const_iterator it = children.begin();
@@ -156,6 +172,22 @@ XMLElement& XMLElement::getChild(const string& name)
 const XMLElement& XMLElement::getChild(const string& name) const
 {
 	return const_cast<XMLElement*>(this)->getChild(name);
+}
+
+XMLElement& XMLElement::getCreateChild(const string& name,
+                                       const string& defaultValue)
+{
+	XMLElement* result = findChild(name);
+	if (!result) {
+		result = new XMLElement(name, defaultValue);
+		addChild(auto_ptr<XMLElement>(result));
+	}
+	return *result;
+}
+
+XMLElement& XMLElement::getCreateChild(const string& name, int defaultValue)
+{
+	return getCreateChild(name, StringOp::toString(defaultValue));
 }
 
 const string& XMLElement::getChildData(const string& name) const
