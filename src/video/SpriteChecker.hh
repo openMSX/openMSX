@@ -33,15 +33,6 @@ private:
 		syncInProgress = false;
 	}
 
-	inline void initFrame(const EmuTime& time) {
-		frameStartTime.advance(time);
-		currentLine = 0;
-		linesPerFrame = vdp->isPalTiming() ? 313 : 262;
-		// Debug: -1 means uninitialised.
-		for (int i = 0; i < 313; i++) spriteCount[i] = -1;
-		// TODO: Reset anything else? Does the real VDP?
-	}
-
 public:
 
 	/** Bitmap of length 32 describing a sprite pattern.
@@ -215,10 +206,19 @@ public:
 	  * @param time Moment in emulated time the new frame starts.
 	  */
 	inline void frameStart(const EmuTime& time) {
-		// Finish old frame.
+		frameStartTime.advance(time);
+		currentLine = 0;
+		linesPerFrame = vdp->isPalTiming() ? 313 : 262;
+		// Debug: -1 means uninitialised.
+		for (int i = 0; i < 313; i++) spriteCount[i] = -1;
+		// TODO: Reset anything else? Does the real VDP?
+	}
+
+	/** Signals the end of the current frame.
+	  * @param time Moment in emulated time the current frame ends.
+	  */
+	inline void frameEnd(const EmuTime& time) {
 		sync(time);
-		// Init new frame.
-		initFrame(time);
 	}
 
 	/** Get sprites for a display line.

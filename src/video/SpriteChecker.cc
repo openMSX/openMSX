@@ -38,7 +38,7 @@ void SpriteChecker::reset(const EmuTime& time)
 	collisionX = 0;
 	collisionY = 0;
 
-	initFrame(time);
+	frameStart(time);
 
 	updateSpritesMethod = &SpriteChecker::updateSprites1;
 	mode0 = false;

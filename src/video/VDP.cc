@@ -267,7 +267,11 @@ void VDP::executeUntil(const EmuTime& time, int userData)
 	switch (userData) {
 	case VSYNC:
 		// This frame is finished.
+		// Inform VDP subcomponents.
+		// TODO: Do this via VDPVRAM?
 		renderer->frameEnd(time);
+		spriteChecker->frameEnd(time);
+		// Start next frame.
 		frameStart(time);
 		break;
 	case DISPLAY_START:
