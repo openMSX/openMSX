@@ -42,6 +42,8 @@ TODO:
 #include "RealTime.hh"
 #include "GLConsole.hh"
 #include <math.h>
+#include "config.h"
+
 
 /** Dimensions of screen.
   */

@@ -17,6 +17,7 @@ TODO:
 #include <math.h>
 #include "SDLConsole.hh"
 #include "RenderSettings.hh"
+#include "config.h"
 
 
 /** Dimensions of screen.
