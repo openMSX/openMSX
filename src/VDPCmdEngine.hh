@@ -49,11 +49,14 @@ public:
 	  */
 	inline void sync(const EmuTime &time) {
 		assert(time >= currentTime);
-		if (time > currentTime) {
-			opsCount += currentTime.getTicksTill(time);
+		if (!currEngine) {
+			// no command in progress
 			currentTime = time;
-			(this->*currEngine)();
+			return;
 		}
+		opsCount += currentTime.getTicksTill(time);
+		currentTime = time;
+		(this->*currEngine)();
 	}
 
 	/** Gets the command engine status (part of S#2).
@@ -193,10 +196,6 @@ private:
 	int getVdpTimingValue(const int *timingValues);
 
 	// Engine methods which implement the different commands.
-
-	/** Do nothing.
-	  */
-	void dummyEngine();
 
 	/** Search a dot.
 	  */

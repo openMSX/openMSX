@@ -242,10 +242,6 @@ int VDPCmdEngine::getVdpTimingValue(const int *timingValues)
 	       : timingValues[vdp->getAccessTiming()];
 }
 
-void VDPCmdEngine::dummyEngine()
-{
-}
-
 void VDPCmdEngine::srchEngine()
 {
 	int SX=MMC.SX;
@@ -876,6 +872,9 @@ void VDPCmdEngine::executeCommand()
 		//   Currently none is assigned, so previous is used.
 		//   Assigning dummyEngine might make more sense.
 		//   I wonder how the real V9938 does it.
+		// I believe someone (not me) tested it and reported that
+		// they act like the ABORT command
+		commandDone();
 		return;
 	}
 
@@ -934,7 +933,7 @@ void VDPCmdEngine::executeCommand()
 void VDPCmdEngine::commandDone()
 {
 	status &= 0xFE;
-	currEngine = &VDPCmdEngine::dummyEngine;
+	currEngine = NULL;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.disable(currentTime);
 }
@@ -953,7 +952,7 @@ void VDPCmdEngine::reset(const EmuTime &time)
 {
 	currentTime = time;
 
-	currEngine = &VDPCmdEngine::dummyEngine;
+	currEngine = NULL;
 	for (int i = 0; i < 15; i++) {
 		cmdReg[i] = 0;
 	}

@@ -1,6 +1,10 @@
 $Id$
 
 2003-03-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed RomPanasonic SRAM
+	* Optimized VDPCmdEngine for common case: no command in progress
+
+2003-03-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed VDP Command Engine bug:
 	   - on every sync() the engine processed at least one 'pixel',
 	     when you poll the VDP very fast (R800) the time between
