@@ -10,3 +10,4 @@ openmsx.spec
 .deps
 openmsx
 configure
+*.swp
