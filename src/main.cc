@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 	// for now there is only one, "xml" based
 	MSXConfig::Backend* config = MSXConfig::Backend::createBackend("xml");
 	try {
-		CommandLineParser::instance()->parse(config, argc, argv);
+		CommandLineParser::instance()->parse(argc, argv);
 		initializeSDL();
 
 		EmuTime zero;

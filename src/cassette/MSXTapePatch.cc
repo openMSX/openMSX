@@ -2,6 +2,52 @@
 
 #include "MSXTapePatch.hh"
 #include "CommandController.hh"
+#include "MSXConfig.hh"
+#include "libxmlx/xmlx.hh"
+
+
+MSXCasCLI msxCasCLI;
+
+MSXCasCLI::MSXCasCLI()
+{
+	CommandLineParser::instance()->registerOption("-cas", this);
+	CommandLineParser::instance()->registerFileType("cas", this);
+}
+
+void MSXCasCLI::parseOption(const std::string &option,
+                            std::list<std::string> &cmdLine)
+{
+	std::string filename = cmdLine.front();
+	cmdLine.pop_front();
+
+	parseFileType(filename);
+}
+const std::string& MSXCasCLI::optionHelp()
+{
+	static const std::string text("TODO");
+	return text;
+}
+
+void MSXCasCLI::parseFileType(const std::string &filename_)
+{
+	std::string filename(filename_); XML::Escape(filename);
+	std::ostringstream s;
+	s << "<?xml version=\"1.0\"?>";
+	s << "<msxconfig>";
+	s << " <config id=\"cas\">";
+	s << "  <parameter name=\"filename\">" << filename << "</parameter>";
+	s << " </config>";
+	s << "</msxconfig>";
+
+	MSXConfig::Backend *config = MSXConfig::Backend::instance();
+	config->loadStream(s);
+}
+const std::string& MSXCasCLI::fileTypeHelp()
+{
+	static const std::string text("TODO");
+	return text;
+}
+
 
 /*
  TODO: Decided what to do with following variables
@@ -23,11 +69,11 @@ MSXTapePatch::MSXTapePatch()
 {
 	file = NULL;
 
-	CommandController::instance()->registerCommand(*this, "tape");
+	CommandController::instance()->registerCommand(*this, "cas");
 
 	try {
 		MSXConfig::Config *config =
-			MSXConfig::Backend::instance()->getConfigById("tape");
+			MSXConfig::Backend::instance()->getConfigById("cas");
 		std::string filename = config->getParameter("filename");
 		insertTape(filename);
 	} catch (MSXException& e) {
@@ -37,7 +83,7 @@ MSXTapePatch::MSXTapePatch()
 
 MSXTapePatch::~MSXTapePatch()
 {
-	CommandController::instance()->unregisterCommand("tape");
+	CommandController::instance()->unregisterCommand("cas");
 	delete file;
 }
 

@@ -5,6 +5,75 @@
 #include "DACSound.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
+#include "MSXConfig.hh"
+#include "libxmlx/xmlx.hh"
+
+
+MSXRomCLI msxRomCLI;
+
+MSXRomCLI::MSXRomCLI()
+{
+	CommandLineParser::instance()->registerOption("-carta", this);
+	CommandLineParser::instance()->registerOption("-cartb", this);
+	CommandLineParser::instance()->registerFileType("rom", this);
+
+	cartridgeNr = 1;
+}
+
+void MSXRomCLI::parseOption(const std::string &option,
+                         std::list<std::string> &cmdLine)
+{
+	std::string filename = cmdLine.front();
+	cmdLine.pop_front();
+
+	parseFileType(filename);
+}
+const std::string& MSXRomCLI::optionHelp()
+{
+	static const std::string text("TODO");
+	return text;
+}
+void MSXRomCLI::parseFileType(const std::string &arg)
+{
+	std::string filename, mapper;
+	int pos = arg.find_last_of(',');
+	if (pos != -1) {
+		filename = arg.substr(0, pos);
+		mapper = arg.substr(pos + 1);
+	} else {
+		filename = arg;
+		mapper = "auto";
+	}
+	
+	XML::Escape(filename);
+	std::ostringstream s;
+	s << "<?xml version=\"1.0\"?>";
+	s << "<msxconfig>";
+	s << "<device id=\"MSXRom"<< (int)cartridgeNr <<"\">";
+	s << "<type>Rom</type>";
+	s << "<slotted><ps>"<<(int)(cartridgeNr)<<"</ps><ss>0</ss><page>0</page></slotted>";
+	s << "<slotted><ps>"<<(int)(cartridgeNr)<<"</ps><ss>0</ss><page>1</page></slotted>";
+	s << "<slotted><ps>"<<(int)(cartridgeNr)<<"</ps><ss>0</ss><page>2</page></slotted>";
+	s << "<slotted><ps>"<<(int)(cartridgeNr)<<"</ps><ss>0</ss><page>3</page></slotted>";
+	s << "<parameter name=\"filename\">"<<filename<<"</parameter>";
+	s << "<parameter name=\"filesize\">auto</parameter>";
+	s << "<parameter name=\"volume\">9000</parameter>";
+	s << "<parameter name=\"mappertype\">"<<mapper<<"</parameter>";
+	s << "<parameter name=\"loadsram\">true</parameter>";
+	s << "<parameter name=\"savesram\">true</parameter>";
+	s << "<parameter name=\"sramname\">"<<filename<<".SRAM</parameter>";
+	s << "</device>";
+	s << "</msxconfig>";
+
+	MSXConfig::Backend *config = MSXConfig::Backend::instance();
+	config->loadStream(s);
+	cartridgeNr++;
+}
+const std::string& MSXRomCLI::fileTypeHelp()
+{
+	static const std::string text("TODO");
+	return text;
+}
 
 
 MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)

@@ -6,6 +6,19 @@
 #include "MSXRomPatchInterface.hh"
 #include "Command.hh"
 #include "FileOpener.hh"
+#include "CommandLineParser.hh"
+
+
+class MSXCasCLI : public CLIOption, public CLIFileType
+{
+	public:
+		MSXCasCLI();
+		virtual void parseOption(const std::string &option,
+				std::list<std::string> &cmdLine);
+		virtual const std::string& optionHelp();
+		virtual void parseFileType(const std::string &filename);
+		virtual const std::string& fileTypeHelp();
+};
 
 
 class MSXTapePatch : public MSXRomPatchInterface, private Command

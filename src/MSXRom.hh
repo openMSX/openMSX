@@ -10,10 +10,26 @@
 #include "MSXRomDevice.hh"
 #include "MSXMemDevice.hh"
 #include "RomTypes.hh"
+#include "CommandLineParser.hh"
 
 // forward declarations
 class SCC;
 class DACSound;
+
+
+class MSXRomCLI : public CLIOption, public CLIFileType
+{
+	public:
+		MSXRomCLI();
+		virtual void parseOption(const std::string &option,
+			std::list<std::string> &cmdLine);
+		virtual const std::string& optionHelp();
+		virtual void parseFileType(const std::string &filename);
+		virtual const std::string& fileTypeHelp();
+	
+	private:
+		int cartridgeNr;
+};
 
 
 class MSXRom : public MSXMemDevice, public MSXRomDevice

@@ -4,10 +4,20 @@
 #define __MSXAUDIO_HH__
 
 #include "MSXIODevice.hh"
+#include "CommandLineParser.hh"
 
 // forward declaration
 class Y8950;
 
+
+class MSXAudioCLI : public CLIOption
+{
+	public:
+		MSXAudioCLI();
+		virtual void parseOption(const std::string &option,
+			std::list<std::string> &cmdLine);
+		virtual const std::string& optionHelp();
+};
 
 class MSXAudio : public MSXIODevice
 {

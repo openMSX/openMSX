@@ -10,6 +10,17 @@
 #include "MSXYM2413.hh"
 #include "MSXMemDevice.hh"
 #include "MSXRomDevice.hh"
+#include "CommandLineParser.hh"
+
+
+class MSXFmPacCLI : public CLIOption
+{
+	public:
+		MSXFmPacCLI();
+		virtual void parseOption(const std::string &option,
+				std::list<std::string> &cmdLine);
+		virtual const std::string& optionHelp();
+};
 
 
 class MSXFmPac : public MSXYM2413, public MSXMemDevice, public MSXRomDevice

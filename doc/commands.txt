@@ -38,6 +38,28 @@ bind / unbind
     bind F9,up "throttle on"
 
 
+cas
+---
+
+  Insert a tapeimage in a virtual cassette player. The image must be in .cas
+  format.
+
+  usage:
+    cas <tapeimage>  insert tapeimage in virtual cassette player
+    cas eject        remove tape from virtual cassette player
+
+
+cassetteplayer
+--------------
+
+  Insert a tapeimage in a virtual cassette player. The file must be in .wav
+  format. Don't forget to connect the cassetteplayer to the cassetteport.
+
+  usage:
+    cassetteplayer <tapeimage>  insert tapeimage in virtual cassette player
+    cassetteplayer eject        remove tape from virtual cassette player
+
+    
 console
 -------
 
@@ -157,6 +179,7 @@ plug / unplug
                              connector
 
   examples:
+    plug cassetteport cassetteplayer
     plug joyporta mouse
     plug printerport logger
     unplug joyportb
@@ -210,16 +233,6 @@ speed
   usage:
     speed <num>  set new emulation speed
     speed        shows current emulation speed
-
-
-tape
-----
-
-  Insert a tapeimage in a virtual cassette player.
-
-  usage:
-    tape <tapeimage>  insert tapeimage in virtual cassette player
-    tape eject        remove tape from virtual cassette player
 
 
 throttle

@@ -7,6 +7,19 @@
 #include "CassetteDevice.hh"
 #include "EmuTime.hh"
 #include "Command.hh"
+#include "CommandLineParser.hh"
+
+
+class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
+{
+	public:
+		MSXCassettePlayerCLI();
+		virtual void parseOption(const std::string &option,
+				std::list<std::string> &cmdLine);
+		virtual const std::string& optionHelp();
+		virtual void parseFileType(const std::string &filename);
+		virtual const std::string& fileTypeHelp();
+};
 
 
 class CassettePlayer : public CassetteDevice, private Command

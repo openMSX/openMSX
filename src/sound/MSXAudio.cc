@@ -4,6 +4,41 @@
 #include "MSXCPUInterface.hh"
 #include "Mixer.hh"
 #include "Y8950.hh"
+#include "MSXConfig.hh"
+
+
+MSXAudioCLI msxAudioCLI;
+
+MSXAudioCLI::MSXAudioCLI()
+{
+	CommandLineParser::instance()->registerOption("-musmod", this);
+}
+
+void MSXAudioCLI::parseOption(const std::string &option,
+                              std::list<std::string> &cmdLine)
+{
+	std::ostringstream s;
+	s << "<?xml version=\"1.0\"?>";
+	s << "<msxconfig>";
+	s << "<device id=\"MSX-Audio\">";
+	s << "<type>Audio</type>";
+	s << "<parameter name=\"volume\">9000</parameter>";
+	s << "<parameter name=\"sampleram\">256</parameter>";
+	s << "<parameter name=\"mode\">mono</parameter>";
+	s << "</device>";
+	s << "<device id=\"MSX-Audio-Midi\">";
+	s << "<type>Audio-Midi</type>";
+	s << "</device>";
+	s << "</msxconfig>";
+	
+	MSXConfig::Backend *config = MSXConfig::Backend::instance();
+	config->loadStream(s);
+}
+const std::string& MSXAudioCLI::optionHelp()
+{
+	static const std::string text("Inserts a Philips Music Module (rom disabled)");
+	return text;
+}
 
 
 MSXAudio::MSXAudio(MSXConfig::Device *config, const EmuTime &time)

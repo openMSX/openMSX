@@ -4,6 +4,79 @@
 #include "MSXCPU.hh"
 #include "SDLEventInserter.hh"
 #include "EmuTime.hh"
+#include "MSXConfig.hh"
+#include "libxmlx/xmlx.hh"
+#include "FileOpener.hh"
+
+
+KeyEventInserterCLI keyEventInserterCLI;
+
+KeyEventInserterCLI::KeyEventInserterCLI()
+{
+	CommandLineParser::instance()->registerOption("-keyins", this);
+}
+
+void KeyEventInserterCLI::parseOption(const std::string &option,
+                         std::list<std::string> &cmdLine)
+{
+	std::string arg = cmdLine.front();
+	cmdLine.pop_front();
+	
+	std::ostringstream s;
+	s << "<msxconfig>";
+	s << "<config id=\"KeyEventInserter\">";
+	s << "<type>KeyEventInserter</type>";
+	s << "<parameter name=\"keys\">";
+	try {
+		// first try and treat arg as a file
+		IFILETYPE* file = FileOpener::openFileRO(arg);
+		unsigned char buffer[2];
+		while (!file->fail()) {
+			file->read(buffer, 1);
+			buffer[1] = '\0';
+			std::cerr << buffer;
+			std::string temp(reinterpret_cast <char *>(buffer));
+			if (buffer[0] == '\n') {
+				s << "&#x0D;";
+			} else {
+				s << XML::Escape(temp);
+			}
+		}
+		delete file;
+	} catch (FileOpenerException &e) {
+		// if that fails, treat it as a string
+		for (std::string::const_iterator i = arg.begin(); i != arg.end(); i++) {
+			std::string::const_iterator j = i;
+			j++;
+			bool cr = false;
+			if  (j != arg.end()) {
+				if ((*i) == '\\' && (*j) == 'n') {
+					s << "&#x0D;";
+					i++;
+					cr = true;
+				}
+			}
+			if (!cr) {
+				char buffer2[2];
+				buffer2[1] = '\0';
+				buffer2[0] = (*i);
+				std::string str2(buffer2);
+				s << XML::Escape(str2);
+			}
+		}
+	}
+	s << "</parameter>";
+	s << "</config>";
+	s << "</msxconfig>";
+	
+	MSXConfig::Backend *config = MSXConfig::Backend::instance();
+	config->loadStream(s);
+}
+const std::string& KeyEventInserterCLI::optionHelp()
+{
+	static const std::string text("Execute content in argument as keyinserts");
+	return text;
+}
 
 
 KeyEventInserter::KeyEventInserter()

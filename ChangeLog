@@ -1,6 +1,14 @@
 $Id$
 
-2002-10-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2002-10-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Rewrite of "CommandLineParser":
+	   - CLI options and CLI file types must be registered now, this allows
+	     to move the implementation of, for example the "-fmpac" option, to
+	     the MSXFmPac class where it belongs.
+	   - This should keep the CLI more up to date with code changes and
+	     make it easier to support new CLI options / file types.
+
+2002-10-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Replaced "Simple64Kb" device with "RAM" device. This device also
 	  supports random sizes, so it is possible to make 8Kb machines.
 

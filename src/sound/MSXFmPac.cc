@@ -1,9 +1,45 @@
 // $Id$
 
 #include "MSXFmPac.hh"
-
 #include "FileOpener.hh"
 #include <string.h>
+#include "MSXConfig.hh"
+
+
+MSXFmPacCLI msxFmPacCLI;
+
+MSXFmPacCLI::MSXFmPacCLI()
+{
+	CommandLineParser::instance()->registerOption("-fmpac", this);
+}
+
+void MSXFmPacCLI::parseOption(const std::string &option,
+                              std::list<std::string> &cmdLine)
+{
+	std::ostringstream s;
+	s << "<?xml version=\"1.0\"?>";
+	s << "<msxconfig>";
+	s << "<device id=\"FM PAC\">";
+	s << "<type>FM-PAC</type>";
+	s << "<slotted><ps>2</ps><ss>0</ss><page>1</page></slotted>";
+	s << "<parameter name=\"filename\">FMPAC.ROM</parameter>";
+	s << "<parameter name=\"volume\">13000</parameter>";
+	s << "<parameter name=\"mode\">mono</parameter>";
+	s << "<parameter name=\"load\">true</parameter>";
+	s << "<parameter name=\"save\">true</parameter>";
+	s << "<parameter name=\"sramname\">FMPAC.PAC</parameter>";
+	s << "</device>";
+	s << "</msxconfig>";
+	
+	MSXConfig::Backend *config = MSXConfig::Backend::instance();
+	config->loadStream(s);
+}
+const std::string& MSXFmPacCLI::optionHelp()
+{
+	static const std::string text("Inserts an FM-PAC into the MSX machine");
+	return text;
+}
+
 
 
 MSXFmPac::MSXFmPac(MSXConfig::Device *config, const EmuTime &time)

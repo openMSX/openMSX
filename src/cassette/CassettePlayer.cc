@@ -5,6 +5,51 @@
 #include "PluggingController.hh"
 #include "CommandController.hh"
 #include "FileOpener.hh"
+#include "MSXConfig.hh"
+#include "libxmlx/xmlx.hh"
+
+
+MSXCassettePlayerCLI msxCassettePlayerCLI;
+
+MSXCassettePlayerCLI::MSXCassettePlayerCLI()
+{
+	CommandLineParser::instance()->registerOption("-cassetteplayer", this);
+	CommandLineParser::instance()->registerFileType("wav", this);
+}
+
+void MSXCassettePlayerCLI::parseOption(const std::string &option,
+                            std::list<std::string> &cmdLine)
+{
+	std::string filename = cmdLine.front();
+	cmdLine.pop_front();
+
+	parseFileType(filename);
+}
+const std::string& MSXCassettePlayerCLI::optionHelp()
+{
+	static const std::string text("TODO");
+	return text;
+}
+
+void MSXCassettePlayerCLI::parseFileType(const std::string &filename_)
+{
+	std::string filename(filename_); XML::Escape(filename);
+	std::ostringstream s;
+	s << "<?xml version=\"1.0\"?>";
+	s << "<msxconfig>";
+	s << " <config id=\"cassetteplayer\">";
+	s << "  <parameter name=\"filename\">" << filename << "</parameter>";
+	s << " </config>";
+	s << "</msxconfig>";
+
+	MSXConfig::Backend *config = MSXConfig::Backend::instance();
+	config->loadStream(s);
+}
+const std::string& MSXCassettePlayerCLI::fileTypeHelp()
+{
+	static const std::string text("TODO");
+	return text;
+}
 
 
 CassettePlayer::CassettePlayer()
@@ -13,19 +58,19 @@ CassettePlayer::CassettePlayer()
 	audioLength = 0;	// no tape inserted (yet)
 	try {
 		MSXConfig::Config *config =
-			MSXConfig::Backend::instance()->getConfigById("tape");
+			MSXConfig::Backend::instance()->getConfigById("cassetteplayer");
 		std::string filename = config->getParameter("filename");
 		insertTape(filename);
 	} catch (MSXException& e) {
 		PRT_DEBUG("No correct tape insertion!");
 	}
 	PluggingController::instance()->registerPluggable(this);
-	CommandController::instance()->registerCommand(*this, "tape");
+	CommandController::instance()->registerCommand(*this, "cassetteplayer");
 }
 
 CassettePlayer::~CassettePlayer()
 {
-	CommandController::instance()->unregisterCommand("tape");
+	CommandController::instance()->unregisterCommand("cassetteplayer");
 	PluggingController::instance()->unregisterPluggable(this);
 	removeTape();	// free memory
 }
