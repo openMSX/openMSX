@@ -370,7 +370,7 @@ private:
 	/** Get the current command timing, depends on vdp settings (sprites, display).
 	  */
 	inline int getTiming() {
-		return brokenTiming ? 0 : vdp->getAccessTiming(); 
+		return brokenTiming ? 4 : vdp->getAccessTiming(); 
 	}
 
 	/** Report the VDP command specified in the registers.
