@@ -254,7 +254,8 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 		Blender<Pixel>::createFromFormat(screen->format) )
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS,
 		Blender<Pixel>::createFromFormat(screen->format) )
-	, spriteConverter(vdp->getSpriteChecker())
+	, spriteConverter(vdp->getSpriteChecker(),
+		Blender<Pixel>::createFromFormat(screen->format) )
 {
 	this->screen = screen;
 	console = new SDLConsole(screen);
@@ -406,8 +407,7 @@ void SDLRenderer<Pixel, zoom>::setDisplayMode(DisplayMode mode)
 	} else {
 		characterConverter.setDisplayMode(mode);
 	}
-	// TODO: Check what happens to sprites in Graphic5 + YJK/YAE.
-	spriteConverter.setNarrow(mode.getByte() == DisplayMode::GRAPHIC5);
+	spriteConverter.setNarrow(mode.isSpriteNarrow());
 	spriteConverter.setPalette(
 		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg
 		);

@@ -157,6 +157,13 @@ public:
 		return (mode & 0x14) == 0x14;
 	}
 
+	/** Are sprite pixels narrow?
+	  */
+	inline bool isSpriteNarrow() const {
+		// TODO: Check what happens to sprites in Graphic5 + YJK/YAE.
+		return mode == GRAPHIC5;
+	}
+
 	/** Get the sprite mode of this display mode.
 	  * @return The current sprite mode:
 	  * 	0 means no sprites,

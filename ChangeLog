@@ -2,6 +2,8 @@ $Id$
 
 2003-04-30 Maarten ter Huurne <maarten@treewalker.org>
 	* Introduced Blender class and use it from Character/BitmapConverter.
+	* Implemented narrow SCREEN6 sprite pixels in SDLGL.
+	* Implemented blended SCREEN6 sprite pixels in SDLLo.
 
 2003-04-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fix tabcompletion for absolute paths
@@ -22,7 +24,7 @@ $Id$
 	  retrace interrupt timing.
 	  Fixes some of the glitches in No Waste, but not all.
 	* Fixed text colour in Text1 mode in SDLGL: reverted a misguided
-	  optimisation. (in GL, the int value of white is 0x7FFFFFFF, not 0xFF)
+	  optimisation. (in GL, full intensity of int is 0x7FFFFFFF, not 0xFF)
 	* Updated C-BIOS to version 0.16.
 
 2003-04-25 David Heremans <david.heremans@gnu-linux.net>

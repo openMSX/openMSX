@@ -593,7 +593,7 @@ void SDLGLRenderer::setDisplayMode(DisplayMode mode)
 	}
 	lineWidth = mode.getLineWidth();
 	// TODO: Check what happens to sprites in Graphic5 + YJK/YAE.
-	spriteConverter.setNarrow(mode.getByte() == DisplayMode::GRAPHIC5);
+	spriteConverter.setNarrow(mode.isSpriteNarrow());
 	spriteConverter.setPalette(
 		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg
 		);
@@ -1122,10 +1122,11 @@ void SDLGLRenderer::drawSprites(
 	
 	int displayLimitX = displayX + displayWidth;
 	int limitY = fromY + displayHeight;
+	int pixelZoom = vdp->getDisplayMode().isSpriteNarrow() ? 2 : 1;
 	for (int y = fromY; y < limitY; y++) {
 		
 		// Buffer to render sprite pixels to; start with all transparent.
-		memset(lineBuffer, 0, 256 * sizeof(Pixel));
+		memset(lineBuffer, 0, pixelZoom * 256 * sizeof(Pixel));
 		
 		// TODO: Possible speedups:
 		// - for mode 1: create a texture in 1bpp, or in luminance
@@ -1137,8 +1138,9 @@ void SDLGLRenderer::drawSprites(
 		}
 		
 		// Make line buffer into a texture and draw it.
+		// TODO: Make a texture of only the portion that will be drawn.
 		GLint textureId = spriteTextureIds[y];
-		GLUpdateTexture(textureId, lineBuffer, 256);
+		GLUpdateTexture(textureId, lineBuffer, pixelZoom * 256);
 		GLDrawTexture(
 			textureId, displayX * 2,
 			screenX, screenY, displayWidth * 2, 2

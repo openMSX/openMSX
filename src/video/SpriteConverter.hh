@@ -11,6 +11,7 @@ TODO:
 #include "openmsx.hh"
 #include "Renderer.hh"
 #include "SpriteChecker.hh"
+#include "Blender.hh"
 #include <cassert>
 
 /** Utility class for converting VRAM contents to host pixels.
@@ -25,8 +26,14 @@ public:
 	/** Constructor.
 	  * After construction, also call the various set methods to complete
 	  * initialisation.
+	  * @param spriteChecker Delivers the sprite data to be rendered.
+	  * @param blender Blender to use for combining two narrow pixels
+	  *   into a single wide one. Only necessary for ZOOM_256.
 	  */
-	SpriteConverter(SpriteChecker *spriteChecker) {
+	SpriteConverter(SpriteChecker *spriteChecker,
+		Blender<Pixel> blender = Blender<Pixel>::dummy() )
+		: blender(blender)
+	{
 		this->spriteChecker = spriteChecker;
 	}
 
@@ -125,6 +132,10 @@ public:
 	}
 
 	/** Draw sprites in sprite mode 2.
+	  * Make sure the pixel pointers point to a large enough memory area:
+	  * 512 pixels for ZOOM_512, 256 pixels for ZOOM_256,
+	  * 256 pixels for ZOOM_REAL with wide pixels and
+	  * 512 pixels for ZOOM_REAL with narrow pixels.
 	  * @param absLine Absolute line number.
 	  * 	Range is [0..262) for NTSC and [0..313) for PAL.
 	  * @param minX Minimum X coordinate to draw (inclusive).
@@ -192,19 +203,18 @@ public:
 			// Plot it.
 			if (colour != 0xFF) {
 				if (narrow) {
-					if (zoom == Renderer::ZOOM_512) {
-						// TODO: Separate horizontal resolution from
-						//       single/double line.
-						//       GL renderer should use 512 resolution
-						//       on a single line.
+					Pixel pixL = palette[colour >> 2];
+					Pixel pixR = palette[colour & 3];
+					if (zoom == Renderer::ZOOM_256) {
+						pixelPtr0[pixelDone] = blender.blend(pixL, pixR);
+					} else if (zoom == Renderer::ZOOM_REAL) {
 						int i = pixelDone * 2;
-						pixelPtr0[i] = pixelPtr1[i] = 
-							palette[colour >> 2];
-						pixelPtr0[i + 1] = pixelPtr1[i + 1] =
-							palette[colour & 3];
-					} else {
-						// TODO: Use blending.
-						pixelPtr0[pixelDone] = palette[colour >> 2];
+						pixelPtr0[i] = pixL;
+						pixelPtr0[i + 1] = pixR;
+					} else { // ZOOM_512
+						int i = pixelDone * 2;
+						pixelPtr0[i] = pixelPtr1[i] = pixL;
+						pixelPtr0[i + 1] = pixelPtr1[i + 1] = pixR;
 					}
 				} else {
 					if (zoom == Renderer::ZOOM_512) {
@@ -237,6 +247,7 @@ private:
 	  */
 	Pixel *palette;
 
+	Blender<Pixel> blender;
 };
 
 #endif // __SPRITECONVERTER_HH__
