@@ -335,29 +335,30 @@ Because there's no 'make install' yet, you might want to install all stuff
 manually.  Here's how Manuel Bilderbeek does it, which is for a large part how
 things will be done in the future when there is such a 'make install'.
 
-I created a directory with the name .openMSX in my home dir. This is one of the
-directories that openMSX looks in, to find the (default) settings.xml, romdb.xml
-(a ROM database to identify ROM mapper types) and msxconfig.xml (an MSX Machine
-configuration file that is loaded by default). So, this directory contains
-settings and other user specific openMSX files. It also contains the machine
-configurations, in the subdirectory share/machines/. The name of this
-subdirectory is important: openMSX searches here for those machine
-configurations. In this share/machines/ directory, all machines have their own
-subdirectory. I created my personal MSX configuration (see below) in the
-directory mymsx/ under /share/machines/.  Note that hardware configurations
-should have the name 'hardwareconfig.xml' in these machine directories. Also the
-ROM files needed for those machines should be put in their own directories. In
-my case, this share/machines/ directory is just a symlink to the share/machines
-directory of the openMSX CVS tree. Of course, for the machines to work, they
-need to have the ROM files specified in the hardwareconfig.xml files.
+I created a directory with the name .openMSX in my home dir. There, I created
+the subdirectory share/. This is one of the directories that openMSX looks in,
+to find the (default) settings.xml and romdb.xml (a ROM database to identify
+ROM mapper types). So, .openMSX/ contains settings and other user specific
+openMSX files. It also contains the machine configurations, in the subdirectory
+share/machines/. The name of this subdirectory is important: openMSX searches
+here for those machine configurations. In this share/machines/ directory, all
+machines have their own subdirectory. I created my personal MSX configuration
+(see below) in the directory mymsx/ under /share/machines/.  Note that hardware
+configurations should have the name 'hardwareconfig.xml' in these machine
+directories. Also the ROM files needed for those machines should be put in
+their own directories. In my case, this share/machines/ directory is just a
+symlink to the share/machines directory of the openMSX CVS tree. Of course, for
+the machines to work, they need to have the ROM files specified in the
+hardwareconfig.xml files.
 
-In ~/.openMSX also some decorations like ConsoleBackgrounds (see below) and
-other related files should be stored. You need settings.xml also here, unless
-you want to specify it manually on the command line with the -setting option,
-as we have done above. In settings.xml you can also specify what machine should
-be used by default. Edit the file and you will see how to do that. Also, in a
-subdirectory share/, romdb.xml should be put. Personally, I used a symbolic link
-to my CVS source tree version.
+In ~/.openMSX also some decorations like ConsoleBackgrounds (in the
+subdirectory share/skins, see below) and other related files should be stored.
+You need settings.xml also here (in share/), unless you want to specify it
+manually on the command line with the -setting option, as we have done above.
+In settings.xml you can also specify what machine should be used by default.
+Edit the file and you will see how to do that. Also, in a subdirectory share/,
+romdb.xml should be put. Personally, I used a symbolic link to my CVS source
+tree version.
 
 Furthermore, I created a subdirectory extensions/ in ~/.openMSX/share, which is
 also a symbolic link to share/extensions in my CVS tree. This is one of
@@ -379,10 +380,6 @@ their own subdir 'roms' though, to seperate them from other files that could be
 put in such an extension directory.
 
 /home/manuel/.openMSX:
--rw-------    1 manuel   manuel      21203 Aug 27 10:38 ConsoleBackground.png
--rw-------    1 manuel   manuel       6016 Aug 27 10:36 ConsoleBackground1.png
--rw-------    1 manuel   manuel       1471 Sep 25 22:33 ConsoleFont.png
--rw-------    1 manuel   manuel       1245 Aug 26 22:46 ConsoleFont1.png
 drwx------    4 manuel   manuel       4096 Feb 17 22:00 persistent/
 drwx------    2 manuel   manuel       4096 Mar 29 14:28 share/
 
@@ -395,8 +392,27 @@ lrwxrwxrwx    1 manuel   manuel         46 Feb 26 22:41 romdb.xml -> /home/manue
 -rw-------    1 manuel   manuel       2391 Feb 18 20:46 settings.xml
 lrwxrwxrwx    1 manuel   manuel         45 Mar 29 14:28 skins -> /home/manuel/cvs/openmsx/openMSX/share/skins//
 
-/home/manuel/.openMSX/extensions:
-drwx------    2 manuel   manuel       4096 Mar 29 12:30 CVS/
+/home/manuel/.openMSX/share/skins:
+-rw-------    1 manuel   manuel      21203 Mar 24 23:27 ConsoleBackground.png
+-rw-------    1 manuel   manuel       6016 Mar 24 23:27 ConsoleBackground1.png
+-rw-------    1 manuel   manuel      13101 Mar 24 23:27 ConsoleBackground2.png
+-rw-------    1 manuel   manuel       3348 Mar 24 23:27 ConsoleBackground3.png
+-rw-------    1 manuel   manuel       5136 Mar 24 23:27 ConsoleBackground4.png
+-rw-------    1 manuel   manuel       6602 Mar 24 23:27 ConsoleBackground5.png
+-rw-------    1 manuel   manuel       1471 Mar 24 23:27 ConsoleFont.png
+-rw-------    1 manuel   manuel       1402 Mar 24 23:27 ConsoleFont1.png
+
+/home/manuel/.openMSX/share/machines:
+drwx------    3 manuel   manuel       4096 Mar 28 23:59 National_CF-1200/
+drwx------    3 manuel   manuel       4096 Mar 29 12:32 National_CF-2000/
+drwx------    3 manuel   manuel       4096 Mar 28 23:59 National_CF-2700/
+[snip!]
+drwx------    3 manuel   manuel       4096 Mar 29 12:18 Sanyo_PHC-70FD2/
+drwx------    3 manuel   manuel       4096 Mar 29 12:23 cbios-msx1/
+drwx------    3 manuel   manuel       4096 Mar 29 12:23 cbios-msx2/
+drwx------    2 manuel   manuel       4096 Feb 19 22:29 mymsx/
+
+/home/manuel/.openMSX/share/extensions:
 drwx------    4 manuel   manuel       4096 Mar 29 13:37 Panasonic_FS-CA1/
 drwx------    3 manuel   manuel       4096 Mar 25 20:52 audio/
 drwx------    4 manuel   manuel       4096 Mar 29 13:33 fmpac/
@@ -405,22 +421,22 @@ drwx------    4 manuel   manuel       4096 Mar 29 14:12 msxdos2/
 drwx------    3 manuel   manuel       4096 Mar 25 20:52 scc/
 drwx------    3 manuel   manuel       4096 Mar 25 20:52 scc+/
 
-/home/manuel/.openMSX/extensions/fs-ca1:
+/home/manuel/.openMSX/share/extensions/fs-ca1:
 -rw-------    1 manuel   manuel        517 Feb 23 16:00 hardwareconfig.xml
 drwx------    2 manuel   manuel       4096 Mar 29 13:37 roms/
 
-/home/manuel/.openMSX/extensions/fs-ca1/roms:
+/home/manuel/.openMSX/share/extensions/fs-ca1/roms:
 -r--------    1 manuel   manuel     131072 Mar 29 13:17 FS-CA1.ROM
 
-/home/manuel/.openMSX/extensions/ide:
+/home/manuel/.openMSX/share/extensions/ide:
 -rw-------    1 manuel   manuel        668 Dec 18 21:21 hardwareconfig.xml
 -rw-------    1 manuel   manuel   107373568 Nov 10 23:01 hd.dsk
 drwx------    2 manuel   manuel       4096 Mar 29 13:16 roms/
 
-/home/manuel/.openMSX/extensions/ide/roms:
+/home/manuel/.openMSX/share/extensions/ide/roms:
 -rw-------    1 manuel   manuel     131072 Nov  3 01:35 IDE210.ROM
 
-/home/manuel/.openMSX/extensions/msxdos2:
+/home/manuel/.openMSX/share/extensions/msxdos2:
 -rw-------    1 manuel   manuel        477 Feb 23 15:45 hardwareconfig.xml
 -rw-------    1 manuel   manuel      65536 Oct 14 22:00 msxdos22.rom
 
