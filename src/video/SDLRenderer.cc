@@ -22,12 +22,17 @@ TODO:
 #include "EventDistributor.hh"
 #include "FloatSetting.hh"
 
+#ifdef __WIN32__
+#include <windows.h>
+static int lastWindowX = 0;
+static int lastWindowY = 0;
+#endif 
+
 using std::max;
 using std::min;
 
-
 namespace openmsx {
-
+	
 // Force template instantiation:
 template class SDLRenderer<Uint8, Renderer::ZOOM_256>;
 template class SDLRenderer<Uint8, Renderer::ZOOM_REAL>;
@@ -507,11 +512,33 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 	precalcPalette(settings.getGamma()->getValue());
 
 	settings.getDeinterlace()->addListener(this);
+
+#ifdef __WIN32__
+	// Find our current location
+	HWND handle = GetActiveWindow();
+	RECT windowRect;
+	GetWindowRect (handle, &windowRect);
+	// and adjust if needed
+	if ((windowRect.right < 0) || (windowRect.bottom < 0)){
+		SetWindowPos(handle, HWND_TOP,lastWindowX,lastWindowY,0,0,SWP_NOSIZE);
+	}
+#endif 
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 SDLRenderer<Pixel, zoom>::~SDLRenderer()
 {
+#ifdef __WIN32__
+	// Find our current location
+	if ((screen->flags & SDL_FULLSCREEN) == 0){
+		HWND handle = GetActiveWindow();
+		RECT windowRect;
+		GetWindowRect (handle, &windowRect);
+		lastWindowX = windowRect.left;
+		lastWindowY = windowRect.top;
+	}
+#endif	 
+
 	settings.getDeinterlace()->removeListener(this);
 
 	delete console;

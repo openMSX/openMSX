@@ -258,14 +258,6 @@ private:
 	SpriteConverter<Pixel, Renderer::ZOOM_REAL> spriteConverter;
 
 	OSDConsoleRenderer *console;
-
-	/** Last known X coordinate of the openmsx window
-	  */
-	static int lastWindowX;
-	
-	/** Last known Y coordinate of the openmsx window
-	  */
-	static int lastWindowY;
 };
 
 } // namespace openmsx

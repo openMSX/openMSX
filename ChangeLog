@@ -1,7 +1,9 @@
 $Id$
 
 2004-04-20 Herman Oudejans <hn.oudejans@quicknet.nl>
-	* suppressed warning in windows (warning: couldn't find file: "").
+	* Suppressed warning in windows (warning: couldn't find file: "").
+	* Fixed 'no window when return from full screen' in SDLHi/Lo 
+	   (windows NT4 only).
 
 2004-04-19 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed small bug: I forgot to replace "#ifndef X_DISPLAY_MISSING" by

@@ -31,8 +31,8 @@ TODO:
 
 #ifdef __WIN32__
 #include <windows.h>
-int openmsx::SDLGLRenderer::lastWindowX;
-int openmsx::SDLGLRenderer::lastWindowY;
+static int lastWindowX = 0;
+static int lastWindowY = 0;
 #endif
 
 namespace openmsx {
