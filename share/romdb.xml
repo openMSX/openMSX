@@ -59,6 +59,12 @@
     <company>Zemina</company>
     <remark></remark>
   </rom>
+  <rom id="MSX 90 (90 in 1)">
+    <romtype>KOREAN90IN1</romtype>
+    <md5>9cd6d90e6f87d6be581bab86b26268d7</md5>
+    <company>Zemina</company>
+    <remark></remark>
+  </rom>
 
 
 
@@ -111,14 +117,6 @@
     <year>1983</year>
     <company>Ascii</company>
     <remark></remark>
-  </rom>
-  <rom id="80-in-1">
-    <romtype>KOREAN80IN1</romtype>
-    <md5>992c279de3b12fb0550d64787eecc09c</md5>
-  </rom>
-  <rom id="90-in-1">
-    <romtype>KOREAN90IN1</romtype>
-    <md5>9cd6d90e6f87d6be581bab86b26268d7</md5>
   </rom>
   <rom id="A Life M36 Planet">
     <romtype>ASCII8</romtype>
