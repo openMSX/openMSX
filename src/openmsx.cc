@@ -71,45 +71,27 @@ int main (int argc, char **argv)
 	atexit(SDL_Quit);
 
 	// Een moederbord als eerste
-	MSXMotherBoard *moederbord = MSXMotherBoard::instance();
+	MSXMotherBoard *motherboard = MSXMotherBoard::instance();
 	// en dan nu al de devices die volgens de xml nodig zijn
 	std::list<MSXConfig::Device*>::const_iterator j=MSXConfig::instance()->deviceList.begin();
 	for (; j != MSXConfig::instance()->deviceList.end(); j++) {
 		(*j)->dump();
 		MSXDevice *device = deviceFactory::create( (*j) );
 		if (device != 0){
-			moederbord->addDevice(device);
+			motherboard->addDevice(device);
 		PRT_DEBUG ("---------------------------\nfactory:" << (*j)->getType());
 		}
 	}
 	
 	PRT_DEBUG ("Initing MSX");
-	moederbord->InitMSX();
+	motherboard->InitMSX();
 	
 	// Start a new thread for event handling
 	SDL_CreateThread(eventDistributorStarter, 0);
 
 	PRT_DEBUG ("starting MSX");
-	moederbord->StartMSX();
+	motherboard->StartMSX();
 
 	exit (0);
 }
 
-
-/*
-static void
-usage (int status)
-{
-  printf (_("%s - \
-Emulate the MSX standard.\n"), program_name);
-  printf (_("Usage: %s [OPTION]... [FILE]...\n"), program_name);
-  printf (_("\
-Options:
-  -q, --quiet, --silent      inhibit usual output
-  --verbose                  print more information
-  -h, --help                 display this help and exit\n\
-  -V, --version              output version information and exit\n\
-"));
-  exit (status);
-}
-*/
