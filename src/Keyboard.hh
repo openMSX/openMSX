@@ -10,17 +10,19 @@
 class Keyboard : public EventListener 
 {
 	public:
+		Keyboard(bool keyGhosting);
 		virtual ~Keyboard(); 
-		static Keyboard *instance();
 		const byte* getKeys();
 		void signalEvent(SDL_Event &event);
 		
 		static const int NR_KEYROWS = 11;
 
 	private:
-		Keyboard(); // private constructor -> can only construct self
-		static Keyboard *oneInstance; 
+		void doKeyGhosting();
+
 		byte keyMatrix[NR_KEYROWS];
+		bool keyGhosting;
+		bool lazyGhosting;
 		static byte Keys[336][2];
 };
 #endif

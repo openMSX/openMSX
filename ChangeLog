@@ -3,6 +3,10 @@ $Id$
 2001-10-07 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* renamed Inputs --> Keyboard
 	* forgot to initialize keyboard matrix
+	* moved method keyGhosting() from MSXPPI to Keyboard
+	  --> method is now only called when 
+	        * keymatrix has changed and
+	        * keymatrix is read
 
 2001-10-05 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Made a very simple mixer, made AY8910 register itself as 

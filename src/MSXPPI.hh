@@ -75,9 +75,7 @@ class MSXPPI : public MSXDevice, I8255Interface
 		void writeC1(nibble value);
 	
 	private:
-		void keyGhosting();
-		bool keyboardGhosting;
-
+		Keyboard *keyboard;
 		byte MSXKeyMatrix[Keyboard::NR_KEYROWS];
 		int selectedRow;
 };

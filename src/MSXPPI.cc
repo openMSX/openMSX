@@ -11,7 +11,7 @@
 MSXPPI::MSXPPI()
 {
 	PRT_DEBUG("Creating an MSXPPI object");
-	keyboardGhosting = true;
+	keyboard = new Keyboard(true); // TODO make configurable
 	i8255 = new I8255(*this);
 }
 
@@ -115,13 +115,10 @@ void MSXPPI::writeA(byte value) {
 }
 
 byte MSXPPI::readB() {
-	const byte* src = Keyboard::instance()->getKeys(); //reading the keyboard events into the matrix
+	const byte* src = keyboard->getKeys(); //reading the keyboard events into the matrix
 	byte* dst = MSXKeyMatrix;
 	for (int i=0; i<Keyboard::NR_KEYROWS; i++) {
 		*dst++ = *src++;
-	}
-	if (keyboardGhosting) {
-		keyGhosting();
 	}
 	return MSXKeyMatrix[selectedRow];
 }
@@ -146,34 +143,3 @@ void MSXPPI::writeC1(nibble value) {
 void MSXPPI::writeC0(nibble value) {
 	selectedRow = value;
 }
-
-
-void MSXPPI::keyGhosting(void)
-{
-// This routine enables keyghosting as seen on a real MSX
-//
-// If on a real MSX in the keyboardmatrix the
-// real buttons are pressed as in the left matrix
-//           then the matrix to the
-// 10111111  right will be read by   10110101
-// 11110101  because of the simple   10110101
-// 10111101  electrical connections  10110101
-//           that are established  by
-// the closed switches 
-	bool changed_something;
-	do {
-		changed_something = false;
-		for (int i=0; i<=Keyboard::NR_KEYROWS; i++) {
-			for (int j=0; j<=Keyboard::NR_KEYROWS; j++) {
-				if ((MSXKeyMatrix[i]|MSXKeyMatrix[j]) != 255) {
-					byte rowanded=MSXKeyMatrix[i]&MSXKeyMatrix[j];
-					if (rowanded != MSXKeyMatrix[i]) {
-						MSXKeyMatrix[i]=rowanded;
-						changed_something = true;
-					}
-				}
-			}
-		}
-	} while (changed_something);
-}
-

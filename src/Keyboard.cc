@@ -4,8 +4,9 @@
 #include "EventDistributor.hh"
 
 
-Keyboard::Keyboard()
+Keyboard::Keyboard(bool keyG)
 {
+	keyGhosting = keyG;
 	for (int i=0; i<NR_KEYROWS; i++) keyMatrix[i] = 255;
 	EventDistributor::instance()->registerSyncListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->registerSyncListener(SDL_KEYUP,   this);
@@ -15,19 +16,14 @@ Keyboard::~Keyboard()
 {
 }
 
-Keyboard* Keyboard::instance(void)
-{
-	if (oneInstance == NULL ) {
-		oneInstance = new Keyboard();
-	}
-	return oneInstance;
-}
-Keyboard *Keyboard::oneInstance = NULL;
-
 
 const byte* Keyboard::getKeys()
 {
 	EventDistributor::instance()->pollSyncEvents();
+	if (lazyGhosting && keyGhosting) {
+		doKeyGhosting();
+		lazyGhosting = false;
+	}
 	return keyMatrix;
 }
 
@@ -51,9 +47,40 @@ void Keyboard::signalEvent(SDL_Event &event)
 	default:
 		assert(false);
 	}
+	lazyGhosting = true;	// do ghosting at next getKeys()
 	for (int i=0; i<NR_KEYROWS; i++)
 		PRT_DEBUG("Keymatrix row " << i << " : " << (int)keyMatrix[i]);
 		
+}
+
+
+void Keyboard::doKeyGhosting()
+{
+	// This routine enables keyghosting as seen on a real MSX
+	//
+	// If on a real MSX in the keyboardmatrix the
+	// real buttons are pressed as in the left matrix
+	//           then the matrix to the
+	// 10111111  right will be read by   10110101
+	// 11110101  because of the simple   10110101
+	// 10111101  electrical connections  10110101
+	//           that are established  by
+	// the closed switches
+	bool changed_something;
+	do {
+		changed_something = false;
+		for (int i=0; i<=NR_KEYROWS; i++) {
+			for (int j=0; j<=NR_KEYROWS; j++) {
+				if ((keyMatrix[i]|keyMatrix[j]) != 255) {
+					byte rowanded = keyMatrix[i]&keyMatrix[j];
+					if (rowanded != keyMatrix[i]) {
+						keyMatrix[i] = rowanded;
+						changed_something = true;
+					}
+				}
+			}
+		}
+	} while (changed_something);
 }
 
 
