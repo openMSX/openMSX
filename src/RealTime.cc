@@ -30,7 +30,7 @@ RealTime::RealTime()
 	} catch (MSXException &e) {
 		// no Realtime section
 	}
-	
+
 	scheduler = Scheduler::instance();
 	// Synchronize counters as soon as emulation actually starts.
 	resyncFlag = true;
@@ -78,19 +78,20 @@ void RealTime::resync()
 void RealTime::internalSync(const EmuTime &curEmu)
 {
 	if (!throttleSetting.getValue()) {
-		// no throttling
-		reset(curEmu);
+		// No throttling; resync when throttling is turned on.
+		resyncFlag = true;
 		return;
 	}
-	
+
 	// Resynchronize EmuTime and real time?
 	if (resyncFlag) {
 		reset(curEmu);
 		resyncFlag = false;
+		return;
 	}
-	
+
 	unsigned int curReal = SDL_GetTicks();
-	
+
 	// Short period values, inaccurate but we need them to estimate our current speed
 	int realPassed = curReal - realRef;
 	int speed = 25600 / speedSetting.getValue();
@@ -105,7 +106,7 @@ void RealTime::internalSync(const EmuTime &curEmu)
 		int totalReal = curReal - realOrigin;
 		uint64 totalEmu = (speed * emuOrigin.getTicksTill(curEmu)) >> 8;
 		PRT_DEBUG("RT: Total emu: " << totalEmu  << "ms  Total real: " << totalReal  << "ms");
-	
+
 		int sleep = 0;
 		catchUpTime = totalReal - totalEmu;
 		PRT_DEBUG("RT: catchUpTime: " << catchUpTime << "ms");
@@ -136,7 +137,7 @@ void RealTime::internalSync(const EmuTime &curEmu)
 		} else {
 			slept = 0;
 		}
-		
+
 		// estimate current speed, values are inaccurate so take average
 		float curTotalFac = (slept + realPassed) / (float)emuPassed;
 		totalFactor = totalFactor * (1 - alpha) + curTotalFac * alpha;
@@ -144,11 +145,11 @@ void RealTime::internalSync(const EmuTime &curEmu)
 		float curEmuFac = realPassed / (float)emuPassed;
 		emuFactor = emuFactor * (1 - alpha) + curEmuFac * alpha;
 		PRT_DEBUG("RT: Estimated max     speed (real/emu): " << emuFactor);
-		
+
 		// adjust short period references
 		realRef = SDL_GetTicks();
 		emuRef = curEmu;
-	} 
+	}
 	// schedule again in future
 	EmuTimeFreq<1000> time(curEmu);
 	scheduler->setSyncPoint(time + SYNC_INTERVAL, this);
