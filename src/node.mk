@@ -39,6 +39,7 @@ SRC_HDR:= \
 	DebugDevice \
 	Autofire RenShaTurbo \
 	StringOp \
+	Unicode \
 	Version
 
 SRC_ONLY:= \
