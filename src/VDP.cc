@@ -36,7 +36,6 @@ TODO:
 */
 
 
-#include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "SDLLoRenderer.hh"
 #include "SDLHiRenderer.hh"
@@ -270,18 +269,35 @@ inline int VDP::checkSprites2(int line, VDP::SpriteInfo *visibleSprites)
 	return visibleIndex;
 }
 
-inline void VDP::updateIRQ()
+inline void VDP::setVerticalIRQ()
 {
-	// TODO: Motherboard implementation can handle multiple
-	//       IRQs from a single device, but its documentation
-	//       says it cannot.
-	//       Changing that would allow this method to be replaced
-	//       by raiseIRQ() and lowerIRQ() calls from horizontal and
-	//       vertical scanning interrupt code.
-	if (irqVertical || irqHorizontal) {
-		setInterrupt();
-	} else {
-		resetInterrupt();
+	if (!irqVertical) {
+		irqVertical = true;
+		MSXMotherBoard::instance()->raiseIRQ();
+	}
+}
+
+inline void VDP::resetVerticalIRQ()
+{
+	if (irqVertical) {
+		irqVertical = false;
+		MSXMotherBoard::instance()->lowerIRQ();
+	}
+}
+
+inline void VDP::setHorizontalIRQ()
+{
+	if (!irqHorizontal) {
+		irqHorizontal = true;
+		MSXMotherBoard::instance()->raiseIRQ();
+	}
+}
+
+inline void VDP::resetHorizontalIRQ()
+{
+	if (irqHorizontal) {
+		irqHorizontal = false;
+		MSXMotherBoard::instance()->lowerIRQ();
 	}
 }
 
@@ -291,6 +307,10 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating a VDP object");
+
+	// Initially, there are no IRQ requests to the MSXMotherBoard.
+	irqVertical = false;
+	irqHorizontal = false;
 
 	limitSprites = deviceConfig->getParameterAsBool("limit_sprites");
 
@@ -407,9 +427,8 @@ void VDP::resetInit(const EmuTime &time)
 	collisionY = 0;
 
 	// Update IRQ to reflect new register values.
-	irqVertical = false;
-	irqHorizontal = false;
-	updateIRQ();
+	resetVerticalIRQ();
+	resetHorizontalIRQ();
 
 	nameBase = ~(-1 << 10);
 	colourBase = ~(-1 << 6);
@@ -486,10 +505,7 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 
 		// Vertical scanning occurs.
 		statusReg0 |= 0x80;
-		if (controlRegs[1] & 0x20) {
-			irqVertical = true;
-			updateIRQ();
-		}
+		if (controlRegs[1] & 0x20) setVerticalIRQ();
 		break;
 	case HSCAN: {
 		// TODO: This implements Marat's guess, what does real V9938 do?
@@ -506,10 +522,7 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		*/
 
 		// Horizontal scanning occurs.
-		if (controlRegs[0] & 0x10) {
-			irqHorizontal = true;
-			updateIRQ();
-		}
+		if (controlRegs[0] & 0x10) setHorizontalIRQ();
 		break;
 	}
 	default:
@@ -734,8 +747,7 @@ byte VDP::readIO(byte port, const EmuTime &time)
 			// TODO: Used to be 0x5F, but that is contradicted by
 			//       TMS9918.pdf. Check on real MSX.
 			statusReg0 &= 0x1F;
-			irqVertical = false;
-			updateIRQ();
+			resetVerticalIRQ();
 			return ret;
 		}
 		case 1: {
@@ -750,8 +762,7 @@ byte VDP::readIO(byte port, const EmuTime &time)
 
 			if (controlRegs[0] & 0x10) { // line int enabled
 				byte ret = statusReg1 | irqHorizontal;
-				irqHorizontal = false;
-				updateIRQ();
+				resetHorizontalIRQ();
 				return ret;
 			} else { // line int disabled
 				// FH goes up at the start of the right border of IL and
@@ -832,7 +843,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 			// Update sprites on blank, mode, size and mag changes.
 			updateSprites(time);
 		}
-		// TODO: Reset irqVertical if IE0 is reset?
+		// TODO: Reset vertical IRQ if IE0 is reset?
 		if (change & 0x18) {
 			updateDisplayMode(controlRegs[0], val, time);
 		}
@@ -925,17 +936,13 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 			if (val & 0x10) {
 				scheduleHScan(time);
 			} else {
-				irqHorizontal = false;
-				updateIRQ();
+				resetHorizontalIRQ();
 			}
 		}
 		break;
 	case 1:
 		if (change & 0x20) { // IE0
-			if (!(val & 0x20)) {
-				irqVertical = false;
-				updateIRQ();
-			}
+			if (!(val & 0x20)) resetVerticalIRQ();
 		}
 		break;
 	case 19:

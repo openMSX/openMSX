@@ -522,10 +522,25 @@ private:
 			);
 	}
 
-	/** Update interrupt request on the bus.
-	  * To be called after each IE0/IE1 write and each F/FH status change.
+	/** Sets the vertical retrace interrupt request and
+	  * synchronises this state with the MSXMotherBoard.
 	  */
-	inline void updateIRQ();
+	inline void setVerticalIRQ();
+
+	/** Resets the vertical retrace interrupt request and
+	  * synchronises this state with the MSXMotherBoard.
+	  */
+	inline void resetVerticalIRQ();
+
+	/** Sets the horizontal retrace interrupt request and
+	  * synchronises this state with the MSXMotherBoard.
+	  */
+	inline void setHorizontalIRQ();
+
+	/** Resets the horizontal retrace interrupt request and
+	  * synchronises this state with the MSXMotherBoard.
+	  */
+	inline void resetHorizontalIRQ();
 
 	/** Called both on init and on reset.
 	  * Puts VDP into reset state.
@@ -598,10 +613,12 @@ private:
 	EmuTimeFreq<21477270> frameStartTime;
 
 	/** State of vertical scanning interrupt request.
+	  * Do not modify this directly, use the set/reset methods instead.
 	  */
 	bool irqVertical;
 
 	/** State of horizontal scanning interrupt request.
+	  * Do not modify this directly, use the set/reset methods instead.
 	  */
 	bool irqHorizontal;
 
@@ -621,13 +638,13 @@ private:
 	/** Is PAL timing active? False means NTSC timing.
 	  * This value is updated at the start of every frame,
 	  * to avoid problems with mid-screen PAL/NTSC switching.
-	  * @sa isPalTiming.
+	  * @see isPalTiming.
 	  */
 	bool palTiming;
 
 	/** Vertical display adjust.
 	  * This value is updated at the start of every frame.
-	  * @sa getVerticalAdjust.
+	  * @see getVerticalAdjust.
 	  */
 	int verticalAdjust;
 
