@@ -346,10 +346,10 @@ int SDLConsole::zoomSurface(SDL_Surface * src, SDL_Surface * dst, bool smooth)
 	 * Allocate memory for row increments
 	 */
 	if ((sax = (int *) malloc((dst->w + 1) * sizeof(Uint32))) == NULL) {
-	return (-1);
+		return (-1);
 	}
 	if ((say = (int *) malloc((dst->h + 1) * sizeof(Uint32))) == NULL) {
-	free(sax);
+		free(sax);
 	return (-1);
 	}
 
@@ -359,18 +359,18 @@ int SDLConsole::zoomSurface(SDL_Surface * src, SDL_Surface * dst, bool smooth)
 	csx = 0;
 	csax = sax;
 	for (x = 0; x <= dst->w; x++) {
-	*csax = csx;
-	csax++;
-	csx &= 0xffff;
-	csx += sx;
+		*csax = csx;
+		csax++;
+		csx &= 0xffff;
+		csx += sx;
 	}
 	csy = 0;
 	csay = say;
 	for (y = 0; y <= dst->h; y++) {
-	*csay = csy;
-	csay++;
-	csy &= 0xffff;
-	csy += sy;
+		*csay = csy;
+		csay++;
+		csy &= 0xffff;
+		csy += sy;
 	}
 
 	/*
@@ -386,105 +386,106 @@ int SDLConsole::zoomSurface(SDL_Surface * src, SDL_Surface * dst, bool smooth)
 	 */
 	if (smooth) {
 
-	/*
-	 * Interpolating Zoom
-	 */
-
-	/*
-	 * Scan destination
-	 */
-	csay = say;
-	for (y = 0; y < dst->h; y++) {
 		/*
-		 * Setup color source pointers
+		 * Interpolating Zoom
 		 */
-		c00 = csp;
-		c01 = csp;
-		c01++;
-		c10 = (tColorRGBA *) ((Uint8 *) csp + src->pitch);
-		c11 = c10;
-		c11++;
-		csax = sax;
-		for (x = 0; x < dst->w; x++) {
 
 		/*
-		 * Interpolate colors
+		 * Scan destination
 		 */
-		ex = (*csax & 0xffff);
-		ey = (*csay & 0xffff);
-		t1 = ((((c01->r - c00->r) * ex) >> 16) + c00->r) & 0xff;
-		t2 = ((((c11->r - c10->r) * ex) >> 16) + c10->r) & 0xff;
-		dp->r = (((t2 - t1) * ey) >> 16) + t1;
-		t1 = ((((c01->g - c00->g) * ex) >> 16) + c00->g) & 0xff;
-		t2 = ((((c11->g - c10->g) * ex) >> 16) + c10->g) & 0xff;
-		dp->g = (((t2 - t1) * ey) >> 16) + t1;
-		t1 = ((((c01->b - c00->b) * ex) >> 16) + c00->b) & 0xff;
-		t2 = ((((c11->b - c10->b) * ex) >> 16) + c10->b) & 0xff;
-		dp->b = (((t2 - t1) * ey) >> 16) + t1;
-		t1 = ((((c01->a - c00->a) * ex) >> 16) + c00->a) & 0xff;
-		t2 = ((((c11->a - c10->a) * ex) >> 16) + c10->a) & 0xff;
-		dp->a = (((t2 - t1) * ey) >> 16) + t1;
+		csay = say;
+		for (y = 0; y < dst->h; y++) {
+			/*
+			 * Setup color source pointers
+			 */
+			c00 = csp;
+			c01 = csp;
+			c01++;
+			c10 = (tColorRGBA *) ((Uint8 *) csp + src->pitch);
+			c11 = c10;
+			c11++;
+			csax = sax;
+			for (x = 0; x < dst->w; x++) {
 
-		/*
-		 * Advance source pointers
-		 */
-		csax++;
-		sstep = (*csax >> 16);
-		c00 += sstep;
-		c01 += sstep;
-		c10 += sstep;
-		c11 += sstep;
-		/*
-		 * Advance destination pointer
-		 */
-		dp++;
+				/*
+				 * Interpolate colors
+				 */
+				ex = (*csax & 0xffff);
+				ey = (*csay & 0xffff);
+				t1 = ((((c01->r - c00->r) * ex) >> 16) + c00->r) & 0xff;
+				t2 = ((((c11->r - c10->r) * ex) >> 16) + c10->r) & 0xff;
+				dp->r = (((t2 - t1) * ey) >> 16) + t1;
+				t1 = ((((c01->g - c00->g) * ex) >> 16) + c00->g) & 0xff;
+				t2 = ((((c11->g - c10->g) * ex) >> 16) + c10->g) & 0xff;
+				dp->g = (((t2 - t1) * ey) >> 16) + t1;
+				t1 = ((((c01->b - c00->b) * ex) >> 16) + c00->b) & 0xff;
+				t2 = ((((c11->b - c10->b) * ex) >> 16) + c10->b) & 0xff;
+				dp->b = (((t2 - t1) * ey) >> 16) + t1;
+				t1 = ((((c01->a - c00->a) * ex) >> 16) + c00->a) & 0xff;
+				t2 = ((((c11->a - c10->a) * ex) >> 16) + c10->a) & 0xff;
+				dp->a = (((t2 - t1) * ey) >> 16) + t1;
+
+				/*
+				 * Advance source pointers
+				 */
+				csax++;
+				sstep = (*csax >> 16);
+				c00 += sstep;
+				c01 += sstep;
+				c10 += sstep;
+				c11 += sstep;
+				/*
+				 * Advance destination pointer
+				 */
+				dp++;
+			}
+			/*
+			 * Advance source pointer
+			 */
+			csay++;
+			csp = (tColorRGBA *) ((Uint8 *) csp + (*csay >> 16) * src->pitch);
+			/*
+			 * Advance destination pointers
+			 */
+			dp = (tColorRGBA *) ((Uint8 *) dp + dgap);
 		}
-		/*
-		 * Advance source pointer
-		 */
-		csay++;
-		csp = (tColorRGBA *) ((Uint8 *) csp + (*csay >> 16) * src->pitch);
-		/*
-		 * Advance destination pointers
-		 */
-		dp = (tColorRGBA *) ((Uint8 *) dp + dgap);
+
 	}
+	else {
 
-	} else {
+		/*
+		 * Non-Interpolating Zoom
+		 */
 
-	/*
-	 * Non-Interpolating Zoom
-	 */
-
-	csay = say;
-	for (y = 0; y < dst->h; y++) {
-		sp = csp;
-		csax = sax;
-		for (x = 0; x < dst->w; x++) {
-		/*
-		 * Draw
-		 */
-		*dp = *sp;
-		/*
-		 * Advance source pointers
-		 */
-		csax++;
-		sp += (*csax >> 16);
-		/*
-		 * Advance destination pointer
-		 */
-		dp++;
+		csay = say;
+		for (y = 0; y < dst->h; y++) {
+			sp = csp;
+			csax = sax;
+			for (x = 0; x < dst->w; x++) {
+				/*
+				 * Draw
+				 */
+				*dp = *sp;
+				/*
+				 * Advance source pointers
+				 */
+				csax++;
+				sp += (*csax >> 16);
+				/*
+				 * Advance destination pointer
+				 */
+				dp++;
+			}
+			/*
+			 * Advance source pointer
+			 */
+			csay++;
+			csp = (tColorRGBA *) ((Uint8 *) csp + (*csay >> 16) * src->pitch);
+			/*
+			 * Advance destination pointers
+			 */
+			dp = (tColorRGBA *) ((Uint8 *) dp + dgap);
 		}
-		/*
-		 * Advance source pointer
-		 */
-		csay++;
-		csp = (tColorRGBA *) ((Uint8 *) csp + (*csay >> 16) * src->pitch);
-		/*
-		 * Advance destination pointers
-		 */
-		dp = (tColorRGBA *) ((Uint8 *) dp + dgap);
-	}
 
 	}
 
