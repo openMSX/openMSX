@@ -5,7 +5,6 @@
 
 #include "MSXIODevice.hh"
 #include "AY8910.hh"
-#include "JoystickPorts.hh"
 
 namespace openmsx {
 
@@ -17,8 +16,8 @@ class MSXPSG : public MSXIODevice, public AY8910Interface
 	// MSXDevice
 	public:
 		MSXPSG(Device *config, const EmuTime &time);
-		virtual ~MSXPSG(); 
-		
+		virtual ~MSXPSG();
+
 		virtual void powerOff(const EmuTime &time);
 		virtual void reset(const EmuTime &time);
 		virtual byte readIO(byte port, const EmuTime &time);
@@ -27,7 +26,7 @@ class MSXPSG : public MSXIODevice, public AY8910Interface
 	private:
 		int registerLatch;
 		AY8910 *ay8910;
-	
+
 	// AY8910Interface
 	public:
 		virtual byte readA(const EmuTime &time);
@@ -36,9 +35,13 @@ class MSXPSG : public MSXIODevice, public AY8910Interface
 		virtual void writeB(byte value, const EmuTime &time);
 
 	private:
-		JoystickPorts joyPorts;
 		CassettePortInterface *cassette;
 		bool keyLayoutBit;
+
+	// joystick ports
+	private:
+		int selectedPort;
+		class JoystickPort *ports[2];
 };
 
 } // namespace openmsx

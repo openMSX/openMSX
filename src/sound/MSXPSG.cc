@@ -3,6 +3,7 @@
 #include "MSXPSG.hh"
 #include "Leds.hh"
 #include "CassettePort.hh"
+#include "JoystickPort.hh"
 #include "MSXConfig.hh"
 
 
@@ -10,16 +11,16 @@ namespace openmsx {
 
 // MSXDevice
 MSXPSG::MSXPSG(Device *config, const EmuTime &time)
-	: MSXDevice(config, time), MSXIODevice(config, time), joyPorts(time)
+	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	try {
-		keyLayoutBit = deviceConfig->getParameterAsBool("keylayoutbit");
-	} catch (ConfigException &e) {
-		keyLayoutBit = false;	// not specified.
-	}
+	keyLayoutBit = deviceConfig->getParameterAsBool("keylayoutbit", false);
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	ay8910 = new AY8910(*this, volume, time);
 	cassette = CassettePortFactory::instance(time);
+
+	selectedPort = 0;
+	ports[0] = new JoystickPort("joyporta", time);
+	ports[1] = new JoystickPort("joyportb", time);
 
 	reset(time);
 }
@@ -27,11 +28,14 @@ MSXPSG::MSXPSG(Device *config, const EmuTime &time)
 MSXPSG::~MSXPSG()
 {
 	delete ay8910;
+	delete ports[0];
+	delete ports[1];
 }
 
 void MSXPSG::powerOff(const EmuTime &time)
 {
-	joyPorts.powerOff(time);
+	ports[0]->unplug(time);
+	ports[1]->unplug(time);
 }
 
 void MSXPSG::reset(const EmuTime &time)
@@ -64,7 +68,7 @@ void MSXPSG::writeIO(byte port, byte value, const EmuTime &time)
 // AY8910Interface
 byte MSXPSG::readA(const EmuTime &time)
 {
-	byte joystick = joyPorts.read(time);
+	byte joystick = ports[selectedPort]->read(time);
 	byte cassetteInput = cassette->cassetteIn(time) ? 0x80 : 0x00;
 	byte keyLayout = keyLayoutBit ? 0x40 : 0x00;
 	return joystick | keyLayout | cassetteInput;
@@ -85,8 +89,12 @@ void MSXPSG::writeA(byte value, const EmuTime &time)
 
 void MSXPSG::writeB(byte value, const EmuTime &time)
 {
-	joyPorts.write(value, time);
-	
+	byte val0 =  (value & 0x03)       | ((value & 0x10) >> 2);
+	byte val1 = ((value & 0x0C) >> 2) | ((value & 0x20) >> 3);
+	ports[0]->write(val0, time);
+	ports[1]->write(val1, time);
+	selectedPort = (value & 0x40) >> 6;
+
 	Leds::LEDCommand kana = (value & 0x80) ? Leds::KANA_OFF : Leds::KANA_ON;
 	Leds::instance()->setLed(kana);
 }
