@@ -1,5 +1,10 @@
 $Id$
 
+2005-02-05 Manuel Bilderbeek <manuel@msxnet.org>
+	* Split Philips VG 8020 config in VG 8020 and VG 8020/20.
+	  Penguin Adventure works on both now, when using the right ROMs.
+	  Thanks to Hans Otten for his kind assistance
+
 2005-02-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed all warning when compiling with icc
 	* Fixed V9990 palette initialization when switching renderer
