@@ -10,6 +10,7 @@
 #include "EmuTime.hh"
 #include "Command.hh"
 #include "DisplayMode.hh"
+#include "RendererFactory.hh"
 
 #include <string>
 
@@ -421,17 +422,6 @@ private:
 		VDP *vdp;
 	};
 
-	class RendererCmd : public Command {
-	public:
-		RendererCmd(VDP *vdp);
-		virtual void execute(const std::vector<std::string> &tokens,
-		                     const EmuTime &time);
-		virtual void help(const std::vector<std::string> &tokens) const;
-	private:
-		VDP *vdp;
-	};
-	friend class RendererCmd;
-
 	/** Time at which the internal VDP display line counter is reset,
 	  * expressed in ticks after vsync.
 	  * I would expect the counter to reset at line 16, but measurements
@@ -747,13 +737,14 @@ private:
 	  */
 	PaletteCmd paletteCmd;
 
-	/** Implements the renderer select command.
+	/** Setting which contains the user preference for the renderer.
 	  */
-	RendererCmd rendererCmd;
+	RendererFactory::RendererSetting *rendererSetting;
 
-	/** Execute a renderer switch at the earliest convenient time.
+	/** ID of the currently active renderer.
+	  * Used to check wheter a renderer switch is necessary.
 	  */
-	bool switchRenderer;
+	RendererFactory::RendererID currentRenderer;
 
 };
 

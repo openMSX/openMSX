@@ -4,9 +4,12 @@
 #define __RENDERERFACTORY_HH__
 
 #include <string>
+#include <map>
 
-// For __SDLGLRENDERER_AVAILABLE__
-#include "SDLGLRenderer.hh"
+#include "Settings.hh"
+
+// For __OPENGL_AVAILABLE__
+#include "GLUtil.hh"
 
 class Renderer;
 class EmuTime;
@@ -22,6 +25,24 @@ class RendererFactory
 {
 public:
 
+	/** Enumeration of Renderers known to openMSX.
+	  * This is the full list, the list of available renderers may be smaller.
+	  */
+	enum RendererID { SDLHI, SDLLO, SDLGL, XLIB };
+
+	typedef EnumSetting<RendererID> RendererSetting;
+
+	/** Create a Renderer.
+	  * @param id The Renderer to create.
+	  * @param vdp The VDP whose display will be rendered.
+	  */
+	static Renderer *createRenderer(RendererID id, VDP *vdp);
+
+	/** Get the renderer setting.
+	  * The map of this setting contains only the available renderers.
+	  */
+	static RendererSetting *getRendererSetting();
+
 	/** Gets the name of the associated renderer.
 	  */
 	//virtual const std::string getName() = 0;
@@ -35,11 +56,17 @@ public:
 
 	/** Instantiate the associated Renderer.
 	  * @param vdp VDP whose state will be rendered.
-	  * @return a newly created Renderer, or NULL if creation failed.
+	  * @return A newly created Renderer, or NULL if creation failed.
 	  *   TODO: Throwing an exception would be cleaner.
 	  */
 	virtual Renderer *create(VDP *vdp) = 0;
 
+private:
+	/** Get the factory for the given renderer ID.
+	  * @param id The Renderer to get the factory for.
+	  * @return The RendererFactory that can create the given renderer.
+	  */
+	static RendererFactory *getByID(RendererID id);
 };
 
 /** RendererFactory for SDLHiRenderer.
@@ -82,7 +109,7 @@ public:
 
 };
 
-#ifdef __SDLGLRENDERER_AVAILABLE__
+#ifdef __OPENGL_AVAILABLE__
 
 /** RendererFactory for SDLGLRenderer.
   */
@@ -104,7 +131,7 @@ public:
 
 };
 
-#endif // __SDLGLRENDERER_AVAILABLE__
+#endif // __OPENGL_AVAILABLE__
 
 /** RendererFactory for XRenderer.
   */

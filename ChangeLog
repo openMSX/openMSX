@@ -1,5 +1,12 @@
 $Id$
 
+2003-05-03 Maarten ter Huurne <maarten@treewalker.org>
+	* Removed EmuTime parameters from Settings methods.
+	* Centralized GL header check in new GLUtil.hh file.
+	  In the future, GLUtil.hh will contain GL utility classes/functions.
+	* Replaced "renderer" command by a "renderer" setting.
+	  This also makes sure the user cannot switch to a non-existant renderer.
+
 2003-05-02 David Heremans <david.heremans@gnu-linux.net>
 	* Added the Contrib/cbios directory to 'make install'
 	* Have make install create some nice softlinks

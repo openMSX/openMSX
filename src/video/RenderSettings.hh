@@ -4,6 +4,7 @@
 #define __RENDERSETTINGS_HH__
 
 #include "Settings.hh"
+#include "RendererFactory.hh"
 
 
 /** Singleton containing all settings for renderers.
@@ -26,6 +27,7 @@ private:
 	BooleanSetting *deinterlace;
 	BooleanSetting *fullScreen;
 	IntegerSetting *horizontalBlur;
+	RendererFactory::RendererSetting *renderer;
 	IntegerSetting *scanlineAlpha;
 
 public:
@@ -48,6 +50,9 @@ public:
 	/** The amount of horizontal blur [0..100]. */
 	IntegerSetting *getHorizontalBlur() { return horizontalBlur; }
 
+	/** The current renderer. */
+	RendererFactory::RendererSetting *getRenderer() { return renderer; }
+	
 	/** The alpha value [0..100] of the scanlines. */
 	IntegerSetting *getScanlineAlpha() { return scanlineAlpha; }
 

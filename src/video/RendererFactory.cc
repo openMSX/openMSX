@@ -9,6 +9,46 @@
 #include <SDL/SDL.h>
 
 
+RendererFactory *RendererFactory::getByID(RendererFactory::RendererID id)
+{
+	switch (id) {
+	case SDLHI:
+		return new SDLHiRendererFactory();
+	case SDLLO:
+		return new SDLLoRendererFactory();
+#ifdef __OPENGL_AVAILABLE__
+	case SDLGL:
+		return new SDLGLRendererFactory();
+#endif
+	case XLIB:
+		return new XRendererFactory();
+	default:
+		throw MSXException("Unknown renderer");
+	}
+}
+
+Renderer *RendererFactory::createRenderer(
+	RendererFactory::RendererID id, VDP *vdp)
+{
+	return getByID(id)->create(vdp);
+}
+
+RendererFactory::RendererSetting *RendererFactory::getRendererSetting()
+{
+	std::map<std::string, RendererID> rendererMap;
+	rendererMap["SDLHi"] = SDLHI;
+	rendererMap["SDLLo"] = SDLLO;
+#ifdef __OPENGL_AVAILABLE__
+	rendererMap["SDLGL"] = SDLGL;
+#endif
+	// XRenderer is not ready for users.
+	// rendererMap["Xlib" ] = XLIB;
+	return new RendererSetting(
+		"renderer", "rendering back-end used to display the MSX screen",
+		SDLHI, rendererMap
+		);
+}
+
 // SDLHi ===================================================================
 
 bool SDLHiRendererFactory::isAvailable()
@@ -109,7 +149,7 @@ Renderer *SDLLoRendererFactory::create(VDP *vdp)
 
 // SDLGL ===================================================================
 
-#ifdef __SDLGLRENDERER_AVAILABLE__
+#ifdef __OPENGL_AVAILABLE__
 
 bool SDLGLRendererFactory::isAvailable()
 {
@@ -151,7 +191,7 @@ Renderer *SDLGLRendererFactory::create(VDP *vdp)
 	return new SDLGLRenderer(vdp, screen);
 }
 
-#endif // __SDLGLRENDERER_AVAILABLE__
+#endif // __OPENGL_AVAILABLE__
 
 // Xlib ====================================================================
 

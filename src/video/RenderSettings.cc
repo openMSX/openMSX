@@ -29,6 +29,15 @@ RenderSettings::RenderSettings()
 		"blur", "amount of horizontal blur effect: 0 = none, 100 = full",
 		50, 0, 100);
 	
+	renderer = RendererFactory::getRendererSetting();
+	// Get user-preferred renderer from config.
+	try {
+		std::string rendererName = config->getType();
+		renderer->setValueString(rendererName);
+	} catch (MSXException &e) {
+		// Stick with default given by RendererFactory.
+	}
+	
 	scanlineAlpha = new IntegerSetting(
 		"scanline", "amount of scanline effect: 0 = none, 100 = full",
 		20, 0, 100);

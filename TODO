@@ -33,8 +33,6 @@
    + limitsprites
  - The following things should be made settings (adjustable in Console):
    + Mixer settings
- - The following Console commands need to be converted to a settings command:
-   + renderer
  - Currently a ROM file name passed on the command line is used to generate
    XML in memory which is later used to create a Rom object. However, this
    complicates the process of gathering the ROM meta info in RomInfo, because

@@ -23,10 +23,10 @@ TODO:
 #include "VDPVRAM.hh"
 #include "VDPCmdEngine.hh"
 #include "SpriteChecker.hh"
-#include "PlatformFactory.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
 #include "MSXConfig.hh"
+#include "RenderSettings.hh"
 #include <string>
 #include <iomanip>
 #include <cassert>
@@ -41,7 +41,6 @@ VDP::VDP(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 	, vdpRegsCmd(this)
 	, paletteCmd(this)
-	, rendererCmd(this)
 {
 	PRT_DEBUG("Creating a VDP object");
 
@@ -100,14 +99,14 @@ VDP::VDP(Device *config, const EmuTime &time)
 	}
 	
 	// Create renderer.
-	renderer = PlatformFactory::createRenderer(rendererName, this);
+	rendererSetting = RenderSettings::instance()->getRenderer();
+	currentRenderer = rendererSetting->getValue();
+	renderer = RendererFactory::createRenderer(currentRenderer, this);
 	vram->setRenderer(renderer);
-	switchRenderer = false;
 
 	// Register console commands.
-	CommandController::instance()->registerCommand(&vdpRegsCmd,  "vdpregs");
-	CommandController::instance()->registerCommand(&paletteCmd,  "palette");
-	CommandController::instance()->registerCommand(&rendererCmd, "renderer");
+	CommandController::instance()->registerCommand(&vdpRegsCmd, "vdpregs");
+	CommandController::instance()->registerCommand(&paletteCmd, "palette");
 
 	// Initialise time stamps.
 	// This will be done again by frameStart, but these have to be
@@ -131,7 +130,6 @@ VDP::~VDP()
 	PRT_DEBUG("Destroying a VDP object");
 	CommandController::instance()->unregisterCommand(&vdpRegsCmd,  "vdpregs");
 	CommandController::instance()->unregisterCommand(&paletteCmd,  "palette");
-	CommandController::instance()->unregisterCommand(&rendererCmd, "renderer");
 	delete cmdEngine;
 	delete renderer;
 	delete spriteChecker;
@@ -402,13 +400,10 @@ void VDP::frameStart(const EmuTime &time)
 	renderer->frameStart(time);
 	spriteChecker->frameStart(time);
 
-	if (switchRenderer) {
-		switchRenderer = false;
-		PRT_DEBUG("VDP: switching renderer to " << rendererName);
+	if (currentRenderer != rendererSetting->getValue()) {
 		delete renderer;
-		// TODO: Handle invalid names more gracefully.
-		// TODO: Merge with constructor code that creates Renderer.
-		renderer = PlatformFactory::createRenderer(rendererName, this);
+		currentRenderer = rendererSetting->getValue();
+		renderer = RendererFactory::createRenderer(currentRenderer, this);
 		renderer->reset(time);
 		vram->setRenderer(renderer);
 	} else {
@@ -1031,32 +1026,3 @@ void VDP::PaletteCmd::help(const std::vector<std::string> &tokens) const
 	print("Prints the current VDP palette (i:rgb).");
 }
 
-// RendererCmd inner class:
-
-VDP::RendererCmd::RendererCmd(VDP *vdp)
-{
-	this->vdp = vdp;
-}
-
-void VDP::RendererCmd::execute(const std::vector<std::string> &tokens,
-                               const EmuTime &time)
-{
-	switch (tokens.size()) {
-		case 1:
-			// Print name of current renderer.
-			print("Current renderer: " + vdp->rendererName);
-			break;
-		case 2:
-			// Switch renderer.
-			vdp->rendererName = tokens[1];
-			vdp->switchRenderer = true;
-			break;
-		default:
-			throw CommandException("Too many parameters.");
-	}
-}
-
-void VDP::RendererCmd::help(const std::vector<std::string> &tokens) const
-{
-	print("Select a new renderer or print the current renderer.");
-}
