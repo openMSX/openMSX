@@ -3,7 +3,7 @@
 /* TODO:
 - Verify the dirty checks, especially those of mode3 and mode23,
   which were different before.
-- Draw sprites per line.
+- Is it guaranteed that sizeof(bool) == 1? (needed for memset).
 
 Idea:
 For bitmap modes, cache VRAM lines rather than screen lines.
@@ -149,11 +149,6 @@ static unsigned char TMS9928A_palette[16 * 3] =
 	255, 255, 255
 };
 
-// Defines for `dirty' optimization
-#define MAX_DIRTY_COLOUR        (256*3)
-#define MAX_DIRTY_PATTERN       (256*3)
-#define MAX_DIRTY_NAME          (40*24)
-
 // RENDERERS for line-based scanline conversion
 
 void MSXTMS9928a::mode0(Pixel *pixelPtr, int line)
@@ -164,9 +159,9 @@ void MSXTMS9928a::mode0(Pixel *pixelPtr, int line)
 	// but x may be easier to convert to pixel-based rendering.
 	for (int charsLeft = 32; charsLeft--; ) {
 		int charcode = tms.vMem[tms.nametbl + name];
-		// TODO: is tms.DirtyColour[charcode / 64] correct?
-		if (tms.DirtyName[name] || tms.DirtyPattern[charcode]
-		|| tms.DirtyColour[charcode / 64]) {
+		// TODO: is dirtyColour[charcode / 64] correct?
+		if (dirtyName[name] || dirtyPattern[charcode]
+		|| dirtyColour[charcode / 64]) {
 
 			int colour = tms.vMem[tms.colour + charcode / 8];
 			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
@@ -191,7 +186,7 @@ void MSXTMS9928a::mode1(Pixel *pixelPtr, int line)
 	// Not needed since full screen refresh not executed now
 	//if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
 	//  return;
-	if (!tms.anyDirtyColour) return;
+	if (!anyDirtyColour) return;
 
 	Pixel fg = XPal[tms.Regs[7] >> 4];
 	Pixel bg = XPal[tms.Regs[7] & 0x0F];
@@ -203,7 +198,7 @@ void MSXTMS9928a::mode1(Pixel *pixelPtr, int line)
 	// Actual display.
 	while (x < 248) {
 		int charcode = tms.vMem[tms.nametbl + name];
-		if (tms.DirtyName[name] || tms.DirtyPattern[charcode]) {
+		if (dirtyName[name] || dirtyPattern[charcode]) {
 			int pattern = tms.vMem[tms.pattern + charcode * 8 + (line & 7)];
 			for (int i = 6; i--; ) {
 				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
@@ -232,8 +227,8 @@ void MSXTMS9928a::mode2(Pixel *pixelPtr, int line)
 		int charcode = tms.vMem[tms.nametbl+name] + (line / 64) * 256;
 		int colourNr = (charcode & tms.colourmask);
 		int patternNr = (charcode & tms.patternmask);
-		if (tms.DirtyName[name] || tms.DirtyPattern[patternNr]
-		|| tms.DirtyColour[colourNr]) {
+		if (dirtyName[name] || dirtyPattern[patternNr]
+		|| dirtyColour[colourNr]) {
 			// TODO: pattern uses colourNr and colour uses patterNr...
 			//      I don't get it.
 			int pattern = tms.vMem[tms.pattern + colourNr * 8 + (line & 7)];
@@ -257,7 +252,7 @@ void MSXTMS9928a::mode12(Pixel *pixelPtr, int line)
 	// Not needed since full screen refresh not executed now
 	//if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
 	//  return;
-	if (!tms.anyDirtyColour) return;
+	if (!anyDirtyColour) return;
 
 	Pixel fg = XPal[tms.Regs[7] >> 4];
 	Pixel bg = XPal[tms.Regs[7] & 0x0F];
@@ -269,7 +264,7 @@ void MSXTMS9928a::mode12(Pixel *pixelPtr, int line)
 	// Actual display.
 	while (x < 248) {
 		int charcode = (tms.vMem[tms.nametbl + name] + (line / 64) * 256) & tms.patternmask;
-		if (tms.DirtyName[name] || tms.DirtyPattern[charcode]) {
+		if (dirtyName[name] || dirtyPattern[charcode]) {
 			int pattern = tms.vMem[tms.pattern + charcode * 8];
 			for (int i = 6; i--; ) {
 				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
@@ -291,13 +286,13 @@ void MSXTMS9928a::mode3(Pixel *pixelPtr, int line)
 	// Not needed since full screen refresh not executed now
 	//if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
 	//  return;
-	if (!tms.anyDirtyColour) return;
+	if (!anyDirtyColour) return;
 
 	Pixel backDropColour = XPal[tms.Regs[7] & 0x0F];
 	int name = (line / 8) * 32;
 	for (int x = 0; x < 256; x += 8) {
 		int charcode = tms.vMem[tms.nametbl + name];
-		if (tms.DirtyName[name] || tms.DirtyPattern[charcode]) {
+		if (dirtyName[name] || dirtyPattern[charcode]) {
 			int colour = tms.vMem[tms.pattern + charcode * 8 + ((line / 4) & 7)];
 			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
 			Pixel bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
@@ -335,13 +330,13 @@ void MSXTMS9928a::mode23(Pixel *pixelPtr, int line)
 	// Not needed since full screen refresh not executed now
 	//if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
 	//  return;
-	if (!tms.anyDirtyColour) return;
+	if (!anyDirtyColour) return;
 
 	Pixel backDropColour = XPal[tms.Regs[7] & 0x0F];
 	int name = (line / 8) * 32;
 	for (int x = 0; x < 256; x += 8) {
 		int charcode = tms.vMem[tms.nametbl + name];
-		if (tms.DirtyName[name] || tms.DirtyPattern[charcode]) {
+		if (dirtyName[name] || dirtyPattern[charcode]) {
 			int colour = tms.vMem[tms.pattern + ((charcode + ((line / 4) & 7) +
 				(line / 64) * 256) & tms.patternmask) * 8];
 			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
@@ -379,175 +374,162 @@ MSXTMS9928a::RenderMethod MSXTMS9928a::modeToRenderMethod[] = {
 	&MSXTMS9928a::modebogus
 };
 
-/*
-** This function renders the sprites. Sprite collision is calculated in
-** in a back buffer (tms.dBackMem), because sprite collision detection
-** is rather complicated (transparent sprites also cause the sprite
-** collision bit to be set, and ``illegal'' sprites do not count
-** (they're not displayed)).
-**
-** This code should be optimized. One day.
-**
-*/
-void MSXTMS9928a::sprites(Pixel *linePtrs[], int displayX)
+int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
 {
-	byte *attributeptr = tms.vMem + tms.spriteattribute;
+	// Optimisation:
+	// If both collision and 5th sprite have occurred,
+	// that state is stable until they are reset by a status reg read,
+	// so no need to execute the checks.
+	// ...Unless the caller wants to know which sprites are on this line.
+	if (((tms.StatusReg & 0x60) == 0x60) && !visibleSprites) return 0;
+
+	// Make sure there is always an array to write in,
+	// even if it is not passed by the caller.
+	// This is easier than checking the pointer before every write.
+	static int dummyVisible[4];
+	if (!visibleSprites) visibleSprites = dummyVisible;
+
 	int size = (tms.Regs[1] & 2) ? 16 : 8;
-	int large = (int)(tms.Regs[1] & 1);
+	int mag = tms.Regs[1] & 1; // 0 = normal, 1 = double
 
-	int y, limit[192];
-	for (y = 0; y < 192; y++) limit[y] = 4;
-	tms.StatusReg = 0x80;
-	int illegalspriteline = 255;
-	int illegalsprite = 0;
-
-	memset(tms.dBackMem, 0, 256 * 192);
-	int p;
-	for (p = 0; p < 32; p++) {
-		y = *attributeptr++;
+	// Get sprites for this line and detect 5th sprite if any.
+	int sprite, visibleIndex = 0;
+	int minStart = line - size * (mag + 1);
+	byte *attributePtr = tms.vMem + tms.spriteattribute;
+	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
+		int y = *attributePtr;
 		if (y == 208) break;
 		y = (y > 208 ? y - 255 : y + 1);
-		int x = *attributeptr++;
-		byte *patternptr = tms.vMem + tms.spritepattern +
-			((size == 16) ? *attributeptr & 0xfc : *attributeptr) * 8;
-		attributeptr++;
-		Pixel colour = (*attributeptr & 0x0f);
-		if (*attributeptr & 0x80) x -= 32;
-		attributeptr++;
-
-		// Hack: mark the characters that are touched by the sprites as dirty
-		// This way we also redraw the affected chars
-		// sprites are only visible in screen modes of 32 chars wide
-		int dirtycheat = (x >> 3) + (y >> 3) * 32;
-		//mark four chars dirty (2x2)
-		tms.DirtyName[dirtycheat] = 1;
-		tms.DirtyName[dirtycheat+1] = 1;
-		tms.DirtyName[dirtycheat+32] = 1;
-		tms.DirtyName[dirtycheat+33] = 1;
-		//if needed extra 5 around them also (3x3)
-		if ((size == 16) || large){
-			tms.DirtyName[dirtycheat+2] = 1;
-			tms.DirtyName[dirtycheat+34] = 1;
-			tms.DirtyName[dirtycheat+64] = 1;
-			tms.DirtyName[dirtycheat+65] = 1;
-			tms.DirtyName[dirtycheat+66] = 1;
-		}
-		//if needed extra 7 around them also (4x4)
-		if ((size == 16) && large){
-			tms.DirtyName[dirtycheat+3] = 1;
-			tms.DirtyName[dirtycheat+35] = 1;
-			tms.DirtyName[dirtycheat+65] = 1;
-			tms.DirtyName[dirtycheat+96] = 1;
-			tms.DirtyName[dirtycheat+97] = 1;
-			tms.DirtyName[dirtycheat+98] = 1;
-			tms.DirtyName[dirtycheat+99] = 1;
-		}
-		// worst case is 32*24+99(=867)
-		// DirtyName 40x24(=960)  => is large enough
-		tms.anyDirtyName = 1;
-		// No need to clean sprites if no vram write so tms.Change could remain false;
-
-		if (!large) {
-			/* draw sprite (not enlarged) */
-			for (int yy = y; yy < (y + size); yy++) {
-				if ( (yy < 0) || (yy >= 192) ) continue;
-				if (limit[yy] == 0) {
-					/* illegal sprite line */
-					if (yy < illegalspriteline) {
-						illegalspriteline = yy;
-						illegalsprite = p;
-					} else if (illegalspriteline == yy) {
-						if (illegalsprite > p) {
-							illegalsprite = p;
-						}
-					}
-					if (tms.LimitSprites) continue;
+		if ((y > minStart) && (y <= line)) {
+			if (visibleIndex == 4) {
+				// Five sprites on a line.
+				// According to TMS9918.pdf 5th sprite detection is only
+				// active when F flag is zero.
+				if (~tms.StatusReg & 0xC0) {
+					tms.StatusReg = (tms.StatusReg & 0xE0) | 0x40 | sprite;
 				}
-				else {
-					limit[yy]--;
-				}
-				word line = (patternptr[yy - y] << 8) | patternptr[yy - y + 16];
-				byte *dBackMemPtr = &tms.dBackMem[yy * 256 + x];
-				Pixel *pixelPtr = &linePtrs[yy][displayX + x];
-				for (int xx = x; xx < (x + size); xx++) {
-					if (line & 0x8000) {
-						if ((xx >= 0) && (xx < 256)) {
-							if (*dBackMemPtr) {
-								tms.StatusReg |= 0x20;
-							}
-							else {
-								*dBackMemPtr = 0x01;
-							}
-							if (colour && !(*dBackMemPtr & 0x02)) {
-								*dBackMemPtr |= 0x02;
-								*pixelPtr = XPal[colour];
-							}
-						}
-					}
-					dBackMemPtr++;
-					pixelPtr++;
-					line <<= 1;
-				}
+				break;
 			}
-		}
-		else {
-			/* draw enlarged sprite */
-			for (int i = 0; i < size; i++) {
-				int yy = y + i * 2;
-				word line2 = (patternptr[i] << 8) | patternptr[i+16];
-				for (int j = 0; j < 2; j++) {
-					if ((yy >= 0) && (yy < 192)) {
-						if (limit[yy] == 0) {
-							/* illegal sprite line */
-							if (yy < illegalspriteline) {
-								illegalspriteline = yy;
-								illegalsprite = p;
-							}
-							else if (illegalspriteline == yy) {
-								if (illegalsprite > p) {
-									illegalsprite = p;
-								}
-							}
-							if (tms.LimitSprites) continue;
-						}
-						else {
-							limit[yy]--;
-						}
-						word line = line2;
-						byte *dBackMemPtr = &tms.dBackMem[yy * 256 + x];
-						Pixel *pixelPtr = &linePtrs[yy][displayX + x];
-						for (int xx = x; xx < (x + size * 2); xx++) {
-							if (line & 0x8000) {
-								if ((xx >= 0) && (xx < 256)) {
-									if (*dBackMemPtr) {
-										tms.StatusReg |= 0x20;
-									}
-									else {
-										*dBackMemPtr = 0x01;
-									}
-									if (colour && !(*dBackMemPtr & 0x02)) {
-										*dBackMemPtr |= 0x02;
-										*pixelPtr = XPal[colour];
-									}
-								}
-							}
-							dBackMemPtr++;
-							pixelPtr++;
-							// Shift on every odd pixel.
-							if ((xx - x) & 1) line <<= 1;
-						}
-					}
-					yy++;
-				}
+			else {
+				visibleSprites[visibleIndex++] = sprite;
 			}
 		}
 	}
-	if (illegalspriteline == 255) {
-		tms.StatusReg |= (p > 31) ? 31 : p;
+	if (~tms.StatusReg & 0x40) {
+		// No 5th sprite detected, store number of latest sprite processed.
+		tms.StatusReg = (tms.StatusReg & 0xE0) | (sprite < 32 ? sprite : 31);
 	}
-	else {
-		tms.StatusReg |= 0x40 + illegalsprite;
+
+	// Optimisation:
+	// If collision already occurred,
+	// that state is stable until it is reset by a status reg read,
+	// so no need to execute the checks.
+	// The visibleSprites array is filled now, so we can bail out.
+	if (tms.StatusReg & 0x20) return visibleIndex;
+
+	/*
+	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
+	Reset when status reg is read.
+	Set when sprite patterns overlap.
+	Colour doesn't matter: sprites of colour 0 can collide.
+	Sprites with off-screen position can collide.
+	*/
+	// TODO: Implement.
+	// Use either a backbuffer or clever bit manipulation, or both.
+
+	return visibleIndex;
+}
+
+bool MSXTMS9928a::drawSprites(Pixel *pixelPtr, int line, bool *dirty)
+{
+	int size = (tms.Regs[1] & 2) ? 16 : 8;
+	int mag = tms.Regs[1] & 1; // 0 = normal, 1 = double
+
+	// Determine sprites visible on this line.
+	// Also sets status reg properly.
+	int visibleSprites[32];
+	int visibleIndex = checkSprites(line, visibleSprites);
+	// The checkSprites method will enforce the VDP's limit on the
+	// number of sprites per line. So if we want to display an unlimited
+	// number, we have to build the visibleSprites array ourselves.
+	if (!limitSprites) {
+		int minStart = line - size * (mag + 1);
+		byte *attributePtr = tms.vMem + tms.spriteattribute;
+		visibleIndex = 0;
+		for (int sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
+			int y = *attributePtr;
+			if (y == 208) break;
+			y = (y > 208 ? y - 255 : y + 1);
+			if ((y > minStart) && (y <= line)) {
+				visibleSprites[visibleIndex++] = sprite;
+			}
+		}
 	}
+
+	bool ret = false;
+	while (visibleIndex--) {
+		// Get sprite info.
+		byte *attributePtr = tms.vMem + tms.spriteattribute +
+			visibleSprites[visibleIndex] * 4;
+		int y = *attributePtr++;
+		y = (y > 208 ? y - 255 : y + 1);
+		int x = *attributePtr++;
+		byte *patternPtr = tms.vMem + tms.spritepattern +
+			((size == 16) ? *attributePtr & 0xFC : *attributePtr) * 8;
+		Pixel colour = *++attributePtr;
+		if (colour & 0x80) x -= 32;
+		colour &= 0x0F;
+		if (colour == 0) {
+			// Don't draw transparent sprites.
+			continue;
+		}
+		colour = XPal[colour];
+
+		// Calculate pattern.
+		y = line - y;
+		if (mag) y *= 2;
+		int pattern = patternPtr[y] << 24;
+		if (size == 16) {
+			pattern |= patternPtr[y + 16] << 16;
+		}
+		if (mag) {
+			// Double every dot.
+			int orgPattern = pattern;
+			for (int i = 16; i--; ) {
+				pattern <<= 2;
+				if (orgPattern & 0x80000000) {
+					pattern |= 3;
+				}
+				orgPattern <<= 1;
+			}
+		}
+
+		// Mark as dirty any area where pixels are written.
+		anyDirtyName = 1;
+		// Skip any dots that end up in the left border.
+		if (x < 0) {
+			pattern <<= -x;
+			x = 0;
+		}
+		// Sprites are only visible in screen modes which have lines
+		// of 32 8x8 chars.
+		bool *dirtyPtr = dirty + (x / 8);
+		ret |= (pattern != 0);
+		// Convert pattern to pixels.
+		while (pattern && (x < 256)) {
+			// Draw pixel if sprite has a dot.
+			if (pattern & 0x80000000) {
+				pixelPtr[x] = colour;
+				*dirtyPtr = true;
+			}
+			// Advancing behaviour.
+			x++;
+			if ((x & 7) == 0) dirtyPtr++;
+			pattern <<= 1;
+		}
+	}
+
+	return ret;
 }
 
 inline static void drawEmptyLine(Pixel *linePtr, Pixel colour)
@@ -588,16 +570,42 @@ void MSXTMS9928a::fullScreenRefresh()
 		}
 	}
 
+	// Characters that contain sprites should be drawn again next frame.
+	bool nextDirty[32];
+	bool nextAnyDirty = false; // dirty pixel in current character row?
+	bool nextAnyDirtyName = false; // dirty pixel anywhere in frame?
+
 	// Display area.
 	RenderMethod renderMethod = modeToRenderMethod[tms.mode];
 	for (int y = 0; y < 192; y++, line++, currBorderColoursPtr++) {
+		if ((y & 7) == 0) {
+			memset(nextDirty, false, 32);
+			nextAnyDirty = false;
+		}
+		Pixel *linePtr = &linePtrs[line][displayX];
 		if (tms.Regs[1] & 0x40) {
 			// Draw background.
-			(this->*renderMethod)(&linePtrs[line][displayX], y);
+			(this->*renderMethod)(linePtr, y);
+			if (TMS_SPRITES_ENABLED) {
+				nextAnyDirty |= drawSprites(linePtr, y, nextDirty);
+			}
 		}
 		else {
-			modeblank(&linePtrs[line][displayX], y);
+			modeblank(linePtr, y);
 		}
+		if ((y & 7) == 7) {
+			if (nextAnyDirty) {
+				memcpy(dirtyName + (y / 8) * 32, nextDirty, 32);
+				nextAnyDirtyName = true;
+			}
+			else {
+				memset(dirtyName + (y / 8) * 32, false, 32);
+			}
+		}
+		// Borders are drawn after the display area:
+		// V9958 can extend the left border over the display area,
+		// this is implemented using overdraw.
+		// TODO: Does the extended border clip sprites as well?
 		if (*currBorderColoursPtr != borderColour) {
 			drawBorders(linePtrs[line], borderColour,
 				displayX, WIDTH - displayX);
@@ -614,12 +622,10 @@ void MSXTMS9928a::fullScreenRefresh()
 	}
 
 	// TODO: Verify interaction between dirty flags and blanking.
-	_TMS9928A_set_dirty(0);
-
-	// Draw sprites if enabled in this mode.
-	if ((tms.Regs[1] & 0x40) && (TMS_SPRITES_ENABLED)) {
-		sprites(&linePtrs[displayY], displayX);
-	}
+	anyDirtyName = nextAnyDirtyName;
+	anyDirtyColour = anyDirtyPattern = false;
+	memset(dirtyColour, false, sizeof(dirtyColour));
+	memset(dirtyPattern, false, sizeof(dirtyPattern));
 }
 
 void MSXTMS9928a::putImage(void)
@@ -662,18 +668,13 @@ void MSXTMS9928a::reset ()
 	tms.mode = tms.BackColour = 0;
 	tms.Change = 1;
 	tms.FirstByte = -1;
-	_TMS9928A_set_dirty(1);
+	setDirty(true);
 }
 
-//int TMS9928A_start (int model, unsigned int vram)
 void MSXTMS9928a::init(void)
 {
 	MSXDevice::init();
-	// /* 4 or 16 kB vram please */
-	// if (! ((vram == 0x1000) || (vram == 0x4000) || (vram == 0x2000)) )
-	//    return 1;
 
-	//tms.model = model;
 	tms.model = 1;	//tms9928a
 
 	// Clear bitmap.
@@ -689,41 +690,13 @@ void MSXTMS9928a::init(void)
 	// Video RAM
 	tms.vramsize = 0x4000;
 	tms.vMem = new byte[tms.vramsize];
-	if (!tms.vMem) return ;//(1);
+	// TODO: Use exception instead?
+	if (!tms.vMem) return ;//1;
 	memset(tms.vMem, 0, tms.vramsize);
 
-	// Sprite back buffer
-	tms.dBackMem = new byte[256 * 192];
-	if (!tms.dBackMem) {
-		free(tms.vMem);
-		return ;//1;
-	}
+	reset();
 
-	// Dirty buffers
-	tms.DirtyName = new byte[MAX_DIRTY_NAME];
-	if (!tms.DirtyName) {
-		free(tms.vMem);
-		free(tms.dBackMem);
-		return ;//1;
-	}
-	tms.DirtyPattern = new byte[MAX_DIRTY_PATTERN];
-	if (!tms.DirtyPattern) {
-		free(tms.vMem);
-		free(tms.DirtyName);
-		free(tms.dBackMem);
-		return ;//1;
-	}
-	tms.DirtyColour =  new byte[MAX_DIRTY_COLOUR];
-	if (!tms.DirtyColour) {
-		free(tms.vMem);
-		free(tms.DirtyName);
-		free(tms.DirtyPattern);
-		free(tms.dBackMem);
-		return ;//1;
-	}
-
-	reset() ; // TMS9928A_reset ();
-	tms.LimitSprites = 1;
+	limitSprites = true; // TODO: Read from config.
 
 	/* Open the display */
 	//if(Verbose) printf("OK\n  Opening display...");
@@ -740,11 +713,11 @@ void MSXTMS9928a::init(void)
 	SDL_ShowCursor(0);
 
 	// Reset the palette
-	for(int J=0;J<16;J++) {
-		XPal[J] = SDL_MapRGB(screen->format,
-			TMS9928A_palette[J*3],
-			TMS9928A_palette[J*3 + 1],
-			TMS9928A_palette[J*3 + 2]);
+	for (int i = 0; i < 16; i++) {
+		XPal[i] = SDL_MapRGB(screen->format,
+			TMS9928A_palette[i * 3 + 0],
+			TMS9928A_palette[i * 3 + 1],
+			TMS9928A_palette[i * 3 + 2]);
 	}
 
 	//  /* Set SCREEN8 colors */
@@ -772,15 +745,23 @@ void MSXTMS9928a::start()
 	putImage();
 }
 
+/*
+TODO:
+Code seems to assume VDP is called at 50/60Hz.
+But is it guaranteed that the set sync points are actually the only
+times a sync is done?
+It seems to me that status reg reads can also be a reason for syncing.
+If not currently, then certainly in the future.
+*/
 void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 {
 	PRT_DEBUG("Executing TMS9928a at time " << time);
 
 	//TODO: Change from full screen refresh to emutime based!!
-	if (tms.stateChanged) {
+	if (stateChanged) {
 		fullScreenRefresh();
 		putImage();
-		tms.stateChanged = false;
+		stateChanged = false;
 	}
 
 	//Next SP/interrupt in Pal mode here
@@ -797,66 +778,64 @@ void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 /*
 ~MSXTMS9928a()
 {
-    free (tms.vMem); tms.vMem = NULL;
-    free (tms.dBackMem); tms.dBackMem = NULL;
-    free (tms.DirtyColour); tms.DirtyColour = NULL;
-    free (tms.DirtyName); tms.DirtyName = NULL;
-    free (tms.DirtyPattern); tms.DirtyPattern = NULL;
+	free (tms.vMem); tms.vMem = NULL;
+	free (tms.dBackMem); tms.dBackMem = NULL;
+	free (tms.DirtyColour); tms.DirtyColour = NULL;
+	free (tms.DirtyName); tms.DirtyName = NULL;
+	free (tms.DirtyPattern); tms.DirtyPattern = NULL;
 }
 */
 
-/** Set all dirty / clean
-  */
-void MSXTMS9928a::_TMS9928A_set_dirty(char dirty) {
-    tms.anyDirtyColour = tms.anyDirtyName = tms.anyDirtyPattern = dirty;
-    memset(tms.DirtyName, dirty, MAX_DIRTY_NAME);
-    memset(tms.DirtyColour, dirty, MAX_DIRTY_COLOUR);
-    memset(tms.DirtyPattern, dirty, MAX_DIRTY_PATTERN);
+void MSXTMS9928a::setDirty(bool dirty)
+{
+	anyDirtyColour = anyDirtyPattern = anyDirtyName = dirty;
+	memset(dirtyName, dirty, sizeof(dirtyName));
+	memset(dirtyColour, dirty, sizeof(dirtyColour));
+	memset(dirtyPattern, dirty, sizeof(dirtyPattern));
 }
 
 // The I/O functions.
 
 void MSXTMS9928a::writeIO(byte port, byte value, Emutime &time)
 {
-	int i;
 	switch (port){
-	case 0x98:
+	case 0x98: {
 		//WRITE_HANDLER (TMS9928A_vram_w)
 		if (tms.vMem[tms.Addr] != value) {
 			tms.vMem[tms.Addr] = value;
 			tms.Change = 1;
 			/* dirty optimization */
-			tms.stateChanged=true;
+			stateChanged = true;
 
 			if ( (tms.Addr >= tms.nametbl)
-			&& (tms.Addr < (tms.nametbl + MAX_DIRTY_NAME) ) ) {
-				tms.DirtyName[tms.Addr - tms.nametbl] = 1;
-				tms.anyDirtyName = 1;
+			&& (tms.Addr < (tms.nametbl + (int)sizeof(dirtyName)) ) ) {
+				dirtyName[tms.Addr - tms.nametbl] = anyDirtyName = true;
 			}
 
+			int i;
 			i = (tms.Addr - tms.colour) >> 3;
-			if ( (i >= 0) && (i < MAX_DIRTY_COLOUR) ) {
-				tms.DirtyColour[i] = 1;
-				tms.anyDirtyColour = 1;
+			if ( (i >= 0) && (i < (int)sizeof(dirtyColour)) ) {
+				dirtyColour[i] = anyDirtyColour = true;
+
 			}
 
 			i = (tms.Addr - tms.pattern) >> 3;
-			if ( (i >= 0) && (i < MAX_DIRTY_PATTERN) ) {
-				tms.DirtyPattern[i] = 1;
-				tms.anyDirtyPattern = 1;
+			if ( (i >= 0) && (i < (int)sizeof(dirtyPattern)) ) {
+				dirtyPattern[i] = anyDirtyPattern = true;
 			}
 		}
 		tms.Addr = (tms.Addr + 1) & (tms.vramsize - 1);
 		tms.ReadAhead = value;
 		tms.FirstByte = -1;
 		break;
+	}
 	case 0x99:
 		//WRITE_HANDLER (TMS9928A_register_w)
 		if (tms.FirstByte >= 0) {
 			if (value & 0x80) {
 				/* register write */
 				_TMS9928A_change_register ((int)(value & 7), tms.FirstByte);
-				tms.stateChanged = true;
+				stateChanged = true;
 			}
 			else {
 				/* set read/write address */
@@ -895,9 +874,10 @@ byte MSXTMS9928a::readIO(byte port, Emutime &time)
 	case 0x99: {
 		//READ_HANDLER (TMS9928A_register_r)
 		byte ret = tms.StatusReg;
-		tms.StatusReg &= 0x5f;
+		// TODO: Used to be 0x5f, but that is contradicted by TMS9918.pdf
+		tms.StatusReg &= 0x1f;
 		tms.FirstByte = -1;
-        resetInterrupt();
+		resetInterrupt();
 		return ret;
 	}
 	default:
@@ -943,7 +923,7 @@ void MSXTMS9928a::_TMS9928A_change_register(byte reg, byte val)
 			tms.mode = TMS_MODE;
 			//PRT_DEBUG ("TMS9928A: now in mode " << tms.mode );
 			//PRT_DEBUG (sprintf("TMS9928A: %s\n", modes[tms.mode]));
-			_TMS9928A_set_dirty(1);
+			setDirty(true);
 		}
 		break;
 	case 1: {
@@ -955,7 +935,7 @@ void MSXTMS9928a::_TMS9928A_change_register(byte reg, byte val)
 		int mode = TMS_MODE;
 		if (tms.mode != mode) {
 			tms.mode = mode;
-			_TMS9928A_set_dirty(1);
+			setDirty(true);
 			printf("TMS9928A: %s\n", modes[tms.mode]);
 			//PRT_DEBUG (sprintf("TMS9928A: %s\n", modes[tms.mode]));
 		}
@@ -963,8 +943,8 @@ void MSXTMS9928a::_TMS9928A_change_register(byte reg, byte val)
 	}
 	case 2:
 		tms.nametbl = (val * 1024) & (tms.vramsize - 1);
-		tms.anyDirtyName = 1;
-		memset(tms.DirtyName, 1, MAX_DIRTY_NAME);
+		anyDirtyName = true;
+		memset(dirtyName, true, sizeof(dirtyName));
 		break;
 	case 3:
 		if (tms.Regs[0] & 2) {
@@ -974,8 +954,8 @@ void MSXTMS9928a::_TMS9928A_change_register(byte reg, byte val)
 		else {
 			tms.colour = (val * 64) & (tms.vramsize - 1);
 		}
-		tms.anyDirtyColour = 1;
-		memset (tms.DirtyColour, 1, MAX_DIRTY_COLOUR);
+		anyDirtyColour = true;
+		memset(dirtyColour, true, sizeof(dirtyColour));
 		break;
 	case 4:
 		if (tms.Regs[0] & 2) {
@@ -985,8 +965,8 @@ void MSXTMS9928a::_TMS9928A_change_register(byte reg, byte val)
 		else {
 			tms.pattern = (val * 2048) & (tms.vramsize - 1);
 		}
-		tms.anyDirtyPattern = 1;
-		memset (tms.DirtyPattern, 1, MAX_DIRTY_PATTERN);
+		anyDirtyPattern = true;
+		memset(dirtyPattern, true, sizeof(dirtyPattern));
 		break;
 	case 5:
 		tms.spriteattribute = (val * 128) & (tms.vramsize - 1);
@@ -999,8 +979,8 @@ void MSXTMS9928a::_TMS9928A_change_register(byte reg, byte val)
 		// We don't know which lines contain transparent pixels,
 		// so we have to repaint them all.
 		// TODO: Maybe this can be optimised for some screen modes.
-		tms.anyDirtyColour = 1;
-		memset(tms.DirtyColour, 1, MAX_DIRTY_COLOUR);
+		anyDirtyColour = true;
+		memset(dirtyColour, true, sizeof(dirtyColour));
 		break;
 	}
 }

@@ -51,7 +51,13 @@ private:
 	typedef void (MSXTMS9928a::*RenderMethod)(Pixel *pixelPtr, int line);
 	static RenderMethod modeToRenderMethod[];
 
-	static int debugColor;		// debug
+	/** Limit number of sprites per display line?
+	  * Option only affects display, not MSX state.
+	  * In other words: when off all sprites are drawn,
+	  * but status registers act like they aren't.
+	  */
+	bool limitSprites;
+
 	Emutime currentTime;
 
 	SDL_Surface *screen;
@@ -62,16 +68,10 @@ private:
 		int colour,pattern,nametbl,spriteattribute,spritepattern;
 		int colourmask,patternmask;
 		/* memory */
-		byte *vMem, *dBackMem;
+		byte *vMem;
 		int vramsize, model;
-		/* emulation settings */
-		int LimitSprites; /* max 4 sprites on a row, like original TMS9918A */
-		/* all or nothing dirty David Heremans */
-		bool stateChanged;
-		/* dirty tables from Sean Young restcode */
-		byte anyDirtyColour, anyDirtyName, anyDirtyPattern;
-		byte *DirtyColour, *DirtyName, *DirtyPattern;
 	} tms;
+
 	byte TMS9928A_vram_r();
 
 	Pixel XPal[16];
@@ -81,7 +81,9 @@ private:
 	  */
 	void putImage();
 	void _TMS9928A_change_register(byte reg, byte val);
-	void _TMS9928A_set_dirty(char);
+	/** Set all dirty / clean.
+	  */
+	void setDirty(bool);
 
 	void fullScreenRefresh();
 
@@ -93,7 +95,33 @@ private:
 	void modebogus(Pixel *pixelPtr, int line);
 	void mode23(Pixel *pixelPtr, int line);
 	void modeblank(Pixel *pixelPtr, int line);
+
+	/** Draw sprites on this line over the background.
+	  * @param dirty 32-entry array that stores which characters are
+	  *   covered with sprites and must therefore be redrawn next frame.
+	  *   This method will update the array according to the sprites drawn.
+	  * @return Where any pixels drawn?
+	  */
+	bool drawSprites(Pixel *pixelPtr, int line, bool *dirty);
+	/** Check sprite collision and number of sprites per line.
+	  * Separated from display code to make MSX behaviour consistent
+	  * no matter how displaying is handled.
+	  * @param patterns Pointer to a 4-entry int array in which the
+	  *   numbers of the sprites to be displayed are returned.
+	  *   If null, no such array is returned.
+	  * @return The number of sprites stored in the visibleSprites array.
+	  *   Undefined if no such array was given.
+	  */
+	int checkSprites(int line, int *visibleSprites = 0);
 	void sprites(Pixel *linePtrs[], int displayX);
+
+	/* emulation settings */
+	/* all or nothing dirty David Heremans */
+	bool stateChanged;
+	/* dirty tables from Sean Young restcode */
+	bool anyDirtyColour, dirtyColour[256 * 3];
+	bool anyDirtyPattern, dirtyPattern[256 * 3];
+	bool anyDirtyName, dirtyName[40 * 24];
 
 	/** Actual pixel data.
 	  */
