@@ -46,7 +46,7 @@ IDEHD::IDEHD(Config *config, const EmuTime &time)
 	buffer = new byte[512 * 256];
 
 	const std::string &filename = config->getParameter("filename");
-	file = new File(config->getContext(), filename);
+	file = new File(config->getContext()->resolve(filename));
 	totalSectors = file->getSize() / 512;
 }
 

@@ -1,9 +1,11 @@
 // $Id$
 
+#include <sstream>
 #include "Settings.hh"
 #include "CommandController.hh"
-#include <sstream>
 #include "RenderSettings.hh"
+#include "File.hh"
+#include "FileContext.hh"
 
 
 // Force template instantiation
@@ -44,10 +46,11 @@ std::string BooleanSetting::getValueString() const
 	}
 }
 
-void BooleanSetting::setValue(bool value)
+void BooleanSetting::setValue(bool newValue)
 {
-	this->value = value;
-	// TODO: Inform listeners.
+	if (checkUpdate(newValue)) {
+		value = newValue;
+	}
 }
 
 void BooleanSetting::setValueString(const std::string &valueString)
@@ -107,9 +110,9 @@ void IntegerSetting::setValueString(const std::string &valueString)
 	} else if (newValue > maxValue) {
 		newValue = maxValue;
 	}
-	value = (int)newValue;
-
-	// TODO: Inform listeners.
+	if (checkUpdate((int)newValue)) {
+		value = (int)newValue;
+	}
 }
 
 
@@ -150,7 +153,9 @@ void EnumSetting<T>::setValueString(const std::string &valueString)
 {
 	MapIterator it = map.find(valueString);
 	if (it != map.end()) {
-		value = it->second;
+		if (checkUpdate(it->second)) {
+			value = it->second;
+		}
 	} else {
 		throw CommandException(
 			"Not a valid value: \"" + valueString + "\"");
@@ -167,6 +172,43 @@ void EnumSetting<T>::tabCompletion(std::vector<std::string> &tokens) const
 	CommandController::completeString(tokens, values);
 }
 
+
+// StringSetting implementation
+
+StringSetting::StringSetting(
+	const std::string &name_, const std::string &description_,
+	const std::string &initialValue)
+	: Setting(name_, description_), value(initialValue)
+{
+}
+
+std::string StringSetting::getValueString() const
+{
+	return value;
+}
+
+void StringSetting::setValueString(const std::string &newValue)
+{
+	if (checkUpdate(newValue)) {
+		value = newValue;
+	}
+}
+
+
+// FilenameSetting implementation
+
+FilenameSetting::FilenameSetting(const std::string &name,
+                                 const std::string &description)
+	: StringSetting(name, description, "")
+{
+}
+
+void FilenameSetting::tabCompletion(std::vector<std::string> &tokens) const
+{
+	CommandController::completeFileName(tokens);
+}
+
+
 // SettingsManager implementation:
 
 SettingsManager::SettingsManager()
@@ -179,6 +221,7 @@ SettingsManager::~SettingsManager()
 {
 	CommandController::instance()->unregisterCommand(&setCommand, "set");
 }
+
 
 // SetCommand implementation:
 
@@ -207,14 +250,17 @@ void SettingsManager::SetCommand::execute(
 	const std::string &name = tokens[1];
 	Setting *setting = manager->getByName(name);
 	if (!setting) {
-		throw CommandException("There is no setting named \"" + name + "\"");
+		throw CommandException("There is no setting named \""
+		                       + name + "\"");
 	}
 
 	if (nrTokens == 2) {
 		// Info.
 		print(setting->getDescription());
 		print("current value   : " + setting->getValueString());
-		print("possible values : " + setting->getTypeString());
+		if (!setting->getTypeString().empty()) {
+			print("possible values : " + setting->getTypeString());
+		}
 	} else {
 		// Change.
 		const std::string &valueString = tokens[2];

@@ -9,7 +9,6 @@
 #include "MSXException.hh"
 
 class FileBase;
-class FileContext;
 
 
 enum OpenMode {
@@ -30,13 +29,11 @@ class File
 	public:
 		/**
 		 * Create file object and open underlying file.
-		 * @param context Base URL for relative path.
 		 * @param url Full URL or relative path of the file
 		 *   that will be represented by this file object.
 		 * @param mode Mode to open the file in:
 		 */
-		File(const FileContext *context, const std::string &url,
-		     OpenMode mode = NORMAL);
+		File(const std::string &url, OpenMode mode = NORMAL);
 		
 		/**
 		 * Destroy file object.
@@ -94,7 +91,6 @@ class File
 
 		/**
 		 * Returns the URL of this file object.
-		 * All context substitution have already been done on this URL
 		 */
 		const std::string getURL() const;
 
@@ -107,8 +103,6 @@ class File
 		const std::string getLocalName() const;
 
 	private:
-		void open(const std::string &url, OpenMode mode);
-		
 		FileBase *file;
 };
 

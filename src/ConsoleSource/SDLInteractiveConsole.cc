@@ -7,7 +7,34 @@
 #include "SDLInteractiveConsole.hh"
 #include "MSXConfig.hh"
 #include "Keys.hh"
+#include "File.hh"
 
+
+// class BackgroundSetting
+
+BackgroundSetting::BackgroundSetting(SDLInteractiveConsole *console_,
+                                     const std::string &filename)
+	: FilenameSetting("console_background", "console background file"),
+	  console(console_)
+{
+	setValueString(filename);
+}
+
+bool BackgroundSetting::checkUpdate(const std::string &newValue)
+{
+	bool result;
+	try {
+		UserFileContext context;
+		result = console->loadBackground(context.resolve(newValue));
+	} catch (FileException &e) {
+		// file not found
+		result = false;
+	}
+	return result;
+}
+
+
+// class SDLInteractiveConsole
 
 SDLInteractiveConsole::SDLInteractiveConsole() :
 	consoleCmd(this)

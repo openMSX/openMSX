@@ -29,7 +29,7 @@ void KeyEventInserterCLI::parseOption(const std::string &option,
 	try {
 		// first try and treat arg as a file
 		UserFileContext context;
-		File file(&context, arg);
+		File file(context.resolve(arg));
 		byte buffer[2];
 		try {
 			file.read(buffer, 1);

@@ -6,8 +6,24 @@
 #include "EventListener.hh"
 #include "InteractiveConsole.hh"
 #include "Command.hh"
+#include "Settings.hh"
 
+class SDLInteractiveConsole;
 class FileContext;
+
+
+class BackgroundSetting : public FilenameSetting
+{
+	public:
+		BackgroundSetting(SDLInteractiveConsole *console,
+		                  const std::string &filename);
+
+	protected:
+		virtual bool checkUpdate(const std::string &newValue);
+
+	private:
+		SDLInteractiveConsole* console;
+};
 
 
 class SDLInteractiveConsole : public InteractiveConsole, private EventListener
@@ -15,12 +31,13 @@ class SDLInteractiveConsole : public InteractiveConsole, private EventListener
 	public:
 		SDLInteractiveConsole();
 		virtual ~SDLInteractiveConsole();
+		virtual bool loadBackground(const std::string &filename) = 0;
 
 	protected:
 		bool isVisible;
 		std::string fontName;
 		std::string backgroundName;
-		const FileContext* context;
+		FileContext* context;
 
 	private:
 		virtual bool signalEvent(SDL_Event &event, const EmuTime &time);

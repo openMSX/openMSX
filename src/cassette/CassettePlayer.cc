@@ -75,11 +75,11 @@ CassettePlayer::~CassettePlayer()
 	removeTape();	// free memory
 }
 
-void CassettePlayer::insertTape(const FileContext *context,
+void CassettePlayer::insertTape(FileContext *context,
                                 const std::string &filename)
 {
 	// TODO throw exceptions instead of PRT_ERROR
-	File file(context, filename);
+	File file(context->resolve(filename));
 	const char* name = file.getLocalName().c_str();
 	if (audioLength != 0)
 		removeTape();

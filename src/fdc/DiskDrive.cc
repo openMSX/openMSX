@@ -222,7 +222,7 @@ bool RealDrive::headLoaded(const EmuTime &time)
 	       (headLoadTime.getTicksTill(time) > 10);
 }
 
-void RealDrive::insertDisk(const FileContext *context,
+void RealDrive::insertDisk(FileContext *context,
                            const std::string &diskImage)
 {
 	FDCBackEnd* tmp;

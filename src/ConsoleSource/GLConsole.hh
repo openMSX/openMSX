@@ -28,17 +28,19 @@ class GLConsole : public SDLInteractiveConsole
 		virtual ~GLConsole();
 
 		virtual void drawConsole();
+		virtual bool loadBackground(const std::string &filename);
 
 	private:
 		int powerOfTwo(int a);
-		GLuint loadTexture(const std::string &filename,
-		                   int &width, int &height, GLfloat *texCoord);
+		bool loadTexture(const std::string &filename, GLuint &texture,
+		                 int &width, int &height, GLfloat *texCoord);
 
 		static const int BLINK_RATE = 500;
 		static const int CHAR_BORDER = 4;
 
 		GLFont *font;
 		GLuint backgroundTexture;
+		BackgroundSetting* backgroundSetting;
 		GLfloat backTexCoord[4];
 		int consoleWidth;
 		int consoleHeight;

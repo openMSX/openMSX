@@ -12,11 +12,13 @@ class FileContext
 {
 	public:
 		virtual ~FileContext();
-		virtual const std::list<std::string> &getPathList() const;
-		virtual const std::string &getSavePath() const;
+		const std::string resolve(const std::string &filename);
 		
 	protected:
-		mutable std::list<std::string> paths;
+		virtual const std::list<std::string> &getPaths() = 0;
+		const std::string resolve(
+			const std::list<std::string> &pathList,
+        		const std::string &filename);
 };
 
 class ConfigFileContext : public FileContext
@@ -25,10 +27,14 @@ class ConfigFileContext : public FileContext
 		ConfigFileContext(const std::string &path,
                                   const std::string &hwDescr,
                                   const std::string &userName);
-		virtual const std::string &getSavePath() const;
+		const std::string resolveSave(const std::string &filename);
+		
+	protected:
+		virtual const std::list<std::string> &getPaths();
 	
 	private:
-		std::string savePath;
+		std::list<std::string> paths;
+		std::list<std::string> savePaths;
 		static std::map<std::string, int> nonames;
 };
 
@@ -36,13 +42,24 @@ class SystemFileContext : public FileContext
 {
 	public:
 		SystemFileContext();
+	
+	protected:
+		virtual const std::list<std::string> &getPaths();
+
+	private:
+		std::list<std::string> paths;
 };
 
 class UserFileContext : public FileContext
 {
 	public:
 		UserFileContext();
-		virtual const std::list<std::string> &getPathList() const;
+
+	protected:
+		virtual const std::list<std::string> &getPaths();
+	
+	private:
+		std::list<std::string> paths;
 };
 
 #endif

@@ -3,41 +3,9 @@
 #include "File.hh"
 #include "FileBase.hh"
 #include "LocalFile.hh"
-#include "FileContext.hh"
 
 
-File::File(const FileContext *context, const std::string &url, OpenMode mode)
-{
-	if (url.find("://") != std::string::npos) {
-		// protocol specified, don't use SearchPath
-		open(url, mode);
-	} else {
-		std::list<std::string> pathList;
-		if ((mode == LOAD_PERSISTENT) || (mode == SAVE_PERSISTENT)) {
-			pathList.push_back(context->getSavePath());
-		} else {
-			pathList = context->getPathList();
-		}
-		std::list<std::string>::const_iterator it;
-		for (it = pathList.begin(); it != pathList.end(); it++) {
-			try {
-				open(*it + url, mode);
-				return;
-			} catch (FileException &e) {
-				// try next
-			}
-		}
-		throw FileException("Error opening file " + url);
-	}
-}
-
-File::~File()
-{
-	delete file;
-}
-
-
-void File::open(const std::string &url, OpenMode mode)
+File::File(const std::string &url, OpenMode mode)
 {
 	std::string protocol, name;
 	unsigned int pos = url.find("://");
@@ -57,6 +25,12 @@ void File::open(const std::string &url, OpenMode mode)
 		PRT_ERROR("Unsupported protocol: " << protocol);
 	}
 }
+
+File::~File()
+{
+	delete file;
+}
+
 
 void File::read(byte* buffer, int num)
 {

@@ -46,13 +46,13 @@ class Config
 			static uint64 stringToUint64(const std::string &str);
 		};
 
-		Config(XML::Element *element, const FileContext* context);
+		Config(XML::Element *element, FileContext* context);
 		virtual ~Config();
 
 		const std::string &getType() const;
 		const std::string &getId() const;
 
-		const FileContext* getContext() const;
+		FileContext* getContext() const;
 
 		bool hasParameter(const std::string &name) const;
 		const std::string &getParameter(const std::string &name) const;
@@ -77,7 +77,7 @@ class Config
 	private:
 		XML::Element* getParameterElement(const std::string &name) const;
 		
-		const FileContext* context;
+		FileContext* context;
 };
 
 class Device: virtual public Config
@@ -102,7 +102,7 @@ class Device: virtual public Config
 			int page;
 		};
 
-		Device(XML::Element *element, const FileContext *context);
+		Device(XML::Element *element, FileContext *context);
 		virtual ~Device();
 
 		std::list <Slotted*> slotted;
@@ -116,9 +116,9 @@ class MSXConfig
 		 * load a config file's content, and add it to
 		 *  the config data [can be called multiple times]
 		 */
-		void loadFile(const FileContext *context,
+		void loadFile(FileContext *context,
 		              const std::string &filename);
-		void loadStream(const FileContext *context,
+		void loadStream(FileContext *context,
 		                const std::ostringstream &stream);
 
 		/**
@@ -150,7 +150,7 @@ class MSXConfig
 		MSXConfig();
 
 		bool hasConfigWithId(const std::string &id);
-		void handleDoc(XML::Document* doc, const FileContext *context);
+		void handleDoc(XML::Document* doc, FileContext *context);
 
 		std::list<XML::Document*> docs;
 		std::list<Config*> configs;

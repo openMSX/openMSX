@@ -11,13 +11,15 @@
 #define __FDC_XSA_HH__
 
 #include "FDCBackEnd.hh"
-#include "File.hh"
+
+class File;
+class FileContext;
 
 
 class FDC_XSA : public FDCBackEnd
 {
 	public:
-		FDC_XSA(const FileContext *context,
+		FDC_XSA(FileContext *context,
 		        const std::string &fileName);
 		virtual ~FDC_XSA();
 		virtual void read(byte track, byte sector,

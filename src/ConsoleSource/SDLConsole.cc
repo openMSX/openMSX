@@ -36,7 +36,7 @@ SDLConsole::SDLConsole(SDL_Surface *screen)
 	inputBackground = NULL;
 	consoleAlpha = SDL_ALPHA_OPAQUE;
 	
-	File file(context, fontName);
+	File file(context->resolve(fontName));
 	font = new SDLFont(&file);
 	
 	SDL_Rect rect;
@@ -46,14 +46,17 @@ SDLConsole::SDLConsole(SDL_Surface *screen)
 	rect.h = (screen->h / 15) * 6;
 	resize(rect);
 	
-	loadBackground();
+	backgroundSetting = new BackgroundSetting(this, backgroundName);
 	
 	alpha(180);
 }
 
 SDLConsole::~SDLConsole()
 {
-	PRT_DEBUG("Destroying SDLConsole");
+	if (backgroundImage) {
+		SDL_FreeSurface(backgroundImage);
+	}
+	delete backgroundSetting;
 	delete font;
 }
 
@@ -124,7 +127,7 @@ void SDLConsole::drawCursor()
 			rect.w = font->getWidth();
 			rect.h = font->getHeight();
 			SDL_FillRect(consoleSurface, &rect, 
-				     SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
+			     SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
 			if (backgroundImage) {
 				// draw the background image if applicable
 				SDL_Rect rect2;
@@ -145,29 +148,33 @@ void SDLConsole::alpha(unsigned char newAlpha)
 {
 	// store alpha as state!
 	consoleAlpha = newAlpha;
-	if (consoleAlpha == 0)
+	if (consoleAlpha == 0) {
 		SDL_SetAlpha(consoleSurface, 0,            consoleAlpha);
-	else
+	} else {
 		SDL_SetAlpha(consoleSurface, SDL_SRCALPHA, consoleAlpha);
+	}
 	updateConsole();
 }
 
-// Adds  background image to the console
-//  x and y are based on console x and y
-void SDLConsole::loadBackground()
+// Adds background image to the console
+bool SDLConsole::loadBackground(const std::string &filename)
 {
-	if (!backgroundName.empty()) {
-		File file(context, backgroundName);
-		
-		SDL_Surface *temp;
-		if (!(temp = IMG_Load(file.getLocalName().c_str())))
-			return;
-		if (backgroundImage)
-			SDL_FreeSurface(backgroundImage);
-		backgroundImage = SDL_DisplayFormat(temp);
-		SDL_FreeSurface(temp);
-		reloadBackground();
+	if (filename.empty()) {
+		return false;
 	}
+	File file(filename);
+	SDL_Surface *temp = IMG_Load(file.getLocalName().c_str());
+	if (temp == NULL) {
+		return false;
+	}
+	if (backgroundImage) {
+		SDL_FreeSurface(backgroundImage);
+	}
+	backgroundImage = SDL_DisplayFormat(temp);
+	SDL_FreeSurface(temp);
+	reloadBackground();
+
+	return true;
 }
 
 // resizes the console, has to reset alot of stuff

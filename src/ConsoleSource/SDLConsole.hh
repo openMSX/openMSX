@@ -18,6 +18,7 @@ class SDLConsole : public SDLInteractiveConsole
 		virtual ~SDLConsole();
 
 		virtual void drawConsole();
+		virtual bool loadBackground(const std::string &filename);
 
 	private:
 		virtual void updateConsole();
@@ -61,6 +62,9 @@ class SDLConsole : public SDLInteractiveConsole
 
 		// Last time the consoles cursor blinked 
 		Uint32 lastBlinkTime;
+	
+		// 
+		BackgroundSetting* backgroundSetting;
 };
 
 #endif

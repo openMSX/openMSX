@@ -30,7 +30,7 @@ class CassettePlayer : public CassetteDevice, private Command
 		CassettePlayer();
 		virtual ~CassettePlayer();
 		
-		void insertTape(const FileContext *context,
+		void insertTape(FileContext *context,
 		                const std::string &filename);
 		void removeTape();
 		

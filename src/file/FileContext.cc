@@ -1,6 +1,10 @@
 // $Id$
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "FileContext.hh"
+#include "FileOperations.hh"
 #include "MSXConfig.hh"
 
 
@@ -10,17 +14,32 @@ FileContext::~FileContext()
 {
 }
 
-const std::list<std::string> &FileContext::getPathList() const
+const std::string FileContext::resolve(const std::string &filename)
 {
-	return paths;
+	return resolve(getPaths(), filename);
 }
 
-const std::string &FileContext::getSavePath() const
+const std::string FileContext::resolve(const std::list<std::string> &pathList,
+                                       const std::string &filename)
 {
-	// we should only save from a system file context
-	assert(false);
-	static std::string dummy;
-	return dummy;
+	if ((filename.find("://") != std::string::npos) ||
+	    (filename[0] == '/')) {
+		// protocol specified or absolute path, don't resolve
+		return filename;
+	}
+	
+	std::list<std::string>::const_iterator it;
+	for (it = pathList.begin(); it != pathList.end(); it++) {
+		std::string name = FileOperations::expandTilde(*it + filename);
+		PRT_DEBUG("Context: "<<name);
+		struct stat buf;
+		if (!stat(name.c_str(), &buf)) {
+			// no error
+			return name;
+		}
+	}
+	// not found in any path
+	return filename;
 }
 
 
@@ -41,12 +60,19 @@ ConfigFileContext::ConfigFileContext(const std::string &path,
 		snprintf(buf, 20, "untitled%d", num);
 		userName = buf;
 	}
-	savePath = "~/.openMSX/persistent/" + hwDescr + '/' + userName + '/';
+	std::string savePath = "~/.openMSX/persistent/" + hwDescr +
+	                       '/' + userName + '/';
+	savePaths.push_back(savePath);
 }
 
-const std::string &ConfigFileContext::getSavePath() const
+const std::string ConfigFileContext::resolveSave(const std::string &filename)
 {
-	return savePath;
+	return resolve(savePaths, filename);
+}
+
+const std::list<std::string> &ConfigFileContext::getPaths()
+{
+	return paths;
 }
 
 
@@ -58,6 +84,11 @@ SystemFileContext::SystemFileContext()
 	paths.push_back("/opt/openMSX/");	// system directory
 }
 
+const std::list<std::string> &SystemFileContext::getPaths()
+{
+	return paths;
+}
+
 
 // class UserFileContext
 
@@ -65,7 +96,7 @@ UserFileContext::UserFileContext()
 {
 }
 
-const std::list<std::string> &UserFileContext::getPathList() const
+const std::list<std::string> &UserFileContext::getPaths()
 {
 	static bool alreadyInit = false;
 	static bool hasUserContext; // debug

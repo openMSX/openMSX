@@ -15,7 +15,7 @@ extern "C" long long atoll(const char *nptr);
 
 // class Config
 
-Config::Config(XML::Element *element_, const FileContext* context_)
+Config::Config(XML::Element *element_, FileContext* context_)
 	: element(element_), context(context_)
 {
 }
@@ -35,7 +35,7 @@ const std::string &Config::getId() const
 	return element->getAttribute("id");
 }
 
-const FileContext* Config::getContext() const
+FileContext* Config::getContext() const
 {
 	return context;
 }
@@ -160,7 +160,7 @@ const uint64 Config::Parameter::getAsUint64() const
 
 // class Device
 
-Device::Device(XML::Element *element_, const FileContext *context_)
+Device::Device(XML::Element *element_, FileContext *context_)
 	: Config(element_, context_)
 {
 	// TODO: create slotted-eds ???
@@ -261,10 +261,10 @@ MSXConfig* MSXConfig::instance()
 	return &oneInstance;
 }
 
-void MSXConfig::loadFile(const FileContext *context,
+void MSXConfig::loadFile(FileContext *context,
                          const std::string &filename)
 {
-	File file(context, filename);
+	File file(context->resolve(filename));
 	delete context;
 	XML::Document* doc = new XML::Document(file.getLocalName());
 
@@ -292,14 +292,14 @@ void MSXConfig::loadFile(const FileContext *context,
 	handleDoc(doc, context2);
 }
 
-void MSXConfig::loadStream(const FileContext *context,
+void MSXConfig::loadStream(FileContext *context,
                            const std::ostringstream &stream)
 {
 	XML::Document* doc = new XML::Document(stream);
 	handleDoc(doc, context);
 }
 
-void MSXConfig::handleDoc(XML::Document* doc, const FileContext *context)
+void MSXConfig::handleDoc(XML::Document* doc, FileContext *context)
 {
 	docs.push_back(doc);
 	// TODO update/append Devices/Configs

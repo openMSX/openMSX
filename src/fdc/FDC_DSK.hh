@@ -4,7 +4,10 @@
 #define __FDC_DSK__HH__
 
 #include "FDCBackEnd.hh"
-#include "File.hh"
+
+class File;
+class FileContext;
+
 
 const int SECTOR_SIZE = 512;
 const int RAWTRACK_SIZE = 6850;
@@ -12,7 +15,7 @@ const int RAWTRACK_SIZE = 6850;
 class FDC_DSK : public FDCBackEnd
 {
 	public: 
-		FDC_DSK(const FileContext *context,
+		FDC_DSK(FileContext *context,
 		        const std::string &fileName);
 		virtual ~FDC_DSK();
 		virtual void read(byte track, byte sector,

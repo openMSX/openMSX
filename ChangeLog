@@ -1,5 +1,11 @@
 $Id$
 
+2003-02-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Reworked File / FileContext classes:
+	   - separated "searchpath-resolution" from file opening
+	* Implemented "console_background" setting:
+	   - change the console background at run-time
+
 2003-02-16 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed a bug in the VDP, where display-on was reported before the sync
 	  with VDP subsystems was completed. Can cause the command engine to

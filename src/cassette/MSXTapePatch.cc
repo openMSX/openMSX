@@ -120,13 +120,13 @@ void MSXTapePatch::patch(CPU::CPURegs& R)
 	}
 }
 
-void MSXTapePatch::insertTape(const FileContext *context,
+void MSXTapePatch::insertTape(FileContext *context,
                               const std::string &filename)
 {
 	ejectTape();
 	PRT_DEBUG("Loading file " << filename << " as tape ...");
 	try {
-		file = new File(context, filename);
+		file = new File(context->resolve(filename));
 	} catch (FileException &e) {
 		PRT_DEBUG("Loading file failed");
 		file = NULL;

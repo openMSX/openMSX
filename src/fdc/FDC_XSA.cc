@@ -1,6 +1,8 @@
 // $Id$
 
 #include "FDC_XSA.hh"
+#include "File.hh"
+#include "FileContext.hh"
 
 
 const int FDC_XSA::cpdext[TBLSIZE] = {
@@ -8,9 +10,9 @@ const int FDC_XSA::cpdext[TBLSIZE] = {
 };
 
 
-FDC_XSA::FDC_XSA(const FileContext *context, const std::string &fileName)
+FDC_XSA::FDC_XSA(FileContext *context, const std::string &fileName)
 {
-	File *file = new File(context, fileName);
+	File *file = new File(context->resolve(fileName));
 	if (!isXSAImage(file)) {
 		throw MSXException("Not an XSA image");
 	}

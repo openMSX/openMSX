@@ -56,12 +56,8 @@ public:
 	virtual void tabCompletion(std::vector<std::string> &tokens) const {}
 
 protected:
-	/** Create a new Setting.
-	  */
 	Setting(const std::string &name, const std::string &description);
 
-	/** Destructor.
-	  */
 	virtual ~Setting();
 
 	/** A description of the type of this setting's value that can be
@@ -85,8 +81,6 @@ private:
 class BooleanSetting : public Setting
 {
 public:
-	/** Create a new BooleanSetting.
-	  */
 	BooleanSetting(
 		const std::string &name, const std::string &description,
 		bool initialValue = false);
@@ -105,7 +99,15 @@ public:
 	virtual void setValueString(const std::string &valueString);
 	virtual void tabCompletion(std::vector<std::string> &tokens) const;
 
-private:
+protected:
+	/**
+	 * Called just before this setting is assigned a new value
+	 * @param newValue The new value, the variable value still
+	 *                 contains the old value
+	 * @return Only when the result is true the new value is assigned
+	 */
+	virtual bool checkUpdate(bool newValue) { return true; }
+
 	bool value;
 };
 
@@ -115,8 +117,6 @@ private:
 class IntegerSetting: public Setting
 {
 public:
-	/** Create a new IntegerSetting.
-	  */
 	IntegerSetting(
 		const std::string &name, const std::string &description,
 		int initialValue, int minValue, int maxValue);
@@ -129,7 +129,15 @@ public:
 	virtual std::string getValueString() const;
 	virtual void setValueString(const std::string &valueString);
 
-private:
+protected:
+	/**
+	 * Called just before this setting is assigned a new value
+	 * @param newValue The new value, the variable value still
+	 *                 contains the old value
+	 * @return Only when the result is true the new value is assigned
+	 */
+	virtual bool checkUpdate(int newValue) { return true; }
+
 	int value;
 	int minValue;
 	int maxValue;
@@ -142,8 +150,6 @@ template <class T>
 class EnumSetting : public Setting
 {
 public:
-	/** Create a new EnumSetting.
-	  */
 	EnumSetting(
 		const std::string &name, const std::string &description,
 		const T &initialValue,
@@ -158,10 +164,60 @@ public:
 	virtual void setValueString(const std::string &valueString);
 	virtual void tabCompletion(std::vector<std::string> &tokens) const;
 
-private:
+protected:
+	/**
+	 * Called just before this setting is assigned a new value
+	 * @param newValue The new value, the variable value still
+	 *                 contains the old value
+	 * @return Only when the result is true the new value is assigned
+	 */
+	virtual bool checkUpdate(T newValue) { return true; }
+
 	T value;
-	typedef typename std::map<const std::string, T>::const_iterator MapIterator;
+	typedef typename
+	        std::map<const std::string, T>::const_iterator MapIterator;
 	const std::map<const std::string, T> map;
+};
+
+
+/** A Setting with a string value.
+  */
+class StringSetting : public Setting
+{
+public:
+	StringSetting(const std::string &name, const std::string &description,
+	              const std::string &initialValue);
+
+	// Implementation of Setting interface:
+	virtual std::string getValueString() const;
+	virtual void setValueString(const std::string &valueString);
+
+protected:
+	/**
+	 * Called just before this setting is assigned a new value
+	 * @param newValue The new value, the variable value still
+	 *                 contains the old value
+	 * @return Only when the result is true the new value is assigned
+	 */
+	virtual bool checkUpdate(const std::string &newValue) { return true; }
+
+	std::string value;
+};
+
+
+class File;
+class FileContext;
+
+/** A Setting with a filename value.
+  */
+class FilenameSetting : public StringSetting
+{
+public:
+	FilenameSetting(const std::string &name,
+	                const std::string &description);
+
+	// Implementation of Setting interface:
+	virtual void tabCompletion(std::vector<std::string> &tokens) const;
 };
 
 

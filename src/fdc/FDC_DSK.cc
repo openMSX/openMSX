@@ -1,12 +1,13 @@
 // $Id$
 
 #include "FDC_DSK.hh"
+#include "File.hh"
+#include "FileContext.hh"
 
 
-
-FDC_DSK::FDC_DSK(const FileContext *context, const std::string &fileName)
+FDC_DSK::FDC_DSK(FileContext *context, const std::string &fileName)
 {
-	file = new File(context, fileName);
+	file = new File(context->resolve(fileName));
 	nbSectors = file->getSize() / SECTOR_SIZE;
 	writeTrackBuf = new byte[SECTOR_SIZE];
 	readTrackDataBuf = new byte[RAWTRACK_SIZE];
