@@ -15,7 +15,7 @@ template class BitmapConverter<word, Renderer::ZOOM_REAL>;
 template class BitmapConverter<unsigned int, Renderer::ZOOM_256>;
 template class BitmapConverter<unsigned int, Renderer::ZOOM_REAL>;
 
-#ifdef __OPENGL_AVAILABLE__
+#ifdef COMPONENT_GL
 // On some systems, "GLuint" is not equivalent to "unsigned int",
 // so BitmapConverter must be instantiated separately for those systems.
 // But on systems where it is equivalent, it's an error to expand
@@ -35,7 +35,7 @@ template <> class ExpandFilter<unsigned int> {
 template <Renderer::Zoom zoom> class BitmapConverter<NoExpansion, zoom> {};
 template class BitmapConverter<
 	ExpandFilter<GLuint>::ExpandType, Renderer::ZOOM_REAL >;
-#endif // __OPENGL_AVAILABLE__
+#endif // COMPONENT_GL
 
 
 template <class Pixel, Renderer::Zoom zoom>

@@ -4,8 +4,8 @@
 #define __RENDERERFACTORY_HH__
 
 #include "EnumSetting.hh"
-#include "GLUtil.hh" // for __OPENGL_AVAILABLE__
-#include "probed_defs.hh" // for HAVE_X11
+#include "components.hh"
+#include "probed_defs.hh" // for HAVE_X11 (should be component instead?)
 #include <SDL.h>
 #include <string>
 
@@ -131,7 +131,7 @@ public:
 	Renderer* create(VDP* vdp);
 };
 
-#ifdef __OPENGL_AVAILABLE__
+#ifdef COMPONENT_GL
 
 /** RendererFactory for SDLGLRenderer.
   */
@@ -152,7 +152,7 @@ public:
 	Renderer* create(VDP* vdp);
 };
 
-#endif // __OPENGL_AVAILABLE__
+#endif // COMPONENT_GL
 
 #ifdef HAVE_X11
 

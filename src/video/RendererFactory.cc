@@ -6,13 +6,16 @@
 #include "RenderSettings.hh"
 #include "DummyRenderer.hh"
 #include "SDLRenderer.hh"
-#include "SDLGLRenderer.hh"
 #include "XRenderer.hh"
 #include "CliCommOutput.hh"
 #include "CommandLineParser.hh"
 #include "Icon.hh"
 #include "InputEventGenerator.hh"
 #include "Version.hh"
+
+#ifdef COMPONENT_GL
+#include "SDLGLRenderer.hh"
+#endif
 
 
 namespace openmsx {
@@ -49,7 +52,7 @@ RendererFactory *RendererFactory::getCurrent()
 		return new SDLHiRendererFactory();
 	case SDLLO:
 		return new SDLLoRendererFactory();
-#ifdef __OPENGL_AVAILABLE__
+#ifdef COMPONENT_GL
 	case SDLGL:
 		return new SDLGLRendererFactory();
 #endif
@@ -78,7 +81,7 @@ RendererFactory::RendererSetting* RendererFactory::createRendererSetting(
 	rendererMap["none"] = DUMMY; // TODO: only register when in CliComm mode
 	rendererMap["SDLHi"] = SDLHI;
 	rendererMap["SDLLo"] = SDLLO;
-#ifdef __OPENGL_AVAILABLE__
+#ifdef COMPONENT_GL
 	rendererMap["SDLGL"] = SDLGL;
 #endif
 #ifdef HAVE_X11
@@ -231,7 +234,7 @@ Renderer *SDLLoRendererFactory::create(VDP *vdp)
 
 // SDLGL ===================================================================
 
-#ifdef __OPENGL_AVAILABLE__
+#ifdef COMPONENT_GL
 
 bool SDLGLRendererFactory::isAvailable()
 {
@@ -274,7 +277,7 @@ Renderer *SDLGLRendererFactory::create(VDP *vdp)
 	return new SDLGLRenderer(SDLGL, vdp, screen);
 }
 
-#endif // __OPENGL_AVAILABLE__
+#endif // COMPONENT_GL
 
 
 #ifdef HAVE_X11
