@@ -9,6 +9,7 @@
 #include "LedEvent.hh"
 #include "CliConnection.hh"
 #include "Socket.hh"
+#include "StringOp.hh"
 #include <map>
 #include <iostream>
 #include <cassert>
@@ -188,6 +189,23 @@ void CliComm::ServerSocket::run()
 	}
 }
 
+static int openPort(SOCKET listenSock, int min, int max)
+{
+	for (int port = min; port < max; ++port) {
+		sockaddr_in server_address;
+		memset((char*)&server_address, 0, sizeof(server_address));
+		server_address.sin_family = AF_INET;
+		server_address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+		server_address.sin_port = htons(port);
+		if (bind(listenSock, (sockaddr*)&server_address,
+		         sizeof(server_address))
+		    != SOCKET_ERROR) {
+			return port;
+		}
+	}
+	return -1;
+}
+
 void CliComm::ServerSocket::mainLoop()
 {
 	// setup listening socket
@@ -197,16 +215,15 @@ void CliComm::ServerSocket::mainLoop()
 	}
 	sock_reuseAddr(listenSock);
 
-	sockaddr_in server_address;
-	memset((char*)&server_address, 0, sizeof(server_address));
-	server_address.sin_family = AF_INET;
-	server_address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-	server_address.sin_port = htons(9938); // TODO port number
-	if (bind(listenSock, (sockaddr*)&server_address,
-	         sizeof(server_address)) == SOCKET_ERROR) {
+	int port = openPort(listenSock, 9938, 9958);
+	if (port == -1) {
+		CliComm::instance().printWarning("Couldn't open socket.");
 		sock_close(listenSock);
-		throw FatalError(sock_error());
+		return;
 	}
+	CliComm::instance().printInfo(
+		"Listening on port " + StringOp::toString(port) +
+		" for incomming (local) connections.");
 	listen(listenSock, SOMAXCONN);
 
 	// main loop
