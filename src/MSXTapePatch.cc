@@ -5,6 +5,7 @@
 #include "MSXConfig.hh"
 #include "CPU.hh"
 #include "MSXCPU.hh"
+#include "Console.hh"
 
 
 const byte MSXTapePatch::TapeHeader[];
@@ -24,6 +25,8 @@ MSXTapePatch::MSXTapePatch()
 	std::string filename;
 	file=0;
 
+	Console::instance()->registerCommand(this, "tape");
+
 	try {
 		MSXConfig::Config *config =
 			MSXConfig::Backend::instance()->getConfigById(name);
@@ -36,6 +39,7 @@ MSXTapePatch::MSXTapePatch()
 
 MSXTapePatch::~MSXTapePatch()
 {
+  if (file) file->close();
 }
 
 void MSXTapePatch::patch() const
@@ -76,14 +80,23 @@ void MSXTapePatch::patch() const
 			PRT_DEBUG("Tape patch (R.PC.w-2)"<<(R.PC.w-2));
 	}
 }
+
 void MSXTapePatch::insertTape(std::string filename)
 {
+	if (file) file->close();
 	PRT_DEBUG("Loading file " << filename << " as tape ...");
 	// file = new FILETYPE(filename.c_str(), std::ios::in|std::ios::out);
 	file = FileOpener::openFilePreferRW(filename);
 	if (!file) {
 		PRT_DEBUG("Loading file failed");
 	}
+}
+
+void MSXTapePatch::ejectTape()
+{
+	PRT_DEBUG("Ejecting tape from virtual tapedeck...");
+	file->close();
+	file=0;
 }
 
 void MSXTapePatch::TAPION(CPU::CPURegs& R) const
@@ -339,4 +352,27 @@ void MSXTapePatch::STMOTR(CPU::CPURegs& R) const
 	 */
 	PRT_DEBUG("STMOTR");
 	R.AF.B.l &= ~CPU::C_FLAG;
+}
+
+void MSXTapePatch::ConsoleCallback(char *string)
+{
+  if (0 == strcmp(string,"tape eject")){
+    Console::instance()->printOnConsole("Tape ejected");
+    ejectTape();
+  } else {
+    char tapefile[250];
+    /* Get the tapefile out of the string */
+    if (EOF != sscanf(string, "tape %s", tapefile)) {
+      Console::instance()->printOnConsole("Changing tape");
+      insertTape(std::string(tapefile));
+    }
+  }
+}
+
+void MSXTapePatch::ConsoleHelp(char *string)
+{
+  //no for the moment
+  //if (0 == strncmp(string,"tape",4))
+  Console::instance()->printOnConsole("tape eject      : remove tape from virtual player");
+  Console::instance()->printOnConsole("tape <filename> : change the tape file");
 }

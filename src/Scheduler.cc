@@ -193,14 +193,17 @@ void Scheduler::signalHotKey(SDLKey key) {
 void Scheduler::ConsoleCallback(char *string)
 {
   if (0 == strncmp(string,"quit",4)){
-    Console::instance()->printOnConsole("Quit command temporarly disabled");
+    //Console::instance()->printOnConsole("Quit command temporarly disabled");
+    stopScheduling();
+    unpause();
   } else {
-    Console::instance()->printOnConsole("Pause command temporarly disabled");
+    //Console::instance()->printOnConsole("Pause command temporarly disabled");
+    if (!paused) {
+      pause();
+    } else {
+      unpause();
+    }
   }
-  /* only quit is registered :-)
-  stopScheduling();
-  unpause();
-  */
 }
 
 void Scheduler::ConsoleHelp(char *string)
@@ -209,6 +212,6 @@ void Scheduler::ConsoleHelp(char *string)
   if (0 == strncmp(string,"quit",4)){
     Console::instance()->printOnConsole("Use this command to stop the emulator");
   } else {
-    Console::instance()->printOnConsole("Unexpected behaviour");
+    Console::instance()->printOnConsole("Use this command to pause/unpause the emulator");
   }
 }

@@ -7,24 +7,26 @@
 #include <string>
 #include "openmsx.hh"
 #include "MSXRomPatchInterface.hh"
+#include "ConsoleInterface.hh"
 #include "config.h"
 #include "CPU.hh"
 #include "FileOpener.hh"
 
-class MSXTapePatch: public MSXRomPatchInterface
+class MSXTapePatch: public MSXRomPatchInterface, private ConsoleInterface
 {
 	public:
 		MSXTapePatch();
 		virtual ~MSXTapePatch();
 
 		virtual void patch() const;
-	
+
 	private:
 		// TApeHeader used to be fMSX compatible
 		static const byte TapeHeader[] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
 		IOFILETYPE* file;
 
 		void insertTape(std::string filename);
+		void ejectTape();
 
 		// 0x00E1 Tape input ON
 		void TAPION(CPU::CPURegs& R) const;
@@ -46,6 +48,10 @@ class MSXTapePatch: public MSXRomPatchInterface
 
 		// 0x00F3 Turn motor ON/OFF
 		void STMOTR(CPU::CPURegs& R) const;
+
+		// from the ConsoleInterface
+		void ConsoleCallback(char *string);
+		void ConsoleHelp(char *string);
 
 };
 

@@ -20,6 +20,33 @@
 static CommandInfo	*Commands = NULL;
 
 
+/* executes the help command passed in from the string */
+void CON_CommandHelp(ConsoleInformation *console)
+{
+	char		Command[CON_CHARS_PER_LINE];
+	char		*BackStrings = console->ConsoleLines[0];
+	CommandInfo	*CurrentCommand = Commands;
+
+	
+	/* Get the command out of the string */
+	if(EOF == sscanf(BackStrings, "%s", Command))
+		return;
+
+	CON_NewLineConsole(console);
+	
+	CurrentCommand = Commands;
+	while(CurrentCommand)
+	{
+		if(0 == strcmp(Command, CurrentCommand->CommandWord))
+		{
+				CurrentCommand->tocall->ConsoleHelp(BackStrings);
+				return;
+		}
+		CurrentCommand = CurrentCommand->NextCommand;
+	}
+	CON_Out(console, "No help for Command");
+}
+
 /* executes the command passed in from the string */
 void CON_CommandExecute(ConsoleInformation *console)
 {
@@ -40,6 +67,7 @@ void CON_CommandExecute(ConsoleInformation *console)
 		if(0 == strcmp(Command, CurrentCommand->CommandWord))
 		{
 				CurrentCommand->tocall->ConsoleCallback(BackStrings);
+				return;
 		}
 		CurrentCommand = CurrentCommand->NextCommand;
 	}
@@ -78,19 +106,27 @@ void CON_TabCompletion(ConsoleInformation *console)
 	CommandInfo	*CurrentCommand;
 	CommandInfo	*MatchingCommand;
 	int		commandlength;
+	int		spacefound = 0;
 	
 	// need to check only up until the first space otherwise 
 	// the user is typing options, which will need an extra routine :-)
 	// if there is a space then the command must be already completed
-	for (int i=0;strlen(CommandLine)<=i;i++){
-		if (CommandLine[i] == ' ') return;
+	printf("%s \n", CommandLine );
+	for (int i=0;i<strlen(CommandLine);i++){
+		//printf("%i : %c %i \n", i, CommandLine[i], (int)CommandLine[i] );
+		if (CommandLine[i] == ' '){
+			spacefound=i;
+			break;
 		}
-	
+	};
+	printf("%s \n", CommandLine );
+
 	/* Find all the commands that match */
+	commandlength = spacefound ? spacefound : strlen(CommandLine);
 	CurrentCommand = Commands;
 	while(CurrentCommand)
 	{
-		if(0 == strncmp(CommandLine, CurrentCommand->CommandWord, strlen(CommandLine))){
+		if(0 == strncmp(CommandLine, CurrentCommand->CommandWord, commandlength )){
 		  MatchingCommand=CurrentCommand;
 		  Matches++;
 		}
@@ -100,10 +136,16 @@ void CON_TabCompletion(ConsoleInformation *console)
 	/* if we got one match, we select it */
 	if(Matches == 1)
 	{
-		strcpy(CommandLine, MatchingCommand->CommandWord);
-		CommandLine[strlen(MatchingCommand->CommandWord)] = ' ';
-		*location = strlen(MatchingCommand->CommandWord)+1;
-		CON_UpdateConsole(console);
+		if ( spacefound ) {
+		  // print the help of this command
+		  CON_NewLineCommand(console);
+		  CON_CommandHelp(console);
+		} else {
+		  strcpy(CommandLine, MatchingCommand->CommandWord);
+		  CommandLine[strlen(MatchingCommand->CommandWord)] = ' ';
+		  *location = strlen(MatchingCommand->CommandWord)+1;
+		  CON_UpdateConsole(console);
+		}
 	}
 	else if(Matches > 1)/* multiple matches so print them out to the user */
 	{

@@ -1,5 +1,17 @@
 $Id$
 
+2002-01-30 David Heremans <david.heremans@gnu-linux.net>
+	* MSXTapePatch uses console:
+	  Now possible to change or eject tapes using the console
+
+2002-01-29 David Heremans <david.heremans@gnu-linux.net>
+	* Console enhancements:
+	  -calls CommandHelp when tabcomplition has 
+	  already found a complete command
+	* DiskPatch can now reports problems with disks during
+	  initialization:
+	  This should help Maarten if he has a 'black screen' :-)
+
 2002-01-28 Joost Yervante Damad <j.damad@qahwah.net>
 	* made libxmlx an 'utility' library, this implies that
 	  openmsx links this statically, which makes for easier
@@ -7,6 +19,11 @@ $Id$
 
 2002-01-27 Joost Yervante Damad <j.damad@qahwah.net>
 	* Made SDL console autotools enabled
+
+2002-01-26 David Heremans <david.heremans@gnu-linux.net>
+	* Console now usable:
+	  - registered as ansynchron event listener
+	  - Scheduler has now two commands registered
 
 2002-01-26 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Fixed double delivery of syncronous events

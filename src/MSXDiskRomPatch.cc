@@ -32,7 +32,7 @@ const byte MSXDiskRomPatch::bootSectorData[]={
 
 MSXDiskRomPatch::DiskImage::DiskImage(std::string fileName,std::string defaultSize)
 {
-	PRT_DEBUG("file = FileOpener::openFilePreferRW("<<fileName<<");");
+	//PRT_DEBUG("file = FileOpener::openFilePreferRW("<<fileName<<");");
 	file = FileOpener::openFilePreferRW(fileName);
 	if (!file->fail()){
 	    file->seekg(0,std::ios::end);
@@ -99,6 +99,7 @@ MSXDiskRomPatch::MSXDiskRomPatch()
 	//                0123456789ABCDE
 	std::string defaultsize;
 	std::string filename;
+	PRT_INFO("Attaching drives...");
 	for (int i=0; i<LAST_DRIVE; i++) {
 		disk[i] = NULL;
 		try {
@@ -107,7 +108,8 @@ MSXDiskRomPatch::MSXDiskRomPatch()
 			defaultsize = config->getParameter("defaultsize");
 			disk[i] = new DiskImage(filename,defaultsize);
 		} catch (MSXException& e) {
-			PRT_DEBUG("void MSXDiskRomPatch::MSXDiskRomPatch() disk exception for disk " << i << " patch: " << name << " filename: " << filename);
+			PRT_DEBUG("MSXException "<< e.desc);
+			PRT_INFO("Problems opening disk for drive "<<name[0xE] );
 			delete disk[i];
 			disk[i] = NULL;
 		}
@@ -143,7 +145,10 @@ void MSXDiskRomPatch::patch() const
 			DRVOFF(regs);
 			break;
 		default:
-			assert(false);
+			//assert(false);
+			//if left in this will break openMSX
+			// with both tape and disk patch
+			PRT_DEBUG("Patch not for diskrom");
 	}
 }
 
