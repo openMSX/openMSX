@@ -1,11 +1,11 @@
 // $Id$
 
 #include "Console.hh"
-#include "ConsoleRenderer.hh"
+#include "OSDConsoleRenderer.hh"
 #include "CommandController.hh"
 #include "EventDistributor.hh"
 #include "Keys.hh"
-
+#include "MSXConfig.hh"
 
 // class ConsoleSetting
 
@@ -18,6 +18,10 @@ Console::ConsoleSetting::ConsoleSetting(Console *console_)
 bool Console::ConsoleSetting::checkUpdate(bool newValue)
 {
 	console->updateConsole();
+	if (newValue)
+		SDL_EnableKeyRepeat (SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
+	else
+		SDL_EnableKeyRepeat (0,0);
 	return true;
 }
 
@@ -30,10 +34,11 @@ Console::Console()
 	: consoleSetting(this)
 {
 	SDL_EnableUNICODE(1);
-
+		
 	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this);
 
+	cursorPosition=2;
 	putPrompt();
 }
 
@@ -59,6 +64,15 @@ void Console::unregisterConsole(ConsoleRenderer *console)
 	renderers.remove(console);
 }
 
+int Console::setCursorPosition(int position)
+{
+	cursorPosition = position;
+	if ((unsigned)position > lines[0].length()) 
+		cursorPosition = lines[0].length();
+	if ((unsigned)position < PROMPT.length()) cursorPosition = (signed)PROMPT.length();
+	return cursorPosition;
+}
+	
 int Console::getScrollBack()
 {
 	return consoleScrollBack;
@@ -93,6 +107,7 @@ bool Console::signalEvent(SDL_Event &event, const EmuTime &time)
 		return false;	// don't pass event to MSX-Keyboard
 	
 	Keys::KeyCode key = (Keys::KeyCode)event.key.keysym.sym;
+	SDLMod modifier = event.key.keysym.mod;
 	switch (key) {
 		case Keys::K_PAGEUP:
 			scrollUp();
@@ -109,16 +124,55 @@ bool Console::signalEvent(SDL_Event &event, const EmuTime &time)
 		case Keys::K_BACKSPACE:
 			backspace();
 			break;
+		case Keys::K_DELETE:
+			delete_key();	// sorry delete is reserved
+			break;
 		case Keys::K_TAB:
 			tabCompletion();
 			break;
 		case Keys::K_RETURN:
 			commandExecute(time);
+			cursorPosition=2;
 			break;
-		default:
-			if (event.key.keysym.unicode) {
+		case Keys::K_LEFT:
+			if (cursorPosition > PROMPT.length()) cursorPosition--;
+			break;
+		case Keys::K_RIGHT:
+			if (cursorPosition<lines[0].length()) cursorPosition++;
+			break;
+		case Keys::K_HOME:
+			cursorPosition=PROMPT.length();
+			break;
+		case Keys::K_END:
+			cursorPosition=lines[0].length();
+			break;
+		case Keys::K_A:
+			switch(modifier)
+			{
+			case KMOD_LCTRL:
+			case KMOD_RCTRL:
+				cursorPosition=PROMPT.length();
+				break;
+			default:
 				normalKey((char)event.key.keysym.unicode);
-			}
+				break;				
+			}			
+			break;	
+		case Keys::K_E:
+			switch(modifier)
+			{
+			case KMOD_LCTRL:
+			case KMOD_RCTRL:
+				cursorPosition=lines[0].length();
+				break;
+			default:
+				normalKey((char)event.key.keysym.unicode);
+				break;				
+			}			
+			break;	
+		default:
+			normalKey((char)event.key.keysym.unicode);
+			
 	}
 	updateConsole();
 	return false;	// don't pass event to MSX-Keyboard
@@ -173,6 +227,7 @@ void Console::tabCompletion()
 	std::string string(lines[0].substr(PROMPT.length()));
 	CommandController::instance()->tabCompletion(string);
 	lines[0] = PROMPT + string;
+	cursorPosition=lines[0].length();
 }
 
 void Console::scrollUp()
@@ -194,6 +249,7 @@ void Console::prevCommand()
 		// the command to the current input string
 		commandScrollBack++;
 		lines[0] = history[commandScrollBack];
+		cursorPosition=lines[0].length();
 	}
 }
 
@@ -203,20 +259,46 @@ void Console::nextCommand()
 		// move forward a line in the command strings and copy
 		// the command to the current input string
 		commandScrollBack--;
-		lines[0] = history[commandScrollBack];
+		lines[0] = history[commandScrollBack];		
 	} else if (commandScrollBack == 0) {
 		commandScrollBack = -1;
 		lines[0] = PROMPT;
 	}
+	cursorPosition=lines[0].length();
 }
 
 void Console::backspace()
 {
-	if (lines[0].length() > (unsigned)PROMPT.length())
-		lines[0].erase(lines[0].length()-1);
+	if (cursorPosition > PROMPT.length())
+	{
+		std::string temp;
+		temp=lines[0].substr(cursorPosition);
+		lines[0].erase(cursorPosition-1);
+		lines[0] += temp;
+		cursorPosition--;
+	}
+}
+
+void Console::delete_key()
+{
+	if (lines[0].length() >cursorPosition)
+	{
+		std::string temp;
+		temp=lines[0].substr(cursorPosition+1);
+		lines[0].erase(cursorPosition);
+		lines[0] += temp;
+	}
 }
 
 void Console::normalKey(char chr)
 {
-	lines[0] += chr;
+	if (!chr) return;
+	std::string temp="";
+	temp+=chr;
+	
+	if (lines[0].length() < (unsigned)(consoleColumns-1)) // ignore extra characters
+	{
+		lines[0].insert(cursorPosition,temp);
+		cursorPosition++;
+	}
 }

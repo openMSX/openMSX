@@ -30,11 +30,13 @@ class Console : private EventListener
 		/** Remove a renderer for this console.
 		  */
 		void unregisterConsole(ConsoleRenderer *console);
-
 		int getScrollBack();
 		const std::string& getLine(int line);
 		bool isVisible();
-		
+		int getCursorPosition(){return cursorPosition;};
+		int setCursorPosition(int position);
+		void setConsoleColumns(int columns){consoleColumns=columns;};
+
 	private:
 		Console();
 		virtual ~Console();
@@ -48,13 +50,13 @@ class Console : private EventListener
 		void prevCommand();
 		void nextCommand();
 		void backspace();
+		void delete_key();
 		void normalKey(char chr);
-		
 		void putCommandHistory(const std::string &command);
 		void newLineConsole(const std::string &line);
 		void putPrompt();
 		void updateConsole();
-
+		
 		class ConsoleSetting : public BooleanSetting
 		{
 			public:
@@ -71,6 +73,8 @@ class Console : private EventListener
 		CircularBuffer<std::string, 25> history;
 		int consoleScrollBack;
 		int commandScrollBack;
+		unsigned int cursorPosition;
+		int consoleColumns;
 };
 
 #endif
