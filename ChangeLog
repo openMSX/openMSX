@@ -3,6 +3,11 @@ $Id$
 2005-03-04 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added Sony HB-F1II config and corrected HB-F1 config.
 
+2005-03-05 Maarten ter Huurne <maarten@treewalker.org>
+	* Added support for Checkmark FM Stereo PAK.
+	  The stereo effect is not yet emulated, but it works fine in mono.
+	  Thanks to Albert for the config XML.
+
 2005-03-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Also accept the enter key on the numerical pad in the console
 
