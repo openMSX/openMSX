@@ -1,11 +1,11 @@
 // $Id$
 
-/**
+/*
  *
  * Emulation of the AY-3-8910
  *
  * Code largly taken from xmame-0.37b16.1
- * 
+ *
  * Based on various code snippets by Ville Hallik, Michael Cuddy,
  * Tatsuyuki Satoh, Fabrice Frances, Nicola Salmoria.
  *

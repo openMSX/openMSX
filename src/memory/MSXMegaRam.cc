@@ -1,6 +1,6 @@
 // $Id$
 
-/**
+/*
  * Adriano Camargo Rodrigues da Cunha wrote:
  *
  *  Any address inside a 8k page can change the page.  In other

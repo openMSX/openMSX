@@ -1,4 +1,6 @@
-/**
+// $Id$
+
+/*
  *
  * File: ymf262.c - software implementation of YMF262
  *                  FM sound generator type OPL3
@@ -9,30 +11,30 @@
  *
  *
  * Revision History:
- * 
+ *
  * 03-03-2003: initial release
  *  - thanks to Olivier Galibert and Chris Hardy for YMF262 and YAC512 chips
  *  - thanks to Stiletto for the datasheets
- * 
- * 
- * 
+ *
+ *
+ *
  * differences between OPL2 and OPL3 not documented in Yamaha datahasheets:
  * - sinus table is a little different: the negative part is off by one...
- * 
+ *
  * - in order to enable selection of four different waveforms on OPL2
  *   one must set bit 5 in register 0x01(test).
  *   on OPL3 this bit is ignored and 4-waveform select works *always*.
  *   (Don't confuse this with OPL3's 8-waveform select.)
- * 
+ *
  * - Envelope Generator: all 15 x rates take zero time on OPL3
  *   (on OPL2 15 0 and 15 1 rates take some time while 15 2 and 15 3 rates
  *   take zero time)
- * 
+ *
  * - channel calculations: output of operator 1 is in perfect sync with
  *   output of operator 2 on OPL3; on OPL and OPL2 output of operator 1
  *   is always delayed by one sample compared to output of operator 2
- * 
- * 
+ *
+ *
  * differences between OPL2 and OPL3 shown in datasheets:
  * - YMF262 does not support CSM mode
  */

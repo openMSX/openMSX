@@ -1,10 +1,10 @@
 // $Id$
 
-/**
-  * Based on:
-  *    emu2413.c -- YM2413 emulator written by Mitsutaka Okazaki 2001
-  * heavily rewritten to fit openMSX structure
-  */
+/*
+ * Based on:
+ *    emu2413.c -- YM2413 emulator written by Mitsutaka Okazaki 2001
+ * heavily rewritten to fit openMSX structure
+ */
 
 #include <math.h>
 #include <cassert>
