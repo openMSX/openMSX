@@ -27,7 +27,7 @@ SDLConsole::SDLConsole(SDL_Surface *screen) :
 	consoleSurface  = NULL;
 	inputBackground = NULL;
 	consoleAlpha = SDL_ALPHA_OPAQUE;
-	// TODO check for error
+	// TODO read filename from config
 	font = new SDLFont(FileOpener::findFileName("ConsoleFont.bmp"));
 
 	SDL_Rect rect;

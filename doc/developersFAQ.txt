@@ -6,18 +6,36 @@ A: There are 4 kind of devices that you can add to openMSX
   * A combination of the 3 forms of above
 
 Q: How do I add a memmory mapped device?
-A: Inherrit from the class MSXMemDevice and implement the methods readMem and writeMem. Don't forget to use the getReadCacheLine and getWriteCacheLine if possible to gain a lot of performance.
+A: Inherrit from the class MSXMemDevice and implement the methods readMem
+   and writeMem. Don't forget to use the getReadCacheLine and getWriteCacheLine
+   if possible to gain a lot of performance.
 Example: MSXSimple64KB
 
-Q: I need a device with a ROM in it. This must be something verry common. Is there a simpler method?
-A: If it is to implement a rom you can inherit from MSXRom which has a method loadFile that will do all the needed filehandling to read a romfile into memmory. Also there is a Patch interface for Roms so that you can patch fi. bioscalls in the rom file to be redirected to your own bioshandler.
+Q: I need a device with a ROM in it. This must be something verry common. Is
+   there a simpler method?
+A: If it is to implement a rom you can inherit from MSXRom which has a
+   method loadFile that will do all the needed filehandling to read a romfile
+   into memmory. Also there is a Patch interface for Roms so that you can patch
+   eg bioscalls in the rom file to be redirected to your own bioshandler.
 Example: MSXRom16KB
 
 Q: How do I add an I/O port device?
-A: Inherrit from the class MSXIODevice, and register the needed in- and out-ports with MSXMotherBoard
+A: Inherrit from the class MSXIODevice, and register the needed in- and
+   out-ports with MSXMotherBoard
 Example: MSXE6Timer
 
 Q: How do I add a connector based device?
-A:
-Example: 
+A: If you want to make a brand new connector type, you must inherit specific
+   connector and pluggable types from the class Connector and Pluggable.
+Example: MSXPrinterPort
+A: If you just want to make a new device that plugs into an existing
+   connector (JoystickPort, PrinterPort, ...), you must inherit from the
+   specific Pluggable (JoystickDevice, PrinterPortDevice, ...)
+Example: PrinterPortLogger
 
+
+TODO
+Q: How can a device generate IRQs?
+Q: What is this EmuTime thing?
+Q: My device has to perform some action at a later time. Can my device be
+   notified when this time has come?

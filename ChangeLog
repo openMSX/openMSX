@@ -1,5 +1,8 @@
 $Id$
 
+2002-04-06 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* small update to doc/developersFAQ.txt
+
 2002-04-05 Joost Yervante Damad <andete@worldcity.nl>
 	* added --enable-interlacing ./configure argument
 	  see also ./configure --help and src/config.h.in
