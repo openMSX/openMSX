@@ -20,6 +20,7 @@
       <ROM id="C-BIOS Main ROM">
         <mem base="0x0000" size="0x8000"/>
         <rom>
+          <sha1>2f9665ffc5ebd0ff2d9e3786ded75d4c30a2e935</sha1>
           <filename>../../../Contrib/cbios/cbios.rom</filename>
         </rom>
       </ROM>
@@ -34,6 +35,7 @@
         <ROM id="C-BIOS Sub ROM">
           <mem base="0x0000" size="0x4000"/>
           <rom>
+            <sha1>ac84063f83dc8cc9ab1f308fbdef047d5153e4f9</sha1>
             <filename>../../../Contrib/cbios/cbios_sub.rom</filename>
           </rom>
         </ROM>
