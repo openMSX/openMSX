@@ -81,6 +81,14 @@ SCC::SCC(const std::string &name, short volume, const EmuTime &time,
 	int bufSize = Mixer::instance()->registerSound(name, this, volume,
 	                                               Mixer::MONO);
 	buffer = new int[bufSize];
+
+	// clear wave forms
+	for (int i = 0; i < 5; i++) {
+		for (int j = 0; j < 32; j++) {
+			wave[i][j] = 0;
+		}
+	}
+	
 	reset(time);
 }
 
@@ -98,7 +106,7 @@ void SCC::reset(const EmuTime &time)
 
 	for (int i = 0; i < 5; i++) {
 		for (int j = 0; j < 32; j++) {
-			wave[i][j] = 0;
+			// don't clear wave forms
 			volAdjustedWave[i][j] = 0;
 		}
 		count[i] = 0;
