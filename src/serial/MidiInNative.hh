@@ -34,7 +34,7 @@ public:
 	  */
 	static void registerAll(PluggingController* controller);
 	
-	MidiInNative(const string& name);
+	MidiInNative(unsigned);
 	virtual ~MidiInNative();
 
 	// Pluggable
@@ -49,10 +49,10 @@ public:
 
 private:
 	// Runnable
-	virtual void run();
+	virtual void run() throw();
 
 	// Schedulable
-	virtual void executeUntilEmuTime(const EmuTime& time, int userData);
+	virtual void executeUntil(const EmuTime& time, int userData) throw();
 	virtual const string &schedName() const;
 
 	void procShortMsg(long unsigned int param);

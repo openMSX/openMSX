@@ -113,7 +113,7 @@ void MidiInNative::procShortMsg(DWORD param)
 }
 
 // Runnable
-void MidiInNative::run()
+void MidiInNative::run() throw()
 {
 	assert(connector);
 	thrdid = SDL_ThreadID();
@@ -169,7 +169,7 @@ void MidiInNative::signal(const EmuTime &time)
 }
 
 // Schedulable
-void MidiInNative::executeUntilEmuTime(const EmuTime &time, int userData)
+void MidiInNative::executeUntil(const EmuTime &time, int userData) throw()
 {
 	if (connector) {
 		signal(time);
