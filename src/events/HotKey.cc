@@ -42,7 +42,7 @@ void HotKey::initBindings()
 	} else {
 		// no (or empty) bindings section, use defaults
 		registerHotKeyCommand(Keys::K_PRINT, "screenshot");
-		registerHotKeyCommand(Keys::K_PAUSE, "pause");
+		registerHotKeyCommand(Keys::K_PAUSE, "toggle pause");
 		registerHotKeyCommand(Keys::K_F9,    "toggle throttle");
 		registerHotKeyCommand(Keys::K_F10,   "toggle console");
 		registerHotKeyCommand(Keys::K_F11,   "toggle mute");
