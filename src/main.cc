@@ -67,8 +67,15 @@ int main (int argc, char **argv)
 		}
 
 		// Joost test stuff
-//		MSXConfig::FilePath* fp = dynamic_cast<MSXConfig::FilePath*>(config->getCustomConfigByTag("filepath"));
-//		fp->dump();
+		try
+		{
+			MSXConfig::FilePath* fp = dynamic_cast<MSXConfig::FilePath*>(config->getCustomConfigByTag("filepath"));
+			fp->dump();
+		}
+		catch (MSXException& e)
+		{
+			PRT_DEBUG ("...no filepath found...");
+		}
 
 		//exit(0);
 

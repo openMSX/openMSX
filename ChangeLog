@@ -2,6 +2,7 @@ $Id$
 
 2002-04-29 Joost Yervante Damad <andete@worldcity.nl>
 	* small cleanup FilePath [sorry guys!]
+	* more proper cleanup
 
 2002-04-28 Maarten ter Huurne <mth@stack.nl>
 	* Some VDP cleanups.
