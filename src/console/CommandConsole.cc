@@ -394,7 +394,7 @@ void CommandConsole::commandExecute()
 	putCommandHistory(editLine);
 	splitLines();
 
-	commandBuffer += editLine.substr(prompt.length());
+	commandBuffer += editLine.substr(prompt.length()) + '\n';
 	if (commandController.isComplete(commandBuffer)) {
 		try {
 			string result = commandController.executeCommand(
