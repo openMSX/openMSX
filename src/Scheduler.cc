@@ -30,13 +30,13 @@ Scheduler::Scheduler()
 	noSound = false;
 	runningScheduler = true;
 	exitScheduler = false;
-	EventDistributor::instance()->registerAsyncListener(SDL_QUIT, this);
-	HotKey::instance()->registerAsyncHotKey(SDLK_F12, this);
-	HotKey::instance()->registerAsyncHotKey(SDLK_F11, this);
-	Console::instance()->registerCommand(quitCmd, "quit");
-	Console::instance()->registerCommand(pauseCmd, "pause");
-
 	cpu = MSXCPU::instance();
+	
+	EventDistributor::instance()->registerAsyncListener(SDL_QUIT, this);
+	Console::instance()->registerCommand(quitCmd, "quit");
+	Console::instance()->registerCommand(muteCmd, "mute");
+	HotKey::instance()->registerHotKeyCommand(SDLK_F12, "quit");
+	HotKey::instance()->registerHotKeyCommand(SDLK_F11, "mute");
 }
 
 Scheduler::~Scheduler()
@@ -170,23 +170,15 @@ void Scheduler::pause()
 		PRT_DEBUG("Paused");
 	}
 }
+bool Scheduler::isPaused()
+{
+	return paused;
+}
 
 // Note: this runs in a different thread
 void Scheduler::signalEvent(SDL_Event &event) {
 	if (event.type == SDL_QUIT) {
 		stopScheduling();
-	} else {
-		assert(false);
-	}
-}
-
-// Note: this runs in a different thread
-void Scheduler::signalHotKey(SDLKey key) {
-	if (key == SDLK_F12) {
-		stopScheduling();
-	} else if (key == SDLK_F11) {
-		noSound = !noSound;
-		Mixer::instance()->pause(noSound||paused);
 	} else {
 		assert(false);
 	}
@@ -202,15 +194,14 @@ void Scheduler::QuitCmd::help(const char *string)
 	Console::instance()->print("Use this command to stop the emulator");
 }
 
-void Scheduler::PauseCmd::execute(const char *string)
+void Scheduler::MuteCmd::execute(const char *string)
 {
-	if (!Scheduler::instance()->paused) {
-		Scheduler::instance()->pause();
-	} else {
-		Scheduler::instance()->unpause();
-	}
+	Scheduler *sch = Scheduler::instance();
+	sch->noSound = !sch->noSound;
+	Mixer::instance()->pause(sch->noSound||sch->paused);
 }
-void Scheduler::PauseCmd::help(const char *string)
+void Scheduler::MuteCmd::help(const char *string)
 {
-	Console::instance()->print("Use this command to pause/unpause the emulator");
+	Console::instance()->print("Use this command to mute/unmute the emulator");
 }
+

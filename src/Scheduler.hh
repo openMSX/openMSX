@@ -14,7 +14,6 @@
 //forward declarations
 class MSXCPU;
 
-
 /**
  * Every class that wants to get scheduled at some point must inherit from
  * this class
@@ -40,7 +39,7 @@ class Schedulable
 		static const std::string defaultName;
 };
 
-class Scheduler : private EventListener, private HotKeyListener
+class Scheduler : private EventListener
 {
 	class SynchronizationPoint
 	{
@@ -118,16 +117,18 @@ class Scheduler : private EventListener, private HotKeyListener
 		 */
 		void unpause();
 
-
-		// EventListener
-		void signalEvent(SDL_Event &event);
-		// HotKeyListener
-		void signalHotKey(SDLKey key);
+		/**
+		 * True iff paused
+		 */
+		bool isPaused();
 
 	private:
 		Scheduler();
 		const SynchronizationPoint &getFirstSP();
 		void removeFirstSP();
+
+		// EventListener
+		void signalEvent(SDL_Event &event);
 
 		static Scheduler *oneInstance;
 		/** Vector used as heap, not a priority queue because that
@@ -153,13 +154,13 @@ class Scheduler : private EventListener, private HotKeyListener
 			virtual void help(const char *commandLine);
 		};
 		QuitCmd quitCmd;
-		class PauseCmd : public ConsoleCommand {
+		class MuteCmd : public ConsoleCommand {
 		public:
 			virtual void execute(const char *commandLine);
 			virtual void help(const char *commandLine);
 		};
-		friend class PauseCmd;
-		PauseCmd pauseCmd;
+		friend class MuteCmd;
+		MuteCmd muteCmd;
 };
 
 #endif

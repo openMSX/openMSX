@@ -4,6 +4,8 @@
 #include "RealTime.hh"
 #include "MSXCPU.hh"
 #include "MSXConfig.hh"
+#include "HotKey.hh"
+#include "ConsoleSource/Console.hh"
 
 
 RealTime::RealTime()
@@ -19,12 +21,12 @@ RealTime::RealTime()
 	realOrigin = realRef;
 	factor = 1;
 	paused = false;
-	
-	HotKey::instance()->registerAsyncHotKey(SDLK_PAUSE, this);
-	Scheduler::instance()->setSyncPoint(emuRef+syncInterval, this);
-
 	scheduler = Scheduler::instance();
 	cpu = MSXCPU::instance();
+	Scheduler::instance()->setSyncPoint(emuRef+syncInterval, this);
+	
+	Console::instance()->registerCommand(pauseCmd, "pause");
+	HotKey::instance()->registerHotKeyCommand(SDLK_PAUSE, "pause");
 }
 
 RealTime::~RealTime()
@@ -109,23 +111,23 @@ float RealTime::getRealDuration(const EmuTime time1, const EmuTime time2)
 	return time1.getDuration(time2) * factor;
 }
 
-// Note: this runs in a different thread
-void RealTime::signalHotKey(SDLKey key) {
-	if (key == SDLK_PAUSE) {
-		if (paused) {
-			// reset timing variables 
-			realOrigin = SDL_GetTicks();
-			realRef = realOrigin;
-			emuOrigin = MSXCPU::instance()->getCurrentTime();
-			emuRef = emuOrigin;
-			
-			Scheduler::instance()->unpause();
-			paused = false;
-		} else {
-			Scheduler::instance()->pause();
-			paused =true;
-		}
+
+void RealTime::PauseCmd::execute(const char *string)
+{
+	Scheduler *sch = Scheduler::instance();
+	RealTime *rt = RealTime::instance();
+	if (sch->isPaused()) {
+		// reset timing variables 
+		rt->realOrigin = SDL_GetTicks();
+		rt->realRef = rt->realOrigin;
+		rt->emuOrigin = MSXCPU::instance()->getCurrentTime();
+		rt->emuRef = rt->emuOrigin;
+		sch->unpause();
 	} else {
-		assert(false);
+		sch->pause();
 	}
+}
+void RealTime::PauseCmd::help(const char *string)
+{
+	Console::instance()->print("Use this command to pause/unpause the emulator");
 }

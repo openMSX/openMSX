@@ -10,7 +10,7 @@
 class MSXCPU;
 
 
-class RealTime : public Schedulable, public HotKeyListener
+class RealTime : public Schedulable
 {
 	public:
 		/**
@@ -27,8 +27,6 @@ class RealTime : public Schedulable, public HotKeyListener
 		void executeUntilEmuTime(const EmuTime &time, int userData);
 
 		float getRealDuration(const EmuTime time1, const EmuTime time2);
-
-		void signalHotKey(SDLKey key);
 
 		/**
 		 * Synchronize EmuTime with RealTime, normally this is done
@@ -64,6 +62,14 @@ class RealTime : public Schedulable, public HotKeyListener
 
 		bool paused;
 		MSXCPU *cpu;
-		Scheduler *scheduler; 
+		Scheduler *scheduler;
+
+		class PauseCmd : public ConsoleCommand {
+			public:
+				virtual void execute(const char *commandLine);
+				virtual void help(const char *commandLine);
+		};
+		friend class PauseCmd;
+		PauseCmd pauseCmd;
 };
 #endif
