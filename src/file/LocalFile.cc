@@ -3,17 +3,21 @@
 #include "LocalFile.hh"
 #include "File.hh"
 
-LocalFile::LocalFile(const std::string &filename, int options)
+LocalFile::LocalFile(const std::string &filename_, int options)
 {
-	char* mode;
+	const char* filename = filename_.c_str(); 
 	if (options & TRUNCATE) {
-		mode = "wb+";
+		// open file read/write truncated
+		file = fopen(filename, "wb+");
 	} else {
-		mode = "rb+";
+		// open file read/write
+		file = fopen(filename, "rb+");
+		if (!file) {
+			// if that fails try read only
+			file = fopen(filename, "rb");
+		}
 	}
-	
-	file = fopen(filename.c_str(), mode);
-	if (file == NULL) {
+	if (!file) {
 		throw FileException("Error opening file");
 	}
 }
