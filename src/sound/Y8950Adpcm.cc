@@ -81,9 +81,22 @@ void Y8950Adpcm::restart()
 	volumeWStep = (int)((double)volume * step / MAX_STEP);
 }
 
+void Y8950Adpcm::schedule(const EmuTime &time)
+{
+	if (stopAddr > startAddr) {
+		uint64 samples = stopAddr - playAddr + 1;
+		EmuTimeFreq<Y8950::CLK_FREQ> stop(time);
+		stop += (samples * (72 << 16) / delta);
+		Scheduler::instance()->setSyncPoint(stop, this);
+	}
+}
+
 void Y8950Adpcm::executeUntilEmuTime(const EmuTime &time, int userData)
 {
 	y8950->setStatus(Y8950::STATUS_EOS);
+	if (reg7 & R07_REPEAT) {
+		schedule(time);
+	}
 }
 
 void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
@@ -98,11 +111,8 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 				restart();
 			}
 			
-			if (playing && !(reg7 & R07_REPEAT) && (stopAddr > playAddr)) {
-				uint64 samples = stopAddr - playAddr + 1;
-				EmuTimeFreq<Y8950::CLK_FREQ> stop(time);
-				stop += (samples*(72<<16)/delta);
-				Scheduler::instance()->setSyncPoint(stop, this);
+			if (playing) {
+				schedule(time);
 			} else {
 				Scheduler::instance()->removeSyncPoint(this);
 			}

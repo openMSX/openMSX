@@ -24,6 +24,7 @@ class Y8950Adpcm : public Schedulable
 		int calcSample();
 
 	private:
+		void schedule(const EmuTime &time);
 		virtual void executeUntilEmuTime(const EmuTime &time, int userData);
 		int CLAP(int min, int x, int max);
 		void restart();
