@@ -619,7 +619,7 @@ void Mixer::startSoundLogging(const string& filename)
 	 * - error handling, fwrite or fopen may fail miserably
 	 */
 
-	assert(!wavfp); // 
+	assert(!wavfp);
 	
 	wavfp = fopen(filename.c_str(), "wb");
 	if (!wavfp) {
@@ -627,31 +627,29 @@ void Mixer::startSoundLogging(const string& filename)
 	}
 	nofWavBytes = 0;
 
-	// write wav header:
-	const char* riffstr="RIFF";
-	const char* wavestr="WAVE";
-	const char* datastr="data";
-	const char* fmtstr="fmt ";
-	fwrite(riffstr, 1, 4, wavfp);
-	fwrite(&nofWavBytes, 4, 1, wavfp);
-	fwrite(wavestr, 1, 4, wavfp);
-	fwrite(fmtstr, 1, 4, wavfp);
-	uint32 size=16;
-	uint16 nBitsPerSample=16;
-	fwrite(&size, 4, 1, wavfp);
-	uint16 wFormatTag=1;
-	fwrite(&wFormatTag, 2, 1, wavfp);
-	uint16 nChannels=2;
-	fwrite(&nChannels, 2, 1, wavfp);
-	uint32 nSamplesPerSec=(uint32)frequencySetting->getValue();
-	fwrite(&nSamplesPerSec, 4, 1, wavfp);
-	uint32 nAvgBytesPerSec = 2*nSamplesPerSec*nBitsPerSample/8;
-	fwrite(&nAvgBytesPerSec, 4, 1, wavfp);
-	uint16 wBlockAlign = 2*nBitsPerSample/8;
-	fwrite(&wBlockAlign, 2, 1, wavfp);
-	fwrite(&nBitsPerSample, 2, 1, wavfp);
-	fwrite(datastr, 1, 4, wavfp);
-	fwrite(&nofWavBytes, 4, 1, wavfp);
+	// write wav header
+	char header[44] = {
+		'R', 'I', 'F', 'F', //
+		0, 0, 0, 0,         // total size (filled in later)
+		'W', 'A', 'V', 'E', //
+		'f', 'm', 't', ' ', //
+		16, 0, 0, 0,        // size of fmt block
+		1, 0,               // format tag = 1
+		2, 0,               // nb of channels = 2
+		0, 0, 0, 0,         // samples per second (filled in)
+		0, 0, 0, 0,         // avg bytes per second (filled in)
+		4, 0,               // block align (2 * bits per samp / 16)
+		16, 0,              // bits per sample
+		'd', 'a', 't', 'a', //
+		0, 0, 0, 0,         // size of data block (filled in later)
+	};
+	const int channels = 2;
+	const int bitsPerSample = 16;
+	uint32 samplesPerSecond = frequencySetting->getValue();
+	*reinterpret_cast<uint32*>(header + 24) = samplesPerSecond;
+	*reinterpret_cast<uint32*>(header + 28) = (channels * samplesPerSecond *
+	                                           bitsPerSample) / 8;
+	fwrite(header, sizeof(header), 1, wavfp);
 }
 
 void Mixer::endSoundLogging()
