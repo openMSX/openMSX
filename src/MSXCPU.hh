@@ -36,6 +36,9 @@ class MSXCPU : public MSXDevice, public Schedulable
 		const EmuTime &getCurrentTime();
 		
 		void setActiveCPU(CPUType cpu);
+		
+		CPU &getActiveCPU();
+		
 		const EmuTime &getTargetTime();
 
 	private:
@@ -49,6 +52,7 @@ class MSXCPU : public MSXDevice, public Schedulable
 
 		Z80 *z80;
 		//MSXR800 *r800;
+	
 		CPU *activeCPU;
 };
 #endif //__MSXCPU_HH__

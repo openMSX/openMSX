@@ -94,3 +94,7 @@ void MSXCPU::executeUntilEmuTime(const EmuTime &time, int userData)
 	assert(false);
 }
 
+CPU &MSXCPU::getActiveCPU()
+{
+	return *activeCPU;
+}

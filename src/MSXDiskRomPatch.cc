@@ -3,15 +3,17 @@
 #include "openmsx.hh"
 #include "MSXDiskRomPatch.hh"
 #include "msxconfig.hh"
+#include "CPU.hh"
+#include "MSXCPU.hh"
 
 MSXDiskRomPatch::MSXDiskRomPatch()
 {
 	// XXX TODO: move consts towards class
-	addr_list.push_back(0x4010);
-	addr_list.push_back(0x4013);
-	addr_list.push_back(0x4016);
-	addr_list.push_back(0x401C);
-	addr_list.push_back(0x401F);
+	addr_list.push_back(A_PHYDIO);
+	addr_list.push_back(A_DSKCHG);
+	addr_list.push_back(A_GETDPB);
+	addr_list.push_back(A_DSKFMT);
+	addr_list.push_back(A_DRVOFF);
 }
 
 MSXDiskRomPatch::~MSXDiskRomPatch()
@@ -21,7 +23,12 @@ MSXDiskRomPatch::~MSXDiskRomPatch()
 void MSXDiskRomPatch::patch() const
 {
 	PRT_DEBUG("void MSXDiskRomPatch::patch() const");
+	
+	CPU &cpu = MSXCPU::instance()->getActiveCPU();
+	CPU::CPURegs(cpu.getCPURegs());
+
 	return;
+
 	int address;
 	
 	// TODO: get CPU[PC] of patch instruction
@@ -29,23 +36,23 @@ void MSXDiskRomPatch::patch() const
 	
 	switch (address)
 	{
-		case 0x4010:
+		case A_PHYDIO:
 		PHYDIO();
 		break;
 
-		case 0x4013:
+		case A_DSKCHG:
 		DSKCHG();
 		break;
 
-		case 0x4016:
+		case A_GETDPB:
 		GETDPB();
 		break;
 
-		case 0x401C:
+		case A_DSKFMT:
 		DSKFMT();
 		break;
 
-		case 0x401F:
+		case A_DRVOFF:
 		DRVOFF();
 		break;
 	}
