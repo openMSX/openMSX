@@ -3,7 +3,6 @@
 #ifndef __SDLGLRENDERER_HH__
 #define __SDLGLRENDERER_HH__
 
-#include <SDL.h>
 #include "openmsx.hh"
 #include "PixelRenderer.hh"
 #include "Display.hh"
@@ -74,12 +73,11 @@ protected:
 		);
 
 private:
-	friend class SDLGLRendererFactory;
+	friend class SDLGLVideoSystem;
 
 	/** Constructor, called by SDLGLRendererFactory.
 	  */
-	SDLGLRenderer(
-		RendererFactory::RendererID id, VDP *vdp, SDL_Surface *screen );
+	SDLGLRenderer(RendererFactory::RendererID id, VDP* vdp);
 
 	/** Destructor.
 	  */
@@ -174,7 +172,7 @@ private:
 	/** RGB colours of current sprite palette.
 	  * Points to either palBg or palGraphic7Sprites.
 	  */
-	Pixel *palSprites;
+	Pixel* palSprites;
 
 	/** RGB colours corresponding to each possible V9938 colour.
 	  * Used by updatePalette to adjust palFg and palBg.
@@ -190,10 +188,6 @@ private:
 	  */
 	Pixel V9958_COLOURS[32768];
 
-	/** The surface which is visible to the user.
-	  */
-	SDL_Surface *screen;
-
 	/** Work area for redefining textures.
 	  */
 	Pixel lineBuffer[512];
@@ -203,7 +197,7 @@ private:
 	  * It holds up to 4 pages of 256 lines each.
 	  * In Graphics6/7 the lower two pages are used.
 	  */
-	LineTexture *bitmapTextures;
+	LineTexture* bitmapTextures;
 
 	/** One texture per absolute display line to draw sprite plane in.
 	  * This is not an efficient way to draw sprites, but it was easy

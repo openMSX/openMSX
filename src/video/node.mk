@@ -11,6 +11,7 @@ SRC_HDR:= \
 	Icon \
 	Renderer RendererFactory RenderSettings PixelRenderer \
 	SDLVideoSystem SDLRenderer SDLSnow \
+	SDLUtil \
 	DummyRenderer \
 	XRenderer \
 	BitmapConverter CharacterConverter \
@@ -25,8 +26,7 @@ HDR_ONLY:= \
 	DisplayMode \
 	VRAMObserver \
 	SpriteConverter \
-	Blender \
-	GLUtil
+	Blender
 
 SRC_HDR_$(COMPONENT_GL)+= \
 	SDLGLVideoSystem SDLGLRenderer GLSnow GLUtil

@@ -22,14 +22,8 @@ TODO:
 #include "RenderSettings.hh"
 #include "EventDistributor.hh"
 #include "FloatSetting.hh"
-#include "SDLGLVideoSystem.hh"
+#include "VideoSystem.hh"
 #include "Scheduler.hh"
-
-#ifdef __WIN32__
-#include <windows.h>
-static int lastWindowX = 0;
-static int lastWindowY = 0;
-#endif
 
 
 namespace openmsx {
@@ -333,15 +327,13 @@ inline void SDLGLRenderer::renderPlanarBitmapLines(
 	}
 }
 
-SDLGLRenderer::SDLGLRenderer(
-	RendererFactory::RendererID id, VDP *vdp, SDL_Surface *screen )
+SDLGLRenderer::SDLGLRenderer(RendererFactory::RendererID id, VDP* vdp)
 	: PixelRenderer(id, vdp)
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 	, spriteConverter(vdp->getSpriteChecker())
 	, powerSetting(Scheduler::instance().getPowerSetting())
 {
-	this->screen = screen;
 	GLint size;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
 	printf("Max texture size: %d\n", size);
@@ -393,27 +385,12 @@ SDLGLRenderer::SDLGLRenderer(
 	// Create bitmap display cache.
 	bitmapTextures = vdp->isMSX1VDP() ? NULL : new LineTexture[4 * 256];
 
-	// Hide mouse cursor.
-	SDL_ShowCursor(SDL_DISABLE);
-
 	// Init the palette.
 	precalcPalette(settings.getGamma()->getValue());
 
 	// Register caches with VDPVRAM.
 	vram->patternTable.setObserver(&dirtyPattern);
 	vram->colourTable.setObserver(&dirtyColour);
-
-#ifdef __WIN32__
-	// Find our current location...
-	HWND handle = GetActiveWindow();
-	RECT windowRect;
-	GetWindowRect(handle, &windowRect);
-	// ...and adjust if needed.
-	if ((windowRect.right < 0) || (windowRect.bottom < 0)) {
-		SetWindowPos(
-			handle, HWND_TOP, lastWindowX, lastWindowY, 0, 0, SWP_NOSIZE );
-	}
-#endif
 
 	powerSetting.addListener(this);
 }
@@ -422,25 +399,12 @@ SDLGLRenderer::~SDLGLRenderer()
 {
 	powerSetting.removeListener(this);
 
-#ifdef __WIN32__
-	// Find our current location.
-	if ((screen->flags & SDL_FULLSCREEN) == 0) {
-		HWND handle = GetActiveWindow();
-		RECT windowRect;
-		GetWindowRect(handle, &windowRect);
-		lastWindowX = windowRect.left;
-		lastWindowY = windowRect.top;
-	}
-#endif
-	
 	// Unregister caches with VDPVRAM.
 	vram->patternTable.resetObserver();
 	vram->colourTable.resetObserver();
 
 	// TODO: Free all textures.
 	delete[] bitmapTextures;
-
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
 void SDLGLRenderer::update(const SettingLeafNode* setting)
@@ -535,24 +499,9 @@ void SDLGLRenderer::resetPalette()
 }
 
 bool SDLGLRenderer::checkSettings() {
-	// First check this is the right renderer.
-	if (!PixelRenderer::checkSettings()) return false;
-
-	// Check full screen setting.
-	bool fullScreenState = ((screen->flags & SDL_FULLSCREEN) != 0);
-	bool fullScreenTarget = settings.getFullScreen()->getValue();
-	if (fullScreenState == fullScreenTarget) return true;
-
-#ifdef __WIN32__
-	// Under win32, toggling full screen requires opening a new SDL screen.
-	return false;
-#else
-	// Try to toggle full screen.
-	SDL_WM_ToggleFullScreen(screen);
-	fullScreenState =
-		((((volatile SDL_Surface*)screen)->flags & SDL_FULLSCREEN) != 0);
-	return fullScreenState == fullScreenTarget;
-#endif
+	// TODO: Move this check away from Renderer entirely?
+	return PixelRenderer::checkSettings() // right renderer?
+		&& Display::INSTANCE->getVideoSystem()->checkSettings();
 }
 
 void SDLGLRenderer::frameStart(const EmuTime& time)

@@ -11,6 +11,11 @@ VideoSystem::~VideoSystem()
 {
 }
 
+bool VideoSystem::checkSettings()
+{
+	return true;
+}
+
 bool VideoSystem::prepare()
 {
 	return true;

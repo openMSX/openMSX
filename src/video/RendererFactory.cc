@@ -13,6 +13,7 @@
 #include "HardwareConfig.hh"
 #include "Display.hh"
 #include "CommandConsole.hh"
+#include "SDLUtil.hh"
 
 // Video system Dummy
 // Note: DummyRenderer is not part of Dummy video system.
@@ -27,9 +28,6 @@
 // Video system SDLGL
 #ifdef COMPONENT_GL
 #include "SDLGLVideoSystem.hh"
-#include "SDLGLRenderer.hh"
-#include "GLSnow.hh"
-#include "GLConsole.hh"
 #endif
 
 // Video system X11
@@ -37,32 +35,6 @@
 
 
 namespace openmsx {
-
-static bool initSDLVideo()
-{
-	if (!SDL_WasInit(SDL_INIT_VIDEO) && SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
-		//throw FatalError(string("Couldn't init SDL video: ") + SDL_GetError());
-		return false; // TODO: use exceptions here too
-	}
-
-	HardwareConfig& hardwareConfig = HardwareConfig::instance();
-	string title = Version::WINDOW_TITLE + " - " + hardwareConfig.getChild("info").getChildData("manufacturer") + " " + hardwareConfig.getChild("info").getChildData("code");
-	SDL_WM_SetCaption(title.c_str(), 0);
-
-	// Set icon
-	static unsigned int iconRGBA[OPENMSX_ICON_SIZE * OPENMSX_ICON_SIZE];
-	for (int i = 0; i < OPENMSX_ICON_SIZE * OPENMSX_ICON_SIZE; i++) {
- 		iconRGBA[i] = iconColours[iconData[i]];
- 	}
- 	SDL_Surface* iconSurf = SDL_CreateRGBSurfaceFrom(
-			iconRGBA, OPENMSX_ICON_SIZE, OPENMSX_ICON_SIZE, 32, OPENMSX_ICON_SIZE * sizeof(unsigned int),
-			0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
-	SDL_SetColorKey(iconSurf, SDL_SRCCOLORKEY, 0);
-	SDL_WM_SetIcon(iconSurf, NULL);
-	SDL_FreeSurface(iconSurf);
-	InputEventGenerator::instance().reinit();
-	return true;
-}
 
 auto_ptr<RendererFactory> RendererFactory::getCurrent()
 {
@@ -166,10 +138,7 @@ Renderer* SDLHiRendererFactory::create(VDP* vdp)
 	bool fullScreen = RenderSettings::instance().getFullScreen()->getValue();
 	int flags = SDL_SWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
 
-	if (!initSDLVideo()) {
-		fprintf(stderr, "FAILED to init SDL video!");
-		return 0;
-	}
+	initSDLVideo();
 
 	// Try default bpp.
 	SDL_Surface* screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);
@@ -247,10 +216,7 @@ Renderer* SDLLoRendererFactory::create(VDP* vdp)
 	bool fullScreen = RenderSettings::instance().getFullScreen()->getValue();
 	int flags = SDL_SWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
 
-	if (!initSDLVideo()) {
-		fprintf(stderr, "FAILED to init SDL video!");
-		return 0;
-	}
+	initSDLVideo();
 
 	// Try default bpp.
 	SDL_Surface* screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);
@@ -322,53 +288,8 @@ bool SDLGLRendererFactory::isAvailable()
 
 Renderer* SDLGLRendererFactory::create(VDP* vdp)
 {
-	// Destruct old layers, so resources are freed before new allocations
-	// are done.
-	Display::INSTANCE.reset();
-
-	const unsigned WIDTH = 640;
-	const unsigned HEIGHT = 480;
-
-	bool fullScreen = RenderSettings::instance().getFullScreen()->getValue();
-	int flags = SDL_OPENGL | SDL_HWSURFACE
-		| (fullScreen ? SDL_FULLSCREEN : 0);
-
-	if (!initSDLVideo()) {
-		fprintf(stderr, "FAILED to init SDL video!");
-		return 0;
-	}
-
-	// Enables OpenGL double buffering.
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, true);
-
-	// Try default bpp.
-	SDL_Surface* screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);
-	// Try supported bpp in order of preference.
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 15, flags);
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 16, flags);
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, flags);
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 8, flags);
-
-	if (!screen) {
-		fprintf(stderr, "FAILED to open any screen!");
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		// TODO: Throw exception.
-		return 0;
-	}
-	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
-
-	Display* display = new Display(auto_ptr<VideoSystem>(
-		new SDLGLVideoSystem() ));
-	Display::INSTANCE.reset(display);
-	GLSnow* background = new GLSnow();
-	SDLGLRenderer* renderer = new SDLGLRenderer(SDLGL, vdp, screen);
-	display->addLayer(background);
-	display->setAlpha(background, 255);
-	display->addLayer(renderer);
-	display->setAlpha(renderer, 255);
-	new GLConsole(CommandConsole::instance());
-
-	return renderer;
+	SDLGLVideoSystem* videoSystem = new SDLGLVideoSystem(vdp);
+	return videoSystem->renderer;
 }
 
 #endif // COMPONENT_GL

@@ -17,6 +17,20 @@ class VideoSystem
 public:
 	virtual ~VideoSystem();
 
+	/** Requests that this renderer checks its settings against the
+	  * current RenderSettings. If possible, update the settings of this
+	  * renderer.
+	  * The implementation in the Renderer base class checks whether the
+	  * right renderer is selected. Subclasses are encouraged to check
+	  * more settings.
+	  * @return True if the settings were still in sync
+	  * 	or were succesfully synced;
+	  * 	false if the renderer is unable to bring the settings in sync.
+	  * TODO: Text copied from Renderer interface,
+	  *       if this stays here then rewrite text accordingly.
+	  */
+	virtual bool checkSettings();
+
 	/** Prepare video system for drawing operations.
 	  * The default implementation does nothing, successfully.
 	  * @return true iff successful.
