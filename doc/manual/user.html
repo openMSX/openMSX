@@ -46,7 +46,9 @@
 			<li><a class="internal" href="#disks">4.2. Running Disk Software</a>
 				<ol class="toc">
 					<li><a class="internal" href="#diskimages">4.2.1. Using Disk Images</a></li>
-					<li><a class="internal" href="#realdisks">4.2.2. Using Real Disks</a></li>
+					<li><a class="internal" href="#dirasdisk">4.2.2. Using Directories as Disks</a></li>
+					<li><a class="internal" href="#realdisks">4.2.3. Using Real Disks</a></li>
+					<li><a class="internal" href="#harddisks">4.2.4. Emulating MSX Harddisks</a></li>
 				</ol>
 			</li>
 			<li><a class="internal" href="#tape">4.3. Running Tape Software</a></li>
@@ -357,13 +359,11 @@ of the user directories you specified with the <code>user_directories</code> set
 </p>
 
 <p>
-If things go terribly wrong, openMSX may not have the .rom extension registered
-as a ROM image (it does have that by default, though, but this is just an
-example). You can then indicate this by typing:
+If things go terribly wrong, openMSX may not have the extension of your ROM file registered as such. You can then indicate that the thing is a ROM image like this:
 </p>
-<div class="commandline">openmsx -cart galious.rom</div>
+<div class="commandline">openmsx -cart galious.gam</div>
 <p>
-This lets openMSX know that the file is a ROM cartridge and that openMSX should insert it in the first available free cartridge slot. You can also use <code>-carta</code> to explicitly specify cartridge slot A.
+This lets openMSX know that the file <code>galious.gam</code> is a ROM cartridge and that openMSX should insert it in the first available free cartridge slot. You can also use <code>-carta</code> to explicitly specify cartridge slot A.
 </p>
 <p>
 Or, maybe openMSX didn't have the ROM in the ROM database and failed auto detection of the mapper type. You can specify the mapper to KONAMI4 like this:
@@ -382,9 +382,9 @@ To run a disk image, you can type:
 </p>
 <div class="commandline">openmsx relax.dsk</div>
 <p>
-for example. Or, if you haven't registered the .dsk extension for disk images:
+for example. Or, if you use a disk image with an extension that is not registered as such:
 </p>
-<div class="commandline">openmsx -diska relax.dsk</div>
+<div class="commandline">openmsx -diska relax.di</div>
 
 <p>
 You can also change disks at run time of course. Just type
@@ -403,13 +403,84 @@ in the console to put the specified disk image in drive A. To eject the disk fro
 Disk images in XSA format are also supported, use them as regular disk images, but do note that they are read only. The same counts for (g)zipped disk images. Note that in zipped disk images the first file that is packed into the zip file will be used as disk image.
 </p>
 
-<h4><a id="realdisks">4.2.2. Using Real Disks</a></h4>
+
+<h4><a id="dirasdisk">4.2.2. Using Directories as Disks</a></h4>
+
+<p>
+The DirAsDsk feature permits you to use a directory on your host computer's
+file system as a disk image for your emulated MSX.  Note that this has nothing
+to do with harddisk emulation. It simply creates a
+virtual 720kB disk image in memory from the files that are in the directory
+that you specified as if it were a disk image. So: </p>
+<div class="commandline">
+    openmsx -diska .
+</div>
+<p>
+will try to put all files of the current dir on a disk image in memory and
+start openMSX with it. Note that this feature is still very bare bones: it
+doesn't support sub directories and it skips all remaining files if the virtual
+disk is full.
+</p>
+
+<h4><a id="realdisks">4.2.3. Using Real Disks</a></h4>
 
 <p>
 To use a real disk, just specify <code>/dev/fd0</code> as a disk image. This is of
 course a Linux (Unix, actually) specific feature, but for now it is usable. It
 may be a bit slow though, with the FDC emulation enabled. It should be just as
-slow as a real disk drive, however! Don't forget that you shouldn't have it mounted to be able to use it this way. We recommend to use only write-protected disks! It is possible that you damage the contents of your disk if you don't. Windows users can try real disks by using the DirAsDisk feature. This feature is still experimental and should always used with write protected disks. Only regular disks with normal files will work with it; specify A: as disk image to use it.
+slow as a real disk drive, however! Don't forget that you shouldn't have it
+mounted to be able to use it this way. We recommend to use only write-protected
+disks! It is possible that you damage the contents of your disk if you don't.
+Windows users can try real disks by using the DirAsDisk feature. Because his
+feature is still experimental, one should always use it with write protected
+disks. Only regular disks with normal files will work with it; specify A: as
+disk image to use it.
+</p>
+
+
+<h4><a id="harddisks">4.2.4. Emulating MSX Harddisks</a></h4>
+
+<p>
+openMSX only supports the emulation of the Sunrise IDE interface at the moment.
+The extension for this is called 'ide'. The extension has a built in harddisk
+configuration, in the form of a 100MB sized disk image. If you want to change
+this, you'll have to edit the file in
+<code>share/extensions/ide/hardwareconfig.xml</code>. If the harddisk image is
+not present, or too small, the file is created or extended to the proper size.
+</p>
+
+<p>
+The 'ide' extension needs the BIOS that can be flashed into the Sunrise IDE
+interface. It can be downloaded from the <a class="external"
+href="http://www.msx.ch/sunformsx/download/dl-ide.html">Sunrise for MSX web
+site</a>.
+</p>
+
+<p>
+When using this extension for the first time, one has to consider it as using a
+real Sunrise IDE interface with a 100MB empty harddisk connected to the master
+slot. How to proceed is written in the text files that come with the FDISK
+program for IDE, downloadable from the <a class="external"
+href="http://www.msx.ch/sunformsx/download/dl-ide.html">Sunrise for MSX web
+site</a>. There is also a  <a class="external"
+href="http://www.msx.org/forumtopic3015p15.html">thread</a> on the MSX Resource
+Center forum that may give you valuable hints.  
+</p>
+
+<p>
+For clarity: because the emulation is done on a big disk image, you need free
+disk space for this image, which can be quite big (default 100MB). Also, you
+can't really use your normal PC harddisk as an MSX harddisk for this extension.
+(Maybe on UNIX systems it works if you choose a device like
+<code>/dev/hde</code> as harddisk image file, but we have not tested it and do
+note that it can cause loss of data of that partition or disk!!) This means
+that there can be no data corruption of your PC's harddisk.
+</p>
+
+<p>
+If you still want to use files from your real PC harddisk on the emulated MSX,
+you have to use the DirAsDsk feature. See the <a class="internal"
+href="#dirasdsk">DirAsDsk section</a> for more details.
 </p>
 
 <h3><a id="tape">4.3. Running Tape Software</a></h3>
@@ -795,15 +866,27 @@ Because there is no timing information logged, this is not very useful yet.
 It's more interesting to connect MSX-MIDI to an actual PC MIDI device,
 such as a MIDI out port or the internal synthesizer of your sound card.
 On Linux, you can use the <code>midi-out-logger</code> and set a MIDI
-device node, for example <code>/dev/midi</code>, as its output file. This is done by default. To play with this setting, use <code>set midi-out-logfilename</code>.
-On Windows, real MIDI devices are separate pluggables. 
+device node, for example <code>/dev/midi</code>, as its output file. This is
+done by default. To play with this setting, use <code>set
+midi-out-logfilename</code>.  On Windows, real MIDI devices are separate
+pluggables. 
 </p>
 
 <h2><a id="debugdevice">8. Debug Device</a></h2>
 
 <p>
 This chapter describes how the debug device, built in openMSX, can be used to
-the advantage of an MSX programmer. This device is an artificial MSX device that is connected to an MSX I/O port. It can be used to send debug messages to the host operating system.
+the advantage of an MSX programmer. This device is an artificial MSX device
+that is connected to an MSX I/O port. It can be used to send debug messages to
+the host operating system.  
+</p>
+
+<p>
+Note that openMSX also contains real built in debugging functions, which can be
+accessed with the <code>debug</code> command. More information about it is in
+the aforementioned <code>commands.txt</code> file. With that debugger you can
+read and write all registers and memory of almost all devices that are
+supported in openMSX. It also supports break points and stepping.  
 </p>
 
 

@@ -101,25 +101,8 @@ The effect of a wrong setting is that if it is too high, you will get an irregul
 
 <h2><a id="harddisk">7. What is the openMSX harddisk support?</a></h2>
 
-<p>openMSX only supports the emulation of the Sunrise IDE interface at the moment. The extension for this is called 'ide'. The extension has a built in harddisk configuration, in the form of a 100MB sized disk image. If you want to change this, you'll have to edit the file in <code>share/extensions/ide/hardwareconfig.xml</code>. If the harddisk image is not present, or too small, the file is created or extended to the proper size.
-</p>
-
-<p>The 'ide' extension needs the BIOS that can be flashed into the Sunrise IDE interface. It can be downloaded from the <a class="external" href="http://www.msx.ch/sunformsx/download/dl-ide.html">Sunrise for MSX web site</a>.
-</p>
-
-<p>When using this extension for the first time, one has to consider it as using a real Sunrise IDE interface with a 100MB empty harddisk connected to the master slot. How to proceed is written in the text files that come with the FDISK program for IDE, downloadable from the <a class="external" href="http://www.msx.ch/sunformsx/download/dl-ide.html">Sunrise for MSX web site</a>. There is also a  <a class="external" href="http://www.msx.org/forumtopic3015p15.html">thread</a> on the MSX Resource Center forum that may give you valuable hints.
-</p>
-
-<p>For clarity: because the emulation is done on a big disk image, you need free disk space for this image, which can be quite big (default 100MB). Also, you can't really use your normal PC harddisk as an MSX harddisk for this extension. (Maybe on UNIX systems it works if you choose a device like <code>/dev/hde</code> as harddisk image file, but we have not tested it and do note that it can cause loss of data of that partition or disk!!) This means that there can be no data corruption of your PC's harddisk.
-</p>
-
-<p>If you still want to use files from your real PC harddisk on the emulated MSX, you have to use the DirAsDSK feature. This has nothing to do with harddisk emulation. It simply creates a virtual 720kB disk image in memory from the files that are in the directory that you specified as if it were a disk image. So: 
-</p>
-<div class="commandline">
-    openmsx -diska .
-</div>
 <p>
-will try to put all files of the current dir on a disk image in memory and start openMSX with it. Note that this feature is still very bare bones: it doesn't support sub directories and it skips all remaining files if the virtual disk is full.
+This is explained in the <a class="external" href="user.html#harddisks">User's Manual</a>.
 </p>
 
 <p class="version">
