@@ -16,9 +16,10 @@ namespace openmsx {
 class DisplayMode
 {
 private:
+	DisplayMode(byte mode_) : mode(mode_) {}
 	/** Display mode flags: YAE YJK M5..M1.
 	  */
-	int mode;
+	byte mode;
 
 public:
 
@@ -80,12 +81,14 @@ public:
 	  * 	on non-V9958 chips, pass 0.
 	  */
 	DisplayMode(byte reg0, byte reg1, byte reg25) {
-		mode =
-			  ((reg25 & 0x18) << 2) // YAE YJK
-			| ((reg0  & 0x0E) << 1) // M5..M3
-			| ((reg1  & 0x08) >> 2) // M2
-			| ((reg1  & 0x10) >> 4) // M1
-			;
+		mode =  ((reg25 & 0x18) << 2) | // YAE YJK
+		        ((reg0  & 0x0E) << 1) | // M5..M3
+		        ((reg1  & 0x08) >> 2) | // M2
+		        ((reg1  & 0x10) >> 4);  // M1
+	}
+
+	inline DisplayMode updateReg25(byte reg25) const {
+		return DisplayMode(getBase() | ((reg25 & 0x18) << 2));
 	}
 
 	/** Bring the display mode to its initial state.
@@ -118,7 +121,7 @@ public:
 	  * 	in the range [0..0x7F].
 	  */
 	inline byte getByte() const {
-		return byte(mode);
+		return mode;
 	}
 
 	/** Get the base dispay mode as an integer: M5..M1 combined.
@@ -126,7 +129,7 @@ public:
 	  * @return The integer representation of the base of this display mode,
 	  * 	in the range [0..0x1F].
 	  */
-	inline int getBase() const {
+	inline byte getBase() const {
 		return mode & 0x1F;
 	}
 
@@ -186,15 +189,12 @@ public:
 	  * @return 512 for Text 2, Graphic 5 and 6, 256 for all other modes.
 	  * TODO: Would it make more sense to treat Text 2 as 480 pixels?
 	  */
-	inline int getLineWidth() const {
+	inline unsigned getLineWidth() const {
 		byte baseMode = getBase();
-		return
-			( baseMode == TEXT2 || baseMode == GRAPHIC5 || baseMode == GRAPHIC6
+		return ((baseMode == TEXT2) || (baseMode == GRAPHIC5) || (baseMode == GRAPHIC6))
 			? 512
-			: 256
-			);
+			: 256;
 	}
-
 };
 
 } // namespace openmsx

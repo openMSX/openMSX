@@ -1,6 +1,10 @@
 $Id$
 
 2003-10-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* VDP fix:
+	   - Mode and blank bits any have effect at the next line 
+
+2003-10-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed command/debug console settings
 
 2003-10-04 Wouter Vermaelen <wouter.vermaelen@pi.be>

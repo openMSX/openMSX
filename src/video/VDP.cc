@@ -142,7 +142,9 @@ VDP::~VDP()
 
 void VDP::resetInit(const EmuTime &time)
 {
-	for (int i = 0; i < 32; i++) controlRegs[i] = 0;
+	for (int i = 0; i < 32; i++) {
+		controlRegs[i] = 0;
+	}
 	if (version == TMS9929A) {
 		// Boots (and remains) in PAL mode, all other VDPs boot in NTSC.
 		controlRegs[9] |= 0x02;
@@ -165,6 +167,7 @@ void VDP::resetInit(const EmuTime &time)
 
 	// TODO: Real VDP probably resets timing as well.
 	isDisplayArea = false;
+	displayEnabled = false;
 
 	// Init status registers.
 	statusReg0 = 0x00;
@@ -246,7 +249,7 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		// Display area starts here, unless we're doing overscan and it
 		// was already active.
 		if (!isDisplayArea) {
-			if (controlRegs[1] & 0x40) {
+			if (displayEnabled) {
 				vram->updateDisplayEnabled(true, time);
 			}
 			isDisplayArea = true;
@@ -261,11 +264,15 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 
 		// Vertical scanning occurs.
 		statusReg0 |= 0x80;
-		if (controlRegs[1] & 0x20) irqVertical.set();
+		if (controlRegs[1] & 0x20) {
+			irqVertical.set();
+		}
 		break;
 	case HSCAN:
 		// Horizontal scanning occurs.
-		if (controlRegs[0] & 0x10) irqHorizontal.set();
+		if (controlRegs[0] & 0x10) {
+			irqHorizontal.set();
+		}
 		break;
 	case HOR_ADJUST: {
 		int newHorAdjust = (controlRegs[18] & 0x0F) ^ 0x07;
@@ -274,6 +281,16 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		}
 		renderer->updateHorizontalAdjust(newHorAdjust, time);
 		horizontalAdjust = newHorAdjust;
+		break;
+	}
+	case SET_MODE:
+		updateDisplayMode(
+			DisplayMode(controlRegs[0], controlRegs[1], controlRegs[25]),
+			time);
+		break;
+	case SET_BLANK: {
+		displayEnabled = controlRegs[1] & 0x40;
+		vram->updateDisplayEnabled(isDisplayEnabled(), time);
 		break;
 	}
 	default:
@@ -655,9 +672,13 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 	if (reg >= 32) {
 		// MXC belongs to CPU interface;
 		// other bits in this register belong to command engine.
-		if (reg == 45) cpuExtendedVram = val & 0x40;
+		if (reg == 45) {
+			cpuExtendedVram = val & 0x40;
+		}
 		// Pass command register writes to command engine.
-		if (reg < 47) cmdEngine->setCmdReg(reg - 32, val, time);
+		if (reg < 47) {
+			cmdEngine->setCmdReg(reg - 32, val, time);
+		}
 		return;
 	}
 
@@ -690,10 +711,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 	switch (reg) {
 	case 0:
 		if (change & DisplayMode::REG0_MASK) {
-			updateDisplayMode(
-				DisplayMode(val, controlRegs[1], controlRegs[25]),
-				time
-				);
+			syncAtNextLine(SET_MODE, time);
 		}
 		break;
 	case 1:
@@ -703,16 +721,13 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		}
 		// TODO: Reset vertical IRQ if IE0 is reset?
 		if (change & DisplayMode::REG1_MASK) {
-			updateDisplayMode(
-				DisplayMode(controlRegs[0], val, controlRegs[25]),
-				time
-				);
+			syncAtNextLine(SET_MODE, time);
 		}
 		if (change & 0x40) {
-			bool newDisplayEnabled = isDisplayArea && (val & 0x40);
-			if (newDisplayEnabled != isDisplayEnabled()) {
-				vram->updateDisplayEnabled(newDisplayEnabled, time);
-			}
+			// TODO this doesn't work, why??
+			//syncAtNextLine(SET_BLANK, time);
+			displayEnabled = val & 0x40;
+			vram->updateDisplayEnabled(isDisplayEnabled(), time);
 		}
 		break;
 	case 2: {
@@ -764,7 +779,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		break;
 	case 18:
 		if (change & 0x0F) {
-			setHorAdjust(time);
+			syncAtNextLine(HOR_ADJUST, time);
 		}
 		break;
 	case 23:
@@ -773,13 +788,11 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		break;
 	case 25:
 		if (change & DisplayMode::REG25_MASK) {
-			updateDisplayMode(
-				DisplayMode(controlRegs[0], controlRegs[1], val),
-				time
-				);
+			updateDisplayMode(getDisplayMode().updateReg25(val),
+			                  time);
 		}
 		if (change & 0x08) {
-			setHorAdjust(time);
+			syncAtNextLine(HOR_ADJUST, time);
 		}
 		if (change & 0x02) {
 			renderer->updateBorderMask(val & 0x02, time);
@@ -858,12 +871,12 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 	}
 }
 
-void VDP::setHorAdjust(const EmuTime &time)
+void VDP::syncAtNextLine(SyncType type, const EmuTime &time)
 {
 	int line = getTicksThisFrame(time) / TICKS_PER_LINE;
 	int ticks = (line + 1) * TICKS_PER_LINE;
 	EmuTime nextTime = frameStartTime + ticks;
-	Scheduler::instance()->setSyncPoint(nextTime, this, HOR_ADJUST);
+	Scheduler::instance()->setSyncPoint(nextTime, this, type);
 }
 
 void VDP::updateColourBase(const EmuTime &time)

@@ -96,14 +96,14 @@ public:
 	  * @return True if this is an MSX1 VDP (TMS99X8A or TMS9929A),
 	  *   False otherwise.
 	  */
-	inline bool isMSX1VDP() {
+	inline bool isMSX1VDP() const {
 		return version == TMS99X8A || version == TMS9929A;
 	}
 
 	/** Get the display mode the VDP is in.
 	  * @return The current display mode.
 	  */
-	inline DisplayMode getDisplayMode() {
+	inline DisplayMode getDisplayMode() const {
 		return displayMode;
 	}
 
@@ -122,42 +122,42 @@ public:
 	/** Gets the current transparency setting.
 	  * @return True iff colour 0 is transparent.
 	  */
-	inline bool getTransparency() {
+	inline bool getTransparency() const {
 		return (controlRegs[8] & 0x20) == 0;
 	}
 
 	/** Gets the current foreground colour.
 	  * @return Colour value [0..15].
 	  */
-	inline int getForegroundColour() {
+	inline int getForegroundColour() const {
 		return controlRegs[7] >> 4;
 	}
 
 	/** Gets the current background colour.
 	  * @return Colour value [0..15].
 	  */
-	inline int getBackgroundColour() {
+	inline int getBackgroundColour() const {
 		return controlRegs[7] & 0x0F;
 	}
 
 	/** Gets the current blinking colour for blinking text.
 	  * @return Colour value [0..15].
 	  */
-	inline int getBlinkForegroundColour() {
+	inline int getBlinkForegroundColour() const {
 		return controlRegs[12] >> 4;
 	}
 
 	/** Gets the current blinking colour for blinking text.
 	  * @return Colour value [0..15].
 	  */
-	inline int getBlinkBackgroundColour() {
+	inline int getBlinkBackgroundColour() const {
 		return controlRegs[12] & 0x0F;
 	}
 
 	/** Gets the current blink state.
 	  * @return True iff alternate colours / page should be displayed.
 	  */
-	inline bool getBlinkState() {
+	inline bool getBlinkState() const {
 		return blinkState;
 	}
 
@@ -166,7 +166,7 @@ public:
 	  * @return Colour value in the format of the palette registers:
 	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
 	  */
-	inline int getPalette(int index) {
+	inline int getPalette(int index) const {
 		return palette[index];
 	}
 
@@ -175,14 +175,14 @@ public:
 	  * the display enable bit are considered disabled display.
 	  * @return true iff enabled.
 	  */
-	inline bool isDisplayEnabled() {
-		return isDisplayArea && (controlRegs[1] & 0x40);
+	inline bool isDisplayEnabled() const {
+		return isDisplayArea && displayEnabled;
 	}
 
 	/** Gets the current vertical scroll (line displayed at Y=0).
 	  * @return Vertical scroll register value.
 	  */
-	inline byte getVerticalScroll() {
+	inline byte getVerticalScroll() const {
 		return controlRegs[23];
 	}
 
@@ -191,7 +191,7 @@ public:
 	  * screen 0..7 bytes to the right.
 	  * @return Horizontal scroll low register value.
 	  */
-	inline byte getHorizontalScrollLow() {
+	inline byte getHorizontalScrollLow() const {
 		return controlRegs[27];
 	}
 
@@ -200,7 +200,7 @@ public:
 	  * rotated to the left.
 	  * @return Horizontal scroll high register value.
 	  */
-	inline byte getHorizontalScrollHigh() {
+	inline byte getHorizontalScrollHigh() const {
 		return controlRegs[26];
 	}
 
@@ -209,7 +209,7 @@ public:
 	  * This is a V9958 feature, on older VDPs it always returns false.
 	  * @return true iff enabled.
 	  */
-	inline bool isBorderMasked() {
+	inline bool isBorderMasked() const {
 		return controlRegs[25] & 0x02;
 	}
 
@@ -219,21 +219,21 @@ public:
 	  * lower even page.
 	  * @return true iff enabled.
 	  */
-	inline bool isMultiPageScrolling() {
+	inline bool isMultiPageScrolling() const {
 		return (controlRegs[25] & 0x01) && (controlRegs[2] & 0x20);
 	}
 
 	/** Gets the current horizontal display adjust.
 	  * @return Adjust: 0 is leftmost, 7 is center, 15 is rightmost.
 	  */
-	inline int getHorizontalAdjust() {
+	inline int getHorizontalAdjust() const {
 		return horizontalAdjust;
 	}
 
 	/** Gets the current vertical display adjust.
 	  * @return Adjust: 0 is topmost, 7 is center, 15 is bottommost.
 	  */
-	inline int getVerticalAdjust() {
+	inline int getVerticalAdjust() const {
 		return verticalAdjust;
 	}
 
@@ -241,7 +241,7 @@ public:
 	  * Usually this is equal to the height of the top border,
 	  * but not so during overscan.
 	  */
-	inline int getLineZero() {
+	inline int getLineZero() const {
 		return lineZero;
 	}
 
@@ -249,7 +249,7 @@ public:
 	  * This setting is fixed at start of frame.
 	  * @return True if PAL timing, false if NTSC timing.
 	  */
-	inline bool isPalTiming() {
+	inline bool isPalTiming() const {
 		return palTiming;
 	}
 
@@ -260,7 +260,7 @@ public:
 	  * This setting is fixed at start of frame.
 	  * @return True iff this field should be displayed half a line lower.
 	  */
-	inline bool isInterlaced() {
+	inline bool isInterlaced() const {
 		return interlaced;
 	}
 
@@ -271,14 +271,14 @@ public:
 	  * This setting is fixed at start of frame.
 	  * @return True iff this field should be displayed half a line lower.
 	  */
-	inline bool isEvenOddEnabled() {
+	inline bool isEvenOddEnabled() const {
 		return controlRegs[9] & 4;
 	}
 
 	/** Is the even or odd field being displayed?
 	  * @return True iff this field should be displayed half a line lower.
 	  */
-	inline bool getEvenOdd() {
+	inline bool getEvenOdd() const {
 		return statusReg2 & 2;
 	}
 
@@ -290,7 +290,7 @@ public:
 	  * an interlaced display.
 	  * @return Line number mask that expressed even/odd state.
 	  */
-	inline int getEvenOddMask() {
+	inline int getEvenOddMask() const {
 		// TODO: Verify which page is displayed on even fields.
 		return ((~controlRegs[9] & 4) << 6) | ((statusReg2 & 2) << 7);
 	}
@@ -298,7 +298,7 @@ public:
 	/** Gets the number of VDP clock ticks (21MHz) elapsed between
 	  * a given time and the start of this frame.
 	  */
-	inline int getTicksThisFrame(const EmuTime &time) {
+	inline int getTicksThisFrame(const EmuTime &time) const {
 		return frameStartTime.getTicksTill(time);
 	}
 
@@ -307,21 +307,21 @@ public:
 	  * TODO: When improving the timing accuracy, think of a clearer
 	  *       way of sharing this information.
 	  */
-	inline int getAccessTiming() {
+	inline int getAccessTiming() const {
 		return (isDisplayEnabled() & 1)	// display enable
 		       | (controlRegs[8] & 2);	// sprite enable
 	}
 
 	/** Gets the sprite size in pixels (8/16).
 	  */
-	inline int getSpriteSize() {
+	inline int getSpriteSize() const {
 		return ((controlRegs[1] & 2) << 2) + 8;
 	}
 
 	/** Gets the sprite magnification.
 	  * @return Magnification: 1 = normal, 2 = double.
 	  */
-	inline int getSpriteMag() {
+	inline int getSpriteMag() const {
 		return (controlRegs[1] & 1) + 1;
 	}
 
@@ -329,7 +329,7 @@ public:
 	  * @return True iff blanking is off, the current mode supports
 	  *   sprites and sprites are not disabled.
 	  */
-	inline bool spritesEnabled() {
+	inline bool spritesEnabled() const {
 		return ((controlRegs[1] & 0x50) == 0x40)
 			&& ((controlRegs[8] & 0x02) == 0x00);
 	}
@@ -337,13 +337,13 @@ public:
 	/** Are commands possible in non Graphic modes? (V9958 only)
 	  * @return True iff CMD bit set.
 	  */
-	inline bool getCmdBit() {
+	inline bool getCmdBit() const {
 		return controlRegs[25] & 0x40;
 	}
 
 	/** Gets the number of VDP clockticks (21MHz) per frame.
 	  */
-	inline int getTicksPerFrame() {
+	inline int getTicksPerFrame() const {
 		return palTiming ? TICKS_PER_LINE * 313 : TICKS_PER_LINE * 262;
 	}
 
@@ -356,7 +356,7 @@ public:
 	  * @param time Timestamp to check.
 	  * @return True iff the timestamp is inside the current frame.
 	  */
-	inline bool isInsideFrame(const EmuTime &time) {
+	inline bool isInsideFrame(const EmuTime &time) const {
 		return time >= frameStartTime &&
 			getTicksThisFrame(time) <= getTicksPerFrame();
 	}
@@ -368,7 +368,7 @@ public:
 	  * TODO: Leave out the text mode case, since there are no sprites
 	  *       in text mode?
 	  */
-	inline int getLeftSprites() {
+	inline int getLeftSprites() const {
 		return 100 + 102 + 56
 			+ (horizontalAdjust - 7) * 4
 			+ (displayMode.isTextMode() ? 36 : 0);
@@ -379,14 +379,14 @@ public:
 	  * Does not include extra pixels of horizontal scroll low, since those
 	  * are not actually border pixels (sprites appear in front of them).
 	  */
-	inline int getLeftBorder() {
+	inline int getLeftBorder() const {
 		return getLeftSprites() + (isBorderMasked() ? 8 * 4 : 0);
 	}
 
 	/** Gets the number of VDP clockticks between start of line and the start
 	  * of the right border.
 	  */
-	inline int getRightBorder() {
+	inline int getRightBorder() const {
 		return getLeftSprites()
 			+ (displayMode.isTextMode() ? 960 : 1024);
 	}
@@ -396,7 +396,7 @@ public:
 	  * This includes extra pixels of horizontal scroll low,
 	  * but disregards border mask.
 	  */
-	inline int getLeftBackground() {
+	inline int getLeftBackground() const {
 		return getLeftSprites() + getHorizontalScrollLow() * 4;
 	}
 
@@ -450,12 +450,18 @@ private:
 		/** Horizontal adjust change
 		  */
 		HOR_ADJUST,
+		/** Change mode
+		  */
+		SET_MODE,
+		/** Enable/disable screen
+		  */
+		SET_BLANK,
 	};
 
 	/** Gets the number of display lines per screen.
 	  * @return 192 or 212.
 	  */
-	inline int getNumberOfLines() {
+	inline int getNumberOfLines() const {
 		return controlRegs[9] & 0x80 ? 212 : 192;
 	}
 
@@ -468,7 +474,7 @@ private:
 	  *   border or left/right erase or horizontal sync.
 	  *   False iff the VDP scanning is in the display range.
 	  */
-	inline bool getHR(int ticksThisFrame) {
+	inline bool getHR(int ticksThisFrame) const {
 		return
 			( ticksThisFrame + TICKS_PER_LINE - getRightBorder()
 				) % TICKS_PER_LINE
@@ -523,7 +529,9 @@ private:
 	  */
 	void changeRegister(byte reg, byte val, const EmuTime &time);
 
-	void setHorAdjust(const EmuTime &time);
+	/** Schedule a sync point at the start of the next line.
+	  */ 
+	void syncAtNextLine(SyncType type, const EmuTime &time);
 
 	/** Colour base mask has changed.
 	  * Inform the renderer and the VRAM.
@@ -723,9 +731,18 @@ private:
 	  */
 	bool cpuExtendedVram;
 
-	/** Current dispay mode.
+	/** Current dispay mode. Note that this is not always the same as the
+	  * display mode that can be obtained by combining the different mode
+	  * bits because a mode change only takes place at the start of the
+	  * next line.
 	  */
 	DisplayMode displayMode;
+
+	/** Is display enabled. Note that this is not always the same as bit 6
+	  * of R#1 because the display enable status change only takes place at
+	  * the start of the next line.
+	  */
+	bool displayEnabled;
 
 	/** VRAM read/write access pointer.
 	  * Contains the lower 14 bits of the current VRAM access address.
