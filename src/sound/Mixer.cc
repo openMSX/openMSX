@@ -51,7 +51,8 @@ Mixer::Mixer()
 #endif
 
 	muteSetting.reset(new BooleanSetting(
-		"mute", "(un)mute the emulation sound", false));
+		"mute", "(un)mute the emulation sound", false,
+		Setting::DONT_SAVE));
 	masterVolume.reset(new IntegerSetting(
 		"master_volume", "master volume", 75, 0, 100));
 	frequencySetting.reset(new IntegerSetting("frequency",

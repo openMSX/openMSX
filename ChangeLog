@@ -1,5 +1,9 @@
 $Id$
 
+2005-01-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Don't save "mute" setting, at least not until we have an OSD
+	  indication for this
+
 2005-01-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Machine code executes faster is loop is aligned (on 16 byte boundary
 	  for athlon CPUs):
