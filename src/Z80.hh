@@ -73,103 +73,40 @@ class Z80 {
 		void Z80_SetWaitStates (int n);
 
 
-/****************************************************************************/
-/*** Machine dependent definitions                                        ***/
-/****************************************************************************/
-/* #define DEBUG      */              /* Compile debugging version          */
-/* #define X86_ASM    */              /* Compile optimised GCC/x86 version  */
-/* #define LSB_FIRST  */              /* Compile for low-endian CPU         */
-/* #define __64BIT__  */              /* Compile for 64 bit machines        */
-/* #define __128BIT__ */              /* Compile for 128 bit machines       */
-
 #ifndef WORDS_BIGENDIAN
 	#define LSB_FIRST
 #endif
-#if (SIZEOF_LONG==8)
-	#define __64BIT__
-	#warning 64 bit mode is not tested yet
-#endif
-#if (SIZEOF_LONG==16)
-	#define __128BIT__
-	#warning 128 bit mode is not tested yet
-#endif
-
-/****************************************************************************/
-/* sizeof(byte)=1, sizeof(word)=2, sizeof(dword)>=4                         */
-/****************************************************************************/
-typedef unsigned char  byte;
-typedef unsigned short word;
-typedef unsigned       dword;
 typedef signed char    offset;
 
 /****************************************************************************/
 /* Define a Z80 word. Upper bytes are always zero                           */
 /****************************************************************************/
 typedef union {
-#ifdef __128BIT__
- #ifdef LSB_FIRST
-//   struct { byte l,h,h2,h3,h4,h5,h6,h7,
-//                 h8,h9,h10,h11,h12,h13,h14,h15; } B;
-//   struct { word l,h,h2,h3,h4,h5,h6,h7; } W;
-//   dword D;
- #else
-//   struct { byte h15,h14,h13,h12,h11,h10,h9,h8,
-//                 h7,h6,h5,h4,h3,h2,h,l; } B;
-//   struct { word h7,h6,h5,h4,h3,h2,h,l; } W;
-//   dword D;
- #endif
-#elif __64BIT__
- #ifdef LSB_FIRST
-//   struct { byte l,h,h2,h3,h4,h5,h6,h7; } B;
-//   struct { word l,h,h2,h3; } W;
-//   dword D;
- #else
-//   struct { byte h7,h6,h5,h4,h3,h2,h,l; } B;
-//   struct { word h3,h2,h,l; } W;
-//   dword D;
- #endif
+#ifdef LSB_FIRST
+   struct { byte l,h; } B;
 #else
- #ifdef LSB_FIRST
-   struct { byte l,h,h2,h3; } B;
-   struct { word l,h; } W;
-   dword D;
- #else
-   struct { byte h3,h2,h,l; } B;
-   struct { word h,l; } W;
-   dword D;
- #endif
+   struct { byte h,l; } B;
 #endif
+   word w;
 } z80regpair;
-
-/****************************************************************************/
-/*** End of machine dependent definitions                                 ***/
-/****************************************************************************/
-
-/****************************************************************************/
-/* The Z80 registers. HALT is set to 1 when the CPU is halted, the refresh  */
-/* register is calculated as follows: refresh=(Regs.R&127)|(Regs.R2&128)    */
-/****************************************************************************/
-typedef struct {
-	z80regpair AF,  BC,  DE,  HL, IX, IY, PC, SP;
-	z80regpair AF2, BC2, DE2, HL2;
-	bool nextIFF1, IFF1, IFF2, HALT;
-	unsigned IM, I, R, R2;
-	int ICount;       // T-state count
-} CPU_Regs;
 
 	private:
 		#include "Z80Core.hh"
 
 		static const byte S_FLAG = 0x80;
 		static const byte Z_FLAG = 0x40;
+		static const byte Y_FLAG = 0x20;
 		static const byte H_FLAG = 0x10;
+		static const byte X_FLAG = 0x08;
 		static const byte V_FLAG = 0x04;
+		static const byte P_FLAG = V_FLAG;
 		static const byte N_FLAG = 0x02;
 		static const byte C_FLAG = 0x01;
 
-		static byte PTable[512];
-		static byte ZSTable[512];
-		static byte ZSPTable[512];
+		static byte ZSTable[256];
+		static byte XYTable[256];
+		static byte ZSXYTable[256];
+		static byte ZSPXYTable[256];
 		static const word DAATable[2048];
 		
 		static opcode_fn opcode_dd_cb[256];
@@ -179,6 +116,10 @@ typedef struct {
 		static opcode_fn opcode_ed[256];
 		static opcode_fn opcode_fd[256];
 		static opcode_fn opcode_main[256];
+
+		static byte irep_tmp1[4][4];
+		static byte drep_tmp1[4][4];
+		static byte breg_tmp2[256];
 
 		#ifdef Z80DEBUG
 			byte debugmemory[65536];
@@ -195,7 +136,16 @@ typedef struct {
 		
 		Z80Interface *interface;
 
-		CPU_Regs R;
+/****************************************************************************/
+/* The Z80 registers. HALT is set to 1 when the CPU is halted, the refresh  */
+/* register is calculated as follows: refresh=(Regs.R&127)|(Regs.R2&128)    */
+/****************************************************************************/
+
+		z80regpair AF,  BC,  DE,  HL, IX, IY, PC, SP;
+		z80regpair AF2, BC2, DE2, HL2;
+		bool nextIFF1, IFF1, IFF2, HALT;
+		unsigned IM, I, R, R2;
+		int ICount;       // T-state count
 };
 
 #endif // __Z80_H__

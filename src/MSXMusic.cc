@@ -12,6 +12,7 @@ MSXMusic::MSXMusic()
 MSXMusic::~MSXMusic()
 {
 	PRT_DEBUG("Destroying an MSXMusic object");
+	delete ym2413;
 }
 
 void MSXMusic::init()
