@@ -48,7 +48,7 @@ SRC_ONLY:= \
 HDR_ONLY:= \
 	openmsx \
 	Schedulable \
-	MSXException \
+	MSXException InitException \
 	MSXRomPatchInterface \
 	NonInheritable
 
