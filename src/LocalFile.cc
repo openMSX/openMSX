@@ -1,3 +1,5 @@
+// $Id$
+
 #include "LocalFile.hh"
 #include "FileType.hh"
 #include "FileManager.hh"

@@ -1,3 +1,5 @@
+// $Id$
+
 #include "HttpFile.hh"
 #include "FileManager.hh"
 

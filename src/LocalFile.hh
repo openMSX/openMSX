@@ -1,3 +1,5 @@
+// $Id$
+
 #ifndef __LOCALFILE_HH__
 #define __LOCALFILE_HH__
 

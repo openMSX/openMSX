@@ -1,3 +1,5 @@
+// $Id$
+
 #ifndef __HTTPFILE_HH__
 #define __HTTPFILE_HH__
 
