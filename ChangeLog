@@ -1,5 +1,9 @@
 $Id$
 
+2003-07-03 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed bug in scanline effect, which caused glitches on ATI and
+	  Matrox cards.
+
 2003-07-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented stereo/mono and 8/16-bit conversion for wav files
 	* Implemeted "force_play" and "no_force_play" for cassetteplayer

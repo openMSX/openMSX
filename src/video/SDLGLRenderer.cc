@@ -312,7 +312,7 @@ void SDLGLRenderer::drawEffects(int blurSetting, int scanlineAlpha)
 		glColor4ub(0, 0, 0, scanlineAlpha);
 		glBegin(GL_LINES);
 		for (int y = 0; y < HEIGHT; y += 2) {
-			glVertex2i(0, y); glVertex2i(WIDTH, y);
+			glVertex2f(0, y + 1.5); glVertex2f(WIDTH, y + 1.5);
 		}
 		glEnd();
 	}
