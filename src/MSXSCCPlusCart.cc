@@ -11,7 +11,8 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
 	deviceConfig=config;
 	deviceName=&config->getId();
   
-	cartridgeSCC=new SCC();
+	short volume = (short)config->getParameterAsInt("volume");
+	cartridgeSCC=new SCC(volume);
 	cartridgeSCC->setChipMode(SCC::SCC_Compatible);
   
 	int ROM_SIZE;

@@ -24,9 +24,11 @@ Scheduler::Scheduler()
 {
 	pauseMutex = SDL_CreateMutex();
 	paused = false;
+	doSound = true;
 	runningScheduler = true;
 	EventDistributor::instance()->registerAsyncListener(SDL_QUIT, this);
 	HotKey::instance()->registerAsyncHotKey(SDLK_F12, this);
+	HotKey::instance()->registerAsyncHotKey(SDLK_F11, this);
 }
 
 Scheduler::~Scheduler()
@@ -133,6 +135,9 @@ void Scheduler::signalHotKey(SDLKey key) {
 	if (key == SDLK_F12) {
 		stopScheduling();
 		unpause();
+	} else if (key == SDLK_F11) {
+		doSound = (!doSound);
+		Mixer::instance()->pause(doSound);
 	} else {
 		assert(false);
 	}
@@ -142,6 +147,7 @@ void Scheduler::unpause()
 {
 	if (paused) { 
 		paused = false;
+		doSound = true ;
 		SDL_mutexV(pauseMutex);	// release mutex;
 		Mixer::instance()->pause(false);
 		PRT_DEBUG("Unpaused");
@@ -151,6 +157,7 @@ void Scheduler::pause()
 {
 	if (!paused) { 
 		paused = true;
+		doSound = false ;
 		SDL_mutexP(pauseMutex);	// grab mutex
 		Mixer::instance()->pause(true);
 		PRT_DEBUG("Paused");

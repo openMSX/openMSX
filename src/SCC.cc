@@ -2,26 +2,22 @@
 
 #include "SCC.hh"
 
-SCC::SCC()
+SCC::SCC(short volume)
 {
 	PRT_DEBUG("instantiating an SCC object");
-//}
-//
-//void SCC::init()
-//{
-  //Register itself as a soundevice
-  // TODO setVolume(21000);	// TODO find a good value and put it in config file
-  int bufSize = Mixer::instance()->registerSound(this);
-  buffer = new int[bufSize];
-  setInternalMute(false);  // set muted
-
-  setVolume(25000);
-  reset();
+	//Register itself as a soundevice
+	int bufSize = Mixer::instance()->registerSound(this);
+	buffer = new int[bufSize];
+	setInternalMute(false);  // set muted
+	setVolume(volume);
+	reset();
 }
 
 SCC::~SCC()
 {
 	PRT_DEBUG("Destructing an SCC object");
+	Mixer::instance()->unregisterSound(this);
+
 }
 byte SCC::readMemInterface(byte address,const EmuTime &time)
 {
@@ -114,10 +110,12 @@ void SCC::writeMemInterface(byte address, byte value, const EmuTime &time)
     //Don't know why but japanese doesn't change wave when noise is enabled ??
     //if (!rotate[ch]) {
     wave[ch][address&0x1f] = value;
-    volAdjustedWave[ch][address&0x1f] = (short)value * (short)volume[ch];
+    volAdjustedWave[ch][address&0x1f] = ((short)value * (int)volume[ch] * (int)masterVolume)/2048;
+    // Wouter: why did you sugested an (int) here for volume[ch] ?? 
+    // and why cast masterVolume to int when it was already an int, I took it over but don't know why!
     if ((currentChipMode != SCC_plusmode)&&(ch==3)){
       wave[4][address&0x1f] = value;
-      volAdjustedWave[4][address&0x1f] = (short)value * (short)volume[4];
+      volAdjustedWave[4][address&0x1f] = ((short)value * (int)volume[4]  * (int)masterVolume)/2048;
       //PRT_DEBUG("SCC: waveform 5");
       if (currentChipMode == SCC_Compatible)
 	memInterface[address+64] = value ;
@@ -207,7 +205,7 @@ void SCC::setFreqVol(byte value, byte address)
     byte channel=address-0x0a;
     volume[channel] = value&0xf;
     for (int i=0;i<32;i++)
-	  volAdjustedWave[channel][i] = ((((short)(wave[channel][i]) * (short)volume[channel])));
+	  volAdjustedWave[channel][i] = ((short)(wave[channel][i]) * (int)volume[channel] * (int)masterVolume)/2048;
     checkMute();
   }
   else { // address==0x0F
@@ -272,7 +270,7 @@ void SCC::setSampleRate(int sampleRate)
 
 void SCC::setInternalVolume(short maxVolume)
 {
-	// TODO
+	masterVolume=maxVolume;
 }
 
 int *SCC::updateBuffer(int length)
@@ -282,7 +280,8 @@ int *SCC::updateBuffer(int length)
 		scctime += realstep;
 		unsigned advance = scctime / SCC_STEP;
 		scctime %= SCC_STEP;
-		unsigned mixed = 0;
+		//unsigned mixed = 0;
+		int mixed = 0;
 		unsigned enable = ch_enable;
 		for (int channel = 0; channel < 5; channel++, enable >>= 1) {
 			if (enable & 1) {

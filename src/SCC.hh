@@ -11,7 +11,7 @@
 class SCC : public SoundDevice
 {
 	public:
-		SCC();
+		SCC(short volume);
 		//SCC(MSXConfig::Device *config);
 		virtual ~SCC();
 

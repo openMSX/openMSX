@@ -23,6 +23,12 @@ MSXMegaRom::MSXMegaRom(MSXConfig::Device *config, const EmuTime &time)
 	mapperMask--;
 	
 	mapperType = retriefMapperType();
+	//only instanciate SCC if needed
+	if (mapperType==2){
+	  short volume = (short)config->getParameterAsInt("volume");
+	  cartridgeSCC=new SCC(volume);
+	}
+
 
 	reset(time);
 }
@@ -34,11 +40,9 @@ MSXMegaRom::~MSXMegaRom()
 
 void MSXMegaRom::reset(const EmuTime &time)
 {
-	//only instanciate SCC if needed
 	if (mapperType==2){
-		cartridgeSCC= new SCC();
+	  cartridgeSCC->reset();
 	}
-
 	// set internalMemoryBank
 	// TODO: mirror if number of 8kB blocks not fully filled ?
 	internalMemoryBank[0]=0;		// unused

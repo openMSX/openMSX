@@ -176,6 +176,7 @@
      <parameter name="filename">NEMESIS2.ROM</parameter>
     <parameter name="filesize">131072</parameter>
     <parameter name="skip_headerbytes">0</parameter>
+    <parameter name="volume">22500</parameter>
   </device>
   <device id="Nemesis 2 Cartridge">
     <type>MegaRom</type>
@@ -192,6 +193,7 @@
     <parameter name="filename">NEMESIS2.ROM</parameter>
     <parameter name="filesize">131072</parameter>
     <parameter name="skip_headerbytes">0</parameter>
+    <parameter name="volume">22500</parameter>
   </device>
 
   

@@ -59,6 +59,7 @@ class Scheduler : public EventListener, public HotKeyListener
 		static const EmuTime infinity;
 
 		bool paused;
+		bool doSound;
 		bool runningScheduler;
 		SDL_mutex *pauseMutex;
 };
