@@ -2,7 +2,7 @@
 
 #include "LocalFile.hh"
 #include "File.hh"
-
+#include <ios>
 
 LocalFile::LocalFile(const std::string &filename, int options)
 {
