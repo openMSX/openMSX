@@ -178,7 +178,7 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderCharacterLines(
 	if (SDL_MUSTLOCK(charDisplayCache)) SDL_UnlockSurface(charDisplayCache);
 }
 
-template <class Pixel> SDLHiRenderer<Pixel>::DirtyChecker
+template <class Pixel> typename SDLHiRenderer<Pixel>::DirtyChecker
 	// Use checkDirtyBitmap for every mode for which isBitmapMode is true.
 	SDLHiRenderer<Pixel>::modeToDirtyChecker[] = {
 		// M5 M4 = 0 0  (MSX1 modes)

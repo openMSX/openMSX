@@ -63,7 +63,7 @@ template class CharacterConverter<unsigned int, Renderer::ZOOM_512>;
 template class CharacterConverter<unsigned int, Renderer::ZOOM_REAL>;
 
 template <class Pixel, Renderer::Zoom zoom>
-CharacterConverter<Pixel, zoom>::RenderMethod
+typename CharacterConverter<Pixel, zoom>::RenderMethod
 	CharacterConverter<Pixel, zoom>::modeToRenderMethod[] = {
 		// M5 M4 = 0 0  (MSX1 modes)
 		&CharacterConverter::renderGraphic1,
