@@ -1,4 +1,4 @@
-# $id:$
+# $Id$
 
 SUBDIRS = src doc
 

@@ -1,3 +1,5 @@
+$Id$
+
 Code out of cvs doesn't contain
 Makefile.in's and configure, soo
 you need to run

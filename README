@@ -1,7 +1,9 @@
-	openmsx - Emulate the MSX standard.
+$Id$
+
+  openmsx - Emulate the MSX standard.
 
   Copyright (C) 2001 David Heremans
 
 Comments are welcome.
 
-	- David Heremans <david.heremans@gnu-linux.net>
+  - David Heremans <david.heremans@gnu-linux.net>
