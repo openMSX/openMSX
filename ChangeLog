@@ -8,6 +8,8 @@ $Id$
 	* added endian-ness check to configure.in
 	* removed -DLDB_FIRST, and made it dependant on
 	  configure result
+	* added sizeof long autoconf check, to make Z80.cc
+	  also work correctly on 64 bit and 128 bit cpu's [untested]
 
 2001-09-15 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* started implemention of MSXPSG (no sound generation yet)
