@@ -25,6 +25,7 @@ libVideo_la_SOURCES = \
 	VDP.hh VDP.cc \
 	VDPCmdEngine.hh VDPCmdEngine.cc \
 	VDPVRAM.hh VDPVRAM.cc \
+	VRAMObserver.hh \
 	VDPSettings.hh VDPSettings.cc \
 	SpriteChecker.hh SpriteChecker.cc \
 	RenderSettings.hh RenderSettings.cc \
