@@ -119,7 +119,9 @@ public:
 
 	/** Return the current display mode
 	  */
-	V9990DisplayMode getDisplayMode();
+	inline V9990DisplayMode getDisplayMode() const {
+		return mode;
+	}
 
 	/** Return the current color mode
 	  */
@@ -312,7 +314,11 @@ private:
 	/** Emulation time when this frame was started (VSYNC)
 	  */
 	Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND> frameStartTime;
-	
+
+	/** Store display mode because it's queried a lot
+	  */ 
+	V9990DisplayMode mode;
+
 	// --- methods ----------------------------------------------------
 
 	/** Get VRAM read or write address from V9990 registers
@@ -355,6 +361,10 @@ private:
 	  * @param irqType  Type of IRQ
 	  */ 
 	void raiseIRQ(IRQType irqType);
+	
+	/** Precalculate the display mode
+	  */ 
+	void calcDisplayMode();
 };
 
 } // namespace openmsx

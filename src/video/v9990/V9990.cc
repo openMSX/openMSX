@@ -61,6 +61,7 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
 
         // clear regs TODO find realistic init values
         memset(regs, 0, sizeof(regs));
+	calcDisplayMode();
 
 	// create VRAM
 	vram.reset(new V9990VRAM(this, time));
@@ -122,6 +123,7 @@ void V9990::reset(const EmuTime& time)
 	// Clear registers / ports
 	memset(regs, 0, sizeof(regs));
 	regSelect = 0xFF; // TODO check value for power-on and reset
+	calcDisplayMode();
 
 	palTiming = false;
 	// Reset sub-systems
@@ -168,7 +170,7 @@ byte V9990::readIO(byte port, const EmuTime& time)
 			palPtr &= ~3;
 			renderer->setPalette(palPtr >> 2,
 			                     regs[palPtr], regs[palPtr+1], regs[palPtr+2],
-								 time);
+			                     time);
 		}
 		case COMMAND_DATA:
 			// TODO
@@ -223,7 +225,7 @@ byte V9990::peekIO(byte port, const EmuTime& time) const
 	return 0xFF;
 }
 
-void V9990::writeIO(byte port, byte val, const EmuTime &time)
+void V9990::writeIO(byte port, byte val, const EmuTime& time)
 {
 	port &= 0x0F;
 	
@@ -262,10 +264,10 @@ void V9990::writeIO(byte port, byte val, const EmuTime &time)
 			}
 			palPtr &= ~3;
 			renderer->setPalette(palPtr >> 2,
-			                     palette[palPtr],
-								 palette[palPtr + 1],
-								 palette[palPtr + 2],
-								 time);
+			                     palette[palPtr + 0],
+			                     palette[palPtr + 1],
+			                     palette[palPtr + 2],
+			                     time);
 			break;
 		}
 		case COMMAND_DATA:
@@ -299,6 +301,7 @@ void V9990::writeIO(byte port, byte val, const EmuTime &time)
 		
 		case SYSTEM_CONTROL:
 			status = (status & 0xFB) | ((val & 1) << 2); 
+			calcDisplayMode();
 			renderer->setDisplayMode(getDisplayMode(), time);
 			renderer->setImageWidth(getImageWidth());
 		break;
@@ -324,11 +327,11 @@ void V9990::writeIO(byte port, byte val, const EmuTime &time)
 // Schedulable
 // -------------------------------------------------------------------------
 
-void V9990::executeUntil(const EmuTime &time, int userData)
+void V9990::executeUntil(const EmuTime& time, int userData)
 {
 	PRT_DEBUG("[" << time << "] "
 	          "V9990::executeUntil - data=0x" << std::hex << userData);
-	switch(userData)  {
+	switch (userData)  {
 		case V9990_VSYNC:
 			renderer->frameEnd(time);
 			frameStart(time);
@@ -485,6 +488,7 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 				break;
 			case SCREEN_MODE_0:
 			case SCREEN_MODE_1:
+				calcDisplayMode();
 				renderer->setDisplayMode(getDisplayMode(), time);
 				// fall through!
 			case PALETTE_CONTROL:
@@ -505,7 +509,7 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 	}
 }
 
-void V9990::createRenderer(const EmuTime &time)
+void V9990::createRenderer(const EmuTime& time)
 {
 	renderer.reset(); // delete old renderer before creating new one
 	renderer.reset(RendererFactory::createV9990Renderer(this));
@@ -573,43 +577,42 @@ V9990ColorMode V9990::getColorMode()
 	return mode;
 }
 
-V9990DisplayMode V9990::getDisplayMode()
+void V9990::calcDisplayMode()
 {
-	V9990DisplayMode mode = INVALID_DISPLAY_MODE;
-
-	switch(regs[SCREEN_MODE_0] & 0xC0) {
-		case 0x00: mode = P1;
+	mode = INVALID_DISPLAY_MODE;
+	switch (regs[SCREEN_MODE_0] & 0xC0) {
+		case 0x00:
+			mode = P1;
 			break;
-		case 0x40: mode = P2;
+		case 0x40:
+			mode = P2;
 			break;
 		case 0x80:
-			if(status & 0x04) { /* MCLK timing */
-				switch(regs[SCREEN_MODE_0] & 0x30) {
-					case 0x00: mode = B0; break;
-					case 0x10: mode = B2; break;
-					case 0x20: mode = B4; break;
-					case 0x30: /* mode = INVALID_DISPLAY_MODE; */ break;
-					default: assert(false);
+			if (status & 0x04) {
+				// MCLK timing
+				switch (regs[SCREEN_MODE_0] & 0x30) {
+				case 0x00: mode = B0; break;
+				case 0x10: mode = B2; break;
+				case 0x20: mode = B4; break;
+				case 0x30: mode = INVALID_DISPLAY_MODE; break;
 				}
-			} else { /* XTAL1 timing */
+			} else {
+				// XTAL1 timing
 				switch(regs[SCREEN_MODE_0] & 0x30) {
-					case 0x00: mode = B1; break;
-					case 0x10: mode = B3; break;
-					case 0x20: mode = B7; break;
-					case 0x30: /* mode = INVALID_DISPLAY_MODE; */ break;
-					default: assert(false);
+				case 0x00: mode = B1; break;
+				case 0x10: mode = B3; break;
+				case 0x20: mode = B7; break;
+				case 0x30: mode = INVALID_DISPLAY_MODE; break;
 				}
 			}
 			break;
-		case 0xC0: /*mode = INVALID_DISPLAY_MODE*/;
+		case 0xC0:
+			mode = INVALID_DISPLAY_MODE;
 			break;
-		default:
-			assert(false);
 	}
 
 	// TODO Check
-	if(mode == INVALID_DISPLAY_MODE) mode = P1;
-	return mode;
+	if (mode == INVALID_DISPLAY_MODE) mode = P1;
 }
 
 } // namespace openmsx
