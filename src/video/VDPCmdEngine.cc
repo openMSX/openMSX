@@ -102,7 +102,7 @@ void VDPCmdEngine::setCmdReg(byte index, byte value, const EmuTime &time)
 		SX = (SX & 0x100) | value;
 		break;
 	case 0x01: // source X high
-		SX = (SX & 0x0FF) | ((value & 0x01) << 8); 
+		SX = (SX & 0x0FF) | ((value & 0x01) << 8);
 		break;
 	case 0x02: // source Y low
 		SY = (SY & 0x300) | value;
@@ -158,8 +158,6 @@ void VDPCmdEngine::setCmdReg(byte index, byte value, const EmuTime &time)
 
 void VDPCmdEngine::updateDisplayMode(DisplayMode mode, const EmuTime &time)
 {
-	sync(time);
-
 	int newScrMode;
 	switch (mode.getBase()) {
 	case DisplayMode::GRAPHIC4:
@@ -185,6 +183,7 @@ void VDPCmdEngine::updateDisplayMode(DisplayMode mode, const EmuTime &time)
 	}
 
 	if (newScrMode != scrMode) {
+		sync(time);
 		scrMode = newScrMode;
 		// TODO for now abort cmd in progress, find out what really happens
 		if (CMD) {
