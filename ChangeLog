@@ -1,5 +1,10 @@
 $Id$
 
+2003-08-18 David Heremans <david.heremans@gnu-linux.net>
+	* Added cached diskwriting to FDC_DirAsDSK. Regular file operations
+	  seem to work, formatting doesn't yet. No writes to native host OS
+	  files so far.
+
 2003-08-18 Reikan <openMSX4Win32@ranpub.com>
 	* Adjusted as a first step to support win32.
 

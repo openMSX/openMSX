@@ -4,6 +4,10 @@
 #define __FDC_DirAsDSK__HH__
 
 #include "SectorBasedDisk.hh"
+#include <map>
+
+using std::map;
+
 
 namespace openmsx {
 
@@ -53,6 +57,7 @@ class FDC_DirAsDSK : public SectorBasedDisk
 	private:
 		static const int MAX_CLUSTER = 720;
 		static const int SECTORS_PER_FAT = 3;
+		void read(int logicalSector, int size, byte* buf);
 
 		bool checkFileUsedInDSK(const string& fullfilename);
 		bool checkMSXFileExists(const string& msxfilename);
@@ -72,8 +77,10 @@ class FDC_DirAsDSK : public SectorBasedDisk
 
 		static const byte DefaultBootBlock[];
 		static const string BootBlockFileName ;
+		static const string CachedSectorsFileName ;
 		byte BootBlock[SECTOR_SIZE];
 		string MSXrootdir;
+		map<const int, byte*> cachedSectors;
 };
 
 } // namespace openmsx

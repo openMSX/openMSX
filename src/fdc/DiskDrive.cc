@@ -261,6 +261,7 @@ void RealDrive::insertDisk(FileContext &context,
 
 void RealDrive::ejectDisk()
 {
+	PRT_DEBUG("Ejecting disk");
 	delete disk;
 	disk = new DummyDisk();
 }

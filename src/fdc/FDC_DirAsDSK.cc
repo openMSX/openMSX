@@ -38,6 +38,7 @@ namespace openmsx {
 
 //Bootblock taken from a philips  nms8250 formatted disk
 const string FDC_DirAsDSK::BootBlockFileName = ".sector.boot";
+const string FDC_DirAsDSK::CachedSectorsFileName = ".sector.cache";
 const byte FDC_DirAsDSK::DefaultBootBlock[] =
 {
 0xeb,0xfe,0x90,0x4e,0x4d,0x53,0x20,0x32,0x2e,0x30,0x50,0x00,0x02,0x02,0x01,0x00,
@@ -86,6 +87,7 @@ word FDC_DirAsDSK::ReadFAT(word clnr)
 // write an entry to FAT in memory
 void FDC_DirAsDSK::WriteFAT(word clnr, word val)
 {
+	PRT_DEBUG("Updating FAT "<<clnr<<" will point to "<<val);
 	byte* P=FAT + (clnr * 3) / 2;
 	if (clnr & 1) { 
 		P[0] = (P[0] & 0x0F) + (val << 4);
@@ -238,7 +240,8 @@ FDC_DirAsDSK::FDC_DirAsDSK(FileContext &context, const string &fileName)
 	FAT[0] = 0xF9;
 	FAT[1] = 0xFF;
 	FAT[2] = 0xFF;
-
+	PRT_DEBUG("FAT located at : "<<(int)FAT );
+	
 	//clear the clustermap so that they all point to 'clean' sectors
 	for (int i = 0; i < MAX_CLUSTER; i++) {
 		clustermap[i].dirEntryNr=NODIRENTRY;
@@ -258,11 +261,72 @@ FDC_DirAsDSK::FDC_DirAsDSK(FileContext &context, const string &fileName)
 		d = readdir(dir);
 	}
 	closedir(dir);
+	
+	// And now read the cached sectors
+	//TODO: we should check if the other files have changed since we
+	//      wrote the cached sectors, this could invalided the cache !
+	tmpfilename=std::string(MSXrootdir) + "/" + CachedSectorsFileName ;
+	PRT_DEBUG("Trying to read cached sector file" << tmpfilename);
+	if (stat(tmpfilename.c_str(), &fst) ==0 ) {
+		if ( ( fst.st_size % ( SECTOR_SIZE + sizeof(byte)) ) == 0 ){
+		FILE* file = fopen(tmpfilename.c_str(), "rb");
+		if (file) {
+			PRT_INFO("reading cached sectors from " << tmpfilename);
+			int i;
+			byte* tmpbuf;
+			while ( ! feof(file) ){
+				fread(&i , 1, sizeof(int), file);
+				PRT_DEBUG("reading cached sector " << i);
+				tmpbuf=(byte*)malloc(SECTOR_SIZE); //TODO check failure!!
+				cachedSectors[i]=tmpbuf;
+
+				fread(tmpbuf , 1, SECTOR_SIZE, file);
+			}
+
+			//fread(BootBlock, 1, SECTOR_SIZE, file);
+			fclose(file);
+		}
+		}
+	} else {
+	  PRT_DEBUG("Couldn't stat cached sector file" << tmpfilename);
+	}
 }
 
 FDC_DirAsDSK::~FDC_DirAsDSK()
 {
 	PRT_DEBUG("Destroying FDC_DirAsDSK object");
+	map<const int, byte*>::const_iterator it;
+	//writing the cached sectors to a file
+	std::string filename=std::string(MSXrootdir) + "/" + CachedSectorsFileName ;
+	if ( cachedSectors.begin() != cachedSectors.end() ){
+		FILE* file = fopen(filename.c_str(), "wb");
+		if (file) {
+		  // if we have cached sectors we need also to save the fat and dir sectors!
+		  byte* tmpbuf=(byte*)malloc(SECTOR_SIZE);
+		  for (int i=1 ; i <= 14 ; i++ ){
+		    read(i, SECTOR_SIZE, tmpbuf);
+		    fwrite(&i , 1, sizeof(int), file);
+		    fwrite(tmpbuf , 1, SECTOR_SIZE, file);
+		  }
+
+		  for ( it = cachedSectors.begin() ; it != cachedSectors.end() ; it++ ) {
+		    fwrite(&(it->first) , 1, sizeof(int), file);
+		    fwrite(it->second , 1, SECTOR_SIZE, file);
+		  }
+		} else {
+		PRT_INFO("Couldn't create cached sector file" << filename);
+	  }
+	} else {
+		// remove cached sectors file if it exists
+		PRT_INFO("Removing "<<filename );
+		unlink( filename.c_str() );
+	}
+
+
+	//cleaning up memory from cached sectors
+	for ( it = cachedSectors.begin() ; it != cachedSectors.end() ; it++ ) {
+		free( it->second ); // ?????
+	}
 }
 
 void FDC_DirAsDSK::read(byte track, byte sector, byte side,
@@ -271,9 +335,14 @@ void FDC_DirAsDSK::read(byte track, byte sector, byte side,
 	assert(size == SECTOR_SIZE);
 	
 	int logicalSector = physToLog(track, side, sector);
-	if (logicalSector >= nbSectors) {
+	if (logicalSector > nbSectors) {
 		throw NoSuchSectorException("No such sector");
 	}
+	read(logicalSector, size, buf);
+}
+
+void FDC_DirAsDSK::read(int logicalSector, int size, byte* buf)
+{
 	PRT_DEBUG("Reading sector : " << logicalSector );
 	if (logicalSector == 0) {
 		//copy our fake bootsector into the buffer
@@ -294,6 +363,10 @@ void FDC_DirAsDSK::read(byte track, byte sector, byte side,
 		};
 
 		logicalSector = (logicalSector - 1) % SECTORS_PER_FAT;
+		PRT_DEBUG("memcpy FAT located at : "<<(int)FAT );
+		PRT_DEBUG("FAT[0] : "<< std::hex <<FAT[0] );
+		PRT_DEBUG("FAT[1] : "<<FAT[1] );
+		PRT_DEBUG("FAT[2] : "<<FAT[2] );
 		memcpy(buf, FAT + logicalSector * SECTOR_SIZE, size);
 	} else if (logicalSector < 14) {
 		//create correct DIR sector 
@@ -301,7 +374,9 @@ void FDC_DirAsDSK::read(byte track, byte sector, byte side,
 		logicalSector -= (1 + 2 * SECTORS_PER_FAT);
 		int dirCount = logicalSector * 16;
 		for (int i = 0; i < 16; i++) {
-			checkAlterFileInDisk(dirCount);
+			if ( ! mapdir[i].filename.empty()) {
+				checkAlterFileInDisk(dirCount);
+			}
 			memcpy(buf, &(mapdir[dirCount++].msxinfo), 32);
 			buf += 32;
 		}
@@ -316,7 +391,14 @@ void FDC_DirAsDSK::read(byte track, byte sector, byte side,
 			// 0xE5 is the value used on the Philips VG8250
 			memset(buf, 0xE5, SECTOR_SIZE  );
 		} else if (clustermap[cluster].dirEntryNr == CACHEDCLUSTER ) {
-			PRT_INFO("No cached cluster routine implemented yet");
+			PRT_DEBUG ("reading  cachedSectors["<<logicalSector<<"]" );
+			PRT_DEBUG ("cachedSectors["<<logicalSector<<"] :" <<(int) cachedSectors[logicalSector] );
+			if ( cachedSectors[logicalSector] != NULL ){
+			memcpy(buf, cachedSectors[logicalSector] , SECTOR_SIZE);
+			} else {
+			//return an 'empty' sector
+			memset(buf, 0xE5, SECTOR_SIZE  );
+			}
 		} else {
 			// open file and read data
 			int offset = clustermap[cluster].fileOffset + (logicalSector & 1) * SECTOR_SIZE;
@@ -352,6 +434,10 @@ void FDC_DirAsDSK::checkAlterFileInDisk(const string& fullfilename)
 
 void FDC_DirAsDSK::checkAlterFileInDisk(const int dirindex)
 {
+	if (  mapdir[dirindex].filename.empty()) {
+		return;
+	}
+	
 	int fsize;
 	// compute time/date stamps
 	struct stat fst;
@@ -360,12 +446,13 @@ void FDC_DirAsDSK::checkAlterFileInDisk(const int dirindex)
 	fsize = fst.st_size;
 
 	if ( mapdir[dirindex].filesize != fsize ) {
+		PRT_DEBUG("Changed filesize "<<mapdir[dirindex].filesize<<" != "<<fsize<<" for file "<<mapdir[dirindex].filename);
 		updateFileInDisk(dirindex);
 	};
 }
 void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 {
-	PRT_INFO("updateFileInDisk : " << mapdir[dirindex].filename );
+	PRT_INFO("updateFileInDisk : " << mapdir[dirindex].filename << " with dirindex  " << dirindex);
 	// compute time/date stamps
 	int fsize;
 	struct stat fst;
@@ -449,7 +536,7 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 	assert(size == SECTOR_SIZE);
 	
 	int logicalSector = physToLog(track, side, sector);
-	if (logicalSector >= nbSectors) {
+	if (logicalSector > nbSectors) {
 		throw NoSuchSectorException("No such sector");
 	}
 	PRT_DEBUG("Writing sector : " << logicalSector );
@@ -467,13 +554,70 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 		} else {
 			PRT_INFO("Couldn't create bootsector file" << filename);
 		}
+	} else if (logicalSector < (1 + 2 * SECTORS_PER_FAT)) {
+		//copy to correct sector from FAT
+		logicalSector = (logicalSector - 1) % SECTORS_PER_FAT;
+		memcpy( FAT + logicalSector * SECTOR_SIZE, buf , size);
+	} else if (logicalSector < 14) {
+		//create correct DIR sector 
+		logicalSector -= (1 + 2 * SECTORS_PER_FAT);
+		int dirCount = logicalSector * 16;
+		for (int i = 0; i < 16; i++) {
+			//TODO check if changed and take apropriate actions if needed
+			//for now simply blindly take over info
+			memcpy( &(mapdir[dirCount++].msxinfo), buf, 32);
 
+			buf += 32;
+		}
+		PRT_INFO("writing to DIR not yet fully implemented !!!!");
 	} else {
+	  // simply buffering everything for now, no write-through to host-OS
+		//check if cachedSectors exists, if not assign memory.
+		if ( cachedSectors[logicalSector] == NULL ) { // is this test actually valid C++ ??
+			PRT_DEBUG("cachedSectors["<<logicalSector<<"] == NULL");
+			byte *tmp;
+			tmp=(byte*)malloc(SECTOR_SIZE);
+			if (tmp == NULL){
+			  throw WriteProtectedException( "Malloc failure for FDC_DirAsDSK");
+			}
+			cachedSectors[logicalSector]=tmp;
+		}
+		memcpy( cachedSectors[logicalSector] ,buf, SECTOR_SIZE);
+		int cluster = (int)((logicalSector - 14) / 2) + 2; 
+		// read the second sector from the cluster into cache now if needed
+		if ( ( clustermap[cluster].dirEntryNr != NODIRENTRY ) &&
+		     ( clustermap[cluster].dirEntryNr != CACHEDCLUSTER ) ){
+			logicalSector ^= 1 ;
+			PRT_DEBUG("Reading extra sector("<<logicalSector<<") from cluster "<<cluster);
+			// we can be sure that this sector isn't yet cached :-)
+			byte *tmp;
+			tmp=(byte*)malloc(SECTOR_SIZE);
+			if (tmp == NULL){
+			  throw WriteProtectedException( "Malloc failure for FDC_DirAsDSK");
+			}
+			cachedSectors[logicalSector]=tmp;
+
+			int offset = clustermap[cluster].fileOffset + (logicalSector & 1) * SECTOR_SIZE;
+			string tmpfilename = mapdir[clustermap[cluster].dirEntryNr].filename;
+			PRT_DEBUG("  Reading from file " << tmpfilename );
+			PRT_DEBUG("  Reading with offset " << offset );
+			try {
+			FILE* file = fopen(tmpfilename.c_str(), "r");
+			if (file) {
+				fseek(file,offset,SEEK_SET);
+				fread(tmp, 1, SECTOR_SIZE, file);
+				fclose(file);
+			} 
+			} catch (...){
+				PRT_DEBUG("problems with file reading");
+			}
+		}
+		clustermap[cluster].dirEntryNr = CACHEDCLUSTER ;
 	  //
 	  //   for now simply ignore writes
 	  //
-	  throw WriteProtectedException(
-		  "Writing not yet supported for FDC_DirAsDSK");
+	  // throw WriteProtectedException(
+	  //	  "Writing not yet supported for FDC_DirAsDSK");
 	}
 
 }
