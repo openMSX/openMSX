@@ -63,6 +63,7 @@ SDLImage::~SDLImage()
 
 void SDLImage::draw(unsigned x, unsigned y, byte alpha)
 {
+	if (SDL_MUSTLOCK(outputScreen)) SDL_UnlockSurface(outputScreen);
 	if (alpha == 255) {
 		SDL_Rect rect;
 		rect.x = x;
@@ -79,6 +80,7 @@ void SDLImage::draw(unsigned x, unsigned y, byte alpha)
 		SDL_SetAlpha(workImage, SDL_SRCALPHA, alpha);
 		SDL_BlitSurface(workImage,    NULL,  outputScreen, &rect);
 	}
+	if (SDL_MUSTLOCK(outputScreen)) SDL_LockSurface(outputScreen);
 }
 
 

@@ -71,6 +71,7 @@ void SDLFont::drawText(const std::string& str, int x, int y, byte alpha)
 	sourceRect.h = charHeight;
 
 	// Now draw it
+	if (SDL_MUSTLOCK(outputScreen)) SDL_UnlockSurface(outputScreen);
 	for (unsigned loop = 0; loop < characters; loop++) {
 		sourceRect.x = (str[loop] % CHARS_PER_ROW) * charWidth;
 		sourceRect.y = (str[loop] / CHARS_PER_ROW) * charHeight;
@@ -88,6 +89,7 @@ void SDLFont::drawText(const std::string& str, int x, int y, byte alpha)
 		}
 		destRect.x += charWidth;
 	}
+	if (SDL_MUSTLOCK(outputScreen)) SDL_LockSurface(outputScreen);
 }
 
 } // namespace openmsx
