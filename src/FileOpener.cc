@@ -3,15 +3,17 @@
 // (C) David Heremans 2002
 // 
 // Stuff to handle files
-// Use of this library should result in the use of configurable rompaths to try to find any filenames given
-// This goes for the normal file reads as well as the truncate/append file handling (cassete file for instance)
+// Use of this library should result in the use of configurable rompaths
+// to try to find any filenames given
+// This goes for the normal file reads as well as the truncate/append file 
+// handling (cassete file for instance)
 
-#include "FileStuff.hh"
+#include "FileOpener.hh"
 
 /**
  *
  */
-std::string FileStuff::findFileName(std::string filename)
+std::string FileOpener::findFileName(std::string filename)
 {
 	//TODO:Find out how in C++ to get the directory seperator
 	// On Un*x like machines it is '/'
@@ -22,13 +24,24 @@ std::string FileStuff::findFileName(std::string filename)
 	  MSXConfig::Config *config = MSXConfig::instance()->getConfigById("rompath");
 
 	  std::string seperator =  config->getParameter("seperator");
-
-	  std::list<const MSXConfig::Device::Parameter*> path_list;
-	  path_list = config->getParametersWithClass("path");
-	  std::list<const MSXConfig::Device::Parameter*>::const_iterator i;
-	  for (i=path_list.begin(); i != path_list.end(); i++) {
-	    std::string path =(*i)->value;
-	    PRT_DEBUG("Should be testing for: " << path << seperator << filename" as file ");
+	  if (strstr(filename.c_str(),seperator.c_str())==0){
+	    std::list<const MSXConfig::Device::Parameter*> path_list;
+	    path_list = config->getParametersWithClass("path");
+	    std::list<const MSXConfig::Device::Parameter*>::const_iterator i;
+	    bool notFound=true;
+	    for (i=path_list.begin(); (i != path_list.end()) && notFound ; i++) {
+	      std::string path =(*i)->value;
+	      std::string testfilename=path + seperator + filename;
+	      PRT_DEBUG("Should be testing for: " << testfilename << " as file ");
+	      IFILETYPE *file=new IFILETYPE(testfilename.c_str());
+	      if (!file->fail()){
+	        PRT_DEBUG("Found : " << testfilename << " file ");
+	      	filename= testfilename;
+		notFound=false;
+	      }
+	    }
+	  } else {
+	      PRT_DEBUG("Directory-separator found in filename ");
 	  }
 	}
 	catch (MSXException e)
@@ -43,7 +56,7 @@ std::string FileStuff::findFileName(std::string filename)
 /**
  * Open a file for reading only.
  */
-IFILETYPE* FileStuff::openFileRO(std::string filename)
+IFILETYPE* FileOpener::openFileRO(std::string filename)
 {
 	filename=findFileName(filename);
 	PRT_DEBUG("Opening file " << filename << " read-only ...");
@@ -53,7 +66,7 @@ IFILETYPE* FileStuff::openFileRO(std::string filename)
  * Open a file for reading and writing.
  * if not writeable then fail
  */
-IOFILETYPE* FileStuff::openFileMustRW(std::string filename)
+IOFILETYPE* FileOpener::openFileMustRW(std::string filename)
 {
 	filename=findFileName(filename);
 	PRT_DEBUG("Opening file " << filename << " writable ...");
@@ -63,28 +76,30 @@ IOFILETYPE* FileStuff::openFileMustRW(std::string filename)
  * Open a file for reading and writing.
  * if not writeable then open readonly
  */
-IOFILETYPE* FileStuff::openFilePreferRW(std::string filename)
+IOFILETYPE* FileOpener::openFilePreferRW(std::string filename)
 {
 	filename=findFileName(filename);
-	IOFILETYPE* file=0;
-	file=openFileMustRW(filename);
-	if (file != 0){
+	PRT_DEBUG("Opening file " << filename << " writable ...");
+	IOFILETYPE* file=new IOFILETYPE(filename.c_str(),std::ios::in|std::ios::out);
+	if (!file->fail()){
 		return file;
 	};
 	PRT_DEBUG("Writable failed: fallback to read-only ...");
+	delete file;
+	filename=findFileName(filename);
 	return new IOFILETYPE(filename.c_str(),std::ios::in);
 };
 
 /** Following are for creating/reusing files **/
 /** if not writeable then fail **/
-IOFILETYPE* FileStuff::openFileAppend(std::string filename)
+IOFILETYPE* FileOpener::openFileAppend(std::string filename)
 {
 	filename=findFileName(filename);
 	PRT_DEBUG("Opening file " << filename << " to append ...");
 	return new IOFILETYPE(filename.c_str(),std::ios::in|std::ios::out|std::ios::ate);
 	
 };
-IOFILETYPE* FileStuff::openFileTruncate(std::string filename)
+IOFILETYPE* FileOpener::openFileTruncate(std::string filename)
 {
 	filename=findFileName(filename);
 	PRT_DEBUG("Opening file " << filename << " truncated ...");
