@@ -39,19 +39,16 @@ const string& MSXCassettePlayerCLI::optionHelp() const
 	return text;
 }
 
-void MSXCassettePlayerCLI::parseFileType(const string &filename_)
+void MSXCassettePlayerCLI::parseFileType(const string &filename)
 {
-	string filename(filename_); XMLEscape(filename);
-	ostringstream s;
-	s << "<?xml version=\"1.0\"?>";
-	s << "<msxconfig>";
-	s << " <config id=\"cassetteplayer\">";
-	s << "  <parameter name=\"filename\">" << filename << "</parameter>";
-	s << " </config>";
-	s << "</msxconfig>";
-
+	XMLElement config("config");
+	config.addAttribute("id", "cassetteplayer");
+	XMLElement* parameter = new XMLElement("parameter", filename);
+	parameter->addAttribute("name", "filename");
+	config.addChild(parameter);
+	
 	UserFileContext context;
-	MSXConfig::instance().loadStream(context, s);
+	MSXConfig::instance().loadConfig(config, context);
 }
 const string& MSXCassettePlayerCLI::fileTypeHelp() const
 {

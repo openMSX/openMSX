@@ -71,11 +71,18 @@ void MSXConfig::loadSetting(FileContext& context, const string& filename)
 	handleDoc(doc, context2);
 }
 
-void MSXConfig::loadStream(FileContext& context, const ostringstream& stream)
+void MSXConfig::loadConfig(const XMLElement& config, const FileContext& context)
 	throw(ConfigException)
 {
-	XMLDocument doc(stream);
-	handleDoc(doc, context);
+	// TODO check duplicate id
+	configs.push_back(new Config(config, context));
+}
+
+void MSXConfig::loadDevice(const XMLElement& config, const FileContext& context)
+	throw(ConfigException)
+{
+	// TODO check duplicate id
+	devices.push_back(new Device(config, context));
 }
 
 void MSXConfig::handleDoc(const XMLDocument& doc, FileContext& context)

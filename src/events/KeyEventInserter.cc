@@ -1,99 +1,13 @@
 // $Id$
 
-#include <sstream>
 #include "KeyEventInserter.hh"
 #include "SDLEventInserter.hh"
 #include "EmuTime.hh"
-#include "MSXConfig.hh"
-#include "Config.hh"
-#include "xmlx.hh"
-#include "File.hh"
-#include "FileContext.hh"
-
-using std::ostringstream;
 
 namespace openmsx {
 
-static KeyEventInserterCLI keyEventInserterCLI;
-
-KeyEventInserterCLI::KeyEventInserterCLI()
+KeyEventInserter::KeyEventInserter()
 {
-	CommandLineParser::instance().registerOption("-keyins", this);
-}
-
-bool KeyEventInserterCLI::parseOption(const string &option,
-                         list<string> &cmdLine)
-{
-	string arg = getArgument(option, cmdLine);
-
-	ostringstream s;
-	s << "<msxconfig>";
-	s << "<config id=\"KeyEventInserter\">";
-	s << "<type>KeyEventInserter</type>";
-	s << "<parameter name=\"keys\">";
-	try {
-		// first try and treat arg as a file
-		UserFileContext context;
-		File file(context.resolve(arg));
-		byte buffer[2];
-		try {
-			file.read(buffer, 1);
-			buffer[1] = '\0';
-			string temp((char*)buffer);
-			if (buffer[0] == '\n') {
-				s << "&#x0D;";
-			} else {
-				s << XMLEscape(temp);
-			}
-		} catch (FileException &e) {
-			// end of file
-		}
-	} catch (FileException &e) {
-		// if that fails, treat it as a string
-		for (string::const_iterator i = arg.begin(); i != arg.end(); i++) {
-			string::const_iterator j = i;
-			j++;
-			bool cr = false;
-			if  (j != arg.end()) {
-				if ((*i) == '\\' && (*j) == 'n') {
-					s << "&#x0D;";
-					i++;
-					cr = true;
-				}
-			}
-			if (!cr) {
-				char buffer2[2];
-				buffer2[1] = '\0';
-				buffer2[0] = (*i);
-				string str2(buffer2);
-				s << XMLEscape(str2);
-			}
-		}
-	}
-	s << "</parameter>";
-	s << "</config>";
-	s << "</msxconfig>";
-	
-	UserFileContext context;
-	MSXConfig::instance().loadStream(context, s);
-	return true;
-}
-const string& KeyEventInserterCLI::optionHelp() const
-{
-	static const string text("Execute content in argument as keyinserts");
-	return text;
-}
-
-
-KeyEventInserter::KeyEventInserter(const EmuTime& time)
-{
-	try {
-		Config* config = MSXConfig::instance().
-		                            getConfigById("KeyEventInserter");
-		enter(config->getParameter("keys"), time);
-	} catch (ConfigException& e) {
-		// do nothing
-	}
 }
 
 void KeyEventInserter::enter(const string &str, const EmuTime &time_)

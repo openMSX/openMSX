@@ -32,6 +32,7 @@ public:
 	virtual ~XMLElement();
 
 	void addChild(XMLElement* child);
+	void addAttribute(const string& name, const string& value);
 	
 	const string& getName() const { return name; }
 	const string& getPcData() const { return pcdata; }

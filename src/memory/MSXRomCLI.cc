@@ -1,6 +1,6 @@
 // $Id$
 
-#include <sstream>
+#include "StringOp.hh"
 #include "xmlx.hh"
 #include "MSXRomCLI.hh"
 #include "CartridgeSlotManager.hh"
@@ -73,43 +73,56 @@ MSXRomCLIPost::MSXRomCLIPost(const string &arg_)
 	: arg(arg_)
 {
 }
+
+
+static XMLElement* createSlotted(int ps, int ss, int page)
+{
+	XMLElement* slotted = new XMLElement("slotted");
+	slotted->addChild(new XMLElement("ps",   StringOp::intToString(ps)));
+	slotted->addChild(new XMLElement("ss",   StringOp::intToString(ss)));
+	slotted->addChild(new XMLElement("page", StringOp::intToString(page)));
+	return slotted;
+}
+
+static XMLElement* createParameter(const string& name, const string& value)
+{
+	XMLElement* parameter = new XMLElement("parameter", value);
+	parameter->addAttribute("name", name);
+	return parameter;
+}
+
 void MSXRomCLIPost::execute(MSXConfig& config)
 {
-	string filename, mapper;
+	string romfile;
+	string mapper;
 	int pos = arg.find_last_of(',');
 	int pos2 = arg.find_last_of('.');
 	if ((pos != -1) && (pos > pos2)) {
-		filename = arg.substr(0, pos);
+		romfile = arg.substr(0, pos);
 		mapper = arg.substr(pos + 1);
 	} else {
-		filename = arg;
+		romfile = arg;
 		mapper = "auto";
 	}
-	string file = FileOperations::getFilename(filename);
+	string sramfile = FileOperations::getFilename(romfile) + ".SRAM";
 
-	XMLEscape(filename);
-	XMLEscape(file);
-	ostringstream s;
-	s << "<?xml version=\"1.0\"?>";
-	s << "<msxconfig>";
-	s << "<device id=\"MSXRom"<<ps<<"-"<<ss<<"\">";
-	s << "<type>Rom</type>";
-	s << "<slotted><ps>"<<ps<<"</ps><ss>"<<ss<<"</ss><page>0</page></slotted>";
-	s << "<slotted><ps>"<<ps<<"</ps><ss>"<<ss<<"</ss><page>1</page></slotted>";
-	s << "<slotted><ps>"<<ps<<"</ps><ss>"<<ss<<"</ss><page>2</page></slotted>";
-	s << "<slotted><ps>"<<ps<<"</ps><ss>"<<ss<<"</ss><page>3</page></slotted>";
-	s << "<parameter name=\"filename\">"<<filename<<"</parameter>";
-	s << "<parameter name=\"filesize\">auto</parameter>";
-	s << "<parameter name=\"volume\">9000</parameter>";
-	s << "<parameter name=\"mappertype\">"<<mapper<<"</parameter>";
-	s << "<parameter name=\"loadsram\">true</parameter>";
-	s << "<parameter name=\"savesram\">true</parameter>";
-	s << "<parameter name=\"sramname\">"<<file<<".SRAM</parameter>";
-	s << "</device>";
-	s << "</msxconfig>";
-	PRT_DEBUG("DEBUG " << file);
-	UserFileContext context("roms/" + file);
-	config.loadStream(context, s);
+	XMLElement device = XMLElement("device");
+	device.addAttribute("id", "MSXRom" + StringOp::intToString(ps) +
+			               "-" + StringOp::intToString(ss));
+	device.addChild(new XMLElement("type", "Rom"));
+	device.addChild(createSlotted(ps, ss, 0));
+	device.addChild(createSlotted(ps, ss, 1));
+	device.addChild(createSlotted(ps, ss, 2));
+	device.addChild(createSlotted(ps, ss, 3));
+	device.addChild(createParameter("filename", romfile));
+	device.addChild(createParameter("volume", "9000"));
+	device.addChild(createParameter("mappertype", mapper));
+	device.addChild(createParameter("loadsram", "true"));
+	device.addChild(createParameter("savesram", "true"));
+	device.addChild(createParameter("sramname", sramfile + ".SRAM"));
+
+	UserFileContext context("roms/" + sramfile);
+	config.loadDevice(device, context);
 	delete this;
 }
 

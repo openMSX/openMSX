@@ -92,9 +92,8 @@ void MSXMotherBoard::run(bool powerOn)
 	// First execute auto commands.
 	CommandController::instance().autoCommands();
 
-	// Schedule key insertions.
 	// TODO move this somewhere else
-	KeyEventInserter keyEvents(EmuTime::zero);
+	KeyEventInserter keyEvents();
 
 	// Initialize.
 	MSXCPUInterface::instance().reset();

@@ -5,17 +5,16 @@
 
 #include <string>
 #include <vector>
-#include <sstream>
 #include "ConfigException.hh"
 #include "FileException.hh"
 
 using std::string;
 using std::vector;
-using std::ostringstream;
 
 namespace openmsx {
 
 class XMLDocument;
+class XMLElement;
 class Config;
 class Device;
 class FileContext;
@@ -33,7 +32,10 @@ public:
 		throw(FileException, ConfigException);
 	void loadSetting(FileContext& context, const string &filename)
 		throw(FileException, ConfigException);
-	void loadStream(FileContext& context, const ostringstream &stream)
+
+	void loadConfig(const XMLElement& config, const FileContext& context)
+		throw(ConfigException);
+	void loadDevice(const XMLElement& config, const FileContext& context)
 		throw(ConfigException);
 
 	/**

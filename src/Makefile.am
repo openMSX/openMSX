@@ -44,6 +44,7 @@ bin_PROGRAMS=openmsx
 openmsx_SOURCES=\
 	main.cc \
 	openmsx.hh util.hh \
+	StringOp.hh StringOp.cc \
 	EmuTime.hh EmuTime.cc \
 	MSXException.hh \
 	MSXDevice.hh MSXDevice.cc \

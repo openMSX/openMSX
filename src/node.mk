@@ -37,7 +37,8 @@ SRC_HDR:= \
 	CircularBuffer \
 	PluggingController Connector Pluggable PluggableFactory \
 	DebugDevice \
-	Autofire RenShaTurbo
+	Autofire RenShaTurbo \
+	StringOp
 
 SRC_ONLY:= \
 	main

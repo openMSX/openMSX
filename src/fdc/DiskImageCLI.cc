@@ -1,6 +1,5 @@
 // $Id$
 
-#include <sstream>
 #include "DiskImageCLI.hh"
 #include "MSXConfig.hh"
 #include "xmlx.hh"
@@ -32,19 +31,16 @@ const string& DiskImageCLI::optionHelp() const
 	return text;
 }
 
-void DiskImageCLI::parseFileType(const string &filename_)
+void DiskImageCLI::parseFileType(const string &filename)
 {
-	string filename(filename_); XMLEscape(filename);
-	ostringstream s;
-	s << "<?xml version=\"1.0\"?>";
-	s << "<msxconfig>";
-	s << "<config id=\"disk" << driveLetter << "\">";
-	s << "<parameter name=\"filename\">" << filename << "</parameter>";
-	s << "</config>";
-	s << "</msxconfig>";
+	XMLElement config("config");
+	config.addAttribute("id", string("disk") + driveLetter);
+	XMLElement* parameter = new XMLElement("parameter", filename);
+	parameter->addAttribute("name", "filename");
+	config.addChild(parameter);
 	
 	UserFileContext context;
-	MSXConfig::instance().loadStream(context, s);
+	MSXConfig::instance().loadConfig(config, context);
 	driveLetter++;
 }
 const string& DiskImageCLI::fileTypeHelp() const

@@ -53,7 +53,7 @@ void XMLElement::init(xmlNodePtr node)
 		case XML_ATTRIBUTE_NODE: {
 			string name  = (const char*)x->name;
 			string value = (const char*)x->children->content;
-			attributes[name] = value;
+			addAttribute(name, value);
 			break;
 		}
 		default:
@@ -75,6 +75,12 @@ void XMLElement::addChild(XMLElement* child)
 {
 	assert(child);
 	children.push_back(child);
+}
+
+void XMLElement::addAttribute(const string& name, const string& value)
+{
+	assert(attributes.find(name) == attributes.end());
+	attributes[name] = value;
 }
 
 const string& XMLElement::getAttribute(const string& attName) const
