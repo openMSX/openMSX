@@ -41,7 +41,7 @@ void CartridgeSlotManager::reserveSlot(int slot)
 void CartridgeSlotManager::readConfig()
 {
 	XMLElement::Children primarySlots;
-	hardwareConfig.findChild("devices")->getChildren("primary", primarySlots);
+	hardwareConfig.getChild("devices").getChildren("primary", primarySlots);
 	for (XMLElement::Children::const_iterator it = primarySlots.begin();
 	     it != primarySlots.end(); ++it) {
 		const string& primSlot = (*it)->getAttribute("slot");
