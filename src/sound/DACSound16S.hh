@@ -6,10 +6,10 @@
 #define __DACSOUND16S_HH__
 
 #include <list>
+#include <string>
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "EmuTime.hh"
-
 
 class DACSound16S : public SoundDevice
 {

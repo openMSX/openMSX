@@ -3,6 +3,7 @@
 #ifndef __SCC_HH__
 #define __SCC_HH__
 
+#include <string>
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "EmuTime.hh"
