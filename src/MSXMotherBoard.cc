@@ -146,9 +146,9 @@ void MSXMotherBoard::set_A8_Register(byte value)
 		visibleDevices[j] = SlotLayout [PrimarySlotState[j]]
 		                               [SecondarySlotState[j]]
 		                               [j];
+		// invalidate cache
+		MSXCPU::instance()->invalidateCache(j*0x4000, 0x4000);
 	}
-	// invalidate cache
-	MSXCPU::instance()->invalidateCache(0x0000, 0x10000);
 }
 
 
@@ -175,11 +175,11 @@ void MSXMotherBoard::writeMem(word address, byte value, const EmuTime &time)
 				if (CurrentSSRegister == PrimarySlotState[i]) {
 					SecondarySlotState[i] = value&3;
 					// Change the visible devices
-					visibleDevices[i]= SlotLayout [PrimarySlotState[i]]
-					                              [SecondarySlotState[i]]
-					                              [i];
+					visibleDevices[i] = SlotLayout [PrimarySlotState[i]]
+					                               [SecondarySlotState[i]]
+					                               [i];
 					// invalidate cache
-					MSXCPU::instance()->invalidateCache(0x0000, 0x10000);
+					MSXCPU::instance()->invalidateCache(i*0x4000, 0x4000);
 				}
 			}
 			return;

@@ -84,9 +84,21 @@ class CPU
 		void setCPURegs(const CPURegs &regs);
 
 
-		// TODO
+		/**
+		 * Read a byte from memory. If possible the byte is read from 
+		 * cache, otherwise the readMem() method of CPUInterface is used.
+		 */
 		byte CPU::readMem(word address, const EmuTime &time);
+		
+		/**
+		 * Write a byte from memory. If possible the byte is written to 
+		 * cache, otherwise the writeMem() method of CPUInterface is used.
+		 */
 		void CPU::writeMem(word address, byte value, const EmuTime &time);
+
+		/**
+		 * Invalidate the CPU its cache for the interval [start, start+length)
+		 */
 		void invalidateCache(word start, int length);
 
 	protected:

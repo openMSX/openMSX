@@ -64,6 +64,7 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 	}
 	if (newCPU != activeCPU) {
 		newCPU->setCurrentTime(activeCPU->getCurrentTime());
+		newCPU->invalidateCache(0x0000, 0x10000);
 		activeCPU = newCPU;
 	}
 }
@@ -96,8 +97,7 @@ void MSXCPU::executeUntilEmuTime(const EmuTime &time, int userData)
 
 void MSXCPU::invalidateCache(word start, int length)
 {
-	z80->invalidateCache(start, length);
-	//r800->invalidateCache(start, length);
+	activeCPU->invalidateCache(start, length);
 }
 
 CPU &MSXCPU::getActiveCPU()

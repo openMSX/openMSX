@@ -65,41 +65,40 @@ void MSXGameCartridge::reset(const EmuTime &time)
 		dac->reset(time);
 	}
 	if (mapperType < 128 ) {
-		// set internalMemoryBank
 		// TODO: mirror if number of 8kB blocks not fully filled ?
-		internalMemoryBank[0]=0;		// unused
-		internalMemoryBank[1]=0;		// unused
-		internalMemoryBank[2]=memoryBank;	// 0x4000 - 0x5fff
-		internalMemoryBank[3]=memoryBank+0x2000;// 0x6000 - 0x7fff
-		internalMemoryBank[4]=memoryBank+0x4000;// 0x8000 - 0x9fff
-		internalMemoryBank[5]=memoryBank+0x6000;// 0xa000 - 0xbfff
-		internalMemoryBank[6]=0;		// unused
-		internalMemoryBank[7]=0;		// unused
+		setBank(0, 0);			// unused
+		setBank(1, 0);			// unused
+		setBank(2, memoryBank);		// 0x4000 - 0x5fff
+		setBank(3, memoryBank+0x2000);	// 0x6000 - 0x7fff
+		setBank(4, memoryBank+0x4000);	// 0x8000 - 0x9fff
+		setBank(5, memoryBank+0x6000);	// 0xa000 - 0xbfff
+		setBank(6, 0);			// unused
+		setBank(7, 0);			// unused
 	} else {
 		// this is a simple gamerom less then 64 kB
 		byte* ptr;
 		switch (romSize>>14) { // blocks of 16kB
 		case 0:
 			// An 8 Kb game ????
-			for (int i=0;i<8;i++){
-				internalMemoryBank[i]=memoryBank;
+			for (int i=0; i<8; i++) {
+				setBank(i, memoryBank);
 			}
 			break;
 		case 1:
-			for (int i=0;i<8;i+=2){
-				internalMemoryBank[i]=memoryBank;
-				internalMemoryBank[i+1]=memoryBank+0x2000;
+			for (int i=0; i<8; i+=2) {
+				setBank(i,   memoryBank);
+				setBank(i+1, memoryBank+0x2000);
 			}
 			break;
 		case 2:
-			internalMemoryBank[0]=memoryBank;		// 0x0000 - 0x1fff
-			internalMemoryBank[1]=memoryBank+0x2000;	// 0x2000 - 0x3fff
-			internalMemoryBank[2]=memoryBank;		// 0x4000 - 0x5fff
-			internalMemoryBank[3]=memoryBank+0x2000;	// 0x6000 - 0x7fff
-			internalMemoryBank[4]=memoryBank+0x4000;	// 0x8000 - 0x9fff
-			internalMemoryBank[5]=memoryBank+0x6000;	// 0xa000 - 0xbfff
-			internalMemoryBank[6]=memoryBank+0x4000;	// 0xc000 - 0xdfff
-			internalMemoryBank[7]=memoryBank+0x6000;	// 0xe000 - 0xffff
+			setBank(0, memoryBank);		// 0x0000 - 0x1fff
+			setBank(1, memoryBank+0x2000);	// 0x2000 - 0x3fff
+			setBank(2, memoryBank);		// 0x4000 - 0x5fff
+			setBank(3, memoryBank+0x2000);	// 0x6000 - 0x7fff
+			setBank(4, memoryBank+0x4000);	// 0x8000 - 0x9fff
+			setBank(5, memoryBank+0x6000);	// 0xa000 - 0xbfff
+			setBank(6, memoryBank+0x4000);	// 0xc000 - 0xdfff
+			setBank(7, memoryBank+0x6000);	// 0xe000 - 0xffff
 			break;
 		case 3:
 			// TODO 48kb, is this possible?
@@ -107,8 +106,9 @@ void MSXGameCartridge::reset(const EmuTime &time)
 			break;
 		case 4:
 			ptr = memoryBank;
-			for (int i=0; i<8; i++, ptr+=0x2000) {
-				internalMemoryBank[i]=ptr;
+			for (int i=0; i<8; i++) {
+				setBank(i, ptr);
+				ptr += 0x2000;
 			}
 			break;
 		default: 
@@ -226,7 +226,7 @@ byte* MSXGameCartridge::getReadCacheLine(word start, word length)
 void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 {
 	//TODO optimize this
-	MSXCPU::instance()->invalidateCache(0x4000, 0x8000);	// 0x4000 - 0xc000
+	//MSXCPU::instance()->invalidateCache(0x4000, 0x8000);	// 0x4000 - 0xc000
 	
 	byte regio;
   
@@ -246,7 +246,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		// change internal mapper
 		value &= mapperMask;
 		regio = (address>>13);	// 0-7
-		internalMemoryBank[regio] = memoryBank+(value<<13);
+		setBank(regio, memoryBank+(value<<13));
 		break;
 	case 1: 
 		//--==**>> Generic 16kB cartridges (MSXDOS2, Hole in one special) <<**==--
@@ -254,8 +254,8 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 			return;
 		regio = (address&0xc000)>>13;	// 0, 2, 4, 6
 		value &= (2*value)&mapperMask;
-		internalMemoryBank[regio]   = memoryBank+(value<<13);
-		internalMemoryBank[regio+1] = memoryBank+(value<<13)+0x2000;
+		setBank(regio,   memoryBank+(value<<13));
+		setBank(regio+1, memoryBank+(value<<13)+0x2000);
 		break;
 	case 2: 
 		//--==**>> KONAMI5 8kB cartridges <<**==--
@@ -287,7 +287,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		} else {
 		  if ((address & 0x1800)!=0x1000) return;
 		  value &= mapperMask;
-		  internalMemoryBank[regio] = memoryBank+(value<<13);
+		  setBank(regio, memoryBank+(value<<13));
 		  //internalMapper[regio]=value;
 		}
 		break;
@@ -304,7 +304,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 			return;
 		regio = (address>>13);
 		value &= mapperMask;
-		internalMemoryBank[regio] = memoryBank+(value<<13);
+		setBank(regio, memoryBank+(value<<13));
 		break;
 	case 4: 
 		//--==**>> ASCII 8kB cartridges <<**==--
@@ -321,7 +321,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 			return;
 		regio = ((address>>11)&3)+2;
 		value &= mapperMask;
-		internalMemoryBank[regio] = memoryBank+(value<<13);
+		setBank(regio, memoryBank+(value<<13));
 		break;
 	case 5:
 		//--==**>> ASCII 16kB cartridges <<**==--
@@ -339,8 +339,8 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 			return;
 		regio = ((address>>11)&2)+2;
 		value &= (2*value)&mapperMask;
-		internalMemoryBank[regio]   = memoryBank+(value<<13);
-		internalMemoryBank[regio+1] = memoryBank+(value<<13)+0x2000;
+		setBank(regio,   memoryBank+(value<<13));
+		setBank(regio+1, memoryBank+(value<<13)+0x2000);
 		break;
 	case 6: 
 		//--==**>> GameMaster2+SRAM cartridge <<**==--
@@ -362,4 +362,10 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		//// Unknow mapper type for GameCartridge cartridge!!!
 		assert(false);
 	}
+}
+
+void MSXGameCartridge::setBank(int regio, byte* value)
+{
+	internalMemoryBank[regio] = value;
+	MSXCPU::instance()->invalidateCache(regio*0x2000, 0x2000);
 }

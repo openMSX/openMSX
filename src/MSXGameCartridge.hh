@@ -31,6 +31,8 @@ class MSXGameCartridge : public MSXMemDevice, public MSXRom
 		byte* getReadCacheLine(word start, word length);
 
 	private:
+		void setBank(int regio, byte* value);
+		
 		int romSize;
 		int mapperType;
 		byte mapperMask;
