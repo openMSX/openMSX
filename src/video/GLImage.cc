@@ -13,9 +13,6 @@ namespace openmsx {
 GLImage::GLImage(SDL_Surface* output, const string& filename)
 {
 	texture = loadTexture(filename, width, height, texCoord);
-	if (!texture) {
-		throw MSXException("Error loading image " + filename);
-	}
 }
 
 GLImage::~GLImage()
@@ -60,7 +57,9 @@ GLuint GLImage::loadTexture(const string& filename,
 	unsigned& width, unsigned& height, GLfloat* texCoord)
 {
 	SDL_Surface* image1 = SDLImage::readImage(filename);
-	if (image1 == NULL) return 0;
+	if (image1 == NULL) {
+		throw MSXException("Error loading image " + filename);
+	}
 
 	width  = image1->w;
 	height = image1->h;
@@ -80,7 +79,7 @@ GLuint GLImage::loadTexture(const string& filename,
 	);
 	if (image2 == NULL) {
 		SDL_FreeSurface(image1);
-		return 0;
+		throw MSXException("Error loading image " + filename);
 	}
 
 	SDL_Rect area;

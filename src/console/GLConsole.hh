@@ -14,8 +14,8 @@ public:
 	GLConsole(Console& console);
 	virtual ~GLConsole();
 
-	virtual bool loadFont(const std::string& filename);
-	virtual bool loadBackground(const std::string& filename);
+	virtual void loadFont(const std::string& filename);
+	virtual void loadBackground(const std::string& filename);
 
 	virtual void paint();
 	virtual const std::string& getName();

@@ -26,8 +26,8 @@ class OSDConsoleRenderer : public Layer, private SettingListener,
 {
 public:
 	virtual ~OSDConsoleRenderer();
-	virtual bool loadBackground(const std::string& filename) = 0;
-	virtual bool loadFont(const std::string& filename) = 0;
+	virtual void loadBackground(const std::string& filename) = 0;
+	virtual void loadFont(const std::string& filename) = 0;
 
 protected:
 	OSDConsoleRenderer(Console& console);

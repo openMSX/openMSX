@@ -41,7 +41,11 @@ void SDLConsole::updateConsoleRect()
 		destRect.w = rect.w;
 		destRect.x = rect.x;
 		destRect.y = rect.y;
-		loadBackground(backgroundName);
+		try {
+			loadBackground(backgroundName);
+		} catch (MSXException& e) {
+			// ignore
+		}
 	}
 }
 
@@ -106,34 +110,21 @@ const string& SDLConsole::getName()
 }
 
 // Adds background image to the console
-bool SDLConsole::loadBackground(const string& filename)
+void SDLConsole::loadBackground(const string& filename)
 {
 	if (filename.empty()) {
 		backgroundImage.reset();
-		return true;
+		return;
 	}
-	try {
-		backgroundImage.reset(new SDLImage(outputScreen, filename,
-			destRect.w, destRect.h, CONSOLE_ALPHA));
-		backgroundName = filename;
-	} catch (MSXException& e) {
-		return false;
-	}
-	return true;
+	backgroundImage.reset(new SDLImage(outputScreen, filename,
+		destRect.w, destRect.h, CONSOLE_ALPHA));
+	backgroundName = filename;
 }
 
-bool SDLConsole::loadFont(const string& filename)
+void SDLConsole::loadFont(const string& filename)
 {
-	if (filename.empty()) {
-		return false;
-	}
-	try {
-		File file(filename);
-		font.reset(new SDLFont(&file, outputScreen));
-	} catch (MSXException& e) {
-		return false;
-	}
-	return true;
+	File file(filename);
+	font.reset(new SDLFont(&file, outputScreen));
 }
 
 } // namespace openmsx

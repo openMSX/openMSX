@@ -13,6 +13,9 @@ class FilenameSettingPolicy : public StringSettingPolicy
 {
 protected:
 	void tabCompletion(std::vector<std::string>& tokens) const;
+	void setContext(const FileContext& context);
+private:
+	const FileContext* context;
 };
 
 class FilenameSetting : public SettingImpl<FilenameSettingPolicy>

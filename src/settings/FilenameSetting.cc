@@ -7,7 +7,12 @@ namespace openmsx {
 
 void FilenameSettingPolicy::tabCompletion(std::vector<std::string>& tokens) const
 {
-	CommandController::completeFileName(tokens);
+	CommandController::completeFileName(tokens, *context);
+}
+
+void FilenameSettingPolicy::setContext(const FileContext& context_)
+{
+	context = &context_;
 }
 
 
@@ -16,6 +21,7 @@ FilenameSetting::FilenameSetting(const std::string& name, const std::string& des
 	: SettingImpl<FilenameSettingPolicy>(name, description, initialValue,
 	                                     Setting::SAVE)
 {
+	setContext(getFileContext());
 }
 
 FileContext& FilenameSetting::getFileContext() const

@@ -376,7 +376,7 @@ bool CommandController::completeString2(string &str, set<string>& st,
 	}
 	return false;
 }
-void CommandController::completeString(vector<string> &tokens,
+void CommandController::completeString(vector<string>& tokens,
                                        set<string>& st,
                                        bool caseSensitive)
 {
@@ -385,22 +385,25 @@ void CommandController::completeString(vector<string> &tokens,
 	}
 }
 
-void CommandController::completeFileName(vector<string> &tokens)
+void CommandController::completeFileName(vector<string>& tokens)
 {
+	UserFileContext context;
+	completeFileName(tokens, context);
+}
+
+void CommandController::completeFileName(vector<string>& tokens,
+                                         const FileContext& context)
+{
+	vector<string> paths(context.getPaths());
+	
 	string& filename = tokens[tokens.size() - 1];
 	filename = FileOperations::expandTilde(filename);
 	filename = FileOperations::expandCurrentDirFromDrive(filename);
 	string basename = FileOperations::getBaseName(filename);
-	vector<string> paths;
 	if (FileOperations::isAbsolutePath(filename)) {
-		// absolute path, only try root directory
 		paths.push_back("");
-	} else {
-		// relative path, also try user directories
-		UserFileContext context;
-		paths = context.getPaths();
 	}
-	
+
 	set<string> filenames;
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end();
@@ -424,6 +427,7 @@ void CommandController::completeFileName(vector<string> &tokens)
 		tokens.push_back("");
 	}
 }
+
 
 // Help Command
 

@@ -25,42 +25,31 @@ GLConsole::~GLConsole()
 	backgroundSetting.reset();
 }
 
-bool GLConsole::loadFont(const string& filename)
+void GLConsole::loadFont(const string& filename)
 {
-	if (filename.empty()) {
-		return false;
-	}
 	unsigned width, height;
 	GLfloat fontTexCoord[4];
 	GLuint fontTexture = GLImage::loadTexture(
 		filename, width, height, fontTexCoord);
-	if (fontTexture) {
-		font.reset(new GLFont(fontTexture, width, height, fontTexCoord));
-		return true;
-	} else {
-		return false;
-	}
+	font.reset(new GLFont(fontTexture, width, height, fontTexCoord));
 }
 
-bool GLConsole::loadBackground(const string& filename)
+void GLConsole::loadBackground(const string& filename)
 {
 	if (filename.empty()) {
 		if (backgroundTexture) {
 			glDeleteTextures(1, &backgroundTexture);
 			backgroundTexture = 0;
 		}
-		return true;
+		return;
 	}
 	unsigned dummyWidth, dummyHeight;
 	GLuint tmp = GLImage::loadTexture(
 		filename, dummyWidth, dummyHeight, backTexCoord);
-	if (tmp) {
-		if (backgroundTexture) {
-			glDeleteTextures(1, &backgroundTexture);
-		}
-		backgroundTexture = tmp;
+	if (backgroundTexture) {
+		glDeleteTextures(1, &backgroundTexture);
 	}
-	return tmp;
+	backgroundTexture = tmp;
 }
 
 void GLConsole::paint()

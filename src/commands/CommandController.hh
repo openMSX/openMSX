@@ -14,6 +14,7 @@ namespace openmsx {
 class CommandConsole;
 class InfoCommand;
 class Interpreter;
+class FileContext;
 
 class CommandController
 {
@@ -65,6 +66,8 @@ public:
 	                           std::set<std::string>& set,
 	                           bool caseSensitive = true);
 	static void completeFileName(std::vector<std::string>& tokens);
+	static void completeFileName(std::vector<std::string>& tokens,
+	                             const FileContext& context);
 
 	// should only be called by CommandConsole
 	void setCommandConsole(CommandConsole* console);
