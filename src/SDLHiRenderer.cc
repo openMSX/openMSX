@@ -593,7 +593,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 			SpriteChecker::SpritePattern pattern = sip->pattern;
 			int x = sip->x;
 			// Skip any dots that end up in the border.
-			if (x < 0) {
+			if (x <= -32) {
+				continue;
+			} else if (x < 0) {
 				pattern <<= -x;
 				x = 0;
 			} else if (x > 256 - 32) {
