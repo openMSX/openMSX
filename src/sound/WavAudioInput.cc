@@ -15,6 +15,7 @@ WavAudioInput::WavAudioInput()
 	Uint32 wavLen;
 	if (SDL_LoadWAV("audio-input.wav", &wavSpec, &wavBuf, &wavLen) == NULL) {
 		PRT_DEBUG("WavAudioInput error: " << SDL_GetError());
+		return;
 	}
 	
 	freq = wavSpec.freq;
@@ -24,6 +25,7 @@ WavAudioInput::WavAudioInput()
 			      AUDIO_S16,      1,                freq) == -1) {
 		SDL_FreeWAV(wavBuf);
 		PRT_DEBUG("Couldn't build wav converter");
+		return;
 	}
 	
 	buffer = (Uint8*)malloc(wavLen * audioCVT.len_mult);
@@ -34,6 +36,7 @@ WavAudioInput::WavAudioInput()
 
 	if (SDL_ConvertAudio(&audioCVT) == -1) {
 		PRT_DEBUG("Couldn't convert wav");
+		return;
 	}
 	length = (int)(audioCVT.len * audioCVT.len_ratio) / 2;
 
