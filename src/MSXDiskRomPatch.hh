@@ -11,8 +11,14 @@
 
 class MSXDiskRomPatch: public MSXRomPatchInterface
 {
-	class NoSuchSectorException : public MSXException {};
-	class DiskIOErrorException  : public MSXException {};
+	class NoSuchSectorException : public MSXException {
+		public:
+			NoSuchSectorException(const std::string &desc) : MSXException(desc) {}
+	};
+	class DiskIOErrorException  : public MSXException {
+		public:
+			DiskIOErrorException(const std::string &desc) : MSXException(desc) {}
+	};
 	class DiskImage
 	{
 		public:

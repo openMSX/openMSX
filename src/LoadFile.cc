@@ -5,7 +5,7 @@
 #include <fstream>
 #include <string>
 #include <list>
-#include "msxexception.hh"
+#include "MSXException.hh"
 #include "LoadFile.hh"
 
 

@@ -46,6 +46,9 @@ int main (int argc, char **argv)
 	// for now there is only one, "xml" based
 	MSXConfig::Backend* config = MSXConfig::Backend::createBackend("xml");
 	
+	/*
+	// [Wouter->Joost] Is there a reason why you need this list,
+	//                 why not directly config->loadFile(argv[i])
 	// create a list of used config files
 	std::list<std::string> configfiles;
 	if (argc<2) {
@@ -57,46 +60,51 @@ int main (int argc, char **argv)
 		configfiles.push_back(std::string(argv[i]));
 		}
 	}
-
 	try {
 		// Load all config files in memory
 		for (std::list<std::string>::const_iterator i = configfiles.begin(); i != configfiles.end(); i++)
 		{
 			config->loadFile(*i);
 		}
-		
+	*/
+
+	try {
+		if (argc<2) {
+			PRT_INFO ("Using msxconfig.xml as default configuration file");
+			config->loadFile(std::string("msxconfig.xml"));
+		} else {
+			for (int i=1; i<argc; i++) {
+				config->loadFile(std::string(argv[i]));
+			}
+		}
+
 		initializeSDL();
 	
 		EmuTime zero;
-
 		config->initDeviceIterator();
-		MSXConfig::Device* d=0;
-		while ((d=config->getNextDevice()) != 0)
-		{
+		MSXConfig::Device* d;
+		while ((d=config->getNextDevice()) != 0) {
 			//std::cout << "<device>" << std::endl;
 			//d->dump();
 			//std::cout << "</device>" << std::endl << std::endl;
 			MSXDevice *device = deviceFactory::create(d, zero);
 			MSXMotherBoard::instance()->addDevice(device);
-			PRT_DEBUG ("Instantiated:" << d->getType());
+			PRT_DEBUG ("Instantiated: " << d->getType());
 		}
 
 		// Start a new thread for event handling
-		Thread* thread = new Thread(EventDistributor::instance());
-		thread->start();
+		Thread thread(EventDistributor::instance());
+		thread.start();
 
 		PRT_DEBUG ("starting MSX");
 		MSXMotherBoard::instance()->StartMSX();
 		
 		// When we return we clean everything up
-		thread->stop();
+		thread.stop();
 		MSXMotherBoard::instance()->DestroyMSX();
 	} 
 	catch (MSXException& e) {
-		std::cerr << e.desc << std::endl;
-		exit(1);
+		PRT_ERROR("Uncatched exception: " << e.desc);
 	}
 	exit (0);
 }
-
-

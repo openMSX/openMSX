@@ -35,8 +35,8 @@ std::string FileOpener::findFileName(std::string filename)
 				std::string path =(*i)->value;
 				std::string testfilename=path + separator + filename;
 				PRT_DEBUG("Should be testing for: " << testfilename << " as file ");
-				IFILETYPE *file=new IFILETYPE(testfilename.c_str());
-				if (!file->fail())
+				IFILETYPE file(testfilename.c_str());
+				if (!file.fail())
 				{
 					PRT_DEBUG("Found : " << testfilename << " file ");
 					filename= testfilename;
@@ -66,8 +66,11 @@ IFILETYPE* FileOpener::openFileRO(std::string filename)
 {
 	filename=findFileName(filename);
 	PRT_DEBUG("Opening file " << filename << " read-only ...");
-	return new IFILETYPE(filename.c_str());
-};
+	IFILETYPE *file = new IFILETYPE(filename.c_str());
+	if (file->fail()) throw FileOpenerException("Error opening file");
+	return file;
+}
+
 /**
  * Open a file for reading and writing.
  * if not writeable then fail
@@ -76,8 +79,11 @@ IOFILETYPE* FileOpener::openFileMustRW(std::string filename)
 {
 	filename=findFileName(filename);
 	PRT_DEBUG("Opening file " << filename << " writable ...");
-	return new IOFILETYPE(filename.c_str(),std::ios::in|std::ios::out);
-};
+	IOFILETYPE *file = new IOFILETYPE(filename.c_str(),std::ios::in|std::ios::out);
+	if (file->fail()) throw FileOpenerException("Error opening file");
+	return file; 
+}
+
 /**
  * Open a file for reading and writing.
  * if not writeable then open readonly
@@ -86,15 +92,16 @@ IOFILETYPE* FileOpener::openFilePreferRW(std::string filename)
 {
 	filename=findFileName(filename);
 	PRT_DEBUG("Opening file " << filename << " writable ...");
-	IOFILETYPE* file=new IOFILETYPE(filename.c_str(),std::ios::in|std::ios::out);
-	if (!file->fail()){
-		return file;
-	};
-	PRT_DEBUG("Writable failed: fallback to read-only ...");
-	delete file;
-	filename=findFileName(filename);
-	return new IOFILETYPE(filename.c_str(),std::ios::in);
-};
+	IOFILETYPE* file;
+	file = new IOFILETYPE(filename.c_str(),std::ios::in|std::ios::out);
+	if (file->fail()) {
+		PRT_DEBUG("Writable failed: fallback to read-only ...");
+		delete file;
+		file = new IOFILETYPE(filename.c_str(),std::ios::in);
+	}
+	if (file->fail()) throw FileOpenerException("Error opening file");
+	return file; 
+}
 
 /** Following are for creating/reusing files **/
 /** if not writeable then fail **/
@@ -102,12 +109,16 @@ IOFILETYPE* FileOpener::openFileAppend(std::string filename)
 {
 	filename=findFileName(filename);
 	PRT_DEBUG("Opening file " << filename << " to append ...");
-	return new IOFILETYPE(filename.c_str(),std::ios::in|std::ios::out|std::ios::ate);
-	
-};
+	IOFILETYPE *file = new IOFILETYPE(filename.c_str(),std::ios::in|std::ios::out|std::ios::ate);
+	if (file->fail()) throw FileOpenerException("Error opening file");
+	return file; 
+}
+
 IOFILETYPE* FileOpener::openFileTruncate(std::string filename)
 {
 	filename=findFileName(filename);
 	PRT_DEBUG("Opening file " << filename << " truncated ...");
-	return new IOFILETYPE(filename.c_str(),std::ios::in|std::ios::out|std::ios::trunc);
-};
+	IOFILETYPE *file =  new IOFILETYPE(filename.c_str(),std::ios::in|std::ios::out|std::ios::trunc);
+	if (file->fail()) throw FileOpenerException("Error opening file");
+	return file; 
+}

@@ -7,7 +7,7 @@
 #include "EmuTime.hh"
 
 // TODO XXX rework msxexception
-#include "msxexception.hh"
+#include "MSXException.hh"
 
 #include <string>
 #include <list>
@@ -19,8 +19,8 @@ namespace MSXConfig
 class Exception: public MSXException
 {
 public:
-	Exception(const std::string &descs=""):MSXException(descs,0) {}
-	Exception(const std::ostringstream &stream):MSXException(stream.str(),0) {}
+	Exception(const std::string &descs):MSXException(descs) {}
+	Exception(const std::ostringstream &stream):MSXException(stream.str()) {}
 };
 
 class Config

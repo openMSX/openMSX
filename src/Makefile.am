@@ -26,7 +26,7 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	MSXConfig.cc MSXConfig.hh \
 	XMLConfig.cc XMLConfig.hh \
 	EmuTime.hh EmuTime.cc \
-	msxexception.hh \
+	MSXException.hh \
 	MSXDevice.hh MSXDevice.cc \
 	MSXIODevice.hh MSXIODevice.cc MSXMemDevice.hh MSXMemDevice.cc \
 	MSXMotherBoard.hh MSXMotherBoard.cc \
