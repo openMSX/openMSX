@@ -231,10 +231,10 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		// Display area starts here, unless we're doing overscan and it
 		// was already active.
 		if (!isDisplayArea) {
-			isDisplayArea = true;
-			if (isDisplayEnabled()) {
+			if (controlRegs[1] & 0x40) {
 				vram->updateDisplayEnabled(true, time);
 			}
+			isDisplayArea = true;
 		}
 		break;
 	case VSCAN:

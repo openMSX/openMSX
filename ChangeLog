@@ -1,5 +1,10 @@
 $Id$
 
+2003-02-16 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed a bug in the VDP, where display-on was reported before the sync
+	  with VDP subsystems was completed. Can cause the command engine to
+	  run too slow, among other things.
+
 2003-02-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* First step to persistent state directories:
 	   - persistent state files are saved in
