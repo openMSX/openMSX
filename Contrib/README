@@ -15,15 +15,16 @@ for allowing us to distribute it.
 Contents
 ========
 
-cbios: C-BIOS 0.15 (2003-02-26)
+cbios: C-BIOS 0.16 (2003-04-20)
 	C-BIOS is a BIOS written from scratch that aims to be compatible with
 	the MSX BIOS. The current version runs most MSX1 ROM games succesfully
 	and many MSX2 ROM games as well.
-	The config files "src/cfg/cbios-msx1.xml" and "src/cfg/cbios-msx2.xml"
-	let you to use C-BIOS in openMSX.
+	The machine configurations "cbios-msx1" and "cbios-msx2" let you use
+	C-BIOS in openMSX.
 
-	author: BouKiCHi (boukichi@emucamp.com)
-	home page: http://www.emucamp.com/boukichi/
+	original author: BouKiCHi (boukichi@emucamp.com)
+	current maintainer: Reikan (cbios@ranpub.com)
+	home page: http://www.ranpub.com/CBIOS/
 
 msxdos_bootsectors.zip (2002-10-29)
 	Contains the Standard MSX Boot Sector by ASCII & MS.

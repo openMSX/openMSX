@@ -1,0 +1,454 @@
+;cb_snd_mode by BouKiCHi
+
+;------------------------
+;サウンドモード用
+
+SMOD_TSTSND     equ $FAFE   ; [byte] サウンドテスト用フラグ
+SMOD_REQNUM     equ $F305   ; [byte] リクエストナンバー
+SMOD_OLDKEY     equ $F306   ; [byte] 前回キー入力
+SMOD_ROMSUM     equ $F307   ; [word] チェックサム
+SMOD_MUSLST     equ $F309   ; [word] 曲リストのアドレス
+SMOD_INIT       equ $F30B   ; [word] 初期化ルーチンのアドレス
+SMOD_PLAY       equ $F30D   ; [word] 再生ルーチンのアドレス(秒間60回呼び出し）
+
+;--------------------------
+;サウンドモード
+;--------------------------
+
+        org     $2000
+
+sound_mode
+        di
+
+        ld      a,$FF
+        ld      (PSG_DBG),a
+
+
+        call    get_slotreg
+        rrca
+        rrca
+        and     $03             ; A=CART ROM slot
+
+        ld      hl,$8000
+        call    enaslt         ; ページ1から2を複製
+
+        ; hookを乗っ取る。
+
+        ld      a,$C9
+        ld      (H_KEYI),a
+        ld      (H_TIMI),a
+
+        call    clr_text40
+
+        ; ゼロを表示
+
+        xor     a,a
+        ld      de,$0000
+
+        ld      b,$10
+pdsp_lp
+        call    disp_psg
+        inc     d
+        djnz    pdsp_lp
+
+
+        ld      hl,str_s_test
+        call    prn_text
+
+        call    chk_mus_lst
+
+        call    sndmod_play
+
+        xor     a,a
+        ld      (SMOD_OLDKEY),a
+
+;-----------------------------
+; サウンドモードメインループ
+snd_loop
+        halt
+        ld      hl,(SMOD_PLAY)
+        call    call_hl
+
+        ld      a,$08
+        call    in_keyboard
+        ld      b,a
+        ld      a,(SMOD_OLDKEY)
+        cp      a,b
+        jr      z,snd_loop
+        ld      a,b
+        ld      (SMOD_OLDKEY),a
+
+        bit     6,a
+        jr      z,snd_down
+        bit     5,a
+        jr      z,snd_up
+        bit     0,a
+        jp      z,debug_mode
+        jp      snd_loop
+
+;--------------------------
+snd_down
+        ld      a,(SMOD_REQNUM)
+        inc     a
+        jr      snd_set
+snd_up
+        ld      a,(SMOD_REQNUM)
+        dec     a
+snd_set
+        call    chk_snd_rng
+        ld      (SMOD_REQNUM),a
+        call    sndmod_play
+        jr      snd_loop
+
+;---------------------------
+; リクエストナンバーの範囲を調べる。
+chk_snd_rng
+; dest AF,HL,B
+; 曲リストを調べる。
+
+        ld      b,a
+        ld      hl,(SMOD_MUSLST)
+        ld      a,h
+        or      a,a
+        jr      nz,m_lst_rng
+        ld      a,b
+        ret
+m_lst_rng
+        ld      hl,(SMOD_MUSLST)
+        ld      a,(hl) ; A=6 A>B
+        cp      a,b
+        jr      c,m_rng_ng
+        ld      a,b
+        ret
+m_rng_ng
+        ld      a,(SMOD_REQNUM)
+        ret
+
+;----------------------
+chk_mus_lst
+; 曲リストを調べる。
+
+        ld      hl,(SMOD_MUSLST)
+        ld      a,h
+        or      a,a
+        jr      nz,m_list_fnd
+
+        ld      a,l ; L=REQNO
+        ld      (SMOD_REQNUM),a
+        ret
+m_list_fnd
+        ld      a,$00
+        ld      (SMOD_REQNUM),a
+        ret
+
+;---------------------------
+sndmod_play
+
+        call    sound_memclr
+
+
+        ld      hl,(SMOD_MUSLST)
+        ld      a,h
+        or      a,a
+        jr      z,sndmod_hex
+
+        push    hl
+        pop     ix
+        inc     ix
+
+        ld      a,(SMOD_REQNUM)
+
+        ld      b,0
+        ld      c,a
+        add     ix,bc
+        add     ix,bc
+        add     ix,bc
+        add     ix,bc
+
+        call    set_name_adrs
+
+        ld      l,(ix+2)
+        ld      h,(ix+3)
+        call    prn_str_disp
+        ld      a,(ix)
+
+        ld      hl,(SMOD_INIT)
+        call    call_hl
+        ret
+
+sndmod_hex
+        call    set_name_adrs
+        ld      a,(SMOD_REQNUM)
+        call    vout_hex8
+        ld      a,(SMOD_REQNUM)
+
+        ld      hl,(SMOD_INIT)
+        call    call_hl
+        ret
+
+;---------------------------
+call_hl
+        jp      (hl)
+
+;------------------------
+set_name_adrs
+        ld      de,120
+        call    de2curs
+        xor     a,a
+        ld      bc,(wrvdpa)
+        ld      b,40
+fill_rep
+        call    ch_put
+        djnz    fill_rep
+
+        ld      de,128
+        call    de2curs
+        ret
+
+sound_memclr
+        xor     a,a
+        ld      hl,$c000
+        ld      de,$c001
+        ld      bc,$3000
+        ld      (hl),a
+        ldir
+        ret
+
+disp_psg
+        push    hl
+        push    de
+        push    bc
+        push    af
+
+        ld      a,d
+        cp      a,8
+        jr      nc,disp_l9
+        ld      bc,320
+        jr      disp_main
+disp_l9
+        sub     a,8
+        ld      d,a
+        ld      bc,360
+disp_main
+        ld      h,0
+        ld      l,d
+
+        add     hl,hl
+        add     hl,hl
+
+        add     hl,bc
+
+        ex      de,hl
+        call    de2curs
+        ex      de,hl
+
+        ld      a,e
+
+        call    vout_hex8
+
+        pop     af
+        pop     bc
+        pop     de
+        pop     hl
+        ret
+
+
+
+snd_romname
+	call	check_sum
+        ;DE = checksum
+
+        push    de
+
+        ld      hl,str_chksum
+        call    prn_text
+
+        pop     ix
+        push    ix
+
+        call    vout_hex16
+
+        ld      hl,str_isgame
+        call    prn_str_disp
+
+        pop     hl
+        ld      (SMOD_ROMSUM),hl
+        ld      bc,$000A     ; 一つの構造体のサイズ
+
+        ld      ix,sum_table
+cs_nam_loop
+        ld      a,(ix)
+        or      a,(ix+1)
+        jr      z,cs_nam_skip
+
+
+        ld      a,(ix)
+        cp      a,l
+        jr      nz,cs_nam_next
+        ld      a,(ix+1)
+        cp      a,h
+        jr      nz,cs_nam_next
+
+        jr      cs_nam_skip
+
+cs_nam_next
+        add     ix,bc
+        jr      cs_nam_loop
+cs_nam_skip
+
+        ld      a,(ix+4)
+        ld      l,a
+        ld      a,(ix+5)
+        ld      h,a
+        ld      (SMOD_MUSLST),hl
+
+        ld      a,(ix+6)
+        ld      l,a
+        ld      a,(ix+7)
+        ld      h,a
+        ld      (SMOD_INIT),hl
+
+        ld      a,(ix+8)
+        ld      l,a
+        ld      a,(ix+9)
+        ld      h,a
+        ld      (SMOD_PLAY),hl
+
+        ld      a,(ix+2)
+        ld      l,a
+        ld      a,(ix+3)
+        ld      h,a
+
+        call    prn_str_disp
+        inc     hl
+        ld      a,(hl)
+        ld      (SMOD_TSTSND),a
+        ret
+
+
+;-----------------------------
+
+sum_table
+                ;CSUM,PTR_GAMENAME,LIST_MUSIC  ,INIT ,PLAY
+                ;------------------------------------------
+        dw      $0d0f,name_goonies,list_mus_gns,$B590,$B641
+        dw      $a453,name_twinscc,$0000       ,$0000,$0000
+        dw      $b49f,name_zanac  ,$0000       ,$0000,$0000
+        dw      $9ae8,name_kungfu ,$0000       ,$0000,$0000
+        dw      $008f,name_g1942  ,$0000       ,$0000,$0000
+        dw      $665a,name_pooyan ,$0000       ,$0000,$0000
+        dw      $0000,name_unknown,$0000       ,$0000,$0000 ; NULL
+name_goonies
+        db      "GOONIES",$0,$FF
+name_twinscc
+        db      "TWINBEE(SCC)",$0,$FF
+name_zanac
+        db      "ZANAC",$0,$0
+name_kungfu
+        db      "KUNGFU",$0,$0
+name_g1942
+        db      "1942",$0,$0
+name_pooyan
+        db      "POOYAN",$0,$0
+name_unknown
+        db      "UNKNOWN",$0,$0
+
+list_mus_gns
+        ; リストのサイズ
+
+        db      $1c
+        dw      $009B,gns_theme   
+        dw      $0091,gns_mus1   
+        dw      $0098,gns_mus2   
+        dw      $00A1,gns_mus3   
+        dw      $00A4,gns_mus4   
+        dw      $00A7,gns_mus5   
+        dw      $00AA,gns_mus6   
+        dw      $0081,gns_mus7   
+        dw      $0085,gns_mus8   
+        dw      $0089,gns_mus9   
+        dw      $008E,gns_mus10   
+        dw      $0001,gns_se1
+        dw      $0002,gns_se2
+        dw      $0003,gns_se3
+        dw      $0004,gns_se4
+        dw      $0005,gns_se5
+        dw      $0006,gns_se6
+        dw      $0007,gns_se7
+        dw      $0008,gns_se8
+        dw      $0009,gns_se9
+        dw      $000A,gns_se10
+        dw      $000B,gns_se11
+        dw      $000C,gns_se12
+        dw      $000D,gns_se13
+        dw      $000E,gns_se14
+        dw      $000F,gns_se15
+        dw      $0010,gns_se16
+        dw      $0011,gns_se17
+        dw      $0012,gns_se18
+        dw      $0000,$0000   ; NULL
+
+gns_theme
+        db      "THE THEME OF GOONIES",$0
+gns_mus1
+        db      "MUSIC 1",$0
+gns_mus2
+        db      "MUSIC 2",$0
+gns_mus3
+        db      "MUSIC 3",$0
+gns_mus4
+        db      "MUSIC 4",$0
+gns_mus5
+        db      "MUSIC 5",$0
+gns_mus6
+        db      "MUSIC 6",$0
+gns_mus7
+        db      "MUSIC 7",$0
+gns_mus8
+        db      "MUSIC 8",$0
+gns_mus9
+        db      "MUSIC 9",$0
+gns_mus10
+        db      "MUSIC 10",$0
+
+
+gns_se1
+        db      "S.E.1",$0
+gns_se2
+        db      "S.E.2",$0
+gns_se3
+        db      "S.E.3",$0
+gns_se4
+        db      "S.E.4",$0
+gns_se5
+        db      "S.E.5",$0
+gns_se6
+        db      "S.E.6",$0
+gns_se7
+        db      "S.E.7",$0
+gns_se8
+        db      "S.E.8",$0
+gns_se9
+        db      "S.E.9",$0
+gns_se10
+        db      "S.E.10",$0
+gns_se11
+        db      "S.E.11",$0
+gns_se12
+        db      "S.E.12",$0
+gns_se13
+        db      "S.E.13",$0
+gns_se14
+        db      "S.E.14",$0
+gns_se15
+        db      "S.E.15",$0
+gns_se16
+        db      "S.E.16",$0
+gns_se17
+        db      "S.E.17",$0
+gns_se18
+        db      "S.E.18",$0
+
+str_canstst
+        db      $0d,$0a
+        db      "SOUND TEST [F3 Key]",$00
