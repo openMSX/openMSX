@@ -3,22 +3,14 @@
 #include <cassert>
 #include "MSXMapperIOPhilips.hh"
 
-
 namespace openmsx {
 
 // unused bits read always "1"
-byte MSXMapperIOPhilips::calcMask(list<int> &mapperSizes)
+byte MSXMapperIOPhilips::calcMask(const multiset<unsigned>& mapperSizes)
 {
-	int largest = 1;
-	for (list<int>::const_iterator i = mapperSizes.begin();
-	     i != mapperSizes.end();
-	     ++i) {
-		if (*i > largest) {
-			largest = *i;
-		}
-	}
-	int bits = log2RoundedUp(largest);
-	return (256 - (1 << bits)) & 255;
+	unsigned largest = (mapperSizes.empty()) ? 1
+	                                         : *mapperSizes.rbegin();
+	return (256 - (1 << log2RoundedUp(largest))) & 255;
 }
 
 /* 
@@ -34,10 +26,10 @@ byte MSXMapperIOPhilips::calcMask(list<int> &mapperSizes)
  *   65 <= num <= 128  ==> 7 
  *  129 <= num <= 256  ==> 8
  */
-int MSXMapperIOPhilips::log2RoundedUp(int num)
+byte MSXMapperIOPhilips::log2RoundedUp(unsigned num)
 {
 	assert((1 <= num) && (num <= 256));
-	int foo = 128; int res = 8;
+	unsigned foo = 128; byte res = 8;
 	while (num <= foo) {
 		foo /= 2; res--;
 	} 

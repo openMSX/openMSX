@@ -5,16 +5,15 @@
 
 #include "MSXMapperIO.hh"
 
-
 namespace openmsx {
 
 class MSXMapperIOPhilips : public MapperMask
 {
-	public:
-		virtual byte calcMask(list<int> &mapperSizes);
+public:
+	virtual byte calcMask(const multiset<unsigned>& mapperSizes);
 
-	private:
-		int log2RoundedUp(int num);
+private:
+	byte log2RoundedUp(unsigned num);
 };
 
 } // namespace openmsx

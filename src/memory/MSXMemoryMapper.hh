@@ -7,8 +7,8 @@
 
 namespace openmsx {
 
+class Device;
 class MSXMapperIO;
-
 
 class MSXMemoryMapper : public MSXMemDevice
 {
@@ -24,16 +24,22 @@ class MSXMemoryMapper : public MSXMemDevice
 		virtual void reset(const EmuTime &time);
 	
 	protected:
+		void createMapperIO(const EmuTime& time);
+		void destroyMapperIO();
+
 		/** Converts a Z80 address to a RAM address.
 		  * @param address Index in Z80 address space.
 		  * @return Index in RAM address space.
 		  */
-		inline int calcAddress(word address) const;
+		inline unsigned calcAddress(word address) const;
 
-		byte *buffer;
-		MSXMapperIO* mapperIO;
-		int nbBlocks;
+		byte* buffer;
+		unsigned nbBlocks;
 		bool slowDrainOnReset;
+
+		static unsigned counter;
+		static Device* device;
+		static MSXMapperIO* mapperIO;
 };
 
 } // namespace openmsx

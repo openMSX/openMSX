@@ -15,7 +15,6 @@
 #include "MSXTurboRPCM.hh"
 #include "MSXS1985.hh"
 #include "MSXS1990.hh"
-#include "MSXMapperIO.hh"
 #include "MSXPSG.hh"
 #include "MSXMusic.hh"
 #include "MSXFmPac.hh"
@@ -67,16 +66,7 @@ MSXDevice *DeviceFactory::create(Device* conf, const EmuTime& time)
 		return NULL;	// TODO remove it from machine specs?
 	}
 	if (type == "MapperIO") {
-		MSXMapperIO *mapperIO = MSXMapperIO::instance();
-		cpuInterface->register_IO_Out(0xFC, mapperIO);
-		cpuInterface->register_IO_Out(0xFD, mapperIO);
-		cpuInterface->register_IO_Out(0xFE, mapperIO);
-		cpuInterface->register_IO_Out(0xFF, mapperIO);
-		cpuInterface->register_IO_In(0xFC, mapperIO);
-		cpuInterface->register_IO_In(0xFD, mapperIO);
-		cpuInterface->register_IO_In(0xFE, mapperIO);
-		cpuInterface->register_IO_In(0xFF, mapperIO);
-		return mapperIO;
+		return NULL;	// TODO remove it from machine specs?
 	}
 	if (type == "PPI") {
 		MSXPPI *ppi = new MSXPPI(conf, time);
@@ -180,10 +170,10 @@ MSXDevice *DeviceFactory::create(Device* conf, const EmuTime& time)
 	}
 	if (type == "Audio-Midi") {
 		MC6850 *midi = new MC6850(conf, time);
-		MSXCPUInterface::instance()->register_IO_Out(0x00, midi);
-		MSXCPUInterface::instance()->register_IO_Out(0x01, midi);
-		MSXCPUInterface::instance()->register_IO_In(0x04, midi);
-		MSXCPUInterface::instance()->register_IO_In(0x05, midi);
+		cpuInterface->register_IO_Out(0x00, midi);
+		cpuInterface->register_IO_Out(0x01, midi);
+		cpuInterface->register_IO_In(0x04, midi);
+		cpuInterface->register_IO_In(0x05, midi);
 		return midi;
 	}
 	if (type == "MoonSound") {

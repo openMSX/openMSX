@@ -1,5 +1,12 @@
 $Id$
 
+2003-11-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Refactored MSXMapperIO:
+	   - MSXMapperIO is no longer a singleton, this solves the destruction
+	     order problem between MSXMapperIO - MSXMemoryMapper
+	   - possibly the crash on power off is solved by this
+	   - machine configs still need to be updated
+
 2003-11-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "info time"
 	* Implemented "after" command (see doc/commands.txt)

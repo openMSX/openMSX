@@ -5,13 +5,12 @@
 
 #include "MSXMapperIOPhilips.hh"
 
-
 namespace openmsx {
 
 class MSXMapperIOTurboR : public MSXMapperIOPhilips
 {
-	public:
-		virtual byte calcMask(list<int> &mapperSizes);
+public:
+	virtual byte calcMask(const multiset<unsigned>& mapperSizes);
 };
 
 } // namespace openmsx
