@@ -17,8 +17,8 @@ openmsx_SOURCES=openmsx.cc \
 	MSXSimple64KB.hh MSXSimple64KB.cc \
 	MSXTMS9928a.hh MSXTMS9928a.cc \
 	MSXCPUDevice.hh MSXCPUDevice.cc MSXCPU.hh MSXCPU.cc \
-	MSXZ80.hh MSXZ80.cc \
-	Z80.cc Z80.hh Z80DAA.h Z80Codes.h opc__Z80.h \
+	MSXZ80.hh MSXZ80.cc Z80Tables.hh Z80Dasm.h \
+	Z80.cc Z80.hh Z80Codes.h opc_R800.h Z80Core.hh \
 	devicefactory.hh devicefactory.cc \
 	Scheduler.hh Scheduler.cc \
 	EventDistributor.hh EventDistributor.cc \
