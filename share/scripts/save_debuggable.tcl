@@ -28,6 +28,6 @@ proc load_all { directory } {
 
 # for backwards compatibility
 proc vramdump { { filename "vramdump"} } {
-	save_debuggable vram $filename
+	save_debuggable "VRAM" $filename
 }
 
