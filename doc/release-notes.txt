@@ -84,7 +84,7 @@ Known issues / caveats:
   machine descriptions, ROM database entries etc.
 - This openMSX release was tested on Linux and Win32.
   Compilation on Mac OS X is reported to work, but openMSX does not run
-  flawless on that platform yet.
+  flawlessly on that platform yet.
   Running on BSD, Solaris, BeOS etc (wherever SDL runs) should be possible,
   but will probably not work out-of-the-box. If you are compiling on such a
   platform, please share your experiences (see below for contact info),
