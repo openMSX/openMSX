@@ -61,7 +61,7 @@ assumes you are reading the HOWTO that suits your openMSX version.
 
 This is the easy way: simply download them from the following address:
 
-http://sourceforge.net/project/showfiles.php?group_id=38274&release_id=103487
+http://sourceforge.net/project/showfiles.php?group_id=38274
 
 After downloading, type
 
