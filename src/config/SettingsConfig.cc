@@ -7,10 +7,12 @@
 #include "CommandController.hh"
 #include "GlobalSettings.hh"
 
+
 namespace openmsx {
 
 SettingsConfig::SettingsConfig()
 	: MSXConfig("settings")
+	, autoSaveSetting(0)
 	, saveSettingsCommand(*this)
 {
 	CommandController::instance().
@@ -19,7 +21,7 @@ SettingsConfig::SettingsConfig()
 
 SettingsConfig::~SettingsConfig()
 {
-	if (GlobalSettings::instance().getAutoSaveSetting().getValue()) {
+	if (autoSaveSetting && autoSaveSetting->getValue()) {
 		try {
 			saveSetting();
 		} catch (FileException& e) {
@@ -43,6 +45,9 @@ void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 	XMLDocument doc(file.getLocalName(), "settings.dtd");
 	SystemFileContext systemContext;
 	handleDoc(*this, doc, systemContext);
+
+	// This setting must be retrieved earlier than the destructor.
+	autoSaveSetting = &GlobalSettings::instance().getAutoSaveSetting();
 }
 
 void SettingsConfig::saveSetting(const string& filename)

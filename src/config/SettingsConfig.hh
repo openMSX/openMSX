@@ -6,7 +6,10 @@
 #include "MSXConfig.hh"
 #include "Command.hh"
 
+
 namespace openmsx {
+
+class BooleanSetting;
 
 class SettingsConfig : public MSXConfig
 {
@@ -21,6 +24,7 @@ private:
 	~SettingsConfig();
 
 	string saveName;
+	BooleanSetting* autoSaveSetting;
 
 	// SaveSettings command
 	class SaveSettingsCommand : public SimpleCommand {
