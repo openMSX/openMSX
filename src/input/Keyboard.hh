@@ -35,12 +35,14 @@ class Keyboard : public EventListener
 
 	private:
 		void doKeyGhosting();
+		void parseKeymapfile(const byte *, unsigned int);
+		void loadKeymapfile(const std::string &);
 
 		byte keyMatrix[16];
 		byte keyMatrix2[16];
 		bool keyGhosting;
 		bool keysChanged;
-		static const byte Keys[336][2];
+		static byte Keys[336][2];
 };
 
 } // namespace openmsx

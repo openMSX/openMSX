@@ -12,6 +12,11 @@ namespace openmsx {
 MSXPSG::MSXPSG(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time), joyPorts(time)
 {
+	try {
+		keyLayoutBit = deviceConfig->getParameterAsBool("keylayoutbit");
+	} catch (ConfigException &e) {
+		keyLayoutBit = 0;	// not specified.
+	}
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	ay8910 = new AY8910(*this, volume, time);
 	cassette = CassettePortFactory::instance(time);
@@ -60,8 +65,12 @@ void MSXPSG::writeIO(byte port, byte value, const EmuTime &time)
 byte MSXPSG::readA(const EmuTime &time)
 {
 	byte joystick = joyPorts.read(time);
-	byte keyLayout = 0;		//TODO
 	byte cassetteInput = cassette->cassetteIn(time) ? 128 : 0;
+	byte keyLayout;
+	if (keyLayoutBit)
+		keyLayout = 1;
+	else
+		keyLayout = 0;
 	return joystick | (keyLayout << 6) | cassetteInput;
 }
 

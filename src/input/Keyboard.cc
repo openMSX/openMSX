@@ -2,10 +2,94 @@
 
 #include "Keyboard.hh"
 #include "EventDistributor.hh"
+#include "MSXConfig.hh"
+#include "LocalFile.hh"
+#include "FileContext.hh"
+#include "FileOperations.hh"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <cassert>
 
 
 namespace openmsx {
+
+void Keyboard::parseKeymapfile(const byte *buf, unsigned int size)
+{
+	int	i,j,f;
+	char	c, line[1024];
+
+	for (i=0;i<(int)size;i++) {
+		for (f=0,j=0;j<1023 && i<(int)size;i++,j++) {
+			c = *(buf+i);
+			switch	(c) {
+				case '#':
+					while (i<(int)size && *(buf+i)!='\n')
+						i++;
+					f=1;
+					break;
+				case '\r':
+					break;
+				case '\n':
+				case '\0':
+					f=1;
+					break;
+				default:
+					line[j] = c;
+					break;
+			}
+			if (f)
+				break;
+		}
+		line[j] = '\0';
+		int	rdnum;
+		int	vkeyi, row, bit;
+		rdnum = sscanf(line,"%i = %i,%i",&vkeyi,&row,&bit);
+		unsigned int	vkey = (unsigned int) vkeyi;
+		if (rdnum == 3 && vkey < 0x150) {
+			Keys[vkey][0] = 0x00ff & (unsigned int)row;
+			Keys[vkey][1] = 0x00ff & (unsigned int)bit;
+		}
+	}
+}
+
+void Keyboard::loadKeymapfile(const std::string &keymapfn)
+{
+	class SystemFileContext		*fcontext;
+	vector<string>	pathlist;
+
+	fcontext = new SystemFileContext();
+	pathlist =  fcontext->getPaths();
+
+	vector<string>::const_iterator it;
+	for (it = pathlist.begin();
+	     it != pathlist.end();
+	     it++) {
+		std::string path = *it;
+		path = FileOperations::expandTilde(path);
+		class	LocalFile	*keyf;
+		
+		try {
+			keyf = new LocalFile(path + "share/" + keymapfn, NORMAL);
+		} catch (FileException &e) {
+			//delete keyf;
+			continue;
+		}
+		if (!keyf)
+			continue;
+		int	fsize;
+		byte	*buf;
+		fsize = keyf->getSize();
+		if (!(buf = (byte*)malloc(fsize)))
+		{	PRT_ERROR("no enough memory.");
+		}
+		keyf->read(buf,fsize);
+		delete keyf;
+		parseKeymapfile(buf,fsize);
+		free(buf);
+		break;
+	}
+}
 
 Keyboard::Keyboard(bool keyG)
 {
@@ -13,6 +97,19 @@ Keyboard::Keyboard(bool keyG)
 	keysChanged = false;
 	memset(keyMatrix , 255, sizeof(keyMatrix) );
 	memset(keyMatrix2, 255, sizeof(keyMatrix2));
+	MSXConfig *mconfig = MSXConfig::instance();
+	try {
+		Config *config = mconfig->getConfigById("KeyMap");
+		try {
+			std::string keymapfn;
+			keymapfn = config->getParameter("filename");
+			loadKeymapfile(keymapfn);
+		} catch (ConfigException &) {
+			// no keymap file settings.
+		}
+	} catch (ConfigException &e) {
+		// no keymap settings.
+	}
 	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this, 1);
 	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this, 1);
 }
@@ -130,7 +227,7 @@ void Keyboard::doKeyGhosting()
 //  11   |     |     |     |     | 'NO'|     |'YES'|     |
 //       +-----+-----+-----+-----+-----+-----+-----+-----+
 
-const byte Keyboard::Keys[336][2] = {
+byte Keyboard::Keys[336][2] = {
 /* 0000 */
   {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
   {7,0x20},{7,0x08},{0,0x00},{0,0x00},{0,0x00},{7,0x80},{0,0x00},{0,0x00},

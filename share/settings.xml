@@ -99,6 +99,13 @@
     <parameter class="romimages">ri</parameter>
    </config>
 
+ <!-- Keymap definition file -->
+  <config id="KeyMap">
+   <!--
+    <parameter name="filename">keymap.default</parameter>
+   -->
+  </config>
+
 </msxconfig>
 
 

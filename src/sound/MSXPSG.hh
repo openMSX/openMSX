@@ -38,6 +38,7 @@ class MSXPSG : public MSXIODevice, public AY8910Interface
 	private:
 		JoystickPorts joyPorts;
 		CassettePortInterface *cassette;
+		bool keyLayoutBit;
 };
 
 } // namespace openmsx
