@@ -33,8 +33,10 @@ void MSXMidi::reset(const EmuTime &time)
 {
 	timerIRQlatch = false;
 	timerIRQenabled = false;
+	timerIRQ.reset();
 	rxrdyIRQlatch = false;
 	rxrdyIRQenabled = false;
+	rxrdyIRQ.reset();
 }
 
 byte MSXMidi::readIO(byte port, const EmuTime &time)

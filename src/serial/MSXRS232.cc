@@ -36,6 +36,7 @@ void MSXRS232::reset(const EmuTime &time)
 {
 	rxrdyIRQlatch = false;
 	rxrdyIRQenabled = false;
+	rxrdyIRQ.reset();
 }
 
 byte MSXRS232::readMem(word address, const EmuTime &time)
