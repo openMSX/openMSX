@@ -36,7 +36,7 @@ endif
 
 SUBDIRS = \
 	cassette commands config console cpu debugger events fdc file ide \
-	input libxmlx memory serial settings sound thread video
+	input memory serial settings sound thread video
 
 #bin_PROGRAMS=openmsx cfgtest
 bin_PROGRAMS=openmsx
@@ -115,7 +115,6 @@ openmsx_LDADD = \
 	ide/libIDE.la \
 	sound/libSound.la \
 	input/libInput.la \
-	libxmlx/libxmlx.la \
 	serial/libSerial.la \
 	settings/libSettings.la \
 	thread/libThread.la \
@@ -126,8 +125,6 @@ openmsx_LDADD = \
 #	cfgtest.cc EmuTime.hh \
 #	XMLConfig.hh XMLConfig.cc \
 #	openmsx.hh msxexception.hh
-#
-#cfgtest_LDADD = libxmlx/libxmlx.la
 
 MAINTAINERCLEANFILES = Makefile.in config.h.in stamp-h.in
 
