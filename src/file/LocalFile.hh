@@ -5,6 +5,7 @@
 
 #include "FileBase.hh"
 #include <fstream>
+#include <string>
 
 
 class LocalFile : public FileBase
