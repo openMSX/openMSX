@@ -1,5 +1,10 @@
 $Id$
 
+2004-04-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Use 64-bit type to store realtime:
+	   32-bit microsecond counter overflows after about 70 minutes.
+	   We also saw openmsx crashes after 70 minutes...
+
 2004-04-30 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed sprites in overscan.
 

@@ -32,7 +32,7 @@ public:
 	  * @param us Real time duration is micro seconds.
 	  * @param time Point in emulated time.
 	  */
-	bool timeLeft(unsigned us, const EmuTime& time);
+	bool timeLeft(unsigned long long us, const EmuTime& time);
 	
 	/** Synchronize EmuTime with RealTime.
 	  * @param time The current emulation time.
@@ -64,7 +64,7 @@ private:
 	BooleanSetting& pauseSetting;
 	BooleanSetting& powerSetting;
 
-	unsigned idealRealTime;
+	unsigned long long idealRealTime;
 	EmuTime emuTime;
 	float sleepAdjust;
 };

@@ -178,16 +178,16 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 
 	if (draw) {
 		// Let underlying graphics system finish rendering this frame.
-		unsigned time1 = Timer::getTime();
+		unsigned long long time1 = Timer::getTime();
 		finishFrame();
-		unsigned time2 = Timer::getTime();
-		unsigned current = time2 - time1;
+		unsigned long long time2 = Timer::getTime();
+		unsigned long long current = time2 - time1;
 		const float ALPHA = 0.2;
 		finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
 		                      current * ALPHA;
 	
 		// update fps statistics
-		unsigned duration = time2 - prevTimeStamp;
+		unsigned long long duration = time2 - prevTimeStamp;
 		prevTimeStamp = time2;
 		frameDurationSum += duration - frameDurations.removeBack();
 		frameDurations.addFront(duration);

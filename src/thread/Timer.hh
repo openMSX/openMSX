@@ -8,8 +8,8 @@ namespace openmsx {
 class Timer
 {
 public:
-	static unsigned getTime();
-	static void sleep(unsigned us);
+	static unsigned long long getTime();
+	static void sleep(unsigned long long us);
 };
 
 } // namespace openmsx

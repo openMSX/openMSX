@@ -17,18 +17,19 @@
 
 namespace openmsx {
 
-unsigned Timer::getTime()
+unsigned long long Timer::getTime()
 {
 #ifdef HAVE_GETTIMEOFDAY
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
-	return tv.tv_sec * 1000000 + tv.tv_usec;
+	return (unsigned long long)tv.tv_sec * 1000000 +
+	       (unsigned long long)tv.tv_usec;
 #else
-	return SDL_GetTicks() * 1000;
+	return (unsigned long long)SDL_GetTicks() * 1000;
 #endif
 }
 
-void Timer::sleep(unsigned us)
+void Timer::sleep(unsigned long long us)
 {
 #ifdef HAVE_USLEEP
 	usleep(us);

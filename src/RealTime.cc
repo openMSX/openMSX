@@ -13,9 +13,9 @@
 
 namespace openmsx {
 
-const float    SYNC_INTERVAL = 0.125;  // s
-const int      MAX_LAG       = 200000; // us
-const unsigned ALLOWED_LAG   =  20000; // us
+const float              SYNC_INTERVAL = 0.125;  // s
+const long long          MAX_LAG       = 200000; // us
+const unsigned long long ALLOWED_LAG   =  20000; // us
 
 RealTime::RealTime()
 	: scheduler(Scheduler::instance()),
@@ -62,10 +62,11 @@ EmuDuration RealTime::getEmuDuration(float realDur)
 	return EmuDuration(realDur * speedSetting.getValue() / 100.0);
 }
 
-bool RealTime::timeLeft(unsigned us, const EmuTime& time)
+bool RealTime::timeLeft(unsigned long long us, const EmuTime& time)
 {
-	unsigned realDuration = (unsigned)(getRealDuration(emuTime, time) * 1000000);
-	unsigned currentRealTime = Timer::getTime();
+	unsigned long long realDuration =
+	   (unsigned long long)(getRealDuration(emuTime, time) * 1000000ULL);
+	unsigned long long currentRealTime = Timer::getTime();
 	return (currentRealTime + us) < (idealRealTime + realDuration + ALLOWED_LAG);
 }
 
@@ -84,18 +85,19 @@ void RealTime::sync(const EmuTime& time, bool allowSleep)
 void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 {
 	if (throttleSetting.getValue()) {
-		unsigned realDuration = (unsigned)(getRealDuration(emuTime, time) * 1000000);
+		unsigned long long realDuration =
+		    (unsigned long long)(getRealDuration(emuTime, time) * 1000000ULL);
 		idealRealTime += realDuration;
-		unsigned currentRealTime = Timer::getTime();
-		int sleep = idealRealTime - currentRealTime;
+		unsigned long long currentRealTime = Timer::getTime();
+		long long sleep = idealRealTime - currentRealTime;
 		if (allowSleep) {
 			PRT_DEBUG("RT: want to sleep " << sleep << "us");
-			sleep += (int)sleepAdjust;
-			int delta = 0;
+			sleep += (long long)sleepAdjust;
+			long long delta = 0;
 			if (sleep > 0) {
 				PRT_DEBUG("RT: Sleeping for " << sleep << "us");
 				Timer::sleep(sleep);
-				int slept = Timer::getTime() - currentRealTime;
+				long long slept = Timer::getTime() - currentRealTime;
 				PRT_DEBUG("RT: Realy slept for " << slept << "us");
 				delta = sleep - slept;
 			}

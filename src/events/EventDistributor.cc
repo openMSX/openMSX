@@ -85,8 +85,8 @@ void EventDistributor::distributeEvent(Event* event)
 
 void EventDistributor::sync(const EmuTime& emuTime)
 {
-	unsigned curRealTime = Timer::getTime();
-	unsigned realDuration = curRealTime - prevReal;
+	unsigned long long curRealTime = Timer::getTime();
+	unsigned long long realDuration = curRealTime - prevReal;
 	EmuDuration emuDuration = emuTime - prevEmu;
 
 	float factor = emuDuration.toFloat() / realDuration;
@@ -96,7 +96,7 @@ void EventDistributor::sync(const EmuTime& emuTime)
 	     it != toBeScheduledEvents.end(); ++it) {
 		assert(it->time <= curRealTime);
 		scheduledEvents.push_back(it->event);
-		unsigned offset = curRealTime - it->time;
+		unsigned long long offset = curRealTime - it->time;
 		EmuDuration emuOffset(factor * offset);
 		EmuTime schedTime = time + emuOffset;
 		if (schedTime < emuTime) {

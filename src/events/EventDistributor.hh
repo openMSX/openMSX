@@ -60,16 +60,16 @@ private:
 	ListenerMap emuListeners;
 
 	struct EventTime {
-		EventTime(Event* event_, unsigned time_)
+		EventTime(Event* event_, unsigned long long time_)
 			: event(event_), time(time_) {}
 		Event* event;
-		unsigned time;
+		unsigned long long time;
 	};
 	vector<EventTime> toBeScheduledEvents;
 	deque<Event*> scheduledEvents;
 
 	EmuTime prevEmu;
-	unsigned prevReal;
+	unsigned long long prevReal;
 	FloatSetting delaySetting;
 
 	RealTime& realTime;

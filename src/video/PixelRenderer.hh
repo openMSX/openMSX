@@ -210,9 +210,9 @@ private:
 	float finishFrameDuration;
 	
 	static const unsigned NUM_FRAME_DURATIONS = 50;
-	CircularBuffer<unsigned, NUM_FRAME_DURATIONS> frameDurations;
-	unsigned frameDurationSum;
-	unsigned prevTimeStamp;
+	CircularBuffer<unsigned long long, NUM_FRAME_DURATIONS> frameDurations;
+	unsigned long long frameDurationSum;
+	unsigned long long prevTimeStamp;
 	
 	// internal VDP counter, actually belongs in VDP
 	int textModeCounter;
