@@ -33,7 +33,7 @@ void RS232Tester::plug(Connector* connector_, const EmuTime& time)
 	outFile.open(rs232OutputFilenameSetting.getValue().c_str());
 
 	// input
-	inFile = fopen(rs232OutputFilenameSetting.getValue().c_str(), "rb");
+	inFile = fopen(rs232InputFilenameSetting.getValue().c_str(), "rb");
 	if (!inFile) {
 		return;
 	}
