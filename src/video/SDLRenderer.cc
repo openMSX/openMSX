@@ -808,8 +808,9 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 	DisplayMode mode = vdp->getDisplayMode();
 	int lineWidth = mode.getLineWidth();
 	if (zoom == Renderer::ZOOM_256 || lineWidth == 256) {
+		int endX = displayX + displayWidth;
 		displayX /= 2;
-		displayWidth /= 2;
+		displayWidth = endX / 2 - displayX;
 	}
 
 	// Clip to screen area.

@@ -3,6 +3,9 @@ $Id$
 2003-12-30 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed Scale2x scaler: one pixel too many per line was scaled,
 	  which lead to out-of-range memory writes.
+	* Fixed "random pixel" bug in pixelacc SDLRenderer.
+	  The width of a display rectangle was rounded incorrectly,
+	  leaving a 1-pixel wide gap in which the previous frame was visible.
 
 2003-12-29 Maarten ter Huurne <maarten@treewalker.org>
 	Various alternative.mk improvements:
