@@ -10,7 +10,7 @@ template class Timer< 3125, 0x20>;
 
 template<int freq, byte flag>
 Timer<freq, flag>::Timer(TimerCallback *cb_)
-	: counting(false), cb(cb_), count(256)
+	: count(256), counting(false), cb(cb_)
 {
 	scheduler = Scheduler::instance();
 }
