@@ -38,6 +38,8 @@ public:
 		return *info;
 	}
 
+	const string& getName() const;
+
 	// Debuggable
 	virtual unsigned getSize() const;
 	virtual const string& getDescription() const;
@@ -48,7 +50,7 @@ private:
 	void read(Config* config, const string& filename);
 	void init(const Config& config);
 	
-	const string name;
+	string name;
 	const string description;
 	unsigned size;
 	const byte* rom;

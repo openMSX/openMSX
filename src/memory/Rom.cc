@@ -127,6 +127,11 @@ void Rom::read(Config* config, const string& filename)
 void Rom::init(const Config& config)
 {
 	info = RomInfo::fetchRomInfo(this, config);
+	
+	if (!info->getTitle().empty()) {
+		name += " (" + info->getTitle() + ')';
+	}
+
 	if (size) {
 		Debugger::instance().registerDebuggable(name, *this);
 	}
@@ -170,6 +175,11 @@ byte Rom::read(unsigned address)
 void Rom::write(unsigned address, byte value)
 {
 	// ignore
+}
+
+const string& Rom::getName() const
+{
+	return name;
 }
 
 } // namespace openmsx

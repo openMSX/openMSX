@@ -26,7 +26,6 @@ protected:
 	MSXRom(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
 
 	const auto_ptr<Rom> rom;
-	string romName;
 	static class MSXCPU* cpu;
 
 private:

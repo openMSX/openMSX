@@ -290,7 +290,7 @@ auto_ptr<RomInfo> RomInfo::fetchRomInfo(const Rom* rom, const Config& deviceConf
 	// Look for the ROM in the ROM DB.
 	auto_ptr<RomInfo> info(searchRomDB(rom));
 	if (!info.get()) {
-		info.reset(new RomInfo(deviceConfig.getId(), "", "", "", UNKNOWN));
+		info.reset(new RomInfo("", "", "", "", UNKNOWN));
 	}
 	
 	// Get specified mapper type from the config.

@@ -4,10 +4,7 @@
 #include "RomTypes.hh"
 #include "MSXCPU.hh"
 #include "File.hh"
-#include <sstream>
-
-using std::ostringstream;
-
+#include "Config.hh"
 
 namespace openmsx {
 
@@ -18,23 +15,6 @@ MSXRom::MSXRom(Config* config, const EmuTime& time, auto_ptr<Rom> rom_)
 	  rom(rom_)
 {
 	init();
-
-	ostringstream tmpname;
-	if (rom->getSize() == 0) {
-		tmpname << "Empty ROM (with SCC)"; // valid assumption??
-	} else if (rom->getInfo().getTitle().empty()) {
-		tmpname << "Unknown ROM";
-		if (rom->getFile()) {
-			tmpname << ": " << rom->getFile()->getURL();
-		}
-	} else {
-		tmpname << rom->getInfo().getTitle();
-		if (!rom->getInfo().getCompany().empty()) {
-			tmpname << ", " << rom->getInfo().getCompany()
-				<< " " << rom->getInfo().getYear();
-		}
-	}
-	romName = tmpname.str(); 
 }
 
 MSXRom::~MSXRom()
@@ -65,7 +45,7 @@ byte* MSXRom::getWriteCacheLine(word address) const
 
 const string& MSXRom::getName() const
 {
-	return romName;
+	return rom->getName();
 }
 
 } // namespace openmsx
