@@ -51,6 +51,8 @@ case "$GUESSED_OS" in
 		OPENMSX_TARGET_OS=freebsd5;;
 	*netbsd*)
 		OPENMSX_TARGET_OS=netbsd;;
+	*openbsd*)
+		OPENMSX_TARGET_OS=openbsd;;
 	*mingw*)
 		OPENMSX_TARGET_OS=mingw32;;
 	*)
