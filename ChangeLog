@@ -1,5 +1,9 @@
 $Id$
 
+2002-10-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented frameskip command:
+	   TODO "frameskip auto", skip frames depending on CPU speed
+
 2002-10-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Some IDE fixes:
 	    Harddisk works now! Following is still hardcoded:
