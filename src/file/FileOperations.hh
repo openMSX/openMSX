@@ -80,10 +80,10 @@ public:
 
 	/**
 	 * Get system directory.
-	 * UNI*Y: statically defined as "/opt/openMSX/".
-	 * Win32: use "same directory as .exe" instead.
+	 * UNI*Y: statically defined as "/opt/openMSX/share".
+	 * Win32: use "same directory as .exe" + "/share".
 	 */
-	static const string& getSystemDir();
+	static const string& getSystemDataDir();
 };
 
 } // namespace openmsx

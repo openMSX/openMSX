@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "config.h"
 #include "FileOperations.hh"
 #include "openmsx.hh"
 #include "CliCommOutput.hh"
@@ -144,21 +145,20 @@ const string& FileOperations::getUserDir()
 	static string userDir;
 	if (userDir.empty()) {
 #if	defined(__WIN32__)
-		HMODULE sh32dll;
-		FARPROC funcp;
-		if ((sh32dll=LoadLibraryA("SHELL32.DLL"))!=NULL && (funcp=GetProcAddress(sh32dll,"SHGetSpecialFolderPathA"))!=NULL) {
-			char p[MAX_PATH + 1];
-			int res = ((BOOL (*)(HWND,LPSTR,int,BOOL))funcp)(0, p, CSIDL_PERSONAL, 1);
-			if (res != TRUE) {
-				throw FatalError("Cannot get user directory.");
+		HMODULE sh32dll = LoadLibraryA("SHELL32.DLL");
+		if (sh32dll) {
+			FARPROC funcp = GetProcAddress(sh32dll, "SHGetSpecialFolderPathA");
+			if (funcp) {
+				char p[MAX_PATH + 1];
+				int res = ((BOOL(*)(HWND, LPSTR, int, BOOL))funcp)(0, p, CSIDL_PERSONAL, 1);
+				if (res == TRUE) {
+					userDir = getConventionalPath(p);
+				}
 			}
-			userDir = getConventionalPath(p);
-		} else {
-			userDir = getSystemDir();
-			userDir.erase(userDir.length() - 1, 1);
-		}
-		if (sh32dll!=NULL) {
 			FreeLibrary(sh32dll);
+		}
+		if (userDir.empty()) {
+			throw FatalError("Cannot get user directory.");
 		}
 #else
 		userDir = getenv("HOME");
@@ -167,7 +167,7 @@ const string& FileOperations::getUserDir()
 	return userDir;
 }
 
-const string& FileOperations::getSystemDir()
+const string& FileOperations::getSystemDataDir()
 {
 	static string systemDir;
 	if (systemDir.empty()) {
@@ -181,9 +181,9 @@ const string& FileOperations::getSystemDir()
 			throw FatalError("openMSX is not in directory!?");
 		}
 		*(strrchr(p,'\\')) = '\0';
-		systemDir = getConventionalPath(p) + "/";
+		systemDir = getConventionalPath(p) + "/share/";
 #else
-		systemDir = "/opt/openMSX/";
+		systemDir = DATADIR "/"; // defined in config.h (default /opt/openMSX/share)
 #endif
 	}
 	return systemDir;

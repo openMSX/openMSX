@@ -1,6 +1,10 @@
 $Id$
 
 2004-01-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Use DATADIR variable set by configure:
+	   not yet well tested
+
+2004-01-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Removed obsolete "alias" command:
 	   for backwards compatibilty there is an "alias" proc defined in
 	   init.tcl

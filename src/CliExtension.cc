@@ -24,7 +24,7 @@ CliExtension::CliExtension()
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end(); ++it) {
 		string path = FileOperations::expandTilde(*it);
-		createExtensions(path + "share/extensions/");
+		createExtensions(path + "extensions/");
 	}
 }
 

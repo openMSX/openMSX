@@ -230,7 +230,7 @@ void CommandController::autoCommands()
 {
 	try {
 		SystemFileContext context;
-		File file(context.resolve("share/init.tcl"));
+		File file(context.resolve("init.tcl"));
 		tclInterp.executeFile(file.getLocalName());
 	} catch (FileException& e) {
 		// no init.tcl

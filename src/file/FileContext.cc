@@ -20,7 +20,6 @@ const string OPENMSX_DIR("~/.openMSX/");
 #endif
 
 
-
 // class FileContext
 
 FileContext::FileContext()
@@ -145,8 +144,8 @@ ConfigFileContext::ConfigFileContext(const ConfigFileContext& rhs)
 
 SystemFileContext::SystemFileContext()
 {
-	paths.push_back(OPENMSX_DIR);		// user directory
-	paths.push_back(FileOperations::getSystemDir());
+	paths.push_back(OPENMSX_DIR + "share/"); // user directory
+	paths.push_back(FileOperations::getSystemDataDir());
 }
 
 const vector<string> &SystemFileContext::getPaths()
@@ -171,20 +170,20 @@ SettingFileContext::SettingFileContext(const string& url)
 {
 	string path = FileOperations::getBaseName(url);
 	paths.push_back(path);
-	PRT_DEBUG("SettingFileContext: "<<path);
+	PRT_DEBUG("SettingFileContext: " << path);
 
-	string home(FileOperations::expandTilde(OPENMSX_DIR));
+	string home(FileOperations::expandTilde(OPENMSX_DIR + "share/"));
 	
 	unsigned pos1 = path.find(home);
 	if (pos1 != string::npos) {
 		unsigned len1 = home.length();
-		string path1 = path.replace(pos1, len1, FileOperations::getSystemDir());
+		string path1 = path.replace(pos1, len1, FileOperations::getSystemDataDir());
 		paths.push_back(path1);
-		PRT_DEBUG("SettingFileContext: "<<path1);
+		PRT_DEBUG("SettingFileContext: " << path1);
 	}
 }
 
-const vector<string> &SettingFileContext::getPaths()
+const vector<string>& SettingFileContext::getPaths()
 {
 	return paths;
 }

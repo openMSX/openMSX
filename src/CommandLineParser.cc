@@ -19,7 +19,7 @@
 
 namespace openmsx {
 
-const char* const MACHINE_PATH = "share/machines/";
+const char* const MACHINE_PATH = "machines/";
 
 
 // class CLIOption
@@ -185,7 +185,7 @@ void CommandLineParser::parse(int argc, char **argv)
 				// load default settings file in case the user didn't specify one
 				try {
 					SystemFileContext context;
-					msxConfig.loadSetting(context, "share/settings.xml");
+					msxConfig.loadSetting(context, "settings.xml");
 					haveSettings = true;
 				} catch (FileException &e) {
 					// settings.xml not found
