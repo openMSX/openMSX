@@ -150,10 +150,11 @@ public:
 	 */
 	static Backend* createBackend(const std::string &name);
 
-protected:
 	virtual ~Backend();
-	// only I create instances of me
+
+protected:
 	Backend();
+	// only I create instances of me
 
 };
 
