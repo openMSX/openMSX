@@ -48,11 +48,11 @@ TODO:
 
 // Inlined methods first, to make sure they are actually inlined:
 
-inline int VDP::calculatePattern(int patternNr, int y)
+inline VDP::SpritePattern VDP::calculatePattern(int patternNr, int y)
 {
 	// TODO: Optimise getSpriteSize?
 	if (getSpriteMag()) y /= 2;
-	int pattern = spritePatternBasePtr[patternNr * 8 + y] << 24;
+	SpritePattern pattern = spritePatternBasePtr[patternNr * 8 + y] << 24;
 	if (getSpriteSize() == 16) {
 		pattern |= spritePatternBasePtr[patternNr * 8 + y + 16] << 16;
 	}
@@ -96,7 +96,7 @@ inline int VDP::checkSprites1(int line, VDP::SpriteInfo *visibleSprites)
 			sip->pattern = calculatePattern(patternIndex, line - y);
 			sip->x = attributePtr[1];
 			if (attributePtr[3] & 0x80) sip->x -= 32;
-			sip->colour = attributePtr[3] & 0x0F;
+			sip->colourAttrib = attributePtr[3];
 		}
 	}
 	if (~statusReg0 & 0x40) {
@@ -125,13 +125,13 @@ inline int VDP::checkSprites1(int line, VDP::SpriteInfo *visibleSprites)
 	*/
 	for (int i = (visibleIndex < 4 ? visibleIndex : 4); --i >= 1; ) {
 		int x_i = visibleSprites[i].x;
-		int pattern_i = visibleSprites[i].pattern;
+		SpritePattern pattern_i = visibleSprites[i].pattern;
 		for (int j = i; --j >= 0; ) {
 			// Do sprite i and sprite j collide?
 			int x_j = visibleSprites[j].x;
 			int dist = x_j - x_i;
 			if ((-magSize < dist) && (dist < magSize)) {
-				int pattern_j = visibleSprites[j].pattern;
+				SpritePattern pattern_j = visibleSprites[j].pattern;
 				if (dist < 0) {
 					pattern_j <<= -dist;
 				}
@@ -169,8 +169,7 @@ inline int VDP::checkSprites2(int line, VDP::SpriteInfo *visibleSprites)
 	//       processing the tables.
 	byte *colourPtr = vramData + (spriteAttributeBase & 0x1FC00);
 	byte *attributePtr = colourPtr + 512;
-	// TODO: Implement CC bit (priority cancellation, OR-ing pixels).
-	// TODO: Implement IC bit (immunity to collisions).
+	// TODO: Verify CC implementation.
 	for (sprite = 0; sprite < 32; sprite++,
 			attributePtr += 4, colourPtr += 16) {
 		int y = *attributePtr;
@@ -189,18 +188,21 @@ inline int VDP::checkSprites2(int line, VDP::SpriteInfo *visibleSprites)
 				}
 				if (limitSprites) break;
 			}
+			byte colourAttrib = colourPtr[line - y];
+			// Sprites with CC=1 are only visible if preceded by
+			// a sprite with CC=0.
+			if ((colourAttrib & 0x40) && visibleIndex == 0) continue;
 			SpriteInfo *sip = &visibleSprites[visibleIndex++];
 			int patternIndex = (size == 16
 				? attributePtr[2] & 0xFC : attributePtr[2]);
 			sip->pattern = calculatePattern(patternIndex, line - y);
 			sip->x = attributePtr[1];
-			int colourAttrib = colourPtr[line - y];
 			if (colourAttrib & 0x80) sip->x -= 32;
-			sip->colour = colourAttrib & 0x0F;
+			sip->colourAttrib = colourAttrib;
 		}
 	}
 	if (~statusReg0 & 0x40) {
-		// No 5th sprite detected, store number of latest sprite processed.
+		// No 9th sprite detected, store number of latest sprite processed.
 		statusReg0 = (statusReg0 & 0xE0) | (sprite < 32 ? sprite : 31);
 	}
 
@@ -227,14 +229,20 @@ inline int VDP::checkSprites2(int line, VDP::SpriteInfo *visibleSprites)
 	If any collision is found, method returns at once.
 	*/
 	for (int i = (visibleIndex < 8 ? visibleIndex : 8); --i >= 1; ) {
+		// If CC or IC is set, this sprite cannot collide.
+		if (visibleSprites[i].colourAttrib & 0x60) continue;
+
 		int x_i = visibleSprites[i].x;
-		int pattern_i = visibleSprites[i].pattern;
+		SpritePattern pattern_i = visibleSprites[i].pattern;
 		for (int j = i; --j >= 0; ) {
+			// If CC or IC is set, this sprite cannot collide.
+			if (visibleSprites[j].colourAttrib & 0x60) continue;
+
 			// Do sprite i and sprite j collide?
 			int x_j = visibleSprites[j].x;
 			int dist = x_j - x_i;
 			if ((-magSize < dist) && (dist < magSize)) {
-				int pattern_j = visibleSprites[j].pattern;
+				SpritePattern pattern_j = visibleSprites[j].pattern;
 				if (dist < 0) {
 					pattern_j <<= -dist;
 				}
@@ -944,7 +952,7 @@ void VDP::updateDisplayMode(byte reg0, byte reg1, const EmuTime &time)
 	}
 }
 
-int VDP::doublePattern(int a)
+VDP::SpritePattern VDP::doublePattern(VDP::SpritePattern a)
 {
 	// bit-pattern "abcd" gets expanded to "aabbccdd"
 	a =  (a<<16)             |  a;

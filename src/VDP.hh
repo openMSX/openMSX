@@ -61,12 +61,23 @@ public:
 		V9958
 	};
 
+	typedef unsigned int SpritePattern;
+
 	/** Contains all the information to draw a line of a sprite.
 	  */
 	typedef struct {
-		int pattern;
+		/** Bit mask of length 32: 1 is visible, 0 is transparent.
+		  */
+		SpritePattern pattern;
+		/** X-coordinate of sprite, corrected for early clock.
+		  */
 		short int x;
-		byte colour;
+		/** Bit 3..0 are index in palette.
+		  * Bit 6 is 0 for sprite mode 1 like behaviour,
+		  * or 1 for OR-ing of sprite colours.
+		  * Other bits are undefined.
+		  */
+		byte colourAttrib;
 	} SpriteInfo;
 
 	/** Number of VDP clock ticks per line.
@@ -374,7 +385,7 @@ private:
 
 	/** Doubles a sprite pattern.
 	  */
-	static int doublePattern(int pattern);
+	static SpritePattern doublePattern(SpritePattern pattern);
 
 	/** Gets the sprite size in pixels (8/16).
 	  */
@@ -418,7 +429,7 @@ private:
 	  *   Bit 31 is the leftmost bit of the sprite.
 	  *   Unused bits are zero.
 	  */
-	inline int calculatePattern(int patternNr, int y);
+	inline SpritePattern calculatePattern(int patternNr, int y);
 
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 1 (MSX1).

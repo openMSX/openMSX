@@ -488,13 +488,13 @@ template <class Pixel> void SDLLoRenderer<Pixel>::drawSprites(
 	while (visibleIndex--) {
 		// Get sprite info.
 		VDP::SpriteInfo *sip = &visibleSprites[visibleIndex];
-		Pixel colour = sip->colour;
+		Pixel colour = sip->colourAttrib & 0x0F;
 		if (colour == 0) {
 			// Don't draw transparent sprites.
 			continue;
 		}
 		colour = PalBg[colour];
-		int pattern = sip->pattern;
+		VDP::SpritePattern pattern = sip->pattern;
 		int x = sip->x;
 		// Skip any dots that end up in the border.
 		if (x < 0) {

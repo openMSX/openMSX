@@ -422,13 +422,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateSpritePatternBase(
 template <class Pixel> void SDLHiRenderer<Pixel>::updateVRAM(
 	int addr, byte data, const EmuTime &time)
 {
-	/*
-	For the highest accuracy, we should sync here.
-	But I don't think the damage of rendering VRAM changes one frame
-	too early is worth the overhead, so I disabled it.
-	Well-behaving programs don't write to the visual area during
-	scanning anyway.
-	*/
 	sync(time);
 	(this->*dirtyChecker)(addr, data, time);
 }
@@ -752,6 +745,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 	VDP::SpriteInfo *visibleSprites;
 	int visibleIndex =
 		vdp->getSprites(absLine - lineDisplay, visibleSprites);
+	// Optimisation: return at once if no sprites on this line.
+	// Lines without any sprites are very common in most programs.
+	if (visibleIndex == 0) return;
 
 	// TODO: Calculate pointers incrementally outside this method.
 	Pixel *pixelPtr0 = (Pixel *)( (byte *)screen->pixels
@@ -759,44 +755,98 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 		+ getLeftBorder() * sizeof(Pixel));
 	Pixel *pixelPtr1 = (Pixel *)(((byte *)pixelPtr0) + screen->pitch);
 
-	while (visibleIndex--) {
-		// Get sprite info.
-		VDP::SpriteInfo *sip = &visibleSprites[visibleIndex];
-		Pixel colour = sip->colour;
-		// Don't draw transparent sprites in sprite mode 1
-		// or if transparency is enabled.
-		// TODO: Verify on real V9938 that sprite mode 1 indeed
-		//       ignores the transparency
-		if (colour == 0
-		&& (vdp->getDisplayMode() < 8 || vdp->getTransparency())) {
-			continue;
-		}
-		colour = palBg[colour];
-		int pattern = sip->pattern;
-		int x = sip->x;
-		// Skip any dots that end up in the border.
-		if (x < 0) {
-			pattern <<= -x;
-			x = 0;
-		}
-		else if (x > 256 - 32) {
-			pattern &= -1 << (32 - (256 - x));
-		}
-		// Convert pattern to pixels.
-		Pixel *p0 = &pixelPtr0[x * 2];
-		Pixel *p1 = &pixelPtr1[x * 2];
-		while (pattern) {
-			// Draw pixel if sprite has a dot.
-			if (pattern & 0x80000000) {
-				p0[0] = p0[1] = p1[0] = p1[1] = colour;
+	if (vdp->getDisplayMode() < 8) {
+		// Sprite mode 1: render directly to screen using overdraw.
+		while (visibleIndex--) {
+			// Get sprite info.
+			VDP::SpriteInfo *sip = &visibleSprites[visibleIndex];
+			Pixel colour = sip->colourAttrib & 0x0F;
+			// Don't draw transparent sprites in sprite mode 1.
+			// TODO: Verify on real V9938 that sprite mode 1 indeed
+			//       ignores the transparency bit.
+			if (colour == 0) continue;
+			colour = palBg[colour];
+			VDP::SpritePattern pattern = sip->pattern;
+			int x = sip->x;
+			// Skip any dots that end up in the border.
+			if (x < 0) {
+				pattern <<= -x;
+				x = 0;
+			} else if (x > 256 - 32) {
+				pattern &= -1 << (32 - (256 - x));
 			}
-			// Advancing behaviour.
-			pattern <<= 1;
-			p0 += 2;
-			p1 += 2;
+			// Convert pattern to pixels.
+			Pixel *p0 = &pixelPtr0[x * 2];
+			Pixel *p1 = &pixelPtr1[x * 2];
+			while (pattern) {
+				// Draw pixel if sprite has a dot.
+				if (pattern & 0x80000000) {
+					p0[0] = p0[1] = p1[0] = p1[1] = colour;
+				}
+				// Advancing behaviour.
+				pattern <<= 1;
+				p0 += 2;
+				p1 += 2;
+			}
+		}
+	} else {
+		// Sprite mode 2: single pass left-to-right render.
+
+		// Determine width of sprites.
+		VDP::SpritePattern combined = 0;
+		for (int i = 0; i < visibleIndex; i++) {
+			combined |= visibleSprites[i].pattern;
+		}
+		int size = 0;
+		while (combined) {
+			size++;
+			combined <<= 1;
+		}
+		// Left-to-right scan.
+		for (int pixelDone = 0; pixelDone < 256; pixelDone++) {
+			// Skip pixels if possible.
+			int minStart = pixelDone - size;
+			int leftMost = 0xFFFF;
+			for (int i = 0; i < visibleIndex; i++) {
+				int x = visibleSprites[i].x;
+				if (minStart < x && x < leftMost) leftMost = x;
+			}
+			if (leftMost > pixelDone) {
+				pixelDone = leftMost;
+				if (pixelDone >= 256) break;
+			}
+			// Calculate colour of pixel to be plotted.
+			byte colour = 0xFF;
+			for (int i = 0; i < visibleIndex; i++) {
+				VDP::SpriteInfo *sip = &visibleSprites[i];
+				int shift = pixelDone - sip->x;
+				if ((0 <= shift && shift < 32)
+				&& ((sip->pattern << shift) & 0x80000000)) {
+					byte c = sip->colourAttrib & 0x0F;
+					if (c == 0 && vdp->getTransparency()) continue;
+					colour = c;
+					// Merge in any following CC=1 sprites.
+					for (i++ ; i < visibleIndex; i++) {
+						sip = &visibleSprites[i];
+						if (!(sip->colourAttrib & 0x40)) break;
+						int shift = pixelDone - sip->x;
+						if ((0 <= shift && shift < 32)
+						&& ((sip->pattern << shift) & 0x80000000)) {
+							colour |= sip->colourAttrib & 0x0F;
+						}
+					}
+					break;
+				}
+			}
+			// Plot it.
+			if (colour != 0xFF) {
+				int i = pixelDone * 2;
+				pixelPtr0[i] = pixelPtr0[i + 1] =
+				pixelPtr1[i] = pixelPtr1[i + 1] =
+					palBg[colour];
+			}
 		}
 	}
-
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
