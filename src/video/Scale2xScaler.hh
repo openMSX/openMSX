@@ -19,14 +19,10 @@ public:
 	virtual void scale512(SDL_Surface* src, int srcY, int endSrcY,
 	                      SDL_Surface* dst, int dstY);
 private:
-	void scaleLine256Half(
-		Pixel* dst,
-		const Pixel* src0, const Pixel* src1, const Pixel* src2,
-		int count);
-	void scaleLine512Half(
-		Pixel* dst,
-		const Pixel* src0, const Pixel* src1, const Pixel* src2,
-		int count);
+	void scaleLine256Half(Pixel* dst,
+		const Pixel* src0, const Pixel* src1, const Pixel* src2);
+	void scaleLine512Half(Pixel* dst,
+		const Pixel* src0, const Pixel* src1, const Pixel* src2);
 };
 
 } // namespace openmsx
