@@ -5,8 +5,6 @@ COMMANDS
 after
 -----
 
-  [ This is an advanced command, mainly useful to run openMSX in 'demo' mode ]
-
   Execute a command after a certain time, or after a certain time of being
   idle. It is possible the query a list of postponed commands and also to
   cancel postponed commands.
@@ -25,23 +23,6 @@ after
     after info
     after cancel 2
     
-
-alias / unalias
----------------
-
-  Create a new command that is an alias for another (group of) command(s).
-
-  usage:
-    alias                   show all aliases
-    alias <name>            show the definition of this alias
-    alias <name> <command>  (re)define an alias
-    unalias <name>          remove the given alias
-
-  examples:
-    alias gl "set renderer SDLGL"
-    alias restart "set power off ; set power on"
-    unalias gl
-
 
 bind / unbind
 -------------
@@ -109,21 +90,6 @@ debug
     debug step                       execute one instruction
     
 
-decr
-----
-
-  Decrement an integer setting.
-
-  usage:
-    decr                  shows all integer settings
-    decr <setting>        decrement the specified setting
-    decr <setting> <num>  decrement the specified setting with given amount
-
-  examples:
-    decr speed
-    decr renshaturbo 10
-
-
 diska / diskb
 -------------
 
@@ -144,21 +110,6 @@ help
   usage:
     help            shows a list of all possible commands
     help <command>  shows help info for a specific command
-
-
-incr
-----
-
-  Increment an integer setting.
-
-  usage:
-    incr                  shows all integer settings
-    incr <setting>        increment the specified setting
-    incr <setting> <num>  increment the specified setting with given amount
-
-  examples:
-    incr speed
-    incr renshaturbo 10
 
 
 keymatrixup / keymatrixdown
@@ -215,28 +166,10 @@ plug / unplug
     unplug joyportb
 
 
-quit
-----
-
-  Quits the emulator.
-
-
 reset
 -----
 
   Resets the emulated MSX.
-
-
-restoredefault
---------------
-
-  Restore the default value for a setting.
-
-  usage:
-    restoredefault <setting>  Restores the default value for the given setting
-
-  examples:
-    restoredefault psg_volume
 
 
 screenshot
@@ -317,6 +250,88 @@ vdpregs
   Shows the current VDP register settings.
   [ mainly useful for debugging purposes ]
   
+
+
+OLD COMMANDS
+============
+
+  The following commands existed in older openMSX version. For backwards
+  compatibility they are still supported for a while. In later versions they
+  will be removed.
+
+
+alias / unalias
+---------------
+
+  Create a new command that is an alias for another (group of) command(s).
+
+  Note: This is not 100% compatible with the old alias command. Better use
+        the more powerfull TCL "proc" command.
+
+  usage:
+    alias <name> <command>  define an alias
+
+  examples:
+    alias gl "set renderer SDLGL"
+    alias restart "set power off ; set power on"
+
+
+decr
+----
+
+  Decrement an integer setting.
+
+  This command is deprecated, better use the native TCL command "incr" and
+  negate the offset.
+
+  usage:
+    decr                  shows all integer settings
+    decr <setting>        decrement the specified setting
+    decr <setting> <num>  decrement the specified setting with given amount
+
+  examples:
+    decr speed
+    decr renshaturbo 10
+
+
+incr
+----
+
+  Increment an integer setting.
+
+  This command is now a native TCL command.
+
+  usage:
+    incr                  shows all integer settings
+    incr <setting>        increment the specified setting
+    incr <setting> <num>  increment the specified setting with given amount
+
+  examples:
+    incr speed
+    incr renshaturbo 10
+
+
+quit
+----
+
+  Quits the emulator.
+  
+  The native TCL command is called "exit".
+
+
+restoredefault
+--------------
+
+  Restore the default value for a setting.
+
+  This command is deprecated, better use "unset <setting>".
+
+  usage:
+    restoredefault <setting>  Restores the default value for the given setting
+
+  examples:
+    restoredefault psg_volume
+
 
 
 SETTINGS
