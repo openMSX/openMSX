@@ -322,8 +322,13 @@ def convertConfig(node):
 
 	if configId == 'MapperType':
 		# Store type in body text instead of "type" tag.
-		newNode = doc.createElement(configId)
-		newNode.appendChild(doc.createTextNode(getParameter(node, 'type')))
+		value = getParameter(node, 'type')
+		newValue = { 'Philips': 'largest', 'TurboR': '5' }.get(value)
+		if newValue is None:
+			print '    NOTE: MapperReadBackBits has invalid value "%s"' % value
+			newValue = value
+		newNode = doc.createElement('MapperReadBackBits')
+		newNode.appendChild(doc.createTextNode(newValue))
 		node.parentNode.replaceChild(newNode, node)
 		node.unlink()
 		return None
