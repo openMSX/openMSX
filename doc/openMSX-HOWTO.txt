@@ -415,6 +415,12 @@ directory with a lot of disk images, e.g., you can add a line with that path to
 this section, so that you don't have to specify the whole path anymore. Use this
 to make things just a little more comfortable.
 
+If you want to emulate another machine that the one you specified as default
+machine, use the -machine commandline option. Example:
+openmsx -machine mymsx
+will start openMSX with the configuration specified in
+~/.openMSX/machines/mymsx/hardwareconfig.xml.
+
 Make sure that starting openMSX by just typing 'openmsx' in your shell works
 now, with your default machine configuration. For now, I'm assuming that you are
 still emulating the Philips NMS 8250.
@@ -465,7 +471,7 @@ F7	- MSX SELECT key
 L-ALT	- MSX GRAPH key
 R-CTRL	- MSX CODE key
 Pause	- Pause the emulator
-PrtScr	- Switch to full screen
+PrtScr	- Toggle full screen
 
 Some of those, you can tweak in the settings.xml file.
 
@@ -586,8 +592,10 @@ key bindings. You can specify a background image and the font in the config file
 information) though.
 Another interesting console command is 'set'. You can use it to change the
 various settings. E.g., the blur and scanline setting of the GL renderer can be
-tweaked with it. A complete list should be in the file commands.txt in the doc
-directory.
+tweaked with it. Settings that have only two possible values can also be toggled
+with the toggle command (an example is the default key binding of Print Screen
+to 'toggle fullscreen', see also below). A complete list of settings should be
+in the file commands.txt in the doc directory.
 
 Renderer accuracy
 
