@@ -22,7 +22,21 @@ private:
 	byte mode;
 
 public:
-
+	enum {
+		GRAPHIC1    = 0x00, // Graphic 1
+		TEXT1       = 0x01, // Text 1
+		MULTICOLOUR = 0x02, // Multicolour
+		GRAPHIC2    = 0x04, // Graphic 2
+		TEXT1Q      = 0x05, // !!
+		MULTIQ      = 0x06, // !!
+		GRAPHIC3    = 0x08, // Graphic 3
+		TEXT2       = 0x09, // Text 2
+		GRAPHIC4    = 0x0C, // Graphic 4
+		GRAPHIC5    = 0x10, // Graphic 5
+		GRAPHIC6    = 0x14, // Graphic 6
+		GRAPHIC7    = 0x1C  // Graphic 7
+	};
+		
 	/** Bits of VDP register 0 that encode part of the display mode. */
 	static const byte REG0_MASK = 0x0E;
 
@@ -31,36 +45,6 @@ public:
 
 	/** Bits of VDP register 25 that encode part of the display mode. */
 	static const byte REG25_MASK = 0x18;
-
-	/** Encoding of base mode Text 1. */
-	static const byte TEXT1 = 0x01;
-
-	/** Encoding of base mode Text 2. */
-	static const byte TEXT2 = 0x09;
-
-	/** Encoding of base mode Multicolour. */
-	static const byte MULTICOLOUR = 0x02;
-
-	/** Encoding of base mode Graphic 1. */
-	static const byte GRAPHIC1 = 0x00;
-
-	/** Encoding of base mode Graphic 2. */
-	static const byte GRAPHIC2 = 0x04;
-
-	/** Encoding of base mode Graphic 3. */
-	static const byte GRAPHIC3 = 0x08;
-
-	/** Encoding of base mode Graphic 4. */
-	static const byte GRAPHIC4 = 0x0C;
-
-	/** Encoding of base mode Graphic 5. */
-	static const byte GRAPHIC5 = 0x10;
-	
-	/** Encoding of base mode Graphic 6. */
-	static const byte GRAPHIC6 = 0x14;
-	
-	/** Encoding of base mode Graphic 7. */
-	static const byte GRAPHIC7 = 0x1C;
 	
 	/** Encoding of YJK flag. */
 	static const byte YJK = 0x20;

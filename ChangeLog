@@ -8,6 +8,9 @@ $Id$
 	* Added high-pass IIR filter to mixer:
 	   this greatly reduces clipping in applications that leave a sound
 	   channel at a constant non-zero value (e.g. catman)
+	* Fixed rendering of undocumented modes in GL renderer:
+	   "Back to the Future" (tape version) triggered an assertion
+	   because of this
 
 2003-12-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* made VDP status registers debuggable

@@ -1236,7 +1236,16 @@ void SDLGLRenderer::drawDisplay(
 				);
 			break;
 		default:
-			assert(false);
+			// TEXT1Q / MULTIQ / BOGUS
+			LineTexture charTexture;
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+			for (int y = screenY; y < screenLimitY; y += 2) {
+				characterConverter.convertLine(lineBuffer, displayY);
+				charTexture.update(lineBuffer, lineWidth);
+				charTexture.draw(displayX + hScroll, screenX,
+						 y, displayWidth, 2);
+				displayY++; // is a byte, so wraps at 256
+			}
 			break;
 		}
 	}
