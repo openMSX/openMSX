@@ -31,6 +31,8 @@ esac
 case "$GUESSED_CPU" in
 	i?86)
 		OPENMSX_TARGET_CPU=x86;;
+	x86_64)
+		OPENMSX_TARGET_CPU=x86_64;;
 	powerpc)
 		OPENMSX_TARGET_CPU=ppc;;
 	*)
