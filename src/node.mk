@@ -35,7 +35,8 @@ SRC_HDR:= \
 	md5 sha1 \
 	CircularBuffer \
 	PluggingController Connector Pluggable PluggableFactory \
-	DebugDevice
+	DebugDevice \
+	Autofire RenShaTurbo
 
 SRC_ONLY:= \
 	main.cc

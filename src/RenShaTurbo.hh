@@ -66,12 +66,9 @@ class RenShaTurbo
                 RenShaTurbo();
 
 		class SpeedCmd : public Command {
-			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help(const std::vector<std::string> &tokens) const;
-		};
-
-		// Commands
-                SpeedCmd speedCmd;
+			virtual string execute(const std::vector<std::string> &tokens);
+			virtual string help(const std::vector<std::string> &tokens) const;
+		} speedCmd;
 
                 // State
 		bool is_present; /* true when autofire present */

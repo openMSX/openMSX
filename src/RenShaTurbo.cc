@@ -72,15 +72,16 @@ void RenShaTurbo::setSpeed(const int newSpeed)
 	autofire->setSpeed(newSpeed);
 }
 
-void RenShaTurbo::SpeedCmd::execute(const std::vector<std::string> &tokens)
+string RenShaTurbo::SpeedCmd::execute(const std::vector<std::string> &tokens)
 {
+	string result;
 	RenShaTurbo *renshaturbo = RenShaTurbo::instance();
 
         int nrTokens = tokens.size();
 	if (nrTokens == 1) {
 		std::ostringstream out;
 		out << "RenShaTurbo speed: " << renshaturbo->getSpeed();
-		print(out.str());
+		result += out.str() + '\n';
 	}
 	else if (nrTokens == 2) {
 	        const std::string &param = tokens[1];
@@ -94,15 +95,15 @@ void RenShaTurbo::SpeedCmd::execute(const std::vector<std::string> &tokens)
 	else {
                 throw CommandException("Wrong number of parameters");
 	}
-
+	return result;
 }
 
-void RenShaTurbo::SpeedCmd::help(const std::vector<std::string> &tokens) const
+string RenShaTurbo::SpeedCmd::help(const std::vector<std::string> &tokens) const
 {
-	print("renshaturbo   : show current speed");
-        print("renshaturbo + : increase the speed");
-        print("renshaturbo - : decrease the speed");
-        print("renshaturbo N : set speed to N (0 is off, 1 to 100 is speed)");
+	return "renshaturbo   : show current speed\n"
+	       "renshaturbo + : increase the speed\n"
+	       "renshaturbo - : decrease the speed\n"
+	       "renshaturbo N : set speed to N (0 is off, 1 to 100 is speed)\n";
 }
 
 } // namespace openmsx
