@@ -14,7 +14,7 @@ MSXCPU::MSXCPU(MSXConfig::Device *config, const EmuTime &time)
 {
 	PRT_DEBUG("Creating an MSXCPU object");
 	oneInstance = this;
-	z80 = new Z80(MSXCPUInterface::instance(), 1, time);
+	z80 = new Z80(MSXCPUInterface::instance(), time);
 	r800 = new R800(MSXCPUInterface::instance(), time);
 	activeCPU = z80;	// setActiveCPU(CPU_Z80);
 	reset(time);

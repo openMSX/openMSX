@@ -2,7 +2,6 @@
 
 #include "CPUInterface.hh"
 #include "CPU.hh"
-#include "CPU.ii"
 #include "CPUTables.nn"
 #ifdef CPU_DEBUG
 #include "CommandController.hh"
@@ -29,7 +28,7 @@ CPU::~CPU()
 void CPU::executeUntilTarget(const EmuTime &time)
 {
 	setTargetTime(time);
-	execute();
+	executeCore();
 }
 
 void CPU::setTargetTime(const EmuTime &time)
@@ -96,6 +95,8 @@ void CPU::reset(const EmuTime &time)
 	IRQStatus = 0;
 	invalidateCache(0x0000, 0x10000/CPU::CACHE_LINE_SIZE);
 	setCurrentTime(time);
+	
+	resetCore();
 }
 
 void CPU::raiseIRQ()
@@ -120,5 +121,6 @@ void CPU::DebugCmd::help(const std::vector<std::string> &tokens) const
 {
 }
 bool CPU::cpudebug = false;
+//bool CPU::cpudebug = true;
 #endif
 

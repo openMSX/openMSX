@@ -1,7 +1,7 @@
 // $Id$
 
 
-const opcode_Z80_n Z80::opcode_dd_cb[256] = {
+const Z80_ResumeFunc Z80::opcode_dd_cb[256] = {
  &Z80::rlc_xix_b  ,&Z80::rlc_xix_c  ,&Z80::rlc_xix_d  ,&Z80::rlc_xix_e  ,
  &Z80::rlc_xix_h  ,&Z80::rlc_xix_l  ,&Z80::rlc_xix    ,&Z80::rlc_xix_a  ,
  &Z80::rrc_xix_b  ,&Z80::rrc_xix_c  ,&Z80::rrc_xix_d  ,&Z80::rrc_xix_e  ,
@@ -71,7 +71,7 @@ const opcode_Z80_n Z80::opcode_dd_cb[256] = {
  &Z80::set_7_xix_h,&Z80::set_7_xix_l,&Z80::set_7_xix  ,&Z80::set_7_xix_a,
 };
 
-const opcode_Z80_n Z80::opcode_fd_cb[256] = {
+const Z80_ResumeFunc Z80::opcode_fd_cb[256] = {
  &Z80::rlc_xiy_b  ,&Z80::rlc_xiy_c  ,&Z80::rlc_xiy_d  ,&Z80::rlc_xiy_e  ,
  &Z80::rlc_xiy_h  ,&Z80::rlc_xiy_l  ,&Z80::rlc_xiy    ,&Z80::rlc_xiy_a  ,
  &Z80::rrc_xiy_b  ,&Z80::rrc_xiy_c  ,&Z80::rrc_xiy_d  ,&Z80::rrc_xiy_e  ,
@@ -141,8 +141,7 @@ const opcode_Z80_n Z80::opcode_fd_cb[256] = {
  &Z80::set_7_xiy_h,&Z80::set_7_xiy_l,&Z80::set_7_xiy  ,&Z80::set_7_xiy_a,
 };
 
-const opcode_Z80 Z80::opcode_cb[256]=
-{
+const Z80_ResumeFunc Z80::opcode_cb[256] = {
  &Z80::rlc_b   ,&Z80::rlc_c   ,&Z80::rlc_d     ,&Z80::rlc_e  ,
  &Z80::rlc_h   ,&Z80::rlc_l   ,&Z80::rlc_xhl   ,&Z80::rlc_a  ,
  &Z80::rrc_b   ,&Z80::rrc_c   ,&Z80::rrc_d     ,&Z80::rrc_e  ,
@@ -212,8 +211,7 @@ const opcode_Z80 Z80::opcode_cb[256]=
  &Z80::set_7_h ,&Z80::set_7_l ,&Z80::set_7_xhl ,&Z80::set_7_a
 };
 
-const opcode_Z80 Z80::opcode_ed[256]=
-{
+const Z80_ResumeFunc Z80::opcode_ed[256] = {
  &Z80::nop   ,&Z80::nop    ,&Z80::nop      ,&Z80::nop        ,
  &Z80::nop   ,&Z80::nop    ,&Z80::nop      ,&Z80::nop        ,
  &Z80::nop   ,&Z80::nop    ,&Z80::nop      ,&Z80::nop        ,
@@ -283,8 +281,7 @@ const opcode_Z80 Z80::opcode_ed[256]=
  &Z80::nop   ,&Z80::nop    ,&Z80::patch    ,&Z80::nop
 };
 
-const opcode_Z80 Z80::opcode_dd[256]=
-{
+const Z80_ResumeFunc Z80::opcode_dd[256] = {
   &Z80::nop       ,&Z80::ld_bc_word,&Z80::ld_xbc_a   ,&Z80::inc_bc    ,
   &Z80::inc_b     ,&Z80::dec_b     ,&Z80::ld_b_byte  ,&Z80::rlca      ,
   &Z80::ex_af_af  ,&Z80::add_ix_bc ,&Z80::ld_a_xbc   ,&Z80::dec_bc    ,
@@ -354,8 +351,7 @@ const opcode_Z80 Z80::opcode_dd[256]=
   &Z80::call_m    ,&Z80::fd2       ,&Z80::cp_byte    ,&Z80::rst_38  
 };
 
-const opcode_Z80 Z80::opcode_fd[256]=
-{
+const Z80_ResumeFunc Z80::opcode_fd[256] = {
   &Z80::nop       ,&Z80::ld_bc_word,&Z80::ld_xbc_a   ,&Z80::inc_bc    ,
   &Z80::inc_b     ,&Z80::dec_b     ,&Z80::ld_b_byte  ,&Z80::rlca      ,
   &Z80::ex_af_af  ,&Z80::add_iy_bc ,&Z80::ld_a_xbc   ,&Z80::dec_bc    ,
@@ -425,8 +421,7 @@ const opcode_Z80 Z80::opcode_fd[256]=
   &Z80::call_m    ,&Z80::fd2       ,&Z80::cp_byte    ,&Z80::rst_38  
 };
 
-const opcode_Z80 Z80::opcode_main[256]=
-{
+const Z80_ResumeFunc Z80::opcode_main[256] = {
  &Z80::nop     ,&Z80::ld_bc_word,&Z80::ld_xbc_a   ,&Z80::inc_bc    ,
  &Z80::inc_b   ,&Z80::dec_b     ,&Z80::ld_b_byte  ,&Z80::rlca      ,
  &Z80::ex_af_af,&Z80::add_hl_bc ,&Z80::ld_a_xbc   ,&Z80::dec_bc    ,

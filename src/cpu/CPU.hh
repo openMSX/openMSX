@@ -6,10 +6,9 @@
 #include "openmsx.hh"
 #include "EmuTime.hh"
 
-// CPU_DEBUG must be true because I/O timing workaround needs "before" time
-//#ifdef DEBUG
+#ifdef DEBUG
 #define CPU_DEBUG
-//#endif
+#endif
 
 #ifdef CPU_DEBUG
 #include "Command.hh"
@@ -20,6 +19,7 @@
 class CPUInterface;
 
 typedef signed char offset;
+
 
 class CPU
 {
@@ -45,9 +45,6 @@ class CPU
 			void di() { IFF1 = nextIFF1 = IFF2 = false; }
 		};
 
-		/**
-		 * Destructor
-		 */
 		virtual ~CPU();
 
 		/**
@@ -137,27 +134,35 @@ class CPU
 		static const byte C_FLAG = 0x01;
 
 	protected:
-		/*
-		 * Constructor
-		 */
 		CPU(CPUInterface *interf);
 		
-		/*
-		 * Emulate CPU till a previously set target time, the target
+		/* Emulate CPU till a previously set target time, the target
 		 * may change (become smaller) during emulation
 		 */
-		virtual void execute() = 0;
+		virtual void executeCore() = 0;
+
+		/* Reset CPU core 
+		 */
+		virtual void resetCore() = 0;
 		
 		void makeTables();
 		
-		/*
-		 * Instance variables
+		/* State machine variables
 		 */
-		CPUInterface *interface;
-		EmuTime targetTime;
 		CPURegs R;
 		int slowInstructions;
 		int IRQStatus;
+		
+		z80regpair x,y;
+		byte bit;
+		byte dummy;
+		offset ofst;
+		byte* p;
+		bool repeat, increase;
+		bool stop;
+		
+		CPUInterface *interface;
+		EmuTime targetTime;
 
 		// flag-register tables
 		static byte ZSTable[256];
@@ -170,8 +175,8 @@ class CPU
 		static const byte irep_tmp1[4][4];
 		static const byte drep_tmp1[4][4];
 		static const byte breg_tmp2[256];
-	
-	private:
+
+		// memory cache
 		const byte* readCacheLine[CACHE_LINE_NUM];
 		byte* writeCacheLine[CACHE_LINE_NUM];
 		bool readCacheTried [CACHE_LINE_NUM];

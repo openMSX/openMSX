@@ -3,7 +3,6 @@
 #include "R800.hh"
 #include "CPUInterface.hh"
 #include "R800Tables.nn"
-#include "CPU.ii"
 
 
 R800::R800(CPUInterface *interf, const EmuTime &time) :
@@ -25,10 +24,6 @@ const EmuTime &R800::getCurrentTime()
 }
 
 inline void R800::M1_DELAY()       { }
-inline void R800::IOPORT_DELAY1()  { }
-inline void R800::IOPORT_DELAY2()  { currentTime += 1; }
-inline void R800::MEM_DELAY1()     { }
-inline void R800::MEM_DELAY2()     { currentTime += 1; }
 inline void R800::ADD_16_8_DELAY() { currentTime += 1; }
 inline void R800::OP_16_16_DELAY() { }
 inline void R800::INC_16_DELAY()   { }

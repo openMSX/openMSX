@@ -1,7 +1,7 @@
 // $Id$
 
 
-const opcode_R800_n R800::opcode_dd_cb[256] = {
+const R800_ResumeFunc R800::opcode_dd_cb[256] = {
  &R800::rlc_xix_b  ,&R800::rlc_xix_c  ,&R800::rlc_xix_d  ,&R800::rlc_xix_e  ,
  &R800::rlc_xix_h  ,&R800::rlc_xix_l  ,&R800::rlc_xix    ,&R800::rlc_xix_a  ,
  &R800::rrc_xix_b  ,&R800::rrc_xix_c  ,&R800::rrc_xix_d  ,&R800::rrc_xix_e  ,
@@ -71,7 +71,7 @@ const opcode_R800_n R800::opcode_dd_cb[256] = {
  &R800::set_7_xix_h,&R800::set_7_xix_l,&R800::set_7_xix  ,&R800::set_7_xix_a,
 };
 
-const opcode_R800_n R800::opcode_fd_cb[256] = {
+const R800_ResumeFunc R800::opcode_fd_cb[256] = {
  &R800::rlc_xiy_b  ,&R800::rlc_xiy_c  ,&R800::rlc_xiy_d  ,&R800::rlc_xiy_e  ,
  &R800::rlc_xiy_h  ,&R800::rlc_xiy_l  ,&R800::rlc_xiy    ,&R800::rlc_xiy_a  ,
  &R800::rrc_xiy_b  ,&R800::rrc_xiy_c  ,&R800::rrc_xiy_d  ,&R800::rrc_xiy_e  ,
@@ -141,8 +141,7 @@ const opcode_R800_n R800::opcode_fd_cb[256] = {
  &R800::set_7_xiy_h,&R800::set_7_xiy_l,&R800::set_7_xiy  ,&R800::set_7_xiy_a,
 };
 
-const opcode_R800 R800::opcode_cb[256]=
-{
+const R800_ResumeFunc R800::opcode_cb[256] = {
  &R800::rlc_b   ,&R800::rlc_c   ,&R800::rlc_d     ,&R800::rlc_e  ,
  &R800::rlc_h   ,&R800::rlc_l   ,&R800::rlc_xhl   ,&R800::rlc_a  ,
  &R800::rrc_b   ,&R800::rrc_c   ,&R800::rrc_d     ,&R800::rrc_e  ,
@@ -212,8 +211,7 @@ const opcode_R800 R800::opcode_cb[256]=
  &R800::set_7_h ,&R800::set_7_l ,&R800::set_7_xhl ,&R800::set_7_a
 };
 
-const opcode_R800 R800::opcode_ed[256]=
-{
+const R800_ResumeFunc R800::opcode_ed[256] = {
  &R800::nop   ,&R800::nop    ,&R800::nop      ,&R800::nop        ,
  &R800::nop   ,&R800::nop    ,&R800::nop      ,&R800::nop        ,
  &R800::nop   ,&R800::nop    ,&R800::nop      ,&R800::nop        ,
@@ -283,8 +281,7 @@ const opcode_R800 R800::opcode_ed[256]=
  &R800::nop   ,&R800::nop        ,&R800::patch    ,&R800::nop
 };
 
-const opcode_R800 R800::opcode_dd[256]=
-{
+const R800_ResumeFunc R800::opcode_dd[256] = {
   &R800::nop       ,&R800::ld_bc_word,&R800::ld_xbc_a   ,&R800::inc_bc    ,
   &R800::inc_b     ,&R800::dec_b     ,&R800::ld_b_byte  ,&R800::rlca      ,
   &R800::ex_af_af  ,&R800::add_ix_bc ,&R800::ld_a_xbc   ,&R800::dec_bc    ,
@@ -354,8 +351,7 @@ const opcode_R800 R800::opcode_dd[256]=
   &R800::call_m    ,&R800::fd2       ,&R800::cp_byte    ,&R800::rst_38  
 };
 
-const opcode_R800 R800::opcode_fd[256]=
-{
+const R800_ResumeFunc R800::opcode_fd[256] = {
   &R800::nop       ,&R800::ld_bc_word,&R800::ld_xbc_a   ,&R800::inc_bc    ,
   &R800::inc_b     ,&R800::dec_b     ,&R800::ld_b_byte  ,&R800::rlca      ,
   &R800::ex_af_af  ,&R800::add_iy_bc ,&R800::ld_a_xbc   ,&R800::dec_bc    ,
@@ -425,8 +421,7 @@ const opcode_R800 R800::opcode_fd[256]=
   &R800::call_m    ,&R800::fd2       ,&R800::cp_byte    ,&R800::rst_38  
 };
 
-const opcode_R800 R800::opcode_main[256]=
-{
+const R800_ResumeFunc R800::opcode_main[256] = {
  &R800::nop     ,&R800::ld_bc_word,&R800::ld_xbc_a   ,&R800::inc_bc    ,
  &R800::inc_b   ,&R800::dec_b     ,&R800::ld_b_byte  ,&R800::rlca      ,
  &R800::ex_af_af,&R800::add_hl_bc ,&R800::ld_a_xbc   ,&R800::dec_bc    ,

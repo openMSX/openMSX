@@ -15,35 +15,43 @@
 #include "CPU.hh"
 #include "EmuTime.hh"
 
-// forward declarations
-class Z80;
+#undef _CPU_
+#define _CPU_ Z80
+#define ResumeFunc Z80_ResumeFunc
+
 class CPUInterface;
-typedef void (Z80::*opcode_Z80)();
-typedef void (Z80::*opcode_Z80_n)(offset n);
+class Z80;
+typedef void (Z80::*Z80_ResumeFunc)();
+
 
 class Z80 : public CPU {
 	public:
-		Z80(CPUInterface *interf, int waitCycles, const EmuTime &time);
+		Z80(CPUInterface *interf, const EmuTime &time);
 		virtual ~Z80();
 		virtual void setCurrentTime(const EmuTime &time);
 		virtual const EmuTime &getCurrentTime();
 
 	private:
-		#undef _CPU_
-		#define _CPU_ Z80
 		#include "CPUCore.n1"
-
-		int waitCycles;
+		
+		static const int IO_DELAY1 = 1;
+		static const int IO_DELAY2 = 3;
+		static const int MEM_DELAY1 = 1;
+		static const int MEM_DELAY2 = 2;
+		static const int WAIT_CYCLES = 1;
+		
 		EmuTimeFreq<3579545> currentTime;
 
 		// opcode function pointers
-		static const opcode_Z80_n opcode_dd_cb[256];
-		static const opcode_Z80_n opcode_fd_cb[256];
-		static const opcode_Z80   opcode_cb[256];
-		static const opcode_Z80   opcode_dd[256];
-		static const opcode_Z80   opcode_ed[256];
-		static const opcode_Z80   opcode_fd[256];
-		static const opcode_Z80   opcode_main[256];
+		static const Z80_ResumeFunc opcode_dd_cb[256];
+		static const Z80_ResumeFunc opcode_fd_cb[256];
+		static const Z80_ResumeFunc opcode_cb[256];
+		static const Z80_ResumeFunc opcode_dd[256];
+		static const Z80_ResumeFunc opcode_ed[256];
+		static const Z80_ResumeFunc opcode_fd[256];
+		static const Z80_ResumeFunc opcode_main[256];
+
+		Z80_ResumeFunc resume;
 };
 
 #endif

@@ -16,13 +16,11 @@
 #include "Z80.hh"
 #include "CPUInterface.hh"
 #include "Z80Tables.nn"
-#include "CPU.ii"
 
 
-Z80::Z80(CPUInterface *interf, int waitCycl, const EmuTime &time) :
+Z80::Z80(CPUInterface *interf, const EmuTime &time) :
 	CPU(interf)
 {
-	waitCycles = waitCycl;
 	reset(time);
 }
 Z80::~Z80()
@@ -39,12 +37,7 @@ const EmuTime &Z80::getCurrentTime()
 }
 
 
-
-inline void Z80::M1_DELAY()       { currentTime += 1 + waitCycles; }
-inline void Z80::IOPORT_DELAY1()  { currentTime += 1; }
-inline void Z80::IOPORT_DELAY2()  { currentTime += 3; }
-inline void Z80::MEM_DELAY1()     { currentTime += 1; }
-inline void Z80::MEM_DELAY2()     { currentTime += 2; }
+inline void Z80::M1_DELAY()       { currentTime += 1 + WAIT_CYCLES; }
 inline void Z80::ADD_16_8_DELAY() { currentTime += 5; }
 inline void Z80::OP_16_16_DELAY() { currentTime += 5; }
 inline void Z80::INC_16_DELAY()   { currentTime += 2; }
@@ -59,7 +52,7 @@ inline void Z80::IM0_DELAY()      { currentTime += 2; }
 inline void Z80::IM1_DELAY()      { currentTime += 2; }
 inline void Z80::IM2_DELAY()      { currentTime += 19; }
 inline void Z80::SMALL_DELAY()    { currentTime += 1; }	// TODO more detailed?
-inline int Z80::haltStates() { return 4 + waitCycles; }	// HALT + M1
+inline int Z80::haltStates() { return 4 + WAIT_CYCLES; }	// HALT + M1
 
 #include "CPUCore.n2"
 
