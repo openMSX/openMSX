@@ -187,7 +187,7 @@ void Debugger::DebugCmd::readBlock(const vector<CommandArgument>& tokens, Comman
 	}
 	unsigned num = tokens[4].getInt();
 	if (num > (size - addr)) {
-		throw ("Invalid size");
+		throw CommandException("Invalid size");
 	}
 
 	byte* buf = new byte[num];
