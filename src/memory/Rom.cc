@@ -85,7 +85,7 @@ void Rom::init(const XMLElement& config)
 		size = 0;
 	}
 
-	info = RomInfo::fetchRomInfo(*this, config);
+	info = RomInfo::fetchRomInfo(*this);
 
 	// TODO fix this, this is a hack that depends heavily on MSXRomCLI.cc
 	if (!info->getTitle().empty() &&

@@ -110,10 +110,10 @@
       <secondary slot="3">
         <ROM id="Firmware">
           <mem base="0x0000" size="0x10000"/>
+          <mappertype>PANASONIC</mappertype>
           <rom>
             <firstblock>0</firstblock>
             <lastblock>511</lastblock>
-            <mappertype>PANASONIC</mappertype>
           </rom>
           <sramsize>32</sramsize>
           <sram-mirrored>false</sram-mirrored>

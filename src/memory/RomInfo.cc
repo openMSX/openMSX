@@ -122,99 +122,6 @@ MapperType RomInfo::nameToMapperType(const string& name)
 	return it->second;
 }
 
-MapperType RomInfo::guessMapperType(const Rom& rom)
-{
-	int size = rom.getSize();
-	if (size == 0) {
-		return PLAIN;
-	}
-	const byte* data = &rom[0];
-	
-	if (size <= 0x10000) {
-		if (size == 0x10000) {
-			// There are some programs convert from tape to
-			// 64kB rom cartridge these 'fake'roms are from
-			// the ASCII16 type
-			return ASCII_16KB;
-		} else if ((size <= 0x4000) &&
-		           (data[0] == 'A') && (data[1] == 'B')) {
-			word initAddr = data[2] + 256 * data[3];
-			word textAddr = data[8] + 256 * data[9];
-			if ((textAddr & 0xC000) == 0x8000) {
-				if ( initAddr == 0
-				|| ( (initAddr & 0xC000) == 0x8000
-				     && data[initAddr & (size - 1)] == 0xC9 )
-				) {
-					return PAGE2;
-				}
-			}
-		}
-		// not correct for Konami-DAC, but does this really need
-		// to be correct for _every_ rom?
-		return PLAIN;
-	} else {
-		//  GameCartridges do their bankswitching by using the Z80
-		//  instruction ld(nn),a in the middle of program code. The
-		//  adress nn depends upon the GameCartridge mappertype used.
-		//  To guess which mapper it is, we will look how much writes
-		//  with this instruction to the mapper-registers-addresses
-		//  occur.
-
-		unsigned int typeGuess[] = {0,0,0,0,0,0};
-		for (int i=0; i<size-3; i++) {
-			if (data[i] == 0x32) {
-				word value = data[i+1]+(data[i+2]<<8);
-				switch (value) {
-					case 0x5000:
-					case 0x9000:
-					case 0xb000:
-						typeGuess[KONAMI5]++;
-						break;
-					case 0x4000:
-						typeGuess[KONAMI4]++;
-						break;
-					case 0x8000:
-					case 0xa000:
-						typeGuess[KONAMI4]++;
-						break;
-					case 0x6800:
-					case 0x7800:
-						typeGuess[ASCII_8KB]++;
-						break;
-					case 0x6000:
-						typeGuess[KONAMI4]++;
-						typeGuess[ASCII_8KB]++;
-						typeGuess[ASCII_16KB]++;
-						break;
-					case 0x7000:
-						typeGuess[KONAMI5]++;
-						typeGuess[ASCII_8KB]++;
-						typeGuess[ASCII_16KB]++;
-						break;
-					case 0x77ff:
-						typeGuess[ASCII_16KB]++;
-						break;
-				}
-			}
-		}
-		if (typeGuess[ASCII_8KB]) typeGuess[ASCII_8KB]--; // -1 -> max_int
-		MapperType type = GENERIC_8KB; // 0
-		for (int i=GENERIC_8KB; i <= ASCII_16KB; i++) {
-			if ((typeGuess[i]) && (typeGuess[i]>=typeGuess[type])) {
-				type = (MapperType)i;
-			}
-		}
-		// in case of doubt we go for type 0
-		// in case of even type 5 and 4 we would prefer 5
-		// but we would still prefer 0 above 4 or 5
-		if ((type == ASCII_16KB) &&
-		    (typeGuess[GENERIC_8KB] == typeGuess[ASCII_16KB])) {
-			type = GENERIC_8KB;
-		}
-		return type;
-	}
-}
-
 auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 {
 	// TODO: Turn ROM DB into a separate class.
@@ -278,28 +185,13 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 	return auto_ptr<RomInfo>(NULL);
 }
 
-auto_ptr<RomInfo> RomInfo::fetchRomInfo(const Rom& rom, const XMLElement& deviceConfig)
+auto_ptr<RomInfo> RomInfo::fetchRomInfo(const Rom& rom)
 {
 	// Look for the ROM in the ROM DB.
 	auto_ptr<RomInfo> info(searchRomDB(rom));
 	if (!info.get()) {
 		info.reset(new RomInfo("", "", "", "", UNKNOWN));
 	}
-	
-	// Get specified mapper type from the config.
-	// Note: config may specify "auto" as well.
-	string typestr = deviceConfig.getChildData("mappertype", "plain");
-	if (typestr == "auto") {
-		// Guess mapper type, if it was not in DB.
-		if (info->mapperType == UNKNOWN) {
-			info->mapperType = guessMapperType(rom);
-		}
-	} else {
-		// Use mapper type from config, even if this overrides DB.
-		info->mapperType = nameToMapperType(typestr);
-	}
-	PRT_DEBUG("MapperType: " << info->mapperType);
-
 	return info;
 }
 

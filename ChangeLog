@@ -5,6 +5,7 @@ $Id$
 	   - this was quite heavily used in the MSX boot sequence, and caused
 	     100% CPU usage for several seconds.
 	* Increased speed of type command
+	* Moved location of <mappertype> tag to a more logical position
 
 2004-10-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Updated configuration converter.

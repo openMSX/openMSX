@@ -84,13 +84,13 @@ void MSXRomCLI::parse(const string& arg, const string& slotname)
 	auto_ptr<XMLElement> rom(new XMLElement("rom"));
 	rom->addChild(auto_ptr<XMLElement>(
 		new XMLElement("filename", romfile)));
-	rom->addChild(auto_ptr<XMLElement>(
-		new XMLElement("mappertype", mapper)));
 	device->addChild(rom);
 	auto_ptr<XMLElement> sound(new XMLElement("sound"));
 	sound->addChild(auto_ptr<XMLElement>(
 		new XMLElement("volume", "9000")));
 	device->addChild(sound);
+	device->addChild(auto_ptr<XMLElement>(
+		new XMLElement("mappertype", mapper)));
 	device->addChild(auto_ptr<XMLElement>(
 		new XMLElement("sramname", sramfile + ".SRAM")));
 	device->setFileContext(auto_ptr<FileContext>(

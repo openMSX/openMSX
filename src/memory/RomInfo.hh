@@ -29,8 +29,7 @@ public:
 	const string& getRemark()         const { return remark; }
 	const MapperType& getMapperType() const { return mapperType; }
 
-	static auto_ptr<RomInfo> fetchRomInfo(
-		const Rom& rom, const XMLElement& deviceConfig);
+	static auto_ptr<RomInfo> fetchRomInfo(const Rom& rom);
 	static MapperType nameToMapperType(const string& name);
 	void print();
 
@@ -41,7 +40,6 @@ private:
 	  * 	or NULL if the given ROM is not in the database.
 	  */
 	static auto_ptr<RomInfo> searchRomDB(const Rom& rom);
-	static MapperType guessMapperType(const Rom& rom);
 
 	string title;
 	string year;
