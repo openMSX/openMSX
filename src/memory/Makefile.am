@@ -12,6 +12,7 @@ AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` \
 	-I$(srcdir)/../sound \
 	-I$(srcdir)/../thread \
 	-I$(srcdir)/../debugger \
+	-I$(srcdir)/../settings \
 	@XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
