@@ -4,7 +4,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(src/main.cc)
 dnl Every other copy of the package version number gets its value from here
-AM_INIT_AUTOMAKE(openmsx, 0.2.0)
+AM_INIT_AUTOMAKE(openmsx, 0.2.1)
 
 if test "$prefix" = "NONE"; then
   prefix="/usr/local"
