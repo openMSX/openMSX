@@ -58,12 +58,12 @@ private:
 class OSDConsoleRenderer: public Layer, private SettingListener
 {
 public:
-	OSDConsoleRenderer(Console& console);
 	virtual ~OSDConsoleRenderer();
 	virtual bool loadBackground(const string& filename) = 0;
 	virtual bool loadFont(const string& filename) = 0;
 
 protected:
+	OSDConsoleRenderer(Console& console);
 	void initConsole();
 	void updateConsoleRect(SDL_Rect& rect);
 
