@@ -514,7 +514,7 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 				renderer->setColorMode(getColorMode(), time);
 				break;
 			case BACK_DROP_COLOR:
-				renderer->setBackgroundColor(val & 31);
+				renderer->setBackgroundColor(val & 63);
 				break;
 			default: break;
 		}
@@ -538,11 +538,15 @@ void V9990::writePaletteRegister(byte reg, byte val, const EmuTime& time)
 	}
 	palette[reg] = val;
 	reg &= ~3;
-	renderer->setPalette(reg >> 2,
+	byte index = reg / 4;
+	renderer->setPalette(index,
 	                     palette[reg + 0],
 	                     palette[reg + 1],
 	                     palette[reg + 2],
 	                     time);
+	if (index == regs[BACK_DROP_COLOR]) {
+		renderer->setBackgroundColor(index);
+	}
 }
 
 void V9990::createRenderer(const EmuTime& time)

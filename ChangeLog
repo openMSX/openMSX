@@ -1,5 +1,8 @@
 $Id$
 
+2005-01-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed gfx9000 border color
+
 2005-01-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Z80 speedup:
 	   union optimization is actually a pessimization on modern CPUs (and
