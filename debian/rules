@@ -68,13 +68,15 @@ install: build
 
 	# Add here commands to install the package into debian/openmsx.
 	$(MAKE) install \
-		INSTALL_BINARY_DIR=$(CURDIR)/debian/openmsx/usr/bin \
-		INSTALL_SHARE_DIR=$(CURDIR)/debian/openmsx/usr/share/openmsx \
-		INSTALL_DOC_DIR=$(CURDIR)/debian/openmsx/usr/share/doc/openmsx \
+		INSTALL_BINARY_DIR=$(CURDIR)/debian/tmp/usr/bin \
+		INSTALL_SHARE_DIR=$(CURDIR)/debian/tmp/usr/share/openmsx \
+		INSTALL_DOC_DIR=$(CURDIR)/debian/tmp/usr/share/doc/openmsx \
 		SYMLINK_FOR_BINARY=false \
-		OPENMSX_INSTALL=$(CURDIR)/debian/openmsx/usr
-	@echo "  Removing CVS directories from .../share"
-	@find $(CURDIR)/debian/openmsx/usr/share -name CVS | xargs rm -rf
+		OPENMSX_INSTALL=$(CURDIR)/debian/tmp/usr
+	@echo "  Cleaning up the installed package..."
+	@find $(CURDIR)/debian/tmp/usr/share -name CVS | xargs rm -rf
+	@find $(CURDIR)/debian/tmp/usr/share/openmsx/extensions/ -name hardwareconfig.xml -exec chmod a-x {} \;
+	@find $(CURDIR)/debian/tmp -name .cvsignore |xargs rm -f
 
 
 
@@ -88,7 +90,7 @@ binary-arch: build install
 	dh_testroot
 	dh_installchangelogs ChangeLog
 	dh_installdocs
-	dh_installexamples
+#	dh_installexamples
 #	dh_install
 #	dh_installmenu
 #	dh_installdebconf	
