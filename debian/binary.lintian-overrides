@@ -1,0 +1,3 @@
+# we ship a python script that can optionally be used to convert older config files
+# from non-debian installations
+openmsx binary: python-script-but-no-python-dep

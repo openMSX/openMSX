@@ -41,7 +41,7 @@ clean: clean-patched unpatch
 clean-patched:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp 
+	rm -f build-stamp
 	-$(MAKE) clean
 	- rm -rf derived/
 	- rm -rf debian/tmp
@@ -53,7 +53,7 @@ clean-patched:
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k 
+	dh_clean -k
 	dh_installdirs
 
 	$(MAKE) install \
@@ -62,6 +62,7 @@ install: build
 		INSTALL_DOC_DIR=$(CURDIR)/debian/tmp/usr/share/doc/openmsx \
 		SYMLINK_FOR_BINARY=false \
 		OPENMSX_INSTALL=$(CURDIR)/debian/tmp/usr
+	@cp -f binary.lintian-overrides $(CURDIR)/debian/usr/share/lintian/overrides/openmsx
 	@echo "  Cleaning up the installed package..."
 	@rm $(CURDIR)/debian/tmp/usr/share/doc/openmsx/GPL
 	@find $(CURDIR)/debian/tmp/usr/share -name CVS | xargs rm -rf

@@ -1,6 +1,18 @@
-openmsx (0.5.0-9) unstable; urgency=low
+openmsx (0.5.0-10) unstable; urgency=low
 
   * close ITP (Closes: #221086)
+  * add lintian-override for E: openmsx: python-script-but-no-python-dep
+    ./usr/share/openmsx/scripts/convert_hardwareconfig.py; because this script
+    is useful but only for users of openmsx before the package
+  * fix W: openmsx source: virtual-package-depends-without-real-package-depends
+    build-depends: libgl-dev
+  * fix W: openmsx: unquoted-string-in-menu-item /usr/lib/menu/openmsx needs:1
+
+ -- Joost Yervante Damad <joost@lumatec.be>  Sun,  6 Feb 2005 12:28:19 +0100
+
+
+openmsx (0.5.0-9) unstable; urgency=low
+
   * change architecture to any
 
  -- Joost Yervante Damad <joost@lumatec.be>  Tue, 25 Jan 2005 19:03:56 +0100

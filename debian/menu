@@ -1,1 +1,1 @@
-?package(openmsx):needs=X11 section="Apps/Emulators" title="openMSX" command="/usr/bin/openmsx"
+?package(openmsx):needs="X11" section="Apps/Emulators" title="openMSX" command="/usr/bin/openmsx"
