@@ -10,7 +10,7 @@
  - Music Module Devices
  - RS232 (Modem) [Wouter: hardware is 8254 connected to 8251
                           8254 is emulated (untested)]
- - Moon Sound Devices
+ - Moonsound Devices
  - V9958
 
 * config:
@@ -28,9 +28,11 @@
    + deinterlace
  - The following things should be made settings (adjustable in Console):
    + Mixer settings
-   + GUI like settings, like ConsoleFont/ConsoleBackground
  - The following Console commands need to be converted to a settings command:
    + renderer
+   + throttle (should also be a 'toggle' command)
+   - toggle should be documented in commands.txt. Also other new settings
+     should be documented there, some still aren't.
    
 * build
  - auto* improvement
