@@ -13,9 +13,8 @@ TODO:
   * read FH
   Current implementation would return FH=0 both times.
 - Check how Z80 should treat interrupts occurring during DI.
-- Get rid of hardcoded port 0x98..0x9B.
 - Bottom erase suspends display even on overscan.
-  However, it t shows black, not border colour.
+  However, it shows black, not border colour.
   How to handle this? Currently it is treated as "overscan" which
   falls outside of the rendered screen area.
 */
