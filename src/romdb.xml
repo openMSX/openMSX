@@ -73,7 +73,7 @@
     <remark></remark>
   </rom>
   <rom id="3D Golf Simulation - Normal Edition (1)">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>66c604647010990ffdb372683f4ddfd1</md5>
     <crc32>0c989ad1</crc32>
     <year>1983</year>
@@ -3201,7 +3201,7 @@
     <remark></remark>
   </rom>
   <rom id="Never Forget to Nausicaa Game Forever">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>044e427840993306ff6797b6b463e6ab</md5>
     <crc32>e84994f7</crc32>
     <year>1984</year>
@@ -3401,7 +3401,7 @@
     <remark></remark>
   </rom>
   <rom id="Pairs">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>36eba31f25bb907d3e3c90d39baed63a</md5>
     <crc32>9c1c10ca</crc32>
     <year>1983</year>
@@ -4105,7 +4105,7 @@
     <remark></remark>
   </rom>
   <rom id="Star Command">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>b014d74e1c846c619719271ce6e6d483</md5>
     <crc32>4579ce12</crc32>
     <year>1983</year>
