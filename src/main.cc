@@ -6,6 +6,7 @@
  *  Copyright (C) 2001 David Heremans
  */
 
+#include <memory> // for auto_ptr
 #include <iostream>
 #include <SDL/SDL.h>
 #include <exception>
@@ -13,7 +14,9 @@
 #include "MSXMotherBoard.hh"
 #include "CommandLineParser.hh"
 #include "Icon.hh"
+#include "CliCommInput.hh"
 
+using std::auto_ptr;
 using std::cerr;
 using std::endl;
 
@@ -56,6 +59,10 @@ int main(int argc, char **argv)
 		CommandLineParser::ParseStatus parseStatus =
 			CommandLineParser::instance()->parse(argc, argv);
 		if (parseStatus != CommandLineParser::EXIT) {
+			auto_ptr<CliCommInput> cliCommInput;
+			if (parseStatus) {
+				cliCommInput.reset(new CliCommInput());
+			}
 			MSXMotherBoard::instance()->run(
 				parseStatus == CommandLineParser::RUN);
 		}

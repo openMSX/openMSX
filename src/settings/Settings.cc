@@ -3,7 +3,7 @@
 #include "Settings.hh"
 #include "File.hh"
 #include "FileContext.hh"
-#include "CliCommunicator.hh"
+#include "CliCommOutput.hh"
 #include <sstream>
 #include <iostream>
 #include <iomanip>
@@ -246,7 +246,7 @@ void FilenameSetting::setValue(const string &newValue)
 		resolved = context.resolve(newValue);
 	} catch (FileException &e) {
 		// File not found.
-		CliCommunicator::instance().printWarning(
+		CliCommOutput::instance().printWarning(
 			"couldn't find file: \"" + newValue + "\"");
 		return;
 	}

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CLICOMMUNICATOR_HH__
-#define __CLICOMMUNICATOR_HH__
+#ifndef __CLICOMMOUTPUT_HH__
+#define __CLICOMMOUTPUT_HH__
 
 #include <deque>
 #include <string>
@@ -15,20 +15,13 @@ using std::string;
 
 namespace openmsx {
 
-class CliCommunicator : private Runnable, private Schedulable
+class CliCommInput : private Runnable, private Schedulable
 {
 public:
-	static CliCommunicator& instance();
-	void enable();
-	
-	void printInfo(const string& message);
-	void printWarning(const string& message);
-	void printUpdate(const string& message);
+	CliCommInput();
+	virtual ~CliCommInput();
 
 private:
-	CliCommunicator();
-	virtual ~CliCommunicator();
-
 	void execute(const string& command);
 	virtual void executeUntil(const EmuTime& time, int userData) throw();
 	virtual const string& schedName() const;
@@ -36,7 +29,7 @@ private:
 	
 	deque<string> cmds;
 	Semaphore lock;
-	Thread* thread;
+	Thread thread;
 	
 	enum State {
 		START, TAG_OPENMSX, TAG_COMMAND
@@ -44,6 +37,7 @@ private:
 	struct ParseState {
 		State state;
 		string content;
+		CliCommInput* object;
 	};
 	static ParseState user_data;
 	

@@ -12,7 +12,7 @@
 #include "MSXConfig.hh"
 #include "Config.hh"
 #include "openmsx.hh"
-#include "CliCommunicator.hh"
+#include "CliCommOutput.hh"
 #include "InfoCommand.hh"
 
 
@@ -244,7 +244,7 @@ void CommandController::autoCommands()
 			try {
 				executeCommand((*i)->value);
 			} catch (CommandException &e) {
-				CliCommunicator::instance().printWarning(
+				CliCommOutput::instance().printWarning(
 				         "While executing autocommands: "
 				         + e.getMessage());
 			}

@@ -12,7 +12,7 @@
 #include <cerrno>
 #include <sstream>
 #include "RealTimeRTC.hh"
-#include "CliCommunicator.hh"
+#include "CliCommOutput.hh"
 
 using std::ostringstream;
 
@@ -23,7 +23,7 @@ RealTimeRTC* RealTimeRTC::create()
 	RealTimeRTC* rt = new RealTimeRTC();
 	if (!rt->init()) {
 		delete rt;
-		CliCommunicator::instance().printWarning(
+		CliCommOutput::instance().printWarning(
 			"Couldn't initialize RTC timer, falling back to (less accurate) SDL timer...");
 		rt = NULL;
 	}
@@ -53,7 +53,7 @@ bool RealTimeRTC::init()
 	// Open RTC device.
 	rtcFd = open("/dev/rtc", O_RDONLY);
 	if (rtcFd == -1) {
-		CliCommunicator::instance().printWarning(
+		CliCommOutput::instance().printWarning(
 			"RTC timer: couldn't open /dev/rtc");
 		return false;
 	}
@@ -65,14 +65,14 @@ bool RealTimeRTC::init()
 		out << "RTC timer: couldn't select " << RTC_HERTZ << "Hz timer; try adding\n"
 		    << "   echo " << RTC_HERTZ << " > /proc/sys/dev/rtc/max-user-freq\n"
 		    << "to your system startup scripts.";
-		CliCommunicator::instance().printWarning(out.str());
+		CliCommOutput::instance().printWarning(out.str());
 		return false;
 	}
 
 	// Enable periodic interrupts.
 	retval = ioctl(rtcFd, RTC_PIE_ON, 0);
 	if (retval == -1) {
-		CliCommunicator::instance().printWarning(
+		CliCommOutput::instance().printWarning(
 			"RTC timer: couldn't enable timer interrupts");
 		return false;
 	}

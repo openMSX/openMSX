@@ -7,7 +7,7 @@
 #include "EventDistributor.hh"
 #include "EventListener.hh"
 #include "CommandController.hh"
-#include "CliCommunicator.hh"
+#include "CliCommOutput.hh"
 #include "openmsx.hh"
 #include "config.h"
 #include "Scheduler.hh"
@@ -269,7 +269,7 @@ void EventDistributor::AfterCmd::executeUntil(const EmuTime& time, int userData)
 	try {
 		CommandController::instance()->executeCommand(command);
 	} catch (CommandException& e) {
-		CliCommunicator::instance().printWarning(
+		CliCommOutput::instance().printWarning(
 			"Error executig delayed command: " + e.getMessage());
 	}
 	EventDistributor* ed = EventDistributor::instance();

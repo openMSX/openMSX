@@ -13,7 +13,7 @@
 #include "CliExtension.hh"
 #include "File.hh"
 #include "FileOperations.hh"
-#include "CliCommunicator.hh"
+#include "CliCommOutput.hh"
 
 namespace openmsx {
 
@@ -175,7 +175,7 @@ CommandLineParser::ParseStatus CommandLineParser::parse(int argc, char **argv)
 					haveSettings = true;
 				} catch (FileException &e) {
 					// settings.xml not found
-					CliCommunicator::instance().printWarning(
+					CliCommOutput::instance().printWarning(
 						"No settings file found!");
 				} catch (ConfigException& e) {
 					throw FatalError("Error in default settings: "
@@ -193,7 +193,7 @@ CommandLineParser::ParseStatus CommandLineParser::parse(int argc, char **argv)
 						config->getConfigById("DefaultMachine");
 					if (machineConfig->hasParameter("machine")) {
 						machine = machineConfig->getParameter("machine");
-						CliCommunicator::instance().printInfo(
+						CliCommOutput::instance().printInfo(
 							"Using default machine: " + machine);
 					}
 				} catch (ConfigException &e) {
@@ -260,7 +260,7 @@ CommandLineParser::ParseStatus CommandLineParser::parse(int argc, char **argv)
 bool CommandLineParser::ControlOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
-	CliCommunicator::instance().enable();
+	CliCommOutput::instance().enableXMLOutput();
 	CommandLineParser::instance()->parseStatus = CONTROL;
 	return true;
 }
@@ -413,7 +413,7 @@ bool CommandLineParser::MachineOption::parseOption(const string &option,
 		SystemFileContext context;
 		config->loadHardware(context,
 			MACHINE_PATH + machine + "/hardwareconfig.xml");
-		CliCommunicator::instance().printInfo(
+		CliCommOutput::instance().printInfo(
 			"Using specified machine: " + machine);
 		parser->haveConfig = true;
 	} catch (FileException& e) {

@@ -104,11 +104,6 @@ void MSXMotherBoard::run(bool powerOn)
 	Scheduler::instance()->schedule(EmuTime::infinity);
 	Scheduler::instance()->powerOff();
 
-	// Shut down mixing because it depends on MSXCPU,
-	// which will be destroyed in the next step.
-	// TODO: Get rid of this dependency.
-	Mixer::instance()->shutDown();
-
 	// Destroy emulated MSX machine.
 	for (list<MSXDevice*>::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {

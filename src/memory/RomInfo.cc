@@ -10,7 +10,7 @@
 #include "FileContext.hh"
 #include "File.hh"
 #include "Device.hh"
-#include "CliCommunicator.hh"
+#include "CliCommOutput.hh"
 
 namespace openmsx {
 
@@ -245,7 +245,7 @@ RomInfo *RomInfo::searchRomDB(const Rom* rom)
 						    romDBMD5.end()) {
 							romDBMD5[md5] = romInfo;
 						} else {
-							CliCommunicator::instance().printWarning(
+							CliCommOutput::instance().printWarning(
 								"duplicate romdb entry MD5: " + md5);
 						}
 					} else if ((*it2)->name == "sha1") {
@@ -254,14 +254,14 @@ RomInfo *RomInfo::searchRomDB(const Rom* rom)
 						    romDBSHA1.end()) {
 							romDBSHA1[sha1] = romInfo;
 						} else {
-							CliCommunicator::instance().printWarning(
+							CliCommOutput::instance().printWarning(
 								"duplicate romdb entry SHA1: " + sha1);
 						}
 					}
 				}
 			}
 		} catch (FileException& e) {
-			CliCommunicator::instance().printWarning(
+			CliCommOutput::instance().printWarning(
 				"Warning: couldn't open romdb.xml.\n"
 				"Romtype detection might fail because of this.");
 		}
@@ -289,7 +289,7 @@ RomInfo *RomInfo::searchRomDB(const Rom* rom)
 	md5.finalize();
 	string digestMD5(md5.hex_digest());
 	if (romDBMD5.find(digestMD5) != romDBMD5.end()) {
-		CliCommunicator::instance().printWarning(
+		CliCommOutput::instance().printWarning(
 			"Warning: You're using an old romdb.xml file.\n"
 			"         Please replace it with a recent version.");
 		romDBMD5[digestMD5]->print();
@@ -343,7 +343,7 @@ void RomInfo::print()
 	if (!getRemark().empty()) {
 		info += "\n  Remark:   " + getRemark();
 	}
-	CliCommunicator::instance().printInfo(info);
+	CliCommOutput::instance().printInfo(info);
 }
 
 } // namespace openmsx

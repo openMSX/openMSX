@@ -7,7 +7,7 @@
 #include "Keys.hh"
 #include "MSXConfig.hh"
 #include "Config.hh"
-#include "CliCommunicator.hh"
+#include "CliCommOutput.hh"
 
 namespace openmsx {
 
@@ -36,7 +36,7 @@ KeyJoystick::KeyJoystick()
 		buttonAKey = getConfigKeyCode("buttonakey", config);
 		buttonBKey = getConfigKeyCode("buttonbkey", config);
 	} catch (ConfigException& e) {
-		CliCommunicator::instance().printWarning(
+		CliCommOutput::instance().printWarning(
 			"KeyJoystick not configured, so it won't be usable...");
 		return;
 	}
@@ -57,7 +57,7 @@ Keys::KeyCode KeyJoystick::getConfigKeyCode(const string& keyname,
 	if (config->hasParameter(keyname)) {
 		testKey = Keys::getCode(config->getParameter(keyname));
 		if (testKey == Keys::K_NONE) {
-			CliCommunicator::instance().printWarning(
+			CliCommOutput::instance().printWarning(
 				"unknown keycode \"" +
 				config->getParameter(keyname) + "\" for key \"" +
 				keyname + "\" in KeyJoystick configuration");

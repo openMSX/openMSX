@@ -8,7 +8,7 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "SettingsManager.hh"
-#include "CliCommunicator.hh"
+#include "CliCommOutput.hh"
 #include "MSXConfig.hh"
 #include "Config.hh"
 
@@ -75,7 +75,7 @@ void CommandConsole::saveHistory()
 			outputfile << it->substr(PROMPT.length()) << endl;
 		}
 	} catch (FileException &e) {
-		CliCommunicator::instance().printWarning(e.getMessage());
+		CliCommOutput::instance().printWarning(e.getMessage());
 	}
 }
 

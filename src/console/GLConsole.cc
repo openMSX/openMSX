@@ -10,7 +10,7 @@
 #include "GLFont.hh"
 #include "File.hh"
 #include "Console.hh"
-#include "CliCommunicator.hh"
+#include "CliCommOutput.hh"
 
 
 namespace openmsx {
@@ -91,12 +91,12 @@ bool GLConsole::loadTexture(const string &filename, GLuint &texture,
 		File file(filename);
 		image1 = IMG_Load(file.getLocalName().c_str());
 		if (image1 == NULL) {
-			CliCommunicator::instance().printWarning("File \"" +
+			CliCommOutput::instance().printWarning("File \"" +
 			        file.getURL() + "\" is not a valid image");
 			return false;
 		}
 	} catch (FileException &e) {
-		CliCommunicator::instance().printWarning("Could not open file \"" +
+		CliCommOutput::instance().printWarning("Could not open file \"" +
 		        filename + "\": " + e.getMessage());
 		return false;
 	}

@@ -5,7 +5,7 @@
 #include "HotKey.hh"
 #include "CommandController.hh"
 #include "EventDistributor.hh"
-#include "CliCommunicator.hh"
+#include "CliCommOutput.hh"
 
 
 namespace openmsx {
@@ -117,7 +117,7 @@ void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key) throw()
 		// ignore return value
 		CommandController::instance()->executeCommand(command);
 	} catch (CommandException &e) {
-		CliCommunicator::instance().printWarning(
+		CliCommOutput::instance().printWarning(
 		        "Error executing hot key command: " + e.getMessage());
 	}
 }

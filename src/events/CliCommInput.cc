@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cstdio>
 #include <unistd.h>
-#include "CliCommunicator.hh"
+#include "CliCommInput.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
 
@@ -11,67 +11,22 @@ using std::cout;
 
 namespace openmsx {
 
-CliCommunicator& CliCommunicator::instance()
-{
-	static CliCommunicator oneInstance;
-	return oneInstance;
-}
-
-void CliCommunicator::enable()
-{
-	cout << "<openmsx-output>" << endl;
-	thread = new Thread(this);
-	thread->start();
-}
-
-CliCommunicator::CliCommunicator()
-	: lock(1), thread(NULL)
-{
-}
-
-CliCommunicator::~CliCommunicator()
-{
-	if (thread) {
-		delete thread; // this also stops the thread
-		cout << "</openmsx-output>" << endl;
-	}
-}
-
-void CliCommunicator::printInfo(const string& message)
-{
-	if (thread) {
-		cout << "<info>" << message << "</info>" << endl;
-	} else {
-		cout << message << endl;
-	}
-}
-
-void CliCommunicator::printWarning(const string& message)
-{
-	if (thread) {
-		cout << "<warning>" << message << "</warning>" << endl;
-	} else {
-		cout << "Warning: " << message << endl;
-	}
-}
-
-void CliCommunicator::printUpdate(const string& message)
-{
-	if (thread) {
-		cout << "<update>" << message << "</update>" << endl;
-	} else {
-		cout << message << endl;
-	}
-}
-
-
-// XML-input handling
-
 static xmlSAXHandler sax_handler;
 static xmlParserCtxt* parser_context;
-CliCommunicator::ParseState CliCommunicator::user_data;
+CliCommInput::ParseState CliCommInput::user_data;
 
-void CliCommunicator::cb_start_element(ParseState* user_data,
+
+CliCommInput::CliCommInput()
+	: lock(1), thread(this)
+{
+	thread.start();
+}
+
+CliCommInput::~CliCommInput()
+{
+}
+
+void CliCommInput::cb_start_element(ParseState* user_data,
                      const xmlChar* name, const xmlChar** attrs)
 {
 	switch (user_data->state) {
@@ -91,14 +46,14 @@ void CliCommunicator::cb_start_element(ParseState* user_data,
 	user_data->content = ""; // clear() doesn't compile on gcc-2.95
 }
 
-void CliCommunicator::cb_end_element(ParseState* user_data, const xmlChar* name)
+void CliCommInput::cb_end_element(ParseState* user_data, const xmlChar* name)
 {
 	switch (user_data->state) {
 		case TAG_OPENMSX:
 			user_data->state = START;
 			break;
 		case TAG_COMMAND:
-			CliCommunicator::instance().execute(user_data->content);
+			user_data->object->execute(user_data->content);
 			user_data->state = TAG_OPENMSX;
 			break;
 		default:
@@ -106,16 +61,17 @@ void CliCommunicator::cb_end_element(ParseState* user_data, const xmlChar* name)
 	}
 }
 
-void CliCommunicator::cb_text(ParseState* user_data, const xmlChar* chars, int len)
+void CliCommInput::cb_text(ParseState* user_data, const xmlChar* chars, int len)
 {
 	if (user_data->state == TAG_COMMAND) {
 		user_data->content.append((const char*)chars, len);
 	}
 }
 
-void CliCommunicator::run() throw()
+void CliCommInput::run() throw()
 {
 	user_data.state = START;
+	user_data.object = this;
 	memset(&sax_handler, 0, sizeof(sax_handler));
 	sax_handler.startElement = (startElementSAXFunc)cb_start_element;
 	sax_handler.endElement   = (endElementSAXFunc)  cb_end_element;
@@ -134,7 +90,7 @@ void CliCommunicator::run() throw()
 	xmlFreeParserCtxt(parser_context);
 }
 
-void CliCommunicator::execute(const string& command)
+void CliCommInput::execute(const string& command)
 {
 	lock.down();
 	cmds.push_back(command);
@@ -142,7 +98,7 @@ void CliCommunicator::execute(const string& command)
 	Scheduler::instance()->setSyncPoint(Scheduler::ASAP, this);
 }
 
-void CliCommunicator::executeUntil(const EmuTime& time, int userData) throw()
+void CliCommInput::executeUntil(const EmuTime& time, int userData) throw()
 {
 	CommandController* controller = CommandController::instance();
 	lock.down();
@@ -159,9 +115,9 @@ void CliCommunicator::executeUntil(const EmuTime& time, int userData) throw()
 	lock.up();
 }
 
-const string& CliCommunicator::schedName() const
+const string& CliCommInput::schedName() const
 {
-	static const string NAME("CliCommunicator");
+	static const string NAME("CliCommInput");
 	return NAME;
 }
 

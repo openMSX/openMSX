@@ -3,7 +3,7 @@
 #include "WavAudioInput.hh"
 #include "EmuTime.hh"
 #include "MSXException.hh"
-#include "CliCommunicator.hh"
+#include "CliCommOutput.hh"
 
 namespace openmsx {
 
@@ -110,7 +110,7 @@ void WavAudioInput::update(const SettingLeafNode *setting)
 			loadWave();
 		} catch (MSXException &e) {
 			// TODO proper error handling, message should go to console
-			CliCommunicator::instance().printWarning(
+			CliCommOutput::instance().printWarning(
 				"Load of wave file failed: " + e.getMessage());
 		}
 	}

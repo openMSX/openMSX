@@ -31,7 +31,8 @@ libEvents_la_SOURCES = \
 	KeyEventInserter.cc KeyEventInserter.hh \
 	Keys.cc Keys.hh \
 	SDLEventInserter.cc SDLEventInserter.hh \
-	CliCommunicator.cc CliCommunicator.hh
+	CliCommOutput.cc CliCommOutput.hh \
+	CliCommInput.cc CliCommInput.hh
 
 nodebug: resetdebug all
 debug: setdebug all

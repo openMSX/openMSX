@@ -1,8 +1,10 @@
 $Id$
 
-2003-11-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-11-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed crash when trying to define an alias with the same name as an
 	  existing command
+	* Split CliCommunicator in CliCommInput and CliCommOutput:
+	   - first step to get rid of circular dependencies between singletons
 
 2003-11-10 Maarten ter Huurne <maarten@treewalker.org>
 	* Integrated part of Reikan's SDLRenderer patch:

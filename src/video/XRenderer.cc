@@ -9,7 +9,7 @@
 #include "SDLEventInserter.hh"
 #include <X11/keysym.h>
 #include "Scheduler.hh"
-#include "CliCommunicator.hh"
+#include "CliCommOutput.hh"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -45,12 +45,12 @@ void XRenderer::EventLoop (void) {
 	char *nam = const_cast<char*>("openMSX [ALPHA]");
 	XTextProperty name, iconname;
 	if (!XStringListToTextProperty(&nam, 1, &name)) {
-		CliCommunicator::instance().printWarning (
+		CliCommOutput::instance().printWarning (
 			"XRenderer: error setting window name");
 	}
 	char *iconnam = const_cast<char*>("openMSX");
 	if (!XStringListToTextProperty(&iconnam, 1, &iconname)) {
-		CliCommunicator::instance().printWarning (
+		CliCommOutput::instance().printWarning (
 			"XRenderer: error setting iconname");
 	}
 	XSizeHints xsh;

@@ -3,7 +3,7 @@
 #include "RenderSettings.hh"
 #include "MSXConfig.hh"
 #include "Config.hh"
-#include "CliCommunicator.hh"
+#include "CliCommOutput.hh"
 #include "InfoCommand.hh"
 
 namespace openmsx {
@@ -46,7 +46,7 @@ RenderSettings::RenderSettings()
 	try {
 		renderer->setValueString(rendererName);
 	} catch (CommandException &e) {
-		CliCommunicator::instance().printWarning(
+		CliCommOutput::instance().printWarning(
 			"Invalid renderer requested: \"" + rendererName + "\"");
 		// Stick with default given by RendererFactory.
 	}
