@@ -166,78 +166,81 @@ void CommandLineParser::parse(int argc, char **argv)
 		cmdLine.push_back(FileOperations::getConventionalPath(argv[i]));
 	}
 
-	for (int priority = 1; priority <= 7; priority++){
-		switch (priority){
-			case 4:
-				// load default settings file in case the user didn't specify one
-				{
-					MSXConfig *config = MSXConfig::instance();
-					try {
-						if (!settingOption.parsed) {
-							SystemFileContext context;
-							config->loadSetting(context, "share/settings.xml");
-						}
-					} catch (MSXException &e) {
-					// settings.xml not found
-					PRT_INFO("Warning: No settings file found!");
-					}
-					haveSettings = true;
-					postRegisterFileTypes();
+	for (int priority = 1; priority <= 7; priority++) {
+		switch (priority) {
+		case 4: {
+			// load default settings file in case the user didn't specify one
+			MSXConfig *config = MSXConfig::instance();
+			try {
+				if (!settingOption.parsed) {
+					SystemFileContext context;
+					config->loadSetting(context, "share/settings.xml");
 				}
-				break;
-			case 5:
-				if ((!issuedHelp) && (!haveConfig)){
-					// load default config file in case the user didn't specify one
-					MSXConfig *config = MSXConfig::instance();
-					if (!haveConfig) {
-						string machine("default");
-						try {
-							Config *machineConfig =
-							config->getConfigById("DefaultMachine");
-							if (machineConfig->hasParameter("machine")) {
-								machine = machineConfig->getParameter("machine");
-								PRT_INFO("Using default machine: " << machine);
-							}
-						} catch (ConfigException &e) {
-							// no DefaultMachine section
-						}
-						try {
-							SystemFileContext context;
-							config->loadHardware(context,
-							MACHINE_PATH + machine + "/hardwareconfig.xml");
-						} catch (FileException &e) {
-						PRT_INFO("Warning: No machine file found!");
-						}
-					}
-					haveConfig = true;
-				}
-				break;
-			default:
-				// iterate over all arguments
-				while (!cmdLine.empty()) {
-					string arg = cmdLine.front();
-					cmdLine.pop_front();
-						// first try options
-					if (!parseOption(arg, cmdLine, priority)) {
-						// next try the registered filetypes (xml)
-						if (!parseFileName(arg, cmdLine)) {
-							backupCmdLine.push_back(arg); // no option or known file
-							map<string, OptionData>::const_iterator it1;
-							it1 = optionMap.find(arg);
-							if (it1 != optionMap.end()) {
-								for (int i = 0; i < it1->second.length -1;++i){
-									arg = cmdLine.front();
-									cmdLine.pop_front();
-									backupCmdLine.push_back(arg);
-								}
-							}
-						}
-					}
-				}
-				cmdLine = backupCmdLine;
-				backupCmdLine.clear();
-				break;
+			} catch (MSXException &e) {
+				// settings.xml not found
+				PRT_INFO("Warning: No settings file found!");
+			}
+			haveSettings = true;
+			postRegisterFileTypes();
+			break;
 		}
+		case 5:
+			if ((!issuedHelp) && (!haveConfig)){
+				// load default config file in case the user didn't specify one
+				MSXConfig *config = MSXConfig::instance();
+				if (!haveConfig) {
+					string machine("default");
+					try {
+						Config *machineConfig =
+							config->getConfigById("DefaultMachine");
+						if (machineConfig->hasParameter("machine")) {
+							machine = machineConfig->getParameter("machine");
+							PRT_INFO("Using default machine: " << machine);
+						}
+					} catch (ConfigException &e) {
+						// no DefaultMachine section
+					}
+					try {
+						SystemFileContext context;
+						config->loadHardware(context,
+						MACHINE_PATH + machine + "/hardwareconfig.xml");
+					} catch (FileException &e) {
+						PRT_INFO("Warning: No machine file found!");
+					}
+				}
+				haveConfig = true;
+			}
+			break;
+		default:
+			// iterate over all arguments
+			while (!cmdLine.empty()) {
+				string arg = cmdLine.front();
+				cmdLine.pop_front();
+				// first try options
+				if (!parseOption(arg, cmdLine, priority)) {
+					// next try the registered filetypes (xml)
+					if (!parseFileName(arg, cmdLine)) {
+						// no option or known file
+						backupCmdLine.push_back(arg);
+						map<string, OptionData>::const_iterator it1;
+						it1 = optionMap.find(arg);
+						if (it1 != optionMap.end()) {
+							for (int i = 0; i < it1->second.length - 1; ++i) {
+								arg = cmdLine.front();
+								cmdLine.pop_front();
+								backupCmdLine.push_back(arg);
+							}
+						}
+					}
+				}
+			}
+			cmdLine = backupCmdLine;
+			backupCmdLine.clear();
+			break;
+		}
+	}
+	if (!cmdLine.empty()) {
+		PRT_ERROR("Error parsing command line: " << cmdLine.front());
 	}
 	MSXConfig *config = MSXConfig::instance();
 	// read existing cartridge slots from config
