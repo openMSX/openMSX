@@ -1,5 +1,9 @@
 $Id$
 
+2003-05-02 David Heremans <david.heremans@gnu-linux.net>
+	* Added the Contrib/cbios directory to 'make install'
+	* Added md5sum files
+
 2003-04-30 Maarten ter Huurne <maarten@treewalker.org>
 	* Introduced Blender class and use it from Character/BitmapConverter.
 	* Implemented narrow SCREEN6 sprite pixels in SDLGL.

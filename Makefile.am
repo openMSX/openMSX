@@ -34,6 +34,8 @@ setdebug:
 
 install-data-hook:
 	cp -rv $(srcdir)/share $(prefix)/ 
+	mkdir -p $(prefix)/Contrib/ 
+	cp -rv $(srcdir)/Contrib/cbios $(prefix)/Contrib/ 
 ##needs find trick because otherwise find tries to descent into rm'ed dir
 	find $(srcdir)/share -name CVS -type d -exec rm -rf $(prefix)/{} \;
 ##Creating a link for the binary in /usr/local/bin
