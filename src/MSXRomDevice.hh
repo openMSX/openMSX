@@ -15,15 +15,15 @@
 // forward declaration
 class MSXRomPatchInterface;
 
-class MSXRom: virtual public MSXDevice
+class MSXRomDevice: virtual public MSXDevice
 {
 	public:
-		MSXRom(MSXConfig::Device *config, const EmuTime &time);
+		MSXRomDevice(MSXConfig::Device *config, const EmuTime &time);
 
 		/**
 		 * delete memory bank
 		 */
-		virtual ~MSXRom();
+		virtual ~MSXRomDevice();
 
 	protected:
 		/**

@@ -5,31 +5,30 @@
 #include <string>
 #include <list>
 #include "MSXException.hh"
-#include "MSXRom.hh"
+#include "MSXRomDevice.hh"
 #include "MSXDiskRomPatch.hh"
 #include "MSXTapePatch.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXRomPatchInterface.hh"
 
-MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
+MSXRomDevice::MSXRomDevice(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
 {
 	handleRomPatchInterfaces();
 }
 
-MSXRom::~MSXRom()
+MSXRomDevice::~MSXRomDevice()
 {
-	PRT_DEBUG("Deleting a MSXRom memoryBank");
-	delete [] memoryBank;
-	std::list<MSXRomPatchInterface*>::iterator i =
-		romPatchInterfaces.begin();
-	for ( /**/ ; i!= romPatchInterfaces.end(); i++) {
-		PRT_DEBUG("Deleting a RomPatchInterface for an MSXRom");
+	PRT_DEBUG("Deleting a MSXRomDevice");
+	
+	std::list<MSXRomPatchInterface*>::iterator i;
+	for (i=romPatchInterfaces.begin(); i!=romPatchInterfaces.end(); i++) {
 		delete (*i);
 	}
+	delete [] memoryBank;
 }
 
-void MSXRom::handleRomPatchInterfaces()
+void MSXRomDevice::handleRomPatchInterfaces()
 {
 	// for each patchcode parameter, construct apropriate patch
 	// object and register it at MSXMotherBoard
@@ -55,14 +54,14 @@ void MSXRom::handleRomPatchInterfaces()
 }
 
 
-void MSXRom::loadFile(byte** memoryBank, int fileSize)
+void MSXRomDevice::loadFile(byte** memoryBank, int fileSize)
 {
 	IFILETYPE* file = openFile();
 	readFile(file, fileSize, memoryBank);
 	delete file;
 }
 
-int MSXRom::loadFile(byte** memoryBank)
+int MSXRomDevice::loadFile(byte** memoryBank)
 {
 	IFILETYPE* file = openFile();
 	file->seekg(0,std::ios::end);
@@ -74,7 +73,7 @@ int MSXRom::loadFile(byte** memoryBank)
 	return fileSize;
 }
 
-IFILETYPE* MSXRom::openFile()
+IFILETYPE* MSXRomDevice::openFile()
 {
 	std::string filename = deviceConfig->getParameter("filename");
 	PRT_DEBUG("Loading file " << filename << " ...");
@@ -82,7 +81,7 @@ IFILETYPE* MSXRom::openFile()
 	return FileOpener::openFileRO(filename);
 }
 
-void MSXRom::readFile(IFILETYPE* file, int fileSize, byte** memoryBank)
+void MSXRomDevice::readFile(IFILETYPE* file, int fileSize, byte** memoryBank)
 {
 	if (!(*memoryBank = new byte[fileSize]))
 		PRT_ERROR("Couldn't allocate enough memory");
@@ -103,7 +102,7 @@ void MSXRom::readFile(IFILETYPE* file, int fileSize, byte** memoryBank)
 	patchFile(*memoryBank, fileSize);
 }
 
-void MSXRom::patchFile(byte* memoryBank, int size)
+void MSXRomDevice::patchFile(byte* memoryBank, int size)
 {
 	/*
 	 * example:
