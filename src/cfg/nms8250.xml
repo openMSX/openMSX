@@ -179,20 +179,6 @@
   </device>
   -->
 
-  <!--
-  <device id="FM PAC">
-    <type>FM-PAC</type>
-    <slotted>
-      <ps>2</ps>
-      <ss>0</ss>
-      <page>1</page>
-    </slotted>
-    <parameter name="filename">FMPAC.ROM</parameter>
-    <parameter name="skip_headerbytes">0</parameter>
-    <parameter name="volume">20000</parameter>
-  </device>
-  -->
-
   <device id="cpu">
     <type>CPU</type>
   </device>

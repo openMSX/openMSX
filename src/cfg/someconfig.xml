@@ -262,7 +262,7 @@
     <parameter name="mappertype">64</parameter>
     <parameter name="volume">13000</parameter>
   </device>
- 
+--> 
   <device id="FM PAC">
     <type>FM-PAC</type>
     <slotted>
@@ -272,8 +272,11 @@
     </slotted>
     <parameter name="filename">FMPAC.ROM</parameter>
     <parameter name="volume">20000</parameter>
+    <parameter name="load">true</parameter>
+    <parameter name="save">true</parameter>
+    <parameter name="sramname">FMPAC.PAC</parameter>
   </device>
-
+<!--
   <device id="MSX Music">
     <type>Music</type>
     <slotted>
