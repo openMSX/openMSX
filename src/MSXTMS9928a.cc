@@ -111,6 +111,7 @@ static unsigned char TMS9928A_palette[16*3] =
 	255, 255, 255
 };
 
+
 /*
 ** Defines for `dirty' optimization
 */
@@ -287,9 +288,6 @@ void MSXTMS9928a::init(void)
      MSXMotherBoard::instance()->register_IO_Out((byte)0x98,this);
      MSXMotherBoard::instance()->register_IO_Out((byte)0x99,this);
 
-	//debug code
-	for (byte i=0; i<190 ;i++) 
-		plot_pixel(bitmapscreen ,i,i,XPal[4]);
     return ;//0;
 };
 
@@ -304,12 +302,14 @@ void MSXTMS9928a::start()
 void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 {
 	PRT_DEBUG("Executing TMS9928a");
-	//Next interrupt in Pal mode here
-	Scheduler::instance()->insertStamp(currentTime+71285, *this);
 
 	//TODO:: Call full screen refresh
 	//TODO:: Set interrupt if bits enable it
 	PutImage();
+	
+	//Next SP/interrupt in Pal mode here
+	currentTime = time;
+	Scheduler::instance()->insertStamp(currentTime+71285, *this);
 };
 
 /*
@@ -618,10 +618,17 @@ void MSXTMS9928a::plot_pixel(struct osd_bitmap *bitmap,int x,int y,int pen)
 /** PutImage() ***********************************************/
 /** Put an image on the screen.                             **/
 /*************************************************************/
+int MSXTMS9928a::debugColor = 0;	// debug
+
 void MSXTMS9928a::PutImage(void)
 {
 
   if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen)<0) return;//ExitNow=1;
+
+	//debug code
+	for (byte i=0; i<190 ;i++) 
+		plot_pixel(bitmapscreen ,i,i,XPal[debugColor]);
+	debugColor = (debugColor++)&0x0f;
 
   /* Copy image */
   //memcpy(screen->pixels,bitmapscreen->_private,WIDTH*HEIGHT*sizeof(pixel));

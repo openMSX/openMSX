@@ -45,6 +45,7 @@ class MSXTMS9928a : public MSXDevice
 		// void restoreState(char *devicestring,ifstream readstream);
 	
 	private:
+		static int debugColor;		// debug
 		Emutime currentTime;
 
 	SDL_Surface *screen;
