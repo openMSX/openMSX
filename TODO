@@ -15,7 +15,6 @@ updated.
    really check this)
 
 * config:
- - new settings XML and support saving of settings
  - support for saving states of devices
  - http support
  - settings.xml should get its own doctype and DTD:
@@ -33,7 +32,6 @@ updated.
    essential.
 
 * general
- - I/O port configuration
  - session management? (save state of frontswitches and inserted disk or
    cassette images at exit for a specific machine; also speed setting and
    things plugged into connector)
