@@ -5,11 +5,9 @@
 
 #include "Debuggable.hh"
 #include "InfoTopic.hh"
-#include "BooleanSetting.hh"
 #include "SettingListener.hh"
-#include "CPUCore.hh"
-#include "Z80.hh"
-#include "R800.hh"
+#include "EmuTime.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -17,6 +15,11 @@ class MSXMotherBoard;
 class MSXCPUInterface;
 class InfoCommand;
 class Debugger;
+class BooleanSetting;
+class CPU;
+class Z80TYPE;
+class R800TYPE;
+template <typename T> class CPUCore;
 
 class MSXCPU : private Debuggable, private SettingListener
 {
@@ -25,7 +28,7 @@ public:
 
 	static MSXCPU& instance();
 
-	virtual void reset(const EmuTime &time);
+	virtual void reset(const EmuTime& time);
 
 	/**
 	 * Switch between Z80 / R800
@@ -128,9 +131,9 @@ private:
 	// SettingListener
 	void update(const Setting* setting);
 
-	BooleanSetting traceSetting;
-	CPUCore<Z80TYPE> z80;
-	CPUCore<R800TYPE> r800;
+	const std::auto_ptr<BooleanSetting> traceSetting;
+	const std::auto_ptr<CPUCore<Z80TYPE> > z80;
+	const std::auto_ptr<CPUCore<R800TYPE> > r800;
 
 	CPU* activeCPU;
 

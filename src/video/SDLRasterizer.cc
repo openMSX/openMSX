@@ -6,6 +6,7 @@
 #include "Renderer.hh"
 #include "RenderSettings.hh"
 #include "Scaler.hh"
+#include "BooleanSetting.hh"
 #include "FloatSetting.hh"
 #include <SDL.h>
 #include <algorithm>

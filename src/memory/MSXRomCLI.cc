@@ -9,6 +9,7 @@
 #include "FileContext.hh"
 #include "RomInfo.hh"
 #include "CliCommOutput.hh"
+#include "MSXException.hh"
 
 using std::auto_ptr;
 using std::list;

@@ -9,12 +9,13 @@
 #ifndef __RP5C01_HH__
 #define __RP5C01_HH__
 
-#include "EnumSetting.hh"
 #include "openmsx.hh"
 #include "EmuTime.hh"
 #include <memory>
 
 namespace openmsx {
+
+template <typename T> class EnumSetting;
 
 class RP5C01
 {

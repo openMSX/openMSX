@@ -4,11 +4,11 @@
 #define __VDPSETTINGS_HH__
 
 #include <memory>
-#include "EnumSetting.hh"
 
 namespace openmsx {
 
 class BooleanSetting;
+template <typename T> class EnumSetting;
 
 /** Singleton containing all settings for the VDP.
   */

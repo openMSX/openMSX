@@ -4,9 +4,11 @@
 #define __MSXS1990_HH__
 
 #include "MSXDevice.hh"
-#include "FirmwareSwitch.hh"
+#include <memory>
 
 namespace openmsx {
+
+class FirmwareSwitch;
 
 /**
  * This class implements the MSX-engine found in a MSX Turbo-R (S1990)
@@ -27,7 +29,7 @@ public:
 private:
 	void setCPUStatus(byte value);
 
-	FirmwareSwitch firmwareSwitch;
+	const std::auto_ptr<FirmwareSwitch> firmwareSwitch;
 	byte registerSelect;
 	byte cpuStatus;
 };

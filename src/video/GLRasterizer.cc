@@ -19,8 +19,10 @@ TODO:
 #include "VDPVRAM.hh"
 #include "Renderer.hh"
 #include "RenderSettings.hh"
+#include "BooleanSetting.hh"
 #include "FloatSetting.hh"
 #include "IntegerSetting.hh"
+#include "build-info.hh"
 #include <cmath>
 
 using std::string;

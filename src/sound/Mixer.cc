@@ -1,7 +1,5 @@
 // $Id$
 
-#include <cassert>
-#include <algorithm>
 #include "Mixer.hh"
 #include "MSXCPU.hh"
 #include "RealTime.hh"
@@ -14,7 +12,11 @@
 #include "CommandLineParser.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
+#include "EnumSetting.hh"
 #include "Scheduler.hh"
+#include "build-info.hh"
+#include <algorithm>
+#include <cassert>
 
 using std::map;
 using std::remove;

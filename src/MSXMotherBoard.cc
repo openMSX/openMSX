@@ -18,6 +18,7 @@
 #include "Timer.hh"
 #include "InputEventGenerator.hh"
 #include "GlobalSettings.hh"
+#include "BooleanSetting.hh"
 
 using std::string;
 using std::vector;

@@ -10,6 +10,7 @@
 #include "CasImage.hh"
 #include "DummyCassetteImage.hh"
 #include "CliCommOutput.hh"
+#include "CommandException.hh"
 
 using std::auto_ptr;
 using std::list;

@@ -40,6 +40,8 @@
 #include "Rom.hh"
 #include "SRAM.hh"
 #include "FirmwareSwitch.hh"
+#include "XMLElement.hh"
+#include "BooleanSetting.hh"
 
 namespace openmsx {
 

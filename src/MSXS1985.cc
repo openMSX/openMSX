@@ -1,14 +1,16 @@
 // $Id$
 
 #include "MSXS1985.hh"
+#include "Ram.hh"
 
 namespace openmsx {
 
 const byte ID = 0xFE;
 
 MSXS1985::MSXS1985(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXSwitchedDevice(ID),
-	  ram(getName() + " RAM", "S1985 RAM", 0x10)
+	: MSXDevice(config, time)
+	, MSXSwitchedDevice(ID)
+	, ram(new Ram(getName() + " RAM", "S1985 RAM", 0x10))
 {
 	// TODO load ram
 }
@@ -42,7 +44,7 @@ byte MSXS1985::peekIO(byte port, const EmuTime& /*time*/) const
 		result = (byte)~ID;
 		break;
 	case 2:
-		result = ram[address];
+		result = (*ram)[address];
 		break;
 	case 7:
 		result = (pattern & 0x80) ? color2 : color1;
@@ -61,7 +63,7 @@ void MSXS1985::writeIO(byte port, byte value, const EmuTime& /*time*/)
 		address = value & 0x0F;
 		break;
 	case 2:
-		ram[address] = value;
+		(*ram)[address] = value;
 		break;
 	case 6:
 		color2 = color1;

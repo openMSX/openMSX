@@ -12,6 +12,7 @@
 #include "CliCommOutput.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
+#include "CommandException.hh"
 
 using std::cout;
 using std::string;

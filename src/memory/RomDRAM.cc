@@ -5,6 +5,7 @@
 #include "MSXCPU.hh"
 #include "CPU.hh"
 #include "Rom.hh"
+#include "XMLElement.hh"
 
 namespace openmsx {
 

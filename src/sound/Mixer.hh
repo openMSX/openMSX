@@ -10,7 +10,6 @@
 #include "EmuTime.hh"
 #include "SettingListener.hh"
 #include "InfoTopic.hh"
-#include "EnumSetting.hh"
 #include "Schedulable.hh"
 
 namespace openmsx {
@@ -24,6 +23,7 @@ class InfoCommand;
 class VolumeSetting;
 class IntegerSetting;
 class BooleanSetting;
+template <typename T> class EnumSetting;
 
 class Mixer : private Schedulable, private SettingListener
 {

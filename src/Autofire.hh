@@ -3,13 +3,15 @@
 #ifndef __AUTOFIRE_HH__
 #define __AUTOFIRE_HH__
 
-#include <string>
-#include "openmsx.hh"
-#include "IntegerSetting.hh"
 #include "SettingListener.hh"
 #include "EmuTime.hh"
+#include "openmsx.hh"
+#include <string>
+#include <memory>
 
 namespace openmsx {
+
+class IntegerSetting;
 
 /**
  * Autofire is a device that is between two other devices and outside
@@ -58,7 +60,7 @@ private:
 	unsigned max_ints;
 
 	/** The currently selected speed. */
-	IntegerSetting speedSetting;
+	std::auto_ptr<IntegerSetting> speedSetting;
 
 	/** Each tick of this clock, the signal changes.
 	  * Frequency is derived from speed, min_ints and max_ints.

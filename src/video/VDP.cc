@@ -19,8 +19,6 @@ TODO:
   falls outside of the rendered screen area.
 */
 
-#include <iomanip>
-#include <cassert>
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "VDPCmdEngine.hh"
@@ -32,6 +30,10 @@ TODO:
 #include "Debugger.hh"
 #include "RendererFactory.hh"
 #include "Renderer.hh"
+#include "MSXException.hh"
+#include <sstream>
+#include <iomanip>
+#include <cassert>
 
 using std::setw;
 using std::string;

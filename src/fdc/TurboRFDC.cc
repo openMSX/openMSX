@@ -8,6 +8,7 @@
 #include "TC8566AF.hh"
 #include "Rom.hh"
 #include "MSXCPU.hh"
+#include "CPU.hh"
 
 namespace openmsx {
 

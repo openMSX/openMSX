@@ -3,11 +3,14 @@
 #include "MSXS1990.hh"
 #include "MSXCPU.hh"
 #include "PanasonicMemory.hh"
+#include "BooleanSetting.hh"
+#include "FirmwareSwitch.hh"
 
 namespace openmsx {
 
 MSXS1990::MSXS1990(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
+	, firmwareSwitch(new FirmwareSwitch())
 {
 	reset(time);
 }
@@ -36,7 +39,7 @@ byte MSXS1990::peekIO(byte port, const EmuTime& /*time*/) const
 		PRT_DEBUG("S1990: read reg "<<(int)registerSelect);
 		switch (registerSelect) {
 		case 5:
-			return firmwareSwitch.getStatus() ? 0x40 : 0x00;
+			return firmwareSwitch->getStatus() ? 0x40 : 0x00;
 		case 6:
 			return cpuStatus;
 		case 13:

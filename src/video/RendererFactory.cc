@@ -3,6 +3,7 @@
 #include "RendererFactory.hh"
 #include "RenderSettings.hh"
 #include "CommandLineParser.hh"
+#include "EnumSetting.hh"
 
 // Video systems:
 #include "DummyVideoSystem.hh"

@@ -14,9 +14,11 @@
 
 #include "MSXDevice.hh"
 #include "MSXDeviceSwitch.hh"
-#include "Ram.hh"
+#include <memory>
 
 namespace openmsx {
+
+class Ram;
 
 class MSXS1985 : public MSXDevice, public MSXSwitchedDevice
 {
@@ -30,8 +32,8 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
+	const std::auto_ptr<Ram> ram;
 	nibble address;
-	Ram ram;
 
 	byte color1;
 	byte color2;

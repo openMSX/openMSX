@@ -16,6 +16,7 @@ TODO:
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "VDPSettings.hh"
+#include "BooleanSetting.hh"
 
 namespace openmsx {
 

@@ -5,10 +5,11 @@
 
 #include "MSXDevice.hh"
 #include "MSXDeviceSwitch.hh"
-#include "FirmwareSwitch.hh"
-#include "SRAM.hh"
 
 namespace openmsx {
+
+class FirmwareSwitch;
+class SRAM;
 
 class MSXMatsushita : public MSXDevice, public MSXSwitchedDevice
 {
@@ -22,8 +23,8 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	FirmwareSwitch firmwareSwitch;
-	SRAM sram;
+	const std::auto_ptr<FirmwareSwitch> firmwareSwitch;
+	const std::auto_ptr<SRAM> sram;
 	word address;
 
 	nibble color1, color2;

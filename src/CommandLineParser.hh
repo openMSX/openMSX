@@ -9,7 +9,6 @@
 #include <memory>
 #include "openmsx.hh"
 #include "StringOp.hh"
-#include "EnumSetting.hh"
 
 namespace openmsx {
 
@@ -21,6 +20,7 @@ class CliExtension;
 class MSXCassettePlayerCLI;
 class DiskImageCLI;
 class SettingsManager;
+template <typename T> class EnumSetting;
 
 class CLIOption
 {

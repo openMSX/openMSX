@@ -1,11 +1,10 @@
 // $Id$
 
-#ifndef _CPU_HH_
-#define _CPU_HH_
+#ifndef CPU_HH
+#define CPU_HH
 
-#include <set>
-#include "build-info.hh"
 #include "openmsx.hh"
+#include <set>
 
 namespace openmsx {
 

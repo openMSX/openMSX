@@ -21,6 +21,7 @@
 #include "ConfigException.hh"
 #include "FileException.hh"
 #include "SettingsManager.hh"
+#include "EnumSetting.hh"
 
 using std::cout;
 using std::endl;

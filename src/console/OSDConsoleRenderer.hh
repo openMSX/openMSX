@@ -3,13 +3,13 @@
 #ifndef __OSDCONSOLERENDERER_HH__
 #define __OSDCONSOLERENDERER_HH__
 
-#include <memory>
-#include <string>
-#include <SDL.h>	// TODO get rid of this
 #include "Layer.hh"
-#include "EnumSetting.hh"
 #include "FilenameSetting.hh"
 #include "SettingListener.hh"
+#include "openmsx.hh"
+#include <SDL.h>	// TODO get rid of this
+#include <memory>
+#include <string>
 
 namespace openmsx {
 
@@ -19,7 +19,7 @@ class InputEventGenerator;
 class EventDistributor;
 class BooleanSetting;
 class Console;
-
+template <typename T> class EnumSetting;
 
 class OSDConsoleRenderer : public Layer, private SettingListener,
                            private SettingChecker<FilenameSetting::Policy>

@@ -15,6 +15,7 @@
 #include "Debugger.hh"
 #include "CliCommOutput.hh"
 #include "MSXMultiIODevice.hh"
+#include "MSXException.hh"
 
 using std::auto_ptr;
 using std::ostringstream;

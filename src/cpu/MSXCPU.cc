@@ -1,12 +1,16 @@
 // $Id$
 
-#include <cassert>
-#include <sstream>
 #include "MSXCPU.hh"
 #include "CPU.hh"
 #include "InfoCommand.hh"
 #include "Debugger.hh"
 #include "CommandArgument.hh"
+#include "BooleanSetting.hh"
+#include "CPUCore.hh"
+#include "Z80.hh"
+#include "R800.hh"
+#include <sstream>
+#include <cassert>
 
 using std::ostringstream;
 using std::string;
@@ -15,26 +19,26 @@ using std::vector;
 namespace openmsx {
 
 MSXCPU::MSXCPU()
-	: traceSetting("cputrace", "CPU tracing on/off", false)
-	, z80 ("z80",  traceSetting, EmuTime::zero)
-	, r800("r800", traceSetting, EmuTime::zero)
+	: traceSetting(new BooleanSetting("cputrace", "CPU tracing on/off", false))
+	, z80 (new CPUCore<Z80TYPE> ("z80",  *traceSetting, EmuTime::zero))
+	, r800(new CPUCore<R800TYPE>("r800", *traceSetting, EmuTime::zero))
 	, timeInfo(*this)
 	, infoCmd(InfoCommand::instance())
 	, debugger(Debugger::instance())
 {
-	activeCPU = &z80;	// setActiveCPU(CPU_Z80);
+	activeCPU = z80.get();	// setActiveCPU(CPU_Z80);
 	reset(EmuTime::zero);
 
 	infoCmd.registerTopic("time", &timeInfo);
 	debugger.setCPU(this);
 	debugger.registerDebuggable("CPU regs", *this);
 
-	traceSetting.addListener(this);
+	traceSetting->addListener(this);
 }
 
 MSXCPU::~MSXCPU()
 {
-	traceSetting.removeListener(this);
+	traceSetting->removeListener(this);
 
 	debugger.unregisterDebuggable("CPU regs", *this);
 	debugger.setCPU(0);
@@ -49,20 +53,20 @@ MSXCPU& MSXCPU::instance()
 
 void MSXCPU::setMotherboard(MSXMotherBoard* motherboard)
 {
-	z80 .setMotherboard(motherboard);
-	r800.setMotherboard(motherboard);
+	z80 ->setMotherboard(motherboard);
+	r800->setMotherboard(motherboard);
 }
 
 void MSXCPU::setInterface(MSXCPUInterface* interface)
 {
-	z80 .setInterface(interface); 
-	r800.setInterface(interface); 
+	z80 ->setInterface(interface); 
+	r800->setInterface(interface); 
 }
 
 void MSXCPU::reset(const EmuTime& time)
 {
-	z80 .reset(time);
-	r800.reset(time);
+	z80 ->reset(time);
+	r800->reset(time);
 
 	reference = time;
 }
@@ -74,11 +78,11 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 	switch (cpu) {
 		case CPU_Z80:
 			PRT_DEBUG("Active CPU: Z80");
-			newCPU = &z80;
+			newCPU = z80.get();
 			break;
 		case CPU_R800:
 			PRT_DEBUG("Active CPU: R800");
-			newCPU = &r800;
+			newCPU = r800.get();
 			break;
 		default:
 			assert(false);
@@ -116,33 +120,33 @@ void MSXCPU::invalidateMemCache(word start, unsigned size)
 
 void MSXCPU::raiseIRQ()
 {
-	z80 .raiseIRQ();
-	r800.raiseIRQ();
+	z80 ->raiseIRQ();
+	r800->raiseIRQ();
 }
 void MSXCPU::lowerIRQ()
 {
-	z80 .lowerIRQ();
-	r800.lowerIRQ();
+	z80 ->lowerIRQ();
+	r800->lowerIRQ();
 }
 void MSXCPU::raiseNMI()
 {
-	z80 .raiseNMI();
-	r800.raiseNMI();
+	z80 ->raiseNMI();
+	r800->raiseNMI();
 }
 void MSXCPU::lowerNMI()
 {
-	z80 .lowerNMI();
-	r800.lowerNMI();
+	z80 ->lowerNMI();
+	r800->lowerNMI();
 }
 
 bool MSXCPU::isR800Active()
 {
-	return activeCPU == &r800;
+	return activeCPU == r800.get();
 }
 
 void MSXCPU::setZ80Freq(unsigned freq)
 {
-	z80.setFreq(freq);
+	z80->setFreq(freq);
 }
 
 void MSXCPU::wait(const EmuTime& time)
@@ -152,7 +156,7 @@ void MSXCPU::wait(const EmuTime& time)
 
 void MSXCPU::update(const Setting* setting)
 {
-	assert(setting == &traceSetting);
+	assert(setting == traceSetting.get());
 	exitCPULoop();
 }
 

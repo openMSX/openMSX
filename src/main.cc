@@ -18,6 +18,7 @@
 #include "Interpreter.hh"
 #include "Display.hh"
 #include "RendererFactory.hh"
+#include "MSXException.hh"
 
 using std::auto_ptr;
 using std::cerr;

@@ -2,14 +2,19 @@
 
 #include "MSXMatsushita.hh"
 #include "MSXCPU.hh"
+#include "FirmwareSwitch.hh"
+#include "SRAM.hh"
+#include "BooleanSetting.hh"
 
 namespace openmsx {
 
 const byte ID = 0x08;
 
 MSXMatsushita::MSXMatsushita(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXSwitchedDevice(ID),
-	  sram(getName() + " SRAM", 0x800, config)
+	: MSXDevice(config, time)
+	, MSXSwitchedDevice(ID)
+	, firmwareSwitch(new FirmwareSwitch())
+	, sram(new SRAM(getName() + " SRAM", 0x800, config))
 {
 	// TODO find out what ports 0x41 0x45 0x46 are used for
 	//      (and if they belong to this device)
@@ -49,7 +54,7 @@ byte MSXMatsushita::peekIO(byte port, const EmuTime& /*time*/) const
 		result = ~ID;
 		break;
 	case 1:
-		result = firmwareSwitch.getStatus() ? 0x7F : 0xFF;
+		result = firmwareSwitch->getStatus() ? 0x7F : 0xFF;
 		break;
 	case 3:
 		result = (((pattern & 0x80) ? color2 : color1) << 4)
@@ -57,7 +62,7 @@ byte MSXMatsushita::peekIO(byte port, const EmuTime& /*time*/) const
 		break;
 	case 9:
 		if (address < 0x800) {
-			result = sram[address];
+			result = (*sram)[address];
 		} else {
 			result = 0xFF;
 		}
@@ -98,7 +103,7 @@ void MSXMatsushita::writeIO(byte port, byte value, const EmuTime& /*time*/)
 	case 9:
 		// write sram
 		if (address < 0x800) {
-			sram[address] = value;
+			(*sram)[address] = value;
 		}
 		address = (address + 1) & 0x1FFF;
 		break;

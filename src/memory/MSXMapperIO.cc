@@ -5,6 +5,7 @@
 #include "MSXMapperIOPhilips.hh"
 #include "MSXCPU.hh"
 #include "HardwareConfig.hh"
+#include "MSXException.hh"
 
 using std::string;
 

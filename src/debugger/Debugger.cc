@@ -7,6 +7,7 @@
 #include "Debugger.hh"
 #include "MSXCPU.hh"
 #include "CommandArgument.hh"
+#include "CommandException.hh"
 
 using std::map;
 using std::ostringstream;

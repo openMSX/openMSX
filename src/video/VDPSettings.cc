@@ -2,6 +2,7 @@
 
 #include "VDPSettings.hh"
 #include "BooleanSetting.hh"
+#include "EnumSetting.hh"
 
 namespace openmsx {
 

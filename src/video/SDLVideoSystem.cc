@@ -7,6 +7,7 @@
 #include "SDLConsole.hh"
 #include "Display.hh"
 #include "RenderSettings.hh"
+#include "BooleanSetting.hh"
 #include "SDLUtil.hh"
 #include "CommandConsole.hh"
 #include "InitException.hh"

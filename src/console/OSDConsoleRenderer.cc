@@ -2,6 +2,7 @@
 
 #include "OSDConsoleRenderer.hh"
 #include "Console.hh"
+#include "EnumSetting.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "GlobalSettings.hh"
