@@ -29,11 +29,6 @@ template class SDLRenderer<Uint16, Renderer::ZOOM_512>;
 template class SDLRenderer<Uint32, Renderer::ZOOM_256>;
 template class SDLRenderer<Uint32, Renderer::ZOOM_512>;
 
-/** Dimensions of screen.
-  */
-static const int WIDTH = 640;
-static const int HEIGHT = 480;
-
 /** VDP ticks between start of line and start of left border.
   */
 static const int TICKS_LEFT_BORDER = 100 + 102;
