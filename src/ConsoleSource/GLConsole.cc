@@ -36,11 +36,11 @@ GLConsole::GLConsole()
 	font = new GLFont(fontTexture, width, height, fontTexCoord);
 
 	if (config->hasParameter("background")) {
-		int dummy;
+		int dummyWidth, dummyHeight;
 		const std::string &backgroundName =
 			config->getParameter("background");
 		backgroundTexture = loadTexture(config->getContext(),
-		                  backgroundName, dummy, dummy, backTexCoord);
+		        backgroundName, dummyWidth, dummyHeight, backTexCoord);
 	}
 }
 
