@@ -11,6 +11,7 @@
 #define __FDC_XSA_HH__
 
 #include "FDCBackEnd.hh"
+#include "FileOpener.hh"
 
 
 class FDC_XSA : public FDCBackEnd
@@ -32,6 +33,7 @@ class FDC_XSA : public FDCBackEnd
 		static const int TBLSIZE = 16;
 		static const int MAXHUFCNT = 127;
 
+		bool isXSAImage(IFILETYPE* file);
 		inline byte charin();
 		inline void charout(byte ch);
 		void chkheader();

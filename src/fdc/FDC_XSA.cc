@@ -1,16 +1,18 @@
 // $Id$
 
 #include "FDC_XSA.hh"
-#include "FileOpener.hh"
 
 
 const int FDC_XSA::cpdext[TBLSIZE] = {
 	  0,  0,  0,  0,  1,  2,  3,  4, 5,  6,  7,  8,  9, 10, 11, 12
 };
 
+
 FDC_XSA::FDC_XSA(const std::string &fileName)
 {
 	IFILETYPE* file = FileOpener::openFileRO(fileName);
+	if (!isXSAImage(file))
+		throw MSXException("Not an XSA image");
 	file->seekg(0, std::ios::end);
 	int fileSize = file->tellg();
 	byte* inbuf = new byte[fileSize];
@@ -24,6 +26,19 @@ FDC_XSA::FDC_XSA(const std::string &fileName)
 	unlz77();
 
 	delete[] inbuf;
+}
+
+bool FDC_XSA::isXSAImage(IFILETYPE *file)
+{
+	byte buffer[4];
+	file->read(buffer, 4);
+
+	for (int i = 0; i < 4; i++) {
+		if (buffer[i] != "PCK\010"[i]) {
+			return false;
+		}
+	}
+	return true;
 }
 
 FDC_XSA::~FDC_XSA()
@@ -76,10 +91,8 @@ void FDC_XSA::charout(byte ch)
 // check fileheader
 void FDC_XSA::chkheader()
 {
-	// check ID
-	for (int i = 0; i < 4; i++)
-		if (charin() != "PCK\010"[i])
-			throw MSXException("...");
+	// skip id
+	inbufpos += 4;
 
 	// read original length (low endian)
 	int origLen = 0;
