@@ -4,107 +4,60 @@
 #           contains the led images
 #  example: load_icons set1
 
-namespace eval load_icons {
+proc load_icons { set_name } {
 
-	# global fade delay in ms (0 is no fade out)
-	set fade_delay 5000
-
-	# global fade duration in ms
-	set fade_duration 5000
-
-	# LED positions
+	# Check skin directory
+	set directory [data_file "skins/$set_name"]
+	if { ![file exists $directory] } {
+		error "No such LED skin"
+	}
+	
+	# Available LEDs. LEDs are also drawn in this order (by default)
+	set leds "power caps kana pause turbo fdd"
+	
+	# Defaut LED positions
 	set xbase 0
 	set ybase 0
 	set spacing 50
-	set align_horizontal 1
+	set horizontal 1
 
-	# LED order
-	set order(power) 0
-	set order(caps)  1
-	set order(kana)  2
-	set order(pause) 3
-	set order(turbo) 4
-	set order(fdd)   5
+	# Default fade parameters
+	set fade_delay 5000
+	set fade_duration 5000
 
-	proc offset { led } {
-		expr $load_icons::order($led) * $load_icons::spacing
+	# Calculate default parameter values ...
+	for { set i 0 } { $i < [llength $leds] } { incr i } {
+		set led [lindex $leds $i]
+		set xcoord($led) [expr $xbase + $i * $spacing * $horizontal]
+		set ycoord($led) [expr $ybase + $i * $spacing * [expr !$horizontal]]
+		set active_fade_delay($led) $fade_delay
+		set active_fade_duration($led) $fade_duration
+		set non_active_fade_delay($led) $fade_delay
+		set non_active_fade_duration($led) $fade_duration
+		set active_image($led) ${led}-on.png
+		set non_active_image($led) ${led}-off.png
 	}
-	proc x_coord { led } {
-		set result $load_icons::xbase
-		if { $load_icons::align_horizontal } {
-			incr result [offset $led]
+
+	# ... but allow to override these values by the skin script
+	set script $directory/skin.tcl
+	if [file exists $script] {
+		source $script
+	}
+
+	proc set_image { setting value } {
+		if [file exists $value] {
+			set $setting $value
 		}
-		return $result
 	}
-	proc y_coord { led } {
-		set result $load_icons::ybase
-		if { !$load_icons::align_horizontal } {
-			incr result [offset $led]
-		}
-		return $result
+	foreach led $leds {
+		set ::icon.${led}.xcoord $xcoord($led)
+		set ::icon.${led}.ycoord $ycoord($led)
+		set ::icon.${led}.active.fade-delay $active_fade_delay($led)
+		set ::icon.${led}.active.fade-duration $active_fade_duration($led)
+		set ::icon.${led}.non-active.fade-delay $non_active_fade_delay($led)
+		set ::icon.${led}.non-active.fade-duration $non_active_fade_duration($led)
+		set_image ::icon.${led}.active.image $directory/$active_image($led)
+		set_image ::icon.${led}.non-active.image $directory/$non_active_image($led)
 	}
-
-	proc load_icons { set_name } {
-		set directory [data_file "skins/$set_name"]
-
-		set ::icon.power.xcoord [x_coord power]
-		set ::icon.power.ycoord [y_coord power]
-		set ::icon.power.active.fade-delay $load_icons::fade_delay
-		set ::icon.power.non-active.fade-delay $load_icons::fade_delay
-		set ::icon.power.active.fade-duration $load_icons::fade_duration
-		set ::icon.power.non-active.fade-duration $load_icons::fade_duration
-		catch { set ::icon.power.active.image $directory/power-on.png }
-		catch { set ::icon.power.non-active.image $directory/power-off.png }
-
-		set ::icon.caps.xcoord [x_coord caps]
-		set ::icon.caps.ycoord [y_coord caps]
-		set ::icon.caps.active.fade-delay $load_icons::fade_delay
-		set ::icon.caps.non-active.fade-delay $load_icons::fade_delay
-		set ::icon.caps.active.fade-duration $load_icons::fade_duration
-		set ::icon.caps.non-active.fade-duration $load_icons::fade_duration
-		catch { set ::icon.caps.active.image $directory/caps-on.png }
-		catch { set ::icon.caps.non-active.image $directory/caps-off.png }
-
-		set ::icon.kana.xcoord [x_coord kana]
-		set ::icon.kana.ycoord [y_coord kana]
-		set ::icon.kana.active.fade-delay $load_icons::fade_delay
-		set ::icon.kana.non-active.fade-delay $load_icons::fade_delay
-		set ::icon.kana.active.fade-duration $load_icons::fade_duration
-		set ::icon.kana.non-active.fade-duration $load_icons::fade_duration
-		catch { set ::icon.kana.active.image $directory/kana-on.png }
-		catch { set ::icon.kana.non-active.image $directory/kana-off.png }
-
-		set ::icon.pause.xcoord [x_coord pause]
-		set ::icon.pause.ycoord [y_coord pause]
-		set ::icon.pause.active.fade-delay $load_icons::fade_delay
-		set ::icon.pause.non-active.fade-delay $load_icons::fade_delay
-		set ::icon.pause.active.fade-duration $load_icons::fade_duration
-		set ::icon.pause.non-active.fade-duration $load_icons::fade_duration
-		catch { set ::icon.pause.active.image $directory/pause-on.png }
-		catch { set ::icon.pause.non-active.image $directory/pause-off.png }
-
-		set ::icon.turbo.xcoord [x_coord turbo]
-		set ::icon.turbo.ycoord [y_coord turbo]
-		set ::icon.turbo.active.fade-delay $load_icons::fade_delay
-		set ::icon.turbo.non-active.fade-delay $load_icons::fade_delay
-		set ::icon.turbo.active.fade-duration $load_icons::fade_duration
-		set ::icon.turbo.non-active.fade-duration $load_icons::fade_duration
-		catch { set ::icon.turbo.active.image $directory/turbo-on.png }
-		catch { set ::icon.turbo.non-active.image $directory/turbo-off.png }
-
-		set ::icon.fdd.xcoord [x_coord fdd]
-		set ::icon.fdd.ycoord [y_coord fdd]
-		set ::icon.fdd.active.fade-delay $load_icons::fade_delay
-		set ::icon.fdd.non-active.fade-delay $load_icons::fade_delay
-		set ::icon.fdd.active.fade-duration $load_icons::fade_duration
-		set ::icon.fdd.non-active.fade-duration $load_icons::fade_duration
-		catch { set ::icon.fdd.active.image $directory/fdd-on.png }
-		catch { set ::icon.fdd.non-active.image $directory/fdd-off.png }
-
-		return ""
-	}
-}
-
-proc load_icons { set_name } {
-	load_icons::load_icons $set_name
+	return ""
 }
