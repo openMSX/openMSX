@@ -1,7 +1,5 @@
 // $Id$
 
-
-
 #include "File.hh"
 #include "FDC_DirAsDSK.hh"
 #include "FileContext.hh"
@@ -15,10 +13,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
-#ifdef	NO_BZERO
-#define	bzero(x,y)	memset(x,0,y)
-#endif
 
 using std::transform;
 
@@ -441,7 +435,7 @@ void FDC_DirAsDSK::checkAlterFileInDisk(const int dirindex)
 	int fsize;
 	// compute time/date stamps
 	struct stat fst;
-	bzero(&fst,sizeof(struct stat));
+	memcpy(&fst, 0, sizeof(struct stat));
 	stat(mapdir[dirindex].filename.c_str(), &fst);
 	fsize = fst.st_size;
 
@@ -456,7 +450,7 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 	// compute time/date stamps
 	int fsize;
 	struct stat fst;
-	bzero(&fst,sizeof(struct stat));
+	memset(&fst, 0, sizeof(struct stat));
 	stat(mapdir[dirindex].filename.c_str(), &fst);
 	struct tm mtim = *localtime(&(fst.st_mtime));
 	int t = (mtim.tm_sec >> 1) + (mtim.tm_min << 5) +
