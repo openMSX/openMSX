@@ -2,7 +2,9 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+
   <primary slot="any">
+
     <secondary slot="any">
       <ROM id="Empty Konami SCC Cartridge">
         <mem base="0x4000" size="0x8000"/>
@@ -14,5 +16,7 @@
         <rom/>
       </ROM>
     </secondary>
+
   </primary>
+
 </msxconfig>

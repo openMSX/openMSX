@@ -1,8 +1,10 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+
   <primary slot="any">
+
     <secondary slot="any">
       <ROM id="MSXDOS2 cart">
         <mem base="0x4000" size="0x08000"/>
@@ -14,5 +16,7 @@
         <mappertype>MSXDOS2</mappertype>
       </ROM>
     </secondary>
+
   </primary>
+
 </msxconfig>

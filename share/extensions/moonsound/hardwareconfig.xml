@@ -2,6 +2,7 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+
   <MoonSound id="Sunrise MoonSound">
     <io base="0x7e" num="2"/>
     <io base="0xc4" num="4"/>
@@ -14,4 +15,5 @@
     </sound>
     <sampleram>640</sampleram>
   </MoonSound>
+
 </msxconfig>

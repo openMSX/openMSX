@@ -1,7 +1,8 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+
   <MSX-AUDIO id="Panasonic FS-CA1 MSX-Audio">
     <sound>
       <volume>12000</volume>
@@ -12,6 +13,7 @@
   </MSX-AUDIO>
 
   <primary slot="any">
+
     <secondary slot="any">
       <ROM id="Panasonic FS-CA1 MSX-Audio ROM">
         <mem base="0x0000" size="0x10000"/>
@@ -22,5 +24,7 @@
         <mappertype>MSX-AUDIO</mappertype>
       </ROM>
     </secondary>
+
   </primary>
+
 </msxconfig>

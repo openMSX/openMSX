@@ -1,12 +1,14 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+
   <primary slot="any">
+
     <secondary slot="any">
       <WD2793 id="Sony HBK-30 diskROM/FDC">
         <mem base="0x4000" size="0x8000"/>
-        <brokenFDCread>false</brokenFDCread> 
+        <brokenFDCread>false</brokenFDCread>
         <rom>
           <sha1>ba83a80a0041e3a8fb5c075a9b4a29ee92255d62</sha1>
           <filename>roms/hbk-30.rom</filename>
@@ -14,5 +16,7 @@
         <drives>1</drives>
       </WD2793>
     </secondary>
+
   </primary>
+
 </msxconfig>

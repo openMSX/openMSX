@@ -1,7 +1,8 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+
   <MSX-AUDIO id="Toshiba HX-MU900 MSX-Audio">
     <io base="0xC0" num="2"/>
     <sound>
@@ -10,8 +11,9 @@
     </sound>
     <!-- <sampleram>32</sampleram> -->
   </MSX-AUDIO>
-  
+
   <primary slot="any">
+
     <secondary slot="any">
       <ROM id="Toshiba HX-MU900 firmware">
         <mem base="0x4000" size="0x8000"/>
@@ -21,5 +23,7 @@
         </rom>
       </ROM>
     </secondary>
+
   </primary>
+
 </msxconfig>

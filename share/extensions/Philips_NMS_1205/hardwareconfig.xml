@@ -1,7 +1,8 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+
   <MSX-AUDIO id="Philips NMS 1205 Music Module MSX-Audio">
     <io base="0xC0" num="2"/>
     <sound>
@@ -17,6 +18,7 @@
   </MusicModuleMIDI>
 
   <primary slot="any">
+
     <secondary slot="any">
       <ROM id="Philips NMS 1205 Music Module ROM Music Box">
         <mem base="0x4000" size="0x8000"/>
@@ -26,5 +28,7 @@
         </rom>
       </ROM>
     </secondary>
+
   </primary>
+
 </msxconfig>

@@ -1,12 +1,14 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+
   <primary slot="any">
+
     <secondary slot="any">
       <WD2793 id="Sony HBD-F1 diskROM/FDC">
         <mem base="0x4000" size="0x4000"/>
-        <brokenFDCread>false</brokenFDCread> 
+        <brokenFDCread>false</brokenFDCread>
         <rom>
           <sha1>e067ce2b444ec7a3dd45d9e2df4b34c1ba732872</sha1>
           <filename>roms/hbd-f1.rom</filename>
@@ -14,5 +16,7 @@
         <drives>1</drives>
       </WD2793>
     </secondary>
+
   </primary>
+
 </msxconfig>
