@@ -40,7 +40,7 @@ Mixer::Mixer()
 #endif
 
 	desired.callback = audioCallbackHelper;	// must be a static method
-	desired.userdata = NULL;		// not used
+	desired.userdata = this;
 	if (SDL_OpenAudio(&desired, &audioSpec) < 0) {
 		PRT_INFO("Couldn't open audio : " << SDL_GetError());
 		init = false;
@@ -102,9 +102,9 @@ void Mixer::unregisterSound(SoundDevice *device)
 
 void Mixer::audioCallbackHelper (void *userdata, Uint8 *strm, int len)
 {
-	// userdata and len are ignored
+	// len ignored
 	short *stream = (short*)strm;
-	instance()->audioCallback(stream);
+	((Mixer*)userdata)->audioCallback(stream);
 }
 
 void Mixer::audioCallback(short* stream)
