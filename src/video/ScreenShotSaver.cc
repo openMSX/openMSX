@@ -92,40 +92,36 @@ error:
 
 void ScreenShotSaver::save(SDL_Surface* surface, const string& filename)
 {
-	// TODO: save screenshots in specific directory, like HOMEDIR/screenshots
+	SDL_PixelFormat frmt24;
+	frmt24.palette = 0;
+	frmt24.BitsPerPixel = 24;
+	frmt24.BytesPerPixel = 3;
+	frmt24.Rmask = 0x0000FF;
+	frmt24.Gmask = 0x00FF00;
+	frmt24.Bmask = 0xFF0000;
+	frmt24.Amask = 0;
+	frmt24.Rshift = 0;
+	frmt24.Gshift = 8;
+	frmt24.Bshift = 16;
+	frmt24.Ashift = 0;
+	frmt24.Rloss = 0;
+	frmt24.Gloss = 0;
+	frmt24.Bloss = 0;
+	frmt24.Aloss = 8;
+	frmt24.colorkey = 0;
+	frmt24.alpha = 0;
+	SDL_Surface* surf24 = SDL_ConvertSurface(surface, &frmt24, 0);
+	
 	// Create the array of pointers to image data
 	png_bytep* row_pointers = (png_bytep*)malloc(sizeof(png_bytep)*surface->h);
-
-	// TODO: rewrite to use SDL_convertSurface
 	for (int i = 0; i < surface->h; ++i) {
-		SDL_PixelFormat* fmt = surface->format;
-		row_pointers[i] = (Uint8*)malloc(3 * surface->w);
-		for (int j = 0; j < surface->w; ++j) {
-			Uint32 pixel = *((Uint32*)((Uint8*)surface->pixels +
-			                           i * (surface->pitch) +
-			                           j * (fmt->BytesPerPixel)));
-			Uint32 temp;
-			temp = pixel & fmt->Rmask; // Isolate red component
-			temp = temp >> fmt->Rshift;// Shift it down to 8-bit
-			temp = temp << fmt->Rloss; // Expand to a full 8-bit number
-			row_pointers[i][j * 3 + 0] = (Uint8)temp;
-			temp = pixel & fmt->Gmask; // Isolate green component
-			temp = temp >> fmt->Gshift;// Shift it down to 8-bit
-			temp = temp << fmt->Gloss; // Expand to a full 8-bit number
-			row_pointers[i][j * 3 + 1] = (Uint8)temp;
-			temp = pixel & fmt->Bmask; // Isolate blue component
-			temp = temp >> fmt->Bshift;// Shift it down to 8-bit
-			temp = temp << fmt->Bloss; // Expand to a full 8-bit number
-			row_pointers[i][j * 3 + 2] = (Uint8)temp;
-		}
+		row_pointers[i] = ((byte*)surf24->pixels) + (i * surf24->pitch);
 	}
 
 	bool result = IMG_SavePNG_RW(surface->w, surface->h, row_pointers, filename);
 
-	for (int i = 0; i < surface->h; ++i) {
-		free(row_pointers[i]);
-	}
 	free(row_pointers);
+	SDL_FreeSurface(surf24);
 	
 	if (!result) {
 		throw CommandException("Failed to write " + filename);

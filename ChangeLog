@@ -1,6 +1,13 @@
 $Id$
 
 2004-10-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed Screenshot code in 16bpp:
+	   conversion routine to 24bpp read 2 bytes outside the array.
+	   Although it didn't actually use these bytes, it could trigger a
+	   segfault. Fixed by using the SDL convserion routines (probably
+	   faster as well).
+
+2004-10-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed(?) crash on exit in FreeBSD:
 	   - was order of destruction of global objects problem
 
