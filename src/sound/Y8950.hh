@@ -11,11 +11,11 @@
 #include "Y8950Adpcm.hh"
 #include "Y8950KeyboardConnector.hh"
 #include "DACSound16S.hh"
-
+#include "Debuggable.hh"
 
 namespace openmsx {
 
-class Y8950: public SoundDevice, public TimerCallback
+class Y8950: private SoundDevice, private TimerCallback, private Debuggable
 {
 	class Patch {
 	public:
@@ -176,6 +176,7 @@ public:
 	byte readReg(byte reg, const EmuTime &time);
 	byte readStatus();
 
+private:
 	// SoundDevice
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
@@ -183,7 +184,12 @@ public:
 	virtual void setSampleRate(int sampleRate);
 	virtual int* updateBuffer(int length) throw();
 
-private:
+	// Debuggable
+	virtual unsigned getSize() const;
+	//virtual const string& getDescription() const;  // also in SoundDevice!!
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value);
+	
 	// Definition of envelope mode
 	enum { ATTACK,DECAY,SUSHOLD,SUSTINE,RELEASE,FINISH };
 	// Dynamic range
@@ -234,7 +240,7 @@ private:
 	int adr;
 	int output[2];
 	// Register
-	byte reg[0xff];
+	byte reg[0x100];
 	bool rythm_mode;
 	// Pitch Modulator
 	int pm_mode;

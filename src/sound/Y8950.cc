@@ -6,9 +6,10 @@
   * heavily rewritten to fit openMSX structure
   */
 
-#include "Y8950.hh"
 #include <cmath>
-
+#include "Y8950.hh"
+#include "Debugger.hh"
+#include "Scheduler.hh"
 
 namespace openmsx {
 
@@ -443,10 +444,12 @@ Y8950::Y8950(const string& name_, short volume, int sampleRam,
 
 	int bufSize = Mixer::instance().registerSound(this, volume, mode);
 	buffer = new int[bufSize];
+	Debugger::instance().registerDebuggable(name, *this);
 }
 
 Y8950::~Y8950()
 {
+	Debugger::instance().unregisterDebuggable(name, *this);
 	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }
@@ -496,7 +499,7 @@ void Y8950::reset(const EmuTime &time)
 
 	// update the output buffer before changing the register
 	Mixer::instance().updateStream(time);
-	for (int i=0; i<0xFF; i++) 
+	for (int i = 0; i < 0x100; ++i) 
 		reg[i] = 0x00;
 
 	reg[0x04] = 0x18;
@@ -858,7 +861,7 @@ void Y8950::setInternalVolume(short newVolume)
 //                                                  //
 //**************************************************//
 
-void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
+void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 {
 	//PRT_DEBUG("Y8950 write " << (int)rg << " " << (int)data);
 	int stbl[32] = {
@@ -876,7 +879,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 	//}
 	Mixer::instance().lock();
 
-	switch (rg&0xe0) {
+	switch (rg & 0xe0) {
 	case 0x00: {
 		switch (rg) {
 		case 0x01: // TEST
@@ -932,6 +935,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 
 		case 0x06: // (KEYBOARD OUT) 
 			connector.write(data, time);
+			reg[rg] = data;
 			break;
 		
 		case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET
@@ -1169,6 +1173,24 @@ void Y8950::changeStatusMask(byte newMask)
 		status &= 0x7f;
 		irq.reset();
 	}
+}
+
+
+// Debuggable
+
+unsigned Y8950::getSize() const
+{
+	return 0x100;
+}
+
+byte Y8950::read(unsigned address)
+{
+	return reg[address];
+}
+
+void Y8950::write(unsigned address, byte value)
+{
+	writeReg(address, value, Scheduler::instance().getCurrentTime());
 }
 
 } // namespace openmsx
