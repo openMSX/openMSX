@@ -324,13 +324,13 @@ ifneq ($(filter createsubs,$(MAKECMDGOALS)),)
 # Usage: $(call JOIN,TEXT)
 JOIN=$(if $(1),$(firstword $(1))$(call JOIN,$(wordlist 2,999999,$(1))),)
 
-RELPATH=$(call JOIN,$(patsubst %,../,$(subst /, ,$(@:%/Makefile=%))))
+RELPATH=$(call JOIN,$(patsubst %,../,$(subst /, ,$(@:%/GNUmakefile=%))))
 
-SUB_MAKEFILES:=$(addsuffix Makefile,$(sort $(dir $(SOURCES_FULL))))
+SUB_MAKEFILES:=$(addsuffix GNUmakefile,$(sort $(dir $(SOURCES_FULL))))
 createsubs: $(SUB_MAKEFILES)
 $(SUB_MAKEFILES):
 	@echo "Creating $@..."
-	@echo "export OPENMSX_SUBSET=$(@:$(SOURCES_PATH)/%Makefile=%)" > $@
+	@echo "export OPENMSX_SUBSET=$(@:$(SOURCES_PATH)/%GNUmakefile=%)" > $@
 	@echo "all:" >> $@
 	@echo "	@\$$(MAKE) -C $(RELPATH) -f build/main.mk" >> $@
 # Force re-creation every time this target is run.
