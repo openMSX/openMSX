@@ -3,17 +3,11 @@
 #ifndef __SPRITECHECKER_HH__
 #define __SPRITECHECKER_HH__
 
-/*
-TODO:
-- Should there be a reset() method?
-  Or is it good enough to just call frameStart()?
-  Currently not: the constructor resets things frameStart() doesn't.
-*/
-
 #include "EmuTime.hh"
 #include "VDP.hh"
 
 class VDPVRAM;
+class BooleanSetting;
 
 class SpriteChecker
 {
@@ -45,13 +39,11 @@ public:
 
 	/** Create a sprite checker.
 	  * @param vdp The VDP this sprite checker is part of.
-	  * @param limitSprites If true, limit number of sprites per line
-	  *   as real VDP does. If false, display all sprites.
 	  * @param time Moment in emulated time sprite checking is started.
 	  */
-	SpriteChecker(VDP *vdp, bool limitSprites, const EmuTime &time);
+	SpriteChecker(VDP *vdp, const EmuTime &time);
 
-	/** Reset
+	/** Puts the sprite checker in its initial state.
 	  * @param time The moment in time this reset occurs.
 	  */
 	void reset(const EmuTime &time);
@@ -173,6 +165,13 @@ private:
 			frameStartTime.getTicksTill(time) / VDP::TICKS_PER_LINE + 1 );
 	}
 
+	inline void initFrame(const EmuTime &time) {
+		frameStartTime = time;
+		currentLine = 0;
+		for (int i = 0; i < 313; i++) spriteCount[i] = -1;
+		// TODO: Reset anything else? Does the real VDP?
+	}
+
 public:
 	/** Informs the sprite checker of a change in VRAM contents.
 	  * @param addr The address that will change.
@@ -204,11 +203,7 @@ public:
 		// Finish old frame.
 		sync(time);
 		// Init new frame.
-		frameStartTime = time;
-		currentLine = 0;
-		// TODO: Reset anything else? Does the real VDP?
-
-		for (int i = 0; i < 313; i++) spriteCount[i] = -1;
+		initFrame(time);
 	}
 
 	/** Get sprites for a display line.
@@ -343,7 +338,7 @@ private:
 	  * sprites drawn, but the status register acts like the usual limit
 	  * is still effective.
 	  */
-	bool limitSprites;
+	BooleanSetting *limitSpritesSetting;
 
 	/** The emulation time when this frame was started (vsync).
 	  */

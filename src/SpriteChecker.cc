@@ -14,12 +14,13 @@ TODO:
 #include "SpriteChecker.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
+#include "VDPSettings.hh"
 #include <cassert>
 
-SpriteChecker::SpriteChecker(VDP *vdp, bool limitSprites, const EmuTime &time)
+SpriteChecker::SpriteChecker(VDP *vdp, const EmuTime &time)
 {
 	this->vdp = vdp;
-	this->limitSprites = limitSprites;
+	limitSpritesSetting = VDPSettings::instance()->getLimitSprites();
 	vram = vdp->getVRAM();
 
 	reset(time);
@@ -30,10 +31,9 @@ void SpriteChecker::reset(const EmuTime &time)
 	status = 0;
 	collisionX = 0;
 	collisionY = 0;
-	currentLine = 0;
 	currentTime = time;
-	frameStartTime = time;
-	memset(spriteCount, 0, sizeof(spriteCount));
+	
+	initFrame(time);
 
 	updateSpritesMethod = &SpriteChecker::updateSprites1;
 }
@@ -91,6 +91,7 @@ inline int SpriteChecker::checkSprites1(
 	line = line - vdp->getLineZero() + vdp->getVerticalScroll() - 1;
 
 	// Get sprites for this line and detect 5th sprite if any.
+	bool limitSprites = limitSpritesSetting->getValue();
 	int sprite, visibleIndex = 0;
 	int size = vdp->getSpriteSize();
 	int magSize = size * (vdp->getSpriteMag() + 1);
@@ -185,6 +186,7 @@ inline int SpriteChecker::checkSprites2(
 	line = line - vdp->getLineZero() + vdp->getVerticalScroll() - 1;
 
 	// Get sprites for this line and detect 5th sprite if any.
+	bool limitSprites = limitSpritesSetting->getValue();
 	int sprite, visibleIndex = 0;
 	int size = vdp->getSpriteSize();
 	int magSize = size * (vdp->getSpriteMag() + 1);

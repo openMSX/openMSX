@@ -2,6 +2,7 @@ $Id$
 
 2002-12-27 Maarten ter Huurne <maarten@treewalker.org>
 	* Created VDPSettings class, moved cmdTiming there.
+	* Moved limitSprites from config to VDPSettings.
 
 2002-12-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Support for second MSX-AUDIO:

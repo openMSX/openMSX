@@ -87,8 +87,7 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	resetInit(time);
 
 	// Create sprite checker.
-	bool limitSprites = deviceConfig->getParameterAsBool("limit_sprites");
-	spriteChecker = new SpriteChecker(this, limitSprites, time);
+	spriteChecker = new SpriteChecker(this, time);
 	vram->setSpriteChecker(spriteChecker);
 
 	// Create command engine.
