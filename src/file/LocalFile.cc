@@ -24,24 +24,24 @@ LocalFile::LocalFile(const string& filename_, OpenMode mode)
 			FileOperations::mkdirp(filename.substr(0, pos));
 		}
 	}
-	
-	const char* name = FileOperations::getNativePath(filename).c_str(); 
+
+	const string name = FileOperations::getNativePath(filename);
 	if ((mode == SAVE_PERSISTENT) || (mode == TRUNCATE)) {
 		// open file read/write truncated
-		file = fopen(name, "wb+");
+		file = fopen(name.c_str(), "wb+");
 	} else if (mode == CREATE) {
 		// open file read/write
-		file = fopen(name, "rb+");
+		file = fopen(name.c_str(), "rb+");
 		if (!file) {
 			// create if it didn't exist yet
-			file = fopen(name, "wb+");
+			file = fopen(name.c_str(), "wb+");
 		}
 	} else {
 		// open file read/write
-		file = fopen(name, "rb+");
+		file = fopen(name.c_str(), "rb+");
 		if (!file) {
 			// if that fails try read only
-			file = fopen(name, "rb");
+			file = fopen(name.c_str(), "rb");
 			readOnly = true;
 		}
 	}
@@ -65,7 +65,7 @@ void LocalFile::read(byte* buffer, unsigned num) throw(FileException)
 	if ((pos + num) > size) {
 		throw FileException("Read beyond end of file");
 	}
-	
+
 	fread(buffer, 1, num, file);
 	if (ferror(file)) {
 		throw FileException("Error reading file");
