@@ -4,6 +4,8 @@ $Id$
 	* Z80 cleanups / fixes:
 	   especially fixes for the 2 undocumented flags (bit 3 and bit 5)
 	* New config file format for inserted disks / tapes
+	* Applied Manuel's patch [592591]:
+	   romdb.xml is searched with FileOpener
 
 2002-08-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Full support for .XSA disk images

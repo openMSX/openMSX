@@ -4,6 +4,7 @@
 #include "RomTypes.hh"
 #include "md5.hh"
 #include "libxmlx/xmlx.hh"
+#include "FileOpener.hh"
 
 
 struct caseltstr {
@@ -147,7 +148,8 @@ MapperType RomTypes::searchDataBase(byte* data, int size)
 
 	if (!init) {
 		init = true;
-		XML::Document doc("romdb.xml");
+		std::string dbLocation = FileOpener::findFileName("romdb.xml");
+		XML::Document doc(dbLocation);
 		std::list<XML::Element*>::iterator it1 = doc.root->children.begin();
 		for ( ; it1 != doc.root->children.end(); it1++) {
 			const std::string romType((*it1)->getElementPcdata("romtype"));
