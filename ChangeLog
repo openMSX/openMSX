@@ -1,5 +1,8 @@
 $Id$
 
+2002-07-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Enabled console in SDLLoRenderer
+
 2002-07-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Reenabled SDLLoRenderer:
 	   - just a copy-paste from SDLHi and adjusted a few routines

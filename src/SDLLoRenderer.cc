@@ -215,7 +215,7 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256)
 {
-	//console = new SDLConsole(screen);
+	console = new SDLConsole(screen);
 
 	this->vdp = vdp;
 	this->screen = screen;
@@ -318,7 +318,7 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 
 template <class Pixel> SDLLoRenderer<Pixel>::~SDLLoRenderer()
 {
-	//delete console;
+	delete console;
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
 }
@@ -813,7 +813,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::putImage(
 	sync(time);
 
 	// Render console if needed
-	//console->drawConsole();
+	console->drawConsole();
 
 	// Update screen.
 	SDL_UpdateRect(screen, 0, 0, 0, 0);

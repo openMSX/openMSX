@@ -35,10 +35,10 @@ SDLConsole::SDLConsole(SDL_Surface *screen) :
 	font = new SDLFont(FileOpener::findFileName(fontName));
 	
 	SDL_Rect rect;
-	rect.x = 20;
-	rect.y = 288;
-	rect.w = 600;
-	rect.h = 192;
+	rect.x = (screen->w / 32);
+	rect.w = (screen->w / 32) * 30;
+	rect.y = (screen->h / 15) * 9;
+	rect.h = (screen->h / 15) * 6;
 	resize(rect);
 	alpha(180);
 	SDL_EnableUNICODE(1);
