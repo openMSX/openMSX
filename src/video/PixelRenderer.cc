@@ -176,8 +176,8 @@ inline void PixelRenderer::renderUntil(const EmuTime &time)
 	nextY = limitY;
 }
 
-PixelRenderer::PixelRenderer(VDP *vdp)
-	: Renderer(), frameSkipSetting(this)
+PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
+	: Renderer(id), frameSkipSetting(this)
 {
 	this->vdp = vdp;
 	vram = vdp->getVRAM();

@@ -27,6 +27,7 @@ TODO:
 #include "Scheduler.hh"
 #include "MSXConfig.hh"
 #include "RenderSettings.hh"
+#include "RendererFactory.hh"
 #include <string>
 #include <iomanip>
 #include <cassert>
@@ -99,9 +100,7 @@ VDP::VDP(Device *config, const EmuTime &time)
 	}
 	
 	// Create renderer.
-	rendererSetting = RenderSettings::instance()->getRenderer();
-	currentRenderer = rendererSetting->getValue();
-	renderer = RendererFactory::createRenderer(currentRenderer, this);
+	renderer = RendererFactory::createRenderer(this);
 	vram->setRenderer(renderer);
 
 	// Register console commands.
@@ -400,14 +399,13 @@ void VDP::frameStart(const EmuTime &time)
 	renderer->frameStart(time);
 	spriteChecker->frameStart(time);
 
-	if (currentRenderer != rendererSetting->getValue()) {
+	// Tell renderer to sync with render settings.
+	if (!renderer->checkSettings()) {
+		// Renderer failed to sync; replace it.
 		delete renderer;
-		currentRenderer = rendererSetting->getValue();
-		renderer = RendererFactory::createRenderer(currentRenderer, this);
+		renderer = RendererFactory::switchRenderer(this);
 		renderer->reset(time);
 		vram->setRenderer(renderer);
-	} else {
-		renderer->checkFullScreen();
 	}
 
 	// Toggle E/O.

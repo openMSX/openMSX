@@ -6,6 +6,7 @@
 #include "MSXConfig.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
+#include <SDL/SDL.h>
 
 const int SYNC_INTERVAL = 50;
 

@@ -9,6 +9,7 @@
 #include "Thread.hh"
 #include "Mutex.hh"
 #include "Schedulable.hh"
+#include "Command.hh"
 
 // forward declaration
 class EventListener;
@@ -19,7 +20,13 @@ class EventDistributor : public Runnable , public Schedulable
 	public:
 		virtual ~EventDistributor();
 		static EventDistributor *instance();
-
+		
+		/** This is the main loop. It waits for events.
+		  * It does not return until openMSX is quit.
+		  * This method runs in the main thread.
+		  */
+		virtual void run();
+		
 		/**
 		 * Use this method to (un)register a given class to receive
 		 * certain SDLEvents. 
@@ -41,13 +48,28 @@ class EventDistributor : public Runnable , public Schedulable
 		EventDistributor();
 		virtual void executeUntilEmuTime(const EmuTime &time, int userdata);
 		virtual const std::string &schedName() const;
-		virtual void run();
+		
+		/** Passes an event to the emulation thread.
+		  */
+		void handleInEmu(SDL_Event &event);
 
 		std::multimap <int, EventListener*> lowMap;
 		std::multimap <int, EventListener*> highMap;
 		std::queue <std::pair<SDL_Event, EventListener*> > lowQueue;
 		std::queue <std::pair<SDL_Event, EventListener*> > highQueue;
 		Mutex mutex;
+
+		/** Quit openMSX.
+		  * Starts the shutdown procedure.
+		  */
+		void quit();
+		
+		class QuitCommand : public Command {
+		public:
+			virtual void execute(
+				const std::vector<std::string> &tokens, const EmuTime &time );
+			virtual void help(const std::vector<std::string> &tokens) const;
+		} quitCommand;
 };
 
 #endif

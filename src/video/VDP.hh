@@ -10,7 +10,6 @@
 #include "EmuTime.hh"
 #include "Command.hh"
 #include "DisplayMode.hh"
-#include "RendererFactory.hh"
 
 #include <string>
 
@@ -736,15 +735,6 @@ private:
 	/** Implements the palette print command.
 	  */
 	PaletteCmd paletteCmd;
-
-	/** Setting which contains the user preference for the renderer.
-	  */
-	RendererFactory::RendererSetting *rendererSetting;
-
-	/** ID of the currently active renderer.
-	  * Used to check wheter a renderer switch is necessary.
-	  */
-	RendererFactory::RendererID currentRenderer;
 
 };
 

@@ -66,7 +66,7 @@ public:
 protected:
 	/** Constructor.
 	  */
-	PixelRenderer(VDP *vdp);
+	PixelRenderer(RendererFactory::RendererID id, VDP *vdp);
 
 	/** Destructor.
 	  */

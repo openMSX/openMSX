@@ -2,6 +2,7 @@
 
 #include <SDL/SDL_thread.h>
 #include <cstddef>
+#include <cassert>
 #include "Thread.hh"
 
 
@@ -18,8 +19,8 @@ Thread::~Thread()
 
 void Thread::start()
 {
-	if (thread == NULL)
-		thread = SDL_CreateThread(startThread, runnable);
+	assert(thread == NULL);
+	thread = SDL_CreateThread(startThread, runnable);
 }
 
 void Thread::stop()
@@ -28,6 +29,17 @@ void Thread::stop()
 		SDL_KillThread(thread);
 		thread = NULL;
 	}
+}
+
+// TODO: A version with timeout would be useful.
+//       After the timeout expires, the method would return false.
+//       Alternatively, stop() is called if the thread does not end
+//       within the given timeout.
+void Thread::join()
+{
+	assert(thread != NULL);
+	SDL_WaitThread(thread, NULL);
+	thread = NULL;
 }
 
 int Thread::startThread(void *runnable)

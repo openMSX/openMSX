@@ -2,7 +2,6 @@
 
 #include "Scheduler.hh"
 #include "MSXCPU.hh"
-#include "CommandController.hh"
 #include "Mixer.hh"
 #include <cassert>
 #include <algorithm>
@@ -16,17 +15,12 @@ Scheduler::Scheduler()
 {
 	paused = false;
 	needBlock = false;
-	exitScheduler = false;
+	emulationRunning = true;
 	cpu = MSXCPU::instance();
-	
-	EventDistributor::instance()->registerEventListener(SDL_QUIT, this);
-	CommandController::instance()->registerCommand(&quitCmd, "quit");
 }
 
 Scheduler::~Scheduler()
 {
-	CommandController::instance()->unregisterCommand(&quitCmd, "quit");
-	EventDistributor::instance()->unregisterEventListener(SDL_QUIT, this);
 }
 
 Scheduler* Scheduler::instance()
@@ -36,7 +30,6 @@ Scheduler* Scheduler::instance()
 		oneInstance = new Scheduler();
 	return oneInstance;
 }
-
 
 void Scheduler::setSyncPoint(const EmuTime &timeStamp, Schedulable* device, int userData)
 {
@@ -83,15 +76,14 @@ bool Scheduler::removeSyncPoint(Schedulable* device, int userData)
 
 void Scheduler::stopScheduling()
 {
-	exitScheduler = true;
+	emulationRunning = false;
 	setSyncPoint(ASAP, NULL);
 	unpause();
 }
 
-
 const EmuTime Scheduler::scheduleEmulation()
 {
-	while (!exitScheduler) {
+	while (emulationRunning) {
 		schedMutex.grab();
 		assert (!syncPoints.empty());	// class RealTime always has one
 		const SynchronizationPoint sp = syncPoints.front();
@@ -133,6 +125,7 @@ void Scheduler::unpause()
 		pauseCond.signal();
 	}
 }
+
 void Scheduler::pause()
 {
 	if (!paused) {
@@ -140,25 +133,9 @@ void Scheduler::pause()
 		Mixer::instance()->mute();
 	}
 }
+
 bool Scheduler::isPaused()
 {
 	return paused;
 }
 
-
-bool Scheduler::signalEvent(SDL_Event &event, const EmuTime &time)
-{
-	stopScheduling();
-	return true;
-}
-
-
-void Scheduler::QuitCmd::execute(const std::vector<std::string> &tokens,
-                                 const EmuTime &time)
-{
-	Scheduler::instance()->stopScheduling();
-}
-void Scheduler::QuitCmd::help(const std::vector<std::string> &tokens) const
-{
-	print("Use this command to stop the emulator");
-}

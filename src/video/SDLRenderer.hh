@@ -24,6 +24,7 @@ public:
 	// Renderer interface:
 
 	void reset(const EmuTime &time);
+	bool checkSettings();
 	void frameStart(const EmuTime &time);
 	//void putImage(const EmuTime &time);
 	void updateTransparency(bool enabled, const EmuTime &time);
@@ -43,7 +44,6 @@ public:
 	//void updateVRAM(int addr, byte data, const EmuTime &time);
 
 protected:
-	void setFullScreen(bool enabled);
 	void finishFrame();
 	void updateVRAMCache(int addr, byte data) {
 		(this->*dirtyChecker)(addr, data);
@@ -88,7 +88,7 @@ private:
 
 	/** Constructor, called by SDL(Hi/Lo)RendererFactory.
 	  */
-	SDLRenderer(VDP *vdp, SDL_Surface *screen);
+	SDLRenderer(RendererFactory::RendererID id, VDP *vdp, SDL_Surface *screen);
 
 	/** Destructor.
 	  */

@@ -5,6 +5,7 @@
 
 #include "openmsx.hh"
 #include "Command.hh"
+#include "RendererFactory.hh"
 
 class EmuTime;
 class RenderSettings;
@@ -42,7 +43,7 @@ public:
 
 	/** Creates a new Renderer.
 	  */
-	Renderer();
+	Renderer(RendererFactory::RendererID id);
 
 	/** Destroy this Renderer.
 	  */
@@ -52,6 +53,18 @@ public:
 	  * @param time The moment in time this reset occurs.
 	  */
 	virtual void reset(const EmuTime &time) = 0;
+
+	/** Requests that this renderer checks its settings against the
+	  * current RenderSettings. If possible, update the settings of this
+	  * renderer.
+	  * The implementation in the Renderer base class checks whether the
+	  * right renderer is selected. Subclasses are encouraged to check
+	  * more settings.
+	  * @return True if the settings were still in sync
+	  * 	or were succesfully synced;
+	  * 	false if the renderer is unable to bring the settings in sync.
+	  */
+	virtual bool checkSettings();
 
 	/** Signals the start of a new frame.
 	  * The Renderer can use this to get fixed-per-frame settings from
@@ -195,15 +208,6 @@ public:
 	  */
 	virtual void updateVRAM(int addr, byte data, const EmuTime &time) = 0;
 
-	/** Check whether the full screen RendererSetting changed and adjust
-	  * the display mode if necessary.
-	  * TODO: Make this into a generic renderer change check.
-	  * TODO: On Windows, changing the full screen setting requires
-	  *       creation of a new Renderer instance.
-	  * TODO: Full screen should not be part of the Renderer interface.
-	  */
-	void checkFullScreen();
-
 protected:
 	/** NTSC version of the MSX1 palette.
 	  * An array of 16 RGB triples.
@@ -217,37 +221,10 @@ protected:
 	  */
 	static const word GRAPHIC7_SPRITE_PALETTE[16];
 
-	/** Render full screen or windowed?
-	  * This is a hint to the renderer, not all renderers will
-	  * support both modes.
-	  * A renderer that does should override this method
-	  * and call the superclass implementation.
-	  * TODO: This is a platform specific issue and should therefore
-	  *       not be in the Renderer interface.
-	  *       For example a Renderer on a PDA may not have a full screen
-	  *       mode, but would have a rotate setting.
-	  *       Also, on some platforms switching from windowed to full
-	  *       screen would require a different Renderer to be hooked
-	  *       up to the VDP.
-	  *       However, until a proper location is found, keeping it here
-	  *       is at least better than in the VDP, where it was before.
-	  * @param enabled true iff full screen.
-	  */
-	virtual void setFullScreen(bool enabled);
-
 	RenderSettings *settings;
 
 private:
-
-	/** Render full screen or windowed?
-	  * This is separated from the full screen user preference in
-	  * RenderSettings: the setting is what the user want, this field
-	  * stores the current situation and the checkFullScreen method
-	  * synchronizes between them.
-	  * TODO:
-	  * This does not really belong here, see comments for checkFullScreen.
-	  */
-	bool fullScreen;
+	RendererFactory::RendererID id;
 
 };
 

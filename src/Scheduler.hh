@@ -6,14 +6,13 @@
 #include "EmuTime.hh"
 #include "Mutex.hh"
 #include "CondVar.hh"
-#include "Command.hh"
-#include "EventListener.hh"
+#include <vector>
 
 class MSXCPU;
 class Schedulable;
 
 
-class Scheduler : private EventListener
+class Scheduler
 {
 	class SynchronizationPoint
 	{
@@ -92,6 +91,13 @@ class Scheduler : private EventListener
 		void pause();
 		void unpause();
 
+		/** Should the emulation continue running?
+		  * @return True iff emulation should continue.
+		  */
+		bool isEmulationRunning() {
+			return emulationRunning;
+		}
+		
 		/**
 		 * True iff paused
 		 */
@@ -102,9 +108,6 @@ class Scheduler : private EventListener
 	private:
 		Scheduler();
 
-		// EventListener
-		virtual bool signalEvent(SDL_Event &event, const EmuTime &time);
-
 		/** Vector used as heap, not a priority queue because that
 		  * doesn't allow removal of non-top element.
 		  */
@@ -112,18 +115,15 @@ class Scheduler : private EventListener
 		Mutex schedMutex;
 	
 		bool needBlock;
-		bool exitScheduler;
+		
+		/** Should the emulation continue running?
+		  */
+		volatile bool emulationRunning;
+		
 		bool paused;
 		CondVar pauseCond;
 		MSXCPU *cpu;
 		
-		// commands
-		class QuitCmd : public Command {
-		public:
-			virtual void execute(const std::vector<std::string> &tokens,
-			                     const EmuTime &time);
-			virtual void help(const std::vector<std::string> &tokens) const;
-		} quitCmd;
 };
 
 #endif

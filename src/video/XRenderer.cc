@@ -11,9 +11,9 @@
 #define WIDTH 640
 #define HEIGHT 480
 
-XRenderer::XRenderer(VDP *vdp)
+XRenderer::XRenderer(RendererFactory::RendererID id, VDP *vdp)
 :
-Renderer (),
+Renderer (id),
 vdp (vdp),
 vram (vdp->getVRAM()) {
 	SDL_CreateThread (LoopCaller, this);
@@ -108,13 +108,18 @@ XRenderer::~XRenderer () {
 	PRT_DEBUG ("XRenderer: Destructing XRenderer object");
 }
 
+bool XRenderer::checkSettings() {
+	// First check this is the right renderer.
+	if (!Renderer::checkSettings()) return false;
+	
+	// TODO: Check other settings, such as full screen.
+	return true;
+}
+
 void XRenderer::frameStart(const EmuTime &time) {
 }
 
 void XRenderer::putImage(const EmuTime &time) {
-}
-
-void XRenderer::setFullScreen(bool) {
 }
 
 void XRenderer::updateTransparency(bool enabled, const EmuTime &time) {

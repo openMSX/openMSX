@@ -393,8 +393,9 @@ SDLGLRenderer::DirtyChecker
 		&SDLGLRenderer::checkDirtyBitmap
 	};
 
-SDLGLRenderer::SDLGLRenderer(VDP *vdp, SDL_Surface *screen)
-	: PixelRenderer(vdp)
+SDLGLRenderer::SDLGLRenderer(
+	RendererFactory::RendererID id, VDP *vdp, SDL_Surface *screen )
+	: PixelRenderer(id, vdp)
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 	, spriteConverter(vdp->getSpriteChecker())
@@ -561,6 +562,28 @@ void SDLGLRenderer::reset(const EmuTime &time)
 	}
 }
 
+bool SDLGLRenderer::checkSettings() {
+	// First check this is the right renderer.
+	if (!PixelRenderer::checkSettings()) return false;
+	
+	// Check full screen setting.
+	bool fullScreenState = ((screen->flags & SDL_FULLSCREEN) != 0);
+	bool fullScreenTarget = settings->getFullScreen()->getValue();
+	if (fullScreenState == fullScreenTarget) return true;
+	
+#ifdef __WIN32__
+	// Under win32, toggling full screen requires opening a new SDL screen.
+	return false;
+#else
+	// Try to toggle full screen.
+	FullScreenToggler toggler(screen);
+	toggler.performToggle();
+	fullScreenState =
+		((((volatile SDL_Surface *)screen)->flags & SDL_FULLSCREEN) != 0);
+	return fullScreenState == fullScreenTarget;
+#endif
+}
+
 void SDLGLRenderer::frameStart(const EmuTime &time)
 {
 	// Call superclass implementation.
@@ -572,15 +595,6 @@ void SDLGLRenderer::frameStart(const EmuTime &time)
 	// NTSC: display at [32..244),
 	// PAL:  display at [59..271).
 	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
-}
-
-void SDLGLRenderer::setFullScreen(
-	bool fullScreen)
-{
-	Renderer::setFullScreen(fullScreen);
-	if (((screen->flags & SDL_FULLSCREEN) != 0) != fullScreen) {
-		SDL_WM_ToggleFullScreen(screen);
-	}
 }
 
 void SDLGLRenderer::setDisplayMode(DisplayMode mode)

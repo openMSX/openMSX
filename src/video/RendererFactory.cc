@@ -9,9 +9,9 @@
 #include <SDL/SDL.h>
 
 
-RendererFactory *RendererFactory::getByID(RendererFactory::RendererID id)
+RendererFactory *RendererFactory::getCurrent()
 {
-	switch (id) {
+	switch (RenderSettings::instance()->getRenderer()->getValue()) {
 	case SDLHI:
 		return new SDLHiRendererFactory();
 	case SDLLO:
@@ -27,13 +27,18 @@ RendererFactory *RendererFactory::getByID(RendererFactory::RendererID id)
 	}
 }
 
-Renderer *RendererFactory::createRenderer(
-	RendererFactory::RendererID id, VDP *vdp)
+Renderer *RendererFactory::createRenderer(VDP *vdp)
 {
-	return getByID(id)->create(vdp);
+	return getCurrent()->create(vdp);
 }
 
-RendererFactory::RendererSetting *RendererFactory::getRendererSetting()
+Renderer *RendererFactory::switchRenderer(VDP *vdp)
+{
+	RendererSwitcher switcher(vdp);
+	return switcher.performSwitch();
+}
+
+RendererFactory::RendererSetting *RendererFactory::createRendererSetting()
 {
 	std::map<std::string, RendererID> rendererMap;
 	rendererMap["SDLHi"] = SDLHI;
@@ -47,6 +52,50 @@ RendererFactory::RendererSetting *RendererFactory::getRendererSetting()
 		"renderer", "rendering back-end used to display the MSX screen",
 		SDLHI, rendererMap
 		);
+}
+
+// RendererSwitcher ========================================================
+
+RendererSwitcher::RendererSwitcher(VDP *vdp) {
+	this->vdp = vdp;
+	renderer = NULL;
+	semaphore = SDL_CreateSemaphore(0);
+}
+
+Renderer *RendererSwitcher::performSwitch() {
+	// Push switch event into event queue.
+	UserEvents::push(UserEvents::RENDERER_SWITCH, this);
+	// Wait until main thread has performed its work.
+	SDL_SemWait(semaphore);
+	return renderer;
+}
+
+void RendererSwitcher::handleEvent() {
+	// Actually create renderer.
+	renderer = RendererFactory::createRenderer(vdp);
+	// Notify emulation thread.
+	SDL_SemPost(semaphore);
+}
+
+// FullScreenToggler =======================================================
+
+FullScreenToggler::FullScreenToggler(SDL_Surface *screen) {
+	this->screen = screen;
+	semaphore = SDL_CreateSemaphore(0);
+}
+
+void FullScreenToggler::performToggle() {
+	// Push switch event into event queue.
+	UserEvents::push(UserEvents::FULL_SCREEN_TOGGLE, this);
+	// Wait until main thread has performed its work.
+	SDL_SemWait(semaphore);
+}
+
+void FullScreenToggler::handleEvent() {
+	// Actually toggle.
+	SDL_WM_ToggleFullScreen(screen);
+	// Notify emulation thread.
+	SDL_SemPost(semaphore);
 }
 
 // SDLHi ===================================================================
@@ -86,11 +135,11 @@ Renderer *SDLHiRendererFactory::create(VDP *vdp)
 
 	switch (screen->format->BytesPerPixel) {
 	case 1:
-		return new SDLRenderer<Uint8, Renderer::ZOOM_512>(vdp, screen);
+		return new SDLRenderer<Uint8, Renderer::ZOOM_512>(SDLHI, vdp, screen);
 	case 2:
-		return new SDLRenderer<Uint16, Renderer::ZOOM_512>(vdp, screen);
+		return new SDLRenderer<Uint16, Renderer::ZOOM_512>(SDLHI, vdp, screen);
 	case 4:
-		return new SDLRenderer<Uint32, Renderer::ZOOM_512>(vdp, screen);
+		return new SDLRenderer<Uint32, Renderer::ZOOM_512>(SDLHI, vdp, screen);
 	default:
 		printf("FAILED to open supported screen!");
 		return NULL;
@@ -134,11 +183,11 @@ Renderer *SDLLoRendererFactory::create(VDP *vdp)
 
 	switch (screen->format->BytesPerPixel) {
 	case 1:
-		return new SDLRenderer<Uint8, Renderer::ZOOM_256>(vdp, screen);
+		return new SDLRenderer<Uint8, Renderer::ZOOM_256>(SDLLO, vdp, screen);
 	case 2:
-		return new SDLRenderer<Uint16, Renderer::ZOOM_256>(vdp, screen);
+		return new SDLRenderer<Uint16, Renderer::ZOOM_256>(SDLLO, vdp, screen);
 	case 4:
-		return new SDLRenderer<Uint32, Renderer::ZOOM_256>(vdp, screen);
+		return new SDLRenderer<Uint32, Renderer::ZOOM_256>(SDLLO, vdp, screen);
 	default:
 		printf("FAILED to open supported screen!");
 		// TODO: Throw exception.
@@ -188,7 +237,7 @@ Renderer *SDLGLRendererFactory::create(VDP *vdp)
 	}
 	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
 
-	return new SDLGLRenderer(vdp, screen);
+	return new SDLGLRenderer(SDLGL, vdp, screen);
 }
 
 #endif // __OPENGL_AVAILABLE__
@@ -202,6 +251,6 @@ bool XRendererFactory::isAvailable()
 
 Renderer *XRendererFactory::create(VDP *vdp)
 {
-	return new XRenderer(vdp);
+	return new XRenderer(XLIB, vdp);
 }
 

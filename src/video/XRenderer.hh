@@ -34,6 +34,7 @@ public:
 	// Renderer interface:
 
 	void reset(const EmuTime &time) {} // TODO
+	bool checkSettings();
 	void frameStart(const EmuTime &time);
 	void putImage(const EmuTime &time);
 	void updateTransparency(bool enabled, const EmuTime &time);
@@ -56,16 +57,13 @@ public:
 	void updateColourBase(int addr, const EmuTime &time);
 	void updateVRAM(int addr, byte data, const EmuTime &time);
 
-protected:
-	void setFullScreen(bool enabled);
-
 private:
 
 	friend class XRendererFactory;
 
 	/** Constructor, called by XRendererFactory.
 	  */
-	XRenderer(VDP *vdp);
+	XRenderer(RendererFactory::RendererID id, VDP *vdp);
 
 	/** Destructor.
 	  */

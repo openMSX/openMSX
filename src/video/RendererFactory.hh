@@ -5,11 +5,11 @@
 
 #include <string>
 #include <map>
+#include <SDL/SDL.h>
 
 #include "Settings.hh"
-
-// For __OPENGL_AVAILABLE__
-#include "GLUtil.hh"
+#include "UserEvents.hh"
+#include "GLUtil.hh" // for __OPENGL_AVAILABLE__
 
 class Renderer;
 class EmuTime;
@@ -32,16 +32,22 @@ public:
 
 	typedef EnumSetting<RendererID> RendererSetting;
 
-	/** Create a Renderer.
-	  * @param id The Renderer to create.
+	/** Create the Renderer selected by the current renderer setting.
+	  * Use this method for initial renderer creation in the main thread.
 	  * @param vdp The VDP whose display will be rendered.
 	  */
-	static Renderer *createRenderer(RendererID id, VDP *vdp);
+	static Renderer *createRenderer(VDP *vdp);
 
-	/** Get the renderer setting.
+	/** Create the Renderer selected by the current renderer setting.
+	  * Use this method for changing the renderer in the emulation thread.
+	  * @param vdp The VDP whose display will be rendered.
+	  */
+	static Renderer *switchRenderer(VDP *vdp);
+
+	/** Create the renderer setting.
 	  * The map of this setting contains only the available renderers.
 	  */
-	static RendererSetting *getRendererSetting();
+	static RendererSetting *createRendererSetting();
 
 	/** Gets the name of the associated renderer.
 	  */
@@ -62,11 +68,89 @@ public:
 	virtual Renderer *create(VDP *vdp) = 0;
 
 private:
-	/** Get the factory for the given renderer ID.
-	  * @param id The Renderer to get the factory for.
-	  * @return The RendererFactory that can create the given renderer.
+	/** Get the factory selected by the current renderer setting.
+	  * @return The RendererFactory that can create the renderer.
 	  */
-	static RendererFactory *getByID(RendererID id);
+	static RendererFactory *getCurrent();
+};
+
+/** Coordinator for renderer switch operation.
+  * This is a complex operation, because renderer creation requires resources,
+  * such as SDL screens, which can only be created in the main thread.
+  */
+class RendererSwitcher
+{
+private:
+	/** VDP whose state will be rendered.
+	  */
+	VDP *vdp;
+	
+	/** This field is used to pass a pointer to the newly created renderer
+	  * from the main thread to the emulation thread.
+	  */
+	Renderer * volatile renderer;
+	
+	/** Semaphore used to suspend emulation thread until main thread has
+	  * created the renderer.
+	  */
+	SDL_sem *semaphore;
+
+public:
+	/** Create a new renderer switch operation.
+	  * Call performSwitch() to execute the operation.
+	  * @param vdp VDP whose state will be rendered.
+	  */
+	RendererSwitcher(VDP *vdp);
+	
+	/** Called by the emulation thread to initiate the renderer switch.
+	  * Sends an event to the main thread and waits until a response is
+	  * received.
+	  * @return The newly created renderer.
+	  */
+	Renderer *performSwitch();
+	
+	/** Called by the main thread to actually create the new renderer.
+	  * Wakes up the emulation thread.
+	  */
+	void handleEvent();
+
+};
+
+/** Coordinator for full screen toggle operation.
+  * The toggle can only be done in the main thread.
+  * TODO: Integrate with RendererSwitcher into a generic
+  *       "run in another thread" mechanism.
+  */
+class FullScreenToggler
+{
+private:
+	/** SDL screen whose full screen state will be toggled.
+	  */
+	SDL_Surface *screen;
+	
+	/** Semaphore used to suspend emulation thread until main thread has
+	  * created the renderer.
+	  */
+	SDL_sem *semaphore;
+
+public:
+	/** Create a new renderer switch operation.
+	  * Call performToggle() to execute the operation.
+	  * @param screen SDL screen whose full screen state will be toggled.
+	  */
+	FullScreenToggler(SDL_Surface *screen);
+	
+	/** Called by the emulation thread to initiate the toggle.
+	  * Sends an event to the main thread and waits until a response is
+	  * received.
+	  */
+	void performToggle();
+	
+	/** Called by the main thread to actually create the new renderer.
+	  * Wakes up the emulation thread.
+	  */
+	void handleEvent();
+
 };
 
 /** RendererFactory for SDLHiRenderer.

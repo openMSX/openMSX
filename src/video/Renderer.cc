@@ -63,33 +63,17 @@ const word Renderer::GRAPHIC7_SPRITE_PALETTE[16] = {
 	0x472, 0x007, 0x070, 0x077, 0x700, 0x707, 0x770, 0x777
 };
 
-Renderer::Renderer()
+Renderer::Renderer(RendererFactory::RendererID id)
 {
-	// Get full screen setting.
-	// TODO:
-	// There is a tiny amount of time between the surface creation and
-	// this query, so if the setting is changed from another thread, the
-	// surface by actually be in a different state than the setting.
-	// Can the setting be changed from another thread?
-	// Or should such a thread queue a command to change the setting,
-	// so changes only happen in the worker thread's main loop?
+	this->id = id;
 	settings = RenderSettings::instance();
-	fullScreen = settings->getFullScreen()->getValue();
 }
 
 Renderer::~Renderer()
 {
 }
 
-// Note: Renderers override setFullScreen.
-void Renderer::setFullScreen(bool enabled)
+bool Renderer::checkSettings()
 {
-	fullScreen = enabled;
+	return settings->getRenderer()->getValue() == id;
 }
-
-void Renderer::checkFullScreen()
-{
-	bool fsUser = settings->getFullScreen()->getValue();
-	if (fsUser != fullScreen) setFullScreen(fsUser);
-}
-

@@ -1,6 +1,6 @@
 # $Id$
 
-AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` -I$(srcdir)/.. -I$(srcdir)/../cpu -I$(srcdir)/../config -I$(srcdir)/../thread -I$(srcdir)/../file -I$(srcdir)/../ConsoleSource @XML_CFLAGS@ @SDL_CFLAGS@
+AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` -I$(srcdir)/.. -I$(srcdir)/../cpu -I$(srcdir)/../config -I$(srcdir)/../thread -I$(srcdir)/../file -I$(srcdir)/../ConsoleSource -I$(srcdir)/../video @XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
 else
@@ -18,7 +18,8 @@ libEvents_la_SOURCES = \
 	HotKey.cc HotKey.hh \
 	KeyEventInserter.cc KeyEventInserter.hh \
 	Keys.cc Keys.hh \
-	SDLEventInserter.cc SDLEventInserter.hh
+	SDLEventInserter.cc SDLEventInserter.hh \
+	UserEvents.cc UserEvents.hh
 
 nodebug: resetdebug all
 debug: setdebug all

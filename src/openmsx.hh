@@ -46,6 +46,7 @@ extern Mutex outputmutex, errormutex;
 		if (DEBUGVAL) {				\
 			outputmutex.grab();		\
 			std::cout << mes << std::endl;	\
+			std::cout.flush();	\
 			outputmutex.release();		\
 		}					\
 	} while (0)
@@ -53,12 +54,14 @@ extern Mutex outputmutex, errormutex;
 	do {					\
 		outputmutex.grab();		\
 		std::cout << mes << std::endl;	\
+		std::cout.flush();	\
 		outputmutex.release();		\
 	} while (0)
 #define PRT_ERROR(mes)				\
 	do {					\
 		errormutex.grab();		\
 		std::cerr << mes << std::endl;	\
+		std::cerr.flush();	\
 		errormutex.release();		\
 		exit(1);			\
 	} while (0)
