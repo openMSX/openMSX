@@ -824,7 +824,6 @@ void SDLGLRenderer::drawSprites(int absLine)
 {
 	// Check whether this line is inside the host screen.
 	int screenLine = (absLine - lineRenderTop) * 2;
-	if (screenLine >= HEIGHT) return;
 
 	// Determine sprites visible on this line.
 	SpriteChecker::SpriteInfo *visibleSprites;
@@ -1071,8 +1070,27 @@ void SDLGLRenderer::displayPhase(
 	assert(fromX < limitX);
 	//PRT_DEBUG("DisplayPhase: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
 
+	int y1 = fromY * 2;
+	int y2 = limitY * 2 + 2;
 	int n = limitY - fromY + 1;
-	glScissor(fromX, HEIGHT - 2 - limitY * 2, limitX - fromX, n * 2);
+
+	// V9958 can extend the left border over the display area,
+	// The extended border clips sprites as well.
+	int left = getLeftBorder();
+	//if (vdp->maskedBorder()) left += 8;
+	if (fromX < left) {
+		GLSetColour(getBorderColour());
+		glBegin(GL_QUADS);
+		glVertex2i(fromX, y1); // top left
+		glVertex2i(left, y1); // top right
+		glVertex2i(left, y2); // bottom right
+		glVertex2i(fromX, y2); // bottom left
+		glEnd();
+		fromX = left;
+		if (fromX >= limitX) return;
+	}
+	
+	glScissor(fromX, HEIGHT - y2, limitX - fromX, n * 2);
 	glEnable(GL_SCISSOR_TEST);
 	
 	// Perform vertical scroll (wraps at 256)
@@ -1084,46 +1102,41 @@ void SDLGLRenderer::displayPhase(
 	// TODO: Complete separation of character and bitmap modes.
 	glEnable(GL_TEXTURE_2D);
 	int leftBorder = getLeftBorder();
-	int y = fromY * 2;
 	if (vdp->isBitmapMode()) {
-		bool planar = vdp->isPlanar();
-		if (planar) renderPlanarBitmapLines(line, n);
-		else renderBitmapLines(line, n);
+		if (vdp->isPlanar())
+			renderPlanarBitmapLines(line, n);
+		else
+			renderBitmapLines(line, n);
 		// Which bits in the name mask determine the page?
 		int pageMask =
 			(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-		do {
+		for (int y = y1; y < y2; y += 2) {
 			int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
 			GLDrawTexture(bitmapTextureIds[vramLine], leftBorder, y);
 			line++;	// wraps at 256
-			y += 2;
-		} while (--n);
+		}
 	} else {
 		switch (vdp->getDisplayMode()) {
 		case 1:
-			renderText1(line, y, n);
+			renderText1(line, y1, n);
 			break;
 		case 4: // graphic2
 		case 8: // graphic4
-			renderGraphic2(line, y, n);
+			renderGraphic2(line, y1, n);
 			break;
 		default:
 			renderCharacterLines(line, n);
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-			do {
+			for (int y=y1; y < y2; y += 2) {
 				GLDrawTexture(charTextureIds[line], leftBorder, y);
 				line++;	// wraps at 256
-				y += 2;
-			} while (--n);
+			}
 			break;
 		}
 	}
-	glDisable(GL_TEXTURE_2D);
 
 	// Render sprites.
-	glEnable(GL_TEXTURE_2D);
-	//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1133,30 +1146,19 @@ void SDLGLRenderer::displayPhase(
 	}
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
-
-	// Borders are drawn after the display area:
-	// V9958 can extend the left border over the display area,
-	// this is implemented using overdraw.
-	// TODO: Does the extended border clip sprites as well?
-	GLSetColour(getBorderColour());
-	int y1 = fromY * 2;
-	int y2 = limitY * 2 + 2;
-	glBegin(GL_QUADS);
-	// Left border:
-	int left = getLeftBorder();
-	glVertex2i(fromX, y1); // top left
-	glVertex2i(left, y1); // top right
-	glVertex2i(left, y2); // bottom right
-	glVertex2i(fromX, y2); // bottom left
-	// Right border:
-	int right = left + getDisplayWidth();
-	glVertex2i(right, y1); // top left
-	glVertex2i(limitX, y1); // top right
-	glVertex2i(limitX, y2); // bottom right
-	glVertex2i(right, y2); // bottom left
-	glEnd();
-	
 	glDisable(GL_SCISSOR_TEST);
+
+	// Right border:
+	int right = getLeftBorder() + getDisplayWidth();
+	if (right < limitX) {
+		GLSetColour(getBorderColour());
+		glBegin(GL_QUADS);
+		glVertex2i(right, y1); // top left
+		glVertex2i(limitX, y1); // top right
+		glVertex2i(limitX, y2); // bottom right
+		glVertex2i(right, y2); // bottom left
+		glEnd();
+	}
 }
 
 void SDLGLRenderer::frameStart(const EmuTime &time)
