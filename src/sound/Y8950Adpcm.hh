@@ -46,7 +46,7 @@ class Y8950Adpcm : private Schedulable
 		bool playing;
 		int volume;
 		word delta;
-		int nowStep, step;
+		unsigned int nowStep, step;
 		int out, output;
 		int diff;
 		int nextLeveling;
@@ -89,7 +89,7 @@ class Y8950Adpcm : private Schedulable
 		static const int DECODE_MIN = -32768;
 
 		static const int GETA_BITS  = 14;
-		static const int MAX_STEP   = 1<<(16+GETA_BITS);
+		static const unsigned int MAX_STEP   = 1<<(16+GETA_BITS);
 };
 
 
