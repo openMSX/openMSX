@@ -1,5 +1,9 @@
 $Id$
 
+2003-04-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* if an extension exists both in user as in system directory, prefer
+	  the one in user directory
+
 2003-04-23 Maarten ter Huurne <maarten@treewalker.org>
 	* Added update calls for horizontal scroll settings.
 

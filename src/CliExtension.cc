@@ -89,10 +89,13 @@ void CliExtension::createExtensions(const std::string &path)
 		struct dirent* d = readdir(dir);
 		while (d) {
 			if (select(d)) {
-				std::string optionName(d->d_name);
-				std::string optionPath(path + optionName +
+				std::string name(d->d_name);
+				std::string path(path + name +
 				                       "/hardwareconfig.xml");
-				extensions[optionName] = optionPath;
+				if (extensions.find(name) == extensions.end()) {
+					// doesn't already exists
+					extensions[name] = path;
+				}
 			}
 			d = readdir(dir);
 		}
