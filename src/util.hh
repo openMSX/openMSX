@@ -5,7 +5,7 @@
 #ifndef __UTIL_HH__
 #define __UTIL_HH__
 
-#include "config.h"
+#include <cstring>
 
 namespace openmsx {
 
@@ -14,11 +14,11 @@ namespace openmsx {
   */
 inline static void fillBool(bool *ptr, bool value, int nr)
 {
-#if SIZEOF_BOOL == 1
-	memset(ptr, value, nr);
-#else
-	while (nr--) *ptr++ = value;
-#endif
+	if (sizeof(bool) == 1) {
+		memset(ptr, value, nr);
+	} else {
+		while (nr--) *ptr++ = value;
+	}
 }
 
 } // namespace openmsx

@@ -1,8 +1,8 @@
 // $Id$
 
 #include "DirtyChecker.hh"
-#include "config.h"
-#include <cstring>
+#include "util.hh"
+#include <cassert>
 
 
 namespace openmsx {
@@ -27,7 +27,7 @@ DirtyChecker<unit>::~DirtyChecker() {
 template <int unit>
 void DirtyChecker<unit>::flush() {
 	//fprintf(stderr, "Flush(%s) ", name);
-	memset(validFlags, 0, size * SIZEOF_BOOL);
+	fillBool(validFlags, false, size);
 }
 
 template <int unit>
