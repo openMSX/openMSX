@@ -2,7 +2,6 @@
 
 #include "DummyMidiOutDevice.hh"
 
-
 namespace openmsx {
 
 void DummyMidiOutDevice::recvByte(byte value, const EmuTime& time)
@@ -17,7 +16,6 @@ const string& DummyMidiOutDevice::getDescription() const
 }
 
 void DummyMidiOutDevice::plugHelper(Connector* connector, const EmuTime& time)
-	throw()
 {
 }
 

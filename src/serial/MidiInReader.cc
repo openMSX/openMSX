@@ -23,13 +23,12 @@ MidiInReader::~MidiInReader()
 }
 
 // Pluggable
-void MidiInReader::plugHelper(Connector *connector_, const EmuTime &time)
-	throw(PlugException)
+void MidiInReader::plugHelper(Connector* connector_, const EmuTime& time)
 {
 	file = fopen(readFilenameSetting.getValue().c_str(), "rb");
 	if (!file) {
 		throw PlugException("Failed to open input: "
-			+ string(strerror(errno)) );
+			+ string(strerror(errno)));
 	}
 
 	MidiInConnector* midiConnector = static_cast<MidiInConnector*>(connector_);
@@ -42,7 +41,7 @@ void MidiInReader::plugHelper(Connector *connector_, const EmuTime &time)
 	thread.start();
 }
 
-void MidiInReader::unplugHelper(const EmuTime &time)
+void MidiInReader::unplugHelper(const EmuTime& time)
 {
 	lock.down();
 	thread.stop();
@@ -84,7 +83,7 @@ void MidiInReader::run()
 }
 
 // MidiInDevice
-void MidiInReader::signal(const EmuTime &time)
+void MidiInReader::signal(const EmuTime& time)
 {
 	MidiInConnector* connector = static_cast<MidiInConnector*>(getConnector());
 	if (!connector->acceptsData()) {
@@ -117,7 +116,7 @@ void MidiInReader::executeUntil(const EmuTime& time, int userData) throw()
 	}
 }
 
-const string &MidiInReader::schedName() const
+const string& MidiInReader::schedName() const
 {
 	return getName();
 }

@@ -5,17 +5,20 @@
 
 #include "Connector.hh"
 #include "SerialDataInterface.hh"
+#include "RS232Device.hh"
 
 namespace openmsx {
 
-class RS232Connector : public Connector, public SerialDataInterface {
+class RS232Connector : public Connector, public SerialDataInterface
+{
 public:
-	RS232Connector(const string &name);
+	RS232Connector(const string& name);
 	virtual ~RS232Connector();
 
 	// Connector
 	virtual const string& getDescription() const;
 	virtual const string& getClass() const;
+	virtual RS232Device& getPlugged() const;
 
 	// input (SerialDataInterface)
 	virtual void setDataBits(DataBits bits) = 0;

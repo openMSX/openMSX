@@ -46,7 +46,6 @@ MidiInNative::~MidiInNative()
 
 // Pluggable
 void MidiInNative::plugHelper(Connector* connector_, const EmuTime& time)
-	throw(PlugException)
 {
 	devidx = w32_midiInOpen(name.c_str(), thrdid);
 	if (devidx == (unsigned)-1) {

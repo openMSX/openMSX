@@ -8,11 +8,9 @@
 #include "MSXException.hh"
 #include <SDL.h> // TODO move this
 
-
 namespace openmsx {
 
 class PluggingController;
-
 
 /** Uses an SDL joystick to emulate an MSX joystick.
   */
@@ -27,8 +25,7 @@ public:
 	//Pluggable
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
-	virtual void plugHelper(Connector* connector, const EmuTime& time)
-		throw(PlugException);
+	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 
 	//JoystickDevice

@@ -9,7 +9,6 @@
 #include "SettingListener.hh"
 #include "EmuTime.hh"
 
-
 namespace openmsx {
 
 class WavAudioInput : public AudioInputDevice, private SettingListener
@@ -21,8 +20,7 @@ public:
 	// AudioInputDevice
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
-	virtual void plugHelper(Connector* connector, const EmuTime& time)
-		throw(PlugException);
+	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 	virtual short readSample(const EmuTime& time);
 

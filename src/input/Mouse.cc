@@ -36,7 +36,7 @@ Mouse::~Mouse()
 
 
 //Pluggable
-const string &Mouse::getName() const
+const string& Mouse::getName() const
 {
 	static const string name("mouse");
 	return name;
@@ -49,7 +49,6 @@ const string& Mouse::getDescription() const
 }
 
 void Mouse::plugHelper(Connector* connector, const EmuTime& time)
-	throw()
 {
 	if (status & JOY_BUTTONA) {
 		// not pressed, mouse mode
@@ -67,7 +66,7 @@ void Mouse::unplugHelper(const EmuTime& time)
 
 
 //JoystickDevice
-byte Mouse::read(const EmuTime &time)
+byte Mouse::read(const EmuTime& time)
 {
 	if (mouseMode) {
 		switch (faze) {
@@ -138,7 +137,7 @@ void Mouse::emulateJoystick()
 	}
 }
 
-void Mouse::write(byte value, const EmuTime &time)
+void Mouse::write(byte value, const EmuTime& time)
 {
 	if (mouseMode) {
 		// TODO figure out the timeout mechanism

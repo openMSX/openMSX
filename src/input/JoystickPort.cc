@@ -1,7 +1,6 @@
 // $Id$
 
 #include "JoystickPort.hh"
-#include "JoystickDevice.hh"
 #include "DummyJoystick.hh"
 #include "PluggingController.hh"
 
@@ -9,7 +8,7 @@
 namespace openmsx {
 
 JoystickPort::JoystickPort(const string &name)
-	: Connector(name, new DummyJoystick())
+	: Connector(name, auto_ptr<Pluggable>(new DummyJoystick()))
 {
 	lastValue = 255;	// != 0
 	PluggingController::instance().registerConnector(this);
@@ -32,23 +31,27 @@ const string& JoystickPort::getClass() const
 	return className;
 }
 
+JoystickDevice& JoystickPort::getPlugged() const
+{
+	return static_cast<JoystickDevice&>(*plugged);
+}
+
 void JoystickPort::plug(Pluggable *device, const EmuTime &time)
-	throw(PlugException)
 {
 	Connector::plug(device, time);
-	((JoystickDevice*)pluggable)->write(lastValue, time);
+	getPlugged().write(lastValue, time);
 }
 
 byte JoystickPort::read(const EmuTime &time)
 {
-	return ((JoystickDevice*)pluggable)->read(time);
+	return getPlugged().read(time);
 }
 
 void JoystickPort::write(byte value, const EmuTime &time)
 {
 	if (lastValue != value) {
 		lastValue = value;
-		((JoystickDevice*)pluggable)->write(value, time);
+		getPlugged().write(value, time);
 	}
 }
 

@@ -36,8 +36,7 @@ public:
 	CassettePlayer();
 	virtual ~CassettePlayer();
 
-	void insertTape(FileContext& context, const string& filename)
-		throw(MSXException);
+	void insertTape(FileContext& context, const string& filename);
 	void removeTape();
 
 	// CassetteDevice
@@ -51,8 +50,8 @@ public:
 	virtual const string& getDescription() const;
 
 	// Pluggable
-	virtual void plugHelper(Connector* connector, const EmuTime& time) throw();
-	virtual void unplugHelper(const EmuTime &time);
+	virtual void plugHelper(Connector* connector, const EmuTime& time);
+	virtual void unplugHelper(const EmuTime& time);
 
 	// SoundDevice
 	virtual void setVolume(int newVolume);

@@ -46,7 +46,8 @@ namespace openmsx {
  * 9 --------------- 9
  */
 
-class JoyNet : public JoystickDevice {
+class JoyNet : public JoystickDevice
+{
 public:
 	JoyNet();
 	virtual ~JoyNet();
@@ -54,12 +55,12 @@ public:
 	//Pluggable
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
-	virtual void plugHelper(Connector* connector, const EmuTime& time) throw();
+	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 
 	//JoystickDevice
-	virtual byte read(const EmuTime &time);
-	virtual void write(byte value, const EmuTime &time);
+	virtual byte read(const EmuTime& time);
+	virtual void write(byte value, const EmuTime& time);
 
 private:
 	//Sub class for listener thread

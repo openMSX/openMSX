@@ -1,15 +1,13 @@
 // $Id$
 
 #include "MidiOutConnector.hh"
-#include "MidiOutDevice.hh"
 #include "DummyMidiOutDevice.hh"
 #include "PluggingController.hh"
-
 
 namespace openmsx {
 
 MidiOutConnector::MidiOutConnector(const string &name)
-	: Connector(name, new DummyMidiOutDevice())
+	: Connector(name, auto_ptr<Pluggable>(new DummyMidiOutDevice()))
 {
 	PluggingController::instance().registerConnector(this);
 }
@@ -31,24 +29,29 @@ const string& MidiOutConnector::getClass() const
 	return className;
 }
 
+MidiOutDevice& MidiOutConnector::getPlugged() const
+{
+	return static_cast<MidiOutDevice&>(*plugged);
+}
+
 void MidiOutConnector::setDataBits(DataBits bits)
 {
-	((MidiOutDevice*)pluggable)->setDataBits(bits);
+	getPlugged().setDataBits(bits);
 }
 
 void MidiOutConnector::setStopBits(StopBits bits)
 {
-	((MidiOutDevice*)pluggable)->setStopBits(bits);
+	getPlugged().setStopBits(bits);
 }
 
 void MidiOutConnector::setParityBit(bool enable, ParityBit parity)
 {
-	((MidiOutDevice*)pluggable)->setParityBit(enable, parity);
+	getPlugged().setParityBit(enable, parity);
 }
 
 void MidiOutConnector::recvByte(byte value, const EmuTime& time)
 {
-	((MidiOutDevice*)pluggable)->recvByte(value, time);
+	getPlugged().recvByte(value, time);
 }
 
 } // namespace openmsx

@@ -1,10 +1,9 @@
 // $Id$
 
+#include <cassert>
 #include "PrinterPortLogger.hh"
 #include "FileContext.hh"
 #include "File.hh"
-#include <cassert>
-
 
 namespace openmsx {
 
@@ -13,13 +12,11 @@ PrinterPortLogger::PrinterPortLogger()
 		"filename of the file where the printer output is logged to",
 		"printer.log")
 {
-	file = NULL;
 	prevStrobe = true;
 }
 
 PrinterPortLogger::~PrinterPortLogger()
 {
-	delete file;
 }
 
 bool PrinterPortLogger::getStatus(const EmuTime &time)
@@ -29,7 +26,7 @@ bool PrinterPortLogger::getStatus(const EmuTime &time)
 
 void PrinterPortLogger::setStrobe(bool strobe, const EmuTime &time)
 {
-	assert(file);
+	assert(file.get());
 	PRT_DEBUG("PRINTER: strobe " << strobe);
 	if (!strobe && prevStrobe) {
 		// falling edge
@@ -46,16 +43,14 @@ void PrinterPortLogger::writeData(byte data, const EmuTime &time)
 }
 
 void PrinterPortLogger::plugHelper(Connector* connector, const EmuTime& time)
-	throw(PlugException)
 {
 	// TODO: Add exception to File class and use it here.
-	file = new File(logFilenameSetting.getValue(), TRUNCATE);
+	file.reset(new File(logFilenameSetting.getValue(), TRUNCATE));
 }
 
 void PrinterPortLogger::unplugHelper(const EmuTime &time)
 {
-	delete file;
-	file = NULL;
+	file.reset();
 }
 
 const string& PrinterPortLogger::getName() const

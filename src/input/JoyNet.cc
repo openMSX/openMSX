@@ -49,7 +49,7 @@ const string& JoyNet::getDescription() const
 	return desc;
 }
 
-void JoyNet::plugHelper(Connector* connector, const EmuTime& time) throw()
+void JoyNet::plugHelper(Connector* connector, const EmuTime& time)
 {
 }
 

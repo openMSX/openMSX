@@ -16,7 +16,6 @@ const string& DummyMidiInDevice::getDescription() const
 }
 
 void DummyMidiInDevice::plugHelper(Connector* connector, const EmuTime& time)
-	throw()
 {
 }
 

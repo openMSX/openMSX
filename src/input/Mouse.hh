@@ -18,7 +18,7 @@ public:
 	//Pluggable
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
-	virtual void plugHelper(Connector* connector, const EmuTime& time) throw();
+	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 
 	//JoystickDevice

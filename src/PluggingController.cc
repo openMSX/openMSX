@@ -119,7 +119,7 @@ string PluggingController::PlugCmd::execute(const vector<string>& tokens)
 			     it != parent.connectors.end();
 			     ++it) {
 				result += ((*it)->getName() + ": " +
-				           (*it)->getPlugged()->getName()) + '\n';
+				           (*it)->getPlugged().getName()) + '\n';
 			}
 			break;
 		}
@@ -129,7 +129,7 @@ string PluggingController::PlugCmd::execute(const vector<string>& tokens)
 				throw CommandException("plug: " + tokens[1] + ": no such connector");
 			}
 			result += (connector->getName() + ": " +
-			           connector->getPlugged()->getName()) + '\n';
+			           connector->getPlugged().getName()) + '\n';
 			break;
 		}
 		case 3: {

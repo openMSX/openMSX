@@ -2,7 +2,6 @@
 
 #include "DummyRS232Device.hh"
 
-
 namespace openmsx {
 
 void DummyRS232Device::signal(const EmuTime& time)
@@ -17,7 +16,6 @@ const string& DummyRS232Device::getDescription() const
 }
 
 void DummyRS232Device::plugHelper(Connector* connector, const EmuTime& time)
-	throw()
 {
 }
 

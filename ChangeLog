@@ -4,6 +4,7 @@ $Id$
 	* Made all (S)RAM debuggable, created a base class for RAM
 	* use auto_ptr to indicate ownership transfers
 	* use stl bitset instead of an array of booleans
+	* don't use exception specifications, they do more harm than good
 
 2004-05-28 Maarten ter Huurne <maarten@treewalker.org>
 	* Released openmsx-0.4.0.

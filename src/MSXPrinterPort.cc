@@ -1,17 +1,16 @@
 // $Id$
 
+#include <cassert>
 #include "MSXPrinterPort.hh"
 #include "PrinterPortDevice.hh"
 #include "PluggingController.hh"
-#include <cassert>
-
 
 namespace openmsx {
 
 MSXPrinterPort::MSXPrinterPort(Config* config, const EmuTime& time)
 	: MSXDevice(config, time)
 	, MSXIODevice(config, time)
-	, Connector("printerport", new DummyPrinterPortDevice())
+	, Connector("printerport", auto_ptr<Pluggable>(new DummyPrinterPortDevice()))
 {
 	data = 255;	// != 0;
 	strobe = false;	// != true;
@@ -35,7 +34,8 @@ void MSXPrinterPort::reset(const EmuTime& time)
 byte MSXPrinterPort::readIO(byte port, const EmuTime& time)
 {
 	// bit 1 = status / other bits always 1
-	return ((PrinterPortDevice*)pluggable)->getStatus(time) ? 0xff : 0xfd;
+	return getPlugged().getStatus(time)
+	       ? 0xFF : 0xFD;
 }
 
 void MSXPrinterPort::writeIO(byte port, byte value, const EmuTime& time)
@@ -56,14 +56,14 @@ void MSXPrinterPort::setStrobe(bool newStrobe, const EmuTime& time)
 {
 	if (newStrobe != strobe) {
 		strobe = newStrobe;
-		((PrinterPortDevice*)pluggable)->setStrobe(strobe, time);
+		getPlugged().setStrobe(strobe, time);
 	}
 }
 void MSXPrinterPort::writeData(byte newData, const EmuTime& time)
 {
 	if (newData != data) {
 		data = newData;
-		((PrinterPortDevice*)pluggable)->writeData(data, time);
+		getPlugged().writeData(data, time);
 	}
 }
 
@@ -80,11 +80,15 @@ const string& MSXPrinterPort::getClass() const
 }
 
 void MSXPrinterPort::plug(Pluggable* dev, const EmuTime& time)
-	throw(PlugException)
 {
 	Connector::plug(dev, time);
-	((PrinterPortDevice *)pluggable)->writeData(data, time);
-	((PrinterPortDevice *)pluggable)->setStrobe(strobe, time);
+	getPlugged().writeData(data, time);
+	getPlugged().setStrobe(strobe, time);
+}
+
+PrinterPortDevice& MSXPrinterPort::getPlugged() const
+{
+	return static_cast<PrinterPortDevice&>(*plugged);
 }
 
 
@@ -112,7 +116,6 @@ const string& DummyPrinterPortDevice::getDescription() const
 }
 
 void DummyPrinterPortDevice::plugHelper(Connector* connector, const EmuTime& time)
-	throw ()
 {
 }
 

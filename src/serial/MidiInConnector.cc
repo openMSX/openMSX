@@ -9,7 +9,7 @@
 namespace openmsx {
 
 MidiInConnector::MidiInConnector(const string &name)
-	: Connector(name, new DummyMidiInDevice())
+	: Connector(name, auto_ptr<Pluggable>(new DummyMidiInDevice()))
 {
 	PluggingController::instance().registerConnector(this);
 }
@@ -29,6 +29,11 @@ const string& MidiInConnector::getClass() const
 {
 	static const string className("midi in");
 	return className;
+}
+
+MidiInDevice& MidiInConnector::getPlugged() const
+{
+	return static_cast<MidiInDevice&>(*plugged);
 }
 
 } // namespace openmsx

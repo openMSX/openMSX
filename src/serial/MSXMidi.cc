@@ -207,7 +207,7 @@ void MSXMidi::I8251Interf::recvByte(byte value, const EmuTime& time)
 
 void MSXMidi::I8251Interf::signal(const EmuTime& time)
 {
-	((MidiInDevice*)midi.pluggable)->signal(time);
+	midi.getPlugged().signal(time);
 }
 
 

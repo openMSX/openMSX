@@ -9,7 +9,8 @@
 
 namespace openmsx {
 
-void Joystick::registerAll(PluggingController *controller) {
+void Joystick::registerAll(PluggingController *controller)
+{
 	if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
 		SDL_InitSubSystem(SDL_INIT_JOYSTICK);
 		SDL_JoystickEventState(SDL_ENABLE);	// joysticks generate events
@@ -35,7 +36,7 @@ Joystick::~Joystick()
 }
 
 //Pluggable
-const string &Joystick::getName() const
+const string& Joystick::getName() const
 {
 	return name;
 }
@@ -45,8 +46,7 @@ const string& Joystick::getDescription() const
 	return desc;
 }
 
-void Joystick::plugHelper(Connector *connector, const EmuTime &time)
-	throw(PlugException)
+void Joystick::plugHelper(Connector *connector, const EmuTime& time)
 {
 	PRT_DEBUG("Opening joystick " << SDL_JoystickName(joyNum));
 	joystick = SDL_JoystickOpen(joyNum);
@@ -62,7 +62,7 @@ void Joystick::plugHelper(Connector *connector, const EmuTime &time)
 	         JOY_BUTTONA | JOY_BUTTONB;
 }
 
-void Joystick::unplugHelper(const EmuTime &time)
+void Joystick::unplugHelper(const EmuTime& time)
 {
 	EventDistributor::instance().unregisterEventListener(JOY_AXIS_MOTION_EVENT, *this);
 	EventDistributor::instance().unregisterEventListener(JOY_BUTTON_DOWN_EVENT, *this);
@@ -72,12 +72,12 @@ void Joystick::unplugHelper(const EmuTime &time)
 
 
 //JoystickDevice
-byte Joystick::read(const EmuTime &time)
+byte Joystick::read(const EmuTime& time)
 {
 	return status;
 }
 
-void Joystick::write(byte value, const EmuTime &time)
+void Joystick::write(byte value, const EmuTime& time)
 {
 	//do nothing
 }

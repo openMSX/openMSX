@@ -3,14 +3,15 @@
 #ifndef __MSXPRINTERPORTLOGGER_HH__
 #define __MSXPRINTERPORTLOGGER_HH__
 
+#include <memory>
 #include "PrinterPortDevice.hh"
 #include "StringSetting.hh"
 
+using std::auto_ptr;
 
 namespace openmsx {
 
 class File;
-
 
 class PrinterPortLogger : public PrinterPortDevice
 {
@@ -26,14 +27,13 @@ public:
 	// Pluggable
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
-	virtual void plugHelper(Connector* connector, const EmuTime& time)
-		throw(PlugException);
+	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 
 private:
 	byte toPrint;
 	bool prevStrobe;
-	File* file;
+	auto_ptr<File> file;
 
 	StringSetting logFilenameSetting;
 };

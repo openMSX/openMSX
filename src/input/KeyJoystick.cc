@@ -83,7 +83,6 @@ const string& KeyJoystick::getDescription() const
 }
 
 void KeyJoystick::plugHelper(Connector* connector, const EmuTime& time)
-	throw()
 {
 }
 

@@ -5,11 +5,12 @@
 
 #include "openmsx.hh"
 #include "Connector.hh"
-
+#include "JoystickDevice.hh"
 
 namespace openmsx {
 
-class JoystickPort : public Connector {
+class JoystickPort : public Connector
+{
 public:
 	JoystickPort(const string& name);
 	virtual ~JoystickPort();
@@ -17,8 +18,8 @@ public:
 	// Connector
 	virtual const string& getDescription() const;
 	virtual const string& getClass() const;
-	virtual void plug(Pluggable* device, const EmuTime& time)
-		throw(PlugException);
+	virtual void plug(Pluggable* device, const EmuTime& time);
+	virtual JoystickDevice& getPlugged() const;
 
 	byte read(const EmuTime& time);
 	void write(byte value, const EmuTime& time);

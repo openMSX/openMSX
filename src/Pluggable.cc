@@ -15,14 +15,13 @@ Pluggable::~Pluggable()
 {
 }
 
-const string &Pluggable::getName() const
+const string& Pluggable::getName() const
 {
 	static const string name("--empty--");
 	return name;
 }
 
 void Pluggable::plug(Connector* newConnector, const EmuTime& time)
-	throw(PlugException)
 {
 	assert(getClass() == newConnector->getClass());
 

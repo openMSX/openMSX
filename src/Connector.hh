@@ -3,15 +3,16 @@
 #ifndef __CONNECTOR__
 #define __CONNECTOR__
 
-#include "Pluggable.hh"
 #include <string>
+#include <memory>
+#include "Pluggable.hh"
 
 using std::string;
+using std::auto_ptr;
 
 namespace openmsx {
 
 class EmuTime;
-
 
 /**
  * Represents something you can plug devices into.
@@ -19,15 +20,15 @@ class EmuTime;
  * When there is not an actual Pluggable plugged in, a dummy Pluggable
  * is used.
  */
-class Connector {
+class Connector
+{
 public:
 	/**
 	 * Creates a new Connector.
 	 * @param name Name that identifies this connector.
 	 * @param dummy Dummy Pluggable whose class matches this Connector.
-	 *   Ownership of the object is passed to this Connector.
 	 */
-	Connector(const string& name, Pluggable* dummy);
+	Connector(const string& name, auto_ptr<Pluggable> dummy);
 
 	virtual ~Connector();
 
@@ -47,38 +48,33 @@ public:
 	 * A Connector belong to a certain class.
 	 * Only Pluggables of this class can be plugged in this Connector.
 	 */
-	virtual const string &getClass() const = 0;
+	virtual const string& getClass() const = 0;
 
 	/**
 	 * This plugs a Pluggable in this Connector.
 	 * The default implementation is ok.
+	 * @throw PlugException
 	 */
-	virtual void plug(Pluggable* device, const EmuTime& time)
-		throw(PlugException);
+	virtual void plug(Pluggable* device, const EmuTime& time);
 
 	/**
 	 * This unplugs the currently inserted Pluggable from this Connector.
 	 * It is replaced by the dummy Pluggable provided by the concrete
 	 * Connector subclass.
 	 */
-	virtual void unplug(const EmuTime &time);
+	virtual void unplug(const EmuTime& time);
 
 	/**
 	 * Returns the Pluggable currently plugged in.
 	 */
-	Pluggable* getPlugged() const {
-		return pluggable;
-	}
+	virtual Pluggable& getPlugged() const = 0;
 
 protected:
-	/**
-	 * The Pluggable that is currently plugged in.
-	 */
-	Pluggable* pluggable;
+	Pluggable* plugged;
 
 private:
 	const string name;
-	Pluggable* dummy;
+	const auto_ptr<Pluggable> dummy;
 };
 
 } // namespace openmsx

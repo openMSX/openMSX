@@ -16,8 +16,8 @@ namespace openmsx {
 
 class Ram;
 
-class MSXRS232:
-	public MSXIODevice, public MSXMemDevice, public RS232Connector {
+class MSXRS232 : public MSXIODevice, public MSXMemDevice, public RS232Connector
+{
 public:
 	MSXRS232(Config *config, const EmuTime& time);
 	virtual ~MSXRS232();

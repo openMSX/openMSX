@@ -5,7 +5,6 @@
 
 #include "RS232Device.hh"
 
-
 namespace openmsx {
 
 class DummyRS232Device : public RS232Device
@@ -13,7 +12,7 @@ class DummyRS232Device : public RS232Device
 public:
 	virtual void signal(const EmuTime& time);
 	virtual const string& getDescription() const;
-	virtual void plugHelper(Connector* connector, const EmuTime& time) throw();
+	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 
 	// SerialDataInterface (part)

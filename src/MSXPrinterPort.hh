@@ -18,7 +18,7 @@ public:
 
 protected:
 	virtual const string& getDescription() const;
-	virtual void plugHelper(Connector* connector, const EmuTime& time) throw();
+	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 };
 
@@ -37,8 +37,8 @@ public:
 	// Connector
 	virtual const string& getDescription() const;
 	virtual const string& getClass() const;
-	virtual void plug(Pluggable* dev, const EmuTime& time)
-		throw(PlugException);
+	virtual void plug(Pluggable* dev, const EmuTime& time);
+	virtual PrinterPortDevice& getPlugged() const;
 
 private:
 	void setStrobe(bool newStrobe, const EmuTime& time);

@@ -14,13 +14,12 @@ class MidiOutNative : public MidiOutDevice
 {
 public:
 	static void registerAll(PluggingController* controller);
-		
+	
 	MidiOutNative(unsigned num);
 	virtual ~MidiOutNative();
 
 	// Pluggable
-	virtual void plugHelper(Connector* connector, const EmuTime& time)
-		throw(PlugException);
+	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;

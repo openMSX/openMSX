@@ -15,7 +15,7 @@
 
 namespace openmsx {
 
-class Y8950: private SoundDevice, private EmuTimerCallback, private Debuggable
+class Y8950 : private SoundDevice, private EmuTimerCallback, private Debuggable
 {
 	class Patch {
 	public:

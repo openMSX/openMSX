@@ -14,7 +14,8 @@
 
 namespace openmsx {
 
-class MSXMidi: public MSXIODevice, public MidiInConnector {
+class MSXMidi: public MSXIODevice, public MidiInConnector
+{
 public:
 	MSXMidi(Config* config, const EmuTime& time);
 	virtual ~MSXMidi();

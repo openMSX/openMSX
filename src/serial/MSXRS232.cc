@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include "MSXRS232.hh"
-#include "RS232Device.hh"
 #include "Config.hh"
 #include "Ram.hh"
 
@@ -213,47 +212,47 @@ void MSXRS232::I8251Interf::setRxRDY(bool status, const EmuTime& time)
 
 void MSXRS232::I8251Interf::setDTR(bool status, const EmuTime& time)
 {
-	((RS232Device*)rs232.pluggable)->setDTR(status, time);
+	rs232.getPlugged().setDTR(status, time);
 }
 
 void MSXRS232::I8251Interf::setRTS(bool status, const EmuTime& time)
 {
-	((RS232Device*)rs232.pluggable)->setRTS(status, time);
+	rs232.getPlugged().setRTS(status, time);
 }
 
 bool MSXRS232::I8251Interf::getDSR(const EmuTime& time)
 {
-	return ((RS232Device*)rs232.pluggable)->getDSR(time);
+	return rs232.getPlugged().getDSR(time);
 }
 
 bool MSXRS232::I8251Interf::getCTS(const EmuTime& time)
 {
-	return ((RS232Device*)rs232.pluggable)->getCTS(time);
+	return rs232.getPlugged().getCTS(time);
 }
 
 void MSXRS232::I8251Interf::setDataBits(DataBits bits)
 {
-	((RS232Device*)rs232.pluggable)->setDataBits(bits);
+	rs232.getPlugged().setDataBits(bits);
 }
 
 void MSXRS232::I8251Interf::setStopBits(StopBits bits)
 {
-	((RS232Device*)rs232.pluggable)->setStopBits(bits);
+	rs232.getPlugged().setStopBits(bits);
 }
 
 void MSXRS232::I8251Interf::setParityBit(bool enable, ParityBit parity)
 {
-	((RS232Device*)rs232.pluggable)->setParityBit(enable, parity);
+	rs232.getPlugged().setParityBit(enable, parity);
 }
 
 void MSXRS232::I8251Interf::recvByte(byte value, const EmuTime& time)
 {
-	((RS232Device*)rs232.pluggable)->recvByte(value, time);
+	rs232.getPlugged().recvByte(value, time);
 }
 
 void MSXRS232::I8251Interf::signal(const EmuTime& time)
 {
-	((RS232Device*)rs232.pluggable)->signal(time); // for input
+	rs232.getPlugged().signal(time); // for input
 }
 
 

@@ -9,7 +9,7 @@
 namespace openmsx {
 
 RS232Connector::RS232Connector(const string &name)
-	: Connector(name, new DummyRS232Device())
+	: Connector(name, auto_ptr<Pluggable>(new DummyRS232Device()))
 {
 	PluggingController::instance().registerConnector(this);
 }
@@ -29,6 +29,11 @@ const string& RS232Connector::getClass() const
 {
 	static const string className("RS232");
 	return className;
+}
+
+RS232Device& RS232Connector::getPlugged() const
+{
+	return static_cast<RS232Device&>(*plugged);
 }
 
 } // namespace openmsx

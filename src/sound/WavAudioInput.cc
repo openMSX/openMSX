@@ -82,8 +82,7 @@ const string& WavAudioInput::getDescription() const
 	return desc;
 }
 
-void WavAudioInput::plugHelper(Connector *connector, const EmuTime &time)
-	throw(PlugException)
+void WavAudioInput::plugHelper(Connector *connector, const EmuTime& time)
 {
 	if (buffer == 0) {
 		try {
@@ -96,13 +95,13 @@ void WavAudioInput::plugHelper(Connector *connector, const EmuTime &time)
 	plugged = true;
 }
 
-void WavAudioInput::unplugHelper(const EmuTime &time)
+void WavAudioInput::unplugHelper(const EmuTime& time)
 {
 	freeWave();
 	plugged = false;
 }
 
-void WavAudioInput::update(const SettingLeafNode *setting) throw()
+void WavAudioInput::update(const SettingLeafNode* setting) throw()
 {
 	assert (setting == &audioInputFilenameSetting);
 	if (plugged) {
@@ -116,7 +115,7 @@ void WavAudioInput::update(const SettingLeafNode *setting) throw()
 	}
 }
 
-short WavAudioInput::readSample(const EmuTime &time)
+short WavAudioInput::readSample(const EmuTime& time)
 {
 	int pos = (time - reference).getTicksAt(freq);
 	if (pos < length) {

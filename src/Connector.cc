@@ -2,32 +2,28 @@
 
 #include "Connector.hh"
 
-
 namespace openmsx {
 
-Connector::Connector(const string &name, Pluggable *dummy)
-	: name(name)
-	, dummy(dummy)
+Connector::Connector(const string& name_, auto_ptr<Pluggable> dummy_)
+	: name(name_), dummy(dummy_)
 {
-	pluggable = dummy;
+	plugged = dummy.get();
 }
 
 Connector::~Connector()
 {
-	delete dummy;
 }
 
-void Connector::plug(Pluggable *device, const EmuTime &time)
-	throw(PlugException)
+void Connector::plug(Pluggable* device, const EmuTime& time)
 {
 	device->plug(this, time);
-	pluggable = device; // not executed if plug fails
+	plugged = device; // not executed if plug fails
 }
 
-void Connector::unplug(const EmuTime &time)
+void Connector::unplug(const EmuTime& time)
 {
-	pluggable->unplug(time);
-	pluggable = dummy;
+	plugged->unplug(time);
+	plugged = dummy.get();
 }
 
 } // namespace openmsx

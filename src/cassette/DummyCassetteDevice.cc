@@ -2,19 +2,18 @@
 
 #include "DummyCassetteDevice.hh"
 
-
 namespace openmsx {
 
 DummyCassetteDevice::DummyCassetteDevice()
 {
 }
 
-void DummyCassetteDevice::setMotor(bool status, const EmuTime &time)
+void DummyCassetteDevice::setMotor(bool status, const EmuTime& time)
 {
 	// do nothing
 }
 
-short DummyCassetteDevice::readSample(const EmuTime &time)
+short DummyCassetteDevice::readSample(const EmuTime& time)
 {
 	return 32767;	// TODO check value
 }
@@ -35,7 +34,6 @@ const string& DummyCassetteDevice::getDescription() const
 }
 
 void DummyCassetteDevice::plugHelper(Connector* connector, const EmuTime& time)
-	throw()
 {
 }
 

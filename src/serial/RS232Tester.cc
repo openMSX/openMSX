@@ -9,12 +9,12 @@ namespace openmsx {
 
 RS232Tester::RS232Tester()
 	: thread(this), lock(1),
-		rs232InputFilenameSetting("rs232-inputfilename",
-                "filename of the file where the RS232 input is read from",
-                "rs232-input"),
-		rs232OutputFilenameSetting("rs232-outputfilename",
-                "filename of the file where the RS232 output is written to",
-                "rs232-output")
+	  rs232InputFilenameSetting("rs232-inputfilename",
+	        "filename of the file where the RS232 input is read from",
+	        "rs232-input"),
+	  rs232OutputFilenameSetting("rs232-outputfilename",
+	        "filename of the file where the RS232 output is written to",
+	        "rs232-output")
 {
 }
 
@@ -25,7 +25,6 @@ RS232Tester::~RS232Tester()
 
 // Pluggable
 void RS232Tester::plugHelper(Connector* connector_, const EmuTime& time)
-	throw(PlugException)
 {
 	// output
 	outFile.open(rs232OutputFilenameSetting.getValue().c_str());

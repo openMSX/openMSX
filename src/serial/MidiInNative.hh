@@ -36,8 +36,7 @@ public:
 	virtual ~MidiInNative();
 
 	// Pluggable
-	virtual void plugHelper(Connector *connector, const EmuTime& time)
-		throw(PlugException);
+	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
@@ -51,7 +50,7 @@ private:
 
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData) throw();
-	virtual const string &schedName() const;
+	virtual const string& schedName() const;
 
 	void procShortMsg(long unsigned int param);
 	void procLongMsg(LPMIDIHDR p);
