@@ -9,7 +9,9 @@
 
 
 CPU::CPU(CPUInterface *interf)
+#ifdef CPU_DEBUG
 	: cpudebug(false), debugCmd(this)
+#endif
 {
 	interface = interf;
 	makeTables();
