@@ -126,7 +126,7 @@ class MSXCPUInterface : public CPUInterface
 			byte secondary [4];
 			bool isSubSlotted [4];
 		};
-		MSXCPUInterface::SlotSelection * MSXCPUInterface::getCurrentSlots();
+		MSXCPUInterface::SlotSelection* getCurrentSlots();
 
 	protected:
 		MSXCPUInterface();
