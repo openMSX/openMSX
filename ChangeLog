@@ -1,5 +1,8 @@
 $Id$
 
+2004-07-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Simplified SHA1 interface + cleanups
+
 2004-07-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Preparartion for insert remove at run time:
 	   unregister memory / IO ports

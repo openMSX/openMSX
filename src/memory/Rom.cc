@@ -249,7 +249,6 @@ const string& Rom::getSHA1Sum() const
 	if (sha1sum.empty()) {
 		SHA1 sha1;
 		sha1.update(rom, size);
-		sha1.finalize();
 		sha1sum = sha1.hex_digest();
 	}
 	return sha1sum;

@@ -207,7 +207,6 @@ void FilePool::calcSha1sum(const string& filename, time_t& time, string& sum)
 	byte* data = file.mmap();
 	SHA1 sha1;
 	sha1.update(data, file.getSize());
-	sha1.finalize();
 	sum = sha1.hex_digest();
 }
 
