@@ -77,6 +77,9 @@ LINK_FLAGS:=
 # experience with cross-compilation, a more sophisticated system can be
 # designed.
 
+# Do not perform autodetection if platform was specified by the user.
+ifneq ($(origin OPENMSX_PLATFORM),environment)
+
 DETECTSYS_PATH:=$(BUILD_BASE)/detectsys
 DETECTSYS_MAKE:=$(DETECTSYS_PATH)/detectsys.mk
 DETECTSYS_SCRIPT:=$(DETECTSYS_PATH)/detectsys
@@ -98,7 +101,10 @@ $(DETECTSYS_SCRIPT): $(DETECTSYS_AC)
 	@cp $? $(@D)
 	@cd $(@D) ; autoconf $< > $(@F)
 
+endif # OPENMSX_PLATFORM
 
+# Ignore rest of Makefile if autodetection was not performed yet.
+# Note that the include above will force a reload of the Makefile.
 ifneq ($(origin OPENMSX_PLATFORM),undefined)
 
 # Load platform specific settings.
@@ -209,6 +215,10 @@ BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
 
 LOG_PATH:=$(BUILD_PATH)/log
 
+CONFIG_PATH:=$(BUILD_PATH)/config
+CONFIG_HEADER:=$(CONFIG_PATH)/src/config.h
+CONFIG_SCRIPT:=$(PWD)/configure
+
 
 # Compiler and Flags
 # ==================
@@ -246,7 +256,8 @@ CXXFLAGS+=-Wall
 
 # Determine include flags.
 INCLUDE_INTERNAL:=$(filter-out %/CVS,$(shell find $(SOURCES_PATH) -type d))
-INCLUDE_FLAGS:=$(addprefix -I,$(INCLUDE_INTERNAL))
+INCLUDE_FLAGS:=-I$(dir $(CONFIG_HEADER))
+INCLUDE_FLAGS+=$(addprefix -I,$(INCLUDE_INTERNAL))
 INCLUDE_FLAGS+=$(foreach lib,$(LIBS_CONFIG),$(shell $(lib)-config --cflags))
 
 # Determine link flags.
@@ -259,14 +270,21 @@ LINK_FLAGS+=$(foreach lib,$(LIBS_CONFIG),$(shell $(lib)-config --libs))
 # Build Rules
 # ===========
 
-all: config $(BINARY_FULL)
+all: config $(CONFIG_HEADER) $(BINARY_FULL)
 
+# Print configuration.
 config:
 	@echo "Build configuration:"
 	@echo "  Platform: $(OPENMSX_PLATFORM)"
 	@echo "  Flavour:  $(OPENMSX_FLAVOUR)"
 	@echo "  Profile:  $(OPENMSX_PROFILE)"
 	@echo "  Subset:   $(if $(OPENMSX_SUBSET),$(OPENMSX_SUBSET)*,full build)"
+
+# Configuration header created by "configure" script.
+$(CONFIG_HEADER): $(CONFIG_SCRIPT)
+	@echo "Checking configuration:"
+	@mkdir -p $(CONFIG_PATH)
+	@cd $(CONFIG_PATH) ; $(CONFIG_SCRIPT) $(OPENMSX_CONFIG) | $(INDENT)
 
 # Include dependency files.
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
