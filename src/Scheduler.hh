@@ -5,13 +5,14 @@
 
 #include <vector>
 #include "EmuTime.hh"
-#include "Settings.hh"
+#include "BooleanSetting.hh"
 #include "SettingListener.hh"
 #include "EventListener.hh"
 #include "Semaphore.hh"
 #include "Schedulable.hh"
 
 using std::vector;
+
 
 namespace openmsx {
 
@@ -20,6 +21,7 @@ class MSXCPU;
 class CommandController;
 class EventDistributor;
 class Renderer;
+
 
 class Scheduler : private SettingListener, private EventListener, private Schedulable
 {

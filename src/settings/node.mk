@@ -1,10 +1,13 @@
 # $Id$
 
 SRC_HDR:= \
-	SettingNode Settings SettingsManager
+	SettingNode SettingsManager \
+	IntegerSetting FloatSetting \
+	EnumSetting BooleanSetting \
+	StringSetting FilenameSetting
 
 HDR_ONLY:= \
-	SettingListener
+	Setting SettingListener
 
 $(eval $(PROCESS_NODE))
 

@@ -11,7 +11,8 @@
 #include "Thread.hh"
 #include "Schedulable.hh"
 #include "Semaphore.hh"
-#include "Settings.hh"
+#include "StringSetting.hh"
+#include "FilenameSetting.hh"
 
 using std::list;
 using std::ofstream;
@@ -63,4 +64,4 @@ private:
 
 } // namespace openmsx
 
-#endif
+#endif // __RS232TESTER_HH__

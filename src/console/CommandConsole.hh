@@ -9,8 +9,9 @@
 #include "Console.hh"
 #include "EventListener.hh"
 #include "CircularBuffer.hh"
-#include "Settings.hh"
+#include "BooleanSetting.hh"
 #include "SettingListener.hh"
+
 
 namespace openmsx {
 
@@ -19,6 +20,7 @@ class MSXConfig;
 class CommandController;
 class CliCommOutput;
 class SettingsManager;
+
 
 class CommandConsole : public Console, private EventListener,
                        private SettingListener
@@ -32,7 +34,7 @@ public:
 	void printFast(const string &text);
 	void printFlush();
 	void print(const string &text);
-	
+
 	virtual unsigned getScrollBack() const;
 	virtual const string &getLine(unsigned line) const;
 	virtual bool isVisible() const;
@@ -44,7 +46,7 @@ public:
 
 private:
 	static const int LINESHISTORY = 100;
-	
+
 	CommandConsole();
 	virtual ~CommandConsole();
 	virtual bool signalEvent(const SDL_Event& event) throw();
@@ -62,31 +64,32 @@ private:
 	void newLineConsole(const string &line);
 	void putPrompt();
 	void resetScrollBack();
-	
+
 	void combineLines(CircularBuffer<string, LINESHISTORY> &buffer,
-			  CircularBuffer<bool, LINESHISTORY> &overflows,
-			  bool fromTop = false);
+		CircularBuffer<bool, LINESHISTORY> &overflows,
+		bool fromTop = false );
 	void splitLines();
 	void loadHistory();
 	void saveHistory();
-	
+
 	void update(const SettingLeafNode* setting) throw();
 
 	BooleanSetting consoleSetting;
 	unsigned int maxHistory;
 	string editLine;
-	// Are double commands allowed ?
+	/** Are double commands allowed? */
 	bool removeDoubles;
 	CircularBuffer<string, LINESHISTORY> lines;
 	CircularBuffer<bool, LINESHISTORY> lineOverflows;
 	list<string> history;
 	list<string>::iterator commandScrollBack;
-	// saves Current Command to enable command recall
+	/** Saves Current Command to enable command recall. */
 	string currentLine;
 	unsigned consoleScrollBack;
 	unsigned cursorLocationX;
 	unsigned cursorLocationY;
-	unsigned cursorPosition; // position within the current command
+	/** Position within the current command. */
+	unsigned cursorPosition;
 	unsigned consoleColumns;
 	unsigned consoleRows;
 
@@ -99,4 +102,4 @@ private:
 
 } // namespace openmsx
 
-#endif
+#endif // __COMMANDCONSOLE_HH__

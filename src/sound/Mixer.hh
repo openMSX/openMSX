@@ -11,9 +11,11 @@
 #include <vector>
 #include <map>
 #include "EmuTime.hh"
-#include "Settings.hh"
+#include "IntegerSetting.hh"
+#include "BooleanSetting.hh"
 #include "SettingListener.hh"
 #include "InfoTopic.hh"
+
 
 namespace openmsx {
 
@@ -24,6 +26,7 @@ class RealTime;
 class CliCommOutput;
 class InfoCommand;
 class VolumeSetting;
+
 
 class Mixer : private SettingListener
 {

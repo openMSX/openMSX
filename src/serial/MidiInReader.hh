@@ -10,7 +10,7 @@
 #include "Thread.hh"
 #include "Schedulable.hh"
 #include "Semaphore.hh"
-#include "Settings.hh"
+#include "StringSetting.hh"
 
 using std::list;
 

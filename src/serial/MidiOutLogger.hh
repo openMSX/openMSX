@@ -5,7 +5,7 @@
 
 #include <fstream>
 #include "MidiOutDevice.hh"
-#include "Settings.hh"
+#include "StringSetting.hh"
 
 using std::ofstream;
 

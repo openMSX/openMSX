@@ -3,7 +3,9 @@
 #ifndef __VDPSETTINGS_HH__
 #define __VDPSETTINGS_HH__
 
-#include "Settings.hh"
+#include "EnumSetting.hh"
+#include "BooleanSetting.hh"
+
 
 namespace openmsx {
 

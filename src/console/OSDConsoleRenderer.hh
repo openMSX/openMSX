@@ -4,7 +4,8 @@
 #define __OSDCONSOLERENDERER_HH__
 
 #include "ConsoleRenderer.hh"
-#include "Settings.hh"
+#include "EnumSetting.hh"
+#include "FilenameSetting.hh"
 #include "DummyFont.hh"
 #include "Console.hh"
 
@@ -18,6 +19,7 @@ namespace openmsx {
 
 class OSDConsoleRenderer;
 class FileContext;
+class IntegerSetting;
 
 
 class BackgroundSetting : public FilenameSetting

@@ -3,17 +3,20 @@
 #ifndef __RENDERSETTINGS_HH__
 #define __RENDERSETTINGS_HH__
 
-#include "Settings.hh"
+#include "IntegerSetting.hh"
+#include "FloatSetting.hh"
+#include "BooleanSetting.hh"
 #include "RendererFactory.hh"
 #include "FrameSkipSetting.hh"
 #include "Scalers.hh"
 #include "InfoTopic.hh"
 
+
 namespace openmsx {
 
 class MSXConfig;
-class CliCommOutput;
 class InfoCommand;
+
 
 /** Singleton containing all settings for renderers.
   * Keeping the settings here makes sure they are preserved when the user
@@ -29,50 +32,50 @@ public:
 	static RenderSettings& instance();
 
 	/** Accuracy [screen, line, pixel] */
-	EnumSetting<Accuracy> *getAccuracy() { return accuracy; }
+	EnumSetting<Accuracy>* getAccuracy() { return accuracy; }
 
 	/** Deinterlacing [on, off]. */
-	BooleanSetting *getDeinterlace() { return deinterlace; }
+	BooleanSetting* getDeinterlace() { return deinterlace; }
 
 	/** The current frameskip. */
-	FrameSkipSetting *getFrameSkip() { return frameSkip; }
+	FrameSkipSetting* getFrameSkip() { return frameSkip; }
 
 	/** Full screen [on, off]. */
-	BooleanSetting *getFullScreen() { return fullScreen; }
+	BooleanSetting* getFullScreen() { return fullScreen; }
 
 	/** The amount of gamma correction. */
-	FloatSetting *getGamma() { return gamma; }
+	FloatSetting* getGamma() { return gamma; }
 
 	/** The amount of glow [0..100]. */
-	IntegerSetting *getGlow() { return glow; }
+	IntegerSetting* getGlow() { return glow; }
 
 	/** The amount of horizontal blur [0..100]. */
-	IntegerSetting *getHorizontalBlur() { return horizontalBlur; }
+	IntegerSetting* getHorizontalBlur() { return horizontalBlur; }
 
 	/** The current renderer. */
-	RendererFactory::RendererSetting *getRenderer() { return renderer; }
+	RendererFactory::RendererSetting* getRenderer() { return renderer; }
 
 	/** The current scaling algorithm. */
-	EnumSetting<ScalerID> *getScaler() { return scaler; }
+	EnumSetting<ScalerID>* getScaler() { return scaler; }
 
 	/** The alpha value [0..100] of the scanlines. */
-	IntegerSetting *getScanlineAlpha() { return scanlineAlpha; }
+	IntegerSetting* getScanlineAlpha() { return scanlineAlpha; }
 
 private:
 	RenderSettings();
 	~RenderSettings();
 
 	// Please keep the settings ordered alphabetically.
-	EnumSetting<Accuracy> *accuracy;
-	BooleanSetting *deinterlace;
-	FrameSkipSetting *frameSkip;
-	BooleanSetting *fullScreen;
-	FloatSetting *gamma;
-	IntegerSetting *glow;
-	IntegerSetting *horizontalBlur;
-	RendererFactory::RendererSetting *renderer;
-	EnumSetting<ScalerID> *scaler;
-	IntegerSetting *scanlineAlpha;
+	EnumSetting<Accuracy>* accuracy;
+	BooleanSetting* deinterlace;
+	FrameSkipSetting* frameSkip;
+	BooleanSetting* fullScreen;
+	FloatSetting* gamma;
+	IntegerSetting* glow;
+	IntegerSetting* horizontalBlur;
+	RendererFactory::RendererSetting* renderer;
+	EnumSetting<ScalerID>* scaler;
+	IntegerSetting* scanlineAlpha;
 
 	class RendererInfo : public InfoTopic {
 	public:

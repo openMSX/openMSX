@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include "FrameSkipSetting.hh"
+#include "CommandException.hh"
 
 using std::ostringstream;
 

@@ -5,7 +5,7 @@
 
 #include <SDL/SDL.h>
 #include "AudioInputDevice.hh"
-#include "Settings.hh"
+#include "FilenameSetting.hh"
 #include "SettingListener.hh"
 #include "EmuTime.hh"
 

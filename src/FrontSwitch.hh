@@ -3,7 +3,7 @@
 #ifndef __FRONTSWITCH_HH__
 #define __FRONTSWITCH_HH__
 
-#include "Settings.hh"
+#include "BooleanSetting.hh"
 
 
 namespace openmsx {

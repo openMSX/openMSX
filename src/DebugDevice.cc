@@ -7,7 +7,8 @@
 #include "DebugDevice.hh"
 #include "Device.hh"
 #include "FileOperations.hh"
-#include "Settings.hh"
+#include "FilenameSetting.hh"
+
 
 namespace openmsx {
 

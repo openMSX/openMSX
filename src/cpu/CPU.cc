@@ -1,16 +1,17 @@
 // $Id$
 
-#include <sstream>
-#include "CPUInterface.hh"
 #include "CPU.hh"
+#include "CPUInterface.hh"
 #include "Scheduler.hh"
 #include "CliCommOutput.hh"
+#include <sstream>
 
 #ifdef CPU_DEBUG
-#include "Settings.hh"
+#include "BooleanSetting.hh"
 #endif
 
 using std::ostringstream;
+
 
 namespace openmsx {
 

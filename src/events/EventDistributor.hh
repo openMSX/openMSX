@@ -6,16 +6,18 @@
 #include <SDL/SDL.h>
 #include <map>
 #include <queue>
-#include "Settings.hh"
+#include "BooleanSetting.hh"
 #include "SettingListener.hh"
 
 using std::multimap;
 using std::queue;
 using std::pair;
 
+
 namespace openmsx {
 
 class EventListener;
+
 
 class EventDistributor : private SettingListener
 {
@@ -65,4 +67,4 @@ private:
 
 } // namespace openmsx
 
-#endif
+#endif // __EVENTDISTRIBUTOR_HH__

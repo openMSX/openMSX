@@ -5,11 +5,12 @@
 
 #include <map>
 #include "EventListener.hh"
-#include "Settings.hh"
+#include "BooleanSetting.hh"
 #include "SettingListener.hh"
 #include "Console.hh"
 
 using std::map;
+
 
 namespace openmsx {
 
@@ -21,7 +22,7 @@ class DebugConsole : public Console, private EventListener,
 {
 public:
 	static DebugConsole* instance();
-	
+
 	struct ViewStruct {
 		~ViewStruct();
 		unsigned cursorX;
@@ -65,4 +66,4 @@ private:
 
 } // namespace openmsx
 
-#endif
+#endif // __DEBUGCONSOLE_HH__

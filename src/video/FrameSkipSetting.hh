@@ -3,9 +3,10 @@
 #ifndef __FRAMESKIPSETTING_HH__
 #define __FRAMESKIPSETTING_HH__
 
-#include "Settings.hh"
+#include "Setting.hh"
 
 #include <cassert>
+
 
 namespace openmsx {
 
@@ -50,12 +51,12 @@ public:
 		return FrameSkip(automatic, newFrameSkip);
 	}
 
-	bool operator ==(const FrameSkip &other) const {
+	bool operator ==(const FrameSkip& other) const {
 		return this->automatic == other.automatic
 			&& this->frameSkip == other.frameSkip;
 	}
 
-	bool operator !=(const FrameSkip &other) const {
+	bool operator !=(const FrameSkip& other) const {
 		return !(*this == other);
 	}
 
@@ -69,11 +70,11 @@ class FrameSkipSetting : public Setting<FrameSkip>
 public:
 	FrameSkipSetting();
 	string getValueString() const;
-	void setValueString(const string &valueString);
-	void setValue(const FrameSkip &newValue);
+	void setValueString(const string& valueString);
+	void setValue(const FrameSkip& newValue);
 };
 
 } // namespace openmsx
 
-#endif
+#endif // __FRAMESKIPSETTING_HH__
 

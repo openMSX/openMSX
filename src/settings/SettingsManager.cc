@@ -1,9 +1,10 @@
 // $Id$
 
-#include <cstdlib>
 #include "SettingsManager.hh"
-#include "Settings.hh"
+#include "IntegerSetting.hh"
+#include "BooleanSetting.hh"
 #include "CommandController.hh"
+//#include <cstdlib>
 
 
 namespace openmsx {

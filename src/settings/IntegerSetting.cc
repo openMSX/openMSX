@@ -1,0 +1,64 @@
+// $Id$
+
+#include "IntegerSetting.hh"
+#include "CommandException.hh"
+#include <sstream>
+#include <cstdio>
+
+using std::ostringstream;
+
+
+namespace openmsx {
+
+IntegerSetting::IntegerSetting(
+	const string &name_, const string &description_,
+	int initialValue, int minValue_, int maxValue_)
+	: Setting<int>(name_, description_, initialValue)
+{
+	setRange(minValue_, maxValue_);
+}
+
+void IntegerSetting::setRange(int minValue, int maxValue)
+{
+	this->minValue = minValue;
+	this->maxValue = maxValue;
+
+	// Update the setting type to the new range.
+	ostringstream out;
+	out << minValue << " - " << maxValue;
+	type = out.str();
+
+	// Clip to new range.
+	setValue(getValue());
+}
+
+string IntegerSetting::getValueString() const
+{
+	ostringstream out;
+	out << getValue();
+	return out.str();
+}
+
+void IntegerSetting::setValueString(const string &valueString)
+{
+	char *endPtr;
+	long newValue = strtol(valueString.c_str(), &endPtr, 0);
+	if (*endPtr != '\0') {
+		throw CommandException(
+			"set: " + valueString + ": not a valid integer");
+	}
+	setValue(newValue);
+}
+
+void IntegerSetting::setValue(const int &newValue)
+{
+	int nv = newValue;
+	if (nv < minValue) {
+		nv = minValue;
+	} else if (nv > maxValue) {
+		nv = maxValue;
+	}
+	Setting<int>::setValue(nv);
+}
+
+} // namespace openmsx
