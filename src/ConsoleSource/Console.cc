@@ -34,7 +34,7 @@ Console::Console()
 	: consoleSetting(this)
 {
 	SDL_EnableUNICODE(1);
-		
+
 	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this);
 
@@ -67,12 +67,12 @@ void Console::unregisterConsole(ConsoleRenderer *console)
 int Console::setCursorPosition(int position)
 {
 	cursorPosition = position;
-	if ((unsigned)position > lines[0].length()) 
+	if ((unsigned)position > lines[0].length())
 		cursorPosition = lines[0].length();
 	if ((unsigned)position < PROMPT.length()) cursorPosition = (signed)PROMPT.length();
 	return cursorPosition;
 }
-	
+
 int Console::getScrollBack()
 {
 	return consoleScrollBack;
@@ -105,7 +105,7 @@ bool Console::signalEvent(SDL_Event &event)
 		return true;
 	if (event.type == SDL_KEYUP)
 		return false;	// don't pass event to MSX-Keyboard
-	
+
 	Keys::KeyCode key = (Keys::KeyCode)event.key.keysym.sym;
 	SDLMod modifier = event.key.keysym.mod;
 	switch (key) {
@@ -132,47 +132,47 @@ bool Console::signalEvent(SDL_Event &event)
 			break;
 		case Keys::K_RETURN:
 			commandExecute();
-			cursorPosition=2;
+			cursorPosition = PROMPT.length();
 			break;
 		case Keys::K_LEFT:
 			if (cursorPosition > PROMPT.length()) cursorPosition--;
 			break;
 		case Keys::K_RIGHT:
-			if (cursorPosition<lines[0].length()) cursorPosition++;
+			if (cursorPosition < lines[0].length()) cursorPosition++;
 			break;
 		case Keys::K_HOME:
-			cursorPosition=PROMPT.length();
+			cursorPosition = PROMPT.length();
 			break;
 		case Keys::K_END:
-			cursorPosition=lines[0].length();
+			cursorPosition = lines[0].length();
 			break;
 		case Keys::K_A:
 			switch(modifier)
 			{
 			case KMOD_LCTRL:
 			case KMOD_RCTRL:
-				cursorPosition=PROMPT.length();
+				cursorPosition = PROMPT.length();
 				break;
 			default:
 				normalKey((char)event.key.keysym.unicode);
-				break;				
-			}			
-			break;	
+				break;
+			}
+			break;
 		case Keys::K_E:
 			switch(modifier)
 			{
 			case KMOD_LCTRL:
 			case KMOD_RCTRL:
-				cursorPosition=lines[0].length();
+				cursorPosition = lines[0].length();
 				break;
 			default:
 				normalKey((char)event.key.keysym.unicode);
-				break;				
-			}			
-			break;	
+				break;
+			}
+			break;
 		default:
 			normalKey((char)event.key.keysym.unicode);
-			
+
 	}
 	updateConsole();
 	return false;	// don't pass event to MSX-Keyboard
@@ -295,7 +295,7 @@ void Console::normalKey(char chr)
 	if (!chr) return;
 	std::string temp="";
 	temp+=chr;
-	
+
 	if (lines[0].length() < (unsigned)(consoleColumns-1)) // ignore extra characters
 	{
 		lines[0].insert(cursorPosition,temp);
