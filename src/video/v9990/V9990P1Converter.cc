@@ -159,8 +159,8 @@ void V9990P1Converter<Pixel, zoom>::determineVisibleSprites(
 		byte attr = vram->readVRAMP1(spriteInfo + 3);
 
 		if (!(attr & 0x10)) {
-			unsigned spriteY = vram->readVRAMP1(spriteInfo) + 1;
-			unsigned posY = displayY - spriteY;
+			byte spriteY = vram->readVRAMP1(spriteInfo) + 1;
+			byte posY = displayY - spriteY;
 			if (posY < 16) {
 				visibleSprites[index++] = sprite;
 				if (index == 16) break;
