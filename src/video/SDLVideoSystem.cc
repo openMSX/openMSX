@@ -15,63 +15,22 @@
 #include <SDL.h>
 #include <cassert>
 
-#ifdef __WIN32__
-#include <windows.h>
-static int lastWindowX = 0;
-static int lastWindowY = 0;
-#endif 
-
 
 namespace openmsx {
 
 SDLVideoSystem::SDLVideoSystem(
 	VDP* vdp, RendererFactory::RendererID id )
 {
-	assert(id == RendererFactory::SDLHI || id == RendererFactory::SDLLO);
-	const unsigned WIDTH = (id == RendererFactory::SDLLO) ? 320 : 640;
-	const unsigned HEIGHT = (id == RendererFactory::SDLLO) ? 240 : 480;
-
 	// Destruct old layers, so resources are freed before new allocations
 	// are done.
 	Display::INSTANCE.reset();
 
-	bool fullScreen = RenderSettings::instance().getFullScreen()->getValue();
-	int flags = SDL_SWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
-
-	initSDLVideo();
-
-	// Try default bpp.
-	screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);
-	// Can we handle this bbp?
-	int bytepp = (screen ? screen->format->BytesPerPixel : 0);
-	if (bytepp != 1 && bytepp != 2 && bytepp != 4) {
-		screen = NULL;
-	}
-	// Try supported bpp in order of preference.
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 15, flags);
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 16, flags);
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, flags);
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 8, flags);
-
-	if (!screen) {
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		throw InitException("could not open any screen");
-	}
-	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
-
-	// Hide mouse cursor.
-	SDL_ShowCursor(SDL_DISABLE);
-
-#ifdef __WIN32__
-	// Find our current location
-	HWND handle = GetActiveWindow();
-	RECT windowRect;
-	GetWindowRect (handle, &windowRect);
-	// and adjust if needed
-	if ((windowRect.right < 0) || (windowRect.bottom < 0)){
-		SetWindowPos(handle, HWND_TOP,lastWindowX,lastWindowY,0,0,SWP_NOSIZE);
-	}
-#endif 
+	assert(id == RendererFactory::SDLHI || id == RendererFactory::SDLLO);
+	screen = openSDLVideo(
+		(id == RendererFactory::SDLLO) ? 320 : 640, // width
+		(id == RendererFactory::SDLLO) ? 240 : 480, // height
+		SDL_SWSURFACE
+		);
 
 	Display* display = new Display(auto_ptr<VideoSystem>(this));
 	Display::INSTANCE.reset(display);
@@ -121,18 +80,7 @@ SDLVideoSystem::SDLVideoSystem(
 
 SDLVideoSystem::~SDLVideoSystem()
 {
-#ifdef __WIN32__
-	// Find our current location
-	if ((screen->flags & SDL_FULLSCREEN) == 0){
-		HWND handle = GetActiveWindow();
-		RECT windowRect;
-		GetWindowRect (handle, &windowRect);
-		lastWindowX = windowRect.left;
-		lastWindowY = windowRect.top;
-	}
-#endif
-
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+	closeSDLVideo();
 }
 
 // TODO: If we can switch video system at any time (not just frame end),

@@ -15,12 +15,6 @@
 #include "ScreenShotSaver.hh"
 #include <SDL.h>
 
-#ifdef __WIN32__
-#include <windows.h>
-static int lastWindowX = 0;
-static int lastWindowY = 0;
-#endif
-
 
 namespace openmsx {
 
@@ -36,45 +30,8 @@ SDLGLVideoSystem::SDLGLVideoSystem(VDP* vdp)
 	//       so move it to a central location.
 	Display::INSTANCE.reset();
 
-	// TODO: Probably rather similar to SDLVideoSystem;
-	//       move some code to SDLUtil?
-	bool fullScreen = RenderSettings::instance().getFullScreen()->getValue();
-	int flags = SDL_OPENGL | SDL_HWSURFACE
-		| (fullScreen ? SDL_FULLSCREEN : 0);
-
-	initSDLVideo();
-
-	// Enables OpenGL double buffering.
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, true);
-
-	// Try default bpp.
-	screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);
-	// Try supported bpp in order of preference.
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 15, flags);
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 16, flags);
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, flags);
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 8, flags);
-
-	if (!screen) {
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		throw InitException("could not open any screen");
-	}
-	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
-
-	// Hide mouse cursor.
-	SDL_ShowCursor(SDL_DISABLE);
-
-#ifdef __WIN32__
-	// Find our current location...
-	HWND handle = GetActiveWindow();
-	RECT windowRect;
-	GetWindowRect(handle, &windowRect);
-	// ...and adjust if needed.
-	if ((windowRect.right < 0) || (windowRect.bottom < 0)) {
-		SetWindowPos(
-			handle, HWND_TOP, lastWindowX, lastWindowY, 0, 0, SWP_NOSIZE );
-	}
-#endif
+	screen = openSDLVideo(WIDTH, HEIGHT,
+		SDL_OPENGL | SDL_HWSURFACE | SDL_DOUBLEBUF );
 
 	Display* display = new Display(auto_ptr<VideoSystem>(this));
 	Display::INSTANCE.reset(display);
@@ -91,18 +48,7 @@ SDLGLVideoSystem::SDLGLVideoSystem(VDP* vdp)
 
 SDLGLVideoSystem::~SDLGLVideoSystem()
 {
-#ifdef __WIN32__
-	// Find our current location.
-	if ((screen->flags & SDL_FULLSCREEN) == 0) {
-		HWND handle = GetActiveWindow();
-		RECT windowRect;
-		GetWindowRect(handle, &windowRect);
-		lastWindowX = windowRect.left;
-		lastWindowY = windowRect.top;
-	}
-#endif
-
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+	closeSDLVideo();
 }
 
 // TODO: If we can switch video system at any time (not just frame end),
