@@ -4,6 +4,8 @@ $Id$
 	* Added CliCommunicator:
 	   - external programs can now use stdin/stdout to pass/read commands
 	     to/from openMSX. Very usefull for launchers or GUIs.
+	* CliCommunicator cmds are now scheduled so they get executed by the
+	  main emulation thread
 
 2003-10-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Turn LEDs off when openmsx quits

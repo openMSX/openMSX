@@ -35,7 +35,6 @@ class Scheduler
 	};
 
 	public:
-		virtual ~Scheduler();
 		static Scheduler *instance();
 
 		/**
@@ -109,6 +108,7 @@ class Scheduler
 
 	private:
 		Scheduler();
+		~Scheduler();
 
 		/** Runs a single emulation step.
 		  */
