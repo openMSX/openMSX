@@ -7,6 +7,7 @@ $Id$
 	   - fixes "SNOW26" demo
 	* Fixed midi-out-logger bug:
 	   - once plugging failed (file not writable) it kept failing
+	   - same for RS232Tester
 
 2004-01-08 Maarten ter Huurne <maarten@treewalker.org>
 	* Implemented new deinterlacer for SDLHi.

@@ -30,6 +30,7 @@ void RS232Tester::plug(Connector *connector_, const EmuTime &time)
 	// output
 	outFile.open(rs232OutputFilenameSetting.getValue().c_str());
 	if (outFile.fail()) {
+		outFile.clear();
 		throw PlugException("Error opening output file");
 	}
 

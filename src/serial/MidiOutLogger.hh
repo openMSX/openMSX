@@ -29,7 +29,7 @@ public:
 
 private:
 	StringSetting logFilenameSetting;
-	ofstream* file;
+	ofstream file;
 };
 
 } // namespace openmsx
