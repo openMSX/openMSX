@@ -165,6 +165,21 @@ info
     info <topic>  shows info on this specific topic
 
 
+keymatrixup / keymatrixdown
+---------------------------
+
+  Press or release keys from the MSX keyboard matrix. Mainly usefull to make
+  an external program press MSX keys.
+
+  usage:
+    keymatrixup <row> <mask>    release the indicated MSX keys
+    keymatrixdown <row> <mask>  press the indicated MSX keys
+
+  examples:
+    keymatrixup 6 0x01
+    keymatrixdown 6 0x01
+
+
 palette
 -------
 

@@ -1,5 +1,8 @@
 $Id$
 
+2003-12-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented "keymatrixup" and "keymatrixdown" commands
+
 2003-12-09 Maarten ter Huurne <maarten@treewalker.org>
 	* Integrated hq2x algorithm:
 	    http://www.hiend3d.com/hq2x.html

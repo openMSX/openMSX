@@ -10,7 +10,7 @@
 #include "Config.hh"
 #include "File.hh"
 #include "FileContext.hh"
-
+#include "CommandController.hh"
 
 namespace openmsx {
 
@@ -18,10 +18,9 @@ void Keyboard::parseKeymapfile(const byte* buf, unsigned size)
 {
 	unsigned i = 0;
 	while  (i < size) {
-		unsigned j = 0;
-		char line[1024];
+		string line;
 		bool done = false;
-		while (!done && (j < 1023) && (i < size)) {
+		while (!done && (i < size)) {
 			char c = buf[i++];
 			switch (c) {
 				case '#':
@@ -42,17 +41,15 @@ void Keyboard::parseKeymapfile(const byte* buf, unsigned size)
 					done = true;
 					break;
 				default:
-					line[j++] = c;
+					line += c;
 					break;
 			}
 		}
-		line[j] = '\0';
 		unsigned vkey, row, bit;
-		vkey = 100; row = 100; bit = 100;
-		int rdnum = sscanf(line,"%i=%i,%i", &vkey, &row, &bit);
+		int rdnum = sscanf(line.c_str(), "%i=%i,%i", &vkey, &row, &bit);
 		if ((rdnum == 3) && (vkey < 0x150) && (row < 12) && (bit < 256)) {
-			Keys[vkey][0] = 0xFF & row;
-			Keys[vkey][1] = 0xFF & bit;
+			Keys[vkey][0] = row;
+			Keys[vkey][1] = bit;
 		}
 	}
 }
@@ -70,11 +67,13 @@ void Keyboard::loadKeymapfile(const string& filename)
 }
 
 Keyboard::Keyboard(bool keyG)
+	: keyMatrixUpCmd(*this), keyMatrixDownCmd(*this)
 {
 	keyGhosting = keyG;
 	keysChanged = false;
-	memset(keyMatrix , 255, sizeof(keyMatrix));
-	memset(keyMatrix2, 255, sizeof(keyMatrix2));
+	memset(keyMatrix,     255, sizeof(keyMatrix));
+	memset(cmdKeyMatrix,  255, sizeof(cmdKeyMatrix));
+	memset(userKeyMatrix, 255, sizeof(userKeyMatrix));
 	try {
 		Config* config = MSXConfig::instance().getConfigById("KeyMap");
 		string filename = config->getParameter("filename");
@@ -85,27 +84,33 @@ Keyboard::Keyboard(bool keyG)
 	}
 	EventDistributor::instance().registerEventListener(SDL_KEYDOWN, this, 1);
 	EventDistributor::instance().registerEventListener(SDL_KEYUP,   this, 1);
+
+	CommandController::instance().registerCommand(&keyMatrixUpCmd,   "keymatrixup");
+	CommandController::instance().registerCommand(&keyMatrixDownCmd, "keymatrixdown");
 }
 
 Keyboard::~Keyboard()
 {
-	EventDistributor::instance().unregisterEventListener(SDL_KEYDOWN, this, 1);
+	CommandController::instance().unregisterCommand(&keyMatrixDownCmd, "keymatrixdown");
+	CommandController::instance().unregisterCommand(&keyMatrixUpCmd,   "keymatrixup");
+
 	EventDistributor::instance().unregisterEventListener(SDL_KEYUP,   this, 1);
+	EventDistributor::instance().unregisterEventListener(SDL_KEYDOWN, this, 1);
 }
 
 
 const byte* Keyboard::getKeys()
 {
-	if (!keyGhosting) {
-		return keyMatrix;
-	} else {
-		if (keysChanged) {
-			keysChanged = false;
-			memcpy(keyMatrix2, keyMatrix, sizeof(keyMatrix));
+	if (keysChanged) {
+		keysChanged = false;
+		for (unsigned i = 0; i < NR_KEYROWS; ++i) {
+			keyMatrix[i] = cmdKeyMatrix[i] & userKeyMatrix[i];
+		}
+		if (keyGhosting) {
 			doKeyGhosting();
 		}
-		return keyMatrix2;
 	}
+	return keyMatrix;
 }
 
 
@@ -116,7 +121,7 @@ bool Keyboard::signalEvent(const SDL_Event& event) throw()
 		// Key pressed: reset bit in keyMatrix
 		int key = event.key.keysym.sym;
 		if (key < 0x150) {
-			keyMatrix[Keys[key][0]] &= ~Keys[key][1];
+			userKeyMatrix[Keys[key][0]] &= ~Keys[key][1];
 		}
 		break;
 	}
@@ -124,7 +129,7 @@ bool Keyboard::signalEvent(const SDL_Event& event) throw()
 		// Key released: set bit in keyMatrix
 		int key = event.key.keysym.sym;
 		if (key < 0x150) {
-			keyMatrix[Keys[key][0]] |= Keys[key][1];
+			userKeyMatrix[Keys[key][0]] |= Keys[key][1];
 		}
 		break;
 	}
@@ -150,22 +155,89 @@ void Keyboard::doKeyGhosting()
 	// the closed switches
 	bool changedSomething;
 	do {	changedSomething = false;
-		for (int i = 0; i < NR_KEYROWS-1; i++) {
-			byte row1 = keyMatrix2[i];
-			for (int j = i + 1; j < NR_KEYROWS; j++) {
-				byte row2 = keyMatrix2[j];
+		for (unsigned i = 0; i < NR_KEYROWS - 1; i++) {
+			byte row1 = keyMatrix[i];
+			for (unsigned j = i + 1; j < NR_KEYROWS; j++) {
+				byte row2 = keyMatrix[j];
 				if ((row1 != row2) && ((row1 | row2) != 0xff)) {
 					// not same and some common zero's
 					//  --> inherit other zero's
 					byte newRow = row1 & row2;
-					keyMatrix2[i] = newRow;
-					keyMatrix2[j] = newRow;
+					keyMatrix[i] = newRow;
+					keyMatrix[j] = newRow;
 					row1 = newRow;
 					changedSomething = true;
 				}
 			}
 		}
 	} while (changedSomething);
+}
+
+string Keyboard::processCmd(const vector<string>& tokens, bool up)
+{
+	if (tokens.size() != 3) {
+		throw CommandException("Syntax error");
+	}
+	char* endPtr;
+	unsigned long row = strtoul(tokens[1].c_str(), &endPtr, 0);
+	if ((*endPtr != '\0') || (row >= NR_KEYROWS)) {
+		throw CommandException("Invalid row");
+	}
+	unsigned long mask = strtoul(tokens[2].c_str(), &endPtr, 0);
+	if ((*endPtr != '\0') || (mask >= 256)) {
+		throw CommandException("Invalid mask");
+	}
+	if (up) {
+		cmdKeyMatrix[row] |= mask;
+	} else {
+		cmdKeyMatrix[row] &= ~mask;
+	}
+	keysChanged = true;
+	return "";
+}
+
+
+// class KeyMatrixUpCmd
+
+Keyboard::KeyMatrixUpCmd::KeyMatrixUpCmd(Keyboard& parent_)
+	: parent(parent_)
+{
+}
+
+string Keyboard::KeyMatrixUpCmd::execute(const vector<string> &tokens)
+	throw(CommandException)
+{
+	return parent.processCmd(tokens, true);
+}
+
+string Keyboard::KeyMatrixUpCmd::help(const vector<string> &tokens) const
+	throw()
+{
+	static const string helpText= 
+		"keymatrixup <row> <bitmask>  release a key in the keyboardmatrix\n";
+	return helpText;
+}
+
+
+// class KeyMatrixDownCmd
+
+Keyboard::KeyMatrixDownCmd::KeyMatrixDownCmd(Keyboard& parent_)
+	: parent(parent_)
+{
+}
+
+string Keyboard::KeyMatrixDownCmd::execute(const vector<string> &tokens)
+	throw(CommandException)
+{
+	return parent.processCmd(tokens, false);
+}
+
+string Keyboard::KeyMatrixDownCmd::help(const vector<string> &tokens) const
+	throw()
+{
+	static const string helpText= 
+		"keymatrixdown <row> <bitmask>  press a key in the keyboardmatrix\n";
+	return helpText;
 }
 
 

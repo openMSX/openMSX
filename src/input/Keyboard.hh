@@ -6,6 +6,7 @@
 #include <string>
 #include "openmsx.hh"
 #include "EventListener.hh"
+#include "Command.hh"
 
 using std::string;
 
@@ -33,15 +34,39 @@ public:
 	//EventListener
 	virtual bool signalEvent(const SDL_Event& event) throw();
 
-	static const int NR_KEYROWS = 12;
+	static const unsigned NR_KEYROWS = 16;
 
 private:
 	void doKeyGhosting();
 	void parseKeymapfile(const byte* buf, unsigned size);
 	void loadKeymapfile(const string& filename);
+	string processCmd(const vector<string>& tokens, bool up);
 
-	byte keyMatrix[16];
-	byte keyMatrix2[16];
+	class KeyMatrixUpCmd : public Command {
+	public:
+		KeyMatrixUpCmd(Keyboard& parent);
+		virtual string execute(const vector<string> &tokens)
+			throw(CommandException);
+		virtual string help(const vector<string> &tokens) const
+			throw();
+	private:
+		Keyboard& parent;
+	} keyMatrixUpCmd;
+
+	class KeyMatrixDownCmd : public Command {
+	public:
+		KeyMatrixDownCmd(Keyboard& parent);
+		virtual string execute(const vector<string> &tokens)
+			throw(CommandException);
+		virtual string help(const vector<string> &tokens) const
+			throw();
+	private:
+		Keyboard& parent;
+	} keyMatrixDownCmd;
+	
+	byte cmdKeyMatrix[NR_KEYROWS];
+	byte userKeyMatrix[NR_KEYROWS];
+	byte keyMatrix[NR_KEYROWS];
 	bool keyGhosting;
 	bool keysChanged;
 	static byte Keys[336][2];
