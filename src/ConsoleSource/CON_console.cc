@@ -371,12 +371,9 @@ ConsoleInformation *CON_Init(const char *FontName, SDL_Surface *DisplayScreen, i
 /* Frees all the memory loaded by the console */
 void CON_Destroy(ConsoleInformation *console)
 {
-	int i;
-
-
 	CON_DestroyCommands();
 	DT_DestroyDrawText();
-	for(i = 0; i <= console->Line_Buffer - 1; i++)
+	for (int i = 0; i <= console->Line_Buffer - 1; i++)
 	{
 		free(console->ConsoleLines[i]);
 		free(console->CommandLines[i]);
@@ -392,36 +389,34 @@ void CON_Destroy(ConsoleInformation *console)
 /* Increments the console line */
 void CON_NewLineConsole(ConsoleInformation *console)
 {
-	int loop;
+	// Scroll.
 	char *temp = console->ConsoleLines[console->Line_Buffer - 1];
-
-
-	for(loop = console->Line_Buffer - 1; loop > 1; loop--)
-		console->ConsoleLines[loop] = console->ConsoleLines[loop - 1];
-
+	for (int i = console->Line_Buffer - 1; i > 1; i--) {
+		console->ConsoleLines[i] = console->ConsoleLines[i - 1];
+	}
 	console->ConsoleLines[1] = temp;
 
 	memset(console->ConsoleLines[1], 0, CON_CHARS_PER_LINE);
-	if(console->TotalConsoleLines < console->Line_Buffer - 1)
+	if (console->TotalConsoleLines < console->Line_Buffer - 1) {
 		console->TotalConsoleLines++;
+	}
 }
 
 
 /* Increments the command lines */
 void CON_NewLineCommand(ConsoleInformation *console)
 {
-	int loop;
+	// Scroll.
 	char *temp = console->CommandLines[console->Line_Buffer - 1];
-
-
-	for(loop = console->Line_Buffer - 1; loop > 0; loop--)
-		console->CommandLines[loop] = console->CommandLines[loop - 1];
-
+	for (int i = console->Line_Buffer - 1; i > 0; i--) {
+		console->CommandLines[i] = console->CommandLines[i - 1];
+	}
 	console->CommandLines[0] = temp;
 
 	memset(console->CommandLines[0], 0, CON_CHARS_PER_LINE);
-	if(console->TotalCommands < console->Line_Buffer - 1)
+	if(console->TotalCommands < console->Line_Buffer - 1) {
 		console->TotalCommands++;
+	}
 }
 
 /* Draws the command line the user is typing in to the screen */
@@ -498,7 +493,7 @@ void CON_Out(ConsoleInformation *console, const char *str, ...)
 
 
 	va_start(marker, str);
-	vsprintf(temp, str, marker);
+	vsnprintf(temp, sizeof(temp), str, marker);
 	va_end(marker);
 
 	if(console->ConsoleLines)
