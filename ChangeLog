@@ -1,6 +1,6 @@
 $Id$
 
-2003-05-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-05-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Refactored VDPCmdEngine, use VDPCmd subclasses for each command
 	  instead of function pointers
 
@@ -11,6 +11,7 @@ $Id$
 	* Implemented Text2 and MultiColour modes in SDLGL using one texture
 	  per character approach (the approach Graphic2/3 already used).
 	* Implemented screen accuracy.
+	* Do not sync during a skipped frame.
 
 2003-05-27 Maarten ter Huurne <maarten@treewalker.org>
 	Dirty checking improvements:

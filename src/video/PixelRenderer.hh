@@ -126,7 +126,8 @@ protected:
 		// the past.
 		// TODO: I wonder if it's possible to enforce this synchronisation
 		//       scheme at a higher level. Probably. But how...
-		if (force || accuracy != RenderSettings::ACC_SCREEN) {
+		if (curFrameSkip == 0
+		&& (accuracy != RenderSettings::ACC_SCREEN || force) ) {
 			vram->sync(time);
 			renderUntil(time);
 		}

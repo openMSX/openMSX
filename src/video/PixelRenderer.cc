@@ -203,7 +203,7 @@ void PixelRenderer::updateVRAM(int offset, const EmuTime &time) {
 	// If display is disabled, VRAM changes will not affect the
 	// renderer output, therefore sync is not necessary.
 	// TODO: Have bitmapVisibleWindow disabled in this case.
-	if (vdp->isDisplayEnabled()
+	if (vdp->isDisplayEnabled() && curFrameSkip == 0
 	&& accuracy != RenderSettings::ACC_SCREEN) {
 		renderUntil(time);
 	}
@@ -220,8 +220,6 @@ void PixelRenderer::updateWindow(bool enabled, const EmuTime &time) {
 
 void PixelRenderer::renderUntil(const EmuTime &time)
 {
-	if (curFrameSkip != 0) return;
-
 	// Translate from time to pixel position.
 	int limitTicks = vdp->getTicksThisFrame(time);
 	assert(limitTicks <= vdp->getTicksPerFrame());
