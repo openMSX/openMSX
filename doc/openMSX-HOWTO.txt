@@ -94,7 +94,7 @@ cvs -d:pserver:anonymous@cvs.openmsx.sourceforge.net:/cvsroot/openmsx export -D 
 
 or, alternatively
 
-cvs -z3 -d:pserver:anonymous@cvs.openmsx.sourceforge.net:/cvsroot/openmsx checkout
+cvs -z3 -d:pserver:anonymous@cvs.openmsx.sourceforge.net:/cvsroot/openmsx checkout openMSX
 
 This will create a directory called openMSX for you in the current directory.
 If you want to update your source tree later, go to this directory again and
