@@ -1,5 +1,9 @@
 $Id$
 
+2003-05-17 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Implemented configurable file-extentions.
+	* Lined the help-text up, properly.
+
 2003-05-17 Reikan <openMSX4Win32@ranpub.com>
 	* Changed to single thread model.
 	  Now fixed SDLGL renderer fault on XFree86-4.3.0.

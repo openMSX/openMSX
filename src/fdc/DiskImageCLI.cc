@@ -11,11 +11,7 @@ DiskImageCLI::DiskImageCLI()
 	CommandLineParser::instance()->registerOption("-diska", this);
 	CommandLineParser::instance()->registerOption("-diskb", this);
 
-	CommandLineParser::instance()->registerFileType("dsk", this);
-	CommandLineParser::instance()->registerFileType("di1", this);
-	CommandLineParser::instance()->registerFileType("di2", this);
-	CommandLineParser::instance()->registerFileType("xsa", this);
-
+	CommandLineParser::instance()->registerFileType("diskimages", this);
 	driveLetter = 'a';
 }
 

@@ -26,7 +26,20 @@
     <parameter class="config">cfg</parameter>
     <parameter class="state">cfg</parameter>
   </config>
-  
+
+  <config id="FileTypes">
+    <type>FileTypes</type>
+    <parameter class="diskimages">dsk</parameter>
+    <parameter class="diskimages">di1</parameter>
+    <parameter class="diskimages">di2</parameter>
+    <parameter class="diskimages">xsa</parameter>
+    <parameter class="cassetteimages">wav</parameter>
+    <parameter class="cassetteimages">cas</parameter>
+    <parameter class="romimages">rom</parameter>
+    <parameter class="romimages">ri</parameter>
+   </config>
+
+
 <!-- Console commands that should be automatically executed at boot -->
   <config id="AutoCommands">
     <parameter>plug joyporta mouse</parameter>

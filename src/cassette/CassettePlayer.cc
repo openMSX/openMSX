@@ -14,7 +14,7 @@ MSXCassettePlayerCLI msxCassettePlayerCLI;
 MSXCassettePlayerCLI::MSXCassettePlayerCLI()
 {
 	CommandLineParser::instance()->registerOption("-cassetteplayer", this);
-	CommandLineParser::instance()->registerFileType("wav", this);
+	CommandLineParser::instance()->registerFileType("cassettesounds", this);
 }
 
 void MSXCassettePlayerCLI::parseOption(const std::string &option,
@@ -24,7 +24,7 @@ void MSXCassettePlayerCLI::parseOption(const std::string &option,
 }
 const std::string& MSXCassettePlayerCLI::optionHelp() const
 {
-	static const std::string text("Put raw tape image specified in argument in virtual\n\t\t\t  cassetteplayer");
+	static const std::string text("Put raw tape image specified in argument in virtual cassetteplayer");
 	return text;
 }
 

@@ -12,7 +12,7 @@ MSXCasCLI msxCasCLI;
 MSXCasCLI::MSXCasCLI()
 {
 	CommandLineParser::instance()->registerOption("-cas", this);
-	CommandLineParser::instance()->registerFileType("cas", this);
+	CommandLineParser::instance()->registerFileType("cassetteimages", this);
 }
 
 void MSXCasCLI::parseOption(const std::string &option,
@@ -22,8 +22,7 @@ void MSXCasCLI::parseOption(const std::string &option,
 }
 const std::string& MSXCasCLI::optionHelp() const
 {
-	static const std::string text("Put tape image in CAS format specified in\n"
-	                        "\t\t  argument in virtual cassette player");
+	static const std::string text("Put tape image in CAS format specified in argument in virtual cassette player");
 	return text;
 }
 

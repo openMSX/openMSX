@@ -7,6 +7,7 @@
 #include <list>
 #include <map>
 #include <vector>
+#include <set>
 #include "openmsx.hh"
 #include "config.h"
 
@@ -48,6 +49,8 @@ class CommandLineParser
 		void registerFileType(const std::string &str, CLIFileType* cliFileType);
 		void registerPostConfig(CLIPostConfig *post);
 		void parse(int argc, char **argv);
+		bool parseFileName(const std::string &arg,std::list<std::string> &cmdLine);
+		bool parseOption(const std::string &arg,std::list<std::string> &cmdLine);
 
 	//private: // should be private, but gcc-2.95.x complains
 		struct caseltstr {
@@ -57,10 +60,10 @@ class CommandLineParser
 		};
 		std::map<std::string, CLIOption*> optionMap;
 		std::map<std::string, CLIFileType*, caseltstr> fileTypeMap;
-		
+		std::map<std::string, CLIFileType*, caseltstr> fileClassMap;
 	private:
 		CommandLineParser();
-
+		void postRegisterFileTypes();
 		std::vector<CLIPostConfig*> postConfigs;
 		bool haveConfig;
 
@@ -69,6 +72,8 @@ class CommandLineParser
 			virtual void parseOption(const std::string &option,
 				std::list<std::string> &cmdLine);
 			virtual const std::string& optionHelp() const;
+			std::string formatSet(std::set<std::string> * inputSet,unsigned columns);
+			std::string formatHelptext(std::string helpText,unsigned maxlength, unsigned indent);
 		} helpOption;
 		
 		class ConfigFile : public CLIOption, public CLIFileType {
