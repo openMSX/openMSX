@@ -4,6 +4,7 @@ $Id$
 	* video code was not exception safe, fixed it:
 	   - when an excpetion was thrown some objects were not deleted or
 	     even deleted twice
+	* Accept sha1sums in db in both upper and lower case
 
 2005-02-27 Manuel Bilderbeek <manuel@msxnet.org>
 	* Also check if <rom> entries have a <type> child. Fixes Synthesizer.

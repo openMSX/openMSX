@@ -24,6 +24,8 @@ typedef map<string, RomType, StringOp::caseless> RomTypeMap;
 static RomTypeMap romtype;
 static bool init = false;
 
+typedef map<string, RomInfo*, StringOp::caseless> DBMap;
+
 static void initMap()
 {
 	if (init) {
@@ -188,8 +190,7 @@ static string parseRemarks(const XMLElement& elem)
 	return result;
 }
 
-static void addEntry(RomInfo* romInfo, const string& sha1,
-                     map<string, RomInfo*>& result)
+static void addEntry(RomInfo* romInfo, const string& sha1, DBMap& result)
 {
 	if (result.find(sha1) == result.end()) {
 		result[sha1] = romInfo;
@@ -200,7 +201,7 @@ static void addEntry(RomInfo* romInfo, const string& sha1,
 }
 
 static void parseOldEntry(
-	const XMLElement& soft, map<string, RomInfo*>& result,
+	const XMLElement& soft, DBMap& result,
 	const string& title, const string& year,
 	const string& company, const string& remark,
 	const string& type)
@@ -218,7 +219,7 @@ static void parseOldEntry(
 }
 
 static void parseNewEntry(
-	const XMLElement& rom, map<string, RomInfo*>& result,
+	const XMLElement& rom, DBMap& result,
 	const string& title, const string& year,
 	const string& company, const string& remark,
 	const string& type)
@@ -238,7 +239,7 @@ static void parseNewEntry(
 	}
 }
 
-static void parseDB(const XMLElement& doc, map<string, RomInfo*>& result)
+static void parseDB(const XMLElement& doc, DBMap& result)
 {
 	const XMLElement::Children& children = doc.getChildren();
 	for (XMLElement::Children::const_iterator it1 = children.begin();
@@ -313,7 +314,7 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 	//      - mem not freed on exit
 	//      - RomInfo is copied only to make ownership managment easier
 	//  -->  boost::shared_ptr would solve all these issues
-	static map<string, RomInfo*> romDBSHA1;
+	static DBMap romDBSHA1;
 	static bool init = false;
 
 	if (!init) {
@@ -330,7 +331,7 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 				doc = openDB(*it + "romdb.xml", "romdb.dtd");
 			}
 			if (doc.get()) {
-				map<string, RomInfo*> tmp;
+				DBMap tmp;
 				parseDB(*doc, tmp);
 				romDBSHA1.insert(tmp.begin(), tmp.end());
 			}
