@@ -1,5 +1,15 @@
 $Id$
 
+2002-10-05 Maarten ter Huurne <mth@stack.nl>
+	Last minute Bussum fixes:
+	* Temporarily reverted name table base fix.
+	  This fix needs modifications in the renderers as well and I don't have
+	  time right now to find out exactly where.
+	* Rewrote PhaseHandlers to specify rectangles in VDP absolute coordinates
+	  and using exclusive limits.
+	  Fixes crashes on MSX1 and excessive draws, maybe more.
+	Unknown Reality shows only minor glitches, so we can demo with pride!
+
 2002-10-03 Maarten ter Huurne <mth@stack.nl>
 	* Fixed bug in VDP: name table base was not adjusted for planar modes.
 	  This caused wrong rendering in SCREEN7/8.
