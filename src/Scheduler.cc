@@ -53,26 +53,26 @@ void Scheduler::setSyncPoint(const EmuTime &time, Schedulable &device)
 	assert (time >= MSXCPU::instance()->getCurrentTime());
 	if (time < MSXCPU::instance()->getTargetTime())
 		MSXCPU::instance()->setTargetTime(time);
-	scheduleList.insert(SynchronizationPoint (time, device));
+	syncPoints.insert(SynchronizationPoint (time, device)); // automatically sorted
 }
 
-const SynchronizationPoint &Scheduler::getFirstSP()
+const Scheduler::SynchronizationPoint &Scheduler::getFirstSP()
 {
-	assert (!scheduleList.empty());
-	return *(scheduleList.begin());
+	assert (!syncPoints.empty());
+	return *(syncPoints.begin());
 }
 
 void Scheduler::removeFirstSP()
 {
-	assert (!scheduleList.empty());
-	scheduleList.erase(scheduleList.begin());
+	assert (!syncPoints.empty());
+	syncPoints.erase(syncPoints.begin());
 }
 
 void Scheduler::stopScheduling()
 {
 	runningScheduler=false;
-	//CPU can always be run :-)
-	// We set current time as SP (maybe schedule INFINITE running ?)
+	// We set current time as SP, this means reschedule as sson as possible.
+	// We must give a device, we choose MSXCPU.
 	EmuTime now = MSXCPU::instance()->getCurrentTime();
 	setSyncPoint(now, *(MSXCPU::instance())); 
 }
@@ -97,9 +97,10 @@ void Scheduler::scheduleEmulation()
 		SDL_mutexP(pauseMutex); // grab and release mutex, if unpaused this will
 		SDL_mutexV(pauseMutex); //  succeed else we sleep till unpaused
 
-		if (scheduleList.empty()) {
+		if (syncPoints.empty()) {
 			// nothing scheduled, emulate CPU
 			PRT_DEBUG ("Sched: Scheduling CPU till infinity");
+			const EmuTime infinity = EmuTime(EmuTime::INFINITY);
 			MSXCPU::instance()->executeUntilTarget(infinity);
 		} else {
 			const SynchronizationPoint &sp = getFirstSP();
@@ -119,7 +120,25 @@ void Scheduler::scheduleEmulation()
 		}
 	}
 }
-const EmuTime Scheduler::infinity = EmuTime(EmuTime::INFINITY);
+
+void Scheduler::unpause()
+{
+	if (paused) { 
+		paused = false;
+		SDL_mutexV(pauseMutex);	// release mutex;
+		Mixer::instance()->pause(noSound);
+		PRT_DEBUG("Unpaused");
+	}
+}
+void Scheduler::pause()
+{
+	if (!paused) { 
+		paused = true;
+		SDL_mutexP(pauseMutex);	// grab mutex
+		Mixer::instance()->pause(true);
+		PRT_DEBUG("Paused");
+	}
+}
 
 // Note: this runs in a different thread
 void Scheduler::signalEvent(SDL_Event &event) {
@@ -143,21 +162,3 @@ void Scheduler::signalHotKey(SDLKey key) {
 	}
 }
 
-void Scheduler::unpause()
-{
-	if (paused) { 
-		paused = false;
-		SDL_mutexV(pauseMutex);	// release mutex;
-		Mixer::instance()->pause(noSound);
-		PRT_DEBUG("Unpaused");
-	}
-}
-void Scheduler::pause()
-{
-	if (!paused) { 
-		paused = true;
-		SDL_mutexP(pauseMutex);	// grab mutex
-		Mixer::instance()->pause(true);
-		PRT_DEBUG("Paused");
-	}
-}
