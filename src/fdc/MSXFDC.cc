@@ -40,7 +40,7 @@ void MSXFDC::powerDown(const EmuTime& time)
 
 byte MSXFDC::readMem(word address, const EmuTime& /*time*/)
 {
-	return *getReadCacheLine(address);
+	return *MSXFDC::getReadCacheLine(address);
 }
 
 const byte* MSXFDC::getReadCacheLine(word start) const
