@@ -476,12 +476,11 @@ endif
 
 # Note: Use OPENMSX_INSTALL only to create binary packages.
 #       To change installation dir for actual installations, edit "custom.mk".
-OPENMSX_INSTALL ?= $(INSTALL_BASE)
-# allow full customization of locations, used by Debian packaging
-INSTALL_BINARY_DIR ?= $(OPENMSX_INSTALL)/bin
-INSTALL_SHARE_DIR ?= $(OPENMSX_INSTALL)/share
-INSTALL_DOC_DIR ?= $(OPENMSX_INSTALL)/doc
-DATADIR = $(INSTALL_SHARE_DIR)
+OPENMSX_INSTALL?=$(INSTALL_BASE)
+# Allow full customization of locations, used by Debian packaging.
+INSTALL_BINARY_DIR?=$(OPENMSX_INSTALL)/bin
+INSTALL_SHARE_DIR?=$(OPENMSX_INSTALL)/share
+INSTALL_DOC_DIR?=$(OPENMSX_INSTALL)/doc
 
 install: all
 	@echo "Installing to $(OPENMSX_INSTALL):"
@@ -489,9 +488,10 @@ install: all
 	@mkdir -p  $(INSTALL_BINARY_DIR)
 	@cp -f $(BINARY_FULL) $(INSTALL_BINARY_DIR)/$(BINARY_FILE)
 	@echo "  Data files..."
-	@mkdir -p $(INSTALL_SHARE_DIR)/Contrib/cbios
+	@mkdir -p $(INSTALL_SHARE_DIR)
 	@cp -rf share/* $(INSTALL_SHARE_DIR)/
 	@echo "  C-BIOS..."
+	@mkdir -p $(INSTALL_SHARE_DIR)/Contrib/cbios
 	@cp -f Contrib/README.cbios $(INSTALL_SHARE_DIR)/Contrib
 	@cp -f $(addprefix Contrib/cbios/,*.BIN *.txt *.rom) \
 		$(INSTALL_SHARE_DIR)/Contrib/cbios
@@ -508,14 +508,14 @@ ifeq ($(USE_SYMLINK),true)
 	@ln -nsf Philips_NMS_8250 $(INSTALL_SHARE_DIR)/machines/msx2
 	@ln -nsf Panasonic_FS-A1FX $(INSTALL_SHARE_DIR)/machines/msx2plus
 	@ln -nsf Panasonic_FS-A1GT $(INSTALL_SHARE_DIR)/machines/turbor
-ifeq ($(SOFTLINK_FOR_BINARY),true)
+  ifeq ($(SOFTLINK_FOR_BINARY),true)
 	@if [ -d /usr/local/bin -a -w /usr/local/bin ]; \
-		then ln -sf $(INSTALL_BINARY_DIR)/$(BINARY_FILE) /usr/local/bin/openmsx; \
-		else if [ -d ~/bin ]; \
-			then ln -sf $(INSTALL_BINARY_DIR)/$(BINARY_FILE) ~/bin/openmsx; \
-			fi; \
-		fi
-endif
+	then ln -sf $(INSTALL_BINARY_DIR)/$(BINARY_FILE) /usr/local/bin/openmsx; \
+	else if [ -d ~/bin ]; \
+		then ln -sf $(INSTALL_BINARY_DIR)/$(BINARY_FILE) ~/bin/openmsx; \
+		fi; \
+	fi
+  endif
 endif
 	@echo "  Setting permissions..."
 	@chmod -R a+rX $(OPENMSX_INSTALL)

@@ -23,7 +23,7 @@ $(CONFIG_HEADER): $(MAKE_PATH)/info2code.mk $(MAKE_PATH)/custom.mk
 	fi
 # Don't call it "BIG_ENDIAN", because some system header may #define that.
 	@echo "static const bool OPENMSX_BIGENDIAN = $(BIG_ENDIAN);" >> $@
-	@echo "static const std::string DATADIR = \"$(DATADIR)\";" >> $@
+	@echo "static const std::string DATADIR = \"$(INSTALL_SHARE_DIR)\";" >> $@
 	@echo "" >> $@
 	@echo "} // namespace openmsx" >> $@
 	@echo "" >> $@
