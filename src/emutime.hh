@@ -15,15 +15,21 @@
 #include <assert.h>
 #include <limits.h>
 
+#include <iostream>
 
 #ifndef uint64
 	typedef long long uint64;
 	// this is not portable to 64bit platforms? -> TODO check
 #endif
 
+// predefines
+class Emutime;
+std::ostream &operator<<(std::ostream &os, const Emutime &et);
+
 class Emutime
 {
 public:
+	friend std::ostream &operator<<(std::ostream &os, const Emutime &et);
 	// constants
 	static const uint64 MAIN_FREQ = 3579545*8;
 	static const uint64 INFINITY = 18446744073709551615ULL;	//ULLONG_MAX;
@@ -82,8 +88,6 @@ public:
 	float getDuration(const Emutime &foo) const {
 		return (float)(foo._emutime-_emutime)/MAIN_FREQ;
 	}
-
-	//TODO: make emutime printable !!
 
 private:
 	uint64 _emutime; 

@@ -2,6 +2,11 @@
 
 #include "emutime.hh"
 
+std::ostream &operator<<(std::ostream &os, const Emutime &et)
+{
+	os << et._emutime << " " << et._scale;
+	return os;
+}
 
 #if 0
 int main (int argc, char** argv)
