@@ -289,6 +289,7 @@ inline int VDP::checkSprites2(
 VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 	, paletteCmd(this)
+	, rendererCmd(this)
 {
 	PRT_DEBUG("Creating a VDP object");
 
@@ -338,9 +339,16 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	cmdEngine = new VDPCmdEngine(this, time);
 	vram->setCmdEngine(cmdEngine);
 
+	// Get renderer type and parameters from config.
+	MSXConfig::Config *renderConfig =
+		MSXConfig::Backend::instance()->getConfigById("renderer");
+	bool fullScreen = renderConfig->getParameterAsBool("full_screen");
+	rendererName = renderConfig->getType();
 	// Create renderer.
-	renderer = PlatformFactory::createRenderer(this, time);
+	renderer = PlatformFactory::createRenderer(
+		rendererName, this, fullScreen, time);
 	vram->setRenderer(renderer);
+	switchRenderer = false;
 
 	MSXMotherBoard::instance()->register_IO_In((byte)0x98, this);
 	MSXMotherBoard::instance()->register_IO_Out((byte)0x98, this);
@@ -359,6 +367,7 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 
 	// Register console commands.
 	CommandController::instance()->registerCommand(paletteCmd, "palette");
+	CommandController::instance()->registerCommand(rendererCmd, "renderer");
 
 }
 
@@ -618,6 +627,18 @@ void VDP::scheduleHScan(const EmuTime &time)
 void VDP::frameStart(const EmuTime &time)
 {
 	//cerr << "VDP::frameStart @ " << time << "\n";
+
+	if (switchRenderer) {
+		switchRenderer = false;
+		cout << "VDP: switching renderer to " << rendererName << "\n";
+		bool fullScreen = renderer->isFullScreen();
+		delete renderer;
+		cout << "VDP: delete successful\n";
+		// TODO: Handle invalid names more gracefully.
+		renderer = PlatformFactory::createRenderer(
+			rendererName, this, fullScreen, time);
+		vram->setRenderer(renderer);
+	}
 
 	// Toggle E/O.
 	// Actually this should occur half a line earlier,
@@ -1087,6 +1108,8 @@ void VDP::updateDisplayMode(byte reg0, byte reg1, const EmuTime &time)
 	}
 }
 
+// PaletteCmd inner class:
+
 VDP::PaletteCmd::PaletteCmd(VDP *vdp)
 {
 	this->vdp = vdp;
@@ -1109,7 +1132,45 @@ void VDP::PaletteCmd::execute(const std::vector<std::string> &tokens)
 	ConsoleManager::instance()->print(out.str());
 }
 
-void VDP::PaletteCmd::help   (const std::vector<std::string> &tokens)
+void VDP::PaletteCmd::help(const std::vector<std::string> &tokens)
 {
 	ConsoleManager::instance()->print("Prints the current VDP palette (i:rgb).");
+}
+
+// RendererCmd inner class:
+
+VDP::RendererCmd::RendererCmd(VDP *vdp)
+{
+	this->vdp = vdp;
+}
+
+void VDP::RendererCmd::execute(const std::vector<std::string> &tokens)
+{
+	switch (tokens.size()) {
+		case 1:
+			// Print name of current renderer.
+			ConsoleManager::instance()->print(
+				"Current renderer: " + vdp->rendererName);
+			break;
+		case 2:
+			// Switch renderer.
+			ConsoleManager::instance()->print(
+				"Renderer switching is currently disabled.");
+			/*
+			TODO: Find out why SDL_SetVideoMode hangs when switching
+			      to SDLGL from SDLHi.
+			vdp->rendererName = tokens[1];
+			vdp->switchRenderer = true;
+			*/
+			break;
+		default:
+			ConsoleManager::instance()->print(
+				"Too many parameters.");
+	}
+}
+
+void VDP::RendererCmd::help(const std::vector<std::string> &tokens)
+{
+	ConsoleManager::instance()->print(
+		"Select a new renderer or print the current renderer.");
 }

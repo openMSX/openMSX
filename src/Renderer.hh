@@ -28,6 +28,11 @@ public:
 	  */
 	Renderer(bool fullScreen);
 
+	/** Is this Renderer currently displaying full screen?
+	  * @return true if full screen; false if windowed.
+	  */
+	bool isFullScreen() { return fullScreen; }
+
 	/** Signals the start of a new frame.
 	  * The Renderer can use this to get fixed-per-frame settings from
 	  * the VDP, such as PAL/NTSC timing.
@@ -191,7 +196,7 @@ private:
 	  *       renderers at run time.
 	  */
 	bool fullScreen;
-	
+
 	class FullScreenCmd : public Command {
 		public:
 			FullScreenCmd(Renderer *rend);

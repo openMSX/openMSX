@@ -325,7 +325,8 @@ SDLGLRenderer::SDLGLRenderer(
 
 SDLGLRenderer::~SDLGLRenderer()
 {
-	// TODO: SDL_Free and such.
+	delete charDisplayCache;
+	delete bitmapDisplayCache;
 }
 
 void SDLGLRenderer::setFullScreen(

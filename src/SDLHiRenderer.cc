@@ -302,7 +302,9 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 
 template <class Pixel> SDLHiRenderer<Pixel>::~SDLHiRenderer()
 {
-	// TODO: SDL_Free and such.
+	delete console;
+	SDL_FreeSurface(charDisplayCache);
+	SDL_FreeSurface(bitmapDisplayCache);
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::setFullScreen(
@@ -871,7 +873,7 @@ Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 		return NULL;
 	}
 	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
-	
+
 	switch (screen->format->BytesPerPixel) {
 	case 1:
 		return new SDLHiRenderer<Uint8>(vdp, screen, fullScreen, time);

@@ -8,32 +8,26 @@
 #include "SDLHiRenderer.hh"
 #include "SDLGLRenderer.hh"
 
-Renderer *PlatformFactory::createRenderer(VDP *vdp, const EmuTime &time)
+Renderer *PlatformFactory::createRenderer(
+	const std::string &name, VDP *vdp,
+	bool fullScreen, const EmuTime &time)
 {
-	// Get renderer type and parameters from config.
-	MSXConfig::Config *renderConfig =
-		MSXConfig::Backend::instance()->getConfigById("renderer");
-	bool fullScreen = renderConfig->getParameterAsBool("full_screen");
-	std::string renderType = renderConfig->getType();
-
 	PRT_DEBUG("OK\n  Opening display... ");
-	Renderer *renderer;
 	/*if (renderType == "SDLLo") {
-		renderer = createSDLLoRenderer(vdp, fullScreen, time);
+		return createSDLLoRenderer(vdp, fullScreen, time);
 	}
-	else*/ if (renderType == "SDLHi") {
-		renderer = createSDLHiRenderer(vdp, fullScreen, time);
+	else*/ if (name == "SDLHi") {
+		return createSDLHiRenderer(vdp, fullScreen, time);
 	}
 #ifdef __SDLGLRENDERER_AVAILABLE__
-	else if (renderType == "SDLGL") {
-		renderer = createSDLGLRenderer(vdp, fullScreen, time);
+	else if (name == "SDLGL") {
+		return createSDLGLRenderer(vdp, fullScreen, time);
 	}
 #endif
 	else {
-		// throw excption?
-		PRT_ERROR("Unknown renderer \"" << renderType << "\"");
+		// throw exception?
+		PRT_ERROR("Unknown renderer \"" << name << "\"");
 		return 0; // unreachable
 	}
 
-	return renderer;
 }

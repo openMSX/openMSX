@@ -1,5 +1,10 @@
 $Id$
 
+2002-04-11 Maarten ter Huurne <mth@stack.nl>
+	* Introduced "renderer" command to print current renderer and switch
+	  to another one. However, switching from SDLHi to SDLGL hangs SDL.
+	  Well, at least the renderer destructors are finally implemented.
+
 2002-04-11 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Finally (?) fixed Y8950 samples:
 	   "Arranger 4" sounds ok now
@@ -48,7 +53,7 @@ $Id$
 
 2002-04-03 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Moved ADPCM part of Y8950 to its own file
-	* Fixed ADPCM bug: 
+	* Fixed ADPCM bug:
 	   addresses where a factor 8 too low, only first sample was
 	   played correctly
 	* Made console command "fullscreen", PrtScrn is bound to this command

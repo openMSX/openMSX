@@ -13,6 +13,8 @@
 #include "Renderer.hh"
 #include "ConsoleSource/Command.hh"
 
+#include <string>
+
 class EmuTime;
 class VDPCmdEngine;
 
@@ -415,10 +417,20 @@ private:
 	public:
 		PaletteCmd(VDP *vdp);
 		virtual void execute(const std::vector<std::string> &tokens);
-		virtual void help   (const std::vector<std::string> &tokens);
+		virtual void help(const std::vector<std::string> &tokens);
 	private:
 		VDP *vdp;
 	};
+
+	class RendererCmd : public Command {
+	public:
+		RendererCmd(VDP *vdp);
+		virtual void execute(const std::vector<std::string> &tokens);
+		virtual void help(const std::vector<std::string> &tokens);
+	private:
+		VDP *vdp;
+	};
+	friend class RendererCmd;
 
 	/** Time at which the internal VDP display line counter is reset,
 	  * expressed in ticks after vsync.
@@ -615,6 +627,12 @@ private:
 	/** Renderer that converts this VDP's state into an image.
 	  */
 	Renderer *renderer;
+
+	/** Name of the current Renderer.
+	  * TODO: Retrieve this from the Renderer object?
+	  *       Possible, but avoid duplication of name->class mapping.
+	  */
+	std::string rendererName;
 
 	/** Command engine: the part of the V9938/58 that executes commands.
 	  */
@@ -822,6 +840,14 @@ private:
 	/** Implements the palette print command.
 	  */
 	PaletteCmd paletteCmd;
+
+	/** Implements the renderer select command.
+	  */
+	RendererCmd rendererCmd;
+
+	/** Execute a renderer switch at the earliest convenient time.
+	  */
+	bool switchRenderer;
 
 };
 

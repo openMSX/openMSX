@@ -3,6 +3,8 @@
 #ifndef __PLATFORMFACTORY_HH__
 #define __PLATFORMFACTORY_HH__
 
+#include <string>
+
 class Renderer;
 class VDP;
 class EmuTime;
@@ -17,10 +19,14 @@ class PlatformFactory
 {
 public:
 	/** Create a Renderer.
+	  * @param name the name of the Renderer to create.
+	  * @param fullScreen display full screen? (rather than windowed)
 	  * @param vdp the VDP whose display will be rendered.
 	  * @param time the moment in emulated time the renderer is created.
 	  */
-	static Renderer *createRenderer(VDP *vdp, const EmuTime &time);
+	static Renderer *createRenderer(
+		const std::string &name, VDP *vdp,
+		bool fullScreen, const EmuTime &time);
 };
 
 #endif
