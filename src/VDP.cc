@@ -737,7 +737,7 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 		}
 		else {
 			int index = controlRegs[16];
-			int grb = paletteLatch | (value << 8);
+			int grb = ((value << 8) | paletteLatch) & 0x777;
 			renderer->updatePalette(index, grb, time);
 			palette[index] = grb;
 			controlRegs[16] = (index + 1) & 0x0F;

@@ -87,7 +87,8 @@ public:
 	/** Informs the renderer of a VDP palette change.
 	  * @param index The index [0..15] in the palette that changes.
 	  * @param grb The new definition for the changed palette index:
-	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
+	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue;
+	  *   all other bits are zero.
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updatePalette(int index, int grb, const EmuTime &time) = 0;

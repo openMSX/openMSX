@@ -1,5 +1,8 @@
 $Id$
 
+2002-03-03 Maarten ter Huurne <mth@stack.nl>
+	* Made sure unused bits in GRB palette value are zero.
+
 2002-03-02 Maarten ter Huurne <mth@stack.nl>
 	* Implemented fixed palette for sprites in Graphic 7 mode.
 
