@@ -13,13 +13,16 @@
 /****************************************************************************/
 
 #include <cassert>
+
 #include "Z80.hh"
-#include "Z80Tables.hh"
-#include "Z80.ii"
 
 #ifdef Z80DEBUG
+#include <stdio.h>
 #include "Z80Dasm.h"
 #endif
+
+#include "Z80Tables.hh"
+#include "Z80.ii"
 
 Z80::Z80(CPUInterface *interf, int waitCycl, const EmuTime &time) : CPU(interf)
 {
@@ -112,7 +115,7 @@ void Z80::execute()
 			currentTime += 11;
 		} else if (IFF1 && interface->IRQStatus()) {
 			// normal interrupt
-			HALT = false; 
+			HALT = false;
 			IFF1 = nextIFF1 = false;
 			switch (IM) {
 			case 2:
@@ -130,7 +133,7 @@ void Z80::execute()
 			case 0:
 				// Interrupt mode 0
 				// TODO current implementation only works for 1-byte instructions
-				//      ok for MSX 
+				//      ok for MSX
 				currentTime += 2;
 				executeInstruction(interface->dataBus());
 				break;

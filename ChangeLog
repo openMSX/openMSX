@@ -1,6 +1,10 @@
 $Id$
 
 2001-12-09 Maarten ter Huurne <mth@stack.nl>
+	* Fixed compilation with Z80DEBUG enabled.
+	* Fixed single-width pixels in SCREEN0 in SDLHiRenderer.
+
+2001-12-09 Maarten ter Huurne <mth@stack.nl>
 	* Introduced VDP class, which will replace MSXTMS9928a.
 
 2001-12-09 Joost Yervante Damad <j.damad@qahwah.net>

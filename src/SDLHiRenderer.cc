@@ -284,11 +284,13 @@ template <class Pixel> void SDLHiRenderer<Pixel>::mode1(
 	int nameEnd = nameStart + 40;
 	for (int name = nameStart; name < nameEnd; name++) {
 		int charcode = vdp->getVRAM(nameBase | name);
+		// TODO: Lines with both dirty and non-dirty pixels don't
+		//   seem to exist. Probably a bug somewhere.
 		if (dirtyColours || dirtyName[name] || dirtyPattern[charcode]) {
 			int pattern = vdp->getVRAM(patternBaseLine | (charcode * 8));
 			for (int i = 6; i--; ) {
 				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
-				pixelPtr++;
+				pixelPtr += 2;
 				pattern <<= 1;
 			}
 		}
