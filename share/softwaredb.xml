@@ -5,10 +5,10 @@
 																			 	
 	© 2004-2005 Benoit Delvaux	(Filling the database / testing games)			
 	© 2003 Nicolas Beyaert		(Initial database)								
-	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
+	© 2005 Patrick van Arkel	(Webscripting and Database tools)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1109491451">
+<softwaredb xml:lang="en" timestamp="1109525321">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -2612,7 +2612,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<hash algo="sha1">2544de44386cf49dad2eb1035ea0e8553dd7598b</hash>
+				<hash algo="sha1">2544DE44386CF49DAD2EB1035EA0E8553DD7598B</hash>
 			</rom>
 		</dump>
 	</software>
@@ -3082,7 +3082,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>basic</type>
-				<hash algo="sha1">e73fb56555a7232758d4b5bf2dd6736c9b3d5358</hash>
+				<hash algo="sha1">E73FB56555A7232758D4B5BF2DD6736C9B3D5358</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -3927,7 +3927,7 @@
 			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>ASCII16</type>
-				<hash algo="sha1">2F0DB48FBCF3444F52B9C7C76BA9C4BD38BC2A15</hash>
+				<hash algo="sha1">2f0db48fbcf3444f52b9c7c76ba9c4bd38bc2a15</hash>
 			</megarom>
 		</dump>
 		<dump>
@@ -4150,7 +4150,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>basic</type>
-				<hash algo="sha1">d31eb4ff4d6e4b3af645f24388c734a1d00a0c47</hash>
+				<hash algo="sha1">D31EB4FF4D6E4B3AF645F24388C734A1D00A0C47</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -4534,7 +4534,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<hash algo="sha1">1c90a57cc1237bdadd70d90d74e69c33d7a89293</hash>
+				<hash algo="sha1">1C90A57CC1237BDADD70D90D74E69C33D7A89293</hash>
 			</rom>
 		</dump>
 	</software>
@@ -5387,14 +5387,14 @@
 			<original value="false"/>
 			<megarom>
 				<type>ASCII16</type>
-				<hash algo="sha1">b2cca92b7a51a43c310e58e011f3ede1e7125a96</hash>
+				<hash algo="sha1">B2CCA92B7A51A43C310E58E011F3EDE1E7125A96</hash>
 			</megarom>
 		</dump>
 		<dump>
 			<original value="false"/>
 			<megarom>
 				<type>Zemina126in1</type>
-				<hash algo="crc32">2EE35C23</hash>
+				<hash algo="sha1">3F0A7B0CBAA3D4C3C6CE744708C68C89EFF82289</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -5422,7 +5422,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>Zemina80in1</type>
-				<hash algo="crc32">E50BAB84</hash>
+				<hash algo="sha1">5F912637565932C2BD7C0D7B9BE6AD3DC971F96F</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -5436,14 +5436,14 @@
 			<original value="false"/>
 			<megarom>
 				<type>ASCII8</type>
-				<hash algo="crc32">EE0FFFA2</hash>
+				<hash algo="sha1">30B41D0E9B3C59E8826112C618206E12E187FB5D</hash>
 			</megarom>
 		</dump>
 		<dump>
 			<original value="false"/>
 			<megarom>
 				<type>Zemina80in1</type>
-				<hash algo="crc32">D9AA0055</hash>
+				<hash algo="sha1">A4A75ED32C2AF3C5F009661BB76BE4F65E2E9A1F</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -5539,7 +5539,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<hash algo="crc32">30C3F4B7</hash>
+				<hash algo="sha1">B987A7858C9FBF2A996CC200F52FB2A840766EB2</hash>
 			</rom>
 		</dump>
 	</software>
@@ -8810,7 +8810,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<hash algo="sha1">9776da8b475d81400e027e37d949ccffbb33fe30</hash>
+				<hash algo="sha1">9776DA8B475D81400E027E37D949CCFFBB33FE30</hash>
 			</rom>
 		</dump>
 	</software>
@@ -10043,7 +10043,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>basic</type>
-				<hash algo="sha1">b76f2e8df68968e3af8a10f7e5966448d6665cb6</hash>
+				<hash algo="sha1">B76F2E8DF68968E3AF8A10F7E5966448D6665CB6</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -11417,7 +11417,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<hash algo="sha1">27e56fbec7fa39ce19d045b0dbc4217d290f92e2</hash>
+				<hash algo="sha1">27E56FBEC7FA39CE19D045B0DBC4217D290F92E2</hash>
 			</rom>
 		</dump>
 	</software>
@@ -12806,7 +12806,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<hash algo="sha1">c48f395060d919a13b3dfdb0d89cea9e32fc8f10</hash>
+				<hash algo="sha1">C48F395060D919A13B3DFDB0D89CEA9E32FC8F10</hash>
 				<remark>
 					<text>Guzuta Raster Leisure</text>
 				</remark>
@@ -12995,7 +12995,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<hash algo="sha1">fc6292d49736e4f986d2f44eae19a2e0e3185f45</hash>
+				<hash algo="sha1">FC6292D49736E4F986D2F44EAE19A2E0E3185F45</hash>
 				<remark>
 					<text>Guzuta Raster Leisure</text>
 				</remark>
@@ -13068,7 +13068,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<hash algo="sha1">4b986d80fc0d4ad3b2e2d0fa77c743bb671bc5bb</hash>
+				<hash algo="sha1">4B986D80FC0D4AD3B2E2D0FA77C743BB671BC5BB</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -13301,7 +13301,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<hash algo="sha1">0306181bb8babbc215e8c5066c1f490719541665</hash>
+				<hash algo="sha1">0306181BB8BABBC215E8C5066C1F490719541665</hash>
 			</rom>
 		</dump>
 	</software>
@@ -13745,7 +13745,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<hash algo="crc32">280F5036</hash>
+				<hash algo="sha1">F0BACC798B381E6F7C6B27E0FCBE3065A2C80D65</hash>
 			</rom>
 		</dump>
 	</software>
@@ -24332,4 +24332,4 @@
 		</dump>
 	</software>
 </softwaredb>
-<!-- Parse time 27.319 seconds on Sun Feb 27 0:04:38 Pacific Standard Time 2005 -->
+<!-- Parse time 30.660 seconds on Sun Feb 27 9:29:12 Pacific Standard Time 2005 -->
