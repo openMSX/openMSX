@@ -22,9 +22,11 @@ class MSXMusic : public MSXYM2413, public MSXMemDevice, public MSXRom
 		/**
 		 * Destructor
 		 */
-		~MSXMusic();
+		virtual ~MSXMusic();
 		
-		byte readMem(word address, const EmuTime &time);
-		void writeMem(word address, byte value, const EmuTime &time);
+		virtual void reset(const EmuTime &time);
+
+		virtual byte readMem(word address, const EmuTime &time);
+		virtual void writeMem(word address, byte value, const EmuTime &time);
 };
 #endif

@@ -17,6 +17,12 @@ MSXMusic::~MSXMusic()
 	PRT_DEBUG("Destroying an MSXMusic object");
 }
 
+void MSXMusic::reset(const EmuTime &time)
+{
+	MSXDevice::reset(time);
+	MSXYM2413::reset(time);
+}
+
 byte MSXMusic::readMem(word address, const EmuTime &time)
 {
 	switch (address) {
