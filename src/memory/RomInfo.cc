@@ -133,7 +133,7 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 		try {
 			SystemFileContext context;
 			File file(context.resolve("romdb.xml"));
-			XMLDocument doc(file.getLocalName().c_str());
+			XMLDocument doc(file.getLocalName().c_str(), "romdb.dtd");
 			
 			const XMLElement::Children& children = doc.getChildren();
 			for (XMLElement::Children::const_iterator it1 = children.begin();

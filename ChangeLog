@@ -10,6 +10,7 @@ $Id$
 	  the SHA1 doesn't match
 	* default binding for pause key must be "toggle pause" iso just "pause"
 	* renamed <MapperType> tag to <MapperReadBackBits>
+	* Check the DOCTYPE SYSTEM part when reading in xml files
 
 2004-10-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Updated configuration converter.

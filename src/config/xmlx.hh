@@ -117,11 +117,7 @@ private:
 class XMLDocument : public XMLElement
 {
 public:
-	XMLDocument(const string& filename);
-	XMLDocument(const ostringstream& stream);
-
-private:
-	void handleDoc(xmlDocPtr doc);
+	XMLDocument(const string& filename, const string& systemID);
 };
 
 

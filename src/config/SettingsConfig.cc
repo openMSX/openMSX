@@ -39,7 +39,7 @@ SettingsConfig& SettingsConfig::instance()
 void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 {
 	File file(context.resolve(filename));
-	XMLDocument doc(file.getLocalName());
+	XMLDocument doc(file.getLocalName(), "settings.dtd");
 	SystemFileContext systemContext;
 	handleDoc(*this, doc, systemContext);
 	
@@ -50,7 +50,8 @@ void SettingsConfig::saveSetting(const string& filename)
 {
 	const string& name = filename.empty() ? saveName : filename;
 	File file(name, TRUNCATE);
-	string data = dump();
+	string data = "<!DOCTYPE settings SYSTEM 'settings.dtd'>\n" +
+	              dump();
 	file.write((const byte*)data.c_str(), data.size());
 }
 

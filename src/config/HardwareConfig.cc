@@ -36,7 +36,7 @@ void HardwareConfig::loadHardware(XMLElement& root, const string& path,
 			path + '/' + hwName + "/hardwareconfig.xml");
 	}
 	File file(filename);
-	XMLDocument doc(file.getLocalName());
+	XMLDocument doc(file.getLocalName(), "msxconfig2.dtd");
 
 	// get url
 	string url(file.getURL());

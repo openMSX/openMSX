@@ -378,26 +378,27 @@ string XMLElement::XMLEscape(const string& str)
 
 // class XMLDocument
 
-XMLDocument::XMLDocument(const string& filename)
+XMLDocument::XMLDocument(const string& filename, const string& systemID)
 {
 	xmlDocPtr doc = xmlParseFile(filename.c_str());
-	handleDoc(doc);
-}
-
-XMLDocument::XMLDocument(const ostringstream& stream)
-{
-	xmlDocPtr doc = xmlParseMemory(stream.str().c_str(), stream.str().length());
-	handleDoc(doc);
-}
-
-void XMLDocument::handleDoc(xmlDocPtr doc)
-{
 	if (!doc) {
-		throw XMLException("Document parsing failed");
+		throw XMLException(filename + ": Document parsing failed");
 	}
 	if (!doc->children || !doc->children->name) {
 		xmlFreeDoc(doc);
-		throw XMLException("Document doesn't contain mandatory root Element");
+		throw XMLException(filename +
+			": Document doesn't contain mandatory root Element");
+	}
+	xmlDtdPtr intSubset = xmlGetIntSubset(doc);
+	if (!intSubset) {
+		throw XMLException(filename + ": Missing systemID");
+	}
+	string actualID = (const char*)intSubset->SystemID;
+	if (actualID != systemID) {
+		throw XMLException(filename + ": systemID doesn't match (" +
+			systemID + ", " + actualID + ")\n"
+			"You're probably using an old incompatible file format.\n"
+			"Try upgrading your configuration files.");
 	}
 	init(xmlDocGetRootElement(doc));
 	xmlFreeDoc(doc);
