@@ -1,13 +1,13 @@
 // $Id$
 
 #include <iostream>
+#include <cstdio>
+#include <unistd.h>
 #include "CliCommunicator.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
 
-using std::cin;
 using std::cout;
-using std::flush;
 
 namespace openmsx {
 
@@ -102,11 +102,14 @@ void CliCommunicator::run()
 	
 	parser_context = xmlCreatePushParserCtxt(&sax_handler, &user_data, 0, 0, 0);
 	
-	string line;
-	while (getline(cin, line)) {
-		xmlParseChunk(parser_context, line.c_str(), line.length(), 0);
+	char buf[4096];
+	while (true) {
+		ssize_t n = read(STDIN_FILENO, buf, 4096);
+		if (n == -1) {
+			break;
+		}
+		xmlParseChunk(parser_context, buf, n, 0);
 	}
-
 	xmlFreeParserCtxt(parser_context);
 }
 
