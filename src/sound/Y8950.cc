@@ -913,9 +913,9 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			if (data & R04_IRQ_RESET) {
 				resetStatus(0x78);	// reset all flags
 			} else {
-				changeStatusMask((~data)&0x78);
-				timer1.setStart(data&R04_ST1, time);
-				timer2.setStart(data&R04_ST2, time);
+				changeStatusMask((~data) & 0x78);
+				timer1.setStart(data & R04_ST1, time);
+				timer2.setStart(data & R04_ST2, time);
 				reg[rg] = data;
 			}
 			break;
