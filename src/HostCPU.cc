@@ -1,15 +1,17 @@
 // $Id$
 
 #include "HostCPU.hh"
+#include "openmsx.hh"
 #include <cassert>
 #include <cstdio>
-
+#include <iostream>
+#include <iomanip>
 
 namespace openmsx {
 
 HostCPU::HostCPU()
 {
-	fprintf(stderr, "probing host CPU...\n");
+	PRT_DEBUG("probing host CPU...");
 
 	mmxFlag = false;
 	mmxExtFlag = false;
@@ -55,7 +57,7 @@ HostCPU::HostCPU()
 					: "a" (1) // 1: function
 					: "ebx", "ecx"
 					);
-				fprintf(stderr, "features: %08X\n", features);
+				PRT_DEBUG("CPU flags: " << hex << std::setw(8) << std::setfill('0') << features);
 				mmxFlag = features & 0x800000;
 				bool sseFlag = features & 0x2000000;
 				mmxExtFlag = mmxFlag && sseFlag;
@@ -63,8 +65,8 @@ HostCPU::HostCPU()
 		}
 	}
 
-	fprintf(stderr, "MMX:              %d\n", mmxFlag);
-	fprintf(stderr, "MMX extensions:   %d\n", mmxExtFlag);
+	PRT_DEBUG("MMX:              " << mmxFlag);
+	PRT_DEBUG("MMX extensions:   " << mmxExtFlag);
 }
 
 } // namespace openmsx
