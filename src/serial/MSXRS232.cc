@@ -4,6 +4,7 @@
 #include "MSXRS232.hh"
 #include "RS232Device.hh"
 #include "Config.hh"
+#include "Ram.hh"
 
 namespace openmsx {
 
@@ -21,10 +22,10 @@ MSXRS232::MSXRS232(Config* config, const EmuTime& time)
 	, i8254(&cntr0, &cntr1, NULL, time)
 	, interf(*this)
 	, i8251(&interf, time)
-	, rom(config)
+	, rom(MSXDevice::getName() + "_ROM", "rom", config)
 {
 	if (config->getParameterAsBool("ram", false)) {
-		ram = new byte[RAM_SIZE];
+		ram = new Ram(MSXDevice::getName(), "RS232 RAM", RAM_SIZE);
 	} else {
 		ram = NULL;
 	}
@@ -40,7 +41,7 @@ MSXRS232::MSXRS232(Config* config, const EmuTime& time)
 
 MSXRS232::~MSXRS232()
 {
-	delete[] ram;
+	delete ram;
 }
 
 void MSXRS232::reset(const EmuTime& time)
@@ -50,7 +51,7 @@ void MSXRS232::reset(const EmuTime& time)
 	rxrdyIRQ.reset();
 
 	if (ram) {
-		memset(ram, 0, RAM_SIZE);
+		ram->clear();
 	}
 }
 
@@ -58,9 +59,9 @@ byte MSXRS232::readMem(word address, const EmuTime& time)
 {
 	word addr = address & 0x3FFF;
 	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
-		return ram[addr - RAM_OFFSET];
+		return (*ram)[addr - RAM_OFFSET];
 	} else if ((0x4000 <= address) && (address < 0x8000)) {
-		return rom.read(addr);
+		return rom[addr];
 	} else {
 		return 0xFF;
 	}
@@ -70,9 +71,9 @@ const byte* MSXRS232::getReadCacheLine(word start) const
 {
 	word addr = start & 0x3FFF;
 	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
-		return &ram[addr - RAM_OFFSET];
+		return &(*ram)[addr - RAM_OFFSET];
 	} else if ((0x4000 <= start) && (start < 0x8000)) {
-		return rom.getBlock(addr);
+		return &rom[addr];
 	} else {
 		return unmappedRead;
 	}
@@ -81,16 +82,20 @@ const byte* MSXRS232::getReadCacheLine(word start) const
 void MSXRS232::writeMem(word address, byte value, const EmuTime& time)
 {
 	word addr = address & 0x3FFF;
+	if (addr == 0x2682) {
+		cout << "RS232 Write 0x2682 " << (int) value << endl;
+	}
 	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
-		ram[addr - RAM_OFFSET] = value;
+		(*ram)[addr - RAM_OFFSET] = value;
 	}
 }
 
 byte* MSXRS232::getWriteCacheLine(word start) const
 {
+	return NULL;
 	word addr = start & 0x3FFF;
 	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
-		return &ram[addr - RAM_OFFSET];
+		return &(*ram)[addr - RAM_OFFSET];
 	} else {
 		return unmappedWrite;
 	}

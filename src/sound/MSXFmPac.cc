@@ -12,7 +12,7 @@ static const char* const PAC_Header = "PAC2 BACKUP DATA";
 
 MSXFmPac::MSXFmPac(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMusic(config, time), 
-	  sram(0x1FFE, config, PAC_Header)
+	  sram(getName(), 0x1FFE, config, PAC_Header)
 {
 	reset(time);
 }
@@ -48,7 +48,7 @@ byte MSXFmPac::readMem(word address, const EmuTime& time)
 		default:
 			if (sramEnabled) {
 				if (address < 0x1FFE) {
-					return sram.read(address);
+					return sram[address];
 				} else if (address == 0x1FFE) {
 					return r1ffe;
 				} else if (address == 0x1FFF) {
@@ -57,7 +57,7 @@ byte MSXFmPac::readMem(word address, const EmuTime& time)
 					return 0xFF;
 				}
 			} else {
-				return rom.read(bank * 0x4000 + address);
+				return rom[bank * 0x4000 + address];
 			}
 	}
 }
@@ -70,14 +70,14 @@ const byte* MSXFmPac::getReadCacheLine(word address) const
 	}
 	if (sramEnabled) {
 		if (address < (0x1FFE & CPU::CACHE_LINE_HIGH)) {
-			return sram.getBlock(address);
+			return &sram[address];
 		} else if (address == (0x1FFE & CPU::CACHE_LINE_HIGH)) {
 			return NULL;
 		} else {
 			return unmappedRead;
 		}
 	} else {
-		return rom.getBlock(bank * 0x4000 + address);
+		return &rom[bank * 0x4000 + address];
 	}
 }
 
@@ -115,7 +115,7 @@ void MSXFmPac::writeMem(word address, byte value, const EmuTime& time)
 		}
 		default:
 			if (sramEnabled && (address < 0x1FFE)) {
-				sram.write(address, value);
+				sram[address] = value;
 			}
 	}
 }
@@ -130,7 +130,7 @@ byte* MSXFmPac::getWriteCacheLine(word address) const
 		return NULL;
 	}
 	if (sramEnabled && (address < 0x1FFE)) {
-		return sram.getBlock(address);
+		return const_cast<byte*>(&sram[address]);
 	} else {
 		return unmappedWrite;
 	}

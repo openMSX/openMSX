@@ -12,7 +12,7 @@ static DiskImageCLI diskImageCLI;
 
 MSXFDC::MSXFDC(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
-	  rom(config) 
+	  rom(getName() + "_ROM", "rom", config) 
 {
 	string drivename("drivename1");
 	//                0123456789
@@ -36,12 +36,12 @@ MSXFDC::~MSXFDC()
 
 byte MSXFDC::readMem(word address, const EmuTime& time)
 {
-	return rom.read(address & 0x3FFF);
+	return rom[address & 0x3FFF];
 }
 
 const byte* MSXFDC::getReadCacheLine(word start) const
 {
-	return rom.getBlock(start & 0x3FFF);
+	return &rom[start & 0x3FFF];
 }
 
 } // namespace openmsx

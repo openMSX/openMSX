@@ -4,6 +4,7 @@
 #define __MSXSCCPLUSCART_HH__
 
 #include "MSXMemDevice.hh"
+#include "Ram.hh"
 
 namespace openmsx {
 
@@ -29,7 +30,7 @@ private:
 	SCC* scc;
 	byte modeRegister;
 	enum SCCEnable {EN_NONE, EN_SCC, EN_SCCPLUS} enable;
-	byte memoryBank[0x20000];
+	Ram ram;
 	bool isRamSegment[4];
 	bool isMapped[4];
 	byte* internalMemoryBank[4];	// 4 blocks of 8kB starting at #4000

@@ -14,6 +14,8 @@
 
 namespace openmsx {
 
+class Ram;
+
 class MSXRS232:
 	public MSXIODevice, public MSXMemDevice, public RS232Connector {
 public:
@@ -95,7 +97,7 @@ private:
 	
 	I8251 i8251;
 	Rom rom;
-	byte* ram;
+	Ram* ram;
 };
 
 } // namespace openmsx

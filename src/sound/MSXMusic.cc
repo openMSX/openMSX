@@ -10,7 +10,7 @@ namespace openmsx {
 
 MSXMusic::MSXMusic(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
-	  MSXMemDevice(config, time), rom(config)
+	  MSXMemDevice(config, time), rom(getName() + "_ROM", "rom", config)
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	Mixer::ChannelMode mode = Mixer::MONO;
@@ -68,12 +68,12 @@ void MSXMusic::writeDataPort(byte value, const EmuTime& time)
 
 byte MSXMusic::readMem(word address, const EmuTime& time)
 {
-	return rom.read(address & 0x3FFF);
+	return rom[address & 0x3FFF];
 }
 
 const byte* MSXMusic::getReadCacheLine(word start) const
 {
-	return rom.getBlock(start & 0x3FFF);
+	return &rom[start & 0x3FFF];
 }
 
 } // namespace openmsx

@@ -12,9 +12,9 @@
 namespace openmsx {
 
 MSXSCCPlusCart::MSXSCCPlusCart(Config* config, const EmuTime& time)
-	: MSXDevice(config, time), MSXMemDevice(config, time)
+	: MSXDevice(config, time), MSXMemDevice(config, time),
+	  ram(getName() + "-RAM", "SCC+ RAM", 0x20000)
 {
-	memset(memoryBank, 0xFF, 0x20000);
 	if (config->hasParameter("filename")) {
 		// read the rom file
 		const string& filename =
@@ -22,7 +22,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(Config* config, const EmuTime& time)
 		try {
 			File file(config->getContext().resolve(filename));
 			int romSize = file.getSize();
-			file.read(memoryBank, romSize);
+			file.read(&ram[0], romSize);
 		} catch (FileException &e) {
 			throw FatalError("Error reading file: " + filename);
 		}
@@ -199,14 +199,14 @@ void MSXSCCPlusCart::setMapper(int regio, byte value)
 		block = unmappedRead;
 		isMapped[regio] = false;
 	} else {
-		block = memoryBank + (0x2000 * value);
+		block = &ram[0x2000 * value];
 		isMapped[regio] = true;
 	}
 	
 	checkEnable();
 	internalMemoryBank[regio] = block;
-	MSXCPU::instance().invalidateCache(0x4000 + regio*0x2000,
-	                                    0x2000/CPU::CACHE_LINE_SIZE);
+	MSXCPU::instance().invalidateCache(0x4000 + regio * 0x2000,
+	                                   0x2000 / CPU::CACHE_LINE_SIZE);
 }
 
 void MSXSCCPlusCart::setModeRegister(byte value)

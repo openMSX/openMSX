@@ -740,7 +740,8 @@ byte YMF278::readStatus(const EmuTime& time)
 
 YMF278::YMF278(short volume, int ramSize, Config* config,
                const EmuTime& time)
-	: debugRegisters(*this), debugMemory(*this), rom(config)
+	: debugRegisters(*this), debugMemory(*this),
+	  rom(getName() + "_rom", "rom", config)
 {
 	memadr = 0;	// avoid UMR
 	endRom = rom.getSize();
@@ -817,7 +818,7 @@ void YMF278::setVolume(int newVolume)
 byte YMF278::readMem(unsigned address)
 {
 	if (address < endRom) {
-		return rom.read(address);
+		return rom[address];
 	} else if (address < endRam) {
 		return ram[address - endRom];
 	} else {
