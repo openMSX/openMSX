@@ -149,12 +149,12 @@ byte V9990P1Converter<Pixel, zoom>::getPixel(
 	x &= 511;
 	y &= 511;
 	unsigned int address = nameTable + (((y/8)*64 + (x/8)) * 2);
-	unsigned int pattern = vram->readVRAM(address) +
-	                       vram->readVRAM(address+1) * 256;
+	unsigned int pattern = vram->readVRAMP1(address) +
+	                       vram->readVRAMP1(address+1) * 256;
 	int x2 = (pattern % 32) * 8 + (x % 8);
 	int y2 = (pattern / 32) * 8 + (y % 8);
 	address = patternTable + y2 * 128 + x2 / 2;
-	byte dixel = vram->readVRAM(address);
+	byte dixel = vram->readVRAMP1(address);
 	return (x & 1) ? dixel & 0x0F : dixel >> 4;
 }	
 
@@ -167,10 +167,10 @@ void V9990P1Converter<Pixel, zoom>::determineVisibleSprites(
 	int index = 0;
 	for (int sprite = 0; sprite < 125; ++sprite) {
 		int spriteInfo = spriteTable + 4 * sprite;
-		byte attr = vram->readVRAM(spriteInfo+3);
+		byte attr = vram->readVRAMP1(spriteInfo+3);
 
 		if(!(attr & 0x10)) {
-			byte spriteY = vram->readVRAM(spriteInfo) + 1;
+			byte spriteY = vram->readVRAMP1(spriteInfo) + 1;
 			if ((spriteY <= displayY) && (displayY < (spriteY + 16))) {
 				visibleSprites[index++] = sprite;
 				if (index >= 16) break;
@@ -189,23 +189,23 @@ byte V9990P1Converter<Pixel, zoom>::getSpritePixel(
 
 	for (int sprite = 0; (visibleSprites[sprite] != -1); ++sprite) {
 		int   addr       = spriteTable + 4 * visibleSprites[sprite];
-		byte  spriteY    = vram->readVRAM(addr);
-		byte  spriteNo   = vram->readVRAM(addr+1);
-		int   spriteX    = vram->readVRAM(addr+2);
-		byte  spriteAttr = vram->readVRAM(addr+3);
+		int   spriteX    = vram->readVRAMP1(addr + 2);
+		byte  spriteAttr = vram->readVRAMP1(addr + 3);
 		spriteX += 256 * (spriteAttr & 0x03);
-
 		if (spriteX > 1008) spriteX -= 1024; // hack X coord into -16..1008
+
 		spriteX = x - spriteX;
-		spriteY = y - (spriteY + 1);
 		if ((0 <= spriteX) && (spriteX < 16) && 
 		    (( front && !(spriteAttr & 0x20)) ||
 		     (!front &&  (spriteAttr & 0x20)))) {
+			byte  spriteY  = vram->readVRAMP1(addr + 0);
+			byte  spriteNo = vram->readVRAMP1(addr + 1);
+			spriteY = y - (spriteY + 1);
 			addr  = spritePatternTable
 			      + (128 * ((spriteNo & 0xF0) + spriteY))
 			      + (  8 *  (spriteNo & 0x0F))
 			      + (spriteX / 2);
-			byte dixel = vram->readVRAM(addr);
+			byte dixel = vram->readVRAMP1(addr);
 			if (spriteX & 1) {
 				dixel &= 0x0F;
 			} else {

@@ -47,6 +47,7 @@ public:
 	void writeVRAM(unsigned address, byte val);
 	byte readVRAMInterleave(unsigned address);
 	void writeVRAMInterleave(unsigned address, byte val);
+	inline byte readVRAMP1(unsigned address) { return data[address]; }
 
 	/** Obtain a pointer to the data.
 	  */
