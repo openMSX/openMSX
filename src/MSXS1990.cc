@@ -8,8 +8,6 @@ MSXS1990::MSXS1990(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	reset(time);
-	//frontSwitch = 0;	// doesn't change on reset
-	frontSwitch = 64;	// doesn't change on reset
 }
 
 MSXS1990::~MSXS1990()
@@ -31,7 +29,7 @@ byte MSXS1990::readIO(byte port, const EmuTime &time)
 		PRT_DEBUG("S1990: read reg "<<(int)registerSelect);
 		switch (registerSelect) {
 		case 5:
-			return frontSwitch;
+			return frontSwitch.isOn() ? 0x40 : 0x00;
 		case 6:
 			return cpuStatus;
 		case 13:
@@ -74,6 +72,3 @@ void MSXS1990::setCPUStatus(byte value)
 	// TODO bit 6 -> (0) DRAM  (1) no DRAM
 	// TODO bit 7 -> reset MSX ?????
 }
-
-
-// TODO implement "frontSwitch" command

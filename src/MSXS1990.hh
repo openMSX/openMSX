@@ -10,6 +10,7 @@
 #define __S1990_HH__
 
 #include "MSXIODevice.hh"
+#include "FrontSwitch.hh"
 
 
 class MSXS1990 : public MSXIODevice
@@ -25,8 +26,8 @@ class MSXS1990 : public MSXIODevice
 	private:
 		void setCPUStatus(byte value);
 
+		FrontSwitch frontSwitch;
 		byte registerSelect;
-		byte frontSwitch;
 		byte cpuStatus;
 };
 

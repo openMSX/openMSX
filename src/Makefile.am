@@ -79,6 +79,7 @@ openmsx_SOURCES=\
 	SRAM.hh SRAM.cc \
 	MSXDeviceSwitch.hh MSXDeviceSwitch.cc \
 	MSXMatsushita.hh MSXMatsushita.cc \
+	FrontSwitch.hh FrontSwitch.cc \
 	MSXRom.hh MSXRom.cc \
 	RomTypes.hh RomTypes.cc \
 	MSXRomDevice.cc MSXRomDevice.hh \
