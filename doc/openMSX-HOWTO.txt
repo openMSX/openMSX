@@ -545,7 +545,7 @@ openmsx -help
 The default key mapping is:
 F12	- Quit
 F11	- Mute audio
-F10	- Console (see section 8) 
+F10	- Console (see section 8)
 F9	- Throttle (maximum speed)
 F8	- MSX STOP key
 F7	- MSX SELECT key
@@ -694,7 +694,7 @@ AutoCommands and KeyEventInserter
 In the config file section AutoCommands, you can specify some console commands
 that should be executed automatically. See the settings.xml or
 exampleconfigs.xml file for some examples. The settings.xml file uses this to
-create the default key bindings.  
+create the default key bindings.
 You can also use it to make default settings that are done with Console
 commands. In my case I set blur and scanline to 0, since they don't work
 correctly with my Radeon drivers.  The KeyEventInserter section can be used to
@@ -721,7 +721,7 @@ to remove the tape from the virtual cassette player.
 
 Other Console commands
 
-You can reset your MSX with the Console command `reset'. 
+You can reset your MSX with the Console command `reset'.
 If the MSX goes too fast or too slow, adjust the emulation speed with the
 `speed' setting, which has the speed percentage as parameter. So, typing `set
 speed 120', will let the emulated MSX run at 120% of normal MSX speed.
@@ -751,12 +751,12 @@ http://sourceforge.net/projects/openmsx/
 Then click on "Tracker". This will show you four trackers (at the moment). Use
 the bug tracker to look for bugs and post new ones. You can use the Support
 Request tracker to submit support requests. Feature requests can also be
-submitted in the Feature Requests tracker. 
+submitted in the Feature Requests tracker.
 You can also send an e-mail to the openMSX developer's mailing list:
 openmsx-devel@lists.sourceforge.net. See the project page on SourceForge.
 
 For experienced users: if you get a crash, try to provide a gdb backtrace
-(don't use strip on the openMSX executable then!). 
+(don't use strip on the openMSX executable then!).
 
 In any case, try to give as much information as possible when you describe your
 bug or request.
@@ -764,7 +764,7 @@ bug or request.
 10. Some notes
     ----------
 
-Note: the current official openMSX was only tested on Linux.  
+Note: the current official openMSX was only tested on Linux.
 If you have some C++ knowledge, please try and compile it on other systems.
 Recently, a Windows port was created by Reikan. It is not mainstream yet, but
 we hope it will be, soon. On the openMSX web site you can find a link to this
@@ -776,7 +776,7 @@ Note: as already mentioned, there is an alternative for the copyrighted MSX
 ROMs: you can also use the CBIOS, a home made MSX compatible BIOS, by BouKiChi.
 There are config files for it in the share/machines directory. With this BIOS
 you can only run an increasing number of ROM files. The files needed for the
-CBIOS itself are in the Contrib/cbios directory. 
+CBIOS itself are in the Contrib/cbios directory.
 
 Note: to use a real disk, just specify "/dev/fd0" as a disk image. This is of
 course a Linux (Unix, actually) specific feature, but for now it is usable. It
