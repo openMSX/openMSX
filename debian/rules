@@ -73,6 +73,9 @@ install: build
 		INSTALL_DOC_DIR=$(CURDIR)/debian/openmsx/usr/share/doc/openmsx \
 		SYMLINK_FOR_BINARY=false \
 		OPENMSX_INSTALL=$(CURDIR)/debian/openmsx/usr
+	@echo "  Removing CVS directories from .../share"
+	@find $(CURDIR)/debian/openmsx/usr/share -name CVS | xargs rm -rf
+
 
 
 # Build architecture-independent files here.

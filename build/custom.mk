@@ -16,6 +16,3 @@ VERSION_EXEC:=false
 # This link is placed in a location that is typically in a user's path:
 # /usr/local/bin for system-wide installs and ~/bin for personal installs.
 SYMLINK_FOR_BINARY:=true
-
-# do you want to use ccache to possibly speed up subsequent builds?
-USE_CCACHE:=false
