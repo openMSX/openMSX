@@ -1,10 +1,14 @@
 $Id$
 
+2004-12-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* x/y-coord and on/off-image of the LED icons can be configured
+	* icon fade delay and duration can be configured
+
 2004-12-09 David Heremans <david.heremans@gnu-linux.net>
 	* replaced the ips-patch separator. It is now also the ','-sign
 	  and updated the documentation
 
-2004-12-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-12-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Refactored setting code:
 	   - redesigned class structure: settings no longer need to be
 	     non-inheritable
