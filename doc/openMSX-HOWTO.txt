@@ -507,9 +507,9 @@ Some more things you may want to change:
 - the amount of RAM of the MSX: change the "size" parameter in the "Main RAM"
   device config.
 - for proper disk emulation, remove the "diskrom" device and replace it by the
-  "Memmory Mapped FDC" (stupid typo, by the way!) device that can *not* be found
-  in someconfig.xml yet, but in nms8250-FDC.xml. This will be changed in the
-  near future, though. This will fix some problems with Microcabin games, e.g.
+  "Memory Mapped FDC" device that can *not* be found in someconfig.xml yet, but
+  in nms8250-FDC.xml. This will be changed in the near future, though. This
+  will fix some problems with Microcabin games, e.g.
 
 If you understand the basics of XML, you should be able to compose most of your MSX now!
 
