@@ -5,10 +5,10 @@
 
 int Font::getHeight() const
 {
-	return charWidth;
+	return charHeight;
 }
 
 int Font::getWidth() const
 {
-	return charHeight;
+	return charWidth;
 }
