@@ -51,7 +51,6 @@ public:
 		assert(time >= currentTime);
 		if (!currEngine) {
 			// no command in progress
-			currentTime = time;
 			return;
 		}
 		opsCount += currentTime.getTicksTill(time);
@@ -103,7 +102,7 @@ public:
 		if (index == REG_COL) {
 			status &= 0x7F;
 		} else if (index == REG_CMD) {
-			executeCommand();
+			executeCommand(time);
 		}
 	}
 
@@ -183,7 +182,7 @@ private:
 
 	/** Perform a given V9938 graphical operation.
 	  */
-	void executeCommand();
+	void executeCommand(const EmuTime &time);
 
 	/** Finshed executing graphical operation.
 	  */

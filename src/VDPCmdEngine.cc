@@ -777,10 +777,12 @@ void VDPCmdEngine::reportVdpCommand()
 		);
 }
 
-void VDPCmdEngine::executeCommand()
+void VDPCmdEngine::executeCommand(const EmuTime &time)
 {
 	// V9938 ops only work in SCREENs 5-8.
 	if (scrMode < 0) return;
+
+	currentTime = time;
 
 	MMC.CM = (Cmd)(cmdReg[REG_CMD] >> 4);
 	if ((MMC.CM & 0x0C) != 0x0C && MMC.CM != 0) {
