@@ -1,5 +1,9 @@
 // $Id$
 
+/**
+ * Code based on "cas2wav" tool by Vincent van Dam
+ */
+
 #include "CasImage.hh"
 #include "FileContext.hh"
 #include "File.hh"

@@ -40,6 +40,8 @@ YMF262:
     code taken from MAME, written by Jarek Burczynski
 YMF278:
     code taken from MAME, written by R. Belmont and O. Galibert
+cas to wav conversion:
+    based on "cas2wav" by Vincent van Dam
 
 With many thanks to:
 Alex Wulms           <awulms@inter.nl.net>
