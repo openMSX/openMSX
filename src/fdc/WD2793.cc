@@ -1,4 +1,4 @@
-// $Id$
+
 
 #include "WD2793.hh"
 #include "DiskDrive.hh"
@@ -46,13 +46,7 @@ bool WD2793::getDTRQ(const EmuTime &time)
 		// WRITE TRACK && status busy
 		if (writeTrack) {
 			int ticks = DRQTime.getTicksTill(time);
-			if (ticks >= 15) { 
-				// writing a byte during format takes +/- 33 us
-				// according to tech data but on trubor fdc docs it
-				// state 15 us to get data ready
-				// TODO check for clockspeed of used diagram in wdc
-				//      docs this could explain mistake
-				DRQTime -= 15;
+			if (ticks >= 33) { 
 				DRQ = true;
 			}
 		} else {
@@ -60,6 +54,12 @@ bool WD2793::getDTRQ(const EmuTime &time)
 			if (pulses == 1) {
 				writeTrack = true;
 			}
+		}
+		if (drive->indexPulseCount(commandStart, time) >= 2) {
+			dataAvailable = 0;
+			dataCurrent = 0;
+			DRQ = false;
+			endCmd();
 		}
 	}
 	return DRQ;
@@ -237,12 +237,11 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 		case 1: // first index pulse passed
 			drive->writeTrackData(value);
 			break;
-		case 2: // next indexpulse passed
+		default: // next indexpulse passed
 			dataAvailable = 0; //return correct DTR
-			statusReg &= ~0x03;	// reset status on Busy and DRQ
-			DRQ = false;
-			setIRQ();
 			dataCurrent = 0;
+			DRQ = false;
+			endCmd();
 			break;
 		}
 		/* followin switch stement belongs in the backend, since
