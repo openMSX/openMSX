@@ -52,7 +52,13 @@ MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 		mapperMask = 0x0F;
 		lowRAM = highRAM = true;
 	}
-	
+
+	// make valgrind happy
+	for (int i = 0; i < 4; i++) {
+		isRamSegment[i] = true;
+		mapper[i] = 0;
+	}
+
 	reset(time);
 }
 
@@ -63,12 +69,12 @@ MSXSCCPlusCart::~MSXSCCPlusCart()
 
 void MSXSCCPlusCart::reset(const EmuTime &time)
 {
+	setModeRegister(0);
 	setMapper(0, 0);
 	setMapper(1, 1);
 	setMapper(2, 2);
 	setMapper(3, 3);
 	scc->reset(time);
-	setModeRegister(0);
 }
 
 

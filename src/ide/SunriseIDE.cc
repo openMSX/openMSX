@@ -21,6 +21,10 @@ SunriseIDE::SunriseIDE(Device *config, const EmuTime &time)
 	            ? IDEDeviceFactory::create(config->getParameter("slave"), time)
 	            : new DummyIDEDevice();
 
+	// make valgrind happy
+	internalBank = 0;
+	ideRegsEnabled = false;
+	
 	writeControl(0xFF);
 	reset(time);
 }
