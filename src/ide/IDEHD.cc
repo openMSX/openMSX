@@ -1,6 +1,7 @@
 // $Id$
 
 #include "IDEHD.hh"
+#include "File.hh"
 
 
 byte IDEHD::identifyBlock[512] = {
@@ -43,10 +44,8 @@ IDEHD::IDEHD()
 {
 	buffer = new byte[512 * 256];
 
-	file = FileOpener::openFilePreferRW("hd.dsk");	// TODO 
-
-	file->seekg(0, std::ios::end);
-	totalSectors = file->tellg() / 512;
+	file = new File("hd.dsk", DISK);	// TODO 
+	totalSectors = file->size() / 512;
 }
 
 IDEHD::~IDEHD()
@@ -189,9 +188,10 @@ void IDEHD::writeData(word value, const EmuTime &time)
 	*(transferPntr++) = value;
 	transferCount--;
 	if ((transferCount & 511) == 0) {
-		file->seekg(512 * transferSectorNumber);
-		file->write(buffer, 512);
-		if (file->fail()) {
+		try {
+			file->seek(512 * transferSectorNumber);
+			file->write(buffer, 512);
+		} catch (FileException &e) {
 			setError(0x44);
 			transferWrite = false;
 		}
@@ -271,9 +271,10 @@ void IDEHD::executeCommand(byte cmd)
 			setError(0x14);
 			break;
 		}
-		file->seekg(512 * sectorNumber, std::ios::beg);
-		file->read(buffer, 512 * numSectors);
-		if (file->fail()) {
+		try {
+			file->seek(512 * sectorNumber);
+			file->read(buffer, 512 * numSectors);
+		} catch (FileException &e) {
 			setError(0x44);
 			break;
 		}

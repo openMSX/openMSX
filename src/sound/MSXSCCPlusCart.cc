@@ -3,7 +3,7 @@
 #include "MSXSCCPlusCart.hh"
 
 #include "SCC.hh"
-#include "FileOpener.hh"
+#include "File.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
 
@@ -25,17 +25,13 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
 		PRT_DEBUG("SCC+ romfile" << filename);
 
 		// read the rom file
-		// dynamically determine romSize if needed
-        	IFILETYPE* file = FileOpener::openFileRO(filename);
-		file->seekg(0, std::ios::end);
-		int romSize = file->tellg();
-		PRT_DEBUG("SCC+ MegaRom: rom size is " << romSize);
-
-		file->seekg(0, std::ios::beg);
-		file->read(memoryBank, romSize);
-		if (file->fail())
+		try {
+			File file(filename, STATE);
+			int romSize = file.size();
+			file.read(memoryBank, romSize);
+		} catch (FileException &e) {
 			PRT_ERROR("Error reading " << filename);
-		delete file;
+		}
 	}
 	reset(time);
 }

@@ -4,7 +4,7 @@
 #define __FDC_DSK__HH__
 
 #include "FDCBackEnd.hh"
-#include "FileOpener.hh"
+#include "File.hh"
 
 
 class FDC_DSK : public FDCBackEnd
@@ -22,7 +22,7 @@ class FDC_DSK : public FDCBackEnd
 		int nbSectors;
 
 	private:
-		IOFILETYPE* file;
+		File* file;
 };
 
 #endif

@@ -25,7 +25,6 @@
 #include "MSXRom.hh"
 #include "MSXPrinterPort.hh"
 #include "MSXSCCPlusCart.hh"
-#include "MSXARCdebug.hh"
 #include "MSXFDC.hh"
 #include "SunriseIDE.hh"
 
@@ -95,9 +94,6 @@ MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	if (conf->getType()=="SCCPlusCart") {
 		device = new MSXSCCPlusCart(conf, time);
 	} else
-	if (conf->getType()=="ARCdebug") {
-		device = new MSXARCdebug(conf, time);
-	} else 
 	if (conf->getType()=="FDC") {
 		device = new MSXFDC(conf, time);
 	}

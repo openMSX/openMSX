@@ -11,9 +11,9 @@
 #include "SDL/SDL_image.h"
 #endif
 
-#include "FileOpener.hh"
 #include "MSXConfig.hh"
 #include "GLFont.hh"
+#include "File.hh"
 
 
 GLConsole::GLConsole()
@@ -31,14 +31,13 @@ GLConsole::GLConsole()
 	GLfloat fontTexCoord[4];
 	MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById("Console");
 	std::string fontName = config->getParameter("font");
-	GLuint fontTexture = loadTexture(FileOpener::findFileName(fontName),
-	                                 width, height, fontTexCoord);
+	GLuint fontTexture = loadTexture(fontName,width, height, fontTexCoord);
 	font = new GLFont(fontTexture, width, height, fontTexCoord);
 
 	try {
 		int width, height;
 		std::string backgroundName = config->getParameter("background");
-		backgroundTexture = loadTexture(FileOpener::findFileName(backgroundName),
+		backgroundTexture = loadTexture(backgroundName,
 		                                width, height, backTexCoord);
 	} catch(MSXException &e) {
 		// no background or missing file
@@ -62,7 +61,7 @@ int GLConsole::powerOfTwo(int a)
 
 GLuint GLConsole::loadTexture(const std::string &filename, int &width, int &height, GLfloat *texCoord)
 {
-	SDL_Surface* image1 = IMG_Load(filename.c_str());
+	SDL_Surface* image1 = IMG_Load(File::findName(filename, CONFIG).c_str());
 	if (image1 == NULL)
 		throw MSXException("Error loading texture");
 	SDL_SetAlpha(image1, 0, 0);

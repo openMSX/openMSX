@@ -15,10 +15,13 @@
     <parameter name="3" class="subslotted">true</parameter>
   </config>
   
-  <config id="rompath">
-    <parameter name="separator">/</parameter>
-    <parameter name="1" class="path">ROMS</parameter>
-    <parameter name="2" class="path">TAPES</parameter>
+  <config id="SearchPaths">
+    <parameter class="disk">disks</parameter>
+    <parameter class="rom">roms</parameter>
+    <parameter class="rom">cfg</parameter>
+    <parameter class="tape">tapes</parameter>
+    <parameter class="config">cfg</parameter>
+    <parameter class="state">cfg</parameter>
   </config>
 
   <config id="AutoCommands">

@@ -15,9 +15,9 @@
 #endif
 
 #include "SDLConsole.hh"
-#include "FileOpener.hh"
 #include "SDLFont.hh"
 #include "MSXConfig.hh"
+#include "File.hh"
 
 
 SDLConsole::SDLConsole(SDL_Surface *screen)
@@ -33,7 +33,7 @@ SDLConsole::SDLConsole(SDL_Surface *screen)
 	
 	MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById("Console");
 	std::string fontName = config->getParameter("font");
-	font = new SDLFont(FileOpener::findFileName(fontName));
+	font = new SDLFont(File::findName(fontName, CONFIG));
 	
 	SDL_Rect rect;
 	rect.x = (screen->w / 32);
@@ -45,7 +45,7 @@ SDLConsole::SDLConsole(SDL_Surface *screen)
 
 	try {
 		std::string backgroundName = config->getParameter("background");
-		background(FileOpener::findFileName(backgroundName), 0, 0);
+		background(File::findName(backgroundName, CONFIG), 0, 0);
 	} catch(MSXException &e) {
 		// no background or missing file
 	}

@@ -1,5 +1,14 @@
 $Id$
 
+2002-10-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Replaced all file reading related classes with a new class
+	  structure. This structure:
+	   - has a simpler and more robust interface
+	   - is easier to port(?)
+	     a large part of the WIN32 patch deals with file reading stuff
+	   - has real filetype separation: rom, disk, tape, config files have
+	     their own searchpaths
+
 2002-10-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "CartridgeSlotManager"
 

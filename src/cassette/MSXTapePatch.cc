@@ -4,6 +4,7 @@
 #include "CommandController.hh"
 #include "MSXConfig.hh"
 #include "libxmlx/xmlx.hh"
+#include "File.hh"
 
 
 MSXCasCLI msxCasCLI;
@@ -122,8 +123,8 @@ void MSXTapePatch::insertTape(std::string filename)
 	ejectTape();
 	PRT_DEBUG("Loading file " << filename << " as tape ...");
 	try {
-		file = FileOpener::openFilePreferRW(filename);
-	} catch (FileOpenerException &e) {
+		file = new File(filename, TAPE);
+	} catch (FileException &e) {
 		PRT_DEBUG("Loading file failed");
 		file = NULL;
 	}
@@ -161,47 +162,38 @@ void MSXTapePatch::TAPION(CPU::CPURegs& R)
 	 */
 
 	if (!file) {
-		PRT_DEBUG("TAPION : No tape file opened ?");
+		PRT_DEBUG("TAPION : No tape file opened");
 		R.AF.B.l |= CPU::C_FLAG;
 		return;
 	}
 
 	PRT_DEBUG("TAPION : Looking for header...");
-	byte buffer[10];
 
-	// in case of failure
-	R.AF.B.l |= CPU::C_FLAG;
-
-	//fmsx does some positioning stuff first so to be compatible...
-	int filePosition=(file->tellg() & 7);
-	if (filePosition) {
-		PRT_DEBUG("TAPION : filePosition " << filePosition);
-		file->seekg(8-filePosition , std::ios::cur);
-		if (file->fail()) {
-			PRT_DEBUG("TAPION : Read error");
-			//rewind the tape
-			file->seekg(0, std::ios::beg);
-			return;
-		}
+	// go forward to multiple of 8 bytes
+	try {
+		int filePos = file->pos();
+		file->seek((filePos + 7) & ~7);
+	} catch (FileException &e) {
+		R.AF.B.l |= CPU::C_FLAG;
+		return;
 	}
 
-	do {
-		PRT_DEBUG("TAPION : file->read(buffer,8); ");
-		file->read(buffer,8);
-		if (file->fail()){
-			PRT_DEBUG("TAPION : Read error");
-			return;
-		} else if (!memcmp(buffer,TapeHeader,8)) {
-			PRT_DEBUG("TAPION : OK");
-			R.di();
-			R.AF.B.l &= ~CPU::C_FLAG;
-			return;
-		} 
-	} while (!file->fail());
-
-	PRT_DEBUG("TAPION : No header found");
-	//rewind the tape
-	file->seekg(0, std::ios::beg);
+	try {
+		while (true) {
+			byte buffer[10];
+			file->read(buffer, 8);
+			if (!memcmp(buffer, TapeHeader, 8)) {
+				PRT_DEBUG("TAPION: OK");
+				R.di();
+				R.AF.B.l &= ~CPU::C_FLAG;
+				return;
+			} 
+		}
+	} catch (FileException &e) {
+		PRT_DEBUG("TAPION : No header found");
+		//rewind the tape
+		file->seek(0);
+	}
 }
 
 void MSXTapePatch::TAPIN(CPU::CPURegs& R)
@@ -232,16 +224,18 @@ void MSXTapePatch::TAPIN(CPU::CPURegs& R)
 	   transition count one more will be read, with an even
 	   transition count two more.
 	 */
-	byte buffer;
 	PRT_DEBUG("TAPIN");
-	R.AF.B.l |= CPU::C_FLAG;
 
-	if (file) {
-		file->get(buffer);
-		if (! file->fail()) {
-			R.AF.B.h = buffer;
-			R.AF.B.l &= ~CPU::C_FLAG; 
-		}
+	if (!file) {
+		R.AF.B.l |= CPU::C_FLAG;
+		return;
+	}
+	
+	try {
+		file->read(&R.AF.B.h, 1);
+		R.AF.B.l &= ~CPU::C_FLAG;
+	} catch (FileException &e) {
+		R.AF.B.l |= CPU::C_FLAG;
 	}
 }
 
@@ -309,20 +303,23 @@ void MSXTapePatch::TAPOON(CPU::CPURegs& R)
 	 */
 	PRT_DEBUG("TAPOON");
 
-	R.AF.B.l |= CPU::C_FLAG;
-
-	if (file) {
-		// again some stuff from fmsx about positioning
-		int filePosition = (file->tellg() & 7);
-		if (filePosition) {
-			file->seekg(8-filePosition , std::ios::cur);
-		}
-		if (!file->fail()) { 
-			file->write(TapeHeader,8);
-			R.AF.B.l &= ~CPU::C_FLAG;
-			R.di();
-		}   
+	if (!file) {
+		R.AF.B.l |= CPU::C_FLAG;
+		return;
 	}
+	
+	try {
+		// go forward to multiple of 8 bytes
+		int filePos = file->pos();
+		file->seek((filePos + 7) & ~7);
+	
+		file->write(TapeHeader, 8);
+		R.AF.B.l &= ~CPU::C_FLAG;
+		R.di();
+	} catch (FileException &e) {
+		R.AF.B.l |= CPU::C_FLAG;
+	}
+	
 }
 
 void MSXTapePatch::TAPOUT(CPU::CPURegs& R)
@@ -349,11 +346,16 @@ void MSXTapePatch::TAPOUT(CPU::CPURegs& R)
 	   Hz but the format is otherwise unchanged.
 	 */
 	PRT_DEBUG("TAPOUT");
-	R.AF.B.l |= CPU::C_FLAG;
+	if (!file) {
+		R.AF.B.l |= CPU::C_FLAG;
+		return;
+	}
 
-	if (file) {
-		file->put(R.AF.B.h);
+	try {
+		file->write(&R.AF.B.h, 1);
 		R.AF.B.l &= ~CPU::C_FLAG;
+	} catch (FileException &e) {
+		R.AF.B.l |= CPU::C_FLAG;
 	}
 }
 

@@ -2,6 +2,7 @@
 
 #include "PrinterPortLogger.hh"
 #include "PluggingController.hh"
+#include "File.hh"
 
 
 PrinterPortLogger::PrinterPortLogger()
@@ -24,6 +25,7 @@ bool PrinterPortLogger::getStatus(const EmuTime &time)
 
 void PrinterPortLogger::setStrobe(bool strobe, const EmuTime &time)
 {
+	assert(file);
 	PRT_DEBUG("PRINTER: strobe " << strobe);
 	if (!strobe && prevStrobe) {
 		// falling edge
@@ -42,7 +44,7 @@ void PrinterPortLogger::writeData(byte data, const EmuTime &time)
 void PrinterPortLogger::plug(const EmuTime &time)
 {
 	std::string filename("printer.log");	// TODO read from config
-	file = FileOpener::openFileTruncate(filename);
+	file = new File(filename, STATE, TRUNCATE);
 }
 
 void PrinterPortLogger::unplug(const EmuTime &time)

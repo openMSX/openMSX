@@ -3,28 +3,25 @@
 #include "MSXRTC.hh"
 #include "MSXCPUInterface.hh"
 #include "RP5C01.hh"
-#include "FileOpener.hh"
+#include "File.hh"
 
 
 MSXRTC::MSXRTC(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	PRT_DEBUG("Creating an MSXRTC object");
 	bool emuTimeBased = (deviceConfig->getParameter("mode") == "RealTime")
 	                    ? false : true;
 	try {
 		if (deviceConfig->getParameterAsBool("load")) {
 			std::string filename = deviceConfig->getParameter("filename");
-			IFILETYPE* file = FileOpener::openFileRO(filename);
-			unsigned char buffer[4 * 13];
-			file->read(buffer, 4 * 13);
+			File file(filename, STATE);
+			byte buffer[4 * 13];
+			file.read(buffer, 4 * 13);
 			rp5c01 = new RP5C01(emuTimeBased, buffer, time);	// use data from buffer
-			file->close();
-			delete file;
 		} else {
-			throw FileOpenerException("dummy");	// use default values
+			throw FileException("dummy");	// use default values
 		}
-	} catch (FileOpenerException &e) {
+	} catch (FileException &e) {
 		rp5c01 = new RP5C01(emuTimeBased, time);	// use default values
 	}
 	MSXCPUInterface::instance()->register_IO_Out(0xB4, this);
@@ -37,10 +34,8 @@ MSXRTC::~MSXRTC()
 {
 	if (deviceConfig->getParameterAsBool("save")) {
 		std::string filename = deviceConfig->getParameter("filename");
-		IOFILETYPE* file = FileOpener::openFileTruncate(filename);
-		file->write(rp5c01->getRegs(), 4 * 13);
-		file->close();
-		delete file;
+		File file(filename, STATE, TRUNCATE);
+		file.write(rp5c01->getRegs(), 4 * 13);
 	}
 	delete rp5c01;
 }

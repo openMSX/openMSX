@@ -1,7 +1,7 @@
 // $Id$
 
 #include "MSXFmPac.hh"
-#include "FileOpener.hh"
+#include "File.hh"
 #include <string.h>
 #include "CartridgeSlotManager.hh"
 
@@ -51,21 +51,19 @@ MSXFmPac::MSXFmPac(MSXConfig::Device *config, const EmuTime &time)
 	  MSXMemDevice(config, time), MSXRomDevice(config, time, 0x10000)
 {
 	sramBank = new byte[0x1ffe];
-	try {
-		if (deviceConfig->getParameterAsBool("load")) {
-			char buffer[16];
-			std::string filename = deviceConfig->getParameter("sramname");
-			IFILETYPE* file = FileOpener::openFileRO(filename);
-			file->read(buffer, 16);
-			if (strncmp(PAC_Header, buffer, 16) == 0) {
+	if (deviceConfig->getParameterAsBool("load")) {
+		byte buffer[16];
+		std::string filename = deviceConfig->getParameter("sramname");
+		try {
+			File file(filename, STATE);
+			file.read(buffer, 16);
+			if (strncmp(PAC_Header, (char*)buffer, 16) == 0) {
 				// correct header
-				file->read(sramBank, 0x1ffe);
+				file.read(sramBank, 0x1ffe);
 			}
-			file->close();
-			delete file;
+		} catch (FileException &e) {
+			// do nothing
 		}
-	} catch (FileOpenerException &e) {
-		// do nothing
 	}
 	reset(time);
 }
@@ -77,11 +75,9 @@ MSXFmPac::~MSXFmPac()
 {
 	if (deviceConfig->getParameterAsBool("save")) {
 		std::string filename = deviceConfig->getParameter("sramname");
-		IOFILETYPE* file = FileOpener::openFileTruncate(filename);
-		file->write(PAC_Header, 16);
-		file->write(sramBank, 0x1ffe);
-		file->close();
-		delete file;
+		File file(filename, STATE, TRUNCATE);
+		file.write((byte*)PAC_Header, 16);
+		file.write(sramBank, 0x1ffe);
 	}
 	delete[] sramBank;
 }

@@ -81,4 +81,4 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 dnl Checks for library functions.
 AC_CHECK_FUNCS(strtoll atoll)
 
-AC_OUTPUT(Makefile openmsx.lsm openmsx.spec doc/Makefile src/Makefile m4/Makefile src/cfg/Makefile src/libxmlx/Makefile src/ConsoleSource/Makefile src/cpu/Makefile src/sound/Makefile src/config/Makefile src/fdc/Makefile src/ide/Makefile src/thread/Makefile src/cassette/Makefile src/events/Makefile src/tools/Makefile)
+AC_OUTPUT(Makefile openmsx.lsm openmsx.spec doc/Makefile src/Makefile m4/Makefile src/cfg/Makefile src/libxmlx/Makefile src/ConsoleSource/Makefile src/cpu/Makefile src/sound/Makefile src/config/Makefile src/fdc/Makefile src/file/Makefile src/ide/Makefile src/thread/Makefile src/cassette/Makefile src/events/Makefile src/tools/Makefile)

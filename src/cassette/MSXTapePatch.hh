@@ -5,8 +5,9 @@
 
 #include "MSXRomPatchInterface.hh"
 #include "Command.hh"
-#include "FileOpener.hh"
 #include "CommandLineParser.hh"
+
+class File;
 
 
 class MSXCasCLI : public CLIOption, public CLIFileType
@@ -32,7 +33,7 @@ class MSXTapePatch : public MSXRomPatchInterface, private Command
 	private:
 		// TapeHeader used to be fMSX compatible
 		static const byte TapeHeader[] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
-		IOFILETYPE* file;
+		File* file;
 
 		void insertTape(std::string filename);
 		void ejectTape();

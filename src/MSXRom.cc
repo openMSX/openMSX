@@ -7,6 +7,7 @@
 #include "CPU.hh"
 #include "libxmlx/xmlx.hh"
 #include "CartridgeSlotManager.hh"
+#include "File.hh"
 
 
 MSXRomCLI msxRomCLI;
@@ -117,17 +118,13 @@ MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
 	if (mapperType & HAS_SRAM) {
 		memorySRAM = new byte[0x2000];
 		memset(memorySRAM, 255, 0x2000);
-		try {
+		if (deviceConfig->hasParameter("loadsram")) {
 			if (deviceConfig->getParameterAsBool("loadsram")) {
 				std::string filename = deviceConfig->getParameter("sramname");
-				PRT_DEBUG("Trying to read "<<filename<<" as SRAM of the cartrdige");
-				IFILETYPE* file = FileOpener::openFileRO(filename);
-				file->read(memorySRAM, 0x2000);
-				file->close();
-				delete file;
+				PRT_DEBUG("MSXRom: read SRAM " << filename);
+				File file(filename, STATE);
+				file.read(memorySRAM, 0x2000);
 			}
-		} catch (MSXException &e) {
-			// do nothing
 		}
 	} else {
 		memorySRAM = NULL;
@@ -188,11 +185,9 @@ MSXRom::~MSXRom()
 	delete cartridgeSCC;
 	if ((mapperType & HAS_SRAM) && deviceConfig->getParameterAsBool("savesram")) {
 		std::string filename = deviceConfig->getParameter("sramname");
-		PRT_DEBUG("Trying to save to "<<filename<<" for SRAM of the cartrdige");
-		IOFILETYPE* file = FileOpener::openFileTruncate(filename);
-		file->write(memorySRAM, 0x2000);
-		file->close();
-		delete file;
+		PRT_DEBUG("MSXRom: save SRAM " << filename);
+		File file(filename, STATE, TRUNCATE);
+		file.write(memorySRAM, 0x2000);
 	}
 	delete[] memorySRAM;
 	delete[] unmapped;

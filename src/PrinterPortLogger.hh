@@ -4,7 +4,8 @@
 #define __MSXPRINTERPORTLOGGER_HH__
 
 #include "PrinterPortDevice.hh"
-#include "FileOpener.hh"
+
+class File;
 
 
 class PrinterPortLogger : public PrinterPortDevice
@@ -26,7 +27,7 @@ class PrinterPortLogger : public PrinterPortDevice
 	private:
 		byte toPrint;
 		bool prevStrobe;
-		IOFILETYPE* file;
+		File* file;
 };
 
 #endif

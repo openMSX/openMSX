@@ -7,10 +7,11 @@
 
 #include <list>
 #include "MSXDevice.hh"
-#include "FileOpener.hh"
+#include "File.hh"
 
 // forward declaration
 class MSXRomPatchInterface;
+class File;
 
 
 class MSXRomDevice: virtual public MSXDevice
@@ -52,8 +53,8 @@ class MSXRomDevice: virtual public MSXDevice
 		void loadFile(int fileSize);
 		void loadFile();
 
-		IFILETYPE* openFile();
-		void readFile(IFILETYPE* file, int fileSize);
+		File* openFile();
+		void readFile(File* file, int fileSize);
 		
 		/**
 		 * patch a file after it has being loaded in the memory bank

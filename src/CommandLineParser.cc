@@ -3,7 +3,6 @@
 #include "CommandLineParser.hh"
 #include "libxmlx/xmlx.hh"
 #include "MSXConfig.hh"
-#include "FileOpener.hh"
 #include "CartridgeSlotManager.hh"
 
 #include <string>

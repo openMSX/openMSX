@@ -4,7 +4,8 @@
 #define __IDEHD_HH__
 
 #include "IDEDevice.hh"
-#include "FileOpener.hh"
+
+class File;
 
 
 class IDEHD : public IDEDevice
@@ -36,7 +37,7 @@ class IDEHD : public IDEDevice
 		byte statusReg;
 		byte featureReg;
 	
-		IOFILETYPE* file;
+		File* file;
 		int totalSectors;
 		
 		byte* buffer;

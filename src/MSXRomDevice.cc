@@ -6,6 +6,7 @@
 #include "MSXTapePatch.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXRomPatchInterface.hh"
+#include "File.hh"
 
 
 MSXRomDevice::MSXRomDevice(MSXConfig::Device *config, const EmuTime &time)
@@ -66,34 +67,31 @@ void MSXRomDevice::loadFile()
 		}
 	}
 	// autodetect filesize
-	IFILETYPE* file = openFile();
-	file->seekg(0, std::ios::end);
-	int fileSize = file->tellg();
-	file->seekg(0, std::ios::beg);
-	
+	File* file = openFile();
+	int fileSize = file->size();
 	readFile(file, fileSize);
 	delete file;
 }
 
 void MSXRomDevice::loadFile(int fileSize)
 {
-	IFILETYPE* file = openFile();
+	File* file = openFile();
 	readFile(file, fileSize);
 	delete file;
 }
 
-IFILETYPE* MSXRomDevice::openFile()
+File* MSXRomDevice::openFile()
 {
 	std::string filename = deviceConfig->getParameter("filename");
-	return FileOpener::openFileRO(filename);
+	return new File(filename, ROM);
 }
 
-void MSXRomDevice::readFile(IFILETYPE* file, int fileSize)
+void MSXRomDevice::readFile(File* file, int fileSize)
 {
 	int offset = 0;
 	try {
 		offset = deviceConfig->getParameterAsInt("skip_headerbytes");
-		file->seekg(offset);
+		file->seek(offset);
 	} catch(MSXConfig::Exception e) {
 		// no offset specified
 	}
@@ -102,11 +100,10 @@ void MSXRomDevice::readFile(IFILETYPE* file, int fileSize)
 		PRT_ERROR("Offset greater than filesize");
 	if (!(romBank = new byte[romSize]))
 		PRT_ERROR("Couldn't allocate enough memory");
-	file->read(romBank, romSize);
-	if (file->fail()) {
-		// TODO: Throw exception, so that caller can print an error
-		//       message which includes the file name.
-		PRT_ERROR("Error reading ROM image : " <<  deviceConfig->getParameter("filename") );
+	try {
+		file->read(romBank, romSize);
+	} catch (FileException &e) {
+		PRT_ERROR("Error reading ROM image: " << deviceConfig->getParameter("filename"));
 	}
 	// also patch the file if needed:
 	patchFile();

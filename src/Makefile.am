@@ -3,7 +3,7 @@
 # we want most warnings
 
 # FIXME: -lSDL_image shouldn't be needed
-AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -I$(srcdir)/cpu -I$(srcdir)/sound -I$(srcdir)/config -I$(srcdir)/fdc -I$(srcdir)/ide -I$(srcdir)/thread -I$(srcdir)/ConsoleSource -I$(srcdir)/cassette -I$(srcdir)/events @XML_CFLAGS@ @SDL_CFLAGS@ -lSDL_image
+AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -I$(srcdir)/cpu -I$(srcdir)/sound -I$(srcdir)/config -I$(srcdir)/fdc -I$(srcdir)/file -I$(srcdir)/ide -I$(srcdir)/thread -I$(srcdir)/ConsoleSource -I$(srcdir)/cassette -I$(srcdir)/events @XML_CFLAGS@ @SDL_CFLAGS@ -lSDL_image
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
 else
@@ -17,7 +17,7 @@ endif
 # or perhaps sometimes even more:
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
-SUBDIRS = cfg libxmlx ConsoleSource cpu sound config tools fdc ide thread cassette events
+SUBDIRS = cfg libxmlx ConsoleSource cpu sound config tools fdc file ide thread cassette events
 
 #bin_PROGRAMS=openmsx cfgtest
 bin_PROGRAMS=openmsx
@@ -75,9 +75,6 @@ openmsx_SOURCES=\
 	RomTypes.hh RomTypes.cc \
 	MSXRomDevice.cc MSXRomDevice.hh \
 	MSXRomPatchInterface.hh \
-	FileOpener.cc FileOpener.hh \
-	FileManager.cc FileManager.hh \
-	MSXARCdebug.cc MSXARCdebug.hh \
 	CommandLineParser.cc CommandLineParser.hh \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh \
 	atoll.c \
@@ -85,10 +82,7 @@ openmsx_SOURCES=\
 	PluggingController.hh PluggingController.cc \
 	Connector.hh Connector.cc \
 	Pluggable.hh Pluggable.cc \
-	config.h \
-	File.cc File.hh FileType.hh \
-	HttpFile.cc HttpFile.hh \
-	LocalFile.cc LocalFile.hh
+	config.h
 
 # Very much out of date:
 #	SDLLoRenderer.hh SDLLoRenderer.cc
@@ -100,6 +94,7 @@ openmsx_LDADD = \
 	cpu/libCPU.la \
 	sound/libSound.la \
 	fdc/libFdc.la \
+	file/libFile.la \
 	ide/libIDE.la \
 	thread/libThread.la \
 	cassette/libCassette.la \

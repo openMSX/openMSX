@@ -10,14 +10,14 @@ const int FDC_XSA::cpdext[TBLSIZE] = {
 
 FDC_XSA::FDC_XSA(const std::string &fileName)
 {
-	IFILETYPE* file = FileOpener::openFileRO(fileName);
-	if (!isXSAImage(file))
+	File *file = new File(fileName, DISK);
+	if (!isXSAImage(file)) {
 		throw MSXException("Not an XSA image");
-	file->seekg(0, std::ios::end);
-	int fileSize = file->tellg();
+	}
+	int fileSize = file->size();
 	byte* inbuf = new byte[fileSize];
 	inbufpos = inbuf;
-	file->seekg(0, std::ios::beg);
+	file->seek(0);
 	file->read(inbuf, fileSize);
 	delete file;
 	
@@ -28,7 +28,7 @@ FDC_XSA::FDC_XSA(const std::string &fileName)
 	delete[] inbuf;
 }
 
-bool FDC_XSA::isXSAImage(IFILETYPE *file)
+bool FDC_XSA::isXSAImage(File *file)
 {
 	byte buffer[4];
 	file->read(buffer, 4);

@@ -8,9 +8,8 @@ const int SECTOR_SIZE = 512;
 
 FDC_DSK::FDC_DSK(const std::string &fileName)
 {
-	file = FileOpener::openFilePreferRW(fileName);
-	file->seekg(0, std::ios::end);
-	nbSectors = file->tellg() / SECTOR_SIZE;
+	file = new File(fileName, DISK);
+	nbSectors = file->size() / SECTOR_SIZE;
 }
 
 FDC_DSK::~FDC_DSK()
@@ -21,25 +20,29 @@ FDC_DSK::~FDC_DSK()
 void FDC_DSK::read(byte phystrack, byte track, byte sector, byte side,
                    int size, byte* buf)
 {
-	int logicalSector = physToLog(track, side, sector);
-	if (logicalSector >= nbSectors)
-		throw NoSuchSectorException("No such sector");
-	file->seekg(logicalSector*SECTOR_SIZE, std::ios::beg);
-	file->read(buf, SECTOR_SIZE);
-	if (file->bad())
+	try {
+		int logicalSector = physToLog(track, side, sector);
+		if (logicalSector >= nbSectors)
+			throw NoSuchSectorException("No such sector");
+		file->seek(logicalSector * SECTOR_SIZE);
+		file->read(buf, SECTOR_SIZE);
+	} catch (FileException &e) {
 		throw DiskIOErrorException("Disk I/O error");
+	}
 }
 
 void FDC_DSK::write(byte phystrack, byte track, byte sector, byte side, 
                     int size, const byte* buf)
 {
-	int logicalSector = physToLog(track, side, sector);
-	if (logicalSector >= nbSectors)
-		throw NoSuchSectorException("No such sector");
-	file->seekg(logicalSector*SECTOR_SIZE, std::ios::beg);
-	file->write(buf, SECTOR_SIZE);
-	if (file->bad())
+	try {
+		int logicalSector = physToLog(track, side, sector);
+		if (logicalSector >= nbSectors)
+			throw NoSuchSectorException("No such sector");
+		file->seek(logicalSector * SECTOR_SIZE);
+		file->write(buf, SECTOR_SIZE);
+	} catch (FileException &e) {
 		throw DiskIOErrorException("Disk I/O error");
+	}
 }
 
 void FDC_DSK::readBootSector()

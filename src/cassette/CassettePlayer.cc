@@ -4,9 +4,9 @@
 #include "CassettePlayer.hh"
 #include "PluggingController.hh"
 #include "CommandController.hh"
-#include "FileOpener.hh"
 #include "MSXConfig.hh"
 #include "libxmlx/xmlx.hh"
+#include "File.hh"
 
 
 MSXCassettePlayerCLI msxCassettePlayerCLI;
@@ -78,7 +78,7 @@ CassettePlayer::~CassettePlayer()
 void CassettePlayer::insertTape(const std::string &filename)
 {
 	// TODO throw exceptions instead of PRT_ERROR
-	const char* file = FileOpener::findFileName(filename).c_str();
+	const char* file = File::findName(filename, TAPE).c_str();
 	if (audioLength != 0)
 		removeTape();
 	if (SDL_LoadWAV(file, &audioSpec, &audioBuffer, &audioLength) == NULL)

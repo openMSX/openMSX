@@ -6,7 +6,7 @@
 #include "EmuTime.hh"
 #include "MSXConfig.hh"
 #include "libxmlx/xmlx.hh"
-#include "FileOpener.hh"
+#include "File.hh"
 
 
 KeyEventInserterCLI keyEventInserterCLI;
@@ -29,21 +29,21 @@ void KeyEventInserterCLI::parseOption(const std::string &option,
 	s << "<parameter name=\"keys\">";
 	try {
 		// first try and treat arg as a file
-		IFILETYPE* file = FileOpener::openFileRO(arg);
-		unsigned char buffer[2];
-		while (!file->fail()) {
-			file->read(buffer, 1);
+		File file(arg);
+		byte buffer[2];
+		try {
+			file.read(buffer, 1);
 			buffer[1] = '\0';
-			std::cerr << buffer;
-			std::string temp(reinterpret_cast <char *>(buffer));
+			std::string temp((char*)buffer);
 			if (buffer[0] == '\n') {
 				s << "&#x0D;";
 			} else {
 				s << XML::Escape(temp);
 			}
+		} catch (FileException &e) {
+			// end of file
 		}
-		delete file;
-	} catch (FileOpenerException &e) {
+	} catch (FileException &e) {
 		// if that fails, treat it as a string
 		for (std::string::const_iterator i = arg.begin(); i != arg.end(); i++) {
 			std::string::const_iterator j = i;
