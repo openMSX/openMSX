@@ -1,28 +1,16 @@
 // $Id$
 
-/*  Written By: Garrett Banuk <mongoose@mongeese.org>
- *  Addapted to C++ and openMSX needs by David Heremans
- *  This is free, just be sure to give me credit when using it
- *  in any of your programs.
- */
-
 #include <cassert>
 #include "SDL/SDL_image.h"
 #include "GLConsole.hh"
-#include "CommandController.hh"
-#include "HotKey.hh"
-#include "ConsoleManager.hh"
 #include "FileOpener.hh"
 #include "GLFont.hh"
-#include "EventDistributor.hh"
 #include "MSXConfig.hh"
 
 
-GLConsole::GLConsole() :
-	consoleCmd(this)
+GLConsole::GLConsole()
 {
 	SDL_Surface *screen = SDL_GetVideoSurface();
-	isVisible = false;
 	blink = false;
 	lastBlinkTime = 0;
 	backgroundTexture = 0;
@@ -30,8 +18,6 @@ GLConsole::GLConsole() :
 	dispY         = (screen->h / 15) * 9;
 	consoleWidth  = (screen->w / 32) * 30;
 	consoleHeight = (screen->h / 15) * 6;
-	
-	SDL_EnableUNICODE(1);
 	
 	int width, height;
 	GLfloat fontTexCoord[4];
@@ -49,21 +35,10 @@ GLConsole::GLConsole() :
 	} catch(MSXException &e) {
 		// no background or missing file
 	}
-
-	ConsoleManager::instance()->registerConsole(this);
-	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
-	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this);
-	CommandController::instance()->registerCommand(consoleCmd, "console");
-	HotKey::instance()->registerHotKeyCommand(Keys::K_F10, "console");
 }
 
 GLConsole::~GLConsole()
 {
-	HotKey::instance()->unregisterHotKeyCommand(Keys::K_F10, "console");
-	CommandController::instance()->unregisterCommand("console");
-	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
-	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP,   this);
-	ConsoleManager::instance()->unregisterConsole(this);
 	delete font;
 	glDeleteTextures(1, &backgroundTexture);
 }
@@ -120,50 +95,6 @@ GLuint GLConsole::loadTexture(const std::string &filename, int &width, int &heig
 	SDL_FreeSurface(image2);
 
 	return texture;
-}
-
-
-// Takes keys from the keyboard and inputs them to the console
-bool GLConsole::signalEvent(SDL_Event &event)
-{
-	if (!isVisible)
-		return true;
-	if (event.type == SDL_KEYUP)
-		return false;	// don't pass event to MSX-Keyboard
-	
-	Keys::KeyCode key = (Keys::KeyCode)event.key.keysym.sym;
-	switch (key) {
-		case Keys::K_PAGEUP:
-			scrollUp();
-			break;
-		case Keys::K_PAGEDOWN:
-			scrollDown();
-			break;
-		case Keys::K_UP:
-			prevCommand();
-			break;
-		case Keys::K_DOWN:
-			nextCommand();
-			break;
-		case Keys::K_BACKSPACE:
-			backspace();
-			break;
-		case Keys::K_TAB:
-			tabCompletion();
-			break;
-		case Keys::K_RETURN:
-			commandExecute();
-			break;
-		default:
-			if (event.key.keysym.unicode)
-				normalKey((char)event.key.keysym.unicode);
-	}
-	return false;	// don't pass event to MSX-Keyboard
-}
-
-// Updates the console buffer
-void GLConsole::updateConsole()
-{
 }
 
 // Draws the console buffer to the screen
@@ -238,42 +169,3 @@ void GLConsole::drawConsole()
 	glPopMatrix();
 	glPopAttrib();
 }
-
-
-
-// Console command
-GLConsole::ConsoleCmd::ConsoleCmd(GLConsole *cons)
-{
-	console = cons;
-}
-
-void GLConsole::ConsoleCmd::execute(const std::vector<std::string> &tokens)
-{
-	switch (tokens.size()) {
-	case 1:
-		console->isVisible = !console->isVisible;
-		break;
-	case 2:
-		if (tokens[1] == "on") {
-			console->isVisible = true;
-			break;
-		} 
-		if (tokens[1] == "off") {
-			console->isVisible = false;
-			break;
-		}
-		// fall through
-	default:
-		throw CommandException("Syntax error");
-	}
-}
-void GLConsole::ConsoleCmd::help   (const std::vector<std::string> &tokens)
-{
-	print("This command turns console display on/off");
-	print(" console:     toggle console display");
-	print(" console on:  show console display");
-	print(" console off: remove console display");
-} 
-
-
-

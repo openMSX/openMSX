@@ -9,19 +9,13 @@
 #include <cassert>
 #include "SDL/SDL_image.h"
 #include "SDLConsole.hh"
-#include "CommandController.hh"
-#include "HotKey.hh"
-#include "ConsoleManager.hh"
 #include "FileOpener.hh"
 #include "SDLFont.hh"
-#include "EventDistributor.hh"
 #include "MSXConfig.hh"
 
 
-SDLConsole::SDLConsole(SDL_Surface *screen) :
-	consoleCmd(this)
+SDLConsole::SDLConsole(SDL_Surface *screen)
 {
-	isVisible = false;
 	blink = false;
 	lastBlinkTime = 0;
 	
@@ -42,7 +36,6 @@ SDLConsole::SDLConsole(SDL_Surface *screen) :
 	rect.h = (screen->h / 15) * 6;
 	resize(rect);
 	alpha(180);
-	SDL_EnableUNICODE(1);
 
 	try {
 		std::string backgroundName = config->getParameter("background");
@@ -50,64 +43,14 @@ SDLConsole::SDLConsole(SDL_Surface *screen) :
 	} catch(MSXException &e) {
 		// no background or missing file
 	}
-
-	ConsoleManager::instance()->registerConsole(this);
-	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
-	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this);
-	CommandController::instance()->registerCommand(consoleCmd, "console");
-	HotKey::instance()->registerHotKeyCommand(Keys::K_F10, "console");
 }
 
 SDLConsole::~SDLConsole()
 {
 	PRT_DEBUG("Destroying SDLConsole");
-	HotKey::instance()->unregisterHotKeyCommand(Keys::K_F10, "console");
-	CommandController::instance()->unregisterCommand("console");
-	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
-	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP,   this);
-	ConsoleManager::instance()->unregisterConsole(this);
 	delete font;
 }
 
-
-// Takes keys from the keyboard and inputs them to the console
-bool SDLConsole::signalEvent(SDL_Event &event)
-{
-	if (!isVisible)
-		return true;
-	if (event.type == SDL_KEYUP)
-		return false;	// don't pass event to MSX-Keyboard
-	
-	Keys::KeyCode key = (Keys::KeyCode)event.key.keysym.sym;
-	switch (key) {
-		case Keys::K_PAGEUP:
-			scrollUp();
-			break;
-		case Keys::K_PAGEDOWN:
-			scrollDown();
-			break;
-		case Keys::K_UP:
-			prevCommand();
-			break;
-		case Keys::K_DOWN:
-			nextCommand();
-			break;
-		case Keys::K_BACKSPACE:
-			backspace();
-			break;
-		case Keys::K_TAB:
-			tabCompletion();
-			break;
-		case Keys::K_RETURN:
-			commandExecute();
-			break;
-		default:
-			if (event.key.keysym.unicode)
-				normalKey((char)event.key.keysym.unicode);
-	}
-	updateConsole();
-	return false;	// don't pass event to MSX-Keyboard
-}
 
 // Updates the console buffer
 void SDLConsole::updateConsole()
@@ -273,38 +216,3 @@ void SDLConsole::reloadBackground()
 		SDL_BlitSurface(backgroundImage, &src, inputBackground, &dest);
 	}
 }
-
-
-// Console command
-SDLConsole::ConsoleCmd::ConsoleCmd(SDLConsole *cons)
-{
-	console = cons;
-}
-
-void SDLConsole::ConsoleCmd::execute(const std::vector<std::string> &tokens)
-{
-	switch (tokens.size()) {
-	case 1:
-		console->isVisible = !console->isVisible;
-		break;
-	case 2:
-		if (tokens[1] == "on") {
-			console->isVisible = true;
-			break;
-		} 
-		if (tokens[1] == "off") {
-			console->isVisible = false;
-			break;
-		}
-		// fall through
-	default:
-		throw CommandException("Syntax error");
-	}
-}
-void SDLConsole::ConsoleCmd::help   (const std::vector<std::string> &tokens)
-{
-	print("This command turns console display on/off");
-	print(" console:     toggle console display");
-	print(" console on:  show console display");
-	print(" console off: remove console display");
-} 

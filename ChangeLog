@@ -1,6 +1,9 @@
 $Id$
 
 2002-08-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Move common code from SDLConsole and GLConsole to a new parent class
+
+2002-08-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* SDLGLRenderer:
 	   small cleanups
 	   when interlaced, display odd fields half a line lower

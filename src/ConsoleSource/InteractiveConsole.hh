@@ -34,7 +34,7 @@ class InteractiveConsole : public Console
 		void newLineConsole(const std::string &line);
 		void putPrompt();
 		
-		virtual void updateConsole() = 0;
+		virtual void updateConsole() {}
 		
 		
 		/** This is what the prompt looks like

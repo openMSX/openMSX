@@ -16,6 +16,7 @@ libSDL_console_la_SOURCES = \
 	ConsoleManager.cc ConsoleManager.hh \
 	Console.cc Console.hh \
 	InteractiveConsole.cc InteractiveConsole.hh \
+	SDLInteractiveConsole.cc SDLInteractiveConsole.hh \
 	CircularBuffer.cc CircularBuffer.hh \
 	SDLConsole.cc SDLConsole.hh \
 	GLConsole.cc GLConsole.hh \

@@ -3,16 +3,14 @@
 #ifndef __SDLCONSOLE_HH__
 #define __SDLCONSOLE_HH__
 
-#include <SDL/SDL.h>
-#include "EventListener.hh"
-#include "InteractiveConsole.hh"
-#include "Command.hh"
+#include "SDLInteractiveConsole.hh"
 
 // forward declaration
 class SDLFont;
+class SDL_Surface;
 
 
-class SDLConsole : public InteractiveConsole, private EventListener
+class SDLConsole : public SDLInteractiveConsole
 {
 	public:
 		SDLConsole(SDL_Surface *screen);
@@ -21,7 +19,6 @@ class SDLConsole : public InteractiveConsole, private EventListener
 		virtual void drawConsole();
 
 	private:
-		virtual bool signalEvent(SDL_Event &event);
 		virtual void updateConsole();
 
 		void alpha(unsigned char alpha);
@@ -33,10 +30,6 @@ class SDLConsole : public InteractiveConsole, private EventListener
 
 		static const int BLINK_RATE = 500;
 		static const int CHAR_BORDER = 4;
-
-		/** Is the console currently visible
-		  */ 
-		bool isVisible;
 
 		/** This is the font for the console.
 		  */
@@ -85,18 +78,6 @@ class SDLConsole : public InteractiveConsole, private EventListener
 		/** Last time the consoles cursor blinked 
 		  */
 		Uint32 lastBlinkTime;
-
-
-		class ConsoleCmd : public Command {
-			public:
-				ConsoleCmd(SDLConsole *cons);
-				virtual void execute(const std::vector<std::string> &tokens);
-				virtual void help   (const std::vector<std::string> &tokens);
-			private:
-				SDLConsole *console;
-		};
-		friend class ConsoleCmd;
-		ConsoleCmd consoleCmd;
 };
 
 #endif
