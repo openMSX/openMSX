@@ -1,5 +1,8 @@
 $Id$
 
+2004-03-28 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added info command for 'accuracy' setting
+
 2004-03-27 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* update events are now disabled by default.
 

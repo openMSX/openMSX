@@ -97,6 +97,16 @@ private:
 		RenderSettings& parent;
 	} scalerInfo;
 
+	class AccuracyInfo : public InfoTopic {
+	public:
+		AccuracyInfo(RenderSettings& parent);
+		virtual void execute(const vector<string>& tokens,
+		                     CommandResult& result) const throw();
+		virtual string help(const vector<string>& tokens) const throw();
+	private:
+		RenderSettings& parent;
+	} accuracyInfo;
+
 	SettingsConfig& settingsConfig;
 	InfoCommand& infoCommand;
 };

@@ -12,6 +12,7 @@ namespace openmsx {
 RenderSettings::RenderSettings()
 	: rendererInfo(*this),
 	  scalerInfo(*this),
+	  accuracyInfo(*this),
 	  settingsConfig(SettingsConfig::instance()),
 	  infoCommand(InfoCommand::instance())
 {
@@ -63,12 +64,14 @@ RenderSettings::RenderSettings()
 
 	infoCommand.registerTopic("renderer", &rendererInfo);
 	infoCommand.registerTopic("scaler", &scalerInfo);
+	infoCommand.registerTopic("accuracy", &accuracyInfo);
 }
 
 RenderSettings::~RenderSettings()
 {
 	infoCommand.unregisterTopic("scaler", &scalerInfo);
 	infoCommand.unregisterTopic("renderer", &rendererInfo);
+	infoCommand.unregisterTopic("accuracy", &accuracyInfo);
 
 	delete accuracy;
 	delete deinterlace;
@@ -130,4 +133,29 @@ string RenderSettings::ScalerInfo::help(const vector<string>& tokens) const
 {
 	return "Shows a list of available scalers.\n";
 }
+
+// Accuracy info
+
+RenderSettings::AccuracyInfo::AccuracyInfo(RenderSettings& parent_)
+	: parent(parent_)
+{
+}
+
+void RenderSettings::AccuracyInfo::execute(const vector<string>& tokens,
+	CommandResult& result) const throw()
+{
+	set<string> accuracies;
+	parent.getAccuracy()->getPossibleValues(accuracies);
+	for (set<string>::const_iterator it = accuracies.begin();
+	     it != accuracies.end(); ++it) {
+		result.addListElement(*it);
+	}
+}
+
+string RenderSettings::AccuracyInfo::help(const vector<string>& tokens) const
+	throw()
+{
+	return "Shows a list of available accuracies.\n";
+}
+
 } // namespace openmsx
