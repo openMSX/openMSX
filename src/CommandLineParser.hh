@@ -11,55 +11,57 @@
 
 class CommandLineParser
 {
-  public:
-    static CommandLineParser* instance();
-    int checkFileType(char* parameter,int &i, char **argv);
-    int checkFileExt(char* filename);
-    void parse(MSXConfig::Backend* Backconfig,int argc, char **argv);
+	public:
+		static CommandLineParser* instance();
+		int checkFileType(char* parameter,int &i, char **argv);
+		int checkFileExt(char* filename);
+		void parse(MSXConfig::Backend* Backconfig,int argc, char **argv);
 
-    void showHelp(const char* progname);
+		void showHelp(const char* progname);
 
-    void configureDisk(char* filename);
-    void configureTape(char* filename);
-    void configureCartridge(char* filename);
-    void configureMusMod(std::string mode);
-    void configureFmPac(std::string mode);
+		void configureDisk(char* filename);
+		void configureTape(char* filename);
+		void configureCartridge(char* filename);
+		void configureMusMod(std::string mode);
+		void configureFmPac(std::string mode);
 
-    void configureKeyInsert(const char *const arg);
+		void configureKeyInsert(const char *const arg);
 
-    enum CLIoption {
-      HELP,MSX1,MSX2,MSX2PLUS,TURBOR,
-      FMPAC,MUSMOD,MBSTEREO,JOY,KEYINS
-    };
+		enum CLIoption {
+			HELP,MSX1,MSX2,MSX2PLUS,TURBOR,
+			FMPAC,MUSMOD,MBSTEREO,JOY,KEYINS
+		};
 
-    void addOption(CLIoption id,std::string cliOption,bool usesParameter, std::string help);
-    bool isUsed(CLIoption id);
-    char* getParameter(CLIoption id);
+		void addOption(CLIoption id,std::string cliOption,bool usesParameter, std::string help);
+		bool isUsed(CLIoption id);
+		char* getParameter(CLIoption id);
 
-  protected:
-      CommandLineParser();
+	protected:
+		CommandLineParser();
 
-  private:
-    // some parameters for internal use.
-    MSXConfig::Backend* config;
-    int nrXMLfiles;
-    char driveLetter;
-    byte cartridgeNr;
-    class CommandLineOption
-    {
-      public:
-	std::string option;
-	bool hasParameter;
-	std::string helpLine;
-	bool used;
-	char* parameter;
+	private:
+		// some parameters for internal use.
+		MSXConfig::Backend* config;
+		int nrXMLfiles;
+		char driveLetter;
+		byte cartridgeNr;
+		
+		class CommandLineOption {
+			public:
+				CommandLineOption(const std::string &cliOption,
+				                  bool usesParameter,
+				                  const std::string &help);
+				
+				const std::string option;
+				const std::string helpLine;
+				const bool hasParameter;
+				bool used;
+				char* parameter;
+		};
 
-	CommandLineOption(std::string cliOption,bool usesParameter, std::string help);
-    };
+		std::map<CLIoption,CommandLineParser::CommandLineOption*> optionList;
 
-    std::map<CLIoption,CommandLineParser::CommandLineOption*> optionList;
-
-    static CommandLineParser* oneInstance;
+		static CommandLineParser* oneInstance;
 };
 
 #endif

@@ -36,19 +36,14 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 	for (mapperMask=1; mapperMask<nrblocks; mapperMask<<=1);
 	mapperMask--;
 	
-	SRAMEnableBit=0;
-	mapperType = retrieveMapperType();
-	PRT_INFO("mapperType: "<<mapperType);
+	retrieveMapperType();
 
 	// only if needed reserve memory for SRAM
-	regioSRAM=0;
-	maskSRAM = (mapperType == 16) ? 0x07FF : 0x1FFF ;
-	if (mapperType&16) {
-		enabledSRAM= true;
+	if (mapperType & 16) {
+		regioSRAM=0;
+		enabledSRAM = true;
 		memorySRAM = new byte[0x2000];
-		//"Clear" ram contents
-		//TODO: can one use the C memfil here ?
-		for (int i=0 ; i<0x2000 ; i++)memorySRAM[i]=255;
+		memset(memorySRAM, 255, 0x2000);
 		try {
 			if (deviceConfig->getParameterAsBool("loadsram")) {
 				std::string filename = deviceConfig->getParameter("sramname");
@@ -68,7 +63,7 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 
 #ifndef DONT_WANT_SCC
 	// only instantiate SCC if needed
-	if (mapperType==2) {
+	if (mapperType == 2) {
 		short volume = (short)config->getParameterAsInt("volume");
 		cartridgeSCC = new SCC(volume);
 	} else {
@@ -77,13 +72,14 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 #endif
 
 	// only instantiate DACSound if needed
-	if (mapperType==64) {
+	if (mapperType == 64) {
 		short volume = (short)config->getParameterAsInt("volume");
 		dac = new DACSound(volume, 16000, time);
 	} else {
 		dac = NULL;
 	}
 
+	unmapped = NULL;
 	reset(time);
 }
 
@@ -96,15 +92,16 @@ MSXGameCartridge::~MSXGameCartridge()
 	if (cartridgeSCC)
 		delete cartridgeSCC;
 #endif
-	if ((mapperType&16) && deviceConfig->getParameterAsBool("savesram")) {
+	if ((mapperType & 16) && deviceConfig->getParameterAsBool("savesram")) {
 		std::string filename = deviceConfig->getParameter("sramname");
-		PRT_INFO("Trying to save to "<<filename<<" for SRAM of the cartrdige");
+		PRT_DEBUG("Trying to save to "<<filename<<" for SRAM of the cartrdige");
 		IOFILETYPE* file = FileOpener::openFileTruncate(filename);
 		file->write(memorySRAM, 0x2000);
 		file->close();
 		delete file;
 	}
-	delete [] memorySRAM; 
+	delete[] memorySRAM;
+	delete[] unmapped;
 }
 
 void MSXGameCartridge::reset(const EmuTime &time)
@@ -122,54 +119,58 @@ void MSXGameCartridge::reset(const EmuTime &time)
 	regioSRAM=0;
 
 	if (mapperType < 128 ) {
-		// TODO: mirror if number of 8kB blocks not fully filled ?
-		setBank(0, 0);			// unused
-		setBank(1, 0);			// unused
-		setBank(2, memoryBank);		// 0x4000 - 0x5fff
-		setBank(3, memoryBank+0x2000);	// 0x6000 - 0x7fff
-		if (mapperType == 16 || mapperType == 5) {
-			setBank(4, memoryBank);	// 0x8000 - 0x9fff
-			setBank(5, memoryBank+0x2000);	// 0xa000 - 0xbfff
-		} else {
-			setBank(4, memoryBank+0x4000);	// 0x8000 - 0x9fff
-			setBank(5, memoryBank+0x6000);	// 0xa000 - 0xbfff
+		if (unmapped == NULL) {
+			unmapped = new byte[0x1000];
+			memset(unmapped, 255, 0x1000);
 		}
-		setBank(6, 0);			// unused
-		setBank(7, 0);			// unused
+		// TODO: mirror if number of 8kB blocks not fully filled ?
+		setBank8kB(2, memoryBank);			// 0x4000 - 0x5fff
+		setBank8kB(3, memoryBank+0x2000);		// 0x6000 - 0x7fff
+		if (mapperType == 16 || mapperType == 5) {
+			setBank8kB(4, memoryBank+0x0000);	// 0x8000 - 0x9fff
+			setBank8kB(5, memoryBank+0x2000);	// 0xa000 - 0xbfff
+		} else {
+			setBank8kB(4, memoryBank+0x4000);	// 0x8000 - 0x9fff
+			setBank8kB(5, memoryBank+0x6000);	// 0xa000 - 0xbfff
+		}
+		setBank4kB(0,  unmapped);	// 0x0000 - 0x3fff
+		setBank4kB(1,  unmapped);
+		setBank4kB(2,  unmapped);
+		setBank4kB(3,  unmapped);
+		setBank4kB(12, unmapped);	// 0xc000 - 0xffff
+		setBank4kB(13, unmapped);
+		setBank4kB(14, unmapped);
+		setBank4kB(15, unmapped);
 	} else {
 		// this is a simple gamerom less then 64 kB
 		byte* ptr;
-		switch (romSize>>14) { // blocks of 16kB
-		case 0:
-			// An 8 Kb game ????
+		switch (romSize >> 14) { // blocks of 16kB
+		case 0:	// An 8 kB game ????
 			for (int i=0; i<8; i++) {
-				setBank(i, memoryBank);
+				setBank8kB(i, memoryBank);
 			}
 			break;
-		case 1:
+		case 1:	// 16kB
 			for (int i=0; i<8; i+=2) {
-				setBank(i,   memoryBank);
-				setBank(i+1, memoryBank+0x2000);
+				setBank8kB(i,   memoryBank+0x0000);
+				setBank8kB(i+1, memoryBank+0x2000);
 			}
 			break;
-		case 2:
-			setBank(0, memoryBank);		// 0x0000 - 0x1fff
-			setBank(1, memoryBank+0x2000);	// 0x2000 - 0x3fff
-			setBank(2, memoryBank);		// 0x4000 - 0x5fff
-			setBank(3, memoryBank+0x2000);	// 0x6000 - 0x7fff
-			setBank(4, memoryBank+0x4000);	// 0x8000 - 0x9fff
-			setBank(5, memoryBank+0x6000);	// 0xa000 - 0xbfff
-			setBank(6, memoryBank+0x4000);	// 0xc000 - 0xdfff
-			setBank(7, memoryBank+0x6000);	// 0xe000 - 0xffff
+		case 2:	// 32kB
+			setBank8kB(0, memoryBank+0x0000);	// 0x0000 - 0x1fff
+			setBank8kB(1, memoryBank+0x2000);	// 0x2000 - 0x3fff
+			setBank8kB(2, memoryBank+0x0000);	// 0x4000 - 0x5fff
+			setBank8kB(3, memoryBank+0x2000);	// 0x6000 - 0x7fff
+			setBank8kB(4, memoryBank+0x4000);	// 0x8000 - 0x9fff
+			setBank8kB(5, memoryBank+0x6000);	// 0xa000 - 0xbfff
+			setBank8kB(6, memoryBank+0x4000);	// 0xc000 - 0xdfff
+			setBank8kB(7, memoryBank+0x6000);	// 0xe000 - 0xffff
 			break;
-		case 3:
-			// TODO 48kb, is this possible?
-			//assert (false);
-			//break;
-		case 4:
+		case 3:	// 48kB, is this possible?
+		case 4:	// 64kB
 			ptr = memoryBank;
 			for (int i=0; i<8; i++) {
-				setBank(i, ptr);
+				setBank8kB(i, ptr);
 				ptr += 0x2000;
 			}
 			break;
@@ -181,21 +182,20 @@ void MSXGameCartridge::reset(const EmuTime &time)
 }
 
 struct ltstr {
-	bool operator()(const char* s1, const char* s2) const {
-		return strcmp(s1, s2) < 0;
+	bool operator()(const std::string s1, const std::string s2) const {
+		return strcasecmp(s1.c_str(), s2.c_str()) < 0;
 	}
 };
 
-int MSXGameCartridge::retrieveMapperType()
+void MSXGameCartridge::retrieveMapperType()
 {
 	try {
 		if (deviceConfig->getParameterAsBool("automappertype")) {
-			return guessMapperType();
+			mapperType = guessMapperType();
 		} else {
 			std::string  type = deviceConfig->getParameter("mappertype");
-			PRT_DEBUG("Using mapper type " << type);
 
-			std::map<const char*, int, ltstr> mappertype;
+			std::map<const std::string, int, ltstr> mappertype;
 
 			mappertype["0"]=0;
 			mappertype["8kB"]=0;
@@ -215,10 +215,6 @@ int MSXGameCartridge::retrieveMapperType()
 
 			mappertype["5"]=5;
 			mappertype["ASCII16"]=5;
-
-			//Taken over by 19, since it has SRAM
-			mappertype["6"]=6;
-			mappertype["GAMEMASTER2"]=6;
 
 			//Not implemented yet
 			mappertype["7"]=7;
@@ -240,24 +236,26 @@ int MSXGameCartridge::retrieveMapperType()
 			mappertype["GAMEMASTER2"]=19;
 			mappertype["RC755"]=19;
 
-			// Done
-
 			mappertype["64"]=64;
 			mappertype["KONAMIDAC"]=64;
 
+			mappertype["128"]=128;
+			mappertype["64kB"]=128;
+
 			//TODO: catch wrong options passed
-			int selecttype= mappertype[type.c_str()];
-			if (selecttype==17){
-				SRAMEnableBit=0x20;
-			} else if (selecttype==18){
-				SRAMEnableBit=0x80;
-			};
-			return selecttype;
+			mapperType = mappertype[type];
 		}
 	} catch (MSXConfig::Exception& e) {
 		// missing parameter
-		return guessMapperType();
+		mapperType = guessMapperType();
 	}
+	
+	if (mapperType == 17) {
+		SRAMEnableBit = 0x20;
+	} else if (mapperType == 18) {
+		SRAMEnableBit=0x80;
+	}
+	PRT_DEBUG("mapperType: " << mapperType);
 }
 
 int MSXGameCartridge::guessMapperType()
@@ -284,7 +282,7 @@ int MSXGameCartridge::guessMapperType()
 			return 128;
 		}
 	} else {
-		unsigned int typeGuess[]={0,0,0,0,0,0,0};
+		unsigned int typeGuess[] = {0,0,0,0,0,0,0};
 		for (int i=0; i<romSize-2; i++) {
 			if (memoryBank[i] == 0x32) {
 				int value = memoryBank[i+1]+(memoryBank[i+2]<<8);
@@ -329,19 +327,17 @@ int MSXGameCartridge::guessMapperType()
 		if (typeGuess[6] != 75) typeGuess[6] = 0; // There is only one Game Master 2
 		int type = 0;
 		for (int i=0; i<7; i++) {
-			if ( (typeGuess[i]) && (typeGuess[i]>=typeGuess[type])){
-			  type = i;
+			if ((typeGuess[i]) && (typeGuess[i]>=typeGuess[type])) {
+				type = i;
 			}
-		};
+		}
 		// in case of doubt we go for type 0
 		// in case of even type 5 and 4 we would prefer 5
 		// but we would still prefer 0 above 4 or 5
-		if ((type==5) && (typeGuess[0] == typeGuess[5] ) ){type=0;};
-		for (int i=0; i<7; i++) {
-		PRT_DEBUG("MSXGameCartridge: typeGuess["<<i<<"]="<<typeGuess[i]);
-		}
-		std::string typeNames[]={"8kB","16kB","SCC","KONAMI4","ASCII8","ASCII16","GameMaster2"};
-		PRT_INFO("MSXGameCartridge: I Guess this is a " << typeNames[type] << " GameCartridge type.");
+		if ((type==5) && (typeGuess[0] == typeGuess[5]))
+			type=0;
+		for (int i=0; i<7; i++)
+			PRT_DEBUG("MSXGameCartridge: typeGuess["<<i<<"]="<<typeGuess[i]);
 		return type == 6 ? 19 : type;
 	}
 }
@@ -404,7 +400,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		if (address<0x4000 || address>=0xC000) return;
 		// change internal mapper
 		value &= mapperMask;
-		setBank(address>>13, memoryBank+(value<<13));
+		setBank8kB(address>>13, memoryBank+(value<<13));
 		break;
 	case 1:
 		//--==**>> Generic 16kB cartridges (MSXDOS2, Hole in one special) <<**==--
@@ -412,8 +408,8 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 			return;
 		region = (address&0xC000)>>13;	// 0, 2, 4, 6
 		value = (2*value)&mapperMask;
-		setBank(region,   memoryBank+(value<<13));
-		setBank(region+1, memoryBank+(value<<13)+0x2000);
+		setBank8kB(region,   memoryBank+(value<<13));
+		setBank8kB(region+1, memoryBank+(value<<13)+0x2000);
 		break;
 	case 2:
 		//--==**>> KONAMI5 8kB cartridges <<**==--
@@ -445,7 +441,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		// Page selection?
 		if ((address & 0x1800) != 0x1000) return;
 		value &= mapperMask;
-		setBank(address>>13, memoryBank+(value<<13));
+		setBank8kB(address>>13, memoryBank+(value<<13));
 		break;
 	case 3:
 		//--==**>> KONAMI4 8kB cartridges <<**==--
@@ -458,7 +454,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 
 		if (address&0x1FFF || address<0x6000 || address>=0xC000) return;
 		value &= mapperMask;
-		setBank(address>>13, memoryBank+(value<<13));
+		setBank8kB(address>>13, memoryBank+(value<<13));
 		break;
 	case 4:
 		//--==**>> ASCII 8kB cartridges <<**==--
@@ -474,7 +470,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		if (address<0x6000 || address>=0x8000) return;
 		region = ((address>>11)&3)+2;
 		value &= mapperMask;
-		setBank(region, memoryBank+(value<<13));
+		setBank8kB(region, memoryBank+(value<<13));
 		break;
 	case 5:
 		//--==**>> ASCII 16kB cartridges <<**==--
@@ -489,12 +485,9 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		if (address<0x6000 || address>=0x7800 || (address&0x800)) return;
 		region = ((address>>11)&2)+2;
 		value = (2*value)&mapperMask;
-		setBank(region,   memoryBank+(value<<13));
-		setBank(region+1, memoryBank+(value<<13)+0x2000);
+		setBank8kB(region,   memoryBank+(value<<13));
+		setBank8kB(region+1, memoryBank+(value<<13)+0x2000);
 		break;
-//	case 6:
-		//--==**>> GameMaster2+SRAM cartridge <<**==--
-		// GameMaster2 is implemented as device 19, since it has SRAM
 	case 16:
 		//--==**>> HYDLIDE2 cartridges <<**==--
 		// this type is is almost completely a ASCII16 cartrdige
@@ -512,21 +505,21 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 			//Normal ASCII16 would return but maybe 
 			//we are writting to the SRAM?
 			if (adr2pag[address>>13]&regioSRAM&0x0C){ 
-				for (word adr=address & maskSRAM;adr<0x2000;adr+=0x800)
+				for (word adr=address&0x7ff; adr<0x2000; adr+=0x800)
 					memorySRAM[adr]=value;
 			}
 		} else {
 			region = ((address>>11)&2)+2;
 			if (value == 0x10){
 				// SRAM block
-				setBank(region,   memorySRAM);
-				setBank(region+1, memorySRAM);
+				setBank8kB(region,   memorySRAM);
+				setBank8kB(region+1, memorySRAM);
 				regioSRAM|=(region==2?0x03:0x0c);
 			} else {
 				// Normal 16 kB ROM page
 				value = (2*value)&mapperMask;
-				setBank(region,   memoryBank+(value<<13));
-				setBank(region+1, memoryBank+(value<<13)+0x2000);
+				setBank8kB(region,   memoryBank+(value<<13));
+				setBank8kB(region+1, memoryBank+(value<<13)+0x2000);
 				regioSRAM&=(region==2?0xFD:0xF4);
 			}
 		};
@@ -547,7 +540,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 			//we are writting to the SRAM?
 			PRT_DEBUG(std::hex << "regioSRAM "<< (int)regioSRAM << std::dec << std::hex << "adr2pag[address>>13] "<< (int)adr2pag[address>>13] << std::dec );
 			if (adr2pag[address>>13]&regioSRAM&0x0C){ 
-				memorySRAM[address & maskSRAM]=value;
+				memorySRAM[address & 0x1fff]=value;
 				PRT_DEBUG(std::hex << "SRAM write  [" << address << "] := " << (int)value << std::dec );
 			}
 		} else {
@@ -556,12 +549,12 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 			if (value & SRAMEnableBit){
 				//bit 7 for Royal Blood
 				//bit 5 for Xanadu
-				setBank(region, memorySRAM);
+				setBank8kB(region, memorySRAM);
 				regioSRAM|=adr2pag[region];
 				PRT_DEBUG("SRAM mapped in (region "<<(int)region<<"): regioSRAM="<<(int)regioSRAM<<"\n");
 			} else {
 				value &= mapperMask;
-				setBank(region, memoryBank+(value<<13));
+				setBank8kB(region, memoryBank+(value<<13));
 				regioSRAM&=(~adr2pag[region]);
 			}
 		};
@@ -592,19 +585,19 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 			int page = value & (1 << 5);
 			if (page) {
 				pageSRAM |= 1 << (address >> 13);
-				realSetBank((address>>12)&0xe,     memorySRAM + 0x1000);
-				realSetBank(((address>>12)&0xe)+1, memorySRAM + 0x1000);
+				setBank4kB((address>>12)&0xe,     memorySRAM + 0x1000);
+				setBank4kB(((address>>12)&0xe)+1, memorySRAM + 0x1000);
 			} else {
 				pageSRAM &= ~(1 << (address >> 13));
-				realSetBank((address>>12)&0xe,     memorySRAM);
-				realSetBank(((address>>12)&0xe)+1, memorySRAM);
+				setBank4kB((address>>12)&0xe,     memorySRAM);
+				setBank4kB(((address>>12)&0xe)+1, memorySRAM);
 			}
 //			PRT_DEBUG (std::hex<<"GM2 Switched SRAM page="<<page<<", value="<<(int)value<<", addr="<<address<<std::dec<<std::endl);
 		} else {
 			// switch normal memory
 			regioSRAM &= ~(1 << ((address >> 13) - 2));
 			value &= mapperMask;
-			setBank(address>>13, memoryBank+(value<<13));
+			setBank8kB(address>>13, memoryBank+(value<<13));
 //			PRT_DEBUG (std::hex<<"GM2 Switched bank="<<(address>>13)<<", value="<<(int)value<<", addr="<<address<<std::dec<<std::endl);
 		}
 		break;
@@ -625,13 +618,13 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 	}
 }
 
-void MSXGameCartridge::setBank(int region, byte* value)
+void MSXGameCartridge::setBank8kB(int region, byte* value)
 {
-	realSetBank (region * 2, value);
-	realSetBank (region * 2 + 1, value + 0x1000);
+	setBank4kB(region*2,   value);
+	setBank4kB(region*2+1, value + 0x1000);
 }
 
-void MSXGameCartridge::realSetBank(int region, byte * value)
+void MSXGameCartridge::setBank4kB(int region, byte* value)
 {
 	internalMemoryBank[region] = value;
 	MSXCPU::instance()->invalidateCache(region*0x1000, 0x1000/CPU::CACHE_LINE_SIZE);
