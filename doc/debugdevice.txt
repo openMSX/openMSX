@@ -1,8 +1,10 @@
-This document describes how the debugdevice build in openmsx can be used to the advantage of an MSX programmer. 
+This document describes how the debugdevice, build in openmsx, can be used to the advantage of an MSX programmer. 
 
 Modifying the configuration file
 
-In order to be able to use the debugdevice, it has to be added to the hardwareconfig.xml from the machine that is used. If, for example, the device has to be used on the Philips NMS 8250, the following lines need to be added to the hardwareconfig.xml file in the share/machines/Philips_NMS_8250 directory.
+In order to be able to use the debugdevice openmsx needs to be started with the debugdevice extention. To do this, simply add -ext debugdevice to the openmsx-commandline.
+
+Another way to make the device word is to add it to the hardwareconfig.xml from the machine that is used. If, for example, the device has to be used on the Philips NMS 8250, the following lines can be added to the hardwareconfig.xml file in the share/machines/Philips_NMS_8250 directory.
 
 <device id="DebugDevice">
    <type>DebugDevice</type>
@@ -87,10 +89,14 @@ AAA
 
 In this special case, the space inbetween de data is left out. any special character like carriage return, linefeed, beep or tab will be printed as can be espected
 
+controlling the output
 
+The openmsx console can be used to control the output of the device. This is done by a normal setting type. refer to commands.txt how to use the settings.
+This setting can contain the following:
 
-
-
+stdout 		  output goes to standard output
+stderr  	  output goes to standard error
+any other file    output goed to the file selected
 
 
 

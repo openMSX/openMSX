@@ -29,7 +29,7 @@ class DebugDevice : public MSXIODevice
 		std::ofstream debugOut;
 		std::string fileNameString;
 		std::vector <byte> buffer;
-		void outputSingleByte(byte value,const EmuTime & time);
+		void outputSingleByte(byte value, const EmuTime & time);
 		void outputMultiByte (byte value);
 		void displayByte (byte value, enum DebugDevice::DisplayType);
 		void flush ();

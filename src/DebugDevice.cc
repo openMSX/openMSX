@@ -1,4 +1,4 @@
-// $ Id: $
+// $Id$
 
 #include "DebugDevice.hh"
 #include "MSXConfig.hh"
@@ -34,6 +34,12 @@ DebugDevice::~DebugDevice ()
 
 void DebugDevice::writeIO (byte port, byte value, const EmuTime & time)
 {
+	std::string currentName = fileNameSetting->getValueString();
+	if (currentName != fileNameString){
+		closeOutput(fileNameString);
+		fileNameString = currentName;
+		openOutput (fileNameString);
+	}
 	switch (port & 0x01)
 	{
 		case 0:
@@ -56,22 +62,6 @@ void DebugDevice::writeIO (byte port, byte value, const EmuTime & time)
 		flush();
 		break;
 		case 1:
-			std::string currentName = fileNameSetting->getValueString();
-			if (currentName != fileNameString){
-				closeOutput(fileNameString);
-				fileNameString = currentName;
-//				if (fileNameString == "stdout") {
-//					outputstrm = &std::cout;
-//				}
-//				else if (fileNameString == "stderr") {
-//					outputstrm = &std::cerr;
-//				}
-//				else {
-//				debugOut.open(fileNameString.c_str(), std::ios_base::app);
-//				outputstrm = &debugOut;
-//				}
-				openOutput (fileNameString);
-			}
 			switch (mode)
 			{
 				case OFF:
@@ -119,13 +109,13 @@ void DebugDevice::flush()
 void DebugDevice::outputSingleByte(byte value, const EmuTime & time)
 {
 	if (modeParameter & 0x01){
-		displayByte (value,HEX);
+		displayByte (value, HEX);
 	}
 	if (modeParameter & 0x02){
-		displayByte (value,BIN);
+		displayByte (value, BIN);
 	}
 	if (modeParameter & 0x04){
-		displayByte (value,DEC);
+		displayByte (value, DEC);
 	}
 	if (modeParameter & 0x08){
 		(*outputstrm) << "'";
