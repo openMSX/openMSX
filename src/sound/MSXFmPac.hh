@@ -26,7 +26,7 @@ class MSXFmPac : public MSXMusic
 		bool sramEnabled;
 		byte enable;
 		byte bank;
-		byte r5ffe, r5fff;
+		byte r1ffe, r1fff;
 		SRAM sram;
 };
 

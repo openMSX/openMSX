@@ -25,7 +25,7 @@ void MSXFmPac::reset(const EmuTime &time)
 	MSXMusic::reset(time);
 	enable = 0;
 	sramEnabled = false;
-	bank = 0;	// TODO check this
+	bank = 0;
 }
 
 void MSXFmPac::writeIO(byte port, byte value, const EmuTime &time)
@@ -37,21 +37,23 @@ void MSXFmPac::writeIO(byte port, byte value, const EmuTime &time)
 
 byte MSXFmPac::readMem(word address, const EmuTime &time)
 {
+	address &= 0x3FFF;
 	switch (address) {
-		case 0x7FF4:
-			// read from YM2413 register port
-			return 0xFF;
-		case 0x7FF5:
-			// read from YM2413 data port
-			return 0xFF;
-		case 0x7FF6:
+		case 0x3FF6:
 			return enable;
-		case 0x7FF7:
+		case 0x3FF7:
 			return bank;
 		default:
-			address &= 0x3FFF;
-			if (sramEnabled && (address < 0x1FFE)) {
-				return sram.read(address);
+			if (sramEnabled) {
+				if (address < 0x1FFE) {
+					return sram.read(address);
+				} else if (address == 0x1FFE) {
+					return r1ffe;
+				} else if (address == 0x1FFF) {
+					return r1fff;
+				} else {
+					return 0xFF;
+				}
 			} else {
 				return rom.read(bank * 0x4000 + address);
 			}
@@ -60,15 +62,18 @@ byte MSXFmPac::readMem(word address, const EmuTime &time)
 
 const byte* MSXFmPac::getReadCacheLine(word address) const
 {
-	if (address == (0x7FF4 & CPU::CACHE_LINE_HIGH)) {
-		return NULL;
-	}
 	address &= 0x3FFF;
-	if (address == (0x1FFE & CPU::CACHE_LINE_HIGH)) {
+	if (address == (0x3FF6 & CPU::CACHE_LINE_HIGH)) {
 		return NULL;
 	}
-	if (sramEnabled && (address < 0x1FFE)) {
-		return sram.getBlock(address);
+	if (sramEnabled) {
+		if (address < (0x1FFE & CPU::CACHE_LINE_HIGH)) {
+			return sram.getBlock(address);
+		} else if (address == (0x1FFE & CPU::CACHE_LINE_HIGH)) {
+			return NULL;
+		} else {
+			return unmappedRead;
+		}
 	} else {
 		return rom.getBlock(bank * 0x4000 + address);
 	}
@@ -76,27 +81,28 @@ const byte* MSXFmPac::getReadCacheLine(word address) const
 
 void MSXFmPac::writeMem(word address, byte value, const EmuTime &time)
 {
+	address &= 0x3FFF;
 	switch (address) {
-		case 0x5FFE:
-			r5ffe = value;
+		case 0x1FFE:
+			r1ffe = value;
 			checkSramEnable();
 			break;
-		case 0x5FFF:
-			r5fff = value;
+		case 0x1FFF:
+			r1fff = value;
 			checkSramEnable();
 			break;
-		case 0x7FF4:
-			if (enable & 1)	// TODO check this
-				writeRegisterPort(value, time);
+		case 0x3FF4:
+			// TODO check if "enable" has any effect
+			writeRegisterPort(value, time);
 			break;
-		case 0x7FF5:
-			if (enable & 1)	// TODO check this
-				writeDataPort(value, time);
+		case 0x3FF5:
+			// TODO check if "enable" has any effect
+			writeDataPort(value, time);
 			break;
-		case 0x7FF6:
+		case 0x3FF6:
 			enable = value & 0x11;
 			break;
-		case 0x7FF7: {
+		case 0x3FF7: {
 			byte newBank = value & 0x03;
 			if (bank != newBank) {
 				bank = newBank;
@@ -106,21 +112,23 @@ void MSXFmPac::writeMem(word address, byte value, const EmuTime &time)
 			break;
 		}
 		default:
-			if (sramEnabled && (address < 0x5FFE))
-				sram.write(address - 0x4000, value);
+			if (sramEnabled && (address < 0x1FFE)) {
+				sram.write(address, value);
+			}
 	}
 }
 
 byte* MSXFmPac::getWriteCacheLine(word address) const
 {
-	if (address == (0x5FFE & CPU::CACHE_LINE_HIGH)) {
+	address &= 0x3FFF;
+	if (address == (0x1FFE & CPU::CACHE_LINE_HIGH)) {
 		return NULL;
 	}
-	if (address == (0x7FF4 & CPU::CACHE_LINE_HIGH)) {
+	if (address == (0x3FF4 & CPU::CACHE_LINE_HIGH)) {
 		return NULL;
 	}
-	if (sramEnabled && (address < 0x5FFE)) {
-		return sram.getBlock(address - 0x4000);
+	if (sramEnabled && (address < 0x1FFE)) {
+		return sram.getBlock(address);
 	} else {
 		return unmappedWrite;
 	}
@@ -128,11 +136,10 @@ byte* MSXFmPac::getWriteCacheLine(word address) const
 
 void MSXFmPac::checkSramEnable()
 {
-	bool newEnabled = ((r5ffe == 0x4D) && (r5fff == 0x69)) ? true : false;
+	bool newEnabled = (r1ffe == 0x4D) && (r1fff == 0x69);
 	if (sramEnabled != newEnabled) {
 		sramEnabled = newEnabled;
 		MSXCPU::instance()->invalidateCache(0x0000,
 		                              0x10000 / CPU::CACHE_LINE_SIZE);
 	}
 }
-

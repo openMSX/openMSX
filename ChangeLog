@@ -5,6 +5,8 @@ $Id$
 	   - improved qualityu at the expense of an (extra) delay
 	   - samples in Swiss Demo sound acceptable now
 	   - modplayer sound better but still not very good
+	* Updated FMPAC:
+	   - ROM is not visible while SRAM is active
 
 2003-04-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added alternative YM2413 core (implemented by Jarek Burczynski):
