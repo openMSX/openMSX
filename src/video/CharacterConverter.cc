@@ -34,6 +34,7 @@ TODO:
 */
 
 #include "CharacterConverter.hh"
+#include "GLUtil.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "util.hh"
@@ -49,6 +50,29 @@ template class CharacterConverter<word, Renderer::ZOOM_256>;
 template class CharacterConverter<word, Renderer::ZOOM_REAL>;
 template class CharacterConverter<unsigned int, Renderer::ZOOM_256>;
 template class CharacterConverter<unsigned int, Renderer::ZOOM_REAL>;
+
+#ifdef __OPENGL_AVAILABLE__
+// On some systems, "GLuint" is not equivalent to "unsigned int",
+// so CharacterConverter must be instantiated separately for those systems.
+// But on systems where it is equivalent, it's an error to expand
+// the same template twice.
+// The following piece of template metaprogramming expands
+// CharacterConverter<GLuint, Renderer::ZOOM_REAL> to an empty class if
+// "GLuint" is equivalent to "unsigned int"; otherwise it is expanded to
+// the actual BitmapConverter implementation.
+class NoExpansion {};
+// ExpandFilter::ExpandType = (Type == unsigned int ? NoExpansion : Type)
+template <class Type> class ExpandFilter {
+	typedef Type ExpandType;
+};
+template <> class ExpandFilter<unsigned int> {
+	typedef NoExpansion ExpandType;
+};
+template <Renderer::Zoom zoom> class CharacterConverter<NoExpansion, zoom> {};
+template class CharacterConverter<
+	ExpandFilter<GLuint>::ExpandType, Renderer::ZOOM_REAL >;
+#endif // __OPENGL_AVAILABLE__
+
 
 template <class Pixel, Renderer::Zoom zoom>
 typename CharacterConverter<Pixel, zoom>::RenderMethod
