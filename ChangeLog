@@ -1,5 +1,10 @@
 $Id$
 
+2005-02-13 Maarten ter Huurne <maarten@treewalker.org>
+	* Added build support for OpenBSD (3.6 RELEASE, to be exact).
+	  Thanks to Ariane for testing!
+	* Updated C-BIOS to 0.20, including new directory structure.
+
 2005-02-13 Manuel Bilderbeek <manuel@msxnet.org>
 	* Rerenamed ROM types that we already agreed on for the new standard
 
@@ -153,7 +158,7 @@ $Id$
 	* Lookup original filename inside zip/gz for filetype detection:
 	   this fixes [ 1072797 ] Detect extensions if i use a zipped file too
 	* Implemented rotational delay for WD2793:
-	   fixes [ 905031 ] Graphic problem in Peach up 
+	   fixes [ 905031 ] Graphic problem in Peach up
 
 2005-01-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed gfx9000 border color
