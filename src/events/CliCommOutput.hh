@@ -3,10 +3,12 @@
 #ifndef __CLICOMMOUTPUT_HH__
 #define __CLICOMMOUTPUT_HH__
 
+#include <map>
 #include <string>
 #include "Command.hh"
 #include "EventListener.hh"
 
+using std::map;
 using std::string;
 
 namespace openmsx {
@@ -69,6 +71,7 @@ private:
 
 	bool xmlOutput;
 	bool updateEnabled[NUM_UPDATES];
+	map<string, string> prevValues[NUM_UPDATES];
 	CommandController& commandController;
 };
 

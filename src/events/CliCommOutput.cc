@@ -86,6 +86,15 @@ void CliCommOutput::update(UpdateType type, const string& name, const string& va
 	if (!updateEnabled[type]) {
 		return;
 	}
+	map<string, string>::iterator it = prevValues[type].find(name);
+	if (it != prevValues[type].end()) {
+		if (it->second == value) {
+			return;
+		}
+		it->second = value;
+	} else {
+		prevValues[type][name] = value;
+	}
 	if (xmlOutput) {
 		cout << "<update type=\"" << updateStr[type] << '\"';
 		if (!name.empty()) {
