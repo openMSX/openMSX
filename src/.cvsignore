@@ -7,3 +7,5 @@ Makefile
 Makefile.in
 .deps
 *.swp
+openmsx
+stamp-h.in
