@@ -654,8 +654,8 @@ Other Console commands
 
 You can reset your MSX with the Console command `reset'. 
 If the MSX goes too fast or too slow, adjust the emulation speed with the
-`speed' command, which has the speed percentage as parameter. So, typing `speed
-120', will let the emulated MSX run at 120% of normal MSX speed.
+`speed' setting, which has the speed percentage as parameter. So, typing `set
+speed 120', will let the emulated MSX run at 120% of normal MSX speed.
 To connect a mouse, you can also use the `plug' command:
     plug joyporta mouse
 will connect a mouse to joystick port A.
