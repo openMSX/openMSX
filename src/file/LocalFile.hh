@@ -16,15 +16,16 @@ class LocalFile : public FileBase
 	public:
 		LocalFile(const string &filename, OpenMode mode);
 		virtual ~LocalFile();
-		virtual void read (byte* buffer, int num);
-		virtual void write(const byte* buffer, int num);
+		virtual void read (byte* buffer, unsigned num);
+		virtual void write(const byte* buffer, unsigned num);
 #ifdef	HAVE_MMAP
 		virtual byte* mmap(bool writeBack);
 		virtual void munmap();
 #endif
-		virtual int getSize();
-		virtual void seek(int pos);
-		virtual int getPos();
+		virtual unsigned getSize();
+		virtual void seek(unsigned pos);
+		virtual unsigned getPos();
+		virtual void truncate(unsigned size);
 		virtual const string getURL() const;
 		virtual const string getLocalName();
 		virtual bool isReadOnly() const;

@@ -16,17 +16,18 @@ class FileBase
 		FileBase();
 		virtual ~FileBase();
 		
-		virtual void read (byte* buffer, int num) = 0;
-		virtual void write(const byte* buffer, int num) = 0;
+		virtual void read (byte* buffer, unsigned num) = 0;
+		virtual void write(const byte* buffer, unsigned num) = 0;
 		
 		// If you override mmap(), make sure to call munmap() in
 		// your destructor.
 		virtual byte* mmap(bool writeBack = false);
 		virtual void munmap();
 		
-		virtual int getSize() = 0;
-		virtual void seek(int pos) = 0;
-		virtual int getPos() = 0;
+		virtual unsigned getSize() = 0;
+		virtual void seek(unsigned pos) = 0;
+		virtual unsigned getPos() = 0;
+		virtual void truncate(unsigned size) = 0;
 		
 		virtual const string getURL() const = 0;
 		virtual const string getLocalName() = 0;
@@ -37,7 +38,7 @@ class FileBase
 
 	private:
 		bool mmapWrite;
-		int mmapSize;
+		unsigned mmapSize;
 };
 
 } // namespace openmsx

@@ -1,5 +1,9 @@
 $Id$
 
+2003-10-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added truncate() method to File classes
+	* use unsigned iso int for file size and file position
+
 2003-10-19 Maarten ter Huurne <maarten@treewalker.org>
 	* Moved some low-level GL stuff from SDLGLRenderer to GLUtil.
 	* Changed GL implementation of SCREEN1 to render in cached blocks

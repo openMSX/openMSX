@@ -45,12 +45,12 @@ File::~File()
 }
 
 
-void File::read(byte* buffer, int num)
+void File::read(byte* buffer, unsigned num)
 {
 	file->read(buffer, num);
 }
 
-void File::write(const byte* buffer, int num)
+void File::write(const byte* buffer, unsigned num)
 {
 	file->write(buffer, num);
 }
@@ -65,17 +65,17 @@ void File::munmap()
 	file->munmap();
 }
 
-int File::getSize()
+unsigned File::getSize()
 {
 	return file->getSize();
 }
 
-void File::seek(int pos)
+void File::seek(unsigned pos)
 {
 	file->seek(pos);
 }
 
-int File::getPos()
+unsigned File::getPos()
 {
 	return file->getPos();
 }

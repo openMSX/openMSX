@@ -48,29 +48,34 @@ CompressedFileAdapter::~CompressedFileAdapter()
 }
 
 
-void CompressedFileAdapter::read(byte* buffer, int num)
+void CompressedFileAdapter::read(byte* buffer, unsigned num)
 {
 	memcpy(buffer, &buf[pos], num);
 }
 
-void CompressedFileAdapter::write(const byte* buffer, int num)
+void CompressedFileAdapter::write(const byte* buffer, unsigned num)
 {
-	throw FileException("Writing to .gz files not yet supported");
+	throw FileException("Writing to compressed files not yet supported");
 }
 
-int CompressedFileAdapter::getSize()
+unsigned CompressedFileAdapter::getSize()
 {
 	return size;
 }
 
-void CompressedFileAdapter::seek(int newpos)
+void CompressedFileAdapter::seek(unsigned newpos)
 {
 	pos = newpos;
 }
 
-int CompressedFileAdapter::getPos()
+unsigned CompressedFileAdapter::getPos()
 {
 	return pos;
+}
+
+void CompressedFileAdapter::truncate(unsigned size)
+{
+	throw FileException("Truncating compressed files not yet supported.");
 }
 
 const string CompressedFileAdapter::getURL() const

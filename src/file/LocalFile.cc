@@ -55,11 +55,11 @@ LocalFile::~LocalFile()
 	fclose(file);
 }
 
-void LocalFile::read(byte* buffer, int num)
+void LocalFile::read(byte* buffer, unsigned num)
 {
 	long pos = ftell(file);
 	fseek(file, 0, SEEK_END);
-	int size = (int)ftell(file);
+	unsigned size = (unsigned)ftell(file);
 	fseek(file, pos, SEEK_SET);
 	if ((pos + num) > size) {
 		throw FileException("Read beyond end of file");
@@ -71,7 +71,7 @@ void LocalFile::read(byte* buffer, int num)
 	}
 }
 
-void LocalFile::write(const byte* buffer, int num)
+void LocalFile::write(const byte* buffer, unsigned num)
 {
 	fwrite(buffer, 1, num, file);
 	if (ferror(file)) {
@@ -102,16 +102,16 @@ void LocalFile::munmap()
 }
 #endif
 
-int LocalFile::getSize()
+unsigned LocalFile::getSize()
 {
 	long pos = ftell(file);
 	fseek(file, 0, SEEK_END);
-	int size = (int)ftell(file);
+	unsigned size = (unsigned)ftell(file);
 	fseek(file, pos, SEEK_SET);
 	return size;
 }
 
-void LocalFile::seek(int pos)
+void LocalFile::seek(unsigned pos)
 {
 	fseek(file, pos, SEEK_SET);
 	if (ferror(file)) {
@@ -119,9 +119,17 @@ void LocalFile::seek(int pos)
 	}
 }
 
-int LocalFile::getPos()
+unsigned LocalFile::getPos()
 {
-	return (int)ftell(file);
+	return (unsigned)ftell(file);
+}
+
+void LocalFile::truncate(unsigned size)
+{
+	int fd = fileno(file);
+	if (ftruncate(fd, size)) {
+		throw FileException("Error truncating file");
+	}
 }
 
 const string LocalFile::getURL() const

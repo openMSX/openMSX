@@ -47,14 +47,14 @@ class File
 		 * @param buffer Destination address
 		 * @param num Number of bytes to read
 		 */
-		void read(byte* buffer, int num);
+		void read(byte* buffer, unsigned num);
 
 		/**
 		 * Write to file.
 		 * @param buffer Source address
 		 * @param num Number of bytes to write
 		 */
-		void write(const byte* buffer, int num);
+		void write(const byte* buffer, unsigned num);
 
 		/**
 		 * Map file in memory.
@@ -77,19 +77,19 @@ class File
 		 * Returns the size of this file
 		 * @result The size of this file
 		 */
-		int getSize();
+		unsigned getSize();
 
 		/**
 		 * Move read/write pointer to the specified position.
 		 * @param pos Position in bytes from the beginning of the file.
 		 */
-		void seek(int pos);
+		void seek(unsigned pos);
 
 		/**
 		 * Get the current position of the read/write pointer.
 		 * @result Position in bytes from the beginning of the file.
 		 */
-		int getPos();
+		unsigned getPos();
 
 		/**
 		 * Returns the URL of this file object.

@@ -11,11 +11,12 @@ class CompressedFileAdapter : public FileBase
 {
 	public:
 		virtual ~CompressedFileAdapter();
-		virtual void read(byte* buffer, int num);
-		virtual void write(const byte* buffer, int num);
-		virtual int getSize();
-		virtual void seek(int pos);
-		virtual int getPos();
+		virtual void read(byte* buffer, unsigned num);
+		virtual void write(const byte* buffer, unsigned num);
+		virtual unsigned getSize();
+		virtual void seek(unsigned pos);
+		virtual unsigned getPos();
+		virtual void truncate(unsigned size);
 		virtual const string getURL() const;
 		virtual const string getLocalName();
 		virtual bool isReadOnly() const;
@@ -25,10 +26,10 @@ class CompressedFileAdapter : public FileBase
 
 		FileBase* file;
 		byte* buf;
-		int size;
+		unsigned size;
 
 	private:
-		int pos;
+		unsigned pos;
 
 		static int tmpCount;	// nb of files in tmp dir
 		static string tmpDir;	// name of tmp dir (when tmpCount > 0)
