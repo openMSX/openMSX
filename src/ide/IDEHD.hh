@@ -32,7 +32,7 @@ class IDEHD : public IDEDevice
 		byte sectorNumReg;
 		byte cylinderLowReg;
 		byte cylinderHighReg;
-		byte reg6;
+		byte devHeadReg;
 		byte statusReg;
 		byte featureReg;
 	
@@ -44,6 +44,8 @@ class IDEHD : public IDEDevice
 		bool transferWrite;
 		int transferCount;
 		word* transferPntr;
+		int transferSectorNumber;
+		int transferNumSectors;
 
 		static byte identifyBlock[512];
 };

@@ -63,7 +63,7 @@ void IDEHD::reset(const EmuTime &time)
 	sectorNumReg = 0x01;
 	cylinderLowReg = 0x00;
 	cylinderHighReg = 0x00;
-	reg6 = 0x00;
+	devHeadReg = 0x00;
 	statusReg = 0x50;	// DRDY DSC
 	featureReg = 0x00;
 	transferRead = false;
@@ -88,9 +88,9 @@ byte IDEHD::readReg(nibble reg, const EmuTime &time)
 	case 5:	// cyclinder high register
 		return cylinderHighReg;
 		
-	case 6:	// TODO name
+	case 6:	// device/head register
 		// DEV bit is handled by IDE interface
-		return reg6;
+		return devHeadReg;
 		
 	case 7:	// status register
 		return statusReg;
@@ -136,9 +136,9 @@ void IDEHD::writeReg(nibble reg, byte value, const EmuTime &time)
 		cylinderHighReg = value;
 		break;
 		
-	case 6:	// TODO name
+	case 6:	// device/head register
 		// DEV bit is handled by IDE interface
-		reg6 = value;
+		devHeadReg = value;
 		break;
 		
 	case 7:	// command register
@@ -170,12 +170,14 @@ word IDEHD::readData(const EmuTime &time)
 		// no read in progress
 		return 0x7F7F;
 	}
+	word result = *(transferPntr++);
 	if (--transferCount == 0) {
 		// everything read
 		transferRead = false;
 		statusReg &= ~0x08;	// DRQ
+		PRT_DEBUG("IDEHD: read sector done");
 	}
-	return *(transferPntr++);
+	return result;
 }
 
 void IDEHD::writeData(word value, const EmuTime &time)
@@ -185,15 +187,22 @@ void IDEHD::writeData(word value, const EmuTime &time)
 		return;
 	}
 	*(transferPntr++) = value;
-	if (--transferCount == 0) {
+	transferCount--;
+	if ((transferCount & 511) == 0) {
+		file->seekg(512 * transferSectorNumber);
+		file->write(buffer, 512);
+		if (file->fail()) {
+			setError(0x44);
+			transferWrite = false;
+		}
+		PRT_DEBUG("IDEHD: written sector " << transferSectorNumber);
+		transferSectorNumber++;
+		transferPntr = (word*)buffer;
+	}
+	if (transferCount == 0) {
 		// everything written
 		transferWrite = false;
 		statusReg &= ~0x08;	// DRQ
-		int numSectors = getNumSectors();
-		file->write(buffer, numSectors * 512);
-		if (file->fail()) {
-			setError(0x44);
-		}
 	}
 }
 
@@ -207,12 +216,12 @@ void IDEHD::setError(byte error)
 int IDEHD::getSectorNumber()
 {
 	return sectorNumReg | (cylinderLowReg << 8) |
-		(cylinderHighReg << 16) | ((reg6 & 0x0F) << 24);
+		(cylinderHighReg << 16) | ((devHeadReg & 0x0F) << 24);
 }
 
 int IDEHD::getNumSectors()
 {
-	return (sectorNumReg == 0) ? 256 : sectorNumReg;
+	return (sectorCountReg == 0) ? 256 : sectorCountReg;
 }
 
 void IDEHD::executeCommand(byte cmd)
@@ -228,7 +237,7 @@ void IDEHD::executeCommand(byte cmd)
 		break;
 
 	case 0xEC: // ATA Identify Device
-		transferCount = 256;
+		transferCount = 512/2;
 		transferPntr = (word*)(&identifyBlock);
 		transferRead = true;
 		statusReg |= 0x08;	// DRQ
@@ -241,11 +250,13 @@ void IDEHD::executeCommand(byte cmd)
 	case 0x30: { // Write Sector
 		int sectorNumber = getSectorNumber();
 		int numSectors = getNumSectors();
+		PRT_DEBUG("IDEHD: write sector " << sectorNumber << " " << numSectors);
 		if ((sectorNumber + numSectors) > totalSectors) {
 			setError(0x14);
 			break;
 		}
-		file->seekg(512 * sectorNumber, std::ios::beg);
+		transferSectorNumber = sectorNumber;
+		transferNumSectors = numSectors;
 		transferCount = 512/2 * numSectors;
 		transferPntr = (word*)buffer;
 		transferWrite = true;
@@ -255,6 +266,7 @@ void IDEHD::executeCommand(byte cmd)
 	case 0x20: { // Read Sector
 		int sectorNumber = getSectorNumber();
 		int numSectors = getNumSectors();
+		PRT_DEBUG("IDEHD: read sector " << sectorNumber << " " << numSectors);
 		if ((sectorNumber + numSectors) > totalSectors) {
 			setError(0x14);
 			break;
