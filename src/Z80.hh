@@ -167,7 +167,7 @@ typedef struct {
 		static byte PTable[512];
 		static byte ZSTable[512];
 		static byte ZSPTable[512];
-		static const short DAATable[2048];
+		static const word DAATable[2048];
 		
 		static opcode_fn opcode_dd_cb[256];
 		static opcode_fn opcode_fd_cb[256];
