@@ -189,7 +189,7 @@ inline void _CPU_::executeInstruction() {
 inline void _CPU_::executeFast() {
 	#ifdef CPU_DEBUG
 	start_pc = R.PC.w;
-	before = clock;
+	before.advance(clock.getTime());
 	#endif
 
 	R800Refresh();
