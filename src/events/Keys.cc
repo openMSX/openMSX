@@ -8,7 +8,7 @@ namespace openmsx {
 Keys::KeyCode Keys::getCode(const string &name)
 {
 	initialize();
-	map<string, KeyCode>::const_iterator it = keymap.find(name);
+	map<string, KeyCode, ltstrcase>::const_iterator it = keymap.find(name);
 	if (it != keymap.end()) {
 		return (*it).second;
 	} else {

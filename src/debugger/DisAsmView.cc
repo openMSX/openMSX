@@ -6,6 +6,9 @@
 #include "DasmTables.hh"
 #include "DisAsmView.hh"
 
+using std::transform;
+
+
 namespace openmsx {
 
 DisAsmView::DisAsmView(unsigned rows_, unsigned columns_, bool border_)
@@ -43,7 +46,7 @@ void DisAsmView::fill()
 			}
 			result += hexcodes;
 		}
-		transform (disass.begin(), disass.end(), disass.begin(), ::toupper);
+		transform(disass.begin(), disass.end(), disass.begin(), ::toupper);
 		result += disass;
 		adr += length;
 		lines.push_back(result);
