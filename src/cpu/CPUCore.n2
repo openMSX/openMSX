@@ -193,7 +193,7 @@ inline void _CPU_::executeFast() {
 	executeInstruction();
 
 	#ifdef CPU_DEBUG
-	if (traceSetting->getValue()) {
+	if (traceSetting.getValue()) {
 		Dasm(&debugmemory[start_pc], to_print_string, start_pc);
 		PRT_DEBUG(setfill('0') << hex <<
 			  setw(4) << start_pc <<

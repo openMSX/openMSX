@@ -4,15 +4,20 @@
 #define __CPU_HH__
 
 #include <set>
+#include <string>
 #include "openmsx.hh"
 #include "EmuTime.hh"
 #include "CPUTables.hh"
+#include "BooleanSetting.hh"
+#include "IntegerSetting.hh"
+#include "SettingListener.hh"
 
 #ifdef DEBUG
 #define CPU_DEBUG
 #endif
 
 using std::multiset;
+using std::string;
 
 namespace openmsx {
 
@@ -23,7 +28,7 @@ class Scheduler;
 typedef signed char offset;
 
 
-class CPU : public CPUTables
+class CPU : public CPUTables, private SettingListener
 {
 friend class MSXCPU;
 public:
@@ -68,12 +73,12 @@ public:
 	 * Sets the CPU its current time.
 	 * This is used to 'warp' a CPU when you switch between Z80/R800.
 	 */
-	virtual void setCurrentTime(const EmuTime& time) = 0;
+	void setCurrentTime(const EmuTime& time);
 
 	/**
 	 * Returns the CPU its current time.
 	 */
-	virtual const EmuTime& getCurrentTime() const = 0;
+	const EmuTime& getCurrentTime() const;
 
 	/**
 	 * Alter the target time.
@@ -134,7 +139,7 @@ public:
 protected:
 	/** Create a new CPU.
 	  */
-	CPU();
+	CPU(const string& name, int defaultFreq);
 
 	/** Emulate CPU till a previously set target time,
 	  * the target may change (become smaller) during emulation.
@@ -159,6 +164,7 @@ protected:
 
 	CPUInterface* interface;
 	EmuTime targetTime;
+	DynamicEmuTime currentTime;
 
 	// memory cache
 	const byte* readCacheLine[CACHE_LINE_NUM];
@@ -171,13 +177,13 @@ protected:
 	void doStep();
 	void doContinue();
 	void doBreak();
-	
+
 	static multiset<word> breakPoints;
 	static bool breaked;
 	static bool step;
 
 #ifdef CPU_DEBUG
-	static BooleanSetting* traceSetting;
+	static BooleanSetting traceSetting;
 
 public:
 	byte debugmemory[65536];
@@ -185,6 +191,12 @@ public:
 #endif
 
 private:
+	virtual void update(const SettingLeafNode* setting) throw();
+	
+	// dynamic freq
+	BooleanSetting freqLocked;
+	IntegerSetting freqValue;
+	
 	Scheduler* scheduler;
 };
 

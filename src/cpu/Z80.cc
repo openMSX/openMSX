@@ -21,20 +21,12 @@ namespace openmsx {
 #include "Z80Tables.nn"
 
 Z80::Z80(const EmuTime &time)
+	: CPU("z80", CLOCK_FREQ)
 {
 	reset(time);
 }
 Z80::~Z80()
 {
-}
-
-void Z80::setCurrentTime(const EmuTime &time)
-{
-	currentTime = time;
-}
-const EmuTime &Z80::getCurrentTime() const
-{
-	return currentTime;
 }
 
 

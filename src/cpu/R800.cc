@@ -9,20 +9,12 @@ namespace openmsx {
 #include "R800Tables.nn"
 
 R800::R800(const EmuTime &time)
+	: CPU("r800", CLOCK_FREQ)
 {
 	reset(time);
 }
 R800::~R800()
 {
-}
-
-void R800::setCurrentTime(const EmuTime &time)
-{
-	currentTime = time;
-}
-const EmuTime &R800::getCurrentTime() const
-{
-	return currentTime;
 }
 
 inline void R800::M1_DELAY()       { }

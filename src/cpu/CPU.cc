@@ -16,8 +16,7 @@ using std::ostringstream;
 namespace openmsx {
 
 #ifdef CPU_DEBUG
-BooleanSetting *CPU::traceSetting =
-	new BooleanSetting("cputrace", "CPU tracing on/off", false);
+BooleanSetting CPU::traceSetting("cputrace", "CPU tracing on/off", false);
 #endif
 
 multiset<word> CPU::breakPoints;
@@ -25,13 +24,25 @@ bool CPU::breaked = false;
 bool CPU::step = false;
 
 
-CPU::CPU()
-	: interface(NULL)
+CPU::CPU(const string& name, int defaultFreq)
+	: interface(NULL),
+	  freqLocked(name + "_freq_locked",
+	             "real (locked) or custom (unlocked) " + name + " frequency",
+	             true),
+	  freqValue(name + "_freq",
+	            "custom " + name + " frequency (only valid when unlocked)",
+	            defaultFreq, 1, 100000000)
 {
+	currentTime.setFreq(defaultFreq);
+
+	freqLocked.addListener(this);
+	freqValue.addListener(this);
 }
 
 CPU::~CPU()
 {
+	freqValue.removeListener(this);
+	freqLocked.removeListener(this);
 }
 
 void CPU::init(Scheduler* scheduler_)
@@ -44,14 +55,14 @@ void CPU::setInterface(CPUInterface* interf)
 	interface = interf;
 }
 
-void CPU::executeUntilTarget(const EmuTime &time)
+void CPU::executeUntilTarget(const EmuTime& time)
 {
 	assert(interface);
 	setTargetTime(time);
 	executeCore();
 }
 
-void CPU::setTargetTime(const EmuTime &time)
+void CPU::setTargetTime(const EmuTime& time)
 {
 	targetTime = time;
 }
@@ -60,6 +71,16 @@ const EmuTime &CPU::getTargetTime() const
 {
 	return targetTime;
 }
+
+void CPU::setCurrentTime(const EmuTime& time)
+{
+	currentTime = time;
+}
+const EmuTime& CPU::getCurrentTime() const
+{
+	return currentTime;
+}
+
 
 void CPU::invalidateCache(word start, int num)
 {
@@ -71,7 +92,7 @@ void CPU::invalidateCache(word start, int num)
 }
 
 
-void CPU::reset(const EmuTime &time)
+void CPU::reset(const EmuTime& time)
 {
 	// AF and SP are 0xFFFF
 	// PC, R, IFF1, IFF2, HALT and IM are 0x0
@@ -168,6 +189,26 @@ void CPU::doBreak()
 {
 	if (!breaked) {
 		step = true;
+	}
+}
+
+
+void CPU::update(const SettingLeafNode* setting) throw()
+{
+	if (setting == &freqLocked) {
+		if (freqLocked.getValue()) {
+			// locked
+			currentTime.setFreq(freqValue.getDefaultValue());
+		} else {
+			// unlocked
+			currentTime.setFreq(freqValue.getValue());
+		}
+	} else if (setting == &freqValue) {
+		if (!freqLocked.getValue()) {
+			currentTime.setFreq(freqValue.getValue());
+		}
+	} else {
+		assert(false);
 	}
 }
 

@@ -1,6 +1,10 @@
 $Id$
 
 2004-01-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Made cpu frequency switchable at-run-time:
+	   in console: set z80_freq_locked off ; set z80_freq 12345678
+
+2004-01-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Use DATADIR variable set by configure:
 	   not yet well tested
 
