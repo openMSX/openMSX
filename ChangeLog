@@ -1,5 +1,14 @@
 $Id$
 
+2004-10-25 Maarten ter Huurne <maarten@treewalker.org>
+	* Non-maskable interrupt (NMI) implementation:
+	  - was half implemented already; now it's fully implemented
+	  - moved edge detection from old nmiEdge() to new raiseNMI():
+	    an NMI request could get lost if the NMI line was raised and
+	    lowered within 1 CPU instruction (a mostly theoretical case)
+	  - IRQHelper can raise either IRQ (maskable) or NMI
+	  - this is preparation for ColecoVision support
+
 2004-10-23 Maarten ter Huurne <maarten@treewalker.org>
 	* Removed slow_drain_on_reset RAM configuration parameter.
 	  All our current configurations had it set to "false".

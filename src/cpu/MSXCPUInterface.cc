@@ -72,7 +72,6 @@ MSXCPUInterface::MSXCPUInterface()
 	for (int page = 0; page < 4; ++page) {
 		visibleDevices[page] = 0;
 	}
-	prevNMIStat = NMIStatus();
 
 	// Note: SlotState is initialised at reset
 

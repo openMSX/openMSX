@@ -156,25 +156,6 @@ public:
 	inline byte dataBus() {
 		return 255;
 	}
-	
-	/**
-	 * Returns true when NMI line is active.
-	 * On MSX this line is never active.
-	 */
-	inline bool NMIStatus() {
-		return false;
-	}
-
-	/**
-	 * Returns true when there was a rising edge on the NMI line
-	 * (rising = non-active -> active)
-	 */
-	inline bool NMIEdge() {
-		bool newNMIStat = NMIStatus();
-		bool result = newNMIStat && !prevNMIStat;
-		prevNMIStat = newNMIStat;
-		return result;
-	}
 
 	/**
 	 * Called when ED FE occurs. Can be used
@@ -305,8 +286,7 @@ private:
 	string getSlotMap() const;
 	string getIOMap() const;
 	string getSlotSelection() const;
-	
-	bool prevNMIStat;
+
 	typedef vector<MSXRomPatchInterface*> RomPatches;
 	RomPatches romPatches;
 

@@ -111,19 +111,28 @@ public:
 	void invalidateCache(word start, int num);
 
 	/**
-	 * This method raises an interrupt. A device may call this
-	 * method more than once. If the device wants to lower the
-	 * interrupt again it must call the lowerIRQ() method exactly as
-	 * many times.
+	 * Raises the maskable interrupt count.
+	 * Devices should call MSXCPU::raiseIRQ instead, or use the IRQHelper class.
 	 */
 	void raiseIRQ();
 
 	/**
-	 * This methods lowers the interrupt again. A device may never
-	 * call this method more often than it called the method
-	 * raiseIRQ().
+	 * Lowers the maskable interrupt count.
+	 * Devices should call MSXCPU::lowerIRQ instead, or use the IRQHelper class.
 	 */
 	void lowerIRQ();
+
+	/**
+	 * Raises the non-maskable interrupt count.
+	 * Devices should call MSXCPU::raiseNMI instead, or use the IRQHelper class.
+	 */
+	void raiseNMI();
+
+	/**
+	 * Lowers the non-maskable interrupt count.
+	 * Devices should call MSXCPU::lowerNMI instead, or use the IRQHelper class.
+	 */
+	void lowerNMI();
 
 	// cache constants
 	static const int CACHE_LINE_BITS = 8;	// 256 bytes
@@ -149,9 +158,17 @@ protected:
 	  */
 	/*void extendTarget(const EmuTime& time);*/
 
+	/**
+	 * Set to true when there was a rising edge on the NMI line
+	 * (rising = non-active -> active).
+	 * Set to false when the CPU jumps to the NMI handler address.
+	 */
+	bool nmiEdge;
+
 	// state machine variables
 	CPURegs R;
 	int slowInstructions;
+	int NMIStatus;
 	int IRQStatus;
 	bool exitLoop;
 

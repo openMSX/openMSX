@@ -21,7 +21,10 @@ bool CPU::step = false;
 
 CPU::CPU(const string& name, int defaultFreq,
 	 const BooleanSetting& traceSetting_)
-	: interface(NULL)
+	: nmiEdge(false)
+	, NMIStatus(0)
+	, IRQStatus(0)
+	, interface(NULL)
 	, scheduler(Scheduler::instance())
 	, freqLocked(name + "_freq_locked",
 	             "real (locked) or custom (unlocked) " + name + " frequency",
@@ -109,6 +112,7 @@ void CPU::reset(const EmuTime& time)
 	invalidateCache(0x0000, 0x10000 / CPU::CACHE_LINE_SIZE);
 	clock.reset(time);
 	
+	assert(NMIStatus == 0); // other devices must reset their NMI source
 	assert(IRQStatus == 0); // other devices must reset their IRQ source
 }
 
@@ -132,6 +136,23 @@ void CPU::lowerIRQ()
 	IRQStatus--;
 	//PRT_DEBUG("CPU: lower IRQ " << IRQStatus);
 	assert(IRQStatus >= 0);
+}
+
+void CPU::raiseNMI()
+{
+	assert(NMIStatus >= 0);
+	if (NMIStatus == 0) {
+		nmiEdge = true;
+		slowInstructions++;
+	}
+	NMIStatus++;
+	//PRT_DEBUG("CPU: raise NMI " << NMIStatus);
+}
+void CPU::lowerNMI()
+{
+	NMIStatus--;
+	//PRT_DEBUG("CPU: lower NMI " << NMIStatus);
+	assert(NMIStatus >= 0);
 }
 
 void CPU::wait(const EmuTime& time)

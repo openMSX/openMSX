@@ -210,7 +210,8 @@ inline void _CPU_::executeFast() {
 
 void _CPU_::executeSlow()
 {
-	if (interface->NMIEdge()) {
+	if (nmiEdge) {
+		nmiEdge = false;
 		nmi();	// NMI occured
 	} else if (R.IFF1 && IRQStatus) {
 		// normal interrupt

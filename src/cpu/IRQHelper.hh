@@ -18,11 +18,12 @@ class IRQHelper
 public:
 	/** Create a new IRQHelper.
 	  * Initially there is no interrupt request on the bus.
+	  * @param nmi true iff non-maskable interrupts should be triggered.
 	  */
-	IRQHelper();
+	IRQHelper(bool nmi = false);
 	
 	/** Destroy this IRQHelper.
-	  * Make sure interrupt is released.
+	  * Resets interrupt request if it is active.
 	  */
 	~IRQHelper();
 
@@ -31,7 +32,7 @@ public:
 	inline void set() {
 		if (!request) {
 			request = true;
-			cpu.raiseIRQ();
+			if (nmi) cpu.raiseNMI(); else cpu.raiseIRQ();
 		}
 	}
 
@@ -40,7 +41,7 @@ public:
 	inline void reset() {
 		if (request) {
 			request = false;
-			cpu.lowerIRQ();
+			if (nmi) cpu.lowerNMI(); else cpu.lowerIRQ();
 		}
 	}
 
@@ -52,6 +53,7 @@ public:
 	}
 
 private:
+	bool nmi;
 	bool request;
 	MSXCPU& cpu;
 };

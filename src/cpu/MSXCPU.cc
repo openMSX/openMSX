@@ -119,6 +119,16 @@ void MSXCPU::lowerIRQ()
 	z80 .lowerIRQ();
 	r800.lowerIRQ();
 }
+void MSXCPU::raiseNMI()
+{
+	z80 .raiseNMI();
+	r800.raiseNMI();
+}
+void MSXCPU::lowerNMI()
+{
+	z80 .lowerNMI();
+	r800.lowerNMI();
+}
 
 bool MSXCPU::isR800Active()
 {

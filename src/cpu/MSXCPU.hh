@@ -46,22 +46,39 @@ public:
 	void invalidateCache(word start, int num);
 
 	/**
-	 * This method raises an interrupt. A device may call this
+	 * This method raises a maskable interrupt. A device may call this
 	 * method more than once. If the device wants to lower the
 	 * interrupt again it must call the lowerIRQ() method exactly as
 	 * many times.
-	 * Before using this method take a look at IRQHelper
+	 * Before using this method take a look at IRQHelper.
 	 */
 	void raiseIRQ();
 
 	/**
-	 * This methods lowers the interrupt again. A device may never
+	 * This methods lowers the maskable interrupt again. A device may never
 	 * call this method more often than it called the method
 	 * raiseIRQ().
-	 * Before using this method take a look at IRQHelper
+	 * Before using this method take a look at IRQHelper.
 	 */
 	void lowerIRQ();
-	
+
+	/**
+	 * This method raises a non-maskable interrupt. A device may call this
+	 * method more than once. If the device wants to lower the
+	 * interrupt again it must call the lowerNMI() method exactly as
+	 * many times.
+	 * Before using this method take a look at IRQHelper.
+	 */
+	void raiseNMI();
+
+	/**
+	 * This methods lowers the non-maskable interrupt again. A device may never
+	 * call this method more often than it called the method
+	 * raiseNMI().
+	 * Before using this method take a look at IRQHelper.
+	 */
+	void lowerNMI();
+
 	/**
 	 * TODO
 	 */
