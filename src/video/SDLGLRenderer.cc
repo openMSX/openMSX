@@ -544,10 +544,10 @@ void SDLGLRenderer::precalcPalette(float gamma)
 		for (int i = 0; i < 16; i++) {
 			const byte *rgb = TMS99X8A_PALETTE[i];
 			palFg[i] = palBg[i] =
-				   (int)(pow((float)rgb[0] / 255.0, gamma) * 255)
-				| ((int)(pow((float)rgb[1] / 255.0, gamma) * 255) << 8)
-				| ((int)(pow((float)rgb[2] / 255.0, gamma) * 255) << 16)
-				| 0xFF000000;
+			   (int)(::pow((float)rgb[0] / 255.0, gamma) * 255) |
+			  ((int)(::pow((float)rgb[1] / 255.0, gamma) * 255) << 8) |
+			  ((int)(::pow((float)rgb[2] / 255.0, gamma) * 255) << 16) |
+			  0xFF000000;
 		}
 	} else {
 		// Precalculate palette for V9938 colours.
@@ -555,10 +555,10 @@ void SDLGLRenderer::precalcPalette(float gamma)
 			for (int g = 0; g < 8; g++) {
 				for (int b = 0; b < 8; b++) {
 					V9938_COLOURS[r][g][b] =
-						   (int)(pow((float)r / 7.0, gamma) * 255)
-						| ((int)(pow((float)g / 7.0, gamma) * 255) << 8)
-						| ((int)(pow((float)b / 7.0, gamma) * 255) << 16)
-						| 0xFF000000;
+					   (int)(::pow((float)r / 7.0, gamma) * 255)
+					| ((int)(::pow((float)g / 7.0, gamma) * 255) << 8)
+					| ((int)(::pow((float)b / 7.0, gamma) * 255) << 16)
+					| 0xFF000000;
 				}
 			}
 		}
@@ -567,10 +567,10 @@ void SDLGLRenderer::precalcPalette(float gamma)
 			for (int g = 0; g < 32; g++) {
 				for (int b = 0; b < 32; b++) {
 					V9958_COLOURS[(r<<10) + (g<<5) + b] =
-						   (int)(pow((float)r / 31.0, gamma) * 255)
-						| ((int)(pow((float)g / 31.0, gamma) * 255) << 8)
-						| ((int)(pow((float)b / 31.0, gamma) * 255) << 16)
-						| 0xFF000000;
+					   (int)(::pow((float)r / 31.0, gamma) * 255)
+					| ((int)(::pow((float)g / 31.0, gamma) * 255) << 8)
+					| ((int)(::pow((float)b / 31.0, gamma) * 255) << 16)
+					| 0xFF000000;
 				}
 			}
 		}

@@ -8,9 +8,13 @@
 #include "I8254.hh"
 #include "ClockPin.hh"
 #include "IRQHelper.hh"
+#include "MidiInConnector.hh"
+#include "MidiOutConnector.hh"
+#include "SerialDataInterface.hh"
 
 
-class MSXMidi : public MSXIODevice, private I8251Interface
+class MSXMidi : public MSXIODevice, public SerialDataInterface,
+                public MidiInConnector
 {
 	public:
 		MSXMidi(Device *config, const EmuTime &time);
@@ -21,18 +25,40 @@ class MSXMidi : public MSXIODevice, private I8251Interface
 		virtual byte readIO(byte port, const EmuTime &time);
 		virtual void writeIO(byte port, byte value, const EmuTime &time);
 
+		// MidiInConnector
+		virtual bool ready();
+
 	private:
 		void setTimerIRQ(bool status);
 		void enableTimerIRQ(bool enabled);
 		void setRxRDYIRQ(bool status);
 		void enableRxRDYIRQ(bool enabled);
 		
+		// SerialDataInterface
+		virtual void setDataBits(DataBits bits);
+		virtual void setStopBits(StopBits bits);
+		virtual void setParityBits(bool enable, ParityBit parity);
+		virtual void recvByte(byte value, const EmuTime& time);
+		
 		// I8251Interface
-		virtual void setRxRDY(bool status, const EmuTime& time);
-		virtual void setDTR(bool status, const EmuTime& time);
-		virtual void setRTS(bool status, const EmuTime& time);
-		virtual byte getDSR(const EmuTime& time);
+		class I8251Interf : public I8251Interface {
+		public:
+			I8251Interf(MSXMidi& midi);
+			virtual ~I8251Interf();
+			virtual void setRxRDY(bool status, const EmuTime& time);
+			virtual void setDTR(bool status, const EmuTime& time);
+			virtual void setRTS(bool status, const EmuTime& time);
+			virtual byte getDSR(const EmuTime& time);
+			virtual void setDataBits(DataBits bits);
+			virtual void setStopBits(StopBits bits);
+			virtual void setParityBits(bool enable, ParityBit parity);
+			virtual void recvByte(byte value, const EmuTime& time);
+			virtual void recvReady();
+		private:
+			MSXMidi& midi;
+		} interf;
 
+		// counter 0 clock pin
 		class Counter0 : public ClockPinListener {
 		public:
 			Counter0(MSXMidi& midi);
@@ -45,6 +71,7 @@ class MSXMidi : public MSXIODevice, private I8251Interface
 			MSXMidi& midi;
 		} cntr0;
 
+		// counter 2 clock pin
 		class Counter2 : public ClockPinListener {
 		public:
 			Counter2(MSXMidi& midi);
@@ -59,6 +86,7 @@ class MSXMidi : public MSXIODevice, private I8251Interface
 		
 		I8251 i8251;
 		I8254 i8254;
+		MidiOutConnector outConnector;
 		
 		bool timerIRQlatch;
 		bool timerIRQenabled;

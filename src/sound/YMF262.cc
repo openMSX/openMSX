@@ -877,13 +877,14 @@ void YMF262::init_tables(void)
 		}
 	}
 
+	const double LOG2 = ::log(2);
 	for (int i = 0; i < SIN_LEN; i++) {
 		// non-standard sinus 
 		double m = sin(((i * 2) + 1) * PI / SIN_LEN); // checked against the real chip 
 		// we never reach zero here due to ((i * 2) + 1) 
 		double o = (m > 0.0) ?
-			8 * log( 1.0 / m) / log(2) :	// convert to 'decibels' 
-			8 * log(-1.0 / m) / log(2);	// convert to 'decibels'
+			8 * ::log( 1.0 / m) / LOG2:	// convert to 'decibels' 
+			8 * ::log(-1.0 / m) / LOG2;	// convert to 'decibels'
 		o = o / (ENV_STEP / 4);
 
 		int n = (int)(2 * o);

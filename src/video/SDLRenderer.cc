@@ -309,10 +309,9 @@ void SDLRenderer<Pixel, zoom>::precalcPalette(float gamma)
 			const byte *rgb = TMS99X8A_PALETTE[i];
 			palFg[i] = palBg[i] = SDL_MapRGB(
 				screen->format,
-				(int)(pow((float)rgb[0] / 255.0, gamma) * 255),
-				(int)(pow((float)rgb[1] / 255.0, gamma) * 255),
-				(int)(pow((float)rgb[2] / 255.0, gamma) * 255)
-				);
+				(int)(::pow((float)rgb[0] / 255.0, gamma) * 255),
+				(int)(::pow((float)rgb[1] / 255.0, gamma) * 255),
+				(int)(::pow((float)rgb[2] / 255.0, gamma) * 255));
 		}
 	} else {
 		// Precalculate palette for V9938 colours.
@@ -320,11 +319,10 @@ void SDLRenderer<Pixel, zoom>::precalcPalette(float gamma)
 			for (int g = 0; g < 8; g++) {
 				for (int b = 0; b < 8; b++) {
 					V9938_COLOURS[r][g][b] = SDL_MapRGB(
-						screen->format,
-						(int)(pow((float)r / 7.0, gamma) * 255),
-						(int)(pow((float)g / 7.0, gamma) * 255),
-						(int)(pow((float)b / 7.0, gamma) * 255)
-						);
+					    screen->format,
+					    (int)(::pow((float)r / 7.0, gamma) * 255),
+					    (int)(::pow((float)g / 7.0, gamma) * 255),
+					    (int)(::pow((float)b / 7.0, gamma) * 255));
 				}
 			}
 		}
@@ -333,11 +331,10 @@ void SDLRenderer<Pixel, zoom>::precalcPalette(float gamma)
 			for (int g = 0; g < 32; g++) {
 				for (int b = 0; b < 32; b++) {
 					V9958_COLOURS[(r<<10) + (g<<5) + b] = SDL_MapRGB(
-						screen->format,
-						(int)(pow((float)r / 31.0, gamma) * 255),
-						(int)(pow((float)g / 31.0, gamma) * 255),
-						(int)(pow((float)b / 31.0, gamma) * 255)
-					);
+					    screen->format,
+					    (int)(::pow((float)r / 31.0, gamma) * 255),
+					    (int)(::pow((float)g / 31.0, gamma) * 255),
+					    (int)(::pow((float)b / 31.0, gamma) * 255));
 				}
 			}
 		}

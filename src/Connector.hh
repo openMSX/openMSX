@@ -5,10 +5,10 @@
 
 #include <string>
 
-//forward declarations
 class Pluggable;
 class EmuTime;
 
+using namespace std;
 
 class Connector {
 public:
@@ -17,13 +17,13 @@ public:
 	/**
 	 * A connector has a name
 	 */
-	virtual const std::string &getName() const = 0;
+	virtual const string &getName() const = 0;
 
 	/**
 	 * A connector belong to a certain class. All pluggables of this
 	 * class can be plugged in this connector
 	 */
-	virtual const std::string &getClass() const = 0;
+	virtual const string &getClass() const = 0;
 
 	/**
 	 * This plugs a pluggable in this connector. The default

@@ -23,7 +23,14 @@ libSerial_la_SOURCES = \
 	I8251.cc I8251.hh \
 	I8254.cc I8254.hh \
 	ClockPin.cc ClockPin.hh \
-	MSXMidi.cc MSXMidi.hh
+	SerialDataInterface.hh \
+	MSXMidi.cc MSXMidi.hh \
+	MidiInDevice.cc  MidiInDevice.hh \
+	MidiOutDevice.cc MidiOutDevice.hh \
+	DummyMidiInDevice.cc  DummyMidiInDevice.hh \
+	DummyMidiOutDevice.cc DummyMidiOutDevice.hh \
+	MidiInConnector.cc  MidiInConnector.hh \
+	MidiOutConnector.cc MidiOutConnector.hh
 	
 
 nodebug: resetdebug all

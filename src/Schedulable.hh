@@ -5,9 +5,9 @@
 
 #include <string>
 
-// forward declarations
 class EmuTime;
 
+using namespace std;
 
 /**
  * Every class that wants to get scheduled at some point must inherit from
@@ -26,7 +26,7 @@ class Schedulable
 		/**
 		 * This method is only used to print meaningfull debug messages
 		 */
-		virtual const std::string &schedName() const;
+		virtual const string &schedName() const;
 };
 
 #endif

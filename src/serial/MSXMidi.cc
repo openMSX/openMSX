@@ -1,13 +1,16 @@
 // $Id$
 
-#include "MSXMidi.hh"
 #include <cassert>
+#include "MSXMidi.hh"
+#include "MidiInDevice.hh"
 
 
 MSXMidi::MSXMidi(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
-	  cntr0(*this), cntr2(*this),
-	  i8251(this, time), i8254(&cntr0, NULL, &cntr2, time)
+	  MidiInConnector("MSX-Midi-In", time),
+	  interf(*this), cntr0(*this), cntr2(*this),
+	  i8251(&interf, time), i8254(&cntr0, NULL, &cntr2, time),
+	  outConnector("MSX-Midi-Out", time)
 {
 	EmuDuration total(1.0 / 4e6); // 4MHz
 	EmuDuration hi   (1.0 / 8e6); // 8MHz half clock period
@@ -137,27 +140,83 @@ void MSXMidi::enableRxRDYIRQ(bool enabled)
 	}
 }
 
+// SerialDataInterface  (pass calls from inConnector to I8251)
 
-// I8251Interface
-
-void MSXMidi::setRxRDY(bool status, const EmuTime& time)
+void MSXMidi::setDataBits(DataBits bits)
 {
-	setRxRDYIRQ(status);
+	i8251.setDataBits(bits);
 }
 
-void MSXMidi::setDTR(bool status, const EmuTime& time)
+void MSXMidi::setStopBits(StopBits bits)
 {
-	enableTimerIRQ(status);
+	i8251.setStopBits(bits);
 }
 
-void MSXMidi::setRTS(bool status, const EmuTime& time)
+void MSXMidi::setParityBits(bool enable, ParityBit parity)
 {
-	enableRxRDYIRQ(status);
+	i8251.setParityBits(enable, parity);
 }
 
-byte MSXMidi::getDSR(const EmuTime& time)
+void MSXMidi::recvByte(byte value, const EmuTime& time)
 {
-	return timerIRQ.getState();
+	i8251.recvByte(value, time);
+}
+
+
+// I8251Interface  (pass calls from I8251 to outConnector)
+
+MSXMidi::I8251Interf::I8251Interf(MSXMidi& midi_)
+	: midi(midi_)
+{
+}
+
+MSXMidi::I8251Interf::~I8251Interf()
+{
+}
+
+void MSXMidi::I8251Interf::setRxRDY(bool status, const EmuTime& time)
+{
+	midi.setRxRDYIRQ(status);
+}
+
+void MSXMidi::I8251Interf::setDTR(bool status, const EmuTime& time)
+{
+	midi.enableTimerIRQ(status);
+}
+
+void MSXMidi::I8251Interf::setRTS(bool status, const EmuTime& time)
+{
+	midi.enableRxRDYIRQ(status);
+}
+
+byte MSXMidi::I8251Interf::getDSR(const EmuTime& time)
+{
+	return midi.timerIRQ.getState();
+}
+
+void MSXMidi::I8251Interf::setDataBits(DataBits bits)
+{
+	midi.outConnector.setDataBits(bits);
+}
+
+void MSXMidi::I8251Interf::setStopBits(StopBits bits)
+{
+	midi.outConnector.setStopBits(bits);
+}
+
+void MSXMidi::I8251Interf::setParityBits(bool enable, ParityBit parity)
+{
+	midi.outConnector.setParityBits(enable, parity);
+}
+
+void MSXMidi::I8251Interf::recvByte(byte value, const EmuTime& time)
+{
+	midi.outConnector.recvByte(value, time);
+}
+
+void MSXMidi::I8251Interf::recvReady()
+{
+	((MidiInDevice*)midi.pluggable)->ready();
 }
 
 
@@ -214,4 +273,12 @@ void MSXMidi::Counter2::signal(ClockPin& pin, const EmuTime& time)
 void MSXMidi::Counter2::signalPosEdge(ClockPin& pin, const EmuTime& time)
 {
 	midi.setTimerIRQ(true);
+}
+
+
+// MidiInConnector
+
+bool MSXMidi::ready()
+{
+	return i8251.isRecvReady();
 }
