@@ -19,7 +19,9 @@ class MSXMegaRom : public MSXMemDevice, public MSXRom
 		 * Destructor
 		 */
 		~MSXMegaRom();
-		
+
+		void reset(const EmuTime &time);
+
 		byte readMem(word address, EmuTime &time);
 		void writeMem(word address, byte value, EmuTime &time);
 

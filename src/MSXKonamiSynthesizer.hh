@@ -21,11 +21,13 @@ class MSXKonamiSynthesizer : public MSXMemDevice, public MSXRom
 		 * Destructor
 		 */
 		~MSXKonamiSynthesizer();
-		
+
+		void reset(const EmuTime &time);
+
 		byte readMem(word address, EmuTime &time);
 		void writeMem(word address, byte value, EmuTime &time);
 
 	private:
-		DACSound *DAC;
+		DACSound *dac;
 };
 #endif

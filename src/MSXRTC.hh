@@ -20,7 +20,7 @@ class MSXRTC : public MSXIODevice
 		 * Destructor
 		 */
 		~MSXRTC(); 
-		
+
 		void reset(const EmuTime &time);
 		byte readIO(byte port, EmuTime &time);
 		void writeIO(byte port, byte value, EmuTime &time);

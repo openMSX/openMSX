@@ -15,12 +15,23 @@ MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
 	dummy = new DummyPrinterPortDevice();
 	// TODO plug device as specified in config file
 	unplug();
+
+	reset(time);
 }
 
 MSXPrinterPort::~MSXPrinterPort()
 {
 	delete dummy;
 }
+
+void MSXPrinterPort::reset(const EmuTime &time)
+{
+	data = 0;	// TODO check this
+	strobe = true;	// TODO 
+	device->writeData(data);
+	device->setStrobe(strobe);
+}
+
 
 byte MSXPrinterPort::readIO(byte port, EmuTime &time)
 {

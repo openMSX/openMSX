@@ -22,9 +22,20 @@ MSXMegaRom::MSXMegaRom(MSXConfig::Device *config, const EmuTime &time)
 	for (mapperMask=1; mapperMask<nrblocks; mapperMask<<=1);
 	mapperMask--;
 	
-	// TODO: mirror if number of 8kB blocks not fully filled ?
-	
+	mapperType = retriefMapperType();
+
+	reset(time);
+}
+
+MSXMegaRom::~MSXMegaRom()
+{
+	PRT_DEBUG("Destructing an MSXMegaRom object");
+}
+
+void MSXMegaRom::reset(const EmuTime &time)
+{
 	// set internalMemoryBank
+	// TODO: mirror if number of 8kB blocks not fully filled ?
 	internalMemoryBank[0]=0;		// unused
 	internalMemoryBank[1]=0;		// unused
 	internalMemoryBank[2]=memoryBank;	// 0x4000 - 0x5fff
@@ -33,13 +44,6 @@ MSXMegaRom::MSXMegaRom(MSXConfig::Device *config, const EmuTime &time)
 	internalMemoryBank[5]=memoryBank+0x6000;// 0xa000 - 0xbfff
 	internalMemoryBank[6]=0;		// unused
 	internalMemoryBank[7]=0;		// unused
-
-	mapperType = retriefMapperType();
-}
-
-MSXMegaRom::~MSXMegaRom()
-{
-	PRT_DEBUG("Destructing an MSXMegaRom object");
 }
 
 int MSXMegaRom::retriefMapperType()

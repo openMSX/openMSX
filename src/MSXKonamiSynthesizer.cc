@@ -12,14 +12,19 @@ MSXKonamiSynthesizer::MSXKonamiSynthesizer(MSXConfig::Device *config, const EmuT
 	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXKonamiSynthesizer object");
-	DAC = new DACSound(25000, time);	// TODO find a good value, put it into config file
+	dac = new DACSound(25000, time);	// TODO find a good value, put it into config file
 	loadFile(&memoryBank, 0x8000);
 }
 
 MSXKonamiSynthesizer::~MSXKonamiSynthesizer()
 {
 	PRT_DEBUG("Destructing an MSXKonamiSynthesizer object");
-	delete DAC;
+	delete dac;
+}
+
+void MSXKonamiSynthesizer::reset(const EmuTime &time)
+{
+	dac->reset(time);
 }
 
 byte MSXKonamiSynthesizer::readMem(word address, EmuTime &time)
@@ -31,5 +36,5 @@ void MSXKonamiSynthesizer::writeMem(word address, byte value, EmuTime &time)
 {
 	// Should be only for 0x4000, but since this isn't confirmed on a real
 	// cratridge we will simply use every write.
-	DAC->writeDAC(value,time);
+	dac->writeDAC(value,time);
 }
