@@ -24,6 +24,11 @@ enum EventType
 	  */
 	RENDERER_SWITCH2_EVENT,
 	BREAK_EVENT,
+	/** Console events, allow the keyboard[joystick] to avoid
+            having `hanging' keys */
+	CONSOLE_ON_EVENT,
+	CONSOLE_OFF_EVENT,
+	// focus change events may be added here later
 };
 
 class Event
