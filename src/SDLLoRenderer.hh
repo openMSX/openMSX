@@ -33,17 +33,17 @@ public:
 
 	void putImage();
 	void setFullScreen(bool);
-	void updateForegroundColour(const EmuTime &time);
-	void updateBackgroundColour(const EmuTime &time);
-	void updateBlinkState(const EmuTime &time);
-	void updatePalette(int index, const EmuTime &time);
-	void updateDisplayEnabled(const EmuTime &time);
-	void updateDisplayMode(const EmuTime &time);
-	void updateNameBase(const EmuTime &time);
-	void updatePatternBase(const EmuTime &time);
-	void updateColourBase(const EmuTime &time);
-	void updateSpriteAttributeBase(const EmuTime &time);
-	void updateSpritePatternBase(const EmuTime &time);
+	void updateForegroundColour(int colour, const EmuTime &time);
+	void updateBackgroundColour(int colour, const EmuTime &time);
+	void updateBlinkState(bool enabled, const EmuTime &time);
+	void updatePalette(int index, int grb, const EmuTime &time);
+	void updateDisplayEnabled(bool enabled, const EmuTime &time);
+	void updateDisplayMode(int mode, const EmuTime &time);
+	void updateNameBase(int addr, const EmuTime &time);
+	void updatePatternBase(int addr, const EmuTime &time);
+	void updateColourBase(int addr, const EmuTime &time);
+	void updateSpriteAttributeBase(int addr, const EmuTime &time);
+	void updateSpritePatternBase(int addr, const EmuTime &time);
 	void updateVRAM(int addr, byte data, const EmuTime &time);
 
 private:

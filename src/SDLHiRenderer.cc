@@ -153,7 +153,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	// Init render state.
 	phaseHandler = &SDLHiRenderer::offPhase;
 	currLine = 0;
-	updateDisplayMode(time);
+	updateDisplayMode(vdp->getDisplayMode(), time);
 	dirtyForeground = dirtyBackground = true;
 
 	// Create display cache.
@@ -215,7 +215,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 		}
 		// Reset the palette.
 		for (int i = 0; i < 16; i++) {
-			updatePalette(i, time);
+			updatePalette(i, vdp->getPalette(i), time);
 		}
 	}
 }
@@ -234,17 +234,17 @@ template <class Pixel> void SDLHiRenderer<Pixel>::setFullScreen(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updateForegroundColour(
-	const EmuTime &time)
+	int colour, const EmuTime &time)
 {
 	dirtyForeground = true;
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updateBackgroundColour(
-	const EmuTime &time)
+	int colour, const EmuTime &time)
 {
 	dirtyBackground = true;
 	// Transparent pixels have background colour.
-	palFg[0] = palBg[vdp->getBackgroundColour()];
+	palFg[0] = palBg[colour];
 	// Any line containing transparent pixels must be repainted.
 	// We don't know which lines contain transparent pixels,
 	// so we have to repaint them all.
@@ -253,7 +253,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateBackgroundColour(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updateBlinkState(
-	const EmuTime &time)
+	bool enabled, const EmuTime &time)
 {
 	if (vdp->getDisplayMode() == 0x09) {
 		// Text2 with blinking text.
@@ -265,10 +265,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateBlinkState(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updatePalette(
-	int index, const EmuTime &time)
+	int index, int grb, const EmuTime &time)
 {
 	// Update SDL colours in palette.
-	word grb = vdp->getPalette(index);
 	palFg[index] = palBg[index] =
 		V9938_COLOURS[(grb >> 4) & 7][(grb >> 8) & 7][grb & 7];
 
@@ -287,51 +286,51 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updatePalette(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayEnabled(
-	const EmuTime &time)
+	bool enabled, const EmuTime &time)
 {
 	// When display is re-enabled, consider every pixel dirty.
-	if (vdp->isDisplayEnabled()) {
+	if (enabled) {
 		dirtyForeground = true;
 		setDirty(true);
 	}
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayMode(
-	const EmuTime &time)
+	int mode, const EmuTime &time)
 {
-	renderMethod = modeToRenderMethod[vdp->getDisplayMode()];
-	dirtyChecker = modeToDirtyChecker[vdp->getDisplayMode()];
+	renderMethod = modeToRenderMethod[mode];
+	dirtyChecker = modeToDirtyChecker[mode];
 	setDirty(true);
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updateNameBase(
-	const EmuTime &time)
+	int addr, const EmuTime &time)
 {
 	anyDirtyName = true;
 	fillBool(dirtyName, true, sizeof(dirtyName));
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updatePatternBase(
-	const EmuTime &time)
+	int addr, const EmuTime &time)
 {
 	anyDirtyPattern = true;
 	fillBool(dirtyPattern, true, sizeof(dirtyPattern));
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updateColourBase(
-	const EmuTime &time)
+	int addr, const EmuTime &time)
 {
 	anyDirtyColour = true;
 	fillBool(dirtyColour, true, sizeof(dirtyColour));
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updateSpriteAttributeBase(
-	const EmuTime &time)
+	int addr, const EmuTime &time)
 {
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updateSpritePatternBase(
-	const EmuTime &time)
+	int addr, const EmuTime &time)
 {
 }
 

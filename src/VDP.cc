@@ -221,6 +221,8 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 	case 0x98: {
 		int addr = ((controlRegs[14] << 14) | vramPointer) & vramMask;
 		//fprintf(stderr, "VRAM[%05X]=%02X\n", addr, value);
+		// TODO: Check MXC bit (R#45, bit 6) for extension RAM access.
+		//       This bit is kept by the command engine.
 		setVRAM(addr, value, time);
 		vramPointer = (vramPointer + 1) & 0x3FFF;
 		if (vramPointer == 0 && (displayMode & 0x18)) {
@@ -261,8 +263,9 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 		}
 		else {
 			int index = controlRegs[16];
-			palette[index] = paletteLatch | (value << 8);
-			renderer->updatePalette(index, time);
+			int grb = paletteLatch | (value << 8);
+			renderer->updatePalette(index, grb, time);
+			palette[index] = grb;
 			controlRegs[16] = (index + 1) & 0x0F;
 			paletteLatch = -1;
 		}
@@ -338,16 +341,18 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 {
 	//fprintf(stderr, "VDP[%02X]=%02X\n", reg, val);
 
+	// TODO: Pass command register writes to command engine.
+
 	val &= controlValueMasks[reg];
 	byte oldval = controlRegs[reg];
 	if (oldval == val) return;
-	controlRegs[reg] = val;
-
 	PRT_DEBUG("VDP: Reg " << (int)reg << " = " << (int)val);
+
+	// Perform additional tasks before new value becomes active.
 	switch (reg) {
 	case 0:
 		if ((val ^ oldval) & 0x0E) {
-			updateDisplayMode(time);
+			updateDisplayMode(val, controlRegs[1], time);
 		}
 		break;
 	case 1:
@@ -355,44 +360,65 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 			setInterrupt();
 		}
 		if ((val ^ oldval) & 0x18) {
-			updateDisplayMode(time);
+			updateDisplayMode(controlRegs[0], val, time);
 		}
 		if ((val ^ oldval) & 0x40) {
-			renderer->updateDisplayEnabled(time);
+			renderer->updateDisplayEnabled(!isDisplayEnabled(), time);
 		}
 		break;
-	case 2:
-		nameBase = ((val << 10) | ~(-1 << 10)) & vramMask;
-		renderer->updateNameBase(time);
+	case 2: {
+		int addr = ((val << 10) | ~(-1 << 10)) & vramMask;
+		renderer->updateNameBase(addr, time);
+		nameBase = addr;
 		break;
-	case 3:
-	case 10:
-		colourBase = ((controlRegs[10] << 14) | (controlRegs[3] << 6)
+	}
+	case 3: {
+		int addr = ((controlRegs[10] << 14) | (val << 6)
 			| ~(-1 << 6)) & vramMask;
-		renderer->updateColourBase(time);
+		renderer->updateColourBase(addr, time);
+		colourBase = addr;
 		break;
-	case 4:
-		patternBase = ((val << 11) | ~(-1 << 11)) & vramMask;
-		renderer->updatePatternBase(time);
+	}
+	case 10: {
+		int addr = ((val << 14) | (controlRegs[3] << 6)
+			| ~(-1 << 6)) & vramMask;
+		renderer->updateColourBase(addr, time);
+		colourBase = addr;
 		break;
-	case 5:
-	case 11:
-		spriteAttributeBase =
-			((controlRegs[11] << 15) | (controlRegs[5] << 7)) & vramMask;
+	}
+	case 4: {
+		int addr = ((val << 11) | ~(-1 << 11)) & vramMask;
+		renderer->updatePatternBase(addr, time);
+		patternBase = addr;
+		break;
+	}
+	case 5: {
+		int addr = ((controlRegs[11] << 15) | (val << 7)) & vramMask;
+		renderer->updateSpriteAttributeBase(addr, time);
+		spriteAttributeBase = addr;
 		spriteAttributeBasePtr = vramData + spriteAttributeBase;
-		renderer->updateSpriteAttributeBase(time);
 		break;
-	case 6:
-		spritePatternBase = (val << 11) & vramMask;
+	}
+	case 11: {
+		int addr = ((val << 15) | (controlRegs[5] << 7)) & vramMask;
+		renderer->updateSpriteAttributeBase(addr, time);
+		spriteAttributeBase = addr;
+		spriteAttributeBasePtr = vramData + spriteAttributeBase;
+		break;
+	}
+	case 6: {
+		int addr = (val << 11) & vramMask;
+		renderer->updateSpritePatternBase(addr, time);
+		spritePatternBase = addr;
 		spritePatternBasePtr = vramData + spritePatternBase;
-		renderer->updateSpritePatternBase(time);
 		break;
+	}
 	case 7:
 		if ((val ^ oldval) & 0xF0) {
-			renderer->updateForegroundColour(time);
+			renderer->updateForegroundColour(val >> 4, time);
 		}
 		if ((val ^ oldval) & 0x0F) {
-			renderer->updateBackgroundColour(time);
+			renderer->updateBackgroundColour(val & 0x0F, time);
 		}
 		break;
 	case 16:
@@ -400,18 +426,21 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		paletteLatch = -1;
 		break;
 	}
+
+	// Commit the change.
+	controlRegs[reg] = val;
 }
 
-void VDP::updateDisplayMode(const EmuTime &time)
+void VDP::updateDisplayMode(byte reg0, byte reg1, const EmuTime &time)
 {
 	int newMode =
-		  ((controlRegs[0] & 0x0E) << 1)
-		| ((controlRegs[1] & 0x08) >> 2)
-		| ((controlRegs[1] & 0x10) >> 4);
+		  ((reg0 & 0x0E) << 1)  // M5..M3
+		| ((reg1 & 0x08) >> 2)  // M2
+		| ((reg1 & 0x10) >> 4); // M1
 	if (newMode != displayMode) {
 		fprintf(stderr, "VDP: mode %02X\n", newMode);
+		renderer->updateDisplayMode(newMode, time);
 		displayMode = newMode;
-		renderer->updateDisplayMode(time);
 	}
 }
 

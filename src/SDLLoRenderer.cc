@@ -84,7 +84,7 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 	currPhase = &SDLLoRenderer::offPhase;
 	currLine = 0;
 	// TODO: Fill in current time once that exists.
-	updateDisplayMode(time);
+	updateDisplayMode(vdp->getDisplayMode(), time);
 	dirtyForeground = dirtyBackground = true;
 
 	// Create display cache.
@@ -140,17 +140,17 @@ template <class Pixel> void SDLLoRenderer<Pixel>::setFullScreen(
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateForegroundColour(
-	const EmuTime &time)
+	int colour, const EmuTime &time)
 {
 	dirtyForeground = true;
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateBackgroundColour(
-	const EmuTime &time)
+	int colour, const EmuTime &time)
 {
 	dirtyBackground = true;
 	// Transparent pixels have background colour.
-	PalFg[0] = PalBg[vdp->getBackgroundColour()];
+	PalFg[0] = PalBg[colour];
 	// Any line containing transparent pixels must be repainted.
 	// We don't know which lines contain transparent pixels,
 	// so we have to repaint them all.
@@ -159,64 +159,64 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateBackgroundColour(
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateBlinkState(
-	const EmuTime &time)
+	bool enabled, const EmuTime &time)
 {
 	// SDLLoRenderer does not currently support V9938 features.
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updatePalette(
-	int index, const EmuTime &time)
+	int index, int grb, const EmuTime &time)
 {
 	// SDLLoRenderer does not currently support V9938 features.
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayEnabled(
-	const EmuTime &time)
+	bool enabled, const EmuTime &time)
 {
 	// When display is re-enabled, consider every pixel dirty.
-	if (vdp->isDisplayEnabled()) {
+	if (enabled) {
 		dirtyForeground = true;
 		setDirty(true);
 	}
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayMode(
-	const EmuTime &time)
+	int mode, const EmuTime &time)
 {
 	// Only MSX1 video modes are supported by this Renderer,
 	// so mask out M5 and M4.
-	renderMethod = modeToRenderMethod[vdp->getDisplayMode() & 7];
+	renderMethod = modeToRenderMethod[mode & 7];
 	setDirty(true);
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateNameBase(
-	const EmuTime &time)
+	int addr, const EmuTime &time)
 {
 	anyDirtyName = true;
 	fillBool(dirtyName, true, sizeof(dirtyName));
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updatePatternBase(
-	const EmuTime &time)
+	int addr, const EmuTime &time)
 {
 	anyDirtyPattern = true;
 	fillBool(dirtyPattern, true, sizeof(dirtyPattern));
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateColourBase(
-	const EmuTime &time)
+	int addr, const EmuTime &time)
 {
 	anyDirtyColour = true;
 	fillBool(dirtyColour, true, sizeof(dirtyColour));
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateSpriteAttributeBase(
-	const EmuTime &time)
+	int addr, const EmuTime &time)
 {
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateSpritePatternBase(
-	const EmuTime &time)
+	int addr, const EmuTime &time)
 {
 }
 

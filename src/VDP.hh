@@ -124,8 +124,9 @@ public:
 		//       by the command engine integration.
 		assert((addr & vramMask) == addr);
 		if (vramData[addr] != value) {
-			vramData[addr] = value;
 			renderer->updateVRAM(addr, value, time);
+			// TODO: cmdEngine->updateVRAM(addr, time);
+			vramData[addr] = value;
 		}
 	}
 
@@ -169,7 +170,7 @@ public:
 	  * @return Colour value in the format of the palette registers:
 	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
 	  */
-	inline word getPalette(int index) {
+	inline int getPalette(int index) {
 		return palette[index];
 	}
 
@@ -325,7 +326,7 @@ private:
 	/** Display mode may have changed.
 	  * If it has, update displayMode's value and inform the Renderer.
 	  */
-	void updateDisplayMode(const EmuTime &time);
+	void updateDisplayMode(byte reg0, byte reg1, const EmuTime &time);
 
 	/** Renderer that converts this VDP's state into an image.
 	  */

@@ -1,5 +1,15 @@
 $Id$
 
+2001-12-23 Maarten ter Huurne <mth@stack.nl>
+	* Fixed a design flaw in the Renderer interface.
+	  The update methods were called *after* the changed VDP state
+	  became effective. That way, delayed rendering operations cannot
+	  be completed because the old VDP state is no longer available.
+	  In the new interface, update methods are called *before* the
+	  new state becomes effective. So the old values can be retrieved
+	  from the VDP, while the new values are passed as parameters
+	  of the update method.
+
 2001-12-22 Maarten ter Huurne <mth@stack.nl>
 	* Fixed dirty check bugs.
 	  The "inside name/colour/pattern table" checks were wrong:

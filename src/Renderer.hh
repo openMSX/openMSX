@@ -10,6 +10,10 @@ class EmuTime;
 /** Abstract base class for Renderers.
   * A Renderer is a class that converts VDP state to visual
   * information (for example, pixels on a screen).
+  *
+  * The update methods are called exactly before the change occurs
+  * in the VDP, so that the renderer update itself to the specified
+  * time using the old settings.
   */
 class Renderer
 {
@@ -40,60 +44,72 @@ public:
 	virtual void setFullScreen(bool) = 0;
 
 	/** Informs the renderer of a VDP foreground colour change.
+	  * @param colour The new foreground colour.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateForegroundColour(const EmuTime &time) = 0;
+	virtual void updateForegroundColour(int colour, const EmuTime &time) = 0;
 
 	/** Informs the renderer of a VDP background colour change.
+	  * @param colour The new background colour.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBackgroundColour(const EmuTime &time) = 0;
+	virtual void updateBackgroundColour(int colour, const EmuTime &time) = 0;
 
 	/** Informs the renderer of a VDP blinking state change.
+	  * @param enabled The new blink state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBlinkState(const EmuTime &time) = 0;
+	virtual void updateBlinkState(bool enabled, const EmuTime &time) = 0;
 
 	/** Informs the renderer of a VDP palette change.
-	  * @param index The index [0..15] in the palette that changed.
+	  * @param index The index [0..15] in the palette that changes.
+	  * @param grb The new definition for the changed palette index:
+	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updatePalette(int index, const EmuTime &time) = 0;
+	virtual void updatePalette(int index, int grb, const EmuTime &time) = 0;
 
 	/** Informs the renderer of a VDP display enabled change.
+	  * @param enabled The new display enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateDisplayEnabled(const EmuTime &time) = 0;
+	virtual void updateDisplayEnabled(bool enabled, const EmuTime &time) = 0;
 
 	/** Informs the renderer of a VDP display mode change.
+	  * @param mode The new display mode: M5..M1.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateDisplayMode(const EmuTime &time) = 0;
+	virtual void updateDisplayMode(int mode, const EmuTime &time) = 0;
 
 	/** Informs the renderer of a name table base address change.
+	  * @param addr The new base address.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateNameBase(const EmuTime &time) = 0;
+	virtual void updateNameBase(int addr, const EmuTime &time) = 0;
 
 	/** Informs the renderer of a pattern table base address change.
+	  * @param addr The new base address.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updatePatternBase(const EmuTime &time) = 0;
+	virtual void updatePatternBase(int addr, const EmuTime &time) = 0;
 
 	/** Informs the renderer of a colour table base address change.
+	  * @param addr The new base address.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateColourBase(const EmuTime &time) = 0;
+	virtual void updateColourBase(int addr, const EmuTime &time) = 0;
 
 	/** Informs the renderer of a sprite attribute table base address change.
+	  * @param addr The new base address.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateSpriteAttributeBase(const EmuTime &time) = 0;
+	virtual void updateSpriteAttributeBase(int addr, const EmuTime &time) = 0;
 
 	/** Informs the renderer of a sprite pattern table base address change.
+	  * @param addr The new base address.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateSpritePatternBase(const EmuTime &time) = 0;
+	virtual void updateSpritePatternBase(int addr, const EmuTime &time) = 0;
 
 	/** Informs the renderer of a change in VRAM contents.
 	  * TODO: Maybe this is a performance problem, if so think of a
