@@ -1,16 +1,11 @@
 // $Id$
 
-//TODO update heading 
-/*** Z80Em: Portable Z80 emulator *******************************************/
-/***                                                                      ***/
-/***                                 Z80.h                                ***/
-/***                                                                      ***/
-/*** This file contains the function prototypes and variable declarations ***/
-/***                                                                      ***/
-/*** Copyright (C) Marcel de Kogel 1996,1997                              ***/
-/***     You are not allowed to distribute this software commercially     ***/
-/***     Please, notify me, if you make any changes to this file          ***/
-/****************************************************************************/
+/**
+ * Based on:
+ *    Z80Em: Portable Z80 emulator
+ *    written by Marcel de Kogel 1996,1997
+ * heavily rewritten to fit openMSX structure
+ */
 
 #ifndef __Z80_HH__
 #define __Z80_HH__

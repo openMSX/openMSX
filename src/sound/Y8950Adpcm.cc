@@ -162,20 +162,27 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 
 byte Y8950Adpcm::readReg(byte rg)
 {
+	byte result = 255;
 	switch (rg) {
 		case 0x0f: { // ADPCM-DATA
 			// TODO advance pointer (only when not playing??)
 			int adr = ((startAddr + memPntr) & addrMask) / 2;
 			byte tmp = wave[adr];
 			//memPntr += 2; TODO ??
-			return tmp;
+			result = tmp;
+			break;
 		}
 		case 0x13: // TODO check
-			return output & 0xff;
+			result = output & 0xff;
+			break;
 		case 0x14: // TODO check
-			return output / 256;
+			result = output / 256;
+			break;
+		default:
+			result = 255;
 	}
-	return 255;
+	PRT_DEBUG("Y8950Adpcm: read "<<(int)rg<<" "<<(int)result);
+	return result;
 }
 
 int Y8950Adpcm::calcSample()

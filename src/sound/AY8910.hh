@@ -16,9 +16,6 @@
 class EmuTime;
 
 
-#define MIN(x,y)	(x) < (y) ? (x) : (y)
-
-
 class AY8910Interface
 {
 	public:

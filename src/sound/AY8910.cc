@@ -335,7 +335,7 @@ int* AY8910::updateBuffer(int length)
 		int semiVolC = 0;
 		int left = FP_UNIT;
 		do {
-			int nextevent = MIN (countN, left);
+			int nextevent = (countN < left) ? countN : left;
 			if (outn & 0x08) {
 				if (outputA) semiVolA += countA;
 				countA -= nextevent;

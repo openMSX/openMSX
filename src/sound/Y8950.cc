@@ -1,20 +1,11 @@
 // $Id$
 
-//****************************************************************************//
-//                                                                            //
-//  emu8950.c -- Y8950 emulator : written by Mitsutaka Okazaki 2001           //
-//                                                                            //
-//  2001 05-19 : Version 0.10 -- Test release (No rythm, No pcm).             //
-//                                                                            //
-//  References:                                                               //
-//    fmopl.c        -- 1999,2000 written by Tatsuyuki Satoh.                 //
-//    s_opl.c        -- 2001 written by Mamiya.                               //
-//    fmgen.cpp      -- 1999,2000 written by cisc.                            //
-//    MSX-Datapack                                                            //
-//    YMU757 data sheet                                                       //
-//    YM2143 data sheet                                                       //
-//                                                                            //
-//****************************************************************************//
+/**
+  * Based on:
+  *    emu8950.c -- Y8950 emulator written by Mitsutaka Okazaki 2001
+  * heavily rewritten to fit openMSX structure
+  */
+
 #include <math.h>
 #include "Y8950.hh"
 #include "Mixer.hh"
@@ -1092,6 +1083,8 @@ byte Y8950::readReg(byte rg)
 			break;
 		
 		case 0x0f: // ADPCM-DATA
+		case 0x13: //  ???
+		case 0x14: //  ???
 		case 0x1a: // PCM-DATA
 			return adpcm.readReg(rg);
 		

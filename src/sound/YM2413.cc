@@ -1,44 +1,10 @@
 // $Id$
-//**************************************************************************************//
-//                                                                                      //
-//  emu2413.c -- YM2413 emulator written by Mitsutaka Okazaki 2001                      //
-//                                                                                      //
-//  2001 01-08 : Version 0.10 -- 1st version.                                           //
-//  2001 01-15 : Version 0.20 -- semi-public version.                                   //
-//  2001 01-16 : Version 0.30 -- 1st public version.                                    //
-//  2001 01-17 : Version 0.31 -- Fixed bassdrum problem.                                //
-//             : Version 0.32 -- LPF implemented.                                       //
-//  2001 01-18 : Version 0.33 -- Fixed the drum problem, refine the mix-down method.    //
-//                            -- Fixed the LFO bug.                                     //
-//  2001 01-24 : Version 0.35 -- Fixed the drum problem,                                //
-//                               support undocumented EG behavior.                      //
-//  2001 02-02 : Version 0.38 -- Improved the performance.                              //
-//                               Fixed the hi-hat and cymbal model.                     //
-//                               Fixed the default percussive datas.                    //
-//                               Noise reduction.                                       //
-//                               Fixed the feedback problem.                            //
-//  2001 03-03 : Version 0.39 -- Fixed some drum bugs.                                  //
-//                               Improved the performance.                              //
-//  2001 03-04 : Version 0.40 -- Improved the feedback.                                 //
-//                               Change the default table size.                         //
-//                               Clock and Rate can be changed during play.             //
-//  2001 06-24 : Version 0.50 -- Improved the hi-hat and the cymbal tone.               //
-//                               Added VRC7 patch (OPLL_reset_patch is changed).        //
-//                               Fixed OPLL_reset() bug.                                //
-//                               Added OPLL_setMask, OPLL_getMask and OPLL_toggleMask.  //
-//                               Added OPLL_writeIO.                                    //
-//  2001 09-28 : Version 0.51 -- Remove the noise table.                                //
-//                                                                                      //
-//  References:                                                                         //
-//    fmopl.c        -- 1999,2000 written by Tatsuyuki Satoh (MAME development).        //
-//    s_opl.c        -- 2001 written by Mamiya (NEZplug development).                   //
-//    fmgen.cpp      -- 1999,2000 written by cisc.                                      //
-//    fmpac.ill      -- 2000 created by NARUTO.                                         //
-//    MSX-Datapack                                                                      //
-//    YMU757 data sheet                                                                 //
-//    YM2143 data sheet                                                                 //
-//                                                                                      //
-//**************************************************************************************//
+
+/**
+  * Based on:
+  *    emu2413.c -- YM2413 emulator written by Mitsutaka Okazaki 2001
+  * heavily rewritten to fit openMSX structure
+  */
 
 #include <math.h>
 #include <cassert>
