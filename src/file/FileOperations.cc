@@ -151,6 +151,10 @@ const string& FileOperations::getSystemDir()
 		if ((res == 0) || (res == MAX_PATH)) {
 			PRT_ERROR("Cannot detect openMSX directory.");
 		}
+		if (!strrchr(p,'\\')) {
+			PRT_ERROR("openMSX is not in directory!?");
+		}
+		*(strrchr(p,'\\')) = '\0';
 		systemDir = getConventionalPath(p) + "/";
 #else
 		systemDir = "/opt/openMSX/";

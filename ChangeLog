@@ -1,5 +1,9 @@
 $Id$
 
+2003-09-14 Reikan <openMSX4Win32@ranpub.com>
+	* Fixed SystemContext error in FileOperations.cc.
+	  This affects only on Win32.
+
 2003-09-13 Reikan <openMSX4Win32@ranpub.com>
 	* Introduced flavour-win32.mk.
 	  Do only relatively conservative optimizations.
