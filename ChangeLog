@@ -2,6 +2,7 @@ $Id$
 
 2002-08-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Allow multiple "md5" tags per "rom" tag
+	* Low level tape support (experimental)
 
 2002-08-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* wrote doc/commands.txt
