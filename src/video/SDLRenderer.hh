@@ -49,7 +49,11 @@ protected:
 		(this->*dirtyChecker)(addr, data);
 	}
 	void drawBorder(int fromX, int fromY, int limitX, int limitY);
-	void drawDisplay(int fromX, int fromY, int limitX, int limitY);
+	void drawDisplay(
+		int fromX, int fromY,
+		int displayX, int displayY,
+		int displayWidth, int displayHeight
+		);
 
 private:
 

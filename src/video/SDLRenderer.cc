@@ -3,7 +3,6 @@
 /*
 TODO:
 - Implement blinking (of page mask) in bitmap modes.
-- Implement sprite pixels in Graphic 5.
 - Move dirty checking to VDPVRAM.
 - Spot references to EmuTime: if implemented correctly this class should
   not need EmuTime, since it uses absolute VDP coordinates instead.
@@ -656,7 +655,6 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 		: (Pixel *)(((byte *)pixelPtr0) + screen->pitch)
 		);
 
-	// visibleIndex != 0 implies there are sprites in the current mode.
 	if (spriteMode == 1) {
 		spriteConverter.drawMode1(absLine, minX, maxX, pixelPtr0, pixelPtr1);
 	} else {
@@ -682,57 +680,40 @@ void SDLRenderer<Pixel, zoom>::drawBorder(
 // TODO: Clean up this routine.
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::drawDisplay(
-	int fromX, int fromY, int limitX, int limitY)
-{
-	// Number of VDP ticks per host screen pixel.
-	const int TICKS_PER_PIXEL = (zoom == Renderer::ZOOM_256 ? 4 : 2);
-
-	// Calculate which pixels within the display area should be plotted.
-	int displayLeftTicks = getDisplayLeft();
-	int displayX = (fromX - displayLeftTicks) / TICKS_PER_PIXEL;
-	int displayWidth = (limitX - fromX) / TICKS_PER_PIXEL;
-	assert(0 <= displayX);
-	assert(displayX + displayWidth
-		<= (zoom == Renderer::ZOOM_256 ? 256 : 512) );
-
-	fromX = translateX(fromX);
-	limitX = translateX(limitX);
-	if (fromX == limitX) return;
-	assert(fromX < limitX);
-	//PRT_DEBUG("drawDisplay: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
-
-	int displayY = (fromY - lineRenderTop) * LINE_ZOOM;
-	int nrLines = limitY - fromY;
-	if (zoom != Renderer::ZOOM_256
-	&& !(settings->getDeinterlace()->getValue())
-	&& vdp->isInterlaced()
-	&& vdp->getEvenOdd()) {
-		// Display odd field half a line lower.
-		displayY++;
+	int fromX, int fromY,
+	int displayX, int displayY,
+	int displayWidth, int displayHeight
+) {
+	if (zoom == Renderer::ZOOM_256) {
+		displayX /= 2;
+		displayWidth /= 2;
 	}
-	int displayLimitY = displayY + nrLines * LINE_ZOOM;
+
+	int screenY = (fromY - lineRenderTop) * LINE_ZOOM;
+	if (!(settings->getDeinterlace()->getValue())
+	&& vdp->isInterlaced()
+	&& vdp->getEvenOdd()
+	&& zoom != Renderer::ZOOM_256) {
+		// Display odd field half a line lower.
+		screenY++;
+	}
+	int screenLimitY = screenY + displayHeight * LINE_ZOOM;
 
 	// Render background lines:
-
-	// Calculate display line (wraps at 256).
-	byte line = fromY - vdp->getLineZero();
-	if (!vdp->getDisplayMode().isTextMode()) {
-		line += vdp->getVerticalScroll();
-	}
 
 	// Copy background image.
 	SDL_Rect source, dest;
 	source.x = displayX;
 	source.w = displayWidth;
 	source.h = 1;
-	dest.x = fromX;
+	dest.x = translateX(fromX);
 
 	DisplayMode mode = vdp->getDisplayMode();
 	if (mode.isBitmapMode()) {
 		if (mode.isPlanar()) {
-			renderPlanarBitmapLines(line, nrLines);
+			renderPlanarBitmapLines(displayY, displayHeight);
 		} else {
-			renderBitmapLines(line, nrLines);
+			renderBitmapLines(displayY, displayHeight);
 		}
 
 		int pageMaskEven, pageMaskOdd;
@@ -747,27 +728,27 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 				(mode.isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 		}
 		// Bring bitmap cache up to date.
-		for (dest.y = displayY; dest.y < displayLimitY; ) {
+		for (dest.y = screenY; dest.y < screenLimitY; ) {
 			source.y = (vram->nameTable.getMask() >> 7)
-				& (pageMaskEven | line);
+				& (pageMaskEven | displayY);
 			// TODO: Can we safely use SDL_LowerBlit?
 			// Note: return value is ignored.
 			SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
 			dest.y++;
 			if (LINE_ZOOM == 2) {
 				source.y = (vram->nameTable.getMask() >> 7)
-					& (pageMaskOdd | line);
+					& (pageMaskOdd | displayY);
 				SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
 				dest.y++;
 			}
-			line++;	// wraps at 256
+			displayY = (displayY + 1) & 255;
 		}
 	} else {
-		renderCharacterLines(line, nrLines);
+		renderCharacterLines(displayY, displayHeight);
 
-		for (dest.y = displayY; dest.y < displayLimitY; ) {
-			assert(!vdp->isMSX1VDP() || line < 192);
-			source.y = line;
+		for (dest.y = screenY; dest.y < screenLimitY; ) {
+			assert(!vdp->isMSX1VDP() || displayY < 192);
+			source.y = displayY;
 			// TODO: Can we safely use SDL_LowerBlit?
 			// Note: return value is ignored.
 			/*
@@ -780,7 +761,7 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 				SDL_BlitSurface(charDisplayCache, &source, screen, &dest);
 				dest.y++;
 			}
-			line++;	// wraps at 256
+			displayY = (displayY + 1) & 255;
 		}
 	}
 
@@ -796,8 +777,8 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
-	int leftBorder = translateX(displayLeftTicks);
-	for (int y = displayY; y < displayLimitY; y += LINE_ZOOM) {
+	int leftBorder = translateX(getDisplayLeft());
+	for (int y = screenY; y < screenLimitY; y += LINE_ZOOM) {
 		drawSprites(y, leftBorder, displayX, displayX + displayWidth);
 	}
 	// Unlock surface.

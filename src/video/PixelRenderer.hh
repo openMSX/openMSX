@@ -85,12 +85,18 @@ protected:
 
 	/** Render a rectangle of display pixels on the host screen.
 	  * The units are absolute lines (Y) and VDP clockticks (X).
-	  * @param fromX X coordinate of render start (inclusive).
-	  * @param fromY Y coordinate of render start (inclusive).
-	  * @param limitX X coordinate of render end (exclusive).
-	  * @param limitY Y coordinate of render end (exclusive).
+	  * @param fromX X coordinate of render start in VDP ticks.
+	  * @param fromY Y coordinate of render start in absolute lines.
+	  * @param displayX display coordinate of render start: [0..512).
+	  * @param displayY display coordinate of render start: [0..256).
+	  * @param displayWidth rectangle width in pixels (512 per line).
+	  * @param displayHeight rectangle height in lines.
 	  */
-	virtual void drawDisplay(int fromX, int fromY, int limitX, int limitY) = 0;
+	virtual void drawDisplay(
+		int fromX, int fromY,
+		int displayX, int displayY,
+		int displayWidth, int displayHeight
+		) = 0;
 
 	/** Notifies the VRAM cache of a VRAM write.
 	  */
@@ -171,13 +177,12 @@ private:
 	bool displayEnabled;
 
 	/** Number of the next position within a line to render.
-	  * Expressed in "small pixels" (Text2, Graphics 5/6) from the
-	  * left border of the rendered screen.
+	  * Expressed in VDP clock ticks since start of line.
 	  */
 	int nextX;
 
 	/** Number of the next line to render.
-	  * Expressed in number of lines above lineRenderTop.
+	  * Expressed in number of lines since start of frame.
 	  */
 	int nextY;
 

@@ -3,7 +3,6 @@
 /*
 TODO:
 - Use GL display lists for geometry speedup.
-- Implement sprite pixels in Graphic 5.
 - Is it possible to combine dirtyPattern and dirtyColour into a single
   dirty array?
   Pitfalls:
@@ -963,89 +962,81 @@ void SDLGLRenderer::renderGraphic2Row(int row, int screenLine)
 }
 
 // TODO: Clean up this routine.
-void SDLGLRenderer::drawDisplay(int fromX, int fromY, int limitX, int limitY)
-{
-	if (fromX == limitX) return;
-	assert(fromX < limitX);
-	//PRT_DEBUG("DisplayPhase: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
-
-	int nrLines = limitY - fromY;
-	int minY = (fromY - lineRenderTop) * 2;
-	if (!(settings->getDeinterlace()->getValue()) &&
-	    vdp->isInterlaced() &&
-	    vdp->getEvenOdd()) {
-		minY++;
+void SDLGLRenderer::drawDisplay(
+	int fromX, int fromY,
+	int displayX, int displayY,
+	int displayWidth, int displayHeight
+) {
+	int screenY = (fromY - lineRenderTop) * 2;
+	if (!(settings->getDeinterlace()->getValue())
+	&& vdp->isInterlaced()
+	&& vdp->getEvenOdd()) {
+		// Display odd field half a line lower.
+		screenY++;
 	}
-	int maxY = minY + 2 * nrLines;
+	int screenLimitY = screenY + displayHeight * 2;
 
-	int leftBorder = translateX(getDisplayLeft());
-	int minX = translateX(fromX) - leftBorder;
-	assert(0 <= minX);
-	int maxX = translateX(limitX) - leftBorder;
+	// Render background lines:
+
+	int minX = displayX;
+	int maxX = displayX + displayWidth;
 	assert(maxX <= 512);
 
-	// Perform vertical scroll (wraps at 256).
-	byte line = fromY - vdp->getLineZero();
-	if (!vdp->getDisplayMode().isTextMode()) {
-		line += vdp->getVerticalScroll();
-	}
-
-	// Render background lines.
 	// TODO: Complete separation of character and bitmap modes.
 	glEnable(GL_TEXTURE_2D);
+	int leftBorder = translateX(getDisplayLeft());
 	DisplayMode mode = vdp->getDisplayMode();
 	if (mode.isBitmapMode()) {
 		if (mode.isPlanar()) {
-			renderPlanarBitmapLines(line, nrLines);
+			renderPlanarBitmapLines(displayY, displayHeight);
 		} else {
-			renderBitmapLines(line, nrLines);
+			renderBitmapLines(displayY, displayHeight);
 		}
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		// Which bits in the name mask determine the page?
-		bool deinterlaced = settings->getDeinterlace()->getValue() &&
-		                    vdp->isInterlaced() &&
-				    vdp->isEvenOddEnabled();
+		bool deinterlaced = settings->getDeinterlace()->getValue()
+			&& vdp->isInterlaced() && vdp->isEvenOddEnabled();
 		int pageMaskEven, pageMaskOdd;
 		if (deinterlaced) {
 			pageMaskEven = mode.isPlanar() ? 0x000 : 0x200;
 			pageMaskOdd  = pageMaskEven | 0x100;
 		} else {
-			pageMaskEven = pageMaskOdd  =
+			pageMaskEven = pageMaskOdd =
 				(mode.isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 		}
-		for (int y = minY; y < maxY; y += 2) {
+		for (int y = screenY; y < screenLimitY; y += 2) {
 			if (deinterlaced) {
-				int vramLine1 = (vram->nameTable.getMask() >> 7) & (pageMaskEven | line);
+				int vramLine1 = (vram->nameTable.getMask() >> 7) & (pageMaskEven | displayY);
 				GLDrawTexture(bitmapTextureIds[vramLine1], leftBorder, y+0, minX, maxX, 1);
-				int vramLine2 = (vram->nameTable.getMask() >> 7) & (pageMaskOdd  | line);
+				int vramLine2 = (vram->nameTable.getMask() >> 7) & (pageMaskOdd  | displayY);
 				GLDrawTexture(bitmapTextureIds[vramLine2], leftBorder, y+1, minX, maxX, 1);
 			} else {
-				int vramLine = (vram->nameTable.getMask() >> 7) & (pageMaskEven | line);
+				int vramLine = (vram->nameTable.getMask() >> 7) & (pageMaskEven | displayY);
 				GLDrawTexture(bitmapTextureIds[vramLine], leftBorder, y, minX, maxX, 2);
 			}
-			line++;	// wraps at 256
+			displayY = (displayY + 1) & 255;
 		}
 	} else {
 		switch (mode.getByte()) {
 		case DisplayMode::TEXT1:
 			// TODO: Render only part of the line.
-			renderText1(line, minY, nrLines);
+			renderText1(displayY, screenY, displayHeight);
 			break;
 		case DisplayMode::GRAPHIC2:
 		case DisplayMode::GRAPHIC3:
 			// TODO: Render only part of the line.
-			renderGraphic2(line, minY, nrLines);
+			renderGraphic2(displayY, screenY, displayHeight);
 			break;
 		default:
 			// TODO: Render only part of the line.
 			//       In this case, only part is plotted, but still full cache
 			//       lines are checked.
-			renderCharacterLines(line, nrLines);
+			renderCharacterLines(displayY, displayHeight);
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-			for (int y = minY; y < maxY; y += 2) {
-				GLDrawTexture(charTextureIds[line],
+			for (int y = screenY; y < screenLimitY; y += 2) {
+				GLDrawTexture(charTextureIds[displayY],
 					leftBorder, y, minX, maxX, 2 );
-				line++;	// wraps at 256
+				displayY = (displayY + 1) & 255;
 			}
 			break;
 		}
@@ -1056,7 +1047,7 @@ void SDLGLRenderer::drawDisplay(int fromX, int fromY, int limitX, int limitY)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glPixelZoom(2.0, 2.0);
-	for (int y = minY; y < maxY; y += 2) {
+	for (int y = screenY; y < screenLimitY; y += 2) {
 		drawSprites(y, leftBorder, minX, maxX);
 	}
 	glDisable(GL_BLEND);

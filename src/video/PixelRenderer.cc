@@ -1,6 +1,7 @@
 // $Id$
 
 #include <sstream>
+#include <cassert>
 #include "PixelRenderer.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
@@ -28,9 +29,29 @@ inline void PixelRenderer::draw(
 	case DRAW_BORDER:
 		drawBorder(startX, startY, endX, endY);
 		break;
-	case DRAW_DISPLAY:
-		drawDisplay(startX, startY, endX, endY);
+	case DRAW_DISPLAY: {
+		// Calculate display coordinates.
+		// TODO: Passing startX in pixels instead of ticks
+		//       avoids tricky rounding problems.
+		int displayX = (startX - getDisplayLeft()) / 2;
+		int displayY = startY - vdp->getLineZero();
+		if (!vdp->getDisplayMode().isTextMode()) {
+			displayY += vdp->getVerticalScroll();
+		}
+		displayY &= 255; // Page wrap.
+		int displayWidth = (endX - (startX & ~1)) / 2;
+		int displayHeight = endY - startY;
+		
+		assert(0 <= displayX);
+		assert(displayX + displayWidth <= 512);
+		
+		drawDisplay(
+			startX, startY,
+			displayX, displayY,
+			displayWidth, displayHeight
+			);
 		break;
+	}
 	default:
 		assert(false);
 	}

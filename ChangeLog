@@ -1,5 +1,8 @@
 $Id$
 
+2003-04-16 Maarten ter Huurne <maarten@treewalker.org>
+	* Moved display coordinate calculation from subclasses to PixelRenderer.
+
 2003-04-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Reworked SCC
 	   - Manuel Pazos's SCC detection routine works correctly now
