@@ -70,7 +70,7 @@ You can also download the emulator itself from there.
 openMSX is in alpha state, which means that some things work but not all
 features are implemented yet.
 Many emulation features are implemented, but in terms of user interface
-it is rather bare bones.
+it is rather bare bones, unless you use the optional Graphical User Interface dubbed openMSX Catapult.
 However, since the emulation is already pretty good,
 it would be nice if non-insiders would be able to play with it, too.
 For those people, we have written this guide.
@@ -79,16 +79,15 @@ i.e. how to get the sources and compile them.
 </p>
 
 <p>
-This guide describes how you can get the openMSX sources and compile them
-on a Linux machine.
-Linux is the OS used by most openMSX developers.
+This guide describes how you can get the openMSX sources and compile them.
+Linux is the OS used by most openMSX developers, so it should definitely work on that platform. It should also compile and run on FreeBSD 4 and 5, but this is not tested very frequently.
 Compilation on Windows is also possible, but not described in this manual. Instead, we just provide binaries for that platform, since end users are not interested in compiling it anyway, most of the time. Compilation on Mac OS X is reported to work, but openMSX does not run flawlessly on that platform yet.
-Running on BSD, Solaris, BeOS etc (wherever SDL runs) should be possible,
+Running on other types of BSD, Solaris, BeOS etc (wherever SDL runs) should be possible,
 but will probably not work out-of-the-box.
 If you are compiling on such a platform,
 please share your experiences
 (see below for <a class="internal" href="#contact">contact info</a>),
-so we can make openMSX more portable. Also contact us if you're interested in how to compile on the Win32 platform.
+so we can make openMSX more portable. Also contact us if you're interested in how to compile on the Win32 platform. In any case, the build procedure does not depend on the platform, so it should work on all supported platforms.
 </p>
 
 <p>
@@ -122,6 +121,12 @@ only the big picture.
 </p>
 
 <dl>
+
+<dt>2004-04-21: Manuel Bilderbeek</dt>
+<dd>
+Updates for release 0.4.0.
+The compilation method has changed quite much.
+</dd>
 
 <dt>2004-01-16: Manuel Bilderbeek</dt>
 <dd>
@@ -189,7 +194,7 @@ Also there may be changes that are not documented yet.
 A snapshot is created from a recent CVS checkout,
 in a <code>tar.gz</code> archive.
 A snapshot is therefore quite similar to a CVS checkout,
-but it doesn't require you to install and use CVS.
+but it doesn't require you to install and use CVS. It may lag a couple of days from the latest CVS sources.
 </dd>
 
 </dl>
@@ -218,7 +223,7 @@ You can find the Compilation Guide in the directory
 You can download a released version of openMSX from
 <a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=38274"
 >the download page at SourceForge</a>.
-The latest version is probably the best one.
+The latest version is probably the best one. This guide assumes that you are using the latest release.
 </p>
 
 <p>
@@ -345,33 +350,13 @@ you probably have these installed already.
 
 <dt>make</dt>
 <dd>GNU implementation of the Make tool.
-Make interprets rules that define how a project should be built.</dd>
+Make interprets rules that define how a project should be built.
+At least version 3.79 and higher should suffice.</dd>
 
 <dt>g++</dt>
 <dd>The GNU C++ compiler.
-Version 3.2 or 3.3 is recommended;
+Version 3.3 or 3.2 is recommended;
 2.95 is not supported anymore since 0.3.3CVS.</dd>
-
-</dl>
-
-<p>
-If you want to install source from CVS, you need the GNU Automake utilities.
-This includes the following packages:
-</p>
-
-<dl>
-
-<dt>automake</dt>
-<dd>A tool for generating (GNU Standard compliant) Makefiles.</dd>
-
-<dt>autoconf</dt>
-<dd>Automatic configure script builder.</dd>
-
-<dt>libtool</dt>
-<dd>Generic library support script.</dd>
-
-<dt>m4</dt>
-<dd>A macro processing language.</dd>
 
 </dl>
 
@@ -429,7 +414,7 @@ Furthermore, you need the XML library and the PNG library:
 </dl>
 
 <p>
-The current (CVS) version of openMSX also needs TCL 8.4:
+Finally you will also need TCL 8.4:
 </p>
 
 <dl>
@@ -443,10 +428,10 @@ If you want to use this, make sure you have both the runtime and development
 packages for OpenGL installed.
 If you have an nVidia card, go to the
 <a class="external" href="http://www.nvidia.com/linux">nVidia web site</a>
-for drivers, which include an OpenGL implementation.
+for drivers, which include an OpenGL implementation. Ati users can check out the <a class="external" href="http://www.ati.com/support/faq/linux.html">Ati web site</a> for drivers.
 For other cards, try Mesa, which can be found in packages like
-<code>xlibmesa3</code> and <code>xlibmesa-dev</code> (Debian)
-or <code>XFree86-GLX</code> and <code>XFree86-GLX-devel</code> (SuSE).
+<code>xlibmesa-gl</code> and <code>xlibmesa-gl-dev</code> (Debian)
+or <code>XFree86-GLX</code> and <code>XFree86-GLX-devel</code> (SUSE).
 </p>
 
 <h3><a id="compilenow">3.3. Compilation Itself</a></h3>
@@ -454,74 +439,84 @@ or <code>XFree86-GLX</code> and <code>XFree86-GLX-devel</code> (SuSE).
 <p>
 Now that all the necessary tools and libraries are installed,
 you are almost ready to start the actual compilation of openMSX.
-First, we have to configure the build for your system configuration.
-Open a shell and go to the top of your openMSX source tree.
 </p>
 
 <p>
-If you got the openMSX sources from a CVS checkout or snapshot,
-run the following script:
+The first thing you may want to know is that you can build openMSX in
+different flavours. The default flavour for each platform will
+probably OK for most cases. For the Linux-on-x86 platform the default
+flavour is "i686": i.e., with optimisations for Pentium II and higher,
+without any debugging stuff. If you are a tester, you should set the
+flavour to "devel", like this:
 </p>
 <div class="commandline">
-./autogen.sh
+export OPENMSX_FLAVOUR=devel
 </div>
 <p>
-This will generate the <code>configure</code> script
-and other files required for building.
-If you downloaded a release, those files are already present,
-so you can skip this step.
+This will enable debugging symbols and asserts. Although the default
+flavours will probably be OK for most cases, you may want to write a
+specific flavour for your particular wishes. Check out the examples in
+the <code>build</code> directory.
 </p>
 
 <p>
-Now it's time for the <code>configure</code> script to probe
-the system configuration.
-Just type the following command:
+Now, we have the option to let a script check if you have indeed all
+necessary libraries and headers installed.
+Open a shell and go to the top of your openMSX source tree and run the following script:
 </p>
 <div class="commandline">
 ./configure
 </div>
 <p>
-If you have a Pentium II or higher machine, instead run it like this:
-</p>
-<div class="commandline">
-./config-i686.sh
-</div>
-<p>
-This will let openMSX compile with optimisations for your system's CPU.
+This script will report what versions of libraries you have installed.
+After it is finished you can see if you want to install the missing
+ones, if applicable. If the script reports that it can't build the
+openMSX core, you should install the missing ones before you can
+continue. Otherwise, you can choose to continue anyway, with some
+missing features (e.g.: the OpenGL renderer). If you know for sure
+that everything is OK, you may omit this step. It will run
+automatically in the next step anyway, but when running it separately
+you can see if you're missing any optional libraries.
 </p>
 
 <p>
-You will see loads of configuration checks scroll by,
-most of it you can just ignore.
-However, if <code>configure</code> complains about missing libraries,
-you should install them before you can go on.
-If this doesn't solve the problem,
+If installing the correct libraries doesn't help,
 <a class="internal" href="#contact">contact the openMSX developers</a>.
-If you file a bug report, please attach the <code>config.log</code> file
-that is written by the <code>configure</code> script.
+If you file a bug report, please attach the <code>probe.log</code> file
+that is written by the <code>configure</code> script in the directory
+<code>derived/[PLATFORM]-[FLAVOUR]/config/</code>.
 </p>
 
+
+<!--
 <p>
 You can set various compilation parameters using <code>configure</code>.
 The following command prints a full list:
 </p>
 <div class="commandline">
-./configure --help
+./configure - -help
 </div>
 <p>
 For example, you can change the installation directory
 (default is <code>/opt/openMSX</code>) by running for example:
 </p>
 <div class="commandline">
-./configure --prefix=/usr/local/openMSX
+./configure - -prefix=/usr/local/openMSX
 </div>
 <p>
 If you are installing openMSX on a system on which you do not have
-superuser (root) privileges, you can use the <code>--prefix</code>
+superuser (root) privileges, you can use the <code>- -prefix</code>
 option to install into your home directory.
 In this case, use the full <code>/home/username/openMSX</code> path,
 instead of <code>~/openMSX</code>,
 because the Makefiles do not handle tilde expansion properly.
+</p>
+
+-->
+<p class="todo">
+Add explanation about how to change the installation directory and
+possibly how to disable or enable certain features, if the build
+system would support that.
 </p>
 
 <p>
@@ -558,29 +553,17 @@ make install
 </div>
 <p>
 This installs openMSX, by default in <code>/opt/openMSX</code>.
-You can override this location by specifying <code>--prefix=location</code>
-to <code>configure</code> or <code>config-i686.sh</code>.
+<!--
+You can override this location by specifying <code>- -prefix=location</code>
+to <code>configure</code> or <code>config-i686.sh</code>.-->
 Note that only root has rights to write to system-wide directories such as
 <code>/opt</code>,
 so you may have to do <code>su</code> before <code>make install</code>.
 </p>
 
 <p>
-The binary of the latest version is about 36MB,
-most of which is debugging symbols.
-If you don't plan on any debugging and want a smaller executable,
-you can "strip" the binary.
-Stripping a binary of debugging symbols decreases its size significantly;
-the openMSX binary will be reduced to under 2MB.
-Instead of running <code>make install</code>, run:
-</p>
-<div class="commandline">
-make install-strip
-</div>
-
-<p>
 If you want an even smaller binary,
-then after <code>make install-strip</code>
+then the one you get with the "i686" flavour,
 you can run <code>gzexe</code> on the binary:
 </p>
 <div class="commandline">
@@ -607,7 +590,7 @@ openmsx
 You should get a screen similar to this:
 </p>
 <div class="commandline"><pre>
-C-BIOS ver 0.16
+C-BIOS ver 0.17
 Copyright (C) 2002-2003 BouKiCHi
 
         Cartridge not found.
@@ -633,7 +616,7 @@ openmsx ~/msx/games/my-favourite-game.rom
 The next step would be to read the
 <a class="external" href="setup.html">openMSX Setup Guide</a>.
 That document describes how you can configure openMSX to emulate
-actual MSX machines, such as the Panasonic FS-A1GT (turbo R).
+actual MSX machines, such as the Panasonic FS-A1GT (turboR).
 It also describes how you can have openMSX start up with your
 personal settings, how you can configure openMSX and your system
 for optimal performance and several other configuration related

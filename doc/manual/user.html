@@ -183,7 +183,7 @@ Original text written as part of the openMSX HOWTO.
 <h2><a id="starting">2. Starting the Emulator</a></h2>
 
 <p>
-If you start openMSX without any command line parameters, you will get the default machine, which you have set up in <code>settings.xml</code>, see <a class="external" href="setup.html">Setup Guide</a>. When you use the shipped file, this means you will get a machine that uses C-BIOS. In this chapter we will tell you how to use other machines and how to use extensions.
+If you start openMSX without any command line parameters, you will get the default machine, which you have set up in <code>settings.xml</code>, see the <a class="external" href="setup.html">Setup Guide</a>. When you use the shipped file, this means you will get a machine that uses C-BIOS. In this chapter we will tell you how to use other machines and how to use extensions.
 </p>
 
 <h3><a id="machines">2.1. Machines</a></h3>
@@ -242,7 +242,7 @@ for the specified command.
 This manual describes a few important commands;
 a full list can be found in the file <code>doc/commands.txt</code>.
 The console is mostly used to change disk images, plug in joysticks or mice,
-change settings and to change key bindings.
+change settings at run time and to change key bindings.
 </p>
 
 <p>
@@ -265,7 +265,7 @@ You can reset your MSX with the Console command <code>reset</code> and quit open
 
 <p>
 An interesting console command is <code>set</code>. You can use it to change the various
-settings. E.g., you can use it to set the renderer that is to be used. If you use it without parameters, you will get a list of settings. If you issue set with only the setting (like <code>set renderer</code>), you will get the current value of that setting.
+settings. E.g., you can use it to set the current renderer. <!-- If you use it without parameters, you will get a list of settings.--> If you issue set with only the setting (like <code>set renderer</code>), you will get the current value of that setting.
 Settings that have only two possible values can also be toggled with the <code>toggle</code>
 command (an example is the default key binding of Print Screen to <code>toggle
 fullscreen</code>, see also below). A complete list of settings should also be in the file
@@ -287,8 +287,13 @@ speed 120</code>, will let the emulated MSX run at 120% of normal MSX speed. Thi
 </p>
 
 <p>
-If you got the MSX sped up to maximum (<code>set throttle off</code>), but openMSX is still not going fast enough for you, you can increase the frameskip setting: <code>set
-frameskip 10</code> will mean that openMSX draws only 1 out of 10 screens to be displayed. Of course this makes emulation a lot less accurate.
+If you got the MSX sped up to maximum (<code>set throttle off</code>), but
+openMSX is still not going fast enough for you, you can increase the
+maxframeskip setting: <code>set frameskip 10</code> will mean that openMSX may
+skip 10 screens to be displayed, just to get to the requested speed. Note that
+you can also <em>force</em> openMSX to skip frames, with the minframeskip setting. This
+sets the amount of frames that will be skipped always. Of course frame skipping
+makes emulation a lot less accurate.
 </p>
 
 <p>
@@ -362,7 +367,7 @@ extremely slow computer.
 <p>
 You can set the renderer in the <code>settings.xml</code> file. Look for <code>&lt;config
 id="renderer"&gt;</code>.  You can also specify there whether the emulator should switch
-to full screen when started. You can also switch renderer from the console.
+to full screen when started. Of course all of this can also be changed at run time via the console.
 </p>
 
 <h4><a id="accuracy">3.3.3. Renderer Accuracy</a></h4>
@@ -585,7 +590,7 @@ The default key mapping is as follows:
 Make the table look better by using cellpadding stuff in the css.
 </p>-->
 <p>
-The keys that do not map MSX keys, can be changed in the <code>settings.xml</code> file, see the <a class="external" href="setup.html">Setup Guide</a>.
+The keys that do not map MSX keys, can be changed in the <code>init.tcl</code> file by adding "bind" commands, see the <a class="external" href="setup.html">Setup Guide</a>.
 </p>
 
 <h3><a id="joystick">5.2. Joystick</a></h3>
@@ -603,7 +608,7 @@ To connect a fake joystick (emulated with the arrow keys), you can use this <cod
     plug joyporta keyjoystick
 </div>
 <p>
-will connect a fake joystick to joystick port A. Button A of the joystick is mapped to the space bar and Button B to Left-Alt (GRAPH), when using the default configuration. For now there can be only one keyjoystick. Note that it only works if it is configured in <code>settings.xml</code>. This is of course done in the settings file that comes with openMSX. Feel free to change the configuration there.
+will connect a fake joystick to joystick port A. Button A of the joystick is mapped to the space bar and Button B to Left-Alt (GRAPH), when using the default configuration. For now there can be only one keyjoystick. Note that it only works if it is configured in <code>settings.xml</code>. This is of course done in the settings file that ships with openMSX. Feel free to change the configuration there.
 </p>
 
 <h3><a id="mouse">5.3. Mouse</a></h3>

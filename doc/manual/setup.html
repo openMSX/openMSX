@@ -37,7 +37,9 @@
 	<li><a class="internal" href="#tuning">6. Performance Tuning</a>
 		<ol class="toc">
 			<li><a class="internal" href="#slow">6.1. If openMSX Runs Slow</a></li>
+			<!--
 			<li><a class="internal" href="#linuxrtc">6.2. Timing using the Real Time Clock (Linux)</a></li>
+			-->
 		</ol>
 	</li>
 	<li><a class="internal" href="#contact">7. Contact Info</a></li>
@@ -122,6 +124,11 @@ only the big picture.
 
 <dl>
 
+<dt>2004-04-25: Manuel Bilderbeek</dt>
+<dd>
+Various updates for version 0.4.0.
+</dd>
+
 <dt>2003-09-21: Maarten ter Huurne</dt>
 <dd>
 Split the Setup Guide off from the openMSX HOWTO.
@@ -167,8 +174,8 @@ you also need the system ROMs for that machine.
 See the <a class="internal" href="#systemroms">next chapter</a> for more
 information on system ROMs.
 You can also create your own machine descriptions,
-to expand existing MSX models or to create your own fantasy MSX.
-More about that in a
+to expand existing MSX models or to create your own fantasy MSX. There is currently one such a fantasy MSX configuration that is based on a real MSX shipped with openMSX. It is called "Boosted_MSX2_EN", since it is a European MSX2 with loads of hardware built in. You can find some more information about it in the README file which is in its directory <code>share/machines/Boosted_MSX2_EN</code>.
+More about creating fantasy MSX machines in a
 <a class="internal" href="#hardwareedit">later chapter</a>.
 </p>
 
@@ -182,12 +189,6 @@ You can find a lot of predefined extensions
 in the <code>share/extensions</code> directory.
 Some extensions need ROM images in order to run, similar to system ROMs.
 </p>
-
-<!--
-<p class="todo">
-Add explanation about Boosted configs and refer to the README file in their directories.
-</p>
--->
 
 <h2><a id="systemroms">3. System ROMs</a></h2>
 
@@ -338,8 +339,8 @@ Whatever you decide, is your own responsibility.
 In the file <code>share/settings.xml</code> you can specify
 your user preferences.
 These will be loaded every time openMSX starts.
-Note for Linux users: it is convenient to use the file
-<code>~/.openMSX/share/settings.xml</code> to store your custom settings,
+Note: it is convenient to use the file
+<code>~/.openMSX/share/settings.xml</code> (UNIX) or <code>My Documents\openMSX\share\settings.xml</code> (Windows) to store your custom settings,
 instead of editing <code>settings.xml</code> in the openMSX installation
 directory.
 </p>
@@ -367,18 +368,23 @@ See the "FileTypes" section of the file.
 </p>
 
 <p>
-A special section is <code>AutoCommands</code>.
-Here you can list console commands that will be executed
-when openMSX starts up.
-By using the <code>set</code> command you can modify the runtime settings
-of openMSX.
-By using the <code>bind</code> command you can create custom key bindings.
-</p>
-
-<p>
 There are more settings you can make using this file. Just look at the file
 after you have a little more experience with openMSX and the comments in it
 will tell you what everything means.
+</p>
+
+<p>
+Previous versions of openMSX also had an <code>AutoCommands</code>
+section in the <code>settings.xml</code> file. This has been replaced
+by an <code>init.tcl</code> file, since the commands are now processed
+by the embedded TCL scripting language. This file can be placed in
+exactly the same directories as the <code>settings.xml</code> file.
+Anyway, use <code>init.tcl</code> to specify commands that should be
+executed at openMSX start up. By using the <code>set</code> command you can modify the runtime settings
+of openMSX.
+By using the <code>bind</code> command you can create custom key bindings.
+Note that you can put any TCL command there, so,
+you can also use it to specify aliases, for example.
 </p>
 
 <h2><a id="hardwareedit">5. Writing Machine Descriptions</a></h2>
@@ -403,8 +409,9 @@ You can modify an MSX machine (e.g. to add devices) by editing the XML config
 file. So, let's make a copy of <code>machines/Philips_NMS_8250/hardwareconfig.xml</code> and
 put it in <code>machines/mymsx/</code> under the name of <code>hardwareconfig.xml</code>.
 It's the config we are going to play with; our custom MSX.
-Note for Linux users: it is convenient to use the directory
-<code>~/.openMSX/share/machines</code> to store your home-made machines,
+Note: it is convenient to use the directory
+<code>~/.openMSX/share/machines</code> (UNIX) or <code>My
+Documents\openMSX\share\machines</code> (Windows) to store your home-made machines,
 instead of the openMSX installation directory.
 </p>
 
@@ -419,13 +426,13 @@ fragments from other existing configurations that can be found in
 </p>
 
 <p>
-To add an FM PAC to the 8250, just copy this part from the <code>exampleconfigs.xml</code> to
+To add an FM-PAC to the 8250, just copy this part from the <code>exampleconfigs.xml</code> to
 some place in your <code>mymsx/hardwareconfig.xml</code> file (between the <code>&lt;msxconfig&gt;</code> and
 <code>&lt;/msxconfig&gt;</code> tags!):
 </p>
 
 <pre>
-  &lt;device id="FM PAC"&gt;
+  &lt;device id="FM-PAC"&gt;
     &lt;type&gt;FM-PAC&lt;/type&gt;
     &lt;slotted&gt; &lt;ps&gt;2&lt;/ps&gt; &lt;ss&gt;0&lt;/ss&gt; &lt;page&gt;1&lt;/page&gt; &lt;/slotted&gt;
     &lt;parameter name="filename"&gt;roms/fmpac.rom&lt;/parameter&gt;
@@ -448,7 +455,8 @@ MotherBoard config part at the top of the config file says what slots are
 expanded; a normal 8250 has slot 3 expanded.)
 The parameter filename can be adjusted to the name of your (64kB!) FM-PAC ROM
 file (note: if the file is not 64kB (65536 bytes) in size, it won't work).
-"mode" says to what channel the FM-PAC's sound will be routed.
+"mode" says to what channel the FM-PAC's sound will be routed by
+default.
 "sramname" specifies the file name for file in which the SRAM contents will be
 saved to or loaded from. The saved files are compatible with the files that are
 saved by the (real) FM-PAC commander's save option.
@@ -456,7 +464,7 @@ saved by the (real) FM-PAC commander's save option.
 
 <p>
 After saving your config and running openMSX again, you should be able to get
-the FM PAC commander with <code>CALL FMPAC</code> in the emulated MSX!
+the FM-PAC commander with <code>CALL FMPAC</code> in the emulated MSX!
 </p>
 
 <p>
@@ -507,7 +515,8 @@ Make sure there are no CPU or I/O heavy background processes is running.
 Downloads, distributed calculation efforts, search indexers etc may grab
 the CPU from time to time, leaving less time for openMSX to do its job.
 Even if they only do so only once in a while, it may be enough to cause
-emulation to stutter.
+emulation to stutter. Some peer-to-peer programs are good examples of
+this.
 </li>
 <li>
 The SDLGL renderer needs hardware acceleration to run at a decent speed.
@@ -526,10 +535,11 @@ Pixel accuracy takes a lot of overhead, while it is only really needed
 for a couple of demos (Unknown Reality, Verti).
 </li>
 <li>
-Turn on frame skip ("set frameskip auto").
+Increase the number of frames that may be skipped ("set maxframeskip 10", for example).
 </li>
 <li>
-Use the low-res SDLLo renderer (75% less pixels to fill).
+Use the low-res SDLLo renderer (75% less pixels to fill). For most
+games (and any MSX1 software) it works perfectly, especially when using full screen.
 </li>
 <li>
 Use a lower sound mixing frequency, for example 22050Hz instead of 44100Hz.
@@ -539,6 +549,8 @@ Use less sound channels, for example use MSX-MUSIC (maximum 9 channels)
 instead of MoonSound (maximum 18+24 channels).
 </li>
 </ul>
+
+<!--
 
 <h3><a id="linuxrtc">6.2. Timing using the Real Time Clock (Linux)</a></h3>
 
@@ -569,6 +581,8 @@ the RTC to generate interrupts at frequencies up to 1024Hz.
 openMSX will try to use RTC timing by default, but if that fails,
 it prints a warning and falls back to the less accurate SDL timing.
 </p>
+
+-->
 
 <h2><a id="contact">7. Contact Info</a></h2>
 
