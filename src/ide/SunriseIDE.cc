@@ -115,8 +115,6 @@ static byte reverse(byte a)
 
 void SunriseIDE::writeControl(byte value)
 {
-	PRT_DEBUG("IDE write control: " << (int)value);
-	
 	if (ideRegsEnabled != (value & 1)) {
 		ideRegsEnabled = value & 1;
 		MSXCPU::instance().invalidateMemCache(0x3C00, 0x0300);
@@ -149,13 +147,13 @@ byte SunriseIDE::readDataHigh(const EmuTime& /*time*/)
 word SunriseIDE::readData(const EmuTime& time)
 {
 	word result = device[selectedDevice]->readData(time);
-	PRT_DEBUG("IDE read data: 0x" << std::hex << int(result) << std::dec);
+	//PRT_DEBUG("IDE read data: 0x" << std::hex << int(result) << std::dec);
 	return result;
 }
 
 byte SunriseIDE::readReg(nibble reg, const EmuTime& time)
 {
-	PRT_DEBUG("IDE read reg: " << (int)reg);
+	//PRT_DEBUG("IDE read reg: " << (int)reg);
 	byte result;
 	if (reg == 14) {
 		// alternate status register

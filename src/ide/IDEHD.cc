@@ -203,7 +203,6 @@ word IDEHD::readData(const EmuTime& /*time*/)
 		// everything read
 		setTransferRead(false);
 		statusReg &= ~0x08;	// DRQ
-		PRT_DEBUG("IDEHD: read sector done");
 	}
 	return result;
 }
@@ -224,7 +223,6 @@ void IDEHD::writeData(word value, const EmuTime& /*time*/)
 			setError(0x44);
 			setTransferWrite(false);
 		}
-		PRT_DEBUG("IDEHD: written sector " << transferSectorNumber);
 		transferSectorNumber++;
 		transferPntr = (word*)buffer;
 	}
@@ -283,7 +281,6 @@ void IDEHD::executeCommand(byte cmd)
 	case 0x30: { // Write Sector
 		int sectorNumber = getSectorNumber();
 		int numSectors = getNumSectors();
-		PRT_DEBUG("IDEHD: write sector " << sectorNumber << " " << numSectors);
 		if ((sectorNumber + numSectors) > totalSectors) {
 			setError(0x14);
 			break;
@@ -298,7 +295,6 @@ void IDEHD::executeCommand(byte cmd)
 	case 0x20: { // Read Sector
 		int sectorNumber = getSectorNumber();
 		int numSectors = getNumSectors();
-		PRT_DEBUG("IDEHD: read sector " << sectorNumber << " " << numSectors);
 		if ((sectorNumber + numSectors) > totalSectors) {
 			setError(0x14);
 			break;
