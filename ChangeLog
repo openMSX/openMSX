@@ -3,6 +3,12 @@ $Id$
 2002-02-18 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* moved CPU related files to subdirectory
 
+2002-02-18 David Heremans <david.heremans@gnu-linux.net>
+	* added simple and a printerlogger.
+	  Two devices that are connect to the printerport on a real MSX.
+	  The first is a DAC to play samples, the other logs all the data
+	  that a printer would normally print.
+
 2002-02-17 Joost Yervante Damad <j.damad@qahwah.net>
 	* added atoll support for platforms that don't have
 	  that function [code taken from newlib, a libc for
