@@ -3,9 +3,10 @@ $Id$
 2001-09-21 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Z80/R800 separation cleaned up:
 	  only the class MSXCPU knows there are 2 CPU's, all other devices
-	  should talk to MSXCPU instead of MSXZ80 or MSXR800 (or ask
+	  should talk to MSXCPU instead of MSXZ80 or MSXR800 (nor ask
 	  MSXMotherBoard which CPU to talk to)
 	  Removed some code marked as "ugly hack"
+	* added support for Kanji ROM
 
 2001-09-19 Joost Yervante Damad <j.damad@qahwah.net>
 	* various small fixes around the code

@@ -1,12 +1,10 @@
 // $Id$
 
-//
-// Empty , just created to have a device for the factory and a general file for new developers
-//
 #include "MSXRom16KB.hh" 
+#include "MSXMotherBoard.hh"
 #include <string>
-#include "stdio.h"
-#include "stdlib.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 MSXRom16KB::MSXRom16KB()
 {

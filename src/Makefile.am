@@ -28,7 +28,8 @@ openmsx_SOURCES=openmsx.cc \
 	SoundDevice.hh \
 	MSXPSG.hh MSXPSG.cc AY8910.hh AY8910.cc \
 	JoystickPorts.hh JoystickPorts.cc JoystickDevice.hh \
-	DummyJoystick.hh DummyJoystick.cc
+	DummyJoystick.hh DummyJoystick.cc \
+	MSXKanji.hh MSXKanji.cc
 	
 
 # libxml++ and SDL

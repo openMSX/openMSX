@@ -70,4 +70,7 @@
   <device id="psg">
     <type>PSG</type>
   </device>
+  <device id="Kanji ROM">
+    <type>Kanji</type>
+  </device>
 </msxconfig>
