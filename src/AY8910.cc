@@ -38,6 +38,8 @@ void AY8910::reset()
 	random = 1;
 	outputA = outputB = outputC = 0;
 	outputN = 0xff;
+	periodA = periodB = periodC = periodN = periodE = 0;
+	countA  = countB  = countC  = countN  = countE  = 0;
 	for (int i=0; i<=15; i++) {
 		wrtReg(i, 0);
 	}

@@ -5,6 +5,7 @@ $Id$
 	  it is instantiated. Before this change it was possible that a
 	  MSXDevice (mostly singletons) was used before it could access its
 	  parameters.
+	* AY8910: fixed uninitialized variables
 
 2001-11-13 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* fixed HotKey: method find() returns a normal iterator, not an

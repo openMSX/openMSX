@@ -24,9 +24,9 @@ class MSXRealTime : public MSXDevice
 		~MSXRealTime(); 
 
 		/**
-.       .        * This is a singleton class. This method returns a reference
-.       .        * to the single instance of this class.
-.       .        */
+		 * This is a singleton class. This method returns a reference
+		 * to the single instance of this class.
+		 */
 		static MSXRealTime *instance();
 		
 		void reset();
@@ -35,8 +35,9 @@ class MSXRealTime : public MSXDevice
 		float getRealDuration(Emutime time1, Emutime time2);
 
 	private:
+		//TODO put these in config file
 		static const int SYNCINTERVAL    = 50;	// sync every 50ms
-		static const int MAX_CATCHUPTIME = 2000;	// max nb of ms overtime
+		static const int MAX_CATCHUPTIME = 1500;	// max nb of ms overtime
 		static const int MIN_REALTIME    = 40;	// min duration of interval
 	
 		static MSXRealTime *oneInstance;

@@ -72,7 +72,6 @@ void EventDistributor::signalEvent(SDL_Event &event)
 {
 	// TODO handling of SDL_QUIT should be done in a different class
 	if (event.type == SDL_QUIT) {
-		//TODO: more clean shutdown
 		Scheduler::instance()->stopScheduling();
 	}
 	// all (other) events are later handled synchronously, now just queue them

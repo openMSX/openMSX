@@ -71,9 +71,6 @@ void MSXMapperIO::writeIO(byte port, byte value, Emutime &time)
 	pageNum[port-0xfc] = value;
 }
 
-//void MSXMapperIO::saveState(std::ofstream &writestream);
-//void MSXMapperIO::restoreState(std::string &devicestring, std::ifstream &readstream);
-
 byte MSXMapperIO::getPageNum(int page)
 {
 	assert(page <= 3);

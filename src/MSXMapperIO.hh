@@ -12,7 +12,17 @@
 class MSXMapperIODevice
 {
 	public:
+		/**
+		 * Convert a previously written byte (out &hff,1) to a byte 
+		 * returned from an read operation (inp(&hff)).
+		 */
 		virtual byte convert(byte value) = 0;
+
+		/**
+		 * Every mapper registers itself with MSXMapperIO (not this class)
+		 * MSXMapperIO than calls this method. This can be used to influence
+		 * the result returned in convert().
+		 */
 		virtual void registerMapper(int blocks) = 0;
 };
 
@@ -21,9 +31,9 @@ class MSXMapperIO : public MSXDevice
 	public:
 		/**
 		 * Constructor.
-.       .        * This is a singleton class. Constructor may only be used
-.       .        * once in the class devicefactory
-.       .        */
+		 * This is a singleton class. Constructor may only be used
+		 * once in the class devicefactory
+		 */
 		MSXMapperIO(MSXConfig::Device *config);
 
 		/**
@@ -32,9 +42,9 @@ class MSXMapperIO : public MSXDevice
 		~MSXMapperIO();
 
 		/**
-.       .        * This is a singleton class. This method returns a reference
-.       .        * to the single instance of this class.
-.       .        */
+		 * This is a singleton class. This method returns a reference
+		 * to the single instance of this class.
+		 */
 		static MSXMapperIO *instance();
 		
 		byte readIO(byte port, Emutime &time);
@@ -43,9 +53,6 @@ class MSXMapperIO : public MSXDevice
 		void init();
 		void reset();
 		
-		//void saveState(std::ofstream &writestream);
-		//void restoreState(std::string &devicestring, std::ifstream &readstream);
-
 		void registerMapper(int blocks);
 		byte getPageNum(int page);
 	
