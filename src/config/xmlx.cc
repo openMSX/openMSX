@@ -1,6 +1,8 @@
 // $Id$
 
 #include <cassert>
+#include <algorithm>
+#include <libxml/uri.h>
 #include "StringOp.hh"
 #include "FileContext.hh"
 #include "ConfigException.hh"
@@ -304,13 +306,15 @@ void XMLElement::dump(string& result, unsigned indentNum) const
 	result += indent + '<' + getName();
 	for (Attributes::const_iterator it = attributes.begin();
 	     it != attributes.end(); ++it) {
-		result += ' ' + it->first + "=\"" + it->second + '"';
+		result += ' ' + it->first +
+		          "=\"" + XMLEscape(it->second) + '"';
 	}
 	if (children.empty()) {
 		if (data.empty()) {
 			result += "/>\n";
 		} else {
-			result += '>' + data + "</" + getName() + ">\n";
+			result += '>' + XMLEscape(data) + "</" +
+			          getName() + ">\n";
 		}
 	} else {
 		result += ">\n";
@@ -320,6 +324,24 @@ void XMLElement::dump(string& result, unsigned indentNum) const
 		}
 		result += indent + "</" + getName() + ">\n";
 	}
+}
+
+string XMLElement::XMLEscape(const string& str)
+{
+	xmlChar* buffer = xmlEncodeEntitiesReentrant(NULL, (const xmlChar*)str.c_str());
+	string result = (const char*)buffer;
+	// buffer is allocated in C code, soo we free it the C-way:
+	if (buffer != NULL) {
+		free(buffer);
+	}
+	return result;
+}
+
+string XMLElement::toTagName(const string& str)
+{
+	string result = str;
+	replace(result.begin(), result.end(), ' ', '_');
+	return result;
 }
 
 
@@ -348,18 +370,6 @@ void XMLDocument::handleDoc(xmlDocPtr doc)
 	}
 	init(xmlDocGetRootElement(doc));
 	xmlFreeDoc(doc);
-}
-
-
-string XMLEscape(const string& str)
-{
-	xmlChar* buffer = xmlEncodeEntitiesReentrant(NULL, (const xmlChar*)str.c_str());
-	string result = (const char*)buffer;
-	// buffer is allocated in C code, soo we free it the C-way:
-	if (buffer != NULL) {
-		free(buffer);
-	}
-	return result;
 }
 
 } // namespace openmsx

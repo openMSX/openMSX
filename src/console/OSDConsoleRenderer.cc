@@ -90,7 +90,8 @@ void OSDConsoleRenderer::initConsole()
 	XMLElement& config = SettingsConfig::instance().getCreateChild("console");
 
 	// font
-	XMLElement& fontElem = config.getCreateChild("consolefont", "");
+	XMLElement& fontElem = config.getCreateChild(
+		"consolefont", "skins/ConsoleFont.png");
 	fontSetting.reset(new FontSetting(*this, fontElem));
 	
 	// rows / columns
@@ -135,7 +136,8 @@ void OSDConsoleRenderer::initConsole()
 	updateConsoleRect(destRect);
 	
 	// background
-	XMLElement& backgroundElem = config.getCreateChild("consolebackground", "");
+	XMLElement& backgroundElem = config.getCreateChild(
+		"consolebackground", "skins/ConsoleBackground.png");
 	backgroundSetting.reset(new BackgroundSetting(*this, backgroundElem));
 }
 

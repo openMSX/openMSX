@@ -12,22 +12,22 @@
 #include "GlobalSettings.hh"
 #include "CommandArgument.hh"
 #include "CommandLineParser.hh"
+#include "IntegerSetting.hh"
+#include "BooleanSetting.hh"
 
 using std::remove;
 
 namespace openmsx {
 
 Mixer::Mixer()
-	: muteCount(0),
-	  cpu(MSXCPU::instance()),
-	  realTime(RealTime::instance()),
-	  settingsConfig(SettingsConfig::instance()),
-	  output(CliCommOutput::instance()),
-	  infoCommand(InfoCommand::instance()),
-	  muteSetting("mute", "(un)mute the emulation sound", false),
-	  masterVolume("master_volume", "master volume", 75, 0, 100),
-	  pauseSetting(GlobalSettings::instance().getPauseSetting()),
-	  soundDeviceInfo(*this)
+	: muteCount(0)
+	, cpu(MSXCPU::instance())
+	, realTime(RealTime::instance())
+	, settingsConfig(SettingsConfig::instance())
+	, output(CliCommOutput::instance())
+	, infoCommand(InfoCommand::instance())
+	, pauseSetting(GlobalSettings::instance().getPauseSetting())
+	, soundDeviceInfo(*this)
 {
 	init = false;
 	prevLeft = outLeft = 0;
@@ -36,9 +36,17 @@ Mixer::Mixer()
 	nbClipped = 0;
 #endif
 	
+	XMLElement& config = settingsConfig.getCreateChild("sound");
+	XMLElement& muteElem = config.getCreateChild("mute", "off");
+	muteSetting.reset(new BooleanSetting(
+		muteElem, "(un)mute the emulation sound"));
+	XMLElement& masterElem = config.getCreateChild("master_volume", "75");
+	masterVolume.reset(new IntegerSetting(
+		masterElem, "master volume", 0, 100));
+
 	infoCommand.registerTopic("sounddevice", &soundDeviceInfo);
-	muteSetting.addListener(this);
-	masterVolume.addListener(this);
+	muteSetting->addListener(this);
+	masterVolume->addListener(this);
 	pauseSetting.addListener(this);
 
 	if (!CommandLineParser::instance().wantSound()) {
@@ -46,13 +54,10 @@ Mixer::Mixer()
 	}
 	
 	// default values
-	int freq = 22050;
-	int samples = 512;
-	const XMLElement* config = settingsConfig.findChild("mixer");
-	if (config) {
-		freq = config->getChildDataAsInt("frequency", freq);
-		samples = config->getChildDataAsInt("samples", samples);
-	}
+	XMLElement& freqElem = config.getCreateChild("frequency", "44100");
+	XMLElement& samplesElem = config.getCreateChild("samples", "1024");
+	int freq = freqElem.getDataAsInt();
+	int samples = samplesElem.getDataAsInt();
 
 	SDL_AudioSpec desired;
 	desired.freq     = freq;
@@ -86,8 +91,8 @@ Mixer::~Mixer()
 	}
 	
 	pauseSetting.removeListener(this);
-	masterVolume.removeListener(this);
-	muteSetting.removeListener(this);
+	masterVolume->removeListener(this);
+	muteSetting->removeListener(this);
 	infoCommand.unregisterTopic("sounddevice", &soundDeviceInfo);
 }
 
@@ -104,25 +109,32 @@ int Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 		return 512;	// return a save value
 	}
 	
-	const string& name = device.getName();
+	const string& name = XMLElement::toTagName(device.getName());
 	SoundDeviceInfo info;
-	info.volumeSetting = new IntegerSetting(name + "_volume",
-			"the volume of this sound chip", 75, 0, 100);
+	XMLElement& config = settingsConfig.getChild("sound");
+	XMLElement& volumeElem = config.getCreateChild(name + "_volume", "75");
+	info.volumeSetting = new IntegerSetting(
+		volumeElem, "the volume of this sound chip", 0, 100);
 
-	EnumSetting<ChannelMode>::Map modeMap;
 	// once we're stereo, stay stereo. Once mono, stay mono.
 	// we could also choose not to offer any modeSetting in case we have
 	// a stereo mode initially. You can't query the mode then, though.
+	string defaultMode;
+	EnumSetting<ChannelMode>::Map modeMap;
 	if (mode == STEREO) {
-		modeMap["stereo"] = STEREO;
+		defaultMode = "stereo";
+		modeMap[defaultMode] = STEREO;
 	} else {
-		modeMap["mono"] = MONO;
+		defaultMode = "mono";
+		modeMap[defaultMode] = MONO;
 		modeMap["left"] = MONO_LEFT;
 		modeMap["right"] = MONO_RIGHT;
 	}
 	modeMap["off"] = OFF;
-	info.modeSetting = new EnumSetting<ChannelMode>(name + "_mode",
-		"the channel mode of this sound chip", mode, modeMap);
+	XMLElement& modeElem = config.getCreateChild(name + "_mode", defaultMode);
+	info.modeSetting = new EnumSetting<ChannelMode>(
+		modeElem, "the channel mode of this sound chip",
+		modeMap[defaultMode], modeMap);
 	
 	info.mode = mode;
 	info.normalVolume = (volume * 100 * 100) / (75 * 75);
@@ -138,7 +150,7 @@ int Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 	devices[mode].push_back(&device);
 	device.setSampleRate(audioSpec.freq);
 	device.setVolume((info.normalVolume * info.volumeSetting->getValue() *
-	                   masterVolume.getValue()) / (100 * 100));
+	                   masterVolume->getValue()) / (100 * 100));
 	unlock();
 
 	return audioSpec.samples;
@@ -312,8 +324,8 @@ void Mixer::muteHelper(int muteCount)
 
 void Mixer::update(const SettingLeafNode* setting)
 {
-	if (setting == &muteSetting) {
-		if (muteSetting.getValue()) {
+	if (setting == muteSetting.get()) {
+		if (muteSetting->getValue()) {
 			mute();
 		} else {
 			unmute();
@@ -324,8 +336,8 @@ void Mixer::update(const SettingLeafNode* setting)
 		} else {
 			unmute();
 		}
-	} else if (setting == &masterVolume) {
-		updateMasterVolume(masterVolume.getValue());
+	} else if (setting == masterVolume.get()) {
+		updateMasterVolume(masterVolume->getValue());
 	} else if (dynamic_cast<const EnumSetting<ChannelMode>* >(setting)) {
 		map<SoundDevice*, SoundDeviceInfo>::iterator it = infos.begin();
 		while (it != infos.end() && it->second.modeSetting != setting) {
@@ -348,7 +360,7 @@ void Mixer::update(const SettingLeafNode* setting)
 		assert(it != infos.end());
 		const SoundDeviceInfo& info = it->second;
 		it->first->setVolume(
-		     (masterVolume.getValue() * info.volumeSetting->getValue() *
+		     (masterVolume->getValue() * info.volumeSetting->getValue() *
 		      info.normalVolume) / (100 * 100));
 	} else {
 		assert(false);

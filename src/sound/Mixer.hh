@@ -10,11 +10,11 @@
 #include <SDL.h>
 #include <vector>
 #include <map>
+#include <memory>
 #include "EmuTime.hh"
-#include "IntegerSetting.hh"
-#include "BooleanSetting.hh"
 #include "SettingListener.hh"
 #include "InfoTopic.hh"
+#include "EnumSetting.hh"
 
 namespace openmsx {
 
@@ -25,6 +25,8 @@ class RealTime;
 class CliCommOutput;
 class InfoCommand;
 class VolumeSetting;
+class IntegerSetting;
+class BooleanSetting;
 
 class Mixer : private SettingListener
 {
@@ -102,7 +104,7 @@ private:
 		ChannelMode mode;
 		int normalVolume;
 		IntegerSetting* volumeSetting;
-		EnumSetting<ChannelMode> *modeSetting;
+		EnumSetting<ChannelMode>* modeSetting;
 	};
 	map<SoundDevice*, SoundDeviceInfo> infos;
 
@@ -121,8 +123,8 @@ private:
 	CliCommOutput& output;
 	InfoCommand& infoCommand;
 
-	BooleanSetting muteSetting;
-	IntegerSetting masterVolume;
+	auto_ptr<BooleanSetting> muteSetting;
+	auto_ptr<IntegerSetting> masterVolume;
 	BooleanSetting& pauseSetting;
 
 	int prevLeft, outLeft;

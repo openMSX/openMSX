@@ -54,7 +54,7 @@ void CliCommOutput::log(LogLevel level, const string& message)
 	
 	if (xmlOutput) {
 		cout << "<log level=\"" << levelStr[level] << "\">"
-		     << XMLEscape(message)
+		     << XMLElement::XMLEscape(message)
 		     << "</log>" << endl;
 	} else {
 		cout << levelStr[level] << ": " << message << endl;
@@ -70,7 +70,7 @@ void CliCommOutput::reply(ReplyStatus status, const string& message)
 
 	assert(xmlOutput);
 	cout << "<reply result=\"" << replyStr[status] << "\">"
-	     << XMLEscape(message)
+	     << XMLElement::XMLEscape(message)
 	     << "</reply>" << endl;
 }
 
@@ -85,7 +85,7 @@ void CliCommOutput::update(UpdateType type, const string& name, const string& va
 		if (!name.empty()) {
 			cout << " name=\"" << name << '\"';
 		}
-		cout << '>' << XMLEscape(value) << "</update>" << endl;
+		cout << '>' << XMLElement::XMLEscape(value) << "</update>" << endl;
 	} else {
 		cout << updateStr[type] << ": ";
 		if (!name.empty()) {

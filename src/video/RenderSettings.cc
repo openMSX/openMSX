@@ -12,7 +12,7 @@ namespace openmsx {
 RenderSettings::RenderSettings()
 {
 	XMLElement& config =
-		SettingsConfig::instance().getCreateChild("renderer");
+		SettingsConfig::instance().getCreateChild("video");
 
 	EnumSetting<Accuracy>::Map accMap;
 	accMap["screen"] = ACC_SCREEN;

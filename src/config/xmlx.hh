@@ -88,6 +88,8 @@ public:
 	string dump() const;
 	
 	static string makeUnique(const string& str);
+	static string XMLEscape(const string& str);
+	static string toTagName(const string& str);
 
 protected:
 	XMLElement();
@@ -118,11 +120,6 @@ private:
 	void handleDoc(xmlDocPtr doc);
 };
 
-
-/**
- * XML escape a string
- */
-string XMLEscape(const string& str);
 
 } // namespace openmsx
 

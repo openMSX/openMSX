@@ -1,5 +1,11 @@
 $Id$
 
+2004-09-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* renames in settings.xml:
+	    "renderer" section --> "video"
+	    "mixer"    section --> "sound"
+	* volume and mode (mono, stereo) settings are saved now
+
 2004-09-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Refactored settings:
 	   - creating saveable settings is easier now

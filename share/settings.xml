@@ -7,15 +7,15 @@
   <!-- The machine that is loaded if no machine is specified -->
   <DefaultMachine>cbios-msx2</DefaultMachine>
 
-  <!-- renderer settings: determines how openMSX outputs graphics -->
-  <renderer>
+  <!-- video settings: determines how openMSX outputs graphics -->
+  <video>
     <renderer>SDLHi</renderer>
-    <!-- <type>SDLGL</type> -->
+    <!-- <renderer>SDLGL</renderer> -->
     <fullscreen>false</fullscreen>
-  </renderer>
+  </video>
 
   <!-- Audio mixer settings -->
-  <mixer>
+  <sound>
     <!-- Sample frequency, if you need more speed: 22kHz should be enough for 
          normal MSX, 44.1kHz is for Moonsound -->
     <frequency>44100</frequency>
@@ -23,7 +23,7 @@
          use less samples if the tempo is very irregular.
     -->
     <samples>1024</samples>
-  </mixer>
+  </sound>
 
   <RTC>
     <mode>EmuTime</mode>
