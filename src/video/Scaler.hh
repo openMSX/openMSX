@@ -103,6 +103,15 @@ protected:
 	  */
 	static void copyLine(
 		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY );
+
+	/** Scales the given line a factor 2 horizontally.
+	  * @param src Source: surface to copy from.
+	  * @param srcY Line number on source surface.
+	  * @param dst Destination: surface to copy to.
+	  * @param dstY Line number on destination surface.
+	  */
+	static void scaleLine(
+		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY );
 };
 
 } // namespace openmsx

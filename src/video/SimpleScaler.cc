@@ -338,14 +338,66 @@ void SimpleScaler<Pixel>::scale512(
 	Uint32 bMask = format->Bmask;
 	int darkenFactor = 256 - scanlineAlpha;
 	const unsigned width = dst->w;
+	
+	const HostCPU cpu = HostCPU::getInstance();
 	while (srcY < endSrcY) {
 		Scaler<Pixel>::copyLine(src, srcY, dst, dstY++);
 		if (dstY == dst->h) break;
 		const Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY);
 		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstY++);
-		for (unsigned x = 0; x < width; x++) {
-			dstLine[x] = UniversalDarken::darken(
-				darkenFactor, rMask, gMask, bMask, srcLine[x] );
+		/*if (ASM_X86 && cpu.hasMMXEXT() && sizeof(Pixel) == 2) {
+			 TODO: Implement.
+		} else*/ if (ASM_X86 && cpu.hasMMXEXT() && sizeof(Pixel) == 4) {
+			asm (
+				// Precalc: mm6 = darkenFactor, mm7 = 0.
+				"movd	%0, %%mm6;"
+				"pxor	%%mm7, %%mm7;"
+				"punpcklwd	%%mm6, %%mm6;"
+				"punpckldq	%%mm6, %%mm6;"
+				"movq	%%mm6, %%mm4;"
+				"movq	%%mm7, %%mm5;"
+				
+				// Copy with darken.
+				"xorl	%%eax, %%eax;"
+			"0:"
+				// Load.
+				"movq	(%2,%%eax,4), %%mm0;"
+				"movq	%%mm0, %%mm1;"
+				// Darken and scale.
+				"punpcklbw %%mm7, %%mm0;"
+				"punpckhbw %%mm7, %%mm1;"
+				"pmullw	%%mm6, %%mm0;"
+				"pmullw	%%mm6, %%mm1;"
+				"psrlw	$8, %%mm0;"
+				"psrlw	$8, %%mm1;"
+				"packuswb %%mm1, %%mm0;"
+				//"packuswb %%mm1, %%mm1;"
+				// Store.
+				"movntq	%%mm0,  (%1,%%eax,4);"
+				//"movntq	%%mm1, 8(%1,%%eax,8);"
+				// Increment.
+				"addl	$2, %%eax;"
+				"cmpl	%3, %%eax;"
+				"jl	0b;"
+				
+				: // no output
+				: "mr" (darkenFactor) // 0
+				, "r" (dstLine) // 1
+				, "r" (srcLine) // 2
+				, "r" (width) // 3
+				: "mm0", "mm1", "mm2", "mm3", "mm6", "mm7"
+				, "eax"
+				);
+		// TODO: Test code, remove once we're satisfied all supported
+		//       compilers skip code generation here.
+		} else if (ASM_NOSUCHMACHINE) {
+			asm ("nosuchinstruction");
+		// End of test code.
+		} else {
+			for (unsigned x = 0; x < width; x++) {
+				dstLine[x] = UniversalDarken::darken(
+					darkenFactor, rMask, gMask, bMask, srcLine[x] );
+			}
 		}
 		srcY++;
 	}

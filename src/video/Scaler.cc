@@ -42,11 +42,81 @@ void Scaler<Pixel>::copyLine(
 	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY )
 {
 	assert(src->w == dst->w);
-	memcpy(
-		(byte*)linePtr(dst, dstY),
-		(byte*)linePtr(src, srcY),
-		dst->w * sizeof(Pixel)
-		);
+	byte* srcLine = (byte*)linePtr(src, srcY);
+	byte* dstLine = (byte*)linePtr(dst, dstY);
+	const int nBytes = dst->w * sizeof(Pixel);
+	const HostCPU cpu = HostCPU::getInstance();
+	if (ASM_X86 && cpu.hasMMXEXT()) {
+		asm (
+			"xorl	%%eax, %%eax;"
+		"0:"
+			// Load.
+			"movq	  (%0,%%eax), %%mm0;"
+			"movq	 8(%0,%%eax), %%mm1;"
+			"movq	16(%0,%%eax), %%mm2;"
+			"movq	24(%0,%%eax), %%mm3;"
+			// Store.
+			"movntq	%%mm0,   (%1,%%eax);"
+			"movntq	%%mm1,  8(%1,%%eax);"
+			"movntq	%%mm2, 16(%1,%%eax);"
+			"movntq	%%mm3, 24(%1,%%eax);"
+			// Increment.
+			"addl	$32, %%eax;"
+			"cmpl	%2, %%eax;"
+			"jl	0b;"
+			"emms;"
+			
+			: // no output
+			: "r" (srcLine) // 0
+			, "r" (dstLine) // 1
+			, "r" (nBytes) // 2
+			: "eax", "mm0", "mm1", "mm2", "mm3"
+			);
+	} else {
+		memcpy(dstLine, srcLine, nBytes);
+	}
+}
+
+template <class Pixel>
+void Scaler<Pixel>::scaleLine(
+	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY )
+{
+	const int width = 320; // TODO: Specify this in a clean way.
+	assert(dst->w == width * 2);
+	byte* srcLine = (byte*)linePtr(src, srcY);
+	byte* dstLine = (byte*)linePtr(dst, dstY);
+	const HostCPU cpu = HostCPU::getInstance();
+	if (ASM_X86 && cpu.hasMMXEXT()) {
+		asm (
+			"xorl	%%eax, %%eax;"
+		"0:"
+			// Load.
+			"movq	(%0,%%eax,4), %%mm0;"
+			"movq	%%mm0, %%mm1;"
+			// Scale.
+			"punpckldq %%mm0, %%mm0;"
+			"punpckhdq %%mm1, %%mm1;"
+			// Store.
+			"movntq	%%mm0,  (%1,%%eax,8);"
+			"movntq	%%mm1, 8(%1,%%eax,8);"
+			// Increment.
+			"addl	$2, %%eax;"
+			"cmpl	%2, %%eax;"
+			"jl	0b;"
+			"emms;"
+	
+			: // no output
+			: "r" (srcLine) // 0
+			, "r" (dstLine) // 1
+			, "r" (width) // 2
+			: "mm0", "mm1"
+			, "eax"
+			);
+	} else {
+		for (int x = 0; x < width; x++) {
+			dstLine[x * 2] = dstLine[x * 2 + 1] = srcLine[x];
+		}
+	}
 }
 
 template <class Pixel>
@@ -116,18 +186,11 @@ void Scaler<Pixel>::scale256(
 	SDL_Surface* src, int srcY, int endSrcY,
 	SDL_Surface* dst, int dstY )
 {
-	const int WIDTH = 320; // TODO: Specify this in a clean way.
-	assert(dst->w == WIDTH * 2);
 	while (srcY < endSrcY) {
-		const Pixel* srcLine = linePtr(src, srcY++);
-		Pixel* dstUpper = linePtr(dst, dstY++);
-		Pixel* dstLower =
-			dstY == dst->h ? dstUpper : linePtr(dst, dstY++);
-		for (int x = 0; x < WIDTH; x++) {
-			dstUpper[x * 2] = dstUpper[x * 2 + 1] =
-			dstLower[x * 2] = dstLower[x * 2 + 1] =
-				srcLine[x];
-		}
+		scaleLine(src, srcY, dst, dstY++);
+		if (dstY == dst->h) break;
+		scaleLine(src, srcY, dst, dstY++);
+		srcY++;
 	}
 }
 
