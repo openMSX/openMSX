@@ -262,8 +262,8 @@ void CommandConsole::combineLines(CircularBuffer<string, LINESHISTORY> &buffer,
                            CircularBuffer<bool, LINESHISTORY> &overflows,
                            bool fromTop)
 {
-	unsigned startline;
-	unsigned totallines = 0;
+	int startline;
+	int totallines = 0;
 	editLine = "";
 	
 	if (fromTop) {
@@ -272,23 +272,23 @@ void CommandConsole::combineLines(CircularBuffer<string, LINESHISTORY> &buffer,
 		       (overflows[startline - totallines])) {
 			totallines++;
 		}
-		for (unsigned i = startline; i >= startline-totallines; --i) {
+		for (int i = startline; i >= startline-totallines; --i) {
 			editLine += buffer[i];
 		}
-		for (unsigned i = 0; i < (totallines + 1); ++i) {
+		for (int i = 0; i < (totallines + 1); ++i) {
 			buffer.removeBack();
 			overflows.removeBack();
 		}
 	} else {
 		startline = 0;
-		while (((startline + totallines + 1) < buffer.size()) && 
+		while (((startline + totallines + 1) < (int)buffer.size()) && 
 		       (overflows[startline + totallines + 1])) {
 			totallines++;
 		}
-		for (unsigned i = totallines; i >= 0; --i) {
+		for (int i = totallines; i >= 0; --i) {
 			editLine += buffer[i];
 		}
-		for (unsigned i = 0; i < (totallines + 1); ++i) {
+		for (int i = 0; i < (totallines + 1); ++i) {
 			buffer.removeFront();
 			overflows.removeFront();
 		}
