@@ -55,8 +55,9 @@ const byte MAJ = 0x01;
 
 
 const byte MASK[4] = { 0x0F, 0x03, 0x0F, 0xFF };
-const int  PPB[4]  = { 2, 4, 2, 1 };
-const int  PPL[4]  = { 256, 512, 512, 256 };
+const byte PPB[4]  = { 2, 4, 2, 1 };
+const byte PPBS[4] = { 1, 2, 1, 0 };	// log2(PPB)
+const word PPL[4]  = { 256, 512, 512, 256 };
 
 //               Sprites:    On   On   Off  Off
 //               Screen:     Off  On   Off  On
@@ -318,15 +319,23 @@ VDPCmdEngine::VDPCmd::~VDPCmd()
 
 inline void VDPCmdEngine::VDPCmd::clipNX_SX()
 {
-	NX = (engine->ARG & DIX) ? min(NX, (word)(SX + 1)) : min(NX, (word)(MX - SX));
+	word MX = PPL[engine->scrMode];
+	NX = (engine->ARG & DIX) ? min(NX, (word)(engine->SX + 1)) :
+	                           min(NX, (word)(MX - engine->SX));
 }
-inline void VDPCmdEngine::VDPCmd::clipNX_DX()
+inline void VDPCmdEngine::VDPCmd::clipNX_DX(int ppbs)
 {
-	NX = (engine->ARG & DIX) ? min(NX, (word)(DX + 1)) : min(NX, (word)(MX - DX));
+	word MX = PPL[engine->scrMode];
+	NX = (engine->ARG & DIX) ?
+	     min((word)(NX >> ppbs), (word)((engine->DX >> ppbs) + 1)) :
+	     min((word)(NX >> ppbs), (word)((MX >> ppbs) - (engine->DX >> ppbs)));
 }
-inline void VDPCmdEngine::VDPCmd::clipNX_SXDX()
+inline void VDPCmdEngine::VDPCmd::clipNX_SXDX(int ppbs)
 {
-	NX = (engine->ARG & DIX) ? min(NX, (word)(min(SX, DX) + 1)) : min(NX, (word)(MX - max(SX, DX)));
+	word MX = PPL[engine->scrMode];
+	NX = (engine->ARG & DIX) ?
+	     min((word)(NX >> ppbs), (word)(min(engine->SX >> ppbs, engine->DX >> ppbs) + 1)) :
+	     min((word)(NX >> ppbs), (word)((MX >> ppbs) - max(engine->SX >> ppbs, engine->DX >> ppbs)));
 }
 inline void VDPCmdEngine::VDPCmd::clipNY_SY()
 {
@@ -503,11 +512,11 @@ void VDPCmdEngine::VDPCmd::updateTiming()
 		opsCount -= delta;
 
 // Loop over DX, DY.
-#define post__x_y(MX) \
+#define post__x_y() \
 		ADX += TX; \
 		if (--ANX == 0) { \
 			engine->DY += TY; --(engine->NY); \
-			ADX = DX; ANX = NX; \
+			ADX = engine->DX; ANX = NX; \
 			if (--NY == 0) { \
 				commandDone(); \
 				break; \
@@ -516,18 +525,17 @@ void VDPCmdEngine::VDPCmd::updateTiming()
 	}
 
 // Loop over SX, DX, SY, DY.
-#define post_xxyy(MX) \
+#define post_xxyy() \
 		ASX += TX; ADX += TX; \
 		if (--ANX == 0) { \
 			engine->SY += TY; engine->DY += TY; --(engine->NY); \
-			ASX = SX; ADX = DX; ANX = NX; \
+			ASX = engine->SX; ADX = engine->DX; ANX = NX; \
 			if (--NY == 0) { \
 				commandDone(); \
 				break; \
 			} \
 		} \
 	}
-
 
 // ABORT
 
@@ -618,9 +626,9 @@ void VDPCmdEngine::SrchCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.disable(currentTime);
-	SX = engine->SX;
 	TX = (engine->ARG & DIX) ? -1 : 1;
 	CL = engine->COL & MASK[engine->scrMode];
+	ASX = engine->SX;
 	ANX = (engine->ARG & EQ) != 0; // TODO: Do we look for "==" or "!="?
 }
 
@@ -637,25 +645,25 @@ void VDPCmdEngine::SrchCmd::execute(const EmuTime &time)
 		== CL) ^ ANX) { \
 			engine->status |= 0x10; /* Border detected */ \
 			commandDone(); \
-			engine->borderX = 0xFE00 | SX; \
+			engine->borderX = 0xFE00 | ASX; \
 			break; \
 		} \
-		if ((SX += TX) & MX) { \
+		if ((ASX += TX) & MX) { \
 			engine->status &= 0xEF; /* Border not detected */ \
 			commandDone(); \
-			engine->borderX = 0xFE00 | SX; \
+			engine->borderX = 0xFE00 | ASX; \
 			break; \
 		} \
 	}
 
 	switch (engine->scrMode) {
-	case 0: pre_srch point5(SX, engine->SY) post_srch(256)
+	case 0: pre_srch point5(ASX, engine->SY) post_srch(256)
 		break;
-	case 1: pre_srch point6(SX, engine->SY) post_srch(512)
+	case 1: pre_srch point6(ASX, engine->SY) post_srch(512)
 		break;
-	case 2: pre_srch point7(SX, engine->SY) post_srch(512)
+	case 2: pre_srch point7(ASX, engine->SY) post_srch(512)
 		break;
-	case 3: pre_srch point8(SX, engine->SY) post_srch(256)
+	case 3: pre_srch point8(ASX, engine->SY) post_srch(256)
 		break;
 	}
 }
@@ -679,7 +687,6 @@ void VDPCmdEngine::LineCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	DX = engine->DX;
 	NX = engine->NX;
 	engine->NY &= 1023;
 	NY = engine->NY;	// don't transform 0 -> 1024
@@ -688,7 +695,8 @@ void VDPCmdEngine::LineCmd::start(const EmuTime &time)
 	CL = engine->COL & MASK[engine->scrMode];
 	LO = engine->LOG;
 	ASX = ((NX - 1) >> 1);
-	ADX = 0;
+	ADX = engine->DX;
+	ANX = 0;
 }
 
 void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
@@ -698,14 +706,14 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 	int delta = LINE_TIMING[engine->timingValue];
 
 #define post_linexmaj(MX) \
-		DX += TX; \
+		ADX += TX; \
 		if (ASX < NY) { \
 			ASX += NX; \
 			engine->DY += TY; \
 		} \
 		ASX -= NY; \
 		ASX &= 1023; /* Mask to 10 bits range */ \
-		if (ADX++ == NX || (DX & MX)) { \
+		if (ANX++ == NX || (ADX & MX)) { \
 			commandDone(); \
 			break; \
 		} \
@@ -714,11 +722,11 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 		engine->DY += TY; \
 		if (ASX < NY) { \
 			ASX += NX; \
-			DX += TX; \
+			ADX += TX; \
 		} \
 		ASX -= NY; \
 		ASX &= 1023; /* Mask to 10 bits range */ \
-		if (ADX++ == NX || (DX & MX)) { \
+		if (ANX++ == NX || (ADX & MX)) { \
 			commandDone(); \
 			break; \
 		} \
@@ -727,25 +735,25 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 	if ((engine->ARG & MAJ) == 0) {
 		// X-Axis is major direction.
 		switch (engine->scrMode) {
-		case 0: pre_loop pset5(DX, engine->DY, CL, LO); post_linexmaj(256)
+		case 0: pre_loop pset5(ADX, engine->DY, CL, LO); post_linexmaj(256)
 			break;
-		case 1: pre_loop pset6(DX, engine->DY, CL, LO); post_linexmaj(512)
+		case 1: pre_loop pset6(ADX, engine->DY, CL, LO); post_linexmaj(512)
 			break;
-		case 2: pre_loop pset7(DX, engine->DY, CL, LO); post_linexmaj(512)
+		case 2: pre_loop pset7(ADX, engine->DY, CL, LO); post_linexmaj(512)
 			break;
-		case 3: pre_loop pset8(DX, engine->DY, CL, LO); post_linexmaj(256)
+		case 3: pre_loop pset8(ADX, engine->DY, CL, LO); post_linexmaj(256)
 			break;
 		}
 	} else {
 		// Y-Axis is major direction.
 		switch (engine->scrMode) {
-		case 0: pre_loop pset5(DX, engine->DY, CL, LO); post_lineymaj(256)
+		case 0: pre_loop pset5(ADX, engine->DY, CL, LO); post_lineymaj(256)
 			break;
-		case 1: pre_loop pset6(DX, engine->DY, CL, LO); post_lineymaj(512)
+		case 1: pre_loop pset6(ADX, engine->DY, CL, LO); post_lineymaj(512)
 			break;
-		case 2: pre_loop pset7(DX, engine->DY, CL, LO); post_lineymaj(512)
+		case 2: pre_loop pset7(ADX, engine->DY, CL, LO); post_lineymaj(512)
 			break;
-		case 3: pre_loop pset8(DX, engine->DY, CL, LO); post_lineymaj(256)
+		case 3: pre_loop pset8(ADX, engine->DY, CL, LO); post_lineymaj(256)
 			break;
 		}
 	}
@@ -796,9 +804,7 @@ void VDPCmdEngine::LmmvCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	DX = engine->DX;
-	MX = PPL[engine->scrMode];
-	NX = engine->NX ? engine->NX : MX;
+	NX = engine->NX ? engine->NX : PPL[engine->scrMode];
 	engine->NY &= 1023;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -1 : 1;
@@ -807,7 +813,7 @@ void VDPCmdEngine::LmmvCmd::start(const EmuTime &time)
 	LO = engine->LOG;
 	clipNX_DX();
 	clipNY_DY();
-	ADX = DX;
+	ADX = engine->DX;
 	ANX = NX;
 	calcFinishTime();
 }
@@ -821,19 +827,19 @@ void VDPCmdEngine::LmmvCmd::execute(const EmuTime &time)
 	switch (engine->scrMode) {
 	case 0: pre_loop
 		pset5(ADX, engine->DY, CL, LO);
-		post__x_y(256)
+		post__x_y()
 		break;
 	case 1: pre_loop
 		pset6(ADX, engine->DY, CL, LO);
-		post__x_y(512)
+		post__x_y()
 		break;
 	case 2: pre_loop
 		pset7(ADX, engine->DY, CL, LO);
-		post__x_y(512)
+		post__x_y()
 		break;
 	case 3: pre_loop
 		pset8(ADX, engine->DY, CL, LO);
-		post__x_y(256)
+		post__x_y()
 		break;
 	}
 }
@@ -852,10 +858,7 @@ void VDPCmdEngine::LmmmCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	SX = engine->SX;
-	DX = engine->DX;
-	MX = PPL[engine->scrMode];
-	NX = engine->NX ? engine->NX : MX;
+	NX = engine->NX ? engine->NX : PPL[engine->scrMode];
 	engine->NY &= 1023;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -1 : 1;
@@ -863,8 +866,8 @@ void VDPCmdEngine::LmmmCmd::start(const EmuTime &time)
 	LO = engine->LOG;
 	clipNX_SXDX();
 	clipNY_SYDY();
-	ASX = SX;
-	ADX = DX;
+	ASX = engine->SX;
+	ADX = engine->DX;
 	ANX = NX;
 	calcFinishTime();
 }
@@ -878,19 +881,19 @@ void VDPCmdEngine::LmmmCmd::execute(const EmuTime &time)
 	switch (engine->scrMode) {
 	case 0: pre_loop
 	        pset5(ADX, engine->DY, point5(ASX, engine->SY), LO);
-		post_xxyy(256)
+		post_xxyy()
 		break;
 	case 1: pre_loop
 		pset6(ADX, engine->DY, point6(ASX, engine->SY), LO);
-		post_xxyy(512)
+		post_xxyy()
 		break;
 	case 2: pre_loop
 		pset7(ADX, engine->DY, point7(ASX, engine->SY), LO);
-		post_xxyy(512)
+		post_xxyy()
 		break;
 	case 3: pre_loop
 		pset8(ADX, engine->DY, point8(ASX, engine->SY), LO);
-		post_xxyy(256)
+		post_xxyy()
 		break;
 	}
 }
@@ -909,16 +912,14 @@ void VDPCmdEngine::LmcmCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.disable(currentTime);
-	SX = engine->SX;
 	NX = engine->NX;
 	engine->NY &= 1023;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -1 : 1;
 	TY = (engine->ARG & DIY) ? -1 : 1;
-	MX = PPL[engine->scrMode];
 	clipNX_SX();
 	clipNY_SY();
-	ASX = SX;
+	ASX = engine->SX;
 	ANX = NX;
 	calcFinishTime();
 }
@@ -934,7 +935,7 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 		ASX += TX; --ANX;
 		if (ANX == 0) {
 			engine->SY += TY; --(engine->NY);
-			ASX = SX; ANX = NX;
+			ASX = engine->SX; ANX = NX;
 			if (--NY == 0) {
 				commandDone();
 			}
@@ -958,17 +959,15 @@ void VDPCmdEngine::LmmcCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	DX = engine->DX;
 	NX = engine->NX;
 	engine->NY &= 1023;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -1 : 1;
 	TY = (engine->ARG & DIY) ? -1 : 1;
-	MX = PPL[engine->scrMode];
 	LO = engine->LOG;
 	clipNX_DX();
 	clipNY_DY();
-	ADX = DX;
+	ADX = engine->DX;
 	ANX = NX;
 	calcFinishTime();
 }
@@ -986,7 +985,7 @@ void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
 		ADX += TX; --ANX;
 		if (ANX == 0) {
 			engine->DY += TY; --(engine->NY);
-			ADX = DX; ANX = NX;
+			ADX = engine->DX; ANX = NX;
 			if (--NY == 0) {
 				commandDone();
 			}
@@ -1010,20 +1009,16 @@ void VDPCmdEngine::HmmvCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	int ppb = PPB[engine->scrMode];
-	DX = engine->DX / ppb;
-	MX = PPL[engine->scrMode] / ppb;
-	NX = engine->NX / ppb;
-	NX = NX ? NX : MX;
+	NX = engine->NX;
+	NX = NX ? NX : PPL[engine->scrMode];
 	engine->NY &= 1023;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	TY = (engine->ARG & DIY) ? -1 : 1;
 	CL = engine->COL;
-	clipNX_DX();
+	clipNX_DX(PPBS[engine->scrMode]);
 	clipNY_DY();
-	DX *= ppb;
-	ADX = DX;
+	ADX = engine->DX;
 	ANX = NX;
 	calcFinishTime();
 }
@@ -1038,22 +1033,22 @@ void VDPCmdEngine::HmmvCmd::execute(const EmuTime &time)
 	case 0:
 		pre_loop
 		vram->cmdWrite(VDP_VRMP5(ADX, engine->DY), CL, currentTime);
-		post__x_y(256)
+		post__x_y()
 		break;
 	case 1:
 		pre_loop
 		vram->cmdWrite(VDP_VRMP6(ADX, engine->DY), CL, currentTime);
-		post__x_y(512)
+		post__x_y()
 		break;
 	case 2:
 		pre_loop
 		vram->cmdWrite(VDP_VRMP7(ADX, engine->DY), CL, currentTime);
-		post__x_y(512)
+		post__x_y()
 		break;
 	case 3:
 		pre_loop
 		vram->cmdWrite(VDP_VRMP8(ADX, engine->DY), CL, currentTime);
-		post__x_y(256)
+		post__x_y()
 		break;
 	}
 }
@@ -1072,22 +1067,16 @@ void VDPCmdEngine::HmmmCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	int ppb = PPB[engine->scrMode];
-	SX = engine->SX / ppb;
-	DX = engine->DX / ppb;
-	MX = PPL[engine->scrMode] / ppb;
-	NX = engine->NX / ppb;
-	NX = NX ? NX : MX;
+	NX = engine->NX;
+	NX = NX ? NX : PPL[engine->scrMode];
 	engine->NY &= 1023;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	TY = (engine->ARG & DIY) ? -1 : 1;
-	clipNX_SXDX();
+	clipNX_SXDX(PPBS[engine->scrMode]);
 	clipNY_SYDY();
-	SX *= ppb;
-	DX *= ppb;
-	ASX = SX;
-	ADX = DX;
+	ASX = engine->SX;
+	ADX = engine->DX;
 	ANX = NX;
 	calcFinishTime();
 }
@@ -1105,7 +1094,7 @@ void VDPCmdEngine::HmmmCmd::execute(const EmuTime &time)
 			VDP_VRMP5(ADX, engine->DY),
 			vram->cmdReadWindow.readNP(VDP_VRMP5(ASX, engine->SY)),
 			currentTime);
-		post_xxyy(256)
+		post_xxyy()
 		break;
 	case 1:
 		pre_loop
@@ -1113,7 +1102,7 @@ void VDPCmdEngine::HmmmCmd::execute(const EmuTime &time)
 			VDP_VRMP6(ADX, engine->DY),
 			vram->cmdReadWindow.readNP(VDP_VRMP6(ASX, engine->SY)),
 			currentTime);
-		post_xxyy(512)
+		post_xxyy()
 		break;
 	case 2:
 		pre_loop
@@ -1121,7 +1110,7 @@ void VDPCmdEngine::HmmmCmd::execute(const EmuTime &time)
 			VDP_VRMP7(ADX, engine->DY),
 			vram->cmdReadWindow.readNP(VDP_VRMP7(ASX, engine->SY)),
 			currentTime);
-		post_xxyy(512)
+		post_xxyy()
 		break;
 	case 3:
 		pre_loop
@@ -1129,7 +1118,7 @@ void VDPCmdEngine::HmmmCmd::execute(const EmuTime &time)
 			VDP_VRMP8(ADX, engine->DY),
 			vram->cmdReadWindow.readNP(VDP_VRMP8(ASX, engine->SY)),
 			currentTime);
-		post_xxyy(256)
+		post_xxyy()
 		break;
 	}
 }
@@ -1148,21 +1137,14 @@ void VDPCmdEngine::YmmmCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	int ppb = PPB[engine->scrMode];
-	SX = engine->DX / ppb;	// !! DX
-	DX = SX;
-	MX = PPL[engine->scrMode] / ppb;
 	NX = 512;	// large enough so that it gets clipped
 	engine->NY &= 1023;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	TY = (engine->ARG & DIY) ? -1 : 1;
-	clipNX_SXDX();
+	clipNX_DX(PPBS[engine->scrMode]); // no SX
 	clipNY_SYDY();
-	SX *= ppb;
-	DX *= ppb;
-	ASX = SX;
-	ADX = DX;
+	ADX = engine->DX;
 	ANX = NX;
 	calcFinishTime();
 }
@@ -1180,7 +1162,7 @@ void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
 			VDP_VRMP5(ADX, engine->DY),
 			vram->cmdReadWindow.readNP(VDP_VRMP5(ADX, engine->SY)),
 			currentTime);
-		post_xxyy(256)
+		post_xxyy()
 		break;
 	case 1:
 		pre_loop
@@ -1188,7 +1170,7 @@ void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
 			VDP_VRMP6(ADX, engine->DY),
 			vram->cmdReadWindow.readNP(VDP_VRMP6(ADX, engine->SY)),
 			currentTime);
-		post_xxyy(512)
+		post_xxyy()
 		break;
 	case 2:
 		pre_loop
@@ -1196,7 +1178,7 @@ void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
 			VDP_VRMP7(ADX, engine->DY),
 			vram->cmdReadWindow.readNP(VDP_VRMP7(ADX, engine->SY)),
 			currentTime);
-		post_xxyy(512)
+		post_xxyy()
 		break;
 	case 3:
 		pre_loop
@@ -1204,7 +1186,7 @@ void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
 			VDP_VRMP8(ADX, engine->DY),
 			vram->cmdReadWindow.readNP(VDP_VRMP8(ADX, engine->SY)),
 			currentTime);
-		post_xxyy(256)
+		post_xxyy()
 		break;
 	}
 }
@@ -1223,20 +1205,15 @@ void VDPCmdEngine::HmmcCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	int ppb = PPB[engine->scrMode];
-	DX = engine->DX / ppb;
-	MX = PPL[engine->scrMode] / ppb;
-	NX = engine->NX / ppb;
-	NX = NX ? NX : MX;
+	NX = engine->NX;
+	NX = NX ? NX : PPL[engine->scrMode];
 	engine->NY &= 1023;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	TY = (engine->ARG & DIY) ? -1 : 1;
-	MX = PPL[engine->scrMode];
-	clipNX_DX();
+	clipNX_DX(PPBS[engine->scrMode]);
 	clipNY_DY();
-	DX *= ppb;
-	ADX = DX;
+	ADX = engine->DX;
 	ANX = NX;
 	calcFinishTime();
 }
@@ -1253,7 +1230,7 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 		ADX += TX; --ANX;
 		if (ANX == 0) {
 			engine->DY += TY; --(engine->NY);
-			ADX = DX; ANX = NX;
+			ADX = engine->DX; ANX = NX;
 			if (--NY == 0) {
 				commandDone();
 			}

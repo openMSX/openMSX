@@ -231,8 +231,8 @@ private:
 		/** Clipping methods
 		  */
 		inline void clipNX_SX();
-		inline void clipNX_DX();
-		inline void clipNX_SXDX();
+		inline void clipNX_DX  (int ppbs = 0);
+		inline void clipNX_SXDX(int ppbs = 0);
 		inline void clipNY_SY();
 		inline void clipNY_DY();
 		inline void clipNY_SYDY();
@@ -242,12 +242,9 @@ private:
 		EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
 		int opsCount;
 
-		word SX;
-		word DX;
 		word NX, NY;
 		word TX, TY;
 		word ASX, ADX, ANX;
-		word MX;
 		byte CL;
 		LogOp LO;
 	};
