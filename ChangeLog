@@ -5,6 +5,8 @@ $Id$
 	* added MSXException exception base class.
 	* created MSXConfig exceptions
 	* started using them.
+	* make distcheck now works
+	* openmsx.tex is part of the dist
 
 2001-06-21 Joost Yervante Damad <j.damad@qahwah.net>
 

@@ -2,7 +2,7 @@
 
 bin_PROGRAMS=openmsx
 openmsx_SOURCES=openmsx.cc \
-	openmsx.1 system.h \
+	system.h \
 	msxconfig.hh msxconfig.cc \
 	emutime.hh emutime.cc \
 	msxexception.hh
