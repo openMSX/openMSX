@@ -13,14 +13,14 @@
 
 
 short Y8950::dB2LinTab[(2*DB_MUTE)*2];
-int   Y8950::dphaseNoiseTable[1024][8];
 int   Y8950::Slot::sintable[PG_WIDTH];
-int   Y8950::Slot::dphaseARTable[16][16];
-int   Y8950::Slot::dphaseDRTable[16][16];
 int   Y8950::Slot::tllTable[16][8][1<<TL_BITS][4];
 int   Y8950::Slot::rksTable[2][8][2];
-int   Y8950::Slot::dphaseTable[1024][8][16];
 int   Y8950::Slot::AR_ADJUST_TABLE[1<<EG_BITS];
+unsigned int Y8950::dphaseNoiseTable[1024][8];
+unsigned int Y8950::Slot::dphaseARTable[16][16];
+unsigned int Y8950::Slot::dphaseDRTable[16][16];
+unsigned int Y8950::Slot::dphaseTable[1024][8][16];
 
 
 //**************************************************//
@@ -59,9 +59,11 @@ int Y8950::EXPAND_BITS(int x, int s, int d)
 	return x << (d-s);
 }
 // Adjust envelope speed which depends on sampling rate
-int Y8950::rate_adjust(double x, int rate)
+unsigned int Y8950::rate_adjust(double x, int rate)
 {
-	return (int)(x*CLOCK_FREQ/72/rate + 0.5); // +0.5 to round
+	double tmp = x*CLOCK_FREQ/72/rate + 0.5; // +0.5 to round
+	assert (tmp <= 4294967295U);
+	return (unsigned int)tmp;
 }
 
 //**************************************************//
@@ -435,7 +437,7 @@ Y8950::Y8950(short volume, int sampleRam, const EmuTime &time,
 	reset(time);
 
 	setVolume(volume);
-	int bufSize = Mixer::instance()->registerSound(this,mode);
+	int bufSize = Mixer::instance()->registerSound(this, mode);
 	buffer = new int[bufSize];
 }
 
@@ -595,8 +597,8 @@ void Y8950::Slot::calc_phase()
 
 void Y8950::Slot::calc_envelope()
 {
-	#define S2E(x) (ALIGN((int)(x/SL_STEP),SL_STEP,EG_STEP)<<(EG_DP_BITS-EG_BITS)) 
-	static int SL[16] = {
+	#define S2E(x) (ALIGN((unsigned int)(x/SL_STEP),SL_STEP,EG_STEP)<<(EG_DP_BITS-EG_BITS)) 
+	static unsigned int SL[16] = {
 		S2E( 0), S2E( 3), S2E( 6), S2E( 9), S2E(12), S2E(15), S2E(18), S2E(21),
 		S2E(24), S2E(27), S2E(30), S2E(33), S2E(36), S2E(39), S2E(42), S2E(93)
 	};
@@ -789,18 +791,18 @@ void Y8950::checkMute()
 bool Y8950::checkMuteHelper()
 {
 	for (int i=0; i<6; i++) {
-		if (ch[i].car.eg_mode!=FINISH) return false;
+		if (ch[i].car.eg_mode != FINISH) return false;
 	}
 	if (!rythm_mode) {
 		for(int i=6; i<9; i++) {
-			if (ch[i].car.eg_mode!=FINISH) return false;
+			if (ch[i].car.eg_mode != FINISH) return false;
 		}
 	} else {
-		if (ch[6].car.eg_mode!=FINISH) return false;
-		if (ch[7].mod.eg_mode!=FINISH) return false;
-		if (ch[7].car.eg_mode!=FINISH) return false;
-		if (ch[8].mod.eg_mode!=FINISH) return false;
-		if (ch[8].car.eg_mode!=FINISH) return false;
+		if (ch[6].car.eg_mode != FINISH) return false;
+		if (ch[7].mod.eg_mode != FINISH) return false;
+		if (ch[7].car.eg_mode != FINISH) return false;
+		if (ch[8].mod.eg_mode != FINISH) return false;
+		if (ch[8].car.eg_mode != FINISH) return false;
 	}
 	
 	return adpcm.muted();

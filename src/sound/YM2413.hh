@@ -78,8 +78,8 @@ class YM2413 : public SoundDevice
 
 			// for Phase Generator (PG)
 			word *sintbl;		// Wavetable
-			int phase;		// Phase 
-			int dphase;		// Phase increment amount 
+			unsigned int phase;	// Phase 
+			unsigned int dphase;	// Phase increment amount 
 			int pgout;		// output
 
 			// for Envelope Generator (EG)
@@ -90,8 +90,8 @@ class YM2413 : public SoundDevice
 			int tll;		// Total Level + Key scale level
 			int rks;		// Key scale offset (Rks)
 			int eg_mode;		// Current state
-			int eg_phase;		// Phase
-			int eg_dphase;		// Phase increment amount
+			unsigned int eg_phase;	// Phase
+			unsigned int eg_dphase;	// Phase increment amount
 			int egout;		// output
 
 			// refer to YM2413->
@@ -106,7 +106,7 @@ class YM2413 : public SoundDevice
 			~Channel();
 			void reset();
 			inline void setPatch(int num);
-			inline void setSustine(int sustine);
+			inline void setSustine(bool sustine);
 			inline void setVol(int volume);
 			inline void setFnumber(int fnum);
 			inline void setBlock(int block);
@@ -169,7 +169,7 @@ class YM2413 : public SoundDevice
 		inline static int HIGHBITS(int c, int b);
 		inline static int LOWBITS(int c, int b);
 		inline static int EXPAND_BITS(int x, int s, int d);
-		inline static int rate_adjust(double x, int sampleRate);
+		inline static unsigned int rate_adjust(double x, int sampleRate);
 
 	private:
 		static const int CLOCK_FREQ = 3579545;
@@ -246,11 +246,11 @@ class YM2413 : public SoundDevice
 		bool rythm_mode;
 
 		// Pitch Modulator 
-		int pm_phase;
+		unsigned int pm_phase;
 		int lfo_pm;
 
 		// Amp Modulator 
-		int am_phase;
+		unsigned int am_phase;
 		int lfo_am;
 
 		// Noise Generator 
@@ -258,10 +258,10 @@ class YM2413 : public SoundDevice
 		int whitenoise;
 		int noiseA;
 		int noiseB;
-		int noiseA_phase;
-		int noiseB_phase;
-		int noiseA_dphase;
-		int noiseB_dphase;
+		unsigned int noiseA_phase;
+		unsigned int noiseB_phase;
+		unsigned int noiseA_dphase;
+		unsigned int noiseB_dphase;
 
 		// Channel & Slot 
 		Channel ch[9];
@@ -280,7 +280,7 @@ class YM2413 : public SoundDevice
 		static word fullsintable[PG_WIDTH];
 		static word halfsintable[PG_WIDTH];
 
-		static int dphaseNoiseTable[512][8];
+		static unsigned int dphaseNoiseTable[512][8];
 
 		static word *waveform[2];
 
@@ -289,8 +289,8 @@ class YM2413 : public SoundDevice
 		static int amtable[AM_PG_WIDTH];
 
 		// Noise and LFO
-		static int pm_dphase;
-		static int am_dphase;
+		static unsigned int pm_dphase;
+		static unsigned int am_dphase;
 
 		// Liner to Log curve conversion table (for Attack rate). 
 		static word AR_ADJUST_TABLE[1<<EG_BITS];
@@ -299,16 +299,16 @@ class YM2413 : public SoundDevice
 		enum { ATTACK,DECAY,SUSHOLD,SUSTINE,RELEASE,FINISH };
 
 		// Phase incr table for Attack 
-		static int dphaseARTable[16][16];
+		static unsigned int dphaseARTable[16][16];
 		// Phase incr table for Decay and Release 
-		static int dphaseDRTable[16][16];
+		static unsigned int dphaseDRTable[16][16];
 
 		// KSL + TL Table 
 		static int tllTable[16][8][1<<TL_BITS][4];
 		static int rksTable[2][8][2];
 
 		// Phase incr table for PG 
-		static int dphaseTable[512][8][16];
+		static unsigned int dphaseTable[512][8][16];
 };
 
 #endif // not defined(DONT_WANT_FMPAC) || not defined(DONT_WANT_MSXMUSIC)

@@ -17,20 +17,20 @@
 
 word YM2413::fullsintable[PG_WIDTH];
 word YM2413::halfsintable[PG_WIDTH];
-int YM2413::dphaseNoiseTable[512][8];
 word* YM2413::waveform[2] = {fullsintable, halfsintable};
 int YM2413::pmtable[PM_PG_WIDTH];
 int YM2413::amtable[AM_PG_WIDTH];
-int YM2413::pm_dphase;
-int YM2413::am_dphase;
 word YM2413::AR_ADJUST_TABLE[1<<EG_BITS];
 YM2413::Patch YM2413::nullPatch(false, false, false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-int YM2413::dphaseARTable[16][16];
-int YM2413::dphaseDRTable[16][16];
 int YM2413::tllTable[16][8][1<<TL_BITS][4];
 int YM2413::rksTable[2][8][2];
-int YM2413::dphaseTable[512][8][16];
 short YM2413::dB2LinTab[(2*DB_MUTE)*2];
+unsigned int YM2413::dphaseNoiseTable[512][8];
+unsigned int YM2413::dphaseARTable[16][16];
+unsigned int YM2413::dphaseDRTable[16][16];
+unsigned int YM2413::dphaseTable[512][8][16];
+unsigned int YM2413::pm_dphase;
+unsigned int YM2413::am_dphase;
 
 
 //***************************************************//
@@ -77,10 +77,12 @@ int YM2413::EXPAND_BITS(int x, int s, int d)
 	return x<<(d-s);
 }
 // Adjust envelope speed which depends on sampling rate
-int YM2413::rate_adjust(double x, int rate)
+unsigned int YM2413::rate_adjust(double x, int rate)
 {
-	return (int)(x*CLOCK_FREQ/72/rate + 0.5); // +0.5 to round
-}
+	double tmp = x*CLOCK_FREQ/72/rate + 0.5; // +0.5 to round
+	assert (tmp <= 4294967295U);
+	return (unsigned int)tmp;
+}	
 
 
 //***************************************************//
@@ -314,7 +316,7 @@ void YM2413::Slot::reset()
 	eg_dphase = 0;
 	rks = 0;
 	tll = 0;
-	sustine = 0;
+	sustine = false;
 	fnum = 0;
 	block = 0;
 	volume = 0;
@@ -453,7 +455,7 @@ void YM2413::Channel::setPatch(int num)
 }
 
 // Set sustine parameter
-void YM2413::Channel::setSustine(int sustine)
+void YM2413::Channel::setSustine(bool sustine)
 {
 	car.sustine = sustine;
 	if (mod.type)
@@ -580,7 +582,7 @@ YM2413::YM2413(short volume, const EmuTime &time, const Mixer::ChannelMode mode)
 	reset(time);
 
 	setVolume(volume);
-	int bufSize = Mixer::instance()->registerSound(this,mode);
+	int bufSize = Mixer::instance()->registerSound(this, mode);
 	buffer = new int[bufSize];
 }
 
@@ -746,8 +748,8 @@ void YM2413::Slot::calc_phase()
 // EG
 void YM2413::Slot::calc_envelope()
 {
-	#define S2E(x) (SL2EG((int)(x/SL_STEP))<<(EG_DP_BITS-EG_BITS)) 
-	int SL[16] = {
+	#define S2E(x) (SL2EG((unsigned int)(x/SL_STEP))<<(EG_DP_BITS-EG_BITS)) 
+	static unsigned int SL[16] = {
 		S2E( 0), S2E( 3), S2E( 6), S2E( 9), S2E(12), S2E(15), S2E(18), S2E(21),
 		S2E(24), S2E(27), S2E(30), S2E(33), S2E(36), S2E(39), S2E(42), S2E(48)
 	};
@@ -933,18 +935,18 @@ void YM2413::checkMute()
 bool YM2413::checkMuteHelper()
 {
 	for (int i=0; i<6; i++) {
-		if (ch[i].car.eg_mode!=FINISH) return false;
+		if (ch[i].car.eg_mode != FINISH) return false;
 	}
 	if (!rythm_mode) {
 		for(int i=6; i<9; i++) {
-			 if (ch[i].car.eg_mode!=FINISH) return false;
+			 if (ch[i].car.eg_mode != FINISH) return false;
 		}
 	} else {
-		if (ch[6].car.eg_mode!=FINISH) return false;
-		if (ch[7].mod.eg_mode!=FINISH) return false;
-		if (ch[7].car.eg_mode!=FINISH) return false;
-		if (ch[8].mod.eg_mode!=FINISH) return false;
-		if (ch[8].car.eg_mode!=FINISH) return false;
+		if (ch[6].car.eg_mode != FINISH) return false;
+		if (ch[7].mod.eg_mode != FINISH) return false;
+		if (ch[7].car.eg_mode != FINISH) return false;
+		if (ch[8].mod.eg_mode != FINISH) return false;
+		if (ch[8].car.eg_mode != FINISH) return false;
 	}
 	return true;	// nothing is playing, then mute
 }
@@ -1145,7 +1147,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		int cha = regis & 0x0f;
 		int j = (data>>4)&15;
 		int v = data&15;
-		if ((rythm_mode)&&(regis>=0x36)) {
+		if ((rythm_mode) && (regis>=0x36)) {
 			switch(regis) {
 			case 0x37:
 				ch[7].mod.setVolume(j<<2);
