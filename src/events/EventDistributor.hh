@@ -64,18 +64,6 @@ private:
 	queue <pair<SDL_Event, EventListener*> > highQueue;
 	BooleanSetting grabInput;
 
-	/** Quit openMSX.
-	  * Starts the shutdown procedure.
-	  */
-	void quit();
-
-	class QuitCommand : public Command {
-	public:
-		virtual string execute(const vector<string>& tokens) throw();
-		virtual string help(const vector<string>& tokens) const throw();
-	} quitCommand;
-	friend class QuitCommand;
-
 	class AfterCommand : public Command {
 	public:
 		virtual string execute(const vector<string>& tokens)

@@ -18,7 +18,7 @@ public:
 	 * EventListener may also receive this event (normally always
 	 * the case except for Console)
 	 */
-	virtual bool signalEvent(SDL_Event &event) throw() = 0;
+	virtual bool signalEvent(const SDL_Event& event) throw() = 0;
 };
 
 } // namespace openmsx

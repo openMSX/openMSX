@@ -4,6 +4,7 @@ $Id$
 	* HotKey is no longer a singleton:
 	   - not required anymore since everything is done by bind cmds
 	   - fixes circular dependency between HotKey and EventDistributor
+	* Moved "quit" command from EventDistributor to Scheduler
 
 2003-11-11 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added DummyRenderer (set renderer none)

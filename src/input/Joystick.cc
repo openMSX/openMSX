@@ -82,7 +82,7 @@ void Joystick::write(byte value, const EmuTime &time)
 }
 
 //EventListener
-bool Joystick::signalEvent(SDL_Event &event) throw()
+bool Joystick::signalEvent(const SDL_Event& event) throw()
 {
 	if (event.jaxis.which == joyNum) {	// also event.jbutton.which
 		switch (event.type) {

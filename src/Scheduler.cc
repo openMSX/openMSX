@@ -9,6 +9,7 @@
 #include "Schedulable.hh"
 #include "RealTime.hh"
 #include "MSXMotherBoard.hh"
+#include "CommandController.hh"
 #include "Leds.hh"
 #include "Renderer.hh" // TODO: Temporary?
 
@@ -31,10 +32,16 @@ Scheduler::Scheduler()
 	
 	pauseSetting.addListener(this);
 	powerSetting.addListener(this);
+
+	CommandController::instance()->registerCommand(&quitCommand, "quit");
+	EventDistributor::instance()->registerEventListener(SDL_QUIT, this);
 }
 
 Scheduler::~Scheduler()
 {
+	EventDistributor::instance()->unregisterEventListener(SDL_QUIT, this);
+	CommandController::instance()->unregisterCommand(&quitCommand, "quit");
+
 	powerSetting.removeListener(this);
 	pauseSetting.removeListener(this);
 }
@@ -194,6 +201,28 @@ void Scheduler::update(const SettingLeafNode* setting)
 	} else {
 		assert(false);
 	}
+}
+
+bool Scheduler::signalEvent(const SDL_Event& event) throw()
+{
+	stopScheduling();
+	return true;
+}
+
+
+// class QuitCommand
+
+string Scheduler::QuitCommand::execute(const vector<string> &tokens)
+	throw()
+{
+	Scheduler::instance()->stopScheduling();
+	return "";
+}
+
+string Scheduler::QuitCommand::help(const vector<string> &tokens) const
+	throw()
+{
+	return "Use this command to stop the emulator\n";
 }
 
 } // namespace openmsx

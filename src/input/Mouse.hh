@@ -23,11 +23,11 @@ public:
 	virtual void unplug(const EmuTime& time);
 
 	//JoystickDevice
-	virtual byte read(const EmuTime &time);
-	virtual void write(byte value, const EmuTime &time);
+	virtual byte read(const EmuTime& time);
+	virtual void write(byte value, const EmuTime& time);
 
 	//EventListener
-	virtual bool signalEvent(SDL_Event &event) throw();
+	virtual bool signalEvent(const SDL_Event& event) throw();
 
 private:
 	void emulateJoystick();

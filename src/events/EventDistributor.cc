@@ -24,14 +24,12 @@ EventDistributor::EventDistributor()
 	  lastAfterId(0)
 {
 	grabInput.addListener(this);
-	CommandController::instance()->registerCommand(&quitCommand, "quit");
 	CommandController::instance()->registerCommand(&afterCommand, "after");
 }
 
 EventDistributor::~EventDistributor()
 {
 	CommandController::instance()->unregisterCommand(&afterCommand, "after");
-	CommandController::instance()->unregisterCommand(&quitCommand, "quit");
 	grabInput.removeListener(this);
 }
 
@@ -56,11 +54,7 @@ void EventDistributor::poll()
 	SDL_Event event;
 	while (SDL_PollEvent(&event) == 1) {
 		PRT_DEBUG("SDL event received");
-		if (event.type == SDL_QUIT) {
-			quit();
-		} else {
-			handle(event);
-		}
+		handle(event);
 	}
 }
 
@@ -71,12 +65,7 @@ void EventDistributor::notify()
 	SDL_PushEvent(&event);
 }
 
-void EventDistributor::quit()
-{
-	Scheduler::instance()->stopScheduling();
-}
-
-void EventDistributor::handle(SDL_Event &event)
+void EventDistributor::handle(SDL_Event& event)
 {
 	for (map<unsigned, AfterCmd*>::const_iterator it = afterCmds.begin();
 	     it != afterCmds.end(); ++it) {
@@ -107,14 +96,14 @@ void EventDistributor::handle(SDL_Event &event)
 }
 
 void EventDistributor::registerEventListener(
-	int type, EventListener *listener, int priority)
+	int type, EventListener* listener, int priority)
 {
 	ListenerMap &map = (priority == 0) ? highMap : lowMap;
 	map.insert(pair<int, EventListener*>(type, listener));
 }
 
 void EventDistributor::unregisterEventListener(
-	int type, EventListener *listener, int priority)
+	int type, EventListener* listener, int priority)
 {
 	ListenerMap &map = (priority == 0) ? highMap : lowMap;
 	pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
@@ -132,22 +121,6 @@ void EventDistributor::update(const SettingLeafNode *setting)
 {
 	assert(setting == &grabInput);
 	SDL_WM_GrabInput(grabInput.getValue() ? SDL_GRAB_ON : SDL_GRAB_OFF);
-}
-
-
-// class QuitCommand
-
-string EventDistributor::QuitCommand::execute(const vector<string> &tokens)
-	throw()
-{
-	EventDistributor::instance()->quit();
-	return "";
-}
-
-string EventDistributor::QuitCommand::help(const vector<string> &tokens) const
-	throw()
-{
-	return "Use this command to stop the emulator\n";
 }
 
 

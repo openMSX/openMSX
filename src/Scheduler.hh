@@ -6,6 +6,7 @@
 #include <vector>
 #include "EmuTime.hh"
 #include "Settings.hh"
+#include "EventListener.hh"
 #include "Semaphore.hh"
 
 using std::vector;
@@ -16,7 +17,7 @@ class MSXCPU;
 class Schedulable;
 class Renderer;
 
-class Scheduler : private SettingListener
+class Scheduler : private SettingListener, private EventListener
 {
 private:
 	class SynchronizationPoint
@@ -76,12 +77,6 @@ public:
 	 */
 	void schedule(const EmuTime& limit);
 
-	/**
-	 * This stops the schedule loop, should only be used by the
-	 * quit program routine.
-	 */
-	void stopScheduling();
-
 	/** Set renderer to call when emulation is paused.
 	  * TODO: Function will be moved to OSD later.
 	  */
@@ -107,7 +102,11 @@ private:
 	// SettingListener
 	virtual void update(const SettingLeafNode* setting);
 
+	// EventListener
+	virtual bool signalEvent(const SDL_Event& event) throw();
+	
 	void unpause();
+	void stopScheduling();
 
 	/** Vector used as heap, not a priority queue because that
 	  * doesn't allow removal of non-top element.
@@ -124,6 +123,13 @@ private:
 	Renderer* renderer;
 	BooleanSetting pauseSetting;
 	BooleanSetting powerSetting;
+
+	class QuitCommand : public Command {
+	public:
+		virtual string execute(const vector<string>& tokens) throw();
+		virtual string help(const vector<string>& tokens) const throw();
+	} quitCommand;
+	friend class QuitCommand;
 };
 
 } // namespace openmsx

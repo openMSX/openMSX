@@ -47,7 +47,7 @@ public:
 
 private:
 	// EventListener
-	virtual bool signalEvent(SDL_Event& event) throw();
+	virtual bool signalEvent(const SDL_Event& event) throw();
 	
 	class HotKeyCmd;
 	typedef multimap<Keys::KeyCode, HotKeyListener*> ListenerMap;

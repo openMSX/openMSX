@@ -164,7 +164,7 @@ void CommandConsole::setConsoleDimensions(unsigned columns, unsigned rows)
 	cursorLocationY = 0;
 }
 
-bool CommandConsole::signalEvent(SDL_Event &event) throw()
+bool CommandConsole::signalEvent(const SDL_Event& event) throw()
 {
 	if (!isVisible()) {
 		return true;
