@@ -11,7 +11,7 @@ MSXCPU *MSXRom::cpu;
 
 
 MSXRom::MSXRom(Device *config, const EmuTime &time, Rom *rom)
-	: MSXMemDevice(config, time), MSXDevice(config, time)
+	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	init();
 	this->rom = rom;
