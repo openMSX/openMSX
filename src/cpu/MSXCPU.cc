@@ -103,7 +103,7 @@ void MSXCPU::exitCPULoop()
 }
 
 
-const EmuTime &MSXCPU::getCurrentTimeUnsafe() const
+const EmuTime& MSXCPU::getCurrentTime() const
 {
 	return activeCPU->getCurrentTime();
 }
@@ -297,7 +297,7 @@ MSXCPU::TimeInfoTopic::TimeInfoTopic(MSXCPU& parent_)
 void MSXCPU::TimeInfoTopic::execute(const vector<CommandArgument>& /*tokens*/,
                                     CommandArgument& result) const
 {
-	EmuDuration dur = parent.getCurrentTimeUnsafe() - parent.reference;
+	EmuDuration dur = parent.getCurrentTime() - parent.reference;
 	result.setDouble(dur.toDouble());
 }
 
