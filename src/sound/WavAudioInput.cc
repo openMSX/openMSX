@@ -20,15 +20,15 @@ WavAudioInput::WavAudioInput()
 
 WavAudioInput::~WavAudioInput()
 {
-	if (buffer) {
-		freeWave();
-	}
 	audioInputFilenameSetting.removeListener(this);
+	freeWave();
 }
 
 void WavAudioInput::loadWave()
 	throw(MSXException)
 {
+	freeWave();
+
 	SDL_AudioSpec wavSpec;
 	Uint8 *wavBuf;
 	Uint32 wavLen;
@@ -40,8 +40,7 @@ void WavAudioInput::loadWave()
 	SDL_AudioCVT audioCVT;
 	if (SDL_BuildAudioCVT(&audioCVT,
 			wavSpec.format, wavSpec.channels, freq,
-			AUDIO_S16,      1,                freq) == -1
-	) {
+			AUDIO_S16,      1,                freq) == -1) {
 		SDL_FreeWAV(wavBuf);
 		throw MSXException("Couldn't build wav converter");
 	}
@@ -53,6 +52,7 @@ void WavAudioInput::loadWave()
 	SDL_FreeWAV(wavBuf);
 
 	if (SDL_ConvertAudio(&audioCVT) == -1) {
+		freeWave();
 		throw MSXException("Couldn't convert wav file to internal format");
 	}
 	length = (int)(audioCVT.len * audioCVT.len_ratio) / 2;
@@ -60,7 +60,9 @@ void WavAudioInput::loadWave()
 
 void WavAudioInput::freeWave()
 {
-	if (buffer!=0) free(buffer);
+	if (buffer != 0) {
+		free(buffer);
+	}
 	length = 0;
 	buffer = 0;
 	freq = 44100;
@@ -83,7 +85,7 @@ const string& WavAudioInput::getDescription() const
 void WavAudioInput::plug(Connector *connector, const EmuTime &time)
 	throw(PlugException)
 {
-	if (buffer==0) {
+	if (buffer == 0) {
 		try {
 			loadWave();
 		} catch (MSXException &e) {
@@ -104,7 +106,6 @@ void WavAudioInput::update(const SettingLeafNode *setting)
 {
 	assert (setting == &audioInputFilenameSetting);
 	if (plugged) {
-		freeWave();
 		try {
 			loadWave();
 		} catch (MSXException &e) {

@@ -186,6 +186,7 @@ void CassettePlayer::unplug(const EmuTime& time)
 
 
 string CassettePlayer::execute(const vector<string> &tokens)
+	throw (CommandException)
 {
 	string result;
 	if (tokens.size() != 2) {

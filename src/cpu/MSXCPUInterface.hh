@@ -146,11 +146,13 @@ class MSXCPUInterface : public CPUInterface
 		                  int primSl, int secSL, int page);
 		
 		class SlotMapCmd : public Command {
-			virtual string execute(const vector<string> &tokens);
+			virtual string execute(const vector<string> &tokens)
+				throw ();
 			virtual string help(const vector<string> &tokens) const;
 		};
 		class SlotSelectCmd : public Command {
-			virtual string execute(const vector<string> &tokens);
+			virtual string execute(const vector<string> &tokens)
+				throw ();
 			virtual string help(const vector<string> &tokens) const;
 		};
 

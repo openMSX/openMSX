@@ -58,7 +58,8 @@ private:
 	// Commands
 	class PlugCmd : public Command {
 	public:
-		virtual string execute(const vector<string> &tokens);
+		virtual string execute(const vector<string> &tokens)
+			throw (CommandException);
 		virtual string help   (const vector<string> &tokens) const;
 		virtual void tabCompletion(vector<string> &tokens) const;
 	} plugCmd;
@@ -66,7 +67,8 @@ private:
 
 	class UnplugCmd : public Command {
 	public:
-		virtual string execute(const vector<string> &tokens);
+		virtual string execute(const vector<string> &tokens)
+			throw (CommandException);
 		virtual string help   (const vector<string> &tokens) const;
 		virtual void tabCompletion(vector<string> &tokens) const;
 	} unplugCmd;
@@ -74,7 +76,8 @@ private:
 
 	class PluggableInfo : public InfoTopic {
 	public:
-		virtual string execute(const vector<string> &tokens) const;
+		virtual string execute(const vector<string> &tokens) const
+			throw (CommandException);
 		virtual string help   (const vector<string> &tokens) const;
 		virtual void tabCompletion(vector<string> &tokens) const;
 	} pluggableInfo;
@@ -82,7 +85,8 @@ private:
 
 	class ConnectorInfo : public InfoTopic {
 	public:
-		virtual string execute(const vector<string> &tokens) const;
+		virtual string execute(const vector<string> &tokens) const
+			throw (CommandException);
 		virtual string help   (const vector<string> &tokens) const;
 		virtual void tabCompletion(vector<string> &tokens) const;
 	} connectorInfo;

@@ -41,6 +41,7 @@ void InfoCommand::unregisterTopic(const string& name,
 // Command
 
 string InfoCommand::execute(const vector<string> &tokens)
+	throw (CommandException)
 {
 	string result;
 	switch (tokens.size()) {

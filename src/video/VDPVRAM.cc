@@ -106,9 +106,13 @@ VDPVRAM::DumpVRAMCmd::DumpVRAMCmd(VDPVRAM *vram_)
 }
 
 string VDPVRAM::DumpVRAMCmd::execute(const vector<string> &tokens)
+	throw (CommandException)
 {
 	ofstream outfile("vramdump", ofstream::binary);
 	outfile.write((char*)vram->data, vram->size);
+	if (outfile.bad()) {
+		throw CommandException("Error writing vramdump");
+	}
 	return "";
 }
 

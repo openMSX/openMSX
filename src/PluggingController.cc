@@ -95,6 +95,7 @@ void PluggingController::unregisterPluggable(Pluggable *pluggable)
 //  plug command
 
 string PluggingController::PlugCmd::execute(const vector<string> &tokens)
+	throw (CommandException)
 {
 	string result;
 	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
@@ -184,6 +185,7 @@ void PluggingController::PlugCmd::tabCompletion(vector<string> &tokens) const
 //  unplug command
 
 string PluggingController::UnplugCmd::execute(const vector<string> &tokens)
+	throw (CommandException)
 {
 	if (tokens.size() != 2) {
 		throw CommandException("Syntax error");
@@ -247,7 +249,8 @@ Pluggable *PluggingController::getPluggable(const string& name)
 
 // Pluggable info
 
-string PluggingController::PluggableInfo::execute(const vector<string> &tokens) const
+string PluggingController::PluggableInfo::execute(const vector<string> &tokens)
+	const throw (CommandException)
 {
 	string result;
 	PluggingController* controller = PluggingController::instance();
@@ -290,7 +293,8 @@ void PluggingController::PluggableInfo::tabCompletion(vector<string> &tokens) co
 
 // Connector info
 
-string PluggingController::ConnectorInfo::execute(const vector<string> &tokens) const
+string PluggingController::ConnectorInfo::execute(const vector<string> &tokens)
+	const throw (CommandException)
 {
 	string result;
 	PluggingController* controller = PluggingController::instance();

@@ -1,5 +1,9 @@
 $Id$
 
+2003-10-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* commands can only throw CommandExceptions
+	* fixed possible resource leaks caused by thrown exceptions
+
 2003-10-26 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed clipping code in SDLRenderer::drawDisplay and drawSprites.
 	  Matra games (which use overscan) have a stable image now.

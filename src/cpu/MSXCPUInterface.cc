@@ -328,6 +328,7 @@ MSXCPUInterface::SlotSelection* MSXCPUInterface::getCurrentSlots()
 }
 
 string MSXCPUInterface::SlotMapCmd::execute(const vector<string> &tokens)
+	throw ()
 {
 	return MSXCPUInterface::instance()->getSlotMap();
 }
@@ -338,6 +339,7 @@ string MSXCPUInterface::SlotMapCmd::help(const vector<string> &tokens) const
 }
 
 string MSXCPUInterface::SlotSelectCmd::execute(const vector<string> &tokens)
+	throw ()
 {
 	return MSXCPUInterface::instance()->getSlotSelection();
 }

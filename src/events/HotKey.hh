@@ -68,7 +68,8 @@ class HotKey : private EventListener
 
 		class BindCmd : public Command {
 			public:
-				virtual string execute(const vector<string> &tokens);
+				virtual string execute(const vector<string> &tokens)
+					throw (CommandException);
 				virtual string help(const vector<string> &tokens) const;
 		};
 		friend class BindCmd;
@@ -76,7 +77,8 @@ class HotKey : private EventListener
 
 		class UnbindCmd : public Command {
 			public:
-				virtual string execute(const vector<string> &tokens);
+				virtual string execute(const vector<string> &tokens)
+					throw (CommandException);
 				virtual string help(const vector<string> &tokens) const;
 		};
 		friend class UnbindCmd;

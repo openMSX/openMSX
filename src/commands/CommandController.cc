@@ -411,20 +411,20 @@ void CommandController::completeFileName(vector<string> &tokens)
 // Help Command
 
 string CommandController::HelpCmd::execute(const vector<string> &tokens)
+	throw(CommandException)
 {
 	string result;
 	CommandController *cc = CommandController::instance();
 	switch (tokens.size()) {
-		case 1: {
+		case 1: 
 			result += "Use 'help [command]' to get help for a specific command\n";
 			result += "The following commands exist:\n";
-			multimap<const string, Command*, ltstr>::const_iterator it;
-			for (it=cc->commands.begin(); it!=cc->commands.end(); it++) {
+			for (multimap<const string, Command*, ltstr>::const_iterator it =
+			     cc->commands.begin(); it != cc->commands.end(); ++it) {
 				result += it->first;
 				result += '\n';
 			}
 			break;
-		}
 		default: {
 			multimap<const string, Command*, ltstr>::const_iterator it;
 			it = cc->commands.lower_bound(tokens[1]);
@@ -435,7 +435,7 @@ string CommandController::HelpCmd::execute(const vector<string> &tokens)
 				vector<string> tokens2(tokens);
 				tokens2.erase(tokens2.begin());
 				result += it->second->help(tokens2);
-				it++;
+				++it;
 			}
 			break;
 		}

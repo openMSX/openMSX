@@ -1005,7 +1005,7 @@ VDP::VDPRegsCmd::VDPRegsCmd(VDP *vdp)
 	this->vdp = vdp;
 }
 
-string VDP::VDPRegsCmd::execute(const vector<string> &tokens)
+string VDP::VDPRegsCmd::execute(const vector<string> &tokens) throw()
 {
 	// Print palette in 4x4 table.
 	ostringstream out;
@@ -1035,7 +1035,7 @@ VDP::PaletteCmd::PaletteCmd(VDP *vdp)
 	this->vdp = vdp;
 }
 
-string VDP::PaletteCmd::execute(const vector<string> &tokens)
+string VDP::PaletteCmd::execute(const vector<string> &tokens) throw()
 {
 	// Print palette in 4x4 table.
 	ostringstream out;

@@ -98,6 +98,7 @@ void EventDistributor::unregisterEventListener(
 }
 
 string EventDistributor::QuitCommand::execute(const vector<string> &tokens)
+	throw ()
 {
 	EventDistributor::instance()->quit();
 	return "";

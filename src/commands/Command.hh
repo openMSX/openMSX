@@ -26,7 +26,8 @@ class Command
 		  * @param tokens Tokenized command line;
 		  * 	tokens[0] is the command itself.
 		  */
-		virtual string execute(const vector<string> &tokens) = 0;
+		virtual string execute(const vector<string> &tokens)
+			throw (CommandException) = 0;
 
 		/** Print help for this command.
 		  */

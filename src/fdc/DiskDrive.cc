@@ -279,6 +279,7 @@ void RealDrive::ejectDisk()
 }
 
 string RealDrive::execute(const vector<string> &tokens)
+	throw (CommandException)
 {
 	string result;
 	if (tokens.size() == 1) {

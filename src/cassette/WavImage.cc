@@ -38,6 +38,7 @@ WavImage::WavImage(FileContext &context, const string &fileName)
 	SDL_FreeWAV(wavBuf);
 
 	if (SDL_ConvertAudio(&audioCVT) == -1) {
+		free(buffer);
 		throw MSXException("Couldn't convert wav");
 	}
 	length = (int)(audioCVT.len * audioCVT.len_ratio) / 2;

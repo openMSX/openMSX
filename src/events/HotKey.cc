@@ -123,6 +123,7 @@ void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key)
 }
 
 string HotKey::BindCmd::execute(const vector<string> &tokens)
+	throw (CommandException)
 {
 	string result;
 	HotKey *hk = HotKey::instance();
@@ -178,6 +179,7 @@ string HotKey::BindCmd::help(const vector<string> &tokens) const
 }
 
 string HotKey::UnbindCmd::execute(const vector<string> &tokens)
+	throw (CommandException)
 {
 	string result;
 	HotKey *hk = HotKey::instance();

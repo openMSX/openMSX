@@ -74,8 +74,6 @@ MSXTapePatch::MSXTapePatch()
 {
 	file = NULL;
 
-	CommandController::instance()->registerCommand(this, "cas");
-
 	MSXConfig *conf = MSXConfig::instance();
 	if (conf->hasConfigWithId("cas")) {
 		Config *config = conf->getConfigById("cas");
@@ -88,6 +86,7 @@ MSXTapePatch::MSXTapePatch()
 	} else {
 		// no image specified
 	}
+	CommandController::instance()->registerCommand(this, "cas");
 }
 
 MSXTapePatch::~MSXTapePatch()
@@ -404,6 +403,7 @@ void MSXTapePatch::STMOTR(CPU::CPURegs& R)
 
 
 string MSXTapePatch::execute(const vector<string> &tokens)
+	throw (CommandException)
 {
 	string result;
 	if (tokens.size() != 2) {

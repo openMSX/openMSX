@@ -114,6 +114,7 @@ void Rom::read(Device* config,
 		unsigned int romOffset = strtol((*i)->name.c_str(), 0, 0);
 		int value  = (*i)->getAsInt();
 		if (romOffset >= size) {
+			config->getParametersWithClassClean(parameters2);
 			ostringstream out;
 			out << "Ignoring illegal ROM patch-offset: 0x" << hex << romOffset;
 			throw FatalError(out.str());

@@ -81,8 +81,8 @@ SettingsManager::SetCommand::SetCommand(SettingsManager *manager_)
 {
 }
 
-string SettingsManager::SetCommand::execute(
-	const vector<string> &tokens )
+string SettingsManager::SetCommand::execute(const vector<string> &tokens)
+	throw (CommandException)
 {
 	string result;
 	switch (tokens.size()) {
@@ -155,6 +155,7 @@ SettingsManager::ToggleCommand::ToggleCommand(SettingsManager *manager_)
 }
 
 string SettingsManager::ToggleCommand::execute(const vector<string> &tokens)
+	throw (CommandException)
 {
 	string result;
 	switch (tokens.size()) {
@@ -203,6 +204,7 @@ SettingsManager::IncrCommand::IncrCommand(SettingsManager *manager_)
 }
 
 string SettingsManager::IncrCommand::execute(const vector<string> &tokens)
+	throw (CommandException)
 {
 	string result;
 	int count = 1;
@@ -256,6 +258,7 @@ SettingsManager::DecrCommand::DecrCommand(SettingsManager *manager_)
 }
 
 string SettingsManager::DecrCommand::execute(const vector<string> &tokens)
+	throw (CommandException)
 {
 	string result;
 	int count = 1;

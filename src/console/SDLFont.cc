@@ -45,6 +45,7 @@ SDLFont::SDLFont(File* file)
 #endif
 	);
 	if (image2 == NULL) {
+		SDL_FreeSurface(image1);
 		throw MSXException("Can't create font surface");
 	}
 	SDL_Rect area;
