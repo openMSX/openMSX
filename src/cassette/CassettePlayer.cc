@@ -14,7 +14,7 @@
 #include "DummyCassetteImage.hh"
 #include "Mixer.hh"
 #include "RealTime.hh"
-
+#include "CliCommOutput.hh"
 
 namespace openmsx {
 
@@ -204,6 +204,8 @@ string CassettePlayer::execute(const vector<string> &tokens)
 			result += "Changing tape\n";
 			UserFileContext context;
 			insertTape(context, tokens[1]);
+			CliCommOutput::instance().update( CliCommOutput::MEDIA,
+				"cassetteplayer", tokens[1]);
 		} catch (MSXException &e) {
 			throw CommandException(e.getMessage());
 		}
