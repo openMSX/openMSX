@@ -26,7 +26,8 @@ private:
 	virtual bool signalEvent(const Event& event);
 
 	SDL_Surface* outputScreen;
-	IMAGE* icon;
+	IMAGE* iconOn;
+	IMAGE* iconOff;
 };
 
 class SDLImage;

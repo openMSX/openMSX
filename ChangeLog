@@ -2,6 +2,8 @@ $Id$
 
 2004-11-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Only send events on actual changes:
+	* Use different image for led on/off, fade out the image if it doesn't
+	  change for some time
 
 2004-11-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Experimental: alternative Mixer implementation

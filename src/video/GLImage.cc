@@ -26,9 +26,10 @@ void GLImage::draw(unsigned x, unsigned y, unsigned char alpha)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_TEXTURE_2D);
-	glColor4b(255, 255, 255, alpha);
+	glColor4ub(255, 255, 255, alpha);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
+	          (alpha == 255) ? GL_REPLACE : GL_MODULATE);
 	glBegin(GL_QUADS);
 	glTexCoord2f(texCoord[0], texCoord[1]);
 	glVertex2i(x, y);
