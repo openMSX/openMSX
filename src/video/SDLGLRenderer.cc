@@ -848,8 +848,13 @@ void SDLGLRenderer::renderText1(
 	Pixel bg = palBg[vdp->getBackgroundColour()];
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
-	int fgColour[4] = { fg & 0xFF, (fg >> 8) & 0xFF, (fg >> 16) & 0xFF, 0xFF };
-	glTexEnviv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, fgColour);
+	float fgColour[4] = {
+		(fg & 0xFF) / 255.0f,
+		((fg >> 8) & 0xFF) / 255.0f,
+		((fg >> 16) & 0xFF) / 255.0f,
+		1.0f
+		};
+	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, fgColour);
 
 	int leftBackground = translateX(vdp->getLeftBackground());
 
@@ -974,7 +979,7 @@ void SDLGLRenderer::drawDisplay(
 	int screenLimitY = screenY + displayHeight * 2;
 
 	DisplayMode mode = vdp->getDisplayMode();
-	int hScroll = 
+	int hScroll =
 		  mode.isTextMode()
 		? 0
 		: 16 * (vdp->getHorizontalScrollHigh() & 0x1F);
