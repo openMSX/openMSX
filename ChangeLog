@@ -1,5 +1,8 @@
 $Id$
 
+2002-02-28 Maarten ter Huurne <mth@stack.nl>
+	* Fixed enlarged sprites. (David, you can fly your heli now! ;)
+
 2002-02-28 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* moved sound related files to new directory "sound"
 	* fixed MSX-MUSIC in CTNG products:

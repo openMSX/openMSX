@@ -1076,7 +1076,7 @@ void VDP::updateDisplayMode(byte reg0, byte reg1, const EmuTime &time)
 VDP::SpritePattern VDP::doublePattern(VDP::SpritePattern a)
 {
 	// bit-pattern "abcd" gets expanded to "aabbccdd"
-	a =  (a<<16)             |  a;
+	a =   a                  | (a>>16);
 	a = ((a<< 8)&0x00ffff00) | (a&0xff0000ff);
 	a = ((a<< 4)&0x0ff00ff0) | (a&0xf00ff00f);
 	a = ((a<< 2)&0x3c3c3c3c) | (a&0xc3c3c3c3);
