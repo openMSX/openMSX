@@ -10,8 +10,14 @@ p, dl {
 	margin-left: 16pt;
 }
 p.version {
+	padding-top: 1em;
+	margin-left: 0pt;
 	font-size: 50%;
 	text-align: right;
+}
+dt.toc {
+	font-size: 150%;
+	font-weight: bold;
 }
 dd {
 	margin-left: 16pt;
