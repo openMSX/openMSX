@@ -57,7 +57,7 @@ void Scaler<Pixel>::scaleBlank(
 	SDL_Surface* dst, int dstY, int endDstY
 ) {
 	const HostCPU cpu = HostCPU::getInstance();
-	if (cpu.hasMMXEXT()) {
+	if (ASM_X86 && cpu.hasMMXEXT()) {
 		const unsigned col32 =
 				sizeof(Pixel) == 2
 			? (((unsigned)colour) << 16) | colour
@@ -80,15 +80,15 @@ void Scaler<Pixel>::scaleBlank(
 				"movntq	%%mm2, 16(%[dstLine],%%eax,4);"
 				"movntq	%%mm3, 24(%[dstLine],%%eax,4);"
 				// Increment.
-				"addl	%[PIXELS_PER_LOOP], %%eax;"
-				"cmpl	%[WIDTH], %%eax;"
+				"addl	%[pixelsPerLoop], %%eax;"
+				"cmpl	%[width], %%eax;"
 				"jl	0b;"
 		
 				: // no output
 				: [dstLine] "r" (dstLine)
 				, [col32] "r" (col32)
-				, [WIDTH] "r" (dst->w)
-				, [PIXELS_PER_LOOP] "r" (8 * 4 / sizeof(Pixel))
+				, [width] "r" (dst->w)
+				, [pixelsPerLoop] "r" (8 * 4 / sizeof(Pixel))
 				: "eax", "mm0", "mm1", "mm2", "mm3"
 				);
 		}

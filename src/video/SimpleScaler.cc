@@ -113,6 +113,7 @@ void SimpleScaler<Pixel>::scaleBlank(
 		// Note: SDL_FillRect is generally not allowed on locked surfaces.
 		//       However, we're using a software surface, which doesn't
 		//       have locking.
+		// TODO: But it would be more generic to just write bytes.
 		assert(!SDL_MUSTLOCK(dst));
 
 		SDL_PixelFormat* format = dst->format;
@@ -139,6 +140,8 @@ void SimpleScaler<Pixel>::scaleBlank(
 	}
 }
 
+static const bool ASM_NOSUCHMACHINE = false;
+
 template <class Pixel>
 void SimpleScaler<Pixel>::scale256(
 	SDL_Surface* src, int srcY, int endSrcY,
@@ -158,9 +161,9 @@ void SimpleScaler<Pixel>::scale256(
 		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
 		Pixel* dstLower =
 			dstY == dst->h ? dstUpper : Scaler<Pixel>::linePtr(dst, dstY++);
-		/*if (cpu.hasMMXEXT() && sizeof(Pixel) == 2) {
+		/*if (ASM_X86 && cpu.hasMMXEXT() && sizeof(Pixel) == 2) {
 			 TODO: Implement.
-		} else*/ if (cpu.hasMMXEXT() && sizeof(Pixel) == 4) {
+		} else*/ if (ASM_X86 && cpu.hasMMXEXT() && sizeof(Pixel) == 4) {
 			asm (
 				// Precalc: mm6 = darkenFactor, mm7 = 0.
 				"movd	%[darkenFactor], %%mm6;"
@@ -222,7 +225,7 @@ void SimpleScaler<Pixel>::scale256(
 				);
 		// TODO: Test code, remove once we're satisfied all supported
 		//       compilers skip code generation here.
-		} else if (cpu.hasImpossible()) {
+		} else if (ASM_NOSUCHMACHINE && cpu.hasImpossible()) {
 			asm ("nosuchinstruction");
 		// End of test code.
 		} else {
@@ -246,7 +249,7 @@ void SimpleScaler<Pixel>::scale256(
 			}
 		}
 	}
-	if (cpu.hasMMXEXT()) {
+	if (ASM_X86 && cpu.hasMMXEXT()) {
 		asm volatile ("emms");
 	}
 }
