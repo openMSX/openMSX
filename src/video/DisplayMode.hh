@@ -78,7 +78,7 @@ public:
 	  * 	on non-V9958 chips, pass 0.
 	  */
 	DisplayMode(byte reg0, byte reg1, byte reg25) {
-		mode = 
+		mode =
 			  ((reg25 & 0x18) << 2) // YAE YJK
 			| ((reg0  & 0x0E) << 1) // M5..M3
 			| ((reg1  & 0x08) >> 2) // M2
@@ -104,7 +104,13 @@ public:
 	inline bool operator ==(const DisplayMode &otherMode) const {
 		return mode == otherMode.mode;
 	}
-	
+
+	/** Does-not-equal operator.
+	  */
+	inline bool operator !=(const DisplayMode &otherMode) const {
+		return mode != otherMode.mode;
+	}
+
 	/** Get the dispay mode as a byte: YAE YJK M5..M1 combined.
 	  * @return The byte representation of this display mode,
 	  * 	in the range [0..0x7F).
