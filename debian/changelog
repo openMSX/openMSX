@@ -1,6 +1,14 @@
+openmsx (0.5.1-2) unstable; urgency=low
+
+  * arch changed to only i386 for now; will add other architectures later
+  * build against sid, not against testing (Closes: #303144)
+ 
+ -- Joost Yervante Damad <joost@lumatec.be>  Tue,  5 Apr 2005 19:04:27 +0200
+
 openmsx (0.5.1-1) unstable; urgency=low
 
   * new upstream release
+
 
  -- Joost Yervante Damad <joost@lumatec.be>  Sat,  5 Mar 2005 14:54:30 +0100
 
