@@ -53,6 +53,20 @@ SDLFont::SDLFont(File* file)
 	SDL_BlitSurface(image1, &area, image2, &area);
 	SDL_FreeSurface(image1);
 
+	for (int i = 0; i < width * height; i++) {
+		byte &r = ((byte*)image2->pixels)[4 * i + 0];
+		byte &g = ((byte*)image2->pixels)[4 * i + 1];
+		byte &b = ((byte*)image2->pixels)[4 * i + 2];
+		byte  a = ((byte*)image2->pixels)[4 * i + 3];
+		if (a > 100) {
+			r = (r * a) / 255;
+			g = (g * a) / 255;
+			b = (b * a) / 255;
+		} else {
+			r = g = b = 0;
+		}
+	}
+
 	// Set font as transparent. The assumption we'll go on is that the
 	// first pixel of the font image will be the color we should treat
 	// as transparent.

@@ -4,6 +4,7 @@ $Id$
 	* support 8kb roms
 	* fixed SDLFont, sometimes the font was completely transparent
 	* fixed UMR in Timer class (caused Toshiba rom to hang openMSX)
+	* Implemented fake "per pixel alpha blending" for SDLFont
 
 2003-06-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed SDLGL tile cache when character and pattern table use mirroring.
