@@ -25,8 +25,8 @@ endif
 
 config.status: configure
 	dh_testdir
-	# Add here commands to configure the package.
-	# CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info
+	@# Add here commands to configure the package.
+	@# CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info
 
 
 build: build-stamp
@@ -35,7 +35,7 @@ build-stamp:  config.status
 	dh_testdir
 
 	# Add here commands to compile the package.
-	$(MAKE) INSTALL_BASE=$(PKG_INSTALL_BASE)
+	$(MAKE) DATADIR=/usr/share/openmsx
 	docbook-to-man debian/openmsx.sgml > openmsx.1
 
 	touch build-stamp
@@ -65,7 +65,11 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/openmsx.
-	$(MAKE) debianinstall PREFIX=$(CURDIR)/debian/openmsx/usr
+	$(MAKE) install \
+		INSTALL_BINARY_DIR=$(CURDIR)/debian/openmsx/usr/bin \
+		INSTALL_SHARE_DIR=$(CURDIR)/debian/openmsx/usr/share/openmsx \
+		INSTALL_DOC_DIR=$(CURDIR)/debian/openmsx/usr/share/doc/openmsx \
+		SOFTLINK_FOR_BINARY=false
 
 
 # Build architecture-independent files here.

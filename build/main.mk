@@ -476,43 +476,50 @@ endif
 
 # Note: Use OPENMSX_INSTALL only to create binary packages.
 #       To change installation dir for actual installations, edit "custom.mk".
-OPENMSX_INSTALL?=$(INSTALL_BASE)
+OPENMSX_INSTALL ?= $(INSTALL_BASE)
+# allow full customization of locations, used by Debian packaging
+INSTALL_BINARY_DIR ?= $(OPENMSX_INSTALL)/bin
+INSTALL_SHARE_DIR ?= $(OPENMSX_INSTALL)/share
+INSTALL_DOC_DIR ?= $(OPENMSX_INSTALL)/doc
+DATADIR = $(INSTALL_SHARE_DIR)
+
 install: all
 	@echo "Installing to $(OPENMSX_INSTALL):"
 	@echo "  Executable..."
-	@mkdir -p $(OPENMSX_INSTALL)/bin
-	@cp -f $(BINARY_FULL) $(OPENMSX_INSTALL)/bin/$(BINARY_FILE)
+	@mkdir -p  $(INSTALL_BINARY_DIR)
+	@cp -f $(BINARY_FULL) $(INSTALL_BINARY_DIR)/$(BINARY_FILE)
 	@echo "  Data files..."
-	@cp -rf share $(OPENMSX_INSTALL)/
+	@mkdir -p $(INSTALL_SHARE_DIR)/Contrib/cbios
+	@cp -rf share/* $(INSTALL_SHARE_DIR)/
 	@echo "  C-BIOS..."
-	@mkdir -p $(OPENMSX_INSTALL)/Contrib/cbios
-	@cp -f Contrib/README.cbios $(OPENMSX_INSTALL)/Contrib
+	@cp -f Contrib/README.cbios $(INSTALL_SHARE_DIR)/Contrib
 	@cp -f $(addprefix Contrib/cbios/,*.BIN *.txt *.rom) \
-		$(OPENMSX_INSTALL)/Contrib/cbios
+		$(INSTALL_SHARE_DIR)/Contrib/cbios
 	@echo "  Documentation..."
-	@mkdir -p $(OPENMSX_INSTALL)/doc
-	@cp -f README GPL AUTHORS $(OPENMSX_INSTALL)/doc
-	@cp -f $(addprefix doc/,$(INSTALL_DOCS)) $(OPENMSX_INSTALL)/doc
-	@mkdir -p $(OPENMSX_INSTALL)/doc/manual
+	@mkdir -p $(INSTALL_DOC_DIR)
+	@cp -f README GPL AUTHORS $(INSTALL_DOC_DIR)
+	@cp -f $(addprefix doc/,$(INSTALL_DOCS)) $(INSTALL_DOC_DIR)
+	@mkdir -p $(INSTALL_DOC_DIR)/manual
 	@cp -f $(addprefix doc/manual/,*.html *.css *.png) \
-		$(OPENMSX_INSTALL)/doc/manual
+		$(INSTALL_DOC_DIR)/manual
 ifeq ($(USE_SYMLINK),true)
 	@echo "  Creating symlinks..."
-	@ln -nsf National_CF-1200 $(OPENMSX_INSTALL)/share/machines/msx1
-	@ln -nsf Philips_NMS_8250 $(OPENMSX_INSTALL)/share/machines/msx2
-	@ln -nsf Panasonic_FS-A1FX $(OPENMSX_INSTALL)/share/machines/msx2plus
-	@ln -nsf Panasonic_FS-A1GT $(OPENMSX_INSTALL)/share/machines/turbor
+	@ln -nsf National_CF-1200 $(INSTALL_SHARE_DIR)/machines/msx1
+	@ln -nsf Philips_NMS_8250 $(INSTALL_SHARE_DIR)/machines/msx2
+	@ln -nsf Panasonic_FS-A1FX $(INSTALL_SHARE_DIR)/machines/msx2plus
+	@ln -nsf Panasonic_FS-A1GT $(INSTALL_SHARE_DIR)/machines/turbor
+ifeq ($(SOFTLINK_FOR_BINARY),true)
 	@if [ -d /usr/local/bin -a -w /usr/local/bin ]; \
-		then ln -sf $(OPENMSX_INSTALL)/bin/$(BINARY_FILE) /usr/local/bin/openmsx; \
+		then ln -sf $(INSTALL_BINARY_DIR)/$(BINARY_FILE) /usr/local/bin/openmsx; \
 		else if [ -d ~/bin ]; \
-			then ln -sf $(OPENMSX_INSTALL)/bin/$(BINARY_FILE) ~/bin/openmsx; \
+			then ln -sf $(INSTALL_BINARY_DIR)/$(BINARY_FILE) ~/bin/openmsx; \
 			fi; \
 		fi
+endif
 endif
 	@echo "  Setting permissions..."
 	@chmod -R a+rX $(OPENMSX_INSTALL)
 	@echo "Installation complete... have fun!"
-
 
 # Source Packaging
 # ================

@@ -12,3 +12,5 @@ INSTALL_BASE:=/opt/openMSX
 # development versions, not to release versions (see version.mk).
 VERSION_EXEC:=false
 
+# want a softlink for the binary?
+SOFTLINK_FOR_BINARY:=true
