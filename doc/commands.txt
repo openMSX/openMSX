@@ -614,8 +614,8 @@ inputdelay
   Decrease this value to reduce the latency between pressing a key on the host
   machine and seeing it being typed in the MSX machine.
   
-  Note: the default value (3/100s) should almost always be ok, this small delay
-        is practically not noticable and still allows the MSX machine to get
+  Note: the default value (3/100s) should almost always be OK, this small delay
+        is practically not noticeable and still allows the MSX machine to get
         accurate timing on the input events.
 
 

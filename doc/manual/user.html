@@ -74,6 +74,7 @@
 			<li><a class="internal" href="#scalers">6.3. Scalers</a></li>
 			<li><a class="internal" href="#gamma">6.4. Gamma Correction</a></li>
 			<li><a class="internal" href="#videoeffects">6.5. Special Effects</a></li>
+			<li><a class="internal" href="#gfx9000">6.6. GFX9000/Video sources</a></li>
 		</ol>
 	</li>
 	
@@ -167,6 +168,11 @@ only the big picture.
 </p>
 
 <dl>
+
+<dt>2005-01-26: Manuel Bilderbeek</dt>
+<dd>
+Updates for release 0.5.1.
+</dd>
 
 <dt>2004-09-28: Manuel Bilderbeek</dt>
 <dd>
@@ -325,7 +331,7 @@ Some MSX machines like the Panasonic FS-A1GT have built in software (called firm
 </p>
 
 <p>
-You can save all your current settings with the <code>save_settings</code> command. If you specify a file name after this command, the settings will not be saved to the default settings file (<code>share/settings.xml</code>), but to the specified file. At start up, alternative settings files can be loaded by using the <code>-setting</code> command line option. At the moment, it is not possible yet to load settings from a file at run time. If you want openMSX to automatically save your settings when it exits, issue the following setting: <code>set save_settings_on_exit true</code>.
+You can save all your current settings with the <code>save_settings</code> command. If you specify a file name after this command, the settings will not be saved to the default settings file (<code>share/settings.xml</code>), but to the specified file. At start up, alternative settings files can be loaded by using the <code>-setting</code> command line option. You can also use the <code>load_settings</code> command to load settings at run time. Settings that are not mentioned in the saved settings file that you are loading will be untouched. If you want openMSX to automatically save your settings when it exits, issue the following setting: <code>set save_settings_on_exit true</code>.
 </p>
 
 <h3><a id="plug">3.4. Plug</a></h3>
@@ -372,21 +378,20 @@ If things go terribly wrong, openMSX may not have the extension of your ROM file
 This lets openMSX know that the file <code>galious.gam</code> is a ROM cartridge and that openMSX should insert it in the first available free cartridge slot. You can also use <code>-carta</code> to explicitly specify cartridge slot A.
 </p>
 <p>
-Or, maybe openMSX didn't have the ROM in the ROM database and failed auto detection of the mapper type. You can specify the mapper to KONAMI4 like this:
+Or, maybe openMSX didn't have the ROM in the ROM database and failed auto detection of the mapper type. You can specify the mapper to Konami (formerly known as KONAMI4) like this:
 </p>
-<div class="commandline">openmsx galious.rom,KONAMI4</div>
+<div class="commandline">openmsx galious.rom -romtype Konami</div>
 <p>
-Note that in practice you won't need this, since most ROM images are in the database or auto detected if they are not. Also note that the ROM type names may change in future versions of openMSX.
+Note that in practice you won't need this, since most ROM images are in the database or auto detected if they are not. Also note that the ROM type names may change in future versions of openMSX, as they did from openMSX 0.5.1. The <code>-romtype</code> option should follow the ROM it applies to immediately on the command line.
 </p>
 <h4><a id="patchingroms">4.1.2 Running on-the-fly patched ROM software</a></h4>
 <p>
-If wanted openMSX can apply IPS patches to ROM software before running it. This way you do not need to alter any files. To apply an IPS patch you have to provide the IPS filename after the specification of the mapper type like this:
+If wanted, openMSX can apply IPS patches to ROM software before running it. This way you do not need to alter any files. To apply an IPS patch you have to provide the IPS filename like this:
 </p>
-<div class="commandline">openmsx -cart galious.rom,KONAMI4,galiouspatch.ips</div>
+<div class="commandline">openmsx -cart galious.rom -ips galiouspatch.ips</div>
 <p>
-If you want to rely on the auto detection of the mapper type, you can use the word 'auto' as mappertyper or simply enter no mapper type at all, like this:
+As with the <code>-romtype</code> option, <code>-ips</code> applies to the ROM file that is mentioned just before it on the command line.
 </p>
-<div class="commandline">openmsx -cart Mgearj.rom,,mgr_MODERN.ips</div>
 
 <h3><a id="disks">4.2. Running Disk Software</a></h3>
 
@@ -431,11 +436,11 @@ that you specified as if it were a disk image. So: </p>
     openmsx -diska .
 </div>
 <p>
-will try to put all files of the current dir on a disk image in memory and
+will try to put all files of the current directory on a disk image in memory and
 start openMSX with it. The actual data is still read from/written to the files
 in your directory so that if you change the content of the files, these changes
 are immediately visible to the emulated MSX.  This way you can for instance
-edit source files with your favorite texteditor but compile them imediately in
+edit source files with your favourite text editor but compile them immediately in
 the emulated MSX.
 </p>
 <p>
@@ -443,21 +448,21 @@ Adding files on the host OS doesn't have any effect on the disk in openMSX and
 vice versa.
 </p>
 <p>
-<b>Be carefull when writting to files from your emulated MSX.</b><br>
+<b>Be careful when writing to files from your emulated MSX.</b><br>
 If you save an existing file on that disk in the emulated MSX (without
 increasing the file size), the change is also reflected on the directory on the
-host OS!If the files are bigger then the original size then the extra data
+host OS! If the files are bigger than the original size then the extra data
 sectors needed will be stored in a hidden sector cache and the extra data will
-not be reflected in the host OS files !  When stopping the emulator, or
+not be reflected in the host OS files! When stopping the emulator, or
 ejecting the fake disk, this sector cache is written in the same directory as
-the orginal files, so that it can be loaded again when restarting the emulator.
-So if you use the dir-as-disk feature on a real floppy disk, changes are that
+the original files, so that it can be loaded again when restarting the emulator.
+So if you use the DirAsDsk feature on a real floppy disk, chances are that
 you'll end up with a full disk when this cache is written!
 </p>
 <p>
 Note that this feature is willfully kept very bare bones: it
 doesn't support sub directories and it skips all remaining files if the virtual
-disk is full. It's main purpose is to facilitate cross platform development.
+disk is full. Its main purpose is to facilitate cross platform development.
 </p>
 
 <h4><a id="realdisks">4.2.3. Using Real Disks</a></h4>
@@ -469,7 +474,7 @@ may be a bit slow though, with the FDC emulation enabled. It should be just as
 slow as a real disk drive, however! Don't forget that you shouldn't have it
 mounted to be able to use it this way. We recommend to use only write-protected
 disks! It is possible that you damage the contents of your disk if you don't.
-Windows users can try real disks by using the DirAsDisk feature. Because his
+Windows users can try real disks by using the DirAsDsk feature. Because his
 feature is still experimental, one should always use it with write protected
 disks. Only regular disks with normal files will work with it; specify A: as
 disk image to use it.
@@ -663,6 +668,10 @@ To connect a mouse, you can also use the <code>plug</code> command:
 </div>
 <p>
 will connect a mouse to joystick port A. If you want the joystick emulation feature that some mice (like the Philips SBC-3810 and the Sony MOS-1) have, keep the left mouse key pressed when plugging it in, just as on a real MSX.
+</p>
+
+<p>
+If you are using openMSX in windowed mode, it might be tricky to use the mouse. For that you may want to use the following setting: <code>set grabinput on</code>. This makes sure all input goes to openMSX. Your cursor cannot leave the openMSX window with this setting. Just turn it back to off, if you want to disable this again. If you only want to escape the window briefly, use this command: <code>escape_grab</code>. It permits you to leave the window, but the next time you enter it, the cursor is grabbed again.
 </p>
 
 <h2><a id="video">6. Video</a></h2>
@@ -864,6 +873,30 @@ This feature works only in the <code>SDLGL</code> renderer.
 
 </dl>
 
+<h3><a id="gfx9000">6.6. GFX9000/Video source</a></h3>
+
+<p>
+Since openMSX 0.5.1, experimental GFX9000 emulation is available. Note that it is indeed experimental; it is also incomplete, unoptimised and contains loads of bugs. But we thought you might wanted to play around with it anyway...
+</p>
+
+<p>
+The real GFX9000 has an external video connector to which you can connect a
+second monitor. Because of limits of the SDL library we used to create openMSX,
+we cannot have more than one window for openMSX, so we cannot emulate a second
+monitor. To see the GFX9000 in action, you need to switch the videosource
+setting, which equals to a so-called SCART-switch in the real world: <code>set
+videosource GFX9000</code>. If you started openMSX without GFX9000 extension,
+this option is not available.
+</p>
+
+<p>
+To get your normal MSX screen back, you should
+type <code>set videosource MSX</code>. If you want to toggle with a hot key
+between them, it might be useful to bind a key for it. E.g.: <code>bind F6
+cycle videosource</code>.<br/>
+<code>cycle</code> is a TCL command that cycles through the options of the setting in the parameter.
+</p>
+
 <h2><a id="audio">7. Audio</a></h2>
 
 <h3><a id="audiosettings">7.1. Audio Settings</a></h3>
@@ -944,7 +977,7 @@ file in the <code>share/machines/Philips_NMS_8250</code> directory.
 </p>
 <pre>
   &lt;DebugDevice id="Debug Device"&gt;
-    &lt;io base="0x2F" num="2" type="O"/&gt;
+    &lt;io base="0x2E" num="2" type="O"/&gt;
     &lt;filename&gt;stdout&lt;/filename&gt;
   &lt;/DebugDevice&gt;
 </pre>
@@ -978,7 +1011,7 @@ When using mode 1, single byte mode, these are the parameters:
   <tr> <td>0</td> <td>  hexadecimal mode on/off </td> </tr>
   <tr> <td>1</td> <td>  binary mode on/off</td> </tr>
   <tr> <td>2</td> <td>  decimal mode on/off</td> </tr>
-  <tr> <td>3</td> <td>  ascii mode on/off</td> </tr>
+  <tr> <td>3</td> <td>  ASCII mode on/off</td> </tr>
 </table>
 
 <p>
@@ -990,7 +1023,7 @@ The parameters for mode 2 (multi byte mode) are as follows:
 </p>
 <table>
   <tr> <th>bit(s)</th><th>meaning</th> </tr>
-  <tr> <td>0-1</td> <td> mode (0 = hex, 1 = binary, 2 = decimal, 3 = ascii mode)</td> </tr>
+  <tr> <td>0-1</td> <td> mode (0 = hex, 1 = binary, 2 = decimal, 3 = ASCII mode)</td> </tr>
 </table>
 
 <h3><a id="debugdevicemode1">8.3. Single Byte Mode</a></h3>
@@ -1053,7 +1086,7 @@ the layout of the whole line.
 In mode 2, writing to 0x2F does not output any text. All bytes written to this
 register are stored in a buffer and only when the mode register is set again the
 output is shown. Unlike mode 1, the data in this mode is always shown in one
-mode only. It's either in hex mode, binary mode, decimal mode or ascii mode, but
+mode only. It's either in hex mode, binary mode, decimal mode or ASCII mode, but
 never a combination. Also the EmuTime bit is left out.
 </p>
 
