@@ -19,7 +19,7 @@ class DebugConsole : public Console, private EventListener,
                      private SettingListener
 {
 	public:
-		~DebugConsole ();
+		~DebugConsole();
 		static DebugConsole* instance();
 		
 		struct ViewStruct {

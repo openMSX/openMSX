@@ -123,38 +123,66 @@ void MSXCPU::wait(const EmuTime &time)
 	activeCPU->wait(time);
 }
 
-dword MSXCPU::getDataSize ()
+
+// DebugInterface
+
+static string regNames[] = {
+	"AF",  "BC",  "DE",  "HL",
+	"AF2", "BC2", "DE2", "HL2",
+	"IX",  "IY",  "PC",  "SP",
+	"IR"
+};
+
+dword MSXCPU::getDataSize() const
 {
 	return 26; // number of 8 bits registers (16 bits = 2 registers)
 }
 
-byte MSXCPU::readDebugData (dword address)
+const string MSXCPU::getRegisterName(dword regNr) const
 {
-	assert (address < getDataSize());
-	CPU::CPURegs * regs = &activeCPU->R; 
-	static const CPU::z80regpair * registers[] = {
-		&regs->AF, &regs->BC, &regs->DE, &regs->HL, 
-		&regs->AF2, &regs->BC2,	&regs->DE2, &regs->HL2, 
-		&regs->IX, &regs->IY, &regs->PC, &regs->SP};
-	switch (address){
+	assert(regNr < getDataSize());
+	return regNames[regNr / 2];
+}
+
+dword MSXCPU::getRegisterNumber(const string& regName) const
+{
+	for (int i = 0; i < (26 / 2); ++i) {
+		if (regName == regNames[i]) {
+			return i * 2;
+		}
+	}
+	return 0;
+}
+
+byte MSXCPU::readDebugData(dword address) const
+{
+	CPU::CPURegs* regs = &activeCPU->R; 
+	const CPU::z80regpair* registers[] = {
+		&regs->AF,  &regs->BC,  &regs->DE,  &regs->HL, 
+		&regs->AF2, &regs->BC2, &regs->DE2, &regs->HL2, 
+		&regs->IX,  &regs->IY,  &regs->PC,  &regs->SP
+	};
+
+	assert(address < getDataSize());
+	switch (address) {
 	case 24:
 		return regs->I;
 	case 25:
 		return regs->R;
 	default:
-		if (address & 1){
-			return registers[(address-1) >> 1]->B.l;
-		}
-		else{
-			return registers[(address) >> 1]->B.h;
+		if (address & 1) {
+			return registers[address / 2]->B.l;
+		} else {
+			return registers[address / 2]->B.h;
 		}
 		break;
 	}
 }
 
-std::string MSXCPU::getDeviceName ()
+const string& MSXCPU::getDeviceName() const
 {
-	return "cpu";
+	static const string NAME("cpu");
+	return NAME;
 }
 
 } // namespace openmsx

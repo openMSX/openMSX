@@ -65,9 +65,12 @@ class MSXCPU : public MSXDevice, public DebugInterface
 		 */
 		bool isR800Active();
 		
-		dword getDataSize ();
-		byte readDebugData (dword address);
-		std::string getDeviceName ();
+		// DebugInterface
+		virtual dword getDataSize() const;
+		virtual const string getRegisterName(dword regNr) const;
+		virtual dword getRegisterNumber(const string& regName) const;
+		virtual byte readDebugData (dword address) const;
+		virtual const string& getDeviceName() const;
 
 	private:
 		MSXCPU(Device *config, const EmuTime &time);

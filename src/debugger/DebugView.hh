@@ -17,7 +17,9 @@ class DebugView
 	public:
 		DebugView(unsigned rows, unsigned columns, bool border);
 		virtual ~DebugView();
-		string getLine(unsigned line);
+
+		const string& getLine(unsigned line) const;
+
 		virtual void resize(unsigned rows, unsigned columns);
 		virtual void update() = 0;
 		virtual void fill() = 0;
@@ -27,7 +29,7 @@ class DebugView
 		void getCursor(unsigned& rows, unsigned& columns);
 		void clear();
 		void deleteLine();
-		void addLine(string message = "");
+		void addLine(const string& message = "");
 
 		vector<string> lines;
 		unsigned rows;

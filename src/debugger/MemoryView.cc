@@ -57,7 +57,7 @@ void MemoryView::setNumericBase(int base)
 	numericBase = base;
 }
 
-ViewControl * MemoryView::getViewControl()
+ViewControl* MemoryView::getViewControl()
 {
 	return viewControl;
 }

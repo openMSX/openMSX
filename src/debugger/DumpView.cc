@@ -5,8 +5,8 @@
 
 namespace openmsx {
 
-DumpView::DumpView(unsigned rows_, unsigned columns_, bool border_)
-	: MemoryView(rows_, columns_, border_)
+DumpView::DumpView(unsigned rows, unsigned columns, bool border)
+	: MemoryView(rows, columns, border)
 {
 	numericSize = 1;
 }
@@ -25,7 +25,6 @@ void DumpView::fill()
 {
 	// first calculated positions
 	lines.clear();
-	string temp;
 	bool addresses = true;
 	int spaceleft = columns;
 	int space = (slot.direct || slot.vram ? 8 : 4); 
@@ -41,7 +40,7 @@ void DumpView::fill()
 	int num = spaceleft / space;
 	char hexbuffer[5];
 	for (unsigned i = 0; i < rows; ++i) {
-		temp = "";
+		string temp;
 		if (addresses) {
 			char hexbuffer[5];
 			sprintf(hexbuffer, "%04X ", address + i * num);

@@ -40,7 +40,7 @@ void ViewControl::setAddress(int address)
 	}
 }
 
-int ViewControl::getAddress()
+int ViewControl::getAddress() const
 {
 	if (indirect) {
 		MSXCPUInterface* msxcpu = MSXCPUInterface::instance();
@@ -59,7 +59,7 @@ int ViewControl::getAddress()
 	return currentDevice->readDebugData(currentCriterium);
 }
 
-bool ViewControl::linkToCriterium(DebugInterface* device, string criteria)
+bool ViewControl::linkToCriterium(DebugInterface* device, const string& criteria)
 {
 	currentDevice = device;
 	if ((criteria[0] >= '0') && (criteria[0] <= '9')) {

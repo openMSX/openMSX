@@ -6,7 +6,7 @@
 namespace openmsx {
 
 DebugView::DebugView(unsigned rows_, unsigned columns_, bool border_)
-	: rows(rows_),columns(columns_),border(border_)
+	: rows(rows_), columns(columns_), border(border_)
 {
 	cursorX = cursorY = 0;
 }
@@ -61,12 +61,12 @@ void DebugView::deleteLine()
 	lines.pop_back();
 }
 
-void DebugView::addLine(string message)
+void DebugView::addLine(const string& message)
 {
 	lines.push_back(message);
 }
 
-string DebugView::getLine(unsigned line)
+const string& DebugView::getLine(unsigned line) const
 {
 	return lines[line];
 }

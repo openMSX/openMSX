@@ -14,20 +14,18 @@ namespace openmsx {
 class DebugInterface
 {
 	public:
-		DebugInterface();
 		virtual ~DebugInterface();
-		virtual string getRegisterName(word regNr) {
-			assert(false);
-			return "";
-		}
-		virtual word getRegisterNumber(string regName) {
-			assert(false);
-			return 0;
-		}
-		virtual dword getDataSize() = 0;
-		virtual byte readDebugData(dword address) = 0;
-		virtual string getDeviceName() = 0;
+
+		virtual dword getDataSize() const = 0;
+		virtual const string getRegisterName(dword regNr) const;
+		virtual dword getRegisterNumber(const string& regName) const;
+		virtual byte readDebugData(dword address) const = 0;
+		virtual const string& getDeviceName() const = 0;
+
 		void registerDevice();
+
+	protected:
+		DebugInterface();
 };
 
 } // namespace openmsx

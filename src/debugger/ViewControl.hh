@@ -15,13 +15,14 @@ class DebugInterface;
 class ViewControl
 {
 	public:
-		ViewControl(MemoryView* view_);
+		ViewControl(MemoryView* view);
 		~ViewControl();
+
 		void setAddress(int address);
-		int getAddress();
+		int getAddress() const;
 
 	private:
-		bool linkToCriterium(DebugInterface * device, string regName);
+		bool linkToCriterium(DebugInterface* device, const string& regName);
 
 		DebugInterface* currentDevice;
 		MemoryView* view;

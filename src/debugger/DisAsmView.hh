@@ -20,12 +20,13 @@ class DisAsmView: public MemoryView
 		void scroll(enum ScrollDirection direction, unsigned lines);
 
 	private:
-		bool displayBytes;
-		bool bytesInFront;
 		byte sign(byte data);
 		byte abs(byte data);
 		byte createDisAsmText(dword address, string& dest);
 		void createByteText(dword address, string& dest, byte size);
+		
+		bool displayBytes;
+		bool bytesInFront;
 };
 
 } // namespace openmsx
