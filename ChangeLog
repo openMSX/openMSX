@@ -8,6 +8,8 @@ $Id$
 	   - completion till longest common match
 	   - if there is only one match left a ' ' is added
 	   - option for context sensitive completion (not yet tested)
+	* Implemented tab completion for (un)plug command:
+	   name of connector and pluggable gets completed
 
 2002-03-07 Maarten ter Huurne <mth@stack.nl>
 	* Fixed Generic16K MegaROM mapper. DOS2 works now.

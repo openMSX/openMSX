@@ -33,7 +33,7 @@ class Command
 		 *               method tries to complete it.
 		 * Default implementation does nothing
 		 */
-		virtual void tabCompletion(const std::vector<std::string> &tokens) {}
+		virtual void tabCompletion(std::vector<std::string> &tokens) {}
 };
 
 #endif //_COMMAND_HH__

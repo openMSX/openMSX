@@ -47,6 +47,7 @@ private:
 	public:
 		virtual void execute(const std::vector<std::string> &tokens);
 		virtual void help   (const std::vector<std::string> &tokens);
+		virtual void tabCompletion(std::vector<std::string> &tokens);
 	};
 	friend class PlugCmd;
 	PlugCmd plugCmd;
@@ -54,6 +55,7 @@ private:
 	public:
 		virtual void execute(const std::vector<std::string> &tokens);
 		virtual void help   (const std::vector<std::string> &tokens);
+		virtual void tabCompletion(std::vector<std::string> &tokens);
 	};
 	friend class UnplugCmd;
 	UnplugCmd unplugCmd;

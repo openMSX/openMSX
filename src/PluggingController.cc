@@ -6,6 +6,7 @@
 #include "PluggingController.hh"
 #include "Connector.hh"
 #include "Pluggable.hh"
+#include "openmsx.hh"
 
 
 PluggingController::PluggingController()
@@ -65,6 +66,8 @@ void PluggingController::unregisterPluggable(Pluggable *pluggable)
 	assert(false);
 }
 
+// === Commands ===
+//  plug command
 
 void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens)
 {
@@ -110,6 +113,31 @@ void PluggingController::PlugCmd::help   (const std::vector<std::string> &tokens
 	Console::instance()->print("plug...");	// TODO
 }
 
+void PluggingController::PlugCmd::tabCompletion(std::vector<std::string> &tokens)
+{
+	PluggingController* controller = PluggingController::instance();
+	if (tokens.size() == 2) {
+		// complete connector
+		std::list<std::string> connectors;
+		std::vector<Connector*>::iterator i;
+		for (i=controller->connectors.begin(); i!=controller->connectors.end(); i++) {
+			connectors.push_back((*i)->getName());
+		}
+		CommandController::completeString(tokens[1], connectors);
+	} else if (tokens.size() == 3) {
+		// complete pluggable
+		std::list<std::string> pluggables;
+		std::vector<Pluggable*>::iterator i;
+		for (i=controller->pluggables.begin(); i!=controller->pluggables.end(); i++) {
+			pluggables.push_back((*i)->getName());
+		}
+		CommandController::completeString(tokens[2], pluggables);
+	}
+}
+
+
+//  unplug command
+
 void PluggingController::UnplugCmd::execute(const std::vector<std::string> &tokens)
 {
 	if (tokens.size()!=2) {
@@ -135,4 +163,18 @@ void PluggingController::UnplugCmd::execute(const std::vector<std::string> &toke
 void PluggingController::UnplugCmd::help   (const std::vector<std::string> &tokens)
 {
 	Console::instance()->print("unplug...");	// TODO
+}
+
+void PluggingController::UnplugCmd::tabCompletion(std::vector<std::string> &tokens)
+{
+	PluggingController* controller = PluggingController::instance();
+	if (tokens.size() == 2) {
+		// complete connector
+		std::list<std::string> connectors;
+		std::vector<Connector*>::iterator i;
+		for (i=controller->connectors.begin(); i!=controller->connectors.end(); i++) {
+			connectors.push_back((*i)->getName());
+		}
+		CommandController::completeString(tokens[1], connectors);
+	}
 }
