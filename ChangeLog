@@ -1,5 +1,11 @@
 $Id$
 
+2002-03-28 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Moved ADPCM part of Y8950 to its own file
+	* Fixed ADPCM bug: 
+	   addresses where a factor 8 too low, only first sample was
+	   played correctly
+
 2002-04-01 Joost Yervante Damad <andete@worldcity.nl>
 	* FileManager sync [WIP]
 	* a first proposal for a FileManager API, I'll

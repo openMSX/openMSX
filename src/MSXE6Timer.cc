@@ -41,6 +41,6 @@ byte MSXE6Timer::readIO(byte port, const EmuTime &time)
 void MSXE6Timer::writeIO(byte port, byte value, const EmuTime &time)
 {
 	assert (port == 0xE6);
-	reference = time;	// freq does not change
+	reference = time;
 }
 

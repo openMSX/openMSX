@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef _EMU8950_H_
-#define _EMU8950_H_
+#ifndef __Y8950_HH__
+#define __Y8950_HH__
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
@@ -9,6 +9,7 @@
 #include "IRQHelper.ii"
 #include "Mixer.hh"
 #include "Y8950Timer.hh"
+#include "Y8950Adpcm.hh"
 
 //forward declarations
 class EmuTime;
@@ -207,7 +208,6 @@ class Y8950 : public SoundDevice
 		inline void update_ampm();
 		
 		inline int calcSample(int channelMask);
-		inline int calcAdpcm();
 		void checkMute();
 		bool checkMuteHelper();
 
@@ -279,14 +279,6 @@ class Y8950 : public SoundDevice
 		short maxVolume;
 
 
-		// adpcm
-		static const int DMAX = 0x5FFF;
-		static const int DMIN = 0x7F;
-		static const int DDEF = 0x7F;
-
-		static const int DECODE_MAX = 32767;
-		static const int DECODE_MIN = -32768;
-
 		// Bitmask for register 0x04 
 		static const int R04_ST1          = 0x01;	// Timer1 Start
 		static const int R04_ST2          = 0x02;	// Timer2 Start
@@ -297,63 +289,25 @@ class Y8950 : public SoundDevice
 		static const int R04_MASK_T1      = 0x40;	// Mask Timer1 flag 
 		static const int R04_IRQ_RESET    = 0x80;	// IRQ RESET 
 
-		// Bitmask for register 0x07 
-		static const int R07_RESET        = 0x01;
-		//static const int R07            = 0x02;	// not used
-		//static const int R07            = 0x04;	// not used
-		static const int R07_SP_OFF       = 0x08;
-		static const int R07_REPEAT       = 0x10;
-		static const int R07_MEMORY_DATA  = 0x20;
-		static const int R07_REC          = 0x40;
-		static const int R07_START        = 0x80;
-
-		// Bitmask for register 0x08 
-		static const int R08_ROM          = 0x01;
-		static const int R08_64K          = 0x02;
-		static const int R08_DA_AD        = 0x04;
-		static const int R08_SAMPL        = 0x08;
-		//static const int R08            = 0x10;	// not used
-		//static const int R08            = 0x20;	// not used
-		static const int R08_NOTE_SET     = 0x40;
-		static const int R08_CSM          = 0x80;
-
 		// Bitmask for status register 
 		static const int STATUS_EOS     = R04_MASK_EOS;
 		static const int STATUS_BUF_RDY = R04_MASK_BUF_RDY;
 		static const int STATUS_T2      = R04_MASK_T2;
 		static const int STATUS_T1      = R04_MASK_T1;
 
-		static const int GETA_BITS       = 14;
-		static const int DELTA_ADDR_MAX  = 1<<(16+GETA_BITS);
-
-
 		byte status;		// STATUS Register
 		byte statusMask;	//  bit=0 -> masked 
 		IRQHelper irq;
 		
-		byte* wave;		// ADPCM DATA
-		byte* memory[2];	// [0] RAM, [1] ROM
-		int ramSize;
-
-		bool adpcmPlaying;
-		int start_addr;
-		int stop_addr;
-		int play_addr; 		// Current play address * 2
-		int delta_addr;
-		int delta_n;
-		int play_addr_mask;
-		int memPntr;
-
-		int adpcmOutput[2];
-		int diff;
-
-		int sampleRate;
-
-		//Timers
+		// Timers
 		Y8950Timer<12500, STATUS_T1> timer1;	//  80us
 		friend class Y8950Timer<12500, STATUS_T1>;
 		Y8950Timer< 3125, STATUS_T2> timer2;	// 320us
 		friend class Y8950Timer< 3125, STATUS_T2>;
+		
+		// ADPCM
+		Y8950Adpcm adpcm;
+		friend class Y8950Adpcm;
 };
 
 #endif

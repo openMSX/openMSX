@@ -38,11 +38,6 @@ int   Y8950::Slot::AR_ADJUST_TABLE[1<<EG_BITS];
 //                                                  //
 //**************************************************//
 
-int Y8950::CLAP(int min, int x, int max)
-{
-	return (x<min) ? min : ((max<x) ? max : x);
-}
-
 int Y8950::Slot::ALIGN(int d, double SS, double SD) 
 { 
 	return d*(int)(SS/SD);
@@ -426,7 +421,7 @@ void Y8950::Channel::keyOff()
 
 Y8950::Y8950(short volume, int sampleRam, const EmuTime &time,
              Mixer::ChannelMode mode) :
-	timer1(this), timer2(this)
+	timer1(this), timer2(this), adpcm(this, sampleRam)
 {
 	makePmTable();
 	makeAmTable();
@@ -446,14 +441,6 @@ Y8950::Y8950(short volume, int sampleRam, const EmuTime &time,
 		ch[i].car.plfo_pm = &lfo_pm;
 	}
 	
-	// adpcm
-	// 256Kbytes ROM / RAM
-	ramSize = sampleRam;
-	memory[0] = new byte[256*1024];	// RAM
-	memory[1] = new byte[256*1024];	// ROM
-	memset(memory[0], 256, 256*1024);
-	memset(memory[1], 256, 256*1024);
-	
 	reset(time);
 
 	setVolume(volume);
@@ -465,13 +452,11 @@ Y8950::~Y8950()
 {
 	Mixer::instance()->unregisterSound(this);
 	delete[] buffer;
-	delete[] memory[0];
-	delete[] memory[1];
 }
 
 void Y8950::setSampleRate(int sampleRate)
 {
-	this->sampleRate = sampleRate;
+	adpcm.setSampleRate(sampleRate);
 	Y8950::Slot::makeDphaseTable(sampleRate);
 	Y8950::Slot::makeDphaseARTable(sampleRate);
 	Y8950::Slot::makeDphaseDRTable(sampleRate);
@@ -506,19 +491,11 @@ void Y8950::reset(const EmuTime &time)
 	for (int i=0; i<0xFF; i++) 
 		reg[i] = 0x00;
 
-	// adpcm
 	reg[0x04] = 0x18;
-	adpcmPlaying = false;
 	status = 0x06;	// TODO
 	statusMask = 0;
-	play_addr = 0;
-	start_addr = 0;
-	stop_addr = 0;
-	delta_addr = 0;
-	delta_n = 0;
-	wave = memory[0];
-	play_addr_mask = reg[0x08]&R08_64K ? (1<<17)-1 : (1<<19)-1;
 	
+	adpcm.reset();
 	setInternalMute(true);	// muted
 }
 
@@ -796,7 +773,6 @@ int Y8950::calcSample(int channelMask)
 		channelMask &= (1<< 6) - 1;
 		mix *= 2;
 	}
-	
 	for (Channel *cp = ch; channelMask; channelMask >>=1, cp++) {
 		if (channelMask & 1) {
 			if (cp->alg)
@@ -808,52 +784,9 @@ int Y8950::calcSample(int channelMask)
 		}
 	}
 
-	mix += calcAdpcm();
+	mix += adpcm.calcSample();
+
 	return (mix*maxVolume) >> DB2LIN_AMP_BITS;
-}
-
-
-int Y8950::calcAdpcm()
-{
-	if ((reg[0x07]&R07_SP_OFF) || !adpcmPlaying)
-		return 0;
-	delta_addr += delta_n;
-	while (delta_addr >= DELTA_ADDR_MAX) {
-		delta_addr -= DELTA_ADDR_MAX;
-		
-		nibble val;
-		if (play_addr & 1) {
-			val = reg[0x0f]&0x0f;
-		} else {
-			reg[0x0f] = wave[play_addr/2];
-			val = reg[0x0f]>>4;
-		}
-		// This table values are from ymdelta.c by Tatsuyuki Satoh.
-		static const int F1[16] = { 1,   3,   5,   7,   9,  11,  13,  15,
-		                           -1,  -3,  -5,  -7,  -9, -11, -13, -15};
-		static const int F2[16] = {57,  57,  57,  57,  77, 102, 128, 153,
-		                           57,  57,  57,  57,  77, 102, 128, 153};
-		adpcmOutput[1] = adpcmOutput[0];
-		adpcmOutput[0] += (diff*F1[val]) >> 3;
-		adpcmOutput[0] = CLAP(DECODE_MIN, adpcmOutput[0], DECODE_MAX);
-		diff = CLAP(DMIN, (diff*F2[val]) >> 6, DMAX);
-		
-		play_addr++;
-		if (play_addr > stop_addr) {
-			if (reg[0x07] & R07_REPEAT) {
-				play_addr = start_addr;
-				delta_addr = 0;
-				adpcmOutput[0] = 0;
-				adpcmOutput[1] = 0;
-				diff = DDEF;
-			} else {
-				adpcmPlaying = false;
-				setStatus(STATUS_EOS);
-			}
-		}
-	}
-	// TODO adjust relative volume
-	return ((adpcmOutput[0] + adpcmOutput[1]) * reg[0x12]) >> 12;
 }
 
 
@@ -879,11 +812,8 @@ bool Y8950::checkMuteHelper()
 		if (ch[8].mod.eg_mode!=FINISH) return false;
 		if (ch[8].car.eg_mode!=FINISH) return false;
 	}
-
-	if (!(reg[0x07]&R07_SP_OFF) && adpcmPlaying)
-		return false;
 	
-	return true;	// nothing is playing, then mute
+	return adpcm.muted();
 }
 
 int* Y8950::updateBuffer(int length)
@@ -996,76 +926,26 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			// TODO
 			reg[rg] = data;
 			break;
-
+		
 		case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET
-			if (data & R07_RESET) {
-				adpcmPlaying = false;
-				break;
-			} else if (data & R07_START) {
-				adpcmPlaying = true;
-				play_addr = start_addr;
-				delta_addr = 0;
-				adpcmOutput[0] = 0;
-				adpcmOutput[1] = 0;
-				diff = DDEF;
-			}
-			reg[rg] = data;
-			break;
-
 		case 0x08: // CSM/KEY BOARD SPLIT/-/-/SAMPLE/DA AD/64K/ROM 
-			wave = data&R08_ROM ? memory[1] : memory[0];
-			play_addr_mask = data&R08_64K ? (1<<17)-1 : (1<<19)-1;
-			start_addr =  ((reg[0x0A]*256+reg[0x09])*8)    & play_addr_mask;
-			stop_addr  = (((reg[0x0C]*256+reg[0x0B])*8)+7) & play_addr_mask;
-			reg[rg] = data;
-			break;
-
 		case 0x09: // START ADDRESS (L) 
 		case 0x0A: // START ADDRESS (H) 
-			reg[rg] = data;
-			start_addr = ((reg[0x0A]*256+reg[0x09])*8) & play_addr_mask;
-			memPntr = 0;
-			break;
-
 		case 0x0B: // STOP ADDRESS (L) 
 		case 0x0C: // STOP ADDRESS (H) 
-			reg[rg] = data;
-			stop_addr  = (((reg[0x0C]*256+reg[0x0B])*8)+7) & play_addr_mask;
-			break;
-
 		case 0x0D: // PRESCALE (L) 
 		case 0x0E: // PRESCALE (H) 
-			reg[rg] = data;
-			break;
-
 		case 0x0F: // ADPCM-DATA 
-			if ((reg[0x07]&R07_REC) && (reg[0x07]&R07_MEMORY_DATA)) {
-				int tmp = ((start_addr + memPntr) & play_addr_mask) / 2;
-				if (tmp < ramSize)
-					wave[tmp] = data;
-				memPntr += 2;
-			}
-			setStatus(STATUS_BUF_RDY);
-			reg[rg] = data;
-			break;
-
 		case 0x10: // DELTA-N (L) 
 		case 0x11: // DELTA-N (H) 
-			reg[rg] = data;
-			delta_n = rate_adjust(((reg[0x11]<<8)|reg[0x10])<<GETA_BITS, sampleRate);
-			break;
-
 		case 0x12: // ENVELOP CONTROL 
-			reg[rg] = data;
-			break;
-
 		case 0x15: // DAC-DATA  (bit9-2)
 		case 0x16: //           (bit1-0)
 		case 0x17: //           (exponent)
-			// TODO
-			reg[rg] = data;
+		case 0x1A: // PCM-DATA
+			adpcm.writeReg(rg, data, time);
 			break;
-
+		
 		case 0x18: // I/O-CONTROL (bit3-0)
 			// TODO
 			// 0 -> input
@@ -1077,11 +957,8 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			// TODO
 			reg[rg] = data;
 			break;
-
-		case 0x1A: // PCM-DATA
-			reg[rg] = data;
-			break;
 		}
+		
 		break;
 	}
 	case 0x20: {
@@ -1213,19 +1090,12 @@ byte Y8950::readReg(byte rg)
 		case 0x05: // (KEYBOARD IN)
 			// TODO
 			break;
-			
-		case 0x0f: { // ADPCM-DATA
-			// TODO advance pointer (only when not playing??)
-			int adr = ((start_addr + memPntr) & play_addr_mask) / 2;
-			byte tmp = wave[adr];
-			//memPntr += 2; TODO ??
-			return tmp;
-		}
-		case 0x19: // I/O DATA
-			// TODO
-			break;
-			
+		
+		case 0x0f: // ADPCM-DATA
 		case 0x1a: // PCM-DATA
+			return adpcm.readReg(rg);
+		
+		case 0x19: // I/O DATA
 			// TODO
 			break;
 	}
