@@ -30,7 +30,7 @@ openmsx_SOURCES=openmsx.cc \
 	MSXPSG.hh MSXPSG.cc AY8910.hh AY8910.cc \
 	JoystickPorts.hh JoystickPorts.cc JoystickDevice.hh \
 	DummyJoystick.hh DummyJoystick.cc \
-	Joystick.hh Joystick.cc \
+	Joystick.hh Joystick.cc Mouse.hh Mouse.cc \
 	MSXKanji.hh MSXKanji.cc \
 	MSXMemoryMapper.hh MSXMemoryMapper.cc \
 	MSXMapperIO.hh MSXMapperIO.cc \
