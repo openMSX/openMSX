@@ -405,7 +405,7 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 	}
 
 	// Allocate work surface.
-	workScreen = SDL_CreateRGBSurface(
+	workScreen = zoom == ZOOM_256 ? screen : SDL_CreateRGBSurface(
 		SDL_SWSURFACE,
 		WIDTH, 240, // TODO: Vertical size should be borders + display.
 		screen->format->BitsPerPixel,
@@ -467,7 +467,7 @@ SDLRenderer<Pixel, zoom>::~SDLRenderer()
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
 	SDL_FreeSurface(storedImage);
-	SDL_FreeSurface(workScreen);
+	if (zoom != ZOOM_256) SDL_FreeSurface(workScreen);
 
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }

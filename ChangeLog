@@ -1,5 +1,8 @@
 $Id$
 
+2003-12-10 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed SDLLo: rendered image did not show up on visible screen.
+
 2003-12-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "keymatrixup" and "keymatrixdown" commands
 
