@@ -22,7 +22,6 @@ DriveMultiplexer::~DriveMultiplexer()
 
 void DriveMultiplexer::selectDrive(DriveNum num, const EmuTime &time)
 {
-	assert(num >= DRIVE_A && num <= NO_DRIVE);
 	selected = num;
 	drive[selected]->setSide(side);
 	drive[selected]->setMotor(motor, time);
