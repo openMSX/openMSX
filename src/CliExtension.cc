@@ -95,7 +95,10 @@ void CliExtension::createExtensions(const string& basepath)
 				string name(d->d_name);
 				string path(basepath + name +
 				                       "/hardwareconfig.xml");
-				extensions[name] = path;
+				if (extensions.find(name) == extensions.end()) {
+					// not yet found in prev directory
+					extensions[name] = path;
+				}
 			}
 			d = readdir(dir);
 		}
