@@ -786,7 +786,8 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 					firstPageWidth = 0;
 				}
 				if (firstPageWidth < displayWidth) {
-					source.x = displayX < pageBorder ? 0 : displayX + hScroll;
+					source.x = displayX < pageBorder
+						? 0 : displayX + hScroll - 256 * LINE_ZOOM;
 					source.y = vramLine[scrollPage2];
 					source.w = displayWidth - firstPageWidth;
 					source.h = 1;
