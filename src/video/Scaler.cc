@@ -112,11 +112,11 @@ void Scaler<Pixel>::scaleLine(
 			// Scale.
 			"punpckldq %%mm0, %%mm0;"
 			"punpckhdq %%mm1, %%mm1;"
-			"punpckhdq %%mm2, %%mm2;"
+			"punpckldq %%mm2, %%mm2;"
 			"punpckhdq %%mm3, %%mm3;"
-			"punpckhdq %%mm4, %%mm4;"
+			"punpckldq %%mm4, %%mm4;"
 			"punpckhdq %%mm5, %%mm5;"
-			"punpckhdq %%mm6, %%mm6;"
+			"punpckldq %%mm6, %%mm6;"
 			"punpckhdq %%mm7, %%mm7;"
 			// Store.
 			"movntq	%%mm0,   (%1,%%eax,8);"
