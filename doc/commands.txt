@@ -296,6 +296,21 @@ toggle
     toggle throttle
 
   
+update
+------
+
+  Enable or disable update notifications of a certain type.
+  This command is mainly usefull for external programs controlling openmsx.
+
+  usage:
+    update enable <type>   enable notifications for this type
+    update disable <type>  disable notifications for this type
+
+  examples:
+    update enable led
+    update disable setting
+
+
 vdpregs
 -------
 
