@@ -61,7 +61,6 @@ TODO:
 #include "SDLHiRenderer.hh"
 #include "VDP.hh"
 #include "RealTime.hh"
-#include "MSXCPU.hh"
 #include "config.h"
 
 #include <math.h>
@@ -1017,12 +1016,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::putImage(
 
 	// The screen will be locked for a while, so now is a good time
 	// to perform real time sync.
-	// TODO: Why is CPU ahead?
-	// TODO: I don't like using MSXCPU from the Renderer,
-	//       if this is the only way to do it, move the code to RealTime.
-	//Scheduler::instance()->setSyncPoint(time, RealTime::instance());
-	//Scheduler::instance()->setSyncPoint(
-	//	MSXCPU::instance()->getCurrentTime(), RealTime::instance());
+	RealTime::instance()->sync();
 
 	frameStart();
 }

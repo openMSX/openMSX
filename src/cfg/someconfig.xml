@@ -195,7 +195,7 @@
     <type>RealTime</type>
     <parameter name="sync_interval">50</parameter>
     <parameter name="max_catch_up_time">1500</parameter>
-    <parameter name="min_real_time">40</parameter>
+    <parameter name="max_catch_up_factor">125</parameter>
   </config>
 <!--  
   <device id="SCC+ Cartridge">

@@ -4419,7 +4419,7 @@ void Z80::ed() {
 }
 void Z80::dd() {
 	byte opcode = Z80_RDOP(R.PC.w++);
-	if (opcode != 0xcb)
+	if ((opcode != 0xcb) && (opcode != 0xdd) && (opcode != 0xfd))
 		M1Cycle();
 	else
 		currentTime++;
@@ -4432,7 +4432,7 @@ void Z80::dd2() {
 }
 void Z80::fd() {
 	byte opcode = Z80_RDOP(R.PC.w++);
-	if (opcode != 0xcb)
+	if ((opcode != 0xcb) && (opcode != 0xdd) && (opcode != 0xfd))
 		M1Cycle();
 	else
 		currentTime++;

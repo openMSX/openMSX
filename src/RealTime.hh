@@ -28,7 +28,17 @@ class RealTime : public Schedulable, public HotKeyListener
 
 		void signalHotKey(SDLKey key);
 
+		/**
+		 * Synchronize EmuTime with RealTime, normally this is done
+		 * automatically, but some devices have additional information
+		 * and can indicate 'good' moments to sync, eg: VDP can call
+		 * this method at the end of each frame.
+		 */
+		void sync();
+
 	private:
+		void internalSync(const EmuTime &time);
+		
 		/**
 		 * Constructor.
 		 */
@@ -36,7 +46,7 @@ class RealTime : public Schedulable, public HotKeyListener
 
 		int syncInterval;	// sync every ..ms
 		int maxCatchUpTime;	// max nb of ms overtime
-		int minRealTime;	// min duration of interval
+		int maxCatchUpFactor;	// max catch up speed factor (percentage)
 
 		// tune exponential average (0 < alpha < 1)
 		//  alpha small -> past is more important
@@ -51,7 +61,5 @@ class RealTime : public Schedulable, public HotKeyListener
 		float factor;
 
 		bool paused;
-
-		static const int SCHEDULE_SELF = 1;	// != 0
 };
 #endif

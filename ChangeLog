@@ -1,5 +1,8 @@
 $Id$
 
+2002-01-02 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* RealTime syncronizer improvements
+
 2001-01-02 David Heremans <david.heremans@gnu-linux.net>
 	* Added tape support, not yet tested
 
