@@ -486,7 +486,7 @@ void Mixer::reInit()
 	intervalAverage = EmuDuration(percent / (audioSpec.freq * 100));
 }
 
-// stuff for recording
+// stuff for soundlogging
 
 // TODO: generalize this with ScreenShotSaver.cc
 static int getNum(dirent* d)
@@ -623,12 +623,9 @@ void Mixer::SoundlogCommand::tabCompletion(vector<string>& tokens) const
 
 void Mixer::startSoundLogging(const string& filename)
 {
-	/* TODO on the recorder:
+	/* TODO on the soundlogger:
 	 * - take care of endianness (this probably won't work on PPC now)
 	 * - properly unite the getFileName stuff with ScreenShotSaver
-	 * - implement soundlog toggle
-	 * - take care of changing 'frequency' setting (block it during 
-	 *   recording or end recording on change)
 	 * - error handling, fwrite or fopen may fail miserably
 	 */
 
@@ -679,7 +676,7 @@ void Mixer::endSoundLogging()
 	wavfp=0;
 }
 
-// end stuff for recording
+// end stuff for soundlogging
 
 void Mixer::update(const Setting* setting)
 {
@@ -704,6 +701,11 @@ void Mixer::update(const Setting* setting)
 	} else if (setting == frequencySetting.get()) {
 		if (handlingUpdate) return;
 		handlingUpdate = true;
+		if (wavfp!=0) {
+			endSoundLogging();
+			CliComm::instance().printWarning("Stopped logging sound, because of change of frequency setting");
+			// the alternative: ignore the change of setting and keep logging sound
+		}
 		reopenSound();
 		reInit();
 		for (int mode = 0; mode < NB_MODES; ++mode) {
