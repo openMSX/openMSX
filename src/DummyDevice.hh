@@ -16,8 +16,6 @@ class DummyDevice : public MSXIODevice, public MSXMemDevice
 		~DummyDevice();
 		static DummyDevice *instance();
 		void init();
-		void start();
-		void stop();
 		void reset();
 		void saveState(std::ofstream &writestream);
 		void restoreState(std::string &devicestring, std::ifstream &readstream);

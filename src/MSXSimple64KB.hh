@@ -22,7 +22,6 @@ class MSXSimple64KB : public MSXMemDevice
 		
 		// don't forget you inherited from MSXDevice
 		void init();
-		void start();
 		void reset();
 		
 		//void SaveStateMSX(ofstream savestream);

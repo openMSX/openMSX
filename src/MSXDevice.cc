@@ -33,16 +33,7 @@ void MSXDevice::init()
 {
 	PRT_DEBUG ("Initializing " << getName());
 }
-void MSXDevice::start()
-{
-	PRT_DEBUG ("Starting " << getName());
-	// default implementation same as reset
-	reset();
-}
-void MSXDevice::stop()
-{
-	PRT_DEBUG ("Stopping " << getName());
-}
+
 void MSXDevice::reset()
 {
 	PRT_DEBUG ("Resetting " << getName());

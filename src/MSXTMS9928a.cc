@@ -197,7 +197,7 @@ MSXTMS9928a::~MSXTMS9928a()
 	delete[](vramData);
 }
 
-// The init, start, reset and shutdown functions
+// The init and reset functions
 
 void MSXTMS9928a::reset()
 {
@@ -254,7 +254,9 @@ void MSXTMS9928a::init()
 	MSXMotherBoard::instance()->register_IO_Out((byte)0x98, this);
 	MSXMotherBoard::instance()->register_IO_Out((byte)0x99, this);
 
-	return;
+	//First interrupt in Pal mode here
+	Scheduler::instance()->setSyncPoint(currentTime+71285, *this); // PAL
+	renderer->putImage();
 }
 
 void MSXTMS9928a::signalHotKey(SDLKey key)
@@ -262,14 +264,6 @@ void MSXTMS9928a::signalHotKey(SDLKey key)
 	// Only key currently registered is full screen toggle.
 	fullScreen = !fullScreen;
 	renderer->setFullScreen(fullScreen);
-}
-
-void MSXTMS9928a::start()
-{
-	MSXDevice::start();
-	//First interrupt in Pal mode here
-	Scheduler::instance()->setSyncPoint(currentTime+71285, *this); // PAL
-	renderer->putImage();
 }
 
 /*

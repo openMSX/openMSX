@@ -34,16 +34,6 @@ void DummyDevice::init()
 	assert(false);
 }
 
-void DummyDevice::start()
-{
-	assert(false);
-}
-
-void DummyDevice::stop()
-{
-	assert(false);
-}
-
 void DummyDevice::reset()
 {
 	assert(false);

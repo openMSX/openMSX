@@ -17,11 +17,6 @@ MSXSimple64KB::~MSXSimple64KB()
 	delete [] memoryBank; // C++ can handle null-pointers
 }
 
-void MSXSimple64KB::start()
-{
-	MSXDevice::start();
-}
-
 void MSXSimple64KB::reset()
 {
 	MSXDevice::reset();

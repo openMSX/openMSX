@@ -59,8 +59,6 @@ public:
 
 	// mainlife cycle of an MSXDevice
 	void init();
-	void start();
-	//void stop();
 	void reset();
 
 	// void saveState(ofstream writestream);

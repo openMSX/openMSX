@@ -73,23 +73,15 @@ class MSXMotherBoard : public CPUInterface
 		void InitMSX();
 
 		/**
-		 * This will start all MSXDevices (the start() method of
-		 * all registered MSXDevices is called)
+		 * This starts the Scheduler.
 		 */
 		void StartMSX();
 
 		/**
 		 * This will reset all MSXDevices (the reset() method of
 		 * all registered MSXDevices is called)
-		 * This also initiates the Scheduler.
 		 */
 		void ResetMSX();
-
-		/**
-		 * This will stop all MSXDevices (the stop() method of
-		 * all registered MSXDevices is called)
-		 */
-		void StopMSX();
 
 		/**
 		 * This will destroy all MSXDevices (the destructor of

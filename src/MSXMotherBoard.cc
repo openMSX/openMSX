@@ -119,10 +119,6 @@ void MSXMotherBoard::StartMSX()
 {
 	IRQLine = 0;
 	set_A8_Register(0);
-	std::vector<MSXDevice*>::iterator i;
-	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
-		(*i)->start();
-	}
 	Leds::instance()->setLed(Leds::POWER_ON);
 	Scheduler::instance()->scheduleEmulation();
 }

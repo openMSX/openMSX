@@ -11,6 +11,7 @@ MSXRealTime::MSXRealTime(MSXConfig::Device *config) : MSXDevice(config)
 	oneInstance = this;
 	paused = false;
 	HotKey::instance()->registerAsyncHotKey(SDLK_PAUSE, this);
+	reset();
 }
 
 MSXRealTime::~MSXRealTime()

@@ -33,18 +33,6 @@ class MSXDevice : public Schedulable
 		virtual void init();
 
 		/**
-		 * This method is called on power-up.
-		 * Default implementation calls reset().
-		 */
-		virtual void start();
-
-		/**
-		 * This method is called on power-down.
-		 * Default implementation does nothing.
-		 */
-		virtual void stop();
-
-		/**
 		 * This method is called on reset.
 		 * Default implementation resets internal IRQ flag (every
 		 * re-implementation should also call this method).
