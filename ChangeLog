@@ -1,5 +1,13 @@
 $Id$
 
+2004-04-06 Reikan <openMSX4Win32@ranpub.com>
+	* Added link libs to platform-x86-mingw32.mk. Thanks to Honda.
+	* Reverted AC_CANONICAL_SYSTEM in configure.ac.
+	  We need it to let automake prepare config.guess and config.sub.
+	* Removed check for tcl8.3 because makefiles don't support anyway.
+	* Added some tiny checks for libs in configure based on suggestion
+	  from Manuel.
+
 2004-04-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Simplified RealTime class:
 	    added Timer class (had to rename existing Timer class to EmuTimer)

@@ -18,8 +18,14 @@ AC_DEFINE_DIR(DATADIR, datadir, [Directory containing platform independent data 
 dnl create a config.h file
 AC_CONFIG_HEADERS(src/config.h)
 
-dnl for install-sh, config.guess, config.sub, and so on,
-dnl we still need automake unfortunately.
+dnl for config.guess, config.sub,
+dnl we still need this to let automake prepare them unfortunately.
+dnl otherwise, we need to run aclocal...automake chain for detectsys.
+dnl we would rather do here than do on detectsys...sigh.
+AC_CANONICAL_SYSTEM
+
+dnl for install-sh,
+dnl we still need this to let automake prepare it unfortunately.
 dnl even though we don't use Makefile.am anymore... so bad!
 AM_INIT_AUTOMAKE(openmsx, $OPENMSX_VERSION)
 
@@ -69,11 +75,24 @@ dnl Checks for library headers.
 dnl openGL
 AC_CHECK_HEADERS(gl.h GL/gl.h, break)
 
+dnl SDL
+AC_CHECK_HEADER(SDL.h,, [AC_MSG_ERROR('SDL was not found!')])
+
 dnl SDL_image
-AC_CHECK_HEADERS(SDL_image.h SDL/SDL_image.h , break)
+AC_CHECK_HEADERS(SDL_image.h SDL/SDL_image.h , break, [AC_MSG_ERROR('SDL_image was not found!')])
+
+dnl libpng
+AC_CHECK_HEADER(png.h,, [AC_MSG_ERROR('libpng was not found!')])
+
+dnl zlib
+AC_CHECK_HEADER(zlib.h,, [AC_MSG_ERROR('zlib was not found!')])
+
+dnl libxml2
+dnl TODO: verify version is 2.
+AC_CHECK_HEADER(libxml/xmlversion.h,, [AC_MSG_ERROR('libxml2 was not found!')])
 
 dnl libtcl
-AC_CHECK_HEADERS(tcl.h tcl8.4/tcl.h tcl8.3/tcl.h , break)
+AC_CHECK_HEADERS(tcl.h tcl8.4/tcl.h, break, [AC_MSG_ERROR('Tcl8.x was not found!')])
 
 dnl With/Without X11
 AC_PATH_X
