@@ -2,6 +2,9 @@ $Id$
 
 2003-01-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented 8-bit unsigned 16-bit signed DAC
+	* Implemented MSX-AUDIO 13-bit DAC:
+	   untested because TurboR (needed for modplayer) is broken
+	   for the moment
 
 2003-01-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed MSXF4Device:

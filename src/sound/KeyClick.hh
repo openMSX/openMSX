@@ -4,9 +4,9 @@
 #define __KEYCLICK_HH__
 
 #include "openmsx.hh"
+#include "DACSound8U.hh"
 
 // forward declaration
-class DACSound8U;
 class EmuTime;
 
 
@@ -20,7 +20,7 @@ class KeyClick
 		void setClick(bool status, const EmuTime &time);
 
 	private:
-		DACSound8U* dac;
+		DACSound8U dac;
 		bool status;
 };
 #endif

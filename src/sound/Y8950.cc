@@ -413,7 +413,8 @@ void Y8950::Channel::keyOff()
 
 Y8950::Y8950(short volume, int sampleRam, const EmuTime &time,
              Mixer::ChannelMode mode) :
-	timer1(this), timer2(this), adpcm(this, sampleRam), connector(time)
+	timer1(this), timer2(this), adpcm(this, sampleRam), connector(time),
+	dac13(volume, time)
 {
 	makePmTable();
 	makeAmTable();
@@ -933,12 +934,25 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 		case 0x0F: // ADPCM-DATA 
 		case 0x10: // DELTA-N (L) 
 		case 0x11: // DELTA-N (H) 
-		case 0x12: // ENVELOP CONTROL 
-		case 0x15: // DAC-DATA  (bit9-2)
-		case 0x16: //           (bit1-0)
-		case 0x17: //           (exponent)
+		case 0x12: // ENVELOP CONTROL
 		case 0x1A: // PCM-DATA
+			reg[rg] = data;
 			adpcm.writeReg(rg, data, time);
+			break;
+		
+		case 0x15: // DAC-DATA  (bit9-2)
+			reg[rg] = data;
+			if (reg[0x08] & 0x04) {
+				short value = (((short)reg[0x15] << 8) | 
+				                       reg[0x16]) >> reg[0x17];
+				dac13.writeDAC(value, time);
+			}
+			break;
+		case 0x16: //           (bit1-0)
+			reg[rg] = data & 0xC0;
+			break;
+		case 0x17: //           (exponent)
+			reg[rg] = data & 0x07;
 			break;
 		
 		case 0x18: // I/O-CONTROL (bit3-0)

@@ -10,6 +10,7 @@
 #include "Y8950Timer.hh"
 #include "Y8950Adpcm.hh"
 #include "Y8950KeyboardConnector.hh"
+#include "DACSound16S.hh"
 
 
 class Y8950 : public SoundDevice
@@ -308,6 +309,9 @@ class Y8950 : public SoundDevice
 
 		// Keyboard connector
 		Y8950KeyboardConnector connector;
+		
+		// 13-bit (exponential) DAC
+		DACSound16S dac13;
 };
 
 #endif
