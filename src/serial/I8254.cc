@@ -344,7 +344,11 @@ void I8254::Counter::advance(const EmuTime &time)
 			counter -= ticks;
 			if (active) {
 				// TODO not completely correct
-				counter %= counterLoad;
+				if (counterLoad != 0) {
+					counter %= counterLoad;
+				} else {
+					counter = 0;
+				}
 			}
 		}
 		break;
@@ -354,7 +358,11 @@ void I8254::Counter::advance(const EmuTime &time)
 			counter -= 2 * ticks;
 			if (active) {
 				// TODO not correct
-				counter %= counterLoad;
+				if (counterLoad != 0) {
+					counter %= counterLoad;
+				} else {
+					counter = 0;
+				}
 			}
 		}
 		break;

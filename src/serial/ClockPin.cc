@@ -93,9 +93,15 @@ int ClockPin::getTicksBetween(const EmuTime& begin, const EmuTime& end) const
 	if (!periodic) {
 		return 0;
 	}
-	int a = (begin < referenceTime) ? 0 : (begin - referenceTime) / totalDur;
-	int b = (end   - referenceTime) / totalDur;
-	return b - a;
+	if (totalDur > EmuDuration::zero) {
+		int a = (begin < referenceTime) ? 
+		        0 : 
+		        (begin - referenceTime) / totalDur;
+		int b = (end   - referenceTime) / totalDur;
+		return b - a;
+	} else {
+		return 0;
+	}
 }
 
 
@@ -133,5 +139,13 @@ void ClockPin::executeUntilEmuTime(const EmuTime& time, int userdata)
 {
 	assert(signalEdge && periodic);
 	listener->signalPosEdge(*this, time);
-	schedule(time + totalDur);
+	if (totalDur > EmuDuration::zero) {
+		schedule(time + totalDur);
+	}
+}
+
+const string& ClockPin::schedName() const
+{
+	static const string name("ClockPin");
+	return name;
 }

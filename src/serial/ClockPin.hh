@@ -45,6 +45,7 @@ class ClockPin : private Schedulable
 		void unschedule();
 		void schedule(const EmuTime& time);
 		virtual void executeUntilEmuTime(const EmuTime &time, int userData);
+		virtual const string &schedName() const;
 		
 		ClockPinListener* listener;
 
