@@ -4,6 +4,7 @@
 #define __VDP_HH__
 
 #include "openmsx.hh"
+#include "Scheduler.hh"
 #include "MSXIODevice.hh"
 #include "HotKey.hh"
 #include "EmuTime.hh"
@@ -33,7 +34,7 @@ class VDPCmdEngine;
   * the Renderer can retrieve the new state if necessary by calling
   * methods on the VDP object.
   */
-class VDP : public MSXIODevice, HotKeyListener
+class VDP : public MSXIODevice, public Schedulable, public HotKeyListener
 {
 public:
 	/** VDP version: the VDP model being emulated.
@@ -78,7 +79,7 @@ public:
 	// interaction with CPU
 	byte readIO(byte port, const EmuTime &time);
 	void writeIO(byte port, byte value, const EmuTime &time);
-	void executeUntilEmuTime(const EmuTime &time);
+	void executeUntilEmuTime(const EmuTime &time, int userData);
 
 	// void saveState(ofstream writestream);
 	// void restoreState(char *devicestring,ifstream readstream);

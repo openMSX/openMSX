@@ -181,7 +181,7 @@ void VDP::signalHotKey(SDLKey key)
 	renderer->setFullScreen(fullScreen);
 }
 
-void VDP::executeUntilEmuTime(const EmuTime &time)
+void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 {
 	//PRT_DEBUG("Executing VDP at time " << time);
 
@@ -248,7 +248,7 @@ void VDP::scheduleNext()
 	EmuTime first = (displayEndTime < frameEndTime
 		? displayEndTime : frameEndTime);
 
-	Scheduler::instance()->setSyncPoint(first, *this);
+	Scheduler::instance()->setSyncPoint(first, this);
 }
 
 // TODO: inline?

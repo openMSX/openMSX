@@ -6,11 +6,12 @@
 #include "MSXDevice.hh"
 #include "CPUInterface.hh"
 #include "MSXMotherBoard.hh"
+#include "Scheduler.hh"
 #include "CPU.hh"
 #include "Z80.hh"
 //#include "MSXR800.hh"
 
-class MSXCPU : public MSXDevice
+class MSXCPU : public MSXDevice, public Schedulable
 {
 	public:
 		enum CPUType { CPU_Z80 };	//, CPU_R800 };
@@ -44,7 +45,7 @@ class MSXCPU : public MSXDevice
 		MSXCPU(MSXConfig::Device *config, const EmuTime &time);
 
 		static MSXCPU *oneInstance;
-		void executeUntilEmuTime(const EmuTime &time); // prevent use
+		void executeUntilEmuTime(const EmuTime &time, int userData); // prevent use
 
 		Z80 *z80;
 		//MSXR800 *r800;

@@ -10,9 +10,8 @@
 #include "msxconfig.hh"
 #include "EmuTime.hh"
 #include "openmsx.hh"
-#include "Scheduler.hh"
 
-class MSXDevice : public Schedulable
+class MSXDevice
 {
 	public:
 		/**
@@ -20,12 +19,6 @@ class MSXDevice : public Schedulable
 		 */
 		virtual ~MSXDevice();
 
-		/**
-		 * Emulates this device until a given time.
-		 * The Default implementation does nothing.
-		 */
-		virtual void executeUntilEmuTime(const EmuTime &time);
-		
 		/**
 		 * This method is called on reset.
 		 * Default implementation resets internal IRQ flag (every
@@ -104,6 +97,7 @@ class MSXDevice : public Schedulable
 
 		MSXConfig::Device *deviceConfig;
 		const std::string* deviceName;
+		static const std::string defaultName;
 };
 
 #endif //__MSXDEVICE_HH__

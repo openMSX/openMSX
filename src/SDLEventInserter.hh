@@ -11,7 +11,7 @@ class SDLEventInserter : public Schedulable
 {
 	public:
 		SDLEventInserter(SDL_Event &event, const EmuTime &time);
-		void executeUntilEmuTime(const EmuTime &time);
+		void executeUntilEmuTime(const EmuTime &time, int userData);
 		
 	protected:
 		virtual ~SDLEventInserter();

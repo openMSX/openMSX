@@ -24,11 +24,6 @@ MSXDevice::~MSXDevice()
 	//PRT_DEBUG("Destructing an MSXDevice object");
 }
 
-void MSXDevice::executeUntilEmuTime(const EmuTime &time)
-{
-	PRT_DEBUG ("Empty executeUntilEmuTime function");
-}
-
 void MSXDevice::reset(const EmuTime &time)
 {
 	PRT_DEBUG ("Resetting " << getName());
@@ -55,7 +50,7 @@ const std::string &MSXDevice::getName()
 		return defaultName;
 	}
 }
-
+const std::string MSXDevice::defaultName = "no name";
 
 //These are used for save/restoreState see note over
 //savefile-structure

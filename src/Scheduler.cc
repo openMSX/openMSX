@@ -7,6 +7,7 @@
 #include "Mixer.hh"
 #include <cassert>
 #include <SDL/SDL.h>
+#include <algorithm>
 
 
 // Schedulable 
@@ -46,14 +47,29 @@ Scheduler* Scheduler::instance()
 Scheduler *Scheduler::oneInstance = NULL;
 
 
-void Scheduler::setSyncPoint(const EmuTime &time, Schedulable &device) 
+void Scheduler::setSyncPoint(const EmuTime &time, Schedulable* device, int userData = 0) 
 {
-	PRT_DEBUG("Sched: registering " << device.getName() << " for emulation at " << time);
+	PRT_DEBUG("Sched: registering " << device->getName() << " for emulation at " << time);
 	PRT_DEBUG("Sched:  CPU is at " << MSXCPU::instance()->getCurrentTime());
 	assert (time >= MSXCPU::instance()->getCurrentTime());
 	if (time < MSXCPU::instance()->getTargetTime())
 		MSXCPU::instance()->setTargetTime(time);
-	syncPoints.insert(SynchronizationPoint (time, device)); // automatically sorted
+	syncPoints.push_back(SynchronizationPoint (time, device, userData));
+	push_heap(syncPoints.begin(), syncPoints.end());
+}
+
+bool Scheduler::removeSyncPoints(Schedulable* device, int userData = 0)
+{
+	std::vector<SynchronizationPoint>::iterator i;
+	for (i=syncPoints.begin(); i!=syncPoints.end(); i++) {
+		if (((*i).getDevice() == device) &&
+		     (*i).getUserData() == userData) {
+			syncPoints.erase(i);
+			make_heap(syncPoints.begin(), syncPoints.end());
+			return true;
+		}
+	}
+	return false;
 }
 
 const Scheduler::SynchronizationPoint &Scheduler::getFirstSP()
@@ -65,7 +81,8 @@ const Scheduler::SynchronizationPoint &Scheduler::getFirstSP()
 void Scheduler::removeFirstSP()
 {
 	assert (!syncPoints.empty());
-	syncPoints.erase(syncPoints.begin());
+	pop_heap(syncPoints.begin(), syncPoints.end());
+	syncPoints.pop_back();
 }
 
 void Scheduler::stopScheduling()
@@ -74,7 +91,7 @@ void Scheduler::stopScheduling()
 	// We set current time as SP, this means reschedule as sson as possible.
 	// We must give a device, we choose MSXCPU.
 	EmuTime now = MSXCPU::instance()->getCurrentTime();
-	setSyncPoint(now, *(MSXCPU::instance())); 
+	setSyncPoint(now, MSXCPU::instance()); 
 }
 
 void Scheduler::scheduleEmulation()
@@ -109,9 +126,10 @@ void Scheduler::scheduleEmulation()
 				MSXCPU::instance()->executeUntilTarget(time);
 			} else {
 				// if CPU has reached SP, emulate the device
-				Schedulable *device = &(sp.getDevice());
+				Schedulable *device = sp.getDevice();
+				int userData = sp.getUserData();
 				PRT_DEBUG ("Sched: Scheduling " << device->getName() << " till " << time);
-				device->executeUntilEmuTime(time);
+				device->executeUntilEmuTime(time, userData);
 				removeFirstSP();
 			}
 		}
@@ -133,12 +151,12 @@ void Scheduler::pause()
 		paused = true;
 		SDL_mutexP(pauseMutex);	// grab mutex
 		Mixer::instance()->pause(true);
-		setSyncPoint(MSXCPU::instance()->getCurrentTime(), *this);
+		setSyncPoint(MSXCPU::instance()->getCurrentTime(), this);
 		PRT_DEBUG("Paused");
 	}
 }
 
-void Scheduler::executeUntilEmuTime(const EmuTime &time)
+void Scheduler::executeUntilEmuTime(const EmuTime &time, int userData)
 {
 	SDL_mutexP(pauseMutex); // grab and release mutex, if unpaused this will
 	SDL_mutexV(pauseMutex); //  succeed else we sleep till unpaused

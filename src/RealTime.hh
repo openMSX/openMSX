@@ -22,7 +22,7 @@ class RealTime : public Schedulable, public HotKeyListener
 		 */
 		static RealTime *instance();
 		
-		void executeUntilEmuTime(const EmuTime &time);
+		void executeUntilEmuTime(const EmuTime &time, int userData);
 
 		float getRealDuration(const EmuTime time1, const EmuTime time2);
 

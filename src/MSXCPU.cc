@@ -89,7 +89,7 @@ const EmuTime &MSXCPU::getCurrentTime()
 }
 
 
-void MSXCPU::executeUntilEmuTime(const EmuTime &time)
+void MSXCPU::executeUntilEmuTime(const EmuTime &time, int userData)
 {
 	assert(false);
 }

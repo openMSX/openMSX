@@ -18,9 +18,10 @@ class Schedulable
 	public:
 		/**
 		 * When the previously registered syncPoint is reached, this
-		 * method gets called.
+		 * method gets called. The parameter "userData" is the same 
+		 * as passed to setSyncPoint(). 
 		 */
-		virtual void executeUntilEmuTime(const EmuTime &time) = 0;
+		virtual void executeUntilEmuTime(const EmuTime &time, int userData) = 0;
 		
 		/**
 		 * This method is only used to print meaningfull debug messages
@@ -36,15 +37,17 @@ class Scheduler : public EventListener, public HotKeyListener, public Schedulabl
 	class SynchronizationPoint
 	{
 		public:
-			SynchronizationPoint (const EmuTime &time, Schedulable &dev) : 
-				timeStamp(time), device(dev) {}
+			SynchronizationPoint (const EmuTime &time, Schedulable *dev, int usrdat) : 
+				timeStamp(time), device(dev) , userData(usrdat) {}
 			const EmuTime &getTime() const { return timeStamp; }
-			Schedulable &getDevice() const { return device; }
+			Schedulable* getDevice() const { return device; }
+			int getUserData() const { return userData; }
 			bool operator< (const SynchronizationPoint &n) const 
-				{ return getTime() < n.getTime(); }
+				{ return getTime() > n.getTime(); } // smaller time is higher priority
 		private: 
-			const EmuTime timeStamp;	// copy of original timestamp
-			Schedulable &device;		// alias
+			EmuTime timeStamp;
+			Schedulable* device;
+			int userData;
 	};
 
 	public:
@@ -60,15 +63,30 @@ class Scheduler : public EventListener, public HotKeyListener, public Schedulabl
 		static Scheduler *instance();
 
 		/**
-		 * Register a given syncPoint. When the emulation reaches
-		 * "timestamp", the executeUntillEmuTime() method of
-		 * "activeDevice" gets called.
-		 * All syncPoints are ordered: smaller EmuTime -> scheduled
+		 * Register a syncPoint. When the emulation reaches "timestamp",
+		 * the executeUntilEmuTime() method of "device" gets called.
+		 * SyncPoints are ordered: smaller EmuTime -> scheduled
 		 * earlier.
-		 * One device may register several syncPoints, all syncPoints
-		 * get called.
+		 * A device may register several syncPoints.
+		 * Optionally a "userData" parameter can be passed, this
+		 * parameter is not used by the Scheduler but it is passed to
+		 * the executeUntilEmuTime() method of "device". This is useful
+		 * if you want to distinguish between several syncPoint types.
+		 * If you do not supply "userData" it is assumed to be zero.
 		 */
-		void setSyncPoint(const EmuTime &timestamp, Schedulable &activeDevice);
+		void setSyncPoint(const EmuTime &timestamp, Schedulable* device, int userData = 0);
+
+		/**
+		 * Removes a syncPoint of a given device that matches the given
+		 * userData. Returns true if a match is found and removed.
+		 * If there is more than one match only one will be removed,
+		 * there is no guarantee that the earliest syncPoint is
+		 * removed.
+		 * Removing a syncPoint is a relatively expensive operation,
+		 * if possible don't remove the syncPoint but ignore it in
+		 * your executeUntilEmuTime() method.
+		 */
+		bool Scheduler::removeSyncPoints(Schedulable* device, int userdata = 0);
 		
 		/**
 		 * This starts the schedule loop, should only be used by main
@@ -94,7 +112,7 @@ class Scheduler : public EventListener, public HotKeyListener, public Schedulabl
 		
 		
 		// Schedulable
-		void executeUntilEmuTime(const EmuTime &time);
+		void executeUntilEmuTime(const EmuTime &time, int userData);
 		// EventListener
 		void signalEvent(SDL_Event &event);
 		// HotKeyListener
@@ -106,7 +124,9 @@ class Scheduler : public EventListener, public HotKeyListener, public Schedulabl
 		void removeFirstSP();
 		
 		static Scheduler *oneInstance;
-		std::set<SynchronizationPoint> syncPoints;	// a std::set is sorted
+		// vector used as heap, not a priority queue because this
+		// doesn't allow removal of non-top element
+		std::vector<SynchronizationPoint> syncPoints;
 
 		bool paused;
 		bool noSound;

@@ -345,8 +345,7 @@ void Z80::cp_byte(){ M_CP(Z80_RDMEM_OPCODE()); }
 
 void Z80::cpd() {
 	byte val = Z80_RDMEM(R.HL.w);
-	Z80_WRMEM(R.HL.w, val);	// TODO check exact timing
-	currentTime += 2;
+	currentTime += 5;
 	byte res = R.AF.B.h - val;
 	R.HL.w--; R.BC.w--;
 	R.AF.B.l = (R.AF.B.l & C_FLAG)|
@@ -365,8 +364,7 @@ void Z80::cpdr() {
 
 void Z80::cpi() {
 	byte val = Z80_RDMEM(R.HL.w);
-	Z80_WRMEM(R.HL.w, val);	// TODO check exact timing
-	currentTime += 2;
+	currentTime += 5;
 	byte res = R.AF.B.h - val;
 	R.HL.w++; R.BC.w--;
 	R.AF.B.l = (R.AF.B.l & C_FLAG)|

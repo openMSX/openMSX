@@ -1,5 +1,14 @@
 $Id$
 
+2001-12-27 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Scheduler now uses a heap instead of sorted set
+	* SyncPoints can now be removed
+	* SyncPoints take an optional userData parameter, this parameter
+	  is later passed to executeUntilEmuTime() method
+	* MSXDevice does not inherit from Schedulable anymore, devices that
+	  still need to be Schedulable must inherit itself from Schedulable
+	  (eg VDP)
+ 
 2001-12-26 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* added getCPURegs() and setCPURegs() methods in class CPU
 
