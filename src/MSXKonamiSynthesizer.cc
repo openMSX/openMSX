@@ -14,6 +14,7 @@ MSXKonamiSynthesizer::MSXKonamiSynthesizer(MSXConfig::Device *config, const EmuT
 	PRT_DEBUG("Creating an MSXKonamiSynthesizer object");
 	dac = new DACSound(25000, time);	// TODO find a good value, put it into config file
 	loadFile(&memoryBank, 0x8000);
+	reset(time);
 }
 
 MSXKonamiSynthesizer::~MSXKonamiSynthesizer()

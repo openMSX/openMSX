@@ -27,6 +27,8 @@ MSXPPI::MSXPPI(MSXConfig::Device *config, const EmuTime &time)
 	MSXMotherBoard::instance()->register_IO_Out(0xA9,this); 
 	MSXMotherBoard::instance()->register_IO_Out(0xAA,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xAB,this);
+
+	reset(time);
 }
 
 MSXPPI::~MSXPPI()

@@ -17,6 +17,7 @@ MSXRTC::MSXRTC(MSXConfig::Device *config, const EmuTime &time)
 	MSXMotherBoard::instance()->register_IO_Out(0xB4,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xB5,this);
 	MSXMotherBoard::instance()->register_IO_In (0xB5,this);
+	reset(time);
 }
 
 MSXRTC::~MSXRTC()

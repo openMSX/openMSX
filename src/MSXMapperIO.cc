@@ -31,6 +31,8 @@ MSXMapperIO::MSXMapperIO(MSXConfig::Device *config, const EmuTime &time)
 	MSXMotherBoard::instance()->register_IO_Out(0xFD,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xFE,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xFF,this);
+	
+	reset(time);
 }
 
 MSXMapperIO::~MSXMapperIO()

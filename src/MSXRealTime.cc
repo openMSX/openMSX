@@ -14,8 +14,7 @@ MSXRealTime::MSXRealTime(MSXConfig::Device *config, const EmuTime &time)
 	oneInstance = this;
 	paused = false;
 	HotKey::instance()->registerAsyncHotKey(SDLK_PAUSE, this);
-	EmuTime zero;
-	reset(zero);
+	reset(time);
 }
 
 MSXRealTime::~MSXRealTime()

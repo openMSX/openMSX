@@ -1,5 +1,8 @@
 $Id$
 
+2001-12-08 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* added several missing reset() calls
+
 2001-12-07 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* MSXPPI is no longer a singleton
 
