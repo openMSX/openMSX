@@ -295,7 +295,7 @@ how one uses openMSX. We'll make it easier below.
 
 Since we have now seen that basically our openMSX binary is working, we can
 reduce the file size of it a bit. The binary of the latest version is about
-23MB (including debug information), so this might be worth doing. 
+24MB (including debug information), so this might be worth the effort. 
 
 You can try these:
 
@@ -339,35 +339,39 @@ what machine should be used by default. Edit the file and you will see how to do
 that. Also romdb.xml should be here. Personally, I used a symbolic link to my
 CVS source tree version.
 
-Furthermore, generic ROMs are in the ROMs subdirectory in ~/.openMSX; they are
-used by some generic config files that are also in .openMSX/. Those will get a
-special directory in a very soon to come openMSX version.
-I also use
-romdb.xml and settings.xml from the CVS tree via another symbolic link. 
+Furthermore, I created a subdirectory extensions/ in ~/.openMSX. This is one of
+the directories openMSX searches in when you use the -ext command line option.
+With this option you can specify an `extension', which is in most cases an
+external cartridge with some special hardware in it (e.g., a Panasonic FS-CA1
+MSX Audio cartridge, an IDE interface, or an MSX-DOS2 cartridge). At the moment,
+you can just put an XML file with the hardware discription of that cartridge in
+this directory. If you have an msxdos2.xml here, e.g., you can use `-ext
+msxdos2' on the command line. The ROM files that are needed for the extensions
+have to be in this directory also, if there is no path given in the hardware
+description XML file.
+
+I also use romdb.xml and settings.xml from the CVS tree via another symbolic
+link. 
 
 /home/manuel/.openMSX:
 -rw-------    1 manuel   manuel      21203 Aug 27 10:38 ConsoleBackground.png
 -rw-------    1 manuel   manuel       6016 Aug 27 10:36 ConsoleBackground1.png
 -rw-------    1 manuel   manuel       1471 Sep 25 22:33 ConsoleFont.png
 -rw-------    1 manuel   manuel       1245 Aug 26 22:46 ConsoleFont1.png
-drwx------    2 manuel   manuel       4096 Jan 12 18:10 ROMs/
--rw-------    1 manuel   manuel   107373568 Nov 10 23:01 hd.dsk
--rw-------    1 manuel   manuel        668 Dec 18 21:21 ide.xml
--rw-------    1 manuel   manuel       9634 Oct 14 22:06 ideconfig.xml
+drwx------    2 manuel   manuel       4096 Feb 23 16:00 extensions/
 lrwxrwxrwx    1 manuel   manuel         41 Feb 17 21:56 machines -> /home/manuel/cvs/openmsx/openMSX/src/cfg/
--rw-------    1 manuel   manuel       2385 Apr 15  2002 msx1.xml
--rw-------    1 manuel   manuel        477 Jan 12 16:41 msxdos2.xml
 drwx------    4 manuel   manuel       4096 Feb 17 22:00 persistent/
 lrwxrwxrwx    1 manuel   manuel         46 Nov 26 21:18 romdb.xml -> /home/manuel/cvs/openmsx/openMSX/src/romdb.xml
 -rw-------    1 manuel   manuel       2391 Feb 18 20:46 settings.xml
 
-/home/manuel/.openMSX/ROMs:
--rw-------    1 manuel   manuel      16384 Mar 26 21:32 basic.rom
--rw-------    1 manuel   manuel      16384 Mar 26 21:32 basic2.rom
--rw-------    1 manuel   manuel      16384 Mar 26 21:32 bios.rom
--rw-------    1 manuel   manuel      16384 Mar 26 21:32 bios2.rom
--rw-------    1 manuel   manuel      16384 Mar 26 21:32 disk.rom
--rw-------    1 manuel   manuel      65536 Mar 26 21:32 fmpac.rom
+/home/manuel/.openMSX/extensions:
+-r--------    1 manuel   manuel     131072 Feb  9 10:22 FS-CA1.ROM
+-rw-------    1 manuel   manuel     131072 Nov  3 01:35 IDE210.ROM
+-rw-------    1 manuel   manuel        517 Feb 23 16:00 fs-ca1.xml
+-rw-------    1 manuel   manuel   107373568 Nov 10 23:01 hd.dsk
+-rw-------    1 manuel   manuel        668 Dec 18 21:21 ide.xml
+-rw-------    1 manuel   manuel        477 Feb 23 15:45 msxdos2.xml
+-rw-------    1 manuel   manuel      65536 Oct 14 22:00 msxdos22.rom
 
 The directory persistent is automatically created when you close openMSX. There,
 persistent states of your MSX machines will be saved: the Real Time Clock
@@ -385,6 +389,7 @@ run openMSX. I have one like this, named "openmsx":
 #!/bin/bash
 
 BINARY=/home/manuel/cvs/openmsx/openMSX/src/openmsx
+VERSION=`$BINARY -h | head -n 1 | cut -d" " -f 2`
 BINARYDATE=`stat --format=%z $BINARY | cut -d" " -f 1`
 BUILD=$BINARYDATE-i686
 DEFAULT_OPTIONS=
