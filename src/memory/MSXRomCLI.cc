@@ -76,7 +76,7 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 	string::size_type pos = arg.find_last_of(',');
 	if (pos != string::npos) {
 		string tmp = arg.substr(pos + 1);
-		if (RomInfo::nameToRomType(tmp) != UNKNOWN) {
+		if (RomInfo::nameToRomType(tmp) != ROM_UNKNOWN) {
 			romfile = arg.substr(0, pos);
 			mapper = tmp;
 			CliCommOutput::instance().printWarning(

@@ -33,53 +33,62 @@ static void initMap()
 	
 	// generic ROM types that don't exist in real ROMs 
 	// (should not occur in any database!)
-	romtype["8kB"]         = GENERIC_8KB;
-	romtype["16kB"]        = GENERIC_16KB;
+	romtype["8kB"]         = ROM_GENERIC_8KB;
+	romtype["16kB"]        = ROM_GENERIC_16KB;
 
 	// ROM mapper types for normal software (mainly games)
-	romtype["Konami"]      = KONAMI;
-	romtype["KonamiSCC"]   = KONAMI_SCC;
-	romtype["ASCII8"]      = ASCII8;
-	romtype["ASCII16"]     = ASCII16;
-	romtype["R-Type"]      = R_TYPE;
-	romtype["CrossBlaim"]  = CROSS_BLAIM;
-	romtype["HarryFox"]    = HARRY_FOX;
-	romtype["Halnote"]     = HALNOTE;
-	romtype["Zemina80in1"] = ZEMINA80IN1;
-	romtype["Zemina90in1"] = ZEMINA90IN1;
-	romtype["Zemina126in1"]= ZEMINA126IN1;
-	romtype["ASCII16SRAM2"]= ASCII16_2;
-	romtype["ASCII8SRAM8"] = ASCII8_8; 
-	romtype["KoeiSRAM8"]   = KOEI_8; 
-	romtype["KoeiSRAM32"]  = KOEI_32; 
-	romtype["Wizardry"]    = WIZARDRY; 
-	romtype["GameMaster2"] = GAME_MASTER2;
-	romtype["Majutsushi"]  = MAJUTSUSHI;
-	romtype["Synthesizer"] = SYNTHESIZER;
-	romtype["HolyQuran"]   = HOLY_QURAN;
+	romtype["Konami"]      = ROM_KONAMI;
+	romtype["KonamiSCC"]   = ROM_KONAMI_SCC;
+	romtype["ASCII8"]      = ROM_ASCII8;
+	romtype["ASCII16"]     = ROM_ASCII16;
+	romtype["R-Type"]      = ROM_R_TYPE;
+	romtype["CrossBlaim"]  = ROM_CROSS_BLAIM;
+	romtype["HarryFox"]    = ROM_HARRY_FOX;
+	romtype["Halnote"]     = ROM_HALNOTE;
+	romtype["Zemina80in1"] = ROM_ZEMINA80IN1;
+	romtype["Zemina90in1"] = ROM_ZEMINA90IN1;
+	romtype["Zemina126in1"]= ROM_ZEMINA126IN1;
+	romtype["ASCII16SRAM2"]= ROM_ASCII16_2;
+	romtype["ASCII8SRAM8"] = ROM_ASCII8_8; 
+	romtype["KoeiSRAM8"]   = ROM_KOEI_8; 
+	romtype["KoeiSRAM32"]  = ROM_KOEI_32; 
+	romtype["Wizardry"]    = ROM_WIZARDRY; 
+	romtype["GameMaster2"] = ROM_GAME_MASTER2;
+	romtype["Majutsushi"]  = ROM_MAJUTSUSHI;
+	romtype["Synthesizer"] = ROM_SYNTHESIZER;
+	romtype["HolyQuran"]   = ROM_HOLY_QURAN;
 
 	// ROM mapper types used for system ROMs in machines
-	romtype["Panasonic"]   = PANASONIC;
-	romtype["National"]    = NATIONAL;
-	romtype["FSA1FM1"]     = FSA1FM1;
-	romtype["FSA1FM2"]     = FSA1FM2;
-	romtype["DRAM"]        = DRAM;
+	romtype["Panasonic"]   = ROM_PANASONIC;
+	romtype["National"]    = ROM_NATIONAL;
+	romtype["FSA1FM1"]     = ROM_FSA1FM1;
+	romtype["FSA1FM2"]     = ROM_FSA1FM2;
+	romtype["DRAM"]        = ROM_DRAM;
 
 	// ROM mapper types used for system ROMs in extensions
-	romtype["MSX-AUDIO"]   = MSX_AUDIO;
+	romtype["MSX-AUDIO"]   = ROM_MSX_AUDIO;
 
 	// non-mapper ROM types
-	romtype["plain"]       = PLAIN;
-	romtype["page0"]       = PAGE0;
-	romtype["page01"]      = PAGE01;
-	romtype["page012"]     = PAGE012;
-	romtype["page0123"]    = PAGE0123;
-	romtype["page1"]       = PAGE1;
-	romtype["page12"]      = PAGE12;
-	romtype["page123"]     = PAGE123;
-	romtype["page2"]       = PAGE2;
-	romtype["page23"]      = PAGE23;
-	romtype["page3"]       = PAGE3;
+	romtype["mirrored"]    = ROM_MIRRORED;
+	romtype["mirrored0000"]= ROM_MIRRORED0000;
+	romtype["mirrored4000"]= ROM_MIRRORED4000;
+	romtype["mirrored8000"]= ROM_MIRRORED8000;
+	romtype["mirroredC000"]= ROM_MIRROREDC000;
+	romtype["normal"]      = ROM_NORMAL;
+	romtype["normal0000"]  = ROM_NORMAL0000;
+	romtype["normal4000"]  = ROM_NORMAL4000;
+	romtype["normal8000"]  = ROM_NORMAL8000;
+	romtype["normalC000"]  = ROM_NORMALC000;
+	romtype["page0"]       = ROM_PAGE0;
+	romtype["page01"]      = ROM_PAGE01;
+	romtype["page012"]     = ROM_PAGE012;
+	romtype["page0123"]    = ROM_PAGE0123;
+	romtype["page1"]       = ROM_PAGE1;
+	romtype["page12"]      = ROM_PAGE12;
+	romtype["page123"]     = ROM_PAGE123;
+	romtype["page2"]       = ROM_PAGE2;
+	romtype["page23"]      = ROM_PAGE23;
+	romtype["page3"]       = ROM_PAGE3;
 }
 
 RomInfo::RomInfo(const string& ntitle, const string& nyear,
@@ -119,7 +128,12 @@ RomType RomInfo::nameToRomType(string name)
 		aliasMap["3"]            = "Konami";
 		aliasMap["4"]            = "ASCII8";
 		aliasMap["5"]            = "ASCII16";
-		aliasMap["64kB"]         = "plain";
+		aliasMap["64kB"]         = "mirrored";
+		aliasMap["plain"]        = "mirrored";
+		aliasMap["0x0000"]       = "normal0000";
+		aliasMap["0x4000"]       = "normal4000";
+		aliasMap["0x8000"]       = "normal8000";
+		aliasMap["0xC000"]       = "normalC000";
 		aliasMap["HYDLIDE2"]     = "ASCII16SRAM2";
 		aliasMap["RC755"]        = "GameMaster2";
 		aliasMap["ROMBAS"]       = "page2";
@@ -135,7 +149,7 @@ RomType RomInfo::nameToRomType(string name)
 	}
 	RomTypeMap::const_iterator it = romtype.find(name);
 	if (it == romtype.end()) {
-		return UNKNOWN;
+		return ROM_UNKNOWN;
 	}
 	return it->second;
 }
@@ -261,7 +275,7 @@ static void parseDB(const XMLElement& doc, map<string, RomInfo*>& result)
 			} else if (const XMLElement* rom = soft.findChild("rom")) {
 				// TODO parse <start> tag
 				parseNewEntry(*rom, result, title, year, company,
-				              remark, "plain");
+				              remark, "mirrored");
 			}
 		}
 	}
@@ -307,7 +321,8 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 	
 	int size = rom.getSize();
 	if (size == 0) {
-		return auto_ptr<RomInfo>(new RomInfo("", "", "", "Empty ROM", UNKNOWN));
+		return auto_ptr<RomInfo>(
+			new RomInfo("", "", "", "Empty ROM", ROM_UNKNOWN));
 	}
 
 	const string& sha1sum = rom.getSHA1Sum();
@@ -326,7 +341,7 @@ auto_ptr<RomInfo> RomInfo::fetchRomInfo(const Rom& rom)
 	// Look for the ROM in the ROM DB.
 	auto_ptr<RomInfo> info(searchRomDB(rom));
 	if (!info.get()) {
-		info.reset(new RomInfo("", "", "", "", UNKNOWN));
+		info.reset(new RomInfo("", "", "", "", ROM_UNKNOWN));
 	}
 	return info;
 }

@@ -1,6 +1,15 @@
 $Id$
 
-2005-02-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2005-02-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Replaced 'plain' mapper type with 'mirrored' and 'normal', makes it
+	  easier to implement the new database mapper types:
+	   - for backwards compatibility 'plain' is treated as an alias for
+	     'mirrored'
+	   - it's also possible to specify the start address of the rom like
+	     this 'mirrored4000', 'normal8000', ... (start address must be
+	     a multiple of 4000)
+
+2005-02-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Update for new romdb
 
 2005-02-19 Manuel Bilderbeek <manuel@msxnet.org>

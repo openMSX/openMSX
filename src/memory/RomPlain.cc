@@ -4,60 +4,70 @@
 #include "Rom.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "StringOp.hh"
 
 namespace openmsx {
 
+// return x inside [start, start+len)
+static inline bool isInside(unsigned x, unsigned start, unsigned len)
+{
+	unsigned tmp = x - start;
+	return tmp < len;
+}
+
+static std::string toString(unsigned start, unsigned len)
+{
+	return "[0x" + StringOp::toHexString(start) + ", " +
+	               StringOp::toHexString(start + len) + ']';
+}
+
 RomPlain::RomPlain(const XMLElement& config, const EmuTime& time,
-                   std::auto_ptr<Rom> rom_)
+                   std::auto_ptr<Rom> rom_, MirrorType mirrored, int start)
 	: Rom8kBBlocks(config, time, rom_)
 {
-	switch (rom->getSize()) {
-		case 0x2000:	//  8kB
-			for (int i = 0; i < 8; i++) {
-				setRom(i, 0);
-			}
-		case 0x4000:	// 16kB
-			for (int i = 0; i < 8; i++) {
-				setRom(i, i & 1);
-			}
-			break;
-		case 0x8000:	// 32kB
-			if (guessLocation(config) & 0x4000) {
-				for (int i = 0; i < 4; i++) {
-					setRom(i, i & 1);
-				}
-				for (int i = 4; i < 8; i++) {
-					setRom(i, 2 + (i & 1));
-				}
+	unsigned windowBase =  0x0000;
+	unsigned windowSize = 0x10000;
+	if (const XMLElement* mem = config.findChild("mem")) {
+		windowBase = mem->getAttributeAsInt("base");
+		windowSize = mem->getAttributeAsInt("size");
+	}
+
+	unsigned romSize = rom->getSize();
+	if ((romSize > 0x10000) || (romSize & 0x1FFF)) {
+		throw FatalError(rom->getName() +
+		    ": invalid rom size: must be smaller than or equal to 64kB "
+		    "and must be a multiple of 8kB.");
+	}
+	
+	unsigned romBase = (start == -1)
+	                 ? guessLocation(windowBase, windowSize)
+	                 : start;
+	if (!isInside(romBase,               windowBase, windowSize) ||
+	    !isInside(romBase + romSize - 1, windowBase, windowSize)) {
+		throw FatalError(rom->getName() +
+		    ": invalid rom position: interval " +
+		    toString(romBase, romSize) + " must fit in " +
+		    toString(windowBase, windowSize) + '.');
+	}
+	if ((romBase & 0x1FFF)) {
+		throw FatalError(rom->getName() +
+		    ": invalid rom position: must start at a 8kB boundary.");
+	}
+
+	unsigned firstPage = romBase / 0x2000;
+	unsigned numPages = romSize / 0x2000;
+	for (unsigned page = 0; page < 8; ++page) {
+		unsigned romPage = page - firstPage;
+		if (romPage < numPages) {
+			setRom(page, romPage);
+		} else {
+			if (mirrored == MIRRORED) {
+				setRom(page, romPage & (numPages - 1));
 			} else {
-				for (int i = 0; i < 8; i++) {
-					setRom(i, i & 3);
-				}
+				setBank(page, unmappedRead);
 			}
-			break;
-		case 0xC000:	// 48kB
-			if (guessLocation(config) & 0x4000) {
-				setRom(0, 0);
-				setRom(1, 1);
-				for (int i = 0; i < 6; i++) {
-					setRom(i + 2, i);
-				}
-			} else {
-				for (int i = 0; i < 6; i++) {
-					setRom(i, i);
-				}
-				setRom(6, 4);
-				setRom(7, 5);
-			}
-			break;
-		case 0x10000:	// 64kB
-			for (int i = 0; i < 8; i++) {
-				setRom(i, i);
-			}
-			break;
-		default:
-			throw FatalError("Romsize must be exactly 8, 16, 32, 48 "
-			                 "or 64kB for mappertype PLAIN");
+		}
+		
 	}
 }
 
@@ -65,11 +75,11 @@ RomPlain::~RomPlain()
 {
 }
 
-void RomPlain::guessHelper(word offset, int* pages)
+void RomPlain::guessHelper(unsigned offset, int* pages)
 {
 	if (((*rom)[offset++] == 'A') && ((*rom)[offset++] =='B')) {
 		for (int i = 0; i < 4; i++) {
-			word addr = (*rom)[offset] +
+			word addr = (*rom)[offset + 0] +
 			            (*rom)[offset + 1] * 256;
 			offset += 2;
 			if (addr) {
@@ -82,7 +92,7 @@ void RomPlain::guessHelper(word offset, int* pages)
 	}
 }
 
-word RomPlain::guessLocation(const XMLElement& config)
+unsigned RomPlain::guessLocation(unsigned windowBase, unsigned windowSize)
 {
 	int pages[3] = { 0, 0, 0 };
 
@@ -93,9 +103,12 @@ word RomPlain::guessLocation(const XMLElement& config)
 	if (rom->getSize() >= 0x4010) {
 		guessHelper(0x4000, pages);
 	}
-	PRT_DEBUG("MSXRom: location " << pages[0] << 
-	                          " " << pages[1] <<
-				  " " << pages[2]);
+
+	// start address must be inside memory window
+	if (!isInside(0x0000, windowBase, windowSize)) pages[0] = 0;
+	if (!isInside(0x4000, windowBase, windowSize)) pages[1] = 0;
+	if (!isInside(0x8000, windowBase, windowSize)) pages[2] = 0;
+
 	// we prefer 0x4000, then 0x000 and then 0x8000
 	if (pages[1] && (pages[1] >= pages[0]) && (pages[1] >= pages[2])) {
 		return 0x4000;
@@ -105,12 +118,8 @@ word RomPlain::guessLocation(const XMLElement& config)
 		return 0x8000;
 	}
 
-	const XMLElement* mem = config.findChild("mem");
-	if (mem) {
-		return mem->getAttributeAsInt("base");
-	} else {
-		return 0;
-	}
+	// heuristics didn't work, return start of window
+	return windowBase;
 }
 
 } // namespace openmsx

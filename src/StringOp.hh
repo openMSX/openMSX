@@ -14,6 +14,8 @@ class StringOp
 public:
 	template <typename T>
 	static std::string toString(const T& t);
+	template <typename T>
+	static std::string toHexString(const T& t);
 	
 	static int stringToInt(const std::string& str);
 	static bool stringToBool(const std::string& str);
@@ -34,6 +36,14 @@ std::string StringOp::toString(const T& t)
 {
 	std::ostringstream s;
 	s << t;
+	return s.str();
+}
+
+template<typename T>
+std::string StringOp::toHexString(const T& t)
+{
+	std::ostringstream s;
+	s << std::hex << t;
 	return s.str();
 }
 
