@@ -74,13 +74,13 @@ int select(const struct dirent* d)
 	return 1;
 }
 
-void CliExtension::createExtensions(const string &path)
+void CliExtension::createExtensions(const string &basepath)
 {
 	char buf[PATH_MAX];
 	if (!getcwd(buf, PATH_MAX)) {
 		return;
 	}
-	if (chdir(path.c_str())) {
+	if (chdir(basepath.c_str())) {
 		return;
 	}
 
@@ -90,7 +90,7 @@ void CliExtension::createExtensions(const string &path)
 		while (d) {
 			if (select(d)) {
 				string name(d->d_name);
-				string path(path + name +
+				string path(basepath + name +
 				                       "/hardwareconfig.xml");
 				if (extensions.find(name) == extensions.end()) {
 					// doesn't already exists
