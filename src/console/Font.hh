@@ -13,6 +13,7 @@ namespace openmsx {
 class Font
 {
 	public:
+		virtual ~Font();
 		virtual void drawText(const string &string,
 		                      int x, int y) = 0;
 		int getHeight() const;

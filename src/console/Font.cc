@@ -5,6 +5,10 @@
 
 namespace openmsx {
 
+Font::~Font()
+{
+}
+
 int Font::getHeight() const
 {
 	return charHeight;

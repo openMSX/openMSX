@@ -79,7 +79,7 @@ SDLFont::SDLFont(File* file)
 	fontSurface = SDL_DisplayFormat(image2);
 	SDL_FreeSurface(image2);
 	SDL_SetColorKey(fontSurface, SDL_SRCCOLORKEY | SDL_RLEACCEL, 
-		SDL_MapRGB(fontSurface->format, r, g, b));
+	                SDL_MapRGB(fontSurface->format, r, g, b));
 	
 	charWidth  = fontSurface->w / CHARS_PER_ROW;
 	charHeight = fontSurface->h / CHARS_PER_COL;

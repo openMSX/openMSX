@@ -29,7 +29,7 @@ SDLConsole::SDLConsole(Console * console_, SDL_Surface *screen)
 	:OSDConsoleRenderer (console_)
 { 
 	console = console_;
-	std::string temp = console->getId();
+	string temp = console->getId();
 	blink = false;
 	lastBlinkTime = 0;
 	
@@ -39,7 +39,7 @@ SDLConsole::SDLConsole(Console * console_, SDL_Surface *screen)
 	inputBackground = NULL;
 	fontLayer = NULL;
 
-	fontSetting = new FontSetting(this, temp+"font", fontName);
+	fontSetting = new FontSetting(this, temp + "font", fontName);
 	initConsoleSize();
 
 	SDL_Rect rect;
@@ -62,10 +62,10 @@ SDLConsole::~SDLConsole()
 	if (backgroundImage) {
 		SDL_FreeSurface(backgroundImage);
 	}
-	if (fontLayer){
+	if (fontLayer) {
 		SDL_FreeSurface(fontLayer);
-	}	
-		
+	}
+	
 	delete fontSetting;
 	delete backgroundSetting;
 }
@@ -135,7 +135,7 @@ void SDLConsole::drawConsole()
 	destRect.w = consoleSurface->w;
 	destRect.h = consoleSurface->h;
 	SDL_BlitSurface(consoleSurface, NULL, outputScreen, &destRect);
-	SDL_BlitSurface(fontLayer,NULL,outputScreen,&destRect);
+	SDL_BlitSurface(fontLayer,      NULL, outputScreen, &destRect);
 }
 
 
