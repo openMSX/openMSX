@@ -70,7 +70,7 @@ MapperType RomInfo::nameToMapperType(const std::string &name)
 		mappertype["KOREAN90IN1"] = KOREAN90IN1;
 		
 		mappertype["KOREAN126IN1"]= KOREAN126IN1;
-
+		
 		mappertype["64kB"]        = PLAIN;
 		mappertype["PLAIN"]       = PLAIN;
 		
@@ -222,8 +222,13 @@ RomInfo* RomInfo::searchDataBaseOrGuess(const Rom &rom)
 		}
 	}
 	
+	int size = rom.getSize();
+	if (size == 0) {
+		return new RomInfo("empty rom", "", "", "", UNKNOWN);
+	}
+	
 	MD5 md5;
-	md5.update(rom.getBlock(), rom.getSize());
+	md5.update(rom.getBlock(), size);
 	md5.finalize();
 	std::string digest(md5.hex_digest());
 	
