@@ -422,16 +422,12 @@ void FDC_DirAsDSK::read(int logicalSector, int size, byte* buf)
 			PRT_DEBUG("  Reading from file " << tmp );
 			PRT_DEBUG("  Reading with offset " << offset );
 			checkAlterFileInDisk(tmp);
-			try {
 			FILE* file = fopen(tmp.c_str(), "r");
 			if (file) {
 				fseek(file,offset,SEEK_SET);
 				fread(buf, 1, SECTOR_SIZE, file);
 				fclose(file);
 			} 
-			} catch (...){
-				PRT_DEBUG("problems with file reading");
-			}
 			//if (!file || ferror(file)) {
 			//	throw DiskIOErrorException("Disk I/O error");
 			//}
