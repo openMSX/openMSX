@@ -57,30 +57,45 @@ manpage.1: manpage.sgml
   <refnamediv>
     <refname>&dhpackage;</refname>
 
-    <refpurpose>program to do something</refpurpose>
+    <refpurpose>emulate the MSX standard</refpurpose>
   </refnamediv>
   <refsynopsisdiv>
     <cmdsynopsis>
       <command>&dhpackage;</command>
-
-      <arg><option>-e <replaceable>this</replaceable></option></arg>
-
-      <arg><option>--example <replaceable>that</replaceable></option></arg>
     </cmdsynopsis>
   </refsynopsisdiv>
   <refsect1>
     <title>DESCRIPTION</title>
 
     <para>This manual page documents briefly the
-      <command>&dhpackage;</command> and <command>bar</command>
-      commands.</para>
+      <command>&dhpackage;</command> command.</para>
 
     <para>This manual page was written for the &debian; distribution
       because the original program does not have a manual page.
-      Instead, it has documentation in the &gnu;
-      <application>Info</application> format; see below.</para>
+      Instead, it has documentation in the 
+      <application>HTML</application> format; see below.</para>
 
     <para><command>&dhpackage;</command> emulates the MSX standard.</para>
+
+	<para>Supported file types:
+	<itemizedlist mark='opencircle'>
+		<listitem>
+        	<para>cas: tape image in fMSX CAS format</para>
+		</listitem>
+		<listitem>
+        	<para>di1, di2, dsk, xsa: disk image</para>
+		</listitem>
+		<listitem>
+        	<para>rom: ROM image of a cartridge</para>
+		</listitem>
+		<listitem>
+        	<para>wav: Raw tape image, as recorded from real tape</para>
+		</listitem>
+	</itemizedlist>
+	  </para>
+	  <para>
+	  Zlib compressed files can also be used.
+	</para>
 
   </refsect1>
   <refsect1>
@@ -92,6 +107,7 @@ manpage.1: manpage.sgml
     <variablelist>
       <varlistentry>
         <term>
+          <option>-h</option>
           <option>--help</option>
         </term>
         <listitem>
@@ -99,10 +115,89 @@ manpage.1: manpage.sgml
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><option>-v</option>
+        <term>
+			<option>-v</option>
+        	<option>--version</option>
         </term>
         <listitem>
           <para>Show version of program.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+			<option>-cart</option>
+        	<option>-carta</option>
+        	<option>-cartb</option>
+        	<option>-cartc</option>
+        	<option>-cartd</option>
+        </term>
+        <listitem>
+          <para>Insert the ROM file (cartridge) specified in argument</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+			<option>-cas</option>
+        </term>
+        <listitem>
+          <para>Put tape image in CAS format specified in argument in virtual cassette player</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+			<option>-cassetteplayer</option>
+        </term>
+        <listitem>
+          <para>Put raw tape image specified in in argument in virtual cassette player</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+			<option>-control</option>
+        </term>
+        <listitem>
+          <para>Enable external control of openMSX process</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+			<option>-diska</option>
+			<option>-diskb</option>
+        </term>
+        <listitem>
+          <para>Insert the disk image specified in argument</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+			<option>-ext</option>
+        </term>
+        <listitem>
+          <para>Insert the extension specified in argument</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+			<option>-machine</option>
+        </term>
+        <listitem>
+          <para>Use machine specified in argument</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+			<option>-nosound</option>
+        </term>
+        <listitem>
+          <para>Disable sound output</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+			<option>-setting</option>
+        </term>
+        <listitem>
+          <para>Load an alternative settings file</para>
         </listitem>
       </varlistentry>
     </variablelist>
@@ -113,7 +208,7 @@ manpage.1: manpage.sgml
     <para>openmsx-catapult (1).</para>
 
     <para>The programs are documented fully by <citetitle>openMSX user Manual</citetitle> available in HTML at the location
-      <application>/usr/share/doc/openmsx/mail</application>on the system.</para>
+      <application>/usr/share/doc/openmsx/manual</application> on the system.</para>
   </refsect1>
   <refsect1>
     <title>AUTHOR</title>
