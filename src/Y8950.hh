@@ -3,7 +3,6 @@
 #ifndef _EMU8950_H_
 #define _EMU8950_H_
 
-//#include "ADPCM.hh"
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 
@@ -172,6 +171,7 @@ class Y8950 : public SoundDevice
 		static const int PM_AMP = 1<<PM_AMP_BITS;
 
 	private:
+		int CLAP(int min, int x, int max);
 		void makePmTable();
 		void makeAmTable();
 
@@ -194,11 +194,13 @@ class Y8950 : public SoundDevice
 		void update_ampm();
 		
 		inline int calcSample();
+		inline int calcAdpcm();
 		void checkMute();
 		bool checkMuteHelper();
+		inline bool update_stage();
+		inline void update_output(nibble val);
 
 
-		//ADPCM *adpcm;
 		int adr;
 		int output[2];
 		// Register 
@@ -257,6 +259,72 @@ class Y8950 : public SoundDevice
 		int whitenoise;
 
 		int* buffer;
+
+
+		// adpcm
+		static const int DMAX = 0x5FFF;
+		static const int DMIN = 0x7F;
+		static const int DDEF = 0x7F;
+
+		static const int DECODE_MAX = 32767;
+		static const int DECODE_MIN = -32768;
+
+		// Bitmask for register 0x04 
+		static const int R04_ST1          = 0x01;	// Timer1 Start
+		static const int R04_ST2          = 0x02;	// Timer2 Start
+		//static const int R04            = 0x04;	// not used
+		static const int R04_MASK_BUF_RDY = 0x08;	// Mask 'Buffer Ready'
+		static const int R04_MASK_EOS     = 0x10;	// Mask 'End of sequence' 
+		static const int R04_MASK_T2      = 0x20;	// Mask Timer2 flag 
+		static const int R04_MASK_T1      = 0x40;	// Mask Timer1 flag 
+		static const int R04_IRQ_RESET    = 0x80;	// IRQ RESET 
+
+		// Bitmask for register 0x07 
+		static const int R07_RESET        = 0x01;
+		//static const int R07            = 0x02;	// not used
+		//static const int R07            = 0x04;	// not used
+		static const int R07_SP_OFF       = 0x08;
+		static const int R07_REPEAT       = 0x10;
+		static const int R07_MEMORY_DATA  = 0x20;
+		static const int R07_REC          = 0x40;
+		static const int R07_START        = 0x80;
+
+		// Bitmask for register 0x08 
+		static const int R08_ROM          = 0x01;
+		static const int R08_64K          = 0x02;
+		static const int R08_DA_AD        = 0x04;
+		static const int R08_SAMPL        = 0x08;
+		//static const int R08            = 0x10;	// not used
+		//static const int R08            = 0x20;	// not used
+		static const int R08_NOTE_SET     = 0x40;
+		static const int R08_CSM          = 0x80;
+
+		// Bitmask for status register 
+		static const int STATUS_EOS     = R04_MASK_EOS    |0x80;
+		static const int STATUS_BUF_RDY = R04_MASK_BUF_RDY|0x80;
+		static const int STATUS_T2      = R04_MASK_T2     |0x80;
+		static const int STATUS_T1      = R04_MASK_T1     |0x80;
+
+		static const int GETA_BITS       = 14;
+		static const int DELTA_ADDR_MAX  = 1<<(16+GETA_BITS);
+		static const int DELTA_ADDR_MASK = DELTA_ADDR_MAX-1;
+
+		byte* wave;		// ADPCM DATA
+		byte* memory[2];	// [0] RAM, [1] ROM
+
+		byte status;		// STATUS Register
+		bool play_start;
+		int start_addr;
+		int stop_addr;
+		int play_addr; 		// Current play address * 2
+		int delta_addr;		// 16bit address
+		int delta_n;
+		int play_addr_mask;
+
+		int adpcmOutput[2];
+		int diff;
+
+		int sampleRate;
 };
 
 #endif
