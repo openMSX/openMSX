@@ -48,6 +48,7 @@ public:
 	const string& getData() const { return data; }
 	bool getDataAsBool() const;
 	int getDataAsInt() const;
+	double getDataAsDouble() const;
 	void setData(const string& data_);
 
 	typedef vector<XMLElement*> Children;

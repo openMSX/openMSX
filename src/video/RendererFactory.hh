@@ -17,6 +17,7 @@ namespace openmsx {
 
 class Renderer;
 class VDP;
+class XMLElement;
 
 /** Interface for renderer factories.
   * Every Renderer type has its own RendererFactory.
@@ -46,7 +47,7 @@ public:
 	  * @param defaultRenderer The name of the default renderer
 	  */
 	static auto_ptr<RendererSetting> createRendererSetting(
-		const string& defaultRenderer);
+		XMLElement& rendererElem);
 };
 
 } // namespace openmsx

@@ -25,6 +25,10 @@ const EnumSetting<bool>::Map& BooleanSetting::getMap()
 		alreadyInit = true;
 		boolMap["on"]  = true;
 		boolMap["off"] = false;
+		boolMap["true"]  = true;
+		boolMap["false"] = false;
+		boolMap["yes"]  = true;
+		boolMap["no"] = false;
 	}
 	return boolMap;
 }

@@ -1,5 +1,8 @@
 $Id$
 
+2004-08-31 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Renderer settings can be saved now
+
 2004-08-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Simplified console code
 	* All console settings are saved now

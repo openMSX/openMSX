@@ -19,6 +19,11 @@ bool StringOp::stringToBool(const string& str)
 	return (low == "true") || (low == "yes") || (low == "1");
 }
 
+double StringOp::stringToDouble(const string& str)
+{
+	return strtod(str.c_str(), NULL);
+}
+
 string StringOp::toLower(const string& str)
 {
 	string result = str;

@@ -128,6 +128,11 @@ int XMLElement::getDataAsInt() const
 	return StringOp::stringToInt(getData());
 }
 
+double XMLElement::getDataAsDouble() const
+{
+	return StringOp::stringToDouble(getData());
+}
+
 void XMLElement::setData(const string& data_)
 {
 	assert(children.empty()); // no mixed-content elements

@@ -20,6 +20,7 @@ public:
 	
 	static int stringToInt(const string& str);
 	static bool stringToBool(const string& str);
+	static double stringToDouble(const string& str);
 	
 	static string toLower(const string& str);
 

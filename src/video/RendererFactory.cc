@@ -49,8 +49,10 @@ Renderer* RendererFactory::createRenderer(VDP* vdp)
 }
 
 auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSetting(
-	const string& defaultRenderer)
+	XMLElement& rendererElem)
 {
+	string defaultRenderer = rendererElem.getData();
+	
 	typedef EnumSetting<RendererID>::Map RendererMap;
 	RendererMap rendererMap;
 	rendererMap["none"] = DUMMY; // TODO: only register when in CliComm mode
@@ -79,7 +81,7 @@ auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSettin
 		: defaultValue;
 	return auto_ptr<RendererSetting>(new RendererSetting(
 		"renderer", "rendering back-end used to display the MSX screen",
-		initialValue, defaultValue, rendererMap));
+		initialValue, defaultValue, rendererMap, &rendererElem));
 }
 
 } // namespace openmsx
