@@ -1,6 +1,13 @@
 $Id$
 
-2004-04-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-05-02 Maarten ter Huurne <maarten@treewalker.org>
+	* Different final probe message depending on probe results.
+	* Refuse to build if dependencies for core component are not met.
+	* Support for components: a single label (like COMPONENT_GL) controls
+	  whether a component is built or not.
+	  (in preparation for forced disabling of components)
+
+2004-05-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented a faster DC removal filter, thanks to dvik
 	* Implemeted V9990 palette reading/writing 
 	* Unified Ascii8-8, Koei-8, Koei-32 and Wizardry mapper types,
