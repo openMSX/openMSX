@@ -1,5 +1,8 @@
 $Id$
 
+2003-01-26 Maarten ter Huurne <maarten@treewalker.org>
+	* Relaxed over-zealous assert in PixelRenderer by one tick.
+
 2003-01-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed TurboR assertion:
 	   targetTime wasn't set properly when switching CPU (Z80 <-> R800)
@@ -80,7 +83,7 @@ $Id$
 	* Fixed CPU HALT instruction
 	* Semi-fixed CPU/Scheduler interaction:
 	   - seems to work, but I still need to take a very close look at
-	     the code 
+	     the code
 
 2003-01-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Large CPU rewrite:
