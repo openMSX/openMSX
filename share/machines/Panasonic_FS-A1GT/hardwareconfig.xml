@@ -82,7 +82,7 @@
     <parameter name="drivename1">diska</parameter>
   </device>
 
-  <device id="FS-A1GT">
+  <device id="Firmware">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>3</ss> <page>0</page> </slotted>
     <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
