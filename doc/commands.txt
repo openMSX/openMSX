@@ -215,6 +215,13 @@ slotselect
   [ mainly useful for debugging purposes ]
 
 
+iomap
+-----
+
+  Shows what I/O ports are connected to which devices.
+  [ mainly useful for debugging purposes ]
+
+
 toggle
 ------
 

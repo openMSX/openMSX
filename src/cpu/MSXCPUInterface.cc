@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <memory> // for auto_ptr
 #include <sstream>
+#include <iomanip>
 #include <algorithm>
 #include "MSXCPUInterface.hh"
 #include "DummyDevice.hh"
@@ -42,6 +43,7 @@ MSXCPUInterface::MSXCPUInterface()
 	  ioDebug(*this),
 	  slotMapCmd(*this),
 	  slotSelectCmd(*this),
+	  ioMapCmd(*this),
 	  dummyDevice(DummyDevice::instance()),
 	  hardwareConfig(HardwareConfig::instance()),
 	  commandController(CommandController::instance()),
@@ -74,6 +76,7 @@ MSXCPUInterface::MSXCPUInterface()
 	// Register console commands
 	commandController.registerCommand(&slotMapCmd,    "slotmap");
 	commandController.registerCommand(&slotSelectCmd, "slotselect");
+	commandController.registerCommand(&ioMapCmd,    "iomap");
 
 	debugger.registerDebuggable("memory", memoryDebug);
 	debugger.registerDebuggable("slotted memory", slottedMemoryDebug);
@@ -92,6 +95,7 @@ MSXCPUInterface::~MSXCPUInterface()
 
 	commandController.unregisterCommand(&slotMapCmd,    "slotmap");
 	commandController.unregisterCommand(&slotSelectCmd, "slotselect");
+	commandController.unregisterCommand(&ioMapCmd,    "iomap");
 
 	assert(multiIn.empty());
 	assert(multiOut.empty());
@@ -137,7 +141,7 @@ void MSXCPUInterface::register_IO_In(byte port, MSXDevice* device)
 		}
 		ostringstream os;
 		os << "Conflicting input port 0x" << hex << (int)port
-		   << "for devices " << dev2->getName();
+		   << " for devices " << dev2->getName();
 		cliCommOutput.printWarning(os.str());
 	}
 }
@@ -371,6 +375,38 @@ string MSXCPUInterface::getSlotMap() const
 	return out.str();
 }
 
+string MSXCPUInterface::getIOMap() const
+{
+	ostringstream out;
+	string prevDevName;
+	for (int port = 0; port < 256; ++port) {
+		string devNameIn = IO_In[port]->getName();
+		string devNameOut = IO_Out[port]->getName();
+		if (devNameIn != "empty" || devNameOut != "empty")
+		{
+			string iostr, devName;
+			if (devNameIn != "empty" && devNameOut != "empty")
+			{
+				iostr="I/O";
+				devName=devNameIn;
+			}
+			else if (devNameIn == "empty" && devNameOut != "empty") 
+			{
+				iostr="O  ";
+				devName=devNameOut;
+			}
+			else if (devNameIn != "empty" && devNameOut == "empty") 
+			{
+				iostr="I  ";
+				devName=devNameIn;
+			}
+		
+			out << "port " << hex << std::setw(2) << std::setfill('0') << port << ": " << iostr << " " << devName << "\n";
+		}
+	}
+	return out.str();
+}
+
 void MSXCPUInterface::printSlotMapPages(ostream &out,
 	const MSXDevice* const* devices) const
 {
@@ -542,6 +578,22 @@ string MSXCPUInterface::SlotSelectCmd::help(const vector<string>& /*tokens*/) co
 	return "Prints which slots are currently selected.\n";
 }
 
+// class IOMapCmd
+
+MSXCPUInterface::IOMapCmd::IOMapCmd(MSXCPUInterface& parent_)
+	: parent(parent_)
+{
+}
+
+string MSXCPUInterface::IOMapCmd::execute(const vector<string>& /*tokens*/)
+{
+	return parent.getIOMap();
+}
+
+string MSXCPUInterface::IOMapCmd::help(const vector<string>& /*tokens*/) const
+{
+	return "Prints which I/O ports are connected to which devices.\n";
+}
 
 // class TurborCPUInterface 
 

@@ -282,6 +282,16 @@ private:
 		MSXCPUInterface& parent;
 	} slotSelectCmd;
 
+	class IOMapCmd : public SimpleCommand {
+	public:
+		IOMapCmd(MSXCPUInterface& parent);
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
+	private:
+		MSXCPUInterface& parent;
+	} ioMapCmd;
+
+
 	/** Updated visibleDevices for a given page and clears the cache
 	  * on changes.
 	  * Should be called whenever PrimarySlotState or SecondarySlotState
@@ -293,6 +303,7 @@ private:
 
 	void printSlotMapPages(ostream&, const MSXDevice* const*) const;
 	string getSlotMap() const;
+	string getIOMap() const;
 	string getSlotSelection() const;
 	
 	bool prevNMIStat;

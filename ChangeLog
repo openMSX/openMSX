@@ -1,5 +1,8 @@
 $Id$
 
+2004-09-11 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added iomap command to chech what devices is on which I/O port
+
 2004-09-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented RTC mode as a setting, is now saveable
 

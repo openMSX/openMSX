@@ -34,7 +34,7 @@ public:
 	virtual void setConsoleDimensions(unsigned columns, unsigned rows);
 
 private:
-	static const int LINESHISTORY = 100;
+	static const int LINESHISTORY = 1000;
 
 	CommandConsole();
 	virtual ~CommandConsole();
