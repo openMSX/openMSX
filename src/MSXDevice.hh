@@ -50,9 +50,6 @@ class MSXDevice : public Schedulable
 		void setInterrupt();
 		void resetInterrupt();
 		bool isIRQset;
-
-//	private:
-//		static const std::string defaultName;
 };
 
 #endif //__MSXDEVICE_HH__

@@ -269,6 +269,7 @@ void I8254::Counter::setGateStatus(bool newStatus, const Emutime &time)
 void I8254::Counter::advance(const Emutime &time)
 {
 	//TODO !!!! Set SP !!!!
+	//TODO BCD counting
 	uint64 ticks = currentTime.getTicksTill(time);
 	currentTime = time;
 	switch (control & CNTR_MODE) {

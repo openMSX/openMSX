@@ -1,11 +1,9 @@
 // $Id$
 
-//#include "MSXDevice.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 #include <cassert>
-
 
 
 const std::string &Schedulable::getName()

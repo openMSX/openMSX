@@ -4,7 +4,6 @@
 #define __SCHEDULER_HH__
 
 #include "emutime.hh"
-//#include "MSXDevice.hh"
 #include <set>
 #include <string>
 

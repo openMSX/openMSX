@@ -7,7 +7,10 @@
 Keyboard::Keyboard(bool keyG)
 {
 	keyGhosting = keyG;
-	for (int i=0; i<NR_KEYROWS; i++) keyMatrix[i] = 255;
+	for (int i=0; i<NR_KEYROWS; i++) {
+		keyMatrix[i]  = 255;
+		keyMatrix2[i] = 255;
+	}
 	EventDistributor::instance()->registerSyncListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->registerSyncListener(SDL_KEYUP,   this);
 }
@@ -23,9 +26,9 @@ const byte* Keyboard::getKeys()
 	if (keysChanged) {
 		keysChanged = false;
 		for (int i=0; i<NR_KEYROWS; i++) 
-			keyMatrix2[i] = keyMatrix[i];
+			keyMatrix2[i] = keyMatrix[i];	// Copy matrix -> matrix2
 		if (keyGhosting)
-			doKeyGhosting();
+			doKeyGhosting();	// works on matrix2
 		for (int i=0; i<NR_KEYROWS; i++)
 		PRT_DEBUG("Keymatrix row " << i << ": " << (int)keyMatrix2[i]);
 	}
@@ -68,21 +71,24 @@ void Keyboard::doKeyGhosting()
 	// 10111101  electrical connections  10110101
 	//           that are established  by
 	// the closed switches
-	bool changed_something;
-	do {
-		changed_something = false;
-		for (int i=0; i<NR_KEYROWS; i++) {
-			for (int j=0; j<NR_KEYROWS; j++) {
-				if ((keyMatrix2[i]|keyMatrix2[j]) != 255) {
-					byte rowanded = keyMatrix2[i]&keyMatrix2[j];
-					if (rowanded != keyMatrix2[i]) {
-						keyMatrix2[i] = rowanded;
-						changed_something = true;
-					}
+	bool changedSomething;
+	do {	changedSomething = false;
+		for (int i=0; i<NR_KEYROWS-1; i++) {
+			byte row1 = keyMatrix2[i];
+			for (int j=i+1; j<NR_KEYROWS; j++) {
+				byte row2 = keyMatrix2[j];
+				if ((row1 != row2) && ((row1|row2) != 0xff)) {
+					// not same and some common zero's
+					//  --> inherit other zero's
+					byte newRow = row1 & row2;
+					keyMatrix2[i] = newRow;
+					keyMatrix2[j] = newRow;
+					row1 = newRow;
+					changedSomething = true;
 				}
 			}
 		}
-	} while (changed_something);
+	} while (changedSomething);
 }
 
 
