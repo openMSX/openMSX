@@ -42,7 +42,6 @@ clean:
 	- rm -rf derived/
 	- rm -rf debian/tmp
 	- rm -f openmsx.1
-	- rm -f debian/openmsx.1
 
 
 	dh_clean 
