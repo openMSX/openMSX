@@ -131,7 +131,7 @@ bool CassettePort::cassetteIn(const EmuTime &time)
 	//   only important component is DC-removal
 	//   we just assume sample has no DC component
 	short sample = ((CassetteDevice*)pluggable)->readSample(time);	// read 1 sample  
-	return (sample > 0); // comparator
+	return (sample >= 0); // comparator
 }
 
 void CassettePort::flushOutput(const EmuTime &time)

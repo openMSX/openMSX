@@ -40,8 +40,9 @@ void MSXPSG::reset(const EmuTime &time)
 
 byte MSXPSG::readIO(byte port, const EmuTime &time)
 {
-	assert (port == 0xA2);
-	return ay8910->readRegister(registerLatch, time);
+	byte result =  ay8910->readRegister(registerLatch, time);
+	//PRT_DEBUG("PSG read R#"<<(int)registerLatch<<" = "<<(int)result);
+	return result;
 }
 
 void MSXPSG::writeIO(byte port, byte value, const EmuTime &time)
@@ -51,10 +52,9 @@ void MSXPSG::writeIO(byte port, byte value, const EmuTime &time)
 		registerLatch = value & 0x0f;
 		break;
 	case 0xA1:
+		//PRT_DEBUG("PSG write R#"<<(int)registerLatch<<" = "<<(int)value);
 		ay8910->writeRegister(registerLatch, value, time);
 		break;
-	default:
-		assert(false);	//code should never be reached
 	}
 }
 

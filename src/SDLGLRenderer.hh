@@ -24,6 +24,8 @@ class EmuTime;
 class VDP;
 class VDPVRAM;
 class SpriteChecker;
+class SDLConsole;
+
 
 /** Factory method to create SDLGLRenderer objects.
   * TODO: Add NTSC/PAL selection
@@ -296,6 +298,7 @@ private:
 	  */
 	BitmapConverter<Pixel, Renderer::ZOOM_REAL> bitmapConverter;
 
+	SDLConsole* console;
 };
 
 #endif // OpenGL header check.
