@@ -71,10 +71,10 @@ MSXCPUInterface::MSXCPUInterface()
 	for (Config::Parameters::const_iterator it = subslotted_list.begin();
 	     it != subslotted_list.end(); ++it) {
 		bool hasSubs = false;
-		if (it->getValue() == "true") {
+		if (it->second == "true") {
 			hasSubs = true;
 		}
-		int counter = atoi(it->getName().c_str());
+		int counter = atoi(it->first.c_str());
 		isSubSlotted[counter] = hasSubs;
 	}
 

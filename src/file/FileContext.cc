@@ -213,7 +213,7 @@ const vector<string> &UserFileContext::getPaths()
 			for (Config::Parameters::const_iterator it =
 			         pathList.begin();
 			     it != pathList.end(); ++it) {
-				string path = it->getValue();
+				string path = it->second;
 				if (path[path.length() - 1] != '/') {
 					path += '/';
 				}

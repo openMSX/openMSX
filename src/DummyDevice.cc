@@ -4,6 +4,7 @@
 #include "DummyDevice.hh"
 #include "EmuTime.hh"
 #include "Device.hh"
+#include "FileContext.hh"
 
 namespace openmsx {
 
@@ -19,8 +20,12 @@ DummyDevice::~DummyDevice()
 
 DummyDevice& DummyDevice::instance()
 {
-	static Device deviceConfig("Dummy", "empty");
-	static DummyDevice oneInstance(&deviceConfig, EmuTime::zero);
+	XMLElement deviceElem("Dummy");
+	XMLElement* typeElem = new XMLElement("type", "empty");
+	deviceElem.addChild(typeElem);
+	SystemFileContext dummyContext;
+	static Device device(deviceElem, dummyContext);
+	static DummyDevice oneInstance(&device, EmuTime::zero);
 	return oneInstance;
 }
 

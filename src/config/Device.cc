@@ -7,10 +7,10 @@ namespace openmsx {
 
 // class Device
 
-Device::Device(XMLElement* element_, FileContext& context_)
-	: Config(element_, context_)
+Device::Device(const XMLElement& element, const FileContext& context)
+	: Config(element, context)
 {
-	const XMLElement::Children& children = element->getChildren();
+	const XMLElement::Children& children = element.getChildren();
 	for (XMLElement::Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
 		if ((*it)->getName() == "slotted") {
@@ -33,11 +33,6 @@ Device::Device(XMLElement* element_, FileContext& context_)
 			}
 		}
 	}
-}
-
-Device::Device(const string& type, const string& id)
-	: Config(type, id)
-{
 }
 
 Device::~Device()

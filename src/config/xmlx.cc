@@ -1,16 +1,22 @@
 // $Id$
 
+#include <cassert>
 #include "xmlx.hh"
 
 namespace openmsx {
 
 static string EMPTY("");
 
+
+// class XMLException
+
 XMLException::XMLException(const string& msg)
 	: MSXException(msg)
 {
 }
 
+
+// class XMLElement
 
 XMLElement::XMLElement()
 {
@@ -19,6 +25,11 @@ XMLElement::XMLElement()
 XMLElement::XMLElement(xmlNodePtr node)
 {
 	init(node);
+}
+
+XMLElement::XMLElement(const string& name_, const string& pcdata_)
+	: name(name_), pcdata(pcdata_)
+{
 }
 
 void XMLElement::init(xmlNodePtr node)
@@ -60,6 +71,12 @@ XMLElement::~XMLElement()
 	}
 }
 
+void XMLElement::addChild(XMLElement* child)
+{
+	assert(child);
+	children.push_back(child);
+}
+
 const string& XMLElement::getAttribute(const string& attName) const
 {
 	Attributes::const_iterator it = attributes.find(attName);
@@ -81,6 +98,34 @@ const string& XMLElement::getElementPcdata(const string& childName) const
 	return EMPTY;
 }
 
+XMLElement::XMLElement(const XMLElement& element)
+{
+	*this = element;
+}
+
+const XMLElement& XMLElement::operator=(const XMLElement& element)
+{
+	if (&element == this) {
+		// assign to itself
+		return *this;
+	}
+	name = element.name;
+	pcdata = element.pcdata;
+	attributes = element.attributes;
+	for (Children::const_iterator it = children.begin();
+	     it != children.end(); ++it) {
+		delete *it;
+	}
+	children.clear();
+	for (Children::const_iterator it = element.children.begin();
+	     it != element.children.end(); ++it) {
+		children.push_back(new XMLElement(**it));
+	}
+	return *this;
+}
+
+
+// class XMLDocument
 
 XMLDocument::XMLDocument(const string& filename) throw(XMLException)
 {
@@ -106,6 +151,18 @@ void XMLDocument::handleDoc(xmlDocPtr doc)
 	init(xmlDocGetRootElement(doc));
 	xmlFreeDoc(doc);
 }
+
+XMLDocument::XMLDocument(const XMLDocument& document)
+{
+	*this = document;
+}
+
+const XMLDocument& XMLDocument::operator=(const XMLDocument& document)
+{
+	this->XMLElement::operator=(document);
+	return *this;
+}
+
 
 
 const string& XMLEscape(string& str)

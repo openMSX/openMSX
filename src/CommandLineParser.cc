@@ -93,7 +93,7 @@ void CommandLineParser::postRegisterFileTypes()
 			config->getParametersWithClass(i->first, extensions);
 			for (Config::Parameters::const_iterator j = extensions.begin();
 			     j != extensions.end(); ++j) {
-				fileTypeMap[j->getValue()] = i->second;
+				fileTypeMap[j->second] = i->second;
 			}
 		}
 	} catch (ConfigException &e) {

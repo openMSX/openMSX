@@ -51,11 +51,9 @@ private:
 	MSXConfig();
 	~MSXConfig();
 
-	void handleDoc(XMLDocument* doc, FileContext& context)
+	void handleDoc(const XMLDocument& doc, FileContext& context)
 		throw(ConfigException);
 
-	typedef vector<XMLDocument*> Docs;
-	Docs docs;
 	typedef vector<Config*> Configs;
 	Configs configs;
 	Devices devices;

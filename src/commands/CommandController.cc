@@ -251,7 +251,7 @@ void CommandController::autoCommands()
 		for (Config::Parameters::const_iterator it = commands.begin();
 		     it != commands.end(); ++it) {
 			try {
-				executeCommand(it->getValue());
+				executeCommand(it->second);
 			} catch (CommandException &e) {
 				output.printWarning(
 				         "While executing autocommands: "

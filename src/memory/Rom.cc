@@ -91,9 +91,9 @@ void Rom::read(Device* config, const string& filename)
 	for (Config::Parameters::const_iterator it = parameters.begin();
 	     it != parameters.end(); ++it) {
 		MSXRomPatchInterface* patchInterface;
-		if (it->getValue() == "MSXDiskRomPatch") {
+		if (it->second == "MSXDiskRomPatch") {
 			patchInterface = new MSXDiskRomPatch();
-		} else if (it->getValue() == "MSXTapePatch") {
+		} else if (it->second == "MSXTapePatch") {
 			patchInterface = new MSXTapePatch();
 		} else {
 			throw FatalError("Unknown patch interface");
@@ -107,14 +107,14 @@ void Rom::read(Device* config, const string& filename)
 	config->getParametersWithClass("patch", parameters2);
 	for (Config::Parameters::const_iterator i = parameters2.begin();
 	     i != parameters2.end(); ++i) {
-		unsigned int romOffset = strtol(i->getName().c_str(), 0, 0);
-		int value  = i->getAsInt();
+		unsigned int romOffset = strtol(i->first.c_str(), 0, 0);
+		int value  = Config::stringToInt(i->second);
 		if (romOffset >= size) {
 			ostringstream out;
 			out << "Illegal ROM patch-offset: 0x" << hex << romOffset;
 			throw FatalError(out.str());
 		} else {
-			PRT_DEBUG("Patching ROM[" << i->getName() << "]=" << i->getValue());
+			PRT_DEBUG("Patching ROM[" << i->first << "]=" << i->second);
 			tmp[romOffset] = value; // tmp = rom, but rom is read only
 		}
 	}

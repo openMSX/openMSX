@@ -28,8 +28,11 @@ public:
 class XMLElement
 {
 public:
+	XMLElement(const string& name, const string& pcdata = "");
 	virtual ~XMLElement();
 
+	void addChild(XMLElement* child);
+	
 	const string& getName() const { return name; }
 	const string& getPcData() const { return pcdata; }
 
@@ -40,6 +43,9 @@ public:
 
 	const string& getAttribute(const string& attName) const;
 	const string& getElementPcdata(const string& childName) const;
+	
+	XMLElement(const XMLElement& element);
+	const XMLElement& operator=(const XMLElement& element);
 
 protected:
 	XMLElement();
@@ -59,6 +65,9 @@ class XMLDocument : public XMLElement
 public:
 	XMLDocument(const string& filename) throw(XMLException);
 	XMLDocument(const ostringstream& stream) throw(XMLException);
+
+	XMLDocument(const XMLDocument& document);
+	const XMLDocument& operator=(const XMLDocument& document);
 
 private:
 	void handleDoc(xmlDocPtr doc);

@@ -7,6 +7,7 @@
 #include "MSXCPUInterface.hh"
 #include "MSXConfig.hh"
 #include "Debugger.hh"
+#include "FileContext.hh"
 
 namespace openmsx {
 
@@ -58,7 +59,12 @@ void MSXMemoryMapper::createMapperIO(const EmuTime& time)
 {
 	if (!counter) {
 		assert(!mapperIO && !device);
-		device = new Device("MapperIO", "MapperIO");
+
+		XMLElement deviceElem("MapperIO");
+		XMLElement* typeElem = new XMLElement("type", "MapperIO");
+		deviceElem.addChild(typeElem);
+		SystemFileContext dummyContext;
+		device = new Device(deviceElem, dummyContext);
 		mapperIO = new MSXMapperIO(device, time);
 	
 		MSXCPUInterface& cpuInterface = MSXCPUInterface::instance();

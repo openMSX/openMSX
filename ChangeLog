@@ -1,5 +1,8 @@
 $Id$
 
+2004-03-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* More config cleanups
+
 2004-03-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made Y8950 (MSX-AUDIO) debuggable
 	* Deleted debug view related files:

@@ -3,7 +3,6 @@
 #include <cassert>
 #include <algorithm>	// for tolower
 #include <cstdlib>	// for strtol() and atoll()
-#include "xmlx.hh"
 #include "config.h"	// for the autoconf defines
 #include "Config.hh"
 #include "FileContext.hh"
@@ -13,15 +12,8 @@ namespace openmsx {
 
 // class Config
 
-Config::Config(XMLElement* element_, FileContext& context_)
-	: element(element_), context(context_.clone()),
-	  type(element->getElementPcdata("type")),
-	  id(element->getAttribute("id"))
-{
-}
-
-Config::Config(const string& type_, const string& id_)
-	: element(0), context(0), type(type_), id(id_)
+Config::Config(const XMLElement& element_, const FileContext& context_)
+	: element(element_), context(context_.clone())
 {
 }
 
@@ -30,14 +22,14 @@ Config::~Config()
 	delete context;
 }
 
-const string &Config::getType() const
+const string& Config::getType() const
 {
-	return type;
+	return element.getElementPcdata("type");
 }
 
-const string &Config::getId() const
+const string& Config::getId() const
 {
-	return id;
+	return element.getAttribute("id");
 }
 
 FileContext& Config::getContext() const
@@ -48,14 +40,12 @@ FileContext& Config::getContext() const
 
 XMLElement* Config::getParameterElement(const string& name) const
 {
-	if (element) {
-		const XMLElement::Children& children = element->getChildren();
-		for (XMLElement::Children::const_iterator it = children.begin();
-		     it != children.end(); ++it) {
-			if ((*it)->getName() == "parameter") {
-				if ((*it)->getAttribute("name") == name) {
-					return *it;
-				}
+	const XMLElement::Children& children = element.getChildren();
+	for (XMLElement::Children::const_iterator it = children.begin();
+	     it != children.end(); ++it) {
+		if ((*it)->getName() == "parameter") {
+			if ((*it)->getAttribute("name") == name) {
+				return *it;
 			}
 		}
 	}
@@ -115,39 +105,17 @@ int Config::getParameterAsInt(const string& name, int defaultValue) const
 
 void Config::getParametersWithClass(const string& clasz, Parameters& result)
 {
-	if (element) {
-		const XMLElement::Children& children = element->getChildren();
-		for (XMLElement::Children::const_iterator it = children.begin();
-		     it != children.end(); ++it) {
-			if ((*it)->getName() == "parameter") {
-				if ((*it)->getAttribute("class") == clasz) {
-					Parameter parameter((*it)->getAttribute("name"),
-					                    (*it)->getPcData(), clasz);
-					result.push_back(parameter);
-				}
+	const XMLElement::Children& children = element.getChildren();
+	for (XMLElement::Children::const_iterator it = children.begin();
+	     it != children.end(); ++it) {
+		if ((*it)->getName() == "parameter") {
+			if ((*it)->getAttribute("class") == clasz) {
+				result.insert(Parameters::value_type(
+					(*it)->getAttribute("name"),
+					(*it)->getPcData()));
 			}
 		}
 	}
-}
-
-
-// class Parameter
-
-Config::Parameter::Parameter(const string& name_,
-                             const string& value_,
-                             const string& clasz_)
-	: name(name_), value(value_), clasz(clasz_)
-{
-}
-
-bool Config::Parameter::getAsBool() const
-{
-	return stringToBool(value);
-}
-
-int Config::Parameter::getAsInt() const
-{
-	return stringToInt(value);
 }
 
 

@@ -16,10 +16,6 @@ MSXConfig::MSXConfig()
 
 MSXConfig::~MSXConfig()
 {
-	for (Docs::const_iterator it = docs.begin();
-	     it != docs.end(); ++it) {
-		delete *it;
-	}
 	for (Configs::const_iterator it = configs.begin();
 	     it != configs.end(); ++it) {
 		delete *it;
@@ -41,7 +37,7 @@ void MSXConfig::loadHardware(FileContext& context,
 	throw(FileException, ConfigException)
 {
 	File file(context.resolve(filename));
-	XMLDocument *doc = new XMLDocument(file.getLocalName());
+	XMLDocument doc(file.getLocalName());
 
 	// get url
 	string url(file.getURL());
@@ -70,7 +66,7 @@ void MSXConfig::loadSetting(FileContext& context, const string& filename)
 	throw(FileException, ConfigException)
 {
 	File file(context.resolve(filename));
-	XMLDocument *doc = new XMLDocument(file.getLocalName());
+	XMLDocument doc(file.getLocalName());
 	SettingFileContext context2(file.getURL());
 	handleDoc(doc, context2);
 }
@@ -78,15 +74,14 @@ void MSXConfig::loadSetting(FileContext& context, const string& filename)
 void MSXConfig::loadStream(FileContext& context, const ostringstream& stream)
 	throw(ConfigException)
 {
-	XMLDocument* doc = new XMLDocument(stream);
+	XMLDocument doc(stream);
 	handleDoc(doc, context);
 }
 
-void MSXConfig::handleDoc(XMLDocument* doc, FileContext& context)
+void MSXConfig::handleDoc(const XMLDocument& doc, FileContext& context)
 	throw(ConfigException)
 {
-	docs.push_back(doc);
-	const XMLElement::Children& children = doc->getChildren();
+	const XMLElement::Children& children = doc.getChildren();
 	for (XMLElement::Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
 		if (((*it)->getName() == "config") || ((*it)->getName() == "device")) {
@@ -100,9 +95,9 @@ void MSXConfig::handleDoc(XMLDocument* doc, FileContext& context)
 				    "<config> or <device> with duplicate 'id':" + id);
 			}
 			if ((*it)->getName() == "config") {
-				configs.push_back(new Config(*it, context));
+				configs.push_back(new Config(**it, context));
 			} else if ((*it)->getName() == "device") {
-				devices.push_back(new Device(*it, context));
+				devices.push_back(new Device(**it, context));
 			}
 		}
 	}

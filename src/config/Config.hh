@@ -4,11 +4,12 @@
 #define __CONFIG_HH__
 
 #include <string>
-#include <vector>
+#include <map>
 #include "ConfigException.hh"
+#include "xmlx.hh"
 
 using std::string;
-using std::vector;
+using std::multimap;
 
 namespace openmsx {
 
@@ -21,27 +22,7 @@ public:
 	static bool stringToBool(const string& str);
 	static int stringToInt(const string& str);
 
-	class Parameter {
-	public:
-		Parameter(const string& name,
-			  const string& value,
-			  const string& clasz);
-
-		const string& getName() const { return name; };
-		const string& getValue() const { return value; }
-		const string& getClass() const { return clasz; }
-
-		bool getAsBool() const;
-		int getAsInt() const ;
-
-	private:
-		string name;
-		string value;
-		string clasz;
-	};
-
-	Config(XMLElement* element, FileContext& context);
-	Config(const string& type, const string& id);
+	Config(const XMLElement& element, const FileContext& context);
 	virtual ~Config();
 
 	const string& getType() const;
@@ -57,18 +38,16 @@ public:
 	int getParameterAsInt(const string& name) const throw(ConfigException);
 	int getParameterAsInt(const string& name, int defaultValue) const;
 
-	typedef vector<Parameter> Parameters;
+	typedef multimap<string, string> Parameters;
 	void getParametersWithClass(const string& clasz, Parameters& result);
 
 protected:
-	XMLElement* element;
+	XMLElement element;
 
 private:
 	XMLElement* getParameterElement(const string& name) const;
 
 	FileContext* context;
-	string type;
-	string id;
 };
 
 } // namespace openmsx

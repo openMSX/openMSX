@@ -3,7 +3,7 @@
 #include "MSXDeviceSwitch.hh"
 #include "EmuTime.hh"
 #include "Device.hh"
-
+#include "FileContext.hh"
 
 namespace openmsx {
 
@@ -45,7 +45,11 @@ MSXDeviceSwitch::~MSXDeviceSwitch()
 
 MSXDeviceSwitch& MSXDeviceSwitch::instance()
 {
-	static Device device("DeviceSwitch", "DeviceSwitch");
+	XMLElement deviceElem("DeviceSwitch");
+	XMLElement* typeElem = new XMLElement("type", "DeviceSwitch");
+	deviceElem.addChild(typeElem);
+	SystemFileContext dummyContext;
+	static Device device(deviceElem, dummyContext);
 	static MSXDeviceSwitch oneInstance(&device, EmuTime::zero);
 	return oneInstance;
 }

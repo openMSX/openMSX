@@ -27,8 +27,7 @@ public:
 		int page;
 	};
 
-	Device(XMLElement* element, FileContext& context);
-	Device(const string& type, const string& id);
+	Device(const XMLElement& element, const FileContext& context);
 	~Device();
 
 	typedef vector<Slot> Slots;

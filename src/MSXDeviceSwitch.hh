@@ -54,39 +54,39 @@ namespace openmsx {
 
 class MSXSwitchedDevice
 {
-	public:
-		MSXSwitchedDevice(byte id);
-		virtual ~MSXSwitchedDevice();
-		
-		virtual void reset(const EmuTime &time) {}
-		virtual byte readIO(byte port, const EmuTime &time) = 0;
-		virtual void writeIO(byte port, byte value, const EmuTime &time) = 0;
+public:
+	MSXSwitchedDevice(byte id);
+	virtual ~MSXSwitchedDevice();
+	
+	virtual void reset(const EmuTime& time) {}
+	virtual byte readIO(byte port, const EmuTime& time) = 0;
+	virtual void writeIO(byte port, byte value, const EmuTime& time) = 0;
 
-	private:
-		byte id;
+private:
+	byte id;
 };
 
 
 class MSXDeviceSwitch : public MSXIODevice
 {
-	public:
-		virtual ~MSXDeviceSwitch();
+public:
+	virtual ~MSXDeviceSwitch();
 
-		static MSXDeviceSwitch& instance();
+	static MSXDeviceSwitch& instance();
 
-		// (un)register methods for devices
-		void registerDevice(byte id, MSXSwitchedDevice* device); 
-		void unregisterDevice(byte id); 
+	// (un)register methods for devices
+	void registerDevice(byte id, MSXSwitchedDevice* device); 
+	void unregisterDevice(byte id); 
 
-		virtual void reset(const EmuTime &time);
-		virtual byte readIO(byte port, const EmuTime &time);
-		virtual void writeIO(byte port, byte value, const EmuTime &time);
+	virtual void reset(const EmuTime& time);
+	virtual byte readIO(byte port, const EmuTime& time);
+	virtual void writeIO(byte port, byte value, const EmuTime& time);
+
+private:
+	MSXDeviceSwitch(Device* config, const EmuTime& time);
 	
-	private:
-		MSXDeviceSwitch(Device *config, const EmuTime &time);
-		
-		byte selected;
-		MSXSwitchedDevice* devices[256];
+	byte selected;
+	MSXSwitchedDevice* devices[256];
 };
 
 } // namespace openmsx
