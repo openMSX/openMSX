@@ -75,8 +75,14 @@ class EmuTimeFreq : public EmuTime
 		EmuTime &operator +(uint64 n) { return *new EmuTime(time+n*(MAIN_FREQ/freq)); }
 
 		// distance function
-		int getTicksTill(const EmuTime &e) const
-			{ assert(e.time >= time); return (e.time-time)/(MAIN_FREQ/freq); }
+		int getTicksTill(const EmuTime &e) const { 
+			assert(e.time >= time); 
+			return (e.time-time)/(MAIN_FREQ/freq);
+		}
+		int getTicksTillUp(const EmuTime &e) const { 
+			assert(e.time >= time); 
+			return (e.time-time+MAIN_FREQ/freq-1)/(MAIN_FREQ/freq); //round up
+		}
 };
 
 #endif

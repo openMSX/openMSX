@@ -145,8 +145,8 @@ void Z80::execute()
 			}
 		} else if (R.HALT) {
 			// in halt mode
-			const int haltStates = 4 + waitCycles;	// HALT + M1
-			uint64 ticks = currentTime.getTicksTill(targetTime);
+			int haltStates = 4 + waitCycles;	// HALT + M1
+			uint64 ticks = currentTime.getTicksTillUp(targetTime);
 			int halts = (ticks+(haltStates-1))/haltStates;	// rounded up
 			R.R += halts;
 			currentTime += halts*haltStates;
