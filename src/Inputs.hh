@@ -6,7 +6,6 @@
 #include "openmsx.hh"
 #include "EventDistributor.hh"
 
-#define NR_KEYROWS 11
 
 class Inputs : public EventListener 
 {
@@ -15,7 +14,9 @@ class Inputs : public EventListener
 		static Inputs *instance();
 		const byte* getKeys();
 		void signalEvent(SDL_Event &event);
-	
+		
+		static const int NR_KEYROWS = 11;
+
 	private:
 		Inputs(); // private constructor -> can only construct self
 		static Inputs *oneInstance; 

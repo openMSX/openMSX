@@ -58,11 +58,12 @@ void Scheduler::scheduleEmulation()
 			const SynchronizationPoint &sp = getFirstSP();
 			const Emutime &time = sp.getTime();
 			if (MSXCPU::instance()->getCurrentTime() < time) {
-				// emulate CPU till first SP
+				// emulate CPU till first SP, don't immediately emulate
+				// device since CPU could not have reached SP
 				PRT_DEBUG ("Scheduling CPU till SP");
 				MSXCPU::instance()->executeUntilTarget(time);
 			} else {
-				// if CPU is emulated, emulate the device
+				// if CPU has reached SP, emulate the device
 				MSXDevice *device = &(sp.getDevice());
 				PRT_DEBUG ("Scheduling " << device->getName());
 				device->executeUntilEmuTime(time);
@@ -71,4 +72,4 @@ void Scheduler::scheduleEmulation()
 		}
 	}
 }
-const Emutime Scheduler::infinity = Emutime(1, INFINITY);
+const Emutime Scheduler::infinity = Emutime(1, Emutime::INFINITY);

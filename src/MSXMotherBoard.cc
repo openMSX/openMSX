@@ -116,7 +116,7 @@ void MSXMotherBoard::StartMSX()
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		(*i)->start();
 	}
-	Leds::instance()->setLed(POWER_ON);
+	Leds::instance()->setLed(Leds::POWER_ON);
 	Scheduler::instance()->scheduleEmulation();
 }
 

@@ -116,7 +116,7 @@ void MSXPPI::writeA(byte value) {
 byte MSXPPI::readB() {
 	const byte* src = Inputs::instance()->getKeys(); //reading the keyboard events into the matrix
 	byte* dst = MSXKeyMatrix;
-	for (int i=0; i<NR_KEYROWS; i++) {
+	for (int i=0; i<Inputs::NR_KEYROWS; i++) {
 		*dst++ = *src++;
 	}
 	if (keyboardGhosting) {
@@ -139,7 +139,7 @@ void MSXPPI::writeC1(nibble value) {
 	//  4    CASON  Cassette motor relay        (0=On, 1=Off)
 	//  5    CASW   Cassette audio out          (Pulse)
 	//  7    SOUND  Keyboard klick bit          (Pulse)
-	int caps = (value&4) ? CAPS_OFF : CAPS_ON;
+	int caps = (value&4) ? Leds::CAPS_OFF : Leds::CAPS_ON;
 	Leds::instance()->setLed(caps);
 }
 void MSXPPI::writeC0(nibble value) {
@@ -161,8 +161,8 @@ void MSXPPI::keyGhosting(void)
 // the closed switches 
 	bool changed_something = false;
 	do {
-		for (int i=0; i<=NR_KEYROWS; i++) {
-			for (int j=0; j<=NR_KEYROWS; j++) {
+		for (int i=0; i<=Inputs::NR_KEYROWS; i++) {
+			for (int j=0; j<=Inputs::NR_KEYROWS; j++) {
 				if ((MSXKeyMatrix[i]|MSXKeyMatrix[j]) != 255) {
 					int rowanded=MSXKeyMatrix[i]&MSXKeyMatrix[j];
 					if (rowanded != MSXKeyMatrix[i]) {

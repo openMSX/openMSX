@@ -16,12 +16,6 @@
 #include <limits.h>
 
 
-#define MAIN_FREQ  3579545*8
-#define DUMMY_FREQ 3579545*99	// as long as it's greater than MAIN_FREQ
-#define INFINITY 18446744073709551615ULL	// 2^64 - 1
-
-
-
 #ifndef uint64
 	typedef long long uint64;
 	// this is not portable to 64bit platforms? -> TODO check
@@ -30,6 +24,10 @@
 class Emutime
 {
 public:
+	// constants
+	static const uint64 MAIN_FREQ = 3579545*8;
+	static const uint64 INFINITY = 18446744073709551615ULL;	//ULLONG_MAX;
+
 	// constructors
 	Emutime(int freq=DUMMY_FREQ, int val=0): _scale(MAIN_FREQ/freq)
 	{
@@ -83,7 +81,7 @@ public:
 	}
 
 private:
-	static const uint64 _mainFreq=MAIN_FREQ;
+	static const int DUMMY_FREQ = MAIN_FREQ*2;	// as long as it's greater than MAIN_FREQ
 	
 	uint64 _emutime;
 	const int _scale;

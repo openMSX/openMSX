@@ -83,6 +83,6 @@ void MSXPSG::writeB(byte value)
 {
 	JoystickPorts::instance()->write(value);
 	
-	int kana = (value&0x80) ? KANA_OFF : KANA_ON;
+	int kana = (value&0x80) ? Leds::KANA_OFF : Leds::KANA_ON;
 	Leds::instance()->setLed(kana);
 }
