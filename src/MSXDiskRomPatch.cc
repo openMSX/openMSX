@@ -496,7 +496,7 @@ void MSXDiskRomPatch::DRVOFF(CPU::CPURegs& regs) const
 }
 
 
-void MSXDiskRomPatch::execute(char *string)
+void MSXDiskRomPatch::execute(const char *string)
 {
 	// TODO only works for drive A: with 720Kb disks
 	
@@ -515,7 +515,7 @@ void MSXDiskRomPatch::execute(char *string)
 	}
 }
 
-void MSXDiskRomPatch::help(char *string)
+void MSXDiskRomPatch::help(const char *string)
 {
 	Console::instance()->print("disk eject      : remove disk from virtual drive");
 	Console::instance()->print("disk <filename> : change the disk file");

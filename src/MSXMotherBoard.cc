@@ -302,29 +302,29 @@ std::string MSXMotherBoard::getSlotSelection()
 }
 
 
-void MSXMotherBoard::ResetCmd::execute(char* commandLine)
+void MSXMotherBoard::ResetCmd::execute(const char* commandLine)
 {
 	MSXMotherBoard::instance()->resetMSX(MSXCPU::instance()->getCurrentTime());
 }
-void MSXMotherBoard::ResetCmd::help(char *commandLine)
+void MSXMotherBoard::ResetCmd::help(const char *commandLine)
 {
 	Console::instance()->print("Resets the MSX.");
 }
 
-void MSXMotherBoard::SlotMapCmd::execute(char* commandLine)
+void MSXMotherBoard::SlotMapCmd::execute(const char* commandLine)
 {
 	Console::instance()->print(MSXMotherBoard::instance()->getSlotMap());
 }
-void MSXMotherBoard::SlotMapCmd::help(char *commandLine)
+void MSXMotherBoard::SlotMapCmd::help(const char *commandLine)
 {
 	Console::instance()->print("Prints which slots contain which devices.");
 }
 
-void MSXMotherBoard::SlotSelectCmd::execute(char* commandLine)
+void MSXMotherBoard::SlotSelectCmd::execute(const char* commandLine)
 {
 	Console::instance()->print(MSXMotherBoard::instance()->getSlotSelection());
 }
-void MSXMotherBoard::SlotSelectCmd::help(char *commandLine)
+void MSXMotherBoard::SlotSelectCmd::help(const char *commandLine)
 {
 	Console::instance()->print("Prints which slots are currently selected.");
 }

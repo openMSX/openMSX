@@ -32,11 +32,16 @@ class Console
 		 */
 		virtual void drawConsole() = 0;
 		
+		/**
+		 * Executes all defined auto commands
+		 */
+		void autoCommands();
+		
 	protected:
 		Console();
 		void tabCompletion();
 		void newLineCommand();
-		void commandExecute();
+		void commandExecute(const char *backstrings);
 		void listCommands();
 		void commandHelp();
 		void out(const char *str, ...);

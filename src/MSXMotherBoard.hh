@@ -229,16 +229,16 @@ class MSXMotherBoard : public CPUInterface
 
 	private:
 		class ResetCmd : public ConsoleCommand {
-			virtual void execute(char *commandLine);
-			virtual void help(char *commandLine);
+			virtual void execute(const char *commandLine);
+			virtual void help(const char *commandLine);
 		};
 		class SlotMapCmd : public ConsoleCommand {
-			virtual void execute(char *commandLine);
-			virtual void help(char *commandLine);
+			virtual void execute(const char *commandLine);
+			virtual void help(const char *commandLine);
 		};
 		class SlotSelectCmd : public ConsoleCommand {
-			virtual void execute(char *commandLine);
-			virtual void help(char *commandLine);
+			virtual void execute(const char *commandLine);
+			virtual void help(const char *commandLine);
 		};
 
 		MSXMotherBoard();

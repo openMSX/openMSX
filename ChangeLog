@@ -4,6 +4,8 @@ $Id$
 	* Made "cpudebug" command:
 	   must be enabled in CPU.hh (#define CPU_DEBUG)
 	* Y8950 (AUDIO) updates
+	* Implemented auto commands:
+	   automatic joystick/mouse insertion is now possible
 
 2002-02-10 Maarten ter Huurne <mth@stack.nl>
 	* Moved SDL dependent code out of VDP:

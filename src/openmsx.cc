@@ -49,33 +49,36 @@ int main (int argc, char **argv)
 	// create configuration backend
 	// for now there is only one, "xml" based
 	MSXConfig::Backend* config = MSXConfig::Backend::createBackend("xml");
-	
+
 	try {
-	  CommandLineParser::parse(config,argc,argv);
-	  initializeSDL();
+		CommandLineParser::parse(config,argc,argv);
+		initializeSDL();
 
-	  EmuTime zero;
-	  config->initDeviceIterator();
-	  MSXConfig::Device* d;
-	  while ((d=config->getNextDevice()) != 0) {
-	    std::cout << "<device>" << std::endl;
-	    d->dump();
-	    std::cout << "</device>" << std::endl << std::endl;
-	    MSXDevice *device = deviceFactory::create(d, zero);
-	    MSXMotherBoard::instance()->addDevice(device);
-	    PRT_DEBUG ("Instantiated: " << d->getType());
-	  }
+		EmuTime zero;
+		config->initDeviceIterator();
+		MSXConfig::Device* d;
+		while ((d=config->getNextDevice()) != 0) {
+			std::cout << "<device>" << std::endl;
+			d->dump();
+			std::cout << "</device>" << std::endl << std::endl;
+			MSXDevice *device = deviceFactory::create(d, zero);
+			MSXMotherBoard::instance()->addDevice(device);
+			PRT_DEBUG ("Instantiated: " << d->getType());
+		}
 
-	  // Start a new thread for event handling
-	  Thread thread(EventDistributor::instance());
-	  thread.start();
+		// Start a new thread for event handling
+		Thread thread(EventDistributor::instance());
+		thread.start();
 
-	  PRT_DEBUG ("starting MSX");
-	  MSXMotherBoard::instance()->startMSX();
+		// Fisrt execute auto commands
+		Console::instance()->autoCommands();
 
-	  // When we return we clean everything up
-	  thread.stop();
-	  MSXMotherBoard::instance()->destroyMSX();
+		PRT_DEBUG ("starting MSX");
+		MSXMotherBoard::instance()->startMSX();
+
+		// When we return we clean everything up
+		thread.stop();
+		MSXMotherBoard::instance()->destroyMSX();
 	} 
 	catch (MSXException& e) {
 		PRT_ERROR("Uncaught exception: " << e.desc);

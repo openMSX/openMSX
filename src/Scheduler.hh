@@ -144,14 +144,14 @@ class Scheduler : private EventListener, private HotKeyListener
 		// Console commands
 		class QuitCmd : public ConsoleCommand {
 		public:
-			virtual void execute(char *commandLine);
-			virtual void help(char *commandLine);
+			virtual void execute(const char *commandLine);
+			virtual void help(const char *commandLine);
 		};
 		QuitCmd quitCmd;
 		class PauseCmd : public ConsoleCommand {
 		public:
-			virtual void execute(char *commandLine);
-			virtual void help(char *commandLine);
+			virtual void execute(const char *commandLine);
+			virtual void help(const char *commandLine);
 		};
 		friend PauseCmd;
 		PauseCmd pauseCmd;

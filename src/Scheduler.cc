@@ -191,16 +191,16 @@ void Scheduler::signalHotKey(SDLKey key) {
 }
 
 
-void Scheduler::QuitCmd::execute(char *string)
+void Scheduler::QuitCmd::execute(const char *string)
 {
 	Scheduler::instance()->stopScheduling();
 }
-void Scheduler::QuitCmd::help(char *string)
+void Scheduler::QuitCmd::help(const char *string)
 {
 	Console::instance()->print("Use this command to stop the emulator");
 }
 
-void Scheduler::PauseCmd::execute(char *string)
+void Scheduler::PauseCmd::execute(const char *string)
 {
 	if (!Scheduler::instance()->paused) {
 		Scheduler::instance()->pause();
@@ -208,7 +208,7 @@ void Scheduler::PauseCmd::execute(char *string)
 		Scheduler::instance()->unpause();
 	}
 }
-void Scheduler::PauseCmd::help(char *string)
+void Scheduler::PauseCmd::help(const char *string)
 {
 	Console::instance()->print("Use this command to pause/unpause the emulator");
 }

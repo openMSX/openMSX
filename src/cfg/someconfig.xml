@@ -17,6 +17,11 @@
     <parameter name="1" class="path">ROMS</parameter>
     <parameter name="2" class="path">TAPES</parameter>
   </config>
+
+  <config id="AutoCommands">
+    <parameter>joyporta mouse</parameter>
+    <parameter>joyportb joystick1</parameter>
+  </config>
   
   <device id="myram1">
     <type>Simple64KB</type>

@@ -12,11 +12,11 @@ class ConsoleCommand
 		/**
 		 * called by the console when a command is typed
 		 */
-		virtual void execute(char *string)=0;
+		virtual void execute(const char *string)=0;
 		/**
 		 * called by the console when a help command is typed
 		 */
-		virtual void help(char *string)=0;
+		virtual void help(const char *string)=0;
 };
 
 #endif //__CONSOLECOMMAND_HH__

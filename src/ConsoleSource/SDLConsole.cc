@@ -123,7 +123,7 @@ void SDLConsole::signalEvent(SDL_Event &event)
 		// copy the input into the past commands strings
 		strcpy(commandLines[0], consoleLines[0]);
 		strcpy(consoleLines[1], consoleLines[0]);
-		commandExecute();
+		commandExecute(consoleLines[0]);
 
 		// zero out the current string and get it ready for new input
 		memset(consoleLines[0], 0, CHARS_PER_LINE);

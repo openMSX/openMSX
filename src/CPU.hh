@@ -7,7 +7,7 @@
 #include "EmuTime.hh"
 
 #ifdef DEBUG
-//#define CPU_DEBUG
+#define CPU_DEBUG
 #endif
 
 

@@ -85,8 +85,8 @@ class MSXDiskRomPatch: public MSXRomPatchInterface, private ConsoleCommand
 
 
 		// Disk Command
-		virtual void execute(char *commandLine);
-		virtual void help(char *commandLine);
+		virtual void execute(const char *commandLine);
+		virtual void help(const char *commandLine);
 };
 
 #endif // __MSXDISKROMPATCH_HH__

@@ -356,7 +356,7 @@ void MSXTapePatch::STMOTR(CPU::CPURegs& R) const
 }
 
 
-void MSXTapePatch::execute(char *string)
+void MSXTapePatch::execute(const char *string)
 {
 	if (0 == strcmp(string,"tape eject")) {
 		Console::instance()->print("Tape ejected");
@@ -371,7 +371,7 @@ void MSXTapePatch::execute(char *string)
 	}
 }
 
-void MSXTapePatch::help(char *string)
+void MSXTapePatch::help(const char *string)
 {
 	Console::instance()->print("tape eject      : remove tape from virtual player");
 	Console::instance()->print("tape <filename> : change the tape file");

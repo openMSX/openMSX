@@ -74,11 +74,11 @@ inline int Z80::haltStates() { return 4 + waitCycles; }	// HALT + M1
 
 
 #ifdef CPU_DEBUG
-void Z80::DebugCmd::execute(char* commandLine)
+void Z80::DebugCmd::execute(const char* commandLine)
 {
 	Z80::cpudebug = !Z80::cpudebug;
 }
-void Z80::DebugCmd::help(char* commandLine)
+void Z80::DebugCmd::help(const char* commandLine)
 {
 }
 bool Z80::cpudebug = false;

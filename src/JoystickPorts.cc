@@ -72,7 +72,7 @@ JoystickPorts::JoyPortCmd::~JoyPortCmd()
 		delete joystick[i];
 	}
 }
-void JoystickPorts::JoyPortCmd::execute(char* commandLine)
+void JoystickPorts::JoyPortCmd::execute(const char* commandLine)
 {
 	bool error = false;
 	int port = (commandLine[7] == 'b') ? 1 : 0;	// is either 'a' or 'b'
@@ -101,7 +101,7 @@ void JoystickPorts::JoyPortCmd::execute(char* commandLine)
 	if (error)
 		Console::instance()->print("syntax error");
 }
-void JoystickPorts::JoyPortCmd::help(char *commandLine)
+void JoystickPorts::JoyPortCmd::help(const char *commandLine)
 {
 	Console::instance()->print("joyport[a|b] unplug        unplugs device from port");
 	Console::instance()->print("joyport[a|b] mouse         plugs mouse in port");

@@ -10,6 +10,7 @@
 #include <cassert>
 #include <hash_map>
 #include "../openmsx.hh"
+#include "../MSXConfig.hh"
 #include "Console.hh"
 #include "ConsoleCommand.hh"
 
@@ -141,13 +142,10 @@ void Console::commandHelp()
 	}
 }
 
-// executes the command passed in from the string
-void Console::commandExecute()
+void Console::commandExecute(const char* backStrings)
 {
-	char command[CHARS_PER_LINE];
-	char *backStrings = consoleLines[0];
-	
 	// Get the command out of the string
+	char command[CHARS_PER_LINE];
 	if (EOF == sscanf(backStrings, "%s", command))
 		return;
 
@@ -159,6 +157,21 @@ void Console::commandExecute()
 		out("Unknown command");
 	} else {
 		it->second->execute(backStrings);
+	}
+}
+
+void Console::autoCommands()
+{
+	try {
+		MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById("AutoCommands");
+		std::list<MSXConfig::Device::Parameter*>* commandList;
+		commandList = config->getParametersWithClass("");
+		std::list<MSXConfig::Device::Parameter*>::const_iterator i;
+		for (i = commandList->begin(); i != commandList->end(); i++) {
+			commandExecute((*i)->value.c_str());
+		}
+	} catch (MSXConfig::Exception &e) {
+		// no auto commands defined
 	}
 }
 
