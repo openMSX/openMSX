@@ -185,8 +185,8 @@ public:
 		KM_META		= 0x80000,
 		
 		// Direction modifiers
-		KD_DOWN		= 0,		// key press
-		KD_UP		= 0x100000,	// key release
+		KD_PRESS	= 0,		// key press
+		KD_RELEASE	= 0x100000,	// key release
 	};
 
 	/**
@@ -194,7 +194,8 @@ public:
 	 * Returns K_NONE when the name is unknown.
 	 */
 	static KeyCode getCode(const string& name);
-	static KeyCode getCode(SDLKey key, SDLMod mod = KMOD_NONE, bool up = false);
+	static KeyCode getCode(SDLKey key, SDLMod mod = KMOD_NONE,
+	                       bool release = false);
 
 	/**
 	 * Translate key code to key name.

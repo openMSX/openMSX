@@ -1,5 +1,8 @@
 $Id$
 
+2004-10-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* forgot some "up"->"release" renames
+
 2004-10-17 Maarten ter Huurne <maarten@treewalker.org>
 	* Separated frameStart and frameEnd for SpriteChecker.
 	  Fixes asserts when using "none" renderer.

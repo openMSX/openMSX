@@ -32,7 +32,7 @@ Keys::KeyCode Keys::getCode(const string& name)
 	return result;
 }
 
-Keys::KeyCode Keys::getCode(SDLKey key, SDLMod mod, bool up)
+Keys::KeyCode Keys::getCode(SDLKey key, SDLMod mod, bool release)
 {
 	KeyCode result = (KeyCode)key;
 	if (mod & KMOD_CTRL) {
@@ -47,8 +47,8 @@ Keys::KeyCode Keys::getCode(SDLKey key, SDLMod mod, bool up)
 	if (mod & KMOD_META) {
 		result = static_cast<KeyCode>(result | KM_META);
 	}
-	if (up) {
-		result = static_cast<KeyCode>(result | KD_UP);
+	if (release) {
+		result = static_cast<KeyCode>(result | KD_RELEASE);
 	}
 	return result;
 }
@@ -80,8 +80,8 @@ const string Keys::getName(KeyCode keyCode)
 	if (keyCode & KM_META) {
 		result += "+META";
 	}
-	if (keyCode & KD_UP) {
-		result += ",UP";
+	if (keyCode & KD_RELEASE) {
+		result += ",RELEASE";
 	}
 	return result;
 }
@@ -246,8 +246,8 @@ void Keys::initialize()
 	keymap["META"]		= KM_META;
 	
 	// Direction modifiers
-	keymap["PRESS"]		= KD_DOWN;
-	keymap["RELEASE"]	= KD_UP;
+	keymap["PRESS"]		= KD_PRESS;
+	keymap["RELEASE"]	= KD_RELEASE;
 }
 
 } // namespace openmsx
