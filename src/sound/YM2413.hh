@@ -35,9 +35,10 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 	public:
 		Slot(bool type);
 		~Slot();
-		void reset();
+		void reset(bool type);
 
 		inline void slotOn(byte stat);
+		inline void slotOn2(byte stat);
 		inline void slotOff(byte stat);
 		inline void setPatch(Patch* patch);
 		inline void setVolume(int volume);
@@ -46,9 +47,9 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 		inline int calc_slot_car(int fm);
 		inline int calc_slot_mod();
 		inline int calc_slot_tom();
-		inline int calc_slot_snare(unsigned int whitenoise);
-		inline int calc_slot_cym(int a, int b);
-		inline int calc_slot_hat(int a, int b, unsigned int whitenoise);
+		inline int calc_slot_snare(unsigned int noise);
+		inline int calc_slot_cym(unsigned int pgout_hh);
+		inline int calc_slot_hat(int pgout_cym, unsigned int whitenoise);
 		inline void updatePG();
 		inline void updateTLL();
 		inline void updateRKS();
@@ -133,7 +134,6 @@ private:
 	static void makeAdjustTable();
 	static void makeSinTable();
 	static int lin2db(double d);
-	static void makeDphaseNoiseTable(int sampleRate);
 	static void makePmTable();
 	static void makeAmTable();
 	static void makeDphaseTable(int sampleRate);
@@ -168,7 +168,7 @@ private:
 	virtual void write(unsigned address, byte value);
 
 private:
-	// Size of Sintable ( 1 -- 18 can be used, but 7 -- 14 recommended.)
+	// Size of Sintable ( 8 -- 18 can be used, but 9 recommended.)
 	static const int PG_BITS = 9;
 	static const int PG_WIDTH = 1 << PG_BITS;
 
@@ -198,7 +198,7 @@ private:
 	static const int SL_MUTE = 1 << SL_BITS;
 
 	// Bits for liner value
-	static const int DB2LIN_AMP_BITS = 11;
+	static const int DB2LIN_AMP_BITS = 8;
 	static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
 
 	// Bits for envelope phase incremental counter
@@ -224,8 +224,8 @@ private:
 	static const double PM_DEPTH = 13.75;
 
 	// AM speed(Hz) and depth(dB)
-	static const double AM_SPEED = 3.7;
-	static const double AM_DEPTH = 2.4;
+	static const double AM_SPEED = 3.6413;
+	static const double AM_DEPTH = 4.875;
 
 	int maxVolume;
 
@@ -247,14 +247,9 @@ private:
 
 	// Noise Generator
 	int noise_seed;
-	int whitenoise;
-	int noiseA;
-	int noiseB;
-	unsigned int noiseA_phase;
-	unsigned int noiseB_phase;
-	unsigned int noiseA_dphase;
-	unsigned int noiseB_dphase;
 
+	// CHECK check with orig code header file line 98-104
+	
 	// Channel & Slot
 	Channel ch[9];
 	Slot* slot[18];
@@ -288,7 +283,7 @@ private:
 	static word AR_ADJUST_TABLE[1 << EG_BITS];
 
 	// Definition of envelope mode
-	enum { SETTLE, ATTACK, DECAY, SUSHOLD, SUSTINE, RELEASE, FINISH };
+	enum { READY, ATTACK, DECAY, SUSHOLD, SUSTINE, RELEASE, SETTLE, FINISH };
 
 	// Phase incr table for Attack
 	static unsigned int dphaseARTable[16][16];

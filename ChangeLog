@@ -1,5 +1,11 @@
 $Id$
 
+2005-04-01 Manuel Bilderbeek <manuel@msxnet.org>
+	* WIP: make Okazaki core more like 0.61
+	* Swapped default and alternative YM2413 cores, because Okazaki core
+	  is very broken at the moment. CHECK points need to be checked by
+	  Wouter still
+
 2005-03-31 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* More YM2413 fixes (ported from v0.55)
 	* Swapped default and alternative YM2413 cores:

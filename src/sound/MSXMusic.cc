@@ -13,9 +13,9 @@ MSXMusic::MSXMusic(const XMLElement& config, const EmuTime& time)
 	, rom(new Rom(getName() + " ROM", "rom", config))
 {
 	if (config.getChildDataAsBool("alternative", false)) {
-		ym2413.reset(new YM2413_2(getName(), config, time));
-	} else {
 		ym2413.reset(new YM2413(getName(), config, time));
+	} else {
+		ym2413.reset(new YM2413_2(getName(), config, time));
 	}
 	reset(time);
 }
