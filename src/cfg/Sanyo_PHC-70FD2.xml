@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+
+  <config id="ExternalSlots">
+    <parameter name="slota">1-0</parameter>
+    <parameter name="slotb">2-0</parameter>
+  </config>
+
+  <config id="MotherBoard">
+    <parameter name="0" class="subslotted">false</parameter>
+    <parameter name="1" class="subslotted">false</parameter>
+    <parameter name="2" class="subslotted">false</parameter>
+    <parameter name="3" class="subslotted">true</parameter>
+  </config>
+
+  <device id="Main RAM">
+    <type>RAM</type>
+    <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
+    <slotted> <ps>3</ps> <ss>0</ss> <page>1</page> </slotted>
+    <slotted> <ps>3</ps> <ss>0</ss> <page>2</page> </slotted>
+    <slotted> <ps>3</ps> <ss>0</ss> <page>3</page> </slotted>
+    <parameter name="slow_drain_on_reset">false</parameter>
+  </device>
+
+  <device id="MSX BIOS with BASIC ROM">
+    <type>Rom</type>
+    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
+    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
+    <parameter name="filename">phc-70fd2_basic-bios2p.rom</parameter>
+  </device>
+
+  <device id="MSX Sub ROM">
+    <type>Rom</type>
+    <slotted> <ps>3</ps> <ss>1</ss> <page>0</page> </slotted>
+    <parameter name="filename">phc-70fd2_msx2psub.rom</parameter>
+  </device>
+
+  <device id="MSX Music">
+    <type>Music</type>
+    <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
+    <parameter name="filename">phc-70fd2_fmbasic.rom</parameter>
+    <parameter name="volume">9000</parameter>   
+    <parameter name="mode">mono</parameter>
+  </device>
+
+  <device id="BASIC Compiler">
+    <type>Rom</type>
+    <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
+    <parameter name="filename">phc-70fd2_basickun.rom</parameter>
+  </device>
+
+  <device id="MSX Kanji Driver with BASIC">
+    <type>Rom</type>
+    <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
+    <slotted> <ps>3</ps> <ss>1</ss> <page>2</page> </slotted>
+    <parameter name="filename">phc-70fd2_kanjibasic.rom</parameter>
+  </device>
+
+  <device id="Kanji ROM">
+    <type>Kanji</type>
+    <parameter name="filename">phc-70fd2_kanjifont.rom</parameter>
+  </device>
+
+  <device id="Memory Mapped FDC">
+    <type>FDC</type>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
+    <parameter name="filename">phc-70fd2_disk.rom</parameter>
+    <parameter name="type">Panasonic</parameter>
+    <parameter name="" class="patchcode">MSXDiskRomPatch</parameter>
+    <parameter name="0x3FF0" class="patch">0xFF</parameter>
+    <parameter name="0x3FF1" class="patch">0xFF</parameter>
+    <parameter name="0x3FF2" class="patch">0xFF</parameter>
+    <parameter name="0x3FF3" class="patch">0xFF</parameter>
+    <parameter name="0x3FF4" class="patch">0xFF</parameter>
+    <parameter name="0x3FF5" class="patch">0xFF</parameter>
+    <parameter name="0x3FF6" class="patch">0xFF</parameter>
+    <parameter name="0x3FF7" class="patch">0xFF</parameter>
+    <parameter name="0x3FF8" class="patch">0xFF</parameter>
+    <parameter name="0x3FF9" class="patch">0xFF</parameter>
+    <parameter name="0x3FFA" class="patch">0x80</parameter>
+    <parameter name="0x3FFB" class="patch">0x00</parameter>
+    <parameter name="0x3FFC" class="patch">0xFC</parameter>
+    <parameter name="0x3FFD" class="patch">0xFC</parameter>
+    <parameter name="0x3FFE" class="patch">0xFF</parameter>
+    <parameter name="0x3FFF" class="patch">0x3F</parameter>
+    <parameter name="brokenFDCread">false</parameter>
+    <parameter name="drivename1">diska</parameter>
+    <parameter name="drivename2">diskb</parameter>
+  </device>
+
+  <device id="ppi">
+    <type>PPI</type>
+    <parameter name="volume">16000</parameter>
+    <parameter name="key_ghosting">true</parameter>
+  </device>
+
+  <device id="VDP">
+    <type>VDP</type>
+    <parameter name="version">V9958</parameter>
+    <parameter name="limit_sprites">true</parameter>
+    <parameter name="vram">128</parameter>
+  </device>
+
+  <device id="psg">
+    <type>PSG</type>
+    <parameter name="volume">21000</parameter>
+  </device>
+
+  <device id="Real time clock">
+    <type>RTC</type>
+    <parameter name="mode">EmuTime</parameter>
+    <parameter name="load">true</parameter>
+    <parameter name="save">true</parameter>
+    <parameter name="filename">phc-70fd2.cmos</parameter>
+  </device>
+
+  <device id="cpu">
+    <type>CPU</type>
+  </device>
+
+  <device id="Printer Port">
+    <type>PrinterPort</type>
+  </device>
+
+  <device id="F4Device">
+    <type>F4Device</type>
+    <parameter name="inverted">true</parameter>
+  </device>
+
+</msxconfig>
