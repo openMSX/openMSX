@@ -40,16 +40,14 @@ public:
 	};
 
 	/** Creates a new Renderer.
-	  * @param fullScreen Start in full screen or windowed;
-	  *   true iff full screen.
 	  */
-	Renderer(bool fullScreen);
+	Renderer();
 
 	/** Destroy this Renderer.
 	  */
 	virtual ~Renderer();
 
-	/** Reset
+	/** Reinitialise Renderer state.
 	  * @param time The moment in time this reset occurs.
 	  */
 	virtual void reset(const EmuTime &time) = 0;

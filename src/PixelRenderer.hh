@@ -61,7 +61,7 @@ public:
 protected:
 	/** Constructor.
 	  */
-	PixelRenderer(VDP *vdp, bool fullScreen, const EmuTime &time);
+	PixelRenderer(VDP *vdp, const EmuTime &time);
 
 	/** Destructor.
 	  */

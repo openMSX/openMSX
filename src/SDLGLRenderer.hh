@@ -31,18 +31,11 @@ class GLConsole;
 class SDLGLRenderer : public PixelRenderer
 {
 public:
-	// TODO: Make private, if it remains at all.
+
+	// TODO: Make private.
+	// The reason it's public is that non-member functions in SDLGLRenderer.cc
+	// are using this type.
 	typedef GLuint Pixel;
-
-	/** Constructor.
-	  * It is suggested to use the createSDLGLRenderer factory
-	  * function instead, which automatically selects a colour depth.
-	  */
-	SDLGLRenderer(VDP *vdp, SDL_Surface *screen, bool fullScreen, const EmuTime &time);
-
-	/** Destructor.
-	  */
-	virtual ~SDLGLRenderer();
 
 	/** Reset
 	  * @param time The moment in time this reset occurs.
@@ -79,8 +72,19 @@ protected:
 	void drawDisplay(int fromX, int fromY, int limitX, int limitY);
 
 private:
+
 	typedef void (SDLGLRenderer::*DirtyChecker)
 		(int addr, byte data);
+
+	friend class SDLGLRendererFactory;
+
+	/** Constructor, called by SDLGLRendererFactory.
+	  */
+	SDLGLRenderer(VDP *vdp, SDL_Surface *screen, const EmuTime &time);
+
+	/** Destructor.
+	  */
+	virtual ~SDLGLRenderer();
 
 	inline void renderBitmapLines(byte line, int count);
 	inline void renderPlanarBitmapLines(byte line, int count);

@@ -225,8 +225,8 @@ template <class Pixel> typename SDLLoRenderer<Pixel>::DirtyChecker
 	};
 
 template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
-	VDP *vdp, SDL_Surface *screen, bool fullScreen, const EmuTime &time)
-	: PixelRenderer(vdp, fullScreen, time),
+	VDP *vdp, SDL_Surface *screen, const EmuTime &time)
+	: PixelRenderer(vdp, time),
 	  characterConverter(vdp, palFg, palBg),
 	  bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 {

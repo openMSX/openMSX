@@ -1,5 +1,10 @@
 $Id$
 
+2003-03-30 Maarten ter Huurne <maarten@treewalker.org>
+	* Removed fullScreen parameter from Renderer constructors.
+	* Made Renderer constructors private, only available to their
+	  respective factories.
+
 2003-03-29 Manuel Bilderbeek <manuel@msxnet.org>
 	* Moved other configs from src/cfg to share/machines
 	* Added some more extensions

@@ -11,12 +11,11 @@
 #define WIDTH 640
 #define HEIGHT 480
 
-XRenderer::XRenderer(VDP *vdp, bool fullscreen, const EmuTime &time)
+XRenderer::XRenderer(VDP *vdp, const EmuTime &time)
 :
-Renderer (0), // Full screen is not supported yet
+Renderer (),
 vdp (vdp),
 vram (vdp->getVRAM()) {
-	if (fullscreen) PRT_INFO ("XRenderer: Full screen is not supported");
 	SDL_CreateThread (LoopCaller, this);
 }
 

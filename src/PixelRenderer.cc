@@ -127,8 +127,8 @@ inline void PixelRenderer::renderUntil(const EmuTime &time)
 	nextY = limitY;
 }
 
-PixelRenderer::PixelRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
-	: Renderer(fullScreen), frameSkipSetting(this)
+PixelRenderer::PixelRenderer(VDP *vdp, const EmuTime &time)
+	: Renderer(), frameSkipSetting(this)
 {
 	this->vdp = vdp;
 	vram = vdp->getVRAM();
@@ -149,9 +149,10 @@ PixelRenderer::~PixelRenderer()
 {
 }
 
-
+#include <stdio.h>
 void PixelRenderer::reset(const EmuTime &time)
 {
+	printf("PixelRenderer::reset\n");
 	displayEnabled = false;
 	frameStart(time);
 }

@@ -18,16 +18,6 @@ class SDLConsole;
 template <class Pixel> class SDLHiRenderer : public PixelRenderer
 {
 public:
-	/** Constructor.
-	  * It is suggested to use the createSDLHiRenderer factory
-	  * function instead, which automatically selects a colour depth.
-	  */
-	SDLHiRenderer(VDP *vdp, SDL_Surface *screen, bool fullScreen, const EmuTime &time);
-
-	/** Destructor.
-	  */
-	virtual ~SDLHiRenderer();
-
 	/** Reset
 	  * @param time The moment in time this reset occurs.
 	  */
@@ -63,8 +53,19 @@ protected:
 	void drawDisplay(int fromX, int fromY, int limitX, int limitY);
 
 private:
+
 	typedef void (SDLHiRenderer::*DirtyChecker)
 		(int addr, byte data);
+
+	friend class SDLHiRendererFactory;
+
+	/** Constructor, called by SDLHiRendererFactory.
+	  */
+	SDLHiRenderer(VDP *vdp, SDL_Surface *screen, const EmuTime &time);
+
+	/** Destructor.
+	  */
+	virtual ~SDLHiRenderer();
 
 	inline void renderBitmapLines(byte line, int count);
 	inline void renderPlanarBitmapLines(byte line, int count);

@@ -48,11 +48,11 @@ Renderer *SDLHiRendererFactory::create(
 
 	switch (screen->format->BytesPerPixel) {
 	case 1:
-		return new SDLHiRenderer<Uint8>(vdp, screen, fullScreen, time);
+		return new SDLHiRenderer<Uint8>(vdp, screen, time);
 	case 2:
-		return new SDLHiRenderer<Uint16>(vdp, screen, fullScreen, time);
+		return new SDLHiRenderer<Uint16>(vdp, screen, time);
 	case 4:
-		return new SDLHiRenderer<Uint32>(vdp, screen, fullScreen, time);
+		return new SDLHiRenderer<Uint32>(vdp, screen, time);
 	default:
 		printf("FAILED to open supported screen!");
 		return NULL;
@@ -97,11 +97,11 @@ Renderer *SDLLoRendererFactory::create(
 
 	switch (screen->format->BytesPerPixel) {
 	case 1:
-		return new SDLLoRenderer<Uint8>(vdp, screen, fullScreen, time);
+		return new SDLLoRenderer<Uint8>(vdp, screen, time);
 	case 2:
-		return new SDLLoRenderer<Uint16>(vdp, screen, fullScreen, time);
+		return new SDLLoRenderer<Uint16>(vdp, screen, time);
 	case 4:
-		return new SDLLoRenderer<Uint32>(vdp, screen, fullScreen, time);
+		return new SDLLoRenderer<Uint32>(vdp, screen, time);
 	default:
 		printf("FAILED to open supported screen!");
 		// TODO: Throw exception.
@@ -152,7 +152,7 @@ Renderer *SDLGLRendererFactory::create(
 	}
 	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
 
-	return new SDLGLRenderer(vdp, screen, fullScreen, time);
+	return new SDLGLRenderer(vdp, screen, time);
 }
 
 #endif // __SDLGLRENDERER_AVAILABLE__
@@ -167,7 +167,6 @@ bool XRendererFactory::isAvailable()
 Renderer *XRendererFactory::create(
 	VDP *vdp, const EmuTime &time
 ) {
-	bool fullScreen = RenderSettings::instance()->getFullScreen()->getValue();
-	return new XRenderer(vdp, fullScreen, time);
+	return new XRenderer(vdp, time);
 }
 

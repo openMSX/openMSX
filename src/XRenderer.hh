@@ -28,15 +28,6 @@ class XRenderer : public Renderer
 		return 0;
 	}
 public:
-	/** Constructor.
-	  * It is suggested to use the createSDLHiRenderer factory
-	  * function instead, which automatically selects a colour depth.
-	  */
-	XRenderer(VDP *vdp, bool fullscreen, const EmuTime &time);
-
-	/** Destructor.
-	  */
-	virtual ~XRenderer();
 
 	virtual void reset(const EmuTime &time) {} // TODO
 
@@ -64,6 +55,17 @@ protected:
 	void setFullScreen(bool enabled);
 
 private:
+
+	friend class XRendererFactory;
+
+	/** Constructor, called by XRendererFactory.
+	  */
+	XRenderer(VDP *vdp, const EmuTime &time);
+
+	/** Destructor.
+	  */
+	virtual ~XRenderer();
+
 	void EventLoop (void);	// new thread
 	VDP *vdp;
 	VDPVRAM *vram;
