@@ -18,6 +18,8 @@ class DisplayMode
 private:
 	DisplayMode(byte mode_) : mode(mode_) {}
 	/** Display mode flags: YAE YJK M5..M1.
+	  * The YAE flag indicates whether YAE is active, not just the value of
+	  * the corresponding mode bit; so if YJK is 0, YAE is 0 as well.
 	  */
 	byte mode;
 
@@ -65,13 +67,15 @@ public:
 	  * 	on non-V9958 chips, pass 0.
 	  */
 	DisplayMode(byte reg0, byte reg1, byte reg25) {
-		mode =  ((reg25 & 0x18) << 2) | // YAE YJK
-		        ((reg0  & 0x0E) << 1) | // M5..M3
-		        ((reg1  & 0x08) >> 2) | // M2
-		        ((reg1  & 0x10) >> 4);  // M1
+		if ((reg25 & 0x08) == 0) reg25 = 0; // If YJK is off, ignore YAE.
+		mode = ((reg25 & 0x18) << 2)  // YAE YJK
+		     | ((reg0  & 0x0E) << 1)  // M5..M3
+		     | ((reg1  & 0x08) >> 2)  // M2
+		     | ((reg1  & 0x10) >> 4); // M1
 	}
 
 	inline DisplayMode updateReg25(byte reg25) const {
+		if ((reg25 & 0x08) == 0) reg25 = 0; // If YJK is off, ignore YAE.
 		return DisplayMode(getBase() | ((reg25 & 0x18) << 2));
 	}
 
