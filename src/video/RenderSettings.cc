@@ -8,7 +8,7 @@ RenderSettings::RenderSettings()
 {
 	Config *config = MSXConfig::instance()->getConfigById("renderer");
 
-	std::map<std::string, Accuracy> accMap;
+	std::map<const std::string, Accuracy> accMap;
 	accMap["screen"] = ACC_SCREEN;
 	accMap["line"]   = ACC_LINE;
 	accMap["pixel"]  = ACC_PIXEL;
@@ -26,6 +26,10 @@ RenderSettings::RenderSettings()
 	}
 	fullScreen = new BooleanSetting(
 		"fullscreen", "full screen display on/off", fsBool);
+
+	gamma = new FloatSetting(
+		"gamma", "amount of gamma correction: low is dark, high is bright",
+		1.1, 0.1, 5.0);
 
 	glow = new IntegerSetting(
 		"glow", "amount of afterglow effect: 0 = none, 100 = lots",

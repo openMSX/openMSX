@@ -28,6 +28,7 @@ private:
 	BooleanSetting *deinterlace;
 	FrameSkipSetting *frameSkip;
 	BooleanSetting *fullScreen;
+	FloatSetting *gamma;
 	IntegerSetting *glow;
 	IntegerSetting *horizontalBlur;
 	RendererFactory::RendererSetting *renderer;
@@ -52,6 +53,9 @@ public:
 
 	/** Full screen [on, off]. */
 	BooleanSetting *getFullScreen() { return fullScreen; }
+
+	/** The amount of gamma correction. */
+	FloatSetting *getGamma() { return gamma; }
 
 	/** The amount of glow [0..100]. */
 	IntegerSetting *getGlow() { return glow; }
