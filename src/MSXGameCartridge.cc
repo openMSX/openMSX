@@ -290,7 +290,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		if (address<0x4000 || address>=0xC000)
 			return;
 		region = (address&0xC000)>>13;	// 0, 2, 4, 6
-		value &= (2*value)&mapperMask;
+		value = (2*value)&mapperMask;
 		setBank(region,   memoryBank+(value<<13));
 		setBank(region+1, memoryBank+(value<<13)+0x2000);
 		break;

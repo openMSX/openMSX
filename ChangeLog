@@ -1,5 +1,8 @@
 $Id$
 
+2002-03-07 Maarten ter Huurne <mth@stack.nl>
+	* Fixed Generic16K MegaROM mapper. DOS2 works now.
+
 2002-03-07 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Added plug-connector infrastructure:
 	   - only very basic support yet
