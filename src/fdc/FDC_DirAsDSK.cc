@@ -24,10 +24,12 @@
 namespace openmsx {
 
 #define EOF_FAT 0xFFF /* signals EOF in FAT */
-#define NODIRENTRY 4000
+#define NODIRENTRY    4000
+#define CACHEDCLUSTER 4001
 
 //Bootblock taken from a philips  nms8250 formatted disk
-const byte FDC_DirAsDSK::BootBlock[] =
+const string FDC_DirAsDSK::BootBlockFileName = ".sector.boot";
+const byte FDC_DirAsDSK::DefaultBootBlock[] =
 {
 0xeb,0xfe,0x90,0x4e,0x4d,0x53,0x20,0x32,0x2e,0x30,0x50,0x00,0x02,0x02,0x01,0x00,
 0x02,0x70,0x00,0xa0,0x05,0xf9,0x03,0x00,0x09,0x00,0x02,0x00,0x00,0x00,0xd0,0xed,
@@ -181,11 +183,39 @@ FDC_DirAsDSK::FDC_DirAsDSK(FileContext &context, const string &fileName)
 		throw MSXException("Not a directory");
 	}
 
+	// store filename as chroot dir for the msx disk
+	MSXrootdir=fileName;
+
 	// First create structure for the fake disk
 	
 	nbSectors = 1440; // asume a DS disk is used
 	sectorsPerTrack = 9;
 	nbSides = 2;
+
+	std::string tmpfilename(MSXrootdir);
+	tmpfilename+="/"+BootBlockFileName ;
+
+	// Assign default boot disk to this instance
+	memcpy(BootBlock, DefaultBootBlock, SECTOR_SIZE);
+
+	// try to read boot block from file
+	struct stat fst;
+	bool readBootBlockFromFile = false;
+
+	if (stat(tmpfilename.c_str(), &fst) ==0 ) {
+		if ( fst.st_size == SECTOR_SIZE ){
+		readBootBlockFromFile=true;
+		FILE* file = fopen(tmpfilename.c_str(), "rb");
+		if (file) {
+			PRT_INFO("reading bootblock from " << tmpfilename);
+			//fseek(file,0,SEEK_SET);
+			// Read boot block from file
+			fread(BootBlock, 1, SECTOR_SIZE, file);
+			fclose(file);
+		}
+		}
+	}
+	
 	// Assign empty directory entries
 	for (int i = 0; i < 112; i++) {
 		memset(&mapdir[i].msxinfo, 0, sizeof(MSXDirEntry));
@@ -210,7 +240,12 @@ FDC_DirAsDSK::FDC_DirAsDSK(FileContext &context, const string &fileName)
 	while (d) {
 		string name(d->d_name);
 		PRT_DEBUG("reading name in dir :" << name);
-		updateFileInDSK(fileName + '/' + name); // used here to add file into fake dsk
+		//TODO: if bootsector read from file we should skip this file
+		if ( ! readBootBlockFromFile ){
+			updateFileInDSK(fileName + '/' + name); // used here to add file into fake dsk
+		} else if ( name != BootBlockFileName ) {
+			updateFileInDSK(fileName + '/' + name); // used here to add file into fake dsk
+		}
 		d = readdir(dir);
 	}
 	closedir(dir);
@@ -271,6 +306,8 @@ void FDC_DirAsDSK::read(byte track, byte sector, byte side,
 			//return an 'empty' sector
 			// 0xE5 is the value used on the Philips VG8250
 			memset(buf, 0xE5, SECTOR_SIZE  );
+		} else if (clustermap[cluster].dirEntryNr == CACHEDCLUSTER ) {
+			PRT_INFO("No cached cluster routine implemented yet");
 		} else {
 			// open file and read data
 			int offset = clustermap[cluster].fileOffset + (logicalSector & 1) * SECTOR_SIZE;
@@ -400,18 +437,36 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 void FDC_DirAsDSK::write(byte track, byte sector, byte side, 
                     int size, const byte* buf)
 {
-	//
-	//   for now simply ignore writes
-	//
-	throw WriteProtectedException(
-		"Writing not yet supported for FDC_DirAsDSK");
+	assert(size == SECTOR_SIZE);
 	
-	/*
 	int logicalSector = physToLog(track, side, sector);
 	if (logicalSector >= nbSectors) {
 		throw NoSuchSectorException("No such sector");
 	}
-	*/
+	PRT_DEBUG("Writing sector : " << logicalSector );
+	if (logicalSector == 0) {
+		//copy buffer into our fake bootsector and safe into file
+		PRT_DEBUG("Reading boot sector");
+		memcpy(BootBlock, buf, SECTOR_SIZE);
+		std::string filename(MSXrootdir);
+		filename+="/"+BootBlockFileName ;
+		FILE* file = fopen(filename.c_str(), "wb");
+		if (file) {
+			PRT_INFO("Writing bootblock to " << filename);
+			fwrite(buf, 1, size, file);
+			fclose(file);
+		} else {
+			PRT_INFO("Couldn't create bootsector file" << filename);
+		}
+
+	} else {
+	  //
+	  //   for now simply ignore writes
+	  //
+	  throw WriteProtectedException(
+		  "Writing not yet supported for FDC_DirAsDSK");
+	}
+
 }
 
 void FDC_DirAsDSK::readBootSector()
@@ -429,7 +484,7 @@ void FDC_DirAsDSK::readBootSector()
 
 bool FDC_DirAsDSK::writeProtected()
 {
-	return true ; // for the moment we don't allow writing to this directory
+	return false ; // for the moment we don't allow writing to this directory
 }
 
 bool FDC_DirAsDSK::doubleSided()

@@ -70,7 +70,10 @@ class FDC_DirAsDSK : public SectorBasedDisk
 		ReverseCluster clustermap[MAX_CLUSTER];
 		byte FAT[SECTOR_SIZE * SECTORS_PER_FAT];
 
-		static const byte BootBlock[];
+		static const byte DefaultBootBlock[];
+		static const string BootBlockFileName ;
+		byte BootBlock[SECTOR_SIZE];
+		string MSXrootdir;
 };
 
 } // namespace openmsx
