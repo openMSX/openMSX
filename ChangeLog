@@ -1,5 +1,11 @@
 $Id$
 
+2003-05-11 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Fixed segfault in the SDL background scaling when using 8bpp.
+	  tested and working in 15,16 and 24 bpp. in 8 bpp it doesn't 
+	  give a segfault, but since the whole display isn't working, I
+	  can't see if the scaling really works.
+
 2003-05-10 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Fixed wrong initial default size of the console.
 	* Fixed range of the consolecolumns-setting

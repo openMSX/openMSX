@@ -15,7 +15,7 @@
 #include "Console.hh"
 
 SDLConsole::SDLConsole(SDL_Surface *screen)
-{
+{ 
 	console = Console::instance();
 	
 	blink = false;
@@ -200,17 +200,16 @@ bool SDLConsole::loadBackground(const std::string &filename)
 	if (backgroundImage) {
 		SDL_FreeSurface(backgroundImage);
 	}
-	SDL_Surface * tempbackgroundImage = SDL_DisplayFormat(temp);
 	SDL_Rect rect;
 	OSDConsoleRenderer::updateConsoleRect(rect); // get the size
 
-	backgroundImage = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, rect.h, 
-	                            outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
-	zoomSurface (tempbackgroundImage,backgroundImage,1);
+	SDL_Surface * tempbackgroundImage = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, rect.h, 
+	                            32, 0, 0, 0, 0);
+	zoomSurface (temp,tempbackgroundImage,1);
+	backgroundImage = SDL_DisplayFormat(tempbackgroundImage);
 	SDL_FreeSurface(tempbackgroundImage);	
 	SDL_FreeSurface(temp);
 	reloadBackground();
-
 	return true;
 }
 
