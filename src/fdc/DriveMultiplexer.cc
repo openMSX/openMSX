@@ -131,4 +131,9 @@ bool DriveMultiplexer::diskChanged()
 	return drive[selected]->diskChanged();
 }
 
+bool DriveMultiplexer::dummyDrive()
+{
+	return drive[selected]->dummyDrive();
+}
+
 } // namespace openmsx

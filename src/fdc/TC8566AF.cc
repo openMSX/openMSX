@@ -367,12 +367,11 @@ void TC8566AF::writeDataCommandPhase(byte data, const EmuTime& time)
 		case 0:
 			ST0_DS = data & 3; // Copy Drive Select
 			ST3_DS = data & 3; // Copy Drive Select
-			try {
-				ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
-				ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
-				ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
-				ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
-			} catch (DriveEmptyException& e) {
+			ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
+			ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
+			ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
+			ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
+			if (drive[DriveSelect]->dummyDrive()) {
 				ST0_IC = 1; // bit 7,6 Interrupt Code
 			}
 			// HS
@@ -425,12 +424,11 @@ void TC8566AF::writeDataCommandPhase(byte data, const EmuTime& time)
 		case 0:
 			ST0_DS = data & 3; // Copy Drive Select
 			ST3_DS = data & 3; // Copy Drive Select
-			try {
-				ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
-				ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
-				ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
-				ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
-			} catch (DriveEmptyException& e) {
+			ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
+			ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
+			ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
+			ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
+			if (drive[DriveSelect]->dummyDrive()) {
 				ST0_IC = 1; // bit 7,6 Interrupt Code
 			}
 			break;
@@ -455,12 +453,11 @@ void TC8566AF::writeDataCommandPhase(byte data, const EmuTime& time)
 		case 0:
 			ST0_DS = data & 3; // Copy Drive Select
 			ST3_DS = data & 3; // Copy Drive Select
-			try {
-				ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
-				ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
-				ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
-				ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
-			} catch (DriveEmptyException& e) {
+			ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
+			ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
+			ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
+			ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
+			if (drive[DriveSelect]->dummyDrive()) {
 				ST0_IC = 1; // bit 7,6 Interrupt Code
 			}
 			break;
@@ -489,12 +486,11 @@ void TC8566AF::writeDataCommandPhase(byte data, const EmuTime& time)
 		case 0: {
 			ST0_DS = data & 3; // Copy Drive Select
 			ST3_DS = data & 3; // Copy Drive Select
-			try {
-				ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
-				ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
-				ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
-				ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
-			} catch (DriveEmptyException& e) {
+			ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
+			ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
+			ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
+			ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
+			if (drive[DriveSelect]->dummyDrive()) {
 				ST0_IC = 1; // bit 7,6 Interrupt Code
 			}
 			int maxSteps = 255;
@@ -529,12 +525,11 @@ void TC8566AF::writeDataCommandPhase(byte data, const EmuTime& time)
 		case 0:
 			ST0_DS = data & 3; // Copy Drive Select
 			ST3_DS = data & 3; // Copy Drive Select
-			try {
-				ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
-				ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
-				ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
-				ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
-			} catch (DriveEmptyException& e) {
+			ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
+			ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
+			ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
+			ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
+			if (drive[DriveSelect]->dummyDrive()) {
 				ST0_IC = 1; // bit 7,6 Interrupt Code
 			}
 			Phase = PHASE_RESULT;

@@ -125,25 +125,18 @@ byte WD2793::getStatusReg(const EmuTime& time)
 {
 	if (((commandReg & 0x80) == 0) || ((commandReg & 0xF0) == 0xD0)) {
 		// Type I or type IV command 
+		statusReg &= ~(INDEX | TRACK00 | HEAD_LOADED | WRITE_PROTECTED);
 		if (drive->indexPulse(time)) {
 			statusReg |=  INDEX;
-		} else {
-			statusReg &= ~INDEX;
 		}
 		if (drive->track00(time)) {
 			statusReg |=  TRACK00;
-		} else {
-			statusReg &= ~TRACK00;
 		}
 		if (drive->headLoaded(time)) {
 			statusReg |=  HEAD_LOADED;
-		} else {
-			statusReg &= ~HEAD_LOADED;
 		}
 		if (drive->writeProtected()) {
 			statusReg |=  WRITE_PROTECTED;
-		} else {
-			statusReg &= ~WRITE_PROTECTED;
 		}
 	} else {
 		// Not type I command so bit 1 should be DRQ
@@ -154,14 +147,10 @@ byte WD2793::getStatusReg(const EmuTime& time)
 		}
 	}
 
-	try {
-		if (drive->ready()) {
-			statusReg &= ~NOT_READY;
-		} else {
-			statusReg |=  NOT_READY;
-		}
-	} catch (DriveEmptyException &e) {
-		statusReg |= NOT_READY;
+	if (drive->ready()) {
+		statusReg &= ~NOT_READY;
+	} else {
+		statusReg |=  NOT_READY;
 	}
 
 	resetIRQ();
@@ -227,7 +216,7 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 					setIRQ();
 					DRQ = false;
 				}
-			} catch (MSXException &e) {
+			} catch (MSXException& e) {
 				// Backend couldn't write data
 				// TODO which status bit should be set?
 				statusReg |= RECORD_NOT_FOUND;
@@ -345,7 +334,7 @@ void WD2793::tryToReadSector()
 		dataCurrent = 0;
 		dataAvailable = onDiskSize;
 		DRQ = true;	// data ready to be read
-	} catch (MSXException &e) {
+	} catch (MSXException& e) {
 		PRT_DEBUG("WD2793: read sector failed: " << e.getMessage());
 		DRQ = false;	// TODO data not ready (read error)
 		statusReg = 0;	// reset flags
@@ -509,23 +498,19 @@ void WD2793::startType2Cmd(const EmuTime& time)
 	statusReg |= BUSY;
 	DRQ = false;
 
-	try {
-		if (!drive->ready()) {
-			endCmd();
- 		} else {
-			// WD2795/WD2797 would now set SSO output
-			drive->setHeadLoaded(true, time);
-
-			if (commandReg & E_FLAG) {
-				Clock<1000> next(time);	// ms
-				next += 30;	// when 1MHz clock
-				schedule(FSM_TYPE2_WAIT_LOAD, next.getTime());
-			} else {
-				type2WaitLoad(time);
-			}
- 		}
-	} catch (DriveEmptyException &e) {
+	if (!drive->ready()) {
 		endCmd();
+	} else {
+		// WD2795/WD2797 would now set SSO output
+		drive->setHeadLoaded(true, time);
+
+		if (commandReg & E_FLAG) {
+			Clock<1000> next(time);	// ms
+			next += 30;	// when 1MHz clock
+			schedule(FSM_TYPE2_WAIT_LOAD, next.getTime());
+		} else {
+			type2WaitLoad(time);
+		}
 	}
 }
 
@@ -568,23 +553,19 @@ void WD2793::startType3Cmd(const EmuTime& time)
 	DRQ = false;
 	writeTrack = false;
 
-	try {
-		if (!drive->ready()) {
-			endCmd();
-		} else {
-			drive->setHeadLoaded(true, time);
-			// WD2795/WD2797 would now set SSO output
-
-			if (commandReg & E_FLAG) {
-				Clock<1000> next(time);	// ms
-				next += 30;	// when 1MHz clock
-				schedule(FSM_TYPE3_WAIT_LOAD, next.getTime());
-			} else {
-				type3WaitLoad(time);
-			}
- 		}
-	} catch (DriveEmptyException &e) {
+	if (!drive->ready()) {
 		endCmd();
+	} else {
+		drive->setHeadLoaded(true, time);
+		// WD2795/WD2797 would now set SSO output
+
+		if (commandReg & E_FLAG) {
+			Clock<1000> next(time);	// ms
+			next += 30;	// when 1MHz clock
+			schedule(FSM_TYPE3_WAIT_LOAD, next.getTime());
+		} else {
+			type3WaitLoad(time);
+		}
 	}
 }
 

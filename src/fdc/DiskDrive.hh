@@ -101,6 +101,10 @@ public:
 	/** Is disk changed?
 	 */
 	virtual bool diskChanged() = 0;
+
+	/** Is there a dummy (unconncted) drive?
+	 */
+	virtual bool dummyDrive() = 0;
 };
 
 
@@ -135,6 +139,7 @@ public:
 	virtual void initWriteTrack();
 	virtual void writeTrackData(byte data);
 	virtual bool diskChanged();
+	virtual bool dummyDrive();
 };
 
 
@@ -162,6 +167,7 @@ public:
 	virtual void setHeadLoaded(bool status, const EmuTime& time);
 	virtual bool headLoaded(const EmuTime& time);
 	virtual bool diskChanged();
+	virtual bool dummyDrive();
 
 protected:
 	static const int MAX_TRACK = 85;

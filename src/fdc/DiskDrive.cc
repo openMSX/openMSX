@@ -31,7 +31,7 @@ DummyDrive::~DummyDrive()
 
 bool DummyDrive::ready()
 {
-	throw DriveEmptyException("No drive connected");
+	return false;
 }
 
 bool DummyDrive::writeProtected()
@@ -122,6 +122,11 @@ void DummyDrive::writeTrackData(byte /*data*/)
 bool DummyDrive::diskChanged()
 {
 	return false;
+}
+
+bool DummyDrive::dummyDrive()
+{
+	return true;
 }
 
 
@@ -266,7 +271,7 @@ void RealDrive::insertDisk(const string& diskImage)
 		PRT_DEBUG("Trying an XSA diskimage...");
 		disk.reset(new XSADiskImage(diskImage));
 		PRT_DEBUG("Succeeded");
-	} catch (MSXException &e) {
+	} catch (MSXException& e) {
 		try {
 			//First try the fake disk, because a DSK will always
 			//succeed if diskImage can be resolved 
@@ -283,7 +288,6 @@ void RealDrive::insertDisk(const string& diskImage)
 			PRT_DEBUG("Succeeded");
 		}
 	}
-	cout << "disk: " << diskImage << endl;
 	diskElem->setData(diskImage);
 }
 
@@ -341,6 +345,11 @@ bool RealDrive::diskChanged()
 	bool ret = diskChangedFlag;
 	diskChangedFlag = false;
 	return ret;
+}
+
+bool RealDrive::dummyDrive()
+{
+	return false;
 }
 
 

@@ -52,6 +52,7 @@ public:
 	virtual void initWriteTrack();
 	virtual void writeTrackData(byte data);
 	virtual bool diskChanged();
+	virtual bool dummyDrive();
 
 private:
 	DiskDrive* drive[5];
