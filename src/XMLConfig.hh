@@ -61,6 +61,7 @@ friend MSXConfig::Backend* MSXConfig::Backend::createBackend(const std::string &
 
 public:
 	virtual void loadFile(const std::string &filename);
+	virtual void loadStream(const std::ostringstream &stream);
 	virtual void saveFile();
 	virtual void saveFile(const std::string &filename);
 
@@ -85,6 +86,8 @@ private:
 	std::list<Device*> devices;
 
 	std::list<Device*>::const_iterator device_iterator;
+
+	void handleDoc(XML::Document* doc);
 };
 
 }; // end namespace XMLConfig

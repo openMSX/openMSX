@@ -137,6 +137,7 @@ public:
 	 * times]
 	 */
 	virtual void loadFile(const std::string &filename)=0;
+	virtual void loadStream(const std::ostringstream &stream)=0;
 
 	/**
 	 * save current config to file

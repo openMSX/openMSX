@@ -187,6 +187,17 @@ Backend::~Backend()
 void Backend::loadFile(const std::string &filename)
 {
 	XML::Document* doc = new XML::Document(filename);
+	handleDoc(doc);
+}
+
+void Backend::loadStream(const std::ostringstream &stream)
+{
+	XML::Document* doc = new XML::Document(stream);
+	handleDoc(doc);
+}
+
+void Backend::handleDoc(XML::Document* doc)
+{
 	docs.push_back(doc);
 	// TODO XXX update/append Devices/Configs
 	for (std::list<XML::Element*>::const_iterator i = doc->root->children.begin(); i != doc->root->children.end(); i++)

@@ -82,6 +82,11 @@ Document::Document(const std::string &filename_)
 :root(0), filename(filename_)
 {
 	xmlDocPtr doc = xmlParseFile(filename.c_str());
+	handleDoc(doc);
+}
+
+void Document::handleDoc(xmlDocPtr doc)
+{
 	if (!doc->children || !doc->children->name)
 	{
 		xmlFreeDoc(doc);
@@ -92,6 +97,13 @@ Document::Document(const std::string &filename_)
 	s_dump(xmlDocGetRootElement(doc));
 #endif
 	xmlFreeDoc(doc);
+}
+
+Document::Document(const std::ostringstream &stream)
+:root(0), filename("stringstream")
+{
+	xmlDocPtr doc = xmlParseMemory(stream.str().c_str(), stream.str().length());
+	handleDoc(doc);
 }
 
 void Document::dump()

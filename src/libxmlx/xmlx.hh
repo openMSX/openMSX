@@ -32,6 +32,7 @@
 #include <string>
 #include <list>
 #include <stdexcept>
+#include <sstream>
 
 namespace XML
 {
@@ -107,6 +108,7 @@ class Document
 {
 public:
 	Document(const std::string &filename);
+	Document(const std::ostringstream &stream);
 	~Document();
 
 	// root element of document
@@ -126,6 +128,8 @@ private:
 	Document &operator=(const Document &foo); // block usage
 
 	std::string filename;
+
+	void handleDoc(xmlDocPtr doc);
 };
 
 }; // end namespace XML
