@@ -20,14 +20,14 @@ Rom::Rom(Device* config, const EmuTime &time)
 		size = 0;
 		file = NULL;
 	}
-	info = RomInfo::fetchRomInfo(*this);
+	info = RomInfo::fetchRomInfo(*this, *config);
 }
 
 Rom::Rom(Device* config, const std::string &filename,
                            const EmuTime &time)
 {
 	read(config, filename, time);	// TODO config
-	info = RomInfo::fetchRomInfo(*this);
+	info = RomInfo::fetchRomInfo(*this, *config);
 }
 
 void Rom::read(Device* config,
@@ -38,8 +38,8 @@ void Rom::read(Device* config,
 	
 	// get filesize
 	int fileSize;
-	if (config && config->hasParameter("filesize") &&
-	    config->getParameter("filesize") != "auto") {
+	if (config && config->hasParameter("filesize")
+	&& config->getParameter("filesize") != "auto") {
 		fileSize = config->getParameterAsInt("filesize");
 	} else {
 		fileSize = file->getSize();
