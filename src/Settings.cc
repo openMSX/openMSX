@@ -138,15 +138,20 @@ void FloatSetting::setValueFloat(float newValue)
 
 // IntStringMap implementation:
 
-IntStringMap::IntStringMap(const std::map<const string, int> &map_)
-	: stringToInt(map_)
+IntStringMap::IntStringMap(const std::map<const string, int> *map_)
 {
+	this->stringToInt = map_;
+}
+
+IntStringMap::~IntStringMap()
+{
+	delete stringToInt;
 }
 
 const string &IntStringMap::lookupInt(int n) const
 {
-	for (MapIterator it = stringToInt.begin()
-	; it != stringToInt.end() ; it++) {
+	for (MapIterator it = stringToInt->begin()
+	; it != stringToInt->end() ; it++) {
 		if (it->second == n) return it->first;
 	}
 	throw MSXException("Integer not in map: " + n);
@@ -154,8 +159,8 @@ const string &IntStringMap::lookupInt(int n) const
 
 int IntStringMap::lookupString(const string &s) const
 {
-	MapIterator it = stringToInt.find(s);
-	if (it != stringToInt.end()) return it->second;
+	MapIterator it = stringToInt->find(s);
+	if (it != stringToInt->end()) return it->second;
 	// TODO: Don't use the knowledge that we're called inside command
 	//       processing: use a different exception.
 	throw CommandException("Not a valid value: \"" + s + "\"");
@@ -164,9 +169,9 @@ int IntStringMap::lookupString(const string &s) const
 string IntStringMap::getSummary() const
 {
 	ostringstream out;
-	MapIterator it = stringToInt.begin();
+	MapIterator it = stringToInt->begin();
 	out << it->first;
-	for (it++; it != stringToInt.end(); it++) {
+	for (it++; it != stringToInt->end(); it++) {
 		out << ", " << it->first;
 	}
 	return out.str();
@@ -175,8 +180,8 @@ string IntStringMap::getSummary() const
 set<string> *IntStringMap::createStringSet() const
 {
 	set<string> *ret = new set<string>;
-	for (MapIterator it = stringToInt.begin()
-	; it != stringToInt.end(); it++) {
+	for (MapIterator it = stringToInt->begin()
+	; it != stringToInt->end(); it++) {
 		ret->insert(it->first);
 	}
 	return ret;

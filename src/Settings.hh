@@ -192,7 +192,8 @@ class IntStringMap
 public:
 	typedef const map<const string, int> BaseMap;
 
-	IntStringMap(BaseMap &map);
+	IntStringMap(BaseMap *map);
+	~IntStringMap();
 
 	/** Gets the string associated with a given integer.
 	  */
@@ -213,7 +214,7 @@ public:
 
 private:
 	typedef map<const string, int>::const_iterator MapIterator;
-	const map<const string, int> stringToInt;
+	BaseMap *stringToInt;
 };
 
 
@@ -224,7 +225,6 @@ private:
 template <class T>
 class EnumSetting : public Setting
 {
-	typedef const map<const string, int> DummyMap;
 public:
 	EnumSetting(
 		const string &name, const string &description,
@@ -232,7 +232,7 @@ public:
 		const map<const string, T> &map
 	) : Setting(name, description)
 	  , value(initialValue)
-	  , intStringMap(reinterpret_cast<IntStringMap::BaseMap &>(map))
+	  , intStringMap(convertMap(map))
 	{
 		type = intStringMap.getSummary();
 	}
@@ -279,6 +279,18 @@ protected:
 
 	T value;
 	IntStringMap intStringMap;
+
+private:
+	static map<const string, int> *convertMap(
+		const map<const string, T> &map_
+	) {
+		map<const string, int> *ret = new map<const string, int>();
+		typename map<const string, T>::const_iterator it;
+		for (it = map_.begin() ; it != map_.end() ; it++) {
+			(*ret)[it->first] = static_cast<int>(it->second);
+		}
+		return ret;
+	}
 };
 
 
