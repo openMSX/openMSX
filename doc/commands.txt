@@ -50,6 +50,20 @@ cassetteplayer
     cassetteplayer no_force_play  motor signal controls playing (default)
 
     
+decr
+----
+
+  Decrement an integer setting.
+
+  usage:
+    decr            shows all integer settings
+    decr <setting>  decrement the specified setting
+
+  examples:
+    decr speed
+    decr renshaturbo
+
+
 diska / diskb
 -------------
 
@@ -70,6 +84,20 @@ help
   usage:
     help            shows a list of all possible commands
     help <command>  shows help info for a specific command
+
+
+incr
+----
+
+  Increment an integer setting.
+
+  usage:
+    incr            shows all integer settings
+    incr <setting>  increment the specified setting
+
+  examples:
+    incr speed
+    incr renshaturbo
 
 
 palette

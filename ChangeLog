@@ -1,5 +1,8 @@
 $Id$
 
+2003-10-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added "incr" and "decr" console commands
+
 2003-10-14 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added provisional FDD LED emulation:
 	  - works only when the emulated FDC uses the DiskDrive class

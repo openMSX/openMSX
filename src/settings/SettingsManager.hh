@@ -21,7 +21,7 @@ namespace openmsx {
 class SettingsManager
 {
 private:
-	map<string, SettingNode *> settingsMap;
+	map<string, SettingNode*> settingsMap;
 
 public:
 
@@ -59,6 +59,15 @@ private:
 	SettingsManager();
 	~SettingsManager();
 
+	template <typename T>
+	void getSettingNames(string& result) const;
+
+	template <typename T>
+	void getSettingNames(set<string>& result) const;
+	
+	template <typename T>
+	T* getByName(const string& cmd, const string& name) const;
+
 	class SetCommand : public Command {
 	public:
 		SetCommand(SettingsManager *manager);
@@ -67,9 +76,8 @@ private:
 		virtual void tabCompletion(vector<string> &tokens) const;
 	private:
 		SettingsManager *manager;
-	};
+	} setCommand;
 	friend class SetCommand;
-	SetCommand setCommand;
 
 	class ToggleCommand : public Command {
 	public:
@@ -79,9 +87,30 @@ private:
 		virtual void tabCompletion(vector<string> &tokens) const;
 	private:
 		SettingsManager *manager;
-	};
+	} toggleCommand;
 	friend class ToggleCommand;
-	ToggleCommand toggleCommand;
+
+	class IncrCommand : public Command {
+	public:
+		IncrCommand(SettingsManager *manager);
+		virtual string execute(const vector<string> &tokens);
+		virtual string help   (const vector<string> &tokens) const;
+		virtual void tabCompletion(vector<string> &tokens) const;
+	private:
+		SettingsManager *manager;
+	} incrCommand;
+	friend class IncrCommand;
+
+	class DecrCommand : public Command {
+	public:
+		DecrCommand(SettingsManager *manager);
+		virtual string execute(const vector<string> &tokens);
+		virtual string help   (const vector<string> &tokens) const;
+		virtual void tabCompletion(vector<string> &tokens) const;
+	private:
+		SettingsManager *manager;
+	} decrCommand;
+	friend class DecrCommand;
 };
 
 } // namespace openmsx

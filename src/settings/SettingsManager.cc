@@ -10,17 +10,66 @@ namespace openmsx {
 // SettingsManager implementation:
 
 SettingsManager::SettingsManager()
-	: setCommand(this)
-	, toggleCommand(this)
+	: setCommand(this),
+	  toggleCommand(this),
+	  incrCommand(this),
+	  decrCommand(this)
 {
-	CommandController::instance()->registerCommand(&setCommand, "set");
+	CommandController::instance()->registerCommand(&setCommand,    "set");
 	CommandController::instance()->registerCommand(&toggleCommand, "toggle");
+	CommandController::instance()->registerCommand(&incrCommand,   "incr");
+	CommandController::instance()->registerCommand(&decrCommand,   "decr");
 }
 
 SettingsManager::~SettingsManager()
 {
-	CommandController::instance()->unregisterCommand(&setCommand, "set");
+	CommandController::instance()->unregisterCommand(&setCommand,    "set");
 	CommandController::instance()->unregisterCommand(&toggleCommand, "toggle");
+	CommandController::instance()->unregisterCommand(&incrCommand,   "incr");
+	CommandController::instance()->unregisterCommand(&decrCommand,   "decr");
+}
+
+
+// Helper functions for setting commands
+
+template <typename T>
+void SettingsManager::getSettingNames(string& result) const
+{
+	for (map<string, SettingNode*>::const_iterator it =
+	       settingsMap.begin();
+	     it != settingsMap.end(); ++it) {
+		if (dynamic_cast<T*>(it->second)) {
+			result += it->first + '\n';
+		}
+	}
+}
+
+template <typename T>
+void SettingsManager::getSettingNames(set<string>& result) const
+{
+	for (map<string, SettingNode *>::const_iterator it
+		 = settingsMap.begin();
+	     it != settingsMap.end(); ++it) {
+		if (dynamic_cast<T*>(it->second)) {
+			result.insert(it->first);
+		}
+	}
+}
+
+template <typename T>
+T* SettingsManager::getByName(const string& cmd, const string& name) const
+{
+	SettingNode* setting = getByName(name);
+	if (!setting) {
+		throw CommandException(cmd + ": " + name +
+		                       ": no such setting");
+	}
+	T* typeSetting = dynamic_cast<T*>(setting);
+	if (!typeSetting) {
+		throw CommandException(cmd + ": " + name +
+		                       ": setting has wrong type");
+	}
+	return typeSetting;
 }
 
 
@@ -35,43 +84,32 @@ string SettingsManager::SetCommand::execute(
 	const vector<string> &tokens )
 {
 	string result;
-	int nrTokens = tokens.size();
-	if (nrTokens == 0 || nrTokens > 3) {
-		throw CommandException("set: wrong number of parameters");
-	}
-
-	if (nrTokens == 1) {
+	switch (tokens.size()) {
+	case 1:
 		// List all settings.
-		map<string, SettingNode *>::const_iterator it =
-			manager->settingsMap.begin();
-		for (; it != manager->settingsMap.end(); ++it) {
-			result += it->first + '\n';
-		}
-		return result;
-	}
-
-	// Get setting object.
-	// TODO: The cast is valid because currently all nodes are leaves.
-	//       In the future this will no longer be the case.
-	const string &name = tokens[1];
-	SettingLeafNode *setting = static_cast<SettingLeafNode *>(
-		manager->getByName(name)
-		);
-	if (!setting) {
-		throw CommandException("set: " + name + ": no such setting");
-	}
-
-	if (nrTokens == 2) {
+		manager->getSettingNames<SettingLeafNode>(result);
+		break;
+	
+	case 2: {
 		// Info.
+		SettingLeafNode* setting = 
+			manager->getByName<SettingLeafNode>("set", tokens[1]);
 		result += setting->getDescription() + '\n';
 		result += "current value   : " + setting->getValueString() + '\n';
 		if (!setting->getTypeString().empty()) {
 			result += "possible values : " + setting->getTypeString() + '\n';
 		}
-	} else {
+		break;
+	}
+	case 3: {
 		// Change.
-		const string &valueString = tokens[2];
-		setting->setValueString(valueString);
+		SettingLeafNode* setting = 
+			manager->getByName<SettingLeafNode>("set", tokens[1]);
+		setting->setValueString(tokens[2]);
+		break;
+	}
+	default:
+		throw CommandException("set: wrong number of parameters");
 	}
 	return result;
 }
@@ -91,11 +129,7 @@ void SettingsManager::SetCommand::tabCompletion(
 		case 2: {
 			// complete setting name
 			set<string> settings;
-			map<string, SettingNode *>::const_iterator it
-				= manager->settingsMap.begin();
-			for (; it != manager->settingsMap.end(); ++it) {
-				settings.insert(it->first);
-			}
+			manager->getSettingNames<SettingLeafNode>(settings);
 			CommandController::completeString(tokens, settings);
 			break;
 		}
@@ -111,6 +145,7 @@ void SettingsManager::SetCommand::tabCompletion(
 	}
 }
 
+
 // ToggleCommand implementation:
 
 SettingsManager::ToggleCommand::ToggleCommand(SettingsManager *manager_)
@@ -118,65 +153,136 @@ SettingsManager::ToggleCommand::ToggleCommand(SettingsManager *manager_)
 {
 }
 
-string SettingsManager::ToggleCommand::execute(
-	const vector<string> &tokens )
+string SettingsManager::ToggleCommand::execute(const vector<string> &tokens)
 {
 	string result;
-	int nrTokens = tokens.size();
-	if (nrTokens == 0 || nrTokens > 2) {
+	switch (tokens.size()) {
+	case 1: 
+		// list all boolean settings
+		manager->getSettingNames<BooleanSetting>(result);
+		break;
+
+	case 2: {
+		BooleanSetting *boolSetting =
+			manager->getByName<BooleanSetting>("toggle", tokens[1]);
+		boolSetting->setValue(!boolSetting->getValue());
+		break;
+	}
+	default:
 		throw CommandException("toggle: wrong number of parameters");
 	}
-
-	if (nrTokens == 1) {
-		// list all boolean settings
-		map<string, SettingNode *>::const_iterator it =
-			manager->settingsMap.begin();
-		for (; it != manager->settingsMap.end(); ++it) {
-			if (dynamic_cast<BooleanSetting*>(it->second)) {
-				result += it->first + '\n';
-			}
-		}
-		return result;
-	}
-
-	// get setting object
-	const string &name = tokens[1];
-	SettingNode *setting = manager->getByName(name);
-	if (!setting) {
-		throw CommandException(
-			"toggle: " + name + ": no such setting" );
-	}
-	BooleanSetting *boolSetting = dynamic_cast<BooleanSetting*>(setting);
-	if (!boolSetting) {
-		throw CommandException(
-			"toggle: " + name + ": setting is not a boolean" );
-	}
-	// actual toggle
-	boolSetting->setValue(!boolSetting->getValue());
 	return result;
 }
 
-string SettingsManager::ToggleCommand::help(
-	const vector<string> &tokens) const
+string SettingsManager::ToggleCommand::help(const vector<string> &tokens) const
 {
 	return "toggle      : list all boolean settings\n"
 	       "toggle name : toggles a boolean setting\n";
 }
 
-void SettingsManager::ToggleCommand::tabCompletion(
-	vector<string> &tokens) const
+void SettingsManager::ToggleCommand::tabCompletion(vector<string> &tokens) const
 {
 	switch (tokens.size()) {
 		case 2: {
 			// complete setting name
 			set<string> settings;
-			map<string, SettingNode *>::const_iterator it
-				= manager->settingsMap.begin();
-			for (; it != manager->settingsMap.end(); ++it) {
-				if (dynamic_cast<BooleanSetting*>(it->second)) {
-					settings.insert(it->first);
-				}
-			}
+			manager->getSettingNames<BooleanSetting>(settings);
+			CommandController::completeString(tokens, settings);
+			break;
+		}
+	}
+}
+
+
+// IncrCommand implementation:
+
+SettingsManager::IncrCommand::IncrCommand(SettingsManager *manager_)
+	: manager(manager_)
+{
+}
+
+string SettingsManager::IncrCommand::execute(const vector<string> &tokens)
+{
+	string result;
+	switch (tokens.size()) {
+	case 1:
+		// list all integer settings
+		manager->getSettingNames<IntegerSetting>(result);
+		break;
+
+	case 2: {
+		IntegerSetting *intSetting =
+			manager->getByName<IntegerSetting>("incr", tokens[1]);
+		intSetting->setValue(intSetting->getValue() + 1);
+		break;
+	}
+	default:
+		throw CommandException("incr: wrong number of parameters");
+	}
+	return result;
+}
+
+string SettingsManager::IncrCommand::help(const vector<string> &tokens) const
+{
+	return "incr      : list all integer settings\n"
+	       "incr name : increase an integer setting\n";
+}
+
+void SettingsManager::IncrCommand::tabCompletion(vector<string> &tokens) const
+{
+	switch (tokens.size()) {
+		case 2: {
+			// complete setting name
+			set<string> settings;
+			manager->getSettingNames<IntegerSetting>(settings);
+			CommandController::completeString(tokens, settings);
+			break;
+		}
+	}
+}
+
+
+// DecrCommand implementation:
+
+SettingsManager::DecrCommand::DecrCommand(SettingsManager *manager_)
+	: manager(manager_)
+{
+}
+
+string SettingsManager::DecrCommand::execute(const vector<string> &tokens)
+{
+	string result;
+	switch (tokens.size()) {
+	case 1:
+		// list all integer settings
+		manager->getSettingNames<IntegerSetting>(result);
+		break;
+
+	case 2: {
+		IntegerSetting *intSetting =
+			manager->getByName<IntegerSetting>("decr", tokens[1]);
+		intSetting->setValue(intSetting->getValue() - 1);
+		break;
+	}
+	default:
+		throw CommandException("incr: wrong number of parameters");
+	}
+	return result;
+}
+
+string SettingsManager::DecrCommand::help(const vector<string> &tokens) const
+{
+	return "decr      : list all integer settings\n"
+	       "decr name : decrease an integer setting\n";
+}
+
+void SettingsManager::DecrCommand::tabCompletion(vector<string> &tokens) const
+{
+	switch (tokens.size()) {
+		case 2: {
+			// complete setting name
+			set<string> settings;
+			manager->getSettingNames<IntegerSetting>(settings);
 			CommandController::completeString(tokens, settings);
 			break;
 		}

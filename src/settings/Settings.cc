@@ -26,7 +26,7 @@ IntegerSetting::IntegerSetting(
 	setRange(minValue_, maxValue_);
 }
 
-void IntegerSetting::setRange(const int minValue, const int maxValue)
+void IntegerSetting::setRange(int minValue, int maxValue)
 {
 	this->minValue = minValue;
 	this->maxValue = maxValue;
