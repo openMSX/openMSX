@@ -27,9 +27,13 @@ New or improved emulator features:
 - OSD LEDs are configurable via TCL scripts.
 - Extensions inside ZIP files are now used to guess the right file type.
 - New 'escape_grab' command: escapes from 'grabinput' once.
+- You can now use IPS patches to modify disk and ROM images without changing the
+  images.
+- New ROM database, shared with blueMSX.
 
 MSX device support:
 - Added usable GFX9000 support; use the 'videosource' setting to switch.
+- Drastical improvement of sound quality due to new mixer implementation.
 - Fixes in Tetris II Special Edition dongle.
 - Timing improvements of the WD2793 FDC. Fixes a few games that rely on it.
 - The 13 bit MSX-AUDIO DAC actually works now (used in modplayer).
