@@ -235,15 +235,12 @@ void RealDrive::insertDisk(FileContext *context,
 		// first try XSA
 		tmp = new FDC_XSA(context, diskImage);
 	} catch (MSXException &e) {
-		// if that fails use DSK or DirAsDSK
 		try {
-			// try normal DSK
+			// then try normal DSK
 			tmp = new FDC_DSK(context, diskImage);
 		} catch (MSXException &e) {
-			// try to create fak DSK from a dir on host OS
-			try {
+			// try to create fake DSK from a dir on host OS
 			tmp = new FDC_DirAsDSK(context, diskImage);
-			} catch (MSXException &e) {}
 		}
 	}
 	delete disk;

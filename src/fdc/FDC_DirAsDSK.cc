@@ -94,24 +94,25 @@ bool FDC_DirAsDSK::checkMSXFileExists(std::string fullfilename)
 	  tmp = fullfilename.substr(pos+1);
 	} else {
 	  tmp=fullfilename;
-	};
+	}
 	tmp=makeSimpleMSXFileName(tmp);
 
-	for (int i=0 ; i< 112 ; i++) {
-		if ( strncmp( (const char*)(mapdir[i].msxinfo.filename) , tmp.c_str() ,11 ) == 0 ) {
+	for (int i = 0; i < 112; i++) {
+		if (strncmp((const char*)(mapdir[i].msxinfo.filename), tmp.c_str(), 11) == 0 ) {
 		  return true;
 		}
-	};
+	}
 	return false;
 }
 
 /* check if a file is already mapped into the fake DSK */
 bool FDC_DirAsDSK::checkFileUsedInDSK(std::string fullfilename)
 {
-	int i;
-	for (i=0 ; i< 112 ; i++) {
-		if ( strcmp( mapdir[i].filename.c_str() , fullfilename.c_str() ) == 0 ) return true;
-	};
+	for (int i = 0; i < 112; i++) {
+		if (mapdir[i].filename == fullfilename) {
+			return true;
+		}
+	}
 	return false;
 }
 
@@ -257,8 +258,6 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 		if (logicalSector >= nbSectors) {
 			throw NoSuchSectorException("No such sector");
 		}
-		//file.seek(logicalSector * SECTOR_SIZE);
-		//file.write(buf, SECTOR_SIZE);
 		//
 		//   for now simply ignore writes
 		//
@@ -295,13 +294,13 @@ void FDC_DirAsDSK::updateFileInDSK(std::string fullfilename)
 	struct stat fst;
 
 	stat(fullfilename.c_str(), &fst);
-	if ( ! S_ISREG(fst)) {
+	if (!S_ISREG(fst.st_mode)) {
 		// we only handle regular files for now
-		PRT_INFO("Not a regular file: "<< fullfilename);
+		PRT_INFO("Not a regular file: " << fullfilename);
 		return;
 	}
 	    
-	if ( ! checkFileUsedInDSK(fullfilename) ) {
+	if (!checkFileUsedInDSK(fullfilename)) {
 		// add file to fakedisk
 		addFileToDSK(fullfilename);
 	} else {

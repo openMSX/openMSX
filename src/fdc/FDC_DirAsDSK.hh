@@ -6,7 +6,6 @@
 
 #include "FDC_CONSTS.hh"
 #include "FDCBackEnd.hh"
-#include "File.hh"
 #define MAX_CLUSTER 720
 
 class FileContext;
@@ -59,7 +58,6 @@ class FDC_DirAsDSK : public FDCBackEnd
 		int nbSectors;
 
 	private:
-		File file;
 		byte writeTrackBuf[SECTOR_SIZE];
 		int writeTrackBufCur;
 		int writeTrackSectorCur;
