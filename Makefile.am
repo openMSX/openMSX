@@ -8,7 +8,7 @@ MAINTAINERCLEANFILES = aclocal.m4 Makefile.in \
    make.log missing mkinstalldirs
 
 EXTRA_DIST = \
-	GPL TODO config-i686.sh README.MD5SUMS \
+	GPL TODO config-i686.sh README.SHA1SUMS \
 	Contrib share
 
 # Altough (no)debug only needed in the src dir, we want
