@@ -7,6 +7,7 @@ SRC_HDR:= \
 	Renderer RendererFactory RenderSettings PixelRenderer \
 	SDLRenderer \
 	SDLGLRenderer GLUtil \
+	DummyRenderer \
 	XRenderer \
 	BitmapConverter CharacterConverter \
 	Scalers

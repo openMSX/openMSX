@@ -3,6 +3,7 @@
 #include "RendererFactory.hh"
 #include "openmsx.hh"
 #include "RenderSettings.hh"
+#include "DummyRenderer.hh"
 #include "SDLRenderer.hh"
 #include "SDLGLRenderer.hh"
 #include "XRenderer.hh"
@@ -14,6 +15,8 @@ namespace openmsx {
 RendererFactory *RendererFactory::getCurrent()
 {
 	switch (RenderSettings::instance()->getRenderer()->getValue()) {
+	case DUMMY:
+		return new DummyRendererFactory();
 	case SDLHI:
 		return new SDLHiRendererFactory();
 	case SDLLO:
@@ -48,6 +51,7 @@ Renderer *RendererFactory::switchRenderer(VDP *vdp)
 RendererFactory::RendererSetting *RendererFactory::createRendererSetting()
 {
 	map<string, RendererID> rendererMap;
+	rendererMap["none"] = DUMMY; // TODO: only register when in CliComm mode
 	rendererMap["SDLHi"] = SDLHI;
 	rendererMap["SDLLo"] = SDLLO;
 #ifdef __OPENGL_AVAILABLE__
@@ -85,6 +89,18 @@ FullScreenToggler::FullScreenToggler(SDL_Surface *screen) {
 void FullScreenToggler::performToggle() {
 	// Actually toggle.
 	SDL_WM_ToggleFullScreen(screen);
+}
+
+// Dummy ===================================================================
+
+bool DummyRendererFactory::isAvailable()
+{
+	return true; // TODO: Actually query.
+}
+
+Renderer *DummyRendererFactory::create(VDP *vdp)
+{
+	return new DummyRenderer(DUMMY, vdp);
 }
 
 // SDLHi ===================================================================

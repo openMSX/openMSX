@@ -1,5 +1,13 @@
 $Id$
 
+2003-11-11 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added DummyRenderer (set renderer none)
+	* TODO:
+	  - only register the renderer in the settingmap in CliComm mode
+	  - move SDL video (de)initialization to superclass of SDL based
+	    renderers (feel free to implement this! ;-), to fix problem that
+	    the window of the previous renderer doesn't disappear
+
 2003-11-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed crash when trying to define an alias with the same name as an
 	  existing command

@@ -37,6 +37,7 @@ libVideo_la_SOURCES = \
 	Renderer.hh Renderer.cc \
 	RendererFactory.hh RendererFactory.cc \
 	PixelRenderer.hh PixelRenderer.cc \
+	DummyRenderer.hh DummyRenderer.cc \
 	SDLRenderer.hh SDLRenderer.cc \
 	SDLGLRenderer.hh SDLGLRenderer.cc \
 	XRenderer.hh XRenderer.cc \

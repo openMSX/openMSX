@@ -29,7 +29,7 @@ public:
 	/** Enumeration of Renderers known to openMSX.
 	  * This is the full list, the list of available renderers may be smaller.
 	  */
-	enum RendererID { SDLHI, SDLLO, SDLGL, XLIB };
+	enum RendererID { DUMMY, SDLHI, SDLLO, SDLGL, XLIB };
 
 	typedef EnumSetting<RendererID> RendererSetting;
 
@@ -128,6 +128,25 @@ public:
 	  */
 	void performToggle();
 
+};
+
+/** RendererFactory for DummyRenderer.
+  */
+class DummyRendererFactory: public RendererFactory
+{
+public:
+
+	/** TODO: Convert to singleton?
+	  */
+	DummyRendererFactory() { }
+
+	const string getName() {
+		return "Dummy";
+	}
+
+	bool isAvailable();
+
+	Renderer *create(VDP *vdp);
 };
 
 /** RendererFactory for SDLHiRenderer.
