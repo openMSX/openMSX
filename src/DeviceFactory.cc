@@ -27,6 +27,7 @@
 #include "MSXSCCPlusCart.hh"
 #include "MSXARCdebug.hh"
 #include "MSXFDC.hh"
+#include "SunriseIDE.hh"
 
 
 MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
@@ -105,6 +106,9 @@ MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	} else 
 	if (conf->getType()=="FDC") {
 		device = new MSXFDC(conf, time);
+	}
+	if (conf->getType()=="SunriseIDE") {
+		device = new SunriseIDE(conf, time);
 	}
 	if (device == NULL)
 		PRT_ERROR("Unknown device specified in configuration");

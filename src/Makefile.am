@@ -3,7 +3,7 @@
 # we want most warnings
 
 # FIXME: -lSDL_image shouldn't be needed
-AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -I$(srcdir)/cpu -I$(srcdir)/sound -I$(srcdir)/config -I$(srcdir)/fdc -I$(srcdir)/thread -I$(srcdir)/ConsoleSource -I$(srcdir)/cassette -I$(srcdir)/events @XML_CFLAGS@ @SDL_CFLAGS@ -lSDL_image
+AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -I$(srcdir)/cpu -I$(srcdir)/sound -I$(srcdir)/config -I$(srcdir)/fdc -I$(srcdir)/ide -I$(srcdir)/thread -I$(srcdir)/ConsoleSource -I$(srcdir)/cassette -I$(srcdir)/events @XML_CFLAGS@ @SDL_CFLAGS@ -lSDL_image
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
 else
@@ -17,7 +17,7 @@ endif
 # or perhaps sometimes even more:
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
-SUBDIRS = cfg libxmlx ConsoleSource cpu sound config tools fdc thread cassette events
+SUBDIRS = cfg libxmlx ConsoleSource cpu sound config tools fdc ide thread cassette events
 
 #bin_PROGRAMS=openmsx cfgtest
 bin_PROGRAMS=openmsx
@@ -99,6 +99,7 @@ openmsx_LDADD = \
 	cpu/libCPU.la \
 	sound/libSound.la \
 	fdc/libFdc.la \
+	ide/libIDE.la \
 	thread/libThread.la \
 	cassette/libCassette.la \
 	events/libEvents.la \

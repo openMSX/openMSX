@@ -3,7 +3,8 @@
 #ifndef __MSXFDC_HH__
 #define __MSXFDC_HH__
 
-#include "MSXRom.hh"
+#include "MSXMemDevice.hh"
+#include "MSXRomDevice.hh"
 #include "MSXIODevice.hh"
 
 // This is the interface for the emulated MSX towards the FDC
@@ -17,7 +18,7 @@
 class FDC;
 
 
-class MSXFDC : public MSXRom, public MSXIODevice
+class MSXFDC : public MSXMemDevice, MSXRomDevice, public MSXIODevice
 {
 	public:
 		/**

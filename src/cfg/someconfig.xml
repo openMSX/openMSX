@@ -349,4 +349,14 @@
     <parameter name="background">ConsoleBackground.png</parameter>
   </config>
 
+  <device id="Sunrise IDE">
+    <type>SunriseIDE</type>
+    <slotted>
+      <ps>3</ps>
+      <ss>0</ss>
+      <page>1</page>
+    </slotted>
+    <parameter name="filename">cfg/IDE210.ROM</parameter>
+  </device>
+
 </msxconfig>

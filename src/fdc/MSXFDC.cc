@@ -7,7 +7,8 @@
 
 
 MSXFDC::MSXFDC(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time), MSXRom(config, time), MSXIODevice(config, time)
+	: MSXDevice(config, time), MSXMemDevice(config, time),
+	  MSXRomDevice(config, time), MSXIODevice(config, time)
 {
 	// The loading of the diskrom and the mapping in the slot layout
 	// has been done by the MSXRom
@@ -62,7 +63,6 @@ MSXFDC::~MSXFDC()
 
 void MSXFDC::reset(const EmuTime &time)
 {
-	MSXDevice::reset(time);
 	controller->reset();
 }
 
@@ -269,7 +269,7 @@ byte* MSXFDC::getReadCacheLine(word start)
 	//if address overlap 0x7ff8-0x7ffb then return NULL, else normal ROM behaviour
 	if ((start & 0x3FF8 & CPU::CACHE_LINE_HIGH) == (0x3FF8 & CPU::CACHE_LINE_HIGH))
 		return NULL;
-	if (start > 0x7FFF)
+	if (start >= 0x8000)
 		return emptyRom;
-	return &romBank[start & 0x3fff];
+	return &romBank[start & 0x3FFF];
 }
