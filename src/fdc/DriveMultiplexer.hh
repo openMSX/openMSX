@@ -51,6 +51,7 @@ class DriveMultiplexer : public DiskDrive
 		virtual void getTrackHeader(byte* buf);
 		virtual void initWriteTrack();
 		virtual void writeTrackData(byte data);
+		virtual bool diskChanged();
 
 	private:
 		DiskDrive* drive[5];

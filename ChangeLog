@@ -1,6 +1,13 @@
 $Id$
 
 2004-01-19 Maarten ter Huurne <maarten@treewalker.org>
+	* Integrated FDC fixes by Tetsuo Honda:
+	  1. FDD LED on Turbo R FDC (TC8566AF)
+	  2. Disk change signal
+	  3. Drive detection (1 or 2 drives connected)
+	  4. Empty drive behaviour ("Disk offline")
+
+2004-01-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Changed RAM in FS-A1FM mapper into SRAM, but unfortunately this
 	  doesn't solve the problem (openmsx-Bugs-826066)
 

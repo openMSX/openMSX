@@ -126,4 +126,9 @@ void DriveMultiplexer::writeTrackData(byte data)
 	drive[selected]->writeTrackData(data);
 }
 
+bool DriveMultiplexer::diskChanged()
+{
+	return drive[selected]->diskChanged();
+}
+
 } // namespace openmsx

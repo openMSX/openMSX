@@ -94,6 +94,11 @@ public:
 	virtual void getTrackHeader(byte* buf) = 0;
 	virtual void initWriteTrack() = 0;
 	virtual void writeTrackData(byte data) = 0;
+
+	/** Is disk changed?
+	 */
+	virtual bool diskChanged() = 0;
+
 };
 
 
@@ -127,6 +132,7 @@ public:
 	virtual void getTrackHeader(byte* buf);
 	virtual void initWriteTrack();
 	virtual void writeTrackData(byte data);
+	virtual bool diskChanged();
 };
 
 
@@ -151,6 +157,7 @@ public:
 				    const EmuTime &end);
 	virtual void setHeadLoaded(bool status, const EmuTime &time);
 	virtual bool headLoaded(const EmuTime &time);
+	virtual bool diskChanged();
 
 protected:
 	static const int MAX_TRACK = 85;
@@ -179,6 +186,7 @@ private:
 
 	string name;
 	string diskName;
+	bool diskChangedFlag;
 };
 
 

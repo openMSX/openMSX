@@ -39,14 +39,8 @@ byte TurboRFDC::readMem(word address, const EmuTime &time)
 			// bit 5	FDCHG2	Disk Change detect on drive 2
 			// active low
 			result = 0x33;
-			/*
-			if (MSXIOctxDiskGet(Device->Disk[0])->Changed)
-				result &= ~0x10;
-			if (MSXIOctxDiskGet(Device->Disk[1])->Changed)
-				result &= ~0x20;
-			MSXIOctxDiskGet(Device->Disk[0])->Changed = false;
-			MSXIOctxDiskGet(Device->Disk[1])->Changed = false;
-			*/
+			if (controller.diskChanged(0)) result &= ~0x10;
+			if (controller.diskChanged(1)) result &= ~0x20;
 			break;
 		case 0x3FF4:
 		case 0x3FFA:

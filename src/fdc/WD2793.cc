@@ -3,6 +3,7 @@
 #include "WD2793.hh"
 #include "DiskDrive.hh"
 #include "Scheduler.hh"
+#include "Disk.hh"
 
 
 namespace openmsx {
@@ -147,13 +148,17 @@ byte WD2793::getStatusReg(const EmuTime &time)
 			statusReg &= ~S_DRQ;
 		}
 	}
-	
-	if (drive->ready()) {
-		statusReg &= ~NOT_READY;
-	} else {
-		statusReg |=  NOT_READY;
+
+	try {
+		if (drive->ready()) {
+			statusReg &= ~NOT_READY;
+		} else {
+			statusReg |=  NOT_READY;
+		}
+	} catch (DriveEmptyException &e) {
+		statusReg |= NOT_READY;
 	}
-	
+
 	resetIRQ();
 	return statusReg;
 }
@@ -472,28 +477,32 @@ void WD2793::startType2Cmd(const EmuTime &time)
 	               RECORD_TYPE | WRITE_PROTECTED);
 	statusReg |= BUSY;
 	DRQ = false;
-	
-	if (!drive->ready()) {
-		endCmd();
-	} else {
-		// WD2795/WD2797 would now set SSO output
-		drive->setHeadLoaded(true, time);
 
-		if (commandReg & E_FLAG) {
-			EmuTimeFreq<1000> next(time);	// ms
-			next += 30;	// when 1MHz clock
-			Scheduler::instance().setSyncPoint(next, this,
-			                                 FSM_TYPE2_WAIT_LOAD);
-		} else {
-			type2WaitLoad(time);
-		}
+	try {
+		if (!drive->ready()) {
+			endCmd();
+ 		} else {
+			// WD2795/WD2797 would now set SSO output
+			drive->setHeadLoaded(true, time);
+
+			if (commandReg & E_FLAG) {
+				EmuTimeFreq<1000> next(time);	// ms
+				next += 30;	// when 1MHz clock
+				Scheduler::instance().setSyncPoint(next, this,
+				                                 FSM_TYPE2_WAIT_LOAD);
+			} else {
+				type2WaitLoad(time);
+			}
+ 		}
+	} catch (DriveEmptyException &e) {
+		endCmd();
 	}
 }
 
 void WD2793::type2WaitLoad(const EmuTime& time)
 {
 	// TODO wait till head loaded
-	
+
 	if (((commandReg & 0xE0) == 0xA0) && (drive->writeProtected())) {
 		// write command and write protected
 		PRT_DEBUG("FDC: write protected");
@@ -523,29 +532,33 @@ void WD2793::startType3Cmd(const EmuTime &time)
 	DRQ = false;
 	writeTrack = false;
 
-	if (!drive->ready()) {
-		endCmd();
-	} else {
-		drive->setHeadLoaded(true, time);
-		// WD2795/WD2797 would now set SSO output
-
-		if (commandReg & E_FLAG) {
-			EmuTimeFreq<1000> next(time);	// ms
-			next += 30;	// when 1MHz clock
-			Scheduler::instance().setSyncPoint(next, this,
-			                                 FSM_TYPE3_WAIT_LOAD);
+	try {
+		if (!drive->ready()) {
+			endCmd();
 		} else {
-			type3WaitLoad(time);
-		}
+			drive->setHeadLoaded(true, time);
+			// WD2795/WD2797 would now set SSO output
+
+			if (commandReg & E_FLAG) {
+				EmuTimeFreq<1000> next(time);	// ms
+				next += 30;	// when 1MHz clock
+				Scheduler::instance().setSyncPoint(next, this,
+				                                 FSM_TYPE3_WAIT_LOAD);
+			} else {
+				type3WaitLoad(time);
+			}
+ 		}
+	} catch (DriveEmptyException &e) {
+		endCmd();
 	}
 }
 
 void WD2793::type3WaitLoad(const EmuTime& time)
 {
 	// TODO wait till head loaded
-	
+
 	// TODO TG43 update
-	
+
 	commandStart = time;
 	switch (commandReg & 0xF0) {
 	case 0xC0: // read Address

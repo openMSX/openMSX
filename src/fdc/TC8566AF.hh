@@ -20,10 +20,11 @@ class TC8566AF
 	public:
 		TC8566AF(DiskDrive* drive[4], const EmuTime &time);
 		virtual ~TC8566AF();
-		
+
 		void reset(const EmuTime &time);
 		byte readReg(int reg, const EmuTime &time);
 		void writeReg(int reg, byte value, const EmuTime &time);
+		bool diskChanged(int driveno);
 
 	private:
 		DiskDrive* drive[4];

@@ -6,6 +6,7 @@
 
 #include "TC8566AF.hh"
 #include "DiskDrive.hh"
+#include "Disk.hh"
 
 
 namespace openmsx {
@@ -73,7 +74,7 @@ void TC8566AF::reset(const EmuTime &time)
 
 	ST3_FLT = 0;		// bit 7	Fault
 	ST3_WP  = 0;		// bit 6	Write Protect
-	ST3_RDY = 1;		// bit 5	Ready
+	ST3_RDY = 0;		// bit 5	Ready
 	ST3_TK0 = 0;		// bit 4	Track 0
 	ST3_2S  = 0;		// bit 3	Two Side
 	ST3_HD  = 0;		// bit 2	Head Address
@@ -115,26 +116,10 @@ byte TC8566AF::makeST2()
 
 byte TC8566AF::makeST3(const EmuTime &time)
 {
-/*
-	switch (MSXDiskPresent(TC8566AFGetDiskCtx())) {
-	case 0:
-		ST3_RDY = 0;
-		ST3_WP  = 1;
-		break;
-	case 1:
-		ST3_RDY = 1;
-		ST3_WP  = 0;
-		break;
-	case 2:
-		ST3_RDY = 1;
-		ST3_WP  = 1;
-		break;
-	}
-*/
 	return  (ST3_FLT << 7) |	// bit 7	Fault
 		(ST3_WP  << 6) |	// bit 6	Write Protect
 		(ST3_RDY << 5) |	// bit 5	Ready
-		(drive[DriveSelect]->track00(time) ? 0x10 : 0) |	// bit 4	Track 0
+		(ST3_TK0 << 4) |	// bit 4	Track 0
 		(ST3_2S  << 3) |	// bit 3	Two Side
 		(ST3_HD  << 2) |	// bit 2	Head Address
 		(ST3_DS);		// bit 1,0	Drive Select
@@ -271,10 +256,10 @@ void TC8566AF::writeReg(int reg, byte data, const EmuTime &time)
 {
 	switch (reg) {
 	case 2: // Control register 0
-		drive[3]->setMotor((data & 0x80), time);
-		drive[2]->setMotor((data & 0x80), time);
-		drive[1]->setMotor((data & 0x80), time);
-		drive[0]->setMotor((data & 0x80), time);
+		drive[3]->setMotor((data & 0x80) != 0, time);
+		drive[2]->setMotor((data & 0x40) != 0, time);
+		drive[1]->setMotor((data & 0x20) != 0, time);
+		drive[0]->setMotor((data & 0x10) != 0, time);
 		EnableIntDma = (data & 0x08) != 0;
 		NotReset     = (data & 0x04) != 0;
 		DriveSelect  = (data & 3);	// drive select: 0 - 3
@@ -322,6 +307,14 @@ void TC8566AF::writeReg(int reg, byte data, const EmuTime &time)
 				case 1:
 					ST0_DS = data & 3; // Copy Drive Select
 					ST3_DS = data & 3; // Copy Drive Select
+					try {
+						ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
+						ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
+						ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
+						ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
+					} catch (DriveEmptyException &e) {
+						ST0_IC = 1; // bit 7,6 Interrupt Code
+					}
 					// HS
 					break;
 				case 2:
@@ -381,6 +374,14 @@ void TC8566AF::writeReg(int reg, byte data, const EmuTime &time)
 				case 1:
 					ST0_DS = data & 3; // Copy Drive Select
 					ST3_DS = data & 3; // Copy Drive Select
+					try {
+						ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
+						ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
+						ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
+						ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
+					} catch (DriveEmptyException &e) {
+						ST0_IC = 1; // bit 7,6 Interrupt Code
+					}
 					// HS
 					break;
 				case 2:
@@ -418,6 +419,14 @@ void TC8566AF::writeReg(int reg, byte data, const EmuTime &time)
 				case 1:
 					ST0_DS = data & 3; // Copy Drive Select
 					ST3_DS = data & 3; // Copy Drive Select
+					try {
+						ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
+						ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
+						ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
+						ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
+					} catch (DriveEmptyException &e) {
+						ST0_IC = 1; // bit 7,6 Interrupt Code
+					}
 					break;
 				case 2: {
 					int maxSteps = 255;
@@ -446,6 +455,14 @@ void TC8566AF::writeReg(int reg, byte data, const EmuTime &time)
 				case 1: {
 					ST0_DS = data & 3; // Copy Drive Select
 					ST3_DS = data & 3; // Copy Drive Select
+					try {
+						ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
+						ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
+						ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
+						ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
+					} catch (DriveEmptyException &e) {
+						ST0_IC = 1; // bit 7,6 Interrupt Code
+					}
 					int maxSteps = 255;
 					while (!drive[DriveSelect]->track00(time) && maxSteps--) {
 						drive[DriveSelect]->step(false, time);
@@ -484,6 +501,14 @@ void TC8566AF::writeReg(int reg, byte data, const EmuTime &time)
 				case 1:
 					ST0_DS = data & 3; // Copy Drive Select
 					ST3_DS = data & 3; // Copy Drive Select
+					try {
+						ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
+						ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
+						ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
+						ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
+					} catch (DriveEmptyException &e) {
+						ST0_IC = 1; // bit 7,6 Interrupt Code
+					}
 					Phase = 2;
 					PhaseStep = 0;
 					dataInputOutput = 1;
@@ -526,6 +551,11 @@ void TC8566AF::writeReg(int reg, byte data, const EmuTime &time)
 		}
 		break;
 	}
+}
+
+bool TC8566AF::diskChanged(int driveno)
+{
+	return drive[driveno]->diskChanged();
 }
 
 } // namespace openmsx

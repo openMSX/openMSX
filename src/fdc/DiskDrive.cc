@@ -30,17 +30,17 @@ DummyDrive::~DummyDrive()
 
 bool DummyDrive::ready()
 {
-	return true;	// TODO check
+	throw DriveEmptyException("No drive connected");
 }
 
 bool DummyDrive::writeProtected()
 {
-	return false;	// TODO check
+	return true;
 }
 
 bool DummyDrive::doubleSided()
 {
-	return false;	// TODO check
+	return false;
 }
 
 void DummyDrive::setSide(bool side)
@@ -55,7 +55,7 @@ void DummyDrive::step(bool direction, const EmuTime &time)
 
 bool DummyDrive::track00(const EmuTime &time)
 {
-	return false;	// TODO check
+	return false;
 }
 
 void DummyDrive::setMotor(bool status, const EmuTime &time)
@@ -65,7 +65,7 @@ void DummyDrive::setMotor(bool status, const EmuTime &time)
 
 bool DummyDrive::indexPulse(const EmuTime &time)
 {
-	return false;	// TODO check
+	return false;
 }
 
 int DummyDrive::indexPulseCount(const EmuTime &begin,
@@ -81,7 +81,7 @@ void DummyDrive::setHeadLoaded(bool status, const EmuTime &time)
 
 bool DummyDrive::headLoaded(const EmuTime &time)
 {
-	return false;	// TODO check
+	return false;
 }
 
 void DummyDrive::read(byte sector, byte* buf,
@@ -118,6 +118,11 @@ void DummyDrive::writeTrackData(byte data)
 	// ignore ???
 }
 
+bool DummyDrive::diskChanged()
+{
+	return false;
+}
+
 
 /// class RealDrive ///
 
@@ -132,7 +137,8 @@ RealDrive::RealDrive(const string &driveName, const EmuTime &time)
 	name = driveName;
 	diskName = "";
 	disk = NULL;
-	
+	diskChangedFlag = false;
+
 	MSXConfig& conf = MSXConfig::instance();
 	if (conf.hasConfigWithId(driveName)) {
 		Config* config = conf.getConfigById(driveName);
@@ -298,6 +304,7 @@ string RealDrive::execute(const vector<string> &tokens)
 		try {
 			UserFileContext context;
 			insertDisk(context, tokens[1]);
+			diskChangedFlag = true;
 		} catch (FileException &e) {
 			throw CommandException(e.getMessage());
 		}
@@ -315,6 +322,13 @@ void RealDrive::tabCompletion(vector<string> &tokens) const throw()
 {
 	if (tokens.size() == 2)
 		CommandController::completeFileName(tokens);
+}
+
+bool RealDrive::diskChanged()
+{
+	bool ret = diskChangedFlag;
+	diskChangedFlag = false;
+	return ret;
 }
 
 
