@@ -100,11 +100,10 @@ MapperType RomTypes::guessMapperType(byte* data, int size)
 			if ((initAddr == 0) && ((textAddr & 0xC000) == 0x8000)) {
 				return PAGE2;
 			}
-		} else {
-			// not correct for Konami-DAC, but does this really need
-			// to be correct for _every_ rom?
-			return PLAIN;
 		}
+		// not correct for Konami-DAC, but does this really need
+		// to be correct for _every_ rom?
+		return PLAIN;
 	} else {
 		//  GameCartridges do their bankswitching by using the Z80
 		//  instruction ld(nn),a in the middle of program code. The
