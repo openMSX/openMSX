@@ -1,5 +1,8 @@
 $Id$
 
+2001-12-12 David Heremans <david.heremans@gnu-linux.net>
+	* Added the SCC+ cartridge
+
 2001-12-12 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Cleanup MSXMusic / MSXFmPac:
 	   "CALL FMPAC" now works!
