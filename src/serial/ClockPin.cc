@@ -42,16 +42,21 @@ void ClockPin::setState(bool newStatus, const EmuTime& time)
 void ClockPin::setPeriodicState(const EmuDuration& total,
 	const EmuDuration& hi, const EmuTime& time)
 {
-	periodic = true;
 	referenceTime = time;
 	totalDur = total;
 	hiDur = hi;
 	
 	if (listener) {
+		if (periodic) {
+			unschedule();
+		}
+		periodic = true;
 		if (signalEdge) {
 			executeUntil(time, 0);
 		}
 		listener->signal(*this, time);
+	} else {
+		periodic = true;
 	}
 }
 
@@ -127,14 +132,15 @@ void ClockPin::unschedule()
 
 void ClockPin::schedule(const EmuTime& time)
 {
+	assert(signalEdge && periodic && listener);
 	scheduler.setSyncPoint(time, this);
 }
 
 void ClockPin::executeUntil(const EmuTime& time, int /*userdata*/)
 {
-	assert(signalEdge && periodic);
+	assert(signalEdge && periodic && listener);
 	listener->signalPosEdge(*this, time);
-	if (totalDur > EmuDuration::zero) {
+	if (signalEdge && (totalDur > EmuDuration::zero)) {
 		schedule(time + totalDur);
 	}
 }
