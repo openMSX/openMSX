@@ -116,7 +116,8 @@ int Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 	const string& name = device.getName();
 	SoundDeviceInfo info;
 	XMLElement& config = settingsConfig.getChild("sound");
-	XMLElement& volumeElem = config.getCreateChild(name + "_volume", "75");
+	XMLElement& volumeElem = config.getCreateChildWithAttribute(
+		"volume", "id", name, "75");
 	info.volumeSetting = new IntegerSetting(
 		volumeElem, "the volume of this sound chip", 0, 100);
 
@@ -135,7 +136,8 @@ int Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 		modeMap["right"] = MONO_RIGHT;
 	}
 	modeMap["off"] = OFF;
-	XMLElement& modeElem = config.getCreateChild(name + "_mode", defaultMode);
+	XMLElement& modeElem = config.getCreateChildWithAttribute(
+		"mode", "id", name, defaultMode);
 	info.modeSetting = new EnumSetting<ChannelMode>(
 		modeElem, "the channel mode of this sound chip",
 		modeMap[defaultMode], modeMap);

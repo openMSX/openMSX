@@ -62,6 +62,9 @@ public:
 
 	XMLElement& getCreateChild(const string& name,
 	                           const string& defaultValue = "");
+	XMLElement& getCreateChildWithAttribute(
+		const string& name, const string& attName,
+		const string& attValue, const string& defaultValue = "");
 	
 	const string& getChildData(const string& name) const;
 	string getChildData(const string& name,
@@ -72,7 +75,8 @@ public:
 	                      int defaultValue = 0) const;
 	
 	typedef map<string, string> Attributes;
-	const Attributes& getAttributes() const { return attributes; }
+	bool hasAttribute(const string& name) const;
+	const Attributes& getAttributes() const;
 	const string& getAttribute(const string& attName) const;
 	const string getAttribute(const string& attName,
 	                          const string defaultValue) const;
@@ -90,8 +94,6 @@ public:
 	
 	static string makeUnique(const string& str);
 	static string XMLEscape(const string& str);
-	static string encodeTagName(const string& str);
-	static string decodeTagName(const string& str);
 
 protected:
 	XMLElement();

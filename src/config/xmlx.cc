@@ -48,7 +48,7 @@ XMLElement::XMLElement(const XMLElement& element)
 
 void XMLElement::init(xmlNodePtr node)
 {
-	name = decodeTagName((const char*)node->name);
+	name = (const char*)node->name;
 	for (xmlNodePtr x = node->children; x != NULL ; x = x->next) {
 		switch (x->type) {
 		case XML_TEXT_NODE:
@@ -65,7 +65,7 @@ void XMLElement::init(xmlNodePtr node)
 	for (xmlAttrPtr x = node->properties; x != NULL ; x = x->next) {
 		switch (x->type) {
 		case XML_ATTRIBUTE_NODE: {
-			string name  = decodeTagName((const char*)x->name);
+			string name  = (const char*)x->name;
 			string value = (const char*)x->children->content;
 			if (name == "id") {
 				value = makeUnique(value);
@@ -202,6 +202,24 @@ XMLElement& XMLElement::getCreateChild(const string& name,
 	return *result;
 }
 
+XMLElement& XMLElement::getCreateChildWithAttribute(
+	const string& name, const string& attName,
+	const string& attValue, const string& defaultValue)
+{
+	Children children;
+	getChildren(name, children);
+	for (Children::iterator it = children.begin();
+	     it != children.end(); ++it) {
+		if ((*it)->getAttribute(attName) == attValue) {
+			return **it;
+		}
+	}
+	XMLElement* result = new XMLElement(name, defaultValue);
+	result->addAttribute(attName, attValue);
+	addChild(auto_ptr<XMLElement>(result));
+	return *result;
+}
+
 const string& XMLElement::getChildData(const string& name) const
 {
 	const XMLElement& child = getChild(name);
@@ -225,6 +243,16 @@ int XMLElement::getChildDataAsInt(const string& name, int defaultValue) const
 {
 	const XMLElement* child = findChild(name);
 	return child ? StringOp::stringToInt(child->getData()) : defaultValue;
+}
+
+bool XMLElement::hasAttribute(const string& name) const
+{
+	return attributes.find(name) != attributes.end();
+}
+
+const XMLElement::Attributes& XMLElement::getAttributes() const
+{
+	return attributes;
 }
 
 const string& XMLElement::getAttribute(const string& attName) const
@@ -313,10 +341,10 @@ string XMLElement::dump() const
 void XMLElement::dump(string& result, unsigned indentNum) const
 {
 	string indent(indentNum, ' ');
-	result += indent + '<' + encodeTagName(getName());
+	result += indent + '<' + getName();
 	for (Attributes::const_iterator it = attributes.begin();
 	     it != attributes.end(); ++it) {
-		result += ' ' + encodeTagName(it->first) +
+		result += ' ' + it->first +
 		          "=\"" + XMLEscape(it->second) + '"';
 	}
 	if (children.empty()) {
@@ -324,7 +352,7 @@ void XMLElement::dump(string& result, unsigned indentNum) const
 			result += "/>\n";
 		} else {
 			result += '>' + XMLEscape(data) + "</" +
-			          encodeTagName(getName()) + ">\n";
+			          getName() + ">\n";
 		}
 	} else {
 		result += ">\n";
@@ -332,7 +360,7 @@ void XMLElement::dump(string& result, unsigned indentNum) const
 		     it != children.end(); ++it) {
 			(*it)->dump(result, indentNum + 2);
 		}
-		result += indent + "</" + encodeTagName(getName()) + ">\n";
+		result += indent + "</" + getName() + ">\n";
 	}
 }
 
@@ -343,63 +371,6 @@ string XMLElement::XMLEscape(const string& str)
 	// buffer is allocated in C code, soo we free it the C-way:
 	if (buffer != NULL) {
 		free(buffer);
-	}
-	return result;
-}
-
-static char numToHex(unsigned a)
-{
-	if (a < 10) {
-		return '0' + a;
-	} else if (a < 16) {
-		return 'A' + a - 10;
-	} else {
-		assert(false);
-	}
-}
-
-static int hexToNum(char a)
-{
-	if (('0' <= a) && (a <= '9')) {
-		return a - '0';
-	} else if (('A' <= a) && (a <= 'F')) {
-		return a - 'A' + 10;
-	} else {
-		assert(false);
-	}
-}
-
-string XMLElement::encodeTagName(const string& str)
-{
-	static const string allowedChars = 
-		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		"0123456789-_:"; // no '.'
-	string result;
-	for (string::const_iterator it = str.begin(); it != str.end(); ++it) {
-		if (allowedChars.find(*it) != string::npos) {
-			result += *it;
-		} else {
-			result += '.';
-			result += numToHex(*it / 0x10);
-			result += numToHex(*it & 0x0F);
-		}
-	}
-	return result;
-}
-
-string XMLElement::decodeTagName(const string& str)
-{
-	string result;
-	for (string::const_iterator it = str.begin(); it != str.end(); ++it) {
-		if (*it != '.') {
-			result += *it;
-		} else {
-			++it; assert(it != str.end());
-			char c1 = *it;
-			++it; assert(it != str.end());
-			char c2 = *it;
-			result += hexToNum(c1) * 0x10 + hexToNum(c2);
-		}
 	}
 	return result;
 }

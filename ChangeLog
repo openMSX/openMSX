@@ -3,6 +3,13 @@ $Id$
 2004-09-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Don't assert when there are two Moonsounds (not really usefull, but
 	  in a real MSX it's also possible to have multiple Moonsounds)
+	* Changed settings format for volume/mute settings:
+	    <volume id="Music Module>75</volume>
+	  iso
+	    <Music.20Module_volume>75</Music.20Module_volume>
+	  The last one needed some ugly hacks (.20) to represent invalid tag
+	  chrs. It was also not possible to write a DTD for it because the tag
+	  names depend on user choosable id's.
 
 2004-09-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Bindings are saved in settings.xml

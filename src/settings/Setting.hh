@@ -12,6 +12,16 @@ using std::string;
 
 namespace openmsx {
 
+static string getNameHelper(const XMLElement& elem)
+{
+	string result = elem.getName();
+	if (elem.hasAttribute("id")) {
+		result = elem.getAttribute("id") + '_' + result;
+	}
+	return result;
+}
+
+	
 /** Abstract base class for Settings.
   */
 template <typename ValueType>
@@ -59,7 +69,7 @@ protected:
 		, value(initialValue), defaultValue(initialValue) { }
 	Setting(XMLElement& node, const string& description,
 		const ValueType& initialValue)
-		: SettingLeafNode(node.getName(), description)
+		: SettingLeafNode(getNameHelper(node), description)
 		, xmlNode(&node), value(initialValue)
 		, defaultValue(initialValue) {}
 
