@@ -12,6 +12,8 @@
 #define _CPU_ R800
 #undef  ResumeFunc
 #define ResumeFunc R800_ResumeFunc
+#undef  CLOCK_FREQ
+#define CLOCK_FREQ 7159090
 
 class CPUInterface;
 class R800;
@@ -33,7 +35,7 @@ class R800 : public CPU {
 		static const int MEM_DELAY1 = 0;
 		static const int MEM_DELAY2 = 1;
 
-		EmuTimeFreq<7159090> currentTime;
+		EmuTimeFreq<CLOCK_FREQ> currentTime;
 
 		// opcode function pointers
 		static const R800_ResumeFunc opcode_dd_cb[256];

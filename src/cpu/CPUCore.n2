@@ -2723,5 +2723,5 @@ void _CPU_::patch() {
 
 #ifdef CPU_DEBUG
 word _CPU_::start_pc;
-EmuTimeFreq<3579545> _CPU_::before;
+EmuTimeFreq<CLOCK_FREQ> _CPU_::before;
 #endif

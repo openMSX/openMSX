@@ -19,6 +19,8 @@
 #define _CPU_ Z80
 #undef  ResumeFunc
 #define ResumeFunc Z80_ResumeFunc
+#undef  CLOCK_FREQ
+#define CLOCK_FREQ 3579545
 
 class CPUInterface;
 class Z80;
@@ -41,7 +43,7 @@ class Z80 : public CPU {
 		static const int MEM_DELAY2 = 2;
 		static const int WAIT_CYCLES = 1;
 		
-		EmuTimeFreq<3579545> currentTime;
+		EmuTimeFreq<CLOCK_FREQ> currentTime;
 
 		// opcode function pointers
 		static const Z80_ResumeFunc opcode_dd_cb[256];

@@ -2,7 +2,7 @@
 
 #ifdef CPU_DEBUG
 static word start_pc;
-static EmuTimeFreq<3579545> before;
+static EmuTimeFreq<CLOCK_FREQ> before;
 #endif
 
 virtual void executeCore();
