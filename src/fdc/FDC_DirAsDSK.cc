@@ -181,10 +181,11 @@ FDC_DirAsDSK::FDC_DirAsDSK(FileContext &context, const string &fileName)
 	
 	// Here we create the fake diskimages based upon the files that can be
 	// found in the 'fileName' directory
-	PRT_INFO("Creating FDC_DirAsDSK object");
+	PRT_DEBUG("Trying FDC_DirAsDSK image");
 	DIR* dir = opendir(fileName.c_str());
 
 	if (dir == NULL ) {
+		PRT_DEBUG("Not a FDC_DirAsDSK image");
 		throw MSXException("Not a directory");
 	}
 
