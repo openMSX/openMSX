@@ -1,6 +1,6 @@
 // $Id$
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // 
 // On Mon, 24 Feb 2003, Jon De Schrijder wrote:
 // 
@@ -31,7 +31,43 @@
 //   SampleValue=+1 and VolX=15 of different channels. The resulting AmpOut=640,
 //   indicating that the 4 lower bits were dropped *before* the addition.
 // 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//
+// On Mon, 14 Apr 2003, Manuel Pazos wrote
+// 
+// I have some info about SCC/SCC+ that I hope you find useful. It is about
+// "Mode Setting Register", also called "Deformation Register" Here it goes:
+//
+//    bit0: 4 bits frequency (%XXXX00000000). Equivalent to
+//          (normal frequency >> 8) bits0-7 are ignored
+//    bit1: 8 bits frequency (%0000XXXXXXXX) bits8-11 are ignored
+//    bit2:
+//    bit3:
+//    bit4:
+//    bit5: wave data is played from begining when frequency is changed
+//    bit6: rotate all waves data. You can't write to them. Rotation speed
+//          =3.58Mhz / (channel i frequency + 1)
+//    bit7: rotate channel 4 wave data. You can't write to that channel
+//          data.ONLY works in MegaROM SCC (not in SCC+)
+//
+// If bit7 and bit6 are set, only channel 1-3 wave data rotates . You can't
+// write to ANY wave data. And there is a weird behaviour in this setting. It
+// seems SCC sound is corrupted in anyway with MSX databus or so. Try to
+// activate them (with proper waves, freqs, and vol.) and execute DIR command
+// on DOS. You will hear "noise" This seems to be fixed in SCC+
+//
+// Reading Mode Setting Register, is equivalent to write #FF to it.
+//
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// 
+// Additions:
+//   - Setting both bit0 and bit1 is equivalent to setting only bit1
+//   - A rotation goes like this:
+//       wavedata[0:31] = wavedata[1:31].wavedata[0]
+//   - Channel 4-5 rotation speed is set by channel 5 freq (channel 4 freq
+//     is ignored for rotation)
+//
+//-----------------------------------------------------------------------------
 
 #include "SCC.hh"
 #include "Mixer.hh"
@@ -53,183 +89,233 @@ SCC::~SCC()
 	delete[] buffer;
 }
 
-byte SCC::readMemInterface(byte address, const EmuTime &time)
+void SCC::reset(const EmuTime &time)
 {
-	return memInterface[address];
+	setChipMode(SCC_Real);
+
+	for (int i = 0; i < 5; i++) {
+		for (int j = 0; j < 32; j++) {
+			wave[i][j] = 0;
+			volAdjustedWave[i][j] = 0;
+		}
+		count[i] = 0;
+		freq[i] = 0;
+		volume[i] = 0;
+		rotate[i] = false;
+		readOnly[i] = false;
+		offset[i] = 0;
+	}
+	deformValue = 0;
+	ch_enable = 0xFF;
+	scctime = 0;
+
+	checkMute();
+}
+
+void SCC::setSampleRate(int sampleRate)
+{
+	realstep = (unsigned)(((unsigned)(1 << 31)) / sampleRate);
+}
+
+void SCC::setInternalVolume(short maxVolume)
+{
+	masterVolume = maxVolume;
 }
 
 void SCC::setChipMode(ChipMode chip)
 {
-	if (currentChipMode == chip)
-		return;
 	currentChipMode = chip;
-	// lower 128 bytes are always the same
-	switch (chip) {
-		case SCC_Real:
-			// Simply mask upper 128 bytes
-			for (int i = 0x80; i <= 0xFF; i++) {
-				memInterface[i] = 0xFF;
-			}
-			break;
-		case SCC_Compatible:
-			// 32 bytes Frequency Volume data
-			getFreqVol(0x80);
-			// 32 bytes waveform five
-			for (int i = 0; i <= 0x1F; i++) {
-				memInterface[0xA0 + i] = wave[4][i];
-			}
-			// 32 bytes deform register
-			getDeform(0xC0);
-			// no function area
-			for (int i = 0xE0; i <= 0xFF; i++) {
-				memInterface[i] = 0xFF;
-			}
-			break;
-		case SCC_plusmode:
-			// 32 bytes waveform five
-			for (int i = 0; i <= 0x1F; i++) {
-				memInterface[0x80 + i] = wave[4][i];
-			}
-			// 32 bytes Frequency Volume data
-			getFreqVol(0xA0);
-			// 32 bytes deform register
-			getDeform(0xC0);
-			// no function area
-			for (int i = 0xE0; i <= 0xFF; i++) {
-				memInterface[i] = 0xFF;
-			}
-	}
 }
 
-void SCC::getDeform(byte offset)
+byte SCC::readMemInterface(byte address, const EmuTime &time)
 {
-	// 32 bytes deform register
-	for (int i = 0; i <= 0x1F; i++) {
-		memInterface[i + offset] = deformationRegister;
+	byte result;
+	switch (currentChipMode) {
+	case SCC_Real:
+		if (address < 0x80) {
+			// read wave form 1..4
+			result = readWave(address >> 5, address, time);
+		} else if (address < 0xA0) {
+			// freq volume block
+			result = getFreqVol(address);
+		} else if (address < 0xE0) {
+			// no function
+			result = 0xFF;
+		} else {
+			// deformation register
+			setDeformReg(0xFF, time);
+			result = 0xFF;
+		}
+		break;
+	case SCC_Compatible:
+		if (address < 0x80) {
+			// read wave form 1..4
+			result = readWave(address >> 5, address, time);
+		} else if (address < 0xA0) {
+			// freq volume block
+			result = getFreqVol(address);
+		} else if (address < 0xC0) {
+			// read wave form 5
+			result = readWave(4, address, time);
+		} else if (address < 0xE0) {
+			// deformation register
+			setDeformReg(0xFF, time);
+			result = 0xFF;
+		} else {
+			// no function
+			result = 0xFF;
+		}
+		break;
+	case SCC_plusmode:
+		if (address < 0xA0) {
+			// read wave form 1..5
+			result = readWave(address >> 5, address, time);
+		} else if (address < 0xC0) {
+			// freq volume block
+			result = getFreqVol(address);
+		} else if (address < 0xE0) {
+			// deformation register
+			setDeformReg(0xFF, time);
+			result = 0xFF;
+		} else {
+			// no function
+			result = 0xFF;
+		}
+		break;
+	default:
+		assert(false);
+		result = 0xFF;
 	}
+	//PRT_DEBUG("SCC: read " << (int)address << " " << (int)result);
+	return result;
 }
 
-void SCC::getFreqVol(byte offset)
+byte SCC::readWave(byte channel, byte address, const EmuTime &time)
 {
-	// 32 bytes Frequency Volume data
-	// Take care of the mirroring
-	for (int i = 0; i < 10; i++) {
-		memInterface[offset + i]      =
-		memInterface[offset + i + 16] =
-			(i & 1) ? freq[i / 2] >> 8 : freq[i / 2] & 0xFF;
+	if (!rotate[channel]) {
+		return wave[channel][address & 0x1F];
+	} else {
+		int ticks = deformTime.getTicksTill(time);
+		int f = ((channel == 3) && (currentChipMode != SCC_plusmode)) ?
+			freq[4] : freq[channel];
+		int shift = ticks / (f + 1);
+		PRT_DEBUG("SCC: read rotated "<<(int)channel<<" "<<(shift&0x1f)<<" "<<f);
+		return wave[channel][(address + shift) & 0x1F];
 	}
-	for (int i = 0; i < 5; i++) {
-		memInterface[offset + i + 10]      =
-		memInterface[offset + i + 10 + 16] = volume[i];
-	}
-	memInterface[offset + 15] =
-	memInterface[offset + 31] = ch_enable;
 }
 
+
+byte SCC::getFreqVol(byte address)
+{
+	address &= 0x0F;
+	if (address < 0x0A) {
+		// get frequency
+		byte channel = address / 2;
+		if (address & 1) {
+			return freq[channel] >> 8;
+		} else {
+			return freq[channel] & 0xFF;
+		}
+	} else if (address < 0x0F) {
+		// get volume
+		return volume[address - 0xA];
+	} else {
+		// get enable-bits
+		return ch_enable;
+	}
+}
 
 void SCC::writeMemInterface(byte address, byte value, const EmuTime &time)
 {
 	Mixer::instance()->updateStream(time);
 
-	byte waveborder = (currentChipMode == SCC_plusmode) ? 0xA0 : 0x80;
-	if (address < waveborder) {
-		// waveform info
-		// note: extra 32 bytes in SCC+ mode
-		int ch = address >> 5;
-		//if (!rotate[ch]) {
-			// TODO: Need to figure this noise thing out
-			//   Don't know why but japanese doesn't change wave
-			//   when noise is enabled ??
-			wave[ch][address & 0x1F] = value;
-			int tmp = ((signed_byte)value * volume[ch]) / 16;
-			volAdjustedWave[ch][address & 0x1F] =
-				(tmp * masterVolume) / 256;
-			if ((currentChipMode != SCC_plusmode) && (ch == 3)) {
-				// copy waveform 4 -> waveform 5
-				wave[4][address & 0x1F] = wave[ch][address & 0x1F];
-				volAdjustedWave[4][address & 0x1F] =
-					volAdjustedWave[ch][address & 0x1F];
-			}
-		//}
-		
-		memInterface[address] = value;
-		if ((currentChipMode == SCC_Compatible) && (ch == 3)) {
-			memInterface[address + 0x20] = value;
-		}
-		return;
-	}
 	switch (currentChipMode) {
-		case SCC_Real:
-			if (address < 0xA0) {
-				setFreqVol(value, address - 0x80);
-			} else if (address >= 0xE0) {
-				setDeformReg(value);
-			}
-			break;
-		case SCC_Compatible:
-			if (address < 0xA0) {
-				setFreqVol(value, address - 0x80);
-				memInterface[address | 0x10] = value;
-				memInterface[address & 0xEF] = value;
-			} else if ((address >= 0xC0) && (address < 0xE0)) {
-				setDeformReg(value);
-				for (int i = 0xC0; i <= 0xE0; i++) {
-					memInterface[i] = value;
-				}
-			}
-			break;
-		case SCC_plusmode:
-			if (address < 0xC0) {
-				setFreqVol(value, address - 0xA0);
-				memInterface[address | 0x10] = value;
-				memInterface[address & 0xEF] = value;
-			} else if ((address >= 0xC0) && (address < 0xE0)) {
-				setDeformReg(value);
-				for (int i = 0xC0; i <= 0xE0; i++) {
-					memInterface[i] = value;
-				}
-			}
+	case SCC_Real:
+		if (address < 0x80) {
+			// write wave form 1..4
+			writeWave(address >> 5, address, value);
+		} else if (address < 0xA0) {
+			// freq volume block
+			setFreqVol(address, value);
+		} else if (address < 0xE0) {
+			// no function
+		} else {
+			// deformation register
+			setDeformReg(value, time);
+		}
+		break;
+	case SCC_Compatible:
+		if (address < 0x80) {
+			// write wave form 1..4
+			writeWave(address >> 5, address, value);
+		} else if (address < 0xA0) {
+			// freq volume block
+			setFreqVol(address, value);
+		} else if (address < 0xC0) {
+			// ignore write wave form 5
+		} else if (address < 0xE0) {
+			// deformation register
+			setDeformReg(value, time);
+		} else {
+			// no function
+		}
+		break;
+	case SCC_plusmode:
+		if (address < 0xA0) {
+			// write wave form 1..5
+			writeWave(address >> 5, address, value);
+		} else if (address < 0xC0) {
+			// freq volume block
+			setFreqVol(address, value);
+		} else if (address < 0xE0) {
+			// deformation register
+			setDeformReg(value, time);
+		} else {
+			// no function
+		}
+		break;
+	default:
+		assert(false);
 	}
 }
 
-void SCC::setDeformReg(byte value)
+void SCC::writeWave(byte channel, byte address, byte value)
 {
-	deformationRegister = value;
-	cycle_4bit = value & 1;
-	cycle_8bit = value & 2;
-	refresh    = value & 0x20;
-	
-	/* Code taken from Mitsutaka Okazaki
-	 * Didn't take time to integrate in my method so far
-	 * According to sean these bits should produce noise on the channels
-	 */
-	//for (int ch = 0; ch < 5; ch++) {
-	//	rotate[ch] = (value & 0x40) ? 0x1F: 0;
-	//}
-	//if (value & 0x80) {
-	//	rotate[3] = rotate[4] = 0x1F;
-	//}
+	if (!readOnly[channel]) {
+		byte pos = address & 0x1F;
+		wave[channel][pos] = value;
+		int tmp = ((signed_byte)value * volume[channel]) / 16;
+		volAdjustedWave[channel][pos] = (tmp * masterVolume) / 256;
+		if ((currentChipMode != SCC_plusmode) && (channel == 3)) {
+			// copy waveform 4 -> waveform 5
+			wave[4][pos] = wave[3][pos];
+			volAdjustedWave[4][pos] = volAdjustedWave[3][pos];
+		}
+	}
 }
 
-void SCC::setFreqVol(byte value, byte address)
+void SCC::setFreqVol(byte address, byte value)
 {
 	address &= 0x0F; // regio is twice visible
 	if (address < 0x0A) {
 		// change frequency
 		byte channel = address / 2;
 		if (address & 1) {
-			freq[channel] = ((value & 0xF) << 8) | (freq[channel] & 0xFF);
+			freq[channel] = ((value & 0xF) << 8) |
+			                (freq[channel] & 0xFF);
 		} else {
-			freq[channel] = (freq[channel] & 0xF00) | (value & 0xFF);
+			freq[channel] = (freq[channel] & 0xF00) |
+			                (value & 0xFF);
 		}
-		if (refresh) {
+		if (deformValue & 0x20) {
 			count[channel] = 0;
 		}
 		unsigned frq = freq[channel];
-		if (cycle_8bit) {
+		if (deformValue & 2) {
+			// 8 bit frequency
 			frq &= 0xFF;
-		}
-		if (cycle_4bit) {
+		} else if (deformValue & 1) {
+			// 4 bit frequency
 			frq >>= 8;
 		}
 		incr[channel] = (frq <= 8) ? 0 : (2 << GETA_BITS) / (frq + 1);
@@ -249,40 +335,57 @@ void SCC::setFreqVol(byte value, byte address)
 	}
 }
 
-
-void SCC::reset(const EmuTime &time)
+void SCC::setDeformReg(byte value, const EmuTime &time)
 {
-	setChipMode(SCC_Real);
-	deformationRegister = 0;
-
-	for (int i = 0; i < 5; i++) {
-		for (int j = 0; j < 32; j++) {
-			wave[i][j] = 0;
-			volAdjustedWave[i][j] = 0;
-		}
-		count[i] = 0;
-		freq[i] = 0;
-		volume[i] = 0;
-		//rotate[i] = 0;
+	if (value == deformValue) {
+		return;
 	}
-	ch_enable = 0xFF;
-	cycle_4bit = false;
-	cycle_8bit = false;
-	refresh = false;
-	scctime = 0;
-
-	checkMute();
+	deformValue = value;
+	deformTime = time;
+	
+	if (currentChipMode != SCC_Real) {
+		value &= ~0x80;
+	}
+	switch (value & 0xC0) {
+		case 0x00:
+			for (int i = 0; i < 5; i++) {
+				rotate[i] = false;
+				readOnly[i] = false;
+				offset[i] = 0;
+			}
+			break;
+		case 0x40:
+			for (int i = 0; i < 5; i++) {
+				rotate[i] = true;
+				readOnly[i] = true;
+			}
+			break;
+		case 0x80:
+			for (int i = 0; i < 3; i++) {
+				rotate[i] = false;
+				readOnly[i] = false;
+			}
+			for (int i = 3; i < 5; i++) {
+				rotate[i] = true;
+				readOnly[i] = true;
+			}
+			break;
+		case 0xC0:
+			for (int i = 0; i < 3; i++) {
+				rotate[i] = true;
+				readOnly[i] = true;
+			}
+			for (int i = 3; i < 5; i++) {
+				rotate[i] = false;
+				readOnly[i] = true;
+			}
+			break;
+		default:
+			assert(false);
+	}
 }
 
-void SCC::setSampleRate(int sampleRate)
-{
-	realstep = (unsigned)(((unsigned)(1 << 31)) / sampleRate);
-}
 
-void SCC::setInternalVolume(short maxVolume)
-{
-	masterVolume = maxVolume;
-}
 
 int *SCC::updateBuffer(int length)
 {
@@ -291,20 +394,47 @@ int *SCC::updateBuffer(int length)
 	}
 
 	int *buf = buffer;
-	while (length--) {
-		scctime += realstep;
-		unsigned advance = scctime / SCC_STEP;
-		scctime %= SCC_STEP;
-		int mixed = 0;
-		byte enable = ch_enable;
-		for (int channel = 0; channel < 5; channel++, enable >>= 1) {
-			if (enable & 1) {
-				mixed += volAdjustedWave[channel]
-					[(count[channel] >> (GETA_BITS)) & 0x1F];
+	if ((deformValue & 0xC0) == 0x00) {
+		// No rotation stuff, this is almost always true. So it makes
+		// sense to have a special optimized routine for this case
+		while (length--) {
+			scctime += realstep;
+			unsigned advance = scctime / SCC_STEP;
+			scctime %= SCC_STEP;
+			int mixed = 0;
+			byte enable = ch_enable;
+			for (int i = 0; i < 5; i++, enable >>= 1) {
+				count[i] += incr[i] * advance;
+				if (enable & 1) {
+					mixed += volAdjustedWave[i]
+					      [(count[i] >> GETA_BITS) & 0x1F];
+				}
 			}
-			count[channel] += incr[channel] * advance;
+			*buf++ = mixed;
 		}
-		*buf++ = mixed;
+	} else {
+		// Rotation mode
+		//  TODO not completely correct
+		while (length--) {
+			scctime += realstep;
+			unsigned advance = scctime / SCC_STEP;
+			scctime %= SCC_STEP;
+			int mixed = 0;
+			byte enable = ch_enable;
+			for (int i = 0; i < 5; i++, enable >>= 1) {
+				count[i] += incr[i] * advance;
+				int overflows = count[i] >> (GETA_BITS + 5);
+				count[i] &= ((1 << (GETA_BITS + 5)) -1);
+				if (rotate[i]) {
+					offset[i] += overflows;
+				}
+				if (enable & 1) {
+					byte pos = (count[i] >> GETA_BITS) + offset[i];
+					mixed += volAdjustedWave[i][pos & 0x1F];
+				}
+			}
+			*buf++ = mixed;
+		}
 	}
 	return buffer;
 }

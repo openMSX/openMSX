@@ -5,8 +5,7 @@
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
-
-class EmuTime;
+#include "EmuTime.hh"
 
 
 class SCC : public SoundDevice
@@ -31,10 +30,11 @@ class SCC : public SoundDevice
 
 	private:
 		inline void checkMute();
-		void setDeformReg(byte value);
-		void setFreqVol(byte value, byte address);
-		void getDeform(byte offset);
-		void getFreqVol(byte offset);
+		byte readWave(byte channel, byte address, const EmuTime &time);
+		void writeWave(byte channel, byte offset, byte value);
+		void setDeformReg(byte value, const EmuTime &time);
+		void setFreqVol(byte address, byte value);
+		byte getFreqVol(byte address);
 
 		static const int GETA_BITS = 22;
 		static const int CLOCK_FREQ = 3579545;
@@ -55,14 +55,13 @@ class SCC : public SoundDevice
 		unsigned count[5];
 		unsigned freq[5];
 		byte volume[5];
-		
-		//int rotate[5];	// TODO what exactly does this do?
-		bool cycle_4bit;
-		bool cycle_8bit;
-		bool refresh;
-		
 		byte ch_enable;
-		byte memInterface[256];
+		
+		byte deformValue;
+		EmuTimeFreq<CLOCK_FREQ> deformTime;
+		bool rotate[5];
+		bool readOnly[5];
+		byte offset[5];
 };
 
 #endif //__SCC_HH__
