@@ -172,14 +172,8 @@ COMPONENTS_HEADER:=$(CONFIG_PATH)/components.hh
 # Configuration
 # =============
 
-OPENMSX_INSTALL?=/opt/openMSX
-
-PACKAGE_NAME:=openmsx
-PACKAGE_VERSION:=0.3.4
+include $(MAKE_PATH)/version.mk
 PACKAGE_FULL:=$(PACKAGE_NAME)-$(PACKAGE_VERSION)
-
-RELEASE_FLAG:=false
-
 CHANGELOG_REVISION:=\
 	$(shell sed -ne "s/\$$Id: ChangeLog,v \([^ ]*\).*/\1/p" ChangeLog)
 
@@ -351,7 +345,7 @@ endif
 $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/tcl-search.sh
 	@OUTDIR=$(@D) OPENMSX_PLATFORM=$(OPENMSX_PLATFORM) COMPILE="$(CXX)" \
 		$(MAKE) --no-print-directory -f $<
-	@PROBE_MAKE=$(PROBE_MAKE) COMPONENTS_MAKE=$(COMPONENTS_MAKE) \
+	@PROBE_MAKE=$(PROBE_MAKE) MAKE_PATH=$(MAKE_PATH) \
 		$(MAKE) --no-print-directory -f $(MAKE_PATH)/probe-results.mk
 
 all: $(VERSION_HEADER) $(CONFIG_HEADER) $(COMPONENTS_HEADER) \
@@ -446,33 +440,33 @@ endif
 INSTALL_DOCS:=release-notes.txt release-history.txt
 
 install: all
-	@echo "Installing to $(OPENMSX_INSTALL):"
+	@echo "Installing to $(INSTALL_BASE):"
 	@echo "  Executable..."
-	@mkdir -p $(OPENMSX_INSTALL)/bin
-	@cp $(BINARY_FULL) $(OPENMSX_INSTALL)/bin/$(BINARY_FILE)
+	@mkdir -p $(INSTALL_BASE)/bin
+	@cp $(BINARY_FULL) $(INSTALL_BASE)/bin/$(BINARY_FILE)
 	@echo "  Data files..."
-	@cp -r share $(OPENMSX_INSTALL)/
+	@cp -r share $(INSTALL_BASE)/
 	@echo "  C-BIOS..."
-	@mkdir -p $(OPENMSX_INSTALL)/Contrib/cbios
-	@cp Contrib/cbios/*.BIN $(OPENMSX_INSTALL)/Contrib/cbios
+	@mkdir -p $(INSTALL_BASE)/Contrib/cbios
+	@cp Contrib/cbios/*.BIN $(INSTALL_BASE)/Contrib/cbios
 	@echo "  Documentation..."
-	@mkdir -p $(OPENMSX_INSTALL)/doc
-	@cp $(addprefix doc/,$(INSTALL_DOCS)) $(OPENMSX_INSTALL)/doc
-	@mkdir -p $(OPENMSX_INSTALL)/doc/manual
-	@cp $(addprefix doc/manual/,*.html *.css) $(OPENMSX_INSTALL)/doc/manual
+	@mkdir -p $(INSTALL_BASE)/doc
+	@cp $(addprefix doc/,$(INSTALL_DOCS)) $(INSTALL_BASE)/doc
+	@mkdir -p $(INSTALL_BASE)/doc/manual
+	@cp $(addprefix doc/manual/,*.html *.css) $(INSTALL_BASE)/doc/manual
 	@echo "  Creating symlinks..."
-	@ln -sf National_CF-1200 $(OPENMSX_INSTALL)/share/machines/msx1
-	@ln -sf Philips_NMS_8250 $(OPENMSX_INSTALL)/share/machines/msx2
-	@ln -sf Panasonic_FS-A1FX $(OPENMSX_INSTALL)/share/machines/msx2plus
-	@ln -sf Panasonic_FS-A1GT $(OPENMSX_INSTALL)/share/machines/turbor
+	@ln -sf National_CF-1200 $(INSTALL_BASE)/share/machines/msx1
+	@ln -sf Philips_NMS_8250 $(INSTALL_BASE)/share/machines/msx2
+	@ln -sf Panasonic_FS-A1FX $(INSTALL_BASE)/share/machines/msx2plus
+	@ln -sf Panasonic_FS-A1GT $(INSTALL_BASE)/share/machines/turbor
 	@if [ `id -u` -eq 0 ]; \
-		then ln -sf $(OPENMSX_INSTALL)/bin/$(BINARY_FILE) /usr/local/bin/openmsx; \
+		then ln -sf $(INSTALL_BASE)/bin/$(BINARY_FILE) /usr/local/bin/openmsx; \
 		else if test -d ~/bin; \
-			then ln -sf $(OPENMSX_INSTALL)/bin/$(BINARY_FILE) ~/bin/openmsx; \
+			then ln -sf $(INSTALL_BASE)/bin/$(BINARY_FILE) ~/bin/openmsx; \
 			fi; \
 		fi
 	@echo "  Setting permissions..."
-	@chmod -R a+rX $(OPENMSX_INSTALL)
+	@chmod -R a+rX $(INSTALL_BASE)
 	@echo "Installation complete... have fun!"
 
 
