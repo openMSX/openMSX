@@ -33,8 +33,8 @@ SDLFont::SDLFont(File* file)
 	if (!(image1 = IMG_Load(file->getLocalName().c_str()))) {
 		throw MSXException("Can't load font");
 	}
-
 	fontSurface = SDL_DisplayFormatAlpha(image1);
+	SDL_FreeSurface(image1);
 	
 	charWidth  = fontSurface->w / CHARS_PER_ROW;
 	charHeight = fontSurface->h / CHARS_PER_COL;
