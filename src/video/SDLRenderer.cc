@@ -29,11 +29,11 @@ namespace openmsx {
 
 // Force template instantiation:
 template class SDLRenderer<Uint8, Renderer::ZOOM_256>;
-template class SDLRenderer<Uint8, Renderer::ZOOM_512>;
+template class SDLRenderer<Uint8, Renderer::ZOOM_REAL>;
 template class SDLRenderer<Uint16, Renderer::ZOOM_256>;
-template class SDLRenderer<Uint16, Renderer::ZOOM_512>;
+template class SDLRenderer<Uint16, Renderer::ZOOM_REAL>;
 template class SDLRenderer<Uint32, Renderer::ZOOM_256>;
-template class SDLRenderer<Uint32, Renderer::ZOOM_512>;
+template class SDLRenderer<Uint32, Renderer::ZOOM_REAL>;
 
 /** VDP ticks between start of line and start of left border.
   */
@@ -48,19 +48,22 @@ static const int TICKS_VISIBLE_MIDDLE =
 	TICKS_LEFT_BORDER + (VDP::TICKS_PER_LINE - TICKS_LEFT_BORDER - 27) / 2;
 
 template <class Pixel, Renderer::Zoom zoom>
-inline int SDLRenderer<Pixel, zoom>::translateX(int absoluteX)
+inline int SDLRenderer<Pixel, zoom>::translateX(int absoluteX, bool narrow)
 {
-	if (absoluteX == VDP::TICKS_PER_LINE) return WIDTH;
+	int maxX = narrow ? WIDTH : WIDTH / LINE_ZOOM;
+	if (absoluteX == VDP::TICKS_PER_LINE) return maxX;
+
 	// Note: The ROUND_MASK forces the ticks to a pixel (2-tick) boundary.
 	//       If this is not done, rounding errors will occur.
 	//       This is especially tricky because division of a negative number
 	//       is rounded towards zero instead of down.
-	const int ROUND_MASK = (zoom == Renderer::ZOOM_256 ? ~3 : ~1);
+	const int ROUND_MASK =
+		zoom == Renderer::ZOOM_REAL && narrow ? ~1 : ~3;
 	int screenX =
 		((absoluteX & ROUND_MASK) - (TICKS_VISIBLE_MIDDLE & ROUND_MASK))
-		/ (zoom == Renderer::ZOOM_256 ? 4 : 2)
-		+ WIDTH / 2;
-	return screenX < 0 ? 0 : screenX;
+		/ (zoom == Renderer::ZOOM_REAL && narrow ? 2 : 4)
+		+ maxX / 2;
+	return max(screenX, 0);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -161,12 +164,13 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 			switch (lineContent[y]) {
 			case LINE_BLANK:
 			case LINE_DONTTOUCH:
+				assert(false); // both are disabled for now
 				break;
 			case LINE_256:
-				currScaler->scaleLine256(screen, y);
+				currScaler->scaleLine256(workScreen, y / 2, screen, y);
 				break;
 			case LINE_512:
-				currScaler->scaleLine512(screen, y);
+				currScaler->scaleLine512(workScreen, y / 2, screen, y);
 				break;
 			default:
 				assert(false);
@@ -400,6 +404,17 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 		debugger = new SDLConsole(*debuggerconsole, screen);
 	}
 
+	// Allocate work surface.
+	workScreen = SDL_CreateRGBSurface(
+		SDL_SWSURFACE,
+		WIDTH, 240, // TODO: Vertical size should be borders + display.
+		screen->format->BitsPerPixel,
+		screen->format->Rmask,
+		screen->format->Gmask,
+		screen->format->Bmask,
+		screen->format->Amask
+		);
+
 	// Allocate screen which will later contain the stored image.
 	storedImage = SDL_CreateRGBSurface(
 		SDL_SWSURFACE,
@@ -452,6 +467,7 @@ SDLRenderer<Pixel, zoom>::~SDLRenderer()
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
 	SDL_FreeSurface(storedImage);
+	SDL_FreeSurface(workScreen);
 
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
@@ -594,9 +610,12 @@ void SDLRenderer<Pixel, zoom>::frameStart(
 		resetPalette();
 	}
 
+	// TODO: Do this in drawBorder instead?
 	if (LINE_ZOOM == 2) {
+		LineContent lineType =
+			vdp->getDisplayMode().getLineWidth() == 256 ? LINE_256 : LINE_512;
 		for (unsigned y = 0; y < HEIGHT; y++) {
-			lineContent[y] = LINE_BLANK;
+			lineContent[y] = lineType; //LINE_BLANK;
 		}
 	}
 }
@@ -758,15 +777,15 @@ template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {
-	// TODO: Only redraw if necessary.
-	SDL_Rect rect;
-	rect.x = translateX(fromX);
-	rect.w = translateX(limitX) - rect.x;
-	rect.y = (fromY - lineRenderTop) * LINE_ZOOM;
-	rect.h = (limitY - fromY) * LINE_ZOOM;
+	bool narrow = vdp->getDisplayMode().getLineWidth() == 512;
 
+	SDL_Rect rect;
+	rect.x = translateX(fromX, narrow);
+	rect.w = translateX(limitX, narrow) - rect.x;
+	rect.y = fromY - lineRenderTop;
+	rect.h = limitY - fromY;
 	// Note: return code ignored.
-	SDL_FillRect(screen, &rect, getBorderColour());
+	SDL_FillRect(workScreen, &rect, getBorderColour());
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -775,7 +794,9 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 	int displayX, int displayY,
 	int displayWidth, int displayHeight
 ) {
-	if (zoom == Renderer::ZOOM_256) {
+	DisplayMode mode = vdp->getDisplayMode();
+	int lineWidth = mode.getLineWidth();
+	if (zoom == Renderer::ZOOM_256 || lineWidth == 256) {
 		displayX /= 2;
 		displayWidth /= 2;
 	}
@@ -793,26 +814,25 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 	}
 	displayHeight = screenLimitY - screenY;
 	if (displayHeight <= 0) return;
-	screenY *= LINE_ZOOM;
-	screenLimitY *= LINE_ZOOM;
 
+	/* TODO: Find a new place for the interlace code.
 	if (!(settings.getDeinterlace()->getValue())
 	&& vdp->isInterlaced() && vdp->getEvenOdd()
 	&& zoom != Renderer::ZOOM_256) {
 		// Display odd field half a line lower.
 		screenY++;
 	}
+	*/
 
-	int leftBackground = translateX(vdp->getLeftBackground());
+	int leftBackground =
+		translateX(vdp->getLeftBackground(), lineWidth == 512);
 	// TODO: Find out why this causes 1-pixel jitter:
 	//dest.x = translateX(fromX);
-
-	DisplayMode mode = vdp->getDisplayMode();
-	LineContent lineType = mode.getLineWidth() == 256 ? LINE_256 : LINE_512;
+	LineContent lineType = lineWidth == 256 ? LINE_256 : LINE_512;
 	int hScroll =
 		  mode.isTextMode()
 		? 0
-		: 8 * LINE_ZOOM * (vdp->getHorizontalScrollHigh() & 0x1F);
+		: 8 * (lineWidth / 256) * (vdp->getHorizontalScrollHigh() & 0x1F);
 
 	// Page border is display X coordinate where to stop drawing current page.
 	// This is either the multi page split point, or the right edge of the
@@ -830,7 +850,7 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 	}
 	// Because SDL blits do not wrap, unlike GL textures, the pageBorder is
 	// also used if multi page is disabled.
-	int pageSplit = 256 * LINE_ZOOM - hScroll;
+	int pageSplit = lineWidth - hScroll;
 	if (pageSplit < pageBorder) {
 		pageBorder = pageSplit;
 	}
@@ -858,7 +878,7 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 
 		// Copy from cache to screen.
 		SDL_Rect source, dest;
-		for (int y = screenY; y < screenLimitY; y += LINE_ZOOM) {
+		for (int y = screenY; y < screenLimitY; y++) {
 			int vramLine[2];
 			vramLine[0] = (vram->nameTable.getMask() >> 7)
 				& (pageMaskEven | displayY);
@@ -866,6 +886,7 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 				& (pageMaskOdd  | displayY);
 
 			// TODO: Can we safely use SDL_LowerBlit?
+			/* TODO: Find a new place for the deinterlace code.
 			if (deinterlaced) {
 				// TODO: Allow horizontal scroll during deinterlace.
 				source.x = displayX;
@@ -875,17 +896,17 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 				dest.x = leftBackground + displayX;
 				dest.y = y;
 				SDL_BlitSurface(
-					bitmapDisplayCache, &source, screen, &dest
+					bitmapDisplayCache, &source, workScreen, &dest
 					);
 				if (LINE_ZOOM == 2) {
 					source.y = vramLine[1];
 					dest.y = y + 1;
 					SDL_BlitSurface(
-						bitmapDisplayCache, &source, screen, &dest
+						bitmapDisplayCache, &source, workScreen, &dest
 						);
 				}
 				if (LINE_ZOOM == 2) lineContent[y] = LINE_DONTTOUCH;
-			} else {
+			} else*/ {
 				int firstPageWidth = pageBorder - displayX;
 				if (firstPageWidth > 0) {
 					source.x = displayX + hScroll;
@@ -895,21 +916,21 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 					dest.x = leftBackground + displayX;
 					dest.y = y;
 					SDL_BlitSurface(
-						bitmapDisplayCache, &source, screen, &dest
+						bitmapDisplayCache, &source, workScreen, &dest
 						);
 				} else {
 					firstPageWidth = 0;
 				}
 				if (firstPageWidth < displayWidth) {
 					source.x = displayX < pageBorder
-						? 0 : displayX + hScroll - 256 * LINE_ZOOM;
+						? 0 : displayX + hScroll - lineWidth;
 					source.y = vramLine[scrollPage2];
 					source.w = displayWidth - firstPageWidth;
 					source.h = 1;
 					dest.x = leftBackground + displayX + firstPageWidth;
 					dest.y = y;
 					SDL_BlitSurface(
-						bitmapDisplayCache, &source, screen, &dest
+						bitmapDisplayCache, &source, workScreen, &dest
 						);
 				}
 				if (LINE_ZOOM == 2) lineContent[y] = lineType;
@@ -921,7 +942,7 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 
 		// TODO: Implement horizontal scroll high.
 		SDL_Rect source, dest;
-		for (int y = screenY; y < screenLimitY; y += LINE_ZOOM) {
+		for (int y = screenY; y < screenLimitY; y++) {
 			assert(!vdp->isMSX1VDP() || displayY < 192);
 			source.x = displayX;
 			source.y = displayY;
@@ -935,7 +956,7 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 			printf("plotting character cache line %d to screen line %d\n",
 				source.y, dest.y);
 			*/
-			SDL_BlitSurface(charDisplayCache, &source, screen, &dest);
+			SDL_BlitSurface(charDisplayCache, &source, workScreen, &dest);
 			if (LINE_ZOOM == 2) lineContent[y] = lineType;
 			displayY = (displayY + 1) & 255;
 		}
@@ -962,8 +983,6 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 	}
 	displayHeight = screenLimitY - screenY;
 	if (displayHeight <= 0) return;
-	screenY *= LINE_ZOOM;
-	screenLimitY *= LINE_ZOOM;
 
 	// Render sprites.
 	// Lock surface, because we will access pixels directly.
@@ -973,49 +992,44 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 	//   just before page flip?
 	//   Will only work if *all* data required is buffered, including
 	//   for example RGB colour (on V9938 palette may change).
-	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
+	if (SDL_MUSTLOCK(workScreen) && SDL_LockSurface(workScreen) < 0) {
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
 
 	// TODO: Code duplicated from drawDisplay.
+	/*
 	if (!(settings.getDeinterlace()->getValue())
 	&& vdp->isInterlaced() && vdp->getEvenOdd()
 	&& zoom != Renderer::ZOOM_256) {
 		// Display odd field half a line lower.
 		screenY++;
 	}
+	*/
 
+	// TODO: Call different SpriteConverter methods depending on narrow/wide
+	//       pixels in this display mode?
 	int spriteMode = vdp->getDisplayMode().getSpriteMode();
 	int displayLimitX = displayX + displayWidth;
 	int limitY = fromY + displayHeight;
-	Pixel *pixelPtr0 = (Pixel *)(
-		(byte *)screen->pixels
-		+ screenY * screen->pitch
-		+ translateX(vdp->getLeftSprites()) * sizeof(Pixel)
+	Pixel *pixelPtr = (Pixel *)(
+		(byte *)workScreen->pixels
+		+ screenY * workScreen->pitch
+		+ translateX(vdp->getLeftSprites(), vdp->getDisplayMode().getLineWidth() == 512)
+			* sizeof(Pixel)
 		);
 	for (int y = fromY; y < limitY; y++) {
-		Pixel *pixelPtr1 =
-			( LINE_ZOOM == 1
-			? NULL
-			: (Pixel *)(((byte *)pixelPtr0) + screen->pitch)
-			);
-
 		if (spriteMode == 1) {
-			spriteConverter.drawMode1(
-				y, displayX, displayLimitX, pixelPtr0, pixelPtr1 );
+			spriteConverter.drawMode1(y, displayX, displayLimitX, pixelPtr);
 		} else {
-			spriteConverter.drawMode2(
-				y, displayX, displayLimitX, pixelPtr0, pixelPtr1 );
+			spriteConverter.drawMode2(y, displayX, displayLimitX, pixelPtr);
 		}
 
-		pixelPtr0 = (Pixel *)
-			(((byte *)pixelPtr0) + screen->pitch * LINE_ZOOM);
+		pixelPtr = (Pixel *)(((byte *)pixelPtr) + workScreen->pitch);
 	}
 
 	// Unlock surface.
-	if (SDL_MUSTLOCK(screen))
-		SDL_UnlockSurface(screen);
+	if (SDL_MUSTLOCK(workScreen)) SDL_UnlockSurface(workScreen);
 }
 
 } // namespace openmsx

@@ -36,7 +36,7 @@ public:
 		GRAPHIC6    = 0x14, // Graphic 6
 		GRAPHIC7    = 0x1C  // Graphic 7
 	};
-		
+
 	/** Bits of VDP register 0 that encode part of the display mode. */
 	static const byte REG0_MASK = 0x0E;
 
@@ -45,13 +45,13 @@ public:
 
 	/** Bits of VDP register 25 that encode part of the display mode. */
 	static const byte REG25_MASK = 0x18;
-	
+
 	/** Encoding of YJK flag. */
 	static const byte YJK = 0x20;
-	
+
 	/** Encoding of YAE flag. */
 	static const byte YAE = 0x40;
-	
+
 	/** Create the initial display mode.
 	  */
 	DisplayMode() {
@@ -174,8 +174,9 @@ public:
 	  * TODO: Would it make more sense to treat Text 2 as 480 pixels?
 	  */
 	inline unsigned getLineWidth() const {
-		byte baseMode = getBase();
-		return ((baseMode == TEXT2) || (baseMode == GRAPHIC5) || (baseMode == GRAPHIC6))
+		// Note: Testing "mode" instead of "base mode" ensures that YJK
+		//       modes are treated as 256 pixels wide.
+		return mode == TEXT2 || mode == GRAPHIC5 || mode == GRAPHIC6
 			? 512
 			: 256;
 	}

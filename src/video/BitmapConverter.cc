@@ -7,11 +7,10 @@ namespace openmsx {
 // Force template instantiation for these types.
 // Without this, object file contains no method implementations.
 template class BitmapConverter<byte, Renderer::ZOOM_256>;
-template class BitmapConverter<byte, Renderer::ZOOM_512>;
+template class BitmapConverter<byte, Renderer::ZOOM_REAL>;
 template class BitmapConverter<word, Renderer::ZOOM_256>;
-template class BitmapConverter<word, Renderer::ZOOM_512>;
+template class BitmapConverter<word, Renderer::ZOOM_REAL>;
 template class BitmapConverter<unsigned int, Renderer::ZOOM_256>;
-template class BitmapConverter<unsigned int, Renderer::ZOOM_512>;
 template class BitmapConverter<unsigned int, Renderer::ZOOM_REAL>;
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -31,14 +30,8 @@ void BitmapConverter<Pixel, zoom>::renderGraphic4(
 {
 	for (int n = 128; n--; ) {
 		byte colour = *vramPtr0++;
-		if (zoom == Renderer::ZOOM_512) {
-			pixelPtr[0] = pixelPtr[1] = palette16[colour >> 4];
-			pixelPtr[2] = pixelPtr[3] = palette16[colour & 15];
-			pixelPtr += 4;
-		} else {
-			*pixelPtr++ = palette16[colour >> 4];
-			*pixelPtr++ = palette16[colour & 15];
-		}
+		*pixelPtr++ = palette16[colour >> 4];
+		*pixelPtr++ = palette16[colour & 15];
 	}
 }
 
@@ -91,14 +84,8 @@ void BitmapConverter<Pixel, zoom>::renderGraphic7(
 	Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1)
 {
 	for (int n = 128; n--; ) {
-		if (zoom == Renderer::ZOOM_512) {
-			pixelPtr[0] = pixelPtr[1] = palette256[*vramPtr0++];
-			pixelPtr[2] = pixelPtr[3] = palette256[*vramPtr1++];
-			pixelPtr += 4;
-		} else {
-			*pixelPtr++ = palette256[*vramPtr0++];
-			*pixelPtr++ = palette256[*vramPtr1++];
-		}
+		*pixelPtr++ = palette256[*vramPtr0++];
+		*pixelPtr++ = palette256[*vramPtr1++];
 	}
 }
 
@@ -125,13 +112,8 @@ void BitmapConverter<Pixel, zoom>::renderYJK(
 			if (g < 0) g = 0; else if (g > 31) g = 31;
 			if (b < 0) b = 0; else if (b > 31) b = 31;
 			int col = (r << 10) + (g << 5) + b;
-			
-			if (zoom == Renderer::ZOOM_512) {
-				pixelPtr[0] = pixelPtr[1] = palette32768[col];
-				pixelPtr += 2;
-			} else {
-				*pixelPtr++ = palette32768[col];
-			}
+
+			*pixelPtr++ = palette32768[col];
 		}
 	}
 }
@@ -166,12 +148,7 @@ void BitmapConverter<Pixel, zoom>::renderYAE(
 				if (b < 0) b = 0; else if (b > 31) b = 31;
 				pix = palette32768[(r << 10) + (g << 5) + b];
 			}
-			if (zoom == Renderer::ZOOM_512) {
-				pixelPtr[0] = pixelPtr[1] = pix;
-				pixelPtr += 2;
-			} else {
-				*pixelPtr++ = pix;
-			}
+			*pixelPtr++ = pix;
 		}
 	}
 }
@@ -182,11 +159,7 @@ void BitmapConverter<Pixel, zoom>::renderBogus(
 	Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1)
 {
 	Pixel colour = palette16[0];
-	if (zoom == Renderer::ZOOM_512) {
-		for (int n = 512; n--; ) *pixelPtr++ = colour;
-	} else {
-		for (int n = 256; n--; ) *pixelPtr++ = colour;
-	}
+	for (int n = 256; n--; ) *pixelPtr++ = colour;
 }
 
 } // namespace openmsx

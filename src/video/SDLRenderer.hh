@@ -88,8 +88,10 @@ private:
 	/** Translate from absolute VDP coordinates to screen coordinates:
 	  * Note: In reality, there are only 569.5 visible pixels on a line.
 	  *       Because it looks better, the borders are extended to 640.
+	  * @param absoluteX Absolute VDP coordinate.
+	  * @param narrow Is this a narrow (512 pixels wide) display mode?
 	  */
-	inline static int translateX(int absoluteX);
+	inline static int translateX(int absoluteX, bool narrow);
 
 	/** Constructor, called by SDL(Hi/Lo)RendererFactory.
 	  */
@@ -203,7 +205,15 @@ private:
 	  */
 	SDL_Surface *screen;
 
+	/** Surface used in the render pipeline inbetween the caches and
+	  * the visible screen.
+	  * TODO: Try to optimize it away.
+	  */
+	SDL_Surface *workScreen;
+
 	/** The stored image, see putImage and putStoredImage.
+	  * TODO: When scaling, stored image is overwritten with a scaled
+	  *       version of workScreen.
 	  */
 	SDL_Surface *storedImage;
 

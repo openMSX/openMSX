@@ -3,11 +3,9 @@
 #ifndef __SCALERS_HH__
 #define __SCALERS_HH__
 
-#include <vector>
 #include <SDL/SDL.h>
 #include "Blender.hh"
 
-using std::vector;
 
 namespace openmsx {
 
@@ -27,6 +25,7 @@ template <class Pixel>
 class Scaler
 {
 public:
+
 	/** Instantiates a Scaler.
 	  * @param id Identifies the scaler algorithm.
 	  * @param blender Pixel blender that can be used by the scaler algorithm
@@ -36,25 +35,26 @@ public:
 	static Scaler* createScaler(ScalerID id, Blender<Pixel> blender);
 
 	/** Scales the given line.
-	  * Pixels at even X coordinates are read and written in a 2x2 square
-	  * with the original pixel at the top-left corner.
-	  * The scaling algorithm should preserve the colour of the original pixel.
-	  * @param surface Image to scale.
-	  *   This image is both the source and the destination for the scale
-	  *   operation.
-	  * @param y Y-coordinate of the line to scale.
+	  * @param src Source: the image to be scaled.
+	  *   It should be 256 pixels wide.
+	  * @param srcY Y-coordinate of the source line.
+	  * @param dst Destination: image to store the scaled output in.
+	  *   It should be 512 pixels wide and twice as high as the source image.
+	  * @param dstY Y-coordinate of the destination line.
 	  */
-	virtual void scaleLine256(SDL_Surface* surface, int y) = 0;
+	virtual void scaleLine256(
+		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY ) = 0;
 
 	/** Scales the given line.
-	  * Pixels on even lines are read and the odd lines are written.
-	  * The scaling algorithm should preserve the content of the even lines.
-	  * @param surface Image to scale.
-	  *   This image is both the source and the destination for the scale
-	  *   operation.
-	  * @param y Y-coordinate of the line to scale.
+	  * @param src Source: the image to be scaled.
+	  *   It should be 512 pixels wide.
+	  * @param srcY Y-coordinate of the source line.
+	  * @param dst Destination: image to store the scaled output in.
+	  *   It should be 512 pixels wide and twice as high as the source image.
+	  * @param dstY Y-coordinate of the destination line.
 	  */
-	virtual void scaleLine512(SDL_Surface* surface, int y) = 0;
+	virtual void scaleLine512(
+		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY ) = 0;
 
 protected:
 	Scaler();
@@ -68,12 +68,13 @@ class SimpleScaler: public Scaler<Pixel>
 {
 public:
 	SimpleScaler();
-	void scaleLine256(SDL_Surface* surface, int y);
-	void scaleLine512(SDL_Surface* surface, int y);
+	void scaleLine256(SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
+	void scaleLine512(SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
 private:
 	/** Copies the line; implements both scaleLine256 and scaleLine512.
 	  */
-	inline void copyLine(SDL_Surface* surface, int y);
+	inline void copyLine(
+		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY );
 };
 
 /** 2xSaI algorithm: edge-detection which produces a rounded look.
@@ -84,8 +85,8 @@ class SaI2xScaler: public Scaler<Pixel>
 {
 public:
 	SaI2xScaler(Blender<Pixel> blender);
-	void scaleLine256(SDL_Surface* surface, int y);
-	void scaleLine512(SDL_Surface* surface, int y);
+	void scaleLine256(SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
+	void scaleLine512(SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
 //private:
 protected:
 	Blender<Pixel> blender;

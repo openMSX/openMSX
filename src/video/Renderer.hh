@@ -38,10 +38,7 @@ public:
 		ZOOM_REAL,
 		/** One MSX pixel line is converted to 256 host pixels.
 		  */
-		ZOOM_256,
-		/** One MSX pixel line is converted to 512 host pixels.
-		  */
-		ZOOM_512
+		ZOOM_256
 	};
 
 	/** Creates a new Renderer.

@@ -187,11 +187,11 @@ Renderer *SDLHiRendererFactory::create(VDP *vdp)
 
 	switch (screen->format->BytesPerPixel) {
 	case 1:
-		return new SDLRenderer<Uint8, Renderer::ZOOM_512>(SDLHI, vdp, screen);
+		return new SDLRenderer<Uint8, Renderer::ZOOM_REAL>(SDLHI, vdp, screen);
 	case 2:
-		return new SDLRenderer<Uint16, Renderer::ZOOM_512>(SDLHI, vdp, screen);
+		return new SDLRenderer<Uint16, Renderer::ZOOM_REAL>(SDLHI, vdp, screen);
 	case 4:
-		return new SDLRenderer<Uint32, Renderer::ZOOM_512>(SDLHI, vdp, screen);
+		return new SDLRenderer<Uint32, Renderer::ZOOM_REAL>(SDLHI, vdp, screen);
 	default:
 		printf("FAILED to open supported screen!");
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);

@@ -5,6 +5,12 @@ $Id$
 	  scalers in advance. This reduces memory usage when the number of
 	  scalers increases or some scalers use large lookup tables.
 	* Made Scaler base class a template. Preparation for later changes.
+	* Removed upscaling from SDLRenderer/CharacterConverter/BitmapConverter.
+	  Instead, all upscaling is done by the scaler implementation.
+	  The only scaling remaining outside is the downscaling (pixel blending
+	  in SDLLo).
+	  There is still some cleanup to do, for example deinterlace should be
+	  re-implemented outside of drawDisplay.
 
 2003-12-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made memory in (sub)slots debuggable

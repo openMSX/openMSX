@@ -43,11 +43,10 @@ namespace openmsx {
 // Force template instantiation for these types.
 // Without this, object file contains no method implementations.
 template class CharacterConverter<byte, Renderer::ZOOM_256>;
-template class CharacterConverter<byte, Renderer::ZOOM_512>;
+template class CharacterConverter<byte, Renderer::ZOOM_REAL>;
 template class CharacterConverter<word, Renderer::ZOOM_256>;
-template class CharacterConverter<word, Renderer::ZOOM_512>;
+template class CharacterConverter<word, Renderer::ZOOM_REAL>;
 template class CharacterConverter<unsigned int, Renderer::ZOOM_256>;
-template class CharacterConverter<unsigned int, Renderer::ZOOM_512>;
 template class CharacterConverter<unsigned int, Renderer::ZOOM_REAL>;
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -110,16 +109,11 @@ void CharacterConverter<Pixel, zoom>::renderText1(
 			int pattern = vram->patternTable.readNP(
 				patternBaseLine | (charcode * 8) );
 			for (int i = 6; i--; ) {
-				if (zoom == Renderer::ZOOM_512) {
-					pixelPtr[0] = pixelPtr[1] = (pattern & 0x80) ? fg : bg;
-					pixelPtr += 2;
-				} else {
-					*pixelPtr++ = (pattern & 0x80) ? fg : bg;
-				}
+				*pixelPtr++ = (pattern & 0x80) ? fg : bg;
 				pattern <<= 1;
 			}
 		} else {
-			pixelPtr += zoom == Renderer::ZOOM_512 ? 12 : 6;
+			pixelPtr += 6;
 		}
 	}
 }
@@ -147,16 +141,11 @@ void CharacterConverter<Pixel, zoom>::renderText1Q(
 			int pattern = vram->patternTable.readNP(
 				patternBaseLine | (patternNr * 8) );
 			for (int i = 6; i--; ) {
-				if (zoom == Renderer::ZOOM_512) {
-					pixelPtr[0] = pixelPtr[1] = (pattern & 0x80) ? fg : bg;
-					pixelPtr += 2;
-				} else {
-					*pixelPtr++ = (pattern & 0x80) ? fg : bg;
-				}
+				*pixelPtr++ = (pattern & 0x80) ? fg : bg;
 				pattern <<= 1;
 			}
 		} else {
-			pixelPtr += zoom == Renderer::ZOOM_512 ? 12 : 6;
+			pixelPtr += 6;
 		}
 	}
 }
@@ -250,16 +239,11 @@ void CharacterConverter<Pixel, zoom>::renderGraphic1(
 				patternBaseLine | (charcode * 8) );
 			// TODO: Compare performance of this loop vs unrolling.
 			for (int i = 8; i--; ) {
-				if (zoom == Renderer::ZOOM_512) {
-					pixelPtr[0] = pixelPtr[1] = (pattern & 0x80) ? fg : bg;
-					pixelPtr += 2;
-				} else {
-					*pixelPtr++ = (pattern & 0x80) ? fg : bg;
-				}
+				*pixelPtr++ = (pattern & 0x80) ? fg : bg;
 				pattern <<= 1;
 			}
 		} else {
-			pixelPtr += zoom == Renderer::ZOOM_512 ? 16 : 8;
+			pixelPtr += 8;
 		}
 	}
 }
@@ -286,17 +270,12 @@ void CharacterConverter<Pixel, zoom>::renderGraphic2(
 			Pixel fg = palFg[colour >> 4];
 			Pixel bg = palFg[colour & 0x0F];
 			for (int i = 8; i--; ) {
-				if (zoom == Renderer::ZOOM_512) {
-					pixelPtr[0] = pixelPtr[1] = (pattern & 0x80) ? fg : bg;
-					pixelPtr += 2;
-				} else {
-					*pixelPtr++ = (pattern & 0x80) ? fg : bg;
-				}
+				*pixelPtr++ = (pattern & 0x80) ? fg : bg;
 				pattern <<= 1;
 			}
 		}
 		else {
-			pixelPtr += zoom == Renderer::ZOOM_512 ? 16 : 8;
+			pixelPtr += 8;
 		}
 	}
 }
@@ -317,15 +296,10 @@ void CharacterConverter<Pixel, zoom>::renderMultiHelper(
 			int colour = vram->patternTable.readNP((patternNr * 8) | baseLine);
 			Pixel cl = palFg[colour >> 4];
 			Pixel cr = palFg[colour & 0x0F];
-			if (zoom == Renderer::ZOOM_512) {
-				for (int n = 8; n--; ) *pixelPtr++ = cl;
-				for (int n = 8; n--; ) *pixelPtr++ = cr;
-			} else {
-				for (int n = 4; n--; ) *pixelPtr++ = cl;
-				for (int n = 4; n--; ) *pixelPtr++ = cr;
-			}
+			for (int n = 4; n--; ) *pixelPtr++ = cl;
+			for (int n = 4; n--; ) *pixelPtr++ = cr;
 		} else {
-			pixelPtr += zoom == Renderer::ZOOM_512 ? 16 : 8;
+			pixelPtr += 8;
 		}
 	}
 }
@@ -354,21 +328,12 @@ void CharacterConverter<Pixel, zoom>::renderBogus(
 
 	Pixel fg = palFg[vdp->getForegroundColour()];
 	Pixel bg = palBg[vdp->getBackgroundColour()];
-	if (zoom == Renderer::ZOOM_512) {
-		for (int n = 16; n--; ) *pixelPtr++ = bg;
-		for (int c = 40; c--; ) {
-			for (int n = 8; n--; ) *pixelPtr++ = fg;
-			for (int n = 4; n--; ) *pixelPtr++ = bg;
-		}
-		for (int n = 16; n--; ) *pixelPtr++ = bg;
-	} else {
-		for (int n = 8; n--; ) *pixelPtr++ = bg;
-		for (int c = 20; c--; ) {
-			for (int n = 4; n--; ) *pixelPtr++ = fg;
-			for (int n = 2; n--; ) *pixelPtr++ = bg;
-		}
-		for (int n = 8; n--; ) *pixelPtr++ = bg;
+	for (int n = 8; n--; ) *pixelPtr++ = bg;
+	for (int c = 20; c--; ) {
+		for (int n = 4; n--; ) *pixelPtr++ = fg;
+		for (int n = 2; n--; ) *pixelPtr++ = bg;
 	}
+	for (int n = 8; n--; ) *pixelPtr++ = bg;
 }
 
 } // namespace openmsx
