@@ -83,8 +83,13 @@ byte FDC2793::getDTRQ(const EmuTime &time)
 
 byte FDC2793::getIRQ(const EmuTime &time)
 {
-  return INTRQ?1:0 ;
-  INTRQ=false;
+  return INTRQ?1:0;
+  if (INTRQ){
+    INTRQ=false;
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 void FDC2793::setSideSelect(byte value,const EmuTime &time)
@@ -215,8 +220,11 @@ void FDC2793::setCommandReg(byte value,const EmuTime &time)
 		//statusReg &= 0x 	// fake ready, fake CRC error, fake record t1=copy DRQ Type :-)
 	  	dataCurrent=0;
 		dataAvailable=512; // TODO should come from sector header !!!
-		backend->read(current_track,trackReg,sectorReg,current_side,512,dataBuffer); // TODO correct track information!!
-		statusReg |= 2; DRQ=true; // data ready to be read 
+		if (backend->read(current_track,trackReg,sectorReg,current_side,512,dataBuffer) ){
+		  statusReg |= 2; DRQ=true; // data ready to be read 
+		} else {
+		  statusReg |= 2; DRQ=true; // TODO data not ready because read error
+		};
 	    break;
 
 	  case 0xA0: // write sector
@@ -297,9 +305,9 @@ void FDC2793::setDataReg(byte value, const EmuTime &time)
 		if (mflag==0){
 			//TODO verify this !
 			INTRQ=true;
-		  	dataCurrent=0;
-			dataAvailable=512; // TODO should come from sector header !!!
 			}
+		dataCurrent=0;
+		dataAvailable=512; // TODO should come from sector header !!!
 	  }
 	}
 

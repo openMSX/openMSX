@@ -26,13 +26,23 @@ FDC_DSK::~FDC_DSK()
   delete disk[0];
 }
 
-void FDC_DSK::read(byte phystrack, byte track, byte sector, byte side, int size, byte* buf)
+bool FDC_DSK::read(byte phystrack, byte track, byte sector, byte side, int size, byte* buf)
 {
   PRT_DEBUG("FDC_DSK::read(track "<<(int)track<<", sector "<<(int)sector<<", side "<<(int)side<<", size "<<(int)size<<")");
-  if (disk[0]) disk[0]->readSector(buf,track*18+(sector-1)+side*9); // For double sided disks only
+  if (disk[0]) {
+    disk[0]->readSector(buf,track*18+(sector-1)+side*9); // For double sided disks only
+    return true;
+  } else {
+    return false;
+  }
 }
-void FDC_DSK::write(byte phystrack, byte track, byte sector, byte side, int size, byte* buf)
+bool FDC_DSK::write(byte phystrack, byte track, byte sector, byte side, int size, byte* buf)
 {
   PRT_DEBUG("FDC_DSK::write(track "<<(int)track<<", sector "<<(int)sector<<", side "<<(int)side<<", size "<<(int)size<<", buf "<<std::hex<<buf<<std::dec<<")");
-  if (disk[0]) disk[0]->writeSector(buf,track*18+(sector-1)+side*9);// For double sided disks only
+  if (disk[0]) {
+  	disk[0]->writeSector(buf,track*18+(sector-1)+side*9);// For double sided disks only
+  	return true; //write suceeded
+  }else{
+	return false;
+  }
 }

@@ -9,6 +9,11 @@ MSXFDC::MSXFDC(MSXConfig::Device *config, const EmuTime &time)
 {
 	PRT_DEBUG("Creating an MSXFDC object");
 	brokenFDCread=false;
+	emptyRom=NULL;
+	emptyRom=new byte[CPU::CACHE_LINE_SIZE];
+	if (emptyRom){
+		memset(emptyRom,255,CPU::CACHE_LINE_SIZE);
+	};
 	// The loading of the diskrom and the mapping in the slot layout has been done by the MSXRom16KB
 	try {
 		brokenFDCread = deviceConfig->getParameterAsBool("brokenFDCread");
@@ -30,6 +35,7 @@ MSXFDC::MSXFDC(MSXConfig::Device *config, const EmuTime &time)
 
 MSXFDC::~MSXFDC()
 {
+	delete emptyRom;
 	delete controller;
 	PRT_DEBUG("Destructing an MSXFDC object");
 }
@@ -44,7 +50,7 @@ byte MSXFDC::readMem(word address, const EmuTime &time)
 {
 	byte value=255;
 	//if address overlap 0x7ff8-0x7ffb then return FDC , else normal ROM behaviour
-	//PRT_DEBUG("MSXFDC::readMem(0x" << std::hex << (int)address << ").");
+	PRT_DEBUG("MSXFDC::readMem(0x" << std::hex << (int)address << std::dec << ").");
 	switch (address & 0x3FFF){
 	case 0x3FF8:
 	  value=controller->getStatusReg(time);
@@ -60,7 +66,7 @@ byte MSXFDC::readMem(word address, const EmuTime &time)
 	  break;
 	case 0x3FFB:
 	  value=controller->getDataReg(time);
-	  //PRT_DEBUG("Got byte from disk : "<<(int)value);
+	  PRT_DEBUG("Got byte from disk : "<<(int)value);
 	  break;
 	case 0x3FFC:
 	   //bit 0 = side select
@@ -89,9 +95,12 @@ byte MSXFDC::readMem(word address, const EmuTime &time)
 	   
 	default:
 	  if (address<0x8000)
-	  value=memoryBank [address & 0x3FFF];
-	  // quick hack to have FDC register in th 7FF8 range but not the rom
-	  // other wise calulus says to litle TPA memory !!!
+	    value=memoryBank [address & 0x3FFF];
+	  // quick hack to have FDC register in the correct ranges but not the rom
+	  // (other wise calculus says to litle TPA memory :-)
+	  // The rom needs to be visible in the 0x4000-0x7FFF range
+	  // However in an NMS8250 the FDC registers are read
+	  // from 0x4FF8-0x4FFF and 0xBFF8-0xBFFF
 	  break;
 	}
 	return value;
@@ -131,7 +140,7 @@ byte* MSXFDC::getReadCacheLine(word start)
 {
 	//if address overlap 0x7ff8-0x7ffb then return NULL, else normal ROM behaviour
 	if ( (start&0x3FF8&CPU::CACHE_LINE_HIGH)==(0x3FF8&CPU::CACHE_LINE_HIGH) ) return NULL;
-	if (start>0x8000) return NULL;
+	if (start>0x7FFF) return emptyRom;
 	return &memoryBank[start & 0x3fff];
 	PRT_DEBUG("MSXFDC getReadCacheLine");
 	return NULL;

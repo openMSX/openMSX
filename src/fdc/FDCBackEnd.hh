@@ -17,8 +17,8 @@ class FDCBackEnd
 		 */
 		virtual ~FDCBackEnd();
 		
-		virtual void read( byte phystrack, byte track, byte sector, byte side, int size, byte* buf);
-		virtual void write(byte phystrack, byte track, byte sector, byte side, int size, byte* buf);
+		virtual bool read( byte phystrack, byte track, byte sector, byte side, int size, byte* buf);
+		virtual bool write(byte phystrack, byte track, byte sector, byte side, int size, byte* buf);
 		virtual void getSectorHeader(byte phystrack, byte track, byte sector, byte side, byte* buf);
 		virtual void getTrackHeader(byte phystrack, byte track, byte side, byte* buf);
 };

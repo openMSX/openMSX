@@ -1,5 +1,10 @@
 $Id$
 
+2002-06-11 David Heremans <david.heremans@gnu-linux.net>
+	* basic FDC fully working:
+	   Fixed minor bug (all my tested disks work now)
+	   Implemented small speed up
+
 2002-06-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Commands can now be unregistered again
 	* cleanups
@@ -13,7 +18,7 @@ $Id$
 	   No Type III commands yet
 
 2002-06-06 David Heremans <david.heremans@gnu-linux.net>
-	* First step towards an FDC implemenation
+	* First step towards an FDC implemenation:
 	   Basic structure is provided
 	   MSXFDC as good as finalized.
 

@@ -10,12 +10,12 @@ FDCBackEnd::~FDCBackEnd()
   PRT_DEBUG("Destroying an FDC back-end");
 }
 
-void FDCBackEnd::read(byte phystrack, byte track, byte sector, byte side, int size, byte* buf)
+bool FDCBackEnd::read(byte phystrack, byte track, byte sector, byte side, int size, byte* buf)
 {
   PRT_DEBUG("FDCBackEnd::read(track "<<track<<", sector "<<sector<<", side "<<side<<", size "<<size<<")");
   assert(true);
 }
-void FDCBackEnd::write(byte phystrack, byte track, byte sector, byte side, int size, byte* buf)
+bool FDCBackEnd::write(byte phystrack, byte track, byte sector, byte side, int size, byte* buf)
 {
   PRT_DEBUG("FDCBackEnd::write(track "<<track<<", sector "<<sector<<", side "<<side<<", size "<<size<<", buf "<<std::hex<<buf<<std::dec<<")");
   assert(true);

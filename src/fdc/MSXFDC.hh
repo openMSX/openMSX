@@ -41,5 +41,6 @@ class MSXFDC :  virtual public MSXRom16KB
 	private:
 		FDC* controller;
 		bool brokenFDCread;
+		byte* emptyRom;
 };
 #endif
