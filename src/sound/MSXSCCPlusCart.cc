@@ -24,7 +24,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 		std::string filename = deviceConfig->getParameter("filename");
 		try {
 			File file(config->getContext(), filename);
-			int romSize = file.size();
+			int romSize = file.getSize();
 			file.read(memoryBank, romSize);
 		} catch (FileException &e) {
 			PRT_ERROR("Error reading " << filename);

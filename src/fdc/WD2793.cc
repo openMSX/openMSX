@@ -5,9 +5,9 @@
 #include "Scheduler.hh"
 
 
-WD2793::WD2793(DiskDrive *drive, const EmuTime &time)
+WD2793::WD2793(DiskDrive* drive_, const EmuTime &time)
+	: drive(drive_)
 {
-	this->drive = drive;
 	reset(time);
 }
 
@@ -309,7 +309,7 @@ void WD2793::tryToReadSector(void)
 		dataAvailable = onDiskSize;
 		DRQ = true;	// data ready to be read
 	} catch (MSXException &e) {
-		PRT_DEBUG("FDC: read sector failed: " << e.desc);
+		PRT_DEBUG("FDC: read sector failed: " << e.getMessage());
 		DRQ = false;	// TODO data not ready (read error)
 		statusReg = 0;	// reset flags
 	}

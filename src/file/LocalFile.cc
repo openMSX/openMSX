@@ -50,11 +50,11 @@ void LocalFile::write(const byte* buffer, int num)
 	}
 }
 
-byte* LocalFile::mmap(bool write)
+byte* LocalFile::mmap(bool writeBack)
 {
 	if (!mmem) {
-		int flags = write ? MAP_SHARED : MAP_PRIVATE;
-		mmem = (byte*)::mmap(0, size(), PROT_READ | PROT_WRITE,
+		int flags = writeBack ? MAP_SHARED : MAP_PRIVATE;
+		mmem = (byte*)::mmap(0, getSize(), PROT_READ | PROT_WRITE,
 		                     flags, fileno(file), 0);
 		if ((int)mmem == -1) {
 			throw FileException("Error mmapping file");
@@ -66,12 +66,12 @@ byte* LocalFile::mmap(bool write)
 void LocalFile::munmap()
 {
 	if (mmem) {
-		::munmap(mmem, size());
+		::munmap(mmem, getSize());
 		mmem = NULL;
 	}
 }
 
-int LocalFile::size()
+int LocalFile::getSize()
 {
 	long pos = ftell(file);
 	fseek(file, 0, SEEK_END);
@@ -88,7 +88,7 @@ void LocalFile::seek(int pos)
 	}
 }
 
-int LocalFile::pos()
+int LocalFile::getPos()
 {
 	return (int)ftell(file);
 }

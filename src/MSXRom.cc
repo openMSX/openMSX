@@ -45,8 +45,8 @@ const std::string& MSXRomCLI::optionHelp() const
 	static const std::string text("Insert the ROM file (cartridge) specified in argument");
 	return text;
 }
-MSXRomPostName::MSXRomPostName(int slot_, const std::string &arg)
-	: MSXRomCLIPost(arg), slot(slot_)
+MSXRomPostName::MSXRomPostName(int slot_, const std::string &arg_)
+	: MSXRomCLIPost(arg_), slot(slot_)
 {
 }
 void MSXRomPostName::execute(MSXConfig *config)
@@ -64,8 +64,8 @@ const std::string& MSXRomCLI::fileTypeHelp() const
 	static const std::string text("ROM image of a cartridge");
 	return text;
 }
-MSXRomPostNoName::MSXRomPostNoName(const std::string &arg)
-	: MSXRomCLIPost(arg)
+MSXRomPostNoName::MSXRomPostNoName(const std::string &arg_)
+	: MSXRomCLIPost(arg_)
 {
 }
 void MSXRomPostNoName::execute(MSXConfig *config)
@@ -780,7 +780,7 @@ void MSXRom::setROM4kB(int region, int block)
 	int nrBlocks = rom.getSize() >> 12;
 	if (nrBlocks != 0) {
 		block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-		setBank4kB(region, (byte*)rom.getBlock(block << 12));
+		setBank4kB(region, const_cast<byte*>(rom.getBlock(block << 12)));
 	} else {
 		setBank4kB(region, unmapped);
 	}
@@ -790,7 +790,7 @@ void MSXRom::setROM8kB(int region, int block)
 	int nrBlocks = rom.getSize() >> 13;
 	if (nrBlocks != 0) {
 		block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-		setBank8kB(region, (byte*)rom.getBlock(block << 13));
+		setBank8kB(region, const_cast<byte*>(rom.getBlock(block << 13)));
 	} else {
 		setBank8kB(region, unmapped);
 	}
@@ -800,7 +800,7 @@ void MSXRom::setROM16kB(int region, int block)
 	int nrBlocks = rom.getSize() >> 14;
 	if (nrBlocks != 0) {
 		block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-		setBank16kB(region, (byte*)rom.getBlock(block << 14));
+		setBank16kB(region, const_cast<byte*>(rom.getBlock(block << 14)));
 	} else {
 		setBank16kB(region, unmapped);
 	}

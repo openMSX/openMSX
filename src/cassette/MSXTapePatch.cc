@@ -174,7 +174,7 @@ void MSXTapePatch::TAPION(CPU::CPURegs& R)
 
 	// go forward to multiple of 8 bytes
 	try {
-		int filePos = file->pos();
+		int filePos = file->getPos();
 		file->seek((filePos + 7) & ~7);
 	} catch (FileException &e) {
 		R.AF.B.l |= CPU::C_FLAG;
@@ -313,7 +313,7 @@ void MSXTapePatch::TAPOON(CPU::CPURegs& R)
 	
 	try {
 		// go forward to multiple of 8 bytes
-		int filePos = file->pos();
+		int filePos = file->getPos();
 		file->seek((filePos + 7) & ~7);
 	
 		file->write(TapeHeader, 8);

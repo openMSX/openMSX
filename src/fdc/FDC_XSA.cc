@@ -14,7 +14,7 @@ FDC_XSA::FDC_XSA(const FileContext *context, const std::string &fileName)
 	if (!isXSAImage(file)) {
 		throw MSXException("Not an XSA image");
 	}
-	int fileSize = file->size();
+	int fileSize = file->getSize();
 	byte* inbuf = new byte[fileSize];
 	inbufpos = inbuf;
 	file->seek(0);

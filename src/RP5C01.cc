@@ -153,6 +153,18 @@ void RP5C01::time2Regs()
 	reg[ALARM_BLOCK][11] =  leapYear;
 }
 
+static int daysInMonth(int month, int leapYear) 
+{
+	const int daysInMonths[12] = {
+		31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+	};
+	
+	month %= 12;
+	if ((month == 1) && (leapYear == 0))
+		return 29;
+	return daysInMonths[month];
+}
+
 void RP5C01::updateTimeRegs(const EmuTime &time)
 {
 	if (emuTimeBased) {
@@ -189,15 +201,6 @@ void RP5C01::updateTimeRegs(const EmuTime &time)
 	}
 }
 
-const int RP5C01::daysInMonths[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-int RP5C01::daysInMonth(int month, int leapYear) 
-{
-	month %= 12;
-	if ((month == 1) && (leapYear == 0))
-		return 29;
-	return daysInMonths[month];
-}
- 
 void RP5C01::resetAlarm()
 {
 	for (int i = 2; i <= 8; i++) {

@@ -6,9 +6,9 @@
 
 
 template<int freq, byte flag>
-Y8950Timer<freq, flag>::Y8950Timer(Y8950 *y8950)
+Y8950Timer<freq, flag>::Y8950Timer(Y8950* y8950_)
+	: y8950(y8950_)
 {
-	this->y8950 = y8950;
 	scheduler = Scheduler::instance();
 }
 

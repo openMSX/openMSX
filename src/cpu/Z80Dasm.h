@@ -1,19 +1,9 @@
-/*** Z80Em: Portable Z80 emulator *******************************************/
-/***                                                                      ***/
-/***                               Z80Dasm.h                              ***/
-/***                                                                      ***/
-/*** This file contains a routine to disassemble a buffer containing Z80  ***/
-/*** opcodes. It is included from Z80Debug.c and z80dasm.c                ***/
-/***                                                                      ***/
-/*** Copyright (C) Marcel de Kogel 1996,1997                              ***/
-/***     You are not allowed to distribute this software commercially     ***/
-/***     Please, notify me, if you make any changes to this file          ***/
-/****************************************************************************/
+// $Id$
 
 #include <stdio.h>
 #include <string.h>
 
-static char *mnemonic_xx_cb[256] =
+static const char* mnemonic_xx_cb[256] =
 {
 	"#","#","#","#","#","#","rlc Y"  ,"#",
 	"#","#","#","#","#","#","rrc Y"  ,"#",
@@ -49,7 +39,7 @@ static char *mnemonic_xx_cb[256] =
 	"#","#","#","#","#","#","set 7,Y","#"
 };
 
-static char *mnemonic_cb[256] =
+static const char* mnemonic_cb[256] =
 {
 	"rlc b"  ,"rlc c"  ,"rlc d"  ,"rlc e"  ,"rlc h"  ,"rlc l"  ,"rlc (hl)"  ,"rlc a"  ,
 	"rrc b"  ,"rrc c"  ,"rrc d"  ,"rrc e"  ,"rrc h"  ,"rrc l"  ,"rrc (hl)"  ,"rrc a"  ,
@@ -85,7 +75,7 @@ static char *mnemonic_cb[256] =
 	"set 7,b","set 7,c","set 7,d","set 7,e","set 7,h","set 7,l","set 7,(hl)","set 7,a"
 };
 
-static char *mnemonic_ed[256] =
+static const char* mnemonic_ed[256] =
 {
 	"!"       ,"!"        ,"!"        ,"!"        ,"!"  ,"!"   ,"!"   ,"!"     ,
 	"!"       ,"!"        ,"!"        ,"!"        ,"!"  ,"!"   ,"!"   ,"!"     ,
@@ -121,7 +111,7 @@ static char *mnemonic_ed[256] =
 	"!"       ,"mulub a,a","!"        ,"!"        ,"!",  "!"   ,"!"   ,"!"
 };
 
-static char *mnemonic_xx[256] =
+static const char* mnemonic_xx[256] =
 {
 	"@"      ,"@"       ,"@"       ,"@"        ,"@"       ,"@"       ,"@"      ,"@"      ,
 	"@"      ,"add I,bc","@"       ,"@"        ,"@"       ,"@"       ,"@"      ,"@"      ,
@@ -157,7 +147,7 @@ static char *mnemonic_xx[256] =
 	"@"      ,"ld sp,I" ,"@"       ,"@"        ,"@"       ,"@"       ,"@"      ,"@"
 };
 
-static char *mnemonic_main[256] =
+static const char* mnemonic_main[256] =
 {
 	"nop"      ,"ld bc,W"  ,"ld (bc),a","inc bc"    ,"inc b"    ,"dec b"    ,"ld b,B"    ,"rlca"     ,
 	"ex af,af'","add hl,bc","ld a,(bc)","dec bc"    ,"inc c"    ,"dec c"    ,"ld c,B"    ,"rrca"     ,
@@ -209,14 +199,12 @@ static int Abs (unsigned char a)
 /****************************************************************************/
 static int Dasm (unsigned char *buffer,char *dest,unsigned PC)
 {
-	char *S;
-	char *r;
-	int i,j,k;
+	const char *S;
 	//unsigned char buf[10];
 	char buf[10];
-	char Offset;
-	i=Offset=0;
-	r="INTERNAL PROGRAM ERROR";
+	int i=0;
+	char Offset=0;
+	const char* r = "INTERNAL PROGRAM ERROR";
 	dest[0]='\0';
 	switch (buffer[i]) {
 		case 0xCB:
@@ -260,7 +248,7 @@ static int Dasm (unsigned char *buffer,char *dest,unsigned PC)
 			S=mnemonic_main[buffer[i++]];
 			break;
 	}
-	for (j=0;S[j];++j) {
+	for (int j = 0; S[j]; j++) {
 		switch (S[j]) {
 			case 'B':
 				sprintf (buf,"#%02X",buffer[i++]);
@@ -297,14 +285,15 @@ static int Dasm (unsigned char *buffer,char *dest,unsigned PC)
 			case '#':
 				sprintf (dest,"db     #%02X,#CB,#%02X",buffer[0],buffer[2]);
 				return 2;
-			case ' ':
-				k=strlen(dest);
+			case ' ': {
+				int k = strlen(dest);
 				if (k<6) k=7-k;
 				else k=1;
 				memset (buf,' ',k);
 				buf[k]='\0';
 				strcat (dest,buf);
 				break;
+			}
 			default:
 				buf[0]=S[j];
 				buf[1]='\0';
@@ -312,7 +301,7 @@ static int Dasm (unsigned char *buffer,char *dest,unsigned PC)
 				break;
 		}
 	}
-	k=strlen(dest);
+	int k=strlen(dest);
 	if (k<17) k=18-k;
 	else k=1;
 	memset (buf,' ',k);

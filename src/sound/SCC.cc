@@ -5,12 +5,12 @@
 #include "Mixer.hh"
 
 
-SCC::SCC(short volume)
+SCC::SCC(short volume_)
 {
 	// Register as a soundevice
 	int bufSize = Mixer::instance()->registerSound(this);
 	buffer = new int[bufSize];
-	setVolume(volume);
+	setVolume(volume_);
 	currentChipMode = SCC_Compatible;	// != SCC_Real;
 	reset();
 }

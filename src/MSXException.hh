@@ -5,13 +5,25 @@
 
 #include <string>
 
+
 class MSXException
 {
 	public:
-		MSXException(const std::string &desc) : desc(desc) {}
-		virtual ~MSXException() {}
-
-		const std::string desc;
+		MSXException(const std::string &message_)
+			: message(message_)
+		{
+		}
+		
+		virtual ~MSXException()
+		{
+		}
+		
+		const std::string &getMessage() const {
+			return message;
+		}
+		
+	private:
+		const std::string message;
 };
 
 #endif

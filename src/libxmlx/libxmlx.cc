@@ -193,7 +193,7 @@ void Element::dump(int recursion)
 	}
 }
 
-const std::string &Element::getAttribute(const std::string &name)
+const std::string &Element::getAttribute(const std::string &attName)
 {
 	for (std::list<Attribute*>::iterator i = attributes.begin(); i != attributes.end(); i++)
 	{
@@ -202,7 +202,7 @@ const std::string &Element::getAttribute(const std::string &name)
 	return empty;
 }
 
-const std::string &Element::getElementPcdata(const std::string &name)
+const std::string &Element::getElementPcdata(const std::string &childName)
 {
 	for (std::list<Element*>::iterator i = children.begin(); i != children.end(); i++)
 	{
@@ -211,11 +211,12 @@ const std::string &Element::getElementPcdata(const std::string &name)
 	return empty;
 }
 
-const std::string &Element::getElementAttribute(const std::string &name, const std::string &name2)
+const std::string &Element::getElementAttribute(const std::string &childName,
+                                                const std::string &attName)
 {
 	for (std::list<Element*>::iterator i = children.begin(); i != children.end(); i++)
 	{
-		if ((*i)->name == name) return (*i)->getAttribute(name2);
+		if ((*i)->name == attName) return (*i)->getAttribute(childName);
 	}
 	return empty;
 }

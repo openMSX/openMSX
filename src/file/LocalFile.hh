@@ -15,11 +15,11 @@ class LocalFile : public FileBase
 		virtual ~LocalFile();
 		virtual void read (byte* buffer, int num);
 		virtual void write(const byte* buffer, int num);
-		virtual byte* mmap(bool write = false);
+		virtual byte* mmap(bool writeBack);
 		virtual void munmap();
-		virtual int size();
+		virtual int getSize();
 		virtual void seek(int pos);
-		virtual int pos();
+		virtual int getPos();
 		virtual const std::string getURL() const;
 		virtual const std::string getLocalName() const;
 

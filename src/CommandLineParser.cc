@@ -60,11 +60,11 @@ void CommandLineParser::parse(int argc, char **argv)
 		cmdLine.pop_front();
 		
 		// first try option
-		std::map<std::string, CLIOption*>::const_iterator it;
-		it = optionMap.find(arg);
-		if (it != optionMap.end()) {
+		std::map<std::string, CLIOption*>::const_iterator it1;
+		it1 = optionMap.find(arg);
+		if (it1 != optionMap.end()) {
 			// parse option
-			it->second->parseOption(arg, cmdLine);
+			it1->second->parseOption(arg, cmdLine);
 			continue;
 		}
 		
@@ -79,11 +79,11 @@ void CommandLineParser::parse(int argc, char **argv)
 			} else {
 				extension = arg.substr(begin + 1, end - begin - 1);
 			}
-			std::map<std::string, CLIFileType*>::const_iterator it;
-			it = fileTypeMap.find(extension);
-			if (it != fileTypeMap.end()) {
+			std::map<std::string, CLIFileType*>::const_iterator it2;
+			it2 = fileTypeMap.find(extension);
+			if (it2 != fileTypeMap.end()) {
 				// parse filetype
-				it->second->parseFileType(arg);
+				it2->second->parseFileType(arg);
 				continue;
 			}
 		}

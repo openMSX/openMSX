@@ -1170,9 +1170,9 @@ void _CPU_::inc_sp() { ++R.SP.w; INC_16_DELAY(); }
 
 
 // BIT n,r
-inline void _CPU_::BIT(int bit, byte reg) {
+inline void _CPU_::BIT(int b, byte reg) {
 	R.AF.B.l = (R.AF.B.l & C_FLAG) | 
-	           ZSPTable[reg & (1 << bit)] |
+	           ZSPTable[reg & (1 << b)] |
 		   (reg & (X_FLAG | Y_FLAG)) |
 		   H_FLAG;
 }
@@ -1294,7 +1294,7 @@ void _CPU_::bit_7_xiy() { bit = 7; BIT_IY(); }
 
 
 // RES n,r
-inline void _CPU_::RES(int bit, byte &reg) { reg &= ~(1 << bit); }
+inline void _CPU_::RES(int b, byte &reg) { reg &= ~(1 << b); }
 void _CPU_::res_0_a() { RES(0, R.AF.B.h); }
 void _CPU_::res_0_b() { RES(0, R.BC.B.h); }
 void _CPU_::res_0_c() { RES(0, R.BC.B.l); }
@@ -1506,7 +1506,7 @@ void _CPU_::res_7_xiy_l() { bit = 7; x.w = R.IY.w + ofst; p = &R.HL.B.l; RES_X()
 
 
 // SET n,r
-inline void _CPU_::SET(int bit, byte &reg) { reg |= (1 << bit); }
+inline void _CPU_::SET(int b, byte &reg) { reg |= (1 << b); }
 void _CPU_::set_0_a() { SET(0, R.AF.B.h); }
 void _CPU_::set_0_b() { SET(0, R.BC.B.h); }
 void _CPU_::set_0_c() { SET(0, R.BC.B.l); }

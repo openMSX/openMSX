@@ -13,11 +13,9 @@ template class EnumSetting<bool>;
 
 // Setting implementation:
 
-Setting::Setting(const std::string &name, const std::string &description)
+Setting::Setting(const std::string &name_, const std::string &description_)
+	: name(name_), description(description_)
 {
-	this->name = name;
-	this->description = description;
-
 	SettingsManager::instance()->registerSetting(name, this);
 }
 
@@ -30,11 +28,10 @@ Setting::~Setting()
 // BooleanSetting implementation:
 
 BooleanSetting::BooleanSetting(
-	const std::string &name, const std::string &description,
+	const std::string &name_, const std::string &description_,
 	bool initialValue)
-	: Setting(name, description)
+	: Setting(name_, description_), value(initialValue)
 {
-	value = initialValue;
 	type = "on - off";
 }
 
@@ -72,14 +69,11 @@ void BooleanSetting::tabCompletion(std::vector<std::string> &tokens) const
 // IntegerSetting implementation:
 
 IntegerSetting::IntegerSetting(
-	const std::string &name, const std::string &description,
-	int initialValue, int minValue, int maxValue)
-	: Setting(name, description)
+	const std::string &name_, const std::string &description_,
+	int initialValue, int minValue_, int maxValue_)
+	: Setting(name_, description_), value(initialValue),
+	  minValue(minValue_), maxValue(maxValue_)
 {
-	value = initialValue;
-	this->minValue = minValue;
-	this->maxValue = maxValue;
-
 	std::ostringstream out;
 	out << minValue << " - " << maxValue;
 	type = out.str();
@@ -116,13 +110,11 @@ void IntegerSetting::setValueString(const std::string &valueString)
 
 template <class T>
 EnumSetting<T>::EnumSetting(
-	const std::string &name, const std::string &description,
+	const std::string &name_, const std::string &description_,
 	const T &initialValue,
 	const std::map<const std::string, T> &map_)
-	: Setting(name, description), map(map_)
+	: Setting(name_, description_), value(initialValue), map(map_)
 {
-	value = initialValue;
-
 	std::ostringstream out;
 	MapIterator it = map.begin();
 	out << it->first;
@@ -183,10 +175,9 @@ SettingsManager::~SettingsManager()
 
 // SetCommand implementation:
 
-SettingsManager::SetCommand::SetCommand(
-	SettingsManager *manager )
+SettingsManager::SetCommand::SetCommand(SettingsManager *manager_)
+	: manager(manager_)
 {
-	this->manager = manager;
 }
 
 void SettingsManager::SetCommand::execute(

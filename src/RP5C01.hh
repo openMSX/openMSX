@@ -32,7 +32,6 @@ class RP5C01
 		void updateTimeRegs(const EmuTime &time);
 		void regs2Time();
 		void time2Regs();
-		int daysInMonth(int month, int leapYear);
 		void resetAlarm();
 
 		static const int FREQ = 16384;

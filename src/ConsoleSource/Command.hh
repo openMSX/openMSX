@@ -12,7 +12,8 @@ class EmuTime;
 
 class CommandException : public MSXException {
 	public:
-		CommandException(const std::string &desc) : MSXException(desc) {}
+		CommandException(const std::string &desc_)
+			: MSXException(desc_) {}
 };
 
 class Command

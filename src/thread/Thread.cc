@@ -5,10 +5,10 @@
 #include "Thread.hh"
 
 
-Thread::Thread(Runnable *runnable)
+Thread::Thread(Runnable *runnable_)
+	: runnable(runnable_)
 {
 	thread = NULL;
-	this->runnable = runnable;
 }
 
 Thread::~Thread()

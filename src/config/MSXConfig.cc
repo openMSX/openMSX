@@ -160,8 +160,8 @@ const uint64 Config::Parameter::getAsUint64() const
 
 // class Device
 
-Device::Device(XML::Element *element, const FileContext *context)
-	: Config(element, context)
+Device::Device(XML::Element *element_, const FileContext *context_)
+	: Config(element_, context_)
 {
 	// TODO: create slotted-eds ???
 	std::list<XML::Element*>::iterator i;

@@ -6,7 +6,8 @@
 #include "EventDistributor.hh"
 
 
-Joystick::Joystick(int joyNum)
+Joystick::Joystick(int joyNum_)
+	: joyNum(joyNum_)
 {
 	PRT_DEBUG("Creating a Joystick object for joystick " << joyNum);
 
@@ -21,7 +22,6 @@ Joystick::Joystick(int joyNum)
 	name = std::string("joystick")+(char)('1'+joyNum);
 
 	PRT_DEBUG("Opening joystick " << SDL_JoystickName(joyNum));
-	this->joyNum = joyNum;
 	joystick = SDL_JoystickOpen(joyNum);
 	EventDistributor::instance()->registerEventListener(SDL_JOYAXISMOTION, this);
 	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONDOWN, this);

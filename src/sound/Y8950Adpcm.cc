@@ -22,9 +22,9 @@ int Y8950Adpcm::CLAP(int min, int x, int max)
 //                                                          //
 //**********************************************************//
 
-Y8950Adpcm::Y8950Adpcm(Y8950 *y8950, int sampleRam)
+Y8950Adpcm::Y8950Adpcm(Y8950* y8950_, int sampleRam)
+	: y8950(y8950_)
 {
-	this->y8950 = y8950;
 	ramSize = sampleRam;
 	ramBank = new byte[256*1024];
 	romBank = new byte[256*1024];

@@ -19,7 +19,7 @@ enum FileOption {
 
 class FileException : public MSXException {
 	public:
-		FileException(const std::string &desc) : MSXException(desc) {}
+		FileException(const std::string &mes) : MSXException(mes) {}
 };
 
 
@@ -58,13 +58,13 @@ class File
 
 		/**
 		 * Map file in memory.
-		 * @param write Set to true if writes to the memory block
+		 * @param writeBack Set to true if writes to the memory block
 		 *              should also be written to the file. Note that
 		 *              the file may only be updated when you munmap
 		 *              again (may happen earlier but not guaranteed).
 		 * @result Pointer to memory block.
 		 */
-		byte* mmap(bool write = false);
+		byte* mmap(bool writeBack = false);
 
 		/**
 		 * Unmap file from memory. If you have mmap'ed a file, you
@@ -77,7 +77,7 @@ class File
 		 * Returns the size of this file
 		 * @result The size of this file
 		 */
-		int size();
+		int getSize();
 
 		/**
 		 * Move read/write pointer to the specified position.
@@ -89,7 +89,7 @@ class File
 		 * Get the current position of the read/write pointer.
 		 * @result Position in bytes from the beginning of the file.
 		 */
-		int pos();
+		int getPos();
 
 		/**
 		 * Returns the URL of this file object.

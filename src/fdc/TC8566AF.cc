@@ -8,12 +8,12 @@
 #include "DiskDrive.hh"
 
 
-TC8566AF::TC8566AF(DiskDrive* drive[4], const EmuTime &time)
+TC8566AF::TC8566AF(DiskDrive* drv[4], const EmuTime &time)
 {
-	this->drive[0] = drive[0];
-	this->drive[1] = drive[1];
-	this->drive[2] = drive[2];
-	this->drive[3] = drive[3];
+	this->drive[0] = drv[0];
+	this->drive[1] = drv[1];
+	this->drive[2] = drv[2];
+	this->drive[3] = drv[3];
 	reset(time);
 }
 
@@ -140,7 +140,7 @@ byte TC8566AF::makeST3(const EmuTime &time)
 
 byte TC8566AF::readReg(int reg, const EmuTime &time)
 {
-	byte	Value;
+	byte Value = 0xFF;	// avoid warning
 
 	switch	(reg) {
 	case 4: // Main Status Register

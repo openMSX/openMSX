@@ -126,10 +126,12 @@ void YM2413::makeSinTable()
 // Liner(+0.0 - +1.0) to dB((1<<DB_BITS) - 1 -- 0)
 int YM2413::lin2db(double d)
 {
-	if (d == 0)
+	if (d < 1e-4) {
+		// (almost) zero
 		return DB_MUTE-1;
-	else
-		return min(-(int)(20.0*log10(d)/DB_STEP), DB_MUTE-1);	// 0 -- 128
+	} else {
+		return min(-(int)(20.0*log10(d)/DB_STEP), DB_MUTE-1); // 0 - 128
+	}
 }
 int YM2413::min(int i, int j) {
 	if (i<j) return i; else return j;
@@ -265,23 +267,12 @@ void YM2413::makeRksTable()
 //                                                            //
 //************************************************************//
 
-YM2413::Patch::Patch(bool AM, bool PM, bool EG, byte KR, byte ML, byte KL,
-                     byte TL, byte FB, byte WF, byte AR, byte DR, byte SL,
-                     byte RR)
+YM2413::Patch::Patch(bool AM_, bool PM_, bool EG_, byte KR_, byte ML_,
+                     byte KL_, byte TL_, byte FB_, byte WF_, byte AR_,
+		     byte DR_, byte SL_, byte RR_)
+	: AM(AM_), PM(PM_), EG(EG_), KR(KR_), ML(ML_), KL(KL_), TL(TL_),
+	  FB(FB_), WF(WF_), AR(AR_), DR(DR_), SL(SL_), RR(RR_)
 {
-	this->AM = AM;
-	this->PM = PM;
-	this->EG = EG;
-	this->KR = KR;
-	this->ML = ML;
-	this->KL = KL;
-	this->TL = TL;
-	this->FB = FB;
-	this->WF = WF;
-	this->AR = AR;
-	this->DR = DR;
-	this->SL = SL;
-	this->RR = RR;
 }
 
 //************************************************************//
@@ -291,9 +282,9 @@ YM2413::Patch::Patch(bool AM, bool PM, bool EG, byte KR, byte ML, byte KL,
 //************************************************************//
 
 // Constructor
-YM2413::Slot::Slot(bool type)
+YM2413::Slot::Slot(bool type_)
+	: type(type_)
 {
-	this->type = type;
 }
 
 // Destructor
@@ -503,7 +494,7 @@ void YM2413::Channel::keyOff()
 //***********************************************************//
 
 // Constructor
-YM2413::YM2413(short volume, const EmuTime &time, const Mixer::ChannelMode mode)
+YM2413::YM2413(short volume_, const EmuTime &time, const Mixer::ChannelMode mode)
 {
 	// User instrument
 	patches[ 0] = Patch(false, false, false, 0,  0, 0,  0, 0, 0,  0,  0,  0,  0);
@@ -579,7 +570,7 @@ YM2413::YM2413(short volume, const EmuTime &time, const Mixer::ChannelMode mode)
 
 	reset(time);
 
-	setVolume(volume);
+	setVolume(volume_);
 	int bufSize = Mixer::instance()->registerSound(this, mode);
 	buffer = new int[bufSize];
 }

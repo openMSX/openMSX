@@ -36,11 +36,11 @@ GLConsole::GLConsole()
 	font = new GLFont(fontTexture, width, height, fontTexCoord);
 
 	if (config->hasParameter("background")) {
-		int width, height;
+		int dummy;
 		const std::string &backgroundName =
 			config->getParameter("background");
 		backgroundTexture = loadTexture(config->getContext(),
-		              backgroundName,width, height, backTexCoord);
+		                  backgroundName, dummy, dummy, backTexCoord);
 	}
 }
 
@@ -146,13 +146,13 @@ void GLConsole::drawConsole()
 		glEnd();
 	}
 
-	int screenlines = consoleHeight / font->height();
+	int screenlines = consoleHeight / font->getHeight();
 	for (int loop=0; loop<screenlines; loop++) {
 		int num = loop+consoleScrollBack;
 		if (num < lines.size()) {
 			glPushMatrix();
 			font->drawText(lines[num], CHAR_BORDER,
-			               consoleHeight - (1+loop)*font->height());
+			               consoleHeight - (1+loop)*font->getHeight());
 			glPopMatrix();
 		}
 	}
@@ -167,8 +167,8 @@ void GLConsole::drawConsole()
 			// Print cursor if there is enough room
 			int cursorLocation = lines[0].length();
 			font->drawText(std::string("_"), 
-				      CHAR_BORDER + cursorLocation * font->width(),
-				      consoleHeight - font->height());
+			      CHAR_BORDER + cursorLocation * font->getWidth(),
+			      consoleHeight - font->getHeight());
 			
 		}
 	}

@@ -77,7 +77,7 @@ int main(int argc, char **argv)
 		SDL_Quit();
 	} 
 	catch (MSXException& e) {
-		PRT_ERROR("Uncaught exception: " << e.desc);
+		PRT_ERROR("Uncaught exception: " << e.getMessage());
 	}
 }
 

@@ -63,9 +63,9 @@ void File::write(const byte* buffer, int num)
 	file->write(buffer, num);
 }
 
-byte* File::mmap(bool write)
+byte* File::mmap(bool writeBack)
 {
-	return file->mmap(write);
+	return file->mmap(writeBack);
 }
 
 void File::munmap()
@@ -73,9 +73,9 @@ void File::munmap()
 	file->munmap();
 }
 
-int File::size()
+int File::getSize()
 {
-	return file->size();
+	return file->getSize();
 }
 
 void File::seek(int pos)
@@ -83,9 +83,9 @@ void File::seek(int pos)
 	file->seek(pos);
 }
 
-int File::pos()
+int File::getPos()
 {
-	return file->pos();
+	return file->getPos();
 }
 
 const std::string File::getURL() const

@@ -131,21 +131,22 @@ public:
 	void dump(int recursion=0);
 	
 	/**
-	 * get attribute's value from attribute with name 'name' from
+	 * get attribute's value from attribute with name 'attName' from
 	 * attributelist
 	 */
-	const std::string &getAttribute(const std::string &name);
+	const std::string &getAttribute(const std::string &attName);
 
 	/**
-	 * get pcdata from element from children with name 'name'
+	 * get pcdata from element from children with name 'childName'
 	 */
-	const std::string &getElementPcdata(const std::string &name);
+	const std::string &getElementPcdata(const std::string &childName);
 
 	/**
-	 * get attribute with name 'name2' from element from children
-	 * with name 'name'
+	 * get attribute with name 'attName' from element from children
+	 * with name 'childName'
 	 */
-	const std::string &getElementAttribute(const std::string &name, const std::string &name2);
+	const std::string &getElementAttribute(const std::string &childName,
+	                                       const std::string &attName);
 
 private:
 	/// construct attribute from libxml xmlNodePtr node

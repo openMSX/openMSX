@@ -6,9 +6,9 @@
 
 /// class MSXSwitchedDevice ///
 
-MSXSwitchedDevice::MSXSwitchedDevice(byte id)
+MSXSwitchedDevice::MSXSwitchedDevice(byte id_)
+	: id(id_)
 {
-	this->id = id;
 	MSXDeviceSwitch::instance()->registerDevice(id, this);
 }
 

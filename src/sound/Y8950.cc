@@ -94,8 +94,10 @@ void Y8950::Slot::makeDB2LinTable()
 // Liner(+0.0 - +1.0) to dB((1<<DB_BITS) - 1 -- 0) 
 int Y8950::Slot::lin2db(double d)
 {
-	if (d == 0) 
+	if (d < 1e-4) {
+		// (almost) zero
 		return DB_MUTE-1;
+	}
 	int tmp = -(int)(20.0*log10(d)/DB_STEP);
 	if (tmp < DB_MUTE-1)
 		return tmp;
@@ -411,10 +413,10 @@ void Y8950::Channel::keyOff()
 //                                                          //
 //**********************************************************//
 
-Y8950::Y8950(short volume, int sampleRam, const EmuTime &time,
-             Mixer::ChannelMode mode) :
-	timer1(this), timer2(this), adpcm(this, sampleRam), connector(time),
-	dac13(volume, time)
+Y8950::Y8950(short volume_, int sampleRam, const EmuTime &time,
+             Mixer::ChannelMode mode)
+	: timer1(this), timer2(this), adpcm(this, sampleRam), connector(time),
+	  dac13(volume_, time)
 {
 	makePmTable();
 	makeAmTable();
@@ -436,7 +438,7 @@ Y8950::Y8950(short volume, int sampleRam, const EmuTime &time,
 	
 	reset(time);
 
-	setVolume(volume);
+	setVolume(volume_);
 	int bufSize = Mixer::instance()->registerSound(this, mode);
 	buffer = new int[bufSize];
 }

@@ -15,6 +15,7 @@ const int NUM_CHRS = 256;
 const int CHARS_PER_ROW = 16;
 const int CHARS_PER_COL = NUM_CHRS / CHARS_PER_ROW;
 
+
 GLFont::GLFont(GLuint texture, int width, int height, GLfloat *texCoord)
 {
 	fontTexture = texture;
@@ -54,6 +55,7 @@ GLFont::~GLFont()
 	glDeleteTextures(1, &fontTexture);
 }
 
+
 void GLFont::drawText(const std::string &string, int x, int y)
 {
 	glBindTexture(GL_TEXTURE_2D, fontTexture);
@@ -61,16 +63,6 @@ void GLFont::drawText(const std::string &string, int x, int y)
 	const char* text = string.c_str();
 	glListBase(listBase);
 	glCallLists(strlen(text), GL_UNSIGNED_BYTE, text);
-}
-
-int GLFont::height()
-{
-	return charHeight;
-}
-
-int GLFont::width()
-{
-	return charWidth;
 }
 
 #endif	// __GLFONT_AVAILABLE__

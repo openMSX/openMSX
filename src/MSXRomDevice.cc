@@ -39,7 +39,7 @@ void MSXRomDevice::read(Device* config,
 	    config->getParameter("filesize") != "auto") {
 		fileSize = config->getParameterAsInt("filesize");
 	} else {
-		fileSize = file->size();
+		fileSize = file->getSize();
 	}
 	
 	// get offset
@@ -89,13 +89,13 @@ void MSXRomDevice::read(Device* config,
 		config->getParametersWithClass("patch");
 	std::list<Config::Parameter*>::const_iterator i;
 	for (i=parameters2->begin(); i!=parameters2->end(); i++) {
-		unsigned int offset = strtol((*i)->name.c_str(), 0, 0);
+		unsigned int romOffset = strtol((*i)->name.c_str(), 0, 0);
 		int value  = (*i)->getAsInt();
-		if (offset >= size) {
-			PRT_DEBUG("Ignoring illegal ROM patch-offset: " << offset);
+		if (romOffset >= size) {
+			PRT_DEBUG("Ignoring illegal ROM patch-offset: " << romOffset);
 		} else {
 			PRT_DEBUG("Patching ROM[" << (*i)->name << "]=" << (*i)->value);
-			rom[offset] = value;
+			rom[romOffset] = value;
 		}
 	}
 	config->getParametersWithClassClean(parameters2);

@@ -70,11 +70,13 @@ class Config
 		 * cleanup function for getParametersWithClass
 		 */
 		static void getParametersWithClassClean(std::list<Parameter*>* list);
-	
+
+	protected:
+		XML::Element* element;
+
 	private:
 		XML::Element* getParameterElement(const std::string &name) const;
 		
-		XML::Element* element;
 		const FileContext* context;
 };
 

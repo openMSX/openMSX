@@ -54,15 +54,22 @@ SDLFont::~SDLFont()
 	SDL_FreeSurface(fontSurface);
 }
 
-void SDLFont::drawText(const std::string &string, SDL_Surface *surface, int x, int y)
+void SDLFont::setSurface(SDL_Surface* surface)
+{
+	drawSurface = surface;
+}
+
+void SDLFont::drawText(const std::string &string,
+                       int x, int y)
 {
 	// see how many characters can fit on the screen
-	if (x > surface->w || y > surface->h)
+	if ((drawSurface->w <= x) || (drawSurface->h <= y)) {
 		return;
+	}
 	int characters = string.length();
-	if (characters > (surface->w - x) / charWidth)
-		characters = (surface->w - x) / charWidth;
-
+	if (characters > ((drawSurface->w - x) / charWidth)) {
+		characters = (drawSurface->w - x) / charWidth;
+	}
 	SDL_Rect destRect;
 	destRect.x = x;
 	destRect.y = y;
@@ -74,21 +81,10 @@ void SDLFont::drawText(const std::string &string, SDL_Surface *surface, int x, i
 	sourceRect.h = charHeight;
 
 	// Now draw it
-	for (int loop=0; loop<characters; loop++) {
+	for (int loop = 0; loop < characters; loop++) {
 		sourceRect.x = (string[loop] % CHARS_PER_ROW) * charWidth;
 		sourceRect.y = (string[loop] / CHARS_PER_ROW) * charHeight;
-		SDL_BlitSurface(fontSurface, &sourceRect, surface, &destRect);
+		SDL_BlitSurface(fontSurface, &sourceRect, drawSurface, &destRect);
 		destRect.x += charWidth;
 	}
 }
-
-int SDLFont::height()
-{
-	return charHeight;
-}
-
-int SDLFont::width()
-{
-	return charWidth;
-}
-

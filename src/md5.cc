@@ -99,11 +99,11 @@ void MD5::update(const uint1 *input, uint4 input_length)
 // Like above, except that it works on files (and uses above as a primitive.)
 void MD5::update(FILE *file)
 {
-	unsigned char buffer[1024];
+	unsigned char buf[1024];
 	
 	int len;
-	while ((len = fread(buffer, 1, 1024, file)))
-		update(buffer, len);
+	while ((len = fread(buf, 1, 1024, file)))
+		update(buf, len);
 
 	fclose (file);
 }
@@ -112,12 +112,12 @@ void MD5::update(FILE *file)
 // Like update for files; see above.
 void MD5::update(std::istream& stream)
 {
-	unsigned char buffer[1024];
+	unsigned char buf[1024];
 	
 	while (stream.good()) {
-		stream.read((char*)buffer, 1024); // note that return value of read is unusable.
+		stream.read((char*)buf, 1024); // note that return value of read is unusable.
 		int len = stream.gcount();
-		update(buffer, len);
+		update(buf, len);
 	}
 }
 
@@ -125,12 +125,12 @@ void MD5::update(std::istream& stream)
 // Like update for files; see above.
 void MD5::update(std::ifstream& stream)
 {
-	unsigned char buffer[1024];
+	unsigned char buf[1024];
 
 	while (stream.good()) {
-		stream.read((char*)buffer, 1024); // note that return value of read is unusable.
+		stream.read((char*)buf, 1024); // note that return value of read is unusable.
 		int len = stream.gcount();
-		update(buffer, len);
+		update(buf, len);
 	}
 }
 

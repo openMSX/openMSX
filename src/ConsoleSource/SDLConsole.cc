@@ -71,12 +71,12 @@ void SDLConsole::updateConsole()
 		SDL_BlitSurface(backgroundImage, NULL, consoleSurface, &destRect);
 	}
 
-	int screenlines = consoleSurface->h / font->height();
+	int screenlines = consoleSurface->h / font->getHeight();
 	for (int loop=0; loop<screenlines; loop++) {
 		int num = loop+consoleScrollBack;
 		if (num < lines.size())
-			font->drawText(lines[num], consoleSurface, CHAR_BORDER,
-			               consoleSurface->h - (1+loop)*font->height());
+			font->drawText(lines[num], CHAR_BORDER,
+			       consoleSurface->h - (1+loop)*font->getHeight());
 	}
 }
 
@@ -110,27 +110,27 @@ void SDLConsole::drawCursor()
 		int cursorLocation = lines[0].length();
 		if (blink) {
 			// Print cursor if there is enough room
-			font->drawText(std::string("_"), consoleSurface, 
-				      CHAR_BORDER + cursorLocation * font->width(),
-				      consoleSurface->h - font->height());
+			font->drawText(std::string("_"),
+				      CHAR_BORDER + cursorLocation * font->getWidth(),
+				      consoleSurface->h - font->getHeight());
 		} else {
 			// Remove cursor
 			SDL_Rect rect;
-			rect.x = cursorLocation * font->width() + CHAR_BORDER;
-			rect.y = consoleSurface->h - font->height();
-			rect.w = font->width();
-			rect.h = font->height();
+			rect.x = cursorLocation * font->getWidth() + CHAR_BORDER;
+			rect.y = consoleSurface->h - font->getHeight();
+			rect.w = font->getWidth();
+			rect.h = font->getHeight();
 			SDL_FillRect(consoleSurface, &rect, 
 				     SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
 			if (backgroundImage) {
 				// draw the background image if applicable
 				SDL_Rect rect2;
-				rect2.x = cursorLocation * font->width() + CHAR_BORDER;
+				rect2.x = cursorLocation * font->getWidth() + CHAR_BORDER;
 				rect.x = rect2.x - backX;
-				rect2.y = consoleSurface->h - font->height();
+				rect2.y = consoleSurface->h - font->getHeight();
 				rect.y = rect2.y - backY;
-				rect2.w = rect.w = font->width();
-				rect2.h = rect.h = font->height();
+				rect2.w = rect.w = font->getWidth();
+				rect2.h = rect.h = font->getHeight();
 				SDL_BlitSurface(backgroundImage, &rect, consoleSurface, &rect2);
 			}
 		}
@@ -138,14 +138,14 @@ void SDLConsole::drawCursor()
 }
 
 // Sets the alpha level of the console, 0 turns off alpha blending
-void SDLConsole::alpha(unsigned char alpha)
+void SDLConsole::alpha(unsigned char newAlpha)
 {
 	// store alpha as state!
-	consoleAlpha = alpha;
-	if (alpha == 0)
-		SDL_SetAlpha(consoleSurface, 0,            alpha);
+	consoleAlpha = newAlpha;
+	if (consoleAlpha == 0)
+		SDL_SetAlpha(consoleSurface, 0,            consoleAlpha);
 	else
-		SDL_SetAlpha(consoleSurface, SDL_SRCALPHA, alpha);
+		SDL_SetAlpha(consoleSurface, SDL_SRCALPHA, consoleAlpha);
 	updateConsole();
 }
 
@@ -172,18 +172,19 @@ void SDLConsole::background(Config *config, int x, int y)
 void SDLConsole::resize(SDL_Rect rect)
 {
 	// make sure that the size of the console is valid
-	assert (!(rect.w > outputScreen->w || rect.w < font->width() * 32));
-	assert (!(rect.h > outputScreen->h || rect.h < font->height()));
+	assert (!(rect.w > outputScreen->w || rect.w < font->getWidth() * 32));
+	assert (!(rect.h > outputScreen->h || rect.h < font->getHeight()));
 
 	SDL_Surface *temp1 = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, rect.h, 
 	                            outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
-	SDL_Surface *temp2 = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, font->height(), 
+	SDL_Surface *temp2 = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, font->getHeight(),
 	                            outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
 	if (temp1 == NULL || temp2 == NULL)
 		return;
 	if (consoleSurface)  SDL_FreeSurface(consoleSurface);
 	if (inputBackground) SDL_FreeSurface(inputBackground);
 	consoleSurface = SDL_DisplayFormat(temp1);
+	font->setSurface(consoleSurface);
 	inputBackground = SDL_DisplayFormat(temp2);
 	SDL_FreeSurface(temp1);
 	SDL_FreeSurface(temp2);
@@ -211,14 +212,14 @@ void SDLConsole::reloadBackground()
 	if (backgroundImage) {
 		SDL_Rect src;
 			src.x = 0;
-			src.y = consoleSurface->h - font->height() - backY;
+			src.y = consoleSurface->h - font->getHeight() - backY;
 			src.w = backgroundImage->w;
 			src.h = inputBackground->h;
 		SDL_Rect dest;
 			dest.x = backX;
 			dest.y = 0;
 			dest.w = backgroundImage->w;
-			dest.h = font->height();
+			dest.h = font->getHeight();
 		SDL_BlitSurface(backgroundImage, &src, inputBackground, &dest);
 	}
 }

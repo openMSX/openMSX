@@ -11,11 +11,11 @@ FileBase::~FileBase()
 	assert(!mmem);
 }
 
-byte* FileBase::mmap(bool write)
+byte* FileBase::mmap(bool writeBack)
 {
 	if (!mmem) {
-		mmapWrite = write;
-		mmapSize = size();
+		mmapWrite = writeBack;
+		mmapSize = getSize();
 		mmem = new byte[mmapSize];
 		read(mmem, mmapSize);
 	}

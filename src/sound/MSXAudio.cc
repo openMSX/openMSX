@@ -48,22 +48,19 @@ MSXAudio::MSXAudio(Device *config, const EmuTime &time)
 	
 	// left / right / mono
 	Mixer::ChannelMode mode = Mixer::MONO;
-	try {
-		std::string stereomode = config->getParameter("mode");
-		if      (stereomode == "left")
-			mode=Mixer::MONO_LEFT;
-		else if (stereomode == "right")
-			mode=Mixer::MONO_RIGHT;
-	} catch (MSXException &e) {
-		PRT_ERROR("Exception: " << e.desc);
+	const std::string &stereomode = config->getParameter("mode");
+	if (stereomode == "left") {
+		mode=Mixer::MONO_LEFT;
+	} else if (stereomode == "right") {
+		mode=Mixer::MONO_RIGHT;
 	}
 	
 	// SampleRAM size
-	int ramSize = 256;	// in kb
-	try {
+	int ramSize;	// size in kb
+	if (config->hasParameter("sampleram")) {
 		ramSize = config->getParameterAsInt("sampleram");
-	} catch (MSXException &e) {
-		//  no size specified
+	} else {
+		ramSize = 256;
 	}
 	
 	y8950 = new Y8950(volume, ramSize * 1024, time, mode);

@@ -14,11 +14,11 @@ class FileBase
 		virtual ~FileBase();
 		virtual void read (byte* buffer, int num) = 0;
 		virtual void write(const byte* buffer, int num) = 0;
-		virtual byte* mmap(bool write = false);
+		virtual byte* mmap(bool writeBack);
 		virtual void munmap();
-		virtual int size() = 0;
+		virtual int getSize() = 0;
 		virtual void seek(int pos) = 0;
-		virtual int pos() = 0;
+		virtual int getPos() = 0;
 		virtual const std::string getURL() const = 0;
 		virtual const std::string getLocalName() const = 0;
 

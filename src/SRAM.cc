@@ -46,7 +46,7 @@ SRAM::~SRAM()
 			File file(config->getContext(), filename, TRUNCATE);
 			if (header) {
 				int length = strlen(header);
-				file.write((byte*)header, length);
+				file.write((const byte*)header, length);
 			}
 			file.write(sram, size);
 		} catch (FileException &e) {

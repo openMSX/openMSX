@@ -3,26 +3,25 @@
 #ifndef __SDLFONT_HH__
 #define __SDLFONT_HH__
 
-#include <string>
 #include "SDL/SDL.h"
+#include "Font.hh"
 
 class Config;
 
 
-class SDLFont
+class SDLFont : public Font
 {
 	public:
 		SDLFont(Config *config);
-		~SDLFont();
+		virtual ~SDLFont();
 
-		void drawText(const std::string &string, SDL_Surface *surface, int x, int y);
-		int height();
-		int width();
+		void setSurface(SDL_Surface *surface);
+		virtual void drawText(const std::string &string,
+		                      int x, int y);
 
 	private:
-		int charWidth;
-		int charHeight;
 		SDL_Surface *fontSurface;
+		SDL_Surface *drawSurface;
 };
 
 #endif

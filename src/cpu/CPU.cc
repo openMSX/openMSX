@@ -56,18 +56,18 @@ void CPU::invalidateCache(word start, int num)
 
 void CPU::makeTables()
 {
-	for (int i=0; i<256; ++i) {
-		byte zFlag = (i==0) ? Z_FLAG : 0;
+	for (int i = 0; i < 256; ++i) {
+		byte zFlag = (i == 0) ? Z_FLAG : 0;
 		byte sFlag = i & S_FLAG;
 		byte xFlag = i & X_FLAG;
 		byte yFlag = i & Y_FLAG;
-		byte pFlag = V_FLAG;
-		for (int p = 128; p != 0; p >>= 1)
-			if (i & p) pFlag ^= V_FLAG;
+		byte vFlag = V_FLAG;
+		for (int v = 128; v != 0; v >>= 1)
+			if (i & v) vFlag ^= V_FLAG;
 		ZSTable[i]    = zFlag | sFlag;
 		ZSXYTable[i]  = zFlag | sFlag | xFlag | yFlag;
-		ZSPXYTable[i] = zFlag | sFlag | xFlag | yFlag | pFlag;
-		ZSPTable[i]   = zFlag | sFlag |                 pFlag;
+		ZSPXYTable[i] = zFlag | sFlag | xFlag | yFlag | vFlag;
+		ZSPTable[i]   = zFlag | sFlag |                 vFlag;
 	}
 }
 

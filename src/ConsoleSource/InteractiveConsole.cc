@@ -59,7 +59,7 @@ void InteractiveConsole::commandExecute(const EmuTime &time)
 		CommandController::instance()->
 			executeCommand(lines[0].substr(PROMPT.length()), time);
 	} catch (CommandException &e) {
-		print(e.desc);
+		print(e.getMessage());
 	}
 	putPrompt();
 }

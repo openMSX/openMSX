@@ -15,21 +15,18 @@
 #endif
 
 #include <string>
+#include "Font.hh"
 
 
-class GLFont
+class GLFont : public Font
 {
 	public:
 		GLFont(GLuint texture, int width, int height, GLfloat *texCoord);
-		~GLFont();
+		virtual ~GLFont();
 
-		void drawText(const std::string &string, int x, int y);
-		int height();
-		int width();
+		virtual void drawText(const std::string &string, int x, int y);
 
 	private:
-		int charWidth;
-		int charHeight;
 		GLuint fontTexture;
 		int listBase;
 };
