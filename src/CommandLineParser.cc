@@ -27,6 +27,7 @@ CommandLineParser::CommandLineParser()
 	registerOption("-turbor", &msxTurboROption);
 	registerOption("-config", &configFile);
 	registerFileType("xml",   &configFile);
+	registerOption("-setting",&settingOption);
 }
 
 void CommandLineParser::registerOption(const std::string &str,
@@ -91,8 +92,13 @@ void CommandLineParser::parse(int argc, char **argv)
 		PRT_ERROR("Wrong parameter: " << arg);
 	}
 	
-	// load default config file in case the user didn't specify one
+	// load default settings file in case the user didn't specify one
 	MSXConfig *config = MSXConfig::instance();
+	if (!settingOption.parsed) {
+		config->loadFile("", "settings.xml");
+	}
+	
+	// load default config file in case the user didn't specify one
 	if (!haveConfig) {
 		config->loadFile("", "msxconfig.xml");
 	}
@@ -171,6 +177,26 @@ const std::string& CommandLineParser::ConfigFile::fileTypeHelp() const
 	static const std::string text("Configuration file");
 	return text;
 }
+
+
+// Setting Option
+void CommandLineParser::SettingOption::parseOption(const std::string &option,
+                                                   std::list<std::string> &cmdLine)
+{
+	if (parsed) {
+		PRT_ERROR("Only one setting option allowed");
+	}
+	parsed = true;
+	MSXConfig *config = MSXConfig::instance();
+	config->loadFile("", cmdLine.front());
+	cmdLine.pop_front();
+}
+const std::string& CommandLineParser::SettingOption::optionHelp() const
+{
+	static const std::string text("Load an alternative settings file");
+	return text;
+}
+
 
 // MSX1
 void CommandLineParser::MSX1Option::parseOption(const std::string &option,

@@ -1,6 +1,12 @@
 $Id$
 
 2003-01-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Automatically load "settings.xml" on startup:
+	   - you can specify an alternative file with the "-setting" command
+	     line option
+	   - For the moment "settings.xml" must be in the current directory
+
+2003-01-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed Z80/R800 switching again
 	* Removed "sync_interval" parameter from RealTime
 
