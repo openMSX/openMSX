@@ -64,7 +64,7 @@ Known issues / caveats:
   machine descriptions, ROM database entries etc. This happened severely when
   going from version 0.4.0 to 0.5.0, for example.
 - This release was tested on Linux, Win32, Mac OS X and FreeBSD 4 and 5.
-  TODO: really test on Mac OS X and FreeBSD!
+  TODO: really test on Mac OS X and FreeBSD 5!
   Running on other operating systems (wherever SDL runs) should be possible,
   but will probably not work out-of-the-box. If you are compiling on such a
   platform, please share your experiences (see below for contact info),
