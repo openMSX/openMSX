@@ -15,6 +15,7 @@ private:
 	RenderSettings();
 
 	IntegerSetting *scanlineAlpha;
+	IntegerSetting *horizontalBlur;
 
 public:
 	/** Get singleton instance.
@@ -27,6 +28,9 @@ public:
 
 	/** The alpha value [0..100] of the scanlines. */
 	IntegerSetting *getScanlineAlpha() { return scanlineAlpha; }
+
+	/** The amount of horizontal blur [0..100]. */
+	IntegerSetting *getHorizontalBlur() { return horizontalBlur; }
 
 };
 

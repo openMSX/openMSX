@@ -98,9 +98,9 @@ inline static void GLBlitLine(
 {
 	GLUpdateTexture(textureId, data, 256);
 	GLDrawTexture(textureId, leftBorder, y, minX, maxX, 2);
-	
+
 	/* Alternative (outdated)
-	 
+
 	GLSetColour(0xFFFFFFu);
 
 	// Set pixel format.
@@ -176,6 +176,21 @@ inline static void GLDrawColourBlock(GLuint textureId, int x, int y)
 	glEnd();
 }
 
+inline static void GLDrawBlur(int offsetX, int offsetY, float alpha)
+{
+	int left = offsetX;
+	int right = offsetX + 1024;
+	int top = HEIGHT - 512 + offsetY;
+	int bottom = HEIGHT + offsetY;
+	glColor4f(1.0, 1.0, 1.0, alpha);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0, 0.0);  glVertex2i(left, bottom);
+	glTexCoord2f(1.0, 0.0);  glVertex2i(right, bottom);
+	glTexCoord2f(1.0, 1.0);  glVertex2i(right, top);
+	glTexCoord2f(0.0, 1.0);  glVertex2i(left, top);
+	glEnd();
+}
+
 /** Fill a boolean array with a single value.
   * Optimised for byte-sized booleans,
   * but correct for every size.
@@ -216,10 +231,42 @@ inline void SDLGLRenderer::setDisplayMode(int mode)
 
 void SDLGLRenderer::finishFrame()
 {
-	// Draw scanlines if enabled.
-	// TODO: Turn off scanlines when deinterlacing.
+	// Determine which effects to apply.
+	int blurSetting = settings->getHorizontalBlur()->getValue();
+	bool horizontalBlur = blurSetting != 0;
 	int scanlineAlpha = (settings->getScanlineAlpha()->getValue() * 255) / 100;
-	if (scanlineAlpha != 0) {
+	// TODO: Turn off scanlines when deinterlacing.
+	bool scanlines = scanlineAlpha != 0;
+
+	// Blur effect.
+	if (horizontalBlur || scanlines) {
+		// Store current frame as a texture.
+		glBindTexture(GL_TEXTURE_2D, blurTextureId);
+		glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 1024, 512, 0);
+		// Settings for blur rendering.
+		float blurFactor = blurSetting / 200.0;
+		if (!scanlines) blurFactor *= 0.5;
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+		if (horizontalBlur) {
+			// Draw stored frame with 1-pixel offsets to create a
+			// horizontal blur.
+			// TODO: Create display list(s).
+			GLDrawBlur(-1,  0, blurFactor / (1.0 - blurFactor));
+			GLDrawBlur( 1,  0, blurFactor);
+		}
+		if (scanlines) {
+			// Make the dark line contains the average of the visible lines
+			// above and below it.
+			GLDrawBlur( 0, -1, 0.5);
+		}
+		glDisable(GL_TEXTURE_2D);
+	}
+
+	// Scanlines effect.
+	if (scanlines) {
 		// TODO: These are always the same lines: use a display list.
 		// TODO: If interlace is active, draw scanlines on even/odd lines
 		//       for odd/even frames respectively.
@@ -233,14 +280,15 @@ void SDLGLRenderer::finishFrame()
 			glVertex2i(0, y); glVertex2i(WIDTH, y);
 		}
 		glEnd();
-		glDisable(GL_BLEND);
 	}
+	glDisable(GL_BLEND);
 
 	// Render console if needed.
 	console->drawConsole();
 
 	// Update screen.
 	SDL_GL_SwapBuffers();
+
 }
 
 inline SDLGLRenderer::Pixel *SDLGLRenderer::getLinePtr(
@@ -400,6 +448,11 @@ SDLGLRenderer::SDLGLRenderer(
 	//       Does the renderer actually have to keep time?
 	//       Keeping render position should be good enough.
 
+	// Clear graphics buffers.
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClearAccum(0.0, 0.0, 0.0, 0.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
+
 	// Init OpenGL settings.
 	glViewport(0, 0, WIDTH, HEIGHT);
 	glMatrixMode(GL_PROJECTION);
@@ -430,6 +483,11 @@ SDLGLRenderer::SDLGLRenderer(
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
+	// Blur:
+	glGenTextures(1, &blurTextureId);
+	glBindTexture(GL_TEXTURE_2D, blurTextureId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	// Create bitmap display cache.
 	if (vdp->isMSX1VDP()) {
@@ -439,8 +497,8 @@ SDLGLRenderer::SDLGLRenderer(
 		glGenTextures(4 * 256, bitmapTextureIds);
 		for (int i = 0; i < 4 * 256; i++) {
 			glBindTexture(GL_TEXTURE_2D, bitmapTextureIds[i]);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		}
 	}
 

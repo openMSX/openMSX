@@ -215,6 +215,11 @@ private:
 	  */
 	GLuint spriteTextureIds[313];
 
+	/** ID of texture that stores rendered frame.
+	  * Used for blur effect.
+	  */
+	GLuint blurTextureId;
+
 	/** Display mode the line is valid in.
 	  * 0xFF means invalid in every mode.
 	  */

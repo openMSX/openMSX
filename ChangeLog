@@ -1,5 +1,13 @@
 $Id$
 
+2002-11-08 Maarten ter Huurne <mth@stack.nl>
+	* Improved scanline emulation: the dark line is now an interpolation of
+	  the visible lines above and below.
+	* Added horizontal blur: emulates the fact that MSX monitors and TVs
+	  are not as sharp as typical PC monitors. Many game graphics are drawn
+	  with this blurring in mind and look poor on a sharp display.
+	Note: scanlines and blur are implemented only in the GL renderer.
+
 2002-11-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* added VDP reset() methods (not finished)
 
