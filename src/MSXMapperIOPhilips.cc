@@ -2,6 +2,12 @@
 
 #include "MSXMapperIOPhilips.hh"
 
+MSXMapperIOPhilips::MSXMapperIOPhilips()
+{
+	largest = 0;
+	mask = 255;
+}
+
 // unused bits read always "1"
 byte MSXMapperIOPhilips::convert(byte value)
 {
@@ -10,8 +16,11 @@ byte MSXMapperIOPhilips::convert(byte value)
 
 void MSXMapperIOPhilips::registerMapper(int blocks)
 {
-	int bits = log2RoundedUp(blocks);
-	mask = (256-(1<<bits))&255;
+	if (blocks > largest) {
+		largest = blocks;
+		int bits = log2RoundedUp(blocks);
+		mask = (256-(1<<bits))&255;
+	}
 }
 
 /* 
