@@ -24,7 +24,7 @@ CXXFLAGS+= \
 	-mthreads -mconsole -mms-bitfields \
 	-I/mingw/include -I/mingw/include/w32api \
 	-D__GTHREAD_HIDE_WIN32API \
-	-DNO_X11 -DNO_MMAP -DNO_SOCKET -DNO_BZERO -DNO_LINUX_RTC \
+	-DNO_LINUX_RTC \
 	-DFS_CASEINSENSE
 
 # Linker flags.
