@@ -42,6 +42,7 @@ GLConsole::GLConsole()
 GLConsole::~GLConsole()
 {
 	delete backgroundSetting;
+	delete fontSetting;
 	delete font;
 	if (backgroundTexture) {
 		glDeleteTextures(1, &backgroundTexture);

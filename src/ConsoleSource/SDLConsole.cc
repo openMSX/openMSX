@@ -51,6 +51,7 @@ SDLConsole::~SDLConsole()
 	if (backgroundImage) {
 		SDL_FreeSurface(backgroundImage);
 	}
+	delete fontSetting;
 	delete backgroundSetting;
 	delete font;
 }
