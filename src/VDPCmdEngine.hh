@@ -4,8 +4,8 @@
 #define __VDPCMDENGINE_HH__
 
 #include "openmsx.hh"
+#include "EmuTime.hh"
 
-class EmuTime;
 class VDP;
 
 /** VDP command engine by Alex Wulms.
@@ -50,7 +50,7 @@ private:
 
 	/** Calculate addr of a pixel in VRAM.
 	  */
-	inline byte *vramPtr(byte m, int x, int y);
+	inline int vramAddr(int x, int y);
 
 	/** Get a pixel on SCREEN5.
 	  */
@@ -74,7 +74,7 @@ private:
 
 	/** Low level function to set a pixel on a screen.
 	  */
-	inline void psetLowLevel(byte *p, byte cl, byte m, byte op);
+	inline void psetLowLevel(int addr, byte cl, byte m, byte op);
 
 	/** Set a pixel on SCREEN5.
 	  */
@@ -183,6 +183,10 @@ private:
 	  * -1 -> other.
 	  */
 	int scrMode;
+
+	/** Current time: the moment up until when the engine is emulated.
+	  */
+	EmuTimeFreq<21477270> currentTime;
 
 };
 

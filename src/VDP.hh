@@ -7,8 +7,7 @@
 #include "MSXIODevice.hh"
 #include "HotKey.hh"
 #include "EmuTime.hh"
-
-class Renderer;
+#include "Renderer.hh"
 
 
 /** Unified implementation of MSX Video Display Processors (VDPs).
@@ -110,6 +109,24 @@ public:
 	inline byte getVRAM(int addr) {
 		//fprintf(stderr, "read VRAM @ %04X\n", addr);
 		return vramData[addr];
+	}
+
+	/** Write a byte to the VRAM.
+	  * @param addr The address to write.
+	  *   No bounds checking is done, so make sure it is a legal address.
+	  * @param value The value to write.
+	  * @param time The moment in emulated time this write occurs.
+	  * @return The VRAM contents at the specified address.
+	  */
+	inline void setVRAM(int addr, byte value, const EmuTime &time) {
+		//fprintf(stderr, "write VRAM @ %04X\n", addr);
+		// TODO: Remove the assert once I trust no bugs were introduced
+		//       by the command engine integration.
+		assert((addr & vramMask) == addr);
+		if (vramData[addr] != value) {
+			vramData[addr] = value;
+			renderer->updateVRAM(addr, value, time);
+		}
 	}
 
 	/** Gets the current foreground colour.

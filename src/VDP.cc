@@ -221,10 +221,7 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 	case 0x98: {
 		int addr = ((controlRegs[14] << 14) | vramPointer) & vramMask;
 		//fprintf(stderr, "VRAM[%05X]=%02X\n", addr, value);
-		if (vramData[addr] != value) {
-			vramData[addr] = value;
-			renderer->updateVRAM(addr, value, time);
-		}
+		setVRAM(addr, value, time);
 		vramPointer = (vramPointer + 1) & 0x3FFF;
 		if (vramPointer == 0 && (displayMode & 0x18)) {
 			// In MSX2 video modes, pointer range is 128K.
@@ -412,7 +409,7 @@ void VDP::updateDisplayMode(const EmuTime &time)
 		| ((controlRegs[1] & 0x08) >> 2)
 		| ((controlRegs[1] & 0x10) >> 4);
 	if (newMode != displayMode) {
-		PRT_DEBUG("VDP: mode " << newMode);
+		fprintf(stderr, "VDP: mode %02X\n", newMode);
 		displayMode = newMode;
 		renderer->updateDisplayMode(time);
 	}
