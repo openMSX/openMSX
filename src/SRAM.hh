@@ -4,6 +4,7 @@
 #define __SRAM_HH__
 
 #include "openmsx.hh"
+#include <cassert>
 
 class Config;
 
