@@ -1,6 +1,9 @@
 $Id$
 
 2001-12-09 Maarten ter Huurne <mth@stack.nl>
+	* Faked enough V9938 features to make nms8250.xml boot.
+
+2001-12-09 Maarten ter Huurne <mth@stack.nl>
 	* Fixed compilation with Z80DEBUG enabled.
 	* Fixed single-width pixels in SCREEN0 in SDLHiRenderer.
 	* Re-enabled resetting of dirty flags at end-of-frame.

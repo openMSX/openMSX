@@ -307,7 +307,7 @@ byte VDP::readIO(byte port, const EmuTime &time)
 			break;
 		}
 		firstByte = -1;
-		fprintf(stderr, "VDP status reg %d read: %02X\n", activeStatusReg, ret);
+		//fprintf(stderr, "VDP status reg %d read: %02X\n", activeStatusReg, ret);
 		return ret;
 	}
 	default:
@@ -318,8 +318,7 @@ byte VDP::readIO(byte port, const EmuTime &time)
 
 void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 {
-	fprintf(stderr, "VDP[%02X]=%02X\n", reg, val);
-	printf("VDP[%02X]=%02X\n", reg, val);
+	//fprintf(stderr, "VDP[%02X]=%02X\n", reg, val);
 
 	// TODO: Mask for 00..07 are for MSX1, on MSX2 the masks are
 	//   less restrictive.
