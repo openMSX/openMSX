@@ -8,6 +8,9 @@ $Id$
 	   - hopefully this works on all compilers, if not (or if it's
 	     too ugly) we can just remove this class
 	* Compilation fixes for icc
+	* Extended CPU debuggable:
+	   - IM can now be read at possition 26
+	   - IFF1 and IFF2 can be read as bit 0 and 1 on position 27
 
 2004-03-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "type" command:

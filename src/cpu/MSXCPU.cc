@@ -145,34 +145,17 @@ void MSXCPU::wait(const EmuTime &time)
 
 // DebugInterface
 
-/*
-static string regNames[] = {
-	"AF",  "BC",  "DE",  "HL",
-	"AF2", "BC2", "DE2", "HL2",
-	"IX",  "IY",  "PC",  "SP",
-	"IR"
-};
-
-const string MSXCPU::getRegisterName(unsigned regNr) const
-{
-	assert(regNr < getSize());
-	return regNames[regNr / 2];
-}
-
-unsigned MSXCPU::getRegisterNumber(const string& regName) const
-{
-	for (int i = 0; i < (26 / 2); ++i) {
-		if (regName == regNames[i]) {
-			return i * 2;
-		}
-	}
-	return 0;
-}
-*/
+//  0 ->  A      1 ->  F      2 -> B       3 -> C
+//  4 ->  D      5 ->  E      6 -> H       7 -> L
+//  8 ->  A'     9 ->  F'    10 -> B'     11 -> C'
+// 12 ->  D'    13 ->  E'    14 -> H'     15 -> L'
+// 16 -> IXH    17 -> IXL    18 -> IYH    19 -> IYL
+// 20 -> PCH    21 -> PCL    22 -> SPH    23 -> SPL
+// 24 ->  I     25 ->  R     26 -> IM     27 -> IFF1/2
 
 unsigned MSXCPU::getSize() const
 {
-	return 26; // number of 8 bits registers (16 bits = 2 registers)
+	return 28; // number of 8 bits registers (16 bits = 2 registers)
 }
 
 const string& MSXCPU::getDescription() const
@@ -197,6 +180,10 @@ byte MSXCPU::read(unsigned address)
 		return regs->I;
 	case 25:
 		return regs->R;
+	case 26:
+		return regs->IM;
+	case 27:
+		return regs->IFF1 + 2 * regs->IFF2;
 	default:
 		if (address & 1) {
 			return registers[address / 2]->B.l;
@@ -222,6 +209,15 @@ void MSXCPU::write(unsigned address, byte value)
 		break;
 	case 25:
 		regs->R = value;
+		break;
+	case 26:
+		if (value < 3) {
+			regs->IM = value;
+		}
+		break;
+	case 27:
+		regs->IFF1 = value & 0x01;
+		regs->IFF2 = value & 0x02;
 		break;
 	default:
 		if (address & 1) {
