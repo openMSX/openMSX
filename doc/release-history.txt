@@ -28,6 +28,7 @@ This new release brings you the following improvements:
   an MSX turbo R, for example.
 - Added screenshot feature.
   Default key bindings changed to put this under PrtScr.
+  F12 toggles full screen now, while Quit is not mapped anymore, by default.  
 - Added Ren-Sha Turbo (autofire) emulation: "set renshaturbo <speed>".
 - Added emulation of the MSX turbo R pause key.
 - Added LED status of disk drives.
