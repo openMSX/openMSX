@@ -1,5 +1,8 @@
 $Id$
 
+2001-12-09 Joost Yervante Damad <j.damad@qahwah.net>
+	* Rom Patching Code skeleton
+
 2001-12-09 Maarten ter Huurne <mth@stack.nl>
 	* Fixed uninitialised struct field in SDLLoRenderer.
 	* SDLHiRenderer renders doubled pixels now.

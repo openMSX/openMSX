@@ -60,7 +60,9 @@ openmsx_SOURCES=openmsx.cc \
 	KeyEventInserter.cc KeyEventInserter.hh \
 	SDLEventInserter.cc SDLEventInserter.hh \
 	LoadFile.hh LoadFile.cc \
-	MSXRom.cc MSXRom.hh
+	MSXRom.cc MSXRom.hh \
+	MSXRomPatchInterface.hh \
+	MSXDiskRomPatch.cc MSXDiskRomPatch.hh
 
 
 # libxml++ and SDL
