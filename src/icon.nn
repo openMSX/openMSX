@@ -11,7 +11,7 @@ static int iconColours[] = {
 	0xFFFFFFFF,
 	0xFFDBDB24,
 };
-static char iconData[] = {
+static unsigned char iconData[] = {
 	0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,
 	0,0,0,0,0,0,1,1,1,2,2,1,2,1,0,0,
 	0,0,0,0,0,1,1,1,2,2,1,2,1,2,0,0,
