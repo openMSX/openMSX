@@ -4,10 +4,26 @@
 
 * backend issues: [MSXDevice <-> OS/SDL]
  - cassette support 
+ - printer support (//)
+ - [virtual] floppy support
+ - joystick support
+ - mouse support
+ - trackball support
 
 * devices: [MSXDevice]
+ - SCC [David]
+ - DAC [David]
+ - Floppy Controller
+ - Music Module Devices
+ - RS232 (Modem)
+ - // (Printer Port)
+ - Moon Sound Devices
+ - FM-PAC Devices
+ - FM-PAK Devices
 
 * config:
  - xmlconfig save support
  - support for configuration for non-devices
  - support for saving states of devices
+ - getBoolParameter(String parameterName, bool defaultValue), 
+   also for int, string, ... [typed parameters]
