@@ -272,7 +272,6 @@ MSXConfig::Config* Backend::getConfigById(const std::string &id)
 			return (*i);
 		}
 	}
-	// TODO XXX raise exception?
 	std::ostringstream s;
 	s << "<config> or <device> with id:" << id << " not found";
 	throw MSXConfig::Exception(s);
@@ -291,6 +290,11 @@ MSXConfig::Device* Backend::getDeviceById(const std::string &id)
 	std::ostringstream s;
 	s << "<device> with id:" << id << " not found";
 	throw MSXConfig::Exception(s);
+}
+
+MSXConfig::CustomConfig* Backend::getCustomConfigById(const std::string &id)
+{
+	assert(false);
 }
 
 void Backend::initDeviceIterator()

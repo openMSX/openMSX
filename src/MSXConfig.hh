@@ -128,6 +128,16 @@ private:
 	Device &operator=(const Device &foo); // block usage
 };
 
+class CustomConfig
+{
+public:
+	CustomConfig() {};
+	virtual ~CustomConfig() {};
+private:
+	CustomConfig(const CustomConfig &foo); // block usage
+	CustomConfig &operator=(const CustomConfig &foo); // block usage
+};
+
 class Backend
 {
 public:
@@ -146,10 +156,11 @@ public:
 	virtual void saveFile(const std::string &filename)=0;
 
 	/**
-	 * get a config or device by id
+	 * get a config or device or customconfig by id
 	 */
 	virtual Config* getConfigById(const std::string &id)=0;
 	virtual Device* getDeviceById(const std::string &id)=0;
+	virtual CustomConfig* getCustomConfigById(const std::string &id)=0;
 
 	/**
 	 * get a device

@@ -1,5 +1,4 @@
 // $Id$
-// $Id$
 
 #ifndef __XMLCONFIG_HH__
 #define __XMLCONFIG_HH__
@@ -68,6 +67,7 @@ public:
 
 	virtual MSXConfig::Config* getConfigById(const std::string &id);
 	virtual MSXConfig::Device* getDeviceById(const std::string &id);
+	virtual MSXConfig::CustomConfig* getCustomConfigById(const std::string &id);
 
 	virtual void initDeviceIterator();
 	virtual MSXConfig::Device* getNextDevice();
