@@ -137,6 +137,14 @@ Backend::~Backend()
 	{
 		delete (*doc);
 	}
+	for (std::list<Config*>::iterator i = configs.begin(); i != configs.end(); i++)
+	{
+		delete (*i);
+	}
+	for (std::list<Device*>::iterator i = devices.begin(); i != devices.end(); i++)
+	{
+		delete (*i);
+	}
 }
 
 void Backend::loadFile(const std::string &filename)
@@ -144,6 +152,50 @@ void Backend::loadFile(const std::string &filename)
 	XML::Document* doc = new XML::Document(filename);
 	docs.push_back(doc);
 	// TODO XXX update/append Devices/Configs
+	for (std::list<XML::Element*>::const_iterator i = doc->root->children.begin(); i != doc->root->children.end(); i++)
+	{
+		if ((*i)->name=="config" || (*i)->name=="device")
+		{
+			std::string id((*i)->getAttribute("id"));
+			if (id=="")
+			{
+				throw MSXConfig::Exception("<config> or <device> is missing 'id'");
+			}
+			if (hasConfigWithId(id))
+			{
+				std::ostringstream s;
+				s << "<config> or <device> with duplicate 'id':" << id;
+				throw MSXConfig::Exception(s);
+			}
+			if ((*i)->name=="config")
+			{
+				configs.push_back(new Config((*i)));
+			}
+			else /* (*i)->name=="device" */
+			{
+				devices.push_back(new Device((*i)));
+			}
+		}
+		else
+		{
+			std::ostringstream s;
+			s << "expected <config> or <device>, got: <" << (*i)->name << ">";
+			throw MSXConfig::Exception(s);
+		}
+	}
+}
+
+bool Backend::hasConfigWithId(const std::string &id)
+{
+	try
+	{
+		getConfigById(id);
+	}
+	catch (MSXConfig::Exception &e)
+	{
+		return false;
+	}
+	return true;
 }
 
 void Backend::saveFile()
@@ -176,7 +228,9 @@ MSXConfig::Config* Backend::getConfigById(const std::string &id)
 		}
 	}
 	// TODO XXX raise exception?
-	return 0;
+	std::ostringstream s;
+	s << "<config> or <device> with id:" << id << " not found";
+	throw MSXConfig::Exception(s);
 }
 
 

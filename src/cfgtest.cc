@@ -7,6 +7,13 @@
 int main(int argc, char** argv)
 {
 	MSXConfig::Backend* config = MSXConfig::Backend::createBackend("xml");
-	config->loadFile("msxconfig.xml");
+	try
+	{
+		config->loadFile("msxconfig.xml");
+	}
+	catch (MSXConfig::Exception &e)
+	{
+		std::cout << e.desc << std::endl;
+	}
 	delete config;
 }

@@ -70,6 +70,7 @@ private:
 	Backend(const Backend &foo);            // block usage
 	Backend &operator=(const Backend &foo); // block usage
 
+	bool hasConfigWithId(const std::string &id);
 
 	std::list<XML::Document*> docs;
 	std::list<Config*> configs;
