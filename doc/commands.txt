@@ -33,6 +33,7 @@ cas
   usage:
     cas <tapeimage>  insert tapeimage in virtual cassette player
     cas eject        remove tape from virtual cassette player
+    cas rewind       rewind the current tape
 
 
 cassetteplayer
@@ -44,6 +45,7 @@ cassetteplayer
   usage:
     cassetteplayer <tapeimage>  insert tapeimage in virtual cassette player
     cassetteplayer eject        remove tape from virtual cassette player
+    cassetteplayer rewind       rewind the current tape
 
     
 diska / diskb

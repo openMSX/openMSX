@@ -176,6 +176,9 @@ void CassettePlayer::execute(const vector<string> &tokens)
 	if (tokens[1] == "eject") {
 		print("Tape ejected");
 		removeTape();
+	} else if (tokens[1] == "rewind") {
+		print("Tape rewinded");
+		rewind();
 	} else {
 		try {
 			print("Changing tape");

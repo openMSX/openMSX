@@ -399,11 +399,17 @@ void MSXTapePatch::STMOTR(CPU::CPURegs& R)
 
 void MSXTapePatch::execute(const std::vector<std::string> &tokens)
 {
-	if (tokens.size() != 2)
+	if (tokens.size() != 2) {
 		throw CommandException("Syntax error");
+	}
 	if (tokens[1]=="eject") {
 		print("Tape ejected");
 		ejectTape();
+	} else if (tokens[1] == "rewind") {
+		print("Tape rewinded");
+		if (file) {
+			file->seek(0);
+		}
 	} else {
 		print("Changing tape");
 		UserFileContext context;
