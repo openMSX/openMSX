@@ -29,7 +29,7 @@ SDL_Surface* openSDLVideo(int width, int height, int flags)
 
 	// Set window title.
 	HardwareConfig& hardwareConfig = HardwareConfig::instance();
-	string title = Version::WINDOW_TITLE + " - " +
+	string title = Version::FULL_VERSION + " - " +
 		hardwareConfig.getChild("info").getChildData("manufacturer") + " " +
 		hardwareConfig.getChild("info").getChildData("code");
 	SDL_WM_SetCaption(title.c_str(), 0);

@@ -1,5 +1,9 @@
 $Id$
 
+2004-12-12 Manuel Bilderbeek <manuel@msxnet.org>
+	* Removed the annoying [alpha] notice. It's clear enough we're alpha... 
+	  :)
+
 2004-12-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* x/y-coord and on/off-image of the LED icons can be configured
 	* icon fade delay and duration can be configured

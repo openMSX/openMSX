@@ -16,7 +16,6 @@ public:
 
 	// Computed using constants above:
 	static const std::string FULL_VERSION;
-	static const std::string WINDOW_TITLE;
 };
 
 } // namespace openmsx
