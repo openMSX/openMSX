@@ -12,24 +12,6 @@
 class XMLTree;
 class XMLNode;
 
-class MSXConfigDevice
-{
-public:
-	MSXConfigDevice(XMLNode *deviceNode);
-	const string &getType();
-	const string &getId();
-	bool  isSlotted();
-	int   getPage();
-	int   getPS();
-	int   getSS();
-	bool  hasParameter(const string &name);
-	const string &getParameter(const string &name);
-private:
-	MSXConfigDevice(); // block usage
-	MSXConfigDevice(const MSXConfigDevice &foo); // block usage
-	MSXConfigDevice &operator=(const MSXConfigDevice &foo); // block usage
-};
-
 class MSXConfig
 {
 public:
@@ -41,9 +23,27 @@ public:
 	bool loadFile(const string &filename);
 	//void saveFile(const string &filename = 0);
 
-	list<MSXConfigDevice*> deviceList;
-	list<MSXConfigDevice*> getDeviceByType(const string &type);
-	MSXConfigDevice *getDeviceById(const string &type);
+	class Device
+	{
+	public:
+		Device(XMLNode *deviceNode);
+		const string &getType();
+		const string &getId();
+		bool  isSlotted();
+		int   getPage();
+		int   getPS();
+		int   getSS();
+		bool  hasParameter(const string &name);
+		const string &getParameter(const string &name);
+	private:
+		Device(); // block usage
+		Device(const Device &foo); // block usage
+		Device &operator=(const Device &foo); // block usage
+	};
+
+	list<Device*> deviceList;
+	list<Device*> getDeviceByType(const string &type);
+	Device *getDeviceById(const string &type);
 
 private:
 	MSXConfig(); // private constructor -> can only construct self
