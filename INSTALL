@@ -1,7 +1,7 @@
-Below are generic installation instructions which may be very confusing if you
-don't know exactly what you're doing. Newbies may want to read
-doc/openMSX-HOWTO.txt instead, which contain step by step instructions for the
-compilation, installation, configuration and practical usage of openMSX.
+Below are generic installation instructions of the GNU build system.
+For specific instructions on installing openMSX, read the Compile Guide
+(doc/manual/compile.html) instead.
+
 
 Basic Installation
 ==================
