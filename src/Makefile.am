@@ -35,6 +35,7 @@ openmsx_SOURCES=openmsx.cc \
 	MSXMemoryMapper.hh MSXMemoryMapper.cc \
 	MSXMapperIO.hh MSXMapperIO.cc \
 	MSXMapperIOTurboR.hh MSXMapperIOTurboR.cc \
+	MSXMapperIOPhilips.hh MSXMapperIOPhilips.cc \
 	MSXRTC.hh MSXRTC.cc RP5C01.hh RP5C01.cc
 
 

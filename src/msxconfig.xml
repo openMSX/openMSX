@@ -75,6 +75,7 @@
   </device>
   <device id="Mapper IO">
     <type>MapperIO</type>
+    <parameter name="type">Philips</parameter>
   </device>
   <device id="mymapper1">
     <type>MemoryMapper</type>

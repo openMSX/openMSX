@@ -5,12 +5,10 @@
 
 #include "MSXMapperIO.hh"
 
-class MSXMapperIOTurboR : public MSXMapperIO
+class MSXMapperIOTurboR : public MSXMapperIODevice
 {
 	public:
-		MSXMapperIOTurboR();
-		~MSXMapperIOTurboR();
-		byte readIO(byte port, Emutime &time);
+		byte convert(byte value);
 		void registerMapper(int blocks);
 };
 

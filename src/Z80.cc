@@ -17,12 +17,7 @@
 #include "Z80Dasm.h"
 #include "Z80.hh"
 
-#include "opc__Z80.h"
-
-byte Z80::PTable[512];
-byte Z80::ZSTable[512];
-byte Z80::ZSPTable[512];
-#include "Z80DAA.h"
+#include "Z80Tables.hh"
 
 Z80::Z80(Z80Interface *interf)
 {
@@ -122,7 +117,6 @@ int Z80::Z80_SingleInstruction()
 	++R.R;
 	R.ICount = cycles_main[opcode];
 	(this->*opcode_main[opcode])();;	// R.ICount can be raised extra
-	//  TODO: still need to adapt all other code to change the CurrentCPUTime 
 	#ifdef DEBUG
 		printf("%04x : instruction ", start_pc);
 		Z80_Dasm(&debugmemory[start_pc], to_print_string, start_pc );

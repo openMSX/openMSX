@@ -1,7 +1,9 @@
 // $Id$
 
+#include <string>
 #include "MSXMapperIO.hh"
 #include "MSXMapperIOTurboR.hh"
+#include "MSXMapperIOPhilips.hh"
 #include "MSXMotherBoard.hh"
 
 
@@ -16,8 +18,7 @@ MSXMapperIO::~MSXMapperIO()
 MSXMapperIO *MSXMapperIO::instance()
 {
 	if (oneInstance == NULL) {
-		oneInstance = new MSXMapperIOTurboR();
-		// TODO check config file for which specific mapperIO type 
+		oneInstance = new MSXMapperIO();
 	}
 	return oneInstance;
 }
@@ -27,6 +28,16 @@ MSXMapperIO *MSXMapperIO::oneInstance = NULL;
 void MSXMapperIO::init()
 {
 	MSXDevice::init();
+	
+	// Create specified IO behaviour
+	string type = deviceConfig->getParameter("type");
+	if (type == "TurboR")
+		device = new MSXMapperIOTurboR();
+	else if (type == "Philips")
+		device = new MSXMapperIOPhilips();
+	else
+		PRT_ERROR("Unknown mapper type");
+	
 	// Register I/O ports FC..FF for reading
 	MSXMotherBoard::instance()->register_IO_In (0xFC,this);
 	MSXMotherBoard::instance()->register_IO_In (0xFD,this);
@@ -49,6 +60,12 @@ void MSXMapperIO::reset()
 	pageNum[3] = 0;
 }
 
+byte MSXMapperIO::readIO(byte port, Emutime &time)
+{
+	assert(0xfc <= port);
+	return device->convert(pageNum[port-0xfc]);
+}
+
 void MSXMapperIO::writeIO(byte port, byte value, Emutime &time)
 {
 	assert (0xfc <= port);
@@ -64,8 +81,8 @@ byte MSXMapperIO::getPageNum(int page)
 	return pageNum[page];
 }
 
-
-//These methods are specific for each type of MSXMapperIO
-//  byte MSXMapperIO::readIO(byte port, Emutime &time);
-//  void MSXMapperIO::registerMapper(int blocks);
+void MSXMapperIO::registerMapper(int blocks)
+{
+	device->registerMapper(blocks);
+}
 

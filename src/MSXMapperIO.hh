@@ -9,13 +9,20 @@
 #include "emutime.hh"
 #include "MSXDevice.hh"
 
+class MSXMapperIODevice
+{
+	public:
+		virtual byte convert(byte value) = 0;
+		virtual void registerMapper(int blocks) = 0;
+};
+
 class MSXMapperIO : public MSXDevice
 {
 	public:
 		~MSXMapperIO();
 		static MSXMapperIO *instance();
 		
-		byte readIO(byte port, Emutime &time) = 0;
+		byte readIO(byte port, Emutime &time);
 		void writeIO(byte port, byte value, Emutime &time);
 		
 		void init();
@@ -24,16 +31,14 @@ class MSXMapperIO : public MSXDevice
 		//void saveState(std::ofstream &writestream);
 		//void restoreState(std::string &devicestring, std::ifstream &readstream);
 
-		// specific for MapperIO
-		virtual void registerMapper(int blocks) = 0;
+		void registerMapper(int blocks);
 		byte getPageNum(int page);
-
-	protected:
-		MSXMapperIO();
 	
 	private:
+		MSXMapperIO();
 		static MSXMapperIO *oneInstance;
 
+		MSXMapperIODevice *device;
 		byte pageNum[4];
 };
 
