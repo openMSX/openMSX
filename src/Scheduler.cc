@@ -112,10 +112,12 @@ inline void Scheduler::emulateStep()
 	const EmuTime &time = sp.getTime();
 	if (cpu->getTargetTime() < time) {
 		sem.up();
-		// first bring CPU till SP
-		//  (this may set earlier SP)
-		PRT_DEBUG ("Sched: Scheduling CPU till " << time);
-		cpu->executeUntilTarget(time);
+		if (!paused) {
+			// first bring CPU till SP
+			//  (this may set earlier SP)
+			PRT_DEBUG ("Sched: Scheduling CPU till " << time);
+			cpu->executeUntilTarget(time);
+		}
 	} else {
 		// if CPU has reached SP, emulate the device
 		pop_heap(syncPoints.begin(), syncPoints.end());
@@ -137,9 +139,8 @@ const EmuTime Scheduler::scheduleEmulation()
 			SDL_Delay(20); // 50 fps
 			assert(renderer != NULL);
 			renderer->putStoredImage();
-		} else {
-			emulateStep();
 		}
+		emulateStep();
 		eventDistributor->run();
 	}
 	return cpu->getTargetTime();
