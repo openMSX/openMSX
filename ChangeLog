@@ -1,5 +1,8 @@
 $Id$
 
+2002-04-13 Maarten ter Huurne <mth@stack.nl>
+	* VDPVRAM and related cleanups.
+
 2002-04-12 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* DACSound cleanup (still has the same(?) bug)
 	* EventDistributor simplification:

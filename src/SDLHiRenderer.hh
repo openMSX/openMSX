@@ -59,16 +59,19 @@ public:
 	void updateVRAM(int addr, byte data, const EmuTime &time);
 
 private:
-	typedef void (SDLHiRenderer::*PhaseHandler)(int line, int limit);
+	typedef void (SDLHiRenderer::*PhaseHandler)
+		(int line, int limit, const EmuTime &time);
 	typedef void (SDLHiRenderer::*DirtyChecker)
 		(int addr, byte data, const EmuTime &time);
 
 	inline void sync(const EmuTime &time);
-	inline void renderUntil(int limit);
 
-	inline void renderBitmapLines(int line, int number);
-	inline void renderPlanarBitmapLines(int line, int number);
-	inline void renderCharacterLines(int line, int number);
+	inline void renderBitmapLines(
+		int line, int number, const EmuTime &time);
+	inline void renderPlanarBitmapLines(
+		int line, int number, const EmuTime &time);
+	inline void renderCharacterLines(
+		int line, int number, const EmuTime &time);
 
 	/** Get width of the left border in pixels.
 	  * This is equal to the X coordinate of the display area.
@@ -99,13 +102,13 @@ private:
 	  * Used for borders and during blanking.
 	  * @param limit Render lines [currentLine..limit).
 	  */
-	void blankPhase(int line, int limit);
+	void blankPhase(int line, int limit, const EmuTime &time);
 
 	/** Render pixels according to VRAM.
 	  * Used for the display part of scanning.
 	  * @param limit Render lines [currentLine..limit).
 	  */
-	void displayPhase(int line, int limit);
+	void displayPhase(int line, int limit, const EmuTime &time);
 
 	/** Dirty checking that does nothing (but is a valid method).
 	  */

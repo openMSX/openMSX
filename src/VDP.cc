@@ -725,6 +725,7 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 		// TODO: Check MXC bit (R#45, bit 6) for extension RAM access.
 		//       This bit is kept by the command engine.
 
+		// TODO: Move all these sync tasks to VDPVRAM.
 		// First sync with the command engine, which can write VRAM.
 		cmdEngine->updateVRAM(addr, time);
 		// Then sync sprite checking, which only reads VRAM and

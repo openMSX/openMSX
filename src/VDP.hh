@@ -90,6 +90,10 @@ public:
 		byte colourAttrib;
 	} SpriteInfo;
 
+	/** Number of VDP clock ticks per second.
+	  */
+	static const int TICKS_PER_SECOND = 21477270;
+
 	/** Number of VDP clock ticks per line.
 	  */
 	static const int TICKS_PER_LINE = 1368;
@@ -652,7 +656,7 @@ private:
 
 	/** The emulation time when this frame was started (vsync).
 	  */
-	EmuTimeFreq<21477270> frameStartTime;
+	EmuTimeFreq<TICKS_PER_SECOND> frameStartTime;
 
 	/** Manages vertical scanning interrupt request.
 	  */

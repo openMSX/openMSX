@@ -22,7 +22,7 @@ VDPVRAM::~VDPVRAM() {
 }
 
 VDPVRAM::Window::Window() {
-	this->enabled = false;
+	disable();
 }
 
 void VDPVRAM::Window::setData(byte *data) {

@@ -70,12 +70,6 @@ public:
 		return cmdRead(address);
 	}
 
-	/** TODO: Get rid of it, currently makes Renderers compile.
-	  */
-	inline const byte *getVRAMArea(int start, int end) {
-		return data + start;
-	}
-
 	/** Read a byte from VRAM.
 	  */
 	inline byte read(int address, const EmuTime &time) {
@@ -111,37 +105,71 @@ public:
 		this->cmdEngine = cmdEngine;
 	}
 
+	/** Specifies an address range in the VRAM.
+	  * A VDP subsystem can use this to put a claim on a certain area.
+	  * For example, the owner of a read window will be notified before
+	  * writes to the corresponding area are commited.
+	  */
 	class Window {
 	public:
+		/** Create a new window.
+		  * Initially, the window is disabled; use setRange to enable it.
+		  */
 		Window();
+
+		/** Change the address range of this window.
+		  * @param start New start address (inclusive).
+		  * @param end New end address (exclusive).
+		  */
 		inline void setRange(int start, int end) {
-			enabled = true;
 			this->start = start;
 			this->end = end;
 		}
+
+		/** Disable this window: no address will be considered inside.
+		  */
 		inline void disable() {
-			enabled = false;
+			this->end = 0;
 		}
-		/*
-		// TODO: If this method is never used, maybe it's faster to
-		//       put start at infinity to disable a window.
-		inline bool isEnabled() {
-			return enabled;
-		}
-		*/
+
+		/** Test whether an address is inside this window.
+		  * @param address The address to test.
+		  * @return true iff the address in side this window.
+		  */
 		inline bool isInside(int address) {
-			return enabled && start <= address && address < end;
+			return address < end && start <= address;
 		}
+
+		/** Does this window overlap the specified range?
+		  * @param start Start address (inclusive) of range.
+		  * @param end End address (exclusive) of range.
+		  * @return truee iff range and window overlap.
+		  * TODO: Use a Window as parameter instead?
+		  */
 		inline bool overlaps(int start, int end) {
-			return enabled && this->start < end && start < this->end;
+			return start < this->end && this->start < end;
 		}
-		/** TODO: Move to constructor or make available only to VDPVRAM.
+
+	private:
+		/** For access to setData.
+		  */
+		friend class VDPVRAM;
+
+		/** Used by VDPVRAM to pass a pointer to the VRAM data.
 		  */
 		void setData(byte *data);
-	private:
+
+		/** Pointer to the entire VRAM data.
+		  */
 		byte *data;
-		bool enabled;
+
+		/** Start address (inclusive) of this window.
+		  */
 		int start;
+
+		/** End address (exclusive) of this window.
+		  * Set this to zero to disable the window.
+		  */
 		int end;
 	};
 
@@ -167,6 +195,19 @@ private:
 
 	Renderer *renderer;
 	VDPCmdEngine *cmdEngine;
+
+};
+
+// TODO: Nice abstraction, but virtual is a large overhead.
+class VRAMListener {
+public:
+
+	/** Informs the listener of a change in VRAM contents.
+	  * @param addr The address that will change.
+	  * @param data The new value.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	virtual void updateVRAM(int addr, byte data, const EmuTime &time) = 0;
 
 };
 
