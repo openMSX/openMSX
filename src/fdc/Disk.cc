@@ -10,6 +10,10 @@ Disk::Disk()
 	nbSides = 0;
 }
 
+Disk::~Disk()
+{
+}
+
 void Disk::getTrackHeader(byte track, byte side, byte* buf)
 {
 	PRT_DEBUG("Disk::getTrackHeader [unimplemented]");

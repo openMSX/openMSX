@@ -34,6 +34,8 @@ class WriteProtectedException  : public MSXException {
 class Disk 
 {
 	public: 
+		virtual ~Disk();
+
 		virtual void read (byte track, byte sector,
 		                   byte side, int size, byte* buf) = 0;
 		virtual void write(byte track, byte sector,
