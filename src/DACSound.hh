@@ -22,9 +22,9 @@ class DACSound : public SoundDevice
 		//SoundDevice
 		void init();
 		void reset();
-		void setVolume(int newVolume);
+		void setVolume(short newVolume);
 		void setSampleRate(int sampleRate);
-		void updateBuffer(short *buffer, int length);
+		short* updateBuffer(int length);
 		
 	private:
 		static const int CLOCK = 3579545;	// real time clock frequency of DACSound
@@ -41,5 +41,7 @@ class DACSound : public SoundDevice
 		byte bufwriteindex;
 		byte DACValue;
 		short DACSample;
+
+		short* buf;
 };
 #endif

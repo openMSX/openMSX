@@ -29,7 +29,8 @@ void DACSound::init()
 	DACSample=0;
 	setVolume(Mixer::MAX_VOLUME);
 	reset();
-	Mixer::instance()->registerSound(this);
+	int bufSize = Mixer::instance()->registerSound(this);
+	buf = new short[bufSize];
 	lastChanged=Emutime(CLOCK,0);
 }
 
@@ -70,7 +71,7 @@ void DACSound::writeDAC(byte value, const Emutime &time)
 }
 
 
-void DACSound::setVolume(int newVolume)
+void DACSound::setVolume(short newVolume)
 {
 	// calculate the volume->voltage conversion table
 	// The DAC uses 8 bit unsigned wave data
@@ -101,8 +102,9 @@ void DACSound::setSampleRate (int sampleRate)
 }
 
 
-void DACSound::updateBuffer(short *buffer, int length)
+short* DACSound::updateBuffer(int length)
 {
+  short* buffer = buf;
   int nrsamples;
   short sample;
   while (length >0 ){
@@ -126,4 +128,5 @@ void DACSound::updateBuffer(short *buffer, int length)
 
     }
   }
+  return buf;
 }

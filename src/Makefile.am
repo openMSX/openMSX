@@ -25,6 +25,7 @@ openmsx_SOURCES=openmsx.cc \
 	devicefactory.hh devicefactory.cc \
 	Scheduler.hh Scheduler.cc \
 	EventDistributor.hh EventDistributor.cc \
+	HotKey.hh HotKey.cc \
 	Keyboard.hh Keyboard.cc \
 	Leds.hh Leds.cc \
 	MSXE6Timer.hh MSXE6Timer.cc \
