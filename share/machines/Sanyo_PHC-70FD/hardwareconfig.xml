@@ -14,14 +14,19 @@
     <parameter name="2" class="subslotted">false</parameter>
     <parameter name="3" class="subslotted">true</parameter>
   </config>
+  <device id="MapperIO">
+    <type>MapperIO</type>
+    <parameter name="type">Philips</parameter>
+  </device>
 
   <device id="Main RAM">
-    <type>RAM</type>
+    <type>MemoryMapper</type>
     <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>3</ps> <ss>0</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>0</ss> <page>2</page> </slotted>
     <slotted> <ps>3</ps> <ss>0</ss> <page>3</page> </slotted>
     <parameter name="slow_drain_on_reset">false</parameter>
+    <parameter name="size">64</parameter>
   </device>
 
   <device id="MSX BIOS with BASIC ROM">
