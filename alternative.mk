@@ -225,7 +225,48 @@ CONFIG_SCRIPT:=$(PWD)/configure
 
 # Determine compiler.
 $(call DEFCHECK,OPENMSX_CXX)
-CXX:=$(OPENMSX_CXX)
+DEPEND_FLAGS:=
+ifneq ($(filter %g++,$(OPENMSX_CXX)),)
+  # Generic compilation flags.
+  CXXFLAGS+=-pipe
+  # Stricter warning and error reporting.
+  CXXFLAGS+=-Wall
+  # Empty definition of used headers, so header removal doesn't break things.
+  DEPEND_FLAGS+=-MP
+else
+  ifneq ($(filter %icc,$(OPENMSX_CXX)),)
+    # Report all errors, warnings and remarks, except the following remarks:
+    # (on the openmsx-devel list these were discussed and it was decided to
+    # disable them since fixing them would not improve code quality)
+    #  177: "handler parameter "e" was declared but never referenced"
+    #  185: "dynamic initialization in unreachable code"
+    #  271: "trailing comma is nonstandard"
+    #  279: "controlling expression is constant"
+    #  383: "value copied to temporary, reference to temporary used"
+    #  869: "parameter [name] was never referenced"
+    #  981: "operands are evaluated in unspecified order"
+    CXXFLAGS+=-Wall -wd177,185,271,279,383,869,981
+    # Temporarily disabled remarks: (may be re-enabled some time)
+    #  111: "statement is unreachable"
+    #       Occurs in template where code is unreachable for some expansions
+    #       but not for others.
+    #  444: "destructor for base class [class] is not virtual"
+    #       Sometimes issued incorrectly.
+    #       Reported to Intel: issue number 221909.
+    #  530: "inline function [name] cannot be explicitly instantiated"
+    #       Issued when explicitly instantiating template classes with inline
+    #       methods. Needs more investigation / discussion.
+    #  810: "conversion from [larger type] to [smaller type] may lose
+    #       significant bits"
+    #       Many instances not fixed yet, but should be fixed eventually.
+    # 1469: ""cc" clobber ignored"
+    #       Seems to be caused by glibc headers.
+    CXXFLAGS+=-wd111,444,530,810,1469
+  else
+    $(warning Unsupported compiler: $(OPENMSX_CXX), please update Makefile)
+  endif
+endif
+export CXX:=$(OPENMSX_CXX)
 
 # Use precompiled headers?
 # TODO: Autodetect this: USE_PRECOMPH == compiler_is_g++ && g++_version >= 3.4
@@ -248,11 +289,6 @@ endif
 ifeq ($(OPENMSX_STRIP),true)
   LDFLAGS+=--strip-all
 endif
-
-# Generic compilation flags.
-CXXFLAGS+=-pipe
-# Stricter warning and error reporting.
-CXXFLAGS+=-Wall
 
 # Determine include flags.
 INCLUDE_INTERNAL:=$(filter-out %/CVS,$(shell find $(SOURCES_PATH) -type d))
@@ -322,7 +358,7 @@ $(OBJECTS_FULL): $(OBJECTS_PATH)/%.o: $(SOURCES_PATH)/%.cc $(DEPEND_PATH)/%.d
 	@mkdir -p $(@D)
 	@mkdir -p $(patsubst $(OBJECTS_PATH)%,$(DEPEND_PATH)%,$(@D))
 	@$(CXX) $(PRECOMPH_FLAGS) \
-		-MMD -MP -MT $(DEPEND_SUBST) -MF $(DEPEND_SUBST) \
+		$(DEPEND_FLAGS) -MMD -MF $(DEPEND_SUBST) \
 		-o $@ $(CXXFLAGS) $(INCLUDE_FLAGS) -c $<
 	@touch $@ # Force .o file to be newer than .d file.
 # Generate dependencies that do not exist yet.
