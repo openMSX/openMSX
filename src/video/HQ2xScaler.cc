@@ -11,6 +11,7 @@ Visit the HiEnd3D site for info:
 */
 
 #include "HQ2xScaler.hh"
+#include <cassert>
 
 
 namespace openmsx {
@@ -46,7 +47,7 @@ inline void HQ2xScaler<Pixel>::pset(Pixel* pOut, Pix32 colour)
 			| ((colour >> 3) & 0x001F)
 			);
 	} else {
-		*pOut = colour;
+		*pOut = (colour & 0xF8F8F8) | ((colour & 0xE0E0E0) >> 5);
 	}
 }
 
@@ -152,7 +153,8 @@ HQ2xScaler<Pixel>::HQ2xScaler() {
 
 template <class Pixel>
 void HQ2xScaler<Pixel>::scaleLine256(
-	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY )
+	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY,
+	const int prevLine, const int nextLine )
 {
 	const int width = 320; // TODO: Specify this in a clean way.
 	const int srcPitch = src->pitch / sizeof(Pixel);
@@ -160,8 +162,6 @@ void HQ2xScaler<Pixel>::scaleLine256(
 
 	Pixel* pIn = (Pixel*)src->pixels + srcY * srcPitch;
 	Pixel* pOut = (Pixel*)dst->pixels + dstY * dstPitch;
-	const int prevLine = srcY > 0 ? -srcPitch : 0;
-	const int nextLine = srcY < src->h - 1 ? srcPitch : 0;
 
 	Pix32 c1, c2, c3, c4, c5, c6, c7, c8, c9;
 
@@ -1598,6 +1598,28 @@ void HQ2xScaler<Pixel>::scaleLine256(
 		c2 = c3; c5 = c6; c8 = c9;
 		pIn += 1;
 		pOut += 2;
+	}
+}
+
+template <class Pixel>
+void HQ2xScaler<Pixel>::scale256(
+	SDL_Surface* src, int srcY, int endSrcY,
+	SDL_Surface* dst, int dstY )
+{
+	const int srcPitch = src->pitch / sizeof(Pixel);
+	assert(srcY < endSrcY);
+	scaleLine256(src, srcY, dst, dstY,
+		0, srcY < endSrcY - 1 ? srcPitch : 0
+		);
+	srcY += 1;
+	dstY += 2;
+	while (srcY < endSrcY - 1) {
+		scaleLine256(src, srcY, dst, dstY, -srcPitch, srcPitch);
+		srcY += 1;
+		dstY += 2;
+	}
+	if (srcY < endSrcY) {
+		scaleLine256(src, srcY, dst, dstY, -srcPitch, 0);
 	}
 }
 

@@ -18,13 +18,17 @@ class HQ2xScaler: public SimpleScaler<Pixel>
 {
 public:
 	HQ2xScaler();
-	void scaleLine256(SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
-	//void scaleLine512(SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
+	void scale256(
+		SDL_Surface* src, int srcY, int endSrcY,
+		SDL_Surface* dst, int dstY );
 private:
 
 	static inline Pix32 readPixel(Pixel *pIn);
 	static inline void pset(Pixel *pOut, Pix32 colour);
 	inline bool edge(Pix32 c1, Pix32 c2);
+	void scaleLine256(
+		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY,
+		const int prevLine, const int nextLine );
 };
 
 } // namespace openmsx

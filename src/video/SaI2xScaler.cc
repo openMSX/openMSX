@@ -14,8 +14,7 @@ namespace openmsx {
 template <class Pixel>
 inline static Pixel* linePtr(SDL_Surface* surface, int y)
 {
-	if (y < 0) y = 0;
-	if (y >= surface->h) y = surface->h - 1;
+	assert(0 <= y && y < surface->h);
 	return (Pixel*)((byte*)surface->pixels + y * surface->pitch);
 }
 
@@ -36,21 +35,17 @@ SaI2xScaler<Pixel>::SaI2xScaler(SDL_PixelFormat* format)
 {
 }
 
+const int WIDTH256 = 320; // TODO: Specify this in a clean way.
+const int HEIGHT = 480;
+
 template <class Pixel>
 void SaI2xScaler<Pixel>::scaleLine256(
-	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY )
+	const Pixel* srcLine0, const Pixel* srcLine1,
+	const Pixel* srcLine2, const Pixel* srcLine3,
+	Pixel* dstUpper, Pixel* dstLower )
 {
-	const Pixel* srcLine0 = linePtr<Pixel>(src, srcY - 1);
-	const Pixel* srcLine1 = linePtr<Pixel>(src, srcY);
-	const Pixel* srcLine2 = linePtr<Pixel>(src, srcY + 1);
-	const Pixel* srcLine3 = linePtr<Pixel>(src, srcY + 2);
-	Pixel* dstUpper = linePtr<Pixel>(dst, dstY);
-	Pixel* dstLower = linePtr<Pixel>(dst, dstY + 1);
-
-	int width = 320; // TODO: Specify this in a clean way.
-	assert(dst->w == width * 2);
 	// TODO: Scale border pixels as well.
-	for (int x = 0; x < width; x++) {
+	for (int x = 0; x < WIDTH256; x++) {
 		// Map of the pixels:
 		//   I|E F|J
 		//   G|A B|K
@@ -58,8 +53,8 @@ void SaI2xScaler<Pixel>::scaleLine256(
 		//   M|N O|P
 
 		int xl = max(x - 1, 0);
-		int xr = min(x + 1, width - 1);
-		int xrr = min(x + 2, width - 1);
+		int xr = min(x + 1, WIDTH256 - 1);
+		int xrr = min(x + 2, WIDTH256 - 1);
 
 		// TODO: Possible performance improvements:
 		// - Play with order of fetching (effect on data cache).
@@ -90,14 +85,16 @@ void SaI2xScaler<Pixel>::scaleLine256(
 		if (colorA == colorD && colorB != colorC) {
 			product =
 				( ( (colorA == colorE && colorB == colorL)
-				  || (colorA == colorC && colorA == colorF && colorB != colorE && colorB == colorJ)
+				  || ( colorA == colorC && colorA == colorF
+				       && colorB != colorE && colorB == colorJ )
 				  )
 				? colorA
 				: blender.blend(colorA, colorB)
 				);
 			product1 =
 				( ( (colorA == colorG && colorC == colorO)
-				  || (colorA == colorB && colorA == colorH && colorG != colorC && colorC == colorM)
+				  || ( colorA == colorB && colorA == colorH
+				       && colorG != colorC && colorC == colorM )
 				  )
 				? colorA
 				: blender.blend(colorA, colorC)
@@ -106,14 +103,16 @@ void SaI2xScaler<Pixel>::scaleLine256(
 		} else if (colorB == colorC && colorA != colorD) {
 			product =
 				( ( (colorB == colorF && colorA == colorH)
-				  || (colorB == colorE && colorB == colorD && colorA != colorF && colorA == colorI)
+				  || ( colorB == colorE && colorB == colorD
+				       && colorA != colorF && colorA == colorI )
 				  )
 				? colorB
 				: blender.blend(colorA, colorB)
 				);
 			product1 =
 				( ( (colorC == colorH && colorA == colorF)
-				  || (colorC == colorG && colorC == colorD && colorA != colorH && colorA == colorI)
+				  || ( colorC == colorG && colorC == colorD
+				       && colorA != colorH && colorA == colorI )
 				  )
 				? colorC
 				: blender.blend(colorA, colorC)
@@ -141,17 +140,21 @@ void SaI2xScaler<Pixel>::scaleLine256(
 			}
 		} else {
 			product =
-				( colorA == colorC && colorA == colorF && colorB != colorE && colorB == colorJ
+				( colorA == colorC && colorA == colorF
+				  && colorB != colorE && colorB == colorJ
 				? colorA
-				: ( colorB == colorE && colorB == colorD && colorA != colorF && colorA == colorI
+				: ( colorB == colorE && colorB == colorD
+				    && colorA != colorF && colorA == colorI
 				  ? colorB
 				  : blender.blend(colorA, colorB)
 				  )
 				);
 			product1 =
-				( colorA == colorB && colorA == colorH && colorG != colorC && colorC == colorM
+				( colorA == colorB && colorA == colorH
+				  && colorG != colorC && colorC == colorM
 				? colorA
-				: ( colorC == colorG && colorC == colorD && colorA != colorH && colorA == colorI
+				: ( colorC == colorG && colorC == colorD
+				    && colorA != colorH && colorA == colorI
 				  ? colorC
 				  : blender.blend(colorA, colorC)
 				  )
@@ -169,25 +172,20 @@ void SaI2xScaler<Pixel>::scaleLine256(
 	}
 }
 
+const int WIDTH512 = 640; // TODO: Specify this in a clean way.
+
 template <class Pixel>
 void SaI2xScaler<Pixel>::scaleLine512(
-	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY )
+	const Pixel* srcLine0, const Pixel* srcLine1,
+	const Pixel* srcLine2, const Pixel* srcLine3,
+	Pixel* dstUpper, Pixel* dstLower )
 {
 	// Apply 2xSaI and keep the bottom-left pixel.
 	// It's not great, but at least it looks better than doubling the pixel
 	// like SimpleScaler does.
-	const Pixel* srcLine0 = linePtr<Pixel>(src, srcY - 1);
-	const Pixel* srcLine1 = linePtr<Pixel>(src, srcY);
-	const Pixel* srcLine2 = linePtr<Pixel>(src, srcY + 1);
-	const Pixel* srcLine3 = linePtr<Pixel>(src, srcY + 2);
-	Pixel* dstUpper = linePtr<Pixel>(dst, dstY);
-	Pixel* dstLower = linePtr<Pixel>(dst, dstY + 1);
-	int width = src->w; // TODO: Support variable width at all?
-	assert(width == dst->w);
-
 	dstUpper[0] = srcLine1[0];
 	dstLower[0] = blender.blend(srcLine1[0], srcLine2[0]);
-	for (int x = 1; x < width - 1; x++) {
+	for (int x = 1; x < WIDTH512 - 1; x++) {
 		// Map of the pixels:
 		//   I E F
 		//   G A B
@@ -215,7 +213,8 @@ void SaI2xScaler<Pixel>::scaleLine512(
 		if (colorA == colorD && colorB != colorC) {
 			product1 =
 				( ( (colorA == colorG && colorC == colorO)
-				  || (colorA == colorB && colorA == colorH && colorG != colorC && colorC == colorM)
+				  || ( colorA == colorB && colorA == colorH
+				       && colorG != colorC && colorC == colorM )
 				  )
 				? colorA
 				: blender.blend(colorA, colorC)
@@ -223,7 +222,8 @@ void SaI2xScaler<Pixel>::scaleLine512(
 		} else if (colorB == colorC && colorA != colorD) {
 			product1 =
 				( ( (colorC == colorH && colorA == colorF)
-				  || (colorC == colorG && colorC == colorD && colorA != colorH && colorA == colorI)
+				  || ( colorC == colorG && colorC == colorD
+				       && colorA != colorH && colorA == colorI )
 				  )
 				? colorC
 				: blender.blend(colorA, colorC)
@@ -236,9 +236,11 @@ void SaI2xScaler<Pixel>::scaleLine512(
 			}
 		} else {
 			product1 =
-				( colorA == colorB && colorA == colorH && colorG != colorC && colorC == colorM
+				( colorA == colorB && colorA == colorH
+				  && colorG != colorC && colorC == colorM
 				? colorA
-				: ( colorC == colorG && colorC == colorD && colorA != colorH && colorA == colorI
+				: ( colorC == colorG && colorC == colorD
+				    && colorA != colorH && colorA == colorI
 				  ? colorC
 				  : blender.blend(colorA, colorC)
 				  )
@@ -248,9 +250,46 @@ void SaI2xScaler<Pixel>::scaleLine512(
 		dstUpper[x] = colorA;
 		dstLower[x] = product1;
 	}
-	dstUpper[width - 1] = srcLine1[width - 1];
-	dstLower[width - 1] =
-		blender.blend(srcLine1[width - 1], srcLine2[width - 1]);
+	dstUpper[WIDTH512 - 1] = srcLine1[WIDTH512 - 1];
+	dstLower[WIDTH512 - 1] =
+		blender.blend(srcLine1[WIDTH512 - 1], srcLine2[WIDTH512 - 1]);
+}
+
+template <class Pixel>
+void SaI2xScaler<Pixel>::scale256(
+	SDL_Surface* src, int srcY, int endSrcY, SDL_Surface* dst, int dstY )
+{
+	assert(dst->w == WIDTH256 * 2);
+	for (int y = srcY; y < endSrcY; y++) {
+		const Pixel* srcLine0 = linePtr<Pixel>(src, max(y - 1, srcY));
+		const Pixel* srcLine1 = linePtr<Pixel>(src, y);
+		const Pixel* srcLine2 = linePtr<Pixel>(src, min(y + 1, endSrcY - 1));
+		const Pixel* srcLine3 = linePtr<Pixel>(src, min(y + 2, endSrcY - 1));
+		Pixel* dstUpper = linePtr<Pixel>(dst, dstY++);
+		Pixel* dstLower = linePtr<Pixel>(dst, min(dstY++, HEIGHT - 1));
+		
+		scaleLine256(
+			srcLine0, srcLine1, srcLine2, srcLine3, dstUpper, dstLower );
+	}
+}
+
+template <class Pixel>
+void SaI2xScaler<Pixel>::scale512(
+	SDL_Surface* src, int srcY, int endSrcY,
+	SDL_Surface* dst, int dstY )
+{
+	assert(dst->w == WIDTH512);
+	for (int y = srcY; y < endSrcY; y++) {
+		const Pixel* srcLine0 = linePtr<Pixel>(src, max(y - 1, srcY));
+		const Pixel* srcLine1 = linePtr<Pixel>(src, y);
+		const Pixel* srcLine2 = linePtr<Pixel>(src, min(y + 1, endSrcY - 1));
+		const Pixel* srcLine3 = linePtr<Pixel>(src, min(y + 2, endSrcY - 1));
+		Pixel* dstUpper = linePtr<Pixel>(dst, dstY++);
+		Pixel* dstLower = linePtr<Pixel>(dst, min(dstY++, HEIGHT - 1));
+		
+		scaleLine512(
+			srcLine0, srcLine1, srcLine2, srcLine3, dstUpper, dstLower );
+	}
 }
 
 } // namespace openmsx

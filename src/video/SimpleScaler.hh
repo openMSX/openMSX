@@ -16,8 +16,12 @@ class SimpleScaler: public Scaler<Pixel>
 {
 public:
 	SimpleScaler();
-	void scaleLine256(SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
-	void scaleLine512(SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
+	void scale256(
+		SDL_Surface* src, int srcY, int endSrcY,
+		SDL_Surface* dst, int dstY );
+	void scale512(
+		SDL_Surface* src, int srcY, int endSrcY,
+		SDL_Surface* dst, int dstY );
 private:
 	/** Copies the given line.
 	  * @param src Source: surface to copy from.

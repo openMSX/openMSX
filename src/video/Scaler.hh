@@ -37,31 +37,35 @@ public:
 	  */
 	static Scaler* createScaler(ScalerID id, SDL_PixelFormat* format);
 
-	/** Scales the given line.
+	/** Scales the given area.
 	  * @param src Source: the image to be scaled.
 	  *   It should be 320 pixels wide.
-	  * @param srcY Y-coordinate of the source line.
+	  * @param srcY Y-coordinate of the top source line (inclusive).
+	  * @param endSrcY Y-coordinate of the bottom source line (exclusive).
 	  * @param dst Destination: image to store the scaled output in.
 	  *   It should be 640 pixels wide and twice as high as the source image.
-	  * @param dstY Y-coordinate of the destination line.
+	  * @param dstY Y-coordinate of the top destination line.
 	  *   Note: The scaler must be able to handle the case where dstY is
 	  *         inside the destination surface, but dstY + 1 is not.
 	  */
-	virtual void scaleLine256(
-		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY ) = 0;
+	virtual void scale256(
+		SDL_Surface* src, int srcY, int endSrcY,
+		SDL_Surface* dst, int dstY ) = 0;
 
-	/** Scales the given line.
+	/** Scales the given area.
 	  * @param src Source: the image to be scaled.
 	  *   It should be 640 pixels wide.
-	  * @param srcY Y-coordinate of the source line.
+	  * @param srcY Y-coordinate of the top source line (inclusive).
+	  * @param endSrcY Y-coordinate of the bottom source line (exclusive).
 	  * @param dst Destination: image to store the scaled output in.
 	  *   It should be 640 pixels wide and twice as high as the source image.
-	  * @param dstY Y-coordinate of the destination line.
+	  * @param dstY Y-coordinate of the top destination line.
 	  *   Note: The scaler must be able to handle the case where dstY is
 	  *         inside the destination surface, but dstY + 1 is not.
 	  */
-	virtual void scaleLine512(
-		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY ) = 0;
+	virtual void scale512(
+		SDL_Surface* src, int srcY, int endSrcY,
+		SDL_Surface* dst, int dstY ) = 0;
 
 protected:
 	Scaler();

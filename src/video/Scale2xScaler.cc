@@ -15,6 +15,10 @@ Visit the Scale2x site for info:
 #include "Scale2xScaler.hh"
 #include "openmsx.hh"
 #include <cassert>
+#include <algorithm>
+
+using std::max;
+using std::min;
 
 
 namespace openmsx {
@@ -66,25 +70,31 @@ void Scale2xScaler<Pixel>::scaleLine256Half(
 	dst[1] = src1[0];
 }
 
-// TODO: Copy-pasted from Scalers.cc:
+// TODO: Copy-pasted from SimpleScaler.cc:
 template <class Pixel>
 inline static Pixel* linePtr(SDL_Surface* surface, int y) {
-	if (y < 0) y = 0;
-	if (y >= surface->h) y = surface->h - 1;
+	assert(0 <= y && y < surface->h);
 	return (Pixel*)((byte*)surface->pixels + y * surface->pitch);
 }
 
 template <class Pixel>
-void Scale2xScaler<Pixel>::scaleLine256(
-	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY )
+void Scale2xScaler<Pixel>::scale256(
+	SDL_Surface* src, int srcY, int endSrcY,
+	SDL_Surface* dst, int dstY )
 {
-	Pixel* srcPrev = linePtr<Pixel>(src, srcY - 1);
-	Pixel* srcCurr = linePtr<Pixel>(src, srcY);
-	Pixel* srcNext = linePtr<Pixel>(src, srcY + 1);
-	Pixel* dstUpper = linePtr<Pixel>(dst, dstY);
-	Pixel* dstLower = linePtr<Pixel>(dst, dstY + 1);
-	scaleLine256Half(dstUpper, srcPrev, srcCurr, srcNext, 320);
-	scaleLine256Half(dstLower, srcNext, srcCurr, srcPrev, 320);
+	int prevY = srcY;
+	while (srcY < endSrcY) {
+		Pixel* srcPrev = linePtr<Pixel>(src, prevY);
+		Pixel* srcCurr = linePtr<Pixel>(src, srcY);
+		Pixel* srcNext = linePtr<Pixel>(src, min(srcY + 1, endSrcY - 1));
+		Pixel* dstUpper = linePtr<Pixel>(dst, dstY++);
+		scaleLine256Half(dstUpper, srcPrev, srcCurr, srcNext, 320);
+		if (dstY == dst->h) break;
+		Pixel* dstLower = linePtr<Pixel>(dst, dstY++);
+		scaleLine256Half(dstLower, srcNext, srcCurr, srcPrev, 320);
+		prevY = srcY;
+		srcY++;
+	}
 }
 
 } // namespace openmsx

@@ -200,47 +200,67 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 
 	// Scale image.
 	int deltaY = interlaced && vdp->getEvenOdd() ? 1 : 0;
-	for (unsigned y = 0; y < HEIGHT / 2; y++) {
-		//fprintf(stderr, "post processing line %d: %d\n", y, lineContent[y]);
-		switch (lineContent[y]) {
+	
+	unsigned startY = 0;
+	while (startY < HEIGHT / 2) {
+		LineContent content = lineContent[startY];
+		unsigned endY = startY + 1;
+		while (endY < HEIGHT / 2 && lineContent[endY] == content) endY++;
+
+		switch (content) {
 		case LINE_BLANK: {
 			Pixel colour = *reinterpret_cast<Pixel*>(
 				reinterpret_cast<byte*>(workScreen->pixels) +
-				workScreen->pitch * y
+				workScreen->pitch * startY
 				);
+			for (unsigned y = startY + 1; y < endY; y++) {
+				Pixel colour2 = *reinterpret_cast<Pixel*>(
+					reinterpret_cast<byte*>(workScreen->pixels) +
+					workScreen->pitch * y
+					);
+				if (colour != colour2) endY = y;
+			}
 			SDL_Rect rect;
 			rect.x = 0;
 			rect.w = WIDTH;
-			rect.y = y * 2;
-			rect.h = 2;
+			rect.y = startY * 2;
+			rect.h = (endY - startY) * 2;
 			// Note: return code ignored.
 			SDL_FillRect(screen, &rect, colour);
 			break;
 		}
 		case LINE_256:
 			if (deinterlace) {
-				deinterlacer.deinterlaceLine256(
-					workScreens[0], workScreens[1], y, screen, y * 2 );
+				for (unsigned y = startY; y < endY; y++) {
+					deinterlacer.deinterlaceLine256(
+						workScreens[0], workScreens[1], y, screen, y * 2 );
+				}
 			} else {
-				currScaler->scaleLine256(
-					workScreen, y, screen, y * 2 + deltaY );
+				currScaler->scale256(
+					workScreen, startY, endY, screen, startY * 2 + deltaY );
 			}
 			break;
 		case LINE_512:
 			if (deinterlace) {
-				deinterlacer.deinterlaceLine512(
-					workScreens[0], workScreens[1], y, screen, y * 2 );
+				for (unsigned y = startY; y < endY; y++) {
+					deinterlacer.deinterlaceLine512(
+						workScreens[0], workScreens[1], y, screen, y * 2 );
+				}
 			} else {
-				currScaler->scaleLine512(
-					workScreen, y, screen, y * 2 + deltaY );
+				currScaler->scale512(
+					workScreen, startY, endY, screen, startY * 2 + deltaY );
 			}
 			break;
 		default:
 			assert(false);
 			break;
 		}
-	}
 
+		//fprintf(stderr, "post processing lines %d-%d: %d\n",
+		//	startY, endY, content );
+		startY = endY;
+	}
+	
 	// Unlock surface.
 	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
 

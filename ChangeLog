@@ -7,6 +7,8 @@ $Id$
 
 2004-04-30 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed sprites in overscan.
+	* Corrected clipping for scalers.
+	  And managed to slip in some optimisation as well.
 
 2004-04-29 Maarten ter Huurne <maarten@treewalker.org>
 	* Optimized top and bottom border drawing in SDLHi.

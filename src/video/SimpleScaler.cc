@@ -10,8 +10,7 @@ namespace openmsx {
 template <class Pixel>
 inline static Pixel* linePtr(SDL_Surface* surface, int y)
 {
-	if (y < 0) y = 0;
-	if (y >= surface->h) y = surface->h - 1;
+	assert(0 <= y && y < surface->h);
 	return (Pixel*)((byte*)surface->pixels + y * surface->pitch);
 }
 
@@ -38,27 +37,36 @@ inline void SimpleScaler<Pixel>::copyLine(
 }
 
 template <class Pixel>
-void SimpleScaler<Pixel>::scaleLine256(
-	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY )
+void SimpleScaler<Pixel>::scale256(
+	SDL_Surface* src, int srcY, int endSrcY,
+	SDL_Surface* dst, int dstY )
 {
-	const Pixel* srcLine = linePtr<Pixel>(src, srcY);
-	Pixel* dstUpper = linePtr<Pixel>(dst, dstY);
-	Pixel* dstLower = linePtr<Pixel>(dst, dstY + 1);
 	int width = 320; // TODO: Specify this in a clean way.
 	assert(dst->w == width * 2);
-	for (int x = 0; x < width; x++) {
-		dstUpper[x * 2] = dstUpper[x * 2 + 1] =
-		dstLower[x * 2] = dstLower[x * 2 + 1] =
-			srcLine[x];
+	while (srcY < endSrcY) {
+		const Pixel* srcLine = linePtr<Pixel>(src, srcY++);
+		Pixel* dstUpper = linePtr<Pixel>(dst, dstY++);
+		Pixel* dstLower =
+			dstY == dst->h ? dstUpper : linePtr<Pixel>(dst, dstY++);
+		for (int x = 0; x < width; x++) {
+			dstUpper[x * 2] = dstUpper[x * 2 + 1] =
+			dstLower[x * 2] = dstLower[x * 2 + 1] =
+				srcLine[x];
+		}
 	}
 }
 
 template <class Pixel>
-void SimpleScaler<Pixel>::scaleLine512(
-	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY )
+void SimpleScaler<Pixel>::scale512(
+	SDL_Surface* src, int srcY, int endSrcY,
+	SDL_Surface* dst, int dstY )
 {
-	copyLine(src, srcY, dst, dstY);
-	copyLine(src, srcY, dst, dstY + 1);
+	while (srcY < endSrcY) {
+		copyLine(src, srcY, dst, dstY++);
+		if (dstY == dst->h) break;
+		copyLine(src, srcY, dst, dstY++);
+		srcY++;
+	}
 }
 
 } // namespace openmsx
