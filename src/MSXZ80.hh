@@ -23,6 +23,7 @@ class MSXZ80 : public MSXCPUDevice, Z80Interface
 		void executeUntilTarget();
 
 		//Z80Interface
+		bool IRQStatus();
 		byte readIO(word port);
 		void writeIO (word port, byte value);
 		byte readMem(word address);

@@ -25,6 +25,10 @@ class Z80Interface {
 		virtual byte readMem  (word address) = 0;
 		virtual void writeMem (word address, byte value) = 0;
 
+		virtual bool IRQStatus() = 0;
+		virtual bool NMIStatus() { return false; }
+		virtual byte dataBus() { return 255; }
+
 		/**
 		 * Called when ED FE occurs. Can be used
 		 * to emulated disk access etc.
@@ -138,7 +142,7 @@ typedef union {
 typedef struct {
 	z80regpair AF,  BC,  DE,  HL, IX, IY, PC, SP;
 	z80regpair AF2, BC2, DE2, HL2;
-	bool IFF1, IFF2, HALT;
+	bool nextIFF1, IFF1, IFF2, HALT;
 	unsigned IM, I, R, R2;
 	int ICount;       // T-state count
 } CPU_Regs;

@@ -194,7 +194,7 @@ void MSXMotherBoard::raiseIRQ()
 	//if (IRQLine == 1) {
 	//	// low -> high
 	//	MSXCPU::instance()->IRQ(true);
-	}
+	//}
 }
 
 void MSXMotherBoard::lowerIRQ()
@@ -204,7 +204,7 @@ void MSXMotherBoard::lowerIRQ()
 	//if (IRQLine == 0) {
 	//	// high -> low
 	//	MSXCPU::instance()->IRQ(false);
-	}
+	//}
 }
 
 bool MSXMotherBoard::IRQstatus()

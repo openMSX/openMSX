@@ -77,67 +77,48 @@ void Z80::reset()
 }
 
 /****************************************************************************/
-/* Issue an interrupt if necessary                                          */
-/****************************************************************************/
-void Z80::Z80_Interrupt (int j)
-{
-	PRT_DEBUG("In interrupt routine:");
-	PRT_DEBUG("if (j==Z80_IGNORE_INT) return; " << (j==Z80_IGNORE_INT));
-	PRT_DEBUG("if (j==Z80_NMI_INT || R.IFF1) " << (j==Z80_NMI_INT) << " || " << R.IFF1);
-	if (j==Z80_IGNORE_INT) return;
-	if (j==Z80_NMI_INT || R.IFF1) {
-		// Clear interrupt flip-flop 1
-		PRT_DEBUG("  R.IFF1 : " << R.IFF1 );
-		R.IFF1 = false;
-		PRT_DEBUG("  R.IFF1 : " << R.IFF1 << " R.IM : " << R.IM );
-		// Check if processor was halted
-		if (R.HALT) {
-			++R.PC.W.l;
-			R.HALT = false;
-		}
-		if (j==Z80_NMI_INT) {
-			M_PUSH (R.PC.W.l);
-			R.PC.W.l=0x0066;
-		} else {
-			if (R.IM==2) {
-				// Interrupt mode 2. Call [R.I:databyte]
-				M_PUSH (R.PC.W.l);
-				R.PC.W.l=Z80_RDMEM_WORD((j&255)|(R.I<<8));
-			} else if (R.IM==1) {
-				// Interrupt mode 1. RST 38h
-					R.ICount+=cycles_main[0xFF];
-					(this->*opcode_main[0xFF])();
-			} else {
-				// Interrupt mode 0. We check for CALL and JP instructions, if neither
-				// of these were found we assume a 1 byte opcode was placed on the
-				// databus
-				switch (j&0xFF0000) {
-				case 0xCD:
-					M_PUSH(R.PC.W.l);
-				case 0xC3:
-					R.PC.W.l=j&0xFFFF;
-					break;
-				default:
-					j&=255;
-					R.ICount+=cycles_main[j];
-					(this->*opcode_main[j])();
-					break;
-				}
-			}
-		}
-	}
-}
-
-/****************************************************************************/
-/* Execute IPeriod T-States.                                                */
+/*                                                                          */
 /****************************************************************************/
 int Z80::Z80_SingleInstruction() 
 {
+	byte opcode;
+	if (interface->NMIStatus()) {
+		R.HALT = false; 
+		R.IFF1 = R.nextIFF1 = false;
+		M_PUSH (R.PC.W.l);
+		R.PC.W.l=0x0066;
+		return 10;	//TODO this value is wrong
+	} else if (R.IFF1 && interface->IRQStatus()) {
+		R.HALT = false; 
+		R.IFF1 = R.nextIFF1 = false;
+		switch (R.IM) {
+		case 2:
+			// Interrupt mode 2. Call [R.I:databyte]
+			M_PUSH (R.PC.W.l);
+			R.PC.W.l=Z80_RDMEM_WORD((interface->dataBus())|(R.I<<8));
+			return 10;	//TODO this value is wrong
+		case 1:
+			// Interrupt mode 1. RST 38h
+			opcode = 0xff;
+			break;
+		case 0:
+			// Interrupt mode 0.
+			// TODO current implementation only works for 1-byte instructions
+			opcode = interface->dataBus();
+			break;
+		default:
+			assert(false);
+		}
+	} else if (R.HALT) {
+		opcode = 0;	// nop
+	} else {
+		opcode = Z80_RDOP(R.PC.W.l++);
+	}
+	R.IFF1 = R.nextIFF1;
 	#ifdef DEBUG
 		word start_pc = R.PC.W.l;
 	#endif
 	++R.R;
-	unsigned opcode = Z80_RDOP(R.PC.W.l++);
 	R.ICount = cycles_main[opcode];	// instead of R.Icount=0
 	(this->*opcode_main[opcode])();;	// R.ICount can be raised extra
 	//  TODO: still need to adapt all other code to change the CurrentCPUTime 
@@ -523,7 +504,7 @@ void Z80::dec_ix() { --R.IX.W.l; }
 void Z80::dec_iy() { --R.IY.W.l; }
 void Z80::dec_sp() { --R.SP.W.l; }
 
-void Z80::di() { R.IFF1 = R.IFF2 = false; }
+void Z80::di() { R.IFF1 = R.nextIFF1 = R.IFF2 = false; }
 
 void Z80::djnz() { if (--R.BC.B.h) { M_JR(); } else { M_SKIP_JR(); } }
 
@@ -1152,7 +1133,7 @@ void Z80::ret_po() { if (M_PO()) { M_RET(); } else { M_SKIP_RET(); } }
 void Z80::ret_z()  { if (M_Z())  { M_RET(); } else { M_SKIP_RET(); } }
 
 void Z80::reti() { interface->Z80_Reti(); M_RET(); }
-void Z80::retn() { R.IFF1 = R.IFF2; interface->Z80_Retn(); M_RET(); }
+void Z80::retn() { R.IFF1 = R.nextIFF1 = R.IFF2; interface->Z80_Retn(); M_RET(); }
 
 void Z80::rl_xhl() {
 	byte i = Z80_RDMEM(R.HL.W.l);
@@ -1685,18 +1666,7 @@ void Z80::fd () {
 }
 
 void Z80::ei() {
-	// If interrupts were disabled, execute one more instruction and check the
-	// IRQ line. If not, simply set interrupt flip-flop 2
-	if (!R.IFF1) {
-		R.IFF1 = R.IFF2 = true;
-		++R.R;
-		unsigned opcode = Z80_RDOP(R.PC.W.l);
-		R.PC.W.l++;
-		R.ICount += cycles_main[opcode];
-		(this->*opcode_main[opcode])(); // TODO Gives wrong timing for the moment !!
-		if (MSXMotherBoard::instance()->IRQstatus())
-			Z80_Interrupt(Z80_NORM_INT);
-	} else
-		R.IFF2 = true;
+	R.nextIFF1 = true;	// delay one instruction
+	R.IFF2 = true;
 }
 
