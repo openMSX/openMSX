@@ -4,7 +4,7 @@
 //
 // usage:
 //
-//   Emutime time(0);
+//   Emutime time(3579545);
 //   time++;
 //   time+=100;
 //
@@ -13,6 +13,10 @@
 #define __EMUTIME_HH__
 
 #include "assert.h"
+
+#define MAIN_FREQ  3579545*8
+#define DUMMY_FREQ 3579545*99	// as long as it's greater than MAIN_FREQ
+
 
 
 #ifndef uint64
@@ -24,10 +28,9 @@ class Emutime
 {
 public:
 	// constructors
-	Emutime() : _emutime(0), _scale(0) {}
-	Emutime(int freq, int val=0): _scale(_mainFreq/freq)
+	Emutime(int freq=DUMMY_FREQ, int val=0): _scale(MAIN_FREQ/freq)
 	{
-		//assert((_mainFreq%freq)==0); cannot check because of rounding errors
+		//assert((MAIN_FREQ%freq)==0); cannot check because of rounding errors
 		_emutime = val*_scale;
 	}
 	
@@ -58,12 +61,14 @@ public:
 	bool operator >=(const Emutime &foo) const { return _emutime >= foo._emutime; }
 
 	// distance function
-	int getTicksTill(const Emutime &foo) const {
+	uint64 getTicksTill(const Emutime &foo) const {
+		assert (_scale != 0);
+		assert (foo._emutime >= _emutime);
 		return (int)(foo._emutime-_emutime)/_scale;
 	}
 
 private:
-	static const uint64 _mainFreq=3579545*8;
+	static const uint64 _mainFreq=MAIN_FREQ;
 	
 	uint64 _emutime;
 	const int _scale;
