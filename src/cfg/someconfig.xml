@@ -4,7 +4,6 @@
 <msxconfig>
   
   <config id="MotherBoard">
-    <type>MotherBoard</type>
     <parameter name="0" class="subslotted">false</parameter>
     <parameter name="1" class="subslotted">false</parameter>
     <parameter name="2" class="subslotted">false</parameter>
@@ -12,7 +11,6 @@
   </config>
   
   <config id="rompath">
-    <type>rompath</type>
     <parameter name="separator">/</parameter>
     <parameter name="1" class="path">ROMS</parameter>
     <parameter name="2" class="path">TAPES</parameter>
@@ -89,7 +87,6 @@
   </device>
 
   <config id="tapepatch">
-    <type>tape</type>
     <parameter name="filename">timecurb.cas</parameter>
   </config>
 
@@ -130,19 +127,6 @@
     <parameter name="0x0021" class="patch">0xC9</parameter>
     <parameter name="" class="patchcode">MSXDiskRomPatch</parameter>
   </device>
-
-  <config id="diskpatch_diskA">
-    <type>disk</type>
-    <parameter name="readonly">true</parameter>
-    <parameter name="filename">mania036.dsk</parameter>
-    <parameter name="defaultsize">360</parameter>
-  </config>
-  <config id="diskpatch_diskB">
-    <type>disk</type>
-    <parameter name="readonly">false</parameter>
-    <parameter name="filename">mania111.dsk</parameter>
-    <parameter name="defaultsize">720</parameter>
-  </config>
 
   <device id="ppi">
     <type>PPI</type>
@@ -215,7 +199,6 @@
   </device>
 
   <config id="RealTime">
-    <type>RealTime</type>
     <parameter name="sync_interval">50</parameter>
     <parameter name="max_catch_up_time">2000</parameter>
     <parameter name="max_catch_up_factor">105</parameter>
@@ -325,13 +308,11 @@
   </device>
 
   <config id="Mixer">
-    <type>Mixer</type>
     <parameter name="frequency">22050</parameter>
     <parameter name="samples">512</parameter>
   </config>
 
   <config id="CassettePort">
-    <type>CassettePort</type>
   </config>
 
   <device id="Empty SCC Cartridge">
@@ -356,12 +337,10 @@
   </device>
   
   <config id="KeyEventInserter">
-    <type>KeyEventInserter</type>                
     <parameter name="keys">load"cas:"&#x0D;run&#x0D;</parameter>
   </config>
 
   <config id="Console">
-    <type>Console</type>
     <parameter name="font">ConsoleFont.bmp</parameter>
     <parameter name="background">ConsoleBackground.bmp</parameter>
   </config>

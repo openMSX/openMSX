@@ -32,7 +32,7 @@ inline byte _CPU_::READ_PORT(word port) {
 /*
  * Output a byte to given I/O port
  */
-inline void _CPU_::WRITE_PORT(word port,byte value) { 
+inline void _CPU_::WRITE_PORT(word port, byte value) { 
 	IOPORT_DELAY1();
 	interface->writeIO(port, value, currentTime);
 	IOPORT_DELAY2();
@@ -41,26 +41,19 @@ inline void _CPU_::WRITE_PORT(word port,byte value) {
  * Read a byte from given memory location
  */
 inline byte _CPU_::RDMEM(word address) {
-#ifdef CPU_DEBUG
 	MEM_DELAY1();
-	//debugmemory[address] = interface->readMem(address, currentTime);
-	debugmemory[address] = readMem(address);
-	MEM_DELAY2();
-	return debugmemory[address];
-#else
-	MEM_DELAY1();
-	//byte result = interface->readMem(address, currentTime);
 	byte result = readMem(address);
+#ifdef CPU_DEBUG
+	debugmemory[address] = result;
+#endif
 	MEM_DELAY2();
 	return result;
-#endif
 }
 /*
  * Write a byte to given memory location
  */
 inline void _CPU_::WRMEM(word address, byte value) {
 	MEM_DELAY1();
-	//interface->writeMem(address, value, currentTime);
 	writeMem(address, value);
 	MEM_DELAY2();
 	// No debugmemory[A] here otherwise self-modifying code could
@@ -73,70 +66,70 @@ inline void _CPU_::WRMEM(word address, byte value) {
  * opcodes. In case of system with memory mapped I/O, this function can be
  * used to greatly speed up emulation
  */
-inline byte _CPU_::RDOP(word A) { return RDMEM(A); }
+inline byte _CPU_::RDOP(word a) { return RDMEM(a); }
 /*
  * RDOP_ARG() is identical to RDOP() except it is used for reading
  * opcode arguments. This difference can be used to support systems that
  * use different encoding mechanisms for opcodes and opcode arguments
  */
-inline byte _CPU_::RDOP_ARG(word A) { return RDOP(A); }
+inline byte _CPU_::RDOP_ARG(word a) { return RDOP(a); }
 /*
  * RDSTACK() is identical to RDMEM() except it is used for reading
  * stack variables. In case of system with memory mapped I/O, this function
  * can be used to slightly speed up emulation
  */
-inline byte _CPU_::RDSTACK(word A) { return RDMEM(A); }
+inline byte _CPU_::RDSTACK(word a) { return RDMEM(a); }
 /*
  * WRSTACK() is identical to WRMEM() except it is used for writing
  * stack variables. In case of system with memory mapped I/O, this function
  * can be used to slightly speed up emulation
  */
-inline void _CPU_::WRSTACK(word A, byte V) { WRMEM(A,V); }
+inline void _CPU_::WRSTACK(word a, byte v) { WRMEM(a, v); }
 
 
-inline bool _CPU_::C()  { return R.AF.B.l&C_FLAG; }
+inline bool _CPU_::C()  { return R.AF.B.l & C_FLAG; }
 inline bool _CPU_::NC() { return !C(); }
-inline bool _CPU_::Z()  { return R.AF.B.l&Z_FLAG; }
+inline bool _CPU_::Z()  { return R.AF.B.l & Z_FLAG; }
 inline bool _CPU_::NZ() { return !Z(); }
-inline bool _CPU_::M()  { return R.AF.B.l&S_FLAG; }
+inline bool _CPU_::M()  { return R.AF.B.l & S_FLAG; }
 inline bool _CPU_::P()  { return !M(); }
-inline bool _CPU_::PE() { return R.AF.B.l&V_FLAG; }
+inline bool _CPU_::PE() { return R.AF.B.l & V_FLAG; }
 inline bool _CPU_::PO() { return !PE(); }
 
 /* Get next opcode argument and increment program counter */
-inline byte _CPU_::RDMEM_OPCODE () {
+inline byte _CPU_::RDMEM_OPCODE() {
 	return RDOP_ARG(R.PC.w++);
 }
-inline word _CPU_::RDMEM_WORD (word A) {
-	byte low  = RDMEM(A);
-	byte high = RDMEM(((A)+1)&0xFFFF);
-	return low+256*high;
+inline word _CPU_::RDMEM_WORD (word a) {
+	byte low  = RDMEM(a);
+	byte high = RDMEM(a + 1);
+	return low + 256*high;
 }
-inline void _CPU_::WRMEM_WORD (word A,word V) {
-	WRMEM (A, V&255);
-	WRMEM (((A)+1)&0xFFFF, V>>8);
+inline void _CPU_::WRMEM_WORD (word a, word v) {
+	WRMEM (a,     v & 0xFF);
+	WRMEM (a + 1, v >> 8);
 }
-inline word _CPU_::RDMEM_OPCODE_WORD () {
+inline word _CPU_::RDMEM_OPCODE_WORD() {
 	byte low  = RDMEM_OPCODE();
 	byte high = RDMEM_OPCODE();
-	return low+256*high;
+	return low + 256*high;
 }
 
 inline word _CPU_::XIX() { 
-	word result = R.IX.w+(offset)RDMEM_OPCODE();
+	word result = R.IX.w + (offset)RDMEM_OPCODE();
 	ADD_16_8_DELAY();
 	return result;
 }
 inline word _CPU_::XIY() { 
-	word result = R.IY.w+(offset)RDMEM_OPCODE();
+	word result = R.IY.w + (offset)RDMEM_OPCODE();
 	ADD_16_8_DELAY();
 	return result;
 }
 inline word _CPU_::XIX(offset n) { 
-	return R.IX.w+n;
+	return R.IX.w + n;
 }
 inline word _CPU_::XIY(offset n) { 
-	return R.IY.w+n;
+	return R.IY.w + n;
 }
 inline byte _CPU_::RD_XHL() { return RDMEM(R.HL.w); }
 inline byte _CPU_::RD_XIX() { return RDMEM(XIX()); }
@@ -147,15 +140,15 @@ inline void _CPU_::WR_XIX(byte a) { WRMEM(XIX(), a); }
 inline void _CPU_::WR_XIY(byte a) { WRMEM(XIY(), a); }
 
 
-inline void _CPU_::POP(word &Rg) {
+inline void _CPU_::POP(word &reg) {
 	byte low  = RDSTACK(R.SP.w++);
 	byte high = RDSTACK(R.SP.w++);
-	Rg = low+256*high;
+	reg = low + 256*high;
 }
-inline void _CPU_::PUSH(word Rg) {
+inline void _CPU_::PUSH(word reg) {
 	SMALL_DELAY();
-	WRSTACK(--R.SP.w, Rg>>8);
-	WRSTACK(--R.SP.w, Rg);
+	WRSTACK(--R.SP.w, reg >> 8);
+	WRSTACK(--R.SP.w, reg);
 }
 
 inline void _CPU_::CALL(word adrs) {
@@ -173,190 +166,215 @@ inline void _CPU_::JP(word adrs) {
 	R.PC.w = adrs;
 }
 
-inline void _CPU_::SET(int Bit, byte &Reg) { 
-	Reg |= 1<<Bit;
+inline void _CPU_::SET(int bit, byte &reg) { 
+	reg |= 1 << bit;
 }
-inline void _CPU_::RES(int Bit, byte &Reg) {
-	Reg &= ~(1<<Bit);
+inline void _CPU_::RES(int bit, byte &reg) {
+	reg &= ~(1 << bit);
 }
-inline void _CPU_::BIT(int Bit, byte Reg) {
-	// TODO  not for bit n,(hl)
-	//               bit n,(ix+d)      
-	R.AF.B.l = (R.AF.B.l&C_FLAG) | ZSPXYTable[Reg & (1<<Bit)];
+inline void _CPU_::BIT(int bit, byte reg) {
+	R.AF.B.l = (R.AF.B.l & C_FLAG) | 
+	           ZSPXYTable[reg & (1 << bit)] | 
+		   H_FLAG;
+}
+inline void _CPU_::BIT_HL(int bit) {
+	int i = RD_XHL();
+	R.AF.B.l = (R.AF.B.l & C_FLAG) |
+	            ZSPTable[i & (1 << bit)] | 
+		    H_FLAG;
+	SMALL_DELAY();
+}
+inline void _CPU_::BIT_IX(int bit, offset n) {
+	int i = RD_XIX(n);
+	R.AF.B.l = (R.AF.B.l & C_FLAG) | 
+	           ZSPTable[i & (1 << bit)] | 
+		   H_FLAG |
+	           (((R.IX.w + n) >> 8) & (X_FLAG | Y_FLAG));
+	SMALL_DELAY();
+}
+inline void _CPU_::BIT_IY(int bit, offset n) {
+	int i = RD_XIY(n);
+	R.AF.B.l = (R.AF.B.l & C_FLAG) | 
+	           ZSPTable[i & (1 << bit)] | 
+		   H_FLAG |
+	           (((R.IY.w + n) >> 8) & (X_FLAG | Y_FLAG));
+	SMALL_DELAY();
 }
 
-inline void _CPU_::AND(byte Reg) {
-	R.AF.B.h &= Reg;
-	R.AF.B.l = ZSPXYTable[R.AF.B.h]|H_FLAG;
+inline void _CPU_::AND(byte reg) {
+	R.AF.B.h &= reg;
+	R.AF.B.l = ZSPXYTable[R.AF.B.h] | H_FLAG;
 }
-inline void _CPU_::OR(byte Reg) {
-	R.AF.B.h |= Reg;
+inline void _CPU_::OR(byte reg) {
+	R.AF.B.h |= reg;
 	R.AF.B.l = ZSPXYTable[R.AF.B.h];
 }
-inline void _CPU_::XOR(byte Reg) {
-	R.AF.B.h ^= Reg;
+inline void _CPU_::XOR(byte reg) {
+	R.AF.B.h ^= reg;
 	R.AF.B.l = ZSPXYTable[R.AF.B.h];
 }
 
-inline void _CPU_::IN(byte &Reg) {
-	Reg = READ_PORT(R.BC.w);
-	R.AF.B.l = (R.AF.B.l&C_FLAG)|ZSPXYTable[Reg];
+inline void _CPU_::IN(byte &reg) {
+	reg = READ_PORT(R.BC.w);
+	R.AF.B.l = (R.AF.B.l & C_FLAG) |
+	           ZSPXYTable[reg];
 }
 
 inline void _CPU_::RLCA() {
-	R.AF.B.h = (R.AF.B.h<<1)|((R.AF.B.h&0x80)>>7);
-	R.AF.B.l = (R.AF.B.l&0xC4)|(R.AF.B.h&C_FLAG);
-	R.AF.B.l |= XYTable[R.AF.B.h];
+	R.AF.B.h = (R.AF.B.h << 1) | (R.AF.B.h >> 7);
+	R.AF.B.l = (R.AF.B.l & (S_FLAG | Z_FLAG | P_FLAG)) |
+	           (R.AF.B.h & (Y_FLAG | X_FLAG | C_FLAG));
 }
 inline void _CPU_::RRCA() {
-	R.AF.B.l = (R.AF.B.l&0xC4)|(R.AF.B.h&C_FLAG);
-	R.AF.B.h = (R.AF.B.h>>1)|(R.AF.B.h<<7);
-	R.AF.B.l |= XYTable[R.AF.B.h];
+	R.AF.B.l = (R.AF.B.l & (S_FLAG | Z_FLAG | P_FLAG)) |
+	           (R.AF.B.h &  C_FLAG);
+	R.AF.B.h = (R.AF.B.h >> 1) | (R.AF.B.h << 7);
+	R.AF.B.l |= R.AF.B.h & (X_FLAG | Y_FLAG);
 }
 inline void _CPU_::RLA() {
-	byte i = R.AF.B.l&C_FLAG;
-	R.AF.B.l = (R.AF.B.l&0xC4)|((R.AF.B.h&0x80)>>7);
-	R.AF.B.h = (R.AF.B.h<<1)|i;
-	R.AF.B.l |= XYTable[R.AF.B.h];
+	byte c = R.AF.B.l & C_FLAG;
+	R.AF.B.l = (R.AF.B.l & (S_FLAG | Z_FLAG | P_FLAG)) |
+	           ((R.AF.B.h & 0x80) ? C_FLAG : 0);
+	R.AF.B.h = (R.AF.B.h << 1) | (c ? 1 : 0);
+	R.AF.B.l |= R.AF.B.h & (X_FLAG | Y_FLAG);
 }
 inline void _CPU_::RRA() {
-	byte i = R.AF.B.l&C_FLAG;
-	R.AF.B.l = (R.AF.B.l&0xC4)|(R.AF.B.h&0x01);
-	R.AF.B.h = (R.AF.B.h>>1)|(i<<7);
-	R.AF.B.l |= XYTable[R.AF.B.h];
+	byte c = R.AF.B.l & C_FLAG;
+	R.AF.B.l = (R.AF.B.l & (S_FLAG | Z_FLAG | P_FLAG)) |
+	           ((R.AF.B.h & 0x01) ? C_FLAG : 0);
+	R.AF.B.h = (R.AF.B.h >> 1) | (c ? 0x80 : 0);
+	R.AF.B.l |= R.AF.B.h & (X_FLAG | Y_FLAG);
 }
 
-inline void _CPU_::RLC(byte &Reg) {
-	byte q = Reg>>7;
-	Reg = (Reg<<1)|q;
-	R.AF.B.l = ZSPXYTable[Reg]|q;
+inline void _CPU_::RLC(byte &reg) {
+	byte c = reg >> 7;
+	reg = (reg << 1) | c;
+	R.AF.B.l = ZSPXYTable[reg] | (c ? C_FLAG : 0);
 }
-inline void _CPU_::RRC(byte &Reg) {
-	byte q = Reg&1;
-	Reg = (Reg>>1)|(q<<7);
-	R.AF.B.l = ZSPXYTable[Reg]|q;
+inline void _CPU_::RRC(byte &reg) {
+	byte c = reg & 1;
+	reg = (reg >> 1) | (c << 7);
+	R.AF.B.l = ZSPXYTable[reg] | (c ? C_FLAG : 0);
 }
-inline void _CPU_::RL(byte &Reg) {
-	byte q = Reg>>7;
-	Reg = (Reg<<1)|(R.AF.B.l&1);
-	R.AF.B.l = ZSPXYTable[Reg]|q;
+inline void _CPU_::RL(byte &reg) {
+	byte c = reg >> 7;
+	reg = (reg << 1) | ((R.AF.B.l & C_FLAG) ? 0x01 : 0);
+	R.AF.B.l = ZSPXYTable[reg] | (c ? C_FLAG : 0);
 }
-inline void _CPU_::RR(byte &Reg) {
-	byte q = Reg&1;
-	Reg = (Reg>>1)|(R.AF.B.l<<7);
-	R.AF.B.l = ZSPXYTable[Reg]|q;
+inline void _CPU_::RR(byte &reg) {
+	byte c = reg & 1;
+	reg = (reg >> 1) | ((R.AF.B.l & C_FLAG) ? 0x80 : 0);
+	R.AF.B.l = ZSPXYTable[reg] | (c ? C_FLAG : 0);
 }
-inline void _CPU_::SLL(byte &Reg) {
-	byte q = Reg>>7;
-	Reg = (Reg<<1)|1;
-	R.AF.B.l = ZSPXYTable[Reg]|q;
+inline void _CPU_::SLL(byte &reg) {
+	byte c = reg >> 7;
+	reg = (reg << 1) | 1;
+	R.AF.B.l = ZSPXYTable[reg] | (c ? C_FLAG : 0);
 }
-inline void _CPU_::SLA(byte &Reg) {
-	byte q = Reg>>7;
-	Reg <<= 1;
-	R.AF.B.l = ZSPXYTable[Reg]|q;
+inline void _CPU_::SLA(byte &reg) {
+	byte c = reg >> 7;
+	reg <<= 1;
+	R.AF.B.l = ZSPXYTable[reg] | (c ? C_FLAG : 0);
 }
-inline void _CPU_::SRL(byte &Reg) {
-	byte q = Reg&1;
-	Reg >>= 1;
-	R.AF.B.l = ZSPXYTable[Reg]|q;
+inline void _CPU_::SRL(byte &reg) {
+	byte c = reg & 1;
+	reg >>= 1;
+	R.AF.B.l = ZSPXYTable[reg] | (c ? C_FLAG : 0);
 }
-inline void _CPU_::SRA(byte &Reg) {
-	byte q = Reg&1;
-	Reg = (Reg>>1)|(Reg&0x80);
-	R.AF.B.l = ZSPXYTable[Reg]|q;
-}
-
-inline void _CPU_::INC(byte &Reg) {
-	++Reg;
-	R.AF.B.l = (R.AF.B.l&C_FLAG)|
-	         ((Reg==0x80) ? V_FLAG : 0)|
-	         (((Reg&0x0f)==0x00) ? H_FLAG : 0)|
-	         ZSXYTable[Reg];
-}
-inline void _CPU_::DEC(byte &Reg) {
-	Reg--;
-	R.AF.B.l = (R.AF.B.l&C_FLAG)|
-	         ((Reg==0x7f) ? V_FLAG : 0)|
-	         (((Reg&0x0f)==0x0f) ? H_FLAG : 0)|
-	         ZSXYTable[Reg]|
-	         N_FLAG;
+inline void _CPU_::SRA(byte &reg) {
+	byte c = reg & 1;
+	reg = (reg >> 1) | (reg & 0x80);
+	R.AF.B.l = ZSPXYTable[reg] | (c ? C_FLAG : 0);
 }
 
-inline void _CPU_::ADD(byte Reg) {
-	int q = R.AF.B.h + Reg;
-	R.AF.B.l = ZSXYTable[q&255]|
-	         ((q&256)>>8)|
-	         ((R.AF.B.h^q^Reg)&H_FLAG)|
-	         (((Reg^R.AF.B.h^0x80)&(Reg^q)&0x80)>>5);
-	R.AF.B.h = q;
+inline void _CPU_::INC(byte &reg) {
+	reg++;
+	R.AF.B.l = (R.AF.B.l & C_FLAG) |
+	           ((reg == 0x80) ? V_FLAG : 0) |
+	           (((reg & 0x0f) == 0x00) ? H_FLAG : 0) |
+	           ZSXYTable[reg];
 }
-inline void _CPU_::ADC(byte Reg) {
-	int q = R.AF.B.h + Reg + (R.AF.B.l&C_FLAG);
-	R.AF.B.l = ZSXYTable[q&255]|
-	         ((q&256)>>8)|
-	         ((R.AF.B.h^q^Reg)&H_FLAG)|
-	         (((Reg^R.AF.B.h^0x80)&(Reg^q)&0x80)>>5);
-	R.AF.B.h = q;
-}
-inline void _CPU_::SUB(byte Reg) {
-	int q = R.AF.B.h - Reg;
-	R.AF.B.l = ZSXYTable[q&255]|
-	         ((q&256)>>8)|
-	         N_FLAG|
-	         ((R.AF.B.h^q^Reg)&H_FLAG)|
-	         (((Reg^R.AF.B.h)&(Reg^q)&0x80)>>5);
-	R.AF.B.h = q;
-}
-inline void _CPU_::SBC(byte Reg) {
-	int q = R.AF.B.h - Reg - (R.AF.B.l&C_FLAG);
-	R.AF.B.l = ZSXYTable[q&255]|
-	         ((q&256)>>8)|
-	         N_FLAG|
-	         ((R.AF.B.h^q^Reg)&H_FLAG)|
-	         (((Reg^R.AF.B.h)&(Reg^q)&0x80)>>5);
-	R.AF.B.h = q;
-}
-inline void _CPU_::CP(byte Reg) {
-	int q = R.AF.B.h - Reg;
-	R.AF.B.l = ZSTable[q&255]|
-	         XYTable[Reg]|	// XY from operand, not from result
-	         ((q&256)>>8)|
-	         N_FLAG|
-	         ((R.AF.B.h^q^Reg)&H_FLAG)|
-	         (((Reg^R.AF.B.h)&(Reg^q)&0x80)>>5);
-}
-
-inline void _CPU_::ADDW(word &Reg1, word Reg2) {
-	int q = Reg1 + Reg2;
-	R.AF.B.l = (R.AF.B.l&(S_FLAG|Z_FLAG|V_FLAG))|
-	         (((Reg1^q^Reg2)&0x1000)>>8)|
-	         ((q>>16)&C_FLAG)|
-	         XYTable[(q>>8)&255];
-	Reg1 = q;
-	OP_16_16_DELAY();
-}
-inline void _CPU_::ADCW(word Reg) {
-	int q = R.HL.w+Reg+(R.AF.B.l&C_FLAG);
-	R.AF.B.l = (((R.HL.w^q^Reg)&0x1000)>>8)|
-	         ((q>>16)&C_FLAG)|
-	         ((q&0x8000)>>8)|
-	         ((q&0xffff)?0:Z_FLAG)|
-	         (((Reg^R.HL.w^0x8000)&(Reg^q)&0x8000)>>13)|
-	         XYTable[(q>>8)&255];
-	R.HL.w = q;
-	OP_16_16_DELAY();
-}
-inline void _CPU_::SBCW(word Reg) {
-	int q = R.HL.w-Reg-(R.AF.B.l&C_FLAG);
-	R.AF.B.l = (((R.HL.w^q^Reg)&0x1000)>>8)|
-	           ((q>>16)&C_FLAG)|
-	           ((q&0x8000)>>8)|
-	           ((q&0xffff)?0:Z_FLAG)|
-	           (((Reg^R.HL.w)&(Reg^q)&0x8000)>>13)|
-		   XYTable[(q>>8)&255]|
+inline void _CPU_::DEC(byte &reg) {
+	reg--;
+	R.AF.B.l = (R.AF.B.l & C_FLAG) |
+	           ((reg == 0x7f) ? V_FLAG : 0) |
+	           (((reg & 0x0f) == 0x0f) ? H_FLAG : 0) |
+	           ZSXYTable[reg] |
 	           N_FLAG;
-	R.HL.w = q;
+}
+
+inline void _CPU_::ADD(byte reg) {
+	int res = R.AF.B.h + reg;
+	R.AF.B.l = ZSXYTable[res & 0xFF] |
+	           ((res & 0x100) ? C_FLAG : 0) |
+	           ((R.AF.B.h ^ res ^ reg) & H_FLAG) |
+	           (((reg ^ R.AF.B.h ^ 0x80) & (reg ^ res) & 0x80) >> 5);
+	R.AF.B.h = res;
+}
+inline void _CPU_::ADC(byte reg) {
+	int res = R.AF.B.h + reg + (R.AF.B.l & C_FLAG);
+	R.AF.B.l = ZSXYTable[res & 0xFF] |
+	           ((res & 0x100) ? C_FLAG : 0) |
+	           ((R.AF.B.h ^ res ^ reg) &H_FLAG) |
+	           (((reg ^ R.AF.B.h ^ 0x80) & (reg ^ res) & 0x80) >> 5);
+	R.AF.B.h = res;
+}
+inline void _CPU_::SUB(byte reg) {
+	int res = R.AF.B.h - reg;
+	R.AF.B.l = ZSXYTable[res & 0xFF] |
+	           ((res & 0x100) ? C_FLAG : 0) |
+	           N_FLAG |
+	           ((R.AF.B.h ^ res ^ reg) & H_FLAG) |
+	           (((reg ^ R.AF.B.h) & (reg ^ res) & 0x80) >> 5);
+	R.AF.B.h = res;
+}
+inline void _CPU_::SBC(byte reg) {
+	int res = R.AF.B.h - reg - (R.AF.B.l & C_FLAG);
+	R.AF.B.l = ZSXYTable[res & 0xFF] |
+	           ((res & 0x100) ? C_FLAG : 0) |
+	           N_FLAG |
+	           ((R.AF.B.h ^ res ^ reg) & H_FLAG) |
+	           (((reg ^ R.AF.B.h) & (reg ^res) & 0x80) >> 5);
+	R.AF.B.h = res;
+}
+inline void _CPU_::CP(byte reg) {
+	int q = R.AF.B.h - reg;
+	R.AF.B.l = ZSTable[q & 0xFF] |
+	           (reg & (X_FLAG | Y_FLAG)) |	// XY from operand, not from result
+	           ((q & 0x100) ? C_FLAG : 0) |
+	           N_FLAG |
+	           ((R.AF.B.h ^ q ^ reg) & H_FLAG) |
+	           (((reg ^ R.AF.B.h) & (reg ^ q) & 0x80) >> 5);
+}
+
+inline void _CPU_::ADDW(word &reg1, word reg2) {
+	int res = reg1 + reg2;
+	R.AF.B.l = (R.AF.B.l & (S_FLAG | Z_FLAG | V_FLAG)) |
+	           (((reg1 ^ res ^ reg2) >> 8) & H_FLAG) |
+	           ((res & 0x10000) ? C_FLAG : 0) |
+	           ((res >> 8) & (X_FLAG | Y_FLAG));
+	reg1 = res;
+	OP_16_16_DELAY();
+}
+inline void _CPU_::ADCW(word reg) {
+	int res = R.HL.w + reg + (R.AF.B.l & C_FLAG);
+	R.AF.B.l = (((R.HL.w ^ res ^ reg) >> 8) & H_FLAG) |
+	           ((res & 0x10000) ? C_FLAG : 0) |
+	           ((res & 0xffff) ? 0 : Z_FLAG) |
+	           (((reg ^ R.HL.w ^ 0x8000) & (reg ^ res) & 0x8000) >> 13) |
+	           ((res >> 8) & (S_FLAG | X_FLAG | Y_FLAG));
+	R.HL.w = res;
+	OP_16_16_DELAY();
+}
+inline void _CPU_::SBCW(word reg) {
+	int res = R.HL.w - reg - (R.AF.B.l & C_FLAG);
+	R.AF.B.l = (((R.HL.w ^ res ^ reg) >> 8) & H_FLAG) |
+	           ((res & 0x10000) ? C_FLAG : 0) |
+	           ((res & 0xffff) ? 0 : Z_FLAG) |
+	           (((reg ^ R.HL.w) & (reg ^ res) & 0x8000) >> 13) |
+		   ((res >> 8) & (S_FLAG | X_FLAG | Y_FLAG)) |
+	           N_FLAG;
+	R.HL.w = res;
 	OP_16_16_DELAY();
 }
 
@@ -413,7 +431,7 @@ void _CPU_::add_iy_sp() { ADDW(R.IY.w, R.SP.w); }
 void _CPU_::and_xhl() { AND(RD_XHL()); }
 void _CPU_::and_xix() { AND(RD_XIX()); }
 void _CPU_::and_xiy() { AND(RD_XIY()); }
-void _CPU_::and_a()   { R.AF.B.l = ZSPXYTable[R.AF.B.h]|H_FLAG; }
+void _CPU_::and_a()   { AND(R.AF.B.h); }
 void _CPU_::and_b()   { AND(R.BC.B.h); }
 void _CPU_::and_c()   { AND(R.BC.B.l); }
 void _CPU_::and_d()   { AND(R.DE.B.h); }
@@ -426,9 +444,9 @@ void _CPU_::and_iyh() { AND(R.IY.B.h); }
 void _CPU_::and_iyl() { AND(R.IY.B.l); }
 void _CPU_::and_byte(){ AND(RDMEM_OPCODE()); }
 
-void _CPU_::bit_0_xhl() { BIT(0, RD_XHL()); SMALL_DELAY(); }
-void _CPU_::bit_0_xix(offset n) { BIT(0, RD_XIX(n)); SMALL_DELAY(); }
-void _CPU_::bit_0_xiy(offset n) { BIT(0, RD_XIY(n)); SMALL_DELAY(); }
+void _CPU_::bit_0_xhl() { BIT_HL(0); }
+void _CPU_::bit_0_xix(offset n) { BIT_IX(0, n); }
+void _CPU_::bit_0_xiy(offset n) { BIT_IY(0, n); }
 void _CPU_::bit_0_a()   { BIT(0, R.AF.B.h); }
 void _CPU_::bit_0_b()   { BIT(0, R.BC.B.h); }
 void _CPU_::bit_0_c()   { BIT(0, R.BC.B.l); }
@@ -437,9 +455,9 @@ void _CPU_::bit_0_e()   { BIT(0, R.DE.B.l); }
 void _CPU_::bit_0_h()   { BIT(0, R.HL.B.h); }
 void _CPU_::bit_0_l()   { BIT(0, R.HL.B.l); }
 
-void _CPU_::bit_1_xhl() { BIT(1, RD_XHL()); SMALL_DELAY(); }
-void _CPU_::bit_1_xix(offset n) { BIT(1, RD_XIX(n)); SMALL_DELAY(); }
-void _CPU_::bit_1_xiy(offset n) { BIT(1, RD_XIY(n)); SMALL_DELAY(); }
+void _CPU_::bit_1_xhl() { BIT_HL(1); }
+void _CPU_::bit_1_xix(offset n) { BIT_IX(1, n); }
+void _CPU_::bit_1_xiy(offset n) { BIT_IY(1, n); }
 void _CPU_::bit_1_a()   { BIT(1, R.AF.B.h); }
 void _CPU_::bit_1_b()   { BIT(1, R.BC.B.h); }
 void _CPU_::bit_1_c()   { BIT(1, R.BC.B.l); }
@@ -448,9 +466,9 @@ void _CPU_::bit_1_e()   { BIT(1, R.DE.B.l); }
 void _CPU_::bit_1_h()   { BIT(1, R.HL.B.h); }
 void _CPU_::bit_1_l()   { BIT(1, R.HL.B.l); }
 
-void _CPU_::bit_2_xhl() { BIT(2, RD_XHL()); SMALL_DELAY(); }
-void _CPU_::bit_2_xix(offset n) { BIT(2, RD_XIX(n)); SMALL_DELAY(); }
-void _CPU_::bit_2_xiy(offset n) { BIT(2, RD_XIY(n)); SMALL_DELAY(); }
+void _CPU_::bit_2_xhl() { BIT_HL(2); }
+void _CPU_::bit_2_xix(offset n) { BIT_IX(2, n); }
+void _CPU_::bit_2_xiy(offset n) { BIT_IY(2, n); }
 void _CPU_::bit_2_a()   { BIT(2, R.AF.B.h); }
 void _CPU_::bit_2_b()   { BIT(2, R.BC.B.h); }
 void _CPU_::bit_2_c()   { BIT(2, R.BC.B.l); }
@@ -459,9 +477,9 @@ void _CPU_::bit_2_e()   { BIT(2, R.DE.B.l); }
 void _CPU_::bit_2_h()   { BIT(2, R.HL.B.h); }
 void _CPU_::bit_2_l()   { BIT(2, R.HL.B.l); }
 
-void _CPU_::bit_3_xhl() { BIT(3, RD_XHL()); SMALL_DELAY(); }
-void _CPU_::bit_3_xix(offset n) { BIT(3, RD_XIX(n)); SMALL_DELAY(); }
-void _CPU_::bit_3_xiy(offset n) { BIT(3, RD_XIY(n)); SMALL_DELAY(); }
+void _CPU_::bit_3_xhl() { BIT_HL(3); }
+void _CPU_::bit_3_xix(offset n) { BIT_IX(3, n); }
+void _CPU_::bit_3_xiy(offset n) { BIT_IY(3, n); }
 void _CPU_::bit_3_a()   { BIT(3, R.AF.B.h); }
 void _CPU_::bit_3_b()   { BIT(3, R.BC.B.h); }
 void _CPU_::bit_3_c()   { BIT(3, R.BC.B.l); }
@@ -470,9 +488,9 @@ void _CPU_::bit_3_e()   { BIT(3, R.DE.B.l); }
 void _CPU_::bit_3_h()   { BIT(3, R.HL.B.h); }
 void _CPU_::bit_3_l()   { BIT(3, R.HL.B.l); }
 
-void _CPU_::bit_4_xhl() { BIT(4, RD_XHL()); SMALL_DELAY(); }
-void _CPU_::bit_4_xix(offset n) { BIT(4, RD_XIX(n)); SMALL_DELAY(); }
-void _CPU_::bit_4_xiy(offset n) { BIT(4, RD_XIY(n)); SMALL_DELAY(); }
+void _CPU_::bit_4_xhl() { BIT_HL(4); }
+void _CPU_::bit_4_xix(offset n) { BIT_IX(4, n); }
+void _CPU_::bit_4_xiy(offset n) { BIT_IY(4, n); }
 void _CPU_::bit_4_a()   { BIT(4, R.AF.B.h); }
 void _CPU_::bit_4_b()   { BIT(4, R.BC.B.h); }
 void _CPU_::bit_4_c()   { BIT(4, R.BC.B.l); }
@@ -481,9 +499,9 @@ void _CPU_::bit_4_e()   { BIT(4, R.DE.B.l); }
 void _CPU_::bit_4_h()   { BIT(4, R.HL.B.h); }
 void _CPU_::bit_4_l()   { BIT(4, R.HL.B.l); }
 
-void _CPU_::bit_5_xhl() { BIT(5, RD_XHL()); SMALL_DELAY(); }
-void _CPU_::bit_5_xix(offset n) { BIT(5, RD_XIX(n)); SMALL_DELAY(); }
-void _CPU_::bit_5_xiy(offset n) { BIT(5, RD_XIY(n)); SMALL_DELAY(); }
+void _CPU_::bit_5_xhl() { BIT_HL(5); }
+void _CPU_::bit_5_xix(offset n) { BIT_IX(5, n); }
+void _CPU_::bit_5_xiy(offset n) { BIT_IY(5, n); }
 void _CPU_::bit_5_a()   { BIT(5, R.AF.B.h); }
 void _CPU_::bit_5_b()   { BIT(5, R.BC.B.h); }
 void _CPU_::bit_5_c()   { BIT(5, R.BC.B.l); }
@@ -492,9 +510,9 @@ void _CPU_::bit_5_e()   { BIT(5, R.DE.B.l); }
 void _CPU_::bit_5_h()   { BIT(5, R.HL.B.h); }
 void _CPU_::bit_5_l()   { BIT(5, R.HL.B.l); }
 
-void _CPU_::bit_6_xhl() { BIT(6, RD_XHL()); SMALL_DELAY(); }
-void _CPU_::bit_6_xix(offset n) { BIT(6, RD_XIX(n)); SMALL_DELAY(); }
-void _CPU_::bit_6_xiy(offset n) { BIT(6, RD_XIY(n)); SMALL_DELAY(); }
+void _CPU_::bit_6_xhl() { BIT_HL(6); }
+void _CPU_::bit_6_xix(offset n) { BIT_IX(6, n); }
+void _CPU_::bit_6_xiy(offset n) { BIT_IY(6, n); }
 void _CPU_::bit_6_a()   { BIT(6, R.AF.B.h); }
 void _CPU_::bit_6_b()   { BIT(6, R.BC.B.h); }
 void _CPU_::bit_6_c()   { BIT(6, R.BC.B.l); }
@@ -503,9 +521,9 @@ void _CPU_::bit_6_e()   { BIT(6, R.DE.B.l); }
 void _CPU_::bit_6_h()   { BIT(6, R.HL.B.h); }
 void _CPU_::bit_6_l()   { BIT(6, R.HL.B.l); }
 
-void _CPU_::bit_7_xhl() { BIT(7, RD_XHL()); SMALL_DELAY(); }
-void _CPU_::bit_7_xix(offset n) { BIT(7, RD_XIX(n)); SMALL_DELAY(); }
-void _CPU_::bit_7_xiy(offset n) { BIT(7, RD_XIY(n)); SMALL_DELAY(); }
+void _CPU_::bit_7_xhl() { BIT_HL(7); }
+void _CPU_::bit_7_xix(offset n) { BIT_IX(7, n); }
+void _CPU_::bit_7_xiy(offset n) { BIT_IY(7, n); }
 void _CPU_::bit_7_a()   { BIT(7, R.AF.B.h); }
 void _CPU_::bit_7_b()   { BIT(7, R.BC.B.h); }
 void _CPU_::bit_7_c()   { BIT(7, R.BC.B.l); }
@@ -522,12 +540,12 @@ void _CPU_::call_p()  { word adrs = RDMEM_OPCODE_WORD(); if (P())  CALL(adrs); }
 void _CPU_::call_pe() { word adrs = RDMEM_OPCODE_WORD(); if (PE()) CALL(adrs); }
 void _CPU_::call_po() { word adrs = RDMEM_OPCODE_WORD(); if (PO()) CALL(adrs); }
 void _CPU_::call_z()  { word adrs = RDMEM_OPCODE_WORD(); if (Z())  CALL(adrs); }
-void _CPU_::call()    { word adrs = RDMEM_OPCODE_WORD();             CALL(adrs); }
+void _CPU_::call()    { word adrs = RDMEM_OPCODE_WORD();           CALL(adrs); }
 
 void _CPU_::ccf() {
-	R.AF.B.l = ((R.AF.B.l&(S_FLAG|Z_FLAG|P_FLAG|C_FLAG)|
-	          ((R.AF.B.l&C_FLAG)<<4))|
-		  XYTable[R.AF.B.h]                       )^1;
+	R.AF.B.l = ((R.AF.B.l & (S_FLAG | Z_FLAG | P_FLAG | C_FLAG) |
+	            ((R.AF.B.l & C_FLAG) ? H_FLAG : 0)) |
+	            (R.AF.B.h & (X_FLAG | Y_FLAG))                  ) ^ C_FLAG;
 }
 
 void _CPU_::cp_xhl() { CP(RD_XHL()); }
@@ -551,18 +569,18 @@ void _CPU_::cpd() {
 	BLOCK_DELAY();
 	byte res = R.AF.B.h - val;
 	R.HL.w--; R.BC.w--;
-	R.AF.B.l = (R.AF.B.l & C_FLAG)|
-	         ((R.AF.B.h^val^res)&H_FLAG)|
-	         ZSTable[res]|
-	         N_FLAG;
+	R.AF.B.l = (R.AF.B.l & C_FLAG) |
+	           ((R.AF.B.h ^ val ^ res) & H_FLAG) |
+	           ZSTable[res] |
+	           N_FLAG;
 	if (R.AF.B.l & H_FLAG) res -= 1;
 	if (res & 0x02) R.AF.B.l |= Y_FLAG; // bit 1 -> flag 5
 	if (res & 0x08) R.AF.B.l |= X_FLAG; // bit 3 -> flag 3
-	if (R.BC.w) R.AF.B.l |= V_FLAG;
+	if (R.BC.w)     R.AF.B.l |= V_FLAG;
 }
 void _CPU_::cpdr() {
-	cpd ();
-	if (R.BC.w && !(R.AF.B.l&Z_FLAG)) { BLOCK_DELAY(); R.PC.w-=2; }
+	cpd();
+	if (R.BC.w && !(R.AF.B.l & Z_FLAG)) { BLOCK_DELAY(); R.PC.w -= 2; }
 }
 
 void _CPU_::cpi() {
@@ -570,27 +588,32 @@ void _CPU_::cpi() {
 	BLOCK_DELAY();
 	byte res = R.AF.B.h - val;
 	R.HL.w++; R.BC.w--;
-	R.AF.B.l = (R.AF.B.l & C_FLAG)|
-	         ((R.AF.B.h^val^res)&H_FLAG)|
-	         ZSTable[res]|
-	         N_FLAG;
+	R.AF.B.l = (R.AF.B.l & C_FLAG) |
+	           ((R.AF.B.h ^ val ^ res) & H_FLAG) |
+	           ZSTable[res] |
+	           N_FLAG;
 	if (R.AF.B.l & H_FLAG) res -= 1;
 	if (res & 0x02) R.AF.B.l |= Y_FLAG; // bit 1 -> flag 5
 	if (res & 0x08) R.AF.B.l |= X_FLAG; // bit 3 -> flag 3
-	if (R.BC.w) R.AF.B.l |= V_FLAG;
+	if (R.BC.w)     R.AF.B.l |= V_FLAG;
 }
 void _CPU_::cpir() {
-	cpi ();
-	if (R.BC.w && !(R.AF.B.l&Z_FLAG)) { BLOCK_DELAY(); R.PC.w-=2; }
+	cpi();
+	if (R.BC.w && !(R.AF.B.l & Z_FLAG)) { BLOCK_DELAY(); R.PC.w -= 2; }
 }
 
-void _CPU_::cpl() { R.AF.B.h^=0xFF; R.AF.B.l|=(H_FLAG|N_FLAG); }
+void _CPU_::cpl() {
+	R.AF.B.h ^= 0xFF;
+	R.AF.B.l = (R.AF.B.l & (S_FLAG | Z_FLAG | P_FLAG | C_FLAG)) |
+	           H_FLAG | N_FLAG |
+		   (R.AF.B.h & (X_FLAG | Y_FLAG));
+}
 
 void _CPU_::daa() {
 	int i = R.AF.B.h;
-	if (R.AF.B.l&C_FLAG) i|=256;
-	if (R.AF.B.l&H_FLAG) i|=512;
-	if (R.AF.B.l&N_FLAG) i|=1024;
+	if (R.AF.B.l & C_FLAG) i |= 0x100;
+	if (R.AF.B.l & H_FLAG) i |= 0x200;
+	if (R.AF.B.l & N_FLAG) i |= 0x400;
 	R.AF.w = DAATable[i];
 }
 
@@ -648,28 +671,17 @@ void _CPU_::djnz() {
 	if (--R.BC.B.h) JR(e);
 }
 
-void _CPU_::ex_xsp_hl() {
-	word temp;
-	POP(temp);
-	PUSH(R.HL.w);
-	R.HL.w = temp;
+inline void _CPU_::EX_SP(word &reg) {
+	word tmp;
+	POP(tmp);
+	PUSH(reg);
+	reg = tmp;
 	EX_SP_HL_DELAY();
 }
-void _CPU_::ex_xsp_ix() {
-	word temp;
-	POP(temp);
-	PUSH(R.IX.w);
-	R.IX.w = temp;
-	EX_SP_HL_DELAY();
-}
-void _CPU_::ex_xsp_iy()
-{
-	word temp;
-	POP(temp);
-	PUSH(R.IY.w);
-	R.IY.w = temp;
-	EX_SP_HL_DELAY();
-}
+void _CPU_::ex_xsp_hl() { EX_SP(R.HL.w); }
+void _CPU_::ex_xsp_ix() { EX_SP(R.IX.w); }
+void _CPU_::ex_xsp_iy() { EX_SP(R.IY.w); }
+
 void _CPU_::ex_af_af() {
 	int i = R.AF.w;
 	R.AF.w = R.AF2.w;
@@ -701,7 +713,7 @@ void _CPU_::in_e_c() { IN(R.DE.B.l); }
 void _CPU_::in_h_c() { IN(R.HL.B.h); }
 void _CPU_::in_l_c() { IN(R.HL.B.l); }
 void _CPU_::in_0_c() { byte i; IN(i); } //discard result
-void _CPU_::in_a_byte() { R.AF.B.h = READ_PORT(RDMEM_OPCODE()+(R.AF.B.h<<8)); }
+void _CPU_::in_a_byte() { R.AF.B.h = READ_PORT(RDMEM_OPCODE() + (R.AF.B.h << 8)); }
 
 void _CPU_::inc_xhl() {
 	byte i = RDMEM(R.HL.w);
@@ -749,16 +761,17 @@ void _CPU_::ind() {
 	WRMEM(R.HL.w, io);
 	R.HL.w--;
 	R.AF.B.l = ZSTable[R.BC.B.h];
-	if (io&S_FLAG) R.AF.B.l |= N_FLAG;
-	if ((((R.BC.B.l+1)&0xff)+io)&0x100) R.AF.B.l |= H_FLAG | C_FLAG;
-	if ((irep_tmp1[R.BC.B.l&3][io&3] ^
-	    breg_tmp2[R.BC.B.h] ^
-	    (R.BC.B.l>>2) ^
-	    (io>>2)                     )&1)
+	if (io & S_FLAG) R.AF.B.l |= N_FLAG;
+	if ((((R.BC.B.l - 1) & 0xff) + io) & 0x100)
+		R.AF.B.l |= H_FLAG | C_FLAG;
+	if ((irep_tmp1[R.BC.B.l & 3][io & 3] ^
+	    breg_tmp2[R.BC.B.h]              ^
+	    (R.BC.B.l >> 2)                  ^
+	    (io >> 2)                          ) & 1)
 		R.AF.B.l |= P_FLAG;
 }
 void _CPU_::indr() {
-	ind ();
+	ind();
 	if (R.BC.B.h) { BLOCK_DELAY(); R.PC.w -= 2; }
 }
 
@@ -768,17 +781,18 @@ void _CPU_::ini() {
 	R.BC.B.h--;
 	WRMEM(R.HL.w, io);
 	R.HL.w++;
-	R.AF.B.l = ZSTable[R.BC.B.h];
-	if (io&S_FLAG) R.AF.B.l |= N_FLAG;
-	if ((((R.BC.B.l+1)&0xff)+io)&0x100) R.AF.B.l |= H_FLAG | C_FLAG;
-	if ((irep_tmp1[R.BC.B.l&3][io&3] ^
-	    breg_tmp2[R.BC.B.h] ^
-	    (R.BC.B.l>>2) ^
-	    (io>>2)                     )&1)
+	R.AF.B.l = ZSXYTable[R.BC.B.h];
+	if (io & S_FLAG) R.AF.B.l |= N_FLAG;
+	if ((((R.BC.B.l + 1) & 0xff) + io) & 0x100)
+		R.AF.B.l |= H_FLAG | C_FLAG;
+	if ((irep_tmp1[R.BC.B.l & 3][io & 3] ^
+	    breg_tmp2[R.BC.B.h]              ^
+	    (R.BC.B.l >> 2)                  ^
+	    (io >> 2)                          ) & 1)
 		R.AF.B.l |= P_FLAG;
 }
 void _CPU_::inir() {
-	ini ();
+	ini();
 	if (R.BC.B.h) { BLOCK_DELAY(); R.PC.w -= 2; }
 }
 
@@ -819,7 +833,7 @@ void _CPU_::ld_xix_e()   { WR_XIX(R.DE.B.l); }
 void _CPU_::ld_xix_h()   { WR_XIX(R.HL.B.h); }
 void _CPU_::ld_xix_l()   { WR_XIX(R.HL.B.l); }
 void _CPU_::ld_xix_byte(){
-	int j = (R.IX.w+(offset)RDMEM_OPCODE())&0xFFFF;
+	word j = R.IX.w + (offset)RDMEM_OPCODE();
 	byte i = RDMEM_OPCODE();
 	PARALLEL_DELAY();	// parallelism
 	WRMEM(j, i);
@@ -832,7 +846,7 @@ void _CPU_::ld_xiy_e()   { WR_XIY(R.DE.B.l); }
 void _CPU_::ld_xiy_h()   { WR_XIY(R.HL.B.h); }
 void _CPU_::ld_xiy_l()   { WR_XIY(R.HL.B.l); }
 void _CPU_::ld_xiy_byte(){
-	int j = (R.IY.w+(offset)RDMEM_OPCODE())&0xFFFF;
+	word j = R.IY.w + (offset)RDMEM_OPCODE();
 	byte i = RDMEM_OPCODE();
 	PARALLEL_DELAY();	// parallelism
 	WRMEM(j, i);
@@ -991,31 +1005,42 @@ void _CPU_::ld_sp_word() { R.SP.w = RDMEM_OPCODE_WORD(); }
 void _CPU_::ld_sp_hl()   { R.SP.w = R.HL.w; }
 void _CPU_::ld_sp_ix()   { R.SP.w = R.IX.w; }
 void _CPU_::ld_sp_iy()   { R.SP.w = R.IY.w; }
+
 void _CPU_::ld_a_i() {
 	SMALL_DELAY();
 	R.AF.B.h = R.I;
-	R.AF.B.l = (R.AF.B.l&C_FLAG)|ZSXYTable[R.I]|((R.IFF2 ? V_FLAG : 0));
+	R.AF.B.l = (R.AF.B.l & C_FLAG) |
+	           ZSXYTable[R.AF.B.h] |
+		   (R.IFF2 ? V_FLAG : 0);
 }
-void _CPU_::ld_i_a()     { SMALL_DELAY(); R.I = R.AF.B.h; }
+void _CPU_::ld_i_a() {
+	SMALL_DELAY();
+	R.I = R.AF.B.h;
+}
 void _CPU_::ld_a_r() {
 	SMALL_DELAY();
-	R.AF.B.h=(R.R&127)|(R.R2&128);
-	R.AF.B.l=(R.AF.B.l&C_FLAG)|ZSXYTable[R.AF.B.h]|((R.IFF2 ? V_FLAG : 0));
+	R.AF.B.h = (R.R & 0x7f) | (R.R2 & 0x80);
+	R.AF.B.l = (R.AF.B.l & C_FLAG) |
+	           ZSXYTable[R.AF.B.h] |
+		   (R.IFF2 ? V_FLAG : 0);
 }
-void _CPU_::ld_r_a()     { SMALL_DELAY(); R.R = R.R2 = R.AF.B.h; }
+void _CPU_::ld_r_a() {
+	SMALL_DELAY();
+	R.R = R.R2 = R.AF.B.h;
+}
 
 void _CPU_::ldd() {
 	byte io = RDMEM(R.HL.w);
 	WRMEM(R.DE.w, io);        
 	LDI_DELAY();
 	R.AF.B.l &= S_FLAG | Z_FLAG | C_FLAG;
-	if ((R.AF.B.h+io)&0x02) R.AF.B.l |= Y_FLAG;	// bit 1 -> flag 5
-	if ((R.AF.B.h+io)&0x08) R.AF.B.l |= X_FLAG;	// bit 3 -> flag 3
+	if ((R.AF.B.h + io) & 0x02) R.AF.B.l |= Y_FLAG;	// bit 1 -> flag 5
+	if ((R.AF.B.h + io) & 0x08) R.AF.B.l |= X_FLAG;	// bit 3 -> flag 3
 	R.HL.w--; R.DE.w--; R.BC.w--;
 	if (R.BC.w) R.AF.B.l |= V_FLAG;
 }
 void _CPU_::lddr() {
-	ldd ();
+	ldd();
 	if (R.BC.w) { BLOCK_DELAY(); R.PC.w -= 2; }
 }
 void _CPU_::ldi() {
@@ -1023,13 +1048,13 @@ void _CPU_::ldi() {
 	WRMEM(R.DE.w, io);        
 	LDI_DELAY();
 	R.AF.B.l &= S_FLAG | Z_FLAG | C_FLAG;
-	if ((R.AF.B.h+io)&0x02) R.AF.B.l |= Y_FLAG;	// bit 1 -> flag 5
-	if ((R.AF.B.h+io)&0x08) R.AF.B.l |= X_FLAG;	// bit 3 -> flag 3
+	if ((R.AF.B.h + io) & 0x02) R.AF.B.l |= Y_FLAG;	// bit 1 -> flag 5
+	if ((R.AF.B.h + io) & 0x08) R.AF.B.l |= X_FLAG;	// bit 3 -> flag 3
 	R.HL.w++; R.DE.w++; R.BC.w--;
 	if (R.BC.w) R.AF.B.l |= V_FLAG;
 }
 void _CPU_::ldir() {
-	ldi ();
+	ldi();
 	if (R.BC.w) { BLOCK_DELAY(); R.PC.w -= 2; }
 }
 
@@ -1044,7 +1069,7 @@ void _CPU_::nop() { };
 void _CPU_::or_xhl() { OR(RD_XHL()); }
 void _CPU_::or_xix() { OR(RD_XIX()); }
 void _CPU_::or_xiy() { OR(RD_XIY()); }
-void _CPU_::or_a()   { R.AF.B.l = ZSPXYTable[R.AF.B.h]; }
+void _CPU_::or_a()   { OR(R.AF.B.h); }
 void _CPU_::or_b()   { OR(R.BC.B.h); }
 void _CPU_::or_c()   { OR(R.BC.B.l); }
 void _CPU_::or_d()   { OR(R.DE.B.h); }
@@ -1062,17 +1087,18 @@ void _CPU_::outd() {
 	byte io = RDMEM(R.HL.w--);
 	R.BC.B.h--;
 	WRITE_PORT(R.BC.w, io);
-	R.AF.B.l = ZSTable[R.BC.B.h];
-	if (io&S_FLAG) R.AF.B.l |= N_FLAG;
-	if ((((R.BC.B.l+1)&0xff)+io)&0x100) R.AF.B.l |= H_FLAG | C_FLAG;
-	if ((irep_tmp1[R.BC.B.l&3][io&3] ^
-	    breg_tmp2[R.BC.B.h] ^
-	    (R.BC.B.l>>2) ^
-	    (io>>2))                    & 1 )
+	R.AF.B.l = ZSXYTable[R.BC.B.h];
+	if (io & S_FLAG) R.AF.B.l |= N_FLAG;
+	if ((((R.BC.B.l - 1) & 0xff) + io) & 0x100)
+		R.AF.B.l |= H_FLAG | C_FLAG;
+	if ((irep_tmp1[R.BC.B.l & 3][io & 3] ^
+	    breg_tmp2[R.BC.B.h]              ^
+	    (R.BC.B.l >> 2)                  ^
+	    (io >> 2)                          ) & 1)
 		R.AF.B.l |= P_FLAG;
 }
 void _CPU_::otdr() {
-	outd ();
+	outd();
 	if (R.BC.B.h) { BLOCK_DELAY(); R.PC.w -= 2; }
 }
 void _CPU_::outi() {
@@ -1080,17 +1106,18 @@ void _CPU_::outi() {
 	byte io = RDMEM(R.HL.w++);
 	R.BC.B.h--;
 	WRITE_PORT(R.BC.w, io);
-	R.AF.B.l = ZSTable[R.BC.B.h];
-	if (io&S_FLAG) R.AF.B.l |= N_FLAG;
-	if ((((R.BC.B.l+1)&0xff)+io)&0x100) R.AF.B.l |= H_FLAG | C_FLAG;
-	if ((irep_tmp1[R.BC.B.l&3][io&3] ^
-	    breg_tmp2[R.BC.B.h] ^
-	    (R.BC.B.l>>2) ^
-	    (io>>2))                    & 1 )
+	R.AF.B.l = ZSXYTable[R.BC.B.h];
+	if (io & S_FLAG) R.AF.B.l |= N_FLAG;
+	if ((((R.BC.B.l +1 ) & 0xff) + io) & 0x100)
+		R.AF.B.l |= H_FLAG | C_FLAG;
+	if ((irep_tmp1[R.BC.B.l & 3][io & 3] ^
+	    breg_tmp2[R.BC.B.h]              ^
+	    (R.BC.B.l >> 2)                  ^
+	    (io >> 2)                          ) & 1)
 		R.AF.B.l |= P_FLAG;
 }
 void _CPU_::otir() {
-	outi ();
+	outi();
 	if (R.BC.B.h) { BLOCK_DELAY(); R.PC.w -= 2; }
 }
 
@@ -1102,7 +1129,7 @@ void _CPU_::out_c_e()   { WRITE_PORT(R.BC.w, R.DE.B.l); }
 void _CPU_::out_c_h()   { WRITE_PORT(R.BC.w, R.HL.B.h); }
 void _CPU_::out_c_l()   { WRITE_PORT(R.BC.w, R.HL.B.l); }
 void _CPU_::out_c_0()   { WRITE_PORT(R.BC.w, 0); }
-void _CPU_::out_byte_a(){ WRITE_PORT(RDMEM_OPCODE()+(R.AF.B.h<<8), R.AF.B.h); }
+void _CPU_::out_byte_a(){ WRITE_PORT(RDMEM_OPCODE() + (R.AF.B.h << 8), R.AF.B.h); }
 
 void _CPU_::pop_af() { POP(R.AF.w); }
 void _CPU_::pop_bc() { POP(R.BC.w); }
@@ -2238,7 +2265,7 @@ void _CPU_::res_7_e() { RES(7, R.DE.B.l); };
 void _CPU_::res_7_h() { RES(7, R.HL.B.h); };
 void _CPU_::res_7_l() { RES(7, R.HL.B.l); };
 
-void _CPU_::ret()    {                            RET(); }
+void _CPU_::ret()    {                          RET(); }
 void _CPU_::ret_c()  { SMALL_DELAY(); if (C())  RET(); }
 void _CPU_::ret_m()  { SMALL_DELAY(); if (M())  RET(); }
 void _CPU_::ret_nc() { SMALL_DELAY(); if (NC()) RET(); }
@@ -2547,9 +2574,9 @@ void _CPU_::rlca()  { RLCA(); }
 void _CPU_::rld() {
 	byte i = RDMEM(R.HL.w);
 	RLD_DELAY();
-	WRMEM(R.HL.w, (i<<4)|(R.AF.B.h&0x0F));
-	R.AF.B.h = (R.AF.B.h&0xF0)|(i>>4);
-	R.AF.B.l = (R.AF.B.l&C_FLAG)|ZSPXYTable[R.AF.B.h];
+	WRMEM(R.HL.w, (i << 4) | (R.AF.B.h & 0x0F));
+	R.AF.B.h = (R.AF.B.h & 0xF0) | (i >> 4);
+	R.AF.B.l = (R.AF.B.l & C_FLAG) | ZSPXYTable[R.AF.B.h];
 }
 
 void _CPU_::rr_xhl() {
@@ -2837,9 +2864,9 @@ void _CPU_::rrca()  { RRCA(); }
 void _CPU_::rrd() {
 	byte i = RDMEM(R.HL.w);
 	RLD_DELAY(); 
-	WRMEM(R.HL.w, (i>>4)|(R.AF.B.h<<4));
-	R.AF.B.h = (R.AF.B.h&0xF0)|(i&0x0F);
-	R.AF.B.l = (R.AF.B.l&C_FLAG)|ZSPXYTable[R.AF.B.h];
+	WRMEM(R.HL.w, (i >> 4) | (R.AF.B.h << 4));
+	R.AF.B.h = (R.AF.B.h & 0xF0) | (i & 0x0F);
+	R.AF.B.l = (R.AF.B.l & C_FLAG) | ZSPXYTable[R.AF.B.h];
 }
 
 void _CPU_::rst_00() { CALL(0x00); }
@@ -2873,9 +2900,9 @@ void _CPU_::sbc_hl_hl() { SBCW(R.HL.w); }
 void _CPU_::sbc_hl_sp() { SBCW(R.SP.w); }
 
 void _CPU_::scf() { 
-	R.AF.B.l = (R.AF.B.l&(S_FLAG|Z_FLAG|P_FLAG))|
-	         C_FLAG|
-	         XYTable[R.AF.B.h];
+	R.AF.B.l = (R.AF.B.l & (S_FLAG | Z_FLAG | P_FLAG)) |
+	           C_FLAG |
+	           (R.AF.B.h & (X_FLAG | Y_FLAG));
 }
 
 void _CPU_::set_0_xhl() {
@@ -4591,8 +4618,7 @@ void _CPU_::xor_iyl() { XOR(R.IY.B.l); }
 void _CPU_::xor_byte(){ XOR(RDMEM_OPCODE()); }
 
 
-void _CPU_::patch()
-{
+void _CPU_::patch() {
 	interface->patch(R);
 }
 
@@ -4667,7 +4693,7 @@ void _CPU_::execute()
 					case 2:
 						// Interrupt mode 2  Call [I:databyte]
 						PUSH (R.PC.w);
-						R.PC.w=RDMEM_WORD((interface->dataBus())|(R.I<<8));
+						R.PC.w = RDMEM_WORD((interface->dataBus()) | (R.I << 8));
 						M1Cycle();
 						IM2_DELAY();
 						break;
@@ -4690,9 +4716,9 @@ void _CPU_::execute()
 				// in halt mode
 				uint64 ticks = currentTime.getTicksTillUp(targetTime);
 				int hltStates = haltStates();
-				int halts = (ticks+hltStates-1)/hltStates;	// rounded up
+				int halts = (ticks + hltStates - 1) / hltStates;	// rounded up
 				R.R += halts;
-				currentTime += halts*hltStates;
+				currentTime += halts * hltStates;
 			} else {
 				#ifdef CPU_DEBUG
 					start_pc = R.PC.w;

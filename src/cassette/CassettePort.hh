@@ -97,7 +97,7 @@ class CassettePortFactory
 	public:
 		/**
 		 * If an Cassette was specified in the config file this method 
-		 * returns n CassettePort object, otherwise a DummyCassette
+		 * returns a CassettePort object, otherwise a DummyCassettePort
 		 * object
 		 */
 		static CassettePortInterface *instance(const EmuTime &time);

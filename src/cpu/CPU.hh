@@ -156,9 +156,9 @@ class CPU
 
 		// flag-register tables
 		static byte ZSTable[256];
-		static byte XYTable[256];
 		static byte ZSXYTable[256];
 		static byte ZSPXYTable[256];
+		static byte ZSPTable[256];
 		
 		// instruction lookup tables
 		static const word DAATable[2048];

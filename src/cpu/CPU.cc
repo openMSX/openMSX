@@ -46,20 +46,13 @@ void CPU::makeTables()
 		byte sFlag = i & S_FLAG;
 		byte xFlag = i & X_FLAG;
 		byte yFlag = i & Y_FLAG;
-		int p = 0;
-		if (i&1)   ++p;
-		if (i&2)   ++p;
-		if (i&4)   ++p;
-		if (i&8)   ++p;
-		if (i&16)  ++p;
-		if (i&32)  ++p;
-		if (i&64)  ++p;
-		if (i&128) ++p;
-		byte pFlag = (p&1) ? 0 : V_FLAG;
+		byte pFlag = 0;
+		for (int p = 128; p != 0; p >>= 1)
+			if (i & p) pFlag ^= V_FLAG;
 		ZSTable[i]    = zFlag | sFlag;
-		XYTable[i]    = xFlag | yFlag;
 		ZSXYTable[i]  = zFlag | sFlag | xFlag | yFlag;
 		ZSPXYTable[i] = zFlag | sFlag | xFlag | yFlag | pFlag;
+		ZSPTable[i]   = zFlag | sFlag |                 pFlag;
 	}
 }
 

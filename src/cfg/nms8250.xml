@@ -4,7 +4,6 @@
 <msxconfig>
 
   <config id="MotherBoard">
-    <type>MotherBoard</type>
     <parameter name="0" class="subslotted">false</parameter>
     <parameter name="1" class="subslotted">false</parameter>
     <parameter name="2" class="subslotted">false</parameter>
@@ -108,7 +107,6 @@
 
   <!--
   <config id="Media">
-    <type>Media</type>
     <parameter name="diska">PSYCHO.DSK</parameter>
   </config>
   -->
@@ -145,7 +143,6 @@
   </device>
 
   <config id="RealTime">
-    <type>RealTime</type>
     <parameter name="sync_interval">50</parameter>
     <parameter name="max_catch_up_time">2000</parameter>
     <parameter name="max_catch_up_factor">105</parameter>
@@ -179,13 +176,11 @@
   </device>
 
   <config id="Mixer">
-    <type>Mixer</type>
     <parameter name="frequency">22050</parameter>
     <parameter name="samples">512</parameter>
   </config>
 
   <config id="Console">
-    <type>Console</type>
     <parameter name="font">ConsoleFont.bmp</parameter>
     <parameter name="background">ConsoleBackground.bmp</parameter>
   </config>

@@ -3,9 +3,9 @@
 
 // These are initialized at run-time
 byte CPU::ZSTable[256];
-byte CPU::XYTable[256];
 byte CPU::ZSXYTable[256];
 byte CPU::ZSPXYTable[256];
+byte CPU::ZSPTable[256];
 
 
 const word CPU::DAATable[0x800] = {
