@@ -461,10 +461,10 @@ install: all
 	@cp -f $(addprefix doc/manual/,*.html *.css) $(OPENMSX_INSTALL)/doc/manual
 ifeq ($(USE_SYMLINK),true)
 	@echo "  Creating symlinks..."
-	@ln -sf National_CF-1200 $(OPENMSX_INSTALL)/share/machines/msx1
-	@ln -sf Philips_NMS_8250 $(OPENMSX_INSTALL)/share/machines/msx2
-	@ln -sf Panasonic_FS-A1FX $(OPENMSX_INSTALL)/share/machines/msx2plus
-	@ln -sf Panasonic_FS-A1GT $(OPENMSX_INSTALL)/share/machines/turbor
+	@ln -nsf National_CF-1200 $(OPENMSX_INSTALL)/share/machines/msx1
+	@ln -nsf Philips_NMS_8250 $(OPENMSX_INSTALL)/share/machines/msx2
+	@ln -nsf Panasonic_FS-A1FX $(OPENMSX_INSTALL)/share/machines/msx2plus
+	@ln -nsf Panasonic_FS-A1GT $(OPENMSX_INSTALL)/share/machines/turbor
 	@if [ -d /usr/local/bin -a -w /usr/local/bin ]; \
 		then ln -sf $(OPENMSX_INSTALL)/bin/$(BINARY_FILE) /usr/local/bin/openmsx; \
 		else if [ -d ~/bin ]; \
