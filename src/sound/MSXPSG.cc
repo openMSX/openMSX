@@ -5,7 +5,7 @@
 #include "CassettePort.hh"
 #include "JoystickPort.hh"
 #include "MSXConfig.hh"
-//#include "RenShaTurbo.hh"
+#include "RenShaTurbo.hh"
 
 namespace openmsx {
 
@@ -62,9 +62,9 @@ void MSXPSG::writeIO(byte port, byte value, const EmuTime &time)
 // AY8910Interface
 byte MSXPSG::readA(const EmuTime &time)
 {
-	byte joystick = ports[selectedPort]->read(time);
-	//byte joystick = ports[selectedPort]->read(time) | 
-	//			((RenShaTurbo::instance()->getSignal(time))<<4);
+	//byte joystick = ports[selectedPort]->read(time);
+	byte joystick = ports[selectedPort]->read(time) | 
+				((RenShaTurbo::instance()->getSignal(time))<<4);
 	byte cassetteInput = cassette->cassetteIn(time) ? 0x80 : 0x00;
 	byte keyLayout = keyLayoutBit ? 0x40 : 0x00;
 	return joystick | keyLayout | cassetteInput;
