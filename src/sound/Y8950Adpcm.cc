@@ -148,7 +148,7 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			//if ((reg7 & R07_REC) && (reg7 & R07_MEMORY_DATA)) {
 			{
 				int tmp = ((startAddr + memPntr) & addrMask) / 2;
-				tmp = (tmp < ramSize) ? ramSize : (tmp & (ramSize - 1)); 
+				tmp = (tmp < ramSize) ? tmp : (tmp & (ramSize - 1)); 
 				wave[tmp] = data;
 				//PRT_DEBUG("Y8950Adpcm: mem " << tmp << " " << (int)data);
 				memPntr += 2;
