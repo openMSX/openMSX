@@ -3,17 +3,18 @@
 #ifndef __V9990BITMAPCONVERTER_HH__
 #define __V9990BITMAPCONVERTER_HH__
 
-#include <SDL.h>
 #include "openmsx.hh"
 #include "Renderer.hh"
 #include "V9990ModeEnum.hh"
+#include <SDL.h>
+
 
 namespace openmsx {
 
 class V9990;
 class V9990VRAM;
 
-/** Utility class to convert VRAM content to host pixels
+/** Utility class to convert VRAM content to host pixels.
   */
 template <class Pixel, Renderer::Zoom zoom>
 class V9990BitmapConverter
