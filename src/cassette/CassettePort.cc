@@ -14,16 +14,17 @@ namespace openmsx {
 
 // CassettePortFactory //
 
+static CassettePortInterface* instanceHelper()
+{
+	// TODO move to PSG/PPI ?
+	return HardwareConfig::instance().findChild("CassettePort")
+		? static_cast<CassettePortInterface*>(new CassettePort())
+		: static_cast<CassettePortInterface*>(new DummyCassettePort());
+}
+	
 CassettePortInterface& CassettePortFactory::instance()
 {
-	PluggingController::instance(); // must have longer lifetime than CassettePort
-	static auto_ptr<CassettePortInterface> oneInstance;
-	if (!oneInstance.get()) {
-		oneInstance.reset(
-			HardwareConfig::instance().findChild("CassettePort") // TODO move to PSG
-			? static_cast<CassettePortInterface *>(new CassettePort())
-			: static_cast<CassettePortInterface *>(new DummyCassettePort()));
-	}
+	static auto_ptr<CassettePortInterface> oneInstance(instanceHelper());
 	return *oneInstance.get();
 }
 
