@@ -8,38 +8,28 @@
 
 namespace openmsx {
 
-Joystick::Joystick(int joyNum_)
-	: joyNum(joyNum_)
-{
-	PRT_DEBUG("Creating a Joystick object for joystick " << joyNum);
-
+void Joystick::registerAll(PluggingController *controller) {
 	if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
 		SDL_InitSubSystem(SDL_INIT_JOYSTICK);
 		SDL_JoystickEventState(SDL_ENABLE);	// joysticks generate events
 	}
 
-	if (SDL_NumJoysticks() <= joyNum) {
-		throw JoystickException("No such joystick number");
+	int numJoysticks = SDL_NumJoysticks();
+	for (int i = 0; i < numJoysticks; i++) {
+		controller->registerPluggable(new Joystick(i));
 	}
+}
 
+Joystick::Joystick(int joyNum_)
+	: joyNum(joyNum_)
+{
+	PRT_DEBUG("Creating a Joystick object for joystick " << joyNum);
+	assert(joyNum < SDL_NumJoysticks());
 	name = string("joystick") + (char)('1' + joyNum);
-
-	PRT_DEBUG("Opening joystick " << SDL_JoystickName(joyNum));
-	joystick = SDL_JoystickOpen(joyNum);
-	EventDistributor::instance()->registerEventListener(SDL_JOYAXISMOTION, this);
-	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONDOWN, this);
-	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONUP,   this);
-
-	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
-	         JOY_BUTTONA | JOY_BUTTONB;
 }
 
 Joystick::~Joystick()
 {
-	EventDistributor::instance()->unregisterEventListener(SDL_JOYAXISMOTION, this);
-	EventDistributor::instance()->unregisterEventListener(SDL_JOYBUTTONDOWN, this);
-	EventDistributor::instance()->unregisterEventListener(SDL_JOYBUTTONUP,   this);
-	SDL_JoystickClose(joystick);
 }
 
 //Pluggable
@@ -50,10 +40,22 @@ const string &Joystick::getName() const
 
 void Joystick::plug(Connector* connector, const EmuTime& time)
 {
+	PRT_DEBUG("Opening joystick " << SDL_JoystickName(joyNum));
+	joystick = SDL_JoystickOpen(joyNum);
+	EventDistributor::instance()->registerEventListener(SDL_JOYAXISMOTION, this);
+	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONDOWN, this);
+	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONUP,   this);
+
+	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
+	         JOY_BUTTONA | JOY_BUTTONB;
 }
 
 void Joystick::unplug(const EmuTime& time)
 {
+	EventDistributor::instance()->unregisterEventListener(SDL_JOYAXISMOTION, this);
+	EventDistributor::instance()->unregisterEventListener(SDL_JOYBUTTONDOWN, this);
+	EventDistributor::instance()->unregisterEventListener(SDL_JOYBUTTONUP,   this);
+	SDL_JoystickClose(joystick);
 }
 
 

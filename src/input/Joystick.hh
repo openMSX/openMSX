@@ -11,16 +11,17 @@
 
 namespace openmsx {
 
-class JoystickException : public MSXException {
-	public:
-		JoystickException(const string &desc) : MSXException(desc) {}
-};
+class PluggingController;
 
+/** Uses an SDL joystick to emulate an MSX joystick.
+  */
 class Joystick : public JoystickDevice, EventListener
 {
 	public:
-		Joystick(int joyNum);
-		virtual ~Joystick();
+		/** Register all available SDL joysticks.
+		  * @param controller Register here.
+		  */
+		static void registerAll(PluggingController *controller);
 
 		//Pluggable
 		virtual const string &getName() const;
@@ -35,6 +36,9 @@ class Joystick : public JoystickDevice, EventListener
 		virtual bool signalEvent(SDL_Event &event);
 
 	private:
+		Joystick(int joyNum);
+		virtual ~Joystick();
+
 		static const int THRESHOLD = 32768/10;
 
 		string name;

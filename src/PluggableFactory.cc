@@ -24,15 +24,7 @@ void PluggableFactory::createAll(PluggingController *controller)
 	controller->registerPluggable(new JoyNet());
 #endif
 	controller->registerPluggable(new KeyJoystick());
-	try {
-		for (int i = 0; ; i++) {
-			controller->registerPluggable(new Joystick(i));
-		}
-	} catch (JoystickException &e) {
-		// No more joysticks.
-		// TODO: Don't use exceptions for this.
-		//       Instead, make a single method to register all.
-	}
+	Joystick::registerAll(controller);
 }
 
 } // namespace openmsx
