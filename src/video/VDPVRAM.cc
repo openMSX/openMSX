@@ -116,7 +116,7 @@ string VDPVRAM::DumpVRAMCmd::execute(const vector<string> &tokens)
 	return "";
 }
 
-string VDPVRAM::DumpVRAMCmd::help(const vector<string> &tokens) const
+string VDPVRAM::DumpVRAMCmd::help(const vector<string> &tokens) const throw()
 {
 	return "Dump vram content to file \"vramdump\"\n";
 }

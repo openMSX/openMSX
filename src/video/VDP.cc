@@ -1023,7 +1023,7 @@ string VDP::VDPRegsCmd::execute(const vector<string> &tokens) throw()
 	return out.str();
 }
 
-string VDP::VDPRegsCmd::help(const vector<string> &tokens) const
+string VDP::VDPRegsCmd::help(const vector<string> &tokens) const throw()
 {
 	return "Prints the current state of the VDP registers.\n";
 }
@@ -1052,7 +1052,7 @@ string VDP::PaletteCmd::execute(const vector<string> &tokens) throw()
 	return out.str();
 }
 
-string VDP::PaletteCmd::help(const vector<string> &tokens) const
+string VDP::PaletteCmd::help(const vector<string> &tokens) const throw()
 {
 	return "Prints the current VDP palette (i:rgb).\n";
 }

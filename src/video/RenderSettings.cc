@@ -72,6 +72,7 @@ RenderSettings::~RenderSettings()
 // Renderer info
 
 string RenderSettings::RendererInfo::execute(const vector<string> &tokens) const
+	throw()
 {
 	string result;
 	set<string> renderers;
@@ -84,6 +85,7 @@ string RenderSettings::RendererInfo::execute(const vector<string> &tokens) const
 }
 
 string RenderSettings::RendererInfo::help(const vector<string> &tokens) const
+	throw()
 {
 	return "Shows a list of available renderers.\n";
 }

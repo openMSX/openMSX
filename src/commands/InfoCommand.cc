@@ -67,6 +67,7 @@ string InfoCommand::execute(const vector<string> &tokens)
 }
 
 string InfoCommand::help(const vector<string> &tokens) const
+	throw(CommandException)
 {
 	string result;
 	switch (tokens.size()) {
@@ -89,7 +90,7 @@ string InfoCommand::help(const vector<string> &tokens) const
 	return result;
 }
 
-void InfoCommand::tabCompletion(vector<string> &tokens) const
+void InfoCommand::tabCompletion(vector<string> &tokens) const throw()
 {
 	switch (tokens.size()) {
 	case 2: {
@@ -117,11 +118,13 @@ void InfoCommand::tabCompletion(vector<string> &tokens) const
 // Version info
 
 string InfoCommand::VersionInfo::execute(const vector<string> &tokens) const
+	throw()
 {
 	return "openMSX " VERSION " -- built on "__DATE__"\n";
 }
 
 string InfoCommand::VersionInfo::help(const vector<string> &tokens) const
+	throw()
 {
 	return "Prints openMSX version.";
 }

@@ -72,8 +72,10 @@ private:
 
 	class RendererInfo : public InfoTopic {
 	public:
-		virtual string execute(const vector<string> &tokens) const;
-		virtual string help   (const vector<string> &tokens) const;
+		virtual string execute(const vector<string> &tokens) const
+			throw();
+		virtual string help   (const vector<string> &tokens) const
+			throw();
 	} rendererInfo;
 };
 

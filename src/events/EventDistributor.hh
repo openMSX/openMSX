@@ -71,8 +71,9 @@ class EventDistributor : private SettingListener
 		class QuitCommand : public Command {
 		public:
 			virtual string execute(const vector<string> &tokens)
-				throw ();
-			virtual string help(const vector<string> &tokens) const;
+				throw();
+			virtual string help(const vector<string> &tokens) const
+				throw();
 		} quitCommand;
 		friend class QuitCommand;
 };

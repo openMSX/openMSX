@@ -24,104 +24,106 @@ class VolumeSetting;
 
 class Mixer : private SettingListener
 {
-	public:
-		static const int MAX_VOLUME = 32767;
-		enum ChannelMode {
-			MONO, MONO_LEFT, MONO_RIGHT, STEREO, NB_MODES
-		};
+public:
+	static const int MAX_VOLUME = 32767;
+	enum ChannelMode {
+		MONO, MONO_LEFT, MONO_RIGHT, STEREO, NB_MODES
+	};
 
-		static Mixer *instance();
-		void shutDown();
+	static Mixer *instance();
+	void shutDown();
 
-		/**
-		 * Use this method to register a given sounddevice.
-		 *
-		 * While registering, the device its setSampleRate() method is
-		 * called (see SoundDevice for more info).
-		 * After registration the device its updateBuffer() method is
-		 * 'regularly' called. It asks the device to fill a buffer with
-		 * a certain number of samples. (see SoundDevice for more info)
-		 * The maximum number of samples asked for is returned by this
-		 * method.
-		 */
-		int registerSound(const string &name, SoundDevice *device,
-		                  short volume, ChannelMode mode);
+	/**
+	 * Use this method to register a given sounddevice.
+	 *
+	 * While registering, the device its setSampleRate() method is
+	 * called (see SoundDevice for more info).
+	 * After registration the device its updateBuffer() method is
+	 * 'regularly' called. It asks the device to fill a buffer with
+	 * a certain number of samples. (see SoundDevice for more info)
+	 * The maximum number of samples asked for is returned by this
+	 * method.
+	 */
+	int registerSound(const string &name, SoundDevice *device,
+			  short volume, ChannelMode mode);
 
-		/**
-		 * Every sounddevice must unregister before it is destructed
-		 */
-		void unregisterSound(SoundDevice *device);
+	/**
+	 * Every sounddevice must unregister before it is destructed
+	 */
+	void unregisterSound(SoundDevice *device);
 
-		/**
-		 * Use this method to force an 'early' call to all
-		 * updateBuffer() methods.
-		 */
-		void updateStream(const EmuTime &time);
+	/**
+	 * Use this method to force an 'early' call to all
+	 * updateBuffer() methods.
+	 */
+	void updateStream(const EmuTime &time);
 
-		/**
-		 * This methods (un)locks the audio thread.
-		 * You can use this method to delay the call to the SoundDevices
-		 * updateBuffer() method. For example, this is usefull if
-		 * you are updating a lot of registers and you don't want the
-		 * half updated set being used to produce sound
-		 */
-		void lock();
-		void unlock();
+	/**
+	 * This methods (un)locks the audio thread.
+	 * You can use this method to delay the call to the SoundDevices
+	 * updateBuffer() method. For example, this is usefull if
+	 * you are updating a lot of registers and you don't want the
+	 * half updated set being used to produce sound
+	 */
+	void lock();
+	void unlock();
 
-		/**
-		 * This methods (un)mute the sound.
-		 * These methods may be called multiple times, as long as
-		 * you never call unmute() more than mute()
-		 */
-		void mute();
-		void unmute();
+	/**
+	 * This methods (un)mute the sound.
+	 * These methods may be called multiple times, as long as
+	 * you never call unmute() more than mute()
+	 */
+	void mute();
+	void unmute();
 
-	private:
-		Mixer();
-		virtual ~Mixer();
+private:
+	Mixer();
+	virtual ~Mixer();
 
-		void reInit();
-		void updtStrm(int samples);
-		static void audioCallbackHelper(void *userdata, Uint8 *stream, int len);
-		void audioCallback(short* stream);
-		void muteHelper(int muteCount);
-		virtual void update(const SettingLeafNode *setting);
+	void reInit();
+	void updtStrm(int samples);
+	static void audioCallbackHelper(void *userdata, Uint8 *stream, int len);
+	void audioCallback(short* stream);
+	void muteHelper(int muteCount);
+	virtual void update(const SettingLeafNode *setting);
 
-		bool init;
-		int muteCount;
+	bool init;
+	int muteCount;
 
-		struct SoundDeviceInfo {
-			ChannelMode mode;
-			string name;
-			IntegerSetting* volumeSetting;
-			EnumSetting<ChannelMode> *modeSetting;
-		};
-		map<SoundDevice*, SoundDeviceInfo> infos;
+	struct SoundDeviceInfo {
+		ChannelMode mode;
+		string name;
+		IntegerSetting* volumeSetting;
+		EnumSetting<ChannelMode> *modeSetting;
+	};
+	map<SoundDevice*, SoundDeviceInfo> infos;
 
-		SDL_AudioSpec audioSpec;
-		vector<SoundDevice*> devices[NB_MODES];
-		vector<int*> buffers;
+	SDL_AudioSpec audioSpec;
+	vector<SoundDevice*> devices[NB_MODES];
+	vector<int*> buffers;
 
-		short* mixBuffer;
-		int samplesLeft;
-		int offset;
-		EmuTime prevTime;
+	short* mixBuffer;
+	int samplesLeft;
+	int offset;
+	EmuTime prevTime;
 
-		MSXCPU *cpu;
-		RealTime *realTime;
+	MSXCPU *cpu;
+	RealTime *realTime;
 
-		BooleanSetting muteSetting;
+	BooleanSetting muteSetting;
 
 #ifdef DEBUG_MIXER
-		int nbClipped;
+	int nbClipped;
 #endif
 
-		class SoundDeviceInfoTopic : public InfoTopic {
-		public:
-			virtual string execute(const vector<string> &tokens) const;
-			virtual string help   (const vector<string> &tokens) const;
-		} soundDeviceInfo;
-		friend class SoundDeviceInfoTopic;
+	class SoundDeviceInfoTopic : public InfoTopic {
+	public:
+		virtual string execute(const vector<string> &tokens) const
+			throw();
+		virtual string help   (const vector<string> &tokens) const
+			throw();
+	} soundDeviceInfo;
+	friend class SoundDeviceInfoTopic;
 };
 
 } // namespace openmsx

@@ -72,9 +72,11 @@ private:
 	public:
 		SetCommand(SettingsManager *manager);
 		virtual string execute(const vector<string> &tokens)
-			throw (CommandException);
-		virtual string help   (const vector<string> &tokens) const;
-		virtual void tabCompletion(vector<string> &tokens) const;
+			throw(CommandException);
+		virtual string help   (const vector<string> &tokens) const
+			throw();
+		virtual void tabCompletion(vector<string> &tokens) const
+			throw();
 	private:
 		SettingsManager *manager;
 	} setCommand;
@@ -85,8 +87,10 @@ private:
 		ToggleCommand(SettingsManager *manager);
 		virtual string execute(const vector<string> &tokens)
 			throw (CommandException);
-		virtual string help   (const vector<string> &tokens) const;
-		virtual void tabCompletion(vector<string> &tokens) const;
+		virtual string help   (const vector<string> &tokens) const
+			throw();
+		virtual void tabCompletion(vector<string> &tokens) const
+			throw();
 	private:
 		SettingsManager *manager;
 	} toggleCommand;
@@ -97,8 +101,10 @@ private:
 		IncrCommand(SettingsManager *manager);
 		virtual string execute(const vector<string> &tokens)
 			throw (CommandException);
-		virtual string help   (const vector<string> &tokens) const;
-		virtual void tabCompletion(vector<string> &tokens) const;
+		virtual string help   (const vector<string> &tokens) const
+			throw();
+		virtual void tabCompletion(vector<string> &tokens) const
+			throw();
 	private:
 		SettingsManager *manager;
 	} incrCommand;
@@ -109,8 +115,10 @@ private:
 		DecrCommand(SettingsManager *manager);
 		virtual string execute(const vector<string> &tokens)
 			throw (CommandException);
-		virtual string help   (const vector<string> &tokens) const;
-		virtual void tabCompletion(vector<string> &tokens) const;
+		virtual string help   (const vector<string> &tokens) const
+			throw();
+		virtual void tabCompletion(vector<string> &tokens) const
+			throw();
 	private:
 		SettingsManager *manager;
 	} decrCommand;

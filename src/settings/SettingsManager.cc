@@ -82,7 +82,7 @@ SettingsManager::SetCommand::SetCommand(SettingsManager *manager_)
 }
 
 string SettingsManager::SetCommand::execute(const vector<string> &tokens)
-	throw (CommandException)
+	throw(CommandException)
 {
 	string result;
 	switch (tokens.size()) {
@@ -115,16 +115,16 @@ string SettingsManager::SetCommand::execute(const vector<string> &tokens)
 	return result;
 }
 
-string SettingsManager::SetCommand::help(
-	const vector<string> &tokens) const
+string SettingsManager::SetCommand::help(const vector<string> &tokens) const
+	throw()
 {
 	return "set            : list all settings\n"
 	       "set name       : information on setting\n"
 	       "set name value : change setting's value\n";
 }
 
-void SettingsManager::SetCommand::tabCompletion(
-	vector<string> &tokens) const
+void SettingsManager::SetCommand::tabCompletion(vector<string> &tokens) const
+	throw()
 {
 	switch (tokens.size()) {
 		case 2: {
@@ -155,7 +155,7 @@ SettingsManager::ToggleCommand::ToggleCommand(SettingsManager *manager_)
 }
 
 string SettingsManager::ToggleCommand::execute(const vector<string> &tokens)
-	throw (CommandException)
+	throw(CommandException)
 {
 	string result;
 	switch (tokens.size()) {
@@ -177,12 +177,14 @@ string SettingsManager::ToggleCommand::execute(const vector<string> &tokens)
 }
 
 string SettingsManager::ToggleCommand::help(const vector<string> &tokens) const
+	throw()
 {
 	return "toggle      : list all boolean settings\n"
 	       "toggle name : toggles a boolean setting\n";
 }
 
 void SettingsManager::ToggleCommand::tabCompletion(vector<string> &tokens) const
+	throw()
 {
 	switch (tokens.size()) {
 		case 2: {
@@ -204,7 +206,7 @@ SettingsManager::IncrCommand::IncrCommand(SettingsManager *manager_)
 }
 
 string SettingsManager::IncrCommand::execute(const vector<string> &tokens)
-	throw (CommandException)
+	throw(CommandException)
 {
 	string result;
 	int count = 1;
@@ -230,6 +232,7 @@ string SettingsManager::IncrCommand::execute(const vector<string> &tokens)
 }
 
 string SettingsManager::IncrCommand::help(const vector<string> &tokens) const
+	throw()
 {
 	return "incr            : list all integer settings\n"
 	       "incr name       : increase the given integer setting\n"
@@ -237,6 +240,7 @@ string SettingsManager::IncrCommand::help(const vector<string> &tokens) const
 }
 
 void SettingsManager::IncrCommand::tabCompletion(vector<string> &tokens) const
+	throw()
 {
 	switch (tokens.size()) {
 		case 2: {
@@ -258,7 +262,7 @@ SettingsManager::DecrCommand::DecrCommand(SettingsManager *manager_)
 }
 
 string SettingsManager::DecrCommand::execute(const vector<string> &tokens)
-	throw (CommandException)
+	throw(CommandException)
 {
 	string result;
 	int count = 1;
@@ -284,6 +288,7 @@ string SettingsManager::DecrCommand::execute(const vector<string> &tokens)
 }
 
 string SettingsManager::DecrCommand::help(const vector<string> &tokens) const
+	throw()
 {
 	return "decr            : list all integer settings\n"
 	       "decr name       : decrease the given integer setting\n"
@@ -291,6 +296,7 @@ string SettingsManager::DecrCommand::help(const vector<string> &tokens) const
 }
 
 void SettingsManager::DecrCommand::tabCompletion(vector<string> &tokens) const
+	throw()
 {
 	switch (tokens.size()) {
 		case 2: {

@@ -95,7 +95,7 @@ void PluggingController::unregisterPluggable(Pluggable *pluggable)
 //  plug command
 
 string PluggingController::PlugCmd::execute(const vector<string> &tokens)
-	throw (CommandException)
+	throw(CommandException)
 {
 	string result;
 	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
@@ -147,12 +147,14 @@ string PluggingController::PlugCmd::execute(const vector<string> &tokens)
 }
 
 string PluggingController::PlugCmd::help(const vector<string> &tokens) const
+	throw()
 {
 	return "Plugs a plug into a connector\n"
 	       " plug [connector] [plug]\n";
 }
 
 void PluggingController::PlugCmd::tabCompletion(vector<string> &tokens) const
+	throw()
 {
 	PluggingController *controller = PluggingController::instance();
 	if (tokens.size() == 2) {
@@ -185,7 +187,7 @@ void PluggingController::PlugCmd::tabCompletion(vector<string> &tokens) const
 //  unplug command
 
 string PluggingController::UnplugCmd::execute(const vector<string> &tokens)
-	throw (CommandException)
+	throw(CommandException)
 {
 	if (tokens.size() != 2) {
 		throw CommandException("Syntax error");
@@ -201,12 +203,14 @@ string PluggingController::UnplugCmd::execute(const vector<string> &tokens)
 }
 
 string PluggingController::UnplugCmd::help(const vector<string> &tokens) const
+	throw()
 {
 	return "Unplugs a plug from a connector\n"
 	       " unplug [connector]\n";
 }
 
 void PluggingController::UnplugCmd::tabCompletion(vector<string> &tokens) const
+	throw()
 {
 	PluggingController *controller = PluggingController::instance();
 	if (tokens.size() == 2) {
@@ -250,7 +254,7 @@ Pluggable *PluggingController::getPluggable(const string& name)
 // Pluggable info
 
 string PluggingController::PluggableInfo::execute(const vector<string> &tokens)
-	const throw (CommandException)
+	const throw(CommandException)
 {
 	string result;
 	PluggingController* controller = PluggingController::instance();
@@ -272,12 +276,14 @@ string PluggingController::PluggableInfo::execute(const vector<string> &tokens)
 }
 
 string PluggingController::PluggableInfo::help(const vector<string> &tokens) const
+	throw()
 {
 	return "Shows a list of available pluggables. "
 	       "Or show info on a specific pluggable.\n";
 }
 
 void PluggingController::PluggableInfo::tabCompletion(vector<string> &tokens) const
+	throw()
 {
 	if (tokens.size() == 3) {
 		PluggingController* controller = PluggingController::instance();
@@ -294,7 +300,7 @@ void PluggingController::PluggableInfo::tabCompletion(vector<string> &tokens) co
 // Connector info
 
 string PluggingController::ConnectorInfo::execute(const vector<string> &tokens)
-	const throw (CommandException)
+	const throw(CommandException)
 {
 	string result;
 	PluggingController* controller = PluggingController::instance();
@@ -316,11 +322,13 @@ string PluggingController::ConnectorInfo::execute(const vector<string> &tokens)
 }
 
 string PluggingController::ConnectorInfo::help(const vector<string> &tokens) const
+	throw()
 {
 	return "Shows a list of available connectors.\n";
 }
 
 void PluggingController::ConnectorInfo::tabCompletion(vector<string> &tokens) const
+	throw()
 {
 	if (tokens.size() == 3) {
 		PluggingController* controller = PluggingController::instance();

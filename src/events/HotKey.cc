@@ -171,7 +171,7 @@ string HotKey::BindCmd::execute(const vector<string> &tokens)
 	}
 	return result;
 }
-string HotKey::BindCmd::help(const vector<string> &tokens) const
+string HotKey::BindCmd::help(const vector<string> &tokens) const throw()
 {
 	return "bind             : show all bounded keys\n"
 	       "bind <key>       : show all bindings for this key\n"
@@ -215,7 +215,7 @@ string HotKey::UnbindCmd::execute(const vector<string> &tokens)
 	}
 	return result;
 }
-string HotKey::UnbindCmd::help(const vector<string> &tokens) const
+string HotKey::UnbindCmd::help(const vector<string> &tokens) const throw()
 {
 	return "unbind <key>       : unbind all for this key\n"
 	       "unbind <key> <cmd> : unbind a specific command\n";

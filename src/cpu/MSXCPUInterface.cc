@@ -328,23 +328,25 @@ MSXCPUInterface::SlotSelection* MSXCPUInterface::getCurrentSlots()
 }
 
 string MSXCPUInterface::SlotMapCmd::execute(const vector<string> &tokens)
-	throw ()
+	throw()
 {
 	return MSXCPUInterface::instance()->getSlotMap();
 }
 
 string MSXCPUInterface::SlotMapCmd::help(const vector<string> &tokens) const
+	throw()
 {
 	return "Prints which slots contain which devices.\n";
 }
 
 string MSXCPUInterface::SlotSelectCmd::execute(const vector<string> &tokens)
-	throw ()
+	throw()
 {
 	return MSXCPUInterface::instance()->getSlotSelection();
 }
 
 string MSXCPUInterface::SlotSelectCmd::help(const vector<string> &tokens) const
+	throw()
 {
 	return "Prints which slots are currently selected.\n";
 }

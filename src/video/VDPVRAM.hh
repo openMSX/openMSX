@@ -463,7 +463,8 @@ private:
 		DumpVRAMCmd(VDPVRAM *vram_);
 		virtual string execute(const vector<string> &tokens)
 			throw (CommandException);
-		virtual string help(const vector<string> &tokens) const;
+		virtual string help(const vector<string> &tokens) const
+			throw();
 	private:
 		VDPVRAM *vram;
 	} dumpVRAMCmd;

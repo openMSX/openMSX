@@ -405,7 +405,7 @@ private:
 	public:
 		VDPRegsCmd(VDP *vdp);
 		virtual string execute(const vector<string> &tokens) throw();
-		virtual string help(const vector<string> &tokens) const;
+		virtual string help(const vector<string> &tokens) const throw();
 	private:
 		VDP *vdp;
 	};
@@ -415,7 +415,7 @@ private:
 	public:
 		PaletteCmd(VDP *vdp);
 		virtual string execute(const vector<string> &tokens) throw();
-		virtual string help(const vector<string> &tokens) const;
+		virtual string help(const vector<string> &tokens) const throw();
 	private:
 		VDP *vdp;
 	};

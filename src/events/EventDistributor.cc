@@ -98,13 +98,14 @@ void EventDistributor::unregisterEventListener(
 }
 
 string EventDistributor::QuitCommand::execute(const vector<string> &tokens)
-	throw ()
+	throw()
 {
 	EventDistributor::instance()->quit();
 	return "";
 }
 
 string EventDistributor::QuitCommand::help(const vector<string> &tokens) const
+	throw()
 {
 	return "Use this command to stop the emulator\n";
 }

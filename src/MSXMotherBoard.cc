@@ -101,12 +101,14 @@ void MSXMotherBoard::run()
 }
 
 
-string MSXMotherBoard::ResetCmd::execute(const vector<string> &tokens) throw()
+string MSXMotherBoard::ResetCmd::execute(const vector<string> &tokens)
+	throw()
 {
 	MSXMotherBoard::instance()->resetMSX();
 	return "";
 }
 string MSXMotherBoard::ResetCmd::help(const vector<string> &tokens) const
+	throw()
 {
 	return "Resets the MSX.\n";
 }

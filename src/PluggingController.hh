@@ -59,36 +59,44 @@ private:
 	class PlugCmd : public Command {
 	public:
 		virtual string execute(const vector<string> &tokens)
-			throw (CommandException);
-		virtual string help   (const vector<string> &tokens) const;
-		virtual void tabCompletion(vector<string> &tokens) const;
+			throw(CommandException);
+		virtual string help   (const vector<string> &tokens) const
+			throw();
+		virtual void tabCompletion(vector<string> &tokens) const
+			throw();
 	} plugCmd;
 	friend class PlugCmd;
 
 	class UnplugCmd : public Command {
 	public:
 		virtual string execute(const vector<string> &tokens)
-			throw (CommandException);
-		virtual string help   (const vector<string> &tokens) const;
-		virtual void tabCompletion(vector<string> &tokens) const;
+			throw(CommandException);
+		virtual string help   (const vector<string> &tokens) const
+			throw();
+		virtual void tabCompletion(vector<string> &tokens) const
+			throw();
 	} unplugCmd;
 	friend class UnplugCmd;
 
 	class PluggableInfo : public InfoTopic {
 	public:
 		virtual string execute(const vector<string> &tokens) const
-			throw (CommandException);
-		virtual string help   (const vector<string> &tokens) const;
-		virtual void tabCompletion(vector<string> &tokens) const;
+			throw(CommandException);
+		virtual string help   (const vector<string> &tokens) const
+			throw();
+		virtual void tabCompletion(vector<string> &tokens) const
+			throw();
 	} pluggableInfo;
 	friend class PluggableInfo;
 
 	class ConnectorInfo : public InfoTopic {
 	public:
 		virtual string execute(const vector<string> &tokens) const
-			throw (CommandException);
-		virtual string help   (const vector<string> &tokens) const;
-		virtual void tabCompletion(vector<string> &tokens) const;
+			throw(CommandException);
+		virtual string help   (const vector<string> &tokens) const
+			throw();
+		virtual void tabCompletion(vector<string> &tokens) const
+			throw();
 	} connectorInfo;
 	friend class ConnectorInfo;
 };

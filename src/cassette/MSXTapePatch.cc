@@ -425,13 +425,13 @@ string MSXTapePatch::execute(const vector<string> &tokens)
 	return result;
 }
 
-string MSXTapePatch::help(const vector<string> &tokens) const
+string MSXTapePatch::help(const vector<string> &tokens) const throw()
 {
 	return "tape eject      : remove tape from virtual player\n"
 	       "tape <filename> : change the tape file\n";
 }
 
-void MSXTapePatch::tabCompletion(vector<string> &tokens) const
+void MSXTapePatch::tabCompletion(vector<string> &tokens) const throw()
 {
 	if (tokens.size()==2)
 		CommandController::completeFileName(tokens);

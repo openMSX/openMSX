@@ -321,6 +321,7 @@ void Mixer::update(const SettingLeafNode *setting)
 
 // Sound device info
 string Mixer::SoundDeviceInfoTopic::execute(const vector<string> &tokens) const
+	throw()
 {
 	string result;
 	Mixer* mixer = Mixer::instance();
@@ -332,6 +333,7 @@ string Mixer::SoundDeviceInfoTopic::execute(const vector<string> &tokens) const
 }
 
 string Mixer::SoundDeviceInfoTopic::help(const vector<string> &tokens) const
+	throw()
 {
 	return "Shows a list of available sound devices.\n";
 }

@@ -31,7 +31,8 @@ class Command
 
 		/** Print help for this command.
 		  */
-		virtual string help(const vector<string> &tokens) const = 0;
+		virtual string help(const vector<string> &tokens) const 
+			throw(CommandException) = 0;
 
 		/** Attempt tab completion for this command.
 		  * Default implementation does nothing.
@@ -39,7 +40,8 @@ class Command
 		  * 	tokens[0] is the command itself.
 		  * 	The last token is incomplete, this method tries to complete it.
 		  */
-		virtual void tabCompletion(vector<string> &tokens) const {}
+		virtual void tabCompletion(vector<string> &tokens) const
+			throw() {}
 };
 
 } // namespace openmsx

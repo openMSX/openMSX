@@ -214,13 +214,13 @@ string CassettePlayer::execute(const vector<string> &tokens)
 	return result;
 }
 
-string CassettePlayer::help(const vector<string> &tokens) const
+string CassettePlayer::help(const vector<string> &tokens) const throw()
 {
 	return "cassetteplayer eject      : remove tape from virtual player\n"
 	       "cassetteplayer <filename> : change the tape file\n";
 }
 
-void CassettePlayer::tabCompletion(vector<string> &tokens) const
+void CassettePlayer::tabCompletion(vector<string> &tokens) const throw()
 {
 	if (tokens.size() == 2) {
 		CommandController::completeFileName(tokens);
