@@ -1,4 +1,6 @@
 #!/bin/sh
+# $Id$
+#
 # Look for the lowest TCL version >= 8.4.
 
 BEST_MAJOR_VERSION=9999
@@ -9,13 +11,15 @@ BEST_LDFLAGS=
 for dir in \
 	/usr/local/lib/tcl8.* /usr/lib/tcl8.* \
 	/usr/local/lib /usr/lib \
-	/usr/local/bin /usr/bin
+	/usr/local/bin /usr/bin \
+	`echo $PATH | sed -n "s/:/ /gp;s/\/bin/\/lib/gp"`
 do
 	if [ -r $dir/tclConfig.sh ]
 	then
 		TCL_MAJOR_VERSION=0
 		TCL_MINOR_VERSION=0
 		. $dir/tclConfig.sh
+		REMEMBER=false
 		if [ $TCL_MAJOR_VERSION -ge 8 ]
 		then
 			if [ $TCL_MINOR_VERSION -ge 4 ]
@@ -23,19 +27,13 @@ do
 				#echo "  Found useful TCL $TCL_VERSION in $dir" 1>&2
 				if [ $TCL_MAJOR_VERSION -lt $BEST_MAJOR_VERSION ]
 				then
-					BEST_MAJOR_VERSION=$TCL_MAJOR_VERSION
-					BEST_MINOR_VERSION=$TCL_MINOR_VERSION
-					eval BEST_CXXFLAGS=$TCL_INCLUDE_SPEC
-					eval BEST_LDFLAGS=$TCL_LIB_FLAG
+					REMEMBER=true
 				else
 					if [ $TCL_MAJOR_VERSION -eq $BEST_MAJOR_VERSION ]
 					then
 						if [ $TCL_MINOR_VERSION -lt $BEST_MINOR_VERSION ]
 						then
-							BEST_MAJOR_VERSION=$TCL_MAJOR_VERSION
-							BEST_MINOR_VERSION=$TCL_MINOR_VERSION
-							eval BEST_CXXFLAGS=$TCL_INCLUDE_SPEC
-							eval BEST_LDFLAGS=$TCL_LIB_FLAG
+							REMEMBER=true
 						fi
 					fi
 				fi
@@ -44,6 +42,19 @@ do
 			fi
 		#else
 		#	echo "  Found wrong major version TCL $TCL_VERSION in $dir" 1>&2
+		fi
+		if [ "$REMEMBER" = true ]
+		then
+			BEST_MAJOR_VERSION=$TCL_MAJOR_VERSION
+			BEST_MINOR_VERSION=$TCL_MINOR_VERSION
+			eval BEST_CXXFLAGS=$TCL_INCLUDE_SPEC
+			if [ -z "$TCL_LIB_FLAG" ]
+			then
+				# Workaround for MSYS.
+				BEST_LDFLAGS=-ltcl$TCL_MAJOR_VERSION$TCL_MINOR_VERSION
+			else
+				eval BEST_LDFLAGS=$TCL_LIB_FLAG
+			fi
 		fi
 	#else
 	#	echo "  No tclConfig.sh in $dir" 1>&2
