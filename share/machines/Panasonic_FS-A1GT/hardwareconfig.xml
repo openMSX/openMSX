@@ -20,6 +20,7 @@
 
   <PanasonicRom>
     <rom>
+      <sha1>e779c338eb91a7dea3ff75f3fde76b8af22c4a3a</sha1>
       <filename>roms/fs-a1gt_firmware.rom</filename>
     </rom>
   </PanasonicRom>
@@ -122,6 +123,7 @@
     <Kanji id="Kanji ROM">
       <io base="0xD8" num="4"/>
       <rom>
+        <sha1>5aff2d9b6efc723bc395b0f96f0adfa83cc54a49</sha1>
         <filename>roms/fs-a1gt_kanjifont.rom</filename>
       </rom>
     </Kanji>
