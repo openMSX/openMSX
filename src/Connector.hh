@@ -72,7 +72,7 @@ protected:
 	Pluggable *pluggable;
 
 private:
-	const string &name;
+	const string name;
 	Pluggable *dummy;
 };
 
