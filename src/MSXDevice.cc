@@ -1,8 +1,10 @@
 // $Id$
  
-#include <iostream.h>
+#include <iostream>
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
+
+std::string MSXDevice::defaultName("no name");
 
 MSXDevice::MSXDevice()
 {
@@ -64,35 +66,34 @@ void MSXDevice::reset()
 }
 
 //
-void MSXDevice::saveState(ofstream &writestream)
+void MSXDevice::saveState(std::ofstream &writestream)
 {
 	// default implementation:
 	//   nothing needs to be saved
 }
-void MSXDevice::restoreState(string &devicestring, ifstream &readstream)
+void MSXDevice::restoreState(std::string &devicestring, std::ifstream &readstream)
 {
 	// default implementation:
 	//   nothing needs to be restored
 }
 
-const string &MSXDevice::getName()
+const std::string &MSXDevice::getName()
 {
 	if (deviceName != 0) {
 		return *deviceName;
 	} else {
-		string *tmp = new string("No name");
-		return *tmp;
+		return defaultName;
 	}
 }
 
 //These are used for save/restoreState see note over
 //savefile-structure
-bool MSXDevice::writeSaveStateHeader(ofstream &readstream )
+bool MSXDevice::writeSaveStateHeader(std::ofstream &readstream )
 {
 	// TODO
 	return true;
 }
-bool MSXDevice::checkSaveStateHeader(string &devicestring)
+bool MSXDevice::checkSaveStateHeader(std::string &devicestring)
 {
 	// TODO
 	return true;

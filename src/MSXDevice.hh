@@ -3,9 +3,9 @@
 #ifndef __MSXDEVICE_HH__
 #define __MSXDEVICE_HH__
 
-#include <iostream.h>
-#include <fstream.h>
-#include <string.h>
+#include <iostream>
+#include <fstream>
+#include <string>
 #include "msxconfig.hh"
 #include "emutime.hh"
 #include "openmsx.hh"
@@ -29,10 +29,10 @@ class MSXDevice
 		virtual void stop();
 		virtual void reset();
 		
-		virtual void saveState(ofstream &writestream);
-		virtual void restoreState(string &devicestring, ifstream &readstream);
+		virtual void saveState(std::ofstream &writestream);
+		virtual void restoreState(std::string &devicestring, std::ifstream &readstream);
 		
-		virtual const string &getName();
+		virtual const std::string &getName();
 
 	protected:
 		MSXDevice(void);
@@ -40,15 +40,17 @@ class MSXDevice
 		MSXConfig::Device *deviceConfig;
 		//These are used for save/restoreState see note over
 		//savefile-structure
-		bool writeSaveStateHeader(ofstream &writestream);
-		bool checkSaveStateHeader(string &devicestring);
-		const string* deviceName;
+		bool writeSaveStateHeader(std::ofstream &writestream);
+		bool checkSaveStateHeader(std::string &devicestring);
+		const std::string* deviceName;
 		char* deviceVersion;
 		
 		// To ease the burden of keeping IRQ state
 		void setInterrupt();
 		void resetInterrupt();
 		bool isIRQset;
+	private:
+		static std::string defaultName;
 };
 
 #endif //__MSXDEVICE_H__
