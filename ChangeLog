@@ -1,5 +1,9 @@
 $Id$
 
+2004-06-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed ROM loading bug when no SHA1 match was found and no filename
+	  was specified
+
 2004-06-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Compiled with -Wall -W and fixed all warnings
 

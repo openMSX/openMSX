@@ -23,38 +23,45 @@ namespace openmsx {
 Rom::Rom(const string& name_, const string& description_, const XMLElement& config)
 	: name(name_), description(description_)
 {
-	string filename;
 	XMLElement::Children sums;
 	config.getChildren("sha1", sums);
-	for (XMLElement::Children::const_iterator it = sums.begin();
-	     it != sums.end(); ++it) {
-		const string& sha1 = (*it)->getData();
-		filename = FilePool::instance().getFile(sha1);
-		if (!filename.empty()) {
-			sha1sum = sha1;
-			break;
-		}
-	}
-	
-	if (filename.empty()) {
-		const XMLElement* filenameElem = config.getChild("filename");
+	const XMLElement* filenameElem = config.getChild("filename");
+	if (!sums.empty() || filenameElem) {
+		// file specified with SHA1 or filename
+		string filename;
 		if (filenameElem) {
 			filename = filenameElem->getData();
 		}
-	}
-
-	if (!filename.empty()) {
+		for (XMLElement::Children::const_iterator it = sums.begin();
+		     it != sums.end(); ++it) {
+			const string& sha1 = (*it)->getData();
+			string sha1File = FilePool::instance().getFile(sha1);
+			if (!sha1File.empty()) {
+				filename = sha1File;
+				sha1sum = sha1;
+				break;
+			}
+		}
+		if (filename.empty()) {
+			throw FatalError("Couldn't find ROM file for \"" +
+			                 config.getAttribute("id") + "\".");
+		}
 		read(config, filename);
+
 	} else if (config.getChild("firstblock")) {
+		// part of the TurboR main ROM
 		int first = config.getChildDataAsInt("firstblock");
 		int last  = config.getChildDataAsInt("lastblock");
 		size = (last - first + 1) * 0x2000;
 		rom = PanasonicMemory::instance().getRomBlock(first);
 		assert(last >= first);
 		assert(rom);
-	} else { // Assumption: this only happens for an empty SCC
+
+	} else {
+		// Assumption: this only happens for an empty SCC
 		size = 0;
 	}
+
 	init(config);
 }
 
