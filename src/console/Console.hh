@@ -42,7 +42,7 @@ class Console : private EventListener
 		virtual ~Console();
 
 		virtual bool signalEvent(SDL_Event &event);
-
+			
 		void tabCompletion();
 		void commandExecute();
 		void scrollUp();
@@ -58,7 +58,6 @@ class Console : private EventListener
 		void putPrompt();
 		void updateConsole();
 		void resetScrollBack();
-	
 		class ConsoleSetting : public BooleanSetting
 		{
 			public:
@@ -70,13 +69,16 @@ class Console : private EventListener
 		} consoleSetting;
 		friend class ConsoleSetting;
 		
+		static const unsigned int MAXHISTORY = 25;
 		std::list<ConsoleRenderer*> renderers;
 		CircularBuffer<std::string, 100> lines;
-		CircularBuffer<std::string, 25> history;
+//		CircularBuffer<std::string, 25> history;
+		std::list<std::string> history;
+		std::list<std::string>::iterator commandScrollBack;
 		// saves Current Command to enable command recall
 		std::string currentLine;
 		int consoleScrollBack;
-		int commandScrollBack;
+//		int commandScrollBack;
 		unsigned int cursorPosition;
 		int consoleColumns;
 };

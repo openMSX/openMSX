@@ -34,7 +34,6 @@ Console::Console()
 	: consoleSetting(this)
 {
 	SDL_EnableUNICODE(1);
-
 	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this);
 	putPrompt();
@@ -197,8 +196,17 @@ void Console::newLineConsole(const std::string &line)
 
 void Console::putCommandHistory(const std::string &command)
 {
-	if (history.isFull()) history.removeBack();
-	history.addFront(command);
+	std::list<std::string>::iterator it;
+	it=history.begin();
+	while ((it !=history.end()) && (*it != command)) it++;
+	if (it!=history.end()){
+		history.erase(it); // delete double element
+	}
+	if (history.size()==MAXHISTORY){
+	history.pop_front();
+	}		
+	history.push_back(command);
+
 }
 
 void Console::commandExecute()
@@ -217,7 +225,7 @@ void Console::putPrompt()
 {
 	newLineConsole(PROMPT);
 	consoleScrollBack = 0;
-	commandScrollBack = -1;
+	commandScrollBack = history.end();
 	currentLine=PROMPT;
 	cursorPosition=PROMPT.length();
 }
@@ -246,38 +254,40 @@ void Console::scrollDown()
 
 void Console::prevCommand()
 {
+	std::list<std::string>::iterator tempScrollBack = commandScrollBack;
 	bool match=false;
 	resetScrollBack();
-	while ((commandScrollBack+1 < history.size()) && (!match)) {
-		// move back a line in the command strings and copy
-		// the command to the current input string
-		commandScrollBack++;
-		match = ((history[commandScrollBack].length()>=currentLine.length()) &&
-				(history[commandScrollBack].substr(0,currentLine.length())==currentLine));
-	}		
+	if (history.empty()) return; // no elements
+	while ((tempScrollBack != history.begin()) && (!match)){
+		tempScrollBack--;
+		match = ((tempScrollBack->length() >= currentLine.length()) &&
+				(tempScrollBack->substr(0,currentLine.length()) == currentLine));
+	}
 	if (match){
-		lines[0] = history[commandScrollBack];
-		cursorPosition=lines[0].length();
+		commandScrollBack = tempScrollBack;
+		lines[0]=*commandScrollBack;
+		cursorPosition=lines[0].length();		
 	}
 }
 
 void Console::nextCommand()
 {
+	if (commandScrollBack==history.end()) return; // don't loop !
+	std::list<std::string>::iterator tempScrollBack = commandScrollBack;
 	bool match=false;
 	resetScrollBack();
-	while ((commandScrollBack > 0) && (!match)) {
-		// move forward a line in the command strings and copy
-		// the command to the current input string
-		commandScrollBack--;
-		match = ((history[commandScrollBack].length()>=currentLine.length()) &&
-				(history[commandScrollBack].substr(0,currentLine.length())==currentLine));
-	} 
+	while ((++tempScrollBack != history.end()) && (!match)){
+		match = ((tempScrollBack->length() >= currentLine.length()) &&
+				(tempScrollBack->substr(0,currentLine.length())==currentLine));
+	}
 	if (match){
-		lines[0] = history[commandScrollBack];
-		cursorPosition=lines[0].length();
+		--tempScrollBack; // one time to many
+		commandScrollBack = tempScrollBack;
+		lines[0]=*commandScrollBack;
+		cursorPosition=lines[0].length();		
 	}
 	else {
-		commandScrollBack = -1;
+		commandScrollBack=history.end();
 		lines[0] = currentLine;
 	}
 	cursorPosition=lines[0].length();
@@ -288,7 +298,6 @@ void Console::clearCommand()
 	lines[0] = currentLine = PROMPT;
 	cursorPosition=PROMPT.length();
 }
-
 
 void Console::backspace()
 {
