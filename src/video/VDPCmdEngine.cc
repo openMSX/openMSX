@@ -192,7 +192,8 @@ void VDPCmdEngine::setCmdReg(byte index, byte value, const EmuTime &time)
 
 	case 0x0C: // colour
 		COL = value;
-		status &= 0x7F;
+		//status &= 0x7F;	// don't reset TR
+		transfer = true;
 		break;
 	case 0x0D: // argument
 		ARG = value;
@@ -487,7 +488,7 @@ inline void VDPCmdEngine::VDPCmd::pset(int dx, int dy, byte cl, LogOp op)
 
 void VDPCmdEngine::commandDone(const EmuTime& time)
 {
-	status &= 0xFE;
+	status &= 0x7E;	// reset TR CE
 	CMD = 0;
 	statusChangeTime = EmuTime::infinity;
 	vram->cmdReadWindow.disable(time);
@@ -878,10 +879,11 @@ void VDPCmdEngine::LmcmCmd::start(const EmuTime &time)
 	vram->cmdWriteWindow.disable(currentTime);
 	engine->NY &= 1023;
 	word NX = clipNX_1(engine->SX, engine->NX);
-	word NY = clipNY_1(engine->SY, engine->NY);
 	ASX = engine->SX;
 	ANX = NX;
-	calcFinishTime(NX, NY);
+	engine->statusChangeTime = EmuTime::infinity;
+	engine->transfer = true;
+	engine->status |= 0x80;
 }
 
 void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
@@ -895,10 +897,10 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 	
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
-	if ((engine->status & 0x80) != 0x80) {
+	if (engine->transfer) {
 		engine->COL = point(ASX, engine->SY);
 		opsCount -= LMMV_TIMING[engine->timingValue];
-		engine->status |= 0x80;
+		engine->transfer = false;
 		ASX += TX; --ANX;
 		if (ANX == 0) {
 			engine->SY += TY; --(engine->NY);
@@ -910,7 +912,6 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 	} else {
 		// TODO do we need to adjust opsCount?
 	}
-	calcFinishTime(NX, NY);
 }
 
 
@@ -929,10 +930,11 @@ void VDPCmdEngine::LmmcCmd::start(const EmuTime &time)
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	engine->NY &= 1023;
 	word NX = clipNX_1(engine->DX, engine->NX);
-	word NY = clipNY_1(engine->DY, engine->NY);
 	ADX = engine->DX;
 	ANX = NX;
-	calcFinishTime(NX, NY);
+	engine->statusChangeTime = EmuTime::infinity;
+	engine->transfer = true;
+	engine->status |= 0x80;
 }
 
 void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
@@ -946,11 +948,11 @@ void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
 	
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
-	if ((engine->status & 0x80) != 0x80) {
+	if (engine->transfer) {
 		byte col = engine->COL & MASK[engine->scrMode];
 		pset(ADX, engine->DY, col, engine->LOG);
 		opsCount -= LMMV_TIMING[engine->timingValue];
-		engine->status |= 0x80;
+		engine->transfer = false;
 
 		ADX += TX; --ANX;
 		if (ANX == 0) {
@@ -963,7 +965,6 @@ void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
 	} else {
 		// TODO do we need to adjust opsCount?
 	}
-	calcFinishTime(NX, NY);
 }
 
 
@@ -1189,10 +1190,11 @@ void VDPCmdEngine::HmmcCmd::start(const EmuTime &time)
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	engine->NY &= 1023;
 	word NX = clipNX_1(engine->DX, engine->NX, PPBS[engine->scrMode]);
-	word NY = clipNY_1(engine->DY, engine->NY);
 	ADX = engine->DX;
 	ANX = NX;
-	calcFinishTime(NX, NY);
+	engine->statusChangeTime = EmuTime::infinity;
+	engine->transfer = true;
+	engine->status |= 0x80;
 }
 
 void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
@@ -1207,10 +1209,10 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 	
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
-	if ((engine->status & 0x80) != 0x80) {
+	if (engine->transfer) {
 		vram->cmdWrite(vramAddr(ADX, engine->DY), engine->COL, currentTime);
 		opsCount -= HMMV_TIMING[engine->timingValue];
-		engine->status |= 0x80;
+		engine->transfer = false;
 
 		ADX += TX; --ANX;
 		if (ANX == 0) {
@@ -1223,7 +1225,6 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 	} else {
 		// TODO do we need to adjust opsCount?
 	}
-	calcFinishTime(NX, NY);
 }
 
 } // namespace openmsx

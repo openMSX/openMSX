@@ -70,7 +70,8 @@ public:
 	  */
 	inline byte readColour(const EmuTime &time) {
 		sync(time);
-		status &= 0x7F;
+		//status &= 0x7F; // dont reset TR
+		transfer = true;
 		return COL;
 	}
 
@@ -131,6 +132,11 @@ private:
 	  */
 	byte status;
 
+	/** Used in LMCM LMMC HMMC cmds, true when CPU has read or written
+	  * next byte.
+	  */
+	bool transfer;
+	
 	/** The X coordinate of a border detected by SRCH.
 	  */
 	int borderX;

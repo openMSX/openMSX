@@ -1,5 +1,10 @@
 $Id$
 
+2003-09-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fix the TR status bit in the VDPCmdEngine:
+	   most programs don't even check this bit so they weren't affected,
+	   the ones that did were waiting forever
+
 2003-09-19 Reikan <openMSX4Win32@ranpub.com>
 	* Win32: use SHGetSpecialFolderPath when available.
 	  I hope this help on Win95.
