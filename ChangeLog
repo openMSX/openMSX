@@ -4,6 +4,8 @@ $Id$
 	* Avoid syncs when VDP state changes when display is blanked and
 	  the border colour is not influenced by the state change.
 	  This allows the scaler to draw border lines more efficiently.
+	* New feature in build system: version executables.
+	  See VERSION_EXEC in build/custon.mk (off by default).
 
 2004-08-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed ROMBAS mapper for 8K ROMs.

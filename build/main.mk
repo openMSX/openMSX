@@ -88,6 +88,16 @@ LINK_FLAGS:=
 
 include $(MAKE_PATH)/custom.mk
 $(call DEFCHECK,INSTALL_BASE)
+$(call BOOLCHECK,VERSION_EXEC)
+
+
+# Version
+# =======
+
+include $(MAKE_PATH)/version.mk
+PACKAGE_FULL:=$(PACKAGE_NAME)-$(PACKAGE_VERSION)
+CHANGELOG_REVISION:=\
+	$(shell sed -ne "s/\$$Id: ChangeLog,v \([^ ]*\).*/\1/p" ChangeLog)
 
 
 # Platforms
@@ -183,7 +193,11 @@ SOURCES_PATH:=src
 
 BINARY_PATH:=$(BUILD_PATH)/bin
 BINARY_FILE:=openmsx$(EXEEXT)
-BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
+ifeq ($(VERSION_EXEC),true)
+  BINARY_FULL:=$(BINARY_PATH)/openmsx-dev$(CHANGELOG_REVISION)$(EXEEXT)
+else
+  BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
+endif
 
 LOG_PATH:=$(BUILD_PATH)/log
 
@@ -199,11 +213,6 @@ COMPONENTS_HEADER:=$(CONFIG_PATH)/components.hh
 
 # Configuration
 # =============
-
-include $(MAKE_PATH)/version.mk
-PACKAGE_FULL:=$(PACKAGE_NAME)-$(PACKAGE_VERSION)
-CHANGELOG_REVISION:=\
-	$(shell sed -ne "s/\$$Id: ChangeLog,v \([^ ]*\).*/\1/p" ChangeLog)
 
 include $(MAKE_PATH)/info2code.mk
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
@@ -438,9 +447,9 @@ ifeq ($(OPENMSX_SUBSET),)
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
   ifeq ($(USE_SYMLINK),true)
-	@ln -sf $(@:$(BUILD_BASE)/%=%) $(BUILD_BASE)/$(notdir $@)
+	@ln -sf $(@:$(BUILD_BASE)/%=%) $(BUILD_BASE)/$(BINARY_FILE)
   else
-	@cp $@ $(BUILD_BASE)
+	@cp $@ $(BUILD_BASE)/$(BINARY_FILE)
   endif
 else
 	@echo "Not linking $(notdir $@) because only a subset was built."
