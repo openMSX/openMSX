@@ -1,5 +1,14 @@
 $Id$
 
+2001-11-13 David Heremans
+	* uploaded SCC soundchip:
+	  This chip can emulate the SCC hardware in the 3 know modes
+	   - Real SCC
+	   - SCC+ cartridge in SCC compatible mode
+	   - SCC+ cartridge in SCC+ mode
+	* Changed MegaRom:
+	  Megarom of type 2 know use the SCC soundchip.
+
 2001-12-10 Maarten ter Huurne <mth@stack.nl>
 	* Implemented indirect register write for V9938/58.
 	* V9938/58 can now have 16K, 64K or 128K of VRAM.
