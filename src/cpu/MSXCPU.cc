@@ -53,7 +53,7 @@ void MSXCPU::setInterface(MSXCPUInterface* interface)
 	r800.setInterface(interface); 
 }
 
-void MSXCPU::reset(const EmuTime &time)
+void MSXCPU::reset(const EmuTime& time)
 {
 	z80 .reset(time);
 	r800.reset(time);
@@ -64,7 +64,7 @@ void MSXCPU::reset(const EmuTime &time)
 
 void MSXCPU::setActiveCPU(CPUType cpu)
 {
-	CPU *newCPU;
+	CPU* newCPU;
 	switch (cpu) {
 		case CPU_Z80:
 			PRT_DEBUG("Active CPU: Z80");
@@ -89,12 +89,12 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 	}
 }
 
-void MSXCPU::executeUntilTarget(const EmuTime &time)
+void MSXCPU::executeUntilTarget(const EmuTime& time)
 {
 	activeCPU->executeUntilTarget(time);
 }
 
-void MSXCPU::setTargetTime(const EmuTime &time)
+void MSXCPU::setTargetTime(const EmuTime& time)
 {
 	activeCPU->setTargetTime(time);
 }
@@ -136,7 +136,7 @@ void MSXCPU::setZ80Freq(unsigned freq)
 	z80.setFreq(freq);
 }
 
-void MSXCPU::wait(const EmuTime &time)
+void MSXCPU::wait(const EmuTime& time)
 {
 	activeCPU->wait(time);
 }

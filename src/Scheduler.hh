@@ -97,7 +97,7 @@ public:
 	 * Schedule till a certain moment in time.
 	 */
 	void schedule();
-	void scheduleFromCPU(const EmuTime& limit);
+	//void scheduleFromCPU(const EmuTime& limit);
 
 	void setMotherBoard(MSXMotherBoard* motherboard);
 	void setEventDistributor(EventDistributor* eventDistributor);

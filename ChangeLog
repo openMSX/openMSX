@@ -1,5 +1,11 @@
 $Id$
 
+2004-07-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Experimental:
+	   use CoRoutine to simplfy and later optimize CPU / Scheduler
+	   interaction. Current patch is very minimal: it just adds CoRoutine
+	   without any optimizations or cleanups.
+
 2004-07-25 Maarten ter Huurne <maarten@treewalker.org>
 	* Removed support for 8bpp. It never worked anyway.
 

@@ -21,7 +21,9 @@ inline void _CPU_::READ_PORT(word port, byte &result)
 	memptr.w = port + 1;
 	clock += IO_DELAY1;
 	if (!clock.before(targetTime)) {
-		extendTarget(clock.getTime());
+		CoRoutine::resume();
+		assert(clock.before(targetTime));
+		//extendTarget(clock.getTime());
 	}
 	//PRT_DEBUG("CPU: In 0x" << hex << (int)port <<
 	//          dec << " at " << clock);
@@ -34,7 +36,9 @@ inline void _CPU_::WRITE_PORT(word port, byte value)
 	memptr.w = port + 1;
 	clock += IO_DELAY1;
 	if (!clock.before(targetTime)) {
-		extendTarget(clock.getTime());
+		CoRoutine::resume();
+		assert(clock.before(targetTime));
+		//extendTarget(clock.getTime());
 	}
 	//PRT_DEBUG("CPU: Out 0x" << hex << (int)port <<
 	//          dec << " at " << clock);
@@ -77,7 +81,9 @@ void _CPU_::RDMEMslow(word address, byte &result)
 	// uncacheable
 	clock += MEM_DELAY1;
 	if (!clock.before(targetTime)) {
-		extendTarget(clock.getTime());
+		CoRoutine::resume();
+		assert(clock.before(targetTime));
+		//extendTarget(clock.getTime());
 	}
 	result = interface->readMem(address, clock.getTime());
 	#ifdef CPU_DEBUG
@@ -116,7 +122,9 @@ void _CPU_::WRMEMslow(word address, byte value)
 	// uncacheable
 	clock += MEM_DELAY1;
 	if (!clock.before(targetTime)) {
-		extendTarget(clock.getTime());
+		CoRoutine::resume();
+		assert(clock.before(targetTime));
+		//extendTarget(clock.getTime());
 	}
 	interface->writeMem(address, value, clock.getTime());
 	clock += MEM_DELAY2;
@@ -243,42 +251,31 @@ void _CPU_::executeSlow() {
 	}
 }
 
-void _CPU_::executeCore() {
-	assert(!breaked);
-	if (!clock.before(targetTime)) {
-		return;
-	}
-
-	slowInstructions = 2;
-	if (continued || step) {
-		// at least one instruction
-		continued = false;
-		executeSlow();
-		--slowInstructions;
-		if (step) {
-			targetTime = clock.getTime();
-			doBreak2();
-			step = false;
-			return;
+void _CPU_::run() {
+	while(true) {
+		assert(!breaked);
+		if (!clock.before(targetTime)) {
+			CoRoutine::resume();
+			assert(clock.before(targetTime));
 		}
-	}
 
-	if (breakPoints.empty()) {
-		// fast path, no breakpoints
-		while (clock.before(targetTime)) {
-			if (slowInstructions == 0) {
-				executeFast();
-			} else {
-				slowInstructions--;
-				executeSlow();
-			}
-		}
-	} else {
-		while (clock.before(targetTime)) {
-			if (breakPoints.find(R.PC.w) != breakPoints.end()) {
+		slowInstructions = 2;
+		if (continued || step) {
+			// at least one instruction
+			continued = false;
+			executeSlow();
+			--slowInstructions;
+			if (step) {
 				targetTime = clock.getTime();
 				doBreak2();
-			} else {
+				step = false;
+				CoRoutine::resume();
+			}
+		}
+
+		if (breakPoints.empty()) {
+			// fast path, no breakpoints
+			while (clock.before(targetTime)) {
 				if (slowInstructions == 0) {
 					executeFast();
 				} else {
@@ -286,9 +283,24 @@ void _CPU_::executeCore() {
 					executeSlow();
 				}
 			}
+		} else {
+			while (clock.before(targetTime)) {
+				if (breakPoints.find(R.PC.w) != breakPoints.end()) {
+					targetTime = clock.getTime();
+					doBreak2();
+				} else {
+					if (slowInstructions == 0) {
+						executeFast();
+					} else {
+						slowInstructions--;
+						executeSlow();
+					}
+				}
+			}
 		}
+		//PRT_DEBUG("CPU: stopped at " << clock);
+		CoRoutine::resume();
 	}
-	//PRT_DEBUG("CPU: stopped at " << clock);
 }
 
 

@@ -5,7 +5,7 @@ static word start_pc;
 static Clock<CLOCK_FREQ> before;
 #endif
 
-virtual void executeCore();
+virtual void run();
 
 inline void M1_DELAY();
 inline void ADD_16_8_DELAY();

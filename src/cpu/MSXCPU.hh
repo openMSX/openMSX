@@ -62,11 +62,6 @@ public:
 	void lowerIRQ();
 	
 	/**
-	 * Send wait states to the CPU
-	 */
-	void wait(const EmuTime& time);
-
-	/**
 	 * Is the R800 currently active
 	 */
 	bool isR800Active();
@@ -101,6 +96,9 @@ private:
 	const EmuTime& getTargetTime() const;
 	void init(Scheduler* scheduler);
 	friend class Scheduler;
+	
+	void wait(const EmuTime& time);
+	friend class VDPIODelay;
 
 	Z80 z80;
 	R800 r800;

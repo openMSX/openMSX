@@ -12,6 +12,7 @@
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
 #include "SettingListener.hh"
+#include "CoRoutine.hh"
 
 #ifdef DEBUG
 #define CPU_DEBUG
@@ -32,7 +33,7 @@ template <bool bigEndian> struct z80regpair_8bit;
 template <> struct z80regpair_8bit<false> { byte l, h; };
 template <> struct z80regpair_8bit<true>  { byte h, l; };
 
-class CPU : public CPUTables, private SettingListener
+class CPU : public CPUTables, protected CoRoutine, private SettingListener
 {
 friend class MSXCPU;
 public:
@@ -149,7 +150,7 @@ protected:
 	/** Emulate CPU till a previously set target time,
 	  * the target may change (become smaller) during emulation.
 	  */
-	virtual void executeCore() = 0;
+	virtual void run() = 0;
 
 	/**
 	  * Execute further than strictly requested by
@@ -157,7 +158,7 @@ protected:
 	  * be able to emulate complete instruction (part of it passed
 	  * the target time border).
 	  */
-	void extendTarget(const EmuTime& time);
+	/*void extendTarget(const EmuTime& time);*/
 
 	// state machine variables
 	CPURegs R;

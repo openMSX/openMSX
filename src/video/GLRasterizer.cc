@@ -1108,7 +1108,7 @@ void GLRasterizer::drawSprites(
 	glDisable(GL_TEXTURE_2D);
 }
 
-void GLRasterizer::update(const SettingLeafNode* setting)
+void GLRasterizer::update(const SettingLeafNode* /*setting*/)
 {
 	// TODO: SDLRasterizer subscribes to deinterlace setting.
 	//       Does it make sense to do that for GLRasterizer too?

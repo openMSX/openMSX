@@ -196,6 +196,7 @@ void Scheduler::schedule()
 	}
 }
 
+/*
 void Scheduler::scheduleFromCPU(const EmuTime& limit)
 {
 	while (true) {
@@ -217,6 +218,7 @@ void Scheduler::scheduleFromCPU(const EmuTime& limit)
 	}
 	scheduleTime = limit;
 }
+*/
 
 void Scheduler::scheduleDevice(const SynchronizationPoint &sp,
                                const EmuTime& time)

@@ -28,7 +28,8 @@ bool CPU::step = false;
 
 
 CPU::CPU(const string& name, int defaultFreq)
-	: interface(NULL),
+	: CoRoutine(1024 * 1024), // overestimation stack size
+	  interface(NULL),
 	  freqLocked(name + "_freq_locked",
 	             "real (locked) or custom (unlocked) " + name + " frequency",
 	             true),
@@ -63,7 +64,7 @@ void CPU::executeUntilTarget(const EmuTime& time)
 {
 	assert(interface);
 	setTargetTime(time);
-	executeCore();
+	CoRoutine::call(*this);
 }
 
 void CPU::setTargetTime(const EmuTime& time)
@@ -149,16 +150,20 @@ void CPU::wait(const EmuTime& time)
 	assert(time >= getCurrentTime());
 	advance(time);
 	if (time > getTargetTime()) {
-		extendTarget(time);
+		CoRoutine::resume();
+		assert(time <= getTargetTime());
+		//extendTarget(time);
 	}
 }
 
+/*
 void CPU::extendTarget(const EmuTime& time)
 {
 	assert(getTargetTime() <= time);
 	setTargetTime(time);
 	scheduler->scheduleFromCPU(time);
 }
+*/
 
 
 void CPU::doBreak2()
