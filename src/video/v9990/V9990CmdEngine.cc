@@ -904,6 +904,7 @@ void V9990CmdEngine::CmdBMLL<Mode>::execute(const EmuTime& time)
 		++engine->dstAddress;
 		--engine->nbBytes;
 	}
+	engine->cmdReady();
 }
 
 // ====================================================================
