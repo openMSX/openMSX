@@ -300,12 +300,19 @@ void MSXRom::reset(const EmuTime &time)
 		bankSelect[0] = 0;
 		break;
 
+	case ASCII_8KB:
+		setBank16kB(0, unmapped);
+		for (int region = 2; region < 6; region++) {
+			setROM8kB(region, 0);
+		}
+		setBank16kB(3, unmapped);
+		break;
+	
 	default:
 		setBank16kB(0, unmapped);
 		setROM16kB (1, (mapperType == R_TYPE) ? 0x17 : 0);
 		setROM16kB (2, ((mapperType == HYDLIDE2)   || 
-		                (mapperType == ASCII_16KB) ||
-				(mapperType == ASCII_8KB)) ? 0 : 1);
+		                (mapperType == ASCII_16KB)) ? 0 : 1);
 		setBank16kB(3, unmapped);
 	}
 }
