@@ -1,6 +1,7 @@
 // $Id$
 
 #include <cassert>
+#include <iostream>
 #include "KeyJoystick.hh"
 #include "PluggingController.hh"
 #include "EventDistributor.hh"
@@ -19,23 +20,29 @@ KeyJoystick::KeyJoystick()
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
 
+	// built in defaults: no working key joystick
+	upKey=Keys::K_NONE;
+	rightKey=Keys::K_NONE;
+	downKey=Keys::K_NONE;
+	leftKey=Keys::K_NONE;
+	buttonAKey=Keys::K_NONE;
+	buttonBKey=Keys::K_NONE;
+
+	Config *config;
+	
 	try {
-		Config *config = MSXConfig::instance()->getConfigById("KeyJoystick");
-		upKey=Keys::getCode(config->getParameter("upkey"));
-		rightKey=Keys::getCode(config->getParameter("rightkey"));
-		downKey=Keys::getCode(config->getParameter("downkey"));
-		leftKey=Keys::getCode(config->getParameter("leftkey"));
-		buttonAKey=Keys::getCode(config->getParameter("buttonakey"));
-		buttonBKey=Keys::getCode(config->getParameter("buttonbkey"));
+		config = MSXConfig::instance()->getConfigById("KeyJoystick");
 	} catch (ConfigException &e) {
-		PRT_INFO("KeyJoystick not (completely) configured, using default settings...");
-		upKey=Keys::K_UP;
-		rightKey=Keys::K_RIGHT;
-		downKey=Keys::K_DOWN;
-		leftKey=Keys::K_LEFT;
-		buttonAKey=Keys::K_SPACE;
-		buttonBKey=Keys::K_LALT;
+		PRT_INFO("KeyJoystick not configured, so it won't be usable...");
+		return;
 	}
+
+	upKey=getConfigKeyCode("upkey", config);
+	rightKey=getConfigKeyCode("rightkey", config);
+	downKey=getConfigKeyCode("downkey", config);
+	leftKey=getConfigKeyCode("leftkey", config);
+	buttonAKey=getConfigKeyCode("buttonakey", config);
+	buttonBKey=getConfigKeyCode("buttonbkey", config);
 }
 
 KeyJoystick::~KeyJoystick()
@@ -44,6 +51,19 @@ KeyJoystick::~KeyJoystick()
 
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this, 1);
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP  , this, 1);
+}
+
+// auxilliary function for constructor
+
+Keys::KeyCode KeyJoystick::getConfigKeyCode(const string &keyname, const Config *config)
+{
+	Keys::KeyCode testKey = Keys::K_NONE;
+	if (config->hasParameter(keyname)) {
+		testKey=Keys::getCode(config->getParameter(keyname));
+		if (testKey==Keys::K_NONE) 
+			std::cerr << "Warning: unknown keycode \"" << config->getParameter(keyname) << "\" for key \"" << keyname << "\" in KeyJoystick configuration" << std::endl;
+	}
+	return testKey;
 }
 
 // Pluggable

@@ -6,6 +6,7 @@
 #include "JoystickDevice.hh"
 #include "EventListener.hh"
 #include "Keys.hh"
+#include "MSXConfig.hh"
 #include <SDL/SDL.h>
 
 
@@ -30,6 +31,8 @@ class KeyJoystick : public JoystickDevice, EventListener
 		virtual bool signalEvent(SDL_Event &event);
 
 	private:
+		Keys::KeyCode getConfigKeyCode(const string &keyname, const Config *config);
+
 		byte status;
 
 		Keys::KeyCode upKey;
