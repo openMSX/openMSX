@@ -78,6 +78,7 @@
     <type>MapperIO</type>
     <parameter name="type">Philips</parameter>
   </device>
+  <!--
   <device id="mymapper1">
     <type>MemoryMapper</type>
     <slotted>
@@ -103,6 +104,7 @@
     <parameter name="slow_drain_on_reset">false</parameter>
     <parameter name="size">512</parameter>
   </device>
+  -->
   <device id="Real time clock">
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
