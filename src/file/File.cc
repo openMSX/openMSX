@@ -12,7 +12,7 @@ namespace openmsx {
 File::File(const string &url, OpenMode mode)
 {
 	string protocol, name;
-	unsigned int pos = url.find("://");
+	unsigned pos = url.find("://");
 	if (pos == string::npos) {
 		// no explicit protocol, take "file"
 		protocol = "file";
@@ -29,11 +29,11 @@ File::File(const string &url, OpenMode mode)
 		PRT_ERROR("Unsupported protocol: " << protocol);
 	}
 
-	if (((unsigned pos = name.rfind(".gz")) != string::npos) &&
+	if (((pos = name.rfind(".gz")) != string::npos) &&
 	    (pos == (name.size() - 3))) {
 		file = new GZFileAdapter(file);
 	} else
-	if (((unsigned pos = name.rfind(".zip")) != string::npos) &&
+	if (((pos = name.rfind(".zip")) != string::npos) &&
 	    (pos == (name.size() - 4))) {
 		file = new ZipFileAdapter(file);
 	}
