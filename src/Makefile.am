@@ -48,6 +48,7 @@ openmsx_SOURCES=\
 	XRenderer.hh XRenderer.cc \
 	BitmapConverter.hh BitmapConverter.cc \
 	CharacterConverter.hh CharacterConverter.cc \
+	SpriteConverter.hh \
 	PlatformFactory.hh PlatformFactory.cc \
 	DeviceFactory.hh DeviceFactory.cc \
 	Scheduler.hh Scheduler.cc Schedulable.hh Schedulable.cc \

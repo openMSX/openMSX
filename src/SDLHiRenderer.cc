@@ -12,7 +12,6 @@ TODO:
 #include "SDLHiRenderer.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
-#include "SpriteChecker.hh"
 #include "RealTime.hh"
 #include <math.h>
 #include "SDLConsole.hh"
@@ -229,13 +228,13 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	: PixelRenderer(vdp)
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
+	, spriteConverter(vdp->getSpriteChecker())
 {
 	console = new SDLConsole(screen);
 
 	this->vdp = vdp;
 	this->screen = screen;
 	vram = vdp->getVRAM();
-	spriteChecker = vdp->getSpriteChecker();
 
 	// Create display caches.
 	charDisplayCache = SDL_CreateRGBSurface(
@@ -341,11 +340,12 @@ template <class Pixel> void SDLHiRenderer<Pixel>::reset(const EmuTime &time)
 	} else {
 		characterConverter.setDisplayMode(mode);
 	}
-	
-	palSprites = palBg;
+
+	spriteConverter.setTransparency(vdp->getTransparency());
+	spriteConverter.setPalette(palBg);
+
 	setDirty(true);
 	dirtyForeground = dirtyBackground = true;
-	
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 
 	if (!vdp->isMSX1VDP()) {
@@ -383,6 +383,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateTransparency(
 	bool enabled, const EmuTime &time)
 {
 	sync(time);
+	spriteConverter.setTransparency(enabled);
+	
 	// Set the right palette for pixels of colour 0.
 	palFg[0] = palBg[enabled ? vdp->getBackgroundColour() : 0];
 	// Any line containing pixels of colour 0 must be repainted.
@@ -499,8 +501,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayMode(
 	} else {
 		characterConverter.setDisplayMode(mode);
 	}
-	palSprites =
-		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg;
+	spriteConverter.setPalette(
+		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg
+		);
 	setDirty(true);
 }
 
@@ -607,14 +610,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 	// TODO: Pass absLine as a parameter instead of converting back.
 	int absLine = screenLine / 2 + lineRenderTop;
 
-	// Determine sprites visible on this line.
-	SpriteChecker::SpriteInfo *visibleSprites;
-	int visibleIndex =
-		spriteChecker->getSprites(absLine, visibleSprites);
-	// Optimisation: return at once if no sprites on this line.
-	// Lines without any sprites are very common in most programs.
-	if (visibleIndex == 0) return;
-
 	// Sprites use 256 pixels per screen, while minX and maxX are on a scale
 	// of 512 pixels per screen.
 	minX /= 2;
@@ -627,94 +622,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 
 	// visibleIndex != 0 implies there are sprites in the current mode.
 	if (spriteMode == 1) {
-		// Sprite mode 1: render directly to screen using overdraw.
-		while (visibleIndex--) {
-			// Get sprite info.
-			SpriteChecker::SpriteInfo *sip = &visibleSprites[visibleIndex];
-			Pixel colour = sip->colourAttrib & 0x0F;
-			// Don't draw transparent sprites in sprite mode 1.
-			// TODO: Verify on real V9938 that sprite mode 1 indeed
-			//       ignores the transparency bit.
-			if (colour == 0) continue;
-			colour = palSprites[colour];
-			SpriteChecker::SpritePattern pattern = sip->pattern;
-			int x = sip->x;
-			// Clip sprite pattern to render range.
-			if (x < minX) {
-				if (x <= minX - 32) continue;
-				pattern <<= minX - x;
-				x = minX;
-			} else if (x > maxX - 32) {
-				if (x >= maxX) continue;
-				pattern &= -1 << (32 - (maxX - x));
-			}
-			// Convert pattern to pixels.
-			Pixel *p0 = &pixelPtr0[x * 2];
-			Pixel *p1 = &pixelPtr1[x * 2];
-			while (pattern) {
-				// Draw pixel if sprite has a dot.
-				if (pattern & 0x80000000) {
-					p0[0] = p0[1] = p1[0] = p1[1] = colour;
-				}
-				// Advancing behaviour.
-				pattern <<= 1;
-				p0 += 2;
-				p1 += 2;
-			}
-		}
+		spriteConverter.drawMode1(absLine, minX, maxX, pixelPtr0, pixelPtr1);
 	} else {
-		// Sprite mode 2: single pass left-to-right render.
-
-		// Determine width of sprites.
-		SpriteChecker::SpritePattern combined = 0;
-		for (int i = 0; i < visibleIndex; i++) {
-			combined |= visibleSprites[i].pattern;
-		}
-		int maxSize = SpriteChecker::patternWidth(combined);
-		// Left-to-right scan.
-		for (int pixelDone = minX; pixelDone < maxX; pixelDone++) {
-			// Skip pixels if possible.
-			int minStart = pixelDone - maxSize;
-			int leftMost = 0xFFFF;
-			for (int i = 0; i < visibleIndex; i++) {
-				int x = visibleSprites[i].x;
-				if (minStart < x && x < leftMost) leftMost = x;
-			}
-			if (leftMost > pixelDone) {
-				pixelDone = leftMost;
-				if (pixelDone >= 256) break;
-			}
-			// Calculate colour of pixel to be plotted.
-			byte colour = 0xFF;
-			for (int i = 0; i < visibleIndex; i++) {
-				SpriteChecker::SpriteInfo *sip = &visibleSprites[i];
-				int shift = pixelDone - sip->x;
-				if ((0 <= shift && shift < maxSize)
-				&& ((sip->pattern << shift) & 0x80000000)) {
-					byte c = sip->colourAttrib & 0x0F;
-					if (c == 0 && vdp->getTransparency()) continue;
-					colour = c;
-					// Merge in any following CC=1 sprites.
-					for (i++ ; i < visibleIndex; i++) {
-						sip = &visibleSprites[i];
-						if (!(sip->colourAttrib & 0x40)) break;
-						int shift = pixelDone - sip->x;
-						if ((0 <= shift && shift < maxSize)
-						&& ((sip->pattern << shift) & 0x80000000)) {
-							colour |= sip->colourAttrib & 0x0F;
-						}
-					}
-					break;
-				}
-			}
-			// Plot it.
-			if (colour != 0xFF) {
-				int i = pixelDone * 2;
-				pixelPtr0[i] = pixelPtr0[i + 1] =
-				pixelPtr1[i] = pixelPtr1[i + 1] =
-					palSprites[colour];
-			}
-		}
+		spriteConverter.drawMode2(absLine, minX, maxX, pixelPtr0, pixelPtr1);
 	}
 }
 

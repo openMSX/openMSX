@@ -1,5 +1,10 @@
 $Id$
 
+2003-04-04 Maarten ter Huurne <maarten@treewalker.org>
+	* Introduced SpriteConverter, a utility class for the Renderers to use,
+	  similar to BitmapConverter and CharacterConverter.
+	* Changed SDLHiRenderer to use SpriteConverter.
+
 2003-04-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed remaining reads of uninitialised VDP fields.
 

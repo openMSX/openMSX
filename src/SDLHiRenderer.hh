@@ -8,6 +8,7 @@
 #include "PixelRenderer.hh"
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
+#include "SpriteConverter.hh"
 #include "DisplayMode.hh"
 
 class VDP;
@@ -133,11 +134,6 @@ private:
 	  */
 	Pixel palGraphic7Sprites[16];
 
-	/** SDL colours of current sprite palette.
-	  * Points to either palBg or palGraphic7Sprites.
-	  */
-	Pixel *palSprites;
-
 	/** SDL colours corresponding to each possible V9938 colour.
 	  * Used by updatePalette to adjust palFg and palBg.
 	  * Since SDL_MapRGB may be slow, this array stores precalculated
@@ -204,6 +200,10 @@ private:
 	/** VRAM to pixels converter for bitmap display modes.
 	  */
 	BitmapConverter<Pixel, Renderer::ZOOM_512> bitmapConverter;
+
+	/** VRAM to pixels converter for sprites.
+	  */
+	SpriteConverter<Pixel, Renderer::ZOOM_512> spriteConverter;
 
 	SDLConsole* console;
 };
