@@ -19,9 +19,9 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <mem base="0x0000" size="0x8000"/>
-	<rom>
-	   <sha1>6103b39f1e38d1aa2d84b1c3219c44f1abb5436e</sha1>
-           <filename>roms/nms8250_basic-bios2.rom</filename>
+        <rom>
+          <sha1>6103b39f1e38d1aa2d84b1c3219c44f1abb5436e</sha1>
+          <filename>roms/nms8250_basic-bios2.rom</filename>
         </rom>
       </ROM>
     </primary>
@@ -34,7 +34,7 @@
         <ROM id="MSX Sub ROM">
           <mem base="0x0000" size="0x4000"/>
           <rom>
-	    <sha1>5c1f9c7fb655e43d38e5dd1fcc6b942b2ff68b02</sha1>
+            <sha1>5c1f9c7fb655e43d38e5dd1fcc6b942b2ff68b02</sha1>
             <filename>roms/nms8250_msx2sub.rom</filename>
           </rom>
         </ROM>
@@ -53,7 +53,8 @@
           <mem base="0x4000" size="0x8000"/>
           <broken_fdc_read>false</broken_fdc_read> 
           <rom>
-	    <sha1>c3efedda7ab947a06d9345f7b8261076fa7ceeef</sha1>
+            <sha1>c3efedda7ab947a06d9345f7b8261076fa7ceeef</sha1>
+            <sha1>1f0d4ee511874a9ccba10141b51da8e07451a141</sha1>
             <filename>roms/nms8250_disk.rom</filename>
           </rom>
           <drives>2</drives>
