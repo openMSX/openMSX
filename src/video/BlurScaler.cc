@@ -13,12 +13,54 @@ namespace openmsx {
 template class BlurScaler<word>;
 template class BlurScaler<unsigned int>;
 
+
+Multiply<unsigned>::Multiply(SDL_PixelFormat* /*format*/)
+{
+}
+
+inline unsigned Multiply<unsigned>::multiply(unsigned p, unsigned factor)
+{
+	return (((p & 0xFF00FF) * factor) & 0xFF00FF00) |
+	       (((p & 0x00FF00) * factor) & 0x00FF0000);
+}
+
+inline unsigned Multiply<unsigned>::convert(unsigned p)
+{
+	return p >> 8;
+}
+
+
+Multiply<word>::Multiply(SDL_PixelFormat* format)
+{
+	Rmask = format->Rmask;;
+	Gmask = format->Gmask;
+	Bmask = format->Bmask;
+	Rshift1 =      format->Rshift + format->Rloss;
+	Gshift1 = 8  - format->Gshift + format->Gloss;
+	Bshift1 = 16 - format->Bshift + format->Bloss;
+	Rshift2 = Rshift1 + 8;
+	Gshift2 = Gshift1 + 8;
+	Bshift2 = Bshift1 + 8;
+}
+inline unsigned Multiply<word>::multiply(word p, unsigned factor)
+{
+	return ((((p & Rmask) * factor) << Rshift1) & 0x0000FF) |
+	       ((((p & Gmask) * factor) << Gshift1) & 0x00FF00) |
+	       ((((p & Bmask) * factor) << Bshift1) & 0xFF0000);
+}
+inline word Multiply<word>::convert(unsigned p)
+{
+	return ((p >> Rshift2) & Rmask) |
+	       ((p >> Gshift2) & Gmask) |
+	       ((p >> Bshift2) & Bmask);
+}
+
 template <class Pixel>
-BlurScaler<Pixel>::BlurScaler(SDL_PixelFormat* format_)
+BlurScaler<Pixel>::BlurScaler(SDL_PixelFormat* format)
 	: scanlineSetting(*RenderSettings::instance().getScanlineAlpha())
 	, blurSetting(*RenderSettings::instance().getHorizontalBlur())
-	, blender(Blender<Pixel>::createFromFormat(format_))
-	, format(format_)
+	, blender(Blender<Pixel>::createFromFormat(format))
+	, multiplier(format)
 {
 }
 
@@ -26,22 +68,6 @@ template <class Pixel>
 BlurScaler<Pixel>::~BlurScaler()
 {
 }
-
-template <>
-word BlurScaler<word>::multiply(word pixel, unsigned factor)
-{
-	return ((((pixel & format->Rmask) * factor) >> 8) & format->Rmask) |
-	       ((((pixel & format->Gmask) * factor) >> 8) & format->Gmask) |
-	       ((((pixel & format->Bmask) * factor) >> 8) & format->Bmask);
-}
-
-template <>
-unsigned BlurScaler<unsigned>::multiply(unsigned pixel, unsigned factor)
-{
-	return ((((pixel & 0x00FF00FF) * factor) & 0xFF00FF00) |
-                (((pixel & 0x0000FF00) * factor) & 0x00FF0000)) >> 8;
-}
-
 
 // TODO This code is copied from SimpleScaler. Share this code somehow
 template <class Pixel>
@@ -55,7 +81,8 @@ void BlurScaler<Pixel>::scaleBlank(Pixel colour, SDL_Surface* dst,
 	} else {
 		const HostCPU& cpu = HostCPU::getInstance();
 		int scanline = 256 - (scanlineSetting.getValue() * 256) / 100;
-		Pixel scanlineColour = multiply(colour, scanline);
+		Pixel scanlineColour = multiplier.convert(
+			multiplier.multiply(colour, scanline));
 		if (ASM_X86 && cpu.hasMMXEXT()) {
 			const unsigned col32 =
 				  sizeof(Pixel) == 2
@@ -268,36 +295,36 @@ void BlurScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 		// TODO in 16bpp colors are too dark, rounding errors??
 		Pixel p0 = pIn[0];
 		Pixel p1;
-		unsigned f0 = multiply(p0, c1);
+		unsigned f0 = multiplier.multiply(p0, c1);
 		unsigned f1 = f0;
 		unsigned tmp;
 
 		unsigned x;
 		for (x = 0; x < (320 - 2); x += 2) {
-			tmp = multiply(p0, c2);
-			pOut[2 * x + 0] = f1 + tmp;
+			tmp = multiplier.multiply(p0, c2);
+			pOut[2 * x + 0] = multiplier.convert(f1 + tmp);
 
 			p1 = pIn[x + 1];
-			f1 = multiply(p1, c1);
-			pOut[2 * x + 1] = f1 + tmp;
+			f1 = multiplier.multiply(p1, c1);
+			pOut[2 * x + 1] = multiplier.convert(f1 + tmp);
 
-			tmp = multiply(p1, c2);
-			pOut[2 * x + 2] = f0 + tmp;
+			tmp = multiplier.multiply(p1, c2);
+			pOut[2 * x + 2] = multiplier.convert(f0 + tmp);
 
 			p0 = pIn[x + 2];
-			f0 = multiply(p0, c1);
-			pOut[2 * x + 3] = f0 + tmp;
+			f0 = multiplier.multiply(p0, c1);
+			pOut[2 * x + 3] = multiplier.convert(f0 + tmp);
 		}
 
-		tmp = multiply(p0, c2);
-		pOut[2 * x + 0] = f1 + tmp;
+		tmp = multiplier.multiply(p0, c2);
+		pOut[2 * x + 0] = multiplier.convert(f1 + tmp);
 
 		p1 = pIn[x + 1];
-		f1 = multiply(p1, c1);
-		pOut[2 * x + 1] = f1 + tmp;
+		f1 = multiplier.multiply(p1, c1);
+		pOut[2 * x + 1] = multiplier.convert(f1 + tmp);
 
-		tmp = multiply(p1, c2);
-		pOut[2 * x + 2] = f0 + tmp;
+		tmp = multiplier.multiply(p1, c2);
+		pOut[2 * x + 2] = multiplier.convert(f0 + tmp);
 
 		pOut[2 * x + 3] = p1;
 	}
@@ -418,27 +445,31 @@ void BlurScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 
 		Pixel p0 = pIn[0];
 		Pixel p1;
-		unsigned f0 = multiply(p0, c1);
+		unsigned f0 = multiplier.multiply(p0, c1);
 		unsigned f1 = f0;
 
 		unsigned x;
 		for (x = 0; x < (640 - 2); x += 2) {
 			p1 = pIn[x + 1];
-			unsigned t0 = multiply(p1, c1);
-			pOut[x] = f0 + multiply(p0, c2) + t0;
+			unsigned t0 = multiplier.multiply(p1, c1);
+			pOut[x] = multiplier.convert(
+				f0 + multiplier.multiply(p0, c2) + t0);
 			f0 = t0;
 
 			p0 = pIn[x + 2];
-			unsigned t1 = multiply(p0, c1);
-			pOut[x + 1] = f1 + multiply(p1, c2) + t1;
+			unsigned t1 = multiplier.multiply(p0, c1);
+			pOut[x + 1] = multiplier.convert(
+				f1 + multiplier.multiply(p1, c2) + t1);
 			f1 = t1;
 		}
 
 		p1 = pIn[x + 1];
-		unsigned t0 = multiply(p1, c1);
-		pOut[x] = f0 + multiply(p0, c2) + t0;
+		unsigned t0 = multiplier.multiply(p1, c1);
+		pOut[x] = multiplier.convert(
+			f0 + multiplier.multiply(p0, c2) + t0);
 
-		pOut[x + 1] = f1 + multiply(p1, c2) + t0;
+		pOut[x + 1] = multiplier.convert(
+			f1 + multiplier.multiply(p1, c2) + t0);
 	}
 }
 
@@ -499,7 +530,8 @@ void BlurScaler<Pixel>::average(
 	} else { 
 		// non-MMX routine, both 16bpp and 32bpp
 		for (unsigned x = 0; x < 640; ++x) {
-			dst[x] = multiply(blender.blend(src1[x], src2[x]), alpha);
+			dst[x] = multiplier.convert(
+				multiplier.multiply(blender.blend(src1[x], src2[x]), alpha));
 		}
 	}
 }

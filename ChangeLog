@@ -1,5 +1,10 @@
 $Id$
 
+2004-08-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Changed blur scaler for 16bpp:
+	   - do calculations in 24bpp mode to avoid visible rounding errors
+	     (not tested)
+
 2004-08-24 Maarten ter Huurne <maarten@treewalker.org>
 	* Moved screenshot code from VDP to Display.
 	* Added extended-MMX versions of non-scanline scaling in 256-wide modes

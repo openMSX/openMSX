@@ -10,6 +10,29 @@ namespace openmsx {
 
 class IntegerSetting;
 
+
+
+template<typename Pixel> class Multiply;
+
+template<> class Multiply<word> {
+public:
+	Multiply(SDL_PixelFormat* format);
+	inline unsigned multiply(word p, unsigned factor);
+	inline word convert(unsigned p);
+private:
+	word     Rmask, Gmask, Bmask; 
+	unsigned Rshift1, Gshift1, Bshift1;
+	unsigned Rshift2, Gshift2, Bshift2;
+};
+
+template<> class Multiply<unsigned> {
+public:
+	Multiply(SDL_PixelFormat* format);
+	inline unsigned multiply(unsigned p, unsigned factor);
+	inline unsigned convert(unsigned p);
+};
+
+
 template <class Pixel>
 class BlurScaler : public Scaler<Pixel>
 {
@@ -25,7 +48,6 @@ public:
 	                      SDL_Surface* dst, int dstY);
 
 private:
-	inline Pixel multiply(Pixel pixel, unsigned factor);
 	void blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha);
 	void blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha);
 	void average(const Pixel* src1, const Pixel* src2, Pixel* dst,
@@ -34,9 +56,11 @@ private:
 	IntegerSetting& scanlineSetting;
 	IntegerSetting& blurSetting;
 	Blender<Pixel> blender;
-	SDL_PixelFormat* format;
+	Multiply<Pixel> multiplier;
 };
 
 } // namespace openmsx
 
 #endif // _BLURSCALER_HH_
+
+
