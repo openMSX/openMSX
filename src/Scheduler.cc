@@ -4,7 +4,6 @@
 #include <algorithm>
 #include "Scheduler.hh"
 #include "MSXCPU.hh"
-#include "Mixer.hh"
 #include "EventDistributor.hh"
 #include "Schedulable.hh"
 #include "RealTime.hh"
@@ -154,18 +153,12 @@ void Scheduler::schedule(const EmuTime& limit)
 
 void Scheduler::unpause()
 {
-	if (paused) {
-		paused = false;
-		Mixer::instance()->unmute();
-	}
+	paused = false;
 }
 
 void Scheduler::pause()
 {
-	if (!paused) {
-		paused = true;
-		Mixer::instance()->mute();
-	}
+	paused = true;
 }
 
 void Scheduler::powerOn()

@@ -237,7 +237,7 @@ void VDP::executeUntil(const EmuTime &time, int userData) throw()
 	// Handle the various sync types.
 	switch (userData) {
 	case VSYNC: {
-		bool paused = Scheduler::instance()->isPaused();
+		bool paused = Scheduler::instance()->getPauseSetting().getValue();
 		// This frame is finished.
 		renderer->putImage(time, paused);
 		// Begin next frame.

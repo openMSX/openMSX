@@ -10,12 +10,16 @@
 #include "Config.hh"
 #include "CliCommOutput.hh"
 #include "InfoCommand.hh"
+#include "Scheduler.hh"
 
 namespace openmsx {
 
 Mixer::Mixer()
 	: muteCount(0),
-	  muteSetting("mute", "(un)mute the emulation sound", false)
+	  cpu(*MSXCPU::instance()),
+	  realTime(*RealTime::instance()),
+	  muteSetting("mute", "(un)mute the emulation sound", false),
+	  pauseSetting(Scheduler::instance()->getPauseSetting())
 {
 #ifdef DEBUG_MIXER
 	nbClipped = 0;
@@ -51,39 +55,28 @@ Mixer::Mixer()
 	} else {
 		init = true;
 		mixBuffer = new short[audioSpec.size / sizeof(short)];
-		cpu = MSXCPU::instance();
-		realTime = RealTime::instance();
 		reInit();
-		muteSetting.addListener(this);
 	}
 	InfoCommand::instance().registerTopic("sounddevice", &soundDeviceInfo);
+	muteSetting.addListener(this);
+	pauseSetting.addListener(this);
 }
 
 Mixer::~Mixer()
 {
-	// Note: Code was moved to shutDown(), read explanation there.
-}
-
-Mixer *Mixer::instance()
-{
-	static Mixer oneInstance;
-
-	return &oneInstance;
-}
-
-void Mixer::shutDown()
-{
-	// TODO: This method is only necessary because Mixer has dependencies
-	//       to the rest of openMSX (CPU, maybe more).
-	//       Because of those depedencies, the destruction sequence is
-	//       relevant and therefore must be made explicit.
-	
+	pauseSetting.removeListener(this);
+	muteSetting.removeListener(this);
 	InfoCommand::instance().unregisterTopic("sounddevice", &soundDeviceInfo);
 	if (init) {
-		muteSetting.removeListener(this);
 		SDL_CloseAudio();
 		delete[] mixBuffer;
 	}
+}
+
+Mixer* Mixer::instance()
+{
+	static Mixer oneInstance;
+	return &oneInstance;
 }
 
 int Mixer::registerSound(SoundDevice* device, short volume, ChannelMode mode)
@@ -174,7 +167,7 @@ void Mixer::reInit()
 {
 	samplesLeft = audioSpec.samples;
 	offset = 0;
-	prevTime = cpu->getCurrentTime(); // !! can be one instruction off
+	prevTime = cpu.getCurrentTime(); // !! can be one instruction off
 }
 
 void Mixer::updateStream(const EmuTime &time)
@@ -182,7 +175,7 @@ void Mixer::updateStream(const EmuTime &time)
 	if (!init) return;
 
 	if (prevTime < time) {
-		float duration = realTime->getRealDuration(prevTime, time);
+		float duration = realTime.getRealDuration(prevTime, time);
 		//PRT_DEBUG("Mix: update, duration " << duration << "s");
 		assert(duration >= 0);
 		prevTime = time;
@@ -288,6 +281,12 @@ void Mixer::update(const SettingLeafNode *setting)
 {
 	if (setting == &muteSetting) {
 		if (muteSetting.getValue()) {
+			mute();
+		} else {
+			unmute();
+		}
+	} else if (setting == &pauseSetting) {
+		if (pauseSetting.getValue()) {
 			mute();
 		} else {
 			unmute();

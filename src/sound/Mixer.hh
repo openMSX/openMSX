@@ -31,7 +31,6 @@ public:
 	};
 
 	static Mixer *instance();
-	void shutDown();
 
 	/**
 	 * Use this method to register a given sounddevice.
@@ -84,6 +83,8 @@ private:
 	static void audioCallbackHelper(void *userdata, Uint8 *stream, int len);
 	void audioCallback(short* stream);
 	void muteHelper(int muteCount);
+
+	// SettingListener
 	virtual void update(const SettingLeafNode *setting);
 
 	SoundDevice* getSoundDevice(const string& name);
@@ -107,10 +108,11 @@ private:
 	int offset;
 	EmuTime prevTime;
 
-	MSXCPU *cpu;
-	RealTime *realTime;
+	MSXCPU& cpu;
+	RealTime& realTime;
 
 	BooleanSetting muteSetting;
+	BooleanSetting& pauseSetting;
 
 #ifdef DEBUG_MIXER
 	int nbClipped;

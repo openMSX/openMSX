@@ -4,6 +4,9 @@ $Id$
 	* Split EventDistrubutor in EventDistributor and AfterCommand:
 	   - together with the "quit" cmd move this removes the circular
 	     dependency between EventDistributor and Scheduler
+	* Reversed dependency between Mixer and Scheduler:
+	   - Mixer now depends on Scheduler (for mute when paused) instead of
+	     the other way around
 
 2003-11-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* HotKey is no longer a singleton:

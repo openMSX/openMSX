@@ -89,8 +89,8 @@ public:
 
 	// Should only be called by VDP 
 	void pause();
-	bool isPaused() const {
-		return pauseSetting.getValue();
+	BooleanSetting& getPauseSetting() {
+		return pauseSetting;
 	}
 
 	static const EmuTime ASAP;
