@@ -1,6 +1,6 @@
 $Id$
 
-2001-12-04 Joost Yervante Damad <j.damad@qahwah.net>
+2001-12-05 Joost Yervante Damad <j.damad@qahwah.net>
 	* MSXRom continued [reworked, no longer inherited from MSXDevice]
 
 2001-12-05 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
