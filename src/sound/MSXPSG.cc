@@ -36,7 +36,7 @@ void MSXPSG::reset(const EmuTime& time)
 
 byte MSXPSG::readIO(byte /*port*/, const EmuTime& time)
 {
-	byte result =  ay8910->readRegister(registerLatch, time);
+	byte result = ay8910->readRegister(registerLatch, time);
 	//PRT_DEBUG("PSG read R#"<<(int)registerLatch<<" = "<<(int)result);
 	return result;
 }
