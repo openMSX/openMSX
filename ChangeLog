@@ -1,6 +1,10 @@
 $Id$
 
-2003-10-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-10-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Removed "-config" cmdline option / .xml cmdline file-type:
+	   were long time ago replaced by -machine / -ext / -setting
+
+2003-10-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added descriptions to sounddevices:
 	    can be queried with "info sounddevice <name>"
 

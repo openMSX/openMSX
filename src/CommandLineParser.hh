@@ -112,17 +112,6 @@ class CommandLineParser
 		} controlOption;
 		friend class ConfigOption;
 			
-		class ConfigFile : public CLIOption, public CLIFileType {
-		public:
-			virtual bool parseOption(const string &option,
-				list<string> &cmdLine);
-			virtual const string& optionHelp() const;
-		private:
-			virtual void parseFileType(const string &filename);
-			virtual const string& fileTypeHelp() const;
-		} configFile;
-		friend class ConfigFile;
-		
 		class MachineOption : public CLIOption {
 		public:
 			virtual bool parseOption(const string &option,

@@ -46,8 +46,6 @@ CommandLineParser::CommandLineParser()
 	haveSettings = false;
 	issuedHelp = false;
 
-	fileTypeMap["xml"] = &configFile;
-	registerOption("-config",  &configFile, 2);
 	registerOption("-machine", &machineOption, 3);
 	registerOption("-setting", &settingOption, 2);
 	registerOption("-h",       &helpOption, 1, 1); 
@@ -387,32 +385,6 @@ bool CommandLineParser::VersionOption::parseOption(const string &option,
 const string& CommandLineParser::VersionOption::optionHelp() const
 {
 	static const string text("Prints openMSX version and exits");
-	return text;
-}
-
-// Config file type
-bool CommandLineParser::ConfigFile::parseOption(const string &option,
-		list<string> &cmdLine)
-{
-	parseFileType(getArgument(option, cmdLine));
-	return true;
-}
-const string& CommandLineParser::ConfigFile::optionHelp() const
-{
-	static const string text("Use configuration file specified in argument");
-	return text;
-}
-void CommandLineParser::ConfigFile::parseFileType(const string &filename)
-{
-	MSXConfig *config = MSXConfig::instance();
-	UserFileContext context;
-	config->loadHardware(context, filename);
-
-	CommandLineParser::instance()->haveConfig = true;
-}
-const string& CommandLineParser::ConfigFile::fileTypeHelp() const
-{
-	static const string text("Configuration file");
 	return text;
 }
 
