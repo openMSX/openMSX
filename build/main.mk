@@ -192,9 +192,11 @@ BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
 
 LOG_PATH:=$(BUILD_PATH)/log
 
+AUTOTOOLS_PATH:=$(BUILD_BASE)/autotools
+CONFIG_SCRIPT:=$(AUTOTOOLS_PATH)/configure
+
 CONFIG_PATH:=$(BUILD_PATH)/config
 CONFIG_HEADER:=$(CONFIG_PATH)/config.h
-CONFIG_SCRIPT:=$(BUILD_BASE)/autotools/configure
 
 
 # Compiler and Flags
@@ -428,10 +430,6 @@ PACKAGE_FULL:=$(PACKAGE_NAME)-$(VERSION)
 DIST_BASE:=$(BUILD_BASE)/dist
 DIST_PATH:=$(DIST_BASE)/$(PACKAGE_FULL)
 
-DIST_FULL+=$(patsubst %Makefile.am,%Makefile.in,$(filter %Makefile.am,$(DIST_FULL)))
-GNU_BUILD_HELPERS:=\
-	config.guess config.sub \
-	depcomp install-sh ltmain.sh missing mkinstalldirs
 dist: $(DETECTSYS_SCRIPT)
 	@echo "Removing any old distribution files..."
 	@rm -rf $(DIST_PATH)
@@ -440,7 +438,7 @@ dist: $(DETECTSYS_SCRIPT)
 	@cp -pr --parents $(DIST_FULL) $(DIST_PATH)
 	@cp -p --parents $(HEADERS_FULL) $(DIST_PATH)
 	@cp -p --parents $(SOURCES_FULL) $(DIST_PATH)
-	@cp -p $(GNU_BUILD_HELPERS) $(DIST_PATH)
+	@cp -pr --parents $(AUTOTOOLS_PATH) $(DIST_PATH)
 	@echo "Creating tarball..."
 	@cd $(DIST_BASE) ; GZIP=--best tar zcf $(PACKAGE_FULL).tar.gz $(PACKAGE_FULL)
 
