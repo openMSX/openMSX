@@ -23,14 +23,12 @@ class YM2413 : public SoundDevice
 			~Slot();
 			void reset();
 
-			inline int calc_eg_dphase();
 			inline void slotOn();
 			inline void slotOff();
 			inline void setSlotPatch(Patch *patch);
 			inline void setSlotVolume(int volume);
-			inline void setVolumeTable(short* volTab);
-			inline int calc_phase();
-			inline int calc_envelope();
+			inline void calc_phase();
+			inline void calc_envelope();
 			inline int calc_slot_car(int fm);
 			inline int calc_slot_mod();
 			inline int calc_slot_tom();
@@ -48,9 +46,6 @@ class YM2413 : public SoundDevice
 			inline static int EG2DB(int d);
 			inline static int SL2EG(int d);
 		
-			// volume table
-			short* volTab;
-			
 			Patch *patch;  
 			int type;		// 0 : modulator 1 : carrier 
 
@@ -265,8 +260,7 @@ class YM2413 : public SoundDevice
 		int patch_update[2]; // flag for check patch update
 
 		// dB to linear table (used by Slot)
-		short dB2LinTab[(DB_MUTE+DB_MUTE)*2];
-
+		static short dB2LinTab[(DB_MUTE+DB_MUTE)*2];
 
 		// WaveTable for each envelope amp
 		static word fullsintable[PG_WIDTH];
