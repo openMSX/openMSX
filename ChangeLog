@@ -2,9 +2,10 @@ $Id$
 
 2004-10-23 Maarten ter Huurne <maarten@treewalker.org>
 	* Removed slow_drain_on_reset RAM configuration parameter.
-	  All our current configurations had it set to "true".
+	  All our current configurations had it set to "false".
 	  And we don't really know how the drain works nor what should be
 	  considered "slow".
+	* Removed <slow_drain_on_reset> from the configuration XML files.
 
 2004-10-22 Maarten ter Huurne <maarten@treewalker.org>
 	* Added build support for NetBSD.
