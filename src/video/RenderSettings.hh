@@ -6,7 +6,7 @@
 #include "Settings.hh"
 #include "RendererFactory.hh"
 #include "FrameSkipSetting.hh"
-
+#include "InfoTopic.hh"
 
 namespace openmsx {
 
@@ -21,22 +21,6 @@ public:
 	  */
 	enum Accuracy { ACC_SCREEN, ACC_LINE, ACC_PIXEL };
 
-private:
-	RenderSettings();
-	~RenderSettings();
-
-	// Please keep the settings ordered alphabetically.
-	EnumSetting<Accuracy> *accuracy;
-	BooleanSetting *deinterlace;
-	FrameSkipSetting *frameSkip;
-	BooleanSetting *fullScreen;
-	FloatSetting *gamma;
-	IntegerSetting *glow;
-	IntegerSetting *horizontalBlur;
-	RendererFactory::RendererSetting *renderer;
-	IntegerSetting *scanlineAlpha;
-
-public:
 	/** Get singleton instance.
 	  */
 	static RenderSettings *instance() {
@@ -71,6 +55,26 @@ public:
 	/** The alpha value [0..100] of the scanlines. */
 	IntegerSetting *getScanlineAlpha() { return scanlineAlpha; }
 
+private:
+	RenderSettings();
+	~RenderSettings();
+
+	// Please keep the settings ordered alphabetically.
+	EnumSetting<Accuracy> *accuracy;
+	BooleanSetting *deinterlace;
+	FrameSkipSetting *frameSkip;
+	BooleanSetting *fullScreen;
+	FloatSetting *gamma;
+	IntegerSetting *glow;
+	IntegerSetting *horizontalBlur;
+	RendererFactory::RendererSetting *renderer;
+	IntegerSetting *scanlineAlpha;
+
+	class RendererInfo : public InfoTopic {
+	public:
+		virtual string execute(const vector<string> &tokens) const;
+		virtual string help   (const vector<string> &tokens) const;
+	} rendererInfo;
 };
 
 } // namespace openmsx

@@ -148,7 +148,7 @@ public:
 	/** Create a set containing all the strings in this association.
 	  * The caller becomes the owner of the newly created set object.
 	  */
-	set<string> *createStringSet() const;
+	void getStringSet(set<string>& result) const;
 
 private:
 	typedef map<string, int>::const_iterator MapIterator;
@@ -190,9 +190,13 @@ public:
 	}
 
 	virtual void tabCompletion(vector<string> &tokens) const {
-		set<string> *stringSet = intStringMap.createStringSet();
-		CommandController::completeString(tokens, *stringSet);
-		delete stringSet;
+		set<string> stringSet;
+		intStringMap.getStringSet(stringSet);
+		CommandController::completeString(tokens, stringSet);
+	}
+	
+	void getPossibleValues(set<string>& result) const {
+		intStringMap.getStringSet(result);
 	}
 
 protected:

@@ -178,14 +178,12 @@ string IntStringMap::getSummary() const
 	return out.str();
 }
 
-set<string> *IntStringMap::createStringSet() const
+void IntStringMap::getStringSet(set<string>& result) const
 {
-	set<string> *ret = new set<string>;
 	for (MapIterator it = stringToInt->begin()
 	; it != stringToInt->end(); ++it) {
-		ret->insert(it->first);
+		result.insert(it->first);
 	}
-	return ret;
 }
 
 // BooleanSetting implementation

@@ -3,6 +3,7 @@
 #include "RenderSettings.hh"
 #include "MSXConfig.hh"
 #include "CliCommunicator.hh"
+#include "InfoCommand.hh"
 
 namespace openmsx {
 
@@ -52,15 +53,39 @@ RenderSettings::RenderSettings()
 	scanlineAlpha = new IntegerSetting(
 		"scanline", "amount of scanline effect: 0 = none, 100 = full",
 		20, 0, 100);
+
+	InfoCommand::instance().registerTopic("renderer", &rendererInfo);
 }
 
 RenderSettings::~RenderSettings()
 {
+	InfoCommand::instance().unregisterTopic("renderer", &rendererInfo);
+	
 	delete accuracy;
 	delete deinterlace;
 	delete horizontalBlur;
 	delete scanlineAlpha;
 	delete frameSkip;
+}
+
+
+// Renderer info
+
+string RenderSettings::RendererInfo::execute(const vector<string> &tokens) const
+{
+	string result;
+	set<string> renderers;
+	RenderSettings::instance()->getRenderer()->getPossibleValues(renderers);
+	for (set<string>::const_iterator it = renderers.begin();
+	     it != renderers.end(); ++it) {
+		result += *it + '\n';
+	}
+	return result;
+}
+
+string RenderSettings::RendererInfo::help(const vector<string> &tokens) const
+{
+	return "Shows a list of available renderers.\n";
 }
 
 } // namespace openmsx
