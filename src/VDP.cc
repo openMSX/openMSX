@@ -549,12 +549,8 @@ void VDP::scheduleVScan(const EmuTime &time)
 	}
 
 	// Calculate moment in time display end occurs.
-	vScanSyncTime = frameStartTime + (displayStart +
-			( controlRegs[9] & 0x80
-			? 212 * TICKS_PER_LINE
-			: 192 * TICKS_PER_LINE
-			)
-		);
+	vScanSyncTime = frameStartTime +
+	                (displayStart + getNumberOfLines() * TICKS_PER_LINE);
 	//cerr << "new VSCAN is " << (frameStartTime.getTicksTill(vScanSyncTime) / TICKS_PER_LINE) << "\n";
 
 	// Register new VSCAN sync point.
@@ -705,11 +701,7 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 		// is used by the Renderer.
 		updateSprites(time);
 		// Then sync with the Renderer and commit the change.
-		if (isPlanar()) {
-			setVRAM(((addr << 16) | (addr >> 1)) & vramMask, value, time);
-		} else {
-			setVRAM(addr, value, time);
-		}
+		setVRAMReordered(addr, value, time);
 
 		vramPointer = (vramPointer + 1) & 0x3FFF;
 		if (vramPointer == 0 && (displayMode & 0x18)) {
