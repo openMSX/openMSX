@@ -40,15 +40,14 @@
       </secondary>
 
       <secondary slot="3">
-        <FDC id="Memory Mapped FDC">
+        <WD2793 id="Memory Mapped FDC">
           <mem base="0x4000" size="0x8000"/>
           <broken_fdc_read>false</broken_fdc_read> 
-          <fdc_type>WD2793</fdc_type>
           <rom>
             <filename>roms/nms8250_disk.rom</filename>
           </rom>
           <drives>1</drives>
-        </FDC>
+        </WD2793>
       </secondary>
     </primary>
 

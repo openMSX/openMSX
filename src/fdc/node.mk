@@ -3,7 +3,6 @@
 include build/node-start.mk
 
 SRC_HDR:= \
-	FDCFactory \
 	MSXFDC \
 	WD2793BasedFDC \
 	PhilipsFDC \

@@ -84,15 +84,14 @@
       </secondary>
 	
       <secondary slot="2">
-	<FDC id="Memory Mapped FDC">
+	<TC8566AF id="Memory Mapped FDC">
 	  <mem base="0x4000" size="0x8000"/>
 	  <rom>
 	    <firstblock>48</firstblock>
 	    <lastblock>55</lastblock>
 	  </rom>
-	  <fdc_type>TC8566AF</fdc_type>
 	  <drives>1</drives>
-	</FDC>
+	</TC8566AF>
       </secondary>
 	
       <secondary slot="3">

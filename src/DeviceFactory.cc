@@ -28,7 +28,10 @@
 #include "MSXRom.hh"
 #include "MSXPrinterPort.hh"
 #include "MSXSCCPlusCart.hh"
-#include "FDCFactory.hh"
+#include "PhilipsFDC.hh"
+#include "MicrosolFDC.hh"
+#include "NationalFDC.hh"
+#include "TurboRFDC.hh"
 #include "SunriseIDE.hh"
 #include "MSXMatsushita.hh"
 #include "MSXKanji12.hh"
@@ -132,8 +135,17 @@ auto_ptr<MSXDevice> DeviceFactory::create(const XMLElement& conf, const EmuTime&
 	if (type == "SCCplus") { // Note: it's actually called SCC-II
 		return auto_ptr<MSXDevice>(new MSXSCCPlusCart(conf, time));
 	}
-	if (type == "FDC") {
-		return FDCFactory::create(conf, time);
+	if (type == "WD2793") {
+		return auto_ptr<MSXDevice>(new PhilipsFDC(conf, time));
+	}
+	if (type == "Microsol") {
+		return auto_ptr<MSXDevice>(new MicrosolFDC(conf, time));
+	}
+	if (type == "MB8877A") {
+		return auto_ptr<MSXDevice>(new NationalFDC(conf, time));
+	}
+	if (type == "TC8566AF") {
+		return auto_ptr<MSXDevice>(new TurboRFDC(conf, time));
 	}
 	if (type == "SunriseIDE") {
 		return auto_ptr<MSXDevice>(new SunriseIDE(conf, time));
