@@ -16,7 +16,7 @@ TODO:
 #include <math.h>
 #include "SDLConsole.hh"
 #include "RenderSettings.hh"
-#include "config.h"
+#include "util.hh"
 
 
 // Force template instantiation:
@@ -43,19 +43,6 @@ static const int TICKS_LEFT_BORDER = 100 + 102;
   */
 static const int TICKS_VISIBLE_MIDDLE =
 	TICKS_LEFT_BORDER + (VDP::TICKS_PER_LINE - TICKS_LEFT_BORDER - 27) / 2;
-
-/** Fill a boolean array with a single value.
-  * Optimised for byte-sized booleans,
-  * but correct for every size.
-  */
-inline static void fillBool(bool *ptr, bool value, int nr)
-{
-#if SIZEOF_BOOL == 1
-	memset(ptr, value, nr);
-#else
-	for (int i = nr; i--; ) *ptr++ = value;
-#endif
-}
 
 template <class Pixel, Renderer::Zoom zoom>
 inline int SDLRenderer<Pixel, zoom>::translateX(int absoluteX)

@@ -40,7 +40,7 @@ TODO:
 #include "RealTime.hh"
 #include "GLConsole.hh"
 #include <math.h>
-#include "config.h"
+#include "util.hh"
 
 
 /** Dimensions of screen.
@@ -189,19 +189,6 @@ inline static void GLDrawBlur(int offsetX, int offsetY, float alpha)
 	glTexCoord2f(1.0, 1.0);  glVertex2i(right, top);
 	glTexCoord2f(0.0, 1.0);  glVertex2i(left, top);
 	glEnd();
-}
-
-/** Fill a boolean array with a single value.
-  * Optimised for byte-sized booleans,
-  * but correct for every size.
-  */
-inline static void fillBool(bool *ptr, bool value, int nr)
-{
-#if SIZEOF_BOOL == 1
-	memset(ptr, value, nr);
-#else
-	while (nr--) *ptr++ = value;
-#endif
 }
 
 /** Translate from absolute VDP coordinates to screen coordinates:
