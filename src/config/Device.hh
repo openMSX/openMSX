@@ -3,22 +3,23 @@
 #ifndef __DEVICE_HH__
 #define __DEVICE_HH__
 
+#include <vector>
 #include "Config.hh"
+
+using std::vector;
 
 namespace openmsx {
 
 class Device : public Config
 {
 public:
-	// a slotted is the same for all backends:
-	class Slotted {
+	class Slot {
 	public:
-		Slotted(int PS, int SS, int Page);
-		~Slotted();
+		Slot(int ps, int ss, int page);
 		
-		int getPS() const;
-		int getSS() const;
-		int getPage() const;
+		int getPS() const { return ps; }
+		int getSS() const { return ss; }
+		int getPage() const { return page; }
 
 	private:
 		int ps;
@@ -26,11 +27,15 @@ public:
 		int page;
 	};
 
-	Device(XML::Element* element, FileContext& context);
+	Device(XMLElement* element, FileContext& context);
 	Device(const string& type, const string& id);
 	~Device();
 
-	list<Slotted*> slotted;
+	typedef vector<Slot> Slots;
+	const Slots& getSlots() const { return slots; }
+	
+private:
+	vector<Slot> slots;
 };
 
 } // namespace openmsx

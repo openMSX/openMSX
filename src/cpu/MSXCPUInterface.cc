@@ -66,18 +66,17 @@ MSXCPUInterface::MSXCPUInterface()
 	}
 
 	Config* config = msxConfig.getConfigById("MotherBoard");
-	list<Config::Parameter*>* subslotted_list;
-	subslotted_list = config->getParametersWithClass("subslotted");
-	for (list<Config::Parameter*>::const_iterator it = subslotted_list->begin();
-	     it != subslotted_list->end(); ++it) {
+	Config::Parameters subslotted_list;
+	config->getParametersWithClass("subslotted", subslotted_list);
+	for (Config::Parameters::const_iterator it = subslotted_list.begin();
+	     it != subslotted_list.end(); ++it) {
 		bool hasSubs = false;
-		if ((*it)->value == "true") {
+		if (it->getValue() == "true") {
 			hasSubs = true;
 		}
-		int counter = atoi((*it)->name.c_str());
+		int counter = atoi(it->getName().c_str());
 		isSubSlotted[counter] = hasSubs;
 	}
-	config->getParametersWithClassClean(subslotted_list);
 
 	// Note: SlotState is initialised at reset
 

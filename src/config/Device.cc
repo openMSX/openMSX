@@ -1,33 +1,35 @@
 // $Id$
 
 #include "Device.hh"
+#include "xmlx.hh"
 
 namespace openmsx {
 
 // class Device
 
-Device::Device(XML::Element* element_, FileContext& context_)
+Device::Device(XMLElement* element_, FileContext& context_)
 	: Config(element_, context_)
 {
-	// TODO: create slotted-eds ???
-	for (list<XML::Element*>::iterator i = element->children.begin();
-	     i != element->children.end(); ++i) {
-		if ((*i)->name == "slotted") {
-			int PS = -2;
-			int SS = -1;
-			int Page = -1;
-			for (list<XML::Element*>::iterator j = (*i)->children.begin();
-			     j != (*i)->children.end(); ++j) {
-				if ((*j)->name == "ps") {
-					PS = Config::Parameter::stringToInt((*j)->pcdata);
-				} else if ((*j)->name == "ss") {
-					SS = Config::Parameter::stringToInt((*j)->pcdata);
-				} else if ((*j)->name == "page") {
-					Page = Config::Parameter::stringToInt((*j)->pcdata);
+	const XMLElement::Children& children = element->getChildren();
+	for (XMLElement::Children::const_iterator it = children.begin();
+	     it != children.end(); ++it) {
+		if ((*it)->getName() == "slotted") {
+			int ps = -2;
+			int ss = -1;
+			int page = -1;
+			const XMLElement::Children& slot_children = (*it)->getChildren();
+			for (XMLElement::Children::const_iterator it2 = slot_children.begin();
+			     it2 != slot_children.end(); ++it2) {
+				if ((*it2)->getName() == "ps") {
+					ps = stringToInt((*it2)->getPcData());
+				} else if ((*it2)->getName() == "ss") {
+					ss = stringToInt((*it2)->getPcData());
+				} else if ((*it2)->getName() == "page") {
+					page = stringToInt((*it2)->getPcData());
 				}
 			}
-			if (PS != -2) {
-				slotted.push_back(new Device::Slotted(PS,SS,Page));
+			if (ps != -2) {
+				slots.push_back(Slot(ps, ss, page));
 			}
 		}
 	}
@@ -42,30 +44,11 @@ Device::~Device()
 {
 }
 
-// class Slotted
+// class Slot
 
-Device::Slotted::Slotted(int PS, int SS, int Page)
+Device::Slot::Slot(int PS, int SS, int Page)
 	: ps(PS), ss(SS), page(Page)
 {
-}
-
-Device::Slotted::~Slotted()
-{
-}
-
-int Device::Slotted::getPS() const
-{
-	return ps;
-}
-
-int Device::Slotted::getSS() const
-{
-	return ss;
-}
-
-int Device::Slotted::getPage() const
-{
-	return page;
 }
 
 } // namespace openmsx

@@ -3,7 +3,7 @@
 include build/node-start.mk
 
 SRC_HDR:= \
-	MSXConfig Config Device
+	MSXConfig Config Device xmlx
 
 HDR_ONLY:= \
 	ConfigException

@@ -5,15 +5,17 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
 #include "ConfigException.hh"
 #include "FileException.hh"
-#include "libxmlx/xmlx.hh"
 
 using std::string;
 using std::vector;
+using std::ostringstream;
 
 namespace openmsx {
 
+class XMLDocument;
 class Config;
 class Device;
 class FileContext;
@@ -49,10 +51,10 @@ private:
 	MSXConfig();
 	~MSXConfig();
 
-	void handleDoc(XML::Document* doc, FileContext& context)
+	void handleDoc(XMLDocument* doc, FileContext& context)
 		throw(ConfigException);
 
-	typedef vector<XML::Document*> Docs;
+	typedef vector<XMLDocument*> Docs;
 	Docs docs;
 	typedef vector<Config*> Configs;
 	Configs configs;

@@ -5,7 +5,7 @@
 #include "RomInfo.hh"
 #include "Rom.hh"
 #include "sha1.hh"
-#include "libxmlx/xmlx.hh"
+#include "xmlx.hh"
 #include "FileContext.hh"
 #include "File.hh"
 #include "Device.hh"
@@ -229,9 +229,11 @@ RomInfo *RomInfo::searchRomDB(const Rom* rom)
 		try {
 			SystemFileContext context;
 			File file(context.resolve("romdb.xml"));
-			XML::Document doc(file.getLocalName().c_str());
-			list<XML::Element*>::iterator it1 = doc.root->children.begin();
-			for ( ; it1 != doc.root->children.end(); it1++) {
+			XMLDocument doc(file.getLocalName().c_str());
+			
+			const XMLElement::Children& children = doc.getChildren();
+			for (XMLElement::Children::const_iterator it1 = children.begin();
+			     it1 != children.end(); ++it1) {
 				// TODO there can be multiple title tags
 				string title   = (*it1)->getElementPcdata("title");
 				string year    = (*it1)->getElementPcdata("year");
@@ -241,10 +243,11 @@ RomInfo *RomInfo::searchRomDB(const Rom* rom)
 				
 				RomInfo* romInfo = new RomInfo(title, year,
 				   company, remark, nameToMapperType(romtype));
-				for (list<XML::Element*>::iterator it2 = (*it1)->children.begin();
-				     it2 != (*it1)->children.end(); ++it2) {
-					if ((*it2)->name == "sha1") {
-						string sha1 = (*it2)->pcdata;
+				const XMLElement::Children& sub_children = (*it1)->getChildren();
+				for (XMLElement::Children::const_iterator it2 = sub_children.begin();
+				     it2 != sub_children.end(); ++it2) {
+					if ((*it2)->getName() == "sha1") {
+						string sha1 = (*it2)->getPcData();
 						if (romDBSHA1.find(sha1) ==
 						    romDBSHA1.end()) {
 							romDBSHA1[sha1] = romInfo;

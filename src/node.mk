@@ -4,7 +4,7 @@ include build/node-start.mk
 
 SUBDIRS:= \
 	cassette commands config console cpu debugger events fdc file ide \
-	input libxmlx memory serial settings sound thread video
+	input memory serial settings sound thread video
 
 SRC_HDR:= \
 	EmuTime \

@@ -4,7 +4,7 @@
 #include "CommandController.hh"
 #include "MSXConfig.hh"
 #include "Config.hh"
-#include "libxmlx/xmlx.hh"
+#include "xmlx.hh"
 #include "File.hh"
 #include "FileContext.hh"
 
@@ -34,7 +34,7 @@ const string& MSXCasCLI::optionHelp() const
 
 void MSXCasCLI::parseFileType(const string &filename_)
 {
-	string filename(filename_); XML::Escape(filename);
+	string filename(filename_); XMLEscape(filename);
 	ostringstream s;
 	s << "<?xml version=\"1.0\"?>";
 	s << "<msxconfig>";

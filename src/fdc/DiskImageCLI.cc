@@ -1,10 +1,12 @@
 // $Id$
 
+#include <sstream>
 #include "DiskImageCLI.hh"
 #include "MSXConfig.hh"
-#include "libxmlx/xmlx.hh"
+#include "xmlx.hh"
 #include "FileContext.hh"
 
+using std::ostringstream;
 
 namespace openmsx {
 
@@ -32,7 +34,7 @@ const string& DiskImageCLI::optionHelp() const
 
 void DiskImageCLI::parseFileType(const string &filename_)
 {
-	string filename(filename_); XML::Escape(filename);
+	string filename(filename_); XMLEscape(filename);
 	ostringstream s;
 	s << "<?xml version=\"1.0\"?>";
 	s << "<msxconfig>";

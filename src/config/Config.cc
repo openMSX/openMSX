@@ -3,20 +3,17 @@
 #include <cassert>
 #include <algorithm>	// for tolower
 #include <cstdlib>	// for strtol() and atoll()
+#include "xmlx.hh"
 #include "config.h"	// for the autoconf defines
 #include "Config.hh"
 #include "FileContext.hh"
-
-#ifndef HAVE_ATOLL
-extern "C" long long atoll(const char* nptr);
-#endif
 
 
 namespace openmsx {
 
 // class Config
 
-Config::Config(XML::Element* element_, FileContext& context_)
+Config::Config(XMLElement* element_, FileContext& context_)
 	: element(element_), context(context_.clone()),
 	  type(element->getElementPcdata("type")),
 	  id(element->getAttribute("id"))
@@ -49,14 +46,15 @@ FileContext& Config::getContext() const
 	return *context;
 }
 
-XML::Element* Config::getParameterElement(const string& name) const
+XMLElement* Config::getParameterElement(const string& name) const
 {
 	if (element) {
-		for (list<XML::Element*>::iterator i = element->children.begin();
-		     i != element->children.end(); ++i) {
-			if ((*i)->name == "parameter") {
-				if ((*i)->getAttribute("name") == name) {
-					return (*i);
+		const XMLElement::Children& children = element->getChildren();
+		for (XMLElement::Children::const_iterator it = children.begin();
+		     it != children.end(); ++it) {
+			if ((*it)->getName() == "parameter") {
+				if ((*it)->getAttribute("name") == name) {
+					return *it;
 				}
 			}
 		}
@@ -73,76 +71,63 @@ bool Config::hasParameter(const string& name) const
 const string &Config::getParameter(const string& name) const
 	throw(ConfigException)
 {
-	XML::Element* p = getParameterElement(name);
+	XMLElement* p = getParameterElement(name);
 	if (!p) {
 		throw ConfigException("Missing parameter: " + name);
 	}
-	return p->pcdata;
+	return p->getPcData();
 }
 
 const string Config::getParameter(const string& name, const string& defaultValue) const
 // don't return reference!
 {
-	XML::Element* p = getParameterElement(name);
-	return p ? p->pcdata : defaultValue;
+	XMLElement* p = getParameterElement(name);
+	return p ? p->getPcData() : defaultValue;
 }
 
 bool Config::getParameterAsBool(const string& name) const
 	throw(ConfigException)
 {
-	XML::Element* p = getParameterElement(name);
-	if (!p) {
-		throw ConfigException("Missing parameter: " + name);
-	}
-	return Config::Parameter::stringToBool(p->pcdata);
+	return stringToBool(getParameter(name));
 }
 
 bool Config::getParameterAsBool(const string& name, bool defaultValue) const
 {
-	XML::Element* p = getParameterElement(name);
-	return p ? Config::Parameter::stringToBool(p->pcdata) : defaultValue;
+	XMLElement* p = getParameterElement(name);
+	return p ? stringToBool(p->getPcData()) : defaultValue;
 }
 
 int Config::getParameterAsInt(const string& name) const
 	throw(ConfigException)
 {
-	XML::Element* p = getParameterElement(name);
+	XMLElement* p = getParameterElement(name);
 	if (!p) {
 		throw ConfigException("Missing parameter: " + name);
 	}
-	return Config::Parameter::stringToInt(p->pcdata);
+	return stringToInt(getParameter(name));
 }
 
 int Config::getParameterAsInt(const string& name, int defaultValue) const
 {
-	XML::Element* p = getParameterElement(name);
-	return p ? Config::Parameter::stringToInt(p->pcdata) : defaultValue;
+	XMLElement* p = getParameterElement(name);
+	return p ? stringToInt(p->getPcData()) : defaultValue;
 }
 
-list<Config::Parameter*>* Config::getParametersWithClass(const string& clasz)
+void Config::getParametersWithClass(const string& clasz, Parameters& result)
 {
-	list<Config::Parameter*>* l = new list<Config::Parameter*>;
 	if (element) {
-		for (list<XML::Element*>::const_iterator i = element->children.begin();
-		     i != element->children.end(); ++i) {
-			if ((*i)->name == "parameter") {
-				if ((*i)->getAttribute("class") == clasz) {
-					l->push_back(new Parameter((*i)->getAttribute("name"),
-								   (*i)->pcdata, clasz));
+		const XMLElement::Children& children = element->getChildren();
+		for (XMLElement::Children::const_iterator it = children.begin();
+		     it != children.end(); ++it) {
+			if ((*it)->getName() == "parameter") {
+				if ((*it)->getAttribute("class") == clasz) {
+					Parameter parameter((*it)->getAttribute("name"),
+					                    (*it)->getPcData(), clasz);
+					result.push_back(parameter);
 				}
 			}
 		}
 	}
-	return l;
-}
-
-void Config::getParametersWithClassClean(list<Parameter*>* lst)
-{
-	for (list<Parameter*>::iterator i = lst->begin();
-	     i != lst->end(); ++i) {
-		delete (*i);
-	}
-	delete lst;
 }
 
 
@@ -155,23 +140,6 @@ Config::Parameter::Parameter(const string& name_,
 {
 }
 
-Config::Parameter::~Parameter()
-{
-}
-
-bool Config::Parameter::stringToBool(const string& str)
-{
-	string low = str;
-	transform (low.begin(), low.end(), low.begin(), ::tolower);
-	return (low == "true" || low == "yes");
-}
-
-int Config::Parameter::stringToInt(const string& str)
-{
-	// strtol also understands hex
-	return strtol(str.c_str(), 0, 0);
-}
-
 bool Config::Parameter::getAsBool() const
 {
 	return stringToBool(value);
@@ -180,6 +148,20 @@ bool Config::Parameter::getAsBool() const
 int Config::Parameter::getAsInt() const
 {
 	return stringToInt(value);
+}
+
+
+bool Config::stringToBool(const string& str)
+{
+	string low = str;
+	transform(low.begin(), low.end(), low.begin(), ::tolower);
+	return (low == "true" || low == "yes");
+}
+
+int Config::stringToInt(const string& str)
+{
+	// strtol also understands hex
+	return strtol(str.c_str(), 0, 0);
 }
 
 } // namespace openmsx

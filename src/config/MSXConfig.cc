@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include "MSXConfig.hh"
+#include "xmlx.hh"
 #include "Config.hh"
 #include "Device.hh"
 #include "FileContext.hh"
@@ -40,7 +41,7 @@ void MSXConfig::loadHardware(FileContext& context,
 	throw(FileException, ConfigException)
 {
 	File file(context.resolve(filename));
-	XML::Document *doc = new XML::Document(file.getLocalName());
+	XMLDocument *doc = new XMLDocument(file.getLocalName());
 
 	// get url
 	string url(file.getURL());
@@ -65,34 +66,31 @@ void MSXConfig::loadHardware(FileContext& context,
 	handleDoc(doc, context2);
 }
 
-void MSXConfig::loadSetting(FileContext& context,
-                            const string& filename)
+void MSXConfig::loadSetting(FileContext& context, const string& filename)
 	throw(FileException, ConfigException)
 {
 	File file(context.resolve(filename));
-	XML::Document *doc = new XML::Document(file.getLocalName());
+	XMLDocument *doc = new XMLDocument(file.getLocalName());
 	SettingFileContext context2(file.getURL());
 	handleDoc(doc, context2);
 }
 
-void MSXConfig::loadStream(FileContext& context,
-                           const ostringstream& stream)
+void MSXConfig::loadStream(FileContext& context, const ostringstream& stream)
 	throw(ConfigException)
 {
-	XML::Document* doc = new XML::Document(stream);
+	XMLDocument* doc = new XMLDocument(stream);
 	handleDoc(doc, context);
 }
 
-void MSXConfig::handleDoc(XML::Document* doc, FileContext& context)
+void MSXConfig::handleDoc(XMLDocument* doc, FileContext& context)
 	throw(ConfigException)
 {
 	docs.push_back(doc);
-	// TODO update/append Devices/Configs
-	for (list<XML::Element*>::const_iterator i = doc->root->children.begin();
-	     i != doc->root->children.end();
-	     ++i) {
-		if (((*i)->name == "config") || ((*i)->name == "device")) {
-			string id((*i)->getAttribute("id"));
+	const XMLElement::Children& children = doc->getChildren();
+	for (XMLElement::Children::const_iterator it = children.begin();
+	     it != children.end(); ++it) {
+		if (((*it)->getName() == "config") || ((*it)->getName() == "device")) {
+			string id((*it)->getAttribute("id"));
 			if (id == "") {
 				throw ConfigException(
 					"<config> or <device> is missing 'id'");
@@ -101,10 +99,10 @@ void MSXConfig::handleDoc(XML::Document* doc, FileContext& context)
 				throw ConfigException(
 				    "<config> or <device> with duplicate 'id':" + id);
 			}
-			if ((*i)->name == "config") {
-				configs.push_back(new Config(*i, context));
-			} else if ((*i)->name == "device") {
-				devices.push_back(new Device(*i, context));
+			if ((*it)->getName() == "config") {
+				configs.push_back(new Config(*it, context));
+			} else if ((*it)->getName() == "device") {
+				devices.push_back(new Device(*it, context));
 			}
 		}
 	}

@@ -72,20 +72,20 @@ byte* MSXMemDevice::getWriteCacheLine(word start) const
 void MSXMemDevice::registerSlots()
 {
 	// register in slot-structure
-	if (deviceConfig->slotted.empty()) {
+	const Device::Slots& slots = deviceConfig->getSlots();
+	if (slots.empty()) {
 		return; // DummyDevice
 	}
 	
-	int ps = deviceConfig->slotted.front()->getPS();
-	int ss = deviceConfig->slotted.front()->getSS();
+	int ps = slots.front().getPS();
+	int ss = slots.front().getSS();
 	int pages = 0;
-	for (list<Device::Slotted*>::const_iterator it =
-	         deviceConfig->slotted.begin();
-	     it != deviceConfig->slotted.end(); ++it) {
-		if (((*it)->getPS() != ps) || ((*it)->getSS() != ss)) {
+	for (Device::Slots::const_iterator it = slots.begin();
+	     it != slots.end(); ++it) {
+		if ((it->getPS() != ps) || (it->getSS() != ss)) {
 			throw FatalError("All pages of one device must be in the same slot/subslot");
 		}
-		pages |= 1 << ((*it)->getPage());
+		pages |= 1 << (it->getPage());
 	}
 	if (ps >= 0) {
 		// slot specified

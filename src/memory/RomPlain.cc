@@ -103,10 +103,10 @@ word RomPlain::guessLocation()
 	}
 
 	int lowest = 4;
-	for (list<Device::Slotted*>::const_iterator i =
-	         deviceConfig->slotted.begin();
-	     i != deviceConfig->slotted.end(); ++i) {
-		int page = (*i)->getPage();
+	const Device::Slots& slots = deviceConfig->getSlots();
+	for (Device::Slots::const_iterator i = slots.begin();
+	     i != slots.end(); ++i) {
+		int page = i->getPage();
 		if (page < lowest) {
 			lowest = page;
 		}

@@ -1,10 +1,14 @@
 // $Id$
 
+#include <sstream>
+#include "xmlx.hh"
 #include "MSXRomCLI.hh"
 #include "CartridgeSlotManager.hh"
 #include "MSXConfig.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
+
+using std::ostringstream;
 
 namespace openmsx {
 
@@ -83,8 +87,8 @@ void MSXRomCLIPost::execute(MSXConfig& config)
 	}
 	string file = FileOperations::getFilename(filename);
 
-	XML::Escape(filename);
-	XML::Escape(file);
+	XMLEscape(filename);
+	XMLEscape(file);
 	ostringstream s;
 	s << "<?xml version=\"1.0\"?>";
 	s << "<msxconfig>";

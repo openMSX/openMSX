@@ -35,6 +35,7 @@ TODO:
 #include "Debugger.hh"
 #include "ScreenShotSaver.hh"
 
+using std::setw;
 
 namespace openmsx {
 

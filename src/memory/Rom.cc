@@ -86,14 +86,14 @@ void Rom::read(Device* config, const string& filename)
 	}
 	// for each patchcode parameter, construct apropriate patch
 	// object and register it at MSXCPUInterface
-	list<Config::Parameter*>* parameters =
-		config->getParametersWithClass("patchcode");
-	for (list<Config::Parameter*>::const_iterator it = parameters->begin();
-	     it != parameters->end(); ++it) {
+	Config::Parameters parameters;
+	config->getParametersWithClass("patchcode", parameters);
+	for (Config::Parameters::const_iterator it = parameters.begin();
+	     it != parameters.end(); ++it) {
 		MSXRomPatchInterface* patchInterface;
-		if ((*it)->value == "MSXDiskRomPatch") {
+		if (it->getValue() == "MSXDiskRomPatch") {
 			patchInterface = new MSXDiskRomPatch();
-		} else if ((*it)->value == "MSXTapePatch") {
+		} else if (it->getValue() == "MSXTapePatch") {
 			patchInterface = new MSXTapePatch();
 		} else {
 			throw FatalError("Unknown patch interface");
@@ -101,26 +101,23 @@ void Rom::read(Device* config, const string& filename)
 		romPatchInterfaces.push_back(patchInterface);
 		MSXCPUInterface::instance().registerInterface(patchInterface);
 	}
-	config->getParametersWithClassClean(parameters);
 	
 	// also patch the file if needed:
-	list<Config::Parameter*>* parameters2 =
-		config->getParametersWithClass("patch");
-	for (list<Config::Parameter*>::const_iterator i = parameters2->begin();
-	     i != parameters2->end(); ++i) {
-		unsigned int romOffset = strtol((*i)->name.c_str(), 0, 0);
-		int value  = (*i)->getAsInt();
+	Config::Parameters parameters2;
+	config->getParametersWithClass("patch", parameters2);
+	for (Config::Parameters::const_iterator i = parameters2.begin();
+	     i != parameters2.end(); ++i) {
+		unsigned int romOffset = strtol(i->getName().c_str(), 0, 0);
+		int value  = i->getAsInt();
 		if (romOffset >= size) {
-			config->getParametersWithClassClean(parameters2);
 			ostringstream out;
-			out << "Ignoring illegal ROM patch-offset: 0x" << hex << romOffset;
+			out << "Illegal ROM patch-offset: 0x" << hex << romOffset;
 			throw FatalError(out.str());
 		} else {
-			PRT_DEBUG("Patching ROM[" << (*i)->name << "]=" << (*i)->value);
+			PRT_DEBUG("Patching ROM[" << i->getName() << "]=" << i->getValue());
 			tmp[romOffset] = value; // tmp = rom, but rom is read only
 		}
 	}
-	config->getParametersWithClassClean(parameters2);
 }
 
 Rom::~Rom()

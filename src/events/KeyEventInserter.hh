@@ -11,25 +11,24 @@ namespace openmsx {
 
 class EmuTime;
 
-
 class KeyEventInserterCLI : public CLIOption
 {
-	public:
-		KeyEventInserterCLI();
-		virtual bool parseOption(const string &option,
-		                         list<string> &cmdLine);
-		virtual const string& optionHelp() const;
+public:
+	KeyEventInserterCLI();
+	virtual bool parseOption(const string& option,
+	                         list<string>& cmdLine);
+	virtual const string& optionHelp() const;
 };
 
 
 class KeyEventInserter
 {
-	public:
-		KeyEventInserter(const EmuTime &time);
-		void enter(const string &str, const EmuTime &time);
+public:
+	KeyEventInserter(const EmuTime& time);
+	void enter(const string& str, const EmuTime& time);
 
-	private:
-		static const SDLKey keymap[256][4];
+private:
+	static const SDLKey keymap[256][4];
 };
 
 } // namespace openmsx

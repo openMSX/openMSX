@@ -246,19 +246,18 @@ void CommandController::autoCommands()
 			"Use of AutoCommands is deprecated, instead use the init.tcl script.\n"
 			"See manual for more information.");
 
-		list<Config::Parameter*>* commandList =
-			config->getParametersWithClass("");
-		for (list<Config::Parameter*>::const_iterator i = commandList->begin();
-		     i != commandList->end(); ++i) {
+		Config::Parameters commands;
+		config->getParametersWithClass("", commands);
+		for (Config::Parameters::const_iterator it = commands.begin();
+		     it != commands.end(); ++it) {
 			try {
-				executeCommand((*i)->value);
+				executeCommand(it->getValue());
 			} catch (CommandException &e) {
 				output.printWarning(
 				         "While executing autocommands: "
 				         + e.getMessage());
 			}
 		}
-		config->getParametersWithClassClean(commandList);
 	} catch (ConfigException &e) {
 		// no auto commands defined
 	}

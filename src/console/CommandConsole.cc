@@ -1,5 +1,6 @@
 // $Id$
 
+#include <fstream>
 #include "SDL/SDL.h"	// TODO 
 #include "CommandConsole.hh"
 #include "CommandController.hh"
@@ -14,6 +15,9 @@
 #include "Config.hh"
 #include "InputEvents.hh"
 #include "InputEventGenerator.hh"
+
+using std::ofstream;
+using std::ifstream;
 
 namespace openmsx {
 

@@ -4,43 +4,43 @@
 #define __CONFIG_HH__
 
 #include <string>
-#include <list>
-#include "openmsx.hh"
-#include "libxmlx/xmlx.hh"
+#include <vector>
 #include "ConfigException.hh"
 
 using std::string;
-using std::list;
-
+using std::vector;
 
 namespace openmsx {
 
 class FileContext;
-
+class XMLElement;
 
 class Config
 {
 public:
-	// a parameter is the same for all backends:
+	static bool stringToBool(const string& str);
+	static int stringToInt(const string& str);
+
 	class Parameter {
 	public:
 		Parameter(const string& name,
 			  const string& value,
 			  const string& clasz);
-		~Parameter();
+
+		const string& getName() const { return name; };
+		const string& getValue() const { return value; }
+		const string& getClass() const { return clasz; }
 
 		bool getAsBool() const;
 		int getAsInt() const ;
 
-		const string name;
-		const string value;
-		const string clasz;
-
-		static bool stringToBool(const string& str);
-		static int stringToInt(const string& str);
+	private:
+		string name;
+		string value;
+		string clasz;
 	};
 
-	Config(XML::Element* element, FileContext& context);
+	Config(XMLElement* element, FileContext& context);
 	Config(const string& type, const string& id);
 	virtual ~Config();
 
@@ -57,25 +57,18 @@ public:
 	int getParameterAsInt(const string& name) const throw(ConfigException);
 	int getParameterAsInt(const string& name, int defaultValue) const;
 
-	/**
-	 * This returns a freshly allocated list with freshly allocated
-	 * Parameter objects. The caller has to clean this all up with
-	 * getParametersWithClassClean
-	 */
-	virtual list<Parameter*>* getParametersWithClass(const string& clasz);
-	/**
-	 * cleanup function for getParametersWithClass
-	 */
-	static void getParametersWithClassClean(list<Parameter*>* list);
+	typedef vector<Parameter> Parameters;
+	void getParametersWithClass(const string& clasz, Parameters& result);
 
 protected:
-	XML::Element* element;
+	XMLElement* element;
+
+private:
+	XMLElement* getParameterElement(const string& name) const;
+
 	FileContext* context;
 	string type;
 	string id;
-
-private:
-	XML::Element* getParameterElement(const string& name) const;
 };
 
 } // namespace openmsx

@@ -9,6 +9,10 @@
 #include "FileOperations.hh"
 #include "FilenameSetting.hh"
 
+using std::setfill;
+using std::setw;
+using std::flush;
+using std::cerr;
 
 namespace openmsx {
 

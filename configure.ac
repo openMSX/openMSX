@@ -153,7 +153,6 @@ src/input/Makefile
 src/fdc/Makefile
 src/file/Makefile
 src/ide/Makefile
-src/libxmlx/Makefile
 src/memory/Makefile
 src/serial/Makefile
 src/settings/Makefile

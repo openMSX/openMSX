@@ -1,13 +1,16 @@
 // $Id$
 
+#include <sstream>
 #include "KeyEventInserter.hh"
 #include "SDLEventInserter.hh"
 #include "EmuTime.hh"
 #include "MSXConfig.hh"
 #include "Config.hh"
-#include "libxmlx/xmlx.hh"
+#include "xmlx.hh"
 #include "File.hh"
 #include "FileContext.hh"
+
+using std::ostringstream;
 
 namespace openmsx {
 
@@ -40,7 +43,7 @@ bool KeyEventInserterCLI::parseOption(const string &option,
 			if (buffer[0] == '\n') {
 				s << "&#x0D;";
 			} else {
-				s << XML::Escape(temp);
+				s << XMLEscape(temp);
 			}
 		} catch (FileException &e) {
 			// end of file
@@ -63,7 +66,7 @@ bool KeyEventInserterCLI::parseOption(const string &option,
 				buffer2[1] = '\0';
 				buffer2[0] = (*i);
 				string str2(buffer2);
-				s << XML::Escape(str2);
+				s << XMLEscape(str2);
 			}
 		}
 	}

@@ -6,7 +6,6 @@
 #include <iostream>
 #include <cstdio>
 #include "CommandLineParser.hh"
-#include "libxmlx/xmlx.hh"
 #include "MSXConfig.hh"
 #include "Config.hh"
 #include "CartridgeSlotManager.hh"
@@ -90,12 +89,12 @@ void CommandLineParser::postRegisterFileTypes()
 		Config* config = msxConfig.getConfigById("FileTypes");
 		for (map<string, CLIFileType*, caseltstr>::const_iterator i = fileClassMap.begin();
 		     i != fileClassMap.end(); ++i) {
-			list<Config::Parameter*> *extensions = config->getParametersWithClass(i->first);
-			for (list<Config::Parameter*>::const_iterator j = extensions->begin();
-			     j != extensions->end(); ++j) {
-				fileTypeMap[(*j)->value] = i->second;
+			Config::Parameters extensions;
+			config->getParametersWithClass(i->first, extensions);
+			for (Config::Parameters::const_iterator j = extensions.begin();
+			     j != extensions.end(); ++j) {
+				fileTypeMap[j->getValue()] = i->second;
 			}
-			config->getParametersWithClassClean(extensions);
 		}
 	} catch (ConfigException &e) {
 		map<string, string> fileExtMap;

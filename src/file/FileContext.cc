@@ -208,19 +208,18 @@ const vector<string> &UserFileContext::getPaths()
 		try {
 			Config* config = MSXConfig::instance().
 				getConfigById("UserDirectories");
-			list<Config::Parameter*>* pathList =
-				config->getParametersWithClass("");
-			for (list<Config::Parameter*>::const_iterator it =
-			         pathList->begin();
-			     it != pathList->end(); ++it) {
-				string path = (*it)->value;
+			Config::Parameters pathList;
+			config->getParametersWithClass("", pathList);
+			for (Config::Parameters::const_iterator it =
+			         pathList.begin();
+			     it != pathList.end(); ++it) {
+				string path = it->getValue();
 				if (path[path.length() - 1] != '/') {
 					path += '/';
 				}
 				path = FileOperations::expandTilde(path);
 				paths.push_back(path);
 			}
-			config->getParametersWithClassClean(pathList);
 		} catch (ConfigException &e) {
 			// no UserDirectories specified
 		}
