@@ -1,5 +1,6 @@
 // $Id$
 
+#include "File.hh"
 #include "XMLConfig.hh"
 
 // the implementations of customconfig:
@@ -190,7 +191,7 @@ Backend::~Backend()
 
 void Backend::loadFile(const std::string &filename)
 {
-	XML::Document* doc = new XML::Document(filename);
+	XML::Document* doc = new XML::Document(File::findName(filename, CONFIG));
 	handleDoc(doc);
 }
 
