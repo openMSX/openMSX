@@ -56,7 +56,7 @@ class Z80 {
                                    /* wait state adjustment is still        */
                                    /* necessary in Z80_RDMEM, Z80_RDOP_ARG, */
                                    /* Z80_RDSTACK and Z80_WRSTACK           */
-		void Z80_Interrupt(int j);
+		//void Z80_Interrupt(int j);
 
 
 /****************************************************************************/

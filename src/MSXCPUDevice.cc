@@ -14,3 +14,8 @@ Emutime &MSXCPUDevice::getCurrentTime()
 {
 	return currentTime;
 }
+
+void MSXCPUDevice::setCurrentTime(Emutime &time)
+{
+	currentTime = time;
+}

@@ -13,16 +13,13 @@ class MSXZ80;
 
 class MSXCPU : public MSXDevice 
 {
-	friend class MSXZ80;
-	//friend class MSXR800;
-
 	public:
 		virtual ~MSXCPU();
 		static MSXCPU *instance();
 		
 		void init();
 		void reset();
-		void IRQ(bool irq);
+		//void IRQ(bool irq);
 		void setTargetTime(const Emutime &time);
 		void executeUntilTarget(const Emutime &time);
 		

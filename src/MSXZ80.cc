@@ -31,14 +31,14 @@ void MSXZ80::reset()
 	z80->reset();
 }
 
-void MSXZ80::IRQ(bool irq)
-{
-	z80->Z80_Interrupt(Z80_NORM_INT);
-}
+//void MSXZ80::IRQ(bool irq)
+//{
+//	z80->Z80_Interrupt(Z80_NORM_INT);
+//}
 
 void MSXZ80::executeUntilTarget()
 {
-	while (currentTime < MSXCPU::instance()->targetTime) {
+	while (currentTime < MSXCPU::instance()->getTargetTime()) {
 		currentTime += z80->Z80_SingleInstruction();
 	}
 }

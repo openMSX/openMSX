@@ -57,14 +57,14 @@ void MSXCPU::setActiveCPU(int cpu)
 	default:
 		assert(false);
 	}
-	newCPU->currentTime = activeCPU->currentTime;
+	newCPU->setCurrentTime(activeCPU->getCurrentTime());
 	activeCPU = newCPU;
 }
 
-void MSXCPU::IRQ(bool irq)
-{
-	activeCPU->IRQ(irq);
-}
+//void MSXCPU::IRQ(bool irq)
+//{
+//	activeCPU->IRQ(irq);
+//}
 
 void MSXCPU::executeUntilTarget(const Emutime &time)
 {

@@ -19,7 +19,7 @@ class MSXZ80 : public MSXCPUDevice, Z80Interface
 		//MSXCPUDevice
 		void init();
 		void reset();
-		void IRQ(bool irq);
+		//void IRQ(bool irq);
 		void executeUntilTarget();
 
 		//Z80Interface

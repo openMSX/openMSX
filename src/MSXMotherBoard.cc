@@ -191,9 +191,9 @@ void MSXMotherBoard::writeIO(byte port, byte value, Emutime &time)
 void MSXMotherBoard::raiseIRQ()
 {
 	IRQLine++;
-	if (IRQLine == 1) {
-		// low -> high
-		MSXCPU::instance()->IRQ(true);
+	//if (IRQLine == 1) {
+	//	// low -> high
+	//	MSXCPU::instance()->IRQ(true);
 	}
 }
 
@@ -201,14 +201,14 @@ void MSXMotherBoard::lowerIRQ()
 {
 	assert (IRQLine != 0);
 	IRQLine--;
-	if (IRQLine == 0) {
-		// high -> low
-		MSXCPU::instance()->IRQ(false);
+	//if (IRQLine == 0) {
+	//	// high -> low
+	//	MSXCPU::instance()->IRQ(false);
 	}
 }
 
 bool MSXMotherBoard::IRQstatus()
 {
-	return IRQLine;
+	return (bool)IRQLine;
 }
 
