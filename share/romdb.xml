@@ -2490,6 +2490,13 @@
     <company>Jaleco</company>
     <remark></remark>
   </rom>
+  <rom id="Knight Mare SCC">
+    <romtype>Konami5</romtype>
+    <md5>9c5b35e494eaa8ab66296dc796c7ef82</md5>
+    <year>1986</year>
+    <company>Konami</company>
+    <remark>SCC enhanced version</remark>
+  </rom>
   <rom id="Knither Special">
     <romtype>ASCII16</romtype>
     <md5>cfe9bb7e89718d3596bcb9f3451a9ff8</md5>
