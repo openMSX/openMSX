@@ -1,0 +1,181 @@
+
+bind / unbind
+-------------
+  
+  Associate key presses with commands. Whenever you press one of the programmed
+  keys, the corresponding command will be executed.
+  
+  usage:
+    bind                    shows all bindings
+    bind   <key>            shows bindings for this key
+    bind   <key> <command>  make a new binding
+    unbind <key>            undo all bindings for this key
+    unbind <key> <command>  undo a specfic binding
+  
+  examples:
+    bind PAGEUP "speed 100"
+    bind PAGEDOWN "speed 50"
+    unbind F10
+
+
+console
+-------
+
+  Bring up/down the console.
+
+  usage:
+    console up    brings the console up
+    console down  brings the console down
+    console       toggles the state of the console
+    
+
+cpudebug
+--------
+
+  [ only available when compiled with DEBUG option ]
+  
+
+diska / diskb
+-------------
+
+  Insert a diskimage in a virtual drive.
+  Note: the command-name is the same as the drive-name and the drive-name is
+        configurable
+
+  usage:
+    diska <diskimage>  insert diskimage in virtual drive "diska"
+    diska eject        remove disk from virtual drive "diska"
+
+
+fullscreen
+----------
+
+  Switch to / back from fullscreen mode.
+
+  usage:
+    fullscreen on   switch to fullscreen mode
+    fullscreen off  switch to normal mode
+    fullscreen      toggles fullscreen mode
+
+
+help
+----
+
+  Shows help info.
+
+  usage:
+    help            shows a list of all possible commands
+    help <command>  shows help info for a specific command
+
+
+mute
+----
+
+  Mute : unmute the sound output.
+
+  usage:
+    mute on   mute sound
+    mute off  unmute sound
+    mute      toggles mute
+
+
+palette
+-------
+
+  Shows the current VDP palette settings.
+  [ mainly usefull for debugging purposes ]
+  
+
+pause
+-----
+
+  Pauses the emulation.
+
+  usage:
+    pause on   pauses emulation
+    pause off  unpauses emualtion
+    pause      toggles pause
+  
+
+plug / unplug
+-------------
+
+  Plugs or unplugs a plug into a connector, for example plug a virtual joystick
+  into a virtual joystickport.
+
+  usage:
+    plug <connector> <plug>  plugs the specified plug into the specified
+                             connector
+    unplug <connector>       unplugs the plug connected to the specified
+                             connector
+
+  examples:
+    plug joyporta mouse
+    plug printerport logger
+    unplug joyportb
+
+
+quit
+----
+
+  Quits the emulator.
+  
+
+renderer
+--------
+
+  Switch to a different VDP renderer.
+
+  usage:
+    renderer <renderer>  switch to the specified renderer
+
+  examples:
+    renderer SDLHi
+    renderer SDLGL
+    
+
+reset
+-----
+
+  Resets the emulated MSX.
+  
+
+slotmap
+-------
+
+  Shows the slot mappings of the emulated MSX.
+  [ mainly usefull for debugging purposes ]
+
+
+speed
+-----
+
+  Sets the emulation speed relative to the speed of a real MSX. Speed 100 means
+  as fast as a real MSX.
+
+  usage:
+    speed <num>  set new emulation speed
+    speed        shows current emulation speed
+
+
+tape
+----
+
+  Insert a tapeimage in a virtual cassette player.
+
+  usage:
+    tape <tapeimage>  insert tapeimage in virtual cassette player
+    tape eject        remove tape from virtual cassette player
+
+
+throttle
+--------
+
+  Sets throttle mode. In throttle mode the emulator tries to run at the
+  specified speed (see speed command). When throttling is turned off the
+  emulator runs as fast as possible.
+
+  usage:
+    throttle on   turn throttle mode on
+    throttle off  turn throttle mode off
+    throttle      toggle throttle mode
