@@ -12,7 +12,7 @@
 MSXDevice* FDCFactory::create(Device *config, const EmuTime &time)
 {
 	const std::string &type = config->getParameter("type");
-	if ((type == "WD2793") || (type == "Philips")) {
+	if (type == "WD2793") {
 		return new PhilipsFDC(config, time);
 	}
 	if (type == "Microsol") {
@@ -29,12 +29,12 @@ MSXDevice* FDCFactory::create(Device *config, const EmuTime &time)
 		MSXCPUInterface::instance()->register_IO_In(0xD4, fdc);
 		return fdc;
 	}
-	if ((type == "MB8877A") || (type == "National")) {
+	if (type == "MB8877A") {
 		return new NationalFDC(config, time);
 	}
-	if ((type == "TC8566AF") || (type == "Panasonic")) {
+	if (type == "TC8566AF") {
 		return new TurboRFDC(config, time);
 	}
-	PRT_ERROR("Unknown FDC type");
+	PRT_ERROR("Unknown FDC type \"" << type << "\"!");
 	return NULL;
 }
