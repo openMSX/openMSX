@@ -33,7 +33,11 @@ TC8566AF disk controller:
 SDL surface scaling:
     Taken from the rotozoomer written by A. Schiffler
     http://www.ferzkopp.net/Software/SDL_gfx-2.0
-   
+YMF262:
+    code taken from mame, written by Jarek Burczynski
+YMF278:
+    code taken from mame, written by R. Belmont and O. Galibert
+
 
 
 With many thanks to:

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+  <device id="MoonSound">
+    <type>MoonSound</type>
+    <parameter name="filename">roms/yrw801.rom</parameter>
+    <parameter name="volume">12000</parameter>
+    <parameter name="sampleram">256</parameter>
+  </device>
+</msxconfig>

@@ -1,5 +1,13 @@
 $Id$
 
+2003-05-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added MoonSound:
+	  - code was largly taken from mame
+	  - fm part is quite good already
+	  - wave part still needs some improvements:
+	     - some waves sound weird at certain frequencies??
+	     - missing features like: pseudo-reverb, LFO, vibrato, ...
+
 2003-05-18 Maarten ter Huurne <maarten@treewalker.org>
 	* Released openmsx-0.3.1.
 

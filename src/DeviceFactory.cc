@@ -21,6 +21,7 @@
 #include "MSXMusic.hh"
 #include "MSXFmPac.hh"
 #include "MSXAudio.hh"
+#include "MSXMoonSound.hh"
 #include "MC6850.hh"
 #include "MSXKanji.hh"
 #include "MSXBunsetsu.hh"
@@ -175,6 +176,22 @@ MSXDevice *DeviceFactory::create(Device *conf, const EmuTime &time)
 		MSXCPUInterface::instance()->register_IO_In(0x04, midi);
 		MSXCPUInterface::instance()->register_IO_In(0x05, midi);
 		return midi;
+	}
+	if (type == "MoonSound") {
+		MSXMoonSound *moonsound = new MSXMoonSound(conf, time);
+		cpuInterface->register_IO_In(0x7E, moonsound);
+		cpuInterface->register_IO_In(0x7F, moonsound);
+		cpuInterface->register_IO_Out(0x7E, moonsound);
+		cpuInterface->register_IO_Out(0x7F, moonsound);
+		cpuInterface->register_IO_In(0xC4, moonsound);
+		cpuInterface->register_IO_In(0xC5, moonsound);
+		cpuInterface->register_IO_In(0xC6, moonsound);
+		cpuInterface->register_IO_In(0xC7, moonsound);
+		cpuInterface->register_IO_Out(0xC4, moonsound);
+		cpuInterface->register_IO_Out(0xC5, moonsound);
+		cpuInterface->register_IO_Out(0xC6, moonsound);
+		cpuInterface->register_IO_Out(0xC7, moonsound);
+		return moonsound;
 	}
 	if (type == "Kanji") {
 		MSXKanji *kanji = new MSXKanji(conf, time);

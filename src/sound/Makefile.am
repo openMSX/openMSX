@@ -42,7 +42,10 @@ libSound_la_SOURCES = \
 	MSXMusic.cc MSXMusic.hh \
 	YM2413.cc YM2413.hh \
 	MSXTurboRPCM.cc MSXTurboRPCM.hh \
-	MSXMidi.cc MSXMidi.hh
+	MSXMidi.cc MSXMidi.hh \
+	YMF262.cc YMF262.hh \
+	YMF278.cc YMF278.hh \
+	MSXMoonSound.cc MSXMoonSound.hh
 
 nodebug: resetdebug all
 debug: setdebug all
