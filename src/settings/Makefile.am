@@ -18,7 +18,9 @@ endif
 
 noinst_LTLIBRARIES = libSettings.la
 libSettings_la_SOURCES = \
-	Settings.hh Settings.cc
+	SettingNode.hh SettingNode.cc \
+	Settings.hh Settings.cc \
+	SettingsManager.hh SettingsManager.cc
 
 nodebug: resetdebug all
 debug: setdebug all
