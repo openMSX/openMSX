@@ -337,7 +337,7 @@ CliComm::PipeConnection::PipeConnection(const string& name)
 	if (pipeHandle == INVALID_HANDLE_VALUE) {
 		char msg[256];
 		snprintf(msg, 255, "Error reopening pipefile '%s': error %u",
-		         pipeName, (unsigned int)GetLastError());
+		         pipeName.c_str(), (unsigned int)GetLastError());
 		throw FatalError(msg);
 	}
 
@@ -394,7 +394,7 @@ CliComm::SocketConnection::~SocketConnection()
 
 void CliComm::SocketConnection::run()
 {
-	while (sd != -1) {
+	while (sd != INVALID_SOCKET) {
 		char buf[BUF_SIZE];
 		int n = sock_recv(sd, buf, BUF_SIZE);
 		if (n > 0) {
@@ -408,7 +408,7 @@ void CliComm::SocketConnection::run()
 
 void CliComm::SocketConnection::output(const std::string& message)
 {
-	if (sd == -1) return;
+	if (sd == INVALID_SOCKET) return;
 
 	const char* data = message.data();
 	unsigned pos = 0;
@@ -427,7 +427,7 @@ void CliComm::SocketConnection::output(const std::string& message)
 void CliComm::SocketConnection::close()
 {
 	sock_close(sd);
-	sd = -1;
+	sd = INVALID_SOCKET;
 }
 
 

@@ -6,8 +6,11 @@
 #ifdef	_WIN32
 	typedef void* HANDLE;
 	typedef unsigned int SOCKET; // dirty but it works
+	#define INVALID_SOCKET (int)-1
 #else
 	typedef int SOCKET;
+	#define INVALID_SOCKET -1
+	
 #endif
 
 #include "Thread.hh"
