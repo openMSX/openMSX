@@ -6,6 +6,10 @@ $Id$
 	   - "openmsx_info connectionclass" returns all connectionclasses
 	   - "openmsx_info connectionclass [pluggable / connection]" shows
 	     the class to which this 'thing' belongs 
+	* Copied "oversleep compensation" from old realtime sync algorithm to
+	  new algorithm:
+	    - this helps to keep openMSX running at a reasonable speed when it
+	      has to compete with other CPU hungry processes
 
 2004-04-06 Reikan <openMSX4Win32@ranpub.com>
 	* Added link libs to platform-x86-mingw32.mk. Thanks to Honda.

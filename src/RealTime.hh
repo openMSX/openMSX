@@ -66,6 +66,7 @@ private:
 
 	unsigned idealRealTime;
 	EmuTime emuTime;
+	float sleepAdjust;
 };
 
 } // namespace openmsx

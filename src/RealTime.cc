@@ -84,8 +84,20 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 		idealRealTime += realDuration;
 		unsigned currentRealTime = Timer::getTime();
 		int sleep = idealRealTime - currentRealTime;
-		if (allowSleep && (sleep > 0)) {
-			Timer::sleep(sleep);
+		if (allowSleep) {
+			PRT_DEBUG("RT: want to sleep " << sleep << "us");
+			sleep += (int)sleepAdjust;
+			int delta = 0;
+			if (sleep > 0) {
+				PRT_DEBUG("RT: Sleeping for " << sleep << "us");
+				Timer::sleep(sleep);
+				int slept = Timer::getTime() - currentRealTime;
+				PRT_DEBUG("RT: Realy slept for " << slept << "us");
+				delta = sleep - slept;
+			}
+			const float ALPHA = 0.2;
+			sleepAdjust = sleepAdjust * (1 - ALPHA) + delta * ALPHA;
+			PRT_DEBUG("RT: SleepAdjust: " << sleepAdjust);
 		}
 		if (-sleep > MAX_LAG) {
 			idealRealTime = currentRealTime - MAX_LAG / 2;
@@ -116,6 +128,7 @@ void RealTime::update(const SettingLeafNode* setting) throw()
 void RealTime::resync()
 {
 	idealRealTime = Timer::getTime();
+	sleepAdjust = 0.0;
 	scheduler.removeSyncPoint(this);
 	scheduler.setSyncPoint(Scheduler::ASAP, this);
 }
