@@ -1,5 +1,9 @@
 $Id$
 
+2004-01-19 Maarten ter Huurne <maarten@treewalker.org>
+	* Changed RAM in FS-A1FM mapper into SRAM, but unfortunately this
+	  doesn't solve the problem (openmsx-Bugs-826066)
+
 2004-01-16 Maarten ter Huurne <maarten@treewalker.org>
 	* Released openmsx-0.3.4.
 

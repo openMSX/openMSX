@@ -43,6 +43,7 @@
     <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
     <parameter name="filename">roms/fs-a1fm_firmware.rom</parameter>
     <parameter name="mappertype">FSA1FM1</parameter>
+    <parameter name="sramname">fs-a1fm.sram</parameter>
   </device>
 
   <device id="FS-A1FM">
@@ -53,6 +54,7 @@
     <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
     <parameter name="filename">roms/fs-a1fm_firmware.rom</parameter>
     <parameter name="mappertype">FSA1FM2</parameter>
+    <parameter name="sramname">fs-a1fm.sram</parameter>
   </device>
 
   <device id="Kanji ROM">

@@ -36,30 +36,28 @@
 
 
 #include "RomFSA1FM.hh"
-#include "MSXConfig.hh"
+#include "Device.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
 
 
 namespace openmsx {
 
-// common ram //
+// common sram //
 
-FSA1FMRam::FSA1FMRam()
+FSA1FMRam::FSA1FMRam(Config* config)
+	: sram(0x2000, config)
 {
-	ram = new byte[0x2000];
-	memset(ram, 0xFF, 0x2000);
 }
 
 FSA1FMRam::~FSA1FMRam()
 {
-	delete[] ram;
 }
 
-byte* FSA1FMRam::getRam()
+byte* FSA1FMRam::getSRAM(Config* config)
 {
-	static FSA1FMRam oneInstance;
-	return oneInstance.ram;
+	static FSA1FMRam oneInstance(config);
+	return oneInstance.sram.getBlock();
 }
 
 
@@ -68,7 +66,7 @@ byte* FSA1FMRam::getRam()
 RomFSA1FM1::RomFSA1FM1(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), MSXRom(config, time, rom)
 {
-	ram = FSA1FMRam::getRam();
+	sram = FSA1FMRam::getSRAM(config);
 	reset(time);
 }
 
@@ -85,12 +83,12 @@ byte RomFSA1FM1::readMem(word address, const EmuTime &time)
 {
 	if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
-		return rom->read((0x2000 * (ram[0x1FC4] & 0x0F)) + 
+		return rom->read((0x2000 * (sram[0x1FC4] & 0x0F)) + 
 		                 (address & 0x1FFF));
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
-		// read ram
-		// TODO are there multiple ram blocks?
-		return ram[address & 0x1FFF];
+		// read sram
+		// TODO are there multiple sram blocks?
+		return sram[address & 0x1FFF];
 	} else {
 		return 0xFF;
 	}
@@ -100,11 +98,11 @@ const byte* RomFSA1FM1::getReadCacheLine(word address) const
 {
 	if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
-		return rom->getBlock((0x2000 * (ram[0x1FC4] & 0x0F)) +
+		return rom->getBlock((0x2000 * (sram[0x1FC4] & 0x0F)) +
 		                     (address & 0x1FFF));
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
-		// read ram
-		return &ram[address & 0x1FFF];
+		// read sram
+		return &sram[address & 0x1FFF];
 	} else {
 		return unmappedRead;
 	}
@@ -120,7 +118,7 @@ void RomFSA1FM1::writeMem(word address, byte value, const EmuTime &time)
 			// switch rom bank
 			cpu->invalidateCache(0x4000, 0x2000 / CPU::CACHE_LINE_SIZE);
 		}
-		ram[address & 0x1FFF] = value;
+		sram[address & 0x1FFF] = value;
 	}
 }
 
@@ -130,7 +128,7 @@ byte* RomFSA1FM1::getWriteCacheLine(word address) const
 		// dont't cache IO area
 		return NULL;
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
-		return &ram[address & 0x1FFF];
+		return &sram[address & 0x1FFF];
 	} else {
 		return unmappedWrite;
 	}
@@ -142,7 +140,7 @@ byte* RomFSA1FM1::getWriteCacheLine(word address) const
 RomFSA1FM2::RomFSA1FM2(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
-	ram = FSA1FMRam::getRam();
+	sram = FSA1FMRam::getSRAM(config);
 	reset(time);
 }
 
@@ -169,7 +167,7 @@ byte RomFSA1FM2::readMem(word address, const EmuTime &time)
 		// read mapper state
 		result = bankSelect[address & 7];
 	} else if (isRam[address >> 13]) {
-		result = ram[address & 0x1FFF];
+		result = sram[address & 0x1FFF];
 	} else if (isEmpty[address >> 13]) {
 		result = 0xFF;
 	} else {
@@ -186,7 +184,7 @@ const byte* RomFSA1FM2::getReadCacheLine(word address) const
 	} else if ((0x7FF0 & CPU::CACHE_LINE_HIGH) == address) {
 		return NULL;
 	} else if (isRam[address >> 13]) {
-		return &ram[address & 0x1FFF];
+		return &sram[address & 0x1FFF];
 	} else if (isEmpty[address >> 13]) {
 		return unmappedRead;
 	} else {
@@ -231,7 +229,7 @@ void RomFSA1FM2::writeMem(word address, byte value,
 		// write control byte
 		control = value;
 	} else if (isRam[address >> 13]) {
-		ram[address & 0x1FFF] = value;
+		sram[address & 0x1FFF] = value;
 	}
 }
 
@@ -240,7 +238,7 @@ byte* RomFSA1FM2::getWriteCacheLine(word address) const
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		return NULL;
 	} else if (isRam[address >> 13]) {
-		return &ram[address & 0x1FFF];
+		return &sram[address & 0x1FFF];
 	} else {
 		return unmappedWrite;
 	}
