@@ -6,6 +6,7 @@ DIST:= \
 	config.guess detectsys.sh tcl-search.sh \
 	main.mk node-end.mk node-start.mk \
 	info2code.mk components.mk probe.mk probe-results.mk \
+	version.mk custom.mk \
 	flavour-*.mk platform-*.mk
 
 include build/node-end.mk
