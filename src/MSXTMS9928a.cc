@@ -33,9 +33,6 @@ TODO:
 #include <cassert>
 
 
-// TODO: Change into enum or get rid of it.
-#define TMS99x8A 1
-
 /*
 	New palette (R. Nabet).
 
@@ -95,8 +92,18 @@ int MSXTMS9928a::doublePattern(int a)
 	return a;
 }
 
-int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
+int MSXTMS9928a::checkSprites(int line, MSXTMS9928a::SpriteInfo *visibleSprites)
 {
+	// TODO: When moving to sprite data buffering, disable sprites if:
+	// - sprites are disabled
+	// - blanking is on
+	// - current screen mode doesn't support sprites
+	// Disabling sprites can be implemented by returning 0 visible sprites.
+
+	// Compensate for the fact that sprites are calculated one line
+	// before they are plotted.
+	line--;
+
 	// Get sprites for this line and detect 5th sprite if any.
 	int sprite, visibleIndex = 0;
 	int size = getSpriteSize();
@@ -106,7 +113,7 @@ int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
 	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
 		int y = *attributePtr;
 		if (y == 208) break;
-		y = (y > 208 ? y - 255 : y + 1);
+		if (y > 208) y -= 256;
 		if ((y > minStart) && (y <= line)) {
 			if (visibleIndex == 4) {
 				// Five sprites on a line.
@@ -118,7 +125,15 @@ int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
 				if (limitSprites) break;
 			}
 			else {
-				visibleSprites[visibleIndex++] = sprite;
+				//visibleSprites[visibleIndex++] = sprite;
+				// TODO: Optimise.
+				SpriteInfo *sip = &visibleSprites[visibleIndex++];
+				int patternIndex = ((size == 16)
+					? attributePtr[2] & 0xFC : attributePtr[2]);
+				sip->pattern = calculatePattern(patternIndex, line - y);
+				sip->x = attributePtr[1];
+				if (attributePtr[3] & 0x80) sip->x -= 32;
+				sip->colour = attributePtr[3] & 0x0F;
 			}
 		}
 	}
@@ -147,26 +162,14 @@ int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
 	If any collision is found, method returns at once.
 	*/
 	for (int i = (visibleIndex < 4 ? visibleIndex : 4); --i >= 1; ) {
-		byte *attributePtr = spriteAttributeBasePtr + visibleSprites[i] * 4;
-		int y_i = *attributePtr++;
-		int x_i = *attributePtr++;
-		int patternIndex_i =
-			((size == 16) ? *attributePtr & 0xFC : *attributePtr);
-		if ((*++attributePtr) & 0x80) x_i -= 32;
-
+		int x_i = visibleSprites[i].x;
 		for (int j = i; --j >= 0; ) {
-			attributePtr = spriteAttributeBasePtr + visibleSprites[j] * 4;
-			int y_j = *attributePtr++;
-			int x_j = *attributePtr++;
-			int patternIndex_j =
-				((size == 16) ? *attributePtr & 0xFC : *attributePtr);
-			if ((*++attributePtr) & 0x80) x_j -= 32;
-
 			// Do sprite i and sprite j collide?
+			int x_j = visibleSprites[j].x;
 			int dist = x_j - x_i;
 			if ((-magSize < dist) && (dist < magSize)) {
-				int pattern_i = calculatePattern(patternIndex_i, line - y_i);
-				int pattern_j = calculatePattern(patternIndex_j, line - y_j);
+				int pattern_i = visibleSprites[i].pattern;
+				int pattern_j = visibleSprites[j].pattern;
 				if (dist < 0) {
 					pattern_i >>= -dist;
 				}
@@ -222,7 +225,7 @@ void MSXTMS9928a::init()
 
 	limitSprites = true; // TODO: Read from config.
 
-	model = TMS99x8A;
+	version = TMS99X8A; // MSX1 VDP
 
 	// Video RAM
 	int vramSize = 0x4000;
@@ -469,7 +472,7 @@ void MSXTMS9928a::updateDisplayMode(Emutime &time)
 		"Mode 1+2+3 (BOGUS)" };
 
 	int newMode =
-		  (model == TMS99x8A ? (controlRegs[0] & 2) : 0)
+		  (version == TMS99X8 ? 0 : (controlRegs[0] & 2))
 		| ((controlRegs[1] & 0x10) >> 4)
 		| ((controlRegs[1] & 0x08) >> 1);
 	if (newMode != displayMode) {

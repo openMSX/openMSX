@@ -12,8 +12,8 @@
 #include "emutime.hh"
 #include "HotKey.hh"
 
-
 class Renderer;
+
 
 /** TMS9928a implementation: MSX1 Video Display Processor (VDP).
   * TODO: When communicating with the Renderer, when to use pull
@@ -27,13 +27,20 @@ class Renderer;
 class MSXTMS9928a : public MSXDevice, HotKeyListener
 {
 public:
+	enum VdpVersion { TMS99X8, TMS99X8A, V9938, V9959 };
+	typedef struct {
+		int pattern;
+		short int x;
+		byte colour;
+	} SpriteInfo;
+
 	static const byte TMS9928A_PALETTE[];
 
-	/** Constructor
+	/** Constructor.
 	  */
 	MSXTMS9928a(MSXConfig::Device *config);
 
-	/** Destructor
+	/** Destructor.
 	  */
 	~MSXTMS9928a();
 
@@ -104,7 +111,7 @@ public:
 	  *   for collision detection and 5th sprite detection to work,
 	  *   sprite checking is still not 100% render independant.
 	  */
-	int checkSprites(int line, int *visibleSprites);
+	int checkSprites(int line, SpriteInfo *visibleSprites);
 
 	/** Calculates a sprite pattern.
 	  * @param patternNr Number of the sprite pattern [0..255].
@@ -159,10 +166,9 @@ private:
 	  * is still effective.
 	  */
 	bool limitSprites;
-	/** TMS model: TMS9928 or TMS9928a.
-	  * TODO: Change type into an enum.
+	/** VDP version.
 	  */
-	int model;
+	VdpVersion version;
 	/** Emulation time of the VDP.
 	  * In other words, the time of the last update.
 	  */

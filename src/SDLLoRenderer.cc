@@ -185,7 +185,6 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateVRAM(
 	i = (addr - colourBase) >> 3;
 	if ((i >= 0) && (i < (int)sizeof(dirtyColour))) {
 		dirtyColour[i] = anyDirtyColour = true;
-
 	}
 
 	i = (addr - patternBase) >> 3;
@@ -420,38 +419,21 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode23(
 template <class Pixel> void SDLLoRenderer<Pixel>::drawSprites(
 	Pixel *pixelPtr, int line)
 {
-	int size = vdp->getSpriteSize();
-
 	// Determine sprites visible on this line.
-	int visibleSprites[32];
+	MSXTMS9928a::SpriteInfo visibleSprites[32];
 	int visibleIndex = vdp->checkSprites(line, visibleSprites);
 
 	while (visibleIndex--) {
 		// Get sprite info.
-		// TODO: Integrate this with visibleSprites somehow,
-		//   because of performance and abstraction and
-		//   caching of sprite data for time-decoupling.
-		int attributeIndex =
-			spriteAttributeBase + visibleSprites[visibleIndex] * 4;
-		int y = vdp->getVRAM(attributeIndex++);
-		y = (y > 208 ? y - 255 : y + 1);
-		int x = vdp->getVRAM(attributeIndex++);
-		int patternNr = (
-			  size == 16
-			? vdp->getVRAM(attributeIndex) & 0xFC
-			: vdp->getVRAM(attributeIndex)
-			);
-		Pixel colour = vdp->getVRAM(++attributeIndex);
-		if (colour & 0x80) x -= 32;
-		colour &= 0x0F;
+		MSXTMS9928a::SpriteInfo *sip = &visibleSprites[visibleIndex];
+		int pattern = sip->pattern;
+		int x = sip->x;
+		Pixel colour = sip->colour;
 		if (colour == 0) {
 			// Don't draw transparent sprites.
 			continue;
 		}
 		colour = XPalBg[colour];
-
-		int pattern = vdp->calculatePattern(patternNr, line - y);
-
 		// Skip any dots that end up in the left border.
 		if (x < 0) {
 			pattern <<= -x;
@@ -581,8 +563,6 @@ template <class Pixel> void SDLLoRenderer<Pixel>::displayPhase(
 	SDL_Rect dest;
 	dest.x = displayX;
 	dest.y = currLine - LINE_RENDER_TOP;
-	dest.w = source.w;
-	dest.h = source.h;
 	// TODO: Can we safely use SDL_LowerBlit?
 	// Note: return value is ignored.
 	SDL_BlitSurface(displayCache, &source, screen, &dest);

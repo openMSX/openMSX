@@ -1,5 +1,11 @@
 $Id$
 
+2001-11-26 Maarten ter Huurne <mth@stack.nl>
+	* Introduced SpriteInfo in MSXTMS9928a, this is a prelude to
+	  sprite info buffering (separating calculation time from
+	  rendering time).
+	* Introduced VdpVersion enum in MSXTMS9928a.
+
 2001-11-20 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Small CassettePort update, implemented very primitive filter
 
