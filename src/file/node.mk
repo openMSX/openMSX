@@ -12,7 +12,8 @@ SRC_HDR:= \
 	GZFileAdapter \
 	ZipFileAdapter \
 	ReadDir \
-	FilePool
+	FilePool \
+	Date
 	
 HDR_ONLY:= \
 	FileException

@@ -1,11 +1,7 @@
 // $Id$
 
 #include <fstream>
-#include <sstream>
-#include <iomanip>
 #include <cassert>
-#include <cstdio>
-#include <alloca.h>
 #include "sha1.hh"
 #include "SettingsConfig.hh"
 #include "Config.hh"
@@ -13,12 +9,10 @@
 #include "FileOperations.hh"
 #include "FilePool.hh"
 #include "ReadDir.hh"
+#include "Date.hh"
 
 using std::ifstream;
 using std::ofstream;
-using std::ostringstream;
-using std::setfill;
-using std::setw;
 using std::make_pair;
 using std::endl;
 
@@ -48,55 +42,17 @@ FilePool& FilePool::instance()
 	return oneInstance;
 }
 
-const char* const days[7] = {
-	"Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ,"Sun"
-};
-
-const char* const months[12] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-};
-
 static bool parse(const string& line, string& sha1, time_t& time, string& filename)
 {
-	char sum[41];
-	char day[4];
-	char month[4];
-	char* file = static_cast<char*>(alloca(line.length()));
-	struct tm tm;
-	int items = sscanf(line.c_str(), "%40[0-9a-f]  %3s %3s %2u %2u:%2u:%2u %4u  %s",
-	                   sum, day, month, &tm.tm_mday, &tm.tm_hour,
-	                   &tm.tm_min, &tm.tm_sec, &tm.tm_year, file);
-	sha1 = sum;
-	filename = file;
-	tm.tm_year -= 1900;
-	tm.tm_isdst = -1;
-	tm.tm_mon = -1;
-	for (int i = 0; i < 12; ++i) {
-		if (strcmp(month, months[i]) == 0) {
-			tm.tm_mon = i;
-			break;
-		}
+	if (line.length() <= 68) {
+		return false;
 	}
-	time = mktime(&tm);
-	return ((items == 9) && (tm.tm_mon != -1) &&
-	        (time != static_cast<time_t>(-1)));
-}
+	sha1 = line.substr(0, 40);
+	time = Date::fromString(line.substr(42, 24));
+	filename = line.substr(68);
 
-static string toString(time_t time)
-{
-	struct tm* tm;
-	tm = localtime(&time);
-	ostringstream sstr;
-	sstr << setfill('0')
-	     << days[tm->tm_wday] << " "
-	     << months[tm->tm_mon] << " "
-	     << setw(2) << tm->tm_mday << " "
-	     << setw(2) << tm->tm_hour << ":"
-	     << setw(2) << tm->tm_min << ":"
-	     << setw(2) << tm->tm_sec << " "
-	     << setw(4) << (tm->tm_year + 1900);
-	return sstr.str();
+	return (line.find_first_not_of("0123456789abcdef") == string::npos) &&
+	       (time != static_cast<time_t>(-1));
 }
 
 void FilePool::readSha1sums(const string& directory)
@@ -129,7 +85,7 @@ void FilePool::writeSha1sums(const string& directory)
 	for (Database::const_iterator it = database.begin();
 	     it != database.end(); ++it) {
 		file << it->first << "  "
-		     << toString(it->second.first) << "  "
+		     << Date::toString(it->second.first) << "  "
 		     << it->second.second
 		     << endl;
 	}
