@@ -149,6 +149,7 @@ int	FileOperations::setUsrDir(void)
 	}
 #else
 	usrdir = getenv("HOME");
+	return	0;
 #endif
 }
 
@@ -168,6 +169,7 @@ int	FileOperations::setSysDir(void)
 	}
 #else
 //	systemdir = "/opt/openMSX/";
+	return	0;
 #endif
  }
 
