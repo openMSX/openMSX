@@ -45,6 +45,8 @@ case "$GUESSED_OS" in
 		OPENMSX_TARGET_OS=darwin;;
 	*freebsd4*)
 		OPENMSX_TARGET_OS=freebsd4;;
+	*mingw*)
+		OPENMSX_TARGET_OS=mingw32;;
 	*)
 		echo "  Unknown OS \"$GUESSED_OS\"!" 1>&2
 		exit 1
