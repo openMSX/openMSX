@@ -223,9 +223,8 @@ void Mixer::updtStrm(int samples)
 		           devices[mode].begin();
 		     i != devices[mode].end();
 		     ++i) {
-			int *buf = (*i)->updateBuffer(samples);
-			if (buf != NULL) {
-				buffers[unmuted++] = buf;
+			if (!(*i)->isMuted()) {
+				buffers[unmuted++] = (*i)->updateBuffer(samples);
 			}
 		}
 	}

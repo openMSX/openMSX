@@ -1800,7 +1800,7 @@ void YMF262::reset(const EmuTime& time)
 			ch.slots[s].volume = MAX_ATT_INDEX;
 		}
 	}
-	setInternalMute(true);
+	setMute(true);
 }
 
 YMF262::YMF262(const XMLElement& config, const EmuTime& time)
@@ -1815,9 +1815,8 @@ YMF262::YMF262(const XMLElement& config, const EmuTime& time)
 	
 	init_tables();
 
-	registerSound(config, Mixer::STEREO);
 	reset(time);
-
+	registerSound(config, Mixer::STEREO);
 	Debugger::instance().registerDebuggable(getName() + " regs", *this);
 }
 
@@ -1850,7 +1849,7 @@ void YMF262::checkMute()
 {
 	bool mute = checkMuteHelper();
 	//PRT_DEBUG("YMF262: muted " << mute);
-	setInternalMute(mute);
+	setMute(mute);
 }
 bool YMF262::checkMuteHelper()
 {
@@ -1870,10 +1869,6 @@ bool YMF262::checkMuteHelper()
 
 int* YMF262::updateBuffer(int length)
 {
-	if (isInternalMuted()) {
-		return NULL;
-	}
-	
 	bool rhythmEnabled = rhythm & 0x20;
 
 	int* buf = buffer;

@@ -3,34 +3,26 @@
 #include "SoundDevice.hh"
 #include "xmlx.hh"
 
+
 namespace openmsx {
 
 SoundDevice::SoundDevice()
 {
-	internalMuted = true;
-	userMuted = false;
-	// TODO is it possible to make a default implementation
-	//      to read the start volume from the config file?
+	muted = true;
 }
 
-void SoundDevice::setMute (bool muted)
+SoundDevice::~SoundDevice()
 {
-	userMuted = muted;
+}
+
+void SoundDevice::setMute(bool muted)
+{
+	this->muted = muted;
 }
 
 bool SoundDevice::isMuted() const
 {
-	return userMuted;
-}
-
-void SoundDevice::setInternalMute (bool muted)
-{
-	internalMuted = muted;
-}
-
-bool SoundDevice::isInternalMuted() const
-{
-	return (internalMuted || userMuted);
+	return muted;
 }
 
 void SoundDevice::registerSound(const XMLElement& config,

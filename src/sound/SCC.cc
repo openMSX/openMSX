@@ -80,10 +80,7 @@ SCC::SCC(const string& name_, const XMLElement& config, const EmuTime& time,
 	 ChipMode mode)
 	: sccDebuggable(*this), currentChipMode(mode), name(name_)
 {
-	// Register as a soundevice
-	registerSound(config);
-
-	// clear wave forms
+	// Clear wave forms.
 	for (unsigned i = 0; i < 5; ++i) {
 		for (unsigned j = 0; j < 32; ++j) {
 			wave[i][j] = 0;
@@ -91,6 +88,7 @@ SCC::SCC(const string& name_, const XMLElement& config, const EmuTime& time,
 	}
 	
 	reset(time);
+	registerSound(config);
 	Debugger::instance().registerDebuggable(name + " SCC", sccDebuggable);
 }
 
@@ -419,10 +417,6 @@ void SCC::setDeformReg(byte value, const EmuTime& time)
 
 int *SCC::updateBuffer(int length)
 {
-	if (isInternalMuted()) {
-		return NULL;
-	}
-
 	int* buf = buffer;
 	if ((deformValue & 0xC0) == 0x00) {
 		// No rotation stuff, this is almost always true. So it makes
@@ -483,7 +477,7 @@ void SCC::checkMute()
 		enable >>= 1;
 		++volumePtr;
 	}
-	setInternalMute(mute);
+	setMute(mute);
 }
 
 

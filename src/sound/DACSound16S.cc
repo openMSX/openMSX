@@ -17,8 +17,8 @@ DACSound16S::DACSound16S(const string& name_, const string& desc_,
 {
 	lastValue = lastWrittenValue = 0;
 	nextTime = EmuTime::infinity;
-	registerSound(config);
 	reset(time);
+	registerSound(config);
 }
 
 DACSound16S::~DACSound16S()
@@ -57,10 +57,10 @@ void DACSound16S::writeDAC(short value, const EmuTime& time)
 		return;
 	}
 	lastWrittenValue = value;
-	if ((value != 0) && (isInternalMuted())) {
+	if ((value != 0) && (isMuted())) {
 		EmuDuration delay = realTime.getEmuDuration(DELAY);
 		lastTime = time - delay;
-		setInternalMute(false);
+		setMute(false);
 	}
 	samples.push_back(Sample((volume * value) >> 15, time));
 	if (nextTime == EmuTime::infinity) {
@@ -77,7 +77,7 @@ inline int DACSound16S::getSample(const EmuTime& time)
 		if (samples.empty()) {
 			nextTime = EmuTime::infinity;
 			if (lastWrittenValue == 0) {
-				setInternalMute(true);
+				setMute(true);
 			}
 		} else {
 			nextTime = samples.front().time;
@@ -88,10 +88,6 @@ inline int DACSound16S::getSample(const EmuTime& time)
 
 int* DACSound16S::updateBuffer(int length)
 {
-	if (isInternalMuted()) {
-		return NULL;
-	}
-	
 	EmuTime now = cpu.getCurrentTimeUnsafe(); // can be one instruction off
 	assert(lastTime <= now);
 	EmuDuration total = now - lastTime;

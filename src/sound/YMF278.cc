@@ -417,7 +417,7 @@ short YMF278::getSample(YMF278Slot &op)
 
 void YMF278::checkMute()
 {
-	setInternalMute(!anyActive());
+	setMute(!anyActive());
 }
 
 bool YMF278::anyActive()
@@ -432,10 +432,6 @@ bool YMF278::anyActive()
 
 int* YMF278::updateBuffer(int length)
 {
-	if (isInternalMuted()) {
-		return NULL;
-	}
-
 	int vl = mix_level[pcm_l];
 	int vr = mix_level[pcm_r];
 	int *buf = buffer;
@@ -501,7 +497,7 @@ int* YMF278::updateBuffer(int length)
 void YMF278::keyOnHelper(YMF278Slot& slot)
 {
 	slot.active = true;
-	setInternalMute(false);
+	setMute(false);
 	
 	int oct = slot.OCT;
 	if (oct & 8) {
@@ -746,17 +742,20 @@ YMF278::YMF278(int ramSize, const XMLElement& config, const EmuTime& time)
 	ram = new byte[ramSize];
 	endRam = endRom + ramSize;
 	
-	registerSound(config, Mixer::STEREO);
 	reset(time);
-
-	Debugger::instance().registerDebuggable(getName() + " regs", debugRegisters);
-	Debugger::instance().registerDebuggable(getName() + " mem", debugMemory);
+	registerSound(config, Mixer::STEREO);
+	Debugger::instance().registerDebuggable(
+		getName() + " regs", debugRegisters );
+	Debugger::instance().registerDebuggable(
+		getName() + " mem", debugMemory );
 }
 
 YMF278::~YMF278()
 {
-	Debugger::instance().unregisterDebuggable(getName() + " mem", debugMemory);
-	Debugger::instance().unregisterDebuggable(getName() + " regs", debugRegisters);
+	Debugger::instance().unregisterDebuggable(
+		getName() + " mem", debugMemory);
+	Debugger::instance().unregisterDebuggable(
+		getName() + " regs", debugRegisters);
 	unregisterSound();
 	delete[] ram;
 }
@@ -784,7 +783,7 @@ void YMF278::reset(const EmuTime& time)
 	for (int i = 255; i >= 0; i--) { // reverse order to avoid UMR
 		writeRegOPL4(i, 0, time);
 	}
-	setInternalMute(true);
+	setMute(true);
 	wavetblhdr = memmode = memadr = 0;
 	fm_l = fm_r = pcm_l = pcm_r = 0;
 	busyTime = time;

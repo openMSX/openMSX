@@ -30,16 +30,14 @@ enum Register {
 	AY_ECOARSE = 12, AY_ESHAPE = 13, AY_PORTA = 14, AY_PORTB = 15
 };
 
-
 AY8910::AY8910(AY8910Interface& interf, const XMLElement& config,
                const EmuTime& time)
 	: semiMuted(false), interface(interf)
 {
-	registerSound(config);
 	reset(time);
+	registerSound(config);
 	Debugger::instance().registerDebuggable(getName() + " regs", *this);
 }
-
 
 AY8910::~AY8910()
 {
@@ -73,7 +71,7 @@ void AY8910::reset(const EmuTime& time)
 	for (int i=0; i <= 15; i++) {
 		wrtReg(i, 0, time);
 	}
-	setInternalMute(true);	// set muted 
+	setMute(true);
 }
 
 
@@ -255,13 +253,13 @@ void AY8910::checkMute()
 	    (regs[AY_CVOL] == 0)) {
 		// all volume settings equals zero
 		//PRT_DEBUG("AY8910 muted");
-		setInternalMute(true);
+		setMute(true);
 		return;
 	}
 	if ((regs[AY_ENABLE] & 0x3F) == 0x3F) {
 		// all channels disabled
 		//PRT_DEBUG("AY8910 semi-muted");
-		setInternalMute(false);
+		setMute(false);
 		if (!semiMuted) {
 			semiMuted = true;
 			validLength = 0;
@@ -270,7 +268,7 @@ void AY8910::checkMute()
 	}
 	//PRT_DEBUG("AY8910: not muted");
 	semiMuted = false;
-	setInternalMute(false);
+	setMute(false);
 }
 
 void AY8910::setVolume(int newVolume)
@@ -315,10 +313,6 @@ int* AY8910::updateBuffer(int length)
 	// If the volume is 0, increase the counter, but don't touch the output.
 
 	//PRT_DEBUG("AY8910: update buffer");
-	if (isInternalMuted()) {
-		//PRT_DEBUG("AY8910: muted");
-		return NULL;
-	}
 	if (semiMuted) {
 		if (validLength >= length) {
 			//PRT_DEBUG("AY8910: semi-muted");

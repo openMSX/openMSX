@@ -440,8 +440,8 @@ Y8950::Y8950(const string& name_, const XMLElement& config, int sampleRam,
 		ch[i].car.plfo_pm = &lfo_pm;
 	}
 
-	registerSound(config);
 	reset(time);
+	registerSound(config);
 	Debugger::instance().registerDebuggable(name + " regs", *this);
 }
 
@@ -505,7 +505,7 @@ void Y8950::reset(const EmuTime &time)
 	irq.reset();
 	
 	adpcm.reset(time);
-	setInternalMute(true);	// muted
+	setMute(true);	// muted
 }
 
 
@@ -802,7 +802,7 @@ void Y8950::checkMute()
 {
 	bool mute = checkMuteHelper();
 	//PRT_DEBUG("Y8950: muted " << mute);
-	setInternalMute(mute);
+	setMute(mute);
 }
 bool Y8950::checkMuteHelper()
 {
@@ -827,10 +827,6 @@ bool Y8950::checkMuteHelper()
 int* Y8950::updateBuffer(int length)
 {
 	//PRT_DEBUG("Y8950: update buffer");
-	if (isInternalMuted()) {
-		//PRT_DEBUG("Y8950: muted");
-		return NULL;
-	}
 
 	int channelMask = 0;
 	for (int i = 9; i--; ) {

@@ -1365,9 +1365,8 @@ YM2413_2::YM2413_2(const string& name_, const XMLElement& config, const EmuTime&
 	}
 	init_tables();
 
-	registerSound(config);
 	reset(time);
-
+	registerSound(config);
 	Debugger::instance().registerDebuggable(name + " regs", *this);
 }
 
@@ -1390,10 +1389,6 @@ const string& YM2413_2::getDescription() const
 
 int* YM2413_2::updateBuffer(int length)
 {
-	if (isInternalMuted()) {
-		return NULL;
-	}
-	
 	int* buf = buffer;
 	while (length--) {
 		int output = 0;
@@ -1420,7 +1415,7 @@ int* YM2413_2::updateBuffer(int length)
 
 void YM2413_2::checkMute()
 {
-	setInternalMute(checkMuteHelper());
+	setMute(checkMuteHelper());
 }
 bool YM2413_2::checkMuteHelper()
 {

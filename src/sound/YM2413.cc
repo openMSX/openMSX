@@ -583,9 +583,8 @@ YM2413::YM2413(const string& name_, const XMLElement& config, const EmuTime& tim
 	makeSinTable();
 	makeDB2LinTable();
 
-	registerSound(config);
 	reset(time);
-
+	registerSound(config);
 	Debugger::instance().registerDebuggable(name + " regs", *this);
 }
 
@@ -626,7 +625,7 @@ void YM2413::reset(const EmuTime &time)
 	for (int i = 0; i < 0x40; i++) {
 		writeReg(i, 0, time);	// optimization: pass time only once
 	}
-	setInternalMute(true);	// set muted
+	setMute(true);	// set muted
 }
 
 void YM2413::setSampleRate(int sampleRate)
@@ -945,7 +944,7 @@ inline int YM2413::calcSample(int channelMask)
 
 void YM2413::checkMute()
 {
-	setInternalMute(checkMuteHelper());
+	setMute(checkMuteHelper());
 }
 bool YM2413::checkMuteHelper()
 {
@@ -969,10 +968,6 @@ bool YM2413::checkMuteHelper()
 int* YM2413::updateBuffer(int length)
 {
 	//PRT_DEBUG("YM2413: update buffer");
-	if (isInternalMuted()) {
-		//PRT_DEBUG("YM2413: muted");
-		return NULL;
-	}
 
 	int channelMask = 0;
 	for (int i = 9; i--; ) {
