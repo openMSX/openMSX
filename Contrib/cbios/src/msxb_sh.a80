@@ -7,6 +7,9 @@ Start
         org     $4000
         nop
 
+; ????
+        org     $77cd
+        ret
 
         align
         org     $7fff

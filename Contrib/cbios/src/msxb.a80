@@ -1,4 +1,4 @@
-; MSX Compatible BIOS ver 0.10 project "build castles in the air"
+; MSX Compatible BIOS ver 0.11 project "build castles in the air"
 ; copyright(c) 2002 BouKiCHi
 ;
 ; [date]
@@ -38,8 +38,10 @@
 ; 2002/09/19 fixed keyboard stroke speed.
 ;	     added scroll routine.
 ;            fixed init_grp 
+; 2002/09/22 fixed init_sc5
 
-;        title "MSX COMPATIBLE BIOS for emulators ver 0.10 by BouKiCHi"
+
+;        title "MSX COMPATIBLE BIOS for emulators ver 0.11 by BouKiCHi"
 
 ;---------------------------------------------------
 ; define I/O and Hook
@@ -107,6 +109,8 @@ CLIKSW          equ $F3DB      ; Key Click.
 STATFL          equ $F3E7
 RG0SAV          equ $F3DF
 RG1SAV          equ $F3E0
+
+RG8SAV          equ $FFE7
 
 CLIKFL          equ $FBD9
 OLDKEY          equ $FBDA
@@ -302,6 +306,10 @@ romid
         org     $0072
         jp      init_grp
 
+;007Eh  SETGRP
+        org     $007E
+        jp      set_grp
+
 ;0085h DOLINE Line
 doline
         org     $0085
@@ -340,7 +348,6 @@ grpprt
 ;00C6h  POSIT .. Cursor moves.
 	org     $00c6
 	jp	curxy
-
 
 ;00D5h GTSTCK .. Get Joystick position status
 
@@ -387,7 +394,6 @@ grpprt
 ;snsmat
         org     $0141
         jp      in_keyboard
-
 
 ;phydio
         org     $0144
@@ -516,13 +522,14 @@ ram_ok
         or      a,$80
         ld      e,a
 skip_mem
+
         in      a,(PSL_STAT)
         and     a,$03
         or      a,e
         ld      (EXP_TBL),a ; location of MAIN-ROM.
 
-; you can write the memory.
 
+; you can write the memory.
 
 
 ;----------------------
@@ -534,7 +541,11 @@ skip_mem
         ld      sp,hl        ; set stack -> $f300
 
         call    init_ram
+
         call    check_rom
+        in      a,(PSL_STAT)
+        ld      ($F000),a
+        call    p3_chk
 
         call    init_vdp
 
@@ -557,7 +568,14 @@ skip_mem
 start_game
         ld	hl,stack_error
         push	hl
+        ld      a,($4000)
+        cp      a,'A'
+        jr      nz,p3_run
         ld	hl,($4002)	; Cartridge Start Address
+        jr      prg_jumper
+p3_run
+        ld      hl,($8002)      ; Cartridge Start Address
+prg_jumper
         jp	(hl)		; Running ...
 
 
@@ -579,9 +597,14 @@ disp_info
         ld      hl,str_proginfo   ; HL = string address
         call    prn_text
 
-        in      a,(PSL_STAT)
-        and     a,$0C
-        ret     nz
+        
+        ld      a,($4000)
+        cp      a,'A'
+        ret     z
+        ld      a,($8000)
+        cp      a,'A'
+        ret     z
+
         ld      hl,str_nocart
         call    prn_text
 
@@ -597,7 +620,7 @@ start_cartprog
         ld      hl,str_slot
         call    prn_text
 
-        in      a,(PSL_STAT)
+        call    get_slotreg
         rrca
         rrca
         and     a,$03
@@ -1285,43 +1308,51 @@ set_page2
 ; in: RegBC = slot.
 
         push    bc
+
+        call    get_slotreg
+        ld      e,a
+        and     a,$3F
+        ld      d,a
+
         ld      a,b
         and     a,$03
-        rlca
-        rlca
-
-        ld      d,a        ; D = 0000BB00
-
-        in      a,(PSL_STAT)
-        and     a,$F3
+        rrca
+        rrca    ; A = BB000000
         or      a,d
-        ld      e,a        ; E = PPPPBBPP (P = PSL_STAT)
 
-        ld      a,d
-        rlca
-        rlca
-        rlca
-        rlca
-        ld      d,a        ; D = BB000000
-
-        ld      a,e
-        and     a,$3F
-        or      a,d        ; A = BBPPBBPP 
         out     (PSL_STAT),a
+
         ld      a,c
         and     a,$03
         rlca
         rlca
-        ld      c,a        ; C = 0000EE00
+        ld      c,a
+        rlca
+        rlca
+        or      a,c    
+        ld      c,a    ; 00CCCC00
+
         ld      a,(SSL_REGS)
-        cpl             ; inverted data. 
-        and     a,$F3
+        cpl
+        and     a,$C3
         or      a,c
-
-        ld      c,a        ; C = OOOOEEOO ; O = Original slot.
-
         ld      (SSL_REGS),a
-        xor     a,a
+        ld      c,a
+
+        ld      a,e
+        and     a,$C3
+        ld      e,a
+
+        ld      a,b
+        and     a,$03
+        rlca
+        rlca
+        ld      d,a
+        rlca
+        rlca
+        or      a,d
+        or      a,e
+        out     (PSL_STAT),a
 
         ld      hl,SLT_TBL
 
@@ -1339,8 +1370,6 @@ set_page2
         ld      a,c       ; A = Wrote data to SSL_REGS.
         ld      (hl),a
 
-        ld      a,e
-        out     (PSL_STAT),a
         pop     bc
 
         ret
@@ -1357,14 +1386,24 @@ chk_rom_loop
 
         ld      a,($4000)
         cp      a,'A' 
-        jr      nz,no_cart
-
+        jr      z,chk_p2
+        ld      a,($8000)
+        cp      a,'A' 
+        jr      z,chk_p3
+        jr      no_cart
+chk_p2
         ld      a,($4003)
         cp      a,$40
         jr      c,no_cart  ; A-$40 < 0
-        cp      a,$80
-        jr      nc,no_cart ; A-$80 >= 0
-
+        cp      a,$C0
+        jr      nc,no_cart ; A-$C0 >= 0
+        jp      chk_rom_ok 
+chk_p3
+        ld      a,($8003)
+        cp      a,$40
+        jr      c,no_cart  ; A-$40 < 0
+        cp      a,$C0
+        jr      nc,no_cart ; A-$C0 >= 0
         jp      chk_rom_ok 
 no_cart
         inc     c
@@ -1384,6 +1423,46 @@ chk_rom_ng
 
 chk_rom_ok
         ret
+
+;----------------------------------
+p3_chk
+        ld      a,($8000)
+        cp      a,'A' 
+        jp      z,page_set0
+
+        ret
+
+page_set0
+        call    get_slotreg
+        ld      c,a
+        and     a,$3F         ; 00111111
+        ld      b,a
+        and     a,$03         ; 000000AA
+        rrca
+        rrca
+        or      a,b           ; AABBBBAA
+        out     (PSL_STAT),a
+
+        ld      a,(SSL_REGS)
+        cpl
+        and     a,$F3         ; 11110011
+        ld      d,a
+        and     a,$03         ; 00000011
+        rlca
+        rlca
+        or      a,d           
+        ld      (SSL_REGS),a 
+
+        ld      a,c
+        and     a,$F3
+        ld      c,a
+        and     a,$03
+        rlca
+        rlca
+        or      a,c
+        out     (PSL_STAT),a
+        ret
+
 
 ;-------------------------------------
 ;convert cursor to RegDE
@@ -1740,6 +1819,10 @@ wrt_vdp
         or      a,$80
         out     (VDP_ADDR),a
         ei
+        ld      a,c
+        and     a,$3F
+        sub     a,8
+        jr      nc,rg8_sav
         ld      a,b
         ld      b,0
         ld      hl,RG0SAV
@@ -1747,6 +1830,22 @@ wrt_vdp
         ld      (hl),a
         pop     hl
         ret
+
+rg8_sav
+        push    bc
+        ld      c,a
+
+        ld      a,b
+        ld      b,0
+        ld      hl,RG8SAV
+        add     hl,bc
+        ld      (hl),a
+        pop     bc
+        pop     hl
+        ret
+
+
+
 
 ;--------------------------------
 ;004Ah Read VRAM
@@ -1847,12 +1946,14 @@ init_sc5
         ld      hl,$7800
         ld      (PATBAS),hl
 
-        ld      b,0             ; B = data
+        ld      b,$1F             ; B = data
         ld      c,2
         call    wrt_vdp         ; write VDP R#2
-        ld      b,0             ; B = data
+
+        ld      b,$01             ; B = data
         ld      c,4
         call    wrt_vdp         ; write VDP R#4
+
         ld      b,0             ; B = data
         ld      c,10
         call    wrt_vdp         ; write VDP R#10
@@ -2681,6 +2782,11 @@ ki_end
         org     $1000
 hang_up_mode
         halt
+        ld      a,$06
+        call    in_keyboard
+        bit     0,a
+        jp      z,debug_mode
+
         jp      hang_up_mode
 
         org     $1010
@@ -2757,7 +2863,7 @@ lp_strprn
 
 str_proginfo
 ;                0123456789012345678901234567890123456789 
-        db      "MSX COMPATIBLE BIOS ver 0.10",$0d,$0a
+        db      "MSX COMPATIBLE BIOS ver 0.11",$0d,$0a
         db      "Copyright (C) 2002 BouKiCHi",$0d,$0a
         db      $00
 
@@ -2868,8 +2974,8 @@ sound_mode
         ld      a,$FF
         ld      (PSG_DBG),a
 
-        
-        in      a,(PSL_STAT)
+
+        call    get_slotreg
         rrca
         rrca
         and     $03             ; A=CART ROM slot
