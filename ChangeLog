@@ -1,5 +1,8 @@
 $Id$
 
+2002-06-05 Joost Yervante Damad <andete@worldcity.nl>
+	* preliminary auto* libpng support [David is learning auto* woowoo!]
+
 2002-06-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "speed" command, try "help speed" in console
 

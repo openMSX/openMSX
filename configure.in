@@ -50,6 +50,10 @@ dnl openGL
 AC_CHECK_HEADERS(gl.h GL/gl.h, break)
 AC_CHECK_LIB(GL, glViewport)
 
+dnl libpng
+AC_CHECK_HEADERS(png.h, break)
+AC_CHECK_LIB(png, png_create_read_struct)
+
 dnl check if fstream can be used as template
 AC_CXX_FSTREAM_TEMPL
 
