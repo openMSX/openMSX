@@ -96,7 +96,7 @@ SDL_Surface* openSDLVideo(int width, int height, int flags)
 	return screen;
 }
 
-void closeSDLVideo()
+void closeSDLVideo(SDL_Surface* screen)
 {
 #ifdef __WIN32__
 	// Find our current location.

@@ -24,7 +24,7 @@ SDL_Surface* openSDLVideo(int width, int height, int flags);
 
 /** Shuts down SDL's video subsystem.
   */
-void closeSDLVideo();
+void closeSDLVideo(SDL_Surface* screen);
 
 } // namespace openmsx
 

@@ -72,7 +72,7 @@ SDLVideoSystem::SDLVideoSystem(
 SDLVideoSystem::~SDLVideoSystem()
 {
 	delete renderer;
-	closeSDLVideo();
+	closeSDLVideo(screen);
 }
 
 // TODO: If we can switch video system at any time (not just frame end),
