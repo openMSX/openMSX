@@ -49,6 +49,12 @@
     <slotted> <ps>3</ps> <ss>1</ss> <page>2</page> </slotted>
     <parameter name="filename">roms/hb-f9p_firmware.rom</parameter>
   </device>
+  
+  <device id="firmware rom part 2">
+    <type>Rom</type>
+    <slotted> <ps>3</ps> <ss>0</ss> <page>1</page> </slotted>
+    <parameter name="filename">roms/hb-f9p_firmware2.rom</parameter>
+  </device>
 
   <device id="ppi">
     <type>PPI</type>
