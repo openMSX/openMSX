@@ -541,13 +541,15 @@ copy of Philips_NMS_8250.xml and put it in ~/.openMSX/share/machines/mymsx/
 under the name of hardwareconfig.xml. It's the config we are going to play with.
 
 There is a special config file in the source tree that isn't usable by itself,
-but contains XML fragments of all possible devices currently implemented in
-openMSX. This file is called "exampleconfigs.xml". It is very convenient to
-copy and paste parts of it to your own mymsx.xml.
+but contains XML fragments of some possible devices currently implemented in
+openMSX. This file is called "exampleconfigs.xml" and is currently located in
+src/cfg. It is very convenient to copy and paste parts of it to your own
+mymsx/hardwareconfig.xml. Of course, you can also use fragments from other
+existing configurations that can be found in share/machines or share/extensions.
 
 To add an FM PAC to the 8250, just copy this part from the exampleconfigs.xml to
-some place in your mymsx.xml file (between the <msxconfig> and </msxconfig>
-tags!):
+some place in your mymsx/hardwareconfig.xml file (between the <msxconfig> and
+</msxconfig> tags!):
 
   <device id="FM PAC">
     <type>FM-PAC</type>
@@ -587,7 +589,7 @@ In a similar fashion, you can also add an MSX-Audio device (<device
 id="MSX-Audio">, note that some programs also need the MSX-Audio-Midi device to
 detect the Music Module; this device is at the moment not fully implemented
 though), an empty SCC cartridge (<device id="Empty SCC Cartridge">), etc. Just
-browse the exampleconfigs.xml file and look what you can find.  Remember that
+browse the exampleconfigs.xml file and see what you can find.  Remember that
 you can not put two devices in the same (sub)slot! You may need to add a slot
 expander, by simply setting a slot's subslotted parameter to "true" in the
 MotherBoard config tag at the top of the file. On the other hand, not all
@@ -663,14 +665,14 @@ Just type "set accuracy pixel" in the console.
 AutoCommands and KeyEventInserter
 
 In the config file section AutoCommands, you can specify some console commands
-that should be executed automatically. See the exampleconfigs.xml file for some
-examples. The settings.xml file uses this to create the default key bindings.
+that should be executed automatically. See the settings.xml or
+exampleconfigs.xml file for some examples. The settings.xml file uses this to
+create the default key bindings.  
 You can also use it to make default settings that are done with Console
 commands. In my case I set blur and scanline to 0, since they don't work
-correctly with my Radeon drivers.
-The KeyEventInserter section can be used to have something typed into the MSX
-after it booted. Again, see the exampleconfigs.xml file. Examine this file to
-learn what you can configure more.
+correctly with my Radeon drivers.  The KeyEventInserter section can be used to
+have something typed into the MSX after it booted. Again, see the
+exampleconfigs.xml file. Examine this file to learn what you can configure more.
 
 Running tape games
 
@@ -758,8 +760,8 @@ slow as a real disk drive, however!
     ---------
 
 OK, that's it for this HOWTO. You should be able to use most of the openMSX
-features now. Just look at the exampleconfigs.xml file to discover some more
-details. After playing with openMSX for a while, you will be able to find out
-all features. Have fun! And don't forget to report bugs; it will speed up
-openMSX development when more people test MSX software with openMSX and report
-any problems they encounter.
+features now. Just look at the exampleconfigs.xml file and the other machine and
+extension configurations to discover some more details. After playing with
+openMSX for a while, you will be able to find out all features. Have fun! And
+don't forget to report bugs; it will speed up openMSX development when more
+people test MSX software with openMSX and report any problems they encounter.
