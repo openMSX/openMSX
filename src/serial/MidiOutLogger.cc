@@ -32,4 +32,5 @@ const string& MidiOutLogger::getName() const
 void MidiOutLogger::recvByte(byte value, const EmuTime& time)
 {
 	file.put(value);
+	file.flush();
 }
