@@ -108,10 +108,13 @@ PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
 	while (!buffer.isFull()) {
 		buffer.addFront(1.0);
 	}
+
+	settings->getFrameSkip()->addListener(this);
 }
 
 PixelRenderer::~PixelRenderer()
 {
+	settings->getFrameSkip()->removeListener(this);
 }
 
 void PixelRenderer::reset(const EmuTime &time)
@@ -295,6 +298,11 @@ void PixelRenderer::renderUntil(const EmuTime &time)
 
 	nextX = limitX;
 	nextY = limitY;
+}
+
+void PixelRenderer::update(const SettingLeafNode *setting)
+{
+	curFrameSkip = 1;	// reset frameskip counter
 }
 
 } // namespace openmsx

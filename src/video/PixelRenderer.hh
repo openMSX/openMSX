@@ -21,7 +21,7 @@ class SpriteChecker;
   * Provides a framework for implementing a pixel-based Renderer,
   * thereby reducing the amount of code needed to implement one.
   */
-class PixelRenderer : public Renderer
+class PixelRenderer : public Renderer, private SettingListener
 {
 public:
 	// Renderer interface:
@@ -178,6 +178,10 @@ private:
 	  */
 	void renderUntil(const EmuTime &time);
 
+	/** Listen for frameskip setting changes
+	  */
+	virtual void update(const SettingLeafNode *setting);
+	
 	/** Accuracy setting for current frame.
 	  */
 	RenderSettings::Accuracy accuracy;

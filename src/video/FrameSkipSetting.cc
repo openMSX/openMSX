@@ -19,11 +19,11 @@ FrameSkipSetting::FrameSkipSetting()
 
 string FrameSkipSetting::getValueString() const
 {
-	if (value.isAutoFrameSkip()) {
+	if (getValue().isAutoFrameSkip()) {
 		return "auto";
 	} else {
 		ostringstream out;
-		out << value.getFrameSkip();
+		out << getValue().getFrameSkip();
 		return out.str();
 	}
 }
@@ -32,11 +32,11 @@ void FrameSkipSetting::setValueString(
 	const string &valueString)
 {
 	if (valueString == "auto") {
-		value = FrameSkip(true, value.getFrameSkip());
+		setValue(FrameSkip(true, getValue().getFrameSkip()));
 	} else {
 		int tmp = strtol(valueString.c_str(), NULL, 0);
 		if ((0 <= tmp) && (tmp <= 100)) {
-			value = FrameSkip(false, tmp);
+			setValue(FrameSkip(false, tmp));
 		} else {
 			throw CommandException("Not a valid value");
 		}
@@ -44,7 +44,8 @@ void FrameSkipSetting::setValueString(
 }
 
 // TODO: Find out if there is a cleaner way to instantiate this method.
-void FrameSkipSetting::setValue(const FrameSkip &newValue) {
+void FrameSkipSetting::setValue(const FrameSkip &newValue)
+{
 	Setting<FrameSkip>::setValue(newValue);
 }
 

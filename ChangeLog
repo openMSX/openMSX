@@ -1,5 +1,8 @@
 $Id$
 
+2003-09-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* immediately respond to frameskip changes
+
 2003-09-07 Maarten ter Huurne <maarten@treewalker.org>
 	* Have the "plug" command handle PlugException correctly.
 	* Changed Connector interface so that subclasses require less code.
