@@ -24,7 +24,7 @@
 	<li><a class="internal" href="#samples040">6. The sound quality is quite bad in the 0.4.0 release, is that normal?</a></li>
 	<li><a class="internal" href="#harddisk">7. What is the openMSX harddisk support? </a></li>
 	<li><a class="internal" href="#ziporexe">8. Should I download the ZIP or the EXE for Windows? </a></li>
-	<li><a class="internal" href="#videosource">9. It seems the MSX hangs when running GFX9000 softare; what's wrong? </a></li>
+	<li><a class="internal" href="#videosource">9. It seems the MSX hangs when running GFX9000 software; what's wrong? </a></li>
 </ol>
 
 <h2><a id="difficultinstall">1. Why is openMSX so difficult to install?</a></h2>
@@ -120,7 +120,7 @@ We strongly recommend to use the EXE. It contains a very comfortable installer (
 With the EXE, your openMSX experience is only about 3 clicks away. The ZIP file is meant for experienced users mostly.
 </p>
 
-<h2><a id="videosource">9. It seems the MSX hangs when running GFX9000 softare; what's wrong?</a></h2>
+<h2><a id="videosource">9. It seems the MSX hangs when running GFX9000 software; what's wrong?</a></h2>
 
 <p>
 The real GFX9000 has an external video connector to which you can connect a second monitor. Because of limits of the SDL library we used to create openMSX, we cannot have more than one window for openMSX, so we cannot emulate a second monitor. To see the GFX9000 in action, you need to switch the videosource setting, which equals to a so-called SCART-switch in the real world: <code>set videosource GFX9000</code>. If you started openMSX without GFX9000 extension, this option is not available. To get your normal MSX screen back, you should type <code>set videosource MSX</code>. If you want to toggle with a hot key between them, it might be useful to bind a key for it. E.g.: <code>bind F6 cycle videosource</code>. <code>cycle</code> is a TCL command that cycles through the options of the setting in the parameter. 
