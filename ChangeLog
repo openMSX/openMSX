@@ -1,5 +1,8 @@
 $Id$
 
+2004-04-25 Manuel Bilderbeek <manuel@msxnet.org>
+	* Fixed Philips NMS 1205 extension (MSX Audio MIDI was missing)
+
 2004-04-24 Maarten ter Huurne <maarten@treewalker.org>
 	* Build uses same compile and link flags as probe.
 	* Integrated part of the mingw32 probe fixes from Reikan.

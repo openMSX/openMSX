@@ -8,7 +8,11 @@
     <parameter name="mode">mono</parameter>
     <parameter name="sampleram">32</parameter>
   </device>
-  
+
+  <device id="MSX-Audio-Midi">
+    <type>Audio-Midi</type>
+  </device>
+
   <device id="Musicbox">
     <type>Rom</type>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
