@@ -51,7 +51,8 @@ const std::string& CliExtension::optionHelp() const
 	return help;
 }
 
-static int select(const struct dirent* d)
+
+int select(const struct dirent* d)
 {
 	struct stat s;
 	// entry must be a directory
@@ -82,15 +83,20 @@ void CliExtension::createExtensions(const std::string &path)
 	if (chdir(path.c_str())) {
 		return;
 	}
-	struct dirent **namelist;
-	int n = scandir(".", &namelist, select, 0);
-	while ((n--) > 0) {
-		std::string optionName(namelist[n]->d_name);
-		std::string optionPath(path + optionName + "/hardwareconfig.xml");
-		PRT_DEBUG("Extension: " << optionName << " " << optionPath);
-		extensions[optionName] = optionPath;
-		free(namelist[n]);
+
+	DIR* dir = opendir(".");
+	if (dir) {
+		struct dirent* d = readdir(dir);
+		while (d) {
+			if (select(d)) {
+				std::string optionName(d->d_name);
+				std::string optionPath(path + optionName +
+				                       "/hardwareconfig.xml");
+				extensions[optionName] = optionPath;
+			}
+			d = readdir(dir);
+		}
+		closedir(dir);
 	}
-	free (namelist);
 	chdir(buf);
 }
