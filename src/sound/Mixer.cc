@@ -9,6 +9,7 @@
 
 
 Mixer::Mixer()
+	: muteCount(0)
 {
 #ifdef DEBUG
 	nbClipped = 0;
@@ -201,11 +202,40 @@ void Mixer::unlock()
 	SDL_UnlockAudio();
 }
 
-void Mixer::pause(bool status)
+void Mixer::mute()
+{
+	muteHelper(++muteCount);
+}
+void Mixer::unmute()
+{
+	assert(muteCount);
+	muteHelper(--muteCount);
+}
+void Mixer::muteHelper(int muteCount)
 {
 	if (!init) return;
 	
 	if (buffers.size() == 0)
 		return;
-	SDL_PauseAudio(status);
+	SDL_PauseAudio(muteCount);
+}
+
+
+// class MuteSetting
+
+Mixer::MuteSetting::MuteSetting()
+	: BooleanSetting("mute", "(un)mute the emulation sound", false)
+{
+}
+
+bool Mixer::MuteSetting::checkUpdate(bool newValue, const EmuTime &time)
+{
+	if (newValue != getValue()) {
+		if (newValue) {
+			Mixer::instance()->mute();
+		} else {
+			Mixer::instance()->unmute();
+		}
+	}
+	return true;
 }

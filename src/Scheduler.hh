@@ -9,7 +9,6 @@
 #include "Command.hh"
 #include "EventListener.hh"
 
-//forward declarations
 class MSXCPU;
 class Schedulable;
 
@@ -88,20 +87,15 @@ class Scheduler : private EventListener
 		void stopScheduling();
 
 		/**
-		 * This pauses the emulation.
+		 * This (un)pauses the emulation.
 		 */
 		void pause();
-
-		/**
-		 * This unpauses the emulation
-		 */
 		void unpause();
 
 		/**
 		 * True iff paused
 		 */
 		bool isPaused();
-
 
 		static const EmuTime ASAP;
 
@@ -117,7 +111,6 @@ class Scheduler : private EventListener
 		std::vector<SynchronizationPoint> syncPoints;
 		Mutex schedMutex;
 	
-		bool noSound;
 		bool needBlock;
 		bool exitScheduler;
 		bool paused;
@@ -130,16 +123,7 @@ class Scheduler : private EventListener
 			virtual void execute(const std::vector<std::string> &tokens,
 			                     const EmuTime &time);
 			virtual void help(const std::vector<std::string> &tokens) const;
-		};
-		QuitCmd quitCmd;
-		class MuteCmd : public Command {
-		public:
-			virtual void execute(const std::vector<std::string> &tokens,
-			                     const EmuTime &time);
-			virtual void help(const std::vector<std::string> &tokens) const;
-		};
-		friend class MuteCmd;
-		MuteCmd muteCmd;
+		} quitCmd;
 };
 
 #endif

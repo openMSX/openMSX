@@ -96,17 +96,6 @@ help
     help <command>  shows help info for a specific command
 
 
-mute
-----
-
-  Mute / unmute the sound output.
-
-  usage:
-    mute on   mute sound
-    mute off  unmute sound
-    mute      toggles mute
-
-
 palette
 -------
 
@@ -201,7 +190,15 @@ slotselect
 toggle
 ------
 
-  TODO
+  Toggles any boolean (on-off) setting.
+
+  usage:
+    toggle            shows all boolean settngs
+    toggle <setting>  toggles the specified setting
+
+  examples:
+    toggle mute
+    toggle throttle
 
   
 vdpregs
@@ -271,6 +268,17 @@ fullscreen
     set fullscreen      shows the current setting
     set fullscreen on   switch to fullscreen mode
     set fullscreen off  switch to normal mode
+
+
+mute
+----
+
+  Mute / unmute the sound output.
+
+  usage:
+    set mute      shows the current setting
+    set mute on   mute sound
+    set mute off  unmute sound
 
 
 pause

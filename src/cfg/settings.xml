@@ -52,7 +52,7 @@
     <parameter>bind pause toggle pause</parameter>
     <parameter>bind F9 toggle throttle</parameter>
     <parameter>bind F10 console</parameter>
-    <parameter>bind F11 mute</parameter>
+    <parameter>bind F11 toggle mute</parameter>
     <parameter>bind F12 quit</parameter>
     <!--<parameter>bind F9    "set throttle off"</parameter>
         <parameter>bind F9,up "set throttle on"</parameter>-->

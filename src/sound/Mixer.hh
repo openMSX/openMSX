@@ -7,8 +7,8 @@
 #include <list>
 #include <vector>
 #include "EmuTime.hh"
+#include "Settings.hh"
 
-// forward declarations
 class SoundDevice;
 class MSXCPU;
 class RealTime;
@@ -18,7 +18,9 @@ class Mixer
 {
 	public:
 		static const int MAX_VOLUME = 32767;
-		enum ChannelMode { MONO, MONO_LEFT, MONO_RIGHT, STEREO, NB_MODES };
+		enum ChannelMode {
+			MONO, MONO_LEFT, MONO_RIGHT, STEREO, NB_MODES
+		};
 
 		~Mixer();
 		static Mixer *instance();
@@ -48,23 +50,22 @@ class Mixer
 		void updateStream(const EmuTime &time);
 
 		/**
-		 * This method locks the audio thread.
+		 * This methods (un)locks the audio thread.
 		 * You can use this method to delay the call to the SoundDevices
 		 * updateBuffer() method. For example, this is usefull if 
 		 * you are updating a lot of registers and you don't want the
 		 * half updated set being used to produce sound
 		 */
 		void lock();
-
-		/**
-		 * This method unlocks the audio thread.
-		 */
 		void unlock();
 
 		/**
-		 * This method pauses the sound
+		 * This methods (un)mute the sound.
+		 * These methods may be called multiple times, as long as
+		 * you never call unmute() more than mute()
 		 */
-		void pause(bool status);
+		void mute();
+		void unmute();
 		
 	private:
 		Mixer();
@@ -72,8 +73,10 @@ class Mixer
 		void updtStrm(int samples);
 		static void audioCallbackHelper(void *userdata, Uint8 *stream, int len);
 		void audioCallback(short* stream);
+		void muteHelper(int muteCount);
 		
 		bool init;
+		int muteCount;
 
 		SDL_AudioSpec audioSpec;
 		std::list<SoundDevice*> devices[NB_MODES];
@@ -85,7 +88,15 @@ class Mixer
 		EmuTime prevTime;
 
 		MSXCPU *cpu;
-		RealTime *realTime; 
+		RealTime *realTime;
+
+		class MuteSetting : public BooleanSetting
+		{
+			public:
+				MuteSetting();
+				virtual bool checkUpdate(bool newValue,
+				                         const EmuTime &time);
+		} muteSetting;
 
 #ifdef DEBUG
 		int nbClipped;

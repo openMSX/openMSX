@@ -263,6 +263,7 @@ public:
 	}
 
 	void registerSetting(const std::string &name, Setting *setting) {
+		assert(settingsMap.find(name) == settingsMap.end());
 		settingsMap[name] = setting;
 	}
 	void unregisterSetting(const std::string &name) {

@@ -15,20 +15,17 @@ const EmuTime Scheduler::ASAP;
 Scheduler::Scheduler()
 {
 	paused = false;
-	noSound = false;
 	needBlock = false;
 	exitScheduler = false;
 	cpu = MSXCPU::instance();
 	
 	EventDistributor::instance()->registerEventListener(SDL_QUIT, this);
 	CommandController::instance()->registerCommand(&quitCmd, "quit");
-	CommandController::instance()->registerCommand(&muteCmd, "mute");
 }
 
 Scheduler::~Scheduler()
 {
 	CommandController::instance()->unregisterCommand(&quitCmd, "quit");
-	CommandController::instance()->unregisterCommand(&muteCmd, "mute");
 	EventDistributor::instance()->unregisterEventListener(SDL_QUIT, this);
 }
 
@@ -132,8 +129,7 @@ void Scheduler::unpause()
 	if (paused) {
 		paused = false;
 		needBlock = false;
-		Mixer::instance()->pause(noSound);
-		PRT_DEBUG("Unpaused");
+		Mixer::instance()->unmute();
 		pauseCond.signal();
 	}
 }
@@ -141,8 +137,7 @@ void Scheduler::pause()
 {
 	if (!paused) {
 		paused = true;
-		Mixer::instance()->pause(true);
-		PRT_DEBUG("Paused");
+		Mixer::instance()->mute();
 	}
 }
 bool Scheduler::isPaused()
@@ -167,36 +162,3 @@ void Scheduler::QuitCmd::help(const std::vector<std::string> &tokens) const
 {
 	print("Use this command to stop the emulator");
 }
-
-//TODO this command belongs in Mixer instead of Scheduler
-void Scheduler::MuteCmd::execute(const std::vector<std::string> &tokens,
-                                 const EmuTime &time)
-{
-	Scheduler *sch = Scheduler::instance();
-	switch (tokens.size()) {
-		case 1:
-			sch->noSound = !sch->noSound;
-			break;
-		case 2:
-			if (tokens[1] == "on") {
-				sch->noSound = true;
-				break;
-			}
-			if (tokens[1] == "off") {
-				sch->noSound = false;
-				break;
-			}
-			// fall through
-		default:
-			throw CommandException("Syntax error");
-	}
-	Mixer::instance()->pause(sch->noSound||sch->isPaused());
-}
-void Scheduler::MuteCmd::help(const std::vector<std::string> &tokens) const
-{
-	print("Use this command to mute/unmute the emulator");
-	print(" mute:     toggle mute");
-	print(" mute on:  set muted");
-	print(" mute off: set unmuted");
-}
-

@@ -3,6 +3,7 @@ $Id$
 2003-03-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Converted "throttle" console command into a setting
 	* Converted "pause" console command into a setting
+	* Converted "mute" console command into a setting
 
 2003-02-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Converted "speed" console command into a setting
