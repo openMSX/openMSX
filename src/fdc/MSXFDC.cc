@@ -12,7 +12,7 @@ static DiskImageCLI diskImageCLI;
 
 MSXFDC::MSXFDC(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
-	  rom(config, time) 
+	  rom(config) 
 {
 	string drivename("drivename1");
 	//                0123456789

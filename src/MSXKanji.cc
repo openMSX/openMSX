@@ -9,7 +9,7 @@ namespace openmsx {
 
 MSXKanji::MSXKanji(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
-	  rom(config, time)
+	  rom(config)
 {
 	int size = rom.getSize();
 	if ((size != 0x20000) && (size != 0x40000)) {

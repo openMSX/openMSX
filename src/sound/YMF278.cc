@@ -740,7 +740,7 @@ byte YMF278::readStatus(const EmuTime& time)
 
 YMF278::YMF278(short volume, int ramSize, Device* config,
                const EmuTime& time)
-	: debugRegisters(*this), debugMemory(*this), rom(config, time)
+	: debugRegisters(*this), debugMemory(*this), rom(config)
 {
 	memadr = 0;	// avoid UMR
 	endRom = rom.getSize();

@@ -9,8 +9,7 @@ namespace openmsx {
 
 MSXBunsetsu::MSXBunsetsu(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
-	  rom(config, time),
-	  jisyoRom(config, config->getParameter("jisyofilename"), time)
+	  rom(config), jisyoRom(config, config->getParameter("jisyofilename"))
 {
 	reset(time);
 }

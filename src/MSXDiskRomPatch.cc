@@ -7,7 +7,7 @@
 #include "MSXCPUInterface.hh"
 #include "DiskDrive.hh"
 #include "Disk.hh"
-
+#include "Scheduler.hh"
 
 namespace openmsx {
 
@@ -35,8 +35,9 @@ const byte MSXDiskRomPatch::bootSectorData[] = {
   0x79, 0x0d, 0x0a, 0x24
 };
 
-MSXDiskRomPatch::MSXDiskRomPatch(const EmuTime &time)
+MSXDiskRomPatch::MSXDiskRomPatch()
 {
+	const EmuTime& time = Scheduler::instance().getCurrentTime();
 	// TODO make names configurable
 	drives[0] = new DoubleSidedDrive("diska", time);
 	drives[1] = new DoubleSidedDrive("diskb", time);

@@ -31,17 +31,15 @@
 #include "RomHolyQuran.hh"
 #include "RomFSA1FM.hh"
 #include "Rom.hh"
-#include "File.hh"
-
 
 namespace openmsx {
 
 static MSXRomCLI msxRomCLI;
 
 
-MSXRom *RomFactory::create(Device *config, const EmuTime &time)
+MSXRom *RomFactory::create(Device* config, const EmuTime& time)
 {
-	Rom* rom = new Rom(config, time);
+	Rom* rom = new Rom(config);
 
 	MapperType type = rom->getInfo().getMapperType();
 	switch (type) {
@@ -60,7 +58,7 @@ MSXRom *RomFactory::create(Device *config, const EmuTime &time)
 		case PAGE023:
 		case PAGE123:
 		case PAGE0123:
-			return new RomPageNN(config, time, rom, type & 0xf);
+			return new RomPageNN(config, time, rom, type & 0xF);
 		case PLAIN:
 			return new RomPlain(config, time, rom);
 		case GENERIC_8KB:

@@ -28,6 +28,7 @@
 #include "PanasonicRom.hh"
 #include "MSXRTC.hh"
 #include "RomFactory.hh"
+#include "MSXRom.hh"
 #include "MSXPrinterPort.hh"
 #include "MSXSCCPlusCart.hh"
 #include "FDCFactory.hh"

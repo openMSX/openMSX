@@ -3,23 +3,20 @@
 #ifndef __ROMINFO_HH__
 #define __ROMINFO_HH__
 
-#include "RomTypes.hh"
 #include <string>
+#include "RomTypes.hh"
 
 using std::string;
-
 
 namespace openmsx {
 
 class Rom;
 class Device;
 
-
 class RomInfo
 {
 public:
-	RomInfo(
-		const string& nid, const string& nyear,
+	RomInfo(const string& nid, const string& nyear,
 		const string& ncompany, const string& nremark,
 		const MapperType& nmapperType);
 	~RomInfo();

@@ -18,7 +18,7 @@ MSXRS232::MSXRS232(Device *config, const EmuTime &time)
 	, i8254(&cntr0, &cntr1, NULL, time)
 	, interf(*this)
 	, i8251(&interf, time)
-	, rom(config, time)
+	, rom(config)
 {
 	EmuDuration total(1.0 / 1.8432e6); // 1.8432MHz
 	EmuDuration hi   (1.0 / 3.6864e6); //   half clock period

@@ -10,7 +10,7 @@ const byte ID = 0xF7;
 
 MSXKanji12::MSXKanji12(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXSwitchedDevice(ID),
-	  rom(config, time)
+	  rom(config)
 {
 	size = rom.getSize();
 	if ((size != 0x20000) && (size != 0x40000)) {

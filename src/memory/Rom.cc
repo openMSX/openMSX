@@ -16,11 +16,11 @@
 
 namespace openmsx {
 
-Rom::Rom(Device* config, const EmuTime& time)
+Rom::Rom(Device* config)
 {
 	if (config->hasParameter("filename")) {
 		string filename = config->getParameter("filename");
-		read(config, filename, time);
+		read(config, filename);
 	} else if (config->hasParameter("firstblock")) {
 		int first = config->getParameterAsInt("firstblock");
 		int last  = config->getParameterAsInt("lastblock");
@@ -36,13 +36,13 @@ Rom::Rom(Device* config, const EmuTime& time)
 	info = RomInfo::fetchRomInfo(this, *config);
 }
 
-Rom::Rom(Device* config, const string& filename, const EmuTime& time)
+Rom::Rom(Device* config, const string& filename)
 {
-	read(config, filename, time);	// TODO config
+	read(config, filename);	// TODO config
 	info = RomInfo::fetchRomInfo(this, *config);
 }
 
-void Rom::read(Device* config, const string& filename, const EmuTime& time)
+void Rom::read(Device* config, const string& filename)
 {
 	// open file
 	try {
@@ -92,7 +92,7 @@ void Rom::read(Device* config, const string& filename, const EmuTime& time)
 	     it != parameters->end(); ++it) {
 		MSXRomPatchInterface* patchInterface;
 		if ((*it)->value == "MSXDiskRomPatch") {
-			patchInterface = new MSXDiskRomPatch(time);
+			patchInterface = new MSXDiskRomPatch();
 		} else if ((*it)->value == "MSXTapePatch") {
 			patchInterface = new MSXTapePatch();
 		} else {
@@ -125,7 +125,7 @@ void Rom::read(Device* config, const string& filename, const EmuTime& time)
 
 Rom::~Rom()
 {
-	for (list<MSXRomPatchInterface*>::const_iterator it =
+	for (vector<MSXRomPatchInterface*>::const_iterator it =
 	           romPatchInterfaces.begin();
 	     it != romPatchInterfaces.end(); ++it) {
 		MSXCPUInterface::instance().unregisterInterface(*it);

@@ -3,19 +3,16 @@
 #ifndef __ROMFACTORY_HH__
 #define __ROMFACTORY_HH__
 
-#include "RomTypes.hh"
-#include "MSXRom.hh"
-
 namespace openmsx {
 
+class MSXRom;
 class EmuTime;
 class Device;
 
-
 class RomFactory
 {
-	public:
-		static MSXRom *create(Device *config, const EmuTime &time);
+public:
+	static MSXRom* create(Device* config, const EmuTime& time);
 };
 
 } // namespace openmsx
