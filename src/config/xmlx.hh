@@ -42,6 +42,7 @@ public:
 	const XMLElement* getParent() const;
 	
 	void addChild(auto_ptr<XMLElement> child);
+	void deleteChild(const XMLElement& child);
 	void addAttribute(const string& name, const string& value);
 	
 	const string& getName() const { return name; }

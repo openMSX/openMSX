@@ -8,6 +8,8 @@
 #include "ConfigException.hh"
 #include "xmlx.hh"
 
+using std::remove;
+
 namespace openmsx {
 
 // class XMLException
@@ -112,6 +114,14 @@ void XMLElement::addChild(auto_ptr<XMLElement> child)
 	assert(!child->getParent());
 	child->parent = this;
 	children.push_back(child.release());
+}
+
+void XMLElement::deleteChild(const XMLElement& child)
+{
+	assert(find(children.begin(), children.end(), &child) != children.end());
+	children.erase(remove(children.begin(), children.end(), &child),
+	               children.end());
+	delete &child;
 }
 
 void XMLElement::addAttribute(const string& name, const string& value)

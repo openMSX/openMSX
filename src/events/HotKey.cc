@@ -7,14 +7,28 @@
 #include "EventDistributor.hh"
 #include "CliCommOutput.hh"
 #include "InputEvents.hh"
-
-using std::pair;
+#include "SettingsConfig.hh"
 
 namespace openmsx {
 
 HotKey::HotKey()
 	: bindCmd(*this), unbindCmd(*this)
+	, bindingsElement(SettingsConfig::instance().getCreateChild("bindings"))
 {
+	XMLElement::Children children(bindingsElement.getChildren()); // copy
+	for (XMLElement::Children::const_iterator it = children.begin();
+	     it != children.end(); ++it) {
+		Keys::KeyCode key = Keys::getCode((*it)->getAttribute("key", ""));
+		if (key != Keys::K_NONE) {
+			registerHotKeyCommand(key, (*it)->getData());
+		}
+	}
+	
+	EventDistributor::instance().registerEventListener(
+		KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().registerEventListener(
+		KEY_UP_EVENT, *this, EventDistributor::NATIVE);
+
 	CommandController::instance().registerCommand(&bindCmd,   "bind");
 	CommandController::instance().registerCommand(&unbindCmd, "unbind");
 }
@@ -23,39 +37,17 @@ HotKey::~HotKey()
 {
 	CommandController::instance().unregisterCommand(&bindCmd,   "bind");
 	CommandController::instance().unregisterCommand(&unbindCmd, "unbind");
-}
 
-void HotKey::registerHotKey(Keys::KeyCode key, HotKeyListener* listener)
-{
-	PRT_DEBUG("HotKey registration for key " << Keys::getName(key));
-	if (listenerMap.empty()) {
-		EventDistributor::instance().registerEventListener(
-			KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
-		EventDistributor::instance().registerEventListener(
-			KEY_UP_EVENT, *this, EventDistributor::NATIVE);
+	for (CommandMap::const_iterator it = cmdMap.begin();
+	     it != cmdMap.end(); ++it) {
+		delete it->second;
 	}
-	listenerMap.insert(ListenerMap::value_type(key, listener));
-}
 
-void HotKey::unregisterHotKey(Keys::KeyCode key, HotKeyListener* listener)
-{
-	pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
-		listenerMap.equal_range(key);
-	for (ListenerMap::iterator it = bounds.first;
-	     it != bounds.second; ++it) {
-		if (it->second == listener) {
-			listenerMap.erase(it);
-			break;
-		}
-	}
-	if (listenerMap.empty()) {
-		EventDistributor::instance().unregisterEventListener(
-			KEY_UP_EVENT, *this, EventDistributor::NATIVE);
-		EventDistributor::instance().unregisterEventListener(
-			KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
-	}
+	EventDistributor::instance().unregisterEventListener(
+		KEY_UP_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().unregisterEventListener(
+		KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
 }
-
 
 void HotKey::registerHotKeyCommand(Keys::KeyCode key, const string& command)
 {
@@ -63,16 +55,18 @@ void HotKey::registerHotKeyCommand(Keys::KeyCode key, const string& command)
 	if (it != cmdMap.end()) {
 		unregisterHotKeyCommand(key);
 	}
-	HotKeyCmd* cmd = new HotKeyCmd(command);
-	registerHotKey(key, cmd);
-	cmdMap[key] = cmd;
+	auto_ptr<XMLElement> elem(new XMLElement("bind"));
+	elem->addAttribute("key", Keys::getName(key));
+	elem->setData(command);
+	cmdMap[key] = new HotKeyCmd(*elem);
+	bindingsElement.addChild(elem);
 }
 
 void HotKey::unregisterHotKeyCommand(Keys::KeyCode key)
 {
 	CommandMap::iterator it = cmdMap.find(key);
 	if (it != cmdMap.end()) {
-		unregisterHotKey(key, it->second);
+		bindingsElement.deleteChild(it->second->getElement());
 		delete it->second;
 		cmdMap.erase(it);
 	}
@@ -81,13 +75,10 @@ void HotKey::unregisterHotKeyCommand(Keys::KeyCode key)
 bool HotKey::signalEvent(const Event& event)
 {
 	assert(dynamic_cast<const KeyEvent*>(&event));
-	//Keys::KeyCode key = Keys::getCode(event.key.keysym.sym, event.key.keysym.mod, event.type == SDL_KEYUP);
 	Keys::KeyCode key = static_cast<const KeyEvent&>(event).getKeyCode();
-	pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
-		listenerMap.equal_range(key);
-	for (ListenerMap::iterator it = bounds.first;
-	     it != bounds.second; ++it) {
-		it->second->signalHotKey(key);
+	CommandMap::iterator it = cmdMap.find(key);
+	if (it != cmdMap.end()) {
+		it->second->execute();
 	}
 	return true;
 }
@@ -95,25 +86,26 @@ bool HotKey::signalEvent(const Event& event)
 
 // class HotKeyCmd
 
-HotKey::HotKeyCmd::HotKeyCmd(const string& cmd)
-	: command(cmd)
+HotKey::HotKeyCmd::HotKeyCmd(const XMLElement& elem_)
+	: elem(elem_)
 {
 }
 
-HotKey::HotKeyCmd::~HotKeyCmd()
+const string& HotKey::HotKeyCmd::getCommand() const
 {
+	return elem.getData();
 }
 
-const string &HotKey::HotKeyCmd::getCommand() const
+const XMLElement& HotKey::HotKeyCmd::getElement() const
 {
-	return command;
+	return elem;
 }
 
-void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode /*key*/)
+void HotKey::HotKeyCmd::execute()
 {
 	try {
 		// ignore return value
-		CommandController::instance().executeCommand(command);
+		CommandController::instance().executeCommand(getCommand());
 	} catch (CommandException &e) {
 		CliCommOutput::instance().printWarning(
 		        "Error executing hot key command: " + e.getMessage());

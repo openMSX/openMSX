@@ -14,15 +14,7 @@ using std::multimap;
 
 namespace openmsx {
 
-class HotKeyListener
-{
-public:
-	 /**
-	  * This method gets called when the key you are interested in
-	  * is pressed.
-	  */
-	 virtual void signalHotKey(Keys::KeyCode key) = 0;
-};
+class XMLElement;
 
 class HotKey : private EventListener
 {
@@ -30,40 +22,21 @@ public:
 	HotKey();
 	virtual ~HotKey();
 
-	/**
-	 * This is just an extra filter for KEY_DOWN events, now
-	 * events are only passed for specific keys.
-	 * See EventDistributor::registerListener for more details
-	 */
-	void   registerHotKey(Keys::KeyCode key, HotKeyListener* listener);
-	void unregisterHotKey(Keys::KeyCode key, HotKeyListener* listener);
-
-	/**
-	 * When the given hotkey is pressed the given command is
-	 * automatically executed.
-	 */
+private:
 	void   registerHotKeyCommand(Keys::KeyCode key, const string& command);
 	void unregisterHotKeyCommand(Keys::KeyCode key);
 
-private:
 	// EventListener
 	virtual bool signalEvent(const Event& event);
 	
-	class HotKeyCmd;
-	typedef multimap<Keys::KeyCode, HotKeyListener*> ListenerMap;
-	ListenerMap listenerMap;
-	typedef map<Keys::KeyCode, HotKeyCmd*> CommandMap;
-	CommandMap cmdMap;
-
-
-	class HotKeyCmd : public HotKeyListener {
+	class HotKeyCmd {
 	public:
-		HotKeyCmd(const string& cmd);
-		virtual ~HotKeyCmd();
+		HotKeyCmd(const XMLElement& elem);
 		const string& getCommand() const;
-		virtual void signalHotKey(Keys::KeyCode key);
+		const XMLElement& getElement() const;
+		void execute();
 	private:
-		const string command;
+		const XMLElement& elem;
 	};
 
 	class BindCmd : public SimpleCommand {
@@ -83,6 +56,11 @@ private:
 	private:
 		HotKey& parent;
 	} unbindCmd;
+	
+	typedef map<Keys::KeyCode, HotKeyCmd*> CommandMap;
+	CommandMap cmdMap;
+	
+	XMLElement& bindingsElement;
 };
 
 } // namespace openmsx
