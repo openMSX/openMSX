@@ -34,19 +34,19 @@
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">nms8220_basic-bios2.rom</parameter>
+    <parameter name="filename">roms/nms8220_basic-bios2.rom</parameter>
   </device>
 
   <device id="subrom">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
-    <parameter name="filename">nms8220_msx2sub.rom</parameter>
+    <parameter name="filename">roms/nms8220_msx2sub.rom</parameter>
   </device>
 
   <device id="MSX Designer">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
-    <parameter name="filename">nms8220_designer.rom</parameter>
+    <parameter name="filename">roms/nms8220_designer.rom</parameter>
   </device>
 
   <device id="ppi">

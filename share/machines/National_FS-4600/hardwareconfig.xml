@@ -34,25 +34,25 @@
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">fs-4600_basic-bios2.rom</parameter>
+    <parameter name="filename">roms/fs-4600_basic-bios2.rom</parameter>
   </device>
 
   <device id="MSX Sub ROM">
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>1</ss> <page>0</page> </slotted>
-    <parameter name="filename">fs-4600_msx2sub.rom</parameter>
+    <parameter name="filename">roms/fs-4600_msx2sub.rom</parameter>
   </device>
 
   <device id="Word Font 1">
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>2</ss> <page>0</page> </slotted>
-    <parameter name="filename">fs-4600_wordfont1.rom</parameter>
+    <parameter name="filename">roms/fs-4600_wordfont1.rom</parameter>
   </device>
 
   <device id="Word Font 2">
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>3</ss> <page>0</page> </slotted>
-    <parameter name="filename">fs-4600_wordfont2.rom</parameter>
+    <parameter name="filename">roms/fs-4600_wordfont2.rom</parameter>
   </device>
 
   <device id="MSX Word">
@@ -61,7 +61,7 @@
     <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>1</ss> <page>2</page> </slotted>
     <slotted> <ps>3</ps> <ss>1</ss> <page>3</page> </slotted>
-    <parameter name="filename">fs-4600_msxword.rom</parameter>
+    <parameter name="filename">roms/fs-4600_msxword.rom</parameter>
     <parameter name="mappertype">NATIONAL</parameter>
     <parameter name="sramname">fs-4600.sram</parameter>
   </device>
@@ -70,24 +70,24 @@
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>2</ss> <page>1</page> </slotted>
     <slotted> <ps>0</ps> <ss>2</ss> <page>2</page> </slotted>
-    <parameter name="filename">fs-4600_kanjibasic.rom</parameter>
+    <parameter name="filename">roms/fs-4600_kanjibasic.rom</parameter>
   </device>
 
   <device id="Kanji ROM">
     <type>Kanji</type>
-    <parameter name="filename">fs-4600_kanjifont.rom</parameter>
+    <parameter name="filename">roms/fs-4600_kanjifont.rom</parameter>
   </device>
 
   <device id="Kanji ROM 12X12">
     <type>Kanji12</type>
-    <parameter name="filename">fs-4600_kanjifont12.rom</parameter>
+    <parameter name="filename">roms/fs-4600_kanjifont12.rom</parameter>
   </device>
 
   <device id="Memory Mapped FDC">
     <type>FDC</type>
     <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
-    <parameter name="filename">fs-4600_disk.rom</parameter>
+    <parameter name="filename">roms/fs-4600_disk.rom</parameter>
     <parameter name="type">MB8877A</parameter>
     <parameter name="brokenFDCread">false</parameter>
     <parameter name="drivename1">diska</parameter>

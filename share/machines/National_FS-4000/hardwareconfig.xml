@@ -28,26 +28,26 @@
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">fs-4000_basic-bios1.rom</parameter>
+    <parameter name="filename">roms/fs-4000_basic-bios1.rom</parameter>
   </device>
 
   <device id="MSX Word">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>3</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">fs-4000_msxword.rom</parameter>
+    <parameter name="filename">roms/fs-4000_msxword.rom</parameter>
   </device>
 
   <device id="MSX Kanji Driver">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>1</ss> <page>2</page> </slotted>
-    <parameter name="filename">fs-4000_kanjibasic.rom</parameter>
+    <parameter name="filename">roms/fs-4000_kanjibasic.rom</parameter>
   </device>
 
   <device id="Kanji ROM">
     <type>Kanji</type>
-    <parameter name="filename">fs-4000_kanjifont.rom</parameter>
+    <parameter name="filename">roms/fs-4000_kanjifont.rom</parameter>
   </device>
 
   <device id="ppi">

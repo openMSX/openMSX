@@ -28,19 +28,19 @@
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">fs-a1fm_basic-bios2.rom</parameter>
+    <parameter name="filename">roms/fs-a1fm_basic-bios2.rom</parameter>
   </device>
 
   <device id="MSX Sub ROM">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>1</ss> <page>0</page> </slotted>
-    <parameter name="filename">fs-a1fm_msx2sub.rom</parameter>
+    <parameter name="filename">roms/fs-a1fm_msx2sub.rom</parameter>
   </device>
 
   <device id="MSX Opening ROM">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
-    <parameter name="filename">fs-a1fm_msx2opt.rom</parameter>
+    <parameter name="filename">roms/fs-a1fm_msx2opt.rom</parameter>
   </device>
 
   <device id="FS-A1FM">
@@ -49,26 +49,26 @@
     <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
     <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
-    <parameter name="filename">fs-a1fm_firmware.rom</parameter>
+    <parameter name="filename">roms/fs-a1fm_firmware.rom</parameter>
     <parameter name="mappertype">PANASONIC</parameter>
     <parameter name="sramname">fs-a1fm.sram</parameter>
   </device>
 
   <device id="Kanji ROM">
     <type>Kanji</type>
-    <parameter name="filename">fs-a1fm_kanjifont.rom</parameter>
+    <parameter name="filename">roms/fs-a1fm_kanjifont.rom</parameter>
   </device>
 
   <device id="Kanji ROM 12X12">
     <type>Kanji12</type>
-    <parameter name="filename">fs-a1fm_kanjifont12.rom</parameter>
+    <parameter name="filename">roms/fs-a1fm_kanjifont12.rom</parameter>
   </device>
 
   <device id="Memory Mapped FDC">
     <type>FDC</type>
     <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
-    <parameter name="filename">fs-a1fm_disk.rom</parameter>
+    <parameter name="filename">roms/fs-a1fm_disk.rom</parameter>
     <parameter name="type">TC8566AF</parameter>
     <parameter name="brokenFDCread">false</parameter>
     <parameter name="drivename1">diska</parameter>

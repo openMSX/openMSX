@@ -28,14 +28,14 @@
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">cf-3300_basic-bios1.rom</parameter>
+    <parameter name="filename">roms/cf-3300_basic-bios1.rom</parameter>
   </device>
 
   <device id="Memory Mapped FDC">
     <type>FDC</type>
     <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>1</ss> <page>2</page> </slotted>
-    <parameter name="filename">cf-3300_disk.rom</parameter>
+    <parameter name="filename">roms/cf-3300_disk.rom</parameter>
     <parameter name="type">MB8877A</parameter>
     <parameter name="brokenFDCread">false</parameter>
     <parameter name="drivename1">diska</parameter>

@@ -28,27 +28,27 @@
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">fs-a1_basic-bios2.rom</parameter>
+    <parameter name="filename">roms/fs-a1_basic-bios2.rom</parameter>
   </device>
 
   <device id="MSX Sub ROM">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>1</ss> <page>0</page> </slotted>
-    <parameter name="filename">fs-a1_msx2sub.rom</parameter>
+    <parameter name="filename">roms/fs-a1_msx2sub.rom</parameter>
   </device>
 
   <device id="Desk Pac 1">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
-    <parameter name="filename">fs-a1_deskpac1.rom</parameter>
+    <parameter name="filename">roms/fs-a1_deskpac1.rom</parameter>
   </device>
 
   <device id="Desk Pac 2">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
-    <parameter name="filename">fs-a1_deskpac2.rom</parameter>
+    <parameter name="filename">roms/fs-a1_deskpac2.rom</parameter>
   </device>
 
   <device id="ppi">

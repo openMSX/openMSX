@@ -28,21 +28,21 @@
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">fs-4500_basic-bios2.rom</parameter>
+    <parameter name="filename">roms/fs-4500_basic-bios2.rom</parameter>
   </device>
 
   <device id="MSX Sub ROM">
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>1</ss> <page>0</page> </slotted>
-    <parameter name="filename">fs-4500_msx2sub.rom</parameter>
+    <parameter name="filename">roms/fs-4500_msx2sub.rom</parameter>
   </device>
 
   <device id="MSX Bunsetsu Henkan">
     <type>Bunsetsu</type>
     <slotted> <ps>0</ps> <ss>2</ss> <page>1</page> </slotted>
     <slotted> <ps>0</ps> <ss>2</ss> <page>2</page> </slotted>
-    <parameter name="filename">fs-4500_msxbunse.rom</parameter>
-    <parameter name="jisyofilename">fs-4500_msxbudic.rom</parameter>
+    <parameter name="filename">roms/fs-4500_msxbunse.rom</parameter>
+    <parameter name="jisyofilename">roms/fs-4500_msxbudic.rom</parameter>
   </device>
 
   <device id="Matsushita">
@@ -53,7 +53,7 @@
   <device id="Word Font">
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>2</ss> <page>0</page> </slotted>
-    <parameter name="filename">fs-4500_wordfont.rom</parameter>
+    <parameter name="filename">roms/fs-4500_wordfont.rom</parameter>
   </device>
 
   <device id="MSX Word 1">
@@ -61,7 +61,7 @@
     <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>3</ps> <ss>0</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>0</ss> <page>2</page> </slotted>
-    <parameter name="filename">fs-4500_msxword1.rom</parameter>
+    <parameter name="filename">roms/fs-4500_msxword1.rom</parameter>
   </device>
 
   <device id="MSX Word 2">
@@ -69,31 +69,31 @@
     <slotted> <ps>3</ps> <ss>1</ss> <page>0</page> </slotted>
     <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>1</ss> <page>2</page> </slotted>
-    <parameter name="filename">fs-4500_msxword2.rom</parameter>
+    <parameter name="filename">roms/fs-4500_msxword2.rom</parameter>
   </device>
 
   <device id="MSX Jusho">
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>3</ss> <page>1</page> </slotted>
     <slotted> <ps>0</ps> <ss>3</ss> <page>2</page> </slotted>
-    <parameter name="filename">fs-4500_msxjusho.rom</parameter>
+    <parameter name="filename">roms/fs-4500_msxjusho.rom</parameter>
   </device>
 
   <device id="MSX Kanji Driver 1">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>0</ss> <page>3</page> </slotted>
-    <parameter name="filename">fs-4500_kanjibasic1.rom</parameter>
+    <parameter name="filename">roms/fs-4500_kanjibasic1.rom</parameter>
   </device>
 
   <device id="MSX Kanji Driver 2">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>1</ss> <page>3</page> </slotted>
-    <parameter name="filename">fs-4500_kanjibasic2.rom</parameter>
+    <parameter name="filename">roms/fs-4500_kanjibasic2.rom</parameter>
   </device>
 
   <device id="Kanji ROM">
     <type>Kanji</type>
-    <parameter name="filename">fs-4500_kanjifont.rom</parameter>
+    <parameter name="filename">roms/fs-4500_kanjifont.rom</parameter>
   </device>
 
   <device id="S1985">

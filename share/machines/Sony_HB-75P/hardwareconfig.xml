@@ -28,13 +28,13 @@
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">hb-75p_basic-bios1.rom</parameter>
+    <parameter name="filename">roms/hb-75p_basic-bios1.rom</parameter>
   </device>
 
   <device id="MSX Database">
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>2</page> </slotted>
-    <parameter name="filename">hb-75p_firmware.rom</parameter>
+    <parameter name="filename">roms/hb-75p_firmware.rom</parameter>
   </device>
 
   <device id="ppi">
