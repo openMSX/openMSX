@@ -166,12 +166,10 @@ bool Scheduler::isPaused()
 }
 
 
-void Scheduler::signalEvent(SDL_Event &event) {
-	if (event.type == SDL_QUIT) {
-		stopScheduling();
-	} else {
-		assert(false);
-	}
+bool Scheduler::signalEvent(SDL_Event &event)
+{
+	stopScheduling();
+	return true;
 }
 
 

@@ -4,6 +4,8 @@ $Id$
 	* Made "check-db":
 	   a primitive tool to compare a romtype database against the build-in 
 	   rom autodetection algorithm
+	* When console is up, keypresses are blocked for MSX-Keyboard:
+	   this implementation should work in all cases (hopefully)
 
 2002-07-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* cleanups

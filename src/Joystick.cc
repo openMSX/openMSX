@@ -58,67 +58,70 @@ void Joystick::write(byte value, const EmuTime &time)
 }
 
 //EventListener
-void Joystick::signalEvent(SDL_Event &event)
+bool Joystick::signalEvent(SDL_Event &event)
 {
-	if (event.jaxis.which != joyNum)	// also event.jbutton.which
-		return;
-	switch (event.type) {
-	case SDL_JOYAXISMOTION:
-		switch (event.jaxis.axis) {
-		case 0: // Horizontal
-			if (event.jaxis.value < -THRESHOLD) {
-				status &= ~JOY_LEFT;	// left pressed
-				status |=  JOY_RIGHT;	// right not pressed
-			} else if (event.jaxis.value > THRESHOLD) {
-				status |=  JOY_LEFT;	// left not pressed
-				status &= ~JOY_RIGHT;	// right pressed
-			} else {
-				status |=  JOY_LEFT | JOY_RIGHT;	// left nor right pressed
+	if (event.jaxis.which == joyNum) {	// also event.jbutton.which
+		switch (event.type) {
+		case SDL_JOYAXISMOTION:
+			switch (event.jaxis.axis) {
+			case 0: // Horizontal
+				if (event.jaxis.value < -THRESHOLD) {
+					status &= ~JOY_LEFT;	// left      pressed
+					status |=  JOY_RIGHT;	// right not pressed
+				} else if (event.jaxis.value > THRESHOLD) {
+					status |=  JOY_LEFT;	// left  not pressed
+					status &= ~JOY_RIGHT;	// right     pressed
+				} else {
+					status |=  JOY_LEFT;;	// left  not pressed
+					status |=  JOY_RIGHT;	// right not pressed
+				}
+				break;
+			case 1: // Vertical
+				if (event.jaxis.value < -THRESHOLD) {
+					status |=  JOY_DOWN;	// down not pressed
+					status &= ~JOY_UP;	// up       pressed
+				} else if (event.jaxis.value > THRESHOLD) {
+					status &= ~JOY_DOWN;	// down     pressed
+					status |=  JOY_UP;	// up   not pressed
+				} else {
+					status |=  JOY_DOWN;	// down not pressed
+					status |=  JOY_UP;	// up   not pressed
+				}
+				break;
+			default:
+				// ignore other axis
+				break;
 			}
 			break;
-		case 1: // Vertical
-			if (event.jaxis.value < -THRESHOLD) {
-				status |=  JOY_DOWN;	// down not pressed
-				status &= ~JOY_UP;	// up pressed
-			} else if (event.jaxis.value > THRESHOLD) {
-				status &= ~JOY_DOWN;	// down pressed
-				status |=  JOY_UP;	// up not pressed
-			} else {
-				status |=  JOY_DOWN | JOY_UP;	// down nor up pressed
+		case SDL_JOYBUTTONDOWN:
+			switch (event.jbutton.button) {
+			case 0:
+				status &= ~JOY_BUTTONA;
+				break;
+			case 1:
+				status &= ~JOY_BUTTONB;
+				break;
+			default:
+				// ignore other buttons
+				break;
+			}
+			break;
+		case SDL_JOYBUTTONUP:
+			switch (event.jbutton.button) {
+			case 0:
+				status |= JOY_BUTTONA;
+				break;
+			case 1:
+				status |= JOY_BUTTONB;
+				break;
+			default:
+				// ignore other buttons
+				break;
 			}
 			break;
 		default:
-			// ignore other axis
-			break;
+			assert(false);
 		}
-		break;
-	case SDL_JOYBUTTONDOWN:
-		switch (event.jbutton.button) {
-		case 0:
-			status &= ~JOY_BUTTONA;
-			break;
-		case 1:
-			status &= ~JOY_BUTTONB;
-			break;
-		default:
-			// ignore other buttons
-			break;
-		}
-		break;
-	case SDL_JOYBUTTONUP:
-		switch (event.jbutton.button) {
-		case 0:
-			status |= JOY_BUTTONA;
-			break;
-		case 1:
-			status |= JOY_BUTTONB;
-			break;
-		default:
-			// ignore other buttons
-			break;
-		}
-		break;
-	default:
-		assert(false);
 	}
+	return true;
 }

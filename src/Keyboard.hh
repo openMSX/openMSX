@@ -27,7 +27,7 @@ class Keyboard : public EventListener
 		const byte* getKeys();
 		
 		//EventListener
-		void signalEvent(SDL_Event &event);
+		virtual bool signalEvent(SDL_Event &event);
 		
 		static const int NR_KEYROWS = 11;
 

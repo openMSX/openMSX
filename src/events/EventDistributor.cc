@@ -40,24 +40,23 @@ void EventDistributor::run()
 	while (SDL_WaitEvent(&event)) {
 		PRT_DEBUG("SDL event received");
 	
-		bool anySync = false;
-		
-		syncMutex.grab();
+		mutex.grab();
 		std::multimap<int, EventListener*>::iterator it;
-		for (it = syncMap.lower_bound(event.type);
-		     (it != syncMap.end()) && (it->first == event.type);
+		for (it = highMap.lower_bound(event.type);
+		     (it != highMap.end()) && (it->first == event.type);
 		     it++) {
-			queueMutex.grab();
-			queue.push(std::pair<SDL_Event, EventListener*>(event, it->second));
-			queueMutex.release();
-			anySync = true;
+			highQueue.push(std::pair<SDL_Event, EventListener*>(event, it->second));
 		}
-		syncMutex.release();
-		
-		if (anySync) {
+		for (it = lowMap.lower_bound(event.type);
+		     (it != lowMap.end()) && (it->first == event.type);
+		     it++) {
+			lowQueue.push(std::pair<SDL_Event, EventListener*>(event, it->second));
+		}
+		if (!highQueue.empty() || !lowQueue.empty()) {
 			Scheduler::instance()->removeSyncPoint(this);
 			Scheduler::instance()->setSyncPoint(Scheduler::ASAP, this);
 		}
+		mutex.release();
 	}
 	// this loop never ends
 	assert(false);
@@ -65,35 +64,44 @@ void EventDistributor::run()
 
 void EventDistributor::executeUntilEmuTime(const EmuTime &time, int userdata)
 {
-	queueMutex.grab();
-	while (!queue.empty()) {
-		std::pair<SDL_Event, EventListener*> pair = queue.front();
-		queue.pop();
-		queueMutex.release();	// temporary release queue mutex
-		pair.second->signalEvent(pair.first);
-		queueMutex.grab();	// retake queue mutex
+	mutex.grab();
+	bool cont = true;
+	while (!highQueue.empty()) {
+		std::pair<SDL_Event, EventListener*> pair = highQueue.front();
+		highQueue.pop();
+		cont = pair.second->signalEvent(pair.first) && cont;
 	}
-	queueMutex.release();
+	while (!lowQueue.empty()) {
+		std::pair<SDL_Event, EventListener*> pair = lowQueue.front();
+		lowQueue.pop();
+		if (cont)
+			pair.second->signalEvent(pair.first);
+	}
+	mutex.release();
 }
 
 
-void EventDistributor::registerEventListener(int type, EventListener *listener)
+void EventDistributor::registerEventListener(int type, EventListener *listener, int priority)
 {
-	syncMutex.grab();
-	syncMap.insert(std::pair<int, EventListener*>(type, listener));
-	syncMutex.release();
+	std::multimap <int, EventListener*> &map = (priority == 0) ? highMap : lowMap;
+	
+	mutex.grab();
+	map.insert(std::pair<int, EventListener*>(type, listener));
+	mutex.release();
 }
-void EventDistributor::unregisterEventListener(int type, EventListener *listener)
+void EventDistributor::unregisterEventListener(int type, EventListener *listener, int priority)
 {
-	syncMutex.grab();
+	std::multimap <int, EventListener*> &map = (priority == 0) ? highMap : lowMap;
+	
+	mutex.grab();
 	std::multimap<int, EventListener*>::iterator it;
-	for (it = syncMap.lower_bound(type);
-	     (it != syncMap.end()) && (it->first == type);
+	for (it = map.lower_bound(type);
+	     (it != map.end()) && (it->first == type);
 	     it++) {
 		if (it->second == listener) {
-			syncMap.erase(it);
+			map.erase(it);
 			break;
 		}
 	}
-	syncMutex.release();
+	mutex.release();
 }

@@ -82,7 +82,7 @@ void Mouse::write(byte value, const EmuTime &time)
 
 
 //EventListener
-void Mouse::signalEvent(SDL_Event &event)
+bool Mouse::signalEvent(SDL_Event &event)
 {
 	switch (event.type) {
 	case SDL_MOUSEMOTION:
@@ -122,4 +122,5 @@ void Mouse::signalEvent(SDL_Event &event)
 	default:
 		assert(false);
 	}
+	return true;
 }

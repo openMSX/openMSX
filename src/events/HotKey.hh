@@ -55,7 +55,7 @@ class HotKey : private EventListener
 		};
 		
 		// EventListener
-		virtual void signalEvent(SDL_Event &event);
+		virtual bool signalEvent(SDL_Event &event);
 
 		HotKey();
 		static HotKey *oneInstance;

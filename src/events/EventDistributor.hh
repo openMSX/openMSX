@@ -22,13 +22,20 @@ class EventDistributor : public Runnable , private Schedulable
 
 		/**
 		 * Use this method to (un)register a given class to receive
-		 * certain SDL_Event's. When such an event is received it
-		 * will 'eventually' be passed to the registerd class its 
-		 * "signalEvent()" method.
-		 * The 'main-emulation-thread' will deliver the event.
+		 * certain SDLEvents. 
+		 * @param type The SDLEventType number of the events you want to receive
+		 * @param listener Object that will be notified when the events arrives
+		 * @param priority The priority of the listener (lower number is higher
+		 *        priority). Higher priority listeners may block an event for
+		 *        lower priority listeners. Normally you don't need to specify
+		 *        a priority.
+		 *        Note: in the current implementation there are only two
+		 *              priority levels (0 and !=0)
+		 * The delivery of the event is done by the 'main-emulation-thread',
+		 * so there is no need for extra synchronization.
 		 */
-		void   registerEventListener(int type, EventListener *listener);
-		void unregisterEventListener(int type, EventListener *listener);
+		void   registerEventListener(int type, EventListener *listener, int priority = 0);
+		void unregisterEventListener(int type, EventListener *listener, int priority = 0);
 		
 	private:
 		EventDistributor();
@@ -37,10 +44,11 @@ class EventDistributor : public Runnable , private Schedulable
 
 		static EventDistributor *oneInstance;
 		
-		std::multimap <int, EventListener*> syncMap;
-		std::queue <std::pair<SDL_Event, EventListener*> > queue;
-		Mutex syncMutex;	// to lock variable syncMap
-		Mutex queueMutex;	// to lock variable queue
+		std::multimap <int, EventListener*> lowMap;
+		std::multimap <int, EventListener*> highMap;
+		std::queue <std::pair<SDL_Event, EventListener*> > lowQueue;
+		std::queue <std::pair<SDL_Event, EventListener*> > highQueue;
+		Mutex mutex;
 };
 
 #endif

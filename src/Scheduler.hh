@@ -109,7 +109,7 @@ class Scheduler : private EventListener
 		Scheduler();
 
 		// EventListener
-		void signalEvent(SDL_Event &event);
+		virtual bool signalEvent(SDL_Event &event);
 
 		static Scheduler *oneInstance;
 		/** Vector used as heap, not a priority queue because that

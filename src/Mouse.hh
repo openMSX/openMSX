@@ -21,7 +21,7 @@ class Mouse : public JoystickDevice, EventListener
 		void write(byte value, const EmuTime &time);
 	
 		//EventListener
-		void signalEvent(SDL_Event &event);
+		virtual bool signalEvent(SDL_Event &event);
 
 	private:
 		static const int SCALE = 2;

@@ -9,14 +9,14 @@ Keyboard::Keyboard(bool keyG)
 	keyGhosting = keyG;
 	memset(keyMatrix , 255, sizeof(keyMatrix) );
 	memset(keyMatrix2, 255, sizeof(keyMatrix2));
-	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
-	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this);
+	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this, 1);
+	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this, 1);
 }
 
 Keyboard::~Keyboard()
 {
-	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
-	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP,   this);
+	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this, 1);
+	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP,   this, 1);
 }
 
 
@@ -35,7 +35,7 @@ const byte* Keyboard::getKeys()
 }
 
 
-void Keyboard::signalEvent(SDL_Event &event)
+bool Keyboard::signalEvent(SDL_Event &event)
 {
 	int key;
 	switch (event.type) {
@@ -55,6 +55,8 @@ void Keyboard::signalEvent(SDL_Event &event)
 		assert(false);
 	}
 	keysChanged = true;	// do ghosting at next getKeys()
+	
+	return true;
 }
 
 

@@ -76,7 +76,7 @@ void HotKey::unregisterHotKeyCommand(Keys::KeyCode key, const std::string &comma
 }
 
 
-void HotKey::signalEvent(SDL_Event &event)
+bool HotKey::signalEvent(SDL_Event &event)
 {
 	Keys::KeyCode key = (Keys::KeyCode)event.key.keysym.sym;
 	PRT_DEBUG("HotKey event " << Keys::getName(key));
@@ -86,6 +86,7 @@ void HotKey::signalEvent(SDL_Event &event)
 	     it++) {
 		it->second->signalHotKey(key);
 	}
+	return true;
 }
 
 

@@ -52,6 +52,7 @@ SDLConsole::SDLConsole(SDL_Surface *screen) :
 
 	ConsoleManager::instance()->registerConsole(this);
 	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
+	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this);
 	CommandController::instance()->registerCommand(consoleCmd, "console");
 	HotKey::instance()->registerHotKeyCommand(Keys::K_F10, "console");
 }
@@ -61,15 +62,19 @@ SDLConsole::~SDLConsole()
 	HotKey::instance()->unregisterHotKeyCommand(Keys::K_F10, "console");
 	CommandController::instance()->unregisterCommand("console");
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
+	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP,   this);
 	ConsoleManager::instance()->unregisterConsole(this);
 	delete font;
 }
 
 
 // Takes keys from the keyboard and inputs them to the console
-void SDLConsole::signalEvent(SDL_Event &event)
+bool SDLConsole::signalEvent(SDL_Event &event)
 {
-	if (!isVisible) return;
+	if (!isVisible)
+		return true;
+	if (event.type == SDL_KEYUP)
+		return false;
 	
 	Keys::KeyCode key = (Keys::KeyCode)event.key.keysym.sym;
 	switch (key) {
@@ -99,6 +104,7 @@ void SDLConsole::signalEvent(SDL_Event &event)
 				normalKey((char)event.key.keysym.unicode);
 	}
 	updateConsole();
+	return false;	// don't pass event to MSX-Keyboard
 }
 
 /* setAlphaGL() -- sets the alpha channel of an SDL_Surface to the

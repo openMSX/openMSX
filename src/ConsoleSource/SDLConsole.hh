@@ -21,7 +21,7 @@ class SDLConsole : public InteractiveConsole, private EventListener
 		virtual void drawConsole();
 
 	private:
-		void signalEvent(SDL_Event &event);
+		virtual bool signalEvent(SDL_Event &event);
 
 		void alpha(unsigned char alpha);
 		void background(const std::string &image, int x, int y);

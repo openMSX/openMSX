@@ -28,7 +28,7 @@ class Joystick : public JoystickDevice, EventListener
 		virtual void write(byte value, const EmuTime &time);
 
 		//EventListener
-		virtual void signalEvent(SDL_Event &event);
+		virtual bool signalEvent(SDL_Event &event);
 
 	private:
 		static const int THRESHOLD = 32768/10;
