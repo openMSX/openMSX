@@ -278,6 +278,9 @@ ifneq ($(filter %g++,$(OPENMSX_CXX))$(filter g++%,$(OPENMSX_CXX)),)
   # Empty definition of used headers, so header removal doesn't break things.
   DEPEND_FLAGS+=-MP
 else
+  ifneq ($(filter %gcc,$(OPENMSX_CXX))$(filter gcc%,$(OPENMSX_CXX)),)
+    $(error Set OPENMSX_CXX to your "g++" executable instead of "gcc")
+  endif
   ifneq ($(filter %icc,$(OPENMSX_CXX)),)
     # Report all errors, warnings and remarks, except the following remarks:
     # (on the openmsx-devel list these were discussed and it was decided to
@@ -338,7 +341,7 @@ ifeq ($(OPENMSX_PROFILE),true)
   OPENMSX_STRIP:=false
 endif
 ifeq ($(OPENMSX_STRIP),true)
-  LDFLAGS+=--strip-all
+  LINK_FLAGS+=-s
 endif
 
 
