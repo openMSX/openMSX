@@ -57,8 +57,9 @@ AC_CHECK_HEADERS(gl.h GL/gl.h, break)
 AC_CHECK_LIB(GL, glViewport)
 
 dnl SDL_image
-AC_CHECK_LIB(SDL_image, IMG_Load)
- 
+AC_CHECK_HEADERS(SDL_image.h SDL/SDL_image.h , break)
+AC_CHECK_LIB(SDL_image, IMG_Load, break, AC_MSG_ERROR([Sorry no SDL_image library found]))
+
 dnl libpng
 AC_CHECK_HEADERS(png.h, break)
 AC_CHECK_LIB(png, png_create_read_struct)

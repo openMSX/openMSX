@@ -1,5 +1,9 @@
 $Id$
 
+2002-09-08 Joost Yervante Damad <joost@lumatec.be>
+	* mv configure.in -> configure.ac [autotools recommendation]
+	* configure exits on failure to find SDL_image library
+
 2002-09-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Correct blending in all non-paletted modes, no blending in
 	  paletted modes
