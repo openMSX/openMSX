@@ -40,13 +40,17 @@ const std::string &Mouse::getName() const
 //JoystickDevice
 byte Mouse::read(const EmuTime &time)
 {
+	// TODO figure out the timeout mechanism
+	//      does it exist at all?
+	/*
 	const int TIMEOUT = 10;	// TODO find a good value
-	
 	int delta = lastTime.getTicksTill(time);
 	lastTime = time;
 	if (delta >= TIMEOUT) {
 		faze = FAZE_YLOW;
 	}
+	*/
+	
 	switch (faze) {
 		case FAZE_XHIGH:
 			return (((xrel / SCALE) >> 4) & 0x0f) | status;
