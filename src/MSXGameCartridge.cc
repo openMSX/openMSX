@@ -312,6 +312,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		// SCC enable/disable?
 		if ((address & 0xF800) == 0x9000) {
 			enabledSCC = ((value&0x3F)==0x3F);
+			MSXCPU::instance()->invalidateCache(0x9800, 0x0800/CPU::CACHE_LINE_SIZE);
 		}
 		// Page selection?
 		if ((address & 0x1800) != 0x1000) return;
@@ -389,9 +390,6 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 
 void MSXGameCartridge::setBank(int region, byte* value)
 {
-	// Do not cache if SCC is in this region.
-	if (enabledSCC && region == 4) value = NULL;
-
 	internalMemoryBank[region] = value;
 	MSXCPU::instance()->invalidateCache(region*0x2000, 0x2000/CPU::CACHE_LINE_SIZE);
 }
