@@ -274,7 +274,7 @@ void CommandController::HelpCmd::execute(const std::vector<std::string> &tokens)
 	switch (tokens.size()) {
 		case 1: {
 			print("Use 'help [command]' to get help for a specific command");
-			print("The following commands exists:");
+			print("The following commands exist:");
 			std::map<const std::string, Command*, ltstr>::const_iterator it;
 			for (it=cc->commands.begin(); it!=cc->commands.end(); it++) {
 				print(it->first);
