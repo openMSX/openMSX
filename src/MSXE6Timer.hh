@@ -19,14 +19,7 @@
 class MSXE6Timer : public MSXIODevice
 {
 	public:
-		/**
-		 * Constructor
-		 */
 		MSXE6Timer(Device *config, const EmuTime &time);
-
-		/**
-		 * Destructor
-		 */
 		virtual ~MSXE6Timer();
 		
 		virtual void reset(const EmuTime &time);

@@ -6,7 +6,7 @@
 #include <string>
 #include <list>
 #include <sstream>
-#include "EmuTime.hh"	// for uint64
+#include "openmsx.hh"
 #include "MSXException.hh"
 #include "libxmlx/xmlx.hh"
 #include "FileContext.hh"
@@ -15,9 +15,9 @@
 class ConfigException: public MSXException
 {
 	public:
-		ConfigException(const std::string &descs)
+		ConfigException(const string &descs)
 			: MSXException(descs) {}
-		ConfigException(const std::ostringstream &stream)
+		ConfigException(const ostringstream &stream)
 			: MSXException(stream.str()) {}
 };
 
@@ -28,54 +28,54 @@ class Config
 		class Parameter
 		{
 		public:
-			Parameter(const std::string &name, 
-				  const std::string &value,
-				  const std::string &clasz);
+			Parameter(const string &name, 
+				  const string &value,
+				  const string &clasz);
 			~Parameter();
 
 			const bool getAsBool() const;
 			const int getAsInt() const ;
 			const uint64 getAsUint64() const;
 			
-			const std::string name;
-			const std::string value;
-			const std::string clasz;
+			const string name;
+			const string value;
+			const string clasz;
 
-			static bool stringToBool(const std::string &str);
-			static int stringToInt(const std::string &str);
-			static uint64 stringToUint64(const std::string &str);
+			static bool stringToBool(const string &str);
+			static int stringToInt(const string &str);
+			static uint64 stringToUint64(const string &str);
 		};
 
 		Config(XML::Element *element, FileContext* context);
 		virtual ~Config();
 
-		const std::string &getType() const;
-		const std::string &getId() const;
+		const string &getType() const;
+		const string &getId() const;
 
 		FileContext* getContext() const;
 
-		bool hasParameter(const std::string &name) const;
-		const std::string &getParameter(const std::string &name) const;
-		const bool getParameterAsBool(const std::string &name) const;
-		const int getParameterAsInt(const std::string &name) const;
-		const uint64 getParameterAsUint64(const std::string &name) const;
+		bool hasParameter(const string &name) const;
+		const string &getParameter(const string &name) const;
+		const bool getParameterAsBool(const string &name) const;
+		const int getParameterAsInt(const string &name) const;
+		const uint64 getParameterAsUint64(const string &name) const;
 
 		/**
 		 * This returns a freshly allocated list with freshly allocated
 		 * Parameter objects. The caller has to clean this all up with
 		 * getParametersWithClassClean
 		 */
-		virtual std::list<Parameter*>* getParametersWithClass(const std::string &clasz);
+		virtual list<Parameter*>* getParametersWithClass(const string &clasz);
 		/**
 		 * cleanup function for getParametersWithClass
 		 */
-		static void getParametersWithClassClean(std::list<Parameter*>* list);
+		static void getParametersWithClassClean(list<Parameter*>* list);
 
 	protected:
 		XML::Element* element;
 
 	private:
-		XML::Element* getParameterElement(const std::string &name) const;
+		XML::Element* getParameterElement(const string &name) const;
 		
 		FileContext* context;
 };
@@ -103,7 +103,7 @@ class Device: virtual public Config
 		Device(XML::Element *element, FileContext *context);
 		virtual ~Device();
 
-		std::list <Slotted*> slotted;
+		list <Slotted*> slotted;
 };
 
 
@@ -115,24 +115,24 @@ class MSXConfig
 		 *  the config data [can be called multiple times]
 		 */
 		void loadHardware(FileContext *context,
-		                  const std::string &filename);
+		                  const string &filename);
 		void loadSetting(FileContext *context,
-		                 const std::string &filename);
+		                 const string &filename);
 		void loadStream(FileContext *context,
-		                const std::ostringstream &stream);
+		                const ostringstream &stream);
 
 		/**
 		 * save current config to file
 		 */
 		void saveFile();
-		void saveFile(const std::string &filename);
+		void saveFile(const string &filename);
 
 		/**
 		 * get a config or device or customconfig by id
 		 */
-		Config* getConfigById(const std::string &id);
-		Device* getDeviceById(const std::string &id);
-		bool hasConfigWithId(const std::string &id);
+		Config* getConfigById(const string &id);
+		Device* getDeviceById(const string &id);
+		bool hasConfigWithId(const string &id);
 
 		/**
 		 * get a device
@@ -152,11 +152,11 @@ class MSXConfig
 
 		void handleDoc(XML::Document* doc, FileContext *context);
 
-		std::list<XML::Document*> docs;
-		std::list<Config*> configs;
-		std::list<Device*> devices;
+		list<XML::Document*> docs;
+		list<Config*> configs;
+		list<Device*> devices;
 
-		std::list<Device*>::const_iterator device_iterator;
+		list<Device*>::const_iterator device_iterator;
 };
 
 #endif

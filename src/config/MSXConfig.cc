@@ -25,12 +25,12 @@ Config::~Config()
 //	delete context;
 }
 
-const std::string &Config::getType() const
+const string &Config::getType() const
 {
 	return element->getElementPcdata("type");
 }
 
-const std::string &Config::getId() const
+const string &Config::getId() const
 {
 	return element->getAttribute("id");
 }
@@ -40,9 +40,9 @@ FileContext* Config::getContext() const
 	return context;
 }
 
-XML::Element* Config::getParameterElement(const std::string &name) const
+XML::Element* Config::getParameterElement(const string &name) const
 {
-	std::list<XML::Element*>::iterator i;
+	list<XML::Element*>::iterator i;
 	for (i = element->children.begin(); i != element->children.end(); i++) {
 		if ((*i)->name == "parameter") {
 			if ((*i)->getAttribute("name") == name) {
@@ -54,13 +54,13 @@ XML::Element* Config::getParameterElement(const std::string &name) const
 }
 
 
-bool Config::hasParameter(const std::string &name) const
+bool Config::hasParameter(const string &name) const
 {
 	XML::Element* p = getParameterElement(name);
 	return (p != 0);
 }
 
-const std::string &Config::getParameter(const std::string &name) const
+const string &Config::getParameter(const string &name) const
 {
 	XML::Element* p = getParameterElement(name);
 	if (p != 0) {
@@ -69,7 +69,7 @@ const std::string &Config::getParameter(const std::string &name) const
 	throw ConfigException("Missing parameter: " + name);
 }
 
-const bool Config::getParameterAsBool(const std::string &name) const
+const bool Config::getParameterAsBool(const string &name) const
 {
 	XML::Element* p = getParameterElement(name);
 	if (p != 0) {
@@ -78,7 +78,7 @@ const bool Config::getParameterAsBool(const std::string &name) const
 	throw ConfigException("Missing parameter: " + name);
 }
 
-const int Config::getParameterAsInt(const std::string &name) const
+const int Config::getParameterAsInt(const string &name) const
 {
 	XML::Element* p = getParameterElement(name);
 	if (p != 0) {
@@ -87,7 +87,7 @@ const int Config::getParameterAsInt(const std::string &name) const
 	throw ConfigException("Missing parameter: " + name);
 }
 
-const uint64 Config::getParameterAsUint64(const std::string &name) const
+const uint64 Config::getParameterAsUint64(const string &name) const
 {
 	XML::Element* p = getParameterElement(name);
 	if (p != 0) {
@@ -96,10 +96,10 @@ const uint64 Config::getParameterAsUint64(const std::string &name) const
 	throw ConfigException("Missing parameter: " + name);
 }
 
-std::list<Config::Parameter*>* Config::getParametersWithClass(const std::string &clasz)
+list<Config::Parameter*>* Config::getParametersWithClass(const string &clasz)
 {
-	std::list<Config::Parameter*>* l = new std::list<Config::Parameter*>;
-	std::list<XML::Element*>::const_iterator i;
+	list<Config::Parameter*>* l = new list<Config::Parameter*>;
+	list<XML::Element*>::const_iterator i;
 	for (i = element->children.begin(); i != element->children.end(); i++) {
 		if ((*i)->name == "parameter") {
 			if ((*i)->getAttribute("class") == clasz) {
@@ -113,9 +113,9 @@ std::list<Config::Parameter*>* Config::getParametersWithClass(const std::string 
 
 // class Parameter
 
-Config::Parameter::Parameter(const std::string &name_,
-	const std::string &value_,
-	const std::string &clasz_)
+Config::Parameter::Parameter(const string &name_,
+	const string &value_,
+	const string &clasz_)
 	: name(name_), value(value_), clasz(clasz_)
 {
 }
@@ -124,20 +124,20 @@ Config::Parameter::~Parameter()
 {
 }
 
-bool Config::Parameter::stringToBool(const std::string &str)
+bool Config::Parameter::stringToBool(const string &str)
 {
-	std::string low = str;
-	std::transform (low.begin(), low.end(), low.begin(), tolower);
+	string low = str;
+	transform (low.begin(), low.end(), low.begin(), ::tolower);
 	return (low == "true" || low == "yes");
 }
 
-int Config::Parameter::stringToInt(const std::string &str)
+int Config::Parameter::stringToInt(const string &str)
 {
 	// strtol also understands hex
 	return strtol(str.c_str(),0,0);
 }
 
-uint64 Config::Parameter::stringToUint64(const std::string &str)
+uint64 Config::Parameter::stringToUint64(const string &str)
 {
 	return atoll(str.c_str());
 }
@@ -164,13 +164,13 @@ Device::Device(XML::Element *element_, FileContext *context_)
 	: Config(element_, context_)
 {
 	// TODO: create slotted-eds ???
-	std::list<XML::Element*>::iterator i;
+	list<XML::Element*>::iterator i;
 	for (i = element->children.begin(); i != element->children.end(); i++) {
 		if ((*i)->name == "slotted") {
 			int PS=-2;
 			int SS=-1;
 			int Page=-1;
-			std::list<XML::Element*>::iterator j;
+			list<XML::Element*>::iterator j;
 			for (j = (*i)->children.begin(); j != (*i)->children.end(); j++) {
 				if ((*j)->name == "ps") 
 					PS = Config::Parameter::stringToInt((*j)->pcdata);
@@ -224,15 +224,15 @@ MSXConfig::MSXConfig()
 
 MSXConfig::~MSXConfig()
 {
-	std::list<XML::Document*>::iterator doc;
+	list<XML::Document*>::iterator doc;
 	for (doc = docs.begin(); doc != docs.end(); doc++) {
 		delete (*doc);
 	}
-	std::list<Config*>::iterator i;
+	list<Config*>::iterator i;
 	for (i = configs.begin(); i != configs.end(); i++) {
 		delete (*i);
 	}
-	std::list<Device*>::iterator j;
+	list<Device*>::iterator j;
 	for (j = devices.begin(); j != devices.end(); j++) {
 		delete (*j);
 	}
@@ -246,30 +246,30 @@ MSXConfig* MSXConfig::instance()
 }
 
 void MSXConfig::loadHardware(FileContext *context,
-                             const std::string &filename)
+                             const string &filename)
 {
 	File file(context->resolve(filename));
 	delete context;
 	XML::Document *doc = new XML::Document(file.getLocalName());
 
 	// get url
-	std::string url(file.getURL());
+	string url(file.getURL());
 	unsigned pos = url.find_last_of('/');
-	assert (pos != std::string::npos);	// protocol must contain a '/'
+	assert (pos != string::npos);	// protocol must contain a '/'
 	url = url.substr(0, pos);
 	PRT_DEBUG("Hardware config: url "<<url);
 	
 	// TODO read hwDesc from config ???
-	std::string hwDesc;
+	string hwDesc;
 	pos = url.find_last_of('/');
-	if (pos == std::string::npos) {
+	if (pos == string::npos) {
 		hwDesc = "noname";
 	} else {
 		hwDesc = url.substr(pos + 1);
 	}
 
 	// TODO get user name
-	std::string userName;
+	string userName;
 	
 	FileContext *context2 =
 		new ConfigFileContext(url + '/', hwDesc, userName);
@@ -277,7 +277,7 @@ void MSXConfig::loadHardware(FileContext *context,
 }
 
 void MSXConfig::loadSetting(FileContext *context,
-                            const std::string &filename)
+                            const string &filename)
 {
 	File file(context->resolve(filename));
 	delete context;
@@ -287,7 +287,7 @@ void MSXConfig::loadSetting(FileContext *context,
 }
 
 void MSXConfig::loadStream(FileContext *context,
-                           const std::ostringstream &stream)
+                           const ostringstream &stream)
 {
 	XML::Document* doc = new XML::Document(stream);
 	handleDoc(doc, context);
@@ -297,15 +297,15 @@ void MSXConfig::handleDoc(XML::Document* doc, FileContext *context)
 {
 	docs.push_back(doc);
 	// TODO update/append Devices/Configs
-	std::list<XML::Element*>::const_iterator i;
+	list<XML::Element*>::const_iterator i;
 	for (i = doc->root->children.begin(); i != doc->root->children.end(); i++) {
 		if ((*i)->name == "config" || (*i)->name == "device") {
-			std::string id((*i)->getAttribute("id"));
+			string id((*i)->getAttribute("id"));
 			if (id == "") {
 				throw ConfigException("<config> or <device> is missing 'id'");
 			}
 			if (hasConfigWithId(id)) {
-				std::ostringstream s;
+				ostringstream s;
 				s << "<config> or <device> with duplicate 'id':" << id;
 				throw ConfigException(s);
 			}
@@ -318,7 +318,7 @@ void MSXConfig::handleDoc(XML::Document* doc, FileContext *context)
 	}
 }
 
-bool MSXConfig::hasConfigWithId(const std::string &id)
+bool MSXConfig::hasConfigWithId(const string &id)
 {
 	try {
 		getConfigById(id);
@@ -334,42 +334,42 @@ void MSXConfig::saveFile()
 	assert(false);
 }
 
-void MSXConfig::saveFile(const std::string &filename)
+void MSXConfig::saveFile(const string &filename)
 {
 	// TODO
 	assert(false);
 }
 
-Config* MSXConfig::getConfigById(const std::string &id)
+Config* MSXConfig::getConfigById(const string &id)
 {
-	std::list<Config*>::const_iterator i;
+	list<Config*>::const_iterator i;
 	for (i = configs.begin(); i != configs.end(); i++) {
 		if ((*i)->getId()==id) {
 			return (*i);
 		}
 	}
 
-	std::list<Device*>::const_iterator j;
+	list<Device*>::const_iterator j;
 	for (j = devices.begin(); j != devices.end(); j++) {
 		if ((*j)->getId()==id) {
 			return (*j);
 		}
 	}
-	std::ostringstream s;
+	ostringstream s;
 	s << "<config> or <device> with id:" << id << " not found";
 	throw ConfigException(s);
 }
 
-Device* MSXConfig::getDeviceById(const std::string &id)
+Device* MSXConfig::getDeviceById(const string &id)
 {
-	std::list<Device*>::const_iterator i;
+	list<Device*>::const_iterator i;
 	for (i = devices.begin(); i != devices.end(); i++) {
 		if ((*i)->getId()==id) {
 			return (*i);
 		}
 	}
 	// TODO XXX raise exception?
-	std::ostringstream s;
+	ostringstream s;
 	s << "<device> with id:" << id << " not found";
 	throw ConfigException(s);
 }
@@ -388,11 +388,11 @@ Device* MSXConfig::getNextDevice()
 	}
 	return 0;
 }
-void Config::getParametersWithClassClean(std::list<Parameter*>* list)
+void Config::getParametersWithClassClean(list<Parameter*>* lst)
 {
-	std::list<Parameter*>::iterator i;
-	for (i = list->begin(); i != list->end(); i++) {
+	list<Parameter*>::iterator i;
+	for (i = lst->begin(); i != lst->end(); i++) {
 		delete (*i);
 	}
-	delete list;
+	delete lst;
 }

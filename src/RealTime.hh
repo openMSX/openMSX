@@ -4,10 +4,8 @@
 #define __MSXREALTIME_HH__
 
 #include "Schedulable.hh"
-#include "EmuTime.hh"
-#include "Command.hh"
 #include "Settings.hh"
-
+#include "EmuTime.hh"
 
 class RealTime : public Schedulable, private SettingListener
 {

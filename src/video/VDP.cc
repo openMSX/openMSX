@@ -47,7 +47,7 @@ VDP::VDP(Device *config, const EmuTime &time)
 {
 	PRT_DEBUG("Creating a VDP object");
 
-	std::string versionString = deviceConfig->getParameter("version");
+	string versionString = deviceConfig->getParameter("version");
 	if (versionString == "TMS99X8A") version = TMS99X8A;
 	else if (versionString == "TMS9929A") version = TMS9929A;
 	else if (versionString == "V9938") version = V9938;
@@ -98,7 +98,7 @@ VDP::VDP(Device *config, const EmuTime &time)
 		rendererName = config->getType();
 	} catch (MSXException &e) {
 		// no renderer section
-		rendererName = std::string("SDLHi");
+		rendererName = string("SDLHi");
 	}
 
 	// Create renderer.
@@ -218,7 +218,7 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 	*/
 	/*
 	int ticksThisFrame = getTicksThisFrame(time);
-	std::cout << (userData == VSYNC ? "VSYNC" :
+	cout << (userData == VSYNC ? "VSYNC" :
 		     (userData == VSCAN ? "VSCAN" :
 		     (userData == HSCAN ? "HSCAN" : "DISPLAY_START")))
 		<< " at (" << (ticksThisFrame % TICKS_PER_LINE)
@@ -451,7 +451,7 @@ void VDP::frameStart(const EmuTime &time)
 	scheduleDisplayStart(time);
 
 	/*
-	   std::cout << "--> frameStart = " << frameStartTime
+	   cout << "--> frameStart = " << frameStartTime
 		<< ", frameEnd = " << (frameStartTime + getTicksPerFrame())
 		<< ", hscan = " << hScanSyncTime
 		<< ", displayStart = " << displayStart
@@ -567,7 +567,7 @@ byte VDP::readIO(byte port, const EmuTime &time)
 		// Abort any port #1 writes in progress.
 		registerDataStored = false;
 
-		//std::cout << "read S#" << (int)controlRegs[15] << "\n";
+		//cout << "read S#" << (int)controlRegs[15] << "\n";
 
 		// Calculate status register contents.
 		switch (controlRegs[15]) {
@@ -580,7 +580,7 @@ byte VDP::readIO(byte port, const EmuTime &time)
 		case 1: {
 			/*
 			int ticksThisFrame = getTicksThisFrame(time);
-			std::cout << "S#1 read at (" << (ticksThisFrame % TICKS_PER_LINE)
+			cout << "S#1 read at (" << (ticksThisFrame % TICKS_PER_LINE)
 				<< "," << ((ticksThisFrame - displayStart) / TICKS_PER_LINE)
 				<< "), IRQ_H = " << (int)irqHorizontal.getState()
 				<< " IRQ_V = " << (int)irqVertical.getState()
@@ -648,7 +648,7 @@ byte VDP::readIO(byte port, const EmuTime &time)
 
 void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 {
-	//PRT_DEBUG("VDP[" << (int)reg << "] = " << std::hex << (int)val << std::dec);
+	//PRT_DEBUG("VDP[" << (int)reg << "] = " << hex << (int)val << dec);
 
 	if (reg >= 32) {
 		// MXC belongs to CPU interface;
@@ -989,17 +989,17 @@ VDP::VDPRegsCmd::VDPRegsCmd(VDP *vdp)
 	this->vdp = vdp;
 }
 
-void VDP::VDPRegsCmd::execute(const std::vector<std::string> &tokens)
+void VDP::VDPRegsCmd::execute(const vector<string> &tokens)
 {
 	// Print palette in 4x4 table.
-	std::ostringstream out;
+	ostringstream out;
 	for (int row = 0; row < 8; row++) {
 		for (int col = 0; col < 4; col++) {
 			int reg = col * 8 + row;
 			int value = vdp->controlRegs[reg];
-			out << std::dec << std::setw(2) << reg;
+			out << dec << setw(2) << reg;
 			out << " : ";
-			out << std::hex << std::setw(2) << value;
+			out << hex << setw(2) << value;
 			out << "   ";
 		}
 		out << "\n";
@@ -1007,7 +1007,7 @@ void VDP::VDPRegsCmd::execute(const std::vector<std::string> &tokens)
 	print(out.str());
 }
 
-void VDP::VDPRegsCmd::help(const std::vector<std::string> &tokens) const
+void VDP::VDPRegsCmd::help(const vector<string> &tokens) const
 {
 	print("Prints the current state of the VDP registers.");
 }
@@ -1019,15 +1019,15 @@ VDP::PaletteCmd::PaletteCmd(VDP *vdp)
 	this->vdp = vdp;
 }
 
-void VDP::PaletteCmd::execute(const std::vector<std::string> &tokens)
+void VDP::PaletteCmd::execute(const vector<string> &tokens)
 {
 	// Print palette in 4x4 table.
-	std::ostringstream out;
+	ostringstream out;
 	for (int row = 0; row < 4; row++) {
 		for (int col = 0; col < 4; col++) {
 			int i = col * 4 + row;
 			int grb = vdp->getPalette(i);
-			out << std::hex << i << std::dec << ":"
+			out << hex << i << dec << ":"
 				<< ((grb >> 4) & 7) << ((grb >> 8) & 7) << (grb & 7)
 				<< "  ";
 		}
@@ -1036,7 +1036,7 @@ void VDP::PaletteCmd::execute(const std::vector<std::string> &tokens)
 	print(out.str());
 }
 
-void VDP::PaletteCmd::help(const std::vector<std::string> &tokens) const
+void VDP::PaletteCmd::help(const vector<string> &tokens) const
 {
 	print("Prints the current VDP palette (i:rgb).");
 }

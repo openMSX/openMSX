@@ -5,7 +5,9 @@
 
 #include <list>
 #include "RomInfo.hh"
+#include "openmsx.hh"
 
+class EmuTime;
 class Config;
 class MSXRomPatchInterface;
 class File;
@@ -15,7 +17,7 @@ class Rom
 {
 	public:
 		Rom(Device *config, const EmuTime &time);
-		Rom(Device *config, const std::string &filename,
+		Rom(Device *config, const string &filename,
 		    const EmuTime &time);
 		virtual ~Rom();
 
@@ -39,12 +41,12 @@ class Rom
 
 	private:
 		void read(Device *config, 
-		          const std::string &filename, const EmuTime &time);
+		          const string &filename, const EmuTime &time);
 		
 		const byte* rom;
 		unsigned int size;
 		File* file;
-		std::list<MSXRomPatchInterface*> romPatchInterfaces;
+		list<MSXRomPatchInterface*> romPatchInterfaces;
 		RomInfo *info;
 };
 

@@ -94,7 +94,7 @@ void YM2413::makeAdjustTable()
 	AR_ADJUST_TABLE[0] = (1 << EG_BITS);
 	for (int i = 1; i < 128; i++)
 		AR_ADJUST_TABLE[i] = (int)((double)(1 << EG_BITS) - 1 -
-		                           (1 << EG_BITS) * log(i) / log(128));
+		                     (1 << EG_BITS) * ::log(i) / ::log(128));
 }
 
 // Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH)

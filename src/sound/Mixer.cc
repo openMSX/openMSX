@@ -75,7 +75,7 @@ Mixer* Mixer::instance(void)
 }
 
 
-int Mixer::registerSound(const std::string &name, SoundDevice *device,
+int Mixer::registerSound(const string &name, SoundDevice *device,
                          short volume, ChannelMode mode)
 {
 	if (!init) {
@@ -104,14 +104,14 @@ void Mixer::unregisterSound(SoundDevice *device)
 	if (!init) {
 		return;
 	}
-	std::map<SoundDevice*, SoundDeviceInfo>::iterator it=
+	map<SoundDevice*, SoundDeviceInfo>::iterator it=
 		infos.find(device);
 	if (it == infos.end()) {
 		return;
 	}
 	lock();
 	ChannelMode mode = it->second.mode;
-	std::vector<SoundDevice*> &dev = devices[mode];
+	vector<SoundDevice*> &dev = devices[mode];
 	dev.erase(remove(dev.begin(), dev.end(), device), dev.end());
 	buffers.pop_back();
 	delete it->second.volumeSetting;
@@ -170,15 +170,17 @@ void Mixer::updtStrm(int samples)
 	int unmuted = 0;
 	for (int mode = 0; mode < NB_MODES; mode++) {
 		modeOffset[mode] = unmuted;
-		std::vector<SoundDevice*>::iterator i;
-		for (i = devices[mode].begin(); i != devices[mode].end(); i++) {
+		for (vector<SoundDevice*>::const_iterator i =
+		           devices[mode].begin();
+		     i != devices[mode].end();
+		     ++i) {
 			int *buf = (*i)->updateBuffer(samples);
 			if (buf != NULL) {
 				buffers[unmuted++] = buf;
 			}
 		}
 	}
-	for (int j=0; j<samples; j++) {
+	for (int j = 0; j < samples; ++j) {
 		int buf = 0;
 		int both = 0;
 		while (buf < modeOffset[MONO+1]) {

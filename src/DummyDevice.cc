@@ -6,7 +6,8 @@
 
 
 DummyDevice::DummyDevice(Device *config, const EmuTime &time) 
-	: MSXDevice(config, time), MSXIODevice(config, time), MSXMemDevice(config, time)
+	: MSXDevice(config, time), MSXIODevice(config, time),
+	  MSXMemDevice(config, time)
 {
 }
 

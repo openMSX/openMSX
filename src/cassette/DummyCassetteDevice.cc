@@ -1,7 +1,6 @@
 // $Id$
 
 #include "DummyCassetteDevice.hh"
-#include "EmuTime.hh"
 
 
 DummyCassetteDevice::DummyCassetteDevice()

@@ -41,7 +41,7 @@ class Mixer : private SettingListener
 		 * The maximum number of samples asked for is returned by this
 		 * method.
 		 */
-		int registerSound(const std::string &name, SoundDevice *device,
+		int registerSound(const string &name, SoundDevice *device,
 		                  short volume, ChannelMode mode);
 
 		/**
@@ -89,11 +89,11 @@ class Mixer : private SettingListener
 			VolumeSetting* volumeSetting;
 			ChannelMode mode;
 		};
-		std::map<SoundDevice*, SoundDeviceInfo> infos;
+		map<SoundDevice*, SoundDeviceInfo> infos;
 
 		SDL_AudioSpec audioSpec;
-		std::vector<SoundDevice*> devices[NB_MODES];
-		std::vector<int*> buffers;
+		vector<SoundDevice*> devices[NB_MODES];
+		vector<int*> buffers;
 		
 		short* mixBuffer;
 		int samplesLeft;

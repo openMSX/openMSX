@@ -3,6 +3,8 @@
 #ifndef __OPENMSX_HH__
 #define __OPENMSX_HH__
 
+using namespace std;
+
 /** 4 bit integer */
 typedef unsigned char nibble;
 

@@ -158,7 +158,9 @@ void RP5C01::updateTimeRegs(const EmuTime &time)
 {
 	if (emuTimeBased) {
 		// sync with EmuTime, perfect emulation
-		uint64 elapsed = (modeReg & MODE_TIMERENABLE) ? (reference.getTicksTill(time)) : 0;
+		uint64 elapsed = (modeReg & MODE_TIMERENABLE) ?
+		                 (reference.getTicksTill(time)) :
+		                 0;
 		reference = time;
 
 		// in test mode increase sec/min/.. at a rate of 16384Hz

@@ -18,8 +18,9 @@ class Scheduler
 	class SynchronizationPoint
 	{
 		public:
-			SynchronizationPoint (const EmuTime &time, Schedulable *dev, int usrdat) :
-				timeStamp(time), device(dev) , userData(usrdat) {}
+			SynchronizationPoint(const EmuTime &time,
+			                     Schedulable *dev, int usrdat)
+				: timeStamp(time), device(dev), userData(usrdat) {}
 			const EmuTime &getTime() const { return timeStamp; }
 			Schedulable *getDevice() const { return device; }
 			int getUserData() const { return userData; }
@@ -32,15 +33,7 @@ class Scheduler
 	};
 
 	public:
-		/**
-		 * Destructor
-		 */
 		virtual ~Scheduler();
-
-		/**
-		 * This is a singleton class,
-		 *  usage: Scheduler::instance()->method();
-		 */
 		static Scheduler *instance();
 
 		/**
@@ -59,7 +52,8 @@ class Scheduler
 		 * if you want to distinguish between several syncPoint types.
 		 * If you do not supply "userData" it is assumed to be zero.
 		 */
-		void setSyncPoint(const EmuTime &timestamp, Schedulable* device, int userData = 0);
+		void setSyncPoint(const EmuTime &timestamp, Schedulable* device,
+		                  int userData = 0);
 
 		/**
 		 * Removes a syncPoint of a given device that matches the given

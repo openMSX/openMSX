@@ -135,7 +135,7 @@ class DummyDrive : public DiskDrive
 class RealDrive : public DiskDrive, public Command
 {
 	public:
-		RealDrive(const std::string &drivename, const EmuTime &time);
+		RealDrive(const string &drivename, const EmuTime &time);
 		virtual ~RealDrive();
 
 		// DiskDrive interface
@@ -165,14 +165,14 @@ class RealDrive : public DiskDrive, public Command
 
 	private:
 		// Command interface
-		virtual void execute(const std::vector<std::string> &tokens);
-		virtual void help   (const std::vector<std::string> &tokens) const;
-		virtual void tabCompletion(std::vector<std::string> &tokens) const;
+		virtual void execute(const vector<string> &tokens);
+		virtual void help   (const vector<string> &tokens) const;
+		virtual void tabCompletion(vector<string> &tokens) const;
 		void insertDisk(FileContext *context,
-		                const std::string &disk);
+		                const string &disk);
 		void ejectDisk();
 
-		std::string name;
+		string name;
 };
 
 
@@ -182,7 +182,7 @@ class RealDrive : public DiskDrive, public Command
 class SingleSidedDrive : public RealDrive
 {
 	public:
-		SingleSidedDrive(const std::string &drivename,
+		SingleSidedDrive(const string &drivename,
 		                 const EmuTime &time);
 		virtual ~SingleSidedDrive();
 		virtual bool doubleSided();
@@ -206,7 +206,7 @@ class SingleSidedDrive : public RealDrive
 class DoubleSidedDrive : public RealDrive
 {
 	public:
-		DoubleSidedDrive(const std::string &drivename,
+		DoubleSidedDrive(const string &drivename,
 		                 const EmuTime &time);
 		virtual ~DoubleSidedDrive();
 		virtual bool doubleSided();

@@ -15,7 +15,7 @@ class Mouse : public JoystickDevice, EventListener
 		virtual ~Mouse();
 
 		//Pluggable
-		virtual const std::string &getName() const;
+		virtual const string &getName() const;
 		virtual void plug(Connector* connector, const EmuTime& time);
 		virtual void unplug(const EmuTime& time);
 

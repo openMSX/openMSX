@@ -4,7 +4,6 @@
 #define __VDPCMDENGINE_HH__
 
 #include "openmsx.hh"
-#include "EmuTime.hh"
 #include "VDP.hh"
 #include "DisplayMode.hh"
 

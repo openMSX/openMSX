@@ -14,7 +14,7 @@
 class DACSound16S : public SoundDevice
 {
 	public:
-		DACSound16S(const std::string &name, short maxVolume,
+		DACSound16S(const string &name, short maxVolume,
 		            const EmuTime &time); 
 		virtual ~DACSound16S();
 	
@@ -35,7 +35,7 @@ class DACSound16S : public SoundDevice
 			int value;
 			EmuTime time;
 		};
-		std::list<Sample> samples;
+		list<Sample> samples;
 
 		float oneSampDur;
 		int lastValue;

@@ -50,7 +50,7 @@ VDPVRAM::VDPVRAM(VDP *vdp, int size)
 	// Whole VRAM is cachable.
 	// Because this window has no observer, any EmuTime can be passed.
 	// TODO: Move this to cache registration.
-	bitmapCacheWindow.setMask(0x1FFFF, -1 << 17, EmuTime());
+	bitmapCacheWindow.setMask(0x1FFFF, -1 << 17, EmuTime::zero);
 
 	#ifdef DEBUG
 	CommandController::instance()->registerCommand(&dumpVRAMCmd, "vramdump");

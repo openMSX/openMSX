@@ -402,8 +402,8 @@ private:
 	class VDPRegsCmd : public Command {
 	public:
 		VDPRegsCmd(VDP *vdp);
-		virtual void execute(const std::vector<std::string> &tokens);
-		virtual void help(const std::vector<std::string> &tokens) const;
+		virtual void execute(const vector<string> &tokens);
+		virtual void help(const vector<string> &tokens) const;
 	private:
 		VDP *vdp;
 	};
@@ -412,8 +412,8 @@ private:
 	class PaletteCmd : public Command {
 	public:
 		PaletteCmd(VDP *vdp);
-		virtual void execute(const std::vector<std::string> &tokens);
-		virtual void help(const std::vector<std::string> &tokens) const;
+		virtual void execute(const vector<string> &tokens);
+		virtual void help(const vector<string> &tokens) const;
 	private:
 		VDP *vdp;
 	};
@@ -556,7 +556,7 @@ private:
 	  * TODO: Retrieve this from the Renderer object?
 	  *       Possible, but avoid duplication of name->class mapping.
 	  */
-	std::string rendererName;
+	string rendererName;
 
 	/** Command engine: the part of the V9938/58 that executes commands.
 	  */

@@ -42,8 +42,7 @@ MSXDeviceSwitch::~MSXDeviceSwitch()
 
 MSXDeviceSwitch* MSXDeviceSwitch::instance()
 {
-	static MSXDeviceSwitch oneInstance(NULL, EmuTime());
-	
+	static MSXDeviceSwitch oneInstance(NULL, EmuTime::zero);
 	return &oneInstance;
 }
 

@@ -857,8 +857,8 @@ void YM2413_2::init_tables()
 
 		// we never reach zero here due to ((i*2)+1)
 		double o = (m > 0.0) ?
-		           (8 * log( 1.0 / m) / log(2)) :	// convert to 'decibels'
-		           (8 * log(-1.0 / m) / log(2));	// convert to 'decibels'
+		           (8 * ::log( 1.0 / m) / ::log(2)) :	// convert to 'decibels'
+		           (8 * ::log(-1.0 / m) / ::log(2));	// convert to 'decibels'
 		o = o / (ENV_STEP / 4);
 
 		int n = (int)(2.0 * o);

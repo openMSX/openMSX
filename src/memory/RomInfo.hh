@@ -5,27 +5,28 @@
 
 #include "RomTypes.hh"
 #include <string>
-#include "EmuTime.hh"
 
 class Rom;
 class Device;
 
+using namespace std;
+
 class RomInfo
 {
 	public:
-		RomInfo(const std::string &nid, const std::string &nyear,
-		        const std::string &ncompany, const std::string &nremark,
+		RomInfo(const string &nid, const string &nyear,
+		        const string &ncompany, const string &nremark,
 		        const MapperType &nmapperType);
 		
-		const std::string &getTitle()     const { return title; }
-		const std::string &getYear()      const { return year; }
-		const std::string &getCompany()   const { return company; }
-		const std::string &getRemark()    const { return remark; }
+		const string &getTitle()          const { return title; }
+		const string &getYear()           const { return year; }
+		const string &getCompany()        const { return company; }
+		const string &getRemark()         const { return remark; }
 		const MapperType &getMapperType() const { return mapperType; }
 
 		static RomInfo *fetchRomInfo(
 		        const Rom *rom, const Device &deviceConfig);
-		static MapperType nameToMapperType(const std::string &name);
+		static MapperType nameToMapperType(const string &name);
 		void print();
 
 	private:
@@ -37,12 +38,11 @@ class RomInfo
 		static RomInfo *searchRomDB(const Rom *rom);
 		static MapperType guessMapperType(const Rom *rom);
 		
-		std::string title;
-		std::string year;
-		std::string company;
-		std::string remark;
+		string title;
+		string year;
+		string company;
+		string remark;
 		MapperType mapperType;
 };
-
 
 #endif

@@ -73,7 +73,7 @@
 #include "Mixer.hh"
 
 
-SCC::SCC(const std::string &name, short volume, const EmuTime &time,
+SCC::SCC(const string &name, short volume, const EmuTime &time,
          ChipMode mode)
 	: currentChipMode(mode)
 {

@@ -9,7 +9,7 @@
 const float DELAY = 0.08;	// TODO tune
 
 
-DACSound16S::DACSound16S(const std::string &name, short volume,
+DACSound16S::DACSound16S(const string &name, short volume,
                          const EmuTime &time)
 {
 	cpu = MSXCPU::instance();

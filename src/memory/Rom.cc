@@ -15,7 +15,7 @@
 Rom::Rom(Device* config, const EmuTime &time)
 {
 	if (config->hasParameter("filename")) {
-		std::string filename = config->getParameter("filename");
+		string filename = config->getParameter("filename");
 		read(config, filename, time);
 	} else if (config->hasParameter("firstblock")) {
 		int first = config->getParameterAsInt("firstblock");
@@ -32,7 +32,7 @@ Rom::Rom(Device* config, const EmuTime &time)
 	info = RomInfo::fetchRomInfo(this, *config);
 }
 
-Rom::Rom(Device* config, const std::string &filename,
+Rom::Rom(Device* config, const string &filename,
                            const EmuTime &time)
 {
 	read(config, filename, time);	// TODO config
@@ -40,15 +40,15 @@ Rom::Rom(Device* config, const std::string &filename,
 }
 
 void Rom::read(Device* config,
-                        const std::string &filename, const EmuTime &time)
+               const string &filename, const EmuTime &time)
 {
 	// open file
 	file = new File(config->getContext()->resolve(filename));
 	
 	// get filesize
 	int fileSize;
-	if (config && config->hasParameter("filesize")
-	&& config->getParameter("filesize") != "auto") {
+	if (config && config->hasParameter("filesize") &&
+	    config->getParameter("filesize") != "auto") {
 		fileSize = config->getParameterAsInt("filesize");
 	} else {
 		fileSize = file->getSize();
@@ -80,10 +80,11 @@ void Rom::read(Device* config,
 	}
 	// for each patchcode parameter, construct apropriate patch
 	// object and register it at MSXCPUInterface
-	std::list<Config::Parameter*>* parameters =
+	list<Config::Parameter*>* parameters =
 		config->getParametersWithClass("patchcode");
-	std::list<Config::Parameter*>::const_iterator it;
-	for (it=parameters->begin(); it!=parameters->end(); it++) {
+	for (list<Config::Parameter*>::const_iterator it = parameters->begin();
+	     it != parameters->end();
+	     ++it) {
 		MSXRomPatchInterface* patchInterface;
 		if ((*it)->value == "MSXDiskRomPatch") {
 			patchInterface = new MSXDiskRomPatch(time);
@@ -98,10 +99,11 @@ void Rom::read(Device* config,
 	config->getParametersWithClassClean(parameters);
 	
 	// also patch the file if needed:
-	std::list<Config::Parameter*>* parameters2 =
+	list<Config::Parameter*>* parameters2 =
 		config->getParametersWithClass("patch");
-	std::list<Config::Parameter*>::const_iterator i;
-	for (i=parameters2->begin(); i!=parameters2->end(); i++) {
+	for (list<Config::Parameter*>::const_iterator i = parameters2->begin();
+	     i != parameters2->end();
+	     ++i) {
 		unsigned int romOffset = strtol((*i)->name.c_str(), 0, 0);
 		int value  = (*i)->getAsInt();
 		if (romOffset >= size) {
@@ -114,17 +116,18 @@ void Rom::read(Device* config,
 	config->getParametersWithClassClean(parameters2);
 }
 
-
 Rom::~Rom()
 {
-	std::list<MSXRomPatchInterface*>::iterator i;
-	for (i=romPatchInterfaces.begin(); i!=romPatchInterfaces.end(); i++) {
-		MSXCPUInterface::instance()->unregisterInterface(*i);
-		delete (*i);
+	for (list<MSXRomPatchInterface*>::const_iterator it =
+	           romPatchInterfaces.begin();
+	     it != romPatchInterfaces.end();
+	     ++it) {
+		MSXCPUInterface::instance()->unregisterInterface(*it);
+		delete (*it);
 	}
 	if (file) {
 		file->munmap();
 		delete file;
 	}
-	if (info) delete info;
+	delete info;
 }

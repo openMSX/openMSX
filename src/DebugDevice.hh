@@ -3,36 +3,41 @@
 #ifndef __DEBUG_DEVICE_
 #define __DEBUG_DEVICE_
 
-#include "Settings.hh"
-#include "openmsx.hh"
 #include "MSXIODevice.hh"
-#include "EmuTime.hh"
 #include <vector>
 #include <fstream>
+
+class EmuTime;
+class FilenameSetting;
+
+using namespace std;
 
 class DebugDevice : public MSXIODevice
 {
 	public:
-		DebugDevice(Device *config, const EmuTime & time);
+		DebugDevice(Device *config, const EmuTime& time);
 		~DebugDevice();
-		enum DebugMode {OFF, SINGLEBYTE, MULTIBYTE, ASCII};
+		
+		void writeIO(byte port, byte value, const EmuTime& time);
+		void openOutput(const string& name);
+		void closeOutput(const string& name);
+		
 		enum DisplayType {HEX, BIN, DEC, ASC};
-		void writeIO(byte port, byte value, const EmuTime & time);
-		void openOutput (std::string name);
-		void closeOutput (std::string name);
+		enum DebugMode {OFF, SINGLEBYTE, MULTIBYTE, ASCII};
 
 	private:
+		void outputSingleByte(byte value, const EmuTime& time);
+		void outputMultiByte(byte value);
+		void displayByte(byte value, enum DebugDevice::DisplayType);
+		void flush();
+		
 		enum DebugMode mode;
-		std::ostream * outputstrm;
 		byte modeParameter;
-		FilenameSetting * fileNameSetting;
-		std::ofstream debugOut;
-		std::string fileNameString;
-		std::vector <byte> buffer;
-		void outputSingleByte(byte value, const EmuTime & time);
-		void outputMultiByte (byte value);
-		void displayByte (byte value, enum DebugDevice::DisplayType);
-		void flush ();
+		FilenameSetting* fileNameSetting;
+		ostream* outputstrm;
+		ofstream debugOut;
+		string fileNameString;
+		vector<byte> buffer;
 };
 
 #endif

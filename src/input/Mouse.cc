@@ -39,9 +39,9 @@ Mouse::~Mouse()
 
 
 //Pluggable
-const std::string &Mouse::getName() const
+const string &Mouse::getName() const
 {
-	static const std::string name("mouse");
+	static const string name("mouse");
 	return name;
 }
 

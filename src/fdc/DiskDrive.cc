@@ -117,7 +117,7 @@ void DummyDrive::writeTrackData(byte data)
 
 /// class RealDrive ///
 
-RealDrive::RealDrive(const std::string &driveName, const EmuTime &time)
+RealDrive::RealDrive(const string &driveName, const EmuTime &time)
 {
 	headPos = 0;
 	motorStatus = false;
@@ -131,7 +131,7 @@ RealDrive::RealDrive(const std::string &driveName, const EmuTime &time)
 	MSXConfig *conf = MSXConfig::instance();
 	if (conf->hasConfigWithId(driveName)) {
 		Config *config = conf->getConfigById(driveName);
-		const std::string &filename = config->getParameter("filename");
+		const string &filename = config->getParameter("filename");
 		try {
 			insertDisk(config->getContext(), filename);
 		} catch (MSXException &e) {
@@ -227,7 +227,7 @@ bool RealDrive::headLoaded(const EmuTime &time)
 }
 
 void RealDrive::insertDisk(FileContext *context,
-                           const std::string &diskImage)
+                           const string &diskImage)
 {
 	FDCBackEnd* tmp;
 	try {
@@ -247,7 +247,7 @@ void RealDrive::ejectDisk()
 	disk = new FDCDummyBackEnd();
 }
 
-void RealDrive::execute(const std::vector<std::string> &tokens)
+void RealDrive::execute(const vector<string> &tokens)
 {
 	if (tokens.size() != 2)
 		throw CommandException("Syntax error");
@@ -263,13 +263,13 @@ void RealDrive::execute(const std::vector<std::string> &tokens)
 	}
 }
 
-void RealDrive::help(const std::vector<std::string> &tokens) const
+void RealDrive::help(const vector<string> &tokens) const
 {
 	print(name + " eject      : remove disk from virtual drive");
 	print(name + " <filename> : change the disk file");
 }
 
-void RealDrive::tabCompletion(std::vector<std::string> &tokens) const
+void RealDrive::tabCompletion(vector<string> &tokens) const
 {
 	if (tokens.size() == 2)
 		CommandController::completeFileName(tokens);
@@ -278,7 +278,7 @@ void RealDrive::tabCompletion(std::vector<std::string> &tokens) const
 
 /// class SingleSidedDrive ///
 
-SingleSidedDrive::SingleSidedDrive(const std::string &drivename,
+SingleSidedDrive::SingleSidedDrive(const string &drivename,
                                    const EmuTime &time)
 	: RealDrive(drivename, time)
 {
@@ -343,7 +343,7 @@ void SingleSidedDrive::writeTrackData(byte data)
 
 /// class DoubleSidedDrive ///
 
-DoubleSidedDrive::DoubleSidedDrive(const std::string &drivename,
+DoubleSidedDrive::DoubleSidedDrive(const string &drivename,
                                    const EmuTime &time)
 	: RealDrive(drivename, time)
 {

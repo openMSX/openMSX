@@ -14,7 +14,7 @@ class SCC : public SoundDevice
 	public:
 		enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};
 		
-		SCC(const std::string &name, short volume, const EmuTime &time,
+		SCC(const string &name, short volume, const EmuTime &time,
 		    ChipMode mode = SCC_Real);
 		virtual ~SCC();
 
