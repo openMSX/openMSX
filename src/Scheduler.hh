@@ -77,8 +77,8 @@ public:
 	 */
 	inline const EmuTime& getNext() const
 	{
-		// TODO faster to cache in member (or static) variable?
-		return syncPoints.front().getTime();
+		const EmuTime& time = syncPoints.front().getTime();
+		return time == ASAP ? scheduleTime : time;
 	}
 	
 	/**
@@ -91,7 +91,11 @@ public:
 	 */
 	inline void schedule(const EmuTime& limit)
 	{
-		if (limit >= getNext()) {
+		// TODO: Faster to cache in member (or static) variable?
+		// TODO: Assumes syncPoints is not empty.
+		//       In practice that's true because VDP end-of-frame sync point
+		//       is always there, but it's ugly to rely on that.
+		if (limit >= syncPoints.front().getTime()) {
 			scheduleHelper(limit); // slow path not inlined
 		}
 	}
