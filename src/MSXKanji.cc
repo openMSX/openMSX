@@ -56,8 +56,12 @@ byte MSXKanji::readIO(byte port, const EmuTime &time)
 		adr1 = (adr1 & ~0x1f) | ((adr1 + 1) & 0x1f);
 		break;
 	case 3:
-		result = rom.read(adr2);
-		adr2 = (adr2 & ~0x1f) | ((adr2 + 1) & 0x1f);
+		if (rom.getSize() == 0x40000) { // temp workaround
+			result = rom.read(adr2);
+			adr2 = (adr2 & ~0x1f) | ((adr2 + 1) & 0x1f);
+		} else {
+			result = 0xFF;
+		}
 		break;
 	default:
 		// This port should not have been registered.
