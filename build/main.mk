@@ -88,8 +88,16 @@ LINK_FLAGS:=
 # experience with cross-compilation, a more sophisticated system can be
 # designed.
 
+ifeq ($(origin OPENMSX_TARGET_CPU),environment)
+ifeq ($(origin OPENMSX_TARGET_OS),environment)
 # Do not perform autodetection if platform was specified by the user.
-ifneq ($(origin OPENMSX_PLATFORM),environment)
+else # OPENMSX_TARGET_OS not from environment
+$(error You have specified OPENMSX_TARGET_CPU but not OPENMSX_TARGET_OS)
+endif # OPENMSX_TARGET_OS
+else # OPENMSX_TARGET_CPU not from environment
+ifeq ($(origin OPENMSX_TARGET_OS),environment)
+$(error You have specified OPENMSX_TARGET_OS but not OPENMSX_TARGET_CPU)
+else # OPENMSX_TARGET_OS not from environment
 
 DETECTSYS_PATH:=$(BUILD_BASE)/detectsys
 DETECTSYS_MAKE:=$(DETECTSYS_PATH)/detectsys.mk
@@ -102,26 +110,35 @@ $(DETECTSYS_MAKE): $(DETECTSYS_SCRIPT)
 	@mkdir -p $(@D)
 	@sh $< > $@
 
-endif # OPENMSX_PLATFORM
+endif # OPENMSX_TARGET_OS
+endif # OPENMSX_TARGET_CPU
 
-# TODO: Hack to create OPENMSX_PLATFORM from detectsys.mk.
+PLATFORM:=
 ifneq ($(origin OPENMSX_TARGET_OS),undefined)
-OPENMSX_PLATFORM:=$(OPENMSX_TARGET_CPU)-$(OPENMSX_TARGET_OS)
+ifneq ($(origin OPENMSX_TARGET_CPU),undefined)
+PLATFORM:=$(OPENMSX_TARGET_CPU)-$(OPENMSX_TARGET_OS)
+endif
 endif
 
 # Ignore rest of Makefile if autodetection was not performed yet.
 # Note that the include above will force a reload of the Makefile.
-ifneq ($(origin OPENMSX_PLATFORM),undefined)
+ifneq (PLATFORM,)
 
-# Load platform specific settings.
-$(call DEFCHECK,OPENMSX_PLATFORM)
-include $(MAKE_PATH)/platform-$(OPENMSX_PLATFORM).mk
-
-# Check that all expected variables were defined by platform specific Makefile:
-# - executable file name extension
-$(call DEFCHECK,EXEEXT)
+# Load CPU specific settings.
+$(call DEFCHECK,OPENMSX_TARGET_CPU)
+include $(MAKE_PATH)/cpu-$(OPENMSX_TARGET_CPU).mk
+# Check that all expected variables were defined by OS specific Makefile:
+# - endianess
+$(call BOOLCHECK,BIG_ENDIAN)
 # - flavour (user selectable; platform specific default)
 $(call DEFCHECK,OPENMSX_FLAVOUR)
+
+# Load OS specific settings.
+$(call DEFCHECK,OPENMSX_TARGET_OS)
+include $(MAKE_PATH)/platform-$(OPENMSX_TARGET_OS).mk
+# Check that all expected variables were defined by OS specific Makefile:
+# - executable file name extension
+$(call DEFCHECK,EXEEXT)
 # - platform supports symlinks?
 $(call BOOLCHECK,USE_SYMLINK)
 
@@ -146,7 +163,7 @@ endif
 # Paths
 # =====
 
-BUILD_PATH:=$(BUILD_BASE)/$(OPENMSX_PLATFORM)-$(OPENMSX_FLAVOUR)
+BUILD_PATH:=$(BUILD_BASE)/$(PLATFORM)-$(OPENMSX_FLAVOUR)
 ifeq ($(OPENMSX_PROFILE),true)
   BUILD_PATH:=$(BUILD_PATH)-profile
 endif
@@ -345,7 +362,7 @@ endif
 # TODO: It would be cleaner to include probe.mk and probe-results.mk,
 #       instead of executing them in a sub-make.
 $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/tcl-search.sh
-	@OUTDIR=$(@D) OPENMSX_PLATFORM=$(OPENMSX_PLATFORM) COMPILE="$(CXX)" \
+	@OUTDIR=$(@D) OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) COMPILE="$(CXX)" \
 		$(MAKE) --no-print-directory -f $<
 	@PROBE_MAKE=$(PROBE_MAKE) MAKE_PATH=$(MAKE_PATH) \
 		$(MAKE) --no-print-directory -f $(MAKE_PATH)/probe-results.mk
@@ -356,7 +373,7 @@ all: $(VERSION_HEADER) $(CONFIG_HEADER) $(COMPONENTS_HEADER) \
 # Print configuration.
 config:
 	@echo "Build configuration:"
-	@echo "  Platform: $(OPENMSX_PLATFORM)"
+	@echo "  Platform: $(PLATFORM)"
 	@echo "  Flavour:  $(OPENMSX_FLAVOUR)"
 	@echo "  Profile:  $(OPENMSX_PROFILE)"
 	@echo "  Subset:   $(if $(OPENMSX_SUBSET),$(OPENMSX_SUBSET)*,full build)"
@@ -522,4 +539,4 @@ else # USE_PRECOMPH == false
 PRECOMPH_FLAGS:=
 endif
 
-endif # OPENMSX_PLATFORM
+endif # PLATFORM

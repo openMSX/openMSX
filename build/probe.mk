@@ -14,9 +14,9 @@ endif
 ifeq ($(COMPILE),)
 $(error Missing parameter: COMPILE)
 endif
-# - platform we're building for
-ifeq ($(OPENMSX_PLATFORM),)
-$(error Missing parameter: OPENMSX_PLATFORM)
+# - OS we're building for
+ifeq ($(OPENMSX_TARGET_OS),)
+$(error Missing parameter: OPENMSX_TARGET_OS)
 endif
 
 # Result files.
@@ -120,11 +120,11 @@ XYZ_LDFLAGS:=-lxyz
 XYZ_RESULT:=impossible
 
 
-# Platform Specific
-# =================
+# OS Specific
+# ===========
 
-# Allow the platform specific Makefile to override if necessary.
-include build/platform-$(OPENMSX_PLATFORM).mk
+# Allow the OS specific Makefile to override if necessary.
+include build/platform-$(OPENMSX_TARGET_OS).mk
 
 
 # Implementation

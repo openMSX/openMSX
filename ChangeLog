@@ -1,5 +1,8 @@
 $Id$
 
+2004-07-10 Maarten ter Huurne <maarten@treewalker.org>
+	* Separated CPU and OS in build system.
+
 2004-07-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed exception-safety problem in CassettePort constructor
 

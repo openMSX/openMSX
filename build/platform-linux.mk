@@ -5,9 +5,6 @@
 # Does platform support symlinks?
 USE_SYMLINK:=true
 
-# Default build flavour.
-OPENMSX_FLAVOUR?=i686
-
 # Default compiler.
 OPENMSX_CXX?=g++
 

@@ -5,9 +5,6 @@
 # - file dates used for dependency checks (as opposed to "-D" compile flag)
 # - inactive code is still checked by compiler (as opposed to "#if")
 
-BIG_ENDIAN_CPUS:=ppc
-BIG_ENDIAN:=$(if $(filter $(OPENMSX_TARGET_CPU),$(BIG_ENDIAN_CPUS)),true,false)
-
 $(CONFIG_HEADER): $(MAKE_PATH)/info2code.mk $(MAKE_PATH)/custom.mk
 	@echo "Creating $@..."
 	@mkdir -p $(@D)
