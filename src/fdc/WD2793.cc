@@ -374,7 +374,13 @@ void WD2793::executeUntil(const EmuTime& time, int /*userData*/)
 		case FSM_TYPE2_WAIT_LOAD:
 			if ((commandReg & 0xC0) == 0x80)  {
 				// Type II command
-				type2WaitLoad();
+				type2WaitLoad(time);
+			}
+			break;
+		case FSM_TYPE2_LOADED:
+			if ((commandReg & 0xC0) == 0x80)  {
+				// Type II command
+				type2Loaded();
 			}
 			break;
 		case FSM_TYPE3_WAIT_LOAD:
@@ -382,6 +388,13 @@ void WD2793::executeUntil(const EmuTime& time, int /*userData*/)
 			    ((commandReg & 0xF0) != 0xD0)) { 
 				// Type III command
 				type3WaitLoad(time);
+			}
+			break;
+		case FSM_TYPE3_LOADED:
+			if (((commandReg & 0xC0) == 0xC0) &&
+			    ((commandReg & 0xF0) != 0xD0)) { 
+				// Type III command
+				type3Loaded(time);
 			}
 			break;
 		default:
@@ -508,7 +521,7 @@ void WD2793::startType2Cmd(const EmuTime& time)
 				next += 30;	// when 1MHz clock
 				schedule(FSM_TYPE2_WAIT_LOAD, next.getTime());
 			} else {
-				type2WaitLoad();
+				type2WaitLoad(time);
 			}
  		}
 	} catch (DriveEmptyException &e) {
@@ -516,10 +529,16 @@ void WD2793::startType2Cmd(const EmuTime& time)
 	}
 }
 
-void WD2793::type2WaitLoad()
+void WD2793::type2WaitLoad(const EmuTime& time)
 {
-	// TODO wait till head loaded
+	// TODO wait till head loaded, I arbitrarily took 1ms delay
+	Clock<1000> next(time);
+	next += 1;
+	schedule(FSM_TYPE2_LOADED, next.getTime());
+}
 
+void WD2793::type2Loaded()
+{
 	if (((commandReg & 0xE0) == 0xA0) && (drive->writeProtected())) {
 		// write command and write protected
 		PRT_DEBUG("WD2793: write protected");
@@ -571,7 +590,14 @@ void WD2793::startType3Cmd(const EmuTime& time)
 
 void WD2793::type3WaitLoad(const EmuTime& time)
 {
-	// TODO wait till head loaded
+	// TODO wait till head loaded, I arbitrarily took 1ms delay
+	Clock<1000> next(time);
+	next += 1;
+	schedule(FSM_TYPE3_LOADED, next.getTime());
+}
+
+void WD2793::type3Loaded(const EmuTime& time)
+{
 
 	// TODO TG43 update
 
@@ -591,15 +617,13 @@ void WD2793::type3WaitLoad(const EmuTime& time)
 
 void WD2793::readAddressCmd()
 {
-	PRT_DEBUG("WD2793 command: read address");
-	assert(false);	// not yet implemented
+	PRT_DEBUG("WD2793 command: read address  NOT YET IMPLEMENTED");
 	endCmd();
 }
 
 void WD2793::readTrackCmd()
 {
 	PRT_DEBUG("WD2793 command: read track   NOT YET IMPLEMENTED");
-	// just continue iso assert(false)  'fixes' TNT
 	endCmd();
 }
 

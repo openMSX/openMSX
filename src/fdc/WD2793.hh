@@ -60,7 +60,9 @@ private:
 		FSM_NONE,
 		FSM_SEEK,
 		FSM_TYPE2_WAIT_LOAD,
+		FSM_TYPE2_LOADED,
 		FSM_TYPE3_WAIT_LOAD,
+		FSM_TYPE3_LOADED,
 	} fsmState;
 	virtual void executeUntil(const EmuTime& time, int state);
 	virtual const string& schedName() const;
@@ -73,10 +75,12 @@ private:
 	void endType1Cmd();
 	
 	void startType2Cmd(const EmuTime& time);
-	void type2WaitLoad();
+	void type2WaitLoad(const EmuTime& time);
+	void type2Loaded();
 	
 	void startType3Cmd(const EmuTime& time);
 	void type3WaitLoad(const EmuTime& time);
+	void type3Loaded(const EmuTime& time);
 	void readAddressCmd();
 	void readTrackCmd();
 	void writeTrackCmd(const EmuTime& time);

@@ -5,6 +5,9 @@ $Id$
 	   some programs (e.g. Match Maniac) wronly program portA as output,
 	   but on most(?) MSX machines this works normally (e.g NMS8250)
 	* Fixed initial value of mode settings
+	* correctly give "write protected" err msg on read only disk:
+	   without the head loaded delay our WD2793 detected too fast that the
+	   disk was write protected (too fast for the disk rom software)
 
 2004-10-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Improved disk geometry detection heuristics
