@@ -1,5 +1,8 @@
 $Id$
 
+2004-10-09 Maarten ter Huurne <maarten@treewalker.org>
+	* test release openmsx-0.5.0-test2 (Bussum 2004)
+
 2004-10-08 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed crash if openMSX exits without starting emulation.
 	* Ignore old-format settings.xml at startup instead of aborting.
