@@ -54,6 +54,9 @@ class UserFileContext : public FileContext
 
 	protected:
 		virtual const std::list<std::string> &getPaths();
+	
+	private:
+		bool alreadyInit;
 };
 
 #endif

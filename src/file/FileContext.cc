@@ -115,6 +115,7 @@ const std::list<std::string> &SystemFileContext::getPaths()
 // class UserFileContext
 
 UserFileContext::UserFileContext()
+	: alreadyInit(false)
 {
 }
 
@@ -126,36 +127,27 @@ UserFileContext::UserFileContext(const std::string &savePath_)
 
 const std::list<std::string> &UserFileContext::getPaths()
 {
-	static bool alreadyInit = false;
-	static bool hasUserContext; // debug
-
 	if (!alreadyInit) {
+		alreadyInit = true;
 		try {
 			Config *config = MSXConfig::instance()->
 				getConfigById("UserDirectories");
 			std::list<Device::Parameter*>* pathList;
 			pathList = config->getParametersWithClass("");
 			std::list<Device::Parameter*>::const_iterator it;
-			for (it = pathList->begin(); it != pathList->end(); it++) {
+			for (it = pathList->begin();
+			     it != pathList->end();
+			     it++) {
 				std::string path = (*it)->value;
 				if (path[path.length() - 1] != '/') {
 					path += '/';
 				}
 				paths.push_back(path);
 			}
-			hasUserContext = true;
 		} catch (MSXException &e) {
 			// no UserDirectories specified
-			hasUserContext = false;
 		}
 		paths.push_back("");
-	} else {
-		try {
-			MSXConfig::instance()->getConfigById("UserDirectories");
-			assert(hasUserContext == true);
-		} catch (MSXException &e) {
-			assert(hasUserContext == false);
-		}
 	}
 	return paths;
 }
