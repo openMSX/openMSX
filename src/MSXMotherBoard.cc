@@ -11,7 +11,7 @@
 #include "Mixer.hh"
 #include "HardwareConfig.hh"
 #include "DeviceFactory.hh"
-#include "Leds.hh"
+#include "LedEvent.hh"
 #include "CliCommOutput.hh"
 #include "EventDistributor.hh"
 #include "Display.hh"
@@ -27,7 +27,6 @@ MSXMotherBoard::MSXMotherBoard()
 	, emulationRunning(true)
         , pauseSetting(GlobalSettings::instance().getPauseSetting())
 	, powerSetting(GlobalSettings::instance().getPowerSetting())
-	, leds(Leds::instance())
 	, output(CliCommOutput::instance())
 	, quitCommand(*this)
 	, resetCommand(*this)
@@ -175,7 +174,8 @@ void MSXMotherBoard::powerOn()
 	if (!powered) {
 		powered = true;
 		powerSetting.setValue(true);
-		leds.setLed(Leds::POWER_ON);
+		EventDistributor::instance().distributeEvent(
+			new LedEvent(LedEvent::POWER, true));
 		--blockedCounter;
 	}
 }
@@ -185,7 +185,8 @@ void MSXMotherBoard::powerOff()
 	if (powered) {
 		powered = false;
 		powerSetting.setValue(false);
-		leds.setLed(Leds::POWER_OFF);
+		EventDistributor::instance().distributeEvent(
+			new LedEvent(LedEvent::POWER, false));
 		++blockedCounter;
 		MSXCPU::instance().exitCPULoop();
 	}

@@ -14,7 +14,6 @@ SRC_HDR:= \
 	MSXPPI I8255 \
 	PlatformFactory DeviceFactory \
 	Scheduler \
-	Leds \
 	MSXE6Timer \
 	MSXF4Device \
 	MSXTurboRLeds \

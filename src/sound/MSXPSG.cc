@@ -1,7 +1,8 @@
 // $Id$
 
 #include "MSXPSG.hh"
-#include "Leds.hh"
+#include "LedEvent.hh"
+#include "EventDistributor.hh"
 #include "CassettePort.hh"
 #include "JoystickPort.hh"
 #include "xmlx.hh"
@@ -99,8 +100,8 @@ void MSXPSG::writeB(byte value, const EmuTime& time)
 	ports[1]->write(val1, time);
 	selectedPort = (value & 0x40) >> 6;
 
-	Leds::LEDCommand kana = (value & 0x80) ? Leds::KANA_OFF : Leds::KANA_ON;
-	Leds::instance().setLed(kana);
+	EventDistributor::instance().distributeEvent(
+		new LedEvent(LedEvent::KANA, !(value & 0x80)));
 }
 
 } // namespace openmsx

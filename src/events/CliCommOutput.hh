@@ -5,6 +5,7 @@
 
 #include <string>
 #include "Command.hh"
+#include "EventListener.hh"
 
 using std::string;
 
@@ -12,7 +13,7 @@ namespace openmsx {
 
 class CommandController;
 
-class CliCommOutput
+class CliCommOutput : private EventListener
 {
 public:
 	enum LogLevel {
@@ -62,6 +63,9 @@ private:
 	private:
 		CliCommOutput& parent;
 	} updateCmd;
+
+	// EventListener
+	virtual bool signalEvent(const Event& event);
 
 	bool xmlOutput;
 	bool updateEnabled[NUM_UPDATES];

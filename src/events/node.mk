@@ -14,7 +14,8 @@ SRC_HDR:= \
 HDR_ONLY:= \
 	EventListener \
 	Event \
-	InputEvents
+	InputEvents \
+	LedEvent \
 
 include build/node-end.mk
 

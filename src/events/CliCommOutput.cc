@@ -2,12 +2,16 @@
 
 #include <iostream>
 #include <cassert>
+#include <map>
 #include "xmlx.hh"
 #include "CliCommOutput.hh"
 #include "CommandController.hh"
+#include "EventDistributor.hh"
+#include "LedEvent.hh"
 
 using std::cout;
 using std::endl;
+using std::map;
 
 namespace openmsx {
 
@@ -35,14 +39,16 @@ CliCommOutput::CliCommOutput()
 		updateEnabled[i] = false;
 	}
 	commandController.registerCommand(&updateCmd, "update");
+	EventDistributor::instance().registerEventListener(LED_EVENT, *this);
 }
 
 CliCommOutput::~CliCommOutput()
 {
+	EventDistributor::instance().unregisterEventListener(LED_EVENT, *this);
+	commandController.unregisterCommand(&updateCmd, "update");
 	if (xmlOutput) {
 		cout << "</openmsx-output>" << endl;
 	}
-	commandController.unregisterCommand(&updateCmd, "update");
 }
 
 void CliCommOutput::log(LogLevel level, const string& message)
@@ -95,6 +101,28 @@ void CliCommOutput::update(UpdateType type, const string& name, const string& va
 	}
 }
 
+bool CliCommOutput::signalEvent(const Event& event)
+{
+	static const string ON = "on";
+	static const string OFF = "off";
+	static map<LedEvent::Led, string> ledName;
+	static bool init = false;
+	if (!init) {
+		init = true;
+		ledName[LedEvent::POWER] = "power";
+		ledName[LedEvent::CAPS]  = "caps";
+		ledName[LedEvent::KANA]  = "kana";
+		ledName[LedEvent::PAUSE] = "pause";
+		ledName[LedEvent::TURBO] = "turbo";
+		ledName[LedEvent::FDD]   = "FDD";
+	}
+	
+	assert(event.getType() == LED_EVENT);
+	const LedEvent& ledEvent = static_cast<const LedEvent&>(event);
+	update(LED, ledName[ledEvent.getLed()],
+	       ledEvent.getStatus() ? ON : OFF);
+	return true;
+}
 
 // class UpdateCmd
 

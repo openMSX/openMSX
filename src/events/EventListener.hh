@@ -3,13 +3,15 @@
 #ifndef __EVENTLISTENER_HH__
 #define __EVENTLISTENER_HH__
 
-#include "Event.hh"
-
 namespace openmsx {
+
+class Event;
 
 class EventListener
 {
 public:
+	virtual ~EventListener() {}
+
 	/**
 	 * This method gets called when an event you are interested in
 	 * occurs.
@@ -18,6 +20,9 @@ public:
 	 * the case except for Console)
 	 */
 	virtual bool signalEvent(const Event& event) = 0;
+
+protected:
+	EventListener() {}
 };
 
 } // namespace openmsx

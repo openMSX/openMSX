@@ -38,7 +38,6 @@ namespace openmsx {
 class KeyClick;
 class MSXCPUInterface;
 class CassettePortInterface;
-class Leds;
 class RenShaTurbo;
 class Keyboard;
 
@@ -75,7 +74,6 @@ public:
 private:
 	CassettePortInterface& cassettePort;
 	MSXCPUInterface& cpuInterface;
-	Leds& leds;
 	RenShaTurbo& renshaTurbo;
 	auto_ptr<KeyClick> click;
 	auto_ptr<Keyboard> keyboard;

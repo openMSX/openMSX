@@ -7,6 +7,7 @@
 #include "Command.hh"
 #include "EventListener.hh"
 #include "Schedulable.hh"
+#include "Event.hh"
 
 using std::map;
 

@@ -3,7 +3,8 @@
 #include <cassert>
 #include "MSXPPI.hh"
 #include "Keyboard.hh"
-#include "Leds.hh"
+#include "LedEvent.hh"
+#include "EventDistributor.hh"
 #include "MSXCPUInterface.hh"
 #include "KeyClick.hh"
 #include "CassettePort.hh"
@@ -18,7 +19,6 @@ MSXPPI::MSXPPI(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time),
 	  cassettePort(CassettePortFactory::instance()),
 	  cpuInterface(MSXCPUInterface::instance()),
-	  leds(Leds::instance()),
 	  renshaTurbo(RenShaTurbo::instance())
 {
 	bool keyGhosting = deviceConfig.getChildDataAsBool("key_ghosting", true);
@@ -149,8 +149,8 @@ void MSXPPI::writeC1(nibble value, const EmuTime& time)
 	cassettePort.setMotor(!(value & 1), time);	// 0=0n, 1=Off
 	cassettePort.cassetteOut(value & 2, time);
 
-	Leds::LEDCommand caps = (value & 4) ? Leds::CAPS_OFF : Leds::CAPS_ON;
-	leds.setLed(caps);
+	EventDistributor::instance().distributeEvent(
+		new LedEvent(LedEvent::CAPS, !(value & 4)));
 
 	click->setClick(value & 8, time);
 }

@@ -14,7 +14,6 @@ using std::auto_ptr;
 
 namespace openmsx {
 
-class Leds;
 class CliCommOutput;
 class MSXDevice;
 class BooleanSetting;
@@ -74,7 +73,6 @@ private:
 	
 	BooleanSetting& pauseSetting;
 	BooleanSetting& powerSetting;
-	Leds& leds;
 	CliCommOutput& output;
 
 	class QuitCommand : public SimpleCommand {

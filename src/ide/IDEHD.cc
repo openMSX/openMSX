@@ -5,7 +5,8 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "xmlx.hh"
-#include "Leds.hh"
+#include "EventDistributor.hh"
+#include "LedEvent.hh"
 
 
 namespace openmsx {
@@ -323,11 +324,9 @@ void IDEHD::setTransferRead(bool status)
 	if (status != transferRead) {
 		transferRead = status;
 		if (!transferWrite) {
-			if (transferRead) { // (this is a bit of a hack!)
-				Leds::instance().setLed(Leds::FDD_ON);
-			} else {
-				Leds::instance().setLed(Leds::FDD_OFF);
-			}
+			// (this is a bit of a hack!)
+			EventDistributor::instance().distributeEvent(
+				new LedEvent(LedEvent::FDD, transferRead));
 		}
 	}
 }
@@ -337,11 +336,9 @@ void IDEHD::setTransferWrite(bool status)
 	if (status != transferWrite) {
 		transferWrite = status;
 		if (!transferRead) {
-			if (transferWrite) { // (this is a bit of a hack!)
-				Leds::instance().setLed(Leds::FDD_ON);
-			} else {
-				Leds::instance().setLed(Leds::FDD_OFF);
-			}
+			// (this is a bit of a hack!)
+			EventDistributor::instance().distributeEvent(
+				new LedEvent(LedEvent::FDD, transferWrite));
 		}
 	}
 }

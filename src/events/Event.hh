@@ -17,6 +17,7 @@ enum EventType
 	JOY_BUTTON_DOWN_EVENT,
 	QUIT_EVENT,
 	FINISH_FRAME_EVENT,
+	LED_EVENT,
 	/** Triggers a renderer switch sequence. */
 	RENDERER_SWITCH_EVENT,
 	/** Sent when video system has been switched,
