@@ -48,7 +48,7 @@ void MSXMotherBoard::resetMSX(const EmuTime &time)
 	}
 }
 
-void MSXMotherBoard::runMSX()
+void MSXMotherBoard::run()
 {
 	// initialize
 	MSXCPUInterface::instance()->reset();

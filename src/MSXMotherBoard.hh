@@ -5,12 +5,12 @@
 
 #include <list>
 #include "Command.hh"
+#include "Thread.hh"
 
-// forward declarations
 class MSXDevice;
 
 
-class MSXMotherBoard
+class MSXMotherBoard : public Runnable
 {
 	public:
 		/**
@@ -41,7 +41,7 @@ class MSXMotherBoard
 		/**
 		 * This starts the Scheduler.
 		 */
-		void runMSX();
+		void run();
 
 		/**
 		 * This will reset all MSXDevices (the reset() method of

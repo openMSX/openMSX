@@ -74,7 +74,7 @@ int main(int argc, char **argv)
 		new KeyEventInserter(zero);
 
 		PRT_DEBUG ("Starting MSX");
-		MSXMotherBoard::instance()->runMSX();
+		MSXMotherBoard::instance()->run();
 
 		// When we return we clean everything up
 		thread.stop();
