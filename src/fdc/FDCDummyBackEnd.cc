@@ -3,25 +3,25 @@
 #include "FDCDummyBackEnd.hh"
 
 
-void FDCDummyBackEnd::read(byte phystrack, byte track, byte sector,
+void FDCDummyBackEnd::read(byte track, byte sector,
                            byte side, int size, byte* buf)
 {
 	throw DriveEmptyException("No disk in drive");
 }
 
-void FDCDummyBackEnd::write(byte phystrack, byte track, byte sector,
+void FDCDummyBackEnd::write(byte track, byte sector,
                             byte side, int size, const byte* buf)
 {
 	throw DriveEmptyException("No disk in drive");
 }
 
-void FDCDummyBackEnd::getSectorHeader(byte phystrack, byte track,
-                                      byte sector, byte side, byte* buf)
+void FDCDummyBackEnd::getSectorHeader(byte track, byte sector,
+                                      byte side, byte* buf)
 {
 	throw DriveEmptyException("No disk in drive");
 }
 
-void FDCDummyBackEnd::getTrackHeader(byte phystrack, byte track,
+void FDCDummyBackEnd::getTrackHeader(byte track,
                                      byte side, byte* buf)
 {
 	throw DriveEmptyException("No disk in drive");

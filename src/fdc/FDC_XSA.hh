@@ -19,9 +19,9 @@ class FDC_XSA : public FDCBackEnd
 	public:
 		FDC_XSA(const std::string &fileName);
 		virtual ~FDC_XSA();
-		virtual void read(byte phystrack, byte track, byte sector,
+		virtual void read(byte track, byte sector,
 		                  byte side, int size, byte* buf);
-		virtual void write(byte phystrack, byte track, byte sector,
+		virtual void write(byte track, byte sector,
 		                   byte side, int size, const byte* buf);
 		virtual bool ready();
 		virtual bool writeProtected();

@@ -24,7 +24,7 @@ class DriveMultiplexer : public DiskDrive
 		// Multiplexer interface
 		DriveMultiplexer(DiskDrive* drive[4]);
 		virtual ~DriveMultiplexer();
-		void selectDrive(DriveNum num);
+		void selectDrive(DriveNum num, const EmuTime &time);
 		
 		// DiskDrive interface
 		virtual bool ready();
@@ -46,13 +46,15 @@ class DriveMultiplexer : public DiskDrive
 		                   byte &onDiskTrack, byte &onDiskSector,
 		                   byte &onDiskSide,  int  &onDiskSize);
 		virtual void getSectorHeader(byte sector, byte* buf);
-		virtual void getTrackHeader(byte track, byte* buf);
-		virtual void initWriteTrack(byte track);
+		virtual void getTrackHeader(byte* buf);
+		virtual void initWriteTrack();
 		virtual void writeTrackData(byte data);
 
 	private:
 		DiskDrive* drive[5];
 		DriveNum selected;
+		bool motor;
+		bool side;
 };
 
 #endif

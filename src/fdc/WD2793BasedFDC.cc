@@ -9,7 +9,7 @@ WD2793BasedFDC::WD2793BasedFDC(MSXConfig::Device *config, const EmuTime &time)
 	: MSXFDC(config, time), MSXDevice(config, time)
 {
 	multiplexer = new DriveMultiplexer(drives);
-	controller = new WD2793(multiplexer, time);
+	controller = new WD2793(drives[0], time);
 }
 
 WD2793BasedFDC::~WD2793BasedFDC()

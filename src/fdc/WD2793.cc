@@ -498,8 +498,8 @@ void WD2793::startType3Cmd(const EmuTime &time)
 		PRT_DEBUG("FDC command: write track");
 		statusReg &= 0x01;	// reset lost data,record not found & status bits 5 & 6
 		DRQ = true;
-		drive->initWriteTrack(trackReg); 
-		PRT_DEBUG("WD2793: initWriteTrack(trackReg "<<(int)trackReg<<")");
+		drive->initWriteTrack(); 
+		PRT_DEBUG("WD2793: initWriteTrack()");
 
 		//PRT_INFO("FDC command not yet implemented ");
 		//CommandController::instance()->executeCommand(std::string("cpudebug"));

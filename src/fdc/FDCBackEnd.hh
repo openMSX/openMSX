@@ -32,17 +32,17 @@ class WriteProtectedException  : public MSXException {
 class FDCBackEnd 
 {
 	public: 
-		virtual void read (byte phystrack, byte track, byte sector,
+		virtual void read (byte track, byte sector,
 		                   byte side, int size, byte* buf) = 0;
-		virtual void write(byte phystrack, byte track, byte sector,
+		virtual void write(byte track, byte sector,
 		                   byte side, int size, const byte* buf) = 0;
-		virtual void getSectorHeader(byte phystrack, byte track, byte sector,
+		virtual void getSectorHeader(byte track, byte sector,
 		                             byte side, byte* buf);
-		virtual void getTrackHeader(byte phystrack, byte track,
+		virtual void getTrackHeader(byte track,
 		                            byte side, byte* buf);
-		virtual void initWriteTrack(byte phystrack, byte track, byte side);
+		virtual void initWriteTrack(byte track, byte side);
 		virtual void writeTrackData(byte data);
-		virtual void initReadTrack(byte phystrack, byte track, byte side);
+		virtual void initReadTrack(byte track, byte side);
 		virtual byte readTrackData();
 		
 		void readSector(byte* buf, int sector);

@@ -19,7 +19,7 @@ FDC_DSK::~FDC_DSK()
 	delete[] readTrackDataBuf;
 }
 
-void FDC_DSK::read(byte phystrack, byte track, byte sector, byte side,
+void FDC_DSK::read(byte track, byte sector, byte side,
                    int size, byte* buf)
 {
 	try {
@@ -33,7 +33,7 @@ void FDC_DSK::read(byte phystrack, byte track, byte sector, byte side,
 	}
 }
 
-void FDC_DSK::write(byte phystrack, byte track, byte sector, byte side, 
+void FDC_DSK::write(byte track, byte sector, byte side, 
                     int size, const byte* buf)
 {
 	try {
@@ -60,10 +60,9 @@ void FDC_DSK::readBootSector()
 	}
 }
 
-void FDC_DSK::initWriteTrack(byte phystrack, byte track, byte side)
+void FDC_DSK::initWriteTrack(byte track, byte side)
 {
 	writeTrackBufCur=0;
-	writeTrack_phystrack=phystrack;
 	writeTrack_track=track;
 	writeTrack_side=side;
 	writeTrack_sector=1;
@@ -85,7 +84,8 @@ void FDC_DSK::writeTrackData(byte data)
 			for (int i=0; i<512 ;i++ ){
 				tempWriteBuf[i]=writeTrackBuf[(writeTrackBufCur+i)&511];
 			}
-			write(writeTrack_phystrack,writeTrack_track,writeTrack_sector,writeTrack_side,511,tempWriteBuf);
+			write(writeTrack_track, writeTrack_sector, writeTrack_side,
+			      512, tempWriteBuf);
 			writeTrack_sector++; // update sector counter.
 		};
 		writeTrack_CRCcount++; 
@@ -95,7 +95,7 @@ void FDC_DSK::writeTrackData(byte data)
 	}
 }
 
-void FDC_DSK::initReadTrack(byte phystrack, byte track, byte side){
+void FDC_DSK::initReadTrack(byte track, byte side){
 	readTrackDataCount=0;
 	/* init following data structure
 	122 bytes track header aka pre-gap

@@ -110,7 +110,7 @@ void MicrosolFDC::writeIO(byte port, byte value, const EmuTime &time)
 				// collision).
 				drive = DriveMultiplexer::NO_DRIVE;
 		}
-		multiplexer->selectDrive(drive);
+		multiplexer->selectDrive(drive, time);
 		multiplexer->setSide(value & 0x10);
 		multiplexer->setMotor((value & 0x20), time);
 		break;

@@ -7,7 +7,7 @@
 
 #include "MSXRomPatchInterface.hh"
 
-class DiskDrive;
+class DoubleSidedDrive;
 
 
 class MSXDiskRomPatch : public MSXRomPatchInterface
@@ -46,7 +46,7 @@ class MSXDiskRomPatch : public MSXRomPatchInterface
 		void DRVOFF(CPU::CPURegs& regs);
 
 		static const int LAST_DRIVE = 2;
-		DiskDrive *drives[LAST_DRIVE];
+		DoubleSidedDrive *drives[LAST_DRIVE];
 };
 
 #endif // __MSXDISKROMPATCH_HH__

@@ -46,7 +46,7 @@ FDC_XSA::~FDC_XSA()
 	delete[] outbuf;
 }
 
-void FDC_XSA::read(byte phystrack, byte track, byte sector,
+void FDC_XSA::read(byte track, byte sector,
                    byte side, int size, byte* buf)
 {
 	int logSector = physToLog(track, side, sector);
@@ -55,7 +55,7 @@ void FDC_XSA::read(byte phystrack, byte track, byte sector,
 	memcpy(buf, outbuf + logSector * 512, 512);
 }
 
-void FDC_XSA::write(byte phystrack, byte track, byte sector,
+void FDC_XSA::write(byte track, byte sector,
                     byte side, int size, const byte* buf)
 {
 	throw WriteProtectedException("Write protected");

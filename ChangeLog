@@ -1,5 +1,8 @@
 $Id$
 
+2002-11-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed FDC bug (DriveMultiplexer)
+
 2002-11-27 David Heremans <david.heremans@gnu-linux.net>
 	* Working towards raw track read
 

@@ -5,6 +5,8 @@
 
 DriveMultiplexer::DriveMultiplexer(DiskDrive* drive[4])
 {
+	motor = false;
+	side = false;
 	selected = NO_DRIVE;
 	this->drive[DRIVE_A]  = drive[0];
 	this->drive[DRIVE_B]  = drive[1];
@@ -18,9 +20,12 @@ DriveMultiplexer::~DriveMultiplexer()
 	delete drive[NO_DRIVE];
 }
 
-void DriveMultiplexer::selectDrive(DriveNum num)
+void DriveMultiplexer::selectDrive(DriveNum num, const EmuTime &time)
 {
+	assert(num >= DRIVE_A && num <= NO_DRIVE);
 	selected = num;
+	drive[selected]->setSide(side);
+	drive[selected]->setMotor(motor, time);
 }
 
 bool DriveMultiplexer::ready()
@@ -38,8 +43,9 @@ bool DriveMultiplexer::doubleSided()
 	return drive[selected]->doubleSided();
 }
 
-void DriveMultiplexer::setSide(bool side)
+void DriveMultiplexer::setSide(bool side_)
 {
+	side = side_;
 	drive[selected]->setSide(side);
 }
 
@@ -55,6 +61,7 @@ bool DriveMultiplexer::track00(const EmuTime &time)
 
 void DriveMultiplexer::setMotor(bool status, const EmuTime &time)
 {
+	motor = status;
 	drive[selected]->setMotor(status, time);
 }
 
@@ -100,14 +107,14 @@ void DriveMultiplexer::getSectorHeader(byte sector, byte* buf)
 	drive[selected]->getSectorHeader(sector, buf);
 }
 
-void DriveMultiplexer::getTrackHeader(byte track, byte* buf)
+void DriveMultiplexer::getTrackHeader(byte* buf)
 {
-	drive[selected]->getTrackHeader(track, buf);
+	drive[selected]->getTrackHeader(buf);
 }
 
-void DriveMultiplexer::initWriteTrack(byte track)
+void DriveMultiplexer::initWriteTrack()
 {
-	drive[selected]->initWriteTrack(track);
+	drive[selected]->initWriteTrack();
 }
 
 void DriveMultiplexer::writeTrackData(byte data)

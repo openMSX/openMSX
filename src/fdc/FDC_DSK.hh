@@ -14,15 +14,15 @@ class FDC_DSK : public FDCBackEnd
 	public: 
 		FDC_DSK(const std::string &fileName);
 		virtual ~FDC_DSK();
-		virtual void read(byte phystrack, byte track, byte sector,
+		virtual void read(byte track, byte sector,
 		                  byte side, int size, byte* buf);
-		virtual void write(byte phystrack, byte track, byte sector,
+		virtual void write(byte track, byte sector,
 		                   byte side, int size, const byte* buf);
 
-		virtual void initWriteTrack(byte phystrack, byte track, byte side);
+		virtual void initWriteTrack(byte track, byte side);
 		virtual void writeTrackData(byte data);
 
-		virtual void initReadTrack(byte phystrack, byte track, byte side);
+		virtual void initReadTrack(byte track, byte side);
 		virtual byte readTrackData();
 
 		virtual bool ready();
@@ -39,7 +39,6 @@ class FDC_DSK : public FDCBackEnd
 		byte* writeTrackBuf;
 		int writeTrackBufCur;
 		int writeTrackSectorCur;
-		byte writeTrack_phystrack;
 		byte writeTrack_track;
 		byte writeTrack_side;
 		byte writeTrack_sector;

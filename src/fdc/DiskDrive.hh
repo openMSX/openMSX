@@ -81,13 +81,9 @@ class DiskDrive
 		                   byte &onDiskTrack, byte &onDiskSector,
 		                   byte &onDiskSide,  int  &onDiskSize) = 0;
 		virtual void getSectorHeader(byte sector, byte* buf) = 0;
-		virtual void getTrackHeader(byte track, byte* buf) = 0;
-		virtual void initWriteTrack(byte track) = 0;
+		virtual void getTrackHeader(byte* buf) = 0;
+		virtual void initWriteTrack() = 0;
 		virtual void writeTrackData(byte data) = 0;
-
-		// high level read / write methods
-		virtual void readSector(byte* buf, int sector);
-		virtual void writeSector(const byte* buf, int sector);
 };
 
 
@@ -108,7 +104,7 @@ class DummyDrive : public DiskDrive
 		virtual void setMotor(bool status, const EmuTime &time);
 		virtual bool indexPulse(const EmuTime &time);
 		virtual int indexPulseCount(const EmuTime &begin,
-		                    const EmuTime &end);
+		                            const EmuTime &end);
 		virtual void setHeadLoaded(bool status, const EmuTime &time);
 		virtual bool headLoaded(const EmuTime &time);
 		virtual void read (byte sector, byte* buf,
@@ -118,8 +114,8 @@ class DummyDrive : public DiskDrive
 		                   byte &onDiskTrack, byte &onDiskSector,
 		                   byte &onDiskSide,  int  &onDiskSize);
 		virtual void getSectorHeader(byte sector, byte* buf);
-		virtual void getTrackHeader(byte track, byte* buf);
-		virtual void initWriteTrack(byte track);
+		virtual void getTrackHeader(byte* buf);
+		virtual void initWriteTrack();
 		virtual void writeTrackData(byte data);
 };
 
@@ -142,13 +138,13 @@ class RealDrive : public DiskDrive, public Command
 		virtual void setMotor(bool status, const EmuTime &time);
 		virtual bool indexPulse(const EmuTime &time);
 		virtual int indexPulseCount(const EmuTime &begin,
-		                    const EmuTime &end);
+		                            const EmuTime &end);
 		virtual void setHeadLoaded(bool status, const EmuTime &time);
 		virtual bool headLoaded(const EmuTime &time);
 
 	protected:
 		static const int MAX_TRACK = 85;
-		static const int TICKS_PER_ROTATION = 10000;	// TODO
+		static const int TICKS_PER_ROTATION = 6850;	// TODO
 		static const int ROTATIONS_PER_SECOND = 5;
 		static const int INDEX_DURATION = TICKS_PER_ROTATION / 50;
 	
@@ -157,7 +153,7 @@ class RealDrive : public DiskDrive, public Command
 		bool motorStatus;
 		EmuTimeFreq<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> motorTime;
 		bool headLoadStatus;
-		EmuTimeFreq<1000> headLoadTime;
+		EmuTimeFreq<1000> headLoadTime;	// ms
 
 	private:
 		// Command interface
@@ -189,8 +185,8 @@ class SingleSidedDrive : public RealDrive
 		                   byte &onDiskTrack, byte &onDiskSector,
 		                   byte &onDiskSide,  int  &onDiskSize);
 		virtual void getSectorHeader(byte sector, byte* buf);
-		virtual void getTrackHeader(byte track, byte* buf);
-		virtual void initWriteTrack(byte track);
+		virtual void getTrackHeader(byte* buf);
+		virtual void initWriteTrack();
 		virtual void writeTrackData(byte data);
 };
 
@@ -213,11 +209,13 @@ class DoubleSidedDrive : public RealDrive
 		                   byte &onDiskTrack, byte &onDiskSector,
 		                   byte &onDiskSide,  int  &onDiskSize);
 		virtual void getSectorHeader(byte sector, byte* buf);
-		virtual void getTrackHeader(byte track, byte* buf);
-		virtual void initWriteTrack(byte track);
+		virtual void getTrackHeader(byte* buf);
+		virtual void initWriteTrack();
 		virtual void writeTrackData(byte data);
-		virtual void readSector(byte* buf, int sector);
-		virtual void writeSector(const byte* buf, int sector);
+		
+		// high level read / write methods used by DiskRomPatch
+		void readSector(byte* buf, int sector);
+		void writeSector(const byte* buf, int sector);
 	
 	private:
 		int side;

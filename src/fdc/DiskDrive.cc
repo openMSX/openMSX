@@ -14,17 +14,6 @@ DiskDrive::~DiskDrive()
 {
 }
 
-void DiskDrive::readSector(byte* buf, int sector)
-{
-	assert(false);
-}
-
-void DiskDrive::writeSector(const byte* buf, int sector)
-{
-	assert(false);
-}
-
-
 /// class DummyDrive ///
 
 DummyDrive::DummyDrive()
@@ -110,12 +99,12 @@ void DummyDrive::getSectorHeader(byte sector, byte* buf)
 	throw DriveEmptyException("No drive connected");
 }
 
-void DummyDrive::getTrackHeader(byte track, byte* buf)
+void DummyDrive::getTrackHeader(byte* buf)
 {
 	throw DriveEmptyException("No drive connected");
 }
 
-void DummyDrive::initWriteTrack(byte track)
+void DummyDrive::initWriteTrack()
 {
 	// ignore ???
 }
@@ -179,6 +168,7 @@ void RealDrive::step(bool direction, const EmuTime &time)
 			headPos--;
 		}
 	}
+	//PRT_DEBUG("DiskDrive track " << headPos);
 }
 
 bool RealDrive::track00(const EmuTime &time)
@@ -188,12 +178,17 @@ bool RealDrive::track00(const EmuTime &time)
 
 void RealDrive::setMotor(bool status, const EmuTime &time)
 {
-	motorStatus = status;
-	motorTime = time;
+	if (motorStatus != status) {
+		motorStatus = status;
+		motorTime = time;
+	}
 }
 
 bool RealDrive::indexPulse(const EmuTime &time)
 {
+	if (!motorStatus) {
+		return false;
+	}
 	int angle = motorTime.getTicksTill(time) % TICKS_PER_ROTATION;
 	return angle < INDEX_DURATION;
 }
@@ -201,6 +196,9 @@ bool RealDrive::indexPulse(const EmuTime &time)
 int RealDrive::indexPulseCount(const EmuTime &begin,
                                const EmuTime &end)
 {
+	if (!motorStatus) {
+		return 0;
+	}
 	assert(motorTime <= begin);
 	assert(motorTime <= end);
 	int t1 = motorTime.getTicksTill(begin);
@@ -212,8 +210,10 @@ int RealDrive::indexPulseCount(const EmuTime &begin,
 
 void RealDrive::setHeadLoaded(bool status, const EmuTime &time)
 {
-	headLoadStatus = status;
-	headLoadTime = time;
+	if (headLoadStatus != status) {
+		headLoadStatus = status;
+		headLoadTime = time;
+	}
 }
 
 bool RealDrive::headLoaded(const EmuTime &time)
@@ -300,7 +300,7 @@ void SingleSidedDrive::read(byte sector, byte* buf,
 	onDiskSector = sector;
 	onDiskSide = 0;
 	onDiskSize = 512;
-	disk->read(headPos, headPos, sector, 0, 512, buf);
+	disk->read(headPos, sector, 0, 512, buf);
 }
 
 void SingleSidedDrive::write(byte sector, const byte* buf,
@@ -311,22 +311,22 @@ void SingleSidedDrive::write(byte sector, const byte* buf,
 	onDiskSector = sector;
 	onDiskSide = 0;
 	onDiskSize = 512;
-	disk->write(headPos, headPos, sector, 0, 512, buf);
+	disk->write(headPos, sector, 0, 512, buf);
 }
 
 void SingleSidedDrive::getSectorHeader(byte sector, byte* buf)
 {
-	disk->getSectorHeader(headPos, headPos, sector, 0, buf);
+	disk->getSectorHeader(headPos, sector, 0, buf);
 }
 
-void SingleSidedDrive::getTrackHeader(byte track, byte* buf)
+void SingleSidedDrive::getTrackHeader(byte* buf)
 {
-	disk->getTrackHeader(headPos, headPos, 0, buf);
+	disk->getTrackHeader(headPos, 0, buf);
 }
 
-void SingleSidedDrive::initWriteTrack(byte track)
+void SingleSidedDrive::initWriteTrack()
 {
-	disk->initWriteTrack(headPos, track, 0);
+	disk->initWriteTrack(headPos, 0);
 }
 
 void SingleSidedDrive::writeTrackData(byte data)
@@ -366,7 +366,7 @@ void DoubleSidedDrive::read(byte sector, byte* buf,
 	onDiskSector = sector;
 	onDiskSide = side;
 	onDiskSize = 512;
-	disk->read(headPos, headPos, sector, side, 512, buf);
+	disk->read(headPos, sector, side, 512, buf);
 }
 
 void DoubleSidedDrive::write(byte sector, const byte* buf,
@@ -377,22 +377,22 @@ void DoubleSidedDrive::write(byte sector, const byte* buf,
 	onDiskSector = sector;
 	onDiskSide = side;
 	onDiskSize = 512;
-	disk->write(headPos, headPos, sector, side, 512, buf);
+	disk->write(headPos, sector, side, 512, buf);
 }
 
 void DoubleSidedDrive::getSectorHeader(byte sector, byte* buf)
 {
-	disk->getSectorHeader(headPos, headPos, sector, side, buf);
+	disk->getSectorHeader(headPos, sector, side, buf);
 }
 
-void DoubleSidedDrive::getTrackHeader(byte track, byte* buf)
+void DoubleSidedDrive::getTrackHeader(byte* buf)
 {
-	disk->getTrackHeader(headPos, headPos, side, buf);
+	disk->getTrackHeader(headPos, side, buf);
 }
 
-void DoubleSidedDrive::initWriteTrack(byte track)
+void DoubleSidedDrive::initWriteTrack()
 {
-	disk->initWriteTrack(headPos, track, side);
+	disk->initWriteTrack(headPos, side);
 }
 
 void DoubleSidedDrive::writeTrackData(byte data)

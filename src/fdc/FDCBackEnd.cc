@@ -8,16 +8,16 @@ FDCBackEnd::FDCBackEnd()
 	nbSides = 0;
 }
 
-void FDCBackEnd::getTrackHeader(byte phystrack, byte track, byte side, byte* buf)
+void FDCBackEnd::getTrackHeader(byte track, byte side, byte* buf)
 {
 	PRT_DEBUG("FDCBackEnd::getTrackHeader [unimplemented]");
 }
-void FDCBackEnd::getSectorHeader(byte phystrack, byte track, byte sector, byte side, byte* buf)
+void FDCBackEnd::getSectorHeader(byte track, byte sector, byte side, byte* buf)
 {
 	PRT_DEBUG("FDCBackEnd::getSectorHeader [unimplemented]");
 }
 
-void FDCBackEnd::initWriteTrack(byte phystrack, byte track, byte side)
+void FDCBackEnd::initWriteTrack(byte track, byte side)
 {
 	PRT_DEBUG("FDCBackEnd::initWriteTrack [unimplemented]");
 }
@@ -27,7 +27,7 @@ void FDCBackEnd::writeTrackData(byte data)
 	PRT_DEBUG("FDCBackEnd::writeTrackData [unimplemented]");
 }
 
-void FDCBackEnd::initReadTrack(byte phystrack, byte track, byte side)
+void FDCBackEnd::initReadTrack(byte track, byte side)
 {
 	PRT_DEBUG("FDCBackEnd::initReadTrack [unimplemented]");
 }
@@ -44,14 +44,14 @@ void FDCBackEnd::readSector(byte* buf, int logSector)
 {
 	byte track, side, sector;
 	logToPhys(logSector, track, side, sector);
-	read(track, track, sector, side, 512, buf);
+	read(track, sector, side, 512, buf);
 }
 
 void FDCBackEnd::writeSector(const byte* buf, int logSector)
 {
 	byte track, side, sector;
 	logToPhys(logSector, track, side, sector);
-	write(track, track, sector, side, 512, buf);
+	write(track, sector, side, 512, buf);
 }
 
 
@@ -75,7 +75,7 @@ void FDCBackEnd::logToPhys(int log, byte &track, byte &side, byte &sector)
 void FDCBackEnd::readBootSector()
 {
 	byte buf[512];
-	read(0, 0, 1, 0, 512, buf);
+	read(0, 1, 0, 512, buf);
 	sectorsPerTrack = buf[0x18] + 256 * buf[0x19];
 	nbSides         = buf[0x1A] + 256 * buf[0x1B];
 	PRT_DEBUG("FDCBackEnd sectorsPerTrack " << sectorsPerTrack);
