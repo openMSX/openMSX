@@ -1,5 +1,13 @@
 $Id$
 
+2004-07-18  Arnold Metselaar  <arnold_m@operamail.com>
+	* added Unicode.{cc,hh} with minimalistic conversion of UTF-8
+	  to 8-bit Ascii
+	* Keyboard.cc: Fixes to make the type command work properly
+	  - utf-8 -> ascii conversion in  Keyboard::KeyKeyInserter::type(),
+	  - fixed bug in Keyboard::pressAscii() (index to asciiTab), and
+	  - corrected asciiTab[]
+
 2004-07-15 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added <info> tag with some child tags to XML.
 	  - should be added to other hardwareconfig files later as well (is
