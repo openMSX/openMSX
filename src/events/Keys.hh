@@ -3,7 +3,7 @@
 #ifndef __KEYS_HH__
 #define __KEYS_HH__
 
-#include <SDL/SDL_keysym.h> // TODO
+#include <SDL_keysym.h> // TODO
 #include <map>
 #include <string>
 

@@ -3,7 +3,7 @@
 #ifndef __INPUTEVENTGENERATOR_HH__
 #define __INPUTEVENTGENERATOR_HH__
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "BooleanSetting.hh"
 #include "SettingListener.hh"
 
