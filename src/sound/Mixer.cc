@@ -24,6 +24,8 @@ using std::set;
 using std::string;
 using std::vector;
 
+typedef unsigned short uint16;
+
 namespace openmsx {
 
 Mixer::Mixer()
@@ -77,10 +79,14 @@ Mixer::Mixer()
 
 	openSound();
 	muteHelper();
+
+	wavfp=0;
+	//startRecording(); // uncomment this to test recording sound
 }
 
 Mixer::~Mixer()
 {
+	// endRecording(); // uncomment this to test recording sound
 	closeSound();
 	
 	throttleSetting.removeListener(this);
@@ -421,6 +427,15 @@ void Mixer::updtStrm2(unsigned samples)
 		if (++writePtr == bufferSize) {
 			writePtr = 0;
 		}
+		if (wavfp)
+		{
+			uint16 outleftwav(outLeft);
+			uint16 outrightwav(outRight);
+		
+			fwrite(&outleftwav, 2, 1, wavfp);
+			fwrite(&outrightwav, 2, 1, wavfp);
+			nofWavBytes+=4;
+		}
 	}
 }
 
@@ -459,6 +474,59 @@ void Mixer::reInit()
 	double percent = speedSetting.getValue();
 	interval1 = EmuDuration(percent / (audioSpec.freq * 100));
 	intervalAverage = EmuDuration(percent / (audioSpec.freq * 100));
+}
+
+void Mixer::startRecording()
+{
+	/* TODO on the recorder:
+	 * - take care of endianness (this probably won't work on PPC now)
+	 * - add command to start recording: recordsound [filename]
+	 *   This could be done similar to the screenshot command, with respect
+	 *   to auto filenaming and stuff.
+	 * - add command to end recording
+	 * - take care of changing 'frequency' setting (block it during 
+	 *   recording?)
+	 * - error handling, fwrite or fopen may fail miserably
+	 */
+	wavfp=fopen("/tmp/openmsx.wav", "w");
+	nofWavBytes=0;
+
+	// write wav header:
+	const char* riffstr="RIFF";
+	const char* wavestr="WAVE";
+	const char* datastr="data";
+	const char* fmtstr="fmt ";
+	fwrite(riffstr, 1, 4, wavfp);
+	fwrite(&nofWavBytes, 4, 1, wavfp);
+	fwrite(wavestr, 1, 4, wavfp);
+	fwrite(fmtstr, 1, 4, wavfp);
+	uint32 size=16;
+	uint16 nBitsPerSample=16;
+	fwrite(&size, 4, 1, wavfp);
+	uint16 wFormatTag=1;
+	fwrite(&wFormatTag, 2, 1, wavfp);
+	uint16 nChannels=2;
+	fwrite(&nChannels, 2, 1, wavfp);
+	uint32 nSamplesPerSec=(uint32)frequencySetting->getValue();
+	fwrite(&nSamplesPerSec, 4, 1, wavfp);
+	uint32 nAvgBytesPerSec = 2*nSamplesPerSec*nBitsPerSample/8;
+	fwrite(&nAvgBytesPerSec, 4, 1, wavfp);
+	uint16 wBlockAlign = 2*nBitsPerSample/8;
+	fwrite(&wBlockAlign, 2, 1, wavfp);
+	fwrite(&nBitsPerSample, 2, 1, wavfp);
+	fwrite(datastr, 1, 4, wavfp);
+	fwrite(&nofWavBytes, 4, 1, wavfp);
+}
+
+void Mixer::endRecording()
+{
+	uint32 totalsize=nofWavBytes+44;
+	fseek(wavfp, 4, SEEK_SET);
+	fwrite(&totalsize, 4, 1, wavfp);
+	fseek(wavfp, 40, SEEK_SET);
+	fwrite(&nofWavBytes, 4, 1, wavfp);
+	
+	fclose(wavfp);
 }
 
 void Mixer::update(const Setting* setting)

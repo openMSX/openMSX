@@ -91,6 +91,9 @@ private:
 	void updateMasterVolume(int masterVolume);
 	void reInit();
 
+	void startRecording();
+	void endRecording();
+
 	// SettingListener
 	virtual void update(const Setting* setting);
 
@@ -136,6 +139,9 @@ private:
 	IntegerSetting& speedSetting;
 	BooleanSetting& throttleSetting;
 	bool handlingUpdate;
+	
+	FILE *wavfp;
+	uint32 nofWavBytes;
 
 	int prevLeft, outLeft;
 	int prevRight, outRight;

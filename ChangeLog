@@ -1,5 +1,10 @@
 $Id$
 
+2005-03-12 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added basic code to record openMSX sound to wav file. It is not used
+	  yet, but one can test it by uncommenting 2 lines.
+	  There is still a lot TODO - see the comment in Mixer.cc
+
 2005-03-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed various warnings:
 	   - doxygen warnings
