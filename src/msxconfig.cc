@@ -80,7 +80,7 @@ void MSXConfig::saveFile()
 
 void MSXConfig::saveFile(const std::string &filename)
 {
-	throw string("void MSXConfig::saveFile(const string &filename) Unimplemented");
+	throw std::string("void MSXConfig::saveFile(const string &filename) Unimplemented");
 }
 
 MSXConfig::Device::~Device()
@@ -95,20 +95,16 @@ MSXConfig::Device::Device(XMLNode *deviceNode):desc(""),rem("")
 {
 // TODO: rework this
 
-	ostringstream buffer;
+	std::ostringstream buffer;
 
 // device - <!ELEMENT msxconfig (device)+>
 	XMLHelper<MSXConfig::XMLParseException> xh(deviceNode);
-	xh.checkName("device");
 	// check if it is a devicenode
-	//if (deviceNode->name()!="device")
-	//	throw MSXConfig::XMLParseException("Expected <device> node.");
+	xh.checkName("device");
 
 // id - ATTLIST device id CDATA #IMPLIED>
-
-	if (deviceNode->property("id")==0)
-		throw MSXConfig::XMLParseException("<device> node is missing mandatory 'id' property.");
-	id = deviceNode->property("id")->value();
+	xh.checkProperty("id");
+	id = xh.getProperty("id");
 
 // type - <!ELEMENT device (type,slotted*,parameter*,desc?,rem?)>
 
@@ -315,13 +311,13 @@ bool MSXConfig::Device::hasParameter(const std::string &name)
 
 const std::string &MSXConfig::Device::getParameter(const std::string &name)
 {
-	char buffer[200];
+	std::ostringstream buffer;
 	for (list<Parameter*>::const_iterator i=parameters.begin(); i != parameters.end(); i++)
 	{
 		if ((*i)->name==name)
 			return ((*i)->value);
 	}
-	snprintf(buffer,200,"Trying to get non-existing parameter %s for device %s.", name.c_str(), id.c_str());
+	buffer << "Trying to get non-existing parameter " << name << " for device i" << id;
 	throw Exception(buffer);
 }
 

@@ -5,7 +5,7 @@
 
 #include <xml++.h>
 
-template <class T> XMLHelper<T>::XMLHelper<T>(XMLNode *anode):node(anode)
+template <class T> XMLHelper<T>::XMLHelper<T>(XMLNode *anode):node(anode),emptyString("")
 {
 }
 
@@ -15,9 +15,39 @@ template <class T> void XMLHelper<T>::checkName(const std::string &name)
 	if (node->name()!=name)
 	{
 		buffer << "Expected <" << name << "> node, ";
-		buffer << "got <" << node->name() << std::endl;
+		buffer << "got <" << node->name() << ">";
 		throw T(buffer);
 	}
+}
+
+template <class T> void XMLHelper<T>::checkProperty(const std::string &name)
+{
+	std::ostringstream buffer;
+	if (node->property(name)==0)
+	{
+		buffer << "Expected mandatory property " << name;
+		buffer << " for node <" << node->name() << ">";
+		throw T(buffer);
+	}
+}
+
+template <class T> const string &XMLHelper<T>::getProperty(const std::string &name)
+{
+	if (node->property(name)==0)
+	{
+		return emptyString;
+	}
+	return node->property("id")->value();
+
+}
+
+template <class T> const string &XMLHelper<T>::getProperty(const std::string &name, const std::string &defaultValue)
+{
+	if (node->property(name)==0)
+	{
+		return defaultValue;
+	}
+	return node->property("id").value();
 }
 
 #endif
