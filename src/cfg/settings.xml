@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+
+<!-- 
+  This file contains the settings or user preferences. 
+  Use it in combination with an MSX machine configuration file.
+  Maybe you want to use openMSX in a small script, so that you don't
+  need to add this file on the command line all the time. This will
+  probably be made more comfortable later!
+-->
+
+ <!-- renderer settings: determines how openMSX outputs graphics -->
+  <config id="renderer">
+    <type>SDLHi</type>
+  <!-- 
+    <type>SDLGL</type> 
+  -->
+    <parameter name="full_screen">false</parameter>
+  </config>
+
+ <!-- Settings for the RealTime system that keeps your emulated MSX running
+      in the right pace -->
+  <config id="RealTime">
+    <type>RealTime</type>
+    <parameter name="sync_interval">50</parameter>
+    <parameter name="max_catch_up_time">2000</parameter>
+    <parameter name="max_catch_up_factor">105</parameter>
+  </config>
+
+ <!-- Audio mixer settings -->
+  <config id="Mixer">
+    <type>Mixer</type>
+  <!-- Use more samples when FM sound quality is bad, e.g.
+    <parameter name="frequency">44100</parameter>
+    <parameter name="samples">1024</parameter>
+   --> 
+    <parameter name="frequency">22050</parameter>
+    <parameter name="samples">512</parameter>
+  </config>
+
+ <!-- Console font file and decorations -->
+  <config id="Console">
+    <type>Console</type>
+    <parameter name="font">ConsoleFont.png</parameter>
+    <parameter name="background">ConsoleBackground.png</parameter>
+  </config>
+
+</msxconfig>
+
