@@ -33,7 +33,7 @@
 #include "SunriseIDE.hh"
 #include "MSXMatsushita.hh"
 #include "MSXKanji12.hh"
-
+#include "MSXMidi.hh"
 
 
 // TODO: Add the switched device to the config files.
@@ -225,6 +225,14 @@ MSXDevice *DeviceFactory::create(Device *conf, const EmuTime &time)
 	if (type == "Kanji12") {
 		createDeviceSwitch();
 		return new MSXKanji12(conf, time);
+	}
+	if (type == "MSX-Midi") {
+		MSXMidi *msxmidi = new MSXMidi(conf, time);
+		for (byte port = 0xE8; port <= 0xEF; port++) {
+			cpuInterface->register_IO_In (port, msxmidi);
+			cpuInterface->register_IO_Out(port, msxmidi);
+		}
+		return msxmidi;
 	}
 	PRT_ERROR("Unknown device specified in configuration");
 	return NULL;

@@ -168,6 +168,15 @@
     <type>TurboRPCM</type>
     <parameter name="volume">21000</parameter>
   </device>
+  
+  <device id="Kanji ROM">
+    <type>Kanji</type>
+    <parameter name="filename">KANJI.ROM</parameter>
+  </device>
+     
+  <device id="MSX-Midi">
+    <type>MSX-Midi</type>
+  </device>
 
   <config id="Mixer">
     <parameter name="frequency">22050</parameter>
