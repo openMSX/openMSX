@@ -709,8 +709,9 @@ template <class Pixel> void SDLLoRenderer<Pixel>::displayPhase(
 	}
 	// Render background lines.
 	// TODO: Complete separation of character and bitmap modes.
-	byte scrolledLine =
-		lineRenderTop + fromY - vdp->getLineZero() + vdp->getVerticalScroll();
+	byte scrolledLine = lineRenderTop + fromY - vdp->getLineZero();
+	if (!vdp->isTextMode())
+		scrolledLine += vdp->getVerticalScroll();
 	int lineCount = limitY - fromY;
 	if (limitX > 0) lineCount++;
 	if (vdp->isBitmapMode()) {

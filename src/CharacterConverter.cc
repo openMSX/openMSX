@@ -106,7 +106,7 @@ void CharacterConverter<Pixel, zoom>::renderText1(
 	Pixel fg = palFg[vdp->getForegroundColour()];
 	Pixel bg = palBg[vdp->getBackgroundColour()];
 
-	int patternBaseLine = (-1 << 11) | (line & 7);
+	int patternBaseLine = (-1 << 11) | ((line + vdp->getVerticalScroll()) & 7);
 
 	// Actual display.
 	// Note: Because line width is not a power of two, reading an entire line
@@ -147,7 +147,7 @@ void CharacterConverter<Pixel, zoom>::renderText1Q(
 	int nameStart = (line / 8) * 32;
 	int nameEnd = nameStart + 32;
 	int patternQuarter = nameStart & ~0xFF;
-	int patternBaseLine = (-1 << 13) | (line & 7);
+	int patternBaseLine = (-1 << 13) | ((line + vdp->getVerticalScroll()) & 7);	// TODO check vertical scroll
 	const byte *namePtr = vram->nameTable.readArea(nameStart | (-1 << 10));
 
 	// Actual display.
@@ -190,7 +190,7 @@ void CharacterConverter<Pixel, zoom>::renderText2(
 		blinkBg = plainBg;
 	}
 
-	int patternBaseLine = (-1 << 11) | (line & 7);
+	int patternBaseLine = (-1 << 11) | ((line + vdp->getVerticalScroll()) & 7);
 
 	// Actual display.
 	// TODO: Implement blinking.

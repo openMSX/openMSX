@@ -287,7 +287,7 @@ inline void SDLGLRenderer::renderBitmapLines(
 	// Which bits in the name mask determine the page?
 	int pageMask = 0x200 | vdp->getEvenOddMask();
 	while (count--) {
-		// TODO: Optimise addr and line; too many connversions right now.
+		// TODO: Optimise addr and line; too many conversions right now.
 		int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
 		if (lineValidInMode[vramLine] != mode) {
 			const byte *vramPtr = vram->bitmapWindow.readArea(vramLine << 7);
@@ -306,7 +306,7 @@ inline void SDLGLRenderer::renderPlanarBitmapLines(
 	// Which bits in the name mask determine the page?
 	int pageMask = vdp->getEvenOddMask();
 	while (count--) {
-		// TODO: Optimise addr and line; too many connversions right now.
+		// TODO: Optimise addr and line; too many conversions right now.
 		int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
 		if ( lineValidInMode[vramLine] != mode
 		|| lineValidInMode[vramLine | 512] != mode ) {
@@ -942,6 +942,7 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 				// TODO: Read byte ranges from VRAM?
 				//       Otherwise, have CharacterConverter read individual
 				//       bytes. But what is the advantage to that?
+				// TODO: vertical scrolling in character 
 				byte charPixels[8 * 8];
 				characterConverter.convertMonoBlock(
 					charPixels,
@@ -1018,7 +1019,9 @@ void SDLGLRenderer::displayPhase(
 	if (fromLine >= limit) return;
 
 	// Perform vertical scroll (wraps at 256)
-	byte line = fromLine - vdp->getLineZero() + vdp->getVerticalScroll();
+	byte line = fromLine - vdp->getLineZero();
+	if (!vdp->isTextMode())
+		line += vdp->getVerticalScroll();
 
 	// Render background lines.
 	// TODO: Complete separation of character and bitmap modes.

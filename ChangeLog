@@ -2,6 +2,8 @@ $Id$
 
 2002-08-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented R-Type mapper
+	* Fixed vertical scrolling in text modes
+	   (except TextMode1 in SDLGLRenderer)
 
 2002-08-21 Maarten ter Huurne <mth@stack.nl>
 	* Added C-BIOS 0.04 to Contrib directory.
