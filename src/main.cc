@@ -17,6 +17,7 @@
 #include "AfterCommand.hh"
 #include "Interpreter.hh"
 #include "Display.hh"
+#include "RendererFactory.hh"
 
 using std::auto_ptr;
 using std::cerr;
@@ -63,6 +64,7 @@ static int main(int argc, char **argv)
 			}
 			HotKey hotkey;
 			AfterCommand afterCommand;
+			RendererFactory::createVideoSystem();
 			MSXMotherBoard motherboard;
 			motherboard.run(parseStatus == CommandLineParser::RUN);
 		}

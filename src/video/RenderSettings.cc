@@ -48,6 +48,14 @@ RenderSettings::RenderSettings()
 		"blur", "amount of horizontal blur effect: 0 = none, 100 = full",
 		50, 0, 100));
 
+	EnumSetting<VideoSource>::Map videoSourceMap;
+	videoSourceMap["MSX"] = VIDEO_MSX;
+	// TODO: Only enable this value if GFX9000 is inserted?
+	videoSourceMap["GFX9000"] = VIDEO_GFX9000;
+	videoSource.reset(new EnumSetting<VideoSource>(
+		"videosource", "selects the video source to display on the screen",
+		VIDEO_MSX, videoSourceMap ));
+
 	// Get user-preferred renderer from config.
 	renderer = RendererFactory::createRendererSetting();
 	currentRenderer = renderer->getValue();
@@ -68,13 +76,13 @@ RenderSettings::RenderSettings()
 	renderer->addListener(this);
 	fullScreen->addListener(this);
 	EventDistributor::instance().registerEventListener(
-		RENDERER_SWITCH_EVENT, *this, EventDistributor::EMU );
+		RENDERER_SWITCH_EVENT, *this, EventDistributor::DETACHED );
 }
 
 RenderSettings::~RenderSettings()
 {
 	EventDistributor::instance().unregisterEventListener(
-		RENDERER_SWITCH_EVENT, *this, EventDistributor::EMU );
+		RENDERER_SWITCH_EVENT, *this, EventDistributor::DETACHED );
 	fullScreen->removeListener(this);
 	renderer->removeListener(this);
 }
@@ -103,16 +111,22 @@ void RenderSettings::checkRendererSwitch()
 	|| !Display::INSTANCE->getVideoSystem()->checkSettings() ) {
 		currentRenderer = renderer->getValue();
 		// Renderer failed to sync; replace it.
-		Event* rendererSwitchEvent = new SimpleEvent<RENDERER_SWITCH_EVENT>();
-		EventDistributor::instance().distributeEvent(rendererSwitchEvent);
+		EventDistributor::instance().distributeEvent(
+			new SimpleEvent<RENDERER_SWITCH_EVENT>() );
 	}
 }
 
 bool RenderSettings::signalEvent(const Event& event)
 {
 	assert(event.getType() == RENDERER_SWITCH_EVENT);
-	// TODO: Switch video system here, not in RendererFactory.
-	VDP::instance->switchRenderer();
+
+	// Switch video system.
+	RendererFactory::createVideoSystem();
+
+	// Tell VDPs they can update their renderer now.
+	EventDistributor::instance().distributeEvent(
+		new SimpleEvent<RENDERER_SWITCH2_EVENT>() );
+
 	return true;
 }
 

@@ -2,6 +2,7 @@
 
 #include "SDLVideoSystem.hh"
 #include "SDLRasterizer.hh"
+#include "V9990SDLRasterizer.hh"
 #include "SDLSnow.hh"
 #include "SDLConsole.hh"
 #include "Display.hh"
@@ -18,6 +19,7 @@
 namespace openmsx {
 
 SDLVideoSystem::SDLVideoSystem(RendererFactory::RendererID id)
+	: id(id)
 {
 	// Destruct old layers, so resources are freed before new allocations
 	// are done.
@@ -51,8 +53,7 @@ SDLVideoSystem::~SDLVideoSystem()
 	closeSDLVideo(screen);
 }
 
-Rasterizer* SDLVideoSystem::createRasterizer(
-	VDP* vdp, RendererFactory::RendererID id )
+Rasterizer* SDLVideoSystem::createRasterizer(VDP* vdp)
 {
 	switch (screen->format->BytesPerPixel) {
 	case 2:
@@ -66,6 +67,31 @@ Rasterizer* SDLVideoSystem::createRasterizer(
 			return new SDLRasterizer<Uint32, Renderer::ZOOM_256>(vdp, screen);
 		} else {
 			return new SDLRasterizer<Uint32, Renderer::ZOOM_REAL>(vdp, screen);
+		}
+	default:
+		assert(false);
+		return 0;
+	}
+}
+
+V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990* vdp)
+{
+	switch (screen->format->BytesPerPixel) {
+	case 2:
+		if (id == RendererFactory::SDLLO) {
+			return new V9990SDLRasterizer<Uint16, Renderer::ZOOM_256>(
+				vdp, screen );
+		} else {
+			return new V9990SDLRasterizer<Uint16, Renderer::ZOOM_REAL>(
+				vdp, screen );
+		}
+	case 4:
+		if (id == RendererFactory::SDLLO) {
+			return new V9990SDLRasterizer<Uint32, Renderer::ZOOM_256>(
+				vdp, screen );
+		} else {
+			return new V9990SDLRasterizer<Uint32, Renderer::ZOOM_REAL>(
+				vdp, screen );
 		}
 	default:
 		assert(false);

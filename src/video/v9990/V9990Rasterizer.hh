@@ -3,25 +3,28 @@
 #ifndef __V9990RASTERIZER_HH__
 #define __V9990RASTERIZER_HH__
 
-#include "Display.hh"
+#include "VideoLayer.hh"
 #include "V9990.hh"
+
 
 namespace openmsx {
 
-/*
- * If this seems awfully familiar, take a look at Rasterizer.hh
- * It's virtually the same class, but for a different video processor.
- */
-		
-class V9990Rasterizer : public Layer
+// TODO: Define actual types for these.
+typedef int V9990DisplayMode;
+typedef int V9990ColorMode;
+
+/** If this seems awfully familiar, take a look at Rasterizer.hh
+  * It's virtually the same class, but for a different video processor.
+  */
+class V9990Rasterizer : public VideoLayer
 {
 public:
 
-	/** Destructor
+	/** Destructor.
 	  */
-	virtual ~Rasterizer() {};
+	virtual ~V9990Rasterizer() {}
 
-	/** Resynchronize with VDP - flush caches etc
+	/** Resynchronize with VDP - flush caches etc.
 	  */
 	virtual void reset() = 0;
 
@@ -34,16 +37,16 @@ public:
 	virtual void frameEnd() = 0;
 
 	/** The display mode determines the screens geometry and how V9990
-	  * pixels are mapped to pixels on screen 
-	  * @param mode  The new display mode
+	  * pixels are mapped to pixels on screen.
+	  * @param displayMode  The new display mode.
 	  */
-	virtual void setDisplayMode(V9990DisplayMode display_mode) = 0;
+	virtual void setDisplayMode(V9990DisplayMode displayMode) = 0;
 
 	/** The color mode determines how the V9990 VRAM data gets converted
 	  * to pixel colors.
-	  * @param mode  The new color mode
+	  * @param colorMode  The new color mode.
 	  */
-	virtual void setColorMode(V9990ColorMode color_mode) = 0;
+	virtual void setColorMode(V9990ColorMode colorMode) = 0;
 	
 	/** Render a rectangle of border pixels on the host screen.
 	  * The units are absolute lines (Y) and VDP clockticks (X).
@@ -59,7 +62,7 @@ public:
 	/** Render a rectangle of display pixels on the host screen.
 	  * @param fromX    X coordinate of render start in VDP ticks.
 	  * @param fromY    Y coordinate of render start in absolute lines.
-	  * @param displayX display coordinate of render start: [0..640)
+	  * @param displayX display coordinate of render start: [0..640).
 	  * @param displayY display coordinate of render start: [0..480).
 	  * @param displayWidth rectangle width in pixels (512 per line).
 	  * @param displayHeight rectangle height in lines.
@@ -69,9 +72,13 @@ public:
 		int displayX, int displayY,
 		int displayWidth, int displayHeight
 		) = 0;
+
+protected:
+	V9990Rasterizer() : VideoLayer(RenderSettings::VIDEO_GFX9000) {}
+
 };
 
-} // V9990Rasterizer
-
 } // namespace openmsx
-#endif
+
+#endif // __V9990RASTERIZER_HH__
+

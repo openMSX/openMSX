@@ -7,6 +7,7 @@
 #include <memory>
 #include "openmsx.hh"
 #include "Schedulable.hh"
+#include "EventListener.hh"
 #include "MSXDevice.hh"
 #include "IRQHelper.hh"
 #include "EmuTime.hh"
@@ -50,7 +51,7 @@ class SpriteChecker;
   * A note about timing: the start of a frame or line is defined as
   * the starting time of the corresponding sync (vsync, hsync).
   */
-class VDP : public MSXDevice, private Schedulable
+class VDP : public MSXDevice, private Schedulable, private EventListener
 {
 public:
 	/** VDP version: the VDP model being emulated.
@@ -95,11 +96,7 @@ public:
 
 	/** Create a new renderer.
 	  */
-	void switchRenderer();
-
-	// TODO: We should support multiple VDPs in one machine eventually,
-	//       but this is a rare situation, so for now 1 VDP is enough.
-	static VDP* instance;
+	void createRenderer();
 
 	/** Is this an MSX1 VDP?
 	  * @return True if this is an MSX1 VDP (TMS99X8A or TMS9929A),
@@ -533,6 +530,9 @@ private:
 				) % TICKS_PER_LINE
 			< TICKS_PER_LINE - (displayMode.isTextMode() ? 960 : 1024);
 	}
+
+	// EventListener interface:
+	virtual bool signalEvent(const Event& event);
 
 	/** Called both on init and on reset.
 	  * Puts VDP into reset state.

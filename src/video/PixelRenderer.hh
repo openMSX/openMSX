@@ -27,7 +27,7 @@ class PixelRenderer : public Renderer, private SettingListener
 public:
 	/** Constructor.
 	  */
-	PixelRenderer(VDP* vdp, Rasterizer* rasterizer );
+	PixelRenderer(VDP* vdp);
 
 	/** Destructor.
 	  */
@@ -146,8 +146,6 @@ private:
 	int textModeCounter;
 
 	Rasterizer* rasterizer;
-
-	BooleanSetting& powerSetting;
 };
 
 } // namespace openmsx

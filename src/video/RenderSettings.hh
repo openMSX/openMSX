@@ -32,9 +32,14 @@ public:
 	  */
 	enum Accuracy { ACC_SCREEN, ACC_LINE, ACC_PIXEL };
 
+	/** Video sources: devices which produce a video stream.
+	  */
+	enum VideoSource { VIDEO_MSX, VIDEO_GFX9000 };
+
+	/** Gets the singleton instance. */
 	static RenderSettings& instance();
 
-	/** Accuracy [screen, line, pixel] */
+	/** Accuracy [screen, line, pixel]. */
 	EnumSetting<Accuracy>* getAccuracy() { return accuracy.get(); }
 
 	/** Deinterlacing [on, off]. */
@@ -67,6 +72,9 @@ public:
 	/** The alpha value [0..100] of the scanlines. */
 	IntegerSetting* getScanlineAlpha() { return scanlineAlpha.get(); }
 
+	/** The video source to display on the screen. */
+	EnumSetting<VideoSource>* getVideoSource() { return videoSource.get(); }
+
 private:
 	RenderSettings();
 	virtual ~RenderSettings();
@@ -91,6 +99,7 @@ private:
 	auto_ptr<RendererFactory::RendererSetting> renderer;
 	auto_ptr<EnumSetting<ScalerID> > scaler;
 	auto_ptr<IntegerSetting> scanlineAlpha;
+	auto_ptr<EnumSetting<VideoSource> > videoSource;
 
 	RendererFactory::RendererID currentRenderer;
 };

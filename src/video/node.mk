@@ -18,7 +18,7 @@ SRC_HDR:= \
 	Scaler SimpleScaler SaI2xScaler Scale2xScaler HQ2xScaler BlurScaler \
 	Deinterlacer \
 	ScreenShotSaver \
-	Display VideoSystem \
+	VideoSystem Display VideoLayer \
 	DummyVideoSystem
 
 HDR_ONLY:= \
@@ -27,7 +27,7 @@ HDR_ONLY:= \
 	VRAMObserver \
 	SpriteConverter \
 	Blender \
-	Rasterizer
+	Rasterizer 
 
 SRC_HDR_$(COMPONENT_GL)+= \
 	SDLGLVideoSystem GLRasterizer GLSnow GLUtil

@@ -7,6 +7,7 @@
 
 #include "openmsx.hh"
 #include "Schedulable.hh"
+#include "EventListener.hh"
 #include "MSXDevice.hh"
 #include "EmuTime.hh"
 #include "Debuggable.hh"
@@ -27,7 +28,7 @@ class V9990VRAM;
   * Graphics9000 module, made by Sunrise.
   */
 class V9990 : public MSXDevice,
-              private Schedulable
+              private Schedulable, private EventListener
 {
 public:
 	V9990(const XMLElement& config, const EmuTime& time);
@@ -187,6 +188,13 @@ private:
 		HOR_IRQ = 2,
 		CMD_IRQ = 4,
 	};
+
+	// EventListener interface:
+	virtual bool signalEvent(const Event& event);
+
+	/** Create a new renderer.
+	  */
+	void createRenderer();
 
 	void raiseIRQ(IRQType irqType);
 	

@@ -302,13 +302,12 @@ GLRasterizer::GLRasterizer(VDP* vdp)
 	// Init the palette.
 	precalcPalette(RenderSettings::instance().getGamma()->getValue());
 
+	// Store current (black) frame as a texture.
+	storedFrame.store();
+
 	// Register caches with VDPVRAM.
 	vram->patternTable.setObserver(&dirtyPattern);
 	vram->colourTable.setObserver(&dirtyColour);
-
-	// Register as display layer.
-	Display::INSTANCE->addLayer(this, Display::Z_MSX_ACTIVE);
-	Display::INSTANCE->setCoverage(this, Display::COVER_FULL);
 }
 
 GLRasterizer::~GLRasterizer()
@@ -1113,11 +1112,12 @@ void GLRasterizer::drawSprites(
 	glDisable(GL_TEXTURE_2D);
 }
 
-void GLRasterizer::update(const SettingLeafNode* /*setting*/)
+void GLRasterizer::update(const SettingLeafNode* setting)
 {
 	// TODO: SDLRasterizer subscribes to deinterlace setting.
 	//       Does it make sense to do that for GLRasterizer too?
-	assert(false);
+
+	Rasterizer::update(setting);
 }
 
 } // namespace openmsx

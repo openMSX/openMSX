@@ -29,7 +29,7 @@ class VDPVRAM;
 /** Rasterizer using SDL.
   */
 template <class Pixel, Renderer::Zoom zoom>
-class SDLRasterizer : public Rasterizer, private SettingListener
+class SDLRasterizer : public Rasterizer
 {
 public:
 	/** Constructor.
@@ -65,6 +65,7 @@ public:
 		int displayWidth, int displayHeight
 		);
 
+protected:
 	// SettingListener interface:
 	virtual void update(const SettingLeafNode* setting);
 

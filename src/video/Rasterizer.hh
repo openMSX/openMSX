@@ -3,18 +3,18 @@
 #ifndef __RASTERIZER_HH__
 #define __RASTERIZER_HH__
 
-#include "Display.hh"
+#include "VideoLayer.hh"
 #include "DisplayMode.hh"
 
 
 namespace openmsx {
 
-class Rasterizer: public Layer
+class Rasterizer: public VideoLayer
 {
 public:
 	/** Destructor.
 	  */
-	virtual ~Rasterizer() {};
+	virtual ~Rasterizer() {}
 
 	/** Resynchronize with VDP: all cached states are flushed.
 	  */
@@ -94,6 +94,10 @@ public:
 		int displayX, int displayY,
 		int displayWidth, int displayHeight
 		) = 0;
+
+protected:
+	Rasterizer() : VideoLayer(RenderSettings::VIDEO_MSX) {}
+
 };
 
 } // namespace openmsx

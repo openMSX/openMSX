@@ -10,12 +10,31 @@ using std::string;
 
 namespace openmsx {
 
+class Rasterizer;
+class VDP;
+class V9990Rasterizer;
+class V9990;
+
 /** Video back-end system.
   */
 class VideoSystem
 {
 public:
 	virtual ~VideoSystem();
+
+	/** Create the rasterizer selected by the current renderer setting.
+	  * Video systems that use a rasterizer must override this method.
+	  * @param vdp The VDP whose display will be rendered.
+	  * @return The rasterizer created.
+	  */
+	virtual Rasterizer* createRasterizer(VDP* vdp);
+
+	/** Create the V9990 rasterizer selected by the current renderer setting.
+	  * Video systems that use a rasterizer must override this method.
+	  * @param vdp The V9990 whose display will be rendered.
+	  * @return The rasterizer created.
+	  */
+	virtual V9990Rasterizer* createV9990Rasterizer(V9990* vdp);
 
 	/** Requests that this renderer checks its settings against the
 	  * current RenderSettings. If possible, update the settings of this

@@ -25,6 +25,7 @@ TODO:
 #include "VDPVRAM.hh"
 #include "VDPCmdEngine.hh"
 #include "SpriteChecker.hh"
+#include "EventDistributor.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
 #include "SettingsConfig.hh"
@@ -36,8 +37,6 @@ using std::setw;
 
 
 namespace openmsx {
-
-VDP* VDP::instance = 0;
 
 // Inlined methods first, to make sure they are actually inlined:
 // TODO: None left?
@@ -104,7 +103,7 @@ VDP::VDP(const XMLElement& config, const EmuTime& time)
 
 	// Initialise time stamps.
 	// This will be done again by frameStart, but these have to be
-	// initialised before switchRenderer() and reset() are called.
+	// initialised before createRenderer() and reset() are called.
 	// TODO: Can this be simplified with a different design?
 	frameStartTime.advance(time);
 	displayStartSyncTime = time;
@@ -112,8 +111,7 @@ VDP::VDP(const XMLElement& config, const EmuTime& time)
 	hScanSyncTime = time;
 
 	// Initialise renderer.
-	renderer = 0;
-	switchRenderer();
+	createRenderer();
 
 	// Reset state.
 	reset(time);
@@ -126,11 +124,15 @@ VDP::VDP(const XMLElement& config, const EmuTime& time)
 	Debugger::instance().registerDebuggable(
 		"VDP status regs", vdpStatusRegDebug );
 
-	instance = this;
+	EventDistributor::instance().registerEventListener(
+		RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED );
 }
 
 VDP::~VDP()
 {
+	EventDistributor::instance().unregisterEventListener(
+		RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED );
+
 	Debugger::instance().unregisterDebuggable("VDP status regs", vdpStatusRegDebug);
 	Debugger::instance().unregisterDebuggable("VDP regs", vdpRegDebug);
 
@@ -138,12 +140,18 @@ VDP::~VDP()
 	CommandController::instance().unregisterCommand(&paletteCmd, "palette");
 
 	delete renderer;
-	instance = 0;
 }
 
-void VDP::switchRenderer()
+bool VDP::signalEvent(const Event& event)
 {
+	assert(event.getType() == RENDERER_SWITCH2_EVENT);
 	delete renderer;
+	createRenderer();
+	return true;
+}
+
+void VDP::createRenderer()
+{
 	renderer = RendererFactory::createRenderer(this);
 	// TODO: Is it safe to use frameStartTime,
 	//       which is most likely in the past?

@@ -1,5 +1,15 @@
 $Id$
 
+2004-09-19 Maarten ter Huurne <maarten@treewalker.org>
+	* Cleanup of layer system, continued:
+	  - put common code in new VideoLayer class
+	  - implemented "videosystem" setting
+	  - implemented SDLV9990Rasterizer, which shows a test pattern
+	  If you start openMSX with "-ext gfx9000" and on the console type
+	  "set videosystem gfx9000", you will see the test pattern (SDLHi/Lo).
+	  There are some bugs left, but I had to commit to keep track of the
+	  many changes. I'll try to fix the bugs as soon as I can.
+
 2004-09-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Rewrote saving of settings code:
 	   - All settings are now saved by default, only exception is

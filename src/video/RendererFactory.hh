@@ -15,8 +15,11 @@ using std::auto_ptr;
 
 namespace openmsx {
 
+class VideoSystem;
 class Renderer;
 class VDP;
+class V9990Rasterizer;
+class V9990;
 class XMLElement;
 
 /** Interface for renderer factories.
@@ -36,8 +39,11 @@ public:
 
 	typedef EnumSetting<RendererID> RendererSetting;
 
+	/** Create the video system required by the current renderer setting.
+	  */
+	static VideoSystem* createVideoSystem();
+
 	/** Create the Renderer selected by the current renderer setting.
-	  * Use this method for initial renderer creation in the main thread.
 	  * @param vdp The VDP whose display will be rendered.
 	  */
 	static Renderer* createRenderer(VDP* vdp);

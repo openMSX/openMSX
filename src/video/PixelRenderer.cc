@@ -8,6 +8,7 @@ TODO:
 #include "PixelRenderer.hh"
 #include "Rasterizer.hh"
 #include "Display.hh"
+#include "VideoSystem.hh"
 #include "RenderSettings.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
@@ -16,7 +17,6 @@ TODO:
 #include "Scheduler.hh"
 #include "RealTime.hh"
 #include "Timer.hh"
-#include "GlobalSettings.hh"
 #include <algorithm>
 #include <cassert>
 #include <sstream>
@@ -110,13 +110,12 @@ void PixelRenderer::subdivide(
 	if (drawLast) draw(clipL, endY, endX, endY + 1, drawType, false);
 }
 
-PixelRenderer::PixelRenderer(VDP* vdp, Rasterizer* rasterizer)
-	: powerSetting(GlobalSettings::instance().getPowerSetting())
+PixelRenderer::PixelRenderer(VDP* vdp)
 {
 	this->vdp = vdp;
 	vram = vdp->getVRAM();
 	spriteChecker = vdp->getSpriteChecker();
-	this->rasterizer = rasterizer;
+	rasterizer = Display::INSTANCE->getVideoSystem()->createRasterizer(vdp);
 
 	frameSkipCounter = 999; // force drawing of frame
 	finishFrameDuration = 0;
@@ -130,12 +129,10 @@ PixelRenderer::PixelRenderer(VDP* vdp, Rasterizer* rasterizer)
 
 	settings.getMaxFrameSkip()->addListener(this);
 	settings.getMinFrameSkip()->addListener(this);
-	powerSetting.addListener(this);
 }
 
 PixelRenderer::~PixelRenderer()
 {
-	powerSetting.removeListener(this);
 	settings.getMinFrameSkip()->removeListener(this);
 	settings.getMaxFrameSkip()->removeListener(this);
 }
@@ -571,11 +568,7 @@ void PixelRenderer::renderUntil(const EmuTime& time)
 
 void PixelRenderer::update(const SettingLeafNode* setting)
 {
-	if (setting == &powerSetting) {
-		Display::INSTANCE->setCoverage(rasterizer,
-			powerSetting.getValue() ? Display::COVER_FULL : Display::COVER_NONE
-			);
-	} else if (setting == settings.getMinFrameSkip()
+	if (setting == settings.getMinFrameSkip()
 	|| setting == settings.getMaxFrameSkip() ) {
 		// Force drawing of frame.
 		frameSkipCounter = 999;

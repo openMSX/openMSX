@@ -18,7 +18,7 @@ namespace openmsx {
 
 /** Hi-res (640x480) rasterizer using OpenGL.
   */
-class GLRasterizer : public Rasterizer, private SettingListener
+class GLRasterizer : public Rasterizer
 {
 public:
 	// TODO: Make private.
@@ -59,6 +59,7 @@ public:
 		int displayWidth, int displayHeight
 		);
 
+protected:
 	// SettingListener interface:
 	virtual void update(const SettingLeafNode* setting);
 

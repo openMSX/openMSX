@@ -1,21 +1,18 @@
 // $Id$ 
 
-/*
- * The Graphics9000 class
- * 
- * TODO:
- * - Close to everything :-)
- */
-
-#include <iomanip>
-#include <cassert>
+#include "V9990.hh"
 #include "Scheduler.hh"
+#include "EventDistributor.hh"
 #include "Debugger.hh"
 #include "CommandController.hh"
-
-#include "V9990.hh"
+#include "RendererFactory.hh"
+#include "Display.hh"
+#include "VideoSystem.hh"
+#include <cassert>
+#include <iomanip>
 
 using std::setw;
+
 
 namespace openmsx {
 
@@ -78,9 +75,11 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
 	// Register console commands
 	CommandController::instance().registerCommand(&v9990RegsCmd, "v9990regs");
 
-	// Get video system
-	
-	
+	// Initialise rendering system
+	createRenderer();
+
+	EventDistributor::instance().registerEventListener(
+		RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED );
 }
 
 
@@ -88,6 +87,8 @@ V9990::~V9990()
 {
 	PRT_DEBUG("[--now--] V9990::Destroy");
 
+	EventDistributor::instance().unregisterEventListener(
+		RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED );
 	Debugger::instance().unregisterDebuggable("V9990 regs", v9990RegDebug);
 	CommandController::instance().unregisterCommand(&v9990RegsCmd, "v9990regs");
 }
@@ -109,6 +110,18 @@ const string& V9990::schedName() const
 	PRT_DEBUG("[--now-- ] V9990::SchedName - \"" << name << "\"");
 
 	return name;
+}
+
+// -------------------------------------------------------------------------
+// EventListener
+// -------------------------------------------------------------------------
+
+bool V9990::signalEvent(const Event& event)
+{
+	assert(event.getType() == RENDERER_SWITCH2_EVENT);
+	//delete renderer;
+	createRenderer();
+	return true;
 }
 
 // -------------------------------------------------------------------------
@@ -343,6 +356,11 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 			}
 			break;
 	}
+}
+
+void V9990::createRenderer()
+{
+	Display::INSTANCE->getVideoSystem()->createV9990Rasterizer(this);
 }
 
 void V9990::raiseIRQ(IRQType irqType)

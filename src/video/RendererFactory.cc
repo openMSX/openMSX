@@ -4,6 +4,7 @@
 #include "RenderSettings.hh"
 #include "CliCommOutput.hh"
 #include "CommandLineParser.hh"
+#include "Display.hh"
 
 // Video systems:
 #include "DummyVideoSystem.hh"
@@ -23,25 +24,45 @@
 
 namespace openmsx {
 
+VideoSystem* RendererFactory::createVideoSystem()
+{
+	RendererID id = RenderSettings::instance().getRenderer()->getValue();
+	switch (id) {
+	case DUMMY: {
+		return new DummyVideoSystem();
+	}
+	case SDLHI:
+	case SDLLO: {
+		return new SDLVideoSystem(id);
+	}
+#ifdef COMPONENT_GL
+	case SDLGL: {
+		return new SDLGLVideoSystem();
+	}
+#endif
+#ifdef HAVE_X11
+	case XLIB: {
+		return 0; // TODO: Implement X11 video system.
+	}
+#endif
+	default:
+		assert(false);
+		return 0;
+	}
+}
+
 Renderer* RendererFactory::createRenderer(VDP* vdp)
 {
 	RendererID id = RenderSettings::instance().getRenderer()->getValue();
 	switch (id) {
 	case DUMMY: {
-		new DummyVideoSystem();
 		return new DummyRenderer();
 	}
 	case SDLHI:
-	case SDLLO: {
-		SDLVideoSystem* videoSystem = new SDLVideoSystem(id);
-		return new PixelRenderer(vdp, videoSystem->createRasterizer(vdp, id));
-	}
-#ifdef COMPONENT_GL
+	case SDLLO:
 	case SDLGL: {
-		new SDLGLVideoSystem();
-		return new PixelRenderer(vdp, new GLRasterizer(vdp));
+		return new PixelRenderer(vdp);
 	}
-#endif
 #ifdef HAVE_X11
 	case XLIB: {
 		return new XRenderer(XLIB, vdp);

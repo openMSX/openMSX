@@ -44,6 +44,17 @@ SDLGLVideoSystem::~SDLGLVideoSystem()
 	closeSDLVideo(screen);
 }
 
+Rasterizer* SDLGLVideoSystem::createRasterizer(VDP* vdp)
+{
+	return new GLRasterizer(vdp);
+}
+
+V9990Rasterizer* SDLGLVideoSystem::createV9990Rasterizer(V9990* vdp)
+{
+	// TODO: Implement V9990GLRasterizer and create it here.
+	return 0;
+}
+
 // TODO: If we can switch video system at any time (not just frame end),
 //       is this polling approach necessary at all?
 bool SDLGLVideoSystem::checkSettings()

@@ -17,7 +17,12 @@ enum EventType
 	JOY_BUTTON_DOWN_EVENT,
 	QUIT_EVENT,
 	FINISH_FRAME_EVENT,
+	/** Triggers a renderer switch sequence. */
 	RENDERER_SWITCH_EVENT,
+	/** Sent when video system has been switched,
+	  * to tell VDPs they can create a new renderer now.
+	  */
+	RENDERER_SWITCH2_EVENT,
 	BREAK_EVENT,
 };
 
