@@ -6,7 +6,7 @@ ol.toc {
 	list-style: none;
 	padding-left: 16pt;
 }
-p, dl {
+p, dl, table, ul {
 	margin-left: 16pt;
 }
 p.version {
