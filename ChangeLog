@@ -1,5 +1,12 @@
 $Id$
 
+2002-09-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Enabled pixel accurate rendering in SDLHiRenderer:
+	   - for some reason the NOTONLYSNESCANDOTHIS part in Unknown Reality
+	     is not extremely slow (it is when using SDLGLRenderer)
+	   - remember you have to manually enable pixel accurate rendering
+	     with the command "accuracy pixel"
+
 2002-09-08 Joost Yervante Damad <joost@lumatec.be>
 	* mv configure.in -> configure.ac [autotools recommendation]
 	* configure exits on failure to find SDL_image library
