@@ -33,7 +33,7 @@ HostCPU::HostCPU()
 			// Did bit 21 change?
 			"xor	%%ebx, %%eax;"
 			"andl	$0x200000, %%eax;"
-			: "=a" (hasCPUID)
+			: "=a" (hasCPUID) // 0
 			: // no input
 			: "ebx"
 			);
@@ -41,21 +41,19 @@ HostCPU::HostCPU()
 			// Which CPUID calls are supported?
 			unsigned highest;
 			asm (
-				"mov	%[function],%%eax;"
 				"cpuid;"
-				: "=a" (highest)
-				: [function] "i" (0)
+				: "=a" (highest) // 0
+				: "0" (0) // 1: function
 				: "ebx", "ecx", "edx"
 				);
 			if (highest >= 1) {
 				// Get features flags.
 				unsigned features;
 				asm (
-					"mov	%[function],%%eax;"
 					"cpuid;"
-					: "=d" (features)
-					: [function] "i" (1)
-					: "eax", "ebx", "ecx"
+					: "=d" (features) // 0
+					: "a" (1) // 1: function
+					: "ebx", "ecx"
 					);
 				fprintf(stderr, "features: %08X\n", features);
 				mmxFlag = features & 0x800000;
