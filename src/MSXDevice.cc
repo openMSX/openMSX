@@ -1,6 +1,6 @@
 // $Id$
-
-#include "MSXDevice.hh"
+// 
+// #include "MSXDevice.hh
 #include "iostream.h"
 //using namespace std;
 
@@ -18,7 +18,7 @@ MSXDevice::~MSXDevice(void)
 MSXDevice* MSXDevice::instantiate(void) 
 {
 	cout << "Something is wrong here\nNobody should be calling MSXDevice::instantiate()";
-	return new MSXDevice;
+	return new MSXDevice();
 };
 
 void MSXDevice::setConfigDevice(MSXConfig::Device *config)
@@ -60,7 +60,7 @@ void MSXDevice::executeUntilEmuTime(const Emutime &time)
 //}
 
 
-//
+
 void MSXDevice::init()
 {
 	return;
@@ -86,24 +86,30 @@ void MSXDevice::restoreState(string &devicestring, ifstream &readstream)
 {
 	return;
 }
+
 void MSXDevice::setParameter(string &param, string &valuelist)
 {
 	return;
 }
-string &MSXDevice::getParameter(string &param)
+const string &MSXDevice::getParameter(string &param)
 {
+	// TODO
 }
 int MSXDevice::getNrParameters()
 {
+	return 0;
 }
-string &MSXDevice::getParameterTxt(int nr)
+const string &MSXDevice::getParameterTxt(int nr)
 {
+	// TODO
 }
-string &MSXDevice::getParamShortHelp(int nr)
+const string &MSXDevice::getParamShortHelp(int nr)
 {
+	// TODO
 }
-string &MSXDevice::getParamLongHelp(int nr)
+const string &MSXDevice::getParamLongHelp(int nr)
 {
+	// TODO
 }
 
 //protected:

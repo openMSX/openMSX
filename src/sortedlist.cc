@@ -6,7 +6,7 @@ bool SortedList<T, Compare>::empty () const {
 };
 
 template <class T, class Compare>
-T SortedList<T, Compare>::getFirst () const {
+const T &SortedList<T, Compare>::getFirst () const {
 	return front();
 };
 

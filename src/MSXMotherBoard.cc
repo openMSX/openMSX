@@ -134,24 +134,24 @@ void MSXMotherBoard::writeMem(word address, byte value, Emutime &time)
 
 void MSXMotherBoard::set_A8_Register(byte value)
 {
-	    for (int J=0;J<4;J++,value>>=2){
-	      // Change the slot structure
-	      PrimarySlotState[J]=value&3;
-	      SecondarySlotState[J]=3&(SubSlot_Register[value&3]>>(J*2));
-	      // Change the visible devices
-	      visibleDevices[J]= SlotLayout 
+	for (int J=0; J<4; J++, value>>=2) {
+		// Change the slot structure
+		PrimarySlotState[J]=value&3;
+		SecondarySlotState[J]=3&(SubSlot_Register[value&3]>>(J*2));
+		// Change the visible devices
+		visibleDevices[J]= SlotLayout 
 			[PrimarySlotState[J]]
 			[SecondarySlotState[J]]
 			[J];
-	    }
+	}
 }
 
 byte MSXMotherBoard::readIO(byte port, Emutime &time)
 {
-	IO_In[port]->readIO(port, time);
+	return IO_In[port]->readIO(port, time);
 }
 void MSXMotherBoard::writeIO(byte port, byte value, Emutime &time)
 {
-	IO_Out[port]->writeIO(port ,value, time);
+	IO_Out[port]->writeIO(port, value, time);
 }
 

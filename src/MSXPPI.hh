@@ -1,5 +1,29 @@
 // $Id$
 
+// This class implements the PPI (8255)
+//
+//   PPI    MSX-I/O  Direction  MSX-Function
+//  PortA    0xA8      Out     Memory primary slot register
+//  PortB    0xA9      In      Keyboard column inputs
+//  PortC    0xAA      Out     Keyboard row select / CAPS / CASo / CASm / SND
+//  Control  0xAB     In/Out   Mode select for PPI
+//
+//  Direction indicates the direction normally used on MSX.
+//  Reading from an output port returns the last written byte.
+//  Writing to an input port has no immediate effect.
+//
+//  PortA combined with upper half of PortC form groupA
+//  PortB               lower                    groupB
+//  GroupA can be in programmed in 3 modes
+//   - basic input/output
+//   - strobed input/output
+//   - bidirectional
+//  GroupB can only use the first two modes.
+//  Only the first mode is used on MSX, only this mode is implemented yet.
+//
+//  for more detail see
+//    http://.../8255.pdf    TODO: fix url
+
 #ifndef __MSXPPI_HH__
 #define __MSXPPI_HH__
 
@@ -7,41 +31,78 @@
 #include "MSXMotherBoard.hh"
 #include "emutime.hh"
 
-// This class implements the PPI
-// found on ports A8..AB where 
-//A8      R/W    I 8255A/ULA9RA041 PPI Port A Memory PSLOT Register (RAM/ROM)
-//			Bit   Expl.
-//			0-1   PSLOT number 0-3 for memory at 0000-3FFF
-//			2-3   PSLOT number 0-3 for memory at 4000-7FFF
-//			4-5   PSLOT number 0-3 for memory at 8000-BFFF
-//			6-7   PSLOT number 0-3 for memory at C000-FFFF
-//A9      R      I 8255A/ULA9RA041 PPI Port B Keyboard column inputs
-//AA      R/W    I 8255A/ULA9RA041 PPI Port C Kbd Row sel,LED,CASo,CASm
-//AB      W      I 8255A/ULA9RA041 Mode select and I/O setup of A,B,C
+// TODO split this class in 
+//   - generic 8255 class and
+//   - MSX-PPI-Interface class
+
 
 class MSXPPI : public MSXDevice
-{	// this class is a singleton class
-	// usage: MSXConfig::instance()->method(args);
- 
-	static MSXDevice *instance();
-
-	private:
-		//MSXPPI(); // private constructor -> can only construct self
-		static MSXPPI *volatile oneInstance; 
-		void Keyboard(void);
-		void KeyGhosting(void);
-		int real_MSX_keyboard;
-		byte MSXKeyMatrix[16];
-		byte port_a9;
-		byte port_aa;
-		byte port_ab;
+{
 	public:
 		MSXPPI(); 
 		~MSXPPI(); 
-		// don't forget you inherited from MSXDevice
+		static MSXDevice *instance();
+		
 		void init();
+		void reset();
 		byte readIO(byte port, Emutime &time);
 		void writeIO(byte port, byte value, Emutime &time);
+	private:
+		static MSXPPI *volatile oneInstance; 
+	
+	private:
+		static const int MODE_A   = 0x60;
+		static const int MODEA_0  = 0x00;
+		static const int MODEA_1  = 0x20;
+		static const int MODEA_2  = 0x40;
+		static const int MODEA_2_ = 0x60;
+		static const int MODE_B  = 0x04;
+		static const int MODEB_0 = 0x00;
+		static const int MODEB_1 = 0x04;
+		static const int DIRECTION_A  = 0x10;
+		static const int DIRECTION_B  = 0x02;
+		static const int DIRECTION_C0 = 0x01;
+		static const int DIRECTION_C1 = 0x08;
+		static const int SET_MODE  = 0x80;
+		static const int BIT_NR    = 0x0e;
+		static const int SET_RESET = 0x01;
+		
+	
+		byte PPIReadPortA();
+		byte PPIReadPortB();
+		byte PPIReadPortC();
+		byte PPIReadControlPort();
+		void PPIWritePortA(byte value);
+		void PPIWritePortB(byte value);
+		void PPIWritePortC(byte value);
+		void PPIWriteControlPort(byte value);
+
+		byte PPIReadC0();
+		byte PPIReadC1();
+		void PPIOutputPortA(byte value);
+		void PPIOutputPortB(byte value);
+		void PPIOutputPortC(byte value);
+
+		int control;
+		int latchPortA;
+		int latchPortB;
+		int latchPortC;
+	
+	private:
+		byte PPIInterfaceReadA();
+		byte PPIInterfaceReadB();
+		byte PPIInterfaceReadC0();
+		byte PPIInterfaceReadC1();
+		void PPIInterfaceWriteA(byte value);
+		void PPIInterfaceWriteB(byte value);
+		void PPIInterfaceWriteC0(byte value);
+		void PPIInterfaceWriteC1(byte value);
+	
+		void keyGhosting();
+		bool keyboardGhosting;
+		byte MSXKeyMatrix[16];
+
+		int selectedRow;
 
         friend class Inputs;
 };

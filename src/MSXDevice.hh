@@ -49,12 +49,12 @@ class MSXDevice
 		virtual void saveState(ofstream &writestream);
 		virtual void restoreState(string &devicestring, ifstream &readstream);
 		
-		virtual void setParameter(string &param, string &valuelist);
-		virtual string &getParameter(string &param);
+		virtual void setParameter(string &param, string &value);
+		virtual const string &getParameter(string &param);
 		virtual int getNrParameters();
-		virtual string &getParameterTxt(int nr);
-		virtual string &getParamShortHelp(int nr);
-		virtual string &getParamLongHelp(int nr);
+		virtual const string &getParameterTxt(int nr);
+		virtual const string &getParamShortHelp(int nr);
+		virtual const string &getParamLongHelp(int nr);
 	protected:
 		MSXConfig::Device *deviceConfig;
 		//These are used for save/restoreState see note over

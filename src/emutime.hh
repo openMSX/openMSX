@@ -27,7 +27,7 @@ public:
 	Emutime() : _emutime(0), _scale(0) {}
 	Emutime(int freq, int val=0): _scale(_mainFreq/freq)
 	{
-		assert((_mainFreq%freq)==0);
+		//assert((_mainFreq%freq)==0); cannot check because of rounding errors
 		_emutime = val*_scale;
 	}
 	
@@ -57,6 +57,10 @@ public:
 	bool operator > (const Emutime &foo) const { return _emutime >  foo._emutime; }
 	bool operator >=(const Emutime &foo) const { return _emutime >= foo._emutime; }
 
+	// distance function
+	int getTicksTill(const Emutime &foo) const {
+		return (int)(foo._emutime-_emutime)/_scale;
+	}
 
 private:
 	static const uint64 _mainFreq=3579545*8;
