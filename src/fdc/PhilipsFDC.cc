@@ -121,6 +121,7 @@ void PhilipsFDC::writeMem(word address, byte value, const EmuTime &time)
 		break;
 	case 0x3FFD:
 		//bit 1,0 -> drive number  (00 or 10: drive A, 01: drive B, 11: nothing)
+		//TODO bit 6 -> drive LED (0 -> off, 1 -> on)
 		//bit 7 -> motor on
 		//TODO check other bits !!
 		driveReg = value;
