@@ -4,6 +4,7 @@
 #define __IDEHD_HH__
 
 #include "IDEDevice.hh"
+#include "MSXConfig.hh"
 
 class File;
 
@@ -11,7 +12,7 @@ class File;
 class IDEHD : public IDEDevice
 {
 	public:
-		IDEHD();
+		IDEHD(MSXConfig::Config *config, const EmuTime &time);
 		virtual ~IDEHD();
 	
 		virtual void reset(const EmuTime &time);

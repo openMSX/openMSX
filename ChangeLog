@@ -1,5 +1,12 @@
 $Id$
 
+2002-12-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Made some IDE stuff configurable:
+	   - master/slave device
+	   - HD image
+	   - HD size is not yet configurable
+	   - see someconfig.xml for format of new config
+
 2002-12-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented MSX Bunsetsu Henkan / Jisyo:
 	   - I don't have much info on this device, but at least BUNSDUMP.BAS

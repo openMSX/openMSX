@@ -362,12 +362,18 @@
 
   <device id="Sunrise IDE">
     <type>SunriseIDE</type>
-    <slotted>
-      <ps>3</ps>
-      <ss>0</ss>
-      <page>1</page>
-    </slotted>
-    <parameter name="filename">cfg/IDE210.ROM</parameter>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>0</page> </slotted>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>3</page> </slotted>
+    <parameter name="filename">IDE210.ROM</parameter>
+    <parameter name="master">myHD</parameter>
+<!--<parameter name="slave">myCDROM</parameter>-->
   </device>
+
+  <config id="myHD">
+    <type>IDEHD</type>
+    <parameter name="filename">hd.dsk</parameter>
+  </config>
 
 </msxconfig>

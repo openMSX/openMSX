@@ -40,11 +40,12 @@ byte IDEHD::identifyBlock[512] = {
 };
 
 
-IDEHD::IDEHD()
+IDEHD::IDEHD(MSXConfig::Config *config, const EmuTime &time)
 {
 	buffer = new byte[512 * 256];
 
-	file = new File("hd.dsk", DISK);	// TODO 
+	const std::string filename = config->getParameter("filename");
+	file = new File(filename, DISK);
 	totalSectors = file->size() / 512;
 }
 

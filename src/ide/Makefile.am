@@ -15,6 +15,7 @@ noinst_LTLIBRARIES = libIDE.la
 libIDE_la_SOURCES = \
 	SunriseIDE.cc SunriseIDE.hh \
 	IDEDevice.hh DummyIDEDevice.cc DummyIDEDevice.hh \
+	IDEDeviceFactory.cc IDEDeviceFactory.hh \
 	IDEHD.cc IDEHD.hh
 
 nodebug: resetdebug all

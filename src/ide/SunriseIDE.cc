@@ -6,14 +6,19 @@
 #include "IDEHD.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
+#include "IDEDeviceFactory.hh"
 
 
 SunriseIDE::SunriseIDE(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(config, time)
 {
-	device[0] = new IDEHD();
-	device[1] = new DummyIDEDevice();
+	device[0] = (config->hasParameter("master")) 
+	            ? IDEDeviceFactory::create(config->getParameter("master"), time)
+	            : new DummyIDEDevice();
+	device[1] = (config->hasParameter("slave")) 
+	            ? IDEDeviceFactory::create(config->getParameter("slave"), time)
+	            : new DummyIDEDevice();
 
 	writeControl(0xFF);
 	reset(time);
