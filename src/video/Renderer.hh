@@ -75,8 +75,6 @@ public:
 
 	/** Puts the generated image on the screen.
 	  * @param time The moment in emulated time the frame is finished.
-	  * @param store Store the image for plotting it again later,
-	  * 	using the putStoredImage method.
 	  */
 	virtual void putImage(const EmuTime &time) = 0;
 
