@@ -22,7 +22,7 @@ class MSXRealTime : public MSXDevice
 	private:
 		static const int SYNCINTERVAL    = 50;	// sync every 50ms
 		static const int MAX_CATCHUPTIME = 2500;	// max nb of ms overtime
-		static const int MIN_REALTIME    = 30;	// min duration of interval
+		static const int MIN_REALTIME    = 40;	// min duration of interval
 	
 		MSXRealTime(); 
 		static MSXRealTime *oneInstance;

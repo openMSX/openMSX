@@ -8,7 +8,7 @@
 
 KeyClick::KeyClick()
 {
-	dac = new DACSound(20000);	// TODO find a good value and put it in config file
+	dac = new DACSound(15000);	// TODO find a good value and put it in config file
 }
 
 KeyClick::~KeyClick()
