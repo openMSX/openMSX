@@ -16,8 +16,7 @@
 
 #include "SDLInteractiveConsole.hh"
 
-// forward declaration
-class GLFont;
+class Font;
 class FileContext;
 
 
@@ -39,7 +38,7 @@ class GLConsole : public SDLInteractiveConsole
 		static const int BLINK_RATE = 500;
 		static const int CHAR_BORDER = 4;
 
-		GLFont *font;
+		Font *font;
 		GLuint backgroundTexture;
 		BackgroundSetting* backgroundSetting;
 		FontSetting* fontSetting;

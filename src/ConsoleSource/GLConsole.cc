@@ -12,17 +12,13 @@
 #endif
 
 #include "MSXConfig.hh"
+#include "DummyFont.hh"
 #include "GLFont.hh"
 #include "File.hh"
 
 
 GLConsole::GLConsole()
 {
-	font = NULL;
-	if (fontName.empty()) {
-		return;
-	}
-	
 	SDL_Surface *screen = SDL_GetVideoSurface();
 	blink = false;
 	lastBlinkTime = 0;
@@ -32,6 +28,7 @@ GLConsole::GLConsole()
 	consoleHeight = (screen->h / 15) * 6;
 	
 	// load font
+	font = new DummyFont();
 	fontSetting = new FontSetting(this, fontName);
 
 	// load background
@@ -139,7 +136,7 @@ bool GLConsole::loadTexture(const std::string &filename, GLuint &texture,
 // Draws the console buffer to the screen
 void GLConsole::drawConsole()
 {
-	if (!consoleSetting.getValue() || !font) {
+	if (!consoleSetting.getValue()) {
 		return;
 	}
 

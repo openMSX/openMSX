@@ -23,6 +23,7 @@ libSDL_console_la_SOURCES = \
 	CommandController.cc CommandController.hh \
 	Command.cc Command.hh \
 	Font.cc Font.hh \
+	DummyFont.cc DummyFont.hh \
 	SDLFont.cc SDLFont.hh \
 	GLFont.cc GLFont.hh
 

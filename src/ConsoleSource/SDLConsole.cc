@@ -15,6 +15,7 @@
 #endif
 
 #include "SDLConsole.hh"
+#include "DummyFont.hh"
 #include "SDLFont.hh"
 #include "MSXConfig.hh"
 #include "File.hh"
@@ -29,7 +30,7 @@ SDLConsole::SDLConsole(SDL_Surface *screen)
 	backgroundImage = NULL;
 	consoleSurface  = NULL;
 	inputBackground = NULL;
-	font = NULL;
+	font = new DummyFont();
 	consoleAlpha = SDL_ALPHA_OPAQUE;
 	
 	fontSetting = new FontSetting(this, fontName);
@@ -91,7 +92,7 @@ void SDLConsole::updateConsole()
 // Draws the console buffer to the screen
 void SDLConsole::drawConsole()
 {
-	if (!consoleSetting.getValue() || !font) {
+	if (!consoleSetting.getValue()) {
 		return;
 	}
 	
@@ -189,9 +190,9 @@ bool SDLConsole::loadFont(const std::string &filename)
 	try {
 		File file(filename);
 		SDLFont* newFont = new SDLFont(&file);
+		newFont->setSurface(consoleSurface);
 		delete font;
 		font = newFont;
-		font->setSurface(consoleSurface);
 	} catch (MSXException &e) {
 		return false;
 	}
@@ -214,7 +215,10 @@ void SDLConsole::resize(SDL_Rect rect)
 	if (consoleSurface)  SDL_FreeSurface(consoleSurface);
 	if (inputBackground) SDL_FreeSurface(inputBackground);
 	consoleSurface = SDL_DisplayFormat(temp1);
-	font->setSurface(consoleSurface);
+	SDLFont* sdlFont = dynamic_cast<SDLFont*>(font);
+	if (sdlFont) {
+		sdlFont->setSurface(consoleSurface);
+	}
 	inputBackground = SDL_DisplayFormat(temp2);
 	SDL_FreeSurface(temp1);
 	SDL_FreeSurface(temp2);

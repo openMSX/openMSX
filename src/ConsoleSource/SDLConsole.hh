@@ -6,7 +6,7 @@
 #include "SDLInteractiveConsole.hh"
 
 // forward declaration
-class SDLFont;
+class Font;
 class SDL_Surface;
 class Config;
 
@@ -35,7 +35,7 @@ class SDLConsole : public SDLInteractiveConsole
 		static const int CHAR_BORDER = 4;
 
 		// This is the font for the console.
-		SDLFont *font;
+		Font *font;
 
 		// Surface of the console.
 		SDL_Surface *consoleSurface;
