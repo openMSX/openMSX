@@ -18,7 +18,5 @@ class DummyCassetteDevice : public CassetteDevice
 		virtual short readSample(const EmuTime &time);
 		virtual void writeWave(short *buf, int length);
 		virtual int getWriteSampleRate();
-
-		virtual const std::string &getName();
 };
 #endif

@@ -13,6 +13,5 @@ class DummyJoystick : public JoystickDevice
 		virtual ~DummyJoystick();
 		virtual byte read(const EmuTime &time);
 		virtual void write(byte value, const EmuTime &time);
-		virtual const std::string &getName();
 };
 #endif

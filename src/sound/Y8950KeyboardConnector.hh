@@ -11,7 +11,6 @@ class DummyY8950KeyboardDevice : public Y8950KeyboardDevice
 {
 	virtual void write(byte data, const EmuTime &time);
 	virtual byte read(const EmuTime &time);
-	virtual const std::string &getName();
 };
 
 

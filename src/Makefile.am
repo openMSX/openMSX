@@ -76,7 +76,8 @@ openmsx_SOURCES=\
 	atoll.c \
 	md5.cc md5.hh \
 	PluggingController.hh PluggingController.cc \
-	Connector.hh Connector.cc Pluggable.hh \
+	Connector.hh Connector.cc \
+	Pluggable.hh Pluggable.cc \
 	config.h \
 	File.cc File.hh FileType.hh \
 	HttpFile.cc HttpFile.hh \

@@ -121,9 +121,3 @@ void DummyPrinterPortDevice::writeData(byte data, const EmuTime &time)
 {
 	// ignore data
 }
-
-const std::string &DummyPrinterPortDevice::getName()
-{
-	static const std::string name("dummy");
-	return name;
-}

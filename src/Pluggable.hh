@@ -14,7 +14,7 @@ public:
 	/**
 	 * A pluggable has a name
 	 */
-	virtual const std::string &getName() = 0;
+	virtual const std::string &getName();
 
 	/**
 	 * A pluggable belongs to a certain class. A pluggable only fits in

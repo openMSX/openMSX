@@ -70,39 +70,73 @@ void PluggingController::unregisterPluggable(Pluggable *pluggable)
 
 void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens)
 {
-	if (tokens.size() != 3)
-		throw CommandException("Syntax error");
 	PluggingController* controller = PluggingController::instance();
-	Connector* connector = NULL;
-	std::vector<Connector*>::iterator i;
-	for (i=controller->connectors.begin(); i!=controller->connectors.end(); i++) {
-		if ((*i)->getName() == tokens[1]) {
-			connector = *i;
+	switch (tokens.size()) {
+		case 1: { 
+			std::vector<Connector*>::iterator i;
+			for (i =  controller->connectors.begin();
+			     i != controller->connectors.end();
+			     i++) {
+				print((*i)->getName() + ": " + 
+				      (*i)->getPlug()->getName());
+			}
 			break;
 		}
-	}
-	if (connector == NULL)
-		throw CommandException("No such connector");
-	Pluggable* pluggable = NULL;
-	std::vector<Pluggable*>::iterator j;
-	for (j=controller->pluggables.begin(); j!=controller->pluggables.end(); j++) {
-		if ((*j)->getName() == tokens[2]) {
-			pluggable = *j;
+		case 2: {
+			Connector* connector = NULL;
+			std::vector<Connector*>::iterator i;
+			for (i =  controller->connectors.begin();
+			     i != controller->connectors.end();
+			     i++) {
+				if ((*i)->getName() == tokens[1]) {
+					connector = *i;
+					break;
+				}
+			}
+			if (connector == NULL)
+				throw CommandException("No such connector");
+			print(connector->getName() + ": " + 
+			      connector->getPlug()->getName());
 			break;
 		}
+		case 3: {
+			Connector* connector = NULL;
+			std::vector<Connector*>::iterator i;
+			for (i =  controller->connectors.begin();
+			     i != controller->connectors.end();
+			     i++) {
+				if ((*i)->getName() == tokens[1]) {
+					connector = *i;
+					break;
+				}
+			}
+			if (connector == NULL)
+				throw CommandException("No such connector");
+			Pluggable* pluggable = NULL;
+			std::vector<Pluggable*>::iterator j;
+			for (j =  controller->pluggables.begin();
+			     j != controller->pluggables.end();
+			     j++) {
+				if ((*j)->getName() == tokens[2]) {
+					pluggable = *j;
+					break;
+				}
+			}
+			if (pluggable == NULL)
+				throw CommandException("No such pluggable");
+			if (connector->getClass() != pluggable->getClass())
+				throw CommandException("Doesn't fit");
+			const EmuTime &time = MSXCPU::instance()->getCurrentTime();
+			connector->unplug(time);
+			connector->plug(pluggable, time);
+			break;
+		}
+	default:
+		throw CommandException("Syntax error");
 	}
-	if (pluggable == NULL)
-		throw CommandException("No such pluggable");
-	if (connector->getClass() != pluggable->getClass())
-		throw CommandException("Doesn't fit");
-	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
-	connector->unplug(time);
-	connector->plug(pluggable, time);
-
-	PRT_DEBUG("Plug: " << connector->getName() << " " << pluggable->getName());
 }
 
-void PluggingController::PlugCmd::help   (const std::vector<std::string> &tokens)
+void PluggingController::PlugCmd::help(const std::vector<std::string> &tokens)
 {
 	print("Plugs a plug into a connector");
 	print(" plug [connector] [plug]");

@@ -73,9 +73,3 @@ byte DummyY8950KeyboardDevice::read(const EmuTime &time)
 {
 	return 255;
 }
-
-const std::string &DummyY8950KeyboardDevice::getName()
-{
-	static const std::string name("dummy");
-	return name;
-}

@@ -40,6 +40,11 @@ public:
 	 */
 	virtual void unplug(const EmuTime &time);
 
+	/**
+	 * Returns the Pluggable currently plugged in
+	 */
+	Pluggable* getPlug();
+	
 protected:
 	Pluggable *pluggable;
 };

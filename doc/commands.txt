@@ -104,6 +104,9 @@ plug / unplug
   into a virtual joystickport.
 
   usage:
+    plug                     shows all currently connected plugs
+    plug <connector>         shows currently connected plug for the specified
+                             connector
     plug <connector> <plug>  plugs the specified plug into the specified
                              connector
     unplug <connector>       unplugs the plug connected to the specified

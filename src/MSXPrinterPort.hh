@@ -17,7 +17,6 @@ class DummyPrinterPortDevice : public PrinterPortDevice
 	virtual bool getStatus(const EmuTime &time);
 	virtual void setStrobe(bool strobe, const EmuTime &time);
 	virtual void writeData(byte data, const EmuTime &time);
-	virtual const std::string &getName();
 };
 
 

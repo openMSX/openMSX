@@ -19,3 +19,8 @@ void Connector::unplug(const EmuTime &time)
 	if (pluggable) pluggable->unplug(time);
 	//pluggable = DUMMY_DEVICE;
 }
+
+Pluggable* Connector::getPlug()
+{
+	return pluggable;
+}
