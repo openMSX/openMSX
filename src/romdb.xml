@@ -56,5 +56,9 @@
     <md5>3ce7e6360a798f33940405e6501dcff2</md5>
     <romtype>RTYPE</romtype>
   </rom>
+  <rom id="Strategic Mars">
+    <md5>62be2cd42b3db21e68df4c6a529188ed</md5>
+    <romtype>16kB</romtype>
+  </rom>
 </romdb>
 
