@@ -1,5 +1,14 @@
 $Id$
 
+2003-04-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added alternative YM2413 core (implemented by Jarek Burczynski):
+	   - still needs some work before it can replace old core
+	      - volume needs some tuning
+	      - performance optimizations (silent channels)
+	      - bug fixes(?)
+	   - if you want to try it copy YM2413.cc.new and YM2413.hh.new over
+	     YM2413.cc and YM2413.hh and recompile
+
 2003-04-18 David Heremans <david.heremans@gnu-linux.net>
 	* Fixed a bug in JoyNet, but need a program with a good asyncron
 	  protocol to test it
