@@ -1,5 +1,8 @@
 $Id$
 
+2002-09-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* GLFont uses 16x16 character texture instead of 256x1
+
 2002-09-22 Maarten ter Huurne <mth@stack.nl>
 	* Updated C-BIOS to version 0.11.
 	  Boukichi sure understands "release early; release often". :)
