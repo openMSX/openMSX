@@ -63,8 +63,10 @@ private:
 
 	HotKey();
 
-	multimap <Keys::KeyCode, HotKeyListener*> map;
-	multimap <Keys::KeyCode, HotKeyCmd*> cmdMap;
+	typedef multimap<Keys::KeyCode, HotKeyListener*> ListenerMap;
+	ListenerMap map;
+	typedef multimap<Keys::KeyCode, HotKeyCmd*> CommandMap;
+	CommandMap cmdMap;
 
 	class BindCmd : public Command {
 		public:

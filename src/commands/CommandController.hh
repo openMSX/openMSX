@@ -73,7 +73,8 @@ private:
 			return s1 < s2;
 		}
 	};
-	multimap<const string, Command*, ltstr> commands;
+	typedef multimap<const string, Command*, ltstr> CommandMap;
+	CommandMap commands;
 
 	// Commands
 	class HelpCmd : public Command {

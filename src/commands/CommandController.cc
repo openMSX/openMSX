@@ -40,19 +40,19 @@ CommandController *CommandController::instance()
 }
 
 
-void CommandController::registerCommand(Command *command,
-                                        const string &str)
+void CommandController::registerCommand(Command* command,
+                                        const string& str)
 {
 	commands.insert(pair<string, Command*>(str, command));
 }
 
-void CommandController::unregisterCommand(Command *command,
-                                          const string &str)
+void CommandController::unregisterCommand(Command* command,
+                                          const string& str)
 {
-	multimap<string, Command*>::iterator it;
-	for (it = commands.lower_bound(str);
-	     (it != commands.end()) && (it->first == str);
-	     it++) {
+	pair<CommandMap::iterator, CommandMap::iterator> bounds =
+		commands.equal_range(str);
+	for (CommandMap::iterator it = bounds.first;
+	     it != bounds.second; ++it) {
 		if (it->second == command) {
 			commands.erase(it);
 			break;
@@ -198,8 +198,9 @@ string CommandController::executeCommand(const string &cmd)
 	for (vector<string>::const_iterator it = subcmds.begin();
 	     it != subcmds.end();
 	     ++it) {
+		const string& command = *it;
 		vector<string> originalTokens;
-		split(*it, originalTokens, ' ');
+		split(command, originalTokens, ' ');
 		
 		vector<string> tokens;
 		removeEscaping(originalTokens, tokens, false);
@@ -207,14 +208,14 @@ string CommandController::executeCommand(const string &cmd)
 			continue;
 		}
 
-		multimap<const string, Command*, ltstr>::const_iterator it2;
-		it2 = commands.lower_bound(tokens.front());
-		if (it2 == commands.end() || it2->first != tokens.front()) {
-			throw CommandException(*it + ": unknown command");
+		pair<CommandMap::iterator, CommandMap::iterator> bounds =
+			commands.equal_range(tokens.front());
+		if (bounds.first == bounds.second) {
+			throw CommandException(tokens.front() + ": unknown command");
 		}
-		while (it2 != commands.end() && it2->first == tokens.front()) {
-			result += it2->second->execute(tokens);
-			++it2;
+		for (CommandMap::iterator it = bounds.first;
+		     it != bounds.second; ++it) {
+			result += it->second->execute(tokens);
 		}
 	}
 	return result;
@@ -294,14 +295,13 @@ void CommandController::tabCompletion(vector<string> &tokens)
 	if (tokens.size() == 1) {
 		// build a list of all command strings
 		set<string> cmds;
-		multimap<const string, Command*, ltstr>::const_iterator it;
-		for (it = commands.begin(); it != commands.end(); it++) {
+		for (CommandMap::const_iterator it = commands.begin();
+		     it != commands.end(); it++) {
 			cmds.insert(it->first);
 		}
 		completeString(tokens, cmds);
 	} else {
-		multimap<const string, Command*, ltstr>::const_iterator it;
-		it = commands.find(tokens.front());	// just take one
+		CommandMap::const_iterator it = commands.find(tokens.front());
 		if (it != commands.end()) {
 			it->second->tabCompletion(tokens);
 		}
@@ -417,29 +417,29 @@ string CommandController::HelpCmd::execute(const vector<string> &tokens)
 	string result;
 	CommandController *cc = CommandController::instance();
 	switch (tokens.size()) {
-		case 1: 
-			result += "Use 'help [command]' to get help for a specific command\n";
-			result += "The following commands exist:\n";
-			for (multimap<const string, Command*, ltstr>::const_iterator it =
-			     cc->commands.begin(); it != cc->commands.end(); ++it) {
-				result += it->first;
-				result += '\n';
-			}
-			break;
-		default: {
-			multimap<const string, Command*, ltstr>::const_iterator it;
-			it = cc->commands.lower_bound(tokens[1]);
-			if (it == cc->commands.end() || it->first != tokens[1]) {
-				throw CommandException(tokens[1] + ": unknown command");
-			}
-			while (it != cc->commands.end() && it->first == tokens[1]) {
-				vector<string> tokens2(tokens);
-				tokens2.erase(tokens2.begin());
-				result += it->second->help(tokens2);
-				++it;
-			}
-			break;
+	case 1: 
+		result += "Use 'help [command]' to get help for a specific command\n";
+		result += "The following commands exist:\n";
+		for (CommandMap::const_iterator it = cc->commands.begin();
+		     it != cc->commands.end(); ++it) {
+			result += it->first;
+			result += '\n';
 		}
+		break;
+	default: {
+		pair<CommandMap::iterator, CommandMap::iterator> bounds =
+			cc->commands.equal_range(tokens[1]);
+		if (bounds.first == bounds.second) {
+			throw CommandException(tokens[1] + ": unknown command");
+		}
+		for (CommandMap::iterator it = bounds.first;
+		     it != bounds.second; ++it) {
+			vector<string> tokens2(tokens);
+			tokens2.erase(tokens2.begin());
+			result += it->second->help(tokens2);
+		}
+		break;
+	}
 	}
 	return result;
 }

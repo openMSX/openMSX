@@ -73,17 +73,19 @@ void EventDistributor::quit()
 
 void EventDistributor::handle(SDL_Event &event)
 {
-	multimap<int, EventListener*>::iterator it;
 	bool cont = true;
-	for (it = highMap.lower_bound(event.type);
-	     (it != highMap.end()) && (it->first == event.type);
-	     ++it) {
+	pair<ListenerMap::iterator, ListenerMap::iterator> bounds;
+	bounds = highMap.equal_range(event.type);
+	for (ListenerMap::iterator it = bounds.first;
+	     it != bounds.second; ++it) {
 		cont &= it->second->signalEvent(event);
 	}
-	if (!cont) return;
-	for (it = lowMap.lower_bound(event.type);
-	     (it != lowMap.end()) && (it->first == event.type);
-	     ++it) {
+	if (!cont) {
+		return;
+	}
+	bounds = lowMap.equal_range(event.type);
+	for (ListenerMap::iterator it = bounds.first;
+	     it != bounds.second; ++it) {
 		it->second->signalEvent(event);
 	}
 }
@@ -91,19 +93,18 @@ void EventDistributor::handle(SDL_Event &event)
 void EventDistributor::registerEventListener(
 	int type, EventListener *listener, int priority)
 {
-	multimap <int, EventListener*> &map = (priority == 0) ? highMap : lowMap;
+	ListenerMap &map = (priority == 0) ? highMap : lowMap;
 	map.insert(pair<int, EventListener*>(type, listener));
 }
 
 void EventDistributor::unregisterEventListener(
 	int type, EventListener *listener, int priority)
 {
-	multimap <int, EventListener*> &map = (priority == 0) ? highMap : lowMap;
-
-	multimap<int, EventListener*>::iterator it;
-	for (it = map.lower_bound(type);
-	     (it != map.end()) && (it->first == type);
-	     ++it) {
+	ListenerMap &map = (priority == 0) ? highMap : lowMap;
+	pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
+		map.equal_range(type);
+	for (ListenerMap::iterator it = bounds.first;
+	     it != bounds.second; ++it) {
 		if (it->second == listener) {
 			map.erase(it);
 			break;

@@ -44,10 +44,10 @@ void HotKey::registerHotKey(Keys::KeyCode key, HotKeyListener *listener)
 
 void HotKey::unregisterHotKey(Keys::KeyCode key, HotKeyListener *listener)
 {
-	multimap<Keys::KeyCode, HotKeyListener*>::iterator it;
-	for (it = map.lower_bound(key);
-	     (it != map.end()) && (it->first == key);
-	     it++) {
+	pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
+		map.equal_range(key);
+	for (ListenerMap::iterator it = bounds.first;
+	     it != bounds.second; ++it) {
 		if (it->second == listener) {
 			map.erase(it);
 			break;
@@ -70,10 +70,10 @@ void HotKey::registerHotKeyCommand(Keys::KeyCode key, const string &command)
 
 void HotKey::unregisterHotKeyCommand(Keys::KeyCode key, const string &command)
 {
-	multimap<Keys::KeyCode, HotKeyCmd*>::iterator it;
-	for (it = cmdMap.lower_bound(key);
-			(it != cmdMap.end()) && (it->first == key);
-			it++) {
+	pair<CommandMap::iterator, CommandMap::iterator> bounds =
+		cmdMap.equal_range(key);
+	for (CommandMap::iterator it = bounds.first;
+	     it != bounds.second; ++it) {
 		HotKeyCmd *cmd = it->second;
 		if (cmd->getCommand() == command) {
 			unregisterHotKey(key, cmd);
@@ -87,13 +87,13 @@ void HotKey::unregisterHotKeyCommand(Keys::KeyCode key, const string &command)
 bool HotKey::signalEvent(SDL_Event &event) throw()
 {
 	Keys::KeyCode key = (Keys::KeyCode)event.key.keysym.sym;
-	if (event.type == SDL_KEYUP)
+	if (event.type == SDL_KEYUP) {
 		key = (Keys::KeyCode)(key | Keys::KD_UP);
-	PRT_DEBUG("HotKey event " << Keys::getName(key));
-	multimap<Keys::KeyCode, HotKeyListener*>::iterator it;
-	for (it = map.lower_bound(key);
-	     (it != map.end()) && (it->first == key);
-	     it++) {
+	}
+	pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
+		map.equal_range(key);
+	for (ListenerMap::iterator it = bounds.first;
+	     it != bounds.second; ++it) {
 		it->second->signalHotKey(key);
 	}
 	return true;
@@ -130,25 +130,24 @@ string HotKey::BindCmd::execute(const vector<string> &tokens)
 	switch (tokens.size()) {
 	case 0:
 		assert(false);
-	case 1: {
+	case 1: 
 		// show all bounded keys
-		multimap<Keys::KeyCode, HotKeyCmd*>::iterator it;
-		for (it = hk->cmdMap.begin(); it != hk->cmdMap.end(); it++) {
+		for (CommandMap::iterator it = hk->cmdMap.begin();
+		     it != hk->cmdMap.end(); it++) {
 			result += Keys::getName(it->first) + ":  " +
-			      it->second->getCommand() + '\n';
+			          it->second->getCommand() + '\n';
 		}
 		break;
-	}
 	case 2: {
 		// show bindings for this key
 		Keys::KeyCode key = Keys::getCode(tokens[1]);
 		if (key == Keys::K_NONE) {
 			throw CommandException("Unknown key");
 		}
-		multimap<Keys::KeyCode, HotKeyCmd*>::iterator it;
-		for (it = hk->cmdMap.lower_bound(key);
-				(it != hk->cmdMap.end()) && (it->first == key);
-				it++) {
+		pair<CommandMap::iterator, CommandMap::iterator> bounds =
+			hk->cmdMap.equal_range(key);
+		for (CommandMap::iterator it = bounds.first;
+		     it != bounds.second; ++it) {
 			result += Keys::getName(it->first) + ":  " +
 			      it->second->getCommand() + '\n';
 		}
@@ -192,10 +191,11 @@ string HotKey::UnbindCmd::execute(const vector<string> &tokens)
 		}
 		bool changed;
 		do {	changed = false;
-			multimap<Keys::KeyCode, HotKeyCmd*>::iterator it;
-			it = hk->cmdMap.lower_bound(key);
-			if ((it != hk->cmdMap.end()) && (it->first == key)) {
-				hk->unregisterHotKeyCommand(key, it->second->getCommand());
+			pair<CommandMap::iterator, CommandMap::iterator> bounds =
+				hk->cmdMap.equal_range(key);
+			if (bounds.first != bounds.second) {
+				hk->unregisterHotKeyCommand(key,
+					bounds.first->second->getCommand());
 				changed = true;
 			}
 		} while (changed);

@@ -57,8 +57,9 @@ private:
 	// SettingListener
 	virtual void update(const SettingLeafNode *setting);
 
-	multimap <int, EventListener*> lowMap;
-	multimap <int, EventListener*> highMap;
+	typedef multimap<int, EventListener*> ListenerMap;
+	ListenerMap lowMap;
+	ListenerMap highMap;
 	queue <pair<SDL_Event, EventListener*> > lowQueue;
 	queue <pair<SDL_Event, EventListener*> > highQueue;
 	BooleanSetting grabInput;
