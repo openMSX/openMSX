@@ -2,12 +2,18 @@
 
 #include <SDL/SDL.h>
 #include "Mixer.hh"
+#include "MSXCPU.hh"
+#include "MSXRealTime.hh"
+
 
 SDL_AudioSpec Mixer::audioSpec;
 int Mixer::nbAllDevices;
 int Mixer::nbDevices[NB_MODES];
 std::vector<SoundDevice*> Mixer::devices[NB_MODES];
 std::vector<short*> Mixer::buffers[NB_MODES];
+int Mixer::samplesLeft;
+int Mixer::offset;
+Emutime Mixer::prevTime;
 
 
 Mixer::Mixer()
@@ -26,6 +32,7 @@ Mixer::Mixer()
 	for (int i=0; i<NB_MODES; i++) 
 		nbDevices[i] = 0;
 	nbAllDevices = 0;
+	reInit();
 }
 
 Mixer::~Mixer()
@@ -62,15 +69,10 @@ void Mixer::registerSound(SoundDevice *device, ChannelMode mode=MONO)
 
 void Mixer::audioCallback(void *userdata, Uint8 *strm, int len)
 {
-	PRT_DEBUG("Audio callback");
-	int length = (len / sizeof(short)) / 2;	// STEREO -> MONO  => /2
+	//PRT_DEBUG("Audio callback");
+	instance()->updtStrm(samplesLeft);
 	short *stream = (short*)strm;
-	for (int mode=0; mode<NB_MODES; mode++) {
-		for (int i=0; i<nbDevices[mode]; i++) {
-			devices[mode][i]->updateBuffer(buffers[mode][i], length);
-		}
-	}
-	for (int j=0; j<length; j++) {
+	for (int j=0; j<audioSpec.samples; j++) {
 		int both = 0;
 		for (int i=0; i<nbDevices[MONO]; i++)
 			both  += buffers[MONO][i][j];
@@ -91,5 +93,32 @@ void Mixer::audioCallback(void *userdata, Uint8 *strm, int len)
 		else if (right < -32768) right = -32768;
 		(*stream++) = (short)right;
 	}
+	instance()->reInit();
+}
+void Mixer::reInit()
+{
+	samplesLeft = audioSpec.samples;
+	offset = 0;
+	prevTime = MSXCPU::instance()->getCurrentTime();
 }
 
+void Mixer::updateStream(const Emutime &time)
+{
+	assert(prevTime<=time);
+	float duration = MSXRealTime::instance()->getRealDuration(prevTime, time);
+	prevTime = time;
+	updtStrm(audioSpec.freq * duration);
+}
+void Mixer::updtStrm(int samples)
+{
+	PRT_DEBUG("Generate " << samples << " samples");
+	if (samples==0) return;
+	if (samples>samplesLeft) samples=samplesLeft;
+	for (int mode=0; mode<NB_MODES; mode++) {
+		for (int i=0; i<nbDevices[mode]; i++) {
+			devices[mode][i]->updateBuffer(buffers[mode][i]+offset, samples);
+		}
+	}
+	offset += samples;
+	samplesLeft -= samples;
+}

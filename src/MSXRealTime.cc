@@ -7,6 +7,7 @@
 MSXRealTime::MSXRealTime() : emuRef(1000, 0)	// timer in ms (rounding err!!)
 {
 	PRT_DEBUG("Constructing a MSXRealTime object");
+	factor = 1;
 }
 
 MSXRealTime::~MSXRealTime()
@@ -37,6 +38,8 @@ void MSXRealTime::executeUntilEmuTime(const Emutime &time)
 	realRef = curTime;
 	int emuPassed = emuRef.getTicksTill(time);
 	emuRef = time;
+	float curFactor = realPassed / emuPassed;
+	factor = factor*(1-ALPHA)+curFactor*ALPHA;
 
 	PRT_DEBUG("Emu  " << emuPassed << "ms    Real " << realPassed << "ms");
 	int diff = emuPassed - realPassed;
@@ -46,4 +49,12 @@ void MSXRealTime::executeUntilEmuTime(const Emutime &time)
 	}
 
 	Scheduler::instance()->setSyncPoint(emuRef+SYNCINTERVAL, *this);
+}
+
+float MSXRealTime::getRealDuration(Emutime time1, Emutime time2)
+{
+	// TODO make better estimations
+	float emuDuration = time1.getDuration(time2);
+	float adjust = (factor<1) ? 1 : factor;	// MAX(1,factor)
+	return emuDuration*adjust;
 }

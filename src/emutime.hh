@@ -73,11 +73,14 @@ public:
 	bool operator > (const Emutime &foo) const { return _emutime >  foo._emutime; }
 	bool operator >=(const Emutime &foo) const { return _emutime >= foo._emutime; }
 
-	// distance function
+	// distance functions
 	uint64 getTicksTill(const Emutime &foo) const {
 		assert (_scale!=0);
 		assert (foo._emutime >= _emutime);
 		return (int)(foo._emutime-_emutime)/_scale;
+	}
+	float getDuration(const Emutime &foo) const {
+		return (float)(foo._emutime-_emutime)/MAIN_FREQ;
 	}
 
 private:

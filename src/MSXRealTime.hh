@@ -17,6 +17,8 @@ class MSXRealTime : public MSXDevice
 		void reset();
 		void executeUntilEmuTime(const Emutime &time);
 
+		float getRealDuration(Emutime time1, Emutime time2);
+
 	private:
 		static const int SYNCINTERVAL = 50;	// sync every 50ms
 	
@@ -25,5 +27,7 @@ class MSXRealTime : public MSXDevice
 
 		Emutime emuRef;
 		unsigned int realRef;
+		float factor;
+		static const float ALPHA = 0.5;
 };
 #endif

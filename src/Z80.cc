@@ -19,6 +19,10 @@
 #include "Z80Tables.hh"
 
 #ifdef DEBUG
+//#define Z80DEBUG
+#endif
+
+#ifdef Z80DEBUG
 #include "Z80Dasm.h"
 #endif
 
@@ -114,20 +118,18 @@ int Z80::Z80_SingleInstruction()
 		opcode = Z80_RDOP(R.PC.W.l++);
 	}
 	R.IFF1 = R.nextIFF1;
-	#ifdef DEBUG
+	#ifdef Z80DEBUG
 		word start_pc = R.PC.W.l;
 	#endif
 	++R.R;
 	R.ICount = cycles_main[opcode];
 	(this->*opcode_main[opcode])();;	// R.ICount can be raised extra
-	#if 0
-	#ifdef DEBUG
+	#ifdef Z80DEBUG
 		printf("%04x : instruction ", start_pc);
 		Z80_Dasm(&debugmemory[start_pc], to_print_string, start_pc );
 		printf("%s\n", to_print_string );
 		printf("      A=%02x F=%02x \n", R.AF.B.h, R.AF.B.l);
 		printf("      BC=%04x DE=%04x HL=%04x \n", R.BC.W.l, R.DE.W.l, R.HL.W.l);
-	#endif
 	#endif
 	return R.ICount;
 }
@@ -164,7 +166,7 @@ inline void Z80::Z80_Out (word port,byte value) {
  * Read a byte from given memory location
  */
 inline byte Z80::Z80_RDMEM(word address) { 
-#ifdef DEBUG
+#ifdef Z80DEBUG
 	debugmemory[address] = interface->readMem(address);
 	return debugmemory[address];
 #else

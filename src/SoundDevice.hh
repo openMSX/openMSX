@@ -25,16 +25,16 @@ class SoundDevice
 		 * 
 		 *    0 <= newVolume <= 32767
 		 */
-		virtual void setVolume (int newVolume) {}
+		virtual void setVolume (int newVolume) = 0;
 
 		/**
 		 *
 		 */
-		virtual void setSampleRate (int newSampleRate) {}
+		virtual void setSampleRate (int newSampleRate) = 0;
 
 		/**
 		 * TODO update sound buffers
 		 */
-		virtual void updateBuffer (short *buffer, int length) {}
+		virtual void updateBuffer (short *buffer, int length) = 0;
 };
 #endif

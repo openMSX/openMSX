@@ -39,7 +39,7 @@ byte MSXPSG::readIO(byte port, Emutime &time)
 {
 	//Note Emutime argument is ignored, I think that's ok
 	assert (port == 0xA2);
-	return ay8910->readRegister(registerLatch);
+	return ay8910->readRegister(registerLatch, time);
 }
 
 void MSXPSG::writeIO(byte port, byte value, Emutime &time)
@@ -50,7 +50,7 @@ void MSXPSG::writeIO(byte port, byte value, Emutime &time)
 		registerLatch = value & 0x0f;
 		break;
 	case 0xA1:
-		ay8910->writeRegister(registerLatch, value);
+		ay8910->writeRegister(registerLatch, value, time);
 		break;
 	default:
 		assert(false);	//code should never be reached

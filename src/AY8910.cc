@@ -43,12 +43,12 @@ void AY8910::reset()
 	outputA = outputB = outputC = 0;
 	outputN = 0xff;
 	for (int i=0; i<=15; i++) {
-		writeRegister(i, 0);
+		wrtReg(i, 0);
 	}
 }
 
 
-byte AY8910::readRegister(byte reg)
+byte AY8910::readRegister(byte reg, const Emutime &time)
 {
 	assert (reg<=15);
 	
@@ -68,15 +68,18 @@ byte AY8910::readRegister(byte reg)
 }
 
 
-void AY8910::writeRegister(byte reg, byte value)
+void AY8910::writeRegister(byte reg, byte value, const Emutime &time)
 {
 	assert (reg<=15);
-	int old;
-	
 	if ((reg<AY_PORTA) && (reg==AY_ESHAPE || regs[reg]!=value)) {
 		// update the output buffer before changing the register
-		//TODO stream_update();
+		Mixer::instance()->updateStream(time);
 	}
+	wrtReg(reg, value);
+}
+void AY8910::wrtReg(byte reg, byte value)
+{
+	int old;
 	regs[reg] = value;
 	
 	switch (reg) {
@@ -183,12 +186,12 @@ void AY8910::writeRegister(byte reg, byte value)
 		if ((value     & PORT_A_DIRECTION) &&
 		   !(oldEnable & PORT_A_DIRECTION)) {
 			// changed from input to output
-			writeRegister(AY_PORTA, regs[AY_PORTA]);
+			wrtReg(AY_PORTA, regs[AY_PORTA]);
 		}
 		if ((value     & PORT_B_DIRECTION) &&
 		   !(oldEnable & PORT_B_DIRECTION)) {
 			// changed from input to output
-			writeRegister(AY_PORTB, regs[AY_PORTB]);
+			wrtReg(AY_PORTB, regs[AY_PORTB]);
 		}
 		oldEnable = value;
 		break;

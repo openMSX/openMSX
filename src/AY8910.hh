@@ -11,6 +11,7 @@
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
+#include "emutime.hh"
 
 #define MIN(x,y)	(x) < (y) ? (x) : (y)
 
@@ -30,8 +31,8 @@ class AY8910 : public SoundDevice
 		AY8910(AY8910Interface &interf); 
 		virtual ~AY8910(); 
 	
-		byte readRegister(byte reg);
-		void writeRegister(byte reg, byte value);
+		byte readRegister(byte reg, const Emutime &time);
+		void writeRegister(byte reg, byte value, const Emutime &time);
 
 		//SoundDevice
 		void init();
@@ -41,6 +42,8 @@ class AY8910 : public SoundDevice
 		void updateBuffer(short *buffer, int length);
 		
 	private:
+		void wrtReg(byte reg, byte value);
+		
 		static const int FP_UNIT = 0x8000;	// fixed point representation of 1
 		static const int CLOCK = 3579545/2;	// real time clock frequency of AY8910
 
