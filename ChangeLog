@@ -1,5 +1,9 @@
 $Id$
 
+2002-04-27 Maarten ter Huurne <mth@stack.nl>
+	* Display mode changes now go through VDPVRAM.
+	  It also performs planar reorder on single-byte reads and writes.
+
 2002-04-25 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* VDP Text2 dirty colour table check
 

@@ -127,8 +127,10 @@ public:
 		sync(time);
 		// Init new frame.
 		frameStartTime = time;
-		spriteLine = 0;
+		currentLine = 0;
 		// TODO: Reset anything else? Does the real VDP?
+		
+		for (int i = 0; i < 313; i++) spriteCount[i] = -1;
 	}
 
 	/** Get sprites for a display line.
@@ -145,16 +147,19 @@ public:
 	  */
 	inline int getSprites(int line, SpriteInfo *&visibleSprites) {
 		EmuTime time = frameStartTime + line * VDP::TICKS_PER_LINE;
-		if (line >= spriteLine) {
+		if (line >= currentLine) {
 			/*
 			cout << "performing extra updateSprites: "
-				<< "old line = " << (spriteLine - 1)
+				<< "old line = " << (currentLine - 1)
 				<< ", new line = " << line
 				<< "\n";
 			*/
 			sync(time);
+			//assert(line < currentLine);
 		}
 		visibleSprites = spriteBuffer[line];
+		//assert(spriteCount[line] != -1);
+		if (spriteCount[line] < 0) return 0;
 		return spriteCount[line];
 	}
 
@@ -223,7 +228,7 @@ private:
 	/** Sprites are checked up to and excluding this display line.
 	  * TODO: Keep this now that we have currentTime?
 	  */
-	int spriteLine;
+	int currentLine;
 
 	/** The sprite contribution to VDP status register 0.
 	  */

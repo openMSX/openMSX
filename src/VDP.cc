@@ -46,20 +46,7 @@ TODO:
 
 
 // Inlined methods first, to make sure they are actually inlined:
-
-inline byte VDP::getVRAMReordered(int addr, const EmuTime &time)
-{
-	return vram->cpuRead(
-		isPlanar() ? ((addr << 16) | (addr >> 1)) & vramMask : addr,
-		time);
-}
-
-inline void VDP::setVRAMReordered(int addr, byte value, const EmuTime &time)
-{
-	vram->cpuWrite(
-		isPlanar() ? ((addr << 16) | (addr >> 1)) & vramMask : addr,
-		value, time);
-}
+// TODO: None left?
 
 // Init and cleanup:
 
@@ -471,10 +458,7 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 		//fprintf(stderr, "VRAM[%05X]=%02X\n", addr, value);
 		// TODO: Check MXC bit (R#45, bit 6) for extension RAM access.
 		//       This bit is kept by the command engine.
-
-		// Then sync with the Renderer and commit the change.
-		setVRAMReordered(addr, value, time);
-
+		vram->cpuWrite(addr, value, time);
 		vramPointer = (vramPointer + 1) & 0x3FFF;
 		if (vramPointer == 0 && (displayMode & 0x18)) {
 			// In MSX2 video modes, pointer range is 128K.
@@ -542,7 +526,7 @@ byte VDP::vramRead(const EmuTime &time)
 {
 	byte ret = readAhead;
 	int addr = (controlRegs[14] << 14) | vramPointer;
-	readAhead = getVRAMReordered(addr, time);
+	readAhead = vram->cpuRead(addr, time);
 	vramPointer = (vramPointer + 1) & 0x3FFF;
 	if (vramPointer == 0 && (displayMode & 0x18)) {
 		// In MSX2 video mode, pointer range is 128K.
@@ -843,10 +827,7 @@ void VDP::updateDisplayMode(byte reg0, byte reg1, const EmuTime &time)
 		| ((reg1 & 0x10) >> 4); // M1
 	if (newMode != displayMode) {
 		//PRT_DEBUG("VDP: mode " << newMode);
-		// TODO: Move this to VDPVRAM?
-		renderer->updateDisplayMode(newMode, time);
-		cmdEngine->updateDisplayMode(newMode, time);
-		spriteChecker->updateDisplayMode(newMode, time);
+		vram->updateDisplayMode(newMode, time);
 		displayMode = newMode;
 		// To be extremely accurate, reschedule hscan when changing
 		// from/to text mode. Text mode has different border width,

@@ -35,10 +35,10 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePattern(
 	int patternNr, int y, const EmuTime &time)
 {
 	if (vdp->getSpriteMag()) y /= 2;
-	SpritePattern pattern = vdp->getVRAMReordered(
+	SpritePattern pattern = vram->cpuRead(
 		vdp->getSpritePatternBase() + patternNr * 8 + y, time) << 24;
 	if (vdp->getSpriteSize() == 16) {
-		pattern |= vdp->getVRAMReordered(
+		pattern |= vram->cpuRead(
 			vdp->getSpritePatternBase() + patternNr * 8 + y + 16, time) << 16;
 	}
 	return (vdp->getSpriteMag() ? doublePattern(pattern) : pattern);
@@ -160,7 +160,7 @@ inline int SpriteChecker::checkSprites2(
 	// TODO: Verify CC implementation.
 	for (sprite = 0; sprite < 32; sprite++,
 			attributeAddr += 4, colourAddr += 16) {
-		int y = vdp->getVRAMReordered(attributeAddr, time);
+		int y = vram->cpuRead(attributeAddr, time);
 		if (y == 216) break;
 		// Calculate line number within the sprite.
 		int spriteLine = (line - y) & 0xFF;
@@ -175,17 +175,17 @@ inline int SpriteChecker::checkSprites2(
 				if (limitSprites) break;
 			}
 			byte colourAttrib =
-				vdp->getVRAMReordered(colourAddr + spriteLine, time);
+				vram->cpuRead(colourAddr + spriteLine, time);
 			// Sprites with CC=1 are only visible if preceded by
 			// a sprite with CC=0.
 			if ((colourAttrib & 0x40) && visibleIndex == 0) continue;
 			SpriteInfo *sip = &visibleSprites[visibleIndex++];
 			int patternIndex =
-				vdp->getVRAMReordered(attributeAddr + 2, time);
+				vram->cpuRead(attributeAddr + 2, time);
 			// TODO: Precalc pattern index mask.
 			if (size == 16) patternIndex &= 0xFC;
 			sip->pattern = calculatePattern(patternIndex, spriteLine, time);
-			sip->x = vdp->getVRAMReordered(attributeAddr + 1, time);
+			sip->x = vram->cpuRead(attributeAddr + 1, time);
 			if (colourAttrib & 0x80) sip->x -= 32;
 			sip->colourAttrib = colourAttrib;
 		}
@@ -258,17 +258,17 @@ inline int SpriteChecker::checkSprites2(
 
 void SpriteChecker::updateSprites1(const EmuTime &until)
 {
-	while (currentTime < until) {
+	while (currentTime <= until) {
 		// TODO: This happens, but shouldn't.
 		//       Something is off between VDP sync points and
 		//       VRAM writes by CPU.
 		//       Maybe rounding errors due to treatment of
 		//       Z80 instructions as atomic?
-		if (spriteLine >= 313) break;
+		if (currentLine >= 313) break;
 
-		spriteCount[spriteLine] =
-			checkSprites1(spriteLine, spriteBuffer[spriteLine], until);
-		spriteLine++;
+		spriteCount[currentLine] =
+			checkSprites1(currentLine, spriteBuffer[currentLine], until);
+		currentLine++;
 		currentTime += VDP::TICKS_PER_LINE;
 	}
 }
@@ -281,17 +281,17 @@ void SpriteChecker::updateSprites2(const EmuTime &until)
 		<< ", frameStart = " << frameStartTime
 		<< "\n";
 	*/
-	while (currentTime < until) {
+	while (currentTime <= until) {
 		// TODO: This happens, but shouldn't.
 		//       Something is off between VDP sync points and
 		//       VRAM writes by CPU.
 		//       Maybe rounding errors due to treatment of
 		//       Z80 instructions as atomic?
-		if (spriteLine >= 313) break;
+		if (currentLine >= 313) break;
 
-		spriteCount[spriteLine] =
-			checkSprites2(spriteLine, spriteBuffer[spriteLine], until);
-		spriteLine++;
+		spriteCount[currentLine] =
+			checkSprites2(currentLine, spriteBuffer[currentLine], until);
+		currentLine++;
 		currentTime += VDP::TICKS_PER_LINE;
 	}
 }

@@ -56,13 +56,18 @@ public:
 		currentTime = time;
 	}
 
-	/** Write a byte through the CPU interface.
+	/** Write a byte to VRAM through the CPU interface.
+	  * Takes planar addressing into account if necessary.
+	  * @param address The address to write.
+	  * @param value The value to write.
+	  * @param time The moment in emulated time this write occurs.
 	  */
 	inline void cpuWrite(int address, byte value, const EmuTime &time) {
 		if (windows[COMMAND_READ].isInside(address)
 		|| windows[COMMAND_WRITE].isInside(address)) {
 			cmdEngine->sync(time);
 		}
+		if (planar) address = ((address << 16) | (address >> 1)) & 0x1FFFF;
 		cmdWrite(address, value, time);
 	}
 
@@ -74,7 +79,10 @@ public:
 		return data[address];
 	}
 
-	/** Read a byte though the CPU interface.
+	/** Read a byte from VRAM though the CPU interface.
+	  * Takes planar addressing into account if necessary.
+	  * @param address The address to read.
+	  * @return The VRAM contents at the specified address.
 	  */
 	inline byte cpuRead(int address, const EmuTime &time) {
 		// VRAM should never get ahead of CPU.
@@ -83,6 +91,7 @@ public:
 		if (windows[COMMAND_WRITE].isInside(address)) {
 			cmdEngine->sync(time);
 		}
+		if (planar) address = ((address << 16) | (address >> 1)) & 0x1FFFF;
 		return cmdRead(address);
 	}
 
@@ -109,6 +118,23 @@ public:
 			cmdEngine->sync(time);
 		}
 		return data + start;
+	}
+
+	/** Used by the VDP to signal display mode change.
+	  * VDPVRAM will inform the Renderer, command engine and the sprite
+	  * checker of this change.
+	  * @param mode The new display mode: M5..M1.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	inline void updateDisplayMode(int mode, const EmuTime &time) {
+		// Synchronise subsystems.
+		renderer->updateDisplayMode(mode, time);
+		cmdEngine->updateDisplayMode(mode, time);
+		spriteChecker->updateDisplayMode(mode, time);
+
+		// Commit change inside VDPVRAM.
+		// TODO: Is the display mode check OK? Profile undefined modes.
+		planar = (mode & 0x14) == 0x14;
 	}
 
 	inline void setRenderer(Renderer *renderer) {
@@ -204,9 +230,12 @@ private:
 	/** Pointer to VRAM data block.
 	  */
 	byte *data;
+
 	/** Size of VRAM in bytes.
 	  */
 	int size;
+
+	bool planar;
 
 	/** Windows through which various VDP subcomponents access the VRAM.
 	  */

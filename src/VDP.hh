@@ -380,24 +380,6 @@ public:
 			&& ((controlRegs[8] & 0x02) == 0x00);
 	}
 
-	/** Read a byte from the VRAM.
-	  * TODO: Move this to VDPVRAM? (possible if it keeps displayMode)
-	  * Takes planar addressing into account if necessary.
-	  * @param addr The address to read.
-	  *   No bounds checking is done, so make sure it is a legal address.
-	  * @return The VRAM contents at the specified address.
-	  */
-	inline byte getVRAMReordered(int addr, const EmuTime &time);
-
-	/** Write a byte to the VRAM.
-	  * TODO: Move this to VDPVRAM? (possible if it keeps displayMode)
-	  * Takes planar addressing into account if necessary.
-	  * @param addr The address to write.
-	  * @param value The value to write.
-	  * @param time The moment in emulated time this write occurs.
-	  */
-	inline void setVRAMReordered(int addr, byte value, const EmuTime &time);
-
 private:
 	class PaletteCmd : public Command {
 	public:
