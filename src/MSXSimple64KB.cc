@@ -45,12 +45,12 @@ void MSXSimple64KB::writeMem(word address, byte value, const EmuTime &time)
 	memoryBank[address] = value;
 }
 
-byte* MSXSimple64KB::getReadCacheLine(word start, word length)
+byte* MSXSimple64KB::getReadCacheLine(word start)
 {
 	return &memoryBank[start];
 }
 
-byte* MSXSimple64KB::getWriteCacheLine(word start, word length)
+byte* MSXSimple64KB::getWriteCacheLine(word start)
 {
 	return &memoryBank[start];
 }

@@ -146,8 +146,8 @@ class MSXMotherBoard : public CPUInterface
 		 */
 		void lowerIRQ();
 
-		virtual byte* getReadCacheLine(word start, word length);
-		virtual byte* getWriteCacheLine(word start, word length);
+		virtual byte* getReadCacheLine(word start);
+		virtual byte* getWriteCacheLine(word start);
 
 
 		/*

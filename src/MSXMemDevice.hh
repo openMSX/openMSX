@@ -36,7 +36,7 @@ class MSXMemDevice : virtual public MSXDevice
 		virtual void registerSlots();
 
 		/**
-		 * Test that the memory in the interval [start, start+length)
+		 * Test that the memory in the interval [start, start+CACHE_LINE_SIZE)
 		 * is cacheable for reading. If it is, a pointer to a buffer
 		 * containing this interval must be returned. If not, a null
 		 * pointer must be returned.
@@ -47,10 +47,10 @@ class MSXMemDevice : virtual public MSXDevice
 		 * An interval will never cross a 16KB border.
 		 * An interval will never contain the address 0xffff.
 		 */
-		virtual byte* getReadCacheLine(word start, word length);
+		virtual byte* getReadCacheLine(word start);
 		
 		/**
-		 * Test that the memory in the interval [start, start+length)
+		 * Test that the memory in the interval [start, start+CACHE_LINE_SIZE)
 		 * is cacheable for writing. If it is, a pointer to a buffer
 		 * containing this interval must be returned. If not, a null
 		 * pointer must be returned.
@@ -61,7 +61,7 @@ class MSXMemDevice : virtual public MSXDevice
 		 * An interval will never cross a 16KB border.
 		 * An interval will never contain the address 0xffff.
 		 */
-		virtual byte* getWriteCacheLine(word start, word length);
+		virtual byte* getWriteCacheLine(word start);
 };
 
 #endif

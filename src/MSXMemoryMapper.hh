@@ -30,8 +30,8 @@ class MSXMemoryMapper : public MSXMemDevice, public MSXIODevice
 		void writeMem(word address, byte value, const EmuTime &time);
 		byte readIO(byte port, const EmuTime &time);
 		void writeIO(byte port, byte value, const EmuTime &time);
-		byte* getReadCacheLine(word start, word length);
-		byte* getWriteCacheLine(word start, word length);
+		byte* getReadCacheLine(word start);
+		byte* getWriteCacheLine(word start);
 		
 		void reset(const EmuTime &time);
 		void initIO();

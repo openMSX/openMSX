@@ -41,11 +41,12 @@ class MSXCPU : public MSXDevice, public Schedulable
 		const EmuTime &getTargetTime();
 
 		/**
-		 * Invalidate the CPU its cache for the interval [start, start+length)
+		 * Invalidate the CPU its cache for the interval 
+		 * [start, start+num*CACHE_LINE_SIZE)
 		 * For example MSXMemoryMapper and MSXGameCartrigde need to call this
 		 * method when a 'memory switch' occurs.
 		 */
-		void invalidateCache(word start, int length);
+		void invalidateCache(word start, int num);
 
 	private:
 		/**

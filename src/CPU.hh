@@ -97,9 +97,17 @@ class CPU
 		void CPU::writeMem(word address, byte value);
 
 		/**
-		 * Invalidate the CPU its cache for the interval [start, start+length)
+		 * Invalidate the CPU its cache for the interval 
+		 * [start, start+num*CACHE_LINE_SIZE)
 		 */
-		void invalidateCache(word start, int length);
+		void invalidateCache(word start, int num);
+
+
+		static const int CACHE_LINE_BITS = 8;	// 256bytes
+		static const int CACHE_LINE_SIZE = 1 << CACHE_LINE_BITS;
+		static const int CACHE_LINE_NUM  = 0x10000 / CACHE_LINE_SIZE;
+		static const int CACHE_LINE_LOW  = CACHE_LINE_SIZE - 1;
+		static const int CACHE_LINE_HIGH = 0xffff - CACHE_LINE_LOW;
 
 	protected:
 		/*
@@ -117,20 +125,15 @@ class CPU
 		 */
 		CPUInterface *interface;
 		EmuTime targetTime;
-		EmuTime currenTime;	// EmuTimeFreq in derived classes!!
 		bool targetChanged;	// optimization
 
 		CPURegs R;
 
 	private:
-		static const int CACHE_LINE_BITS = 8;	// 256bytes, not too big address 0xffff cannot be cached
-		static const int CACHE_LINE_SIZE = 1 << CACHE_LINE_BITS;
-		static const int CACHE_LINE_NUM  = 0x10000 / CACHE_LINE_SIZE;
-		static const int CACHE_LINE_LOW  = CACHE_LINE_SIZE - 1;
-		static const int CACHE_LINE_HIGH = 0xffff - CACHE_LINE_LOW;
-
-		byte* readCacheLine[CACHE_LINE_NUM];
+		byte* readCacheLine [CACHE_LINE_NUM];
 		byte* writeCacheLine[CACHE_LINE_NUM];
+		bool readCacheTried [CACHE_LINE_NUM];
+		bool writeCacheTried[CACHE_LINE_NUM];
 };
 #endif //__CPU_HH__
 

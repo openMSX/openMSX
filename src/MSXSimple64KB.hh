@@ -25,8 +25,8 @@ class MSXSimple64KB : public MSXMemDevice
 		
 		byte readMem(word address, const EmuTime &time);
 		void writeMem(word address, byte value, const EmuTime &time);  
-		byte* getReadCacheLine(word start, word length);
-		byte* getWriteCacheLine(word start, word length);
+		byte* getReadCacheLine(word start);
+		byte* getWriteCacheLine(word start);
 
 	private:
 		byte* memoryBank;

@@ -149,7 +149,7 @@ void MSXMotherBoard::set_A8_Register(byte value)
 		if (visibleDevices[j] != newDevice) {
 			visibleDevices[j] = newDevice;
 			// invalidate cache
-			MSXCPU::instance()->invalidateCache(j*0x4000, 0x4000);
+			MSXCPU::instance()->invalidateCache(j*0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
 		}
 	}
 }
@@ -184,7 +184,7 @@ void MSXMotherBoard::writeMem(word address, byte value, const EmuTime &time)
 					if (visibleDevices[i] != newDevice) {
 						visibleDevices[i] = newDevice;
 						// invalidate cache
-						MSXCPU::instance()->invalidateCache(i*0x4000, 0x4000);
+						MSXCPU::instance()->invalidateCache(i*0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
 					}
 				}
 			}
@@ -224,16 +224,16 @@ void MSXMotherBoard::lowerIRQ()
 	IRQLine--;
 }
 
-byte* MSXMotherBoard::getReadCacheLine(word start, word length)
+byte* MSXMotherBoard::getReadCacheLine(word start)
 {
-	if ((start+length) > 0xffff)
+	if (start == 0x10000-CPU::CACHE_LINE_SIZE)	// contains 0xffff
 		return NULL;
-	return visibleDevices[start>>14]->getReadCacheLine(start, length);
+	return visibleDevices[start>>14]->getReadCacheLine(start);
 }
 
-byte* MSXMotherBoard::getWriteCacheLine(word start, word length)
+byte* MSXMotherBoard::getWriteCacheLine(word start)
 {
-	if ((start+length) > 0xffff)
+	if (start == 0x10000-CPU::CACHE_LINE_SIZE)	// contains 0xffff
 		return NULL;
-	return visibleDevices[start>>14]->getWriteCacheLine(start, length);
+	return visibleDevices[start>>14]->getWriteCacheLine(start);
 }

@@ -32,12 +32,12 @@ void MSXMemDevice::registerSlots()
 	}
 }
 
-byte* MSXMemDevice::getReadCacheLine(word start, word length)
+byte* MSXMemDevice::getReadCacheLine(word start)
 {
 	return NULL;
 }
 
-byte* MSXMemDevice::getWriteCacheLine(word start, word length)
+byte* MSXMemDevice::getWriteCacheLine(word start)
 {
 	return NULL;
 }

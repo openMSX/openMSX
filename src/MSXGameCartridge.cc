@@ -214,20 +214,14 @@ byte MSXGameCartridge::readMem(word address, const EmuTime &time)
 	return internalMemoryBank[address>>13][address&0x1fff];
 }
 
-byte* MSXGameCartridge::getReadCacheLine(word start, word length)
+byte* MSXGameCartridge::getReadCacheLine(word start)
 {
-	if (length <= 0x2000) {
-		return &internalMemoryBank[start>>13][start&0x1fff];
-	} else {
-		return NULL;
-	}
+	// assumes CACHE_LINE_SIZE <= 0x2000
+	return &internalMemoryBank[start>>13][start&0x1fff];
 }
 
 void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 {
-	//TODO optimize this
-	//MSXCPU::instance()->invalidateCache(0x4000, 0x8000);	// 0x4000 - 0xc000
-	
 	byte regio;
   
 	switch (mapperType) {
@@ -367,5 +361,5 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 void MSXGameCartridge::setBank(int regio, byte* value)
 {
 	internalMemoryBank[regio] = value;
-	MSXCPU::instance()->invalidateCache(regio*0x2000, 0x2000);
+	MSXCPU::instance()->invalidateCache(regio*0x2000, 0x2000/CPU::CACHE_LINE_SIZE);
 }

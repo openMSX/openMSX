@@ -1,23 +1,43 @@
 inline byte CPU::readMem(word address)
 {
 	int line = address >> CACHE_LINE_BITS;
-	if (readCacheLine[line] == (byte*) -1)
-		readCacheLine[line] = interface->getReadCacheLine(address&CACHE_LINE_HIGH, CACHE_LINE_SIZE);
 	if (readCacheLine[line] != NULL) {
+		// cached, fast path
 		return readCacheLine[line][address&CACHE_LINE_LOW];
-	} else {
-		return interface->readMem(address, getCurrentTime());
 	}
+	// not cached
+	if (!readCacheTried[line]) {
+		// try to cache now
+		readCacheTried[line] = true;
+		readCacheLine[line] = interface->getReadCacheLine(address&CACHE_LINE_HIGH);
+		if (readCacheLine[line] != NULL) {
+			// cached ok
+			return readCacheLine[line][address&CACHE_LINE_LOW];
+		}
+	}
+	// uncacheable
+	return interface->readMem(address, getCurrentTime());
 }
 
 inline void CPU::writeMem(word address, byte value)
 {
 	int line = address >> CACHE_LINE_BITS;
-	if (writeCacheLine[line] == (byte*) -1)
-		writeCacheLine[line] = interface->getWriteCacheLine(address&CACHE_LINE_HIGH, CACHE_LINE_SIZE);
 	if (writeCacheLine[line] != NULL) {
+		// cached, fast path
 		writeCacheLine[line][address&CACHE_LINE_LOW] = value;
-	} else {
-		interface->writeMem(address, value, getCurrentTime());
+		return;
 	}
+	// not cached
+	if (!writeCacheTried[line]) {
+		// try to cache now
+		writeCacheTried[line] = true;
+		writeCacheLine[line] = interface->getWriteCacheLine(address&CACHE_LINE_HIGH);
+		if (writeCacheLine[line] != NULL) {
+			// cached ok
+			writeCacheLine[line][address&CACHE_LINE_LOW] = value;
+			return;
+		}
+	}
+	// uncacheable
+	interface->writeMem(address, value, getCurrentTime());
 }

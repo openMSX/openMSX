@@ -24,7 +24,7 @@ byte MSXRom16KB::readMem(word address, const EmuTime &time)
 	return memoryBank [address & 0x3fff];
 }
 
-byte* MSXRom16KB::getReadCacheLine(word start, word length)
+byte* MSXRom16KB::getReadCacheLine(word start)
 {
 	return &memoryBank[start & 0x3fff];
 }

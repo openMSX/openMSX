@@ -56,12 +56,12 @@ void MSXMemoryMapper::writeMem(word address, byte value, const EmuTime &time)
 	buffer[getAdr(address)] = value;
 }
 
-byte* MSXMemoryMapper::getReadCacheLine(word start, word length)
+byte* MSXMemoryMapper::getReadCacheLine(word start)
 {
 	return &buffer[getAdr(start)];
 }
 
-byte* MSXMemoryMapper::getWriteCacheLine(word start, word length)
+byte* MSXMemoryMapper::getWriteCacheLine(word start)
 {
 	return &buffer[getAdr(start)];
 }
