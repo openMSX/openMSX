@@ -1,5 +1,7 @@
 // $Id$
 
+#include <cassert>
+
 #include "Setting.hh"
 #include "SettingListener.hh"
 #include "CliCommOutput.hh"
