@@ -28,7 +28,7 @@ public:
 	// constructors
 	EmuDuration()                  { time = 0; }
 	explicit EmuDuration(uint64 n) { time = n; }
-	explicit EmuDuration(double duration) 
+	explicit EmuDuration(double duration)
 		{ time = (uint64)(duration * MAIN_FREQ); }
 
 	// conversions
@@ -39,7 +39,7 @@ public:
 	// assignment operator
 	EmuDuration &operator =(const EmuDuration &d)
 		{ time = d.time; return *this; }
-	
+
 	// comparison operators
 	bool operator ==(const EmuDuration &d) const
 		{ return time == d.time; }
@@ -53,9 +53,9 @@ public:
 		{ return time >  d.time; }
 	bool operator >=(const EmuDuration &d) const
 		{ return time >= d.time; }
-	
+
 	// arithmetic operators
-	const EmuDuration operator %(const EmuDuration &d) const 
+	const EmuDuration operator %(const EmuDuration &d) const
 		{ return EmuDuration(time % d.time); }
 	const EmuDuration operator *(unsigned fact) const
 		{ return EmuDuration(time * fact); }
@@ -85,7 +85,7 @@ public:
 	EmuTime(const EmuTime &e)  { time = e.time; }
 
 	// destructor
-	virtual ~EmuTime() {}
+	virtual ~EmuTime();
 
 	// assignment operator
 	EmuTime &operator =(const EmuTime &e)
@@ -106,9 +106,9 @@ public:
 		{ return time >= e.time; }
 
 	// arithmetic operators
-	const EmuTime operator +(const EmuDuration &d) const 
+	const EmuTime operator +(const EmuDuration &d) const
 		{ return EmuTime(time + d.time); }
-	const EmuTime operator -(const EmuDuration &d) const 
+	const EmuTime operator -(const EmuDuration &d) const
 		{ assert(time >= d.time);
 		  return EmuTime(time - d.time); }
 	EmuTime &operator +=(const EmuDuration &d)

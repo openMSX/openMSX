@@ -19,6 +19,10 @@ ostream &operator<<(ostream &os, const EmuTime &et)
 	return os;
 }
 
+EmuTime::~EmuTime()
+{
+}
+
 } // namespace openmsx
 
 #if 0
