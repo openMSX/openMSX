@@ -32,14 +32,12 @@ byte CPUInterface::dataBus()
 
 void CPUInterface::patch(CPU::CPURegs& regs)
 {
-	PRT_DEBUG("--- 1 ---");
 	// walk all interfaces, it's up to the interface
 	// to decide to do anything
 	std::list<const MSXRomPatchInterface*>::const_iterator i;
 	for (i=romPatchInterfaceList.begin(); i!=romPatchInterfaceList.end(); i++) {
 		(*i)->patch(regs);
 	}
-	PRT_DEBUG("--- 2 ---");
 }
 
 void CPUInterface::registerInterface(const MSXRomPatchInterface *i)
