@@ -4,8 +4,8 @@
 #define __LOCALFILE_HH__
 
 #include "FileBase.hh"
-#include <fstream>
 #include <string>
+#include <stdio.h>
 
 
 class LocalFile : public FileBase
@@ -21,7 +21,7 @@ class LocalFile : public FileBase
 
 	private:
 		bool readOnly;
-		std::fstream *file;
+		FILE* file;
 };
 
 #endif

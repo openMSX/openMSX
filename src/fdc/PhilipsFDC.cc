@@ -33,7 +33,7 @@ void PhilipsFDC::reset(const EmuTime &time)
 
 byte PhilipsFDC::readMem(word address, const EmuTime &time)
 {
-	byte value = 255;
+	byte value;
 	switch (address & 0x3FFF) {
 	case 0x3FF8:
 		value = controller->getStatusReg(time);
@@ -49,7 +49,6 @@ byte PhilipsFDC::readMem(word address, const EmuTime &time)
 		break;
 	case 0x3FFB:
 		value = controller->getDataReg(time);
-		//PRT_DEBUG("Got byte from disk : "<<(int)value);
 		break;
 	case 0x3FFC:
 		//bit 0 = side select
@@ -72,14 +71,16 @@ byte PhilipsFDC::readMem(word address, const EmuTime &time)
 		// bit 7: !dtrq
 		//TODO check other bits !!
 		value = 0xC0;
-		if (controller->getIRQ(time)) value &= 0xBF ;
-		if (controller->getDTRQ(time)) value &= 0x7F ;
+		if (controller->getIRQ(time)) value &= ~0x40;
+		if (controller->getDTRQ(time)) value &= ~0x80;
 		break;
 
 	default:
 		if (address < 0x8000) {
 			// ROM only visible in 0x0000-0x7FFF
-			value = PhilipsFDC::readMem(address, time);
+			value = MSXFDC::readMem(address, time);
+		} else {
+			value = 255;
 		}
 		break;
 	}

@@ -1,5 +1,9 @@
 $Id$
 
+2002-11-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* fixed PhilipsFDC: IDEFDISK doesn't coredump anymore
+	* use old style file functions: should work with both old and new gcc
+
 2002-11-08 Maarten ter Huurne <mth@stack.nl>
 	* Improved scanline emulation: the dark line is now an interpolation of
 	  the visible lines above and below.
