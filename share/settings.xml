@@ -16,13 +16,13 @@
 
   <!-- Audio mixer settings -->
   <mixer>
-    <!-- Sample frequency, 22kHz should be enough for normal MSX, use 44.1kHz for
-         Moonsound -->
-    <frequency>22050</frequency>
-    <!-- Use more samples when FM sound quality is bad, e.g.
-    <samples>1024</samples>
+    <!-- Sample frequency, if you need more speed: 22kHz should be enough for 
+         normal MSX, 44.1kHz is for Moonsound -->
+    <frequency>44100</frequency>
+    <!-- Use more samples when FM sound quality is bad,
+         use less samples if the tempo is very irregular.
     -->
-    <samples>512</samples>
+    <samples>1024</samples>
   </mixer>
 
   <RTC>
