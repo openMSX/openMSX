@@ -368,7 +368,7 @@
   
   <config id="KeyEventInserter">
     <type>KeyEventInserter</type>                
-    <parameter name="keys">                             &#x0D;load"cas:"&#x0D;run&#x0D;</parameter>
+    <parameter name="keys">load"cas:"&#x0D;run&#x0D;</parameter>
   </config>
 
 </msxconfig>

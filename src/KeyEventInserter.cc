@@ -33,6 +33,7 @@ void KeyEventInserter::enter(const std::string &str)
 {
 	SDL_Event event;
 	EmuTimeFreq<5> time(MSXCPU::instance()->getCurrentTime());
+	time += 10*5; // wait for bootlogo
 	for (unsigned i=0; i<str.length(); i++) {
 		const SDLKey* events;
 		
