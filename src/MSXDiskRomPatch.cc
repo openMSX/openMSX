@@ -61,6 +61,7 @@ MSXDiskRomPatch::MSXDiskRomPatch()
 	//                0123456789ABCDE
 	std::string filename;
 	for (int i=0; i<LAST_DRIVE; i++) {
+		disk[i] = NULL;
 		try {
 			MSXConfig::Config *config = MSXConfig::instance()->getConfigById(name);
 			filename = config->getParameter("filename");
