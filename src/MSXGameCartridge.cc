@@ -44,7 +44,6 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 	if (mapperType&16) {
 		enabledSRAM= true;
 		memorySRAM = new byte[0x2000];
-	} else {
 		try {
 			if (deviceConfig->getParameterAsBool("loadsram")) {
 				std::string filename = deviceConfig->getParameter("sramname");
@@ -56,6 +55,7 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 		} catch (MSXException &e) {
 			// do nothing
 		}
+	} else {
 		enabledSRAM= false;
 		memorySRAM = NULL;
 	}
