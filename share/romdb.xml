@@ -47,7 +47,7 @@
     <md5>c2f548fdb9c888b6d7fd494d04b8e764</md5>
     <romtype>MSX-AUDIO</romtype>
   </rom>
-  <rom id="Game World 126">
+  <rom id="Zemmix 126">
     <romtype>KOREAN126IN1</romtype>
     <md5>629a08c7b2f5a4b5f24187801dde174c</md5>
     <company>Zemina</company>
@@ -59,7 +59,7 @@
     <company>Zemina</company>
     <remark></remark>
   </rom>
-  <rom id="MSX 90 (90 in 1)">
+  <rom id="MSX90-collection">
     <romtype>KOREAN90IN1</romtype>
     <md5>9cd6d90e6f87d6be581bab86b26268d7</md5>
     <company>Zemina</company>
