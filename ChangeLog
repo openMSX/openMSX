@@ -1,6 +1,6 @@
 $Id$
 
-2004-07-14 Maarten ter Huurne <maarten@treewalker.org>
+2004-07-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed MoonSound bug:
 	   When DL=0 go immediately to sustain phase.
 	   Fixes 'timpani' instrument for example.
