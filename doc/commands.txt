@@ -291,24 +291,27 @@ consolerows
   Change the height of the console measured by the number of rows.
 
   usage:
-    set consolerows               	shows the current setting
+    set consolerows            shows the current setting
     set consolerows <value>    set the specified width
 
 
 cputrace
 --------
 
+  Enable/disable cpu instruction tracing
   [ only available when compiled with DEBUG option ]
-  
+ 
+ 
 debugoutput
 -----------
 
   Selects the file towhere the output from the debugdevice goes.
 
   usage:
-    set debugoutput 			shows the curent outputfile
-    set debugoutput <outputfile>	set the specified outputfile
-    
+    set debugoutput               shows the curent outputfile
+    set debugoutput <outputfile>  set the specified outputfile
+
+
 deinterlace
 -----------
 
@@ -542,7 +545,8 @@ throttle
     set psg_mode
     set psg_mode left
     set "FM PAC_mode" mono
-    
+
+
 [soundchip]_volume
 ------------------
 
@@ -556,3 +560,10 @@ throttle
     set psg_volume
     set psg_volume 18000
     set "FM PAC_volume" 15000
+
+
+vdpcmdtrace
+-----------
+
+  Enable/disable vdp command tracing.
+  [ mainly useful for debugging purposes ]

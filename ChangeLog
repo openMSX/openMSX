@@ -1,5 +1,8 @@
 $Id$
 
+2003-10-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented 'vdpcmdtrace' setting
+
 2003-09-30 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added the Debug Device to the User's Manual
 	* Small additions, fixes and clean ups in the User's Manual
@@ -18,7 +21,7 @@ $Id$
 
 2003-09-21 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Made the debugger optional. If the settings.xml doesn't contain
-          a debugger section, it's turned off. In this case the debuggersettings
+	  a debugger section, it's turned off. In this case the debuggersettings
 	  in the console won't appear either.
 
 2003-09-21 Manuel Bilderbeek <manuel@msxnet.org>

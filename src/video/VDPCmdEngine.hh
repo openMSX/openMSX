@@ -115,10 +115,6 @@ private:
 	  */
 	void commandDone(const EmuTime& time);
 	
-	/** Report to stdout the VDP command specified in the registers.
-	  */
-	void reportVdpCommand();
-
 
 	/** VDP command registers.
 	  */
@@ -398,6 +394,15 @@ private:
 		virtual void execute(const EmuTime &time);
 	};
 	friend class HmmcCmd;
+
+	
+	/** Report the VDP command specified in the registers.
+	  */
+	void reportVdpCommand();
+
+	/** Only call reportVdpCommand() when this setting is turned on
+	  */
+	BooleanSetting cmdTraceSetting;
 };
 
 } // namespace openmsx

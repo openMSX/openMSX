@@ -72,7 +72,8 @@ const int LMMM_TIMING[5] = { 129, 197, 129, 132, 0 };
 
 
 VDPCmdEngine::VDPCmdEngine(VDP *vdp_)
-	: vdp(vdp_)
+	: vdp(vdp_),
+	  cmdTraceSetting("vdpcmdtrace", "VDP command tracing on/off", false)
 {
 	vram = vdp->getVRAM();
 	AbortCmd *abort = new AbortCmd(this, vram);
@@ -256,7 +257,9 @@ void VDPCmdEngine::executeCommand(const EmuTime &time)
 		return;
 	}
 
-	//reportVdpCommand();
+	if (cmdTraceSetting.getValue()) {
+		reportVdpCommand();
+	}
 
 	// start command
 	status |= 0x01;
@@ -271,21 +274,20 @@ void VDPCmdEngine::executeCommand(const EmuTime &time)
 
 void VDPCmdEngine::reportVdpCommand()
 {
-	const char *OPS[16] = {
-		"SET ","AND ","OR  ","XOR ","NOT ","NOP ","NOP ","NOP ",
-		"TSET","TAND","TOR ","TXOR","TNOT","NOP ","NOP ","NOP "
-	};
-	const char *COMMANDS[16] = {
+	const char* const COMMANDS[16] = {
 		" ABRT"," ????"," ????"," ????","POINT"," PSET"," SRCH"," LINE",
 		" LMMV"," LMMM"," LMCM"," LMMC"," HMMV"," HMMM"," YMMM"," HMMC"
 	};
+	const char* const OPS[16] = {
+		"SET ","AND ","OR  ","XOR ","NOT ","NOP ","NOP ","NOP ",
+		"TSET","TAND","TOR ","TXOR","TNOT","NOP ","NOP ","NOP "
+	};
 
-	fprintf(stderr,
-		"V9938: Opcode %s-%s (%d,%d)->(%d,%d),%d [%d,%d]%s\n",
-		COMMANDS[CMD], OPS[LOG], SX, SY, DX, DY, COL,
-		((ARG & DIX) ? -NX : NX),
-		((ARG & DIY) ? -NY : NY),
-		((ARG & 0x70) ? " on ExtVRAM" : ""));
+	PRT_DEBUG("VDPCmd " << COMMANDS[CMD] << '-' << OPS[LOG]
+		  <<  '(' << (int)SX << ',' << (int)SY << ")->(" 
+		          << (int)DX << ',' << (int)DY << ")," << (int)COL
+		  << " [" << (int)((ARG & DIX) ? -NX : NX)
+		  <<  ',' << (int)((ARG & DIY) ? -NY : NY) << ']');
 }
 
 
