@@ -4,19 +4,7 @@
 #define __MSXFMPAC_HH__
 
 #include "MSXMusic.hh"
-#include "CommandLineParser.hh"
 #include "SRAM.hh"
-
-
-class MSXFmPacCLI : public CLIOption, public CLIPostConfig
-{
-	public:
-		MSXFmPacCLI();
-		virtual void parseOption(const std::string &option,
-		                         std::list<std::string> &cmdLine);
-		virtual const std::string& optionHelp() const;
-		virtual void execute(MSXConfig *config);
-};
 
 
 class MSXFmPac : public MSXMusic

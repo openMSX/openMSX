@@ -1,51 +1,7 @@
 // $Id$
 
-#include <string.h>
 #include "MSXFmPac.hh"
-#include "File.hh"
-#include "CartridgeSlotManager.hh"
 #include "MSXConfig.hh"
-#include "FileContext.hh"
-
-
-MSXFmPacCLI msxFmPacCLI;
-
-MSXFmPacCLI::MSXFmPacCLI()
-{
-	CommandLineParser::instance()->registerOption("-fmpac", this);
-}
-
-void MSXFmPacCLI::parseOption(const std::string &option,
-                              std::list<std::string> &cmdLine)
-{
-	CommandLineParser::instance()->registerPostConfig(this);
-}
-const std::string& MSXFmPacCLI::optionHelp() const
-{
-	static const std::string text("Inserts an FM-PAC into the MSX machine");
-	return text;
-}
-void MSXFmPacCLI::execute(MSXConfig *config)
-{
-	int ps, ss;
-	CartridgeSlotManager::instance()->getSlot(ps, ss);
-	std::ostringstream s;
-	s << "<?xml version=\"1.0\"?>";
-	s << "<msxconfig>";
-	s << "<device id=\"FM PAC\">";
-	s << "<type>FM-PAC</type>";
-	s << "<slotted><ps>"<<ps<<"</ps><ss>"<<ss<<"</ss><page>1</page></slotted>";
-	s << "<parameter name=\"filename\">FMPAC.ROM</parameter>";
-	s << "<parameter name=\"volume\">13000</parameter>";
-	s << "<parameter name=\"mode\">mono</parameter>";
-	s << "<parameter name=\"loadsram\">true</parameter>";
-	s << "<parameter name=\"savesram\">true</parameter>";
-	s << "<parameter name=\"sramname\">FMPAC.PAC</parameter>";
-	s << "</device>";
-	s << "</msxconfig>";
-	config->loadStream(new SystemFileContext(), s); // TODO extension
-}
-
 
 
 static const char* PAC_Header = "PAC2 BACKUP DATA";
@@ -62,7 +18,6 @@ MSXFmPac::~MSXFmPac()
 {
 }
 
-
 void MSXFmPac::reset(const EmuTime &time)
 {
 	MSXMusic::reset(time);
@@ -71,14 +26,12 @@ void MSXFmPac::reset(const EmuTime &time)
 	bank = 0;	// TODO check this
 }
 
-
 void MSXFmPac::writeIO(byte port, byte value, const EmuTime &time)
 {
 	if (enable & 1) {
 		MSXMusic::writeIO(port, value, time);
 	}
 }
-
 
 byte MSXFmPac::readMem(word address, const EmuTime &time)
 {

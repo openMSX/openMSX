@@ -9,6 +9,8 @@ $Id$
 	     generic extensions.
 	* romdb.xml is now searched in /opt/openMSX/etc/romdb.xml
 	                         or in ~/.openMSX/etc/romdb.xml
+	* removed -fmpac and -musmod command line options, they are
+	  replaced by extensions
 
 2003-02-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* extension directory now has the same structure as the
