@@ -14,9 +14,18 @@ OPENMSX_CXX?=g++
 # File name extension of executables.
 EXEEXT:=
 
-# Libraries that do not have a lib-config script.
-LIBS_PLAIN:=SDL_image png GL z
-# Libraries that have a lib-config script.
-LIBS_CONFIG:=xml2 sdl11
-
 LINK_FLAGS+=-L/usr/X11R6/lib
+
+
+# Probe Overrides
+# ===============
+
+SDL_CFLAGS:=`sdl11-config --cflags 2>> $(LOG)`
+
+SDL_LDFLAGS:=`sdl11-config --libs 2>> $(LOG)`
+SDL_RESULT:=`sdl11-config --version`
+
+PNG_CFLAGS:=
+
+PNG_LDFLAGS:=-lpng
+PNG_RESULT:=yes
