@@ -38,6 +38,12 @@ install-data-hook:
 	cp -rv $(srcdir)/Contrib/cbios $(prefix)/Contrib/ 
 ##needs find trick because otherwise find tries to descent into rm'ed dir
 	find $(srcdir)/share -name CVS -type d -exec rm -rf $(prefix)/{} \;
+##Creating a link for the machine configurations
+##TODO: Make this configurable !!
+	ln -s $(prefix)/share/machines/National_CF-1200 $(prefix)/share/machines/msx1
+	ln -s $(prefix)/share/machines/Philips_NMS_8250 $(prefix)/share/machines/msx2
+	ln -s $(prefix)/share/machines/Panasonic_FS-A1FX $(prefix)/share/machines/msx2plus
+	ln -s $(prefix)/share/machines/Panasonic_FS-A1GT $(prefix)/share/machines/turbor
 ##Creating a link for the binary in /usr/local/bin
 ##TODO: Make this configurable !!
 	ln -s $(prefix)/bin/openmsx /usr/local/bin/
