@@ -9,6 +9,7 @@
 
 using std::cout;
 
+
 namespace openmsx {
 
 static xmlSAXHandler sax_handler;
@@ -120,6 +121,10 @@ const string& CliCommInput::schedName() const
 {
 	static const string NAME("CliCommInput");
 	return NAME;
+}
+
+CliCommInput::ParseState::ParseState()
+{
 }
 
 } // namespace openmsx
