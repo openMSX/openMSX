@@ -1,0 +1,65 @@
+Release History
+===============
+
+This is an overview of the changes that were incorporated into past
+releases.
+
+openMSX 0.3.2 (2003-06-09)
+--------------------------
+
+- New feature: MoonSound support.
+  Original implementation taken from MAME, thanks to Jarek Burczynski
+  (FM code), R. Belmont and O. Galibert (wave code) for allowing us
+  to use their code in openMSX.
+  Improvements and bug fixes were done by Arjan Bakker and our team.
+- New MSX devices:
+  * MegaRAM
+  * PAC (Panasonic SW-M001)
+  * Support for 8kB ROMs
+- New feature: grab input (try "set grabinput on").
+  When enabled, the native mouse cursor cannot escape from the openMSX
+  window anymore; makes using the mouse a lot easier in windowed mode.
+- New timer using the Linux Real Time Clock (RTC), which is more accurate
+  than the SDL timer. SDL timer is still available as a fallback.
+  Instructions to configure your system for using the RTC are in the HOWTO.
+- New effect in the SDLGL renderer: afterglow (try "set glow N").
+- User-configurable gamma correction (try "set gamma X").
+  Also the default value is less bright than the previous hard-coded value.
+- Screen accuracy works now (try "set accuracy screen").
+  It is fast, but very inaccurate.
+- Volume of sound devices can be adjusted at run time.
+- Various console updates:
+  * Commands can be on multiple lines.
+  * Search in command history.
+  * Command history is saved.
+  * Support in SDLHi/Lo for console font PNG images in indexed mode.
+    Previously, only images in RGB mode were supported.
+  * Console remains usable when openMSX is paused.
+- Several machine configurations added (thanks to Albert Beevendorp).
+- Several extension configurations added.
+- Cache coherency problem in SDLGL renderer fixed.
+  This bug caused garbled graphics in for example Ark-a-Noah and Dr Archie.
+- Fixed compilation on GCC 2.95.
+
+openMSX 0.3.1 (2003-05-18)
+--------------------------
+
+- Fixed compilation on GCC 3.3.
+- Fixed SDLGL renderer on XFree86 4.3.
+- New feature: configurable file-extentions.
+- Improved layout of help text (try "openmsx -h").
+- Many improvements to the console, including:
+  * Extended the console editing keys (left, right, del, bs, home, end etc).
+  * Added key repeat.
+  * Reset the scrollback when any key other than page up/down is used.
+  * Added resizing and moving to the console.
+  * SDL console characters are no longer blended (improved readability).
+  * SDL backgroundimage can be scaled and can have any pixel format.
+  * Fixed colour of font on GLConsole overlayed on Text1 mode.
+- Emulation and event handling are now done in a single thread.
+  The previous multi-threaded solution was not very portable among platforms
+  or even different versions of the same platform.
+  As a bonus, the single thread model is simpler and more efficient.
+- Improved "make install".
+- Cleanups of the directory structure.
+
