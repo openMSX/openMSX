@@ -211,12 +211,8 @@ void Scheduler::schedule()
 	}
 }
 
-void Scheduler::scheduleFromCPU(const EmuTime& from, const EmuTime& limit)
+void Scheduler::scheduleFromCPU(const EmuTime& limit)
 {
-	PRT_DEBUG("Schedule from " << from << " to " << limit);
-	assert(scheduleTime <= from);
-	scheduleTime = from;
-
 	while (true) {
 		// Get next sync point.
 		sem.down();

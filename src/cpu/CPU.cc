@@ -155,9 +155,8 @@ void CPU::wait(const EmuTime& time)
 void CPU::extendTarget(const EmuTime& time)
 {
 	assert(getTargetTime() <= time);
-	EmuTime now = getTargetTime();
 	setTargetTime(time);
-	scheduler->scheduleFromCPU(now, time);
+	scheduler->scheduleFromCPU(time);
 }
 
 

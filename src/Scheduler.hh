@@ -98,7 +98,7 @@ public:
 	 * Schedule till a certain moment in time.
 	 */
 	void schedule();
-	void scheduleFromCPU(const EmuTime& from, const EmuTime& limit);
+	void scheduleFromCPU(const EmuTime& limit);
 
 	/** Set renderer to call when emulation is paused.
 	  * TODO: Function will be moved to OSD later.
