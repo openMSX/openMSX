@@ -17,7 +17,7 @@ endif
 # or perhaps sometimes even more:
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
-SUBDIRS = cfg libxmlx ConsoleSource cpu sound config \
+SUBDIRS = libxmlx ConsoleSource cpu sound config \
           fdc file ide thread cassette events memory video
 
 #bin_PROGRAMS=openmsx cfgtest
