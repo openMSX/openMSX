@@ -8,7 +8,6 @@ Makefile
 Makefile.in
 .deps
 *.swp
-openmsx
 stamp-h.in
 .libs
 *.rpo
@@ -20,3 +19,4 @@ config.h.in.in
 *.dsk
 *.lo
 *.la
+xmlxdump
