@@ -7,6 +7,7 @@ $Id$
 	* Made InteractiveConsole subclass of Console:
 	   SDLConsole inherit from InteractiveConsole
 	   a logging-only console inherits from Console
+	* Bumped version number
 
 2002-04-04 David Heremans <david.heremans@gnu-linux.net>
 	* Added more debug info to MSXGameCartrdige.
