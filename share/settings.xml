@@ -26,7 +26,7 @@
   </sound>
 
   <RTC>
-    <mode>EmuTime</mode>
+    <rtcmode>EmuTime</rtcmode>
   </RTC>
 
   <!-- Console font file, decorations and other settings -->

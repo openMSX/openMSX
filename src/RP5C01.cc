@@ -1,6 +1,7 @@
 // $Id$
 
 #include "RP5C01.hh"
+#include "SettingsConfig.hh"
 #include <cassert>
 #include <ctime>
 #include <string>
@@ -39,9 +40,23 @@ static const nibble mask[4][13] = {
 };
 
 
-RP5C01::RP5C01(bool emuMode, byte* data, const EmuTime &time)
-	: reg(data), emuTimeBased(emuMode), reference(time)
+RP5C01::RP5C01(byte* data, const EmuTime& time)
+	: reg(data), reference(time)
 {
+	EnumSetting<RTCMode>::Map modeMap;
+	modeMap["EmuTime"] = EMUTIME;
+	modeMap["RealTime"] = REALTIME;
+	XMLElement& config = SettingsConfig::instance().getCreateChild("RTC");
+	XMLElement& modeElem = config.getCreateChild("rtcmode", "EmuTime");
+	RTCMode modeValue = EMUTIME;
+	EnumSetting<RTCMode>::Map::const_iterator modeIt =
+		modeMap.find(modeElem.getData());
+	if (modeIt != modeMap.end()) {
+		modeValue = modeIt->second;
+	}
+	modeSetting.reset(new EnumSetting<RTCMode>(
+		modeElem, "Real Time Clock mode", modeValue, modeMap));
+	
 	initializeTime();
 	reset(time);
 }
@@ -50,7 +65,7 @@ RP5C01::~RP5C01()
 {
 }
 
-void RP5C01::reset(const EmuTime &time)
+void RP5C01::reset(const EmuTime& time)
 {
 	modeReg = MODE_TIMERENABLE;
 	testReg = 0;
@@ -58,7 +73,7 @@ void RP5C01::reset(const EmuTime &time)
 	updateTimeRegs(time);
 }
 
-nibble RP5C01::readPort(nibble port, const EmuTime &time)
+nibble RP5C01::readPort(nibble port, const EmuTime& time)
 {
 	assert (port<=0x0f);
 	switch (port) {
@@ -77,7 +92,7 @@ nibble RP5C01::readPort(nibble port, const EmuTime &time)
 	}
 }
 
-void RP5C01::writePort(nibble port, nibble value, const EmuTime &time)
+void RP5C01::writePort(nibble port, nibble value, const EmuTime& time)
 {
 	assert (port<=0x0f);
 	switch (port) {
@@ -170,14 +185,13 @@ static int daysInMonth(int month, int leapYear)
 	};
 	
 	month %= 12;
-	if ((month == 1) && (leapYear == 0))
-		return 29;
-	return daysInMonths[month];
+	return ((month == 1) && (leapYear == 0)) ? 29
+	                                         : daysInMonths[month];
 }
 
-void RP5C01::updateTimeRegs(const EmuTime &time)
+void RP5C01::updateTimeRegs(const EmuTime& time)
 {
-	if (emuTimeBased) {
+	if (modeSetting->getValue() == EMUTIME) {
 		// sync with EmuTime, perfect emulation
 		uint64 elapsed = (modeReg & MODE_TIMERENABLE)
 			? reference.getTicksTill(time)

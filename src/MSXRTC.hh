@@ -12,7 +12,6 @@ using std::auto_ptr;
 namespace openmsx {
 
 class RP5C01;
-class SettingsConfig;
 
 class MSXRTC : public MSXDevice
 {
@@ -28,7 +27,6 @@ private:
 	auto_ptr<RP5C01> rp5c01;
 	SRAM sram;
 	nibble registerLatch;
-	SettingsConfig& settingsConfig;
 };
 
 } // namespace openmsx
