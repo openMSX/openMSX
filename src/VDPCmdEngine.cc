@@ -31,13 +31,13 @@ static const int  PPL[4]  = { 256,512,512,256 };
 
 //                      Sprites:  On   On   Off  Off
 //                      Screen:   Off  On   Off  On
-static const int SRCH_TIMING[8]={  92, 122,  92,  92 };
-static const int LINE_TIMING[8]={ 120, 146, 120, 132 };
-static const int HMMV_TIMING[8]={  49,  64,  49,  61 };
-static const int LMMV_TIMING[8]={  98, 133,  98, 123 };
-static const int YMMM_TIMING[8]={  65, 114,  65,  68 };
-static const int HMMM_TIMING[8]={  92, 131,  92,  96 };
-static const int LMMM_TIMING[8]={ 129, 189, 129, 132 };
+static const int SRCH_TIMING[8]={  92, 125,  92,  92 };
+static const int LINE_TIMING[8]={ 120, 147, 120, 132 };
+static const int HMMV_TIMING[8]={  49,  65,  49,  62 };
+static const int LMMV_TIMING[8]={  98, 137,  98, 124 };
+static const int YMMM_TIMING[8]={  65, 125,  65,  68 };
+static const int HMMM_TIMING[8]={  92, 136,  92,  97 };
+static const int LMMM_TIMING[8]={ 129, 197, 129, 132 };
 
 // Defines:
 
