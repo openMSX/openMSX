@@ -48,7 +48,6 @@ void Scheduler::removeFirstSP()
 
 void Scheduler::scheduleEmulation()
 {
-	//TODO slow down when emulation is going too fast
 	while (true) {
 		if (scheduleList.empty()) {
 			// nothing scheduled, emulate CPU

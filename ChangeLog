@@ -1,5 +1,8 @@
 $Id$
 
+2001-10-08 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* added a real time synchronizer (MSXRealTime)
+
 2001-10-07 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* renamed Inputs --> Keyboard
 	* forgot to initialize keyboard matrix

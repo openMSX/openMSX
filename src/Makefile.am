@@ -4,7 +4,7 @@
 
 bin_PROGRAMS=openmsx
 openmsx_SOURCES=openmsx.cc \
-	system.h \
+	system.h openmsx.hh \
 	msxconfig.hh msxconfig.cc \
 	msxconfig_device.nn msxconfig_exception.nn \
 	xmlhelper.ii xmlhelper.hh \
@@ -36,7 +36,8 @@ openmsx_SOURCES=openmsx.cc \
 	MSXMapperIO.hh MSXMapperIO.cc \
 	MSXMapperIOTurboR.hh MSXMapperIOTurboR.cc \
 	MSXMapperIOPhilips.hh MSXMapperIOPhilips.cc \
-	MSXRTC.hh MSXRTC.cc RP5C01.hh RP5C01.cc
+	MSXRTC.hh MSXRTC.cc RP5C01.hh RP5C01.cc \
+	MSXRealTime.hh MSXRealTime.cc
 
 
 # libxml++ and SDL

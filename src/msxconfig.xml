@@ -105,4 +105,7 @@
   <device id="Real time clock">
     <type>RTC</type>
   </device>
+  <device id="Real time synchronizer">
+    <type>RealTime</type>
+  </device>
 </msxconfig>

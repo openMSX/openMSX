@@ -13,6 +13,7 @@
 #include "MSXMemoryMapper.hh"
 #include "MSXMapperIO.hh"
 #include "MSXRTC.hh"
+#include "MSXRealTime.hh"
 
 
 MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
@@ -52,6 +53,9 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	} else
 	if (conf->getType()=="RTC") {
 		device = new MSXRTC();
+	} else
+	if (conf->getType()=="RealTime") {
+		device = MSXRealTime::instance();
 	}
 
 	if (device == NULL)
