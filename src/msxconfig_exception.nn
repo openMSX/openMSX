@@ -1,0 +1,25 @@
+// $Id$
+
+#ifndef __MSXCONFIG_HH__
+#error use msxconfig.hh
+#endif
+
+#ifndef __MSXCONFIG_EXCEPTION_HH__
+#define __MSXCONFIG_EXCEPTION_HH__
+
+// nested class in MSXConfig
+class Exception: public MSXException
+{
+public:
+	Exception(const string &descs=""):MSXException(descs,0) {}
+	Exception(const ostringstream &stream):MSXException(stream.str(),0) {}
+};
+
+class XMLParseException: public Exception
+{
+public:
+	XMLParseException(const string &descs=""):Exception(descs) {}
+	XMLParseException(const ostringstream &stream):Exception(stream) {}
+};
+
+#endif
