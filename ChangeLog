@@ -1,5 +1,10 @@
 $Id$
 
+2005-03-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Split CliComm in CliComm and CliServer:
+	   - fixed assert on startup (CliComm must be instantiated in main
+	     thread)
+
 2005-03-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented step_in, step_over and run_to as TCL procs
 	* Try to listen on ports 9938-9958 (iso just 9938), and print a

@@ -3,7 +3,6 @@
 #ifndef CLICOMM_HH
 #define CLICOMM_HH
 
-#include "Thread.hh"
 #include "CommandLineParser.hh"
 #include "Command.hh"
 #include "EventListener.hh"
@@ -59,17 +58,6 @@ private:
 	// EventListener
 	virtual bool signalEvent(const Event& event);
 
-	class ServerSocket : private Runnable {
-	public:
-		ServerSocket();
-		~ServerSocket();
-		void start();
-	private:
-		virtual void run();
-		void mainLoop();
-		Thread thread;
-	};
-	
 	class UpdateCmd : public SimpleCommand {
 	public:
 		UpdateCmd(CliComm& parent);
@@ -87,7 +75,7 @@ private:
 	bool xmlOutput;
 	typedef std::vector<CliConnection*> Connections;
 	Connections connections;
-	ServerSocket serverSocket;
+	friend class CliServer;
 };
 
 } // namespace openmsx

@@ -35,8 +35,6 @@ CliComm::CliComm()
 	commandController.registerCommand(&updateCmd, "update");
 	EventDistributor::instance().registerEventListener(LED_EVENT, *this,
 	                                           EventDistributor::NATIVE);
-
-	serverSocket.start();
 }
 
 CliComm::~CliComm()
@@ -161,82 +159,6 @@ bool CliComm::signalEvent(const Event& event)
 	return true;
 }
 
-
-// class ServerSocket
-
-CliComm::ServerSocket::ServerSocket()
-	: thread(this)
-{
-	sock_startup();
-}
-
-CliComm::ServerSocket::~ServerSocket()
-{
-	sock_cleanup();
-}
-
-void CliComm::ServerSocket::start()
-{
-	thread.start();
-}
-
-void CliComm::ServerSocket::run()
-{
-	try {
-		mainLoop();
-	} catch (MSXException& e) {
-		cout << e.getMessage() << endl;
-	}
-}
-
-static int openPort(SOCKET listenSock, int min, int max)
-{
-	for (int port = min; port < max; ++port) {
-		sockaddr_in server_address;
-		memset((char*)&server_address, 0, sizeof(server_address));
-		server_address.sin_family = AF_INET;
-		server_address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-		server_address.sin_port = htons(port);
-		if (bind(listenSock, (sockaddr*)&server_address,
-		         sizeof(server_address))
-		    != SOCKET_ERROR) {
-			return port;
-		}
-	}
-	return -1;
-}
-
-void CliComm::ServerSocket::mainLoop()
-{
-	// setup listening socket
-	SOCKET listenSock = socket(AF_INET, SOCK_STREAM, 0);
-	if (listenSock == INVALID_SOCKET) {
-		throw FatalError(sock_error());
-	}
-	sock_reuseAddr(listenSock);
-
-	int port = openPort(listenSock, 9938, 9958);
-	if (port == -1) {
-		CliComm::instance().printWarning("Couldn't open socket.");
-		sock_close(listenSock);
-		return;
-	}
-	CliComm::instance().printInfo(
-		"Listening on port " + StringOp::toString(port) +
-		" for incomming (local) connections.");
-	listen(listenSock, SOMAXCONN);
-
-	// main loop
-	while (true) {
-		// We have a new connection coming in!
-		SOCKET sd = accept(listenSock, NULL, NULL);
-		if (sd == INVALID_SOCKET) {
-			throw FatalError(sock_error());
-		}
-		CliComm::instance().connections.push_back(new SocketConnection(sd));
-	}
-}
-                
 
 // class UpdateCmd
 

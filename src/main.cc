@@ -14,6 +14,7 @@
 #include "CartridgeSlotManager.hh"
 #include "CliComm.hh"
 #include "HotKey.hh"
+#include "CliServer.hh"
 #include "AfterCommand.hh"
 #include "Interpreter.hh"
 #include "Display.hh"
@@ -60,6 +61,7 @@ static int main(int argc, char **argv)
 			AfterCommand afterCommand;
 			RendererFactory::createVideoSystem();
 			MSXMotherBoard motherboard;
+			CliServer cliServer;
 			motherboard.run(parseStatus == CommandLineParser::RUN);
 		}
 	} catch (FatalError& e) {
