@@ -5,7 +5,7 @@
 
 #include "Schedulable.hh"
 #include "EmuTime.hh"
-#include "ConsoleSource/Command.hh"
+#include "Command.hh"
 
 // forward declarations
 class MSXCPU;

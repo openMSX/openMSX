@@ -1,6 +1,9 @@
 $Id$
 
 2002-07-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented "bind" and "unbind" command
+
+2002-07-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Moved event related files to new directory
 	* Added Keys class:
 	   translates keyCodes to keyNames and vice versa

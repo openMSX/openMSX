@@ -3,11 +3,12 @@
 #ifndef __HOTKEY_HH__
 #define __HOTKEY_HH__
 
-#include <SDL/SDL.h>
+//#include <SDL/SDL.h>
 #include <string>
 #include <map>
 #include "EventListener.hh"
 #include "Keys.hh"
+#include "Command.hh"
 
 
 class HotKeyListener
@@ -62,6 +63,22 @@ class HotKey : private EventListener
 
 		std::multimap <Keys::KeyCode, HotKeyListener*> map;
 		std::multimap <Keys::KeyCode, HotKeyCmd*> cmdMap;
+
+		class BindCmd : public Command {
+			public:
+				virtual void execute(const std::vector<std::string> &tokens);
+				virtual void help   (const std::vector<std::string> &tokens);
+		};
+		friend class BindCmd;
+		BindCmd bindCmd;
+			
+		class UnbindCmd : public Command {
+			public:
+				virtual void execute(const std::vector<std::string> &tokens);
+				virtual void help   (const std::vector<std::string> &tokens);
+		};
+		friend class UnbindCmd;
+		UnbindCmd unbindCmd;
 };
 
 #endif

@@ -2,16 +2,21 @@
 
 #include "openmsx.hh"
 #include "HotKey.hh"
-#include "ConsoleSource/CommandController.hh"
+#include "CommandController.hh"
 #include "EventDistributor.hh"
+#include "ConsoleManager.hh"
 
 
 HotKey::HotKey()
 {
+	CommandController::instance()->registerCommand(bindCmd,   "bind");
+	CommandController::instance()->registerCommand(unbindCmd, "unbind");
 }
 
 HotKey::~HotKey()
 {
+	CommandController::instance()->unregisterCommand("bind");
+	CommandController::instance()->unregisterCommand("unbind");
 }
 
 HotKey* HotKey::instance()
@@ -99,4 +104,93 @@ const std::string &HotKey::HotKeyCmd::getCommand()
 void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key)
 {
 	CommandController::instance()->executeCommand(command);
+}
+
+
+void HotKey::BindCmd::execute(const std::vector<std::string> &tokens)
+{
+	HotKey *hk = HotKey::instance();
+	switch (tokens.size()) {
+	case 1: {
+		// show all bounded keys
+		std::multimap<Keys::KeyCode, HotKeyCmd*>::iterator it;
+		for (it = hk->cmdMap.begin(); it != hk->cmdMap.end(); it++) {
+			char message[100];
+			sprintf(message, "%s:  %s", Keys::getName(it->first).c_str(),
+			                            it->second->getCommand().c_str());
+			ConsoleManager::instance()->print(std::string(message));
+		}
+		break;
+	}
+	case 2: {
+		// show bindings for this key
+		Keys::KeyCode key = Keys::getCode(tokens[1]);
+		if (key == Keys::K_UNKNOWN)
+			throw CommandException("Unknown key");
+		std::multimap<Keys::KeyCode, HotKeyCmd*>::iterator it;
+		for (it = hk->cmdMap.lower_bound(key);
+				(it != hk->cmdMap.end()) && (it->first == key);
+				it++) {
+			char message[100];
+			sprintf(message, "%s:  %s", Keys::getName(it->first).c_str(),
+			                            it->second->getCommand().c_str());
+			ConsoleManager::instance()->print(std::string(message));
+		}
+		break;
+	}
+	case 3: {
+		// make a new binding
+		Keys::KeyCode key = Keys::getCode(tokens[1]);
+		if (key == Keys::K_UNKNOWN)
+			throw CommandException("Unknown key");
+		hk->registerHotKeyCommand(key, tokens[2]);
+		break;
+	}
+	default:
+		throw CommandException("Syntax error");
+	}
+}
+void HotKey::BindCmd::help(const std::vector<std::string> &tokens)
+{
+	ConsoleManager::instance()->print("bind             : show all bounded keys");
+	ConsoleManager::instance()->print("bind <key>       : show all bindings for this key");
+	ConsoleManager::instance()->print("bind <key> <cmd> : bind key to command");
+}
+
+void HotKey::UnbindCmd::execute(const std::vector<std::string> &tokens)
+{
+	HotKey *hk = HotKey::instance();
+	switch (tokens.size()) {
+	case 2: {
+		// unbind all for this key
+		Keys::KeyCode key = Keys::getCode(tokens[1]);
+		if (key == Keys::K_UNKNOWN)
+			throw CommandException("Unknown key");
+		bool changed;
+		do {	changed = false;
+			std::multimap<Keys::KeyCode, HotKeyCmd*>::iterator it;
+			it = hk->cmdMap.lower_bound(key);
+			if ((it != hk->cmdMap.end()) && (it->first == key)) {
+				hk->unregisterHotKeyCommand(key, it->second->getCommand());
+				changed = true;
+			}
+		} while (changed);
+		break;
+	}
+	case 3: {
+		// unbind a specific command
+		Keys::KeyCode key = Keys::getCode(tokens[1]);
+		if (key == Keys::K_UNKNOWN)
+			throw CommandException("Unknown key");
+		hk->unregisterHotKeyCommand(key, tokens[2]);
+		break;
+	}
+	default:
+		throw CommandException("Syntax error");
+	}
+}
+void HotKey::UnbindCmd::help(const std::vector<std::string> &tokens)
+{
+	ConsoleManager::instance()->print("unbind <key>       : unbind all for this key");
+	ConsoleManager::instance()->print("unbind <key> <cmd> : unbind a specific command");
 }

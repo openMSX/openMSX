@@ -9,7 +9,6 @@
 #include "Thread.hh"
 #include "Mutex.hh"
 #include "Schedulable.hh"
-#include "Command.hh"
 
 // forward declaration
 class EventListener;
@@ -42,20 +41,6 @@ class EventDistributor : public Runnable , private Schedulable
 		std::queue <std::pair<SDL_Event, EventListener*> > queue;
 		Mutex syncMutex;	// to lock variable syncMap
 		Mutex queueMutex;	// to lock variable queue
-
-		class BindCmd : public Command {
-			public:
-				virtual void execute(const std::vector<std::string> &tokens);
-				virtual void help(const std::vector<std::string> &tokens);
-		};
-		BindCmd bindCmd;
-		
-		class UnbindCmd : public Command {
-			public:
-				virtual void execute(const std::vector<std::string> &tokens);
-				virtual void help(const std::vector<std::string> &tokens);
-		};
-		UnbindCmd unbindCmd;
 };
 
 #endif
