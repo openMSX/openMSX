@@ -665,7 +665,7 @@ V9990CmdEngine::CmdCMMM<Mode>::CmdCMMM(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdCMMM<Mode>::start(const EmuTime& time)
 {
-	engine->srcAddress = (engine->SX & 0xFF) + ((engine->SY & 0x3FF) << 8);
+	engine->srcAddress = (engine->SX & 0xFF) + ((engine->SY & 0x7FF) << 8);
 
 	engine->ANX = engine->NX;
 	engine->ANY = engine->NY;
@@ -731,13 +731,8 @@ V9990CmdEngine::CmdBMXL<Mode>::CmdBMXL(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdBMXL<Mode>::start(const EmuTime& time)
 {
-	engine->srcAddress = (engine->SX & 0xFF) + ((engine->SY & 0x3FF) << 8);
+	engine->srcAddress = (engine->SX & 0xFF) + ((engine->SY & 0x7FF) << 8);
 
-	if (Mode::BITS_PER_PIXEL == 16) {
-		engine->dstAddress = Mode::addressOf(engine->DX,
-						     engine->DY,
-						     engine->vdp->getImageWidth());
-	}
 	engine->ANX = engine->NX;
 	engine->ANY = engine->NY;
 	
@@ -752,27 +747,22 @@ void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime&
 	int dy = (engine->ARG & DIY) ? -1 : 1;
 
 	while (true) {
-		byte value = vram->readVRAM(engine->dstAddress);
-		byte data = vram->readVRAM(engine->srcAddress++);
-		byte mask = (engine->dstAddress & 1) ? engine->WM & 0xFF
-		                                     : engine->WM >> 8;
-		value = engine->logOp(data, value, mask);
-		vram->writeVRAM(engine->dstAddress, value);
-		if(! (++(engine->dstAddress) & 0x01)) {
-			engine->DX += dx;
-			if (!(--(engine->ANX))) {
-				engine->DX -= (engine->NX * dx);
-				engine->DY += dy;
-				if(! (--(engine->ANY))) {
-					engine->cmdReady();
-					return;
-				} else {
-					engine->ANX = engine->NX;
-				}
+		word dest = V9990Bpp16::point(vram, engine->DX, engine->DY, width);
+		word src  = vram->readVRAM(engine->srcAddress + 0) +
+		            vram->readVRAM(engine->srcAddress + 1) * 256;
+		word res = engine->logOp(src, dest, engine->WM);
+		V9990Bpp16::pset(vram, engine->DX, engine->DY, width, res);
+		engine->srcAddress += 2;
+		engine->DX += dx;
+		if (!(--(engine->ANX))) {
+			engine->DX -= (engine->NX * dx);
+			engine->DY += dy;
+			if(! (--(engine->ANY))) {
+				engine->cmdReady();
+				return;
+			} else {
+				engine->ANX = engine->NX;
 			}
-			engine->dstAddress = V9990Bpp16::addressOf(engine->DX,
-			                                           engine->DY,
-			                                           width);
 		}
 	}
 }
@@ -787,8 +777,8 @@ void V9990CmdEngine::CmdBMXL<Mode>::execute(const EmuTime& time)
 	while (true) {
 		byte data = vram->readVRAM(engine->srcAddress++);
 		for (int i = 0; (engine->ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
-			byte value = Mode::point(vram, engine->DX, engine->DY, width);
-			byte mask = Mode::shiftDown(engine->WM, engine->DX);
+			word value = Mode::point(vram, engine->DX, engine->DY, width);
+			word mask = Mode::shiftDown(engine->WM, engine->DX);
 			value = engine->logOp((data >> (8 - Mode::BITS_PER_PIXEL)),
 			                      value, mask);
 			Mode::pset(vram, engine->DX, engine->DY, width, value);
@@ -822,7 +812,7 @@ V9990CmdEngine::CmdBMLX<Mode>::CmdBMLX(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdBMLX<Mode>::start(const EmuTime& time)
 {
-	engine->dstAddress = (engine->DX & 0xFF) + ((engine->DY & 0x3FF) << 8);
+	engine->dstAddress = (engine->DX & 0xFF) + ((engine->DY & 0x7FF) << 8);
 
 	engine->ANX = engine->NX;
 	engine->ANY = engine->NY;
