@@ -120,14 +120,12 @@ void Display::repaint()
 	//       it is unknown whether a failure is transient or permanent.
 	if (!videoSystem->prepare()) return;
 	
-	/*
 	for(Layers::iterator it = baseLayer(); it != layers.end(); ++it) {
 		if ((*it)->coverage != Layer::COVER_NONE) {
 			//std::cout << "Painting layer " << (*it)->getName() << std::endl;
 			(*it)->paint();
 		}
 	}
-	*/
 	
 	videoSystem->flush();
 
