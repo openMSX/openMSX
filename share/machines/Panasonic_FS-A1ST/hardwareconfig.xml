@@ -39,14 +39,14 @@
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
     <parameter name="firstblock">40</parameter>
-    <parameter name="lastlock">43</parameter>
+    <parameter name="lastblock">43</parameter>
   </device>
   
   <device id="MSX Music">
     <type>Music</type>
     <slotted> <ps>0</ps> <ss>2</ss> <page>1</page> </slotted>
     <parameter name="firstblock">62</parameter>
-    <parameter name="lastlock">63</parameter>
+    <parameter name="lastblock">63</parameter>
     <parameter name="volume">9000</parameter>   
     <parameter name="mode">mono</parameter>
   </device>
@@ -55,7 +55,7 @@
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>3</ss> <page>1</page> </slotted>
     <parameter name="firstblock">36</parameter>
-    <parameter name="lastlock">37</parameter>
+    <parameter name="lastblock">37</parameter>
   </device>
 
   <device id="Main RAM">
@@ -72,7 +72,7 @@
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>1</ss> <page>0</page> </slotted>
     <parameter name="firstblock">56</parameter>
-    <parameter name="lastlock">57</parameter>
+    <parameter name="lastblock">57</parameter>
   </device>
 
   <device id="MSX Kanji Driver with BASIC 1">
@@ -80,7 +80,7 @@
     <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>1</ss> <page>2</page> </slotted>
     <parameter name="firstblock">58</parameter>
-    <parameter name="lastlock">61</parameter>
+    <parameter name="lastblock">61</parameter>
   </device>
   
   <device id="Memory Mapped FDC">
@@ -88,7 +88,7 @@
     <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
     <parameter name="firstblock">48</parameter>
-    <parameter name="lastlock">55</parameter>
+    <parameter name="lastblock">55</parameter>
     <parameter name="type">TC8566AF</parameter>
     <parameter name="drivename1">diska</parameter>
   </device>
