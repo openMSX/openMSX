@@ -9,6 +9,9 @@
 // forward declaration
 class CPUInterface;
 
+typedef signed char offset;
+
+
 class CPU
 {
 	#ifndef WORDS_BIGENDIAN
@@ -32,7 +35,6 @@ class CPU
 		byte R, R2;	// refresh = R&127 | R2&128
 	};
 
-	typedef signed char offset;
 
 	public:
 		/**

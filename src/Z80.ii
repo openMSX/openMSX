@@ -129,18 +129,28 @@ inline word Z80::Z80_RDMEM_OPCODE_WORD () {
 }
 
 inline word Z80::M_XIX() { 
-	word result = (R.IX.w+(offset)Z80_RDMEM_OPCODE())&0xFFFF;
+	word result = R.IX.w+(offset)Z80_RDMEM_OPCODE();
 	currentTime += 5;
 	return result;
 }
 inline word Z80::M_XIY() { 
-	word result = (R.IY.w+(offset)Z80_RDMEM_OPCODE())&0xFFFF;
+	word result = R.IY.w+(offset)Z80_RDMEM_OPCODE();
 	currentTime += 5;
+	return result;
+}
+inline word Z80::M_XIX(offset n) { 
+	word result = R.IX.w+n;
+	return result;
+}
+inline word Z80::M_XIY(offset n) { 
+	word result = R.IY.w+n;
 	return result;
 }
 inline byte Z80::M_RD_XHL() { return Z80_RDMEM(R.HL.w); }
 inline byte Z80::M_RD_XIX() { return Z80_RDMEM(M_XIX()); }
 inline byte Z80::M_RD_XIY() { return Z80_RDMEM(M_XIY()); }
+inline byte Z80::M_RD_XIX(offset n) { return Z80_RDMEM(M_XIX(n)); }
+inline byte Z80::M_RD_XIY(offset n) { return Z80_RDMEM(M_XIY(n)); }
 inline void Z80::M_WR_XIX(byte a) { Z80_WRMEM(M_XIX(), a); }
 inline void Z80::M_WR_XIY(byte a) { Z80_WRMEM(M_XIY(), a); }
 

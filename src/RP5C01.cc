@@ -3,6 +3,7 @@
 #include "RP5C01.hh"
 #include <cassert>
 #include <time.h>
+#include <string>
 
 //TODO  ALARM is not implemented (not connected on MSX)
 //TODO  1Hz 16Hz output not implemented (not connected on MSX)
@@ -12,23 +13,22 @@ RP5C01::RP5C01(bool emuMode, const EmuTime &time)
 {
 	reference = time;
 	emuTimeBased = emuMode;
-	
-	//TODO load saved state
-	// if no saved state found
-	for (int b=0; b<4; b++) {
-		for (int r=0; r<13; r++) {
-			reg[b][r] = 0;
-		}
-	}
+	memset (reg, 0, sizeof(reg));
 	reg[ALARM_BLOCK][10] = 1;	// set 24hour mode
-
+	initializeTime();
+	reset(time);
+}
+RP5C01::RP5C01(bool emuMode, char* data, const EmuTime &time) 
+{
+	reference = time;
+	emuTimeBased = emuMode;
+	memcpy(reg, data, sizeof(reg));
 	initializeTime();
 	reset(time);
 }
 
 RP5C01::~RP5C01()
 {
-	//TODO save state
 }
 
 void RP5C01::reset(const EmuTime &time)

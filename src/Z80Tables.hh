@@ -20,7 +20,7 @@ byte Z80::ZSPXYTable[256];
 /*                                                                  */
 /********************************************************************/
 
-const opcode_fn Z80::opcode_dd_cb[256] = {
+const opcode_fn_n Z80::opcode_dd_cb[256] = {
  &Z80::rlc_xix_b  ,&Z80::rlc_xix_c  ,&Z80::rlc_xix_d  ,&Z80::rlc_xix_e  ,
  &Z80::rlc_xix_h  ,&Z80::rlc_xix_l  ,&Z80::rlc_xix    ,&Z80::rlc_xix_a  ,
  &Z80::rrc_xix_b  ,&Z80::rrc_xix_c  ,&Z80::rrc_xix_d  ,&Z80::rrc_xix_e  ,
@@ -90,7 +90,7 @@ const opcode_fn Z80::opcode_dd_cb[256] = {
  &Z80::set_7_xix_h,&Z80::set_7_xix_l,&Z80::set_7_xix  ,&Z80::set_7_xix_a,
 };
 
-const opcode_fn Z80::opcode_fd_cb[256] = {
+const opcode_fn_n Z80::opcode_fd_cb[256] = {
  &Z80::rlc_xiy_b  ,&Z80::rlc_xiy_c  ,&Z80::rlc_xiy_d  ,&Z80::rlc_xiy_e  ,
  &Z80::rlc_xiy_h  ,&Z80::rlc_xiy_l  ,&Z80::rlc_xiy    ,&Z80::rlc_xiy_a  ,
  &Z80::rrc_xiy_b  ,&Z80::rrc_xiy_c  ,&Z80::rrc_xiy_d  ,&Z80::rrc_xiy_e  ,

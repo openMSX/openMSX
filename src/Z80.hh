@@ -28,6 +28,7 @@
 class Z80;
 class CPUInterface;
 typedef void (Z80::*opcode_fn)();
+typedef void (Z80::*opcode_fn_n)(offset n);
 
 class Z80 : public CPU {
 	public:
@@ -73,8 +74,8 @@ class Z80 : public CPU {
 		static const byte breg_tmp2[256];
 		
 		// opcode function pointers
-		static const opcode_fn opcode_dd_cb[256];
-		static const opcode_fn opcode_fd_cb[256];
+		static const opcode_fn_n opcode_dd_cb[256];
+		static const opcode_fn_n opcode_fd_cb[256];
 		static const opcode_fn opcode_cb[256];
 		static const opcode_fn opcode_dd[256];
 		static const opcode_fn opcode_ed[256];

@@ -1,5 +1,8 @@
 $Id$
 
+2001-12-30 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Z80: correct inter-instruction timing for DDCB and FDCB instrcutions,
+
 2001-12-30 Joost Yervante Damad <j.damad@qahwah.net>
 	* more disk support, it already works a little bit,
 	  but the slot switching still needs to be added
