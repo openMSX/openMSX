@@ -70,10 +70,10 @@ private:
 	inline int getDisplayWidth();
 
 	/** Get a pointer to the start of a VRAM line in the cache.
-	  * @param line The VRAM line:
-	  *   [0..192) for MSX1, [0..256*4) for MSX2.
+	  * @param displayCache The display cache to use.
+	  * @param line The VRAM line, range depends on display cache.
 	  */
-	inline Pixel *getLinePtr(int line);
+	inline Pixel *getLinePtr(SDL_Surface *displayCache, int line);
 
 	void renderText1(Pixel *pixelPtr, int line);
 	void renderText1Q(Pixel *pixelPtr, int line);
@@ -109,6 +109,10 @@ private:
 	/** Dirty checking for Text2 display mode.
 	  */
 	void checkDirtyText2(int addr, byte data, const EmuTime &time);
+
+	/** Dirty checking for bitmap modes.
+	  */
+	void checkDirtyBitmap(int addr, byte data, const EmuTime &time);
 
 	/** Draw sprites on this line over the background.
 	  */
@@ -170,11 +174,23 @@ private:
 	  */
 	SDL_Surface *screen;
 
-	/** The surface which the image is rendered on.
-	  * This surface contains VRAM lines, not display lines.
-	  * It is not affected by vertical scroll and it holds multiple pages.
+	/** Cache for rendered VRAM in character modes.
+	  * Cache line (N + scroll) corresponds to display line N.
+	  * It holds a single page of 256 lines.
 	  */
-	SDL_Surface *displayCache;
+	SDL_Surface *charDisplayCache;
+
+	/** Cache for rendered VRAM in bitmap modes.
+	  * Cache line N corresponds to VRAM at N * 128.
+	  * It holds up to 4 pages of 256 lines each.
+	  * In Graphics6/7 the lower two pages are used.
+	  */
+	SDL_Surface *bitmapDisplayCache;
+
+	/** Display mode the line is valid in.
+	  * 0xFF means invalid in every mode.
+	  */
+	byte lineValidInMode[256 * 4];
 
 	/** Absolute line number of first display line.
 	  */

@@ -23,13 +23,6 @@ TODO:
   Disadvantages:
   * More memory is used: 128K pixels, which is 25% more.
     I don't think 25% extra will pose a real problem.
-- Implement dirty checking for bitmap modes.
-  Approach:
-  * use an array which one entry for each 128 bytes of VRAM
-    contains display mode in which line is valid, or 0xFF for none
-  * when constructing the screen, only re-render if display mode
-    mismatches
-  * in SCREEN7/8, check two entries and store on lower pages
 - Fix character mode dirty checking to work with incremental rendering.
   Approach 1:
   * use two dirty arrays, one for this frame, one for next frame
@@ -116,7 +109,7 @@ template <class Pixel> inline int SDLHiRenderer<Pixel>::getDisplayWidth()
 }
 
 template <class Pixel> inline Pixel *SDLHiRenderer<Pixel>::getLinePtr(
-	int line)
+	SDL_Surface *displayCache, int line)
 {
 	return (Pixel *)( (byte *)displayCache->pixels
 		+ line * displayCache->pitch );
@@ -165,43 +158,44 @@ template <class Pixel> SDLHiRenderer<Pixel>::RenderMethod
 	};
 
 template <class Pixel> SDLHiRenderer<Pixel>::DirtyChecker
+	// Use checkDirtyBitmap for every mode for which isBitmapMode is true.
 	SDLHiRenderer<Pixel>::modeToDirtyChecker[] = {
 		// M5 M4 = 0 0  (MSX1 modes)
-		&SDLHiRenderer::checkDirtyMSX1,
-		&SDLHiRenderer::checkDirtyMSX1,
-		&SDLHiRenderer::checkDirtyMSX1,
+		&SDLHiRenderer::checkDirtyMSX1, // Graphic 1
+		&SDLHiRenderer::checkDirtyMSX1, // Text 1
+		&SDLHiRenderer::checkDirtyMSX1, // Multicolour
 		&SDLHiRenderer::checkDirtyNull,
-		&SDLHiRenderer::checkDirtyMSX1,
-		&SDLHiRenderer::checkDirtyMSX1,
-		&SDLHiRenderer::checkDirtyMSX1,
+		&SDLHiRenderer::checkDirtyMSX1, // Graphic 2
+		&SDLHiRenderer::checkDirtyMSX1, // Text 1 Q
+		&SDLHiRenderer::checkDirtyMSX1, // Multicolour Q
 		&SDLHiRenderer::checkDirtyNull,
 		// M5 M4 = 0 1
-		&SDLHiRenderer::checkDirtyMSX1, // graphic 3, actually
+		&SDLHiRenderer::checkDirtyMSX1, // Graphic 3
 		&SDLHiRenderer::checkDirtyText2,
 		&SDLHiRenderer::checkDirtyNull,
 		&SDLHiRenderer::checkDirtyNull,
-		&SDLHiRenderer::checkDirtyNull, // renderGraphic4
-		&SDLHiRenderer::checkDirtyNull,
-		&SDLHiRenderer::checkDirtyNull,
-		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyBitmap, // Graphic 4
+		&SDLHiRenderer::checkDirtyBitmap,
+		&SDLHiRenderer::checkDirtyBitmap,
+		&SDLHiRenderer::checkDirtyBitmap,
 		// M5 M4 = 1 0
-		&SDLHiRenderer::checkDirtyNull, // renderGraphic5
-		&SDLHiRenderer::checkDirtyNull,
-		&SDLHiRenderer::checkDirtyNull,
-		&SDLHiRenderer::checkDirtyNull,
-		&SDLHiRenderer::checkDirtyNull, // renderGraphic6
-		&SDLHiRenderer::checkDirtyNull,
-		&SDLHiRenderer::checkDirtyNull,
-		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyBitmap, // Graphic 5
+		&SDLHiRenderer::checkDirtyBitmap,
+		&SDLHiRenderer::checkDirtyBitmap,
+		&SDLHiRenderer::checkDirtyBitmap,
+		&SDLHiRenderer::checkDirtyBitmap, // Graphic 6
+		&SDLHiRenderer::checkDirtyBitmap,
+		&SDLHiRenderer::checkDirtyBitmap,
+		&SDLHiRenderer::checkDirtyBitmap,
 		// M5 M4 = 1 1
-		&SDLHiRenderer::checkDirtyNull,
-		&SDLHiRenderer::checkDirtyNull,
-		&SDLHiRenderer::checkDirtyNull,
-		&SDLHiRenderer::checkDirtyNull,
-		&SDLHiRenderer::checkDirtyNull, // renderGraphic7
-		&SDLHiRenderer::checkDirtyNull,
-		&SDLHiRenderer::checkDirtyNull,
-		&SDLHiRenderer::checkDirtyNull
+		&SDLHiRenderer::checkDirtyBitmap,
+		&SDLHiRenderer::checkDirtyBitmap,
+		&SDLHiRenderer::checkDirtyBitmap,
+		&SDLHiRenderer::checkDirtyBitmap,
+		&SDLHiRenderer::checkDirtyBitmap, // Graphic 7
+		&SDLHiRenderer::checkDirtyBitmap,
+		&SDLHiRenderer::checkDirtyBitmap,
+		&SDLHiRenderer::checkDirtyBitmap,
 	};
 
 template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
@@ -219,17 +213,31 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	updateDisplayMode(vdp->getDisplayMode(), time);
 	dirtyForeground = dirtyBackground = true;
 
-	// Create display cache.
-	displayCache = SDL_CreateRGBSurface(
+	// Create display caches.
+	charDisplayCache = SDL_CreateRGBSurface(
 		SDL_HWSURFACE,
 		512,
-		vdp->isMSX1VDP() ? 192 : 256 * 4,
+		vdp->isMSX1VDP() ? 192 : 256,
 		screen->format->BitsPerPixel,
 		screen->format->Rmask,
 		screen->format->Gmask,
 		screen->format->Bmask,
 		screen->format->Amask
 		);
+	bitmapDisplayCache = ( vdp->isMSX1VDP()
+		? NULL
+		: SDL_CreateRGBSurface(
+			SDL_HWSURFACE,
+			512,
+			256 * 4,
+			screen->format->BitsPerPixel,
+			screen->format->Rmask,
+			screen->format->Gmask,
+			screen->format->Bmask,
+			screen->format->Amask
+			)
+		);
+	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 
 	// Hide mouse cursor.
 	SDL_ShowCursor(SDL_DISABLE);
@@ -296,6 +304,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateTransparency(
 	// so we have to repaint them all.
 	anyDirtyColour = true;
 	fillBool(dirtyColour, true, sizeof(dirtyColour));
+	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updateForegroundColour(
@@ -318,6 +327,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateBackgroundColour(
 		// so we have to repaint them all.
 		anyDirtyColour = true;
 		fillBool(dirtyColour, true, sizeof(dirtyColour));
+		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 	}
 }
 
@@ -355,6 +365,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updatePalette(
 	// so we have to repaint them all.
 	anyDirtyColour = true;
 	fillBool(dirtyColour, true, sizeof(dirtyColour));
+	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updateVerticalScroll(
@@ -375,6 +386,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayEnabled(
 	sync(time);
 
 	// When display is re-enabled, consider every pixel dirty.
+	// TODO: Is there a way to avoid this?
 	if (enabled) {
 		dirtyForeground = true;
 		setDirty(true);
@@ -434,7 +446,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateVRAM(
 template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyNull(
 	int addr, byte data, const EmuTime &time)
 {
-	// Do nothing: this display mode doesn't have dirty checking.
+	// Do nothing: this is a bogus mode whose display doesn't depend
+	// on VRAM contents.
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyMSX1(
@@ -463,6 +476,13 @@ template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyText2(
 	if ((addr | ~(-1 << 11)) == vdp->getPatternMask()) {
 		dirtyPattern[(addr / 8) & ~(-1 << 8)] = anyDirtyPattern = true;
 	}
+}
+
+template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyBitmap(
+	int addr, byte data, const EmuTime &time)
+{
+	sync(time);
+	lineValidInMode[addr >> 7] = 0xFF;
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::setDirty(
@@ -917,13 +937,17 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		limit = nextLine + numLines;
 	}
 
+	// Character mode or bitmap mode?
+	SDL_Surface *displayCache =
+		vdp->isBitmapMode() ? bitmapDisplayCache : charDisplayCache;
+
 	// Lock surface, because we will access pixels directly.
 	if (SDL_MUSTLOCK(displayCache) && SDL_LockSurface(displayCache) < 0) {
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
 	// Render background lines.
-	// TODO: Unify MSX1 and MSX2 modes? Or separate them more?
+	// TODO: Complete separation of character and bitmap modes.
 	if (vdp->isBitmapMode()) {
 		int line = scrolledLine;
 		int n = numLines;
@@ -932,14 +956,19 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 			//   in SCREEN7/8.
 			int addr = vdp->getNameMask() & (0x18000 | (line << 7));
 			int vramLine = addr >> 7;
-			(this->*renderMethod)(getLinePtr(vramLine), vramLine);
+			if (lineValidInMode[vramLine] != vdp->getDisplayMode()) {
+				(this->*renderMethod)
+					(getLinePtr(displayCache, vramLine), vramLine);
+				lineValidInMode[vramLine] = vdp->getDisplayMode();
+			}
 			line++;
 		} while (--n);
 	} else {
 		int line = scrolledLine;
 		int n = numLines;
 		do {
-			(this->*renderMethod)(getLinePtr(line), line);
+			(this->*renderMethod)
+				(getLinePtr(displayCache, line), line);
 			line++;
 		} while (--n);
 	}

@@ -1,5 +1,8 @@
 $Id$
 
+2002-01-06 Maarten ter Huurne <mth@stack.nl>
+	* Implemented rendered line caching in bitmap modes (SDLHi).
+
 2002-01-06 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Z80: reverted buggy optimization,
 	  fixes undeadline, track&field, flickering in space manbow
