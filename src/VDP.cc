@@ -20,7 +20,6 @@ TODO:
   falls outside of the rendered screen area.
 */
 
-#include "MSXCPUInterface.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "VDPCmdEngine.hh"
@@ -104,15 +103,6 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 		rendererName, this, fullScreen, time);
 	vram->setRenderer(renderer);
 	switchRenderer = false;
-
-	MSXCPUInterface::instance()->register_IO_In((byte)0x98, this);
-	MSXCPUInterface::instance()->register_IO_Out((byte)0x98, this);
-	MSXCPUInterface::instance()->register_IO_In((byte)0x99, this);
-	MSXCPUInterface::instance()->register_IO_Out((byte)0x99, this);
-	if (!isMSX1VDP()) {
-		MSXCPUInterface::instance()->register_IO_Out((byte)0x9A, this);
-		MSXCPUInterface::instance()->register_IO_Out((byte)0x9B, this);
-	}
 
 	// Tell the other subsystems of the new mask values.
 	resetMasks(time);
@@ -459,8 +449,8 @@ void VDP::frameStart(const EmuTime &time)
 void VDP::writeIO(byte port, byte value, const EmuTime &time)
 {
 	assert(isInsideFrame(time));
-	switch (port){
-	case 0x98: {
+	switch (port & 0x03) {
+	case 0: { // VRAM data write
 		int addr = ((controlRegs[14] << 14) | vramPointer) & vramMask;
 		//fprintf(stderr, "VRAM[%05X]=%02X\n", addr, value);
 		// TODO: Check MXC bit (R#45, bit 6) for extension RAM access.
@@ -476,7 +466,7 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 		registerDataStored = false;
 		break;
 	}
-	case 0x99:
+	case 1: // Register or address write
 		if (registerDataStored) {
 			if (value & 0x80) {
 				// Register write.
@@ -499,7 +489,7 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 			registerDataStored = true;
 		}
 		break;
-	case 0x9A:
+	case 2: // Palette data write
 		if (paletteDataStored) {
 			int index = controlRegs[16];
 			int grb = ((value << 8) | dataLatch) & 0x777;
@@ -512,7 +502,7 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 			paletteDataStored = true;
 		}
 		break;
-	case 0x9B: {
+	case 3: { // Indirect register write
 		dataLatch = value;
 		// TODO: What happens if reg 17 is written indirectly?
 		//fprintf(stderr, "VDP indirect register write: %02X\n", value);
@@ -524,8 +514,6 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 		}
 		break;
 	}
-	default:
-		assert(false);
 	}
 }
 
@@ -547,13 +535,12 @@ byte VDP::vramRead(const EmuTime &time)
 byte VDP::readIO(byte port, const EmuTime &time)
 {
 	assert(isInsideFrame(time));
-	assert(port == 0x98 || port == 0x99);
-	if (port == 0x98) {
+	switch (port & 0x03) {
+	case 0: // VRAM data read
 		return vramRead(time);
-	}
-	else { // port == 0x99
+	case 1: // Status register read
 
-		// Abort any port 0x99 writes in progress.
+		// Abort any port #1 writes in progress.
 		registerDataStored = false;
 
 		//std::cout << "read S#" << (int)controlRegs[15] << "\n";
@@ -628,6 +615,10 @@ byte VDP::readIO(byte port, const EmuTime &time)
 		default: // non-existent status register
 			return 0xFF;
 		}
+	default:
+		// These ports should not be registered for reading.
+		assert(false);
+		return 0xFF;
 	}
 }
 

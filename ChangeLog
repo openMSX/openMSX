@@ -1,5 +1,10 @@
 $Id$
 
+2003-01-02 Maarten ter Huurne <maarten@treewalker.org>
+	* Moved I/O port registration out of VDP and into DeviceFactory.
+	  Eventually, all I/O port registration should move to the machine
+	  description file.
+
 2003-01-01 Maarten ter Huurne <maarten@treewalker.org>
 	* Workaround to prevent out-of-order I/O with the VDP.
 	* Added asserts to VDP code to check timing constraints.

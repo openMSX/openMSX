@@ -4,6 +4,7 @@
 
 #include "MSXConfig.hh"
 #include "DeviceFactory.hh"
+#include "MSXCPUInterface.hh"
 #include "MSXRam.hh"
 #include "MSXPPI.hh"
 #include "VDP.hh"
@@ -49,17 +50,26 @@ MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time)
 		return new MSXRam(conf, time);
 	} 
 	if (type == "VDP") {
-		return new VDP(conf, time);
-	} 
+		VDP *vdp = new VDP(conf, time);
+		MSXCPUInterface::instance()->register_IO_Out((byte)0x98, vdp);
+		MSXCPUInterface::instance()->register_IO_Out((byte)0x99, vdp);
+		if (!vdp->isMSX1VDP()) {
+			MSXCPUInterface::instance()->register_IO_Out((byte)0x9A, vdp);
+			MSXCPUInterface::instance()->register_IO_Out((byte)0x9B, vdp);
+		}
+		MSXCPUInterface::instance()->register_IO_In((byte)0x98, vdp);
+		MSXCPUInterface::instance()->register_IO_In((byte)0x99, vdp);
+		return vdp;
+	}
 	if (type == "E6Timer") {
 		return new MSXE6Timer(conf, time);
-	} 
+	}
 	if (type == "F4Device") {
 		return new MSXF4Device(conf, time);
-	} 
+	}
 	if (type == "TurboRLeds") {
 		return new MSXTurboRLeds(conf, time);
-	} 
+	}
 	if (type == "TurboRPause") {
 		return new MSXTurboRPause(conf, time);
 	} 
