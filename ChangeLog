@@ -1,5 +1,9 @@
 $Id$
 
+2004-02-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* added scripts directory
+	* added multi_screenshot script
+
 2004-02-21 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* fixed FileOperations.cc for win32. setenv doesn't exist in mingw
 

@@ -24,5 +24,17 @@ proc alias { cmd body } {
 	proc $cmd {} $body
 }
 
+# Resolve data files. First try user directory, if the file doesn't exist
+# there try the system direcectory
+proc data_file { file } {
+        global env
+        set user_file $env(OPENMSX_USER_DATA)/$file
+        if [file exists $user_file] { return $user_file }
+        return $env(OPENMSX_SYSTEM_DATA)/$file
+}
+
+# source additional scripts
+source [data_file scripts/multi_screenshot.tcl]
+
 # Disable build-in firmware
 #if [info exists frontswitch] { set frontswitch off }
