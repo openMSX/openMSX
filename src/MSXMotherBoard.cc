@@ -18,19 +18,20 @@ MSXMotherBoard::MSXMotherBoard()
 {
 	PRT_DEBUG("Creating an MSXMotherBoard object");
 	
-	for (int i=0; i<256; i++) {
-		IO_In[i]  = DummyDevice::instance();
-		IO_Out[i] = DummyDevice::instance();
+	DummyDevice* dummy = DummyDevice::instance();
+	for (int port=0; port<256; port++) {
+		IO_In [port] = dummy;
+		IO_Out[port] = dummy;
 	}
-	for (int i=0; i<4; i++) {
-		isSubSlotted[i] = false;
-	}
-	for (int i=0;i<4;i++) {
-		for (int j=0;j<4;j++) {
-			for (int k=0;k<4;k++) {
-				SlotLayout[i][j][k]=DummyDevice::instance();
+	for (int primSlot=0; primSlot<4; primSlot++) {
+		for (int secSlot=0; secSlot<4; secSlot++) {
+			for (int page=0; page<4; page++) {
+				SlotLayout[primSlot][secSlot][page]=dummy;
 			}
 		}
+	}
+	for (int primSlot=0; primSlot<4; primSlot++) {
+		isSubSlotted[primSlot] = false;
 	}
 
 	config = MSXConfig::instance()->getConfigById("MotherBoard");
@@ -76,7 +77,7 @@ void MSXMotherBoard::register_IO_In(byte port, MSXIODevice *device)
 
 void MSXMotherBoard::register_IO_Out(byte port, MSXIODevice *device)
 {
-	if ( IO_Out[port] == DummyDevice::instance()) {
+	if (IO_Out[port] == DummyDevice::instance()) {
 		PRT_DEBUG (device->getName() << " registers Out-port " << (int)port);
 		IO_Out[port] = device;
 	} else {
@@ -92,6 +93,8 @@ void MSXMotherBoard::addDevice(MSXDevice *device)
 
 void MSXMotherBoard::registerSlottedDevice(MSXMemDevice *device, int primSl, int secSl, int page)
 {
+	if (!isSubSlotted[primSl]) 
+		secSl = 0;
 	if (SlotLayout[primSl][secSl][page] == DummyDevice::instance()) {
 		PRT_DEBUG(device->getName() << " registers at "<<primSl<<" "<<secSl<<" "<<page);
 		SlotLayout[primSl][secSl][page] = device;
@@ -138,19 +141,18 @@ void MSXMotherBoard::SaveStateMSX(std::ofstream &savestream)
 
 void MSXMotherBoard::set_A8_Register(byte value)
 {
-	A8_Register = value;
-	for (int j=0; j<=3; j++, value>>=2) {
+	for (int page=0; page<4; page++, value>>=2) {
 		// Change the slot structure
-		PrimarySlotState[j] = value&3;
-		SecondarySlotState[j] = 3&(SubSlot_Register[value&3]>>(j*2));
+		PrimarySlotState[page] = value&3;
+		SecondarySlotState[page] = 3&(SubSlot_Register[value&3]>>(page*2));
 		// Change the visible devices
-		MSXMemDevice* newDevice = SlotLayout [PrimarySlotState[j]]
-		                                     [SecondarySlotState[j]]
-		                                     [j];
-		if (visibleDevices[j] != newDevice) {
-			visibleDevices[j] = newDevice;
+		MSXMemDevice* newDevice = SlotLayout [PrimarySlotState[page]]
+		                                     [SecondarySlotState[page]]
+		                                     [page];
+		if (visibleDevices[page] != newDevice) {
+			visibleDevices[page] = newDevice;
 			// invalidate cache
-			MSXCPU::instance()->invalidateCache(j*0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
+			MSXCPU::instance()->invalidateCache(page*0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
 		}
 	}
 }
@@ -161,7 +163,7 @@ void MSXMotherBoard::set_A8_Register(byte value)
 byte MSXMotherBoard::readMem(word address, const EmuTime &time)
 {
 	if (address == 0xFFFF) {
-		int CurrentSSRegister = (A8_Register>>6)&3;
+		int CurrentSSRegister = PrimarySlotState[3];
 		if (isSubSlotted[CurrentSSRegister]) {
 			return 255^SubSlot_Register[CurrentSSRegister];
 		}
@@ -172,20 +174,20 @@ byte MSXMotherBoard::readMem(word address, const EmuTime &time)
 void MSXMotherBoard::writeMem(word address, byte value, const EmuTime &time)
 {
 	if (address == 0xFFFF) {
-		int CurrentSSRegister = (A8_Register>>6)&3;
+		int CurrentSSRegister = PrimarySlotState[3];
 		if (isSubSlotted[CurrentSSRegister]) {
 			SubSlot_Register[CurrentSSRegister] = value;
-			for (int i=0; i<4; i++, value>>=2) {
-				if (CurrentSSRegister == PrimarySlotState[i]) {
-					SecondarySlotState[i] = value&3;
+			for (int page=0; page<4; page++, value>>=2) {
+				if (CurrentSSRegister == PrimarySlotState[page]) {
+					SecondarySlotState[page] = value&3;
 					// Change the visible devices
-					MSXMemDevice* newDevice = SlotLayout [PrimarySlotState[i]]
-					                                     [SecondarySlotState[i]]
-					                                     [i];
-					if (visibleDevices[i] != newDevice) {
-						visibleDevices[i] = newDevice;
+					MSXMemDevice* newDevice = SlotLayout [PrimarySlotState[page]]
+					                                     [SecondarySlotState[page]]
+					                                     [page];
+					if (visibleDevices[page] != newDevice) {
+						visibleDevices[page] = newDevice;
 						// invalidate cache
-						MSXCPU::instance()->invalidateCache(i*0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
+						MSXCPU::instance()->invalidateCache(page*0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
 					}
 				}
 			}
@@ -227,14 +229,16 @@ void MSXMotherBoard::lowerIRQ()
 
 byte* MSXMotherBoard::getReadCacheLine(word start)
 {
-	if (start == 0x10000-CPU::CACHE_LINE_SIZE)	// contains 0xffff
+	if ((start == 0x10000-CPU::CACHE_LINE_SIZE) &&	// contains 0xffff
+	    (isSubSlotted[PrimarySlotState[3]]))
 		return NULL;
 	return visibleDevices[start>>14]->getReadCacheLine(start);
 }
 
 byte* MSXMotherBoard::getWriteCacheLine(word start)
 {
-	if (start == 0x10000-CPU::CACHE_LINE_SIZE)	// contains 0xffff
+	if ((start == 0x10000-CPU::CACHE_LINE_SIZE) &&	// contains 0xffff
+	    (isSubSlotted[PrimarySlotState[3]]))
 		return NULL;
 	return visibleDevices[start>>14]->getWriteCacheLine(start);
 }

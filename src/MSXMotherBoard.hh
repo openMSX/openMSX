@@ -30,31 +30,34 @@ class MSXMotherBoard : public CPUInterface
 		static MSXMotherBoard *instance();
 	 
 		/**
-		 * Devices can register their In ports. 
-		 * This should be done during in their init() method.
-		 * Once device are registered, their readIO() method
-		 * can get called.
+		 * Devices can register their In ports. This is normally done 
+		 * in their constructor. Once device are registered, their
+		 * readIO() method can get called.
+		 * TODO: implement automatic registration for MSXIODevice
 		 */
-		void register_IO_In(byte port,MSXIODevice *device);
+		void register_IO_In(byte port, MSXIODevice *device);
 		
 		/**
-		 * Devices can register their Out ports. 
-		 * This should be done during in their init() method.
-		 * Once device are registered, their writeIO() method
-		 * can get called.
+		 * Devices can register their Out ports. This is normally done
+		 * in their constructor. Once device are registered, their
+		 * writeIO() method can get called.
+		 * TODO: implement automatic registration for MSXIODevice
 		 */
-		void register_IO_Out(byte port,MSXIODevice *device);
+		void register_IO_Out(byte port, MSXIODevice *device);
 
 		/**
 		 * Devices can register themself in the MSX slotstructure.
-		 * They should do this during their init() method. Once the
-		 * devices are registered their readMem() / writeMem() methods
-		 * can get called.
+		 * This is normally done in their constructor. Once devices
+		 * are registered their readMem() / writeMem() methods can
+		 * get called.
+		 * Note: if a MSXDevice inherits from MSXMemDevice, it gets 
+		 *       automatically registered
 		 */
-		void registerSlottedDevice(MSXMemDevice *device,int PrimSl,int SecSL,int Page);
+		void registerSlottedDevice(MSXMemDevice *device, 
+		                           int PrimSl, int SecSL, int Page);
 		
 		/**
-		 * All MSXDevices should be registered by tyhe MotherBoard.
+		 * All MSXDevices should be registered by the MotherBoard.
 		 * This method should only be called at start-up
 		 */
 		void addDevice(MSXDevice *device);
@@ -164,7 +167,6 @@ class MSXMotherBoard : public CPUInterface
 		
 		MSXMemDevice* SlotLayout[4][4][4];
 		byte SubSlot_Register[4];
-		byte A8_Register;
 		byte PrimarySlotState[4];
 		byte SecondarySlotState[4];
 		bool isSubSlotted[4];
