@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #include <sys/types.h>
-#include "system.h"
+// #include "system.h" -> this bugs g++-3.0, do we need it?
 
 #define EXIT_FAILURE 1
 

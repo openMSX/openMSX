@@ -3,7 +3,7 @@
 #define __EVENTDISTRIBUTOR_HH__
 
 #include <SDL/SDL.h>
-#include <stl.h>
+#include <multimap.h>
 
 
 class EventListener
