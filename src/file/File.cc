@@ -3,6 +3,7 @@
 #include "File.hh"
 #include "FileBase.hh"
 #include "LocalFile.hh"
+#include "GZFileAdapter.hh"
 
 
 namespace openmsx {
@@ -19,12 +20,17 @@ File::File(const string &url, OpenMode mode)
 		protocol = url.substr(0, pos);
 		name = url.substr(pos + 3);
 	}
-	
+
 	PRT_DEBUG("File: " << protocol << "://" << name);
 	if (protocol == "file") {
 		file = new LocalFile(name, mode);
 	} else {
 		PRT_ERROR("Unsupported protocol: " << protocol);
+	}
+	
+	if (name.rfind(".gz") == (name.size() - 3)) {
+		PRT_DEBUG("GZ 1");
+		file = new GZFileAdapter(file);
 	}
 }
 

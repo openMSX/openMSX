@@ -17,7 +17,7 @@ class FileBase
 		virtual ~FileBase();
 		virtual void read (byte* buffer, int num) = 0;
 		virtual void write(const byte* buffer, int num) = 0;
-		virtual byte* mmap(bool writeBack);
+		virtual byte* mmap(bool writeBack = false);
 		virtual void munmap();
 		virtual int getSize() = 0;
 		virtual void seek(int pos) = 0;

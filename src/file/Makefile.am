@@ -22,7 +22,8 @@ libFile_la_SOURCES = \
 	FileContext.cc FileContext.hh \
 	FileBase.cc FileBase.hh \
 	LocalFile.cc LocalFile.hh \
-	FileOperations.cc FileOperations.hh
+	FileOperations.cc FileOperations.hh \
+	GZFileAdapter.cc GZFileAdapter.hh
 
 nodebug: resetdebug all
 debug: setdebug all

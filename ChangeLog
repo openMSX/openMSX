@@ -1,5 +1,8 @@
 $Id$
 
+2003-08-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Read-only support for .gz files
+
 2003-08-09 Maarten ter Huurne <maarten@treewalker.org>
 	* Put all openMSX code in namespace "openmsx".
 	  This avoids name clashes with C libs, for example "Font" being
