@@ -16,6 +16,10 @@
 #include "PrinterPortSimpl.hh"
 #include "RS232Tester.hh"
 #include "WavAudioInput.hh"
+#if	defined(__WIN32__)
+#include "MidiInNative.hh"
+#include "MidiOutNative.hh"
+#endif
 
 
 namespace openmsx {
@@ -46,6 +50,10 @@ void PluggableFactory::createAll(PluggingController *controller)
 
 	// MIDI:
 	controller->registerPluggable(new MidiInReader());
+#if defined(__WIN32__)
+	MidiInNative::registerAll(controller);
+	MidiOutNative::registerAll(controller);
+#endif
 
 	// Cassette:
 	controller->registerPluggable(new CassettePlayer());

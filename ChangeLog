@@ -1,5 +1,10 @@
 $Id$
 
+2003-09-22 Reikan <openMSX4Win32@ranpub.com>
+	* Add MIDI support for Win32.
+	  It's missing to know association between parameter names and 
+	  real device. Ok. we'll call it as TODO.
+
 2003-09-21 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Made the debugger optional. If the settings.xml doesn't contain
           a debugger section, it's turned off. In this case the debuggersettings

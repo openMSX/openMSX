@@ -34,7 +34,10 @@ libSerial_la_SOURCES = \
 	MidiInConnector.cc  MidiInConnector.hh \
 	MidiOutConnector.cc MidiOutConnector.hh \
 	MidiOutLogger.cc MidiOutLogger.hh \
+	MidiOutNative.cc MidiOutNative.hh \
 	MidiInReader.cc MidiInReader.hh \
+	MidiInNative.cc MidiInNative.hh \
+	Midi_w32.cc Midi_w32.hh \
 	RS232Connector.cc RS232Connector.hh \
 	RS232Device.cc RS232Device.hh \
 	MSXRS232.cc MSXRS232.hh \
