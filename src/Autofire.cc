@@ -17,6 +17,7 @@ Autofire::Autofire(unsigned newMinInts, unsigned newMaxInts, const string& name)
 	if (max_ints <= min_ints) {
 		max_ints = min_ints + 1;
 	}
+	setClock();
 
 	speedSetting.addListener(this);
 }
@@ -26,12 +27,17 @@ Autofire::~Autofire()
 	speedSetting.removeListener(this);
 }
 
-void Autofire::update(const Setting* setting)
+void Autofire::setClock()
 {
-	assert(setting == &speedSetting);
 	int speed = speedSetting.getValue();
 	clock.setFreq(
 	    (2 * 50 * 60) / (max_ints - (speed * (max_ints - min_ints)) / 100));
+}
+
+void Autofire::update(const Setting* setting)
+{
+	assert(setting == &speedSetting);
+	setClock();
 }
 
 byte Autofire::getSignal(const EmuTime& time)

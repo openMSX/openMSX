@@ -1,5 +1,8 @@
 $Id$
 
+2005-01-04 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed initialisation of clock in autofire circuit.
+
 2005-01-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Split Display.xx files in Display.xx and Layer.xx
 	* Moved fps code from (V99x8) Renderer to Display:
@@ -25,7 +28,7 @@ $Id$
 2004-12-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed bug in V9990 cmds (address masking bug):
 	   underwater demo works now!
-	* Support V9990 screen enable/disable bit 
+	* Support V9990 screen enable/disable bit
 	* Implemented cursor in V9990 Bx modes
 
 2004-12-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
@@ -128,7 +131,7 @@ $Id$
 	* Fixed TurboR DRAM support, TRCAS works now
 
 2004-12-12 Manuel Bilderbeek <manuel@msxnet.org>
-	* Removed the annoying [alpha] notice. It's clear enough we're alpha... 
+	* Removed the annoying [alpha] notice. It's clear enough we're alpha...
 	  :)
 
 2004-12-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
@@ -149,7 +152,7 @@ $Id$
 
 2004-12-04 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Made a quickfix for romloading in windows. Using another character
-	  for ips-patch separator would be highly recommended. ':' is used 
+	  for ips-patch separator would be highly recommended. ':' is used
 	  between drive and path in Windows.
 
 2004-12-03 David Heremans <david.heremans@gnu-linux.net>
@@ -200,7 +203,7 @@ $Id$
 	   - preparation for run-time changeable frequency/samples settings
 	* Changes to 'frequency' and 'samples' settings takes immediate effect,
 	  no longer needed to restart openMSX
-	* Value of 'samples' setting must always be a power of 2 
+	* Value of 'samples' setting must always be a power of 2
 
 2004-11-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Only send events on actual changes:
@@ -351,7 +354,7 @@ $Id$
 
 2004-10-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed coredump on missing arguments on the command line:
-	   e.g. "openmsx -diska" 
+	   e.g. "openmsx -diska"
 
 2004-10-14 Maarten ter Huurne <maarten@treewalker.org>
 	* Added default key binding: ALT-Enter for full screen.
@@ -375,7 +378,7 @@ $Id$
 	* Correctly restore saved cpu freq settings:
 	   - When z80_freq_locked was saved as 'false', you had to do
 	     set z80_freq_locked true ; set z80_freq_locked false to
-	     really get the wanted behaviour. 
+	     really get the wanted behaviour.
 	   - Thanks to patatof for reporting this bug.
 
 2004-10-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
@@ -391,7 +394,7 @@ $Id$
 	  is off.
 
 2004-10-10 Herman Oudejans <hn.oudejans@quicknet.nl>
-	* Fixed getting user dir when "My Documents" is set to the 
+	* Fixed getting user dir when "My Documents" is set to the
 	  root of a drive in windows.
 
 2004-10-09 Maarten ter Huurne <maarten@treewalker.org>
@@ -519,7 +522,7 @@ $Id$
 	   - added ext-MMX routine, improves speed from 69s to 51s
 
 2004-09-26 Arnold Metselaar <arnold_m@operamail.com>
-	* Let Keyboard and KeyJoystick release all keys when the console 
+	* Let Keyboard and KeyJoystick release all keys when the console
 	  becomes active.
 
 2004-09-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
@@ -543,7 +546,7 @@ $Id$
 2004-09-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Take default settings value when saved value is no longer valid
 	* Integrated blur scaler and simple scaler:
-	   
+
 2004-09-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented TC8566AF format command:
 	   based on code from BlueMSX written by Daniel Vik
@@ -657,7 +660,7 @@ $Id$
 2004-09-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Z80 updates:
 	   - fixed P-flag in OUTI and INI instructions
-	   - calculate DAA table 
+	   - calculate DAA table
 	* Blur scaler:
 	   - small optimization in normal-MMX code (non-extended-MMX)
 	   - fixed bug when scanline=0 (recent optimization requires
@@ -948,7 +951,7 @@ $Id$
 2004-07-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* merged MSXDevice, MSXIODevice and MSXMemDevice in one class
 	  MSXDevice:
-	   - virtual inheritance can be removed because of this 
+	   - virtual inheritance can be removed because of this
 
 2004-07-18  Arnold Metselaar  <arnold_m@operamail.com>
 	* added Unicode.{cc,hh} with minimalistic conversion of UTF-8
@@ -1009,7 +1012,7 @@ $Id$
 	* Another config file format change:
 	   - use 'primary' and 'secondary' tags to specify slot structure
 	   - this proposal is still being discussed (especially for
-	     extensions), so this may change again 
+	     extensions), so this may change again
 
 2004-06-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed assertion in ClockPin
@@ -1103,7 +1106,7 @@ $Id$
 	  (converter still needs to be updated)
 
 2004-06-03 Manuel Bilderbeek <manuel@msxnet.org>
-	* More config file renames: 
+	* More config file renames:
 	  - Audio -> MSX-AUDIO
 	  - Audio-Midi -> MSX-AUDIO MIDI
 	  - Music -> MSX-MUSIC
@@ -1125,7 +1128,7 @@ $Id$
 	* Removed deprecated device PanasonicRom
 
 2004-06-03 Manuel Bilderbeek <manuel@msxnet.org>
-	* More config file changes: 
+	* More config file changes:
 	  - renamed old parameter brokenFDCread to broken_fdc_read (needs
 	    update of the converter, please fix this for me)
 	  - renamed Rom to ROM, PanasonicRom to PanasonicROM and PanasonicRam
@@ -1211,13 +1214,13 @@ $Id$
 	* RS232 interface in Sony_HB-G900P has 2kb RAM
 
 2004-05-20 Manuel Bilderbeek <manuel@msxnet.org>
-	* Added about 14 new machines 
+	* Added about 14 new machines
 
 2004-05-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Print an error for duplicate drive names (iso assert)
 
 2004-05-15 Manuel Bilderbeek <manuel@msxnet.org>
-	* Implemented scrolling in console by a whole page, using 
+	* Implemented scrolling in console by a whole page, using
 	  SHIFT+PAGEUP and SHIFT+PAGEDOWN
 
 2004-05-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
@@ -1238,7 +1241,7 @@ $Id$
 2004-05-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* If init.tcl file in system dir is missing try init.tcl in user dir:
 	   The default init.tcl in the system dir still source's the user
-	   init.tcl file. 
+	   init.tcl file.
 
 2004-05-05 Maarten ter Huurne <maarten@treewalker.org>
 	* Various small improvements to build system, including:
@@ -1257,12 +1260,12 @@ $Id$
 
 2004-05-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented a faster DC removal filter, thanks to dvik
-	* Implemeted V9990 palette reading/writing 
+	* Implemeted V9990 palette reading/writing
 	* Unified Ascii8-8, Koei-8, Koei-32 and Wizardry mapper types,
 	  also fixed some mapping details
 
 2004-05-01 Herman Oudejans <hn.oudejans@quicknet.nl>
-	* fixed [926293] Win32: specifying driveletter without path 
+	* fixed [926293] Win32: specifying driveletter without path
 	   doesn't work.
 
 2004-04-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
@@ -1299,7 +1302,7 @@ $Id$
 	* Fixed RealTime: still sync music for high frameskips, but properly
 	    handle syncpoints
 	* Fixed SRAM saving: filename had a double extension (file.SRAM.SRAM)
-	
+
 2004-04-26 Eric Boon <e.boon4@chello.nl>
 	* Add Debuggables to V9990
 
@@ -1337,7 +1340,7 @@ $Id$
 
 2004-04-20 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Suppressed warning in windows (warning: couldn't find file: "").
-	* Fixed 'no window when return from full screen' in SDLHi/Lo 
+	* Fixed 'no window when return from full screen' in SDLHi/Lo
 	   (windows NT4 only).
 
 2004-04-19 Maarten ter Huurne <maarten@treewalker.org>
@@ -1390,7 +1393,7 @@ $Id$
 	* Implemeneted "openmsx_info connectionclass" info topic:
 	   - "openmsx_info connectionclass" returns all connectionclasses
 	   - "openmsx_info connectionclass [pluggable / connection]" shows
-	     the class to which this 'thing' belongs 
+	     the class to which this 'thing' belongs
 	* Copied "oversleep compensation" from old realtime sync algorithm to
 	  new algorithm:
 	    - this helps to keep openMSX running at a reasonable speed when it
@@ -1479,7 +1482,7 @@ $Id$
 
 2004-03-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented a very basic fps indicator
-	* Don't send fps as 'update' events, but make it queryable 
+	* Don't send fps as 'update' events, but make it queryable
 	* Fixed overflow problem in SoundDevice code
 
 2004-03-17 Maarten ter Huurne <maarten@treewalker.org>
@@ -1563,7 +1566,7 @@ $Id$
 	      numbers of my sources)
 	* R800 IO operations takes 3 cycles:
 	   - S1990 adds two extra wait cycles cycles
-	
+
 2004-03-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Improved R800 timing, implemented CAS/RAS optimization:
 	   - when the high byte of the address of a read is the same as that
@@ -2366,12 +2369,12 @@ $Id$
 	* Added workaround for Win32 on pathname/path-delimiter.
 
 2003-09-11 David Heremans <david.heremans@gnu-linux.net>
-	* FDC_DirAsDSK: Figured out why a format didn't work correctly with 
+	* FDC_DirAsDSK: Figured out why a format didn't work correctly with
 	  my default emulated msx2 (NMS8250). Now the code can handle
 	  formating, didn't check on other machines yet
 
 2003-09-09 David Heremans <david.heremans@gnu-linux.net>
-	* FDC_DirAsDSK: Have cached sectors saved and loaded correctly, now 
+	* FDC_DirAsDSK: Have cached sectors saved and loaded correctly, now
 	  you can use the entire fakedisk for writing as well.
 	* Small bugfixes
 
@@ -2624,7 +2627,7 @@ $Id$
 	     timers and interrupt generation work
 
 2003-07-06 Herman Oudejans <hn.oudejans@quicknet.nl>
-	* added a debug device. 
+	* added a debug device.
 	* Details for control are in docs/debugdevice.txt
 
 2003-07-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
@@ -2933,7 +2936,7 @@ $Id$
 	* Fixed a uncaught exception when the SDLConsole is resized
 	  and the backgroundfile can't be loaded.
 	* Fixed -h when the specified machine can't be loaded.
-	* Console now resets the scrollback when any key other than 
+	* Console now resets the scrollback when any key other than
 	  page up/down is used.
 	* Fixed the blinking cursor in the SDLConsole.
 	* Fixed Ctrl-A/E when numlock is active
@@ -3160,7 +3163,7 @@ $Id$
 	   - TODO mapping should become configurable
 	   - TODO you should be able to configure more than one keyjoystick
 	* Implemented V9958 CMD bit:
-	   I don't know any program that actually uses this, so it is 
+	   I don't know any program that actually uses this, so it is
 	   not yet tested
 
 2003-04-04 David Heremans <david.heremans@gnu-linux.net>
@@ -3228,7 +3231,7 @@ $Id$
 	  - slotmap uses this and prints real Rom info, when available; later,
 	    the GUI should be able to use this too, in some way
 	  - note that all MSXRom constructors changed :-)
-	  - note that it's my first big change, please fix things that 
+	  - note that it's my first big change, please fix things that
 	    could be a lot better and tell me about it :-)
 	    Maarten, Wouter and Joost: thanks for your help!
 	* Added loads of machine configs (thanks Atarulum):
@@ -3706,8 +3709,8 @@ $Id$
 	* added SRAM class:
 	   This is just a small helper class that offers loading and
 	   saving of a byte-array. For the moment only MSXRom and MSXFmPac
-	   use it. 
-   
+	   use it.
+
 2002-12-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* added CRC16 routine, can be used by FDC / FDCBackends
 	* fixed TC8566AF: completely forgot to send step/side/motor
@@ -3733,13 +3736,13 @@ $Id$
 	     the Philips FDC.
 	   - WD2793 Type I commands are now executed the same as in the
 	     flowcharts of the technical datasheet (verify step not yet).
-	   
+
 2002-11-18 David Heremans <david.heremans@gnu-linux.net>
 	* a small WD2793 update:
 	   quick implementation of multi sector read
 	   not tested and DSK backend needs to be changed
 	   for correct behaviour!
-	
+
 2002-11-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Mapped TurboR keys to left and right windows key:
 	   I haven't checked this, so possible I swapped left and right
@@ -4132,7 +4135,7 @@ $Id$
 	   example:  unbind F9
 	             bind F9 "throttle off"
 	             bind f9,up "throttle on"
-	   this disables throttling while you hold F9 
+	   this disables throttling while you hold F9
 
 2002-08-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Z80 fixes:
@@ -4189,7 +4192,7 @@ $Id$
 
 2002-07-31 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made "check-db":
-	   a primitive tool to compare a romtype database against the build-in 
+	   a primitive tool to compare a romtype database against the build-in
 	   rom autodetection algorithm
 	* When console is up, keypresses are blocked for MSX-Keyboard:
 	   this implementation should work in all cases (hopefully)
@@ -4887,7 +4890,7 @@ $Id$
 2002-02-13 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* CPU speedup:
 	   CPU doesn't check the IRQ line after each instruction anymore, only
-	   directly after synchronization points. This also means that all 
+	   directly after synchronization points. This also means that all
 	   irq.set() instruction must also set a synchronization point.
 	   TODO: check this for VDP, Y8950 and document this
 	* VDP bug fix:
@@ -4896,7 +4899,7 @@ $Id$
 
 2002-02-13 David Heremans <david.heremans@gnu-linux.net>
 	* MSX MUSIC/MSX AUDIO Stereo now possible:
-	  The xml has an extra parameter allowing the Y8950 and YM2413 
+	  The xml has an extra parameter allowing the Y8950 and YM2413
 	  to be activated in mono, left or right channel mode
 
 2002-02-12 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
@@ -5316,7 +5319,7 @@ $Id$
 	* Removed more indirections from YM2413
 
 2001-12-18 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
-	* fixed CassettePort: 
+	* fixed CassettePort:
 	  exceptions don't work if you compile with -fno-rtti, removed it
 
 2001-12-18 David Heremans <david.heremans@gnu-linux.net>
@@ -5689,7 +5692,7 @@ $Id$
 	* openMSX can be paused (pause key), added to demonstrate the
 	  use of HotKey. Problems with current pause implementation:
 	    - sound must also be paused
-	    - realtime keeps running, so after unpausing openMSX 
+	    - realtime keeps running, so after unpausing openMSX
 	      tries to catch up and runs too fast for a while
 	* MSXKanji now supports both class 1 as class 2 Kanji
 	* Added MSXPrinterPort and DummyPrinterPortDevice (= no device
@@ -5716,7 +5719,7 @@ $Id$
 
 2001-10-19 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* documented SoundDevice interface on David's request
-	* RP5C01 can now optionally sync with host-clock, but this 
+	* RP5C01 can now optionally sync with host-clock, but this
 	  limitates some functionality
 
 2001-10-18 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
@@ -5738,7 +5741,7 @@ $Id$
 	  and made minor performance improvement in keyGhosting
 	* add 1 extra waitState after each instruction
 	* Corrected MSXRealTime, speed is now correct. Deviation was
-	  caused by accumulation of rounding errors. 
+	  caused by accumulation of rounding errors.
 
 2001-10-15 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Scheduler can now schedule "Schedulable" objects instead of
@@ -5753,7 +5756,7 @@ $Id$
 	* * Add {XML,SDL}_CFLAGS, {XML,SDL}_LIBS, etc. to CXXFLAGS and
 	  LIBS in configure.in (and remove openmsx_LDADD line from
 	  src/Makefile.am)
-	* Include <cassert>, <cstdio>, etc. instead of <assert.h>, 
+	* Include <cassert>, <cstdio>, etc. instead of <assert.h>,
 	  <stdio.h>, .. [I might have missed some... please check your
 	  code]
 	* [patch applied by joost]
@@ -5783,13 +5786,13 @@ $Id$
 	* renamed Inputs --> Keyboard
 	* forgot to initialize keyboard matrix
 	* moved method keyGhosting() from MSXPPI to Keyboard
-	  --> method is now only called when 
+	  --> method is now only called when
 	        * keymatrix has changed and
 	        * keymatrix is read
 	* extended Mixer to support (pseudo)stereo
 
 2001-10-05 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
-	* Made a very simple mixer, made AY8910 register itself as 
+	* Made a very simple mixer, made AY8910 register itself as
 	  sound generator.
 
 2001-10-03 Joost Yervante Damad <j.damad@qahwah.net>
@@ -5813,7 +5816,7 @@ $Id$
 	* IRQ handling cleanup
 
 2001-09-30 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
-	* second part of Z80 cleanup 
+	* second part of Z80 cleanup
 
 2001-09-27 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* #define -> static const int   cleanup
@@ -5870,7 +5873,7 @@ $Id$
 	  MSXMotherBoard which CPU to talk to)
 	  Removed some code marked as "ugly hack"
 	* added support for Kanji ROM
-	* cleanups in MSXRom16KB 
+	* cleanups in MSXRom16KB
 
 2001-09-19 Joost Yervante Damad <j.damad@qahwah.net>
 	* various small fixes around the code
@@ -5955,7 +5958,7 @@ $Id$
 
 2001-08-25 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* updated class Emutime
-	* make use of emutime 
+	* make use of emutime
 
 2001-08-23 Joost Yervante Damad <j.damad@qahwah.net>
 	* msxconfig: added <desc> and <rem>

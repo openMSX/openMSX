@@ -37,6 +37,11 @@ public:
 	byte getSignal(const EmuTime& time);
 
 private:
+	/** Sets the clock frequency according to the current value of the speed
+	  * settings.
+	  */
+	void setClock();
+
 	virtual void update(const Setting* setting);
 
 	// Following two values specify the range of the autofire
