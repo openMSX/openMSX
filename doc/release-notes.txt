@@ -1,82 +1,106 @@
-Release Notes for openMSX 0.5.0 (2004-10-??)
+Release Notes for openMSX 0.5.0 (2004-10-15)
 ============================================
 
-This new release brings you the following improvements:
-- Complete redesign of the hardware configuration files, including a lot of
-  renames and I/O ports being specified in them.
-- Added ROM pools: the new XML hardware configuration file specifies the sha1
-  sum of the necessary ROMs, which will be automatically searched from ROM
-  pools; directories where the user can put all system ROMs. Default:
-  share/systemroms
-- (Almost) all settings (including key bindings and user directories) can be
-  saved to a config file now. No need to edit settings.xml anymore. Defaults are
-  hardcoded now
-- Implemented MMX and MMXext optimisations, which can mean quite a speedup
-- Added channel mode 'off' to mute individual sound devices
-- Added a debugger interface to all (S)RAM
-- Moonsound fixes
-- Internal clock refactoring, thanks to Daniel Vik for finding the problem
-- Added simple DC filter for cassette images. .wav files from MicroWAVer should
-  work now
+This release includes a complete redesign of the hardware configuration XML files. Also many devices were renamed. I/O ports are now specified in the hardware configuration instead of hardcoded. Configurations in the old format
+are no longer supported.
+If you copied the configurations that came with openMSX 0.4.0 to a different
+location (for example, ~/.openMSX/share), replace them by the configurations
+shipped with 0.5.0.
+The Python script share/scripts/convert_hardwareconfig.py can be used to
+convert your custom-made configurations. It may not convert every detail
+correctly, but it will save you a lot of time compared to manually converting
+configurations.
+
+The new ROM pools feature makes installing system ROMs easier. A ROM pool is a
+directory where openMSX looks for system ROMs. The new hardware configuation
+XML files contain the SHA1 sums of the required system ROMs, so openMSX can
+find the right ROMs in the ROM pool automatically. The default ROM pool is the
+directory share/systemroms.
+
+Settings, including key bindings and user directories, can now be saved. By
+default, settings are automatically saved when openMSX exits. If you don't want
+that, do "set save_settings_on_exit false" and save manually with the new
+"save_settings" console command. It is also possible to save settings to
+separate files, so you can keep multiple, independent configurations.
+
+Old configuration options were converted to settings:
+- machine: the default machine (needs openMSX restart)
+- frequency: the sound mixer frequency (needs openMSX restart)
+- samples: the size of the sound mixing buffer (needs openMSX restart)
+- user_directories: directories that are searched for data files
+The new setting "save_settings_on_exit" controls auto-saving of settings.
+Finally, we renamed "frontswitch" to "firmwareswitch".
+
+Changes in the video system:
+- Use of MMX to speed up video scaling considerably (mainly simple scaler).
+- Big speed up of scanline effect.
+- Enabled blur effect in the SDLHi renderer (simple scaler).
+- Scale2x and hq2x scalers now also work in hi-res modes (screen 6 and 7).
+- Made pixel accuracy the default.
+- Removed 8bpp support (which never worked before).
+- Fixed crash when making screenshot in 16bpp.
+
+New or improved emulator features:
+- Added channel mode 'off' to mute individual sound devices.
+- Added meta data of machines in config files.
+  Some of this information is shown in the window title bar.
+- New "iomap" command lists the I/O ports and the devices connected to them.
+- Added a debugger interface to all (S)RAM.
+- Improvements in the 'type' command, thanks to Albert Beevendorp and Arnold
+  Metselaar (welcome to the club, Arnold!).
+- Release key presses when the console becomes active.
+- Improved geometry detection of disk images; MSX1Mania disks work now.
+- Fixed crash in Win32 when dir-as-disk is used with files with weird dates.
+
+MSX device support:
+- MoonSound fixes.
 - Added slotexpander extension: use it to change one primary slot into four
-  secondary slots!
-- Added meta data of machines in config files, which is (partly) shown in the
-  window title bar
-- Improvements in the 'type' command, thanks to Albert Beevendorp (and Arnold
-  Metselaar, welcome to the club!)
-- Graphical system now uses layers
-- Basic build support for AMD64
-- 8kB BASIC ROMs now work correctly and are auto detected
-- Scale2x and hq2x now also work in hi-res modes (screen 6 and 7)
-- Added new settings, partly to replace stuff from the old settings.xml:
-  * frequency: the sound mixer frequency (needs openMSX restart)
-  * machine: the default machine (needs openMSX restart of course)
-  * samples: the size of the sound mixing buffer (needs openMSX restart)
-  * save_settings_on_exit: auto save settings when openMSX quits
-  * user_directories: to specify directories that have to be searched in
-- New commands:
-  * iomap: list the I/O ports and the devices connected to them
-  * save_settings: save current settings to file
-- Added emulation of the dongle of Tetris II Special Edition
-- Added blur effect for the SDLHi renderer
-- Added format command for TC8566AF FDC, thanks to Daniel Vik
-- Added openMSX FAQ to documentation
-- Release key presses when the console becomes active
-- Improved geometry detection of disk images (MSX1Mania disks work now)
-- Force PSG portA to be input port
-- Big speed up of scanline effect
-- Made pixel accuracy the default
-- Removed faulty 8bpp support
-- Improvements on new build system: separate OS and CPU
-- Loads and loads of (other) bug fixes
+  secondary slots.
+- 8kB BASIC ROMs now work correctly and are auto detected as well.
+- Added simple DC filter for cassette images.
+  .wav files created by MicroWAVer should work now.
+- Added format command for TC8566AF FDC, thanks to Daniel Vik.
+- Force PSG portA to be input port. This fixes joystick and mouse reading in
+  games that write illegal values to the PSG (Match Maniac and others).
+- Emulation of the Tetris II Special Edition dongle (plugs into joystick port).
+- Fixed high-frequency reads of low-frequency clocks (such as RTC).
+  Thanks to Daniel Vik for spotting this problem.
+- Many bugs were fixed, including long-standing bugs such as a VDP bug causing
+  glitches in Andorogynus and CPU bugs causing glitches in Pennant Race and
+  Fony Demo Disk 1.
+
+Build system, packaging, documentation:
+- Separated OS and CPU in the build system.
+- Build support for x86-64 (Athlon64).
+- Fixed bug: new TCL was not detected by running "make probe" again.
+- Added packaging support for Debian Linux.
+- Added openMSX FAQ to documentation.
 
 In "doc/manual/index.html" you can find a set of HTML manuals for openMSX.
-Make sure you read this if you haven't used openMSX before, but also to
-learn more about the new and changed features.
+Make sure you read this if you haven't used openMSX before, but also to learn
+more about the new and changed features.
 
 Known issues / caveats:
-- Emulation is not perfect yet. However, in the emulator comparison of
-  msx.org, openMSX scored highest on accuracy of all emulators tested
-  and that was version 0.2.1.
+- Emulation is not perfect yet.
   See the bug tracker on sourceforge.net for known bugs.
-- Until we reach version 1.0.0, file formats can change in an incompatible
-  way without backwards compatibility. Keep this in mind if you create
-  machine descriptions, ROM database entries etc. This happened severely when
-  going from version 0.4.0 to 0.5.0, for example.
-- This release was tested on Linux, Win32, Mac OS X and FreeBSD 4 and 5.
-  TODO: really test on Mac OS X and FreeBSD 5!
-  Running on other operating systems (wherever SDL runs) should be possible,
-  but will probably not work out-of-the-box. If you are compiling on such a
-  platform, please share your experiences (see below for contact info),
-  so we can make openMSX more portable.
-- CPU and graphics performance varies a lot, depending on the openMSX
-  settings and the MSX hardware and software you're emulating.
-  Some things run fine on a 200MHz machine, others are slow on a 2GHz
-  machine. For performance tuning tips, see the Setup Guide.
+- Until we reach version 1.0.0, file formats can change in an incompatible way
+  without backwards compatibility. This happened between 0.4.0 and 0.5.0, for
+  example. Keep this in mind if you create machine descriptions, ROM database
+  entries etc.
+- openMSX is confirmed to run on Linux, Win32, Mac OS X and FreeBSD 4 and 5,
+  on x86, x86-64 and PPC.
+  Running on other operating systems (wherever SDL runs) or CPUs should be
+  possible, but will require some modifications to the build system. If you are
+  compiling on a new platform, please share your experiences (see below for
+  contact info), so we can make openMSX more portable.
+- CPU and graphics performance varies a lot, depending on the openMSX settings
+  and the MSX hardware and software you're emulating. Some things run fine on a
+  200MHz machine, others are slow on a 2GHz machine. For performance tuning
+  tips, see the Setup Guide.
 
 CALL FOR HELP:
-To increase performance on Windows, we are looking for a DirectX programmer who
-would like to help us! 
+To increase video rendering performance on Windows, we are looking for a
+DirectX programmer who would like to help us!
 
 openMSX Home Page:
   http://openmsx.sourceforge.net/
@@ -85,9 +109,8 @@ Project page on SourceForge:
 Contact options:
 - Send a message to the openmsx-user mailing list.
   Go to the SourceForge project page and look under "Lists".
+- Use the Forums on the project page.
 - Talk to us on #openmsx on irc.freenode.net.
-- Use the "Support" tab on the project page.
-- Use the Forums on the project page
 
 Have fun with your emulated MSX!
                                         the openMSX developers
