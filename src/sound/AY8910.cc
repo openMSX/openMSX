@@ -19,6 +19,8 @@
 
 namespace openmsx {
 
+static const bool FORCE_PORTA_INPUT = true; 
+
 // Fixed point representation of 1.
 static const int FP_UNIT = 0x8000;
 
@@ -354,7 +356,8 @@ byte AY8910::readRegister(byte reg, const EmuTime& time)
 	
 	switch (reg) {
 	case AY_PORTA:
-		if (!(regs[AY_ENABLE] & PORT_A_DIRECTION)) { //input
+		if (FORCE_PORTA_INPUT ||
+		    !(regs[AY_ENABLE] & PORT_A_DIRECTION)) { //input
 			regs[reg] = interface.readA(time);
 		}
 		break;
@@ -412,13 +415,14 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 		envelope.setShape(value);
 		break;
 	case AY_ENABLE:
-		if ((value     & PORT_A_DIRECTION)
-		&& !(oldEnable & PORT_A_DIRECTION)) {
+		if (!FORCE_PORTA_INPUT &&
+		    (value      & PORT_A_DIRECTION) &&
+		    !(oldEnable & PORT_A_DIRECTION)) {
 			// Changed from input to output.
 			interface.writeA(regs[AY_PORTA], time);
 		}
-		if ((value     & PORT_B_DIRECTION)
-		&& !(oldEnable & PORT_B_DIRECTION)) {
+		if ((value     & PORT_B_DIRECTION) &&
+		    !(oldEnable & PORT_B_DIRECTION)) {
 			// Changed from input to output.
 			interface.writeB(regs[AY_PORTB], time);
 		}
@@ -426,7 +430,8 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 		checkMute();
 		break;
 	case AY_PORTA:
-		if (regs[AY_ENABLE] & PORT_A_DIRECTION) { // output
+		if (!FORCE_PORTA_INPUT &&
+		    regs[AY_ENABLE] & PORT_A_DIRECTION) { // output
 			interface.writeA(value, time);
 		}
 		break;

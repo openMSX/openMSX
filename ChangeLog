@@ -1,5 +1,10 @@
 $Id$
 
+2004-10-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Force PSG portA to be programmed as input port:
+	   some programs (e.g. Match Maniac) wronly program portA as output,
+	   but on most(?) MSX machines this works normally (e.g NMS8250)
+
 2004-10-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Improved disk geometry detection heuristics
 	* Fixed save_settings command:
