@@ -228,38 +228,38 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 void PixelRenderer::updateHorizontalScrollLow(
 	byte /*scroll*/, const EmuTime& time
 ) {
-	sync(time);
+	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateHorizontalScrollHigh(
 	byte /*scroll*/, const EmuTime& time
 ) {
-	sync(time);
+	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateBorderMask(
 	bool /*masked*/, const EmuTime& time
 ) {
-	sync(time);
+	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateMultiPage(
 	bool /*multiPage*/, const EmuTime& time
 ) {
-	sync(time);
+	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateTransparency(
 	bool enabled, const EmuTime& time)
 {
-	sync(time);
+	if (displayEnabled) sync(time);
 	rasterizer->setTransparency(enabled);
 }
 
 void PixelRenderer::updateForegroundColour(
 	int /*colour*/, const EmuTime& time)
 {
-	sync(time);
+	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateBackgroundColour(
@@ -272,13 +272,13 @@ void PixelRenderer::updateBackgroundColour(
 void PixelRenderer::updateBlinkForegroundColour(
 	int /*colour*/, const EmuTime& time)
 {
-	sync(time);
+	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateBlinkBackgroundColour(
 	int /*colour*/, const EmuTime& time)
 {
-	sync(time);
+	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateBlinkState(
@@ -294,51 +294,74 @@ void PixelRenderer::updateBlinkState(
 void PixelRenderer::updatePalette(
 	int index, int grb, const EmuTime& time)
 {
-	sync(time);
+	if (displayEnabled) {
+		sync(time);
+	} else {
+		// Only sync if border colour changed.
+		DisplayMode mode = vdp->getDisplayMode();
+		if (mode.getBase() == DisplayMode::GRAPHIC5) {
+			int bgColour = vdp->getBackgroundColour();
+			if (index == (bgColour & 3) || (index == (bgColour >> 2))) {
+				sync(time);
+			}
+		} else if (mode.getByte() != DisplayMode::GRAPHIC7) {
+			if (index == vdp->getBackgroundColour()) {
+				sync(time);
+			}
+		}
+	}
 	rasterizer->setPalette(index, grb);
 }
 
 void PixelRenderer::updateVerticalScroll(
 	int /*scroll*/, const EmuTime& time)
 {
-	sync(time);
+	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateHorizontalAdjust(
 	int /*adjust*/, const EmuTime& time)
 {
-	sync(time);
+	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateDisplayMode(
 	DisplayMode mode, const EmuTime& time)
 {
-	sync(time, true);
+	// Sync if in display area or if border drawing process changes.
+	DisplayMode oldMode = vdp->getDisplayMode();
+	if (displayEnabled
+	|| oldMode.getByte() == DisplayMode::GRAPHIC5
+	|| oldMode.getByte() == DisplayMode::GRAPHIC7
+	|| mode.getByte() == DisplayMode::GRAPHIC5
+	|| mode.getByte() == DisplayMode::GRAPHIC7) {
+		sync(time, true);
+	}
 	rasterizer->setDisplayMode(mode);
 }
 
 void PixelRenderer::updateNameBase(
 	int /*addr*/, const EmuTime& time)
 {
-	sync(time);
+	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updatePatternBase(
 	int /*addr*/, const EmuTime& time)
 {
-	sync(time);
+	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateColourBase(
 	int /*addr*/, const EmuTime& time)
 {
-	sync(time);
+	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateSpritesEnabled(
 	bool /*enabled*/, const EmuTime& time
 ) {
-	sync(time, true);
+	if (displayEnabled) sync(time);
 }
 
 static inline bool overlap(
@@ -367,7 +390,7 @@ inline bool PixelRenderer::checkSync(int offset, const EmuTime& time)
 	// If display is disabled, VRAM changes will not affect the
 	// renderer output, therefore sync is not necessary.
 	// TODO: Have bitmapVisibleWindow disabled in this case.
-	if (!vdp->isDisplayEnabled()) return false;
+	if (!displayEnabled) return false;
 	//if (frameSkipCounter != 0) return false; // TODO 
 	if (accuracy == RenderSettings::ACC_SCREEN) return false;
 

@@ -1,5 +1,10 @@
 $Id$
 
+2004-08-06 Maarten ter Huurne <maarten@treewalker.org>
+	* Avoid syncs when VDP state changes when display is blanked and
+	  the border colour is not influenced by the state change.
+	  This allows the scaler to draw border lines more efficiently.
+
 2004-08-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed ROMBAS mapper for 8K ROMs.
 	  Eat Blue! now works if you load it with "eatblue.rom,rombas".
