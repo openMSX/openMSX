@@ -1,6 +1,10 @@
 $Id$
 
-2004-08-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-08-03 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed ROMBAS mapper for 8K ROMs.
+	  Eat Blue! now works if you load it with "eatblue.rom,rombas".
+
+2004-08-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed some bugs I introduced yesterday
 	* Another bug fix: HALT instruction was broken
 

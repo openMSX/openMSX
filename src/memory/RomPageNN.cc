@@ -6,14 +6,17 @@
 namespace openmsx {
 
 RomPageNN::RomPageNN(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom, byte pages)
-	: Rom16kBBlocks(config, time, rom)
+	: Rom8kBBlocks(config, time, rom)
 {
 	int bank = 0;
 	for (int page = 0; page < 4; page++) {
+		fprintf(stderr, "page %d: ", page);
 		if (pages & (1 << page)) {
-			setRom(page, bank++);
+			setRom(page * 2, bank++);
+			setRom(page * 2 + 1, bank++);
 		} else {
-			setBank(page, unmappedRead);
+			setBank(page * 2, unmappedRead);
+			setBank(page * 2 + 1, unmappedRead);
 		}
 	}
 }
