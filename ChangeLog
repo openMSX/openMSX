@@ -1,5 +1,12 @@
 $Id$
 
+2004-09-18 Maarten ter Huurne <maarten@treewalker.org>
+	* Cleaned up layer system:
+	  - "alpha" was not really alpha, renamed to "coverage"
+	  - explicit Z value instead of toFront/toBack
+	  - preparation for V9990 layer
+	  The cleanup is not finished yet.
+
 2004-09-18 Reikan <openMSX4Win32@ranpub.com>
 	* Converted the macro __WIN32__ to _WIN32.
 	  Please use _WIN32 instead of __WIN32__ now.

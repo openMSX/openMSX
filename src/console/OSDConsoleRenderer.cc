@@ -73,7 +73,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	unsigned cursorY;
 	console.getCursorPosition(lastCursorPosition, cursorY);
 
-	Display::INSTANCE->addLayer(this);
+	Display::INSTANCE->addLayer(this, Display::Z_CONSOLE);
 	active = false;
 	consoleSetting.addListener(this);
 	setActive(consoleSetting.getValue());
@@ -167,10 +167,8 @@ void OSDConsoleRenderer::setActive(bool active)
 	if (this->active == active) return;
 	this->active = active;
 	inputEventGenerator.setKeyRepeat(active);
-	// TODO: Even if console alpha is 255, it doesn't cover the full screen,
-	//       so underlying layers still need to be painted.
-	//       Display interface design flaw?
-	Display::INSTANCE->setAlpha(this, active ? 128 : 0);
+	Display::INSTANCE->setCoverage(
+		this, active ? Display::COVER_PARTIAL : Display::COVER_NONE );
 	if (active) {
 		eventDistributor.registerEventListener(
 			KEY_UP_EVENT,   console, EventDistributor::NATIVE );

@@ -22,7 +22,7 @@ namespace openmsx {
 static const int WIDTH = 640;
 static const int HEIGHT = 480;
 
-SDLGLVideoSystem::SDLGLVideoSystem(VDP* vdp)
+SDLGLVideoSystem::SDLGLVideoSystem()
 {
 	// Destruct old layers, so resources are freed before new allocations
 	// are done.
@@ -35,12 +35,7 @@ SDLGLVideoSystem::SDLGLVideoSystem(VDP* vdp)
 
 	Display* display = new Display(auto_ptr<VideoSystem>(this));
 	Display::INSTANCE.reset(display);
-	GLSnow* background = new GLSnow();
-	rasterizer = new GLRasterizer(vdp);
-	display->addLayer(background);
-	display->setAlpha(background, 255);
-	display->addLayer(rasterizer);
-	display->setAlpha(rasterizer, 255);
+	new GLSnow();
 	new GLConsole(CommandConsole::instance());
 }
 

@@ -572,8 +572,9 @@ void PixelRenderer::renderUntil(const EmuTime& time)
 void PixelRenderer::update(const SettingLeafNode* setting)
 {
 	if (setting == &powerSetting) {
-		Display::INSTANCE->setAlpha(
-			rasterizer, powerSetting.getValue() ? 255 : 0);
+		Display::INSTANCE->setCoverage(rasterizer,
+			powerSetting.getValue() ? Display::COVER_FULL : Display::COVER_NONE
+			);
 	} else if (setting == settings.getMinFrameSkip()
 	|| setting == settings.getMaxFrameSkip() ) {
 		// Force drawing of frame.

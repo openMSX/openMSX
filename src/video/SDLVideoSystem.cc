@@ -17,8 +17,7 @@
 
 namespace openmsx {
 
-SDLVideoSystem::SDLVideoSystem(
-	VDP* vdp, RendererFactory::RendererID id )
+SDLVideoSystem::SDLVideoSystem(RendererFactory::RendererID id)
 {
 	// Destruct old layers, so resources are freed before new allocations
 	// are done.
@@ -33,40 +32,45 @@ SDLVideoSystem::SDLVideoSystem(
 
 	Display* display = new Display(auto_ptr<VideoSystem>(this));
 	Display::INSTANCE.reset(display);
-	Layer* background;
 	switch (screen->format->BytesPerPixel) {
 	case 2:
-		rasterizer = (id == RendererFactory::SDLLO)
-			? static_cast<Rasterizer*>(
-				new SDLRasterizer<Uint16, Renderer::ZOOM_256>(vdp, screen) )
-			: static_cast<Rasterizer*>(
-				new SDLRasterizer<Uint16, Renderer::ZOOM_REAL>(vdp, screen) )
-			;
-		background = new SDLSnow<Uint16>(screen);
+		new SDLSnow<Uint16>(screen);
 		break;
 	case 4:
-		rasterizer = (id == RendererFactory::SDLLO)
-			? static_cast<Rasterizer*>(
-				new SDLRasterizer<Uint32, Renderer::ZOOM_256>(vdp, screen) )
-			: static_cast<Rasterizer*>(
-				new SDLRasterizer<Uint32, Renderer::ZOOM_REAL>(vdp, screen) )
-			;
-		background = new SDLSnow<Uint32>(screen);
+		new SDLSnow<Uint32>(screen);
 		break;
 	default:
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		throw InitException("unsupported colour depth");
 	}
-	display->addLayer(background);
-	display->setAlpha(background, 255);
-	display->addLayer(rasterizer);
-	display->setAlpha(rasterizer, 255);
 	new SDLConsole(CommandConsole::instance(), screen);
 }
 
 SDLVideoSystem::~SDLVideoSystem()
 {
 	closeSDLVideo(screen);
+}
+
+Rasterizer* SDLVideoSystem::createRasterizer(
+	VDP* vdp, RendererFactory::RendererID id )
+{
+	switch (screen->format->BytesPerPixel) {
+	case 2:
+		if (id == RendererFactory::SDLLO) {
+			return new SDLRasterizer<Uint16, Renderer::ZOOM_256>(vdp, screen);
+		} else {
+			return new SDLRasterizer<Uint16, Renderer::ZOOM_REAL>(vdp, screen);
+		}
+	case 4:
+		if (id == RendererFactory::SDLLO) {
+			return new SDLRasterizer<Uint32, Renderer::ZOOM_256>(vdp, screen);
+		} else {
+			return new SDLRasterizer<Uint32, Renderer::ZOOM_REAL>(vdp, screen);
+		}
+	default:
+		assert(false);
+		return 0;
+	}
 }
 
 // TODO: If we can switch video system at any time (not just frame end),

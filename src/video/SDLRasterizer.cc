@@ -209,6 +209,10 @@ SDLRasterizer<Pixel, zoom>::SDLRasterizer(
 	precalcPalette(RenderSettings::instance().getGamma()->getValue());
 
 	RenderSettings::instance().getDeinterlace()->addListener(this);
+
+	// Register as display layer.
+	Display::INSTANCE->addLayer(this, Display::Z_MSX_ACTIVE);
+	Display::INSTANCE->setCoverage(this, Display::COVER_FULL);
 }
 
 template <class Pixel, Renderer::Zoom zoom>

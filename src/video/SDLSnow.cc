@@ -17,6 +17,10 @@ SDLSnow<Pixel>::SDLSnow(SDL_Surface* screen)
 	for (unsigned i = 0; i < 256; i++) {
 		gray[i] = SDL_MapRGB(screen->format, i, i, i);
 	}
+
+	// Register as display layer.
+	Display::INSTANCE->addLayer(this, Display::Z_BACKGROUND);
+	Display::INSTANCE->setCoverage(this, Display::COVER_FULL);
 }
 
 template <class Pixel>

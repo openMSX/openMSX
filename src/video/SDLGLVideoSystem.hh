@@ -20,7 +20,7 @@ public:
 	  * Updates Display::INSTANCE as well.
 	  * @throw InitException If initialisation fails.
 	  */
-	SDLGLVideoSystem(VDP* vdp);
+	SDLGLVideoSystem();
 
 	/** Deactivates this video system.
 	  * Called as a result of Display::INSTANCE.reset().
@@ -31,9 +31,6 @@ public:
 	virtual bool checkSettings();
 	virtual void flush();
 	virtual void takeScreenShot(const string& filename);
-
-	/** TODO: Here to stay? */
-	Rasterizer* rasterizer;
 
 private:
 	SDL_Surface* screen;

@@ -23,6 +23,10 @@ GLSnow::GLSnow()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8, 128, 128, 0,
 	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf);
+
+	// Register as display layer.
+	Display::INSTANCE->addLayer(this, Display::Z_BACKGROUND);
+	Display::INSTANCE->setCoverage(this, Display::COVER_FULL);
 }
 
 GLSnow::~GLSnow()

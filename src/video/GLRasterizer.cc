@@ -305,6 +305,10 @@ GLRasterizer::GLRasterizer(VDP* vdp)
 	// Register caches with VDPVRAM.
 	vram->patternTable.setObserver(&dirtyPattern);
 	vram->colourTable.setObserver(&dirtyColour);
+
+	// Register as display layer.
+	Display::INSTANCE->addLayer(this, Display::Z_MSX_ACTIVE);
+	Display::INSTANCE->setCoverage(this, Display::COVER_FULL);
 }
 
 GLRasterizer::~GLRasterizer()

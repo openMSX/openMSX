@@ -17,17 +17,15 @@ class Rasterizer;
 class SDLVideoSystem: public VideoSystem
 {
 public:
-	SDLVideoSystem(VDP* vdp, RendererFactory::RendererID id);
+	SDLVideoSystem(RendererFactory::RendererID id);
 	virtual ~SDLVideoSystem();
+	Rasterizer* createRasterizer(VDP* vdp, RendererFactory::RendererID id);
 
 	// VideoSystem interface:
 	virtual bool checkSettings();
 	virtual bool prepare();
 	virtual void flush();
 	virtual void takeScreenShot(const string& filename);
-
-	/** TODO: Here to stay? */
-	Rasterizer* rasterizer;
 
 private:
 	SDL_Surface* screen;

@@ -17,28 +17,29 @@
 #include "DummyRenderer.hh"
 #include "PixelRenderer.hh"
 
+// Rasterizers:
+#include "GLRasterizer.hh"
+
 
 namespace openmsx {
 
 Renderer* RendererFactory::createRenderer(VDP* vdp)
 {
-	switch (RenderSettings::instance().getRenderer()->getValue()) {
+	RendererID id = RenderSettings::instance().getRenderer()->getValue();
+	switch (id) {
 	case DUMMY: {
 		new DummyVideoSystem();
 		return new DummyRenderer();
 	}
-	case SDLHI: {
-		SDLVideoSystem* videoSystem = new SDLVideoSystem(vdp, SDLHI);
-		return new PixelRenderer(vdp, videoSystem->rasterizer);
-	}
+	case SDLHI:
 	case SDLLO: {
-		SDLVideoSystem* videoSystem = new SDLVideoSystem(vdp, SDLLO);
-		return new PixelRenderer(vdp, videoSystem->rasterizer);
+		SDLVideoSystem* videoSystem = new SDLVideoSystem(id);
+		return new PixelRenderer(vdp, videoSystem->createRasterizer(vdp, id));
 	}
 #ifdef COMPONENT_GL
 	case SDLGL: {
-		SDLGLVideoSystem* videoSystem = new SDLGLVideoSystem(vdp);
-		return new PixelRenderer(vdp, videoSystem->rasterizer);
+		new SDLGLVideoSystem();
+		return new PixelRenderer(vdp, new GLRasterizer(vdp));
 	}
 #endif
 #ifdef HAVE_X11

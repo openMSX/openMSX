@@ -26,7 +26,6 @@ Display::Display(auto_ptr<VideoSystem> videoSystem)
 	: screenShotCmd(*this)
 {
 	this->videoSystem = videoSystem;
-	forceRepaint = false;
 
 	EventDistributor::instance().registerEventListener(
 		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE );
@@ -61,7 +60,7 @@ vector<Display::LayerInfo*>::iterator Display::baseLayer()
 			return it;
 		}
 		--it;
-		if ((*it)->alpha == 255) return it;
+		if ((*it)->coverage == COVER_FULL) return it;
 	}
 }
 
@@ -81,29 +80,28 @@ void Display::repaint()
 	if (!videoSystem->prepare()) return;
 	
 	vector<LayerInfo*>::iterator it = baseLayer();
-	//bool mustPaint = forceRepaint;
 	for (; it != layers.end(); ++it) {
-		// TODO: Dirty check is wrong.
-		//       Correct approach: draw if any visible layer is dirty.
-		//if ((*it)->alpha != 0 && (mustPaint || (*it)->dirty)) {
-		if ((*it)->alpha != 0) {
+		if ((*it)->coverage != COVER_NONE) {
 			assert(isActive((*it)->layer));
 			// Paint this layer.
 			//cerr << "Painting layer " << (*it)->layer->getName() << "\n";
 			(*it)->layer->paint();
-			(*it)->dirty = false;
-			// All layers above this must be repainted too.
-			//mustPaint = true;
 		}
 	}
-	forceRepaint = false;
 	
 	videoSystem->flush();
 }
 
-void Display::addLayer(Layer* layer)
+void Display::addLayer(Layer* layer, int z)
 {
-	layers.push_back(new LayerInfo(layer));
+	addLayer(new LayerInfo(layer, z));
+}
+
+void Display::addLayer(LayerInfo* info)
+{
+	vector<LayerInfo*>::iterator it;
+	for (it = layers.begin(); it != layers.end() && (*it)->z < info->z; ++it);
+	layers.insert(it, info);
 }
 
 vector<Display::LayerInfo*>::iterator Display::findLayer(Layer* layer)
@@ -116,46 +114,32 @@ vector<Display::LayerInfo*>::iterator Display::findLayer(Layer* layer)
 	}
 }
 
-void Display::layerToBack(Layer* layer)
-{
-	vector<LayerInfo*>::iterator it = findLayer(layer);
-	LayerInfo* info = *it;
-	layers.erase(it);
-	layers.insert(layers.begin(), info);
-}
-
-void Display::layerToFront(Layer* layer)
-{
-	vector<LayerInfo*>::iterator it = findLayer(layer);
-	LayerInfo* info = *it;
-	layers.erase(it);
-	layers.push_back(info);
-}
-
-void Display::markDirty(Layer* layer)
-{
-	vector<LayerInfo*>::iterator it = findLayer(layer);
-	(*it)->dirty = true;
-}
-
 bool Display::isActive(Layer* layer)
 {
 	vector<LayerInfo*>::iterator it = baseLayer();
 	for (; it != layers.end(); ++it) {
 		if ((*it)->layer == layer) {
 			// Layer in active part of stack.
-			return (*it)->alpha != 0;
+			return (*it)->coverage != COVER_NONE;
 		}
 	}
 	// Layer not in active part of stack.
 	return false;
 }
 
-void Display::setAlpha(Layer* layer, byte alpha)
+void Display::setZ(Layer* layer, int z)
 {
 	vector<LayerInfo*>::iterator it = findLayer(layer);
-	(*it)->alpha = alpha;
-	forceRepaint = true;
+	LayerInfo* info = *it;
+	info->z = z;
+	layers.erase(it);
+	addLayer(info);
+}
+
+void Display::setCoverage(Layer* layer, Coverage coverage)
+{
+	vector<LayerInfo*>::iterator it = findLayer(layer);
+	(*it)->coverage = coverage;
 }
 
 // ScreenShotCmd inner class:
@@ -193,11 +177,11 @@ string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 
 // LayerInfo:
 
-Display::LayerInfo::LayerInfo(Layer* layer)
+Display::LayerInfo::LayerInfo(Layer* layer, int z)
 {
 	this->layer = layer;
-	dirty = false;
-	alpha = 0;
+	this->z = z;
+	coverage = COVER_NONE;
 }
 
 } // namespace openmsx
