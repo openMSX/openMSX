@@ -12,6 +12,7 @@ $Id$
 	* Default machine can be specified in settings.xml:
 	   - see example settings.xml, this will load
 	      ~/.openMSX/machine/nms8250/hardwareconfig.xml
+	* Added "-machine" command line option
 
 2003-02-13 Maarten ter Huurne <maarten@treewalker.org>
 	* Made "full screen" into a setting.

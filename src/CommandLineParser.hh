@@ -76,6 +76,14 @@ class CommandLineParser
 		} configFile;
 		friend class ConfigFile;
 		
+		class MachineOption : public CLIOption {
+		public:
+			virtual void parseOption(const std::string &option,
+				std::list<std::string> &cmdLine);
+			virtual const std::string& optionHelp() const;
+		} machineOption;
+		friend class MachineOption;
+		
 		class SettingOption : public CLIOption {
 		public:
 			SettingOption() : parsed(false) {}

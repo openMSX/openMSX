@@ -20,14 +20,15 @@ CommandLineParser::CommandLineParser()
 {
 	haveConfig = false;
 
-	registerOption("-h",      &helpOption);
-	registerOption("-msx1",   &msx1Option);
-	registerOption("-msx2",   &msx2Option);
-	registerOption("-msx2+",  &msx2POption);
-	registerOption("-turbor", &msxTurboROption);
-	registerOption("-config", &configFile);
-	registerFileType("xml",   &configFile);
-	registerOption("-setting",&settingOption);
+	registerOption("-h",       &helpOption);
+	registerOption("-msx1",    &msx1Option);
+	registerOption("-msx2",    &msx2Option);
+	registerOption("-msx2+",   &msx2POption);
+	registerOption("-turbor",  &msxTurboROption);
+	registerOption("-config",  &configFile);
+	registerFileType("xml",    &configFile);
+	registerOption("-machine", &machineOption);
+	registerOption("-setting", &settingOption);
 }
 
 void CommandLineParser::registerOption(const std::string &str,
@@ -172,11 +173,8 @@ const std::string& CommandLineParser::HelpOption::optionHelp() const
 void CommandLineParser::ConfigFile::parseOption(const std::string &option,
                                                 std::list<std::string> &cmdLine)
 {
-	std::string filename = cmdLine.front();
+	parseFileType(cmdLine.front());
 	cmdLine.pop_front();
-
-	parseFileType(filename);
-	
 }
 const std::string& CommandLineParser::ConfigFile::optionHelp() const
 {
@@ -193,6 +191,23 @@ void CommandLineParser::ConfigFile::parseFileType(const std::string &filename)
 const std::string& CommandLineParser::ConfigFile::fileTypeHelp() const
 {
 	static const std::string text("Configuration file");
+	return text;
+}
+
+
+// Machine option
+void CommandLineParser::MachineOption::parseOption(const std::string &option,
+                                               std::list<std::string> &cmdLine)
+{
+	MSXConfig *config = MSXConfig::instance();
+	config->loadFile(new SystemFileContext(),
+	                 "machines/" + cmdLine.front() + "/hardwareconfig.xml");
+	cmdLine.pop_front();
+	CommandLineParser::instance()->haveConfig = true;
+}
+const std::string& CommandLineParser::MachineOption::optionHelp() const
+{
+	static const std::string text("Use machine specified in argument");
 	return text;
 }
 
