@@ -3,7 +3,8 @@
 include build/node-start.mk
 
 SRC_HDR:= \
-	V9990
+	V9990 \
+	V9990VRAM
 
 include build/node-end.mk
 
