@@ -3,8 +3,6 @@
 #ifndef __MSXDEVICE_HH__
 #define __MSXDEVICE_HH__
 
-#include <iostream>
-#include <fstream>
 #include <string>
 #include "MSXConfig.hh"
 #include "openmsx.hh"
@@ -33,24 +31,6 @@ class MSXDevice
 		 * re-implementation should also call this method).
 		 */
 		virtual void reset(const EmuTime &time);
-
-
-		/**
-		 * Save all state-information for this device
-		 * Default implementation does nothing (nothing needs to be saved).
-		 *
-		 * Note: save mechanism not implemented yet
-		 */
-		virtual void saveState(std::ofstream &writestream);
-
-		/**
-		 * Restore all state-information for this device
-		 * Default implementation does nothing (nothing needs to be restored).
-		 *
-		 * Note: save mechanism not implemented yet
-		 */
-		virtual void restoreState(std::string &devicestring, std::ifstream &readstream);
-
 
 		/**
 		 * Returns a human-readable name for this device. The name is set

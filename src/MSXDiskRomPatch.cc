@@ -46,7 +46,7 @@ MSXDiskRomPatch::~MSXDiskRomPatch()
 	diskImageManager->unregisterDrive("diska");
 }
 
-void MSXDiskRomPatch::patch(CPU::CPURegs& regs) const
+void MSXDiskRomPatch::patch(CPU::CPURegs& regs)
 {
 	switch (regs.PC.w-2) {
 		case A_PHYDIO:
@@ -70,7 +70,7 @@ void MSXDiskRomPatch::patch(CPU::CPURegs& regs) const
 	}
 }
 
-void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs) const
+void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs)
 {
 	PRT_DEBUG("void MSXDiskRomPatch::PHYDIO() const");
 	
@@ -161,7 +161,7 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs) const
 	motherboard->writeMem(0xFFFF,sec_slot, dummy);
 }
 
-void MSXDiskRomPatch::DSKCHG(CPU::CPURegs& regs) const
+void MSXDiskRomPatch::DSKCHG(CPU::CPURegs& regs)
 {
 	PRT_DEBUG("void MSXDiskRomPatch::DSKCHG() const");
 
@@ -205,7 +205,7 @@ void MSXDiskRomPatch::DSKCHG(CPU::CPURegs& regs) const
 	regs.AF.B.l &= ~CPU::C_FLAG;
 }
 
-void MSXDiskRomPatch::GETDPB(CPU::CPURegs& regs) const
+void MSXDiskRomPatch::GETDPB(CPU::CPURegs& regs)
 {
 	PRT_DEBUG("void MSXDiskRomPatch::GETDPB() const");
 
@@ -277,7 +277,7 @@ void MSXDiskRomPatch::GETDPB(CPU::CPURegs& regs) const
 	regs.AF.B.l &= ~CPU::C_FLAG;
 }
 
-void MSXDiskRomPatch::DSKFMT(CPU::CPURegs& regs) const
+void MSXDiskRomPatch::DSKFMT(CPU::CPURegs& regs)
 {
 	// Keep in mind following inputs
 	// regs.AF.B.h  Specified choice (1-9)      
@@ -388,7 +388,7 @@ void MSXDiskRomPatch::DSKFMT(CPU::CPURegs& regs) const
 	}
 }
 
-void MSXDiskRomPatch::DRVOFF(CPU::CPURegs& regs) const
+void MSXDiskRomPatch::DRVOFF(CPU::CPURegs& regs)
 {
 	PRT_DEBUG("void MSXDiskRomPatch::DRVOFF() const [does nothing]");
 

@@ -43,8 +43,8 @@ class CPUInterface {
 		/**
 		 * (Un)register a MSXRomPatchInterface
 		 */
-		void   registerInterface(const MSXRomPatchInterface *i);
-		void unregisterInterface(const MSXRomPatchInterface *i);
+		void   registerInterface(MSXRomPatchInterface *i);
+		void unregisterInterface(MSXRomPatchInterface *i);
 
 		/**
 		 * Called when RETI accurs
@@ -103,7 +103,7 @@ class CPUInterface {
 
 	private:
 		bool prevNMIStat;
-		std::list<const MSXRomPatchInterface*> romPatchInterfaceList;
+		std::list<MSXRomPatchInterface*> romPatchInterfaceList;
 };
 
 #endif

@@ -11,15 +11,13 @@ AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -g3
 endif
 endif
 
-noinst_LTLIBRARIES = libCPU.la
-libCPU_la_SOURCES = \
-	CPUInterface.hh CPUInterface.cc \
-	CPU.hh CPU.cc CPU.ii \
-	CPUCore.n1 CPUCore.n2 CPUTables.nn \
-	Z80.cc Z80.hh Z80Tables.nn Z80Dasm.h \
-	MSXCPU.hh MSXCPU.cc \
-	MSXCPUInterface.hh MSXCPUInterface.cc \
-	IRQHelper.hh IRQHelper.cc IRQHelper.ii
+noinst_LTLIBRARIES = libCassette.la
+libCassette_la_SOURCES = \
+	CassetteDevice.cc CassetteDevice.hh \
+	CassettePlayer.cc CassettePlayer.hh \
+	CassettePort.cc CassettePort.hh \
+	DummyCassetteDevice.cc DummyCassetteDevice.hh \
+	MSXTapePatch.cc MSXTapePatch.hh
 
 nodebug: resetdebug all
 debug: setdebug all

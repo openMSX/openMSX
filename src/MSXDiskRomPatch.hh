@@ -16,38 +16,34 @@ class MSXDiskRomPatch : public MSXRomPatchInterface
 		MSXDiskRomPatch();
 		virtual ~MSXDiskRomPatch();
 
-		virtual void patch(CPU::CPURegs& regs) const;
+		virtual void patch(CPU::CPURegs& regs);
 
 	private:
 		/**
 		 * read/write sectors
 		 */
-		void PHYDIO(CPU::CPURegs& regs) const;
-		//static const int A_PHYDIO;
+		void PHYDIO(CPU::CPURegs& regs);
+		
 		/**
 		 * check disk
 		 */
-		void DSKCHG(CPU::CPURegs& regs) const;
-		//static const int A_DSKCHG;
+		void DSKCHG(CPU::CPURegs& regs);
 
 		/**
 		 * get disk format
 		 */
-		void GETDPB(CPU::CPURegs& regs) const;
-		//static const int A_GETDPB;
+		void GETDPB(CPU::CPURegs& regs);
 
 		/**
 		 * format a disk
 		 */
-		void DSKFMT(CPU::CPURegs& regs) const;
-		//static const int A_DSKFMT;
+		void DSKFMT(CPU::CPURegs& regs);
 		static const byte bootSectorData[]; // size is 196
 
 		/**
 		 * stop drives
 		 */
-		void DRVOFF(CPU::CPURegs& regs) const;
-		//static const int A_DRVOFF;
+		void DRVOFF(CPU::CPURegs& regs);
 
 		DiskImageManager* diskImageManager;
 };

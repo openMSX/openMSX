@@ -3,11 +3,10 @@
 #ifndef __MSXMOTHERBOARD_HH__
 #define __MSXMOTHERBOARD_HH__
 
-#include <fstream>
 #include <list>
 #include "MSXConfig.hh"
-#include "ConsoleSource/Command.hh"
-#include "cpu/MSXCPUInterface.hh"
+#include "Command.hh"
+#include "MSXCPUInterface.hh"
 #include "Schedulable.hh"
 
 // forward declarations
@@ -66,15 +65,6 @@ class MSXMotherBoard : public MSXCPUInterface, public Schedulable
 		 */
 		void destroyMSX();
 
-
-		/**
-		 * TODO
-		 */
-		void restoreMSX();	// TODO unimplemented!!
-		/**
-		 * TODO
-		 */
-		void saveStateMSX(std::ofstream &savestream);
 
 	private:
 		MSXMotherBoard(MSXConfig::Config *config);

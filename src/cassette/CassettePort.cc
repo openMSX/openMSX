@@ -118,7 +118,7 @@ void CassettePort::cassetteOut(bool output, const EmuTime &time)
 {
 	// this implements a VERY rough filter
 	//   on a transition the output is 0
-	//   everywhere else it is max or min
+	//   everywhere else it is +A or -A
 	// this is probably good enough
 	//flushOutput(time);
 	nextSample = 0;

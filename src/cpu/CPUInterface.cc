@@ -34,17 +34,17 @@ void CPUInterface::patch(CPU::CPURegs& regs)
 {
 	// walk all interfaces, it's up to the interface
 	// to decide to do anything
-	std::list<const MSXRomPatchInterface*>::const_iterator i;
+	std::list<MSXRomPatchInterface*>::const_iterator i;
 	for (i=romPatchInterfaceList.begin(); i!=romPatchInterfaceList.end(); i++) {
 		(*i)->patch(regs);
 	}
 }
 
-void CPUInterface::registerInterface(const MSXRomPatchInterface *i)
+void CPUInterface::registerInterface(MSXRomPatchInterface *i)
 {
 	romPatchInterfaceList.push_back(i);
 }
-void CPUInterface::unregisterInterface(const MSXRomPatchInterface *i)
+void CPUInterface::unregisterInterface(MSXRomPatchInterface *i)
 {
 	romPatchInterfaceList.remove(i);
 }

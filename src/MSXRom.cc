@@ -24,7 +24,7 @@ MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
 				std::string filename = deviceConfig->getParameter("sramname");
 				PRT_DEBUG("Trying to read "<<filename<<" as SRAM of the cartrdige");
 				IFILETYPE* file = FileOpener::openFileRO(filename);
-				file->read((char*)memorySRAM, 0x2000);
+				file->read(memorySRAM, 0x2000);
 				file->close();
 				delete file;
 			}
@@ -73,7 +73,7 @@ MSXRom::~MSXRom()
 		std::string filename = deviceConfig->getParameter("sramname");
 		PRT_DEBUG("Trying to save to "<<filename<<" for SRAM of the cartrdige");
 		IOFILETYPE* file = FileOpener::openFileTruncate(filename);
-		file->write((char*)memorySRAM, 0x2000);
+		file->write(memorySRAM, 0x2000);
 		file->close();
 		delete file;
 	}

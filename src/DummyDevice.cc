@@ -37,13 +37,3 @@ void DummyDevice::reset(const EmuTime &time)
 {
 	assert(false);
 }
-
-void DummyDevice::saveState(std::ofstream &writestream)
-{
-	assert(false);
-}
-
-void DummyDevice::restoreState(std::string &devicestring, std::ifstream &readstream)
-{
-	assert(false);
-}

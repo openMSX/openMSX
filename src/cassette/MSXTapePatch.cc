@@ -1,12 +1,22 @@
 // $Id$
 
-#include "openmsx.hh"
 #include "MSXTapePatch.hh"
-#include "MSXConfig.hh"
-#include "CPU.hh"
-#include "ConsoleSource/ConsoleManager.hh"
-#include "ConsoleSource/CommandController.hh"
+#include "ConsoleManager.hh"
+#include "CommandController.hh"
 
+/*
+ TODO: Decided what to do with following variables
+ 
+ FCA4H LOWLIM: DEFB 31H
+
+ This variable is used to hold the minimum allowable start bit
+ duration as determined by the TAPION standard routine.
+
+ FCA5H WINWID: DEFB 22H
+
+ This variable is used to hold the LO/HI cycle discrimination
+ duration as determined by the TAPION standard routine.
+*/
 
 const byte MSXTapePatch::TapeHeader[];
 
@@ -32,7 +42,7 @@ MSXTapePatch::~MSXTapePatch()
 	delete file;
 }
 
-void MSXTapePatch::patch(CPU::CPURegs& R) const
+void MSXTapePatch::patch(CPU::CPURegs& R)
 {
 	switch (R.PC.w-2) {
 		case 0x00E1:
@@ -81,7 +91,7 @@ void MSXTapePatch::ejectTape()
 	file = NULL;
 }
 
-void MSXTapePatch::TAPION(CPU::CPURegs& R) const
+void MSXTapePatch::TAPION(CPU::CPURegs& R)
 {
 	/*
 	   Address... 1A63H
@@ -132,7 +142,7 @@ void MSXTapePatch::TAPION(CPU::CPURegs& R) const
 
 	do {
 		PRT_DEBUG("TAPION : file->read(buffer,8); ");
-		file->read((char*)buffer,8);
+		file->read(buffer,8);
 		if (file->fail()){
 			PRT_DEBUG("TAPION : Read error");
 			return;
@@ -149,7 +159,7 @@ void MSXTapePatch::TAPION(CPU::CPURegs& R) const
 	file->seekg(0, std::ios::beg);
 }
 
-void MSXTapePatch::TAPIN(CPU::CPURegs& R) const
+void MSXTapePatch::TAPIN(CPU::CPURegs& R)
 {
 	/*
 	   Address... 1ABCH
@@ -182,7 +192,7 @@ void MSXTapePatch::TAPIN(CPU::CPURegs& R) const
 	R.AF.B.l |= CPU::C_FLAG;
 
 	if (file) {
-		file->get((char)buffer);
+		file->get(buffer);
 		if (! file->fail()) {
 			R.AF.B.h = buffer;
 			R.AF.B.l &= ~CPU::C_FLAG; 
@@ -190,7 +200,7 @@ void MSXTapePatch::TAPIN(CPU::CPURegs& R) const
 	}
 }
 
-void MSXTapePatch::TAPIOF(CPU::CPURegs& R) const
+void MSXTapePatch::TAPIOF(CPU::CPURegs& R)
 {
 	/*
 	   Address... 19E9H
@@ -211,7 +221,7 @@ void MSXTapePatch::TAPIOF(CPU::CPURegs& R) const
 	R.ei();
 }
 
-void MSXTapePatch::TAPOON(CPU::CPURegs& R) const
+void MSXTapePatch::TAPOON(CPU::CPURegs& R)
 {
 	/*
 	   Address... 19F1H
@@ -263,14 +273,14 @@ void MSXTapePatch::TAPOON(CPU::CPURegs& R) const
 			file->seekg(8-filePosition , std::ios::cur);
 		}
 		if (!file->fail()) { 
-			file->write((char*)TapeHeader,8);
+			file->write(TapeHeader,8);
 			R.AF.B.l &= ~CPU::C_FLAG;
 			R.di();
 		}   
 	}
 }
 
-void MSXTapePatch::TAPOUT(CPU::CPURegs& R) const
+void MSXTapePatch::TAPOUT(CPU::CPURegs& R)
 {
 	/*
 	   Address... 1A19H
@@ -302,7 +312,7 @@ void MSXTapePatch::TAPOUT(CPU::CPURegs& R) const
 	}
 }
 
-void MSXTapePatch::TAPOOF(CPU::CPURegs& R) const
+void MSXTapePatch::TAPOOF(CPU::CPURegs& R)
 {
 	/*
 	   Address... 19DDH
@@ -321,7 +331,7 @@ void MSXTapePatch::TAPOOF(CPU::CPURegs& R) const
 	R.ei();
 }
 
-void MSXTapePatch::STMOTR(CPU::CPURegs& R) const
+void MSXTapePatch::STMOTR(CPU::CPURegs& R)
 {
 	/*
 	   Entry..... A=Motor ON/OFF code

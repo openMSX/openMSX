@@ -68,14 +68,6 @@ void MSXMotherBoard::destroyMSX()
 	}
 }
 
-void MSXMotherBoard::saveStateMSX(std::ofstream &savestream)
-{
-	std::list<MSXDevice*>::iterator i;
-	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
-		(*i)->saveState(savestream);
-	}
-}
-
 void MSXMotherBoard::executeUntilEmuTime(const EmuTime &time, int userData)
 {
 	resetMSX(time);

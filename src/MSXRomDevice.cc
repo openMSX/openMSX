@@ -1,7 +1,5 @@
 // $Id$
-//
 
-#include <fstream>
 #include <string>
 #include <list>
 #include "MSXRomDevice.hh"
@@ -106,7 +104,7 @@ void MSXRomDevice::readFile(IFILETYPE* file, int fileSize)
 	romSize = fileSize - offset;
 	if (!(romBank = new byte[romSize]))
 		PRT_ERROR("Couldn't allocate enough memory");
-	file->read((char*)romBank, romSize);
+	file->read(romBank, romSize);
 	if (file->fail()) {
 		// TODO: Throw exception, so that caller can print an error
 		//       message which includes the file name.

@@ -31,13 +31,13 @@ class CassetteDevice : public Pluggable
 		/**
 		 * Returns the sample rate of the writeWave() wave form.
 		 * A sample rate of 0 means this CassetteDevice is not interested
-		 * in writeWave() data.
+		 * in writeWave() data (iow is not recording).
 		 */
 		virtual int getWriteSampleRate() = 0;
 
 
 		virtual const std::string &getClass();
-private:
+	private:
 		static const std::string className;
 };
 

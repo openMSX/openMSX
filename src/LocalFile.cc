@@ -3,9 +3,9 @@
 #include "LocalFile.hh"
 #include "FileType.hh"
 #include "FileManager.hh"
-
 #include <cstdlib>
 #include <libxml/uri.h>
+
 
 LocalFile::LocalFile(const std::string& uri, byte mode)
 :File(mode)
@@ -45,7 +45,7 @@ void LocalFile::fetch()
 	file.seekg(0,std::ios::end);
 	len = file.tellg();
 	file.seekg(0,std::ios::beg);
-	file.read((char*)buffer, len);
+	file.read(buffer, len);
 	file.close();
 }
 
@@ -58,7 +58,7 @@ void LocalFile::put()
 		{
 			throw FileManagerException("LocalFile::put: fail to put a file, while 'write'-mode is asked");
 		}
-		file.write((char*)buffer, len);
+		file.write(buffer, len);
 		file.close();
 	}
 	else

@@ -90,9 +90,6 @@ public:
 	void writeIO(byte port, byte value, const EmuTime &time);
 	void executeUntilEmuTime(const EmuTime &time, int userData);
 
-	// void saveState(ofstream writestream);
-	// void restoreState(char *devicestring,ifstream readstream);
-
 	/** Is this an MSX1 VDP?
 	  * @return True if this is an MSX1 VDP (TMS99X8A or TMS9929A),
 	  *   False otherwise.

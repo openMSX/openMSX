@@ -397,7 +397,7 @@ void CommandLineParser::configureKeyInsert(const char *const arg)
 		unsigned char buffer[2];
 		while (!file->fail())
 		{
-			file->read((char*)buffer, 1);
+			file->read(buffer, 1);
 			buffer[1] = '\0';
 			std::cerr << buffer;
 			std::string temp(reinterpret_cast <char *>(buffer));

@@ -16,7 +16,7 @@ class MSXRomPatchInterface
 		/**
 		 * called by CPU on encountering an EDFE
 		 */
-		virtual void patch(CPU::CPURegs& regs) const = 0;
+		virtual void patch(CPU::CPURegs& regs) = 0;
 };
 
 #endif // __MSXROMPATCHINTERFACE_HH__

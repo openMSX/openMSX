@@ -22,7 +22,7 @@ MSXFmPac::MSXFmPac(MSXConfig::Device *config, const EmuTime &time)
 			file->read(buffer, 16);
 			if (strncmp(PAC_Header, buffer, 16)==0) {
 				// correct header
-				file->read((char*)sramBank, 0x1ffe);
+				file->read(sramBank, 0x1ffe);
 			}
 			file->close();
 			delete file;
@@ -43,7 +43,7 @@ MSXFmPac::~MSXFmPac()
 		std::string filename = deviceConfig->getParameter("sramname");
 		IOFILETYPE* file = FileOpener::openFileTruncate(filename);
 		file->write(PAC_Header, 16);
-		file->write((char*)sramBank, 0x1ffe);
+		file->write(sramBank, 0x1ffe);
 		file->close();
 		delete file;
 	}

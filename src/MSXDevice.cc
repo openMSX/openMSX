@@ -21,17 +21,6 @@ void MSXDevice::reset(const EmuTime &time)
 }
 
 
-void MSXDevice::saveState(std::ofstream &writestream)
-{
-	// default implementation:
-	//   nothing needs to be saved
-}
-void MSXDevice::restoreState(std::string &devicestring, std::ifstream &readstream)
-{
-	// default implementation:
-	//   nothing needs to be restored
-}
-
 const std::string &MSXDevice::getName()
 {
 	if (deviceConfig) {

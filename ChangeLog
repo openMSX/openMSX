@@ -1,5 +1,9 @@
 $Id$
 
+2002-06-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Moved cassette related code to its own directory
+	* Cleanups
+
 2002-06-30 David Heremans <david.heremans@gnu-linux.net>
 	* Added index mark to the FDC status register (not tested yet!)
 
