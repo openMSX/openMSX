@@ -4,6 +4,7 @@ SUBDIRS = manual
 
 #  install the man pages
 # Man page is broken, so I disabled it.
+man_MANS =
 #man_MANS = \
 #	openmsx.1
 
