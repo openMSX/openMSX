@@ -70,16 +70,16 @@ static const int HEIGHT = 480;
   */
 static const int LINE_TOP_BORDER = 3 + 13;
 
-static void GLBlitLine(SDLGLRenderer::Pixel *line, int x, int y)
+static void GLBlitLine(SDLGLRenderer::Pixel *line, int n, int x, int y)
 {
 	// Set pixel format.
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, 512);
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, n);
 	//glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
 	glPixelStorei(GL_UNPACK_LSB_FIRST, GL_TRUE);
 
 	// Draw pixels in frame buffer.
 	glRasterPos2i(x, HEIGHT - y - 1);
-	glDrawPixels(512, 1, GL_RGBA, GL_UNSIGNED_BYTE, line);
+	glDrawPixels(n, 1, GL_RGBA, GL_UNSIGNED_BYTE, line);
 }
 
 /** Fill a boolean array with a single value.
@@ -412,6 +412,20 @@ void SDLGLRenderer::updatePalette(
 		palFg[0] = palBg[vdp->getBackgroundColour()];
 	}
 
+	// Create pixel map of palette.
+	GLuint components[4][16];
+	for (int i = 0; i < 16; i++) {
+		Pixel pixel = palFg[i];
+		for (int j = 0; j < 4; j++) {
+			components[j][i] = pixel & 0xFF000000;
+			pixel <<= 8;
+		}
+	}
+	glPixelMapuiv(GL_PIXEL_MAP_I_TO_R, 16, components[3]);
+	glPixelMapuiv(GL_PIXEL_MAP_I_TO_G, 16, components[2]);
+	glPixelMapuiv(GL_PIXEL_MAP_I_TO_B, 16, components[1]);
+	glPixelMapuiv(GL_PIXEL_MAP_I_TO_A, 16, components[0]);
+
 	// Any line containing pixels of this colour must be repainted.
 	// We don't know which lines contain which colours,
 	// so we have to repaint them all.
@@ -555,7 +569,7 @@ void SDLGLRenderer::setDirty(
 }
 
 void SDLGLRenderer::renderText1(
-	Pixel *pixelPtr, int line)
+	Pixel *pixelPtr, int line, int destX, int destY)
 {
 	bool dirtyColours = dirtyForeground || dirtyBackground;
 	if (!(anyDirtyName || anyDirtyPattern || dirtyColours)) return;
@@ -586,7 +600,7 @@ void SDLGLRenderer::renderText1(
 }
 
 void SDLGLRenderer::renderText1Q(
-	Pixel *pixelPtr, int line)
+	Pixel *pixelPtr, int line, int destX, int destY)
 {
 	bool dirtyColours = dirtyForeground || dirtyBackground;
 	if (!(anyDirtyName || anyDirtyPattern || dirtyColours)) return;
@@ -618,7 +632,7 @@ void SDLGLRenderer::renderText1Q(
 }
 
 void SDLGLRenderer::renderText2(
-	Pixel *pixelPtr, int line)
+	Pixel *pixelPtr, int line, int destX, int destY)
 {
 	bool dirtyColours = dirtyForeground || dirtyBackground;
 	if (!(anyDirtyName || anyDirtyPattern || dirtyColours)) return;
@@ -677,7 +691,7 @@ void SDLGLRenderer::renderText2(
 }
 
 void SDLGLRenderer::renderGraphic1(
-	Pixel *pixelPtr, int line)
+	Pixel *pixelPtr, int line, int destX, int destY)
 {
 	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
 
@@ -711,7 +725,7 @@ void SDLGLRenderer::renderGraphic1(
 }
 
 void SDLGLRenderer::renderGraphic2(
-	Pixel *pixelPtr, int line)
+	Pixel *pixelPtr, int line, int destX, int destY)
 {
 	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
 
@@ -747,19 +761,60 @@ void SDLGLRenderer::renderGraphic2(
 }
 
 void SDLGLRenderer::renderGraphic4(
-	Pixel *pixelPtr, int line)
+	Pixel *pixelPtr, int line, int destX, int destY)
+{
+	GLubyte lineBuffer[256];
+	GLubyte *lineBufferPtr = lineBuffer;
+	int addr = (line << 7) & vdp->getNameMask();
+	do {
+		byte colour = vdp->getVRAM(addr++);
+		lineBufferPtr[0] = colour >> 4;
+		lineBufferPtr[1] = colour & 15;
+		lineBufferPtr += 2;
+	} while (addr & 127);
+
+	// Set pixel format.
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 256);
+	glPixelZoom(2.0, 2.0);
+
+	// Draw pixels in frame buffer.
+	glRasterPos2i(destX, HEIGHT - 1 - destY);
+	glDrawPixels(
+		256, 1,
+		GL_COLOR_INDEX, GL_UNSIGNED_BYTE,
+		lineBuffer
+		//vdp->getVRAMPtr() + ((line << 7) & vdp->getNameMask())
+		);
+}
+
+#if 0
+void SDLGLRenderer::renderGraphic4(
+	Pixel *pixelPtr, int line, int destX, int destY)
 {
 	int addr = (line << 7) & vdp->getNameMask();
 	do {
 		byte colour = vdp->getVRAM(addr++);
-		pixelPtr[0] = pixelPtr[1] = palFg[colour >> 4];
-		pixelPtr[2] = pixelPtr[3] = palFg[colour & 15];
-		pixelPtr += 4;
+		pixelPtr[0] = palFg[colour >> 4];
+		pixelPtr[1] = palFg[colour & 15];
+		pixelPtr += 2;
 	} while (addr & 127);
+
+	// Set pixel format.
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 256);
+	glPixelZoom(2.0, 2.0);
+
+	// Draw pixels in frame buffer.
+	glRasterPos2i(destX, HEIGHT - 1 - destY);
+	glDrawPixels(
+		256, 1,
+		GL_RGBA, GL_UNSIGNED_BYTE,
+		pixelPtr - 256
+		);
 }
+#endif
 
 void SDLGLRenderer::renderGraphic5(
-	Pixel *pixelPtr, int line)
+	Pixel *pixelPtr, int line, int destX, int destY)
 {
 	int addr = (line << 7) & vdp->getNameMask();
 	do {
@@ -769,10 +824,13 @@ void SDLGLRenderer::renderGraphic5(
 		*pixelPtr++ = palFg[(colour >> 2) & 3];
 		*pixelPtr++ = palFg[colour & 3];
 	} while (addr & 127);
+
+	glPixelZoom(1.0, 2.0);
+	GLBlitLine(pixelPtr - 512, 512, destX, destY);
 }
 
 void SDLGLRenderer::renderGraphic6(
-	Pixel *pixelPtr, int line)
+	Pixel *pixelPtr, int line, int destX, int destY)
 {
 	int addr = (line << 7) & vdp->getNameMask();
 	do {
@@ -783,10 +841,13 @@ void SDLGLRenderer::renderGraphic6(
 		*pixelPtr++ = palFg[colour >> 4];
 		*pixelPtr++ = palFg[colour & 0x0F];
 	} while (++addr & 127);
+
+	glPixelZoom(1.0, 2.0);
+	GLBlitLine(pixelPtr - 512, 512, destX, destY);
 }
 
 void SDLGLRenderer::renderGraphic7(
-	Pixel *pixelPtr, int line)
+	Pixel *pixelPtr, int line, int destX, int destY)
 {
 	int addr = (line << 7) & vdp->getNameMask();
 	do {
@@ -796,10 +857,13 @@ void SDLGLRenderer::renderGraphic7(
 			graphic7Colour(vdp->getVRAM(0x10000 | addr));
 		pixelPtr += 4;
 	} while (++addr & 127);
+
+	glPixelZoom(1.0, 2.0);
+	GLBlitLine(pixelPtr - 512, 512, destX, destY);
 }
 
 void SDLGLRenderer::renderMulti(
-	Pixel *pixelPtr, int line)
+	Pixel *pixelPtr, int line, int destX, int destY)
 {
 	if (!(anyDirtyName || anyDirtyPattern)) return;
 
@@ -824,7 +888,7 @@ void SDLGLRenderer::renderMulti(
 }
 
 void SDLGLRenderer::renderMultiQ(
-	Pixel *pixelPtr, int line)
+	Pixel *pixelPtr, int line, int destX, int destY)
 {
 	if (!(anyDirtyName || anyDirtyPattern)) return;
 
@@ -850,7 +914,7 @@ void SDLGLRenderer::renderMultiQ(
 }
 
 void SDLGLRenderer::renderBogus(
-	Pixel *pixelPtr, int line)
+	Pixel *pixelPtr, int line, int destX, int destY)
 {
 	if (!(dirtyForeground || dirtyBackground)) return;
 
@@ -1042,7 +1106,6 @@ void SDLGLRenderer::displayPhase(
 
 	// Render background lines.
 	// TODO: Complete separation of character and bitmap modes.
-	glPixelZoom(1.0, 2.0);
 	int leftBorder = getLeftBorder();
 	int y = (nextLine - lineRenderTop) * 2;
 	if (vdp->isBitmapMode()) {
@@ -1051,6 +1114,8 @@ void SDLGLRenderer::displayPhase(
 		bool planar = vdp->isPlanar();
 		do {
 			int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
+			Pixel lineBuffer[512];
+			/*
 			if ( (lineValidInMode[vramLine] != vdp->getDisplayMode())
 			|| (planar && (lineValidInMode[vramLine | 512] != vdp->getDisplayMode())) ) {
 				(this->*renderMethod)
@@ -1062,6 +1127,8 @@ void SDLGLRenderer::displayPhase(
 			}
 			GLBlitLine(getLinePtr(displayCache, vramLine),
 				leftBorder, y);
+			*/
+			(this->*renderMethod)(lineBuffer, vramLine, leftBorder, y);
 			line = (line + 1) & 0xFF;
 			y += 2;
 		} while (--n);
@@ -1070,8 +1137,9 @@ void SDLGLRenderer::displayPhase(
 		int n = limit - nextLine;
 		do {
 			(this->*renderMethod)
-				(getLinePtr(displayCache, line), line);
-			GLBlitLine(getLinePtr(displayCache, line),
+				(getLinePtr(displayCache, line), line, leftBorder, y);
+			glPixelZoom(1.0, 2.0);
+			GLBlitLine(getLinePtr(displayCache, line), 512,
 				leftBorder, y);
 			line = (line + 1) & 0xFF;
 			y += 2;

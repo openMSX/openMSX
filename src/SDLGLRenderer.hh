@@ -66,7 +66,8 @@ public:
 	void updateVRAM(int addr, byte data, const EmuTime &time);
 
 private:
-	typedef void (SDLGLRenderer::*RenderMethod)(Pixel *pixelPtr, int line);
+	typedef void (SDLGLRenderer::*RenderMethod)
+		(Pixel *pixelPtr, int line, int x, int y);
 	typedef void (SDLGLRenderer::*PhaseHandler)(int limit);
 	typedef void (SDLGLRenderer::*DirtyChecker)
 		(int addr, byte data, const EmuTime &time);
@@ -99,18 +100,18 @@ private:
 	  */
 	inline Pixel getBorderColour();
 
-	void renderText1(Pixel *pixelPtr, int line);
-	void renderText1Q(Pixel *pixelPtr, int line);
-	void renderText2(Pixel *pixelPtr, int line);
-	void renderGraphic1(Pixel *pixelPtr, int line);
-	void renderGraphic2(Pixel *pixelPtr, int line);
-	void renderGraphic4(Pixel *pixelPtr, int line);
-	void renderGraphic5(Pixel *pixelPtr, int line);
-	void renderGraphic6(Pixel *pixelPtr, int line);
-	void renderGraphic7(Pixel *pixelPtr, int line);
-	void renderMulti(Pixel *pixelPtr, int line);
-	void renderMultiQ(Pixel *pixelPtr, int line);
-	void renderBogus(Pixel *pixelPtr, int line);
+	void renderText1(Pixel *pixelPtr, int line, int x, int y);
+	void renderText1Q(Pixel *pixelPtr, int line, int x, int y);
+	void renderText2(Pixel *pixelPtr, int line, int x, int y);
+	void renderGraphic1(Pixel *pixelPtr, int line, int x, int y);
+	void renderGraphic2(Pixel *pixelPtr, int line, int x, int y);
+	void renderGraphic4(Pixel *pixelPtr, int line, int x, int y);
+	void renderGraphic5(Pixel *pixelPtr, int line, int x, int y);
+	void renderGraphic6(Pixel *pixelPtr, int line, int x, int y);
+	void renderGraphic7(Pixel *pixelPtr, int line, int x, int y);
+	void renderMulti(Pixel *pixelPtr, int line, int x, int y);
+	void renderMultiQ(Pixel *pixelPtr, int line, int x, int y);
+	void renderBogus(Pixel *pixelPtr, int line, int x, int y);
 
 	/** Render in background colour.
 	  * Used for borders and during blanking.
