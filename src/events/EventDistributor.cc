@@ -11,7 +11,6 @@
 #include "openmsx.hh"
 #include "config.h"
 #include "Scheduler.hh"
-#include "HotKey.hh"
 #include "MSXCPU.hh"
 
 using std::ostringstream;
@@ -24,8 +23,6 @@ EventDistributor::EventDistributor()
 		false),
 	  lastAfterId(0)
 {
-	// Make sure HotKey is instantiated
-	HotKey::instance();	// TODO is there a better place for this?
 	grabInput.addListener(this);
 	CommandController::instance()->registerCommand(&quitCommand, "quit");
 	CommandController::instance()->registerCommand(&afterCommand, "after");

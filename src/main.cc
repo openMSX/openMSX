@@ -15,6 +15,7 @@
 #include "CommandLineParser.hh"
 #include "Icon.hh"
 #include "CliCommInput.hh"
+#include "HotKey.hh"
 
 using std::auto_ptr;
 using std::cerr;
@@ -63,6 +64,7 @@ int main(int argc, char **argv)
 			if (parseStatus) {
 				cliCommInput.reset(new CliCommInput());
 			}
+			HotKey hotkey;
 			MSXMotherBoard::instance()->run(
 				parseStatus == CommandLineParser::RUN);
 		}

@@ -24,11 +24,11 @@ public:
 	 virtual void signalHotKey(Keys::KeyCode key) throw() = 0;
 };
 
-
 class HotKey : private EventListener
 {
 public:
-	static HotKey* instance();
+	HotKey();
+	virtual ~HotKey();
 
 	/**
 	 * This is just an extra filter for SDL_KEYDOWN events, now
@@ -46,9 +46,6 @@ public:
 	void unregisterHotKeyCommand(Keys::KeyCode key, const string& command);
 
 private:
-	HotKey();
-	virtual ~HotKey();
-
 	// EventListener
 	virtual bool signalEvent(SDL_Event& event) throw();
 	
@@ -66,24 +63,30 @@ private:
 		const string& getCommand() const;
 		virtual void signalHotKey(Keys::KeyCode key) throw();
 	private:
-		string command;
+		const string command;
 	};
 
 	class BindCmd : public Command {
 	public:
+		BindCmd(HotKey& parent);
 		virtual string execute(const vector<string>& tokens)
 			throw (CommandException);
 		virtual string help(const vector<string>& tokens) const
 			throw();
+	private:
+		HotKey& parent;
 	} bindCmd;
 	friend class BindCmd;
 
 	class UnbindCmd : public Command {
 	public:
+		UnbindCmd(HotKey& parent);
 		virtual string execute(const vector<string>& tokens)
 			throw (CommandException);
 		virtual string help(const vector<string>& tokens) const
 			throw();
+	private:
+		HotKey& parent;
 	} unbindCmd;
 	friend class UnbindCmd;
 };
