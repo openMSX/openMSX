@@ -5,6 +5,8 @@
 #include "MSXMotherBoard.hh"
 #include "PrinterPortDevice.hh"
 #include "ConsoleSource/Console.hh"
+#include "MSXCPU.hh"
+
 
 MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
@@ -17,12 +19,14 @@ MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
 	dummy = new DummyPrinterPortDevice();
 	Console::instance()->registerCommand(printPortCmd, "printerport");
 	// TODO plug device as specified in config file
-	unplug();
+	unplug(time);
 
 	//temporary hack :-) until devicefactory is fixed
-	oneInstance=this;
-	logger=new LoggingPrinterPortDevice();
-	plug(logger);
+	{
+		oneInstance=this;
+		logger=new LoggingPrinterPortDevice();
+		plug(logger, time);
+	}
 
 	reset(time);
 }
@@ -50,8 +54,8 @@ void MSXPrinterPort::reset(const EmuTime &time)
 {
 	data = 0;	// TODO check this
 	strobe = true;	// TODO 
-	device->writeData(data);
-	device->setStrobe(strobe);
+	device->writeData(data, time);
+	device->setStrobe(strobe, time);
 }
 
 
@@ -66,27 +70,27 @@ void MSXPrinterPort::writeIO(byte port, byte value, const EmuTime &time)
 	switch (port) {
 	case 0x90:
 		strobe = value&1;	// bit 0 = strobe
-		device->setStrobe(strobe);
+		device->setStrobe(strobe, time);
 		break;
 	case 0x91:
 		data = value;
-		device->writeData(data);
+		device->writeData(data, time);
 		break;
 	default:
 		assert(false);
 	}
 }
 
-void MSXPrinterPort::plug(PrinterPortDevice *dev)
+void MSXPrinterPort::plug(PrinterPortDevice *dev, const EmuTime &time)
 {
 	device = dev;
-	device->writeData(data);
-	device->setStrobe(strobe);
+	device->writeData(data, time);
+	device->setStrobe(strobe, time);
 }
 
-void MSXPrinterPort::unplug()
+void MSXPrinterPort::unplug(const EmuTime &time)
 {
-	plug(dummy);
+	plug(dummy, time);
 }
 
 
@@ -96,12 +100,12 @@ bool DummyPrinterPortDevice::getStatus()
 	return true;	// true = high = not ready	TODO check this
 }
 
-void DummyPrinterPortDevice::setStrobe(bool strobe)
+void DummyPrinterPortDevice::setStrobe(bool strobe, const EmuTime &time)
 {
 	// ignore strobe
 }
 
-void DummyPrinterPortDevice::writeData(byte data)
+void DummyPrinterPortDevice::writeData(byte data, const EmuTime &time)
 {
 	// ignore data
 }
@@ -119,11 +123,12 @@ MSXPrinterPort::printPortCmd::~printPortCmd()
 
 void MSXPrinterPort::printPortCmd::execute(const char* commandLine)
 {
+	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
 	bool error = false;
 	if (0 == strncmp(&commandLine[12], "unplug", 6)) {
-		MSXPrinterPort::instance()->unplug();
+		MSXPrinterPort::instance()->unplug(time);
 	} else if (0 == strncmp(&commandLine[12], "log", 3)) {
-		MSXPrinterPort::instance()->plug(logger);
+		MSXPrinterPort::instance()->plug(logger, time);
 	} else {
 		error = true;
 	};
@@ -139,20 +144,19 @@ void MSXPrinterPort::printPortCmd::help(const char *commandLine)
 
 bool LoggingPrinterPortDevice::getStatus()
 {
-	return false;	// true = high = not ready	TODO check this
+	return false;	// false = low = ready	TODO check this
 }
 
-void LoggingPrinterPortDevice::setStrobe(bool strobe)
+void LoggingPrinterPortDevice::setStrobe(bool strobe, const EmuTime &time)
 {
-  // ignore strobe
-  if (strobe){
-    PRT_DEBUG("PRINTER: save in printlog file "<<toPrint);
-  } else {
-    PRT_DEBUG("PRINTER: strobe off");
-  }
+	if (strobe) {
+		PRT_DEBUG("PRINTER: save in printlog file "<<toPrint);
+	} else {
+		PRT_DEBUG("PRINTER: strobe off");
+	}
 }
 
-void LoggingPrinterPortDevice::writeData(byte data)
+void LoggingPrinterPortDevice::writeData(byte data, const EmuTime &time)
 {
 	toPrint=data;
 	PRT_DEBUG("PRINTER: setting data "<<data);

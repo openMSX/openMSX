@@ -5,6 +5,10 @@
 
 #include "openmsx.hh"
 
+// Forward declaration
+class EmuTime;
+
+
 class PrinterPortDevice
 {
 	public:
@@ -21,13 +25,13 @@ class PrinterPortDevice
 		 *  true  = high
 		 * Normal high, a short pulse (low, high) means data is valid
 		 */ 
-		virtual void setStrobe(bool strobe) = 0;
+		virtual void setStrobe(bool strobe, const EmuTime &time) = 0;
 
 		/**
 		 * Sets the data signals.
 		 * Always use strobe to see wheter data is valid
 		 */
-		virtual void writeData(byte data) = 0;
+		virtual void writeData(byte data, const EmuTime &time) = 0;
 };
 
 #endif

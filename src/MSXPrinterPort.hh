@@ -10,10 +10,17 @@
 class LoggingPrinterPortDevice : public PrinterPortDevice
 {
 	bool getStatus();
-	void setStrobe(bool strobe);
-	void writeData(byte data);
-  private:
+	void setStrobe(bool strobe, const EmuTime &time);
+	void writeData(byte data, const EmuTime &time);
+private:
 	byte toPrint;
+};
+
+class DummyPrinterPortDevice : public PrinterPortDevice
+{
+	bool getStatus();
+	void setStrobe(bool strobe, const EmuTime &time);
+	void writeData(byte data, const EmuTime &time);
 };
 
 class MSXPrinterPort : public MSXIODevice
@@ -34,14 +41,14 @@ class MSXPrinterPort : public MSXIODevice
 		byte readIO(byte port, const EmuTime &time);
 		void writeIO(byte port, byte value, const EmuTime &time);
 		
-		void plug(PrinterPortDevice *dev);
-		void unplug();
+		void plug(PrinterPortDevice *dev, const EmuTime &time);
+		void unplug(const EmuTime &time);
 		static LoggingPrinterPortDevice *logger;
 
 	private:
 		static MSXPrinterPort *oneInstance;
 		PrinterPortDevice *device;
-		PrinterPortDevice *dummy;
+		DummyPrinterPortDevice *dummy;
 		bool strobe;
 		byte data;
 		// ConsoleCommands
@@ -55,15 +62,6 @@ class MSXPrinterPort : public MSXIODevice
 
 		printPortCmd printPortCmd ;
 
-};
-
-
-
-class DummyPrinterPortDevice : public PrinterPortDevice
-{
-	bool getStatus();
-	void setStrobe(bool strobe);
-	void writeData(byte data);
 };
 
 #endif
