@@ -1,5 +1,8 @@
 $Id$
 
+2002-05-23 Bas Wijnen <b.wijnen@student.rug.nl>
+	* Mutexes added around PRT_* macros
+
 2002-05-22 Maarten ter Huurne <mth@stack.nl>
 	* SDLGLRenderer uses block textures in Text1 (SCREEN0.40).
 	* SDLGLRenderer uses block textures in Graphics2 (SCREEN2).

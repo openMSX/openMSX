@@ -39,10 +39,29 @@ typedef unsigned long long uint64;
 #define DEBUGVAL 0
 #endif
 #include <iostream>
-#define PRT_DEBUG(mes) do {if (DEBUGVAL) std::cout << mes << "\n"; } while (0)
-
-#define PRT_INFO(mes) do {std::cout << mes << "\n"; } while (0)
-#define PRT_ERROR(mes) do {std::cout << mes << "\n"; exit(1); } while (0)
+#include "Mutex.hh"
+extern Mutex outputmutex, errormutex;
+#define PRT_DEBUG(mes)					\
+	do {						\
+		if (DEBUGVAL) {				\
+			outputmutex.grab();		\
+			std::cout << mes << "\n";	\
+			outputmutex.release();		\
+		}					\
+	} while (0)
+#define PRT_INFO(mes)				\
+	do {					\
+		outputmutex.grab();		\
+		std::cout << mes << "\n";	\
+		outputmutex.release();		\
+	} while (0)
+#define PRT_ERROR(mes)				\
+	do {					\
+		errormutex.grab();		\
+		std::cerr << mes << "\n";	\
+		errormutex.release();		\
+		exit(1);			\
+	} while (0)
 
 //#ifndef DEBUG
 //#define NDEBUG		// for assert.h
