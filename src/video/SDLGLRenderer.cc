@@ -96,20 +96,6 @@ inline static void GLBlitLine(
 {
 	GLUpdateTexture(textureId, data, 256);
 	GLDrawTexture(textureId, leftBorder, y, minX, maxX, 2);
-
-	/* Alternative (outdated)
-
-	GLSetColour(0xFFFFFFu);
-
-	// Set pixel format.
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, n);
-	//glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
-	glPixelStorei(GL_UNPACK_LSB_FIRST, GL_TRUE);
-
-	// Draw pixels in frame buffer.
-	glRasterPos2i(x, y + 2);
-	glDrawPixels(n, 1, GL_RGBA, GL_UNSIGNED_BYTE, line);
-	*/
 }
 
 inline static void GLBindMonoBlock(GLuint textureId, const byte *pixels)
@@ -862,15 +848,10 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 	Pixel bg = palBg[vdp->getBackgroundColour()];
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
-	float fgColour[4] = {
-		(fg & 0xFF) / 255.0f,
-		((fg >> 8) & 0xFF) / 255.0f,
-		((fg >> 16) & 0xFF) / 255.0f,
-		1.0f
-		};
-	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, fgColour);
+	int fgColour[4] = { fg & 0xFF, (fg >> 8) & 0xFF, (fg >> 16) & 0xFF, 0xFF };
+	glTexEnviv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, fgColour);
 
-	// Render complete characters and cut off the invisible part
+	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
 	glScissor(0, HEIGHT - screenLine - screenHeight, WIDTH, screenHeight);
 	glEnable(GL_SCISSOR_TEST);
@@ -883,7 +864,7 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 	for (int row = vramLine / 8; row < endRow; row++) {
 		for (int col = 0; col < 40; col++) {
 			// TODO: Only bind texture once?
-			//       Currently both subdirs bind the same texture.
+			//       Currently both subroutines bind the same texture.
 			int name = (row & 31) * 40 + col;
 			int charcode = vram->nameTable.readNP(name);
 			GLuint textureId = characterCache[charcode];
@@ -893,7 +874,6 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 				// TODO: Read byte ranges from VRAM?
 				//       Otherwise, have CharacterConverter read individual
 				//       bytes. But what is the advantage to that?
-				// TODO: vertical scrolling in character 
 				byte charPixels[8 * 8];
 				characterConverter.convertMonoBlock(
 					charPixels,
@@ -1019,18 +999,13 @@ void SDLGLRenderer::drawDisplay(
 	} else {
 		switch (mode.getByte()) {
 		case DisplayMode::TEXT1:
-			// TODO: Render only part of the line.
 			renderText1(displayY, screenY, displayHeight);
 			break;
 		case DisplayMode::GRAPHIC2:
 		case DisplayMode::GRAPHIC3:
-			// TODO: Render only part of the line.
 			renderGraphic2(displayY, screenY, displayHeight);
 			break;
 		default:
-			// TODO: Render only part of the line.
-			//       In this case, only part is plotted, but still full cache
-			//       lines are checked.
 			renderCharacterLines(displayY, displayHeight);
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 			for (int y = screenY; y < screenLimitY; y += 2) {
@@ -1046,7 +1021,6 @@ void SDLGLRenderer::drawDisplay(
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glPixelZoom(2.0, 2.0);
 	for (int y = screenY; y < screenLimitY; y += 2) {
 		drawSprites(y, leftBorder, minX, maxX);
 	}
