@@ -11,8 +11,11 @@ $Id$
 	  which increases the program counter. This is wrong because the
 	  evaluation order of parameters is not guaranteed.
 
-2001-11-30 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+2001-12-01 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* added FM-PAC
+	* MSXMotherBoard is now also a CPUInterface, this eliminates one
+	  indirection in readMem()-like methods but these get called a few
+	  100 000 times a second. I measured 10%-20% performance gain
 
 2001-11-30 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* made a helper function registerSlots()

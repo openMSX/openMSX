@@ -140,6 +140,23 @@ void MSXMotherBoard::SaveStateMSX(std::ofstream &savestream)
 }
 
 
+void MSXMotherBoard::set_A8_Register(byte value)
+{
+	A8_Register = value;
+	for (int j=0; j<=3; j++, value>>=2) {
+		// Change the slot structure
+		PrimarySlotState[j] = value&3;
+		SecondarySlotState[j] = 3&(SubSlot_Register[value&3]>>(j*2));
+		// Change the visible devices
+		visibleDevices[j] = SlotLayout [PrimarySlotState[j]]
+		                               [SecondarySlotState[j]]
+		                               [j];
+	}
+}
+
+
+// CPU Interface //
+
 byte MSXMotherBoard::readMem(word address, EmuTime &time)
 {
 	if (address == 0xFFFF) {
@@ -173,29 +190,21 @@ void MSXMotherBoard::writeMem(word address, byte value, EmuTime &time)
 	visibleDevices[address>>14]->writeMem(address, value, time);
 }
 
-void MSXMotherBoard::set_A8_Register(byte value)
+byte MSXMotherBoard::readIO(word prt, EmuTime &time)
 {
-	A8_Register = value;
-	for (int j=0; j<=3; j++, value>>=2) {
-		// Change the slot structure
-		PrimarySlotState[j] = value&3;
-		SecondarySlotState[j] = 3&(SubSlot_Register[value&3]>>(j*2));
-		// Change the visible devices
-		visibleDevices[j] = SlotLayout [PrimarySlotState[j]]
-		                               [SecondarySlotState[j]]
-		                               [j];
-	}
+	byte port = (byte)prt;
+	return IO_In[port]->readIO((byte)port, time);
 }
 
-
-byte MSXMotherBoard::readIO(byte port, EmuTime &time)
+void MSXMotherBoard::writeIO(word prt, byte value, EmuTime &time)
 {
-	return IO_In[port]->readIO(port, time);
+	byte port = (byte)prt;
+	IO_Out[port]->writeIO((byte)port, value, time);
 }
 
-void MSXMotherBoard::writeIO(byte port, byte value, EmuTime &time)
+bool MSXMotherBoard::IRQStatus()
 {
-	IO_Out[port]->writeIO(port, value, time);
+	return (bool)IRQLine;
 }
 
 
@@ -216,10 +225,5 @@ void MSXMotherBoard::lowerIRQ()
 	//	// high -> low
 	//	MSXCPU::instance()->IRQ(false);
 	//}
-}
-
-bool MSXMotherBoard::IRQstatus()
-{
-	return (bool)IRQLine;
 }
 

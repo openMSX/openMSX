@@ -8,9 +8,10 @@
 #include "MSXDevice.hh"
 #include "Scheduler.hh"
 #include "EmuTime.hh"
+#include "CPUInterface.hh"
 
 
-class MSXMotherBoard : public MSXDevice
+class MSXMotherBoard : public CPUInterface, public MSXDevice
 {	
 	public:
 		/**
@@ -23,7 +24,7 @@ class MSXMotherBoard : public MSXDevice
 		/**
 		 * Destructor
 		 */
-		~MSXMotherBoard();
+		virtual ~MSXMotherBoard();
 		
 		/**
 		 * this class is a singleton class
@@ -43,10 +44,6 @@ class MSXMotherBoard : public MSXDevice
 		// fe. yanking a cartridge out of the msx
 		void removeDevice(MSXDevice *device);
 
-		void raiseIRQ();
-		void lowerIRQ();
-		bool IRQstatus();
-
 		void InitMSX();
 		void StartMSX();
 		void ResetMSX();
@@ -56,11 +53,17 @@ class MSXMotherBoard : public MSXDevice
 		void RestoreMSX();
 		void SaveStateMSX(std::ofstream &savestream);
 
+		// CPUInterface //
 		// This will be used by CPU to read data from "visual" devices
 		byte readMem(word address, EmuTime &time);
 		void writeMem(word address, byte value, EmuTime &time);
-		byte readIO(byte port, EmuTime &time);
-		void writeIO(byte port, byte value, EmuTime &time);
+		byte readIO(word port, EmuTime &time);
+		void writeIO(word port, byte value, EmuTime &time);
+		bool IRQStatus();
+		
+		void raiseIRQ();
+		void lowerIRQ();
+
 
 		void set_A8_Register(byte value);
 

@@ -8,8 +8,8 @@ MSXCPU::MSXCPU(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXCPU object");
 	oneInstance = this;
-	z80 = new Z80(this, 3579545, 1);
-	//r800 = new R800(this, 3579545*2);
+	z80 = new Z80(MSXMotherBoard::instance(), 3579545, 1);
+	//r800 = new R800(MSXMotherBoard::instance(), 3579545*2);
 	activeCPU = z80;	// setActiveCPU(CPU_Z80);
 }
 
@@ -31,7 +31,6 @@ MSXCPU* MSXCPU::oneInstance = NULL;
 void MSXCPU::init()
 {
 	MSXDevice::init();
-	mb = MSXMotherBoard::instance();
 }
 
 void MSXCPU::reset()
@@ -86,29 +85,5 @@ const EmuTime &MSXCPU::getCurrentTime()
 void MSXCPU::executeUntilEmuTime(const EmuTime &time)
 {
 	assert(false);
-}
-
-
-
-bool MSXCPU::IRQStatus()
-{
-	return mb->IRQstatus();
-}
-
-byte MSXCPU::readIO(word port, EmuTime &time)
-{
-	return mb->readIO(port&255, time);
-}
-
-void MSXCPU::writeIO (word port, byte value, EmuTime &time) {
-	mb->writeIO(port&255, value, time);
-}
-
-byte MSXCPU::readMem(word address, EmuTime &time) {
-	return  mb->readMem(address, time);
-}
-
-void MSXCPU::writeMem(word address, byte value, EmuTime &time) {
-	mb->writeMem(address, value, time);
 }
 

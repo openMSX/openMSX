@@ -58,8 +58,8 @@ class Z80 : public CPU {
 
 
 	private:
-		void executeInstruction(byte opcode);
-		void M1Cycle();
+		inline void executeInstruction(byte opcode);
+		inline void M1Cycle();
 		void init();
 		
 		#include "Z80Core.hh"

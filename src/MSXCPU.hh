@@ -10,7 +10,7 @@
 #include "Z80.hh"
 //#include "MSXR800.hh"
 
-class MSXCPU : public MSXDevice, public CPUInterface 
+class MSXCPU : public MSXDevice
 {
 	public:
 		enum CPUType { CPU_Z80 };	//, CPU_R800 };
@@ -37,13 +37,6 @@ class MSXCPU : public MSXDevice, public CPUInterface
 		void init();
 		void reset();
 		
-		// CPUInterface
-		bool IRQStatus();
-		byte readIO(word port, EmuTime &time);
-		void writeIO (word port, byte value, EmuTime &time);
-		byte readMem(word address, EmuTime &time);
-		void writeMem(word address, byte value, EmuTime &time);
-
 		// MSXCPU
 		void executeUntilTarget(const EmuTime &time);
 		void setTargetTime(const EmuTime &time);
@@ -59,7 +52,5 @@ class MSXCPU : public MSXDevice, public CPUInterface
 		Z80 *z80;
 		//MSXR800 *r800;
 		CPU *activeCPU;
-
-		MSXMotherBoard *mb;
 };
 #endif //__MSXCPU_HH__
