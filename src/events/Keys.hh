@@ -57,32 +57,32 @@ class Keys {
 			K_CARET		= SDLK_CARET,
 			K_UNDERSCORE	= SDLK_UNDERSCORE,
 			K_BACKQUOTE	= SDLK_BACKQUOTE,
-			K_a		= SDLK_a,
-			K_b		= SDLK_b,
-			K_c		= SDLK_c,
-			K_d		= SDLK_d,
-			K_e		= SDLK_e,
-			K_f		= SDLK_f,
-			K_g		= SDLK_g,
-			K_h		= SDLK_h,
-			K_i		= SDLK_i,
-			K_j		= SDLK_j,
-			K_k		= SDLK_k,
-			K_l		= SDLK_l,
-			K_m		= SDLK_m,
-			K_n		= SDLK_n,
-			K_o		= SDLK_o,
-			K_p		= SDLK_p,
-			K_q		= SDLK_q,
-			K_r		= SDLK_r,
-			K_s		= SDLK_s,
-			K_t		= SDLK_t,
-			K_u		= SDLK_u,
-			K_v		= SDLK_v,
-			K_w		= SDLK_w,
-			K_x		= SDLK_x,
-			K_y		= SDLK_y,
-			K_z		= SDLK_z,
+			K_A		= SDLK_a,
+			K_B		= SDLK_b,
+			K_C		= SDLK_c,
+			K_D		= SDLK_d,
+			K_E		= SDLK_e,
+			K_F		= SDLK_f,
+			K_G		= SDLK_g,
+			K_H		= SDLK_h,
+			K_I		= SDLK_i,
+			K_J		= SDLK_j,
+			K_K		= SDLK_k,
+			K_L		= SDLK_l,
+			K_M		= SDLK_m,
+			K_N		= SDLK_n,
+			K_O		= SDLK_o,
+			K_P		= SDLK_p,
+			K_Q		= SDLK_q,
+			K_R		= SDLK_r,
+			K_S		= SDLK_s,
+			K_T		= SDLK_t,
+			K_U		= SDLK_u,
+			K_V		= SDLK_v,
+			K_W		= SDLK_w,
+			K_X		= SDLK_x,
+			K_Y		= SDLK_y,
+			K_Z		= SDLK_z,
 			K_DELETE	= SDLK_DELETE,
 
 			// Numeric keypad
@@ -157,6 +157,10 @@ class Keys {
 			K_MENU		= SDLK_MENU,
 			K_POWER		= SDLK_POWER,	// Power Macintosh power key
 			K_EURO		= SDLK_EURO,	// Some european keyboards
+
+			// Direction modifiers
+			KD_DOWN		= 0,		// key press
+			KD_UP		= 0x10000,	// key release
 		};
 		
 		static Keys::KeyCode getCode(const std::string &name);
@@ -165,13 +169,12 @@ class Keys {
 	private:
 		static void initialize();
 	
-		static bool init;
-		struct ltstr {
+		struct ltstrcase {
 			bool operator()(const std::string &s1, const std::string &s2) const {
 				return strcasecmp(s1.c_str(), s2.c_str()) < 0;
 			}
 		};
-		static std::map<const std::string, KeyCode, ltstr> keymap;
+		static std::map<const std::string, KeyCode, ltstrcase> keymap;
 };
 
 #endif

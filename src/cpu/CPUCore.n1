@@ -98,6 +98,8 @@ inline void SRA_X(word adrs, byte &reg);
 inline void SRL_X(word adrs, byte &reg);
 inline void INC(byte &reg);
 inline void DEC(byte &reg);
+inline void INC_X(word adrs);
+inline void DEC_X(word adrs);
 inline void ADD(byte reg);
 inline void ADC(byte reg);
 inline void SUB(byte reg);
@@ -1253,4 +1255,3 @@ void ed();
 void fd();
 void fd2();
 void ei();
-

@@ -1,5 +1,13 @@
 $Id$
 
+2002-08-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* more Z80 cleanups
+	* commands can now also be bound to key releases (was only keypresses)
+	   example:  unbind F9
+	             bind F9 "throttle off"
+	             bind f9,up "throttle on"
+	   this disables throttling while you hold F9 
+
 2002-08-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Z80 fixes:
 	   V_FLAG was wrong with SUB/SBC/CP instructions

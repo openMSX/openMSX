@@ -14,7 +14,7 @@ const std::string &Keys::getName(const KeyCode keyCode)
 	static const std::string unknown("unknown");
 
 	initialize();
-	std::map<const std::string, KeyCode, ltstr>::const_iterator it;
+	std::map<const std::string, KeyCode, ltstrcase>::const_iterator it;
 	for (it = keymap.begin(); it != keymap.end(); it++) {
 		if (it->second == keyCode)
 			return it->first;
@@ -24,6 +24,8 @@ const std::string &Keys::getName(const KeyCode keyCode)
 
 void Keys::initialize()
 {
+	static bool init = false;
+
 	if (init) return;
 	init = true;
 
@@ -73,32 +75,32 @@ void Keys::initialize()
 	keymap["CARET"]		= K_CARET;
 	keymap["UNDERSCORE"]	= K_UNDERSCORE;
 	keymap["BACKQUOTE"]	= K_BACKQUOTE;
-	keymap["a"]		= K_a;
-	keymap["b"]		= K_b;
-	keymap["c"]		= K_c;
-	keymap["d"]		= K_d;
-	keymap["e"]		= K_e;
-	keymap["f"]		= K_f;
-	keymap["g"]		= K_g;
-	keymap["h"]		= K_h;
-	keymap["i"]		= K_i;
-	keymap["j"]		= K_j;
-	keymap["k"]		= K_k;
-	keymap["l"]		= K_l;
-	keymap["m"]		= K_m;
-	keymap["n"]		= K_n;
-	keymap["o"]		= K_o;
-	keymap["p"]		= K_p;
-	keymap["q"]		= K_q;
-	keymap["r"]		= K_r;
-	keymap["s"]		= K_s;
-	keymap["t"]		= K_t;
-	keymap["u"]		= K_u;
-	keymap["v"]		= K_v;
-	keymap["w"]		= K_w;
-	keymap["x"]		= K_x;
-	keymap["y"]		= K_y;
-	keymap["z"]		= K_z;
+	keymap["A"]		= K_A;
+	keymap["B"]		= K_B;
+	keymap["C"]		= K_C;
+	keymap["D"]		= K_D;
+	keymap["E"]		= K_E;
+	keymap["F"]		= K_F;
+	keymap["G"]		= K_G;
+	keymap["H"]		= K_H;
+	keymap["I"]		= K_I;
+	keymap["J"]		= K_J;
+	keymap["K"]		= K_K;
+	keymap["L"]		= K_L;
+	keymap["M"]		= K_M;
+	keymap["N"]		= K_N;
+	keymap["O"]		= K_O;
+	keymap["P"]		= K_P;
+	keymap["Q"]		= K_Q;
+	keymap["R"]		= K_R;
+	keymap["S"]		= K_S;
+	keymap["T"]		= K_T;
+	keymap["U"]		= K_U;
+	keymap["V"]		= K_V;
+	keymap["W"]		= K_W;
+	keymap["X"]		= K_X;
+	keymap["Y"]		= K_Y;
+	keymap["Z"]		= K_Z;
 	keymap["DELETE"]	= K_DELETE;
 
 	// Numeric keypad
@@ -173,9 +175,14 @@ void Keys::initialize()
 	keymap["MENU"]		= K_MENU;
 	keymap["POWER"]		= K_POWER;	// Power Macintosh power key
 	keymap["EURO"]		= K_EURO;	// Some european keyboards
+	
+	std::map<const std::string, KeyCode, ltstrcase> tmp(keymap);
+	std::map<const std::string, KeyCode, ltstrcase>::const_iterator it;
+	for (it = tmp.begin(); it != tmp.end(); it++) {
+		keymap[it->first + ",up"] = (KeyCode)(it->second | KD_UP);
+	}
 }
 
-bool Keys::init = false;
-std::map<const std::string, Keys::KeyCode, Keys::ltstr> Keys::keymap;
+std::map<const std::string, Keys::KeyCode, Keys::ltstrcase> Keys::keymap;
 
 

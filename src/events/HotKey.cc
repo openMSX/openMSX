@@ -30,8 +30,10 @@ HotKey* HotKey::instance()
 void HotKey::registerHotKey(Keys::KeyCode key, HotKeyListener *listener)
 {
 	PRT_DEBUG("HotKey registration for key " << Keys::getName(key));
-	if (map.empty())
+	if (map.empty()) {
 		EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
+		EventDistributor::instance()->registerEventListener(SDL_KEYUP, this);
+	}
 	map.insert(std::pair<Keys::KeyCode, HotKeyListener*>(key, listener));
 }
 
@@ -46,8 +48,10 @@ void HotKey::unregisterHotKey(Keys::KeyCode key, HotKeyListener *listener)
 			break;
 		}
 	}
-	if (map.empty())
+	if (map.empty()) {
 		EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
+		EventDistributor::instance()->unregisterEventListener(SDL_KEYUP, this);
+	}
 }
 
 
@@ -78,6 +82,8 @@ void HotKey::unregisterHotKeyCommand(Keys::KeyCode key, const std::string &comma
 bool HotKey::signalEvent(SDL_Event &event)
 {
 	Keys::KeyCode key = (Keys::KeyCode)event.key.keysym.sym;
+	if (event.type == SDL_KEYUP)
+		key = (Keys::KeyCode)(key | Keys::KD_UP);
 	PRT_DEBUG("HotKey event " << Keys::getName(key));
 	std::multimap<Keys::KeyCode, HotKeyListener*>::iterator it;
 	for (it = map.lower_bound(key);

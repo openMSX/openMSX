@@ -15,7 +15,9 @@ bind / unbind
   examples:
     bind PAGEUP "speed 100"
     bind PAGEDOWN "speed 50"
-    unbind F10
+    unbind F9
+    bind F9 "throttle off"
+    bind F9,up "throttle on"
 
 
 console
