@@ -812,8 +812,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawDisplay(
 		drawSprites(y, leftBorder, displayX, displayX + displayWidth);
 	}
 	// Unlock surface.
-	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
-
+	if (SDL_MUSTLOCK(screen))
+		SDL_UnlockSurface(screen);
 }
 
 Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)

@@ -3,14 +3,10 @@
 /*
 TODO:
 - Implement blinking (of page mask) in bitmap modes.
-- Idea: make an abstract superclass for line-based Renderers, this
-  class would know when to sync etc, but not be SDL dependent.
-  Since most of the abstraction is done using <Pixel>, most code
-  is SDL independent already.
-  Is this still relevant after CharacterConverter/BitmapConverter
-  split-off?
 - Implement sprite pixels in Graphic 5.
 - Move dirty checking to VDPVRAM.
+- Spot references to EmuTime: if implemented correctly this class should
+  not need EmuTime, since it uses absolute VDP coordinates instead.
 */
 
 #include "SDLLoRenderer.hh"
@@ -28,10 +24,17 @@ TODO:
 static const int WIDTH = 320;
 static const int HEIGHT = 240;
 
-/** Line number where top border starts.
-  * This is independent of PAL/NTSC timing or number of lines per screen.
+/** VDP ticks between start of line and start of left border.
+ */
+static const int TICKS_LEFT_BORDER = 100 + 102;
+
+/** The middle of the visible (display + borders) part of a line,
+  * expressed in VDP ticks since the start of the line.
+  * TODO: Move this to PixelRenderer?
+  *       It is not used there, but it is used by multiple subclasses.
   */
-static const int LINE_TOP_BORDER = 3 + 13;
+static const int TICKS_VISIBLE_MIDDLE =
+	TICKS_LEFT_BORDER + (VDP::TICKS_PER_LINE - TICKS_LEFT_BORDER - 27) / 2;
 
 /** Fill a boolean array with a single value.
   * Optimised for byte-sized booleans,
@@ -46,90 +49,26 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 #endif
 }
 
-template <class Pixel> inline void SDLLoRenderer<Pixel>::renderUntil(
-	const EmuTime &time)
+/** Translate from absolute VDP coordinates to screen coordinates:
+  * Note: In reality, there are only 569.5 visible pixels on a line.
+  *       Because it looks better, the borders are extended to 640.
+  */
+inline static int translateX(int absoluteX)
 {
-	int limitTicks = vdp->getTicksThisFrame(time);
-
-	switch (settings->getAccuracy()->getValue()) {
-	case RenderSettings::ACC_PIXEL: {
-		int limitX = limitTicks % VDP::TICKS_PER_LINE;
-		//limitX = (limitX - 100 - (VDP::TICKS_PER_LINE - 100) / 2 + WIDTH) / 2;
-		// TODO: Apply these transformations in the phaseHandler instead.
-		limitX = (limitX - 100 / 2 - 102) / 4;
-		if (limitX < 0) {
-			limitX = 0;
-		} else if (limitX > WIDTH) {
-			limitX = WIDTH;
-		}
-
-		int limitY = limitTicks / VDP::TICKS_PER_LINE;
-		// TODO: Because of rounding errors, this might not always be true.
-		//assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
-		int totalLines = vdp->isPalTiming() ? 313 : 262;
-		if (limitY > totalLines) {
-			limitX = WIDTH;
-			limitY = totalLines;
-		}
-
-		// Split in rectangles:
-
-		// Finish any partial top line.
-		if (0 < nextX && nextX < WIDTH) {
-			(this->*phaseHandler)(nextX, nextY, WIDTH, nextY + 1);
-			nextY++;
-		}
-		// Draw full-width middle part (multiple lines).
-		if (limitY > nextY) {
-			// middle
-			(this->*phaseHandler)(0, nextY, WIDTH, limitY);
-		}
-		// Start any partial bottom line.
-		if (0 < limitX && limitX < WIDTH) {
-			(this->*phaseHandler)(0, limitY, limitX, limitY + 1);
-		}
-
-		nextX = limitX;
-		nextY = limitY;
-		break;
-	}
-	case RenderSettings::ACC_LINE: {
-		int limitY = limitTicks / VDP::TICKS_PER_LINE;
-		// TODO: Because of rounding errors, this might not always be true.
-		//assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
-		int totalLines = vdp->isPalTiming() ? 313 : 262;
-		if (limitY > totalLines) limitY = totalLines;
-		if (nextY < limitY) {
-			(this->*phaseHandler)(0, nextY, WIDTH, limitY);
-			nextY = limitY ;
-		}
-		break;
-	}
-	case RenderSettings::ACC_SCREEN: {
-		// TODO
-		break;
-	}
-	default:
-		assert(false);
-	}
+	if (absoluteX == VDP::TICKS_PER_LINE) return WIDTH;
+	// Note: The "& ~1" forces the ticks to a pixel (2-tick) boundary.
+	//       If this is not done, rounding errors will occur.
+	int screenX = (absoluteX - (TICKS_VISIBLE_MIDDLE & ~1)) / 4 + WIDTH / 2;
+	return screenX < 0 ? 0 : screenX;
 }
 
-template <class Pixel> inline void SDLLoRenderer<Pixel>::sync(
-	const EmuTime &time)
+template <class Pixel> void SDLLoRenderer<Pixel>::finishFrame()
 {
-	vram->sync(time);
-	renderUntil(time);
-}
+	// Render console if needed.
+	console->drawConsole();
 
-template <class Pixel> inline int SDLLoRenderer<Pixel>::getLeftBorder()
-{
-	return (WIDTH - 256) / 2 - 7 + vdp->getHorizontalAdjust()
-		+ (vdp->isTextMode() ? 9 : 0);
-}
-
-template <class Pixel> inline int SDLLoRenderer<Pixel>::getDisplayWidth()
-{
-	return vdp->isTextMode() ? 240 : 256;
+	// Update screen.
+	SDL_UpdateRect(screen, 0, 0, 0, 0);
 }
 
 template <class Pixel> inline Pixel *SDLLoRenderer<Pixel>::getLinePtr(
@@ -159,6 +98,12 @@ template <class Pixel> inline Pixel SDLLoRenderer<Pixel>::getBorderColour()
 template <class Pixel> inline void SDLLoRenderer<Pixel>::renderBitmapLines(
 	byte line, int count)
 {
+	// Lock surface, because we will access pixels directly.
+	if (SDL_MUSTLOCK(bitmapDisplayCache) && SDL_LockSurface(bitmapDisplayCache) < 0) {
+		// Display will be wrong, but this is not really critical.
+		return;
+	}
+
 	int mode = vdp->getDisplayMode();
 	// Which bits in the name mask determine the page?
 	int pageMask = 0x200 | vdp->getEvenOddMask();
@@ -168,16 +113,25 @@ template <class Pixel> inline void SDLLoRenderer<Pixel>::renderBitmapLines(
 		if (lineValidInMode[vramLine] != mode) {
 			const byte *vramPtr = vram->bitmapWindow.readArea(vramLine << 7);
 			bitmapConverter.convertLine(
-				getLinePtr(bitmapDisplayCache, vramLine), vramPtr );
+				getLinePtr(bitmapDisplayCache, vramLine), vramPtr);
 			lineValidInMode[vramLine] = mode;
 		}
 		line++; // is a byte, so wraps at 256
 	}
+
+	// Unlock surface.
+	if (SDL_MUSTLOCK(bitmapDisplayCache)) SDL_UnlockSurface(bitmapDisplayCache);
 }
 
 template <class Pixel> inline void SDLLoRenderer<Pixel>::renderPlanarBitmapLines(
 	byte line, int count)
 {
+	// Lock surface, because we will access pixels directly.
+	if (SDL_MUSTLOCK(bitmapDisplayCache) && SDL_LockSurface(bitmapDisplayCache) < 0) {
+		// Display will be wrong, but this is not really critical.
+		return;
+	}
+	
 	int mode = vdp->getDisplayMode();
 	// Which bits in the name mask determine the page?
 	int pageMask = vdp->getEvenOddMask();
@@ -198,17 +152,29 @@ template <class Pixel> inline void SDLLoRenderer<Pixel>::renderPlanarBitmapLines
 		}
 		line++; // is a byte, so wraps at 256
 	}
+
+	// Unlock surface.
+	if (SDL_MUSTLOCK(bitmapDisplayCache)) SDL_UnlockSurface(bitmapDisplayCache);
 }
 
 template <class Pixel> inline void SDLLoRenderer<Pixel>::renderCharacterLines(
 	byte line, int count)
 {
+	// Lock surface, because we will access pixels directly.
+	if (SDL_MUSTLOCK(charDisplayCache) && SDL_LockSurface(charDisplayCache) < 0) {
+		// Display will be wrong, but this is not really critical.
+		return;
+	}
+	
 	while (count--) {
 		// Render this line.
 		characterConverter.convertLine(
 			getLinePtr(charDisplayCache, line), line);
 		line++; // is a byte, so wraps at 256
 	}
+
+	// Unlock surface.
+	if (SDL_MUSTLOCK(charDisplayCache)) SDL_UnlockSurface(charDisplayCache);
 }
 
 template <class Pixel> SDLLoRenderer<Pixel>::DirtyChecker
@@ -254,9 +220,9 @@ template <class Pixel> SDLLoRenderer<Pixel>::DirtyChecker
 
 template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 	VDP *vdp, SDL_Surface *screen, bool fullScreen, const EmuTime &time)
-	: Renderer(fullScreen)
-	, characterConverter(vdp, palFg, palBg)
-	, bitmapConverter(palFg, PALETTE256)
+	: PixelRenderer(vdp, fullScreen, time),
+	  characterConverter(vdp, palFg, palBg),
+	  bitmapConverter(palFg, PALETTE256)
 {
 	// Calculate blendMask:
 	//      0000BBBBGGGGRRRR 
@@ -270,7 +236,6 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 	characterConverter.setBlendMask(blendMask);
 	bitmapConverter.setBlendMask(blendMask);
 
-
 	console = new SDLConsole(screen);
 
 	this->vdp = vdp;
@@ -280,18 +245,6 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 	// TODO: Store current time.
 	//       Does the renderer actually have to keep time?
 	//       Keeping render position should be good enough.
-
-	// Init renderer state.
-	phaseHandler = &SDLLoRenderer::blankPhase;
-	dirtyChecker = modeToDirtyChecker[vdp->getDisplayMode()];
-	if (vdp->isBitmapMode()) {
-		bitmapConverter.setDisplayMode(vdp->getDisplayMode());
-	} else {
-		characterConverter.setDisplayMode(vdp->getDisplayMode());
-	}
-	palSprites = palBg;
-	setDirty(true);
-	dirtyForeground = dirtyBackground = true;
 
 	// Create display caches.
 	charDisplayCache = SDL_CreateRGBSurface(
@@ -317,7 +270,6 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 			screen->format->Amask
 			)
 		);
-	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 
 	// Hide mouse cursor.
 	SDL_ShowCursor(SDL_DISABLE);
@@ -333,8 +285,7 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 				TMS99X8A_PALETTE[i][2]
 				);
 		}
-	}
-	else {
+	} else {
 		// Precalculate SDL palette for V9938 colours.
 		for (int r = 0; r < 8; r++) {
 			for (int g = 0; g < 8; g++) {
@@ -362,14 +313,8 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 			palGraphic7Sprites[i] =
 				V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
 		}
-		// Reset the palette.
-		for (int i = 0; i < 16; i++) {
-			updatePalette(i, vdp->getPalette(i), time);
-		}
 	}
-
-	// Now we're ready to start rendering the first frame.
-	frameStart(time);
+	reset(time);
 }
 
 template <class Pixel> SDLLoRenderer<Pixel>::~SDLLoRenderer()
@@ -377,6 +322,46 @@ template <class Pixel> SDLLoRenderer<Pixel>::~SDLLoRenderer()
 	delete console;
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
+}
+
+template <class Pixel> void SDLLoRenderer<Pixel>::reset(const EmuTime &time)
+{
+	PixelRenderer::reset(time);
+
+	// Init renderer state.
+	dirtyChecker = modeToDirtyChecker[vdp->getDisplayMode()];
+	if (vdp->isBitmapMode()) {
+		bitmapConverter.setDisplayMode(vdp->getDisplayMode());
+	} else {
+		characterConverter.setDisplayMode(vdp->getDisplayMode());
+	}
+
+	palSprites = palBg;
+	setDirty(true);
+	dirtyForeground = dirtyBackground = true;
+
+	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
+
+	if (!vdp->isMSX1VDP()) {
+		// Reset the palette.
+		for (int i = 0; i < 16; i++) {
+			updatePalette(i, vdp->getPalette(i), time);
+		}
+	}
+}
+
+template <class Pixel> void SDLLoRenderer<Pixel>::frameStart(
+	const EmuTime &time)
+{
+	// Call superclass implementation.
+	PixelRenderer::frameStart(time);
+
+	// Calculate line to render at top of screen.
+	// Make sure the display area is centered.
+	// 240 - 212 = 28 lines available for top/bottom border; 14 each.
+	// NTSC: display at [32..244),
+	// PAL:  display at [59..271).
+	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::setFullScreen(
@@ -493,14 +478,6 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateHorizontalAdjust(
 	sync(time);
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayEnabled(
-	bool enabled, const EmuTime &time)
-{
-	sync(time);
-	phaseHandler = ( enabled
-		? &SDLLoRenderer::displayPhase : &SDLLoRenderer::blankPhase );
-}
-
 template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayMode(
 	int mode, const EmuTime &time)
 {
@@ -537,24 +514,6 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateColourBase(
 	sync(time);
 	anyDirtyColour = true;
 	fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
-}
-
-template <class Pixel> void SDLLoRenderer<Pixel>::updateVRAM(
-	int addr, byte data, const EmuTime &time)
-{
-	// TODO: Is it possible to get rid of this method?
-	//       One method call is a considerable overhead since VRAM
-	//       changes occur pretty often.
-	//       For example, register dirty checker at caller.
-
-	// If display is disabled, VRAM changes will not affect the
-	// renderer output, therefore sync is not necessary.
-	// TODO: Changes in invisible pages do not require sync either.
-	//       Maybe this is a task for the dirty checker, because what is
-	//       visible is display mode dependant.
-	if (vdp->isDisplayEnabled()) renderUntil(time);
-
-	(this->*dirtyChecker)(addr, data);
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::checkDirtyNull(
@@ -641,7 +600,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::drawSprites(
 
 	// TODO: Calculate pointers incrementally outside this method.
 	Pixel *pixelPtr0 = (Pixel *)( (byte *)screen->pixels
-		+ screenLine * screen->pitch + getLeftBorder() * sizeof(Pixel));
+		+ screenLine * screen->pitch + leftBorder * sizeof(Pixel));
 
 	if (vdp->getDisplayMode() < 8) {
 		// Sprite mode 1: render directly to screen using overdraw.
@@ -733,17 +692,13 @@ template <class Pixel> void SDLLoRenderer<Pixel>::drawSprites(
 	}
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::blankPhase(
+template <class Pixel> void SDLLoRenderer<Pixel>::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {
-	if (fromX == limitX) return;
-	assert(fromX < limitX);
-	//PRT_DEBUG("BlankPhase: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
-
 	// TODO: Only redraw if necessary.
 	SDL_Rect rect;
-	rect.x = fromX;
-	rect.w = limitX - fromX;
+	rect.x = translateX(fromX);
+	rect.w = translateX(limitX) - rect.x;
 	rect.y = fromY - lineRenderTop;
 	rect.h = limitY - fromY;
 
@@ -751,150 +706,99 @@ template <class Pixel> void SDLLoRenderer<Pixel>::blankPhase(
 	SDL_FillRect(screen, &rect, getBorderColour());
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::displayPhase(
+
+// TODO: Clean up this routine.
+template <class Pixel> void SDLLoRenderer<Pixel>::drawDisplay(
 	int fromX, int fromY, int limitX, int limitY)
 {
+	// Calculate which pixels within the display area should be plotted.
+	int displayLeftTicks = getDisplayLeft();
+	int displayX = (fromX - displayLeftTicks) / 4;
+	int displayWidth = (limitX - fromX) / 4;
+	assert(0 <= displayX);
+	assert(displayX + displayWidth <= 256);
+
+	fromX = translateX(fromX);
+	limitX = translateX(limitX);
 	if (fromX == limitX) return;
 	assert(fromX < limitX);
-	//PRT_DEBUG("DisplayPhase: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
+	//PRT_DEBUG("drawDisplay: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
 
-	int n = limitY - fromY;
-	int minY = fromY - lineRenderTop;
-	int maxY = minY + n;
+	int displayY = fromY - lineRenderTop;
+	int nrLines = limitY - fromY;
+	int displayLimitY = displayY + nrLines;
 
-	// V9958 can extend the left border over the display area,
-	// The extended border clips sprites as well.
-	int leftBorder = getLeftBorder();
-	int left = leftBorder;
-	// if (vdp->maskedBorder()) left += 8;
-	if (fromX < left) {
-		SDL_Rect dest;
-		dest.x = fromX;
-		dest.w = left - fromX;
-		dest.y = minY;
-		dest.h = n;
-		SDL_FillRect(screen, &dest, getBorderColour());
-		fromX = left;
-		if (fromX >= limitX) return;
+	// Render background lines:
+
+	// Calculate display line (wraps at 256).
+	byte line = fromY - vdp->getLineZero();
+	if (!vdp->isTextMode()) {
+		line += vdp->getVerticalScroll();
 	}
 
-	// Render background lines
-	int minX = fromX - leftBorder;
-	assert(0 <= minX);
-	if (minX < 256) {
-		int maxX = limitX - leftBorder;
-		if (maxX > 256) maxX = 256;
-		
-		// Perform vertical scroll (wraps at 256).
-		byte line = fromY - vdp->getLineZero();
-		if (!vdp->isTextMode()) {
-			line += vdp->getVerticalScroll();
-		}
+	// Copy background image.
+	SDL_Rect source, dest;
+	source.x = displayX;
+	source.w = displayWidth;
+	source.h = 1;
+	dest.x = fromX;
 
-		// Copy background image.
-		SDL_Rect source, dest;
-		source.x = minX;
-		source.w = maxX - minX;
-		source.h = 1;
-		dest.x = fromX;
-
-		if (vdp->isBitmapMode()) {
-			if (vdp->isPlanar())
-				renderPlanarBitmapLines(line, n);
-			else
-				renderBitmapLines(line, n);
-
-			int pageMask = (vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
-			for (dest.y = minY; dest.y < maxY; dest.y++) {
-				source.y = (vram->nameTable.getMask() >> 7) & (pageMask | line);
-				// TODO: Can we safely use SDL_LowerBlit?
-				// Note: return value is ignored.
-				SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
-				line++;	// wraps at 256
-			}
+	if (vdp->isBitmapMode()) {
+		if (vdp->isPlanar()) {
+			renderPlanarBitmapLines(line, nrLines);
 		} else {
-			renderCharacterLines(line, n);
-
-			for (dest.y = minY; dest.y < maxY; dest.y++) {
-				source.y = line;
-				// TODO: Can we safely use SDL_LowerBlit?
-				// Note: return value is ignored.
-				SDL_BlitSurface(charDisplayCache, &source, screen, &dest);
-				line++;	// wraps at 256
-			}
+			renderBitmapLines(line, nrLines);
 		}
 
-		// Render sprites.
-		// Lock surface, because we will access pixels directly.
-		// TODO: Locking the surface directly after a blit is
-		//   probably not the smartest thing to do performance-wise.
-		//   Since sprite data will buffered, why not plot them
-		//   just before page flip?
-		//   Will only work if *all* data required is buffered, including
-		//   for example RGB colour (on V9938 palette may change).
-		if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
-			// Display will be wrong, but this is not really critical.
-			return;
+		int pageMask = (vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
+
+		// Bring bitmap cache up to date.
+		for (dest.y = displayY; dest.y < displayLimitY; ) {
+			source.y = (vram->nameTable.getMask() >> 7)
+				& (pageMask | line);
+			// TODO: Can we safely use SDL_LowerBlit?
+			// Note: return value is ignored.
+			SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
+			dest.y++;
+			line++;	// wraps at 256
 		}
-		for (int y = minY; y < maxY; y++) {
-			drawSprites(y, leftBorder, minX, maxX);
+	} else {
+		renderCharacterLines(line, nrLines);
+
+		for (dest.y = displayY; dest.y < displayLimitY; ) {
+			assert(!vdp->isMSX1VDP() || line < 192);
+			source.y = line;
+			// TODO: Can we safely use SDL_LowerBlit?
+			// Note: return value is ignored.
+			/*
+			printf("plotting character cache line %d to screen line %d\n",
+				source.y, dest.y);
+			*/
+			SDL_BlitSurface(charDisplayCache, &source, screen, &dest);
+			dest.y++;
+			line++;	// wraps at 256
 		}
-		// Unlock surface.
-		if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
 	}
 
-	// Right border
-	int right = leftBorder + getDisplayWidth();
-	if (right < limitX) {
-		SDL_Rect dest;
-		dest.x = right;
-		dest.w = limitX - right;
-		dest.y = minY;
-		dest.h = n;
-		SDL_FillRect(screen, &dest, getBorderColour());
+	// Render sprites.
+	// Lock surface, because we will access pixels directly.
+	// TODO: Locking the surface directly after a blit is
+	//   probably not the smartest thing to do performance-wise.
+	//   Since sprite data will buffered, why not plot them
+	//   just before page flip?
+	//   Will only work if *all* data required is buffered, including
+	//   for example RGB colour (on V9938 palette may change).
+	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
+		// Display will be wrong, but this is not really critical.
+		return;
 	}
-}
-
-template <class Pixel> void SDLLoRenderer<Pixel>::frameStart(
-	const EmuTime &time)
-{
-	//cerr << "timing: " << (vdp->isPalTiming() ? "PAL" : "NTSC") << "\n";
-
-	// Calculate line to render at top of screen.
-	// Make sure the display area is centered.
-	// 240 - 212 = 28 lines available for top/bottom border; 14 each.
-	// NTSC: display at [32..244),
-	// PAL:  display at [59..271).
-	// TODO: Use screen lines instead.
-	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
-
-	// Calculate important moments in frame rendering.
-	lineBottomErase = vdp->isPalTiming() ? 313 - 3 : 262 - 3;
-	nextX = 0;
-	nextY = 0;
-
-	// Screen is up-to-date, so nothing is dirty.
-	// TODO: Either adapt implementation to work with incremental
-	//       rendering, or get rid of dirty tracking.
-	//setDirty(false);
-	//dirtyForeground = dirtyBackground = false;
-}
-
-template <class Pixel> void SDLLoRenderer<Pixel>::putImage(
-	const EmuTime &time)
-{
-	// Render changes from this last frame.
-	sync(time);
-
-	// Render console if needed
-	console->drawConsole();
-
-	// Update screen.
-	SDL_UpdateRect(screen, 0, 0, 0, 0);
-
-	// The screen will be locked for a while, so now is a good time
-	// to perform real time sync.
-	RealTime::instance()->sync(time);
+	int leftBorder = translateX(displayLeftTicks);
+	for (int y = displayY; y < displayLimitY; y++) {
+		drawSprites(y, leftBorder, displayX, displayX + displayWidth);
+	}
+	// Unlock surface.
+	if (SDL_MUSTLOCK(screen))
+		SDL_UnlockSurface(screen);
 }
 
 Renderer *createSDLLoRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)

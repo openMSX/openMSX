@@ -4,6 +4,8 @@ $Id$
 	* Updated RealTime class:
 	   - this should improve the cases where emulation is too slow,
 	     but openMSX doesn't claim 100% CPU time
+	* SDLLoRenderer inherits from PixelRenderer iso Renderer
+	   - SDLLoRenderer now also has "accuracy" setting
 
 2002-12-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made some IDE stuff configurable:

@@ -10,8 +10,6 @@
 #include "BitmapConverter.hh"
 
 class VDP;
-class VDPVRAM;
-class SpriteChecker;
 class SDLConsole;
 
 
