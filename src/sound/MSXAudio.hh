@@ -37,7 +37,6 @@ class MSXAudio : public MSXIODevice
 		virtual void writeIO(byte port, byte value, const EmuTime &time);
 	
 	private:
-		byte base;
 		Y8950 *y8950;
 		int registerLatch;
 };

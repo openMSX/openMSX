@@ -21,17 +21,6 @@ MSXPPI::MSXPPI(MSXConfig::Device *config, const EmuTime &time)
 	cpuInterface = MSXCPUInterface::instance();
 	cassettePort = CassettePortFactory::instance(time);
 	leds = Leds::instance();
-	
-	// Register I/O ports A8..AB for reading
-	MSXCPUInterface::instance()->register_IO_In(0xA8,this);
-	MSXCPUInterface::instance()->register_IO_In(0xA9,this);
-	MSXCPUInterface::instance()->register_IO_In(0xAA,this);
-	MSXCPUInterface::instance()->register_IO_In(0xAB,this);
-	// Register I/O ports A8..AB for writing
-	MSXCPUInterface::instance()->register_IO_Out(0xA8,this);
-	MSXCPUInterface::instance()->register_IO_Out(0xA9,this); 
-	MSXCPUInterface::instance()->register_IO_Out(0xAA,this);
-	MSXCPUInterface::instance()->register_IO_Out(0xAB,this);
 
 	reset(time);
 }
@@ -53,35 +42,38 @@ void MSXPPI::reset(const EmuTime &time)
 
 byte MSXPPI::readIO(byte port, const EmuTime &time)
 {
-	switch (port) {
-		case 0xA8:
-			return i8255->readPortA(time);
-		case 0xA9:
-			return i8255->readPortB(time);
-		case 0xAA:
-			return i8255->readPortC(time);
-		case 0xAB:
-			return i8255->readControlPort(time);
+	switch (port & 0x03) {
+	case 0:
+		return i8255->readPortA(time);
+	case 1:
+		return i8255->readPortB(time);
+	case 2:
+		return i8255->readPortC(time);
+	case 3:
+		return i8255->readControlPort(time);
+	default: // unreachable, avoid warning
+		assert(false);
+		return 0;
 	}
-	assert (false); // code should never be reached
-	return 255;	// avoid warning
 }
 
 void MSXPPI::writeIO(byte port, byte value, const EmuTime &time)
 {
-	switch (port) {
-		case 0xA8:
-			i8255->writePortA(value, time);
-			break;
-		case 0xA9:
-			i8255->writePortB(value, time);
-			break;
-		case 0xAA:
-			i8255->writePortC(value, time);
-			break;
-		case 0xAB:
-			i8255->writeControlPort(value, time);
-			break;
+	switch (port & 0x03) {
+	case 0:
+		i8255->writePortA(value, time);
+		break;
+	case 1:
+		i8255->writePortB(value, time);
+		break;
+	case 2:
+		i8255->writePortC(value, time);
+		break;
+	case 3:
+		i8255->writeControlPort(value, time);
+		break;
+	default:
+		assert(false);
 	}
 }
 
@@ -120,7 +112,7 @@ void MSXPPI::writeC1(nibble value, const EmuTime &time)
 {
 	cassettePort->setMotor(!(value & 1), time);	// 0=0n, 1=Off
 	cassettePort->cassetteOut(value & 2, time);
-	
+
 	Leds::LEDCommand caps = (value & 4) ? Leds::CAPS_OFF : Leds::CAPS_ON;
 	Leds::instance()->setLed(caps);
 

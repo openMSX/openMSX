@@ -2,7 +2,6 @@
 
 #include "MSXYM2413.hh"
 
-#include "MSXCPUInterface.hh"
 #include "Mixer.hh"
 #include "YM2413.hh"
 
@@ -11,20 +10,13 @@ MSXYM2413::MSXYM2413(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  MSXMemDevice(config, time), rom(config, time)
 {
-	MSXCPUInterface::instance()->register_IO_Out(0x7c, this);
-	MSXCPUInterface::instance()->register_IO_Out(0x7d, this);
-	
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	Mixer::ChannelMode mode = Mixer::MONO;
-	try {
+	if (config->hasParameter("mode")) {
 		std::string stereomode = config->getParameter("mode");
 		PRT_DEBUG("mode is " << stereomode);
-		if (stereomode == "left")
-			mode = Mixer::MONO_LEFT;
-		if (stereomode == "right")
-			mode = Mixer::MONO_RIGHT;
-	} catch (MSXException& e) {
-		PRT_ERROR("Exception: " << e.desc);
+		if (stereomode == "left") mode = Mixer::MONO_LEFT;
+		if (stereomode == "right") mode = Mixer::MONO_RIGHT;
 	}
 	ym2413 = new YM2413(volume, time, mode);
 	reset(time);
@@ -45,20 +37,20 @@ void MSXYM2413::reset(const EmuTime &time)
 void MSXYM2413::writeIO(byte port, byte value, const EmuTime &time)
 {
 	if (enable & 0x01) {
-		switch(port) {
-			case 0x7c:
-				writeRegisterPort(value, time);
-				break;
-			case 0x7d:
-				writeDataPort(value, time);
-				break;
+		switch (port & 0x01) {
+		case 0:
+			writeRegisterPort(value, time);
+			break;
+		case 1:
+			writeDataPort(value, time);
+			break;
 		}
 	}
 }
 
 void MSXYM2413::writeRegisterPort(byte value, const EmuTime &time)
 {
-	registerLatch = (value & 0x3f);
+	registerLatch = value & 0x3F;
 }
 
 void MSXYM2413::writeDataPort(byte value, const EmuTime &time)

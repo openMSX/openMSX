@@ -1,24 +1,22 @@
 // $Id$
 
 #include "MSXTurboRLeds.hh"
-#include "MSXCPUInterface.hh"
 #include "Leds.hh"
 
 
 MSXTurboRLeds::MSXTurboRLeds(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	MSXCPUInterface::instance()->register_IO_Out(0xA7,this);
 	reset(time);
 }
 
 MSXTurboRLeds::~MSXTurboRLeds()
 {
 }
- 
+
 void MSXTurboRLeds::reset(const EmuTime &time)
 {
-	writeIO(0xA7, 0, time);
+	writeIO(0, 0, time);
 }
 
 void MSXTurboRLeds::writeIO(byte port, byte value, const EmuTime &time)

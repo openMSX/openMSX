@@ -1,7 +1,6 @@
 // $Id$
 
 #include "MSXPSG.hh"
-#include "MSXCPUInterface.hh"
 #include "JoystickPorts.hh"
 #include "Leds.hh"
 #include "CassettePort.hh"
@@ -14,10 +13,6 @@ MSXPSG::MSXPSG(MSXConfig::Device *config, const EmuTime &time)
 	ay8910 = new AY8910(*this, volume, time);
 	joyPorts = new JoystickPorts(time);
 	cassette = CassettePortFactory::instance(time);
-	
-	MSXCPUInterface::instance()->register_IO_Out(0xA0,this);
-	MSXCPUInterface::instance()->register_IO_Out(0xA1,this);
-	MSXCPUInterface::instance()->register_IO_In (0xA2,this);
 
 	reset(time);
 }
@@ -43,14 +38,14 @@ byte MSXPSG::readIO(byte port, const EmuTime &time)
 
 void MSXPSG::writeIO(byte port, byte value, const EmuTime &time)
 {
-	switch (port) {
-		case 0xA0:
-			registerLatch = value & 0x0f;
-			break;
-		case 0xA1:
-			//PRT_DEBUG("PSG write R#"<<(int)registerLatch<<" = "<<(int)value);
-			ay8910->writeRegister(registerLatch, value, time);
-			break;
+	switch (port & 0x03) {
+	case 0:
+		registerLatch = value & 0x0F;
+		break;
+	case 1:
+		//PRT_DEBUG("PSG write R#"<<(int)registerLatch<<" = "<<(int)value);
+		ay8910->writeRegister(registerLatch, value, time);
+		break;
 	}
 }
 

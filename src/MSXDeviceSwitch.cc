@@ -1,15 +1,14 @@
 // $Id$
 
 #include "MSXDeviceSwitch.hh"
-#include "MSXCPUInterface.hh"
 #include "EmuTime.hh"
 
 
 /// class MSXSwitchedDevice ///
 
-MSXSwitchedDevice::MSXSwitchedDevice(byte id_)
+MSXSwitchedDevice::MSXSwitchedDevice(byte id)
 {
-	id = id_;
+	this->id = id;
 	MSXDeviceSwitch::instance()->registerDevice(id, this);
 }
 
@@ -28,11 +27,6 @@ MSXDeviceSwitch::MSXDeviceSwitch(MSXConfig::Device *config, const EmuTime &time)
 		devices[i] = NULL;
 	}
 	selected = 0;
-
-	for (byte port = 0x40; port <= 0x4F; port++) {
-		MSXCPUInterface::instance()->register_IO_In (port, this);
-		MSXCPUInterface::instance()->register_IO_Out(port, this);
-	}
 }
 
 MSXDeviceSwitch::~MSXDeviceSwitch()
@@ -87,13 +81,14 @@ byte MSXDeviceSwitch::readIO(byte port, const EmuTime &time)
 		return devices[selected]->readIO(port, time);
 	} else {
 		//PRT_DEBUG("Switch read no device");
-		return 255;
+		return 0xFF;
 	}
 }
 
 void MSXDeviceSwitch::writeIO(byte port, byte value, const EmuTime &time)
 {
-	if (port == 0x40) {
+	port &= 0x0F;
+	if (port == 0x00) {
 		selected = value;
 		PRT_DEBUG("Switch " << (int)selected);
 	} else if (devices[selected]) {

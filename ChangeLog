@@ -4,6 +4,8 @@ $Id$
 	* Moved I/O port registration out of VDP and into DeviceFactory.
 	  Eventually, all I/O port registration should move to the machine
 	  description file.
+	* Moved I/O port registration of all other I/O devices out of the
+	  device and into DeviceFactory (or FDCFactory in one case).
 
 2003-01-01 Maarten ter Huurne <maarten@treewalker.org>
 	* Workaround to prevent out-of-order I/O with the VDP.

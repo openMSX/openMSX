@@ -1,7 +1,6 @@
 // $Id$
 
 #include "MSXAudio.hh"
-#include "MSXCPUInterface.hh"
 #include "Mixer.hh"
 #include "Y8950.hh"
 #include "MSXConfig.hh"
@@ -44,16 +43,6 @@ const std::string& MSXAudioCLI::optionHelp()
 MSXAudio::MSXAudio(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	if (config->hasParameter("number") &&
-	    config->getParameter("number") == "2") {
-		base = 0xC2;
-	} else {
-		base = 0xC0;
-	}
-	MSXCPUInterface::instance()->register_IO_Out(base + 0, this);
-	MSXCPUInterface::instance()->register_IO_Out(base + 1, this);
-	MSXCPUInterface::instance()->register_IO_In (base + 0, this);
-	MSXCPUInterface::instance()->register_IO_In (base + 1, this);
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	
 	// left / right / mono
@@ -94,13 +83,16 @@ void MSXAudio::reset(const EmuTime &time)
 byte MSXAudio::readIO(byte port, const EmuTime &time)
 {
 	byte result;
-	if (port == base + 0) {
+	switch (port & 0x01) {
+	case 0:
 		result = y8950->readStatus();
-	} else if (port == base + 1) {
+		break;
+	case 1:
 		result = y8950->readReg(registerLatch, time);
-	} else {
+		break;
+	default: // unreachable, avoid warning
 		assert(false);
-		result = 0;	// avoid warning
+		result = 0;
 	}
 	//PRT_DEBUG("Audio: read "<<std::hex<<(int)port<<" "<<(int)result<<std::dec);
 	return result;
@@ -109,9 +101,14 @@ byte MSXAudio::readIO(byte port, const EmuTime &time)
 void MSXAudio::writeIO(byte port, byte value, const EmuTime &time)
 {
 	//PRT_DEBUG("Audio: write "<<std::hex<<(int)port<<" "<<(int)value<<std::dec);
-	if (port == base + 0) {
+	switch (port & 0x01) {
+	case 0:
 		registerLatch = value;
-	} else if (port == base + 1) {
+		break;
+	case 1:
 		y8950->writeReg(registerLatch, value, time);
+		break;
+	default:
+		assert(false);
 	}
 }
