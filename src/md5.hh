@@ -60,7 +60,7 @@ class MD5
 	public:
 		// methods for controlled operation:
 		MD5           ();  // simple initializer
-		void  update  (uint1 *input, unsigned int input_length);
+		void  update  (uint1 *input, uint4 input_length);
 		void  update  (std::istream& stream);
 		void  update  (FILE *file);
 		void  update  (std::ifstream& stream);

@@ -252,7 +252,7 @@ public:
 
 	// VRAMObserver implementation:
 
-	void updateVRAM(int addr, const EmuTime &time) {
+	void updateVRAM(int address, const EmuTime &time) {
 		checkUntil(time);
 	}
 

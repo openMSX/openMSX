@@ -2,6 +2,7 @@ $Id$
 
 2003-01-04 Maarten ter Huurne <maarten@treewalker.org>
 	* Implemented colour and pattern index mask calculation.
+	* Fixed remaining Doxygen warnings.
 
 2003-01-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed Doxygen warnings.
