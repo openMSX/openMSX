@@ -11,7 +11,7 @@
 
 namespace openmsx {
 
-LocalFile::LocalFile(const string &filename_, OpenMode mode)
+LocalFile::LocalFile(const string& filename_, OpenMode mode)
 	throw(FileException)
 	: filename(FileOperations::expandTilde(filename_)),
 	  readOnly(false)

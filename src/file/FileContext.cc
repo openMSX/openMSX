@@ -40,9 +40,13 @@ const string FileContext::resolveCreate(const string& filename)
 {
 	try {
 		return resolve(getPaths(), filename);
-	} catch (FileException &e) {
+	} catch (FileException& e) {
 		string path = getPaths().front();
-		FileOperations::mkdirp(path);
+		try {
+			FileOperations::mkdirp(path);
+		} catch (FileException& e) {
+			PRT_DEBUG(e.getMessage());
+		}
 		return path + filename;
 	}
 }
@@ -81,7 +85,11 @@ const string FileContext::resolve(const vector<string>& pathList,
 const string FileContext::resolveSave(const string& filename)
 {
 	assert(!savePath.empty());
-	FileOperations::mkdirp(savePath);
+	try {
+		FileOperations::mkdirp(savePath);
+	} catch (FileException& e) {
+		PRT_DEBUG(e.getMessage());
+	}
 	return savePath + filename;
 }
 

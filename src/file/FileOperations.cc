@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include "FileOperations.hh"
 #include "openmsx.hh"
 #include "CliCommOutput.hh"
@@ -17,10 +18,32 @@
 #include <ctype.h>
 #include <algorithm>
 #define	MAXPATHLEN	MAX_PATH
+#define	mode_t	unsigned short int
 #endif
 
 
 namespace openmsx {
+
+/* A wrapper for mkdir().  On some systems, mkdir() does not take permision in
+ * arguments. For such systems, in this function, adjust arguments.
+ */
+static int doMkdir(const char* name, mode_t mode)
+{
+#if	defined(__MINGW32__) || defined(_MSC_VER)
+	if ((name[0]=='/' || name[0]=='\\') && name[1]=='\0' || 
+	    (name[1]==':' && name[3]=='\0' && (name[2]=='/' || name[2]=='\\')
+	    && ((name[0]>='A' && name[0]<='Z')||(name[0]>='a' && name[0]<='z')))) {
+		// *(_errno()) = EEXIST;
+		// return -1;
+		return 0;
+	} else {
+		return mkdir(name);
+	}
+#else
+	return mkdir(name, mode);
+#endif
+}
+
 
 string FileOperations::expandTilde(const string &path)
 {
@@ -39,32 +62,39 @@ string FileOperations::expandTilde(const string &path)
 }
 
 
-bool FileOperations::mkdirp(const string &path_)
+void FileOperations::mkdirp(const string& path_) throw (FileException)
 {
+	if (path_.empty()) {
+		return;
+	}
 	string path = expandTilde(path_);
-	
-	unsigned pos = path.find_first_of('/');
-	while (pos != string::npos) {
-		if (doMkdir(getNativePath(path).substr(0, pos + 1).c_str(), 0777) &&
-		    (errno != EEXIST)) {
-			return false;
-		}
+
+	unsigned pos = 0;
+	do {
 		pos = path.find_first_of('/', pos + 1);
+		if (doMkdir(getNativePath(path).substr(0, pos).c_str(), 0755) &&
+		    (errno != EEXIST)) {
+			throw FileException("Error creating dir " + path);
+		}
+	} while (pos != string::npos);
+
+	struct stat st;
+	if ((stat(path.c_str(), &st) != 0) || !S_ISDIR(st.st_mode)) {
+		throw FileException("Error creating dir " + path);
 	}
-	if (doMkdir(getNativePath(path).c_str(), 0777) && (errno != EEXIST)) {
-		return false;
-	}
-	
-	return true;
 }
 
-string FileOperations::getFilename(const string &path)
+string FileOperations::getFilename(const string& path)
 {
 	unsigned pos = path.rfind('/');
-	return path.substr(pos + 1);
+	if (pos == string::npos) {
+		return path;
+	} else {
+		return path.substr(pos + 1);
+	}
 }
 
-string FileOperations::getBaseName(const string &path)
+string FileOperations::getBaseName(const string& path)
 {
 	unsigned pos = path.rfind('/');
 	if (pos == string::npos) {
@@ -93,23 +123,6 @@ string FileOperations::getConventionalPath(const string &path)
 	return result;
 #else
 	return path;
-#endif
-}
-
-int	FileOperations::doMkdir(const char *name, mode_t mode)
-{
-#if	defined(__MINGW32__) || defined(_MSC_VER)
-	if ((name[0]=='/' || name[0]=='\\') && name[1]=='\0' || 
-	    (name[1]==':' && name[3]=='\0' && (name[2]=='/' || name[2]=='\\')
-	    && ((name[0]>='A' && name[0]<='Z')||(name[0]>='a' && name[0]<='z')))) {
-		// *(_errno()) = EEXIST;
-		// return -1;
-		return 0;
-	} else {
-		return mkdir(name);
-	}
-#else
-	return mkdir(name, mode);
 #endif
 }
 

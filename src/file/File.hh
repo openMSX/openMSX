@@ -5,12 +5,13 @@
 
 #include <string>
 #include "openmsx.hh"
-#include "MSXException.hh"
+#include "FileException.hh"
+
+using std::string;
 
 namespace openmsx {
 
 class FileBase;
-
 
 enum OpenMode {
 	NORMAL,
@@ -19,12 +20,6 @@ enum OpenMode {
 	LOAD_PERSISTENT,
 	SAVE_PERSISTENT,
 };
-
-class FileException : public MSXException {
-public:
-	FileException(const string &mes) : MSXException(mes) {}
-};
-
 
 class File
 {

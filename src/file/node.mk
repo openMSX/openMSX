@@ -9,6 +9,9 @@ SRC_HDR:= \
 	CompressedFileAdapter \
 	GZFileAdapter \
 	ZipFileAdapter
+	
+HDR_ONLY:= \
+	FileException
 
 $(eval $(PROCESS_NODE))
 
