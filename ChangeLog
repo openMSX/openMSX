@@ -1,5 +1,9 @@
 $Id$
 
+2004-10-22 Maarten ter Huurne <maarten@treewalker.org>
+	* Added build support for NetBSD.
+	  Based on a patch submitted by xtraeme, see bug 1052115.
+
 2004-10-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Reused MMX optimized routines in Deinterlacer
 
