@@ -31,7 +31,7 @@ static void s_dump(xmlNodePtr node, int recursion=0)
 	for (int i=0; i< recursion; i++) std::cout << "--";
 	std::cout << " type: " << node->type;
 	std::cout << " name: " << (const char*)node->name;
-	if (node->type==3)
+	if (node->type==XML_TEXT_NODE)
 	{
 		std::cout << " pcdata: " << node->content;
 	}
@@ -40,7 +40,7 @@ static void s_dump(xmlNodePtr node, int recursion=0)
 	{
 		s_dump(c,recursion+1);
 	}
-	if (node->type==1)
+	if (node->type==XML_ELEMENT_NODE)
 	{
 		for (xmlAttrPtr c=node->properties; c!=0 ; c=c->next)
 		{

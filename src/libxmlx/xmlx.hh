@@ -72,9 +72,16 @@ public:
 	Element(xmlNodePtr node);
 	~Element();
 
+	// name of element
 	std::string name;
+
+	// content of element
 	std::string pcdata;
+	
+	// contained elements
 	std::list<Element*> children;
+
+	// attributes [AKA properties]
 	std::list<Attribute*> attributes;
 
 	void dump(int recursion=0);
@@ -91,6 +98,7 @@ public:
 	Document(const std::string &filename);
 	~Document();
 
+	// root element of document
 	Element *root;
 
 	void dump();
