@@ -223,13 +223,9 @@ int MSXRom::guessMapperType()
 			// There are some programs convert from tape to 64kB rom cartridge
 			// these 'fake'roms are from the ASCII16 type
 			return 5;
-		} else if (romSize == 0x8000) {
-			//TODO: Autodetermine for KonamiSynthesiser
-			// works for now since most 32 KB cartridges don't
-			// write to themselves
-			return 64;
 		} else {
-			// if != 32kB it must be a simple rom so we return 128
+			// not correct for Konami-DAC, but does this really need
+			// to be correct for _every_ rom?
 			return 128;
 		}
 	} else {
