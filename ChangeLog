@@ -1,5 +1,10 @@
 $Id$
 
+2004-09-23 Maarten ter Huurne <maarten@treewalker.org>
+	* Initialise I register to 0, instead of 0xFF.
+	  Fixes Pennant Race bug.
+	  Thanks to Daniel Vik for finding the cause!
+
 2004-09-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added "save_settings_at_exit" setting
 

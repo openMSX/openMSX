@@ -96,7 +96,7 @@ void CPU::reset(const EmuTime& time)
 	R.IFF2     = false;
 	R.HALT     = false;
 	R.IM = 0;
-	R.I  = 0xFF;
+	R.I  = 0x00;
 	R.R  = 0x00;
 	R.R2 = 0;
 	memptr.w = 0xFFFF;
