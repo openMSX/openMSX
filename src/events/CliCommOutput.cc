@@ -43,12 +43,14 @@ CliCommOutput::CliCommOutput()
 		updateEnabled[i] = false;
 	}
 	commandController.registerCommand(&updateCmd, "update");
-	EventDistributor::instance().registerEventListener(LED_EVENT, *this);
+	EventDistributor::instance().registerEventListener(LED_EVENT, *this,
+	                                           EventDistributor::NATIVE);
 }
 
 CliCommOutput::~CliCommOutput()
 {
-	EventDistributor::instance().unregisterEventListener(LED_EVENT, *this);
+	EventDistributor::instance().unregisterEventListener(LED_EVENT, *this,
+	                                             EventDistributor::NATIVE);
 	commandController.unregisterCommand(&updateCmd, "update");
 	if (xmlOutput) {
 		cout << "</openmsx-output>" << endl;
