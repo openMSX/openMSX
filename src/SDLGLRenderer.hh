@@ -3,11 +3,19 @@
 #ifndef __SDLGLRENDERER_HH__
 #define __SDLGLRENDERER_HH__
 
+#include "config.h"
+
 #include "openmsx.hh"
 #include "Renderer.hh"
 #include <SDL/SDL.h>
-#include <GL/gl.h>
 
+#ifdef HAVE_GL_GL_H
+ #include <GL/gl.h>
+#else
+ #ifdef HAVE_GL_H
+  #include <gl.h>
+ #endif
+#endif
 
 class VDP;
 
