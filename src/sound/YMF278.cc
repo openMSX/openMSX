@@ -565,7 +565,10 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 			if (oct & 8) {
 				oct |= -8;
 			}
-			int step = (slot.FN | 1024) << (oct + 5);
+			oct += 5;
+			int step = (oct >= 0)
+				? (slot.FN | 1024) << oct
+				: (slot.FN | 1024) >> -oct;
 			slot.step = (int)(step * freqbase);
 			break;
 		}
