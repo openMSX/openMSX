@@ -153,6 +153,7 @@ void Z80::execute()
 		} else {
 			// normal instructions
 			targetChanged = false;
+			//PRT_DEBUG("CPU: PC:"<<R.PC.w); 
 			while (!targetChanged && (currentTime < targetTime)) {
 				#ifdef Z80DEBUG
 				EmuTime before(currentTime);

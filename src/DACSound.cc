@@ -94,6 +94,9 @@ void DACSound::insertSample(short sample, const EmuTime &time)
 
 int* DACSound::updateBuffer(int length)
 {
+	if (isInternalMuted())
+		return NULL;
+	
 	int* buffer = buf;
 	
 	//EmuTime mixTime = MSXCPU::instance()->getCurrentTime() - emuDelay;

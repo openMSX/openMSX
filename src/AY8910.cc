@@ -214,6 +214,8 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 
 void AY8910::checkMute()
 {
+	// TODO not completely correct, when not enabled output != 0 but a 
+	// constant value depending on the volume
 	bool chA = (regs[AY_AVOL] == 0) || ((regs[AY_ENABLE]&0x09)==0x09);
 	bool chB = (regs[AY_BVOL] == 0) || ((regs[AY_ENABLE]&0x12)==0x12);
 	bool chC = (regs[AY_CVOL] == 0) || ((regs[AY_ENABLE]&0x24)==0x24);
@@ -265,6 +267,10 @@ int* AY8910::updateBuffer(int length)
 	// If the volume is 0, increase the counter, but don't touch the output.
 
 	PRT_DEBUG("AY8910 updateBuffer");
+	if (isInternalMuted()) {
+		PRT_DEBUG("AY8910 MUTED");
+		return NULL;
+	}
 
 	if (regs[AY_ENABLE] & 0x01) {	// disabled
 		if (countA <= length*FP_UNIT) countA += length*FP_UNIT;

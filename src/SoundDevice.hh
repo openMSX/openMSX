@@ -49,7 +49,7 @@ class SoundDevice
 
 
 	protected:
-		/*
+		/**
 		 * This method is called from within setVolume(). It is (except
 		 * for initialization) only called from user interaction, so
 		 * the volume change must not have an immediate effect, for
@@ -57,7 +57,7 @@ class SoundDevice
 		 */
 		virtual void setInternalVolume (short newVolume) = 0;
 		
-		/*
+		/**
 		 * This method mutes this SoundDevice
 		 *  false -> not muted
 		 *  true  -> muted
@@ -70,16 +70,15 @@ class SoundDevice
 		 */
 		void setInternalMute (bool muted);
 
-
-	// may only be called by Mixer
-	public:
-		/*
-		 * The mixer uses this method to check if this device is 
-		 * producing sound, if not it will not ask to fill buffers
+		/**
+		 * Returns true when for some reason this device is muted.  
+		 * (methods setMute() and setInternalMute())
 		 */
 		bool isInternalMuted();
 		
-		/*
+	// may only be called by Mixer
+	public:
+		/**
 		 * When a SoundDevice registers itself with the Mixer, the
 		 * Mixer sets the required sampleRate through this method. All
 		 * sound devices share a common sampleRate.
@@ -87,10 +86,12 @@ class SoundDevice
 		 */
 		virtual void setSampleRate (int newSampleRate) = 0;
 
-		/*
+		/**
 		 * This method is regularly called from the Mixer, it should
 		 * return a pointer to a buffer filled with the required number
-		 * of samples. Samples are always 16-bit signed
+		 * of samples. Samples are always 16-bit signed.
+		 * If a device is muted (method isInternalMuted()) this method
+		 * should return a null-pointer.
 		 *
 		 * Note: this method runs in a different thread, you can
 		 *       (un)lock this thread with SDL_LockAudio() and

@@ -107,6 +107,8 @@ void Mixer::updateStream(const EmuTime &time)
 }
 void Mixer::updtStrm(int samples)
 {
+	int nbUnmuted[NB_MODES];
+	
 	if (samples > samplesLeft) samples = samplesLeft;
 	if (samples == 0) return;
 	assert(samples>0);
@@ -115,8 +117,9 @@ void Mixer::updtStrm(int samples)
 		int unmuted = 0;
 		for (std::list<SoundDevice*>::iterator i=devices[mode].begin();
 		     i != devices[mode].end(); i++) {
-			if (!(*i)->isInternalMuted()) {
-				buffers[mode][unmuted] = (*i)->updateBuffer(samples);
+			int *buf = (*i)->updateBuffer(samples);
+			if (buf != NULL) {
+				buffers[mode][unmuted] = buf;
 				unmuted++;
 			}
 		}

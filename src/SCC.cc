@@ -276,8 +276,13 @@ void SCC::setInternalVolume(short maxVolume)
 
 int *SCC::updateBuffer(int length)
 {
-	int *buf = buffer;
 	PRT_DEBUG("SCC: updateBuffer called ");
+	if (isInternalMuted()) {
+		PRT_DEBUG("SCC: muted");
+		return NULL;
+	}
+	
+	int *buf = buffer;
 	while (length--) {
 		scctime += realstep;
 		unsigned advance = scctime / SCC_STEP;

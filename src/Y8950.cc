@@ -694,7 +694,11 @@ bool Y8950::checkMuteHelper()
 
 int* Y8950::updateBuffer(int length)
 {
-	PRT_DEBUG("update Y8950 buffer");
+	PRT_DEBUG("Y8950: update buffer");
+	if (isInternalMuted()) {
+		PRT_DEBUG("Y8950: muted");
+		return NULL;
+	}
 
 	//int channelMask = 0;
 	//for (int i = 9; i--; ) {
