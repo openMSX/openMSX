@@ -7,6 +7,7 @@
 #include "HotKey.hh"
 #include "ConsoleSource/ConsoleManager.hh"
 #include "ConsoleSource/CommandController.hh"
+#include "Scheduler.hh"
 
 
 RealTime::RealTime()

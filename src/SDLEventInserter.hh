@@ -4,7 +4,7 @@
 #define __SDLEVENTINSERTER_HH__
 
 #include <SDL/SDL.h>
-#include "Scheduler.hh"
+#include "Schedulable.hh"
 
 // forward declarations
 class EmuTime;

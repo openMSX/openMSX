@@ -3,11 +3,13 @@
 #ifndef __MSXREALTIME_HH__
 #define __MSXREALTIME_HH__
 
-#include "Scheduler.hh"
+#include "Schedulable.hh"
 #include "EmuTime.hh"
+#include "ConsoleSource/Command.hh"
 
 // forward declarations
 class MSXCPU;
+class Scheduler;
 
 
 class RealTime : public Schedulable

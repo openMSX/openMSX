@@ -38,7 +38,7 @@ TODO:
 #include "PlatformFactory.hh"
 #include "ConsoleSource/ConsoleManager.hh"
 #include "ConsoleSource/CommandController.hh"
-
+#include "Scheduler.hh"
 #include <string>
 #include <cassert>
 

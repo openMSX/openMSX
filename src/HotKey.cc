@@ -24,7 +24,7 @@ HotKey* HotKey::instance()
 HotKey* HotKey::oneInstance = NULL;
 
 
-void HotKey::registerAsyncHotKey(SDLKey key, HotKeyListener *listener)
+void HotKey::registerSyncHotKey(SDLKey key, HotKeyListener *listener)
 {
 	PRT_DEBUG("HotKey registration for key " << ((int)key));
 	mapMutex.grab();
@@ -39,7 +39,7 @@ void HotKey::registerHotKeyCommand(SDLKey key, std::string command)
 {
 	PRT_DEBUG("HotKey command registration for key " << ((int)key));
 	HotKeyCmd *cmd = new HotKeyCmd(command);
-	registerAsyncHotKey(key, cmd);
+	registerSyncHotKey(key, cmd);
 }
 
 // EventListener

@@ -4,7 +4,7 @@
 #define __VDP_HH__
 
 #include "openmsx.hh"
-#include "Scheduler.hh"
+#include "Schedulable.hh"
 #include "MSXIODevice.hh"
 #include "VDPVRAM.hh"
 #include "IRQHelper.hh"

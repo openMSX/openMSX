@@ -7,6 +7,7 @@
 #include "MSXDevice.hh"
 #include "ConsoleSource/ConsoleManager.hh"
 #include "ConsoleSource/CommandController.hh"
+#include "Scheduler.hh"
 
 
 MSXMotherBoard::MSXMotherBoard(MSXConfig::Config *config) : MSXCPUInterface(config)

@@ -4,7 +4,7 @@
 #define __MSXCPU_HH__
 
 #include "MSXDevice.hh"
-#include "Scheduler.hh"
+#include "Schedulable.hh"
 #include "CPU.hh"
 
 // forward declaration

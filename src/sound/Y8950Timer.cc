@@ -2,7 +2,7 @@
 
 #include "Y8950Timer.hh"
 #include "Y8950.hh"
-#include "EmuTime.hh"
+#include "Scheduler.hh"
 
 
 template<int freq, byte flag>

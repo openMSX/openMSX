@@ -6,6 +6,7 @@ $Id$
 	   use Scheduler for synchronous event delivery
 	   thanks Maarten for the idea
 	* Made Scheduler thread safe
+	* include cleanups
 
 2002-04-11 Maarten ter Huurne <mth@stack.nl>
 	* Introduced "renderer" command to print current renderer and switch

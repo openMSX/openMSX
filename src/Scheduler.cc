@@ -12,24 +12,6 @@
 
 
 
-// Schedulable
-
-#ifdef DEBUG
-
-const std::string &Schedulable::getName()
-{
-	MSXDevice *dev = dynamic_cast<MSXDevice*>(this);
-	if (dev) {
-		return dev->getName();
-	} else {
-		return defaultName;
-	}
-}
-const std::string Schedulable::defaultName = "[Schedulable, no name]";
-
-#endif
-
-
 // Scheduler
 
 Scheduler::Scheduler()
@@ -68,7 +50,6 @@ void Scheduler::setSyncPoint(const EmuTime &time, Schedulable* device, int userD
 	PRT_DEBUG("Sched: registering " << device->getName() << " for emulation at " << time);
 	PRT_DEBUG("Sched:  CPU is at " << cpu->getCurrentTime());
 	
-	//assert (time >= cpu->getCurrentTime());
 	if (time < cpu->getTargetTime())
 		cpu->setTargetTime(time);
 	syncPoints.push_back(SynchronizationPoint (time, device, userData));

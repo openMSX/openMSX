@@ -29,9 +29,9 @@ class HotKey : private EventListener
 		/**
 		 * This is just an extra filter for SDL_KEYDOWN events, now
 		 * events are only passed for specific keys.
-		 * See EventDistributor::registerAsyncListener for more details
+		 * See EventDistributor::registerSyncListener for more details
 		 */
-		void registerAsyncHotKey(SDLKey key, HotKeyListener *listener);
+		void registerSyncHotKey(SDLKey key, HotKeyListener *listener);
 
 		/**
 		 * When the given hotkey is pressed the given command is

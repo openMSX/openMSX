@@ -4,17 +4,14 @@
 #define __SCHEDULER_HH__
 
 #include <SDL/SDL.h>
-#include <set>
-#include <string>
 #include "EmuTime.hh"
-#include "HotKey.hh"
 #include "Mutex.hh"
 #include "ConsoleSource/Command.hh"
-#include "Schedulable.hh"
-#include "Mutex.hh"
+#include "EventDistributor.hh"
 
 //forward declarations
 class MSXCPU;
+class Schedulable;
 
 
 class Scheduler : private EventListener
@@ -52,7 +49,7 @@ class Scheduler : private EventListener
 		 * the executeUntilEmuTime() method of "device" gets called.
 		 * SyncPoints are ordered: smaller EmuTime -> scheduled
 		 * earlier.
-		 * If the supplied EmuTime may be smaller than the current CPU
+		 * The supplied EmuTime may be smaller than the current CPU
 		 * (normally an error). This is usefull if you want to schedule
 		 * something ASAP, just pass a zero EmuTime.
 		 * A device may register several syncPoints.

@@ -3,10 +3,12 @@
 #ifndef __Y8950TIMER_HH__
 #define __Y8950TIMER_HH__
 
-#include "Scheduler.hh"
+#include "Schedulable.hh"
+#include "openmsx.hh"
 
 // forward declarations
 class Y8950;
+class Scheduler;
 
 
 template<int freq, byte flag>
