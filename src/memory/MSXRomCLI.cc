@@ -117,8 +117,6 @@ void MSXRomCLIPost::execute()
 	device.addChild(createParameter("filename", romfile));
 	device.addChild(createParameter("volume", "9000"));
 	device.addChild(createParameter("mappertype", mapper));
-	device.addChild(createParameter("loadsram", "true"));
-	device.addChild(createParameter("savesram", "true"));
 	device.addChild(createParameter("sramname", sramfile + ".SRAM"));
 
 	UserFileContext context("roms/" + sramfile);
