@@ -18,6 +18,7 @@ HotKey::HotKey()
 
 HotKey::~HotKey()
 {
+	assert(map.empty());
 	CommandController::instance()->unregisterCommand(&bindCmd,   "bind");
 	CommandController::instance()->unregisterCommand(&unbindCmd, "unbind");
 }
@@ -32,7 +33,7 @@ HotKey* HotKey::instance()
 }
 
 
-void HotKey::registerHotKey(Keys::KeyCode key, HotKeyListener *listener)
+void HotKey::registerHotKey(Keys::KeyCode key, HotKeyListener* listener)
 {
 	PRT_DEBUG("HotKey registration for key " << Keys::getName(key));
 	if (map.empty()) {
@@ -42,7 +43,7 @@ void HotKey::registerHotKey(Keys::KeyCode key, HotKeyListener *listener)
 	map.insert(pair<Keys::KeyCode, HotKeyListener*>(key, listener));
 }
 
-void HotKey::unregisterHotKey(Keys::KeyCode key, HotKeyListener *listener)
+void HotKey::unregisterHotKey(Keys::KeyCode key, HotKeyListener* listener)
 {
 	pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
 		map.equal_range(key);
@@ -60,21 +61,20 @@ void HotKey::unregisterHotKey(Keys::KeyCode key, HotKeyListener *listener)
 }
 
 
-void HotKey::registerHotKeyCommand(Keys::KeyCode key, const string &command)
+void HotKey::registerHotKeyCommand(Keys::KeyCode key, const string& command)
 {
-	//PRT_DEBUG("HotKey command registration for key " << Keys::getName(key));
-	HotKeyCmd *cmd = new HotKeyCmd(command);
+	HotKeyCmd* cmd = new HotKeyCmd(command);
 	registerHotKey(key, cmd);
 	cmdMap.insert(pair<Keys::KeyCode, HotKeyCmd*>(key, cmd));
 }
 
-void HotKey::unregisterHotKeyCommand(Keys::KeyCode key, const string &command)
+void HotKey::unregisterHotKeyCommand(Keys::KeyCode key, const string& command)
 {
 	pair<CommandMap::iterator, CommandMap::iterator> bounds =
 		cmdMap.equal_range(key);
 	for (CommandMap::iterator it = bounds.first;
 	     it != bounds.second; ++it) {
-		HotKeyCmd *cmd = it->second;
+		HotKeyCmd* cmd = it->second;
 		if (cmd->getCommand() == command) {
 			unregisterHotKey(key, cmd);
 			cmdMap.erase(it);
@@ -84,7 +84,7 @@ void HotKey::unregisterHotKeyCommand(Keys::KeyCode key, const string &command)
 }
 
 
-bool HotKey::signalEvent(SDL_Event &event) throw()
+bool HotKey::signalEvent(SDL_Event& event) throw()
 {
 	Keys::KeyCode key = (Keys::KeyCode)event.key.keysym.sym;
 	if (event.type == SDL_KEYUP) {
@@ -100,7 +100,7 @@ bool HotKey::signalEvent(SDL_Event &event) throw()
 }
 
 
-HotKey::HotKeyCmd::HotKeyCmd(const string &cmd)
+HotKey::HotKeyCmd::HotKeyCmd(const string& cmd)
 {
 	command = cmd;
 }
@@ -122,11 +122,11 @@ void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key) throw()
 	}
 }
 
-string HotKey::BindCmd::execute(const vector<string> &tokens)
+string HotKey::BindCmd::execute(const vector<string>& tokens)
 	throw (CommandException)
 {
 	string result;
-	HotKey *hk = HotKey::instance();
+	HotKey* hk = HotKey::instance();
 	switch (tokens.size()) {
 	case 0:
 		assert(false);
@@ -170,18 +170,18 @@ string HotKey::BindCmd::execute(const vector<string> &tokens)
 	}
 	return result;
 }
-string HotKey::BindCmd::help(const vector<string> &tokens) const throw()
+string HotKey::BindCmd::help(const vector<string>& tokens) const throw()
 {
 	return "bind             : show all bounded keys\n"
 	       "bind <key>       : show all bindings for this key\n"
 	       "bind <key> <cmd> : bind key to command\n";
 }
 
-string HotKey::UnbindCmd::execute(const vector<string> &tokens)
+string HotKey::UnbindCmd::execute(const vector<string>& tokens)
 	throw (CommandException)
 {
 	string result;
-	HotKey *hk = HotKey::instance();
+	HotKey* hk = HotKey::instance();
 	switch (tokens.size()) {
 	case 2: {
 		// unbind all for this key
@@ -189,16 +189,15 @@ string HotKey::UnbindCmd::execute(const vector<string> &tokens)
 		if (key == Keys::K_NONE) {
 			throw CommandException("Unknown key");
 		}
-		bool changed;
-		do {	changed = false;
-			pair<CommandMap::iterator, CommandMap::iterator> bounds =
-				hk->cmdMap.equal_range(key);
-			if (bounds.first != bounds.second) {
-				hk->unregisterHotKeyCommand(key,
-					bounds.first->second->getCommand());
-				changed = true;
-			}
-		} while (changed);
+		pair<CommandMap::iterator, CommandMap::iterator> bounds =
+			hk->cmdMap.equal_range(key);
+		// cannot iterate over changing container, so make copy
+		CommandMap copy(bounds.first, bounds.second);
+		for (CommandMap::iterator it = copy.begin();
+		     it != copy.end(); ++it) {
+			hk->unregisterHotKeyCommand(key,
+				it->second->getCommand());
+		}
 		break;
 	}
 	case 3: {
@@ -215,7 +214,7 @@ string HotKey::UnbindCmd::execute(const vector<string> &tokens)
 	}
 	return result;
 }
-string HotKey::UnbindCmd::help(const vector<string> &tokens) const throw()
+string HotKey::UnbindCmd::help(const vector<string>& tokens) const throw()
 {
 	return "unbind <key>       : unbind all for this key\n"
 	       "unbind <key> <cmd> : unbind a specific command\n";

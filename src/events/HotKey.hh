@@ -28,27 +28,38 @@ public:
 class HotKey : private EventListener
 {
 public:
-	virtual ~HotKey();
-	static HotKey *instance();
+	static HotKey* instance();
 
 	/**
 	 * This is just an extra filter for SDL_KEYDOWN events, now
 	 * events are only passed for specific keys.
 	 * See EventDistributor::registerListener for more details
 	 */
-	void   registerHotKey(Keys::KeyCode key, HotKeyListener *listener);
-	void unregisterHotKey(Keys::KeyCode key, HotKeyListener *listener);
+	void   registerHotKey(Keys::KeyCode key, HotKeyListener* listener);
+	void unregisterHotKey(Keys::KeyCode key, HotKeyListener* listener);
 
 	/**
 	 * When the given hotkey is pressed the given command is
 	 * automatically executed.
 	 */
-	void   registerHotKeyCommand(Keys::KeyCode key, const string &command);
-	void unregisterHotKeyCommand(Keys::KeyCode key, const string &command);
+	void   registerHotKeyCommand(Keys::KeyCode key, const string& command);
+	void unregisterHotKeyCommand(Keys::KeyCode key, const string& command);
 
 private:
-	class HotKeyCmd : public HotKeyListener
-	{
+	HotKey();
+	virtual ~HotKey();
+
+	// EventListener
+	virtual bool signalEvent(SDL_Event& event) throw();
+	
+	class HotKeyCmd;
+	typedef multimap<Keys::KeyCode, HotKeyListener*> ListenerMap;
+	ListenerMap map;
+	typedef multimap<Keys::KeyCode, HotKeyCmd*> CommandMap;
+	CommandMap cmdMap;
+
+
+	class HotKeyCmd : public HotKeyListener {
 	public:
 		HotKeyCmd(const string& cmd);
 		virtual ~HotKeyCmd();
@@ -57,36 +68,24 @@ private:
 	private:
 		string command;
 	};
-	
-	// EventListener
-	virtual bool signalEvent(SDL_Event &event) throw();
-
-	HotKey();
-
-	typedef multimap<Keys::KeyCode, HotKeyListener*> ListenerMap;
-	ListenerMap map;
-	typedef multimap<Keys::KeyCode, HotKeyCmd*> CommandMap;
-	CommandMap cmdMap;
 
 	class BindCmd : public Command {
-		public:
-			virtual string execute(const vector<string> &tokens)
-				throw (CommandException);
-			virtual string help(const vector<string> &tokens) const
-				throw();
-	};
+	public:
+		virtual string execute(const vector<string>& tokens)
+			throw (CommandException);
+		virtual string help(const vector<string>& tokens) const
+			throw();
+	} bindCmd;
 	friend class BindCmd;
-	BindCmd bindCmd;
 
 	class UnbindCmd : public Command {
-		public:
-			virtual string execute(const vector<string> &tokens)
-				throw (CommandException);
-			virtual string help(const vector<string> &tokens) const
-				throw();
-	};
+	public:
+		virtual string execute(const vector<string>& tokens)
+			throw (CommandException);
+		virtual string help(const vector<string>& tokens) const
+			throw();
+	} unbindCmd;
 	friend class UnbindCmd;
-	UnbindCmd unbindCmd;
 };
 
 } // namespace openmsx
