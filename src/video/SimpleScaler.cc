@@ -29,10 +29,11 @@ template <class Pixel>
 inline void SimpleScaler<Pixel>::copyLine(
 	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY )
 {
+	assert(src->w == dst->w);
 	memcpy(
-		(byte*)dst->pixels + dstY * dst->pitch,
-		(byte*)src->pixels + srcY * src->pitch,
-		src->pitch
+		(byte*)linePtr<Pixel>(dst, dstY),
+		(byte*)linePtr<Pixel>(src, srcY),
+		dst->w * sizeof(Pixel)
 		);
 }
 

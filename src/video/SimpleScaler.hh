@@ -19,7 +19,11 @@ public:
 	void scaleLine256(SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
 	void scaleLine512(SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
 private:
-	/** Copies the line; implements both scaleLine256 and scaleLine512.
+	/** Copies the given line.
+	  * @param src Source: surface to copy from.
+	  * @param srcY Line number on source surface.
+	  * @param dst Destination: surface to copy to.
+	  * @param dstY Line number on destination surface.
 	  */
 	inline void copyLine(
 		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY );

@@ -3,17 +3,18 @@
 #ifndef __SDLRENDERER_HH__
 #define __SDLRENDERER_HH__
 
-#include <vector>
-#include <SDL/SDL.h>
-#include "openmsx.hh"
 #include "PixelRenderer.hh"
+#include "SettingListener.hh"
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
 #include "SpriteConverter.hh"
 #include "DisplayMode.hh"
 #include "Blender.hh"
+#include "Deinterlacer.hh"
+#include "openmsx.hh"
 
-using std::vector;
+#include <SDL/SDL.h>
+
 
 namespace openmsx {
 
@@ -30,32 +31,33 @@ public:
 
 	// Renderer interface:
 
-	virtual void reset(const EmuTime &time);
+	virtual void reset(const EmuTime& time);
 	virtual bool checkSettings();
-	virtual void frameStart(const EmuTime &time);
-	//virtual void putImage(const EmuTime &time);
+	virtual void frameStart(const EmuTime& time);
+	//virtual void putImage(const EmuTime& time);
 	virtual void putStoredImage();
 	virtual int putPowerOffImage();
 	virtual void takeScreenShot(const string& filename)
 		throw(CommandException);
-	virtual void updateTransparency(bool enabled, const EmuTime &time);
-	virtual void updateForegroundColour(int colour, const EmuTime &time);
-	virtual void updateBackgroundColour(int colour, const EmuTime &time);
-	virtual void updateBlinkForegroundColour(int colour, const EmuTime &time);
-	virtual void updateBlinkBackgroundColour(int colour, const EmuTime &time);
-	virtual void updateBlinkState(bool enabled, const EmuTime &time);
-	virtual void updatePalette(int index, int grb, const EmuTime &time);
-	virtual void updateVerticalScroll(int scroll, const EmuTime &time);
-	virtual void updateHorizontalAdjust(int adjust, const EmuTime &time);
-	//virtual void updateDisplayEnabled(bool enabled, const EmuTime &time);
-	virtual void updateDisplayMode(DisplayMode mode, const EmuTime &time);
-	virtual void updateNameBase(int addr, const EmuTime &time);
-	virtual void updatePatternBase(int addr, const EmuTime &time);
-	virtual void updateColourBase(int addr, const EmuTime &time);
-	//virtual void updateVRAM(int offset, const EmuTime &time);
-	//virtual void updateWindow(bool enabled, const EmuTime &time);
+	virtual void updateTransparency(bool enabled, const EmuTime& time);
+	virtual void updateForegroundColour(int colour, const EmuTime& time);
+	virtual void updateBackgroundColour(int colour, const EmuTime& time);
+	virtual void updateBlinkForegroundColour(int colour, const EmuTime& time);
+	virtual void updateBlinkBackgroundColour(int colour, const EmuTime& time);
+	virtual void updateBlinkState(bool enabled, const EmuTime& time);
+	virtual void updatePalette(int index, int grb, const EmuTime& time);
+	virtual void updateVerticalScroll(int scroll, const EmuTime& time);
+	virtual void updateHorizontalAdjust(int adjust, const EmuTime& time);
+	//virtual void updateDisplayEnabled(bool enabled, const EmuTime& time);
+	virtual void updateDisplayMode(DisplayMode mode, const EmuTime& time);
+	virtual void updateNameBase(int addr, const EmuTime& time);
+	virtual void updatePatternBase(int addr, const EmuTime& time);
+	virtual void updateColourBase(int addr, const EmuTime& time);
+	//virtual void updateVRAM(int offset, const EmuTime& time);
+	//virtual void updateWindow(bool enabled, const EmuTime& time);
 
 protected:
+	// PixelRenderer:
 	void finishFrame();
 	void updateVRAMCache(int address);
 	void drawBorder(int fromX, int fromY, int limitX, int limitY);
@@ -69,6 +71,9 @@ protected:
 		int displayX, int displayY,
 		int displayWidth, int displayHeight
 		);
+
+	// SettingListener:
+	virtual void update(const SettingLeafNode* setting) throw();
 
 private:
 
@@ -97,7 +102,7 @@ private:
 
 	/** Constructor, called by SDL(Hi/Lo)RendererFactory.
 	  */
-	SDLRenderer(RendererFactory::RendererID id, VDP *vdp, SDL_Surface *screen);
+	SDLRenderer(RendererFactory::RendererID id, VDP* vdp, SDL_Surface* screen);
 
 	/** Destructor.
 	  */
@@ -113,7 +118,7 @@ private:
 	  * @param displayCache The display cache to use.
 	  * @param line The VRAM line, range depends on display cache.
 	  */
-	inline Pixel *getLinePtr(SDL_Surface *displayCache, int line);
+	inline Pixel* getLinePtr(SDL_Surface* displayCache, int line);
 
 	/** Get the pixel colour of a graphics 7 colour index.
 	  */
@@ -124,6 +129,18 @@ private:
 	  * TODO: Implement the case that even_colour != odd_colour.
 	  */
 	inline Pixel getBorderColour();
+
+	/** (Re)initialize workScreens array.
+	  * @param first True iff this is the first call.
+	  *   The first call should be done by the constructor.
+	  */
+	void initWorkScreens(bool first = false);
+
+	/** Determine which surface to render to this frame;
+	  * initializes workScreen pointer.
+	  * @param oddField Display odd field (true) or even field (false).
+	  */
+	void calcWorkScreen(bool oddField);
 
 	/** Precalc palette values.
 	  * For MSX1 VDPs, results go directly into palFg/palBg.
@@ -150,6 +167,10 @@ private:
 	  */
 	void drawEffects();
 
+	/** Draw scanlines.
+	  */
+	void drawScanlines();
+
 	/** Line to render at top of display.
 	  * After all, our screen is 240 lines while display is 262 or 313.
 	  */
@@ -174,8 +195,24 @@ private:
 	};
 	LineContent lineContent[HEIGHT];
 
+	/** Is the last completed frame interlaced?
+	  * This is a copy of the VDP's interlace status,
+	  * because the VDP keeps this status for the current frame.
+	  * TODO: If SDLGLRenderer can use this as well,
+	  *       it can be moved to PixelRenderer.
+	  */
+	bool interlaced;
+
+	/** The currently active scaler.
+	  */
 	Scaler<Pixel>* currScaler;
+
+	/** ID of the currently active scaler.
+	  * Used to detect scaler changes.
+	  */
 	ScalerID currScalerID;
+
+	Deinterlacer<Pixel> deinterlacer;
 
 	/** SDL colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,
@@ -205,26 +242,34 @@ private:
 
 	/** The surface which is visible to the user.
 	  */
-	SDL_Surface *screen;
+	SDL_Surface* screen;
 
-	/** Surface used in the render pipeline inbetween the caches and
-	  * the visible screen.
-	  * TODO: Try to optimize it away.
+	/** Points to the surface in workScreens that is used
+	  * for the current frame.
 	  */
-	SDL_Surface *workScreen;
+	SDL_Surface* workScreen;
+
+	/** Surfaces used in the render pipeline inbetween the caches and
+	  * the visible screen.
+	  * When the deinterlace feature is disabled, only index 0 is used.
+	  * When it is enabled, index 0 is used for the even field and
+	  * index 1 is used for the odd field.
+	  * Unused entries are NULL.
+	  */
+	SDL_Surface* workScreens[2];
 
 	/** Cache for rendered VRAM in character modes.
 	  * Cache line (N + scroll) corresponds to display line N.
 	  * It holds a single page of 256 lines.
 	  */
-	SDL_Surface *charDisplayCache;
+	SDL_Surface* charDisplayCache;
 
 	/** Cache for rendered VRAM in bitmap modes.
 	  * Cache line N corresponds to VRAM at N * 128.
 	  * It holds up to 4 pages of 256 lines each.
 	  * In Graphics6/7 the lower two pages are used.
 	  */
-	SDL_Surface *bitmapDisplayCache;
+	SDL_Surface* bitmapDisplayCache;
 
 	/** Previous value of gamma setting.
 	  */
@@ -247,8 +292,8 @@ private:
 	  */
 	SpriteConverter<Pixel, zoom> spriteConverter;
 
-	OSDConsoleRenderer *console;
-	OSDConsoleRenderer *debugger;
+	OSDConsoleRenderer* console;
+	OSDConsoleRenderer* debugger;
 
 	/** Gray values for noise
 	  */

@@ -51,6 +51,7 @@ libVideo_la_SOURCES = \
 	SaI2xScaler.hh SaI2xScaler.cc \
 	Scale2xScaler.hh Scale2xScaler.cc \
 	HQ2xScaler.hh HQ2xScaler.cc \
+	Deinterlacer.hh Deinterlacer.cc \
 	GLUtil.hh GLUtil.cc \
 	ScreenShotSaver.hh ScreenShotSaver.cc
 

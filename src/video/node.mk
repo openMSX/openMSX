@@ -12,6 +12,7 @@ SRC_HDR:= \
 	XRenderer \
 	BitmapConverter CharacterConverter \
 	Scaler SimpleScaler SaI2xScaler Scale2xScaler HQ2xScaler \
+	Deinterlacer \
 	ScreenShotSaver
 
 HDR_ONLY:= \

@@ -262,18 +262,22 @@ public:
 	  * than the even fields. Together with even/odd page alternation
 	  * this can be used to create an interlaced display.
 	  * This setting is fixed at start of frame.
-	  * @return True iff this field should be displayed half a line lower.
+	  * @return True iff interlace is enabled.
 	  */
 	inline bool isInterlaced() const {
 		return interlaced;
 	}
 
-	/** Get interlace status.
+	/** Get even/odd page alternation status.
 	  * Interlace means the odd fields are displayed half a line lower
 	  * than the even fields. Together with even/odd page alternation
 	  * this can be used to create an interlaced display.
-	  * This setting is fixed at start of frame.
-	  * @return True iff this field should be displayed half a line lower.
+	  * This setting is NOT fixed at start of frame.
+	  * TODO: Find out how real VDP does it.
+	  *       If it fixes it at start of frame, so should we.
+	  *       If it handles it dynamically (my guess), then an update method
+	  *       should be added on the Renderer interface.
+	  * @return True iff even/odd page alternation is enabled.
 	  */
 	inline bool isEvenOddEnabled() const {
 		return controlRegs[9] & 4;

@@ -67,8 +67,22 @@ inline int SDLRenderer<Pixel, zoom>::translateX(int absoluteX, bool narrow)
 }
 
 template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::update(const SettingLeafNode* setting)
+throw()
+{
+	if (setting == settings.getDeinterlace()) {
+		initWorkScreens();
+	} else {
+		PixelRenderer::update(setting);
+	}
+}
+
+template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::finishFrame()
 {
+	// Remember interlace status of the completed frame.
+	interlaced = vdp->isInterlaced();
+
 	drawEffects();
 
 	// Render consoles if needed.
@@ -130,7 +144,15 @@ void SDLRenderer<Pixel, zoom>::putStoredImage()
 {
 	// Previous image will be restored from workScreen.
 	// Usual end-of-frame behaviour.
-	finishFrame();
+	// TODO: This is a copy of finishFrame.
+	drawEffects();
+
+	// Render consoles if needed.
+	console->drawConsole();
+	if (debugger) debugger->drawConsole();
+
+	// Update screen.
+	SDL_Flip(screen);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -164,100 +186,143 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 		return;
 	}
 
+	const bool deinterlace =
+		interlaced && settings.getDeinterlace()->getValue();
+	assert(!deinterlace || workScreens[1]);
+
+	// New scaler algorithm selected?
+	ScalerID scalerID = settings.getScaler()->getValue();
+	if (currScalerID != scalerID) {
+		delete currScaler;
+		currScaler = Scaler<Pixel>::createScaler(scalerID, screen->format);
+		currScalerID = scalerID;
+	}
+
 	// Lock surface, because we will access pixels directly.
 	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
 
-	// Apply scaler.
-	if (LINE_ZOOM == 2) {
-		// New scaler algorithm selected?
-		ScalerID scalerID = settings.getScaler()->getValue();
-		if (currScalerID != scalerID) {
-			delete currScaler;
-			currScaler = Scaler<Pixel>::createScaler(scalerID, screen->format);
-			currScalerID = scalerID;
-		}
-
-		for (unsigned y = 0; y < HEIGHT / 2; y++) {
-			//fprintf(stderr, "post processing line %d: %d\n", y, lineContent[y]);
-			switch (lineContent[y]) {
-			case LINE_BLANK:
-			case LINE_DONTTOUCH:
-				assert(false); // both are disabled for now
-				break;
-			case LINE_256:
-				currScaler->scaleLine256(workScreen, y, screen, y * 2);
-				break;
-			case LINE_512:
-				currScaler->scaleLine512(workScreen, y, screen, y * 2);
-				break;
-			default:
-				assert(false);
-				break;
+	// Scale image.
+	int deltaY = interlaced && vdp->getEvenOdd() ? 1 : 0;
+	for (unsigned y = 0; y < HEIGHT / 2; y++) {
+		//fprintf(stderr, "post processing line %d: %d\n", y, lineContent[y]);
+		switch (lineContent[y]) {
+		case LINE_BLANK:
+		case LINE_DONTTOUCH:
+			assert(false); // both are disabled for now
+			break;
+		case LINE_256:
+			if (deinterlace) {
+				deinterlacer.deinterlaceLine256(
+					workScreens[0], workScreens[1], y, screen, y * 2 );
+			} else {
+				currScaler->scaleLine256(
+					workScreen, y, screen, y * 2 + deltaY );
 			}
+			break;
+		case LINE_512:
+			if (deinterlace) {
+				deinterlacer.deinterlaceLine512(
+					workScreens[0], workScreens[1], y, screen, y * 2 );
+			} else {
+				currScaler->scaleLine512(
+					workScreen, y, screen, y * 2 + deltaY );
+			}
+			break;
+		default:
+			assert(false);
+			break;
 		}
 	}
 
+	// Unlock surface.
+	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
+
 	// Apply scanlines.
-	// TODO: Turn off scanlines when deinterlacing.
+	drawScanlines();
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::drawScanlines()
+{
+	// Scanline algorithm does not work on palette modes (8bpp).
+	if (sizeof(Pixel) == 1) return;
+	// On low-res screens, there is no room to draw scanlines.
+	if (LINE_ZOOM == 1) return;
+
+	// Disable scanlines when deinterlacing.
+	if (interlaced && settings.getDeinterlace()->getValue()) return;
+	// Disable scanlines when scaling.
+	if (currScalerID != SCALER_SIMPLE) return;
+
+	int scanlineAlpha = (settings.getScanlineAlpha()->getValue() * 255) / 100;
+	if (scanlineAlpha == 0) return;
+
+	// Lock surface, because we will access pixels directly.
+	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
+		// Display will be wrong, but this is not really critical.
+		return;
+	}
+
+	// Apply scanlines.
 	// TODO: Optimize scanlineAlpha == 255.
 	// TODO: Integrate with scaler? (introduce a "darken" class like Blender)
-	int scanlineAlpha = (settings.getScanlineAlpha()->getValue() * 255) / 100;
-	if (scanlineAlpha != 0 && sizeof(Pixel) != 1) {
-		SDL_PixelFormat* format = screen->format;
-		Uint32 rMask = format->Rmask;
-		Uint32 gMask = format->Gmask;
-		Uint32 bMask = format->Bmask;
-		int darkenFactor = 256 - scanlineAlpha;
-		if (((rMask | gMask | bMask) & 0xFF000000) == 0) {
-			// Upper 8 bits do not contain colours; use them as work area.
-			for (unsigned y = 0; y < HEIGHT; y += 2) {
-				Pixel* currPixel = (Pixel*)
-					((byte*)screen->pixels + (y + 1) * screen->pitch);
-				for (unsigned x = 0; x < WIDTH; x++, currPixel++) {
-					Pixel p = *currPixel;
-					unsigned r = (((p & rMask) * darkenFactor) >> 8) & rMask;
-					unsigned g = (((p & gMask) * darkenFactor) >> 8) & gMask;
-					unsigned b = (((p & bMask) * darkenFactor) >> 8) & bMask;
-					*currPixel = r | g | b;
-				}
+	//       Now that scanlines are enabled only for simple scaler,
+	//       this becomes feasible.
+	SDL_PixelFormat* format = screen->format;
+	Uint32 rMask = format->Rmask;
+	Uint32 gMask = format->Gmask;
+	Uint32 bMask = format->Bmask;
+	int darkenFactor = 256 - scanlineAlpha;
+	int startLine = interlaced && vdp->getEvenOdd() ? 0 : 1;
+	if (((rMask | gMask | bMask) & 0xFF000000) == 0) {
+		// Upper 8 bits do not contain colours; use them as work area.
+		for (unsigned y = startLine; y < HEIGHT; y += 2) {
+			Pixel* currPixel = (Pixel*)
+				((byte*)screen->pixels + y * screen->pitch);
+			for (unsigned x = 0; x < WIDTH; x++, currPixel++) {
+				Pixel p = *currPixel;
+				unsigned r = (((p & rMask) * darkenFactor) >> 8) & rMask;
+				unsigned g = (((p & gMask) * darkenFactor) >> 8) & gMask;
+				unsigned b = (((p & bMask) * darkenFactor) >> 8) & bMask;
+				*currPixel = r | g | b;
 			}
-		} else if (((rMask | gMask | bMask) & 0x000000FF) == 0) {
-			// Lower 8 bits do not contain colours; use them as work area.
-			for (unsigned y = 0; y < HEIGHT; y += 2) {
-				Pixel* currPixel = (Pixel*)
-					((byte*)screen->pixels + (y + 1) * screen->pitch);
-				for (unsigned x = 0; x < WIDTH; x++, currPixel++) {
-					Pixel p = *currPixel;
-					unsigned r = (((p & rMask) >> 8) * darkenFactor) & rMask;
-					unsigned g = (((p & gMask) >> 8) * darkenFactor) & gMask;
-					unsigned b = (((p & bMask) >> 8) * darkenFactor) & bMask;
-					*currPixel = r | g | b;
-				}
+		}
+	} else if (((rMask | gMask | bMask) & 0x000000FF) == 0) {
+		// Lower 8 bits do not contain colours; use them as work area.
+		for (unsigned y = startLine; y < HEIGHT; y += 2) {
+			Pixel* currPixel = (Pixel*)
+				((byte*)screen->pixels + y * screen->pitch);
+			for (unsigned x = 0; x < WIDTH; x++, currPixel++) {
+				Pixel p = *currPixel;
+				unsigned r = (((p & rMask) >> 8) * darkenFactor) & rMask;
+				unsigned g = (((p & gMask) >> 8) * darkenFactor) & gMask;
+				unsigned b = (((p & bMask) >> 8) * darkenFactor) & bMask;
+				*currPixel = r | g | b;
 			}
-		} else {
-			// Uncommon pixel format; fall back to slightly slower routine.
-			for (unsigned y = 0; y < HEIGHT; y += 2) {
-				Pixel* currPixel = (Pixel*)
-					((byte*)screen->pixels + (y + 1) * screen->pitch);
-				for (unsigned x = 0; x < WIDTH; x++, currPixel++) {
-					Pixel p = *currPixel;
-					unsigned r =
-						  rMask & 0xFF
-						? (((p & rMask) * darkenFactor) >> 8) & rMask
-						: (((p & rMask) >> 8) * darkenFactor) & rMask;
-					unsigned g =
-						  gMask & 0xFF
-						? (((p & gMask) * darkenFactor) >> 8) & gMask
-						: (((p & gMask) >> 8) * darkenFactor) & gMask;
-					unsigned b =
-						  bMask & 0xFF
-						? (((p & bMask) * darkenFactor) >> 8) & bMask
-						: (((p & bMask) >> 8) * darkenFactor) & bMask;
-					*currPixel = r | g | b;
-				}
+		}
+	} else {
+		// Uncommon pixel format; fall back to slightly slower routine.
+		for (unsigned y = startLine; y < HEIGHT; y += 2) {
+			Pixel* currPixel = (Pixel*)
+				((byte*)screen->pixels + y * screen->pitch);
+			for (unsigned x = 0; x < WIDTH; x++, currPixel++) {
+				Pixel p = *currPixel;
+				unsigned r =
+					rMask & 0xFF
+					? (((p & rMask) * darkenFactor) >> 8) & rMask
+					: (((p & rMask) >> 8) * darkenFactor) & rMask;
+				unsigned g =
+					gMask & 0xFF
+					? (((p & gMask) * darkenFactor) >> 8) & gMask
+					: (((p & gMask) >> 8) * darkenFactor) & gMask;
+				unsigned b =
+					bMask & 0xFF
+					? (((p & bMask) * darkenFactor) >> 8) & bMask
+					: (((p & bMask) >> 8) * darkenFactor) & bMask;
+				*currPixel = r | g | b;
 			}
 		}
 	}
@@ -427,15 +492,7 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 	}
 
 	// Allocate work surface.
-	workScreen = SDL_CreateRGBSurface(
-		SDL_SWSURFACE,
-		WIDTH, 240, // TODO: Vertical size should be borders + display.
-		screen->format->BitsPerPixel,
-		screen->format->Rmask,
-		screen->format->Gmask,
-		screen->format->Bmask,
-		screen->format->Amask
-		);
+	initWorkScreens(true);
 
 	// Create display caches.
 	charDisplayCache = SDL_CreateRGBSurface(
@@ -467,19 +524,79 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 
 	// Init the palette.
 	precalcPalette(settings.getGamma()->getValue());
+
+	settings.getDeinterlace()->addListener(this);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 SDLRenderer<Pixel, zoom>::~SDLRenderer()
 {
+	settings.getDeinterlace()->removeListener(this);
+
 	delete console;
 	delete debugger;
 	delete currScaler;
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
-	SDL_FreeSurface(workScreen);
+	for (int i = 0; i < 2; i++) {
+		if (workScreens[i]) SDL_FreeSurface(workScreens[i]);
+	}
 
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::initWorkScreens(bool first)
+{
+	const bool deinterlace = settings.getDeinterlace()->getValue();
+
+	// Make sure current frame is in workScreens[0].
+	if (!first && workScreen == workScreens[1]) {
+		// Swap workScreens index 0 and 1.
+		workScreens[1] = workScreens[0];
+		workScreens[0] = workScreen;
+	}
+
+	const int nrScreens = deinterlace ? 2 : 1;
+	for (int i = 0; i < 2; i++) {
+		const bool shouldExist = i < nrScreens;
+		const bool doesExist = !first && workScreens[i];
+		if (shouldExist) {
+			if (!doesExist) {
+				workScreens[i] = SDL_CreateRGBSurface(
+					SDL_SWSURFACE,
+					WIDTH, 240, // TODO: Vertical size should be borders + display.
+					screen->format->BitsPerPixel,
+					screen->format->Rmask,
+					screen->format->Gmask,
+					screen->format->Bmask,
+					screen->format->Amask
+					);
+			}
+		} else { // !shouldExist
+			if (doesExist) SDL_FreeSurface(workScreens[i]);
+			workScreens[i] = NULL;
+		}
+	}
+
+	calcWorkScreen(vdp->getEvenOdd());
+
+	// Make sure that the surface which contains the current frame's image
+	// is the one pointed to by workScreen.
+	if (workScreen == workScreens[1]) {
+		// Swap workScreens index 0 and 1.
+		workScreens[1] = workScreens[0];
+		workScreens[0] = workScreen;
+		workScreen = workScreens[1];
+	}
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::calcWorkScreen(bool oddField)
+{
+	workScreen = workScreens[
+		settings.getDeinterlace()->getValue() && oddField ? 1 : 0
+		];
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -603,6 +720,10 @@ void SDLRenderer<Pixel, zoom>::frameStart(const EmuTime& time)
 {
 	// Call superclass implementation.
 	PixelRenderer::frameStart(time);
+
+	// TODO: getEvenOdd is negated, because VDP still has old frame's
+	//       version when doing the frameStart call.
+	calcWorkScreen(!vdp->getEvenOdd());
 
 	// Calculate line to render at top of screen.
 	// Make sure the display area is centered.
@@ -824,15 +945,6 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 	displayHeight = screenLimitY - screenY;
 	if (displayHeight <= 0) return;
 
-	/* TODO: Find a new place for the interlace code.
-	if (!(settings.getDeinterlace()->getValue())
-	&& vdp->isInterlaced() && vdp->getEvenOdd()
-	&& zoom != Renderer::ZOOM_256) {
-		// Display odd field half a line lower.
-		screenY++;
-	}
-	*/
-
 	int leftBackground =
 		translateX(vdp->getLeftBackground(), lineWidth == 512);
 	// TODO: Find out why this causes 1-pixel jitter:
@@ -873,11 +985,8 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 		}
 
 		// Which bits in the name mask determine the page?
-		bool deinterlaced = settings.getDeinterlace()->getValue()
-			&& zoom != Renderer::ZOOM_256
-			&& vdp->isInterlaced() && vdp->isEvenOddEnabled();
 		int pageMaskEven, pageMaskOdd;
-		if (deinterlaced || vdp->isMultiPageScrolling()) {
+		if (vdp->isMultiPageScrolling()) {
 			pageMaskEven = mode.isPlanar() ? 0x000 : 0x200;
 			pageMaskOdd  = pageMaskEven | 0x100;
 		} else {
@@ -888,62 +997,40 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 		// Copy from cache to screen.
 		SDL_Rect source, dest;
 		for (int y = screenY; y < screenLimitY; y++) {
-			int vramLine[2];
-			vramLine[0] = (vram->nameTable.getMask() >> 7)
-				& (pageMaskEven | displayY);
-			vramLine[1] = (vram->nameTable.getMask() >> 7)
-				& (pageMaskOdd  | displayY);
+			const int vramLine[2] = {
+				(vram->nameTable.getMask() >> 7) & (pageMaskEven | displayY),
+				(vram->nameTable.getMask() >> 7) & (pageMaskOdd  | displayY)
+				};
 
 			// TODO: Can we safely use SDL_LowerBlit?
-			/* TODO: Find a new place for the deinterlace code.
-			if (deinterlaced) {
-				// TODO: Allow horizontal scroll during deinterlace.
-				source.x = displayX;
-				source.y = vramLine[0];
-				source.w = displayWidth;
+			int firstPageWidth = pageBorder - displayX;
+			if (firstPageWidth > 0) {
+				source.x = displayX + hScroll;
+				source.y = vramLine[scrollPage1];
+				source.w = firstPageWidth;
 				source.h = 1;
 				dest.x = leftBackground + displayX;
 				dest.y = y;
 				SDL_BlitSurface(
 					bitmapDisplayCache, &source, workScreen, &dest
 					);
-				if (LINE_ZOOM == 2) {
-					source.y = vramLine[1];
-					dest.y = y + 1;
-					SDL_BlitSurface(
-						bitmapDisplayCache, &source, workScreen, &dest
-						);
-				}
-				if (LINE_ZOOM == 2) lineContent[y] = LINE_DONTTOUCH;
-			} else*/ {
-				int firstPageWidth = pageBorder - displayX;
-				if (firstPageWidth > 0) {
-					source.x = displayX + hScroll;
-					source.y = vramLine[scrollPage1];
-					source.w = firstPageWidth;
-					source.h = 1;
-					dest.x = leftBackground + displayX;
-					dest.y = y;
-					SDL_BlitSurface(
-						bitmapDisplayCache, &source, workScreen, &dest
-						);
-				} else {
-					firstPageWidth = 0;
-				}
-				if (firstPageWidth < displayWidth) {
-					source.x = displayX < pageBorder
-						? 0 : displayX + hScroll - lineWidth;
-					source.y = vramLine[scrollPage2];
-					source.w = displayWidth - firstPageWidth;
-					source.h = 1;
-					dest.x = leftBackground + displayX + firstPageWidth;
-					dest.y = y;
-					SDL_BlitSurface(
-						bitmapDisplayCache, &source, workScreen, &dest
-						);
-				}
-				if (LINE_ZOOM == 2) lineContent[y] = lineType;
+			} else {
+				firstPageWidth = 0;
 			}
+			if (firstPageWidth < displayWidth) {
+				source.x = displayX < pageBorder
+					? 0 : displayX + hScroll - lineWidth;
+				source.y = vramLine[scrollPage2];
+				source.w = displayWidth - firstPageWidth;
+				source.h = 1;
+				dest.x = leftBackground + displayX + firstPageWidth;
+				dest.y = y;
+				SDL_BlitSurface(
+					bitmapDisplayCache, &source, workScreen, &dest
+					);
+			}
+			if (LINE_ZOOM == 2) lineContent[y] = lineType;
+
 			displayY = (displayY + 1) & 255;
 		}
 	} else {

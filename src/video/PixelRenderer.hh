@@ -21,7 +21,7 @@ class SpriteChecker;
   * Provides a framework for implementing a pixel-based Renderer,
   * thereby reducing the amount of code needed to implement one.
   */
-class PixelRenderer : public Renderer, private SettingListener
+class PixelRenderer : public Renderer, protected SettingListener
 {
 public:
 	// Renderer interface:
@@ -114,6 +114,9 @@ protected:
 	  */
 	virtual void updateVRAMCache(int address) = 0;
 
+	// SettingListener:
+	virtual void update(const SettingLeafNode* setting) throw();
+
 	/** Update renderer state to specified moment in time.
 	  * @param time Moment in emulated time to update to.
 	  * @param force When screen accuracy is used,
@@ -180,10 +183,6 @@ private:
 	  */
 	void renderUntil(const EmuTime &time);
 
-	/** Listen for frameskip setting changes
-	  */
-	virtual void update(const SettingLeafNode* setting) throw();
-	
 	/** Accuracy setting for current frame.
 	  */
 	RenderSettings::Accuracy accuracy;

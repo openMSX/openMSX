@@ -1,6 +1,9 @@
 $Id$
 
-2004-01-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-01-08 Maarten ter Huurne <maarten@treewalker.org>
+	* Implemented new deinterlacer for SDLHi.
+
+2004-01-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed crash when trying to save screenshot to read-only directory
 	* Save screenshots in ~/.openMSX/screenshots (only when filename is not
 	  explicitly given)
