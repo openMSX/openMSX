@@ -29,7 +29,7 @@ public:
 	/**
 	 * This method is only used to print meaningfull debug messages
 	 */
-	virtual const string& schedName() const;
+	virtual const string& schedName() const = 0;
 };
 
 } // namespace openmsx

@@ -52,7 +52,7 @@ openmsx_SOURCES=\
 	MSXPPI.hh MSXPPI.cc I8255.hh I8255.cc \
 	PlatformFactory.hh PlatformFactory.cc \
 	DeviceFactory.hh DeviceFactory.cc \
-	Scheduler.hh Scheduler.cc Schedulable.hh Schedulable.cc \
+	Scheduler.hh Scheduler.cc Schedulable.hh \
 	Leds.hh Leds.cc \
 	MSXE6Timer.hh MSXE6Timer.cc \
 	MSXF4Device.hh MSXF4Device.cc \

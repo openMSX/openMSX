@@ -320,6 +320,12 @@ void VDP::executeUntil(const EmuTime &time, int userData) throw()
 
 }
 
+const string& VDP::schedName() const
+{
+	static const string name("VDP");
+	return name;
+}
+
 // TODO: This approach assumes that an overscan-like approach can be used
 //       skip display start, so that the border is rendered instead.
 //       This makes sense, but it has not been tested on real MSX yet.

@@ -28,6 +28,7 @@ public:
 
 private:
 	virtual void executeUntil(const EmuTime &time, int userData) throw();
+	virtual const string& schedName() const;
 	void schedule(const EmuTime &time);
 	void unschedule();
 

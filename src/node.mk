@@ -10,7 +10,7 @@ SRC_HDR:= \
 	MSXMotherBoard \
 	MSXPPI I8255 \
 	PlatformFactory DeviceFactory \
-	Scheduler Schedulable \
+	Scheduler \
 	Leds \
 	MSXE6Timer \
 	MSXF4Device \
@@ -43,6 +43,7 @@ SRC_ONLY:= \
 HDR_ONLY:= \
 	openmsx.hh \
 	util.hh \
+	Schedulable.hh \
 	MSXException.hh \
 	MSXRomPatchInterface.hh \
 	config.h

@@ -22,5 +22,11 @@ void SDLEventInserter::executeUntil(const EmuTime &time, int userData) throw()
 	delete this;	// job is done
 }
 
+const string& SDLEventInserter::schedName() const
+{
+	static const string name("SDLEventInserter");
+	return name;
+}
+
 } // namespace openmsx
 

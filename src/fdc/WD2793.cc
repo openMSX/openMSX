@@ -366,6 +366,12 @@ void WD2793::executeUntil(const EmuTime& time, int state) throw()
 	}
 }
 
+const string& WD2793::schedName() const
+{
+	static const string name("WD2793");
+	return name;
+}
+
 void WD2793::startType1Cmd(const EmuTime &time)
 {
 	statusReg &= ~(SEEK_ERROR | CRC_ERROR);

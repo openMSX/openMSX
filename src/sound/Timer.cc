@@ -62,4 +62,11 @@ void Timer<freq, flag>::executeUntil(const EmuTime &time, int userData) throw()
 	schedule(time);
 }
 
+template<int freq, byte flag>
+const string& Timer<freq, flag>::schedName() const
+{
+	static const string name("Timer");
+	return name;
+}
+
 } // namespace openmsx

@@ -136,6 +136,12 @@ void Y8950Adpcm::executeUntil(const EmuTime& time, int userData) throw()
 	}
 }
 
+const string& Y8950Adpcm::schedName() const
+{
+	static const string name("Y8950Adpcm");
+	return name;
+}
+
 void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 {
 	//PRT_DEBUG("Y8950Adpcm: write "<<(int)rg<<" "<<(int)data);

@@ -28,6 +28,7 @@ public:
 private:
 	void schedule(const EmuTime& time);
 	virtual void executeUntil(const EmuTime& time, int userData) throw();
+	virtual const string& schedName() const;
 	int CLAP(int min, int x, int max);
 	void restart();
 

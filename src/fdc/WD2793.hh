@@ -62,6 +62,7 @@ private:
 		FSM_TYPE3_WAIT_LOAD,
 	};
 	virtual void executeUntil(const EmuTime& time, int state) throw();
+	virtual const string& schedName() const;
 
 	void startType1Cmd(const EmuTime& time);
 
