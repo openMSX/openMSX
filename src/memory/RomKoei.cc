@@ -11,8 +11,8 @@
 //  bank 4: 0x7800 - 0x7fff (0x7800 used)
 //
 //  To select SRAM set any of the higher bits (for ASCII8-8 only one bit can be
-//  used). The SRAM can only be written to in complete memory range (0x4000 -
-//  0xBFFF) (for ASCII8-8 only 0x8000 - 0xBFFF).
+//  used). The SRAM can also be writen to in 0x4000-0x5FFF range (ASCII8-8 only
+//  0x8000-0xBFFF).
 
 #include "RomKoei.hh"
 
@@ -56,13 +56,13 @@ void RomKoei::writeMem(word address, byte value, const EmuTime& time)
 			setRom(region, value);
 			sramEnabled &= ~(1 << region);
 		}
-	}
-	
-	byte bank = address >> 13;
-	if ((1 << bank) & sramEnabled & 0x3C) {
-		// write to SRAM
-		word addr = (sramBlock[bank] * 0x2000) + (address & 0x1FFF);
-		sram.write(addr, value);
+	} else {
+		byte bank = address >> 13;
+		if ((1 << bank) & sramEnabled & 0x34) {
+			// write to SRAM
+			word addr = (sramBlock[bank] * 0x2000) + (address & 0x1FFF);
+			sram.write(addr, value);
+		}
 	}
 }
 
@@ -71,7 +71,7 @@ byte* RomKoei::getWriteCacheLine(word address) const
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// bank switching
 		return NULL;
-	} else if ((1 << (address >> 13)) & sramEnabled & 0x3C) {
+	} else if ((1 << (address >> 13)) & sramEnabled & 0x34) {
 		// write to SRAM
 		byte bank = address >> 13;
 		word addr = (sramBlock[bank] * 0x2000) + (address & 0x1FFF);
