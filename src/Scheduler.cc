@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "EventDistributor.hh"
 #include "Schedulable.hh"
+#include "RealTime.hh"
 #include "Renderer.hh" // TODO: Temporary?
 
 
@@ -15,17 +16,21 @@ namespace openmsx {
 const EmuTime Scheduler::ASAP;
 
 Scheduler::Scheduler()
-	: sem(1)
+	: sem(1),
+	  pauseSetting("pause", "pauses the emulation", false)
 {
 	paused = false;
 	emulationRunning = true;
 	cpu = MSXCPU::instance();
 	cpu->init(this);
 	renderer = NULL;
+	
+	pauseSetting.addListener(this);
 }
 
 Scheduler::~Scheduler()
 {
+	pauseSetting.removeListener(this);
 }
 
 Scheduler* Scheduler::instance()
@@ -164,6 +169,19 @@ void Scheduler::pause()
 	if (!paused) {
 		paused = true;
 		Mixer::instance()->mute();
+	}
+}
+
+void Scheduler::update(const SettingLeafNode *setting)
+{
+	assert(setting == &pauseSetting);
+	if (pauseSetting.getValue()) {
+		// VDP has taken over this role.
+		// TODO: Should it stay that way?
+		// pause();
+	} else {
+		RealTime::instance()->resync();
+		unpause();
 	}
 }
 

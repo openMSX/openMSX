@@ -13,6 +13,8 @@
 
 #include <string>
 
+using std::string;
+
 namespace openmsx {
 
 class Renderer;

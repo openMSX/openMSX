@@ -28,9 +28,6 @@ TODO:
 #include "MSXConfig.hh"
 #include "RenderSettings.hh"
 #include "RendererFactory.hh"
-#include "RealTime.hh" // TODO: Temporary?
-#include "Scheduler.hh" // TODO: Temporary?
-#include <string>
 #include <iomanip>
 #include <cassert>
 
@@ -102,7 +99,7 @@ VDP::VDP(Device *config, const EmuTime &time)
 		rendererName = config->getType();
 	} catch (ConfigException &e) {
 		// no renderer section
-		rendererName = string("SDLHi");
+		rendererName = "SDLHi";
 	}
 
 	// Create renderer.
@@ -238,7 +235,7 @@ void VDP::executeUntil(const EmuTime &time, int userData) throw()
 	// Handle the various sync types.
 	switch (userData) {
 	case VSYNC: {
-		bool paused = RealTime::isPaused();
+		bool paused = Scheduler::instance()->isPaused();
 		// This frame is finished.
 		renderer->putImage(time, paused);
 		// Begin next frame.

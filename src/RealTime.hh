@@ -14,13 +14,6 @@ class RealTime : private Schedulable, private SettingListener
 public:
 	static RealTime* instance();
 
-	/** Does the user want to pause the emulator?
-	  * @return true iff the pause setting is on.
-	  */
-	static bool isPaused() {
-		return instance()->pauseSetting.getValue();
-	}
-
 	/**
 	 * Convert EmuTime to RealTime and vice versa
 	 */
@@ -35,12 +28,14 @@ public:
 	 */
 	float sync(const EmuTime& time);
 
+	// should only be called Scheduler when emulation is unpaused
+	virtual void resync() = 0;
+
 protected:
 	RealTime(); 
 	virtual ~RealTime();
 	
 	virtual float doSync(const EmuTime& time) = 0;  
-	virtual void resync() = 0;
 
 	IntegerSetting speedSetting;
 	int maxCatchUpTime;	// max nb of ms overtime
@@ -51,9 +46,10 @@ private:
 	virtual const string& schedName() const;
 
 	float internalSync(const EmuTime& time);
+	
+	// SettingListener
 	void update(const SettingLeafNode* setting);
 
-	BooleanSetting pauseSetting;
 	BooleanSetting throttleSetting;
 };
 

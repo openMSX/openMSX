@@ -25,11 +25,9 @@ RealTime::RealTime()
 	: speedSetting("speed",
 	       "controls the emulation speed: higher is faster, 100 is normal",
 	       100, 1, 1000000),
-	  pauseSetting("pause", "pauses the emulation", false),
 	  throttleSetting("throttle", "controls speed throttling", true)
 {
 	speedSetting.addListener(this);
-	pauseSetting.addListener(this);
 	
 	maxCatchUpTime = 2000;	// ms
 	maxCatchUpFactor = 105; // %
@@ -47,7 +45,6 @@ RealTime::RealTime()
 RealTime::~RealTime()
 {
 	Scheduler::instance()->removeSyncPoint(this);
-	pauseSetting.removeListener(this);
 	speedSetting.removeListener(this);
 }
 
@@ -109,23 +106,10 @@ EmuDuration RealTime::getEmuDuration(float realDur)
 	return EmuDuration(realDur * speedSetting.getValue() / 100.0);
 }
 
-
 void RealTime::update(const SettingLeafNode *setting)
 {
-	if (setting == &pauseSetting) {
-		if (pauseSetting.getValue()) {
-			// VDP has taken over this role.
-			// TODO: Should it stay that way?
-			//Scheduler::instance()->pause();
-		} else {
-			RealTime::instance()->resync();
-			Scheduler::instance()->unpause();
-		}
-	} else if (setting == &speedSetting) {
-		RealTime::instance()->resync();
-	} else {
-		assert(false);
-	}
+	assert(setting == &speedSetting);
+	resync();
 }
 
 } // namespace openmsx
