@@ -90,6 +90,7 @@ string EnumSetting<ValueType>::getValueString() const
 		}
 	}
 	assert(false);
+	return "";	// avoid warning
 }
 
 template<typename ValueType>
