@@ -94,9 +94,6 @@ void Scheduler::scheduleEmulation()
 //	}
 //	quakef.close();
 
-		SDL_mutexP(pauseMutex); // grab and release mutex, if unpaused this will
-		SDL_mutexV(pauseMutex); //  succeed else we sleep till unpaused
-
 		if (syncPoints.empty()) {
 			// nothing scheduled, emulate CPU
 			PRT_DEBUG ("Sched: Scheduling CPU till infinity");
@@ -136,8 +133,15 @@ void Scheduler::pause()
 		paused = true;
 		SDL_mutexP(pauseMutex);	// grab mutex
 		Mixer::instance()->pause(true);
+		setSyncPoint(MSXCPU::instance()->getCurrentTime(), *this);
 		PRT_DEBUG("Paused");
 	}
+}
+
+void Scheduler::executeUntilEmuTime(const EmuTime &time)
+{
+	SDL_mutexP(pauseMutex); // grab and release mutex, if unpaused this will
+	SDL_mutexV(pauseMutex); //  succeed else we sleep till unpaused
 }
 
 // Note: this runs in a different thread

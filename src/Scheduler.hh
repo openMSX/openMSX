@@ -31,7 +31,7 @@ class Schedulable
 		static const std::string defaultName;
 };
 
-class Scheduler : public EventListener, public HotKeyListener
+class Scheduler : public EventListener, public HotKeyListener, public Schedulable
 {
 	class SynchronizationPoint
 	{
@@ -93,6 +93,8 @@ class Scheduler : public EventListener, public HotKeyListener
 		void unpause();
 		
 		
+		// Schedulable
+		void executeUntilEmuTime(const EmuTime &time);
 		// EventListener
 		void signalEvent(SDL_Event &event);
 		// HotKeyListener

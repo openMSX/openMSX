@@ -1,5 +1,9 @@
 $Id$
 
+2001-12-25 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* small optimization in Scheduler:
+	  no overhead when unpaused
+
 2001-12-25 Joost Yervante Damad <j.damad@qahwah.net>
 	* added --enable-profile and --enable-release to ./configure
 	* added "debug" and "nodebug" targets to Makefile in src dir [toggle]
