@@ -89,7 +89,9 @@ bool GZFileAdapter::skipHeader(z_stream& s)
 	}
 	if ((flags & ORIG_NAME) != 0) {
 		// skip the original file name
-		while (getByte(s));
+		while (char c = getByte(s)) {
+			originalName.push_back(c);
+		}
 	}
 	if ((flags & COMMENT) != 0) {
 		// skip the .gz file comment

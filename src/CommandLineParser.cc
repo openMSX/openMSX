@@ -155,24 +155,25 @@ bool CommandLineParser::parseOption(const string& arg, list<string>& cmdLine, by
 
 bool CommandLineParser::parseFileName(const string& arg, list<string>& cmdLine)
 {
-	string::size_type begin = arg.find_last_of('.');
+	string originalName(arg);
+	try {
+		std::cout << "DEBUG1 " << originalName << std::endl;
+		File file(arg);
+		originalName = file.getOriginalName();
+		std::cout << "DEBUG2 " << originalName << std::endl;
+	} catch (FileException& e) {
+		// ignore
+	}
+	string::size_type begin = originalName.find_last_of('.');
 	if (begin != string::npos) {
 		// there is an extension
 		// TODO <filename>,<mappertype> is deprecated
-		string::size_type end = arg.find_last_of(',');
+		string::size_type end = originalName.find_last_of(',');
 		string extension;
 		if ((end == string::npos) || (end <= begin)) {
-			extension = arg.substr(begin + 1);
+			extension = originalName.substr(begin + 1);
 		} else {
-			extension = arg.substr(begin + 1, end - begin - 1);
-		}
-		if (((extension == "gz") || (extension == "zip")) &&
-		    (begin != 0)) {
-			end = begin;
-			begin = arg.find_last_of('.', begin - 1);
-			if (begin != string::npos) {
-				extension = arg.substr(begin + 1, end - begin - 1);
-			}
+			extension = originalName.substr(begin + 1, end - begin - 1);
 		}
 		FileTypeMap::const_iterator it2 = fileTypeMap.find(extension);
 		if (it2 != fileTypeMap.end()) {

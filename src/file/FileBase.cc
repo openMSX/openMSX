@@ -4,7 +4,7 @@
 #include <algorithm>
 #include "FileBase.hh"
 
-using std::min;
+using std::string;
 
 namespace openmsx {
 
@@ -41,7 +41,7 @@ void FileBase::munmap()
 	}
 }
 
- void FileBase::truncate(unsigned size)
+void FileBase::truncate(unsigned size)
 {
 	int grow = size - getSize();
 	if (grow < 0) {
@@ -52,9 +52,17 @@ void FileBase::munmap()
 	byte buf[BUF_SIZE];
 	memset(buf, 0, BUF_SIZE);
 	while (grow > 0) {
-		write(buf, min(BUF_SIZE, grow));
+		write(buf, std::min(BUF_SIZE, grow));
 		grow -= BUF_SIZE;
 	}
+} 
+
+const string FileBase::getOriginalName()
+{
+	// default implementation just returns filename portion of URL
+	string url = getURL();
+	string::size_type pos = url.find_last_of('/');
+	return (pos == string::npos) ? url : url.substr(pos + 1);
 }
 
 } // namespace openmsx

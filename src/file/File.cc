@@ -103,6 +103,11 @@ const string File::getLocalName() const
 	return file->getLocalName();
 }
 
+const string File::getOriginalName()
+{
+	return file->getOriginalName();
+}
+
 bool File::isReadOnly() const
 {
 	return file->isReadOnly();

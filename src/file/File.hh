@@ -114,6 +114,15 @@ public:
 	const std::string getLocalName() const;
 
 	/**
+	 * Get Original filename for this object. This will usually just
+	 * return the filename portion of the URL. However for compressed
+	 * files this will be different.
+	 * @result Original file name
+	 * @throws FileException
+	 */
+	const std::string getOriginalName();
+	
+	/**
 	 * Check if this file is readonly
 	 * @result true iff file is readonly
 	 * @throws FileException

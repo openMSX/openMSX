@@ -137,6 +137,12 @@ const string CompressedFileAdapter::getLocalName()
 	return FileOperations::getConventionalPath(localName);
 }
 
+const string CompressedFileAdapter::getOriginalName()
+{
+	fillBuffer();
+	return originalName;
+}
+
 bool CompressedFileAdapter::isReadOnly() const
 {
 	return true;

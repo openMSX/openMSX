@@ -56,8 +56,12 @@ void ZipFileAdapter::decompress()
 	word extra_field_len = *ptr++;
 	extra_field_len += (*ptr++) << 8;
 
-	// skip "filename" and "extra field"
-	ptr += filename_len + extra_field_len;
+	// original filename 
+	originalName.assign((char*)ptr, filename_len);
+	ptr += filename_len;
+
+	// skip "extra field"
+	ptr += extra_field_len;
 
 	z_stream s;
 	s.zalloc = 0;

@@ -19,6 +19,7 @@ public:
 	virtual void truncate(unsigned size);
 	virtual const std::string getURL() const;
 	virtual const std::string getLocalName();
+	virtual const std::string getOriginalName();
 	virtual bool isReadOnly() const;
 	virtual time_t getModificationDate();
 
@@ -30,6 +31,7 @@ protected:
 	const std::auto_ptr<FileBase> file;
 	byte* buf;
 	unsigned size;
+	std::string originalName;
 
 private:
 	void fillBuffer();
