@@ -29,12 +29,19 @@ class MSXMotherBoard : public CPUInterface, private ConsoleInterface
 		class IRQHelper
 		{
 		public:
-			/** Create a new InterruptHelper.
+			/** Create a new IRQHelper.
 			  * Initially there is no interrupt request on the bus.
 			  */
 			IRQHelper() {
 				request = false;
 				motherboard = MSXMotherBoard::instance();
+			}
+
+			/** Destroy this IRQHelper.
+			  * Make sure interrupt is released.
+			  */
+			~IRQHelper() {
+				reset();
 			}
 
 			/** Set the interrupt request on the bus.
