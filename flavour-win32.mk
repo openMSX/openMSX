@@ -1,13 +1,16 @@
 # $Id:
 #
 # Configuration for Win32 flavour:
-# Optimised for Pentium 3 but runnable at i386 and higher.
+# Optimised for Pentium 3 but runnable at MMX-Pentium or higher.
 
 # Optimisation flags.
 CXXFLAGS+= \
-	-mcpu=pentium3 -O \
+	-Os -mpreferred-stack-boundary=4 \
+	-mcpu=pentium3 -march=pentium-mmx -mmmx \
 	-fno-force-mem -fno-force-addr \
-	-fstrength-reduce -fexpensive-optimizations -fschedule-insns2
+	-fstrength-reduce -fexpensive-optimizations -fschedule-insns2 \
+	-fomit-frame-pointer -fno-default-inline 
+#	-DNDEBUG 
 
 # Strip executable?
 OPENMSX_STRIP:=true
