@@ -210,7 +210,7 @@ inline void _CPU_::executeFast() {
 	#endif
 }
 
-inline void _CPU_::executeSlow() {
+void _CPU_::executeSlow() {
 	if (interface->NMIEdge()) {
 		nmi();	// NMI occured
 	} else if (R.IFF1 && IRQStatus) {
@@ -244,9 +244,9 @@ void _CPU_::executeCore() {
 	if (currentTime >= targetTime) {
 		return;
 	}
-	
+
 	executeSlow();
-	
+
 	if (step) {
 		targetTime = currentTime;
 		doBreak2();

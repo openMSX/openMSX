@@ -41,7 +41,7 @@ inline void irq0();
 inline void irq1();
 inline void irq2();
 inline void executeFast();
-inline void executeSlow();
+void executeSlow();
 inline void next();
 
 inline bool C();
