@@ -24,7 +24,10 @@ MSXConfig::~MSXConfig()
 		delete tree;
 }
 
-int MSXConfig::loadFile(const string &filename)
+bool MSXConfig::loadFile(const string &filename)
 {
-	tree = new XMLTree(filename);
+	tree = new XMLTree();
+	if (!tree->read(filename))
+		return false;
+	cout << tree->write_buffer() << endl;
 }

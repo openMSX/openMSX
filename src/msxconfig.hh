@@ -18,7 +18,7 @@ public:
 
 	static MSXConfig *instance();
 
-	int loadFile(const string &filename);
+	bool loadFile(const string &filename);
 	//void saveFile(const string &filename = 0);
 
 private:

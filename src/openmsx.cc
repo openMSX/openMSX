@@ -16,8 +16,12 @@
 int
 main (int argc, char **argv)
 {
-	MSXConfig::instance()->loadFile("msxconfig.xml");
-
+	if (argc<2) {
+		cerr << "Usage: " << argv[0] << " msxconfig.xml" << endl;
+		exit(1);
+	}
+	// this is mainly for me (Joost), for testing the xml parsing
+	MSXConfig::instance()->loadFile(argv[1]);
 
 	/* do the work */
 	printf("Hello, World\n");
