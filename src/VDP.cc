@@ -145,6 +145,9 @@ void VDP::resetInit(const EmuTime &time)
 	if (version == TMS9929A) {
 		// Boots (and remains) in PAL mode, all other VDPs boot in NTSC.
 		controlRegs[9] |= 0x02;
+		palTiming = true;
+	} else {
+		palTiming = false;
 	}
 	displayMode = 0;
 	vramPointer = 0;
@@ -155,7 +158,6 @@ void VDP::resetInit(const EmuTime &time)
 	blinkCount = 0;
 	horizontalAdjust = 7;
 	verticalAdjust = 0;
-	palTiming = false;
 
 	// Init status registers.
 	statusReg0 = 0x00;
