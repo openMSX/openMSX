@@ -88,8 +88,7 @@ openmsx_SOURCES=\
 	PluggableFactory.hh PluggableFactory.cc \
 	DebugDevice.hh DebugDevice.cc \
 	RenShaTurbo.hh RenShaTurbo.cc \
-	Autofire.hh Autofire.cc \
-	config.h
+	Autofire.hh Autofire.cc
 
 # When editing this list, make sure the following sequences are maintained:
 #   memory < cassette
