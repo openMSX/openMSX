@@ -49,7 +49,7 @@ private:
 	void reInitMSX();
 
 	// SettingListener
-	virtual void update(const SettingLeafNode* setting) throw();
+	virtual void update(const SettingLeafNode* setting);
 
 	list<MSXDevice*> availableDevices;
 

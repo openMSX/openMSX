@@ -31,7 +31,7 @@ public:
 	const byte* getKeys();
 
 	//EventListener
-	virtual bool signalEvent(const Event& event) throw();
+	virtual bool signalEvent(const Event& event);
 
 	static const unsigned NR_KEYROWS = 16;
 
@@ -74,8 +74,7 @@ private:
 		virtual string help(const vector<string>& tokens) const;
 
 		// Schedulable
-		virtual void executeUntil(const EmuTime& time, int userData)
-			throw();
+		virtual void executeUntil(const EmuTime& time, int userData);
 		virtual const string& schedName() const;
 
 		Keyboard& parent;

@@ -3,34 +3,33 @@
 #ifndef __LOCALFILE_HH__
 #define __LOCALFILE_HH__
 
+#include <cstdio>
 #include "FileBase.hh"
 #include "File.hh"
 #include "probed_defs.hh"
-#include <cstdio>
-
 
 namespace openmsx {
 
 class LocalFile : public FileBase
 {
 public:
-	LocalFile(const string &filename, OpenMode mode) throw(FileException);
+	LocalFile(const string &filename, OpenMode mode);
 	virtual ~LocalFile();
-	virtual void read (byte* buffer, unsigned num) throw(FileException);
-	virtual void write(const byte* buffer, unsigned num) throw(FileException);
+	virtual void read (byte* buffer, unsigned num);
+	virtual void write(const byte* buffer, unsigned num);
 #ifdef	HAVE_MMAP
-	virtual byte* mmap(bool writeBack) throw(FileException);
-	virtual void munmap() throw();
+	virtual byte* mmap(bool writeBack);
+	virtual void munmap();
 #endif
-	virtual unsigned getSize() throw();
-	virtual void seek(unsigned pos) throw(FileException);
-	virtual unsigned getPos() throw();
+	virtual unsigned getSize();
+	virtual void seek(unsigned pos);
+	virtual unsigned getPos();
 #ifdef HAVE_FTRUNCATE
-	virtual void truncate(unsigned size) throw(FileException);
+	virtual void truncate(unsigned size);
 #endif
-	virtual const string getURL() const throw();
-	virtual const string getLocalName() throw();
-	virtual bool isReadOnly() const throw();
+	virtual const string getURL() const;
+	virtual const string getLocalName();
+	virtual bool isReadOnly() const;
 
 private:
 	string filename;

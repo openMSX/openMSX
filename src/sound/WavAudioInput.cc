@@ -25,7 +25,6 @@ WavAudioInput::~WavAudioInput()
 }
 
 void WavAudioInput::loadWave()
-	throw(MSXException)
 {
 	freeWave();
 
@@ -101,7 +100,7 @@ void WavAudioInput::unplugHelper(const EmuTime& time)
 	plugged = false;
 }
 
-void WavAudioInput::update(const SettingLeafNode* setting) throw()
+void WavAudioInput::update(const SettingLeafNode* setting)
 {
 	assert (setting == &audioInputFilenameSetting);
 	if (plugged) {

@@ -93,7 +93,7 @@ public:
 	// interaction with CPU
 	virtual byte readIO(byte port, const EmuTime &time);
 	virtual void writeIO(byte port, byte value, const EmuTime &time);
-	virtual void executeUntil(const EmuTime &time, int userData) throw();
+	virtual void executeUntil(const EmuTime &time, int userData);
 	virtual const string& schedName() const;
 
 	/** Is this an MSX1 VDP?

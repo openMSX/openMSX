@@ -127,7 +127,7 @@ public:
 	virtual const string& getDescription() const;
 	virtual void setVolume(int maxVolume);
 	virtual void setSampleRate(int sampleRate);
-	virtual int* updateBuffer(int length) throw();
+	virtual int* updateBuffer(int length);
 
 private:
 	inline int calcSample(int channelMask);

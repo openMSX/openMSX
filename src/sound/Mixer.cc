@@ -299,7 +299,7 @@ void Mixer::muteHelper(int muteCount)
 }
 
 
-void Mixer::update(const SettingLeafNode* setting) throw()
+void Mixer::update(const SettingLeafNode* setting)
 {
 	if (setting == &muteSetting) {
 		if (muteSetting.getValue()) {

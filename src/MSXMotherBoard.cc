@@ -105,7 +105,7 @@ void MSXMotherBoard::run(bool powerOn)
 	Scheduler::instance().powerOff();
 }
 
-void MSXMotherBoard::update(const SettingLeafNode* setting) throw()
+void MSXMotherBoard::update(const SettingLeafNode* setting)
 {
 	assert(setting == &powerSetting);
 	if (!powerSetting.getValue()) {

@@ -46,7 +46,7 @@ public:
 	virtual void recvByte(byte value, const EmuTime& time);
 
 	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData) throw();
+	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const string& schedName() const;
 
 private:

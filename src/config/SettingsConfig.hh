@@ -13,8 +13,7 @@ class SettingsConfig : public MSXConfig
 public:
 	static SettingsConfig& instance();
 
-	void loadSetting(FileContext& context, const string &filename)
-		throw(FileException, ConfigException);
+	void loadSetting(FileContext& context, const string& filename);
 	
 private:
 	SettingsConfig();

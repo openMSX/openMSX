@@ -1,14 +1,13 @@
 // $Id$
 
-#include <SDL_thread.h>
 #include <cstddef>
 #include <cassert>
+#include <SDL_thread.h>
 #include "Thread.hh"
-
 
 namespace openmsx {
 
-Thread::Thread(Runnable *runnable_)
+Thread::Thread(Runnable* runnable_)
 	: runnable(runnable_)
 {
 	thread = NULL;
@@ -21,13 +20,13 @@ Thread::~Thread()
 
 void Thread::start()
 {
-	assert(thread == NULL);
+	assert(!thread);
 	thread = SDL_CreateThread(startThread, runnable);
 }
 
 void Thread::stop()
 {
-	if (thread != NULL) {
+	if (thread) {
 		SDL_KillThread(thread);
 		thread = NULL;
 	}
@@ -39,14 +38,14 @@ void Thread::stop()
 //       within the given timeout.
 void Thread::join()
 {
-	assert(thread != NULL);
+	assert(thread);
 	SDL_WaitThread(thread, NULL);
 	thread = NULL;
 }
 
-int Thread::startThread(void *runnable)
+int Thread::startThread(void* runnable)
 {
-	((Runnable *)runnable)->run();
+	static_cast<Runnable*>(runnable)->run();
 	return 0;
 }
 

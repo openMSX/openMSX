@@ -120,7 +120,7 @@ const byte* Keyboard::getKeys()
 }
 
 
-bool Keyboard::signalEvent(const Event& event) throw()
+bool Keyboard::signalEvent(const Event& event)
 {
 	assert(dynamic_cast<const KeyEvent*>(&event));
 	Keys::KeyCode key = (Keys::KeyCode)((int)((KeyEvent&)event).getKeyCode() &
@@ -293,7 +293,6 @@ void Keyboard::KeyInserter::type(const string& str)
 }
 
 void Keyboard::KeyInserter::executeUntil(const EmuTime& time, int userData)
-	throw()
 {
 	assert(!text.empty());
 	if (down) {

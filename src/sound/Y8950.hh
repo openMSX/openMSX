@@ -181,7 +181,7 @@ private:
 	virtual const string& getDescription() const;
 	virtual void setVolume(int maxVolume);
 	virtual void setSampleRate(int sampleRate);
-	virtual int* updateBuffer(int length) throw();
+	virtual int* updateBuffer(int length);
 
 	// Debuggable
 	virtual unsigned getSize() const;
@@ -234,7 +234,7 @@ private:
 	void resetStatus(byte flags);
 	void changeStatusMask(byte newMask);
 
-	void callback(byte flag) throw();
+	void callback(byte flag);
 
 	int adr;
 	int output[2];

@@ -21,8 +21,7 @@ SettingsConfig& SettingsConfig::instance()
 	return oneInstance;
 }
 
-void SettingsConfig::loadSetting(FileContext& context, const string &filename)
-	throw(FileException, ConfigException)
+void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 {
 	File file(context.resolve(filename));
 	XMLDocument doc(file.getLocalName());

@@ -157,7 +157,7 @@ string FileOperations::expandTilde(const string& path)
 }
 
 
-void FileOperations::mkdirp(const string& path_) throw (FileException)
+void FileOperations::mkdirp(const string& path_)
 {
 	if (path_.empty()) {
 		return;

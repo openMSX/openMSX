@@ -288,7 +288,7 @@ void Scheduler::powerOff()
 }
 
 // SettingListener
-void Scheduler::update(const SettingLeafNode* setting) throw()
+void Scheduler::update(const SettingLeafNode* setting)
 {
 	if (setting == &pauseSetting) {
 		if (pauseSetting.getValue()) {
@@ -308,14 +308,14 @@ void Scheduler::update(const SettingLeafNode* setting) throw()
 }
 
 // EventListener
-bool Scheduler::signalEvent(const Event& event) throw()
+bool Scheduler::signalEvent(const Event& event)
 {
 	stopScheduling();
 	return true;
 }
 
 // Schedulable
-void Scheduler::executeUntil(const EmuTime& time, int userData) throw()
+void Scheduler::executeUntil(const EmuTime& time, int userData)
 {
 	emulationRunning = false;
 }
@@ -335,14 +335,12 @@ Scheduler::QuitCommand::QuitCommand(Scheduler& parent_)
 }
 
 string Scheduler::QuitCommand::execute(const vector<string>& tokens)
-	throw()
 {
 	parent.stopScheduling();
 	return "";
 }
 
 string Scheduler::QuitCommand::help(const vector<string>& tokens) const
-	throw()
 {
 	return "Use this command to stop the emulator\n";
 }
@@ -356,13 +354,11 @@ Scheduler::ResetCmd::ResetCmd(Scheduler& parent_)
 }
 
 string Scheduler::ResetCmd::execute(const vector<string>& tokens)
-	throw()
 {
 	parent.needReset = true;
 	return "";
 }
 string Scheduler::ResetCmd::help(const vector<string>& tokens) const
-	throw()
 {
 	return "Resets the MSX.\n";
 }

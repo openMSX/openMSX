@@ -178,7 +178,7 @@ void AfterCommand::tabCompletion(vector<string>& tokens) const
 }
 
 
-bool AfterCommand::signalEvent(const Event& event) throw()
+bool AfterCommand::signalEvent(const Event& event)
 {
 	if (event.getType() == FINISH_FRAME_EVENT) {
 		executeEvents<FINISH_FRAME_EVENT>();
@@ -278,7 +278,6 @@ void AfterCommand::AfterTimedCmd::reschedule()
 }
 
 void AfterCommand::AfterTimedCmd::executeUntil(const EmuTime& time, int userData)
-	throw()
 {
 	execute();
 }

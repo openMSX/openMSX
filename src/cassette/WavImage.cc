@@ -8,8 +8,7 @@
 
 namespace openmsx {
 
-WavImage::WavImage(FileContext &context, const string &fileName)
-	throw(MSXException)
+WavImage::WavImage(FileContext& context, const string& fileName)
 	: length(0), buffer(0), freq(44100)
 {
 	File file(context.resolve(fileName));
@@ -52,7 +51,7 @@ WavImage::~WavImage()
 	}
 }
 
-short WavImage::getSampleAt(const EmuTime &time)
+short WavImage::getSampleAt(const EmuTime& time)
 {
 	int pos = time.getTicksAt(freq);
 	if (pos < length) {

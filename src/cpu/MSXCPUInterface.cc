@@ -506,14 +506,12 @@ MSXCPUInterface::SlotMapCmd::SlotMapCmd(MSXCPUInterface& parent_)
 {
 }
 
-string MSXCPUInterface::SlotMapCmd::execute(const vector<string> &tokens)
-	throw()
+string MSXCPUInterface::SlotMapCmd::execute(const vector<string>& tokens)
 {
 	return parent.getSlotMap();
 }
 
-string MSXCPUInterface::SlotMapCmd::help(const vector<string> &tokens) const
-	throw()
+string MSXCPUInterface::SlotMapCmd::help(const vector<string>& tokens) const
 {
 	return "Prints which slots contain which devices.\n";
 }
@@ -526,14 +524,12 @@ MSXCPUInterface::SlotSelectCmd::SlotSelectCmd(MSXCPUInterface& parent_)
 {
 }
 
-string MSXCPUInterface::SlotSelectCmd::execute(const vector<string> &tokens)
-	throw()
+string MSXCPUInterface::SlotSelectCmd::execute(const vector<string>& tokens)
 {
 	return parent.getSlotSelection();
 }
 
-string MSXCPUInterface::SlotSelectCmd::help(const vector<string> &tokens) const
-	throw()
+string MSXCPUInterface::SlotSelectCmd::help(const vector<string>& tokens) const
 {
 	return "Prints which slots are currently selected.\n";
 }

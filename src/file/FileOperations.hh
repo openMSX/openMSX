@@ -25,8 +25,9 @@ public:
 	 * specified directory, including the parent directories.
 	 * @param path The path of the directory to create
 	 * @return True iff successful 
+	 * @throw FileException
 	 */
-	static void mkdirp(const string& path) throw (FileException);
+	static void mkdirp(const string& path);
 
 	/**
 	 * Returns the file portion of a path name.

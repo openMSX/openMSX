@@ -176,10 +176,8 @@ private:
 	class SlotMapCmd : public SimpleCommand {
 	public:
 		SlotMapCmd(MSXCPUInterface& parent);
-		virtual string execute(const vector<string> &tokens)
-			throw();
-		virtual string help(const vector<string> &tokens) const
-			throw();
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
 	private:
 		MSXCPUInterface& parent;
 	} slotMapCmd;
@@ -187,10 +185,8 @@ private:
 	class SlotSelectCmd : public SimpleCommand {
 	public:
 		SlotSelectCmd(MSXCPUInterface& parent);
-		virtual string execute(const vector<string> &tokens)
-			throw();
-		virtual string help(const vector<string> &tokens) const
-			throw();
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
 	private:
 		MSXCPUInterface& parent;
 	} slotSelectCmd;
@@ -235,7 +231,7 @@ class TurborCPUInterface : public MSXCPUInterface
 {
 public:
 	TurborCPUInterface();
-	~TurborCPUInterface();
+	virtual ~TurborCPUInterface();
 
 	virtual void register_IO_In(byte port, MSXIODevice *device);
 	virtual void register_IO_Out(byte port, MSXIODevice *device);

@@ -70,7 +70,7 @@ CommandConsole& CommandConsole::instance()
 	return oneInstance;
 }
 
-void CommandConsole::update(const SettingLeafNode* setting) throw()
+void CommandConsole::update(const SettingLeafNode* setting)
 {
 	assert(setting == &consoleSetting);
 	updateConsole();
@@ -180,7 +180,7 @@ void CommandConsole::setConsoleDimensions(unsigned columns, unsigned rows)
 	cursorLocationY = 0;
 }
 
-bool CommandConsole::signalEvent(const Event& event) throw()
+bool CommandConsole::signalEvent(const Event& event)
 {
 	if (!isVisible()) {
 		return true;

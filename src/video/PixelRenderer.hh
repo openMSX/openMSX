@@ -116,7 +116,7 @@ protected:
 	virtual void updateVRAMCache(int address) = 0;
 
 	// SettingListener:
-	virtual void update(const SettingLeafNode* setting) throw();
+	virtual void update(const SettingLeafNode* setting);
 
 	/** Update renderer state to specified moment in time.
 	  * @param time Moment in emulated time to update to.

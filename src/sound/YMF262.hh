@@ -145,7 +145,7 @@ private:
 	virtual const string& getDescription() const;
 	virtual void setVolume(int volume);
 	virtual void setSampleRate(int sampleRate);
-	virtual int* updateBuffer(int length) throw();
+	virtual int* updateBuffer(int length);
 
 	// Debuggable
 	virtual unsigned getSize() const;
@@ -153,7 +153,7 @@ private:
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 	
-	void callback(byte flag) throw();
+	void callback(byte flag);
 
 	void writeRegForce(int r, byte v, const EmuTime& time);
 	void init_tables(void);

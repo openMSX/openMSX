@@ -78,7 +78,7 @@ void HotKey::unregisterHotKeyCommand(Keys::KeyCode key)
 	}
 }
 
-bool HotKey::signalEvent(const Event& event) throw()
+bool HotKey::signalEvent(const Event& event)
 {
 	assert(dynamic_cast<const KeyEvent*>(&event));
 	//Keys::KeyCode key = Keys::getCode(event.key.keysym.sym, event.key.keysym.mod, event.type == SDL_KEYUP);
@@ -109,7 +109,7 @@ const string &HotKey::HotKeyCmd::getCommand() const
 	return command;
 }
 
-void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key) throw()
+void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key)
 {
 	try {
 		// ignore return value

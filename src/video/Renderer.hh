@@ -249,9 +249,8 @@ private:
 	public:
 		FpsInfoTopic(Renderer& parent);
 		virtual void execute(const vector<string>& tokens,
-		                     CommandResult& result) const throw();
-		virtual string help (const vector<string>& tokens) const
-			throw();
+		                     CommandResult& result) const;
+		virtual string help (const vector<string>& tokens) const;
 	private:
 		Renderer& parent;
 	} fpsInfo;

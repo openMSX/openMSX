@@ -116,7 +116,7 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 	emuTime = time;
 }
 
-void RealTime::executeUntil(const EmuTime& time, int userData) throw()
+void RealTime::executeUntil(const EmuTime& time, int userData)
 {
 	internalSync(time, true);
 	scheduler.setSyncPoint(time + getEmuDuration(SYNC_INTERVAL), this);
@@ -128,7 +128,7 @@ const string &RealTime::schedName() const
 	return name;
 }
 
-void RealTime::update(const SettingLeafNode* setting) throw()
+void RealTime::update(const SettingLeafNode* setting)
 {
 	resync();
 }

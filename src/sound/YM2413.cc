@@ -972,7 +972,7 @@ bool YM2413::checkMuteHelper()
 	return true;	// nothing is playing, then mute
 }
 
-int* YM2413::updateBuffer(int length) throw()
+int* YM2413::updateBuffer(int length)
 {
 	//PRT_DEBUG("YM2413: update buffer");
 	if (isInternalMuted()) {

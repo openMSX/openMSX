@@ -71,7 +71,7 @@ protected:
 		);
 
 	// SettingListener:
-	virtual void update(const SettingLeafNode* setting) throw();
+	virtual void update(const SettingLeafNode* setting);
 
 private:
 	/** Horizontal dimensions of the screen.

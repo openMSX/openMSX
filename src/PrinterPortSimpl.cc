@@ -8,12 +8,10 @@ namespace openmsx {
 
 PrinterPortSimpl::PrinterPortSimpl()
 {
-	dac = NULL;
 }
 
 PrinterPortSimpl::~PrinterPortSimpl()
 {
-	delete dac;	// unplug();
 }
 
 bool PrinterPortSimpl::getStatus(const EmuTime &time)
@@ -32,16 +30,14 @@ void PrinterPortSimpl::writeData(byte data, const EmuTime &time)
 }
 
 void PrinterPortSimpl::plugHelper(Connector *connector, const EmuTime &time)
-	throw()
 {
 	short volume = 12000;	// TODO read from config
-	dac = new DACSound8U("simpl", getDescription(), volume, time);
+	dac.reset(new DACSound8U("simpl", getDescription(), volume, time));
 }
 
 void PrinterPortSimpl::unplugHelper(const EmuTime &time)
 {
-	delete dac;
-	dac = NULL;
+	dac.reset();
 }
 
 const string& PrinterPortSimpl::getName() const

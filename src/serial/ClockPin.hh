@@ -15,7 +15,6 @@ class ClockPin;
 class ClockPinListener
 {
 public:
-	virtual ~ClockPinListener() {}
 	virtual void signal(ClockPin& pin, const EmuTime& time) = 0;
 	virtual void signalPosEdge(ClockPin& pin, const EmuTime& time) = 0;
 };
@@ -45,8 +44,8 @@ public:
 private:
 	void unschedule();
 	void schedule(const EmuTime& time);
-	virtual void executeUntil(const EmuTime &time, int userData) throw();
-	virtual const string &schedName() const;
+	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual const string& schedName() const;
 	
 	ClockPinListener* listener;
 

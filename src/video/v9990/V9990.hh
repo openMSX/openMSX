@@ -26,17 +26,12 @@ class V9990 : public MSXIODevice,
               private Schedulable
 {
 public:
-	/** Constructor
-	  */
 	V9990(Config* config, const EmuTime& time);
-	
-	/** Destructor
-	  */ 
 	virtual ~V9990();
 
 	/** Schedulable interface
 	  */ 
-	virtual void executeUntil(const EmuTime& time, int userData) throw();
+	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const string& schedName() const;
 
 	/** MSXIODevice interface

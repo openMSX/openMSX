@@ -8,7 +8,7 @@ using std::min;
 
 namespace openmsx {
 
-FileBase::FileBase() throw(FileException)
+FileBase::FileBase()
 	: mmem(NULL)
 {
 }
@@ -18,7 +18,7 @@ FileBase::~FileBase()
 	munmap();
 }
 
-byte* FileBase::mmap(bool writeBack) throw(FileException)
+byte* FileBase::mmap(bool writeBack)
 {
 	if (!mmem) {
 		mmapWrite = writeBack;
@@ -29,7 +29,7 @@ byte* FileBase::mmap(bool writeBack) throw(FileException)
 	return mmem;
 }
 
-void FileBase::munmap() throw(FileException)
+void FileBase::munmap()
 {
 	if (mmem) {
 		if (mmapWrite) {
@@ -41,7 +41,7 @@ void FileBase::munmap() throw(FileException)
 	}
 }
 
- void FileBase::truncate(unsigned size) throw(FileException)
+ void FileBase::truncate(unsigned size)
 {
 	int grow = size - getSize();
 	if (grow < 0) {

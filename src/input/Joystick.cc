@@ -83,7 +83,7 @@ void Joystick::write(byte value, const EmuTime& time)
 }
 
 //EventListener
-bool Joystick::signalEvent(const Event& event) throw()
+bool Joystick::signalEvent(const Event& event)
 {
 	assert(dynamic_cast<const JoystickEvent*>(&event));
 	const JoystickEvent& joyEvent = static_cast<const JoystickEvent&>(event);

@@ -52,12 +52,12 @@ void DACSound16S::setSampleRate(int sampleRate)
 	oneSampDur = 1.0 / sampleRate;
 }
 
-void DACSound16S::reset(const EmuTime &time)
+void DACSound16S::reset(const EmuTime& time)
 {
 	writeDAC(0, time);
 }
 
-void DACSound16S::writeDAC(short value, const EmuTime &time)
+void DACSound16S::writeDAC(short value, const EmuTime& time)
 {
 	if (value == lastWrittenValue) {
 		return;
@@ -74,7 +74,7 @@ void DACSound16S::writeDAC(short value, const EmuTime &time)
 	}
 }
 
-inline int DACSound16S::getSample(const EmuTime &time)
+inline int DACSound16S::getSample(const EmuTime& time)
 {
 	while (nextTime < time) {
 		assert(!samples.empty());
@@ -92,7 +92,7 @@ inline int DACSound16S::getSample(const EmuTime &time)
 	return lastValue;
 }
 
-int* DACSound16S::updateBuffer(int length) throw()
+int* DACSound16S::updateBuffer(int length)
 {
 	if (isInternalMuted()) {
 		return NULL;

@@ -420,7 +420,7 @@ void SCC::setDeformReg(byte value, const EmuTime& time)
 
 
 
-int *SCC::updateBuffer(int length) throw()
+int *SCC::updateBuffer(int length)
 {
 	if (isInternalMuted()) {
 		return NULL;

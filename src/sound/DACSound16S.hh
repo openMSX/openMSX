@@ -20,7 +20,7 @@ class DACSound16S : public SoundDevice
 {
 public:
 	DACSound16S(const string& name, const string& desc,
-		    short maxVolume, const EmuTime &time); 
+		    short maxVolume, const EmuTime& time); 
 	virtual ~DACSound16S();
 
 	void reset(const EmuTime& time);
@@ -31,7 +31,7 @@ public:
 	virtual const string& getDescription() const;
 	virtual void setVolume(int newVolume);
 	virtual void setSampleRate(int sampleRate);
-	virtual int* updateBuffer(int length) throw();
+	virtual int* updateBuffer(int length);
 	
 private:
 	inline int getSample(const EmuTime& time);

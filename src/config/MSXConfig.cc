@@ -22,14 +22,12 @@ MSXConfig::~MSXConfig()
 }
 
 void MSXConfig::loadConfig(const XMLElement& config, const FileContext& context)
-	throw(ConfigException)
 {
 	// TODO check duplicate id
 	configs.push_back(new Config(config, context));
 }
 
 void MSXConfig::handleDoc(const XMLDocument& doc, FileContext& context)
-	throw(ConfigException)
 {
 	const XMLElement::Children& children = doc.getChildren();
 	for (XMLElement::Children::const_iterator it = children.begin();
@@ -55,7 +53,6 @@ bool MSXConfig::hasConfigWithId(const string& id)
 }
 
 Config* MSXConfig::getConfigById(const string& id)
-	throw(ConfigException)
 {
 	Config* result = findConfigById(id);
 	if (!result) {

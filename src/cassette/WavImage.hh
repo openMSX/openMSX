@@ -15,15 +15,13 @@ namespace openmsx {
 
 class FileContext;
 
-
 class WavImage : public CassetteImage
 {
 public:
-	WavImage(FileContext &context, const string &fileName)
-		throw(MSXException);
+	WavImage(FileContext& context, const string& fileName);
 	virtual ~WavImage();
 
-	virtual short getSampleAt(const EmuTime &time);
+	virtual short getSampleAt(const EmuTime& time);
 
 private:
 	int length;

@@ -13,7 +13,6 @@ class SoundDevice
 {
 public:
 	SoundDevice();
-	virtual ~SoundDevice() {}
 
 	/**
 	 * Get name
@@ -95,7 +94,7 @@ public:
 	 *       (un)lock this thread with lock() and unlock()
 	 *       methods in Mixer
 	 */
-	virtual int* updateBuffer(int length) throw() = 0;
+	virtual int* updateBuffer(int length) = 0;
 
 private:
 	bool userMuted, internalMuted;

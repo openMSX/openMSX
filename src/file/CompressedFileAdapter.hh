@@ -3,28 +3,31 @@
 #ifndef __COMPRESSEDFILEADAPTER_HH__
 #define __COMPRESSEDFILEADAPTER_HH__
 
+#include <memory>
 #include "FileBase.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
 class CompressedFileAdapter : public FileBase
 {
 public:
-	virtual void read(byte* buffer, unsigned num) throw();
-	virtual void write(const byte* buffer, unsigned num) throw(FileException);
-	virtual unsigned getSize() throw();
-	virtual void seek(unsigned pos) throw();
-	virtual unsigned getPos() throw();
-	virtual void truncate(unsigned size) throw(FileException);
-	virtual const string getURL() const throw(FileException);
-	virtual const string getLocalName() throw(FileException);
-	virtual bool isReadOnly() const throw();
+	virtual void read(byte* buffer, unsigned num);
+	virtual void write(const byte* buffer, unsigned num);
+	virtual unsigned getSize();
+	virtual void seek(unsigned pos);
+	virtual unsigned getPos();
+	virtual void truncate(unsigned size);
+	virtual const string getURL() const;
+	virtual const string getLocalName();
+	virtual bool isReadOnly() const;
 
 protected:
-	CompressedFileAdapter(FileBase* file) throw();
+	CompressedFileAdapter(auto_ptr<FileBase> file);
 	virtual ~CompressedFileAdapter();
 
-	FileBase* file;
+	const auto_ptr<FileBase> file;
 	byte* buf;
 	unsigned size;
 

@@ -6,10 +6,9 @@
 #include "GZFileAdapter.hh"
 #include "ZipFileAdapter.hh"
 
-
 namespace openmsx {
 
-File::File(const string &url, OpenMode mode) throw(FileException)
+File::File(const string& url, OpenMode mode)
 {
 	string protocol, name;
 	unsigned pos = url.find("://");
@@ -24,78 +23,76 @@ File::File(const string &url, OpenMode mode) throw(FileException)
 
 	PRT_DEBUG("File: " << protocol << "://" << name);
 	if (protocol == "file") {
-		file = new LocalFile(name, mode);
+		file.reset(new LocalFile(name, mode));
 	} else {
 		throw FatalError("Unsupported protocol: " + protocol);
 	}
 
 	if (((pos = name.rfind(".gz")) != string::npos) &&
 	    (pos == (name.size() - 3))) {
-		file = new GZFileAdapter(file);
+		file.reset(new GZFileAdapter(file));
 	} else
 	if (((pos = name.rfind(".zip")) != string::npos) &&
 	    (pos == (name.size() - 4))) {
-		file = new ZipFileAdapter(file);
+		file.reset(new ZipFileAdapter(file));
 	}
 }
 
 File::~File()
 {
-	delete file;
 }
 
-
-void File::read(byte* buffer, unsigned num) throw(FileException)
+void File::read(byte* buffer, unsigned num)
 {
 	file->read(buffer, num);
 }
 
-void File::write(const byte* buffer, unsigned num) throw(FileException)
+void File::write(const byte* buffer, unsigned num)
 {
 	file->write(buffer, num);
 }
 
-byte* File::mmap(bool writeBack) throw(FileException)
+byte* File::mmap(bool writeBack)
 {
 	return file->mmap(writeBack);
 }
 
-void File::munmap() throw(FileException)
+void File::munmap()
 {
 	file->munmap();
 }
 
-unsigned File::getSize() throw(FileException)
+unsigned File::getSize()
 {
 	return file->getSize();
 }
 
-void File::seek(unsigned pos) throw(FileException)
+void File::seek(unsigned pos)
 {
 	file->seek(pos);
 }
 
-unsigned File::getPos() throw(FileException)
+unsigned File::getPos()
 {
 	return file->getPos();
 }
 
-void File::truncate(unsigned size) throw(FileException)
+void File::truncate(unsigned size)
 {
 	return file->truncate(size);
 }
 
-const string File::getURL() const throw(FileException)
+const string File::getURL() const
 {
 	return file->getURL();
 }
 
-const string File::getLocalName() const throw(FileException)
+const string File::getLocalName() const
 {
 	return file->getLocalName();
 }
 
-bool File::isReadOnly() const throw(FileException)
+bool File::isReadOnly() const
 {
 	return file->isReadOnly();
 }

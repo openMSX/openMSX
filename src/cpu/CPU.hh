@@ -197,7 +197,7 @@ public:
 #endif
 
 private:
-	virtual void update(const SettingLeafNode* setting) throw();
+	virtual void update(const SettingLeafNode* setting);
 	
 	// dynamic freq
 	BooleanSetting freqLocked;

@@ -10,11 +10,9 @@
 
 using std::string;
 
-
 namespace openmsx {
 
 class EmuTime;
-
 
 /**
  * Autofire is a device that is between two other devices and outside
@@ -38,10 +36,10 @@ public:
 	 *
 	 * When auto-fire is off, bit 0 will be 0.
 	 */
-	byte getSignal(const EmuTime &time);
+	byte getSignal(const EmuTime& time);
 
 private:
-	virtual void update(const SettingLeafNode* setting) throw();
+	virtual void update(const SettingLeafNode* setting);
 
 	// Following two values specify the range of the autofire
 	// as measured by the test program:

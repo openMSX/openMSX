@@ -32,9 +32,7 @@ const byte BIN[10]   = { 0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0 };
 const byte BASIC[10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
 
 
-
-CasImage::CasImage(FileContext &context, const string &fileName)
-	throw(FileException)
+CasImage::CasImage(FileContext& context, const string& fileName)
 {
 	File file(context.resolve(fileName));
 	size = file.getSize();
@@ -49,7 +47,7 @@ CasImage::~CasImage()
 {
 }
 
-short CasImage::getSampleAt(const EmuTime &time)
+short CasImage::getSampleAt(const EmuTime& time)
 {
 	unsigned pos = time.getTicksAt(OUTPUT_FREQUENCY);
 	if (pos < output.size()) {

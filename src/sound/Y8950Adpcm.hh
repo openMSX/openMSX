@@ -32,7 +32,7 @@ private:
 	virtual void write(unsigned address, byte value);
 	
 	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData) throw();
+	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const string& schedName() const;
 
 	void schedule(const EmuTime& time);

@@ -27,7 +27,7 @@ public:
 	virtual void write(byte value, const EmuTime& time);
 
 	// EventListener
-	virtual bool signalEvent(const Event& event) throw();
+	virtual bool signalEvent(const Event& event);
 
 private:
 	Keys::KeyCode getConfigKeyCode(const string& keyname, const Config* config);

@@ -17,13 +17,11 @@ namespace openmsx {
 class HotKeyListener
 {
 public:
-	virtual ~HotKeyListener() {}
-	
 	 /**
 	  * This method gets called when the key you are interested in
 	  * is pressed.
 	  */
-	 virtual void signalHotKey(Keys::KeyCode key) throw() = 0;
+	 virtual void signalHotKey(Keys::KeyCode key) = 0;
 };
 
 class HotKey : private EventListener
@@ -49,7 +47,7 @@ public:
 
 private:
 	// EventListener
-	virtual bool signalEvent(const Event& event) throw();
+	virtual bool signalEvent(const Event& event);
 	
 	class HotKeyCmd;
 	typedef multimap<Keys::KeyCode, HotKeyListener*> ListenerMap;
@@ -63,7 +61,7 @@ private:
 		HotKeyCmd(const string& cmd);
 		virtual ~HotKeyCmd();
 		const string& getCommand() const;
-		virtual void signalHotKey(Keys::KeyCode key) throw();
+		virtual void signalHotKey(Keys::KeyCode key);
 	private:
 		const string command;
 	};

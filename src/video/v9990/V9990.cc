@@ -70,7 +70,7 @@ void V9990::reset(const EmuTime& time)
 	// Palette remains unchanged after reset
 }
 
-void V9990::executeUntil(const EmuTime &time, int userData) throw()
+void V9990::executeUntil(const EmuTime &time, int userData)
 {
 	PRT_DEBUG("[" << time << "] "
 	          "V9990::executeUntil - data=0x" << hex << userData);

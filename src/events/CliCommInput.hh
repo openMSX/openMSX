@@ -14,7 +14,6 @@
 using std::deque;
 using std::string;
 
-
 namespace openmsx {
 
 class CliCommInput : private Runnable, private Schedulable
@@ -25,7 +24,7 @@ public:
 
 private:
 	void execute(const string& command);
-	virtual void executeUntil(const EmuTime& time, int userData) throw();
+	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const string& schedName() const;
 	virtual void run();
 

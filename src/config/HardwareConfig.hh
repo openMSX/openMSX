@@ -13,8 +13,7 @@ class HardwareConfig : public MSXConfig
 public:
 	static HardwareConfig& instance();
 
-	void loadHardware(FileContext& context, const string &filename)
-		throw(FileException, ConfigException);
+	void loadHardware(FileContext& context, const string& filename);
 
 private:
 	HardwareConfig();

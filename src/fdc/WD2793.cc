@@ -360,7 +360,7 @@ void WD2793::schedule(FSMState state, const EmuTime& time)
 	Scheduler::instance().setSyncPoint(time, this);
 }
 
-void WD2793::executeUntil(const EmuTime& time, int userData) throw()
+void WD2793::executeUntil(const EmuTime& time, int userData)
 {
 	FSMState state = fsmState;
 	fsmState = FSM_NONE;

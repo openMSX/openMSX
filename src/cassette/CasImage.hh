@@ -16,15 +16,13 @@ namespace openmsx {
 
 class FileContext;
 
-
 class CasImage : public CassetteImage
 {
 public:
-	CasImage(FileContext &context, const string &fileName)
-		throw(FileException);
+	CasImage(FileContext& context, const string& fileName);
 	virtual ~CasImage();
 
-	virtual short getSampleAt(const EmuTime &time);
+	virtual short getSampleAt(const EmuTime& time);
 
 private:
 	void writePulse(int f);

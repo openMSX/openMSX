@@ -827,7 +827,7 @@ bool Y8950::checkMuteHelper()
 	return adpcm.muted();
 }
 
-int* Y8950::updateBuffer(int length) throw()
+int* Y8950::updateBuffer(int length)
 {
 	//PRT_DEBUG("Y8950: update buffer");
 	if (isInternalMuted()) {
@@ -1141,7 +1141,7 @@ byte Y8950::readStatus()
 	return tmp | 0x06;	// bit 1 and 2 are always 1
 }
 
-void Y8950::callback(byte flag) throw()
+void Y8950::callback(byte flag)
 {
 	setStatus(flag);
 }

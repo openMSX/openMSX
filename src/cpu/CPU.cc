@@ -201,7 +201,7 @@ void CPU::doBreak()
 }
 
 
-void CPU::update(const SettingLeafNode* setting) throw()
+void CPU::update(const SettingLeafNode* setting)
 {
 	if (setting == &freqLocked) {
 		if (freqLocked.getValue()) {

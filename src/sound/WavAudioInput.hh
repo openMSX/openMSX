@@ -26,8 +26,8 @@ public:
 
 private:
 	void freeWave();
-	void loadWave() throw(MSXException);
-	void update(const SettingLeafNode* setting) throw();
+	void loadWave();
+	void update(const SettingLeafNode* setting);
 
 	int length;
 	Uint8* buffer;

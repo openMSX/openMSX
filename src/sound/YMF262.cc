@@ -407,7 +407,7 @@ YMF262Channel::YMF262Channel()
 }
 
 
-void YMF262::callback(byte flag) throw()
+void YMF262::callback(byte flag)
 {
 	setStatus(flag);
 }
@@ -1871,7 +1871,7 @@ bool YMF262::checkMuteHelper()
 	return true;
 }
 
-int* YMF262::updateBuffer(int length) throw()
+int* YMF262::updateBuffer(int length)
 {
 	if (isInternalMuted()) {
 		return NULL;

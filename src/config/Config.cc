@@ -60,8 +60,7 @@ bool Config::hasParameter(const string& name) const
 	return getParameterElement(name);
 }
 
-const string &Config::getParameter(const string& name) const
-	throw(ConfigException)
+const string& Config::getParameter(const string& name) const
 {
 	XMLElement* p = getParameterElement(name);
 	if (!p) {
@@ -78,7 +77,6 @@ const string Config::getParameter(const string& name, const string& defaultValue
 }
 
 bool Config::getParameterAsBool(const string& name) const
-	throw(ConfigException)
 {
 	return StringOp::stringToBool(getParameter(name));
 }
@@ -90,12 +88,7 @@ bool Config::getParameterAsBool(const string& name, bool defaultValue) const
 }
 
 int Config::getParameterAsInt(const string& name) const
-	throw(ConfigException)
 {
-	XMLElement* p = getParameterElement(name);
-	if (!p) {
-		throw ConfigException("Missing parameter: " + name);
-	}
 	return StringOp::stringToInt(getParameter(name));
 }
 

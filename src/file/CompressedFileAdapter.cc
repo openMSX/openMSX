@@ -25,8 +25,7 @@ int CompressedFileAdapter::tmpCount = 0;
 string CompressedFileAdapter::tmpDir;
 
 
-CompressedFileAdapter::CompressedFileAdapter(FileBase* file_)
-	throw()
+CompressedFileAdapter::CompressedFileAdapter(auto_ptr<FileBase> file_)
 	: file(file_), buf(0), pos(0), localName(0)
 {
 }
@@ -45,47 +44,45 @@ CompressedFileAdapter::~CompressedFileAdapter()
 	if (buf) {
 		free(buf);
 	}
-	delete file;
 }
 
 
-void CompressedFileAdapter::read(byte* buffer, unsigned num) throw()
+void CompressedFileAdapter::read(byte* buffer, unsigned num)
 {
 	memcpy(buffer, &buf[pos], num);
 }
 
 void CompressedFileAdapter::write(const byte* buffer, unsigned num)
-	throw(FileException)
 {
 	throw FileException("Writing to compressed files not yet supported");
 }
 
-unsigned CompressedFileAdapter::getSize() throw()
+unsigned CompressedFileAdapter::getSize()
 {
 	return size;
 }
 
-void CompressedFileAdapter::seek(unsigned newpos) throw()
+void CompressedFileAdapter::seek(unsigned newpos)
 {
 	pos = newpos;
 }
 
-unsigned CompressedFileAdapter::getPos() throw()
+unsigned CompressedFileAdapter::getPos()
 {
 	return pos;
 }
 
-void CompressedFileAdapter::truncate(unsigned size) throw(FileException)
+void CompressedFileAdapter::truncate(unsigned size)
 {
 	throw FileException("Truncating compressed files not yet supported.");
 }
 
-const string CompressedFileAdapter::getURL() const throw(FileException)
+const string CompressedFileAdapter::getURL() const
 {
 	return file->getURL();
 }
 
-const string CompressedFileAdapter::getLocalName() throw(FileException)
+const string CompressedFileAdapter::getLocalName()
 {
 	if (!localName) {
 		// create temp dir
@@ -111,26 +108,26 @@ const string CompressedFileAdapter::getLocalName() throw(FileException)
 			throw FileException("Coundn't get temp file name");
 		}
 		localName = strdup(tmpname);
-		FILE *file = fopen(localName, "w");
+		FILE* fp = fopen(localName, "w");
 #else
 		string tmp = tmpDir + "/XXXXXX";
 		localName = strdup(tmp.c_str());
 		int fd = mkstemp(localName);
-		FILE* file = fdopen(fd, "w");
+		FILE* fp = fdopen(fd, "w");
 #endif
 		
 		// write temp file
-		if (!file) {
+		if (!fp) {
 			throw FileException("Couldn't create temp file");
 		}
-		fwrite(buf, 1, size, file);
-		fclose(file);
+		fwrite(buf, 1, size, fp);
+		fclose(fp);
 		++tmpCount;
 	}
 	return FileOperations::getConventionalPath(localName);
 }
 
-bool CompressedFileAdapter::isReadOnly() const throw()
+bool CompressedFileAdapter::isReadOnly() const
 {
 	return true;
 }

@@ -170,7 +170,7 @@ void MidiInNative::signal(const EmuTime& time)
 }
 
 // Schedulable
-void MidiInNative::executeUntil(const EmuTime& time, int userData) throw()
+void MidiInNative::executeUntil(const EmuTime& time, int userData)
 {
 	if (getConnector()) {
 		signal(time);

@@ -111,7 +111,7 @@ void EventDistributor::sync(const EmuTime& emuTime)
 	prevEmu = emuTime;
 }
 
-void EventDistributor::executeUntil(const EmuTime& time, int userData) throw()
+void EventDistributor::executeUntil(const EmuTime& time, int userData)
 {
 	Event* event = scheduledEvents.front();
 	scheduledEvents.pop_front();

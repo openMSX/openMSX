@@ -46,11 +46,11 @@ private:
 	virtual ~RealTime();
 
 	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData) throw();
+	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const string& schedName() const;
 
 	// SettingListener
-	void update(const SettingLeafNode* setting) throw();
+	void update(const SettingLeafNode* setting);
 
 	void internalSync(const EmuTime& time, bool allowSleep);
 	void resync();

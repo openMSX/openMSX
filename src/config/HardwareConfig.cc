@@ -22,9 +22,7 @@ HardwareConfig& HardwareConfig::instance()
 	return oneInstance;
 }
 
-void HardwareConfig::loadHardware(FileContext& context,
-                                  const string& filename)
-	throw(FileException, ConfigException)
+void HardwareConfig::loadHardware(FileContext& context, const string& filename)
 {
 	File file(context.resolve(filename));
 	XMLDocument doc(file.getLocalName());

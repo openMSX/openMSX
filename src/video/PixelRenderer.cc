@@ -426,7 +426,7 @@ void PixelRenderer::renderUntil(const EmuTime &time)
 	nextY = limitY;
 }
 
-void PixelRenderer::update(const SettingLeafNode* setting) throw()
+void PixelRenderer::update(const SettingLeafNode* setting)
 {
 	frameSkipCounter = 999;	// force drawing of frame
 }

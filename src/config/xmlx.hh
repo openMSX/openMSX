@@ -64,8 +64,8 @@ private:
 class XMLDocument : public XMLElement
 {
 public:
-	XMLDocument(const string& filename) throw(XMLException);
-	XMLDocument(const ostringstream& stream) throw(XMLException);
+	XMLDocument(const string& filename);
+	XMLDocument(const ostringstream& stream);
 
 	XMLDocument(const XMLDocument& document);
 	const XMLDocument& operator=(const XMLDocument& document);

@@ -95,13 +95,12 @@ Renderer::FpsInfoTopic::FpsInfoTopic(Renderer& parent_)
 }
 
 void Renderer::FpsInfoTopic::execute(const vector<string>& tokens,
-                                          CommandResult& result) const throw()
+                                          CommandResult& result) const
 {
 	result.setDouble(parent.getFrameRate());
 }
 
 string Renderer::FpsInfoTopic::help (const vector<string>& tokens) const
-	throw()
 {
 	return "Returns the current rendering speed in frames per second.";
 }

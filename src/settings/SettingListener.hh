@@ -12,12 +12,10 @@ class SettingLeafNode;
 class SettingListener
 {
 public:
-	virtual ~SettingListener() { }
-	
 	/** Informs a listener of a change in a setting it subscribed to.
 	  * @param setting The setting of which the value has changed.
 	  */
-	virtual void update(const SettingLeafNode* setting) throw() = 0;
+	virtual void update(const SettingLeafNode* setting) = 0;
 };
 
 } // namespace openmsx

@@ -135,17 +135,17 @@ private:
 	void scheduleDevice(const SynchronizationPoint &sp, const EmuTime &time);
 
 	// SettingListener
-	virtual void update(const SettingLeafNode* setting) throw();
+	virtual void update(const SettingLeafNode* setting);
 
 	// EventListener
-	virtual bool signalEvent(const Event& event) throw();
+	virtual bool signalEvent(const Event& event);
 
 	void pause();
 	void unpause();
 	void stopScheduling();
 
 	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData) throw();
+	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const string& schedName() const;
 	
 	/** Vector used as heap, not a priority queue because that
@@ -177,8 +177,8 @@ private:
 	class QuitCommand : public SimpleCommand {
 	public:
 		QuitCommand(Scheduler& parent);
-		virtual string execute(const vector<string>& tokens) throw();
-		virtual string help(const vector<string>& tokens) const throw();
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
 	private:
 		Scheduler& parent;
 	} quitCommand;
@@ -186,8 +186,8 @@ private:
 	class ResetCmd : public SimpleCommand {
 	public:
 		ResetCmd(Scheduler& parent);
-		virtual string execute(const vector<string>& tokens) throw();
-		virtual string help(const vector<string>& tokens) const throw();
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
 	private:
 		Scheduler& parent;
 	} resetCommand;

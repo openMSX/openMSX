@@ -2,7 +2,6 @@
 
 #include "SoundDevice.hh"
 
-
 namespace openmsx {
 
 SoundDevice::SoundDevice()

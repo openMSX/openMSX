@@ -12,7 +12,6 @@
 namespace openmsx {
 
 LocalFile::LocalFile(const string& filename_, OpenMode mode)
-	throw(FileException)
 	: filename(FileOperations::expandTilde(filename_)),
 	  readOnly(false)
 {
@@ -56,7 +55,7 @@ LocalFile::~LocalFile()
 	fclose(file);
 }
 
-void LocalFile::read(byte* buffer, unsigned num) throw(FileException)
+void LocalFile::read(byte* buffer, unsigned num)
 {
 	long pos = ftell(file);
 	fseek(file, 0, SEEK_END);
@@ -72,7 +71,7 @@ void LocalFile::read(byte* buffer, unsigned num) throw(FileException)
 	}
 }
 
-void LocalFile::write(const byte* buffer, unsigned num) throw(FileException)
+void LocalFile::write(const byte* buffer, unsigned num)
 {
 	fwrite(buffer, 1, num, file);
 	if (ferror(file)) {
@@ -81,7 +80,7 @@ void LocalFile::write(const byte* buffer, unsigned num) throw(FileException)
 }
 
 #ifdef HAVE_MMAP
-byte* LocalFile::mmap(bool writeBack) throw(FileException)
+byte* LocalFile::mmap(bool writeBack)
 {
 	if (!mmem) {
 		int flags = writeBack ? MAP_SHARED : MAP_PRIVATE;
@@ -94,7 +93,7 @@ byte* LocalFile::mmap(bool writeBack) throw(FileException)
 	return mmem;
 }
 
-void LocalFile::munmap() throw()
+void LocalFile::munmap()
 {
 	if (mmem) {
 		::munmap(mmem, getSize());
@@ -103,7 +102,7 @@ void LocalFile::munmap() throw()
 }
 #endif
 
-unsigned LocalFile::getSize() throw()
+unsigned LocalFile::getSize()
 {
 	long pos = ftell(file);
 	fseek(file, 0, SEEK_END);
@@ -112,7 +111,7 @@ unsigned LocalFile::getSize() throw()
 	return size;
 }
 
-void LocalFile::seek(unsigned pos) throw(FileException)
+void LocalFile::seek(unsigned pos)
 {
 	fseek(file, pos, SEEK_SET);
 	if (ferror(file)) {
@@ -120,13 +119,13 @@ void LocalFile::seek(unsigned pos) throw(FileException)
 	}
 }
 
-unsigned LocalFile::getPos() throw()
+unsigned LocalFile::getPos()
 {
 	return (unsigned)ftell(file);
 }
 
 #ifdef HAVE_FTRUNCATE
-void LocalFile::truncate(unsigned size) throw(FileException)
+void LocalFile::truncate(unsigned size)
 {
 	int fd = fileno(file);
 	if (ftruncate(fd, size)) {
@@ -135,18 +134,18 @@ void LocalFile::truncate(unsigned size) throw(FileException)
 }
 #endif
 
-const string LocalFile::getURL() const throw()
+const string LocalFile::getURL() const
 {
 	static const string prefix("file://");
 	return prefix + filename;
 }
 
-const string LocalFile::getLocalName() throw()
+const string LocalFile::getLocalName()
 {
 	return filename;
 }
 
-bool LocalFile::isReadOnly() const throw()
+bool LocalFile::isReadOnly() const
 {
 	return readOnly;
 }

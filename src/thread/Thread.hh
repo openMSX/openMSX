@@ -3,19 +3,14 @@
 #ifndef __THREAD_HH__
 #define __THREAD_HH__
 
-// forward declarations
 struct SDL_Thread;
-
 
 namespace openmsx {
 
 class Runnable
 {
 public:
-	virtual ~Runnable() {}
-	virtual void run() = 0; // we must allow exceptions here because some
-	                        // thread libs use exceptions internally for
-	                        // thread cancelation
+	virtual void run() = 0;
 };
 
 class Thread
@@ -25,7 +20,7 @@ public:
 	  * @param runnable Object those run() method will be invoked by
 	  * 	the created thread when it starts running.
 	  */
-	Thread(Runnable *runnable);
+	Thread(Runnable* runnable);
 	
 	~Thread();
 	
@@ -50,10 +45,10 @@ public:
 private:
 	/** Helper function to start a thread (SDL is plain C).
 	  */
-	static int startThread(void *runnable);
+	static int startThread(void* runnable);
 
-	Runnable *runnable;
-	SDL_Thread *thread;
+	Runnable* runnable;
+	SDL_Thread* thread;
 };
 
 } // namespace openmsx

@@ -126,7 +126,7 @@ void Y8950Adpcm::schedule(const EmuTime &time)
 	}
 }
 
-void Y8950Adpcm::executeUntil(const EmuTime& time, int userData) throw()
+void Y8950Adpcm::executeUntil(const EmuTime& time, int userData)
 {
 	y8950.setStatus(Y8950::STATUS_EOS);
 	if (reg7 & R07_REPEAT) {

@@ -238,7 +238,7 @@ void VDP::reset(const EmuTime& time)
 	frameStart(time);
 }
 
-void VDP::executeUntil(const EmuTime& time, int userData) throw()
+void VDP::executeUntil(const EmuTime& time, int userData)
 {
 	/*
 	PRT_DEBUG("Executing VDP at time " << time

@@ -175,7 +175,7 @@ void Mouse::write(byte value, const EmuTime& time)
 
 
 //EventListener
-bool Mouse::signalEvent(const Event& event) throw()
+bool Mouse::signalEvent(const Event& event)
 {
 	switch (event.getType()) {
 	case MOUSE_MOTION_EVENT: {

@@ -49,7 +49,7 @@ private:
 	virtual void run();
 
 	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData) throw();
+	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const string& schedName() const;
 
 	void procShortMsg(long unsigned int param);

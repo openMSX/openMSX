@@ -29,11 +29,11 @@ public:
 	FileContext& getContext() const;
 
 	bool hasParameter(const string& name) const;
-	const string &getParameter(const string& name) const throw(ConfigException);
+	const string &getParameter(const string& name) const;
 	const string getParameter(const string& name, const string& defaultValue) const;
-	bool getParameterAsBool(const string& name) const throw(ConfigException);
+	bool getParameterAsBool(const string& name) const;
 	bool getParameterAsBool(const string& name, bool defaultValue) const;
-	int getParameterAsInt(const string& name) const throw(ConfigException);
+	int getParameterAsInt(const string& name) const;
 	int getParameterAsInt(const string& name, int defaultValue) const;
 
 	typedef multimap<string, string> Parameters;

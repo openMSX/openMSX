@@ -133,13 +133,13 @@ const XMLElement& XMLElement::operator=(const XMLElement& element)
 
 // class XMLDocument
 
-XMLDocument::XMLDocument(const string& filename) throw(XMLException)
+XMLDocument::XMLDocument(const string& filename)
 {
 	xmlDocPtr doc = xmlParseFile(filename.c_str());
 	handleDoc(doc);
 }
 
-XMLDocument::XMLDocument(const ostringstream& stream) throw(XMLException)
+XMLDocument::XMLDocument(const ostringstream& stream)
 {
 	xmlDocPtr doc = xmlParseMemory(stream.str().c_str(), stream.str().length());
 	handleDoc(doc);

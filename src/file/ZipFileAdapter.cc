@@ -4,10 +4,9 @@
 #include "File.hh"
 #include "ZipFileAdapter.hh"
 
-
 namespace openmsx {
 
-ZipFileAdapter::ZipFileAdapter(FileBase* file_) throw(FileException)
+ZipFileAdapter::ZipFileAdapter(auto_ptr<FileBase> file_)
 	: CompressedFileAdapter(file_)
 {
 	byte* inputBuf = file->mmap();
@@ -71,7 +70,7 @@ ZipFileAdapter::ZipFileAdapter(FileBase* file_) throw(FileException)
 	if (inflate(&s, Z_FINISH) != Z_STREAM_END) {
 		free(buf);
 		buf = 0;
-		throw FileException("Error decompressing gzip");
+		throw FileException("Error decompressing zip");
 	}
 
 	size = s.total_out;

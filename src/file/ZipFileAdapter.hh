@@ -9,8 +9,8 @@ namespace openmsx {
 
 class ZipFileAdapter : public CompressedFileAdapter
 {
-	public:
-		ZipFileAdapter(FileBase* file) throw(FileException);
+public:
+	ZipFileAdapter(auto_ptr<FileBase> file);
 };
 
 } // namespace openmsx

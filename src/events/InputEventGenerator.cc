@@ -171,7 +171,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 }
 
 
-void InputEventGenerator::update(const SettingLeafNode *setting) throw()
+void InputEventGenerator::update(const SettingLeafNode* setting)
 {
 	assert(setting == &grabInput);
 	SDL_WM_GrabInput(grabInput.getValue() ? SDL_GRAB_ON : SDL_GRAB_OFF);

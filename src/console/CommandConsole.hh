@@ -11,6 +11,8 @@
 #include "BooleanSetting.hh"
 #include "SettingListener.hh"
 
+using std::list;
+using std::string;
 
 namespace openmsx {
 
@@ -47,7 +49,7 @@ private:
 
 	CommandConsole();
 	virtual ~CommandConsole();
-	virtual bool signalEvent(const Event& event) throw();
+	virtual bool signalEvent(const Event& event);
 	void tabCompletion();
 	void commandExecute();
 	void scroll(int delta);
@@ -69,7 +71,7 @@ private:
 	void loadHistory();
 	void saveHistory();
 
-	void update(const SettingLeafNode* setting) throw();
+	void update(const SettingLeafNode* setting);
 
 	BooleanSetting consoleSetting;
 	unsigned int maxHistory;

@@ -3,7 +3,6 @@
 #include "SDLEventInserter.hh"
 #include "Scheduler.hh"
 
-
 namespace openmsx {
 
 SDLEventInserter::SDLEventInserter(SDL_Event& evnt, const EmuTime& time)
@@ -16,7 +15,7 @@ SDLEventInserter::~SDLEventInserter()
 {
 }
 
-void SDLEventInserter::executeUntil(const EmuTime& time, int userData) throw()
+void SDLEventInserter::executeUntil(const EmuTime& time, int userData)
 {
 	SDL_PushEvent(&event);
 	delete this;	// job is done

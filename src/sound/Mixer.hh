@@ -91,7 +91,7 @@ private:
 	void updateMasterVolume(int masterVolume);
 
 	// SettingListener
-	virtual void update(const SettingLeafNode* setting) throw();
+	virtual void update(const SettingLeafNode* setting);
 
 	SoundDevice* getSoundDevice(const string& name);
 

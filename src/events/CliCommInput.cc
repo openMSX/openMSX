@@ -160,7 +160,7 @@ void CliCommInput::execute(const string& command)
 	Scheduler::instance().setAsyncPoint(this);
 }
 
-void CliCommInput::executeUntil(const EmuTime& time, int userData) throw()
+void CliCommInput::executeUntil(const EmuTime& time, int userData)
 {
 	CommandController& controller = CommandController::instance();
 	lock.down();

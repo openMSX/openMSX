@@ -10,12 +10,12 @@ namespace openmsx {
 
 class GZFileAdapter : public CompressedFileAdapter
 {
-	public:
-		GZFileAdapter(FileBase* file) throw(FileException);
+public:
+	GZFileAdapter(auto_ptr<FileBase> file);
 
-	private:
-		bool skipHeader(z_stream& s);
-		byte getByte(z_stream &s);
+private:
+	bool skipHeader(z_stream& s);
+	byte getByte(z_stream &s);
 };
 
 } // namespace openmsx

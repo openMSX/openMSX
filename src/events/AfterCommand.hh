@@ -31,7 +31,7 @@ private:
 	template<EventType T> void executeEvents();
 
 	// EventListener
-	virtual bool signalEvent(const Event& event) throw();
+	virtual bool signalEvent(const Event& event);
 
 	
 	class AfterCmd {
@@ -57,8 +57,7 @@ private:
 	protected:
 		AfterTimedCmd(const string& command, float time);
 	private:
-		virtual void executeUntil(const EmuTime& time, int userData)
-			throw();
+		virtual void executeUntil(const EmuTime& time, int userData);
 		virtual const string& schedName() const;
 		
 		float time;

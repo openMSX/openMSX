@@ -42,7 +42,7 @@ private:
 	void handle(const SDL_Event &event);
 
 	// SettingListener
-	virtual void update(const SettingLeafNode* setting) throw();
+	virtual void update(const SettingLeafNode* setting);
 
 	BooleanSetting grabInput;
 	bool keyRepeat;

@@ -18,15 +18,12 @@ class EmuTime;
 class Schedulable
 {
 public:
-	virtual ~Schedulable() {}
-	
 	/**
 	 * When the previously registered syncPoint is reached, this
 	 * method gets called. The parameter "userData" is the same
 	 * as passed to setSyncPoint().
 	 */
-	virtual void executeUntil(const EmuTime& time, int userData)
-		throw() = 0;
+	virtual void executeUntil(const EmuTime& time, int userData) = 0;
 
 	/**
 	 * This method is only used to print meaningfull debug messages

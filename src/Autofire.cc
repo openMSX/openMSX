@@ -25,14 +25,14 @@ Autofire::~Autofire()
 	speedSetting.removeListener(this);
 }
 
-void Autofire::update(const SettingLeafNode* setting) throw()
+void Autofire::update(const SettingLeafNode* setting)
 {
 	assert(setting == &speedSetting);
 	int speed = speedSetting.getValue();
 	freq = (2 * 50 * 60) / (max_ints - (speed * (max_ints - min_ints)) / 100);
 }
 
-byte Autofire::getSignal(const EmuTime &time)
+byte Autofire::getSignal(const EmuTime& time)
 {
 	if (speedSetting.getValue() != 0) {
 		return time.getTicksAt(freq) & 1;

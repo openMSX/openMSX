@@ -10,8 +10,6 @@ namespace openmsx {
 class EventListener
 {
 public:
-	virtual ~EventListener() {}
-	
 	/**
 	 * This method gets called when an event you are interested in
 	 * occurs.
@@ -19,7 +17,7 @@ public:
 	 * EventListener may also receive this event (normally always
 	 * the case except for Console)
 	 */
-	virtual bool signalEvent(const Event& event) throw() = 0;
+	virtual bool signalEvent(const Event& event) = 0;
 };
 
 } // namespace openmsx

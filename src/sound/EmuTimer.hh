@@ -14,8 +14,7 @@ class Scheduler;
 class EmuTimerCallback
 {
 public:
-	virtual ~EmuTimerCallback() {}
-	virtual void callback(byte value) throw() = 0;
+	virtual void callback(byte value) = 0;
 };
 
 template<int freq, byte flag>
@@ -28,7 +27,7 @@ public:
 	void setStart(bool start, const EmuTime& time);
 
 private:
-	virtual void executeUntil(const EmuTime& time, int userData) throw();
+	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const string& schedName() const;
 	void schedule(const EmuTime& time);
 	void unschedule();

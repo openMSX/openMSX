@@ -104,7 +104,7 @@ void KeyJoystick::write(byte value, const EmuTime& time)
 
 
 // EventListener
-bool KeyJoystick::signalEvent(const Event& event) throw()
+bool KeyJoystick::signalEvent(const Event& event)
 {
 	assert(dynamic_cast<const KeyEvent*>(&event));
 	Keys::KeyCode key = (Keys::KeyCode)((int)((KeyEvent&)event).getKeyCode() &
