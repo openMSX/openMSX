@@ -1,7 +1,16 @@
 $Id$
 
-David Heremans       <david.heremans@gnu-linux.net>
-Wouter Vermaelen     <wouter.vermaelen@student.kuleuven.ac.be>
-Alex Wulms           <awulms@inter.nl.net>
+Prime Authors:
+David Heremans <david.heremans@gnu-linux.net>
+Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 Joost Yervante Damad <j.damad@qahwah.net>
+
+Code contributors:
+tms9918a: Sean Young <sean@msxnet.org>
+z80: Marcel de Kogel
+
+With many thanks to:
+Alex Wulms           <awulms@inter.nl.net>
 Maarten Ter Huurne   <mth@stack.nl>
+Marcel Harkema       <marcel@qahwah.net>
+... this list is not complete!! ... [please add]
