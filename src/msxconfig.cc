@@ -123,21 +123,55 @@ MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP),page(0),
 			snprintf(buffer,200,"Expected <page> as first child node for <slotted> node in <device id='%s'>.", id.c_str());
 			throw MSXConfig::XMLParseException(buffer);
 		}
-		page=atoi((*sli)->content().c_str());
+		if ((*sli)->children().size()!=1)
+		{
+			snprintf(buffer,200,"Missing content node for <page> for <device id='%s'>.", id.c_str());
+			throw MSXConfig::XMLParseException(buffer);
+		}
+		cn = (*sli)->children().begin();
+		if (!((*cn)->is_content()))
+		{
+			snprintf(buffer,200,"Child node of <page> for <device id='%s'> is not a content node.", id.c_str());
+			throw MSXConfig::XMLParseException(buffer);
+		}
+		page = atoi((*cn)->content().c_str());
 		sli++;
 		if ((*sli)->name()!="ps")
 		{
 			snprintf(buffer,200,"Expected <ps> as second child node for <slotted> node in <device id='%s'>.", id.c_str());
 			throw MSXConfig::XMLParseException(buffer);
 		}
-		ps=atoi((*sli)->content().c_str());
+		if ((*sli)->children().size()!=1)
+		{
+			snprintf(buffer,200,"Missing content node for <ps> for <device id='%s'>.", id.c_str());
+			throw MSXConfig::XMLParseException(buffer);
+		}
+		cn = (*sli)->children().begin();
+		if (!((*cn)->is_content()))
+		{
+			snprintf(buffer,200,"Child node of <ps> for <device id='%s'> is not a content node.", id.c_str());
+			throw MSXConfig::XMLParseException(buffer);
+		}
+		ps = atoi((*cn)->content().c_str());
 		sli++;
 		if ((*sli)->name()!="ss")
 		{
 			snprintf(buffer,200,"Expected <ss> as third child node for <slotted> node in <device id='%s'>.", id.c_str());
 			throw MSXConfig::XMLParseException(buffer);
 		}
-		ss=atoi((*sli)->content().c_str());
+		if ((*sli)->children().size()!=1)
+		{
+			snprintf(buffer,200,"Missing content node for <ss> for <device id='%s'>.", id.c_str());
+			throw MSXConfig::XMLParseException(buffer);
+		}
+		cn = (*sli)->children().begin();
+		if (!((*cn)->is_content()))
+		{
+			snprintf(buffer,200,"Child node of <ss> for <device id='%s'> is not a content node.", id.c_str());
+			throw MSXConfig::XMLParseException(buffer);
+		}
+		ss = atoi((*cn)->content().c_str());
+		// increment on the <slotted> and <parameter> level
 		dci++;
 	}
 //        <slotted>
@@ -159,12 +193,18 @@ MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP),page(0),
 			throw MSXConfig::XMLParseException(buffer);
 		}
 		string *name=new string((*dci)->property("name")->value());
-		//if (!(*dci)->is_content())
-		//{
-		//	snprintf(buffer,200,"Expected content in <parameter name='%s'> as child node in <device id='%s'>.", name->c_str(), id.c_str());
-		//	throw MSXConfig::XMLParseException(buffer);
-		//}
-		string *value=new string((*dci)->content());
+		if ((*dci)->children().size()!=1)
+		{
+			snprintf(buffer,200,"Missing content node for <parameter name='%s'> for <device id='%s'>.", name->c_str(), id.c_str());
+			throw MSXConfig::XMLParseException(buffer);
+		}
+		cn = (*dci)->children().begin();
+		if (!((*cn)->is_content()))
+		{
+			snprintf(buffer,200,"Child node of <parameter name='%s'> for <device id='%s'> is not a content node.", name->c_str(), id.c_str());
+			throw MSXConfig::XMLParseException(buffer);
+		}
+		string *value=new string((*cn)->content());
 		parameter_names.push_back(name);
 		parameter_values.push_back(value);
 		dci++;
