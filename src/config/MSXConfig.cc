@@ -91,7 +91,7 @@ bool Device::isDevice()
 	return true;
 }
 
-Device::Slotted::Slotted(int PS, int SS=-1, int Page=-1)
+Device::Slotted::Slotted(int PS, int SS, int Page)
 :ps(PS),ss(SS),page(Page)
 {
 }

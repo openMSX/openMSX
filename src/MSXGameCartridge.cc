@@ -49,7 +49,7 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 				std::string filename = deviceConfig->getParameter("sramname");
 				PRT_INFO("Trying to read "<<filename<<" as SRAM of the cartrdige");
 				IFILETYPE* file = FileOpener::openFileRO(filename);
-				file->read(memorySRAM, 0x2000);
+				file->read((char*)memorySRAM, 0x2000);
 				file->close();
 				delete file;
 			}
@@ -96,7 +96,7 @@ MSXGameCartridge::~MSXGameCartridge()
 		std::string filename = deviceConfig->getParameter("sramname");
 		PRT_DEBUG("Trying to save to "<<filename<<" for SRAM of the cartrdige");
 		IOFILETYPE* file = FileOpener::openFileTruncate(filename);
-		file->write(memorySRAM, 0x2000);
+		file->write((char*)memorySRAM, 0x2000);
 		file->close();
 		delete file;
 	}

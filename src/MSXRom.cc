@@ -92,7 +92,7 @@ void MSXRom::readFile(IFILETYPE* file, int fileSize, byte** memoryBank)
 	} catch(MSXConfig::Exception e) {
 		// no offset specified
 	}
-	file->read(*memoryBank, fileSize);
+	file->read((char*)*memoryBank, fileSize);
 	if (file->fail()) {
 		// TODO: Throw exception, so that caller can print an error
 		//       message which includes the file name.

@@ -39,7 +39,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
 		PRT_DEBUG("SCC+ MegaRom: rom size is " << romSize);
 
 		file->seekg(0,std::ios::beg);
-		file->read(memoryBank, romSize);
+		file->read((char*)memoryBank, romSize);
 		if (file->fail())
 			PRT_ERROR("Error reading " << filename);
 		delete file;

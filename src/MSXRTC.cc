@@ -18,7 +18,7 @@ MSXRTC::MSXRTC(MSXConfig::Device *config, const EmuTime &time)
 			std::string filename = deviceConfig->getParameter("filename");
 			IFILETYPE* file = FileOpener::openFileRO(filename);
 			unsigned char buffer[4*13];
-			file->read(buffer, 4*13);
+			file->read((char*)buffer, 4*13);
 			rp5c01 = new RP5C01(emuTimeBased, buffer, time);	// use data from buffer
 			file->close();
 			delete file;
@@ -40,7 +40,7 @@ MSXRTC::~MSXRTC()
 	if (deviceConfig->getParameterAsBool("save")) {
 		std::string filename = deviceConfig->getParameter("filename");
 		IOFILETYPE* file = FileOpener::openFileTruncate(filename);
-		file->write(rp5c01->getRegs(), 4*13);
+		file->write((char*)rp5c01->getRegs(), 4*13);
 		file->close();
 		delete file;
 	}

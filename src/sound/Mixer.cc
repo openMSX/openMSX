@@ -56,7 +56,7 @@ Mixer* Mixer::instance(void)
 Mixer *Mixer::oneInstance = NULL;
 
 
-int Mixer::registerSound(SoundDevice *device, ChannelMode mode=MONO)
+int Mixer::registerSound(SoundDevice *device, ChannelMode mode)
 {
 	PRT_DEBUG("Mix: Registering sound device");
 	lock();
@@ -69,7 +69,7 @@ int Mixer::registerSound(SoundDevice *device, ChannelMode mode=MONO)
 	return audioSpec.samples;
 }
 
-void Mixer::unregisterSound(SoundDevice *device, ChannelMode mode=MONO)
+void Mixer::unregisterSound(SoundDevice *device, ChannelMode mode)
 {
 	PRT_DEBUG("Mix: Unregistering sound device");
 	lock();

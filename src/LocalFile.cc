@@ -45,7 +45,7 @@ void LocalFile::fetch()
 	file.seekg(0,std::ios::end);
 	len = file.tellg();
 	file.seekg(0,std::ios::beg);
-	file.read(buffer, len);
+	file.read((char*)buffer, len);
 	file.close();
 }
 
@@ -58,7 +58,7 @@ void LocalFile::put()
 		{
 			throw FileManagerException("LocalFile::put: fail to put a file, while 'write'-mode is asked");
 		}
-		file.write(buffer, len);
+		file.write((char*)buffer, len);
 		file.close();
 	}
 	else

@@ -77,7 +77,7 @@ Attribute::~Attribute()
 {
 }
 
-void Attribute::dump(int recursion=0)
+void Attribute::dump(int recursion)
 {
 	for (int i=0; i < recursion; i++) std::cout << "--";
 	std::cout << "Attribute " << name << " value:" << value << std::endl;
@@ -179,7 +179,7 @@ Element::~Element()
 	}
 }
 
-void Element::dump(int recursion=0)
+void Element::dump(int recursion)
 {
 	for (int i=0; i < recursion; i++) std::cout << "--";
 	std::cout << "Element " << name << " pcdata:" << pcdata << std::endl;

@@ -152,7 +152,7 @@ void MSXTapePatch::TAPION(CPU::CPURegs& R) const
 
 	do {
 		PRT_DEBUG("TAPION : file->read(buffer,8); ");
-		file->read(buffer,8);
+		file->read((char*)buffer,8);
 		if (file->fail()){
 			PRT_DEBUG("TAPION : Read error");
 			return;
@@ -202,7 +202,7 @@ void MSXTapePatch::TAPIN(CPU::CPURegs& R) const
 	R.AF.B.l |= CPU::C_FLAG;
 
 	if (file) {
-		file->get(buffer);
+		file->get((char)buffer);
 		if (! file->fail()) {
 			R.AF.B.h = buffer;
 			R.AF.B.l &= ~CPU::C_FLAG; 
@@ -283,7 +283,7 @@ void MSXTapePatch::TAPOON(CPU::CPURegs& R) const
 			file->seekg(8-filePosition , std::ios::cur);
 		}
 		if (!file->fail()) { 
-			file->write(TapeHeader,8);
+			file->write((char*)TapeHeader,8);
 			R.AF.B.l &= ~CPU::C_FLAG;
 			R.nextIFF1 = R.IFF1 = R.IFF2 = false;	// di
 		}   

@@ -73,7 +73,7 @@ void MSXDiskRomPatch::DiskImage::readSector(byte* to, int sector)
 	if (sector >= nbSectors)
 		throw NoSuchSectorException("No such sector");
 	file->seekg(sector*SECTOR_SIZE, std::ios::beg);
-	file->read(to, SECTOR_SIZE);
+	file->read((char*)to, SECTOR_SIZE);
 	if (file->bad())
 		throw DiskIOErrorException("Disk I/O error");
 }
@@ -83,7 +83,7 @@ void MSXDiskRomPatch::DiskImage::writeSector(const byte* from, int sector)
 	if (sector >= nbSectors)
 		throw NoSuchSectorException("No such sector");
 	file->seekg(sector*SECTOR_SIZE, std::ios::beg);
-	file->write(from, SECTOR_SIZE);
+	file->write((char*)from, SECTOR_SIZE);
 	if (file->bad())
 		throw DiskIOErrorException("Disk I/O error");
 }

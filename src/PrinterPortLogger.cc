@@ -32,7 +32,7 @@ void PrinterPortLogger::setStrobe(bool strobe, const EmuTime &time)
 	if (!strobe && prevStrobe) {
 		// falling edge
 		PRT_DEBUG("PRINTER: save in printlog file "<<toPrint);
-		file->write(&toPrint, 1);
+		file->write((char*)&toPrint, 1);
 	}
 	prevStrobe = strobe;
 }
