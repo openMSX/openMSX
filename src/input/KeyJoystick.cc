@@ -21,28 +21,25 @@ KeyJoystick::KeyJoystick()
 	         JOY_BUTTONA | JOY_BUTTONB;
 
 	// built in defaults: no working key joystick
-	upKey=Keys::K_NONE;
-	rightKey=Keys::K_NONE;
-	downKey=Keys::K_NONE;
-	leftKey=Keys::K_NONE;
-	buttonAKey=Keys::K_NONE;
-	buttonBKey=Keys::K_NONE;
+	upKey      = Keys::K_NONE;
+	rightKey   = Keys::K_NONE;
+	downKey    = Keys::K_NONE;
+	leftKey    = Keys::K_NONE;
+	buttonAKey = Keys::K_NONE;
+	buttonBKey = Keys::K_NONE;
 
-	Config *config;
-	
 	try {
-		config = MSXConfig::instance()->getConfigById("KeyJoystick");
+		Config* config = MSXConfig::instance()->getConfigById("KeyJoystick");
+		upKey      = getConfigKeyCode("upkey",      config);
+		rightKey   = getConfigKeyCode("rightkey",   config);
+		downKey    = getConfigKeyCode("downkey",    config);
+		leftKey    = getConfigKeyCode("leftkey",    config);
+		buttonAKey = getConfigKeyCode("buttonakey", config);
+		buttonBKey = getConfigKeyCode("buttonbkey", config);
 	} catch (ConfigException &e) {
 		PRT_INFO("KeyJoystick not configured, so it won't be usable...");
 		return;
 	}
-
-	upKey=getConfigKeyCode("upkey", config);
-	rightKey=getConfigKeyCode("rightkey", config);
-	downKey=getConfigKeyCode("downkey", config);
-	leftKey=getConfigKeyCode("leftkey", config);
-	buttonAKey=getConfigKeyCode("buttonakey", config);
-	buttonBKey=getConfigKeyCode("buttonbkey", config);
 }
 
 KeyJoystick::~KeyJoystick()
@@ -55,13 +52,19 @@ KeyJoystick::~KeyJoystick()
 
 // auxilliary function for constructor
 
-Keys::KeyCode KeyJoystick::getConfigKeyCode(const string &keyname, const Config *config)
+Keys::KeyCode KeyJoystick::getConfigKeyCode(const string &keyname,
+                                            const Config *config)
 {
 	Keys::KeyCode testKey = Keys::K_NONE;
 	if (config->hasParameter(keyname)) {
-		testKey=Keys::getCode(config->getParameter(keyname));
-		if (testKey==Keys::K_NONE) 
-			std::cerr << "Warning: unknown keycode \"" << config->getParameter(keyname) << "\" for key \"" << keyname << "\" in KeyJoystick configuration" << std::endl;
+		testKey = Keys::getCode(config->getParameter(keyname));
+		if (testKey == Keys::K_NONE) {
+			std::cerr << "Warning: unknown keycode \"" 
+			          << config->getParameter(keyname)
+			          << "\" for key \"" << keyname
+			          << "\" in KeyJoystick configuration"
+			          << std::endl;
+		}
 	}
 	return testKey;
 }
@@ -100,20 +103,20 @@ bool KeyJoystick::signalEvent(SDL_Event &event)
 	Keys::KeyCode theKey = Keys::getCode(event.key.keysym.sym);
 	switch (event.type) {
 	case SDL_KEYDOWN:
-		if (theKey==upKey) status &= ~JOY_UP;
-		else if (theKey==downKey) status &= ~JOY_DOWN;
-		else if (theKey==leftKey) status &= ~JOY_LEFT;
-		else if (theKey==rightKey) status &= ~JOY_RIGHT;
-		else if (theKey==buttonAKey) status &= ~JOY_BUTTONA;
-		else if (theKey==buttonBKey) status &= ~JOY_BUTTONB;
+		if      (theKey == upKey)      status &= ~JOY_UP;
+		else if (theKey == downKey)    status &= ~JOY_DOWN;
+		else if (theKey == leftKey)    status &= ~JOY_LEFT;
+		else if (theKey == rightKey)   status &= ~JOY_RIGHT;
+		else if (theKey == buttonAKey) status &= ~JOY_BUTTONA;
+		else if (theKey == buttonBKey) status &= ~JOY_BUTTONB;
 		break;
 	case SDL_KEYUP:
-		if (theKey==upKey) status |= JOY_UP;
-		else if (theKey==downKey) status |= JOY_DOWN;
-		else if (theKey==leftKey) status |= JOY_LEFT;
-		else if (theKey==rightKey) status |= JOY_RIGHT;
-		else if (theKey==buttonAKey) status |= JOY_BUTTONA;
-		else if (theKey==buttonBKey) status |= JOY_BUTTONB;
+		if      (theKey == upKey)      status |= JOY_UP;
+		else if (theKey == downKey)    status |= JOY_DOWN;
+		else if (theKey == leftKey)    status |= JOY_LEFT;
+		else if (theKey == rightKey)   status |= JOY_RIGHT;
+		else if (theKey == buttonAKey) status |= JOY_BUTTONA;
+		else if (theKey == buttonBKey) status |= JOY_BUTTONB;
 		break;
 	default:
 		assert(false);
