@@ -1,9 +1,17 @@
 $Id$
 
+2001-06-20 Joost Yervante Damad <j.damad@qahwah.net>
+
+	* initial MSXConfig interface/singleton skeleton
+	* first touch with libxml++
+	* links smoothly now with libxml++ and libxml
+	* !!warning!! needs libxml++ version 0.13 (debian ships with 0.10)
+	* see also http://lusis.org/~ari/xml++/
+
 2001-06-19 Joost Yervante Damad <j.damad@qahwah.net>
 
 	* added autoconf support for libxml
-	* added some $Id$ magic tags
+	* added some $Id magic tags
 
 2001-06-18 Joost Yervante Damad <j.damad@qahwah.net>
 
