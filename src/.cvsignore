@@ -23,3 +23,6 @@ gmon.out
 *.vim
 .kdbgrc.openmsx
 .debug
+*.bb
+*.bbg
+*.da
