@@ -30,7 +30,6 @@ TODO:
 - Verify model for 5th sprite number calculation.
   For example, does it have the right value in text mode?
 - Get rid of hardcoded port 0x98..0x9B.
-- Implement overscan.
 */
 
 #include "MSXMotherBoard.hh"
