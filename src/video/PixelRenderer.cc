@@ -117,7 +117,9 @@ PixelRenderer::PixelRenderer(VDP* vdp)
 
 	frameSkipCounter = 999; // force drawing of frame
 	finishFrameDuration = 0;
-	drawFrame = true;
+	drawFrame = false; // don't draw before frameStart is called
+	displayEnabled = false;
+	rasterizer->reset();
 
 	settings.getMaxFrameSkip()->addListener(this);
 	settings.getMinFrameSkip()->addListener(this);

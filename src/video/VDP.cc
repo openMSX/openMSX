@@ -160,7 +160,7 @@ void VDP::createRenderer()
 	renderer = RendererFactory::createRenderer(this);
 	// TODO: Is it safe to use frameStartTime,
 	//       which is most likely in the past?
-	renderer->reset(frameStartTime.getTime());
+	//renderer->reset(frameStartTime.getTime());
 	vram->setRenderer(renderer, frameStartTime.getTime());
 }
 
