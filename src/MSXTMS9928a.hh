@@ -3,8 +3,6 @@
 #ifndef __MSXTMS9928A_HH__
 #define __MSXTMS9928A_HH__
 
-//#include <iostream>
-//#include <fstream>
 #include <SDL/SDL.h>
 
 #include "MSXDevice.hh"
@@ -12,6 +10,7 @@
 #include "MSXMotherBoard.hh"
 #include "emutime.hh"
 #include "HotKey.hh"
+
 
 #define WIDTH 320
 #define HEIGHT 240
@@ -27,8 +26,68 @@ typedef unsigned int Pixel;
 #error DEPTH must be 8, 15, 16 or 32 bits per pixel.
 #endif
 
+class MSXTMS9928a;
+
+
+
+// TODO: Introduce an abstract base class to SDLRenderer.
+class SDLRenderer
+{
+public:
+	typedef void (SDLRenderer::*RenderMethod)(Pixel *pixelPtr, int line);
+	static RenderMethod modeToRenderMethod[];
+
+	SDLRenderer(MSXTMS9928a *vdp, bool fullScreen);
+	//~SDLRenderer();
+	void toggleFullScreen();
+	void mode0(Pixel *pixelPtr, int line);
+	void mode1(Pixel *pixelPtr, int line);
+	void mode2(Pixel *pixelPtr, int line);
+	void mode12(Pixel *pixelPtr, int line);
+	void mode3(Pixel *pixelPtr, int line);
+	void modebogus(Pixel *pixelPtr, int line);
+	void mode23(Pixel *pixelPtr, int line);
+	void modeblank(Pixel *pixelPtr, int line);
+
+	/** Draw sprites on this line over the background.
+	* @param dirty 32-entry array that stores which characters are
+	*   covered with sprites and must therefore be redrawn next frame.
+	*   This method will update the array according to the sprites drawn.
+	* @return Were any pixels drawn?
+	*/
+	bool drawSprites(Pixel *pixelPtr, int line, bool *dirty);
+
+	/** Put an image on the screen.
+	*/
+	void putImage();
+
+	void fullScreenRefresh();
+
+private:
+	MSXTMS9928a *vdp;
+
+	Pixel XPal[16];
+	Pixel currBorderColours[HEIGHT];
+
+	SDL_Surface *screen;
+
+	/** Actual pixel data.
+	*/
+	Pixel pixelData[WIDTH * HEIGHT];
+	/** Pointers to the start of each line.
+	*/
+	Pixel *linePtrs[HEIGHT];
+};
+
+
+
 class MSXTMS9928a : public MSXDevice, HotKeyListener
 {
+	// TODO: Move to black-box reuse if possible.
+	//   If this does not combine with good performance,
+	//   select a minimal number of fields to be accessible
+	//   from the renderer class.
+	friend class SDLRenderer;
 public:
 	/**
 	 * Constructor
@@ -57,19 +116,18 @@ public:
 	// handle "toggle fullscreen"-hotkey requests
 	void signalHotKey(SDLKey key);
 private:
-	typedef void (MSXTMS9928a::*RenderMethod)(Pixel *pixelPtr, int line);
-	static RenderMethod modeToRenderMethod[];
-
-	/** Limit number of sprites per display line?
-	  * Option only affects display, not MSX state.
-	  * In other words: when false all sprites are drawn,
-	  * but status registers act like they aren't.
-	  */
-	bool limitSprites;
+	SDLRenderer *renderer;
 
 	Emutime currentTime;
 
-	SDL_Surface *screen;
+	/** Limit number of sprites per display line?
+	  * Option only affects display, not MSX state.
+	  * In other words: when false there is no limit to the number of
+	  * sprites drawn, but the status register acts like the usual limit
+	  * is still effective.
+	  */
+	bool limitSprites;
+
 	struct {
 		/* TMS9928A internal settings */
 		byte ReadAhead,Regs[8],StatusReg;
@@ -83,35 +141,11 @@ private:
 
 	byte TMS9928A_vram_r();
 
-	Pixel XPal[16];
-	Pixel currBorderColours[HEIGHT];
-
-	/** Put an image on the screen.
-	  */
-	void putImage();
 	void _TMS9928A_change_register(byte reg, byte val);
 	/** Set all dirty / clean.
 	  */
 	void setDirty(bool);
 
-	void fullScreenRefresh();
-
-	void mode0(Pixel *pixelPtr, int line);
-	void mode1(Pixel *pixelPtr, int line);
-	void mode2(Pixel *pixelPtr, int line);
-	void mode12(Pixel *pixelPtr, int line);
-	void mode3(Pixel *pixelPtr, int line);
-	void modebogus(Pixel *pixelPtr, int line);
-	void mode23(Pixel *pixelPtr, int line);
-	void modeblank(Pixel *pixelPtr, int line);
-
-	/** Draw sprites on this line over the background.
-	  * @param dirty 32-entry array that stores which characters are
-	  *   covered with sprites and must therefore be redrawn next frame.
-	  *   This method will update the array according to the sprites drawn.
-	  * @return Were any pixels drawn?
-	  */
-	bool drawSprites(Pixel *pixelPtr, int line, bool *dirty);
 	/** Check sprite collision and number of sprites per line.
 	  * Separated from display code to make MSX behaviour consistent
 	  * no matter how displaying is handled.
@@ -132,12 +166,7 @@ private:
 	bool anyDirtyPattern, dirtyPattern[256 * 3];
 	bool anyDirtyName, dirtyName[40 * 24];
 
-	/** Actual pixel data.
-	  */
-	Pixel pixelData[WIDTH * HEIGHT];
-	/** Pointers to the start of each line.
-	  */
-	Pixel *linePtrs[HEIGHT];
 };
+
 #endif //___MSXTMS9928A_HH__
 

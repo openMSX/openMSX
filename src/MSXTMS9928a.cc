@@ -98,7 +98,6 @@ Probably also easier to implement when using line buffers.
 #include <cassert>
 
 
-#define TMS_SPRITES_ENABLED ((tms.Regs[1] & 0x50) == 0x40)
 #define TMS99x8A 1
 #define TMS_MODE ( (tms.model == TMS99x8A ? (tms.Regs[0] & 2) : 0) | \
 	((tms.Regs[1] & 0x10)>>4) | ((tms.Regs[1] & 8)>>1))
@@ -166,229 +165,15 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 #endif
 }
 
-// RENDERERS for line-based scanline conversion
-
-void MSXTMS9928a::mode0(Pixel *pixelPtr, int line)
-{
-	Pixel backDropColour = XPal[tms.Regs[7] & 0x0F];
-	int name = (line / 8) * 32;
-	// TODO: charLefts may have slightly better performance,
-	// but x may be easier to convert to pixel-based rendering.
-	for (int charsLeft = 32; charsLeft--; ) {
-		int charcode = tms.vMem[tms.nametbl + name];
-		// TODO: is dirtyColour[charcode / 64] correct?
-		if (dirtyName[name] || dirtyPattern[charcode]
-		|| dirtyColour[charcode / 64]) {
-
-			int colour = tms.vMem[tms.colour + charcode / 8];
-			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
-			Pixel bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
-
-			int pattern = tms.vMem[tms.pattern + charcode * 8 + (line & 0x07)];
-			// TODO: Compare performance of this loop vs unrolling.
-			for (int i = 8; i--; ) {
-				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
-				pattern <<= 1;
-			}
-		}
-		else {
-			pixelPtr += 8;
-		}
-		name++;
-	}
-}
-
-void MSXTMS9928a::mode1(Pixel *pixelPtr, int line)
-{
-	// Not needed since full screen refresh not executed now
-	//if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
-	//  return;
-	if (!anyDirtyColour) return;
-
-	Pixel fg = XPal[tms.Regs[7] >> 4];
-	Pixel bg = XPal[tms.Regs[7] & 0x0F];
-
-	int name = (line / 8) * 40;
-	int x = 0;
-	// Extended left border.
-	for (; x < 8; x++) *pixelPtr++ = bg;
-	// Actual display.
-	while (x < 248) {
-		int charcode = tms.vMem[tms.nametbl + name];
-		if (dirtyName[name] || dirtyPattern[charcode]) {
-			int pattern = tms.vMem[tms.pattern + charcode * 8 + (line & 7)];
-			for (int i = 6; i--; ) {
-				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
-				pattern <<= 1;
-			}
-		}
-		else {
-			pixelPtr += 6;
-		}
-		x += 6;
-		name++;
-	}
-	// Extended right border.
-	for (; x < 256; x++) *pixelPtr++ = bg;
-}
-
-void MSXTMS9928a::mode2(Pixel *pixelPtr, int line)
-{
-	// Not needed since full screen refresh not executed now
-	//if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
-	//  return;
-
-	Pixel backDropColour = XPal[tms.Regs[7] & 0x0F];
-	int name = (line / 8) * 32;
-	for (int x = 0; x < 256; x += 8) {
-		int charcode = tms.vMem[tms.nametbl+name] + (line / 64) * 256;
-		int colourNr = (charcode & tms.colourmask);
-		int patternNr = (charcode & tms.patternmask);
-		if (dirtyName[name] || dirtyPattern[patternNr]
-		|| dirtyColour[colourNr]) {
-			// TODO: pattern uses colourNr and colour uses patterNr...
-			//      I don't get it.
-			int pattern = tms.vMem[tms.pattern + colourNr * 8 + (line & 7)];
-			int colour = tms.vMem[tms.colour + patternNr * 8 + (line & 7)];
-			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
-			Pixel bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
-			for (int i = 8; i--; ) {
-				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
-				pattern <<= 1;
-			}
-		}
-		else {
-			pixelPtr += 8;
-		}
-		name++;
-	}
-}
-
-void MSXTMS9928a::mode12(Pixel *pixelPtr, int line)
-{
-	// Not needed since full screen refresh not executed now
-	//if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
-	//  return;
-	if (!anyDirtyColour) return;
-
-	Pixel fg = XPal[tms.Regs[7] >> 4];
-	Pixel bg = XPal[tms.Regs[7] & 0x0F];
-
-	int name = (line / 8) * 32;
-	int x = 0;
-	// Extended left border.
-	for ( ; x < 8; x++) *pixelPtr++ = bg;
-	// Actual display.
-	while (x < 248) {
-		int charcode = (tms.vMem[tms.nametbl + name] + (line / 64) * 256) & tms.patternmask;
-		if (dirtyName[name] || dirtyPattern[charcode]) {
-			int pattern = tms.vMem[tms.pattern + charcode * 8];
-			for (int i = 6; i--; ) {
-				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
-				pattern <<= 1;
-			}
-		}
-		else {
-			pixelPtr += 6;
-		}
-		x += 6;
-		name++;
-	}
-	// Extended right border.
-	for ( ; x < 256; x++) *pixelPtr++ = bg;
-}
-
-void MSXTMS9928a::mode3(Pixel *pixelPtr, int line)
-{
-	// Not needed since full screen refresh not executed now
-	//if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
-	//  return;
-	if (!anyDirtyColour) return;
-
-	Pixel backDropColour = XPal[tms.Regs[7] & 0x0F];
-	int name = (line / 8) * 32;
-	for (int x = 0; x < 256; x += 8) {
-		int charcode = tms.vMem[tms.nametbl + name];
-		if (dirtyName[name] || dirtyPattern[charcode]) {
-			int colour = tms.vMem[tms.pattern + charcode * 8 + ((line / 4) & 7)];
-			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
-			Pixel bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
-			int n;
-			for (n = 4; n--; ) *pixelPtr++ = fg;
-			for (n = 4; n--; ) *pixelPtr++ = bg;
-		}
-		else {
-			pixelPtr += 8;
-		}
-		name++;
-	}
-}
-
-void MSXTMS9928a::modebogus(Pixel *pixelPtr, int line)
-{
-	// Not needed since full screen refresh not executed now
-	//if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
-	//  return;
-
-	Pixel fg = XPal[tms.Regs[7] >> 4];
-	Pixel bg = XPal[tms.Regs[7] & 0x0F];
-	int x = 0;
-	for (; x < 8; x++) *pixelPtr++ = bg;
-	for (; x < 248; x += 6) {
-		int n;
-		for (n = 4; n--; ) *pixelPtr++ = fg;
-		for (n = 2; n--; ) *pixelPtr++ = bg;
-	}
-	for (; x < 256; x++) *pixelPtr++ = bg;
-}
-
-void MSXTMS9928a::mode23(Pixel *pixelPtr, int line)
-{
-	// Not needed since full screen refresh not executed now
-	//if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
-	//  return;
-	if (!anyDirtyColour) return;
-
-	Pixel backDropColour = XPal[tms.Regs[7] & 0x0F];
-	int name = (line / 8) * 32;
-	for (int x = 0; x < 256; x += 8) {
-		int charcode = tms.vMem[tms.nametbl + name];
-		if (dirtyName[name] || dirtyPattern[charcode]) {
-			int colour = tms.vMem[tms.pattern + ((charcode + ((line / 4) & 7) +
-				(line / 64) * 256) & tms.patternmask) * 8];
-			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
-			Pixel bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
-			int n;
-			for (n = 4; n--; ) *pixelPtr++ = fg;
-			for (n = 4; n--; ) *pixelPtr++ = bg;
-		}
-		else {
-			pixelPtr += 8;
-		}
-		name++;
-	}
-}
-
-/** TODO: Is blanking really a mode?
-  */
-void MSXTMS9928a::modeblank(Pixel *pixelPtr, int line)
-{
-	// Screen blanked so all background colour.
-	Pixel colour = XPal[tms.Regs[7] & 0x0F];
-	for (int x = 0; x < 256; x++) {
-		*pixelPtr++ = colour;
-	}
-}
-
-MSXTMS9928a::RenderMethod MSXTMS9928a::modeToRenderMethod[] = {
-	&MSXTMS9928a::mode0,
-	&MSXTMS9928a::mode1,
-	&MSXTMS9928a::mode2,
-	&MSXTMS9928a::mode12,
-	&MSXTMS9928a::mode3,
-	&MSXTMS9928a::modebogus,
-	&MSXTMS9928a::mode23,
-	&MSXTMS9928a::modebogus
+SDLRenderer::RenderMethod SDLRenderer::modeToRenderMethod[] = {
+	&SDLRenderer::mode0,
+	&SDLRenderer::mode1,
+	&SDLRenderer::mode2,
+	&SDLRenderer::mode12,
+	&SDLRenderer::mode3,
+	&SDLRenderer::modebogus,
+	&SDLRenderer::mode23,
+	&SDLRenderer::modebogus
 };
 
 inline static int calculatePattern(byte *patternPtr, int y, int size, int mag)
@@ -508,183 +293,6 @@ int MSXTMS9928a::checkSprites(
 	return visibleIndex;
 }
 
-bool MSXTMS9928a::drawSprites(Pixel *pixelPtr, int line, bool *dirty)
-{
-	int size = (tms.Regs[1] & 2) ? 16 : 8;
-	int mag = tms.Regs[1] & 1; // 0 = normal, 1 = double
-
-	// Determine sprites visible on this line.
-	// Also sets status reg properly.
-	int visibleSprites[32];
-	int visibleIndex = checkSprites(line, visibleSprites, size, mag);
-
-	bool ret = false;
-	while (visibleIndex--) {
-		// Get sprite info.
-		byte *attributePtr = tms.vMem + tms.spriteattribute +
-			visibleSprites[visibleIndex] * 4;
-		int y = *attributePtr++;
-		y = (y > 208 ? y - 255 : y + 1);
-		int x = *attributePtr++;
-		byte *patternPtr = tms.vMem + tms.spritepattern +
-			((size == 16) ? *attributePtr & 0xFC : *attributePtr) * 8;
-		Pixel colour = *++attributePtr;
-		if (colour & 0x80) x -= 32;
-		colour &= 0x0F;
-		if (colour == 0) {
-			// Don't draw transparent sprites.
-			continue;
-		}
-		colour = XPal[colour];
-
-		int pattern = calculatePattern(patternPtr, line - y, size, mag);
-
-		// Skip any dots that end up in the left border.
-		if (x < 0) {
-			pattern <<= -x;
-			x = 0;
-		}
-		// Sprites are only visible in screen modes which have lines
-		// of 32 8x8 chars.
-		bool *dirtyPtr = dirty + (x / 8);
-		if (pattern) {
-			anyDirtyName = true;
-			ret = true;
-		}
-		// Convert pattern to pixels.
-		bool charDirty = false;
-		while (pattern && (x < 256)) {
-			// Draw pixel if sprite has a dot.
-			if (pattern & 0x80000000) {
-				pixelPtr[x] = colour;
-				charDirty = true;
-			}
-			// Advancing behaviour.
-			pattern <<= 1;
-			x++;
-			if ((x & 7) == 0) {
-				if (charDirty) *dirtyPtr = true;
-				charDirty = false;
-				dirtyPtr++;
-			}
-		}
-		// Semi-filled characters can be dirty as well.
-		if ((x < 256) && charDirty) *dirtyPtr = true;
-	}
-
-	return ret;
-}
-
-inline static void drawEmptyLine(Pixel *linePtr, Pixel colour)
-{
-	for (int i = WIDTH; i--; ) {
-		*linePtr++ = colour;
-	}
-}
-
-inline static void drawBorders(
-	Pixel *linePtr, Pixel colour, int displayStart, int displayStop)
-{
-	for (int i = displayStart; i--; ) {
-		*linePtr++ = colour;
-	}
-	linePtr += displayStop - displayStart;
-	for (int i = WIDTH - displayStop; i--; ) {
-		*linePtr++ = colour;
-	}
-}
-
-void MSXTMS9928a::fullScreenRefresh()
-{
-	// Only redraw if needed.
-	if (!tms.Change) return;
-
-	Pixel borderColour = XPal[tms.Regs[7] & 0x0F];
-	int displayX = (WIDTH - 256) / 2;
-	int displayY = (HEIGHT - 192) / 2;
-	int line = 0;
-	Pixel *currBorderColoursPtr = currBorderColours;
-
-	// Top border.
-	for (; line < displayY; line++, currBorderColoursPtr++) {
-		if (*currBorderColoursPtr != borderColour) {
-			drawEmptyLine(linePtrs[line], borderColour);
-			*currBorderColoursPtr = borderColour;
-		}
-	}
-
-	// Characters that contain sprites should be drawn again next frame.
-	bool nextDirty[32];
-	bool nextAnyDirty = false; // dirty pixel in current character row?
-	bool nextAnyDirtyName = false; // dirty pixel anywhere in frame?
-
-	// Display area.
-	RenderMethod renderMethod = modeToRenderMethod[tms.mode];
-	for (int y = 0; y < 192; y++, line++, currBorderColoursPtr++) {
-		if ((y & 7) == 0) {
-			fillBool(nextDirty, false, 32);
-			nextAnyDirty = false;
-		}
-		Pixel *linePtr = &linePtrs[line][displayX];
-		if (tms.Regs[1] & 0x40) {
-			// Draw background.
-			(this->*renderMethod)(linePtr, y);
-			if (TMS_SPRITES_ENABLED) {
-				nextAnyDirty |= drawSprites(linePtr, y, nextDirty);
-			}
-		}
-		else {
-			modeblank(linePtr, y);
-		}
-		if ((y & 7) == 7) {
-			if (nextAnyDirty) {
-				memcpy(dirtyName + (y / 8) * 32, nextDirty, 32);
-				nextAnyDirtyName = true;
-			}
-			else {
-				fillBool(dirtyName + (y / 8) * 32, false, 32);
-			}
-		}
-		// Borders are drawn after the display area:
-		// V9958 can extend the left border over the display area,
-		// this is implemented using overdraw.
-		// TODO: Does the extended border clip sprites as well?
-		if (*currBorderColoursPtr != borderColour) {
-			drawBorders(linePtrs[line], borderColour,
-				displayX, WIDTH - displayX);
-			*currBorderColoursPtr = borderColour;
-		}
-	}
-
-	// Bottom border.
-	for (; line < HEIGHT; line++, currBorderColoursPtr++) {
-		if (*currBorderColoursPtr != borderColour) {
-			drawEmptyLine(linePtrs[line], borderColour);
-			*currBorderColoursPtr = borderColour;
-		}
-	}
-
-	// TODO: Verify interaction between dirty flags and blanking.
-	anyDirtyName = nextAnyDirtyName;
-	anyDirtyColour = anyDirtyPattern = false;
-	fillBool(dirtyColour, false, sizeof(dirtyColour));
-	fillBool(dirtyPattern, false, sizeof(dirtyPattern));
-}
-
-void MSXTMS9928a::putImage(void)
-{
-	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen)<0) return;//ExitNow=1;
-
-	// Copy image.
-	memcpy(screen->pixels, pixelData, sizeof(pixelData));
-
-	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
-
-	// Update screen.
-	SDL_UpdateRect(screen, 0, 0, 0, 0);
-}
-
-
 MSXTMS9928a::MSXTMS9928a(MSXConfig::Device *config) : MSXDevice(config), currentTime(3579545, 0)
 {
 	PRT_DEBUG("Creating an MSXTMS9928a object");
@@ -715,21 +323,13 @@ void MSXTMS9928a::reset ()
 	stateChanged = true;
 }
 
-void MSXTMS9928a::init(void)
+void MSXTMS9928a::init()
 {
 	MSXDevice::init();
 
+	limitSprites = true; // TODO: Read from config.
+
 	tms.model = 1;	//tms9928a
-
-	// Clear bitmap.
-	memset(pixelData, 0, sizeof(pixelData));
-	// All pixels are filled with zero bytes, so borders as well.
-	memset(currBorderColours, 0, sizeof(currBorderColours));
-
-	// Init line pointers array.
-	for (int line = 0; line < HEIGHT; line++) {
-		linePtrs[line] = pixelData + line * WIDTH;
-	}
 
 	// Video RAM
 	tms.vramsize = 0x4000;
@@ -740,56 +340,25 @@ void MSXTMS9928a::init(void)
 
 	reset();
 
-	limitSprites = true; // TODO: Read from config.
-
-	/* Open the display */
-	//if(Verbose) printf("OK\n  Opening display...");
-	PRT_DEBUG ("OK\n  Opening display...");
 	printf("fullscreen = [%s]\n", deviceConfig->getParameter("fullscreen").c_str());
-	if ( atoi(deviceConfig->getParameter("fullscreen").c_str())){
-	  screen=SDL_SetVideoMode(WIDTH,HEIGHT,DEPTH,SDL_HWSURFACE|SDL_FULLSCREEN);
-	} else {
-	  screen=SDL_SetVideoMode(WIDTH,HEIGHT,DEPTH,SDL_HWSURFACE);
-	};
-	if (screen==NULL)
-	{ printf("FAILED");return; }
-	//{ if(Verbose) printf("FAILED");return; }
-
-	// Hide mouse cursor
-	SDL_ShowCursor(0);
+	bool fullScreen = atoi(deviceConfig->getParameter("fullscreen").c_str());
+	renderer = new SDLRenderer(this, fullScreen);
 
 	// Register hotkey for fullscreen togling
 	HotKey::instance()->registerAsyncHotKey(SDLK_PRINT,this);
 
-	// Reset the palette
-	for (int i = 0; i < 16; i++) {
-		XPal[i] = SDL_MapRGB(screen->format,
-			TMS9928A_palette[i * 3 + 0],
-			TMS9928A_palette[i * 3 + 1],
-			TMS9928A_palette[i * 3 + 2]);
-	}
+	MSXMotherBoard::instance()->register_IO_In((byte)0x98, this);
+	MSXMotherBoard::instance()->register_IO_In((byte)0x99, this);
+	MSXMotherBoard::instance()->register_IO_Out((byte)0x98, this);
+	MSXMotherBoard::instance()->register_IO_Out((byte)0x99, this);
 
-	//  /* Set SCREEN8 colors */
-	//  for(J=0;J<64;J++)
-	//  {
-	//    I=(J&0x03)+(J&0x0C)*16+(J&0x30)/2;
-	//    XPal[J+16]=SDL_MapRGB(screen->format,
-	//>·····>·······>·······  (J>>4)*255/3,((J>>2)&0x03)*255/3,(J&0x03)*255/3);
-	//    BPal[I]=BPal[I|0x04]=BPal[I|0x20]=BPal[I|0x24]=XPal[J+16];
-	//  }
-
-	MSXMotherBoard::instance()->register_IO_In((byte)0x98,this);
-	MSXMotherBoard::instance()->register_IO_In((byte)0x99,this);
-	MSXMotherBoard::instance()->register_IO_Out((byte)0x98,this);
-	MSXMotherBoard::instance()->register_IO_Out((byte)0x99,this);
-
-	return ;//0;
+	return;
 }
 
 void MSXTMS9928a::signalHotKey(SDLKey key)
 {
 	// We don't care which key, since we only registered one.
-	SDL_WM_ToggleFullScreen(screen);
+	renderer->toggleFullScreen();
 }
 
 void MSXTMS9928a::start()
@@ -797,7 +366,7 @@ void MSXTMS9928a::start()
 	MSXDevice::start();
 	//First interrupt in Pal mode here
 	Scheduler::instance()->setSyncPoint(currentTime+71285, *this); // PAL
-	putImage();
+	renderer->putImage();
 }
 
 /*
@@ -814,8 +383,8 @@ void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 
 	//TODO: Change from full screen refresh to emutime based!!
 	if (stateChanged) {
-		fullScreenRefresh();
-		putImage();
+		renderer->fullScreenRefresh();
+		renderer->putImage();
 		stateChanged = false;
 	}
 
@@ -1038,5 +607,445 @@ void MSXTMS9928a::_TMS9928A_change_register(byte reg, byte val)
 		fillBool(dirtyColour, true, sizeof(dirtyColour));
 		break;
 	}
+}
+
+// ========================================================================
+
+SDLRenderer::SDLRenderer(MSXTMS9928a *vdp, bool fullScreen)
+{
+	this->vdp = vdp;
+
+	// Clear bitmap.
+	memset(pixelData, 0, sizeof(pixelData));
+	// All pixels are filled with zero bytes, so borders as well.
+	memset(currBorderColours, 0, sizeof(currBorderColours));
+
+	// Init line pointers array.
+	for (int line = 0; line < HEIGHT; line++) {
+		linePtrs[line] = pixelData + line * WIDTH;
+	}
+
+	/* Open the display */
+	PRT_DEBUG("OK\n  Opening display...");
+	screen = SDL_SetVideoMode( WIDTH, HEIGHT, DEPTH,
+		SDL_HWSURFACE | ( fullScreen ? SDL_FULLSCREEN : 0) );
+	if (screen == NULL) {
+		printf("FAILED");
+		return;
+	}
+
+	// Hide mouse cursor
+	SDL_ShowCursor(0);
+
+	// Reset the palette
+	for (int i = 0; i < 16; i++) {
+		XPal[i] = SDL_MapRGB(screen->format,
+			TMS9928A_palette[i * 3 + 0],
+			TMS9928A_palette[i * 3 + 1],
+			TMS9928A_palette[i * 3 + 2]);
+	}
+
+}
+
+/*
+SDLRenderer::~SDLRenderer()
+{
+}
+*/
+
+void SDLRenderer::toggleFullScreen()
+{
+	SDL_WM_ToggleFullScreen(screen);
+}
+
+// RENDERERS for line-based scanline conversion
+
+void SDLRenderer::mode0(Pixel *pixelPtr, int line)
+{
+	Pixel backDropColour = XPal[vdp->tms.Regs[7] & 0x0F];
+	int name = (line / 8) * 32;
+	// TODO: charLefts may have slightly better performance,
+	// but x may be easier to convert to pixel-based rendering.
+	for (int charsLeft = 32; charsLeft--; ) {
+		int charcode = vdp->tms.vMem[vdp->tms.nametbl + name];
+		// TODO: is dirtyColour[charcode / 64] correct?
+		if (vdp->dirtyName[name] || vdp->dirtyPattern[charcode]
+		|| vdp->dirtyColour[charcode / 64]) {
+
+			int colour = vdp->tms.vMem[vdp->tms.colour + charcode / 8];
+			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
+			Pixel bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
+
+			int pattern = vdp->tms.vMem[vdp->tms.pattern + charcode * 8 + (line & 0x07)];
+			// TODO: Compare performance of this loop vs unrolling.
+			for (int i = 8; i--; ) {
+				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
+				pattern <<= 1;
+			}
+		}
+		else {
+			pixelPtr += 8;
+		}
+		name++;
+	}
+}
+
+void SDLRenderer::mode1(Pixel *pixelPtr, int line)
+{
+	// Not needed since full screen refresh not executed now
+	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
+	//  return;
+	if (!vdp->anyDirtyColour) return;
+
+	Pixel fg = XPal[vdp->tms.Regs[7] >> 4];
+	Pixel bg = XPal[vdp->tms.Regs[7] & 0x0F];
+
+	int name = (line / 8) * 40;
+	int x = 0;
+	// Extended left border.
+	for (; x < 8; x++) *pixelPtr++ = bg;
+	// Actual display.
+	while (x < 248) {
+		int charcode = vdp->tms.vMem[vdp->tms.nametbl + name];
+		if (vdp->dirtyName[name] || vdp->dirtyPattern[charcode]) {
+			int pattern = vdp->tms.vMem[vdp->tms.pattern + charcode * 8 + (line & 7)];
+			for (int i = 6; i--; ) {
+				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
+				pattern <<= 1;
+			}
+		}
+		else {
+			pixelPtr += 6;
+		}
+		x += 6;
+		name++;
+	}
+	// Extended right border.
+	for (; x < 256; x++) *pixelPtr++ = bg;
+}
+
+void SDLRenderer::mode2(Pixel *pixelPtr, int line)
+{
+	// Not needed since full screen refresh not executed now
+	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
+	//  return;
+
+	Pixel backDropColour = XPal[vdp->tms.Regs[7] & 0x0F];
+	int name = (line / 8) * 32;
+	for (int x = 0; x < 256; x += 8) {
+		int charcode = vdp->tms.vMem[vdp->tms.nametbl+name] + (line / 64) * 256;
+		int colourNr = (charcode & vdp->tms.colourmask);
+		int patternNr = (charcode & vdp->tms.patternmask);
+		if (vdp->dirtyName[name] || vdp->dirtyPattern[patternNr]
+		|| vdp->dirtyColour[colourNr]) {
+			// TODO: pattern uses colourNr and colour uses patterNr...
+			//      I don't get it.
+			int pattern = vdp->tms.vMem[vdp->tms.pattern + colourNr * 8 + (line & 7)];
+			int colour = vdp->tms.vMem[vdp->tms.colour + patternNr * 8 + (line & 7)];
+			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
+			Pixel bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
+			for (int i = 8; i--; ) {
+				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
+				pattern <<= 1;
+			}
+		}
+		else {
+			pixelPtr += 8;
+		}
+		name++;
+	}
+}
+
+void SDLRenderer::mode12(Pixel *pixelPtr, int line)
+{
+	// Not needed since full screen refresh not executed now
+	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
+	//  return;
+	if (!vdp->anyDirtyColour) return;
+
+	Pixel fg = XPal[vdp->tms.Regs[7] >> 4];
+	Pixel bg = XPal[vdp->tms.Regs[7] & 0x0F];
+
+	int name = (line / 8) * 32;
+	int x = 0;
+	// Extended left border.
+	for ( ; x < 8; x++) *pixelPtr++ = bg;
+	// Actual display.
+	while (x < 248) {
+		int charcode = (vdp->tms.vMem[vdp->tms.nametbl + name] + (line / 64) * 256) & vdp->tms.patternmask;
+		if (vdp->dirtyName[name] || vdp->dirtyPattern[charcode]) {
+			int pattern = vdp->tms.vMem[vdp->tms.pattern + charcode * 8];
+			for (int i = 6; i--; ) {
+				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
+				pattern <<= 1;
+			}
+		}
+		else {
+			pixelPtr += 6;
+		}
+		x += 6;
+		name++;
+	}
+	// Extended right border.
+	for ( ; x < 256; x++) *pixelPtr++ = bg;
+}
+
+void SDLRenderer::mode3(Pixel *pixelPtr, int line)
+{
+	// Not needed since full screen refresh not executed now
+	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
+	//  return;
+	if (!vdp->anyDirtyColour) return;
+
+	Pixel backDropColour = XPal[vdp->tms.Regs[7] & 0x0F];
+	int name = (line / 8) * 32;
+	for (int x = 0; x < 256; x += 8) {
+		int charcode = vdp->tms.vMem[vdp->tms.nametbl + name];
+		if (vdp->dirtyName[name] || vdp->dirtyPattern[charcode]) {
+			int colour = vdp->tms.vMem[vdp->tms.pattern + charcode * 8 + ((line / 4) & 7)];
+			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
+			Pixel bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
+			int n;
+			for (n = 4; n--; ) *pixelPtr++ = fg;
+			for (n = 4; n--; ) *pixelPtr++ = bg;
+		}
+		else {
+			pixelPtr += 8;
+		}
+		name++;
+	}
+}
+
+void SDLRenderer::modebogus(Pixel *pixelPtr, int line)
+{
+	// Not needed since full screen refresh not executed now
+	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
+	//  return;
+
+	Pixel fg = XPal[vdp->tms.Regs[7] >> 4];
+	Pixel bg = XPal[vdp->tms.Regs[7] & 0x0F];
+	int x = 0;
+	for (; x < 8; x++) *pixelPtr++ = bg;
+	for (; x < 248; x += 6) {
+		int n;
+		for (n = 4; n--; ) *pixelPtr++ = fg;
+		for (n = 2; n--; ) *pixelPtr++ = bg;
+	}
+	for (; x < 256; x++) *pixelPtr++ = bg;
+}
+
+void SDLRenderer::mode23(Pixel *pixelPtr, int line)
+{
+	// Not needed since full screen refresh not executed now
+	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
+	//  return;
+	if (!vdp->anyDirtyColour) return;
+
+	Pixel backDropColour = XPal[vdp->tms.Regs[7] & 0x0F];
+	int name = (line / 8) * 32;
+	for (int x = 0; x < 256; x += 8) {
+		int charcode = vdp->tms.vMem[vdp->tms.nametbl + name];
+		if (vdp->dirtyName[name] || vdp->dirtyPattern[charcode]) {
+			int colour = vdp->tms.vMem[vdp->tms.pattern + ((charcode + ((line / 4) & 7) +
+				(line / 64) * 256) & vdp->tms.patternmask) * 8];
+			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
+			Pixel bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
+			int n;
+			for (n = 4; n--; ) *pixelPtr++ = fg;
+			for (n = 4; n--; ) *pixelPtr++ = bg;
+		}
+		else {
+			pixelPtr += 8;
+		}
+		name++;
+	}
+}
+
+/** TODO: Is blanking really a mode?
+  */
+void SDLRenderer::modeblank(Pixel *pixelPtr, int line)
+{
+	// Screen blanked so all background colour.
+	Pixel colour = XPal[vdp->tms.Regs[7] & 0x0F];
+	for (int x = 0; x < 256; x++) {
+		*pixelPtr++ = colour;
+	}
+}
+
+bool SDLRenderer::drawSprites(Pixel *pixelPtr, int line, bool *dirty)
+{
+	int size = (vdp->tms.Regs[1] & 2) ? 16 : 8;
+	int mag = vdp->tms.Regs[1] & 1; // 0 = normal, 1 = double
+
+	// Determine sprites visible on this line.
+	// Also sets status reg properly.
+	int visibleSprites[32];
+	int visibleIndex = vdp->checkSprites(line, visibleSprites, size, mag);
+
+	bool ret = false;
+	while (visibleIndex--) {
+		// Get sprite info.
+		byte *attributePtr = vdp->tms.vMem + vdp->tms.spriteattribute +
+			visibleSprites[visibleIndex] * 4;
+		int y = *attributePtr++;
+		y = (y > 208 ? y - 255 : y + 1);
+		int x = *attributePtr++;
+		byte *patternPtr = vdp->tms.vMem + vdp->tms.spritepattern +
+			((size == 16) ? *attributePtr & 0xFC : *attributePtr) * 8;
+		Pixel colour = *++attributePtr;
+		if (colour & 0x80) x -= 32;
+		colour &= 0x0F;
+		if (colour == 0) {
+			// Don't draw transparent sprites.
+			continue;
+		}
+		colour = XPal[colour];
+
+		int pattern = calculatePattern(patternPtr, line - y, size, mag);
+
+		// Skip any dots that end up in the left border.
+		if (x < 0) {
+			pattern <<= -x;
+			x = 0;
+		}
+		// Sprites are only visible in screen modes which have lines
+		// of 32 8x8 chars.
+		bool *dirtyPtr = dirty + (x / 8);
+		if (pattern) {
+			vdp->anyDirtyName = true;
+			ret = true;
+		}
+		// Convert pattern to pixels.
+		bool charDirty = false;
+		while (pattern && (x < 256)) {
+			// Draw pixel if sprite has a dot.
+			if (pattern & 0x80000000) {
+				pixelPtr[x] = colour;
+				charDirty = true;
+			}
+			// Advancing behaviour.
+			pattern <<= 1;
+			x++;
+			if ((x & 7) == 0) {
+				if (charDirty) *dirtyPtr = true;
+				charDirty = false;
+				dirtyPtr++;
+			}
+		}
+		// Semi-filled characters can be dirty as well.
+		if ((x < 256) && charDirty) *dirtyPtr = true;
+	}
+
+	return ret;
+}
+
+inline static void drawEmptyLine(Pixel *linePtr, Pixel colour)
+{
+	for (int i = WIDTH; i--; ) {
+		*linePtr++ = colour;
+	}
+}
+
+inline static void drawBorders(
+	Pixel *linePtr, Pixel colour, int displayStart, int displayStop)
+{
+	for (int i = displayStart; i--; ) {
+		*linePtr++ = colour;
+	}
+	linePtr += displayStop - displayStart;
+	for (int i = WIDTH - displayStop; i--; ) {
+		*linePtr++ = colour;
+	}
+}
+
+void SDLRenderer::fullScreenRefresh()
+{
+	// Only redraw if needed.
+	if (!vdp->tms.Change) return;
+
+	Pixel borderColour = XPal[vdp->tms.Regs[7] & 0x0F];
+	int displayX = (WIDTH - 256) / 2;
+	int displayY = (HEIGHT - 192) / 2;
+	int line = 0;
+	Pixel *currBorderColoursPtr = currBorderColours;
+
+	// Top border.
+	for (; line < displayY; line++, currBorderColoursPtr++) {
+		if (*currBorderColoursPtr != borderColour) {
+			drawEmptyLine(linePtrs[line], borderColour);
+			*currBorderColoursPtr = borderColour;
+		}
+	}
+
+	// Characters that contain sprites should be drawn again next frame.
+	bool nextDirty[32];
+	bool nextAnyDirty = false; // dirty pixel in current character row?
+	bool nextAnyDirtyName = false; // dirty pixel anywhere in frame?
+
+	// Display area.
+	RenderMethod renderMethod = modeToRenderMethod[vdp->tms.mode];
+	for (int y = 0; y < 192; y++, line++, currBorderColoursPtr++) {
+		if ((y & 7) == 0) {
+			fillBool(nextDirty, false, 32);
+			nextAnyDirty = false;
+		}
+		Pixel *linePtr = &linePtrs[line][displayX];
+		if (vdp->tms.Regs[1] & 0x40) {
+			// Draw background.
+			(this->*renderMethod)(linePtr, y);
+			// Sprites enabled?
+			if ((vdp->tms.Regs[1] & 0x50) == 0x40) {
+				nextAnyDirty |= drawSprites(linePtr, y, nextDirty);
+			}
+		}
+		else {
+			modeblank(linePtr, y);
+		}
+		if ((y & 7) == 7) {
+			if (nextAnyDirty) {
+				memcpy(vdp->dirtyName + (y / 8) * 32, nextDirty, 32);
+				nextAnyDirtyName = true;
+			}
+			else {
+				fillBool(vdp->dirtyName + (y / 8) * 32, false, 32);
+			}
+		}
+		// Borders are drawn after the display area:
+		// V9958 can extend the left border over the display area,
+		// this is implemented using overdraw.
+		// TODO: Does the extended border clip sprites as well?
+		if (*currBorderColoursPtr != borderColour) {
+			drawBorders(linePtrs[line], borderColour,
+				displayX, WIDTH - displayX);
+			*currBorderColoursPtr = borderColour;
+		}
+	}
+
+	// Bottom border.
+	for (; line < HEIGHT; line++, currBorderColoursPtr++) {
+		if (*currBorderColoursPtr != borderColour) {
+			drawEmptyLine(linePtrs[line], borderColour);
+			*currBorderColoursPtr = borderColour;
+		}
+	}
+
+	// TODO: Verify interaction between dirty flags and blanking.
+	vdp->anyDirtyName = nextAnyDirtyName;
+	vdp->anyDirtyColour = vdp->anyDirtyPattern = false;
+	fillBool(vdp->dirtyColour, false, sizeof(vdp->dirtyColour));
+	fillBool(vdp->dirtyPattern, false, sizeof(vdp->dirtyPattern));
+}
+
+void SDLRenderer::putImage()
+{
+	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen)<0) return;//ExitNow=1;
+
+	// Copy image.
+	memcpy(screen->pixels, pixelData, sizeof(pixelData));
+
+	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
+
+	// Update screen.
+	SDL_UpdateRect(screen, 0, 0, 0, 0);
 }
 
