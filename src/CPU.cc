@@ -8,7 +8,6 @@
 CPU::CPU(CPUInterface *interf) 
 {
 	interface = interf;
-	//targetChanged = true; // not necessary
 	
 	invalidateCache(0x0000, 0x10000/CPU::CACHE_LINE_SIZE);
 }
@@ -26,7 +25,6 @@ void CPU::executeUntilTarget(const EmuTime &time)
 void CPU::setTargetTime(const EmuTime &time)
 {
 	targetTime = time;
-	targetChanged = true;
 }
 const EmuTime &CPU::getTargetTime()
 {

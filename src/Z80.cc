@@ -152,17 +152,13 @@ void Z80::execute()
 			currentTime += halts*haltStates;
 		} else {
 			// normal instructions
-			targetChanged = false;
-			//PRT_DEBUG("CPU: PC:"<<R.PC.w); 
-			while (!targetChanged && (currentTime < targetTime)) {
-				#ifdef Z80DEBUG
-				EmuTime before(currentTime);
-				executeInstruction(Z80_RDOP(R.PC.w++));
-				PRT_DEBUG("CPU: Took "<<currentTime.subtract(before)/24<<"T-States");
-				#else
-				executeInstruction(Z80_RDOP(R.PC.w++));
-				#endif
-			}
+			#ifdef Z80DEBUG
+			EmuTime before(currentTime);
+			executeInstruction(Z80_RDOP(R.PC.w++));
+			PRT_DEBUG("CPU: Took "<<currentTime.subtract(before)/24<<"T-States");
+			#else
+			executeInstruction(Z80_RDOP(R.PC.w++));
+			#endif
 		}
 	}
 }

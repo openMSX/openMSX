@@ -126,7 +126,6 @@ class CPU
 		 */
 		CPUInterface *interface;
 		EmuTime targetTime;
-		bool targetChanged;	// optimization
 
 		CPURegs R;
 
