@@ -11,7 +11,6 @@
  */
 
 
-#include "config.h"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "RenderSettings.hh"

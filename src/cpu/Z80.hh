@@ -3,7 +3,6 @@
 #ifndef __Z80_HH__
 #define __Z80_HH__
 
-#include "config.h"
 #include "CPU.hh"
 
 namespace openmsx {

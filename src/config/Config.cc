@@ -1,7 +1,6 @@
 // $Id$
 
 #include <cassert>
-#include "config.h"	// for the autoconf defines
 #include "Config.hh"
 #include "FileContext.hh"
 #include "StringOp.hh"

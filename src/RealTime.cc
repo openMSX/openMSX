@@ -1,7 +1,6 @@
 // $Id$
 
 #include <cassert>
-#include "config.h"
 #include "Keys.hh"
 #include "RealTime.hh"
 #include "MSXCPU.hh"

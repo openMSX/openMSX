@@ -1,7 +1,5 @@
 // $Id$
 
-#include "config.h"
-
 #include "Config.hh"
 #include "DeviceFactory.hh"
 #include "MSXCPUInterface.hh"

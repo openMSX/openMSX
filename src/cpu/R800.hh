@@ -3,9 +3,7 @@
 #ifndef __R800_HH__
 #define __R800_HH__
 
-#include "config.h"
 #include "CPU.hh"
-#include "EmuTime.hh"
 
 namespace openmsx {
 

@@ -3,8 +3,6 @@
 #ifndef __DUMMYRENDERER_HH__
 #define __DUMMYRENDERER_HH__
 
-#include "config.h"
-
 #include "openmsx.hh"
 #include "Renderer.hh"
 #include "VDP.hh"

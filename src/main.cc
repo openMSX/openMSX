@@ -9,7 +9,6 @@
 #include <iostream>
 #include <exception>
 #include <SDL.h>
-#include "config.h"
 #include "MSXMotherBoard.hh"
 #include "CommandLineParser.hh"
 #include "CliCommInput.hh"
