@@ -29,4 +29,4 @@ fi
 
 echo Configuring for compile with: ${CXXFLAGS}
 rm -f config.cache
-CXXFLAGS="${CXXFLAGS}" CFLAGS="${CFLAGS}" LIBS="${LIBS}" ./configure --disable-shared --disable-dependency-tracking --disable-libtool-lock --disable-profile --enable-release --prefix='' $*
+CXXFLAGS="${CXXFLAGS}" CFLAGS="${CFLAGS}" LIBS="${LIBS}" ./configure --disable-shared --disable-libtool-lock --disable-profile --enable-release --prefix='' $*
