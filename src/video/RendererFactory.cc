@@ -26,13 +26,13 @@ static bool initSDLVideo()
 	SDL_WM_SetCaption(Version::WINDOW_TITLE.c_str(), 0);
 
 	// Set icon
-	static unsigned int iconRGBA[256];
-	for (int i = 0; i < 256; i++) {
-		iconRGBA[i] = iconColours[iconData[i]];
-	}
-	SDL_Surface *iconSurf = SDL_CreateRGBSurfaceFrom(
-		iconRGBA, 16, 16, 32, 64,
-		0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+	static unsigned int iconRGBA[OPENMSX_ICON_SIZE * OPENMSX_ICON_SIZE];
+	for (int i = 0; i < OPENMSX_ICON_SIZE * OPENMSX_ICON_SIZE; i++) {
+ 		iconRGBA[i] = iconColours[iconData[i]];
+ 	}
+ 	SDL_Surface *iconSurf = SDL_CreateRGBSurfaceFrom(
+			iconRGBA, OPENMSX_ICON_SIZE, OPENMSX_ICON_SIZE, 32, OPENMSX_ICON_SIZE * 4,
+			0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
 	SDL_SetColorKey(iconSurf, SDL_SRCCOLORKEY, 0);
 	SDL_WM_SetIcon(iconSurf, NULL);
 	SDL_FreeSurface(iconSurf);

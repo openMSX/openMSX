@@ -1,5 +1,9 @@
 $Id$
 
+2004-04-28 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Implemented 32x32 icon. In win32 the icon MUST be 32x32 and Linux
+	   doesn't care about size, so 32x32 for all OS'es (thx to Reikan).
+
 2004-04-27 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed per-line administration of scale factor.
 	  In Psycho World intro, bottom text was scaled x2 instead of x1
