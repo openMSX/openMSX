@@ -32,6 +32,7 @@ class CliCommOutput;
 class MSXCPUInterface
 {
 public:
+	MSXCPUInterface();
 	static MSXCPUInterface& instance();
 	
 	/**
@@ -222,7 +223,6 @@ public:
 	void setExpanded(int ps, bool expanded);
 
 protected:
-	MSXCPUInterface();
 	virtual ~MSXCPUInterface();
 	
 	friend class auto_ptr<MSXCPUInterface>;

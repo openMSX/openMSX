@@ -23,9 +23,11 @@ namespace openmsx {
 
 static MSXCPUInterface* instanceHelper()
 {
-	// TODO choose one depending on MSX model (small optimization)
-	//return new MSXCPUInterface();
-	return new TurborCPUInterface();
+	if (HardwareConfig::instance().getChild("devices").findChild("S1990")) {
+		return new TurborCPUInterface();
+	} else {
+		return new MSXCPUInterface();
+	}
 }
 
 MSXCPUInterface& MSXCPUInterface::instance()
