@@ -4,7 +4,6 @@
 <romdb>
 
 <!-- THE ORIGINAL DB -->
-<!-- SOME ARE COMMENTED OUT TO PREVENT DOUBLES LATER ON -->
 
   <rom>
     <title>Eat Blue!</title>
@@ -16,7 +15,7 @@
   <rom>
     <title>Bubbler</title>
     <sha1>6219ec49b735e80e3c8d1d5ba2bb107390df8716</sha1>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
   </rom>
   <rom>
     <title>Painter</title>
@@ -26,7 +25,7 @@
   <rom>
     <title>Hydlide 2 (crack/modified?)</title>
     <sha1>552a758f77a7c35969523dbaca74587f0b59eb2b</sha1>
-    <romtype>ASCII16-2</romtype>
+    <romtype>ASCII16SRAM2</romtype>
   </rom>
   <rom>
     <title>War of the Dead (crack/modified)</title>
@@ -179,7 +178,7 @@
   </rom>
   <rom>
     <title>A1 Spirit</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>937464eb371c68add2236bcef91d24a8ce7c4ed1</sha1>
     <year>1987</year>
     <company>Konami</company>
@@ -1171,7 +1170,7 @@
   </rom>
   <rom>
     <title>Deep Dungeon 1</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>ASCII8SRAM8</romtype>
     <sha1>e6419519c2d3247ea395e4feaa494a2e23e469ce</sha1>
     <year>1988</year>
     <company>Scap Trust</company>
@@ -1179,7 +1178,7 @@
   </rom>
   <rom>
     <title>Deep Dungeon 2</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>ASCII8SRAM8</romtype>
     <sha1>d82135a5e28b750c44995af116db890a15f6428a</sha1>
     <year>1988</year>
     <company>Scap Trust</company>
@@ -1477,7 +1476,7 @@
   </rom>
   <rom>
     <title>F1 Spirit (1)</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>ff72a1788d47f9876d9fabd720f6a289fb409090</sha1>
     <year>1987</year>
     <company>Konami</company>
@@ -1485,7 +1484,7 @@
   </rom>
   <rom>
     <title>F1 Spirit (2)</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>42fbb18722df3e34e5b0f935a2dc0ce0d85099e9</sha1>
     <year>1987</year>
     <company>Konami</company>
@@ -1799,7 +1798,7 @@
   </rom>
   <rom>
     <title>Genghis Khan</title>
-    <romtype>Koei-32</romtype>
+    <romtype>KoeiSRAM32</romtype>
     <sha1>12b3c31f0fd10ff5823dcc8bf6dfeb785a8af2f7</sha1>
     <year>1988</year>
     <company>Koei</company>
@@ -1815,7 +1814,7 @@
   </rom>
   <rom>
     <title>Gofer No Yabou Episode 2 (1)</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>7393f677e0fae5fc83071c6b74756117b7d75e2d</sha1>
     <year>1988</year>
     <company>Konami</company>
@@ -1823,7 +1822,7 @@
   </rom>
   <rom>
     <title>Gofer No Yabou Episode 2 (2)</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>0413bb3aeacb0c28429b8c85b42796dbe48bef6d</sha1>
     <year>1988</year>
     <company>Konami</company>
@@ -1935,7 +1934,7 @@
   </rom>
   <rom>
     <title>Gradius 2 (1)</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>d63e20369f98487767810a0c57603bef6a2a07e5</sha1>
     <year>1987</year>
     <company>Konami</company>
@@ -1943,7 +1942,7 @@
   </rom>
   <rom>
     <title>Gradius 2 (2)</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>ab30cdeaacbdf14e6366d43d881338178fc665cb</sha1>
     <year>1987</year>
     <company>Konami</company>
@@ -1951,7 +1950,7 @@
   </rom>
   <rom>
     <title>Gradius 2 (Demo Version)</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>6844758ff5c2c410115d4d7cf12498c42e931732</sha1>
     <year>1987</year>
     <company>Konami</company>
@@ -2055,7 +2054,7 @@
   </rom>
   <rom>
     <title>Harryfox MSX Special</title>
-    <romtype>ASCII16-2</romtype>
+    <romtype>ASCII16SRAM2</romtype>
     <sha1>a3de07612da7986387a4f5c41bbbc7e3b244e077</sha1>
     <year>1986</year>
     <company>Micro Cabin</company>
@@ -2191,7 +2190,7 @@
   </rom>
   <rom>
     <title>Hydlide 2</title>
-    <romtype>ASCII16-2</romtype>
+    <romtype>ASCII16SRAM2</romtype>
     <sha1>da4b44c734029f60388b7cea4ab97c3d5c6a09e9</sha1>
     <year>1986</year>
     <company>T&amp;E Soft</company>
@@ -2527,7 +2526,7 @@
   </rom>
   <rom>
     <title>King's Valley 2</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>cfd872d005b7bd4cdd6e06c4c0162191f0b0415d</sha1>
     <year>1988</year>
     <company>Konami</company>
@@ -2551,7 +2550,7 @@
   </rom>
   <rom>
     <title>Knight Mare SCC</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>de7b6525f9aafe8ef77d25a799f0f8290bbc8f2e</sha1>
     <year>1986</year>
     <company>Konami</company>
@@ -3383,7 +3382,7 @@
   </rom>
   <rom>
     <title>Nobunaga No Yabou - Zenkokuban</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>ASCII8SRAM8</romtype>
     <sha1>e6de8bbd60123444de2a90928853985ceb0b4cbf</sha1>
     <year>1987</year>
     <company>Koei</company>
@@ -3495,7 +3494,7 @@
   </rom>
   <rom>
     <title>Parodius</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>2220363ae56ef707ab2471fcdb36f4816ad1d32c</sha1>
     <year>1988</year>
     <company>Konami</company>
@@ -3895,7 +3894,7 @@
   </rom>
   <rom>
     <title>Salamander</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>0d459788b6c464b50cbc2436e67a2cef248e0c4a</sha1>
     <year>1987</year>
     <company>Konami</company>
@@ -4383,7 +4382,7 @@
   </rom>
   <rom>
     <title>Syougun</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>ASCII8SRAM8</romtype>
     <sha1>16351e6a7d7fc38c23b54ee15ac6f0275621ba96</sha1>
     <year>1987</year>
     <company>Jaleco</company>
@@ -4703,7 +4702,7 @@
   </rom>
   <rom>
     <title>Xanadu</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>ASCII8SRAM8</romtype>
     <sha1>6c1814c70d69a50ec60e39ef281f0b8cd7bf8598</sha1>
     <year>1987</year>
     <company>Falcom</company>
@@ -4866,7 +4865,7 @@
   </rom>
   <rom>
     <title>A-Train</title>
-    <romtype>ASCII16-2</romtype>
+    <romtype>ASCII16SRAM2</romtype>
     <sha1>5fd07ed5b7c0492d42ed91a54a0fe80ce6e4e40d</sha1>
     <year>1989</year>
     <company>Pony Canyon</company>
@@ -5026,7 +5025,7 @@
   </rom>
   <rom>
     <title>Daikoukai Jidai</title>
-    <romtype>Koei-8</romtype>
+    <romtype>KoeiSRAM8</romtype>
     <sha1>2a4aef32db28c059c30f5f972f1c09708ef6ce62</sha1>
     <year>1990</year>
     <company>Koei</company>
@@ -5034,7 +5033,7 @@
   </rom>
   <rom>
     <title>Daisenryaku</title>
-    <romtype>ASCII16-2</romtype>
+    <romtype>ASCII16SRAM2</romtype>
     <sha1>10c38f91d8f5db2438414ea58f26dcac78352088</sha1>
     <year>1986</year>
     <company>Micro Cabin</company>
@@ -5058,7 +5057,7 @@
   </rom>
   <rom>
     <title>Dires</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>ASCII8SRAM8</romtype>
     <sha1>1ba6b699b4e34c23ee60db4e58e1265dc03f0b50</sha1>
     <year>1987</year>
     <company>Telenet</company>
@@ -5130,7 +5129,7 @@
   </rom>
   <rom>
     <title>Erusurid - Elslid</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>ASCII8SRAM8</romtype>
     <sha1>caeca37113c56e696d7053d90f5f9f3e02de8ad1</sha1>
     <year>1988</year>
     <company>NCS</company>
@@ -5146,7 +5145,7 @@
   </rom>
   <rom>
     <title>Europe War</title>
-    <romtype>Koei-32</romtype>
+    <romtype>KoeiSRAM32</romtype>
     <sha1>475c3af7495922759a5f424d2e22d7e4073d5992</sha1>
     <year>1992</year>
     <company>Koei</company>
@@ -5258,7 +5257,7 @@
   </rom>
   <rom>
     <title>Gekitotsu Pennant Race (2)</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>e22a6317747903475095008d0d5ad9427ddb34af</sha1>
     <year>1988</year>
     <company>Konami</company>
@@ -5266,7 +5265,7 @@
   </rom>
   <rom>
     <title>Gekitotsu Pennant Race 2</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>93b07e3cd5ae2f00b36824a74f83a3ef0d65d0d5</sha1>
     <year>1989</year>
     <company>Konami</company>
@@ -5274,7 +5273,7 @@
   </rom>
   <rom>
     <title>Gekitotsu Pennant Race (1)</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>b8f4ee146c3cdb8f506371d001e6398ecda85251</sha1>
     <year>1988</year>
     <company>Konami</company>
@@ -5282,7 +5281,7 @@
   </rom>
   <rom>
     <title>Genchouhishi</title>
-    <romtype>Koei-32</romtype>
+    <romtype>KoeiSRAM32</romtype>
     <sha1>74d1c7f66242335c736da29413037bd23384efaa</sha1>
     <year>1992</year>
     <company>Koei</company>
@@ -5290,7 +5289,7 @@
   </rom>
   <rom>
     <title>Genghis Khan</title>
-    <romtype>Koei-32</romtype>
+    <romtype>KoeiSRAM32</romtype>
     <sha1>8a4bcf0f38c9f243443a4d4865278f695bd83dc8</sha1>
     <year>1988</year>
     <company>Koei</company>
@@ -5346,7 +5345,7 @@
   </rom>
   <rom>
     <title>Heroes Of The Lance</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>ASCII8SRAM8</romtype>
     <sha1>ead699582641d103a94775a08121ecc336b99eae</sha1>
     <year>1991</year>
     <company>Pony Canyon</company>
@@ -5402,7 +5401,7 @@
   </rom>
   <rom>
     <title>Inindou Datou Nobunaga</title>
-    <romtype>Koei-8</romtype>
+    <romtype>KoeiSRAM8</romtype>
     <sha1>0cc6c30c6918fcf780e57d40f58a4cf2a82225cd</sha1>
     <year>1991</year>
     <company>Koei</company>
@@ -5410,7 +5409,7 @@
   </rom>
   <rom>
     <title>Isin No Arashi</title>
-    <romtype>Koei-8</romtype>
+    <romtype>KoeiSRAM8</romtype>
     <sha1>6420d61002da325403fcb6f41afb1d348eeba3b4</sha1>
     <year>1989</year>
     <company>Koei</company>
@@ -5418,7 +5417,7 @@
   </rom>
   <rom>
     <title>Japanese MSX-Write II</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>ASCII8SRAM8</romtype>
     <sha1>9afdee40e7b243f99cc50dd1ad710ab0928dd820</sha1>
     <year>1988</year>
     <company>Ascii</company>
@@ -5466,7 +5465,7 @@
   </rom>
   <rom>
     <title>King's Valley 2 (Edit Contest Version)</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>2e0436303648097e8e936c5467574aff5e3f1517</sha1>
     <year>1988</year>
     <company>Konami</company>
@@ -5474,7 +5473,7 @@
   </rom>
   <rom>
     <title>King's Valley 2</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>5ec8811254dc762c6852289a08acf22954404f0d</sha1>
     <year>1988</year>
     <company>Konami</company>
@@ -5490,7 +5489,7 @@
   </rom>
   <rom>
     <title>Kisei</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>ASCII8SRAM8</romtype>
     <sha1>2e2543ac99193f76b4f35463142294c016f0cf3d</sha1>
     <year>1987</year>
     <company>Sony</company>
@@ -5498,7 +5497,7 @@
   </rom>
   <rom>
     <title>Kontora - Contra</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>90003c78975d00b1e5612fd00dffabb70d616ecd</sha1>
     <year>1989</year>
     <company>Konami</company>
@@ -5530,7 +5529,7 @@
   </rom>
   <rom>
     <title>Lempereur</title>
-    <romtype>Koei-8</romtype>
+    <romtype>KoeiSRAM8</romtype>
     <sha1>22f5998b4de47bf2ccc077d5881ac448e6b0484d</sha1>
     <year>1990</year>
     <company>Koei</company>
@@ -5586,7 +5585,7 @@
   </rom>
   <rom>
     <title>Metal Gear 2 - Solid Snake (Demo Version)</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>21ac0ae7da47abf30986b479489134c79405f95d</sha1>
     <year>1990</year>
     <company>Konami</company>
@@ -5594,7 +5593,7 @@
   </rom>
   <rom>
     <title>Metal Gear 2 - Solid Snake</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>af567ea6e27912d6d5bf1c8e9bc18e9b393fd1ab</sha1>
     <year>1990</year>
     <company>Konami</company>
@@ -5658,7 +5657,7 @@
   </rom>
   <rom>
     <title>Nobunaga No Yabou - Sengoku Gunyuuden</title>
-    <romtype>Koei-8</romtype>
+    <romtype>KoeiSRAM8</romtype>
     <sha1>89943ae938fb308f4b5149ebc0cbea597b9b0223</sha1>
     <year>1989</year>
     <company>Koei</company>
@@ -5666,7 +5665,7 @@
   </rom>
   <rom>
     <title>Nobunaga No Yabou - Bushou Fuuunroku</title>
-    <romtype>Koei-32</romtype>
+    <romtype>KoeiSRAM32</romtype>
     <sha1>cb6bd26961387def757c7faeec7563d77d404d01</sha1>
     <year>1991</year>
     <company>Koei</company>
@@ -5674,7 +5673,7 @@
   </rom>
   <rom>
     <title>Nobunaga No Yabou - Zenkokuban</title>
-    <romtype>Koei-8</romtype>
+    <romtype>KoeiSRAM8</romtype>
     <sha1>fbfdd89ec183ceae63d3d66b0ab45faa951b525a</sha1>
     <year>1987</year>
     <company>Koei</company>
@@ -5738,7 +5737,7 @@
   </rom>
   <rom>
     <title>Professional Mahjong Gokuh</title>
-    <romtype>ASCII16-2</romtype>
+    <romtype>ASCII16SRAM2</romtype>
     <sha1>81143d2a8ef7cc593a604f3cc890312b42bdff01</sha1>
     <year>1988</year>
     <company>Chatnoir</company>
@@ -5754,7 +5753,7 @@
   </rom>
   <rom>
     <title>Quarth</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>0c62591033aa4e5e6b9eeb21eb2e5e60dcd8ee8e</sha1>
     <year>1990</year>
     <company>Konami</company>
@@ -5762,7 +5761,7 @@
   </rom>
   <rom>
     <title>Quarth (Demo Version)</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>1ccac7caeaaa1c5a89503221b0a5eec2f34b1c91</sha1>
     <year>1990</year>
     <company>Konami</company>
@@ -5826,7 +5825,7 @@
   </rom>
   <rom>
     <title>Royal Blood</title>
-    <romtype>Koei-8</romtype> 
+    <romtype>KoeiSRAM8</romtype> 
     <sha1>522a53034cf40448d441683f3308fcb4b65e6d7c</sha1>
     <year>1991</year>
     <company>Koei</company>
@@ -5834,7 +5833,7 @@
   </rom>
   <rom>
     <title>Sangokusi</title>
-    <romtype>Koei-32</romtype>
+    <romtype>KoeiSRAM32</romtype>
     <sha1>dab5a9f93a35fcb92c01e4250b01928fe8bd294b</sha1>
     <year>1988</year>
     <company>Koei</company>
@@ -5842,7 +5841,7 @@
   </rom>
   <rom>
     <title>Sangokusi 2</title>
-    <romtype>Koei-32</romtype>
+    <romtype>KoeiSRAM32</romtype>
     <sha1>25ffc7e8ca90274566c31e10b5998cca6522673a</sha1>
     <year>1991</year>
     <company>Koei</company>
@@ -5882,7 +5881,7 @@
   </rom>
   <rom>
     <title>Shougi Sinan 2</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>ASCII8SRAM8</romtype>
     <sha1>39d500fbf22168be2a12ac89ff5a50131bb1c30b</sha1>
     <year>1988</year>
     <company>Pony Canyon</company>
@@ -5890,7 +5889,7 @@
   </rom>
   <rom>
     <title>Siryousensen - War Of The Dead</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>ASCII8SRAM8</romtype>
     <sha1>3194153a9c93aa24b37804a764f112bdef091bf8</sha1>
     <year>1987</year>
     <company>Victor</company>
@@ -5898,7 +5897,7 @@
   </rom>
   <rom>
     <title>Space Manbow</title>
-    <romtype>Konami_SCC</romtype>
+    <romtype>KonamiSCC</romtype>
     <sha1>f6199f48ff994fc9a8e33a8581bb3bb16dd301ab</sha1>
     <year>1989</year>
     <company>Konami</company>
@@ -5922,7 +5921,7 @@
   </rom>
   <rom>
     <title>Suikoden</title>
-    <romtype>Koei-8</romtype>
+    <romtype>KoeiSRAM8</romtype>
     <sha1>de251a0af1df3be18469578dc00d414e572ee33e</sha1>
     <year>1989</year>
     <company>Koei</company>
@@ -5930,7 +5929,7 @@
   </rom>
   <rom>
     <title>Super Daisenryaku</title>
-    <romtype>ASCII16-2</romtype>
+    <romtype>ASCII16SRAM2</romtype>
     <sha1>d1cc2a77fb17608d542c50e2a1404cf5b4231521</sha1>
     <year>1988</year>
     <company>Micro Cabin</company>
@@ -5994,7 +5993,7 @@
   </rom>
   <rom>
     <title>Teitoku No Ketsudan</title>
-    <romtype>Koei-32</romtype>
+    <romtype>KoeiSRAM32</romtype>
     <sha1>b2ce0bc86f82f727db956dfbbe2a3fd0cb72f5fc</sha1>
     <year>1991</year>
     <company>Koei</company>
@@ -6050,7 +6049,7 @@
   </rom>
   <rom>
     <title>Ultima Exodus</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>ASCII8SRAM8</romtype>
     <sha1>18be429f8b5c7bc4775c99292110aa09341cd644</sha1>
     <year>1987</year>
     <company>Pony Canyon</company>

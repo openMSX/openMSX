@@ -1,5 +1,8 @@
 $Id$
 
+2005-02-13 Manuel Bilderbeek <manuel@msxnet.org>
+	* Rerenamed ROM types that we already agreed on for the new standard
+
 2005-02-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed compilation errors / warnings when compiling with gcc-4.0(exp)
 

@@ -31,35 +31,45 @@ static void initMap()
 	}
 	init = true;
 	
+	// generic ROM types that don't exist in real ROMs 
+	// (should not occur in any database!)
 	romtype["8kB"]         = GENERIC_8KB;
 	romtype["16kB"]        = GENERIC_16KB;
+
+	// ROM mapper types for normal software (mainly games)
 	romtype["Konami"]      = KONAMI;
-	romtype["Konami_SCC"]  = KONAMI_SCC;
+	romtype["KonamiSCC"]   = KONAMI_SCC;
 	romtype["ASCII8"]      = ASCII8;
 	romtype["ASCII16"]     = ASCII16;
 	romtype["R-Type"]      = R_TYPE;
 	romtype["CrossBlaim"]  = CROSS_BLAIM;
-	romtype["Panasonic"]   = PANASONIC;
-	romtype["National"]    = NATIONAL;
-	romtype["MSX-AUDIO"]   = MSX_AUDIO;
 	romtype["HarryFox"]    = HARRY_FOX;
 	romtype["Halnote"]     = HALNOTE;
 	romtype["Zemina80in1"] = ZEMINA80IN1;
 	romtype["Zemina90in1"] = ZEMINA90IN1;
 	romtype["Zemina126in1"]= ZEMINA126IN1;
-	romtype["HolyQuran"]   = HOLY_QURAN;
-	romtype["FSA1FM1"]     = FSA1FM1;
-	romtype["FSA1FM2"]     = FSA1FM2;
-	romtype["plain"]       = PLAIN;
-	romtype["DRAM"]        = DRAM;
-	romtype["ASCII16_2"]   = ASCII16_2;
-	romtype["ASCII8-8"]    = ASCII8_8; 
-	romtype["Koei-8"]      = KOEI_8; 
-	romtype["Koei-32"]     = KOEI_32; 
+	romtype["ASCII16SRAM2"]= ASCII16_2;
+	romtype["ASCII8SRAM8"] = ASCII8_8; 
+	romtype["KoeiSRAM8"]   = KOEI_8; 
+	romtype["KoeiSRAM32"]  = KOEI_32; 
 	romtype["Wizardry"]    = WIZARDRY; 
 	romtype["GameMaster2"] = GAME_MASTER2;
 	romtype["Majutsushi"]  = MAJUTSUSHI;
 	romtype["Synthesizer"] = SYNTHESIZER;
+	romtype["HolyQuran"]   = HOLY_QURAN;
+
+	// ROM mapper types used for system ROMs in machines
+	romtype["Panasonic"]   = PANASONIC;
+	romtype["National"]    = NATIONAL;
+	romtype["FSA1FM1"]     = FSA1FM1;
+	romtype["FSA1FM2"]     = FSA1FM2;
+	romtype["DRAM"]        = DRAM;
+
+	// ROM mapper types used for system ROMs in extensions
+	romtype["MSX-AUDIO"]   = MSX_AUDIO;
+
+	// non-mapper ROM types
+	romtype["plain"]       = PLAIN;
 	romtype["page0"]       = PAGE0;
 	romtype["page01"]      = PAGE01;
 	romtype["page012"]     = PAGE012;
@@ -102,15 +112,15 @@ RomType RomInfo::nameToRomType(string name)
 		aliasMap["0"]            = "8kB";
 		aliasMap["1"]            = "16kB";
 		aliasMap["MSXDOS2"]      = "16kB"; // for now
-		aliasMap["2"]            = "Konami_SCC";
-		aliasMap["SCC"]          = "Konami_SCC";
-		aliasMap["KONAMI5"]      = "Konami_SCC";
+		aliasMap["2"]            = "KonamiSCC";
+		aliasMap["SCC"]          = "KonamiSCC";
+		aliasMap["KONAMI5"]      = "KonamiSCC";
 		aliasMap["KONAMI4"]      = "Konami";
 		aliasMap["3"]            = "Konami";
 		aliasMap["4"]            = "ASCII8";
 		aliasMap["5"]            = "ASCII16";
 		aliasMap["64kB"]         = "plain";
-		aliasMap["HYDLIDE2"]     = "ASCII16_2";
+		aliasMap["HYDLIDE2"]     = "ASCII16SRAM2";
 		aliasMap["RC755"]        = "GameMaster2";
 		aliasMap["ROMBAS"]       = "page2";
 		aliasMap["RTYPE"]        = "R-Type";
