@@ -44,7 +44,7 @@ class MSXRealTime : public MSXDevice, public HotKeyListener
 	
 		static MSXRealTime *oneInstance;
 
-		EmuTime emuRef, emuOrigin;
+		EmuTimeFreq<1000> emuRef, emuOrigin;	// in ms (rounding err!!)
 		unsigned int realRef, realOrigin;	// !! Overflow in 49 days
 		int catchUpTime;  // number of milliseconds overtime.
 		float factor;

@@ -8,7 +8,7 @@
 //TODO  1Hz 16Hz output not implemented (not connected on MSX)
 
 
-RP5C01::RP5C01(bool emuMode) : reference(FREQ)	// runs at 16384Hz
+RP5C01::RP5C01(bool emuMode) 
 {
 	emuTimeBased = emuMode;
 	

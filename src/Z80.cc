@@ -21,13 +21,22 @@
 #include "Z80Dasm.h"
 #endif
 
-Z80::Z80(CPUInterface *interf, int clockFreq, int waitCycl) : CPU(interf, clockFreq)
+Z80::Z80(CPUInterface *interf, int waitCycl) : CPU(interf)
 {
 	init();
 	waitCycles = waitCycl;
 }
 Z80::~Z80()
 {
+}
+
+void Z80::setCurrentTime(const EmuTime &time)
+{
+	currentTime = time;
+}
+const EmuTime &Z80::getCurrentTime()
+{
+	return currentTime;
 }
 
 // Initialise the various lookup tables used by the emulation code
@@ -142,7 +151,7 @@ void Z80::execute()
 		} else {
 			// normal instructions
 			targetChanged = false;
-			while ((currentTime < targetTime) && !targetChanged) {
+			while (!targetChanged && (currentTime < targetTime)) {
 				executeInstruction(Z80_RDOP(PC.w++));
 			}
 		}
@@ -418,6 +427,11 @@ void Z80::dec_iy() { --IY.w; }
 void Z80::dec_sp() { --SP.w; }
 
 void Z80::di() { IFF1 = nextIFF1 = IFF2 = false; }
+
+void Z80::ei() {
+	nextIFF1 = true;	// delay one instruction
+	IFF2 = true;
+}
 
 void Z80::djnz() { if (--BC.B.h) { M_JR(); } else { M_SKIP_JR(); } }
 
@@ -3932,50 +3946,49 @@ void Z80::patch() { interface->patch(); }
 
 
 void Z80::dd_cb() {
-	unsigned opcode = Z80_RDOP_ARG((PC.w+1)&0xFFFF);
+	byte opcode = Z80_RDOP_ARG((PC.w+1)&0xFFFF);
 	currentTime += cycles_xx_cb[opcode];
 	(this->*opcode_dd_cb[opcode])();
 	PC.w++;
 }
 void Z80::fd_cb() {
-	unsigned opcode = Z80_RDOP_ARG((PC.w+1)&0xFFFF);
+	byte opcode = Z80_RDOP_ARG((PC.w+1)&0xFFFF);
 	currentTime += cycles_xx_cb[opcode];
 	(this->*opcode_fd_cb[opcode])();
 	PC.w++;
 }
 void Z80::cb() {
 	M1Cycle();
-	unsigned opcode = Z80_RDOP(PC.w++);
+	byte opcode = Z80_RDOP(PC.w++);
 	currentTime += cycles_cb[opcode];
 	(this->*opcode_cb[opcode])();
 }
 void Z80::ed() {
 	M1Cycle();
-	unsigned opcode = Z80_RDOP(PC.w++);
+	byte opcode = Z80_RDOP(PC.w++);
 	currentTime += cycles_ed[opcode];
 	(this->*opcode_ed[opcode])();
 }
 void Z80::dd() {
 	M1Cycle();
-	dd2();
+	byte opcode = Z80_RDOP(PC.w++);
+	currentTime += cycles_xx[opcode];
+	(this->*opcode_dd[opcode])();
 }
 void Z80::dd2() {
-	unsigned opcode = Z80_RDOP(PC.w++);
+	byte opcode = Z80_RDOP(PC.w++);
 	currentTime += cycles_xx[opcode];
 	(this->*opcode_dd[opcode])();
 }
 void Z80::fd() {
 	M1Cycle();
-	fd2();
-}
-void Z80::fd2() {
-	unsigned opcode = Z80_RDOP(PC.w++);
+	byte opcode = Z80_RDOP(PC.w++);
 	currentTime += cycles_xx[opcode];
 	(this->*opcode_fd[opcode])();
 }
-
-void Z80::ei() {
-	nextIFF1 = true;	// delay one instruction
-	IFF2 = true;
+void Z80::fd2() {
+	byte opcode = Z80_RDOP(PC.w++);
+	currentTime += cycles_xx[opcode];
+	(this->*opcode_fd[opcode])();
 }
 

@@ -8,8 +8,8 @@ MSXCPU::MSXCPU(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXCPU object");
 	oneInstance = this;
-	z80 = new Z80(MSXMotherBoard::instance(), 3579545, 1);
-	//r800 = new R800(MSXMotherBoard::instance(), 3579545*2);
+	z80 = new Z80(MSXMotherBoard::instance(), 1);
+	//r800 = new R800(MSXMotherBoard::instance());
 	activeCPU = z80;	// setActiveCPU(CPU_Z80);
 }
 

@@ -1,5 +1,11 @@
 $Id$
 
+2001-12-03 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Made a new EmuTime class (for details search mailarchives for 
+	   "[RFC] new EmuTiem class"). This gave a large performance gain,
+	   more than I had hoped for.
+	* SoundDevices now unregister themself before destruction
+
 2001-12-02 Maarten ter Huurne <mth@stack.nl>
 	* Integrated name/pattern/colour table base addresses and mask
 	  into a single mask. This is probably how the hardware does it.
@@ -10,7 +16,7 @@ $Id$
 	  VDP sends update signals when parts of its state change,
 	  Renderer can get current state from VDP at all times.
 
-2001-12-01 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+2001-12-02 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* fixed pause:
 	   - <F12> now works when paused
 	   - after pause emulation isn't too fast

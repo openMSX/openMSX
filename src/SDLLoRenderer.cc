@@ -85,7 +85,7 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 	currPhase = &SDLLoRenderer::offPhase;
 	currLine = 0;
 	// TODO: Fill in current time once that exists.
-	EmuTime dummyTime(3579545, 0);
+	EmuTime dummyTime;
 	updateDisplayMode(dummyTime);
 	dirtyForeground = dirtyBackground = true;
 

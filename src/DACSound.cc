@@ -26,7 +26,8 @@ DACSound::DACSound(short maxVolume)
 
 DACSound::~DACSound()
 {
-	PRT_DEBUG("DAC audio destroyed");
+	PRT_DEBUG("Destroying DACSound device");
+	Mixer::instance()->unregisterSound(this);
 	delete[] buf;
 }
 

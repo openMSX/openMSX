@@ -4,6 +4,7 @@
 #define __MIXER_HH__
 
 #include <SDL/SDL.h>
+#include <list>
 #include <vector>
 #include "openmsx.hh"
 #include "SoundDevice.hh"
@@ -31,8 +32,11 @@ class Mixer
 		 * method.
 		 */
 		int registerSound(SoundDevice *device, ChannelMode mode=MONO);
-		
-		//void unregisterSound(SoundDevice *device);
+	
+		/**
+		 * Every sounddevice must unregister before it is destructed
+		 */
+		void unregisterSound(SoundDevice *device, ChannelMode mode=MONO);
 		
 		/**
 		 * Use this method to force an 'early' call to all
@@ -56,9 +60,8 @@ class Mixer
 
 		SDL_AudioSpec audioSpec;
 		int nbAllDevices;
-		int nbDevices[NB_MODES];
 		int nbUnmuted[NB_MODES];
-		std::vector<SoundDevice*> devices[NB_MODES];
+		std::list<SoundDevice*> devices[NB_MODES];
 		std::vector<int*> buffers[NB_MODES];
 		
 		short* mixBuffer;

@@ -646,6 +646,7 @@ void YM2413::copyPatch(int num, Patch *ptch)
 // Destructor
 YM2413::~YM2413()
 {
+	Mixer::instance()->unregisterSound(this);
 	for (int i=0; i<9; i++)
 		delete ch[i];
 	for (int i=0; i<19*2; i++)

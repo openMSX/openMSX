@@ -184,7 +184,7 @@ int MSXTMS9928a::checkSprites(int line, MSXTMS9928a::SpriteInfo *visibleSprites)
 	return visibleIndex;
 }
 
-MSXTMS9928a::MSXTMS9928a(MSXConfig::Device *config) : MSXDevice(config), currentTime(3579545, 0)
+MSXTMS9928a::MSXTMS9928a(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXTMS9928a object");
 	// TODO: Move as much code as possible from init() to here.
@@ -455,7 +455,7 @@ void MSXTMS9928a::updateDisplayMode(EmuTime &time)
 	if (newMode != displayMode) {
 		displayMode = newMode;
 		renderer->updateDisplayMode(time);
-		printf("TMS9928A: mode %s\n", MODE_STRINGS[newMode]);
+		PRT_DEBUG("TMS9928A: mode " << MODE_STRINGS[newMode]);
 	}
 }
 

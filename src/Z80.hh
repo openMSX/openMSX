@@ -45,7 +45,7 @@ typedef void (Z80::*opcode_fn)();
 
 class Z80 : public CPU {
 	public:
-		Z80(CPUInterface *interf, int clockFreq, int waitCycles);
+		Z80(CPUInterface *interf, int waitCycles);
 		virtual ~Z80();
 		
 		void reset();
@@ -56,6 +56,8 @@ class Z80 : public CPU {
 		 */
 		void execute();
 
+		void setCurrentTime(const EmuTime &time);
+		const EmuTime &getCurrentTime();
 
 	private:
 		inline void executeInstruction(byte opcode);
@@ -112,6 +114,8 @@ class Z80 : public CPU {
 			byte debugmemory[65536];
 			char to_print_string[300];
 		#endif
+
+		EmuTimeFreq<3579545> currentTime;
 };
 
 #endif // __Z80_H__

@@ -1,20 +1,11 @@
 // $Id$
-//
-// EmuTime class for usage when referencing to the absolute emulation time
-//
-// usage:
-//
-//   EmuTime time(3579545);
-//   time++;
-//   time+=100;
-//
 
 #ifndef __EMUTIME_HH__
 #define __EMUTIME_HH__
 
-#include <cassert>
-#include <climits>
 #include <iostream>
+#include <cassert>
+
 
 #ifndef uint64
 	typedef long long uint64;
@@ -23,76 +14,67 @@
 
 // predefines
 class EmuTime;
-std::ostream &operator<<(std::ostream &os, const EmuTime &et);
+std::ostream &operator<<(std::ostream &os, const EmuTime &e);
 
 class EmuTime
 {
-public:
-	friend std::ostream &operator<<(std::ostream &os, const EmuTime &et);
-	// constants
-	static const uint64 MAIN_FREQ = 3579545*24;
-	static const uint64 INFINITY = 18446744073709551615ULL;	//ULLONG_MAX;
+	public:
+		// friends
+		friend std::ostream &operator<<(std::ostream &os, const EmuTime &et);
+		
+		// constants
+		static const uint64 MAIN_FREQ = 3579545*24;
+		static const uint64 INFINITY = 18446744073709551615ULL;	//ULLONG_MAX;
+		
+		// constructors
+		EmuTime()                 { time = 0; }
+		EmuTime(uint64 n)         { time = n; }
+		EmuTime(const EmuTime &e) { time = e.time; }
 
-	// constructors
-	EmuTime(int freq=DUMMY_FREQ, int val=0): _scale(MAIN_FREQ/freq)
-	{
-		//assert((MAIN_FREQ%freq)==0); cannot check because of rounding errors
-		_EmuTime = val*_scale;
-	}
-	
-	// destructor
-	~EmuTime() {}
+		// assignment operator
+		EmuTime &operator =(const EmuTime &e) { time = e.time; return *this; }
 
-	// copy constructor
-	EmuTime(const EmuTime &foo):_EmuTime(foo._EmuTime),_scale(foo._scale) {}
-	
-	// assignment operator
-	EmuTime &operator =(const EmuTime &foo) { _EmuTime=foo._EmuTime; return *this; }
-	void operator() (const uint64 &foo) {_EmuTime=foo*_scale; }
+		// comparison operators
+		bool operator ==(const EmuTime &e) const { return time == e.time; }
+		bool operator < (const EmuTime &e) const { return time <  e.time; }
+		bool operator <=(const EmuTime &e) const { return time <= e.time; }
+		bool operator > (const EmuTime &e) const { return time >  e.time; }
+		bool operator >=(const EmuTime &e) const { return time >= e.time; }
+		
+		// distance function
+		float getDuration(const EmuTime &e) const 
+			{ return (float)(e.time-time)/MAIN_FREQ; }
 
-	// arithmetic operators
-	EmuTime &operator +=(const uint64 &foo) 
-		{ assert(_scale!=0); _EmuTime+=foo*_scale ; return *this; }
-	EmuTime &operator +=(const EmuTime &foo) 
-		{ assert(_scale!=0); _EmuTime+=foo._EmuTime ; return *this; }
-	EmuTime &operator -=(const uint64 &foo) 
-		{ assert(_scale!=0); _EmuTime-=foo*_scale ; return *this; }
-	EmuTime &operator -=(const EmuTime &foo) 
-		{ assert(_scale!=0); _EmuTime-=foo._EmuTime ; return *this; }
-	EmuTime &operator ++() 
-		{ assert(_scale!=0); _EmuTime+=_scale ; return *this; } // prefix
-	EmuTime &operator --() 
-		{ assert(_scale!=0); _EmuTime-=_scale ; return *this; }
-	EmuTime &operator ++(int unused) 
-		{ assert(_scale!=0); _EmuTime+=_scale ; return *this; } // postfix
-	EmuTime &operator --(int unused) 
-		{ assert(_scale!=0); _EmuTime-=_scale ; return *this; }
+	//protected:
+		uint64 time;
+};
 
-	EmuTime &operator +(const uint64 &foo) const {EmuTime *bar = new EmuTime(*this); *bar+=foo; return *bar; }
-	EmuTime &operator +(const EmuTime &foo) const {EmuTime *bar = new EmuTime(*this); *bar+=foo; return *bar; }
+template <int freq>
+class EmuTimeFreq : public EmuTime
+{
+	public:
+		// constructor
+		EmuTimeFreq()               { time  = 0; }
+		//EmuTimeFreq(uint64 n)       { time  = n*(MAIN_FREQ/freq); }
+		
+		void operator() (uint64 n)  { time  = n*(MAIN_FREQ/freq); }
+		
+		// assignment operator
+		EmuTime &operator =(const EmuTime &e) { time = e.time; return *this; }
 
-	// comparison operators
-	bool operator ==(const EmuTime &foo) const { return _EmuTime == foo._EmuTime; }
-	bool operator < (const EmuTime &foo) const { return _EmuTime <  foo._EmuTime; }
-	bool operator <=(const EmuTime &foo) const { return _EmuTime <= foo._EmuTime; }
-	bool operator > (const EmuTime &foo) const { return _EmuTime >  foo._EmuTime; }
-	bool operator >=(const EmuTime &foo) const { return _EmuTime >= foo._EmuTime; }
+		// arithmetic operators
+		EmuTime &operator +=(int n) { time += n*(MAIN_FREQ/freq); return *this; }
+		EmuTime &operator -=(int n) { time -= n*(MAIN_FREQ/freq); return *this; }
+		EmuTime &operator ++()      { time +=   (MAIN_FREQ/freq); return *this; } // prefix
+		EmuTime &operator --()      { time -=   (MAIN_FREQ/freq); return *this; }
+		EmuTime &operator ++(int n) { time +=   (MAIN_FREQ/freq); return *this; } // postfix
+		EmuTime &operator --(int n) { time -=   (MAIN_FREQ/freq); return *this; }
 
-	// distance functions
-	uint64 getTicksTill(const EmuTime &foo) const {
-		assert (_scale!=0);
-		assert (foo._EmuTime >= _EmuTime);
-		return (foo._EmuTime-_EmuTime)/_scale;
-	}
-	float getDuration(const EmuTime &foo) const {
-		return (float)(foo._EmuTime-_EmuTime)/MAIN_FREQ;
-	}
+		EmuTime &operator +(uint64 n) { return *new EmuTime(time+n*(MAIN_FREQ/freq)); }
 
-private:
-	static const int DUMMY_FREQ = MAIN_FREQ*2;	// as long as it's greater than MAIN_FREQ
-	
-	uint64 _EmuTime;
-	const int _scale;
+		// distance function
+		int getTicksTill(const EmuTime &e) const 
+			{ assert(e.time >= time); return (e.time-time)/(MAIN_FREQ/freq); }
 };
 
 #endif

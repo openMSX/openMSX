@@ -26,15 +26,15 @@ class CPU
 		void executeUntilTarget(const EmuTime &time);
 		
 		/**
-		 * Sets the CPU CPU its current time. This is used to 'warp' a CPU
+		 * Sets the CPU its current time. This is used to 'warp' a CPU
 		 * when you switch between Z80/R800
 		 */
-		void setCurrentTime(const EmuTime &time);
+		virtual void setCurrentTime(const EmuTime &time) = 0;
 		
 		/**
 		 * Returns the CPU its current time
 		 */
-		const EmuTime &getCurrentTime();
+		virtual const EmuTime &getCurrentTime() = 0;
 		
 		/**
 		 * Alter the target time. The Scheduler uses this to announce
@@ -51,7 +51,7 @@ class CPU
 		/*
 		 * Constructor
 		 */
-		CPU(CPUInterface *interf, int clockFreq);
+		CPU(CPUInterface *interf);
 		
 		/*
 		 * Emulate CPU till a previously set target time.
@@ -63,7 +63,6 @@ class CPU
 		 */
 		CPUInterface *interface;
 		EmuTime targetTime;
-		EmuTime currentTime;
 		bool targetChanged;	// optimization
 };
 #endif //__CPU_HH__

@@ -247,8 +247,8 @@ private:
 	/** Emulation time of the VDP.
 	  * In other words, the time of the last update.
 	  */
-	EmuTime currentTime;
-
+	EmuTimeFreq<3579545> currentTime;
+	
 	/** Control registers.
 	  */
 	byte controlRegs[8];

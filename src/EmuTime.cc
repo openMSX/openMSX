@@ -4,7 +4,7 @@
 
 std::ostream &operator<<(std::ostream &os, const EmuTime &et)
 {
-	os << et._EmuTime << " " << et._scale;
+	os << et.time;
 	return os;
 }
 

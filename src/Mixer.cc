@@ -23,7 +23,6 @@ Mixer::Mixer()
 	
 	mixBuffer = new short[audioSpec.size / sizeof(short)];
 	for (int i=0; i<NB_MODES; i++) 
-		nbDevices[i] = 0;
 	nbAllDevices = 0;
 	reInit();
 }
@@ -51,14 +50,21 @@ int Mixer::registerSound(SoundDevice *device, ChannelMode mode=MONO)
 	device->setSampleRate(audioSpec.freq);
 	buffers[mode].push_back(NULL);	// make room for one more
 	devices[mode].push_back(device);
-	nbDevices[mode]++;
 	if (++nbAllDevices == 1) SDL_PauseAudio(0);	// unpause when first device registers
 	SDL_UnlockAudio();
 
 	return audioSpec.samples;
 }
 
-//void Mixer::unregisterSound(SoundDevice *device)
+void Mixer::unregisterSound(SoundDevice *device, ChannelMode mode=MONO)
+{
+	PRT_DEBUG("Mix: Unregistering sound device");
+	SDL_LockAudio();
+	buffers[mode].pop_back();	// remove one entry
+	devices[mode].remove(device);
+	if (--nbAllDevices == 0) SDL_PauseAudio(1);	// pause when last dev unregisters
+	SDL_UnlockAudio();
+}
 
 
 void Mixer::audioCallbackHelper (void *userdata, Uint8 *strm, int len)
@@ -101,9 +107,10 @@ void Mixer::updtStrm(int samples)
 	PRT_DEBUG("Mix: Generate " << samples << " samples");
 	for (int mode=0; mode<NB_MODES; mode++) {
 		int unmuted = 0;
-		for (int i=0; i<nbDevices[mode]; i++) {
-			if (!devices[mode][i]->isInternalMuted()) {
-				buffers[mode][unmuted] = devices[mode][i]->updateBuffer(samples);
+		for (std::list<SoundDevice*>::iterator i=devices[mode].begin();
+		     i != devices[mode].end(); i++) {
+			if (!(*i)->isInternalMuted()) {
+				buffers[mode][unmuted] = (*i)->updateBuffer(samples);
 				unmuted++;
 			}
 		}

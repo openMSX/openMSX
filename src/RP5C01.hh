@@ -59,7 +59,7 @@ class RP5C01
 		static const nibble mask[4][13];
 
 		bool emuTimeBased;
-		EmuTime reference;
+		EmuTimeFreq<FREQ> reference;
 		int fraction;
 		int seconds, minutes, hours;
 		int dayWeek, days, months, years, leapYear;

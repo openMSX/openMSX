@@ -117,7 +117,7 @@ void Scheduler::scheduleEmulation()
 		}
 	}
 }
-const EmuTime Scheduler::infinity = EmuTime(1, EmuTime::INFINITY);
+const EmuTime Scheduler::infinity = EmuTime(EmuTime::INFINITY);
 
 // Note: this runs in a different thread
 void Scheduler::signalEvent(SDL_Event &event) {

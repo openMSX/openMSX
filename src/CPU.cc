@@ -2,8 +2,7 @@
 
 #include "CPU.hh"
 
-CPU::CPU(CPUInterface *interf, int clockFreq) 
-	: targetTime(clockFreq), currentTime(clockFreq)
+CPU::CPU(CPUInterface *interf) 
 {
 	interface = interf;
 	//targetChanged = true; // not necessary
@@ -17,15 +16,6 @@ void CPU::executeUntilTarget(const EmuTime &time)
 {
 	setTargetTime(time);
 	execute();
-}
-
-void CPU::setCurrentTime(const EmuTime &time)
-{
-	currentTime = time;
-}
-const EmuTime &CPU::getCurrentTime()
-{
-	return currentTime;
 }
 
 void CPU::setTargetTime(const EmuTime &time)

@@ -5,8 +5,7 @@
 #include "MSXCPU.hh"
 
 
-MSXRealTime::MSXRealTime(MSXConfig::Device *config) : MSXDevice(config), 
-	emuRef(1000), emuOrigin(1000)	// timer in ms (rounding err!!)
+MSXRealTime::MSXRealTime(MSXConfig::Device *config) : MSXDevice(config) 
 {
 	PRT_DEBUG("Constructing a MSXRealTime object");
 	oneInstance = this;
@@ -81,7 +80,7 @@ void MSXRealTime::executeUntilEmuTime(const EmuTime &curEmu)
 	emuRef = curEmu;
 
 	// schedule again in future
-	Scheduler::instance()->setSyncPoint(curEmu+SYNCINTERVAL, *this);
+	Scheduler::instance()->setSyncPoint(emuRef+SYNCINTERVAL, *this);
 }
 
 float MSXRealTime::getRealDuration(EmuTime time1, EmuTime time2)

@@ -14,6 +14,9 @@
 #include "EmuTime.hh"
 
 
+// TODO EmuTime support is broken
+
+
 class I8254Interface
 {
 	public:
