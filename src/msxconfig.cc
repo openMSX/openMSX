@@ -11,6 +11,24 @@
 // TODO reorder methods
 // TODO page,ps,ss value errors
 
+
+int getSlottedSub(const string &subname, XMLNodeList::const_iterator &slotted_children_i, const string &id)
+{
+	ostringstream buffer;
+	if ((*slotted_children_i)->children().size()!=1)
+	{
+		buffer << "Missing content node for <" << subname << "> for <device id='" << id << "'>.";
+		throw MSXConfig::XMLParseException(buffer);
+	}
+	XMLNodeList::const_iterator content_node = (*slotted_children_i)->children().begin();
+	if (!((*content_node)->is_content()))
+	{
+		buffer << "Child node of <" << subname << "> for <device id='" << id << "'> is not a content node.";
+	throw MSXConfig::XMLParseException(buffer);
+	}
+	return atoi((*content_node)->content().c_str());
+}
+
 MSXConfig *volatile MSXConfig::oneInstance;
 
 MSXConfig *MSXConfig::instance()
@@ -41,12 +59,13 @@ void MSXConfig::loadFile(const string &filename)
 		throw MSXConfig::XMLParseException("File I/O Error.");
 
 	XMLNodeList children=tree->root()->children();
-	for (XMLNodeList::iterator i(children.begin()); i != children.end(); i++)
+	for (XMLNodeList::iterator i = children.begin(); i != children.end(); i++)
 	{
 		// this list should only contain device nodes for now
 		if (!(*i)->is_content())
 		{
-			deviceList.push_back(new Device(*i));
+			Device *d = new Device(*i);
+			deviceList.push_back(d);
 		}
 	}
 }
@@ -59,161 +78,128 @@ MSXConfig::Device::~Device()
 	}
 }
 
-MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP),page(0),ps(0),ss(0),slotted(false)
+//MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP),slotted(false)
+MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP)
 {
-	char buffer[200];
+	ostringstream buffer;
 
-//  <device id="mydummy1">
+// device - <!ELEMENT msxconfig (device)+>
+
 	// check if it is a devicenode
 	if (deviceNode->name()!="device")
 		throw MSXConfig::XMLParseException("Expected <device> node.");
+
+// id - ATTLIST device id CDATA #IMPLIED>
+
 	if (deviceNode->property("id")==0)
 		throw MSXConfig::XMLParseException("<device> node is missing mandatory 'id' property.");
 	id = deviceNode->property("id")->value();
-//    <type>DummyDevice</type>
-	// check if first child is mandatory type node
-	XMLNodeList::size_type csize;
-	if ((csize=deviceNode->children().size())<1)
-	{
-		snprintf(buffer,200,"Expecting at least one child node for <device id='%s'>.", id.c_str());
-		throw MSXConfig::XMLParseException(buffer);
-	}
-	XMLNodeList::const_iterator dci = deviceNode->children().begin();
-	if ((*dci)->name()!="type")
-	{
-		snprintf(buffer,200,"Missing mandatory first child node <type> for <device id='%s'>.", id.c_str());
-		throw MSXConfig::XMLParseException(buffer);
-	}
-	if ((*dci)->children().size()!=1)
-	{
-		snprintf(buffer,200,"Missing content node for <type> for <device id='%s'>.", id.c_str());
-		throw MSXConfig::XMLParseException(buffer);
-	}
-	XMLNodeList::const_iterator cn = (*dci)->children().begin();
-	if (!((*cn)->is_content()))
-	{
-		snprintf(buffer,200,"Child node of <type> for <device id='%s'> is not a content node.", id.c_str());
-		throw MSXConfig::XMLParseException(buffer);
-	}
-	deviceType = ((*cn)->content());
-	if (csize==1)
-		return;
-	// else: either a slotted structure, or the first parameter
-	dci++;
-	if ((*dci)->name()!="slotted" && (*dci)->name()!="parameter")
-	{
-		snprintf(buffer,200,"Either <slotted> or <parameter> expected as second child node for <device id='%s'>.", id.c_str());
-		throw MSXConfig::XMLParseException(buffer);
-	}
-	if ((*dci)->name()=="slotted")
-	{
-		slotted = true;
-		if ((*dci)->children().size()!=3)
-		{
-			snprintf(buffer,200,"Expected 3 child nodes for <slotted> node in <device id='%s'>.", id.c_str());
-			throw MSXConfig::XMLParseException(buffer);
-		}
-		XMLNodeList::const_iterator sli = (*dci)->children().begin();
-		if ((*sli)->name()!="page")
-		{
-			snprintf(buffer,200,"Expected <page> as first child node for <slotted> node in <device id='%s'>.", id.c_str());
-			throw MSXConfig::XMLParseException(buffer);
-		}
-		if ((*sli)->children().size()!=1)
-		{
-			snprintf(buffer,200,"Missing content node for <page> for <device id='%s'>.", id.c_str());
-			throw MSXConfig::XMLParseException(buffer);
-		}
-		cn = (*sli)->children().begin();
-		if (!((*cn)->is_content()))
-		{
-			snprintf(buffer,200,"Child node of <page> for <device id='%s'> is not a content node.", id.c_str());
-			throw MSXConfig::XMLParseException(buffer);
-		}
-		page = atoi((*cn)->content().c_str());
-		sli++;
-		if ((*sli)->name()!="ps")
-		{
-			snprintf(buffer,200,"Expected <ps> as second child node for <slotted> node in <device id='%s'>.", id.c_str());
-			throw MSXConfig::XMLParseException(buffer);
-		}
-		if ((*sli)->children().size()!=1)
-		{
-			snprintf(buffer,200,"Missing content node for <ps> for <device id='%s'>.", id.c_str());
-			throw MSXConfig::XMLParseException(buffer);
-		}
-		cn = (*sli)->children().begin();
-		if (!((*cn)->is_content()))
-		{
-			snprintf(buffer,200,"Child node of <ps> for <device id='%s'> is not a content node.", id.c_str());
-			throw MSXConfig::XMLParseException(buffer);
-		}
-		ps = atoi((*cn)->content().c_str());
-		sli++;
-		if ((*sli)->name()!="ss")
-		{
-			snprintf(buffer,200,"Expected <ss> as third child node for <slotted> node in <device id='%s'>.", id.c_str());
-			throw MSXConfig::XMLParseException(buffer);
-		}
-		if ((*sli)->children().size()!=1)
-		{
-			snprintf(buffer,200,"Missing content node for <ss> for <device id='%s'>.", id.c_str());
-			throw MSXConfig::XMLParseException(buffer);
-		}
-		cn = (*sli)->children().begin();
-		if (!((*cn)->is_content()))
-		{
-			snprintf(buffer,200,"Child node of <ss> for <device id='%s'> is not a content node.", id.c_str());
-			throw MSXConfig::XMLParseException(buffer);
-		}
-		ss = atoi((*cn)->content().c_str());
-		// increment on the <slotted> and <parameter> level
-		dci++;
-	}
-//        <slotted>
-//          <page>0</page>
-//          <ps>0</ps>
-//          <ss>0</ss>
-//        </slotted>
-	// the rest are parameters
-	while (dci!=deviceNode->children().end())
-	{
-		if ((*dci)->name()!="parameter")
-		{
-			snprintf(buffer,200,"Expected <parameter> as child node in <device id='%s'>.", id.c_str());
-			throw MSXConfig::XMLParseException(buffer);
-		}
-		if ((*dci)->property("name")==0)
-		{
-			snprintf(buffer,200,"Expected mandatory 'name' property in <parameter> child node in <device id='%s'>.", id.c_str());
-			throw MSXConfig::XMLParseException(buffer);
-		}
-		string name((*dci)->property("name")->value());
-		// class is optional
-		string clasz("");
-		if ((*dci)->property("class")!=0)
-		{
-			clasz=(*dci)->property("class")->value();
-		}
-		if ((*dci)->children().size()!=1)
-		{
-			snprintf(buffer,200,"Missing content node for <parameter name='%s'> for <device id='%s'>.", name.c_str(), id.c_str());
-			throw MSXConfig::XMLParseException(buffer);
-		}
-		cn = (*dci)->children().begin();
-		if (!((*cn)->is_content()))
-		{
-			snprintf(buffer,200,"Child node of <parameter name='%s'> for <device id='%s'> is not a content node.", name.c_str(), id.c_str());
-			throw MSXConfig::XMLParseException(buffer);
-		}
-		string value((*cn)->content());
-		parameters.push_back(new Parameter(name,value,clasz));
-		dci++;
-	}
-//        <parameter name="hello">world</parameter>
-//        <parameter name="hi">alpha centauri</parameter>
-//  </device>
 
+// type - <!ELEMENT device (type,slotted*,parameter+)>
+
+	XMLNodeList::size_type device_children_count;
+	if ((device_children_count=deviceNode->children().size())<1)
+	{
+		buffer << "Expecting at least one child node for <device id='" << id << "'>.";
+		throw MSXConfig::XMLParseException(buffer);
+	}
+	XMLNodeList::const_iterator device_children_i = deviceNode->children().begin();
+	if ((*device_children_i)->name()!="type")
+	{
+		buffer << "Missing mandatory first child node <type> for <device id='" << id << "'>.";
+		throw MSXConfig::XMLParseException(buffer);
+	}
+	if ((*device_children_i)->children().size()!=1)
+	{
+		buffer << "Missing content node for <type> for <device id='" << id << "'>.";
+		throw MSXConfig::XMLParseException(buffer);
+	}
+	XMLNodeList::const_iterator content_node = (*device_children_i)->children().begin();
+	if (!((*content_node)->is_content()))
+	{
+		buffer << "Child node of <type> for <device id='" << id << "'> is not a content node.";
+		throw MSXConfig::XMLParseException(buffer);
+	}
+	deviceType = ((*content_node)->content());
+	if (device_children_count==1)
+		return; // it was only one child node, soo we can return
+	// else: either a slotted structure, or the first parameter
+
+// slotted*,parameter* - <!ELEMENT device (type,slotted*,parameter*)>
+
+	device_children_i++;
+	if ((*device_children_i)->name()!="slotted" 
+		&& (*device_children_i)->name()!="parameter")
+	{
+		buffer << "Either <slotted> or <parameter> expected as second child node for <device id='" << id << "'>.";
+		throw MSXConfig::XMLParseException(buffer);
+	}
+
+// slotted*,parameter* - <!ELEMENT device (type,slotted*,parameter*)>
+
+	while (device_children_i!=deviceNode->children().end())
+	{
+		if ((*device_children_i)->name()=="slotted")
+		{
+
+// slotted* - <!ELEMENT device (type,slotted*,parameter*)>
+
+			if ((*device_children_i)->children().size()<1)
+			{
+				buffer << "Expected at least 1 child node for <slotted> node in <device id='" << id << "'>.";
+				throw MSXConfig::XMLParseException(buffer);
+			} // end ((*device_children_i)->children().size()<1)
+			XMLNodeList::const_iterator slotted_children_i = (*device_children_i)->children().begin();
+			int ps = -1;
+			int ss = -1;
+			int page = -1;
+			while (slotted_children_i!=(*device_children_i)->children().end())
+			{
+				if ((*slotted_children_i)->name()=="ps") // ps - <!ELEMENT ps (#PCDATA)>
+					ps = getSlottedSub(string("ps"), slotted_children_i, id);
+				else if ((*slotted_children_i)->name()=="ss") // ss - <!ELEMENT ss (#PCDATA)>
+					ss = getSlottedSub(string("ss"), slotted_children_i, id);
+				else if ((*slotted_children_i)->name()=="page") // page - <!ELEMENT page (#PCDATA)>
+					page = getSlottedSub(string("page"), slotted_children_i, id);
+				slotted_children_i++;
+			}
+			slotted.push_back(new Slotted(ps,ss,page));
+			// increment on the <slotted> and <parameter> level
+			device_children_i++;
+		}
+		else if ((*device_children_i)->name()=="parameter")
+
+// parameter* - <!ELEMENT device (type,slotted*,parameter*)>
+
+		{
+			if ((*device_children_i)->property("name")==0)
+			{
+				buffer << "Expected mandatory 'name' property in <parameter> child node in <device id='" << id << "'>.";
+				throw MSXConfig::XMLParseException(buffer);
+			}
+			string name((*device_children_i)->property("name")->value());
+			// class is optional
+			string clasz("");
+			if ((*device_children_i)->property("class")!=0)
+			{
+				clasz=(*device_children_i)->property("class")->value();
+			}
+			if ((*device_children_i)->children().size()!=1)
+			{
+				buffer << "Missing content node for <parameter name='" << name << "'> for <device id='" << id << "'>.";
+				throw MSXConfig::XMLParseException(buffer);
+			}
+			content_node = (*device_children_i)->children().begin();
+			if (!((*content_node)->is_content()))
+			{
+				buffer << "Child node of <parameter name='" << name << "'> for <device id='" << id << "'> is not a content node.";
+				throw MSXConfig::XMLParseException(buffer);
+			}
+			string value((*content_node)->content());
+			parameters.push_back(new Parameter(name,value,clasz));
+			device_children_i++;
+		}
+	}
 }
 
 const string &MSXConfig::Device::getType()
@@ -228,22 +214,34 @@ const string &MSXConfig::Device::getId()
 
 bool MSXConfig::Device::isSlotted()
 {
-	return slotted;
+	return (!slotted.empty());
 }
 
 int MSXConfig::Device::getPage()
 {
-	return page;
+	if (slotted.empty())
+	{
+		throw MSXConfig::Exception("No slotted defined.");
+	}
+	return (*slotted.begin())->getPage();
 }
 
 int MSXConfig::Device::getPS()
 {
-	return ps;
+	if (slotted.empty())
+	{
+		throw MSXConfig::Exception("No slotted defined.");
+	}
+	return (*slotted.begin())->getPS();
 }
 
 int MSXConfig::Device::getSS()
 {
-	return ss;
+	if (slotted.empty())
+	{
+		throw MSXConfig::Exception("No slotted defined.");
+	}
+	return (*slotted.begin())->getSS();
 }
 
 bool MSXConfig::Device::hasParameter(const string &name)
@@ -271,9 +269,12 @@ const string &MSXConfig::Device::getParameter(const string &name)
 void MSXConfig::Device::dump()
 {
 	cout << "Device id='" << getId() << "', type='" << getType() << "'" << endl;
-	if (isSlotted())
+	if (!slotted.empty())
 	{
-		cout << "       slotted: page=" << getPage() << " ps=" << getPS() << " ss=" << getSS() << endl;
+		for (list<Slotted*>::const_iterator i=slotted.begin(); i != slotted.end(); i++)
+		{
+			cout << "       slotted: page=" << (*i)->getPage() << " ps=" << (*i)->getPS() << " ss=" << (*i)->getSS() << endl;
+		}
 	}
 	else
 	{
@@ -298,4 +299,41 @@ list<const MSXConfig::Device::Parameter*> MSXConfig::Device::getParametersWithCl
 			a.push_back(*i);
 	}
 	return a;
+}
+
+MSXConfig::Device::Slotted::Slotted(int PS, int SS=-1, int Page=-1):ps(PS),ss(SS),page(Page)
+{
+}
+
+bool MSXConfig::Device::Slotted::hasSS()
+{
+	return (ps!=-1);
+}
+
+bool MSXConfig::Device::Slotted::hasPage()
+{
+	return (page!=-1);
+}
+
+int MSXConfig::Device::Slotted::getPS()
+{
+	return ps;
+}
+
+int MSXConfig::Device::Slotted::getSS()
+{
+	if (ss==-1)
+	{
+		throw MSXConfig::Exception("Request for SS on a Slotted without SS");
+	}
+	return ss;
+}
+
+int MSXConfig::Device::Slotted::getPage()
+{
+	if (page==-1)
+	{
+		throw MSXConfig::Exception("Request for Page on a Slotted without Page");
+	}
+	return page;
 }

@@ -5,7 +5,8 @@
 
 #include <string>
 #include <list>
-#include <hash_map>
+#include <iostream>
+#include <sstream>
 
 // sample xml msxconfig file is available in msxconfig.xml in this dir
 
@@ -43,14 +44,34 @@ public:
 			const string value;
 			const string clasz;
 		};
+		class Slotted
+		{
+		public:
+			Slotted(int PS, int SS=-1, int Page=-1);
+			~Slotted() {}
+		private:
+			Slotted(); // block usage
+			Slotted(const Slotted &); // block usage
+			Slotted &operator=(const Slotted &); // block usage
+			int ps;
+			int ss;
+			int page;
+		public:
+			bool hasSS();
+			bool hasPage();
+			int getPS();
+			int getSS();
+			int getPage();
+		};
+
 		Device(XMLNode *deviceNodeP);
 		~Device();
 		const string &getType();
 		const string &getId();
 		bool  isSlotted();
-		int   getPage();
-		int   getPS();
-		int   getSS();
+		int   getPage(); // of first slotted [backward compat]
+		int   getPS(); // of first slotted [backward compat]
+		int   getSS(); // of first slotted [backward compat]
 		bool  hasParameter(const string &name);
 		const string &getParameter(const string &name);
 		list<const Parameter*> getParametersWithClass(const string &clasz);
@@ -60,9 +81,10 @@ public:
 		Device(const Device &foo); // block usage
 		Device &operator=(const Device &foo); // block usage
 		XMLNode *deviceNode;
+	public:
+		list <Slotted*> slotted;
+	private:
 		string id, deviceType;
-		int page, ps, ss;
-		bool slotted;
 		list<Parameter*> parameters;
 	};
 
@@ -71,12 +93,14 @@ public:
 	{
 	public:
 		Exception(const string &descs=""):MSXException(descs,0) {}
+		Exception(const ostringstream &stream):MSXException(stream.str(),0) {}
 	};
 
 	class XMLParseException: public Exception
 	{
 	public:
 		XMLParseException(const string &descs=""):Exception(descs) {}
+		XMLParseException(const ostringstream &stream):Exception(stream) {}
 	};
 
 	list<Device*> deviceList;
