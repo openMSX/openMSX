@@ -40,7 +40,21 @@ bool Console::unRegisterCommand(ConsoleInterface *registeredObject, char *comman
 
 void Console::printOnConsole(std::string text)
 {
-	CON_Out(ConsoleStruct,text.c_str());
+	int end = 0;
+	bool more = true;
+	while (more) {
+		int start = end;
+		end = text.find('\n', start);
+		if (end == -1) {
+			more = false;
+			end = text.length();
+		}
+		char line[end - start + 1];
+		text.copy(line, sizeof(line), start);
+		line[sizeof(line) - 1] = '\0';
+		CON_Out(ConsoleStruct, line);
+		end++; // skip newline
+	}
 }
 
 // SDL dependent stuff
