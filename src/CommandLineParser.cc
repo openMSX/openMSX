@@ -43,6 +43,11 @@ void CommandLineParser::registerFileType(const std::string &str,
 	fileTypeMap[str] = cliFileType;
 }
 
+void CommandLineParser::registerPostConfig(CLIPostConfig *post)
+{
+	postConfigs.push_back(post);
+}
+
 void CommandLineParser::parse(int argc, char **argv)
 {
 	std::list<std::string> cmdLine;
@@ -90,9 +95,17 @@ void CommandLineParser::parse(int argc, char **argv)
 	}
 	
 	// load default config file in case the user didn't specify one
+	MSXConfig::Backend *config = MSXConfig::Backend::instance();
 	if (!haveConfig) {
-		MSXConfig::Backend *config = MSXConfig::Backend::instance();
 		config->loadFile(std::string("msxconfig.xml"));
+	}
+	
+	// execute all postponed options
+	std::vector<CLIPostConfig*>::iterator it;
+	for (it = postConfigs.begin(); it != postConfigs.end(); it++) {
+		PRT_DEBUG("CLI: post");
+		(*it)->execute(config);
+		delete *it;
 	}
 }
 

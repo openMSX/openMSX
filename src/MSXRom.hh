@@ -31,6 +31,17 @@ class MSXRomCLI : public CLIOption, public CLIFileType
 		int cartridgeNr;
 };
 
+class MSXRomCLIPost : public CLIPostConfig
+{
+	public:
+		MSXRomCLIPost(int ps, int ss, const std::string &arg);
+		virtual ~MSXRomCLIPost();
+		virtual void execute(MSXConfig::Backend *config);
+	private:
+		int ps, ss;
+		const std::string arg;
+};
+
 
 class MSXRom : public MSXMemDevice, public MSXRomDevice
 {
@@ -64,6 +75,9 @@ class MSXRom : public MSXMemDevice, public MSXRomDevice
 		SCC* cartridgeSCC;
 		bool enabledSCC;
 		DACSound* dac;
+
+		byte panasonicCtrl;
+		int panasonicBank[8];
 };
 
 #endif

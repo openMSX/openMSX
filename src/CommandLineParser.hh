@@ -6,6 +6,7 @@
 #include <string>
 #include <list>
 #include <map>
+#include <vector>
 #include "openmsx.hh"
 #include "config.h"
 #include "MSXConfig.hh"
@@ -26,6 +27,11 @@ class CLIFileType
 		virtual const std::string& fileTypeHelp() = 0;
 };
 
+class CLIPostConfig
+{
+	public:
+		virtual void execute(MSXConfig::Backend *config) = 0;
+};
 
 class CommandLineParser
 {
@@ -34,6 +40,7 @@ class CommandLineParser
 		
 		void registerOption(const std::string &str, CLIOption* cliOption);
 		void registerFileType(const std::string &str, CLIFileType* cliFileType);
+		void registerPostConfig(CLIPostConfig *post);
 		void parse(int argc, char **argv);
 
 	//private: // should be private, but gcc-2.95.x complains
@@ -48,7 +55,7 @@ class CommandLineParser
 	private:
 		CommandLineParser();
 
-
+		std::vector<CLIPostConfig*> postConfigs;
 		bool haveConfig;
 
 		class HelpOption : public CLIOption {

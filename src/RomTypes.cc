@@ -45,6 +45,8 @@ MapperType RomTypes::nameToMapperType(const std::string &name)
 
 		mappertype["CROSSBLAIM"]  = CROSS_BLAIM;
 		
+		mappertype["PANASONIC"]   = PANASONIC;
+		
 		mappertype["64kB"]        = PLAIN;
 		mappertype["PLAIN"]       = PLAIN;
 		

@@ -35,6 +35,28 @@ const std::string& MSXRomCLI::optionHelp()
 }
 void MSXRomCLI::parseFileType(const std::string &arg)
 {
+	int ps = cartridgeNr++;
+	int ss = 0;
+	CommandLineParser::instance()->registerPostConfig(
+		new MSXRomCLIPost(ps, ss, arg));
+}
+const std::string& MSXRomCLI::fileTypeHelp()
+{
+	static const std::string text("TODO");
+	return text;
+}
+
+MSXRomCLIPost::MSXRomCLIPost(int ps_, int ss_, const std::string &arg_)
+	: ps(ps_), ss(ss_), arg(arg_)
+{
+}
+
+MSXRomCLIPost::~MSXRomCLIPost()
+{
+}
+
+void MSXRomCLIPost::execute(MSXConfig::Backend *config)
+{
 	std::string filename, mapper;
 	int pos = arg.find_last_of(',');
 	if (pos != -1) {
@@ -49,12 +71,12 @@ void MSXRomCLI::parseFileType(const std::string &arg)
 	std::ostringstream s;
 	s << "<?xml version=\"1.0\"?>";
 	s << "<msxconfig>";
-	s << "<device id=\"MSXRom"<< (int)cartridgeNr <<"\">";
+	s << "<device id=\"MSXRom"<<ps<<"-"<<ss<<"\">";
 	s << "<type>Rom</type>";
-	s << "<slotted><ps>"<<(int)(cartridgeNr)<<"</ps><ss>0</ss><page>0</page></slotted>";
-	s << "<slotted><ps>"<<(int)(cartridgeNr)<<"</ps><ss>0</ss><page>1</page></slotted>";
-	s << "<slotted><ps>"<<(int)(cartridgeNr)<<"</ps><ss>0</ss><page>2</page></slotted>";
-	s << "<slotted><ps>"<<(int)(cartridgeNr)<<"</ps><ss>0</ss><page>3</page></slotted>";
+	s << "<slotted><ps>"<<ps<<"</ps><ss>"<<ss<<"</ss><page>0</page></slotted>";
+	s << "<slotted><ps>"<<ps<<"</ps><ss>"<<ss<<"</ss><page>1</page></slotted>";
+	s << "<slotted><ps>"<<ps<<"</ps><ss>"<<ss<<"</ss><page>2</page></slotted>";
+	s << "<slotted><ps>"<<ps<<"</ps><ss>"<<ss<<"</ss><page>3</page></slotted>";
 	s << "<parameter name=\"filename\">"<<filename<<"</parameter>";
 	s << "<parameter name=\"filesize\">auto</parameter>";
 	s << "<parameter name=\"volume\">9000</parameter>";
@@ -64,15 +86,7 @@ void MSXRomCLI::parseFileType(const std::string &arg)
 	s << "<parameter name=\"sramname\">"<<filename<<".SRAM</parameter>";
 	s << "</device>";
 	s << "</msxconfig>";
-
-	MSXConfig::Backend *config = MSXConfig::Backend::instance();
 	config->loadStream(s);
-	cartridgeNr++;
-}
-const std::string& MSXRomCLI::fileTypeHelp()
-{
-	static const std::string text("TODO");
-	return text;
 }
 
 
@@ -177,7 +191,7 @@ void MSXRom::reset(const EmuTime &time)
 	// After a reset SRAM is not selected in all known cartrdiges
 	regioSRAM = 0;
 
-	if ((mapperType & PLAIN) == PLAIN) {
+	if (mapperType == PLAIN) {
 		// this is a simple gamerom less or equal then 64 kB
 		switch (romSize >> 14) { // blocks of 16kB
 			case 0:	//  8kB
@@ -226,6 +240,12 @@ void MSXRom::reset(const EmuTime &time)
 				// not possible
 				assert(false);
 		}
+	} else if (mapperType == PANASONIC) {
+		panasonicCtrl = 0;
+		for (int region = 0; region < 8; region++) {
+			panasonicBank[region] = region;
+			setROM8kB(region, region);
+		}
 	} else {
 		setBank16kB(0, unmapped);
 		setROM16kB (1, (mapperType == R_TYPE) ? 0x17 : 0);
@@ -253,25 +273,49 @@ byte MSXRom::readMem(word address, const EmuTime &time)
 {
 	//TODO optimize this (Necessary? We have read cache now)
 	// One way to optimise would be to register an SCC supporting
-	// device only if mapperType is 2 and only in 8000..Bfff.
+	// device only if mapperType is 2 and only in 8000..BFFF.
 	// That way, there is no SCC overhead in non-SCC pages.
 	// If MSXCPUInterface would support hot-plugging of devices,
 	// it would be possible to insert an SCC supporting device
 	// only when the SCC is enabled.
-	if (enabledSCC && 0x9800<=address && address<0xa000) {
+	if (enabledSCC && (0x9800 <= address) && (address < 0xA000)) {
 		return cartridgeSCC->readMemInterface(address&0xff, time);
+	}
+	if (mapperType == PANASONIC) {
+		if ((panasonicCtrl & 0x04) && (0x7FF0 <= address) && (address < 0x7FF7)) {
+			// read mapper state (lower 8 bit)
+			return panasonicBank[address & 7] & 0xFF;
+		}
+		if ((panasonicCtrl & 0x10) && (address == 0x7FF8)) {
+			// read mapper state (9th bit)
+			byte res = 0;
+			for (int i = 7; i >= 0; i--) {
+				if (panasonicBank[i] & 0x100) {
+					res++;
+				}
+				res <<= 1;
+			}
+			return res;
+		}
+		if ((panasonicCtrl & 0x08) && (address == 0x7FF9)) {
+			// read control byte
+			return panasonicCtrl;
+		}
 	}
 	return internalMemoryBank[address>>12][address&0x0fff];
 }
 
 byte* MSXRom::getReadCacheLine(word start)
 {
-	if (enabledSCC && 0x9800<=start && start<0xa000) {
+	if (enabledSCC && (0x9800 <= start) && (start < 0xA000)) {
 		// don't cache SCC
 		return NULL;
 	}
+	if ((mapperType == PANASONIC) && ((0x7FF0 & CPU::CACHE_LINE_HIGH) == start)) {
+		return NULL;
+	}
 	if (CPU::CACHE_LINE_SIZE <= 0x1000) {
-		return &internalMemoryBank[start>>12][start&0x0fff];
+		return &internalMemoryBank[start>>12][start&0x0FFF];
 	} else {
 		return NULL;
 	}
@@ -511,7 +555,36 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 			setROM16kB(2, value);
 		}
 		break;
-	
+
+	case PANASONIC:
+		// Panasonic mapper (for example used in Turbo-R)
+		if ((0x6000 <= address) && (address < 0x7FF0)) {
+			// set mapper state (lower 8 bits)
+			int region = (address & 0x1C00) >> 10;
+			int bank = panasonicBank[region];
+			bank = (bank & ~0xFF) | value;
+			panasonicBank[region] = bank;
+			setROM8kB(region, bank);
+		}
+		if (address == 0x7FF8) {
+			// set mapper state (9th bit)
+			for (int region = 0; region < 8; region++) {
+				if (value & 1) {
+					panasonicBank[region] |= 0x100;
+					setROM8kB(region, panasonicBank[region]);
+				} else {
+					panasonicBank[region] &= ~0x100;
+					setROM8kB(region, panasonicBank[region]);
+				}
+				value >>= 1;
+			}
+		}
+		if (address == 0x7FF9) {
+			// write control byte
+			panasonicCtrl = value;
+		}
+		break;
+
 	default:
 		// Unknown mapper type
 		assert(false);

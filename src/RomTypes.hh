@@ -16,6 +16,7 @@ enum MapperType {
 	ASCII_16KB   = 5,
 	R_TYPE       = 6,
 	CROSS_BLAIM  = 7,
+	PANASONIC    = 8,
 	PLAIN        = 15,
 
 	HAS_SRAM     = 16,
