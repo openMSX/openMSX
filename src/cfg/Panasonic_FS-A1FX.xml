@@ -105,7 +105,7 @@
     <parameter name="mode">EmuTime</parameter>
     <parameter name="load">true</parameter>
     <parameter name="save">true</parameter>
-    <parameter name="filename">fs-a1fx_fsa1fx.save</parameter>
+    <parameter name="filename">fs-a1fx_fs-a1fx.save</parameter>
   </device>
 
   <device id="cpu">
