@@ -13,22 +13,12 @@
 class SDLConsole : public Console, private EventListener
 {
 	public:
+		SDLConsole(SDL_Surface *screen);
 		virtual ~SDLConsole();
-		static SDLConsole* instance();
 
 		virtual void drawConsole();
-		
-		/**
-		 * Every SDLRenderer must registers its SDL_screen.
-		 * This is used to influence the result of the Renderer.
-		 * The render that instantiates the SDL_Screen needs to
-		 * call this method.
-		 */
-		void hookUpSDLConsole(SDL_Surface *Screen);
 
 	private:
-		SDLConsole();
-	
 		void signalEvent(SDL_Event &event);
 
 		void alpha(unsigned char alpha);

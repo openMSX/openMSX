@@ -9,6 +9,8 @@
 
 class VDP;
 class VDPVRAM;
+class SDLConsole;
+
 
 /** Factory method to create SDLHiRenderer objects.
   * TODO: Add NTSC/PAL selection
@@ -246,6 +248,8 @@ private:
 	  */
 	bool dirtyBackground;
 
+
+	SDLConsole* console;
 };
 
 #endif //__SDLHIRENDERER_HH__

@@ -7,14 +7,14 @@
 #include "CircularBuffer.hh"
 
 // Forward declarations
-class ConsoleCommand;
+//class ConsoleCommand;
 
 
 class Console
 {
 	public:
+		Console();
 		virtual ~Console();
-		static Console* instance();
 
 		/**
 		 * Prints a string on the console
@@ -27,8 +27,6 @@ class Console
 		virtual void drawConsole() = 0;
 		
 	protected:
-		Console();
-		
 		void tabCompletion();
 		void commandExecute();
 		void scrollUp();
@@ -44,8 +42,6 @@ class Console
 		
 		virtual void updateConsole() = 0;
 		
-		
-		static Console* oneInstance;
 		
 		/** This is what the prompt looks like
 		  */

@@ -5,7 +5,7 @@
 #include "MSXConfig.hh"
 #include "CPU.hh"
 #include "MSXCPU.hh"
-#include "ConsoleSource/Console.hh"
+#include "ConsoleSource/ConsoleManager.hh"
 #include "ConsoleSource/CommandController.hh"
 
 
@@ -360,18 +360,18 @@ void MSXTapePatch::STMOTR(CPU::CPURegs& R) const
 void MSXTapePatch::execute(const std::vector<std::string> &tokens)
 {
 	if (tokens[1]=="eject") {
-		Console::instance()->print("Tape ejected");
+		ConsoleManager::instance()->print("Tape ejected");
 		ejectTape();
 	} else {
-		Console::instance()->print("Changing tape");
+		ConsoleManager::instance()->print("Changing tape");
 		insertTape(tokens[1]);
 	}
 }
 
 void MSXTapePatch::help(const std::vector<std::string> &tokens)
 {
-	Console::instance()->print("tape eject      : remove tape from virtual player");
-	Console::instance()->print("tape <filename> : change the tape file");
+	ConsoleManager::instance()->print("tape eject      : remove tape from virtual player");
+	ConsoleManager::instance()->print("tape <filename> : change the tape file");
 }
 
 void MSXTapePatch::tabCompletion(std::vector<std::string> &tokens)

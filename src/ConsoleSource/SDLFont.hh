@@ -9,10 +9,9 @@
 
 class SDLFont {
 	public:
-		static const int TRANS = 1;
-
-		SDLFont(const char *BitmapName, int flags);
+		SDLFont(const char *BitmapName);
 		~SDLFont();
+
 		void drawText(const std::string &string, SDL_Surface *surface, int x, int y);
 		int height();
 		int width();

@@ -1,7 +1,7 @@
 // $Id$
 
 #include "Renderer.hh"
-#include "ConsoleSource/Console.hh"
+#include "ConsoleSource/ConsoleManager.hh"
 #include "ConsoleSource/CommandController.hh"
 #include "HotKey.hh"
 
@@ -103,13 +103,13 @@ void Renderer::FullScreenCmd::execute(const std::vector<std::string> &tokens)
 			break;
 		}
 	default:
-		Console::instance()->print("Syntax error");
+		ConsoleManager::instance()->print("Syntax error");
 	}
 }
 void Renderer::FullScreenCmd::help   (const std::vector<std::string> &tokens)
 {
-	Console::instance()->print("This command turns full-screen display on/off");
-	Console::instance()->print(" fullscreen:     toggle full-screen");
-	Console::instance()->print(" fullscreen on:  switch to full-screen display");
-	Console::instance()->print(" fullscreen off: switch to windowed display");
+	ConsoleManager::instance()->print("This command turns full-screen display on/off");
+	ConsoleManager::instance()->print(" fullscreen:     toggle full-screen");
+	ConsoleManager::instance()->print(" fullscreen on:  switch to full-screen display");
+	ConsoleManager::instance()->print(" fullscreen off: switch to windowed display");
 }

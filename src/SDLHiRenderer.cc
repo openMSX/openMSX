@@ -60,6 +60,7 @@ TODO:
 #include "RealTime.hh"
 #include <math.h>
 #include "ConsoleSource/SDLConsole.hh"
+#include "ConsoleSource/ConsoleManager.hh"
 
 
 /** Dimensions of screen.
@@ -233,6 +234,8 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	VDP *vdp, SDL_Surface *screen, bool fullScreen, const EmuTime &time)
 	: Renderer(fullScreen)
 {
+	console = new SDLConsole(screen);
+
 	this->vdp = vdp;
 	this->screen = screen;
 	vram = vdp->getVRAM();
@@ -1190,7 +1193,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::putImage(
 	renderUntil(vdp->isPalTiming() ? 313 : 262);
 
 	// Render console if needed
-	Console::instance()->drawConsole();
+	console->drawConsole();
 
 	// Update screen.
 	// Note: return value ignored.
@@ -1225,9 +1228,7 @@ Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 		return NULL;
 	}
 	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
-	//Trying to attach a console
-	SDLConsole::instance()->hookUpSDLConsole(screen);
-
+	
 	switch (screen->format->BytesPerPixel) {
 	case 1:
 		return new SDLHiRenderer<Uint8>(vdp, screen, fullScreen, time);

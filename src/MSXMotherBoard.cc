@@ -5,7 +5,7 @@
 #include "Leds.hh"
 #include "MSXCPU.hh"
 #include "MSXDevice.hh"
-#include "ConsoleSource/Console.hh"
+#include "ConsoleSource/ConsoleManager.hh"
 #include "ConsoleSource/CommandController.hh"
 
 
@@ -76,6 +76,6 @@ void MSXMotherBoard::ResetCmd::execute(const std::vector<std::string> &tokens)
 }
 void MSXMotherBoard::ResetCmd::help   (const std::vector<std::string> &tokens)
 {
-	Console::instance()->print("Resets the MSX.");
+	ConsoleManager::instance()->print("Resets the MSX.");
 }
 

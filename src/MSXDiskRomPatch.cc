@@ -6,7 +6,7 @@
 #include "CPU.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
-#include "ConsoleSource/Console.hh"
+#include "ConsoleSource/ConsoleManager.hh"
 #include "ConsoleSource/CommandController.hh"
 
 
@@ -502,11 +502,11 @@ void MSXDiskRomPatch::execute(const std::vector<std::string> &tokens)
 	// TODO only works for drive A: with 720Kb disks
 	
 	if (tokens[1]=="eject") {
-		Console::instance()->print("Disk ejected");
+		ConsoleManager::instance()->print("Disk ejected");
 		delete disk[0];
 		disk[0] = NULL;
 	} else {
-		Console::instance()->print("Changing disk");
+		ConsoleManager::instance()->print("Changing disk");
 		delete disk[0];
 		disk[0] = NULL; // following might fail
 		disk[0] = new DiskImage(tokens[1], std::string("720"));
@@ -515,8 +515,8 @@ void MSXDiskRomPatch::execute(const std::vector<std::string> &tokens)
 
 void MSXDiskRomPatch::help(const std::vector<std::string> &tokens)
 {
-	Console::instance()->print("disk eject      : remove disk from virtual drive");
-	Console::instance()->print("disk <filename> : change the disk file");
+	ConsoleManager::instance()->print("disk eject      : remove disk from virtual drive");
+	ConsoleManager::instance()->print("disk <filename> : change the disk file");
 }
 
 void MSXDiskRomPatch::tabCompletion(std::vector<std::string> &tokens)

@@ -36,7 +36,7 @@ TODO:
 #include "VDP.hh"
 #include "VDPCmdEngine.hh"
 #include "PlatformFactory.hh"
-#include "ConsoleSource/Console.hh"
+#include "ConsoleSource/ConsoleManager.hh"
 #include "ConsoleSource/CommandController.hh"
 
 #include <string>
@@ -1106,10 +1106,10 @@ void VDP::PaletteCmd::execute(const std::vector<std::string> &tokens)
 		}
 		out << "\n";
 	}
-	Console::instance()->print(out.str());
+	ConsoleManager::instance()->print(out.str());
 }
 
 void VDP::PaletteCmd::help   (const std::vector<std::string> &tokens)
 {
-	Console::instance()->print("Prints the current VDP palette (i:rgb).");
+	ConsoleManager::instance()->print("Prints the current VDP palette (i:rgb).");
 }

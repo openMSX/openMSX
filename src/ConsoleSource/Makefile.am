@@ -13,6 +13,7 @@ endif
 
 noinst_LTLIBRARIES        = libSDL_console.la
 libSDL_console_la_SOURCES = \
+	ConsoleManager.cc ConsoleManager.hh \
 	Console.cc Console.hh \
 	CircularBuffer.cc CircularBuffer.hh \
 	SDLConsole.cc SDLConsole.hh \

@@ -2,6 +2,8 @@ $Id$
 
 2002-04-04 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Console cleanup
+	* Console is no longer a singleton, instead there is now a singleton
+	  ConsoleManager. All Consoles must register with the ConsoleManager.
 
 2002-04-04 David Heremans <david.heremans@gnu-linux.net>
 	* Added more debug info to MSXGameCartrdige.

@@ -3,7 +3,7 @@
 #include "Scheduler.hh"
 #include "MSXCPU.hh"
 #include "HotKey.hh"
-#include "ConsoleSource/Console.hh"
+#include "ConsoleSource/ConsoleManager.hh"
 #include "ConsoleSource/CommandController.hh"
 #include "Mixer.hh"
 #include <cassert>
@@ -188,7 +188,7 @@ void Scheduler::QuitCmd::execute(const std::vector<std::string> &tokens)
 }
 void Scheduler::QuitCmd::help   (const std::vector<std::string> &tokens)
 {
-	Console::instance()->print("Use this command to stop the emulator");
+	ConsoleManager::instance()->print("Use this command to stop the emulator");
 }
 
 //TODO this command belongs in Mixer instead of Scheduler
@@ -209,15 +209,15 @@ void Scheduler::MuteCmd::execute(const std::vector<std::string> &tokens)
 				break;
 			}
 		default:
-			Console::instance()->print("Syntax error");
+			ConsoleManager::instance()->print("Syntax error");
 	}
 	Mixer::instance()->pause(sch->noSound||sch->isPaused());
 }
 void Scheduler::MuteCmd::help   (const std::vector<std::string> &tokens)
 {
-	Console::instance()->print("Use this command to mute/unmute the emulator");
-	Console::instance()->print(" mute:     toggle mute");
-	Console::instance()->print(" mute on:  set muted");
-	Console::instance()->print(" mute off: set unmuted");
+	ConsoleManager::instance()->print("Use this command to mute/unmute the emulator");
+	ConsoleManager::instance()->print(" mute:     toggle mute");
+	ConsoleManager::instance()->print(" mute on:  set muted");
+	ConsoleManager::instance()->print(" mute off: set unmuted");
 }
 

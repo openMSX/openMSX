@@ -11,13 +11,37 @@
 #include "SDLConsole.hh"
 #include "CommandController.hh"
 #include "HotKey.hh"
+#include "ConsoleManager.hh"
 
 
-SDLConsole::SDLConsole() :
+SDLConsole::SDLConsole(SDL_Surface *screen) :
 	consoleCmd(this)
 {
 	isVisible = false;
+	blink = false;
 	lastBlinkTime = 0;
+	
+	outputScreen = screen;
+	backgroundImage = NULL;
+	consoleSurface  = NULL;
+	inputBackground = NULL;
+	consoleAlpha = SDL_ALPHA_OPAQUE;
+	font = new SDLFont("ConsoleFont.bmp");	// TODO check for error
+
+	SDL_Rect rect;
+	rect.x = 20;
+	rect.y = 288;
+	rect.w = 600;
+	rect.h = 192;
+	resize(rect);
+
+	alpha(180);
+	SDL_EnableUNICODE(1);
+
+	ConsoleManager::instance()->registerConsole(this);
+	EventDistributor::instance()->registerAsyncListener(SDL_KEYDOWN, this);
+	CommandController::instance()->registerCommand(consoleCmd, "console");
+	HotKey::instance()->registerHotKeyCommand(SDLK_F10, "console");
 }
 
 SDLConsole::~SDLConsole()
@@ -27,37 +51,6 @@ SDLConsole::~SDLConsole()
 	delete font;
 }
 
-SDLConsole *SDLConsole::instance()
-{
-	if (oneInstance == NULL) {
-		oneInstance = new SDLConsole();
-	}
-	return (SDLConsole*)oneInstance;
-}
-
-
-void SDLConsole::hookUpSDLConsole(SDL_Surface *screen)
-{
-	outputScreen = screen;
-	backgroundImage = NULL;
-	consoleSurface  = NULL;
-	inputBackground = NULL;
-	consoleAlpha = SDL_ALPHA_OPAQUE;
-	font = new SDLFont("ConsoleFont.bmp", SDLFont::TRANS);	// TODO check for error
-
-	SDL_Rect rect;
-	rect.x = 20;
-	rect.y = 300;
-	rect.w = 600;
-	rect.h = 180;
-	resize(rect);
-
-	alpha(200);
-	SDL_EnableUNICODE(1);
-	EventDistributor::instance()->registerAsyncListener(SDL_KEYDOWN, this);
-	CommandController::instance()->registerCommand(consoleCmd, "console");
-	HotKey::instance()->registerHotKeyCommand(SDLK_F10, "console");
-}
 
 // Takes keys from the keyboard and inputs them to the console
 void SDLConsole::signalEvent(SDL_Event &event)
@@ -182,11 +175,11 @@ void SDLConsole::updateConsole()
 		SDL_SetColorKey(font->fontSurface, SDL_SRCCOLORKEY, *pix);
 	}
 	int screenlines = consoleSurface->h / font->height();
-	for (int loop=1; loop<=screenlines; loop++) {
-		int num = screenlines-loop+consoleScrollBack;
+	for (int loop=0; loop<screenlines; loop++) {
+		int num = loop+consoleScrollBack;
 		if (num < lines.size())
 			font->drawText(lines[num], consoleSurface, CHAR_BORDER,
-			               loop*font->height());
+			               consoleSurface->h - (1+loop)*font->height());
 	}
 	if (outputScreen->flags & SDL_OPENGLBLIT)
 		SDL_SetColorKey(font->fontSurface, 0, 0);
@@ -432,13 +425,13 @@ void SDLConsole::ConsoleCmd::execute(const std::vector<std::string> &tokens)
 			break;
 		}
 	default:
-		Console::instance()->print("Syntax error");
+		ConsoleManager::instance()->print("Syntax error");
 	}
 }
 void SDLConsole::ConsoleCmd::help   (const std::vector<std::string> &tokens)
 {
-	Console::instance()->print("This command turns console display on/off");
-	Console::instance()->print(" console:     toggle console display");
-	Console::instance()->print(" console on:  show console display");
-	Console::instance()->print(" console off: remove console display");
+	ConsoleManager::instance()->print("This command turns console display on/off");
+	ConsoleManager::instance()->print(" console:     toggle console display");
+	ConsoleManager::instance()->print(" console on:  show console display");
+	ConsoleManager::instance()->print(" console off: remove console display");
 } 

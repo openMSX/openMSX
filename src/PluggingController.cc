@@ -1,7 +1,7 @@
 // $Id$
 
 #include <cassert>
-#include "ConsoleSource/Console.hh"
+#include "ConsoleSource/ConsoleManager.hh"
 #include "ConsoleSource/CommandController.hh"
 #include "cpu/MSXCPU.hh"
 #include "PluggingController.hh"
@@ -73,7 +73,7 @@ void PluggingController::unregisterPluggable(Pluggable *pluggable)
 void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens)
 {
 	if (tokens.size()!=3) {
-		Console::instance()->print("Syntax error");
+		ConsoleManager::instance()->print("Syntax error");
 		return;
 	}
 	PluggingController* controller = PluggingController::instance();
@@ -86,7 +86,7 @@ void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens
 		}
 	}
 	if (connector == NULL) {
-		Console::instance()->print("No such connector");
+		ConsoleManager::instance()->print("No such connector");
 		return;
 	}
 	Pluggable* pluggable = NULL;
@@ -98,11 +98,11 @@ void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens
 		}
 	}
 	if (pluggable == NULL) {
-		Console::instance()->print("No such pluggable");
+		ConsoleManager::instance()->print("No such pluggable");
 		return;
 	}
 	if (connector->getClass() != pluggable->getClass()) {
-		Console::instance()->print("Doesn't fit");
+		ConsoleManager::instance()->print("Doesn't fit");
 		return;
 	}
 	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
@@ -114,8 +114,8 @@ void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens
 
 void PluggingController::PlugCmd::help   (const std::vector<std::string> &tokens)
 {
-	Console::instance()->print("Plugs a plug into a connector");
-	Console::instance()->print(" plug [connector] [plug]");
+	ConsoleManager::instance()->print("Plugs a plug into a connector");
+	ConsoleManager::instance()->print(" plug [connector] [plug]");
 }
 
 void PluggingController::PlugCmd::tabCompletion(std::vector<std::string> &tokens)
@@ -146,7 +146,7 @@ void PluggingController::PlugCmd::tabCompletion(std::vector<std::string> &tokens
 void PluggingController::UnplugCmd::execute(const std::vector<std::string> &tokens)
 {
 	if (tokens.size()!=2) {
-		Console::instance()->print("Syntax error");
+		ConsoleManager::instance()->print("Syntax error");
 		return;
 	}
 	PluggingController* controller = PluggingController::instance();
@@ -159,7 +159,7 @@ void PluggingController::UnplugCmd::execute(const std::vector<std::string> &toke
 		}
 	}
 	if (connector == NULL) {
-		Console::instance()->print("No such connector");
+		ConsoleManager::instance()->print("No such connector");
 		return;
 	}
 	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
@@ -168,8 +168,8 @@ void PluggingController::UnplugCmd::execute(const std::vector<std::string> &toke
 
 void PluggingController::UnplugCmd::help   (const std::vector<std::string> &tokens)
 {
-	Console::instance()->print("Unplugs a plug from a connector");
-	Console::instance()->print(" unplug [connector]");
+	ConsoleManager::instance()->print("Unplugs a plug from a connector");
+	ConsoleManager::instance()->print(" unplug [connector]");
 }
 
 void PluggingController::UnplugCmd::tabCompletion(std::vector<std::string> &tokens)

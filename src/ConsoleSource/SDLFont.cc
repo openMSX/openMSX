@@ -5,14 +5,10 @@
  *  in any of your programs.
  */
 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "SDLFont.hh"
-//#include "CON_internal.hh"
 
 
-SDLFont::SDLFont(const char *bitmapName, int flags)
+SDLFont::SDLFont(const char *bitmapName)
 {
 	// load the font bitmap
 	SDL_Surface *tempSurface = SDL_LoadBMP(bitmapName);
@@ -26,18 +22,14 @@ SDLFont::SDLFont(const char *bitmapName, int flags)
 	charWidth  = fontSurface->w / 256;
 	charHeight = fontSurface->h;
 
-	// Set font as transparent if the flag is set.  The assumption we'll go on
-	// is that the first pixel of the font image will be the color we should treat
+	// Set font as transparent. The assumption we'll go on is that the
+	// first pixel of the font image will be the color we should treat
 	// as transparent.
-	if (flags & TRANS) {
-		if (SDL_GetVideoSurface()->flags & SDL_OPENGLBLIT)
-			setAlphaGL(SDL_ALPHA_TRANSPARENT);
-		else
-			SDL_SetColorKey(fontSurface, SDL_SRCCOLORKEY | SDL_RLEACCEL, 
-			                SDL_MapRGB(fontSurface->format, 255, 0, 255));
-	}
-	else if (SDL_GetVideoSurface()->flags & SDL_OPENGLBLIT)
-		setAlphaGL(SDL_ALPHA_OPAQUE);
+	if (SDL_GetVideoSurface()->flags & SDL_OPENGLBLIT)
+		setAlphaGL(SDL_ALPHA_TRANSPARENT);
+	else
+		SDL_SetColorKey(fontSurface, SDL_SRCCOLORKEY | SDL_RLEACCEL, 
+		                SDL_MapRGB(fontSurface->format, 255, 0, 255));
 }
 
 SDLFont::~SDLFont()
@@ -53,10 +45,6 @@ void SDLFont::setAlphaGL(int alpha)
 		// 16-bit SDL surfaces do not support alpha-blending under OpenGL
 		return;
 	}
-	if (alpha < SDL_ALPHA_TRANSPARENT)
-		alpha = SDL_ALPHA_TRANSPARENT;
-	else if (alpha > SDL_ALPHA_OPAQUE)
-		alpha = SDL_ALPHA_OPAQUE;
 
 	// iterate over all pixels in the font surface.  For each pixel that
 	// is (255,0,255), set its alpha channel appropriately.

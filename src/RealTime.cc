@@ -5,7 +5,7 @@
 #include "MSXCPU.hh"
 #include "MSXConfig.hh"
 #include "HotKey.hh"
-#include "ConsoleSource/Console.hh"
+#include "ConsoleSource/ConsoleManager.hh"
 #include "ConsoleSource/CommandController.hh"
 
 
@@ -148,15 +148,15 @@ void RealTime::PauseCmd::execute(const std::vector<std::string> &tokens)
 			break;
 		}
 	default:
-		Console::instance()->print("Syntax error");
+		ConsoleManager::instance()->print("Syntax error");
 	}
 }
 void RealTime::PauseCmd::help   (const std::vector<std::string> &tokens)
 {
-	Console::instance()->print("Use this command to pause/unpause the emulator");
-	Console::instance()->print(" pause:     toggle pause");
-	Console::instance()->print(" pause on:  pause emulation");
-	Console::instance()->print(" pause off: unpause emulation");
+	ConsoleManager::instance()->print("Use this command to pause/unpause the emulator");
+	ConsoleManager::instance()->print(" pause:     toggle pause");
+	ConsoleManager::instance()->print(" pause on:  pause emulation");
+	ConsoleManager::instance()->print(" pause off: unpause emulation");
 }
 
 void RealTime::ThrottleCmd::execute(const std::vector<std::string> &tokens)
@@ -176,13 +176,13 @@ void RealTime::ThrottleCmd::execute(const std::vector<std::string> &tokens)
 			break;
 		}
 	default:
-		Console::instance()->print("Syntax error");
+		ConsoleManager::instance()->print("Syntax error");
 	}
 }
 void RealTime::ThrottleCmd::help   (const std::vector<std::string> &tokens)
 {
-	Console::instance()->print("This command turns speed throttling on/off");
-	Console::instance()->print(" throttle:     toggle throttling");
-	Console::instance()->print(" throttle on:  run emulation on normal speed");
-	Console::instance()->print(" throttle off: run emulation on maximum speed");
+	ConsoleManager::instance()->print("This command turns speed throttling on/off");
+	ConsoleManager::instance()->print(" throttle:     toggle throttling");
+	ConsoleManager::instance()->print(" throttle on:  run emulation on normal speed");
+	ConsoleManager::instance()->print(" throttle off: run emulation on maximum speed");
 }

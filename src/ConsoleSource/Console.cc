@@ -24,14 +24,6 @@ Console::~Console()
 	PRT_DEBUG("Destroying a Console object");
 }
 
-Console *Console::instance()
-{
-	assert(oneInstance!=NULL);
-	return oneInstance;
-}
-Console *Console::oneInstance = NULL;
-
-
 void Console::print(const std::string &text)
 {
 	int end = 0;

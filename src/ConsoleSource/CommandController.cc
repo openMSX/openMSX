@@ -11,7 +11,7 @@
 #include "MSXConfig.hh"
 #include "CommandController.hh"
 #include "Command.hh"
-#include "Console.hh"
+#include "ConsoleManager.hh"
 
 
 CommandController::CommandController()
@@ -218,7 +218,7 @@ void CommandController::completeFileName(std::string &filename)
 
 void CommandController::HelpCmd::execute(const std::vector<std::string> &tokens)
 {
-	Console *console = Console::instance();
+	ConsoleManager *console = ConsoleManager::instance();
 	CommandController *cc = CommandController::instance();
 	if (tokens.size() == 1) {
 		console->print("Use 'help [command]' to get help for a specific command");
@@ -241,7 +241,7 @@ void CommandController::HelpCmd::execute(const std::vector<std::string> &tokens)
 }
 void CommandController::HelpCmd::help(const std::vector<std::string> &tokens)
 {
-	Console::instance()->print("prints help information for commands");
+	ConsoleManager::instance()->print("prints help information for commands");
 }
 void CommandController::HelpCmd::tabCompletion(std::vector<std::string> &tokens)
 {
