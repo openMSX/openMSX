@@ -24,14 +24,16 @@ MSXMotherBoard::MSXMotherBoard()
 		IO_Out[port] = dummy;
 	}
 	for (int primSlot=0; primSlot<4; primSlot++) {
+		isSubSlotted[primSlot] = false;
+		SubSlot_Register[primSlot] = 0;
 		for (int secSlot=0; secSlot<4; secSlot++) {
 			for (int page=0; page<4; page++) {
 				SlotLayout[primSlot][secSlot][page]=dummy;
 			}
 		}
 	}
-	for (int primSlot=0; primSlot<4; primSlot++) {
-		isSubSlotted[primSlot] = false;
+	for (int page=0; page<4; page++) {
+		visibleDevices[page] = 0;
 	}
 
 	config = MSXConfig::Backend::instance()->getConfigById("MotherBoard");
@@ -48,6 +50,9 @@ MSXMotherBoard::MSXMotherBoard()
 		PRT_DEBUG("Slot: " << counter << " expanded: " << hasSubs);
 	}
 	config->getParametersWithClassClean(subslotted_list);
+
+	// Note: PrimarySlotState and SecondarySlotState will be
+	//       initialised at reset.
 
 	// Register console commands.
 	Console::instance()->registerCommand(slotMapCmd, "slotmap");
@@ -107,15 +112,7 @@ void MSXMotherBoard::registerSlottedDevice(MSXMemDevice *device, int primSl, int
 	}
 	if (SlotLayout[primSl][secSl][page] == DummyDevice::instance()) {
 		PRT_DEBUG(device->getName() << " registers at "<<primSl<<" "<<secSl<<" "<<page);
-		if (isSubSlotted[primSl]) {
-			SlotLayout[primSl][secSl][page] = device;
-		} else {
-			// Slot is not expanded. Register in every subslot to make
-			// sure this device is visible in every subslot selection.
-			for (secSl = 0; secSl < 4; secSl++) {
-				SlotLayout[primSl][secSl][page] = device;
-			}
-		}
+		SlotLayout[primSl][secSl][page] = device;
 	} else {
 		PRT_ERROR(device->getName() << " trying to register taken slot");
 	}
@@ -155,6 +152,18 @@ void MSXMotherBoard::saveStateMSX(std::ofstream &savestream)
 	}
 }
 
+void MSXMotherBoard::updateVisible(int page)
+{
+	MSXMemDevice *newDevice = SlotLayout [PrimarySlotState[page]]
+	                                     [SecondarySlotState[page]]
+	                                     [page];
+	if (visibleDevices[page] != newDevice) {
+		visibleDevices[page] = newDevice;
+		// Different device, so cache is no longer valid.
+		MSXCPU::instance()->invalidateCache(
+			page*0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
+	}
+}
 
 void MSXMotherBoard::setPrimarySlots(byte value)
 {
@@ -163,14 +172,7 @@ void MSXMotherBoard::setPrimarySlots(byte value)
 		PrimarySlotState[page] = value&3;
 		SecondarySlotState[page] = 3&(SubSlot_Register[value&3]>>(page*2));
 		// Change the visible devices
-		MSXMemDevice* newDevice = SlotLayout [PrimarySlotState[page]]
-		                                     [SecondarySlotState[page]]
-		                                     [page];
-		if (visibleDevices[page] != newDevice) {
-			visibleDevices[page] = newDevice;
-			// invalidate cache
-			MSXCPU::instance()->invalidateCache(page*0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
-		}
+		updateVisible(page);
 	}
 }
 
@@ -198,14 +200,7 @@ void MSXMotherBoard::writeMem(word address, byte value, const EmuTime &time)
 				if (CurrentSSRegister == PrimarySlotState[page]) {
 					SecondarySlotState[page] = value&3;
 					// Change the visible devices
-					MSXMemDevice* newDevice = SlotLayout [PrimarySlotState[page]]
-					                                     [SecondarySlotState[page]]
-					                                     [page];
-					if (visibleDevices[page] != newDevice) {
-						visibleDevices[page] = newDevice;
-						// invalidate cache
-						MSXCPU::instance()->invalidateCache(page*0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
-					}
+					updateVisible(page);
 				}
 			}
 			return;

@@ -1,5 +1,10 @@
 $Id$
 
+2002-02-08 Maarten ter Huurne <mth@stack.nl>
+	* Fixed secondary slot select bug for real now.
+	  The cause was uninitialised variables, the previous "fix" turned
+	  out to be no more than a workaround.
+
 2002-02-08 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Large Console cleanup:
 	   convert code to C++
@@ -7,7 +12,7 @@ $Id$
 	   moved all console code to directory ConsoleSource
 	* Support for 9 joysticks
 	* Stricter syntax checking for joyport command
-	   
+
 2002-02-07 Maarten ter Huurne <mth@stack.nl>
 	* Fixed ASCII 16K (type 5) mapper.
 	  Re-engineered Zanac-Ex ROM works now.

@@ -243,14 +243,22 @@ class MSXMotherBoard : public CPUInterface
 
 		MSXMotherBoard();
 
-		// ConsoleCommands
-		ResetCmd resetCmd;
-		SlotMapCmd slotMapCmd;
-		SlotSelectCmd slotSelectCmd;
+		/** Updated visibleDevices for a given page and clears the cache
+		  * on changes.
+		  * Should be called whenever PrimarySlotState or SecondarySlotState
+		  * was modified.
+		  * @param page page [0..3] to update visibleDevices for.
+		  */
+		void updateVisible(int page);
 
 		/** Used by getSlotMap to print the contents of a single slot.
 		  */
 		void printSlotMapPages(std::ostream &, MSXMemDevice *[]);
+
+		// ConsoleCommands
+		ResetCmd resetCmd;
+		SlotMapCmd slotMapCmd;
+		SlotSelectCmd slotSelectCmd;
 
 		MSXIODevice* IO_In[256];
 		MSXIODevice* IO_Out[256];
