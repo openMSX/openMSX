@@ -308,15 +308,15 @@ inline void _CPU_::ADD(byte reg) {
 	R.AF.B.l = ZSXYTable[res & 0xFF] |
 	           ((res & 0x100) ? C_FLAG : 0) |
 	           ((R.AF.B.h ^ res ^ reg) & H_FLAG) |
-	           (((reg ^ R.AF.B.h ^ 0x80) & (reg ^ res) & 0x80) >> 5);
+	           (((reg ^ R.AF.B.h ^ 0x80) & (reg ^ res) & 0x80) ? V_FLAG : 0);
 	R.AF.B.h = res;
 }
 inline void _CPU_::ADC(byte reg) {
-	int res = R.AF.B.h + reg + (R.AF.B.l & C_FLAG);
+	int res = R.AF.B.h + reg + ((R.AF.B.l & C_FLAG) ? 1 : 0);
 	R.AF.B.l = ZSXYTable[res & 0xFF] |
 	           ((res & 0x100) ? C_FLAG : 0) |
-	           ((R.AF.B.h ^ res ^ reg) &H_FLAG) |
-	           (((reg ^ R.AF.B.h ^ 0x80) & (reg ^ res) & 0x80) >> 5);
+	           ((R.AF.B.h ^ res ^ reg) & H_FLAG) |
+	           (((reg ^ R.AF.B.h ^ 0x80) & (reg ^ res) & 0x80) ? V_FLAG : 0);
 	R.AF.B.h = res;
 }
 inline void _CPU_::SUB(byte reg) {
@@ -325,16 +325,16 @@ inline void _CPU_::SUB(byte reg) {
 	           ((res & 0x100) ? C_FLAG : 0) |
 	           N_FLAG |
 	           ((R.AF.B.h ^ res ^ reg) & H_FLAG) |
-	           (((reg ^ R.AF.B.h) & (reg ^ res) & 0x80) >> 5);
+	           (((reg ^ R.AF.B.h) & (R.AF.B.h ^ res) & 0x80) ? V_FLAG : 0);
 	R.AF.B.h = res;
 }
 inline void _CPU_::SBC(byte reg) {
-	int res = R.AF.B.h - reg - (R.AF.B.l & C_FLAG);
+	int res = R.AF.B.h - reg - ((R.AF.B.l & C_FLAG) ? 1 : 0);
 	R.AF.B.l = ZSXYTable[res & 0xFF] |
 	           ((res & 0x100) ? C_FLAG : 0) |
 	           N_FLAG |
 	           ((R.AF.B.h ^ res ^ reg) & H_FLAG) |
-	           (((reg ^ R.AF.B.h) & (reg ^res) & 0x80) >> 5);
+	           (((reg ^ R.AF.B.h) & (R.AF.B.h ^ res) & 0x80) ? V_FLAG : 0);
 	R.AF.B.h = res;
 }
 inline void _CPU_::CP(byte reg) {
@@ -344,7 +344,7 @@ inline void _CPU_::CP(byte reg) {
 	           ((q & 0x100) ? C_FLAG : 0) |
 	           N_FLAG |
 	           ((R.AF.B.h ^ q ^ reg) & H_FLAG) |
-	           (((reg ^ R.AF.B.h) & (reg ^ q) & 0x80) >> 5);
+	           (((reg ^ R.AF.B.h) & (R.AF.B.h ^ q) & 0x80) ? V_FLAG : 0);
 }
 
 inline void _CPU_::ADDW(word &reg1, word reg2) {
@@ -357,21 +357,21 @@ inline void _CPU_::ADDW(word &reg1, word reg2) {
 	OP_16_16_DELAY();
 }
 inline void _CPU_::ADCW(word reg) {
-	int res = R.HL.w + reg + (R.AF.B.l & C_FLAG);
+	int res = R.HL.w + reg + ((R.AF.B.l & C_FLAG) ? 1 : 0);
 	R.AF.B.l = (((R.HL.w ^ res ^ reg) >> 8) & H_FLAG) |
 	           ((res & 0x10000) ? C_FLAG : 0) |
 	           ((res & 0xffff) ? 0 : Z_FLAG) |
-	           (((reg ^ R.HL.w ^ 0x8000) & (reg ^ res) & 0x8000) >> 13) |
+	           (((reg ^ R.HL.w ^ 0x8000) & (reg ^ res) & 0x8000) ? V_FLAG : 0) |
 	           ((res >> 8) & (S_FLAG | X_FLAG | Y_FLAG));
 	R.HL.w = res;
 	OP_16_16_DELAY();
 }
 inline void _CPU_::SBCW(word reg) {
-	int res = R.HL.w - reg - (R.AF.B.l & C_FLAG);
+	int res = R.HL.w - reg - ((R.AF.B.l & C_FLAG) ? 1 : 0);
 	R.AF.B.l = (((R.HL.w ^ res ^ reg) >> 8) & H_FLAG) |
 	           ((res & 0x10000) ? C_FLAG : 0) |
 	           ((res & 0xffff) ? 0 : Z_FLAG) |
-	           (((reg ^ R.HL.w) & (reg ^ res) & 0x8000) >> 13) |
+	           (((reg ^ R.HL.w) & (R.HL.w ^ res) & 0x8000) ? V_FLAG : 0) |
 		   ((res >> 8) & (S_FLAG | X_FLAG | Y_FLAG)) |
 	           N_FLAG;
 	R.HL.w = res;
@@ -4588,7 +4588,7 @@ void _CPU_::srl_l() { SRL(R.HL.B.l); }
 void _CPU_::sub_xhl() { SUB(RD_XHL()); }
 void _CPU_::sub_xix() { SUB(RD_XIX()); }
 void _CPU_::sub_xiy() { SUB(RD_XIY()); }
-void _CPU_::sub_a()   { R.AF.w = Z_FLAG|N_FLAG; }
+void _CPU_::sub_a()   { SUB(R.AF.B.h); }
 void _CPU_::sub_b()   { SUB(R.BC.B.h); }
 void _CPU_::sub_c()   { SUB(R.BC.B.l); }
 void _CPU_::sub_d()   { SUB(R.DE.B.h); }
@@ -4604,7 +4604,7 @@ void _CPU_::sub_byte(){ SUB(RDMEM_OPCODE()); }
 void _CPU_::xor_xhl() { XOR(RD_XHL()); }
 void _CPU_::xor_xix() { XOR(RD_XIX()); }
 void _CPU_::xor_xiy() { XOR(RD_XIY()); }
-void _CPU_::xor_a()   { R.AF.w = Z_FLAG|V_FLAG;}
+void _CPU_::xor_a()   { XOR(R.AF.B.h); }
 void _CPU_::xor_b()   { XOR(R.BC.B.h); }
 void _CPU_::xor_c()   { XOR(R.BC.B.l); }
 void _CPU_::xor_d()   { XOR(R.DE.B.h); }

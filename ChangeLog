@@ -1,5 +1,9 @@
 $Id$
 
+2002-08-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Z80 fixes:
+	   V_FLAG was wrong with SUB/SBC/CP instructions
+
 2002-08-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* More robust Thread class
 	* cleanups, especially in JoyNet
