@@ -161,9 +161,12 @@ void VDPCmdEngine::updateDisplayMode(DisplayMode mode, const EmuTime &time)
 	sync(time);
 
 	// TODO for now abort cmd in progress, find out what really happens
-	CMD = 0;
-	executeCommand(time);
-	
+	if (CMD) {
+		PRT_INFO("Warning: VDP mode switch while command in progress");
+		CMD = 0;
+		executeCommand(time);
+	}
+
 	switch (mode.getBase()) {
 	case DisplayMode::GRAPHIC4:
 		scrMode = 0;
