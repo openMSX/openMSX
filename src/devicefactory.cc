@@ -16,7 +16,6 @@
 #include "MSXMemoryMapper.hh"
 #include "MSXRTC.hh"
 #include "MSXGameCartridge.hh"
-#include "MSXKonamiSynthesizer.hh"
 #include "MSXPrinterPort.hh"
 #include "MSXSCCPlusCart.hh"
 //#include "MSXPostLoad.hh"
@@ -68,9 +67,6 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	} else
 	if (conf->getType()=="SCCPlusCart") {
 		device = new MSXSCCPlusCart(conf, time);
-	} else
-	if (conf->getType()=="KonamiSynthesizer") {
-		device = new MSXKonamiSynthesizer(conf, time);
 	}
 //	} else
 //	if (conf->getType()=="PostLoad") {

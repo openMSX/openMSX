@@ -32,7 +32,7 @@ class DACSound : public SoundDevice
 		void insertSample(short sample, const EmuTime &time);
 		void getNext();
 		
-		static const int BUFSIZE = 1024;
+		static const int BUFSIZE = 4096;
 		static const int CENTER = 0x80;
 	
 		EmuTime emuDelay;

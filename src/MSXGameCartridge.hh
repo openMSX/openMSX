@@ -7,6 +7,7 @@
 #include "MSXMemDevice.hh"
 #include "EmuTime.hh"
 #include "SCC.hh"
+#include "DACSound.hh"
 
 class MSXGameCartridge : public MSXMemDevice, public MSXRom
 {
@@ -35,6 +36,6 @@ class MSXGameCartridge : public MSXMemDevice, public MSXRom
 
 		int retriefMapperType();
 		SCC* cartridgeSCC;
-
+		DACSound* dac;
 };
 #endif

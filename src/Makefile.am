@@ -54,7 +54,6 @@ openmsx_SOURCES=openmsx.cc \
 	MSXRTC.hh MSXRTC.cc RP5C01.hh RP5C01.cc \
 	RealTime.hh RealTime.cc \
 	MSXGameCartridge.hh MSXGameCartridge.cc \
-	MSXKonamiSynthesizer.hh  MSXKonamiSynthesizer.cc \
 	DACSound.cc DACSound.hh \
 	KeyEventInserter.cc KeyEventInserter.hh \
 	SDLEventInserter.cc SDLEventInserter.hh \

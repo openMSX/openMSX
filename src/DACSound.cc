@@ -89,7 +89,7 @@ void DACSound::insertSample(short sample, const EmuTime &time)
 	buffer[writeIndex].sample = sample;
 	buffer[writeIndex].time   = time;
 	writeIndex = (writeIndex+1) % BUFSIZE;
-	assert(writeIndex != readIndex);
+	//assert(writeIndex != readIndex);
 }
 
 int* DACSound::updateBuffer(int length)

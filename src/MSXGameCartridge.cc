@@ -28,6 +28,10 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 	  short volume = (short)config->getParameterAsInt("volume");
 	  cartridgeSCC=new SCC(volume);
 	}
+	if (mapperType==64){
+	  short volume = (short)config->getParameterAsInt("volume");
+	  dac=new DACSound(volume,16000,time);
+	}
 
 
 	reset(time);
@@ -36,6 +40,8 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 MSXGameCartridge::~MSXGameCartridge()
 {
 	PRT_DEBUG("Destructing an MSXGameCartridge object");
+	if (dac)
+		delete dac;
 	if (cartridgeSCC)
 		delete cartridgeSCC;
 }
@@ -43,8 +49,11 @@ MSXGameCartridge::~MSXGameCartridge()
 void MSXGameCartridge::reset(const EmuTime &time)
 {
   byte* ptr;
-	if (mapperType==2){
+	if (cartridgeSCC){
 	  cartridgeSCC->reset();
+	}
+	if (dac){
+	  dac->reset(time);
 	}
 	if (mapperType < 128 ){
 	  // set internalMemoryBank
@@ -112,9 +121,18 @@ int MSXGameCartridge::retriefMapperType()
 	//  instruction to the mapper-registers-addresses occure.
 
 	// if smaller then 32kB it must be a simple rom so we return 128
-	if (romSize <=0xFFFF) return 128;
+	if  (deviceConfig->getParameterAsBool("automappertype")){
+	  if (romSize <=0xFFFF){
+	    if (romSize == 0x8000){
+	      //TODO: Autodetermine for KonamiSynthesiser
+	      // works for now since most 32 KB cartridges don't write to themselves
+	      return 64;
+	    } else {
+	      return 128;
+	    }
+	  }
 	
-	for (int i=0; i<romSize-2; i++) {
+	  for (int i=0; i<romSize-2; i++) {
 		if (memoryBank[i] == 0x32) {
 			int value = memoryBank[i+1]+(memoryBank[i+2]<<8);
 			switch (value){
@@ -146,19 +164,24 @@ int MSXGameCartridge::retriefMapperType()
 				typeGuess[5]++;
 			}
 		}
-	}
-	// in case of doubt we go for type 0
-	typeGuess[0]++;
-	// in case of even type 5 and 4 we would prefer 5 
-	// but we would still prefer 0 above 4 or 5 so no increment
-	if (typeGuess[4]) typeGuess[4]--; // decrement of zero is max_int :-)
-	int type = 0;
-	for (int i=0; i<6; i++) {
-		if (typeGuess[i]>typeGuess[type]) 
-			type = i;
-	}
-	PRT_DEBUG("I Guess this is a nr. " << type << " GameCartridge mapper type.")
-	return type;
+	  }
+	  // in case of doubt we go for type 0
+	  typeGuess[0]++;
+	  // in case of even type 5 and 4 we would prefer 5 
+	  // but we would still prefer 0 above 4 or 5 so no increment
+	  if (typeGuess[4]) typeGuess[4]--; // decrement of zero is max_int :-)
+	  int type = 0;
+	  for (int i=0; i<6; i++) {
+	  	if (typeGuess[i]>typeGuess[type]) 
+	  		type = i;
+	  }
+	  PRT_DEBUG("I Guess this is a nr. " << type << " GameCartridge mapper type.")
+	    return type;
+	} else {
+	  PRT_DEBUG("Configured as a nr. " << deviceConfig->getParameterAsInt("mappertype") << " GameCartridge mapper type.")
+	  return deviceConfig->getParameterAsInt("mappertype");
+	};
+	
 }
 
 byte MSXGameCartridge::readMem(word address, const EmuTime &time)
@@ -292,9 +315,16 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		break;
 	case 6: 
 		//--==**>> GameMaster2+SRAM cartridge <<**==--
-		//// GameMaster2 must become an independend MSXDevice
+		//// GameMaster2 mayi become an independend MSXDevice
 		assert(false);
 		break;
+	case 64:
+		//--==**>> <<**==--
+		// Konami Synthezier cartridge
+		// Should be only for 0x4000, but since this isn't confirmed on a real
+		// cratridge we will simply use every write.
+		dac->writeDAC(value,time);
+		
 	case 128: 
 		//--==**>> Simple romcartridge <= 64 KB <<**==--
 		// No extra writable hardware
