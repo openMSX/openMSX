@@ -61,8 +61,8 @@ class Z80 : public CPU {
 			static bool cpudebug;
 
 			class DebugCmd : public ConsoleCommand {
-				virtual void execute(const char *commandLine);
-				virtual void help(const char *commandLine);
+				virtual void execute(const std::vector<std::string> &tokens);
+				virtual void help   (const std::vector<std::string> &tokens);
 			};
 			DebugCmd debugCmd;
 	#endif
