@@ -1,5 +1,8 @@
 $Id$
 
+2004-12-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed crash on missing LED icon files
+
 2004-12-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* More V9990 stuff
 	   - implemented interlace modes  (no de-interlacing yet)

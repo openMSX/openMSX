@@ -74,8 +74,16 @@ void IconLayer<IMAGE>::createSettings(LedEvent::Led led, const string& name)
 	ledInfo[led].nonActive.reset(new FilenameSetting(icon_name + ".non-active",
 		"Image for active LED icon", "skins/led-off.png"));
 
-	ledInfo[led].active->setChecker(this);
-	ledInfo[led].nonActive->setChecker(this);
+	try {
+		ledInfo[led].active->setChecker(this);
+	} catch (MSXException& e) {
+		// ignore
+	}
+	try {
+		ledInfo[led].nonActive->setChecker(this);
+	} catch (MSXException& e) {
+		// ignore
+	}
 }
 
 
