@@ -28,10 +28,11 @@
 
 * config:
  - xmlconfig save support
- - support for configuration for non-devices
+ - support for configuration for non-devices [done]
  - support for saving states of devices
  - getBoolParameter(String parameterName, bool defaultValue), 
-   also for int, string, ... [typed parameters]
+   also for int, string, ... [typed parameters] [done]
+ - http support
 
 * build
  - auto* improvement
