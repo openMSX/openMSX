@@ -6,7 +6,7 @@
 PACKAGE_NAME:=openmsx
 
 # Version number.
-PACKAGE_VERSION:=0.5.1-rc1
+PACKAGE_VERSION:=0.5.1
 
 # Is this a release version ("true") or development version ("false").
 RELEASE_FLAG:=true
