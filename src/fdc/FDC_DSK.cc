@@ -22,7 +22,7 @@ FDC_DSK::~FDC_DSK()
 void FDC_DSK::read(byte phystrack, byte track, byte sector, byte side,
                    int size, byte* buf)
 {
-	int logicalSector = track*18+(sector-1)+side*9;	// For double sided disks only
+	int logicalSector = physToLog(track, side, sector);
 	if (logicalSector >= nbSectors)
 		throw NoSuchSectorException("No such sector");
 	file->seekg(logicalSector*SECTOR_SIZE, std::ios::beg);
@@ -34,7 +34,7 @@ void FDC_DSK::read(byte phystrack, byte track, byte sector, byte side,
 void FDC_DSK::write(byte phystrack, byte track, byte sector, byte side, 
                     int size, const byte* buf)
 {
-	int logicalSector = track*18+(sector-1)+side*9;	// For double sided disks only
+	int logicalSector = physToLog(track, side, sector);
 	if (logicalSector >= nbSectors)
 		throw NoSuchSectorException("No such sector");
 	file->seekg(logicalSector*SECTOR_SIZE, std::ios::beg);

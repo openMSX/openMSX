@@ -43,6 +43,17 @@ class FDCBackEnd
 
 		void readSector(byte* buf, int sector);
 		void writeSector(const byte* buf, int sector);
+
+	protected:
+		FDCBackEnd();
+		int physToLog(byte track, byte side, byte sector);
+		void logToPhys(int log, byte &track, byte &side, byte &sector);
+	
+	private:
+		void readBootSector();
+
+		int sectorsPerTrack;
+		int nbSides;
 };
 
 #endif

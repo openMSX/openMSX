@@ -34,7 +34,7 @@ FDC_XSA::~FDC_XSA()
 void FDC_XSA::read(byte phystrack, byte track, byte sector,
                    byte side, int size, byte* buf)
 {
-	int pos = 512*(track*18+(sector-1)+side*9);	// double sided only
+	int pos = 512 * physToLog(track, side, sector);
 	if (pos >= origLen)
 		throw NoSuchSectorException("No such sector");
 	memcpy(buf, outbuf+pos, 512);

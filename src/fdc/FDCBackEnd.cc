@@ -3,6 +3,11 @@
 #include "FDCBackEnd.hh"
 
 
+FDCBackEnd::FDCBackEnd()
+{
+	nbSides = 0;
+}
+
 void FDCBackEnd::getTrackHeader(byte phystrack, byte track, byte side, byte* buf)
 {
 	PRT_DEBUG("FDCBackEnd::getTrackHeader [unimplemented]");
@@ -14,18 +19,40 @@ void FDCBackEnd::getSectorHeader(byte phystrack, byte track, byte sector, byte s
 
 void FDCBackEnd::readSector(byte* buf, int logSector)
 {
-	// TODO only works for double sided disks
-	byte track  = logSector / 18;
-	byte side   = (logSector%18) / 9;
-	byte sector = (logSector%9) + 1;
+	byte track, side, sector;
+	logToPhys(logSector, track, side, sector);
 	read(track, track, sector, side, 512, buf);
 }
 
 void FDCBackEnd::writeSector(const byte* buf, int logSector)
 {
-	// TODO only works for double sided disks
-	byte track  = logSector / 18;
-	byte side   = (logSector%18) / 9;
-	byte sector = (logSector%9) + 1;
+	byte track, side, sector;
+	logToPhys(logSector, track, side, sector);
 	write(track, track, sector, side, 512, buf);
 }
+
+
+int FDCBackEnd::physToLog(byte track, byte side, byte sector)
+{
+	if ((track == 0) && (side == 0) && (sector == 1))	// bootsector
+		return 0;
+	if (!nbSides) readBootSector();
+	return sectorsPerTrack * (side + nbSides * track) + (sector - 1);
+}
+
+void FDCBackEnd::logToPhys(int log, byte &track, byte &side, byte &sector)
+{
+	if (!nbSides) readBootSector();
+	track = log / (nbSides * sectorsPerTrack);
+	side = (log / sectorsPerTrack) % nbSides;
+	sector = (log % sectorsPerTrack) + 1;
+}
+
+void FDCBackEnd::readBootSector()
+{
+	byte buf[512];
+	read(0, 0, 1, 0, 512, buf);
+	sectorsPerTrack = buf[0x18] + 256 * buf[0x19];
+	nbSides         = buf[0x1A] + 256 * buf[0x1B];
+}
+
