@@ -1,5 +1,7 @@
 // $Id$
 
+#include <cstdio>
+
 #include "MSXCPUInterface.hh"
 #include "DummyDevice.hh"
 #include "CommandController.hh"
