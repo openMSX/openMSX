@@ -4,8 +4,7 @@
 // Empty , just created to have a device for the factory and a general file for new developers
 //
 #include "MSXSimple64KB.hh" 
-#include "string.h"
-//#include "stdlib.h"
+#include <string>
 
 MSXSimple64KB::MSXSimple64KB()
 {
@@ -42,7 +41,7 @@ void MSXSimple64KB::init()
 	} else {
 		//Isn't completely true, but let's suppose that ram will 
 		//always contain all zero if started
-		memset(memoryBank,0,65536); // TODO: Possible default of C++ look-up
+		memset(memoryBank,0,65536); // new doesn't fill with zero
 	}
 	// MSXMotherBoard.register_IO_In((byte)81,this);
 	// MSXMotherBoard.register_IO_Out((byte)80,this);
