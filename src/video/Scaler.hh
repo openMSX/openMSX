@@ -4,7 +4,6 @@
 #define __SCALER_HH__
 
 #include <SDL/SDL.h>
-#include "Blender.hh"
 
 
 namespace openmsx {
@@ -33,11 +32,10 @@ public:
 
 	/** Instantiates a Scaler.
 	  * @param id Identifies the scaler algorithm.
-	  * @param blender Pixel blender that can be used by the scaler algorithm
-	  *   to interpolate pixels.
+	  * @param format Pixel format of the surfaces the scaler will be used on.
 	  * @return A Scaler object, owned by the caller.
 	  */
-	static Scaler* createScaler(ScalerID id, Blender<Pixel> blender);
+	static Scaler* createScaler(ScalerID id, SDL_PixelFormat* format);
 
 	/** Scales the given line.
 	  * @param src Source: the image to be scaled.

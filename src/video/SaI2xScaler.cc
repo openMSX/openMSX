@@ -31,8 +31,8 @@ template class SaI2xScaler<word>;
 template class SaI2xScaler<unsigned int>;
 
 template <class Pixel>
-SaI2xScaler<Pixel>::SaI2xScaler(Blender<Pixel> blender)
-	: blender(blender)
+SaI2xScaler<Pixel>::SaI2xScaler(SDL_PixelFormat* format)
+	: blender(Blender<Pixel>::createFromFormat(format))
 {
 }
 

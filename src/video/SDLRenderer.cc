@@ -176,10 +176,7 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 		ScalerID scalerID = settings.getScaler()->getValue();
 		if (currScalerID != scalerID) {
 			delete currScaler;
-			currScaler = Scaler<Pixel>::createScaler(
-				scalerID,
-				Blender<Pixel>::createFromFormat(screen->format)
-				);
+			currScaler = Scaler<Pixel>::createScaler(scalerID, screen->format);
 			currScalerID = scalerID;
 		}
 

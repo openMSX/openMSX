@@ -4,6 +4,7 @@
 #define __SAI2XSCALER_HH__
 
 #include "Scaler.hh"
+#include "Blender.hh"
 
 
 namespace openmsx {
@@ -15,11 +16,10 @@ template <class Pixel>
 class SaI2xScaler: public Scaler<Pixel>
 {
 public:
-	SaI2xScaler(Blender<Pixel> blender);
+	SaI2xScaler(SDL_PixelFormat* format);
 	void scaleLine256(SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
 	void scaleLine512(SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
-//private:
-protected:
+private:
 	Blender<Pixel> blender;
 };
 

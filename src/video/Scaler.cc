@@ -22,13 +22,13 @@ template class Scaler<word>;
 template class Scaler<unsigned int>;
 
 template <class Pixel>
-Scaler<Pixel>* Scaler<Pixel>::createScaler(ScalerID id, Blender<Pixel> blender)
+Scaler<Pixel>* Scaler<Pixel>::createScaler(ScalerID id, SDL_PixelFormat* format)
 {
 	switch(id) {
 	case SCALER_SIMPLE:
 		return new SimpleScaler<Pixel>();
 	case SCALER_SAI2X:
-		return new SaI2xScaler<Pixel>(blender);
+		return new SaI2xScaler<Pixel>(format);
 	case SCALER_SCALE2X:
 		return new Scale2xScaler<Pixel>();
 	case SCALER_HQ2X:
