@@ -1,6 +1,6 @@
 // $Id$
 
-#ifndef __YM2413_HH___
+#ifndef __YM2413_HH__
 #define __YM2413_HH__
 
 #include "openmsx.hh"
