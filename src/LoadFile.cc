@@ -11,13 +11,13 @@
 
 void LoadFile::loadFile(byte** memoryBank, int fileSize)
 {
-	FILETYPE* file = openFile();
+	IFILETYPE* file = openFile();
 	readFile(file, fileSize, memoryBank);
 }
 
 int LoadFile::loadFile(byte** memoryBank)
 {
-	FILETYPE* file = openFile();
+	IFILETYPE* file = openFile();
 	file->seekg(0,std::ios::end);
 	int fileSize=file->tellg();
 	file->seekg(0,std::ios::beg);
@@ -26,15 +26,15 @@ int LoadFile::loadFile(byte** memoryBank)
 	return fileSize;
 }
 
-FILETYPE* LoadFile::openFile()
+IFILETYPE* LoadFile::openFile()
 {
-	// TODO load from "ROM-directory" (temp "cd" to dir)
 	std::string filename = getDeviceConfig()->getParameter("filename");
 	PRT_DEBUG("Loading file " << filename << " ...");
-	return new FILETYPE(filename.c_str());
+	// FileOpener loads from "ROM-directory" if needed
+	return FileOpener::openFileRO(filename);
 }
 
-void LoadFile::readFile(FILETYPE* file, int fileSize, byte** memoryBank)
+void LoadFile::readFile(IFILETYPE* file, int fileSize, byte** memoryBank)
 {
 	if (!(*memoryBank = new byte[fileSize]))
 		PRT_ERROR("Couldn't allocate enough memory");

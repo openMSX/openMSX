@@ -7,14 +7,7 @@
 #include "msxconfig.hh"
 #include "config.h"
 #include "CPU.hh"
-#include <iostream>
-#include <fstream>
-
-#ifdef HAVE_FSTREAM_TEMPL
-#define IOFILETYPE std::fstream<byte>
-#else
-#define IOFILETYPE std::fstream
-#endif
+#include "FileOpener.hh"
 
 class MSXDiskRomPatch: public MSXRomPatchInterface
 {

@@ -9,13 +9,7 @@
 #include "MSXRomPatchInterface.hh"
 #include "config.h"
 #include "CPU.hh"
-
-
-#ifdef HAVE_FSTREAM_TEMPL
-#define FILETYPE std::fstream<byte>
-#else
-#define FILETYPE std::fstream
-#endif
+#include "FileOpener.hh"
 
 class MSXTapePatch: public MSXRomPatchInterface
 {
@@ -28,7 +22,7 @@ class MSXTapePatch: public MSXRomPatchInterface
 	private:
 		// TApeHeader used to be fMSX compatible
 		static const byte TapeHeader[] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
-		FILETYPE* file;
+		IOFILETYPE* file;
 
 		void insertTape(std::string filename);
 

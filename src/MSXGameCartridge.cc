@@ -6,7 +6,6 @@
 #include "MSXCPU.hh"
 #include "CPU.hh"
 
-
 MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
 {

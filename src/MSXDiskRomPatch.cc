@@ -17,7 +17,7 @@ const int MSXDiskRomPatch::A_DRVOFF = 0x401F;
 
 MSXDiskRomPatch::DiskImage::DiskImage(std::string fileName)
 {
-	file = new IOFILETYPE(fileName.c_str(), IOFILETYPE::out|IOFILETYPE::in);
+	file = FileOpener::openFilePreferRW(fileName);
 	file->seekg(0,std::ios::end);
 	nbSectors = file->tellg() / SECTOR_SIZE;
 }

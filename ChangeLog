@@ -1,5 +1,10 @@
 $Id$
 
+2002-01-03 David Heremans <david.heremans@gnu-linux.net>
+	* Added FileOpener. This implements the needed routines to
+	  support "rompaths". It also provides easy to use functions
+	  to open files in the other devices.
+
 2002-01-09 Maarten ter Huurne <mth@stack.nl>
 	* VR resets one line before start of display.
 	  Fixes Almost Real Copper Bars part.

@@ -8,12 +8,7 @@
 #include "config.h"
 #include "openmsx.hh"
 #include "msxconfig.hh"
-
-#ifdef HAVE_FSTREAM_TEMPL
-#define FILETYPE std::ifstream<byte>
-#else
-#define FILETYPE std::ifstream
-#endif
+#include "FileOpener.hh"
 
 class LoadFile
 {
@@ -64,8 +59,8 @@ class LoadFile
 		/** block usage */
 		LoadFile &operator=(const LoadFile &foo);
 
-		FILETYPE* openFile();
-		void readFile(FILETYPE* file, int fileSize, byte** memoryBank);
+		IFILETYPE* openFile();
+		void readFile(IFILETYPE* file, int fileSize, byte** memoryBank);
 		
 		/**
 		 * patch a file after it has being loaded in the memory bank

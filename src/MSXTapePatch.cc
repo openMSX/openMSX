@@ -74,7 +74,8 @@ void MSXTapePatch::patch() const
 void MSXTapePatch::insertTape(std::string filename)
 {
 	PRT_DEBUG("Loading file " << filename << " as tape ...");
-	file = new FILETYPE(filename.c_str(), std::ios::in|std::ios::out);
+	// file = new FILETYPE(filename.c_str(), std::ios::in|std::ios::out);
+	file = FileOpener::openFilePreferRW(filename);
 	if (!file) {
 		PRT_DEBUG("Loading file failed");
 	}

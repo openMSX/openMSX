@@ -79,6 +79,7 @@ openmsx_SOURCES=openmsx.cc \
 	MSXRom.cc MSXRom.hh \
 	MSXRomPatchInterface.hh MSXRomPatchInterface.cc \
 	MSXTapePatch.cc MSXTapePatch.hh \
+	FileOpener.cc FileOpener.hh \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh
 
 # uncomment if you want to link with libxmlx
