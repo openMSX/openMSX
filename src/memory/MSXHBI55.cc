@@ -1,7 +1,6 @@
 // $Id$
 
-/*
- * Submitted By: Albert Beevendorp (bifimsx)
+/* Submitted By: Albert Beevendorp (bifimsx)
  *
  * Some Sony MSX machines have built-in firmware
  * containing an address 'book', memo and scheduler and a
@@ -26,6 +25,11 @@
  *     OUT &HB1,192 OR I\256: IF I MOD 256=INP(&HB2) THEN NEXT
  *     ELSE PRINT "Error comparing byte:";I: END
  * 30  PRINT "Done!"
+ *
+ * -----
+ * 
+ * Improved code mostly copied from blueMSX, many thanks to Daniel Vik.
+ * http://cvs.sourceforge.net/viewcvs.py/bluemsx/blueMSX/Src/Memory/romMapperSonyHBI55.c
  */
 
 #include <cassert>
@@ -50,6 +54,11 @@ MSXHBI55::~MSXHBI55()
 
 void MSXHBI55::reset(const EmuTime& time)
 {
+	readAddress = 0;
+	writeAddress = 0;
+	addressLatch = 0;
+	writeLatch = 0;
+	mode = 0;
 	i8255->reset(time);
 }
 
@@ -133,11 +142,6 @@ byte MSXHBI55::peekA(const EmuTime& /*time*/) const
 	// TODO check this
 	return 255;
 }
-void MSXHBI55::writeA(byte value, const EmuTime& /*time*/)
-{
-	address = (address & 0x0F00) | value; 
-}
-
 byte MSXHBI55::readB(const EmuTime& time)
 {
 	return peekB(time);
@@ -147,74 +151,64 @@ byte MSXHBI55::peekB(const EmuTime& /*time*/) const
 	// TODO check this
 	return 255;
 }
+
+void MSXHBI55::writeA(byte value, const EmuTime& /*time*/)
+{
+	addressLatch = value;
+}
 void MSXHBI55::writeB(byte value, const EmuTime& /*time*/)
 {
-	address = (address & 0x00FF) | ((value & 0x0F) << 8);
-	mode = value & 0xC0;
+	word address = addressLatch | ((value & 0x0F) << 8);
+	mode = value >> 6;
+	switch (mode) {
+		case 0:
+			readAddress = 0;
+			writeAddress = 0;
+			break;
+		case 1:
+			writeAddress = address;
+			break;
+		case 2:
+			sram[writeAddress] = writeLatch;
+			break;
+		case 3:
+			readAddress = address;
+			break;
+	}
 }
 
-nibble MSXHBI55::readC1(const EmuTime& time)
-{
-	return peekC1(time);
-}
-nibble MSXHBI55::peekC1(const EmuTime& /*time*/) const
-{
-	byte result;
-	if (mode == 0xC0) {
-		// read mode
-		result = readSRAM(address) >> 4;
-	} else {
-		// TODO check
-		result = 15;
-	}
-	return result;
-}
 nibble MSXHBI55::readC0(const EmuTime& time)
 {
 	return peekC0(time);
 }
 nibble MSXHBI55::peekC0(const EmuTime& /*time*/) const
 {
-	byte result;
-	if (mode == 0xC0) {
-		// read mode
-		result = readSRAM(address) & 0x0F;
-	} else {
-		// TODO check
-		result = 15;
-	}
-	return result;
+	return readSRAM(readAddress) & 0x0F;
+}
+nibble MSXHBI55::readC1(const EmuTime& time)
+{
+	return peekC1(time);
+}
+nibble MSXHBI55::peekC1(const EmuTime& /*time*/) const
+{
+	return readSRAM(readAddress) >> 4;
+}
+
+void MSXHBI55::writeC0(nibble value, const EmuTime& /*time*/)
+{
+	writeLatch = (writeLatch & 0xF0) | value;
 }
 void MSXHBI55::writeC1(nibble value, const EmuTime& /*time*/)
 {
-	if (mode == 0x40) {
-		// write mode
-		byte tmp = readSRAM(address);
-		sram[address] = (tmp & 0x0F) | (value << 4);
-	} else {
-		// TODO check
-		// nothing 
-	}
-}
-void MSXHBI55::writeC0(nibble value, const EmuTime& /*time*/)
-{
-	if (mode == 0x40) {
-		// write mode
-		byte tmp = readSRAM(address);
-		sram[address] = (tmp & 0xF0) | value;
-	} else {
-		// TODO check
-		// nothing 
+	writeLatch = (writeLatch & 0x0F) | (value << 4);
+	if (mode == 1) {
+		sram[writeAddress] = writeLatch;
 	}
 }
 
 byte MSXHBI55::readSRAM(word address) const
 {
-	if (address != 0) {
-		return sram[address];
-	} else {
-		return 0x53;
-	}
+	return address ? sram[address] : 0x53;
 }
 
 } // namespace openmsx

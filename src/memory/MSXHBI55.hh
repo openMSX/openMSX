@@ -42,8 +42,12 @@ public:
 
 private:
 	byte readSRAM(word address) const;
+
 	SRAM sram;
-	word address;
+	word readAddress;
+	word writeAddress;
+	byte addressLatch;
+	byte writeLatch;
 	byte mode;
 };
 
