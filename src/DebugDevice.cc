@@ -56,7 +56,7 @@ void DebugDevice::writeIO(byte port, byte value, const EmuTime& time)
 				case 3:
 					break;
 			}
-			flush();
+			(*outputstrm) << endl;
 			break;
 		case 1:
 			switch (mode) {
@@ -71,35 +71,6 @@ void DebugDevice::writeIO(byte port, byte value, const EmuTime& time)
 					break;
 			}
 			break;
-	}
-}
-
-void DebugDevice::flush()
-{
-	DisplayType dispType;
-	if (mode == MULTIBYTE) {
-		switch (modeParameter) {
-			case 0: 
-				dispType = HEX;
-				break;
-			case 1:
-				dispType = BIN;
-				break;
-			case 2:
-				dispType = DEC;
-				break;
-			case 3:
-			default:
-				dispType = ASC;
-				break;
-		}
-		for (vector<byte>::const_iterator it = buffer.begin();
-		     it != buffer.end();
-		     ++it) {
-			displayByte(*it, dispType);
-		}
-		buffer.clear();
-		(*outputstrm) << endl;
 	}
 }
 
@@ -132,7 +103,23 @@ void DebugDevice::outputSingleByte(byte value, const EmuTime & time)
 
 void DebugDevice::outputMultiByte(byte value)
 {
-	buffer.push_back(value);
+	DisplayType dispType;
+	switch (modeParameter) {
+		case 0: 
+			dispType = HEX;
+			break;
+		case 1:
+			dispType = BIN;
+			break;
+		case 2:
+			dispType = DEC;
+			break;
+		case 3:
+		default:
+			dispType = ASC;
+			break;
+	}	
+	displayByte(value, dispType);
 }
 
 void DebugDevice::displayByte(byte value, DisplayType type)
@@ -140,24 +127,24 @@ void DebugDevice::displayByte(byte value, DisplayType type)
 	switch (type) {
 		case HEX:
 			(*outputstrm) << hex << setw(2) << setfill('0')
-			              << (int)value << "h ";
+			              << (int)value << "h " << flush;
 			break;
 		case BIN: {
 			byte mask = 128;
 			while (mask != 0) {
 				if (value & mask) {
-					(*outputstrm) << "1";
+					(*outputstrm) << "1" << flush;
 				} else {
-					(*outputstrm) << "0";
+					(*outputstrm) << "0" << flush;
 				}
 				mask >>= 1;
 			}
-			(*outputstrm) << "b ";
+			(*outputstrm) << "b " << flush;
 			break;
 		}
 		case DEC:
 			(*outputstrm) << dec << setw(3) << setfill('0')
-			              << (int)value << " ";
+			              << (int)value << " " << flush;
 			break;
 		case ASC:
 			(*outputstrm).put(value);

@@ -1,5 +1,8 @@
 $Id$
 
+2003-10-03 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Remove buffering from the debugdevice.
+
 2003-10-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented 'vdpcmdtrace' setting
 	* Fixed VDP commands that had SX/DX >= screen-width

@@ -33,7 +33,6 @@ class DebugDevice : public MSXIODevice
 		void outputSingleByte(byte value, const EmuTime& time);
 		void outputMultiByte(byte value);
 		void displayByte(byte value, DisplayType type);
-		void flush();
 		
 		enum DebugMode mode;
 		byte modeParameter;
@@ -41,7 +40,6 @@ class DebugDevice : public MSXIODevice
 		ostream* outputstrm;
 		ofstream debugOut;
 		string fileNameString;
-		vector<byte> buffer;
 };
 
 } // namespace openmsx
