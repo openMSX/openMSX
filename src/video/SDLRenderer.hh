@@ -197,7 +197,7 @@ private:
 		  */
 		LINE_DONTTOUCH
 	};
-	LineContent lineContent[HEIGHT];
+	LineContent lineContent[HEIGHT / LINE_ZOOM];
 
 	/** Is the last completed frame interlaced?
 	  * This is a copy of the VDP's interlace status,

@@ -447,11 +447,6 @@ void VDP::frameStart(const EmuTime &time)
 {
 	//cerr << "VDP::frameStart @ " << time << "\n";
 
-	// Inform VDP subcomponents.
-	// TODO: Do this via VDPVRAM?
-	renderer->frameStart(time);
-	spriteChecker->frameStart(time);
-
 	// Tell renderer to sync with render settings.
 	if (!renderer->checkSettings()) {
 		// Renderer failed to sync; replace it.
@@ -495,6 +490,11 @@ void VDP::frameStart(const EmuTime &time)
 		frameStartTime + getTicksPerFrame(), this, VSYNC);
 	// Schedule DISPLAY_START, VSCAN and HSCAN.
 	scheduleDisplayStart(time);
+
+	// Inform VDP subcomponents.
+	// TODO: Do this via VDPVRAM?
+	renderer->frameStart(time);
+	spriteChecker->frameStart(time);
 
 	/*
 	   cout << "--> frameStart = " << frameStartTime

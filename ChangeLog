@@ -1,5 +1,10 @@
 $Id$
 
+2004-04-27 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed per-line administration of scale factor.
+	  In Psycho World intro, bottom text was scaled x2 instead of x1
+	  when openMSX was paused. ANMA's Relax had a similar problem.
+
 2004-04-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed Koei mapper: sram is not visible in 0x6000-0x7FFF
 	* Fixed RealTime: still sync music for high frameskips, but properly

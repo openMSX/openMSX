@@ -728,9 +728,7 @@ void SDLRenderer<Pixel, zoom>::frameStart(const EmuTime& time)
 	// Call superclass implementation.
 	PixelRenderer::frameStart(time);
 
-	// TODO: getEvenOdd is negated, because VDP still has old frame's
-	//       version when doing the frameStart call.
-	calcWorkScreen(!vdp->getEvenOdd());
+	calcWorkScreen(vdp->getEvenOdd());
 
 	// Calculate line to render at top of screen.
 	// Make sure the display area is centered.
@@ -744,15 +742,6 @@ void SDLRenderer<Pixel, zoom>::frameStart(const EmuTime& time)
 	if ((gamma > prevGamma) || (gamma < prevGamma)) {
 		precalcPalette(gamma);
 		resetPalette();
-	}
-
-	// TODO: Do this in drawBorder instead?
-	if (LINE_ZOOM == 2) {
-		LineContent lineType =
-			vdp->getDisplayMode().getLineWidth() == 256 ? LINE_256 : LINE_512;
-		for (unsigned y = 0; y < HEIGHT; y++) {
-			lineContent[y] = lineType; //LINE_BLANK;
-		}
 	}
 }
 
@@ -954,6 +943,15 @@ void SDLRenderer<Pixel, zoom>::drawBorder(
 	rect.h = limitY - fromY;
 	// Note: return code ignored.
 	SDL_FillRect(workScreen, &rect, getBorderColour());
+
+	if (LINE_ZOOM == 2 && !vdp->isDisplayEnabled()) {
+		LineContent lineType = vdp->getDisplayMode().getLineWidth() == 256
+			? LINE_256 : LINE_512;
+		int endY = rect.y + rect.h;
+		for (int y = rect.y; y < endY; y++) {
+			lineContent[y] = lineType;
+		}
+	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>
