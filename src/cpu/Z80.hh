@@ -4,14 +4,10 @@
 #define __Z80_HH__
 
 #include "config.h"
-#include "openmsx.hh"
 #include "CPU.hh"
-#include "EmuTime.hh"
-
 
 namespace openmsx {
 
-class CPUInterface;
 class Z80;
 typedef void (Z80::*Z80_ResumeFunc)();
 
@@ -45,8 +41,6 @@ private:
 	static const Z80_ResumeFunc opcode_ed[256];
 	static const Z80_ResumeFunc opcode_fd[256];
 	static const Z80_ResumeFunc opcode_main[256];
-
-	Z80_ResumeFunc resume;
 };
 
 } // namespace openmsx

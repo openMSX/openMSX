@@ -4,19 +4,16 @@
 #define __R800_HH__
 
 #include "config.h"
-#include "openmsx.hh"
 #include "CPU.hh"
-#include "EmuTime.hh"
-
 
 namespace openmsx {
 
-class CPUInterface;
 class R800;
 typedef void (R800::*R800_ResumeFunc)();
 
 
-class R800 : public CPU {
+class R800 : public CPU
+{
 public:
 	static const int CLOCK_FREQ = 7159090;
 	R800(const EmuTime &time);
@@ -38,8 +35,6 @@ private:
 	static const R800_ResumeFunc opcode_ed[256];
 	static const R800_ResumeFunc opcode_fd[256];
 	static const R800_ResumeFunc opcode_main[256];
-
-	R800_ResumeFunc resume;
 };
 
 } // namespace openmsx

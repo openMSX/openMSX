@@ -131,6 +131,11 @@ bool MSXCPU::isR800Active()
 	return activeCPU == &r800;
 }
 
+void MSXCPU::setZ80Freq(unsigned freq)
+{
+	z80.setFreq(freq);
+}
+
 void MSXCPU::wait(const EmuTime &time)
 {
 	activeCPU->wait(time);

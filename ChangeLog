@@ -3,6 +3,7 @@ $Id$
 2004-02-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Changed default init.tcl to only bind unbounded keys:
 	   should solve the "toggle + toggle = nop" problem
+	* Implemented 6MHz (5.3MHz actually) mode for Panasonic MSX2+ machines
 
 2004-02-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Handle unknown tags in control protocol more gracefully

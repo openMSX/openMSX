@@ -136,6 +136,11 @@ public:
 	static const int CACHE_LINE_LOW  = CACHE_LINE_SIZE - 1;
 	static const int CACHE_LINE_HIGH = 0xffff - CACHE_LINE_LOW;
 
+	/**
+	 * Change the clock freq.
+	 */
+	void setFreq(unsigned freq);
+	
 protected:
 	/** Create a new CPU.
 	  */
@@ -196,6 +201,7 @@ private:
 	// dynamic freq
 	BooleanSetting freqLocked;
 	IntegerSetting freqValue;
+	unsigned freq;
 	
 	Scheduler* scheduler;
 };

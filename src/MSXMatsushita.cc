@@ -2,7 +2,7 @@
 
 #include "MSXMatsushita.hh"
 #include "Device.hh"
-
+#include "MSXCPU.hh"
 
 namespace openmsx {
 
@@ -61,8 +61,13 @@ void MSXMatsushita::writeIO(byte port, byte value, const EmuTime &time)
 {
 	switch (port & 0x0F) {
 	case 1:
-		// TODO bit0 0 -> 6MHz
-		//           1 -> 3.5MHz
+		if (value & 1) {
+			// bit0 = 1 -> 3.5MHz
+			MSXCPU::instance().setZ80Freq(3579545);
+		} else {
+			// bit0 = 0 -> 5.3MHz
+			MSXCPU::instance().setZ80Freq(5369318);	// 3579545 * 3/2
+		}
 		break;
 	case 3:
 		color2 = (value & 0xF0) >> 4;

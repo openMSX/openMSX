@@ -70,6 +70,11 @@ public:
 	 * Is the R800 currently active
 	 */
 	bool isR800Active();
+
+	/**
+	 * Switch the Z80 clock freq
+	 */
+	void setZ80Freq(unsigned freq);
 	
 	// Debuggable
 	virtual unsigned getSize() const;

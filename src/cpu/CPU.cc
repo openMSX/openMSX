@@ -31,7 +31,8 @@ CPU::CPU(const string& name, int defaultFreq)
 	             true),
 	  freqValue(name + "_freq",
 	            "custom " + name + " frequency (only valid when unlocked)",
-	            defaultFreq, 1, 100000000)
+	            defaultFreq, 1, 100000000),
+	  freq(defaultFreq)
 {
 	currentTime.setFreq(defaultFreq);
 
@@ -200,7 +201,7 @@ void CPU::update(const SettingLeafNode* setting) throw()
 	if (setting == &freqLocked) {
 		if (freqLocked.getValue()) {
 			// locked
-			currentTime.setFreq(freqValue.getDefaultValue());
+			currentTime.setFreq(freq);
 		} else {
 			// unlocked
 			currentTime.setFreq(freqValue.getValue());
@@ -211,6 +212,15 @@ void CPU::update(const SettingLeafNode* setting) throw()
 		}
 	} else {
 		assert(false);
+	}
+}
+
+void CPU::setFreq(unsigned freq_)
+{
+	freq = freq_;
+	if (freqLocked.getValue()) {
+		// locked
+		currentTime.setFreq(freq);
 	}
 }
 

@@ -1,15 +1,17 @@
 // $Id$
 
-#include "Scheduler.hh"
 #include <iomanip>
-
-using std::setw;
-using std::setfill;
+#include <cassert>
+#include "Scheduler.hh"
+#include "CPUInterface.hh"
 
 #ifdef CPU_DEBUG
 #include "Dasm.hh"
 #include "BooleanSetting.hh"
 #endif
+
+using std::setw;
+using std::setfill;
 
 
 namespace openmsx {

@@ -1,8 +1,6 @@
 // $Id$
 
 #include "R800.hh"
-#include "CPUInterface.hh"
-
 
 namespace openmsx {
 
@@ -13,6 +11,7 @@ R800::R800(const EmuTime &time)
 {
 	reset(time);
 }
+
 R800::~R800()
 {
 }

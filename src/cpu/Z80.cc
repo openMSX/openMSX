@@ -11,10 +11,7 @@
 /***                                                                       **/
 /****************************************************************************/
 
-#include <cassert>
 #include "Z80.hh"
-#include "CPUInterface.hh"
-
 
 namespace openmsx {
 
@@ -25,10 +22,10 @@ Z80::Z80(const EmuTime &time)
 {
 	reset(time);
 }
+
 Z80::~Z80()
 {
 }
-
 
 inline void Z80::M1_DELAY()       { currentTime += 1 + WAIT_CYCLES; }
 inline void Z80::ADD_16_8_DELAY() { currentTime += 5; }
