@@ -55,6 +55,7 @@ class MSXTMS9928a : public MSXDevice
 		void mode3(struct osd_bitmap*);
 		void modebogus(struct osd_bitmap*);
 		void mode23(struct osd_bitmap*);
+		void modeblank(struct osd_bitmap*);
 		void sprites(struct osd_bitmap*);
 
 	private:

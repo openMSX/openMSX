@@ -1,4 +1,15 @@
 // $Id$
+
+/* TODO:
+- Verify the dirty checks, especially those of mode3 and mode23,
+  which were different before.
+
+Idea:
+For bitmap modes, keep VRAM lines rather than screen lines.
+Better performance when doing raster tricks or double buffering.
+Probably also easier to implement when using line buffers.
+*/
+
 /*
 ** File: tms9928a.c -- software implementation of the Texas Instruments
 **                     TMS9918A and TMS9928A, used by the Coleco, MSX and
@@ -58,18 +69,18 @@
 ** 
 ** 04/10/2001
 ** Did correct own version of osd_bitmap and draw border when changing reg 7
-** 
+**
 ** 08/10/2001
 ** Started converting the all in one approach as a atrter
 ** Did correct blanking, mode0 renderer and some other stuff
 **
 ** 09/10/2001
 ** Got all modes working + sprites
-** 
+**
 ** 11/10/2001
 ** Enable 'dirty' methodes of Sean again + own extra dirty flag
 ** as a side effect this means that the sprites aren't cleared for the moment :-)
-** 
+**
 ** 12/10/2001
 ** Miss-used the dirtyNames table to indicate which chars are overdrawn with sprites.
 ** Noticed some timing issues that need to be looked into.
@@ -160,31 +171,33 @@ static unsigned char TMS9928A_palette[16*3] =
 */
 
 // RENDERERS for line-based scanline conversion
-void MSXTMS9928a::mode0(struct osd_bitmap* bmp){
+void MSXTMS9928a::mode0(struct osd_bitmap *bitmap) {
 
 	for (int line = 0; line < 192; line++) {
+		byte backDropColour = XPal[tms.Regs[7] & 0x0F];
+		byte *pixelPtr = bitmap->line[line];
 		int name = (line / 8) * 32;
-		int x = 0;
-		while (x < 256) {
+		// TODO: charLefts may have slightly better performance,
+		// but x may be easier to convert to pixel-based rendering.
+		for (int charsLeft = 32; charsLeft--; ) {
 			int charcode = tms.vMem[tms.nametbl + name];
 			// TODO: is tms.DirtyColour[charcode / 64] correct?
 			if (tms.DirtyName[name] || tms.DirtyPattern[charcode]
 			|| tms.DirtyColour[charcode / 64]) {
 
 				int colour = tms.vMem[tms.colour + charcode / 8];
-				byte fg = XPal[colour >> 4];
-				byte bg = XPal[colour & 0x0F];
-				// If transparant then background color:
-				if (bg == 0) bg = XPal[tms.Regs[7] & 0x0F];
+				byte fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
+				byte bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
 
 				int pattern = tms.vMem[tms.pattern + charcode * 8 + (line & 0x07)];
+				// TODO: Compare performance of this loop vs unrolling.
 				for (int i = 8; i--; ) {
-					plot_pixel (bmp, x++, line, (pattern & 0x80) ? fg : bg);
+					*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
 					pattern <<= 1;
 				}
 			}
 			else {
-				x += 8;
+				pixelPtr += 8;
 			}
 			name++;
 		}
@@ -193,229 +206,228 @@ void MSXTMS9928a::mode0(struct osd_bitmap* bmp){
 	_TMS9928A_set_dirty(0);
 };
 
-void MSXTMS9928a::mode1(struct osd_bitmap* bmp){
-  int pattern,x,y,yy,xx,name,charcode;
-  byte fg,bg,*patternptr;
+void MSXTMS9928a::mode1(struct osd_bitmap *bitmap) {
 
-  // Not needed since full screen refresh not executed now
-  //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
-  //  return;
+	// Not needed since full screen refresh not executed now
+	//if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
+	//  return;
+	if (!tms.anyDirtyColour) return;
 
-  fg = XPal[tms.Regs[7] / 16];
-  bg = XPal[tms.Regs[7] & 15];
+	for (int line = 0; line < 192; line++) {
+		byte *pixelPtr = bitmap->line[line];
+		byte fg = XPal[tms.Regs[7] >> 4];
+		byte bg = XPal[tms.Regs[7] & 0x0F];
 
-  /* colours at sides must be reset */
-  if (tms.anyDirtyColour) {
-    for (y=0;y<192;y++){
-      for (x=0;x<8;x++){
-	plot_pixel (bmp, x, y,bg);
-	plot_pixel (bmp, 255-x, y,bg);
-      }
-    }
-  }
-
-
-  name = 0;
-  for (y=0;y<24;y++) {
-    for (x=0;x<40;x++,name++) {
-      charcode = tms.vMem[tms.nametbl+name];
-      if ( !(tms.DirtyName[name] || tms.DirtyPattern[charcode]) &&
-	  !tms.anyDirtyColour)
-	continue;
-
-      patternptr = tms.vMem + tms.pattern + (charcode*8);
-      for (yy=0;yy<8;yy++) {
-	pattern = *patternptr++;
-	for (xx=0;xx<6;xx++) {
-	  plot_pixel (bmp, 8+x*6+xx, y*8+yy,
-	      (pattern & 0x80) ? fg : bg);
-	  pattern *= 2;
+		int name = (line / 8) * 40;
+		int x = 0;
+		// Extended left border.
+		for (; x < 8; x++) *pixelPtr++ = bg;
+		// Actual display.
+		while (x < 248) {
+			int charcode = tms.vMem[tms.nametbl + name];
+			if (tms.DirtyName[name] || tms.DirtyPattern[charcode]) {
+				int pattern = tms.vMem[tms.pattern + charcode * 8 + (line & 7)];
+				for (int i = 6; i--; ) {
+					*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
+					pattern <<= 1;
+				}
+			}
+			else {
+				pixelPtr += 6;
+			}
+			x += 6;
+			name++;
+		}
+		// Extended right border.
+		if (tms.anyDirtyColour) {
+			for (; x < 256; x++) *pixelPtr++ = bg;
+		}
 	}
-      }
-    }
-  }
-  _TMS9928A_set_dirty (0);
+
+	_TMS9928A_set_dirty(0);
 };
 
-void MSXTMS9928a::mode2(struct osd_bitmap* bmp){
-  int colour,name,x,y,yy,pattern,xx,charcode;
-  byte fg,bg;
-  byte *colourptr,*patternptr;
+void MSXTMS9928a::mode2(struct osd_bitmap *bitmap) {
 
-  // Not needed since full screen refresh not executed now
-  //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
-  //  return;
+	// Not needed since full screen refresh not executed now
+	//if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
+	//  return;
 
-  name = 0;
-  for (y=0;y<24;y++) {
-    for (x=0;x<32;x++,name++) {
-      charcode = tms.vMem[tms.nametbl+name]+(y/8)*256;
-      colour = (charcode&tms.colourmask);
-      pattern = (charcode&tms.patternmask);
-      if ( !(tms.DirtyName[name] || tms.DirtyPattern[pattern] ||
-	    tms.DirtyColour[colour]) )
-	continue;
-
-      patternptr = tms.vMem+tms.pattern+colour*8;
-      colourptr = tms.vMem+tms.colour+pattern*8;
-      for (yy=0;yy<8;yy++) {
-	pattern = *patternptr++;
-	colour = *colourptr++;
-	fg = XPal[colour / 16];
-	bg = XPal[colour & 15];
-	if (bg == 0) bg = XPal[tms.Regs[7] & 15]; // If transparant then background color
-
-	for (xx=0;xx<8;xx++) {
-	  plot_pixel (bmp, x*8+xx, y*8+yy,
-	      (pattern & 0x80) ? fg : bg);
-	  pattern *= 2;
+	for (int line = 0; line < 192; line++) {
+		byte backDropColour = XPal[tms.Regs[7] & 0x0F];
+		byte *pixelPtr = bitmap->line[line];
+		int name = (line / 8) * 32;
+		for (int x = 0; x < 256; x += 8) {
+			int charcode = tms.vMem[tms.nametbl+name] + (line / 64) * 256;
+			int colourNr = (charcode & tms.colourmask);
+			int patternNr = (charcode & tms.patternmask);
+			if (tms.DirtyName[name] || tms.DirtyPattern[patternNr]
+			|| tms.DirtyColour[colourNr]) {
+				// TODO: pattern uses colourNr and colour uses patterNr...
+				//      I don't get it.
+				int pattern = tms.vMem[tms.pattern + colourNr * 8 + (line & 7)];
+				int colour = tms.vMem[tms.colour + patternNr * 8 + (line & 7)];
+				byte fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
+				byte bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
+				for (int i = 8; i--; ) {
+					*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
+					pattern <<= 1;
+				}
+			}
+			else {
+				pixelPtr += 8;
+			}
+			name++;
+		}
 	}
-      }
-    }
-  }
-  _TMS9928A_set_dirty (0);
+
+	_TMS9928A_set_dirty(0);
 };
 
-void MSXTMS9928a::mode12(struct osd_bitmap* bmp){
-  int pattern,x,y,yy,xx,name,charcode;
-  byte fg,bg,*patternptr;
+void MSXTMS9928a::mode12(struct osd_bitmap *bitmap) {
 
-  // Not needed since full screen refresh not executed now
-  //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
-  //  return;
+	// Not needed since full screen refresh not executed now
+	//if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
+	//  return;
+	if (!tms.anyDirtyColour) return;
 
-  fg = XPal[tms.Regs[7] / 16];
-  bg = XPal[tms.Regs[7] & 15];
+	for (int line = 0; line < 192; line++) {
+		byte *pixelPtr = bitmap->line[line];
+		byte fg = XPal[tms.Regs[7] >> 4];
+		byte bg = XPal[tms.Regs[7] & 0x0F];
+		// TODO: Hey, no transparency check...?
 
-  /* colours at sides must be reset */
-  if (tms.anyDirtyColour) {
-    for (y=0;y<192;y++){
-      for (x=0;x<8;x++){
-	plot_pixel (bmp, x, y,bg);
-	plot_pixel (bmp, 255-x, y,bg);
-      }
-    }
-  }
-
-  name = 0;
-  for (y=0;y<24;y++) {
-    for (x=0;x<40;x++,name++) {
-      charcode = (tms.vMem[tms.nametbl+name]+(y/8)*256)&tms.patternmask;
-      if ( !(tms.DirtyName[name] || tms.DirtyPattern[charcode]) &&
-	  !tms.anyDirtyColour)
-	continue;
-      patternptr = tms.vMem + tms.pattern + (charcode*8);
-      for (yy=0;yy<8;yy++) {
-	pattern = *patternptr++;
-	for (xx=0;xx<6;xx++) {
-	  plot_pixel (bmp, 8+x*6+xx, y*8+yy,
-	      (pattern & 0x80) ? fg : bg);
-	  pattern *= 2;
+		int name = (line / 8) * 32;
+		int x = 0;
+		// Extended left border.
+		if (tms.anyDirtyColour) {
+			for ( ; x < 8; x++) *pixelPtr++ = bg;
+		}
+		else {
+			pixelPtr += 8;
+		}
+		// Actual display.
+		while (x < 248) {
+			int charcode = (tms.vMem[tms.nametbl + name] + (line / 64) * 256) & tms.patternmask;
+			if (tms.DirtyName[name] || tms.DirtyPattern[charcode]) {
+				int pattern = tms.vMem[tms.pattern + charcode * 8];
+				for (int i = 6; i--; ) {
+					*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
+					pattern <<= 1;
+				}
+			}
+			else {
+				pixelPtr += 6;
+			}
+			x += 6;
+			name++;
+		}
+		// Extended right border.
+		if (tms.anyDirtyColour) {
+			for ( ; x < 256; x++) *pixelPtr++ = bg;
+		}
 	}
-      }
-    }
-  }
-  _TMS9928A_set_dirty (0);
+
+	_TMS9928A_set_dirty(0);
 };
 
-void MSXTMS9928a::mode3(struct osd_bitmap* bmp){
-  int x,y,yy,yyy,name,charcode;
-  byte fg,bg,*patternptr;
+void MSXTMS9928a::mode3(struct osd_bitmap *bitmap) {
 
-  // Not needed since full screen refresh not executed now
-  //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
-  //  return;
+	// Not needed since full screen refresh not executed now
+	//if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
+	//  return;
+	if (!tms.anyDirtyColour) return;
 
-  name = 0;
-  for (y=0;y<24;y++) {
-    for (x=0;x<32;x++,name++) {
-      charcode = tms.vMem[tms.nametbl+name];
-      if ( !(tms.DirtyName[name] || tms.DirtyPattern[charcode]) &&
-	  tms.anyDirtyColour)
-	continue;
-      patternptr = tms.vMem+tms.pattern+charcode*8+(y&3)*2;
-      for (yy=0;yy<2;yy++) {
-	fg = XPal[(*patternptr / 16)];
-	bg = XPal[((*patternptr++) & 15)];
-	if (bg == 0) bg = XPal[tms.Regs[7] & 15]; // If transparant then background color
-
-	for (yyy=0;yyy<4;yyy++) {
-	  plot_pixel (bmp, x*8+0, y*8+yy*4+yyy, fg);
-	  plot_pixel (bmp, x*8+1, y*8+yy*4+yyy, fg);
-	  plot_pixel (bmp, x*8+2, y*8+yy*4+yyy, fg);
-	  plot_pixel (bmp, x*8+3, y*8+yy*4+yyy, fg);
-	  plot_pixel (bmp, x*8+4, y*8+yy*4+yyy, bg);
-	  plot_pixel (bmp, x*8+5, y*8+yy*4+yyy, bg);
-	  plot_pixel (bmp, x*8+6, y*8+yy*4+yyy, bg);
-	  plot_pixel (bmp, x*8+7, y*8+yy*4+yyy, bg);
+	for (int line = 0; line < 192; line++) {
+		byte backDropColour = XPal[tms.Regs[7] & 0x0F];
+		byte *pixelPtr = bitmap->line[line];
+		int name = (line / 8) * 32;
+		for (int x = 0; x < 256; x += 8) {
+			int charcode = tms.vMem[tms.nametbl + name];
+			if (tms.DirtyName[name] || tms.DirtyPattern[charcode]) {
+				int colour = tms.vMem[tms.pattern + charcode * 8 + ((line / 4) & 7)];
+				byte fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
+				byte bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
+				int n;
+				for (n = 4; n--; ) *pixelPtr++ = fg;
+				for (n = 4; n--; ) *pixelPtr++ = bg;
+			}
+			else {
+				pixelPtr += 8;
+			}
+			name++;
+		}
 	}
-      }
-    }
-  }
-  _TMS9928A_set_dirty (0);
+
+	_TMS9928A_set_dirty(0);
 };
 
-void MSXTMS9928a::modebogus(struct osd_bitmap* bmp){
-  byte fg,bg;
-  int x,y,n,xx;
+void MSXTMS9928a::modebogus(struct osd_bitmap *bitmap) {
 
-  // Not needed since full screen refresh not executed now
-  //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
-  //  return;
+	// Not needed since full screen refresh not executed now
+	//if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
+	//  return;
 
-  fg = XPal[tms.Regs[7] / 16];
-  bg = XPal[tms.Regs[7] & 15];
+	for (int line = 0; line < 192; line++) {
+		byte *pixelPtr = bitmap->line[line];
+		byte fg = XPal[tms.Regs[7] >> 4];
+		byte bg = XPal[tms.Regs[7] & 0x0F];
 
-  for (y=0;y<192;y++) {
-    xx=0;
-    n=8; while (n--) plot_pixel (bmp, xx++, y, bg);
-    for (x=0;x<40;x++) {
-      n=4; while (n--) plot_pixel (bmp, xx++, y, fg);
-      n=2; while (n--) plot_pixel (bmp, xx++, y, bg);
-    }
-    n=8; while (n--) plot_pixel (bmp, xx++, y, bg);
-  }
-
-  _TMS9928A_set_dirty (0);
-};
-
-void MSXTMS9928a::mode23(struct osd_bitmap* bmp){
-  int x,y,yy,yyy,name,charcode;
-  byte fg,bg,*patternptr;
-
-  // Not needed since full screen refresh not executed now
-  //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
-  //  return;
-
-  name = 0;
-  for (y=0;y<24;y++) {
-    for (x=0;x<32;x++,name++) {
-      charcode = tms.vMem[tms.nametbl+name];
-      if ( !(tms.DirtyName[name] || tms.DirtyPattern[charcode]) &&
-	  tms.anyDirtyColour)
-	continue;
-      patternptr = tms.vMem + tms.pattern +
-	((charcode+(y&3)*2+(y/8)*256)&tms.patternmask)*8;
-      for (yy=0;yy<2;yy++) {
-	fg = XPal[(*patternptr / 16)];
-	bg = XPal[((*patternptr++) & 15)];
-	if (bg == 0) bg = XPal[tms.Regs[7] & 15]; // If transparant then background color
-
-	for (yyy=0;yyy<4;yyy++) {
-	  plot_pixel (bmp, x*8+0, y*8+yy*4+yyy, fg);
-	  plot_pixel (bmp, x*8+1, y*8+yy*4+yyy, fg);
-	  plot_pixel (bmp, x*8+2, y*8+yy*4+yyy, fg);
-	  plot_pixel (bmp, x*8+3, y*8+yy*4+yyy, fg);
-	  plot_pixel (bmp, x*8+4, y*8+yy*4+yyy, bg);
-	  plot_pixel (bmp, x*8+5, y*8+yy*4+yyy, bg);
-	  plot_pixel (bmp, x*8+6, y*8+yy*4+yyy, bg);
-	  plot_pixel (bmp, x*8+7, y*8+yy*4+yyy, bg);
+		int x = 0;
+		for (; x < 8; x++) *pixelPtr++ = bg;
+		for (; x < 248; x += 6) {
+			int n;
+			for (n = 4; n--; ) *pixelPtr++ = fg;
+			for (n = 2; n--; ) *pixelPtr++ = bg;
+		}
+		for (; x < 256; x++) *pixelPtr++ = bg;
 	}
-      }
-    }
-  }
-  _TMS9928A_set_dirty (0);
+
+	_TMS9928A_set_dirty(0);
 };
+
+void MSXTMS9928a::mode23(struct osd_bitmap *bitmap) {
+
+	// Not needed since full screen refresh not executed now
+	//if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
+	//  return;
+	if (!tms.anyDirtyColour) return;
+
+	for (int line = 0; line < 192; line++) {
+		byte *pixelPtr = bitmap->line[line];
+		byte backDropColour = XPal[tms.Regs[7] & 0x0F];
+		int name = (line / 8) * 32;
+		for (int x = 0; x < 256; x += 8) {
+			int charcode = tms.vMem[tms.nametbl + name];
+			if (tms.DirtyName[name] || tms.DirtyPattern[charcode]) {
+				int colour = tms.vMem[tms.pattern + ((charcode + ((line / 4) & 7) +
+					(line / 64) * 256) & tms.patternmask) * 8];
+				byte fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
+				byte bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
+				int n;
+				for (n = 4; n--; ) *pixelPtr++ = fg;
+				for (n = 4; n--; ) *pixelPtr++ = bg;
+			}
+			else {
+				pixelPtr += 8;
+			}
+			name++;
+		}
+	}
+
+	_TMS9928A_set_dirty(0);
+};
+
+void MSXTMS9928a::modeblank(struct osd_bitmap *bitmap) {
+	// Screen blanked so all background colour.
+	byte colour = XPal[tms.Regs[7] & 15];
+	for (int line = 0; line < 192; line++){
+		byte *pixelPtr = bitmap->line[line];
+		for (int x = 0; x < 256; x++) {
+			*pixelPtr++ = colour;
+		}
+	}
+}
 
 /*
 ** This function renders the sprites. Sprite collision is calculated in
@@ -427,7 +439,9 @@ void MSXTMS9928a::mode23(struct osd_bitmap* bmp){
 ** This code should be optimized. One day.
 **
 */
-void MSXTMS9928a::sprites(struct osd_bitmap* bmp){
+void MSXTMS9928a::sprites(struct osd_bitmap* bitmap) {
+	// TODO: Access pixel buffer linearly and get rid of plot_pixel.
+
     byte *attributeptr,*patternptr,c;
     int p,x,y,size,i,j,large,yy,xx,limit[192],
         illegalsprite,illegalspriteline;
@@ -461,9 +475,9 @@ void MSXTMS9928a::sprites(struct osd_bitmap* bmp){
         attributeptr++;
 
 	// Hack: mark the characters that are toughed by the sprites as dirty
-	// This way we also redraw the affected chars 
+	// This way we also redraw the affected chars
 	// sprites are only visible in screen modes of 32 chars wide
-	
+
 	dirtycheat=(x>>3)+(y>>3)*32;
 	//mark four chars dirty (2x2)
 	tms.DirtyName[dirtycheat]=1;
@@ -521,8 +535,9 @@ void MSXTMS9928a::sprites(struct osd_bitmap* bmp){
                             if (c && ! (tms.dBackMem[yy*256+xx] & 0x02))
                             {
                             	tms.dBackMem[yy*256+xx] |= 0x02;
-                            	if (bmp)
-									plot_pixel (bmp, xx, yy, XPal[c]);
+                            	if (bitmap) {
+									plot_pixel(bitmap, xx, yy, XPal[c]);
+								}
 							}
                         }
                     }
@@ -560,8 +575,9 @@ void MSXTMS9928a::sprites(struct osd_bitmap* bmp){
 		                            if (c && ! (tms.dBackMem[yy*256+xx] & 0x02))
         		                    {
                 		            	tms.dBackMem[yy*256+xx] |= 0x02;
-                                        if (bmp)
-                                        	plot_pixel (bmp, xx, yy, XPal[c]);
+                                        if (bitmap) {
+                                        	plot_pixel(bitmap, xx, yy, XPal[c]);
+										}
                 		            }
                                 }
                                 if (((xx+1) >=0) && ((xx+1) < 256)) {
@@ -573,8 +589,9 @@ void MSXTMS9928a::sprites(struct osd_bitmap* bmp){
 		                            if (c && ! (tms.dBackMem[yy*256+xx+1] & 0x02))
         		                    {
                 		            	tms.dBackMem[yy*256+xx+1] |= 0x02;
-                                        if (bmp)
-                                        	plot_pixel (bmp, xx+1, yy, XPal[c]);
+                                        if (bitmap) {
+                                        	plot_pixel(bitmap, xx+1, yy, XPal[c]);
+										}
 									}
                                 }
                             }
@@ -696,21 +713,21 @@ void MSXTMS9928a::init(void)
 
     tms.DirtyColour =  new byte [MAX_DIRTY_COLOUR]; // (char*)malloc (MAX_DIRTY_COLOUR);
     if (!tms.DirtyColour) {
-        free (tms.vMem);
-        free (tms.DirtyName);
-        free (tms.DirtyPattern);
-        free (tms.dBackMem);
+        free(tms.vMem);
+        free(tms.DirtyName);
+        free(tms.DirtyPattern);
+        free(tms.dBackMem);
         return ;//1;
     }
 
     /* back bitmap */
     tms.tmpbmp = alloc_bitmap (256, 192, 8);
     if (!tms.tmpbmp) {
-        free (tms.vMem);
-        free (tms.dBackMem);
-        free (tms.DirtyName);
-        free (tms.DirtyPattern);
-        free (tms.DirtyColour);
+        free(tms.vMem);
+        free(tms.dBackMem);
+        free(tms.DirtyName);
+        free(tms.DirtyPattern);
+        free(tms.DirtyColour);
         return ;//1;
     }
 
@@ -779,7 +796,7 @@ void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 	  PutImage();
 	  tms.stateChanged=false;
 	  };
-	
+
 	//Next SP/interrupt in Pal mode here
 	currentTime = time;
 	Scheduler::instance()->setSyncPoint(currentTime+71258, *this); //71285 for PAL, 59404 for NTSC
@@ -878,7 +895,7 @@ void MSXTMS9928a::writeIO(byte port, byte value, Emutime &time)
 
 byte MSXTMS9928a::TMS9928A_vram_r()
 {
-      //READ_HANDLER (TMS9928A_vram_r) 
+      //READ_HANDLER (TMS9928A_vram_r)
       byte b;
       b = tms.ReadAhead;
       tms.ReadAhead = tms.vMem[tms.Addr];
@@ -997,7 +1014,7 @@ void MSXTMS9928a::_TMS9928A_change_register (byte reg, byte val) {
         tms.anyDirtyColour = 1;
         memset (tms.DirtyColour, 1, MAX_DIRTY_COLOUR);
         //currently I change the entire background
-        // this should be on a line base 
+        // this should be on a line base
         full_border_fil();
 
         break;
@@ -1007,71 +1024,64 @@ void MSXTMS9928a::_TMS9928A_change_register (byte reg, byte val) {
 
 void MSXTMS9928a::fullScreenRefresh()
 {
-    int c,i,j;
+	// Change background color from value if needed
+	//
+	/* Changed: if color is drawn in color 0 then get correct color from register 7
+	// instead of fidling with the entire color table. This was a
+	// remaining thing from Sean all-in-one screen build method
+	if (tms.Change) {
+		c = tms.Regs[7] & 15; if (!c) c=1;
+		if (tms.BackColour != c) {
+			tms.BackColour = c;
+		XPal[0]=SDL_MapRGB(screen->format,
+			TMS9928A_palette[c*3],
+			TMS9928A_palette[c*3 + 1],
+			TMS9928A_palette[c*3 + 2]);
+		//full_border_fil(); // already done in changing R7 itself
+		}
+	}
+	*/
 
-    // Change background color from value if needed
-    //
-    /* Changed: if color is drawn in color 0 then get correct color from register 7 
-    // instead of fidling with the entire color table. This was a
-    // remaining thing from Sean all-in-one screen build method
-    if (tms.Change) {
-        c = tms.Regs[7] & 15; if (!c) c=1;
-        if (tms.BackColour != c) {
-            tms.BackColour = c;
-	    XPal[0]=SDL_MapRGB(screen->format,
-		    TMS9928A_palette[c*3],
-		    TMS9928A_palette[c*3 + 1],
-		    TMS9928A_palette[c*3 + 2]);
-	    //full_border_fil(); // already done in changing R7 itself
-        }
-    }
-    */
+	// Really redraw if needed
+	if (tms.Change) {
+		if (! (tms.Regs[1] & 0x40) ) {
+			modeblank(bitmapscreen);
+		}
+		else {
+			// draw background
 
-    // Really redraw if needed
-    if (tms.Change) {
-        if (! (tms.Regs[1] & 0x40) ) {
-            // screen blanked so all background color
-	    c= XPal[tms.Regs[7] & 15];
-	    for (i=0;i<256;i++){
-	      for (j=0;j<192;j++){
-	        plot_pixel(bitmapscreen,i,j,c);
-	      }
-	    }
-        } else {
-	  // draw background
+			// TODO: Change back to function (method) pointers.
+			//ModeHandlers[tms.mode](bitmapscreen);
+			switch (tms.mode){
+				case 0: mode0(bitmapscreen);
+					break;
+				case 1: mode1(bitmapscreen);
+					break;
+				case 2: mode2(bitmapscreen);
+					break;
+				case 3: mode12(bitmapscreen);
+					break;
+				case 4: mode3(bitmapscreen);
+					break;
+				case 5: modebogus(bitmapscreen);
+					break;
+				case 6: mode23(bitmapscreen);
+					break;
+				case 7: modebogus(bitmapscreen);
+			}
 
-	  //ModeHandlers[tms.mode](bitmapscreen);
-	  switch (tms.mode){
-	    case 0: mode0(bitmapscreen);
-		    break;
-	    case 1: mode1(bitmapscreen);
-		    break;
-	    case 2: mode2(bitmapscreen);
-		    break;
-	    case 3: mode12(bitmapscreen);
-		    break;
-	    case 4: mode3(bitmapscreen);
-		    break;
-	    case 5: modebogus(bitmapscreen);
-		    break;
-	    case 6: mode23(bitmapscreen);
-		    break;
-	    case 7: modebogus(bitmapscreen);
-	  }
-
-	  // if sprites enabled in this mode
-	  if (TMS_SPRITES_ENABLED ) {
-	    //PRT_DEBUG("TMS9928A: Need to include sprite routines.");
-	    // We just render them over the current image
-	    sprites(bitmapscreen);
-	  }
-        }
-    }
-    /*
-    else {
+			// if sprites enabled in this mode
+			if (TMS_SPRITES_ENABLED) {
+				// We just render them over the current image
+				sprites(bitmapscreen);
+			}
+		}
+	}
+	/*
+	else {
 		tms.StatusReg = tms.oldStatusReg;
-    }
-    */
+	}
+	*/
 
 }
 
