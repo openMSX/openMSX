@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.4.0 (2004-05-23)
+Release Notes for openMSX 0.4.0 (2004-05-28)
 ============================================
 
 This new release brings you the following improvements:

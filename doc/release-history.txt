@@ -4,7 +4,7 @@ Release History
 This is an overview of the changes that were incorporated into past
 releases.
 
-openMSX 0.4.0 (2004-05-23)
+openMSX 0.4.0 (2004-05-28)
 --------------------------
 
 - Finalised the control protocol, making a fully-featured Catapult possible.
