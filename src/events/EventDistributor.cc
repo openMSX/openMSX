@@ -26,6 +26,15 @@ EventDistributor::EventDistributor()
 EventDistributor::~EventDistributor()
 {
 	scheduler.unsetEventDistributor(this);
+
+	for (vector<EventTime>::iterator it = toBeScheduledEvents.begin();
+	     it != toBeScheduledEvents.end(); ++it) {
+		delete it->event;
+	}
+	for (deque<Event*>::iterator it = scheduledEvents.begin();
+	     it != scheduledEvents.end(); ++it) {
+		delete *it;
+	}
 }
 
 EventDistributor& EventDistributor::instance()
