@@ -218,7 +218,7 @@ void Mixer::audioCallback(short* stream, unsigned len)
 			//     << 1.0 / interval1.toDouble() << endl;
 			updtStrm2(missing);
 		}
-		EmuDuration minDuration = (intervalAverage * 63) / 64;
+		EmuDuration minDuration = (intervalAverage * 255) / 256;
 		if (interval1 < minDuration) {
 			interval1 = minDuration;
 			//cout << "Mixer: clipped  " << available << '/' << len << ' '
@@ -297,7 +297,7 @@ void Mixer::updtStrm(unsigned samples)
 			//     << 1.0 / interval1.toDouble() << endl;
 			samples -= overflow;
 		}
-		EmuDuration maxDuration = (intervalAverage * 65) / 64;
+		EmuDuration maxDuration = (intervalAverage * 257) / 256;
 		if (interval1 > maxDuration) {
 			interval1 = maxDuration;
 			//cout << "Mixer: clipped  " << available << '/' << bufferSize << ' '
