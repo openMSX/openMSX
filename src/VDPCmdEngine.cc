@@ -17,6 +17,7 @@ TODO:
 #include "EmuTime.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
+#include "VDPSettings.hh"
 
 #include <stdio.h>
 #include <cassert>
@@ -916,8 +917,13 @@ void VDPCmdEngine::executeCommand()
 	// Command execution started.
 	status |= 0x01;
 
-	// Reset timing
+	// Reset timing.
 	opsCount = 0;
+
+	// Finish command now if instantaneous command timing is active.
+	if (VDPSettings::instance()->getCmdTiming()->getValue()) {
+		(this->*currEngine)();
+	}
 
 	return;
 }
@@ -943,7 +949,7 @@ VDPCmdEngine::VDPCmdEngine(VDP *vdp, const EmuTime &time)
 void VDPCmdEngine::reset(const EmuTime &time)
 {
 	currentTime = time;
-	
+
 	currEngine = &VDPCmdEngine::dummyEngine;
 	for (int i = 0; i < 15; i++) {
 		cmdReg[i] = 0;

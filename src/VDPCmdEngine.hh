@@ -6,7 +6,6 @@
 #include "openmsx.hh"
 #include "EmuTime.hh"
 #include "VDP.hh"
-#include "VDPSettings.hh"
 
 class VDPVRAM;
 
@@ -101,9 +100,6 @@ public:
 			status &= 0x7F;
 		} else if (index == REG_CMD) {
 			executeCommand();
-			if (VDPSettings::instance()->getCmdTiming()->getValue()) {
-				(this->*currEngine)();
-			}
 		}
 	}
 
