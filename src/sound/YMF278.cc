@@ -299,7 +299,18 @@ int* YMF278::updateBuffer(int length)
 				continue;
 			}
 	
-			short sample = getSample(sl, sl.stepptr >> 16);
+			unsigned pos = sl.stepptr >> 16;
+			short sample1 = getSample(sl, pos);
+			pos++;
+			if (pos == (sl.endaddr >> 16)) {
+				pos = (sl.loopaddr >> 16);
+			}
+			short sample2 = getSample(sl, pos);
+			int delta = sl.stepptr & 0xFFFF;
+			short sample = (sample1 * (0x10000 - delta) + sample2 * delta) >> 16;
+			//PRT_DEBUG("DEBUG: " << sl.step << " " << sl.startaddr << " " <<(sl.stepptr >> 16) << " " << (int)sample);
+			
+			
 			int vol = sl.TL + (sl.env_vol >> 2);
 			int volLeft  = vol + pan_left [sl.pan] + vl;
 			int volRight = vol + pan_right[sl.pan] + vr;
@@ -372,10 +383,17 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 			                  0x00010000U) ^ 0xFFFF0000U;
 			break;
 		}
-		case 1:
+		case 1: {
 			slot.wave = (slot.wave & 0xFF) | ((data & 0x1) << 8);
 			slot.FN = (slot.FN & 0x380) | (data >> 1);
+			int oct = slot.OCT;
+			if (oct & 8) {
+				oct |= -8;
+			}
+			int step = (slot.FN | 1024) << (oct + 5);
+			slot.step = (unsigned)(step * freqbase);
 			break;
+		}
 		case 2:
 			slot.FN = (slot.FN & 0x07F) | ((data & 0x07) << 7);
 			slot.PRVB = ((data & 0x04) >> 3);
@@ -391,14 +409,8 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 				slot.active = true;
 				setInternalMute(false);
 
-				int oct = slot.OCT;
-				if (oct & 8) {
-					oct |= -8;
-				}
 				slot.state = EG_ATT;
 				slot.stepptr = 0;
-				int step = (slot.FN | 1024) << (oct + 5);
-				slot.step = (unsigned)(step * freqbase);
 			} else {
 				if (slot.active) {
 					slot.state = EG_REL;

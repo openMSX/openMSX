@@ -4,6 +4,7 @@
 #include "YMF262.hh"
 #include "YMF278.hh"
 #include "MSXConfig.hh"
+#include "Mixer.hh"
 
 
 MSXMoonSound::MSXMoonSound(Device *config, const EmuTime &time)
@@ -42,6 +43,7 @@ void MSXMoonSound::reset(const EmuTime &time)
 
 byte MSXMoonSound::readIO(byte port, const EmuTime &time)
 {
+	Mixer::instance()->updateStream(time); // TODO optimize
 	byte result;
 	if (port < 0xC0) {
 		// WAVE part  0x7E-0x7F
