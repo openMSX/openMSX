@@ -7,6 +7,7 @@ AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` \
 	-I$(srcdir)/../events \
 	-I$(srcdir)/../file \
 	-I$(srcdir)/../thread \
+	-I$(srcdir)/../sound \
 	@XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg

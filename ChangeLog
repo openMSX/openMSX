@@ -1,5 +1,9 @@
 $Id$
 
+2003-06-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Made casstte player audible:
+	   - you can turn it off with "set cassette_volume 0"
+
 2003-06-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented automatic .cas to .wav conversion in CassettePlayer:
 	  - not all .cas files seems to work though

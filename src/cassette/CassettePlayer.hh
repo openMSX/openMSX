@@ -7,6 +7,7 @@
 #include "EmuTime.hh"
 #include "Command.hh"
 #include "CommandLineParser.hh"
+#include "SoundDevice.hh"
 
 using std::string;
 using std::vector;
@@ -27,7 +28,7 @@ class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 };
 
 
-class CassettePlayer : public CassetteDevice, private Command
+class CassettePlayer : public CassetteDevice, private Command, public SoundDevice
 {
 	public:
 		CassettePlayer();
@@ -46,18 +47,30 @@ class CassettePlayer : public CassetteDevice, private Command
 		// Pluggable
 		virtual const string &getName() const;
 
+		// SoundDevice
+		virtual void setInternalVolume(short newVolume);
+		virtual void setSampleRate(int sampleRate);
+		virtual int* updateBuffer(int length);
+
 	private:
-		float calcSamples(const EmuTime &time);
+		float updatePosition(const EmuTime &time);
+		short getSample(float pos);
 
 		CassetteImage *cassette;
 		bool motor;
 		EmuTime timeReference;
-		float durationRef;
+		float position;
 
 		// Tape Command
 		virtual void execute(const vector<string> &tokens);
 		virtual void help   (const vector<string> &tokens) const;
 		virtual void tabCompletion(vector<string> &tokens) const;
+
+		// SoundDevice
+		int *buffer;
+		short volume;
+		float delta;
+		float playPos;
 };
 
 #endif

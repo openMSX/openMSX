@@ -11,6 +11,8 @@
 #include "WavImage.hh"
 #include "CasImage.hh"
 #include "DummyCassetteImage.hh"
+#include "Mixer.hh"
+#include "RealTime.hh"
 
 
 MSXCassettePlayerCLI msxCassettePlayerCLI;
@@ -72,10 +74,17 @@ CassettePlayer::CassettePlayer()
 	}
 	PluggingController::instance()->registerPluggable(this);
 	CommandController::instance()->registerCommand(this, "cassetteplayer");
+
+	int bufSize = Mixer::instance()->registerSound("cassetteplayer", this,
+	                                               5000, Mixer::MONO);
+	buffer = new int[bufSize];
 }
 
 CassettePlayer::~CassettePlayer()
 {
+	Mixer::instance()->unregisterSound(this);
+	delete[] buffer;
+	
 	CommandController::instance()->unregisterCommand(this, "cassetteplayer");
 	PluggingController::instance()->unregisterPluggable(this);
 	removeTape();	// free memory
@@ -95,7 +104,8 @@ void CassettePlayer::insertTape(FileContext *context,
 	delete cassette;
 	cassette = tmp;
 	
-	durationRef = 0;	// rewind tape (make configurable??)
+	position = 0.0;	// rewind tape (make configurable??)
+	playPos = 0.0;
 }
 
 void CassettePlayer::removeTape()
@@ -104,10 +114,11 @@ void CassettePlayer::removeTape()
 	cassette = new DummyCassetteImage();
 }
 
-float CassettePlayer::calcSamples(const EmuTime &time)
+float CassettePlayer::updatePosition(const EmuTime &time)
 {
 	float duration = (time - timeReference).toFloat();
-	return durationRef + duration;
+	playPos = position + duration;
+	return playPos;
 }
 
 void CassettePlayer::setMotor(bool status, const EmuTime &time)
@@ -121,24 +132,24 @@ void CassettePlayer::setMotor(bool status, const EmuTime &time)
 		} else {
 			// motor turned off
 			//PRT_DEBUG("CassettePlayer motor off");
-			durationRef = calcSamples(time);
+			position = updatePosition(time);
 		}
 	}
 }
 
+short CassettePlayer::getSample(float pos)
+{
+	if (motor) {
+		return cassette->getSampleAt(pos);
+	} else {
+		return 0;
+	}
+}
+
+
 short CassettePlayer::readSample(const EmuTime &time)
 {
-	short samp;
-	if (motor) {
-		// motor on
-		float duration = calcSamples(time);
-		samp = cassette->getSampleAt(duration);
-	} else {
-		// motor off
-		samp = 0;
-	}
-	//PRT_DEBUG("CassettePlayer read "<<(int)samp);
-	return samp;
+	return getSample(updatePosition(time));
 }
 
 void CassettePlayer::writeWave(short *buf, int length)
@@ -188,4 +199,28 @@ void CassettePlayer::tabCompletion(vector<string> &tokens) const
 {
 	if (tokens.size() == 2)
 		CommandController::completeFileName(tokens);
+}
+
+
+void CassettePlayer::setInternalVolume(short newVolume)
+{
+	volume = newVolume;
+}
+
+void CassettePlayer::setSampleRate(int sampleRate)
+{
+	delta = 1.0 / sampleRate;
+}
+
+int* CassettePlayer::updateBuffer(int length)
+{
+	if (!motor) {
+		return NULL;
+	}
+	int *buf = buffer;
+	while (length--) {
+		*(buf++) = (((int)getSample(playPos)) * volume) >> 15;
+		playPos += delta;
+	}
+	return buffer;
 }
