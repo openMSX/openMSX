@@ -1,5 +1,8 @@
 $Id$
 
+2004-04-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Generate update event for media change
+
 2004-04-06 Reikan <openMSX4Win32@ranpub.com>
 	* Added link libs to platform-x86-mingw32.mk. Thanks to Honda.
 	* Reverted AC_CANONICAL_SYSTEM in configure.ac.

@@ -29,6 +29,7 @@ public:
 		SETTING,
 		PLUG,
 		UNPLUG,
+		MEDIA,
 		NUM_UPDATES // must be last
 	};
 	

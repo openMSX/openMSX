@@ -10,6 +10,7 @@
 #include "FDC_DirAsDSK.hh"
 #include "Leds.hh"
 #include "FileContext.hh"
+#include "CliCommOutput.hh"
 
 namespace openmsx {
 
@@ -304,6 +305,8 @@ string RealDrive::execute(const vector<string>& tokens)
 			UserFileContext context;
 			insertDisk(context, tokens[1]);
 			diskChangedFlag = true;
+			CliCommOutput::instance().update( CliCommOutput::MEDIA,
+				name, tokens[1]);
 		} catch (FileException &e) {
 			throw CommandException(e.getMessage());
 		}

@@ -12,7 +12,7 @@ using std::endl;
 namespace openmsx {
 
 const char* const updateStr[CliCommOutput::NUM_UPDATES] = {
-	"led", "break", "setting", "plug", "unplug"
+	"led", "break", "setting", "plug", "unplug", "media"
 };
 
 CliCommOutput& CliCommOutput::instance()
