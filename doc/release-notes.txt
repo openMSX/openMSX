@@ -1,7 +1,9 @@
 Release Notes for openMSX 0.5.0 (2004-10-18)
 ============================================
 
-This release includes a complete redesign of the hardware configuration XML files. Also many devices were renamed. I/O ports are now specified in the hardware configuration instead of hardcoded. Configurations in the old format
+This release includes a complete redesign of the hardware configuration XML
+files. Also many devices were renamed. I/O ports are now specified in the
+hardware configuration instead of hardcoded. Configurations in the old format
 are no longer supported.
 If you copied the configurations that came with openMSX 0.4.0 to a different
 location (for example, ~/.openMSX/share), replace them by the configurations
@@ -12,7 +14,7 @@ correctly, but it will save you a lot of time compared to manually converting
 configurations.
 
 The new ROM pools feature makes installing system ROMs easier. A ROM pool is a
-directory where openMSX looks for system ROMs. The new hardware configuation
+directory where openMSX looks for system ROMs. The new hardware configuration
 XML files contain the SHA1 sums of the required system ROMs, so openMSX can
 find the right ROMs in the ROM pool automatically. The default ROM pool is the
 directory share/systemroms.
