@@ -39,6 +39,7 @@
 #include "MSXMidi.hh"
 #include "MSXMegaRam.hh"
 #include "MSXPac.hh"
+#include "MSXHBI55.hh"
 
 
 // TODO: Add the switched device to the config files.
@@ -269,6 +270,18 @@ MSXDevice *DeviceFactory::create(Device *conf, const EmuTime &time)
 	}
 	if (type == "PAC") {
 		return new MSXPac(conf, time);
+	}
+	if (type == "HBI55") {
+		MSXHBI55 *hbi55 = new MSXHBI55(conf, time);
+		cpuInterface->register_IO_Out(0xB0, hbi55);
+		cpuInterface->register_IO_Out(0xB1, hbi55);
+		cpuInterface->register_IO_Out(0xB2, hbi55);
+		cpuInterface->register_IO_Out(0xB3, hbi55);
+		cpuInterface->register_IO_In (0xB0, hbi55);
+		cpuInterface->register_IO_In (0xB1, hbi55);
+		cpuInterface->register_IO_In (0xB2, hbi55);
+		cpuInterface->register_IO_In (0xB3, hbi55);
+		return hbi55;
 	}
 	PRT_ERROR("Unknown device \""<<type<<"\" specified in configuration");
 	return NULL;

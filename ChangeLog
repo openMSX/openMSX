@@ -1,5 +1,10 @@
 $Id$
 
+2003-06-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented HBI-55 data cartridge:
+	    according to some BASIC test progs it seems to work, but not yet
+	    tested with Sony_HB_75P internal software
+
 2003-06-09 Maarten ter Huurne <maarten@treewalker.org>
 	* Released openmsx-0.3.2.
 

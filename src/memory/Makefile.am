@@ -66,7 +66,8 @@ libMemory_la_SOURCES = \
 	PanasonicRam.cc PanasonicRam.hh \
 	PanasonicRom.cc PanasonicRom.hh \
 	MSXMegaRam.cc MSXMegaRam.hh \
-	MSXPac.cc MSXPac.hh
+	MSXPac.cc MSXPac.hh \
+	MSXHBI55.cc MSXHBI55.hh
 
 libMemory_la_LIBADD = \
 	../cassette/libCassette.la
