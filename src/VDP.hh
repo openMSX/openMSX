@@ -356,8 +356,7 @@ public:
 	  */
 	inline int getAccessTiming() {
 		return ((controlRegs[1]>>6) & 1)  // display enable
-			| (controlRegs[8] & 2)        // sprite enable
-			| (palTiming ? 4 : 0);        // NTSC/PAL
+			| (controlRegs[8] & 2);   // sprite enable
 	}
 
 	/** Gets the sprite size in pixels (8/16).

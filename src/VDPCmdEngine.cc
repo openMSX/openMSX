@@ -62,22 +62,15 @@ static const byte MASK[4] = { 0x0F, 0x03, 0x0F, 0xFF };
 static const int  PPB[4]  = { 2,4,2,1 };
 static const int  PPL[4]  = { 256,512,512,256 };
 
-                             /*  SprOn SprOn SprOf SprOf */
-                             /*  ScrOf ScrOn ScrOf ScrOn */
-static const int SRCH_TIMING[8]={ 818, 1025,  818,  830,   /* ntsc */
-                                  696,  854,  696,  684 }; /* pal  */
-static const int LINE_TIMING[8]={ 1063, 1259, 1063, 1161,
-                                  904,  1026, 904,  953 };
-static const int HMMV_TIMING[8]={ 439,  549,  439,  531,
-                                  366,  439,  366,  427 };
-static const int LMMV_TIMING[8]={ 873,  1135, 873, 1056,
-                                  732,  909,  732,  854 };
-static const int YMMM_TIMING[8]={ 586,  952,  586,  610,
-                                  488,  720,  488,  500 };
-static const int HMMM_TIMING[8]={ 818,  1111, 818,  854,
-                                  684,  879,  684,  708 };
-static const int LMMM_TIMING[8]={ 1160, 1599, 1160, 1172,
-                                  964,  1257, 964,  977 };
+//                      Sprites:  On   On   Off  Off
+//                      Screen:   Off  On   Off  On
+static const int SRCH_TIMING[8]={  92, 115,  92,  92 };
+static const int LINE_TIMING[8]={ 120, 139, 120, 128 };
+static const int HMMV_TIMING[8]={  49,  60,  49,  58 };
+static const int LMMV_TIMING[8]={  97, 124,  97, 116 };
+static const int YMMM_TIMING[8]={  66, 102,  66,  68 };
+static const int HMMM_TIMING[8]={  92, 121,  92,  95 };
+static const int LMMM_TIMING[8]={ 130, 174, 130, 131 };
 
 // Defines:
 
@@ -265,9 +258,7 @@ inline void VDPCmdEngine::pset(
 
 int VDPCmdEngine::getVdpTimingValue(const int *timingValues)
 {
-	// TODO: This makes command execution instantaneous.
-	return 0;
-	//return timingValues[vdp->getAccessTiming()];
+	return timingValues[vdp->getAccessTiming()];
 }
 
 void VDPCmdEngine::dummyEngine()

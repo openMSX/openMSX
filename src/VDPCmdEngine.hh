@@ -26,7 +26,7 @@ public:
 	  */
 	inline void sync(const EmuTime &time) {
 		if (time > currentTime) {
-			// TODO: Currently, commands are executed instantaneously.
+			opsCount = currentTime.getTicksTill(time);
 			currentTime = time;
 			(this->*currEngine)();
 		}
