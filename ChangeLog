@@ -1,12 +1,16 @@
 $Id$
 
+2003-06-03 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed SDLGL tile cache when character and pattern table use mirroring.
+	  Solves glitches in Dr Archie, Relax and probably others.
+
 2003-06-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented MegaRam
 	* Implemented PAC  (like FM-PAC, but without FM and without ROM)
 
 2003-06-01 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Added a setting for grabbing mouse and keyboard input. When input
-	  is grabbed, the windowsmanager won't be able to mask keys from 
+	  is grabbed, the windowsmanager won't be able to mask keys from
 	  openmsx and the mousecursor won't be able to leave the openmsx
 	  window.
 

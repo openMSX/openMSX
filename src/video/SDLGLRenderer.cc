@@ -935,19 +935,42 @@ void SDLGLRenderer::renderGraphic2Row(
 	int nameStart = row * 32 + col;
 	int nameEnd = row * 32 + endCol;
 	int quarter = nameStart & ~0xFF;
-	int patternMask = vram->patternTable.getMask() / 8;
-	int colourMask = vram->colourTable.getMask() / 8;
+	int patternMask = (vram->patternTable.getMask() / 8) & 0x3FF;
+	int colourMask = (vram->colourTable.getMask() / 8) & 0x3FF;
 	int x = translateX(vdp->getLeftBackground()) + col * 16;
 
+	// Note:
+	// Because cached tiles depend on both the pattern table and the colour
+	// table, cache validation is only simple if both tables use the same
+	// mirroring. To keep the code simple, I disabled caching when they are
+	// mirrored differently. In practice, this is very rare.
+	bool useCache = patternMask == colourMask;
+
 	for (int name = nameStart; name < nameEnd; name++) {
-		// TODO: With all the masks and quarters, is this dirty
-		//       checking really correct?
 		int charNr = quarter | vram->nameTable.readNP((-1 << 10) | name);
-		int colourNr = charNr & colourMask;
-		int patternNr = charNr & patternMask;
+		bool valid;
+		if (useCache) {
+			// If mirrored, use lowest-numbered character that looks the same,
+			// to make optimal use of cache.
+			charNr &= patternMask;
+			valid = dirtyPattern.validate(charNr);
+			valid &= dirtyColour.validate(charNr);
+		} else {
+			valid = false;
+		}
 		GLuint textureId = characterCache[charNr];
-		bool valid = dirtyPattern.validate(patternNr);
-		valid &= dirtyColour.validate(colourNr);
+
+		// Print cache stats, approx once per frame.
+		/*
+		static int hits = 0;
+		static int lookups = 0;
+		if (valid) hits++;
+		if (++lookups == 1024) {
+			printf("cache: %d hits, %d misses\n", hits, lookups - hits);
+			hits = lookups = 0;
+		}
+		*/
+
 		if (!valid) {
 			Pixel charPixels[8 * 8];
 			int index = (-1 << 13) | (charNr * 8);
