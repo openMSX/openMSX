@@ -48,52 +48,52 @@ void DummyDrive::setSide(bool side)
 	// ignore
 }
 
-void DummyDrive::step(bool direction, const EmuTime &time)
+void DummyDrive::step(bool direction, const EmuTime& time)
 {
 	// ignore
 }
 
-bool DummyDrive::track00(const EmuTime &time)
+bool DummyDrive::track00(const EmuTime& time)
 {
-	return true;	// TODO check
+	return false; // National_FS-5500F1 2nd drive detection depends on this
 }
 
-void DummyDrive::setMotor(bool status, const EmuTime &time)
+void DummyDrive::setMotor(bool status, const EmuTime& time)
 {
 	// ignore
 }
 
-bool DummyDrive::indexPulse(const EmuTime &time)
+bool DummyDrive::indexPulse(const EmuTime& time)
 {
 	return false;
 }
 
-int DummyDrive::indexPulseCount(const EmuTime &begin,
-                                const EmuTime &end)
+int DummyDrive::indexPulseCount(const EmuTime& begin,
+                                const EmuTime& end)
 {
 	return 0;
 }
 
-void DummyDrive::setHeadLoaded(bool status, const EmuTime &time)
+void DummyDrive::setHeadLoaded(bool status, const EmuTime& time)
 {
 	// ignore
 }
 
-bool DummyDrive::headLoaded(const EmuTime &time)
+bool DummyDrive::headLoaded(const EmuTime& time)
 {
 	return false;
 }
 
 void DummyDrive::read(byte sector, byte* buf,
-                      byte &onDiskTrack, byte &onDiskSector,
-                      byte &onDiskSide,  int  &onDiskSize)
+                      byte& onDiskTrack, byte& onDiskSector,
+                      byte& onDiskSide,  int&  onDiskSize)
 {
 	throw DriveEmptyException("No drive connected");
 }
 
 void DummyDrive::write(byte sector, const byte* buf,
-                       byte &onDiskTrack, byte &onDiskSector,
-                       byte &onDiskSide,  int  &onDiskSize)
+                       byte& onDiskTrack, byte& onDiskSector,
+                       byte& onDiskSide,  int& onDiskSize)
 {
 	throw DriveEmptyException("No drive connected");
 }
@@ -126,7 +126,7 @@ bool DummyDrive::diskChanged()
 
 /// class RealDrive ///
 
-RealDrive::RealDrive(const string &driveName, const EmuTime &time)
+RealDrive::RealDrive(const string& driveName, const EmuTime& time)
 {
 	headPos = 0;
 	motorStatus = false;
@@ -142,7 +142,7 @@ RealDrive::RealDrive(const string &driveName, const EmuTime &time)
 	MSXConfig& conf = MSXConfig::instance();
 	if (conf.hasConfigWithId(driveName)) {
 		Config* config = conf.getConfigById(driveName);
-		const string &filename = config->getParameter("filename");
+		const string& filename = config->getParameter("filename");
 		try {
 			insertDisk(config->getContext(), filename);
 		} catch (FileException &e) {
@@ -172,7 +172,7 @@ bool RealDrive::writeProtected()
 	return disk->writeProtected();
 }
 
-void RealDrive::step(bool direction, const EmuTime &time)
+void RealDrive::step(bool direction, const EmuTime& time)
 {
 	if (direction) {
 		// step in
@@ -188,12 +188,12 @@ void RealDrive::step(bool direction, const EmuTime &time)
 	PRT_DEBUG("DiskDrive track " << headPos);
 }
 
-bool RealDrive::track00(const EmuTime &time)
+bool RealDrive::track00(const EmuTime& time)
 {
 	return headPos == 0;
 }
 
-void RealDrive::setMotor(bool status, const EmuTime &time)
+void RealDrive::setMotor(bool status, const EmuTime& time)
 {
 	if (motorStatus != status) {
 		motorStatus = status;
@@ -210,7 +210,7 @@ void RealDrive::setMotor(bool status, const EmuTime &time)
 	}
 }
 
-bool RealDrive::indexPulse(const EmuTime &time)
+bool RealDrive::indexPulse(const EmuTime& time)
 {
 	if (!motorStatus && disk->ready()) {
 		return false;
@@ -219,8 +219,8 @@ bool RealDrive::indexPulse(const EmuTime &time)
 	return angle < INDEX_DURATION;
 }
 
-int RealDrive::indexPulseCount(const EmuTime &begin,
-                               const EmuTime &end)
+int RealDrive::indexPulseCount(const EmuTime& begin,
+                               const EmuTime& end)
 {
 	if (!motorStatus && disk->ready()) {
 		return 0;
@@ -232,7 +232,7 @@ int RealDrive::indexPulseCount(const EmuTime &begin,
 	return (total - start) / TICKS_PER_ROTATION;
 }
 
-void RealDrive::setHeadLoaded(bool status, const EmuTime &time)
+void RealDrive::setHeadLoaded(bool status, const EmuTime& time)
 {
 	if (headLoadStatus != status) {
 		headLoadStatus = status;
@@ -240,14 +240,14 @@ void RealDrive::setHeadLoaded(bool status, const EmuTime &time)
 	}
 }
 
-bool RealDrive::headLoaded(const EmuTime &time)
+bool RealDrive::headLoaded(const EmuTime& time)
 {
 	return headLoadStatus && 
 	       (headLoadTime.getTicksTill(time) > 10);
 }
 
 void RealDrive::insertDisk(FileContext &context,
-                           const string &diskImage)
+                           const string& diskImage)
 {
 	Disk* tmp;
 	try {
@@ -285,7 +285,7 @@ void RealDrive::ejectDisk()
 	disk = new DummyDisk();
 }
 
-string RealDrive::execute(const vector<string> &tokens)
+string RealDrive::execute(const vector<string>& tokens)
 	throw (CommandException)
 {
 	string result;
@@ -312,13 +312,13 @@ string RealDrive::execute(const vector<string> &tokens)
 	return result;
 }
 
-string RealDrive::help(const vector<string> &tokens) const throw()
+string RealDrive::help(const vector<string>& tokens) const throw()
 {
 	return name + " eject      : remove disk from virtual drive\n" +
 	       name + " <filename> : change the disk file\n";
 }
 
-void RealDrive::tabCompletion(vector<string> &tokens) const throw()
+void RealDrive::tabCompletion(vector<string>& tokens) const throw()
 {
 	if (tokens.size() == 2)
 		CommandController::completeFileName(tokens);
@@ -334,8 +334,8 @@ bool RealDrive::diskChanged()
 
 /// class SingleSidedDrive ///
 
-SingleSidedDrive::SingleSidedDrive(const string &drivename,
-                                   const EmuTime &time)
+SingleSidedDrive::SingleSidedDrive(const string& drivename,
+                                   const EmuTime& time)
 	: RealDrive(drivename, time)
 {
 }
@@ -355,8 +355,8 @@ void SingleSidedDrive::setSide(bool side)
 }
 
 void SingleSidedDrive::read(byte sector, byte* buf,
-                            byte &onDiskTrack, byte &onDiskSector,
-                            byte &onDiskSide,  int  &onDiskSize)
+                            byte& onDiskTrack, byte& onDiskSector,
+                            byte& onDiskSide,  int&  onDiskSize)
 {
 	onDiskTrack = headPos;
 	onDiskSector = sector;
@@ -366,8 +366,8 @@ void SingleSidedDrive::read(byte sector, byte* buf,
 }
 
 void SingleSidedDrive::write(byte sector, const byte* buf,
-                             byte &onDiskTrack, byte &onDiskSector,
-                             byte &onDiskSide,  int  &onDiskSize)
+                             byte& onDiskTrack, byte& onDiskSector,
+                             byte& onDiskSide,  int&  onDiskSize)
 {
 	onDiskTrack = headPos;
 	onDiskSector = sector;
@@ -399,8 +399,8 @@ void SingleSidedDrive::writeTrackData(byte data)
 
 /// class DoubleSidedDrive ///
 
-DoubleSidedDrive::DoubleSidedDrive(const string &drivename,
-                                   const EmuTime &time)
+DoubleSidedDrive::DoubleSidedDrive(const string& drivename,
+                                   const EmuTime& time)
 	: RealDrive(drivename, time)
 {
 	side = 0;
@@ -421,8 +421,8 @@ void DoubleSidedDrive::setSide(bool side_)
 }
 
 void DoubleSidedDrive::read(byte sector, byte* buf,
-                            byte &onDiskTrack, byte &onDiskSector,
-                            byte &onDiskSide,  int  &onDiskSize)
+                            byte& onDiskTrack, byte& onDiskSector,
+                            byte& onDiskSide,  int&  onDiskSize)
 {
 	onDiskTrack = headPos;
 	onDiskSector = sector;
@@ -432,8 +432,8 @@ void DoubleSidedDrive::read(byte sector, byte* buf,
 }
 
 void DoubleSidedDrive::write(byte sector, const byte* buf,
-                             byte &onDiskTrack, byte &onDiskSector,
-                             byte &onDiskSide,  int  &onDiskSize)
+                             byte& onDiskTrack, byte& onDiskSector,
+                             byte& onDiskSide,  int&  onDiskSize)
 {
 	onDiskTrack = headPos;
 	onDiskSector = sector;
