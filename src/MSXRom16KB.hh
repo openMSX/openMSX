@@ -13,7 +13,7 @@
 class MSXRom16KB : public MSXDevice
 {
 	private:
-		byte* memoryBank;	
+		byte* memoryBank;
 	public:
 		//constructor and destructor
 		MSXRom16KB();

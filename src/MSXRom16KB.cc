@@ -4,7 +4,7 @@
 // Empty , just created to have a device for the factory and a general file for new developers
 //
 #include "MSXRom16KB.hh" 
-#include "string.h"
+#include <string>
 #include "stdio.h"
 #include "stdlib.h"
 
@@ -21,6 +21,7 @@ MSXRom16KB::~MSXRom16KB()
 
 void MSXRom16KB::init()
 {
+	// TODO: kill C way of file I/O and replace char* by string
 	MSXDevice::init();
 	
 	FILE *file;
@@ -34,7 +35,8 @@ void MSXRom16KB::init()
 		PRT_ERROR("Couldn't create 16KB rom bank !!!!!!");
 	} else {
 		//Read the rom file
-		memset(memoryBank,0,16384); // TODO: Possible default of C++ look-up
+		// from [ANSI/ISO]: the default value of non-class objects is indeterminate
+		memset(memoryBank,0,16384);
 		filename=deviceConfig->getParameter("romfile").c_str();
 		nrbytes=deviceConfig->getParameter("skip_headerbytes").c_str();
 		file = fopen(filename,"r");
