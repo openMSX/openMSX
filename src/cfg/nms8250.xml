@@ -107,15 +107,9 @@
   </device>
 
   <!--
-  <config id="diskpatch_diskA">
-    <type>disk</type>
-    <parameter name="readonly">true</parameter>
-    <parameter name="filename">cfg/a.dsk</parameter>
-  </config>
-  <config id="diskpatch_diskB">
-    <type>disk</type>
-    <parameter name="readonly">true</parameter>
-    <parameter name="filename">cfg/b.dsk</parameter>
+  <config id="Media">
+    <type>Media</type>
+    <parameter name="diska">PSYCHO.DSK</parameter>
   </config>
   -->
 

@@ -31,7 +31,7 @@ byte MC6850::readIO(byte port, const EmuTime &time)
 	switch (port) {
 	case 0x04:
 		// read status
-		return 0;
+		return 2;
 	case 0x05:
 		// read data
 		return 0;

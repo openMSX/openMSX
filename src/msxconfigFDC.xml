@@ -133,8 +133,6 @@
     <parameter name="interface">hybrid</parameter>
     <!-- use to instantiate the correct FDC -->
     <parameter name="chip">2793</parameter>
-    <!-- used by the FDC to instantiate correct back-end-->
-    <parameter name="backend">DSK</parameter>
     <parameter name="drivename1">diska</parameter>
   </device>
 
