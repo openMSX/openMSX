@@ -1,5 +1,9 @@
 $Id$
 
+2002-03-18 Joost Yervante Damad <andete@worldcity.nl>
+	* small fix in src/Makefile.am, I hope this solves
+	  David's compilation problems
+
 2002-03-17 Maarten ter Huurne <mth@stack.nl>
 	* Fixed graphical glitch when switching between PAL and NTSC timing.
 	* Minor clean-ups in SDLGLRenderer.

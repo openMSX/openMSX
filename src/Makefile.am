@@ -81,8 +81,8 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	PluggingController.hh PluggingController.cc \
 	Connector.hh Connector.cc Pluggable.hh
 
-#	MSXPrinter.cc MSXPrinter.hh \
-#	SDLLoRenderer.hh SDLLoRenderer.cc \
+#	MSXPrinter.cc MSXPrinter.hh
+#	SDLLoRenderer.hh SDLLoRenderer.cc
 
 openmsx_LDADD = \
 	libxmlx/libxmlx.la \
