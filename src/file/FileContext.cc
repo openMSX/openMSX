@@ -9,6 +9,11 @@
 #include "File.hh"
 
 
+const std::string homedir("~/.openMSX/");
+const std::string systemdir("/opt/openMSX/");
+
+
+
 // class FileContext
 
 FileContext::~FileContext()
@@ -88,7 +93,7 @@ ConfigFileContext::ConfigFileContext(const std::string &path,
 		snprintf(buf, 20, "untitled%d", num);
 		userName = buf;
 	}
-	savePath = "~/.openMSX/persistent/" + hwDescr +
+	savePath = homedir + "persistent/" + hwDescr +
 	                       '/' + userName + '/';
 }
 
@@ -102,11 +107,36 @@ const std::list<std::string> &ConfigFileContext::getPaths()
 
 SystemFileContext::SystemFileContext()
 {
-	paths.push_back("~/.openMSX/");		// user directory
-	paths.push_back("/opt/openMSX/");	// system directory
+	paths.push_back(homedir);		// user directory
+	paths.push_back(systemdir);	// system directory
 }
 
 const std::list<std::string> &SystemFileContext::getPaths()
+{
+	return paths;
+}
+
+
+// class SettingFileContext
+
+SettingFileContext::SettingFileContext(const std::string &url)
+{
+	std::string path = FileOperations::getBaseName(url);
+	paths.push_back(path);
+	PRT_DEBUG("SettingFileContext: "<<path);
+
+	std::string home(FileOperations::expandTilde(homedir));
+	
+	unsigned pos1 = path.find(home);
+	if (pos1 != std::string::npos) {
+		unsigned len1 = home.length();
+		std::string path1 = path.replace(pos1, len1, systemdir);
+		paths.push_back(path1);
+		PRT_DEBUG("SettingFileContext: "<<path1);
+	}
+}
+
+const std::list<std::string> &SettingFileContext::getPaths()
 {
 	return paths;
 }
@@ -122,7 +152,7 @@ UserFileContext::UserFileContext()
 UserFileContext::UserFileContext(const std::string &savePath_)
 	: alreadyInit(false)
 {
-	savePath = std::string("~/.openMSX/persistent/") + savePath_ + '/';
+	savePath = std::string(homedir + "persistent/") + savePath_ + '/';
 }
 
 const std::list<std::string> &UserFileContext::getPaths()

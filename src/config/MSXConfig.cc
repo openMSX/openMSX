@@ -245,19 +245,19 @@ MSXConfig* MSXConfig::instance()
 	return &oneInstance;
 }
 
-void MSXConfig::loadFile(FileContext *context,
-		const std::string &filename)
+void MSXConfig::loadHardware(FileContext *context,
+                             const std::string &filename)
 {
 	File file(context->resolve(filename));
 	delete context;
-	XML::Document* doc = new XML::Document(file.getLocalName());
+	XML::Document *doc = new XML::Document(file.getLocalName());
 
 	// get url
 	std::string url(file.getURL());
 	unsigned pos = url.find_last_of('/');
 	assert (pos != std::string::npos);	// protocol must contain a '/'
 	url = url.substr(0, pos);
-	PRT_DEBUG("Config: url "<<url);
+	PRT_DEBUG("Hardware config: url "<<url);
 	
 	// TODO read hwDesc from config ???
 	std::string hwDesc;
@@ -271,8 +271,18 @@ void MSXConfig::loadFile(FileContext *context,
 	// TODO get user name
 	std::string userName;
 	
-	ConfigFileContext* context2 =
+	FileContext *context2 =
 		new ConfigFileContext(url + '/', hwDesc, userName);
+	handleDoc(doc, context2);
+}
+
+void MSXConfig::loadSetting(FileContext *context,
+                            const std::string &filename)
+{
+	File file(context->resolve(filename));
+	delete context;
+	XML::Document *doc = new XML::Document(file.getLocalName());
+	FileContext *context2 = new SettingFileContext(file.getURL());
 	handleDoc(doc, context2);
 }
 
@@ -289,9 +299,9 @@ void MSXConfig::handleDoc(XML::Document* doc, FileContext *context)
 	// TODO update/append Devices/Configs
 	std::list<XML::Element*>::const_iterator i;
 	for (i = doc->root->children.begin(); i != doc->root->children.end(); i++) {
-		if ((*i)->name=="config" || (*i)->name=="device") {
+		if ((*i)->name == "config" || (*i)->name == "device") {
 			std::string id((*i)->getAttribute("id"));
-			if (id=="") {
+			if (id == "") {
 				throw ConfigException("<config> or <device> is missing 'id'");
 			}
 			if (hasConfigWithId(id)) {
@@ -299,9 +309,9 @@ void MSXConfig::handleDoc(XML::Document* doc, FileContext *context)
 				s << "<config> or <device> with duplicate 'id':" << id;
 				throw ConfigException(s);
 			}
-			if ((*i)->name=="config") {
+			if ((*i)->name == "config") {
 				configs.push_back(new Config(*i, context));
-			} else if ((*i)->name=="device") {
+			} else if ((*i)->name == "device") {
 				devices.push_back(new Device(*i, context));
 			}
 		}

@@ -114,8 +114,10 @@ class MSXConfig
 		 * load a config file's content, and add it to
 		 *  the config data [can be called multiple times]
 		 */
-		void loadFile(FileContext *context,
-		              const std::string &filename);
+		void loadHardware(FileContext *context,
+		                  const std::string &filename);
+		void loadSetting(FileContext *context,
+		                 const std::string &filename);
 		void loadStream(FileContext *context,
 		                const std::ostringstream &stream);
 

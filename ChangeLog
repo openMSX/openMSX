@@ -1,5 +1,8 @@
 $Id$
 
+2003-06-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented 'fallback' mechanism for files in settings.xml
+
 2003-06-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented undocumented flag bits for "BIT n,(HL)" instructions,
 	  ZEXALL test still passes

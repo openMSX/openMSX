@@ -46,6 +46,13 @@ class SystemFileContext : public FileContext
 		virtual const std::list<std::string> &getPaths();
 };
 
+class SettingFileContext : public FileContext
+{
+	public:
+		SettingFileContext(const std::string &url);
+		virtual const std::list<std::string> &getPaths();
+};
+
 class UserFileContext : public FileContext
 {
 	public:
