@@ -1,5 +1,11 @@
 // $Id$
 
+#include "Alarm.hh"
+#include <SDL.h>
+#include <cassert>
+
+namespace openmsx {
+
 /**
  * The SDL Timer mechanism is not thread safe. (Shortly) after
  * SDL_RemoveTimer() has been called it's still possible that the timer
@@ -18,13 +24,6 @@
  * deletion of an Alarm object, so try to reuse Alarm objects as much as
  * possible.
  */
-
-
-#include "Alarm.hh"
-#include <SDL.h>
-#include <cassert>
-
-namespace openmsx {
 
 Alarm::Alarm()
 	: id(NULL), sem(1)
