@@ -288,7 +288,7 @@ auto_ptr<RomInfo> RomInfo::fetchRomInfo(const Rom& rom, const XMLElement& device
 	
 	// Get specified mapper type from the config.
 	// Note: config may specify "auto" as well.
-	string typestr = deviceConfig.getChildData("mappertype", "auto");
+	string typestr = deviceConfig.getChildData("mappertype", "plain");
 	if (typestr == "auto") {
 		// Guess mapper type, if it was not in DB.
 		if (info->mapperType == UNKNOWN) {
