@@ -51,6 +51,7 @@ public:
 private:
 	typedef void (SDLHiRenderer::*RenderMethod)(int line);
 	typedef void (SDLHiRenderer::*PhaseHandler)(int limit);
+	typedef void (SDLHiRenderer::*DirtyChecker)(int addr, byte data);
 
 	void renderUntil(int limit);
 
@@ -67,6 +68,18 @@ private:
 	void blankPhase(int limit);
 	void displayPhase(int limit);
 
+	/** Dirty checking that does nothing (but is a valid method).
+	  */
+	void checkDirtyNull(int addr, byte data);
+
+	/** Dirty checking for MSX1 display modes.
+	  */
+	void checkDirtyMSX1(int addr, byte data);
+
+	/** Dirty checking for Text2 display mode.
+	  */
+	void checkDirtyText2(int addr, byte data);
+
 	/** Draw sprites on this line over the background.
 	  */
 	void drawSprites(int line);
@@ -78,6 +91,10 @@ private:
 	/** RenderMethods for each screen mode.
 	  */
 	static RenderMethod modeToRenderMethod[];
+
+	/** DirtyCheckers for each screen mode.
+	  */
+	static DirtyChecker modeToDirtyChecker[];
 
 	/** The VDP of which the video output is being rendered.
 	  */
@@ -102,7 +119,11 @@ private:
 
 	/** Phase handler: current drawing mode (off, blank, display).
 	  */
-	PhaseHandler currPhase;
+	PhaseHandler phaseHandler;
+
+	/** Dirty checker: update dirty tables on VRAM write.
+	  */
+	DirtyChecker dirtyChecker;
 
 	/** Number of the next line to render.
 	  * Absolute NTSC line number: [0..262).
@@ -132,6 +153,7 @@ private:
 	bool anyDirtyColour, dirtyColour[1 << 10];
 	bool anyDirtyPattern, dirtyPattern[1 << 10];
 	bool anyDirtyName, dirtyName[1 << 12];
+	// TODO: Introduce "allDirty" to speed up screen splits.
 
 	/** Did foreground colour change since last screen update?
 	  */

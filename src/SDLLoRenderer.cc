@@ -223,13 +223,13 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateSpritePatternBase(
 template <class Pixel> void SDLLoRenderer<Pixel>::updateVRAM(
 	int addr, byte data, const EmuTime &time)
 {
-	if ((addr & vdp->getNameMask()) == addr) {
+	if ((addr | ~(-1 << 10)) == vdp->getNameMask()) {
 		dirtyName[addr & ~(-1 << 10)] = anyDirtyName = true;
 	}
-	if ((addr & vdp->getColourMask()) == addr) {
+	if ((addr | ~(-1 << 13)) == vdp->getColourMask()) {
 		dirtyColour[(addr / 8) & ~(-1 << 10)] = anyDirtyColour = true;
 	}
-	if ((addr & vdp->getPatternMask()) == addr) {
+	if ((addr | ~(-1 << 13)) == vdp->getPatternMask()) {
 		dirtyPattern[(addr / 8) & ~(-1 << 10)] = anyDirtyPattern = true;
 	}
 }

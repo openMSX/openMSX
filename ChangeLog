@@ -1,6 +1,17 @@
 $Id$
 
 2001-12-22 Maarten ter Huurne <mth@stack.nl>
+	* Fixed dirty check bugs.
+	  The "inside name/colour/pattern table" checks were wrong:
+	  too much was considered inside, therefore too many characters
+	  were considered dirty.
+	  Also the attempt to make Text2 use the same dirty checking code
+	  as the MSX1 display modes failed, instead I wrote different
+	  dirty checkers for different display modes. This was bound to
+	  happen in the future anyway, because bitmap modes will require
+	  different dirty checks than pattern modes.
+
+2001-12-22 Maarten ter Huurne <mth@stack.nl>
 	* Added VDP Command Engine 1.0 from Alex Wulms.
 	  Adapted the code to C++ and to openMSX conventions.
 	  Only functional change is SCREEN7/8 pixel lookups (two defines).

@@ -103,6 +103,46 @@ template <class Pixel> SDLHiRenderer<Pixel>::RenderMethod
 		&SDLHiRenderer::renderBogus
 	};
 
+template <class Pixel> SDLHiRenderer<Pixel>::DirtyChecker
+	SDLHiRenderer<Pixel>::modeToDirtyChecker[] = {
+		// M5 M4 = 0 0  (MSX1 modes)
+		&SDLHiRenderer::checkDirtyMSX1,
+		&SDLHiRenderer::checkDirtyMSX1,
+		&SDLHiRenderer::checkDirtyMSX1,
+		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyMSX1,
+		&SDLHiRenderer::checkDirtyMSX1,
+		&SDLHiRenderer::checkDirtyMSX1,
+		&SDLHiRenderer::checkDirtyNull,
+		// M5 M4 = 0 1
+		&SDLHiRenderer::checkDirtyMSX1, // graphic 3, actually
+		&SDLHiRenderer::checkDirtyText2,
+		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyNull, // renderGraphic4
+		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyNull,
+		// M5 M4 = 1 0
+		&SDLHiRenderer::checkDirtyNull, // renderGraphic5
+		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyNull, // renderGraphic6
+		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyNull,
+		// M5 M4 = 1 1
+		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyNull, // renderGraphic7
+		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyNull,
+		&SDLHiRenderer::checkDirtyNull
+	};
+
 template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	VDP *vdp, SDL_Surface *screen, const EmuTime &time)
 {
@@ -111,9 +151,8 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	// TODO: Store current time.
 
 	// Init render state.
-	currPhase = &SDLHiRenderer::offPhase;
+	phaseHandler = &SDLHiRenderer::offPhase;
 	currLine = 0;
-	// TODO: Fill in current time once that exists.
 	updateDisplayMode(time);
 	dirtyForeground = dirtyBackground = true;
 
@@ -261,6 +300,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayMode(
 	const EmuTime &time)
 {
 	renderMethod = modeToRenderMethod[vdp->getDisplayMode()];
+	dirtyChecker = modeToDirtyChecker[vdp->getDisplayMode()];
 	setDirty(true);
 }
 
@@ -298,24 +338,41 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateSpritePatternBase(
 template <class Pixel> void SDLHiRenderer<Pixel>::updateVRAM(
 	int addr, byte data, const EmuTime &time)
 {
-	if ((addr & vdp->getNameMask()) == addr) {
-		// TODO: Quick fix, investigate what is really going on later.
-		if (vdp->getDisplayMode() == 0x09) {
-			dirtyName[addr & (sizeof(dirtyName) - 1)]
-				= anyDirtyName = true;
-		}
-		else {
-			dirtyName[addr & ((1 << 10) - 1)]
-				= anyDirtyName = true;
-		}
+	// TODO: Does updateVRAM need to know the time?
+
+	(this->*dirtyChecker)(addr, data);
+}
+
+template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyNull(
+	int addr, byte data)
+{
+	// Do nothing: this display mode doesn't have dirty checking.
+}
+
+template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyMSX1(
+	int addr, byte data)
+{
+	if ((addr | ~(-1 << 10)) == vdp->getNameMask()) {
+		dirtyName[addr & ~(-1 << 10)] = anyDirtyName = true;
 	}
-	if ((addr & vdp->getColourMask()) == addr) {
-		dirtyColour[(addr / 8) & (sizeof(dirtyColour) - 1)]
-			= anyDirtyColour = true;
+	if ((addr | ~(-1 << 13)) == vdp->getColourMask()) {
+		dirtyColour[(addr / 8) & ~(-1 << 10)] = anyDirtyColour = true;
 	}
-	if ((addr & vdp->getPatternMask()) == addr) {
-		dirtyPattern[(addr / 8) & (sizeof(dirtyPattern) - 1)]
-			= anyDirtyPattern = true;
+	if ((addr | ~(-1 << 13)) == vdp->getPatternMask()) {
+		dirtyPattern[(addr / 8) & ~(-1 << 10)] = anyDirtyPattern = true;
+	}
+}
+
+template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyText2(
+	int addr, byte data)
+{
+	int nameBase = vdp->getNameMask() & (-1 << 12);
+	int i = addr - nameBase;
+	if ((0 <= i) && (i < 2160)) {
+		dirtyName[i] = anyDirtyName = true;
+	}
+	if ((addr | ~(-1 << 11)) == vdp->getPatternMask()) {
+		dirtyPattern[(addr / 8) & ~(-1 << 8)] = anyDirtyPattern = true;
 	}
 }
 
@@ -631,7 +688,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::offPhase(
 	// Check for end of phase.
 	if (limit > LINE_TOP_BORDER) {
 		// Top border ends off phase.
-		currPhase = &SDLHiRenderer::blankPhase;
+		phaseHandler = &SDLHiRenderer::blankPhase;
 		limit = LINE_TOP_BORDER;
 	}
 
@@ -646,12 +703,12 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 	if ((currLine < LINE_BOTTOM_BORDER) && (limit > LINE_DISPLAY)
 	&& vdp->isDisplayEnabled()) {
 		// Display ends blank phase.
-		currPhase = &SDLHiRenderer::displayPhase;
+		phaseHandler = &SDLHiRenderer::displayPhase;
 		limit = LINE_DISPLAY;
 	}
 	else if (limit == LINE_END_OF_SCREEN) {
 		// End of screen ends blank phase.
-		currPhase = &SDLHiRenderer::offPhase;
+		phaseHandler = &SDLHiRenderer::offPhase;
 	}
 
 	// Render lines up to limit.
@@ -688,12 +745,12 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	// Check for end of phase.
 	if (!vdp->isDisplayEnabled()) {
 		// Forced blanking ends display phase.
-		currPhase = &SDLHiRenderer::blankPhase;
+		phaseHandler = &SDLHiRenderer::blankPhase;
 		return;
 	}
 	if (limit > LINE_BOTTOM_BORDER) {
 		// Bottom border ends display phase.
-		currPhase = &SDLHiRenderer::blankPhase;
+		phaseHandler = &SDLHiRenderer::blankPhase;
 		limit = LINE_BOTTOM_BORDER;
 	}
 	if (currLine >= limit) return;
@@ -769,7 +826,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderUntil(
 	int limit)
 {
 	while (currLine < limit) {
-		(this->*currPhase)(limit);
+		(this->*phaseHandler)(limit);
 	}
 }
 
