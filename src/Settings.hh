@@ -259,7 +259,7 @@ public:
 	T getValue() const { return value; }
 
 	/** Set the current value of this setting.
-	  * @param value The new value.
+	  * @param newValue The new value.
 	  */
 	void setValue(T newValue) {
 		// TODO: Move code to Setting.
