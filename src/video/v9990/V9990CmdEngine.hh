@@ -17,9 +17,14 @@ class EmuTime;
   */
 class V9990CmdEngine {
 public:
+	// status bits
+	static const byte TR = 0x80;
+	static const byte BD = 0x10;
+	static const byte CE = 0x01;
+	
 	/** Constructor
 	  */
-	V9990CmdEngine(V9990* vdp);
+	V9990CmdEngine(V9990* vdp, const EmuTime& time);
 
 	/** Destructor
 	  */
@@ -49,11 +54,19 @@ public:
 	  */
 	byte getCmdData(const EmuTime& time);
 
-	/** cmd engine ready for transfer (bit 7 in status reg)
+	/** Get command engine related status bits
+	  *  - TR command data transfer ready (bit 7)
+	  *  - BD border color detect         (bit 4)   
+	  *  - CE command being executed      (bit 0)
 	  */
-	bool getTransfer(const EmuTime& time) {
+	byte getStatus(const EmuTime& time) {
 		sync(time);
-		return transfer;
+		return status;
+	}
+
+	word getBorderX(const EmuTime& time) {
+		sync(time);
+		return borderX;
 	}
 
 private:
@@ -270,11 +283,15 @@ private:
 	/** VRAM
 	  */
 	//V9990VRAM* vram;
-	
-	/** Transfer a byte to/from the CPU
-	  */
-	bool transfer;
 
+	/** Status bits
+	 */
+	byte status;
+
+	/** The X coord of a border detected by SRCH
+	 */
+	word borderX;
+	
 	/** Data byte to transfer between V9990 and CPU
 	  */
 	byte data;

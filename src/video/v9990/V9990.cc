@@ -70,7 +70,7 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
 	vram.reset(new V9990VRAM(this, time));
 
 	// create Command Engine
-	cmdEngine.reset(new V9990CmdEngine(this));
+	cmdEngine.reset(new V9990CmdEngine(this, time));
 
 	// Start with NTSC timing
 	palTiming = false;
@@ -194,10 +194,10 @@ byte V9990::readIO(byte port, const EmuTime& time)
 			int y = ticks / V9990DisplayTiming::UC_TICKS_PER_LINE;
 			bool hr = (x < 64) || (576 <= x); // TODO not correct
 			bool vr = (y < 14) || (226 <= y); // TODO not correct
-			result = (cmdEngine->getTransfer(time) ? 0x80 : 0x00) |
+			result = cmdEngine->getStatus(time) |
 				 (vr ? 0x40 : 0x00) |
 				 (hr ? 0x20 : 0x00) |
-				 (status & 0x1F);
+				 (status & 0x06);
 			break;
 		}
 		case KANJI_ROM_1:
@@ -216,9 +216,9 @@ byte V9990::readIO(byte port, const EmuTime& time)
 			break;
 	}
 	
-	PRT_DEBUG("[" << time << "] "
-		  "V9990::readIO - port=0x" << std::hex << (int)port <<
-		                  " val=0x" << std::hex << (int)result);
+	//PRT_DEBUG("[" << time << "] "
+	//	  "V9990::readIO - port=0x" << std::hex << (int)port <<
+	//	                  " val=0x" << std::hex << (int)result);
 
 	return result;
 }
@@ -233,9 +233,9 @@ void V9990::writeIO(byte port, byte val, const EmuTime& time)
 {
 	port &= 0x0F;
 	
-	PRT_DEBUG("[" << time << "] "
-		  "V9990::writeIO - port=0x" << std::hex << int(port) << 
-		                   " val=0x" << std::hex << int(val));
+	//PRT_DEBUG("[" << time << "] "
+	//	  "V9990::writeIO - port=0x" << std::hex << int(port) << 
+	//	                   " val=0x" << std::hex << int(val));
 
 	switch (port) {
 		case VRAM_DATA: {
@@ -480,8 +480,14 @@ byte V9990::readRegister(byte reg, const EmuTime& time)
 	// TODO sync(time) (if needed at all)
 	//
 	byte result;
-	if(regAccess[reg] != NO_ACCESS && regAccess[reg] != WR_ONLY) {
-		result = regs[reg];
+	if (regAccess[reg] != NO_ACCESS && regAccess[reg] != WR_ONLY) {
+		if (reg < CMD_PARAM_BORDER_X_0) {
+			result = regs[reg];
+		} else {
+			word borderX = cmdEngine->getBorderX(time);
+			return (reg == CMD_PARAM_BORDER_X_0)
+			       ? (borderX & 0xFF) : (borderX >> 8);
+		}
 	} else {
 		result = 0xFF;
 	}

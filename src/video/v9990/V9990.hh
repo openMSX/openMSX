@@ -200,17 +200,20 @@ public:
 	/** Return the image width
 	  */
 	inline int getImageWidth() {
-		return (256 << ((regs[SCREEN_MODE_0] & 0x0C) >> 2));
+		switch (regs[SCREEN_MODE_0] & 0xC0) {
+		case 0x00: // P1
+			return 256;
+		case 0x40: // P2
+			return 512;
+		case 0x80: // Bx
+		default:   // standby TODO check this
+			return (256 << ((regs[SCREEN_MODE_0] & 0x0C) >> 2));
+		}
 	}
-			
-	/** Command execution started
-	  */
-	inline void cmdStart() { status |= 0x01; }
 
 	/** Command execution ready
 	  */
 	inline void cmdReady() {
-		status &= 0xFE;
 		raiseIRQ(CMD_IRQ);
 	}
 

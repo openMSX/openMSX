@@ -147,7 +147,7 @@ inline void V9990CmdEngine::V9990Bpp16::pset(V9990VRAM* vram,
 // ====================================================================
 /** Constructor
   */
-V9990CmdEngine::V9990CmdEngine(V9990* vdp_)
+V9990CmdEngine::V9990CmdEngine(V9990* vdp_, const EmuTime& time)
 	: vdp(vdp_)
 	, cmdTraceSetting("v9990cmdtrace", "V9990 command tracing on/off", false)
 {
@@ -173,8 +173,7 @@ V9990CmdEngine::V9990CmdEngine(V9990* vdp_)
 	createEngines<CmdPSET> (0x0E);
 	createEngines<CmdADVN> (0x0F);
 
-	transfer = false;
-	currentCommand = NULL;
+	reset(time);
 }
 
 V9990CmdEngine::~V9990CmdEngine()
@@ -191,7 +190,8 @@ V9990CmdEngine::~V9990CmdEngine()
 void V9990CmdEngine::reset(const EmuTime& time)
 {
 	currentCommand = NULL;
-	transfer = false;
+	status = 0;
+	borderX = 0;
 }
 
 void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
@@ -269,7 +269,7 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
 		if (cmdTraceSetting.getValue()) {
 			reportV9990Command();
 		}
-		vdp->cmdStart();
+		status |= CE;
 		currentCommand = commands[CMD >> 4][vdp->getColorMode()];
 		if (currentCommand) currentCommand->start(time);
 		break;
@@ -374,13 +374,13 @@ void V9990CmdEngine::CmdLMMC<Mode>::start(const EmuTime& time)
 	}
 	engine->ANX = engine->NX;
 	engine->ANY = engine->NY;
-	engine->transfer = false;
+	engine->status &= ~TR;
 }
 
 void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime& time)
 {
-	if (engine->transfer) {
-		engine->transfer = false;
+	if (engine->status & TR) {
+		engine->status &= ~TR;
 		int width = engine->vdp->getImageWidth();
 
 		byte value = vram->readVRAM(engine->dstAddress);
@@ -411,8 +411,8 @@ void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime&
 template <class Mode>
 void V9990CmdEngine::CmdLMMC<Mode>::execute(const EmuTime& time)
 {
-	if (engine->transfer) {
-		engine->transfer = false;
+	if (engine->status & TR) {
+		engine->status &= ~TR;
 		int width = engine->vdp->getImageWidth() / Mode::PIXELS_PER_BYTE;
 		byte data = engine->data;
 		for (int i = 0; (engine->ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
@@ -587,14 +587,14 @@ void V9990CmdEngine::CmdCMMC<Mode>::start(const EmuTime& time)
 {
 	engine->ANX = engine->NX;
 	engine->ANY = engine->NY;
-	engine->transfer = false;
+	engine->status &= ~TR;
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdCMMC<Mode>::execute(const EmuTime& time)
 {
-	if (engine->transfer) {
-		engine->transfer = false;
+	if (engine->status & TR) {
+		engine->status &= ~TR;
 
 		int width = engine->vdp->getImageWidth();
 		if (Mode::PIXELS_PER_BYTE) {
@@ -985,13 +985,44 @@ V9990CmdEngine::CmdSRCH<Mode>::CmdSRCH(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdSRCH<Mode>::start(const EmuTime& time)
 {
-	std::cout << "V9990: SRCH not yet implemented" << std::endl;
-	engine->cmdReady(); // TODO dummy implementation
+	engine->ASX = engine->SX;
+	// TODO should be done by sync
+	execute(time);
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdSRCH<Mode>::execute(const EmuTime& time)
 {
+	int ppl = engine->vdp->getImageWidth();
+	int width = ppl;
+	if (Mode::PIXELS_PER_BYTE) {
+		// hack to avoid "warning: division by zero"
+		int ppb = Mode::PIXELS_PER_BYTE; 
+		width /= ppb;
+	}
+
+	word CL = Mode::shiftDown(engine->fgCol, 0);
+	int TX = (engine->ARG & DIX) ? -1 : 1;
+	bool AEQ = (engine->ARG & NEQ) != 0; // TODO: Do we look for "==" or "!="?
+	//int delta = LINE_TIMING[engine->getTiming()];
+
+	//while (clock.before(time)) {
+	while (true) {
+		//clock += delta;
+		word value = Mode::point(vram, engine->ASX, engine->SY, width);
+		if ((value == CL) ^ AEQ) {
+			engine->status |= BD; // border detected
+			engine->cmdReady();
+			engine->borderX = engine->ASX;
+			break;
+		}
+		if ((engine->ASX += TX) & ppl) {
+			engine->status &= ~BD; // border not detected
+			engine->cmdReady();
+			engine->borderX = engine->ASX;
+			break;
+		}
+	}
 }
 
 // ====================================================================
@@ -1080,7 +1111,7 @@ void V9990CmdEngine::setCmdData(byte value, const EmuTime& time)
 {
 	sync(time);
 	data = value;
-	transfer = true;
+	status |= TR;
 }
 
 byte V9990CmdEngine::getCmdData(const EmuTime& time)
@@ -1088,9 +1119,9 @@ byte V9990CmdEngine::getCmdData(const EmuTime& time)
 	sync(time);
 	
 	byte value = 0xFF;
-	if (transfer) {
+	if (status & TR) {
 		value = data;
-		transfer = false;
+		status &= ~TR;
 	}
 	return value;
 }
@@ -1133,7 +1164,8 @@ word V9990CmdEngine::logOp(word src, word dest, word mask)
 
 void V9990CmdEngine::cmdReady()
 {
-	currentCommand = (V9990Cmd *) NULL;
+	currentCommand = NULL;
+	status &= ~CE;
 	vdp->cmdReady();
 }
 
