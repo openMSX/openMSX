@@ -9,6 +9,7 @@
 #include "MSXDevice.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
+#include "emutime.hh"
 
 #define WIDTH 320
 #define HEIGHT 240
@@ -34,9 +35,9 @@ class MSXTMS9928a : public MSXDevice
 		//void setConfigDevice(MSXConfig::Device *config);
 		
 		// interaction with CPU
-		byte readIO(byte port,UINT64 TStates);
-		void writeIO(byte port,byte value,UINT64 TStates);
-		void executeUntilEmuTime(UINT64 TStates);
+		byte readIO(byte port, Emutime &time);
+		void writeIO(byte port,byte value, Emutime &time);
+		void executeUntilEmuTime(Emutime &time);
 		// int executeTStates(int TStates);
 		// int getUsedTStates(void);
 		//
@@ -57,7 +58,9 @@ class MSXTMS9928a : public MSXDevice
 		//void setInterrupt();
         //void resetInterrupt();
     private:
-        SDL_Surface *screen;
+	Emutime currentTime;
+
+	SDL_Surface *screen;
         struct {
           /* TMS9928A internal settings */
           byte ReadAhead,Regs[8],StatusReg,oldStatusReg;

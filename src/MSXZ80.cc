@@ -15,11 +15,10 @@ MSXDevice *MSXZ80::Motherb; // place for static is reserved here!!
 MSXZ80::MSXZ80(void) : currentCPUTime(3579545, 0), targetCPUTime(3579545, 0)
 {
 	PRT_DEBUG("instantiating an MSXZ80 object");
-	CurrentCPUTime=0;
 }
 void MSXZ80::init(void)
 {
-	CurrentCPUTime=0;
+	currentCPUTime(0);
 	Z80_Running=1;
 	InitTables();
 }

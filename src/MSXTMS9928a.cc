@@ -61,6 +61,7 @@
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXTMS9928a.hh"
+#include <assert.h>
 
 /*
 	New palette (R. Nabet).
@@ -151,7 +152,7 @@ static unsigned char TMS9928A_palette[16*3] =
 //    memcpy (palette, &TMS9928A_palette, sizeof(TMS9928A_palette));
 //}
 
-MSXTMS9928a::MSXTMS9928a()
+MSXTMS9928a::MSXTMS9928a() : currentTime(28636360, 0)	// TODO check freq
 {
     cout << "Creating an MSXTMS9928a object \n";
 }
@@ -293,15 +294,15 @@ void MSXTMS9928a::init(void)
 
 void MSXTMS9928a::start()
 {
-//First interrupt in Pal mode here
-  MSXMotherBoard::instance()->setLaterSP(71285,this);
-  PutImage();
+	//First interrupt in Pal mode here
+	MSXMotherBoard::instance()->insertStamp(currentTime+71285, *this);
+	PutImage();
 }
 
-void MSXTMS9928a::executeUntilEmuTime(UINT64 TStates)
+void MSXTMS9928a::executeUntilEmuTime(Emutime &time)
 {
   //Next interrupt in Pal mode here
-  MSXMotherBoard::instance()->setLaterSP(71285,this);
+  MSXMotherBoard::instance()->insertStamp(currentTime+71285, *this);
 
   //TODO:: Call full screen refresh
   //TODO:: Set interrupt if bits enable it
@@ -336,7 +337,7 @@ static void _TMS9928A_set_dirty (char dirty) {
 */
 
 
-void MSXTMS9928a::writeIO(byte port,byte value,UINT64 TStates)
+void MSXTMS9928a::writeIO(byte port, byte value, Emutime &time)
 {
   int i;
   switch (port){
@@ -401,23 +402,25 @@ byte MSXTMS9928a::TMS9928A_vram_r()
       return b;
 }
 
-byte MSXTMS9928a::readIO(byte port,UINT64 TStates)
+byte MSXTMS9928a::readIO(byte port, Emutime &time)
 {
-  byte b;
-  switch (port){
-    case 0x98:
-      TMS9928A_vram_r();
-    case 0x99:
-      //READ_HANDLER (TMS9928A_register_r) 
-      b = tms.StatusReg;
-      tms.StatusReg &= 0x5f;
-      if (tms.INT) {
-	tms.INT = 0;
-	// TODO: if (tms.INTCallback) tms.INTCallback (tms.INT);
-      }
-      tms.FirstByte = -1;
-      return b;
-  }
+	byte b;
+	switch (port) {
+	case 0x98:
+		return TMS9928A_vram_r();
+	case 0x99:
+		//READ_HANDLER (TMS9928A_register_r) 
+		b = tms.StatusReg;
+		tms.StatusReg &= 0x5f;
+		if (tms.INT) {
+			tms.INT = 0;
+			// TODO: if (tms.INTCallback) tms.INTCallback (tms.INT);
+		}
+		tms.FirstByte = -1;
+		return b;
+	default:
+		assert(false);
+	}
 }
 
 
