@@ -8,6 +8,7 @@
 #include "Z80.hh"
 #include "R800.hh"
 
+class Scheduler;
 
 class MSXCPU : public MSXDevice, public DebugInterface
 {
@@ -67,6 +68,7 @@ class MSXCPU : public MSXDevice, public DebugInterface
 		void executeUntilTarget(const EmuTime &time);
 		void setTargetTime(const EmuTime &time);
 		const EmuTime &getTargetTime() const;
+		void init(Scheduler* scheduler);
 		friend class Scheduler;
 
 		Z80 z80;

@@ -11,9 +11,9 @@
 #endif
 
 
-// forward declarations
 class BooleanSetting;
 class CPUInterface;
+class Scheduler;
 
 typedef signed char offset;
 
@@ -44,6 +44,9 @@ class CPU
 		};
 
 		virtual ~CPU();
+		
+		void init(Scheduler* scheduler);
+		
 		/**
 		 * Reset the CPU.
 		 */
@@ -146,10 +149,6 @@ class CPU
 		  */
 		virtual void executeCore() = 0;
 
-		/** Reset CPU core.
-		  */
-		virtual void resetCore() = 0;
-
 		void makeTables();
 
 		// state machine variables
@@ -164,10 +163,11 @@ class CPU
 		offset ofst;
 		byte* p;
 		bool repeat, increase;
-		bool stop;
 
 		CPUInterface *interface;
 		EmuTime targetTime;
+
+		Scheduler* scheduler;
 
 		// flag-register tables
 		static byte ZSTable[256];

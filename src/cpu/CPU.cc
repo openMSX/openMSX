@@ -22,6 +22,11 @@ CPU::~CPU()
 {
 }
 
+void CPU::init(Scheduler* scheduler_)
+{
+	scheduler = scheduler_;
+}
+
 void CPU::executeUntilTarget(const EmuTime &time)
 {
 	setTargetTime(time);
@@ -94,8 +99,6 @@ void CPU::reset(const EmuTime &time)
 	memptr.w = 0xFFFF;
 	invalidateCache(0x0000, 0x10000 / CPU::CACHE_LINE_SIZE);
 	setCurrentTime(time);
-	
-	resetCore();
 }
 
 void CPU::raiseIRQ()
@@ -115,7 +118,7 @@ void CPU::wait(const EmuTime &time)
 {
 	assert(time >= getCurrentTime());
 	if (getTargetTime() <= time) {
-		Scheduler::instance()->scheduleDevices(time);
+		scheduler->scheduleDevices(time);
 	}
 	setCurrentTime(time);
 }

@@ -33,6 +33,11 @@ MSXCPU* MSXCPU::instance()
 	return oneInstance;
 }
 
+void MSXCPU::init(Scheduler* scheduler)
+{
+	z80.init(scheduler);
+	r800.init(scheduler);
+}
 
 void MSXCPU::reset(const EmuTime &time)
 {

@@ -6,7 +6,6 @@ static EmuTimeFreq<CLOCK_FREQ> before;
 #endif
 
 virtual void executeCore();
-virtual void resetCore();
 
 inline void M1_DELAY();
 inline void ADD_16_8_DELAY();
@@ -25,12 +24,13 @@ inline void IM2_DELAY();
 inline void SMALL_DELAY();
 inline int haltStates();
 
-inline bool READ_PORT(word port, byte &result, ResumeFunc f);
-inline bool WRITE_PORT(word port, byte value, ResumeFunc f);
-inline bool RDMEM(word address, byte &result, ResumeFunc f);
-bool RDMEMslow(word address, byte &result, ResumeFunc f);
-inline bool WRMEM(word address, byte value, ResumeFunc f);
-bool WRMEMslow(word address, byte value, ResumeFunc f);
+inline void READ_PORT(word port, byte &result);
+inline void WRITE_PORT(word port, byte value);
+inline void RDMEM(word address, byte &result);
+void RDMEMslow(word address, byte &result);
+inline void WRMEM(word address, byte value);
+void WRMEMslow(word address, byte value);
+
 inline void M1Cycle();
 inline void executeInstruction();
 inline void executeInstruction1(byte opcode);
@@ -40,10 +40,6 @@ inline void nmi2();
 inline void irq0();
 inline void irq1();
 inline void irq2();
-inline void irq2_1();
-inline void irq2_2();
-inline void irq2_3();
-inline void irq2_4();
 inline void executeFast();
 inline void executeSlow();
 inline void next();
@@ -197,18 +193,12 @@ void ld_xiy_h();
 void ld_xiy_l();
 
 void ld_xix_byte();
-void ld_xix_byte1();
-
 void ld_xiy_byte();
-void ld_xiy_byte1();
 
 void ld_xbyte_a();
-void ld_xbyte_a1();
 
 inline void WR_X_Y();
-inline void WR_X_Y1();
 inline void WR_NN_Y();
-inline void WR_NN_Y1();
 void ld_xword_bc();
 void ld_xword_de();
 void ld_xword_hl();
@@ -222,11 +212,9 @@ void ld_a_xde();
 void ld_a_xhl();
 
 void ld_a_xix();
-
 void ld_a_xiy();
 
 void ld_a_xbyte();
-void ld_a_xbyte1();
 
 inline void RD_R_N();
 void ld_a_byte();
@@ -267,9 +255,6 @@ void ld_h_xiy();
 void ld_l_xiy();
 
 inline void RD_P_XX();
-inline void RD_P_XX1();
-inline void RD_P_XX2();
-inline void RD_P_XX3();
 void ld_bc_xword();
 void ld_de_xword();
 void ld_hl_xword();
@@ -278,7 +263,6 @@ void ld_iy_xword();
 void ld_sp_xword();
 
 inline void RD_P_NN();
-inline void RD_P_NN1();
 void ld_bc_word();
 void ld_de_word();
 void ld_hl_word();
@@ -443,7 +427,6 @@ void dec_ixl();
 void dec_iyh();
 void dec_iyl();
 inline void DEC_X();
-inline void DEC_X1();
 void dec_xhl();
 void dec_xix();
 void dec_xiy();
@@ -461,7 +444,6 @@ void inc_ixl();
 void inc_iyh();
 void inc_iyl();
 inline void INC_X();
-inline void INC_X1();
 void inc_xhl();
 void inc_xix();
 void inc_xiy();
@@ -852,7 +834,6 @@ void set_7_l();
 
 inline void SET_X();
 inline void SET_X_();
-inline void SET_X2();
 void set_0_xhl();
 void set_1_xhl();
 void set_2_xhl();
@@ -1000,7 +981,6 @@ void rl_h();
 void rl_l();
 inline void RL_X();
 inline void RL_X_();
-inline void RL_X1();
 void rl_xhl();
 void rl_xix  ();
 void rl_xix_a();
@@ -1029,7 +1009,6 @@ void rlc_h();
 void rlc_l();
 inline void RLC_X();
 inline void RLC_X_();
-inline void RLC_X1();
 void rlc_xhl();
 void rlc_xix  ();
 void rlc_xix_a();
@@ -1058,7 +1037,6 @@ void rr_h();
 void rr_l();
 inline void RR_X();
 inline void RR_X_();
-inline void RR_X1();
 void rr_xhl();
 void rr_xix  ();
 void rr_xix_a();
@@ -1087,7 +1065,6 @@ void rrc_h();
 void rrc_l();
 inline void RRC_X();
 inline void RRC_X_();
-inline void RRC_X1();
 void rrc_xhl();
 void rrc_xix  ();
 void rrc_xix_a();
@@ -1116,7 +1093,6 @@ void sla_h();
 void sla_l();
 inline void SLA_X();
 inline void SLA_X_();
-inline void SLA_X1();
 void sla_xhl();
 void sla_xix  ();
 void sla_xix_a();
@@ -1145,7 +1121,6 @@ void sll_h();
 void sll_l();
 inline void SLL_X();
 inline void SLL_X_();
-inline void SLL_X1();
 void sll_xhl();
 void sll_xix  ();
 void sll_xix_a();
@@ -1174,7 +1149,6 @@ void sra_h();
 void sra_l();
 inline void SRA_X();
 inline void SRA_X_();
-inline void SRA_X1();
 void sra_xhl();
 void sra_xix  ();
 void sra_xix_a();
@@ -1203,7 +1177,6 @@ void srl_h();
 void srl_l();
 inline void SRL_X();
 inline void SRL_X_();
-inline void SRL_X1();
 void srl_xhl();
 void srl_xix  ();
 void srl_xix_a();
@@ -1228,13 +1201,9 @@ void rra();
 void rrca();
 
 void rld();
-void rld1();
 void rrd();
-void rrd1();
 
 inline void PUSH();
-inline void PUSH1();
-inline void PUSH2();
 void push_af();
 void push_bc();
 void push_de();
@@ -1243,7 +1212,6 @@ void push_ix();
 void push_iy();
 
 inline void POP();
-inline void POP1();
 void pop_af();
 void pop_bc();
 void pop_de();
@@ -1252,9 +1220,7 @@ void pop_ix();
 void pop_iy();
 
 inline void CALL();
-inline void CALL1();
 inline void SKIP_JP();
-inline void SKIP_JP1();
 inline void SKIP_JR();
 void call();
 void call_c();
@@ -1277,7 +1243,6 @@ void rst_30();
 void rst_38();
 
 inline void RET();
-inline void RET1();
 void ret();
 void ret_c();
 void ret_m();
@@ -1295,7 +1260,6 @@ void jp_ix();
 void jp_iy();
 
 inline void JP();
-inline void JP1();
 void jp();
 void jp_c();
 void jp_m();
@@ -1315,9 +1279,6 @@ void jr_z();
 void djnz();
 
 inline void EX_SP();
-inline void EX_SP1();
-inline void EX_SP2();
-inline void EX_SP3();
 void ex_xsp_hl();
 void ex_xsp_ix();
 void ex_xsp_iy();
@@ -1333,7 +1294,6 @@ void in_l_c();
 void in_0_c();
 
 void in_a_byte();
-void in_a_byte1();
 
 inline void OUT();
 void out_c_a();
@@ -1346,7 +1306,6 @@ void out_c_l();
 void out_c_0();
 
 void out_byte_a();
-void out_byte_a1();
 
 inline void BLOCK_CP();
 void cpd();
@@ -1355,23 +1314,18 @@ void cpdr();
 void cpir();
 
 inline void BLOCK_LD();
-inline void BLOCK_LD1();
 void ldd();
 void ldi();
 void lddr();
 void ldir();
 
 inline void BLOCK_IN();
-inline void BLOCK_IN1();
-inline void BLOCK_IN2();
 void ind();
 void ini();
 void indr();
 void inir();
 
 inline void BLOCK_OUT();
-inline void BLOCK_OUT1();
-inline void BLOCK_OUT2();
 void outd();
 void outi();
 void otdr();
@@ -1415,9 +1369,7 @@ void muluw_hl_hl();
 void muluw_hl_sp();
 
 void dd_cb();
-void dd_cb1();
 void fd_cb();
-void fd_cb1();
 void cb();
 void ed();
 void dd();

@@ -1,5 +1,8 @@
 $Id$
 
+2003-08-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* CPU cleanup / speedup:
+
 2003-08-02 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* fixed compile errors when using gcc version 2.95
 

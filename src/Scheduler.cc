@@ -18,6 +18,7 @@ Scheduler::Scheduler()
 	paused = false;
 	emulationRunning = true;
 	cpu = MSXCPU::instance();
+	cpu->init(this);
 	renderer = NULL;
 }
 
