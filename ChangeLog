@@ -3,6 +3,9 @@ $Id$
 2002-05-13 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* converted some ints to unsingned ints
 
+2002-05-13 Joost Yervante Damad <andete@worldcity.nl>
+	* fixed some files mising in the Makefile.am
+
 2002-05-12 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* made "diska" and "diskb" commands
 

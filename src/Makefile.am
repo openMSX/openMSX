@@ -86,7 +86,7 @@ openmsx_SOURCES=\
 	PluggingController.hh PluggingController.cc \
 	Connector.hh Connector.cc Pluggable.hh \
 	config.h \
-	File.cc File.hh \
+	File.cc File.hh FileType.hh \
 	HttpFile.cc HttpFile.hh \
 	LocalFile.cc LocalFile.hh
 
