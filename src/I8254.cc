@@ -62,13 +62,13 @@ void I8254::readBackHelper(byte value, byte cntr, const Emutime &time) {
 
 void I8254::setGateStatus(byte cntr, bool status, const Emutime &time)
 {
-	assert(timer<NR_COUNTERS);
+	assert(cntr<NR_COUNTERS);
 	counter[cntr]->setGateStatus(status, time);
 }
 
 bool I8254::getOutput(byte cntr, const Emutime &time)
 {
-	assert(timer<NR_COUNTERS);
+	assert(cntr<NR_COUNTERS);
 	return counter[cntr]->getOutput(time);
 }
 
@@ -96,6 +96,8 @@ void I8254::Counter::reset()
 	ltchCtrl = ltchCntr = false;
 	readOrder = writeOrder = LOW;
 	control = 0x30;	// Write BOTH / mode 0 / binary mode
+	active = false;
+	counting = true;
 }
 
 byte I8254::Counter::readIO(const Emutime &time)
@@ -147,6 +149,7 @@ void I8254::Counter::writeIO(byte value, const Emutime &time)
 			writeOrder = HIGH;
 			writeLatch = value;
 			if ((control & CNTR_MODE) == CNTR_M0)
+				// pauze counting when in mode 0
 				counting = false;
 		} else {
 			writeOrder = LOW;
@@ -161,13 +164,13 @@ void I8254::Counter::writeIO(byte value, const Emutime &time)
 void I8254::Counter::writeLoad(word value) 
 {
 	counterLoad = value;
-	active = true;
-	byte mode = control & CNTR_MODE
-	if ((mode==CNTR_M0)||(mode==CNTR_M4))
+	byte mode = control & CNTR_MODE;
+	if ( ((mode==CNTR_M0) || (mode==CNTR_M4)) ||
+	     (!active && (mode==CNTR_M2||mode==CNTR_M2_||mode==CNTR_M3||mode==CNTR_M3_)) )
 		counter = counterLoad;
 	if (mode==CNTR_M0)
 		changeOutput(false);
-	//TODO mode2 & inactive -> load
+	active = true;	// counter is (re)armed after counter is initialized
 }
 
 bool I8254::Counter::getOutput(const Emutime &time)
@@ -179,33 +182,29 @@ bool I8254::Counter::getOutput(const Emutime &time)
 void I8254::Counter::writeControlWord(byte value, const Emutime &time)
 {
 	advance(time);
-	if ((value&WRT_FRMT)==0) {
+	if ((value & WRT_FRMT) == 0) {
+		// counter latch command
 		latchCounter(time);
 		return;
+	} else {
+		// new control mode
+		control = value;
+		writeOrder = LOW;
+		counting = true; active = false; triggered = false;
+		switch (control & CNTR_MODE) {
+		case CNTR_M0:
+			changeOutput(false);
+			break;
+		case CNTR_M1:
+		case CNTR_M2: case CNTR_M2_:
+		case CNTR_M3: case CNTR_M3_:
+		case CNTR_M4:
+		case CNTR_M5:
+			changeOutput(true);
+			break;
+		default:
+			assert(false);
 	}
-	control = value;
-	writeOrder = LOW;
-	//TODO
-	counting = true;
-	active = false;
-	switch (control & CNTR_MODE) {
-	case CNTR_M0:
-		changeOutput(false);
-		break;
-	case CNTR_M1:
-		changeOutput(true);
-		break;
-	case CNTR_M2: case CNTR_M2_:
-		changeOutput(true);
-		break;
-	case CNTR_M3: case CNTR_M3_:
-		break;
-	case CNTR_M4:
-		break;
-	case CNTR_M5:
-		break;
-	default:
-		assert(false);
 	}
 }
 
@@ -214,8 +213,8 @@ void I8254::Counter::latchStatus(const Emutime &time)
 	advance(time);
 	if (!ltchCtrl) {
 		ltchCtrl = true;
-		byte out = getOutput(time) ? 0x80 : 0;
-		latchedControl = out|control; // TODO bit 6 null-count
+		byte out = output ? 0x80 : 0;
+		latchedControl = out | control; // TODO bit 6 null-count
 	}
 }
 
@@ -232,31 +231,34 @@ void I8254::Counter::latchCounter(const Emutime &time)
 void I8254::Counter::setGateStatus(bool newStatus, const Emutime &time)
 {
 	advance(time);
-	gate = status;
-	//TODO
 	if (gate != newStatus) {
 		gate = newStatus;
 		switch (control & CNTR_MODE) {
 		case CNTR_M0:
+		case CNTR_M4:
+			// Gate does not influence output, it just acts as a count enable
 			// nothing needs to be done
 			break;
 		case CNTR_M1:
-			if (gate && active)
+			if (gate && active) {	// rising edge
 				counter = counterLoad;
 				changeOutput(false);
+				triggered = true;
+			}
 			break;
 		case CNTR_M2: case CNTR_M2_:
+		case CNTR_M3: case CNTR_M3_:
 			if (gate) {
 				counter = counterLoad;
 			} else {
 				changeOutput(true);
 			}
 			break;
-		case CNTR_M3: case CNTR_M3_:
-			break;
-		case CNTR_M4:
-			break;
 		case CNTR_M5:
+			if (gate & active) {	//rising edge
+				counter = counterLoad;
+				triggered = true;
+			}
 			break;
 		default:
 			assert(false);
@@ -266,27 +268,31 @@ void I8254::Counter::setGateStatus(bool newStatus, const Emutime &time)
 
 void I8254::Counter::advance(const Emutime &time)
 {
+	//TODO !!!! Set SP !!!!
 	uint64 ticks = currentTime.getTicksTill(time);
 	currentTime = time;
-	//TODO
 	switch (control & CNTR_MODE) {
 	case CNTR_M0:
 		if (gate && counting) {
 			counter -= ticks;
 			if (counter<0) {
-				counter&=0xffff;
+				counter &= 0xffff;
 				if (active) {
 					changeOutput(false);
-					active = false;
+					active = false;	// not periodic
 				}
 			}
 		}
 		break;
 	case CNTR_M1:
 		counter -= ticks;
-		if (counter<0)
-			counter&=0xffff
-			changeOutput(true);
+		if (triggered) {
+			if (counter<0) {
+				changeOutput(true);
+				triggered = false;	// not periodic
+			}
+		}
+		counter &= 0xffff;
 		break;
 	case CNTR_M2: case CNTR_M2_:
 		if (gate) {
@@ -295,17 +301,51 @@ void I8254::Counter::advance(const Emutime &time)
 				if (counter == 1)
 					changeOutput(false);
 				if (counter <= 0) {
-					counter = counterLoad;	//TODO check reload when inactive
+					counter = counterLoad;
 					changeOutput(true);
 				}
 			}
 		}
 		break;
 	case CNTR_M3: case CNTR_M3_:
+		if (gate) {
+			counter -= 2*ticks;
+			if (active) {
+				if (counter <= 0) {
+					if (output)
+						counter = counterLoad & ~1;
+					else
+						counter = counterLoad;
+					changeOutput(!output);
+				}
+			}
+		}
 		break;
 	case CNTR_M4:
+		if (gate) {
+			counter -= ticks;
+			if (active) {
+				if (counter == 0)
+					changeOutput(false);
+				if (counter < 0) {
+					changeOutput(true);
+					active = false;	// not periodic
+				}
+			}
+			counter &= 0xffff;
+		}
 		break;
 	case CNTR_M5:
+		counter -= ticks;
+		if (triggered) {
+			if (counter == 0)
+				changeOutput(false);
+			if (counter < 0) {
+				changeOutput(true);
+				triggered = false;	//not periodic
+			}
+		}
+		counter &= 0xffff;
 		break;
 	default:
 		assert(false);

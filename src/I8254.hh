@@ -35,6 +35,7 @@ class I8254
 			void writeControlWord(byte value, const Emutime &time);
 			void latchStatus(const Emutime &time);
 			void latchCounter(const Emutime &time);
+			void advance(const Emutime &time);
 		private:
 			enum ByteOrder {LOW, HIGH};
 			static const byte WRT_FRMT = 0x30;
@@ -52,18 +53,20 @@ class I8254
 			static const byte CNTR_M2_  = 0x0c;
 			static const byte CNTR_M3_  = 0x0e;
 	
-			void advance(const Emutime &time);
-	
+			void writeLoad(word value);
+			void changeOutput(bool newOutput);
+
 			Emutime currentTime;
 			I8254 *parent;
 			int id;
-			int counter, latchedCounter;
+			int counter;
+			word latchedCounter, counterLoad;
 			byte control, latchedControl;
 			bool ltchCtrl, ltchCntr;
 			ByteOrder readOrder, writeOrder;
 			byte writeLatch;
 			bool output, gate;
-			bool active;
+			bool active, triggered, counting;
 	};
 	
 	public:
