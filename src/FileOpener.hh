@@ -8,26 +8,7 @@
 #include "config.h"
 #include "openmsx.hh"
 #include "MSXConfig.hh"
-#include <fstream>
-
-#ifdef HAVE_FSTREAM_TEMPL
-#define IFILETYPE std::ifstream<byte>
-#else
-#define IFILETYPE std::ifstream
-#endif
-
-#ifdef HAVE_FSTREAM_TEMPL
-#define OFILETYPE std::ofstream<byte>
-#else
-#define OFILETYPE std::ofstream
-#endif
-
-#ifdef HAVE_FSTREAM_TEMPL
-#define IOFILETYPE std::fstream<byte>
-#else
-#define IOFILETYPE std::fstream
-#endif
-
+#include "FileType.hh"
 
 class FileOpenerException : public MSXException {
 	public:

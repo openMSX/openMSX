@@ -5,7 +5,6 @@
 #ifndef __FILEMANAGER_HH__
 #define __FILEMANAGER_HH__
 
-#include <fstream>
 #include <string>
 #include <list>
 
@@ -14,25 +13,7 @@
 #include "openmsx.hh"
 #include "MSXConfig.hh"
 #include "MSXFilePath.hh"
-
-#ifdef HAVE_FSTREAM_TEMPL
-#define IFILETYPE std::ifstream<byte>
-#else
-#define IFILETYPE std::ifstream
-#endif
-
-#ifdef HAVE_FSTREAM_TEMPL
-#define OFILETYPE std::ofstream<byte>
-#else
-#define OFILETYPE std::ofstream
-#endif
-
-#ifdef HAVE_FSTREAM_TEMPL
-#define IOFILETYPE std::fstream<byte>
-#else
-#define IOFILETYPE std::fstream
-#endif
-
+#include "FileType.hh"
 
 class FileManagerException : public MSXException {
 	public:

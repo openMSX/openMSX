@@ -332,7 +332,7 @@ int MSXGameCartridge::guessMapperType()
 		PRT_DEBUG("MSXGameCartridge: typeGuess["<<i<<"]="<<typeGuess[i]);
 		}
 		std::string typeNames[]={"8kB","16kB","SCC","KONAMI4","ASCII8","ASCII16"};
-		PRT_INFO("MSXGameCartridge: I Guess this is a " << typeNames[type] << " GameCartridge type.")
+		PRT_INFO("MSXGameCartridge: I Guess this is a " << typeNames[type] << " GameCartridge type.");
 		return type;
 	}
 }

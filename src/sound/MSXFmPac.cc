@@ -16,11 +16,11 @@ MSXFmPac::MSXFmPac(MSXConfig::Device *config, const EmuTime &time)
 	sramBank = new byte[0x1ffe];
 	try {
 		if (deviceConfig->getParameterAsBool("load")) {
-			unsigned char buffer[16];
+			char buffer[16];
 			std::string filename = deviceConfig->getParameter("sramname");
 			IFILETYPE* file = FileOpener::openFileRO(filename);
 			file->read(buffer, 16);
-			if (strncmp(reinterpret_cast <const char *>(PAC_Header), reinterpret_cast <const char *>(buffer), 16)==0) {
+			if (strncmp(PAC_Header, buffer, 16)==0) {
 				// correct header
 				file->read(sramBank, 0x1ffe);
 			}
@@ -34,8 +34,8 @@ MSXFmPac::MSXFmPac(MSXConfig::Device *config, const EmuTime &time)
 	reset(time);
 }
 
-const unsigned char* MSXFmPac::PAC_Header = reinterpret_cast <const unsigned char *>("PAC2 BACKUP DATA");
-//                                                                               1234567890123456
+const char* MSXFmPac::PAC_Header = "PAC2 BACKUP DATA";
+//                                  1234567890123456
 
 MSXFmPac::~MSXFmPac()
 {

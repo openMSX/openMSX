@@ -27,7 +27,9 @@
 
 void initializeSDL()
 {
-	if (SDL_Init(SDL_INIT_VIDEO)<0)
+	Uint32 sdl_initval = SDL_INIT_VIDEO;
+	if (DEBUGVAL) sdl_initval |= SDL_INIT_NOPARACHUTE; // dump copre on segfault
+	if (SDL_Init(sdl_initval)<0)
 		PRT_ERROR("Couldn't init SDL: " << SDL_GetError());
 	atexit(SDL_Quit);
 	SDL_WM_SetCaption("openMSX " VERSION " [alpha]", 0);

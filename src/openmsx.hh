@@ -30,14 +30,19 @@ typedef long long int64;
 typedef unsigned long long uint64;
 #endif
 
-#ifdef DEBUG
-#define PRT_DEBUG(mes) {std::cout << mes << "\n"; }
-#else
-#define PRT_DEBUG(mes) {}
+#ifdef DEBUGVAL
+#undef DEBUGVAL
 #endif
+#ifdef DEBUG
+#define DEBUGVAL 1
+#else
+#define DEBUGVAL 0
+#endif
+#include <iostream>
+#define PRT_DEBUG(mes) do {if (DEBUGVAL) std::cout << mes << "\n"; } while (0)
 
-#define PRT_INFO(mes) {std::cout << mes << "\n"; }
-#define PRT_ERROR(mes) {std::cout << mes << "\n"; exit(1); }
+#define PRT_INFO(mes) do {std::cout << mes << "\n"; } while (0)
+#define PRT_ERROR(mes) do {std::cout << mes << "\n"; exit(1); } while (0)
 
 //#ifndef DEBUG
 //#define NDEBUG		// for assert.h

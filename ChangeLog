@@ -1,5 +1,8 @@
 $Id$
 
+2002-05-03 Bas Wijnen <b.wijnen@student.rug.nl>
+	* Created src/FileType.hh for g++-3.0 and some g++-3.0 fixes
+
 2002-05-02 Maarten ter Huurne <mth@stack.nl>
 	* Calculate pixel precision coordinates.
 	  They are approximately right, but not exactly right yet.
