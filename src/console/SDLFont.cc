@@ -26,24 +26,47 @@ const int CHARS_PER_COL = NUM_CHRS / CHARS_PER_ROW;
 SDLFont::SDLFont(File* file)
 {
 	// load the font bitmap
-	SDL_Surface *tempSurface;
-	if (!(tempSurface = IMG_Load(file->getLocalName().c_str())))
+	SDL_Surface *image1;
+	if (!(image1 = IMG_Load(file->getLocalName().c_str()))) {
 		throw MSXException("Can't load font");
+	}
+	SDL_SetAlpha(image1, 0, 0);
+	
+	int width  = image1->w;
+	int height = image1->h;
 
-	fontSurface = SDL_DisplayFormat(tempSurface);
-	SDL_FreeSurface(tempSurface);
-
-	charWidth  = fontSurface->w / CHARS_PER_ROW;
-	charHeight = fontSurface->h / CHARS_PER_COL;
+	SDL_Surface* image2 = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32,
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+		0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000
+#else
+		0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF
+#endif
+	);
+	if (image2 == NULL) {
+		throw MSXException("Can't create font surface");
+	}
+	SDL_Rect area;
+	area.x = 0;
+	area.y = 0;
+	area.w = width;
+	area.h = height;
+	SDL_BlitSurface(image1, &area, image2, &area);
+	SDL_FreeSurface(image1);
 
 	// Set font as transparent. The assumption we'll go on is that the
 	// first pixel of the font image will be the color we should treat
 	// as transparent.
-	byte r = ((byte*)fontSurface->pixels)[0];
-	byte g = ((byte*)fontSurface->pixels)[1];
-	byte b = ((byte*)fontSurface->pixels)[2];
+	byte r = ((byte*)image2->pixels)[0];
+	byte g = ((byte*)image2->pixels)[1];
+	byte b = ((byte*)image2->pixels)[2];
+	
+	fontSurface = SDL_DisplayFormat(image2);
+	SDL_FreeSurface(image2);
 	SDL_SetColorKey(fontSurface, SDL_SRCCOLORKEY | SDL_RLEACCEL, 
 		SDL_MapRGB(fontSurface->format, r, g, b));
+	
+	charWidth  = fontSurface->w / CHARS_PER_ROW;
+	charHeight = fontSurface->h / CHARS_PER_COL;
 }
 
 SDLFont::~SDLFont()

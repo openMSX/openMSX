@@ -2,6 +2,7 @@ $Id$
 
 2003-06-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* support 8kb roms
+	* fixed SDLFont, sometimes the font was completely transparent
 
 2003-06-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed SDLGL tile cache when character and pattern table use mirroring.
