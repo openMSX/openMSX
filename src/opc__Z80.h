@@ -370,7 +370,7 @@ static opcode_fn opcode_ed[256]=
  nop   ,nop    ,nop      ,nop        ,nop,nop ,nop  ,nop   ,
  nop   ,nop    ,nop      ,nop        ,nop,nop ,nop  ,nop   ,
  nop   ,nop    ,nop      ,nop        ,nop,nop ,nop  ,nop   ,
- nop   ,nop    ,nop      ,nop        ,nop,nop ,patch,nop
+ nop   ,nop    ,nop      ,nop        ,nop,nop ,nop  ,nop
 };
 
 static opcode_fn opcode_fd[256]=

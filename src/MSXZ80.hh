@@ -12,7 +12,7 @@ class MSXCPU;
 class MSXZ80 : public MSXCPUDevice
 {
 friend void Interrupt(int i);
-friend int Z80_SingleInstruction(void);
+friend void Z80_SingleInstruction(void);
 
 	public:
 		// constructor and destructor

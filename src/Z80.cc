@@ -17,19 +17,9 @@
 
 #include "MSXMotherBoard.hh"
 #include "MSXZ80.hh"
-
-//debugercode
 #include "Z80Dasm.h"
-
 #include "Z80.hh"
-/*
-extern "C++" 
-{
-#include "MSXZ80.h"
-}
-*/
-// added JYD 22-01-2001
-//int Z80_IRQ = Z80_IGNORE_INT;
+
 #ifdef DEBUG
  byte debugmemory[65536];
  char to_print_string[300];
@@ -60,44 +50,12 @@ static void ei(void);
 #define M_SKIP_JR       R.PC.W.l+=1
 #define M_SKIP_RET
 
-// defined in header file: static CPU_Regs R;
-//CPU_Regs *R;
-//static CPU_Regs R_Z80;
-//static CPU_Regs R_R800;
-int Z80_Running=1;
-//int CPU_IPeriod=50000;
-//int CPU_ICount=50000;
-
-#ifdef DEBUG
-int Z80_Trace=0;
-int Z80_Trap=-1;
-#endif
-#ifdef TRACE
-static unsigned pc_trace[256];
-static unsigned pc_count=0;
-#endif
-
 static byte PTable[512];
 static byte ZSTable[512];
 static byte ZSPTable[512];
 #include "Z80DAA.h"
 
 typedef void (*opcode_fn) (void);
-
-//static unsigned *cycles_main;
-//static unsigned *cycles_cb;
-//static unsigned *cycles_xx_cb;
-//static unsigned *cycles_xx;
-//static unsigned *cycles_ed;
-//static opcode_fn *opcode_dd_cb;
-//static opcode_fn *opcode_fd_cb;
-//static opcode_fn *opcode_cb;
-//static opcode_fn *opcode_dd;
-//static opcode_fn *opcode_ed;
-//static opcode_fn *opcode_fd;
-//static opcode_fn *opcode_main;
-
-
 
 #define M_C     (R.AF.B.l&C_FLAG)
 #define M_NC    (!M_C)
@@ -109,7 +67,7 @@ typedef void (*opcode_fn) (void);
 #define M_PO    (!M_PE)
 
 /* Get next opcode argument and increment program counter */
-INLINE byte M_RDMEM_OPCODE (void)
+static inline byte M_RDMEM_OPCODE (void)
 {
  byte retval;
  retval=M_RDOP_ARG(R.PC.W.l);
@@ -117,9 +75,7 @@ INLINE byte M_RDMEM_OPCODE (void)
  return retval;
 }
 
-// op 28,08,2001 bugje gevonden was byte 
-//INLINE unsigned M_RDMEM_WORD (dword A)
-INLINE word M_RDMEM_WORD (word A)
+static inline word M_RDMEM_WORD (word A)
 {
  int i;
  i=M_RDMEM(A);
@@ -127,15 +83,13 @@ INLINE word M_RDMEM_WORD (word A)
  return i;
 }
 
-//INLINE void M_WRMEM_WORD (dword A,word V)
-INLINE void M_WRMEM_WORD (word A,word V)
+static inline void M_WRMEM_WORD (word A,word V)
 {
  M_WRMEM (A,V&255);
  M_WRMEM (((A)+1)&0xFFFF,V>>8);
 }
 
-// op 28,08,2001 bugje gevonden was byte 
-INLINE word M_RDMEM_OPCODE_WORD (void)
+static inline word M_RDMEM_OPCODE_WORD (void)
 {
  int i;
  i=M_RDMEM_OPCODE();
@@ -146,25 +100,25 @@ INLINE word M_RDMEM_OPCODE_WORD (void)
 #define M_XIX       ((R.IX.W.l+(offset)M_RDMEM_OPCODE())&0xFFFF)
 #define M_XIY       ((R.IY.W.l+(offset)M_RDMEM_OPCODE())&0xFFFF)
 #define M_RD_XHL    M_RDMEM(R.HL.W.l)
-INLINE byte M_RD_XIX(void)
+static inline byte M_RD_XIX(void)
 {
  int i;
  i=M_XIX;
  return M_RDMEM(i);
 }
-INLINE byte M_RD_XIY(void)
+static inline byte M_RD_XIY(void)
 {
  int i;
  i=M_XIY;
  return M_RDMEM(i);
 }
-INLINE void M_WR_XIX(byte a)
+static inline void M_WR_XIX(byte a)
 {
  int i;
  i=M_XIX;
  M_WRMEM(i,a);
 }
-INLINE void M_WR_XIY(byte a)
+static inline void M_WR_XIY(byte a)
 {
  int i;
  i=M_XIY;
@@ -172,7 +126,7 @@ INLINE void M_WR_XIY(byte a)
 }
 
 #ifdef X86_ASM
-#include "Z80CDx86.h"
+#include "Z80CDx86.h"	// this file is missing
 #else
 #include "Z80Codes.h"
 #endif
@@ -1839,7 +1793,7 @@ static void no_op(void)
 }
 
 #define patch nop
-//static void patch(void) { Z80_Patch(R); }
+//static void patch(void) { Z80_Patch(&R); }
 
 static void dd_cb(void);
 static void fd_cb(void);
@@ -1848,11 +1802,9 @@ static void dd(void);
 static void ed(void);
 static void fd(void);
 static void ei(void);
-static void no_op_xx(void) {
-++R.PC.W.l; }
+static void no_op_xx(void) { ++R.PC.W.l; }
  
 
-//#include "opc_R800.h"
 #include "opc__Z80.h"
 static void dd_cb(void)
 {
@@ -1915,10 +1867,6 @@ static void ei(void)
  /* IRQ line. If not, simply set interrupt flip-flop 2                      */
  if (!R.IFF1)
  {
-#ifdef DEBUG
-//  if (R.PC.W.l==Z80_Trap) Z80_Trace=1;
-//  if (Z80_Trace) Z80_Debug(&R);
-#endif
   R.IFF1=R.IFF2=1;
   ++R.R;
   opcode=M_RDOP(R.PC.W.l);
@@ -1932,17 +1880,6 @@ static void ei(void)
   R.IFF2=1;
 }
 
-/****************************************************************************/
-/* Reset registers to their initial values                                  */
-/****************************************************************************/
-/*void Z80_Reset (void)
-{
- memset (&R,0,sizeof(CPU_Regs));
- R.SP.W.l=0xF000;
- R.R=rand();
-// R.ICount=R.IPeriod;
-}
-*/
 /****************************************************************************/
 /* Initialise the various lookup tables used by the emulation code          */
 /****************************************************************************/
@@ -2047,47 +1984,18 @@ void Interrupt (int j)
 }
 
 /****************************************************************************/
-/* Return program counter                                                   */
+/* Execute IPeriod T-States.                                                */
 /****************************************************************************/
-unsigned Z80_GetPC (void)
-{
- return R.PC.W.l;
-}
-
-/****************************************************************************/
-/* Execute IPeriod T-States. Return 0 if emulation should be stopped        */
-/****************************************************************************/
-int Z80_SingleInstruction(void)
+void Z80_SingleInstruction(void)
 {
  static unsigned opcode;
 #ifdef DEBUG
- word start_pc;
-// char* to_print_string="                            ";
-#endif
- // tijdelijk static voor debugger: unsigned opcode;
- /*
-  * Z80_Running=1;
-  * InitTables ();
-  * moved to MSXZ80.cpp
-  */
-
-//  printf(" R.PC.W.l : %04x\n",R.PC.W.l);
-  if (R.PC.W.l == 0) {printf(" RESET PC           \n");};
-#ifdef TRACE
-  pc_trace[pc_count]=R.PC.W.l;
-  pc_count=(pc_count+1)&255;
-#endif
-#ifdef DEBUG
-  start_pc=R.PC.W.l;
+  word start_pc=R.PC.W.l;
   printf("%04x : ",start_pc);
-//  if (R.PC.W.l==R.Trap) R.Trace=1;
-//  if (Z80_Trace) Z80_Debug(&R);
-//  if (!Z80_Running) break;
 #endif
   ++R.R;
   opcode=M_RDOP(R.PC.W.l);
   R.PC.W.l++;
-  //R.ICount+=cycles_main[opcode];
   R.ICount=cycles_main[opcode]; // instead of R.Icount=0
   (*(opcode_main[opcode]))();
 /*  CurrentCPUTime+=R.ICount; // During prev line R.ICount can be raised extra
@@ -2103,36 +2011,6 @@ int Z80_SingleInstruction(void)
   printf("      A=%02x F=%02x \n",R.AF.B.h,R.AF.B.l);
   printf("      BC=%04x DE=%04x HL=%04x \n",R.BC.W.l,R.DE.W.l,R.HL.W.l);
 #endif
- return Z80_Running;
-}
-
-/****************************************************************************/
-/* Interpret Z80 code                                                       */
-/****************************************************************************/
-//word Z80 (void)
-//{
- //while (Z80_Execute());
- //return(R.PC.W.l);
-//}
-
-/****************************************************************************/
-/* Dump register contents and (optionally) a PC trace to stdout             */
-/****************************************************************************/
-void Z80_RegisterDump (void)
-{
- int i;
- printf
- (
-   "AF:%04X HL:%04X DE:%04X BC:%04X PC:%04X SP:%04X IX:%04X IY:%04X\n",
-   R.AF.W.l,R.HL.W.l,R.DE.W.l,R.BC.W.l,R.PC.W.l,R.SP.W.l,R.IX.W.l,R.IY.W.l
- ); 
- printf ("STACK: ");
- for (i=0;i<10;++i) printf ("%04X ",M_RDMEM_WORD((R.SP.W.l+i*2)&0xFFFF));
- puts ("");
-#ifdef TRACE
- puts ("PC TRACE:");
- for (i=1;i<=256;++i) printf ("%04X\n",pc_trace[(pc_count-i)&255]);
-#endif
 }
 
 /****************************************************************************/
@@ -2141,9 +2019,7 @@ void Z80_RegisterDump (void)
 /****************************************************************************/
 void Z80_SetWaitStates (int n)
 {
- int i;
- for (i=0;i<256;++i)
- {
+ for (int i=0;i<256;++i) {
   cycles_main[i]+=n;
   cycles_cb[i]+=n;
   cycles_ed[i]+=n;
@@ -2151,56 +2027,6 @@ void Z80_SetWaitStates (int n)
  }
 }
 
-/****************************************************************************/
-/* Switch between the two  modes : R800 and Z80                             */
-/****************************************************************************/
-//static int currentCPU=3;
-//void set_Z80(void)
-//{
-//	if (!currentCPU){
-//		printf("!currentCPU\n");
-//		return;
-//	};
-//	currentCPU=0;
-//	printf("&R %xi\n",(int)&R);
-//	printf("&R_Z80 %xi\n",(int)&R_Z80);
-//	R=&R_Z80;
-//	printf("&R %x\n",(int)&R);
-//	printf("&R_Z80 %x\n",(int)&R_Z80);
-//	cycles_main	= Z80_cycles_main;
-//	cycles_cb	= Z80_cycles_cb;
-//	cycles_xx_cb	= Z80_cycles_xx_cb;
-//	cycles_xx	= Z80_cycles_xx;
-//	cycles_ed	= Z80_cycles_ed;
-//	opcode_dd_cb	= Z80_opcode_dd_cb;
-//	opcode_fd_cb	= Z80_opcode_fd_cb;
-//	opcode_cb	= Z80_opcode_cb;
-//	opcode_dd	= Z80_opcode_dd;
-//	opcode_ed	= Z80_opcode_ed;
-//	opcode_fd	= Z80_opcode_fd;
-//	opcode_main	= Z80_opcode_main;
-//}
-//
-//void set_R800(void)
-//{
-//	if (currentCPU){
-//		return;
-//	};
-//	currentCPU=1;
-//	R=&R_R800;
-//	cycles_main	= R800_cycles_main;
-//	cycles_cb	= R800_cycles_cb;
-//	cycles_xx_cb	= R800_cycles_xx_cb;
-//	cycles_xx	= R800_cycles_xx;
-//	cycles_ed	= R800_cycles_ed;
-//	opcode_dd_cb	= R800_opcode_dd_cb;
-//	opcode_fd_cb	= R800_opcode_fd_cb;
-//	opcode_cb	= R800_opcode_cb;
-//	opcode_dd	= R800_opcode_dd;
-//	opcode_ed	= R800_opcode_ed;
-//	opcode_fd	= R800_opcode_fd;
-//	opcode_main	= R800_opcode_main;
-//}
 
 /****************************************************************************/
 /* Reset the CPU emulation core                                             */
@@ -2215,51 +2041,7 @@ void Reset_CPU (void)
 	R.IX.W.l=0xFFFF;
 	R.IY.W.l=0xFFFF;
 	R.R=(byte)rand();
-//When this was both R800 and Z80 this code was usefull
-//	//Clear all Z80 data
-//	memset (&R_Z80,0,sizeof(CPU_Regs));
-//	R_Z80.SP.D=0xF000;
-//	R_Z80.IX.D=0xFFFF;
-//	R_Z80.IY.D=0xFFFF;
-//	R_Z80.R=rand();
-//	//Clear all R800 data
-//	memset (&R_R800,0,sizeof(CPU_Regs));
-//	R_R800.SP.D=0xF000;
-//	R_R800.IX.D=0xFFFF;
-//	R_R800.IY.D=0xFFFF;
-//	R_R800.R=rand();
-//	//Set current CPU to Z80
-//	set_Z80();
 }
-
-/****************************************************************************/
-/* Set the number of Iperiods into both the R800 and Z80                    */
-/* The number passed to this function is the number of iperiods for an      */
-/* 28 MHz clock. R800 and Z80 run on a different clock.                     */
-/****************************************************************************/
-//void set_IPeriod(int period)
-//{
-//	int R800_TimeDivide=4; //= 28 /  7
-//	int Z80_TimeDivide=8; //=  28 / 3.5
-//
-//	R_Z80.ICount=R_Z80.IPeriod=period/Z80_TimeDivide;
-//	R_R800.ICount=R_R800.IPeriod=period/R800_TimeDivide;
-//	printf("R_Z80.ICount=%i\n",R_Z80.ICount);
-//	printf("R_Z80.IPeriod=%i\n",R_Z80.IPeriod);
-//	printf("R_R800.ICount=%i\n",R_R800.ICount);
-//	printf("R_R800.IPeriod=%i\n\n",R_R800.IPeriod);
-//	
-//	printf("R.ICount=%i\n",R.ICount);
-//	printf("R.IPeriod=%i\n\n",R.IPeriod);
-//}
-//
-//void reset_IPeriod(void)
-//{
-//	R.ICount=R.IPeriod;
-//
-//}
-
-
 
 //TODO need cleanup
 

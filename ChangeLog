@@ -2,6 +2,7 @@ $Id$
 
 2001-09-27 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* #define -> static const int   cleanup
+	* first part of Z80 cleanup
 
 2001-09-26 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* reimplemented Scheduler, total new algorithm

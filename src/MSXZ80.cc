@@ -25,7 +25,6 @@ MSXZ80::~MSXZ80()
 
 void MSXZ80::init()
 {
-	Z80_Running=1;
 	InitTables();
 }
 
