@@ -21,11 +21,10 @@ MSXMegaRom::~MSXMegaRom()
 
 void MSXMegaRom::init()
 {
-	int offset,nrblocks;
 	MSXDevice::init();
 	
 	std::string filename=deviceConfig->getParameter("romfile");
-	offset = atoi(deviceConfig->getParameter("skip_headerbytes").c_str());
+	int offset = atoi(deviceConfig->getParameter("skip_headerbytes").c_str());
 	ROM_SIZE = atoi(deviceConfig->getParameter("filesize").c_str());
 	
 	// allocate buffer
@@ -49,7 +48,7 @@ void MSXMegaRom::init()
 	// TODO: maybe check for AB signature ?
 	
 	// Calculate mapperMask
-	nrblocks=ROM_SIZE>>13;  //number of 8kB pages
+	int nrblocks=ROM_SIZE>>13;  //number of 8kB pages
 	for (mapperMask=1;mapperMask<nrblocks;mapperMask<<=1);
 	mapperMask--;
 	
@@ -61,20 +60,9 @@ void MSXMegaRom::init()
 	internalMemoryBank[2]=memoryBank+0x4000;
 	internalMemoryBank[3]=memoryBank+0x6000;
 
-
-	
 	mapperType=retriefMapperType();
 
-	
-	// register in slot-structure
-	std::list<MSXConfig::Device::Slotted*>::const_iterator i;
-	for (i=deviceConfig->slotted.begin(); i!=deviceConfig->slotted.end(); i++) {
-		int ps=(*i)->getPS();
-		int ss=(*i)->getSS();
-		int page=(*i)->getPage();
-		MSXMotherBoard::instance()->registerSlottedDevice(this,ps,ss,page);
-	}
-
+	registerSlots();
 }
 
 int MSXMegaRom::retriefMapperType()

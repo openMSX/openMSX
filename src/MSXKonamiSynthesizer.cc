@@ -44,14 +44,7 @@ void MSXKonamiSynthesizer::init()
 	if (file.fail())
 		PRT_ERROR("Error reading " << filename);
 	
-	// register in slot-structure
-	std::list<MSXConfig::Device::Slotted*>::const_iterator i;
-	for (i=deviceConfig->slotted.begin(); i!=deviceConfig->slotted.end(); i++) {
-		int ps=(*i)->getPS();
-		int ss=(*i)->getSS();
-		int page=(*i)->getPage();
-		MSXMotherBoard::instance()->registerSlottedDevice(this,ps,ss,page);
-	}
+	registerSlots();
 }
 
 byte MSXKonamiSynthesizer::readMem(word address, Emutime &time)

@@ -101,6 +101,8 @@ const std::string &MSXDevice::getName()
 //}
 
 
+// Helper functions 
+
 void MSXDevice::setInterrupt()
 {
 	if (isIRQset==false) {
@@ -115,5 +117,17 @@ void MSXDevice::resetInterrupt()
 		isIRQset = false;
 		PRT_DEBUG ("Actually resseting interupt line of " << getName());
 		MSXMotherBoard::instance()->lowerIRQ();
+	}
+}
+
+void MSXDevice::registerSlots()
+{
+	// register in slot-structure
+	std::list<MSXConfig::Device::Slotted*>::const_iterator i;
+	for (i=deviceConfig->slotted.begin(); i!=deviceConfig->slotted.end(); i++) {
+		int ps=(*i)->getPS();
+		int ss=(*i)->getSS();
+		int page=(*i)->getPage();
+		MSXMotherBoard::instance()->registerSlottedDevice(this,ps,ss,page);
 	}
 }

@@ -34,13 +34,7 @@ void MSXMemoryMapper::init()
 	//always contain all zero if started
 	memset(buffer, 0, size);
 	 
-	std::list<MSXConfig::Device::Slotted*> slotted_list = deviceConfig->slotted;
-	for (std::list<MSXConfig::Device::Slotted*>::const_iterator i=slotted_list.begin(); i != slotted_list.end(); i++) {
-		MSXMotherBoard::instance()->registerSlottedDevice(this, (*i)->getPS(),
-		                                                        (*i)->getSS(),
-		                                                        (*i)->getPage() );
-	}
-	
+	registerSlots();
 	MSXMapperIO::instance()->registerMapper(blocks);
 }
 

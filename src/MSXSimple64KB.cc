@@ -46,12 +46,7 @@ void MSXSimple64KB::init()
 	//always contain all zero if started
 	memset(memoryBank, 0, 65536); // new doesn't fill with zero
 
-	std::list<MSXConfig::Device::Slotted*> slotted_list = deviceConfig->slotted;
-	for (std::list<MSXConfig::Device::Slotted*>::const_iterator i=slotted_list.begin(); i != slotted_list.end(); i++) {
-		MSXMotherBoard::instance()->registerSlottedDevice(this, (*i)->getPS(),
-		                                                        (*i)->getSS(),
-		                                                        (*i)->getPage() );
-	}
+	registerSlots();
 }
 
 byte MSXSimple64KB::readMem(word address, Emutime &time)

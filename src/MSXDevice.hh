@@ -128,10 +128,33 @@ class MSXDevice : public Schedulable
 		//bool checkSaveStateHeader(std::string &devicestring);
 		//char* deviceVersion;
 		
-		// To ease the burden of keeping IRQ state
+		/*
+		 * To ease the burden of keeping IRQ state.
+		 * This function raises an interrupt if this device does not
+		 * already have an active interrupt line.
+		 * Note: this is only a helper function
+		 */
 		void setInterrupt();
+		/*
+		 * To ease the burden of keeping IRQ state.
+		 * This function lowers this device its interrupt line if it
+		 * was active.
+		 * Note: this is only a helper function
+		 */
 		void resetInterrupt();
+		/*
+		 * The current state of this device its interrupt line
+		 *  true -> active   false -> not active
+		 */
 		bool isIRQset;
+
+		/*
+		 * Register this device in all the slots that where specified
+		 * in its config file
+		 * Note: this is only a helper function, you do not have to use
+		 *       this to register the device
+		 */
+		void registerSlots();
 		
 		MSXConfig::Device *deviceConfig;
 		const std::string* deviceName;
