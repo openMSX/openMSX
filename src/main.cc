@@ -41,6 +41,7 @@ void initializeSDL()
 		0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
 	SDL_SetColorKey(iconSurf, SDL_SRCCOLORKEY, 0);
 	SDL_WM_SetIcon(iconSurf, NULL);
+	SDL_FreeSurface(iconSurf);
 }
 
 
