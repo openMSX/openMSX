@@ -21,7 +21,7 @@ public:
 	  * This method gets called when the key you are interested in
 	  * is pressed.
 	  */
-	 virtual void signalHotKey(Keys::KeyCode key) = 0;
+	 virtual void signalHotKey(Keys::KeyCode key) throw() = 0;
 };
 
 
@@ -49,13 +49,13 @@ public:
 private:
 	class HotKeyCmd : public HotKeyListener
 	{
-		public:
-			HotKeyCmd(const string &cmd);
-			virtual ~HotKeyCmd();
-			const string &getCommand();
-			virtual void signalHotKey(Keys::KeyCode key);
-		private:
-			string command;
+	public:
+		HotKeyCmd(const string& cmd);
+		virtual ~HotKeyCmd();
+		const string& getCommand() const;
+		virtual void signalHotKey(Keys::KeyCode key) throw();
+	private:
+		string command;
 	};
 	
 	// EventListener

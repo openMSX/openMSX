@@ -107,11 +107,11 @@ HotKey::HotKeyCmd::HotKeyCmd(const string &cmd)
 HotKey::HotKeyCmd::~HotKeyCmd()
 {
 }
-const string &HotKey::HotKeyCmd::getCommand()
+const string &HotKey::HotKeyCmd::getCommand() const
 {
 	return command;
 }
-void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key)
+void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key) throw()
 {
 	try {
 		// ignore return value
