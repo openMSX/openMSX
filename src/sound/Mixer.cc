@@ -241,15 +241,15 @@ void Mixer::updtStrm(int samples)
 		//   44100Hz --> cutt-off freq = 27Hz
 		//   22050Hz                     13Hz
 		int tmp;
-		tmp = (511 * left - 511 * prevLeft + 510 * prevOutLeft) >> 9;
-		prevLeft = left;
-		prevOutLeft = tmp;
-		left = tmp;
+		tmp = 511 * left;
+		left = (tmp - prevLeft + 510 * prevOutLeft) >> 9;
+		prevLeft = tmp;
+		prevOutLeft = left;
 
-		tmp = (511 * right - 511 * prevRight + 510 * prevOutRight) >> 9;
-		prevRight = right;
-		prevOutRight = tmp;
-		right = tmp;
+		tmp = 511 * right;
+		right = (tmp - prevRight + 510 * prevOutRight) >> 9;
+		prevRight = tmp;
+		prevOutRight = right;
  
 		// clip
 		#ifdef DEBUG_MIXER
