@@ -4,6 +4,7 @@
 
 
 CROSS_TARGET=i586-mingw32msvc
+CROSS_DIR=$(PWD)/cross-win32
 
 CONF_ENV=CC=/usr/bin/$(CROSS_TARGET)-gcc\
 CXX=/usr/bin/$(CROSS_TARGET)-c++\
@@ -12,9 +13,10 @@ RANLIB=/usr/bin/$(CROSS_TARGET)-ranlib\
 \
 ac_cv_c_bigendian=no\
 ac_cv_sizeof_long=4\
-ac_cv_sizeof_bool=1
-
-CROSS_DIR=cross-win32
+ac_cv_sizeof_bool=1\
+CXXFLAGS=-I$(CROSS_DIR)/include\
+SDL_LIBS="-Xlinker,-static -L$(CROSS_DIR)/lib -lSDL"\
+XML_LIBS="-Xlinker,-static -L$(CROSS_DIR)/lib -lxml2 -liconv"
 
 all: cross_config cross_compile
 
@@ -26,4 +28,4 @@ cross_config:
 		--build=i386-linux
 
 cross_compile:
-	make -f Makefile
+	$(MAKE) -f Makefile
