@@ -7,11 +7,13 @@ class VDP;
 class VDPVRAM;
 
 #include "openmsx.hh"
+#include "Renderer.hh"
 #include <cassert>
 
 /** Utility class for converting VRAM contents to host pixels.
   */
-template <class Pixel> class CharacterConverter
+template <class Pixel, Renderer::Zoom zoom>
+class CharacterConverter
 {
 public:
 	/** Create a new bitmap scanline converter.

@@ -70,8 +70,6 @@ public:
 	void updateVRAM(int addr, byte data, const EmuTime &time);
 
 private:
-	typedef void (SDLGLRenderer::*RenderMethod)
-		(Pixel *pixelPtr, int line, int x, int y);
 	typedef void (SDLGLRenderer::*PhaseHandler)
 		(int line, int limit, const EmuTime &until);
 	typedef void (SDLGLRenderer::*DirtyChecker)
@@ -90,10 +88,14 @@ private:
 	  */
 	inline void renderUntil(const EmuTime &time);
 
-
 	inline void renderBitmapLines(byte line, const EmuTime &until);
 	inline void renderPlanarBitmapLines(byte line, const EmuTime &until);
 	inline void renderCharacterLines(byte line, const EmuTime &until);
+
+	/** Precalc several values that depend on the display mode.
+	  * @param mode The new display mode: M5..M1.
+	  */
+	inline void setDisplayMode(int mode);
 
 	/** Get width of the left border in pixels.
 	  * This is equal to the X coordinate of the display area.
@@ -119,19 +121,6 @@ private:
 	  * TODO: Implement the case that even_colour != odd_colour.
 	  */
 	inline Pixel getBorderColour();
-
-	void renderText1(Pixel *pixelPtr, int line, int x, int y);
-	void renderText1Q(Pixel *pixelPtr, int line, int x, int y);
-	void renderText2(Pixel *pixelPtr, int line, int x, int y);
-	void renderGraphic1(Pixel *pixelPtr, int line, int x, int y);
-	void renderGraphic2(Pixel *pixelPtr, int line, int x, int y);
-	void renderGraphic4(Pixel *pixelPtr, int line, int x, int y);
-	void renderGraphic5(Pixel *pixelPtr, int line, int x, int y);
-	void renderGraphic6(Pixel *pixelPtr, int line, int x, int y);
-	void renderGraphic7(Pixel *pixelPtr, int line, int x, int y);
-	void renderMulti(Pixel *pixelPtr, int line, int x, int y);
-	void renderMultiQ(Pixel *pixelPtr, int line, int x, int y);
-	void renderBogus(Pixel *pixelPtr, int line, int x, int y);
 
 	/** Render in background colour.
 	  * Used for borders and during blanking.
@@ -168,10 +157,6 @@ private:
 	/** Set all dirty / clean.
 	  */
 	void setDirty(bool);
-
-	/** RenderMethods for each screen mode.
-	  */
-	static RenderMethod modeToRenderMethod[];
 
 	/** DirtyCheckers for each screen mode.
 	  */
@@ -217,10 +202,6 @@ private:
 	  * Used by BitmapConverter.
 	  */
 	Pixel PALETTE256[256];
-
-	/** Rendering method for the current display mode.
-	  */
-	RenderMethod renderMethod;
 
 	/** Phase handler: current drawing mode (off, blank, display).
 	  */
@@ -268,6 +249,11 @@ private:
 	  */
 	int lineRenderTop;
 
+	/** Number of host pixels per line.
+	  * In Graphic 5 and 6 this is 512, in all other modes it is 256.
+	  */
+	int lineWidth;
+
 	/** Dirty tables indicate which character blocks must be repainted.
 	  * The anyDirty variables are true when there is at least one
 	  * element in the dirty table that is true.
@@ -287,11 +273,11 @@ private:
 
 	/** VRAM to pixels converter for character display modes.
 	  */
-	CharacterConverter<Pixel> characterConverter;
+	CharacterConverter<Pixel, Renderer::ZOOM_REAL> characterConverter;
 
 	/** VRAM to pixels converter for bitmap display modes.
 	  */
-	BitmapConverter<Pixel> bitmapConverter;
+	BitmapConverter<Pixel, Renderer::ZOOM_REAL> bitmapConverter;
 
 };
 

@@ -4,10 +4,12 @@
 #define __BITMAPCONVERTER_HH__
 
 #include "openmsx.hh"
+#include "Renderer.hh"
 
 /** Utility class for converting VRAM contents to host pixels.
   */
-template <class Pixel> class BitmapConverter
+template <class Pixel, Renderer::Zoom zoom>
+class BitmapConverter
 {
 public:
 	/** Create a new bitmap scanline converter.

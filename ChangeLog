@@ -2,6 +2,7 @@ $Id$
 
 2002-04-29 Maarten ter Huurne <mth@stack.nl>
 	* SDLGLRenderer is working again.
+	* SDLGLRenderer now uses CharacterConverter and BitmapConverter.
 
 2002-04-29 Joost Yervante Damad <andete@worldcity.nl>
 	* small cleanup FilePath [sorry guys!]

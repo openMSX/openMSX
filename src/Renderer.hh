@@ -22,6 +22,23 @@ class Renderer
 {
 public:
 
+	/** Zoom style used by MSX VRAM to host pixel converters.
+	  * TODO: I'm not sure Renderer is the right class for this,
+	  *       but I couldn't find a better place.
+	  */
+	enum Zoom {
+		/** Do not zoom: one MSX pixel is converted to one host pixel.
+		  * Line width depends on display mode.
+		  */
+		ZOOM_REAL,
+		/** One MSX pixel line is converted to 256 host pixels.
+		  */
+		ZOOM_256,
+		/** One MSX pixel line is converted to 512 host pixels.
+		  */
+		ZOOM_512
+	};
+
 	/** Creates a new Renderer.
 	  * @param fullScreen Start in full screen or windowed;
 	  *   true iff full screen.

@@ -255,11 +255,11 @@ private:
 
 	/** VRAM to pixels converter for character display modes.
 	  */
-	CharacterConverter<Pixel> characterConverter;
+	CharacterConverter<Pixel, Renderer::ZOOM_512> characterConverter;
 
 	/** VRAM to pixels converter for bitmap display modes.
 	  */
-	BitmapConverter<Pixel> bitmapConverter;
+	BitmapConverter<Pixel, Renderer::ZOOM_512> bitmapConverter;
 
 	SDLConsole* console;
 };

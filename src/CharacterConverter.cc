@@ -51,12 +51,14 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 
 // Force template instantiation for these types.
 // Without this, object file contains no method implementations.
-template class CharacterConverter<byte>;
-template class CharacterConverter<word>;
-template class CharacterConverter<unsigned int>;
+template class CharacterConverter<byte, Renderer::ZOOM_512>;
+template class CharacterConverter<word, Renderer::ZOOM_512>;
+template class CharacterConverter<unsigned int, Renderer::ZOOM_512>;
+template class CharacterConverter<unsigned int, Renderer::ZOOM_REAL>;
 
-template <class Pixel> CharacterConverter<Pixel>::RenderMethod
-	CharacterConverter<Pixel>::modeToRenderMethod[] = {
+template <class Pixel, Renderer::Zoom zoom>
+CharacterConverter<Pixel, zoom>::RenderMethod
+	CharacterConverter<Pixel, zoom>::modeToRenderMethod[] = {
 		// M5 M4 = 0 0  (MSX1 modes)
 		&CharacterConverter::renderGraphic1,
 		&CharacterConverter::renderText1,
@@ -73,7 +75,8 @@ template <class Pixel> CharacterConverter<Pixel>::RenderMethod
 		&CharacterConverter::renderBogus
 	};
 
-template <class Pixel> CharacterConverter<Pixel>::CharacterConverter(
+template <class Pixel, Renderer::Zoom zoom>
+CharacterConverter<Pixel, zoom>::CharacterConverter(
 	VDP *vdp, const Pixel *palFg, const Pixel *palBg)
 {
 	this->vdp = vdp;
@@ -88,7 +91,8 @@ template <class Pixel> CharacterConverter<Pixel>::CharacterConverter(
 	dirtyForeground = dirtyBackground = true;
 }
 
-template <class Pixel> void CharacterConverter<Pixel>::renderText1(
+template <class Pixel, Renderer::Zoom zoom>
+void CharacterConverter<Pixel, zoom>::renderText1(
 	Pixel *pixelPtr, int line)
 {
 	bool dirtyColours = dirtyForeground || dirtyBackground;
@@ -108,18 +112,22 @@ template <class Pixel> void CharacterConverter<Pixel>::renderText1(
 		if (dirtyColours || dirtyName[name] || dirtyPattern[charcode]) {
 			int pattern = vram->readNP(patternBaseLine | (charcode * 8));
 			for (int i = 6; i--; ) {
-				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
-				pixelPtr += 2;
+				if (zoom == Renderer::ZOOM_512) {
+					pixelPtr[0] = pixelPtr[1] = (pattern & 0x80) ? fg : bg;
+					pixelPtr += 2;
+				} else {
+					*pixelPtr++ = (pattern & 0x80) ? fg : bg;
+				}
 				pattern <<= 1;
 			}
-		}
-		else {
-			pixelPtr += 12;
+		} else {
+			pixelPtr += zoom == Renderer::ZOOM_512 ? 12 : 6;
 		}
 	}
 }
 
-template <class Pixel> void CharacterConverter<Pixel>::renderText1Q(
+template <class Pixel, Renderer::Zoom zoom>
+void CharacterConverter<Pixel, zoom>::renderText1Q(
 	Pixel *pixelPtr, int line)
 {
 	bool dirtyColours = dirtyForeground || dirtyBackground;
@@ -140,18 +148,22 @@ template <class Pixel> void CharacterConverter<Pixel>::renderText1Q(
 		if (dirtyColours || dirtyName[name] || dirtyPattern[patternNr]) {
 			int pattern = vram->readNP(patternBaseLine | (patternNr * 8));
 			for (int i = 6; i--; ) {
-				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
-				pixelPtr += 2;
+				if (zoom == Renderer::ZOOM_512) {
+					pixelPtr[0] = pixelPtr[1] = (pattern & 0x80) ? fg : bg;
+					pixelPtr += 2;
+				} else {
+					*pixelPtr++ = (pattern & 0x80) ? fg : bg;
+				}
 				pattern <<= 1;
 			}
-		}
-		else {
-			pixelPtr += 12;
+		} else {
+			pixelPtr += zoom == Renderer::ZOOM_512 ? 12 : 6;
 		}
 	}
 }
 
-template <class Pixel> void CharacterConverter<Pixel>::renderText2(
+template <class Pixel, Renderer::Zoom zoom>
+void CharacterConverter<Pixel, zoom>::renderText2(
 	Pixel *pixelPtr, int line)
 {
 	bool dirtyColours = dirtyForeground || dirtyBackground;
@@ -199,18 +211,26 @@ template <class Pixel> void CharacterConverter<Pixel>::renderText2(
 				bg = plainBg;
 			}
 			int pattern = vram->readNP(patternBaseLine | (charcode * 8));
-			for (int i = 6; i--; ) {
-				*pixelPtr++ = (pattern & 0x80) ? fg : bg;
-				pattern <<= 1;
+			if (zoom == Renderer::ZOOM_256) {
+				for (int i = 3; i--; ) {
+					*pixelPtr++ = (pattern & 0xC0) ? fg : bg;
+					pattern <<= 1;
+				}
+			} else {
+				for (int i = 6; i--; ) {
+					*pixelPtr++ = (pattern & 0x80) ? fg : bg;
+					pattern <<= 1;
+				}
 			}
 		}
 		else {
-			pixelPtr += 6;
+			pixelPtr += zoom == Renderer::ZOOM_256 ? 3 : 6;
 		}
 	}
 }
 
-template <class Pixel> void CharacterConverter<Pixel>::renderGraphic1(
+template <class Pixel, Renderer::Zoom zoom>
+void CharacterConverter<Pixel, zoom>::renderGraphic1(
 	Pixel *pixelPtr, int line)
 {
 	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
@@ -232,19 +252,23 @@ template <class Pixel> void CharacterConverter<Pixel>::renderGraphic1(
 			int pattern = vram->readNP(patternBaseLine | (charcode * 8));
 			// TODO: Compare performance of this loop vs unrolling.
 			for (int i = 8; i--; ) {
-				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
-				pixelPtr += 2;
+				if (zoom == Renderer::ZOOM_512) {
+					pixelPtr[0] = pixelPtr[1] = (pattern & 0x80) ? fg : bg;
+					pixelPtr += 2;
+				} else {
+					*pixelPtr++ = (pattern & 0x80) ? fg : bg;
+				}
 				pattern <<= 1;
 			}
-		}
-		else {
-			pixelPtr += 16;
+		} else {
+			pixelPtr += zoom == Renderer::ZOOM_512 ? 16 : 8;
 		}
 		name++;
 	}
 }
 
-template <class Pixel> void CharacterConverter<Pixel>::renderGraphic2(
+template <class Pixel, Renderer::Zoom zoom>
+void CharacterConverter<Pixel, zoom>::renderGraphic2(
 	Pixel *pixelPtr, int line)
 {
 	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
@@ -269,18 +293,23 @@ template <class Pixel> void CharacterConverter<Pixel>::renderGraphic2(
 			Pixel fg = palFg[colour >> 4];
 			Pixel bg = palFg[colour & 0x0F];
 			for (int i = 8; i--; ) {
-				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
-				pixelPtr += 2;
+				if (zoom == Renderer::ZOOM_512) {
+					pixelPtr[0] = pixelPtr[1] = (pattern & 0x80) ? fg : bg;
+					pixelPtr += 2;
+				} else {
+					*pixelPtr++ = (pattern & 0x80) ? fg : bg;
+				}
 				pattern <<= 1;
 			}
 		}
 		else {
-			pixelPtr += 16;
+			pixelPtr += zoom == Renderer::ZOOM_512 ? 16 : 8;
 		}
 	}
 }
 
-template <class Pixel> void CharacterConverter<Pixel>::renderMulti(
+template <class Pixel, Renderer::Zoom zoom>
+void CharacterConverter<Pixel, zoom>::renderMulti(
 	Pixel *pixelPtr, int line)
 {
 	if (!(anyDirtyName || anyDirtyPattern)) return;
@@ -296,16 +325,21 @@ template <class Pixel> void CharacterConverter<Pixel>::renderMulti(
 			int colour = vram->readNP(patternBaseLine | (charcode * 8));
 			Pixel cl = palFg[colour >> 4];
 			Pixel cr = palFg[colour & 0x0F];
-			for (int n = 8; n--; ) *pixelPtr++ = cl;
-			for (int n = 8; n--; ) *pixelPtr++ = cr;
-		}
-		else {
-			pixelPtr += 16;
+			if (zoom == Renderer::ZOOM_512) {
+				for (int n = 8; n--; ) *pixelPtr++ = cl;
+				for (int n = 8; n--; ) *pixelPtr++ = cr;
+			} else {
+				for (int n = 4; n--; ) *pixelPtr++ = cl;
+				for (int n = 4; n--; ) *pixelPtr++ = cr;
+			}
+		} else {
+			pixelPtr += zoom == Renderer::ZOOM_512 ? 16 : 8;
 		}
 	}
 }
 
-template <class Pixel> void CharacterConverter<Pixel>::renderMultiQ(
+template <class Pixel, Renderer::Zoom zoom>
+void CharacterConverter<Pixel, zoom>::renderMultiQ(
 	Pixel *pixelPtr, int line)
 {
 	if (!(anyDirtyName || anyDirtyPattern)) return;
@@ -322,27 +356,41 @@ template <class Pixel> void CharacterConverter<Pixel>::renderMultiQ(
 			int colour = vram->readNP(patternBaseLine | (patternNr * 8));
 			Pixel cl = palFg[colour >> 4];
 			Pixel cr = palFg[colour & 0x0F];
-			for (int n = 8; n--; ) *pixelPtr++ = cl;
-			for (int n = 8; n--; ) *pixelPtr++ = cr;
-		}
-		else {
-			pixelPtr += 16;
+			if (zoom == Renderer::ZOOM_512) {
+				for (int n = 8; n--; ) *pixelPtr++ = cl;
+				for (int n = 8; n--; ) *pixelPtr++ = cr;
+			} else {
+				for (int n = 4; n--; ) *pixelPtr++ = cl;
+				for (int n = 4; n--; ) *pixelPtr++ = cr;
+			}
+		} else {
+			pixelPtr += zoom == Renderer::ZOOM_512 ? 16 : 8;
 		}
 	}
 }
 
-template <class Pixel> void CharacterConverter<Pixel>::renderBogus(
+template <class Pixel, Renderer::Zoom zoom>
+void CharacterConverter<Pixel, zoom>::renderBogus(
 	Pixel *pixelPtr, int line)
 {
 	if (!(dirtyForeground || dirtyBackground)) return;
 
 	Pixel fg = palFg[vdp->getForegroundColour()];
 	Pixel bg = palBg[vdp->getBackgroundColour()];
-	for (int n = 16; n--; ) *pixelPtr++ = bg;
-	for (int c = 40; c--; ) {
-		for (int n = 8; n--; ) *pixelPtr++ = fg;
-		for (int n = 4; n--; ) *pixelPtr++ = bg;
+	if (zoom == Renderer::ZOOM_512) {
+		for (int n = 16; n--; ) *pixelPtr++ = bg;
+		for (int c = 40; c--; ) {
+			for (int n = 8; n--; ) *pixelPtr++ = fg;
+			for (int n = 4; n--; ) *pixelPtr++ = bg;
+		}
+		for (int n = 16; n--; ) *pixelPtr++ = bg;
+	} else {
+		for (int n = 8; n--; ) *pixelPtr++ = bg;
+		for (int c = 20; c--; ) {
+			for (int n = 4; n--; ) *pixelPtr++ = fg;
+			for (int n = 2; n--; ) *pixelPtr++ = bg;
+		}
+		for (int n = 8; n--; ) *pixelPtr++ = bg;
 	}
-	for (int n = 16; n--; ) *pixelPtr++ = bg;
 }
 

@@ -2,7 +2,6 @@
 
 /*
 TODO:
-- Implement blinking (of page mask) in bitmap modes.
 - Idea: make an abstract superclass for line-based Renderers, this
   class would know when to sync etc, but not be SDL dependent.
   Since most of the abstraction is done using <Pixel>, most code
@@ -15,20 +14,6 @@ TODO:
   * A12 and A11 of patternMask and colourMask may be different
     also, colourMask has A10..A6 as well
     in most realistic cases however the two will be of equal size
-- Clean up renderGraphics2, it is currently very hard to understand
-  with all the masks and quarters etc.
-- Try using a generic inlined pattern-to-pixels converter.
-- Separate dirty checking and caching for character and bitmap modes?
-  Dirty checking is pretty much separated already and there is a
-  connection between caching and dirty checking.
-  Advantages:
-  * SCREEN4/5 hybrids like Space Manbow and Psycho World will be faster.
-    Nice, but it's only a handful of games, so not very important.
-  * Enables separation of character and bitmap code into different files.
-    Useful since this file is now over 1000 lines long.
-  Disadvantages:
-  * More memory is used: 128K pixels, which is 25% more.
-    I don't think 25% extra will pose a real problem.
 - Fix character mode dirty checking to work with incremental rendering.
   Approach 1:
   * use two dirty arrays, one for this frame, one for next frame
@@ -46,12 +31,6 @@ TODO:
 - Register dirty checker with VDP.
   This saves one virtual method call on every VRAM write. (does it?)
   Put some generic dirty check classes in Renderer.hh/cc.
-- Correctly implement vertical scroll in text modes.
-  Can be implemented by reordering blitting, but uses a smaller
-  wrap than GFX modes: 8 lines instead of 256 lines.
-- Further optimise the background render routines.
-  For example incremental computation of the name pointers (both
-  VRAM and dirty).
 */
 
 #include "SDLGLRenderer.hh"
@@ -103,6 +82,18 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 #else
 	while (nr--) *ptr++ = value;
 #endif
+}
+
+inline void SDLGLRenderer::setDisplayMode(int mode)
+{
+	dirtyChecker = modeToDirtyChecker[mode];
+	if (vdp->isBitmapMode(mode)) {
+		bitmapConverter.setDisplayMode(mode);
+	} else {
+		characterConverter.setDisplayMode(mode);
+	}
+	lineWidth = (mode == 0x09 || mode == 0x10 || mode == 0x14 ? 512 : 256);
+	palSprites = (mode == 0x1C ? palGraphic7Sprites : palBg);
 }
 
 inline void SDLGLRenderer::renderUntil(const EmuTime &time)
@@ -218,48 +209,6 @@ inline void SDLGLRenderer::renderCharacterLines(
 	} while (currentTime < until);
 }
 
-// TODO: Verify on real MSX2 what non-documented modes do.
-//       For now, I used renderBogus for all of them.
-SDLGLRenderer::RenderMethod
-	SDLGLRenderer::modeToRenderMethod[] = {
-		// M5 M4 = 0 0  (MSX1 modes)
-		&SDLGLRenderer::renderGraphic1,
-		&SDLGLRenderer::renderText1,
-		&SDLGLRenderer::renderMulti,
-		&SDLGLRenderer::renderBogus,
-		&SDLGLRenderer::renderGraphic2,
-		&SDLGLRenderer::renderText1Q,
-		&SDLGLRenderer::renderMultiQ,
-		&SDLGLRenderer::renderBogus,
-		// M5 M4 = 0 1
-		&SDLGLRenderer::renderGraphic2, // graphic 3, actually
-		&SDLGLRenderer::renderText2,
-		&SDLGLRenderer::renderBogus,
-		&SDLGLRenderer::renderBogus,
-		&SDLGLRenderer::renderGraphic4,
-		&SDLGLRenderer::renderBogus,
-		&SDLGLRenderer::renderBogus,
-		&SDLGLRenderer::renderBogus,
-		// M5 M4 = 1 0
-		&SDLGLRenderer::renderGraphic5,
-		&SDLGLRenderer::renderBogus,
-		&SDLGLRenderer::renderBogus,
-		&SDLGLRenderer::renderBogus,
-		&SDLGLRenderer::renderGraphic6,
-		&SDLGLRenderer::renderBogus,
-		&SDLGLRenderer::renderBogus,
-		&SDLGLRenderer::renderBogus,
-		// M5 M4 = 1 1
-		&SDLGLRenderer::renderBogus,
-		&SDLGLRenderer::renderBogus,
-		&SDLGLRenderer::renderBogus,
-		&SDLGLRenderer::renderBogus,
-		&SDLGLRenderer::renderGraphic7,
-		&SDLGLRenderer::renderBogus,
-		&SDLGLRenderer::renderBogus,
-		&SDLGLRenderer::renderBogus
-	};
-
 SDLGLRenderer::DirtyChecker
 	// Use checkDirtyBitmap for every mode for which isBitmapMode is true.
 	SDLGLRenderer::modeToDirtyChecker[] = {
@@ -326,9 +275,7 @@ SDLGLRenderer::SDLGLRenderer(
 
 	// Init renderer state.
 	phaseHandler = &SDLGLRenderer::blankPhase;
-	renderMethod = modeToRenderMethod[vdp->getDisplayMode()];
-	dirtyChecker = modeToDirtyChecker[vdp->getDisplayMode()];
-	palSprites = palBg;
+	setDisplayMode(vdp->getDisplayMode());
 	setDirty(true);
 	dirtyForeground = dirtyBackground = true;
 
@@ -521,9 +468,7 @@ void SDLGLRenderer::updateDisplayMode(
 	int mode, const EmuTime &time)
 {
 	sync(time);
-	renderMethod = modeToRenderMethod[mode];
-	dirtyChecker = modeToDirtyChecker[mode];
-	palSprites = (mode == 0x1C ? palGraphic7Sprites : palBg);
+	setDisplayMode(mode);
 	setDirty(true);
 }
 
@@ -619,328 +564,6 @@ void SDLGLRenderer::setDirty(
 	fillBool(dirtyName, dirty, sizeof(dirtyName));
 	fillBool(dirtyColour, dirty, sizeof(dirtyColour));
 	fillBool(dirtyPattern, dirty, sizeof(dirtyPattern));
-}
-
-void SDLGLRenderer::renderText1(
-	Pixel *pixelPtr, int line, int destX, int destY)
-{
-	bool dirtyColours = dirtyForeground || dirtyBackground;
-	if (!(anyDirtyName || anyDirtyPattern || dirtyColours)) return;
-
-	Pixel fg = palFg[vdp->getForegroundColour()];
-	Pixel bg = palBg[vdp->getBackgroundColour()];
-
-	int nameBase = (-1 << 10) & vdp->getNameMask();
-	int patternBaseLine = ((-1 << 11) | (line & 7)) & vdp->getPatternMask();
-
-	// Actual display.
-	int nameStart = (line / 8) * 40;
-	int nameEnd = nameStart + 40;
-	for (int name = nameStart; name < nameEnd; name++) {
-		int charcode = vram->readNP(nameBase | name);
-		if (dirtyColours || dirtyName[name] || dirtyPattern[charcode]) {
-			int pattern = vram->readNP(patternBaseLine | (charcode * 8));
-			for (int i = 6; i--; ) {
-				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
-				pixelPtr += 2;
-				pattern <<= 1;
-			}
-		}
-		else {
-			pixelPtr += 12;
-		}
-	}
-}
-
-void SDLGLRenderer::renderText1Q(
-	Pixel *pixelPtr, int line, int destX, int destY)
-{
-	bool dirtyColours = dirtyForeground || dirtyBackground;
-	if (!(anyDirtyName || anyDirtyPattern || dirtyColours)) return;
-
-	Pixel fg = palFg[vdp->getForegroundColour()];
-	Pixel bg = palBg[vdp->getBackgroundColour()];
-
-	int nameBase = (-1 << 10) & vdp->getNameMask();
-	int nameStart = (line / 8) * 32;
-	int nameEnd = nameStart + 32;
-	int patternQuarter = (nameStart & ~0xFF) & (vdp->getPatternMask() / 8);
-	int patternBaseLine = ((-1 << 13) | (line & 7)) & vdp->getPatternMask();
-
-	// Actual display.
-	for (int name = nameStart; name < nameEnd; name++) {
-		int patternNr = vram->readNP(nameBase | name) | patternQuarter;
-		if (dirtyColours || dirtyName[name] || dirtyPattern[patternNr]) {
-			int pattern = vram->readNP(patternBaseLine | (patternNr * 8));
-			for (int i = 6; i--; ) {
-				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
-				pixelPtr += 2;
-				pattern <<= 1;
-			}
-		}
-		else {
-			pixelPtr += 12;
-		}
-	}
-}
-
-void SDLGLRenderer::renderText2(
-	Pixel *pixelPtr, int line, int destX, int destY)
-{
-	bool dirtyColours = dirtyForeground || dirtyBackground;
-	if (!(anyDirtyName || anyDirtyPattern || dirtyColours)) return;
-
-	Pixel plainFg = palFg[vdp->getForegroundColour()];
-	Pixel plainBg = palBg[vdp->getBackgroundColour()];
-	Pixel blinkFg, blinkBg;
- 	if (vdp->getBlinkState()) {
-		int fg = vdp->getBlinkForegroundColour();
-		blinkFg = palBg[fg ? fg : vdp->getBlinkBackgroundColour()];
-		blinkBg = palBg[vdp->getBlinkBackgroundColour()];
-	} else {
-		blinkFg = plainFg;
-		blinkBg = plainBg;
-	}
-
-	// TODO: This name masking seems unnecessarily complex.
-	int nameBase = (-1 << 12) & vdp->getNameMask();
-	int nameMask = ~(-1 << 12) & vdp->getNameMask();
-	int patternBaseLine = ((-1 << 11) | (line & 7)) & vdp->getPatternMask();
-
-	// Actual display.
-	// TODO: Implement blinking.
-	int nameStart = (line / 8) * 80;
-	int nameEnd = nameStart + 80;
-	int colourPattern = 0; // avoid warning
-	for (int name = nameStart; name < nameEnd; name++) {
-		// Colour table contains one bit per character.
-		if ((name & 7) == 0) {
-			colourPattern = vram->readNP(
-				((-1 << 9) | (name >> 3)) & vdp->getColourMask() );
-		} else {
-			colourPattern <<= 1;
-		}
-		int maskedName = name & nameMask;
-		int charcode = vram->readNP(nameBase | maskedName);
-		if (dirtyColours || dirtyName[maskedName] || dirtyPattern[charcode]) {
-			Pixel fg, bg;
-			if (colourPattern & 0x80) {
-				fg = blinkFg;
-				bg = blinkBg;
-			} else {
-				fg = plainFg;
-				bg = plainBg;
-			}
-			int pattern = vram->readNP(patternBaseLine | (charcode * 8));
-			for (int i = 6; i--; ) {
-				*pixelPtr++ = (pattern & 0x80) ? fg : bg;
-				pattern <<= 1;
-			}
-		}
-		else {
-			pixelPtr += 6;
-		}
-	}
-}
-
-void SDLGLRenderer::renderGraphic1(
-	Pixel *pixelPtr, int line, int destX, int destY)
-{
-	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
-
-	int name = (line / 8) * 32;
-
-	int nameBase = (-1 << 10) & vdp->getNameMask();
-	int patternBaseLine = ((-1 << 11) | (line & 7)) & vdp->getPatternMask();
-	int colourBase = (-1 << 6) & vdp->getColourMask();
-
-	for (int x = 0; x < 256; x += 8) {
-		int charcode = vram->readNP(nameBase | name);
-		if (dirtyName[name] || dirtyPattern[charcode]
-		|| dirtyColour[charcode / 64]) {
-			int colour = vram->readNP(colourBase | (charcode / 8));
-			Pixel fg = palFg[colour >> 4];
-			Pixel bg = palFg[colour & 0x0F];
-
-			int pattern = vram->readNP(patternBaseLine | (charcode * 8));
-			// TODO: Compare performance of this loop vs unrolling.
-			for (int i = 8; i--; ) {
-				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
-				pixelPtr += 2;
-				pattern <<= 1;
-			}
-		}
-		else {
-			pixelPtr += 16;
-		}
-		name++;
-	}
-}
-
-void SDLGLRenderer::renderGraphic2(
-	Pixel *pixelPtr, int line, int destX, int destY)
-{
-	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
-
-	int nameStart = (line / 8) * 32;
-	int nameEnd = nameStart + 32;
-
-	int quarter = nameStart & ~0xFF;
-	int nameBase = (-1 << 10) & vdp->getNameMask();
-	int patternQuarter = quarter & (vdp->getPatternMask() / 8);
-	int patternBaseLine = ((-1 << 13) | (line & 7)) & vdp->getPatternMask();
-	int colourNrBase = 0x3FF & (vdp->getColourMask() / 8);
-	int colourBaseLine = ((-1 << 13) | (line & 7)) & vdp->getColourMask();
-	for (int name = nameStart; name < nameEnd; name++) {
-		int charCode = vram->readNP(nameBase | name);
-		int colourNr = (quarter | charCode) & colourNrBase;
-		int patternNr = patternQuarter | charCode;
-		if (dirtyName[name] || dirtyPattern[patternNr]
-		|| dirtyColour[colourNr]) {
-			int pattern = vram->readNP(patternBaseLine | (patternNr * 8));
-			int colour = vram->readNP(colourBaseLine | (colourNr * 8));
-			Pixel fg = palFg[colour >> 4];
-			Pixel bg = palFg[colour & 0x0F];
-			for (int i = 8; i--; ) {
-				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
-				pixelPtr += 2;
-				pattern <<= 1;
-			}
-		}
-		else {
-			pixelPtr += 16;
-		}
-	}
-}
-
-void SDLGLRenderer::renderGraphic4(
-	Pixel *pixelPtr, int line, int destX, int destY)
-{
-	int addr = (line << 7) & vdp->getNameMask();
-	do {
-		byte colour = vram->readNP(addr++);
-		pixelPtr[0] = palFg[colour >> 4];
-		pixelPtr[1] = palFg[colour & 15];
-		pixelPtr += 2;
-	} while (addr & 127);
-
-	glPixelZoom(2.0, 2.0);
-	GLBlitLine(pixelPtr - 256, 256, destX, destY);
-}
-
-void SDLGLRenderer::renderGraphic5(
-	Pixel *pixelPtr, int line, int destX, int destY)
-{
-	int addr = (line << 7) & vdp->getNameMask();
-	do {
-		byte colour = vram->readNP(addr++);
-		*pixelPtr++ = palFg[colour >> 6];
-		*pixelPtr++ = palFg[(colour >> 4) & 3];
-		*pixelPtr++ = palFg[(colour >> 2) & 3];
-		*pixelPtr++ = palFg[colour & 3];
-	} while (addr & 127);
-
-	glPixelZoom(1.0, 2.0);
-	GLBlitLine(pixelPtr - 512, 512, destX, destY);
-}
-
-void SDLGLRenderer::renderGraphic6(
-	Pixel *pixelPtr, int line, int destX, int destY)
-{
-	int addr = (line << 7) & vdp->getNameMask();
-	do {
-		byte colour = vram->readNP(addr);
-		*pixelPtr++ = palFg[colour >> 4];
-		*pixelPtr++ = palFg[colour & 0x0F];
-		colour = vram->readNP(0x10000 | addr);
-		*pixelPtr++ = palFg[colour >> 4];
-		*pixelPtr++ = palFg[colour & 0x0F];
-	} while (++addr & 127);
-
-	glPixelZoom(1.0, 2.0);
-	GLBlitLine(pixelPtr - 512, 512, destX, destY);
-}
-
-void SDLGLRenderer::renderGraphic7(
-	Pixel *pixelPtr, int line, int destX, int destY)
-{
-	int addr = (line << 7) & vdp->getNameMask();
-	do {
-		pixelPtr[0] = pixelPtr[1] =
-			PALETTE256[vram->readNP(addr)];
-		pixelPtr[2] = pixelPtr[3] =
-			PALETTE256[vram->readNP(0x10000 | addr)];
-		pixelPtr += 4;
-	} while (++addr & 127);
-
-	glPixelZoom(1.0, 2.0);
-	GLBlitLine(pixelPtr - 512, 512, destX, destY);
-}
-
-void SDLGLRenderer::renderMulti(
-	Pixel *pixelPtr, int line, int destX, int destY)
-{
-	if (!(anyDirtyName || anyDirtyPattern)) return;
-
-	int nameBase = (-1 << 10) & vdp->getNameMask();
-	int patternBaseLine = ((-1 << 11) | ((line / 4) & 7))
-		& vdp->getPatternMask();
-	int nameStart = (line / 8) * 32;
-	int nameEnd = nameStart + 32;
-	for (int name = nameStart; name < nameEnd; name++) {
-		int charcode = vram->readNP(nameBase | name);
-		if (dirtyName[name] || dirtyPattern[charcode]) {
-			int colour = vram->readNP(patternBaseLine | (charcode * 8));
-			Pixel cl = palFg[colour >> 4];
-			Pixel cr = palFg[colour & 0x0F];
-			for (int n = 8; n--; ) *pixelPtr++ = cl;
-			for (int n = 8; n--; ) *pixelPtr++ = cr;
-		}
-		else {
-			pixelPtr += 16;
-		}
-	}
-}
-
-void SDLGLRenderer::renderMultiQ(
-	Pixel *pixelPtr, int line, int destX, int destY)
-{
-	if (!(anyDirtyName || anyDirtyPattern)) return;
-
-	int nameStart = (line / 8) * 32;
-	int nameEnd = nameStart + 32;
-	int nameBase = (-1 << 10) & vdp->getNameMask();
-	int patternQuarter = (nameStart & ~0xFF) & (vdp->getPatternMask() / 8);
-	int patternBaseLine = ((-1 << 13) | ((line / 4) & 7))
-		& vdp->getPatternMask();
-	for (int name = nameStart; name < nameEnd; name++) {
-		int patternNr = patternQuarter | vram->readNP(nameBase | name);
-		if (dirtyName[name] || dirtyPattern[patternNr]) {
-			int colour = vram->readNP(patternBaseLine | (patternNr * 8));
-			Pixel cl = palFg[colour >> 4];
-			Pixel cr = palFg[colour & 0x0F];
-			for (int n = 8; n--; ) *pixelPtr++ = cl;
-			for (int n = 8; n--; ) *pixelPtr++ = cr;
-		}
-		else {
-			pixelPtr += 16;
-		}
-	}
-}
-
-void SDLGLRenderer::renderBogus(
-	Pixel *pixelPtr, int line, int destX, int destY)
-{
-	if (!(dirtyForeground || dirtyBackground)) return;
-
-	Pixel fg = palFg[vdp->getForegroundColour()];
-	Pixel bg = palBg[vdp->getBackgroundColour()];
-	for (int n = 16; n--; ) *pixelPtr++ = bg;
-	for (int c = 40; c--; ) {
-		for (int n = 8; n--; ) *pixelPtr++ = fg;
-		for (int n = 4; n--; ) *pixelPtr++ = bg;
-	}
-	for (int n = 16; n--; ) *pixelPtr++ = bg;
 }
 
 void SDLGLRenderer::drawSprites(
@@ -1083,20 +706,17 @@ void SDLGLRenderer::displayPhase(
 	}
 	if (nextLine >= limit) return;
 
-	// No blending.
+	// GL render settings.
 	glDisable(GL_BLEND);
+	if (lineWidth == 512) {
+		glPixelZoom(1.0, 2.0);
+	} else {
+		glPixelZoom(2.0, 2.0);
+	}
 
 	// Perform vertical scroll.
 	int scrolledLine =
 		(nextLine - vdp->getLineZero() + vdp->getVerticalScroll()) & 0xFF;
-
-	// Character mode or bitmap mode?
-	Pixel *displayCache =
-		vdp->isBitmapMode() ? bitmapDisplayCache : charDisplayCache;
-
-	// Which bits in the name mask determine the page?
-	int pageMask =
-		(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 
 	// Render background lines.
 	// TODO: Complete separation of character and bitmap modes.
@@ -1106,9 +726,14 @@ void SDLGLRenderer::displayPhase(
 		int line = scrolledLine;
 		int n = limit - nextLine;
 		bool planar = vdp->isPlanar();
+		if (planar) renderPlanarBitmapLines(line, until);
+		else renderBitmapLines(line, until);
+		// Which bits in the name mask determine the page?
+		int pageMask =
+			(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 		do {
 			int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
-			Pixel lineBuffer[512];
+			//Pixel lineBuffer[512];
 			/*
 			if ( (lineValidInMode[vramLine] != vdp->getDisplayMode())
 			|| (planar && (lineValidInMode[vramLine | 512] != vdp->getDisplayMode())) ) {
@@ -1119,21 +744,23 @@ void SDLGLRenderer::displayPhase(
 					lineValidInMode[vramLine | 512] = vdp->getDisplayMode();
 				}
 			}
-			GLBlitLine(getLinePtr(displayCache, vramLine),
-				leftBorder, y);
 			*/
-			(this->*renderMethod)(lineBuffer, vramLine, leftBorder, y);
+			GLBlitLine(getLinePtr(bitmapDisplayCache, vramLine), lineWidth,
+				leftBorder, y);
+			//(this->*renderMethod)(lineBuffer, vramLine, leftBorder, y);
 			line = (line + 1) & 0xFF;
 			y += 2;
 		} while (--n);
 	} else {
 		int line = scrolledLine;
 		int n = limit - nextLine;
+		renderCharacterLines(line, until);
 		do {
+			/*
 			(this->*renderMethod)
 				(getLinePtr(displayCache, line), line, leftBorder, y);
-			glPixelZoom(1.0, 2.0);
-			GLBlitLine(getLinePtr(displayCache, line), 512,
+			*/
+			GLBlitLine(getLinePtr(charDisplayCache, line), lineWidth,
 				leftBorder, y);
 			line = (line + 1) & 0xFF;
 			y += 2;
