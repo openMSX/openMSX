@@ -7,6 +7,7 @@
 #include "SDLRenderer.hh"
 #include "SDLGLRenderer.hh"
 #include "XRenderer.hh"
+#include "CommandConsole.hh"
 #include <SDL/SDL.h>
 
 #include "Icon.hh"
@@ -32,6 +33,7 @@ static bool initSDLVideo()
 	SDL_SetColorKey(iconSurf, SDL_SRCCOLORKEY, 0);
 	SDL_WM_SetIcon(iconSurf, NULL);
 	SDL_FreeSurface(iconSurf);
+	CommandConsole::instance().restoreSDLsettings();
 	return true;
 }
 

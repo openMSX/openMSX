@@ -40,6 +40,7 @@ public:
 	virtual void setCursorPosition(unsigned xPosition, unsigned yPosition);
 	virtual void setConsoleDimensions(unsigned columns, unsigned rows);
 	virtual const string& getId() const;
+	void restoreSDLsettings();
 
 private:
 	static const int LINESHISTORY = 100;

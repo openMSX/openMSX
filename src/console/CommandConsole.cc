@@ -54,6 +54,17 @@ CommandConsole& CommandConsole::instance()
 	return oneInstance;
 }
 
+void CommandConsole::restoreSDLsettings()
+{
+	SDL_EnableUNICODE(1);
+	if (consoleSetting.getValue()) {
+		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
+		                    SDL_DEFAULT_REPEAT_INTERVAL);
+	} else {
+		SDL_EnableKeyRepeat(0, 0);
+	}
+}
+
 void CommandConsole::update(const SettingLeafNode* setting) throw()
 {
 	assert(setting == &consoleSetting);
