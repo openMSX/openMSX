@@ -1,5 +1,8 @@
 $Id$
 
+2002-04-24 Maarten ter Huurne <mth@stack.nl>
+	* Fixed a bug in SpriteChecker and also simplified it.
+
 2002-04-23 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* more accurate VDP command timing:
 

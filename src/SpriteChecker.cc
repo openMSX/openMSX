@@ -49,29 +49,24 @@ inline int SpriteChecker::checkSprites1(
 {
 	if (!vdp->spritesEnabled()) return 0;
 
+	// Calculate display line.
 	// Compensate for the fact that sprites are calculated one line
 	// before they are plotted.
-	line--;
-	// Calculate display line.
-	// Negative line numbers (possible on overscan) wrap around.
-	line = (line - vdp->getLineZero()) & 255;
+	line = line - vdp->getLineZero() + vdp->getVerticalScroll() - 1;
 
 	// Get sprites for this line and detect 5th sprite if any.
 	int sprite, visibleIndex = 0;
 	int size = vdp->getSpriteSize();
 	int magSize = size * (vdp->getSpriteMag() + 1);
-	int minStart = line - magSize;
 	int attributeBase = vdp->getSpriteAttributeBase();
 	const byte *attributePtr = vram->readArea(
 		attributeBase, attributeBase + 4 * 32, time);
 	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
 		int y = *attributePtr;
 		if (y == 208) break;
-		// Compensate for vertical scroll.
-		// TODO: Use overscan and check what really happens.
-		y = (y - vdp->getVerticalScroll()) & 0xFF;
-		if (y > 208) y -= 256;
-		if ((y > minStart) && (y <= line)) {
+		// Calculate line number within the sprite.
+		int spriteLine = (line - y) & 0xFF;
+		if (spriteLine < magSize) {
 			if (visibleIndex == 4) {
 				// Five sprites on a line.
 				// According to TMS9918.pdf 5th sprite detection is only
@@ -84,7 +79,7 @@ inline int SpriteChecker::checkSprites1(
 			SpriteInfo *sip = &visibleSprites[visibleIndex++];
 			int patternIndex = (size == 16
 				? attributePtr[2] & 0xFC : attributePtr[2]);
-			sip->pattern = calculatePattern(patternIndex, line - y, time);
+			sip->pattern = calculatePattern(patternIndex, spriteLine, time);
 			sip->x = attributePtr[1];
 			if (attributePtr[3] & 0x80) sip->x -= 32;
 			sip->colourAttrib = attributePtr[3];
@@ -149,19 +144,16 @@ inline int SpriteChecker::checkSprites2(
 {
 	if (!vdp->spritesEnabled()) return 0;
 
+	// Calculate display line.
 	// Compensate for the fact that sprites are calculated one line
 	// before they are plotted.
 	// TODO: Actually fetch the data one line earlier.
-	line--;
-	// Calculate display line.
-	// Negative line numbers (possible on overscan) wrap around.
-	line = (line - vdp->getLineZero()) & 255;
+	line = line - vdp->getLineZero() + vdp->getVerticalScroll() - 1;
 
 	// Get sprites for this line and detect 5th sprite if any.
 	int sprite, visibleIndex = 0;
 	int size = vdp->getSpriteSize();
 	int magSize = size * (vdp->getSpriteMag() + 1);
-	int minStart = line - magSize;
 	// TODO: Should masks be applied while processing the tables?
 	int colourAddr = vdp->getSpriteAttributeBase() & 0x1FC00;
 	int attributeAddr = colourAddr + 512;
@@ -170,11 +162,9 @@ inline int SpriteChecker::checkSprites2(
 			attributeAddr += 4, colourAddr += 16) {
 		int y = vdp->getVRAMReordered(attributeAddr, time);
 		if (y == 216) break;
-		// Compensate for vertical scroll.
-		// TODO: Use overscan and check what really happens.
-		y = (y - vdp->getVerticalScroll()) & 0xFF;
-		if (y > 216) y -= 256;
-		if (minStart < y && y <= line) {
+		// Calculate line number within the sprite.
+		int spriteLine = (line - y) & 0xFF;
+		if (spriteLine < magSize) {
 			if (visibleIndex == 8) {
 				// Nine sprites on a line.
 				// According to TMS9918.pdf 5th sprite detection is only
@@ -184,15 +174,17 @@ inline int SpriteChecker::checkSprites2(
 				}
 				if (limitSprites) break;
 			}
-			byte colourAttrib = vdp->getVRAMReordered(colourAddr + line - y, time);
+			byte colourAttrib =
+				vdp->getVRAMReordered(colourAddr + spriteLine, time);
 			// Sprites with CC=1 are only visible if preceded by
 			// a sprite with CC=0.
 			if ((colourAttrib & 0x40) && visibleIndex == 0) continue;
 			SpriteInfo *sip = &visibleSprites[visibleIndex++];
-			int patternIndex = vdp->getVRAMReordered(attributeAddr + 2, time);
+			int patternIndex =
+				vdp->getVRAMReordered(attributeAddr + 2, time);
 			// TODO: Precalc pattern index mask.
 			if (size == 16) patternIndex &= 0xFC;
-			sip->pattern = calculatePattern(patternIndex, line - y, time);
+			sip->pattern = calculatePattern(patternIndex, spriteLine, time);
 			sip->x = vdp->getVRAMReordered(attributeAddr + 1, time);
 			if (colourAttrib & 0x80) sip->x -= 32;
 			sip->colourAttrib = colourAttrib;
