@@ -73,13 +73,13 @@
 #include "Mixer.hh"
 
 
-SCC::SCC(short volume_, const EmuTime &time)
+SCC::SCC(short volume_, const EmuTime &time, ChipMode mode)
+	: currentChipMode(mode)
 {
 	// Register as a soundevice
 	int bufSize = Mixer::instance()->registerSound(this);
 	buffer = new int[bufSize];
 	setVolume(volume_);
-	currentChipMode = SCC_Compatible;	// != SCC_Real;
 	reset(time);
 }
 
@@ -91,7 +91,9 @@ SCC::~SCC()
 
 void SCC::reset(const EmuTime &time)
 {
-	setChipMode(SCC_Real);
+	if (currentChipMode != SCC_Real) {
+		setChipMode(SCC_Compatible);
+	}
 
 	for (int i = 0; i < 5; i++) {
 		for (int j = 0; j < 32; j++) {
@@ -122,9 +124,14 @@ void SCC::setInternalVolume(short maxVolume)
 	masterVolume = maxVolume;
 }
 
-void SCC::setChipMode(ChipMode chip)
+void SCC::setChipMode(ChipMode newMode)
 {
-	currentChipMode = chip;
+	if (currentChipMode == SCC_Real) {
+		assert(newMode == SCC_Real);
+	} else {
+		assert(newMode != SCC_Real);
+	}
+	currentChipMode = newMode;
 }
 
 byte SCC::readMemInterface(byte address, const EmuTime &time)
@@ -199,7 +206,6 @@ byte SCC::readWave(byte channel, byte address, const EmuTime &time)
 		int f = ((channel == 3) && (currentChipMode != SCC_plusmode)) ?
 			freq[4] : freq[channel];
 		int shift = ticks / (f + 1);
-		PRT_DEBUG("SCC: read rotated "<<(int)channel<<" "<<(shift&0x1f)<<" "<<f);
 		return wave[channel][(address + shift) & 0x1F];
 	}
 }

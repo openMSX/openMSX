@@ -30,7 +30,7 @@ class MSXSCCPlusCart : public MSXMemDevice
 		void setModeRegister(byte value);
 		void checkEnable();
 		
-		SCC* cartridgeSCC;
+		SCC* scc;
 		byte modeRegister;
 		enum SCCEnable {EN_NONE, EN_SCC, EN_SCCPLUS} enable;
 		byte memoryBank[0x20000];

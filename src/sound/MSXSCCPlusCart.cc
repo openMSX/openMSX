@@ -13,7 +13,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	short volume = (short)config->getParameterAsInt("volume");
-	cartridgeSCC = new SCC(volume, time);
+	scc = new SCC(volume, time, SCC::SCC_Compatible);
 
 	memset(memoryBank, 0xFF, 0x20000);
 
@@ -58,7 +58,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 
 MSXSCCPlusCart::~MSXSCCPlusCart()
 {
-	delete cartridgeSCC;
+	delete scc;
 }
 
 void MSXSCCPlusCart::reset(const EmuTime &time)
@@ -67,27 +67,29 @@ void MSXSCCPlusCart::reset(const EmuTime &time)
 	setMapper(1, 1);
 	setMapper(2, 2);
 	setMapper(3, 3);
+	scc->reset(time);
 	setModeRegister(0);
 }
 
 
 byte MSXSCCPlusCart::readMem(word address, const EmuTime &time)
 {
-	//PRT_DEBUG("SCC+ read "<< std::hex << address << std::dec);
-	
+	byte result;
 	// modeRegister can not be read!
 	if (((enable == EN_SCC)     && (0x9800 <= address) && (address < 0xA000)) ||
 	    ((enable == EN_SCCPLUS) && (0xB800 <= address) && (address < 0xC000))) {
 		// SCC  visible in 0x9800 - 0x9FFF
 		// SCC+ visible in 0xB800 - 0xBFFF
-		return cartridgeSCC->readMemInterface(address & 0xFF, time);
+		result = scc->readMemInterface(address & 0xFF, time);
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		// SCC(+) enabled/disabled but not requested so memory stuff
-		return internalMemoryBank[(address >> 13) - 2][address & 0x1FFF];
+		result = internalMemoryBank[(address >> 13) - 2][address & 0x1FFF];
 	} else {
 		// outside memory range
-		return 0xFF;
+		result = 0xFF;
 	}
+	//PRT_DEBUG("SCC+ read "<< std::hex << (int)address << " " << (int)result << std::dec);
+	return result;
 }
 
 const byte* MSXSCCPlusCart::getReadCacheLine(word start) const
@@ -156,12 +158,12 @@ void MSXSCCPlusCart::writeMem(word address, byte value, const EmuTime &time)
 		break;
 	case EN_SCC:
 		if ((0x9800 <= address) && (address < 0xA000)) {
-			cartridgeSCC->writeMemInterface(address & 0xFF, value, time);
+			scc->writeMemInterface(address & 0xFF, value, time);
 		}
 		break;
 	case EN_SCCPLUS:
 		if ((0xB800 <= address) && (address < 0xC000)) {
-			cartridgeSCC->writeMemInterface(address & 0xFF, value, time);
+			scc->writeMemInterface(address & 0xFF, value, time);
 		}
 		break;
 	}
@@ -169,6 +171,7 @@ void MSXSCCPlusCart::writeMem(word address, byte value, const EmuTime &time)
 
 byte* MSXSCCPlusCart::getWriteCacheLine(word start) const
 {
+	//return NULL;
 	if ((0x4000 <= start) && (start < 0xC000)) {
 		if (start == (0xBFFF & CPU::CACHE_LINE_HIGH)) {
 			return NULL;
@@ -177,6 +180,7 @@ byte* MSXSCCPlusCart::getWriteCacheLine(word start) const
 		if (isRamSegment[regio] && isMapped[regio]) {
 			return &internalMemoryBank[regio][start & 0x1FFF];
 		}
+		return NULL;
 	}
 	return unmappedWrite;
 }
@@ -209,9 +213,9 @@ void MSXSCCPlusCart::setModeRegister(byte value)
 	checkEnable();
 	
 	if (modeRegister & 0x20) {
-		cartridgeSCC->setChipMode(SCC::SCC_plusmode);
+		scc->setChipMode(SCC::SCC_plusmode);
 	} else {
-		cartridgeSCC->setChipMode(SCC::SCC_Compatible);
+		scc->setChipMode(SCC::SCC_Compatible);
 	}
 	
 	if (modeRegister & 0x10) {
