@@ -66,22 +66,24 @@ CassettePlayer::CassettePlayer()
 			throw FatalError("Couldn't load tape image: " + filename);
 		}
 	}
-	CommandController::instance().registerCommand(this, "cassetteplayer");
 
 	static XMLElement cassettePlayerConfig("cassetteplayer");
 	static bool init = false;
 	if (!init) {
 		init = true;
-		cassettePlayerConfig.addChild(auto_ptr<XMLElement>(
-			new XMLElement("volume", "5000")));
+		auto_ptr<XMLElement> sound(new XMLElement("sound"));
+		sound->addChild(auto_ptr<XMLElement>(new XMLElement("volume", "5000")));
+		cassettePlayerConfig.addChild(sound);
 	}
 	registerSound(cassettePlayerConfig);
+
+	CommandController::instance().registerCommand(this, "cassetteplayer");
 }
 
 CassettePlayer::~CassettePlayer()
 {
-	unregisterSound();
 	CommandController::instance().unregisterCommand(this, "cassetteplayer");
+	unregisterSound();
 }
 
 void CassettePlayer::insertTape(const string& filename)

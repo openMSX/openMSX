@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
-<!-- $Id$ --><!DOCTYPE msxconfig
-  SYSTEM 'msxconfig.dtd'>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig.dtd'>
 <msxconfig>
 
   <MapperType>Philips</MapperType>
@@ -53,7 +53,9 @@
 
     <PPI id="ppi">
       <io base="0xA8" num="4"/>
-      <volume>16000</volume>
+      <sound>
+        <volume>16000</volume>
+      </sound>
       <key_ghosting>true</key_ghosting>
     </PPI>
 
@@ -67,7 +69,9 @@
     <PSG id="PSG">
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
-      <volume>21000</volume>
+      <sound>
+        <volume>21000</volume>
+      </sound>
     </PSG>
 
     <RTC id="Real time clock">

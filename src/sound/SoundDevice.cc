@@ -34,11 +34,12 @@ bool SoundDevice::isInternalMuted() const
 }
 
 void SoundDevice::registerSound(const XMLElement& config,
-                                    Mixer::ChannelMode mode)
+                                Mixer::ChannelMode mode)
 {
-	short volume = config.getChildDataAsInt("volume");
+	const XMLElement& soundConfig = config.getChild("sound");
+	short volume = soundConfig.getChildDataAsInt("volume");
 	if (mode != Mixer::STEREO) {
-		string modeStr = config.getChildData("mode", "mono");
+		string modeStr = soundConfig.getChildData("mode", "mono");
 		if (modeStr == "left") {
 			mode = Mixer::MONO_LEFT;
 		} else if (modeStr == "right") {
