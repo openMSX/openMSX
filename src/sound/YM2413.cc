@@ -72,8 +72,7 @@ int YM2413::amtable[AM_PG_WIDTH];
 int YM2413::pm_dphase;
 int YM2413::am_dphase;
 word YM2413::AR_ADJUST_TABLE[1<<EG_BITS];
-YM2413::Patch YM2413::null_patch;
-YM2413::Patch YM2413::default_patch[19*2];
+YM2413::Patch YM2413::nullPatch(false, false, false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 int YM2413::dphaseARTable[16][16];
 int YM2413::dphaseDRTable[16][16];
 int YM2413::tllTable[16][8][1<<TL_BITS][4];
@@ -261,76 +260,70 @@ void YM2413::makeRksTable()
 	}
 }
 
+//************************************************************//
+//                                                            //
+//                      Patch                                 //
+//                                                            //
+//************************************************************//
 
-YM2413::Patch::Patch()
+YM2413::Patch::Patch(bool AM, bool PM, bool EG, byte KR, byte ML, byte KL,
+                     byte TL, byte FB, byte WF, byte AR, byte DR, byte SL,
+                     byte RR)
 {
-	TL = FB = EG = ML = AR = DR = SL = RR = KR = KL = AM = PM = WF = 0;
+	this->AM = AM;
+	this->PM = PM;
+	this->EG = EG;
+	this->KR = KR;
+	this->ML = ML;
+	this->KL = KL;
+	this->TL = TL;
+	this->FB = FB;
+	this->WF = WF;
+	this->AR = AR;
+	this->DR = DR;
+	this->SL = SL;
+	this->RR = RR;
 }
-
-void YM2413::makeDefaultPatch()
-{
-	for (int j=0; j<19; j++)
-		dump2patch(default_inst + j*16, &default_patch[j*2]);
-}
-void YM2413::dump2patch(const byte *dump, Patch *patch)
-{
-	patch[0].AM = (dump[0]>>7)&1;
-	patch[0].PM = (dump[0]>>6)&1;
-	patch[0].EG = (dump[0]>>5)&1;
-	patch[0].KR = (dump[0]>>4)&1;
-	patch[0].ML = (dump[0])&15;
-	patch[0].KL = (dump[2]>>6)&3;
-	patch[0].TL = (dump[2])&63;
-	patch[0].FB = (dump[3])&7;
-	patch[0].WF = (dump[3]>>3)&1;
-	patch[0].AR = (dump[4]>>4)&15;
-	patch[0].DR = (dump[4])&15;
-	patch[0].SL = (dump[6]>>4)&15;
-	patch[0].RR = (dump[6])&15;
-	
-	patch[1].AM = (dump[1]>>7)&1;
-	patch[1].PM = (dump[1]>>6)&1;
-	patch[1].EG = (dump[1]>>5)&1;
-	patch[1].KR = (dump[1]>>4)&1;
-	patch[1].ML = (dump[1])&15;
-	patch[1].KL = (dump[3]>>6)&3;
-	//       TL
-	//       FB
-	patch[1].WF = (dump[3]>>4)&1;
-	patch[1].AR = (dump[5]>>4)&15;
-	patch[1].DR = (dump[5])&15;
-	patch[1].SL = (dump[7]>>4)&15;
-	patch[1].RR = (dump[7])&15;
-}
-const byte YM2413::default_inst[19*16] = {
-/* YM2413 VOICE */
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x61,0x61,0x1e,0x17,0xf0,0x7f,0x07,0x17,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x13,0x41,0x0f,0x0d,0xce,0xf5,0x43,0x23,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x03,0x01,0x9a,0x04,0xf3,0xf4,0x13,0x23,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x21,0x61,0x1d,0x07,0xfa,0x64,0x30,0x28,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x22,0x21,0x1e,0x06,0xf0,0x76,0x18,0x28,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x31,0x02,0x16,0x05,0x90,0x71,0x00,0x10,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x21,0x61,0x1d,0x07,0x82,0x80,0x10,0x17,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x23,0x21,0x2d,0x16,0xc0,0x70,0x07,0x07,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x61,0x21,0x1b,0x06,0x64,0x65,0x18,0x18,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x61,0x61,0x0c,0x18,0x85,0xa0,0x79,0x07,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x23,0x21,0x87,0x11,0xf0,0xa4,0x00,0xf7,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x97,0xe1,0x28,0x07,0xff,0xf3,0x02,0xf8,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x61,0x10,0x0c,0x05,0xf2,0xc4,0x40,0xc8,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x01,0x01,0x56,0x03,0xb4,0xb2,0x23,0x58,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x61,0x41,0x89,0x03,0xf1,0xf4,0xf0,0x13,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x04,0x21,0x16,0x00,0xdf,0xf8,0xff,0xf8,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x23,0x32,0x00,0x00,0xd8,0xf7,0xf8,0xf7,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x25,0x18,0x00,0x00,0xf8,0xda,0xf8,0x55,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
-};
-
 
 //************************************************************//
 //                                                            //
-//                    OPLL internal interfaces                //
+//                      Slot                                  //
 //                                                            //
 //************************************************************//
+
+// Constructor
+YM2413::Slot::Slot(int type)
+{
+	this->type = type;
+}
+
+// Destructor
+YM2413::Slot::~Slot()
+{
+}
+
+void YM2413::Slot::reset()
+{
+	sintbl = waveform[0];
+	phase = 0;
+	dphase = 0;
+	output[0] = 0;
+	output[1] = 0;
+	feedback = 0;
+	eg_mode = FINISH;
+	eg_phase = EG_DP_WIDTH;
+	eg_dphase = 0;
+	rks = 0;
+	tll = 0;
+	sustine = 0;
+	fnum = 0;
+	block = 0;
+	volume = 0;
+	pgout = 0;
+	egout = 0;
+	patch = &nullPatch;
+}
+
 
 void YM2413::Slot::updatePG()
 {
@@ -339,8 +332,8 @@ void YM2413::Slot::updatePG()
 
 void YM2413::Slot::updateTLL()
 {
-	(type==0) ? (tll = tllTable[fnum>>5][block][patch->TL][patch->KL]):
-	            (tll = tllTable[fnum>>5][block][volume][patch->KL]);
+	tll = type ? tllTable[fnum>>5][block][volume]   [patch->KL]:
+	             tllTable[fnum>>5][block][patch->TL][patch->KL];
 }
 
 void YM2413::Slot::updateRKS()
@@ -408,6 +401,211 @@ void YM2413::Slot::slotOff()
 	eg_mode = RELEASE;
 }
 
+// Change a rhythm voice
+void YM2413::Slot::setPatch(Patch *ptch)
+{
+	patch = ptch;
+}
+
+void YM2413::Slot::setVolume(int newVolume)
+{
+	volume = newVolume;
+}
+
+
+
+//***********************************************************//
+//                                                           //
+//               Channel                                     //
+//                                                           //
+//***********************************************************//
+
+
+// Constructor
+YM2413::Channel::Channel() : mod(0), car(1)
+{
+	userPatch = true;
+	key_status = false;
+}
+
+// Destructor
+YM2413::Channel::~Channel()
+{
+}
+
+// reset channel
+void YM2413::Channel::reset()
+{
+	mod.reset();
+	car.reset();
+	key_status = false;
+	setPatch(0);
+}
+
+// Change a voice
+void YM2413::Channel::setPatch(int num)
+{
+	userPatch = (num == 0);
+	mod.setPatch(&patches[2*num]);
+	car.setPatch(&patches[2*num+1]);
+}
+
+// Set sustine parameter
+void YM2413::Channel::setSustine(int sustine)
+{
+	car.sustine = sustine;
+	if (mod.type)
+		mod.sustine = sustine;
+}
+
+// Volume : 6bit ( Volume register << 2 )
+void YM2413::Channel::setVol(int volume)
+{
+	car.volume = volume;
+}
+
+// Set F-Number (fnum : 9bit)
+void YM2413::Channel::setFnumber(int fnum)
+{
+	car.fnum = fnum;
+	mod.fnum = fnum;
+}
+
+// Set Block data (block : 3bit)
+void YM2413::Channel::setBlock(int block)
+{
+	car.block = block;
+	mod.block = block;
+}
+
+
+
+//***********************************************************//
+//                                                           //
+//               YM2413                                      //
+//                                                           //
+//***********************************************************//
+
+// Constructor
+YM2413::YM2413(short volume, const EmuTime &time, const Mixer::ChannelMode mode)
+{
+	// User instrument
+	patches[ 0] = Patch(false, false, false, 0,  0, 0,  0, 0, 0,  0,  0,  0,  0);
+	patches[ 1] = Patch(false, false, false, 0,  0, 0,  0, 0, 0,  0,  0,  0,  0);
+	// Violin
+	patches[ 2] = Patch(false,  true,  true, 0,  1, 0, 30, 7, 0, 15,  0,  0,  7);
+	patches[ 3] = Patch(false,  true,  true, 0,  1, 0,  0, 0, 1,  7, 15,  1,  7);
+	// Guitar
+	patches[ 4] = Patch(false, false, false, 1,  3, 0, 15, 5, 1, 12, 14,  4,  3);
+	patches[ 5] = Patch(false,  true, false, 0,  1, 0,  0, 0, 0, 15,  5,  2,  3);
+	// Piano
+	patches[ 6] = Patch(false, false, false, 0,  3, 2, 26, 4, 0, 15,  3,  1,  3);
+	patches[ 7] = Patch(false, false, false, 0,  1, 0,  0, 0, 0, 15,  4,  2,  3);
+	// Flute
+	patches[ 8] = Patch(false, false,  true, 0,  1, 0, 29, 7, 0, 15, 10,  3,  0);
+	patches[ 9] = Patch(false,  true,  true, 0,  1, 0,  0, 0, 0,  6,  4,  2,  8);
+	// Clarinet
+	patches[10] = Patch(false, false,  true, 0,  2, 0, 30, 6, 0, 15,  0,  1,  8);
+	patches[11] = Patch(false, false,  true, 0,  1, 0,  0, 0, 0,  7,  6,  2,  8);
+	// Oboe
+	patches[12] = Patch(false, false,  true, 1,  1, 0, 22, 5, 0,  9,  0,  0,  0);
+	patches[13] = Patch(false, false, false, 0,  2, 0,  0, 0, 0,  7,  1,  1,  0);
+	// Trumpet
+	patches[14] = Patch(false, false,  true, 0,  1, 0, 29, 7, 0,  8,  2,  1,  0);
+	patches[15] = Patch(false,  true,  true, 0,  1, 0,  0, 0, 0,  8,  0,  1,  7);
+	// Organ
+	patches[16] = Patch(false, false,  true, 0,  3, 0, 45, 6, 0, 12,  0,  0,  7);
+	patches[17] = Patch(false, false,  true, 0,  1, 0,  0, 0, 1,  7,  0,  0,  7);
+	// Horn
+	patches[18] = Patch(false,  true,  true, 0,  1, 0, 27, 6, 0,  6,  4,  1,  8);
+	patches[19] = Patch(false, false,  true, 0,  1, 0,  0, 0, 0,  6,  5,  1,  8);
+	// Synthesizer
+	patches[20] = Patch(false,  true,  true, 0,  1, 0, 12, 0, 1,  8,  5,  7,  9);
+	patches[21] = Patch(false,  true,  true, 0,  1, 0,  0, 0, 1, 10,  0,  0,  7);
+	// Harpsichord
+	patches[22] = Patch(false, false,  true, 0,  3, 2,  7, 1, 0, 15,  0,  0,  0);
+	patches[23] = Patch(false, false,  true, 0,  1, 0,  0, 0, 1, 10,  4, 15,  7);
+	// Vibraphone
+	patches[24] = Patch( true, false, false, 1,  7, 0, 40, 7, 0, 15, 15,  0,  2);
+	patches[25] = Patch( true,  true,  true, 0,  1, 0,  0, 0, 0, 15,  3, 15,  8);
+	// Synthesizer bass
+	patches[26] = Patch(false,  true,  true, 0,  1, 0, 12, 5, 0, 15,  2,  4,  0);
+	patches[27] = Patch(false, false, false, 1,  0, 0,  0, 0, 0, 12,  4, 12,  8);
+	// Acoustic bass
+	patches[28] = Patch(false, false, false, 0,  1, 1, 22, 3, 0, 11,  4,  2,  3);
+	patches[29] = Patch(false, false, false, 0,  1, 0,  0, 0, 0, 11,  2,  5,  8);
+	// Electric guitar
+	patches[30] = Patch(false,  true,  true, 0,  1, 2,  9, 3, 0, 15,  1, 15,  0);
+	patches[31] = Patch(false,  true, false, 0,  1, 0,  0, 0, 0, 15,  4,  1,  3);
+	
+	patches[32] = Patch(false, false, false, 0,  4, 0, 22, 0, 0, 13, 15, 15, 15);
+	patches[33] = Patch(false, false,  true, 0,  1, 0,  0, 0, 0, 15,  8, 15,  8);
+	patches[34] = Patch(false, false,  true, 0,  3, 0,  0, 0, 0, 13,  8, 15,  8);
+	patches[35] = Patch(false, false,  true, 1,  2, 0,  0, 0, 0, 15,  7, 15,  7);
+	patches[36] = Patch(false, false,  true, 0,  5, 0,  0, 0, 0, 15,  8, 15,  8);
+	patches[37] = Patch(false, false, false, 1,  8, 0,  0, 0, 0, 13, 10,  5,  5);
+
+	for (int i=0; i<18; i++) {
+		slot[i] = (i%2)==0 ? &(ch[i/2].mod) : &(ch[i/2].car);
+		slot[i]->plfo_am = &lfo_am;
+		slot[i]->plfo_pm = &lfo_pm;
+	}
+	for (int i=0; i<9; i++)
+		ch[i].patches = patches;
+	makePmTable();
+	makeAmTable();
+	makeAdjustTable();
+	makeTllTable();
+	makeRksTable();
+	makeSinTable();
+	makeDB2LinTable();
+
+	reset(time);
+
+	setVolume(volume);
+	int bufSize = Mixer::instance()->registerSound(this,mode);
+	buffer = new int[bufSize];
+}
+
+// Destructor
+YM2413::~YM2413()
+{
+	Mixer::instance()->unregisterSound(this);
+	delete[] buffer;
+}
+
+// Reset whole of OPLL except patch datas
+void YM2413::reset(const EmuTime &time)
+{
+	output[0] = 0;
+	output[1] = 0;
+	pm_phase = 0;
+	am_phase = 0;
+	noise_seed =0xffff;
+	noiseA = 0;
+	noiseB = 0;
+	noiseA_phase = 0;
+	noiseB_phase = 0;
+	noiseA_dphase = 0;
+	noiseB_dphase = 0;
+	for(int i=0; i<9; i++)
+		ch[i].reset();
+	for (int i=0; i<0x40; i++)
+		writeReg(i, 0, time);	// optimization: pass time only once
+	setInternalMute(true);	// set muted
+}
+
+void YM2413::setSampleRate(int sampleRate)
+{
+	makeDphaseTable(sampleRate);
+	makeDphaseARTable(sampleRate);
+	makeDphaseDRTable(sampleRate);
+	makeDphaseNoiseTable(sampleRate);
+	pm_dphase = (int)rate_adjust((int)(PM_SPEED*PM_DP_WIDTH/(CLOCK_FREQ/72)), sampleRate);
+	am_dphase = (int)rate_adjust((int)(AM_SPEED*AM_DP_WIDTH/(CLOCK_FREQ/72)), sampleRate);
+}
+
+
 // Channel key on
 void YM2413::keyOn(int i)
 {
@@ -440,235 +638,43 @@ void YM2413::keyOff_TOM(){ if (slot_on_flag[SLOT_TOM]) ch[8].mod.slotOff(); }
 void YM2413::keyOff_HH() { if (slot_on_flag[SLOT_HH])  ch[7].mod.slotOff(); }
 void YM2413::keyOff_CYM(){ if (slot_on_flag[SLOT_CYM]) ch[8].car.slotOff(); }
 
-// Change a voice
-void YM2413::setPatch(int i, int num)
-{
-	ch[i].patch_number = num;
-	ch[i].mod.patch = patch[num*2+0];
-	ch[i].car.patch = patch[num*2+1];
-}
-
-// Change a rhythm voice
-void YM2413::Slot::setSlotPatch(Patch *ptch)
-{
-	patch = ptch;
-}
-
-// Set sustine parameter
-void YM2413::setSustine(int c, int sustine)
-{
-	ch[c].car.sustine = sustine;
-	if (ch[c].mod.type)
-		ch[c].mod.sustine = sustine;
-}
-
-// Volume : 6bit ( Volume register << 2 )
-void YM2413::setVol(int c, int volume)
-{
-	ch[c].car.volume = volume;
-}
-
-void YM2413::Slot::setSlotVolume(int newVolume)
-{
-	volume = newVolume;
-}
-
-// Set F-Number (fnum : 9bit)
-void YM2413::setFnumber(int c, int fnum)
-{
-	ch[c].car.fnum = fnum;
-	ch[c].mod.fnum = fnum;
-}
-
-// Set Block data (block : 3bit)
-void YM2413::setBlock(int c, int block)
-{
-	ch[c].car.block = block;
-	ch[c].mod.block = block;
-}
-
 // Change Rhythm Mode
 void YM2413::setRythmMode(int data)
 {
 	bool newMode = (data & 32) != 0;
-	if (rythm_mode == newMode) return;
-	rythm_mode = newMode;
-	if (newMode) {
-		// OFF->ON
-		ch[6].patch_number = 16;
-		ch[7].patch_number = 17;
-		ch[8].patch_number = 18;
-		slot[SLOT_BD1]->setSlotPatch(patch[16*2+0]);
-		slot[SLOT_BD2]->setSlotPatch(patch[16*2+1]);
-		slot[SLOT_HH]-> setSlotPatch(patch[17*2+0]);
-		slot[SLOT_SD]-> setSlotPatch(patch[17*2+1]);
-		slot[SLOT_HH]->type = 1;
-		slot[SLOT_TOM]->setSlotPatch(patch[18*2+0]);
-		slot[SLOT_CYM]->setSlotPatch(patch[18*2+1]);
-		slot[SLOT_TOM]->type = 1;
-	} else {
-		// ON->OFF
-		setPatch(6, reg[0x36]>>4);
-		setPatch(7, reg[0x37]>>4);
-		slot[SLOT_HH]->type = 0;
-		setPatch(8, reg[0x38]>>4);
-		slot[SLOT_TOM]->type = 0;
+	if (rythm_mode != newMode) {
+		rythm_mode = newMode;
+		if (newMode) {
+			// OFF->ON
+			ch[6].setPatch(16);
+			ch[7].setPatch(17);
+			ch[8].setPatch(18);
+			slot[SLOT_HH]->type = true;
+			slot[SLOT_TOM]->type = true;
+		} else {
+			// ON->OFF
+			ch[6].setPatch(reg[0x36]>>4);
+			ch[7].setPatch(reg[0x37]>>4);
+			ch[8].setPatch(reg[0x38]>>4);
+			slot[SLOT_HH]->type = false;
+			slot[SLOT_TOM]->type = false;
 
-		if(!(reg[0x26]&0x10)&&!(data&0x10))
-			slot[SLOT_BD1]->eg_mode = FINISH;
-		if(!(reg[0x26]&0x10)&&!(data&0x10))
-			slot[SLOT_BD2]->eg_mode = FINISH;
-		if(!(reg[0x27]&0x10)&&!(data&0x08))
-			slot[SLOT_HH]->eg_mode = FINISH;
-		if(!(reg[0x27]&0x10)&&!(data&0x04))
-			slot[SLOT_SD]->eg_mode = FINISH;
-		if(!(reg[0x28]&0x10)&&!(data&0x02))
-			slot[SLOT_TOM]->eg_mode = FINISH;
-		if(!(reg[0x28]&0x10)&&!(data&0x01))
-			slot[SLOT_CYM]->eg_mode = FINISH;
+			if(!(reg[0x26]&0x10)&&!(data&0x10))
+				slot[SLOT_BD1]->eg_mode = FINISH;
+			if(!(reg[0x26]&0x10)&&!(data&0x10))
+				slot[SLOT_BD2]->eg_mode = FINISH;
+			if(!(reg[0x27]&0x10)&&!(data&0x08))
+				slot[SLOT_HH]->eg_mode = FINISH;
+			if(!(reg[0x27]&0x10)&&!(data&0x04))
+				slot[SLOT_SD]->eg_mode = FINISH;
+			if(!(reg[0x28]&0x10)&&!(data&0x02))
+				slot[SLOT_TOM]->eg_mode = FINISH;
+			if(!(reg[0x28]&0x10)&&!(data&0x01))
+				slot[SLOT_CYM]->eg_mode = FINISH;
+		}
 	}
 }
 
-//***********************************************************//
-//                                                           //
-//                      Initializing                         //
-//                                                           //
-//***********************************************************//
-
-// Constructor
-YM2413::Slot::Slot(int type)
-{
-	this->type = type;
-}
-
-// Destructor
-YM2413::Slot::~Slot()
-{
-}
-
-void YM2413::Slot::reset()
-{
-	sintbl = waveform[0];
-	phase = 0;
-	dphase = 0;
-	output[0] = 0;
-	output[1] = 0;
-	feedback = 0;
-	eg_mode = FINISH;	// SETTLE
-	eg_phase = EG_DP_WIDTH;
-	eg_dphase = 0;
-	rks = 0;
-	tll = 0;
-	sustine = 0;
-	fnum = 0;
-	block = 0;
-	volume = 0;
-	pgout = 0;
-	egout = 0;
-	patch = &null_patch;
-}
-
-
-
-// Constructor
-YM2413::Channel::Channel() : mod(0), car(1)
-{
-	patch_number = 0;
-	key_status = false;
-}
-
-// Destructor
-YM2413::Channel::~Channel()
-{
-}
-
-// reset channel
-void YM2413::Channel::reset()
-{
-	mod.reset();
-	car.reset();
-	key_status = false;
-}
-
-
-
-
-// Constructor
-YM2413::YM2413(short volume, const EmuTime &time, const Mixer::ChannelMode mode)
-{
-	for (int i=0; i<19*2; i++) {
-		patch[i] = new Patch();
-	}
-	for (int i=0; i<18; i++) {
-		slot[i] = (i%2)==0 ? &(ch[i/2].mod) : &(ch[i/2].car);
-		slot[i]->plfo_am = &lfo_am;
-		slot[i]->plfo_pm = &lfo_pm;
-	}
-	makePmTable();
-	makeAmTable();
-	makeAdjustTable();
-	makeTllTable();
-	makeRksTable();
-	makeSinTable();
-	makeDB2LinTable();
-	makeDefaultPatch();
-
-	reset(time);
-	reset_patch();
-
-	setVolume(volume);
-	int bufSize = Mixer::instance()->registerSound(this,mode);
-	buffer = new int[bufSize];
-}
-
-// Destructor
-YM2413::~YM2413()
-{
-	Mixer::instance()->unregisterSound(this);
-	for (int i=0; i<19*2; i++)
-		delete patch[i];
-	delete[] buffer;
-}
-
-// Reset patch datas by system default
-void YM2413::reset_patch()
-{
-	for (int i = 0; i<19*2; i++)
-		memcpy(patch[i], &default_patch[i], sizeof(Patch));
-}
-
-// Reset whole of OPLL except patch datas
-void YM2413::reset(const EmuTime &time)
-{
-	output[0] = 0;
-	output[1] = 0;
-	pm_phase = 0;
-	am_phase = 0;
-	noise_seed =0xffff;
-	noiseA = 0;
-	noiseB = 0;
-	noiseA_phase = 0;
-	noiseB_phase = 0;
-	noiseA_dphase = 0;
-	noiseB_dphase = 0;
-	for(int i=0; i<9; i++) {
-		ch[i].reset();
-		setPatch(i,0);
-	}
-	for (int i=0; i<0x40; i++)
-		writeReg(i, 0, time);	// optimization: pass time only once
-	setInternalMute(true);	// set muted
-}
-
-void YM2413::setSampleRate(int sampleRate)
-{
-	makeDphaseTable(sampleRate);
-	makeDphaseARTable(sampleRate);
-	makeDphaseDRTable(sampleRate);
-	makeDphaseNoiseTable(sampleRate);
-	pm_dphase = (int)rate_adjust((int)(PM_SPEED*PM_DP_WIDTH/(CLOCK_FREQ/72)), sampleRate);
-	am_dphase = (int)rate_adjust((int)(AM_SPEED*AM_DP_WIDTH/(CLOCK_FREQ/72)), sampleRate);
-}
 
 
 //******************************************************//
@@ -777,7 +783,7 @@ void YM2413::Slot::calc_envelope()
 		break;
 	case SUSHOLD:
 		egout = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
-		if (patch->EG == 0) {
+		if (!patch->EG) {
 			eg_mode = SUSTINE;
 			updateEG();
 		}
@@ -828,7 +834,7 @@ int YM2413::Slot::calc_slot_mod()
 
 	if(egout>=(DB_MUTE-1)) {
 		output[0] = 0;
-	} else if (patch->FB!=0) {
+	} else if (patch->FB != 0) {
 		int fm = wave2_4pi(feedback) >> (7 - patch->FB);
 		output[0] = dB2LinTab[sintbl[(pgout+fm)&(PG_WIDTH-1)] + egout];
 	} else {
@@ -988,13 +994,13 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	assert (regis < 0x40);
 	switch (regis) {
 	case 0x00:
-		patch[0]->AM = (data>>7)&1;
-		patch[0]->PM = (data>>6)&1;
-		patch[0]->EG = (data>>5)&1;
-		patch[0]->KR = (data>>4)&1;
-		patch[0]->ML = (data)&15;
+		patches[0].AM = (data>>7)&1;
+		patches[0].PM = (data>>6)&1;
+		patches[0].EG = (data>>5)&1;
+		patches[0].KR = (data>>4)&1;
+		patches[0].ML = (data)&15;
 		for (int i=0; i<9; i++) {
-			if (ch[i].patch_number==0) {
+			if (ch[i].userPatch) {
 				ch[i].mod.updatePG();
 				ch[i].mod.updateRKS();
 				ch[i].mod.updateEG();
@@ -1002,13 +1008,13 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		}
 		break;
 	case 0x01:
-		patch[1]->AM = (data>>7)&1;
-		patch[1]->PM = (data>>6)&1;
-		patch[1]->EG = (data>>5)&1;
-		patch[1]->KR = (data>>4)&1;
-		patch[1]->ML = (data)&15;
-		for (int i=0;i<9;i++) {
-			if(ch[i].patch_number==0) {
+		patches[1].AM = (data>>7)&1;
+		patches[1].PM = (data>>6)&1;
+		patches[1].EG = (data>>5)&1;
+		patches[1].KR = (data>>4)&1;
+		patches[1].ML = (data)&15;
+		for (int i=0; i<9; i++) {
+			if(ch[i].userPatch) {
 				ch[i].car.updatePG();
 				ch[i].car.updateRKS();
 				ch[i].car.updateEG();
@@ -1016,58 +1022,58 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		}
 		break;
 	case 0x02:
-		patch[0]->KL = (data>>6)&3;
-		patch[0]->TL = (data)&63;
-		for (int i=0;i<9;i++) {
-			if (ch[i].patch_number==0) {
+		patches[0].KL = (data>>6)&3;
+		patches[0].TL = (data)&63;
+		for (int i=0; i<9; i++) {
+			if (ch[i].userPatch) {
 				ch[i].mod.updateTLL();
 			}
 		}
 		break;
 	case 0x03:
-		patch[1]->KL = (data>>6)&3;
-		patch[1]->WF = (data>>4)&1;
-		patch[0]->WF = (data>>3)&1;
-		patch[0]->FB = (data)&7;
-		for (int i=0;i<9;i++) {
-			if (ch[i].patch_number==0) {
+		patches[1].KL = (data>>6)&3;
+		patches[1].WF = (data>>4)&1;
+		patches[0].WF = (data>>3)&1;
+		patches[0].FB = (data)&7;
+		for (int i=0; i<9; i++) {
+			if (ch[i].userPatch) {
 				ch[i].mod.updateWF();
 				ch[i].car.updateWF();
 			}
 		}
 		break;
 	case 0x04:
-		patch[0]->AR = (data>>4)&15;
-		patch[0]->DR = (data)&15;
-		for (int i=0;i<9;i++) {
-			if(ch[i].patch_number==0) {
+		patches[0].AR = (data>>4)&15;
+		patches[0].DR = (data)&15;
+		for (int i=0; i<9; i++) {
+			if(ch[i].userPatch) {
 				ch[i].mod.updateEG();
 			}
 		}
 		break;
 	case 0x05:
-		patch[1]->AR = (data>>4)&15;
-		patch[1]->DR = (data)&15;
-		for (int i=0;i<9;i++) {
-			if (ch[i].patch_number==0) {
+		patches[1].AR = (data>>4)&15;
+		patches[1].DR = (data)&15;
+		for (int i=0; i<9; i++) {
+			if (ch[i].userPatch) {
 				ch[i].car.updateEG();
 			}
 		}
 		break;
 	case 0x06:
-		patch[0]->SL = (data>>4)&15;
-		patch[0]->RR = (data)&15;
-		for (int i=0;i<9;i++) {
-			if (ch[i].patch_number==0) {
+		patches[0].SL = (data>>4)&15;
+		patches[0].RR = (data)&15;
+		for (int i=0; i<9; i++) {
+			if (ch[i].userPatch) {
 				ch[i].mod.updateEG();
 			}
 		}
 		break;
 	case 0x07:
-		patch[1]->SL = (data>>4)&15;
-		patch[1]->RR = (data)&15;
-		for (int i=0;i<9;i++) {
-			if (ch[i].patch_number==0) {
+		patches[1].SL = (data>>4)&15;
+		patches[1].RR = (data)&15;
+		for (int i=0; i<9; i++) {
+			if (ch[i].userPatch) {
 				ch[i].car.updateEG();
 			}
 		}
@@ -1112,7 +1118,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	case 0x18:
 	{
 		int cha = regis & 0x0f;
-		setFnumber(cha, data + ((reg[0x20+cha]&1)<<8));
+		ch[cha].setFnumber(data + ((reg[0x20+cha]&1)<<8));
 		ch[cha].mod.updateAll();
 		ch[cha].car.updateAll();
 		switch(regis) {
@@ -1132,8 +1138,8 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	case 0x28:
 	{
 		int cha = regis & 0x0f;
-		setFnumber(cha, ((data&1)<<8) + reg[0x10+cha]);
-		setBlock(cha, (data>>1)&7 );
+		ch[cha].setFnumber(((data&1)<<8) + reg[0x10+cha]);
+		ch[cha].setBlock((data>>1)&7);
 		slot_on_flag[cha*2] = slot_on_flag[cha*2+1] = (reg[regis])&0x10;
 		switch(regis) {
 		case 0x26:
@@ -1159,7 +1165,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		default:
 			break;
 		}
-		if ((reg[regis]^data)&0x20) setSustine(cha, (data>>5)&1);
+		if ((reg[regis]^data)&0x20) ch[cha].setSustine((data>>5)&1);
 		if (data&0x10) keyOn(cha); else keyOff(cha);
 		ch[cha].mod.updateAll();
 		ch[cha].car.updateAll();
@@ -1168,23 +1174,24 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	case 0x30: case 0x31: case 0x32: case 0x33: case 0x34:
 	case 0x35: case 0x36: case 0x37: case 0x38: 
 	{
+		int cha = regis & 0x0f;
 		int j = (data>>4)&15;
 		int v = data&15;
 		if ((rythm_mode)&&(regis>=0x36)) {
 			switch(regis) {
 			case 0x37:
-				ch[7].mod.setSlotVolume(j<<2);
+				ch[7].mod.setVolume(j<<2);
 				break;
 			case 0x38:
-				ch[8].mod.setSlotVolume(j<<2);
+				ch[8].mod.setVolume(j<<2);
 				break;
 			}
 		} else { 
-			setPatch(regis-0x30, j);
+			ch[cha].setPatch(j);
 		}
-		setVol(regis-0x30, v<<2);
-		ch[regis-0x30].mod.updateAll();
-		ch[regis-0x30].car.updateAll();
+		ch[cha].setVol(v<<2);
+		ch[cha].mod.updateAll();
+		ch[cha].car.updateAll();
 		break;
 	}
 	default:

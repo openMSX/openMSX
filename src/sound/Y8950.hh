@@ -18,8 +18,19 @@ class Y8950 : public SoundDevice
 		public:
 			Patch();
 			void reset();
-			unsigned int TL,FB,EG,ML,AR,DR,SL,RR,KR,KL,AM,PM;
+
+			bool AM, PM, EG;
+			byte KR; // 0-1
+			byte ML; // 0-15
+			byte KL; // 0-3
+			byte TL; // 0-63
+			byte FB; // 0-7
+			byte AR; // 0-15
+			byte DR; // 0-15
+			byte SL; // 0-15
+			byte RR; // 0-15
 	};
+	
 	class Slot {
 		public:
 			Slot();
@@ -35,7 +46,6 @@ class Y8950 : public SoundDevice
 			static void makeDphaseDRTable(int sampleRate);
 			static void makeDphaseTable(int sampleRate);
 			
-			inline unsigned int calc_eg_dphase();
 			inline void slotOn();
 			inline void slotOff();
 
@@ -124,6 +134,8 @@ class Y8950 : public SoundDevice
 			Channel();
 			~Channel();
 			void reset();
+			inline void setFnumber(int fnum);
+			inline void setBlock(int block);
 
 			bool alg;
 			Slot mod, car;
@@ -178,8 +190,6 @@ class Y8950 : public SoundDevice
 		inline void keyOff_TOM();
 		inline void keyOff_HH();
 		inline void keyOff_CYM();
-		inline void setFnumber(int c, int fnum);
-		inline void setBlock(int c, int block);
 		
 		void update_noise();
 		void update_ampm();

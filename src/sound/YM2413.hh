@@ -15,9 +15,24 @@ class YM2413 : public SoundDevice
 {
 	class Patch {
 		public:
-			Patch();
-			int TL,FB,EG,ML,AR,DR,SL,RR,KR,KL,AM,PM,WF;
+			Patch() {}
+			Patch(bool AM, bool PM, bool EG, byte KR, byte ML,
+			      byte KL, byte TL, byte FB, byte WF, byte AR,
+			      byte DR, byte SL, byte RR);
+			
+			bool AM, PM, EG;
+			byte KR; // 0-1
+			byte ML; // 0-15
+			byte KL; // 0-3
+			byte TL; // 0-63
+			byte FB; // 0-7
+			byte WF; // 0-1
+			byte AR; // 0-15
+			byte DR; // 0-15
+			byte SL; // 0-15
+			byte RR; // 0-15
 	};
+	
 	class Slot {
 		public:
 			Slot(int type);
@@ -26,8 +41,8 @@ class YM2413 : public SoundDevice
 
 			inline void slotOn();
 			inline void slotOff();
-			inline void setSlotPatch(Patch *patch);
-			inline void setSlotVolume(int volume);
+			inline void setPatch(Patch *patch);
+			inline void setVolume(int volume);
 			inline void calc_phase();
 			inline void calc_envelope();
 			inline int calc_slot_car(int fm);
@@ -48,7 +63,7 @@ class YM2413 : public SoundDevice
 			inline static int SL2EG(int d);
 		
 			Patch *patch;  
-			int type;		// 0 : modulator 1 : carrier 
+			bool type;		// 0 : modulator 1 : carrier 
 
 			// OUTPUT
 			int feedback;
@@ -83,8 +98,14 @@ class YM2413 : public SoundDevice
 			Channel();
 			~Channel();
 			void reset();
+			inline void setPatch(int num);
+			inline void setSustine(int sustine);
+			inline void setVol(int volume);
+			inline void setFnumber(int fnum);
+			inline void setBlock(int block);
 
-			int patch_number;
+			Patch *patches;
+			bool userPatch;
 			bool key_status;
 			Slot mod, car;
 	};
@@ -119,10 +140,7 @@ class YM2413 : public SoundDevice
 		static void makeDphaseDRTable(int sampleRate);
 		static void makeRksTable();
 		static void makeDB2LinTable();
-		static void makeDefaultPatch();
-		static void dump2patch(const byte *dump, Patch *patch);
-		static const byte default_inst[(16+3)*16];
-		void reset_patch();
+		
 		inline void keyOn(int i);
 		inline void keyOff(int i);
 		inline void keyOn_BD();
@@ -135,11 +153,6 @@ class YM2413 : public SoundDevice
 		inline void keyOff_TOM();
 		inline void keyOff_HH();
 		inline void keyOff_CYM();
-		inline void setPatch(int i, int num);
-		inline void setSustine(int c, int sustine);
-		inline void setVol(int c, int volume);
-		inline void setFnumber(int c, int fnum);
-		inline void setBlock(int c, int block);
 		inline void setRythmMode(int data);
 		inline void update_noise();
 		inline void update_ampm();
@@ -256,9 +269,11 @@ class YM2413 : public SoundDevice
 		Channel ch[9];
 		Slot *slot[18];
 
+		// Empty voice data 
+		static Patch nullPatch;
+
 		// Voice Data
-		Patch* patch[19*2];
-		int patch_update[2]; // flag for check patch update
+		Patch patches[19*2];
 
 		// dB to linear table (used by Slot)
 		static short dB2LinTab[(DB_MUTE+DB_MUTE)*2];
@@ -281,12 +296,6 @@ class YM2413 : public SoundDevice
 
 		// Liner to Log curve conversion table (for Attack rate). 
 		static word AR_ADJUST_TABLE[1<<EG_BITS];
-
-		// Empty voice data 
-		static Patch null_patch;
-
-		// Basic voice Data 
-		static Patch default_patch[(16+3)*2];
 
 		// Definition of envelope mode 
 		enum { ATTACK,DECAY,SUSHOLD,SUSTINE,RELEASE,FINISH };

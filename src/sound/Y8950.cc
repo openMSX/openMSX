@@ -32,7 +32,7 @@ unsigned int Y8950::Slot::AR_ADJUST_TABLE[1<<EG_BITS];
 
 //**************************************************//
 //                                                  //
-//                  Create tables                   //
+//  Helper function                                 //
 //                                                  //
 //**************************************************//
 
@@ -66,12 +66,19 @@ unsigned int Y8950::rate_adjust(double x, int rate)
 	return (unsigned int)(x*CLOCK_FREQ/72/rate + 0.5); // +0.5 to round
 }
 
+//**************************************************//
+//                                                  //
+//                  Create tables                   //
+//                                                  //
+//**************************************************//
+
 // Table for AR to LogCurve. 
 void Y8950::Slot::makeAdjustTable()
 {
 	AR_ADJUST_TABLE[0] = 1<<EG_BITS;
 	for (int i=1; i < (1<<EG_BITS); i++)
-		AR_ADJUST_TABLE[i] = (unsigned int)((double)(1<<EG_BITS)-1-(1<<EG_BITS)*log(i)/log(1<<EG_BITS)) >> 1; 
+		AR_ADJUST_TABLE[i] = (unsigned int)((double)(1<<EG_BITS)-1
+		                     -(1<<EG_BITS)*log(i)/log(1<<EG_BITS)) >> 1;
 }
 
 // Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH) 
@@ -222,127 +229,9 @@ void Y8950::Slot::makeRksTable()
 			}
 }
 
-//***********************************************************//
-//                                                           //
-// Calc Parameters                                           //
-//                                                           //
-//***********************************************************//
-
-unsigned int Y8950::Slot::calc_eg_dphase()
-{
-	switch (eg_mode) {
-	case ATTACK:
-		return dphaseARTable[patch.AR][rks];
-	case DECAY:
-		return dphaseDRTable[patch.DR][rks];
-	case SUSHOLD:
-		return 0;
-	case SUSTINE:
-		return dphaseDRTable[patch.RR][rks];
-	case RELEASE:
-		if(patch.EG)
-			return dphaseDRTable[patch.RR][rks];
-		else 
-			return dphaseDRTable[7][rks];
-	case FINISH:
-		return 0;
-	default:
-		return 0;
-	}
-}
-
-//************************************************************//
-//                                                            //
-//  opl internal interfaces                                   //
-//                                                            //
-//************************************************************//
-
-void Y8950::Slot::UPDATE_PG()
-{
-	dphase = dphaseTable[fnum][block][patch.ML];
-}
-
-void Y8950::Slot::UPDATE_TLL()
-{
-	tll = tllTable[fnum>>6][block][patch.TL][patch.KL];
-}
-
-void Y8950::Slot::UPDATE_RKS()
-{
-	rks = rksTable[fnum>>9][block][patch.KR];
-}
-
-void Y8950::Slot::UPDATE_EG()
-{
-	eg_dphase = calc_eg_dphase();
-}
-
-void Y8950::Slot::UPDATE_ALL()
-{
-	UPDATE_PG();
-	UPDATE_TLL();
-	UPDATE_RKS();
-	UPDATE_EG(); // EG should be last 
-}
-
-// Slot key on  
-void Y8950::Slot::slotOn()
-{
-	eg_mode = ATTACK;
-	phase = 0;
-	eg_phase = 0;
-}
-
-// Slot key off 
-void Y8950::Slot::slotOff()
-{
-	if (eg_mode == ATTACK)
-		eg_phase = EXPAND_BITS(AR_ADJUST_TABLE[HIGHBITS(eg_phase, EG_DP_BITS-EG_BITS)], EG_BITS, EG_DP_BITS);
-	eg_mode = RELEASE;
-}
-
-// Channel key on 
-void Y8950::keyOn(int i)
-{
-	ch[i].mod.slotOn();
-	ch[i].car.slotOn();
-}
-
-// Channel key off 
-void Y8950::keyOff(int i)
-{
-	ch[i].mod.slotOff();
-	ch[i].car.slotOff();
-}
-
-void Y8950::keyOn_BD  () { keyOn(6); }
-void Y8950::keyOn_SD  () { if (!slot_on_flag[SLOT_SD])  ch[7].car.slotOn(); }
-void Y8950::keyOn_TOM () { if (!slot_on_flag[SLOT_TOM]) ch[8].mod.slotOn(); }
-void Y8950::keyOn_HH  () { if (!slot_on_flag[SLOT_HH])  ch[7].mod.slotOn(); }
-void Y8950::keyOn_CYM () { if (!slot_on_flag[SLOT_CYM]) ch[8].car.slotOn(); }
-void Y8950::keyOff_BD () { keyOff(6); }
-void Y8950::keyOff_SD () { if (slot_on_flag[SLOT_SD])   ch[7].car.slotOff(); }
-void Y8950::keyOff_TOM() { if (slot_on_flag[SLOT_TOM])  ch[8].mod.slotOff(); }
-void Y8950::keyOff_HH () { if (slot_on_flag[SLOT_HH])   ch[7].mod.slotOff(); }
-void Y8950::keyOff_CYM() { if (slot_on_flag[SLOT_CYM])  ch[8].car.slotOff(); }
-
-// Set F-Number ( fnum : 10bit ) 
-void Y8950::setFnumber(int c, int fnum)
-{
-	ch[c].car.fnum = fnum;
-	ch[c].mod.fnum = fnum;
-}
-
-// Set Block data (block : 3bit ) 
-void Y8950::setBlock(int c, int block)
-{
-	ch[c].car.block = block;
-	ch[c].mod.block = block;
-}
-
 //**********************************************************//
 //                                                          //
-//  Initializing                                            //
+//  Patch                                                   //
 //                                                          //
 //**********************************************************//
 
@@ -353,9 +242,16 @@ Y8950::Patch::Patch()
 
 void Y8950::Patch::reset()
 {
-	TL = FB = EG = ML = AR = DR = SL = RR = KR = KL = AM = PM = 0;
+	AM = PM = EG = false;
+	KR = ML = KL = TL = FB = AR = DR = SL = RR = 0;
 }
 
+
+//**********************************************************//
+//                                                          //
+//  Slot                                                    //
+//                                                          //
+//**********************************************************//
 
 Y8950::Slot::Slot()
 {
@@ -386,6 +282,71 @@ void Y8950::Slot::reset()
 	UPDATE_ALL();
 }
 
+void Y8950::Slot::UPDATE_PG()
+{
+	dphase = dphaseTable[fnum][block][patch.ML];
+}
+
+void Y8950::Slot::UPDATE_TLL()
+{
+	tll = tllTable[fnum>>6][block][patch.TL][patch.KL];
+}
+
+void Y8950::Slot::UPDATE_RKS()
+{
+	rks = rksTable[fnum>>9][block][patch.KR];
+}
+
+void Y8950::Slot::UPDATE_EG()
+{
+	switch (eg_mode) {
+		case ATTACK:
+			eg_dphase = dphaseARTable[patch.AR][rks];
+		case DECAY:
+			eg_dphase = dphaseDRTable[patch.DR][rks];
+		case SUSTINE:
+			eg_dphase = dphaseDRTable[patch.RR][rks];
+		case RELEASE:
+			if (patch.EG)
+				eg_dphase = dphaseDRTable[patch.RR][rks];
+			else 
+				eg_dphase = dphaseDRTable[7][rks];
+		case SUSHOLD:
+		case FINISH:
+			eg_dphase = 0;
+	}
+}
+
+void Y8950::Slot::UPDATE_ALL()
+{
+	UPDATE_PG();
+	UPDATE_TLL();
+	UPDATE_RKS();
+	UPDATE_EG(); // EG should be last 
+}
+
+// Slot key on  
+void Y8950::Slot::slotOn()
+{
+	eg_mode = ATTACK;
+	phase = 0;
+	eg_phase = 0;
+}
+
+// Slot key off 
+void Y8950::Slot::slotOff()
+{
+	if (eg_mode == ATTACK)
+		eg_phase = EXPAND_BITS(AR_ADJUST_TABLE[HIGHBITS(eg_phase, EG_DP_BITS-EG_BITS)], EG_BITS, EG_DP_BITS);
+	eg_mode = RELEASE;
+}
+
+
+//**********************************************************//
+//                                                          //
+//  Channel                                                 //
+//                                                          //
+//**********************************************************//
 
 Y8950::Channel::Channel()
 {
@@ -403,16 +364,36 @@ void Y8950::Channel::reset()
 	alg = false;
 }
 
+// Set F-Number ( fnum : 10bit ) 
+void Y8950::Channel::setFnumber(int fnum)
+{
+	car.fnum = fnum;
+	mod.fnum = fnum;
+}
+
+// Set Block data (block : 3bit ) 
+void Y8950::Channel::setBlock(int block)
+{
+	car.block = block;
+	mod.block = block;
+}
+
+
+//**********************************************************//
+//                                                          //
+//  Y8950                                                   //
+//                                                          //
+//**********************************************************//
 
 Y8950::Y8950(short volume, const EmuTime &time, Mixer::ChannelMode mode)
 {
 	makePmTable();
 	makeAmTable();
-	Y8950::Slot::makeAdjustTable();
-	Y8950::Slot::makeDB2LinTable();
-	Y8950::Slot::makeTllTable();
-	Y8950::Slot::makeRksTable();
-	Y8950::Slot::makeSinTable();
+	Slot::makeAdjustTable();
+	Slot::makeDB2LinTable();
+	Slot::makeTllTable();
+	Slot::makeRksTable();
+	Slot::makeSinTable();
 
 	for (int i=0; i<9; i++) {
 		slot[i*2+0] = &(ch[i].mod);
@@ -487,6 +468,31 @@ void Y8950::reset(const EmuTime &time)
 	
 	setInternalMute(true);	// muted
 }
+
+// Channel key on 
+void Y8950::keyOn(int i)
+{
+	ch[i].mod.slotOn();
+	ch[i].car.slotOn();
+}
+
+// Channel key off 
+void Y8950::keyOff(int i)
+{
+	ch[i].mod.slotOff();
+	ch[i].car.slotOff();
+}
+
+void Y8950::keyOn_BD  () { keyOn(6); }
+void Y8950::keyOn_SD  () { if (!slot_on_flag[SLOT_SD])  ch[7].car.slotOn(); }
+void Y8950::keyOn_TOM () { if (!slot_on_flag[SLOT_TOM]) ch[8].mod.slotOn(); }
+void Y8950::keyOn_HH  () { if (!slot_on_flag[SLOT_HH])  ch[7].mod.slotOn(); }
+void Y8950::keyOn_CYM () { if (!slot_on_flag[SLOT_CYM]) ch[8].car.slotOn(); }
+void Y8950::keyOff_BD () { keyOff(6); }
+void Y8950::keyOff_SD () { if (slot_on_flag[SLOT_SD])   ch[7].car.slotOff(); }
+void Y8950::keyOff_TOM() { if (slot_on_flag[SLOT_TOM])  ch[8].mod.slotOff(); }
+void Y8950::keyOff_HH () { if (slot_on_flag[SLOT_HH])   ch[7].mod.slotOff(); }
+void Y8950::keyOff_CYM() { if (slot_on_flag[SLOT_CYM])  ch[8].car.slotOff(); }
 
 
 //********************************************************//
@@ -565,7 +571,7 @@ void Y8950::Slot::calc_envelope(int lfo_am)
 		eg_phase += eg_dphase;
 		egout = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
 		if (eg_phase >= SL[patch.SL]) {
-			if(patch.EG) {
+			if (patch.EG) {
 				eg_phase = SL[patch.SL];
 				eg_mode = SUSHOLD;
 				UPDATE_EG();
@@ -580,7 +586,7 @@ void Y8950::Slot::calc_envelope(int lfo_am)
 
 	case SUSHOLD:
 		egout = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
-		if (patch.EG == 0) {
+		if (!patch.EG) {
 			eg_mode = SUSTINE;
 			UPDATE_EG();
 		}
@@ -597,10 +603,6 @@ void Y8950::Slot::calc_envelope(int lfo_am)
 		break;
 
 	case FINISH:
-		egout = (1<<EG_BITS) - 1;
-		break;
-
-	default:
 		egout = (1<<EG_BITS) - 1;
 		break;
 	}
@@ -995,15 +997,15 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 		if (!(rg&0x10)) {
 			// 0xa0-0xa8
 			int c = rg-0xa0;
-			setFnumber(c, data + ((reg[rg+0x10]&3)<<8));
+			ch[c].setFnumber(data + ((reg[rg+0x10]&3)<<8));
 			ch[c].car.UPDATE_ALL();
 			ch[c].mod.UPDATE_ALL();
 			reg[rg] = data;
 		} else {
 			// 0xb0-0xb8
 			int c = rg-0xb0;
-			setFnumber(c, ((data&3)<<8) + reg[rg-0x10]);
-			setBlock(c, (data>>2)&7);
+			ch[c].setFnumber(((data&3)<<8) + reg[rg-0x10]);
+			ch[c].setBlock((data>>2)&7);
 			if (((reg[rg]&0x20)==0)&&(data&0x20)) 
 				keyOn(c); 
 			else if((data&0x20)==0) 

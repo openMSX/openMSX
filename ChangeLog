@@ -1,5 +1,8 @@
 $Id$
 
+2002-03-24 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Y8950 and YM2413 cleanups
+
 2002-03-24 Joost Yervante Damad <andete@worldcity.nl>
 	* fixed configure.in
 	* continuation of <filepath>
