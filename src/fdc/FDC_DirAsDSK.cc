@@ -4,6 +4,7 @@
 #include "FDC_DirAsDSK.hh"
 #include "FileContext.hh"
 
+#include <cassert>
 #include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
