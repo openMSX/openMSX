@@ -158,7 +158,7 @@ void CommandConsole::setConsoleDimensions(unsigned columns, unsigned rows)
 
 bool CommandConsole::signalEvent(const Event& event)
 {
-	Display::INSTANCE->repaintDelayed(40000); // 25fps
+	Display::instance().repaintDelayed(40000); // 25fps
 
 	if (event.getType() == KEY_UP_EVENT) {
 		return false;	// don't pass event to MSX-Keyboard

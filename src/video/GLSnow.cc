@@ -28,7 +28,7 @@ GLSnow::GLSnow()
 	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf);
 
 	// Register as display layer.
-	Display::INSTANCE->addLayer(this);
+	Display::instance().addLayer(this);
 }
 
 GLSnow::~GLSnow()

@@ -80,7 +80,7 @@ static int main(int argc, char **argv)
 		err = 1;
 	}
 	// Clean up.
-	Display::INSTANCE.reset();
+	Display::instance().resetVideoSystem();
 	if (SDL_WasInit(SDL_INIT_EVERYTHING)) {
 		SDL_Quit();
 	}

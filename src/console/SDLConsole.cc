@@ -7,6 +7,7 @@
  */
 
 #include <cassert>
+#include "Display.hh"
 #include "SDLConsole.hh"
 #include "Console.hh"
 #include "SDLFont.hh"
@@ -25,6 +26,7 @@ SDLConsole::SDLConsole(Console& console_, SDL_Surface* screen)
 	lastBlinkTime = 0;
 
 	initConsole();
+	Display::instance().addLayer(this);
 }
 
 SDLConsole::~SDLConsole()

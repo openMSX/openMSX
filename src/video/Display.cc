@@ -28,11 +28,14 @@ namespace openmsx {
 
 // Display:
 
-std::auto_ptr<Display> Display::INSTANCE;
+Display& Display::instance()
+{
+	static Display oneInstance;
+	return oneInstance;
+}
 
-Display::Display(std::auto_ptr<VideoSystem> videoSystem_)
-	: videoSystem(videoSystem_)
-	, screenShotCmd(*this)
+Display::Display()
+	: screenShotCmd(*this)
 	, fpsInfo(*this)
 {
 	frameDurationSum = 0;
@@ -60,6 +63,18 @@ Display::~Display()
 		DELAYED_REPAINT_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().unregisterEventListener(
 		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE);
+
+	resetVideoSystem();
+}
+
+VideoSystem& Display::getVideoSystem()
+{
+	assert(videoSystem.get());
+	return *videoSystem;
+}
+
+void Display::resetVideoSystem()
+{
 	// Prevent callbacks first...
 	for (Layers::iterator it = layers.begin(); it != layers.end(); ++it) {
 		(*it)->display = NULL;
@@ -68,8 +83,17 @@ Display::~Display()
 	for (Layers::iterator it = layers.begin(); it != layers.end(); ++it) {
 		delete *it;
 	}
+	layers.clear();
 
 	alarm.cancel();
+
+	videoSystem.reset();
+}
+
+void Display::setVideoSystem(VideoSystem* videoSystem_)
+{
+	assert(!videoSystem.get());
+	videoSystem.reset(videoSystem_);
 }
 
 Display::Layers::iterator Display::baseLayer()
@@ -220,7 +244,7 @@ string Display::ScreenShotCmd::execute(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 
-	Display::INSTANCE->getVideoSystem()->takeScreenShot(filename);
+	Display::instance().getVideoSystem().takeScreenShot(filename);
 	CliCommOutput::instance().printInfo("Screen saved to " + filename);
 	return filename;
 }

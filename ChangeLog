@@ -1,5 +1,10 @@
 $Id$
 
+2005-02-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* video code was not exception safe, fixed it:
+	   - when an excpetion was thrown some objects were not deleted or
+	     even deleted twice
+
 2005-02-27 Manuel Bilderbeek <manuel@msxnet.org>
 	* Also check if <rom> entries have a <type> child. Fixes Synthesizer.
 

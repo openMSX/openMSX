@@ -1,6 +1,7 @@
 // $Id$
 
 #include <cassert>
+#include "Display.hh"
 #include "GLConsole.hh"
 #include "GLFont.hh"
 #include "Console.hh"
@@ -15,6 +16,7 @@ GLConsole::GLConsole(Console& console_)
 	, backgroundTexture(0)
 {
 	initConsole();
+	Display::instance().addLayer(this);
 }
 
 GLConsole::~GLConsole()

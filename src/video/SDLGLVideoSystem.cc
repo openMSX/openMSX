@@ -29,18 +29,18 @@ SDLGLVideoSystem::SDLGLVideoSystem()
 	// are done.
 	// TODO: This has to be done before every video system (re)init,
 	//       so move it to a central location.
-	Display::INSTANCE.reset();
+	Display::instance().resetVideoSystem();
 
 	screen = openSDLVideo(WIDTH, HEIGHT,
 		SDL_OPENGL | SDL_HWSURFACE | SDL_DOUBLEBUF );
 
-	Display* display = new Display(std::auto_ptr<VideoSystem>(this));
-	Display::INSTANCE.reset(display);
 	new GLSnow();
 	new GLConsole(CommandConsole::instance());
 
 	Layer* iconLayer = new GLIconLayer(screen);
-	Display::INSTANCE->addLayer(iconLayer);
+	Display::instance().addLayer(iconLayer);
+
+	Display::instance().setVideoSystem(this);
 }
 
 SDLGLVideoSystem::~SDLGLVideoSystem()

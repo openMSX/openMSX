@@ -24,17 +24,11 @@ class VideoSystem;
 class Display: private EventListener, private LayerListener
 {
 public:
-	// TODO: Keep as singleton?
-	static std::auto_ptr<Display> INSTANCE;
+	static Display& instance();
 
-	Display(std::auto_ptr<VideoSystem> videoSystem);
-	virtual ~Display();
-
-	virtual bool signalEvent(const Event& event);
-
-	const std::auto_ptr<VideoSystem>& getVideoSystem() {
-		return videoSystem;
-	}
+	VideoSystem& getVideoSystem();
+	void resetVideoSystem();
+	void setVideoSystem(VideoSystem* videoSystem);
 
 	/** Redraw the display.
 	  */
@@ -44,6 +38,11 @@ public:
 	void addLayer(Layer* layer);
 
 private:
+	Display();
+	virtual ~Display();
+
+	virtual bool signalEvent(const Event& event);
+
 	typedef std::vector<Layer*> Layers;
 	
 	/** Find frontmost opaque layer.

@@ -9,9 +9,8 @@ namespace openmsx {
 DummyVideoSystem::DummyVideoSystem()
 {
 	// Destruct old layers.
-	Display::INSTANCE.reset();
-	Display* display = new Display(std::auto_ptr<VideoSystem>(this));
-	Display::INSTANCE.reset(display);
+	Display::instance().resetVideoSystem();
+	Display::instance().setVideoSystem(this);
 }
 
 DummyVideoSystem::~DummyVideoSystem()

@@ -113,7 +113,7 @@ PixelRenderer::PixelRenderer(VDP* vdp)
 	this->vdp = vdp;
 	vram = vdp->getVRAM();
 	spriteChecker = vdp->getSpriteChecker();
-	rasterizer = Display::INSTANCE->getVideoSystem()->createRasterizer(vdp);
+	rasterizer = Display::instance().getVideoSystem().createRasterizer(vdp);
 
 	frameSkipCounter = 999; // force drawing of frame
 	finishFrameDuration = 0;

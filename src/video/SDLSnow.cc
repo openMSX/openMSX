@@ -23,7 +23,7 @@ SDLSnow<Pixel>::SDLSnow(SDL_Surface* screen)
 	}
 
 	// Register as display layer.
-	Display::INSTANCE->addLayer(this);
+	Display::instance().addLayer(this);
 }
 
 template <class Pixel>

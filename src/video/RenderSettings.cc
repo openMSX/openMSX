@@ -98,12 +98,12 @@ void RenderSettings::update(const Setting* setting)
 void RenderSettings::checkRendererSwitch()
 {
 	// Tell renderer to sync with render settings.
-	if (renderer->getValue() != currentRenderer
-	|| !Display::INSTANCE->getVideoSystem()->checkSettings() ) {
+	if ((renderer->getValue() != currentRenderer) ||
+	    !Display::instance().getVideoSystem().checkSettings()) {
 		currentRenderer = renderer->getValue();
 		// Renderer failed to sync; replace it.
 		EventDistributor::instance().distributeEvent(
-			new SimpleEvent<RENDERER_SWITCH_EVENT>() );
+			new SimpleEvent<RENDERER_SWITCH_EVENT>());
 	}
 }
 

@@ -18,7 +18,7 @@ VideoLayer::VideoLayer(VideoSource videoSource_)
 	setCoverage(getCoverage());
 	setZ(calcZ());
 	// Register as display layer.
-	Display::INSTANCE->addLayer(this);
+	Display::instance().addLayer(this);
 
 	videoSourceSetting.addListener(this);
 	powerSetting.addListener(this);

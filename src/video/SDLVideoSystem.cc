@@ -25,7 +25,7 @@ SDLVideoSystem::SDLVideoSystem(RendererFactory::RendererID id)
 {
 	// Destruct old layers, so resources are freed before new allocations
 	// are done.
-	Display::INSTANCE.reset();
+	Display::instance().resetVideoSystem();
 
 	assert(id == RendererFactory::SDLHI || id == RendererFactory::SDLLO);
 	screen = openSDLVideo(
@@ -34,8 +34,6 @@ SDLVideoSystem::SDLVideoSystem(RendererFactory::RendererID id)
 		SDL_SWSURFACE
 		);
 
-	Display* display = new Display(std::auto_ptr<VideoSystem>(this));
-	Display::INSTANCE.reset(display);
 	switch (screen->format->BytesPerPixel) {
 	case 2:
 		new SDLSnow<Uint16>(screen);
@@ -50,7 +48,9 @@ SDLVideoSystem::SDLVideoSystem(RendererFactory::RendererID id)
 	new SDLConsole(CommandConsole::instance(), screen);
 
 	Layer* iconLayer = new SDLIconLayer(screen);
-	Display::INSTANCE->addLayer(iconLayer);
+	Display::instance().addLayer(iconLayer);
+
+	Display::instance().setVideoSystem(this);
 }
 
 SDLVideoSystem::~SDLVideoSystem()

@@ -146,7 +146,7 @@ void MSXMotherBoard::run(bool power)
 				needPowerDown = false;
 				powerDownMSX();
 			}
-			Display::INSTANCE->repaint();
+			Display::instance().repaint();
 			Timer::sleep(100 * 1000);
 			InputEventGenerator::instance().poll();
 			Scheduler& scheduler = Scheduler::instance();

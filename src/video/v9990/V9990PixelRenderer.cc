@@ -18,11 +18,11 @@
 namespace openmsx {
 	
 V9990PixelRenderer::V9990PixelRenderer(V9990* vdp_)
-	: vdp(vdp_),
-	  rasterizer(Display::INSTANCE->getVideoSystem()
-		                          ->createV9990Rasterizer(vdp_)),
-	  horTiming(&V9990DisplayTiming::lineMCLK),
-	  verTiming(&V9990DisplayTiming::displayNTSC_MCLK)
+	: vdp(vdp_)
+	, rasterizer(Display::instance().getVideoSystem()
+	                                .createV9990Rasterizer(vdp_))
+	, horTiming(&V9990DisplayTiming::lineMCLK)
+	, verTiming(&V9990DisplayTiming::displayNTSC_MCLK)
 {
 	frameSkipCounter = 999; // force drawing of frame;
 	finishFrameDuration = 0;

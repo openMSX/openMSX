@@ -38,7 +38,6 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	active = false;
 	time = 0;
 	setCoverage(COVER_PARTIAL);
-	Display::INSTANCE->addLayer(this);
 	consoleSetting.addListener(this);
 	setActive(consoleSetting.getValue());
 }
@@ -55,7 +54,12 @@ void OSDConsoleRenderer::initConsole()
 	fontSetting.reset(new FilenameSetting(
 		"consolefont", "console font file",
 		"skins/ConsoleFont.png"));
-	fontSetting->setChecker(this);
+	try {
+		fontSetting->setChecker(this);
+	} catch (MSXException& e) {
+		// we really need a font
+		throw FatalError(e.getMessage());
+	}
 	
 	// rows / columns
 	SDL_Surface* screen = SDL_GetVideoSurface();
@@ -125,7 +129,7 @@ void OSDConsoleRenderer::setActive(bool active_)
 	if (active == active_) return;
 	active = active_;
 
-	Display::INSTANCE->repaintDelayed(40000); // 25 fps
+	Display::instance().repaintDelayed(40000); // 25 fps
 	
 	time = Timer::getTime();
 
@@ -158,14 +162,14 @@ byte OSDConsoleRenderer::getVisibility() const
 		if (dur > FADE_IN_DURATION) {
 			return 255;
 		} else {
-			Display::INSTANCE->repaintDelayed(40000); // 25 fps
+			Display::instance().repaintDelayed(40000); // 25 fps
 			return (dur * 255) / FADE_IN_DURATION;
 		}
 	} else {
 		if (dur > FADE_OUT_DURATION) {
 			return 0;
 		} else {
-			Display::INSTANCE->repaintDelayed(40000); // 25 fps
+			Display::instance().repaintDelayed(40000); // 25 fps
 			return 255 - ((dur * 255) / FADE_OUT_DURATION);
 		}
 	}
