@@ -1643,7 +1643,7 @@
     <remark>Needs FM Sound Synthesizer Unit</remark>
   </rom>
   <rom>
-    <title>FM Pana Amusement Cartridge (FM-PAC)</title>
+    <title>FM Pana Amusement Cartridge (FMPAC)</title>
     <romtype>FMPAC</romtype>
     <sha1>9d789166e3caf28e4742fe933d962e99618c633d</sha1>
     <year>1988</year>
