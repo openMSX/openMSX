@@ -1,5 +1,10 @@
 $Id$
 
+2003-03-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Reworked MSXRom:
+	   - made a (small) subclass for every mapper type:
+	* Moved MSXRom MSXRam related files to a new directory "memory"
+
 2003-03-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "Harry Fox" mapper type
 	* Fixed ASCII8 mapper type:

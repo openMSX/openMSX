@@ -47,12 +47,7 @@ enum MapperType {
 	MAJUTSUSHI   = 64 + 0,
 	SYNTHESIZER  = 64 + 1,
 
-};
-
-class NotInDataBaseException : public MSXException {
-	public:
-		NotInDataBaseException(const std::string &desc)
-			: MSXException(desc) {}
+	UNKNOWN      = 128
 };
 
 class RomTypes

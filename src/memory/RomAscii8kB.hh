@@ -1,0 +1,20 @@
+// $Id$
+
+#ifndef __ROMASCII8KB_HH__
+#define __ROMASCII8KB_HH__
+
+#include "Rom8kBBlocks.hh"
+
+
+class RomAscii8kB : public Rom8kBBlocks
+{
+	public:
+		RomAscii8kB(Device* config, const EmuTime &time);
+		virtual ~RomAscii8kB();
+		
+		virtual void reset(const EmuTime &time);
+		virtual void writeMem(word address, byte value,
+		                      const EmuTime &time);
+};
+
+#endif

@@ -26,7 +26,7 @@
 #include "MSXBunsetsu.hh"
 #include "MSXMemoryMapper.hh"
 #include "MSXRTC.hh"
-#include "MSXRom.hh"
+#include "RomFactory.hh"
 #include "MSXPrinterPort.hh"
 #include "MSXSCCPlusCart.hh"
 #include "FDCFactory.hh"
@@ -200,7 +200,7 @@ MSXDevice *DeviceFactory::create(Device *conf, const EmuTime &time)
 		return rtc;
 	}
 	if (type == "Rom") {
-		return new MSXRom(conf, time);
+		return RomFactory::create(conf, time);
 	}
 	if (type == "PrinterPort") {
 		MSXPrinterPort *printerPort = new MSXPrinterPort(conf, time);

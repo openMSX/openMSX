@@ -16,7 +16,7 @@ struct caseltstr {
 
 MapperType RomTypes::nameToMapperType(const std::string &name)
 {
-	static std::map<const std::string, MapperType, caseltstr> mappertype;
+	static std::map<std::string, MapperType, caseltstr> mappertype;
 	static bool init = false;
 
 	if (!init) {
@@ -86,9 +86,12 @@ MapperType RomTypes::nameToMapperType(const std::string &name)
 		mappertype["PAGE3"]       = PAGE3;
 	}
 
-	if (mappertype.find(name) == mappertype.end())
-		throw MSXException("Unknown mappertype");
-	return mappertype[name];
+	std::map<std::string, MapperType, caseltstr>::const_iterator
+		it = mappertype.find(name);
+	if (it == mappertype.end()) {
+		return UNKNOWN;
+	}
+	return it->second;
 }
 
 
@@ -207,7 +210,10 @@ MapperType RomTypes::searchDataBase(const byte* data, int size)
 	md5.finalize();
 	std::string digest(md5.hex_digest());
 	
-	if (romDB.find(digest) == romDB.end())
-		throw NotInDataBaseException("Rom is not in database");
-	return nameToMapperType(romDB[digest]);
+	if (romDB.find(digest) != romDB.end()) {
+		return nameToMapperType(romDB[digest]);
+	} else {
+		// Rom is not in database
+		return UNKNOWN;
+	}
 }

@@ -37,14 +37,14 @@
 #include "Mixer.hh"
 
 
-SCC::SCC(short volume_)
+SCC::SCC(short volume_, const EmuTime &time)
 {
 	// Register as a soundevice
 	int bufSize = Mixer::instance()->registerSound(this);
 	buffer = new int[bufSize];
 	setVolume(volume_);
 	currentChipMode = SCC_Compatible;	// != SCC_Real;
-	reset();
+	reset(time);
 }
 
 SCC::~SCC()
@@ -250,7 +250,7 @@ void SCC::setFreqVol(byte value, byte address)
 }
 
 
-void SCC::reset()
+void SCC::reset(const EmuTime &time)
 {
 	setChipMode(SCC_Real);
 	deformationRegister = 0;

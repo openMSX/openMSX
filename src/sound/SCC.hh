@@ -14,11 +14,11 @@ class SCC : public SoundDevice
 	public:
 		enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};
 		
-		SCC(short volume);
+		SCC(short volume, const EmuTime &time);
 		virtual ~SCC();
 
 		// interaction with realCartridge
-		void reset();
+		void reset(const EmuTime &time);
 		byte readMemInterface(byte address,const EmuTime &time);
 		void writeMemInterface(byte address, byte value,
 		                       const EmuTime &time);

@@ -13,7 +13,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	short volume = (short)config->getParameterAsInt("volume");
-	cartridgeSCC = new SCC(volume);
+	cartridgeSCC = new SCC(volume, time);
 
 	// allocate buffer
 	memoryBank = new byte[131072];

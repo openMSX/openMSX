@@ -49,6 +49,10 @@
     <md5>e8808ba3e3b47426a674b1c4601cd97a</md5>
     <romtype>8kB</romtype>
   </rom>
+  <rom id="MSX AUDIO">
+    <md5>c2f548fdb9c888b6d7fd494d04b8e764</md5>
+    <romtype>MSX-AUDIO</romtype>
+  </rom>
 
 
 
