@@ -82,12 +82,8 @@
     <parameter name="0x001F" class="patch">0xED</parameter>
     <parameter name="0x0020" class="patch">0xFE</parameter>
     <parameter name="0x0021" class="patch">0xC9</parameter>
+    <parameter name="MSXDiskRomPatch" class="patchcode"></parameter>
   </device>
-
-  <config id="rompatches">
-    <type>ROMPatches</type>
-    <parameter name="MSXDiskRomPatch"></parameter>
-  </config>
 
   <device id="ppi">
     <type>PPI</type>
