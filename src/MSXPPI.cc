@@ -3,7 +3,7 @@
 #include "Keyboard.hh"
 #include "MSXPPI.hh"
 #include "Leds.hh"
-#include <assert.h>
+#include <cassert>
 
 
 // MSXDevice

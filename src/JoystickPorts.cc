@@ -2,7 +2,7 @@
 
 #include "JoystickPorts.hh"
 #include "DummyJoystick.hh"
-#include <assert.h>
+#include <cassert>
 
 
 JoystickPorts::JoystickPorts()

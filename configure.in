@@ -33,13 +33,24 @@ AC_PROG_LIBTOOL
 
 dnl Checks for libraries.
 
-dnl libxml++
-AM_LIBXMLPP
-dnl libxml
-AM_PATH_XML2
-
 dnl libSDL
 AM_PATH_SDL
+CXXFLAGS="$CXXFLAGS $SDL_CFLAGS"
+LIBS="$SDL_LIBS $LIBS"
+
+dnl libxml
+AM_PATH_XML2
+CXXFLAGS="$CXXFLAGS $XML_CFLAGS"
+LIBS="$XML_LIBS $LIBS"
+
+dnl libxml++
+AM_LIBXMLPP
+CXXFLAGS="$CXXFLAGS $LIBXMLPP_CFLAGS"
+LIBS="$LIBXMLPP_LIBS $LIBS"
+dnl next 3 lines are actually a workaround for a bug in libxml++
+LIBXML_LIBS="$XML_LIBS"
+AC_SUBST(LIBXML_LIBS)
+AC_SUBST(XML_CONFIG)
 
 dnl check ENDIAN-ness
 AC_C_BIGENDIAN

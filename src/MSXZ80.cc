@@ -1,7 +1,7 @@
 // $Id$
 
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 
 #include "MSXZ80.hh"
 #include "Scheduler.hh"

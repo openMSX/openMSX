@@ -1,7 +1,7 @@
 // $Id$
 
 #include "DummyDevice.hh"
-#include <assert.h>
+#include <cassert>
 
 
 DummyDevice::DummyDevice()

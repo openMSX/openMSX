@@ -83,7 +83,7 @@
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXTMS9928a.hh"
-#include <assert.h>
+#include <cassert>
 
 /*
 	New palette (R. Nabet).

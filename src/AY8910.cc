@@ -12,7 +12,7 @@
  */
 
 
-#include <assert.h>
+#include <cassert>
 #include "AY8910.hh"
 #include "Mixer.hh"
 

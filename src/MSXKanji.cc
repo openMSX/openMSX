@@ -4,7 +4,7 @@
 
 #include <fstream>
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 #include "MSXKanji.hh"
 #include "MSXMotherBoard.hh"
 

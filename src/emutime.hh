@@ -12,8 +12,8 @@
 #ifndef __EMUTIME_HH__
 #define __EMUTIME_HH__
 
-#include <assert.h>
-#include <limits.h>
+#include <cassert>
+#include <climits>
 
 #include <iostream>
 

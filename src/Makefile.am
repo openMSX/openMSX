@@ -42,10 +42,13 @@ openmsx_SOURCES=openmsx.cc \
 
 
 # libxml++ and SDL
-openmsx_LDADD= -lxml++ -lSDL -lpthread
+#openmsx_LDADD= -lxml++ $(SDL_LIBS) -lpthread
 #I have a gcc-3.0 compatable libxml++ in /usr/local:
 #openmsx_LDADD= /usr/local/lib/libxml++.la -lSDL -lpthread
 
-# we want ALL warnings
-AM_CXXFLAGS = -Wall -DDEBUG -g -fno-rtti -pipe
-#AM_CXXFLAGS = -Wall -fno-rtti -pipe
+# we want most warnings
+AM_CXXFLAGS = -Wall -DDEBUG -g3 -fno-rtti -pipe
+# or perhaps sometimes even more:
+# AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -fno-rtti -pipe
+
+MAINTAINERCLEANFILES = Makefile.in config.h.in stamp-h.in

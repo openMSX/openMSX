@@ -11,10 +11,10 @@
 /***     Please, notify me, if you make any changes to this file          ***/
 /****************************************************************************/
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 #include "Z80.hh"
 #include "Z80Tables.hh"
 

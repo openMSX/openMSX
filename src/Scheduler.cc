@@ -4,7 +4,7 @@
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
-#include <assert.h>
+#include <cassert>
 
 
 Scheduler::Scheduler()
@@ -49,6 +49,20 @@ void Scheduler::removeFirstSP()
 void Scheduler::scheduleEmulation()
 {
 	while (true) {
+
+// some test stuff for joost, please leave for a few
+//	std::cerr << "foo" << std::endl;
+//	std::ifstream quakef("starquake/quake");
+//	byte quakeb[128];
+//	quakef.read(quakeb, 127);
+//	Emutime foo;
+//	std::cerr << "foo" << std::endl;
+//	for (int joosti=0;joosti<127;joosti++)
+//	{
+//		MSXMotherBoard::instance()->writeMem(0x8000+joosti,quakeb[joosti],foo);
+//	}
+//	quakef.close();
+
 		if (scheduleList.empty()) {
 			// nothing scheduled, emulate CPU
 			PRT_DEBUG ("Scheduling CPU till infinity");

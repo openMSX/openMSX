@@ -1,6 +1,6 @@
 // $Id: 
 
-#include <assert.h>
+#include <cassert>
 #include "I8254.hh"
 
 

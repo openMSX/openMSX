@@ -1,7 +1,7 @@
 // $Id$
 
 #include "Joystick.hh"
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
 Joystick::Joystick(int joyNum)

@@ -1,10 +1,10 @@
-// $id:$
+// $Id$
 
 #ifndef __EVENTDISTRIBUTOR_HH__
 #define __EVENTDISTRIBUTOR_HH__
 
 #include <SDL/SDL.h>
-#include <multimap.h>
+#include <map>
 #include <queue>
 
 

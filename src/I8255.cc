@@ -1,7 +1,7 @@
 // $Id$
 
 #include "I8255.hh"
-#include <assert.h>
+#include <cassert>
 
 
 I8255::I8255(I8255Interface &interf) : interface(interf)

@@ -1,7 +1,7 @@
 // $Id$
 
 #include "MSXE6Timer.hh"
-#include <assert.h>
+#include <cassert>
 
 
 MSXE6Timer::MSXE6Timer()

@@ -1,5 +1,18 @@
 $Id$
 
+2001-10-15 Marcel Harkema <marcel@qahwah.net>
+	* * Set the MAINTAINERCLEANFILES variable in Makefile.am files
+	  (for make maintainer-clean)
+	* * EventDistributor.hh should include <map> and not <multimap.h>
+	  (which is an internal header file)
+	* * Add {XML,SDL}_CFLAGS, {XML,SDL}_LIBS, etc. to CXXFLAGS and
+	  LIBS in configure.in (and remove openmsx_LDADD line from
+	  src/Makefile.am)
+	* Include <cassert>, <cstdio>, etc. instead of <assert.h>, 
+	  <stdio.h>, .. [I might have missed some... please check your
+	  code]
+	* [patch applied by joost]
+
 2001-10-12 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Simplified MSXRealTime implementation
 
