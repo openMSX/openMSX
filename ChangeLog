@@ -1,5 +1,8 @@
 $Id$
 
+2005-03-13 Manuel Bilderbeek <manuel@msxnet.org>
+	* Implemented soundlog toggle command.
+
 2005-03-12 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added basic code to record openMSX sound to wav file. It is not used
 	  yet, but one can test it by uncommenting 2 lines.

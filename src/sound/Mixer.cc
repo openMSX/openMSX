@@ -577,14 +577,28 @@ string Mixer::SoundlogCommand::startSoundLogging(const vector<string>& tokens)
 string Mixer::SoundlogCommand::stopSoundLogging(const vector<string>& tokens)
 {
 	if (tokens.size()!=2) throw SyntaxError();
-	outer.endSoundLogging();
-	return "SoundLogging ended.";
+	if (outer.wavfp!=0) {
+		outer.endSoundLogging();
+		return "SoundLogging stopped.";
+	}
+	else {
+		return "Sound logging was not enabled, are you trying to fool me?";
+	}
 }
 	
 string Mixer::SoundlogCommand::toggleSoundLogging(const vector<string>& tokens)
 {
 	if (tokens.size()!=2) throw SyntaxError();
-	return "Not implemented yet.";
+	if (outer.wavfp==0) {
+		string filename = getFileName();
+		outer.startSoundLogging(filename);
+		CliComm::instance().printInfo("Started logging sound to " + filename);
+		return filename;
+	} 
+	else {
+		outer.endSoundLogging();
+		return "SoundLogging stopped.";
+	}
 }
 
 string Mixer::SoundlogCommand::help(const vector<string>& /*tokens*/) const
