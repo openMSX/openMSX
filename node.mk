@@ -6,7 +6,7 @@ SUBDIRS:= \
 	src build doc Contrib
 
 DIST:= \
-	alternative.mk \
+	GNUmakefile alternative.mk \
 	ChangeLog AUTHORS GPL README TODO \
 	share
 
