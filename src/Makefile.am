@@ -88,14 +88,8 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh
 
 #	MSXPrinter.cc MSXPrinter.hh \
-# uncomment if you want to link with libxmlx
-# doesn't do anything yet at the moment
-openmsx_LDADD = libxmlx/libxmlx.la ConsoleSource/libSDL_console.la
 
-# link libxmlx static, all external libs are still
-# linked dynamicaly, unfortunately, this links more stuff
-# static, soo leave it in comments for now
-# openmsx_LDFLAGS = -static
+openmsx_LDADD = libxmlx/libxmlx.la ConsoleSource/libSDL_console.la
 
 #cfgtest_SOURCES = MSXConfig.hh MSXConfig.cc \
 #	cfgtest.cc EmuTime.hh \
