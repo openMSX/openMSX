@@ -147,17 +147,25 @@ void Mixer::updtStrm(int samples)
 			right += buffers[STEREO][i][2*j+1];
 		}
 
-		// filter
+		// first order high-pass IIR filter
+		// out[n] = a0*in[n] + a1*in[n-1] + b1*out[n-1]
+		//   a0 =  (1+x)/2
+		//   a1 = -(1+x)/2
+		//   b1 = x
+		//   x  = exp(-2*pi*fc)
+		//   fc = f/fs
+		//   f  = cutt-off frequency
+		//   fs = sample frequency (11025Hz, 22050Hz, 44100Hz) 
 		int tmp;
-		tmp = (255*left - 255*prevLeft + 254*prevOutLeft) >> 8;
-		prevLeft = left;
-		prevOutLeft = tmp;
-		left = tmp;
+		tmp = 255*left;
+		left = (tmp - prevLeft + 254*prevOutLeft) >> 8;
+		prevLeft = tmp;
+		prevOutLeft = left;
 		
-		tmp = (255*right - 255*prevRight + 254*prevOutRight) >> 8;
-		prevRight = right;
-		prevOutRight = tmp;
-		right = tmp;
+		tmp = 255*right;
+		right = (tmp - prevRight + 254*prevOutRight) >> 8;
+		prevRight = tmp;
+		prevOutRight = right;
 
 		// clip
 		#ifdef DEBUG
