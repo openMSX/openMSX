@@ -1,5 +1,8 @@
 $Id$
 
+2001-10-21 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* small performance improvement in MSXZ80
+
 2001-10-21 Joost Yervante Damad <j.damad@qahwah.net>
 	* added some basic conversions to MSXConfig##Device
 	  let me know when more are needed

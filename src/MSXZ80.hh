@@ -6,6 +6,7 @@
 #include "emutime.hh"
 #include "Z80.hh"
 #include "MSXCPUDevice.hh"
+#include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 class MSXCPU;
 
@@ -30,5 +31,9 @@ class MSXZ80 : public MSXCPUDevice, Z80Interface
 
 	private:
 		Z80 *z80;
+
+		//optimizations
+		MSXMotherBoard *mb;
+		MSXCPU *cpu;
 };
 #endif //__MSXZ80_HH__

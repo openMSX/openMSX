@@ -4,8 +4,7 @@
 #include <cassert>
 
 #include "MSXZ80.hh"
-#include "Scheduler.hh"
-#include "MSXMotherBoard.hh"
+//#include "Scheduler.hh"
 
 
 MSXZ80::MSXZ80() : MSXCPUDevice(3579545)
@@ -25,6 +24,10 @@ MSXZ80::~MSXZ80()
 void MSXZ80::init()
 {
 	z80->init();
+
+	// optimizations
+	mb = MSXMotherBoard::instance();
+	cpu = MSXCPU::instance();
 }
 
 void MSXZ80::reset()
@@ -34,7 +37,7 @@ void MSXZ80::reset()
 
 void MSXZ80::executeUntilTarget()
 {
-	while (currentTime < MSXCPU::instance()->getTargetTime()) {
+	while (currentTime < cpu->getTargetTime()) {
 		currentTime += z80->Z80_SingleInstruction();
 	}
 }
@@ -42,23 +45,23 @@ void MSXZ80::executeUntilTarget()
 
 bool MSXZ80::IRQStatus()
 {
-	return MSXMotherBoard::instance()->IRQstatus();
+	return mb->IRQstatus();
 }
 
 byte MSXZ80::readIO(word port)
 {
-	return MSXMotherBoard::instance()->readIO(port&255, currentTime);
+	return mb->readIO(port&255, currentTime);
 }
 
 void MSXZ80::writeIO (word port, byte value) {
-	MSXMotherBoard::instance()->writeIO(port&255, value, currentTime);
+	mb->writeIO(port&255, value, currentTime);
 }
 
 byte MSXZ80::readMem(word address) {
-	return  MSXMotherBoard::instance()->readMem(address, currentTime);
+	return  mb->readMem(address, currentTime);
 }
 
 void MSXZ80::writeMem(word address, byte value) {
-	MSXMotherBoard::instance()->writeMem(address, value, currentTime);
+	mb->writeMem(address, value, currentTime);
 }
 
