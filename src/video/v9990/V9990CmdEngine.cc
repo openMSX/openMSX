@@ -504,7 +504,7 @@ V9990CmdEngine::CmdLMMM<Mode>::CmdLMMM(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdLMMM<Mode>::start(const EmuTime& time)
 {
-	PRT_DEBUG("LMMV: SX=" << std::dec << engine->SX <<
+	PRT_DEBUG("LMMM: SX=" << std::dec << engine->SX <<
 	          " SY=" << std::dec << engine->SY <<
 	          " DX=" << std::dec << engine->DX <<
 	          " DY=" << std::dec << engine->DY <<

@@ -437,8 +437,8 @@ template <class Pixel, Renderer::Zoom zoom>
 void V9990BitmapConverter<Pixel, zoom>::convertLine(
 	Pixel* linePtr, uint address, int nrPixels)
 {
-	assert(nrPixels <= 640);
-	Pixel tmp[640 * sizeof(Pixel)];
+	assert(nrPixels <= 1024);
+	Pixel tmp[1024 * sizeof(Pixel)];
 	(this->*rasterMethod)(tmp, address, nrPixels);
 	(this->*blendMethod)(tmp, linePtr, nrPixels);
 }

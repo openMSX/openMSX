@@ -52,10 +52,11 @@ static const RegisterAccess regAccess[64] = {
 // -------------------------------------------------------------------------
 
 V9990::V9990(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time),
-	  v9990RegDebug(*this),
-	  v9990RegsCmd(*this),
-	  pendingIRQs(0)
+	: MSXDevice(config, time)
+	, v9990RegDebug(*this)
+	, v9990PalDebug(*this)
+	, v9990RegsCmd(*this)
+	, pendingIRQs(0)
 {
 	PRT_DEBUG("[" << time << "] V9990::Create");
 
@@ -73,7 +74,8 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
 	palTiming = false;
 	
 	// Register debuggable
-	Debugger::instance().registerDebuggable("V9990 regs", v9990RegDebug);
+	Debugger::instance().registerDebuggable("V9990 regs",    v9990RegDebug);
+	Debugger::instance().registerDebuggable("V9990 palette", v9990PalDebug);
 
 	// Register console commands
 	CommandController::instance().registerCommand(&v9990RegsCmd, "v9990regs");
@@ -86,13 +88,13 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
 		palette[4 * i + 0] = 0x9F;
 		palette[4 * i + 1] = 0x1F;
 		palette[4 * i + 2] = 0x1F;
-		renderer->setPalette(i, 0x9F, 0x1F, 0x1F, time);
 		palette[4 * i + 3] = 0x00;
+		renderer->setPalette(i, 0x9F, 0x1F, 0x1F, time);
 	}
 
 	reset(time);
 	EventDistributor::instance().registerEventListener(
-		RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED );
+		RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
 }
 
 
@@ -102,9 +104,10 @@ V9990::~V9990()
 
 	// Unregister everything that needs to be unregistered
 	CommandController::instance().unregisterCommand(&v9990RegsCmd, "v9990regs");
+	Debugger::instance().unregisterDebuggable("V9990 palette", v9990PalDebug);
 	Debugger::instance().unregisterDebuggable("V9990 regs", v9990RegDebug);
 	EventDistributor::instance().unregisterEventListener(
-		RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED );
+		RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
 }
 
 // -------------------------------------------------------------------------
@@ -151,27 +154,18 @@ byte V9990::readIO(byte port, const EmuTime& time)
 			break;
 		}
 		case PALETTE_DATA: {
-			byte palPtr = regs[PALETTE_POINTER];
-			switch (palPtr & 3) {
-				case 0: // red
-				case 1: // green
-					result = palette[palPtr];
-					regs[PALETTE_POINTER] = palPtr + 1;
-					break;
-				case 2: // blue
-					result = palette[palPtr];
-					regs[PALETTE_POINTER] = palPtr + 2;
-					break;
-				default: // invalid, checked on real V9990
-					result = 0;
-					regs[PALETTE_POINTER] = palPtr - 3;
-					break;
-			}
+			byte& palPtr = regs[PALETTE_POINTER];
+			result = palette[palPtr];
+			// TODO Tests in BASIC indicate palPtr _is_ incremented.
+			//      However the palette fade routine in calculus
+			//      doesn't agree. Maybe this is timing related???
+			/*switch (palPtr & 3) {
+				case 0:  palPtr += 1; break; // red
+				case 1:  palPtr += 1; break; // green
+				case 2:  palPtr += 2; break; // blue
+				default: palPtr -= 3; break; // checked on real V9990
+			}*/
 			break;
-			palPtr &= ~3;
-			renderer->setPalette(palPtr >> 2,
-			                     regs[palPtr], regs[palPtr+1], regs[palPtr+2],
-			                     time);
 		}
 		case COMMAND_DATA:
 			// TODO
@@ -252,30 +246,14 @@ void V9990::writeIO(byte port, byte val, const EmuTime& time)
 			break;
 		}
 		case PALETTE_DATA: {
-			byte palPtr = regs[PALETTE_POINTER];
+			byte& palPtr = regs[PALETTE_POINTER];
+			writePaletteRegister(palPtr, val, time);
 			switch (palPtr & 3) {
-				case 0: // red
-					palette[palPtr] = val & 0x9F;
-					regs[PALETTE_POINTER] = palPtr + 1;
-					break;
-				case 1: // green
-					palette[palPtr] = val & 0x1F;
-					regs[PALETTE_POINTER] = palPtr + 1;
-					break;
-				case 2: // blue
-					palette[palPtr] = val & 0x1F;
-					regs[PALETTE_POINTER] = palPtr + 2;
-					break;
-				default: // invalid, checked on real V9990
-					regs[PALETTE_POINTER] = palPtr - 3;
-					break;
+				case 0:  palPtr += 1; break; // red
+				case 1:  palPtr += 1; break; // green
+				case 2:  palPtr += 2; break; // blue
+				default: palPtr -= 3; break; // checked on real V9990
 			}
-			palPtr &= ~3;
-			renderer->setPalette(palPtr >> 2,
-			                     palette[palPtr + 0],
-			                     palette[palPtr + 1],
-			                     palette[palPtr + 2],
-			                     time);
 			break;
 		}
 		case COMMAND_DATA:
@@ -404,6 +382,37 @@ void V9990::V9990RegDebug::write(unsigned address, byte value)
 }
 
 // -------------------------------------------------------------------------
+// V9990PalDebug
+// -------------------------------------------------------------------------
+
+V9990::V9990PalDebug::V9990PalDebug(V9990& parent_)
+	: parent(parent_)
+{
+}
+
+unsigned V9990::V9990PalDebug::getSize() const
+{
+	return 0x100;
+}
+
+const string& V9990::V9990PalDebug::getDescription() const
+{
+	static const string desc = "V9990 palette (format is R, G, B, 0).";
+	return desc;
+}
+
+byte V9990::V9990PalDebug::read(unsigned address)
+{
+	return parent.palette[address];
+}
+
+void V9990::V9990PalDebug::write(unsigned address, byte value)
+{
+	const EmuTime& time = Scheduler::instance().getCurrentTime();
+	parent.writePaletteRegister(address, value, time);
+}
+
+// -------------------------------------------------------------------------
 // V9990RegsCmd
 // -------------------------------------------------------------------------
 
@@ -516,6 +525,23 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 		PRT_DEBUG("[" << time << "] "
 		"V9990::writeRegister: Register not writable");
 	}
+}
+
+void V9990::writePaletteRegister(byte reg, byte val, const EmuTime& time)
+{
+	switch (reg & 3) {
+		case 0: val &= 0x9F; break;
+		case 1: val &= 0x1F; break;
+		case 2: val &= 0x1F; break;
+		case 3: val  = 0x00; break;
+	}
+	palette[reg] = val;
+	reg &= ~3;
+	renderer->setPalette(reg >> 2,
+	                     palette[reg + 0],
+	                     palette[reg + 1],
+	                     palette[reg + 2],
+	                     time);
 }
 
 void V9990::createRenderer(const EmuTime& time)

@@ -176,7 +176,7 @@ private:
 	// EventListener interface:
 	virtual bool signalEvent(const Event& event);
 	
-	// Debuggable:
+	// Debuggable: registers
 	class V9990RegDebug : public Debuggable {
 	public:
 		V9990RegDebug(V9990& parent);
@@ -187,6 +187,18 @@ private:
 	private:
 		V9990& parent;
 	} v9990RegDebug;
+	
+	// Debuggable: palette
+	class V9990PalDebug : public Debuggable {
+	public:
+		V9990PalDebug(V9990& parent);
+		virtual unsigned getSize() const;
+		virtual const std::string& getDescription() const;
+		virtual byte read(unsigned address);
+		virtual void write(unsigned address, byte value);
+	private:
+		V9990& parent;
+	} v9990PalDebug;
 
 	// Command:
 	class V9990RegsCmd : public SimpleCommand {
@@ -366,6 +378,13 @@ private:
 	  * @param time  Moment in emulated time to write register
 	  */
 	void writeRegister(byte reg, byte val, const EmuTime& time);
+
+	/** Write V9990 palette register
+	  * @param reg   Register to write to
+	  * @param val   Value to write
+	  * @param time  Moment in emulated time to write register
+	  */
+	void writePaletteRegister(byte reg, byte val, const EmuTime& time);
 	
 	/** Create a new renderer.
 	  * @param time  Moment in emulated time to create the renderer

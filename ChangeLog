@@ -4,6 +4,8 @@ $Id$
 	* More V9990 stuff
 	   - implemented interlace modes  (no de-interlacing yet)
 	       V9BMP shoud now work completely
+	   - made palette debuggable
+	   - read palette registers hack to make calculus work
 
 2004-12-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Tried to make the gfx900 parts in calculus work (not yet succeeded)
