@@ -159,7 +159,7 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 			currScalerID = scalerID;
 		}
 
-		for (unsigned y = 0; y < HEIGHT; y += 2) {
+		for (unsigned y = 0; y < HEIGHT / 2; y++) {
 			//fprintf(stderr, "post processing line %d: %d\n", y, lineContent[y]);
 			switch (lineContent[y]) {
 			case LINE_BLANK:
@@ -167,10 +167,10 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 				assert(false); // both are disabled for now
 				break;
 			case LINE_256:
-				currScaler->scaleLine256(workScreen, y / 2, screen, y);
+				currScaler->scaleLine256(workScreen, y, screen, y * 2);
 				break;
 			case LINE_512:
-				currScaler->scaleLine512(workScreen, y / 2, screen, y);
+				currScaler->scaleLine512(workScreen, y, screen, y * 2);
 				break;
 			default:
 				assert(false);
