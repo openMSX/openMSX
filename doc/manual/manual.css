@@ -26,7 +26,7 @@ dd {
 	margin-left: 16pt;
 	margin-bottom: 0.5em;
 }
-div.commandline {
+div.commandline, pre {
 	font-family: monospace;
 	margin-left: 32pt;
 	margin-top: 0.5em;
