@@ -230,6 +230,12 @@ byte* MSXCPUInterface::getWriteCacheLine(word start) const
 
 byte MSXCPUInterface::peekMem(word address) const
 {
+	if (address == 0xFFFF) {
+		int currentSSRegister = primarySlotState[3];
+		if (isSubSlotted[currentSSRegister]) {
+			return 255 ^ subSlotRegister[currentSSRegister];
+		}
+	}
 	return visibleDevices[address >> 14]->peekMem(address);
 }
 
