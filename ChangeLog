@@ -1,5 +1,11 @@
 $Id$
 
+2003-09-12 Manuel Bilderbeek <manuel@msxnet.org>
+	* the file from which the WavAudioInput reads is now configurable with
+	  the setting "audio-inputfilename". Default is still
+	  "audio-input.wav".
+	* restructured AudioWavInput class and cleaned it up a lot
+
 2003-09-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* immediately respond to frameskip changes
 

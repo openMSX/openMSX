@@ -197,6 +197,17 @@ accuracy
     set accuracy pixel    selects pixel accurate rendering
 
 
+audio-inputfilename
+-------------------
+
+  Sets the file(name) from which the wave input is read for the sampler.
+  By default, it is read from "audio-input.wav" when available.
+  
+  usage:
+    set audio-inputfilename                shows the current setting
+    set audio-inputfilename mysample.wav   read from mysample.wav
+
+
 blur
 ----
 

@@ -5,12 +5,13 @@
 
 #include <SDL/SDL.h>
 #include "AudioInputDevice.hh"
+#include "Settings.hh"
 #include "EmuTime.hh"
 
 
 namespace openmsx {
 
-class WavAudioInput : public AudioInputDevice
+class WavAudioInput : public AudioInputDevice, private SettingListener
 {
 	public:
 		WavAudioInput();
@@ -18,15 +19,22 @@ class WavAudioInput : public AudioInputDevice
 
 		// AudioInputDevice
 		virtual const string& getName() const;
-		virtual void plug(Connector* connector, const EmuTime &time) throw();
+		virtual void plug(Connector* connector, const EmuTime &time) throw(PlugException);
 		virtual void unplug(const EmuTime &time);
 		virtual short readSample(const EmuTime &time);
 
 	private:
+		void freeWave();
+		void loadWave();
+		void update(const SettingLeafNode *setting);
+		
 		int length;
 		Uint8* buffer;
 		int freq;
 		EmuTime reference;
+		bool plugged;
+
+		FilenameSetting audioInputFilenameSetting;
 };
 
 } // namespace openmsx
