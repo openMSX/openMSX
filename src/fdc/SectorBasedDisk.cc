@@ -3,6 +3,7 @@
 #include "SectorBasedDisk.hh"
 #include "EmptyDiskPatch.hh"
 #include "IPSPatch.hh"
+#include <cassert>
 
 namespace openmsx {
 
