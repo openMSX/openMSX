@@ -29,7 +29,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	, inputEventGenerator(InputEventGenerator::instance())
 	, consoleSetting(GlobalSettings::instance().getConsoleSetting())
 {
-	destX = destY = destW = destH = -1; // avoid UMR
+	destX = destY = destW = destH = 0; // avoid UMR
 	font.reset(new DummyFont());
 	blink = false;
 	lastBlinkTime = 0;
