@@ -561,9 +561,31 @@ Some of those, you can tweak in the settings.xml file.
 
 OK, a standard NMS-8250 is a bit dull. Let's add some devices.
 
-Normally, devices can be added by editing the XML config file. So, let's make a
-copy of Philips_NMS_8250.xml and put it in ~/.openMSX/share/machines/mymsx/
-under the name of hardwareconfig.xml. It's the config we are going to play with.
+There are two ways to use extra devices in your emulated MSX. You can use an
+extension (which is analogous to inserting a cartridge with the device into the
+MSX) or you can modify the hardware configuration file (which is analogous to
+open the MSX and build in the device). As it is in the real world, the former is
+the easiest thing and the latter the more complicated thing. So, let's start
+with the former.
+
+If you have setup an FM PAC hardwareconfig.xml file in
+~/.openMSX/share/extensions/fmpac e.g., you can use `-ext fmpac' to use an
+FM PAC. But, as I just said, you need to have a hardware description in that
+subdirectory of share/extensions/, see chapter 5. Fortunately, openMSX comes
+with a predefined FM-PAC extension. You only need to add the directory 'roms' in
+share/extensions/fmpac and put the FMPAC.ROM there. If you look at that
+share/extensions directory, you will find more extensions. E.g. using `-ext
+mbstereo' gives you the Moonblaster stereo effect: FM PAC on one channel and MSX
+Audio on the other. Try them out, if you like.
+
+Now, let's talk about modifying the internals of your emulated MSX... This is a
+bit more advanced, you may skip the rest of this section and read it later, it
+won't spoil the fun.
+
+You can modify an MSX machine (e.g. to add devices) by editing the XML config
+file. So, let's make a copy of machines/Philips_NMS_8250/hardwareconfig.xml and
+put it in ~/.openMSX/share/machines/mymsx/ under the name of hardwareconfig.xml.
+It's the config we are going to play with.
 
 There is a special config file in the source tree that isn't usable by itself,
 but contains XML fragments of some possible devices currently implemented in
@@ -604,21 +626,14 @@ the files that are saved by the (real) FM-PAC commander's save option.
 After saving your config and running openMSX again, you should be able to get
 the FM PAC commander with CALL FMPAC in the emulated MSX!
 
-Alternatively, if you have setup an FM PAC hardwareconfig.xml file in
-~/.openMSX/share/extensions/fmpac e.g., you can also use `-ext fmpac' to use an
-FM PAC. But, as I just said, you need to have a hardware description in that
-subdirectory of share/extensions/, see chapter 5. Fortunately, openMSX comes
-with a predefined FM-PAC extension. You only need to add the directory 'roms' in
-share/extensions/fmpac and put the FMPAC.ROM there.
-
 In a similar fashion, you can also add an MSX-Audio device (<device
 id="MSX-Audio">, note that some programs also need the MSX-Audio-Midi device to
 detect the Music Module; this device is at the moment not fully implemented
 though), an empty SCC cartridge (<device id="Empty SCC Cartridge">), etc. Just
-browse the exampleconfigs.xml file and see what you can find.  Remember that
-you can not put two devices in the same (sub)slot! You may need to add a slot
-expander, by simply setting a slot's subslotted parameter to "true" in the
-MotherBoard config tag at the top of the file. On the other hand, not all
+browse the exampleconfigs.xml file or the extensions and see what you can find.
+Remember that you can not put two devices in the same (sub)slot! You may need to
+add a slot expander, by simply setting a slot's subslotted parameter to "true"
+in the MotherBoard config tag at the top of the file. On the other hand, not all
 devices need a slot. An example is the MSX-Audio device.
 
 Another thing you may want to change: the amount of RAM of the MSX: change the
@@ -745,15 +760,17 @@ get some help about a specific Console command.
 Since openMSX is still in heavy development, feedback and bug reports are very
 welcome!
 
-If you encounter problems, go visit the SourceForge page of openMSX:
-http://sourceforge.net/projects/openmsx/
+If you encounter problems, you have several options:
 
-Then click on "Tracker". This will show you four trackers (at the moment). Use
-the bug tracker to look for bugs and post new ones. You can use the Support
-Request tracker to submit support requests. Feature requests can also be
-submitted in the Feature Requests tracker.
-You can also send an e-mail to the openMSX developer's mailing list:
-openmsx-devel@lists.sourceforge.net. See the project page on SourceForge.
+1) go to our IRC channel: #openMSX on irc.freenode.net and ask
+2) send an e-mail to the openMSX developer's mailing list:
+   openmsx-devel@lists.sourceforge.net. See the project page on SourceForge.
+3) go visit the SourceForge page of openMSX:
+   http://sourceforge.net/projects/openmsx/ 
+   Then click on "Tracker". This will show you four trackers (at the moment).
+   Use the bug tracker to look for bugs and post new ones. You can use the
+   Support Request tracker to submit support requests. Feature requests can also
+   be submitted in the Feature Requests tracker.
 
 For experienced users: if you get a crash, try to provide a gdb backtrace
 (don't use strip on the openMSX executable then!).
@@ -773,10 +790,11 @@ If you try to port openMSX to another OS, you will probably encounter some
 problem; please report them to the openMSX developers so they can fix them.
 
 Note: as already mentioned, there is an alternative for the copyrighted MSX
-ROMs: you can also use the CBIOS, a home made MSX compatible BIOS, by BouKiChi.
+ROMs: you can also use the C-BIOS, a home made MSX compatible BIOS, by BouKiChi.
 There are config files for it in the share/machines directory. With this BIOS
 you can only run an increasing number of ROM files. The files needed for the
-CBIOS itself are in the Contrib/cbios directory.
+C-BIOS itself are in the Contrib/cbios directory. However, you can also just use
+the machine "cbios-msx1" or "cbios-msx2" to use C-BIOS.
 
 Note: to use a real disk, just specify "/dev/fd0" as a disk image. This is of
 course a Linux (Unix, actually) specific feature, but for now it is usable. It
