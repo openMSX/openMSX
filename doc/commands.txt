@@ -238,6 +238,16 @@ restoredefault
     restoredefault psg_volume
 
 
+screenshot
+----------
+
+  Take a screenshot.
+
+  usage:
+    screenshot             Write screenshot to file "openmsxNNNN.png"
+    screenshot <filename>  Write screenshot to indicated file
+
+
 set
 ---
 

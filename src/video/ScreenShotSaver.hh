@@ -22,6 +22,8 @@ public:
 	ScreenShotSaver(unsigned witdh, unsigned height,
 	                byte** row_pointers, const string& filename)
 		throw (CommandException);
+
+	static string getFileName();
 };
 
 } // namespace openmsx

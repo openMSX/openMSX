@@ -33,6 +33,7 @@ TODO:
 #include "RenderSettings.hh"
 #include "RendererFactory.hh"
 #include "Debugger.hh"
+#include "ScreenShotSaver.hh"
 
 
 namespace openmsx {
@@ -1157,17 +1158,26 @@ VDP::ScreenShotCmd::ScreenShotCmd(VDP& vdp_)
 string VDP::ScreenShotCmd::execute(const vector<string>& tokens)
 	throw(CommandException)
 {
-	if (tokens.size() != 2) {
+	string filename;
+	switch (tokens.size()) {
+	case 1:
+		filename = ScreenShotSaver::getFileName();
+		break;
+	case 2:
+		filename = tokens[1];
+		break;
+	default:
 		throw SyntaxError();
 	}
-	string filename = tokens[1]; // TODO make unique
+	
 	vdp.renderer->takeScreenShot(filename);
 	return filename;
 }
 
 string VDP::ScreenShotCmd::help(const vector<string>& tokens) const throw()
 {
-	return "Take a screenshot."; // TODO 
+	return "screenshot             Write screenshot to file \"openmsxNNNN.png\"\n"
+	       "screenshot <filename>  Write screenshot to indicated file\n";
 }
 
 } // namespace openmsx

@@ -1,7 +1,16 @@
 // $Id$
 
+#include <sstream>
+#include <algorithm>
+#include <stdio.h>
+#include <stdlib.h>
+#include <dirent.h>
+#include <sys/types.h>
 #include <png.h>
 #include "ScreenShotSaver.hh"
+
+using std::ostringstream;
+using std::max;
 
 /* PNG save code by Darren Grant sdl@lokigames.com */
 /* heavily modified for openMSX by Joost Damad joost@lumatec.be */
@@ -130,6 +139,46 @@ ScreenShotSaver::ScreenShotSaver(unsigned width, unsigned height,
 	if (IMG_SavePNG_RW(width, height, (png_bytep*)row_pointers, filename) < 0) {
 		throw CommandException("Failed to write " + filename);
 	}
+}
+
+
+static int getNum(dirent* d)
+{
+	string name(d->d_name);
+	if ((name.length() != 15) ||
+	    (name.substr(0, 7) != "openmsx") ||
+	    (name.substr(11, 4) != ".png")) {
+		return 0;
+	}
+	string num(name.substr(7, 4));
+	char* endpos;
+	unsigned long n = strtoul(num.c_str(), &endpos, 10);
+	if (*endpos != '\0') {
+		return 0;
+	}
+	return n;
+}
+
+string ScreenShotSaver::getFileName()
+{
+	int max_num = 0;
+	
+	DIR* dir = opendir(".");
+	if (dir) {
+		struct dirent* d = readdir(dir);
+		while (d) {
+			max_num = max(max_num, getNum(d));
+			d = readdir(dir);
+		}
+		closedir(dir);
+	}
+
+	ostringstream os;
+	os << "openmsx";
+	os.width(4);
+	os.fill('0');
+	os << (max_num + 1) << ".png";
+	return os.str();
 }
 
 } // namespace openmsx
