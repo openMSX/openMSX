@@ -1,21 +1,47 @@
-Release Notes for openMSX 0.3.3 (2003-09-24)
+Release Notes for openMSX 0.3.3 (2003-09-26)
 ============================================
 
 This new release brings you the following improvements:
-- Windows specific code is now in the main branch
-- Several cassette emulation updates and new features:
-  * Automatic .cas to .wav conversion in CassettePlayer (no patched ROM
-    needed anymore to run .cas files!)
-  * cassette sounds are now audible
-  * tapes can be rewinded
-  * tapes can be forced to play (like unplugging the 'remote control'
-    plug on a real machine)
-- ROM database now uses SHA1 sums in stead of MD5 sums
+- Windows specific code was merged into the main branch. We have an
+  "official" Win32 port that is part of this release.
+- New HTML manuals replace the HOWTO. These manuals will make it easier for
+  you to find the information you need. Also, the HTML layout looks better.
+  Due to time pressure, the manuals are a bit rough at places, we'll improve
+  them in the future.
 - New MSX devices:
-  * MSX-MIDI in turboR; you can redirect MIDI to /dev/midi and get sound
-    that way!
-  * MSX-RS-232 support (8255 UART)
-  * PCM input (sampling) for TurboR via a .wav file
+  * MSX-MIDI interface (turbo R).
+  * MSX-RS-232 support (8255 UART).
+  * PCM input (sampling) for turbo R via a .wav file.
+- Added a debug device: write data to special I/O ports and its get logged
+  to stdout or a file in a format you specify. Very useful if you develop
+  MSX assembly programs in openMSX.
+- Several improvements and fixes in the VDPCmdEngine; VDP emulation is even
+  more accurate now.
+- All read-only input files (ROM images, disk images, background pictures,
+  XML) can now be gzipped or zipped and will be transparently decompressed
+  by openMSX. Note that some games require write access to their disk in
+  order to run (for example, Seed of Dragon).
+- New dir-as-disk feature: a directory can be specified instead of a disk
+  image and the contents (up to 720K) will show up as files on the MSX.
+  There is no support for subdirectories (as used by DOS2) yet. This feature
+  is still experimental, so please report problems if you encounter them.
+- Several cassette emulation updates and new features:
+  * Automatic .cas to .wav conversion in CassettePlayer.
+    (no patched ROM needed anymore to run .cas files)
+  * Cassette sounds are now audible.
+  * Tapes can be rewinded.
+  * Tapes can be forced to play.
+    (like unplugging the 'remote control' plug on a real machine)
+- A different keymap (e.g. for Japanese PC keyboards or to use Russian MSX
+  keyboards on a US English PC keyboard) can be used now, via settings.xml.
+- Keys for the key joystick are now configurable in settings.xml.
+- Added joystick emulation for mouse (a feature that the Philips SBC-3810
+  and Sony MOS-1 and similar mice have).
+- Various console updates:
+  * Tab completion behaves much more like the UNIX Bash shell now.
+  * Clearer error messages.
+  * More than one command is possible, use ';' to separate them.
+    Especially useful for binding several commands to a single keypress.
 - User-configurable channel settings for mono sound devices. You can set
   them to left, right or mono mode at run time.
 - Many things are now user configurable via the console:
@@ -24,30 +50,15 @@ This new release brings you the following improvements:
   * output file for the MIDI out logger
   * input file for the MIDI in reader
   * input and output file for the RS232-tester
-- Keys for the key joystick are now configurable in settings.xml
-- A different keymap (e.g. for Japanese PC keyboards or to use Russian
-  MSX keyboards on a US English PC keyboard) can be used now, via
-  settings.xml
-- All read only input files (ROM images, disk images, background
-  pictures, XML) can now be gzipped or zipped
-- Various console updates:
-  * Console behaves much more like the UNIX Bash shell now
-  * Better more UNIX style error messages
-  * More than one command is possible, use ';' to separate them
-- Added joystick emulation for mouse (a feature that the Philips
-  SBC-3810 and Sony MOS-1 and similar mice have)
-- Added a debug device: write data to special I/O ports and they get in
-  stdout or a file
-- The MSXturboR machine config only needs the 4MB ROM and the kanji ROM now.
-- Several improvements and fixes in the VDPCmdEngine; VDP emulation is
-  even more accurate now
-- Several machine configurations added.
-- Several extension configurations added.
+- ROM database now uses SHA1 sums in stead of MD5 sums.
+- The MSX turbo R machine description uses a single 4MB ROM image, plus the
+  Kanji ROM. This is closer to how the real machine works.
+- Several machine and extension configurations added.
+- Fixed compilation on GCC 3.4-pre development version.
 
-Read the "ChangeLog" inside the archive for a detailed list of changes.
-In "doc/manual/index.html" you can find a lot of useful information on
-openMSX, make sure you read this if you haven't used openMSX before, but
-also to learn more about how to deal with the new and changed features.
+In "doc/manual/index.html" you can find a set of HTML manuals for openMSX.
+Make sure you read this if you haven't used openMSX before, but also to
+learn more about the new and changed features.
 
 Known issues / caveats:
 - In its current alpha state, openMSX is usable for power users, but its
@@ -67,15 +78,7 @@ Known issues / caveats:
 - CPU and graphics performance varies a lot, depending on the openMSX
   settings and the MSX hardware and software you're emulating.
   Some things run fine on a 200MHz machine, others are slow on a 2GHz
-  machine. Some performance tips:
-  * Make sure there are no CPU consuming background processes running.
-  * Generally, MSX1 emulation is fastest and turbo R emulation is slowest.
-  * SDLGL renderer needs hardware acceleration to run at a decent speed.
-    Disabling scanlines and blur (set to 0) helps on older graphics cards.
-  * Use 16-bit colour mode instead of 32-bit (platform setting is used).
-  * Use line accuracy (default) instead of pixel accuracy.
-  * Turn on frame skip ("set frameskip auto").
-  * Use low-res SDLLo renderer (75% less pixels to fill).
+  machine. For performance tuning tips, see the Setup Guide.
 
 openMSX Home Page:
   http://openmsx.sourceforge.net/
