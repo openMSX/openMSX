@@ -86,7 +86,7 @@ MSXDiskRomPatch::MSXDiskRomPatch()
 		catch (MSXException e)
 		{
 			PRT_DEBUG("void MSXDiskRomPatch::MSXDiskRomPatch() disk exception for disk " << i << " patch: " << name << " filename: " << filename);
-			delete disk[0];
+			delete disk[i];
 			disk[i] = 0;
 		}
 		// next drive letter
@@ -144,10 +144,12 @@ void MSXDiskRomPatch::PHYDIO() const
 
 	CPU::CPURegs regs(cpu->getCPURegs());
 	
-	// stolen from Z80::ei()
-	regs.IFF1 = false;		// no ints after this instruction
-	regs.nextIFF1 = true;	// but allow them after next instruction
-	regs.IFF2 = true;
+	// TODO wouter: shouldn't this be DI???
+	// EI 
+	// not same as in Z80.cc bacause EI is not the last executed instruction 
+	regs.IFF1 = regs.nextIFF1 = regs.IFF2 = true;
+	// DI
+	//regs.IFF1 = regs.nextIFF1 = regs.IFF2 = false;
 	
 	// drive #, 0="A:", 1="B:", ..
 	byte drive = regs.AF.B.h;
@@ -293,7 +295,12 @@ void MSXDiskRomPatch::DSKCHG() const
 	CPU* cpu = MSXCPU::instance()->getActiveCPU();
 	CPU::CPURegs regs(cpu->getCPURegs());
 
-	regs.IFF1 = true;
+	// TODO wouter: shouldn't this be DI???
+	// EI 
+	// not same as in Z80.cc bacause EI is not the last executed instruction 
+	regs.IFF1 = regs.nextIFF1 = regs.IFF2 = true;
+	// DI
+	//regs.IFF1 = regs.nextIFF1 = regs.IFF2 = false;
 
 	// drive #, 0="A:", 1="B:", ..
 	byte drive = regs.AF.B.h;
