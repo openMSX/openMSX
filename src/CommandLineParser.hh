@@ -9,7 +9,6 @@
 #include <vector>
 #include <set>
 #include "openmsx.hh"
-#include "config.h"
 
 using std::string;
 using std::list;
@@ -68,13 +67,14 @@ public:
 	enum ControlType { IO_STD, IO_PIPE };
 	static CommandLineParser& instance();
 	void getControlParameters (ControlType& type, string& arguments);
-	void registerOption(const string& str, CLIOption* cliOption, byte prio = 7, byte length = 2);
+	void registerOption(const string& str, CLIOption* cliOption,
+		byte prio = 7, byte length = 2);
 	void registerFileClass(const string& str, CLIFileType* cliFileType);
 	void registerPostConfig(CLIPostConfig* post);
 	void parse(int argc, char** argv);
 	ParseStatus getParseStatus() const;
 
-//private: // should be private, but gcc-2.95.x complains
+private:
 	struct caseltstr {
 		bool operator()(const string& s1, const string& s2) const {
 			return strcasecmp(s1.c_str(), s2.c_str()) < 0;
@@ -84,7 +84,6 @@ public:
 	map<string, CLIFileType*, caseltstr> fileTypeMap;
 	map<string, CLIFileType*, caseltstr> fileClassMap;
 
-private:
 	bool parseFileName(const string& arg,list<string>& cmdLine);
 	bool parseOption(const string& arg,list<string>& cmdLine, byte prio);
 
