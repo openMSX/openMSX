@@ -801,7 +801,6 @@ void SDLGLRenderer::setDirty(
 
 void SDLGLRenderer::drawSprites(int screenLine, int leftBorder, int minX, int maxX)
 {
-	// Check whether this line is inside the host screen.
 	int absLine = screenLine / 2 + lineRenderTop;
 
 	// Determine sprites visible on this line.
@@ -1057,7 +1056,7 @@ void SDLGLRenderer::displayPhase(
 	// The extended border clips sprites as well.
 	int leftBorder = getLeftBorder();
 	int left = leftBorder;
-	// if (vdp->maskedBorder()) left += 8;
+	// if (vdp->maskedBorder()) left += 2 * 8;
 	if (fromX < left) {
 		GLSetColour(getBorderColour());
 		glBegin(GL_QUADS);
