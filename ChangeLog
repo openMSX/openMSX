@@ -1,5 +1,10 @@
 $Id$
 
+2004-10-31 Maarten ter Huurne <maarten@treewalker.org>
+	* At end of HMMC and LMMC, TR should not be reset.
+	* Reading and writing the COL register should reset TR.
+	* VR status flag flips at start of left border.
+
 2004-10-26 Eric Boon <e.boon4@chello.nl>
 	* Improved V9990 displaying:
 		- proper PAL & NTSC imaging in Bx modes
