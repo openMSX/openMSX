@@ -1,22 +1,24 @@
 // $Id$
 
-#ifndef __Y8950TIMER_HH__
-#define __Y8950TIMER_HH__
+#ifndef __TIMER_HH__
+#define __TIMER_HH__
 
 #include "Schedulable.hh"
 #include "openmsx.hh"
 
-// forward declarations
-class Y8950;
-class Scheduler;
 
-
-template<int freq, byte flag>
-class Y8950Timer : public Schedulable
+class TimerCallback
 {
 	public:
-		Y8950Timer(Y8950 *y8950);
-		virtual ~Y8950Timer();
+		virtual void callback(byte value) = 0;
+};
+
+template<int freq, byte flag>
+class Timer : public Schedulable
+{
+	public:
+		Timer(TimerCallback *cb);
+		virtual ~Timer();
 		void setValue(byte value);
 		void setStart(bool start, const EmuTime &time);
 
@@ -27,8 +29,8 @@ class Y8950Timer : public Schedulable
 	
 		int count;
 		bool counting;
-		Y8950 *y8950;
-		Scheduler *scheduler;
+		TimerCallback *cb;
+		class Scheduler *scheduler;
 };
 
 #endif

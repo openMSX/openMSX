@@ -1,31 +1,34 @@
 // $Id$
 
-#include "Y8950Timer.hh"
-#include "Y8950.hh"
+#include "Timer.hh"
 #include "Scheduler.hh"
+
+// Force template instantiation
+template class Timer<12500, 0x40>;
+template class Timer< 3125, 0x20>;
 
 
 template<int freq, byte flag>
-Y8950Timer<freq, flag>::Y8950Timer(Y8950* y8950_)
-	: counting(false), y8950(y8950_)
+Timer<freq, flag>::Timer(TimerCallback *cb_)
+	: counting(false), cb(cb_)
 {
 	scheduler = Scheduler::instance();
 }
 
 template<int freq, byte flag>
-Y8950Timer<freq, flag>::~Y8950Timer()
+Timer<freq, flag>::~Timer()
 {
 	unschedule();
 }
 
 template<int freq, byte flag>
-void Y8950Timer<freq, flag>::setValue(byte value)
+void Timer<freq, flag>::setValue(byte value)
 {
 	count = 256 - value;
 }
 
 template<int freq, byte flag>
-void Y8950Timer<freq, flag>::setStart(bool start, const EmuTime &time)
+void Timer<freq, flag>::setStart(bool start, const EmuTime &time)
 {
 	if (start != counting) {
 		counting = start;
@@ -38,21 +41,21 @@ void Y8950Timer<freq, flag>::setStart(bool start, const EmuTime &time)
 }
 
 template<int freq, byte flag>
-void Y8950Timer<freq, flag>::schedule(const EmuTime &time)
+void Timer<freq, flag>::schedule(const EmuTime &time)
 {
 	EmuTimeFreq<freq> now(time);
 	scheduler->setSyncPoint(now + count, this);
 }
 
 template<int freq, byte flag>
-void Y8950Timer<freq, flag>::unschedule()
+void Timer<freq, flag>::unschedule()
 {
 	scheduler->removeSyncPoint(this);
 }
 
 template<int freq, byte flag>
-void Y8950Timer<freq, flag>::executeUntilEmuTime(const EmuTime &time, int userData)
+void Timer<freq, flag>::executeUntilEmuTime(const EmuTime &time, int userData)
 {
-	y8950->setStatus(flag);
+	cb->callback(flag);
 	schedule(time);
 }

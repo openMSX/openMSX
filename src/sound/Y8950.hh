@@ -7,13 +7,13 @@
 #include "SoundDevice.hh"
 #include "IRQHelper.hh"
 #include "Mixer.hh"
-#include "Y8950Timer.hh"
+#include "Timer.hh"
 #include "Y8950Adpcm.hh"
 #include "Y8950KeyboardConnector.hh"
 #include "DACSound16S.hh"
 
 
-class Y8950 : public SoundDevice
+class Y8950 : public SoundDevice, public TimerCallback
 {
 	class Patch {
 		public:
@@ -209,9 +209,11 @@ class Y8950 : public SoundDevice
 		void checkMute();
 		bool checkMuteHelper();
 
-		void setStatus(int flags);
-		void resetStatus(int flags);
-		void changeStatusMask(int newMask);
+		void setStatus(byte flags);
+		void resetStatus(byte flags);
+		void changeStatusMask(byte newMask);
+
+		void callback(byte flag);
 
 		int adr;
 		int output[2];
@@ -298,10 +300,8 @@ class Y8950 : public SoundDevice
 		IRQHelper irq;
 		
 		// Timers
-		Y8950Timer<12500, STATUS_T1> timer1;	//  80us
-		friend class Y8950Timer<12500, STATUS_T1>;
-		Y8950Timer< 3125, STATUS_T2> timer2;	// 320us
-		friend class Y8950Timer< 3125, STATUS_T2>;
+		Timer<12500, STATUS_T1> timer1;	//  80us
+		Timer< 3125, STATUS_T2> timer2;	// 320us
 		
 		// ADPCM
 		Y8950Adpcm adpcm;

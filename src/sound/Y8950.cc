@@ -8,7 +8,6 @@
 
 #include <math.h>
 #include "Y8950.hh"
-#include "Y8950Timer.cc"
 
 
 short Y8950::dB2LinTab[(2*DB_MUTE)*2];
@@ -1129,7 +1128,12 @@ byte Y8950::readStatus()
 	return tmp;
 }
 
-void Y8950::setStatus(int flags)
+void Y8950::callback(byte flag)
+{
+	setStatus(flag);
+}
+
+void Y8950::setStatus(byte flags)
 {
 	status |= flags;
 	if (status & statusMask) {
@@ -1137,7 +1141,7 @@ void Y8950::setStatus(int flags)
 		irq.set();
 	}
 }
-void Y8950::resetStatus(int flags)
+void Y8950::resetStatus(byte flags)
 {
 	status &= ~flags;
 	if (!(status & statusMask)) {
@@ -1145,7 +1149,7 @@ void Y8950::resetStatus(int flags)
 		irq.reset();
 	}
 }
-void Y8950::changeStatusMask(int newMask)
+void Y8950::changeStatusMask(byte newMask)
 {
 	statusMask = newMask;
 	status &= statusMask;
