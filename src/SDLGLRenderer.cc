@@ -933,7 +933,7 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 		for (int col = 0; col < 40; col++) {
 			// TODO: Only bind texture once?
 			//       Currently both subdirs bind the same texture.
-			int name = row * 40 + col;
+			int name = (row & 31) * 40 + col;
 			int charcode = vram->nameTable.readNP(name);
 			GLuint textureId = characterCache[charcode];
 			if (dirtyPattern[charcode]) {
@@ -966,7 +966,7 @@ void SDLGLRenderer::renderGraphic2(int vramLine, int screenLine, int count)
 	int endRow = (vramLine + count + 7) / 8;
 	screenLine -= (vramLine & 7) * 2;
 	for (int row = vramLine / 8; row < endRow; row++) {
-		renderGraphic2Row(row, screenLine);
+		renderGraphic2Row(row & 31, screenLine);
 		screenLine += 16;
 	}
 }
@@ -1017,9 +1017,8 @@ void SDLGLRenderer::displayPhase(
 	}
 	if (fromLine >= limit) return;
 
-	// Perform vertical scroll.
-	int scrolledLine =
-		(fromLine - vdp->getLineZero() + vdp->getVerticalScroll()) & 0xFF;
+	// Perform vertical scroll (wraps at 256)
+	byte line = fromLine - vdp->getLineZero() + vdp->getVerticalScroll();
 
 	// Render background lines.
 	// TODO: Complete separation of character and bitmap modes.
@@ -1027,7 +1026,6 @@ void SDLGLRenderer::displayPhase(
 	int leftBorder = getLeftBorder();
 	int y = (fromLine - lineRenderTop) * 2;
 	if (vdp->isBitmapMode()) {
-		int line = scrolledLine;
 		int n = limit - fromLine;
 		bool planar = vdp->isPlanar();
 		if (planar) renderPlanarBitmapLines(line, n);
@@ -1039,11 +1037,10 @@ void SDLGLRenderer::displayPhase(
 		do {
 			int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
 			GLDrawTexture(bitmapTextureIds[vramLine], leftBorder, y);
-			line = (line + 1) & 0xFF;
+			line++;	// wraps at 256
 			y += 2;
 		} while (--n);
 	} else {
-		int line = scrolledLine;
 		int n = limit - fromLine;
 		switch (vdp->getDisplayMode()) {
 		case 1:
@@ -1058,7 +1055,7 @@ void SDLGLRenderer::displayPhase(
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 			do {
 				GLDrawTexture(charTextureIds[line], leftBorder, y);
-				line = (line + 1) & 0xFF;
+				line++;	// wraps at 256
 				y += 2;
 			} while (--n);
 			break;
