@@ -26,12 +26,19 @@ time_t Date::fromString(const string& line)
 	char day[4];
 	char month[4];
 	struct tm tm;
-	int items = sscanf(line.c_str(), "%3s %3s %2u %2u:%2u:%2u %4u",
+	int items = sscanf(line.c_str(), "%3s %3s %2d %2d:%2d:%2d %4d",
 	                   day, month, &tm.tm_mday, &tm.tm_hour,
 	                   &tm.tm_min, &tm.tm_sec, &tm.tm_year);
 	tm.tm_year -= 1900;
 	tm.tm_isdst = -1;
 	tm.tm_mon = -1;
+	if ((tm.tm_sec  < 0) || (59 < tm.tm_sec)  ||
+	    (tm.tm_min  < 0) || (59 < tm.tm_min)  ||
+	    (tm.tm_hour < 0) || (23 < tm.tm_hour) ||
+	    (tm.tm_mday < 1) || (31 < tm.tm_mday) ||
+	    (tm.tm_year < 0)) {
+		return static_cast<time_t>(-1);
+	}
 	for (int i = 0; i < 12; ++i) {
 		if (strcmp(month, months[i]) == 0) {
 			tm.tm_mon = i;

@@ -27,6 +27,7 @@ private:
 		// has become stable.
 		static bool syncInProgress = false;
 		assert(!syncInProgress);
+		syncInProgress += 0; // avoid warning in none assert build (icc)
 		syncInProgress = true;
 		vram->sync(time);
 		checkUntil(time);
