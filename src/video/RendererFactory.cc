@@ -116,8 +116,7 @@ Renderer *SDLHiRendererFactory::create(VDP *vdp)
 	const unsigned HEIGHT = 480;
 
 	bool fullScreen = RenderSettings::instance()->getFullScreen()->getValue();
-	int flags = SDL_HWSURFACE | SDL_DOUBLEBUF
-		| (fullScreen ? SDL_FULLSCREEN : 0);
+	int flags = SDL_SWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
 
 	// Try default bpp.
 	SDL_Surface *screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);
@@ -165,8 +164,7 @@ Renderer *SDLLoRendererFactory::create(VDP *vdp)
 	const unsigned HEIGHT = 240;
 
 	bool fullScreen = RenderSettings::instance()->getFullScreen()->getValue();
-	int flags = SDL_HWSURFACE | SDL_DOUBLEBUF
-		| (fullScreen ? SDL_FULLSCREEN : 0);
+	int flags = SDL_SWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
 
 	// Try default bpp.
 	SDL_Surface *screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);
@@ -218,8 +216,8 @@ Renderer *SDLGLRendererFactory::create(VDP *vdp)
 	const unsigned HEIGHT = 480;
 
 	bool fullScreen = RenderSettings::instance()->getFullScreen()->getValue();
-	int flags = SDL_OPENGL | SDL_HWSURFACE |
-	            (fullScreen ? SDL_FULLSCREEN : 0);
+	int flags = SDL_OPENGL | SDL_HWSURFACE
+		| (fullScreen ? SDL_FULLSCREEN : 0);
 
 	// Enables OpenGL double buffering.
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, true);

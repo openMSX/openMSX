@@ -191,11 +191,6 @@ private:
 	  */
 	SDL_Surface *screen;
 
-	/** Contains the image that will later be copied to the actual screen.
-	  * Image postprocessing operations can be applied to this surface.
-	  */
-	SDL_Surface *workScreen;
-
 	/** The stored image, see putImage and putStoredImage.
 	  */
 	SDL_Surface *storedImage;
