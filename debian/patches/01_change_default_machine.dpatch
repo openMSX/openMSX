@@ -1,0 +1,37 @@
+#!/bin/sh -e
+##  by Joost Yervante Damad <joost@lumatec.be>
+##
+## DP: change the default machine to the external C-BIOS
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
+
+case "$1" in
+       -patch) patch $patch_opts -p1 < $0;;
+       -unpatch) patch $patch_opts -p1 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+                exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+diff -ru openmsx-0.5.0.orig/src/CommandLineParser.cc openmsx-0.5.0/src/CommandLineParser.cc
+--- openmsx-0.5.0.orig/src/CommandLineParser.cc
++++ openmsx-0.5.0/src/CommandLineParser.cc
+@@ -312,7 +312,7 @@
+                searchMachines(*it + "machines", machines);
+        }
+
+-       machines["cbios-msx2"] = 0; // default machine
++       machines["C-BIOS_MSX2"] = 0; // default machine
+
+        machineSetting.reset(new EnumSetting<int>("machine",
+                "default machine (takes effect next time openMSX is started)",
+
