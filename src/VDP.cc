@@ -148,8 +148,9 @@ void VDP::resetInit(const EmuTime &time)
 	displayMode = 0;
 	vramPointer = 0;
 	readAhead = 0;
-	firstByte = -1;
-	paletteLatch = -1;
+	dataLatch = 0;
+	registerDataStored = false;
+	paletteDataStored = false;
 	blinkState = false;
 	blinkCount = 0;
 	horizontalAdjust = 7;
@@ -468,48 +469,47 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 			controlRegs[14] = (controlRegs[14] + 1) & 0x07;
 		}
 		readAhead = value;
-		firstByte = -1;
+		registerDataStored = false;
 		break;
 	}
 	case 0x99:
-		if (firstByte == -1) {
-			firstByte = value;
-		}
-		else {
+		if (registerDataStored) {
 			if (value & 0x80) {
 				// Register write.
 				changeRegister(
 					value & controlRegMask,
-					firstByte,
+					dataLatch,
 					time
 					);
-			}
-			else {
+			} else {
 				// Set read/write address.
-				vramPointer = ((word)value << 8 | firstByte) & 0x3FFF;
+				vramPointer = ((word)value << 8 | dataLatch) & 0x3FFF;
 				if (!(value & 0x40)) {
 					// Read ahead.
 					vramRead(time);
 				}
 			}
-			firstByte = -1;
+			registerDataStored = false;
+		} else {
+			dataLatch = value;
+			registerDataStored = true;
 		}
 		break;
 	case 0x9A:
-		if (paletteLatch == -1) {
-			paletteLatch = value;
-		}
-		else {
+		if (paletteDataStored) {
 			int index = controlRegs[16];
-			int grb = ((value << 8) | paletteLatch) & 0x777;
+			int grb = ((value << 8) | dataLatch) & 0x777;
 			renderer->updatePalette(index, grb, time);
 			palette[index] = grb;
 			controlRegs[16] = (index + 1) & 0x0F;
-			paletteLatch = -1;
+			paletteDataStored = false;
+		} else {
+			dataLatch = value;
+			paletteDataStored = true;
 		}
 		break;
 	case 0x9B: {
-		// TODO: Does port 0x9B affect firstByte?
+		dataLatch = value;
 		// TODO: What happens if reg 17 is written indirectly?
 		//fprintf(stderr, "VDP indirect register write: %02X\n", value);
 		byte regNr = controlRegs[17];
@@ -536,7 +536,7 @@ byte VDP::vramRead(const EmuTime &time)
 		// In MSX2 video mode, pointer range is 128K.
 		controlRegs[14] = (controlRegs[14] + 1) & 0x07;
 	}
-	firstByte = -1;
+	registerDataStored = false;
 	return ret;
 }
 
@@ -550,7 +550,7 @@ byte VDP::readIO(byte port, const EmuTime &time)
 	else { // port == 0x99
 
 		// Abort any port 0x99 writes in progress.
-		firstByte = -1;
+		registerDataStored = false;
 
 		//std::cout << "read S#" << (int)controlRegs[15] << "\n";
 
@@ -754,7 +754,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		break;
 	case 16:
 		// Any half-finished palette loads are aborted.
-		paletteLatch = -1;
+		paletteDataStored = false;
 		break;
 	case 18:
 		if (change & 0x0F) {

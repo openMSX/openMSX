@@ -4,6 +4,7 @@ $Id$
 	* Workaround to prevent out-of-order I/O with the VDP.
 	* Added asserts to VDP code to check timing constraints.
 	* Fix for sprites in planar modes.
+	* Fixed behaviour of port #99, #9A and #9B interference.
 
 2002-12-30 Joost Yervante Damad <joost@lumatec.be>
 	* updated AUTHORS

@@ -683,10 +683,6 @@ private:
 	  */
 	int blinkCount;
 
-	/** First byte written through port #9A, or -1 for none.
-	  */
-	int paletteLatch;
-
 	/** VRAM management object.
 	  */
 	VDPVRAM *vram;
@@ -697,9 +693,17 @@ private:
 	  */
 	int vramMask;
 
-	/** First byte written through port #99, or -1 for none.
+	/** First byte written through port #99, #9A or #9B.
 	  */
-	int firstByte;
+	byte dataLatch;
+
+	/** Does the data latch have register data (port #99) stored?
+	  */
+	bool registerDataStored;
+
+	/** Does the data latch have palette data (port #9A) stored?
+	  */
+	bool paletteDataStored;
 
 	/** VRAM is read as soon as VRAM pointer changes.
 	  * TODO: Is this actually what happens?
