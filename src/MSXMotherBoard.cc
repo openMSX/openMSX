@@ -53,22 +53,22 @@ void MSXMotherBoard::resetMSX()
 {
 	const EmuTime& time = MSXCPU::instance()->getCurrentTime();
 	MSXCPUInterface::instance()->reset();
-	MSXCPU::instance()->reset(time);
 	for (list<MSXDevice*>::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		(*it)->reset(time);
 	}
+	MSXCPU::instance()->reset(time);
 }
 
 void MSXMotherBoard::reInitMSX()
 {
 	const EmuTime& time = MSXCPU::instance()->getCurrentTime();
 	MSXCPUInterface::instance()->reset();
-	MSXCPU::instance()->reset(time);
 	for (list<MSXDevice*>::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		(*it)->reInit(time);
 	}
+	MSXCPU::instance()->reset(time);
 }
 
 void MSXMotherBoard::run(bool powerOn)

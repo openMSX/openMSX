@@ -87,14 +87,16 @@ void CPU::reset(const EmuTime &time)
 	R.I  = 0xFF;
 	R.R  = 0x00;
 	R.R2 = 0;
-	IRQStatus = 0;
 	memptr.w = 0xFFFF;
 	invalidateCache(0x0000, 0x10000 / CPU::CACHE_LINE_SIZE);
 	setCurrentTime(time);
+	
+	assert(IRQStatus == 0); // other devices must reset their IRQ source
 }
 
 void CPU::raiseIRQ()
 {
+	assert(IRQStatus >= 0);
 	if (IRQStatus == 0)
 		slowInstructions++;
 	IRQStatus++;
@@ -104,6 +106,7 @@ void CPU::lowerIRQ()
 {
 	IRQStatus--;
 	//PRT_DEBUG("CPU: lower IRQ " << IRQStatus);
+	assert(IRQStatus >= 0);
 }
 
 void CPU::wait(const EmuTime& time)
