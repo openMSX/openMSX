@@ -1813,8 +1813,8 @@ YMF262::YMF262(short volume, const EmuTime &time)
 	
 	init_tables();
 
-	setVolume(volume);
-	int bufSize = Mixer::instance()->registerSound(this, Mixer::STEREO);
+	int bufSize = Mixer::instance()->registerSound("MoonSoundFM", this,
+	                                               volume, Mixer::STEREO);
 	buffer = new int[2 * bufSize];
 	reset(time);
 

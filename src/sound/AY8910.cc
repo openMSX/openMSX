@@ -17,11 +17,11 @@
 #include "Mixer.hh"
 
 
-AY8910::AY8910(AY8910Interface &interf, short volume_, const EmuTime &time)
+AY8910::AY8910(AY8910Interface &interf, short volume, const EmuTime &time)
 	: interface(interf)
 {
-	setVolume(volume_);
-	int bufSize = Mixer::instance()->registerSound(this);
+	int bufSize = Mixer::instance()->registerSound("psg",
+	                                        this, volume, Mixer::MONO);
 	buffer = new int[bufSize];
 	reset(time);
 }

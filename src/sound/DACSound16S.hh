@@ -14,7 +14,8 @@
 class DACSound16S : public SoundDevice
 {
 	public:
-		DACSound16S(short maxVolume, const EmuTime &time); 
+		DACSound16S(const std::string &name, short maxVolume,
+		            const EmuTime &time); 
 		virtual ~DACSound16S();
 	
 		void reset(const EmuTime &time);

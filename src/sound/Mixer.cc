@@ -7,6 +7,7 @@
 #include "RealTime.hh"
 #include "SoundDevice.hh"
 #include "MSXConfig.hh"
+#include "VolumeSetting.hh"
 
 
 Mixer::Mixer()
@@ -70,16 +71,25 @@ Mixer* Mixer::instance(void)
 }
 
 
-int Mixer::registerSound(SoundDevice *device, ChannelMode mode)
+int Mixer::registerSound(const std::string &name, SoundDevice *device,
+                         short volume, ChannelMode mode)
 {
-	if (!init) return 512;	// save value
+	if (!init) {
+		return 512;	// return a save value
+	}
+	SoundDeviceInfo info;
+	info.volumeSetting = new VolumeSetting(name, volume, device);
+	info.mode = mode;
+	infos[device] = info;
 	
 	lock();
-	if (buffers.size() == 0)
+	if (buffers.size() == 0) {
 		SDL_PauseAudio(0);	// unpause when first dev registers
+	}
 	buffers.push_back(NULL);	// make room for one more
 	devices[mode].push_back(device);
 	device->setSampleRate(audioSpec.freq);
+	device->setVolume(volume);
 	unlock();
 
 	return audioSpec.samples;
@@ -87,20 +97,21 @@ int Mixer::registerSound(SoundDevice *device, ChannelMode mode)
 
 void Mixer::unregisterSound(SoundDevice *device)
 {
-	if (!init) return;
-	
-	// Note: this code assumes the given device was registered exactly once!
-	
-	lock();
-	for (int mode = 0; mode < NB_MODES; mode++) {
-		std::vector<SoundDevice*>::iterator it;
-		it = std::find(devices[mode].begin(), devices[mode].end(), device);
-		if (it != devices[mode].end()) {
-			std::swap(*it, devices[mode].back());
-			devices[mode].pop_back();
-			buffers.pop_back();
-		}
+	if (!init) {
+		return;
 	}
+	std::map<SoundDevice*, SoundDeviceInfo>::iterator it=
+		infos.find(device);
+	if (it == infos.end()) {
+		return;
+	}
+	lock();
+	ChannelMode mode = it->second.mode;
+	std::vector<SoundDevice*> &dev = devices[mode];
+	dev.erase(remove(dev.begin(), dev.end(), device), dev.end());
+	buffers.pop_back();
+	delete it->second.volumeSetting;
+	
 	if (buffers.size() == 0) {
 		SDL_PauseAudio(1);	// pause when last dev unregisters
 	}

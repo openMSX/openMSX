@@ -1,5 +1,8 @@
 $Id$
 
+2003-05-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented run-time tuneable volume for sound devices
+
 2003-05-19 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Implemented search history in the console
 	* added Ctrl-C to clear the current command.

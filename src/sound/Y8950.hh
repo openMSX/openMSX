@@ -153,8 +153,8 @@ class Y8950 : public SoundDevice, public TimerCallback
 	};
 
 	public:
-		Y8950(short volume, int sampleRam, const EmuTime &time,
-		      Mixer::ChannelMode mode=Mixer::MONO);
+		Y8950(const std::string &name, short volume, int sampleRam,
+		      const EmuTime &time, Mixer::ChannelMode mode=Mixer::MONO);
 		virtual ~Y8950();
 
 		void powerOff(const EmuTime &time);

@@ -4,7 +4,7 @@
 
 
 KeyClick::KeyClick(short volume, const EmuTime &time)
-	: dac(volume, time)
+	: dac("keyclick", volume, time)
 {
 	status = false;
 }

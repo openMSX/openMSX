@@ -9,7 +9,7 @@ MSXTurboRPCM::MSXTurboRPCM(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
-	dac = new DACSound8U(volume, time);
+	dac = new DACSound8U("PCM", volume, time);
 
 	reset(time);
 }

@@ -24,6 +24,7 @@ noinst_LTLIBRARIES = libSound.la
 libSound_la_SOURCES = \
 	Mixer.cc Mixer.hh \
 	SoundDevice.cc SoundDevice.hh \
+	VolumeSetting.cc VolumeSetting.hh \
 	MSXPSG.cc MSXPSG.hh \
 	AY8910.cc AY8910.hh \
 	DACSound16S.cc DACSound16S.hh \

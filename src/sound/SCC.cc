@@ -73,13 +73,14 @@
 #include "Mixer.hh"
 
 
-SCC::SCC(short volume_, const EmuTime &time, ChipMode mode)
+SCC::SCC(const std::string &name, short volume, const EmuTime &time,
+         ChipMode mode)
 	: currentChipMode(mode)
 {
 	// Register as a soundevice
-	int bufSize = Mixer::instance()->registerSound(this);
+	int bufSize = Mixer::instance()->registerSound(name, this, volume,
+	                                               Mixer::MONO);
 	buffer = new int[bufSize];
-	setVolume(volume_);
 	reset(time);
 }
 

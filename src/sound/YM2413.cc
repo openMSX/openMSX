@@ -504,7 +504,8 @@ void YM2413::Channel::keyOff()
 //***********************************************************//
 
 // Constructor
-YM2413::YM2413(short volume_, const EmuTime &time, const Mixer::ChannelMode mode)
+YM2413::YM2413(const std::string &name, short volume, const EmuTime &time,
+               Mixer::ChannelMode mode)
 	: rythm_mode(false)
 {
 	// User instrument
@@ -583,8 +584,7 @@ YM2413::YM2413(short volume_, const EmuTime &time, const Mixer::ChannelMode mode
 	makeSinTable();
 	makeDB2LinTable();
 
-	setVolume(volume_);
-	int bufSize = Mixer::instance()->registerSound(this, mode);
+	int bufSize = Mixer::instance()->registerSound(name, this, volume, mode);
 	buffer = new int[bufSize];
 	
 	reset(time);

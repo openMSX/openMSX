@@ -28,7 +28,7 @@ MSXAudio::MSXAudio(Device *config, const EmuTime &time)
 		ramSize = 256;
 	}
 	
-	y8950 = new Y8950(volume, ramSize * 1024, time, mode);
+	y8950 = new Y8950(config->getId(), volume, ramSize * 1024, time, mode);
 	reset(time);
 }
 

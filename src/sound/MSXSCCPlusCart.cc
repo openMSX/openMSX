@@ -13,7 +13,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	short volume = (short)config->getParameterAsInt("volume");
-	scc = new SCC(volume, time, SCC::SCC_Compatible);
+	scc = new SCC(config->getId(), volume, time, SCC::SCC_Compatible);
 
 	memset(memoryBank, 0xFF, 0x20000);
 

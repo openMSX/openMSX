@@ -11,7 +11,8 @@
 class DACSound8U : public DACSound16S
 {
 	public:
-		DACSound8U(short maxVolume, const EmuTime &time); 
+		DACSound8U(const std::string &name, short maxVolume,
+		           const EmuTime &time); 
 		virtual ~DACSound8U();
 	
 		void writeDAC(byte value, const EmuTime &time);

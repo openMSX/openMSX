@@ -94,7 +94,7 @@ public:
 	virtual std::string getValueString() const;
 	virtual void setValueString(const std::string &valueString);
 	virtual void setValueInt(int newValue);
-	void setRange (const int minvalue,const int maxvalue);
+	void setRange(int minValue, int maxValue);
 	
 protected:
 	/**

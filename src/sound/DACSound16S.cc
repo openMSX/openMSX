@@ -9,17 +9,18 @@
 const float DELAY = 0.08;	// TODO tune
 
 
-DACSound16S::DACSound16S(short maxVolume, const EmuTime &time)
+DACSound16S::DACSound16S(const std::string &name, short volume,
+                         const EmuTime &time)
 {
 	cpu = MSXCPU::instance();
 	realTime = RealTime::instance();
 	
-	setVolume(maxVolume);
 	lastValue = lastWrittenValue = 0;
 	nextTime = EmuTime::infinity;
 	reset(time);
 	
-	int bufSize = Mixer::instance()->registerSound(this);
+	int bufSize = Mixer::instance()->registerSound(name, this,
+	                                               volume, Mixer::MONO);
 	buffer = new int[bufSize];
 }
 

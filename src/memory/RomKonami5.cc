@@ -24,7 +24,7 @@ RomKonami5::RomKonami5(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	short volume = (short)config->getParameterAsInt("volume");
-	scc = new SCC(volume, time);
+	scc = new SCC(config->getId(), volume, time);
 	
 	reset(time);
 }

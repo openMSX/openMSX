@@ -9,12 +9,14 @@
 
 #include <SDL/SDL.h>
 #include <vector>
+#include <map>
 #include "EmuTime.hh"
 #include "Settings.hh"
 
 class SoundDevice;
 class MSXCPU;
 class RealTime;
+class VolumeSetting;
 
 
 class Mixer
@@ -39,7 +41,8 @@ class Mixer
 		 * The maximum number of samples asked for is returned by this
 		 * method.
 		 */
-		int registerSound(SoundDevice *device, ChannelMode mode=MONO);
+		int registerSound(const std::string &name, SoundDevice *device,
+		                  short volume, ChannelMode mode);
 
 		/**
 		 * Every sounddevice must unregister before it is destructed
@@ -80,6 +83,12 @@ class Mixer
 		
 		bool init;
 		int muteCount;
+
+		struct SoundDeviceInfo {
+			VolumeSetting* volumeSetting;
+			ChannelMode mode;
+		};
+		std::map<SoundDevice*, SoundDeviceInfo> infos;
 
 		SDL_AudioSpec audioSpec;
 		std::vector<SoundDevice*> devices[NB_MODES];

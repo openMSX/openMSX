@@ -517,8 +517,8 @@ YMF278::YMF278(short volume, int ramSize, Device *config,
 	endRam = endRom + ramSize;
 	
 	reset(time);
-	setVolume(volume);
-	int bufSize = Mixer::instance()->registerSound(this, Mixer::STEREO);
+	int bufSize = Mixer::instance()->registerSound("MoonSoundWave", this,
+	                                               volume, Mixer::STEREO);
 	buffer = new int[2 * bufSize];
 }
 
