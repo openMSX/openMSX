@@ -13,7 +13,15 @@
 using std::string;
 using std::vector;
 
+
 namespace openmsx {
+
+const bool META_HOT_KEYS =
+#ifdef __APPLE__
+	true;
+#else
+	false;
+#endif
 
 HotKey::HotKey()
 	: bindCmd(*this), unbindCmd(*this)
@@ -36,15 +44,27 @@ void HotKey::initBindings()
 {
 	if (bindingsElement.getChildren().empty()) {
 		// no (or empty) bindings section, use defaults
-		registerHotKeyCommand("PRINT",      "screenshot");
-		registerHotKeyCommand("PAUSE",      "toggle pause");
-		registerHotKeyCommand("F9",         "toggle throttle");
-		registerHotKeyCommand("F10",        "toggle console");
-		registerHotKeyCommand("F11",        "toggle mute");
-		registerHotKeyCommand("F12",        "toggle fullscreen");
-		registerHotKeyCommand("RETURN+ALT", "toggle fullscreen");
-		registerHotKeyCommand("F4+ALT",     "quit");
-		registerHotKeyCommand("PAUSE+CTRL", "quit");
+		if (META_HOT_KEYS) {
+			// Hot key combos using Mac's Command key.
+			registerHotKeyCommand("D+META", "screenshot");
+			registerHotKeyCommand("P+META", "toggle pause");
+			registerHotKeyCommand("T+META", "toggle throttle");
+			registerHotKeyCommand("L+META", "toggle console");
+			registerHotKeyCommand("U+META", "toggle mute");
+			registerHotKeyCommand("F+META", "toggle fullscreen");
+			registerHotKeyCommand("Q+META", "quit");
+		} else {
+			// Hot key combos for typical PC keyboards.
+			registerHotKeyCommand("PRINT",      "screenshot");
+			registerHotKeyCommand("PAUSE",      "toggle pause");
+			registerHotKeyCommand("F9",         "toggle throttle");
+			registerHotKeyCommand("F10",        "toggle console");
+			registerHotKeyCommand("F11",        "toggle mute");
+			registerHotKeyCommand("F12",        "toggle fullscreen");
+			registerHotKeyCommand("RETURN+ALT", "toggle fullscreen");
+			registerHotKeyCommand("F4+ALT",     "quit");
+			registerHotKeyCommand("PAUSE+CTRL", "quit");
+		}
 	} else {
 		// there is a bindings section, use those bindings
 		const XMLElement::Children& children = bindingsElement.getChildren();
@@ -58,7 +78,7 @@ void HotKey::initBindings()
 HotKey::~HotKey()
 {
 	bindingsElement.removeListener(*this);
-	
+
 	CommandController::instance().unregisterCommand(&bindCmd,   "bind");
 	CommandController::instance().unregisterCommand(&unbindCmd, "unbind");
 
@@ -169,7 +189,7 @@ string HotKey::BindCmd::execute(const vector<string>& tokens)
 	switch (tokens.size()) {
 	case 0:
 		assert(false);
-	case 1: 
+	case 1:
 		// show all bounded keys
 		for (CommandMap::iterator it = parent.cmdMap.begin();
 		     it != parent.cmdMap.end(); it++) {
