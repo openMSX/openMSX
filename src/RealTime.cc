@@ -17,8 +17,9 @@ using std::auto_ptr;
 
 namespace openmsx {
 
-const int SYNC_INTERVAL = 500;    // ms
+const int SYNC_INTERVAL = 500000; // us
 const int MAX_LAG       = 200000; // us
+const int ALLOWED_LAG   =  20000; // us
 
 
 RealTime::RealTime()
@@ -82,7 +83,7 @@ bool RealTime::timeLeft(unsigned us, const EmuTime& time)
 {
 	unsigned realDuration = (unsigned)(getRealDuration(emuTime, time) * 1000000);
 	unsigned currentRealTime = getRealTime();
-	return (currentRealTime + us) < (idealRealTime + realDuration);
+	return (currentRealTime + us) < (idealRealTime + realDuration + ALLOWED_LAG);
 }
 
 void RealTime::sync(const EmuTime& time, bool allowSleep)
@@ -108,7 +109,7 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 	emuTime = time;
 	
 	// Schedule again in future
-	EmuTimeFreq<1000> time2(time);
+	EmuTimeFreq<1000000> time2(time);
 	scheduler.setSyncPoint(time2 + SYNC_INTERVAL, this);
 }
 
