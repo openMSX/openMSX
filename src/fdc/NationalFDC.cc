@@ -21,25 +21,32 @@ NationalFDC::~NationalFDC()
 byte NationalFDC::readMem(word address, const EmuTime &time)
 {
 	byte value;
-	switch (address & 0x3FFF) {
-	case 0x3FB8:
+	// According to atarulum:
+	//  7FBC        is mirrored in 7FBC - 7FBF
+	//  7FB8 - 7FBF is mirrored in 7F80 - 7FBF
+	switch (address & 0x3FC7) {
+	case 0x3F80:
 		value = controller->getStatusReg(time);
 		break;
-	case 0x3FB9:
+	case 0x3F81:
 		value = controller->getTrackReg(time);
 		break;
-	case 0x3FBA:
+	case 0x3F82:
 		value = controller->getSectorReg(time);
 		break;
-	case 0x3FBB:
+	case 0x3F83:
 		value = controller->getDataReg(time);
 		break;
-	case 0x3FBC:
+	case 0x3F84:
+	case 0x3F85:
+	case 0x3F86:
+	case 0x3F87:
 		// Drive control IRQ and DRQ lines are not connected to Z80 interrupt request
 		// bit 7: intrq
 		// bit 6: !dtrq
-		value = 0x40;
-		if (controller->getIRQ(time))  value |= 0x80;
+		// other bits read 1 
+		value = 0x7F;
+		if (controller->getIRQ(time))  value |=  0x80;
 		if (controller->getDTRQ(time)) value &= ~0x40;
 		break;
 	default:
@@ -59,20 +66,23 @@ byte NationalFDC::readMem(word address, const EmuTime &time)
 void NationalFDC::writeMem(word address, byte value, const EmuTime &time)
 {
 	//PRT_DEBUG("NationalFDC write 0x" << std::hex << (int)address << " 0x" << (int)value << std::dec);
-	switch (address & 0x3FFF) {
-	case 0x3FB8:
+	switch (address & 0x3FC7) {
+	case 0x3F80:
 		controller->setCommandReg(value, time);
 		break;
-	case 0x3FB9:
+	case 0x3F81:
 		controller->setTrackReg(value, time);
 		break;
-	case 0x3FBA:
+	case 0x3F82:
 		controller->setSectorReg(value, time);
 		break;
-	case 0x3FBB:
+	case 0x3F83:
 		controller->setDataReg(value, time);
 		break;
-	case 0x3FBC:
+	case 0x3F84:
+	case 0x3F85:
+	case 0x3F86:
+	case 0x3F87:
 		//bit 0 -> select drive 0
 		//bit 1 -> select drive 1
 		//bit 2 -> side select
@@ -97,7 +107,7 @@ void NationalFDC::writeMem(word address, byte value, const EmuTime &time)
 
 byte* NationalFDC::getReadCacheLine(word start)
 {
-	if ((start & 0x3FB8 & CPU::CACHE_LINE_HIGH) == (0x3FB8 & CPU::CACHE_LINE_HIGH))
+	if ((start & 0x3FC0 & CPU::CACHE_LINE_HIGH) == (0x3F80 & CPU::CACHE_LINE_HIGH))
 		// FDC at 0x7FB8-0x7FBC (also mirrored)
 		return NULL;
 	if (start < 0x8000) {

@@ -1,6 +1,9 @@
 $Id$
 
-2002-12-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2002-12-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented correct mirroring for National based FDC's
+
+2002-12-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented mmap() in File classes:
 	   - map a file direclty into the process memory range, the OS can
 	     perform some optimizations this way:
