@@ -1,5 +1,8 @@
 $Id$
 
+2003-01-27 David Heremans <david.heremans@gnu-linux.net>
+	* Increased usefulness of error message in DeviceFactory
+
 2003-01-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Automatically load "settings.xml" on startup:
 	   - you can specify an alternative file with the "-setting" command

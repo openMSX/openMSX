@@ -234,7 +234,7 @@ MSXDevice *DeviceFactory::create(Device *conf, const EmuTime &time)
 		}
 		return msxmidi;
 	}
-	PRT_ERROR("Unknown device specified in configuration");
+	PRT_ERROR("Unknown device \""<<type<<"\" specified in configuration");
 	return NULL;
 }
 
