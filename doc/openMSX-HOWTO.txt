@@ -8,7 +8,7 @@ First note this:
   you enjoy openMSX more.
 
 This HOWTO is about openMSX, the open source MSX emulator that tries to achieve
-perfect emulation by using a novel emulation model. The homepage of openMSX can
+perfect emulation by using a novel emulation model. The home page of openMSX can
 be found here: http://openmsx.sf.net/
 
 Since openMSX is still targeted for developers, the authors do not really pay
@@ -65,9 +65,9 @@ tar.gz file is called the top of the source tree.)
 
 For bleeding-edge versions of openMSX, you can get the sources from CVS. 
 
-In short, you use CVS (which is a system for version management) to retrieve the
-latest version of the sourcecode of openMSX. This means you will need to install
-a CVS client.
+In short, you use CVS (which is a system for version management) to retrieve
+the latest version of the source code of openMSX. This means you will need to
+install a CVS client.
 
 With the following line you can login to the openMSX CVS server. 
 
@@ -78,7 +78,8 @@ In this line you specified where you want to retrieve the files from (the
 developer, anonymous will do), and what project you want to retrieve (openmsx in
 this case).
 
-You will be prompted for a password. Just press enter if you're logging in as user anonymous.
+You will be prompted for a password. Just press enter if you're logging in as
+user anonymous.
 
 Example output:
 
@@ -109,7 +110,7 @@ Before compiling, you need to have certain libraries installed. On my system
 (which is a Debian testing one), they are called:
 
 libsdl-image1.2 - image loading library for Simple DirectMedia Layer 1.2
-libsdl-image1.2-dev - development files for SDL 1.2 image loading libray
+libsdl-image1.2-dev - development files for SDL 1.2 image loading library
 libsdl-mixer1.2 - mixer library for Simple DirectMedia Layer 1.2
 libsdl-mixer1.2-dev - development files for SDL1.2 mixer library
 libsdl-net1.2 - network library for Simple DirectMedia Layer
@@ -162,7 +163,7 @@ configure.in: 147: required file `./ltmain.sh' not found
 as the last line, run 'sh autogen.sh' again, and it will work.  This could be
 some timing issue with the script running so fast that the file ltmain.sh (which
 is created by autogen.sh) isn't generated yet.  Or something like that. It never
-happend on Manuel's system, but it did on Jorrith's.  Anyways, if you get that
+happened on Manuel's system, but it did on Jorrith's.  Anyways, if you get that
 error, just run it twice :)
 
 Now it's time for the tools to probe the system configuration.
@@ -174,14 +175,14 @@ If you have a Pentium II or higher machine, instead configure it like this:
 
 ./config-i686
 
-This will let openMSX compile with optimizations for your system's CPU.
+This will let openMSX compile with optimisations for your system's CPU.
 
 You will see loads of checks for available stuff and so on... Just ignore it,
 except if it exits with any errors. This probably means you will have to
 install more packages, the error message will tell you what is broken. If the
 problem is with openMSX, please file a detailed bug report on our SourceForge
 site. If possible, attach the config.log file that is made as part of the
-configure step to the bugreport, in case there is a ./configure error.
+configure step to the bug report, in case there is a ./configure error.
 
 After the (successful) configure step, it's time to compile
 everything. Type
@@ -215,7 +216,7 @@ http://www.file-hunter.com/systemroms.php?filename=msx2ext_20.rom (rename to nms
 http://www.file-hunter.com/roms/disk.zip (rename to nms8250-disk.rom)
 http://www.file-hunter.com/systemroms.php?filename=fm_pac.rom
 
-The msx2_21.rom (like MSX2.ROM) contains both the bios and the basic. To be able
+The msx2_21.rom (like MSX2.ROM) contains both the BIOS and the basic. To be able
 to use this with OpenMSX, we either have to split the roms, or we can modify the
 default config file we are going to use for the test a bit.
 
@@ -296,7 +297,7 @@ manually.  Here's how Manuel Bilderbeek does it.
 
 I assume you have a directory "bin" in your home dir, which is in your search
 path. This is where I install the compiled binary in. However, I rename it, to
-hagve multiple versions there (always nice to keep a back up binary!).
+have multiple versions there (always nice to keep a back up binary!).
 
 So, I do, from the src dir:
 cp openmsx ~/bin/openmsx-BUILD-DATE-i686.bin
@@ -304,13 +305,13 @@ cp openmsx ~/bin/openmsx-BUILD-DATE-i686.bin
 For BUILD-DATE I fill in something like 20020903. The i686 means that I used the
 ./config-i686 way to configure, see section 2.
 
-I also created a "lib" directory in my homedir, in which I created an openMSX
+I also created a "lib" directory in my home dir, in which I created an openMSX
 directory. In this ~/lib/openMSX directory I put my ROM files and the files from
 the src/cfg dir in the source tree. I also put the font and (optional)
 background images for the Console there (don't worry about this, I will explain
 it later). The former is the file ConsoleFont.png in src/. And, the file
 romdb.xml from the same directory is there too, on my system.  The ROM files are
-in a seperate subdir in my lib/openMSX dir. So, I have this in my lib dir (you
+in a separate subdir in my lib/openMSX dir. So, I have this in my lib dir (you
 may have some other ROM files or config files, this is just what I have):
 
 /home/manuel/lib/openMSX:
@@ -359,10 +360,10 @@ named "openmsx":
 
 BUILD=20020901-i686
 echo "Executing openMSX version 0.1.9 alpha $BUILD"
-/home/manuel/bin/openmsx019-$BUILD.bin -config /home/manuel/lib/openMSX/msxconfig.xml $@
+/home/manuel/bin/openmsx019-$BUILD.bin -config /home/manuel/lib/openMSX/msxconfig.xml "$@"
 ---------------------END SHELL SCRIPT---------------------
 
-Everytime I install a new binary of openMSX in ~/bin, I change the string that
+Every time I install a new binary of openMSX in ~/bin, I change the string that
 is defined in the variable BUILD.
 
 For the first time, you should replace msxconfig.xml in the last line of the
@@ -420,7 +421,7 @@ To run a disk image, you can type:
 
 openmsx relax.dsk
 
-for example. Or, if the autodetection of the file fails:
+for example. Or, if the auto detection of the file fails:
 
 openmsx -diska relax.dsk
 
@@ -501,7 +502,7 @@ detect the Music Module; this device is at the moment not fully implemented
 though), an empty SCC cartridge (<device id="Empty SCC Cartridge">), etc. Just
 browse the someconfig.xml file and look what you can find.  Remember that you
 can not put two devices in the same (sub)slot! You may need to add a
-slotexpander, by simply setting a slot's subslotted parameter to "true" in the
+slot expander, by simply setting a slot's subslotted parameter to "true" in the
 MotherBoard config tag at the top of the file. On the other hand, not all
 devices need a slot. An example is the MSX-Audio device.
 
@@ -533,7 +534,7 @@ steady CPU time consumption. The CPU load can be quite high though. It is about
 50% on my Athlon XP 1600+.
 
 A very good alternative for the Hi renderer is called SDLGL. This renderer uses
-openGL instructions to optimize the rendering. Because part of the rendering is
+openGL instructions to optimise the rendering. Because part of the rendering is
 done by the graphics hardware, the CPU load can vary a lot. Also, you need to
 have the GLX module loaded in your X server and also accelerated graphics (DRI).
 You can verify this by typing 'glxinfo' on the command line. Direct rendering
@@ -568,7 +569,7 @@ With openMSX builds later than 2002-09-08, you can also set the graphical
 emulation accuracy. Try `help accuracy' in the Console. Setting accuracy to
 `pixel' enables very accurate graphics rendering (the Scope part in Unknown
 Reality will almost work perfectly), but may cause slowdowns, since this is not
-optimized yet.
+optimised yet.
 
 AutoCommands and KeyEventInserter
 
@@ -588,7 +589,7 @@ If you encounter problems, go visit the SourceForge page of openMSX:
 http://sourceforge.net/projects/openmsx/
 
 Then click on "Tracker". This will show you four trackers (at the moment). Use
-the bug tracker to look for bugs and post new ones. You can use teh Support
+the bug tracker to look for bugs and post new ones. You can use the Support
 Request tracker to submit support requests. Feature requests can also be
 submitted in the Feature Requests tracker. 
 You can also send an e-mail to the openMSX developer's mailing list:
