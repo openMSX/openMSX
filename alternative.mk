@@ -162,7 +162,7 @@ endef
 
 define PROCESS_NODE
 # Backwards compatibility for auto* system:
-DIST+=$$(if $$(filter $(SOURCES_PATH)%,$$(CURDIR)),Makefile.am,)
+DIST+=$$(if $$(filter ./$(SOURCES_PATH)%,$$(CURDIR)),Makefile.am,)
 # Process this node.
 SOURCES_FULL+=$$(sort \
 	$$(addprefix $$(CURDIR)/,$$(addsuffix .cc,$(SRC_HDR) $(SRC_ONLY))) \
@@ -182,7 +182,7 @@ ifeq ($(OPENMSX_PROFILE),true)
   BUILD_PATH:=$(BUILD_PATH)-profile
 endif
 
-SOURCES_PATH:=./src
+SOURCES_PATH:=src
 
 # Force evaluation upon assignment.
 SOURCES_FULL:=
@@ -191,6 +191,11 @@ DIST_FULL:=
 # Include root node.
 CURDIR:=.
 include $(CURDIR)/node.mk
+# Remove "./" in front of file names.
+# It can cause trouble because Make removes it automatically in rules.
+SOURCES_FULL:=$(SOURCES_FULL:./%=%)
+HEADERS_FULL:=$(HEADERS_FULL:./%=%)
+DIST_FULL:=$(DIST_FULL:./%=%)
 # Apply subset to sources list.
 SOURCES_FULL:=$(filter $(SOURCES_PATH)/$(OPENMSX_SUBSET)%,$(SOURCES_FULL))
 ifeq ($(SOURCES_FULL),)
