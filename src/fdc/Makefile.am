@@ -17,7 +17,7 @@ libFdc_la_SOURCES = \
 	MSXFDC.cc MSXFDC.hh \
 	FDC.cc FDC.hh \
 	PhilipsFDC.cc PhilipsFDC.hh \
-	BrazilFDC.cc BrazilFDC.hh \
+	MicrosolFDC.cc MicrosolFDC.hh \
 	NationalFDC.cc NationalFDC.hh \
 	WD2793.cc WD2793.hh \
 	TurboRFDC.cc TurboRFDC.hh \

@@ -13,7 +13,7 @@ NationalFDC::NationalFDC(MSXConfig::Device *config, const EmuTime &time)
 	
 	// real thing uses MB8877A, but it is compatible with WD2793
 	//  TODO check completely compatible
-	controller = new WD2793(config);
+	controller = new WD2793(config, time);
 }
 
 NationalFDC::~NationalFDC()
@@ -24,12 +24,12 @@ NationalFDC::~NationalFDC()
 
 void NationalFDC::reset(const EmuTime &time)
 {
-	controller->reset();
+	controller->reset(time);
 }
 
 byte NationalFDC::readMem(word address, const EmuTime &time)
 {
-	byte value = 255;
+	byte value;
 	switch (address & 0x3FFF) {
 	case 0x3FB8:
 		value = controller->getStatusReg(time);
@@ -55,6 +55,8 @@ byte NationalFDC::readMem(word address, const EmuTime &time)
 		if (address < 0x8000) {
 			// ROM only visible in 0x0000-0x7FFF
 			value = MSXFDC::readMem(address, time);
+		} else {
+			value = 255;
 		}
 		break;
 	}
@@ -84,22 +86,20 @@ void NationalFDC::writeMem(word address, byte value, const EmuTime &time)
 		//bit 1 -> select drive 1
 		//bit 2 -> side select
 		//bit 3 -> motor on
-		byte drivenr;
+		WD2793::DriveNum drive;
 		switch (value & 3) {
 			case 1:
-				drivenr = 0;
+				drive = WD2793::DRIVE_A;
 				break;
 			case 2:
-				drivenr = 1;
+				drive = WD2793::DRIVE_B;
 				break;
-			case 0:
-			case 3:
 			default:
-				drivenr = 255; //no drive selected
+				drive = WD2793::NO_DRIVE;
 		}
-		controller->setDriveSelect(drivenr, time);
-		controller->setSideSelect((value & 0x04) ? 1 : 0, time);
-		controller->setMotor((value & 0x08) ? 1 : 0, time);
+		controller->setDriveSelect(drive, time);
+		controller->setSideSelect((value & 0x04), time);
+		controller->setMotor((value & 0x08), time);
 		break;
 	}
 }

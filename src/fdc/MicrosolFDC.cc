@@ -1,50 +1,49 @@
 // $Id$
 
-#include "BrazilFDC.hh"
+#include "MicrosolFDC.hh"
 #include "WD2793.hh"
 #include "MSXCPUInterface.hh"
 
 
-BrazilFDC::BrazilFDC(MSXConfig::Device *config, const EmuTime &time)
+MicrosolFDC::MicrosolFDC(MSXConfig::Device *config, const EmuTime &time)
 	: MSXFDC(config, time), MSXDevice(config, time), MSXIODevice(config, time)
 {
-	controller = new WD2793(config);
-	
-	if (deviceConfig->hasParameter("brokenFDCread")) {
-		brokenFDCread = deviceConfig->getParameterAsBool("brokenFDCread");
-	} else {
-		brokenFDCread = false;
-	}
+	controller = new WD2793(config, time);
 	
 	MSXCPUInterface::instance()->register_IO_In (0xD0,this);
 	MSXCPUInterface::instance()->register_IO_In (0xD1,this);
 	MSXCPUInterface::instance()->register_IO_In (0xD2,this);
 	MSXCPUInterface::instance()->register_IO_In (0xD3,this);
 	MSXCPUInterface::instance()->register_IO_In (0xD4,this);
+	MSXCPUInterface::instance()->register_IO_Out(0xD0,this);
+	MSXCPUInterface::instance()->register_IO_Out(0xD1,this);
+	MSXCPUInterface::instance()->register_IO_Out(0xD2,this);
+	MSXCPUInterface::instance()->register_IO_Out(0xD3,this);
+	MSXCPUInterface::instance()->register_IO_Out(0xD4,this);
 }
 
-BrazilFDC::~BrazilFDC()
+MicrosolFDC::~MicrosolFDC()
 {
 	delete controller;
 }
 
-void BrazilFDC::reset(const EmuTime &time)
+void MicrosolFDC::reset(const EmuTime &time)
 {
-	controller->reset();
+	controller->reset(time);
 }
 
-byte BrazilFDC::readIO(byte port, const EmuTime &time)
+byte MicrosolFDC::readIO(byte port, const EmuTime &time)
 {
-	byte value = 255;
+	byte value;
 	switch (port) {
 	case 0xD0:
 		value = controller->getStatusReg(time);
 		break;
 	case 0xD1:
-		value = brokenFDCread ? 255 : controller->getTrackReg(time);
+		value = controller->getTrackReg(time);
 		break;
 	case 0xD2:
-		value = brokenFDCread ? 255 : controller->getSectorReg(time);
+		value = controller->getSectorReg(time);
 		break;
 	case 0xD3:
 		value = controller->getDataReg(time);
@@ -52,12 +51,18 @@ byte BrazilFDC::readIO(byte port, const EmuTime &time)
 	case 0xD4:
 		value = driveD4;
 		break;
+	default:
+		assert(false);
+		value = 255;
+		break;
 	}
+	PRT_DEBUG("MicrosolFDC: read 0x" << std::hex << (int)port << " 0x" << (int)value << std::dec);
 	return value;
 }
 
-void BrazilFDC::writeIO(byte port, byte value, const EmuTime &time)
+void MicrosolFDC::writeIO(byte port, byte value, const EmuTime &time)
 {
+	PRT_DEBUG("MicrosolFDC: write 0x" << std::hex << (int)port << " 0x" << (int)value << std::dec);
 	switch (port) {
 	case 0xD0:
 		controller->setCommandReg(value, time);
@@ -89,19 +94,19 @@ void BrazilFDC::writeIO(byte port, byte value, const EmuTime &time)
 
 		driveD4 = value;
 		// Set correct drive
-		byte drivenr;
-		switch (value & 15) {
+		WD2793::DriveNum drive;
+		switch (value & 0x0F) {
 			case 1:
-				drivenr = 0;
+				drive = WD2793::DRIVE_A;
 				break;
 			case 2:
-				drivenr = 1;
+				drive = WD2793::DRIVE_B;
 				break;
 			case 4:
-				drivenr = 2;
+				drive = WD2793::DRIVE_C;
 				break;
 			case 8:
-				drivenr = 3;
+				drive = WD2793::DRIVE_D;
 				break;
 			default:
 				// No drive selected or two drives at same time
@@ -109,11 +114,11 @@ void BrazilFDC::writeIO(byte port, byte value, const EmuTime &time)
 				// in a real machine you must take care to do not select more
 				// than one drive at the same time (you could get data
 				// collision).
-				drivenr = 255; //no drive selected
+				drive = WD2793::NO_DRIVE;
 		}
-		controller->setDriveSelect(drivenr, time);
-		controller->setSideSelect((value & 16) ? 1 : 0, time);
-		controller->setMotor((value & 32) ? 1 : 0, time);
+		controller->setDriveSelect(drive, time);
+		controller->setSideSelect((value & 0x10), time);
+		controller->setMotor((value & 0x20), time);
 		break;
 	}
 }

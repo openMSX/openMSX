@@ -1,5 +1,10 @@
 $Id$
 
+2002-11-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* renamed BrazilFDC to MicorsolFDC:
+	   doesn't work yet, I'm investigating...
+	* cleanups, small fixes in WD2793
+
 2002-11-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented 'PUT KANJI acceleration' of S1985:
 	   This fixes the font printing problem of the FS-4600F internal

@@ -2,7 +2,7 @@
 
 #include "FDCFactory.hh"
 #include "PhilipsFDC.hh"
-#include "BrazilFDC.hh"
+#include "MicrosolFDC.hh"
 #include "NationalFDC.hh"
 #include "TurboRFDC.hh"
 
@@ -13,8 +13,8 @@ MSXDevice* FDCFactory::create(MSXConfig::Device *config, const EmuTime &time)
 	if (type == "Philips") {
 		return new PhilipsFDC(config, time);
 	}
-	if (type == "Brazil") {
-		return new BrazilFDC(config, time);
+	if (type == "Microsol") {
+		return new MicrosolFDC(config, time);
 	}
 	if (type == "National") {
 		return new NationalFDC(config, time);

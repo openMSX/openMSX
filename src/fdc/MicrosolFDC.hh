@@ -9,11 +9,11 @@
 class WD2793;
 
 
-class BrazilFDC : public MSXFDC, public MSXIODevice
+class MicrosolFDC : public MSXFDC, public MSXIODevice
 {
 	public:
-		BrazilFDC(MSXConfig::Device *config, const EmuTime &time);
-		virtual ~BrazilFDC();
+		MicrosolFDC(MSXConfig::Device *config, const EmuTime &time);
+		virtual ~MicrosolFDC();
 		
 		virtual void reset(const EmuTime &time);
 		
@@ -22,7 +22,6 @@ class BrazilFDC : public MSXFDC, public MSXIODevice
 
 	private:
 		WD2793* controller;
-		bool brokenFDCread;
 		byte driveD4;
 };
 #endif

@@ -11,39 +11,52 @@ class FDCBackEnd;
 
 class WD2793 : public FDC
 {
-	public:
-		WD2793(MSXConfig::Device *config);
-		virtual ~WD2793();
+	public: 
+		// Brazilian based machines support up to 4 drives per FDC
+		enum DriveNum {
+			DRIVE_A = 0,
+			DRIVE_B = 1,
+			DRIVE_C = 2,
+			DRIVE_D = 3,
+			NUM_DRIVES = 4,
+			NO_DRIVE = 255
+		};
+	
+		WD2793(MSXConfig::Device *config, const EmuTime &time);
+		~WD2793();
 
-		void reset();
+		void reset(const EmuTime &time);
+		
 		byte getStatusReg(const EmuTime &time);
-		byte getTrackReg(const EmuTime &time);
+		byte getTrackReg (const EmuTime &time);
 		byte getSectorReg(const EmuTime &time);
-		byte getDataReg(const EmuTime &time);
-		void setCommandReg(byte value,const EmuTime &time);
-		void setTrackReg(byte value,const EmuTime &time);
-		void setSectorReg(byte value,const EmuTime &time);
-		void setDataReg(byte value,const EmuTime &time);
-		byte getSideSelect(const EmuTime &time);
-		byte getDriveSelect(const EmuTime &time);
-		byte getMotor(const EmuTime &time);
-		byte getIRQ(const EmuTime &time);
-		byte getDTRQ(const EmuTime &time);
-		void setSideSelect(byte value,const EmuTime &time);
-		void setDriveSelect(byte value,const EmuTime &time);
-		void setMotor(byte value,const EmuTime &time);
+		byte getDataReg  (const EmuTime &time);
+		
+		void setCommandReg(byte value, const EmuTime &time);
+		void setTrackReg  (byte value, const EmuTime &time);
+		void setSectorReg (byte value, const EmuTime &time);
+		void setDataReg   (byte value, const EmuTime &time);
+		
+		bool getSideSelect(const EmuTime &time);
+		void setSideSelect(bool side, const EmuTime &time);
+		
+		DriveNum getDriveSelect(const EmuTime &time);
+		void setDriveSelect(DriveNum drive, const EmuTime &time);
+		
+		bool getMotor(const EmuTime &time);
+		void setMotor(bool status, const EmuTime &time);
+		
+		bool getIRQ(const EmuTime &time);
+		bool getDTRQ(const EmuTime &time);
 
 	private:
-		byte timePerStep[4];	// {3,6,10,15} in ms case of of 2 MHz clock 
-					// double this if a 1MHz clock is used!
-					// (MSX=1MHz clock :-)
+		static const byte timePerStep[4];
 
 		// EmuTime commandStart;
 		// EmuTime commandEnd;
 		EmuTimeFreq<1000000> commandEnd;
-		EmuTimeFreq<1000000> motorStartTime[2];
-		EmuTimeFreq<1000000> DRQTime[2];
-
+		EmuTimeFreq<1000000> motorStartTime[NUM_DRIVES];
+		EmuTimeFreq<1000000> DRQTime[NUM_DRIVES];
 
 		byte statusReg;
 		byte commandReg;
@@ -51,8 +64,8 @@ class WD2793 : public FDC
 		byte trackReg;
 		byte dataReg;
 
-		byte current_drive;
-		byte motor_drive[4]; //Brazilian based machines support up to 4 drives per FDC
+		DriveNum current_drive;
+		bool motorStatus[NUM_DRIVES];
 
 		byte current_track;
 		byte current_sector;

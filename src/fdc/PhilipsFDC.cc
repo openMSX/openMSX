@@ -11,7 +11,7 @@ PhilipsFDC::PhilipsFDC(MSXConfig::Device *config, const EmuTime &time)
 	emptyRom = new byte[CPU::CACHE_LINE_SIZE];
 	memset(emptyRom, 255, CPU::CACHE_LINE_SIZE);
 	
-	controller = new WD2793(config);
+	controller = new WD2793(config, time);
 	
 	if (deviceConfig->hasParameter("brokenFDCread")) {
 		brokenFDCread = deviceConfig->getParameterAsBool("brokenFDCread");
@@ -28,7 +28,7 @@ PhilipsFDC::~PhilipsFDC()
 
 void PhilipsFDC::reset(const EmuTime &time)
 {
-	controller->reset();
+	controller->reset(time);
 }
 
 byte PhilipsFDC::readMem(word address, const EmuTime &time)
@@ -53,7 +53,7 @@ byte PhilipsFDC::readMem(word address, const EmuTime &time)
 	case 0x3FFC:
 		//bit 0 = side select
 		//TODO check other bits !!
-		value = controller->getSideSelect(time);
+		value = controller->getSideSelect(time) ? 1 : 0;
 		break;
 	case 0x3FFD:
 		//bit 1,0 -> drive number  (00 or 10: drive A, 01: drive B, 11: nothing)
@@ -108,28 +108,28 @@ void PhilipsFDC::writeMem(word address, byte value, const EmuTime &time)
 	case 0x3FFC:
 		//bit 0 = side select
 		//TODO check other bits !!
-		controller->setSideSelect(value&1, time);
+		controller->setSideSelect((value & 1), time);
 		break;
 	case 0x3FFD:
 		//bit 1,0 -> drive number  (00 or 10: drive A, 01: drive B, 11: nothing)
 		//bit 7 -> motor on
 		//TODO check other bits !!
 		driveReg = value;
-		byte drivenr;
+		WD2793::DriveNum drive;
 		switch (value & 3) {
 			case 0:
 			case 2:
-				drivenr = 0;
+				drive = WD2793::DRIVE_A;
 				break;
 			case 1:
-				drivenr = 1;
+				drive = WD2793::DRIVE_B;
 				break;
 			case 3:
 			default:
-				drivenr = 255; //no drive selected
+				drive = WD2793::NO_DRIVE; //no drive selected
 		}
-		controller->setDriveSelect(drivenr, time);
-		controller->setMotor((value & 128) ? 1 : 0, time); // set motor for current drive
+		controller->setDriveSelect(drive, time);
+		controller->setMotor((value & 128), time); // set motor for current drive
 		break;
 	}
 }
