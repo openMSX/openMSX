@@ -71,13 +71,14 @@
 
 #include "SCC.hh"
 #include "Mixer.hh"
-
+#include "Scheduler.hh"
+#include "Debugger.hh"
 
 namespace openmsx {
 
 SCC::SCC(const string& name_, short volume, const EmuTime &time,
          ChipMode mode)
-	: currentChipMode(mode), name(name_)
+	: sccDebuggable(*this), currentChipMode(mode), name(name_)
 {
 	// Register as a soundevice
 	int bufSize = Mixer::instance().registerSound(this, volume,
@@ -92,10 +93,12 @@ SCC::SCC(const string& name_, short volume, const EmuTime &time,
 	}
 	
 	reset(time);
+	Debugger::instance().registerDebuggable(name, sccDebuggable);
 }
 
 SCC::~SCC()
 {
+	Debugger::instance().unregisterDebuggable(name, sccDebuggable);
 	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }
@@ -484,6 +487,59 @@ void SCC::checkMute()
 		volumePtr++;
 	}
 	setInternalMute(mute);
+}
+
+
+// class SCCDebuggable
+
+SCC::SCCDebuggable::SCCDebuggable(SCC& parent_)
+	: parent(parent_)
+{
+}
+
+unsigned SCC::SCCDebuggable::getSize() const
+{
+	return 0x100;
+}
+
+const string& SCC::SCCDebuggable::getDescription() const
+{
+	static const string desc = "SCC registers in SCC+ format";
+	return desc;
+}
+
+byte SCC::SCCDebuggable::read(unsigned address)
+{
+	if (address < 0xA0) {
+		// read wave form 1..5
+		const EmuTime& time = Scheduler::instance().getCurrentTime();
+		return parent.readWave(address >> 5, address, time);
+	} else if (address < 0xC0) {
+		// freq volume block
+		return parent.getFreqVol(address);
+	} else if (address < 0xE0) {
+		// peek deformation register
+		return parent.deformValue;
+	} else {
+		return 0xFF;
+	}
+}
+
+void SCC::SCCDebuggable::write(unsigned address, byte value)
+{
+	if (address < 0xA0) {
+		// read wave form 1..5
+		parent.writeWave(address >> 5, address, value);
+	} else if (address < 0xC0) {
+		// freq volume block
+		 parent.setFreqVol(address, value);
+	} else if (address < 0xE0) {
+		// deformation register
+		const EmuTime& time = Scheduler::instance().getCurrentTime();
+		parent.setDeformReg(value, time);
+	} else {
+		// ignore
+	}
 }
 
 } // namespace openmsx

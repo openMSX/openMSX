@@ -6,10 +6,11 @@
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "EmuTime.hh"
+#include "Debuggable.hh"
 
 namespace openmsx {
 
-class SCC : public SoundDevice
+class SCC : private SoundDevice
 {
 public:
 	enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};
@@ -24,6 +25,7 @@ public:
 	void writeMemInterface(byte address, byte value, const EmuTime& time);
 	void setChipMode(ChipMode newMode);
 
+private:
 	// SoundDevice
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
@@ -31,7 +33,17 @@ public:
 	virtual void setInternalVolume(short maxVolume);
 	virtual int* updateBuffer(int length) throw();
 
-private:
+	class SCCDebuggable : public Debuggable {
+	public:
+		SCCDebuggable(SCC& parent);
+		virtual unsigned getSize() const;
+		virtual const string& getDescription() const;
+		virtual byte read(unsigned address);
+		virtual void write(unsigned address, byte value);
+	private:
+		SCC& parent;
+	} sccDebuggable;
+
 	inline void checkMute();
 	byte readWave(byte channel, byte address, const EmuTime& time);
 	void writeWave(byte channel, byte offset, byte value);
