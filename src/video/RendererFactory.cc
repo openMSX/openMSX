@@ -96,8 +96,8 @@ bool SDLHiRendererFactory::isAvailable()
 
 Renderer *SDLHiRendererFactory::create(VDP *vdp)
 {
-	const int WIDTH = 640;
-	const int HEIGHT = 480;
+	const unsigned WIDTH = 640;
+	const unsigned HEIGHT = 480;
 
 	bool fullScreen = RenderSettings::instance()->getFullScreen()->getValue();
 	int flags = SDL_HWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
@@ -144,8 +144,8 @@ bool SDLLoRendererFactory::isAvailable()
 
 Renderer *SDLLoRendererFactory::create(VDP *vdp)
 {
-	const int WIDTH = 320;
-	const int HEIGHT = 240;
+	const unsigned WIDTH = 320;
+	const unsigned HEIGHT = 240;
 
 	bool fullScreen = RenderSettings::instance()->getFullScreen()->getValue();
 	int flags = SDL_HWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
@@ -196,8 +196,8 @@ bool SDLGLRendererFactory::isAvailable()
 
 Renderer *SDLGLRendererFactory::create(VDP *vdp)
 {
-	const int WIDTH = 640;
-	const int HEIGHT = 480;
+	const unsigned WIDTH = 640;
+	const unsigned HEIGHT = 480;
 
 	bool fullScreen = RenderSettings::instance()->getFullScreen()->getValue();
 	int flags = SDL_OPENGL | SDL_HWSURFACE |

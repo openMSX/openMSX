@@ -69,11 +69,11 @@ private:
 
 	/** Horizontal dimensions of the screen.
 	  */
-	static const int WIDTH = (zoom == Renderer::ZOOM_256 ? 320 : 640);
+	static const unsigned WIDTH = (zoom == Renderer::ZOOM_256 ? 320 : 640);
 
 	/** Vertical dimensions of the screen.
 	  */
-	static const int HEIGHT = (zoom == Renderer::ZOOM_256 ? 240 : 480);
+	static const unsigned HEIGHT = (zoom == Renderer::ZOOM_256 ? 240 : 480);
 
 	/** Number of host screen lines per VDP display line.
 	  */
@@ -236,6 +236,10 @@ private:
 
 	OSDConsoleRenderer *console;
 	OSDConsoleRenderer *debugger;
+
+	/** Gray values for noise
+	  */
+	Pixel gray[256];
 };
 
 } // namespace openmsx

@@ -73,7 +73,7 @@ void SDLRenderer<Pixel, zoom>::finishFrame(bool store)
 		Scaler *scaler = scalers[
 			RenderSettings::instance()->getScaler()->getValue()
 			];
-		for (int y = 0; y < HEIGHT; y += 2) {
+		for (unsigned y = 0; y < HEIGHT; y += 2) {
 			//fprintf(stderr, "post processing line %d: %d\n", y, processLines[y]);
 			switch (processLines[y]) {
 			case PROC_NONE:
@@ -107,11 +107,35 @@ void SDLRenderer<Pixel, zoom>::finishFrame(bool store)
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
 }
 
+// random routine, less random than libc rand(), but a lot faster
+static int random() {
+	static int seed = 1;
+	
+	const int IA = 16807;
+	const int IM = 2147483647;
+	const int IQ = 127773;
+	const int IR = 2836;
+
+	int k = seed / IQ;
+	seed = IA * (seed - k * IQ) - IR * k;
+	if (seed < 0) seed += IM;
+	return seed;
+}
+
 template <class Pixel, Renderer::Zoom zoom>
 int SDLRenderer<Pixel, zoom>::putPowerOffImage()
 {
+	Pixel* pixels = (Pixel*)storedImage->pixels;
+	for (unsigned y = 0; y < HEIGHT; y += 2) {
+		Pixel* p = &pixels[WIDTH * y];
+		for (unsigned x = 0; x < WIDTH; x += 2) {
+			byte a = (byte)random();
+			p[x + 0] = p[x + 1] = gray[a];
+		}
+		memcpy(p + WIDTH, p, WIDTH * sizeof(Pixel));
+	}
 	putStoredImage();
-	return 0;	// not dynamic
+	return 8;
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -344,7 +368,6 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 
 	// Init the palette.
 	precalcPalette(settings->getGamma()->getValue());
-
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -418,6 +441,11 @@ void SDLRenderer<Pixel, zoom>::precalcPalette(float gamma)
 			palGraphic7Sprites[i] =
 				V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
 		}
+	}
+
+	// Precalc gray values for noise
+	for (unsigned i = 0; i < 256; i++) {
+		gray[i] = SDL_MapRGB(screen->format, i, i, i);
 	}
 }
 
@@ -493,7 +521,7 @@ void SDLRenderer<Pixel, zoom>::frameStart(
 	}
 
 	if (LINE_ZOOM == 2) {
-		for (int y = 0; y < HEIGHT; y++) {
+		for (unsigned y = 0; y < HEIGHT; y++) {
 			processLines[y] = PROC_NONE;
 		}
 	}
@@ -681,7 +709,7 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 	// Clip to screen area.
 	int screenLimitY = min(
 		fromY + displayHeight - lineRenderTop,
-		HEIGHT / LINE_ZOOM
+		(int)HEIGHT / LINE_ZOOM
 		);
 	int screenY = fromY - lineRenderTop;
 	if (screenY < 0) {
@@ -861,7 +889,7 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 	// TODO: Code duplicated from drawDisplay.
 	int screenLimitY = min(
 		fromY + displayHeight - lineRenderTop,
-		HEIGHT / LINE_ZOOM
+		(int)HEIGHT / LINE_ZOOM
 		);
 	int screenY = fromY - lineRenderTop;
 	if (screenY < 0) {
