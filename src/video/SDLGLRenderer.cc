@@ -31,6 +31,8 @@ TODO:
 
 #ifdef __WIN32__
 #include <windows.h>
+int openmsx::SDLGLRenderer::lastWindowX;
+int openmsx::SDLGLRenderer::lastWindowY;
 #endif
 
 namespace openmsx {
@@ -513,13 +515,24 @@ SDLGLRenderer::SDLGLRenderer(
 	GetWindowRect (handle, &windowRect);
 	// and adjust if needed
 	if ((windowRect.right < 0) || (windowRect.bottom < 0)){
-		SetWindowPos(handle, HWND_TOP, 0,0,0,0,SWP_NOSIZE);
+		SetWindowPos(handle, HWND_TOP,lastWindowX,lastWindowY,0,0,SWP_NOSIZE);
 	}
 #endif
 }
 
 SDLGLRenderer::~SDLGLRenderer()
 {
+#ifdef __WIN32__
+	// Find our current location
+	if ((screen->flags & SDL_FULLSCREEN) == 0){
+		HWND handle = GetActiveWindow();
+		RECT windowRect;
+		GetWindowRect (handle, &windowRect);
+		lastWindowX = windowRect.left;
+		lastWindowY = windowRect.top;
+	}
+#endif	
+	
 	// Unregister caches with VDPVRAM.
 	vram->patternTable.resetObserver();
 	vram->colourTable.resetObserver();
