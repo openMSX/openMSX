@@ -3,6 +3,8 @@
 #ifndef __MSXDISKROMPATCH_HH__
 #define __MSXDISKROMPATCH_HH__
 
+#include <string>
+
 #include "MSXRomPatchInterface.hh"
 
 // forward declarations
