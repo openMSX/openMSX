@@ -173,6 +173,7 @@ SDLRasterizer<Pixel, zoom>::SDLRasterizer(
 	, spriteConverter(vdp->getSpriteChecker(),
 		Blender<Pixel>::createFromFormat(screen->format) )
 {
+	interlaced = false;
 	this->vdp = vdp;
 	vram = vdp->getVRAM();
 	this->screen = screen;
