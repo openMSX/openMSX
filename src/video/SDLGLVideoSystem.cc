@@ -16,7 +16,7 @@
 #include "EventDistributor.hh"
 #include "InputEvents.hh"
 #include <SDL.h>
-#include <alloca.h>
+#include <cstdlib>
 
 using std::string;
 
@@ -94,14 +94,22 @@ void SDLGLVideoSystem::takeScreenShot(const string& filename)
 	unsigned width  = screen->w;
 	unsigned height = screen->h;
 	byte** row_pointers = static_cast<byte**>(
-		alloca(height * sizeof(byte*)));
+		malloc(height * sizeof(byte*)));
 	byte* buffer = static_cast<byte*>(
-		alloca(width * height * 3 * sizeof(byte)));
+		malloc(width * height * 3 * sizeof(byte)));
 	for (unsigned i = 0; i < height; ++i) {
 		row_pointers[height - 1 - i] = &buffer[width * 3 * i];
 	}
 	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
-	ScreenShotSaver::save(width, height, row_pointers, filename);
+	try {
+		ScreenShotSaver::save(width, height, row_pointers, filename);
+	} catch(...) {
+		free(row_pointers);
+		free(buffer);
+		throw;
+	}
+	free(row_pointers);
+	free(buffer);
 }
 
 void SDLGLVideoSystem::resize(unsigned x, unsigned y)
