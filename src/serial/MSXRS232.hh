@@ -39,11 +39,11 @@ class MSXRS232 : public MSXIODevice, public MSXMemDevice, public RS232Connector
 		void setIRQMask(byte value);
 		void setRxRDYIRQ(bool status);
 		void enableRxRDYIRQ(bool enabled);
-		
+
 		bool rxrdyIRQlatch;
 		bool rxrdyIRQenabled;
 		IRQHelper rxrdyIRQ;
-		
+
 		// counter 0 rx clock pin
 		class Counter0 : public ClockPinListener {
 		public:
@@ -56,7 +56,7 @@ class MSXRS232 : public MSXIODevice, public MSXMemDevice, public RS232Connector
 		private:
 			MSXRS232& rs232;
 		} cntr0;
-		
+		friend class Counter0;
 		// counter 1 tx clock pin
 		class Counter1 : public ClockPinListener {
 		public:
@@ -69,9 +69,9 @@ class MSXRS232 : public MSXIODevice, public MSXMemDevice, public RS232Connector
 		private:
 			MSXRS232& rs232;
 		} cntr1;
-
+		friend class Counter1;
 		I8254 i8254;
-		
+
 		// I8251Interface
 		class I8251Interf : public I8251Interface {
 		public:
@@ -90,7 +90,7 @@ class MSXRS232 : public MSXIODevice, public MSXMemDevice, public RS232Connector
 		private:
 			MSXRS232& rs232;
 		} interf;
-		
+		friend class I8251Interf;
 		I8251 i8251;
 		Rom rom;
 };
