@@ -3,13 +3,15 @@
 #ifndef __SCHEDULER_HH__
 #define __SCHEDULER_HH__
 
-#include "EmuTime.hh"
 #include <vector>
+#include "EmuTime.hh"
+#include "Semaphore.hh"
 
 class MSXCPU;
 class Schedulable;
 class Renderer;
 
+using namespace std;
 
 class Scheduler
 {
@@ -119,7 +121,8 @@ class Scheduler
 		/** Vector used as heap, not a priority queue because that
 		  * doesn't allow removal of non-top element.
 		  */
-		std::vector<SynchronizationPoint> syncPoints;
+		vector<SynchronizationPoint> syncPoints;
+		Semaphore sem;	// protects syncPoints
 
 		/** Should the emulation continue running?
 		  */
@@ -128,7 +131,6 @@ class Scheduler
 		bool paused;
 		MSXCPU *cpu;
 		Renderer *renderer;
-
 };
 
 #endif

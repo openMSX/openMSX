@@ -4,6 +4,11 @@ $Id$
 	* added joystick emulation for mouse:
 	   - when you plug in the mouse with the left button pressed,
 	     it behaves like a joystick
+	* added Semaphore class
+	* protected Scheduler with a Semaphore:
+	   - it is now possible the register synchronization points in a different
+	     thread than the emulation thread. This will be needed for the
+	     MIDI in pluggable
 
 2003-07-20 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* first steps toward a debugger. For now it's just a 

@@ -13,6 +13,7 @@
 const EmuTime Scheduler::ASAP;
 
 Scheduler::Scheduler()
+	: sem(1)
 {
 	paused = false;
 	emulationRunning = true;
@@ -46,20 +47,27 @@ void Scheduler::setSyncPoint(const EmuTime &timeStamp, Schedulable* device, int 
 	if (time < targetTime) {
 		cpu->setTargetTime(time);
 	}
+	sem.down();
 	syncPoints.push_back(SynchronizationPoint (time, device, userData));
 	push_heap(syncPoints.begin(), syncPoints.end());
+	sem.up();
 }
 
 void Scheduler::removeSyncPoint(Schedulable* device, int userData)
 {
-	std::vector<SynchronizationPoint>::iterator i;
-	for (i=syncPoints.begin(); i!=syncPoints.end(); i++) {
-		if (((*i).getDevice() == device) && (*i).getUserData() == userData) {
-			syncPoints.erase(i);
+	sem.down();
+	for (vector<SynchronizationPoint>::iterator it = syncPoints.begin();
+	     it != syncPoints.end();
+	     ++it) {
+		SynchronizationPoint& sp = *it;
+		if ((sp.getDevice() == device) && 
+		    (sp.getUserData() == userData)) {
+			syncPoints.erase(it);
 			make_heap(syncPoints.begin(), syncPoints.end());
-			return;
+			break;
 		}
 	}
+	sem.up();
 }
 
 void Scheduler::stopScheduling()
@@ -71,6 +79,7 @@ void Scheduler::stopScheduling()
 
 void Scheduler::scheduleDevices(const EmuTime &limit)
 {
+	sem.down();
 	assert(!syncPoints.empty());	// class RealTime always has one
 	SynchronizationPoint sp = syncPoints.front();
 	EmuTime time = sp.getTime();
@@ -78,23 +87,28 @@ void Scheduler::scheduleDevices(const EmuTime &limit)
 		// emulate the device
 		pop_heap(syncPoints.begin(), syncPoints.end());
 		syncPoints.pop_back();
+		sem.up();
 		Schedulable *device = sp.getDevice();
 		int userData = sp.getUserData();
 		PRT_DEBUG ("Sched: Scheduling (2) " << device->schedName() <<
 			" " << userData << " till " << time);
 		device->executeUntilEmuTime(time, userData);
 
+		sem.down();
 		sp = syncPoints.front();
 		time = sp.getTime();
 	}
+	sem.up();
 }
 
 inline void Scheduler::emulateStep()
 {
+	sem.down();
 	assert(!syncPoints.empty());	// class RealTime always has one
 	const SynchronizationPoint sp = syncPoints.front();
 	const EmuTime &time = sp.getTime();
 	if (cpu->getTargetTime() < time) {
+		sem.up();
 		// first bring CPU till SP
 		//  (this may set earlier SP)
 		PRT_DEBUG ("Sched: Scheduling CPU till " << time);
@@ -103,6 +117,7 @@ inline void Scheduler::emulateStep()
 		// if CPU has reached SP, emulate the device
 		pop_heap(syncPoints.begin(), syncPoints.end());
 		syncPoints.pop_back();
+		sem.up();
 		Schedulable *device = sp.getDevice();
 		int userData = sp.getUserData();
 		PRT_DEBUG ("Sched: Scheduling " << device->schedName() <<

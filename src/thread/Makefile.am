@@ -15,7 +15,8 @@ noinst_LTLIBRARIES = libThread.la
 libThread_la_SOURCES = \
 	Thread.cc Thread.hh \
 	Mutex.cc Mutex.hh \
-	CondVar.cc CondVar.hh
+	CondVar.cc CondVar.hh \
+	Semaphore.cc Semaphore.hh
 
 nodebug: resetdebug all
 debug: setdebug all
