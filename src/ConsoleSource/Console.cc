@@ -87,7 +87,6 @@ void Console::newLineConsole()
 	if (totalConsoleLines < NUM_LINES-1) {
 		totalConsoleLines++;
 	}
-	cursorLocation = 0;
 }
 
 // Increments the command lines

@@ -91,6 +91,20 @@ void CommandController::tabCompletion(std::string &command)
 	// split command string in tokens
 	std::vector<std::string> tokens;
 	tokenize(command, tokens);
+	// complete last token
+	tabCompletion(tokens);
+	// rebuild command string from tokens
+	std::vector<std::string>::const_iterator it=tokens.begin();
+	command = *it; 
+	it++;
+	for (; it!=tokens.end(); it++) {
+		command += ' ';
+		command += *it;
+	}
+}
+
+void CommandController::tabCompletion(std::vector<std::string> &tokens)
+{
 	if (tokens.empty()) {
 		// nothing typed yet
 		return;
@@ -109,14 +123,6 @@ void CommandController::tabCompletion(std::string &command)
 		if (it!=commands.end()) {
 			it->second->tabCompletion(tokens);
 		}
-	}
-	// rebuild command string from tokens
-	std::vector<std::string>::const_iterator it=tokens.begin();
-	command = *it; 
-	it++;
-	for (; it!=tokens.end(); it++) {
-		command += ' ';
-		command += *it;
 	}
 }
 
@@ -190,3 +196,11 @@ void CommandController::HelpCmd::help(const std::vector<std::string> &tokens)
 {
 	Console::instance()->print("prints help information for commands");
 }
+void CommandController::HelpCmd::tabCompletion(std::vector<std::string> &tokens)
+{
+	std::string front = tokens.front();
+	tokens.erase(tokens.begin());
+	CommandController::instance()->tabCompletion(tokens);
+	tokens.insert(tokens.begin(), front);
+}
+

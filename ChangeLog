@@ -3,6 +3,7 @@ $Id$
 2002-03-10 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Console cleanup
 	* Added console prompt 
+	* Tab completion for help command
 
 2002-03-08 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Split Console in Console and CommandController:

@@ -40,6 +40,7 @@ class CommandController
 		 * Complete a given command
 		 */
 		void tabCompletion(std::string &command);
+		void CommandController::tabCompletion(std::vector<std::string> &tokens);
 
 		/**
 		 * TODO
@@ -64,6 +65,7 @@ class CommandController
 		public:
 			virtual void execute(const std::vector<std::string> &tokens);
 			virtual void help   (const std::vector<std::string> &tokens);
+			virtual void tabCompletion(std::vector<std::string> &tokens);
 		};
 		friend class HelpCmd;
 		HelpCmd helpCmd;

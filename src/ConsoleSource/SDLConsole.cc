@@ -259,13 +259,13 @@ void SDLConsole::drawCursor()
 			return;
 		if (blink) {
 			// Print cursor if there is enough room
-			if (strlen(consoleLines[0])+1 < (unsigned)CHARS_PER_LINE) {
+			if (cursorLocation < (unsigned)CHARS_PER_LINE) {
 				if (outputScreen->flags & SDL_OPENGLBLIT) {
 					Uint32 *pix = (Uint32 *) (font->fontSurface->pixels);
 					SDL_SetColorKey(font->fontSurface, SDL_SRCCOLORKEY, *pix);
 				}
 				font->drawText("_", consoleSurface, 
-					      CHAR_BORDER+strlen(consoleLines[0])*font->width(),
+					      CHAR_BORDER + cursorLocation * font->width(),
 					      consoleSurface->h - font->height());
 				if (outputScreen->flags & SDL_OPENGLBLIT)
 					SDL_SetColorKey(font->fontSurface, 0, 0);
@@ -273,7 +273,7 @@ void SDLConsole::drawCursor()
 		} else {
 			// Remove cursor
 			SDL_Rect rect;
-			rect.x = strlen(consoleLines[0]) * font->width() + CHAR_BORDER;
+			rect.x = cursorLocation * font->width() + CHAR_BORDER;
 			rect.y = consoleSurface->h - font->height();
 			rect.w = font->width();
 			rect.h = font->height();
@@ -282,7 +282,7 @@ void SDLConsole::drawCursor()
 			if (backgroundImage) {
 				// draw the background image if applicable
 				SDL_Rect rect2;
-				rect2.x = strlen(consoleLines[0])*font->width() + CHAR_BORDER;
+				rect2.x = cursorLocation * font->width() + CHAR_BORDER;
 				rect.x = rect2.x - backX;
 				rect2.y = consoleSurface->h - font->height();
 				rect.y = rect2.y - backY;
