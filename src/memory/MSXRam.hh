@@ -3,7 +3,10 @@
 #ifndef __MSXSIMPLE64KB_HH__
 #define __MSXSIMPLE64KB_HH__
 
+#include <memory>
 #include "MSXMemDevice.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -28,7 +31,7 @@ private:
 	int base;
 	int end;
 	bool slowDrainOnReset;
-	Ram* ram;
+	auto_ptr<Ram> ram;
 };
 
 } // namespace openmsx

@@ -3,11 +3,13 @@
 #ifndef __DEBUG_DEVICE_
 #define __DEBUG_DEVICE_
 
-#include "MSXIODevice.hh"
 #include <fstream>
+#include <memory>
+#include "MSXIODevice.hh"
 
 using std::ostream;
 using std::ofstream;
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -34,7 +36,7 @@ private:
 	
 	enum DebugMode mode;
 	byte modeParameter;
-	FilenameSetting* fileNameSetting;
+	auto_ptr<FilenameSetting> fileNameSetting;
 	ostream* outputstrm;
 	ofstream debugOut;
 	string fileNameString;

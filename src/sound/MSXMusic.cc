@@ -25,9 +25,9 @@ MSXMusic::MSXMusic(const XMLElement& config, const EmuTime& time)
 	}
 	
 	if (config.getChildDataAsBool("alternative", false)) {
-		ym2413 = new YM2413(getName(), volume, time, mode);
+		ym2413.reset(new YM2413(getName(), volume, time, mode));
 	} else {
-		ym2413 = new YM2413_2(getName(), volume, time, mode);
+		ym2413.reset(new YM2413_2(getName(), volume, time, mode));
 	}
 	
 	reset(time);
@@ -35,9 +35,7 @@ MSXMusic::MSXMusic(const XMLElement& config, const EmuTime& time)
 
 MSXMusic::~MSXMusic()
 {
-	delete ym2413;
 }
-
 
 void MSXMusic::reset(const EmuTime& time)
 {

@@ -3,14 +3,15 @@
 #ifndef __SDLCONSOLE_HH__
 #define __SDLCONSOLE_HH__
 
-#include "OSDConsoleRenderer.hh"
+#include <memory>
 #include <SDL.h>
+#include "OSDConsoleRenderer.hh"
 
+using std::auto_ptr;
 
 namespace openmsx {
 
 class Console;
-
 
 class SDLConsole : public OSDConsoleRenderer
 {
@@ -27,8 +28,8 @@ private:
 	SDL_Surface* outputScreen;
 	SDL_Surface* backgroundImage;
 
-	BackgroundSetting* backgroundSetting;
-	FontSetting* fontSetting;
+	auto_ptr<BackgroundSetting> backgroundSetting;
+	auto_ptr<FontSetting> fontSetting;
 	Console& console;
 
 	SDL_Rect destRect;

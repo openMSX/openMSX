@@ -3,9 +3,14 @@
 #ifndef __ROMPANASONIC_HH__
 #define __ROMPANASONIC_HH__
 
+#include <memory>
 #include "Rom8kBBlocks.hh"
 
+using std::auto_ptr;
+
 namespace openmsx {
+
+class SRAM;
 
 class RomPanasonic : public Rom8kBBlocks
 {
@@ -24,7 +29,7 @@ private:
 	
 	byte control;
 	int bankSelect[8];
-	class SRAM* sram;
+	auto_ptr<SRAM> sram;
 	int maxSRAMBank;
 };
 

@@ -3,9 +3,12 @@
 #ifndef __CASSETTEPORT_HH__
 #define __CASSETTEPORT_HH__
 
+#include <memory>
 #include "EmuTime.hh"
 #include "Connector.hh"
 #include "CassetteDevice.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -73,7 +76,7 @@ private:
 	EmuTime prevTime;
 	short *buffer;
 
-	CassettePlayer* cassettePlayer;
+	auto_ptr<CassettePlayer> cassettePlayer;
 };
 
 class DummyCassettePort : public CassettePortInterface

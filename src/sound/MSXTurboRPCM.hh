@@ -3,9 +3,12 @@
 #ifndef __MSXTURBORPCM_HH__
 #define __MSXTURBORPCM_HH__
 
+#include <memory>
 #include "MSXIODevice.hh"
 #include "EmuTime.hh"
 #include "AudioInputConnector.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -29,7 +32,7 @@ private:
 	byte DValue;
 	byte status;
 	byte hold;
-	DACSound8U* dac;
+	auto_ptr<DACSound8U> dac;
 };
 
 } // namespace openmsx

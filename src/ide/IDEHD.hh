@@ -3,7 +3,10 @@
 #ifndef __IDEHD_HH__
 #define __IDEHD_HH__
 
+#include <memory>
 #include "IDEDevice.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -41,7 +44,7 @@ private:
 	byte statusReg;
 	byte featureReg;
 
-	File* file;
+	auto_ptr<File> file;
 	int totalSectors;
 	
 	byte* buffer;

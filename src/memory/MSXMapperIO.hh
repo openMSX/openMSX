@@ -4,10 +4,12 @@
 #define __MSXMAPPERIO_HH__
 
 #include <set>
+#include <memory>
 #include "openmsx.hh"
 #include "MSXIODevice.hh"
 
 using std::multiset;
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -41,7 +43,7 @@ public:
 	byte getSelectedPage(byte bank);
 
 private:
-	MapperMask* mapperMask;
+	auto_ptr<MapperMask> mapperMask;
 	multiset<unsigned> mapperSizes;
 	byte mask;
 	byte page[4];

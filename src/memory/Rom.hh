@@ -4,12 +4,14 @@
 #define __MSXROMDEVICE_HH__
 
 #include <vector>
+#include <memory>
 #include <cassert>
 #include "RomInfo.hh"
 #include "openmsx.hh"
 #include "Debuggable.hh"
 
 using std::vector;
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -32,7 +34,7 @@ public:
 	}
 
 	const File* getFile() const {
-		return file;
+		return file.get();
 	}
 	const RomInfo& getInfo() const {
 		return *info;
@@ -58,7 +60,7 @@ private:
 	unsigned size;
 	const byte* rom;
 
-	File* file;
+	auto_ptr<File> file;
 	vector<MSXRomPatchInterface*> romPatchInterfaces;
 	auto_ptr<RomInfo> info;
 

@@ -13,7 +13,6 @@ namespace openmsx {
 JoyNet::JoyNet()
 {
 	sockfd = 0;
-	listener = 0;
 	status = 255;
 
 	setupConnections();
@@ -25,8 +24,6 @@ JoyNet::~JoyNet()
 	if (sockfd) {
 		close(sockfd);
 	}
-	// destroy listener
-	delete listener;
 }
 
 //Pluggable
@@ -78,7 +75,7 @@ void JoyNet::setupConnections()
 
 	//first listener in case the connect wants to talk to it's own listener
 	if (config->getChildDataAsBool("startlisten")) {
-		listener = new ConnectionListener(listenport, &status);
+		listener.reset(new ConnectionListener(listenport, &status));
 	}
 	// Currently done when first write is tried
 	/*if (config->getParameterAsBool("startconnect")) {

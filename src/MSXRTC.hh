@@ -3,8 +3,11 @@
 #ifndef __MSXRTC_HH__
 #define __MSXRTC_HH__
 
+#include <memory>
 #include "MSXIODevice.hh"
 #include "SRAM.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -22,7 +25,7 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	RP5C01* rp5c01;
+	auto_ptr<RP5C01> rp5c01;
 	SRAM sram;
 	nibble registerLatch;
 	SettingsConfig& settingsConfig;

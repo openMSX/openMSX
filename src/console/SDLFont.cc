@@ -20,7 +20,8 @@ const int CHARS_PER_ROW = 16;
 const int CHARS_PER_COL = NUM_CHRS / CHARS_PER_ROW;
 
 
-SDLFont::SDLFont(File* file)
+SDLFont::SDLFont(File* file, SDL_Surface* surface)
+	: drawSurface(surface)
 {
 	// load the font bitmap
 	SDL_Surface* image1;
@@ -37,11 +38,6 @@ SDLFont::SDLFont(File* file)
 SDLFont::~SDLFont()
 {
 	SDL_FreeSurface(fontSurface);
-}
-
-void SDLFont::setSurface(SDL_Surface* surface)
-{
-	drawSurface = surface;
 }
 
 void SDLFont::drawText(const string& string, int x, int y)

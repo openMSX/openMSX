@@ -4,11 +4,13 @@
 #define __MSXCPUINTERFACE_HH__
 
 #include <set>
+#include <memory>
 #include "CPUInterface.hh"
 #include "Command.hh"
 #include "Debuggable.hh"
 
 using std::set;
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -239,7 +241,7 @@ public:
 private:
 	MSXIODevice *getDelayDevice(MSXIODevice *device);
 	
-	VDPIODelay *delayDevice;
+	auto_ptr<VDPIODelay> delayDevice;
 };
 
 } // namespace openmsx

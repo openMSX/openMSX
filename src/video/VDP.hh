@@ -3,6 +3,8 @@
 #ifndef __VDP_HH__
 #define __VDP_HH__
 
+#include <string>
+#include <memory>
 #include "openmsx.hh"
 #include "Schedulable.hh"
 #include "MSXIODevice.hh"
@@ -12,9 +14,8 @@
 #include "DisplayMode.hh"
 #include "Debuggable.hh"
 
-#include <string>
-
 using std::string;
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -109,13 +110,13 @@ public:
 	/** Get the VRAM object for this VDP.
 	  */
 	inline VDPVRAM *getVRAM() {
-		return vram;
+		return vram.get();
 	}
 
 	/** Get the sprite checker for this VDP.
 	  */
 	inline SpriteChecker *getSpriteChecker() {
-		return spriteChecker;
+		return spriteChecker.get();
 	}
 
 	/** Gets the current transparency setting.
@@ -617,7 +618,7 @@ private:
 
 	/** Renderer that converts this VDP's state into an image.
 	  */
-	Renderer *renderer;
+	auto_ptr<Renderer> renderer;
 
 	/** Name of the current Renderer.
 	  * TODO: Retrieve this from the Renderer object?
@@ -627,11 +628,11 @@ private:
 
 	/** Command engine: the part of the V9938/58 that executes commands.
 	  */
-	VDPCmdEngine *cmdEngine;
+	auto_ptr<VDPCmdEngine> cmdEngine;
 
 	/** Sprite checker: calculates sprite patterns and collisions.
 	  */
-	SpriteChecker *spriteChecker;
+	auto_ptr<SpriteChecker> spriteChecker;
 
 	/** VDP version.
 	  */
@@ -755,7 +756,7 @@ private:
 
 	/** VRAM management object.
 	  */
-	VDPVRAM *vram;
+	auto_ptr<VDPVRAM> vram;
 
 	/** VRAM mask: bit mask that indicates which address bits are
 	  * present in the VRAM.

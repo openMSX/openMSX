@@ -38,14 +38,12 @@ MSXDiskRomPatch::MSXDiskRomPatch()
 {
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
 	// TODO make names configurable
-	drives[0] = new DoubleSidedDrive("diska", time);
-	drives[1] = new DoubleSidedDrive("diskb", time);
+	drives[0].reset(new DoubleSidedDrive("diska", time));
+	drives[1].reset(new DoubleSidedDrive("diskb", time));
 }
 
 MSXDiskRomPatch::~MSXDiskRomPatch()
 {
-	delete drives[0];
-	delete drives[1];
 }
 
 void MSXDiskRomPatch::patch(CPU::CPURegs& regs)

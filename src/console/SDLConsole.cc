@@ -25,7 +25,7 @@ SDLConsole::SDLConsole(Console& console_, SDL_Surface* screen)
 
 	outputScreen = screen;
 
-	fontSetting = new FontSetting(this, temp + "font", console.getFont());
+	fontSetting.reset(new FontSetting(this, temp + "font", console.getFont()));
 
 	initConsoleSize();
 	OSDConsoleRenderer::updateConsoleRect(destRect);
@@ -36,8 +36,8 @@ SDLConsole::SDLConsole(Console& console_, SDL_Surface* screen)
 		format->Rmask, format->Gmask, format->Bmask, format->Amask);
 	SDL_SetAlpha(backgroundImage, SDL_SRCALPHA, CONSOLE_ALPHA);
 
-	backgroundSetting = new BackgroundSetting(this, temp + "background",
-	                                          console.getBackground());
+	backgroundSetting.reset(new BackgroundSetting(this, temp + "background",
+	                                              console.getBackground()));
 }
 
 SDLConsole::~SDLConsole()
@@ -45,11 +45,7 @@ SDLConsole::~SDLConsole()
 	if (backgroundImage) {
 		SDL_FreeSurface(backgroundImage);
 	}
-
-	delete fontSetting;
-	delete backgroundSetting;
 }
-
 
 // Updates the console buffer
 void SDLConsole::updateConsole()
@@ -197,11 +193,8 @@ bool SDLConsole::loadFont(const string& filename)
 	}
 	try {
 		File file(filename);
-		SDLFont* newFont = new SDLFont(&file);
-		newFont->setSurface(outputScreen);
-		delete font;
-		font = newFont;
-	} catch (MSXException &e) {
+		font.reset(new SDLFont(&file, outputScreen));
+	} catch (MSXException& e) {
 		return false;
 	}
 	return true;

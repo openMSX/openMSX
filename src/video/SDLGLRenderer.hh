@@ -3,8 +3,7 @@
 #ifndef __SDLGLRENDERER_HH__
 #define __SDLGLRENDERER_HH__
 
-#include "GLUtil.hh"
-
+#include <memory>
 #include <SDL.h>
 #include "openmsx.hh"
 #include "PixelRenderer.hh"
@@ -13,6 +12,9 @@
 #include "SpriteConverter.hh"
 #include "DirtyChecker.hh"
 #include "DisplayMode.hh"
+#include "GLUtil.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -251,7 +253,7 @@ private:
 	  */
 	SpriteConverter<Pixel, Renderer::ZOOM_REAL> spriteConverter;
 
-	OSDConsoleRenderer *console;
+	auto_ptr<OSDConsoleRenderer> console;
 };
 
 } // namespace openmsx

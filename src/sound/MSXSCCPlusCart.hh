@@ -6,8 +6,11 @@
 #ifndef __MSXSCCPLUSCART_HH__
 #define __MSXSCCPLUSCART_HH__
 
+#include <memory>
 #include "MSXMemDevice.hh"
 #include "Ram.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -30,7 +33,7 @@ private:
 	void setModeRegister(byte value);
 	void checkEnable();
 	
-	SCC* scc;
+	auto_ptr<SCC> scc;
 	byte modeRegister;
 	enum SCCEnable {EN_NONE, EN_SCC, EN_SCCPLUS} enable;
 	Ram ram;

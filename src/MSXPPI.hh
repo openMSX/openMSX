@@ -27,8 +27,11 @@
 #ifndef __MSXPPI_HH__
 #define __MSXPPI_HH__
 
+#include <memory>
 #include "MSXIODevice.hh"
 #include "I8255.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -51,7 +54,7 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	I8255 *i8255;
+	auto_ptr<I8255> i8255;
 
 // I8255Interface
 public:
@@ -69,8 +72,8 @@ private:
 	MSXCPUInterface& cpuInterface;
 	Leds& leds;
 	RenShaTurbo& renshaTurbo;
-	KeyClick* click;
-	Keyboard* keyboard;
+	auto_ptr<KeyClick> click;
+	auto_ptr<Keyboard> keyboard;
 	nibble selectedRow;
 };
 

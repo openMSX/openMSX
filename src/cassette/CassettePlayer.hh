@@ -3,12 +3,15 @@
 #ifndef __CASSETTEPLAYER_HH__
 #define __CASSETTEPLAYER_HH__
 
+#include <memory>
 #include "CassetteDevice.hh"
 #include "EmuTime.hh"
 #include "Command.hh"
 #include "CommandLineParser.hh"
 #include "SoundDevice.hh"
 #include "MSXException.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -60,7 +63,7 @@ private:
 	void updatePosition(const EmuTime& time);
 	short getSample(const EmuTime& time);
 
-	CassetteImage* cassette;
+	auto_ptr<CassetteImage> cassette;
 	bool motor, forcePlay;
 	EmuTime tapeTime;
 	EmuTime prevTime;

@@ -50,12 +50,10 @@ Rom::Rom(const string& name_, const string& description_, const XMLElement& conf
 		int last  = config.getChildDataAsInt("lastblock");
 		size = (last - first + 1) * 0x2000;
 		rom = PanasonicMemory::instance().getRomBlock(first);
-		file = NULL;
 		assert(last >= first);
 		assert(rom);
 	} else { // Assumption: this only happens for an empty SCC
 		size = 0;
-		file = NULL;
 	}
 	init(config);
 }
@@ -72,7 +70,7 @@ void Rom::read(const XMLElement& config, const string& filename)
 {
 	// open file
 	try {
-		file = new File(config.getFileContext().resolve(filename));
+		file.reset(new File(config.getFileContext().resolve(filename)));
 	} catch (FileException& e) {
 		throw FatalError("Error reading ROM: " + filename);
 	}
@@ -196,9 +194,8 @@ Rom::~Rom()
 		MSXCPUInterface::instance().unregisterInterface(*it);
 		delete (*it);
 	}
-	if (file) {
+	if (file.get()) {
 		file->munmap();
-		delete file;
 	}
 }
 

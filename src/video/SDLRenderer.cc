@@ -184,7 +184,6 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 	// New scaler algorithm selected?
 	ScalerID scalerID = settings.getScaler()->getValue();
 	if (currScalerID != scalerID) {
-		delete currScaler;
 		currScaler = Scaler<Pixel>::createScaler(scalerID, screen->format);
 		currScalerID = scalerID;
 	}
@@ -500,9 +499,8 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 {
 	this->screen = screen;
 	currScalerID = (ScalerID)-1; // not a valid scaler
-	currScaler = NULL;
 
-	console = new SDLConsole(CommandConsole::instance(), screen);
+	console.reset(new SDLConsole(CommandConsole::instance(), screen));
 
 	// Allocate work surface.
 	initWorkScreens(true);
@@ -568,8 +566,6 @@ SDLRenderer<Pixel, zoom>::~SDLRenderer()
 
 	settings.getDeinterlace()->removeListener(this);
 
-	delete console;
-	delete currScaler;
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
 	for (int i = 0; i < 2; i++) {

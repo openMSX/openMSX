@@ -51,7 +51,7 @@ IDEHD::IDEHD(const XMLElement& config, const EmuTime& time)
 	buffer = new byte[512 * 256];
 
 	const string& filename = config.getChildData("filename");
-	file = new File(config.getFileContext().resolveCreate(filename), CREATE);
+	file.reset(new File(config.getFileContext().resolveCreate(filename), CREATE));
 	
 	unsigned wantedSize = config.getChildDataAsInt("size");	// in MB
 	wantedSize *= 1024 * 1024;
@@ -77,7 +77,6 @@ IDEHD::IDEHD(const XMLElement& config, const EmuTime& time)
 
 IDEHD::~IDEHD()
 {
-	delete file;
 	delete[] buffer;
 }
 

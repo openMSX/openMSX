@@ -3,9 +3,12 @@
 #ifndef __MSXMUSIC_HH__
 #define __MSXMUSIC_HH__
 
+#include <memory>
 #include "MSXIODevice.hh"
 #include "MSXMemDevice.hh"
 #include "Rom.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -27,7 +30,7 @@ protected:
 	void writeDataPort(byte value, const EmuTime& time);
 
 	Rom rom;
-	YM2413Core* ym2413;
+	auto_ptr<YM2413Core> ym2413;
 
 private:
 	int registerLatch;

@@ -21,13 +21,12 @@ MSXRTC::MSXRTC(const XMLElement& config, const EmuTime& time)
 		}
 	}
 	
-	rp5c01 = new RP5C01(emuTimeBased, &sram[0], time);
+	rp5c01.reset(new RP5C01(emuTimeBased, &sram[0], time));
 	registerLatch = 0; // TODO verify on real hardware
 }
 
 MSXRTC::~MSXRTC()
 {
-	delete rp5c01;
 }
 
 void MSXRTC::reset(const EmuTime& time)

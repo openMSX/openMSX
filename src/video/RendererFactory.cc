@@ -43,37 +43,35 @@ static bool initSDLVideo()
 	return true;
 }
 
-RendererFactory *RendererFactory::getCurrent()
+auto_ptr<RendererFactory> RendererFactory::getCurrent()
 {
 	switch (RenderSettings::instance().getRenderer()->getValue()) {
 	case DUMMY:
-		return new DummyRendererFactory();
+		return auto_ptr<RendererFactory>(new DummyRendererFactory());
 	case SDLHI:
-		return new SDLHiRendererFactory();
+		return auto_ptr<RendererFactory>(new SDLHiRendererFactory());
 	case SDLLO:
-		return new SDLLoRendererFactory();
+		return auto_ptr<RendererFactory>(new SDLLoRendererFactory());
 #ifdef COMPONENT_GL
 	case SDLGL:
-		return new SDLGLRendererFactory();
+		return auto_ptr<RendererFactory>(new SDLGLRendererFactory());
 #endif
 #ifdef HAVE_X11
 	case XLIB:
-		return new XRendererFactory();
+		return auto_ptr<RendererFactory>(new XRendererFactory());
 #endif
 	default:
 		throw MSXException("Unknown renderer");
 	}
 }
 
-Renderer *RendererFactory::createRenderer(VDP *vdp)
+auto_ptr<Renderer> RendererFactory::createRenderer(VDP *vdp)
 {
-	RendererFactory* factory = getCurrent();
-	Renderer* result = factory->create(vdp);
-	delete factory;
-	return result;
+	auto_ptr<RendererFactory> factory = getCurrent();
+	return factory->create(vdp);
 }
 
-RendererFactory::RendererSetting* RendererFactory::createRendererSetting(
+auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSetting(
 	const string& defaultRenderer)
 {
 	typedef EnumSetting<RendererID>::Map RendererMap;
@@ -103,9 +101,9 @@ RendererFactory::RendererSetting* RendererFactory::createRendererSetting(
 		 CommandLineParser::CONTROL)
 		? DUMMY
 		: defaultValue;
-	return new RendererSetting(
+	return auto_ptr<RendererSetting>(new RendererSetting(
 		"renderer", "rendering back-end used to display the MSX screen",
-		initialValue, defaultValue, rendererMap);
+		initialValue, defaultValue, rendererMap));
 }
 
 // Dummy ===================================================================
@@ -115,9 +113,9 @@ bool DummyRendererFactory::isAvailable()
 	return true; // TODO: Actually query.
 }
 
-Renderer *DummyRendererFactory::create(VDP *vdp)
+auto_ptr<Renderer> DummyRendererFactory::create(VDP *vdp)
 {
-	return new DummyRenderer(DUMMY, vdp);
+	return auto_ptr<Renderer>(new DummyRenderer(DUMMY, vdp));
 }
 
 // SDLHi ===================================================================
@@ -127,7 +125,7 @@ bool SDLHiRendererFactory::isAvailable()
 	return true; // TODO: Actually query.
 }
 
-Renderer *SDLHiRendererFactory::create(VDP *vdp)
+auto_ptr<Renderer> SDLHiRendererFactory::create(VDP *vdp)
 {
 	const unsigned WIDTH = 640;
 	const unsigned HEIGHT = 480;
@@ -137,7 +135,7 @@ Renderer *SDLHiRendererFactory::create(VDP *vdp)
 
 	if (!initSDLVideo()) {
 		printf("FAILED to init SDL video!");
-		return NULL;
+		return auto_ptr<Renderer>();
 	}
 
 	// Try default bpp.
@@ -157,21 +155,27 @@ Renderer *SDLHiRendererFactory::create(VDP *vdp)
 		printf("FAILED to open any screen!");
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		// TODO: Throw exception.
-		return NULL;
+		return auto_ptr<Renderer>();
 	}
 	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
 
 	switch (screen->format->BytesPerPixel) {
 	case 1:
-		return new SDLRenderer<Uint8, Renderer::ZOOM_REAL>(SDLHI, vdp, screen);
+		return auto_ptr<Renderer>(
+		           new SDLRenderer<Uint8, Renderer::ZOOM_REAL>(
+		                                 SDLHI, vdp, screen));
 	case 2:
-		return new SDLRenderer<Uint16, Renderer::ZOOM_REAL>(SDLHI, vdp, screen);
+		return auto_ptr<Renderer>(
+		           new SDLRenderer<Uint16, Renderer::ZOOM_REAL>(
+		                                 SDLHI, vdp, screen));
 	case 4:
-		return new SDLRenderer<Uint32, Renderer::ZOOM_REAL>(SDLHI, vdp, screen);
+		return auto_ptr<Renderer>(
+		           new SDLRenderer<Uint32, Renderer::ZOOM_REAL>(
+		                                 SDLHI, vdp, screen));
 	default:
 		printf("FAILED to open supported screen!");
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		return NULL;
+		return auto_ptr<Renderer>();
 	}
 }
 
@@ -182,7 +186,7 @@ bool SDLLoRendererFactory::isAvailable()
 	return true; // TODO: Actually query.
 }
 
-Renderer *SDLLoRendererFactory::create(VDP *vdp)
+auto_ptr<Renderer> SDLLoRendererFactory::create(VDP *vdp)
 {
 	const unsigned WIDTH = 320;
 	const unsigned HEIGHT = 240;
@@ -192,7 +196,7 @@ Renderer *SDLLoRendererFactory::create(VDP *vdp)
 
 	if (!initSDLVideo()) {
 		printf("FAILED to init SDL video!");
-		return NULL;
+		return auto_ptr<Renderer>();
 	}
 
 	// Try default bpp.
@@ -212,22 +216,28 @@ Renderer *SDLLoRendererFactory::create(VDP *vdp)
 		printf("FAILED to open any screen!");
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		// TODO: Throw exception.
-		return NULL;
+		return auto_ptr<Renderer>();
 	}
 	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
 
 	switch (screen->format->BytesPerPixel) {
 	case 1:
-		return new SDLRenderer<Uint8, Renderer::ZOOM_256>(SDLLO, vdp, screen);
+		return auto_ptr<Renderer>(
+		           new SDLRenderer<Uint8, Renderer::ZOOM_256>(
+		                                 SDLLO, vdp, screen));
 	case 2:
-		return new SDLRenderer<Uint16, Renderer::ZOOM_256>(SDLLO, vdp, screen);
+		return auto_ptr<Renderer>(
+		           new SDLRenderer<Uint16, Renderer::ZOOM_256>(
+		                                 SDLLO, vdp, screen));
 	case 4:
-		return new SDLRenderer<Uint32, Renderer::ZOOM_256>(SDLLO, vdp, screen);
+		return auto_ptr<Renderer>(
+		           new SDLRenderer<Uint32, Renderer::ZOOM_256>(
+		                                 SDLLO, vdp, screen));
 	default:
 		printf("FAILED to open supported screen!");
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		// TODO: Throw exception.
-		return NULL;
+		return auto_ptr<Renderer>();
 	}
 
 }
@@ -241,7 +251,7 @@ bool SDLGLRendererFactory::isAvailable()
 	return true; // TODO: Actually query.
 }
 
-Renderer *SDLGLRendererFactory::create(VDP *vdp)
+auto_ptr<Renderer> SDLGLRendererFactory::create(VDP *vdp)
 {
 	const unsigned WIDTH = 640;
 	const unsigned HEIGHT = 480;
@@ -252,7 +262,7 @@ Renderer *SDLGLRendererFactory::create(VDP *vdp)
 
 	if (!initSDLVideo()) {
 		printf("FAILED to init SDL video!");
-		return NULL;
+		return auto_ptr<Renderer>();
 	}
 
 	// Enables OpenGL double buffering.
@@ -270,11 +280,11 @@ Renderer *SDLGLRendererFactory::create(VDP *vdp)
 		printf("FAILED to open any screen!");
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		// TODO: Throw exception.
-		return NULL;
+		return auto_ptr<Renderer>();
 	}
 	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
 
-	return new SDLGLRenderer(SDLGL, vdp, screen);
+	return auto_ptr<Renderer>(new SDLGLRenderer(SDLGL, vdp, screen));
 }
 
 #endif // COMPONENT_GL
@@ -288,9 +298,9 @@ bool XRendererFactory::isAvailable()
 	return true; // TODO: Actually query.
 }
 
-Renderer *XRendererFactory::create(VDP *vdp)
+auto_ptr<Renderer> XRendererFactory::create(VDP *vdp)
 {
-	return new XRenderer(XLIB, vdp);
+	return auto_ptr<Renderer>(new XRenderer(XLIB, vdp));
 }
 #endif
 

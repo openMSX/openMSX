@@ -20,14 +20,13 @@ RomMajutsushi::RomMajutsushi(const XMLElement& config, const EmuTime& time, auto
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	short volume = config.getChildDataAsInt("volume");
-	dac = new DACSound8U(getName(), "Majutsushi DAC", volume, time);
+	dac.reset(new DACSound8U(getName(), "Majutsushi DAC", volume, time));
 	
 	reset(time);
 }
 
 RomMajutsushi::~RomMajutsushi()
 {
-	delete dac;
 }
 
 void RomMajutsushi::reset(const EmuTime& time)

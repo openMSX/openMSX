@@ -24,13 +24,12 @@ MSXAudio::MSXAudio(const XMLElement& config, const EmuTime& time)
 	// SampleRAM size
 	int ramSize = config.getChildDataAsInt("sampleram", 256); // size in kb
 
-	y8950 = new Y8950(getName(), volume, ramSize * 1024, time, mode);
+	y8950.reset(new Y8950(getName(), volume, ramSize * 1024, time, mode));
 	reset(time);
 }
 
 MSXAudio::~MSXAudio()
 {
-	delete y8950;
 }
 
 void MSXAudio::reset(const EmuTime& time)

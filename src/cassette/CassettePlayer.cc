@@ -53,7 +53,7 @@ const string& MSXCassettePlayerCLI::fileTypeHelp() const
 
 
 CassettePlayer::CassettePlayer()
-	: cassette(NULL), motor(false), forcePlay(false)
+	: motor(false), forcePlay(false)
 {
 	removeTape();
 
@@ -79,29 +79,24 @@ CassettePlayer::~CassettePlayer()
 	delete[] buffer;
 
 	CommandController::instance().unregisterCommand(this, "cassetteplayer");
-	delete cassette;
 }
 
 void CassettePlayer::insertTape(const string& filename)
 {
-	CassetteImage *tmp;
 	try {
 		// first try WAV
-		tmp = new WavImage(filename);
+		cassette.reset(new WavImage(filename));
 	} catch (MSXException &e) {
 		// if that fails use CAS
-		tmp = new CasImage(filename);
+		cassette.reset(new CasImage(filename));
 	}
-	delete cassette;
-	cassette = tmp;
 
 	rewind();
 }
 
 void CassettePlayer::removeTape()
 {
-	delete cassette;
-	cassette = new DummyCassetteImage();
+	cassette.reset(new DummyCassetteImage());
 }
 
 void CassettePlayer::rewind()

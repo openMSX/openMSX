@@ -3,12 +3,16 @@
 #ifndef __MSXPSG_HH__
 #define __MSXPSG_HH__
 
+#include <memory>
 #include "MSXIODevice.hh"
 #include "AY8910.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
 class CassettePortInterface;
+class JoystickPort;
 
 class MSXPSG : public MSXIODevice, public AY8910Interface
 {
@@ -23,7 +27,7 @@ public:
 
 private:
 	int registerLatch;
-	AY8910 *ay8910;
+	auto_ptr<AY8910> ay8910;
 
 // AY8910Interface
 public:
@@ -39,7 +43,7 @@ private:
 // joystick ports
 private:
 	int selectedPort;
-	class JoystickPort *ports[2];
+	auto_ptr<JoystickPort> ports[2];
 };
 
 } // namespace openmsx

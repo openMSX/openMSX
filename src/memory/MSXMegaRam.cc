@@ -39,7 +39,7 @@ MSXMegaRam::MSXMegaRam(const XMLElement& config, const EmuTime& time)
 	int size = config.getChildDataAsInt("size");
 	int blocks = size / 8;	// 8kb blocks
 	maxBlock = blocks - 1;
-	ram = new Ram(getName(), "Mega-RAM", blocks * 0x2000);
+	ram.reset(new Ram(getName(), "Mega-RAM", blocks * 0x2000));
 	
 	for (int i = 0; i < 4; i++) {
 		setBank(i, 0);
@@ -49,7 +49,6 @@ MSXMegaRam::MSXMegaRam(const XMLElement& config, const EmuTime& time)
 
 MSXMegaRam::~MSXMegaRam()
 {
-	delete ram;
 }
 
 void MSXMegaRam::reset(const EmuTime& time)

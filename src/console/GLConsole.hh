@@ -3,16 +3,17 @@
 #ifndef __GLCONSOLE_HH__
 #define __GLCONSOLE_HH__
 
+#include <memory>
 #include "OSDConsoleRenderer.hh"
 #include "GLUtil.hh"
 
-struct SDL_Surface;
+using std::auto_ptr;
 
+struct SDL_Surface;
 
 namespace openmsx {
 
 class Console;
-
 
 class GLConsole : public OSDConsoleRenderer
 {
@@ -31,8 +32,8 @@ private:
 			int& width, int& height, GLfloat* texCoord);
 
 	GLuint backgroundTexture;
-	BackgroundSetting* backgroundSetting;
-	FontSetting* fontSetting;
+	auto_ptr<BackgroundSetting> backgroundSetting;
+	auto_ptr<FontSetting> fontSetting;
 	GLfloat backTexCoord[4];
 	int consoleWidth;
 	int consoleHeight;

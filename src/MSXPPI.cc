@@ -23,18 +23,15 @@ MSXPPI::MSXPPI(const XMLElement& config, const EmuTime& time)
 {
 	short volume = deviceConfig.getChildDataAsInt("volume");
 	bool keyGhosting = deviceConfig.getChildDataAsBool("key_ghosting", true);
-	keyboard = new Keyboard(keyGhosting);
-	i8255 = new I8255(*this, time);
-	click = new KeyClick(volume, time);
+	keyboard.reset(new Keyboard(keyGhosting));
+	i8255.reset(new I8255(*this, time));
+	click.reset(new KeyClick(volume, time));
 
 	reset(time);
 }
 
 MSXPPI::~MSXPPI()
 {
-	delete keyboard;
-	delete i8255;
-	delete click;
 }
 
 void MSXPPI::reset(const EmuTime& time)

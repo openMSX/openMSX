@@ -91,15 +91,15 @@ VDP::VDP(const XMLElement& config, const EmuTime& time)
 	}
 	vramSize *= 1024;
 	vramMask = vramSize - 1;
-	vram = new VDPVRAM(this, vramSize, time);
+	vram.reset(new VDPVRAM(this, vramSize, time));
 
 	// Create sprite checker.
-	spriteChecker = new SpriteChecker(this);
-	vram->setSpriteChecker(spriteChecker);
+	spriteChecker.reset(new SpriteChecker(this));
+	vram->setSpriteChecker(spriteChecker.get());
 
 	// Create command engine.
-	cmdEngine = new VDPCmdEngine(this);
-	vram->setCmdEngine(cmdEngine);
+	cmdEngine.reset(new VDPCmdEngine(this));
+	vram->setCmdEngine(cmdEngine.get());
 
 	// Get renderer type from config.
 	const XMLElement* rendererConfig = SettingsConfig::instance().findConfigById("renderer");
@@ -112,8 +112,8 @@ VDP::VDP(const XMLElement& config, const EmuTime& time)
 	
 	// Create renderer.
 	renderer = RendererFactory::createRenderer(this);
-	vram->setRenderer(renderer, time);
-	Scheduler::instance().setRenderer(renderer);
+	vram->setRenderer(renderer.get(), time);
+	Scheduler::instance().setRenderer(renderer.get());
 
 	// Register console commands.
 	CommandController::instance().registerCommand(&vdpRegsCmd, "vdpregs");
@@ -144,10 +144,6 @@ VDP::~VDP()
 	CommandController::instance().unregisterCommand(&screenShotCmd, "screenshot");
 	CommandController::instance().unregisterCommand(&vdpRegsCmd,  "vdpregs");
 	CommandController::instance().unregisterCommand(&paletteCmd,  "palette");
-	delete cmdEngine;
-	delete renderer;
-	delete spriteChecker;
-	delete vram;
 }
 
 void VDP::resetInit(const EmuTime& time)
@@ -447,11 +443,10 @@ void VDP::frameStart(const EmuTime& time)
 	// Tell renderer to sync with render settings.
 	if (!renderer->checkSettings()) {
 		// Renderer failed to sync; replace it.
-		delete renderer;
 		renderer = RendererFactory::createRenderer(this);
 		renderer->reset(time);
-		vram->setRenderer(renderer, time);
-		Scheduler::instance().setRenderer(renderer);
+		vram->setRenderer(renderer.get(), time);
+		Scheduler::instance().setRenderer(renderer.get());
 	}
 
 	// Toggle E/O.

@@ -11,16 +11,14 @@ MSXTurboRPCM::MSXTurboRPCM(const XMLElement& config, const EmuTime& time)
 	, AudioInputConnector("pcminput")
 {
 	short volume = config.getChildDataAsInt("volume");
-	dac = new DACSound8U("PCM", "Turbo-R PCM", volume, time);
+	dac.reset(new DACSound8U("PCM", "Turbo-R PCM", volume, time));
 
 	reset(time);
 }
 
 MSXTurboRPCM::~MSXTurboRPCM()
 {
-	delete dac;
 }
-
 
 void MSXTurboRPCM::reset(const EmuTime& time)
 {

@@ -3,6 +3,7 @@
 #ifndef __OSDCONSOLERENDERER_HH__
 #define __OSDCONSOLERENDERER_HH__
 
+#include <memory>
 #include <string>
 #include <SDL.h>	// TODO get rid of this
 #include "ConsoleRenderer.hh"
@@ -12,12 +13,14 @@
 #include "Console.hh"
 #include "NonInheritable.hh"
 
+using std::auto_ptr;
 using std::string;
 
 namespace openmsx {
 
 class OSDConsoleRenderer;
 class IntegerSetting;
+class Font;
 
 NON_INHERITABLE_PRE(BackgroundSetting)
 class BackgroundSetting : public FilenameSettingBase,
@@ -74,10 +77,10 @@ protected:
 
 	int consoleRows;
 	int consoleColumns;
-	EnumSetting<Console::Placement>* consolePlacementSetting;
-	IntegerSetting* consoleRowsSetting;
-	IntegerSetting* consoleColumnsSetting;
-	class Font* font;
+	auto_ptr<EnumSetting<Console::Placement> > consolePlacementSetting;
+	auto_ptr<IntegerSetting> consoleRowsSetting;
+	auto_ptr<IntegerSetting> consoleColumnsSetting;
+	auto_ptr<Font> font;
 	bool blink;
 	unsigned lastBlinkTime;
 	unsigned lastCursorPosition;

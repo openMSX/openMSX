@@ -16,20 +16,17 @@ MSXPSG::MSXPSG(const XMLElement& config, const EmuTime& time)
 {
 	keyLayoutBit = deviceConfig.getChildData("keyboardlayout", "") == "JIS";
 	short volume = deviceConfig.getChildDataAsInt("volume");
-	ay8910 = new AY8910(*this, volume, time);
+	ay8910.reset(new AY8910(*this, volume, time));
 
 	selectedPort = 0;
-	ports[0] = new JoystickPort("joyporta");
-	ports[1] = new JoystickPort("joyportb");
+	ports[0].reset(new JoystickPort("joyporta"));
+	ports[1].reset(new JoystickPort("joyportb"));
 
 	reset(time);
 }
 
 MSXPSG::~MSXPSG()
 {
-	delete ay8910;
-	delete ports[0];
-	delete ports[1];
 }
 
 void MSXPSG::reset(const EmuTime& time)

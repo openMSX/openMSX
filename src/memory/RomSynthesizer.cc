@@ -35,15 +35,14 @@ RomSynthesizer::RomSynthesizer(const XMLElement& config, const EmuTime& time, au
 	setBank(3, unmappedRead);
 
 	short volume = config.getChildDataAsInt("volume");
-	dac = new DACSound8U(getName(), "Konami Synthesizer DAC",
-	                     volume, time);
+	dac.reset(new DACSound8U(getName(), "Konami Synthesizer DAC",
+	                         volume, time));
 
 	reset(time);
 }
 
 RomSynthesizer::~RomSynthesizer()
 {
-	delete dac;
 }
 
 void RomSynthesizer::reset(const EmuTime& time)

@@ -16,7 +16,7 @@ GLConsole::GLConsole(Console& console_)
 	  console(console_)
 {
 	string temp = console.getId();
-	fontSetting = new FontSetting(this, temp + "font", console.getFont());
+	fontSetting.reset(new FontSetting(this, temp + "font", console.getFont()));
 	initConsoleSize();
 	
 	SDL_Rect rect;
@@ -29,14 +29,12 @@ GLConsole::GLConsole(Console& console_)
 	// load background
 	backgroundTexture = 0;
 	
-	backgroundSetting = new BackgroundSetting(this, temp + "background",
-	                                          console.getBackground());
+	backgroundSetting.reset(new BackgroundSetting(this, temp + "background",
+	                                              console.getBackground()));
 }
 
 GLConsole::~GLConsole()
 {
-	delete backgroundSetting;
-	delete fontSetting;
 	if (backgroundTexture) {
 		glDeleteTextures(1, &backgroundTexture);
 	}
@@ -61,8 +59,7 @@ bool GLConsole::loadFont(const string &filename)
 	GLfloat fontTexCoord[4];
 	GLuint fontTexture = 0;
 	if (loadTexture(filename, fontTexture, width, height, fontTexCoord)) {
-		delete font;
-		font = new GLFont(fontTexture, width, height, fontTexCoord);
+		font.reset(new GLFont(fontTexture, width, height, fontTexCoord));
 		return true;
 	} else {
 		return false;

@@ -17,12 +17,12 @@ SunriseIDE::SunriseIDE(const XMLElement& config, const EmuTime& time)
 {
 	const XMLElement* masterElem = config.getChild("master");
 	const XMLElement* slaveElem  = config.getChild("slave");
-	device[0] = masterElem 
+	device[0].reset(masterElem 
 	          ? IDEDeviceFactory::create(masterElem->getData(), time)
-	          : new DummyIDEDevice();
-	device[1] = slaveElem
+	          : new DummyIDEDevice());
+	device[1].reset(slaveElem
 	          ? IDEDeviceFactory::create(slaveElem->getData(), time)
-	          : new DummyIDEDevice();
+	          : new DummyIDEDevice());
 
 	// make valgrind happy
 	internalBank = 0;
@@ -34,8 +34,6 @@ SunriseIDE::SunriseIDE(const XMLElement& config, const EmuTime& time)
 
 SunriseIDE::~SunriseIDE()
 {
-	delete device[0];
-	delete device[1];
 }
 
 

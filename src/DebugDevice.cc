@@ -21,8 +21,8 @@ DebugDevice::DebugDevice(const XMLElement& config, const EmuTime& time)
 {
 	mode = OFF;
 	string outputFile = config.getChildData("filename", "stdout");
-	fileNameSetting = new FilenameSetting("debugoutput",
-		"name of the file the debugdevice outputs to", outputFile);
+	fileNameSetting.reset(new FilenameSetting("debugoutput",
+		"name of the file the debugdevice outputs to", outputFile));
 	fileNameString = fileNameSetting->getValueString();
 	openOutput(fileNameString);
 }
@@ -30,7 +30,6 @@ DebugDevice::DebugDevice(const XMLElement& config, const EmuTime& time)
 DebugDevice::~DebugDevice()
 {
 	string name(fileNameSetting->getValueString());
-	delete fileNameSetting;
 	if ((name != "stderr") && (name != "stdout")) {
 		debugOut.close();
 	}

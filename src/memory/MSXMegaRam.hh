@@ -3,9 +3,12 @@
 #ifndef __MEGARAM_HH__
 #define __MEGARAM_HH__
 
+#include <memory>
 #include "MSXMemDevice.hh"
 #include "MSXIODevice.hh"
 #include "Ram.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -28,7 +31,7 @@ public:
 private:
 	void setBank(byte page, byte block);
 
-	Ram* ram;
+	auto_ptr<Ram> ram;
 	byte maxBlock;
 	byte bank[4];
 	bool writeMode;

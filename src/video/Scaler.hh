@@ -3,8 +3,10 @@
 #ifndef __SCALER_HH__
 #define __SCALER_HH__
 
+#include <memory>
 #include <SDL.h>
 
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -35,7 +37,7 @@ public:
 	  * @param format Pixel format of the surfaces the scaler will be used on.
 	  * @return A Scaler object, owned by the caller.
 	  */
-	static Scaler* createScaler(ScalerID id, SDL_PixelFormat* format);
+	static auto_ptr<Scaler> createScaler(ScalerID id, SDL_PixelFormat* format);
 
 	/** Scales the given area.
 	  * @param src Source: the image to be scaled.

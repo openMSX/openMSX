@@ -3,6 +3,8 @@
 #ifndef __SDLRENDERER_HH__
 #define __SDLRENDERER_HH__
 
+#include <memory>
+#include <SDL.h>
 #include "PixelRenderer.hh"
 #include "SettingListener.hh"
 #include "CharacterConverter.hh"
@@ -13,8 +15,7 @@
 #include "Deinterlacer.hh"
 #include "openmsx.hh"
 
-#include <SDL.h>
-
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -208,7 +209,7 @@ private:
 
 	/** The currently active scaler.
 	  */
-	Scaler<Pixel>* currScaler;
+	auto_ptr<Scaler<Pixel> > currScaler;
 
 	/** ID of the currently active scaler.
 	  * Used to detect scaler changes.
@@ -295,8 +296,7 @@ private:
 	  */
 	SpriteConverter<Pixel, zoom> spriteConverter;
 
-	OSDConsoleRenderer* console;
-	OSDConsoleRenderer* debugger;
+	auto_ptr<OSDConsoleRenderer> console;
 
 	/** Gray values for noise
 	  */

@@ -26,14 +26,13 @@ RomKonami5::RomKonami5(const XMLElement& config, const EmuTime& time, auto_ptr<R
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	short volume = config.getChildDataAsInt("volume");
-	scc = new SCC(getName(), volume, time);
+	scc.reset(new SCC(getName(), volume, time));
 	
 	reset(time);
 }
 
 RomKonami5::~RomKonami5()
 {
-	delete scc;
 }
 
 void RomKonami5::reset(const EmuTime& time)

@@ -49,20 +49,19 @@ MSXSCCPlusCart::MSXSCCPlusCart(const XMLElement& config, const EmuTime& time)
 	}
 
 	// make valgrind happy
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 4; ++i) {
 		isRamSegment[i] = true;
 		mapper[i] = 0;
 	}
 
 	short volume = config.getChildDataAsInt("volume");
-	scc = new SCC(getName(), volume, time, SCC::SCC_Compatible);
+	scc.reset(new SCC(getName(), volume, time, SCC::SCC_Compatible));
 
 	reset(time);
 }
 
 MSXSCCPlusCart::~MSXSCCPlusCart()
 {
-	delete scc;
 }
 
 void MSXSCCPlusCart::reset(const EmuTime& time)

@@ -1,21 +1,5 @@
 // $Id$
 
-#ifndef __JOYNET_HH__
-#define __JOYNET_HH__
-
-#include "probed_defs.hh"
-#ifdef	HAVE_SYS_SOCKET_H
-
-#include "JoystickDevice.hh"
-#include "Thread.hh"
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-
-namespace openmsx {
-
 /*
  * Standard JoyNet cable for MSX (to link two or more MSX computers)
  * =================================================================
@@ -45,6 +29,25 @@ namespace openmsx {
  * 8 --------------- 3
  * 9 --------------- 9
  */
+
+#ifndef __JOYNET_HH__
+#define __JOYNET_HH__
+
+#include "probed_defs.hh"
+#ifdef	HAVE_SYS_SOCKET_H
+
+#include <memory>
+#include "JoystickDevice.hh"
+#include "Thread.hh"
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+using std::auto_ptr;
+
+namespace openmsx {
 
 class JoyNet : public JoystickDevice
 {
@@ -87,7 +90,7 @@ private:
 	void setupConnections();
 	void setupWriter();
 	void sendByte(byte value);
-	ConnectionListener* listener;
+	auto_ptr<ConnectionListener> listener;
 };
 
 } // namespace openmsx

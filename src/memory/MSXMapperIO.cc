@@ -17,14 +17,14 @@ MSXMapperIO::MSXMapperIO(const XMLElement& config, const EmuTime& time)
 	if (typeConfig) {
 		const string& type = typeConfig->getChildData("type");
 		if (type == "TurboR") {
-			mapperMask = new MSXMapperIOTurboR();
+			mapperMask.reset(new MSXMapperIOTurboR());
 		} else if (type == "Philips") {
-			mapperMask = new MSXMapperIOPhilips();
+			mapperMask.reset(new MSXMapperIOPhilips());
 		} else {
 			throw FatalError("Unknown mapper type");
 		}
 	} else {
-		mapperMask = new MSXMapperIOPhilips();
+		mapperMask.reset(new MSXMapperIOPhilips());
 	}
 	mask = mapperMask->calcMask(mapperSizes);
 
@@ -33,7 +33,6 @@ MSXMapperIO::MSXMapperIO(const XMLElement& config, const EmuTime& time)
 
 MSXMapperIO::~MSXMapperIO()
 {
-	delete mapperMask;
 }
 
 void MSXMapperIO::registerMapper(unsigned blocks)

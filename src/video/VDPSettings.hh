@@ -3,9 +3,11 @@
 #ifndef __VDPSETTINGS_HH__
 #define __VDPSETTINGS_HH__
 
+#include <memory>
 #include "EnumSetting.hh"
 #include "BooleanSetting.hh"
 
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -23,19 +25,19 @@ public:
 	  * Turning it off can improve games with a lot of flashing sprites,
 	  * such as Aleste.
 	  */
-	BooleanSetting* getLimitSprites() { return limitSprites; }
+	BooleanSetting* getLimitSprites() { return limitSprites.get(); }
 
 	/** CmdTiming [real, broken].
 	  * This setting is intended for debugging only, not for users.
 	  */
-	EnumSetting<bool>* getCmdTiming() { return cmdTiming; }
+	EnumSetting<bool>* getCmdTiming() { return cmdTiming.get(); }
 
 private:
 	VDPSettings();
 	~VDPSettings();
 
-	BooleanSetting* limitSprites;
-	EnumSetting<bool>* cmdTiming;
+	auto_ptr<BooleanSetting> limitSprites;
+	auto_ptr<EnumSetting<bool> > cmdTiming;
 };
 
 } // namespace openmsx

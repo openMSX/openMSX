@@ -16,10 +16,9 @@ class File;
 class SDLFont : public Font
 {
 public:
-	SDLFont(File* file);
+	SDLFont(File* file, SDL_Surface* surface);
 	virtual ~SDLFont();
 
-	void setSurface(SDL_Surface* surface);
 	virtual void drawText(const string& string, int x, int y);
 
 private:

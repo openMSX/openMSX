@@ -3,19 +3,21 @@
 #ifndef __RENDERERFACTORY_HH__
 #define __RENDERERFACTORY_HH__
 
+#include <string>
+#include <memory>
+#include <SDL.h>
 #include "EnumSetting.hh"
 #include "components.hh"
 #include "probed_defs.hh" // for HAVE_X11 (should be component instead?)
-#include <SDL.h>
-#include <string>
 
+using std::string;
+using std::auto_ptr;
 
 namespace openmsx {
 
 class Renderer;
 class EmuTime;
 class VDP;
-
 
 /** Interface for renderer factories.
   * Every Renderer type has its own RendererFactory.
@@ -25,11 +27,12 @@ class VDP;
 class RendererFactory
 {
 public:
-
 	/** Enumeration of Renderers known to openMSX.
 	  * This is the full list, the list of available renderers may be smaller.
 	  */
 	enum RendererID { DUMMY, SDLHI, SDLLO, SDLGL, XLIB };
+
+	virtual ~RendererFactory() {}
 
 	typedef EnumSetting<RendererID> RendererSetting;
 
@@ -37,13 +40,13 @@ public:
 	  * Use this method for initial renderer creation in the main thread.
 	  * @param vdp The VDP whose display will be rendered.
 	  */
-	static Renderer* createRenderer(VDP* vdp);
+	static auto_ptr<Renderer> createRenderer(VDP* vdp);
 
 	/** Create the renderer setting.
 	  * The map of this setting contains only the available renderers.
 	  * @param defaultRenderer The name of the default renderer
 	  */
-	static RendererSetting* createRendererSetting(
+	static auto_ptr<RendererSetting> createRendererSetting(
 		const string& defaultRenderer);
 
 	/** Gets the name of the associated renderer.
@@ -62,16 +65,13 @@ public:
 	  * @return A newly created Renderer, or NULL if creation failed.
 	  *   TODO: Throwing an exception would be cleaner.
 	  */
-	virtual Renderer* create(VDP* vdp) = 0;
-
-protected:
-	virtual ~RendererFactory() {}
+	virtual auto_ptr<Renderer> create(VDP* vdp) = 0;
 
 private:
 	/** Get the factory selected by the current renderer setting.
 	  * @return The RendererFactory that can create the renderer.
 	  */
-	static RendererFactory* getCurrent();
+	static auto_ptr<RendererFactory> getCurrent();
 };
 
 /** RendererFactory for DummyRenderer.
@@ -88,9 +88,9 @@ public:
 		return "Dummy";
 	}
 
-	bool isAvailable();
+	virtual bool isAvailable();
 
-	Renderer* create(VDP* vdp);
+	virtual auto_ptr<Renderer> create(VDP* vdp);
 };
 
 /** RendererFactory for SDLHiRenderer.
@@ -107,9 +107,9 @@ public:
 		return "SDLHi";
 	}
 
-	bool isAvailable();
+	virtual bool isAvailable();
 
-	Renderer* create(VDP* vdp);
+	virtual auto_ptr<Renderer> create(VDP* vdp);
 };
 
 /** RendererFactory for SDLLoRenderer.
@@ -126,9 +126,9 @@ public:
 		return "SDLLo";
 	}
 
-	bool isAvailable();
+	virtual bool isAvailable();
 
-	Renderer* create(VDP* vdp);
+	virtual auto_ptr<Renderer> create(VDP* vdp);
 };
 
 #ifdef COMPONENT_GL
@@ -147,9 +147,9 @@ public:
 		return "SDLGL";
 	}
 
-	bool isAvailable();
+	virtual bool isAvailable();
 
-	Renderer* create(VDP* vdp);
+	virtual auto_ptr<Renderer> create(VDP* vdp);
 };
 
 #endif // COMPONENT_GL
@@ -172,7 +172,7 @@ public:
 
 	bool isAvailable();
 
-	Renderer* create(VDP* vdp);
+	auto_ptr<Renderer> create(VDP* vdp);
 };
 
 #endif // HAVE_X11

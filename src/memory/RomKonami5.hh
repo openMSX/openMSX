@@ -3,9 +3,14 @@
 #ifndef __ROMKONAMI5_HH__
 #define __ROMKONAMI5_HH__
 
+#include <memory>
 #include "Rom8kBBlocks.hh"
 
+using std::auto_ptr;
+
 namespace openmsx {
+
+class SCC;
 
 class RomKonami5 : public Rom8kBBlocks
 {
@@ -20,7 +25,7 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 
 private:
-	class SCC* scc;
+	auto_ptr<SCC> scc;
 	bool sccEnabled;
 };
 

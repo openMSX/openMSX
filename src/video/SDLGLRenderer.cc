@@ -382,7 +382,7 @@ SDLGLRenderer::SDLGLRenderer(
 	, spriteConverter(vdp->getSpriteChecker())
 {
 	this->screen = screen;
-	console = new GLConsole(CommandConsole::instance());
+	console.reset(new GLConsole(CommandConsole::instance()));
 	GLint size;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
 	printf("Max texture size: %d\n", size);
@@ -486,7 +486,6 @@ SDLGLRenderer::~SDLGLRenderer()
 	vram->patternTable.resetObserver();
 	vram->colourTable.resetObserver();
 
-	delete console;
 	// TODO: Free all textures.
 	delete[] bitmapTextures;
 

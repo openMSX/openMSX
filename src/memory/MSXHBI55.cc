@@ -39,14 +39,13 @@ MSXHBI55::MSXHBI55(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  sram(getName() + " SRAM", 0x1000, config)
 {
-	i8255 = new I8255(*this, time);
+	i8255.reset(new I8255(*this, time));
 
 	reset(time);
 }
 
 MSXHBI55::~MSXHBI55()
 {
-	delete i8255;
 }
 
 void MSXHBI55::reset(const EmuTime& time)

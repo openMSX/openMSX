@@ -24,9 +24,7 @@ MSXRS232::MSXRS232(const XMLElement& config, const EmuTime& time)
 	, rom(MSXDevice::getName() + " ROM", "rom", config)
 {
 	if (config.getChildDataAsBool("ram", false)) {
-		ram = new Ram(MSXDevice::getName() + " RAM", "RS232 RAM", RAM_SIZE);
-	} else {
-		ram = NULL;
+		ram.reset(new Ram(MSXDevice::getName() + " RAM", "RS232 RAM", RAM_SIZE));
 	}
 	
 	EmuDuration total(1.0 / 1.8432e6); // 1.8432MHz
@@ -40,7 +38,6 @@ MSXRS232::MSXRS232(const XMLElement& config, const EmuTime& time)
 
 MSXRS232::~MSXRS232()
 {
-	delete ram;
 }
 
 void MSXRS232::reset(const EmuTime& time)
@@ -49,7 +46,7 @@ void MSXRS232::reset(const EmuTime& time)
 	rxrdyIRQenabled = false;
 	rxrdyIRQ.reset();
 
-	if (ram) {
+	if (ram.get()) {
 		ram->clear();
 	}
 }
@@ -57,7 +54,7 @@ void MSXRS232::reset(const EmuTime& time)
 byte MSXRS232::readMem(word address, const EmuTime& time)
 {
 	word addr = address & 0x3FFF;
-	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
+	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return (*ram)[addr - RAM_OFFSET];
 	} else if ((0x4000 <= address) && (address < 0x8000)) {
 		return rom[addr];
@@ -69,7 +66,7 @@ byte MSXRS232::readMem(word address, const EmuTime& time)
 const byte* MSXRS232::getReadCacheLine(word start) const
 {
 	word addr = start & 0x3FFF;
-	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
+	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return &(*ram)[addr - RAM_OFFSET];
 	} else if ((0x4000 <= start) && (start < 0x8000)) {
 		return &rom[addr];
@@ -84,7 +81,7 @@ void MSXRS232::writeMem(word address, byte value, const EmuTime& time)
 	if (addr == 0x2682) {
 		cout << "RS232 Write 0x2682 " << (int) value << endl;
 	}
-	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
+	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		(*ram)[addr - RAM_OFFSET] = value;
 	}
 }
@@ -93,7 +90,7 @@ byte* MSXRS232::getWriteCacheLine(word start) const
 {
 	return NULL;
 	word addr = start & 0x3FFF;
-	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
+	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return &(*ram)[addr - RAM_OFFSET];
 	} else {
 		return unmappedWrite;

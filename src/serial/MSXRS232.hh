@@ -3,6 +3,7 @@
 #ifndef __MSXRS232_HH__
 #define __MSXRS232_HH__
 
+#include <memory>
 #include "MSXIODevice.hh"
 #include "MSXMemDevice.hh"
 #include "Rom.hh"
@@ -11,6 +12,8 @@
 #include "ClockPin.hh"
 #include "IRQHelper.hh"
 #include "RS232Connector.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -97,7 +100,7 @@ private:
 	
 	I8251 i8251;
 	Rom rom;
-	Ram* ram;
+	auto_ptr<Ram> ram;
 };
 
 } // namespace openmsx

@@ -3,8 +3,11 @@
 #ifndef __SunriseIDE_HH__
 #define __SunriseIDE_HH__
 
+#include <memory>
 #include "MSXMemDevice.hh"
 #include "Rom.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -41,7 +44,7 @@ private:
 	byte readLatch;
 	byte writeLatch;
 	byte selectedDevice;
-	IDEDevice* device[2];
+	auto_ptr<IDEDevice> device[2];
 };
 
 } // namespace openmsx

@@ -92,14 +92,13 @@ CassettePort::CassettePort()
 	buffer = new short[BUFSIZE];
 	PluggingController::instance().registerConnector(this);
 
-	cassettePlayer = new CassettePlayer();
-	PluggingController::instance().registerPluggable(cassettePlayer);
+	cassettePlayer.reset(new CassettePlayer());
+	PluggingController::instance().registerPluggable(cassettePlayer.get());
 }
 
 CassettePort::~CassettePort()
 {
-	PluggingController::instance().unregisterPluggable(cassettePlayer);
-	delete cassettePlayer;
+	PluggingController::instance().unregisterPluggable(cassettePlayer.get());
 	
 	PluggingController::instance().unregisterConnector(this);
 	delete[] buffer;

@@ -4,6 +4,9 @@ $Id$
 	* Large configuration file code refactoring:
 	   - get rid of Config class, use directly XMLElement
 	   - no changes in config files
+	* Use auto_ptr to manage ownership:
+	   - ownership is better documented
+	   - safer in case of exceptions
 
 2004-06-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Config file releated cleanups (no changes in config files)

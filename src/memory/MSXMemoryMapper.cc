@@ -33,7 +33,7 @@ MSXMemoryMapper::MSXMemoryMapper(const XMLElement& config, const EmuTime& time)
 		throw FatalError(out.str());
 	}
 	nbBlocks = kSize / 16;
-	ram = new Ram(getName(), "memory mapper", nbBlocks * 0x4000);
+	ram.reset(new Ram(getName(), "memory mapper", nbBlocks * 0x4000));
 
 	createMapperIO(time);
 	mapperIO->registerMapper(nbBlocks);
@@ -43,8 +43,6 @@ MSXMemoryMapper::~MSXMemoryMapper()
 {
 	mapperIO->unregisterMapper(nbBlocks); 
 	destroyMapperIO();
-	 
-	delete ram;
 }
 
 void MSXMemoryMapper::createMapperIO(const EmuTime& time)

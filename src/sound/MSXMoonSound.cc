@@ -14,15 +14,13 @@ MSXMoonSound::MSXMoonSound(const XMLElement& config, const EmuTime& time)
 	short volume = config.getChildDataAsInt("volume");
 	int ramSize = config.getChildDataAsInt("sampleram", 512); // size in kb
 
-	ymf262 = new YMF262(volume, time);
-	ymf278 = new YMF278(volume, ramSize, config, time);
+	ymf262.reset(new YMF262(volume, time));
+	ymf278.reset(new YMF278(volume, ramSize, config, time));
 	reset(time);
 }
 
 MSXMoonSound::~MSXMoonSound()
 {
-	delete ymf262;
-	delete ymf278;
 }
 
 void MSXMoonSound::reset(const EmuTime& time)

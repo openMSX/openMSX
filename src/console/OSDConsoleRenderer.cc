@@ -107,7 +107,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	}
 
 	initiated = true;
-	font = new DummyFont();
+	font.reset(new DummyFont());
 	if (!console.getFont().empty()) {
 		console.registerConsole(this);
 	}
@@ -115,10 +115,6 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	lastBlinkTime = 0;
 	unsigned cursorY;
 	console.getCursorPosition(lastCursorPosition, cursorY);
-	
-	consolePlacementSetting = NULL;
-	consoleRowsSetting = NULL;
-	consoleColumnsSetting = NULL;
 }
 
 OSDConsoleRenderer::~OSDConsoleRenderer()
@@ -126,10 +122,6 @@ OSDConsoleRenderer::~OSDConsoleRenderer()
 	if (!console.getFont().empty()) {
 		console.unregisterConsole(this);
 	}
-	delete font;
-	delete consolePlacementSetting;
- 	delete consoleRowsSetting;
-	delete consoleColumnsSetting;
 }
 
 void OSDConsoleRenderer::setBackgroundName(const string& name)
@@ -192,18 +184,15 @@ void OSDConsoleRenderer::initConsoleSize()
 	adjustColRow();
 	console.setConsoleDimensions(consoleColumns, consoleRows);
 	string tempname = console.getId();
-	consoleColumnsSetting = new IntegerSetting(
+	consoleColumnsSetting.reset(new IntegerSetting(
 		tempname + "columns", "number of columns in the console",
-		console.getColumns(), 32, 999
-		);
-	consoleRowsSetting = new IntegerSetting(
+		console.getColumns(), 32, 999));
+	consoleRowsSetting.reset(new IntegerSetting(
 		tempname + "rows", "number of rows in the console",
-		console.getRows(), 1, 99
-		);
-	consolePlacementSetting = new EnumSetting<Console::Placement>(
+		console.getRows(), 1, 99));
+	consolePlacementSetting.reset(new EnumSetting<Console::Placement>(
 		tempname + "placement", "position of the console within the emulator",
-		console.getPlacement(), placeMap
-		);
+		console.getPlacement(), placeMap));
 }
 
 void OSDConsoleRenderer::adjustColRow()

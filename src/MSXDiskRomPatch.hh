@@ -3,8 +3,10 @@
 #ifndef __MSXDISKROMPATCH_HH__
 #define __MSXDISKROMPATCH_HH__
 
-#include <string>
+#include <memory>
 #include "MSXRomPatchInterface.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -46,7 +48,7 @@ private:
 	void DRVOFF(CPU::CPURegs& regs);
 
 	static const int LAST_DRIVE = 2;
-	DoubleSidedDrive* drives[LAST_DRIVE];
+	auto_ptr<DoubleSidedDrive> drives[LAST_DRIVE];
 };
 
 } // namespace openmsx

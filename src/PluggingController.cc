@@ -56,7 +56,7 @@ PluggingController::~PluggingController()
 #endif
 	for (vector<Pluggable*>::iterator it = pluggables.begin();
 	     it != pluggables.end(); ++it) {
-		delete (*it);
+		delete *it;
 	}
 }
 

@@ -28,12 +28,11 @@ MSXRam::MSXRam(const XMLElement& config, const EmuTime& time)
 	
 	assert(CPU::CACHE_LINE_SIZE <= 1024);	// size must be cache aligned
 	
-	ram = new Ram(getName(), "ram", size);
+	ram.reset(new Ram(getName(), "ram", size));
 }
 
 MSXRam::~MSXRam()
 {
-	delete ram;
 }
 
 void MSXRam::reset(const EmuTime& time)

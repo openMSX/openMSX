@@ -3,8 +3,11 @@
 #ifndef __MSXMEMORYMAPPER_HH__
 #define __MSXMEMORYMAPPER_HH__
 
+#include <memory>
 #include "MSXMemDevice.hh"
 #include "Ram.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -25,7 +28,7 @@ public:
 	virtual void reset(const EmuTime& time);
 
 protected:
-	Ram* ram;
+	auto_ptr<Ram> ram;
 
 private:
 	void createMapperIO(const EmuTime& time);

@@ -20,9 +20,7 @@ RomPanasonic::RomPanasonic(const XMLElement& config, const EmuTime& time, auto_p
 	
 	int sramSize = config.getChildDataAsInt("sramsize", 0);
 	if (sramSize) {
-		sram = new SRAM(getName() + " SRAM", sramSize * 1024, config);
-	} else {
-		sram = NULL;
+		sram.reset(new SRAM(getName() + " SRAM", sramSize * 1024, config));
 	}
 
 	if (config.getChildDataAsBool("sram-mirrored", false)) {
@@ -36,7 +34,6 @@ RomPanasonic::RomPanasonic(const XMLElement& config, const EmuTime& time, auto_p
 
 RomPanasonic::~RomPanasonic()
 {
-	delete sram;
 }
 
 void RomPanasonic::reset(const EmuTime& time)
@@ -112,7 +109,7 @@ void RomPanasonic::writeMem(word address, byte value, const EmuTime& time)
 	} else if ((0x8000 <= address) && (address < 0xC000)) {
 		int region = address >> 13;
 		int selectedBank = bankSelect[region];
-		if (sram && (SRAM_BASE <= selectedBank) &&
+		if (sram.get() && (SRAM_BASE <= selectedBank) &&
 			    (selectedBank < maxSRAMBank)) {
 			// SRAM
 			bank[region][address & 0x1FFF] = value;
@@ -133,7 +130,7 @@ byte* RomPanasonic::getWriteCacheLine(word address) const
 	} else if ((0x8000 <= address) && (address < 0xC000)) {
 		int region = address >> 13;
 		int selectedBank = bankSelect[region];
-		if ((sram && (SRAM_BASE <= selectedBank) &&
+		if ((sram.get() && (SRAM_BASE <= selectedBank) &&
 			     (selectedBank < maxSRAMBank)) ||
 		    (RAM_BASE <= selectedBank)) {
 			return &bank[region][address & 0x1FFF];
@@ -151,7 +148,7 @@ void RomPanasonic::changeBank(byte region, int bank)
 		return;
 	}
 	bankSelect[region] = bank;
-	if (sram && (SRAM_BASE <= bank) && (bank < maxSRAMBank)) {
+	if (sram.get() && (SRAM_BASE <= bank) && (bank < maxSRAMBank)) {
 		// SRAM
 		int offset = (bank - SRAM_BASE) * 0x2000;
 		int sramSize = sram->getSize();
