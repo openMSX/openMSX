@@ -1,93 +1,70 @@
 // $Id$
 
-#include "Keyboard.hh"
-#include "EventDistributor.hh"
-#include "MSXConfig.hh"
-#include "LocalFile.hh"
-#include "FileContext.hh"
-#include "FileOperations.hh"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <cassert>
+#include "Keyboard.hh"
+#include "EventDistributor.hh"
+#include "MSXConfig.hh"
+#include "File.hh"
+#include "FileContext.hh"
 
 
 namespace openmsx {
 
-void Keyboard::parseKeymapfile(const byte *buf, unsigned int size)
+void Keyboard::parseKeymapfile(const byte* buf, unsigned size)
 {
-	int	i,j,f;
-	char	c, line[1024];
-
-	for (i=0;i<(int)size;i++) {
-		for (f=0,j=0;j<1023 && i<(int)size;i++,j++) {
-			c = *(buf+i);
-			switch	(c) {
+	unsigned i = 0;
+	while  (i < size) {
+		unsigned j = 0;
+		char line[1024];
+		bool done = false;
+		while (!done && (j < 1023) && (i < size)) {
+			char c = buf[i++];
+			switch (c) {
 				case '#':
-					while (i<(int)size && *(buf+i)!='\n')
-						i++;
-					f=1;
+					while ((i < size) &&
+					       (buf[i++] != '\n')) {
+						// skip till end of line
+					}
+					done = true;
 					break;
 				case '\r':
+				case '\t':
+				case ' ':
+					// skip whitespace
 					break;
 				case '\n':
 				case '\0':
-					f=1;
+					// end of line
+					done = true;
 					break;
 				default:
-					line[j] = c;
+					line[j++] = c;
 					break;
 			}
-			if (f)
-				break;
 		}
 		line[j] = '\0';
-		int	rdnum;
-		int	vkeyi, row, bit;
-		rdnum = sscanf(line,"%i = %i,%i",&vkeyi,&row,&bit);
-		unsigned int	vkey = (unsigned int) vkeyi;
-		if (rdnum == 3 && vkey < 0x150) {
-			Keys[vkey][0] = 0x00ff & (unsigned int)row;
-			Keys[vkey][1] = 0x00ff & (unsigned int)bit;
+		unsigned vkey, row, bit;
+		vkey = 100; row = 100; bit = 100;
+		int rdnum = sscanf(line,"%i=%i,%i", &vkey, &row, &bit);
+		if ((rdnum == 3) && (vkey < 0x150) && (row < 12) && (bit < 256)) {
+			Keys[vkey][0] = 0xFF & row;
+			Keys[vkey][1] = 0xFF & bit;
 		}
 	}
 }
 
-void Keyboard::loadKeymapfile(const std::string &keymapfn)
+void Keyboard::loadKeymapfile(const string& filename)
 {
-	class SystemFileContext		*fcontext;
-	vector<string>	pathlist;
-
-	fcontext = new SystemFileContext();
-	pathlist =  fcontext->getPaths();
-
-	vector<string>::const_iterator it;
-	for (it = pathlist.begin();
-	     it != pathlist.end();
-	     it++) {
-		std::string path = *it;
-		path = FileOperations::expandTilde(path);
-		class	LocalFile	*keyf;
-		
-		try {
-			keyf = new LocalFile(path + "share/" + keymapfn, NORMAL);
-		} catch (FileException &e) {
-			//delete keyf;
-			continue;
-		}
-		if (!keyf)
-			continue;
-		int	fsize;
-		byte	*buf;
-		fsize = keyf->getSize();
-		if (!(buf = (byte*)malloc(fsize)))
-		{	PRT_ERROR("no enough memory.");
-		}
-		keyf->read(buf,fsize);
-		delete keyf;
-		parseKeymapfile(buf,fsize);
-		free(buf);
-		break;
+	try {
+		File file(filename);
+		byte* buf = file.mmap();
+		parseKeymapfile(buf, file.getSize());
+		file.munmap();
+	} catch (FileException &e) {
+		PRT_ERROR("Couldn't load keymap file: " << filename);
 	}
 }
 
@@ -95,18 +72,13 @@ Keyboard::Keyboard(bool keyG)
 {
 	keyGhosting = keyG;
 	keysChanged = false;
-	memset(keyMatrix , 255, sizeof(keyMatrix) );
+	memset(keyMatrix , 255, sizeof(keyMatrix));
 	memset(keyMatrix2, 255, sizeof(keyMatrix2));
-	MSXConfig *mconfig = MSXConfig::instance();
 	try {
-		Config *config = mconfig->getConfigById("KeyMap");
-		try {
-			std::string keymapfn;
-			keymapfn = config->getParameter("filename");
-			loadKeymapfile(keymapfn);
-		} catch (ConfigException &) {
-			// no keymap file settings.
-		}
+		Config* config = MSXConfig::instance()->getConfigById("KeyMap");
+		string filename = config->getParameter("filename");
+		filename = config->getContext().resolve(filename);
+		loadKeymapfile(filename);
 	} catch (ConfigException &e) {
 		// no keymap settings.
 	}

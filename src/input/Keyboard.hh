@@ -3,8 +3,11 @@
 #ifndef __INPUTS_HH__
 #define __INPUTS_HH__
 
+#include <string>
 #include "openmsx.hh"
 #include "EventListener.hh"
+
+using std::string;
 
 
 namespace openmsx {
@@ -35,8 +38,8 @@ class Keyboard : public EventListener
 
 	private:
 		void doKeyGhosting();
-		void parseKeymapfile(const byte *, unsigned int);
-		void loadKeymapfile(const std::string &);
+		void parseKeymapfile(const byte* buf, unsigned size);
+		void loadKeymapfile(const string& filename);
 
 		byte keyMatrix[16];
 		byte keyMatrix2[16];

@@ -15,7 +15,7 @@ MSXPSG::MSXPSG(Device *config, const EmuTime &time)
 	try {
 		keyLayoutBit = deviceConfig->getParameterAsBool("keylayoutbit");
 	} catch (ConfigException &e) {
-		keyLayoutBit = 0;	// not specified.
+		keyLayoutBit = false;	// not specified.
 	}
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	ay8910 = new AY8910(*this, volume, time);
@@ -65,13 +65,9 @@ void MSXPSG::writeIO(byte port, byte value, const EmuTime &time)
 byte MSXPSG::readA(const EmuTime &time)
 {
 	byte joystick = joyPorts.read(time);
-	byte cassetteInput = cassette->cassetteIn(time) ? 128 : 0;
-	byte keyLayout;
-	if (keyLayoutBit)
-		keyLayout = 1;
-	else
-		keyLayout = 0;
-	return joystick | (keyLayout << 6) | cassetteInput;
+	byte cassetteInput = cassette->cassetteIn(time) ? 0x80 : 0x00;
+	byte keyLayout = keyLayoutBit ? 0x40 : 0x00;
+	return joystick | keyLayout | cassetteInput;
 }
 
 byte MSXPSG::readB(const EmuTime &time)

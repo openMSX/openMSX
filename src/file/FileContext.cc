@@ -44,7 +44,7 @@ const string FileContext::resolveCreate(const string &filename)
 }
 
 const string FileContext::resolve(const vector<string> &pathList,
-                                       const string &filename)
+                                  const string &filename)
 {
 	// TODO handle url-protocols better
 	
