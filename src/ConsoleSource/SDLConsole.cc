@@ -45,9 +45,10 @@ SDLConsole::SDLConsole(SDL_Surface *screen)
 	rect.y = (screen->h / 15) * 9;
 	rect.h = (screen->h / 15) * 6;
 	resize(rect);
-	alpha(180);
-
+	
 	loadBackground();
+	
+	alpha(180);
 }
 
 SDLConsole::~SDLConsole()
