@@ -19,6 +19,7 @@ openmsx_SOURCES=openmsx.cc \
 	KeyClick.hh KeyClick.cc \
 	MSXCassettePort.hh MSXCassettePort.cc \
 	CassetteDevice.hh DummyCassetteDevice.hh DummyCassetteDevice.cc \
+	CassettePlayer.hh CassettePlayer.cc \
 	MSXRom16KB.hh MSXRom16KB.cc \
 	MSXSimple64KB.hh MSXSimple64KB.cc \
 	MSXTMS9928a.hh MSXTMS9928a.cc \

@@ -1,5 +1,11 @@
 $Id$
 
+2001-11-29 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Added a CassettePlayer (no record function yet)
+	  A CassettePlayer must be plugged into the CassettePort and
+	  you must insert a tape (= .wav file) into the CassettePlayer
+	  Currently you can't do either of these operations.
+	  
 2001-11-27 Maarten ter Huurne <mth@stack.nl>
 	* Added updateBlanking to Renderer interface.
 	  Fixes redraw problem in King's Valley 2.
