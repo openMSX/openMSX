@@ -2,7 +2,7 @@ $Id$
 
 2005-03-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Handle TCL events in openmsx event loop:
-	   - makes Patriek's webserver script work
+	   - makes Patrick's webserver script work
 	   - preparation for Tk integration
 
 2005-03-25 Herman Oudejans <hn.oudejans@quicknet.nl>
