@@ -125,6 +125,7 @@
   <device id="PSG">
     <type>PSG</type>
     <parameter name="volume">21000</parameter>
+    <parameter name="keyboardlayout">JIS</parameter>
   </device>
 
   <device id="Real time clock">
