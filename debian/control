@@ -8,7 +8,7 @@ Standards-Version: 3.6.1
 Package: openmsx
 Architecture: i386
 Depends: cbios, ${shlibs:Depends}, ${misc:Depends}
-Suggests: openmsx-catapult, python
+Suggests: openmsx-catapult
 Description: the MSX emulator that aims for perfection
  openMSX is an open source MSX emulator that uses a unique emulation model:
  it tries to achieve the highest level of accuracy possible.
