@@ -13,8 +13,7 @@ namespace openmsx {
 class MSXRom : public MSXMemDevice
 {
 	public:
-		MSXRom(Device *config, const EmuTime &time, Rom *rom);
-		virtual ~MSXRom() = 0;
+		virtual ~MSXRom();
 
 		virtual void writeMem(word address, byte value,
 		                      const EmuTime &time);
@@ -22,6 +21,8 @@ class MSXRom : public MSXMemDevice
 		virtual const string &getName() const;
 
 	protected:
+		MSXRom(Device *config, const EmuTime &time, Rom *rom);
+
 		Rom* rom;
 		string romName;
 		static class MSXCPU *cpu;

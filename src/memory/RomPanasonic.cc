@@ -60,7 +60,7 @@ void RomPanasonic::reset(const EmuTime &time)
 byte RomPanasonic::readMem(word address, const EmuTime &time)
 {
 	byte result;
-	if ((control & 0x04) && (0x7FF0 <= address) && (address < 0x7FF7)) {
+	if ((control & 0x04) && (0x7FF0 <= address) && (address < 0x7FF8)) {
 		// read mapper state (lower 8 bit)
 		result = bankSelect[address & 7] & 0xFF;
 	} else if ((control & 0x10) && (address == 0x7FF8)) {

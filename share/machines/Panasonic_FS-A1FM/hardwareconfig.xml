@@ -37,10 +37,11 @@
     <parameter name="filename">roms/fs-a1fm_msx2sub.rom</parameter>
   </device>
 
-  <device id="MSX Opening ROM">
+  <device id="Modem ROM">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
-    <parameter name="filename">roms/fs-a1fm_msx2opt.rom</parameter>
+    <parameter name="filename">roms/fs-a1fm_firmware.rom</parameter>
+    <parameter name="mappertype">FSA1FM1</parameter>
   </device>
 
   <device id="FS-A1FM">
@@ -50,8 +51,7 @@
     <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
     <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
     <parameter name="filename">roms/fs-a1fm_firmware.rom</parameter>
-    <parameter name="mappertype">PANASONIC</parameter>
-    <parameter name="sramname">fs-a1fm.sram</parameter>
+    <parameter name="mappertype">FSA1FM2</parameter>
   </device>
 
   <device id="Kanji ROM">

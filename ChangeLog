@@ -1,5 +1,10 @@
 $Id$
 
+2003-08-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Initial version for Panasonic_FS-A1FM mapper:
+	   - internal software doesn't start yet (should it even?), but at
+	     least it doesn't crash anymore
+
 2003-08-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Improved tabcompleteion for plug command:
 	   - only complete pluggables that will fit in the selected connector

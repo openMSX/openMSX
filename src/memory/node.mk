@@ -18,6 +18,7 @@ SRC_HDR:= \
 	RomKorean80in1 RomKorean90in1 RomKorean126in1 \
 	RomPanasonic RomNational \
 	RomMSXAudio RomHalnote RomHolyQuran \
+	RomFSA1FM \
 	PanasonicMemory PanasonicRam PanasonicRom \
 	MSXMegaRam \
 	MSXPac \

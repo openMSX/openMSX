@@ -62,6 +62,7 @@ libMemory_la_SOURCES = \
 	RomKorean90in1.cc RomKorean90in1.hh \
 	RomKorean126in1.cc RomKorean126in1.hh \
 	RomHolyQuran.cc RomHolyQuran.hh \
+	RomFSA1FM.cc RomFSA1FM.hh \
 	RomFactory.cc RomFactory.hh \
 	PanasonicMemory.cc PanasonicMemory.hh \
 	PanasonicRam.cc PanasonicRam.hh \

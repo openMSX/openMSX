@@ -80,6 +80,9 @@ MapperType RomInfo::nameToMapperType(const string &name)
 		mappertype["KOREAN126IN1"]= KOREAN126IN1;
 		
 		mappertype["HOLYQURAN"]   = HOLY_QURAN;
+	
+		mappertype["FSA1FM1"]     = FSA1FM1;
+		mappertype["FSA1FM2"]     = FSA1FM2;
 		
 		mappertype["64kB"]        = PLAIN;
 		mappertype["PLAIN"]       = PLAIN;
