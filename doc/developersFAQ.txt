@@ -60,5 +60,8 @@ Example: VDP.cc
 
 
 TODO
-Q: -- read data from config file --
 Q: How do I write my own sound device?
+Q: How do I read data from a config file?
+Q: How do I make a config part that is not device related?
+Q: How do I make a custom XML config part?
+
