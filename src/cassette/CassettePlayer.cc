@@ -14,7 +14,7 @@ MSXCassettePlayerCLI msxCassettePlayerCLI;
 MSXCassettePlayerCLI::MSXCassettePlayerCLI()
 {
 	CommandLineParser::instance()->registerOption("-cassetteplayer", this);
-	CommandLineParser::instance()->registerFileType("cassettesounds", this);
+	CommandLineParser::instance()->registerFileType("rawtapeimages", this);
 }
 
 void MSXCassettePlayerCLI::parseOption(const std::string &option,

@@ -17,28 +17,17 @@
     <parameter name="3" class="subslotted">true</parameter>
   </config>
   
-<!-- This is very likely to change soon -->
-  <config id="SearchPaths">
-    <parameter class="disk">disks</parameter>
-    <parameter class="rom">roms</parameter>
-    <parameter class="rom">cfg</parameter>
-    <parameter class="tape">tapes</parameter>
-    <parameter class="config">cfg</parameter>
-    <parameter class="state">cfg</parameter>
-  </config>
-
   <config id="FileTypes">
     <type>FileTypes</type>
     <parameter class="diskimages">dsk</parameter>
     <parameter class="diskimages">di1</parameter>
     <parameter class="diskimages">di2</parameter>
     <parameter class="diskimages">xsa</parameter>
-    <parameter class="cassetteimages">wav</parameter>
+    <parameter class="rawtapeimages">wav</parameter>
     <parameter class="cassetteimages">cas</parameter>
     <parameter class="romimages">rom</parameter>
     <parameter class="romimages">ri</parameter>
    </config>
-
 
 <!-- Console commands that should be automatically executed at boot -->
   <config id="AutoCommands">
@@ -49,26 +38,10 @@
 <!-- Example RAM configuration -->
   <device id="myram1">
     <type>RAM</type>
-    <slotted>
-      <ps>3</ps>
-      <ss>3</ss>
-      <page>0</page>
-    </slotted>
-    <slotted>
-      <ps>3</ps>
-      <ss>3</ss>
-      <page>1</page>
-    </slotted>
-    <slotted>
-      <ps>3</ps>
-      <ss>3</ss>
-      <page>2</page>
-    </slotted>
-    <slotted>
-      <ps>3</ps>
-      <ss>3</ss>
-      <page>3</page>
-    </slotted>
+    <slotted> <ps>3</ps> <ss>3</ss> <page>0</page> </slotted>
+    <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
+    <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
+    <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
     <parameter name="slow_drain_on_reset">true</parameter>
     <parameter name="size">8</parameter>
     <parameter name="base">56</parameter>
@@ -76,11 +49,7 @@
 
   <device id="biosrom">
     <type>Rom</type>
-    <slotted>
-      <page>0</page>
-      <ps>0</ps>
-      <ss>0</ss>
-    </slotted>
+    <slotted> <page>0</page> <ps>0</ps> <ss>0</ss> </slotted>
   </device>
 <!--
   <device id="biosrom">
@@ -114,6 +83,7 @@
     <parameter name="0x00F5" class="patch">0xC9</parameter>
     <parameter name="" class="patchcode">MSXTapePatch</parameter>
   </device>
+-->  
 
   <config id="tape">
     <parameter name="filename">timecurb.cas</parameter>
@@ -123,7 +93,6 @@
     <parameter name="filename">PSYCHO.DSK</parameter>
   </config>
 
--->  
   <device id="basicrom">
     <type>Rom</type>
     <slotted>
@@ -165,16 +134,8 @@
 
   <device id="Memory Mapped FDC">
     <type>FDC</type>
-    <slotted>
-      <ps>3</ps>
-      <ss>3</ss>
-      <page>1</page>
-    </slotted>
-    <slotted>
-      <ps>3</ps>
-      <ss>3</ss>
-      <page>2</page>
-    </slotted>
+    <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
+    <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
     <parameter name="brokenFDCread">false</parameter> 
     <parameter name="type">Philips</parameter>
     <parameter name="filename">nms8250-disk.rom</parameter>
@@ -206,7 +167,7 @@
     <type>PSG</type>
     <parameter name="volume">21000</parameter>
   </device>
-<!--
+  
   <device id="Kanji ROM">
     <type>Kanji</type>
     <parameter name="filename">KANJI.ROM</parameter>
@@ -217,32 +178,18 @@
     <parameter name="type">Philips</parameter>
   </device>
 
+<!--
   <device id="mymapper1">
     <type>MemoryMapper</type>
-    <slotted>
-      <ps>3</ps>
-      <ss>2</ss>
-      <page>0</page>
-    </slotted>
-    <slotted>
-      <ps>3</ps>
-      <ss>2</ss>
-      <page>1</page>
-    </slotted>
-    <slotted>
-      <ps>3</ps>
-      <ss>2</ss>
-      <page>2</page>
-    </slotted>
-    <slotted>
-      <ps>3</ps>
-      <ss>2</ss>
-      <page>3</page>
-    </slotted>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>0</page> </slotted>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>3</page> </slotted>
     <parameter name="slow_drain_on_reset">false</parameter>
     <parameter name="size">512</parameter>
   </device>
 -->
+
   <device id="Real time clock">
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
@@ -270,21 +217,14 @@
 
   <device id="Penguin Adventure Cartridge">
     <type>Rom</type>
-    <slotted>
-      <ps>1</ps>
-      <ss>0</ss>
-      <page>1</page>
-    </slotted>
-    <slotted>
-      <ps>1</ps>
-      <ss>0</ss>
-      <page>2</page>
-    </slotted>
+    <slotted> <ps>1</ps> <ss>0</ss> <page>1</page> </slotted>
+    <slotted> <ps>1</ps> <ss>0</ss> <page>2</page> </slotted>
     <parameter name="filename">PENGUIN.ROM</parameter>
     <parameter name="loadsram">true</parameter>
     <parameter name="savesram">true</parameter>
     <parameter name="sramname">GAME.SRAM</parameter>
   </device>
+  
 <!-- Note that Synthesizer also works from the command line, thanks to romdb.xml
   <device id="KonamiSynthesizer">
     <type>Rom</type>
@@ -306,13 +246,11 @@
     <parameter name="sramname">GAME.SRAM</parameter>
   </device>
 --> 
+
+<!-- For an FM-PAC config, check out the share/extensions/fmpac dir -->
   <device id="FM PAC">
     <type>FM-PAC</type>
-    <slotted>
-      <ps>2</ps>
-      <ss>0</ss>
-      <page>1</page>
-    </slotted>
+    <slotted> <ps>2</ps> <ss>0</ss> <page>1</page> </slotted>
     <parameter name="filename">FMPAC.ROM</parameter>
     <parameter name="volume">9000</parameter>
     <parameter name="mode">left</parameter>
@@ -320,19 +258,16 @@
     <parameter name="savesram">true</parameter>
     <parameter name="sramname">FMPAC.PAC</parameter>
   </device>
-<!--
+
   <device id="MSX Music">
     <type>Music</type>
-    <slotted>
-      <ps>2</ps>
-      <ss>0</ss>
-      <page>1</page>
-    </slotted>
+    <slotted> <ps>2</ps> <ss>0</ss> <page>1</page> </slotted>
     <parameter name="filename">MUSIC.ROM</parameter>
     <parameter name="volume">9000</parameter>
     <parameter name="mode">mono</parameter>    
   </device>
 
+<!-- For an MSX Audio config, check out the share/extensions/audio dir -->
   <device id="MSX-Audio">
     <type>Audio</type>
     <parameter name="volume">9000</parameter>
@@ -367,18 +302,11 @@
   <config id="CassettePort">
   </config>
 
-  <device id="Empty SCC Cartridge">
+<!-- For an SCC config, check out the share/extensions/scc dir -->
+<device id="Empty SCC Cartridge">
     <type>Rom</type>
-    <slotted>
-      <ps>1</ps>
-      <ss>0</ss>
-      <page>1</page>
-    </slotted>
-    <slotted>
-      <ps>1</ps>
-      <ss>0</ss>
-      <page>2</page>
-    </slotted>
+    <slotted> <ps>1</ps> <ss>0</ss> <page>1</page> </slotted>
+    <slotted> <ps>1</ps> <ss>0</ss> <page>2</page> </slotted>
     <parameter name="filesize">131072</parameter>
     <parameter name="volume">11500</parameter>
     <parameter name="mappertype">SCC</parameter>
@@ -391,6 +319,7 @@
     <parameter name="keys">load"cas:"&#x0D;run&#x0D;</parameter>
   </config>
 
+<!-- This is a settings-type of configuration. See settings.xml -->
   <config id="Console">
     <parameter name="font">ConsoleFont.png</parameter>
     <parameter name="background">ConsoleBackground.png</parameter>
@@ -399,6 +328,7 @@
     <parameter name="placement">bottom</parameter>
   </config>
 
+<!-- For an IDE config, check out the share/extensions/ide dir -->
   <device id="Sunrise IDE">
     <type>SunriseIDE</type>
     <slotted> <ps>3</ps> <ss>2</ss> <page>0</page> </slotted>
@@ -410,11 +340,13 @@
 <!--<parameter name="slave">myCDROM</parameter>-->
   </device>
 
+<!-- For a harddisk config, check out the share/extensions/ide dir -->
   <config id="myHD">
     <type>IDEHD</type>
     <parameter name="filename">hd.dsk</parameter>
   </config>
   
+<!-- See the configuration of the National FS-4600 in share/machines -->
   <device id="Kanji ROM 12x12">
     <type>Kanji12</type>
     <parameter name="filename">KANJI12.ROM</parameter>
