@@ -1,5 +1,8 @@
 $Id$
 
+2004-02-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Refactored EventDistributor to be SDL independent (WIP)
+
 2004-02-08 Maarten ter Huurne <maarten@treewalker.org>
 	* Added support for compilation on FreeBSD.
 	  Thanks to ag0ny for providing a working environment to test on.

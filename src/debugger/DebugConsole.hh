@@ -11,11 +11,9 @@
 
 using std::map;
 
-
 namespace openmsx {
 
 class DebugView;
-
 
 class DebugConsole : public Console, private EventListener,
                      private SettingListener

@@ -35,7 +35,7 @@ private:
 	string afterNew(const vector<string>& tokens, AfterType type);
 
 	// EventListener
-	virtual bool signalEvent(const SDL_Event& event) throw();
+	virtual bool signalEvent(const Event& event) throw();
 	
 	struct AfterCmd : public Schedulable {
 		AfterCmd(AfterCommand& parent);

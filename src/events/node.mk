@@ -6,10 +6,13 @@ SRC_HDR:= \
 	AfterCommand \
 	Keys \
 	KeyEventInserter SDLEventInserter \
-	CliCommInput CliCommOutput 
+	CliCommInput CliCommOutput \
+	InputEventGenerator
 
 HDR_ONLY:= \
-	EventListener
+	EventListener \
+	Event \
+	InputEvents
 
 $(eval $(PROCESS_NODE))
 

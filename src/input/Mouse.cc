@@ -2,7 +2,7 @@
 
 #include "Mouse.hh"
 #include "EventDistributor.hh"
-
+#include "InputEvents.hh"
 
 namespace openmsx {
 
@@ -22,16 +22,16 @@ Mouse::Mouse()
 	xrel = yrel = curxrel = curyrel = 0;
 	mouseMode = true;
 
-	EventDistributor::instance().registerEventListener(SDL_MOUSEMOTION,     this);
-	EventDistributor::instance().registerEventListener(SDL_MOUSEBUTTONDOWN, this);
-	EventDistributor::instance().registerEventListener(SDL_MOUSEBUTTONUP,   this);
+	EventDistributor::instance().registerEventListener(MOUSE_MOTION_EVENT,      *this);
+	EventDistributor::instance().registerEventListener(MOUSE_BUTTON_DOWN_EVENT, *this);
+	EventDistributor::instance().registerEventListener(MOUSE_BUTTON_UP_EVENT,   *this);
 }
 
 Mouse::~Mouse()
 {
-	EventDistributor::instance().unregisterEventListener(SDL_MOUSEMOTION,     this);
-	EventDistributor::instance().unregisterEventListener(SDL_MOUSEBUTTONDOWN, this);
-	EventDistributor::instance().unregisterEventListener(SDL_MOUSEBUTTONUP,   this);
+	EventDistributor::instance().unregisterEventListener(MOUSE_MOTION_EVENT,      *this);
+	EventDistributor::instance().unregisterEventListener(MOUSE_BUTTON_DOWN_EVENT, *this);
+	EventDistributor::instance().unregisterEventListener(MOUSE_BUTTON_UP_EVENT,   *this);
 }
 
 
@@ -176,45 +176,57 @@ void Mouse::write(byte value, const EmuTime &time)
 
 
 //EventListener
-bool Mouse::signalEvent(const SDL_Event& event) throw()
+bool Mouse::signalEvent(const Event& event) throw()
 {
-	switch (event.type) {
-		case SDL_MOUSEMOTION:
-			curxrel -= event.motion.xrel;
-			curyrel -= event.motion.yrel;
-			if (curxrel >  127 * SCALE) curxrel =  127 * SCALE;
-			if (curxrel < -128 * SCALE) curxrel = -128 * SCALE;
-			if (curyrel >  127 * SCALE) curyrel =  127 * SCALE;
-			if (curyrel < -128 * SCALE) curyrel = -128 * SCALE;
-			break;
-		case SDL_MOUSEBUTTONDOWN:
-			switch (event.button.button) {
-				case SDL_BUTTON_LEFT:
-					status &= ~JOY_BUTTONA;
-					break;
-				case SDL_BUTTON_RIGHT:
-					status &= ~JOY_BUTTONB;
-					break;
-				default:
-					// ignore other buttons
-					break;
-			}
-			break;
-		case SDL_MOUSEBUTTONUP:
-			switch (event.button.button) {
-				case SDL_BUTTON_LEFT:
-					status |= JOY_BUTTONA;
-					break;
-				case SDL_BUTTON_RIGHT:
-					status |= JOY_BUTTONB;
-					break;
-				default:
-					// ignore other buttons
-					break;
-			}
-			break;
-		default:
-			assert(false);
+	switch (event.getType()) {
+	case MOUSE_MOTION_EVENT: {
+		const MouseMotionEvent* motionEvent =
+			dynamic_cast<const MouseMotionEvent*>(&event);
+		assert(motionEvent);
+		curxrel -= motionEvent->getX();
+		curyrel -= motionEvent->getY();
+		if (curxrel >  127 * SCALE) curxrel =  127 * SCALE;
+		if (curxrel < -128 * SCALE) curxrel = -128 * SCALE;
+		if (curyrel >  127 * SCALE) curyrel =  127 * SCALE;
+		if (curyrel < -128 * SCALE) curyrel = -128 * SCALE;
+		break;
+	}
+	case MOUSE_BUTTON_DOWN_EVENT: {
+		const MouseButtonEvent* buttonEvent =
+			dynamic_cast<const MouseButtonEvent*>(&event);
+		assert(buttonEvent);
+		switch (buttonEvent->getButton()) {
+			case MouseButtonEvent::LEFT:
+				status &= ~JOY_BUTTONA;
+				break;
+			case MouseButtonEvent::RIGHT:
+				status &= ~JOY_BUTTONB;
+				break;
+			default:
+				// ignore other buttons
+				break;
+		}
+		break;
+	}
+	case MOUSE_BUTTON_UP_EVENT: {
+		const MouseButtonEvent* buttonEvent =
+			dynamic_cast<const MouseButtonEvent*>(&event);
+		assert(buttonEvent);
+		switch (buttonEvent->getButton()) {
+			case MouseButtonEvent::LEFT:
+				status |= JOY_BUTTONA;
+				break;
+			case MouseButtonEvent::RIGHT:
+				status |= JOY_BUTTONB;
+				break;
+			default:
+				// ignore other buttons
+				break;
+		}
+		break;
+	}
+	default:
+		assert(false);
 	}
 	return true;
 }

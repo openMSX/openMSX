@@ -6,7 +6,7 @@
 #include "JoystickDevice.hh"
 #include "EventListener.hh"
 #include "MSXException.hh"
-#include <SDL/SDL.h>
+#include <SDL/SDL.h> // TODO move this
 
 
 namespace openmsx {
@@ -36,10 +36,10 @@ public:
 	virtual void write(byte value, const EmuTime& time);
 
 	//EventListener
-	virtual bool signalEvent(const SDL_Event& event) throw();
+	virtual bool signalEvent(const Event& event) throw();
 
 private:
-	Joystick(int joyNum);
+	Joystick(unsigned joyNum);
 	virtual ~Joystick();
 
 	static const int THRESHOLD = 32768/10;
@@ -47,7 +47,7 @@ private:
 	string name;
 	string desc;
 
-	int joyNum;
+	unsigned joyNum;
 	SDL_Joystick* joystick;
 	byte status;
 };

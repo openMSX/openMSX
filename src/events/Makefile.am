@@ -26,14 +26,15 @@ endif
 noinst_LTLIBRARIES = libEvents.la
 libEvents_la_SOURCES = \
 	EventDistributor.cc EventDistributor.hh \
-	EventListener.hh \
+	EventListener.hh Event.hh \
 	HotKey.cc HotKey.hh \
 	AfterCommand.cc AfterCommand.hh \
 	KeyEventInserter.cc KeyEventInserter.hh \
 	Keys.cc Keys.hh \
 	SDLEventInserter.cc SDLEventInserter.hh \
 	CliCommOutput.cc CliCommOutput.hh \
-	CliCommInput.cc CliCommInput.hh
+	CliCommInput.cc CliCommInput.hh \
+	InputEventGenerator.cc InputEventGenerator.hh
 
 nodebug: resetdebug all
 debug: setdebug all

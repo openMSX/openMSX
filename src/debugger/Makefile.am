@@ -24,15 +24,9 @@ endif
 
 noinst_LTLIBRARIES = libDebugger.la
 libDebugger_la_SOURCES = \
-	DebugView.cc DebugView.hh \
-	MemoryView.cc MemoryView.hh \
-	DumpView.cc DumpView.hh \
-	DisAsmView.cc DisAsmView.hh \
-	DebugConsole.cc DebugConsole.hh \
-	ViewControl.cc ViewControl.hh \
+	Debugger.cc Debugger.hh \
 	Debuggable.hh \
-	DasmTables.cc DasmTables.hh \
-	Debugger.cc Debugger.hh 
+	DasmTables.cc DasmTables.hh
 
 nodebug: resetdebug all
 debug: setdebug all

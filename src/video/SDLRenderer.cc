@@ -12,7 +12,6 @@ TODO:
 #include "VDPVRAM.hh"
 #include "RenderSettings.hh"
 #include "CommandConsole.hh"
-#include "DebugConsole.hh"
 #include "SDLConsole.hh"
 #include "Scaler.hh"
 #include "ScreenShotSaver.hh"
@@ -121,7 +120,6 @@ int SDLRenderer<Pixel, zoom>::putPowerOffImage()
 	// TODO: This is a copy of finishFrame, without the call to drawEffects.
 	// Render consoles if needed.
 	console->drawConsole();
-	if (debugger) debugger->drawConsole();
 
 	// Update screen.
 	SDL_Flip(screen);
@@ -137,7 +135,6 @@ void SDLRenderer<Pixel, zoom>::putImage()
 
 	// Render consoles if needed.
 	console->drawConsole();
-	if (debugger) debugger->drawConsole();
 
 	// Update screen.
 	SDL_Flip(screen);
@@ -473,11 +470,6 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 	currScaler = NULL;
 
 	console = new SDLConsole(CommandConsole::instance(), screen);
-	debugger = NULL;
-	Console* debuggerconsole = DebugConsole::instance();
-	if (debuggerconsole) {
-		debugger = new SDLConsole(*debuggerconsole, screen);
-	}
 
 	// Allocate work surface.
 	initWorkScreens(true);
@@ -522,7 +514,6 @@ SDLRenderer<Pixel, zoom>::~SDLRenderer()
 	settings.getDeinterlace()->removeListener(this);
 
 	delete console;
-	delete debugger;
 	delete currScaler;
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);

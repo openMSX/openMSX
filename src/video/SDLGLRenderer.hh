@@ -250,7 +250,6 @@ private:
 	SpriteConverter<Pixel, Renderer::ZOOM_REAL> spriteConverter;
 
 	OSDConsoleRenderer *console;
-	OSDConsoleRenderer *debugger;
 };
 
 } // namespace openmsx

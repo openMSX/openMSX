@@ -3,8 +3,7 @@
 #ifndef __EVENTLISTENER_HH__
 #define __EVENTLISTENER_HH__
 
-#include <SDL/SDL.h>
-
+#include "Event.hh"
 
 namespace openmsx {
 
@@ -20,7 +19,7 @@ public:
 	 * EventListener may also receive this event (normally always
 	 * the case except for Console)
 	 */
-	virtual bool signalEvent(const SDL_Event& event) throw() = 0;
+	virtual bool signalEvent(const Event& event) throw() = 0;
 };
 
 } // namespace openmsx

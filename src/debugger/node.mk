@@ -1,14 +1,8 @@
 # $Id$
 
 SRC_HDR:= \
-	DebugView \
-	MemoryView \
-	DumpView \
-	DisAsmView \
-	DebugConsole \
-	ViewControl \
-	DasmTables \
-	Debugger
+	Debugger \
+	DasmTables
 
 HDR_ONLY:= \
 	Debuggable

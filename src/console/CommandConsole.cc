@@ -1,5 +1,6 @@
 // $Id$
 
+#include "SDL/SDL.h"	// TODO 
 #include "CommandConsole.hh"
 #include "CommandController.hh"
 #include "EventDistributor.hh"
@@ -11,7 +12,7 @@
 #include "CliCommOutput.hh"
 #include "MSXConfig.hh"
 #include "Config.hh"
-
+#include "InputEvents.hh"
 
 namespace openmsx {
 
@@ -31,8 +32,8 @@ CommandConsole::CommandConsole()
 	prompt = PROMPT1;
 	SDL_EnableUNICODE(1);
 	consoleSetting.addListener(this);
-	eventDistributor.registerEventListener(SDL_KEYDOWN, this);
-	eventDistributor.registerEventListener(SDL_KEYUP,   this);
+	eventDistributor.registerEventListener(KEY_DOWN_EVENT, *this);
+	eventDistributor.registerEventListener(KEY_UP_EVENT,   *this);
 	putPrompt();
 	Config* config = msxConfig.getConfigById("Console");
 	maxHistory = config->getParameterAsInt("historysize", 100);
@@ -45,8 +46,8 @@ CommandConsole::~CommandConsole()
 {
 	commandController.setCommandConsole(NULL);
 	saveHistory();
-	eventDistributor.unregisterEventListener(SDL_KEYDOWN, this);
-	eventDistributor.unregisterEventListener(SDL_KEYUP,   this);
+	eventDistributor.unregisterEventListener(KEY_DOWN_EVENT, *this);
+	eventDistributor.unregisterEventListener(KEY_UP_EVENT,   *this);
 	consoleSetting.removeListener(this);
 }
 
@@ -182,17 +183,16 @@ void CommandConsole::setConsoleDimensions(unsigned columns, unsigned rows)
 	cursorLocationY = 0;
 }
 
-bool CommandConsole::signalEvent(const SDL_Event& event) throw()
+bool CommandConsole::signalEvent(const Event& event) throw()
 {
 	if (!isVisible()) {
 		return true;
 	}
-	if (event.type == SDL_KEYUP) {
+	if (event.getType() == KEY_UP_EVENT) {
 		return false;	// don't pass event to MSX-Keyboard
 	}
 
-	Keys::KeyCode key = (Keys::KeyCode)event.key.keysym.sym;
-	SDLMod modifier = event.key.keysym.mod;
+	Keys::KeyCode key = static_cast<const KeyEvent&>(event).getKeyCode();
 	switch (key) {
 		case Keys::K_PAGEUP:
 			scrollUp();
@@ -243,33 +243,21 @@ bool CommandConsole::signalEvent(const SDL_Event& event) throw()
 			cursorPosition = editLine.length();
 			splitLines();
 			break;
-		case Keys::K_A:
-			if (modifier & (KMOD_LCTRL | KMOD_RCTRL)) {
-				combineLines(lines, lineOverflows);
-				cursorPosition = prompt.length();
-				splitLines();
-			} else {
-				normalKey((char)event.key.keysym.unicode);	
-			}
+		case Keys::K_A | Keys::KM_CTRL:
+			combineLines(lines, lineOverflows);
+			cursorPosition = prompt.length();
+			splitLines();
 			break;	
-		case Keys::K_C:
-			if (modifier & (KMOD_LCTRL | KMOD_RCTRL)) {
-				clearCommand();
-			} else {
-				normalKey((char)event.key.keysym.unicode);	
-			}
+		case Keys::K_C | Keys::KM_CTRL:
+			clearCommand();
 			break;
-		case Keys::K_E:
-			if (modifier & (KMOD_LCTRL | KMOD_RCTRL)) {
-				combineLines(lines, lineOverflows);
-				cursorPosition = editLine.length();
-				splitLines();
-			} else {
-				normalKey((char)event.key.keysym.unicode);
-			}
+		case Keys::K_E | Keys::KM_CTRL:
+			combineLines(lines, lineOverflows);
+			cursorPosition = editLine.length();
+			splitLines();
 			break;
 		default:
-			normalKey((char)event.key.keysym.unicode);
+			normalKey((char)static_cast<const KeyEvent&>(event).getUnicode());
 	}
 	updateConsole();
 	return false;	// don't pass event to MSX-Keyboard

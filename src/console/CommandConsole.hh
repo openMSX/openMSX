@@ -49,7 +49,7 @@ private:
 
 	CommandConsole();
 	virtual ~CommandConsole();
-	virtual bool signalEvent(const SDL_Event& event) throw();
+	virtual bool signalEvent(const Event& event) throw();
 	void tabCompletion();
 	void commandExecute();
 	void scrollUp();

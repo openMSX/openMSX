@@ -8,13 +8,14 @@
 #include "MSXConfig.hh"
 #include "Config.hh"
 #include "CliCommOutput.hh"
+#include "InputEvents.hh"
 
 namespace openmsx {
 
 KeyJoystick::KeyJoystick()
 {
-	EventDistributor::instance().registerEventListener(SDL_KEYDOWN, this, 1);
-	EventDistributor::instance().registerEventListener(SDL_KEYUP  , this, 1);
+	EventDistributor::instance().registerEventListener(KEY_DOWN_EVENT, *this, 1);
+	EventDistributor::instance().registerEventListener(KEY_UP_EVENT  , *this, 1);
 
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
@@ -44,8 +45,8 @@ KeyJoystick::KeyJoystick()
 
 KeyJoystick::~KeyJoystick()
 {
-	EventDistributor::instance().unregisterEventListener(SDL_KEYDOWN, this, 1);
-	EventDistributor::instance().unregisterEventListener(SDL_KEYUP  , this, 1);
+	EventDistributor::instance().unregisterEventListener(KEY_DOWN_EVENT, *this, 1);
+	EventDistributor::instance().unregisterEventListener(KEY_UP_EVENT  , *this, 1);
 }
 
 // auxilliary function for constructor
@@ -104,25 +105,27 @@ void KeyJoystick::write(byte value, const EmuTime& time)
 
 
 // EventListener
-bool KeyJoystick::signalEvent(const SDL_Event& event) throw()
+bool KeyJoystick::signalEvent(const Event& event) throw()
 {
-	Keys::KeyCode theKey = Keys::getCode(event.key.keysym.sym);
-	switch (event.type) {
-	case SDL_KEYDOWN:
-		if      (theKey == upKey)      status &= ~JOY_UP;
-		else if (theKey == downKey)    status &= ~JOY_DOWN;
-		else if (theKey == leftKey)    status &= ~JOY_LEFT;
-		else if (theKey == rightKey)   status &= ~JOY_RIGHT;
-		else if (theKey == buttonAKey) status &= ~JOY_BUTTONA;
-		else if (theKey == buttonBKey) status &= ~JOY_BUTTONB;
+	assert(dynamic_cast<const KeyEvent*>(&event));
+	Keys::KeyCode key = (Keys::KeyCode)((int)((KeyEvent&)event).getKeyCode() &
+		                            (int)Keys::K_MASK);
+	switch (event.getType()) {
+	case KEY_DOWN_EVENT:
+		if      (key == upKey)      status &= ~JOY_UP;
+		else if (key == downKey)    status &= ~JOY_DOWN;
+		else if (key == leftKey)    status &= ~JOY_LEFT;
+		else if (key == rightKey)   status &= ~JOY_RIGHT;
+		else if (key == buttonAKey) status &= ~JOY_BUTTONA;
+		else if (key == buttonBKey) status &= ~JOY_BUTTONB;
 		break;
-	case SDL_KEYUP:
-		if      (theKey == upKey)      status |= JOY_UP;
-		else if (theKey == downKey)    status |= JOY_DOWN;
-		else if (theKey == leftKey)    status |= JOY_LEFT;
-		else if (theKey == rightKey)   status |= JOY_RIGHT;
-		else if (theKey == buttonAKey) status |= JOY_BUTTONA;
-		else if (theKey == buttonBKey) status |= JOY_BUTTONB;
+	case KEY_UP_EVENT:
+		if      (key == upKey)      status |= JOY_UP;
+		else if (key == downKey)    status |= JOY_DOWN;
+		else if (key == leftKey)    status |= JOY_LEFT;
+		else if (key == rightKey)   status |= JOY_RIGHT;
+		else if (key == buttonAKey) status |= JOY_BUTTONA;
+		else if (key == buttonBKey) status |= JOY_BUTTONB;
 		break;
 	default:
 		assert(false);

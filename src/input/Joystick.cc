@@ -1,10 +1,11 @@
 // $Id$
 
 #include <cassert>
+#include "SDL/SDL.h"	// TODO move this
 #include "Joystick.hh"
 #include "PluggingController.hh"
 #include "EventDistributor.hh"
-
+#include "InputEvents.hh"
 
 namespace openmsx {
 
@@ -14,17 +15,17 @@ void Joystick::registerAll(PluggingController *controller) {
 		SDL_JoystickEventState(SDL_ENABLE);	// joysticks generate events
 	}
 
-	int numJoysticks = SDL_NumJoysticks();
-	for (int i = 0; i < numJoysticks; i++) {
+	unsigned numJoysticks = SDL_NumJoysticks();
+	for (unsigned i = 0; i < numJoysticks; i++) {
 		controller->registerPluggable(new Joystick(i));
 	}
 }
 
-Joystick::Joystick(int joyNum_)
+Joystick::Joystick(unsigned joyNum_)
 	: joyNum(joyNum_)
 {
 	PRT_DEBUG("Creating a Joystick object for joystick " << joyNum);
-	assert(joyNum < SDL_NumJoysticks());
+	assert(joyNum < (unsigned)SDL_NumJoysticks());
 	name = string("joystick") + (char)('1' + joyNum);
 	desc = string(SDL_JoystickName(joyNum));
 }
@@ -53,9 +54,9 @@ void Joystick::plug(Connector *connector, const EmuTime &time)
 		throw PlugException("Failed to open joystick device");
 	}
 
-	EventDistributor::instance().registerEventListener(SDL_JOYAXISMOTION, this);
-	EventDistributor::instance().registerEventListener(SDL_JOYBUTTONDOWN, this);
-	EventDistributor::instance().registerEventListener(SDL_JOYBUTTONUP,   this);
+	EventDistributor::instance().registerEventListener(JOY_AXIS_MOTION_EVENT, *this);
+	EventDistributor::instance().registerEventListener(JOY_BUTTON_DOWN_EVENT, *this);
+	EventDistributor::instance().registerEventListener(JOY_BUTTON_UP_EVENT,   *this);
 
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
@@ -63,9 +64,9 @@ void Joystick::plug(Connector *connector, const EmuTime &time)
 
 void Joystick::unplug(const EmuTime &time)
 {
-	EventDistributor::instance().unregisterEventListener(SDL_JOYAXISMOTION, this);
-	EventDistributor::instance().unregisterEventListener(SDL_JOYBUTTONDOWN, this);
-	EventDistributor::instance().unregisterEventListener(SDL_JOYBUTTONUP,   this);
+	EventDistributor::instance().unregisterEventListener(JOY_AXIS_MOTION_EVENT, *this);
+	EventDistributor::instance().unregisterEventListener(JOY_BUTTON_DOWN_EVENT, *this);
+	EventDistributor::instance().unregisterEventListener(JOY_BUTTON_UP_EVENT,   *this);
 	SDL_JoystickClose(joystick);
 }
 
@@ -82,70 +83,87 @@ void Joystick::write(byte value, const EmuTime &time)
 }
 
 //EventListener
-bool Joystick::signalEvent(const SDL_Event& event) throw()
+bool Joystick::signalEvent(const Event& event) throw()
 {
-	if (event.jaxis.which == joyNum) {	// also event.jbutton.which
-		switch (event.type) {
-		case SDL_JOYAXISMOTION:
-			switch (event.jaxis.axis) {
-			case 0: // Horizontal
-				if (event.jaxis.value < -THRESHOLD) {
-					status &= ~JOY_LEFT;	// left      pressed
-					status |=  JOY_RIGHT;	// right not pressed
-				} else if (event.jaxis.value > THRESHOLD) {
-					status |=  JOY_LEFT;	// left  not pressed
-					status &= ~JOY_RIGHT;	// right     pressed
-				} else {
-					status |=  JOY_LEFT;;	// left  not pressed
-					status |=  JOY_RIGHT;	// right not pressed
-				}
-				break;
-			case 1: // Vertical
-				if (event.jaxis.value < -THRESHOLD) {
-					status |=  JOY_DOWN;	// down not pressed
-					status &= ~JOY_UP;	// up       pressed
-				} else if (event.jaxis.value > THRESHOLD) {
-					status &= ~JOY_DOWN;	// down     pressed
-					status |=  JOY_UP;	// up   not pressed
-				} else {
-					status |=  JOY_DOWN;	// down not pressed
-					status |=  JOY_UP;	// up   not pressed
-				}
-				break;
-			default:
-				// ignore other axis
-				break;
+	assert(dynamic_cast<const JoystickEvent*>(&event));
+	const JoystickEvent& joyEvent = static_cast<const JoystickEvent&>(event);
+	if (joyEvent.getJoystick() != joyNum) {
+		return true;
+	}
+
+	switch (event.getType()) {
+	case JOY_AXIS_MOTION_EVENT: {
+		assert(dynamic_cast<const JoystickAxisMotionEvent*>(&event));
+		const JoystickAxisMotionEvent& motionEvent =
+			static_cast<const JoystickAxisMotionEvent&>(event);
+		short value = motionEvent.getValue();
+		switch (motionEvent.getAxis()) {
+		case JoystickAxisMotionEvent::X_AXIS: // Horizontal
+			if (value < -THRESHOLD) {
+				status &= ~JOY_LEFT;	// left      pressed
+				status |=  JOY_RIGHT;	// right not pressed
+			} else if (value > THRESHOLD) {
+				status |=  JOY_LEFT;	// left  not pressed
+				status &= ~JOY_RIGHT;	// right     pressed
+			} else {
+				status |=  JOY_LEFT;;	// left  not pressed
+				status |=  JOY_RIGHT;	// right not pressed
 			}
 			break;
-		case SDL_JOYBUTTONDOWN:
-			switch (event.jbutton.button) {
-			case 0:
-				status &= ~JOY_BUTTONA;
-				break;
-			case 1:
-				status &= ~JOY_BUTTONB;
-				break;
-			default:
-				// ignore other buttons
-				break;
-			}
-			break;
-		case SDL_JOYBUTTONUP:
-			switch (event.jbutton.button) {
-			case 0:
-				status |= JOY_BUTTONA;
-				break;
-			case 1:
-				status |= JOY_BUTTONB;
-				break;
-			default:
-				// ignore other buttons
-				break;
+		case JoystickAxisMotionEvent::Y_AXIS: // Vertical
+			if (value < -THRESHOLD) {
+				status |=  JOY_DOWN;	// down not pressed
+				status &= ~JOY_UP;	// up       pressed
+			} else if (value > THRESHOLD) {
+				status &= ~JOY_DOWN;	// down     pressed
+				status |=  JOY_UP;	// up   not pressed
+			} else {
+				status |=  JOY_DOWN;	// down not pressed
+				status |=  JOY_UP;	// up   not pressed
 			}
 			break;
 		default:
-			assert(false);
+			// ignore other axis
+			break;
 		}
+		break;
+	}
+	case JOY_BUTTON_DOWN_EVENT: {
+		assert(dynamic_cast<const JoystickButtonEvent*>(&event));
+		const JoystickButtonEvent& buttonEvent =
+			static_cast<const JoystickButtonEvent&>(event);
+		switch (buttonEvent.getButton()) {
+		case 0:
+			status &= ~JOY_BUTTONA;
+			break;
+		case 1:
+			status &= ~JOY_BUTTONB;
+			break;
+		default:
+			// ignore other buttons
+			break;
+		}
+		break;
+	}
+	case JOY_BUTTON_UP_EVENT: {
+		assert(dynamic_cast<const JoystickButtonEvent*>(&event));
+		const JoystickButtonEvent& buttonEvent =
+			static_cast<const JoystickButtonEvent&>(event);
+		switch (buttonEvent.getButton()) {
+		case 0:
+			status |= JOY_BUTTONA;
+			break;
+		case 1:
+			status |= JOY_BUTTONB;
+			break;
+		default:
+			// ignore other buttons
+			break;
+		}
+		break;
+	}
+	default:
+		assert(false);
 	}
 	return true;
 }

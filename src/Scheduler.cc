@@ -5,6 +5,7 @@
 #include "Scheduler.hh"
 #include "MSXCPU.hh"
 #include "EventDistributor.hh"
+#include "InputEventGenerator.hh"
 #include "Schedulable.hh"
 #include "CommandController.hh"
 #include "Leds.hh"
@@ -30,6 +31,7 @@ Scheduler::Scheduler()
 	  cpu(MSXCPU::instance()),
 	  commandController(CommandController::instance()),
 	  eventDistributor(EventDistributor::instance()),
+	  eventGenerator(InputEventGenerator::instance()),
 	  quitCommand(*this),
 	  resetCommand(*this)
 {
@@ -43,12 +45,12 @@ Scheduler::Scheduler()
 	commandController.registerCommand(&quitCommand, "quit");
 	commandController.registerCommand(&quitCommand, "exit");
 	commandController.registerCommand(&resetCommand, "reset");
-	eventDistributor.registerEventListener(SDL_QUIT, this);
+	eventDistributor.registerEventListener(QUIT_EVENT, *this);
 }
 
 Scheduler::~Scheduler()
 {
-	eventDistributor.unregisterEventListener(SDL_QUIT, this);
+	eventDistributor.unregisterEventListener(QUIT_EVENT, *this);
 	commandController.unregisterCommand(&resetCommand, "reset");
 	commandController.unregisterCommand(&quitCommand, "exit");
 	commandController.unregisterCommand(&quitCommand, "quit");
@@ -86,7 +88,7 @@ void Scheduler::setSyncPoint(const EmuTime &timeStamp, Schedulable *device, int 
 	sem.up();
 
 	if (pauseCounter > 0) {
-		eventDistributor.notify();
+		eventGenerator.notify();
 	}
 }
 
@@ -105,7 +107,7 @@ void Scheduler::setAsyncPoint(Schedulable* device, int userData)
 	sem.up();
 
 	if (pauseCounter > 0) {
-		eventDistributor.notify();
+		eventGenerator.notify();
 	}
 }
 
@@ -173,21 +175,21 @@ void Scheduler::schedule(const EmuTime& from, const EmuTime& limit)
 		}
 		if (time == ASAP) {
 			scheduleDevice(sp, scheduleTime);
-			eventDistributor.poll();
+			eventGenerator.poll();
 		} else if (pauseCounter > 0) {
 			sem.up();
 			assert(renderer);
 			if (!powerSetting.getValue()) {
 				int fps = renderer->putPowerOffImage();
 				if (fps == 0) {
-					eventDistributor.wait();
+					eventGenerator.wait();
 				} else {
 					SDL_Delay(1000 / fps);
-					eventDistributor.poll();
+					eventGenerator.poll();
 				}
 			} else {
 				renderer->putImage();
-				eventDistributor.wait();
+				eventGenerator.wait();
 			}
 		} else {
 			if (cpu.getTargetTime() < time) {
@@ -204,7 +206,7 @@ void Scheduler::schedule(const EmuTime& from, const EmuTime& limit)
 			} else {
 				scheduleDevice(sp, time);
 			}
-			eventDistributor.poll();
+			eventGenerator.poll();
 		}
 	}
 	--depth;
@@ -285,7 +287,7 @@ void Scheduler::update(const SettingLeafNode* setting) throw()
 }
 
 // EventListener
-bool Scheduler::signalEvent(const SDL_Event& event) throw()
+bool Scheduler::signalEvent(const Event& event) throw()
 {
 	stopScheduling();
 	return true;

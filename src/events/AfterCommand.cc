@@ -15,30 +15,28 @@ namespace openmsx {
 AfterCommand::AfterCommand()
 	: lastAfterId(0)
 {
-	EventDistributor::instance().registerEventListener(SDL_KEYUP, this);
-	EventDistributor::instance().registerEventListener(SDL_KEYDOWN, this);
-	EventDistributor::instance().registerEventListener(SDL_MOUSEMOTION, this);
-	EventDistributor::instance().registerEventListener(SDL_MOUSEBUTTONUP, this);
-	EventDistributor::instance().registerEventListener(SDL_MOUSEBUTTONDOWN, this);
-	EventDistributor::instance().registerEventListener(SDL_MOUSEBUTTONDOWN, this);
-	EventDistributor::instance().registerEventListener(SDL_JOYAXISMOTION, this);
-	EventDistributor::instance().registerEventListener(SDL_JOYBUTTONUP, this);
-	EventDistributor::instance().registerEventListener(SDL_JOYBUTTONDOWN, this);
+	EventDistributor::instance().registerEventListener(KEY_UP_EVENT, *this);
+	EventDistributor::instance().registerEventListener(KEY_DOWN_EVENT, *this);
+	EventDistributor::instance().registerEventListener(MOUSE_MOTION_EVENT, *this);
+	EventDistributor::instance().registerEventListener(MOUSE_BUTTON_UP_EVENT, *this);
+	EventDistributor::instance().registerEventListener(MOUSE_BUTTON_DOWN_EVENT, *this);
+	EventDistributor::instance().registerEventListener(JOY_AXIS_MOTION_EVENT, *this);
+	EventDistributor::instance().registerEventListener(JOY_BUTTON_UP_EVENT, *this);
+	EventDistributor::instance().registerEventListener(JOY_BUTTON_DOWN_EVENT, *this);
 	CommandController::instance().registerCommand(this, "after");
 }
 
 AfterCommand::~AfterCommand()
 {
 	CommandController::instance().unregisterCommand(this, "after");
-	EventDistributor::instance().registerEventListener(SDL_JOYBUTTONDOWN, this);
-	EventDistributor::instance().registerEventListener(SDL_JOYBUTTONUP, this);
-	EventDistributor::instance().registerEventListener(SDL_JOYAXISMOTION, this);
-	EventDistributor::instance().registerEventListener(SDL_MOUSEBUTTONDOWN, this);
-	EventDistributor::instance().registerEventListener(SDL_MOUSEBUTTONDOWN, this);
-	EventDistributor::instance().registerEventListener(SDL_MOUSEBUTTONUP, this);
-	EventDistributor::instance().registerEventListener(SDL_MOUSEMOTION, this);
-	EventDistributor::instance().registerEventListener(SDL_KEYDOWN, this);
-	EventDistributor::instance().registerEventListener(SDL_KEYUP, this);
+	EventDistributor::instance().unregisterEventListener(JOY_BUTTON_DOWN_EVENT, *this);
+	EventDistributor::instance().unregisterEventListener(JOY_BUTTON_UP_EVENT, *this);
+	EventDistributor::instance().unregisterEventListener(JOY_AXIS_MOTION_EVENT, *this);
+	EventDistributor::instance().unregisterEventListener(MOUSE_BUTTON_DOWN_EVENT, *this);
+	EventDistributor::instance().unregisterEventListener(MOUSE_BUTTON_UP_EVENT, *this);
+	EventDistributor::instance().unregisterEventListener(MOUSE_MOTION_EVENT, *this);
+	EventDistributor::instance().unregisterEventListener(KEY_DOWN_EVENT, *this);
+	EventDistributor::instance().unregisterEventListener(KEY_UP_EVENT, *this);
 }
 
 string AfterCommand::execute(const vector<string>& tokens)
@@ -148,7 +146,7 @@ void AfterCommand::tabCompletion(vector<string>& tokens)
 	// TODO
 }
 
-bool AfterCommand::signalEvent(const SDL_Event& event) throw()
+bool AfterCommand::signalEvent(const Event& event) throw()
 {
 	for (map<unsigned, AfterCmd*>::const_iterator it = afterCmds.begin();
 	     it != afterCmds.end(); ++it) {

@@ -32,7 +32,7 @@ public:
 	const byte* getKeys();
 
 	//EventListener
-	virtual bool signalEvent(const SDL_Event& event) throw();
+	virtual bool signalEvent(const Event& event) throw();
 
 	static const unsigned NR_KEYROWS = 16;
 

@@ -20,6 +20,7 @@ class Leds;
 class MSXCPU;
 class CommandController;
 class EventDistributor;
+class InputEventGenerator;
 class Renderer;
 class MSXMotherBoard;
 
@@ -135,7 +136,7 @@ private:
 	virtual void update(const SettingLeafNode* setting) throw();
 
 	// EventListener
-	virtual bool signalEvent(const SDL_Event& event) throw();
+	virtual bool signalEvent(const Event& event) throw();
 
 	void pause();
 	void unpause();
@@ -171,6 +172,7 @@ private:
 	MSXCPU& cpu;
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
+	InputEventGenerator& eventGenerator;
 
 	class QuitCommand : public Command {
 	public:

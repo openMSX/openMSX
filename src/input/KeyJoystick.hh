@@ -7,8 +7,6 @@
 #include "EventListener.hh"
 #include "Keys.hh"
 #include "MSXConfig.hh"
-#include <SDL/SDL.h>
-
 
 namespace openmsx {
 
@@ -29,7 +27,7 @@ public:
 	virtual void write(byte value, const EmuTime& time);
 
 	// EventListener
-	virtual bool signalEvent(const SDL_Event& event) throw();
+	virtual bool signalEvent(const Event& event) throw();
 
 private:
 	Keys::KeyCode getConfigKeyCode(const string& keyname, const Config* config);

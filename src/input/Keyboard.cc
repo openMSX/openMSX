@@ -11,6 +11,8 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "CommandController.hh"
+#include "Keys.hh"
+#include "InputEvents.hh"
 
 namespace openmsx {
 
@@ -83,8 +85,8 @@ Keyboard::Keyboard(bool keyG)
 	} catch (ConfigException &e) {
 		// no keymap settings.
 	}
-	EventDistributor::instance().registerEventListener(SDL_KEYDOWN, this, 1);
-	EventDistributor::instance().registerEventListener(SDL_KEYUP,   this, 1);
+	EventDistributor::instance().registerEventListener(KEY_DOWN_EVENT, *this, 1);
+	EventDistributor::instance().registerEventListener(KEY_UP_EVENT,   *this, 1);
 
 	CommandController::instance().registerCommand(&keyMatrixUpCmd,   "keymatrixup");
 	CommandController::instance().registerCommand(&keyMatrixDownCmd, "keymatrixdown");
@@ -95,8 +97,8 @@ Keyboard::~Keyboard()
 	CommandController::instance().unregisterCommand(&keyMatrixDownCmd, "keymatrixdown");
 	CommandController::instance().unregisterCommand(&keyMatrixUpCmd,   "keymatrixup");
 
-	EventDistributor::instance().unregisterEventListener(SDL_KEYUP,   this, 1);
-	EventDistributor::instance().unregisterEventListener(SDL_KEYDOWN, this, 1);
+	EventDistributor::instance().unregisterEventListener(KEY_UP_EVENT,   *this, 1);
+	EventDistributor::instance().unregisterEventListener(KEY_DOWN_EVENT, *this, 1);
 }
 
 
@@ -115,27 +117,26 @@ const byte* Keyboard::getKeys()
 }
 
 
-bool Keyboard::signalEvent(const SDL_Event& event) throw()
+bool Keyboard::signalEvent(const Event& event) throw()
 {
-	switch (event.type) {
-	case SDL_KEYDOWN: {
-		// Key pressed: reset bit in keyMatrix
-		int key = event.key.keysym.sym;
-		if (key < MAX_KEYSYM) {
+	assert(dynamic_cast<const KeyEvent*>(&event));
+	Keys::KeyCode key = (Keys::KeyCode)((int)((KeyEvent&)event).getKeyCode() &
+	                                    (int)Keys::K_MASK);
+	if (key < MAX_KEYSYM) {
+		switch (event.getType()) {
+		case KEY_DOWN_EVENT: {
+			// Key pressed: reset bit in keyMatrix
 			userKeyMatrix[Keys[key][0]] &= ~Keys[key][1];
+			break;
 		}
-		break;
-	}
-	case SDL_KEYUP: {
-		// Key released: set bit in keyMatrix
-		int key = event.key.keysym.sym;
-		if (key < MAX_KEYSYM) {
+		case KEY_UP_EVENT: {
+			// Key released: set bit in keyMatrix
 			userKeyMatrix[Keys[key][0]] |= Keys[key][1];
+			break;
 		}
-		break;
-	}
-	default:
-		assert(false);
+		default:
+			assert(false);
+		}
 	}
 	keysChanged = true;	// do ghosting at next getKeys()
 	return true;

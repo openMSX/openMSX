@@ -6,7 +6,9 @@
 #include "CommandController.hh"
 #include "EventDistributor.hh"
 #include "CliCommOutput.hh"
+#include "InputEvents.hh"
 
+using std::pair;
 
 namespace openmsx {
 
@@ -26,27 +28,27 @@ HotKey::~HotKey()
 void HotKey::registerHotKey(Keys::KeyCode key, HotKeyListener* listener)
 {
 	PRT_DEBUG("HotKey registration for key " << Keys::getName(key));
-	if (map.empty()) {
-		EventDistributor::instance().registerEventListener(SDL_KEYDOWN, this);
-		EventDistributor::instance().registerEventListener(SDL_KEYUP, this);
+	if (listenerMap.empty()) {
+		EventDistributor::instance().registerEventListener(KEY_DOWN_EVENT, *this);
+		EventDistributor::instance().registerEventListener(KEY_UP_EVENT, *this);
 	}
-	map.insert(pair<Keys::KeyCode, HotKeyListener*>(key, listener));
+	listenerMap.insert(ListenerMap::value_type(key, listener));
 }
 
 void HotKey::unregisterHotKey(Keys::KeyCode key, HotKeyListener* listener)
 {
 	pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
-		map.equal_range(key);
+		listenerMap.equal_range(key);
 	for (ListenerMap::iterator it = bounds.first;
 	     it != bounds.second; ++it) {
 		if (it->second == listener) {
-			map.erase(it);
+			listenerMap.erase(it);
 			break;
 		}
 	}
-	if (map.empty()) {
-		EventDistributor::instance().unregisterEventListener(SDL_KEYDOWN, this);
-		EventDistributor::instance().unregisterEventListener(SDL_KEYUP, this);
+	if (listenerMap.empty()) {
+		EventDistributor::instance().unregisterEventListener(KEY_UP_EVENT, *this);
+		EventDistributor::instance().unregisterEventListener(KEY_DOWN_EVENT, *this);
 	}
 }
 
@@ -55,7 +57,7 @@ void HotKey::registerHotKeyCommand(Keys::KeyCode key, const string& command)
 {
 	HotKeyCmd* cmd = new HotKeyCmd(command);
 	registerHotKey(key, cmd);
-	cmdMap.insert(pair<Keys::KeyCode, HotKeyCmd*>(key, cmd));
+	cmdMap.insert(CommandMap::value_type(key, cmd));
 }
 
 void HotKey::unregisterHotKeyCommand(Keys::KeyCode key, const string& command)
@@ -73,13 +75,13 @@ void HotKey::unregisterHotKeyCommand(Keys::KeyCode key, const string& command)
 	}
 }
 
-bool HotKey::signalEvent(const SDL_Event& event) throw()
+bool HotKey::signalEvent(const Event& event) throw()
 {
-	Keys::KeyCode key = Keys::getCode(event.key.keysym.sym,
-	                                  event.key.keysym.mod,
-	                                  event.type == SDL_KEYUP);
+	assert(dynamic_cast<const KeyEvent*>(&event));
+	//Keys::KeyCode key = Keys::getCode(event.key.keysym.sym, event.key.keysym.mod, event.type == SDL_KEYUP);
+	Keys::KeyCode key = static_cast<const KeyEvent&>(event).getKeyCode();
 	pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
-		map.equal_range(key);
+		listenerMap.equal_range(key);
 	for (ListenerMap::iterator it = bounds.first;
 	     it != bounds.second; ++it) {
 		it->second->signalHotKey(key);

@@ -3,7 +3,7 @@
 #ifndef __KEYS_HH__
 #define __KEYS_HH__
 
-#include <SDL/SDL_keysym.h>
+#include <SDL/SDL_keysym.h> // TODO
 #include <map>
 #include <string>
 
@@ -174,7 +174,7 @@ public:
 		K_MENU		= SDLK_MENU,
 		K_POWER		= SDLK_POWER,	// Power Macintosh power key
 		K_EURO		= SDLK_EURO,	// Some european keyboards
-
+		
 		K_MASK		= 0xFFFF,
 		
 		// Modifiers
