@@ -26,9 +26,13 @@ RealTime::RealTime()
 	: speedSetting("speed",
 	       "controls the emulation speed: higher is faster, 100 is normal",
 	       100, 1, 1000000),
-	  throttleSetting("throttle", "controls speed throttling", true)
+	  throttleSetting("throttle", "controls speed throttling", true),
+	  pauseSetting(Scheduler::instance()->getPauseSetting()),
+	  powerSetting(Scheduler::instance()->getPowerSetting())
 {
 	speedSetting.addListener(this);
+	pauseSetting.addListener(this);
+	powerSetting.addListener(this);
 	
 	maxCatchUpTime = 2000;	// ms
 	maxCatchUpFactor = 105; // %
@@ -39,13 +43,15 @@ RealTime::RealTime()
 	} catch (ConfigException &e) {
 		// no Realtime section
 	}
-
+	
 	Scheduler::instance()->setSyncPoint(Scheduler::ASAP, this);
 }
 
 RealTime::~RealTime()
 {
 	Scheduler::instance()->removeSyncPoint(this);
+	powerSetting.removeListener(this);
+	pauseSetting.removeListener(this);
 	speedSetting.removeListener(this);
 }
 
@@ -107,9 +113,8 @@ EmuDuration RealTime::getEmuDuration(float realDur)
 	return EmuDuration(realDur * speedSetting.getValue() / 100.0);
 }
 
-void RealTime::update(const SettingLeafNode *setting)
+void RealTime::update(const SettingLeafNode* setting)
 {
-	assert(setting == &speedSetting);
 	resync();
 }
 

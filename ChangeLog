@@ -7,6 +7,7 @@ $Id$
 	* Reversed dependency between Mixer and Scheduler:
 	   - Mixer now depends on Scheduler (for mute when paused) instead of
 	     the other way around
+	* Removed circular dependency between RealTime and Scheduler
 
 2003-11-14 Maarten ter Huurne <maarten@treewalker.org>
 	* Performance fixes for SDLHi.

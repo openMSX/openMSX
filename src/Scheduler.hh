@@ -87,11 +87,15 @@ public:
 	void powerOn();
 	void powerOff();
 
-	// Should only be called by VDP 
-	void pause();
 	BooleanSetting& getPauseSetting() {
 		return pauseSetting;
 	}
+	BooleanSetting& getPowerSetting() {
+		return powerSetting;
+	}
+
+	// Should only be called by VDP 
+	void pause();
 
 	static const EmuTime ASAP;
 

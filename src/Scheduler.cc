@@ -6,7 +6,6 @@
 #include "MSXCPU.hh"
 #include "EventDistributor.hh"
 #include "Schedulable.hh"
-#include "RealTime.hh"
 #include "MSXMotherBoard.hh"
 #include "CommandController.hh"
 #include "Leds.hh"
@@ -165,7 +164,6 @@ void Scheduler::powerOn()
 {
 	powerSetting.setValue(true);
 	Leds::instance()->setLed(Leds::POWER_ON);
-	RealTime::instance()->resync();
 }
 
 void Scheduler::powerOff()

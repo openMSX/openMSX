@@ -28,14 +28,12 @@ public:
 	 */
 	float sync(const EmuTime& time);
 
-	// should only be called Scheduler when emulation is unpaused
-	virtual void resync() = 0;
-
 protected:
 	RealTime(); 
 	virtual ~RealTime();
 	
 	virtual float doSync(const EmuTime& time) = 0;  
+	virtual void resync() = 0;
 
 	IntegerSetting speedSetting;
 	int maxCatchUpTime;	// max nb of ms overtime
@@ -51,6 +49,8 @@ private:
 	void update(const SettingLeafNode* setting);
 
 	BooleanSetting throttleSetting;
+	BooleanSetting& pauseSetting;
+	BooleanSetting& powerSetting;
 };
 
 } // namespace openmsx
