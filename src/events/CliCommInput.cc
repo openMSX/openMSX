@@ -22,7 +22,7 @@ static xmlParserCtxt* parser_context;
 CliCommInput::ParseState CliCommInput::user_data;
 
 
-CliCommInput::CliCommInput(CommandLineParser::ControlType type, string arguments)
+CliCommInput::CliCommInput(CommandLineParser::ControlType type, const string& arguments)
 	: lock(1), thread(this), ioType(type), ioArguments(arguments)
 {
 	Scheduler::instance(); // make sure it is instantiated in main thread
@@ -79,30 +79,29 @@ void CliCommInput::run() throw()
 {
 #ifdef __WIN32__
 	bool useNamedPipes = false;
-	if (ioType == CommandLineParser::IO_PIPE){
+	if (ioType == CommandLineParser::IO_PIPE) {
 		OSVERSIONINFO info;
-		info.dwOSVersionInfoSize = sizeof (OSVERSIONINFO);
-		GetVersionExA(&info);	
-		if (info.dwPlatformId == VER_PLATFORM_WIN32_NT){
-			useNamedPipes = true;	
+		info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+		GetVersionExA(&info);
+		if (info.dwPlatformId == VER_PLATFORM_WIN32_NT) {
+			useNamedPipes = true;
 		}
 	}
 	
 	HANDLE pipeHandle = INVALID_HANDLE_VALUE;
-	
-	
+		
 	if (useNamedPipes) {
-		static const char namebase[]  = {"\\\\.\\pipe\\"};	
-		char * pipeName = new char [strlen(namebase) + ioArguments.size() + 1];
-		strcpy (pipeName, namebase);
-		strcat (pipeName, ioArguments.c_str());
+		static const char namebase[] = {"\\\\.\\pipe\\"};
+		char* pipeName = new char[strlen(namebase) + ioArguments.size() + 1];
+		strcpy(pipeName, namebase);
+		strcat(pipeName, ioArguments.c_str());
 		pipeHandle = CreateFileA(pipeName,GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
 		if (pipeHandle == INVALID_HANDLE_VALUE) {
-			char msg [256];
+			char msg[256];
 			snprintf(msg, 255, "Error reopening pipefile '%s': error %u",pipeName, (unsigned int)GetLastError());
-			MessageBoxA(NULL,msg,"Error",MB_OK);
+			MessageBoxA(NULL, msg, "Error", MB_OK);
 		}
-	}	
+	}
 #endif
 	user_data.state = START;
 	user_data.object = this;
@@ -112,22 +111,21 @@ void CliCommInput::run() throw()
 	sax_handler.characters   = (charactersSAXFunc)  cb_text;
 	
 	parser_context = xmlCreatePushParserCtxt(&sax_handler, &user_data, 0, 0, 0);
-	
+
 	char buf[4096];
 	while (true) {
-	ssize_t n = -1;
+		ssize_t n = -1;
 #ifdef __WIN32__
-	if (useNamedPipes) {
-		unsigned long bytesRead;
-		if (ReadFile(pipeHandle, buf, 4096, &bytesRead, NULL)) {
-			n = (ssize_t)bytesRead;
+		if (useNamedPipes) {
+			unsigned long bytesRead;
+			if (ReadFile(pipeHandle, buf, 4096, &bytesRead, NULL)) {
+				n = (ssize_t)bytesRead;
+			} else {
+				CloseHandle(pipeHandle); // read error so close it
+			}
+		} else {
+			n = read(STDIN_FILENO, buf, 4096); // just use stdio in win 9x or if the user wants to
 		}
-		else{
-			CloseHandle (pipeHandle); // read error so close it
-		}	
-	} else {
-		n = read(STDIN_FILENO, buf, 4096); // just use stdio in win 9x or if the user wants to
-	}
 #else
 		n = read(STDIN_FILENO, buf, 4096); // and in non-windows systems
 #endif

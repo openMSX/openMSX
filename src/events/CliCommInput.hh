@@ -20,7 +20,7 @@ namespace openmsx {
 class CliCommInput : private Runnable, private Schedulable
 {
 public:
-	CliCommInput(CommandLineParser::ControlType type, string arguments);
+	CliCommInput(CommandLineParser::ControlType type, const string& arguments);
 	virtual ~CliCommInput();
 
 private:

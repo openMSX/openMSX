@@ -64,9 +64,9 @@ class CommandLineParser
 {
 public:
 	enum ParseStatus { UNPARSED, RUN, CONTROL, EXIT };
-	enum ControlType { IO_UNKNOWN, IO_STD, IO_PIPE };
+	enum ControlType { IO_STD, IO_PIPE };
 	static CommandLineParser& instance();
-	void getControlParameters (ControlType * type, string & arguments);
+	void getControlParameters (ControlType& type, string& arguments);
 	void registerOption(const string& str, CLIOption* cliOption, byte prio = 7, byte length = 2);
 	void registerFileClass(const string& str, CLIFileType* cliFileType);
 	void registerPostConfig(CLIPostConfig* post);
@@ -131,7 +131,6 @@ private:
 		virtual bool parseOption(const string& option,
 			list<string>& cmdLine);
 		virtual const string& optionHelp() const;
-		map <string, CommandLineParser::ControlType> controlTypeMap;
 		CommandLineParser::ControlType type;
 		string arguments;
 	private:

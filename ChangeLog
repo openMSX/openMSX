@@ -1,5 +1,10 @@
 $Id$
 
+2004-01-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Updated control-type selection code (written by tcm1998):
+	   - generate error for unknown control types
+	   - "pipe" is (currently) not a valid type for linux
+
 2004-01-04 Reikan <openMSX4Win32@ranpub.com>
 	* Fix SDL_Video subsystem initialization.
 	  This fix boot up unstability.

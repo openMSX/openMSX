@@ -50,7 +50,7 @@ static int main(int argc, char **argv)
 			if (parseStatus) {
 				CommandLineParser::ControlType type;
 				string argument;
-				parser.getControlParameters (& type, argument);				
+				parser.getControlParameters(type, argument);
 				cliCommInput.reset(new CliCommInput(type, argument));
 			}
 			HotKey hotkey;

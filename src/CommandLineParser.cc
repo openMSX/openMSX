@@ -24,7 +24,7 @@ const char* const MACHINE_PATH = "share/machines/";
 
 // class CLIOption
 
-const string CLIOption::getArgument(const string &option, list<string>& cmdLine)
+const string CLIOption::getArgument(const string& option, list<string>& cmdLine)
 {
 	if (cmdLine.empty()) {
 		throw FatalError("Missing argument for option \"" + option + "\"");
@@ -273,10 +273,10 @@ CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const
 	return parseStatus;
 }
 
-void CommandLineParser::getControlParameters(ControlType * type, string & argument)
+void CommandLineParser::getControlParameters(ControlType& type, string& argument)
 {
-	*type = controlOption.type;
-	argument = controlOption.arguments;	
+	type = controlOption.type;
+	argument = controlOption.arguments;
 }
 
 // Control option
@@ -284,36 +284,34 @@ void CommandLineParser::getControlParameters(ControlType * type, string & argume
 CommandLineParser::ControlOption::ControlOption(CommandLineParser& parent_)
 	: parent(parent_)
 {
-	controlTypeMap["stdio"] = IO_STD;
-	controlTypeMap["pipe"] = IO_PIPE;
 }
 
 CommandLineParser::ControlOption::~ControlOption()
 {
-	controlTypeMap.clear();
 }
 
-bool CommandLineParser::ControlOption::parseOption(const string &option,
-		list<string> &cmdLine)
+bool CommandLineParser::ControlOption::parseOption(const string& option,
+		list<string>& cmdLine)
 {
-	string arg (getArgument(option, cmdLine));
+	string arg(getArgument(option, cmdLine));
 	unsigned colon = arg.find(':');
-	if (colon == string::npos){
-			type = CommandLineParser::IO_UNKNOWN;
-			arguments.clear();   
+	string type_name;
+	if (colon == string::npos) {
+		type_name = arg;
+		//arguments = "";
+	} else {
+		type_name = arg.substr(0, colon);
+		arguments = arg.substr(colon + 1);
 	}
-	else{
-		map <string, CommandLineParser::ControlType>::const_iterator i = 
-			controlTypeMap.find(arg.substr(0,colon));
-		if (i != controlTypeMap.end()){
-			type = i->second;
-			arguments = arg.substr(colon + 1);
-		}	
-		else{
-			type = CommandLineParser::IO_UNKNOWN;
-			arguments.clear();   
-		}
+	map<string, CommandLineParser::ControlType> controlTypeMap;
+	controlTypeMap["stdio"] = IO_STD;
+#ifdef __WIN32__
+	controlTypeMap["pipe"] = IO_PIPE;
+#endif
+	if (controlTypeMap.find(type_name) == controlTypeMap.end()) {
+		throw FatalError("Unknown control type: '"  + type_name + "'"); 
 	}
+	type = controlTypeMap[type_name];
 	
 	parent.output.enableXMLOutput();
 	parent.parseStatus = CONTROL;
