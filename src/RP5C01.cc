@@ -10,11 +10,10 @@
 
 RP5C01::RP5C01(bool emuMode, const EmuTime &time) 
 {
+	reference = time;
 	emuTimeBased = emuMode;
-	reset(time);
 	
 	//TODO load saved state
-	
 	// if no saved state found
 	for (int b=0; b<4; b++) {
 		for (int r=0; r<13; r++) {
@@ -24,7 +23,6 @@ RP5C01::RP5C01(bool emuMode, const EmuTime &time)
 	reg[ALARM_BLOCK][10] = 1;	// set 24hour mode
 
 	initializeTime();
-
 	reset(time);
 }
 
