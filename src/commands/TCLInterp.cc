@@ -4,8 +4,25 @@
 #include "TCLInterp.hh"
 #include "CommandConsole.hh"
 #include "TCLCommandResult.hh"
+#include "MSXException.hh"
 
 namespace openmsx {
+
+int dummyClose(ClientData instanceData, Tcl_Interp *interp)
+{
+	return EINVAL;
+}
+int dummyInput(ClientData instanceData, char *buf, int bufSize, int *errorCodePtr)
+{
+	return EINVAL;
+}
+void dummyWatch(ClientData instanceData, int mask)
+{
+}
+int dummyGetHandle(ClientData instanceData, int direction, ClientData *handlePtr)
+{
+	return TCL_ERROR;
+}
 
 void TCLInterp::init(const char* programName)
 {
@@ -17,12 +34,39 @@ TCLInterp::TCLInterp()
 	interp = Tcl_CreateInterp();
 	Tcl_Preserve(interp);
 	
-	Tcl_Channel output_channel = Tcl_GetStdChannel(TCL_STDOUT);
-	Tcl_ChannelType* channelType = Tcl_GetChannelType(output_channel);
-	channelType->outputProc = outputProc;
+	if (Tcl_Init(interp) != TCL_OK) {
+		cleanup();
+		throw FatalError(interp->result);
+	}
+
+	static Tcl_ChannelType channelType;
+	channelType.typeName = "openMSX console";
+	channelType.version = TCL_CHANNEL_VERSION_2;
+	channelType.closeProc = dummyClose;
+	channelType.inputProc = dummyInput;
+	channelType.outputProc = outputProc; // output handler
+	channelType.seekProc = NULL;
+	channelType.setOptionProc = NULL;
+	channelType.getOptionProc = NULL;
+	channelType.watchProc = dummyWatch;
+	channelType.getHandleProc = dummyGetHandle;
+	channelType.close2Proc = NULL;
+	channelType.blockModeProc = NULL; 
+	channelType.flushProc = NULL;
+	channelType.handlerProc = NULL;     
+	channelType.wideSeekProc = NULL;
+
+	Tcl_Channel channel = Tcl_CreateChannel(&channelType,
+		"openMSX console", this, TCL_WRITABLE);
+	Tcl_SetStdChannel(channel, TCL_STDOUT);
 }
 
 TCLInterp::~TCLInterp()
+{
+	cleanup();
+}
+
+void TCLInterp::cleanup()
 {
 	if (!Tcl_InterpDeleted(interp)) {
 		Tcl_DeleteInterp(interp);
@@ -30,6 +74,7 @@ TCLInterp::~TCLInterp()
 	Tcl_Release(interp);
 }
 
+	
 int TCLInterp::outputProc(ClientData clientData, const char* buf,
                  int toWrite, int* errorCodePtr)
 {

@@ -1,5 +1,9 @@
 $Id$
 
+2004-05-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed redirecting the TCL_STDOUT channel:
+	   this fixes Adriano's bug (saving to file in from TCL script)
+
 2004-05-09 Manuel Bilderbeek <manuel@msxnet.org>
 	* Fixed double SRAM names for Matsushita devices
 

@@ -36,6 +36,8 @@ private:
 	static char* traceProc(ClientData clientData, Tcl_Interp* interp,
                 const char* part1, const char* part2, int flags);
 	
+	void cleanup();
+
 	Tcl_Interp* interp;
 };
 
