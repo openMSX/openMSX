@@ -36,7 +36,7 @@
     <romtype>RTYPE</romtype>
   </rom>
   <rom id="Strategic Mars (cracked?)">
-    <md5>62be2cd42b3db21e68df4c6a529188ed</md5>
+    <sha1>58178e52855ce5ea365d8ce68c2020918e7513d4</sha1>
     <romtype>16kB</romtype>
   </rom>
   <rom id="Demonia">
@@ -67,7 +67,7 @@
   </rom>
   <rom id="Zemmix 64">
     <romtype>KOREAN80IN1</romtype>
-    <md5>4243b9bdad704acc0f4d39e7e9dd199d</md5>
+    <sha1>5f912637565932c2bd7c0d7b9be6ad3dc971f96f</sha1>
     <company>Zemina</company>
     <remark></remark>
   </rom>
@@ -85,7 +85,7 @@
   </rom>
   <rom id="1942">
     <romtype>ASCII8</romtype>
-    <md5>284f6df2bc8b829bc99775b52a00c509</md5>
+    <sha1>0733cd627467a866846e15caf1770a5594eaf4cc</sha1>
     <year>1986</year>
     <company>Ascii</company>
     <remark></remark>
@@ -1114,14 +1114,14 @@
   </rom>
   <rom id="Dragon Quest">
     <romtype>ASCII8</romtype>
-    <md5>a05839977faccd697c4f5c93ccd3c005</md5>
+    <sha1>7b94a728a5945a53d518c18994e1e09a09ec3c1b</sha1>
     <year>1986</year>
     <company>Enix</company>
     <remark></remark>
   </rom>
   <rom id="Dragon Quest 2">
     <romtype>ASCII8</romtype>
-    <md5>24e032267e25c5de56d988f07b973f7f</md5>
+    <sha>3df7c19f739d74d6efdfd8151343e5a55d4ac842</sha1>
     <year>1987</year>
     <company>Enix</company>
     <remark></remark>
@@ -1135,7 +1135,7 @@
   </rom>
   <rom id="Dragon Slayer 4">
     <romtype>ASCII8</romtype>
-    <md5>4e0428536041219c7c4a58856e10e9d5</md5>
+    <sha1>f100a76117e95ab0335e89a901e47d844bbc0ab6</sha1>
     <year>1987</year>
     <company>Falcom</company>
     <remark></remark>
@@ -1548,7 +1548,7 @@
   </rom>
   <rom id="Genghis Khan">
     <romtype>ASCII8-8</romtype>
-    <md5>702cdc13d4050b011bf4339e64708f5f</md5>
+    <sha1>12b3c31f0fd10ff5823dcc8bf6dfeb785a8af2f7</sha1>
     <year>1988</year>
     <company>Koei</company>
     <remark></remark>
@@ -1898,7 +1898,7 @@
   </rom>
   <rom id="Hydlide 3">
     <romtype>ASCII8</romtype>
-    <md5>45dfa17e171be705ac724b5c9dd41704</md5>
+    <sha1>74e9ea381e2fed07d989d1056002de5737125aaf</sha1>
     <year>1987</year>
     <company>T&amp;E Soft</company>
     <remark></remark>
@@ -2185,7 +2185,7 @@
   </rom>
   <rom id="King's Valley 2">
     <romtype>KONAMI5</romtype>
-    <md5>2f8a812f46e09e39dd3d0da8524ee96c</md5>
+    <sha1>cfd872d005b7bd4cdd6e06c4c0162191f0b0415d</sha1>
     <year>1988</year>
     <company>Konami</company>
     <remark></remark>
@@ -2542,7 +2542,7 @@
   </rom>
   <rom id="Mirai - Future">
     <romtype>ASCII8</romtype>
-    <md5>6469a75ef7c2574b8a46778681267f10</md5>
+    <sha1>7abf89652396a648a84ae06e6dabc09735a75798</sha1>
     <year>1987</year>
     <company>Xain</company>
     <remark></remark>
@@ -2934,7 +2934,7 @@
   </rom>
   <rom id="Nobunaga No Yabou - Zenkokuban">
     <romtype>ASCII8-8</romtype>
-    <md5>b4f2413986ba1e3f3186e1c18824c380</md5>
+    <sha1>e6de8bbd60123444de2a90928853985ceb0b4cbf</sha1>
     <year>1987</year>
     <company>Koei</company>
     <remark></remark>
@@ -3305,7 +3305,7 @@
   </rom>
   <rom id="Relics">
     <romtype>ASCII8</romtype>
-    <md5>1cfa94cdab75e1a2e98bfe48659f9a47</md5>
+    <sha1>74ae85d44cb8ef1bae428c90200cb74be6d56d3a</sha1>
     <year>1986</year>
     <company>Bothtec</company>
     <remark></remark>
@@ -3361,7 +3361,7 @@
   </rom>
   <rom id="Romancia">
     <romtype>ASCII16</romtype>
-    <md5>a79b39eb8308b292cdd5ee2eb2fccc0d</md5>
+    <sha1>2f0db48fbcf3444f52b9c7c76ba9c4bd38bc2a15</sha1>
     <year>1986</year>
     <company>Falcom</company>
     <remark></remark>
