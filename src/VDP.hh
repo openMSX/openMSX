@@ -53,7 +53,7 @@ public:
 		V9938,
 		/** MSX2+ and turbo R VDP.
 		  */
-		V9959
+		V9958
 	};
 
 	/** Contains all the information to draw a line of a sprite.
@@ -287,11 +287,17 @@ private:
 
 	/** Control registers.
 	  */
-	byte controlRegs[8];
+	byte controlRegs[64];
 
-	/** Status register.
+	/** Mask on the control register index:
+	  * makes MSX2 registers inaccessible on MSX1.
 	  */
-	byte statusReg;
+	int controlRegMask;
+
+	/** Status registers.
+	  * There max 10 status registers, but that's not a power of 2.
+	  */
+	byte statusRegs[16];
 
 	/** Pointer to VRAM data block.
 	  */
