@@ -8,7 +8,7 @@
 -->
 
   <config id="DefaultMachine">
-    <parameter name="machine">nms8250</parameter>
+    <parameter name="machine">cbios-msx2</parameter>
   </config>
 
  <!-- renderer settings: determines how openMSX outputs graphics -->
@@ -42,7 +42,7 @@
  <!-- Console font file and decorations -->
   <config id="Console">
     <type>Console</type>
-    <parameter name="font">ConsoleFont.png</parameter>
+    <parameter name="font">skins/ConsoleFont.png</parameter>
     <parameter name="background">ConsoleBackground.png</parameter>
   </config>
 
