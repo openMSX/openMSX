@@ -192,6 +192,8 @@ string CassettePlayer::execute(const vector<string> &tokens)
 	if (tokens[1] == "eject") {
 		result += "Tape ejected\n";
 		removeTape();
+		CliCommOutput::instance().update(CliCommOutput::MEDIA,
+		                                 "cassetteplayer", "");
 	} else if (tokens[1] == "rewind") {
 		result += "Tape rewinded\n";
 		rewind();
@@ -204,8 +206,8 @@ string CassettePlayer::execute(const vector<string> &tokens)
 			result += "Changing tape\n";
 			UserFileContext context;
 			insertTape(context, tokens[1]);
-			CliCommOutput::instance().update( CliCommOutput::MEDIA,
-				"cassetteplayer", tokens[1]);
+			CliCommOutput::instance().update(CliCommOutput::MEDIA,
+			                         "cassetteplayer", tokens[1]);
 		} catch (MSXException &e) {
 			throw CommandException(e.getMessage());
 		}

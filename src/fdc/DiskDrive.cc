@@ -300,13 +300,15 @@ string RealDrive::execute(const vector<string>& tokens)
 		throw SyntaxError();
 	} else if (tokens[1] == "eject") {
 		ejectDisk();
+		CliCommOutput::instance().update(CliCommOutput::MEDIA,
+		                                 name, "");
 	} else {
 		try {
 			UserFileContext context;
 			insertDisk(context, tokens[1]);
 			diskChangedFlag = true;
-			CliCommOutput::instance().update( CliCommOutput::MEDIA,
-				name, tokens[1]);
+			CliCommOutput::instance().update(CliCommOutput::MEDIA,
+			                                 name, tokens[1]);
 		} catch (FileException &e) {
 			throw CommandException(e.getMessage());
 		}

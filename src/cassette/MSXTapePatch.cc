@@ -410,6 +410,8 @@ string MSXTapePatch::execute(const vector<string> &tokens)
 	if (tokens[1]=="eject") {
 		result += "Tape ejected\n";
 		ejectTape();
+		CliCommOutput::instance().update(CliCommOutput::MEDIA,
+		                                 "cas", "");
 	} else if (tokens[1] == "rewind") {
 		result += "Tape rewinded\n";
 		if (file) {
@@ -420,7 +422,7 @@ string MSXTapePatch::execute(const vector<string> &tokens)
 		UserFileContext context;
 		insertTape(context, tokens[1]);
 		CliCommOutput::instance().update(CliCommOutput::MEDIA,
-			"cas", tokens[1]);
+		                                 "cas", tokens[1]);
 	}
 	return result;
 }
