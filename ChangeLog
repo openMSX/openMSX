@@ -1,5 +1,8 @@
 $Id$
 
+2003-10-24 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added -v cli option to get version number of openMSX
+
 2003-10-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added "-control" cli option to enable CliCommunicator:
 	   - commands are accepted on stdin

@@ -90,7 +90,15 @@ class CommandLineParser
 			virtual const string& optionHelp() const;
 		} helpOption;
 		friend class HelpOption;
-		
+	
+		class VersionOption : public CLIOption {
+		public:
+			virtual bool parseOption(const string &option,
+				list<string> &cmdLine);
+			virtual const string& optionHelp() const;
+		} versionOption;
+		friend class VersionOption;
+	
 		class ControlOption : public CLIOption {
 		public:
 			virtual bool parseOption(const string &option,

@@ -51,6 +51,7 @@ CommandLineParser::CommandLineParser()
 	registerOption("-machine", &machineOption, 3);
 	registerOption("-setting", &settingOption, 2);
 	registerOption("-h",       &helpOption, 1, 1); 
+	registerOption("-v",       &versionOption, 1, 1); 
 	registerOption("-control", &controlOption, 1, 1); 
 }
 
@@ -336,7 +337,7 @@ bool CommandLineParser::HelpOption::parseOption(const string &option,
 	if (!parser->haveSettings) {
 		return false; // not parsed yet, load settings first
 	}
-	cout << "OpenMSX " VERSION << endl;
+	cout << "openMSX " VERSION << endl;
 	cout << "========" << string(strlen(VERSION), '=') << endl;
 	cout << endl;
 	cout << "usage: openmsx [arguments]" << endl;
@@ -367,6 +368,19 @@ bool CommandLineParser::HelpOption::parseOption(const string &option,
 const string& CommandLineParser::HelpOption::optionHelp() const
 {
 	static const string text("Shows this text");
+	return text;
+}
+
+bool CommandLineParser::VersionOption::parseOption(const string &option,
+		list<string> &cmdLine)
+{
+	cout << "openMSX " VERSION " -- built on "__DATE__ << endl;
+	exit(0);
+}
+
+const string& CommandLineParser::VersionOption::optionHelp() const
+{
+	static const string text("Prints openMSX version and exits");
 	return text;
 }
 
