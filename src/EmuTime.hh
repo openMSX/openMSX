@@ -12,7 +12,7 @@ class EmuTime;
 std::ostream &operator<<(std::ostream &os, const EmuTime &e);
 
 // constants
-const uint64 MAIN_FREQ = 3579545*24;
+const uint64 MAIN_FREQ = 3579545 * 24;
 
 
 class EmuDuration
@@ -30,7 +30,7 @@ class EmuDuration
 		// conversions
 		float toFloat() const { return (float)time / MAIN_FREQ; }
 		uint64 length() const { return time; }
-		int frequency() const { return MAIN_FREQ / time; }
+		unsigned frequency() const { return MAIN_FREQ / time; }
 
 		// assignment operator
 		EmuDuration &operator =(const EmuDuration &d)
@@ -47,9 +47,9 @@ class EmuDuration
 		// arithmetic operators
 		EmuDuration operator %(const EmuDuration &d) const 
 			{ return EmuDuration(time % d.time); }
-		EmuDuration operator *(int fact) const
+		EmuDuration operator *(unsigned fact) const
 			{ return EmuDuration(time * fact); }
-		int operator /(const EmuDuration &d) const { return time / d.time; }
+		unsigned operator /(const EmuDuration &d) const { return time / d.time; }
 		
 		static const EmuDuration zero;
 		static const EmuDuration infinity;
@@ -96,7 +96,8 @@ class EmuTime
 			  return EmuDuration(time - e.time); }
 		
 		// ticks
-		int getTicksAt(int freq) const { return time / (MAIN_FREQ / freq); }
+		unsigned getTicksAt(unsigned freq) const
+			{ return time / (MAIN_FREQ / freq); }
 		
 		static const EmuTime zero;
 		static const EmuTime infinity;
@@ -105,7 +106,7 @@ class EmuTime
 		uint64 time;
 };
 
-template <int freq>
+template <unsigned freq>
 class EmuTimeFreq : public EmuTime
 {
 	public:
@@ -117,24 +118,28 @@ class EmuTimeFreq : public EmuTime
 		void operator() (uint64 n)  { time  = n*(MAIN_FREQ/freq); }
 
 		// assignment operator
-		EmuTime &operator =(const EmuTime &e) { time = e.time; return *this; }
+		EmuTime &operator =(const EmuTime &e)
+			{ time = e.time; return *this; }
 
 		// arithmetic operators
-		EmuTime &operator +=(int n) { time += n*(MAIN_FREQ/freq); return *this; }
-		EmuTime &operator -=(int n) { time -= n*(MAIN_FREQ/freq); return *this; }
-		EmuTime &operator ++()      { time +=   (MAIN_FREQ/freq); return *this; } // prefix
-		EmuTime &operator --()      { time -=   (MAIN_FREQ/freq); return *this; }
-		EmuTime &operator ++(int n) { time +=   (MAIN_FREQ/freq); return *this; } // postfix
-		EmuTime &operator --(int n) { time -=   (MAIN_FREQ/freq); return *this; }
+		EmuTime &operator +=(unsigned n)
+			{ time += n*(MAIN_FREQ/freq); return *this; }
+		EmuTime &operator -=(unsigned n)
+			{ time -= n*(MAIN_FREQ/freq); return *this; }
+		EmuTime &operator ++()
+			{ time +=   (MAIN_FREQ/freq); return *this; } // prefix
+		EmuTime &operator --()
+			{ time -=   (MAIN_FREQ/freq); return *this; }
 
-		EmuTime operator +(uint64 n) { return EmuTime(time+n*(MAIN_FREQ/freq)); }
+		EmuTime operator +(uint64 n)
+			{ return EmuTime(time+n*(MAIN_FREQ/freq)); }
 
 		// distance function
-		int getTicksTill(const EmuTime &e) const { 
+		unsigned getTicksTill(const EmuTime &e) const { 
 			assert(e.time >= time); 
 			return (e.time-time)/(MAIN_FREQ/freq);
 		}
-		int getTicksTillUp(const EmuTime &e) const { 
+		unsigned getTicksTillUp(const EmuTime &e) const { 
 			assert(e.time >= time); 
 			return (e.time-time+MAIN_FREQ/freq-1)/(MAIN_FREQ/freq); //round up
 		}

@@ -62,7 +62,7 @@ class I8251 : public SerialDataInterface, private Schedulable
 		byte mode;
 		byte sync1, sync2;
 		ClockPin clock;
-		EmuDuration charLength;
+		unsigned charLength;
 		
 		SerialDataInterface::DataBits  recvDataBits;
 		SerialDataInterface::StopBits  recvStopBits;

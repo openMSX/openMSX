@@ -1,5 +1,9 @@
 $Id$
 
+2003-07-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* A few midi in related fixes. Still needs to be tested
+	  with real midi hardware
+
 2003-07-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added midi in reader (reads from /dev/midi):
 	   - still completely untested

@@ -74,7 +74,7 @@ const EmuDuration& ClockPin::getTotalDuration() const
 	if (periodic) {
 		return totalDur;
 	} else {
-		return EmuDuration::infinity;
+		assert(false);
 	}
 }
 
@@ -83,7 +83,7 @@ const EmuDuration& ClockPin::getHighDuration() const
 	if (periodic) {
 		return  hiDur;
 	} else {
-		return EmuDuration::infinity;
+		assert(false);
 	}
 }
 

@@ -197,9 +197,8 @@ void I8251::setMode(byte value)
 		baudrate = 1;
 	}
 
-	int factor = (((2 * (1 + (int)dataBits + (parityEnable ? 1 : 0))) +
+	charLength = (((2 * (1 + (int)dataBits + (parityEnable ? 1 : 0))) +
 	               (int)stopBits) * baudrate) / 2;
-	charLength = clock.getTotalDuration() * factor;
 }
 
 void I8251::writeCommand(byte value, const EmuTime& time)
@@ -228,16 +227,18 @@ void I8251::writeCommand(byte value, const EmuTime& time)
 	}
 
 	if ((command ^ oldCommand) & CMD_RXE) {
-		interf->signal(time);
 		if (command & CMD_RXE) {
 			// enable receiver
+			status &= ~(STAT_PE | STAT_OE | STAT_FE); // TODO
 			recvReady = true;
 		} else {
 			// disable receiver
 			Scheduler::instance()->removeSyncPoint(this, RECV);
 			recvReady = false;
+			status &= ~(STAT_PE | STAT_OE | STAT_FE); // TODO
 			status &= ~STAT_RXRDY;
 		}
+		interf->signal(time);
 	}
 }
 
@@ -307,7 +308,10 @@ void I8251::recvByte(byte value, const EmuTime& time)
 		interf->setRxRDY(true, time);
 	}
 	recvReady = false;
-	Scheduler::instance()->setSyncPoint(time + charLength, this, RECV);
+	if (clock.isPeriodic()) {
+		EmuTime next = time + (clock.getTotalDuration() * charLength);
+		Scheduler::instance()->setSyncPoint(next, this, RECV);
+	}
 }
 
 bool I8251::isRecvReady()
@@ -323,7 +327,10 @@ void I8251::send(byte value, const EmuTime& time)
 {
 	status &= ~STAT_TXEMPTY;
 	sendByte = value;
-	Scheduler::instance()->setSyncPoint(time + charLength, this, TRANS);
+	if (clock.isPeriodic()) {
+		EmuTime next = time + (clock.getTotalDuration() * charLength);
+		Scheduler::instance()->setSyncPoint(next, this, TRANS);
+	}
 }
 
 void I8251::executeUntilEmuTime(const EmuTime &time, int userData)

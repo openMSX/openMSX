@@ -104,7 +104,7 @@ void KeyEventInserter::enter(const std::string &str, const EmuTime &time_)
 			new SDLEventInserter(event, time);
 			events++;
 		}
-		time++;
+		++time;
 
 		events = keymap[(unsigned char)str[i]];
 		event.type = SDL_KEYUP;
@@ -113,7 +113,7 @@ void KeyEventInserter::enter(const std::string &str, const EmuTime &time_)
 			new SDLEventInserter(event, time);
 			events++;
 		}
-		time++;
+		++time;
 	}
 }
 

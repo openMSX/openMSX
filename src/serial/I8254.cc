@@ -204,10 +204,14 @@ void I8254::Counter::writeLoad(word value, const EmuTime& time)
 	}
 	if (!active && ((mode == CNTR_M2) || (mode == CNTR_M2_) || 
 	                 (mode == CNTR_M3) || (mode == CNTR_M3_))) {
-		counter = counterLoad;
-		const EmuDuration& high = clock.getTotalDuration();
-		EmuDuration total = high * counter;
-		output.setPeriodicState(total, high, time);
+		if (clock.isPeriodic()) {
+			counter = counterLoad;
+			const EmuDuration& high = clock.getTotalDuration();
+			EmuDuration total = high * counter;
+			output.setPeriodicState(total, high, time);
+		} else {
+			// TODO ??
+		}
 	}
 	if (mode == CNTR_M0) {
 		output.setState(false, time);
@@ -288,10 +292,14 @@ void I8254::Counter::setGateStatus(bool newStatus, const EmuTime &time)
 		case CNTR_M2: case CNTR_M2_:
 		case CNTR_M3: case CNTR_M3_:
 			if (gate) {
-				counter = counterLoad;
-				const EmuDuration& high = clock.getTotalDuration();
-				EmuDuration total = high * counter;
-				output.setPeriodicState(total, high, time);
+				if (clock.isPeriodic()) {
+					counter = counterLoad;
+					const EmuDuration& high = clock.getTotalDuration();
+					EmuDuration total = high * counter;
+					output.setPeriodicState(total, high, time);
+				} else {
+					// TODO ???
+				}
 			} else {
 				output.setState(true, time);
 			}
