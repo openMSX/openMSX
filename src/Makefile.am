@@ -30,6 +30,7 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	MSXDevice.hh MSXDevice.cc \
 	MSXIODevice.hh MSXIODevice.cc MSXMemDevice.hh MSXMemDevice.cc \
 	MSXMotherBoard.hh MSXMotherBoard.cc \
+	MSXCPUInterface.hh MSXCPUInterface.cc \
 	MSXPPI.hh MSXPPI.cc I8255.hh I8255.cc \
 	KeyClick.hh KeyClick.cc \
 	CassettePort.hh CassettePort.cc \
