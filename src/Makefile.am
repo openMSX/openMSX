@@ -7,6 +7,7 @@ openmsx_SOURCES=openmsx.cc \
 	system.h \
 	msxconfig.hh msxconfig.cc \
 	msxconfig_device.nn msxconfig_exception.nn \
+	xmlhelper.ii xmlhelper.hh \
 	emutime.hh emutime.cc \
 	msxexception.hh \
 	MSXDevice.hh MSXDevice.cc \

@@ -24,17 +24,17 @@ public:
 
 	static MSXConfig *instance();
 
-	void loadFile(const string &filename);
+	void loadFile(const std::string &filename);
 	void saveFile();
-	void saveFile(const string &filename);
+	void saveFile(const std::string &filename);
 
 // nested classes
 #include "msxconfig_device.nn"
 #include "msxconfig_exception.nn"
 
-	list<Device*> deviceList;
-	list<Device*> getDeviceByType(const string &type);
-	Device *getDeviceById(const string &type);
+	std::list<Device*> deviceList;
+	std::list<Device*> getDeviceByType(const std::string &type);
+	Device *getDeviceById(const std::string &type);
 
 private:
 	MSXConfig(); // private constructor -> can only construct self
@@ -44,7 +44,7 @@ private:
 
 	static MSXConfig *volatile oneInstance;
 	XMLTree *tree;
-	string loaded_filename;
+	std::string loaded_filename;
 };
 
 #endif

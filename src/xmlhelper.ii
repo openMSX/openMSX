@@ -1,0 +1,23 @@
+#ifndef __XMLHELPER_II__
+#define __XMLHELPER_II__
+
+#include <sstream>
+
+#include <xml++.h>
+
+template <class T> XMLHelper<T>::XMLHelper<T>(XMLNode *anode):node(anode)
+{
+}
+
+template <class T> void XMLHelper<T>::checkName(const std::string &name)
+{
+	std::ostringstream buffer;
+	if (node->name()!=name)
+	{
+		buffer << "Expected <" << name << "> node, ";
+		buffer << "got <" << node->name() << std::endl;
+		throw T(buffer);
+	}
+}
+
+#endif

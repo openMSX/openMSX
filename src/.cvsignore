@@ -10,3 +10,4 @@ Makefile.in
 openmsx
 stamp-h.in
 .libs
+*.rpo

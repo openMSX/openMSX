@@ -1,6 +1,8 @@
 // $Id$
 
 #include "msxconfig.hh"
+#include "xmlhelper.hh"
+#include "xmlhelper.ii"
 
 // you need libxml++ 0.13 and libxml2 > 2.0.0
 #include <xml++.h>
@@ -12,9 +14,9 @@
 // TODO page,ps,ss value errors
 
 
-int getSlottedSub(const string &subname, XMLNodeList::const_iterator &slotted_children_i, const string &id)
+int getSlottedSub(const std::string &subname, XMLNodeList::const_iterator &slotted_children_i, const std::string &id)
 {
-	ostringstream buffer;
+	std::ostringstream buffer;
 	if ((*slotted_children_i)->children().size()!=1)
 	{
 		buffer << "Missing content node for <" << subname << "> for <device id='" << id << "'>.";
@@ -46,13 +48,13 @@ MSXConfig::~MSXConfig()
 {
 	delete tree; // delete 0 is silently ignored in C++
 	// destroy list content:
-	for (list<Device*>::iterator i(deviceList.begin()); i != deviceList.end(); i++)
+	for (std::list<Device*>::iterator i(deviceList.begin()); i != deviceList.end(); i++)
 	{
 		delete *i;
 	}
 }
 
-void MSXConfig::loadFile(const string &filename)
+void MSXConfig::loadFile(const std::string &filename)
 {
 	tree = new XMLTree();
 	if (!tree->read(filename))
@@ -76,14 +78,14 @@ void MSXConfig::saveFile()
 	saveFile(loaded_filename);
 }
 
-void MSXConfig::saveFile(const string &filename)
+void MSXConfig::saveFile(const std::string &filename)
 {
 	throw string("void MSXConfig::saveFile(const string &filename) Unimplemented");
 }
 
 MSXConfig::Device::~Device()
 {
-	for (list<Parameter*>::iterator i=parameters.begin(); i != parameters.end(); i++)
+	for (std::list<Parameter*>::iterator i=parameters.begin(); i != parameters.end(); i++)
 	{
 		delete *i;
 	}
@@ -96,10 +98,11 @@ MSXConfig::Device::Device(XMLNode *deviceNode):desc(""),rem("")
 	ostringstream buffer;
 
 // device - <!ELEMENT msxconfig (device)+>
-
+	XMLHelper<MSXConfig::XMLParseException> xh(deviceNode);
+	xh.checkName("device");
 	// check if it is a devicenode
-	if (deviceNode->name()!="device")
-		throw MSXConfig::XMLParseException("Expected <device> node.");
+	//if (deviceNode->name()!="device")
+	//	throw MSXConfig::XMLParseException("Expected <device> node.");
 
 // id - ATTLIST device id CDATA #IMPLIED>
 
@@ -248,22 +251,22 @@ MSXConfig::Device::Device(XMLNode *deviceNode):desc(""),rem("")
 	}
 }
 
-const string &MSXConfig::Device::getType()
+const std::string &MSXConfig::Device::getType()
 {
 	return deviceType;
 }
 
-const string &MSXConfig::Device::getDesc()
+const std::string &MSXConfig::Device::getDesc()
 {
 	return desc;
 }
 
-const string &MSXConfig::Device::getRem()
+const std::string &MSXConfig::Device::getRem()
 {
 	return rem;
 }
 
-const string &MSXConfig::Device::getId()
+const std::string &MSXConfig::Device::getId()
 {
 	return id;
 }
@@ -300,7 +303,7 @@ int MSXConfig::Device::getSS()
 	return (*slotted.begin())->getSS();
 }
 
-bool MSXConfig::Device::hasParameter(const string &name)
+bool MSXConfig::Device::hasParameter(const std::string &name)
 {
 	for (list<Parameter*>::const_iterator i=parameters.begin(); i != parameters.end(); i++)
 	{
@@ -310,7 +313,7 @@ bool MSXConfig::Device::hasParameter(const string &name)
 	return false;
 }
 
-const string &MSXConfig::Device::getParameter(const string &name)
+const std::string &MSXConfig::Device::getParameter(const std::string &name)
 {
 	char buffer[200];
 	for (list<Parameter*>::const_iterator i=parameters.begin(); i != parameters.end(); i++)
@@ -324,48 +327,48 @@ const string &MSXConfig::Device::getParameter(const string &name)
 
 void MSXConfig::Device::dump()
 {
-	cout << "Device id='" << getId() << "', type='" << getType() << "'" << endl;
-	cout << "<desc>";
-	cout << getDesc();
-	cout << "</desc>" << endl;
-	cout << "<rem>";
-	cout << getRem();
-	cout << "</rem>" << endl;
+	std::cout << "Device id='" << getId() << "', type='" << getType() << "'" << std::endl;
+	std::cout << "<desc>";
+	std::cout << getDesc();
+	std::cout << "</desc>" << std::endl;
+	std::cout << "<rem>";
+	std::cout << getRem();
+	std::cout << "</rem>" << std::endl;
 	if (!slotted.empty())
 	{
-		cout << "slotted:";
-		for (list<Slotted*>::const_iterator i=slotted.begin(); i != slotted.end(); i++)
+		std::cout << "slotted:";
+		for (std::list<Slotted*>::const_iterator i=slotted.begin(); i != slotted.end(); i++)
 		{
-            cout << " ps=" << (*i)->getPS();
+            std::cout << " ps=" << (*i)->getPS();
             if ((*i)->hasSS())
             {
-                cout << " ss=" << (*i)->getSS();
+                std::cout << " ss=" << (*i)->getSS();
             }
 			if ((*i)->hasPage())
             {
-               cout << " page=" << (*i)->getPage();
+               std::cout << " page=" << (*i)->getPage();
 			}
-            cout << endl;
+            std::cout << std::endl;
 		}
 	}
 	else
 	{
-		cout << "       not slotted." << endl;
+		std::cout << "       not slotted." << std::endl;
 	}
-	for (list<Parameter*>::const_iterator i=parameters.begin(); i != parameters.end(); i++)
+	for (std::list<Parameter*>::const_iterator i=parameters.begin(); i != parameters.end(); i++)
 	{
-		cout << "       parameter name='" << (*i)->name << "' value='" << (*i)->value << "' class='" << (*i)->clasz << "'" << endl;
+		std::cout << "       parameter name='" << (*i)->name << "' value='" << (*i)->value << "' class='" << (*i)->clasz << "'" << std::endl;
 	}
 }
 
-MSXConfig::Device::Parameter::Parameter(const string &nam, const string &valu, const string &clas=""):name(nam),value(valu),clasz(clas)
+MSXConfig::Device::Parameter::Parameter(const std::string &nam, const std::string &valu, const std::string &clas=""):name(nam),value(valu),clasz(clas)
 {
 }
 
-list<const MSXConfig::Device::Parameter*> MSXConfig::Device::getParametersWithClass(const string &clasz)
+std::list<const MSXConfig::Device::Parameter*> MSXConfig::Device::getParametersWithClass(const std::string &clasz)
 {
-	list<const Parameter*> a;
-	for (list <Parameter*>::const_iterator i=parameters.begin();i!=parameters.end();i++)
+	std::list<const Parameter*> a;
+	for (std::list <Parameter*>::const_iterator i=parameters.begin();i!=parameters.end();i++)
 	{
 		if ((*i)->clasz==clasz)
 			a.push_back(*i);

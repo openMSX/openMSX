@@ -15,16 +15,16 @@ public:
 	class Parameter
 	{
 	public:
-		Parameter(const string &name, const string &value, const string &clasz);
+		Parameter(const std::string &name, const std::string &value, const std::string &clasz);
 		~Parameter() {}
 	private:
 		Parameter(); // block usage
 		Parameter(const Parameter &); // block usage
 		Parameter &operator=(const Parameter &); // block usage
 	public:
-		const string name;
-		const string value;
-		const string clasz;
+		const std::string name;
+		const std::string value;
+		const std::string clasz;
 	};
 	class Slotted
 	{
@@ -48,27 +48,27 @@ public:
 
 	Device(XMLNode *deviceNode);
 	~Device();
-	const string &getType();
-	const string &getId();
+	const std::string &getType();
+	const std::string &getId();
 	bool  isSlotted();
 	int   getPage(); // of first slotted [backward compat]
 	int   getPS(); // of first slotted [backward compat]
 	int   getSS(); // of first slotted [backward compat]
-	bool  hasParameter(const string &name);
-	const string &getParameter(const string &name);
-	list<const Parameter*> getParametersWithClass(const string &clasz);
+	bool  hasParameter(const std::string &name);
+	const string &getParameter(const std::string &name);
+	std::list<const Parameter*> getParametersWithClass(const std::string &clasz);
 	void  dump();
-	const string &getDesc();
-	const string &getRem();
-	list <Slotted*> slotted;
+	const std::string &getDesc();
+	const std::string &getRem();
+	std::list <Slotted*> slotted;
 	
 private:
 	Device(); // block usage
 	Device(const Device &foo); // block usage
 	Device &operator=(const Device &foo); // block usage
 	//XMLNode *deviceNode;
-	string id, deviceType, desc, rem;
-	list<Parameter*> parameters;
+	std::string id, deviceType, desc, rem;
+	std::list<Parameter*> parameters;
 };
 
 #endif

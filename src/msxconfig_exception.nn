@@ -11,15 +11,15 @@
 class Exception: public MSXException
 {
 public:
-	Exception(const string &descs=""):MSXException(descs,0) {}
-	Exception(const ostringstream &stream):MSXException(stream.str(),0) {}
+	Exception(const std::string &descs=""):MSXException(descs,0) {}
+	Exception(const std::ostringstream &stream):MSXException(stream.str(),0) {}
 };
 
 class XMLParseException: public Exception
 {
 public:
-	XMLParseException(const string &descs=""):Exception(descs) {}
-	XMLParseException(const ostringstream &stream):Exception(stream) {}
+	XMLParseException(const std::string &descs=""):Exception(descs) {}
+	XMLParseException(const std::ostringstream &stream):Exception(stream) {}
 };
 
 #endif
