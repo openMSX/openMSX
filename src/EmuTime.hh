@@ -9,7 +9,7 @@
 
 // predefines
 class EmuTime;
-ostream &operator<<(ostream &os, const EmuTime &e);
+ostream &operator <<(ostream &os, const EmuTime &e);
 
 // constants
 const uint64 MAIN_FREQ = 3579545 * 24;
@@ -37,19 +37,26 @@ class EmuDuration
 			{ time = d.time; return *this; }
 		
 		// comparison operators
-		bool operator ==(const EmuDuration &d) const { return time == d.time; }
-		bool operator !=(const EmuDuration &d) const { return time != d.time; }
-		bool operator < (const EmuDuration &d) const { return time <  d.time; }
-		bool operator <=(const EmuDuration &d) const { return time <= d.time; }
-		bool operator > (const EmuDuration &d) const { return time >  d.time; }
-		bool operator >=(const EmuDuration &d) const { return time >= d.time; }
+		bool operator ==(const EmuDuration &d) const
+			{ return time == d.time; }
+		bool operator !=(const EmuDuration &d) const
+			{ return time != d.time; }
+		bool operator < (const EmuDuration &d) const
+			{ return time <  d.time; }
+		bool operator <=(const EmuDuration &d) const
+			{ return time <= d.time; }
+		bool operator > (const EmuDuration &d) const
+			{ return time >  d.time; }
+		bool operator >=(const EmuDuration &d) const
+			{ return time >= d.time; }
 		
 		// arithmetic operators
-		EmuDuration operator %(const EmuDuration &d) const 
+		const EmuDuration operator %(const EmuDuration &d) const 
 			{ return EmuDuration(time % d.time); }
-		EmuDuration operator *(unsigned fact) const
+		const EmuDuration operator *(unsigned fact) const
 			{ return EmuDuration(time * fact); }
-		unsigned operator /(const EmuDuration &d) const { return time / d.time; }
+		unsigned operator /(const EmuDuration &d) const
+			{ return time / d.time; }
 		
 		static const EmuDuration zero;
 		static const EmuDuration infinity;
@@ -70,20 +77,27 @@ class EmuTime
 		EmuTime(const EmuTime &e)  { time = e.time; }
 
 		// assignment operator
-		EmuTime &operator =(const EmuTime &e) { time = e.time; return *this; }
+		EmuTime &operator =(const EmuTime &e)
+			{ time = e.time; return *this; }
 
 		// comparison operators
-		bool operator ==(const EmuTime &e) const { return time == e.time; }
-		bool operator !=(const EmuTime &e) const { return time != e.time; }
-		bool operator < (const EmuTime &e) const { return time <  e.time; }
-		bool operator <=(const EmuTime &e) const { return time <= e.time; }
-		bool operator > (const EmuTime &e) const { return time >  e.time; }
-		bool operator >=(const EmuTime &e) const { return time >= e.time; }
+		bool operator ==(const EmuTime &e) const
+			{ return time == e.time; }
+		bool operator !=(const EmuTime &e) const
+			{ return time != e.time; }
+		bool operator < (const EmuTime &e) const
+			{ return time <  e.time; }
+		bool operator <=(const EmuTime &e) const
+			{ return time <= e.time; }
+		bool operator > (const EmuTime &e) const
+			{ return time >  e.time; }
+		bool operator >=(const EmuTime &e) const
+			{ return time >= e.time; }
 
 		// arithmetic operators
-		EmuTime operator +(const EmuDuration &d) const 
+		const EmuTime operator +(const EmuDuration &d) const 
 			{ return EmuTime(time + d.time); }
-		EmuTime operator -(const EmuDuration &d) const 
+		const EmuTime operator -(const EmuDuration &d) const 
 			{ assert(time >= d.time);
 			  return EmuTime(time - d.time); }
 		EmuTime &operator +=(const EmuDuration &d)
@@ -91,7 +105,7 @@ class EmuTime
 		EmuTime &operator -=(const EmuDuration &d)
 			{ assert(time >= d.time);
 			  time -= d.time; return *this; }
-		EmuDuration operator -(const EmuTime &e) const
+		const EmuDuration operator -(const EmuTime &e) const
 			{ assert(time >= e.time);
 			  return EmuDuration(time - e.time); }
 		
@@ -113,9 +127,9 @@ class EmuTimeFreq : public EmuTime
 		// constructor
 		EmuTimeFreq()                          { time  = 0; }
 		explicit EmuTimeFreq(const EmuTime &e) { time = e.time; }
-		//EmuTimeFreq(uint64 n)   { time  = n*(MAIN_FREQ/freq); }
+		//EmuTimeFreq(uint64 n)   { time  = n * (MAIN_FREQ / freq); }
 
-		void operator() (uint64 n)  { time  = n*(MAIN_FREQ/freq); }
+		void operator()(uint64 n) { time  = n * (MAIN_FREQ / freq); }
 
 		// assignment operator
 		EmuTime &operator =(const EmuTime &e)
@@ -123,25 +137,26 @@ class EmuTimeFreq : public EmuTime
 
 		// arithmetic operators
 		EmuTime &operator +=(unsigned n)
-			{ time += n*(MAIN_FREQ/freq); return *this; }
+			{ time += n * (MAIN_FREQ / freq); return *this; }
 		EmuTime &operator -=(unsigned n)
-			{ time -= n*(MAIN_FREQ/freq); return *this; }
+			{ time -= n * (MAIN_FREQ / freq); return *this; }
 		EmuTime &operator ++()
-			{ time +=   (MAIN_FREQ/freq); return *this; } // prefix
-		EmuTime &operator --()
-			{ time -=   (MAIN_FREQ/freq); return *this; }
+			{ time +=     (MAIN_FREQ / freq); return *this; }
+		EmuTime &operator --() 
+			{ time -=     (MAIN_FREQ / freq); return *this; }
 
-		EmuTime operator +(uint64 n)
-			{ return EmuTime(time+n*(MAIN_FREQ/freq)); }
+		const EmuTime operator +(uint64 n) const
+			{ return EmuTime(time + n * (MAIN_FREQ / freq)); }
 
 		// distance function
 		unsigned getTicksTill(const EmuTime &e) const { 
 			assert(e.time >= time); 
-			return (e.time-time)/(MAIN_FREQ/freq);
+			return (e.time - time) / (MAIN_FREQ / freq);
 		}
 		unsigned getTicksTillUp(const EmuTime &e) const { 
-			assert(e.time >= time); 
-			return (e.time-time+MAIN_FREQ/freq-1)/(MAIN_FREQ/freq); //round up
+			assert(e.time >= time);
+			return (e.time - time + MAIN_FREQ / freq - 1) /
+			       (MAIN_FREQ / freq); // round up
 		}
 };
 
