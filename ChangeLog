@@ -1,5 +1,8 @@
 $Id$
 
+2005-03-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented step_in, step_over and run_to as TCL procs
+
 2005-03-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed crash on missing argument for 'debug set_bp/remove_bp'
 	* Implemented "debug disasm" command:
