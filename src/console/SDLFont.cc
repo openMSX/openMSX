@@ -10,13 +10,7 @@
 #include "MSXException.hh"
 #include "File.hh"
 #include <SDL.h>
-
-#include "config.h"
-#ifdef HAVE_SDL_IMAGE_H
 #include <SDL_image.h>
-#else
-#include <SDL/SDL_image.h>
-#endif
 
 
 namespace openmsx {

@@ -12,13 +12,7 @@
 #include "File.hh"
 #include "CommandConsole.hh"
 #include <cassert>
-
-#include "config.h"
-#ifdef HAVE_SDL_IMAGE_H
 #include <SDL_image.h>
-#else
-#include <SDL/SDL_image.h>
-#endif
 
 
 namespace openmsx {
