@@ -5,6 +5,7 @@
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "RealTime.hh"
+#include "CommandController.hh"
 
 /*
 TODO:
@@ -22,6 +23,10 @@ static const int LINE_TOP_BORDER = 3 + 13;
 
 inline void PixelRenderer::renderUntil(const EmuTime &time)
 {
+	if (curFrameSkip) {
+		return;
+	}
+
 	int limitTicks = vdp->getTicksThisFrame(time);
 
 	switch (accuracy) {
@@ -76,11 +81,15 @@ inline void PixelRenderer::renderUntil(const EmuTime &time)
 }
 
 PixelRenderer::PixelRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
-	: Renderer(fullScreen)
+	: Renderer(fullScreen), frameSkipCmd(this)
 {
 	this->vdp = vdp;
 	vram = vdp->getVRAM();
 	spriteChecker = vdp->getSpriteChecker();
+	
+	frameSkip = curFrameSkip = 0;
+	CommandController::instance()->registerCommand(frameSkipCmd, "frameskip");
+	
 	// TODO: Store current time.
 	//       Does the renderer actually have to keep time?
 	//       Keeping render position should be good enough.
@@ -91,6 +100,7 @@ PixelRenderer::PixelRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 
 PixelRenderer::~PixelRenderer()
 {
+	CommandController::instance()->unregisterCommand("frameskip");
 }
 
 void PixelRenderer::frameStart(const EmuTime &time)
@@ -109,6 +119,10 @@ void PixelRenderer::frameStart(const EmuTime &time)
 	lineBottomErase = vdp->isPalTiming() ? 313 - 3 : 262 - 3;
 	nextX = 0;
 	nextY = 0;
+
+	if (--curFrameSkip < 0) {
+		curFrameSkip = frameSkip;
+	}
 }
 
 void PixelRenderer::putImage(const EmuTime &time)
@@ -122,5 +136,41 @@ void PixelRenderer::putImage(const EmuTime &time)
 	// The screen will be locked for a while, so now is a good time
 	// to perform real time sync.
 	RealTime::instance()->sync();
+}
+
+
+// Frame skip command
+PixelRenderer::FrameSkipCmd::FrameSkipCmd(PixelRenderer *rend)
+{
+	renderer = rend;
+}
+void PixelRenderer::FrameSkipCmd::execute(const std::vector<std::string> &tokens)
+{
+	switch (tokens.size()) {
+	case 1: {
+		char message[100];
+		sprintf(message, "Frame skip: %d", renderer->frameSkip);
+		print(std::string(message));
+		break;
+	}
+	case 2: {
+		int tmp = strtol(tokens[1].c_str(), NULL, 0);
+		if (tmp >= 0) {
+			renderer->frameSkip = tmp;
+			renderer->curFrameSkip = 0;
+		} else {
+			throw CommandException("Illegal argument");
+		}
+		break;
+	}
+	default:
+		throw CommandException("Syntax error");
+	}
+}
+void PixelRenderer::FrameSkipCmd::help(const std::vector<std::string> &tokens)
+{
+	print("This command sets the frameskip setting");
+	print(" frameskip:       displays the current setting");
+	print(" frameskip <num>: set the amount of frameskip, 0 is no skips");
 }
 

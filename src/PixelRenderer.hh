@@ -6,6 +6,7 @@
 #include "openmsx.hh"
 #include "Renderer.hh"
 #include "VDPVRAM.hh"
+#include "Command.hh"
 
 class VDP;
 class SpriteChecker;
@@ -127,6 +128,20 @@ private:
 	  */
 	int lineBottomErase;
 
+	/** Frame skip command
+	  */
+	class FrameSkipCmd : public Command {
+		public:
+			FrameSkipCmd(PixelRenderer *rend);
+			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void help   (const std::vector<std::string> &tokens);
+		private:
+			PixelRenderer *renderer;
+	};
+	friend class FrameSkipCmd;
+	FrameSkipCmd frameSkipCmd;
+	int frameSkip;
+	int curFrameSkip;
 };
 
 #endif //__PIXELRENDERER_HH__
