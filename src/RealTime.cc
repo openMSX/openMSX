@@ -18,16 +18,17 @@ RealTime::RealTime()
 	maxCatchUpTime   = config->getParameterAsInt("max_catch_up_time");
 	maxCatchUpFactor = config->getParameterAsInt("max_catch_up_factor");
 	
-	realRef = SDL_GetTicks();
-	realOrigin = realRef;
-	factor = 1;
-	paused = false;
 	scheduler = Scheduler::instance();
 	cpu = MSXCPU::instance();
-	Scheduler::instance()->setSyncPoint(emuRef+syncInterval, this);
+	paused = false;
+	throttle = true;
+	resetTiming();
+	scheduler->setSyncPoint(emuRef+syncInterval, this);
 	
 	CommandController::instance()->registerCommand(pauseCmd, "pause");
+	CommandController::instance()->registerCommand(throttleCmd, "throttle");
 	HotKey::instance()->registerHotKeyCommand(SDLK_PAUSE, "pause");
+	HotKey::instance()->registerHotKeyCommand(SDLK_F9, "throttle");
 }
 
 RealTime::~RealTime()
@@ -58,6 +59,8 @@ void RealTime::sync()
 
 void RealTime::internalSync(const EmuTime &curEmu)
 {
+	if (!throttle) return;
+	
 	unsigned int curReal = SDL_GetTicks();
 	
 	// Short period values, inaccurate but we need them to estimate our current speed
@@ -112,17 +115,25 @@ float RealTime::getRealDuration(const EmuTime time1, const EmuTime time2)
 	return time1.getDuration(time2) * factor;
 }
 
+void RealTime::setThrottle(bool throttle)
+{
+	this->throttle = throttle;
+	if (throttle)
+		resetTiming();
+}
+
+void RealTime::resetTiming()
+{
+	realRef = realOrigin = SDL_GetTicks();
+	emuRef  = emuOrigin  = MSXCPU::instance()->getCurrentTime();
+	factor  = 1;
+}
 
 void RealTime::PauseCmd::execute(const std::vector<std::string> &tokens)
 {
 	Scheduler *sch = Scheduler::instance();
-	RealTime *rt = RealTime::instance();
 	if (sch->isPaused()) {
-		// reset timing variables 
-		rt->realOrigin = SDL_GetTicks();
-		rt->realRef = rt->realOrigin;
-		rt->emuOrigin = MSXCPU::instance()->getCurrentTime();
-		rt->emuRef = rt->emuOrigin;
+		RealTime::instance()->resetTiming(); 
 		sch->unpause();
 	} else {
 		sch->pause();
@@ -131,4 +142,32 @@ void RealTime::PauseCmd::execute(const std::vector<std::string> &tokens)
 void RealTime::PauseCmd::help   (const std::vector<std::string> &tokens)
 {
 	Console::instance()->print("Use this command to pause/unpause the emulator");
+}
+
+void RealTime::ThrottleCmd::execute(const std::vector<std::string> &tokens)
+{
+	RealTime *rt = RealTime::instance();
+	switch (tokens.size()) {
+	case 1:
+		rt->setThrottle(!rt->throttle);
+		break;
+	case 2:
+		if (tokens[1] == "on") {
+			rt->setThrottle(true);
+			break;
+		}
+		if (tokens[1] == "off") {
+			rt->setThrottle(false);
+			break;
+		}
+	default:
+		Console::instance()->print("Syntax error");
+	}
+}
+void RealTime::ThrottleCmd::help   (const std::vector<std::string> &tokens)
+{
+	Console::instance()->print("This command turns speed throttling on/off");
+	Console::instance()->print(" throttle:     toggle throttling");
+	Console::instance()->print(" throttle on:  run emulation on normal speed");
+	Console::instance()->print(" throttle off: run emulation on maximum speed");
 }

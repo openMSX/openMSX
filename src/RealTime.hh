@@ -36,13 +36,15 @@ class RealTime : public Schedulable
 		 */
 		void sync();
 
-	private:
-		void internalSync(const EmuTime &time);
-		
 		/**
-		 * Constructor.
+		 * Turns throtteling on/off
 		 */
+		void setThrottle(bool throttle);
+
+	private:
 		RealTime(); 
+		void internalSync(const EmuTime &time);
+		void resetTiming();
 
 		int syncInterval;	// sync every ..ms
 		int maxCatchUpTime;	// max nb of ms overtime
@@ -60,6 +62,7 @@ class RealTime : public Schedulable
 		int catchUpTime;  // number of milliseconds overtime.
 		float factor;
 
+		bool throttle;
 		bool paused;
 		MSXCPU *cpu;
 		Scheduler *scheduler;
@@ -71,5 +74,13 @@ class RealTime : public Schedulable
 		};
 		friend class PauseCmd;
 		PauseCmd pauseCmd;
+		
+		class ThrottleCmd : public Command {
+			public:
+				virtual void execute(const std::vector<std::string> &tokens);
+				virtual void help   (const std::vector<std::string> &tokens);
+		};
+		friend class ThrottleCmd;
+		ThrottleCmd throttleCmd;
 };
 #endif

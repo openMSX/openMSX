@@ -1,7 +1,8 @@
 $Id$
 
-2002-03-26 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+2002-03-27 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* implemented Y8950 timers
+	* implemented "throttle" command
 
 2002-03-26 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* fixed crash when a specified file did not exists:
