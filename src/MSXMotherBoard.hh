@@ -19,25 +19,74 @@ class EmuTime;
 class MSXMotherBoard : public CPUInterface, private ConsoleInterface
 {
 	public:
+
+		/** Helper class for doing interrupt request (IRQ) administration.
+		  * IRQ is either enabled or disabled; when enabled it contributes
+		  * one to the motherboard IRQ count, when disabled zero.
+		  * Calling set() in enabled state does nothing;
+		  * neither does calling reset() in disabled state.
+		  */
+		class IRQHelper
+		{
+		public:
+			/** Create a new InterruptHelper.
+			  * Initially there is no interrupt request on the bus.
+			  */
+			IRQHelper() {
+				request = false;
+				motherboard = MSXMotherBoard::instance();
+			}
+
+			/** Set the interrupt request on the bus.
+			  */
+			inline void set() {
+				if (!request) {
+					request = true;
+					motherboard->raiseIRQ();
+				}
+			}
+
+			/** Reset the interrupt request on the bus.
+			  */
+			inline void reset() {
+				if (request) {
+					request = false;
+					motherboard->lowerIRQ();
+				}
+			}
+
+			/** Get the interrupt state.
+			  * @return true iff interrupt request is active.
+			  */
+			inline bool getState() {
+				return request;
+			}
+
+		private:
+			MSXMotherBoard *motherboard;
+			bool request;
+
+		}; // end of IRQHelper
+
 		/**
 		 * Destructor
 		 */
 		virtual ~MSXMotherBoard();
-		
+
 		/**
 		 * this class is a singleton class
 		 * usage: MSXConfig::instance()->method(args);
 		 */
 		static MSXMotherBoard *instance();
-	 
+
 		/**
-		 * Devices can register their In ports. This is normally done 
+		 * Devices can register their In ports. This is normally done
 		 * in their constructor. Once device are registered, their
 		 * readIO() method can get called.
 		 * TODO: implement automatic registration for MSXIODevice
 		 */
 		void register_IO_In(byte port, MSXIODevice *device);
-		
+
 		/**
 		 * Devices can register their Out ports. This is normally done
 		 * in their constructor. Once device are registered, their
@@ -51,12 +100,12 @@ class MSXMotherBoard : public CPUInterface, private ConsoleInterface
 		 * This is normally done in their constructor. Once devices
 		 * are registered their readMem() / writeMem() methods can
 		 * get called.
-		 * Note: if a MSXDevice inherits from MSXMemDevice, it gets 
+		 * Note: if a MSXDevice inherits from MSXMemDevice, it gets
 		 *       automatically registered
 		 */
-		void registerSlottedDevice(MSXMemDevice *device, 
+		void registerSlottedDevice(MSXMemDevice *device,
 		                           int PrimSl, int SecSL, int Page);
-		
+
 		/**
 		 * All MSXDevices should be registered by the MotherBoard.
 		 * This method should only be called at start-up

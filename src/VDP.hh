@@ -6,6 +6,7 @@
 #include "openmsx.hh"
 #include "Scheduler.hh"
 #include "MSXIODevice.hh"
+#include "MSXMotherBoard.hh"
 #include "HotKey.hh"
 #include "EmuTime.hh"
 #include "Renderer.hh"
@@ -522,26 +523,6 @@ private:
 			);
 	}
 
-	/** Sets the vertical retrace interrupt request and
-	  * synchronises this state with the MSXMotherBoard.
-	  */
-	inline void setVerticalIRQ();
-
-	/** Resets the vertical retrace interrupt request and
-	  * synchronises this state with the MSXMotherBoard.
-	  */
-	inline void resetVerticalIRQ();
-
-	/** Sets the horizontal retrace interrupt request and
-	  * synchronises this state with the MSXMotherBoard.
-	  */
-	inline void setHorizontalIRQ();
-
-	/** Resets the horizontal retrace interrupt request and
-	  * synchronises this state with the MSXMotherBoard.
-	  */
-	inline void resetHorizontalIRQ();
-
 	/** Called both on init and on reset.
 	  * Puts VDP into reset state.
 	  * Does not call any renderer methods.
@@ -612,15 +593,13 @@ private:
 	  */
 	EmuTimeFreq<21477270> frameStartTime;
 
-	/** State of vertical scanning interrupt request.
-	  * Do not modify this directly, use the set/reset methods instead.
+	/** Manages vertical scanning interrupt request.
 	  */
-	bool irqVertical;
+	MSXMotherBoard::IRQHelper irqVertical;
 
-	/** State of horizontal scanning interrupt request.
-	  * Do not modify this directly, use the set/reset methods instead.
+	/** Manages horizontal scanning interrupt request.
 	  */
-	bool irqHorizontal;
+	MSXMotherBoard::IRQHelper irqHorizontal;
 
 	/** VDP ticks between start of frame and start of display.
 	  */
