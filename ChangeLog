@@ -1,9 +1,10 @@
 $Id$
 
 2002-03-28 David Heremans <david.heremans@gnu-linux.net>
+	* Added MC6850 and sampleram to '-musmod' CLI option.
 	* Added article written for the Dutch MSX-infoblad.
 	  The png's are ment to be printed and where not scaled for
-	  webpurposes
+	  webpurposes.
 
 2002-03-28 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Added dummy MC6850 (ACIA used in MSX Music Module for MIDI):

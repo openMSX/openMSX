@@ -235,8 +235,12 @@ void CommandLineParser::configureMusMod(std::string mode)
   s << " <device id=\"MSX-Audio\">";
   s << "  <type>Audio</type>";
   s << "<parameter name=\"volume\">20000</parameter>";
+  s << "<parameter name=\"sampleram\">256</parameter>";
   s << "<parameter name=\"mode\">"<< mode <<"</parameter>";
   s << " </device>";
+  s << "<device id=\"MSX-Audio-Midi\">";
+  s << "  <type>Audio-Midi</type>";
+  s << "</device>";
   s << "</msxconfig>";
   PRT_INFO(s.str());
   config->loadStream(s);
