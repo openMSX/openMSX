@@ -66,7 +66,7 @@ if you printed out this manual.
 
 <h3><a id="purpose">1.2. Purpose</a></h3>
 <p>
-This guide is about openMSX, the open source MSX emulator that tries to achieve
+This manual is about openMSX, the open source MSX emulator that tries to achieve
 near-perfect emulation by using a novel emulation model.
 You can find more information about openMSX on the
 <a class="external" href="http://openmsx.sf.net/">openMSX home page</a>.
@@ -82,6 +82,10 @@ However, since the emulation is already pretty good,
 it would be nice if non-insiders would be able to play with it, too.
 For those people, we have written this guide.
 It explains how you can make use of the features of the emulator, once you have got it running.
+</p>
+
+<p>
+This manual tells you how you can use openMSX, once it has been installed and properly set up. You should be able to use most of the features of openMSX if you have read it.
 </p>
 
 <p>
@@ -136,7 +140,46 @@ Original text written as part of the openMSX HOWTO.
 
 </dl>
 
-<h2><a id="controlling">2 Controlling the Emulator</a></h2>
+<h2><a id="starting">2. Starting the Emulator</a></h2>
+
+<p>
+If you start openMSX without any command line parameters, you will get the default machine, which you have set up in <code>settings.xml</code>. When you use the shipped file, this means you will get a machine that uses C-BIOS. In this chapter we will tell you how to use other machines and how to use extensions.
+</p>
+
+<h3><a id="machines">2.1 Machines</a></h3>
+
+<p>
+To use a specific MSX machine that is present on your system (i.e. your openMSX installation), simply use the <code>-machine</code> command line argument, like this:
+</p>
+<div class="commandline">
+    openmsx -machine Panasonic_FS-A1GT
+</div>
+
+<h3><a id="extensions">2.2 Extensions</a></h3>
+
+<p> 
+Extensions are simply MSX cartridges (extensions to the MSX system) that you can plug into the emulated MSX. In the next paragraph we explain this using an example.
+</p>
+
+<p>
+If you have setup an FM PAC <code>hardwareconfig.xml</code> file in
+<code>~/.openMSX/share/extensions/fmpac</code> e.g., you can add  <code>-ext
+fmpac</code> to your command line to use an FM PAC. But, as I just said, you
+need to have a hardware description in that subdirectory of
+<code>share/extensions/</code>, see chapter TODO (SETUP GUIDE). Fortunately,
+openMSX comes with a predefined FM-PAC extension. You only need to add the
+<code>fmpac.rom</code> in <code>share/extensions/fmpac/roms/</code>; it's the ROM that is built in the FM-PAC. If you look at that <code>share/extensions</code>
+directory, you will find more extensions. E.g. using <code>-ext mbstereo</code>
+gives you the Moonblaster stereo effect: FM PAC on one channel and MSX Audio on
+the other. Try them out, if you like, but again, keep in mind that some
+extensions need a ROM image installed in their <code>roms/</code> directory.
+</p>
+<p class="todo">
+Add reference to setup guide above. Or, actually move part of it to that guide.
+</p>
+
+
+<h2><a id="controlling">2 The Console and Settings</a></h2>
 
 <h3><a id="console">2.1 Console</a></h3>
 
@@ -146,15 +189,17 @@ the focus is on the emulator window. This will give you a command line in the
 openMSX window. Typing <code>help</code> gives a list of commands. They are described in
 the file <code>doc/commands.txt</code> in the source tree. The console is mostly used to
 change disk images, plug in joysticks or mice, make settings and to define
-key bindings. You can specify a background image and the font in the config
-file (<code>&lt;config id="Console"&gt;</code>). The png files need an alpha channel (transparency
-information) though.
+key bindings. 
 </p>
 
 <p>
-Again, the full list of <a class="internal" href="#console">Console</a> commands can be found in <code>doc/commands.txt</code> and
-when typing <code>help</code> in the <a class="internal" href="#console">Console</a> itself. You can also type <code>help &lt;command&gt;</code> to
-get some help about a specific <a class="internal" href="#console">Console</a> command.
+Again, the full list of Console commands can be found in <code>doc/commands.txt</code> and
+when typing <code>help</code> in the Console itself. You can also type <code>help &lt;command&gt;</code> to
+get some help about a specific Console command.
+</p>
+
+<p>
+One very practical feature of the console command line is that you can use "completion" features. Just try typing half a command and then press the TAB key; openMSX will then try to finish the word you were typing or show the possibilities in case of ambiguities. You can use it also for file names, connectors, pluggables and settings.
 </p>
 
 <p class="todo">
@@ -164,7 +209,7 @@ Add the complete list of commands.txt somewhere.
 <h3><a id="other">2.2 Some Important Console Commands</a></h3>
 
 <p>
-You can reset your MSX with the <a class="internal" href="#console">Console</a> command <code>reset</code>.
+You can reset your MSX with the Console command <code>reset</code>. other commands will be discussed later on in this manual.
 </p>
 
 <h3><a id="settings">2.3 Settings</a></h3>
@@ -224,7 +269,7 @@ have the GLX module loaded in your X server and also accelerated graphics (DRI).
 You can verify this by typing <code>glxinfo</code> on the command line. Direct rendering
 should be enabled to benefit from this renderer. GL also makes some effects
 easier: when using the SDLGL renderer, there is a <code>blur</code>, <code>glow</code> (afterglow!) and
-<code>scanline</code> setting (see <a class="internal" href="#console">Console</a>), to imitate a TV screen. This does not work
+<code>scanline</code> setting, to imitate a TV screen. This does not work
 properly with all graphics cards, though. It should work with nVidia cards, at
 least. Note that the GL renderer is only available when the openGL development
 files (<code>gl.h</code> is one of them) were installed on the computer at compile time.
@@ -248,7 +293,7 @@ to full screen when started. You can also switch renderer from the <a class="int
 <h4><a id="accuracy">2.3.3 Renderer Accuracy</a></h4>
 
 <p>
-Another example of the settings that you can specify in the <a class="internal" href="#console">Console</a> is the
+Another example of the settings that you can specify in the Console is the
 accuracy of the rendering. There are three options: <code>screen</code>, <code>line</code> and
 <code>pixel</code>'. The latter is the slowest, but most accurate setting (it also shows
 that the timing in openMSX is not perfect yet): it will enable you to run the
@@ -452,37 +497,6 @@ To connect a mouse, you can also use the <code>plug</code> command:
 will connect a mouse to joystick port A. If you want the joystick emulation feature that some mice (like the Philips SBC-3810 and the Sony MOS-1) have, keep the left mouse key pressed when plugging it in, just as on a real MSX.
 </p>
 
-
-<h2><a id="machines-extensions">5. Using Machines and Extensions</a></h2>
-
-<p>
-To use a specific MSX machine that is present on your system (i.e. your openMSX installation), simply use the <code>-machine</code> command line argument, like this:
-</p>
-<div class="commandline">
-    openmsx -machine Panasonic_FS-A1GT
-</div>
-
-
-<p> 
-Extensions are simply MSX cartridges (extensions to the MSX system) that you can plug into the emulated MSX. In the next paragraph we explain this using an example.
-</p>
-
-<p>
-If you have setup an FM PAC <code>hardwareconfig.xml</code> file in
-<code>~/.openMSX/share/extensions/fmpac</code> e.g., you can add  <code>-ext
-fmpac</code> to your command line to use an FM PAC. But, as I just said, you
-need to have a hardware description in that subdirectory of
-<code>share/extensions/</code>, see chapter TODO (SETUP GUIDE). Fortunately,
-openMSX comes with a predefined FM-PAC extension. You only need to add the
-<code>fmpac.rom</code> in <code>share/extensions/fmpac/roms/</code>; it's the ROM that is built in the FM-PAC. If you look at that <code>share/extensions</code>
-directory, you will find more extensions. E.g. using <code>-ext mbstereo</code>
-gives you the Moonblaster stereo effect: FM PAC on one channel and MSX Audio on
-the other. Try them out, if you like, but again, keep in mind that some
-extensions need a ROM image installed in their <code>roms/</code> directory.
-</p>
-<p class="todo">
-Add reference to setup guide above. Or, actually move part of it to that guide.
-</p>
 
 <h2><a id="configfile">x. Configuration File </a></h2>
 
