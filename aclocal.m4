@@ -1,4 +1,3 @@
-dnl $Id$
 dnl aclocal.m4 generated automatically by aclocal 1.4-p4
 
 dnl Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
