@@ -64,10 +64,6 @@ public:
 		byte colour;
 	} SpriteInfo;
 
-	/** NTSC version of the MSX1 palette.
-	  */
-	static const byte TMS9928A_PALETTE[];
-
 	/** Constructor.
 	  */
 	VDP(MSXConfig::Device *config, const EmuTime &time);
@@ -90,6 +86,14 @@ public:
 	/** Handle "toggle fullscreen" hotkey requests.
 	  */
 	void signalHotKey(SDLKey key);
+
+	/** Is this an MSX1 VDP?
+	  * @return True if this is an MSX1 VDP (TMS99X8A or TMS9929A),
+	  *   False otherwise.
+	  */
+	inline bool isMSX1VDP() {
+		return version == TMS99X8A || version == TMS9929A;
+	}
 
 	/** Get dispay mode: M2..M0 combined.
 	  * @return The current display mode.
@@ -120,6 +124,15 @@ public:
 	  */
 	inline int getBackgroundColour() {
 		return controlRegs[7] & 0x0F;
+	}
+
+	/** Gets a palette entry.
+	  * @param index The index [0..15] in the palette.
+	  * @return Colour value in the format of the palette registers:
+	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
+	  */
+	inline word getPalette(int index) {
+		return palette[index];
 	}
 
 	/** Is the display enabled?
@@ -205,14 +218,6 @@ private:
 		return controlRegs[1] & 1;
 	}
 
-	/** Is this an MSX1 VDP?
-	  * @return True if this is an MSX1 VDP (TMS99X8A or TMS9929A),
-	  *   False otherwise.
-	  */
-	inline bool isMSX1VDP() {
-		return version == TMS99X8A || version == TMS9929A;
-	}
-
 	/** Are sprites enabled?
 	  * TODO: For V9938, check bit 1 of reg 8 as well.
 	  * @return True iff blanking is off and the current mode supports
@@ -240,6 +245,12 @@ private:
 		if (getSpriteMag()) return doublePattern(pattern);
 		else return pattern;
 	}
+
+	/** Called both on init and on reset.
+	  * Puts VDP into reset state.
+	  * Does not call any renderer methods.
+	  */
+	void resetInit(const EmuTime &time);
 
 	/** Check sprite collision and number of sprites per line.
 	  * Separated from display code to make MSX behaviour consistent
@@ -312,6 +323,14 @@ private:
 	  * There max 10 status registers, but that's not a power of 2.
 	  */
 	byte statusRegs[16];
+
+	/** V9938 palette.
+	  */
+	word palette[16];
+
+	/** First byte written through port #9A, or -1 for none.
+	  */
+	int paletteLatch;
 
 	/** Pointer to VRAM data block.
 	  */

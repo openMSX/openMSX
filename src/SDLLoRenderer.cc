@@ -1,8 +1,6 @@
 // $Id$
 
 /*
-Low-res (320x240) renderer on SDL.
-
 TODO:
 - Move to double buffering.
   Current screen line cache performs double buffering,
@@ -121,9 +119,9 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 	for (int i = 0; i < 16; i++) {
 		PalFg[i] = PalBg[i] = SDL_MapRGB(
 			screen->format,
-			VDP::TMS9928A_PALETTE[i * 3 + 0],
-			VDP::TMS9928A_PALETTE[i * 3 + 1],
-			VDP::TMS9928A_PALETTE[i * 3 + 2]
+			TMS99X8A_PALETTE[i][0],
+			TMS99X8A_PALETTE[i][1],
+			TMS99X8A_PALETTE[i][2]
 			);
 	}
 }
@@ -158,6 +156,12 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateBackgroundColour(
 	// so we have to repaint them all.
 	anyDirtyColour = true;
 	fillBool(dirtyColour, true, sizeof(dirtyColour));
+}
+
+template <class Pixel> void SDLLoRenderer<Pixel>::updatePalette(
+	int index, const EmuTime &time)
+{
+	// SDLLoRenderer does not currently support V9938 features.
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayEnabled(

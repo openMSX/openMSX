@@ -115,14 +115,36 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	// Hide mouse cursor.
 	SDL_ShowCursor(SDL_DISABLE);
 
-	// Reset the palette
-	for (int i = 0; i < 16; i++) {
-		PalFg[i] = PalBg[i] = SDL_MapRGB(
-			screen->format,
-			VDP::TMS9928A_PALETTE[i * 3 + 0],
-			VDP::TMS9928A_PALETTE[i * 3 + 1],
-			VDP::TMS9928A_PALETTE[i * 3 + 2]
-			);
+	// Init the palette.
+	if (vdp->isMSX1VDP()) {
+		// Fixed palette.
+		for (int i = 0; i < 16; i++) {
+			palFg[i] = palBg[i] = SDL_MapRGB(
+				screen->format,
+				TMS99X8A_PALETTE[i][0],
+				TMS99X8A_PALETTE[i][1],
+				TMS99X8A_PALETTE[i][2]
+				);
+		}
+	}
+	else {
+		// Precalculate SDL palette for V9938 colours.
+		for (int r = 0; r < 8; r++) {
+			for (int g = 0; g < 8; g++) {
+				for (int b = 0; b < 8; b++) {
+					V9938_COLOURS[r][g][b] = SDL_MapRGB(
+						screen->format,
+						r * 36 + (r >> 1),
+						g * 36 + (g >> 1),
+						b * 36 + (b >> 1)
+						);
+				}
+			}
+		}
+		// Reset the palette.
+		for (int i = 0; i < 16; i++) {
+			updatePalette(i, time);
+		}
 	}
 }
 
@@ -150,9 +172,31 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateBackgroundColour(
 {
 	dirtyBackground = true;
 	// Transparent pixels have background colour.
-	PalFg[0] = PalBg[vdp->getBackgroundColour()];
+	palFg[0] = palBg[vdp->getBackgroundColour()];
 	// Any line containing transparent pixels must be repainted.
 	// We don't know which lines contain transparent pixels,
+	// so we have to repaint them all.
+	anyDirtyColour = true;
+	fillBool(dirtyColour, true, sizeof(dirtyColour));
+}
+
+template <class Pixel> void SDLHiRenderer<Pixel>::updatePalette(
+	int index, const EmuTime &time)
+{
+	// Update SDL colours in palette.
+	word grb = vdp->getPalette(index);
+	palFg[index] = palBg[index] =
+		V9938_COLOURS[(grb >> 4) & 7][(grb >> 8) & 7][grb & 7];
+
+	// Is this the background colour?
+	if (vdp->getBackgroundColour() == index) {
+		dirtyBackground = true;
+		// Transparent pixels have background colour.
+		palFg[0] = palBg[vdp->getBackgroundColour()];
+	}
+
+	// Any line containing pixels of this colour must be repainted.
+	// We don't know which lines contain which colours,
 	// so we have to repaint them all.
 	anyDirtyColour = true;
 	fillBool(dirtyColour, true, sizeof(dirtyColour));
@@ -248,8 +292,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic1(
 		if (dirtyName[name] || dirtyPattern[charcode]
 		|| dirtyColour[charcode / 64]) {
 			int colour = vdp->getVRAM(colourBase | (charcode / 8));
-			Pixel fg = PalFg[colour >> 4];
-			Pixel bg = PalFg[colour & 0x0F];
+			Pixel fg = palFg[colour >> 4];
+			Pixel bg = palFg[colour & 0x0F];
 
 			int pattern = vdp->getVRAM(patternBaseLine | (charcode * 8));
 			// TODO: Compare performance of this loop vs unrolling.
@@ -273,8 +317,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderText1(
 	if (!(anyDirtyName || anyDirtyPattern || dirtyColours)) return;
 
 	Pixel *pixelPtr = cacheLinePtrs[line];
-	Pixel fg = PalFg[vdp->getForegroundColour()];
-	Pixel bg = PalBg[vdp->getBackgroundColour()];
+	Pixel fg = palFg[vdp->getForegroundColour()];
+	Pixel bg = palBg[vdp->getBackgroundColour()];
 
 	int nameBase = (-1 << 10) & vdp->getNameMask();
 	int patternBaseLine = ((-1 << 11) | (line & 7)) & vdp->getPatternMask();
@@ -325,8 +369,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic2(
 		|| dirtyColour[colourNr]) {
 			int pattern = vdp->getVRAM(patternBaseLine | (patternNr * 8));
 			int colour = vdp->getVRAM(colourBaseLine | (colourNr * 8));
-			Pixel fg = PalFg[colour >> 4];
-			Pixel bg = PalFg[colour & 0x0F];
+			Pixel fg = palFg[colour >> 4];
+			Pixel bg = palFg[colour & 0x0F];
 			for (int i = 8; i--; ) {
 				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
 				pixelPtr += 2;
@@ -346,8 +390,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderText1Q(
 	if (!(anyDirtyName || anyDirtyPattern || dirtyColours)) return;
 
 	Pixel *pixelPtr = cacheLinePtrs[line];
-	Pixel fg = PalFg[vdp->getForegroundColour()];
-	Pixel bg = PalBg[vdp->getBackgroundColour()];
+	Pixel fg = palFg[vdp->getForegroundColour()];
+	Pixel bg = palBg[vdp->getBackgroundColour()];
 
 	int nameBase = (-1 << 10) & vdp->getNameMask();
 	int nameStart = (line / 8) * 32;
@@ -391,8 +435,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderMulti(
 		int charcode = vdp->getVRAM(nameBase | name);
 		if (dirtyName[name] || dirtyPattern[charcode]) {
 			int colour = vdp->getVRAM(patternBaseLine | (charcode * 8));
-			Pixel cl = PalFg[colour >> 4];
-			Pixel cr = PalFg[colour & 0x0F];
+			Pixel cl = palFg[colour >> 4];
+			Pixel cr = palFg[colour & 0x0F];
 			for (int n = 8; n--; ) *pixelPtr++ = cl;
 			for (int n = 8; n--; ) *pixelPtr++ = cr;
 		}
@@ -408,8 +452,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderBogus(
 	if (!(dirtyForeground || dirtyBackground)) return;
 
 	Pixel *pixelPtr = cacheLinePtrs[line];
-	Pixel fg = PalFg[vdp->getForegroundColour()];
-	Pixel bg = PalBg[vdp->getBackgroundColour()];
+	Pixel fg = palFg[vdp->getForegroundColour()];
+	Pixel bg = palBg[vdp->getBackgroundColour()];
 	for (int n = 16; n--; ) *pixelPtr++ = bg;
 	for (int c = 40; c--; ) {
 		for (int n = 8; n--; ) *pixelPtr++ = fg;
@@ -434,8 +478,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderMultiQ(
 		int patternNr = patternQuarter | vdp->getVRAM(nameBase | name);
 		if (dirtyName[name] || dirtyPattern[patternNr]) {
 			int colour = vdp->getVRAM(patternBaseLine | (patternNr * 8));
-			Pixel cl = PalFg[colour >> 4];
-			Pixel cr = PalFg[colour & 0x0F];
+			Pixel cl = palFg[colour >> 4];
+			Pixel cr = palFg[colour & 0x0F];
 			for (int n = 8; n--; ) *pixelPtr++ = cl;
 			for (int n = 8; n--; ) *pixelPtr++ = cr;
 		}
@@ -462,7 +506,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 			// Don't draw transparent sprites.
 			continue;
 		}
-		colour = PalBg[colour];
+		colour = palBg[colour];
 		int pattern = sip->pattern;
 		int x = sip->x;
 		// Skip any dots that end up in the border.
@@ -541,7 +585,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 			rect.y *= 2;
 			rect.h *= 2;
 			// Note: return code ignored.
-			SDL_FillRect(screen, &rect, PalBg[vdp->getBackgroundColour()]);
+			SDL_FillRect(screen, &rect, palBg[vdp->getBackgroundColour()]);
 		}
 		currLine = limit;
 	}
@@ -618,7 +662,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	// V9958 can extend the left border over the display area,
 	// this is implemented using overdraw.
 	// TODO: Does the extended border clip sprites as well?
-	Pixel bgColour = PalBg[vdp->getBackgroundColour()];
+	Pixel bgColour = palBg[vdp->getBackgroundColour()];
 	dest.x = 0;
 	dest.y = (currLine - LINE_RENDER_TOP) * 2;
 	dest.w = DISPLAY_X;

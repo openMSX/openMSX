@@ -2,10 +2,16 @@
 
 /*
 TODO:
+- Implement PAL/NTSC timing.
+  Note: TMS9928/29 timings are almost the same, but not 100%.
+- Investigate why MSX2 BASIC won't start / is invisible.
+  Some clues:
+  * when using V9938 in MSX1, BASIC starts without problems
+  * when "_FMPAC" is done in blue screen, nothing happens
 - Apply line-based scheduling.
 - Sprite attribute readout probably happens one line in advance.
   This matters when line-based scheduling is operational.
-- Get rid of hardcoded port 0x98 and 0x99.
+- Get rid of hardcoded port 0x98..0x9B.
 */
 
 
@@ -20,54 +26,6 @@ TODO:
 #include <string>
 #include <cassert>
 
-
-/*
-	New palette (R. Nabet).
-
-	First 3 columns from TI datasheet (in volts).
-	Next 3 columns based on formula :
-		Y = .299*R + .587*G + .114*B (NTSC)
-	(the coefficients are likely to be slightly different with PAL, but who cares ?)
-	I assumed the "zero" for R-Y and B-Y was 0.47V.
-	Last 3 coeffs are the 8-bit values.
-
-	Color            Y  	R-Y 	B-Y 	R   	G   	B   	R	G	B
-	0 Transparent
-	1 Black         0.00	0.47	0.47	0.00	0.00	0.00	  0	  0	  0
-	2 Medium green  0.53	0.07	0.20	0.13	0.79	0.26	 33	200	 66
-	3 Light green   0.67	0.17	0.27	0.37	0.86	0.47	 94	220	120
-	4 Dark blue     0.40	0.40	1.00	0.33	0.33	0.93	 84	 85	237
-	5 Light blue    0.53	0.43	0.93	0.49	0.46	0.99	125	118	252
-	6 Dark red      0.47	0.83	0.30	0.83	0.32	0.30	212	 82	 77
-	7 Cyan          0.73	0.00	0.70	0.26	0.92	0.96	 66	235	245
-	8 Medium red    0.53	0.93	0.27	0.99	0.33	0.33	252	 85	 84
-	9 Light red     0.67	0.93	0.27	1.13(!)	0.47	0.47	255	121	120
-	A Dark yellow   0.73	0.57	0.07	0.83	0.76	0.33	212	193	 84
-	B Light yellow  0.80	0.57	0.17	0.90	0.81	0.50	230	206	128
-	C Dark green    0.47	0.13	0.23	0.13	0.69	0.23	 33	176	 59
-	D Magenta       0.53	0.73	0.67	0.79	0.36	0.73	201	 91	186
-	E Gray          0.80	0.47	0.47	0.80	0.80	0.80	204	204	204
-	F White         1.00	0.47	0.47	1.00	1.00	1.00	255	255	255
-*/
-const byte VDP::TMS9928A_PALETTE[16 * 3] =
-{
-	0, 0, 0,
-	0, 0, 0,
-	33, 200, 66,
-	94, 220, 120,
-	84, 85, 237,
-	125, 118, 252,
-	212, 82, 77,
-	66, 235, 245,
-	252, 85, 84,
-	255, 121, 120,
-	212, 193, 84,
-	230, 206, 128,
-	33, 176, 59,
-	201, 91, 186,
-	204, 204, 204,
-	255, 255, 255
-};
 
 VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
@@ -117,7 +75,8 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	if (!vramData) return ;//1;
 	memset(vramData, 0, vramSize);
 
-	reset(time);
+	// Put VDP into reset state, but do not call Renderer methods.
+	resetInit(time);
 
 	// TODO: Move Renderer creation outside of this class.
 	//   A setRenderer method would be used to provide a renderer.
@@ -161,7 +120,7 @@ VDP::~VDP()
 	delete[](vramData);
 }
 
-void VDP::reset(const EmuTime &time)
+void VDP::resetInit(const EmuTime &time)
 {
 	static const byte INIT_STATUS_REGS[] = {
 		0x00, 0x00, 0x6C, 0x00, 0xFE, 0x00, 0xFC, 0x00,
@@ -177,6 +136,7 @@ void VDP::reset(const EmuTime &time)
 	vramPointer = 0;
 	readAhead = 0;
 	firstByte = -1;
+	paletteLatch = -1;
 
 	// Init status registers.
 	memcpy(statusRegs, INIT_STATUS_REGS, 16);
@@ -190,6 +150,18 @@ void VDP::reset(const EmuTime &time)
 	spriteAttributeBasePtr = vramData;
 	spritePatternBasePtr = vramData;
 
+	// From appendix 8 of the V9938 data book (page 148).
+	const word V9938_PALETTE[16] = {
+		0x000, 0x000, 0x611, 0x733, 0x117, 0x327, 0x151, 0x627,
+		0x171, 0x373, 0x661, 0x664, 0x411, 0x265, 0x555, 0x777
+	};
+	// Init the palette.
+	memcpy(palette, V9938_PALETTE, 16 * sizeof(word));
+}
+
+void VDP::reset(const EmuTime &time)
+{
+	resetInit(time);
 	// TODO: Reset the renderer.
 }
 
@@ -266,7 +238,10 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 		break;
 	}
 	case 0x99:
-		if (firstByte != -1) {
+		if (firstByte == -1) {
+			firstByte = value;
+		}
+		else {
 			if (value & 0x80) {
 				// Register write.
 				changeRegister(
@@ -285,12 +260,18 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 			}
 			firstByte = -1;
 		}
-		else {
-			firstByte = value;
-		}
 		break;
 	case 0x9A:
-		//fprintf(stderr, "VDP colour write: %02X\n", value);
+		if (paletteLatch == -1) {
+			paletteLatch = value;
+		}
+		else {
+			int index = controlRegs[16];
+			palette[index] = paletteLatch | (value << 8);
+			renderer->updatePalette(index, time);
+			controlRegs[16] = (index + 1) & 0x0F;
+			paletteLatch = -1;
+		}
 		break;
 	case 0x9B: {
 		// TODO: Does port 0x9B affect firstByte?
@@ -419,6 +400,10 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		if ((val ^ oldval) & 0x0F) {
 			renderer->updateBackgroundColour(time);
 		}
+		break;
+	case 16:
+		// Any half-finished palette loads are aborted.
+		paletteLatch = -1;
 		break;
 	}
 }

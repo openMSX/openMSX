@@ -11,6 +11,8 @@
 class VDP;
 
 /** Factory method to create SDLHiRenderer objects.
+  * TODO: Add NTSC/PAL selection
+  *   (immutable because it is colour encoding, not refresh frequency).
   */
 Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time);
 
@@ -35,6 +37,7 @@ public:
 	void setFullScreen(bool);
 	void updateForegroundColour(const EmuTime &time);
 	void updateBackgroundColour(const EmuTime &time);
+	void updatePalette(int index, const EmuTime &time);
 	void updateDisplayEnabled(const EmuTime &time);
 	void updateDisplayMode(const EmuTime &time);
 	void updateNameBase(const EmuTime &time);
@@ -79,10 +82,17 @@ private:
 	VDP *vdp;
 
 	/** SDL colours corresponding to each VDP palette entry.
-	  * PalFg has entry 0 set to the current background colour,
-	  * PalBg has entry 0 set to black.
+	  * palFg has entry 0 set to the current background colour,
+	  * palBg has entry 0 set to black.
 	  */
-	Pixel PalFg[16], PalBg[16];
+	Pixel palFg[16], palBg[16];
+
+	/** SDL colours corresponding to each possible V9938 colour.
+	  * Used by updatePalette to adjust palFg and palBg.
+	  * Since SDL_MapRGB may be slow, this array stores precalculated
+	  * SDL colours for all possible RGB values.
+	  */
+	Pixel V9938_COLOURS[8][8][8];
 
 	/** Rendering method for the current display mode.
 	  */

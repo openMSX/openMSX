@@ -24,7 +24,7 @@ openmsx_SOURCES=openmsx.cc \
 	MSXRom16KB.hh MSXRom16KB.cc \
 	MSXSimple64KB.hh MSXSimple64KB.cc \
 	VDP.hh VDP.cc \
-	Renderer.hh \
+	Renderer.hh Renderer.cc \
 	SDLLoRenderer.hh SDLLoRenderer.cc \
 	SDLHiRenderer.hh SDLHiRenderer.cc \
 	MSXCPU.hh MSXCPU.cc \
@@ -73,8 +73,6 @@ openmsx_SOURCES=openmsx.cc \
 
 # we want most warnings
 AM_CXXFLAGS = -Wall -DDEBUG -g3 -pipe
-#AM_CXXFLAGS = -Wall -DDEBUG -g3 -pipe
-
 # or perhaps sometimes even more:
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
