@@ -1,5 +1,8 @@
 $Id$
 
+2004-02-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Set OPENMSX_USER_DATA and OPENMSX_SYSTEM_DATA environment variables
+
 2004-02-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "after break" command
 	* Path calculation cleanup:

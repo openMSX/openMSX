@@ -88,14 +88,14 @@ public:
 	 * Get the openMSX data dir in the user's home directory.
 	 * Default value is "~/.openMSX/share" (UNIX) or "~/openMSX/share" (win)
 	 */
-	static const string& getUserDataDir();
+	static string getUserDataDir();
 	
 	/**
 	 * Get system directory.
 	 * UNI*Y: statically defined as "/opt/openMSX/share".
 	 * Win32: use "same directory as .exe" + "/share".
 	 */
-	static const string& getSystemDataDir();
+	static string getSystemDataDir();
 };
 
 } // namespace openmsx

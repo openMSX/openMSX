@@ -179,32 +179,44 @@ const string& FileOperations::getUserOpenMSXDir()
 	return OPENMSX_DIR;
 }
 
-const string& FileOperations::getUserDataDir()
+string FileOperations::getUserDataDir()
 {
-	static const string USER_DATA_DIR = getUserOpenMSXDir() + "/share";
-	return USER_DATA_DIR;
+	const char* const NAME = "OPENMSX_USER_DATA";
+	char* value = getenv(NAME);
+	if (value) {
+		return value;
+	}
+
+	string newValue = getUserOpenMSXDir() + "/share";
+	setenv(NAME, newValue.c_str(), 0);
+	return newValue;
 }
 
-const string& FileOperations::getSystemDataDir()
+string FileOperations::getSystemDataDir()
 {
-	static string systemDir;
-	if (systemDir.empty()) {
-#if	defined(__WIN32__)
-		char p[MAX_PATH + 1];
-		int res = GetModuleFileNameA(NULL, p, MAX_PATH);
-		if ((res == 0) || (res == MAX_PATH)) {
-			throw FatalError("Cannot detect openMSX directory.");
-		}
-		if (!strrchr(p, '\\')) {
-			throw FatalError("openMSX is not in directory!?");
-		}
-		*(strrchr(p, '\\')) = '\0';
-		systemDir = getConventionalPath(p) + "/share";
-#else
-		systemDir = DATADIR; // defined in config.h (default /opt/openMSX/share)
-#endif
+	const char* const NAME = "OPENMSX_SYSTEM_DATA";
+	char* value = getenv(NAME);
+	if (value) {
+		return value;
 	}
-	return systemDir;
+
+	string newValue;
+#if defined(__WIN32__)
+	char p[MAX_PATH + 1];
+	int res = GetModuleFileNameA(NULL, p, MAX_PATH);
+	if ((res == 0) || (res == MAX_PATH)) {
+		throw FatalError("Cannot detect openMSX directory.");
+	}
+	if (!strrchr(p, '\\')) {
+		throw FatalError("openMSX is not in directory!?");
+	}
+	*(strrchr(p, '\\')) = '\0';
+	newValue = getConventionalPath(p) + "/share";
+#else
+	newValue = DATADIR; // defined in config.h (default /opt/openMSX/share)
+#endif
+	setenv(NAME, newValue.c_str(), 0);
+	return newValue;
 }
 
 } // namespace openmsx
