@@ -71,7 +71,7 @@ void CPU::setTargetTime(const EmuTime& time)
 	targetTime = time;
 }
 
-const EmuTime &CPU::getTargetTime() const
+const EmuTime& CPU::getTargetTime() const
 {
 	return targetTime;
 }
@@ -157,7 +157,7 @@ void CPU::extendTarget(const EmuTime& time)
 	assert(getTargetTime() <= time);
 	EmuTime now = getTargetTime();
 	setTargetTime(time);
-	scheduler->schedule(now, time);
+	scheduler->scheduleFromCPU(now, time);
 }
 
 

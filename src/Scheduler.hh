@@ -96,9 +96,9 @@ public:
 	
 	/**
 	 * Schedule till a certain moment in time.
-	 * It's alllowed to call this method recursivly.
 	 */
-	void schedule(const EmuTime& from, const EmuTime& limit);
+	void schedule();
+	void scheduleFromCPU(const EmuTime& from, const EmuTime& limit);
 
 	/** Set renderer to call when emulation is paused.
 	  * TODO: Function will be moved to OSD later.
@@ -153,7 +153,6 @@ private:
 	  */
 	vector<SynchronizationPoint> syncPoints;
 	Semaphore sem;	// protects syncPoints
-	unsigned depth;	// recursion depth
 
 	/** Should the emulation continue running?
 	  */

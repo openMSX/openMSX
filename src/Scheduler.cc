@@ -11,6 +11,7 @@
 #include "Leds.hh"
 #include "Renderer.hh" // TODO: Temporary?
 #include "MSXMotherBoard.hh"
+#include "Timer.hh"
 
 using std::swap;
 using std::make_heap;
@@ -23,7 +24,7 @@ namespace openmsx {
 const EmuTime Scheduler::ASAP;
 
 Scheduler::Scheduler()
-	: sem(1), depth(0), paused(false), powered(false), needReset(false),
+	: sem(1), paused(false), powered(false), needReset(false),
 	  renderer(NULL), motherboard(NULL), eventGenerator(NULL),
 	  pauseSetting("pause", "pauses the emulation", paused),
 	  powerSetting("power", "turn power on/off", powered),
@@ -161,26 +162,10 @@ void Scheduler::stopScheduling()
 	setSyncPoint(ASAP, this);
 }
 
-void Scheduler::schedule(const EmuTime& from, const EmuTime& limit)
+void Scheduler::schedule()
 {
-	PRT_DEBUG("Schedule from " << from << " to " << limit);
-	assert(scheduleTime <= from);
-	scheduleTime = from;
-	++depth;
-
 	eventGenerator = &InputEventGenerator::instance();
-	while (true) {
-		if (!emulationRunning) {
-			// only when not called resursivly it's safe to break
-			// the loop other cases, just unpause and really quit
-			// when we're back at top level
-			if (depth == 1) {
-				break;
-			} else {
-				pauseCounter = 0; // unpause, we have to quit
-			}
-		}
-
+	while (emulationRunning) {
 		// Get next sync point.
 		sem.down();
 		const SynchronizationPoint sp =
@@ -189,13 +174,6 @@ void Scheduler::schedule(const EmuTime& from, const EmuTime& limit)
 			: syncPoints.front();
 		const EmuTime& time = sp.getTime();
 
-		// Return when we've gone far enough.
-		// If limit and time are both infinity, scheduling will continue.
-		if (limit < time) {
-			sem.up();
-			scheduleTime = limit;
-			break;
-		}
 		if (time == ASAP) {
 			scheduleDevice(sp, scheduleTime);
 			eventGenerator->poll();
@@ -207,7 +185,7 @@ void Scheduler::schedule(const EmuTime& from, const EmuTime& limit)
 				if (fps == 0) {
 					eventGenerator->wait();
 				} else {
-					SDL_Delay(1000 / fps);
+					Timer::sleep(1000000 / fps);
 					eventGenerator->poll();
 				}
 			} else {
@@ -220,7 +198,6 @@ void Scheduler::schedule(const EmuTime& from, const EmuTime& limit)
 				// Schedule CPU until first sync point.
 				// This may set earlier sync point.
 				PRT_DEBUG ("Sched: Scheduling CPU till " << time);
-				assert(depth == 1);
 				if (needReset) {
 					needReset = false;
 					motherboard->resetMSX();
@@ -232,7 +209,32 @@ void Scheduler::schedule(const EmuTime& from, const EmuTime& limit)
 			eventGenerator->poll();
 		}
 	}
-	--depth;
+}
+
+void Scheduler::scheduleFromCPU(const EmuTime& from, const EmuTime& limit)
+{
+	PRT_DEBUG("Schedule from " << from << " to " << limit);
+	assert(scheduleTime <= from);
+	scheduleTime = from;
+
+	while (true) {
+		// Get next sync point.
+		sem.down();
+		if (syncPoints.empty()) {
+			sem.up();
+			break;
+		}
+		const SynchronizationPoint sp = syncPoints.front();
+		const EmuTime& time = sp.getTime();
+
+		// Return when we've gone far enough.
+		if (limit < time) {
+			sem.up();
+			break;
+		}
+		scheduleDevice(sp, (time == ASAP) ? scheduleTime : time);
+	}
+	scheduleTime = limit;
 }
 
 void Scheduler::scheduleDevice(const SynchronizationPoint &sp,

@@ -101,7 +101,7 @@ void MSXMotherBoard::run(bool powerOn)
 	if (powerOn) {
 		Scheduler::instance().powerOn();
 	}
-	Scheduler::instance().schedule(EmuTime::zero, EmuTime::infinity);
+	Scheduler::instance().schedule();
 	Scheduler::instance().powerOff();
 }
 
