@@ -80,11 +80,6 @@ void MSXKanji::writeIO(byte port, byte value, EmuTime &time)
 	}
 }
 
-MSXConfig::Device* MSXKanji::GetDeviceConfig()
-{
-	return deviceConfig;
-}
-
 // This really works!
 //
 // 10 DIM A(32)

@@ -27,12 +27,6 @@ class MSXKanji : public MSXIODevice, public MSXRom
 		void init();
 		void reset();
 
-	protected:
-		/**
-		 * provided for LoadFile mixin
-		 */
-		virtual MSXConfig::Device* GetDeviceConfig();
-
 	private:
 		static const int ROM_SIZE = 256*1024;
 		

@@ -9,7 +9,7 @@
 #include "MSXDevice.hh"
 #include "LoadFile.hh"
 
-class MSXRom: public LoadFile
+class MSXRom: virtual public MSXDevice, public LoadFile
 {
     public:
 
@@ -18,11 +18,10 @@ class MSXRom: public LoadFile
          */
         virtual ~MSXRom();
 
-    protected:
         /**
-         * Delegate down more
+         * Return the MSXConfig object
          */
-        virtual MSXConfig::Device* GetDeviceConfig()=0;
+        MSXConfig::Device* getDeviceConfig();
 
         byte* memoryBank;
 };

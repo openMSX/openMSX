@@ -13,8 +13,8 @@ void LoadFile::loadFile(byte** memoryBank, int fileSize)
 	// TODO load from "ROM-directory"
 	if (!(*memoryBank = new byte[fileSize]))
 		PRT_ERROR("Couldn't allocate enough memory");
-	std::string filename = GetDeviceConfig()->getParameter("filename");
-	int offset = GetDeviceConfig()->getParameterAsInt("skip_headerbytes");
+	std::string filename = getDeviceConfig()->getParameter("filename");
+	int offset = getDeviceConfig()->getParameterAsInt("skip_headerbytes");
 	PRT_DEBUG("Loading file " << filename << " ...");
 #ifdef HAVE_FSTREAM_TEMPL
 	std::ifstream<byte> file(filename.c_str());

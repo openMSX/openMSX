@@ -27,8 +27,3 @@ byte MSXRom16KB::readMem(word address, EmuTime &time)
 {
 	return memoryBank [address & 0x3fff];
 }
-
-MSXConfig::Device* MSXRom16KB::GetDeviceConfig()
-{
-	return deviceConfig;
-}

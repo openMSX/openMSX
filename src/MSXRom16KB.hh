@@ -26,10 +26,5 @@ class MSXRom16KB : public MSXMemDevice, public MSXRom
 		void init();
 		
 		byte readMem(word address, EmuTime &time);
-	protected:
-		/**
-		 * provided for LoadFile mixin
-		 */
-		virtual MSXConfig::Device* GetDeviceConfig();
 };
 #endif

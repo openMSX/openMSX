@@ -27,12 +27,6 @@ class MSXKonamiSynthesizer : public MSXMemDevice, public MSXRom
 		byte readMem(word address, EmuTime &time);
 		void writeMem(word address, byte value, EmuTime &time);
 
-	protected:
-		/**
-		 * provided for LoadFile mixin
-		 */
-		virtual MSXConfig::Device* GetDeviceConfig();
-
 	private:
 		DACSound *DAC;
 };

@@ -25,9 +25,6 @@ class MSXMegaRom : public MSXMemDevice, public MSXRom
 		byte readMem(word address, EmuTime &time);
 		void writeMem(word address, byte value, EmuTime &time);
 
-	protected:
-		virtual MSXConfig::Device* GetDeviceConfig();
-
 	private:
 		int romSize;
 		int mapperType;

@@ -84,8 +84,3 @@ void MSXMusic::writeDataPort(byte value, EmuTime &time)
 	Mixer::instance()->updateStream(time);
 	ym2413->writeReg(registerLatch, value);
 }
-
-MSXConfig::Device* MSXMusic::GetDeviceConfig()
-{
-	return deviceConfig;
-}

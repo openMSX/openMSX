@@ -240,8 +240,3 @@ void MSXMegaRom::writeMem(word address, byte value, EmuTime &time)
 		assert(false);
 	}
 }
-
-MSXConfig::Device* MSXMegaRom::GetDeviceConfig()
-{
-	return deviceConfig;
-}
