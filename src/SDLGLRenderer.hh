@@ -164,7 +164,7 @@ private:
 
 	/** Draw sprites on this line over the background.
 	  */
-	void drawSprites(int screenLine);
+	void drawSprites(int screenLine, int leftBorder, int fromX, int limitX);
 
 	/** Set all dirty / clean.
 	  */

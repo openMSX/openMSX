@@ -61,55 +61,6 @@ inline static void GLSetColour(SDLGLRenderer::Pixel colour)
 	glColor3ub(colour & 0xFF, (colour >> 8) & 0xFF, (colour >> 16) & 0xFF);
 }
 
-inline static void GLBlitLine(
-	GLint textureId, SDLGLRenderer::Pixel *line, int n, int x, int y)
-{
-if (1) {
-	// Note: If this is re-enabled, also enable GL_TEXTURE_2D and set the
-	//       texture environment mode to REPLACE.
-	//GLuint textureId;
-	//glGenTextures(1, &textureId);
-	glBindTexture(GL_TEXTURE_2D, textureId);
-	glTexImage2D(
-		GL_TEXTURE_2D,
-		0, // level
-		GL_RGBA,
-		n, // width
-		1, // height
-		0, // border
-		GL_RGBA,
-		GL_UNSIGNED_BYTE,
-		line
-		);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	// bind again if necessary, currently not
-	//GLSetColour(0xFFFFFFu);
-	glBegin(GL_QUADS);
-	int x1 = x + n * 2;
-	int y1 = y + 2;
-	glTexCoord2i(0, 0); glVertex2i(x,  y1); // Bottom Left
-	glTexCoord2i(1, 0); glVertex2i(x1, y1); // Bottom Right
-	glTexCoord2i(1, 1); glVertex2i(x1, y ); // Top Right
-	glTexCoord2i(0, 1); glVertex2i(x,  y ); // Top Left
-	glEnd();
-	//glDeleteTextures(1, &textureId);
-
-} else {
-
-	GLSetColour(0xFFFFFFu);
-
-	// Set pixel format.
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, n);
-	//glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
-	glPixelStorei(GL_UNPACK_LSB_FIRST, GL_TRUE);
-
-	// Draw pixels in frame buffer.
-	glRasterPos2i(x, y + 2);
-	glDrawPixels(n, 1, GL_RGBA, GL_UNSIGNED_BYTE, line);
-}
-}
-
 inline static void GLUpdateTexture(
 	GLuint textureId, const SDLGLRenderer::Pixel *data, int lineWidth)
 {
@@ -127,18 +78,36 @@ inline static void GLUpdateTexture(
 		);
 }
 
-inline static void GLDrawTexture(
-	GLuint textureId, int x, int y)
+inline static void GLDrawTexture(GLuint textureId, int leftBorder, int y, int minX, int maxX)
 {
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	glBegin(GL_QUADS);
-	int x1 = x + 512;
-	int y1 = y + 2;
-	glTexCoord2i(0, 0); glVertex2i(x,  y1); // Bottom Left
-	glTexCoord2i(1, 0); glVertex2i(x1, y1); // Bottom Right
-	glTexCoord2i(1, 1); glVertex2i(x1, y ); // Top Right
-	glTexCoord2i(0, 1); glVertex2i(x,  y ); // Top Left
+	glTexCoord2f(minX / 512.0f, 0); glVertex2i(leftBorder + minX, y + 2);	// Bottom Left
+	glTexCoord2f(maxX / 512.0f, 0); glVertex2i(leftBorder + maxX, y + 2);	// Bottom Right
+	glTexCoord2f(maxX / 512.0f, 1); glVertex2i(leftBorder + maxX, y);	// Top Right
+	glTexCoord2f(minX / 512.0f, 1); glVertex2i(leftBorder + minX, y);	// Top Left
 	glEnd();
+}
+
+inline static void GLBlitLine(
+	GLint textureId, const SDLGLRenderer::Pixel *data, int leftBorder, int y, int minX, int maxX)
+{
+	GLUpdateTexture(textureId, data, 256);
+	GLDrawTexture(textureId, leftBorder, y, minX, maxX);
+	
+	/* Alternative (outdated)
+	 
+	GLSetColour(0xFFFFFFu);
+
+	// Set pixel format.
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, n);
+	//glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
+	glPixelStorei(GL_UNPACK_LSB_FIRST, GL_TRUE);
+
+	// Draw pixels in frame buffer.
+	glRasterPos2i(x, y + 2);
+	glDrawPixels(n, 1, GL_RGBA, GL_UNSIGNED_BYTE, line);
+	*/
 }
 
 inline static void GLBindMonoBlock(GLuint textureId, const byte *pixels)
@@ -820,7 +789,7 @@ void SDLGLRenderer::setDirty(
 	fillBool(dirtyPattern, dirty, sizeof(dirtyPattern) / sizeof(bool));
 }
 
-void SDLGLRenderer::drawSprites(int screenLine)
+void SDLGLRenderer::drawSprites(int screenLine, int leftBorder, int minX, int maxX)
 {
 	// Check whether this line is inside the host screen.
 	int absLine = screenLine / 2 + lineRenderTop;
@@ -832,8 +801,6 @@ void SDLGLRenderer::drawSprites(int screenLine)
 	// Optimisation: return at once if no sprites on this line.
 	// Lines without any sprites are very common in most programs.
 	if (visibleIndex == 0) return;
-
-	int leftBorder = getLeftBorder();
 
 	if (vdp->getDisplayMode() < 8) {
 		// Sprite mode 1: render directly to screen using overdraw.
@@ -880,7 +847,7 @@ void SDLGLRenderer::drawSprites(int screenLine)
 		// Possible speedups:
 		// - create a texture in 1bpp, or in luminance
 		// - use VRAM to render sprite blocks instead of lines
-		GLBlitLine(spriteTextureIds[absLine], lineBuffer, 256, leftBorder, screenLine);
+		GLBlitLine(spriteTextureIds[absLine], lineBuffer, leftBorder, screenLine, minX, maxX);
 	} else {
 		// Sprite mode 2: single pass left-to-right render.
 
@@ -893,7 +860,7 @@ void SDLGLRenderer::drawSprites(int screenLine)
 		}
 		int maxSize = SpriteChecker::patternWidth(combined);
 		// Left-to-right scan.
-		for (int pixelDone = 0; pixelDone < 256; pixelDone++) {
+		for (int pixelDone = minX / 2; pixelDone < maxX / 2; pixelDone++) {
 			// Skip pixels if possible.
 			int minStart = pixelDone - maxSize;
 			int leftMost = 0xFFFF;
@@ -933,7 +900,7 @@ void SDLGLRenderer::drawSprites(int screenLine)
 				lineBuffer[pixelDone] = palSprites[colour];
 			}
 		}
-		GLBlitLine(spriteTextureIds[absLine], lineBuffer, 256, leftBorder, screenLine);
+		GLBlitLine(spriteTextureIds[absLine], lineBuffer, leftBorder, screenLine, minX, maxX);
 	}
 }
 
@@ -946,15 +913,15 @@ void SDLGLRenderer::blankPhase(
 
 	// TODO: Only redraw if necessary.
 	GLSetColour(getBorderColour());
-	int x1 = fromX;
-	int x2 = limitX;
-	int y1 = fromY * 2;
-	int y2 = limitY * 2 + 2;
+	int minX = fromX;
+	int maxX = limitX;
+	int minY = fromY * 2;
+	int maxY = limitY * 2 + 2;
 	glBegin(GL_QUADS);
-	glVertex2i(x1, y1); // top left
-	glVertex2i(x2, y1); // top right
-	glVertex2i(x2, y2); // bottom right
-	glVertex2i(x1, y2); // bottom left
+	glVertex2i(minX, minY);	// top left
+	glVertex2i(maxX, minY);	// top right
+	glVertex2i(maxX, maxY);	// bottom right
+	glVertex2i(minX, maxY);	// bottom left
 	glEnd();
 }
 
@@ -973,9 +940,9 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, fgColour);
 
 	// Render complete characters and cut off the invisible part
-	//int screenHeight = 2 * count;
-	//glScissor(0, HEIGHT - screenLine - screenHeight, WIDTH, screenHeight);
-	//glEnable(GL_SCISSOR_TEST);
+	int screenHeight = 2 * count;
+	glScissor(0, HEIGHT - screenLine - screenHeight, WIDTH, screenHeight);
+	glEnable(GL_SCISSOR_TEST);
 	
 	int leftBorder = getLeftBorder();
 
@@ -1010,7 +977,7 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 		}
 		screenLine += 16;
 	}
-	//glDisable(GL_SCISSOR_TEST);
+	glDisable(GL_SCISSOR_TEST);
 }
 
 void SDLGLRenderer::renderGraphic2(int vramLine, int screenLine, int count)
@@ -1018,9 +985,9 @@ void SDLGLRenderer::renderGraphic2(int vramLine, int screenLine, int count)
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	
 	// Render complete characters and cut off the invisible part
-	//int screenHeight = 2 * count;
-	//glScissor(0, HEIGHT - screenLine - screenHeight, WIDTH, screenHeight);
-	//glEnable(GL_SCISSOR_TEST);
+	int screenHeight = 2 * count;
+	glScissor(0, HEIGHT - screenLine - screenHeight, WIDTH, screenHeight);
+	glEnable(GL_SCISSOR_TEST);
 
 	int endRow = (vramLine + count + 7) / 8;
 	screenLine -= (vramLine & 7) * 2;
@@ -1028,7 +995,7 @@ void SDLGLRenderer::renderGraphic2(int vramLine, int screenLine, int count)
 		renderGraphic2Row(row & 31, screenLine);
 		screenLine += 16;
 	}
-	//glDisable(GL_SCISSOR_TEST);
+	glDisable(GL_SCISSOR_TEST);
 }
 
 void SDLGLRenderer::renderGraphic2Row(int row, int screenLine)
@@ -1071,94 +1038,97 @@ void SDLGLRenderer::displayPhase(
 	//PRT_DEBUG("DisplayPhase: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
 
 	int n = limitY - fromY + 1;
-	int y1 = fromY * 2;
+	int minY = fromY * 2;
 	if (vdp->isInterlaced() && vdp->getEvenOdd())
-		y1++;
-	int y2 = y1 + 2 * n;
+		minY++;
+	int maxY = minY + 2 * n;
 
 	// V9958 can extend the left border over the display area,
 	// The extended border clips sprites as well.
-	int left = getLeftBorder();
-	//if (vdp->maskedBorder()) left += 8;
+	int leftBorder = getLeftBorder();
+	int left = leftBorder;
+	// if (vdp->maskedBorder()) left += 8;
 	if (fromX < left) {
 		GLSetColour(getBorderColour());
 		glBegin(GL_QUADS);
-		glVertex2i(fromX, y1); // top left
-		glVertex2i(left, y1); // top right
-		glVertex2i(left, y2); // bottom right
-		glVertex2i(fromX, y2); // bottom left
+		glVertex2i(fromX, minY);	// top left
+		glVertex2i(left,  minY);	// top right
+		glVertex2i(left,  maxY);	// bottom right
+		glVertex2i(fromX, maxY);	// bottom left
 		glEnd();
 		fromX = left;
 		if (fromX >= limitX) return;
 	}
 	
-	glScissor(fromX, HEIGHT - y2, limitX - fromX, n * 2);
-	glEnable(GL_SCISSOR_TEST);
-	
-	// Perform vertical scroll (wraps at 256)
-	byte line = lineRenderTop + fromY - vdp->getLineZero();
-	if (!vdp->isTextMode())
-		line += vdp->getVerticalScroll();
+	// Render background lines
+	int minX = fromX - leftBorder;
+	assert(0 <= minX);
+	if (minX < 512) {
+		int maxX = limitX - leftBorder;
+		if (maxX > 512) maxX = 512;
+		
+		// Perform vertical scroll (wraps at 256)
+		byte line = lineRenderTop + fromY - vdp->getLineZero();
+		if (!vdp->isTextMode())
+			line += vdp->getVerticalScroll();
 
-	// Render background lines.
-	// TODO: Complete separation of character and bitmap modes.
-	glEnable(GL_TEXTURE_2D);
-	int leftBorder = getLeftBorder();
-	if (vdp->isBitmapMode()) {
-		if (vdp->isPlanar())
-			renderPlanarBitmapLines(line, n);
-		else
-			renderBitmapLines(line, n);
-		// Which bits in the name mask determine the page?
-		int pageMask =
-			(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-		for (int y = y1; y < y2; y += 2) {
-			int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
-			GLDrawTexture(bitmapTextureIds[vramLine], leftBorder, y);
-			line++;	// wraps at 256
-		}
-	} else {
-		switch (vdp->getDisplayMode()) {
-		case 1:
-			renderText1(line, y1, n);
-			break;
-		case 4: // graphic2
-		case 8: // graphic4
-			renderGraphic2(line, y1, n);
-			break;
-		default:
-			renderCharacterLines(line, n);
+		// TODO: Complete separation of character and bitmap modes.
+		glEnable(GL_TEXTURE_2D);
+		if (vdp->isBitmapMode()) {
+			if (vdp->isPlanar())
+				renderPlanarBitmapLines(line, n);
+			else
+				renderBitmapLines(line, n);
+			// Which bits in the name mask determine the page?
+			int pageMask =
+				(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-			for (int y = y1; y < y2; y += 2) {
-				GLDrawTexture(charTextureIds[line], leftBorder, y);
+			for (int y = minY; y < maxY; y += 2) {
+				int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
+				GLDrawTexture(bitmapTextureIds[vramLine], leftBorder, y, minX, maxX);
 				line++;	// wraps at 256
 			}
-			break;
+		} else {
+			switch (vdp->getDisplayMode()) {
+			case 1:
+				renderText1(line, minY, n);
+				break;
+			case 4: // graphic2
+			case 8: // graphic4
+				renderGraphic2(line, minY, n);
+				break;
+			default:
+				renderCharacterLines(line, n);
+				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+				for (int y = minY; y < maxY; y += 2) {
+					GLDrawTexture(charTextureIds[line], leftBorder, y, minX, maxX);
+					line++;	// wraps at 256
+				}
+				break;
+			}
 		}
+
+		// Render sprites.
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//glPixelZoom(2.0, 2.0);
+		for (int y = minY; y < maxY; y += 2) {
+			drawSprites(y, leftBorder, minX, maxX);
+		}
+		glDisable(GL_BLEND);
+		glDisable(GL_TEXTURE_2D);
 	}
 
-	// Render sprites.
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glPixelZoom(2.0, 2.0);
-	for (int y = y1; y < y2; y += 2) {
-		drawSprites(y);
-	}
-	glDisable(GL_BLEND);
-	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_SCISSOR_TEST);
-
-	// Right border:
-	int right = getLeftBorder() + getDisplayWidth();
+	// Right border
+	int right = leftBorder + getDisplayWidth();
 	if (right < limitX) {
 		GLSetColour(getBorderColour());
 		glBegin(GL_QUADS);
-		glVertex2i(right, y1); // top left
-		glVertex2i(limitX, y1); // top right
-		glVertex2i(limitX, y2); // bottom right
-		glVertex2i(right, y2); // bottom left
+		glVertex2i(right,  minY);	// top left
+		glVertex2i(limitX, minY);	// top right
+		glVertex2i(limitX, maxY);	// bottom right
+		glVertex2i(right,  maxY);	// bottom left
 		glEnd();
 	}
 }
