@@ -1,5 +1,9 @@
 $Id$
 
+2004-08-27 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added initial version of the openMSX FAQ: not finished at all,
+	  please edit!
+
 2004-08-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* BlurScaler 16bpp improvements:
 	   - use look up table instead of (complex) computations. Is almost

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.0//EN"
+"http://www.w3.org/TR/xhtml-basic/xhtml-basic10.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link title="Purple" rel="stylesheet" href="manual-purple.css" type="text/css" />
+<link title="Minty" rel="alternate stylesheet" href="manual-minty.css" type="text/css" />
+<link title="Plain" rel="alternate stylesheet" href="manual.css" type="text/css" />
+<title>openMSX FAQ</title>
+</head>
+
+<body>
+
+<h1>openMSX FAQ</h1>
+
+<h2>Contents</h2>
+<ol class="toc">
+	<li><a class="internal" href="#difficult">1. Why is openMSX so difficult to use/install?</a> </li>
+	<li><a class="internal" href="#roms">2. Why doesn't openMSX come with system ROMs?</a> </li>
+	<li><a class="internal" href="#whereroms">3. Where do I install the ROMs?</a> </li>
+	<li><a class="internal" href="#c-bios">4. All I get is "Cartridge not found." What's wrong?</a></li>
+	<li><a class="internal" href="#samples040">5. The sound quality is quite bad in the 0.4.0 release, is that normal?</a></li>
+	<li><a class="internal" href="#contact">6. Contact Info</a></li>
+</ol>
+
+<h2><a id="difficult">1. Why is openMSX so difficult to use/install?</a></h2>
+
+<h2><a id="roms">2. Why doesn't openMSX come with system ROMs?</a> </h2>
+
+<p>
+openMSX is an open source MSX emulator, released under the GNU General Public License. The MSX system ROMs are not open source and also fall under the copyright of MSX Assocation. In other words: it's illegal to include them with our software without a license. 
+</p>
+
+<h2><a id="whereroms">3. Where do I install the ROMs?</a> </h2>
+
+<p>0.5.0: ROMpool, older version: share/machines/WHATEVER/roms and share/extensions/WHATEVER/roms
+See also the <a class="external" href="setup.html#dumprom">Setup Guide</a>.
+</p>
+
+<h2><a id="c-bios">4. All I get is "Cartridge not found." What's wrong?</a></h2>
+
+<p>You are probably talking about this:</p>
+
+<p class="image">
+<img src="cartnotfound.png" width="640" height="480" alt="Cartridge not found."></img>
+</p>
+
+<p>openMSX doesn't come with any system ROMs, see <a class="internal" href="#roms">2. Why doesn't openMSX come with system ROMs?</a>. To have something to be able to run some software, openMSX comes with a free replacement of an MSX BIOS ROM called C-BIOS, written by BouKiChi and Reikan. This is also what you can see in the screen: C-BIOS 0.17. 
+</p>
+
+<p>
+So, the message is not from openMSX, but from C-BIOS, which tries to start a cartridge that is inserted in the MSX that is being emulated by openMSX. And it seems you didn't insert any cartridge for it... So, either run openMSX with a ROM image or install real MSX system ROMs for a certain machine and run that one.
+</p>
+
+<p>Note that the current version of C-BIOS can only run cartridges and does not support disk or tape usage. More information can be found in the <a class="external" href="setup.html#cbios">Setup Guide</a>.
+</p>
+
+<h2><a id="samples040">5. The sound quality is quite bad in the 0.4.0 release, is that normal?</a></h2>
+
+<p>Unfortunately, we made a small mistake in the Windows release of 0.4.0. However, the problem can be easily fixed by editing the file share\settings.xml with Notepad or some similar text editor. Look for the section marked "Audio mixer settings" and change the 'samples' setting from 512 to 1024 or 2048. You can play around with the setting: just save the file and restart openMSX to test it.
+</p>
+
+<h2><a id="contact">6. Contact Info</a></h2>
+
+<p class="version">
+$Id$
+</p>
+
+</body>
+</html>
