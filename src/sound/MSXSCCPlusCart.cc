@@ -19,9 +19,13 @@ MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 	memoryBank = new byte[131072];
 	memset(memoryBank, 255, 131072);
 
+	unmapped = new byte[8192];
+	memset(unmapped, 255, 8192);
+
 	if (deviceConfig->hasParameter("filename")) {
 		// read the rom file
-		std::string filename = deviceConfig->getParameter("filename");
+		const std::string &filename =
+			deviceConfig->getParameter("filename");
 		try {
 			File file(config->getContext(), filename);
 			int romSize = file.getSize();
@@ -30,11 +34,36 @@ MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 			PRT_ERROR("Error reading " << filename);
 		}
 	}
+	if (deviceConfig->hasParameter("subtype")) {
+		const std::string &subtype
+			= deviceConfig->getParameter("subtype");
+		if (subtype == "Snatcher") {
+			mapperMask = 0x0F;
+			lowRAM  = true;
+			highRAM = false;
+		} else if (subtype == "SD-Snatcher") {
+			mapperMask = 0x0F;
+			lowRAM  = false;
+			highRAM = true;
+		} else if (subtype == "mirrored") {
+			mapperMask = 0x07;
+			lowRAM = highRAM = true;
+		} else {
+			// subtype "expanded", and all others
+			mapperMask = 0x0F;
+			lowRAM = highRAM = true;
+		}
+	} else {
+		mapperMask = 0x0F;
+		lowRAM = highRAM = true;
+	}
+	
 	reset(time);
 }
 
 MSXSCCPlusCart::~MSXSCCPlusCart()
 {
+	delete[] unmapped;
 	delete[] memoryBank;
 	delete cartridgeSCC;
 }
@@ -109,7 +138,9 @@ void MSXSCCPlusCart::writeMem(word address, byte value, const EmuTime &time)
 		// => we assume a write to the memory but maybe
 		//    they are just discarded
 		// TODO check this out => ask Sean...
-		internalMemoryBank[regio][address & 0x1FFF] = value;
+		if (isMapped[regio]) {
+			internalMemoryBank[regio][address & 0x1FFF] = value;
+		}
 		return;
 	}
 
@@ -150,7 +181,7 @@ byte* MSXSCCPlusCart::getWriteCacheLine(word start) const
 			return NULL;
 		}
 		int regio = (start >> 13) - 2;
-		if (isRamSegment[regio]) {
+		if (isRamSegment[regio] && isMapped[regio]) {
 			return &internalMemoryBank[regio][start & 0x1FFF];
 		}
 	}
@@ -160,10 +191,23 @@ byte* MSXSCCPlusCart::getWriteCacheLine(word start) const
 
 void MSXSCCPlusCart::setMapper(int regio, byte value)
 {
+	value &= mapperMask;
 	mapper[regio] = value;
+	
+	byte* block;
+	if ((!lowRAM  && (value <  8)) ||
+	    (!highRAM && (value >= 8))) {
+		block = unmapped;
+		isMapped[regio] = false;
+	} else {
+		block = memoryBank + (0x2000 * value);
+		isMapped[regio] = true;
+	}
+	
 	checkEnable();
-	internalMemoryBank[regio] = memoryBank + (0x2000 * (value & 0x0F));
-	MSXCPU::instance()->invalidateCache(0x4000 + regio*0x2000, 0x2000/CPU::CACHE_LINE_SIZE);
+	internalMemoryBank[regio] = block;
+	MSXCPU::instance()->invalidateCache(0x4000 + regio*0x2000,
+	                                    0x2000/CPU::CACHE_LINE_SIZE);
 }
 
 void MSXSCCPlusCart::setModeRegister(byte value)

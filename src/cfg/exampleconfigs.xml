@@ -244,27 +244,18 @@
     <parameter name="max_catch_up_time">2000</parameter>
     <parameter name="max_catch_up_factor">105</parameter>
   </config>
-<!--  
+
   <device id="SCC+ Cartridge">
     <type>SCCPlusCart</type>
-    <slotted>
-      <ps>1</ps>
-      <ss>0</ss>
-      <page>1</page>
-    </slotted>
-    <slotted>
-      <ps>1</ps>
-      <ss>0</ss>
-      <page>2</page>
-    </slotted>
-     <parameter name="readromfile">false</parameter>
-     <parameter name="filename">NEMESIS2.ROM</parameter>
+    <slotted> <ps>1</ps> <ss>0</ss> <page>1</page> </slotted>
+    <slotted> <ps>1</ps> <ss>0</ss> <page>2</page> </slotted>
+    <parameter name="readromfile">false</parameter>
+    <parameter name="filename">NEMESIS2.ROM</parameter>
     <parameter name="volume">13000</parameter>
-    <parameter name="loadsram">true</parameter>
-    <parameter name="savesram">true</parameter>
-    <parameter name="sramname">GAME.SRAM</parameter>
+    <!-- possible subtypes "Snatcher" "SD-Snatcher" "mirrored" "expanded" -->
+    <parameter name="subtype">expanded</parameter>
   </device>
--->
+
   <device id="Penguin Adventure Cartridge">
     <type>Rom</type>
     <slotted>

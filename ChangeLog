@@ -7,6 +7,8 @@ $Id$
 	   - SRAM is now the _only_ class in the whole tree that writes files
 	   - parameters "filename, load, save" changed to "sramname, loadsram,
 	     savesram". This means all configuartion files must be updated.
+	* Implemented SCC+ subtypes:
+	   "Snatcher" "SD-Snatcher" "mirrored" "expanded"
 
 2003-02-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed MSX-AUDIO mapper:
