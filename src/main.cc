@@ -65,7 +65,6 @@ static int main(int argc, char **argv)
 			AfterCommand afterCommand;
 			MSXMotherBoard motherboard;
 			motherboard.run(parseStatus == CommandLineParser::RUN);
-			Display::INSTANCE.reset();
 		}
 	} catch (FatalError& e) {
 		cerr << "Fatal error: " << e.getMessage() << endl;
@@ -78,6 +77,7 @@ static int main(int argc, char **argv)
 		err = 1;
 	}
 	// Clean up.
+	Display::INSTANCE.reset();
 	if (SDL_WasInit(SDL_INIT_EVERYTHING)) {
 		SDL_Quit();
 	}
