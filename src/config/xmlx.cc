@@ -392,7 +392,9 @@ XMLDocument::XMLDocument(const string& filename, const string& systemID)
 	}
 	xmlDtdPtr intSubset = xmlGetIntSubset(doc);
 	if (!intSubset) {
-		throw XMLException(filename + ": Missing systemID");
+		throw XMLException(filename + ": Missing systemID.\n"
+			"You're probably using an old incompatible file format. Try removing\n"
+			"your old settings.xml file (openMSX will create a new one).");
 	}
 	string actualID = (const char*)intSubset->SystemID;
 	if (actualID != systemID) {
