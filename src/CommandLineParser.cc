@@ -273,21 +273,48 @@ CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const
 	return parseStatus;
 }
 
+void CommandLineParser::getControlParameters(ControlType * type, string & argument)
+{
+	*type = controlOption.type;
+	argument = controlOption.arguments;	
+}
 
 // Control option
 
 CommandLineParser::ControlOption::ControlOption(CommandLineParser& parent_)
 	: parent(parent_)
 {
+	controlTypeMap["stdio"] = IO_STD;
+	controlTypeMap["pipe"] = IO_PIPE;
 }
 
 CommandLineParser::ControlOption::~ControlOption()
 {
+	controlTypeMap.clear();
 }
 
 bool CommandLineParser::ControlOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
+	string arg (getArgument(option, cmdLine));
+	unsigned colon = arg.find(':');
+	if (colon == string::npos){
+			type = CommandLineParser::IO_UNKNOWN;
+			arguments.clear();   
+	}
+	else{
+		map <string, CommandLineParser::ControlType>::const_iterator i = 
+			controlTypeMap.find(arg.substr(0,colon));
+		if (i != controlTypeMap.end()){
+			type = i->second;
+			arguments = arg.substr(colon + 1);
+		}	
+		else{
+			type = CommandLineParser::IO_UNKNOWN;
+			arguments.clear();   
+		}
+	}
+	
 	parent.output.enableXMLOutput();
 	parent.parseStatus = CONTROL;
 	return true;

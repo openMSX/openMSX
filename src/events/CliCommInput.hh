@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CLICOMMOUTPUT_HH__
-#define __CLICOMMOUTPUT_HH__
+#ifndef __CLICOMMINPUT_HH__
+#define __CLICOMMINPUT_HH__
 
 #include <deque>
 #include <string>
@@ -9,6 +9,7 @@
 #include "Thread.hh"
 #include "Schedulable.hh"
 #include "Semaphore.hh"
+#include "CommandLineParser.hh"
 
 using std::deque;
 using std::string;
@@ -19,7 +20,7 @@ namespace openmsx {
 class CliCommInput : private Runnable, private Schedulable
 {
 public:
-	CliCommInput();
+	CliCommInput(CommandLineParser::ControlType type, string arguments);
 	virtual ~CliCommInput();
 
 private:
@@ -31,6 +32,9 @@ private:
 	deque<string> cmds;
 	Semaphore lock;
 	Thread thread;
+	CommandLineParser::ControlType ioType;
+	string ioArguments;
+	
 
 	enum State {
 		START, TAG_OPENMSX, TAG_COMMAND
@@ -52,4 +56,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __CLICOMMOUTPUT_HH__
+#endif // __CLICOMMINPUT_HH__

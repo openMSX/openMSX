@@ -48,7 +48,10 @@ static int main(int argc, char **argv)
 		if (parseStatus != CommandLineParser::EXIT) {
 			auto_ptr<CliCommInput> cliCommInput;
 			if (parseStatus) {
-				cliCommInput.reset(new CliCommInput());
+				CommandLineParser::ControlType type;
+				string argument;
+				parser.getControlParameters (& type, argument);				
+				cliCommInput.reset(new CliCommInput(type, argument));
 			}
 			HotKey hotkey;
 			AfterCommand afterCommand;
