@@ -102,6 +102,15 @@ def renameElement(node, name):
 	node.unlink()
 	return newNode
 
+def extractElements(node, names):
+	ret = []
+	for child in list(node.childNodes):
+		if child.nodeType == node.ELEMENT_NODE:
+			if child.nodeName in names:
+				node.removeChild(child)
+				ret.append(child)
+	return ret
+
 def convertDoc(dom):
 	assert dom.nodeType == dom.DOCUMENT_NODE
 	if dom.doctype.systemId == 'msxconfig2.dtd':
@@ -396,6 +405,25 @@ def convertDevice(node):
 
 	# Note: must happen here because fdc_type can rename node.
 	node = renameElement(node, deviceType)
+
+	# Bundle generic ROM parameters in <rom> tag.
+	if deviceType != 'DebugDevice':
+		romParams = extractElements(node, ['filename'])
+		if romParams != []:
+			print '    grouping rom parameters'
+			romNode = node.ownerDocument.createElement('rom')
+			for param in romParams:
+				romNode.appendChild(param)
+			node.appendChild(romNode)
+
+	# Bundle generic sound parameters in <sound> tag.
+	soundParams = extractElements(node, ['mode', 'volume'])
+	if soundParams != []:
+		print '    grouping sound parameters'
+		soundNode = node.ownerDocument.createElement('sound')
+		for param in soundParams:
+			soundNode.appendChild(param)
+		node.appendChild(soundNode)
 
 	# Insert I/O addresses.
 	if deviceType == 'VDP':
