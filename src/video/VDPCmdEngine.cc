@@ -661,7 +661,7 @@ VDPCmdEngine::PointCmd<Mode>::PointCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::PointCmd<Mode>::start(const EmuTime& time)
 {
-	clock.advance(time);
+	clock.reset(time);
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	vram->cmdWriteWindow.disable(clock.getTime());
 
@@ -686,7 +686,7 @@ VDPCmdEngine::PsetCmd<Mode>::PsetCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::PsetCmd<Mode>::start(const EmuTime& time)
 {
-	clock.advance(time);
+	clock.reset(time);
 	vram->cmdReadWindow.disable(clock.getTime());
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 
@@ -713,7 +713,7 @@ VDPCmdEngine::SrchCmd<Mode>::SrchCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::SrchCmd<Mode>::start(const EmuTime& time)
 {
-	clock.advance(time);
+	clock.reset(time);
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	vram->cmdWriteWindow.disable(clock.getTime());
 	ASX = engine->SX;
@@ -758,7 +758,7 @@ VDPCmdEngine::LineCmd<Mode>::LineCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::LineCmd<Mode>::start(const EmuTime& time)
 {
-	clock.advance(time);
+	clock.reset(time);
 	vram->cmdReadWindow.disable(clock.getTime());
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	engine->NY &= 1023;
@@ -844,7 +844,7 @@ VDPCmdEngine::LmmvCmd<Mode>::LmmvCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::LmmvCmd<Mode>::start(const EmuTime& time)
 {
-	clock.advance(time);
+	clock.reset(time);
 	vram->cmdReadWindow.disable(clock.getTime());
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	engine->NY &= 1023;
@@ -887,7 +887,7 @@ VDPCmdEngine::LmmmCmd<Mode>::LmmmCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::LmmmCmd<Mode>::start(const EmuTime& time)
 {
-	clock.advance(time);
+	clock.reset(time);
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	engine->NY &= 1023;
@@ -933,7 +933,7 @@ VDPCmdEngine::LmcmCmd<Mode>::LmcmCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::LmcmCmd<Mode>::start(const EmuTime& time)
 {
-	clock.advance(time);
+	clock.reset(time);
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	vram->cmdWriteWindow.disable(clock.getTime());
 	engine->NY &= 1023;
@@ -986,7 +986,7 @@ VDPCmdEngine::LmmcCmd<Mode>::LmmcCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::LmmcCmd<Mode>::start(const EmuTime& time)
 {
-	clock.advance(time);
+	clock.reset(time);
 	vram->cmdReadWindow.disable(clock.getTime());
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	engine->NY &= 1023;
@@ -1011,7 +1011,7 @@ void VDPCmdEngine::LmmcCmd<Mode>::execute(const EmuTime& time)
 	if (engine->transfer) {
 		byte col = engine->COL & Mode::COLOUR_MASK;
 		// TODO: Write time is inaccurate.
-		clock.advance(time);
+		clock.reset(time);
 		Mode::pset(clock.getTime(), vram,
 			ADX, engine->DY, col, engine->currentOperation);
 		// Execution is emulated as instantaneous, so don't bother
@@ -1044,7 +1044,7 @@ VDPCmdEngine::HmmvCmd<Mode>::HmmvCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::HmmvCmd<Mode>::start(const EmuTime& time)
 {
-	clock.advance(time);
+	clock.reset(time);
 	vram->cmdReadWindow.disable(clock.getTime());
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	engine->NY &= 1023;
@@ -1088,7 +1088,7 @@ VDPCmdEngine::HmmmCmd<Mode>::HmmmCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::HmmmCmd<Mode>::start(const EmuTime& time)
 {
-	clock.advance(time);
+	clock.reset(time);
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	engine->NY &= 1023;
@@ -1138,7 +1138,7 @@ VDPCmdEngine::YmmmCmd<Mode>::YmmmCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::YmmmCmd<Mode>::start(const EmuTime& time)
 {
-	clock.advance(time);
+	clock.reset(time);
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	engine->NY &= 1023;
@@ -1186,7 +1186,7 @@ VDPCmdEngine::HmmcCmd<Mode>::HmmcCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::HmmcCmd<Mode>::start(const EmuTime& time)
 {
-	clock.advance(time);
+	clock.reset(time);
 	vram->cmdReadWindow.disable(clock.getTime());
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	engine->NY &= 1023;

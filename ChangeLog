@@ -2,6 +2,11 @@ $Id$
 
 2004-09-15 Maarten ter Huurne <maarten@treewalker.org>
 	* Added new type of event listener (DETACHED).
+	* Fixed timing bug in VDP command engine: replaced "clock.advance" by
+	  "clock.reset" when starting a command. Start time of a new command is
+	  not ahead of end time of last pixel of previous command if previous
+	  command was not finished yet.
+	  Fixes assert in The Ant demo (found by Jorito).
 
 2004-09-15 David Heremans <david.heremans@gnu-linux.net>
 	* Added the joystick protection of 'Tetris Special Edition II'
