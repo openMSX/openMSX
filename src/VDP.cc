@@ -673,7 +673,14 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		break;
 	case 2: {
 		int base = ((val << 10) | ~(-1 << 10)) & vramMask;
-		if (isPlanar()) base = ((base << 16) | (base >> 1)) & 0x1FFFF;
+		// TODO:
+		// I reverted this fix.
+		// Although the code is correct, there is also a counterpart in the
+		// renderer that must be updated. I'm too tired now to find it.
+		// Since name table checking is currently disabled anyway, keeping the
+		// old code does not hurt.
+		// Eventually this line should be re-enabled.
+		//if (isPlanar()) base = ((base << 16) | (base >> 1)) & 0x1FFFF;
 		renderer->updateNameBase(base, time);
 		// TODO: Actual number of index bits is lower than 17.
 		vram->nameTable.setMask(base, 17);
