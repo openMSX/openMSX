@@ -58,7 +58,7 @@ byte MSXAudio::readIO(byte port, const EmuTime &time)
 	case 0xc0:
 		return y8950->readStatus();
 	case 0xc1:
-		return y8950->readReg(registerLatch);
+		return y8950->readReg(registerLatch, time);
 	default:
 		assert(false);
 		return 0;	// avoid warning

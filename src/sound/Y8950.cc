@@ -412,7 +412,7 @@ void Y8950::Channel::keyOff()
 
 Y8950::Y8950(short volume, int sampleRam, const EmuTime &time,
              Mixer::ChannelMode mode) :
-	timer1(this), timer2(this), adpcm(this, sampleRam)
+	timer1(this), timer2(this), adpcm(this, sampleRam), connector(time)
 {
 	makePmTable();
 	makeAmTable();
@@ -914,8 +914,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			break;
 
 		case 0x06: // (KEYBOARD OUT) 
-			// TODO
-			reg[rg] = data;
+			connector.write(data, time);
 			break;
 		
 		case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET
@@ -1074,25 +1073,27 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 	checkMute();
 }
 
-byte Y8950::readReg(byte rg)
+byte Y8950::readReg(byte rg, const EmuTime &time)
 {
-	PRT_DEBUG("Y8950 read " << (int)rg);
+	byte result;
 	switch (rg) {
 		case 0x05: // (KEYBOARD IN)
-			// TODO
+			result = connector.read(time);
 			break;
 		
 		case 0x0f: // ADPCM-DATA
 		case 0x13: //  ???
 		case 0x14: //  ???
 		case 0x1a: // PCM-DATA
-			return adpcm.readReg(rg);
-		
-		case 0x19: // I/O DATA
-			// TODO
+			result = adpcm.readReg(rg);
 			break;
+		
+		case 0x19: // I/O DATA   TODO
+		default:
+			result = 255;
 	}
-	return 255;
+	PRT_DEBUG("Y8950 read " << (int)rg<<" "<<(int)result);
+	return result;
 }
 
 byte Y8950::readStatus()

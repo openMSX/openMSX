@@ -10,6 +10,7 @@
 #include "Mixer.hh"
 #include "Y8950Timer.hh"
 #include "Y8950Adpcm.hh"
+#include "Y8950KeyboardConnector.hh"
 
 //forward declarations
 class EmuTime;
@@ -161,7 +162,7 @@ class Y8950 : public SoundDevice
 
 		void reset(const EmuTime &time);
 		void writeReg(byte reg, byte data, const EmuTime &time);
-		byte readReg(byte reg);
+		byte readReg(byte reg, const EmuTime &time);
 		byte readStatus();
 
 		void setInternalVolume(short maxVolume);
@@ -307,6 +308,9 @@ class Y8950 : public SoundDevice
 		// ADPCM
 		Y8950Adpcm adpcm;
 		friend class Y8950Adpcm;
+
+		// Keyboard connector
+		Y8950KeyboardConnector connector;
 };
 
 #endif

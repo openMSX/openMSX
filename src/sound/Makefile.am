@@ -25,6 +25,8 @@ libSound_la_SOURCES = \
 	Y8950.cc Y8950.hh \
 	Y8950Timer.cc Y8950Timer.hh \
 	Y8950Adpcm.cc Y8950Adpcm.hh \
+	Y8950KeyboardConnector.cc Y8950KeyboardConnector.hh \
+	Y8950KeyboardDevice.cc Y8950KeyboardDevice.hh \
 	MC6850.cc MC6850.hh \
 	MSXFmPac.cc MSXFmPac.hh \
 	MSXMusic.cc MSXMusic.hh \

@@ -6,7 +6,6 @@
 #include "MSXIODevice.hh"
 #include "PrinterPortDevice.hh"
 #include "Connector.hh"
-#include "FileOpener.hh"
 
 // forward declarations
 class PrinterPortSimple;
@@ -27,7 +26,7 @@ class MSXPrinterPort : public MSXIODevice , public Connector
 {
 	public:
 		MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time);
-		~MSXPrinterPort();
+		virtual ~MSXPrinterPort();
 
 		void reset(const EmuTime &time);
 
