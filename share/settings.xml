@@ -84,10 +84,11 @@
    </config>
 
  <!-- Keymap definition file -->
-  <config id="KeyMap">
+ <!-- commented out, since an empty KeyMap section leads to errors at the moment. Won't be fixed now, since the syntax will change to <KeyMap>bla</KeyMap> anyway. -->
    <!--
+  <config id="KeyMap">
     <filename>keymaps/keymap.default</filename>
-   -->
   </config>
+   -->
 
 </msxconfig>
