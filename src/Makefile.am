@@ -27,7 +27,7 @@ openmsx_SOURCES=openmsx.cc \
 	SDLLoRenderer.hh SDLLoRenderer.cc \
 	MSXCPU.hh MSXCPU.cc \
 	CPU.hh CPU.cc CPUInterface.hh CPUInterface.cc \
-	Z80.cc Z80.hh Z80Codes.h opc_R800.h Z80Core.hh \
+	Z80.cc Z80.hh opc_R800.h Z80Core.hh \
 	Z80Tables.hh Z80Dasm.h \
 	devicefactory.hh devicefactory.cc \
 	Scheduler.hh Scheduler.cc \
