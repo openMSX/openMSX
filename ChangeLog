@@ -1,10 +1,15 @@
 $Id$
 
+2001-06-16 Joost Yervante Damad <j.damad@qahwah.net>
+
+	* added autoconf support for libxml++
+	* various small tweaks
+
 2001-05-06  Joost Yervante Damad <j.damad@qahwah.net>
 
-    * made a nice and clean CVS/automake/autoconf/libtool
-    * restructured source
-    * versioned files
+	* made a nice and clean CVS/automake/autoconf/libtool
+	* restructured source
+	* versioned files
 
 2001-05-04  David Heremans  <david.heremans@gnu-linux.net>
 

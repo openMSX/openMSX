@@ -9,3 +9,4 @@ Makefile.in
 *.swp
 openmsx
 stamp-h.in
+.libs

@@ -32,4 +32,7 @@ dnl Checks for library functions.
 dnl libtool
 AC_PROG_LIBTOOL
 
+dnl libxml++
+AM_LIBXMLPP
+
 AC_OUTPUT(Makefile openmsx.lsm openmsx.spec doc/Makefile src/Makefile)
