@@ -4,6 +4,7 @@
 #define __RENDERER_HH__
 
 #include "openmsx.hh"
+#include "HotKey.hh"
 
 class EmuTime;
 
@@ -11,11 +12,11 @@ class EmuTime;
   * A Renderer is a class that converts VDP state to visual
   * information (for example, pixels on a screen).
   *
-  * The update methods are called exactly before the change occurs
-  * in the VDP, so that the renderer update itself to the specified
+  * The update methods are called exactly before the change occurs in
+  * the VDP, so that the renderer can update itself to the specified
   * time using the old settings.
   */
-class Renderer
+class Renderer : public HotKeyListener
 {
 public:
 
@@ -25,6 +26,12 @@ public:
 	  */
 	static const byte TMS99X8A_PALETTE[16][3];
 
+	/** Creates a new Renderer.
+	  * @param fullScreen Start in full screen or windowed;
+	  *   true iff full screen.
+	  */
+	Renderer(bool fullScreen);
+
 	/** Puts the generated image on the screen.
 	  * @param time The moment in emulated time the frame is finished.
 	  */
@@ -33,8 +40,19 @@ public:
 	/** Render full screen or windowed?
 	  * This is a hint to the renderer, not all renderers will
 	  * support both modes.
+	  * A renderer that does should override this method.
+	  * TODO: This is a platform specific issue and should therefore
+	  *       not be in the Renderer interface.
+	  *       For example a Renderer on a PDA may not have a full screen
+	  *       mode, but would have a rotate setting.
+	  *       Also, on some platforms switching from windowed to full
+	  *       screen would require a different Renderer to be hooked
+	  *       up to the VDP.
+	  *       However, until a proper location is found, keeping it here
+	  *       is at least better than in the VDP, where it was before.
+	  * @param enabled true iff full screen.
 	  */
-	virtual void setFullScreen(bool) = 0;
+	virtual void setFullScreen(bool enabled);
 
 	/** Informs the renderer of a VDP transparency enable/disable change.
 	  * @param enabled The new transparency state.
@@ -134,6 +152,18 @@ public:
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updateVRAM(int addr, byte data, const EmuTime &time) = 0;
+
+	/** Handle "toggle full screen" hotkey requests.
+	  */
+	void signalHotKey(SDLKey key);
+
+private:
+
+	/** Render full screen or windowed?
+	  * TODO: Find a way to keep this setting consistent when switching
+	  *       renderers at run time.
+	  */
+	bool fullScreen;
 
 };
 

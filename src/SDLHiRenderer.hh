@@ -25,7 +25,7 @@ public:
 	  * It is suggested to use the createSDLHiRenderer factory
 	  * function instead, which automatically selects a colour depth.
 	  */
-	SDLHiRenderer(VDP *vdp, SDL_Surface *screen, const EmuTime &time);
+	SDLHiRenderer(VDP *vdp, SDL_Surface *screen, bool fullScreen, const EmuTime &time);
 
 	/** Destructor.
 	  */

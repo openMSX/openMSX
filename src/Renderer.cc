@@ -1,6 +1,8 @@
 // $Id$
 
 #include "Renderer.hh"
+// TODO: Get rid of SDL specific code in this class.
+#include <SDL/SDL.h>
 
 /*
 TMS99X8A palette.
@@ -50,4 +52,21 @@ const byte Renderer::TMS99X8A_PALETTE[16][3] = {
 	{ 204, 204, 204 },
 	{ 255, 255, 255 }
 };
+
+Renderer::Renderer(bool fullScreen)
+{
+	this->fullScreen = fullScreen;
+}
+
+void Renderer::setFullScreen(bool enabled)
+{
+	// Default behaviour: do nothing.
+}
+
+void Renderer::signalHotKey(SDLKey key)
+{
+	// Only key currently registered is full screen toggle.
+	fullScreen = !fullScreen;
+	setFullScreen(fullScreen);
+}
 

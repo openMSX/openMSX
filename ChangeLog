@@ -1,5 +1,10 @@
 $Id$
 
+2002-02-10 Maarten ter Huurne <mth@stack.nl>
+	* Moved SDL dependent code out of VDP:
+	  - Renderer instantiation happens in PlatformFactory (new class)
+	  - full screen toggle was moved to Renderer (not its final location)
+
 2002-02-08 Maarten ter Huurne <mth@stack.nl>
 	* Fixed secondary slot select bug for real now.
 	  The cause was uninitialised variables, the previous "fix" turned

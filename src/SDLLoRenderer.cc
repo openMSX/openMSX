@@ -72,7 +72,8 @@ template <class Pixel> SDLLoRenderer<Pixel>::RenderMethod
 	};
 
 template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
-	VDP *vdp, SDL_Surface *screen, const EmuTime &time)
+	VDP *vdp, SDL_Surface *screen, bool fullScreen, const EmuTime &time)
+	: Renderer(fullScreen)
 {
 	this->vdp = vdp;
 	this->screen = screen;
@@ -700,11 +701,11 @@ Renderer *createSDLLoRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 
 	switch (screen->format->BytesPerPixel) {
 	case 1:
-		return new SDLLoRenderer<Uint8>(vdp, screen, time);
+		return new SDLLoRenderer<Uint8>(vdp, screen, fullScreen, time);
 	case 2:
-		return new SDLLoRenderer<Uint16>(vdp, screen, time);
+		return new SDLLoRenderer<Uint16>(vdp, screen, fullScreen, time);
 	case 4:
-		return new SDLLoRenderer<Uint32>(vdp, screen, time);
+		return new SDLLoRenderer<Uint32>(vdp, screen, fullScreen, time);
 	default:
 		printf("FAILED to open supported screen!");
 		// TODO: Throw exception.

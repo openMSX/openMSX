@@ -7,7 +7,6 @@
 #include "Scheduler.hh"
 #include "MSXIODevice.hh"
 #include "MSXMotherBoard.hh"
-#include "HotKey.hh"
 #include "EmuTime.hh"
 #include "Renderer.hh"
 
@@ -39,7 +38,7 @@ class VDPCmdEngine;
   * A note about timing: the start of a frame or line is defined as
   * the starting time of the corresponding sync (vsync, hsync).
   */
-class VDP : public MSXIODevice, private Schedulable, private HotKeyListener
+class VDP : public MSXIODevice, private Schedulable
 {
 public:
 	/** VDP version: the VDP model being emulated.
@@ -110,10 +109,6 @@ public:
 
 	// void saveState(ofstream writestream);
 	// void restoreState(char *devicestring,ifstream readstream);
-
-	/** Handle "toggle fullscreen" hotkey requests.
-	  */
-	void signalHotKey(SDLKey key);
 
 	/** Is this an MSX1 VDP?
 	  * @return True if this is an MSX1 VDP (TMS99X8A or TMS9929A),
@@ -569,13 +564,6 @@ private:
 	/** Command engine: the part of the V9938/58 that executes commands.
 	  */
 	VDPCmdEngine *cmdEngine;
-
-	/** Render full screen or windowed?
-	  * @see Renderer::setFullScreen
-	  * This setting is part of this class because it should remain
-	  * consistent when switching renderers at run time.
-	  */
-	bool fullScreen;
 
 	/** Limit number of sprites per display line?
 	  * Option only affects display, not MSX state.

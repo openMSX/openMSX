@@ -23,7 +23,7 @@ public:
 	  * It is suggested to use the createSDLLoRenderer factory
 	  * function instead, which automatically selects a colour depth.
 	  */
-	SDLLoRenderer(VDP *vdp, SDL_Surface *screen, const EmuTime &time);
+	SDLLoRenderer(VDP *vdp, SDL_Surface *screen, bool fullScreen, const EmuTime &time);
 
 	/** Destructor.
 	  */

@@ -36,12 +36,10 @@ TODO:
 */
 
 #include "MSXMotherBoard.hh"
-#include "SDLLoRenderer.hh"
-#include "SDLHiRenderer.hh"
 #include "VDP.hh"
 #include "VDPCmdEngine.hh"
+#include "PlatformFactory.hh"
 
-#include <SDL/SDL.h>
 #include <string>
 #include <cassert>
 
@@ -323,27 +321,8 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	// Create command engine.
 	cmdEngine = new VDPCmdEngine(this, time);
 
-	// TODO: Move Renderer creation outside of this class.
-	//   A setRenderer method would be used to provide a renderer.
-	//   It should be possible to switch the Renderer at run time,
-	//   probably on user request.
-	MSXConfig::Config *renderConfig =
-		MSXConfig::Backend::instance()->getConfigById("renderer");
-	fullScreen = renderConfig->getParameterAsBool("full_screen");
-	std::string renderType = renderConfig->getType();
-	PRT_DEBUG("OK\n  Opening display... ");
-	if (renderType == "SDLLo") {
-		renderer = createSDLLoRenderer(this, fullScreen, time);
-	}
-	else if (renderType == "SDLHi") {
-		renderer = createSDLHiRenderer(this, fullScreen, time);
-	}
-	else {
-		PRT_ERROR("Unknown renderer \"" << renderType << "\"");
-	}
-
-	// Register hotkey for fullscreen togling
-	HotKey::instance()->registerAsyncHotKey(SDLK_PRINT, this);
+	// Create renderer.
+	renderer = PlatformFactory::createRenderer(this, time);
 
 	MSXMotherBoard::instance()->register_IO_In((byte)0x98, this);
 	MSXMotherBoard::instance()->register_IO_Out((byte)0x98, this);
@@ -418,13 +397,6 @@ void VDP::reset(const EmuTime &time)
 	resetInit(time);
 	// TODO: Reset the renderer.
 	// TODO: Reset the command engine.
-}
-
-void VDP::signalHotKey(SDLKey key)
-{
-	// Only key currently registered is full screen toggle.
-	fullScreen = !fullScreen;
-	renderer->setFullScreen(fullScreen);
 }
 
 void VDP::executeUntilEmuTime(const EmuTime &time, int userData)

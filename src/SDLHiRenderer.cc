@@ -202,7 +202,8 @@ template <class Pixel> SDLHiRenderer<Pixel>::DirtyChecker
 	};
 
 template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
-	VDP *vdp, SDL_Surface *screen, const EmuTime &time)
+	VDP *vdp, SDL_Surface *screen, bool fullScreen, const EmuTime &time)
+	: Renderer(fullScreen)
 {
 	this->vdp = vdp;
 	this->screen = screen;
@@ -1156,11 +1157,11 @@ Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 
 	switch (screen->format->BytesPerPixel) {
 	case 1:
-		return new SDLHiRenderer<Uint8>(vdp, screen, time);
+		return new SDLHiRenderer<Uint8>(vdp, screen, fullScreen, time);
 	case 2:
-		return new SDLHiRenderer<Uint16>(vdp, screen, time);
+		return new SDLHiRenderer<Uint16>(vdp, screen, fullScreen, time);
 	case 4:
-		return new SDLHiRenderer<Uint32>(vdp, screen, time);
+		return new SDLHiRenderer<Uint32>(vdp, screen, fullScreen, time);
 	default:
 		printf("FAILED to open supported screen!");
 		// TODO: Throw exception.

@@ -46,6 +46,7 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	CPU.hh CPU.cc CPU.ii CPUInterface.hh CPUInterface.cc \
 	CPUCore.n1 CPUCore.n2 CPUTables.nn \
 	Z80.cc Z80.hh Z80Tables.nn Z80Dasm.h \
+	PlatformFactory.hh PlatformFactory.cc \
 	devicefactory.hh devicefactory.cc \
 	Scheduler.hh Scheduler.cc \
 	EventDistributor.hh EventDistributor.cc \
