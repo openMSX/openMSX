@@ -1,6 +1,11 @@
 $Id$
 
-2003-04-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-04-25 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed sprite colours in Graphic5 (SCREEN6).
+	  The turbo R boot logo looks OK now.
+	  However, narrow sprite pixels do not yet work in SDLGL.
+
+2003-04-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* if an extension exists both in user as in system directory, prefer
 	  the one in user directory
 

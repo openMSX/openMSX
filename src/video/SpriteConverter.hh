@@ -37,6 +37,13 @@ public:
 		this->transparency = enabled;
 	}
 
+	/** Draw 4-colour narrow-pixel sprites?
+	  * @param enabled The new value.
+	  */
+	void setNarrow(bool enabled) {
+		this->narrow = enabled;
+	}
+
 	/** Set palette to use for converting sprites.
 	  * This palette is stored by reference, so any modifications to it
 	  * will be used while drawing.
@@ -184,13 +191,30 @@ public:
 			}
 			// Plot it.
 			if (colour != 0xFF) {
-				if (zoom == Renderer::ZOOM_512) {
-					int i = pixelDone * 2;
-					pixelPtr0[i] = pixelPtr0[i + 1] =
-					pixelPtr1[i] = pixelPtr1[i + 1] =
-						palette[colour];
+				if (narrow) {
+					if (zoom == Renderer::ZOOM_512) {
+						// TODO: Separate horizontal resolution from
+						//       single/double line.
+						//       GL renderer should use 512 resolution
+						//       on a single line.
+						int i = pixelDone * 2;
+						pixelPtr0[i] = pixelPtr1[i] = 
+							palette[colour >> 2];
+						pixelPtr0[i + 1] = pixelPtr1[i + 1] =
+							palette[colour & 3];
+					} else {
+						// TODO: Use blending.
+						pixelPtr0[pixelDone] = palette[colour >> 2];
+					}
 				} else {
-					pixelPtr0[pixelDone] = palette[colour];
+					if (zoom == Renderer::ZOOM_512) {
+						int i = pixelDone * 2;
+						pixelPtr0[i] = pixelPtr0[i + 1] =
+						pixelPtr1[i] = pixelPtr1[i + 1] =
+							palette[colour];
+					} else {
+						pixelPtr0[pixelDone] = palette[colour];
+					}
 				}
 			}
 		}
@@ -203,6 +227,11 @@ private:
 	/** VDP transparency setting (R#8, bit5).
 	  */
 	bool transparency;
+
+	/** Draw 4-colour narrow-pixel sprites?
+	  * Used in Graphic5 mode.
+	  */
+	bool narrow;
 	
 	/** The current sprite palette.
 	  */

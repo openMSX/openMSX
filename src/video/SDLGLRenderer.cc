@@ -167,10 +167,10 @@ inline static void GLDrawBlur(int offsetX, int offsetY, float alpha)
 	int bottom = HEIGHT + offsetY;
 	glColor4f(1.0, 1.0, 1.0, alpha);
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0, 0.0);  glVertex2i(left, bottom);
-	glTexCoord2f(1.0, 0.0);  glVertex2i(right, bottom);
-	glTexCoord2f(1.0, 1.0);  glVertex2i(right, top);
-	glTexCoord2f(0.0, 1.0);  glVertex2i(left, top);
+	glTexCoord2i(0, 1); glVertex2i(left, top);
+	glTexCoord2i(1, 1); glVertex2i(right, top);
+	glTexCoord2i(1, 0); glVertex2i(right, bottom);
+	glTexCoord2i(0, 0); glVertex2i(left, bottom);
 	glEnd();
 }
 
@@ -572,6 +572,8 @@ void SDLGLRenderer::setDisplayMode(DisplayMode mode)
 		characterConverter.setDisplayMode(mode);
 	}
 	lineWidth = mode.getLineWidth();
+	// TODO: Check what happens to sprites in Graphic5 + YJK/YAE.
+	spriteConverter.setNarrow(mode.getByte() == DisplayMode::GRAPHIC5);
 	spriteConverter.setPalette(
 		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg
 		);

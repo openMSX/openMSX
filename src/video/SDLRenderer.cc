@@ -395,6 +395,8 @@ void SDLRenderer<Pixel, zoom>::setDisplayMode(DisplayMode mode)
 	} else {
 		characterConverter.setDisplayMode(mode);
 	}
+	// TODO: Check what happens to sprites in Graphic5 + YJK/YAE.
+	spriteConverter.setNarrow(mode.getByte() == DisplayMode::GRAPHIC5);
 	spriteConverter.setPalette(
 		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg
 		);
