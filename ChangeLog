@@ -9,6 +9,10 @@ $Id$
 	* made MSXConfig code -> this code needs serious cleaning
 	  later ! :)
 
+2001-06-21 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+
+	* updated tex docu file
+
 2001-06-20 Joost Yervante Damad <j.damad@qahwah.net>
 
 	* initial MSXConfig interface/singleton skeleton
@@ -16,6 +20,10 @@ $Id$
 	* links smoothly now with libxml++ and libxml
 	* !!warning!! needs libxml++ version 0.13 (debian ships with 0.10)
 	* see also http://lusis.org/~ari/xml++/
+
+2001-06-21 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+
+	* created tex docu file
 
 2001-06-19 Joost Yervante Damad <j.damad@qahwah.net>
 
