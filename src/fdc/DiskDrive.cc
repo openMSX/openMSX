@@ -189,14 +189,14 @@ bool RealDrive::track00(const EmuTime &time)
 void RealDrive::setMotor(bool status, const EmuTime &time)
 {
 	if (motorStatus != status) {
-		motorStatus = status && disk->ready();
+		motorStatus = status;
 		motorTime = time;
 	}
 }
 
 bool RealDrive::indexPulse(const EmuTime &time)
 {
-	if (!motorStatus) {
+	if (!motorStatus && disk->ready()) {
 		return false;
 	}
 	int angle = motorTime.getTicksTill(time) % TICKS_PER_ROTATION;
@@ -206,7 +206,7 @@ bool RealDrive::indexPulse(const EmuTime &time)
 int RealDrive::indexPulseCount(const EmuTime &begin,
                                const EmuTime &end)
 {
-	if (!motorStatus) {
+	if (!motorStatus && disk->ready()) {
 		return 0;
 	}
 	int t1 = (motorTime <= begin) ? motorTime.getTicksTill(begin) : 0;

@@ -24,9 +24,12 @@ DriveMultiplexer::~DriveMultiplexer()
 
 void DriveMultiplexer::selectDrive(DriveNum num, const EmuTime &time)
 {
-	selected = num;
-	drive[selected]->setSide(side);
-	drive[selected]->setMotor(motor, time);
+	if (selected != num) {
+		drive[selected]->setMotor(false, time);
+		selected = num;
+		drive[selected]->setSide(side);
+		drive[selected]->setMotor(motor, time);
+	}
 }
 
 bool DriveMultiplexer::ready()
