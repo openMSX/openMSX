@@ -108,6 +108,14 @@ void SunriseIDE::writeMem(word address, byte value, const EmuTime &time)
 }
 
 
+static byte reverse(byte a)
+{
+	a = ((a & 0xF0) >> 4) | ((a & 0x0F) << 4);
+	a = ((a & 0xCC) >> 2) | ((a & 0x33) << 2);
+	a = ((a & 0xAA) >> 1) | ((a & 0x55) << 1);
+	return a;
+}
+
 void SunriseIDE::writeControl(byte value)
 {
 	PRT_DEBUG("IDE write control: " << (int)value);
@@ -128,14 +136,6 @@ void SunriseIDE::writeControl(byte value)
 		internalBank = rom.getBlock(0x4000 * bank);
 		MSXCPU::instance()->invalidateCache(0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
 	}
-}
-
-byte SunriseIDE::reverse(byte a)
-{
-	a = ((a & 0xF0) >> 4) | ((a & 0x0F) << 4);
-	a = ((a & 0xCC) >> 2) | ((a & 0x33) << 2);
-	a = ((a & 0xAA) >> 1) | ((a & 0x55) << 1);
-	return a;
 }
 
 

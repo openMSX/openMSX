@@ -232,13 +232,13 @@ void IDEHD::setError(byte error)
 	transferRead  = false;
 }
 
-int IDEHD::getSectorNumber()
+unsigned IDEHD::getSectorNumber() const
 {
 	return sectorNumReg | (cylinderLowReg << 8) |
 		(cylinderHighReg << 16) | ((devHeadReg & 0x0F) << 24);
 }
 
-int IDEHD::getNumSectors()
+unsigned IDEHD::getNumSectors() const
 {
 	return (sectorCountReg == 0) ? 256 : sectorCountReg;
 }
@@ -275,7 +275,6 @@ void IDEHD::executeCommand(byte cmd)
 			break;
 		}
 		transferSectorNumber = sectorNumber;
-		transferNumSectors = numSectors;
 		transferCount = 512/2 * numSectors;
 		transferPntr = (word*)buffer;
 		transferWrite = true;

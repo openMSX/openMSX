@@ -27,8 +27,8 @@ class IDEHD : public IDEDevice
 	
 	private:
 		void setError(byte error);
-		int getSectorNumber();
-		int getNumSectors();
+		unsigned getSectorNumber() const;
+		unsigned getNumSectors() const;
 		void executeCommand(byte cmd);
 
 		byte errorReg;
@@ -46,10 +46,9 @@ class IDEHD : public IDEDevice
 		byte* buffer;
 		bool transferRead;
 		bool transferWrite;
-		int transferCount;
+		unsigned transferCount;
 		word* transferPntr;
-		int transferSectorNumber;
-		int transferNumSectors;
+		unsigned transferSectorNumber;
 
 		static byte identifyBlock[512];
 };

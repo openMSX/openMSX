@@ -25,7 +25,6 @@ class SunriseIDE : public MSXMemDevice
 
 	private:
 		void writeControl(byte value);
-		byte reverse(byte a);
 		
 		byte readDataLow(const EmuTime &time);
 		byte readDataHigh(const EmuTime &time);

@@ -12,7 +12,7 @@ IDEDevice* IDEDeviceFactory::create(const string &name,
 {
 	Config *config = MSXConfig::instance()->
 		getConfigById(name);
-	const string type = config->getType();
+	const string& type = config->getType();
 
 	if (type == "IDEHD") {
 		return new IDEHD(config, time);
