@@ -157,10 +157,8 @@ bool CommandLineParser::parseFileName(const string& arg, list<string>& cmdLine)
 {
 	string originalName(arg);
 	try {
-		std::cout << "DEBUG1 " << originalName << std::endl;
 		File file(arg);
 		originalName = file.getOriginalName();
-		std::cout << "DEBUG2 " << originalName << std::endl;
 	} catch (FileException& e) {
 		// ignore
 	}
