@@ -452,7 +452,7 @@ PACKAGE_FULL:=$(PACKAGE_NAME)-$(VERSION)
 DIST_BASE:=$(BUILD_BASE)/dist
 DIST_PATH:=$(DIST_BASE)/$(PACKAGE_FULL)
 
-DIST_FULL+=$(patsubst %/Makefile.am,%/Makefile.in,$(filter %/Makefile.am,$(DIST_FULL)))
+DIST_FULL+=$(patsubst %Makefile.am,%Makefile.in,$(filter %Makefile.am,$(DIST_FULL)))
 GNU_BUILD_HELPERS:=\
 	config.guess config.sub \
 	depcomp install-sh ltmain.sh missing mkinstalldirs
