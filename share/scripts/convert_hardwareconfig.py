@@ -21,7 +21,7 @@ ioAddresses = {
 	'RTC': [ (0xB4, 2, 'O'), (0xB5, 1, 'I') ],
 	'PrinterPort': [ (0x90, 2, 'IO') ],
 	# Kanji is actually a device with only 2 IO ports and only 128kb ROM
-	# In case of 256kb the device is repeated on the next 2 IO port (and with
+	# In case of 256kb the device is repeated on the next 2 IO ports (and with
 	# different ROM of course).
 	# So we could simplify the code slightly if we treat it like this.
 	'Kanji1': [ (0xD8, 2, 'O'), (0xD9, 1, 'I') ],
@@ -111,7 +111,7 @@ def extractElements(node, names):
 				ret.append(child)
 	return ret
 
-def convertDoc(dom):
+def convertDoc(dom, checksums):
 	assert dom.nodeType == dom.DOCUMENT_NODE
 	if dom.doctype.systemId == 'msxconfig2.dtd':
 		print '  already in new format, skipping'
@@ -134,14 +134,14 @@ def convertDoc(dom):
 				return
 		elif child.nodeType == dom.ELEMENT_NODE:
 			if child.nodeName == 'msxconfig':
-				convertRoot(child)
+				convertRoot(child, checksums)
 			else:
 				print '  NOTE: wrong root node "%s", skipping' % child.nodeName
 				return
 	if not sawCVSid:
 		print '  NOTE: no CVS id'
 
-def convertRoot(node):
+def convertRoot(node, checksums):
 	doc = node.ownerDocument
 
 	# Process everything except devices.
@@ -205,7 +205,7 @@ def convertRoot(node):
 	slottedDevices = {}
 	for child in list(node.childNodes):
 		if child.nodeType == node.ELEMENT_NODE and child.nodeName == 'device':
-			slotted, child = convertDevice(child)
+			slotted, child = convertDevice(child, checksums)
 			if child is not None:
 				node.removeChild(child)
 				# Insert slot mapping, if any.
@@ -333,7 +333,8 @@ def convertConfig(node):
 		# TODO: myHD: conversion of IDE HD configuration is not implemented
 	return node
 
-def convertDevice(node):
+def convertDevice(node, checksums):
+	doc = node.ownerDocument
 	print '  device:', node.attributes['id'].nodeValue
 	deviceType = getParameter(node, 'type')
 	assert deviceType is not None
@@ -394,8 +395,8 @@ def convertDevice(node):
 	# Insert <drives> tag to replace "drivename" parameters.
 	if drives != 0:
 		print '    inserting drive tag'
-		drivesNode = node.ownerDocument.createElement('drives')
-		numNode = node.ownerDocument.createTextNode(str(drives))
+		drivesNode = doc.createElement('drives')
+		numNode = doc.createTextNode(str(drives))
 		drivesNode.appendChild(numNode)
 		node.appendChild(drivesNode)
 
@@ -404,16 +405,27 @@ def convertDevice(node):
 		romParams = extractElements(node, ['filename'])
 		if romParams != []:
 			print '    grouping rom parameters'
-			romNode = node.ownerDocument.createElement('rom')
+			romNode = doc.createElement('rom')
 			for param in romParams:
 				romNode.appendChild(param)
+				if param.tagName == 'filename':
+					fileName = getText(param)
+					fileName = fileName[fileName.rfind('/') + 1 : ]
+					checksum = checksums.get(fileName)
+					if checksum is None:
+						print '    NOTE: no sha1 found for "%s"' % fileName
+					else:
+						print '    inserting sha1 for "%s"' % fileName
+						checksumNode = doc.createElement('sha1')
+						checksumNode.appendChild(doc.createTextNode(checksum))
+						romNode.appendChild(checksumNode)
 			node.appendChild(romNode)
 
 	# Bundle generic sound parameters in <sound> tag.
 	soundParams = extractElements(node, ['mode', 'volume'])
 	if soundParams != []:
 		print '    grouping sound parameters'
-		soundNode = node.ownerDocument.createElement('sound')
+		soundNode = doc.createElement('sound')
 		for param in soundParams:
 			soundNode.appendChild(param)
 		node.appendChild(soundNode)
@@ -439,7 +451,7 @@ def convertDevice(node):
 				assert 0 <= base < 0x100
 				assert num in [ 1, 2, 4, 8, 16]
 				assert direction in ['I', 'O', 'IO']
-				ioNode = node.ownerDocument.createElement('io')
+				ioNode = doc.createElement('io')
 				ioNode.setAttribute('base', hexFill(base, 2))
 				ioNode.setAttribute('num', str(num))
 				if direction != 'IO':
@@ -509,9 +521,17 @@ for root, dirs, files in os.walk(indir):
 		assert root.startswith(indir)
 		outpath = outdir + root[len(indir) : ]
 		
+		checksums = {}
+		if os.path.isdir(root + '/roms') \
+		and os.path.isfile(root + '/roms/SHA1SUMS'):
+			for line in open(root + '/roms/SHA1SUMS'):
+				checksum, empty, fileName = line[ : -1].split(' ')
+				assert empty == ''
+				checksums[fileName] = checksum
+		
 		dom = parse(root + '/hardwareconfig.xml')
 		dom.normalize()
-		convertDoc(dom)
+		convertDoc(dom, checksums)
 		if not os.path.isdir(outpath):
 			os.makedirs(outpath)
 		out = open(outpath + '/hardwareconfig.xml', 'w')
