@@ -69,8 +69,8 @@ public:
 	Emutime &operator --(int unused) 
 		{ assert(_scale!=0); _emutime-=_scale ; return *this; }
 
-	Emutime &operator +(const uint64 &foo) {Emutime *bar = new Emutime(*this); *bar+=foo; return *bar; }
-	Emutime &operator +(const Emutime &foo) {Emutime *bar = new Emutime(*this); *bar+=foo; return *bar; }
+	Emutime &operator +(const uint64 &foo) const {Emutime *bar = new Emutime(*this); *bar+=foo; return *bar; }
+	Emutime &operator +(const Emutime &foo) const {Emutime *bar = new Emutime(*this); *bar+=foo; return *bar; }
 
 	// comparison operators
 	bool operator ==(const Emutime &foo) const { return _emutime == foo._emutime; }

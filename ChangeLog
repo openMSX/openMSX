@@ -1,6 +1,9 @@
 $Id$
 
-2001-10-15 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+2001-10-17 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* made improvements to MSXRealtime 
+
+2001-10-16 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* fixed bug in Keyboard (uninitialized variable)
 	  and made minor performance improvement in keyGhosting
 	* add 1 extra waitState after each instruction

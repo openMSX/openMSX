@@ -112,9 +112,9 @@ void Mixer::updateStream(const Emutime &time)
 }
 void Mixer::updtStrm(int samples)
 {
+	if (samples == 0) return;
+	if (samples > samplesLeft) samples = samplesLeft;
 	PRT_DEBUG("Generate " << samples << " samples");
-	if (samples==0) return;
-	if (samples>samplesLeft) samples=samplesLeft;
 	for (int mode=0; mode<NB_MODES; mode++) {
 		for (int i=0; i<nbDevices[mode]; i++) {
 			devices[mode][i]->updateBuffer(buffers[mode][i]+offset, samples);

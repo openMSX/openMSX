@@ -62,6 +62,8 @@ class EventDistributor : public EventListener
 		 */
 		void registerAsyncListener(int type, EventListener *listener);
 
+
+
 		// EventListener
 		void signalEvent(SDL_Event &event);
 

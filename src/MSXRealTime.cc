@@ -4,11 +4,9 @@
 #include "MSXRealTime.hh"
 
 
-MSXRealTime::MSXRealTime() : emuRef(1000, 0), emuOrigin(1000, 0)	// timer in ms (rounding err!!)
+MSXRealTime::MSXRealTime() : emuRef(1000), emuOrigin(1000)	// timer in ms (rounding err!!)
 {
 	PRT_DEBUG("Constructing a MSXRealTime object");
-	factor = 1;
-	realOrigin = SDL_GetTicks();
 }
 
 MSXRealTime::~MSXRealTime()
@@ -29,46 +27,58 @@ MSXRealTime *MSXRealTime::oneInstance = NULL;
 void MSXRealTime::reset()
 {
 	realRef = SDL_GetTicks();
+	realOrigin = SDL_GetTicks();
+	emuOrigin(0);
+	emuRef(0);
+	factor = 1;
 	Scheduler::instance()->setSyncPoint(emuRef+SYNCINTERVAL, *this);
 }
 	
 void MSXRealTime::executeUntilEmuTime(const Emutime &curEmu)
 {
 	unsigned int curReal = SDL_GetTicks();
-	int realPassed = curReal - realRef;
-	uint64 emuPassed = emuRef.getTicksTill(curEmu);
+	
+	// Long period values, these are used for global speed corrections
 	int totalReal = curReal - realOrigin;
 	uint64 totalEmu = emuOrigin.getTicksTill(curEmu);
-	realRef = curReal;
-	emuRef = curEmu;
-
-	PRT_DEBUG("Total emu: " << totalEmu  << "ms  Total real: " << totalReal  << "ms");
-	PRT_DEBUG("      emu: " << emuPassed << "ms        real: " << realPassed << "ms");
-	catchUpTime = totalReal - totalEmu;
+	PRT_DEBUG("RT: Total emu: " << totalEmu  << "ms  Total real: " << totalReal  << "ms");
 	
-	int slept = 0;
+	// Short period values, inaccurate but we need them to estimate our current speed
+	int realPassed = curReal - realRef;
+	uint64 emuPassed = emuRef.getTicksTill(curEmu);
+	PRT_DEBUG("RT: Short emu: " << emuPassed << "ms  Short real: " << realPassed << "ms");
+	
+	int sleep = 0;
+	catchUpTime = totalReal - totalEmu;
 	if (catchUpTime < 0) {
 		// we are too fast
-		slept = -catchUpTime;
-		PRT_DEBUG("Sleeping for " << slept << "ms");
-		SDL_Delay(slept);
-		catchUpTime = 0;
-
-		unsigned int test = SDL_GetTicks();
-		PRT_DEBUG("*** slept: " << slept << "  time: " << test-curReal << " error: " << slept-(test-curReal));
-	} else {
-		// too slow
-		if (catchUpTime > MAX_CATCHUPTIME) {
-			// way too slow
-			// TODO adjust origin's
-		}
-		PRT_DEBUG("Time to catch up in next frames: " << catchUpTime << "ms");
+		sleep = -catchUpTime;
+	} else if (catchUpTime > MAX_CATCHUPTIME) {
+		// way too slow
+		int lost = catchUpTime - MAX_CATCHUPTIME;
+		realOrigin += lost;
+		PRT_DEBUG("RT: Emulation too slow, lost " << lost << "ms");
+	}
+	if ((sleep+realPassed) < MIN_REALTIME) {
+		// avoid catching up too fast
+		sleep = MIN_REALTIME-sleep;
+	}
+	if (sleep > 0) {
+		PRT_DEBUG("RT: Sleeping for " << sleep << "ms");
+		SDL_Delay(sleep);
 	}
 
-	float curFactor = (slept+realPassed) / (float)emuPassed;
+	// estimate current speed, values are inaccurate so take average
+	float curFactor = (sleep+realPassed) / (float)emuPassed;
 	factor = factor*(1-ALPHA)+curFactor*ALPHA;	// estimate with exponential average
-	PRT_DEBUG("Estimated speed factor (real/emu): " << factor);
-	Scheduler::instance()->setSyncPoint(emuRef+SYNCINTERVAL, *this);
+	PRT_DEBUG("RT: Estimated speed factor (real/emu): " << factor);
+	
+	// adjust short period references
+	realRef = SDL_GetTicks();
+	emuRef = curEmu;
+
+	// schedule again in future
+	Scheduler::instance()->setSyncPoint(curEmu+SYNCINTERVAL, *this);
 }
 
 float MSXRealTime::getRealDuration(Emutime time1, Emutime time2)
