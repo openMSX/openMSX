@@ -88,6 +88,8 @@ int main(int argc, char **argv)
 		
 	} catch (MSXException &e) {
 		PRT_ERROR("Uncaught exception: " << e.getMessage());
+	} catch (...) {
+		PRT_ERROR("Uncaught exception of unexpected type.");
 	}
 }
 
