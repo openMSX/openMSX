@@ -82,6 +82,10 @@ private:
 	Mixer();
 	virtual ~Mixer();
 
+	void openSound();
+	void closeSound();
+	void reopenSound();
+	
 	void updtStrm(unsigned samples);
 	void updtStrm2(unsigned samples);
 	static void audioCallbackHelper(void* userdata, Uint8* stream, int len);
@@ -135,6 +139,7 @@ private:
 	BooleanSetting& pauseSetting;
 	IntegerSetting& speedSetting;
 	BooleanSetting& throttleSetting;
+	bool handlingUpdate;
 
 	int prevLeft, outLeft;
 	int prevRight, outRight;

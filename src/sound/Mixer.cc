@@ -33,37 +33,89 @@ Mixer::Mixer()
 	, soundDeviceInfo(*this)
 {
 	init = false;
+	handlingUpdate = false;
 	prevLeft = outLeft = 0;
 	prevRight = outRight = 0;
-	muteSetting.reset(new BooleanSetting(
-		"mute", "(un)mute the emulation sound", false));
-	masterVolume.reset(new IntegerSetting(
-		"master_volume", "master volume", 75, 0, 100));
 
-	infoCommand.registerTopic("sounddevice", &soundDeviceInfo);
-	muteSetting->addListener(this);
-	masterVolume->addListener(this);
-	pauseSetting.addListener(this);
-	speedSetting.addListener(this);
-	throttleSetting.addListener(this);
-
-	if (!CommandLineParser::instance().wantSound()) {
-		return;
-	}
-	
 	// default values
 #ifdef _WIN32
 	const int defaultsamples = 2048;
 #else
 	const int defaultsamples = 1024;
 #endif
-	frequencySetting.reset(new IntegerSetting("frequency",
-		"mixer frequency (takes effect next time openMSX is started)",
-		44100, 11025, 44100)); // TODO stricter value checks
-	samplesSetting.reset(new IntegerSetting("samples",
-		"mixer samples (takes effect next time openMSX is started)",
-		defaultsamples, 256, 4096)); // TODO stricter value checks
 
+	muteSetting.reset(new BooleanSetting(
+		"mute", "(un)mute the emulation sound", false));
+	masterVolume.reset(new IntegerSetting(
+		"master_volume", "master volume", 75, 0, 100));
+	frequencySetting.reset(new IntegerSetting("frequency",
+		"mixer frequency",
+		44100, 11025, 48000)); // TODO stricter value checks
+	samplesSetting.reset(new IntegerSetting("samples",
+		"mixer samples",
+		defaultsamples, 64, 8192)); // TODO stricter value checks
+
+	infoCommand.registerTopic("sounddevice", &soundDeviceInfo);
+	muteSetting->addListener(this);
+	masterVolume->addListener(this);
+	frequencySetting->addListener(this);
+	samplesSetting->addListener(this);
+	pauseSetting.addListener(this);
+	speedSetting.addListener(this);
+	throttleSetting.addListener(this);
+
+	// Set correct initial mute state.
+	if (muteSetting->getValue()) muteCount++;
+	if (pauseSetting.getValue()) muteCount++;
+
+	openSound();
+	muteHelper();
+}
+
+Mixer::~Mixer()
+{
+	closeSound();
+	
+	throttleSetting.removeListener(this);
+	speedSetting.removeListener(this);
+	pauseSetting.removeListener(this);
+	samplesSetting->removeListener(this);
+	frequencySetting->removeListener(this);
+	masterVolume->removeListener(this);
+	muteSetting->removeListener(this);
+	infoCommand.unregisterTopic("sounddevice", &soundDeviceInfo);
+}
+
+Mixer& Mixer::instance()
+{
+	static Mixer oneInstance;
+	return oneInstance;
+}
+
+
+void Mixer::reopenSound()
+{
+	int numBuffers = buffers.size();
+
+	closeSound();
+	for (int i = 0; i < numBuffers; ++i) {
+		delete[] buffers[i];
+	}
+	buffers.clear();
+
+	openSound();
+	for (int i = 0; i < numBuffers; ++i) {
+		buffers.push_back(new int[2 * audioSpec.samples]);
+	}
+	muteHelper();
+}
+
+void Mixer::openSound()
+{
+	if (!CommandLineParser::instance().wantSound()) {
+		return;
+	}
+	
 	SDL_AudioSpec desired;
 	desired.freq     = frequencySetting->getValue();
 	desired.samples  = samplesSetting->getValue();
@@ -74,6 +126,8 @@ Mixer::Mixer()
 	
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) == 0) {
 		if (SDL_OpenAudio(&desired, &audioSpec) == 0) {
+			frequencySetting->setValue(audioSpec.freq);
+			samplesSetting->setValue(audioSpec.samples);
 			bufferSize = 6 * audioSpec.size / (2 * sizeof(short));
 			mixBuffer = new short[2 * bufferSize];
 			memset(mixBuffer, 0, bufferSize * 2 * sizeof(short));
@@ -89,36 +143,21 @@ Mixer::Mixer()
 	}
 	if (!init) {
 		output.printWarning(
-			string("Couldn't open audio : ") + SDL_GetError());
+			string("Couldn't open audio: ") + SDL_GetError());
 	}
-
-	// Set correct initial mute state.
-	if (muteSetting->getValue()) muteCount++;
-	if (pauseSetting.getValue()) muteCount++;
-	muteHelper();
 }
 
-Mixer::~Mixer()
+void Mixer::closeSound()
 {
 	if (init) {
+		Scheduler::instance().removeSyncPoint(this);
 		SDL_CloseAudio();
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
 		delete[] mixBuffer;
+		init = false;
 	}
-	
-	throttleSetting.removeListener(this);
-	speedSetting.removeListener(this);
-	pauseSetting.removeListener(this);
-	masterVolume->removeListener(this);
-	muteSetting->removeListener(this);
-	infoCommand.unregisterTopic("sounddevice", &soundDeviceInfo);
 }
 
-Mixer& Mixer::instance()
-{
-	static Mixer oneInstance;
-	return oneInstance;
-}
 
 void Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 {
@@ -154,11 +193,13 @@ void Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 	infos[&device] = info;
 
 	lock();
-	buffers.push_back(new int[2 * audioSpec.samples]);
 	devices[mode].push_back(&device);
 	device.setSampleRate(init ? audioSpec.freq : 44100);
 	device.setVolume((info.normalVolume * info.volumeSetting->getValue() *
 	                   masterVolume->getValue()) / (100 * 100));
+	if (init) {
+		buffers.push_back(new int[2 * audioSpec.samples]);
+	}
 	muteHelper();
 	unlock();
 }
@@ -171,11 +212,13 @@ void Mixer::unregisterSound(SoundDevice& device)
 		return;
 	}
 	lock();
+	if (init) {
+		delete[] buffers.back();
+		buffers.pop_back();
+	}
 	ChannelMode mode = it->second.mode;
 	vector<SoundDevice*> &dev = devices[mode];
 	dev.erase(remove(dev.begin(), dev.end(), &device), dev.end());
-	delete[] buffers.back();
-	buffers.pop_back();
 	it->second.volumeSetting->removeListener(this);
 	delete it->second.volumeSetting;
 	it->second.modeSetting->removeListener(this);
@@ -416,6 +459,25 @@ void Mixer::update(const SettingLeafNode* setting)
 		} else {
 			unmute();
 		}
+	} else if (setting == samplesSetting.get()) {
+		if (handlingUpdate) return;
+		handlingUpdate = true;
+		reopenSound();
+		reInit();
+		handlingUpdate = false;
+	} else if (setting == frequencySetting.get()) {
+		if (handlingUpdate) return;
+		handlingUpdate = true;
+		reopenSound();
+		reInit();
+		for (int mode = 0; mode < NB_MODES; ++mode) {
+			for (vector<SoundDevice*>::const_iterator it =
+			             devices[mode].begin();
+			     it != devices[mode].end(); ++it) {
+				(*it)->setSampleRate(init ? audioSpec.freq : 44100);
+			}
+		}
+		handlingUpdate = false;
 	} else if (setting == &speedSetting) {
 		reInit();
 	} else if (setting == &throttleSetting) {
