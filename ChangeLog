@@ -1,5 +1,10 @@
 $Id$
 
+2004-05-05 Maarten ter Huurne <maarten@treewalker.org>
+	* Various small improvements to build system, including:
+	  - install dir is easier to customise (build/custom.mk)
+	  - fixes for compiling on Mac OS X (thanks to Jalu for testing)
+
 2004-05-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* More V9990 work:
 
