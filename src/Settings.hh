@@ -257,7 +257,7 @@ public:
 	}
 
 	virtual void setValueString(const string &valueString) {
-		value = static_cast<T>(intStringMap.lookupString(valueString));
+		setValue(static_cast<T>(intStringMap.lookupString(valueString)));
 	}
 
 	virtual void tabCompletion(vector<string> &tokens) const {
