@@ -444,6 +444,7 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 		//fprintf(stderr, "VRAM[%05X]=%02X\n", addr, value);
 		// TODO: Check MXC bit (R#45, bit 6) for extension RAM access.
 		//       This bit is kept by the command engine.
+		if (isPlanar()) addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
 		vram->cpuWrite(addr, value, time);
 		vramPointer = (vramPointer + 1) & 0x3FFF;
 		if (vramPointer == 0 && (displayMode & 0x18)) {
@@ -512,6 +513,7 @@ byte VDP::vramRead(const EmuTime &time)
 {
 	byte ret = readAhead;
 	int addr = (controlRegs[14] << 14) | vramPointer;
+	if (isPlanar()) addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
 	readAhead = vram->cpuRead(addr, time);
 	vramPointer = (vramPointer + 1) & 0x3FFF;
 	if (vramPointer == 0 && (displayMode & 0x18)) {
@@ -699,28 +701,6 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		vram->patternTable.setMask(base, 17);
 		break;
 	}
-	case 5: {
-		int base = ((controlRegs[11] << 15) | (val << 7)
-			| ~(-1 << 7)) & vramMask;
-		spriteChecker->updateSpriteAttributeBase(base, time);
-		// TODO: Actual number of index bits is lower than 17.
-		vram->spriteAttribTable.setMask(base, 17);
-		break;
-	}
-	case 11: {
-		int base = ((val << 15) | (controlRegs[5] << 7)
-			| ~(-1 << 7)) & vramMask;
-		spriteChecker->updateSpriteAttributeBase(base, time);
-		// TODO: Actual number of index bits is lower than 17.
-		vram->spriteAttribTable.setMask(base, 17);
-		break;
-	}
-	case 6: {
-		int base = ((val << 11) | ~(-1 << 11)) & vramMask;
-		spriteChecker->updateSpritePatternBase(base, time);
-		vram->spritePatternTable.setMask(base, 11);
-		break;
-	}
 	case 7:
 		if (change & 0xF0) {
 			renderer->updateForegroundColour(val >> 4, time);
@@ -779,6 +759,17 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 			if (!(val & 0x20)) irqVertical.reset();
 		}
 		break;
+	case 5:
+	case 11:
+		// Because this state cannot be read from the VDP, updating after the
+		// commit is equivalent to updating before.
+		updateSpriteAttributeBase(time);
+		break;
+	case 6:
+		// Because this state cannot be read from the VDP, updating after the
+		// commit is equivalent to updating before.
+		updateSpritePatternBase(time);
+		break;
 	case 9:
 		if (change & 0x80) {
 			/*
@@ -806,6 +797,24 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 	}
 }
 
+void VDP::updateSpriteAttributeBase(const EmuTime &time)
+{
+	int base = ((controlRegs[11] << 15) | (controlRegs[5] << 7)
+		| ~(-1 << 7)) & vramMask;
+	if (isPlanar()) base = ((base << 16) | (base >> 1)) & 0x1FFFF;
+	spriteChecker->updateSpriteAttributeBase(base, time);
+	// TODO: Actual number of index bits is lower than 17.
+	vram->spriteAttribTable.setMask(base, 17);
+}
+
+void VDP::updateSpritePatternBase(const EmuTime &time)
+{
+	int base = ((controlRegs[6] << 11) | ~(-1 << 11)) & vramMask;
+	if (isPlanar()) base = ((base << 16) | (base >> 1)) & 0x1FFFF;
+	spriteChecker->updateSpritePatternBase(base, time);
+	vram->spritePatternTable.setMask(base, 11);
+}
+
 void VDP::updateDisplayMode(byte reg0, byte reg1, const EmuTime &time)
 {
 	int newMode =
@@ -815,6 +824,11 @@ void VDP::updateDisplayMode(byte reg0, byte reg1, const EmuTime &time)
 	if (newMode != displayMode) {
 		//PRT_DEBUG("VDP: mode " << newMode);
 		vram->updateDisplayMode(newMode, time);
+		if (isPlanar(newMode) != isPlanar(displayMode)) {
+			// Switched from planar to nonplanar or vice versa.
+			updateSpriteAttributeBase(time);
+			updateSpritePatternBase(time);
+		}
 		displayMode = newMode;
 		// To be extremely accurate, reschedule hscan when changing
 		// from/to text mode. Text mode has different border width,

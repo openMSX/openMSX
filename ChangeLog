@@ -1,5 +1,11 @@
 $Id$
 
+2002-08-31 Maarten ter Huurne <mth@stack.nl>
+	* The Great VRAM Rewrite, part 3:
+	  SpriteChecker does all of its VRAM reading through VDPVRAM::Window.
+	  Only CPU does non-windowed reads anymore.
+	  All planar remapping occurs outside of VDPVRAM.
+
 2002-08-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Move common code from SDLConsole and GLConsole to a new parent class
 	* Added R800:

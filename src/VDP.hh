@@ -131,6 +131,18 @@ public:
 		return isBitmapMode(displayMode);
 	}
 
+	/** Is VRAM "planar" in the given display mode?
+	  * Graphic6 and 7 spread their bytes over two VRAM ICs,
+	  * such that the even bytes go to the first half of the address
+	  * space and the odd bytes to the second half.
+	  * @param mode display mode to test for planarity.
+	  * @return True iff the given display mode has planar VRAM.
+	  */
+	inline static bool isPlanar(int mode) {
+		// TODO: Is the display mode check OK? Profile undefined modes.
+		return (mode & 0x14) == 0x14;
+	}
+
 	/** Is VRAM "planar" in the current display mode?
 	  * Graphic6 and 7 spread their bytes over two VRAM ICs,
 	  * such that the even bytes go to the first half of the address
@@ -138,8 +150,7 @@ public:
 	  * @return True iff the current display mode has planar VRAM.
 	  */
 	inline bool isPlanar() {
-		// TODO: Is the display mode check OK? Profile undefined modes.
-		return (displayMode & 0x14) == 0x14;
+		return isPlanar(displayMode);
 	}
 
 	/** Get the VRAM object for this VDP.
@@ -467,6 +478,16 @@ private:
 	/** VDP control register has changed, work out the consequences.
 	  */
 	void changeRegister(byte reg, byte val, const EmuTime &time);
+
+	/** Sprite attribute base mask has changed.
+	  * Inform the SpriteChecker and the VRAM.
+	  */
+	void updateSpriteAttributeBase(const EmuTime &time);
+
+	/** Sprite pattern base mask has changed.
+	  * Inform the SpriteChecker and the VRAM.
+	  */
+	void updateSpritePatternBase(const EmuTime &time);
 
 	/** Display mode may have changed.
 	  * If it has, update displayMode's value and inform the Renderer.

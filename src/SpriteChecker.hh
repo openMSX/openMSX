@@ -80,6 +80,7 @@ public:
 		} else {
 			updateSpritesMethod = &SpriteChecker::updateSprites2;
 		}
+		planar = VDP::isPlanar(mode);
 	}
 
 	/** Informs the sprite checker of a VDP display enabled change.
@@ -147,6 +148,7 @@ private:
 		// depending on the current DisplayMode.
 		int linesPerFrame = vdp->isPalTiming() ? 313 : 262;
 		if (limit == linesPerFrame + 1) {
+			// TODO:
 			// Sprite memory is read one line in advance.
 			// This doesn't integrate nicely with frameStart() yet:
 			// line counter is reset at frame start, while line 0 sprite
@@ -267,9 +269,6 @@ private:
 	  */
 	void updateSprites2(int limit);
 
-	typedef void (SpriteChecker::*UpdateSpritesMethod)(int limit);
-	UpdateSpritesMethod updateSpritesMethod;
-
 	/** Doubles a sprite pattern.
 	  */
 	inline SpritePattern doublePattern(SpritePattern pattern);
@@ -316,6 +315,14 @@ private:
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
 	inline int checkSprites2(int line, SpriteInfo *visibleSprites);
+
+	typedef void (SpriteChecker::*UpdateSpritesMethod)(int limit);
+	UpdateSpritesMethod updateSpritesMethod;
+	
+	/** Is current display mode planar or not?
+	  * TODO: Introduce separate update methods for planar/nonplanar modes.
+	  */
+	bool planar;
 
 	/** The VDP this sprite checker is part of.
 	  */

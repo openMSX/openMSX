@@ -45,25 +45,30 @@ inline SpriteChecker::SpritePattern SpriteChecker::doublePattern(SpriteChecker::
 inline SpriteChecker::SpritePattern SpriteChecker::calculatePattern(
 	int patternNr, int y)
 {
+	// Note: For sprite pattern, mask and index never overlap.
+	const byte *patternPtr = vram->spritePatternTable.readArea(
+		planar ? 0x0FC00 : 0x1F800 );
 	if (vdp->getSpriteMag()) y /= 2;
-	int index = (-1 << 11) | patternNr * 8 + y;
-	SpritePattern pattern = vram->read(
-		vram->spritePatternTable.getMask() & index) << 24;
+	int index = patternNr * 8 + y;
+	if (planar) index = ((index << 16) | (index >> 1)) & 0x1FFFF;
+	SpritePattern pattern = patternPtr[index] << 24;
 	if (vdp->getSpriteSize() == 16) {
-		pattern |= vram->read(
-			vram->spritePatternTable.getMask() & (index + 16)) << 16;
+		pattern |= patternPtr[index + (planar ? 8 : 16)] << 16;
 	}
 	return (vdp->getSpriteMag() ? doublePattern(pattern) : pattern);
 }
 
+// TODO: Integrate with calculatePattern.
 inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternNP(
 	int patternNr, int y)
 {
+	// Note: For sprite pattern, mask and index never overlap.
+	const byte *patternPtr = vram->spritePatternTable.readArea(-1 << 11);
 	if (vdp->getSpriteMag()) y /= 2;
-	int index = (-1 << 11) | patternNr * 8 + y;
-	SpritePattern pattern = vram->spritePatternTable.readNP(index) << 24;
+	int index = patternNr * 8 + y;
+	SpritePattern pattern = patternPtr[index] << 24;
 	if (vdp->getSpriteSize() == 16) {
-		pattern |= vram->spritePatternTable.readNP(index + 16) << 16;
+		pattern |= patternPtr[index + 16] << 16;
 	}
 	return (vdp->getSpriteMag() ? doublePattern(pattern) : pattern);
 }
@@ -177,13 +182,17 @@ inline int SpriteChecker::checkSprites2(
 	int size = vdp->getSpriteSize();
 	int magSize = size * (vdp->getSpriteMag() + 1);
 	// TODO: Should masks be applied while processing the tables?
-	int colourAddr = vram->spriteAttribTable.getMask() & 0x1FC00;
-	int attributeAddr = colourAddr + 512;
+	//       For attribute, no (7 bits index), for
+	// Bit9 is set for attribute table, reset for colour table.
+	const byte *attributePtr = vram->spriteAttribTable.readArea(
+		planar ? 0x0FF00 : 0x1FE00 );
 	byte patternIndexMask = size == 16 ? 0xFC : 0xFF;
+	int index1 = planar ? 0x10000 : 1;
+	int index2 = planar ? 0x00001 : 2;
+	int indexIncr = planar ? 2 : 4;
 	// TODO: Verify CC implementation.
-	for (sprite = 0; sprite < 32; sprite++,
-			attributeAddr += 4, colourAddr += 16) {
-		int y = vram->read(attributeAddr);
+	for (sprite = 0; sprite < 32; sprite++, attributePtr += indexIncr) {
+		int y = attributePtr[0];
 		if (y == 216) break;
 		// Calculate line number within the sprite.
 		int spriteLine = (line - y) & 0xFF;
@@ -197,15 +206,17 @@ inline int SpriteChecker::checkSprites2(
 				}
 				if (limitSprites) break;
 			}
-			byte colourAttrib = vram->read(colourAddr + spriteLine);
+			int colourIndex = (-1 << 10) | (sprite * 16 + spriteLine);
+			if (planar) colourIndex =
+				((colourIndex << 16) | (colourIndex >> 1)) & 0x1FFFF;
+			byte colourAttrib = vram->spriteAttribTable.readNP(colourIndex);
 			// Sprites with CC=1 are only visible if preceded by
 			// a sprite with CC=0.
 			if ((colourAttrib & 0x40) && visibleIndex == 0) continue;
 			SpriteInfo *sip = &visibleSprites[visibleIndex++];
-			int patternIndex =
-				vram->read(attributeAddr + 2) & patternIndexMask;
+			int patternIndex = attributePtr[index2] & patternIndexMask;
 			sip->pattern = calculatePattern(patternIndex, spriteLine);
-			sip->x = vram->read(attributeAddr + 1);
+			sip->x = attributePtr[index1];
 			if (colourAttrib & 0x80) sip->x -= 32;
 			sip->colourAttrib = colourAttrib;
 		}

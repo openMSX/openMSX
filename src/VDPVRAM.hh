@@ -19,17 +19,6 @@ For example, the ranges:
 - Command engine work areas are rectangles.
 - CPU access always spans full memory.
 
-Planar mode:
-- CPU access can remap locally
-- renderer can remap locally
-- sprite checker is easier if VDPVRAM does the remapping
-  workaround: split sprite mode 2 into "nonplanar mode 2" and "planar mode 2"
-- command engine can remap locally
-Remapping locally is an optimisation, it is never easier than having VDPVRAM
-do the remapping.
-Advantage of remapping locally is that VDPVRAM no longer has to know the
-current display mode.
-
 Maybe define an interface with multiple subclasses?
 Or is that too much of a performance hit?
 If accessed through the interface, a virtual method call is made.
@@ -120,6 +109,8 @@ can decide for itself how many bytes to read.
 */
 
 /** Manages VRAM contents and synchronises the various users of the VRAM.
+  * VDPVRAM does not apply planar remapping to addresses, this is the
+  * responsibility of the caller.
   */
 class VDPVRAM {
 public:
@@ -162,7 +153,6 @@ public:
 	}
 
 	/** Write a byte to VRAM through the CPU interface.
-	  * Takes planar addressing into account if necessary.
 	  * @param address The address to write.
 	  * @param value The value to write.
 	  * @param time The moment in emulated time this write occurs.
@@ -172,21 +162,10 @@ public:
 		|| cmdWriteWindow.isInside(address)) {
 			cmdEngine->sync(time);
 		}
-		if (planar) address = ((address << 16) | (address >> 1)) & 0x1FFFF;
 		cmdWrite(address, value, time);
 	}
 
-	/** Reads a byte from the VRAM in its current state.
-	  * Planar address remapping is performed in planar display modes.
-	  */
-	inline byte read(int address) {
-		if (planar) address = ((address << 16) | (address >> 1)) & 0x1FFFF;
-		assert(0 <= address && address < size);
-		return data[address];
-	}
-
 	/** Read a byte from VRAM though the CPU interface.
-	  * Takes planar addressing into account if necessary.
 	  * @param address The address to read.
 	  * @return The VRAM contents at the specified address.
 	  */
@@ -197,7 +176,8 @@ public:
 		if (cmdWriteWindow.isInside(address)) {
 			cmdEngine->sync(time);
 		}
-		return read(address);
+		assert(0 <= address && address < size);
+		return data[address];
 	}
 
 	/** Used by the VDP to signal display mode changes.
@@ -208,13 +188,10 @@ public:
 	  */
 	inline void updateDisplayMode(int mode, const EmuTime &time) {
 		// Synchronise subsystems.
+		// TODO: Does this belong in VDPVRAM?
 		renderer->updateDisplayMode(mode, time);
 		cmdEngine->updateDisplayMode(mode, time);
 		spriteChecker->updateDisplayMode(mode, time);
-
-		// Commit change inside VDPVRAM.
-		// TODO: Is the display mode check OK? Profile undefined modes.
-		planar = (mode & 0x14) == 0x14;
 	}
 
 	/** Used by the VDP to signal display enabled changes.
@@ -288,6 +265,10 @@ public:
 		/** Sets the mask and enables this window.
 		  * @param baseMask VDP table base register type mask.
 		  * @param indexBits Width of the table index in bits.
+		  * TODO: In planar mode, the index bits are rotated one to the right.
+		  *       Solution: have the caller pass index mask instead of #bits.
+		  *       For many tables the number of index bits depends on the
+		  *       display mode anyway.
 		  */
 		inline void setMask(int baseMask, int indexBits) {
 			this->baseMask = baseMask;
@@ -308,11 +289,14 @@ public:
 		  * depends on the mask. It is the responsibility of the caller
 		  * to take this into account and to make sure no reads outside
 		  * the VRAM will occur.
-		  * Non-planar addressing is used no matter the display mode.
-		  * This can speed up VRAM access when the caller knows if the current
-		  * display mode is non-planar or when the caller has already performed
-		  * the planar address remapping.
 		  * @param index Index in table, with unused bits set to 1.
+		  * TODO:
+		  * Apply indexMask here, instead of at caller?
+		  * Seems we have to know an indexMask anyway, for inside checks.
+		  * I have forgotten to set the unused index so many times,
+		  * it is really a pitfall.
+		  * Because the method is inlined, an optimising compiler can
+		  * probably avoid performance loss on constant expressions.
 		  */
 		inline const byte *readArea(int index) {
 			// Reads are only allowed if window is enabled.
@@ -323,10 +307,6 @@ public:
 		}
 
 		/** Reads a byte from VRAM in its current state.
-		  * Non-planar addressing is used no matter the display mode.
-		  * This can speed up VRAM access when the caller knows if the current
-		  * display mode is non-planar or when the caller has already performed
-		  * the planar address remapping.
 		  * @param index Index in table, with unused bits set to 1.
 		  * TODO: getData is more powerful; keep this method as a convenience
 		  *       or get rid of it altogether?
@@ -405,8 +385,6 @@ private:
 	/** Size of VRAM in bytes.
 	  */
 	int size;
-
-	bool planar;
 
 	Renderer *renderer;
 	VDPCmdEngine *cmdEngine;
