@@ -12,9 +12,11 @@
 using std::string;
 using std::list;
 
+
 namespace openmsx {
 
 class FileContext;
+
 
 class Config
 {
@@ -22,15 +24,15 @@ public:
 	// a parameter is the same for all backends:
 	class Parameter {
 	public:
-		Parameter(const string& name, 
+		Parameter(const string& name,
 			  const string& value,
 			  const string& clasz);
 		~Parameter();
 
-		const bool getAsBool() const;
-		const int getAsInt() const ;
-		const uint64 getAsUint64() const;
-		
+		bool getAsBool() const;
+		int getAsInt() const ;
+		uint64 getAsUint64() const;
+
 		const string name;
 		const string value;
 		const string clasz;
@@ -52,12 +54,12 @@ public:
 	bool hasParameter(const string& name) const;
 	const string &getParameter(const string& name) const throw(ConfigException);
 	const string getParameter(const string& name, const string& defaultValue) const;
-	const bool getParameterAsBool(const string& name) const throw(ConfigException);
-	const bool getParameterAsBool(const string& name, bool defaultValue) const;
-	const int getParameterAsInt(const string& name) const throw(ConfigException);
-	const int getParameterAsInt(const string& name, int defaultValue) const;
-	const uint64 getParameterAsUint64(const string& name) const throw(ConfigException);
-	const uint64 getParameterAsUint64(const string& name, const uint64& defaultValue) const;
+	bool getParameterAsBool(const string& name) const throw(ConfigException);
+	bool getParameterAsBool(const string& name, bool defaultValue) const;
+	int getParameterAsInt(const string& name) const throw(ConfigException);
+	int getParameterAsInt(const string& name, int defaultValue) const;
+	uint64 getParameterAsUint64(const string& name) const throw(ConfigException);
+	uint64 getParameterAsUint64(const string& name, const uint64& defaultValue) const;
 
 	/**
 	 * This returns a freshly allocated list with freshly allocated
@@ -82,4 +84,4 @@ private:
 
 } // namespace openmsx
 
-#endif
+#endif // __CONFIG_HH__
