@@ -113,10 +113,21 @@ private:
 	  */
 	inline Pixel getBorderColour();
 
+	/** Precalc palette values.
+	  * For MSX1 VDPs, results go directly into palFg/palBg.
+	  * For higher VDPs, results go into V9938_COLOURS and V9958_COLOURS.
+	  * @param gamma Gamma correction factor.
+	  */
+	void precalcPalette(float gamma);
+
 	/** Precalc several values that depend on the display mode.
 	  * @param mode The new display mode.
 	  */
 	void setDisplayMode(DisplayMode mode);
+
+	/** Reload entire palette from VDP.
+	  */
+	void resetPalette();
 
 	/** Change an entry in the palette.
 	  * Used to implement updatePalette.
@@ -179,6 +190,10 @@ private:
 	  * In Graphics6/7 the lower two pages are used.
 	  */
 	SDL_Surface *bitmapDisplayCache;
+
+	/** Previous value of gamma setting.
+	  */
+	float prevGamma;
 
 	/** Display mode the line is valid in.
 	  * 0xFF means invalid in every mode.

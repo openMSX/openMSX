@@ -1,5 +1,13 @@
 $Id$
 
+2003-06-09 Maarten ter Huurne <maarten@treewalker.org>
+	* Implemented user-specified gamma correction for SDLLo/SDLHi/SDLGL.
+	  Find out your PC monitor's gamma using the measurement image on the
+	  following page: http://www.bberger.net/gamma.html
+	  TVs use a standardised gamma of 2.5. So for a realistic picture, set
+	  openMSX gamma correction to: PC_gamma / 2.5.
+	  Or you can just try a few values and see what you like ;)
+
 2003-06-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Don't abort on "cassetteplayer <file>" cmd with invalid filename
 	* Print warning when initial font or background images can't be read

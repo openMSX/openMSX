@@ -514,21 +514,44 @@ SDLGLRenderer::SDLGLRenderer(
 	SDL_ShowCursor(SDL_DISABLE);
 
 	// Init the palette.
+	precalcPalette(settings->getGamma()->getValue());
+
+	// Register caches with VDPVRAM.
+	vram->patternTable.setObserver(&dirtyPattern);
+	vram->colourTable.setObserver(&dirtyColour);
+
+}
+
+SDLGLRenderer::~SDLGLRenderer()
+{
+	// Unregister caches with VDPVRAM.
+	vram->patternTable.setObserver(NULL);
+	vram->colourTable.setObserver(NULL);
+
+	delete console;
+	// TODO: Free textures.
+}
+
+void SDLGLRenderer::precalcPalette(float gamma)
+{
+	// It's gamma correction, so apply in reverse.
+	gamma = 1.0 / gamma;
+
 	if (vdp->isMSX1VDP()) {
 		// Fixed palette.
 		for (int i = 0; i < 16; i++) {
+			const byte *rgb = TMS99X8A_PALETTE[i];
 			palFg[i] = palBg[i] =
-				   TMS99X8A_PALETTE[i][0]
-				| (TMS99X8A_PALETTE[i][1] << 8)
-				| (TMS99X8A_PALETTE[i][2] << 16)
+				   (int)(pow((float)rgb[0] / 255.0, gamma) * 255)
+				| ((int)(pow((float)rgb[1] / 255.0, gamma) * 255) << 8)
+				| ((int)(pow((float)rgb[2] / 255.0, gamma) * 255) << 16)
 				| 0xFF000000;
 		}
 	} else {
-		// Precalculate SDL palette for V9938 colours.
+		// Precalculate palette for V9938 colours.
 		for (int r = 0; r < 8; r++) {
 			for (int g = 0; g < 8; g++) {
 				for (int b = 0; b < 8; b++) {
-					const float gamma = 2.2 / 2.8;
 					V9938_COLOURS[r][g][b] =
 						   (int)(pow((float)r / 7.0, gamma) * 255)
 						| ((int)(pow((float)g / 7.0, gamma) * 255) << 8)
@@ -537,10 +560,10 @@ SDLGLRenderer::SDLGLRenderer(
 				}
 			}
 		}
+		// Precalculate palette for V9958 colours.
 		for (int r = 0; r < 32; r++) {
 			for (int g = 0; g < 32; g++) {
 				for (int b = 0; b < 32; b++) {
-					const float gamma = 2.2 / 2.8;
 					V9958_COLOURS[(r<<10) + (g<<5) + b] =
 						   (int)(pow((float)r / 31.0, gamma) * 255)
 						| ((int)(pow((float)g / 31.0, gamma) * 255) << 8)
@@ -563,21 +586,6 @@ SDLGLRenderer::SDLGLRenderer(
 				V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
 		}
 	}
-
-	// Register caches with VDPVRAM.
-	vram->patternTable.setObserver(&dirtyPattern);
-	vram->colourTable.setObserver(&dirtyColour);
-
-}
-
-SDLGLRenderer::~SDLGLRenderer()
-{
-	// Unregister caches with VDPVRAM.
-	vram->patternTable.setObserver(NULL);
-	vram->colourTable.setObserver(NULL);
-
-	delete console;
-	// TODO: Free textures.
 }
 
 void SDLGLRenderer::reset(const EmuTime &time)
@@ -591,6 +599,11 @@ void SDLGLRenderer::reset(const EmuTime &time)
 	// Invalidate bitmap cache.
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 
+	resetPalette();
+}
+
+void SDLGLRenderer::resetPalette()
+{
 	if (!vdp->isMSX1VDP()) {
 		// Reset the palette.
 		for (int i = 0; i < 16; i++) {
@@ -632,6 +645,13 @@ void SDLGLRenderer::frameStart(const EmuTime &time)
 	// NTSC: display at [32..244),
 	// PAL:  display at [59..271).
 	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
+
+	float gamma = settings->getGamma()->getValue();
+	if (gamma != prevGamma) {
+		prevGamma = gamma;
+		precalcPalette(gamma);
+		resetPalette();
+	}
 }
 
 void SDLGLRenderer::setDisplayMode(DisplayMode mode)

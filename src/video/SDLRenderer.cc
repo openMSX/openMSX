@@ -283,22 +283,40 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 	SDL_ShowCursor(SDL_DISABLE);
 
 	// Init the palette.
+	precalcPalette(settings->getGamma()->getValue());
+
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+SDLRenderer<Pixel, zoom>::~SDLRenderer()
+{
+	delete console;
+	SDL_FreeSurface(charDisplayCache);
+	SDL_FreeSurface(bitmapDisplayCache);
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::precalcPalette(float gamma)
+{
+	// It's gamma correction, so apply in reverse.
+	gamma = 1.0 / gamma;
+
 	if (vdp->isMSX1VDP()) {
 		// Fixed palette.
 		for (int i = 0; i < 16; i++) {
+			const byte *rgb = TMS99X8A_PALETTE[i];
 			palFg[i] = palBg[i] = SDL_MapRGB(
 				screen->format,
-				TMS99X8A_PALETTE[i][0],
-				TMS99X8A_PALETTE[i][1],
-				TMS99X8A_PALETTE[i][2]
+				(int)(pow((float)rgb[0] / 255.0, gamma) * 255),
+				(int)(pow((float)rgb[1] / 255.0, gamma) * 255),
+				(int)(pow((float)rgb[2] / 255.0, gamma) * 255)
 				);
 		}
 	} else {
-		// Precalculate SDL palette for V9938 colours.
+		// Precalculate palette for V9938 colours.
 		for (int r = 0; r < 8; r++) {
 			for (int g = 0; g < 8; g++) {
 				for (int b = 0; b < 8; b++) {
-					const float gamma = 2.2 / 2.8;
 					V9938_COLOURS[r][g][b] = SDL_MapRGB(
 						screen->format,
 						(int)(pow((float)r / 7.0, gamma) * 255),
@@ -308,10 +326,10 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 				}
 			}
 		}
+		// Precalculate palette for V9958 colours.
 		for (int r = 0; r < 32; r++) {
 			for (int g = 0; g < 32; g++) {
 				for (int b = 0; b < 32; b++) {
-					const float gamma = 2.2 / 2.8;
 					V9958_COLOURS[(r<<10) + (g<<5) + b] = SDL_MapRGB(
 						screen->format,
 						(int)(pow((float)r / 31.0, gamma) * 255),
@@ -335,15 +353,6 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 				V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
 		}
 	}
-
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-SDLRenderer<Pixel, zoom>::~SDLRenderer()
-{
-	delete console;
-	SDL_FreeSurface(charDisplayCache);
-	SDL_FreeSurface(bitmapDisplayCache);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -358,6 +367,12 @@ void SDLRenderer<Pixel, zoom>::reset(const EmuTime &time)
 	// Invalidate bitmap cache.
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 
+	resetPalette();
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::resetPalette()
+{
 	if (!vdp->isMSX1VDP()) {
 		// Reset the palette.
 		for (int i = 0; i < 16; i++) {
@@ -367,7 +382,8 @@ void SDLRenderer<Pixel, zoom>::reset(const EmuTime &time)
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-bool SDLRenderer<Pixel, zoom>::checkSettings() {
+bool SDLRenderer<Pixel, zoom>::checkSettings()
+{
 	// First check this is the right renderer.
 	if (!PixelRenderer::checkSettings()) return false;
 
@@ -403,6 +419,13 @@ void SDLRenderer<Pixel, zoom>::frameStart(
 	// PAL:  display at [59..271).
 	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
 	lineRenderBottom = lineRenderTop + HEIGHT / LINE_ZOOM;
+
+	float gamma = settings->getGamma()->getValue();
+	if (gamma != prevGamma) {
+		prevGamma = gamma;
+		precalcPalette(gamma);
+		resetPalette();
+	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>
