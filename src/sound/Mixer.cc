@@ -136,6 +136,7 @@ int Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 	info.modeSetting = new EnumSetting<ChannelMode>(
 		name + "_mode", "the channel mode of this sound chip",
 		modeMap[defaultMode], modeMap, DONT_SAVE_SETTING);
+	info.modeSetting->setValue(mode);
 	
 	info.mode = mode;
 	info.normalVolume = (volume * 100 * 100) / (75 * 75);
