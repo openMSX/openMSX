@@ -30,6 +30,12 @@ public:
 	  */
 	void reset(const EmuTime &time);
 
+	/** Change the timing of command execution.
+	  * @param timing The new active timing
+	  * @param time The moment in emulated time to sync to.
+	  */
+	void updateTiming(int timing, const EmuTime &time);
+
 	/** Synchronises the command engine with the VDP.
 	  * Ideally this would be a private method, but the current
 	  * design doesn't allow that.
@@ -110,7 +116,6 @@ private:
 	byte COL, ARG, CMD;
 	LogOp LOG;
 	
-
 	/** The command engine status (part of S#2).
 	  * Bit 7 (TR) is set when the command engine is ready for
 	  * a pixel transfer.
@@ -133,6 +138,10 @@ private:
 	  */
 	int scrMode;
 
+	/** Active timing, depends on screen/status being on/off.
+	  */  
+	int timingValue;
+
 	class VDPCmd;
 	VDPCmd* commands[16];
 
@@ -141,9 +150,9 @@ private:
 	  */
 	class VDPCmd {
 	public:
-		VDPCmd(VDPCmdEngine *engine_, VDPVRAM *vram_)
-			: engine(engine_), vram(vram_) {}
-
+		VDPCmd(VDPCmdEngine* engine, VDPVRAM* vram);
+		virtual ~VDPCmd();
+		
 		/** Prepare execution of cmd
 		  */
 		virtual void start(const EmuTime &time) = 0;
@@ -156,7 +165,11 @@ private:
 		  * specified time? It is allowed to return true if you're not
 		  * sure the status register will change.
 		  */
-		virtual bool willStatusChange(const EmuTime &time) { return true; }
+		virtual bool willStatusChange(const EmuTime &time) = 0;
+
+		/** Inform command of timing change
+		  */ 
+		virtual void updateTiming();
 
 	protected:
 		/** Calculate addr of a pixel in VRAM.
@@ -246,8 +259,7 @@ private:
 	  */
 	class AbortCmd : public VDPCmd {
 	public:
-		AbortCmd(VDPCmdEngine *engine, VDPVRAM *vram)
-			: VDPCmd(engine, vram) {}
+		AbortCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
 		virtual bool willStatusChange(const EmuTime &time);
@@ -258,8 +270,7 @@ private:
 	  */
 	class PointCmd : public VDPCmd {
 	public:
-		PointCmd(VDPCmdEngine *engine, VDPVRAM *vram)
-			: VDPCmd(engine, vram) {}
+		PointCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
 		virtual bool willStatusChange(const EmuTime &time);
@@ -270,8 +281,7 @@ private:
 	  */
 	class PsetCmd : public VDPCmd {
 	public:
-		PsetCmd(VDPCmdEngine *engine, VDPVRAM *vram)
-			: VDPCmd(engine, vram) {}
+		PsetCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
 		virtual bool willStatusChange(const EmuTime &time);
@@ -282,10 +292,10 @@ private:
 	  */
 	class SrchCmd : public VDPCmd {
 	public:
-		SrchCmd(VDPCmdEngine *engine, VDPVRAM *vram)
-			: VDPCmd(engine, vram) {}
+		SrchCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
+		virtual bool willStatusChange(const EmuTime &time);
 	};
 	friend class SrchCmd;
 
@@ -293,19 +303,33 @@ private:
 	  */
 	class LineCmd : public VDPCmd {
 	public:
-		LineCmd(VDPCmdEngine *engine, VDPVRAM *vram)
-			: VDPCmd(engine, vram) {}
+		LineCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
+		virtual bool willStatusChange(const EmuTime &time);
 	};
 	friend class LineCmd;
+	
+	/** Abstract base class for block commands.
+	  */
+	class BlockCmd : public VDPCmd {
+	public:
+		BlockCmd(VDPCmdEngine *engine, VDPVRAM *vram, const int* timing);
+		virtual bool willStatusChange(const EmuTime &time);
+		virtual void updateTiming();
+	protected:
+		void calcFinishTime();
+
+		const int* timing;
+		EmuTime finishTime;
+	};
+	friend class BlockCmd;
 
 	/** Logical move VDP -> VRAM.
 	  */
-	class LmmvCmd : public VDPCmd {
+	class LmmvCmd : public BlockCmd {
 	public:
-		LmmvCmd(VDPCmdEngine *engine, VDPVRAM *vram)
-			: VDPCmd(engine, vram) {}
+		LmmvCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
 	};
@@ -313,10 +337,9 @@ private:
 
 	/** Logical move VRAM -> VRAM.
 	  */
-	class LmmmCmd : public VDPCmd {
+	class LmmmCmd : public BlockCmd {
 	public:
-		LmmmCmd(VDPCmdEngine *engine, VDPVRAM *vram)
-			: VDPCmd(engine, vram) {}
+		LmmmCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
 	};
@@ -324,10 +347,9 @@ private:
 
 	/** Logical move VRAM -> CPU.
 	  */
-	class LmcmCmd : public VDPCmd {
+	class LmcmCmd : public BlockCmd {
 	public:
-		LmcmCmd(VDPCmdEngine *engine, VDPVRAM *vram)
-			: VDPCmd(engine, vram) {}
+		LmcmCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
 	};
@@ -335,10 +357,9 @@ private:
 
 	/** Logical move CPU -> VRAM.
 	  */
-	class LmmcCmd : public VDPCmd {
+	class LmmcCmd : public BlockCmd {
 	public:
-		LmmcCmd(VDPCmdEngine *engine, VDPVRAM *vram)
-			: VDPCmd(engine, vram) {}
+		LmmcCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
 	};
@@ -346,10 +367,9 @@ private:
 
 	/** High-speed move VDP -> VRAM.
 	  */
-	class HmmvCmd : public VDPCmd {
+	class HmmvCmd : public BlockCmd {
 	public:
-		HmmvCmd(VDPCmdEngine *engine, VDPVRAM *vram)
-			: VDPCmd(engine, vram) {}
+		HmmvCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
 	};
@@ -357,10 +377,9 @@ private:
 
 	/** High-speed move VRAM -> VRAM.
 	  */
-	class HmmmCmd : public VDPCmd {
+	class HmmmCmd : public BlockCmd {
 	public:
-		HmmmCmd(VDPCmdEngine *engine, VDPVRAM *vram)
-			: VDPCmd(engine, vram) {}
+		HmmmCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
 	};
@@ -368,10 +387,9 @@ private:
 
 	/** High-speed move VRAM -> VRAM (Y direction only).
 	  */
-	class YmmmCmd : public VDPCmd {
+	class YmmmCmd : public BlockCmd {
 	public:
-		YmmmCmd(VDPCmdEngine *engine, VDPVRAM *vram)
-			: VDPCmd(engine, vram) {}
+		YmmmCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
 	};
@@ -379,10 +397,9 @@ private:
 
 	/** High-speed move CPU -> VRAM.
 	  */
-	class HmmcCmd : public VDPCmd {
+	class HmmcCmd : public BlockCmd {
 	public:
-		HmmcCmd(VDPCmdEngine *engine, VDPVRAM *vram)
-			: VDPCmd(engine, vram) {}
+		HmmcCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
 	};

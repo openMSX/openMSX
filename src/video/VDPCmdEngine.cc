@@ -119,6 +119,14 @@ void VDPCmdEngine::reset(const EmuTime &time)
 
 	updateDisplayMode(vdp->getDisplayMode(), time);
 }
+	
+void VDPCmdEngine::updateTiming(int timing, const EmuTime &time)
+{
+	sync(time);
+	timingValue = timing;
+	commands[CMD]->updateTiming();
+}
+
 
 void VDPCmdEngine::setCmdReg(byte index, byte value, const EmuTime &time)
 {
@@ -278,6 +286,18 @@ static inline int VDP_VRMP7(int X, int Y)
 static inline int VDP_VRMP8(int X, int Y)
 {
 	return (((X & 1) << 16) + ((Y & 511) << 7) + ((X & 255) >> 1));
+}
+
+
+// VDPCmd
+
+VDPCmdEngine::VDPCmd::VDPCmd(VDPCmdEngine *engine_, VDPVRAM *vram_)
+	: engine(engine_), vram(vram_)
+{
+}
+
+VDPCmdEngine::VDPCmd::~VDPCmd()
+{
 }
 
 inline void VDPCmdEngine::VDPCmd::clipNX_SX()
@@ -447,7 +467,7 @@ int VDPCmdEngine::VDPCmd::getVdpTimingValue(const int *timingValues)
 {
 	return VDPSettings::instance()->getCmdTiming()->getValue()
 	       ? 0
-	       : timingValues[engine->vdp->getAccessTiming()];
+	       : timingValues[engine->timingValue];
 }
 
 void VDPCmdEngine::VDPCmd::commandDone()
@@ -458,6 +478,10 @@ void VDPCmdEngine::VDPCmd::commandDone()
 	vram->cmdWriteWindow.disable(currentTime);
 }
 
+void VDPCmdEngine::VDPCmd::updateTiming()
+{
+	// ignore as default implementation
+}
 
 
 
@@ -498,6 +522,11 @@ void VDPCmdEngine::VDPCmd::commandDone()
 
 // ABORT
 
+VDPCmdEngine::AbortCmd::AbortCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+	: VDPCmd(engine, vram)
+{
+}
+
 void VDPCmdEngine::AbortCmd::start(const EmuTime &time)
 {
 	commandDone();
@@ -513,6 +542,11 @@ bool VDPCmdEngine::AbortCmd::willStatusChange(const EmuTime &time)
 }
 
 // POINT
+
+VDPCmdEngine::PointCmd::PointCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+	: VDPCmd(engine, vram)
+{
+}
 
 void VDPCmdEngine::PointCmd::start(const EmuTime &time)
 {
@@ -536,6 +570,11 @@ bool VDPCmdEngine::PointCmd::willStatusChange(const EmuTime &time)
 
 // PSET
 
+VDPCmdEngine::PsetCmd::PsetCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+	: VDPCmd(engine, vram)
+{
+}
+
 void VDPCmdEngine::PsetCmd::start(const EmuTime &time)
 {
 	currentTime = time;
@@ -558,6 +597,11 @@ bool VDPCmdEngine::PsetCmd::willStatusChange(const EmuTime &time)
 
 
 // SRCH
+
+VDPCmdEngine::SrchCmd::SrchCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+	: VDPCmd(engine, vram)
+{
+}
 
 void VDPCmdEngine::SrchCmd::start(const EmuTime &time)
 {
@@ -607,8 +651,18 @@ void VDPCmdEngine::SrchCmd::execute(const EmuTime &time)
 	}
 }
 
+bool VDPCmdEngine::SrchCmd::willStatusChange(const EmuTime &time)
+{
+	return true;	// we can find it any moment
+}
+
 
 // LINE
+
+VDPCmdEngine::LineCmd::LineCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+	: VDPCmd(engine, vram)
+{
+}
 
 void VDPCmdEngine::LineCmd::start(const EmuTime &time)
 {
@@ -687,8 +741,44 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 	}
 }
 
+bool VDPCmdEngine::LineCmd::willStatusChange(const EmuTime &time)
+{
+	// TODO can still be optimized
+	return true;
+}
+
+
+// BlockCmd
+
+VDPCmdEngine::BlockCmd::BlockCmd(VDPCmdEngine *engine, VDPVRAM *vram,
+		                 const int* timing_)
+	: VDPCmd(engine, vram), timing(timing_)
+{
+}
+
+bool VDPCmdEngine::BlockCmd::willStatusChange(const EmuTime &time)
+{
+	return finishTime <= time;
+}
+
+void VDPCmdEngine::BlockCmd::calcFinishTime()
+{
+	int ticks = ((NX * (NY - 1)) + ANX) * getVdpTimingValue(timing); 
+	finishTime = currentTime + ticks; 
+}
+
+void VDPCmdEngine::BlockCmd::updateTiming()
+{
+	calcFinishTime();
+}
+
 
 // LMMV
+
+VDPCmdEngine::LmmvCmd::LmmvCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+	: BlockCmd(engine, vram, LMMV_TIMING)
+{
+}
 
 void VDPCmdEngine::LmmvCmd::start(const EmuTime &time)
 {
@@ -708,6 +798,7 @@ void VDPCmdEngine::LmmvCmd::start(const EmuTime &time)
 	clipNY_DY();
 	ADX = DX;
 	ANX = NX;
+	calcFinishTime();
 }
 
 void VDPCmdEngine::LmmvCmd::execute(const EmuTime &time)
@@ -739,6 +830,11 @@ void VDPCmdEngine::LmmvCmd::execute(const EmuTime &time)
 
 // LMMM
 
+VDPCmdEngine::LmmmCmd::LmmmCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+	: BlockCmd(engine, vram, LMMM_TIMING)
+{
+}
+
 void VDPCmdEngine::LmmmCmd::start(const EmuTime &time)
 {
 	opsCount = 0;
@@ -758,6 +854,7 @@ void VDPCmdEngine::LmmmCmd::start(const EmuTime &time)
 	ASX = SX;
 	ADX = DX;
 	ANX = NX;
+	calcFinishTime();
 }
 
 void VDPCmdEngine::LmmmCmd::execute(const EmuTime &time)
@@ -789,6 +886,11 @@ void VDPCmdEngine::LmmmCmd::execute(const EmuTime &time)
 
 // LMCM
 
+VDPCmdEngine::LmcmCmd::LmcmCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+	: BlockCmd(engine, vram, LMMV_TIMING)
+{
+}
+
 void VDPCmdEngine::LmcmCmd::start(const EmuTime &time)
 {
 	opsCount = 0;
@@ -805,6 +907,7 @@ void VDPCmdEngine::LmcmCmd::start(const EmuTime &time)
 	clipNY_SY();
 	ASX = SX;
 	ANX = NX;
+	calcFinishTime();
 }
 
 void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
@@ -831,6 +934,11 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 
 // LMMC
 
+VDPCmdEngine::LmmcCmd::LmmcCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+	: BlockCmd(engine, vram, LMMV_TIMING)
+{
+}
+
 void VDPCmdEngine::LmmcCmd::start(const EmuTime &time)
 {
 	opsCount = 0;
@@ -848,6 +956,7 @@ void VDPCmdEngine::LmmcCmd::start(const EmuTime &time)
 	clipNY_DY();
 	ADX = DX;
 	ANX = NX;
+	calcFinishTime();
 }
 
 void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
@@ -876,6 +985,11 @@ void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
 
 // HMMV
 
+VDPCmdEngine::HmmvCmd::HmmvCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+	: BlockCmd(engine, vram, HMMV_TIMING)
+{
+}
+
 void VDPCmdEngine::HmmvCmd::start(const EmuTime &time)
 {
 	opsCount = 0;
@@ -896,6 +1010,7 @@ void VDPCmdEngine::HmmvCmd::start(const EmuTime &time)
 	DX *= ppb;
 	ADX = DX;
 	ANX = NX;
+	calcFinishTime();
 }
 
 void VDPCmdEngine::HmmvCmd::execute(const EmuTime &time)
@@ -931,6 +1046,11 @@ void VDPCmdEngine::HmmvCmd::execute(const EmuTime &time)
 
 // HMMM
 
+VDPCmdEngine::HmmmCmd::HmmmCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+	: BlockCmd(engine, vram, HMMM_TIMING)
+{
+}
+
 void VDPCmdEngine::HmmmCmd::start(const EmuTime &time)
 {
 	opsCount = 0;
@@ -953,6 +1073,7 @@ void VDPCmdEngine::HmmmCmd::start(const EmuTime &time)
 	ASX = SX;
 	ADX = DX;
 	ANX = NX;
+	calcFinishTime();
 }
 
 void VDPCmdEngine::HmmmCmd::execute(const EmuTime &time)
@@ -1000,6 +1121,11 @@ void VDPCmdEngine::HmmmCmd::execute(const EmuTime &time)
 
 // YMMM
 
+VDPCmdEngine::YmmmCmd::YmmmCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+	: BlockCmd(engine, vram, YMMM_TIMING)
+{
+}
+
 void VDPCmdEngine::YmmmCmd::start(const EmuTime &time)
 {
 	opsCount = 0;
@@ -1021,6 +1147,7 @@ void VDPCmdEngine::YmmmCmd::start(const EmuTime &time)
 	ASX = SX;
 	ADX = DX;
 	ANX = NX;
+	calcFinishTime();
 }
 
 void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
@@ -1068,6 +1195,11 @@ void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
 
 // HMMC
 
+VDPCmdEngine::HmmcCmd::HmmcCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+	: BlockCmd(engine, vram, HMMV_TIMING)
+{
+}
+
 void VDPCmdEngine::HmmcCmd::start(const EmuTime &time)
 {
 	opsCount = 0;
@@ -1088,6 +1220,7 @@ void VDPCmdEngine::HmmcCmd::start(const EmuTime &time)
 	DX *= ppb;
 	ADX = DX;
 	ANX = NX;
+	calcFinishTime();
 }
 
 void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)

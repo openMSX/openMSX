@@ -74,13 +74,13 @@ void VDPVRAM::updateDisplayMode(DisplayMode mode, const EmuTime &time) {
 void VDPVRAM::updateDisplayEnabled(bool enabled, const EmuTime &time) {
 	assert(vdp->isInsideFrame(time));
 	renderer->updateDisplayEnabled(enabled, time);
-	cmdEngine->sync(time);
+	cmdEngine->updateTiming(vdp->getAccessTiming(), time);
 	spriteChecker->updateDisplayEnabled(enabled, time);
 }
 
 void VDPVRAM::updateSpritesEnabled(bool enabled, const EmuTime &time) {
 	assert(vdp->isInsideFrame(time));
-	cmdEngine->sync(time);
+	cmdEngine->updateTiming(vdp->getAccessTiming(), time);
 	spriteChecker->updateSpritesEnabled(enabled, time);
 }
 
