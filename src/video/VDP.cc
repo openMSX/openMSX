@@ -119,6 +119,15 @@ VDP::VDP(Device* config, const EmuTime& time)
 	Debugger::instance().registerDebuggable("vdp-regs", vdpRegDebug);
 	Debugger::instance().registerDebuggable("vdp-status-regs", vdpStatusRegDebug);
 
+	// Initialise time stamps.
+	// This will be done again by frameStart, but these have to be
+	// initialised before reset() is called.
+	// TODO: Can this be simplified with a different design?
+	frameStartTime = time;
+	displayStartSyncTime = time;
+	vScanSyncTime = time;
+	hScanSyncTime = time;
+
 	// Reset state.
 	reset(time);
 }
@@ -206,15 +215,6 @@ void VDP::reset(const EmuTime &time)
 	Scheduler::instance().removeSyncPoint(this, HOR_ADJUST);
 	Scheduler::instance().removeSyncPoint(this, SET_MODE);
 	Scheduler::instance().removeSyncPoint(this, SET_BLANK);
-
-	// Initialise time stamps.
-	// This will be done again by frameStart, but these have to be
-	// initialised before reset() is called.
-	// TODO: Can this be simplified with a different design?
-	frameStartTime = time;
-	displayStartSyncTime = time;
-	vScanSyncTime = time;
-	hScanSyncTime = time;
 
 	resetInit(time);
 	
