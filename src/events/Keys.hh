@@ -15,7 +15,19 @@ namespace openmsx {
 
 class Keys {
 	public:
-		enum KeyCode {
+		// There are two special key codes:
+		//  - K_NONE    : returned when we do string -> key code
+		//                translation and there is no key with given
+		//                name. Most likely the keyname was misspelled.
+		//  - K_UNKNOWN : this code is returned when a real key was
+		//                pressed, but we have no idea which key it is.
+		//                Should only happen when the user has some
+		//                exotic keyboard. Note that might be possible
+		//                there are multiple keys that produce this
+		//                code.
+		enum KeyCode 
+		{
+			K_NONE          = -1,
 			K_UNKNOWN	= SDLK_UNKNOWN,
 			K_BACKSPACE	= SDLK_BACKSPACE,
 			K_TAB		= SDLK_TAB,
@@ -168,8 +180,18 @@ class Keys {
 			KD_UP		= 0x10000,	// key release
 		};
 		
+		/* 
+		 * Translate key name to key code.
+		 * Returns K_NONE when the name is unknown.
+		 */
 		static Keys::KeyCode getCode(const string &name);
+
 		static Keys::KeyCode getCode(const SDLKey &key);
+
+		/*
+		 * Translate key code to key name.
+		 * Returns the string "unknown" for unknown key codes.
+		 */
 		static const string &getName(const KeyCode keyCode);
 
 	private:

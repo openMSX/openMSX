@@ -12,7 +12,7 @@ Keys::KeyCode Keys::getCode(const string &name)
 	if (it != keymap.end()) {
 		return (*it).second;
 	} else {
-		return K_UNKNOWN;
+		return K_NONE;
 	}
 }
 
@@ -41,7 +41,6 @@ void Keys::initialize()
 	if (init) return;
 	init = true;
 
-	keymap["UNKNOWN"]	= K_UNKNOWN;
 	keymap["BACKSPACE"]	= K_BACKSPACE;
 	keymap["TAB"]		= K_TAB;
 	keymap["CLEAR"]		= K_CLEAR;
