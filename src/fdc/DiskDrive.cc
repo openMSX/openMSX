@@ -26,12 +26,12 @@ DummyDrive::~DummyDrive()
 
 bool DummyDrive::ready()
 {
-	return false;	// TODO check
+	return true;	// TODO check
 }
 
 bool DummyDrive::writeProtected()
 {
-	return true;	// TODO check
+	return false;	// TODO check
 }
 
 bool DummyDrive::doubleSided()
