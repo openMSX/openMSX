@@ -202,9 +202,10 @@ private:
 	word WM, fgCol, bgCol;
 	byte ARG, CMD, LOG;
 
-	/** VRAM read/write address for xMMC and xMCM commands
+	/** VRAM read/write address for various commands
 	  */
-	uint address;
+	uint srcAddress;
+	uint dstAddress;
 
 	/** counters
 	  */

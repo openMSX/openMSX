@@ -148,6 +148,12 @@ public:
 		return regs[BACK_DROP_COLOR];
 	}
 
+	/** Returns the X scroll offset
+	  */
+	inline int getScrollX() {
+		return regs[SCROLL_CONTROL_AX0] + 8 * regs[SCROLL_CONTROL_AX1];
+	}
+
 	/** Returns the Y scroll offset
 	  */
 	inline int getScrollY() {

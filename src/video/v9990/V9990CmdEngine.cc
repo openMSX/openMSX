@@ -345,9 +345,11 @@ void V9990CmdEngine::CmdLMMC<Mode>::start(const EmuTime& time)
 	          " WM=" << std::hex << engine->WM <<
 	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
 
-	engine->address = Mode::addressOf(engine->DX,
-	                                  engine->DY,
-	                                  engine->vdp->getImageWidth());
+	if (Mode::BITS_PER_PIXEL == 16) {
+		engine->dstAddress = Mode::addressOf(engine->DX,
+		                                     engine->DY,
+		                                     engine->vdp->getImageWidth());
+	}
 	engine->ANX = engine->NX;
 	engine->ANY = engine->NY;
 	engine->transfer = false;
@@ -359,10 +361,10 @@ void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime&
 		engine->transfer = false;
 		int width = engine->vdp->getImageWidth();
 
-		byte value = vram->readVRAM(engine->address);
+		byte value = vram->readVRAM(engine->dstAddress);
 		value = engine->logOp(engine->data, value);
-		vram->writeVRAM(engine->address, value);
-		if(! (++(engine->address) & 0x01)) {
+		vram->writeVRAM(engine->dstAddress, value);
+		if(! (++(engine->dstAddress) & 0x01)) {
 			int dx = (engine->ARG & 0x04) ? -1 : 1;
 			engine->DX += dx;
 			if (!(--(engine->ANX))) {
@@ -375,9 +377,9 @@ void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime&
 					engine->ANX = engine->NX;
 				}
 			}
-			engine->address = V9990Bpp16::addressOf(engine->DX,
-			                                        engine->DY,
-			                                        width);
+			engine->dstAddress = V9990Bpp16::addressOf(engine->DX,
+			                                           engine->DY,
+			                                           width);
 		}
 	}
 }
@@ -620,9 +622,9 @@ V9990CmdEngine::CmdCMMM<Mode>::CmdCMMM(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdCMMM<Mode>::start(const EmuTime& time)
 {
-	engine->address = (engine->SX & 0xFF) + ((engine->SY & 0x3FF) << 8);
+	engine->srcAddress = (engine->SX & 0xFF) + ((engine->SY & 0x3FF) << 8);
 
-	PRT_DEBUG("CMMM: ADR=0x" << std::hex << engine->address <<
+	PRT_DEBUG("CMMM: ADR=0x" << std::hex << engine->srcAddress <<
 	          " DX=" << std::dec << engine->DX <<
 	          " DY=" << std::dec << engine->DY <<
 	          " NX=" << std::dec << engine->NX <<
@@ -656,7 +658,7 @@ void V9990CmdEngine::CmdCMMM<Mode>::execute(const EmuTime& time)
 	int dy = (engine->ARG & 0x08) ? -1 : 1;
 	while (true) {
 		if (!engine->bitsLeft) {
-			engine->data = vram->readVRAM(engine->address++);
+			engine->data = vram->readVRAM(engine->srcAddress++);
 			engine->bitsLeft = 8;
 		}
 		--engine->bitsLeft;
@@ -696,13 +698,87 @@ V9990CmdEngine::CmdBMXL<Mode>::CmdBMXL(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdBMXL<Mode>::start(const EmuTime& time)
 {
-	std::cout << "V9990: BMXL not yet implemented" << std::endl;
-	engine->cmdReady(); // TODO dummy implementation
+	engine->srcAddress = (engine->SX & 0xFF) + ((engine->SY & 0x3FF) << 8);
+
+	PRT_DEBUG("BMXL: DX=" << std::dec << engine->DX <<
+	          " DY=" << std::dec << engine->DY <<
+	          " NX=" << std::dec << engine->NX <<
+	          " NY=" << std::dec << engine->NY <<
+	          " ARG="<< std::hex << (int)engine->ARG <<
+	          " WM=" << std::hex << engine->WM <<
+	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
+
+	if (Mode::BITS_PER_PIXEL == 16) {
+		engine->dstAddress = Mode::addressOf(engine->DX,
+						     engine->DY,
+						     engine->vdp->getImageWidth());
+	}
+	engine->ANX = engine->NX;
+	engine->ANY = engine->NY;
+	
+	// TODO should be done by sync
+	execute(time);
+}
+
+void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime& time)
+{
+	int width = engine->vdp->getImageWidth();
+	int dx = (engine->ARG & 0x04) ? -1 : 1;
+	int dy = (engine->ARG & 0x08) ? -1 : 1;
+
+	while (true) {
+		byte value = vram->readVRAM(engine->dstAddress);
+		byte data = vram->readVRAM(engine->srcAddress++);
+		value = engine->logOp(data, value);
+		vram->writeVRAM(engine->dstAddress, value);
+		if(! (++(engine->dstAddress) & 0x01)) {
+			engine->DX += dx;
+			if (!(--(engine->ANX))) {
+				engine->DX -= (engine->NX * dx);
+				engine->DY += dy;
+				if(! (--(engine->ANY))) {
+					engine->cmdReady();
+					return;
+				} else {
+					engine->ANX = engine->NX;
+				}
+			}
+			engine->dstAddress = V9990Bpp16::addressOf(engine->DX,
+			                                           engine->DY,
+			                                           width);
+		}
+	}
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdBMXL<Mode>::execute(const EmuTime& time)
 {
+	int width = engine->vdp->getImageWidth() / Mode::PIXELS_PER_BYTE;
+	int dx = (engine->ARG & 0x04) ? -1 : 1;
+	int dy = (engine->ARG & 0x08) ? -1 : 1;
+
+	while (true) {
+		byte data = vram->readVRAM(engine->srcAddress++);
+		for (int i = 0; (engine->ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
+			byte value = Mode::point(vram, engine->DX, engine->DY, width);
+			value = engine->logOp((data >> (8 - Mode::BITS_PER_PIXEL)),
+			                      value, Mode::MASK);
+			Mode::pset(vram, engine->DX, engine->DY, width, value);
+			
+			engine->DX += dx;
+			if (!--(engine->ANX)) {
+				engine->DX -= (engine->NX * dx);
+				engine->DY += dy;
+				if (!--(engine->ANY)) {
+					engine->cmdReady();
+					return;
+				} else {
+					engine->ANX = engine->NX;
+				}
+			}
+			data <<= Mode::BITS_PER_PIXEL;
+		}
+	}
 }
 
 // ====================================================================
@@ -718,13 +794,69 @@ V9990CmdEngine::CmdBMLX<Mode>::CmdBMLX(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdBMLX<Mode>::start(const EmuTime& time)
 {
-	std::cout << "V9990: BMLX not yet implemented" << std::endl;
-	engine->cmdReady(); // TODO dummy implementation
+	engine->dstAddress = (engine->DX & 0xFF) + ((engine->DY & 0x3FF) << 8);
+
+	PRT_DEBUG("BMLX: SX=" << std::dec << engine->SX <<
+	          " SY=" << std::dec << engine->SY <<
+	          " ADR="<< std::hex << engine->dstAddress <<
+	          " NX=" << std::dec << engine->NX <<
+	          " NY=" << std::dec << engine->NY <<
+	          " ARG="<< std::hex << (int)engine->ARG <<
+	          " LOG="<< std::hex << (int)engine->LOG <<
+	          " WM=" << std::hex << engine->WM <<
+	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
+
+	engine->ANX = engine->NX;
+	engine->ANY = engine->NY;
+
+	// TODO should be done by sync
+	execute(time);
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdBMLX<Mode>::execute(const EmuTime& time)
 {
+	// TODO lots of corner cases still go wrong
+	//      very dumb implementation, can be made much faster
+	int width = engine->vdp->getImageWidth();
+	if (Mode::PIXELS_PER_BYTE) {
+		// hack to avoid "warning: division by zero"
+		int ppb = Mode::PIXELS_PER_BYTE; 
+		width /= ppb;
+	}
+	int dx = (engine->ARG & 0x04) ? -1 : 1;
+	int dy = (engine->ARG & 0x08) ? -1 : 1;
+
+	word tmp = 0;
+	engine->bitsLeft = 16;
+	while (true) {
+		word src  = Mode::point(vram, engine->SX, engine->SY, width);
+		tmp <<= Mode::BITS_PER_PIXEL;
+		tmp |= src;
+		engine->bitsLeft -= Mode::BITS_PER_PIXEL;
+		if (!engine->bitsLeft) {
+			vram->writeVRAM(engine->dstAddress++, tmp & 0xFF);
+			vram->writeVRAM(engine->dstAddress++, tmp >> 8);
+			engine->bitsLeft = 16;
+			tmp = 0;
+		}
+		
+		engine->DX += dx;
+		engine->SX += dx;
+		if (!--(engine->ANX)) {
+			engine->DX -= (engine->NX * dx);
+			engine->SX -= (engine->NX * dx);
+			engine->DY += dy;
+			engine->SY += dy;
+			if (!--(engine->ANY)) {
+				engine->cmdReady();
+				// TODO handle last pixels
+				return;
+			} else {
+				engine->ANX = engine->NX;
+			}
+		}
+	}
 }
 
 // ====================================================================

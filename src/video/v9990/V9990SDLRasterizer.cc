@@ -257,22 +257,28 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 
 			displayX = V9990::UCtoX(displayX, displayMode);
 			displayWidth = V9990::UCtoX(displayWidth, displayMode);
+			int scrollX = vdp->getScrollX();
 			int scrollY = vdp->getScrollY();
 			int y = displayY + scrollY & 0x1FFF; // TODO roll is ignored
 			uint address = vdp->XYtoVRAM(&displayX, y, colorMode);
 			switch (colorMode) {
+				// TODO per pixel X scrolling doesn't work yet
 				case BP2:
 					vramStep = imageWidth / 4;
+					address += scrollX / 4;
 					break;
 				case BP4:
 				case PP:
 					vramStep = imageWidth / 2;
+					address += scrollX / 2;
 					break;
 				case BD16:
 					vramStep = imageWidth * 2;
+					address += scrollX * 2;
 					break;
 				default:
 					vramStep = imageWidth;
+					address += scrollX;
 			}
 			if (vdp->isEvenOddEnabled()) {
 				if (vdp->getEvenOdd()) {
