@@ -11,7 +11,6 @@
 
 class MSXCPU : public MSXDevice, public Schedulable
 {
-	friend MSXRomPatchInterface;
 	public:
 		enum CPUType { CPU_Z80 };	//, CPU_R800 };
 	
