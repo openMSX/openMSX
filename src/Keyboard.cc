@@ -20,11 +20,16 @@ Keyboard::~Keyboard()
 const byte* Keyboard::getKeys()
 {
 	EventDistributor::instance()->pollSyncEvents();
-	if (lazyGhosting && keyGhosting) {
-		doKeyGhosting();
-		lazyGhosting = false;
+	if (keysChanged) {
+		keysChanged = false;
+		for (int i=0; i<NR_KEYROWS; i++) 
+			keyMatrix2[i] = keyMatrix[i];
+		if (keyGhosting)
+			doKeyGhosting();
+		for (int i=0; i<NR_KEYROWS; i++)
+		PRT_DEBUG("Keymatrix row " << i << ": " << (int)keyMatrix2[i]);
 	}
-	return keyMatrix;
+	return keyMatrix2;
 }
 
 
@@ -47,10 +52,7 @@ void Keyboard::signalEvent(SDL_Event &event)
 	default:
 		assert(false);
 	}
-	lazyGhosting = true;	// do ghosting at next getKeys()
-	for (int i=0; i<NR_KEYROWS; i++)
-		PRT_DEBUG("Keymatrix row " << i << " : " << (int)keyMatrix[i]);
-		
+	keysChanged = true;	// do ghosting at next getKeys()
 }
 
 
@@ -69,12 +71,12 @@ void Keyboard::doKeyGhosting()
 	bool changed_something;
 	do {
 		changed_something = false;
-		for (int i=0; i<=NR_KEYROWS; i++) {
-			for (int j=0; j<=NR_KEYROWS; j++) {
-				if ((keyMatrix[i]|keyMatrix[j]) != 255) {
-					byte rowanded = keyMatrix[i]&keyMatrix[j];
-					if (rowanded != keyMatrix[i]) {
-						keyMatrix[i] = rowanded;
+		for (int i=0; i<NR_KEYROWS; i++) {
+			for (int j=0; j<NR_KEYROWS; j++) {
+				if ((keyMatrix2[i]|keyMatrix2[j]) != 255) {
+					byte rowanded = keyMatrix2[i]&keyMatrix2[j];
+					if (rowanded != keyMatrix2[i]) {
+						keyMatrix2[i] = rowanded;
 						changed_something = true;
 					}
 				}

@@ -21,8 +21,9 @@ class Keyboard : public EventListener
 		void doKeyGhosting();
 
 		byte keyMatrix[NR_KEYROWS];
+		byte keyMatrix2[NR_KEYROWS];
 		bool keyGhosting;
-		bool lazyGhosting;
+		bool keysChanged;
 		static byte Keys[336][2];
 };
 #endif

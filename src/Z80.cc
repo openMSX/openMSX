@@ -120,12 +120,14 @@ int Z80::Z80_SingleInstruction()
 	++R.R;
 	R.ICount = cycles_main[opcode];
 	(this->*opcode_main[opcode])();;	// R.ICount can be raised extra
+	#if 0
 	#ifdef DEBUG
 		printf("%04x : instruction ", start_pc);
 		Z80_Dasm(&debugmemory[start_pc], to_print_string, start_pc );
 		printf("%s\n", to_print_string );
 		printf("      A=%02x F=%02x \n", R.AF.B.h, R.AF.B.l);
 		printf("      BC=%04x DE=%04x HL=%04x \n", R.BC.W.l, R.DE.W.l, R.HL.W.l);
+	#endif
 	#endif
 	return R.ICount;
 }

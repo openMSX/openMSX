@@ -8,6 +8,12 @@
 
 Leds::Leds()
 {
+	setLed(POWER_OFF);
+	setLed(CAPS_OFF);
+	setLed(KANA_OFF);
+	setLed(PAUSE_OFF);
+	setLed(TURBO_OFF);
+	setLed(FDD_OFF);
 }
 
 Leds::~Leds()
@@ -28,40 +34,76 @@ void Leds::setLed(LEDCommand led)
 {
 	switch (led) {
 	case POWER_ON:
-		PRT_INFO ("Power LED ON");
+		if (!pwrLed) {
+			PRT_INFO ("Power LED ON");
+			pwrLed = true;
+		}
 		break;
 	case POWER_OFF:
-		PRT_INFO ("Power LED OFF");
+		if (pwrLed) {
+			PRT_INFO ("Power LED OFF");
+			pwrLed = false;
+		}
 		break;
 	case CAPS_ON:
-		PRT_INFO ("Caps LED ON");
+		if (!capsLed) {
+			PRT_INFO ("Caps LED ON");
+			capsLed = true;
+		}
 		break;
 	case CAPS_OFF:
-		PRT_INFO ("Caps LED OFF");
+		if (capsLed) {
+			PRT_INFO ("Caps LED OFF");
+			capsLed = false;
+		}
 		break;
 	case KANA_ON:
-		PRT_INFO ("Kana LED ON");
+		if (!kanaLed) {
+			PRT_INFO ("Kana LED ON");
+			kanaLed = true;
+		}
 		break;
 	case KANA_OFF:
-		PRT_INFO ("Kana LED OFF");
+		if (kanaLed) {
+			PRT_INFO ("Kana LED OFF");
+			kanaLed = false;
+		}
 		break;
 	case PAUSE_ON:
-		PRT_INFO ("Pause LED ON");
+		if (!pauseLed) {
+			PRT_INFO ("Pause LED ON");
+			pauseLed = true;
+		}
 		break;
 	case PAUSE_OFF:
-		PRT_INFO ("Pause LED OFF");
+		if (pauseLed) {
+			PRT_INFO ("Pause LED OFF");
+			pauseLed = false;
+		}
 		break;
 	case TURBO_ON:
-		PRT_INFO ("Turbo LED ON");
+		if (!turboLed) {
+			PRT_INFO ("Turbo LED ON");
+			turboLed = true;
+		}
 		break;
 	case TURBO_OFF:
-		PRT_INFO ("Turbo LED OFF");
+		if (turboLed) {
+			PRT_INFO ("Turbo LED OFF");
+			turboLed = false;
+		}
 		break;
 	case FDD_ON:
-		PRT_INFO ("FDD LED ON");
+		if (!fddLed) {
+			PRT_INFO ("FDD LED ON");
+			fddLed = true;
+		}
 		break;
 	case FDD_OFF:
-		PRT_INFO ("FDD LED OFF");
+		if (fddLed) {
+			PRT_INFO ("FDD LED OFF");
+			fddLed = false;
+		}
 		break;
 	}
 }
