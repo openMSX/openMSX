@@ -134,6 +134,7 @@ private:
 	bool emulationRunning;
 
 	bool paused;
+	EmuTime scheduleTime;
 
 	Renderer* renderer;
 	BooleanSetting pauseSetting;

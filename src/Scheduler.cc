@@ -55,7 +55,7 @@ Scheduler& Scheduler::instance()
 
 void Scheduler::setSyncPoint(const EmuTime &timeStamp, Schedulable *device, int userData)
 {
-	assert((timeStamp == ASAP) || (cpu.getCurrentTime() <= timeStamp));
+	assert((timeStamp == ASAP) || (scheduleTime <= timeStamp));
 	if (device) {
 		//PRT_DEBUG("Sched: registering " << device->schedName() <<
 		//          " " << userData << " for emulation at " << timeStamp);
@@ -121,7 +121,7 @@ void Scheduler::schedule(const EmuTime &limit)
 		}
 
 		if (time == ASAP) {
-			scheduleDevice(sp, cpu.getCurrentTime());
+			scheduleDevice(sp, scheduleTime);
 			eventDistributor.poll();
 		} else if (!powerSetting.getValue()) {
 			sem.up();
@@ -156,6 +156,8 @@ void Scheduler::schedule(const EmuTime &limit)
 void Scheduler::scheduleDevice(
 	const SynchronizationPoint &sp, const EmuTime &time )
 {
+	assert(scheduleTime <= time);
+	scheduleTime = time;
 	pop_heap(syncPoints.begin(), syncPoints.end());
 	syncPoints.pop_back();
 	sem.up();
