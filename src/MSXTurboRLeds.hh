@@ -24,6 +24,9 @@ public:
 	virtual void reset(const EmuTime& time);
 	virtual void powerDown(const EmuTime& time);
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
+
+private:
+	byte prev;
 };
 
 } // namespace openmsx

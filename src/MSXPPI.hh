@@ -76,6 +76,7 @@ private:
 	RenShaTurbo& renshaTurbo;
 	std::auto_ptr<KeyClick> click;
 	std::auto_ptr<Keyboard> keyboard;
+	nibble prevBits;
 	nibble selectedRow;
 };
 

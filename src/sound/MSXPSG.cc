@@ -14,6 +14,7 @@ namespace openmsx {
 MSXPSG::MSXPSG(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
 	, cassette(CassettePortFactory::instance())
+	, prev(255)
 {
 	keyLayoutBit = deviceConfig.getChildData("keyboardlayout", "") == "JIS";
 	ay8910.reset(new AY8910(*this, config, time));
@@ -106,8 +107,11 @@ void MSXPSG::writeB(byte value, const EmuTime& time)
 	ports[1]->write(val1, time);
 	selectedPort = (value & 0x40) >> 6;
 
-	EventDistributor::instance().distributeEvent(
-		new LedEvent(LedEvent::KANA, !(value & 0x80)));
+	if ((prev ^ value) & 0x80) {
+		EventDistributor::instance().distributeEvent(
+			new LedEvent(LedEvent::KANA, !(value & 0x80)));
+	}
+	prev = value;
 }
 
 } // namespace openmsx

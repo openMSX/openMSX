@@ -14,7 +14,6 @@ class JoystickPort;
 
 class MSXPSG : public MSXDevice, public AY8910Interface
 {
-// MSXDevice
 public:
 	MSXPSG(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXPSG();
@@ -26,11 +25,7 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	int registerLatch;
-	std::auto_ptr<AY8910> ay8910;
-
-// AY8910Interface
-public:
+	// AY8910Interface
 	virtual byte readA(const EmuTime& time);
 	virtual byte readB(const EmuTime& time);
 	virtual byte peekA(const EmuTime& time) const;
@@ -38,14 +33,14 @@ public:
 	virtual void writeA(byte value, const EmuTime& time);
 	virtual void writeB(byte value, const EmuTime& time);
 
-private:
-	CassettePortInterface& cassette;
-	bool keyLayoutBit;
-
-// joystick ports
-private:
-	int selectedPort;
+	std::auto_ptr<AY8910> ay8910;
 	std::auto_ptr<JoystickPort> ports[2];
+	CassettePortInterface& cassette;
+
+	int registerLatch;
+	int selectedPort;
+	byte prev;
+	bool keyLayoutBit;
 };
 
 } // namespace openmsx

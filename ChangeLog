@@ -1,6 +1,10 @@
 $Id$
 
-2005-02-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2005-03-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Don't send LED events when LED status didn't change:
+	   fixes the slowdowns in sphere
+
+2005-02-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed warnings while compiling with -Wextra (all harmless)
 
 2005-02-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
