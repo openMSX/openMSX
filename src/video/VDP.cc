@@ -724,10 +724,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 			syncAtNextLine(SET_MODE, time);
 		}
 		if (change & 0x40) {
-			// TODO this doesn't work, why??
-			//syncAtNextLine(SET_BLANK, time);
-			displayEnabled = val & 0x40;
-			vram->updateDisplayEnabled(isDisplayEnabled(), time);
+			syncAtNextLine(SET_BLANK, time);
 		}
 		break;
 	case 2: {

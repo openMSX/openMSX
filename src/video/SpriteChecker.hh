@@ -116,7 +116,10 @@ public:
 		default:
 			assert(false);
 		}
-		mode0 = false;
+		if (mode0) {
+			currentLine = frameStartTime.getTicksTill(time) / VDP::TICKS_PER_LINE;
+			mode0 = false;
+		}
 		planar = mode.isPlanar();
 	}
 

@@ -330,8 +330,8 @@ public:
 	  *   sprites and sprites are not disabled.
 	  */
 	inline bool spritesEnabled() const {
-		return ((controlRegs[1] & 0x50) == 0x40)
-			&& ((controlRegs[8] & 0x02) == 0x00);
+		return displayEnabled && !displayMode.isTextMode() &&
+		       ((controlRegs[8] & 0x02) == 0x00);
 	}
 
 	/** Are commands possible in non Graphic modes? (V9958 only)
