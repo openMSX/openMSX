@@ -1,5 +1,19 @@
 $Id$
 
+2003-03-29 Manuel Bilderbeek <manuel@msxnet.org>
+	* More refactoring of Rom objects to add RomInfo:
+	  - all Rom objects now have a RomInfo object
+	  - get information that was in the romdb from that object
+	  - slotmap uses this and prints real Rom info, when available; later,
+	    the GUI should be able to use this too, in some way
+	  - note that all MSXRom constructors changed :-)
+	  - note that it's my first big change, please fix things that 
+	    could be a lot better and tell me about it :-)
+	    Maarten, Wouter and Joost: thanks for your help!
+	* Added loads of machine configs (thanks Atarulum):
+	  - when we decide what to do with the patches for the FDC, I'll
+	    add the others
+
 2003-03-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed RomPanasonic SRAM
 	* Optimized VDPCmdEngine for common case: no command in progress
