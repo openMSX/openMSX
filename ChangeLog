@@ -1,5 +1,15 @@
 $Id$
 
+2003-06-06 Maarten ter Huurne <maarten@treewalker.org>
+	* Added FloatSetting class.
+	* Introduced new setting "gamma" for gamma correction.
+	  Not yet implemented in Renderers.
+	* Refactored EnumSetting:
+	  - Split into type-safe inline wrapper class "EnumSetting" and
+	    type-indedendent implementation class "IntStringMap".
+	    Forced template instantiations are no longer necessary.
+	  - Made strings in string-enum map constant.
+
 2003-06-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Refactored consolecolumns and consolerows settings
 
