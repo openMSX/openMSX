@@ -332,7 +332,7 @@ config:
 # Probe for headers and functions.
 $(PROBE_HEADER): $(PROBE_SCRIPT)
 	@echo "Probing configuration..."
-	@OUTDIR=$(@D) COMPILE=$(CXX) $(MAKE) -f $<
+	@OUTDIR=$(@D) COMPILE="$(CXX)" $(MAKE) -f $<
 
 # Include dependency files.
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
