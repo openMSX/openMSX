@@ -62,6 +62,7 @@ openmsx_SOURCES=openmsx.cc \
 # we want most warnings
 AM_CXXFLAGS = -Wall -DDEBUG -g3 -fno-rtti -pipe
 #AM_CXXFLAGS = -Wall -DDEBUG -g3 -pipe
+
 # or perhaps sometimes even more:
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -fno-rtti -pipe
 

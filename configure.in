@@ -31,6 +31,17 @@ dnl Checks for library functions.
 dnl libtool
 AC_PROG_LIBTOOL
 
+dnl check ENDIAN-ness
+AC_C_BIGENDIAN
+
+dnl check size of long
+AC_CHECK_SIZEOF(long)
+
+dnl bool is a c++ type, soo we need to do this test in c++:
+AC_LANG_CPLUSPLUS
+AC_CHECK_SIZEOF(bool)
+AC_LANG_C
+
 dnl Checks for libraries.
 
 dnl libSDL
@@ -51,12 +62,6 @@ dnl next 3 lines are actually a workaround for a bug in libxml++
 LIBXML_LIBS="$XML_LIBS"
 AC_SUBST(LIBXML_LIBS)
 AC_SUBST(XML_CONFIG)
-
-dnl check ENDIAN-ness
-AC_C_BIGENDIAN
-
-dnl check size of long
-AC_CHECK_SIZEOF(long)
 
 dnl check if fstream can be used as template
 AC_CXX_FSTREAM_TEMPL

@@ -1,5 +1,11 @@
 $Id$
 
+2001-11-17 Joost Yervante Damad <j.damad@qahwah.net>
+	* added sizeof(bool) autoconf macro
+	* rearranged configure.in to avoid problems
+	  with simple checks being confused by the extra
+	  CXXFLAGS and libs
+
 2001-11-17 Maarten ter Huurne <mth@stack.nl>
 	* SDLRenderer is now SDLLoRenderer (low-res: 320x240) and
 	  was given its own files.
