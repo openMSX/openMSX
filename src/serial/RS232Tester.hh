@@ -4,7 +4,7 @@
 #define __RS232TESTER_HH__
 
 #include <fstream>
-#include <stdio.h>
+#include <cstdio>
 #include <list>
 #include "openmsx.hh"
 #include "RS232Device.hh"
@@ -15,6 +15,7 @@
 
 using std::list;
 using std::ofstream;
+
 
 namespace openmsx {
 

@@ -32,7 +32,7 @@ TODO:
     NY > 512, part of the screen is overdrawn twice
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include <cassert>
 #include <algorithm>
 #include "VDPCmdEngine.hh"

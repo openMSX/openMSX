@@ -10,8 +10,8 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <stdio.h>
-#include <errno.h>
+#include <cstdio>
+#include <cerrno>
 
 
 

@@ -9,7 +9,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 
 using std::ostringstream;
 

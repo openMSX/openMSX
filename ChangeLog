@@ -1,5 +1,12 @@
 $Id$
 
+2003-09-07 Maarten ter Huurne <maarten@treewalker.org>
+	* Have the "plug" command handle PlugException correctly.
+	* Changed Connector interface so that subclasses require less code.
+	* Declared PlugException in Connector::plug as well.
+	  (yesterday's change added it to Pluggable::plug)
+	* Replaced C standard includes with their respective C++ wrappers.
+
 2003-09-06 Maarten ter Huurne <maarten@treewalker.org>
 	* Added PlugException, which can be thrown by Pluggable::plug if the
 	  plug action fails for some reason.

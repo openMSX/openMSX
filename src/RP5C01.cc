@@ -2,7 +2,7 @@
 
 #include "RP5C01.hh"
 #include <cassert>
-#include <time.h>
+#include <ctime>
 #include <string>
 
 namespace openmsx {

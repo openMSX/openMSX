@@ -1,17 +1,16 @@
 // $Id$
 
-#include <dirent.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
-#include <cassert>
-#include "openmsx.hh"
-#include "MSXConfig.hh"
 #include "CommandController.hh"
 #include "CommandConsole.hh"
 #include "FileOperations.hh"
+#include "MSXConfig.hh"
+#include "openmsx.hh"
+#include <cassert>
+#include <cstdlib>
+#include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 
 namespace openmsx {
@@ -36,7 +35,7 @@ CommandController *CommandController::instance()
 }
 
 
-void CommandController::registerCommand(Command *command, 
+void CommandController::registerCommand(Command *command,
                                         const string &str)
 {
 	commands.insert(pair<string, Command*>(str, command));

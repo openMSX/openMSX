@@ -1,7 +1,7 @@
 // $Id$
 
-#include <errno.h>
-#include <stdlib.h>
+#include <cerrno>
+#include <cstdlib>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include "FileOperations.hh"

@@ -3,11 +3,10 @@
 #ifndef __LOCALFILE_HH__
 #define __LOCALFILE_HH__
 
-#include <string>
-#include <stdio.h>
-#include "config.h"
 #include "FileBase.hh"
 #include "File.hh"
+#include "config.h"
+#include <cstdio>
 
 
 namespace openmsx {

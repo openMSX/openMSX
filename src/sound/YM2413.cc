@@ -6,7 +6,7 @@
  * heavily rewritten to fit openMSX structure
  */
 
-#include <math.h>
+#include <cmath>
 #include <cassert>
 #include <algorithm>
 #include "YM2413.hh"

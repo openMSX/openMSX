@@ -39,11 +39,11 @@
  * - YMF262 does not support CSM mode
  */
 
-#include <math.h>
+#include "YMF262.hh"
 #include "openmsx.hh"
 #include "Mixer.hh"
 #include "IRQHelper.hh"
-#include "YMF262.hh"
+#include <cmath>
 
 
 namespace openmsx {

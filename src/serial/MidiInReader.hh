@@ -3,7 +3,7 @@
 #ifndef __MIDIINREADER_HH__
 #define __MIDIINREADER_HH__
 
-#include <stdio.h>
+#include <cstdio>
 #include <list>
 #include "openmsx.hh"
 #include "MidiInDevice.hh"
@@ -13,6 +13,7 @@
 #include "Settings.hh"
 
 using std::list;
+
 
 namespace openmsx {
 

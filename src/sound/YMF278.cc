@@ -1,5 +1,7 @@
-#include <math.h>
+// $Id$
+
 #include "YMF278.hh"
+#include <cmath>
 
 
 namespace openmsx {

@@ -2,7 +2,8 @@
 
 #include "DirtyChecker.hh"
 #include "config.h"
-#include <string.h>
+#include <cstring>
+
 
 namespace openmsx {
 

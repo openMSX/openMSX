@@ -23,7 +23,7 @@ TODO:
 #include "DebugConsole.hh"
 #include "GLConsole.hh"
 #include "util.hh"
-#include <math.h>
+#include <cmath>
 #include <cassert>
 
 

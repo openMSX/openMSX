@@ -1,6 +1,5 @@
 // $Id$
 
-#include <stdlib.h>
 #include "CassettePlayer.hh"
 #include "PluggingController.hh"
 #include "CommandController.hh"
@@ -13,6 +12,7 @@
 #include "DummyCassetteImage.hh"
 #include "Mixer.hh"
 #include "RealTime.hh"
+#include <cstdlib>
 
 
 namespace openmsx {

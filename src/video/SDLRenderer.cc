@@ -15,8 +15,8 @@ TODO:
 #include "SDLConsole.hh"
 #include "CommandConsole.hh"
 #include "DebugConsole.hh"
-#include <math.h>
 #include "util.hh"
+#include <cmath>
 
 
 namespace openmsx {

@@ -1,9 +1,11 @@
-#include <stdlib.h>
-#include <memory.h>
+// $Id$
+
 #include "CasImage.hh"
 #include "FileContext.hh"
 #include "File.hh"
 #include "EmuTime.hh"
+#include <cstdlib>
+#include <memory.h>
 
 
 namespace openmsx {

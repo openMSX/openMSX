@@ -1,23 +1,23 @@
 // $Id$
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include "DasmTables.hh"
 
 namespace openmsx {
 
-static char Sign (unsigned char a)
+static char Sign(unsigned char a)
 {
 	return (a & 128) ? '-' : '+';
 }
 
-static int Abs (unsigned char a)
+static int Abs(unsigned char a)
 {
 	if (a & 128) return 256 - a;
 	else return a;
 }
 
-int Dasm (unsigned char *buffer, char *dest, unsigned int PC)
+int Dasm(unsigned char *buffer, char *dest, unsigned int PC)
 {
 	const char *S;
 	//unsigned char buf[10];
@@ -133,8 +133,8 @@ int Dasm (unsigned char *buffer, char *dest, unsigned int PC)
 } // namespace openmsx
 
 #ifdef TEST
-#include <stdlib.h>
-int main (int argc,char *argv[])
+#include <cstdlib>
+int main(int argc, char *argv[])
 {
 	int i;
 	unsigned char buffer[16];

@@ -6,8 +6,8 @@
   * heavily rewritten to fit openMSX structure
   */
 
-#include <math.h>
 #include "Y8950.hh"
+#include <cmath>
 
 
 namespace openmsx {

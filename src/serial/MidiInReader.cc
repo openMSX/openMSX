@@ -4,8 +4,8 @@
 #include "PluggingController.hh"
 #include "MidiInConnector.hh"
 #include "Scheduler.hh"
-#include <string.h>
-#include <errno.h>
+#include <cstring>
+#include <cerrno>
 
 
 namespace openmsx {

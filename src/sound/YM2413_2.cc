@@ -21,8 +21,8 @@
  *    Which games use this feature ?
  */
 
-#include <math.h>
 #include "YM2413_2.hh"
+#include <cmath>
 
 
 namespace openmsx {

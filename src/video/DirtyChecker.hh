@@ -6,7 +6,7 @@
 #include "VRAMObserver.hh"
 #include <cassert>
 
-#include <stdio.h>
+
 namespace openmsx {
 
 /** Helper class for renderer caches: keeps a record of which VRAM bytes

@@ -1,8 +1,8 @@
 // $Id$
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <cassert>
 #include "Keyboard.hh"
 #include "EventDistributor.hh"
