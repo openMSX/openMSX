@@ -2,6 +2,7 @@ $Id$
 
 2004-02-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Handle unknown tags in control protocol more gracefully
+	* Same for parser in Contrib/openmsx-control.cc
 
 2004-02-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Perform less renderer syncs on VRAM writes:

@@ -67,6 +67,7 @@ private:
 		TAG_INFO,
 		TAG_WARNING,
 	} state;
+	unsigned unknownLevel;
 	string content;
 	xmlSAXHandler sax_handler;
 	xmlParserCtxt* parser_context;
@@ -135,7 +136,7 @@ void OpenMSXComm::deprecated()
 	if (!alreadyPrinted) {
 		alreadyPrinted = true;
 		cout << "The openMSX you're running still uses the old communication protocol." << endl
-		     << "Because of this some stuff will not work (LED status for example)." << endl;
+		     << "Because of this some stuff will not work (LED status for example)." << endl
 		     << "Please upgrade to openMSX 0.4.0 or higher." << endl;
 	}
 }
@@ -143,10 +144,16 @@ void OpenMSXComm::deprecated()
 void OpenMSXComm::cb_start_element(OpenMSXComm* comm, const xmlChar* name,
                                    const xmlChar** attrs)
 {
+	if (comm->unknownLevel) {
+		++(comm->unknownLevel);
+		return;
+	}
 	switch (comm->state) {
 		case START:
 			if (strcmp((const char*)name, "openmsx-output") == 0) {
 				comm->state = TAG_OPENMSX;
+			} else {
+				++(comm->unknownLevel);
 			}
 			break;
 		case TAG_OPENMSX:
@@ -176,6 +183,8 @@ void OpenMSXComm::cb_start_element(OpenMSXComm* comm, const xmlChar* name,
 				comm->state = TAG_WARNING;
 				comm->logLevel = LOG_WARNING;
 				comm->deprecated();
+			} else {
+				++(comm->unknownLevel);
 			}
 			break;
 		default:
@@ -234,6 +243,10 @@ void OpenMSXComm::parseUpdate(const char** attrs)
 
 void OpenMSXComm::cb_end_element(OpenMSXComm* comm, const xmlChar* name)
 {
+	if (comm->unknownLevel) {
+		--(comm->unknownLevel);
+		return;
+	}
 	switch (comm->state) {
 		case TAG_OPENMSX:
 			comm->state = START;
@@ -336,6 +349,7 @@ void OpenMSXComm::start()
 {
 	// init XML parser
 	state = START;
+	unknownLevel = 0;
 	memset(&sax_handler, 0, sizeof(sax_handler));
 	sax_handler.startElement = (startElementSAXFunc)cb_start_element;
 	sax_handler.endElement   = (endElementSAXFunc)  cb_end_element;
