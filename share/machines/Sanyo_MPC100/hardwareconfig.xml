@@ -52,13 +52,13 @@
 
     <primary external="true" slot="1"/>
 
-    <primary slot="2">
+    <primary external="true" slot="2"/>
+
+    <primary slot="3">
       <RAM id="Main RAM">
         <mem base="0x0000" size="0x10000"/>
       </RAM>
     </primary>
-
-    <primary external="true" slot="3"/>
 
   </devices>
 
