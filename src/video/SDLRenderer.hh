@@ -163,6 +163,12 @@ private:
 	  */
 	void setPalette(int index, int grb);
 
+	/** Precalc foreground colour index 0 (palFg[0]).
+	  * @param mode Current display mode.
+	  * @param transparency True iff transparency is enabled.
+	  */
+	void precalcColourIndex0(DisplayMode mode, bool transparency = true);
+
 	/** Apply effects to the image in workScreen.
 	  */
 	void drawEffects();

@@ -131,28 +131,38 @@ public:
 	}
 
 	/** Gets the current foreground colour.
-	  * @return Colour value [0..15].
+	  * @return Colour index [0..15].
 	  */
 	inline int getForegroundColour() const {
 		return controlRegs[7] >> 4;
 	}
 
 	/** Gets the current background colour.
-	  * @return Colour value [0..15].
+	  * @return Colour index.
+	  *   In Graphic5 mode, the range is [0..15];
+	  *   bits 3-2 contains the colour for even pixels,
+	  *   bits 1-0 contains the colour for odd pixels.
+	  *   In Graphic7 mode with YJK off, the range is [0..255].
+	  *   In other modes, the range is [0..15].
 	  */
 	inline int getBackgroundColour() const {
-		return controlRegs[7] & 0x0F;
+		byte reg7 = controlRegs[7];
+		if (displayMode.getByte() == DisplayMode::GRAPHIC7) {
+			return reg7;
+		} else {
+			return reg7 & 0x0F;
+		}
 	}
 
 	/** Gets the current blinking colour for blinking text.
-	  * @return Colour value [0..15].
+	  * @return Colour index [0..15].
 	  */
 	inline int getBlinkForegroundColour() const {
 		return controlRegs[12] >> 4;
 	}
 
 	/** Gets the current blinking colour for blinking text.
-	  * @return Colour value [0..15].
+	  * @return Colour index [0..15].
 	  */
 	inline int getBlinkBackgroundColour() const {
 		return controlRegs[12] & 0x0F;

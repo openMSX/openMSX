@@ -331,19 +331,14 @@ void SDLGLRenderer::drawEffects()
 // TODO: Cache this?
 inline SDLGLRenderer::Pixel SDLGLRenderer::getBorderColour()
 {
-	// TODO: Used knowledge of V9938 to merge two 4-bit colours
-	//       into a single 8 bit colour for SCREEN8.
-	//       Keep doing that or make VDP handle SCREEN8 differently?
-	int baseMode = vdp->getDisplayMode().getBase();
-	return
-		( baseMode == DisplayMode::GRAPHIC7
-		? PALETTE256[
-			vdp->getBackgroundColour() | (vdp->getForegroundColour() << 4) ]
-		: palBg[ baseMode == DisplayMode::GRAPHIC5
-		       ? vdp->getBackgroundColour() & 3
-		       : vdp->getBackgroundColour()
-		       ]
-		);
+	int mode = vdp->getDisplayMode().getByte();
+	int bgColour = vdp->getBackgroundColour();
+	if (vdp->getDisplayMode().getBase() == DisplayMode::GRAPHIC5) {
+		// TODO: Border in SCREEN6 has separate colour for even and odd pixels.
+		//       Until that is supported, only use odd pixel colour.
+		bgColour &= 0x03;
+	}
+	return (mode == DisplayMode::GRAPHIC7 ? PALETTE256 : palBg)[bgColour];
 }
 
 inline void SDLGLRenderer::renderBitmapLine(
@@ -475,7 +470,7 @@ SDLGLRenderer::SDLGLRenderer(
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	prevStored = false;
-	
+
 	// create noise texture.
 	byte buf[128 * 128];
 	for (int i = 0; i < 128 * 128; ++i) {
@@ -506,13 +501,13 @@ SDLGLRenderer::SDLGLRenderer(
 SDLGLRenderer::~SDLGLRenderer()
 {
 	// Unregister caches with VDPVRAM.
-	vram->patternTable.setObserver(NULL);
-	vram->colourTable.setObserver(NULL);
+	vram->patternTable.resetObserver();
+	vram->colourTable.resetObserver();
 
 	delete console;
 	// TODO: Free all textures.
 	delete[] bitmapTextures;
-		
+
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
@@ -652,6 +647,7 @@ void SDLGLRenderer::setDisplayMode(DisplayMode mode)
 		}
 	}
 	lineWidth = mode.getLineWidth();
+	precalcColourIndex0(mode, vdp->getTransparency());
 	spriteConverter.setDisplayMode(mode);
 	spriteConverter.setPalette(
 		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg
@@ -663,14 +659,7 @@ void SDLGLRenderer::updateTransparency(
 {
 	sync(time);
 	spriteConverter.setTransparency(enabled);
-
-	// Set the right palette for pixels of colour 0.
-	palFg[0] = palBg[enabled ? vdp->getBackgroundColour() : 0];
-	// Any line containing pixels of colour 0 must be repainted.
-	// We don't know which lines contain such pixels,
-	// so we have to repaint them all.
-	dirtyColour.flush();
-	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
+	precalcColourIndex0(vdp->getDisplayMode(), enabled);
 }
 
 void SDLGLRenderer::updateForegroundColour(
@@ -726,18 +715,43 @@ void SDLGLRenderer::updatePalette(
 void SDLGLRenderer::setPalette(
 	int index, int grb)
 {
-	// Update SDL colours in palette.
+	// Update GL colour in palette.
 	palFg[index] = palBg[index] =
 		V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
 
 	// Is this the background colour?
-	if (vdp->getBackgroundColour() == index && vdp->getTransparency()) {
+	if (vdp->getTransparency() && vdp->getBackgroundColour() == index) {
 		// Transparent pixels have background colour.
-		palFg[0] = palBg[vdp->getBackgroundColour()];
+		precalcColourIndex0(vdp->getDisplayMode());
+		// Note: Relies on the fact that precalcColourIndex0 flushes the cache.
+	} else {
+		// Any line containing pixels of this colour must be repainted.
+		// We don't know which lines contain which colours,
+		// so we have to repaint them all.
+		dirtyColour.flush();
+		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 	}
+}
 
-	// Any line containing pixels of this colour must be repainted.
-	// We don't know which lines contain which colours,
+void SDLGLRenderer::precalcColourIndex0(DisplayMode mode, bool transparency) {
+	// Graphic7 mode doesn't use transparency.
+	if (mode.getByte() == DisplayMode::GRAPHIC7) {
+		transparency = false;
+	}
+	
+	int bgColour = 0;
+	if (transparency) {
+		bgColour = vdp->getBackgroundColour();
+		if (mode.getBase() == DisplayMode::GRAPHIC5) {
+			// TODO: Transparent pixels should be rendered in separate
+			//       colours for even/odd x, just like the border.
+			bgColour &= 0x03;
+		}
+	}
+	palFg[0] = palBg[bgColour];
+	
+	// Any line containing pixels of colour 0 must be repainted.
+	// We don't know which lines contain such pixels,
 	// so we have to repaint them all.
 	dirtyColour.flush();
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
