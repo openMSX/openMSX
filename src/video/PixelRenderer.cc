@@ -81,7 +81,7 @@ inline void PixelRenderer::subdivide(
 {
 	// Partial first line.
 	if (startX > clipL) {
-		bool atEnd = (startY != endY) || (endX > clipR);
+		bool atEnd = (startY != endY) || (endX >= clipR);
 		if (startX < clipR) {
 			draw(startX, startY, (atEnd ? clipR : endX),
 			     startY + 1, drawType, atEnd);
