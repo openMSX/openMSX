@@ -97,8 +97,7 @@ class Mixer
 		{
 			public:
 				MuteSetting();
-				virtual bool checkUpdate(bool newValue,
-				                         const EmuTime &time);
+				virtual bool checkUpdate(bool newValue);
 		} muteSetting;
 
 #ifdef DEBUG_MIXER

@@ -241,7 +241,7 @@ Mixer::MuteSetting::MuteSetting()
 {
 }
 
-bool Mixer::MuteSetting::checkUpdate(bool newValue, const EmuTime &time)
+bool Mixer::MuteSetting::checkUpdate(bool newValue)
 {
 	if (newValue != getValue()) {
 		if (newValue) {
