@@ -142,7 +142,8 @@ libxml2 - GNOME XML library
 libxml2-dev - Development files for the GNOME XML library
 libpng12-0 - PNG library - runtime
 libpng12-0-dev - PNG library - development
-g++ - The GNU C++ compiler. (2.95.3 or 3.2 is recommended for now)
+g++ - The GNU C++ compiler. (3.2 or 3.3 is recommended for now, 2.95 should
+work, but may not be supported in the near future)
 
 The package uses the GNU Automake utilities. Thus, you also need:
 automake - A tool for generating GNU Standards-compliant Makefiles.
@@ -158,7 +159,7 @@ Probably you even need some more, which I don't know by heart. They should all
 be needed as dependencies for the SDL and XML packages, though. And it should be
 checked by the configure scripts anyway.
 
-5.2 Compilation itself
+2.2 Compilation itself
 
 If you are very experienced in compiling stuff in Linux, you can skip the rest
 of this chapter and go to chapter 3. Others, please skip the next sentence.
@@ -211,28 +212,28 @@ usable. We will do something about this in chapter 5, however.
 
 Two options here. You can either try to run a real MSX, but for that you need
 the ROMs for that MSX. They are not supplied with openMSX. An alternative is
-using CBIOS: an MSX compatible BIOS made by BouKiChi, which can be used to run
+using C-BIOS: an MSX compatible BIOS made by BouKiChi, which can be used to run
 most ROM games with openMSX. For a first test, you don't need to do anything to
-use CBIOS. Otherwise, here are the instructions for using a simple machine. If
-you want to use CBIOS, you can skip the rest of this section. But you may want
+use C-BIOS. Otherwise, here are the instructions for using a simple machine. If
+you want to use C-BIOS, you can skip the rest of this section. But you may want
 to read it later, because it contains some valuable hints.
 
-First, get the needed roms for the emulator. You need the following roms:
+First, get the needed ROMs for the emulator. You need the following ROMs:
 
-- an MSX2 BIOS/BASIC rom (other emulators may call this MSX2.ROM, it contains
+- an MSX2 BIOS/BASIC ROM (other emulators may call this MSX2.ROM, it contains
   the BIOS and BASIC, see below)
-- a disk rom (often called DISK.ROM)
-- the subrom (often called MSX2EXT.ROM)
+- a disk ROM (often called DISK.ROM)
+- the sub-ROM (often called MSX2EXT.ROM)
 - and, optional, the 64kB FMPAC.ROM, if you would like to use the FM PAC.
 
 Suppose you have the following files:
 msx2.zip (rename the extracted file to nms8250_basic-bios2.rom)
 msx2ext.zip (rename extracted file to nms8250-sub.rom)
-disk.zip (rename the extraced file to nms8250-disk.rom - this rom
+disk.zip (rename the extracted file to nms8250-disk.rom - this rom
 image may be patched though, I'm not sure if it works)
 fmpac.zip
 
-Now that you have all roms, you can place them into the
+Now that you have all ROMs, you can place them into the
 share/machines/Philips_NMS_8250/ directory for now. You noticed I let you
 rename the ROMs. This is because one of the configuration files (which configs
 openMSX to emulate a Philips NMS 8250), included in the openMSX distribution,
@@ -253,7 +254,7 @@ dump them from your own machine or find another way to get them.
 Now we can try starting the emulator for the first time!
 Go to your src directory (e.g. openMSX/src).
 
-If you didn't get ROMs, you can use CBIOS.
+If you didn't get ROMs, you can use C-BIOS.
 Give the following command:
 
 ./openmsx -setting ../share/settings.xml ../share/machines/cbios-msx2/hardware.xml
@@ -263,11 +264,11 @@ command:
 
 ./openmsx -setting ../share/settings.xml ../share/machines/Philips_NMS_8250/hardware.xml
 
-Now the emulator should work, i.e. you will see the opening screen of CBIOS or
+Now the emulator should work, i.e. you will see the opening screen of C-BIOS or
 the MSX boot logo scrolling up when you got ROMs, all in a window. What did we
 just do, actually? We started openMSX and told it that it should use the
 settings defined in the file settings.xml (which is in the directory share/) and
-that it should emulate a fantasy MSX machine with the CBIOS (or a Philips
+that it should emulate a fantasy MSX machine with the C-BIOS (or a Philips
 NMS-8250), whose hardware is described in the file cbios-msx2/hardwareconfig.xml
 (or Philips_NMS_8250/hardwareconfig.xml), in share/machines/. This is basically
 how one uses openMSX. We'll make it easier below.
@@ -308,7 +309,7 @@ See also man gzexe.
 
 This section discusses setting up a ".openMSX" configuration
 directory in your home directory. This is not strictly necessary, but it allows
-you to customize the openMSX settings and add new MSX machines and hardware
+you to customise the openMSX settings and add new MSX machines and hardware
 extensions to run in openMSX. Manuel Bilderbeek will tell you how he did it.
 
 I created a directory with the name .openMSX in my home dir. There, I created
@@ -346,7 +347,7 @@ With this option you can specify an `extension', which is in most cases an
 external cartridge with some special hardware in it (e.g., a Panasonic FS-CA1
 MSX Audio cartridge, an IDE interface, an FM-PAC, or an MSX-DOS2 cartridge). It
 works similarly to the share/machines/ directory and the -machine command. At
-the moment, you can just put an XML file with the hardware discription of that
+the moment, you can just put an XML file with the hardware description of that
 cartridge in its own subdirectory in this directory. If you have an XML file
 that describes an MSX-DOS 2 cartridge, e.g., you can create a subdirectory
 msxdos2 here, in which you put the file hardwareconfig.xml (which is that
@@ -354,7 +355,7 @@ description of the MSX DOS 2 cartridge) and the ROM file. Then you can use `-ext
 msxdos2' on the command line to use it.  So, the ROM files that are needed for
 the extensions have to be in their subdirectories also, if there is no path
 given in the hardware description XML file. We prefer to put the ROM files in
-their own subdir 'roms' though, to seperate them from other files that could be
+their own subdir 'roms' though, to separate them from other files that could be
 put in such an extension directory.
 
 /home/manuel/.openMSX:
@@ -427,7 +428,7 @@ release may not be compatible with those of other releases. If you want to be
 really safe, keep a separate binary + configs per release/CVS date.
 
 If you want to emulate another machine that the one you specified as default
-machine, use the -machine commandline option. Example:
+machine, use the -machine command line option. Example:
 openmsx -machine mymsx
 will start openMSX with the configuration specified in
 ~/.openMSX/share/machines/mymsx/hardwareconfig.xml.
@@ -505,7 +506,7 @@ F7		- MSX SELECT key
 L-ALT		- MSX GRAPH key
 R-CTRL		- MSX CODE key
 L-Windows	- MSX iee (`no') key
-R-WIndows	- MSX hai ('yes') key
+R-Windows	- MSX hai ('yes') key
 Pause		- Pause the emulator
 PrtScr		- Toggle full screen
 
@@ -564,8 +565,6 @@ some place in your mymsx/hardwareconfig.xml file (between the <msxconfig> and
     <parameter name="filename">fmpac.rom</parameter>
     <parameter name="volume">9000</parameter>
     <parameter name="mode">left</parameter>
-    <parameter name="loadsram">true</parameter>
-    <parameter name="savesram">true</parameter>
     <parameter name="sramname">fmpac.pac</parameter>
   </device>
 
@@ -577,10 +576,10 @@ MotherBoard config part at the top of the config file says what slots are
 expanded; a normal 8250 has slot 3 expanded.)
 The parameter filename can be adjusted to the name of your (64kB!) FM-PAC ROM
 file (note: if the file is not 64kB (65536 bytes) in size, it won't work).
-"mode" says to what channel the FM-PAC's sound will be routed. "loadsram" and
-"savesram" tell openMSX that the SRAM of the FM PAC can be loaded and saved.
-"sramname" specifies the file name for this. The saved files are compatible with
-the files that are saved by the (real) FM-PAC commander's save option.
+"mode" says to what channel the FM-PAC's sound will be routed. 
+"sramname" specifies the file name for file in which the SRAM contents will be
+saved to or loaded from. The saved files are compatible with the files that are
+saved by the (real) FM-PAC commander's save option.
 
 After saving your config and running openMSX again, you should be able to get
 the FM PAC commander with CALL FMPAC in the emulated MSX!
@@ -622,15 +621,16 @@ You can verify this by typing 'glxinfo' on the command line. Direct rendering
 should be enabled to benefit from this renderer. GL also makes some effects
 easier: when using the SDLGL renderer, there is a blur, glow (afterglow!) and
 scanline setting (see Console), to imitate a TV screen. This does not work
-properly with all graphics cards, though. It should work with NVidia cards, at
+properly with all graphics cards, though. It should work with nVidia cards, at
 least. Note that the GL renderer is only available when the openGL development
 files (gl.h is one of them) were installed on the computer at compile time.
 This will be checked by the configure script.
 
 The third working renderer is called SDLLo. This renderer uses a window of only
-320 by 200 pixels, which means that part of the MSX screen will be omitted. An
-'interpolation' to reduce this problem was added for 24bpp visuals.  I don't
-recommend to use this renderer, unless you have an extremely slow computer.
+320 by 240 pixels, which means that part of the MSX screen will be omitted. An
+'interpolation' (blending) algorithm to reduce this problem was added for 16
+and 24bpp visuals. I don't recommend to use this renderer, unless you have an
+extremely slow computer.
 
 You can set the renderer in the settings.xml file. Look for <config
 id="renderer">.  You can also specify there whether the emulator should switch
@@ -734,7 +734,7 @@ welcome!
 If you encounter problems, you have several options:
 
 1) if you're a regular user and want to discuss openMSX and possible problems,
-   join our mailinglist openmsx-user@lists.sourceforge.net, see openmsx.sf.net
+   join our mailing list openmsx-user@lists.sourceforge.net, see openmsx.sf.net
    -> Project Summary -> Lists 
 2) go to our IRC channel: #openMSX on irc.freenode.net and ask
 3) send an e-mail to the openMSX developer's mailing list:
