@@ -1165,16 +1165,16 @@ void xor_ixl();
 void xor_iyh();
 void xor_iyl();
 void xor_byte();
-void no_op();
 void patch();
 void dd_cb();
 void fd_cb();
 void cb();
 void dd();
+void dd2();
 void ed();
 void fd();
+void fd2();
 void ei();
-void no_op_xx();
 
 inline void M_POP(word &Rg);
 inline void M_PUSH(word Rg);

@@ -65,7 +65,7 @@ void Z80::init ()
 void Z80::reset()
 {
 	// AF and SP are 0xffff
-	// PC, IFF1, IFF2, HALT and IM are 0x0
+	// PC, R, IFF1, IFF2, HALT and IM are 0x0
 	// all others are random
 	AF.w = 0xffff;
 	BC.w = 0xffff;
@@ -88,7 +88,7 @@ void Z80::reset()
 	
 	IM = 0;
 	I = 0xff;
-	R = 0x7f;
+	R = 0x00;
 	R2 = 0;
 }
 
@@ -100,14 +100,14 @@ int Z80::Z80_SingleInstruction()
 	byte opcode;
 	
 	if (interface->NMIStatus()) { 
-		// TODO what prevents ack an NMI more than once????
+		// TODO NMI is edge triggered
 		// NMI occured
 		HALT = false; 
 		IFF1 = nextIFF1 = false;
 		M_PUSH (PC.w);
 		PC.w=0x0066;
-		return 10;	//TODO this value is wrong
-				//TODO ++R
+		R++;
+		return 11;
 	} 
 	if (IFF1 && interface->IRQStatus()) {
 		// normal interrupt
@@ -118,33 +118,39 @@ int Z80::Z80_SingleInstruction()
 			// Interrupt mode 2  Call [I:databyte]
 			M_PUSH (PC.w);
 			PC.w=Z80_RDMEM_WORD((interface->dataBus())|(I<<8));
-			return 10;	//TODO this value is wrong
-					//TODO ++R
+			R++;
+			return 19;	//TODO this value is wrong
 		case 1:
-			// Interrupt mode 1  RST 38h
-			opcode = 0xff;
+			// Interrupt mode 1
+			opcode = 0xff;	// RST 38h
+			ICount = 2;
 			break;
 		case 0:
 			// Interrupt mode 0
 			// TODO current implementation only works for 1-byte instructions
 			//      ok for MSX 
 			opcode = interface->dataBus();
+			ICount = 2;
 			break;
 		default:
 			assert(false);
 			opcode = 0;	// prevent warning
 		}
 	} else if (HALT) {
+		// in halt mode
+		ICount = 0;
 		opcode = 0;	// nop
 	} else {
+		// normal instruction
+		ICount = 0;
 		opcode = Z80_RDOP(PC.w++);
 	}
 	IFF1 = nextIFF1;
 	#ifdef Z80DEBUG
 		word start_pc = PC.w-1;
 	#endif
-	++R;
-	ICount = cycles_main[opcode];
+	R++;
+	ICount += cycles_main[opcode];
 	(this->*opcode_main[opcode])();	// ICount can be raised extra
 	#ifdef Z80DEBUG
 		printf("%04x : instruction ", start_pc);
@@ -4265,8 +4271,6 @@ void Z80::xor_iyh() { M_XOR(IY.B.h); }
 void Z80::xor_iyl() { M_XOR(IY.B.l); }
 void Z80::xor_byte(){ M_XOR(Z80_RDMEM_OPCODE()); }
 
-void Z80::no_op()    { --PC.w; }
-void Z80::no_op_xx() { ++PC.w; }
 
 void Z80::patch() { interface->Z80_Patch(); }
 
@@ -4276,39 +4280,41 @@ void Z80::dd_cb() {
 	unsigned opcode = Z80_RDOP_ARG((PC.w+1)&0xFFFF);
 	ICount += cycles_xx_cb[opcode];
 	(this->*opcode_dd_cb[opcode])();
-	++PC.w;
+	PC.w++;
 }
 void Z80::fd_cb() {
 	unsigned opcode = Z80_RDOP_ARG((PC.w+1)&0xFFFF);
 	ICount += cycles_xx_cb[opcode];
 	(this->*opcode_fd_cb[opcode])();
-	++PC.w;
+	PC.w++;
 }
 void Z80::cb() {
-	++R;
-	unsigned opcode = Z80_RDOP(PC.w);
-	PC.w++;
+	R++;
+	unsigned opcode = Z80_RDOP(PC.w++);
 	ICount += cycles_cb[opcode];
 	(this->*opcode_cb[opcode])();
 }
-void Z80::dd() {
-	++R;
-	unsigned opcode = Z80_RDOP(PC.w);
-	PC.w++;
-	ICount += cycles_xx[opcode];
-	(this->*opcode_dd[opcode])();
-}
 void Z80::ed() {
-	++R;
-	unsigned opcode = Z80_RDOP(PC.w);
-	PC.w++;
+	R++;
+	unsigned opcode = Z80_RDOP(PC.w++);
 	ICount += cycles_ed[opcode];
 	(this->*opcode_ed[opcode])();
 }
-void Z80::fd () {
-	++R;
-	unsigned opcode = Z80_RDOP(PC.w);
-	PC.w++;
+void Z80::dd() {
+	R++;
+	dd2();
+}
+void Z80::dd2() {
+	unsigned opcode = Z80_RDOP(PC.w++);
+	ICount += cycles_xx[opcode];
+	(this->*opcode_dd[opcode])();
+}
+void Z80::fd() {
+	R++;
+	fd2();
+}
+void Z80::fd2() {
+	unsigned opcode = Z80_RDOP(PC.w++);
 	ICount += cycles_xx[opcode];
 	(this->*opcode_fd[opcode])();
 }
