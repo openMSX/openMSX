@@ -6,6 +6,12 @@ $Id$
 	  This removes a lot of differences between the Linux and Win32 ports.
 	  Also, renderer switching and runtime full screen toggle should work
 	  on Win32 now.
+	* Bug fixes on thread swap:
+	  - Fixed compile error on GCC 2.95.
+	  - Workaround for incompatibility of SDL_PushEvent.
+	  - Print exceptions thrown in emulation thread.
+	* Minor bug fix on video init attempts in RendererFactories.
+	* Merged Reikan's configure.ac improvements.
 
 2003-05-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Trojka starts playing ADPCM samples without initializing the
