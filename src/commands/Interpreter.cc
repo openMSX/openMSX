@@ -215,6 +215,10 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		try {
 			string newValue = Tcl_GetVar(interp, part1, 0);
 			variable->setValueString(newValue);
+			string newValue2 = variable->getValueString();
+			if (newValue != newValue2) {
+				Tcl_SetVar(interp, part1, newValue2.c_str(), 0);
+			}
 		} catch (CommandException& e) {
 			Tcl_SetVar(interp, part1, variable->getValueString().c_str(), 0);
 			static_string = e.getMessage();

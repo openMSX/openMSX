@@ -5,6 +5,8 @@ $Id$
 
 2004-09-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented RTC mode as a setting, is now saveable
+	* "set <setting> <newvalue>" now returns the actual new value of the
+	  setting  (e.g. "set gamma -1" return 0.1 iso -1)
 
 2004-09-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* default machine is now configurable via a setting. Of course this
