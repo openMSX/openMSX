@@ -6,9 +6,10 @@
 #include "openmsx.hh"
 #include "EmuTime.hh"
 
-#ifdef DEBUG
+// CPU_DEBUG must be true because I/O timing workaround needs "before" time
+//#ifdef DEBUG
 #define CPU_DEBUG
-#endif
+//#endif
 
 #ifdef CPU_DEBUG
 #include "Command.hh"
