@@ -26,12 +26,17 @@ SDLConsole::SDLConsole(Console& console_, SDL_Surface* screen)
 	lastBlinkTime = 0;
 	
 	outputScreen = screen;
-	backgroundImage = NULL;
 
 	fontSetting = new FontSetting(this, temp + "font", console.getFont());
+	
 	initConsoleSize();
-
 	OSDConsoleRenderer::updateConsoleRect(destRect);
+
+	SDL_PixelFormat* format = outputScreen->format;
+	backgroundImage = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
+		destRect.w, destRect.h, format->BitsPerPixel,
+		format->Rmask, format->Gmask, format->Bmask, format->Amask);
+	SDL_SetAlpha(backgroundImage, SDL_SRCALPHA, CONSOLE_ALPHA);
 
 	backgroundSetting = new BackgroundSetting(this, temp + "background", 
 	                                          console.getBackground());
