@@ -12,46 +12,46 @@
 #include "MSXKanji.hh"
 #include "MSXMemoryMapper.hh"
 #include "MSXMapperIO.hh"
-#include <assert.h>
+
 
 MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
-	MSXDevice *device = 0;
-	if ( conf->getType().compare("MotherBoard") == 0 ) {
-		// if 0 then strings are equal
+	MSXDevice *device = NULL;
+	if (conf->getType()=="MotherBoard") {
 		device = MSXMotherBoard::instance();
-	}
-	if ( conf->getType().compare("Rom16KB") == 0 ) {
+	} else
+	if (conf->getType()=="Rom16KB") {
 		device = new MSXRom16KB();
-	}
-	if ( conf->getType().compare("Simple64KB") == 0 ) {
+	} else
+	if (conf->getType()=="Simple64KB") {
 		device = new MSXSimple64KB();
-	}
-	if ( conf->getType().compare("PPI") == 0 ) {
+	} else
+	if (conf->getType()=="PPI") {
 		device = MSXPPI::instance();
-	}
-	if ( conf->getType().compare("TMS9928a") == 0 ) {
+	} else
+	if (conf->getType()=="TMS9928a") {
 		device = new MSXTMS9928a();
-	}
-	if ( conf->getType().compare("E6Timer") == 0 ) {
+	} else
+	if (conf->getType()=="E6Timer") {
 		device = new MSXE6Timer();
-	}
-	if ( conf->getType().compare("CPU") == 0 ) {
+	} else
+	if (conf->getType()=="CPU") {
 		device = MSXCPU::instance();
-	}
-	if ( conf->getType().compare("PSG") == 0 ) {
+	} else
+	if (conf->getType()=="PSG") {
 		device = new MSXPSG();
-	}
-	if ( conf->getType().compare("Kanji") == 0 ) {
+	} else
+	if (conf->getType()=="Kanji") {
 		device = new MSXKanji();
-	}
-	if ( conf->getType().compare("MemoryMapper") == 0 ) {
+	} else
+	if (conf->getType()=="MemoryMapper") {
 		device = new MSXMemoryMapper();
-	}
-	if ( conf->getType().compare("MapperIO") == 0 ) {
+	} else
+	if (conf->getType()=="MapperIO") {
 		device = MSXMapperIO::instance();
 	}
 
-	assert (device != 0);
+	if (device == NULL)
+		PRT_ERROR("Unknown device specified in configuration");
 	device->setConfigDevice(conf);
 	return device;
 }

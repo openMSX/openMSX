@@ -98,7 +98,7 @@
       <ss>0</ss>
       <page>3</page>
     </slotted>
-    <parameter name="slow_drain_on_reset">true</parameter>
+    <parameter name="slow_drain_on_reset">false</parameter>
     <parameter name="size">512</parameter>
   </device>
 </msxconfig>

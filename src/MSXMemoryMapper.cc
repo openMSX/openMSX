@@ -19,7 +19,9 @@ void MSXMemoryMapper::init()
 {
 	MSXDevice::init();
 	
-	slow_drain_on_reset = false;	//TODO in config file
+	if (deviceConfig->getParameter("slow_drain_on_reset") == "true")
+		slow_drain_on_reset = true;
+	else	slow_drain_on_reset = false;
 	
 	int kSize = atoi(deviceConfig->getParameter("size").c_str());
 	blocks = kSize/16;

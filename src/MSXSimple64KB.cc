@@ -27,7 +27,7 @@ void MSXSimple64KB::reset()
 	MSXDevice::reset();
 	if (!slow_drain_on_reset) {
 		PRT_DEBUG("Clearing ram of " << getName());
-		memset(memoryBank,0,65536);
+		memset(memoryBank, 0, 65536);
 	}
 }
 
@@ -35,14 +35,16 @@ void MSXSimple64KB::init()
 {
 	MSXDevice::init();
 	
-	slow_drain_on_reset = false;	//TODO in config file
+	if (deviceConfig->getParameter("slow_drain_on_reset") == "true")
+		slow_drain_on_reset = true;
+	else	slow_drain_on_reset = false;
 	
 	memoryBank = new byte[65536];
 	if (memoryBank == NULL) 
 		PRT_ERROR("Couldn't create 64KB memory bank !!!!!!");
 	//Isn't completely true, but let's suppose that ram will 
 	//always contain all zero if started
-	memset(memoryBank,0,65536); // new doesn't fill with zero
+	memset(memoryBank, 0, 65536); // new doesn't fill with zero
 
 	list<MSXConfig::Device::Slotted*> slotted_list = deviceConfig->slotted;
 	for (list<MSXConfig::Device::Slotted*>::const_iterator i=slotted_list.begin(); i != slotted_list.end(); i++) {
