@@ -810,7 +810,6 @@ void VDPCmdEngine::LmmvCmd::start(const EmuTime &time)
 	ADX = DX;
 	ANX = NX;
 	calcFinishTime();
-	PRT_DEBUG("DEBUG LMMV2 " << (int)NY << " " << (int)engine->NY);
 }
 
 void VDPCmdEngine::LmmvCmd::execute(const EmuTime &time)
