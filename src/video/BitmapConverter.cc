@@ -1,6 +1,8 @@
 // $Id$
 
 #include "BitmapConverter.hh"
+#include "GLUtil.hh"
+
 
 namespace openmsx {
 
@@ -12,6 +14,27 @@ template class BitmapConverter<word, Renderer::ZOOM_256>;
 template class BitmapConverter<word, Renderer::ZOOM_REAL>;
 template class BitmapConverter<unsigned int, Renderer::ZOOM_256>;
 template class BitmapConverter<unsigned int, Renderer::ZOOM_REAL>;
+
+// On some systems, "GLuint" is not equivalent to "unsigned int",
+// so BitmapConverter must be instantiated separately for those systems.
+// But on systems where it is equivalent, it's an error (in GCC 3.3 anyway)
+// to expand the same template twice.
+// The following piece of template metaprogramming expands
+// BitmapConverter<GLuint, Renderer::ZOOM_REAL> to an empty class if
+// "GLuint" is equivalent to "unsigned int"; otherwise it is expanded to
+// the actual BitmapConverter implementation.
+class NoExpansion {};
+// ExpandFilter::ExpandType = (Type == unsigned int ? NoExpansion : Type)
+template <class Type> class ExpandFilter {
+	typedef Type ExpandType;
+};
+template <> class ExpandFilter<unsigned int> {
+	typedef NoExpansion ExpandType;
+};
+template <Renderer::Zoom zoom> class BitmapConverter<NoExpansion, zoom> {};
+template class BitmapConverter<
+	ExpandFilter<GLuint>::ExpandType, Renderer::ZOOM_REAL >;
+
 
 template <class Pixel, Renderer::Zoom zoom>
 BitmapConverter<Pixel, zoom>::BitmapConverter(
