@@ -56,24 +56,26 @@ void CommandLineParser::registerOption(const std::string &str,
 void CommandLineParser::registerFileType(const std::string &str,
 		CLIFileType* cliFileType)
 {
-	if (str[0] == '.') { // a real extention
+	if (str[0] == '.') {
+		// a real extention
 		fileTypeMap[str.substr(1)] = cliFileType;
-	} else{ // or a file class
+	} else {
+		// or a file class
 		fileClassMap[str] = cliFileType;
 	}
 }
 
 void CommandLineParser::postRegisterFileTypes()
 {
-	std::list<Config::Parameter*> * extensions;
+	std::list<Config::Parameter*> *extensions;
 	std::map<std::string, CLIFileType*, caseltstr>::const_iterator i;
 	try {
 		Config *config = MSXConfig::instance()->getConfigById("FileTypes");
 		for (i = fileClassMap.begin(); i != fileClassMap.end(); i++) {
-			extensions = config->getParametersWithClass((*i).first);
+			extensions = config->getParametersWithClass(i->first);
 			std::list<Config::Parameter*>::const_iterator j;
 			for (j = extensions->begin(); j != extensions->end(); j++) {
-				fileTypeMap[(*j)->value] = (*i).second;
+				fileTypeMap[(*j)->value] = i->second;
 			}
 		}
 	} catch (MSXException &e) {
@@ -89,7 +91,7 @@ void CommandLineParser::postRegisterFileTypes()
 		for (j = fileExtMap.begin(); j != fileExtMap.end(); j++) {
 			i = fileClassMap.find((*j).second);
 			if (i != fileClassMap.end()) {
-				fileTypeMap[(*j).first] = (*i).second;
+				fileTypeMap[j->first] = i->second;
 			}
 		}
 	}

@@ -37,6 +37,7 @@
 #include "MSXMatsushita.hh"
 #include "MSXKanji12.hh"
 #include "MSXMidi.hh"
+#include "MSXMegaRam.hh"
 
 
 // TODO: Add the switched device to the config files.
@@ -258,6 +259,12 @@ MSXDevice *DeviceFactory::create(Device *conf, const EmuTime &time)
 			cpuInterface->register_IO_Out(port, msxmidi);
 		}
 		return msxmidi;
+	}
+	if (type == "MegaRam") {
+		MSXMegaRam *megaram = new MSXMegaRam(conf, time);
+		cpuInterface->register_IO_In (0x8E, megaram);
+		cpuInterface->register_IO_Out(0x8E, megaram);
+		return megaram;
 	}
 	PRT_ERROR("Unknown device \""<<type<<"\" specified in configuration");
 	return NULL;
