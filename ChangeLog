@@ -4,6 +4,14 @@ $Id$
 	*  various small fixes
 	* started working on making the code work with gcc-3.0
 	* added autogen.sh: use to regenerate build files
+	* added m4/ dir for own autoconf m4 macros
+	* added fstream_templ.m4, since in gcc-3.0 ifstream
+	  is templatized on type, and .read() returns char,
+	  not unsigned char, soo this needs ifstream<byte> in
+	  openmsx, but in gcc-2.95 ifstream is not a template.
+	* added -fno-rtti to compile-flags since we don't use
+	  runtime type inspection anyway, and it increases binary size
+	  see also: http://gcc.gnu.org/ml/gcc-help/2000-03/msg00064.html
 
 2001-09-22 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* cleanups in most devices
