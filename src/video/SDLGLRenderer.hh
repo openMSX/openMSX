@@ -12,6 +12,7 @@
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
 #include "SpriteConverter.hh"
+#include "DirtyChecker.hh"
 #include "DisplayMode.hh"
 
 class GLConsole;
@@ -48,14 +49,12 @@ public:
 	void updateNameBase(int addr, const EmuTime &time);
 	void updatePatternBase(int addr, const EmuTime &time);
 	void updateColourBase(int addr, const EmuTime &time);
-	//void updateVRAM(int address, const EmuTime &time);
-	//void updateWindow(const EmuTime &time);
+	//void updateVRAM(int offset, const EmuTime &time);
+	//void updateWindow(bool enabled, const EmuTime &time);
 
 protected:
 	void finishFrame();
-	void updateVRAMCache(int addr) {
-		(this->*dirtyChecker)(addr);
-	}
+	void updateVRAMCache(int address);
 	void drawBorder(int fromX, int fromY, int limitX, int limitY);
 	void drawDisplay(
 		int fromX, int fromY,
@@ -69,8 +68,6 @@ protected:
 		);
 
 private:
-
-	typedef void (SDLGLRenderer::*DirtyChecker)(int addr);
 
 	friend class SDLGLRendererFactory;
 
@@ -122,34 +119,6 @@ private:
 	  */
 	void setPalette(int index, int grb);
 
-	/** Dirty checking that does nothing (but is a valid method).
-	  */
-	void checkDirtyNull(int addr);
-
-	/** Dirty checking for MSX1 text modes.
-	  */
-	void checkDirtyMSX1Text(int addr);
-
-	/** Dirty checking for MSX1 graphic modes.
-	  */
-	void checkDirtyMSX1Graphic(int addr);
-
-	/** Dirty checking for Text2 display mode.
-	  */
-	void checkDirtyText2(int addr);
-
-	/** Dirty checking for bitmap modes.
-	  */
-	void checkDirtyBitmap(int addr);
-
-	/** Set all dirty / clean.
-	  */
-	void setDirty(bool);
-
-	/** DirtyCheckers for each screen mode.
-	  */
-	static DirtyChecker modeToDirtyChecker[];
-
 	/** RGB colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,
 	  * palBg has entry 0 set to black.
@@ -174,14 +143,10 @@ private:
 	  * Used by BitmapConverter.
 	  */
 	Pixel PALETTE256[256];
-	
+
 	/** SDL colours corresponding to each possible V9958 colour.
 	  */
 	Pixel V9958_COLOURS[32768];
-
-	/** Dirty checker: update dirty tables on VRAM write.
-	  */
-	DirtyChecker dirtyChecker;
 
 	/** The surface which is visible to the user.
 	  */
@@ -228,24 +193,17 @@ private:
 	  */
 	int lineWidth;
 
-	/** Dirty tables indicate which character blocks must be repainted.
-	  * The anyDirty variables are true when there is at least one
-	  * element in the dirty table that is true.
+	/** Display mode for which character cache is valid.
+	  * This is used to speed up bitmap/character mode splits,
+	  * like Space Manbow and Psycho World use.
 	  */
-	bool anyDirtyColour, dirtyColour[1 << 10];
-	bool anyDirtyPattern, dirtyPattern[1 << 10];
-	bool anyDirtyName, dirtyName[1 << 12];
-	// TODO: Introduce "allDirty" to speed up screen splits.
+	DisplayMode characterCacheMode;
+	/** Dirty checker for pattern table. */
+	DirtyChecker<8> dirtyPattern;
+	/** Dirty checker for colour table. */
+	DirtyChecker<8> dirtyColour;
 
 	GLuint characterCache[4 * 256];
-
-	/** Did foreground colour change since last screen update?
-	  */
-	bool dirtyForeground;
-
-	/** Did background colour change since last screen update?
-	  */
-	bool dirtyBackground;
 
 	/** VRAM to pixels converter for character display modes.
 	  */

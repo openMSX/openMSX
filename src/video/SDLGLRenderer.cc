@@ -10,23 +10,6 @@ TODO:
   * A12 and A11 of patternMask and colourMask may be different
     also, colourMask has A10..A6 as well
     in most realistic cases however the two will be of equal size
-- Fix character mode dirty checking to work with incremental rendering.
-  Approach 1:
-  * use two dirty arrays, one for this frame, one for next frame
-  * on every change, mark dirty in both arrays
-    (checking line is useless because of vertical scroll on screen splits)
-  * in frameStart, swap arrays
-  Approach 2:
-  * cache characters as 16x16 blocks and blit them to the screen
-  * on a name change, do nothing
-  * on a pattern or colour change, mark the block as dirty
-  * if a to-be-blitted block is dirty, recalculate it
-  I'll implement approach 1 on account of being very similar to the
-  existing code. Some time I'll implement approach 2 as well and see
-  if it is an improvement (in clarity and performance).
-- Register dirty checker with VDP.
-  This saves one virtual method call on every VRAM write. (does it?)
-  Put some generic dirty check classes in Renderer.hh/cc.
 */
 
 #include "SDLGLRenderer.hh"
@@ -355,50 +338,11 @@ inline void SDLGLRenderer::renderCharacterLines(
 	}
 }
 
-SDLGLRenderer::DirtyChecker
-	// Use checkDirtyBitmap for every mode for which isBitmapMode is true.
-	SDLGLRenderer::modeToDirtyChecker[] = {
-		// M5 M4 = 0 0  (MSX1 modes)
-		&SDLGLRenderer::checkDirtyMSX1Graphic, // Graphic 1
-		&SDLGLRenderer::checkDirtyMSX1Text, // Text 1
-		&SDLGLRenderer::checkDirtyMSX1Graphic, // Multicolour
-		&SDLGLRenderer::checkDirtyNull,
-		&SDLGLRenderer::checkDirtyMSX1Graphic, // Graphic 2
-		&SDLGLRenderer::checkDirtyMSX1Text, // Text 1 Q
-		&SDLGLRenderer::checkDirtyMSX1Graphic, // Multicolour Q
-		&SDLGLRenderer::checkDirtyNull,
-		// M5 M4 = 0 1
-		&SDLGLRenderer::checkDirtyMSX1Graphic, // Graphic 3
-		&SDLGLRenderer::checkDirtyText2,
-		&SDLGLRenderer::checkDirtyNull,
-		&SDLGLRenderer::checkDirtyNull,
-		&SDLGLRenderer::checkDirtyBitmap, // Graphic 4
-		&SDLGLRenderer::checkDirtyBitmap,
-		&SDLGLRenderer::checkDirtyBitmap,
-		&SDLGLRenderer::checkDirtyBitmap,
-		// M5 M4 = 1 0
-		&SDLGLRenderer::checkDirtyBitmap, // Graphic 5
-		&SDLGLRenderer::checkDirtyBitmap,
-		&SDLGLRenderer::checkDirtyBitmap,
-		&SDLGLRenderer::checkDirtyBitmap,
-		&SDLGLRenderer::checkDirtyBitmap, // Graphic 6
-		&SDLGLRenderer::checkDirtyBitmap,
-		&SDLGLRenderer::checkDirtyBitmap,
-		&SDLGLRenderer::checkDirtyBitmap,
-		// M5 M4 = 1 1
-		&SDLGLRenderer::checkDirtyBitmap,
-		&SDLGLRenderer::checkDirtyBitmap,
-		&SDLGLRenderer::checkDirtyBitmap,
-		&SDLGLRenderer::checkDirtyBitmap,
-		&SDLGLRenderer::checkDirtyBitmap, // Graphic 7
-		&SDLGLRenderer::checkDirtyBitmap,
-		&SDLGLRenderer::checkDirtyBitmap,
-		&SDLGLRenderer::checkDirtyBitmap
-	};
-
 SDLGLRenderer::SDLGLRenderer(
 	RendererFactory::RendererID id, VDP *vdp, SDL_Surface *screen )
 	: PixelRenderer(id, vdp)
+	, dirtyPattern(1 << 10, "pattern")
+	, dirtyColour(1 << 10, "colour")
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 	, spriteConverter(vdp->getSpriteChecker())
@@ -537,10 +481,18 @@ SDLGLRenderer::SDLGLRenderer(
 		}
 	}
 
+	// Register caches with VDPVRAM.
+	vram->patternTable.setObserver(&dirtyPattern);
+	vram->colourTable.setObserver(&dirtyColour);
+
 }
 
 SDLGLRenderer::~SDLGLRenderer()
 {
+	// Unregister caches with VDPVRAM.
+	vram->patternTable.setObserver(NULL);
+	vram->colourTable.setObserver(NULL);
+
 	delete console;
 	// TODO: Free textures.
 }
@@ -548,13 +500,12 @@ SDLGLRenderer::~SDLGLRenderer()
 void SDLGLRenderer::reset(const EmuTime &time)
 {
 	PixelRenderer::reset(time);
-	
+
 	// Init renderer state.
 	setDisplayMode(vdp->getDisplayMode());
 	spriteConverter.setTransparency(vdp->getTransparency());
 
-	setDirty(true);
-	dirtyForeground = dirtyBackground = true;
+	// Invalidate bitmap cache.
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 
 	if (!vdp->isMSX1VDP()) {
@@ -568,12 +519,12 @@ void SDLGLRenderer::reset(const EmuTime &time)
 bool SDLGLRenderer::checkSettings() {
 	// First check this is the right renderer.
 	if (!PixelRenderer::checkSettings()) return false;
-	
+
 	// Check full screen setting.
 	bool fullScreenState = ((screen->flags & SDL_FULLSCREEN) != 0);
 	bool fullScreenTarget = settings->getFullScreen()->getValue();
 	if (fullScreenState == fullScreenTarget) return true;
-	
+
 #ifdef __WIN32__
 	// Under win32, toggling full screen requires opening a new SDL screen.
 	return false;
@@ -602,11 +553,15 @@ void SDLGLRenderer::frameStart(const EmuTime &time)
 
 void SDLGLRenderer::setDisplayMode(DisplayMode mode)
 {
-	dirtyChecker = modeToDirtyChecker[mode.getBase()];
 	if (mode.isBitmapMode()) {
 		bitmapConverter.setDisplayMode(mode);
 	} else {
 		characterConverter.setDisplayMode(mode);
+		if (characterCacheMode != mode) {
+			characterCacheMode = mode;
+			dirtyPattern.flush();
+			dirtyColour.flush();
+		}
 	}
 	lineWidth = mode.getLineWidth();
 	// TODO: Check what happens to sprites in Graphic5 + YJK/YAE.
@@ -621,14 +576,13 @@ void SDLGLRenderer::updateTransparency(
 {
 	sync(time);
 	spriteConverter.setTransparency(enabled);
-	
+
 	// Set the right palette for pixels of colour 0.
 	palFg[0] = palBg[enabled ? vdp->getBackgroundColour() : 0];
 	// Any line containing pixels of colour 0 must be repainted.
 	// We don't know which lines contain such pixels,
 	// so we have to repaint them all.
-	anyDirtyColour = true;
-	fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
+	dirtyColour.flush();
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 }
 
@@ -636,22 +590,19 @@ void SDLGLRenderer::updateForegroundColour(
 	int colour, const EmuTime &time)
 {
 	sync(time);
-	dirtyForeground = true;
 }
 
 void SDLGLRenderer::updateBackgroundColour(
 	int colour, const EmuTime &time)
 {
 	sync(time);
-	dirtyBackground = true;
 	if (vdp->getTransparency()) {
 		// Transparent pixels have background colour.
 		palFg[0] = palBg[colour];
 		// Any line containing pixels of colour 0 must be repainted.
 		// We don't know which lines contain such pixels,
 		// so we have to repaint them all.
-		anyDirtyColour = true;
-		fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
+		dirtyColour.flush();
 		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 	}
 }
@@ -660,14 +611,12 @@ void SDLGLRenderer::updateBlinkForegroundColour(
 	int colour, const EmuTime &time)
 {
 	sync(time);
-	dirtyForeground = true;
 }
 
 void SDLGLRenderer::updateBlinkBackgroundColour(
 	int colour, const EmuTime &time)
 {
 	sync(time);
-	dirtyBackground = true;
 }
 
 void SDLGLRenderer::updateBlinkState(
@@ -678,13 +627,6 @@ void SDLGLRenderer::updateBlinkState(
 	//       I don't know why exactly, but it's probably related to
 	//       being called at frame start.
 	//sync(time);
-	if (vdp->getDisplayMode().getBase() == DisplayMode::TEXT2) {
-		// Text2 with blinking text.
-		// Consider all characters dirty.
-		// TODO: Only mark characters in blink colour dirty.
-		anyDirtyName = true;
-		fillBool(dirtyName, true, sizeof(dirtyName) / sizeof(bool));
-	}
 }
 
 void SDLGLRenderer::updatePalette(
@@ -703,7 +645,6 @@ void SDLGLRenderer::setPalette(
 
 	// Is this the background colour?
 	if (vdp->getBackgroundColour() == index && vdp->getTransparency()) {
-		dirtyBackground = true;
 		// Transparent pixels have background colour.
 		palFg[0] = palBg[vdp->getBackgroundColour()];
 	}
@@ -711,8 +652,7 @@ void SDLGLRenderer::setPalette(
 	// Any line containing pixels of this colour must be repainted.
 	// We don't know which lines contain which colours,
 	// so we have to repaint them all.
-	anyDirtyColour = true;
-	fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
+	dirtyColour.flush();
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 }
 
@@ -733,108 +673,29 @@ void SDLGLRenderer::updateDisplayMode(
 {
 	sync(time);
 	setDisplayMode(mode);
-	setDirty(true);
 }
 
 void SDLGLRenderer::updateNameBase(
 	int addr, const EmuTime &time)
 {
 	sync(time);
-	anyDirtyName = true;
-	fillBool(dirtyName, true, sizeof(dirtyName) / sizeof(bool));
 }
 
 void SDLGLRenderer::updatePatternBase(
 	int addr, const EmuTime &time)
 {
 	sync(time);
-	anyDirtyPattern = true;
-	fillBool(dirtyPattern, true, sizeof(dirtyPattern) / sizeof(bool));
 }
 
 void SDLGLRenderer::updateColourBase(
 	int addr, const EmuTime &time)
 {
 	sync(time);
-	anyDirtyColour = true;
-	fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
 }
 
-void SDLGLRenderer::checkDirtyNull(int addr)
+void SDLGLRenderer::updateVRAMCache(int address)
 {
-	// Do nothing: this is a bogus mode whose display doesn't depend
-	// on VRAM contents.
-}
-
-void SDLGLRenderer::checkDirtyMSX1Text(int addr)
-{
-	if (vram->nameTable.isInside(addr)) {
-		dirtyName[addr & ~(-1 << 10)] = anyDirtyName = true;
-	}
-	if (vram->colourTable.isInside(addr)) {
-		dirtyColour[(addr / 8) & ~(-1 << 8)] = anyDirtyColour = true;
-	}
-	if (vram->patternTable.isInside(addr)) {
-		dirtyPattern[(addr / 8) & ~(-1 << 8)] = anyDirtyPattern = true;
-	}
-}
-
-void SDLGLRenderer::checkDirtyMSX1Graphic(int addr)
-{
-	if (vram->nameTable.isInside(addr)) {
-		dirtyName[addr & ~(-1 << 10)] = anyDirtyName = true;
-	}
-	if (vram->colourTable.isInside(addr)) {
-		dirtyColour[(addr / 8) & ~(-1 << 10)] = anyDirtyColour = true;
-	}
-	if (vram->patternTable.isInside(addr)) {
-		dirtyPattern[(addr / 8) & ~(-1 << 10)] = anyDirtyPattern = true;
-	}
-}
-
-void SDLGLRenderer::checkDirtyText2(int addr)
-{
-	if (vram->nameTable.isInside(addr)) {
-		dirtyName[addr & ~(-1 << 12)] = anyDirtyName = true;
-	}
-	if (vram->patternTable.isInside(addr)) {
-		dirtyPattern[(addr / 8) & ~(-1 << 8)] = anyDirtyPattern = true;
-	}
-	// TODO: Mask and index overlap in Text2, so it is possible for multiple
-	//       addresses to be mapped to a single byte in the colour table.
-	//       Therefore the current implementation is incorrect and a different
-	//       approach is needed.
-	//       The obvious solutions is to mark entries as dirty in the colour
-	//       table, instead of the name table.
-	//       The check code here was updated, the rendering code not yet.
-	/*
-	int colourBase = vdp->getColourMask() & (-1 << 9);
-	int i = addr - colourBase;
-	if ((0 <= i) && (i < 2160/8)) {
-		dirtyName[i*8+0] = dirtyName[i*8+1] =
-		dirtyName[i*8+2] = dirtyName[i*8+3] =
-		dirtyName[i*8+4] = dirtyName[i*8+5] =
-		dirtyName[i*8+6] = dirtyName[i*8+7] =
-		anyDirtyName = true;
-	}
-	*/
-	if (vram->colourTable.isInside(addr)) {
-		dirtyColour[addr & ~(-1 << 9)] = anyDirtyColour = true;
-	}
-}
-
-void SDLGLRenderer::checkDirtyBitmap(int addr)
-{
-	lineValidInMode[addr >> 7] = 0xFF;
-}
-
-void SDLGLRenderer::setDirty(
-	bool dirty)
-{
-	anyDirtyColour = anyDirtyPattern = anyDirtyName = dirty;
-	fillBool(dirtyName, dirty, sizeof(dirtyName) / sizeof(bool));
-	fillBool(dirtyColour, dirty, sizeof(dirtyColour) / sizeof(bool));
-	fillBool(dirtyPattern, dirty, sizeof(dirtyPattern) / sizeof(bool));
+	lineValidInMode[address >> 7] = 0xFF;
 }
 
 void SDLGLRenderer::drawBorder(int fromX, int fromY, int limitX, int limitY)
@@ -890,12 +751,8 @@ void SDLGLRenderer::renderText1(
 			int name = (row & 31) * 40 + col;
 			int charcode = vram->nameTable.readNP(name);
 			GLuint textureId = characterCache[charcode];
-			if (dirtyPattern[charcode]) {
+			if (!dirtyPattern.validate(charcode)) {
 				// Update cache for current character.
-				dirtyPattern[charcode] = false;
-				// TODO: Read byte ranges from VRAM?
-				//       Otherwise, have CharacterConverter read individual
-				//       bytes. But what is the advantage to that?
 				byte charPixels[8 * 8];
 				characterConverter.convertMonoBlock(
 					charPixels,
@@ -919,7 +776,7 @@ void SDLGLRenderer::renderGraphic2(
 	int vramLine, int screenLine, int count, int minX, int maxX
 ) {
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	
+
 	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
 	glScissor(
@@ -950,17 +807,17 @@ void SDLGLRenderer::renderGraphic2Row(
 	int patternMask = vram->patternTable.getMask() / 8;
 	int colourMask = vram->colourTable.getMask() / 8;
 	int x = translateX(vdp->getLeftBackground()) + col * 16;
-	
+
 	for (int name = nameStart; name < nameEnd; name++) {
+		// TODO: With all the masks and quarters, is this dirty
+		//       checking really correct?
 		int charNr = quarter | vram->nameTable.readNP((-1 << 10) | name);
 		int colourNr = charNr & colourMask;
 		int patternNr = charNr & patternMask;
 		GLuint textureId = characterCache[charNr];
-		if (dirtyPattern[patternNr] || dirtyColour[colourNr]) {
-			// TODO: With all the masks and quarters, is this dirty
-			//       checking really correct?
-			dirtyPattern[patternNr] = false;
-			dirtyColour[colourNr] = false;
+		bool valid = dirtyPattern.validate(patternNr);
+		valid &= dirtyColour.validate(colourNr);
+		if (!valid) {
 			Pixel charPixels[8 * 8];
 			int index = (-1 << 13) | (charNr * 8);
 			characterConverter.convertColourBlock(
@@ -1146,7 +1003,7 @@ void SDLGLRenderer::drawSprites(
 		} else {
 			spriteConverter.drawMode2(y, displayX, displayLimitX, lineBuffer);
 		}
-		
+
 		// Make line buffer into a texture and draw it.
 		// TODO: Make a texture of only the portion that will be drawn.
 		GLint textureId = spriteTextureIds[y];
@@ -1155,10 +1012,10 @@ void SDLGLRenderer::drawSprites(
 			textureId, displayX * 2,
 			screenX, screenY, displayWidth * 2, 2
 			);
-		
+
 		screenY += 2;
 	}
-	
+
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
 }
