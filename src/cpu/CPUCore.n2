@@ -174,13 +174,15 @@ inline void _CPU_::RES(int bit, byte &reg) {
 }
 inline void _CPU_::BIT(int bit, byte reg) {
 	R.AF.B.l = (R.AF.B.l & C_FLAG) | 
-	           ZSPXYTable[reg & (1 << bit)] | 
+	           ZSPTable[reg & (1 << bit)] |
+		   (reg & (X_FLAG | Y_FLAG)) |
 		   H_FLAG;
 }
 inline void _CPU_::BIT_HL(int bit) {
 	byte i = RD_XHL();
 	R.AF.B.l = (R.AF.B.l & C_FLAG) |
-	            ZSPTable[i & (1 << bit)] | 
+	            ZSPTable[i & (1 << bit)] |
+		    //TODO
 		    H_FLAG;
 	SMALL_DELAY();
 }
@@ -189,7 +191,7 @@ inline void _CPU_::BIT_IX(int bit, offset n) {
 	R.AF.B.l = (R.AF.B.l & C_FLAG) | 
 	           ZSPTable[i & (1 << bit)] | 
 		   H_FLAG |
-	           (((R.IX.w + n) >> 8) & (X_FLAG | Y_FLAG));
+	           ((XIX(n) >> 8) & (X_FLAG | Y_FLAG));
 	SMALL_DELAY();
 }
 inline void _CPU_::BIT_IY(int bit, offset n) {
@@ -197,7 +199,7 @@ inline void _CPU_::BIT_IY(int bit, offset n) {
 	R.AF.B.l = (R.AF.B.l & C_FLAG) | 
 	           ZSPTable[i & (1 << bit)] | 
 		   H_FLAG |
-	           (((R.IY.w + n) >> 8) & (X_FLAG | Y_FLAG));
+	           ((XIY(n) >> 8) & (X_FLAG | Y_FLAG));
 	SMALL_DELAY();
 }
 
@@ -218,32 +220,6 @@ inline void _CPU_::IN(byte &reg) {
 	reg = READ_PORT(R.BC.w);
 	R.AF.B.l = (R.AF.B.l & C_FLAG) |
 	           ZSPXYTable[reg];
-}
-
-inline void _CPU_::RLCA() {
-	R.AF.B.h = (R.AF.B.h << 1) | (R.AF.B.h >> 7);
-	R.AF.B.l = (R.AF.B.l & (S_FLAG | Z_FLAG | P_FLAG)) |
-	           (R.AF.B.h & (Y_FLAG | X_FLAG | C_FLAG));
-}
-inline void _CPU_::RRCA() {
-	R.AF.B.l = (R.AF.B.l & (S_FLAG | Z_FLAG | P_FLAG)) |
-	           (R.AF.B.h &  C_FLAG);
-	R.AF.B.h = (R.AF.B.h >> 1) | (R.AF.B.h << 7);
-	R.AF.B.l |= R.AF.B.h & (X_FLAG | Y_FLAG);
-}
-inline void _CPU_::RLA() {
-	byte c = R.AF.B.l & C_FLAG;
-	R.AF.B.l = (R.AF.B.l & (S_FLAG | Z_FLAG | P_FLAG)) |
-	           ((R.AF.B.h & 0x80) ? C_FLAG : 0);
-	R.AF.B.h = (R.AF.B.h << 1) | (c ? 1 : 0);
-	R.AF.B.l |= R.AF.B.h & (X_FLAG | Y_FLAG);
-}
-inline void _CPU_::RRA() {
-	byte c = R.AF.B.l & C_FLAG;
-	R.AF.B.l = (R.AF.B.l & (S_FLAG | Z_FLAG | P_FLAG)) |
-	           ((R.AF.B.h & 0x01) ? C_FLAG : 0);
-	R.AF.B.h = (R.AF.B.h >> 1) | (c ? 0x80 : 0);
-	R.AF.B.l |= R.AF.B.h & (X_FLAG | Y_FLAG);
 }
 
 inline void _CPU_::RLC(byte &reg) {
@@ -454,7 +430,6 @@ void _CPU_::bit_0_d()   { BIT(0, R.DE.B.h); }
 void _CPU_::bit_0_e()   { BIT(0, R.DE.B.l); }
 void _CPU_::bit_0_h()   { BIT(0, R.HL.B.h); }
 void _CPU_::bit_0_l()   { BIT(0, R.HL.B.l); }
-
 void _CPU_::bit_1_xhl() { BIT_HL(1); }
 void _CPU_::bit_1_xix(offset n) { BIT_IX(1, n); }
 void _CPU_::bit_1_xiy(offset n) { BIT_IY(1, n); }
@@ -465,7 +440,6 @@ void _CPU_::bit_1_d()   { BIT(1, R.DE.B.h); }
 void _CPU_::bit_1_e()   { BIT(1, R.DE.B.l); }
 void _CPU_::bit_1_h()   { BIT(1, R.HL.B.h); }
 void _CPU_::bit_1_l()   { BIT(1, R.HL.B.l); }
-
 void _CPU_::bit_2_xhl() { BIT_HL(2); }
 void _CPU_::bit_2_xix(offset n) { BIT_IX(2, n); }
 void _CPU_::bit_2_xiy(offset n) { BIT_IY(2, n); }
@@ -476,7 +450,6 @@ void _CPU_::bit_2_d()   { BIT(2, R.DE.B.h); }
 void _CPU_::bit_2_e()   { BIT(2, R.DE.B.l); }
 void _CPU_::bit_2_h()   { BIT(2, R.HL.B.h); }
 void _CPU_::bit_2_l()   { BIT(2, R.HL.B.l); }
-
 void _CPU_::bit_3_xhl() { BIT_HL(3); }
 void _CPU_::bit_3_xix(offset n) { BIT_IX(3, n); }
 void _CPU_::bit_3_xiy(offset n) { BIT_IY(3, n); }
@@ -487,7 +460,6 @@ void _CPU_::bit_3_d()   { BIT(3, R.DE.B.h); }
 void _CPU_::bit_3_e()   { BIT(3, R.DE.B.l); }
 void _CPU_::bit_3_h()   { BIT(3, R.HL.B.h); }
 void _CPU_::bit_3_l()   { BIT(3, R.HL.B.l); }
-
 void _CPU_::bit_4_xhl() { BIT_HL(4); }
 void _CPU_::bit_4_xix(offset n) { BIT_IX(4, n); }
 void _CPU_::bit_4_xiy(offset n) { BIT_IY(4, n); }
@@ -498,7 +470,6 @@ void _CPU_::bit_4_d()   { BIT(4, R.DE.B.h); }
 void _CPU_::bit_4_e()   { BIT(4, R.DE.B.l); }
 void _CPU_::bit_4_h()   { BIT(4, R.HL.B.h); }
 void _CPU_::bit_4_l()   { BIT(4, R.HL.B.l); }
-
 void _CPU_::bit_5_xhl() { BIT_HL(5); }
 void _CPU_::bit_5_xix(offset n) { BIT_IX(5, n); }
 void _CPU_::bit_5_xiy(offset n) { BIT_IY(5, n); }
@@ -509,7 +480,6 @@ void _CPU_::bit_5_d()   { BIT(5, R.DE.B.h); }
 void _CPU_::bit_5_e()   { BIT(5, R.DE.B.l); }
 void _CPU_::bit_5_h()   { BIT(5, R.HL.B.h); }
 void _CPU_::bit_5_l()   { BIT(5, R.HL.B.l); }
-
 void _CPU_::bit_6_xhl() { BIT_HL(6); }
 void _CPU_::bit_6_xix(offset n) { BIT_IX(6, n); }
 void _CPU_::bit_6_xiy(offset n) { BIT_IY(6, n); }
@@ -520,7 +490,6 @@ void _CPU_::bit_6_d()   { BIT(6, R.DE.B.h); }
 void _CPU_::bit_6_e()   { BIT(6, R.DE.B.l); }
 void _CPU_::bit_6_h()   { BIT(6, R.HL.B.h); }
 void _CPU_::bit_6_l()   { BIT(6, R.HL.B.l); }
-
 void _CPU_::bit_7_xhl() { BIT_HL(7); }
 void _CPU_::bit_7_xix(offset n) { BIT_IX(7, n); }
 void _CPU_::bit_7_xiy(offset n) { BIT_IY(7, n); }
@@ -1145,1125 +1114,205 @@ void _CPU_::push_hl() { PUSH(R.HL.w); }
 void _CPU_::push_ix() { PUSH(R.IX.w); }
 void _CPU_::push_iy() { PUSH(R.IY.w); }
 
-void _CPU_::res_0_xhl() {
-	byte i = RDMEM(R.HL.w);
-	RES(0, i);
-	SMALL_DELAY();
-	WRMEM(R.HL.w, i);
-}
-void _CPU_::res_0_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(0, i);
-	SMALL_DELAY();
-	WRMEM(j, i);
-}
-void _CPU_::res_0_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(0, i);
-	SMALL_DELAY();
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_0_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(0, i);
-	SMALL_DELAY();
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_0_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(0, i);
-	SMALL_DELAY();
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_0_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(0, i);
-	SMALL_DELAY();
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_0_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(0, i);
-	SMALL_DELAY();
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_0_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(0, i);
-	SMALL_DELAY();
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_0_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(0, i);
-	SMALL_DELAY();
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_0_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(0, i);
-	SMALL_DELAY();
-	WRMEM(j, i);
-}
-void _CPU_::res_0_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(0, i);
-	SMALL_DELAY();
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_0_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(0, i);
-	SMALL_DELAY();
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_0_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(0, i);
-	SMALL_DELAY();
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_0_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(0, i);
-	SMALL_DELAY();
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_0_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(0, i);
-	SMALL_DELAY();
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_0_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(0, i);
-	SMALL_DELAY();
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_0_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(0, i);
-	SMALL_DELAY();
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_0_a() { RES(0, R.AF.B.h); };
-void _CPU_::res_0_b() { RES(0, R.BC.B.h); };
-void _CPU_::res_0_c() { RES(0, R.BC.B.l); };
-void _CPU_::res_0_d() { RES(0, R.DE.B.h); };
-void _CPU_::res_0_e() { RES(0, R.DE.B.l); };
-void _CPU_::res_0_h() { RES(0, R.HL.B.h); };
-void _CPU_::res_0_l() { RES(0, R.HL.B.l); };
-
-void _CPU_::res_1_xhl() {
-	byte i = RDMEM(R.HL.w);
-	RES(1, i);
-	SMALL_DELAY();
-	WRMEM(R.HL.w, i);
-}
-void _CPU_::res_1_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(1, i);
-	SMALL_DELAY();
-	WRMEM(j, i);
-}
-void _CPU_::res_1_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(1, i);
-	SMALL_DELAY();
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_1_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(1, i);
-	SMALL_DELAY();
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_1_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(1, i);
-	SMALL_DELAY();
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_1_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(1, i);
-	SMALL_DELAY();
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_1_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(1, i);
-	SMALL_DELAY();
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_1_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(1, i);
-	SMALL_DELAY();
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_1_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(1, i);
-	SMALL_DELAY();
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_1_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(1, i);
-	SMALL_DELAY();
-	WRMEM(j, i);
-}
-void _CPU_::res_1_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(1, i);
-	SMALL_DELAY();
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_1_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(1, i);
-	SMALL_DELAY();
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_1_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(1, i);
-	SMALL_DELAY();
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_1_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(1, i);
-	SMALL_DELAY();
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_1_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(1, i);
-	SMALL_DELAY();
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_1_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(1, i);
-	SMALL_DELAY();
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_1_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(1, i);
-	SMALL_DELAY();
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_1_a() { RES(1, R.AF.B.h); };
-void _CPU_::res_1_b() { RES(1, R.BC.B.h); };
-void _CPU_::res_1_c() { RES(1, R.BC.B.l); };
-void _CPU_::res_1_d() { RES(1, R.DE.B.h); };
-void _CPU_::res_1_e() { RES(1, R.DE.B.l); };
-void _CPU_::res_1_h() { RES(1, R.HL.B.h); };
-void _CPU_::res_1_l() { RES(1, R.HL.B.l); };
-
-void _CPU_::res_2_xhl() {
-	byte i = RDMEM(R.HL.w);
-	RES(2, i);
-	SMALL_DELAY();
-	WRMEM(R.HL.w, i);
-}
-void _CPU_::res_2_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(2, i);
-	SMALL_DELAY();
-	WRMEM(j, i);
-}
-void _CPU_::res_2_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(2, i);
-	SMALL_DELAY();
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_2_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(2, i);
-	SMALL_DELAY();
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_2_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(2, i);
-	SMALL_DELAY();
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_2_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(2, i);
-	SMALL_DELAY();
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_2_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(2, i);
-	SMALL_DELAY();
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_2_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(2, i);
-	SMALL_DELAY();
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_2_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(2, i);
-	SMALL_DELAY();
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_2_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(2, i);
-	SMALL_DELAY();
-	WRMEM(j, i);
-}
-void _CPU_::res_2_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(2, i);
-	SMALL_DELAY();
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_2_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(2, i);
-	SMALL_DELAY();
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_2_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(2, i);
-	SMALL_DELAY();
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_2_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(2, i);
-	SMALL_DELAY();
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_2_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(2, i);
-	SMALL_DELAY();
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_2_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(2, i);
-	SMALL_DELAY();
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_2_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(2, i);
-	SMALL_DELAY();
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_2_a() { RES(2, R.AF.B.h); };
-void _CPU_::res_2_b() { RES(2, R.BC.B.h); };
-void _CPU_::res_2_c() { RES(2, R.BC.B.l); };
-void _CPU_::res_2_d() { RES(2, R.DE.B.h); };
-void _CPU_::res_2_e() { RES(2, R.DE.B.l); };
-void _CPU_::res_2_h() { RES(2, R.HL.B.h); };
-void _CPU_::res_2_l() { RES(2, R.HL.B.l); };
-
-void _CPU_::res_3_xhl() {
-	byte i = RDMEM(R.HL.w);
-	RES(3, i);
-	SMALL_DELAY();
-	WRMEM(R.HL.w, i);
-}
-void _CPU_::res_3_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(3, i);
-	SMALL_DELAY();
-	WRMEM(j, i);
-}
-void _CPU_::res_3_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(3, i);
-	SMALL_DELAY();
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_3_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(3, i);
-	SMALL_DELAY();
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_3_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(3, i);
-	SMALL_DELAY();
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_3_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(3, i);
-	SMALL_DELAY();
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_3_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(3, i);
-	SMALL_DELAY();
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_3_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(3, i);
-	SMALL_DELAY();
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_3_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(3, i);
-	SMALL_DELAY();
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_3_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(3, i);
-	SMALL_DELAY();
-	WRMEM(j, i);
-}
-void _CPU_::res_3_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(3, i);
-	SMALL_DELAY();
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_3_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(3, i);
-	SMALL_DELAY();
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_3_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(3, i);
-	SMALL_DELAY();
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_3_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(3, i);
-	SMALL_DELAY();
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_3_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(3, i);
-	SMALL_DELAY();
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_3_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(3, i);
-	SMALL_DELAY();
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_3_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(3, i);
-	SMALL_DELAY();
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_3_a() { RES(3, R.AF.B.h); };
-void _CPU_::res_3_b() { RES(3, R.BC.B.h); };
-void _CPU_::res_3_c() { RES(3, R.BC.B.l); };
-void _CPU_::res_3_d() { RES(3, R.DE.B.h); };
-void _CPU_::res_3_e() { RES(3, R.DE.B.l); };
-void _CPU_::res_3_h() { RES(3, R.HL.B.h); };
-void _CPU_::res_3_l() { RES(3, R.HL.B.l); };
-
-void _CPU_::res_4_xhl() {
-	byte i = RDMEM(R.HL.w);
-	RES(4, i);
-	SMALL_DELAY();
-	WRMEM(R.HL.w, i);
-}
-void _CPU_::res_4_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(4, i);
-	SMALL_DELAY();
-	WRMEM(j, i);
-}
-void _CPU_::res_4_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(4, i);
-	SMALL_DELAY();
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_4_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(4, i);
-	SMALL_DELAY();
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_4_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(4, i);
-	SMALL_DELAY();
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_4_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(4, i);
-	SMALL_DELAY();
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_4_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(4, i);
-	SMALL_DELAY();
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_4_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(4, i);
-	SMALL_DELAY();
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_4_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(4, i);
-	SMALL_DELAY();
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_4_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(4, i);
-	SMALL_DELAY();
-	WRMEM(j, i);
-}
-void _CPU_::res_4_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(4, i);
-	SMALL_DELAY();
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_4_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(4, i);
-	SMALL_DELAY();
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_4_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(4, i);
-	SMALL_DELAY();
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_4_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(4, i);
-	SMALL_DELAY();
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_4_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(4, i);
-	SMALL_DELAY();
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_4_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(4, i);
-	SMALL_DELAY();
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_4_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(4, i);
-	SMALL_DELAY();
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_4_a() { RES(4, R.AF.B.h); };
-void _CPU_::res_4_b() { RES(4, R.BC.B.h); };
-void _CPU_::res_4_c() { RES(4, R.BC.B.l); };
-void _CPU_::res_4_d() { RES(4, R.DE.B.h); };
-void _CPU_::res_4_e() { RES(4, R.DE.B.l); };
-void _CPU_::res_4_h() { RES(4, R.HL.B.h); };
-void _CPU_::res_4_l() { RES(4, R.HL.B.l); };
-
-void _CPU_::res_5_xhl() {
-	byte i = RDMEM(R.HL.w);
-	RES(5, i);
-	SMALL_DELAY();
-	WRMEM(R.HL.w, i);
-}
-void _CPU_::res_5_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(5, i);
-	SMALL_DELAY();
-	WRMEM(j, i);
-}
-void _CPU_::res_5_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(5, i);
-	SMALL_DELAY();
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_5_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(5, i);
-	SMALL_DELAY();
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_5_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(5, i);
-	SMALL_DELAY();
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_5_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(5, i);
-	SMALL_DELAY();
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_5_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(5, i);
-	SMALL_DELAY();
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_5_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(5, i);
-	SMALL_DELAY();
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_5_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(5, i);
-	SMALL_DELAY();
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_5_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(5, i);
-	SMALL_DELAY();
-	WRMEM(j, i);
-}
-void _CPU_::res_5_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(5, i);
-	SMALL_DELAY();
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_5_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(5, i);
-	SMALL_DELAY();
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_5_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(5, i);
-	SMALL_DELAY();
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_5_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(5, i);
-	SMALL_DELAY();
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_5_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(5, i);
-	SMALL_DELAY();
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_5_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(5, i);
-	SMALL_DELAY();
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_5_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(5, i);
-	SMALL_DELAY();
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_5_a() { RES(5, R.AF.B.h); };
-void _CPU_::res_5_b() { RES(5, R.BC.B.h); };
-void _CPU_::res_5_c() { RES(5, R.BC.B.l); };
-void _CPU_::res_5_d() { RES(5, R.DE.B.h); };
-void _CPU_::res_5_e() { RES(5, R.DE.B.l); };
-void _CPU_::res_5_h() { RES(5, R.HL.B.h); };
-void _CPU_::res_5_l() { RES(5, R.HL.B.l); };
-
-void _CPU_::res_6_xhl() {
-	byte i = RDMEM(R.HL.w);
-	RES(6, i);
-	SMALL_DELAY();
-	WRMEM(R.HL.w, i);
-}
-void _CPU_::res_6_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(6, i);
-	SMALL_DELAY();
-	WRMEM(j, i);
-}
-void _CPU_::res_6_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(6, i);
-	SMALL_DELAY();
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_6_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(6, i);
-	SMALL_DELAY();
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_6_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(6, i);
-	SMALL_DELAY();
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_6_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(6, i);
-	SMALL_DELAY();
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_6_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(6, i);
-	SMALL_DELAY();
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_6_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(6, i);
-	SMALL_DELAY();
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_6_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(6, i);
-	SMALL_DELAY();
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_6_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(6, i);
-	SMALL_DELAY();
-	WRMEM(j, i);
-}
-void _CPU_::res_6_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(6, i);
-	SMALL_DELAY();
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_6_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(6, i);
-	SMALL_DELAY();
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_6_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(6, i);
-	SMALL_DELAY();
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_6_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(6, i);
-	SMALL_DELAY();
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_6_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(6, i);
-	SMALL_DELAY();
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_6_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(6, i);
-	SMALL_DELAY();
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_6_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(6, i);
-	SMALL_DELAY();
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_6_a() { RES(6, R.AF.B.h); };
-void _CPU_::res_6_b() { RES(6, R.BC.B.h); };
-void _CPU_::res_6_c() { RES(6, R.BC.B.l); };
-void _CPU_::res_6_d() { RES(6, R.DE.B.h); };
-void _CPU_::res_6_e() { RES(6, R.DE.B.l); };
-void _CPU_::res_6_h() { RES(6, R.HL.B.h); };
-void _CPU_::res_6_l() { RES(6, R.HL.B.l); };
-
-void _CPU_::res_7_xhl() {
-	byte i = RDMEM(R.HL.w);
-	RES(7, i);
-	SMALL_DELAY();
-	WRMEM(R.HL.w, i);
-}
-void _CPU_::res_7_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(7, i);
-	SMALL_DELAY();
-	WRMEM(j, i);
-}
-void _CPU_::res_7_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(7, i);
-	SMALL_DELAY();
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_7_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(7, i);
-	SMALL_DELAY();
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_7_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(7, i);
-	SMALL_DELAY();
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_7_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(7, i);
-	SMALL_DELAY();
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_7_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(7, i);
-	SMALL_DELAY();
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_7_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(7, i);
-	SMALL_DELAY();
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_7_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RES(7, i);
-	SMALL_DELAY();
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_7_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(7, i);
-	SMALL_DELAY();
-	WRMEM(j, i);
-}
-void _CPU_::res_7_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(7, i);
-	SMALL_DELAY();
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_7_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(7, i);
-	SMALL_DELAY();
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_7_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(7, i);
-	SMALL_DELAY();
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_7_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(7, i);
-	SMALL_DELAY();
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_7_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(7, i);
-	SMALL_DELAY();
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_7_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(7, i);
-	SMALL_DELAY();
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_7_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RES(7, i);
-	SMALL_DELAY();
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::res_7_a() { RES(7, R.AF.B.h); };
-void _CPU_::res_7_b() { RES(7, R.BC.B.h); };
-void _CPU_::res_7_c() { RES(7, R.BC.B.l); };
-void _CPU_::res_7_d() { RES(7, R.DE.B.h); };
-void _CPU_::res_7_e() { RES(7, R.DE.B.l); };
-void _CPU_::res_7_h() { RES(7, R.HL.B.h); };
-void _CPU_::res_7_l() { RES(7, R.HL.B.l); };
+inline void _CPU_::RES_X(int bit, word adrs, byte &reg) {
+	byte i = RDMEM(adrs);
+	RES(bit, i);
+	SMALL_DELAY();
+	reg = i;
+	WRMEM(adrs, i);
+}
+void _CPU_::res_0_xhl()           { byte dummy; RES_X(0, R.HL.w, dummy); }
+void _CPU_::res_0_xix  (offset n) { byte dummy; RES_X(0, XIX(n), dummy); }
+void _CPU_::res_0_xix_a(offset n) { RES_X(0, XIX(n), R.AF.B.h); }
+void _CPU_::res_0_xix_b(offset n) { RES_X(0, XIX(n), R.BC.B.h); }
+void _CPU_::res_0_xix_c(offset n) { RES_X(0, XIX(n), R.BC.B.l); }
+void _CPU_::res_0_xix_d(offset n) { RES_X(0, XIX(n), R.DE.B.h); }
+void _CPU_::res_0_xix_e(offset n) { RES_X(0, XIX(n), R.DE.B.l); }
+void _CPU_::res_0_xix_h(offset n) { RES_X(0, XIX(n), R.HL.B.h); }
+void _CPU_::res_0_xix_l(offset n) { RES_X(0, XIX(n), R.HL.B.l); }
+void _CPU_::res_0_xiy  (offset n) { byte dummy; RES_X(0, XIY(n), dummy); }
+void _CPU_::res_0_xiy_a(offset n) { RES_X(0, XIY(n), R.AF.B.h); }
+void _CPU_::res_0_xiy_b(offset n) { RES_X(0, XIY(n), R.BC.B.h); }
+void _CPU_::res_0_xiy_c(offset n) { RES_X(0, XIY(n), R.BC.B.l); }
+void _CPU_::res_0_xiy_d(offset n) { RES_X(0, XIY(n), R.DE.B.h); }
+void _CPU_::res_0_xiy_e(offset n) { RES_X(0, XIY(n), R.DE.B.l); }
+void _CPU_::res_0_xiy_h(offset n) { RES_X(0, XIY(n), R.HL.B.h); }
+void _CPU_::res_0_xiy_l(offset n) { RES_X(0, XIY(n), R.HL.B.l); }
+void _CPU_::res_0_a() { RES(0, R.AF.B.h); }
+void _CPU_::res_0_b() { RES(0, R.BC.B.h); }
+void _CPU_::res_0_c() { RES(0, R.BC.B.l); }
+void _CPU_::res_0_d() { RES(0, R.DE.B.h); }
+void _CPU_::res_0_e() { RES(0, R.DE.B.l); }
+void _CPU_::res_0_h() { RES(0, R.HL.B.h); }
+void _CPU_::res_0_l() { RES(0, R.HL.B.l); }
+void _CPU_::res_1_xhl()           { byte dummy; RES_X(1, R.HL.w, dummy); }
+void _CPU_::res_1_xix  (offset n) { byte dummy; RES_X(1, XIX(n), dummy); }
+void _CPU_::res_1_xix_a(offset n) { RES_X(1, XIX(n), R.AF.B.h); }
+void _CPU_::res_1_xix_b(offset n) { RES_X(1, XIX(n), R.BC.B.h); }
+void _CPU_::res_1_xix_c(offset n) { RES_X(1, XIX(n), R.BC.B.l); }
+void _CPU_::res_1_xix_d(offset n) { RES_X(1, XIX(n), R.DE.B.h); }
+void _CPU_::res_1_xix_e(offset n) { RES_X(1, XIX(n), R.DE.B.l); }
+void _CPU_::res_1_xix_h(offset n) { RES_X(1, XIX(n), R.HL.B.h); }
+void _CPU_::res_1_xix_l(offset n) { RES_X(1, XIX(n), R.HL.B.l); }
+void _CPU_::res_1_xiy  (offset n) { byte dummy; RES_X(1, XIY(n), dummy); }
+void _CPU_::res_1_xiy_a(offset n) { RES_X(1, XIY(n), R.AF.B.h); }
+void _CPU_::res_1_xiy_b(offset n) { RES_X(1, XIY(n), R.BC.B.h); }
+void _CPU_::res_1_xiy_c(offset n) { RES_X(1, XIY(n), R.BC.B.l); }
+void _CPU_::res_1_xiy_d(offset n) { RES_X(1, XIY(n), R.DE.B.h); }
+void _CPU_::res_1_xiy_e(offset n) { RES_X(1, XIY(n), R.DE.B.l); }
+void _CPU_::res_1_xiy_h(offset n) { RES_X(1, XIY(n), R.HL.B.h); }
+void _CPU_::res_1_xiy_l(offset n) { RES_X(1, XIY(n), R.HL.B.l); }
+void _CPU_::res_1_a() { RES(1, R.AF.B.h); }
+void _CPU_::res_1_b() { RES(1, R.BC.B.h); }
+void _CPU_::res_1_c() { RES(1, R.BC.B.l); }
+void _CPU_::res_1_d() { RES(1, R.DE.B.h); }
+void _CPU_::res_1_e() { RES(1, R.DE.B.l); }
+void _CPU_::res_1_h() { RES(1, R.HL.B.h); }
+void _CPU_::res_1_l() { RES(1, R.HL.B.l); }
+void _CPU_::res_2_xhl()           { byte dummy; RES_X(2, R.HL.w, dummy); }
+void _CPU_::res_2_xix  (offset n) { byte dummy; RES_X(2, XIX(n), dummy); }
+void _CPU_::res_2_xix_a(offset n) { RES_X(2, XIX(n), R.AF.B.h); }
+void _CPU_::res_2_xix_b(offset n) { RES_X(2, XIX(n), R.BC.B.h); }
+void _CPU_::res_2_xix_c(offset n) { RES_X(2, XIX(n), R.BC.B.l); }
+void _CPU_::res_2_xix_d(offset n) { RES_X(2, XIX(n), R.DE.B.h); }
+void _CPU_::res_2_xix_e(offset n) { RES_X(2, XIX(n), R.DE.B.l); }
+void _CPU_::res_2_xix_h(offset n) { RES_X(2, XIX(n), R.HL.B.h); }
+void _CPU_::res_2_xix_l(offset n) { RES_X(2, XIX(n), R.HL.B.l); }
+void _CPU_::res_2_xiy  (offset n) { byte dummy; RES_X(2, XIY(n), dummy); }
+void _CPU_::res_2_xiy_a(offset n) { RES_X(2, XIY(n), R.AF.B.h); }
+void _CPU_::res_2_xiy_b(offset n) { RES_X(2, XIY(n), R.BC.B.h); }
+void _CPU_::res_2_xiy_c(offset n) { RES_X(2, XIY(n), R.BC.B.l); }
+void _CPU_::res_2_xiy_d(offset n) { RES_X(2, XIY(n), R.DE.B.h); }
+void _CPU_::res_2_xiy_e(offset n) { RES_X(2, XIY(n), R.DE.B.l); }
+void _CPU_::res_2_xiy_h(offset n) { RES_X(2, XIY(n), R.HL.B.h); }
+void _CPU_::res_2_xiy_l(offset n) { RES_X(2, XIY(n), R.HL.B.l); }
+void _CPU_::res_2_a() { RES(2, R.AF.B.h); }
+void _CPU_::res_2_b() { RES(2, R.BC.B.h); }
+void _CPU_::res_2_c() { RES(2, R.BC.B.l); }
+void _CPU_::res_2_d() { RES(2, R.DE.B.h); }
+void _CPU_::res_2_e() { RES(2, R.DE.B.l); }
+void _CPU_::res_2_h() { RES(2, R.HL.B.h); }
+void _CPU_::res_2_l() { RES(2, R.HL.B.l); }
+void _CPU_::res_3_xhl()           { byte dummy; RES_X(3, R.HL.w, dummy); }
+void _CPU_::res_3_xix  (offset n) { byte dummy; RES_X(3, XIX(n), dummy); }
+void _CPU_::res_3_xix_a(offset n) { RES_X(3, XIX(n), R.AF.B.h); }
+void _CPU_::res_3_xix_b(offset n) { RES_X(3, XIX(n), R.BC.B.h); }
+void _CPU_::res_3_xix_c(offset n) { RES_X(3, XIX(n), R.BC.B.l); }
+void _CPU_::res_3_xix_d(offset n) { RES_X(3, XIX(n), R.DE.B.h); }
+void _CPU_::res_3_xix_e(offset n) { RES_X(3, XIX(n), R.DE.B.l); }
+void _CPU_::res_3_xix_h(offset n) { RES_X(3, XIX(n), R.HL.B.h); }
+void _CPU_::res_3_xix_l(offset n) { RES_X(3, XIX(n), R.HL.B.l); }
+void _CPU_::res_3_xiy  (offset n) { byte dummy; RES_X(3, XIY(n), dummy); }
+void _CPU_::res_3_xiy_a(offset n) { RES_X(3, XIY(n), R.AF.B.h); }
+void _CPU_::res_3_xiy_b(offset n) { RES_X(3, XIY(n), R.BC.B.h); }
+void _CPU_::res_3_xiy_c(offset n) { RES_X(3, XIY(n), R.BC.B.l); }
+void _CPU_::res_3_xiy_d(offset n) { RES_X(3, XIY(n), R.DE.B.h); }
+void _CPU_::res_3_xiy_e(offset n) { RES_X(3, XIY(n), R.DE.B.l); }
+void _CPU_::res_3_xiy_h(offset n) { RES_X(3, XIY(n), R.HL.B.h); }
+void _CPU_::res_3_xiy_l(offset n) { RES_X(3, XIY(n), R.HL.B.l); }
+void _CPU_::res_3_a() { RES(3, R.AF.B.h); }
+void _CPU_::res_3_b() { RES(3, R.BC.B.h); }
+void _CPU_::res_3_c() { RES(3, R.BC.B.l); }
+void _CPU_::res_3_d() { RES(3, R.DE.B.h); }
+void _CPU_::res_3_e() { RES(3, R.DE.B.l); }
+void _CPU_::res_3_h() { RES(3, R.HL.B.h); }
+void _CPU_::res_3_l() { RES(3, R.HL.B.l); }
+void _CPU_::res_4_xhl()           { byte dummy; RES_X(4, R.HL.w, dummy); }
+void _CPU_::res_4_xix  (offset n) { byte dummy; RES_X(4, XIX(n), dummy); }
+void _CPU_::res_4_xix_a(offset n) { RES_X(4, XIX(n), R.AF.B.h); }
+void _CPU_::res_4_xix_b(offset n) { RES_X(4, XIX(n), R.BC.B.h); }
+void _CPU_::res_4_xix_c(offset n) { RES_X(4, XIX(n), R.BC.B.l); }
+void _CPU_::res_4_xix_d(offset n) { RES_X(4, XIX(n), R.DE.B.h); }
+void _CPU_::res_4_xix_e(offset n) { RES_X(4, XIX(n), R.DE.B.l); }
+void _CPU_::res_4_xix_h(offset n) { RES_X(4, XIX(n), R.HL.B.h); }
+void _CPU_::res_4_xix_l(offset n) { RES_X(4, XIX(n), R.HL.B.l); }
+void _CPU_::res_4_xiy  (offset n) { byte dummy; RES_X(4, XIY(n), dummy); }
+void _CPU_::res_4_xiy_a(offset n) { RES_X(4, XIY(n), R.AF.B.h); }
+void _CPU_::res_4_xiy_b(offset n) { RES_X(4, XIY(n), R.BC.B.h); }
+void _CPU_::res_4_xiy_c(offset n) { RES_X(4, XIY(n), R.BC.B.l); }
+void _CPU_::res_4_xiy_d(offset n) { RES_X(4, XIY(n), R.DE.B.h); }
+void _CPU_::res_4_xiy_e(offset n) { RES_X(4, XIY(n), R.DE.B.l); }
+void _CPU_::res_4_xiy_h(offset n) { RES_X(4, XIY(n), R.HL.B.h); }
+void _CPU_::res_4_xiy_l(offset n) { RES_X(4, XIY(n), R.HL.B.l); }
+void _CPU_::res_4_a() { RES(4, R.AF.B.h); }
+void _CPU_::res_4_b() { RES(4, R.BC.B.h); }
+void _CPU_::res_4_c() { RES(4, R.BC.B.l); }
+void _CPU_::res_4_d() { RES(4, R.DE.B.h); }
+void _CPU_::res_4_e() { RES(4, R.DE.B.l); }
+void _CPU_::res_4_h() { RES(4, R.HL.B.h); }
+void _CPU_::res_4_l() { RES(4, R.HL.B.l); }
+void _CPU_::res_5_xhl()           { byte dummy; RES_X(5, R.HL.w, dummy); }
+void _CPU_::res_5_xix  (offset n) { byte dummy; RES_X(5, XIX(n), dummy); }
+void _CPU_::res_5_xix_a(offset n) { RES_X(5, XIX(n), R.AF.B.h); }
+void _CPU_::res_5_xix_b(offset n) { RES_X(5, XIX(n), R.BC.B.h); }
+void _CPU_::res_5_xix_c(offset n) { RES_X(5, XIX(n), R.BC.B.l); }
+void _CPU_::res_5_xix_d(offset n) { RES_X(5, XIX(n), R.DE.B.h); }
+void _CPU_::res_5_xix_e(offset n) { RES_X(5, XIX(n), R.DE.B.l); }
+void _CPU_::res_5_xix_h(offset n) { RES_X(5, XIX(n), R.HL.B.h); }
+void _CPU_::res_5_xix_l(offset n) { RES_X(5, XIX(n), R.HL.B.l); }
+void _CPU_::res_5_xiy  (offset n) { byte dummy; RES_X(5, XIY(n), dummy); }
+void _CPU_::res_5_xiy_a(offset n) { RES_X(5, XIY(n), R.AF.B.h); }
+void _CPU_::res_5_xiy_b(offset n) { RES_X(5, XIY(n), R.BC.B.h); }
+void _CPU_::res_5_xiy_c(offset n) { RES_X(5, XIY(n), R.BC.B.l); }
+void _CPU_::res_5_xiy_d(offset n) { RES_X(5, XIY(n), R.DE.B.h); }
+void _CPU_::res_5_xiy_e(offset n) { RES_X(5, XIY(n), R.DE.B.l); }
+void _CPU_::res_5_xiy_h(offset n) { RES_X(5, XIY(n), R.HL.B.h); }
+void _CPU_::res_5_xiy_l(offset n) { RES_X(5, XIY(n), R.HL.B.l); }
+void _CPU_::res_5_a() { RES(5, R.AF.B.h); }
+void _CPU_::res_5_b() { RES(5, R.BC.B.h); }
+void _CPU_::res_5_c() { RES(5, R.BC.B.l); }
+void _CPU_::res_5_d() { RES(5, R.DE.B.h); }
+void _CPU_::res_5_e() { RES(5, R.DE.B.l); }
+void _CPU_::res_5_h() { RES(5, R.HL.B.h); }
+void _CPU_::res_5_l() { RES(5, R.HL.B.l); }
+void _CPU_::res_6_xhl()           { byte dummy; RES_X(6, R.HL.w, dummy); }
+void _CPU_::res_6_xix  (offset n) { byte dummy; RES_X(6, XIX(n), dummy); }
+void _CPU_::res_6_xix_a(offset n) { RES_X(6, XIX(n), R.AF.B.h); }
+void _CPU_::res_6_xix_b(offset n) { RES_X(6, XIX(n), R.BC.B.h); }
+void _CPU_::res_6_xix_c(offset n) { RES_X(6, XIX(n), R.BC.B.l); }
+void _CPU_::res_6_xix_d(offset n) { RES_X(6, XIX(n), R.DE.B.h); }
+void _CPU_::res_6_xix_e(offset n) { RES_X(6, XIX(n), R.DE.B.l); }
+void _CPU_::res_6_xix_h(offset n) { RES_X(6, XIX(n), R.HL.B.h); }
+void _CPU_::res_6_xix_l(offset n) { RES_X(6, XIX(n), R.HL.B.l); }
+void _CPU_::res_6_xiy  (offset n) { byte dummy; RES_X(6, XIY(n), dummy); }
+void _CPU_::res_6_xiy_a(offset n) { RES_X(6, XIY(n), R.AF.B.h); }
+void _CPU_::res_6_xiy_b(offset n) { RES_X(6, XIY(n), R.BC.B.h); }
+void _CPU_::res_6_xiy_c(offset n) { RES_X(6, XIY(n), R.BC.B.l); }
+void _CPU_::res_6_xiy_d(offset n) { RES_X(6, XIY(n), R.DE.B.h); }
+void _CPU_::res_6_xiy_e(offset n) { RES_X(6, XIY(n), R.DE.B.l); }
+void _CPU_::res_6_xiy_h(offset n) { RES_X(6, XIY(n), R.HL.B.h); }
+void _CPU_::res_6_xiy_l(offset n) { RES_X(6, XIY(n), R.HL.B.l); }
+void _CPU_::res_6_a() { RES(6, R.AF.B.h); }
+void _CPU_::res_6_b() { RES(6, R.BC.B.h); }
+void _CPU_::res_6_c() { RES(6, R.BC.B.l); }
+void _CPU_::res_6_d() { RES(6, R.DE.B.h); }
+void _CPU_::res_6_e() { RES(6, R.DE.B.l); }
+void _CPU_::res_6_h() { RES(6, R.HL.B.h); }
+void _CPU_::res_6_l() { RES(6, R.HL.B.l); }
+void _CPU_::res_7_xhl()           { byte dummy; RES_X(7, R.HL.w, dummy); }
+void _CPU_::res_7_xix  (offset n) { byte dummy; RES_X(7, XIX(n), dummy); }
+void _CPU_::res_7_xix_a(offset n) { RES_X(7, XIX(n), R.AF.B.h); }
+void _CPU_::res_7_xix_b(offset n) { RES_X(7, XIX(n), R.BC.B.h); }
+void _CPU_::res_7_xix_c(offset n) { RES_X(7, XIX(n), R.BC.B.l); }
+void _CPU_::res_7_xix_d(offset n) { RES_X(7, XIX(n), R.DE.B.h); }
+void _CPU_::res_7_xix_e(offset n) { RES_X(7, XIX(n), R.DE.B.l); }
+void _CPU_::res_7_xix_h(offset n) { RES_X(7, XIX(n), R.HL.B.h); }
+void _CPU_::res_7_xix_l(offset n) { RES_X(7, XIX(n), R.HL.B.l); }
+void _CPU_::res_7_xiy  (offset n) { byte dummy; RES_X(7, XIY(n), dummy); }
+void _CPU_::res_7_xiy_a(offset n) { RES_X(7, XIY(n), R.AF.B.h); }
+void _CPU_::res_7_xiy_b(offset n) { RES_X(7, XIY(n), R.BC.B.h); }
+void _CPU_::res_7_xiy_c(offset n) { RES_X(7, XIY(n), R.BC.B.l); }
+void _CPU_::res_7_xiy_d(offset n) { RES_X(7, XIY(n), R.DE.B.h); }
+void _CPU_::res_7_xiy_e(offset n) { RES_X(7, XIY(n), R.DE.B.l); }
+void _CPU_::res_7_xiy_h(offset n) { RES_X(7, XIY(n), R.HL.B.h); }
+void _CPU_::res_7_xiy_l(offset n) { RES_X(7, XIY(n), R.HL.B.l); }
+void _CPU_::res_7_a() { RES(7, R.AF.B.h); }
+void _CPU_::res_7_b() { RES(7, R.BC.B.h); }
+void _CPU_::res_7_c() { RES(7, R.BC.B.l); }
+void _CPU_::res_7_d() { RES(7, R.DE.B.h); }
+void _CPU_::res_7_e() { RES(7, R.DE.B.l); }
+void _CPU_::res_7_h() { RES(7, R.HL.B.h); }
+void _CPU_::res_7_l() { RES(7, R.HL.B.l); }
 
 void _CPU_::ret()    {                          RET(); }
 void _CPU_::ret_c()  { SMALL_DELAY(); if (C())  RET(); }
@@ -2288,138 +1337,30 @@ void _CPU_::retn() {
 	slowInstructions = 2;
 }
 
-void _CPU_::rl_xhl() {
-	byte i = RDMEM(R.HL.w);
+inline void _CPU_::RL_X(word adrs, byte &reg) {
+	byte i = RDMEM(adrs);
 	RL(i);
-	SMALL_DELAY(); 
-	WRMEM(R.HL.w, i);
+	SMALL_DELAY();
+	reg = i;
+	WRMEM(adrs, i);
 }
-void _CPU_::rl_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RL(i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::rl_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RL(i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rl_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RL(i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rl_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RL(i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rl_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RL(i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rl_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RL(i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rl_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RL(i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rl_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RL(i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rl_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RL(i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::rl_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RL(i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rl_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RL(i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rl_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RL(i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rl_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RL(i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rl_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RL(i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rl_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RL(i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rl_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RL(i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
+void _CPU_::rl_xhl()           { byte dummy; RL_X(R.HL.w, dummy); }
+void _CPU_::rl_xix  (offset n) { byte dummy; RL_X(XIX(n), dummy); }
+void _CPU_::rl_xix_a(offset n) { RL_X(XIX(n), R.AF.B.h); }
+void _CPU_::rl_xix_b(offset n) { RL_X(XIX(n), R.BC.B.h); }
+void _CPU_::rl_xix_c(offset n) { RL_X(XIX(n), R.BC.B.l); }
+void _CPU_::rl_xix_d(offset n) { RL_X(XIX(n), R.DE.B.h); }
+void _CPU_::rl_xix_e(offset n) { RL_X(XIX(n), R.DE.B.l); }
+void _CPU_::rl_xix_h(offset n) { RL_X(XIX(n), R.HL.B.h); }
+void _CPU_::rl_xix_l(offset n) { RL_X(XIX(n), R.HL.B.l); }
+void _CPU_::rl_xiy  (offset n) { byte dummy; RL_X(XIY(n), dummy); }
+void _CPU_::rl_xiy_a(offset n) { RL_X(XIY(n), R.AF.B.h); }
+void _CPU_::rl_xiy_b(offset n) { RL_X(XIY(n), R.BC.B.h); }
+void _CPU_::rl_xiy_c(offset n) { RL_X(XIY(n), R.BC.B.l); }
+void _CPU_::rl_xiy_d(offset n) { RL_X(XIY(n), R.DE.B.h); }
+void _CPU_::rl_xiy_e(offset n) { RL_X(XIY(n), R.DE.B.l); }
+void _CPU_::rl_xiy_h(offset n) { RL_X(XIY(n), R.HL.B.h); }
+void _CPU_::rl_xiy_l(offset n) { RL_X(XIY(n), R.HL.B.l); }
 void _CPU_::rl_a() { RL(R.AF.B.h); }
 void _CPU_::rl_b() { RL(R.BC.B.h); }
 void _CPU_::rl_c() { RL(R.BC.B.l); }
@@ -2427,141 +1368,38 @@ void _CPU_::rl_d() { RL(R.DE.B.h); }
 void _CPU_::rl_e() { RL(R.DE.B.l); }
 void _CPU_::rl_h() { RL(R.HL.B.h); }
 void _CPU_::rl_l() { RL(R.HL.B.l); }
-void _CPU_::rla()  { RLA(); }
-
-void _CPU_::rlc_xhl() {
-	byte i = RDMEM(R.HL.w);
-	RLC(i);
-	SMALL_DELAY(); 
-	WRMEM(R.HL.w, i);
-}
-void _CPU_::rlc_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RLC(i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::rlc_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RLC(i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rlc_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RLC(i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rlc_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RLC(i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rlc_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RLC(i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rlc_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RLC(i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rlc_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RLC(i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rlc_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RLC(i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
+void _CPU_::rla()  {
+	byte c = R.AF.B.l & C_FLAG;
+	R.AF.B.l = (R.AF.B.l & (S_FLAG | Z_FLAG | P_FLAG)) |
+	           ((R.AF.B.h & 0x80) ? C_FLAG : 0);
+	R.AF.B.h = (R.AF.B.h << 1) | (c ? 1 : 0);
+	R.AF.B.l |= R.AF.B.h & (X_FLAG | Y_FLAG);
 }
 
-void _CPU_::rlc_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
+inline void _CPU_::RLC_X(word adrs, byte &reg) {
+	byte i = RDMEM(adrs);
 	RLC(i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
+	SMALL_DELAY();
+	reg = i;
+	WRMEM(adrs, i);
 }
-void _CPU_::rlc_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RLC(i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rlc_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RLC(i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rlc_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RLC(i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rlc_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RLC(i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rlc_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RLC(i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rlc_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RLC(i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rlc_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RLC(i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
+void _CPU_::rlc_xhl()           { byte dummy; RLC_X(R.HL.w, dummy); }
+void _CPU_::rlc_xix  (offset n) { byte dummy; RLC_X(XIX(n), dummy); }
+void _CPU_::rlc_xix_a(offset n) { RLC_X(XIX(n), R.AF.B.h); }
+void _CPU_::rlc_xix_b(offset n) { RLC_X(XIX(n), R.BC.B.h); }
+void _CPU_::rlc_xix_c(offset n) { RLC_X(XIX(n), R.BC.B.l); }
+void _CPU_::rlc_xix_d(offset n) { RLC_X(XIX(n), R.DE.B.h); }
+void _CPU_::rlc_xix_e(offset n) { RLC_X(XIX(n), R.DE.B.l); }
+void _CPU_::rlc_xix_h(offset n) { RLC_X(XIX(n), R.HL.B.h); }
+void _CPU_::rlc_xix_l(offset n) { RLC_X(XIX(n), R.HL.B.l); }
+void _CPU_::rlc_xiy  (offset n) { byte dummy; RLC_X(XIY(n), dummy); }
+void _CPU_::rlc_xiy_a(offset n) { RLC_X(XIY(n), R.AF.B.h); }
+void _CPU_::rlc_xiy_b(offset n) { RLC_X(XIY(n), R.BC.B.h); }
+void _CPU_::rlc_xiy_c(offset n) { RLC_X(XIY(n), R.BC.B.l); }
+void _CPU_::rlc_xiy_d(offset n) { RLC_X(XIY(n), R.DE.B.h); }
+void _CPU_::rlc_xiy_e(offset n) { RLC_X(XIY(n), R.DE.B.l); }
+void _CPU_::rlc_xiy_h(offset n) { RLC_X(XIY(n), R.HL.B.h); }
+void _CPU_::rlc_xiy_l(offset n) { RLC_X(XIY(n), R.HL.B.l); }
 void _CPU_::rlc_a() { RLC(R.AF.B.h); }
 void _CPU_::rlc_b() { RLC(R.BC.B.h); }
 void _CPU_::rlc_c() { RLC(R.BC.B.l); }
@@ -2569,7 +1407,11 @@ void _CPU_::rlc_d() { RLC(R.DE.B.h); }
 void _CPU_::rlc_e() { RLC(R.DE.B.l); }
 void _CPU_::rlc_h() { RLC(R.HL.B.h); }
 void _CPU_::rlc_l() { RLC(R.HL.B.l); }
-void _CPU_::rlca()  { RLCA(); }
+void _CPU_::rlca()  {
+	R.AF.B.h = (R.AF.B.h << 1) | (R.AF.B.h >> 7);
+	R.AF.B.l = (R.AF.B.l & (S_FLAG | Z_FLAG | P_FLAG)) |
+	           (R.AF.B.h & (Y_FLAG | X_FLAG | C_FLAG));
+}
 
 void _CPU_::rld() {
 	byte i = RDMEM(R.HL.w);
@@ -2579,138 +1421,30 @@ void _CPU_::rld() {
 	R.AF.B.l = (R.AF.B.l & C_FLAG) | ZSPXYTable[R.AF.B.h];
 }
 
-void _CPU_::rr_xhl() {
-	byte i = RDMEM(R.HL.w);
+inline void _CPU_::RR_X(word adrs, byte &reg) {
+	byte i = RDMEM(adrs);
 	RR(i);
-	SMALL_DELAY(); 
-	WRMEM(R.HL.w, i);
+	SMALL_DELAY();
+	reg = i;
+	WRMEM(adrs, i);
 }
-void _CPU_::rr_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RR(i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::rr_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RR(i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rr_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RR(i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rr_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RR(i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rr_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RR(i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rr_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RR(i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rr_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RR(i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rr_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RR(i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rr_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RR(i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::rr_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RR(i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rr_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RR(i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rr_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RR(i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rr_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RR(i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rr_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RR(i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rr_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RR(i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rr_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RR(i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
+void _CPU_::rr_xhl()           { byte dummy; RR_X(R.HL.w, dummy); }
+void _CPU_::rr_xix  (offset n) { byte dummy; RR_X(XIX(n), dummy); }
+void _CPU_::rr_xix_a(offset n) { RR_X(XIX(n), R.AF.B.h); }
+void _CPU_::rr_xix_b(offset n) { RR_X(XIX(n), R.BC.B.h); }
+void _CPU_::rr_xix_c(offset n) { RR_X(XIX(n), R.BC.B.l); }
+void _CPU_::rr_xix_d(offset n) { RR_X(XIX(n), R.DE.B.h); }
+void _CPU_::rr_xix_e(offset n) { RR_X(XIX(n), R.DE.B.l); }
+void _CPU_::rr_xix_h(offset n) { RR_X(XIX(n), R.HL.B.h); }
+void _CPU_::rr_xix_l(offset n) { RR_X(XIX(n), R.HL.B.l); }
+void _CPU_::rr_xiy  (offset n) { byte dummy; RR_X(XIY(n), dummy); }
+void _CPU_::rr_xiy_a(offset n) { RR_X(XIY(n), R.AF.B.h); }
+void _CPU_::rr_xiy_b(offset n) { RR_X(XIY(n), R.BC.B.h); }
+void _CPU_::rr_xiy_c(offset n) { RR_X(XIY(n), R.BC.B.l); }
+void _CPU_::rr_xiy_d(offset n) { RR_X(XIY(n), R.DE.B.h); }
+void _CPU_::rr_xiy_e(offset n) { RR_X(XIY(n), R.DE.B.l); }
+void _CPU_::rr_xiy_h(offset n) { RR_X(XIY(n), R.HL.B.h); }
+void _CPU_::rr_xiy_l(offset n) { RR_X(XIY(n), R.HL.B.l); }
 void _CPU_::rr_a() { RR(R.AF.B.h); }
 void _CPU_::rr_b() { RR(R.BC.B.h); }
 void _CPU_::rr_c() { RR(R.BC.B.l); }
@@ -2718,140 +1452,38 @@ void _CPU_::rr_d() { RR(R.DE.B.h); }
 void _CPU_::rr_e() { RR(R.DE.B.l); }
 void _CPU_::rr_h() { RR(R.HL.B.h); }
 void _CPU_::rr_l() { RR(R.HL.B.l); }
-void _CPU_::rra()  { RRA(); }
+void _CPU_::rra()  {
+	byte c = R.AF.B.l & C_FLAG;
+	R.AF.B.l = (R.AF.B.l & (S_FLAG | Z_FLAG | P_FLAG)) |
+	           ((R.AF.B.h & 0x01) ? C_FLAG : 0);
+	R.AF.B.h = (R.AF.B.h >> 1) | (c ? 0x80 : 0);
+	R.AF.B.l |= R.AF.B.h & (X_FLAG | Y_FLAG);
+}
 
-void _CPU_::rrc_xhl() {
-	byte i = RDMEM(R.HL.w);
+inline void _CPU_::RRC_X(word adrs, byte &reg) {
+	byte i = RDMEM(adrs);
 	RRC(i);
-	SMALL_DELAY(); 
-	WRMEM(R.HL.w, i);
+	SMALL_DELAY();
+	reg = i;
+	WRMEM(adrs, i);
 }
-void _CPU_::rrc_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RRC(i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::rrc_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RRC(i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rrc_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RRC(i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rrc_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RRC(i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rrc_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RRC(i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rrc_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RRC(i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rrc_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RRC(i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rrc_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	RRC(i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rrc_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RRC(i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::rrc_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RRC(i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rrc_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RRC(i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rrc_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RRC(i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rrc_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RRC(i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rrc_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RRC(i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::rrc_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RRC(i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::rrc_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	RRC(i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
+void _CPU_::rrc_xhl()           { byte dummy; RRC_X(R.HL.w, dummy); }
+void _CPU_::rrc_xix  (offset n) { byte dummy; RRC_X(XIX(n), dummy); }
+void _CPU_::rrc_xix_a(offset n) { RRC_X(XIX(n), R.AF.B.h); }
+void _CPU_::rrc_xix_b(offset n) { RRC_X(XIX(n), R.BC.B.h); }
+void _CPU_::rrc_xix_c(offset n) { RRC_X(XIX(n), R.BC.B.l); }
+void _CPU_::rrc_xix_d(offset n) { RRC_X(XIX(n), R.DE.B.h); }
+void _CPU_::rrc_xix_e(offset n) { RRC_X(XIX(n), R.DE.B.l); }
+void _CPU_::rrc_xix_h(offset n) { RRC_X(XIX(n), R.HL.B.h); }
+void _CPU_::rrc_xix_l(offset n) { RRC_X(XIX(n), R.HL.B.l); }
+void _CPU_::rrc_xiy  (offset n) { byte dummy; RRC_X(XIY(n), dummy); }
+void _CPU_::rrc_xiy_a(offset n) { RRC_X(XIY(n), R.AF.B.h); }
+void _CPU_::rrc_xiy_b(offset n) { RRC_X(XIY(n), R.BC.B.h); }
+void _CPU_::rrc_xiy_c(offset n) { RRC_X(XIY(n), R.BC.B.l); }
+void _CPU_::rrc_xiy_d(offset n) { RRC_X(XIY(n), R.DE.B.h); }
+void _CPU_::rrc_xiy_e(offset n) { RRC_X(XIY(n), R.DE.B.l); }
+void _CPU_::rrc_xiy_h(offset n) { RRC_X(XIY(n), R.HL.B.h); }
+void _CPU_::rrc_xiy_l(offset n) { RRC_X(XIY(n), R.HL.B.l); }
 void _CPU_::rrc_a() { RRC(R.AF.B.h); }
 void _CPU_::rrc_b() { RRC(R.BC.B.h); }
 void _CPU_::rrc_c() { RRC(R.BC.B.l); }
@@ -2859,7 +1491,12 @@ void _CPU_::rrc_d() { RRC(R.DE.B.h); }
 void _CPU_::rrc_e() { RRC(R.DE.B.l); }
 void _CPU_::rrc_h() { RRC(R.HL.B.h); }
 void _CPU_::rrc_l() { RRC(R.HL.B.l); }
-void _CPU_::rrca()  { RRCA(); }
+void _CPU_::rrca()  {
+	R.AF.B.l = (R.AF.B.l & (S_FLAG | Z_FLAG | P_FLAG)) |
+	           (R.AF.B.h &  C_FLAG);
+	R.AF.B.h = (R.AF.B.h >> 1) | (R.AF.B.h << 7);
+	R.AF.B.l |= R.AF.B.h & (X_FLAG | Y_FLAG);
+}
 
 void _CPU_::rrd() {
 	byte i = RDMEM(R.HL.w);
@@ -2905,138 +1542,30 @@ void _CPU_::scf() {
 	           (R.AF.B.h & (X_FLAG | Y_FLAG));
 }
 
-void _CPU_::set_0_xhl() {
-	byte i = RDMEM(R.HL.w);
-	SET(0, i);
-	SMALL_DELAY(); 
-	WRMEM(R.HL.w, i);
+inline void _CPU_::SET_X(int bit, word adrs, byte &reg) {
+	byte i = RDMEM(adrs);
+	SET(bit, i);
+	SMALL_DELAY();
+	reg = i;
+	WRMEM(adrs, i);
 }
-void _CPU_::set_0_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(0, i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::set_0_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(0, i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_0_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(0, i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_0_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(0, i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_0_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(0, i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_0_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(0, i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_0_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(0, i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_0_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(0, i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_0_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(0, i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::set_0_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(0, i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_0_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(0, i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_0_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(0, i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_0_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(0, i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_0_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(0, i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_0_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(0, i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_0_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(0, i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
+void _CPU_::set_0_xhl()           { byte dummy; SET_X(0, R.HL.w, dummy); }
+void _CPU_::set_0_xix  (offset n) { byte dummy; SET_X(0, XIX(n), dummy); }
+void _CPU_::set_0_xix_a(offset n) { SET_X(0, XIX(n), R.AF.B.h); }
+void _CPU_::set_0_xix_b(offset n) { SET_X(0, XIX(n), R.BC.B.h); }
+void _CPU_::set_0_xix_c(offset n) { SET_X(0, XIX(n), R.BC.B.l); }
+void _CPU_::set_0_xix_d(offset n) { SET_X(0, XIX(n), R.DE.B.h); }
+void _CPU_::set_0_xix_e(offset n) { SET_X(0, XIX(n), R.DE.B.l); }
+void _CPU_::set_0_xix_h(offset n) { SET_X(0, XIX(n), R.HL.B.h); }
+void _CPU_::set_0_xix_l(offset n) { SET_X(0, XIX(n), R.HL.B.l); }
+void _CPU_::set_0_xiy  (offset n) { byte dummy; SET_X(0, XIY(n), dummy); }
+void _CPU_::set_0_xiy_a(offset n) { SET_X(0, XIY(n), R.AF.B.h); }
+void _CPU_::set_0_xiy_b(offset n) { SET_X(0, XIY(n), R.BC.B.h); }
+void _CPU_::set_0_xiy_c(offset n) { SET_X(0, XIY(n), R.BC.B.l); }
+void _CPU_::set_0_xiy_d(offset n) { SET_X(0, XIY(n), R.DE.B.h); }
+void _CPU_::set_0_xiy_e(offset n) { SET_X(0, XIY(n), R.DE.B.l); }
+void _CPU_::set_0_xiy_h(offset n) { SET_X(0, XIY(n), R.HL.B.h); }
+void _CPU_::set_0_xiy_l(offset n) { SET_X(0, XIY(n), R.HL.B.l); }
 void _CPU_::set_0_a() { SET(0, R.AF.B.h); }
 void _CPU_::set_0_b() { SET(0, R.BC.B.h); }
 void _CPU_::set_0_c() { SET(0, R.BC.B.l); }
@@ -3044,139 +1573,23 @@ void _CPU_::set_0_d() { SET(0, R.DE.B.h); }
 void _CPU_::set_0_e() { SET(0, R.DE.B.l); }
 void _CPU_::set_0_h() { SET(0, R.HL.B.h); }
 void _CPU_::set_0_l() { SET(0, R.HL.B.l); }
-
-void _CPU_::set_1_xhl() {
-	byte i = RDMEM(R.HL.w);
-	SET(1, i);
-	SMALL_DELAY(); 
-	WRMEM(R.HL.w, i);
-}
-void _CPU_::set_1_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(1, i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::set_1_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(1, i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_1_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(1, i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_1_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(1, i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_1_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(1, i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_1_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(1, i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_1_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(1, i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_1_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(1, i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_1_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(1, i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::set_1_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(1, i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_1_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(1, i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_1_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(1, i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_1_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(1, i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_1_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(1, i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_1_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(1, i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_1_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(1, i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
+void _CPU_::set_1_xhl()           { byte dummy; SET_X(1, R.HL.w, dummy); }
+void _CPU_::set_1_xix  (offset n) { byte dummy; SET_X(1, XIX(n), dummy); }
+void _CPU_::set_1_xix_a(offset n) { SET_X(1, XIX(n), R.AF.B.h); }
+void _CPU_::set_1_xix_b(offset n) { SET_X(1, XIX(n), R.BC.B.h); }
+void _CPU_::set_1_xix_c(offset n) { SET_X(1, XIX(n), R.BC.B.l); }
+void _CPU_::set_1_xix_d(offset n) { SET_X(1, XIX(n), R.DE.B.h); }
+void _CPU_::set_1_xix_e(offset n) { SET_X(1, XIX(n), R.DE.B.l); }
+void _CPU_::set_1_xix_h(offset n) { SET_X(1, XIX(n), R.HL.B.h); }
+void _CPU_::set_1_xix_l(offset n) { SET_X(1, XIX(n), R.HL.B.l); }
+void _CPU_::set_1_xiy  (offset n) { byte dummy; SET_X(1, XIY(n), dummy); }
+void _CPU_::set_1_xiy_a(offset n) { SET_X(1, XIY(n), R.AF.B.h); }
+void _CPU_::set_1_xiy_b(offset n) { SET_X(1, XIY(n), R.BC.B.h); }
+void _CPU_::set_1_xiy_c(offset n) { SET_X(1, XIY(n), R.BC.B.l); }
+void _CPU_::set_1_xiy_d(offset n) { SET_X(1, XIY(n), R.DE.B.h); }
+void _CPU_::set_1_xiy_e(offset n) { SET_X(1, XIY(n), R.DE.B.l); }
+void _CPU_::set_1_xiy_h(offset n) { SET_X(1, XIY(n), R.HL.B.h); }
+void _CPU_::set_1_xiy_l(offset n) { SET_X(1, XIY(n), R.HL.B.l); }
 void _CPU_::set_1_a() { SET(1, R.AF.B.h); }
 void _CPU_::set_1_b() { SET(1, R.BC.B.h); }
 void _CPU_::set_1_c() { SET(1, R.BC.B.l); }
@@ -3184,139 +1597,23 @@ void _CPU_::set_1_d() { SET(1, R.DE.B.h); }
 void _CPU_::set_1_e() { SET(1, R.DE.B.l); }
 void _CPU_::set_1_h() { SET(1, R.HL.B.h); }
 void _CPU_::set_1_l() { SET(1, R.HL.B.l); }
-
-void _CPU_::set_2_xhl() {
-	byte i = RDMEM(R.HL.w);
-	SET(2, i);
-	SMALL_DELAY(); 
-	WRMEM(R.HL.w, i);
-}
-void _CPU_::set_2_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(2, i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::set_2_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(2, i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_2_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(2, i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_2_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(2, i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_2_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(2, i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_2_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(2, i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_2_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(2, i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_2_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(2, i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_2_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(2, i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::set_2_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(2, i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_2_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(2, i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_2_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(2, i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_2_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(2, i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_2_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(2, i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_2_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(2, i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_2_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(2, i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
+void _CPU_::set_2_xhl()           { byte dummy; SET_X(2, R.HL.w, dummy); }
+void _CPU_::set_2_xix  (offset n) { byte dummy; SET_X(2, XIX(n), dummy); }
+void _CPU_::set_2_xix_a(offset n) { SET_X(2, XIX(n), R.AF.B.h); }
+void _CPU_::set_2_xix_b(offset n) { SET_X(2, XIX(n), R.BC.B.h); }
+void _CPU_::set_2_xix_c(offset n) { SET_X(2, XIX(n), R.BC.B.l); }
+void _CPU_::set_2_xix_d(offset n) { SET_X(2, XIX(n), R.DE.B.h); }
+void _CPU_::set_2_xix_e(offset n) { SET_X(2, XIX(n), R.DE.B.l); }
+void _CPU_::set_2_xix_h(offset n) { SET_X(2, XIX(n), R.HL.B.h); }
+void _CPU_::set_2_xix_l(offset n) { SET_X(2, XIX(n), R.HL.B.l); }
+void _CPU_::set_2_xiy  (offset n) { byte dummy; SET_X(2, XIY(n), dummy); }
+void _CPU_::set_2_xiy_a(offset n) { SET_X(2, XIY(n), R.AF.B.h); }
+void _CPU_::set_2_xiy_b(offset n) { SET_X(2, XIY(n), R.BC.B.h); }
+void _CPU_::set_2_xiy_c(offset n) { SET_X(2, XIY(n), R.BC.B.l); }
+void _CPU_::set_2_xiy_d(offset n) { SET_X(2, XIY(n), R.DE.B.h); }
+void _CPU_::set_2_xiy_e(offset n) { SET_X(2, XIY(n), R.DE.B.l); }
+void _CPU_::set_2_xiy_h(offset n) { SET_X(2, XIY(n), R.HL.B.h); }
+void _CPU_::set_2_xiy_l(offset n) { SET_X(2, XIY(n), R.HL.B.l); }
 void _CPU_::set_2_a() { SET(2, R.AF.B.h); }
 void _CPU_::set_2_b() { SET(2, R.BC.B.h); }
 void _CPU_::set_2_c() { SET(2, R.BC.B.l); }
@@ -3324,139 +1621,23 @@ void _CPU_::set_2_d() { SET(2, R.DE.B.h); }
 void _CPU_::set_2_e() { SET(2, R.DE.B.l); }
 void _CPU_::set_2_h() { SET(2, R.HL.B.h); }
 void _CPU_::set_2_l() { SET(2, R.HL.B.l); }
-
-void _CPU_::set_3_xhl() {
-	byte i = RDMEM(R.HL.w);
-	SET(3, i);
-	SMALL_DELAY(); 
-	WRMEM(R.HL.w, i);
-}
-void _CPU_::set_3_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(3, i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::set_3_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(3, i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_3_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(3, i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_3_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(3, i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_3_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(3, i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_3_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(3, i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_3_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(3, i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_3_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(3, i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_3_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(3, i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::set_3_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(3, i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_3_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(3, i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_3_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(3, i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_3_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(3, i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_3_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(3, i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_3_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(3, i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_3_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(3, i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
+void _CPU_::set_3_xhl()           { byte dummy; SET_X(3, R.HL.w, dummy); }
+void _CPU_::set_3_xix  (offset n) { byte dummy; SET_X(3, XIX(n), dummy); }
+void _CPU_::set_3_xix_a(offset n) { SET_X(3, XIX(n), R.AF.B.h); }
+void _CPU_::set_3_xix_b(offset n) { SET_X(3, XIX(n), R.BC.B.h); }
+void _CPU_::set_3_xix_c(offset n) { SET_X(3, XIX(n), R.BC.B.l); }
+void _CPU_::set_3_xix_d(offset n) { SET_X(3, XIX(n), R.DE.B.h); }
+void _CPU_::set_3_xix_e(offset n) { SET_X(3, XIX(n), R.DE.B.l); }
+void _CPU_::set_3_xix_h(offset n) { SET_X(3, XIX(n), R.HL.B.h); }
+void _CPU_::set_3_xix_l(offset n) { SET_X(3, XIX(n), R.HL.B.l); }
+void _CPU_::set_3_xiy  (offset n) { byte dummy; SET_X(3, XIY(n), dummy); }
+void _CPU_::set_3_xiy_a(offset n) { SET_X(3, XIY(n), R.AF.B.h); }
+void _CPU_::set_3_xiy_b(offset n) { SET_X(3, XIY(n), R.BC.B.h); }
+void _CPU_::set_3_xiy_c(offset n) { SET_X(3, XIY(n), R.BC.B.l); }
+void _CPU_::set_3_xiy_d(offset n) { SET_X(3, XIY(n), R.DE.B.h); }
+void _CPU_::set_3_xiy_e(offset n) { SET_X(3, XIY(n), R.DE.B.l); }
+void _CPU_::set_3_xiy_h(offset n) { SET_X(3, XIY(n), R.HL.B.h); }
+void _CPU_::set_3_xiy_l(offset n) { SET_X(3, XIY(n), R.HL.B.l); }
 void _CPU_::set_3_a() { SET(3, R.AF.B.h); }
 void _CPU_::set_3_b() { SET(3, R.BC.B.h); }
 void _CPU_::set_3_c() { SET(3, R.BC.B.l); }
@@ -3464,139 +1645,23 @@ void _CPU_::set_3_d() { SET(3, R.DE.B.h); }
 void _CPU_::set_3_e() { SET(3, R.DE.B.l); }
 void _CPU_::set_3_h() { SET(3, R.HL.B.h); }
 void _CPU_::set_3_l() { SET(3, R.HL.B.l); }
-
-void _CPU_::set_4_xhl() {
-	byte i = RDMEM(R.HL.w);
-	SET(4, i);
-	SMALL_DELAY(); 
-	WRMEM(R.HL.w, i);
-}
-void _CPU_::set_4_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(4, i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::set_4_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(4, i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_4_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(4, i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_4_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(4, i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_4_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(4, i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_4_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(4, i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_4_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(4, i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_4_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(4, i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_4_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(4, i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::set_4_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(4, i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_4_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(4, i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_4_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(4, i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_4_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(4, i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_4_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(4, i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_4_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(4, i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_4_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(4, i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
+void _CPU_::set_4_xhl()           { byte dummy; SET_X(4, R.HL.w, dummy); }
+void _CPU_::set_4_xix  (offset n) { byte dummy; SET_X(4, XIX(n), dummy); }
+void _CPU_::set_4_xix_a(offset n) { SET_X(4, XIX(n), R.AF.B.h); }
+void _CPU_::set_4_xix_b(offset n) { SET_X(4, XIX(n), R.BC.B.h); }
+void _CPU_::set_4_xix_c(offset n) { SET_X(4, XIX(n), R.BC.B.l); }
+void _CPU_::set_4_xix_d(offset n) { SET_X(4, XIX(n), R.DE.B.h); }
+void _CPU_::set_4_xix_e(offset n) { SET_X(4, XIX(n), R.DE.B.l); }
+void _CPU_::set_4_xix_h(offset n) { SET_X(4, XIX(n), R.HL.B.h); }
+void _CPU_::set_4_xix_l(offset n) { SET_X(4, XIX(n), R.HL.B.l); }
+void _CPU_::set_4_xiy  (offset n) { byte dummy; SET_X(4, XIY(n), dummy); }
+void _CPU_::set_4_xiy_a(offset n) { SET_X(4, XIY(n), R.AF.B.h); }
+void _CPU_::set_4_xiy_b(offset n) { SET_X(4, XIY(n), R.BC.B.h); }
+void _CPU_::set_4_xiy_c(offset n) { SET_X(4, XIY(n), R.BC.B.l); }
+void _CPU_::set_4_xiy_d(offset n) { SET_X(4, XIY(n), R.DE.B.h); }
+void _CPU_::set_4_xiy_e(offset n) { SET_X(4, XIY(n), R.DE.B.l); }
+void _CPU_::set_4_xiy_h(offset n) { SET_X(4, XIY(n), R.HL.B.h); }
+void _CPU_::set_4_xiy_l(offset n) { SET_X(4, XIY(n), R.HL.B.l); }
 void _CPU_::set_4_a() { SET(4, R.AF.B.h); }
 void _CPU_::set_4_b() { SET(4, R.BC.B.h); }
 void _CPU_::set_4_c() { SET(4, R.BC.B.l); }
@@ -3604,139 +1669,23 @@ void _CPU_::set_4_d() { SET(4, R.DE.B.h); }
 void _CPU_::set_4_e() { SET(4, R.DE.B.l); }
 void _CPU_::set_4_h() { SET(4, R.HL.B.h); }
 void _CPU_::set_4_l() { SET(4, R.HL.B.l); }
-
-void _CPU_::set_5_xhl() {
-	byte i = RDMEM(R.HL.w);
-	SET(5, i);
-	SMALL_DELAY(); 
-	WRMEM(R.HL.w, i);
-}
-void _CPU_::set_5_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(5, i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::set_5_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(5, i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_5_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(5, i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_5_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(5, i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_5_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(5, i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_5_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(5, i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_5_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(5, i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_5_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(5, i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_5_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(5, i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::set_5_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(5, i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_5_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(5, i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_5_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(5, i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_5_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(5, i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_5_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(5, i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_5_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(5, i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_5_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(5, i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
+void _CPU_::set_5_xhl()           { byte dummy; SET_X(5, R.HL.w, dummy); }
+void _CPU_::set_5_xix  (offset n) { byte dummy; SET_X(5, XIX(n), dummy); }
+void _CPU_::set_5_xix_a(offset n) { SET_X(5, XIX(n), R.AF.B.h); }
+void _CPU_::set_5_xix_b(offset n) { SET_X(5, XIX(n), R.BC.B.h); }
+void _CPU_::set_5_xix_c(offset n) { SET_X(5, XIX(n), R.BC.B.l); }
+void _CPU_::set_5_xix_d(offset n) { SET_X(5, XIX(n), R.DE.B.h); }
+void _CPU_::set_5_xix_e(offset n) { SET_X(5, XIX(n), R.DE.B.l); }
+void _CPU_::set_5_xix_h(offset n) { SET_X(5, XIX(n), R.HL.B.h); }
+void _CPU_::set_5_xix_l(offset n) { SET_X(5, XIX(n), R.HL.B.l); }
+void _CPU_::set_5_xiy  (offset n) { byte dummy; SET_X(5, XIY(n), dummy); }
+void _CPU_::set_5_xiy_a(offset n) { SET_X(5, XIY(n), R.AF.B.h); }
+void _CPU_::set_5_xiy_b(offset n) { SET_X(5, XIY(n), R.BC.B.h); }
+void _CPU_::set_5_xiy_c(offset n) { SET_X(5, XIY(n), R.BC.B.l); }
+void _CPU_::set_5_xiy_d(offset n) { SET_X(5, XIY(n), R.DE.B.h); }
+void _CPU_::set_5_xiy_e(offset n) { SET_X(5, XIY(n), R.DE.B.l); }
+void _CPU_::set_5_xiy_h(offset n) { SET_X(5, XIY(n), R.HL.B.h); }
+void _CPU_::set_5_xiy_l(offset n) { SET_X(5, XIY(n), R.HL.B.l); }
 void _CPU_::set_5_a() { SET(5, R.AF.B.h); }
 void _CPU_::set_5_b() { SET(5, R.BC.B.h); }
 void _CPU_::set_5_c() { SET(5, R.BC.B.l); }
@@ -3744,139 +1693,23 @@ void _CPU_::set_5_d() { SET(5, R.DE.B.h); }
 void _CPU_::set_5_e() { SET(5, R.DE.B.l); }
 void _CPU_::set_5_h() { SET(5, R.HL.B.h); }
 void _CPU_::set_5_l() { SET(5, R.HL.B.l); }
-
-void _CPU_::set_6_xhl() {
-	byte i = RDMEM(R.HL.w);
-	SET(6, i);
-	SMALL_DELAY(); 
-	WRMEM(R.HL.w, i);
-}
-void _CPU_::set_6_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(6, i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::set_6_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(6, i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_6_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(6, i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_6_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(6, i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_6_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(6, i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_6_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(6, i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_6_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(6, i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_6_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(6, i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_6_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(6, i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::set_6_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(6, i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_6_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(6, i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_6_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(6, i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_6_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(6, i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_6_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(6, i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_6_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(6, i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_6_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(6, i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
+void _CPU_::set_6_xhl()           { byte dummy; SET_X(6, R.HL.w, dummy); }
+void _CPU_::set_6_xix  (offset n) { byte dummy; SET_X(6, XIX(n), dummy); }
+void _CPU_::set_6_xix_a(offset n) { SET_X(6, XIX(n), R.AF.B.h); }
+void _CPU_::set_6_xix_b(offset n) { SET_X(6, XIX(n), R.BC.B.h); }
+void _CPU_::set_6_xix_c(offset n) { SET_X(6, XIX(n), R.BC.B.l); }
+void _CPU_::set_6_xix_d(offset n) { SET_X(6, XIX(n), R.DE.B.h); }
+void _CPU_::set_6_xix_e(offset n) { SET_X(6, XIX(n), R.DE.B.l); }
+void _CPU_::set_6_xix_h(offset n) { SET_X(6, XIX(n), R.HL.B.h); }
+void _CPU_::set_6_xix_l(offset n) { SET_X(6, XIX(n), R.HL.B.l); }
+void _CPU_::set_6_xiy  (offset n) { byte dummy; SET_X(6, XIY(n), dummy); }
+void _CPU_::set_6_xiy_a(offset n) { SET_X(6, XIY(n), R.AF.B.h); }
+void _CPU_::set_6_xiy_b(offset n) { SET_X(6, XIY(n), R.BC.B.h); }
+void _CPU_::set_6_xiy_c(offset n) { SET_X(6, XIY(n), R.BC.B.l); }
+void _CPU_::set_6_xiy_d(offset n) { SET_X(6, XIY(n), R.DE.B.h); }
+void _CPU_::set_6_xiy_e(offset n) { SET_X(6, XIY(n), R.DE.B.l); }
+void _CPU_::set_6_xiy_h(offset n) { SET_X(6, XIY(n), R.HL.B.h); }
+void _CPU_::set_6_xiy_l(offset n) { SET_X(6, XIY(n), R.HL.B.l); }
 void _CPU_::set_6_a() { SET(6, R.AF.B.h); }
 void _CPU_::set_6_b() { SET(6, R.BC.B.h); }
 void _CPU_::set_6_c() { SET(6, R.BC.B.l); }
@@ -3884,139 +1717,23 @@ void _CPU_::set_6_d() { SET(6, R.DE.B.h); }
 void _CPU_::set_6_e() { SET(6, R.DE.B.l); }
 void _CPU_::set_6_h() { SET(6, R.HL.B.h); }
 void _CPU_::set_6_l() { SET(6, R.HL.B.l); }
-
-void _CPU_::set_7_xhl() {
-	byte i = RDMEM(R.HL.w);
-	SET(7, i);
-	SMALL_DELAY(); 
-	WRMEM(R.HL.w, i);
-}
-void _CPU_::set_7_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(7, i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::set_7_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(7, i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_7_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(7, i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_7_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(7, i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_7_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(7, i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_7_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(7, i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_7_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(7, i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_7_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SET(7, i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_7_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(7, i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::set_7_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(7, i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_7_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(7, i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_7_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(7, i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_7_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(7, i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_7_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(7, i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_7_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(7, i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::set_7_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SET(7, i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
+void _CPU_::set_7_xhl()           { byte dummy; SET_X(7, R.HL.w, dummy); }
+void _CPU_::set_7_xix  (offset n) { byte dummy; SET_X(7, XIX(n), dummy); }
+void _CPU_::set_7_xix_a(offset n) { SET_X(7, XIX(n), R.AF.B.h); }
+void _CPU_::set_7_xix_b(offset n) { SET_X(7, XIX(n), R.BC.B.h); }
+void _CPU_::set_7_xix_c(offset n) { SET_X(7, XIX(n), R.BC.B.l); }
+void _CPU_::set_7_xix_d(offset n) { SET_X(7, XIX(n), R.DE.B.h); }
+void _CPU_::set_7_xix_e(offset n) { SET_X(7, XIX(n), R.DE.B.l); }
+void _CPU_::set_7_xix_h(offset n) { SET_X(7, XIX(n), R.HL.B.h); }
+void _CPU_::set_7_xix_l(offset n) { SET_X(7, XIX(n), R.HL.B.l); }
+void _CPU_::set_7_xiy  (offset n) { byte dummy; SET_X(7, XIY(n), dummy); }
+void _CPU_::set_7_xiy_a(offset n) { SET_X(7, XIY(n), R.AF.B.h); }
+void _CPU_::set_7_xiy_b(offset n) { SET_X(7, XIY(n), R.BC.B.h); }
+void _CPU_::set_7_xiy_c(offset n) { SET_X(7, XIY(n), R.BC.B.l); }
+void _CPU_::set_7_xiy_d(offset n) { SET_X(7, XIY(n), R.DE.B.h); }
+void _CPU_::set_7_xiy_e(offset n) { SET_X(7, XIY(n), R.DE.B.l); }
+void _CPU_::set_7_xiy_h(offset n) { SET_X(7, XIY(n), R.HL.B.h); }
+void _CPU_::set_7_xiy_l(offset n) { SET_X(7, XIY(n), R.HL.B.l); }
 void _CPU_::set_7_a() { SET(7, R.AF.B.h); }
 void _CPU_::set_7_b() { SET(7, R.BC.B.h); }
 void _CPU_::set_7_c() { SET(7, R.BC.B.l); }
@@ -4025,138 +1742,30 @@ void _CPU_::set_7_e() { SET(7, R.DE.B.l); }
 void _CPU_::set_7_h() { SET(7, R.HL.B.h); }
 void _CPU_::set_7_l() { SET(7, R.HL.B.l); }
 
-void _CPU_::sla_xhl() {
-	byte i = RDMEM(R.HL.w);
+inline void _CPU_::SLA_X(word adrs, byte &reg) {
+	byte i = RDMEM(adrs);
 	SLA(i);
-	SMALL_DELAY(); 
-	WRMEM(R.HL.w, i);
+	SMALL_DELAY();
+	reg = i;
+	WRMEM(adrs, i);
 }
-void _CPU_::sla_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SLA(i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::sla_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SLA(i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sla_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SLA(i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sla_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SLA(i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::sla_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SLA(i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sla_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SLA(i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::sla_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SLA(i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sla_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SLA(i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::sla_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SLA(i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::sla_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SLA(i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sla_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SLA(i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sla_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SLA(i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::sla_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SLA(i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sla_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SLA(i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::sla_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SLA(i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sla_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SLA(i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
+void _CPU_::sla_xhl()           { byte dummy; SLA_X(R.HL.w, dummy); }
+void _CPU_::sla_xix  (offset n) { byte dummy; SLA_X(XIX(n), dummy); }
+void _CPU_::sla_xix_a(offset n) { SLA_X(XIX(n), R.AF.B.h); }
+void _CPU_::sla_xix_b(offset n) { SLA_X(XIX(n), R.BC.B.h); }
+void _CPU_::sla_xix_c(offset n) { SLA_X(XIX(n), R.BC.B.l); }
+void _CPU_::sla_xix_d(offset n) { SLA_X(XIX(n), R.DE.B.h); }
+void _CPU_::sla_xix_e(offset n) { SLA_X(XIX(n), R.DE.B.l); }
+void _CPU_::sla_xix_h(offset n) { SLA_X(XIX(n), R.HL.B.h); }
+void _CPU_::sla_xix_l(offset n) { SLA_X(XIX(n), R.HL.B.l); }
+void _CPU_::sla_xiy  (offset n) { byte dummy; SLA_X(XIY(n), dummy); }
+void _CPU_::sla_xiy_a(offset n) { SLA_X(XIY(n), R.AF.B.h); }
+void _CPU_::sla_xiy_b(offset n) { SLA_X(XIY(n), R.BC.B.h); }
+void _CPU_::sla_xiy_c(offset n) { SLA_X(XIY(n), R.BC.B.l); }
+void _CPU_::sla_xiy_d(offset n) { SLA_X(XIY(n), R.DE.B.h); }
+void _CPU_::sla_xiy_e(offset n) { SLA_X(XIY(n), R.DE.B.l); }
+void _CPU_::sla_xiy_h(offset n) { SLA_X(XIY(n), R.HL.B.h); }
+void _CPU_::sla_xiy_l(offset n) { SLA_X(XIY(n), R.HL.B.l); }
 void _CPU_::sla_a() { SLA(R.AF.B.h); }
 void _CPU_::sla_b() { SLA(R.BC.B.h); }
 void _CPU_::sla_c() { SLA(R.BC.B.l); }
@@ -4165,138 +1774,30 @@ void _CPU_::sla_e() { SLA(R.DE.B.l); }
 void _CPU_::sla_h() { SLA(R.HL.B.h); }
 void _CPU_::sla_l() { SLA(R.HL.B.l); }
 
-void _CPU_::sll_xhl() {
-	byte i = RDMEM(R.HL.w);
-	SMALL_DELAY(); 
+inline void _CPU_::SLL_X(word adrs, byte &reg) {
+	byte i = RDMEM(adrs);
 	SLL(i);
-	WRMEM(R.HL.w, i);
+	SMALL_DELAY();
+	reg = i;
+	WRMEM(adrs, i);
 }
-void _CPU_::sll_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SLL(i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::sll_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SLL(i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sll_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SLL(i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sll_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SLL(i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::sll_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SLL(i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sll_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SLL(i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::sll_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SLL(i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sll_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SLL(i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::sll_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SLL(i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::sll_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SLL(i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sll_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SLL(i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sll_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SLL(i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::sll_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SLL(i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sll_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SLL(i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::sll_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SLL(i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sll_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SLL(i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
+void _CPU_::sll_xhl()           { byte dummy; SLL_X(R.HL.w, dummy); }
+void _CPU_::sll_xix  (offset n) { byte dummy; SLL_X(XIX(n), dummy); }
+void _CPU_::sll_xix_a(offset n) { SLL_X(XIX(n), R.AF.B.h); }
+void _CPU_::sll_xix_b(offset n) { SLL_X(XIX(n), R.BC.B.h); }
+void _CPU_::sll_xix_c(offset n) { SLL_X(XIX(n), R.BC.B.l); }
+void _CPU_::sll_xix_d(offset n) { SLL_X(XIX(n), R.DE.B.h); }
+void _CPU_::sll_xix_e(offset n) { SLL_X(XIX(n), R.DE.B.l); }
+void _CPU_::sll_xix_h(offset n) { SLL_X(XIX(n), R.HL.B.h); }
+void _CPU_::sll_xix_l(offset n) { SLL_X(XIX(n), R.HL.B.l); }
+void _CPU_::sll_xiy  (offset n) { byte dummy; SLL_X(XIY(n), dummy); }
+void _CPU_::sll_xiy_a(offset n) { SLL_X(XIY(n), R.AF.B.h); }
+void _CPU_::sll_xiy_b(offset n) { SLL_X(XIY(n), R.BC.B.h); }
+void _CPU_::sll_xiy_c(offset n) { SLL_X(XIY(n), R.BC.B.l); }
+void _CPU_::sll_xiy_d(offset n) { SLL_X(XIY(n), R.DE.B.h); }
+void _CPU_::sll_xiy_e(offset n) { SLL_X(XIY(n), R.DE.B.l); }
+void _CPU_::sll_xiy_h(offset n) { SLL_X(XIY(n), R.HL.B.h); }
+void _CPU_::sll_xiy_l(offset n) { SLL_X(XIY(n), R.HL.B.l); }
 void _CPU_::sll_a() { SLL(R.AF.B.h); }
 void _CPU_::sll_b() { SLL(R.BC.B.h); }
 void _CPU_::sll_c() { SLL(R.BC.B.l); }
@@ -4305,138 +1806,30 @@ void _CPU_::sll_e() { SLL(R.DE.B.l); }
 void _CPU_::sll_h() { SLL(R.HL.B.h); }
 void _CPU_::sll_l() { SLL(R.HL.B.l); }
 
-void _CPU_::sra_xhl() {
-	byte i = RDMEM(R.HL.w);
+inline void _CPU_::SRA_X(word adrs, byte &reg) {
+	byte i = RDMEM(adrs);
 	SRA(i);
-	SMALL_DELAY(); 
-	WRMEM(R.HL.w, i);
+	SMALL_DELAY();
+	reg = i;
+	WRMEM(adrs, i);
 }
-void _CPU_::sra_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SRA(i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::sra_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SRA(i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sra_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SRA(i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sra_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SRA(i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::sra_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SRA(i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sra_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SRA(i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::sra_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SRA(i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sra_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SRA(i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::sra_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SRA(i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::sra_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SRA(i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sra_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SRA(i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sra_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SRA(i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::sra_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SRA(i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sra_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SRA(i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::sra_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SRA(i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::sra_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SRA(i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
+void _CPU_::sra_xhl()           { byte dummy; SRA_X(R.HL.w, dummy); }
+void _CPU_::sra_xix  (offset n) { byte dummy; SRA_X(XIX(n), dummy); }
+void _CPU_::sra_xix_a(offset n) { SRA_X(XIX(n), R.AF.B.h); }
+void _CPU_::sra_xix_b(offset n) { SRA_X(XIX(n), R.BC.B.h); }
+void _CPU_::sra_xix_c(offset n) { SRA_X(XIX(n), R.BC.B.l); }
+void _CPU_::sra_xix_d(offset n) { SRA_X(XIX(n), R.DE.B.h); }
+void _CPU_::sra_xix_e(offset n) { SRA_X(XIX(n), R.DE.B.l); }
+void _CPU_::sra_xix_h(offset n) { SRA_X(XIX(n), R.HL.B.h); }
+void _CPU_::sra_xix_l(offset n) { SRA_X(XIX(n), R.HL.B.l); }
+void _CPU_::sra_xiy  (offset n) { byte dummy; SRA_X(XIY(n), dummy); }
+void _CPU_::sra_xiy_a(offset n) { SRA_X(XIY(n), R.AF.B.h); }
+void _CPU_::sra_xiy_b(offset n) { SRA_X(XIY(n), R.BC.B.h); }
+void _CPU_::sra_xiy_c(offset n) { SRA_X(XIY(n), R.BC.B.l); }
+void _CPU_::sra_xiy_d(offset n) { SRA_X(XIY(n), R.DE.B.h); }
+void _CPU_::sra_xiy_e(offset n) { SRA_X(XIY(n), R.DE.B.l); }
+void _CPU_::sra_xiy_h(offset n) { SRA_X(XIY(n), R.HL.B.h); }
+void _CPU_::sra_xiy_l(offset n) { SRA_X(XIY(n), R.HL.B.l); }
 void _CPU_::sra_a() { SRA(R.AF.B.h); }
 void _CPU_::sra_b() { SRA(R.BC.B.h); }
 void _CPU_::sra_c() { SRA(R.BC.B.l); }
@@ -4445,138 +1838,30 @@ void _CPU_::sra_e() { SRA(R.DE.B.l); }
 void _CPU_::sra_h() { SRA(R.HL.B.h); }
 void _CPU_::sra_l() { SRA(R.HL.B.l); }
 
-void _CPU_::srl_xhl() {
-	byte i = RDMEM(R.HL.w);
+inline void _CPU_::SRL_X(word adrs, byte &reg) {
+	byte i = RDMEM(adrs);
 	SRL(i);
-	SMALL_DELAY(); 
-	WRMEM(R.HL.w, i);
+	SMALL_DELAY();
+	reg = i;
+	WRMEM(adrs, i);
 }
-void _CPU_::srl_xix(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SRL(i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::srl_xix_a(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SRL(i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::srl_xix_b(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SRL(i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::srl_xix_c(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SRL(i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::srl_xix_d(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SRL(i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::srl_xix_e(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SRL(i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::srl_xix_h(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SRL(i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::srl_xix_l(offset n) {
-	int j = XIX(n);
-	byte i = RDMEM(j);
-	SRL(i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::srl_xiy(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SRL(i);
-	SMALL_DELAY(); 
-	WRMEM(j, i);
-}
-void _CPU_::srl_xiy_a(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SRL(i);
-	SMALL_DELAY(); 
-	R.AF.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::srl_xiy_b(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SRL(i);
-	SMALL_DELAY(); 
-	R.BC.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::srl_xiy_c(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SRL(i);
-	SMALL_DELAY(); 
-	R.BC.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::srl_xiy_d(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SRL(i);
-	SMALL_DELAY(); 
-	R.DE.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::srl_xiy_e(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SRL(i);
-	SMALL_DELAY(); 
-	R.DE.B.l = i;
-	WRMEM(j, i);
-}
-void _CPU_::srl_xiy_h(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SRL(i);
-	SMALL_DELAY(); 
-	R.HL.B.h = i;
-	WRMEM(j, i);
-}
-void _CPU_::srl_xiy_l(offset n) {
-	int j = XIY(n);
-	byte i = RDMEM(j);
-	SRL(i);
-	SMALL_DELAY(); 
-	R.HL.B.l = i;
-	WRMEM(j, i);
-}
+void _CPU_::srl_xhl()           { byte dummy; SRL_X(R.HL.w, dummy); }
+void _CPU_::srl_xix  (offset n) { byte dummy; SRL_X(XIX(n), dummy); }
+void _CPU_::srl_xix_a(offset n) { SRL_X(XIX(n), R.AF.B.h); }
+void _CPU_::srl_xix_b(offset n) { SRL_X(XIX(n), R.BC.B.h); }
+void _CPU_::srl_xix_c(offset n) { SRL_X(XIX(n), R.BC.B.l); }
+void _CPU_::srl_xix_d(offset n) { SRL_X(XIX(n), R.DE.B.h); }
+void _CPU_::srl_xix_e(offset n) { SRL_X(XIX(n), R.DE.B.l); }
+void _CPU_::srl_xix_h(offset n) { SRL_X(XIX(n), R.HL.B.h); }
+void _CPU_::srl_xix_l(offset n) { SRL_X(XIX(n), R.HL.B.l); }
+void _CPU_::srl_xiy  (offset n) { byte dummy; SRL_X(XIY(n), dummy); }
+void _CPU_::srl_xiy_a(offset n) { SRL_X(XIY(n), R.AF.B.h); }
+void _CPU_::srl_xiy_b(offset n) { SRL_X(XIY(n), R.BC.B.h); }
+void _CPU_::srl_xiy_c(offset n) { SRL_X(XIY(n), R.BC.B.l); }
+void _CPU_::srl_xiy_d(offset n) { SRL_X(XIY(n), R.DE.B.h); }
+void _CPU_::srl_xiy_e(offset n) { SRL_X(XIY(n), R.DE.B.l); }
+void _CPU_::srl_xiy_h(offset n) { SRL_X(XIY(n), R.HL.B.h); }
+void _CPU_::srl_xiy_l(offset n) { SRL_X(XIY(n), R.HL.B.l); }
 void _CPU_::srl_a() { SRL(R.AF.B.h); }
 void _CPU_::srl_b() { SRL(R.BC.B.h); }
 void _CPU_::srl_c() { SRL(R.BC.B.l); }
