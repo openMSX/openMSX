@@ -15,6 +15,9 @@
 #include "openmsx.hh"
 #include "MSXException.hh"
 
+const int NUM_CHRS = 256;
+const int CHARS_PER_ROW = 16;
+const int CHARS_PER_COL = NUM_CHRS / CHARS_PER_ROW;
 
 SDLFont::SDLFont(const std::string &bitmapName)
 {
@@ -26,8 +29,8 @@ SDLFont::SDLFont(const std::string &bitmapName)
 	fontSurface = SDL_DisplayFormat(tempSurface);
 	SDL_FreeSurface(tempSurface);
 
-	charWidth  = fontSurface->w / 256;
-	charHeight = fontSurface->h;
+	charWidth  = fontSurface->w / CHARS_PER_ROW;
+	charHeight = fontSurface->h / CHARS_PER_COL;
 
 	// Set font as transparent. The assumption we'll go on is that the
 	// first pixel of the font image will be the color we should treat
@@ -53,22 +56,22 @@ void SDLFont::drawText(const std::string &string, SDL_Surface *surface, int x, i
 	if (characters > (surface->w - x) / charWidth)
 		characters = (surface->w - x) / charWidth;
 
-	SDL_Rect DestRect;
-	DestRect.x = x;
-	DestRect.y = y;
-	DestRect.w = charWidth;
-	DestRect.h = charHeight;
+	SDL_Rect destRect;
+	destRect.x = x;
+	destRect.y = y;
+	destRect.w = charWidth;
+	destRect.h = charHeight;
 
-	SDL_Rect SourceRect;
-	SourceRect.y = 0;
-	SourceRect.w = charWidth;
-	SourceRect.h = charHeight;
+	SDL_Rect sourceRect;
+	sourceRect.w = charWidth;
+	sourceRect.h = charHeight;
 
 	// Now draw it
 	for (int loop=0; loop<characters; loop++) {
-		SourceRect.x = string[loop] * charWidth;
-		SDL_BlitSurface(fontSurface, &SourceRect, surface, &DestRect);
-		DestRect.x += charWidth;
+		sourceRect.x = (string[loop] % CHARS_PER_ROW) * charWidth;
+		sourceRect.y = (string[loop] / CHARS_PER_ROW) * charHeight;
+		SDL_BlitSurface(fontSurface, &sourceRect, surface, &destRect);
+		destRect.x += charWidth;
 	}
 }
 
