@@ -5,12 +5,15 @@
 #ifndef __FILEMANAGER_HH__
 #define __FILEMANAGER_HH__
 
-#include "config.h"
-#include "openmsx.hh"
-#include "MSXConfig.hh"
 #include <fstream>
 #include <string>
 #include <list>
+
+#include "config.h"
+
+#include "openmsx.hh"
+#include "MSXConfig.hh"
+#include "MSXFilePath.hh"
 
 #ifdef HAVE_FSTREAM_TEMPL
 #define IFILETYPE std::ifstream<byte>
@@ -52,26 +55,36 @@ class FileManager
 		
 		~FileManager();
 		
-		IFILETYPE* openROM(std::string &filename);
 		/**
-		 * Open a file for reading only.
+		 * open a ROM (readonly of course!)
 		 */
-		//IFILETYPE* openFileRO(std::string filename, bool cache=false);
-		/**
-		 * Open a file for reading and writing.
-		 * if not writeable then fail
-		 */
-		//IOFILETYPE* openFileMustRW(std::string filename);
-		/**
-		 * Open a file for reading and writing.
-		 * if not writeable then open readonly
-		 */
-		//IOFILETYPE* openFilePreferRW(std::string filename, bool cache=false);
+		IFILETYPE* openRom(std::string& filename);
 
-		/** Following are for creating/reusing files **/
-		/** if not writeable then fail **/
-		//IOFILETYPE* openFileAppend(std::string filename);
-		//IOFILETYPE* openFileTruncate(std::string filename);
+		/**
+		 * open a DISK (with respect to file perms
+		 * and protocol)
+		 */
+		IFILETYPE* openDisk(std::string& filename);
+
+		/**
+		 * open a DISK (rw, if not, fail)
+		 *
+		 */
+		 IFILETYPE* openDiskRW(std::string& filename);
+
+		/**
+		 * open a state file [SRAM, ...]
+		 * has to be rw, stored at the apropriate
+		 * user-specific place
+		 */
+		 IFILETYPE* openState(std::string& filename);
+
+		/**
+		 * open a config file [.xml]
+		 * searched at the apropriate places
+		 */
+		 IFILETYPE* openConfig(std::string& filename);
+
 	private:
 
 		// predefine
@@ -82,15 +95,7 @@ class FileManager
 		/// The one instance
 		static FileManager* _instance;
 
-		/**
-		 * try to find a readable file in the current rompath with matching filename
-		 * returns the filename with path as string, and tells if the original path was an url (http:// or ftp://)
-		 * note that it is recommended to put URL's last in the rompaths
-		 */
-		//std::string findFileName(std::string filename, bool* wasURL=NULL);
-
 		// filepath vars
-		std::string separator;
 		std::list<Path*> path_list;
 		std::list<Path*> path_list_local_only;
 
@@ -115,6 +120,8 @@ class FileManager
 				 */
 				bool isFTP();
 		};
+
+		MSXConfig::FilePath* filepath;
 };
 
-#endif // __FILEOPENER_HH__
+#endif // __FILEMANAGER_HH__

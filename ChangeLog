@@ -1,7 +1,10 @@
 $Id$
 
-2002-03-30 Joost Yervante Damad <andete@worldcity.nl>
+2002-04-01 Joost Yervante Damad <andete@worldcity.nl>
 	* FileManager sync [WIP]
+	* a first proposal for a FileManager API, I'll
+	  implement it soon if noone objects [or at least
+	  something like this!]
 
 2002-03-31 Maarten ter Huurne <mth@stack.nl>
 	* Cleaned up VRAM implementation a little.

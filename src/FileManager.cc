@@ -1,13 +1,4 @@
 // $Id$
-// 
-// Based on FileManager from David
-//
-// David's old comment:
-// Stuff to handle files
-// Use of this library should result in the use of configurable rompaths
-// to try to find any filenames given
-// This goes for the normal file reads as well as the truncate/append file 
-// handling (cassette file for instance)
 
 #include <stdio.h>
 #include <unistd.h>
@@ -58,6 +49,7 @@ bool FileManager::Path::isFTP()
 }
 
 FileManager::FileManager()
+:filepath(NULL)
 {
 	// init libxml protocol managers
 	xmlNanoHTTPInit();
@@ -66,7 +58,8 @@ FileManager::FileManager()
 	// filepath
 	try 
 	{
-		MSXConfig::CustomConfig *config = MSXConfig::Backend::instance()->getCustomConfigByTag("filepath");
+		MSXConfig::CustomConfig* config = MSXConfig::Backend::instance()->getCustomConfigByTag("filepath");
+		filepath = reinterpret_cast<MSXConfig::FilePath*>(config);
 	}
 	catch (FileManagerException& e)
 	{
@@ -99,4 +92,28 @@ FileManager::Path::Path(const std::string &path_):path(path_)
 
 FileManager::Path::~Path()
 {
+}
+
+IFILETYPE* FileManager::openRom(std::string& filename)
+{
+	assert(false);
+	return NULL;
+}
+
+IFILETYPE* FileManager::openDisk(std::string& filename)
+{
+	assert(false);
+	return NULL;
+}
+
+IFILETYPE* FileManager::openDiskRW(std::string& filename)
+{
+	assert(false);
+	return NULL;
+}
+
+IFILETYPE* FileManager::openState(std::string& filename)
+{
+	assert(false);
+	return NULL;
 }
