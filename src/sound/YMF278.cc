@@ -737,6 +737,8 @@ YMF278::YMF278(int ramSize, const XMLElement& config, const EmuTime& time)
 	  rom(getName() + " ROM", "rom", config)
 {
 	memadr = 0;	// avoid UMR
+	setSampleRate(44100);	// make valgrind happy
+
 	endRom = rom.getSize();
 	ramSize *= 1024;	// in kb
 	ram = new byte[ramSize];

@@ -46,6 +46,8 @@ private:
 		inline void reset(byte output = 0);
 		inline void setPeriod(int value, unsigned int updateStep);
 	protected:
+		Generator();
+
 		/** Time between output steps.
 		  * For tones, this is half the period of the square wave.
 		  * For noise, this is the time before the random generator produces

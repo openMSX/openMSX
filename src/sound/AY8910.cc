@@ -35,6 +35,11 @@ enum Register {
 
 // Generator:
 
+AY8910::Generator::Generator()
+{
+	reset();
+}
+
 inline void AY8910::Generator::reset(byte output) {
 	period = 0;
 	count = 0;
@@ -300,6 +305,10 @@ AY8910::AY8910(AY8910Interface& interf, const XMLElement& config,
 	: interface(interf)
 	, envelope(amplitude)
 {
+	// make valgrind happy
+	memset(regs, 0, sizeof(regs));
+	setSampleRate(44100);
+	
 	reset(time);
 	registerSound(config);
 	Debugger::instance().registerDebuggable(getName() + " regs", *this);

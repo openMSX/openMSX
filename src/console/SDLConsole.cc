@@ -20,14 +20,8 @@ SDLConsole::SDLConsole(Console& console_, SDL_Surface* screen)
 {
 	blink = false;
 	lastBlinkTime = 0;
-
+	backgroundImage = 0;
 	outputScreen = screen;
-	
-	SDL_PixelFormat* format = outputScreen->format;
-	backgroundImage = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
-		destRect.w, destRect.h, format->BitsPerPixel,
-		format->Rmask, format->Gmask, format->Bmask, format->Amask);
-	SDL_SetAlpha(backgroundImage, SDL_SRCALPHA, CONSOLE_ALPHA);
 
 	initConsole();
 }
@@ -58,9 +52,14 @@ void SDLConsole::paint()
 	updateConsoleRect();
 
 	// draw the background image if there is one
-	if (backgroundImage) {
-		SDL_BlitSurface(backgroundImage, NULL, outputScreen, &destRect);
+	if (!backgroundImage) {
+		SDL_PixelFormat* format = outputScreen->format;
+		backgroundImage = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
+			destRect.w, destRect.h, format->BitsPerPixel,
+			format->Rmask, format->Gmask, format->Bmask, format->Amask);
+		SDL_SetAlpha(backgroundImage, SDL_SRCALPHA, CONSOLE_ALPHA);
 	}
+	SDL_BlitSurface(backgroundImage, NULL, outputScreen, &destRect);
 
 	int screenlines = destRect.h / font->getHeight();
 	for (int loop = 0; loop < screenlines; ++loop) {
