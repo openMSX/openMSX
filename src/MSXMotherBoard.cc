@@ -53,6 +53,7 @@ MSXMotherBoard::MSXMotherBoard()
 	// Register console commands.
 	Console::instance()->registerCommand(this, "slotmap");
 	Console::instance()->registerCommand(this, "slotselect");
+	Console::instance()->registerCommand(this, "reset");
 }
 
 MSXMotherBoard::~MSXMotherBoard()
@@ -121,26 +122,25 @@ void MSXMotherBoard::registerSlottedDevice(MSXMemDevice *device, int primSl, int
 	}
 }
 
-void MSXMotherBoard::ResetMSX(const EmuTime &time)
+void MSXMotherBoard::resetMSX(const EmuTime &time)
 {
-	IRQLine = 0;
-	set_A8_Register(0);
+	setPrimarySlots(0);
 	std::vector<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		(*i)->reset(time);
 	}
 }
 
-void MSXMotherBoard::StartMSX()
+void MSXMotherBoard::startMSX()
 {
 	IRQLine = 0;
-	set_A8_Register(0);
+	setPrimarySlots(0);
 	Leds::instance()->setLed(Leds::POWER_ON);
 	RealTime::instance();
 	Scheduler::instance()->scheduleEmulation();
 }
 
-void MSXMotherBoard::DestroyMSX()
+void MSXMotherBoard::destroyMSX()
 {
 	std::vector<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
@@ -148,7 +148,7 @@ void MSXMotherBoard::DestroyMSX()
 	}
 }
 
-void MSXMotherBoard::SaveStateMSX(std::ofstream &savestream)
+void MSXMotherBoard::saveStateMSX(std::ofstream &savestream)
 {
 	std::vector<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
@@ -157,7 +157,7 @@ void MSXMotherBoard::SaveStateMSX(std::ofstream &savestream)
 }
 
 
-void MSXMotherBoard::set_A8_Register(byte value)
+void MSXMotherBoard::setPrimarySlots(byte value)
 {
 	for (int page=0; page<4; page++, value>>=2) {
 		// Change the slot structure
@@ -313,6 +313,8 @@ void MSXMotherBoard::ConsoleCallback(char *commandLine)
 		Console::instance()->printOnConsole(getSlotMap());
 	} else if (strncmp(commandLine, "slotselect", 10) == 0) {
 		Console::instance()->printOnConsole(getSlotSelection());
+	} else if (strncmp(commandLine, "reset", 5) == 0) {
+		resetMSX(MSXCPU::instance()->getCurrentTime());
 	} else {
 		assert(false);
 	}
@@ -326,6 +328,9 @@ void MSXMotherBoard::ConsoleHelp(char *commandLine)
 	} else if (strncmp(commandLine, "slotselect", 10) == 0) {
 		Console::instance()->printOnConsole(
 			"Prints which slots are currently selected.");
+	} else if (strncmp(commandLine, "reset", 5) == 0) {
+		Console::instance()->printOnConsole(
+			"Resets the MSX.");
 	} else {
 		assert(false);
 	}

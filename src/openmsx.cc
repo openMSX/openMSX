@@ -67,11 +67,11 @@ int main (int argc, char **argv)
 	  thread.start();
 
 	  PRT_DEBUG ("starting MSX");
-	  MSXMotherBoard::instance()->StartMSX();
+	  MSXMotherBoard::instance()->startMSX();
 
 	  // When we return we clean everything up
 	  thread.stop();
-	  MSXMotherBoard::instance()->DestroyMSX();
+	  MSXMotherBoard::instance()->destroyMSX();
 	} 
 	catch (MSXException& e) {
 		PRT_ERROR("Uncaught exception: " << e.desc);

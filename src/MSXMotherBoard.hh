@@ -136,29 +136,29 @@ class MSXMotherBoard : public CPUInterface, private ConsoleInterface
 		/**
 		 * This starts the Scheduler.
 		 */
-		void StartMSX();
+		void startMSX();
 
 		/**
 		 * This will reset all MSXDevices (the reset() method of
 		 * all registered MSXDevices is called)
 		 */
-		void ResetMSX(const EmuTime &time);
+		void resetMSX(const EmuTime &time);
 
 		/**
 		 * This will destroy all MSXDevices (the destructor of
 		 * all registered MSXDevices is called)
 		 */
-		void DestroyMSX();
+		void destroyMSX();
 
 
 		/**
 		 * TODO
 		 */
-		void RestoreMSX();	// TODO unimplemented!!
+		void restoreMSX();	// TODO unimplemented!!
 		/**
 		 * TODO
 		 */
-		void SaveStateMSX(std::ofstream &savestream);
+		void saveStateMSX(std::ofstream &savestream);
 
 
 		// CPUInterface //
@@ -194,8 +194,7 @@ class MSXMotherBoard : public CPUInterface, private ConsoleInterface
 		 * method more than once. If the device wants to lower the
 		 * interrupt again it must call the lowerIRQ() method exactly as
 		 * many times.
-		 * The MSXDevice class offers helper methods to ensure this, for
-		 * simple devices the helper methods are recommended.
+		 * Before using this method take a look at MSXMotherBoard::IRQHelper
 		 */
 		void raiseIRQ();
 
@@ -203,8 +202,7 @@ class MSXMotherBoard : public CPUInterface, private ConsoleInterface
 		 * This methods lowers the interrupt again. A device may never
 		 * call this method more often than it called the method
 		 * raiseIRQ().
-		 * The MSXDevice class offers helper methods to ensure this, for
-		 * simple devices the helper devices are recommended.
+		 * Before using this method take a look at MSXMotherBoard::IRQHelper
 		 */
 		void lowerIRQ();
 
@@ -226,9 +224,8 @@ class MSXMotherBoard : public CPUInterface, private ConsoleInterface
 		/*
 		 * Should only be used by PPI
 		 *  TODO: make friend
-		 *  TODO: rename to setPrimarySlots
 		 */
-		void set_A8_Register(byte value);
+		void setPrimarySlots(byte value);
 
 	private:
 		MSXMotherBoard();

@@ -1,5 +1,8 @@
 $Id$
 
+2002-02-05 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Implemented "reset" console command.
+
 2002-02-05 Maarten ter Huurne <mth@stack.nl>
 	* Added MSXMotherBoard::IRQHelper class.
 	* Removed IRQ helper functionality from MSXDevice.

@@ -97,7 +97,7 @@ byte MSXPPI::readA(const EmuTime &time) {
 	return 255;	//TODO check this
 }
 void MSXPPI::writeA(byte value, const EmuTime &time) {
-	MSXMotherBoard::instance()->set_A8_Register(value);
+	MSXMotherBoard::instance()->setPrimarySlots(value);
 }
 
 byte MSXPPI::readB(const EmuTime &time) {
