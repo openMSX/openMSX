@@ -19,7 +19,7 @@ config.h.in.in
 *.dsk
 *.lo
 *.la
-libSDL_console.la
+libConsole.la
 *.bb
 *.bbg
 *.da
