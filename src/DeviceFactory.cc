@@ -124,7 +124,9 @@ MSXDevice *DeviceFactory::create(Device *conf, const EmuTime &time)
 		return leds;
 	}
 	if (type == "TurboRPause") {
-		return new MSXTurboRPause(conf, time);
+		MSXTurboRPause *pause = new MSXTurboRPause(conf, time);
+		cpuInterface->register_IO_In(0xA7, pause);
+		return pause;
 	}
 	if (type == "TurboRPCM") {
 		MSXTurboRPCM *pcm = new MSXTurboRPCM(conf, time);

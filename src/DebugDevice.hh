@@ -30,7 +30,7 @@ class DebugDevice : public MSXIODevice
 	private:
 		void outputSingleByte(byte value, const EmuTime& time);
 		void outputMultiByte(byte value);
-		void displayByte(byte value, enum DebugDevice::DisplayType);
+		void displayByte(byte value, DisplayType type);
 		void flush();
 		
 		enum DebugMode mode;
