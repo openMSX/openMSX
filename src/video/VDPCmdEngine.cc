@@ -471,31 +471,26 @@ void VDPCmdEngine::VDPCmd::commandDone()
 
 // Loop over DX, DY.
 #define post__x_y(MX) \
-		ADX += TX; --ANX; \
-		if (ANX == 0) { \
-			engine->DY += TY; --(engine->NY); --NY; \
-			if (NY == 0) { \
+		ADX += TX; \
+		if (--ANX == 0) { \
+			engine->DY += TY; --(engine->NY); \
+			ADX = DX; ANX = NX; \
+			if (--NY == 0) { \
 				commandDone(); \
 				break; \
-			} else { \
-				ADX = DX; \
-				ANX = NX; \
 			} \
 		} \
 	}
 
 // Loop over SX, DX, SY, DY.
 #define post_xxyy(MX) \
-		ASX += TX; ADX += TX; --ANX; \
-		if (ANX == 0) { \
-			engine->SY += TY; engine->DY += TY; --(engine->NY); --NY; \
-			if (NY == 0) { \
+		ASX += TX; ADX += TX; \
+		if (--ANX == 0) { \
+			engine->SY += TY; engine->DY += TY; --(engine->NY); \
+			ASX = SX; ADX = DX; ANX = NX; \
+			if (--NY == 0) { \
 				commandDone(); \
 				break; \
-			} else { \
-				ASX = SX; \
-				ADX = DX; \
-				ANX = NX; \
 			} \
 		} \
 	}
@@ -822,12 +817,10 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 		engine->status |= 0x80;
 		ASX += TX; --ANX;
 		if (ANX == 0) {
-			engine->SY += TY; --(engine->NY); --NY;
-			if (NY == 0) {
+			engine->SY += TY; --(engine->NY);
+			ASX = SX; ANX = NX;
+			if (--NY == 0) {
 				commandDone();
-			} else {
-				ASX = SX;
-				ANX = NX;
 			}
 		}
 	} else {
@@ -869,19 +862,16 @@ void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
 
 		ADX += TX; --ANX;
 		if (ANX == 0) {
-			engine->DY += TY; --(engine->NY); --NY;
-			if (NY == 0) {
+			engine->DY += TY; --(engine->NY);
+			ADX = DX; ANX = NX;
+			if (--NY == 0) {
 				commandDone();
-			} else {
-				ADX = DX;
-				ANX = NX;
 			}
 		}
 	} else {
 		// TODO do we need to adjust opsCount?
 	}
 }
-
 
 
 // HMMV
@@ -1111,12 +1101,10 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 
 		ADX += TX; --ANX;
 		if (ANX == 0) {
-			engine->DY += TY; --(engine->NY); --NY;
-			if (NY == 0) {
+			engine->DY += TY; --(engine->NY);
+			ADX = DX; ANX = NX;
+			if (--NY == 0) {
 				commandDone();
-			} else {
-				ADX = DX;
-				ANX = NX;
 			}
 		}
 	} else {
