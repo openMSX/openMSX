@@ -45,7 +45,7 @@ void MSXBunsetsu::writeMem(word address, byte value, const EmuTime &time)
 			jisyoAddress = (jisyoAddress & 0x100FF) | (value << 8);
 			break;
 		case 0xBFFE:
-			jisyoAddress = (jisyoAddress & 0x1FFFF) | 
+			jisyoAddress = (jisyoAddress & 0x0FFFF) | 
 			               ((value & 1) << 16);
 			break;
 	}
@@ -53,8 +53,8 @@ void MSXBunsetsu::writeMem(word address, byte value, const EmuTime &time)
 
 const byte* MSXBunsetsu::getReadCacheLine(word start) const
 {
-	if ((start & 0xBFFC & CPU::CACHE_LINE_HIGH) == 
-	    (0xBFFC & CPU::CACHE_LINE_HIGH)) {
+	if ((start & CPU::CACHE_LINE_HIGH) == 
+	    (0xBFFF & CPU::CACHE_LINE_HIGH)) {
 		return NULL;
 	} else {
 		return rom.getBlock(start - 0x4000);
