@@ -137,11 +137,7 @@ set
     set <setting>          Query the current value of the specified setting
     set <setting> <value>  Change the specified setting to the given value
   
-  For the moment these settings are supported
-    accuracy     Controls the rendering accuracy
-    blur         Controls amount of blurring
-    deinterlace  Controls deinterlacing
-    scanline     Controls the scanline effect 
+  Settings that can be adjusted with this command are listed below.
 
   examples:
     set accuracy pixel
@@ -285,9 +281,9 @@ frameskip
   second frame, ...
 
   usage:
-    frameskip           shows the current setting
-    frameskip <number>  sets the number of frame skips
-    frameskip auto      automatically set frameskip depending on CPU load
+    set frameskip           shows the current setting
+    set frameskip <number>  sets the number of frame skips
+    set frameskip auto      automatically set frameskip depending on CPU load
 
 
 fullscreen
