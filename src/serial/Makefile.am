@@ -33,7 +33,11 @@ libSerial_la_SOURCES = \
 	MidiInConnector.cc  MidiInConnector.hh \
 	MidiOutConnector.cc MidiOutConnector.hh \
 	MidiOutLogger.cc MidiOutLogger.hh \
-	MidiInReader.cc MidiInReader.hh 
+	MidiInReader.cc MidiInReader.hh \
+	RS232Connector.cc RS232Connector.hh \
+	RS232Device.cc RS232Device.hh \
+	MSXRS232.cc MSXRS232.hh \
+	DummyRS232Device.cc DummyRS232Device.hh
 
 nodebug: resetdebug all
 debug: setdebug all

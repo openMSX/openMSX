@@ -1,5 +1,10 @@
 $Id$
 
+2003-07-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added MSX-RS232:
+	   - there do not exist any RS232 pluggables yet
+	   - code is yet completely untested
+
 2003-07-27 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* decoupled de console and debugger again. It caused some unforseen
 	  site-effects.

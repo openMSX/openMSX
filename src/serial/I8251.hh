@@ -18,7 +18,8 @@ class I8251Interface : public SerialDataInterface
 		virtual void setRxRDY(bool status, const EmuTime& time) = 0;
 		virtual void setDTR(bool status, const EmuTime& time) = 0;
 		virtual void setRTS(bool status, const EmuTime& time) = 0;
-		virtual byte getDSR(const EmuTime& time) = 0;
+		virtual bool getDSR(const EmuTime& time) = 0;
+		virtual bool getCTS(const EmuTime& time) = 0; // TODO use this
 		virtual void signal(const EmuTime& time) = 0;
 };
 

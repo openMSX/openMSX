@@ -169,9 +169,14 @@ void MSXMidi::I8251Interf::setRTS(bool status, const EmuTime& time)
 	midi.enableRxRDYIRQ(status);
 }
 
-byte MSXMidi::I8251Interf::getDSR(const EmuTime& time)
+bool MSXMidi::I8251Interf::getDSR(const EmuTime& time)
 {
 	return midi.timerIRQ.getState();
+}
+
+bool MSXMidi::I8251Interf::getCTS(const EmuTime& time)
+{
+	return true;
 }
 
 void MSXMidi::I8251Interf::setDataBits(DataBits bits)
