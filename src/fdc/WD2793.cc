@@ -261,7 +261,11 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 		case 0: // no index pulse yet
 			break;
 		case 1: // first index pulse passed
-			drive->writeTrackData(value);
+			try {
+				drive->writeTrackData(value);
+			} catch (MSXException& e) {
+				// ignore
+			}
 			break;
 		default: // next indexpulse passed
 			dataAvailable = 0; //return correct DTR
