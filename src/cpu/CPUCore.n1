@@ -45,6 +45,7 @@ inline void nmi2();
 inline void irq0();
 inline void irq1();
 inline void irq2();
+inline void R800Refresh();
 inline void executeFast();
 void executeSlow();
 inline void next();

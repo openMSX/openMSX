@@ -5,6 +5,7 @@
 
 #include "config.h"
 #include "CPU.hh"
+#include "EmuTime.hh"
 
 namespace openmsx {
 
@@ -16,7 +17,7 @@ class R800 : public CPU
 {
 public:
 	static const int CLOCK_FREQ = 7159090;
-	R800(const EmuTime &time);
+	R800(const EmuTime& time);
 	virtual ~R800();
 
 private:
@@ -36,7 +37,8 @@ private:
 	static const R800_ResumeFunc opcode_fd[256];
 	static const R800_ResumeFunc opcode_main[256];
 
-	static int lastPage;
+	int lastPage;
+	EmuTimeFreq<CLOCK_FREQ> lastRefreshTime;
 };
 
 } // namespace openmsx

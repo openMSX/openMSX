@@ -6,8 +6,10 @@ namespace openmsx {
 
 #include "R800Tables.nn"
 
-R800::R800(const EmuTime &time)
-	: CPU("r800", CLOCK_FREQ)
+R800::R800(const EmuTime& time)
+	: CPU("r800", CLOCK_FREQ),
+	  lastPage(-1),
+	  lastRefreshTime(time)
 {
 	reset(time);
 }
@@ -34,8 +36,6 @@ inline void R800::PUSH_DELAY()     { currentTime += 1; }
 inline void R800::INC_DELAY()      { currentTime += 1; }
 inline void R800::SMALL_DELAY()    { }
 inline int R800::haltStates() { return 1; }	// HALT + M1 // TODO check this
-
-int R800::lastPage = -1;
 
 inline void R800::RDMEM_OPCODE(word address, byte &result)
 {
@@ -68,6 +68,18 @@ inline void R800::WRMEM(word address, byte value)
 	}
 	lastPage = -1;
 	WRMEM_common(address, value);
+}
+
+inline void R800::R800Refresh()
+{
+	if (lastRefreshTime.getTicksTill(currentTime) >= (180 + 20)) {
+		// TODO every 28us, is this correct?
+		lastRefreshTime = currentTime;
+		currentTime += 20; // duration of refresh
+		if (currentTime >= targetTime) {
+			extendTarget(currentTime);
+		}
+	}
 }
 
 } // namespace openmsx

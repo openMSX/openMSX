@@ -192,6 +192,8 @@ inline void _CPU_::executeFast() {
 	before = currentTime;
 	#endif
 
+	R800Refresh();
+
 	executeInstruction();
 
 	#ifdef CPU_DEBUG

@@ -61,6 +61,11 @@ inline void Z80::WRMEM(word address, byte value)
 	WRMEM_common(address, value);
 }
 
+inline void Z80::R800Refresh()
+{
+	// nothing
+}
+
 } // namespace openmsx
 
 #define _CPU_ Z80
