@@ -48,15 +48,16 @@ Scheduler* Scheduler::instance()
 
 void Scheduler::setSyncPoint(const EmuTime &timestamp, Schedulable* device, int userData)
 {
-	EmuTime time(timestamp);
-	
 	schedMutex.grab();
 	
-	PRT_DEBUG("Sched: registering " << device->schedName() << " for emulation at " << time);
-	//PRT_DEBUG("Sched:  CPU is at " << cpu->getCurrentTime());
-
+	EmuTime time(timestamp);
 	if (time == ASAP)
 		time = cpu->getCurrentTime();
+	
+	if (device) 
+		PRT_DEBUG("Sched: registering " << device->schedName() << " for emulation at " << time);
+	//PRT_DEBUG("Sched:  CPU is at " << cpu->getCurrentTime());
+
 	//assert (time >= cpu->getCurrentTime());
 	if (time < cpu->getTargetTime())
 		cpu->setTargetTime(time);
@@ -91,7 +92,7 @@ bool Scheduler::removeSyncPoint(Schedulable* device, int userData)
 void Scheduler::stopScheduling()
 {
 	exitScheduler = true;
-	setSyncPoint(ASAP, cpu);	// arbitrarily choose MSXCPU.
+	setSyncPoint(ASAP, NULL);
 	unpause();
 }
 

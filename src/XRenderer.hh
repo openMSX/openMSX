@@ -13,7 +13,6 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-class EmuTime;
 class VDP;
 class VDPVRAM;
 class SpriteChecker;

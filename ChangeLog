@@ -1,5 +1,8 @@
 $Id$
 
+2002-08-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* major cleanups, minor tweaks / fixes
+
 2002-08-16 Maarten ter Huurne <mth@stack.nl>
 	* Fixed wrong use of sizeof(array): it returns #bytes, not #elements.
 	  Caused a segfault on Sparc.

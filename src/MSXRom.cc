@@ -10,8 +10,6 @@
 MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time), MSXRomDevice(config, time)
 {
-	PRT_DEBUG("Creating a MSXRom object");
-	
 	retrieveMapperType();
 
 	// only if needed reserve memory for SRAM
@@ -47,7 +45,7 @@ MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
 	// only instantiate DACSound if needed
 	if (mapperType & HAS_DAC) {
 		short volume = (short)config->getParameterAsInt("volume");
-		dac = new DACSound(volume, 16000, time);
+		dac = new DACSound(volume, time);
 	} else {
 		dac = NULL;
 	}
@@ -81,13 +79,12 @@ void MSXRom::retrieveMapperType()
 		// explicitly specified type
 		mapperType = RomTypes::nameToMapperType(type);
 	}
-	PRT_DEBUG("mapperType: " << mapperType);
+	PRT_DEBUG("MapperType: " << mapperType);
 }
 
 
 MSXRom::~MSXRom()
 {
-	PRT_DEBUG("Destructing a MSXRom object");
 	delete dac;
 #ifndef DONT_WANT_SCC
 	delete cartridgeSCC;

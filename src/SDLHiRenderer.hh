@@ -9,7 +9,6 @@
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
 
-class EmuTime;
 class VDP;
 class VDPVRAM;
 class SpriteChecker;

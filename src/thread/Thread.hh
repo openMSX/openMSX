@@ -3,7 +3,8 @@
 #ifndef __THREAD_HH__
 #define __THREAD_HH__
 
-#include <SDL/SDL_thread.h>
+// forward declarations
+class SDL_Thread;
 
 
 class Runnable

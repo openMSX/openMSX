@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXGAMECARTRIDGE_HH__
-#define __MSXGAMECARTRIDGE_HH__
+#ifndef __MSXROM_HH__
+#define __MSXROM_HH__
 
 #ifndef VERSION
 #include "config.h"
@@ -16,19 +16,18 @@
 class SCC;
 #endif
 class DACSound;
-class EmuTime;
 
 
 class MSXRom : public MSXMemDevice, public MSXRomDevice
 {
 	public:
 		MSXRom(MSXConfig::Device *config, const EmuTime &time);
-		~MSXRom();
+		virtual ~MSXRom();
 
-		void reset(const EmuTime &time);
-		byte readMem(word address, const EmuTime &time);
-		void writeMem(word address, byte value, const EmuTime &time);
-		byte* getReadCacheLine(word start);
+		virtual void reset(const EmuTime &time);
+		virtual byte readMem(word address, const EmuTime &time);
+		virtual void writeMem(word address, byte value, const EmuTime &time);
+		virtual byte* getReadCacheLine(word start);
 		
 	private:
 		void retrieveMapperType();

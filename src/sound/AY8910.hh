@@ -19,10 +19,10 @@ class EmuTime;
 class AY8910Interface
 {
 	public:
-		virtual byte readA(const EmuTime &time)=0;
-		virtual byte readB(const EmuTime &time)=0;
-		virtual void writeA(byte value, const EmuTime &time)=0;
-		virtual void writeB(byte value, const EmuTime &time)=0;
+		virtual byte readA(const EmuTime &time) = 0;
+		virtual byte readB(const EmuTime &time) = 0;
+		virtual void writeA(byte value, const EmuTime &time) = 0;
+		virtual void writeB(byte value, const EmuTime &time) = 0;
 };
 
 class AY8910 : public SoundDevice
@@ -33,12 +33,12 @@ class AY8910 : public SoundDevice
 
 		byte readRegister(byte reg, const EmuTime &time);
 		void writeRegister(byte reg, byte value, const EmuTime &time);
+		void reset(const EmuTime &time);
 
 		//SoundDevice
-		void reset(const EmuTime &time);
-		void setInternalVolume(short newVolume);
-		void setSampleRate(int sampleRate);
-		int* updateBuffer(int length);
+		virtual void setInternalVolume(short newVolume);
+		virtual void setSampleRate(int sampleRate);
+		virtual int* updateBuffer(int length);
 
 	private:
 		void wrtReg(byte reg, byte value, const EmuTime &time);

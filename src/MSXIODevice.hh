@@ -5,6 +5,7 @@
 
 #include "MSXDevice.hh"
 
+
 class MSXIODevice : virtual public MSXDevice
 {
 	public:

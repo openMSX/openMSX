@@ -160,18 +160,19 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 		if (countE <= 0) countE = 1;
 		break;
 	case AY_ESHAPE:
-		/* envelope shapes:  */
-		/* C AtAlH           */
-		/* 0 0 x x  \___     */
-		/* 0 1 x x  /___     */
-		/* 1 0 0 0  \\\\     */
-		/* 1 0 0 1  \___     */
-		/* 1 0 1 0  \/\/     */
-		/* 1 0 1 1  \        */
-		/* 1 1 0 0  ////     */
-		/* 1 1 0 1  /        */
-		/* 1 1 1 0  /\/\     */
-		/* 1 1 1 1  /___     */
+		/* envelope shapes:
+		 *   C AtAlH
+		 *   0 0 x x  \___
+		 *   0 1 x x  /___
+		 *   1 0 0 0  \\\\ 
+		 *   1 0 0 1  \___
+		 *   1 0 1 0  \/\/
+		 *   1 0 1 1  \   
+		 *   1 1 0 0  ////
+		 *   1 1 0 1  /   
+		 *   1 1 1 0  /\/\ 
+		 *   1 1 1 1  /___ 
+		 */
 		regs[AY_ESHAPE] &= 0x0f;
 		attack = (regs[AY_ESHAPE] & 0x04) ? 0x0f : 0x00;
 		if ((regs[AY_ESHAPE] & 0x08) == 0) {
@@ -226,7 +227,7 @@ void AY8910::checkMute()
 		setInternalMute(true);
 		return;
 	}
-	if ((regs[AY_ENABLE]&0x3f)==0x3f) {
+	if ((regs[AY_ENABLE] & 0x3f) == 0x3f) {
 		// all channels disabled
 		PRT_DEBUG("AY8910 semi-muted");
 		setInternalMute(false);
@@ -247,7 +248,7 @@ void AY8910::setInternalVolume(short newVolume)
 	// The AY-3-8910 has 16 levels, in a logarithmic scale (3dB per step)
 	double out = newVolume;		// avoid clipping
 	for (int i=15; i>0; i--) {
-		volTable[i] = (unsigned int)(out+0.5);	// round to nearest
+		volTable[i] = (unsigned int)(out + 0.5);	// round to nearest
 		out *= 0.707945784384;			// 1/(10^(3/20)) = 1/(3dB)
 	}
 	volTable[0] = 0;
@@ -263,8 +264,8 @@ void AY8910::setSampleRate (int sampleRate)
 	// at the given sample rate. No. of events = sample rate / (clock/8).
 	// FP_UNIT is a multiplier used to turn the fraction into a fixed point
 	// number.
-	updateStep = ((FP_UNIT * sampleRate) / (CLOCK/8));	// !! look out for overflow !!
-	PRT_DEBUG("UpdateStep "<<updateStep);
+	updateStep = ((FP_UNIT * sampleRate) / (CLOCK / 8));	// !! look out for overflow !!
+	PRT_DEBUG("UpdateStep " << updateStep);
 }
 
 
@@ -289,7 +290,7 @@ int* AY8910::updateBuffer(int length)
 		return NULL;
 	}
 	if (semiMuted) {
-		if (validLength>=length) {
+		if (validLength >= length) {
 			PRT_DEBUG("AY8910: semi-muted");
 			return buffer;	// return the previously calculated buffer (constant value)
 		}
@@ -304,25 +305,25 @@ int* AY8910::updateBuffer(int length)
 		// note that I do count += length, NOT count = length + 1. You might think
 		// it's the same since the volume is 0, but doing the latter could cause
 		// interferencies when the program is rapidly modulating the volume.
-		if (countA <= length*FP_UNIT) countA += length*FP_UNIT;
+		if (countA <= length * FP_UNIT) countA += length * FP_UNIT;
 	}
 	if (regs[AY_ENABLE] & 0x02) {
-		if (countB <= length*FP_UNIT) countB += length*FP_UNIT;
+		if (countB <= length * FP_UNIT) countB += length * FP_UNIT;
 		outputB = 1;
 	} else if (regs[AY_BVOL] == 0) {
-		if (countB <= length*FP_UNIT) countB += length*FP_UNIT;
+		if (countB <= length * FP_UNIT) countB += length * FP_UNIT;
 	}
 	if (regs[AY_ENABLE] & 0x04) {
-		if (countC <= length*FP_UNIT) countC += length*FP_UNIT;
+		if (countC <= length * FP_UNIT) countC += length * FP_UNIT;
 		outputC = 1;
 	} else if (regs[AY_CVOL] == 0) {
-		if (countC <= length*FP_UNIT) countC += length*FP_UNIT;
+		if (countC <= length * FP_UNIT) countC += length * FP_UNIT;
 	}
 
 	// for the noise channel we must not touch outputN
 	// it's also not necessary since we use outn.
 	if ((regs[AY_ENABLE] & 0x38) == 0x38)	// all off
-		if (countN <= length*FP_UNIT) countN += length*FP_UNIT;
+		if (countN <= length * FP_UNIT) countN += length * FP_UNIT;
 	int outn = (outputN | regs[AY_ENABLE]);
 
 	// buffering loop

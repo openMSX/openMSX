@@ -13,9 +13,6 @@
 #include "MSXYM2413.hh"
 #include "MSXMemDevice.hh"
 
-// forward declarations
-class EmuTime;
-
 
 class MSXMusic : public MSXYM2413, public MSXMemDevice, public MSXRomDevice
 {
@@ -31,7 +28,6 @@ class MSXMusic : public MSXYM2413, public MSXMemDevice, public MSXRomDevice
 		virtual ~MSXMusic();
 		
 		virtual void reset(const EmuTime &time);
-
 		virtual byte readMem(word address, const EmuTime &time);
 		virtual void writeMem(word address, byte value, const EmuTime &time);
 };

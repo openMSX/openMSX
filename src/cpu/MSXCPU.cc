@@ -1,7 +1,6 @@
 // $Id$
 
 #include <cassert>
-#include <list>
 #include "MSXCPU.hh"
 #include "MSXConfig.hh"
 #include "MSXCPUInterface.hh"
@@ -52,15 +51,15 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 {
 	CPU *newCPU;
 	switch (cpu) {
-	case CPU_Z80:
-		newCPU = z80;
-		break;
-//	case CPU_R800:
-//		newCPU = r800;
-//		break;
-	default:
-		assert(false);
-		newCPU = NULL;	// prevent warning
+		case CPU_Z80:
+			newCPU = z80;
+			break;
+	//	case CPU_R800:
+	//		newCPU = r800;
+	//		break;
+		default:
+			assert(false);
+			newCPU = NULL;	// prevent warning
 	}
 	if (newCPU != activeCPU) {
 		newCPU->setCurrentTime(activeCPU->getCurrentTime());
@@ -89,10 +88,6 @@ const EmuTime &MSXCPU::getCurrentTime()
 	return activeCPU->getCurrentTime();
 }
 
-
-void MSXCPU::executeUntilEmuTime(const EmuTime &time, int userData)
-{
-}
 
 void MSXCPU::invalidateCache(word start, int num)
 {

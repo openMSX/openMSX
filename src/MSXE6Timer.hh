@@ -15,6 +15,7 @@
 #include "MSXIODevice.hh"
 #include "EmuTime.hh"
 
+
 class MSXE6Timer : public MSXIODevice
 {
 	public:
@@ -26,12 +27,12 @@ class MSXE6Timer : public MSXIODevice
 		/**
 		 * Destructor
 		 */
-		~MSXE6Timer();
+		virtual ~MSXE6Timer();
 		
-		void reset(const EmuTime &time);
+		virtual void reset(const EmuTime &time);
 		
-		byte readIO(byte port, const EmuTime &time);
-		void writeIO(byte port, byte value, const EmuTime &time);
+		virtual byte readIO(byte port, const EmuTime &time);
+		virtual void writeIO(byte port, byte value, const EmuTime &time);
 
 	private:
 		EmuTimeFreq<255681> reference;	// 1/14 * 3.58MHz

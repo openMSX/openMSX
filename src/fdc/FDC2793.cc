@@ -6,7 +6,6 @@
 
 
 FDC2793::FDC2793(MSXConfig::Device *config) 
-  : FDC(config)
 {
 	PRT_DEBUG("instantiating an FDC2793 object..");
 	driveName1 = config->getParameter("drivename1");

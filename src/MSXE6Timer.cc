@@ -20,7 +20,6 @@ MSXE6Timer::~MSXE6Timer()
  
 void MSXE6Timer::reset(const EmuTime &time)
 {
-	MSXDevice::reset(time);
 	reference = time;
 }
 

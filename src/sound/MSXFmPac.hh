@@ -25,11 +25,11 @@ class MSXFmPac : public MSXYM2413, public MSXMemDevice, public MSXRomDevice
 		/**
 		 * Destructor
 		 */
-		~MSXFmPac(); 
+		virtual ~MSXFmPac(); 
 		
-		void reset(const EmuTime &time);
-		byte readMem(word address, const EmuTime &time);
-		void writeMem(word address, byte value, const EmuTime &time);
+		virtual void reset(const EmuTime &time);
+		virtual byte readMem(word address, const EmuTime &time);
+		virtual void writeMem(word address, byte value, const EmuTime &time);
 
 	private:
 		void checkSramEnable();

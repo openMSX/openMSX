@@ -7,26 +7,27 @@
 #ifndef __DACSOUND_HH__
 #define __DACSOUND_HH__
 
+#include "openmsx.hh"
 #include "SoundDevice.hh"
-#include "EmuTime.hh"
 
 // forward declarations
 class Mixer;
+class EmuTime;
 
 
 class DACSound : public SoundDevice
 {
 	public:
-		DACSound(short maxVolume, int typicalFreq, const EmuTime &time); 
+		DACSound(short maxVolume, const EmuTime &time); 
 		virtual ~DACSound();
 	
 		void reset(const EmuTime &time);
 		void writeDAC(byte value, const EmuTime &time);
 		
 		//SoundDevice
-		void setInternalVolume(short newVolume);
-		void setSampleRate(int sampleRate);
-		int* updateBuffer(int length);
+		virtual void setInternalVolume(short newVolume);
+		virtual void setSampleRate(int sampleRate);
+		virtual int* updateBuffer(int length);
 		
 	private:
 		static const int CENTER = 0x80;

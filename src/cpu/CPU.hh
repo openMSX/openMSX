@@ -114,7 +114,7 @@ class CPU
 
 
 		// cache constants
-		static const int CACHE_LINE_BITS = 8;	// 256bytes
+		static const int CACHE_LINE_BITS = 8;	// 256 bytes
 		static const int CACHE_LINE_SIZE = 1 << CACHE_LINE_BITS;
 		static const int CACHE_LINE_NUM  = 0x10000 / CACHE_LINE_SIZE;
 		static const int CACHE_LINE_LOW  = CACHE_LINE_SIZE - 1;

@@ -56,9 +56,7 @@ class MSXMemDevice : virtual public MSXDevice
 	private:
 		/**
 		 * Register this device in all the slots that where specified
-		 * in its config file
-		 * Note: this is only a helper function, you do not have to use
-		 *       this to register the device
+		 * in its config file. This method is called by the constructor,
 		 */
 		virtual void registerSlots();
 

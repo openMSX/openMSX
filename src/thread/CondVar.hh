@@ -3,7 +3,9 @@
 #ifndef __CONDVAR_HH__
 #define __CONDVAR_HH__
 
-#include <SDL/SDL.h>
+// forward declarations
+class SDL_cond;
+class SDL_mutex;
 
 
 class CondVar

@@ -13,8 +13,6 @@
 MSXPPI::MSXPPI(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	PRT_DEBUG("Creating an MSXPPI object");
-	
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	bool keyGhosting = deviceConfig->getParameterAsBool("key_ghosting");
 	keyboard = new Keyboard(keyGhosting);
@@ -49,7 +47,6 @@ MSXPPI::~MSXPPI()
 
 void MSXPPI::reset(const EmuTime &time)
 {
-	MSXDevice::reset(time);
 	i8255->reset(time);
 	click->reset(time);
 }
@@ -57,74 +54,79 @@ void MSXPPI::reset(const EmuTime &time)
 byte MSXPPI::readIO(byte port, const EmuTime &time)
 {
 	switch (port) {
-	case 0xA8:
-		return i8255->readPortA(time);
-	case 0xA9:
-		return i8255->readPortB(time);
-	case 0xAA:
-		return i8255->readPortC(time);
-	case 0xAB:
-		return i8255->readControlPort(time);
-	default:
-		assert (false); // code should never be reached
-		return 255;	// avoid warning
+		case 0xA8:
+			return i8255->readPortA(time);
+		case 0xA9:
+			return i8255->readPortB(time);
+		case 0xAA:
+			return i8255->readPortC(time);
+		case 0xAB:
+			return i8255->readControlPort(time);
 	}
+	assert (false); // code should never be reached
+	return 255;	// avoid warning
 }
 
 void MSXPPI::writeIO(byte port, byte value, const EmuTime &time)
 {
 	switch (port) {
-	case 0xA8:
-		i8255->writePortA(value, time);
-		break;
-	case 0xA9:
-		i8255->writePortB(value, time);
-		break;
-	case 0xAA:
-		i8255->writePortC(value, time);
-		break;
-	case 0xAB:
-		i8255->writeControlPort(value, time);
-		break;
-	default:
-		assert (false); // code should never be reached
+		case 0xA8:
+			i8255->writePortA(value, time);
+			break;
+		case 0xA9:
+			i8255->writePortB(value, time);
+			break;
+		case 0xAA:
+			i8255->writePortC(value, time);
+			break;
+		case 0xAB:
+			i8255->writeControlPort(value, time);
+			break;
 	}
 }
 
 
 // I8255Interface
 
-byte MSXPPI::readA(const EmuTime &time) {
+byte MSXPPI::readA(const EmuTime &time)
+{
 	// port A is normally an output on MSX, reading from an output port
 	// is handled internally in the 8255
 	return 255;	//TODO check this
 }
-void MSXPPI::writeA(byte value, const EmuTime &time) {
+void MSXPPI::writeA(byte value, const EmuTime &time)
+{
 	cpuInterface->setPrimarySlots(value);
 }
 
-byte MSXPPI::readB(const EmuTime &time) {
+byte MSXPPI::readB(const EmuTime &time)
+{
 	return keyboard->getKeys()[selectedRow];
 }
-void MSXPPI::writeB(byte value, const EmuTime &time) {
+void MSXPPI::writeB(byte value, const EmuTime &time)
+{
 	// probably nothing happens on a real MSX
 }
 
-nibble MSXPPI::readC1(const EmuTime &time) {
+nibble MSXPPI::readC1(const EmuTime &time)
+{
 	return 15;	// TODO check this
 }
-nibble MSXPPI::readC0(const EmuTime &time) {
+nibble MSXPPI::readC0(const EmuTime &time)
+{
 	return 15;	// TODO check this
 }
-void MSXPPI::writeC1(nibble value, const EmuTime &time) {
-	cassettePort->setMotor(!(value&1), time);	// 0=0n, 1=Off
-	cassettePort->cassetteOut(value&2, time);
+void MSXPPI::writeC1(nibble value, const EmuTime &time)
+{
+	cassettePort->setMotor(!(value & 1), time);	// 0=0n, 1=Off
+	cassettePort->cassetteOut(value & 2, time);
 	
-	Leds::LEDCommand caps = (value&4) ? Leds::CAPS_OFF : Leds::CAPS_ON;
+	Leds::LEDCommand caps = (value & 4) ? Leds::CAPS_OFF : Leds::CAPS_ON;
 	Leds::instance()->setLed(caps);
 
-	click->setClick(value&8, time);
+	click->setClick(value & 8, time);
 }
-void MSXPPI::writeC0(nibble value, const EmuTime &time) {
+void MSXPPI::writeC0(nibble value, const EmuTime &time)
+{
 	selectedRow = value;
 }

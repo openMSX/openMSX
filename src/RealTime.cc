@@ -84,7 +84,7 @@ void RealTime::internalSync(const EmuTime &curEmu)
 	int realPassed = curReal - realRef;
 	int emuPassed = (int)((speed * emuRef.getTicksTill(curEmu)) >> 8);
 
-	if ((emuPassed>0) && (realPassed>0)) {
+	if ((emuPassed > 0) && (realPassed > 0)) {
 		// only sync if we got meaningfull values
 		
 		PRT_DEBUG("RT: Short emu: " << emuPassed << "ms  Short real: " << realPassed << "ms");
@@ -105,9 +105,9 @@ void RealTime::internalSync(const EmuTime &curEmu)
 			realOrigin += lost;
 			PRT_DEBUG("RT: Emulation too slow, lost " << lost << "ms");
 		}
-		if (maxCatchUpFactor*(sleep+realPassed) < 100*emuPassed) {
+		if (maxCatchUpFactor * (sleep + realPassed) < 100 * emuPassed) {
 			// avoid catching up too fast
-			sleep = (100*emuPassed)/maxCatchUpFactor - realPassed;
+			sleep = (100 * emuPassed) / maxCatchUpFactor - realPassed;
 		}
 		if (sleep > 0) {
 			PRT_DEBUG("RT: Sleeping for " << sleep << "ms");
@@ -115,16 +115,16 @@ void RealTime::internalSync(const EmuTime &curEmu)
 		}
 		
 		// estimate current speed, values are inaccurate so take average
-		float curFactor = (sleep+realPassed) / (float)emuPassed;
-		factor = factor*(1-alpha)+curFactor*alpha;	// estimate with exponential average
+		float curFactor = (sleep + realPassed) / (float)emuPassed;
+		factor = factor * (1 - alpha) + curFactor * alpha;	// estimate with exponential average
 		PRT_DEBUG("RT: Estimated speed factor (real/emu): " << factor);
 		
 		// adjust short period references
-		realRef = curReal+sleep;	//SDL_GetTicks();
+		realRef = curReal + sleep;
 		emuRef = curEmu;
 	}
 	// schedule again in future
-	scheduler->setSyncPoint(emuRef+syncInterval, this);
+	scheduler->setSyncPoint(emuRef + syncInterval, this);
 }
 
 float RealTime::getRealDuration(const EmuTime &time1, const EmuTime &time2)

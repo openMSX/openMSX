@@ -9,7 +9,6 @@
 
 // forward declarations
 class MSXDevice;
-class EmuTime;
 
 
 class MSXMotherBoard : public Schedulable

@@ -125,9 +125,9 @@ class YM2413 : public SoundDevice
 		void reset(const EmuTime &time);
 		void writeReg(byte reg, byte value, const EmuTime &time);
 
-		void setInternalVolume(short maxVolume);
-		void setSampleRate(int sampleRate);
-		int* updateBuffer(int length);
+		virtual void setInternalVolume(short maxVolume);
+		virtual void setSampleRate(int sampleRate);
+		virtual int* updateBuffer(int length);
 
 	private:
 		inline int calcSample(int channelMask);

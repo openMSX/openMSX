@@ -51,7 +51,7 @@ const EmuTime &Z80::getCurrentTime()
 
 
 
-inline void Z80::M1_DELAY()       { currentTime += 1+waitCycles; }
+inline void Z80::M1_DELAY()       { currentTime += 1 + waitCycles; }
 inline void Z80::IOPORT_DELAY1()  { currentTime += 1; }
 inline void Z80::IOPORT_DELAY2()  { currentTime += 3; }
 inline void Z80::MEM_DELAY1()     { currentTime += 1; }

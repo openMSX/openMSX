@@ -3,7 +3,6 @@
 #ifndef __ROMTYPES_HH__
 #define __ROMTYPES_HH__
 
-#include <string>
 #include "openmsx.hh"
 #include "MSXException.hh"
 

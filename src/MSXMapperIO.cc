@@ -11,8 +11,6 @@
 MSXMapperIO::MSXMapperIO(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	PRT_DEBUG("Creating an MSXMapperIO object");
-
 	std::string type = config->getParameter("type");
 	if (type == "TurboR") {
 		mapperMask = new MSXMapperIOTurboR();
@@ -38,8 +36,6 @@ MSXMapperIO::MSXMapperIO(MSXConfig::Device *config, const EmuTime &time)
 
 MSXMapperIO::~MSXMapperIO()
 {
-	PRT_DEBUG("Destroying an MSXMapperIO object");
-
 	delete mapperMask;
 }
 
@@ -85,15 +81,14 @@ void MSXMapperIO::reset(const EmuTime &time)
 
 byte MSXMapperIO::readIO(byte port, const EmuTime &time)
 {
-	assert(0xfc <= port);
-	return page[port-0xfc] | mask;
+	return page[port - 0xfc] | mask;
 }
 
 void MSXMapperIO::writeIO(byte port, byte value, const EmuTime &time)
 {
-	assert (0xfc <= port);
-	page[port-0xfc] = value;
-	MSXCPU::instance()->invalidateCache(0x4000*(port-0xfc), 0x4000/CPU::CACHE_LINE_SIZE);
+	page[port - 0xfc] = value;
+	MSXCPU::instance()->invalidateCache(0x4000 * (port - 0xfc), 
+	                                    0x4000 / CPU::CACHE_LINE_SIZE);
 }
 
 

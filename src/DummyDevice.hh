@@ -6,16 +6,13 @@
 #include "MSXIODevice.hh"
 #include "MSXMemDevice.hh"
 
-// forward declarations
-class EmuTime;
-
 
 class DummyDevice : public MSXIODevice, public MSXMemDevice
 {
 	public:
-		~DummyDevice();
+		virtual ~DummyDevice();
 		static DummyDevice *instance();
-		void reset(const EmuTime &time);
+		virtual void reset(const EmuTime &time);
 	
 	private:
 		DummyDevice(MSXConfig::Device *config, const EmuTime &time);

@@ -20,12 +20,11 @@ class MSXAudio : public MSXIODevice
 		/**
 		 * Destructor
 		 */
-		~MSXAudio(); 
+		virtual ~MSXAudio(); 
 		
-		void reset(const EmuTime &time);
-		
-		byte readIO(byte port, const EmuTime &time);
-		void writeIO(byte port, byte value, const EmuTime &time);
+		virtual void reset(const EmuTime &time);
+		virtual byte readIO(byte port, const EmuTime &time);
+		virtual void writeIO(byte port, byte value, const EmuTime &time);
 	
 	private:
 		Y8950 *y8950;

@@ -5,9 +5,8 @@
 
 MSXDevice::MSXDevice(MSXConfig::Device *config, const EmuTime &time)
 {
-	PRT_DEBUG("instantiating an MSXDevice object..");
 	deviceConfig = config;
-	PRT_DEBUG(".." << getName());
+	PRT_DEBUG("instantiating an MSXDevice object: " << getName());
 }
 
 MSXDevice::~MSXDevice()
@@ -17,7 +16,6 @@ MSXDevice::~MSXDevice()
 
 void MSXDevice::reset(const EmuTime &time)
 {
-	PRT_DEBUG ("Resetting " << getName());
 }
 
 

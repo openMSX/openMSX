@@ -1,7 +1,8 @@
 // $Id$
 
-#include "Thread.hh"
+#include <SDL/SDL_thread.h>
 #include <cstddef>
+#include "Thread.hh"
 
 
 Thread::Thread(Runnable *runnable)

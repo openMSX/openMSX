@@ -10,7 +10,6 @@
 #include "SpriteChecker.hh"
 #include <cassert>
 
-class EmuTime;
 
 /*
 Note: The way VRAM is accessed depends a lot on who is doing the accessing.

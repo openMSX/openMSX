@@ -115,8 +115,8 @@ void MSXCPUInterface::updateVisible(int page)
 	if (visibleDevices[page] != newDevice) {
 		visibleDevices[page] = newDevice;
 		// Different device, so cache is no longer valid.
-		MSXCPU::instance()->invalidateCache(
-			page*0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
+		MSXCPU::instance()->invalidateCache(page * 0x4000,
+		                        0x4000 / CPU::CACHE_LINE_SIZE);
 	}
 }
 
@@ -129,8 +129,8 @@ void MSXCPUInterface::setPrimarySlots(byte value)
 {
 	for (int page=0; page<4; page++, value>>=2) {
 		// Change the slot structure
-		primarySlotState[page] = value&3;
-		secondarySlotState[page] = 3 & (subSlotRegister[value&3] >> (page*2));
+		primarySlotState[page] = value & 3;
+		secondarySlotState[page] = (subSlotRegister[value&3] >> (page*2)) & 3;
 		// Change the visible devices
 		updateVisible(page);
 	}
@@ -155,7 +155,7 @@ void MSXCPUInterface::writeMem(word address, byte value, const EmuTime &time)
 			subSlotRegister[currentSSRegister] = value;
 			for (int page=0; page<4; page++, value>>=2) {
 				if (currentSSRegister == primarySlotState[page]) {
-					secondarySlotState[page] = value&3;
+					secondarySlotState[page] = value & 3;
 					// Change the visible devices
 					updateVisible(page);
 				}

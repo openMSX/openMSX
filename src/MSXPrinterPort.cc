@@ -1,6 +1,5 @@
 // $Id$
 
-#include <cassert>
 #include "MSXPrinterPort.hh"
 #include "MSXCPUInterface.hh"
 #include "PrinterPortDevice.hh"
@@ -12,7 +11,6 @@
 MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	PRT_DEBUG("Creating a MSXPrinterPort");
 	MSXCPUInterface::instance()->register_IO_In (0x90, this);
 	MSXCPUInterface::instance()->register_IO_Out(0x90, this);
 	MSXCPUInterface::instance()->register_IO_Out(0x91, this);
@@ -28,7 +26,6 @@ MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
 
 MSXPrinterPort::~MSXPrinterPort()
 {
-	PRT_DEBUG("Destroying a MSXPrinterPort");
 	//unplug(time)
 	PluggingController::instance()->unregisterConnector(this);
 	delete dummy;
@@ -46,21 +43,18 @@ void MSXPrinterPort::reset(const EmuTime &time)
 
 byte MSXPrinterPort::readIO(byte port, const EmuTime &time)
 {
-	assert(port == 0x90);
 	return ((PrinterPortDevice*)pluggable)->getStatus(time) ? 0xff : 0xfd;	// bit 1 = status / other bits always 1
 }
 
 void MSXPrinterPort::writeIO(byte port, byte value, const EmuTime &time)
 {
 	switch (port) {
-	case 0x90:
-		setStrobe(value&1, time);	// bit 0 = strobe
-		break;
-	case 0x91:
-		writeData(value, time);
-		break;
-	default:
-		assert(false);
+		case 0x90:
+			setStrobe(value & 1, time);	// bit 0 = strobe
+			break;
+		case 0x91:
+			writeData(value, time);
+			break;
 	}
 }
 

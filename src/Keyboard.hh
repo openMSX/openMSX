@@ -34,8 +34,8 @@ class Keyboard : public EventListener
 	private:
 		void doKeyGhosting();
 
-		byte keyMatrix[NR_KEYROWS];
-		byte keyMatrix2[NR_KEYROWS];
+		byte keyMatrix[16];
+		byte keyMatrix2[16];
 		bool keyGhosting;
 		bool keysChanged;
 		static const byte Keys[336][2];

@@ -4,30 +4,31 @@
 #define __FDC2793_HH__
 
 #include "FDC.hh"
+#include "MSXConfig.hh"
 
 
 class FDC2793 : public FDC
 {
   public:
-	~FDC2793();
+	virtual ~FDC2793();
 
-	void reset();
-	byte getStatusReg(const EmuTime &time);
-	byte getTrackReg(const EmuTime &time);
-	byte getSectorReg(const EmuTime &time);
-	byte getDataReg(const EmuTime &time);
-	void setCommandReg(byte value,const EmuTime &time);
-	void setTrackReg(byte value,const EmuTime &time);
-	void setSectorReg(byte value,const EmuTime &time);
-	void setDataReg(byte value,const EmuTime &time);
-    byte getSideSelect(const EmuTime &time);
-    byte getDriveSelect(const EmuTime &time);
-    byte getMotor(const EmuTime &time);
-    byte getIRQ(const EmuTime &time);
-    byte getDTRQ(const EmuTime &time);
-    void setSideSelect(byte value,const EmuTime &time);
-    void setDriveSelect(byte value,const EmuTime &time);
-    void setMotor(byte value,const EmuTime &time);
+	virtual void reset();
+	virtual byte getStatusReg(const EmuTime &time);
+	virtual byte getTrackReg(const EmuTime &time);
+	virtual byte getSectorReg(const EmuTime &time);
+	virtual byte getDataReg(const EmuTime &time);
+	virtual void setCommandReg(byte value,const EmuTime &time);
+	virtual void setTrackReg(byte value,const EmuTime &time);
+	virtual void setSectorReg(byte value,const EmuTime &time);
+	virtual void setDataReg(byte value,const EmuTime &time);
+	virtual byte getSideSelect(const EmuTime &time);
+	virtual byte getDriveSelect(const EmuTime &time);
+	virtual byte getMotor(const EmuTime &time);
+	virtual byte getIRQ(const EmuTime &time);
+	virtual byte getDTRQ(const EmuTime &time);
+	virtual void setSideSelect(byte value,const EmuTime &time);
+	virtual void setDriveSelect(byte value,const EmuTime &time);
+	virtual void setMotor(byte value,const EmuTime &time);
 
 	FDC2793(MSXConfig::Device *config);
   private:

@@ -26,50 +26,42 @@ MSXKanji::~MSXKanji()
 
 void MSXKanji::reset(const EmuTime &time)
 {
-	adr1 = count1 = 0;	// TODO check this
-	adr2 = count2 = 0;	// TODO check this
+	adr1 = 0;	// TODO check this
+	adr2 = 0x20000;	// TODO check this
 }
 
 byte MSXKanji::readIO(byte port, const EmuTime &time)
 {
 	byte tmp;
 	switch (port) {
-	case 0xd9:
-		tmp = romBank[adr1+count1];
-		count1 = (count1+1)&0x1f;		//TODO check counter behaviour
-		return tmp;
-	case 0xdb:
-		tmp = romBank[adr2+count2+0x20000];
-		count2 = (count2+1)&0x1f;		//TODO check counter behaviour
-		return tmp;
-	default:
-		assert(false);
-		return 0xff;	// prevent warning
+		case 0xd9:
+			tmp = romBank[adr1];
+			adr1 = (adr1 & ~0x1f) | ((adr1 + 1) & 0x1f);
+			return tmp;
+		case 0xdb:
+			tmp = romBank[adr2];
+			adr2 = (adr2 & ~0x1f) | ((adr2 + 1) & 0x1f);
+			return tmp;
 	}
+	assert(false);
+	return 0xff;	// prevent warning
 }
 
 void MSXKanji::writeIO(byte port, byte value, const EmuTime &time)
 {
-	//TODO check this
 	switch (port) {
-	case 0xd8:
-		adr1 = (adr1&0x1f800)|((value&0x3f)<<5);
-		count1 = 0;
-		break;
-	case 0xd9:
-		adr1 = (adr1&0x007e0)|((value&0x3f)<<11);
-		count1 = 0;
-		break;
-	case 0xda:
-		adr2 = (adr2&0x1f800)|((value&0x3f)<<5);
-		count2 = 0;
-		break;
-	case 0xdb:
-		adr2 = (adr2&0x007e0)|((value&0x3f)<<11);
-		count2 = 0;
-		break;
-	default:
-		assert(false);
+		case 0xd8:
+			adr1 = (adr1 & 0x1f800) | ((value & 0x3f) << 5);
+			break;
+		case 0xd9:
+			adr1 = (adr1 & 0x007e0) | ((value & 0x3f) << 11);
+			break;
+		case 0xda:
+			adr2 = (adr2 & 0x3f800) | ((value & 0x3f) << 5);
+			break;
+		case 0xdb:
+			adr2 = (adr2 & 0x207e0) | ((value & 0x3f) << 11);
+			break;
 	}
 }
 

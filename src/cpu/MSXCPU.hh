@@ -4,8 +4,6 @@
 #define __MSXCPU_HH__
 
 #include "MSXDevice.hh"
-#include "Schedulable.hh"
-#include "CPU.hh"
 
 // forward declaration
 class CPU;
@@ -13,7 +11,7 @@ class Z80;
 //class R800;
 
 
-class MSXCPU : public MSXDevice, public Schedulable
+class MSXCPU : public MSXDevice
 {
 	public:
 		enum CPUType { CPU_Z80 };	//, CPU_R800 };
@@ -29,7 +27,7 @@ class MSXCPU : public MSXDevice, public Schedulable
 		 */
 		static MSXCPU *instance();
 	
-		void reset(const EmuTime &time);
+		virtual void reset(const EmuTime &time);
 		
 		const EmuTime &getCurrentTime();
 		void setActiveCPU(CPUType cpu);
@@ -42,7 +40,6 @@ class MSXCPU : public MSXDevice, public Schedulable
 		 */
 		void invalidateCache(word start, int num);
 
-		
 		/**
 		 * This method raises an interrupt. A device may call this
 		 * method more than once. If the device wants to lower the
@@ -73,10 +70,9 @@ class MSXCPU : public MSXDevice, public Schedulable
 		friend class Scheduler;
 
 		static MSXCPU *oneInstance;
-		void executeUntilEmuTime(const EmuTime &time, int userData); // prevent use
 
 		Z80 *z80;
-		//MSXR800 *r800;
+		//R800 *r800;
 	
 		CPU *activeCPU;
 };

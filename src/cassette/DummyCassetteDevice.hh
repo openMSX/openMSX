@@ -5,9 +5,6 @@
 
 #include "CassetteDevice.hh"
 
-// forward declarations
-class EmuTime;
-
 
 class DummyCassetteDevice : public CassetteDevice
 {

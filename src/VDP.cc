@@ -135,8 +135,6 @@ VDP::~VDP()
 
 void VDP::resetInit(const EmuTime &time)
 {
-	MSXDevice::reset(time);
-
 	for (int i = 0; i < 32; i++) controlRegs[i] = 0;
 	if (version == TMS9929A) {
 		// Boots (and remains) in PAL mode, all other VDPs boot in NTSC.

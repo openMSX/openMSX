@@ -28,16 +28,17 @@ class MSXFDC : public MSXRom, public MSXIODevice
 		/**
 		 * Destructor
 		 */
-		~MSXFDC();
+		virtual ~MSXFDC();
 		
-		void reset(const EmuTime &time);
+		virtual void reset(const EmuTime &time);
 		
-		byte readMem(word address, const EmuTime &time);
-		void writeMem(word address, byte value, const EmuTime &time);  
-		byte* getReadCacheLine(word start);
+		virtual byte readMem(word address, const EmuTime &time);
+		virtual void writeMem(word address, byte value, const EmuTime &time);  
+		virtual byte* getReadCacheLine(word start);
 
-		byte readIO(byte port, const EmuTime &time);
-		void writeIO(byte port, byte value, const EmuTime &time);
+		virtual byte readIO(byte port, const EmuTime &time);
+		virtual void writeIO(byte port, byte value, const EmuTime &time);
+
 	private:
 		FDC* controller;
 		bool brokenFDCread;

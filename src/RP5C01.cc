@@ -43,18 +43,18 @@ nibble RP5C01::readPort(nibble port, const EmuTime &time)
 {
 	assert (port<=0x0f);
 	switch (port) {
-	case MODE_REG:
-		return modeReg;
-	case TEST_REG:
-	case RESET_REG:
-		// write only
-		return 0x0f;	// TODO check this
-	default:
-		int block = modeReg & MODE_BLOKSELECT;
-		if (block==TIME_BLOCK)
-			updateTimeRegs(time);
-		nibble tmp = reg[block][port];
-		return tmp & mask[block][port];
+		case MODE_REG:
+			return modeReg;
+		case TEST_REG:
+		case RESET_REG:
+			// write only
+			return 0x0f;	// TODO check this
+		default:
+			int block = modeReg & MODE_BLOKSELECT;
+			if (block == TIME_BLOCK)
+				updateTimeRegs(time);
+			nibble tmp = reg[block][port];
+			return tmp & mask[block][port];
 	}
 }
 
@@ -62,28 +62,28 @@ void RP5C01::writePort(nibble port, nibble value, const EmuTime &time)
 {
 	assert (port<=0x0f);
 	switch (port) {
-	case MODE_REG:
-		updateTimeRegs(time);
-		modeReg = value;
-		break;
-	case TEST_REG:
-		updateTimeRegs(time);
-		testReg = value;
-		break;
-	case RESET_REG:
-		resetReg = value;
-		if (value & RESET_ALARM)
-			resetAlarm();
-		if (value & RESET_FRACTION)
-			fraction = 0;
-		break;
-	default:
-		int block = modeReg & MODE_BLOKSELECT;
-		if (block==TIME_BLOCK)
+		case MODE_REG:
 			updateTimeRegs(time);
-		reg[block][port] = value & mask[block][port];
-		if (block==TIME_BLOCK)
-			regs2Time();
+			modeReg = value;
+			break;
+		case TEST_REG:
+			updateTimeRegs(time);
+			testReg = value;
+			break;
+		case RESET_REG:
+			resetReg = value;
+			if (value & RESET_ALARM)
+				resetAlarm();
+			if (value & RESET_FRACTION)
+				fraction = 0;
+			break;
+		default:
+			int block = modeReg & MODE_BLOKSELECT;
+			if (block == TIME_BLOCK)
+				updateTimeRegs(time);
+			reg[block][port] = value & mask[block][port];
+			if (block == TIME_BLOCK)
+				regs2Time();
 	}
 }
 
@@ -114,13 +114,13 @@ void RP5C01::initializeTime()
 
 void RP5C01::regs2Time()
 {
-	seconds  = reg[TIME_BLOCK][ 0]+10*reg[TIME_BLOCK][ 1];
-	minutes  = reg[TIME_BLOCK][ 2]+10*reg[TIME_BLOCK][ 3];
-	hours    = reg[TIME_BLOCK][ 4]+10*reg[TIME_BLOCK][ 5];
+	seconds  = reg[TIME_BLOCK][ 0] + 10 * reg[TIME_BLOCK][ 1];
+	minutes  = reg[TIME_BLOCK][ 2] + 10 * reg[TIME_BLOCK][ 3];
+	hours    = reg[TIME_BLOCK][ 4] + 10 * reg[TIME_BLOCK][ 5];
 	dayWeek  = reg[TIME_BLOCK][ 6];
-	days     = reg[TIME_BLOCK][ 7]+10*reg[TIME_BLOCK][ 8] - 1;	// 1-31 -> 0-30
-	months   = reg[TIME_BLOCK][ 9]+10*reg[TIME_BLOCK][10] - 1;	// 1-12 -> 0-11
-	years    = reg[TIME_BLOCK][11]+10*reg[TIME_BLOCK][12];
+	days     = reg[TIME_BLOCK][ 7] + 10 * reg[TIME_BLOCK][ 8] - 1;	// 1-31 -> 0-30
+	months   = reg[TIME_BLOCK][ 9] + 10 * reg[TIME_BLOCK][10] - 1;	// 1-12 -> 0-11
+	years    = reg[TIME_BLOCK][11] + 10 * reg[TIME_BLOCK][12];
 	leapYear = reg[ALARM_BLOCK][11];
 
 	if (!reg[ALARM_BLOCK][10]) {
@@ -167,17 +167,17 @@ void RP5C01::updateTimeRegs(const EmuTime &time)
 		uint64 testDays    = (testReg & TEST_DAYS   ) ? elapsed : 0;
 		
 		fraction += elapsed;
-		seconds  += fraction/FREQ + testSeconds; fraction %= FREQ;
-		minutes  += seconds/60    + testMinutes; seconds  %= 60;
-		hours    += minutes/60    + testHours;   minutes  %= 60;
-		int carryDays = hours/24  + testDays; 
+		seconds  += fraction/FREQ  + testSeconds; fraction %= FREQ;
+		minutes  += seconds / 60   + testMinutes; seconds  %= 60;
+		hours    += minutes / 60   + testHours;   minutes  %= 60;
+		int carryDays = hours / 24 + testDays; 
 		days     += carryDays;      hours   %= 24;
 		dayWeek = (dayWeek + carryDays) % 7;
 		while (days >= daysInMonth(months, leapYear)) {
 			days -= daysInMonth(months, leapYear);
 			months++;
 		}
-		int carryYears = months/12;
+		int carryYears = months / 12;
 		years = (years + carryYears) % 100; months %= 12;
 		leapYear = (leapYear + carryYears) % 4;
 		
@@ -200,8 +200,8 @@ int RP5C01::daysInMonth(int month, int leapYear)
  
 void RP5C01::resetAlarm()
 {
-	for (int i=2; i<=8; i++) {
-		reg[ALARM_BLOCK][i]=0;
+	for (int i = 2; i <= 8; i++) {
+		reg[ALARM_BLOCK][i] = 0;
 	}
 }
 

@@ -6,7 +6,7 @@
 
 KeyClick::KeyClick(short volume, const EmuTime &time)
 {
-	dac = new DACSound(volume, 51000, time);	// ~ 70 cycles ~ 51kHz
+	dac = new DACSound(volume, time);
 	status = false;
 }
 
@@ -23,7 +23,6 @@ void KeyClick::reset(const EmuTime &time)
 void KeyClick::setClick(bool newStatus, const EmuTime &time)
 {
 	if (newStatus != status) {
-		PRT_DEBUG("KeyClick: " << status << " time: " << time);
 		status = newStatus;
 		dac->writeDAC((status ? 0xff : 0x80), time);
 	}

@@ -7,9 +7,6 @@
 #include "MSXIODevice.hh"
 #include <list>
 
-// forward declarations
-class EmuTime;
-
 
 class MapperMask
 {
@@ -20,12 +17,12 @@ class MapperMask
 class MSXMapperIO : public MSXIODevice
 {
 	public:
-		~MSXMapperIO();
+		virtual ~MSXMapperIO();
 		static MSXMapperIO* instance();
 
-		void reset(const EmuTime &time);
-		byte readIO(byte port, const EmuTime &time);
-		void writeIO(byte port, byte value, const EmuTime &time);
+		virtual void reset(const EmuTime &time);
+		virtual byte readIO(byte port, const EmuTime &time);
+		virtual void writeIO(byte port, byte value, const EmuTime &time);
 		
 		/**
 		 * Every MSXMemoryMapper must (un)register its size.

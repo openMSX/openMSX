@@ -1,5 +1,8 @@
 // $Id$
 
+#include "MSXCPU.hh"
+
+
 void IRQHelper::set()
 {
 	if (!request) {

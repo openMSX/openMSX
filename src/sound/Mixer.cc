@@ -1,6 +1,5 @@
 // $Id$
 
-#include <SDL/SDL.h>
 #include <cassert>
 #include "Mixer.hh"
 #include "MSXCPU.hh"
@@ -11,8 +10,6 @@
 
 Mixer::Mixer()
 {
-	PRT_DEBUG("Creating a Mixer object");
-	
 #ifdef DEBUG
 	nbClipped = 0;
 #endif
@@ -38,13 +35,12 @@ Mixer::Mixer()
 
 Mixer::~Mixer()
 {
-	PRT_DEBUG("Destroying a MIXER object");
 	delete[] mixBuffer;
 }
 
 Mixer* Mixer::instance(void)
 {
-	if (oneInstance == NULL )
+	if (oneInstance == NULL)
 		oneInstance = new Mixer();
 	return oneInstance;
 }
@@ -103,7 +99,7 @@ void Mixer::updateStream(const EmuTime &time)
 {
 	assert(prevTime <= time);
 	float duration = realTime->getRealDuration(prevTime, time);
-	PRT_DEBUG("Mix: update, duration " << duration << "s");
+	//PRT_DEBUG("Mix: update, duration " << duration << "s");
 	assert(duration >= 0);
 	prevTime = time;
 	lock();

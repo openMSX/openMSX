@@ -5,9 +5,6 @@
 
 #include "Pluggable.hh"
 
-// forward declarations
-class EmuTime;
-
 
 class CassetteDevice : public Pluggable
 {
@@ -35,7 +32,7 @@ class CassetteDevice : public Pluggable
 		 */
 		virtual int getWriteSampleRate() = 0;
 
-
+		// Pluggable
 		virtual const std::string &getClass();
 };
 

@@ -28,29 +28,14 @@
 #define __MSXPPI_HH__
 
 #include "MSXIODevice.hh"
-#include "Keyboard.hh"
 #include "I8255.hh"
 
 // forward declarations
 class KeyClick;
-class EmuTime;
 class MSXCPUInterface;
 class CassettePortInterface;
 class Leds;
-
-
-// David Hermans original comments 
-// This class implements the PPI
-// found on ports A8..AB where 
-//A8      R/W    I 8255A/ULA9RA041 PPI Port A Memory PSLOT Register (RAM/ROM)
-//			Bit   Expl.
-//			0-1   PSLOT number 0-3 for memory at 0000-3FFF
-//			2-3   PSLOT number 0-3 for memory at 4000-7FFF
-//			4-5   PSLOT number 0-3 for memory at 8000-BFFF
-//			6-7   PSLOT number 0-3 for memory at C000-FFFF
-//A9      R      I 8255A/ULA9RA041 PPI Port B Keyboard column inputs
-//AA      R/W    I 8255A/ULA9RA041 PPI Port C Kbd Row sel,LED,CASo,CASm
-//AB      W      I 8255A/ULA9RA041 Mode select and I/O setup of A,B,C
+class Keyboard;
 
 
 class MSXPPI : public MSXIODevice, public I8255Interface
@@ -65,25 +50,25 @@ class MSXPPI : public MSXIODevice, public I8255Interface
 		/**
 		 * Destructor
 		 */
-		~MSXPPI(); 
+		virtual ~MSXPPI(); 
 
-		void reset(const EmuTime &time);
-		byte readIO(byte port, const EmuTime &time);
-		void writeIO(byte port, byte value, const EmuTime &time);
+		virtual void reset(const EmuTime &time);
+		virtual byte readIO(byte port, const EmuTime &time);
+		virtual void writeIO(byte port, byte value, const EmuTime &time);
 
 	private:
 		I8255 *i8255;
 	
 	// I8255Interface
 	public:
-		byte readA(const EmuTime &time);
-		byte readB(const EmuTime &time);
-		nibble readC0(const EmuTime &time);
-		nibble readC1(const EmuTime &time);
-		void writeA(byte value, const EmuTime &time);
-		void writeB(byte value, const EmuTime &time);
-		void writeC0(nibble value, const EmuTime &time);
-		void writeC1(nibble value, const EmuTime &time);
+		virtual byte readA(const EmuTime &time);
+		virtual byte readB(const EmuTime &time);
+		virtual nibble readC0(const EmuTime &time);
+		virtual nibble readC1(const EmuTime &time);
+		virtual void writeA(byte value, const EmuTime &time);
+		virtual void writeB(byte value, const EmuTime &time);
+		virtual void writeC0(nibble value, const EmuTime &time);
+		virtual void writeC1(nibble value, const EmuTime &time);
 	
 	private:
 		MSXCPUInterface *cpuInterface;
@@ -91,7 +76,6 @@ class MSXPPI : public MSXIODevice, public I8255Interface
 		Leds *leds;
 		KeyClick *click;
 		Keyboard *keyboard;
-		byte MSXKeyMatrix[Keyboard::NR_KEYROWS];
-		int selectedRow;
+		nibble selectedRow;
 };
 #endif

@@ -4,7 +4,6 @@
 #define __MSXDISKROMPATCH_HH__
 
 #include "MSXRomPatchInterface.hh"
-#include "MSXConfig.hh"
 
 // forward declarations
 class DiskImageManager;

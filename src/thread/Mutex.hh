@@ -3,7 +3,7 @@
 #ifndef __MUTEX_HH__
 #define __MUTEX_HH__
 
-#include <SDL/SDL.h>
+class SDL_mutex;
 
 
 class Mutex

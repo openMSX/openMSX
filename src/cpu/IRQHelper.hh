@@ -4,7 +4,7 @@
 #define __IRQHELPER_HH__
 
 // forward declarations
-#include "MSXCPU.hh"
+class MSXCPU;
 
 
 /** Helper class for doing interrupt request (IRQ) administration.

@@ -2,6 +2,7 @@
 
 #include "SoundDevice.hh"
 
+
 SoundDevice::SoundDevice()
 {
 	internalMuted = true;

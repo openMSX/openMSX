@@ -20,7 +20,6 @@
 #include <gl.h>
 #endif
 
-class EmuTime;
 class VDP;
 class VDPVRAM;
 class SpriteChecker;

@@ -21,7 +21,7 @@ Y8950Timer<freq, flag>::~Y8950Timer()
 template<int freq, byte flag>
 void Y8950Timer<freq, flag>::setValue(byte value)
 {
-	count = 256-value;
+	count = 256 - value;
 }
 
 template<int freq, byte flag>

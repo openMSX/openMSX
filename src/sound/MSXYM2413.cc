@@ -33,7 +33,6 @@ MSXYM2413::MSXYM2413(MSXConfig::Device *config, const EmuTime &time)
 
 MSXYM2413::~MSXYM2413()
 {
-	PRT_DEBUG("Destroying an MSXYM2413 object");
 	delete ym2413;
 }
 
@@ -48,14 +47,12 @@ void MSXYM2413::writeIO(byte port, byte value, const EmuTime &time)
 {
 	if (enable & 0x01) {
 		switch(port) {
-		case 0x7c:
-			writeRegisterPort(value, time);
-			break;
-		case 0x7d:
-			writeDataPort(value, time);
-			break;
-		default:
-			assert(false);
+			case 0x7c:
+				writeRegisterPort(value, time);
+				break;
+			case 0x7d:
+				writeDataPort(value, time);
+				break;
 		}
 	}
 }
@@ -64,9 +61,10 @@ void MSXYM2413::writeRegisterPort(byte value, const EmuTime &time)
 {
 	registerLatch = (value & 0x3f);
 }
+
 void MSXYM2413::writeDataPort(byte value, const EmuTime &time)
 {
-	PRT_DEBUG("YM2413: reg "<<(int)registerLatch<<" val "<<(int)value);
+	//PRT_DEBUG("YM2413: reg "<<(int)registerLatch<<" val "<<(int)value);
 	Mixer::instance()->updateStream(time);
 	ym2413->writeReg(registerLatch, value, time);
 }

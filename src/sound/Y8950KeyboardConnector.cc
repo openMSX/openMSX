@@ -6,8 +6,6 @@
 
 Y8950KeyboardConnector::Y8950KeyboardConnector(const EmuTime &time)
 {
-	PRT_DEBUG("Creating a Y8950KeyboardConnector");
-
 	dummy = new DummyY8950KeyboardDevice();
 	PluggingController::instance()->registerConnector(this);
 	unplug(time);	// TODO plug device as specified in config file
@@ -16,7 +14,6 @@ Y8950KeyboardConnector::Y8950KeyboardConnector(const EmuTime &time)
 
 Y8950KeyboardConnector::~Y8950KeyboardConnector()
 {
-	PRT_DEBUG("Destroying a Y8950KeyboardConnector");
 	//unplug(time)
 	PluggingController::instance()->unregisterConnector(this);
 	delete dummy;

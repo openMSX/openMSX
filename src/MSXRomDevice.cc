@@ -1,7 +1,6 @@
 // $Id$
 
 #include <string>
-#include <list>
 #include "MSXRomDevice.hh"
 #include "MSXDiskRomPatch.hh"
 #include "MSXTapePatch.hh"
@@ -25,8 +24,6 @@ MSXRomDevice::MSXRomDevice(MSXConfig::Device *config, const EmuTime &time, int f
 
 MSXRomDevice::~MSXRomDevice()
 {
-	PRT_DEBUG("Deleting a MSXRomDevice");
-	
 	std::list<MSXRomPatchInterface*>::iterator i;
 	for (i=romPatchInterfaces.begin(); i!=romPatchInterfaces.end(); i++) {
 		MSXCPUInterface::instance()->unregisterInterface(*i);

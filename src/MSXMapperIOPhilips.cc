@@ -3,6 +3,7 @@
 #include <cassert>
 #include "MSXMapperIOPhilips.hh"
 
+
 // unused bits read always "1"
 byte MSXMapperIOPhilips::calcMask(std::list<int> &mapperSizes)
 {
@@ -13,7 +14,7 @@ byte MSXMapperIOPhilips::calcMask(std::list<int> &mapperSizes)
 			largest = *i;
 	}
 	int bits = log2RoundedUp(largest);
-	return (256-(1<<bits)) & 255;
+	return (256 - (1 << bits)) & 255;
 }
 
 /* 
@@ -31,7 +32,7 @@ byte MSXMapperIOPhilips::calcMask(std::list<int> &mapperSizes)
  */
 int MSXMapperIOPhilips::log2RoundedUp(int num)
 {
-	assert((1<=num)&&(num<=256));
+	assert((1 <= num) && (num <= 256));
 	int foo = 128; int res = 8;
 	while (num <= foo) {
 		foo /= 2; res--;

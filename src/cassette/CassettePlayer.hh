@@ -14,13 +14,17 @@ class CassettePlayer : public CassetteDevice, private Command
 	public:
 		CassettePlayer();
 		virtual ~CassettePlayer();
+		
 		void insertTape(const std::string &filename);
 		void removeTape();
-		void setMotor(bool status, const EmuTime &time);
-		short readSample(const EmuTime &time);
-		void writeWave(short *buf, int length);
-		int getWriteSampleRate();
+		
+		// CassetteDevice
+		virtual void setMotor(bool status, const EmuTime &time);
+		virtual short readSample(const EmuTime &time);
+		virtual void writeWave(short *buf, int length);
+		virtual int getWriteSampleRate();
 
+		// Pluggable
 		virtual const std::string &getName();
 
 	private:

@@ -12,9 +12,6 @@
 #include "Y8950Adpcm.hh"
 #include "Y8950KeyboardConnector.hh"
 
-//forward declarations
-class EmuTime;
-
 
 class Y8950 : public SoundDevice
 {
@@ -165,9 +162,9 @@ class Y8950 : public SoundDevice
 		byte readReg(byte reg, const EmuTime &time);
 		byte readStatus();
 
-		void setInternalVolume(short maxVolume);
-		void setSampleRate(int sampleRate);
-		int* updateBuffer(int length);
+		virtual void setInternalVolume(short maxVolume);
+		virtual void setSampleRate(int sampleRate);
+		virtual int* updateBuffer(int length);
 
 	private:
 		// Definition of envelope mode 

@@ -2,18 +2,16 @@
 //
 // Base class for MSX ROM Devices
 
-#ifndef __MSXROM_HH__
-#define __MSXROM_HH__
+#ifndef __MSXROMDEVICE_HH__
+#define __MSXROMDEVICE_HH__
 
-#include "MSXConfig.hh"
+#include <list>
 #include "MSXDevice.hh"
-#include "config.h"
-#include "openmsx.hh"
 #include "FileOpener.hh"
-
 
 // forward declaration
 class MSXRomPatchInterface;
+
 
 class MSXRomDevice: virtual public MSXDevice
 {
@@ -66,4 +64,4 @@ class MSXRomDevice: virtual public MSXDevice
 		std::list<MSXRomPatchInterface*> romPatchInterfaces;
 };
 
-#endif // __MSXROM_HH__
+#endif

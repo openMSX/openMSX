@@ -57,7 +57,7 @@ void HotKey::unregisterHotKey(Keys::KeyCode key, HotKeyListener *listener)
 
 void HotKey::registerHotKeyCommand(Keys::KeyCode key, const std::string &command)
 {
-	PRT_DEBUG("HotKey command registration for key " << Keys::getName(key));
+	//PRT_DEBUG("HotKey command registration for key " << Keys::getName(key));
 	HotKeyCmd *cmd = new HotKeyCmd(command);
 	registerHotKey(key, cmd);
 	cmdMap.insert(std::pair<Keys::KeyCode, HotKeyCmd*>(key, cmd));

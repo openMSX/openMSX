@@ -14,7 +14,7 @@ endif
 noinst_LTLIBRARIES = libFdc.la
 libFdc_la_SOURCES = \
 	MSXFDC.cc MSXFDC.hh \
-	FDC.cc FDC.hh \
+	FDC.hh \
 	FDC2793.cc FDC2793.hh \
 	FDCBackEnd.cc FDCBackEnd.hh \
 	FDCDummyBackEnd.cc FDCDummyBackEnd.hh \

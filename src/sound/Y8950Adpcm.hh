@@ -7,7 +7,6 @@
 #include "Schedulable.hh"
 
 // Forward declarartions
-class EmuTime;
 class Y8950;
 
 

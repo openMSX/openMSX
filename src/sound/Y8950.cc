@@ -8,7 +8,6 @@
 
 #include <math.h>
 #include "Y8950.hh"
-#include "Mixer.hh"
 #include "Y8950Timer.cc"
 
 
@@ -61,7 +60,7 @@ int Y8950::EXPAND_BITS(int x, int s, int d)
 // Adjust envelope speed which depends on sampling rate
 unsigned int Y8950::rate_adjust(double x, int rate)
 {
-	double tmp = x*CLOCK_FREQ/72/rate + 0.5; // +0.5 to round
+	double tmp = x * CLOCK_FREQ / 72 / rate + 0.5; // +0.5 to round
 	assert (tmp <= 4294967295U);
 	return (unsigned int)tmp;
 }

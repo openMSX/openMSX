@@ -3,7 +3,6 @@
 #ifndef __SOUNDDEVICE_HH__
 #define __SOUNDDEVICE_HH__
 
-#include "openmsx.hh"
 
 class SoundDevice
 {
@@ -21,7 +20,7 @@ class SoundDevice
 		 * file). Later on the user might (interactively) alter the
 		 * volume of this device
 		 */
-		void setVolume (short newVolume);
+		void setVolume(short newVolume);
 
 		/**
 		 * This method can be used to show the current volume settings
@@ -36,7 +35,7 @@ class SoundDevice
 		 * This method should only be used by the UI, internal muting
 		 * must be done with setInternalMute()
 		 */
-		void setMute (bool muted);
+		void setMute(bool muted);
 
 		/**
 		 * Get the mute-status
@@ -55,7 +54,7 @@ class SoundDevice
 		 * the volume change must not have an immediate effect, for
 		 * example precalculated buffers must not be discarded.
 		 */
-		virtual void setInternalVolume (short newVolume) = 0;
+		virtual void setInternalVolume(short newVolume) = 0;
 		
 		/**
 		 * This method mutes this SoundDevice
@@ -68,7 +67,7 @@ class SoundDevice
 		 * Note: internalMute defaults to true after SoundDevice creation,
 		 *       don't forget to unmute it
 		 */
-		void setInternalMute (bool muted);
+		void setInternalMute(bool muted);
 
 		/**
 		 * Returns true when for some reason this device is muted.  
@@ -84,7 +83,7 @@ class SoundDevice
 		 * sound devices share a common sampleRate.
 		 * It is not possible to change the samplerate on-the-fly.
 		 */
-		virtual void setSampleRate (int newSampleRate) = 0;
+		virtual void setSampleRate(int newSampleRate) = 0;
 
 		/**
 		 * This method is regularly called from the Mixer, it should
@@ -97,7 +96,7 @@ class SoundDevice
 		 *       (un)lock this thread with lock() and unlock()
 		 *       methods in Mixer
 		 */
-		virtual int* updateBuffer (int length) = 0;
+		virtual int* updateBuffer(int length) = 0;
 
 	private:
 		short volume;

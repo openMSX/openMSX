@@ -42,14 +42,14 @@ bool Keyboard::signalEvent(SDL_Event &event)
 	case SDL_KEYDOWN:
 		// Key pressed: reset bit in keyMatrix
 		key=event.key.keysym.sym;
-		if (key<0x150)
-			keyMatrix[Keys[key][0]]&=~Keys[key][1];
+		if (key < 0x150)
+			keyMatrix[Keys[key][0]] &= ~Keys[key][1];
 		break;
 	case SDL_KEYUP:
 		// Key released: set bit in keyMatrix
 		key=event.key.keysym.sym;
-		if (key<0x150) 
-			keyMatrix[Keys[key][0]]|=Keys[key][1];
+		if (key < 0x150) 
+			keyMatrix[Keys[key][0]] |= Keys[key][1];
 		break;
 	default:
 		assert(false);
@@ -74,11 +74,11 @@ void Keyboard::doKeyGhosting()
 	// the closed switches
 	bool changedSomething;
 	do {	changedSomething = false;
-		for (int i=0; i<NR_KEYROWS-1; i++) {
+		for (int i = 0; i < NR_KEYROWS-1; i++) {
 			byte row1 = keyMatrix2[i];
-			for (int j=i+1; j<NR_KEYROWS; j++) {
+			for (int j = i + 1; j < NR_KEYROWS; j++) {
 				byte row2 = keyMatrix2[j];
-				if ((row1 != row2) && ((row1|row2) != 0xff)) {
+				if ((row1 != row2) && ((row1 | row2) != 0xff)) {
 					// not same and some common zero's
 					//  --> inherit other zero's
 					byte newRow = row1 & row2;

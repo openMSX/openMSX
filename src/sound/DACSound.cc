@@ -8,9 +8,8 @@
 #include "Mixer.hh"
 
 
-DACSound::DACSound(short maxVolume, int typicalFreq, const EmuTime &time)
+DACSound::DACSound(short maxVolume, const EmuTime &time)
 {
-	PRT_DEBUG("Creating DACSound device");
 	mixer = Mixer::instance();
 	
 	setVolume(maxVolume);
@@ -23,8 +22,6 @@ DACSound::DACSound(short maxVolume, int typicalFreq, const EmuTime &time)
 
 DACSound::~DACSound()
 {
-	PRT_DEBUG("Destroying DACSound device");
-	
 	mixer->unregisterSound(this);
 	delete[] buf;
 }
@@ -38,7 +35,7 @@ void DACSound::setInternalVolume(short newVolume)
 
 	double scale = (double)(newVolume / CENTER);	// scale factor for DAC
 	for (int i=0; i<256; i++) {
-		volTable[i] = (short)(scale * (i-CENTER));
+		volTable[i] = (short)(scale * (i - CENTER));
 	}
 }
 

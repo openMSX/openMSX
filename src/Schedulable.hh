@@ -6,7 +6,6 @@
 #include <string>
 
 // forward declarations
-
 class EmuTime;
 
 

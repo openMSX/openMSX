@@ -9,7 +9,6 @@
 
 PrinterPortSimpl::PrinterPortSimpl()
 {
-	PRT_DEBUG("Creating an PrinterPortSimpl");
 	dac = NULL;
 	PluggingController::instance()->registerPluggable(this);
 }
@@ -38,7 +37,7 @@ void PrinterPortSimpl::writeData(byte data, const EmuTime &time)
 void PrinterPortSimpl::plug(const EmuTime &time)
 {
 	short volume = 12000;	// TODO read from config 
-	dac = new DACSound(volume, 16000, time);
+	dac = new DACSound(volume, time);
 }
 
 void PrinterPortSimpl::unplug(const EmuTime &time)

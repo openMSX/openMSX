@@ -6,9 +6,6 @@
 #include "MSXMemDevice.hh"
 #include "FileOpener.hh"
 
-// forward declarations
-class EmuTime;
-
 
 class MSXARCdebug : public MSXMemDevice
 {
@@ -21,14 +18,10 @@ class MSXARCdebug : public MSXMemDevice
 		/**
 		 * Destructor
 		 */
-		~MSXARCdebug();
+		virtual ~MSXARCdebug();
 		
-		void reset(const EmuTime &time);
-		
-		byte readMem(word address, const EmuTime &time);
-		void writeMem(word address, byte value, const EmuTime &time);  
-		//byte* getReadCacheLine(word start);
-		//byte* getWriteCacheLine(word start);
+		virtual byte readMem(word address, const EmuTime &time);
+		virtual void writeMem(word address, byte value, const EmuTime &time);  
 
 	private:
 		IOFILETYPE* file;

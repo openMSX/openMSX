@@ -4,10 +4,8 @@
 #define __MSXMEMORYMAPPER_HH__
 
 #include "MSXMemDevice.hh"
-#include "MSXIODevice.hh"
 
 // forward declaration;
-class EmuTime;
 class MSXMapperIO;
 
 
@@ -22,14 +20,14 @@ class MSXMemoryMapper : public MSXMemDevice
 		/**
 		 * Destructor
 		 */
-		~MSXMemoryMapper();
+		virtual ~MSXMemoryMapper();
 		
-		byte readMem(word address, const EmuTime &time);
-		void writeMem(word address, byte value, const EmuTime &time);
-		byte* getReadCacheLine(word start);
-		byte* getWriteCacheLine(word start);
+		virtual byte readMem(word address, const EmuTime &time);
+		virtual void writeMem(word address, byte value, const EmuTime &time);
+		virtual byte* getReadCacheLine(word start);
+		virtual byte* getWriteCacheLine(word start);
 		
-		void reset(const EmuTime &time);
+		virtual void reset(const EmuTime &time);
 	
 	private:
 		/** Converts a Z80 address to a RAM address.

@@ -16,14 +16,11 @@ inline int MSXMemoryMapper::calcAddress(word address)
 MSXMemoryMapper::MSXMemoryMapper(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
-	PRT_DEBUG("Creating an MSXMemoryMapper object");
-
 	slowDrainOnReset = deviceConfig->getParameterAsBool("slow_drain_on_reset");
 	int kSize = deviceConfig->getParameterAsInt("size");
-	if (kSize % 16 != 0) {
+	if ((kSize % 16) != 0)
 		PRT_ERROR("Mapper size is not a multiple of 16K: " << kSize);
-	}
-	nbBlocks = kSize/16;
+	nbBlocks = kSize / 16;
 	if (!(buffer = new byte[nbBlocks * 16384]))
 		PRT_ERROR("Couldn't allocate memory for " << getName());
 	// Isn't completely true, but let's suppose that ram will
@@ -36,16 +33,14 @@ MSXMemoryMapper::MSXMemoryMapper(MSXConfig::Device *config, const EmuTime &time)
 
 MSXMemoryMapper::~MSXMemoryMapper()
 {
-	PRT_DEBUG("Destructing an MSXMemoryMapper object");
-
 	// TODO first fix dependencies between MSXMemoryMapper and MSXMapperIO
-	//mapperIO->unregisterMapper(nbBlocks); 
+	//      MSXMapperIO can be destroyed before MSXMemoryMapper is destroyed
+	// mapperIO->unregisterMapper(nbBlocks); 
 	delete[] buffer;
 }
 
 void MSXMemoryMapper::reset(const EmuTime &time)
 {
-	MSXDevice::reset(time);
 	if (!slowDrainOnReset) {
 		PRT_DEBUG("Clearing ram of " << getName());
 		memset(buffer, 0, nbBlocks * 16384);

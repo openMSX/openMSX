@@ -80,15 +80,15 @@ public:
 
 	/** Destructor.
 	  */
-	~VDP();
+	virtual ~VDP();
 
 	// mainlife cycle of an MSXDevice
-	void reset(const EmuTime &time);
+	virtual void reset(const EmuTime &time);
 
 	// interaction with CPU
-	byte readIO(byte port, const EmuTime &time);
-	void writeIO(byte port, byte value, const EmuTime &time);
-	void executeUntilEmuTime(const EmuTime &time, int userData);
+	virtual byte readIO(byte port, const EmuTime &time);
+	virtual void writeIO(byte port, byte value, const EmuTime &time);
+	virtual void executeUntilEmuTime(const EmuTime &time, int userData);
 
 	/** Is this an MSX1 VDP?
 	  * @return True if this is an MSX1 VDP (TMS99X8A or TMS9929A),

@@ -9,7 +9,6 @@
 
 // forward declaration
 class MSXRomPatchInterface;
-class EmuTime;
 
 
 class CPUInterface {

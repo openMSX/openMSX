@@ -5,9 +5,6 @@
 
 #include "MSXMemDevice.hh"
 
-// forward declarations
-class EmuTime;
-
 
 class MSXSimple64KB : public MSXMemDevice
 {
@@ -20,14 +17,14 @@ class MSXSimple64KB : public MSXMemDevice
 		/**
 		 * Destructor
 		 */
-		~MSXSimple64KB();
+		virtual ~MSXSimple64KB();
 		
-		void reset(const EmuTime &time);
+		virtual void reset(const EmuTime &time);
 		
-		byte readMem(word address, const EmuTime &time);
-		void writeMem(word address, byte value, const EmuTime &time);  
-		byte* getReadCacheLine(word start);
-		byte* getWriteCacheLine(word start);
+		virtual byte readMem(word address, const EmuTime &time);
+		virtual void writeMem(word address, byte value, const EmuTime &time);  
+		virtual byte* getReadCacheLine(word start);
+		virtual byte* getWriteCacheLine(word start);
 
 	private:
 		byte* memoryBank;

@@ -207,7 +207,7 @@ void I8254::Counter::writeControlWord(byte value, const EmuTime &time)
 			break;
 		default:
 			assert(false);
-	}
+		}
 	}
 }
 

@@ -24,16 +24,16 @@ class SCC : public SoundDevice
 		SCC(short volume);
 		virtual ~SCC();
 
-		void reset();
 		// interaction with realCartridge
+		void reset();
 		byte readMemInterface(byte address,const EmuTime &time);
 		void writeMemInterface(byte address, byte value,const EmuTime &time);
 		void setChipMode(ChipMode chip);
 
-		//SoundDevice
-		void setSampleRate(int sampleRate);
-		void setInternalVolume(short maxVolume);
-		int* updateBuffer(int length);
+		// SoundDevice
+		virtual void setSampleRate(int sampleRate);
+		virtual void setInternalVolume(short maxVolume);
+		virtual int* updateBuffer(int length);
 
 	private:
 		inline void checkMute();
@@ -45,7 +45,7 @@ class SCC : public SoundDevice
 		static const int GETA_BITS = 22;
 		static const int CLOCK_FREQ = 3579545;
 		static const unsigned SCC_STEP =
-			(unsigned)(((unsigned)(1<<31))/(CLOCK_FREQ/2));
+			(unsigned)(((unsigned)(1 << 31)) / (CLOCK_FREQ / 2));
 
 		ChipMode currentChipMode;
 		int* buffer;
@@ -62,7 +62,7 @@ class SCC : public SoundDevice
 		unsigned freq[5];
 		byte volume[5];
 		// Code taken from the japanese guy
-		//int rotate[5];
+		// int rotate[5];
 
 		int ch_enable;
 		bool cycle_4bit;

@@ -7,7 +7,6 @@
 
 // forward declaration
 class RP5C01;
-class EmuTime;
 
 
 class MSXRTC : public MSXIODevice
@@ -21,11 +20,12 @@ class MSXRTC : public MSXIODevice
 		/**
 		 * Destructor
 		 */
-		~MSXRTC(); 
+		virtual ~MSXRTC(); 
 
-		void reset(const EmuTime &time);
-		byte readIO(byte port, const EmuTime &time);
-		void writeIO(byte port, byte value, const EmuTime &time);
+		virtual void reset(const EmuTime &time);
+		virtual byte readIO(byte port, const EmuTime &time);
+		virtual void writeIO(byte port, byte value, const EmuTime &time);
+
 	private:
 		RP5C01 *rp5c01;
 		nibble registerLatch;

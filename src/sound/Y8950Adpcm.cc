@@ -13,7 +13,7 @@
 
 int Y8950Adpcm::CLAP(int min, int x, int max)
 {
-	return (x<min) ? min : ((max<x) ? max : x);
+	return (x < min) ? min : ((max < x) ? max : x);
 }
 
 //**********************************************************//
@@ -47,7 +47,7 @@ void Y8950Adpcm::reset()
 	delta = 0;
 	step = 0;
 	wave = ramBank;
-	addrMask = (1<<19)-1;
+	addrMask = (1 << 19) - 1;
 	volume = 0;
 	reg7 = 0;
 	reg15 = 0;
@@ -196,7 +196,7 @@ byte Y8950Adpcm::readReg(byte rg)
 		default:
 			result = 255;
 	}
-	PRT_DEBUG("Y8950Adpcm: read "<<(int)rg<<" "<<(int)result);
+	//PRT_DEBUG("Y8950Adpcm: read "<<(int)rg<<" "<<(int)result);
 	return result;
 }
 

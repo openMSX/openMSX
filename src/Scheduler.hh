@@ -3,7 +3,6 @@
 #ifndef __SCHEDULER_HH__
 #define __SCHEDULER_HH__
 
-#include <SDL/SDL.h>
 #include "EmuTime.hh"
 #include "Mutex.hh"
 #include "CondVar.hh"
@@ -52,7 +51,7 @@ class Scheduler : private EventListener
 		 * earlier.
 		 * The supplied EmuTime may not be smaller than the current CPU
 		 * time.
-		 * If you want to schedule something as sson as possible, you
+		 * If you want to schedule something as soon as possible, you
 		 * can pass Scheduler::ASAP as time argument. 
 		 * A device may register several syncPoints.
 		 * Optionally a "userData" parameter can be passed, this

@@ -13,7 +13,6 @@
 
 // forward declaration
 class YM2413;
-class EmuTime;
 
 
 class MSXYM2413 : public MSXIODevice
@@ -27,10 +26,10 @@ class MSXYM2413 : public MSXIODevice
 		/**
 		 * Destructor
 		 */
-		~MSXYM2413(); 
+		virtual ~MSXYM2413(); 
 		
-		void reset(const EmuTime &time);
-		void writeIO(byte port, byte value, const EmuTime &time);
+		virtual void reset(const EmuTime &time);
+		virtual void writeIO(byte port, byte value, const EmuTime &time);
 
 	protected:
 		void writeRegisterPort(byte value, const EmuTime &time);
