@@ -7,7 +7,7 @@
 
 template<int freq, byte flag>
 Y8950Timer<freq, flag>::Y8950Timer(Y8950* y8950_)
-	: y8950(y8950_), counting(false)
+	: counting(false), y8950(y8950_)
 {
 	scheduler = Scheduler::instance();
 }
