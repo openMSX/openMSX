@@ -11,6 +11,7 @@
 TurboRFDC::TurboRFDC(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXFDC(config, time), controller(drives, time)
 {
+	blockMask = (rom.getSize() / 0x4000) - 1;
 	reset(time);
 }
 
@@ -82,7 +83,7 @@ void TurboRFDC::writeMem(word address, byte value, const EmuTime &time)
 	//PRT_DEBUG("TurboRFDC: write 0x" << std::hex << (int)address << " 0x" << (int)value << std::dec);
 	if ((address == 0x6000) || (address == 0x7FF0) || (address == 0x7FFE)) {
 		MSXCPU::instance()->invalidateCache(0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
-		memory = rom.getBlock(0x4000 * (value & 0x03));
+		memory = rom.getBlock(0x4000 * (value & blockMask));
 		return;
 	} else {
 		switch (address & 0x3FFF) {

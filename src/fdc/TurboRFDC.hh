@@ -21,6 +21,7 @@ class TurboRFDC : public MSXFDC
 		virtual byte* getWriteCacheLine(word address) const;
 
 	private:
+		byte blockMask;
 		const byte* memory;
 		TC8566AF controller;
 };
