@@ -7,10 +7,11 @@
 #include <shlobj.h>
 #include <io.h>
 #include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
 #include <algorithm>
 #define	MAXPATHLEN	MAX_PATH
 #define	mode_t	unsigned short int
-#define setenv(name,value,overwrite) SetEnvironmentVariableA (name,value)
 #endif
 #include <cerrno>
 #include <cstdlib>
@@ -22,6 +23,97 @@
 #include "openmsx.hh"
 #include "CliCommOutput.hh"
 #include "MSXException.hh"
+
+
+#if	defined(__WIN32__)
+#ifdef	__cplusplus
+extern "C" {
+#endif
+static	struct maint_setenv_table {
+	char *env;
+	struct maint_setenv_table *next;
+} *maint_setenv_table_p = NULL, *maint_setenv_table_c = NULL;
+
+/*
+ * A clean up for A tiny setenv() for win32.
+ */
+static void cleanSetEnv(void)
+{
+	struct maint_setenv_table *p,*q;
+
+	p = maint_setenv_table_p;
+	while (p) {
+		if (p->env) {
+			unsigned int i;
+			for (i=0;i<strlen(p->env);i++) {
+				if (*(p->env+i)=='=') {
+					char buf[i+3];
+					strncpy(buf,p->env,i+1);
+					buf[i+2]='\0';
+					/* when no string after '=',
+					   it works as unset.
+					   so, the buf will be ok
+					   even if it is auto variable... */
+					_putenv(buf);
+					break;
+				}
+			}
+			free(p->env);
+		}
+		q = p;
+		p = p->next;
+		free(q);
+	}
+}
+
+/*
+ * A tiny setenv() for win32.
+ */
+static int setenv(const char *name, const char *value, int overwrite)
+{
+	if (!overwrite && getenv(name)) {
+		return	0;
+	} else {
+		struct maint_setenv_table *p;
+		char *buf;
+		p=NULL; buf=NULL;
+		if ((p=(struct maint_setenv_table*)malloc(
+		                     sizeof(struct maint_setenv_table)))
+		    && (buf=(char*)malloc(strlen(name)+strlen(value)+2))) {
+			strcpy(buf, name);
+			strcat(buf, "=");
+			strcat(buf, value);
+			if (!_putenv(buf)) {
+				p->next = NULL;
+				p->env  = buf;
+				if (maint_setenv_table_p) {
+					maint_setenv_table_c->next = p;
+					maint_setenv_table_c = p;
+				} else {
+					maint_setenv_table_p = p;
+					maint_setenv_table_c = p;
+					atexit(cleanSetEnv);
+				}
+				return	0;
+			} else {
+				return	-1;
+			}
+		} else {
+			if (p) {
+				free(p);
+			}
+			if (buf) {
+				free(buf);
+			}
+			return	-1;
+		}
+	}
+}
+
+#ifdef	__cplusplus
+}
+#endif
+#endif
 
 
 namespace openmsx {
