@@ -74,8 +74,6 @@
   <device id="Real time clock">
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
-    <parameter name="sramload">true</parameter>
-    <parameter name="sramsave">true</parameter>
     <parameter name="sramname">Boosted_MSX2_EN.cmos</parameter>
   </device>
 
@@ -92,8 +90,6 @@
     <parameter name="filename">roms/fmpac.rom</parameter>
     <parameter name="volume">9000</parameter>
     <parameter name="mode">left</parameter>
-    <parameter name="loadsram">true</parameter>
-    <parameter name="savesram">true</parameter>
     <parameter name="sramname">fmpac.pac</parameter>
   </device>
 

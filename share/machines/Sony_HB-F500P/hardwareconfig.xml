@@ -73,8 +73,6 @@
   <device id="Real time clock">
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
-    <parameter name="loadsram">true</parameter>
-    <parameter name="savesram">true</parameter>
     <parameter name="sramname">hb-f500p.cmos</parameter>
   </device>
 
