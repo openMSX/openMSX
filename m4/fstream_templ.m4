@@ -1,6 +1,7 @@
 dnl ifstream<byte> macro
 dnl (c) 2001 Joost Yervante Damad
 dnl License: GPL
+dnl $Id$
 
 AC_DEFUN([AC_CXX_FSTREAM_TEMPL],
 [AC_MSG_CHECKING(whether ifstream<byte> works)

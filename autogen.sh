@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# $Id$
+
 # Generate the Makefiles and configure files
 if ( aclocal --version ) </dev/null > /dev/null 2>&1; then
 	echo "Building macros."
