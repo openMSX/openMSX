@@ -96,6 +96,8 @@ static int IMG_SavePNG_RW(SDL_Surface *surface, SDL_RWops *src)
 	/* Create the array of pointers to image data */
 	row_pointers = (png_bytep*) malloc(sizeof(png_bytep)*surface->h);
 
+	// TODO: rewrite to use SDL_convertSurface
+
 	for (i = 0; i < surface->h; i++)
 	{
 		SDL_PixelFormat *fmt = surface->format;
