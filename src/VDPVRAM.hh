@@ -121,7 +121,19 @@ public:
 	  */
 	class VRAMObserver {
 	public:
+		/** Informs the observer of a change in VRAM contents.
+		  * @param addr The address that will change.
+		  * @param time The moment in emulated time this change occurs.
+		  */
 		virtual void updateVRAM(int address, const EmuTime &time) = 0;
+
+		/** Informs the observer that the entire VRAM window changed.
+		  * This happens if the base/index masks are changed,
+		  * or if the window becomes disabled.
+		  * A typical observer will flush its cache.
+		  * @param time The moment in emulated time this change occurs.
+		  */
+		virtual void updateWindow(const EmuTime &time) = 0;
 	};
 
 	VDPVRAM(int size);
@@ -255,23 +267,32 @@ public:
 		}
 
 		/** Sets the mask and enables this window.
-		  * @param baseMask VDP table base register type mask.
-		  * @param indexBits Width of the table index in bits.
+		  * @param baseMask The table base register,
+		  * 	with the unused bits all ones.
+		  * @param indexMask The table index mask,
+		  * 	with the unused bits all ones.
+		  * @param time The moment in emulated time this change occurs.
 		  * TODO: In planar mode, the index bits are rotated one to the right.
 		  *       Solution: have the caller pass index mask instead of #bits.
 		  *       For many tables the number of index bits depends on the
 		  *       display mode anyway.
 		  */
-		inline void setMask(int baseMask, int indexBits) {
+		inline void setMask(int baseMask, int indexMask, const EmuTime &time) {
+			if (observer) {
+				observer->updateWindow(time);
+			}
 			this->baseMask = baseMask;
-			int indexMask = (-1 << indexBits);
 			baseAddr = baseMask & indexMask;
 			combiMask = ~baseMask | indexMask;
 		}
 
 		/** Disable this window: no address will be considered inside.
+		  * @param time The moment in emulated time this change occurs.
 		  */
-		inline void disable() {
+		inline void disable(const EmuTime &time) {
+			if (observer) {
+				observer->updateWindow(time);
+			}
 			baseAddr = -1;
 		}
 

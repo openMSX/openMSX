@@ -167,14 +167,16 @@ void VDP::resetInit(const EmuTime &time)
 	// Initially the table regs are zero, so every mask bit that is
 	// controlled by a the table reg should be zero.
 	// See Register Functions 1.2 in the V9938 data book (page 5).
-	vram->nameTable.setMask(~(-1 << 10), 17);
-	vram->colourTable.setMask(~(-1 << 6), 17);
-	vram->patternTable.setMask(~(-1 << 11), 17);
-	vram->spriteAttribTable.setMask(~(-1 << 7), 17);
-	vram->spritePatternTable.setMask(~(-1 << 11), 17);
+	// TODO: Use the updateXxx methods instead of duplicating their efforts
+	//       here for the initial state.
+	vram->nameTable.setMask(~(-1 << 10), -1 << 17, time);
+	vram->colourTable.setMask(~(-1 << 6), -1 << 17, time);
+	vram->patternTable.setMask(~(-1 << 11), -1 << 17, time);
+	vram->spriteAttribTable.setMask(~(-1 << 7), -1 << 17, time);
+	vram->spritePatternTable.setMask(~(-1 << 11), -1 << 17, time);
 	// TODO: It is not clear to me yet how bitmapWindow should be used.
 	//       Currently it always spans 128K of VRAM.
-	vram->bitmapWindow.setMask(~(-1 << 17), 17);
+	vram->bitmapWindow.setMask(~(-1 << 17), -1 << 17, time);
 
 	// From appendix 8 of the V9938 data book (page 148).
 	const word V9938_PALETTE[16] = {
@@ -697,7 +699,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		//if (isPlanar()) base = ((base << 16) | (base >> 1)) & 0x1FFFF;
 		renderer->updateNameBase(base, time);
 		// TODO: Actual number of index bits is lower than 17.
-		vram->nameTable.setMask(base, 17);
+		vram->nameTable.setMask(base, -1 << 17, time);
 		break;
 	}
 	case 3: {
@@ -705,7 +707,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 			| ~(-1 << 6)) & vramMask;
 		renderer->updateColourBase(base, time);
 		// TODO: Actual number of index bits is lower than 17.
-		vram->colourTable.setMask(base, 17);
+		vram->colourTable.setMask(base, -1 << 17, time);
 		break;
 	}
 	case 10: {
@@ -713,14 +715,14 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 			| ~(-1 << 6)) & vramMask;
 		renderer->updateColourBase(base, time);
 		// TODO: Actual number of index bits is lower than 17.
-		vram->colourTable.setMask(base, 17);
+		vram->colourTable.setMask(base, -1 << 17, time);
 		break;
 	}
 	case 4: {
 		int base = ((val << 11) | ~(-1 << 11)) & vramMask;
 		renderer->updatePatternBase(base, time);
 		// TODO: Actual number of index bits is lower than 17.
-		vram->patternTable.setMask(base, 17);
+		vram->patternTable.setMask(base, -1 << 17, time);
 		break;
 	}
 	case 7:
@@ -841,17 +843,15 @@ void VDP::updateSpriteAttributeBase(const EmuTime &time)
 	int base = ((controlRegs[11] << 15) | (controlRegs[5] << 7)
 		| ~(-1 << 7)) & vramMask;
 	if (isPlanar()) base = ((base << 16) | (base >> 1)) & 0x1FFFF;
-	// TODO: Do base updates through VRAMObserver?
-	spriteChecker->updateSpriteAttributeBase(base, time);
 	switch (getSpriteMode()) {
 	case 0:
-		vram->spriteAttribTable.disable();
+		vram->spriteAttribTable.disable(time);
 		break;
 	case 1:
-		vram->spriteAttribTable.setMask(base, 7);
+		vram->spriteAttribTable.setMask(base, -1 << 7, time);
 		break;
 	case 2:
-		vram->spriteAttribTable.setMask(base, 10);
+		vram->spriteAttribTable.setMask(base, -1 << 10, time);
 		break;
 	}
 }
@@ -860,9 +860,7 @@ void VDP::updateSpritePatternBase(const EmuTime &time)
 {
 	int base = ((controlRegs[6] << 11) | ~(-1 << 11)) & vramMask;
 	if (isPlanar()) base = ((base << 16) | (base >> 1)) & 0x1FFFF;
-	// TODO: Do base updates through VRAMObserver?
-	spriteChecker->updateSpritePatternBase(base, time);
-	vram->spritePatternTable.setMask(base, 11);
+	vram->spritePatternTable.setMask(base, -1 << 11, time);
 }
 
 void VDP::updateDisplayMode(

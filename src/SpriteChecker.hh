@@ -145,24 +145,6 @@ public:
 		// TODO: Precalc something?
 	}
 
-	/** Informs the sprite checker of an attribute table base address change.
-	  * @param addr The new base address.
-	  * @param time The moment in emulated time this change occurs.
-	  */
-	inline void updateSpriteAttributeBase(int addr, const EmuTime &time) {
-		sync(time);
-		// TODO: Update VRAM window range.
-	}
-
-	/** Informs the sprite checker of a pattern table base address change.
-	  * @param addr The new base address.
-	  * @param time The moment in emulated time this change occurs.
-	  */
-	inline void updateSpritePatternBase(int addr, const EmuTime &time) {
-		sync(time);
-		// TODO: Update VRAM window range.
-	}
-
 	/** Update sprite checking until specified line.
 	  * VRAM must be up-to-date before this method is called.
 	  * @param time The moment in emulated time to update to.
@@ -179,14 +161,6 @@ public:
 			// depending on the current DisplayMode.
 			(this->*updateSpritesMethod)(limit);
 		}
-	}
-
-	/** Informs the sprite checker of a change in VRAM contents.
-	  * @param addr The address that will change.
-	  * @param time The moment in emulated time this change occurs.
-	  */
-	void updateVRAM(int addr, const EmuTime &time) {
-		checkUntil(time);
 	}
 
 	/** Get X coordinate of sprite collision.
@@ -274,6 +248,18 @@ public:
 		if (a & 0x0001) { width +=  1 + (a & 1);    }
 		else            { width += (a >> 1);        }
 		return width;
+	}
+
+	// VRAMObserver implementation:
+
+	void updateVRAM(int addr, const EmuTime &time) {
+		checkUntil(time);
+	}
+
+	void updateWindow(const EmuTime &time) {
+		// TODO: Make VDPVRAM::Window do the VRAM sync and only perform
+		//       a checkUntil here?
+		sync(time);
 	}
 
 private:

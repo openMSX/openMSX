@@ -1,5 +1,9 @@
 $Id$
 
+2002-12-30 Maarten ter Huurne <maarten@treewalker.org>
+	* Let VDPVRAM::Window notify its observer of base/index changes and
+	  windows that become disabled.
+
 2002-12-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Autodetect BASIC ROM cartridges:
 	   code mostly taken from windows port

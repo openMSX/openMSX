@@ -56,6 +56,6 @@ void VDPVRAM::updateSpritesEnabled(bool enabled, const EmuTime &time) {
 VDPVRAM::Window::Window() {
 	observer = NULL;
 	combiMask = 0;	// doesn't matter but makes valgrind happy
-	disable();
+	baseAddr = -1;
 }
 

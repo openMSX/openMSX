@@ -796,8 +796,8 @@ void VDPCmdEngine::executeCommand()
 		commandDone();
 		return;
 	case CM_POINT:
-		vram->cmdReadWindow.setMask(0x1FFFF, 17);
-		vram->cmdWriteWindow.disable();
+		vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+		vram->cmdWriteWindow.disable(currentTime);
 		cmdReg[REG_COL] = point(
 			cmdReg[REG_SXL]+((int)cmdReg[REG_SXH]<<8),
 			cmdReg[REG_SYL]+((int)cmdReg[REG_SYH]<<8)
@@ -805,8 +805,8 @@ void VDPCmdEngine::executeCommand()
 		commandDone();
 		return;
 	case CM_PSET:
-		vram->cmdReadWindow.disable();
-		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
+		vram->cmdReadWindow.disable(currentTime);
+		vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 		pset(
 			cmdReg[REG_DXL]+((int)cmdReg[REG_DXH]<<8),
 			cmdReg[REG_DYL]+((int)cmdReg[REG_DYH]<<8),
@@ -817,53 +817,53 @@ void VDPCmdEngine::executeCommand()
 		return;
 	case CM_SRCH:
 		currEngine=&VDPCmdEngine::srchEngine;
-		vram->cmdReadWindow.setMask(0x1FFFF, 17);
-		vram->cmdWriteWindow.disable();
+		vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+		vram->cmdWriteWindow.disable(currentTime);
 		break;
 	case CM_LINE:
 		currEngine=&VDPCmdEngine::lineEngine;
-		vram->cmdReadWindow.disable();
-		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
+		vram->cmdReadWindow.disable(currentTime);
+		vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 		break;
 	case CM_LMMV:
 		currEngine=&VDPCmdEngine::lmmvEngine;
-		vram->cmdReadWindow.disable();
-		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
+		vram->cmdReadWindow.disable(currentTime);
+		vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 		break;
 	case CM_LMMM:
 		currEngine=&VDPCmdEngine::lmmmEngine;
-		vram->cmdReadWindow.setMask(0x1FFFF, 17);
-		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
+		vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+		vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 		break;
 	case CM_LMCM:
 		currEngine=&VDPCmdEngine::lmcmEngine;
-		vram->cmdReadWindow.setMask(0x1FFFF, 17);
-		vram->cmdWriteWindow.disable();
+		vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+		vram->cmdWriteWindow.disable(currentTime);
 		break;
 	case CM_LMMC:
 		currEngine=&VDPCmdEngine::lmmcEngine;
-		vram->cmdReadWindow.disable();
-		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
+		vram->cmdReadWindow.disable(currentTime);
+		vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 		break;
 	case CM_HMMV:
 		currEngine=&VDPCmdEngine::hmmvEngine;
-		vram->cmdReadWindow.disable();
-		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
+		vram->cmdReadWindow.disable(currentTime);
+		vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 		break;
 	case CM_HMMM:
 		currEngine=&VDPCmdEngine::hmmmEngine;
-		vram->cmdReadWindow.setMask(0x1FFFF, 17);
-		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
+		vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+		vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 		break;
 	case CM_YMMM:
 		currEngine=&VDPCmdEngine::ymmmEngine;
-		vram->cmdReadWindow.setMask(0x1FFFF, 17);
-		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
+		vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+		vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 		break;
 	case CM_HMMC:
 		currEngine=&VDPCmdEngine::hmmcEngine;
-		vram->cmdReadWindow.disable();
-		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
+		vram->cmdReadWindow.disable(currentTime);
+		vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 		break;
 	default:
 		printf("V9938: Unrecognized opcode %02Xh\n", cmdReg[REG_CMD]);
@@ -932,8 +932,8 @@ void VDPCmdEngine::commandDone()
 {
 	status &= 0xFE;
 	currEngine = &VDPCmdEngine::dummyEngine;
-	vram->cmdReadWindow.disable();
-	vram->cmdWriteWindow.disable();
+	vram->cmdReadWindow.disable(currentTime);
+	vram->cmdWriteWindow.disable(currentTime);
 }
 
 // Added routines for openMSX:
