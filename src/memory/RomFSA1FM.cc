@@ -85,7 +85,7 @@ byte RomFSA1FM1::readMem(word address, const EmuTime &time)
 		// read rom
 		return rom->read((0x2000 * (sram[0x1FC4] & 0x0F)) + 
 		                 (address & 0x1FFF));
-	} else if ((0x7FC0 <= address) && (address < 0x7FCF)) {
+	} else if ((0x7FC0 <= address) && (address < 0x7FD0)) {
 		switch (address & 0x0F) {
 		case 4:
 			return sram[address & 0x1FFF];
