@@ -1,5 +1,8 @@
 $Id$
 
+2002-01-27 Joost Yervante Damad <j.damad@qahwah.net>
+	* Made SDL console autotools enabled
+
 2002-01-26 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Fixed double delivery of syncronous events
 

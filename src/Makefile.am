@@ -88,8 +88,7 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 
 # uncomment if you want to link with libxmlx
 # doesn't do anything yet at the moment
-openmsx_LDADD = libxmlx/libxmlx.la ConsoleSource/libSDL_console.a
-#openmsx_LDADD = ConsoleSource/libSDL_console.a
+openmsx_LDADD = libxmlx/libxmlx.la ConsoleSource/libSDL_console.la
 
 # link libxmlx static, all external libs are still
 # linked dynamicaly, unfortunately, this links more stuff
