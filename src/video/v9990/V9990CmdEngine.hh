@@ -217,12 +217,6 @@ private:
 	template <template <class Mode> class Command>
 	void createEngines(int cmd);
 
-	/** 
-	  */
-	/** Perform the specified logical operation on a byte
-	  */
-	byte logOp(byte src, byte dest);
-
 	/** Perform the specified operation on a pixel, specified as
 	  * inverse write mask (eg. 0xF0, will write in lower nibble and
 	  * leave upper nibble intact)

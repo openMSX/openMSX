@@ -5,6 +5,8 @@ $Id$
 	   only the code, no actual descriptions yet
 	* Split rom type names in standard names and alternative names:
 	   preparation for rom type naming cleanup
+	* support for write mask in V9990 commands:
+	   gfx9000 parts in calculus work now!
 
 2004-12-26 Eric Boon <e.boon4@chello.nl>
 	* Improved V9990 YUV and YJK modes:

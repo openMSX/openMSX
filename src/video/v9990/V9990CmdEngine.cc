@@ -362,7 +362,9 @@ void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime&
 		int width = engine->vdp->getImageWidth();
 
 		byte value = vram->readVRAM(engine->dstAddress);
-		value = engine->logOp(engine->data, value);
+		byte mask = (engine->dstAddress & 1) ? engine->WM & 0xFF
+		                                     : engine->WM >> 8;
+		value = engine->logOp(engine->data, value, mask);
 		vram->writeVRAM(engine->dstAddress, value);
 		if(! (++(engine->dstAddress) & 0x01)) {
 			int dx = (engine->ARG & 0x04) ? -1 : 1;
@@ -393,8 +395,9 @@ void V9990CmdEngine::CmdLMMC<Mode>::execute(const EmuTime& time)
 		byte data = engine->data;
 		for (int i = 0; (engine->ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
 			byte value = Mode::point(vram, engine->DX, engine->DY, width);
+			byte mask = Mode::shiftDown(engine->WM, engine->DX);
 			value = engine->logOp((data >> (8 - Mode::BITS_PER_PIXEL)),
-			                      value, Mode::MASK);
+			                      value, mask);
 			Mode::pset(vram, engine->DX, engine->DY, width, value);
 			
 			int dx = (engine->ARG & 0x04) ? -1 : 1;
@@ -458,8 +461,9 @@ void V9990CmdEngine::CmdLMMV<Mode>::execute(const EmuTime& time)
 	int dy = (engine->ARG & 0x08) ? -1 : 1;
 	while (true) {
 		word value = Mode::point(vram, engine->DX, engine->DY, width);
+		byte mask = Mode::shiftDown(engine->WM, engine->DX);
 		value = engine->logOp(Mode::shiftDown(engine->fgCol, engine->DX),
-		                      value, Mode::MASK);
+		                      value, mask);
 		Mode::pset(vram, engine->DX, engine->DY, width, value);
 		
 		engine->DX += dx;
@@ -545,7 +549,8 @@ void V9990CmdEngine::CmdLMMM<Mode>::execute(const EmuTime& time)
 	while (true) {
 		word src  = Mode::point(vram, engine->SX, engine->SY, width);
 		word dest = Mode::point(vram, engine->DX, engine->DY, width);
-		dest = engine->logOp(src, dest, Mode::MASK);
+		byte mask = Mode::shiftDown(engine->WM, engine->DX);
+		dest = engine->logOp(src, dest, mask);
 		Mode::pset(vram, engine->DX, engine->DY, width, dest);
 		
 		engine->DX += dx;
@@ -667,8 +672,9 @@ void V9990CmdEngine::CmdCMMM<Mode>::execute(const EmuTime& time)
 		
 		word src = bit ? engine->fgCol : engine->bgCol;
 		word dest = Mode::point(vram, engine->DX, engine->DY, width);
+		byte mask = Mode::shiftDown(engine->WM, engine->DX);
 		dest = engine->logOp(Mode::shiftDown(src, engine->DX),
-		                     dest, Mode::MASK);
+		                     dest, mask);
 		Mode::pset(vram, engine->DX, engine->DY, width, dest);
 		
 		engine->DX += dx;
@@ -729,7 +735,9 @@ void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime&
 	while (true) {
 		byte value = vram->readVRAM(engine->dstAddress);
 		byte data = vram->readVRAM(engine->srcAddress++);
-		value = engine->logOp(data, value);
+		byte mask = (engine->dstAddress & 1) ? engine->WM & 0xFF
+		                                     : engine->WM >> 8;
+		value = engine->logOp(data, value, mask);
 		vram->writeVRAM(engine->dstAddress, value);
 		if(! (++(engine->dstAddress) & 0x01)) {
 			engine->DX += dx;
@@ -761,8 +769,9 @@ void V9990CmdEngine::CmdBMXL<Mode>::execute(const EmuTime& time)
 		byte data = vram->readVRAM(engine->srcAddress++);
 		for (int i = 0; (engine->ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
 			byte value = Mode::point(vram, engine->DX, engine->DY, width);
+			byte mask = Mode::shiftDown(engine->WM, engine->DX);
 			value = engine->logOp((data >> (8 - Mode::BITS_PER_PIXEL)),
-			                      value, Mode::MASK);
+			                      value, mask);
 			Mode::pset(vram, engine->DX, engine->DY, width, value);
 			
 			engine->DX += dx;
@@ -967,8 +976,9 @@ void V9990CmdEngine::CmdPSET<Mode>::start(const EmuTime& time)
 		width /= ppb;
 	}
 	word value = Mode::point(vram, engine->DX, engine->DY, width);
+	byte mask = Mode::shiftDown(engine->WM, engine->DX);
 	value = engine->logOp(Mode::shiftDown(engine->fgCol, engine->DX),
-	                      value, Mode::MASK);
+	                      value, mask);
 	Mode::pset(vram, engine->DX, engine->DY, width, value);
 
 	// TODO advance DX DY
@@ -1023,11 +1033,6 @@ byte V9990CmdEngine::getCmdData(const EmuTime& time)
 		transfer = false;
 	}
 	return value;
-}
-
-byte V9990CmdEngine::logOp(byte src, byte dest)
-{
-	return logOp(src, dest, 255);
 }
 
 byte V9990CmdEngine::logOp(byte src, byte dest, byte mask)
