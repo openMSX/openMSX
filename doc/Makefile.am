@@ -6,7 +6,8 @@ data_DATA = \
 	developersFAQ.txt \
 	openmsx.tex \
 	testcases.txt \
-	vram-addressing.txt
+	vram-addressing.txt \
+	openMSX-HOWTO.txt 
 
 EXTRA_DIST = $(man_MANS) $(data_DATA)
 
