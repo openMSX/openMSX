@@ -1,10 +1,4 @@
-
-// $Id$ //
-
-/*
- * This class implements the V9990 video chip, as used in the
- * Graphics9000 module, made by Sunrise.
- */
+// $Id$
 
 #ifndef __V9990_HH__
 #define __V9990_HH__
@@ -22,6 +16,10 @@ using std::string;
 
 namespace openmsx {
 
+/**
+  * This class implements the V9990 video chip, as used in the
+  * Graphics9000 module, made by Sunrise.
+  */
 class V9990 : public MSXDevice,
               private Schedulable
 {
@@ -29,13 +27,11 @@ public:
 	V9990(const XMLElement& config, const EmuTime& time);
 	virtual ~V9990();
 
-	/** Schedulable interface
-	  */ 
+	// Schedulable interface:
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const string& schedName() const;
 
-	/** MSXDevice interface
-	  */  
+	// MSXDevice interface:
 	virtual byte readIO(byte port, const EmuTime& time);
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 	virtual void reset(const EmuTime& time);
