@@ -1,5 +1,8 @@
 $Id$
 
+2003-04-03 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed remaining reads of uninitialised VDP fields.
+
 2003-04-02 David Heremans <david.heremans@gnu-linux.net>
 	* First cleanups to prepare for a 'make install'
 

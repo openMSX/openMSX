@@ -113,6 +113,7 @@ VDP::VDP(Device *config, const EmuTime &time)
 	// This will be done again by frameStart, but these have to be
 	// initialised before reset() is called.
 	// TODO: Can this be simplified with a different design?
+	frameStartTime = time;
 	displayStartSyncTime = time;
 	vScanSyncTime = time;
 	hScanSyncTime = time;
@@ -144,6 +145,10 @@ void VDP::resetInit(const EmuTime &time)
 		// Boots (and remains) in PAL mode, all other VDPs boot in NTSC.
 		controlRegs[9] |= 0x02;
 	}
+	// Note: frameStart is the actual place palTiming is written, but it
+	//       can be read before frameStart is called.
+	//       TODO: Clean up initialisation sequence.
+	palTiming = controlRegs[9] & 0x02;
 	displayMode.reset();
 	vramPointer = 0;
 	readAhead = 0;
