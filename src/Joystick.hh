@@ -13,11 +13,11 @@ class Joystick : public JoystickDevice, EventListener
 	public:
 		Joystick(int joyNum);
 		virtual ~Joystick();
-		
+
 		//JoystickDevice
 		byte read();
 		void write(byte value);
-	
+
 		//EventListener
 		void signalEvent(SDL_Event &event);
 
@@ -28,8 +28,8 @@ class Joystick : public JoystickDevice, EventListener
 		static const int JOY_RIGHT   = 0x08;
 		static const int JOY_BUTTONA = 0x10;
 		static const int JOY_BUTTONB = 0x20;
-		static const int TRESHOLD = 32768/10;
-	
+		static const int THRESHOLD = 32768/10;
+
 		int joyNum;
 		SDL_Joystick* joystick;
 		byte status;

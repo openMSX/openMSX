@@ -1,5 +1,9 @@
 $Id$
 
+2002-02-06 Maarten ter Huurne <mth@stack.nl>
+	* A few small fixes in joystick implementation.
+	  It works now. Thanks Wouter!
+
 2002-02-06 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Console cleanups
 	* ConsoleCommand inner classes for Scheduler, MSXMotherBoard

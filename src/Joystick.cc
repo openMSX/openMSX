@@ -47,10 +47,10 @@ void Joystick::signalEvent(SDL_Event &event)
 	case SDL_JOYAXISMOTION:
 		switch (event.jaxis.axis) {
 		case 0: // Horizontal
-			if (event.jaxis.value < -TRESHOLD) {
+			if (event.jaxis.value < -THRESHOLD) {
 				status &= ~JOY_LEFT;	// left pressed
 				status |=  JOY_RIGHT;	// right not pressed
-			} else if (event.jaxis.value > TRESHOLD) {
+			} else if (event.jaxis.value > THRESHOLD) {
 				status |=  JOY_LEFT;	// left not pressed
 				status &= ~JOY_RIGHT;	// right pressed
 			} else {
@@ -58,12 +58,12 @@ void Joystick::signalEvent(SDL_Event &event)
 			}
 			break;
 		case 1: // Vertical
-			if (event.jaxis.value < -TRESHOLD) {
-				status &= ~JOY_DOWN;	// down pressed
-				status |=  JOY_UP;	// up not pressed
-			} else if (event.jaxis.value > TRESHOLD) {
+			if (event.jaxis.value < -THRESHOLD) {
 				status |=  JOY_DOWN;	// down not pressed
 				status &= ~JOY_UP;	// up pressed
+			} else if (event.jaxis.value > THRESHOLD) {
+				status &= ~JOY_DOWN;	// down pressed
+				status |=  JOY_UP;	// up not pressed
 			} else {
 				status |=  JOY_DOWN | JOY_UP;	// down nor up pressed
 			}

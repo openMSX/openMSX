@@ -61,8 +61,8 @@ void JoystickPorts::unplug(int port)
 JoystickPorts::JoyPortCmd::JoyPortCmd()
 {
 	mouse = new Mouse();
-	joystick1 = new Joystick(1);
-	joystick2 = new Joystick(2);
+	joystick1 = new Joystick(0);
+	joystick2 = new Joystick(1);
 }
 JoystickPorts::JoyPortCmd::~JoyPortCmd()
 {
@@ -82,7 +82,7 @@ void JoystickPorts::JoyPortCmd::execute(char* commandLine)
 		JoystickPorts::instance()->plug(port, mouse);
 		break;
 	case 'j':
-		if (commandLine[17] == '2') {
+		if (commandLine[17] == '1') {
 			JoystickPorts::instance()->plug(port, joystick1);
 		} else {
 			JoystickPorts::instance()->plug(port, joystick2);
