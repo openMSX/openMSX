@@ -2,6 +2,7 @@
 
 #include "DebugDevice.hh"
 #include "MSXConfig.hh"
+#include "FileOperations.hh"
 #include <iostream>
 #include <iterator>
 #include <iomanip>
@@ -19,13 +20,16 @@ DebugDevice::DebugDevice(Device *config, const EmuTime & time)
 	}
 	fileNameSetting = new FilenameSetting ("debugoutput","name of the file the debugdevice outputs to",outputFile);
 	fileNameString = fileNameSetting->getValueString();
-	debugOut.open(fileNameString.c_str(), std::ios_base::app);
+	openOutput (fileNameString);
 }
 
 DebugDevice::~DebugDevice ()
 {
+	std::string name = fileNameSetting->getValueString();
 	delete fileNameSetting;
+	if ((name != "stderr") && (name != "stdout")){
 	debugOut.close();
+	}
 }
 
 void DebugDevice::writeIO (byte port, byte value, const EmuTime & time)
@@ -52,10 +56,21 @@ void DebugDevice::writeIO (byte port, byte value, const EmuTime & time)
 		flush();
 		break;
 		case 1:
-			if (fileNameSetting->getValueString() != fileNameString){
-				fileNameString = fileNameSetting->getValueString();
-				debugOut.close();
-				debugOut.open(fileNameString.c_str(), std::ios_base::app);
+			std::string currentName = fileNameSetting->getValueString();
+			if (currentName != fileNameString){
+				closeOutput(fileNameString);
+				fileNameString = currentName;
+//				if (fileNameString == "stdout") {
+//					outputstrm = &std::cout;
+//				}
+//				else if (fileNameString == "stderr") {
+//					outputstrm = &std::cerr;
+//				}
+//				else {
+//				debugOut.open(fileNameString.c_str(), std::ios_base::app);
+//				outputstrm = &debugOut;
+//				}
+				openOutput (fileNameString);
 			}
 			switch (mode)
 			{
@@ -97,7 +112,7 @@ void DebugDevice::flush()
 			displayByte (*it, dispType);
 		}
 		buffer.clear();
-		debugOut << std::endl;
+		(*outputstrm) << std::endl;
 	}
 }
 
@@ -113,20 +128,20 @@ void DebugDevice::outputSingleByte(byte value, const EmuTime & time)
 		displayByte (value,DEC);
 	}
 	if (modeParameter & 0x08){
-		debugOut << "'";
+		(*outputstrm) << "'";
 		if ((value>=' ') && (value!=127)){
 			displayByte (value,ASC);
 		}
 		else{
 			displayByte ('.',ASC);
 		}
-		debugOut << "' ";
+		(*outputstrm) << "' ";
 	}
-	debugOut << "emutime:" << time; 
+	(*outputstrm) << "emutime:" << time; 
 	if ((modeParameter & 0x08) && ((value < ' ') || (value == 127))){
 		displayByte (value, ASC); // do special effects
 	}
-	debugOut << std::endl;
+	(*outputstrm) << std::endl;
 }
 
 void DebugDevice::outputMultiByte(byte value)
@@ -138,28 +153,49 @@ void DebugDevice::displayByte (byte value, enum DebugDevice::DisplayType type)
 {
 	switch (type){
 		case HEX:
-			debugOut << std::hex << std::setw(2) << std::setfill('0') << (int)value << "h ";
+			(*outputstrm) << std::hex << std::setw(2) << std::setfill('0') << (int)value << "h ";
 			break;
 		case BIN:
 			{
 				byte mask = 128;
 				while (mask != 0){
 					if (value & mask){
-						debugOut << "1";
+						(*outputstrm) << "1";
 					}
 					else{
-						debugOut << "0";
+						(*outputstrm) << "0";
 					}
 				mask >>=1;
 				}
-				debugOut << "b ";
+				(*outputstrm) << "b ";
 			}
 			break;
 		case DEC:
-			debugOut << std::dec << std::setw(3) << std::setfill('0') << (int)value << " ";
+			(*outputstrm) << std::dec << std::setw(3) << std::setfill('0') << (int)value << " ";
 			break;
 		case ASC:
-			debugOut.put(value);
+			(*outputstrm).put(value);
 			break;
+	}
+}
+
+void DebugDevice::openOutput (std::string name)
+{
+	if (name == "stdout") {
+		outputstrm = &std::cout;
+	}
+	else if (name == "stderr") { 
+		outputstrm = &std::cerr;
+	}else {
+	std::string realName = FileOperations::expandTilde(name);
+	debugOut.open(realName.c_str(), std::ios_base::app);
+	outputstrm = &debugOut;
+	}
+}
+
+void DebugDevice::closeOutput (std::string name)
+{
+	if ((name != "stdout") && (name != "stderr")){
+		debugOut.close();
 	}
 }

@@ -1,10 +1,17 @@
 $Id$
 
-2003-07-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-07-08 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* debugdevice now works with stdout, stderr and normal files
+
+2003-07-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Don't clear SCC wave forms on reset
 	* Added MSX-Midi:
 	   - except for sending and receiving data it works, thus
 	     timers and interrupt generation work
+
+2003-07-06 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* added a debug device. 
+	* Details for control are in docs/debugdevice.txt
 
 2003-07-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Started implementing MSX-Midi

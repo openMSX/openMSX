@@ -18,9 +18,12 @@ class DebugDevice : public MSXIODevice
 		enum DebugMode {OFF, SINGLEBYTE, MULTIBYTE, ASCII};
 		enum DisplayType {HEX, BIN, DEC, ASC};
 		void writeIO(byte port, byte value, const EmuTime & time);
+		void openOutput (std::string name);
+		void closeOutput (std::string name);
 
 	private:
 		enum DebugMode mode;
+		std::ostream * outputstrm;
 		byte modeParameter;
 		FilenameSetting * fileNameSetting;
 		std::ofstream debugOut;
