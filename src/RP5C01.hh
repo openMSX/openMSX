@@ -17,7 +17,7 @@
 class RP5C01
 {
 	public:
-		RP5C01(bool emuMode, unsigned char* data, const EmuTime &time);
+		RP5C01(bool emuMode, byte* data, const EmuTime &time);
 		~RP5C01(); 
 		
 		void reset(const EmuTime &time);
