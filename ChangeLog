@@ -1,6 +1,11 @@
 $Id$
 
 2001-09-16 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* implemented kana/code led
+	* implemented joystick-ports. This is only the port, not the devices
+	  that can be plugged into the port (joystick, mouse, ...)
+
+2001-09-16 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* implemented sound generation for PSG (code taken from xmame-0.37b)
 	  mixer is not finished, so you won't hear anything yet
 

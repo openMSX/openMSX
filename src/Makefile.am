@@ -25,7 +25,9 @@ openmsx_SOURCES=openmsx.cc \
 	MSXE6Timer.hh MSXE6Timer.cc \
 	DummyDevice.hh DummyDevice.cc \
 	SoundDevice.hh \
-	MSXPSG.hh MSXPSG.cc AY8910.hh AY8910.cc
+	MSXPSG.hh MSXPSG.cc AY8910.hh AY8910.cc \
+	JoystickPorts.hh JoystickPorts.cc JoystickInterface.hh \
+	DummyJoystick.hh DummyJoystick.cc
 	
 
 # libxml++ and SDL

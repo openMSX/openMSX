@@ -1,6 +1,8 @@
 
 #include "MSXPSG.hh"
 #include "MSXMotherBoard.hh"
+#include "JoystickPorts.hh"
+#include "Leds.hh"
 
 
 // MSXDevice
@@ -58,8 +60,10 @@ void MSXPSG::writeIO(byte port, byte value, Emutime &time)
 // AY8910Interface
 byte MSXPSG::readA()
 {
-	//TODO
-	return 255;
+	byte joystick = JoystickPorts::instance()->read();
+	byte keyLayout = 0;		//TODO
+	byte cassetteInput = 0;		//TODO
+	return joystick | (keyLayout<<6) | (cassetteInput<<7);
 }
 
 byte MSXPSG::readB()
@@ -77,6 +81,9 @@ void MSXPSG::writeA(byte value)
 
 void MSXPSG::writeB(byte value)
 {
-	//TODO
-	return;
+	JoystickPorts::instance()->write(value);
+	
+	int kana = (value&0x80) ? KANA_OFF : KANA_ON;
+	Leds::instance()->setLed(kana);
+
 }
