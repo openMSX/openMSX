@@ -4,7 +4,13 @@
 #ifdef __GLCONSOLE_AVAILABLE__
 
 #include <cassert>
+
+#ifdef HAVE_SDL_IMAGE_H
+#include "SDL_image.h"
+#else
 #include "SDL/SDL_image.h"
+#endif
+
 #include "FileOpener.hh"
 #include "MSXConfig.hh"
 #include "GLFont.hh"

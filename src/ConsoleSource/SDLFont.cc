@@ -5,7 +5,12 @@
  *  in any of your programs.
  */
 
+#ifdef HAVE_SDL_IMAGE_H
 #include "SDL_image.h"
+#else
+#include "SDL/SDL_image.h"
+#endif
+
 #include "SDLFont.hh"
 #include "openmsx.hh"
 #include "MSXException.hh"

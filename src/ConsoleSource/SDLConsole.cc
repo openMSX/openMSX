@@ -7,7 +7,13 @@
  */
 
 #include <cassert>
+
+#ifdef HAVE_SDL_IMAGE_H
+#include "SDL_image.h"
+#else
 #include "SDL/SDL_image.h"
+#endif
+
 #include "SDLConsole.hh"
 #include "FileOpener.hh"
 #include "SDLFont.hh"

@@ -4,7 +4,12 @@
 #ifdef __GLFONT_AVAILABLE__
 
 #include "SDL/SDL.h"
+
+#ifdef HAVE_SDL_IMAGE_H
+#include "SDL_image.h"
+#else
 #include "SDL/SDL_image.h"
+#endif
 
 const int NUM_CHRS = 256;
 
