@@ -948,7 +948,7 @@ void SDLGLRenderer::renderGraphic2(int vramLine, int screenLine, int count)
 {
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-	int endRow = (vramLine + count) / 8;
+	int endRow = (vramLine + count + 7) / 8;
 	screenLine -= (vramLine & 7) * 2;
 	for (int row = vramLine / 8; row < endRow; row++) {
 		renderGraphic2Row(row, screenLine);
