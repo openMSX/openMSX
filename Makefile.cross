@@ -1,0 +1,21 @@
+#!/usr/bin/make
+
+# $Id$
+
+CC=/usr/bin/i586-mingw32msvc-gcc
+CXX=/usr/bin/i586-mingw32msvc-c++
+ac_cv_c_bigendian=no
+ac_cv_sizeof_long=4
+ac_cv_sizeof_bool=1
+
+all: cross_config cross_compile
+
+cross_config:
+	./configure \
+		--cache-file=config.cross.cache \
+		--host=i386-mingw32msvc \
+		--target=i386-mingw32msvc \
+		--build=i386-linux
+
+cross_compile:
+	make -f Makefile
