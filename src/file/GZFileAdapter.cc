@@ -1,5 +1,6 @@
 // $Id$
 
+#include <stdlib.h>
 #include <string.h>
 #include "GZFileAdapter.hh"
 
