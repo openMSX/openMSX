@@ -3,6 +3,14 @@
   SYSTEM 'msxconfig.dtd'>
 <msxconfig>
 
+  <info>
+    <manufacturer>Panasonic</manufacturer>
+    <code>FS-A1GT</code>
+    <release_year>1993</release_year>
+    <description>The last officially released MSX machine.</description>
+    <type>MSXturboR</type>
+  </info>
+
   <RenShaTurbo>
      <min_ints>47</min_ints>
      <max_ints>221</max_ints>

@@ -1,5 +1,14 @@
 $Id$
 
+2004-07-15 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added <info> tag with some child tags to XML.
+	  - should be added to other hardwareconfig files later as well (is
+	    mandatory)
+	  - optional for extensions?
+	  - there's no class associated with it now; it's only used to put
+	    info in the window border for now
+	  - child tags "manufacturer", "code" and "type" are now mandatory
+	  
 2004-07-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed MoonSound bug:
 	   When DL=0 go immediately to sustain phase.

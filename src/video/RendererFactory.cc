@@ -12,6 +12,7 @@
 #include "Icon.hh"
 #include "InputEventGenerator.hh"
 #include "Version.hh"
+#include "HardwareConfig.hh"
 
 #ifdef COMPONENT_GL
 #include "SDLGLRenderer.hh"
@@ -26,7 +27,10 @@ static bool initSDLVideo()
 		//throw FatalError(string("Couldn't init SDL video: ") + SDL_GetError());
 		return false; // TODO: use exceptions here too
 	}
-	SDL_WM_SetCaption(Version::WINDOW_TITLE.c_str(), 0);
+
+	HardwareConfig& hardwareConfig = HardwareConfig::instance();
+	string title = Version::WINDOW_TITLE + " - " + hardwareConfig.getChild("info").getChildData("manufacturer") + " " + hardwareConfig.getChild("info").getChildData("code");
+	SDL_WM_SetCaption(title.c_str(), 0);
 
 	// Set icon
 	static unsigned int iconRGBA[OPENMSX_ICON_SIZE * OPENMSX_ICON_SIZE];
