@@ -1097,6 +1097,14 @@ byte V9990CmdEngine::getCmdData(const EmuTime& time)
 
 word V9990CmdEngine::logOp(word src, word dest, word mask)
 {
+	if ((vdp->getDisplayMode() == P1) || (vdp->getDisplayMode() == P2)) {
+		// TODO temporary workaround, ignore mask in Px modes
+		//  low  byte of mask works on VRAM0
+		//  high                       VRAM1
+		// but interleaving is different in Bx and Px modes
+		mask = 0xFFFF;
+	}
+	
 	word value = 0;
 	
 	if (!((LOG & 0x10) && (src == 0))) {

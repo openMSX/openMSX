@@ -19,7 +19,7 @@ class V9990CmdEngine {
 public:
 	/** Constructor
 	  */
-	V9990CmdEngine(V9990* vdp_);
+	V9990CmdEngine(V9990* vdp);
 
 	/** Destructor
 	  */
@@ -265,7 +265,7 @@ private:
 
 	/** V9990 VDP this engine belongs to
 	  */
-	V9990 *vdp;
+	V9990* vdp;
 
 	/** VRAM
 	  */
