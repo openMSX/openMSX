@@ -35,9 +35,11 @@ class MSXMotherBoard : public MSXDevice
 		bool IRQstatus();
 
 		void InitMSX();
+		void StartMSX();
 		void ResetMSX();
 		void StopMSX();
-		void StartMSX();
+		void DestroyMSX();
+
 		void RestoreMSX();
 		void SaveStateMSX(std::ofstream &savestream);
 

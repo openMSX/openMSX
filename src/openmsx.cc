@@ -66,7 +66,7 @@ int eventDistributorStarter(void* parm)
 int main (int argc, char **argv)
 {
 	char *configfile="msxconfig.xml";
-
+	SDL_Thread *thread;
 	if (argc<2) {
 		PRT_INFO ("Using " << configfile << " as default configuration file.");
 	} else {
@@ -123,13 +123,18 @@ int main (int argc, char **argv)
 	motherboard->InitMSX();
 
 	// Start a new thread for event handling
-	SDL_CreateThread(eventDistributorStarter, 0);
+	thread=SDL_CreateThread(eventDistributorStarter, 0);
 
 	// test thingy for Joost: [doesn't do harm YET]
 	keyi << "Hello";
 
 	PRT_DEBUG ("starting MSX");
 	motherboard->StartMSX();
+	// When we return we clean everything up
+	SDL_KillThread(thread);
+	motherboard->DestroyMSX();
+
+	
 
 	exit (0);
 }

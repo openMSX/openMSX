@@ -23,7 +23,9 @@ Scheduler::Scheduler()
 {
 	pauseMutex = SDL_CreateMutex();
 	paused = false;
+	runningScheduler = true;
 	HotKey::instance()->registerAsyncHotKey(SDLK_PAUSE, this);
+	HotKey::instance()->registerAsyncHotKey(SDLK_F12, this);
 }
 
 Scheduler::~Scheduler()
@@ -66,7 +68,7 @@ void Scheduler::removeFirstSP()
 
 void Scheduler::scheduleEmulation()
 {
-	while (true) {
+	while (runningScheduler) {
 
 // some test stuff for joost, please leave for a few
 //	std::cerr << "foo" << std::endl;
@@ -110,6 +112,8 @@ const Emutime Scheduler::infinity = Emutime(1, Emutime::INFINITY);
 
 // Note: this runs in a different thread
 void Scheduler::signalEvent(SDL_Event &event) {
+  if (event.key.keysym.sym==SDLK_PAUSE){
+  	// PAUZE key pressed
 	if (paused) {
 		// unpause
 		paused = false;
@@ -123,4 +127,7 @@ void Scheduler::signalEvent(SDL_Event &event) {
 		Mixer::instance()->pause(true);
 		PRT_DEBUG("Paused");
 	}
+  } else
+    // F12 pressed
+    runningScheduler=false;
 }

@@ -119,6 +119,13 @@ void MSXMotherBoard::StartMSX()
 	Leds::instance()->setLed(Leds::POWER_ON);
 	Scheduler::instance()->scheduleEmulation();
 }
+void MSXMotherBoard::DestroyMSX()
+{
+	std::vector<MSXDevice*>::iterator i;
+	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
+		delete (*i);
+	}
+}
 
 void MSXMotherBoard::SaveStateMSX(std::ofstream &savestream)
 {

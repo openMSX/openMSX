@@ -4,6 +4,9 @@ $Id$
 	* quickly add a fullscreen flag in the TMS code:
 	    extra parameter in config.xml file
 	    use PrintScreen key to togle
+	* openMSX now stops when pressing F12:
+	    however make sure that openMSx is full screen when you press F12
+	    there are some issues with the HotKey event distribution.
 
 2001-11-07 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* reworked CPU related classes:

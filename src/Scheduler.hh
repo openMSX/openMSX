@@ -54,6 +54,7 @@ class Scheduler : public EventListener
 		static const Emutime infinity;
 
 		bool paused;
+		bool runningScheduler;
 		SDL_mutex *pauseMutex;
 };
 
