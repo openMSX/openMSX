@@ -73,15 +73,15 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYUV(
 		for (int i = 0; i < 4; ++i) {
 			data[i] = vram->readVRAM(address++);
 		}
-		int v = data[0] & 0x07 + ((data[1] & 0x07) << 3);
-		int u = data[2] & 0x07 + ((data[3] & 0x07) << 3);
-		if (v & 32) v -= 64; 
-		if (u & 32) u -= 64; 
+
+		char u = (data[2] & 7) + ((data[3] & 3) << 3) - ((data[3] & 4) << 3);
+		char v = (data[0] & 7) + ((data[1] & 3) << 3) - ((data[1] & 4) << 3);
+
 		for (int i = 0; i < 4; ++i) {
-			int y = (data[i] & 0xF8) >> 3;
-			int r = max(0, min(31, y + u));
-			int g = max(0, min(31, (5 * y - 2 * u - v) / 4));
-			int b = max(0, min(31, y + v));
+			char y = (data[i] & 0xF8) >> 3;
+			char r = max(0, min(31, y + u));
+			char g = max(0, min(31, (5 * y - 2 * u - v) / 4));
+			char b = max(0, min(31, y + v));
 			*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
 		}
 	}
@@ -97,15 +97,15 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYUVP(
 		for (int i = 0; i < 4; ++i) {
 			data[i] = vram->readVRAM(address++);
 		}
-		int v = data[0] & 0x07 + ((data[1] & 0x07) << 3);
-		int u = data[2] & 0x07 + ((data[3] & 0x07) << 3);
-		if (v & 32) v -= 64; 
-		if (u & 32) u -= 64; 
+
+		char u = (data[2] & 7) + ((data[3] & 3) << 3) - ((data[3] & 4) << 3);
+		char v = (data[0] & 7) + ((data[1] & 3) << 3) - ((data[1] & 4) << 3);
+
 		for (int i = 0; i < 4; ++i) {
-			int y = (data[i] & 0xF8) >> 3;
-			int r = max(0, min(31, y + u));
-			int g = max(0, min(31, (5 * y - 2 * u - v) / 4));
-			int b = max(0, min(31, y + v));
+			char y = (data[i] & 0xF8) >> 3;
+			char r = max(0, min(31, y + u));
+			char g = max(0, min(31, (5 * y - 2 * u - v) / 4));
+			char b = max(0, min(31, y + v));
 			*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
 		}
 	}
@@ -120,15 +120,15 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYJK(
 		for (int i = 0; i < 4; ++i) {
 			data[i] = vram->readVRAM(address++);
 		}
-		int k = data[0] & 0x07 + ((data[1] & 0x07) << 3);
-		int j = data[2] & 0x07 + ((data[3] & 0x07) << 3);
-		if (k & 32) k -= 64; 
-		if (j & 32) j -= 64; 
+
+		char j = (data[2] & 7) + ((data[3] & 3) << 3) - ((data[3] & 4) << 3);
+		char k = (data[0] & 7) + ((data[1] & 3) << 3) - ((data[1] & 4) << 3);
+
 		for (int i = 0; i < 4; ++i) {
-			int y = (data[i] & 0xF8) >> 3;
-			int r = max(0, min(31, y + j));
-			int g = max(0, min(31, y + k));
-			int b = max(0, min(31, (5 * y - 2 * j - k) / 4));
+			char y = data[i] >> 3;
+			char r = max(0, min(31, y + j));
+			char g = max(0, min(31, y + k));
+			char b = max(0, min(31, (5 * y - 2 * j - k) / 4));
 			*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
 		}
 	}
@@ -144,15 +144,15 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYJKP(
 		for (int i = 0; i < 4; ++i) {
 			data[i] = vram->readVRAM(address++);
 		}
-		int k = data[0] & 0x07 + ((data[1] & 0x07) << 3);
-		int j = data[2] & 0x07 + ((data[3] & 0x07) << 3);
-		if (k & 32) k -= 64; 
-		if (j & 32) j -= 64; 
+		
+		char j = (data[2] & 7) + ((data[3] & 3) << 3) - ((data[3] & 4) << 3);
+		char k = (data[0] & 7) + ((data[1] & 3) << 3) - ((data[3] & 4) << 3);
+
 		for (int i = 0; i < 4; ++i) {
-			int y = (data[i] & 0xF8) >> 3;
-			int r = max(0, min(31, y + j));
-			int g = max(0, min(31, y + k));
-			int b = max(0, min(31, (5 * y - 2 * j - k) / 4));
+			char y = data[i] >> 3;
+			char r = max(0, min(31, y + j));
+			char g = max(0, min(31, y + k));
+			char b = max(0, min(31, (5 * y - 2 * j - k) / 4));
 			*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
 		}
 	}

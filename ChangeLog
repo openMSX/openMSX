@@ -1,5 +1,9 @@
 $Id$
 
+2004-12-26 Eric Boon <e.boon4@chello.nl>
+	* Improved V9990 YUV and YJK modes:
+		copied bitmap conversion from V99x8 code
+
 2004-12-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Integrated Adriano's MegaRAM diskrom patch
 	* Fixed bug in reading from compressed files:
