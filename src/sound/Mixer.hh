@@ -3,8 +3,6 @@
 #ifndef __MIXER_HH__
 #define __MIXER_HH__
 
-//#define FILTER
-
 #include <SDL/SDL.h>
 #include <list>
 #include <vector>

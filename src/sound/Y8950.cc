@@ -783,7 +783,7 @@ int Y8950::calcSample(int channelMask)
 				         cp->mod.calc_slot_mod());
 		}
 	}
-
+	
 	mix += adpcm.calcSample();
 
 	return (mix*maxVolume) >> DB2LIN_AMP_BITS;

@@ -3,11 +3,11 @@
 #ifndef __Y8950ADPCM_HH__
 #define __Y8950ADPCM_HH__
 
+#include "openmsx.hh"
+
 // Forward declarartions
 class EmuTime;
 class Y8950;
-
-#include "../openmsx.hh"
 
 
 class Y8950Adpcm
@@ -32,22 +32,24 @@ class Y8950Adpcm
 		int sampleRate;
 		
 		int ramSize;
-		byte *wave;
-		byte *ramBank;
-		byte *romBank;
 		int startAddr;
 		int stopAddr;
 		int playAddr;
-		int memPntr;
 		int addrMask;
+		int memPntr;
+		byte *wave;
+		byte *ramBank;
+		byte *romBank;
 		
 		bool playing;
 		byte volume;
 		word delta;
-		int deltaN;
-		int deltaAddr;
-		int lastOut, prevOut;
+		int nowStep, step;
+		int out, output;
 		int diff;
+		int nextLeveling;
+		int sampleStep;
+		int volumeWStep;
 		
 		byte reg7;
 		byte reg15;
@@ -72,15 +74,15 @@ class Y8950Adpcm
 		static const int R08_NOTE_SET     = 0x40;
 		static const int R08_CSM          = 0x80;
 
-		static const int DMAX = 0x5FFF;
+		static const int DMAX = 0x6000;
 		static const int DMIN = 0x7F;
 		static const int DDEF = 0x7F;
 		
 		static const int DECODE_MAX = 32767;
 		static const int DECODE_MIN = -32768;
 
-		static const int GETA_BITS       = 14;
-		static const int DELTA_ADDR_MAX  = 1<<(16+GETA_BITS);
+		static const int GETA_BITS  = 14;
+		static const int MAX_STEP   = 1<<(16+GETA_BITS);
 };
 
 

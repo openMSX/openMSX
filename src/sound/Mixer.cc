@@ -13,10 +13,6 @@ Mixer::Mixer()
 {
 	PRT_DEBUG("Creating a Mixer object");
 	
-#ifdef FILTER
-	prevLeft = prevOutLeft = 0;
-	prevRight = prevOutRight = 0;
-#endif
 #ifdef DEBUG
 	nbClipped = 0;
 #endif
@@ -150,28 +146,6 @@ void Mixer::updtStrm(int samples)
 			left  += buffers[STEREO][i][2*j];
 			right += buffers[STEREO][i][2*j+1];
 		}
-
-		// first order high-pass IIR filter
-		// out[n] = a0*in[n] + a1*in[n-1] + b1*out[n-1]
-		//   a0 =  (1+x)/2
-		//   a1 = -(1+x)/2
-		//   b1 = x
-		//   x  = exp(-2*pi*fc)
-		//   fc = f/fs
-		//   f  = cutt-off frequency
-		//   fs = sample frequency (11025Hz, 22050Hz, 44100Hz) 
-		#ifdef FILTER
-		int tmp;
-		tmp = 255*left;
-		left = (tmp - prevLeft + 254*prevOutLeft) >> 8;
-		prevLeft = tmp;
-		prevOutLeft = left;
-		
-		tmp = 255*right;
-		right = (tmp - prevRight + 254*prevOutRight) >> 8;
-		prevRight = tmp;
-		prevOutRight = right;
-		#endif
 
 		// clip
 		#ifdef DEBUG
