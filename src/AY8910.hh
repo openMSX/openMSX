@@ -28,7 +28,7 @@ class AY8910 : public SoundDevice
 {
 	public:
 		AY8910(AY8910Interface &interf); 
-		~AY8910(); 
+		virtual ~AY8910(); 
 	
 		byte readRegister(byte reg);
 		void writeRegister(byte reg, byte value);
@@ -38,7 +38,7 @@ class AY8910 : public SoundDevice
 		void reset();
 		void setVolume(int newVolume);
 		void setSampleRate(int sampleRate);
-		void updateBuffer(word *buffer, int length);
+		void updateBuffer(short *buffer, int length);
 		
 	private:
 		static const int FP_UNIT = 0x8000;	// fixed point representation of 1

@@ -12,8 +12,9 @@
  */
 
 
-#include "AY8910.hh"
 #include <assert.h>
+#include "AY8910.hh"
+#include "Mixer.hh"
 
 
 AY8910::AY8910(AY8910Interface &interf) : interface(interf)
@@ -28,8 +29,10 @@ AY8910::~AY8910()
 
 void AY8910::init()
 {
-	//TODO register as sound generator
+	setVolume(32767);
+	setSampleRate(22050);
 	reset();
+	Mixer::instance()->registerSound(this);
 }
 
 
@@ -207,7 +210,7 @@ void AY8910::setVolume(int newVolume)
 {
 	// calculate the volume->voltage conversion table
 	// The AY-3-8910 has 16 levels, in a logarithmic scale (3dB per step)
-	double out = newVolume / 3;		// avoid wrapping 
+	double out = newVolume / 3;		// avoid clipping
 	for (int i=15; i>0; i--) {
 		volTable[i] = (unsigned int)(out+0.5);	// round to nearest
 		out *= 0.707945784384;			// 1/(10^(3/20)) = 1/(3dB)
@@ -229,7 +232,7 @@ void AY8910::setSampleRate (int sampleRate)
 }
 
 
-void AY8910::updateBuffer(word *buffer, int length)
+void AY8910::updateBuffer(short *buffer, int length)
 {
 	// The 8910 has three outputs, each output is the mix of one of the three
 	// tone generators and of the (single) noise generator. The two are mixed

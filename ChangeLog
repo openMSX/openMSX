@@ -1,5 +1,9 @@
 $Id$
 
+2001-10-05 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Made a very simple mixer, made AY8910 register itself as 
+	  sound generator.
+
 2001-10-03 Joost Yervante Damad <j.damad@qahwah.net>
 	* updated automake utility files
 
