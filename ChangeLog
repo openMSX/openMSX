@@ -6,6 +6,11 @@ $Id$
 	  However, narrow sprite pixels do not yet work in SDLGL.
 	* Implemented horizontal scroll high and multi page in SDLGL.
 	  This implementation is based on Wouter's horizontal scroll patch.
+	* Implemented horizontal scroll high and multi page in SDLHi/Lo.
+	Note that some horzintal scroll features are still missing:
+	* Multi page scrolling in combination with deinterlace.
+	* Scrolling in character modes.
+	However, the current state should be enough to run most games and demos.
 
 2003-04-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* if an extension exists both in user as in system directory, prefer

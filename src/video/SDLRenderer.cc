@@ -97,6 +97,18 @@ inline Pixel SDLRenderer<Pixel, zoom>::getBorderColour()
 }
 
 template <class Pixel, Renderer::Zoom zoom>
+inline void SDLRenderer<Pixel, zoom>::renderBitmapLine(
+	byte mode, int vramLine)
+{
+	if (lineValidInMode[vramLine] != mode) {
+		const byte *vramPtr = vram->bitmapWindow.readArea(vramLine << 7);
+		bitmapConverter.convertLine(
+			getLinePtr(bitmapDisplayCache, vramLine), vramPtr );
+		lineValidInMode[vramLine] = mode;
+	}
+}
+
+template <class Pixel, Renderer::Zoom zoom>
 inline void SDLRenderer<Pixel, zoom>::renderBitmapLines(
 	byte line, int count)
 {
@@ -112,17 +124,35 @@ inline void SDLRenderer<Pixel, zoom>::renderBitmapLines(
 	while (count--) {
 		// TODO: Optimise addr and line; too many conversions right now.
 		int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
-		if (lineValidInMode[vramLine] != mode) {
-			const byte *vramPtr = vram->bitmapWindow.readArea(vramLine << 7);
-			bitmapConverter.convertLine(
-				getLinePtr(bitmapDisplayCache, vramLine), vramPtr );
-			lineValidInMode[vramLine] = mode;
+		renderBitmapLine(mode, vramLine);
+		if (vdp->isMultiPageScrolling()) {
+			vramLine &= ~0x100;
+			renderBitmapLine(mode, vramLine);
 		}
 		line++; // is a byte, so wraps at 256
 	}
 
 	// Unlock surface.
 	if (SDL_MUSTLOCK(bitmapDisplayCache)) SDL_UnlockSurface(bitmapDisplayCache);
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+inline void SDLRenderer<Pixel, zoom>::renderPlanarBitmapLine(
+	byte mode, int vramLine)
+{
+	if ( lineValidInMode[vramLine] != mode
+	|| lineValidInMode[vramLine | 512] != mode ) {
+		int addr0 = vramLine << 7;
+		int addr1 = addr0 | 0x10000;
+		const byte *vramPtr0 = vram->bitmapWindow.readArea(addr0);
+		const byte *vramPtr1 = vram->bitmapWindow.readArea(addr1);
+		bitmapConverter.convertLinePlanar(
+			getLinePtr(bitmapDisplayCache, vramLine),
+			vramPtr0, vramPtr1
+			);
+		lineValidInMode[vramLine] =
+			lineValidInMode[vramLine | 512] = mode;
+	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -141,17 +171,10 @@ inline void SDLRenderer<Pixel, zoom>::renderPlanarBitmapLines(
 	while (count--) {
 		// TODO: Optimise addr and line; too many conversions right now.
 		int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
-		if ( lineValidInMode[vramLine] != mode
-		|| lineValidInMode[vramLine | 512] != mode ) {
-			int addr0 = vramLine << 7;
-			int addr1 = addr0 | 0x10000;
-			const byte *vramPtr0 = vram->bitmapWindow.readArea(addr0);
-			const byte *vramPtr1 = vram->bitmapWindow.readArea(addr1);
-			bitmapConverter.convertLinePlanar(
-				getLinePtr(bitmapDisplayCache, vramLine),
-				vramPtr0, vramPtr1 );
-			lineValidInMode[vramLine] =
-				lineValidInMode[vramLine | 512] = mode;
+		renderPlanarBitmapLine(mode, vramLine);
+		if (vdp->isMultiPageScrolling()) {
+			vramLine &= ~0x100;
+			renderPlanarBitmapLine(mode, vramLine);
 		}
 		line++; // is a byte, so wraps at 256
 	}
@@ -648,7 +671,6 @@ void SDLRenderer<Pixel, zoom>::drawBorder(
 	SDL_FillRect(screen, &rect, getBorderColour());
 }
 
-// TODO: Clean up this routine.
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::drawDisplay(
 	int fromX, int fromY,
@@ -670,58 +692,128 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 	}
 	int screenLimitY = screenY + displayHeight * LINE_ZOOM;
 
-	// Render background lines:
-
-	// Copy background image.
-	SDL_Rect source, dest;
-	source.x = displayX;
-	source.w = displayWidth;
-	source.h = 1;
-	dest.x = translateX(vdp->getLeftBackground()) + displayX;
+	int leftBackground = translateX(vdp->getLeftBackground());
 	// TODO: Find out why this causes 1-pixel jitter:
 	//dest.x = translateX(fromX);
 
 	DisplayMode mode = vdp->getDisplayMode();
+	int hScroll = 
+		  mode.isTextMode()
+		? 0
+		: 8 * LINE_ZOOM * (vdp->getHorizontalScrollHigh() & 0x1F);
+	
+	// Page border is display X coordinate where to stop drawing current page.
+	// This is either the multi page split point, or the right edge of the
+	// rectangle to draw, whichever comes first.
+	// Note that it is possible for pageBorder to be to the left of displayX,
+	// in that case only the second page should be drawn.
+	int pageBorder = displayX + displayWidth;
+	int scrollPage1, scrollPage2;
+	if (vdp->isMultiPageScrolling()) {
+		scrollPage1 = vdp->getHorizontalScrollHigh() >> 5;
+		scrollPage2 = scrollPage1 ^ 1;
+	} else {
+		scrollPage1 = 0;
+		scrollPage2 = 0;
+	}
+	// Because SDL blits do not wrap, unlike GL textures, the pageBorder is
+	// also used if multi page is disabled.
+	int pageSplit = 256 * LINE_ZOOM - hScroll;
+	if (pageSplit < pageBorder) {
+		pageBorder = pageSplit;
+	}
+
 	if (mode.isBitmapMode()) {
+		// Bring bitmap cache up to date.
 		if (mode.isPlanar()) {
 			renderPlanarBitmapLines(displayY, displayHeight);
 		} else {
 			renderBitmapLines(displayY, displayHeight);
 		}
 
+		// Which bits in the name mask determine the page?
+		bool deinterlaced = settings->getDeinterlace()->getValue()
+			&& zoom != Renderer::ZOOM_256
+			&& vdp->isInterlaced() && vdp->isEvenOddEnabled();
 		int pageMaskEven, pageMaskOdd;
-		if ( zoom != Renderer::ZOOM_256
-		&& settings->getDeinterlace()->getValue()
-		&& vdp->isInterlaced()
-		&& vdp->isEvenOddEnabled()) {
+		if (deinterlaced || vdp->isMultiPageScrolling()) {
 			pageMaskEven = mode.isPlanar() ? 0x000 : 0x200;
 			pageMaskOdd  = pageMaskEven | 0x100;
 		} else {
 			pageMaskEven = pageMaskOdd =
 				(mode.isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 		}
-		// Bring bitmap cache up to date.
-		for (dest.y = screenY; dest.y < screenLimitY; ) {
-			source.y = (vram->nameTable.getMask() >> 7)
+		
+		// Copy from cache to screen.
+		SDL_Rect source, dest;
+		for (int y = screenY; y < screenLimitY; y += LINE_ZOOM) {
+			int vramLine[2];
+			vramLine[0] = (vram->nameTable.getMask() >> 7)
 				& (pageMaskEven | displayY);
+			vramLine[1] = (vram->nameTable.getMask() >> 7)
+				& (pageMaskOdd  | displayY);
+			
 			// TODO: Can we safely use SDL_LowerBlit?
-			// Note: return value is ignored.
-			SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
-			dest.y++;
-			if (LINE_ZOOM == 2) {
-				source.y = (vram->nameTable.getMask() >> 7)
-					& (pageMaskOdd | displayY);
+			if (deinterlaced) {
+				// TODO: Allow horizontal scroll during deinterlace.
+				source.x = displayX;
+				source.y = vramLine[0];
+				source.w = displayWidth;
+				source.h = 1;
+				dest.x = leftBackground + displayX;
+				dest.y = y;
 				SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
-				dest.y++;
+				if (LINE_ZOOM == 2) {
+					source.y = vramLine[1];
+					dest.y = y + 1;
+					SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
+				}
+			} else {
+				int firstPageWidth = pageBorder - displayX;
+				if (firstPageWidth > 0) {
+					source.x = displayX + hScroll;
+					source.y = vramLine[scrollPage1];
+					source.w = firstPageWidth;
+					source.h = 1;
+					dest.x = leftBackground + displayX;
+					dest.y = y;
+					SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
+					if (LINE_ZOOM == 2) {
+						dest.y++;
+						SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
+					}
+				} else {
+					firstPageWidth = 0;
+				}
+				if (firstPageWidth < displayWidth) {
+					source.x = displayX < pageBorder ? 0 : displayX + hScroll;
+					source.y = vramLine[scrollPage2];
+					source.w = displayWidth - firstPageWidth;
+					source.h = 1;
+					dest.x = leftBackground + displayX + firstPageWidth;
+					dest.y = y;
+					SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
+					if (LINE_ZOOM == 2) {
+						dest.y++;
+						SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
+					}
+				}
 			}
 			displayY = (displayY + 1) & 255;
 		}
 	} else {
 		renderCharacterLines(displayY, displayHeight);
 
-		for (dest.y = screenY; dest.y < screenLimitY; ) {
+		// TODO: Implement horizontal scroll high.
+		SDL_Rect source, dest;
+		for (int y = screenY; y < screenLimitY; y += LINE_ZOOM) {
 			assert(!vdp->isMSX1VDP() || displayY < 192);
+			source.x = displayX;
 			source.y = displayY;
+			source.w = displayWidth;
+			source.h = 1;
+			dest.x = leftBackground + displayX;
+			dest.y = y;
 			// TODO: Can we safely use SDL_LowerBlit?
 			// Note: return value is ignored.
 			/*
@@ -729,10 +821,9 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 				source.y, dest.y);
 			*/
 			SDL_BlitSurface(charDisplayCache, &source, screen, &dest);
-			dest.y++;
 			if (LINE_ZOOM == 2) {
-				SDL_BlitSurface(charDisplayCache, &source, screen, &dest);
 				dest.y++;
+				SDL_BlitSurface(charDisplayCache, &source, screen, &dest);
 			}
 			displayY = (displayY + 1) & 255;
 		}
