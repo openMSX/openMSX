@@ -10,8 +10,8 @@
 // for atoi()
 #include <stdlib.h>
 
-// TODO reorder methods
 // TODO page,ps,ss value errors
+// TODO turn on validation with extern libxml switch var
 
 
 MSXConfig *volatile MSXConfig::oneInstance;
@@ -106,7 +106,7 @@ MSXConfig::Device::Device(XMLNode *deviceNode):desc(""),rem("")
 
 	++device_children_i;
 	xh_device_child.setNode(*device_children_i);
-	std::list<string> string_list;
+	std::list<std::string> string_list;
 	string_list.push_back("slotted");
 	string_list.push_back("parameter");
 	string_list.push_back("rem");
@@ -150,11 +150,11 @@ MSXConfig::Device::Device(XMLNode *deviceNode):desc(""),rem("")
 
 		{
 			xh_device_child.checkProperty("name");
-			string name(xh_device_child.getProperty("name"));
+			std::string name(xh_device_child.getProperty("name"));
 			// class is optional
-			string clasz(xh_device_child.getProperty("class"));
+			std::string clasz(xh_device_child.getProperty("class"));
 			xh_device_child.checkContentNode();
-			string value(xh_device_child.getContent());
+			std::string value(xh_device_child.getContent());
 			//
 			parameters.push_back(new Parameter(name,value,clasz));
 			device_children_i++;
@@ -228,7 +228,7 @@ int MSXConfig::Device::getSS()
 
 bool MSXConfig::Device::hasParameter(const std::string &name)
 {
-	for (list<Parameter*>::const_iterator i=parameters.begin(); i != parameters.end(); i++)
+	for (std::list<Parameter*>::const_iterator i=parameters.begin(); i != parameters.end(); i++)
 	{
 		if ((*i)->name==name)
 			return true;
@@ -239,7 +239,7 @@ bool MSXConfig::Device::hasParameter(const std::string &name)
 const std::string &MSXConfig::Device::getParameter(const std::string &name)
 {
 	std::ostringstream buffer;
-	for (list<Parameter*>::const_iterator i=parameters.begin(); i != parameters.end(); i++)
+	for (std::list<Parameter*>::const_iterator i=parameters.begin(); i != parameters.end(); i++)
 	{
 		if ((*i)->name==name)
 			return ((*i)->value);

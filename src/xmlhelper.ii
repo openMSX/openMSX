@@ -3,6 +3,8 @@
 
 #include <sstream>
 
+#define HAVE_EXT_HASH_MAP
+
 #include <xml++.h>
 
 template <class T> XMLHelper<T>::XMLHelper<T>(XMLNode *anode):node(anode),emptyString("")
@@ -68,7 +70,7 @@ template <class T> void XMLHelper<T>::checkProperty(const std::string &name)
 	}
 }
 
-template <class T> const string &XMLHelper<T>::getProperty(const std::string &name)
+template <class T> const std::string &XMLHelper<T>::getProperty(const std::string &name)
 {
 	if (node->property(name)==0)
 	{
@@ -78,7 +80,7 @@ template <class T> const string &XMLHelper<T>::getProperty(const std::string &na
 
 }
 
-template <class T> const string &XMLHelper<T>::getProperty(const std::string &name, const std::string &defaultValue)
+template <class T> const std::string &XMLHelper<T>::getProperty(const std::string &name, const std::string &defaultValue)
 {
 	if (node->property(name)==0)
 	{
@@ -123,13 +125,13 @@ template <class T> void XMLHelper<T>::checkContentNode()
 	}
 }
 
-template <class T> const string &XMLHelper<T>::getContent()
+template <class T> const std::string &XMLHelper<T>::getContent()
 {
 	XMLNodeList::const_iterator i = node->children().begin();
 	return (*i)->content();
 }
 
-string space(int depth)
+std::string space(int depth)
 	{
 		std::ostringstream t;
 		if (depth>0)
