@@ -4,7 +4,8 @@
 #define __RENDERERFACTORY_HH__
 
 #include "EnumSetting.hh"
-#include "GLUtil.hh" // for __OPENGL_AVAILABLE__ and X_DISPLAY_MISSING
+#include "GLUtil.hh" // for __OPENGL_AVAILABLE__
+#include "probed_defs.hh" // for HAVE_X11
 #include <SDL.h>
 #include <string>
 
@@ -153,7 +154,7 @@ public:
 
 #endif // __OPENGL_AVAILABLE__
 
-#ifndef X_DISPLAY_MISSING
+#ifdef HAVE_X11
 
 /** RendererFactory for XRenderer.
   */
@@ -174,7 +175,7 @@ public:
 	Renderer* create(VDP* vdp);
 };
 
-#endif // X_DISPLAY_MISSING
+#endif // HAVE_X11
 
 } // namespace openmsx
 

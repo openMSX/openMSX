@@ -1,5 +1,9 @@
 $Id$
 
+2004-04-19 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed small bug: I forgot to replace "#ifndef X_DISPLAY_MISSING" by
+	  "#ifdef HAVE_X11" in RendererFactory class.
+
 2004-04-19 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Fixed 'no window when return from full screen' in SDLGL (windows only).
 
