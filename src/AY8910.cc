@@ -19,22 +19,16 @@
 
 AY8910::AY8910(AY8910Interface &interf) : interface(interf)
 {
+	setVolume(21000);	// TODO find a good value and put it in config file
+	int bufSize = Mixer::instance()->registerSound(this);
+	buffer = new int[bufSize];
+	reset();
 }
 
 
 AY8910::~AY8910()
 {
 	delete[] buffer;
-}
-
-
-void AY8910::init()
-{
-	//setVolume(Mixer::MAX_VOLUME);
-	setVolume(21000);	// TODO find a good value and put it in config file
-	reset();
-	int bufSize = Mixer::instance()->registerSound(this);
-	buffer = new int[bufSize];
 }
 
 

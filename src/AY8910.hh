@@ -35,7 +35,6 @@ class AY8910 : public SoundDevice
 		void writeRegister(byte reg, byte value, const Emutime &time);
 
 		//SoundDevice
-		void init();
 		void reset();
 		void setInternalVolume(short newVolume);
 		void setSampleRate(int sampleRate);

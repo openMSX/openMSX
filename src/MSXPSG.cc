@@ -27,7 +27,6 @@ void MSXPSG::init()
 	MSXMotherBoard::instance()->register_IO_Out(0xA0,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xA1,this);
 	MSXMotherBoard::instance()->register_IO_In (0xA2,this);
-	ay8910->init();
 }
 
 void MSXPSG::reset()
