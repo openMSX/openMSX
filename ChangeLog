@@ -1,5 +1,10 @@
 $Id$
 
+2001-12-24 Maarten ter Huurne <mth@stack.nl>
+	* Finished integration of command engine.
+	  It runs, but without render routines for the bitmap modes,
+	  it is not possible to visually check the results.
+
 2001-12-23 Maarten ter Huurne <mth@stack.nl>
 	* Fixed a design flaw in the Renderer interface.
 	  The update methods were called *after* the changed VDP state

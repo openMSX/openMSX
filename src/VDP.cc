@@ -16,6 +16,7 @@ TODO:
 #include "SDLLoRenderer.hh"
 #include "SDLHiRenderer.hh"
 #include "VDP.hh"
+#include "VDPCmdEngine.hh"
 
 #include <SDL/SDL.h>
 
@@ -38,20 +39,18 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	else PRT_ERROR("Unknown VDP version \"" << versionString << "\"");
 
 	// Set up control register availability.
-	static const byte VALUE_MASKS_MSX1[64] = {
+	static const byte VALUE_MASKS_MSX1[32] = {
 		0x03, 0xFB, 0x0F, 0xFF, 0x07, 0x7F, 0x07, 0xFF  // 00..07
 		};
-	static const byte VALUE_MASKS_MSX2[64] = {
+	static const byte VALUE_MASKS_MSX2[32] = {
 		0x7E, 0x7B, 0x7F, 0xFF, 0x3F, 0xFF, 0x3F, 0xFF, // 00..07
 		0xFB, 0xBF, 0x07, 0x03, 0xFF, 0xFF, 0x07, 0x0F, // 08..15
 		0x0F, 0xBF, 0xFF, 0xFF, 0x3F, 0x3F, 0x3F, 0xFF, // 16..23
 		0,    0,    0,    0,    0,    0,    0,    0,    // 24..31
-		0xFF, 0x01, 0xFF, 0x03, 0xFF, 0x01, 0xFF, 0x03, // 32..39
-		0xFF, 0x01, 0xFF, 0x03, 0xFF, 0x7F, 0xFF        // 40..46
 		};
 	controlRegMask = (isMSX1VDP() ? 0x07 : 0x3F);
 	memcpy(controlValueMasks,
-		isMSX1VDP() ? VALUE_MASKS_MSX1 : VALUE_MASKS_MSX2, 64);
+		isMSX1VDP() ? VALUE_MASKS_MSX1 : VALUE_MASKS_MSX2, 32);
 	if (version == V9958) {
 		controlValueMasks[25] = 0x7F;
 		controlValueMasks[26] = 0x3F;
@@ -73,6 +72,9 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 
 	// Put VDP into reset state, but do not call Renderer methods.
 	resetInit(time);
+
+	// Create command engine.
+	cmdEngine = new VDPCmdEngine(this, time);
 
 	// TODO: Move Renderer creation outside of this class.
 	//   A setRenderer method would be used to provide a renderer.
@@ -118,16 +120,11 @@ VDP::~VDP()
 
 void VDP::resetInit(const EmuTime &time)
 {
-	static const byte INIT_STATUS_REGS[] = {
-		0x00, 0x00, 0x6C, 0x00, 0xFE, 0x00, 0xFC, 0x00,
-		0x00, 0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-		};
-
 	MSXDevice::reset(time);
 
 	currentTime = time;
 
-	for (int i = 0; i < 64; i++) controlRegs[i] = 0;
+	for (int i = 0; i < 32; i++) controlRegs[i] = 0;
 	displayMode = 0;
 	vramPointer = 0;
 	readAhead = 0;
@@ -136,8 +133,11 @@ void VDP::resetInit(const EmuTime &time)
 	blinkState = false;
 
 	// Init status registers.
-	memcpy(statusRegs, INIT_STATUS_REGS, 16);
-	if (version == V9958) statusRegs[1] |= 0x04;
+	statusReg0 = 0x00;
+	statusReg1 = (version == V9958 ? 0x04 : 0x00);
+	statusReg2 = 0x6C;
+	collisionX = 0;
+	collisionY = 0;
 
 	nameBase = ~(-1 << 10);
 	colourBase = ~(-1 << 6);
@@ -160,6 +160,7 @@ void VDP::reset(const EmuTime &time)
 {
 	resetInit(time);
 	// TODO: Reset the renderer.
+	// TODO: Reset the command engine.
 }
 
 void VDP::signalHotKey(SDLKey key)
@@ -192,6 +193,9 @@ void VDP::executeUntilEmuTime(const EmuTime &time)
 {
 	PRT_DEBUG("Executing VDP at time " << time);
 
+	// Sync with command engine.
+	cmdEngine->sync(time);
+
 	// Update sprite buffer.
 	for (int line = 0; line < 192; line++) {
 		spriteCount[line] = checkSprites(line, spriteBuffer[line]);
@@ -206,7 +210,7 @@ void VDP::executeUntilEmuTime(const EmuTime &time)
 	currentTime = time;
 	Scheduler::instance()->setSyncPoint(currentTime+71258, *this); //71285 for PAL, 59404 for NTSC
 	// Since this is the vertical refresh.
-	statusRegs[0] |= 0x80;
+	statusReg0 |= 0x80;
 	// Set interrupt if bits enable it.
 	if (controlRegs[1] & 0x20) {
 		setInterrupt();
@@ -223,7 +227,13 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 		//fprintf(stderr, "VRAM[%05X]=%02X\n", addr, value);
 		// TODO: Check MXC bit (R#45, bit 6) for extension RAM access.
 		//       This bit is kept by the command engine.
+
+		// First sync with the command engine, which can write VRAM.
+		cmdEngine->updateVRAM(addr, time);
+		// Then sync with the Renderer, which only reads VRAM, and
+		// finally commit the change.
 		setVRAM(addr, value, time);
+
 		vramPointer = (vramPointer + 1) & 0x3FFF;
 		if (vramPointer == 0 && (displayMode & 0x18)) {
 			// In MSX2 video modes, pointer range is 128K.
@@ -303,37 +313,59 @@ byte VDP::vramRead()
 
 byte VDP::readIO(byte port, const EmuTime &time)
 {
-	switch (port) {
-	case 0x98:
+	assert(port == 0x98 || port == 0x99);
+	if (port == 0x98) {
 		return vramRead();
-	case 0x99: {
-		int activeStatusReg = controlRegs[15];
-		byte ret = statusRegs[activeStatusReg];
-		switch (activeStatusReg) {
-		case 0:
+	}
+	else { // port == 0x99
+		/* INIT_STATUS_REGS[] =
+		0x00, 0x00, 0x6C, 0x00, 0xFE, 0x00, 0xFC, 0x00,
+		0x00, 0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+		*/
+
+		// Abort any port 0x98 writes in progress.
+		firstByte = -1;
+
+		switch (controlRegs[15]) {
+		case 0: {
+			byte ret = statusReg0;
 			// TODO: Used to be 0x5F, but that is contradicted by TMS9918.pdf
-			statusRegs[0] &= 0x1F;
+			statusReg0 &= 0x1F;
 			resetInterrupt();
-			break;
+			return ret;
+		}
+		case 1:
+			// TODO: Implement horizontal retrace interrupt.
+			//       Until then, flip the status bit on every read.
+			statusReg1 ^= 1;
+			return statusReg1;
 		case 2:
-			// TODO: Remove once command engine is added.
-			statusRegs[2] |= 0x80;
 			// TODO: Remove once accurate timing is in place.
-			if ((statusRegs[2] & 0x20) == 0) {
-				statusRegs[2] |= 0x20;
+			if ((statusReg2 & 0x20) == 0) {
+				statusReg2 |= 0x20;
 			}
 			else {
-				statusRegs[2] = (statusRegs[2] & ~0x20) ^ 0x40;
+				statusReg2 = (statusReg2 & ~0x20) ^ 0x40;
 			}
-			break;
+			//fprintf(stderr, "VDP: status reg 2: VDP part = %02X, engine part = %02X\n", statusReg2, cmdEngine->getStatus(time));
+			return statusReg2 | cmdEngine->getStatus(time);
+		case 3:
+			return (byte)collisionX;
+		case 4:
+			return (byte)(collisionX >> 8) | 0xFE;
+		case 5:
+			return (byte)collisionY;
+		case 6:
+			return (byte)(collisionY >> 8) | 0xFC;
+		case 7:
+			return cmdEngine->read(time);
+		case 8:
+			return (byte)cmdEngine->getBorderX(time);
+		case 9:
+			return (byte)(cmdEngine->getBorderX(time) >> 8) | 0xFE;
+		default: // non-existent status register
+			return 0xFF;
 		}
-		firstByte = -1;
-		//fprintf(stderr, "VDP status reg %d read: %02X\n", activeStatusReg, ret);
-		return ret;
-	}
-	default:
-		assert(false);
-		return 0xFF;	// prevent warning
 	}
 }
 
@@ -341,7 +373,11 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 {
 	//fprintf(stderr, "VDP[%02X]=%02X\n", reg, val);
 
-	// TODO: Pass command register writes to command engine.
+	// Pass command register writes to command engine.
+	if (32 <= reg && reg < 47) {
+		cmdEngine->setCmdReg(reg - 32, val, time);
+		return;
+	}
 
 	val &= controlValueMasks[reg];
 	byte oldval = controlRegs[reg];
@@ -356,7 +392,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		}
 		break;
 	case 1:
-		if ((val & 0x20) && (statusRegs[0] & 0x80)) {
+		if ((val & 0x20) && (statusReg0 & 0x80)) {
 			setInterrupt();
 		}
 		if ((val ^ oldval) & 0x18) {
@@ -440,6 +476,7 @@ void VDP::updateDisplayMode(byte reg0, byte reg1, const EmuTime &time)
 	if (newMode != displayMode) {
 		fprintf(stderr, "VDP: mode %02X\n", newMode);
 		renderer->updateDisplayMode(newMode, time);
+		cmdEngine->updateDisplayMode(newMode, time);
 		displayMode = newMode;
 	}
 }
@@ -478,8 +515,8 @@ int VDP::checkSprites(int line, VDP::SpriteInfo *visibleSprites)
 				// Five sprites on a line.
 				// According to TMS9918.pdf 5th sprite detection is only
 				// active when F flag is zero.
-				if (~statusRegs[0] & 0xC0) {
-					statusRegs[0] = (statusRegs[0] & 0xE0) | 0x40 | sprite;
+				if (~statusReg0 & 0xC0) {
+					statusReg0 = (statusReg0 & 0xE0) | 0x40 | sprite;
 				}
 				if (limitSprites) break;
 			}
@@ -492,9 +529,9 @@ int VDP::checkSprites(int line, VDP::SpriteInfo *visibleSprites)
 			sip->colour = attributePtr[3] & 0x0F;
 		}
 	}
-	if (~statusRegs[0] & 0x40) {
+	if (~statusReg0 & 0x40) {
 		// No 5th sprite detected, store number of latest sprite processed.
-		statusRegs[0] = (statusRegs[0] & 0xE0) | (sprite < 32 ? sprite : 31);
+		statusReg0 = (statusReg0 & 0xE0) | (sprite < 32 ? sprite : 31);
 	}
 
 	// Optimisation:
@@ -502,7 +539,7 @@ int VDP::checkSprites(int line, VDP::SpriteInfo *visibleSprites)
 	// that state is stable until it is reset by a status reg read,
 	// so no need to execute the checks.
 	// The visibleSprites array is filled now, so we can bail out.
-	if (statusRegs[0] & 0x20) return visibleIndex;
+	if (statusReg0 & 0x20) return visibleIndex;
 
 	/*
 	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
@@ -533,7 +570,8 @@ int VDP::checkSprites(int line, VDP::SpriteInfo *visibleSprites)
 				}
 				if (pattern_i & pattern_j) {
 					// Collision!
-					statusRegs[0] |= 0x20;
+					statusReg0 |= 0x20;
+					// TODO: Fill in collision coordinates in S#3..S#6.
 					return visibleIndex;
 				}
 			}

@@ -1,16 +1,25 @@
 // $Id$
 
+/*
+TODO:
+- How is 64K VRAM handled?
+  VRAM size is never inspected by the command engine.
+  How does a real MSX handle it?
+  Mirroring of first 64K or empty memory space?
+- How is extended VRAM handled?
+  The current VDP implementation does not support it.
+  Since it is not accessed by the renderer, it is possible allocate
+  it here.
+  But maybe it makes more sense to have all RAM managed by the VDP?
+- Command engine should be updated by VDP if sprite enable or display
+  enable changes, because those affect the execution speed.
+*/
+
 #include "VDPCmdEngine.hh"
 #include "EmuTime.hh"
 #include "VDP.hh"
 
 #include <stdio.h>
-
-// Compile hacks, should be replaced by openMSX calls.
-
-byte VDPStatus[16];
-
-// End of compile hacks.
 
 
 // Constants:
@@ -248,7 +257,9 @@ inline void VDPCmdEngine::pset(
 
 int VDPCmdEngine::getVdpTimingValue(const int *timingValues)
 {
-	return timingValues[vdp->getAccessTiming()];
+	// TODO: This makes command execution instantaneous.
+	return 0;
+	//return timingValues[vdp->getAccessTiming()];
 }
 
 void VDPCmdEngine::dummyEngine()
@@ -271,11 +282,11 @@ void VDPCmdEngine::srchEngine()
 		if ((
 #define post_srch(MX) \
 			==CL) ^ANX) { \
-		VDPStatus[2]|=0x10; /* Border detected */ \
+		status|=0x10; /* Border detected */ \
 		break; \
 		} \
 		if ((SX+=TX) & MX) { \
-		VDPStatus[2]&=0xEF; /* Border not detected */ \
+		status&=0xEF; /* Border not detected */ \
 		break; \
 		} \
 	}
@@ -292,12 +303,11 @@ void VDPCmdEngine::srchEngine()
 	}
 
 	if ((opsCount=cnt)>0) {
-		/* Command execution done */
-		VDPStatus[2]&=0xFE;
+		// Command execution done.
+		status&=0xFE;
 		currEngine=&VDPCmdEngine::dummyEngine;
-		/* Update SX in VDP registers */
-		VDPStatus[8]=SX&0xFF;
-		VDPStatus[9]=(SX>>8)|0xFE;
+		// Update SX in VDP registers.
+		borderX = 0xFE00 | SX;
 	}
 	else {
 		MMC.SX=SX;
@@ -342,7 +352,7 @@ void VDPCmdEngine::lineEngine()
 	}
 
 	if ((cmdReg[REG_ARG]&0x01)==0) {
-		/* X-Axis is major direction */
+		// X-Axis is major direction.
 		switch (scrMode) {
 		case 0: pre_loop pset5(DX, DY, CL, LO); post_linexmaj(256)
 				break;
@@ -355,7 +365,7 @@ void VDPCmdEngine::lineEngine()
 		}
 	}
 	else {
-		/* Y-Axis is major direction */
+		// Y-Axis is major direction.
 		switch (scrMode) {
 		case 0: pre_loop pset5(DX, DY, CL, LO); post_lineymaj(256)
 				break;
@@ -369,8 +379,8 @@ void VDPCmdEngine::lineEngine()
 	}
 
 	if ((opsCount=cnt)>0) {
-		/* Command execution done */
-		VDPStatus[2]&=0xFE;
+		// Command execution done.
+		status&=0xFE;
 		currEngine=&VDPCmdEngine::dummyEngine;
 		cmdReg[REG_DYL]=DY & 0xFF;
 		cmdReg[REG_DYH]=(DY>>8) & 0x03;
@@ -412,7 +422,7 @@ void VDPCmdEngine::lmmvEngine()
 
 	if ((opsCount=cnt)>0) {
 		// Command execution done.
-		VDPStatus[2]&=0xFE;
+		status&=0xFE;
 		currEngine=&VDPCmdEngine::dummyEngine;
 		if (!NY)
 		DY+=TY;
@@ -459,8 +469,8 @@ void VDPCmdEngine::lmmmEngine()
 	}
 
 	if ((opsCount=cnt)>0) {
-		/* Command execution done */
-		VDPStatus[2]&=0xFE;
+		// Command execution done.
+		status&=0xFE;
 		currEngine=&VDPCmdEngine::dummyEngine;
 		if (!NY) {
 		SY+=TY;
@@ -488,15 +498,15 @@ void VDPCmdEngine::lmmmEngine()
 
 void VDPCmdEngine::lmcmEngine()
 {
-	if ((VDPStatus[2]&0x80)!=0x80) {
+	if ((status&0x80)!=0x80) {
 
-		VDPStatus[7]=cmdReg[REG_COL]=point(MMC.ASX, MMC.SY);
+		cmdReg[REG_COL]=point(MMC.ASX, MMC.SY);
 		opsCount-=getVdpTimingValue(LMMV_TIMING);
-		VDPStatus[2]|=0x80;
+		status|=0x80;
 
 		if (!--MMC.ANX || ((MMC.ASX+=MMC.TX)&MMC.MX)) {
 			if (!(--MMC.NY & 1023) || (MMC.SY+=MMC.TY)==-1) {
-				VDPStatus[2]&=0xFE;
+				status&=0xFE;
 				currEngine=&VDPCmdEngine::dummyEngine;
 				if (!MMC.NY)
 				MMC.DY+=MMC.TY;
@@ -515,16 +525,16 @@ void VDPCmdEngine::lmcmEngine()
 
 void VDPCmdEngine::lmmcEngine()
 {
-	if ((VDPStatus[2]&0x80)!=0x80) {
+	if ((status&0x80)!=0x80) {
 
-		VDPStatus[7]=cmdReg[REG_COL]&=MASK[scrMode];
+		cmdReg[REG_COL]&=MASK[scrMode];
 		pset(MMC.ADX, MMC.DY, cmdReg[REG_COL], MMC.LO);
 		opsCount-=getVdpTimingValue(LMMV_TIMING);
-		VDPStatus[2]|=0x80;
+		status|=0x80;
 
 		if (!--MMC.ANX || ((MMC.ADX+=MMC.TX)&MMC.MX))
 		if (!(--MMC.NY&1023) || (MMC.DY+=MMC.TY)==-1) {
-			VDPStatus[2]&=0xFE;
+			status&=0xFE;
 			currEngine=&VDPCmdEngine::dummyEngine;
 			if (!MMC.NY)
 			MMC.DY+=MMC.TY;
@@ -580,7 +590,7 @@ void VDPCmdEngine::hmmvEngine()
 
 	if ((opsCount=cnt)>0) {
 		/* Command execution done */
-		VDPStatus[2]&=0xFE;
+		status&=0xFE;
 		currEngine=&VDPCmdEngine::dummyEngine;
 		if (!NY)
 		DY+=TY;
@@ -651,7 +661,7 @@ void VDPCmdEngine::hmmmEngine()
 
 	if ((opsCount=cnt)>0) {
 		/* Command execution done */
-		VDPStatus[2]&=0xFE;
+		status&=0xFE;
 		currEngine=&VDPCmdEngine::dummyEngine;
 		if (!NY) {
 			SY+=TY;
@@ -727,7 +737,7 @@ void VDPCmdEngine::ymmmEngine()
 
 	if ((opsCount=cnt)>0) {
 		/* Command execution done */
-		VDPStatus[2]&=0xFE;
+		status&=0xFE;
 		currEngine=&VDPCmdEngine::dummyEngine;
 		if (!NY) {
 			SY+=TY;
@@ -753,16 +763,16 @@ void VDPCmdEngine::ymmmEngine()
 
 void VDPCmdEngine::hmmcEngine()
 {
-	if ((VDPStatus[2]&0x80)!=0x80) {
+	if ((status&0x80)!=0x80) {
 
 		vdp->setVRAM(vramAddr(MMC.ADX, MMC.DY),
 			cmdReg[REG_COL], currentTime);
 		opsCount-=getVdpTimingValue(HMMV_TIMING);
-		VDPStatus[2]|=0x80;
+		status|=0x80;
 
 		if (!--MMC.ANX || ((MMC.ADX+=MMC.TX)&MMC.MX)) {
 			if (!(--MMC.NY&1023) || (MMC.DY+=MMC.TY)==-1) {
-				VDPStatus[2]&=0xFE;
+				status&=0xFE;
 				currEngine=&VDPCmdEngine::dummyEngine;
 				if (!MMC.NY) MMC.DY+=MMC.TY;
 				cmdReg[REG_NYL]=MMC.NY & 0xFF;
@@ -778,18 +788,16 @@ void VDPCmdEngine::hmmcEngine()
 	}
 }
 
-void VDPCmdEngine::write(byte value)
+void VDPCmdEngine::write(byte value, const EmuTime &time)
 {
-	VDPStatus[2]&=0x7F;
-
-	VDPStatus[7]=cmdReg[REG_COL]=value;
+	status&=0x7F;
 
 	if (opsCount>0) (this->*currEngine)();
 }
 
-byte VDPCmdEngine::read()
+byte VDPCmdEngine::read(const EmuTime &time)
 {
-	VDPStatus[2]&=0x7F;
+	status&=0x7F;
 
 	if (opsCount>0) (this->*currEngine)();
 
@@ -820,7 +828,8 @@ void VDPCmdEngine::reportVdpCommand()
 	byte cm = cmdReg[REG_CMD] >> 4;
 	byte lo = cmdReg[REG_CMD] & 0x0F;
 
-	printf("V9938: Opcode %02Xh %s-%s (%d,%d)->(%d,%d),%d [%d,%d]%s\n",
+	fprintf(stderr,
+		"V9938: Opcode %02Xh %s-%s (%d,%d)->(%d,%d),%d [%d,%d]%s\n",
 		cmdReg[REG_CMD], COMMANDS[cm], OPS[lo],
 		sx,sy, dx,dy, cl, cmdReg[REG_ARG]&0x04? -nx:nx,
 		cmdReg[REG_ARG]&0x08? -ny:ny,
@@ -836,26 +845,26 @@ void VDPCmdEngine::executeCommand()
 	MMC.CM = cmdReg[REG_CMD] >> 4;
 	if ((MMC.CM & 0x0C) != 0x0C && MMC.CM != 0) {
 		// Dot operation: use only relevant bits of color.
-		VDPStatus[7]=(cmdReg[REG_COL]&=MASK[scrMode]);
+		cmdReg[REG_COL]&=MASK[scrMode];
 	}
 
-	reportVdpCommand();
+	//reportVdpCommand();
 
 	switch(cmdReg[REG_CMD] >> 4) {
 	case CM_ABRT:
-		VDPStatus[2]&=0xFE;
+		status&=0xFE;
 		currEngine=&VDPCmdEngine::dummyEngine;
 		return;
 	case CM_POINT:
-		VDPStatus[2]&=0xFE;
+		status&=0xFE;
 		currEngine=&VDPCmdEngine::dummyEngine;
-		VDPStatus[7] = cmdReg[REG_COL] = point(
+		cmdReg[REG_COL] = point(
 			cmdReg[REG_SXL]+((int)cmdReg[REG_SXH]<<8),
 			cmdReg[REG_SYL]+((int)cmdReg[REG_SYH]<<8)
 			);
 		return;
 	case CM_PSET:
-		VDPStatus[2]&=0xFE;
+		status&=0xFE;
 		currEngine=&VDPCmdEngine::dummyEngine;
 		pset(
 			cmdReg[REG_DXL]+((int)cmdReg[REG_DXH]<<8),
@@ -903,7 +912,10 @@ void VDPCmdEngine::executeCommand()
 		return;
 	}
 
-	/* Fetch unconditional arguments */
+	// Fetch unconditional arguments.
+	// TODO: Does the V9938 actually make a copy of the registers?
+	//       This makes a difference when registers are written
+	//       during command execution.
 	MMC.SX = (cmdReg[REG_SXL]+((int)cmdReg[REG_SXH]<<8)) & 511;
 	MMC.SY = (cmdReg[REG_SYL]+((int)cmdReg[REG_SYH]<<8)) & 1023;
 	MMC.DX = (cmdReg[REG_DXL]+((int)cmdReg[REG_DXH]<<8)) & 511;
@@ -914,7 +926,7 @@ void VDPCmdEngine::executeCommand()
 	MMC.CL = cmdReg[REG_COL];
 	MMC.LO = cmdReg[REG_CMD] & 0x0F;
 
-	/* Argument depends on byte or dot operation */
+	// Argument depends on byte or dot operation.
 	if ((MMC.CM & 0x0C) == 0x0C) {
 		MMC.TX = cmdReg[REG_ARG]&0x04? -PPB[scrMode]:PPB[scrMode];
 		MMC.NX = ((cmdReg[REG_NXL]+((int)cmdReg[REG_NXH]<<8)) & 1023)/PPB[scrMode];
@@ -941,7 +953,7 @@ void VDPCmdEngine::executeCommand()
 		);
 
 	// Command execution started.
-	VDPStatus[2] |= 0x01;
+	status |= 0x01;
 
 	// Start execution if we still have time slices.
 	if ((opsCount/*-=56250*/)>0) {
@@ -976,13 +988,15 @@ VDPCmdEngine::VDPCmdEngine(VDP *vdp, const EmuTime &time)
 	for (int i = 0; i < 15; i++) {
 		cmdReg[i] = 0;
 	}
+	status = 0;
+	borderX = 0;
 
-	updateDisplayMode(currentTime);
+	updateDisplayMode(vdp->getDisplayMode(), currentTime);
 }
 
-void VDPCmdEngine::updateDisplayMode(const EmuTime &time)
+void VDPCmdEngine::updateDisplayMode(int mode, const EmuTime &time)
 {
-	switch (vdp->getDisplayMode()) {
+	switch (mode) {
 	case 0x0C: // SCREEN5
 		scrMode = 0;
 		break;

@@ -9,6 +9,7 @@
 #include "EmuTime.hh"
 #include "Renderer.hh"
 
+class VDPCmdEngine;
 
 /** Unified implementation of MSX Video Display Processors (VDPs).
   * MSX1 VDP is Texas Instruments TMS9918A or TMS9928A.
@@ -102,6 +103,7 @@ public:
 	}
 
 	/** Read a byte from the VRAM.
+	  * TODO: If called from the Renderer, sync with command engine first.
 	  * @param addr The address to read.
 	  *   No bounds checking is done, so make sure it is a legal address.
 	  * @return The VRAM contents at the specified address.
@@ -125,7 +127,6 @@ public:
 		assert((addr & vramMask) == addr);
 		if (vramData[addr] != value) {
 			renderer->updateVRAM(addr, value, time);
-			// TODO: cmdEngine->updateVRAM(addr, time);
 			vramData[addr] = value;
 		}
 	}
@@ -332,6 +333,10 @@ private:
 	  */
 	Renderer *renderer;
 
+	/** Command engine: the part of the V9938/58 that executes commands.
+	  */
+	VDPCmdEngine *cmdEngine;
+
 	/** Render full screen or windowed?
 	  * @see Renderer::setFullScreen
 	  * This setting is part of this class because it should remain
@@ -358,7 +363,7 @@ private:
 
 	/** Control registers.
 	  */
-	byte controlRegs[64];
+	byte controlRegs[32];
 
 	/** Mask on the control register index:
 	  * makes MSX2 registers inaccessible on MSX1.
@@ -367,12 +372,34 @@ private:
 
 	/** Mask on the values of control registers.
 	  */
-	byte controlValueMasks[64];
+	byte controlValueMasks[32];
 
-	/** Status registers.
-	  * There max 10 status registers, but that's not a power of 2.
+	/** Status register 0.
 	  */
-	byte statusRegs[16];
+	byte statusReg0;
+
+	/** Status register 1.
+	  * TODO: Only bit 0 can change, use a bool instead of a byte?
+	  */
+	byte statusReg1;
+
+	/** Status register 2.
+	  * Bit 7, 4 and 0 of this field are always zero,
+	  * their value can be retrieved from the command engine.
+	  */
+	byte statusReg2;
+
+	/** X coordinate of sprite collision.
+	  * 8 bits long -> [0..511]?
+	  */
+	int collisionX;
+
+	/** Y coordinate of sprite collision.
+	  * 8 bits long -> [0..511]?
+	  * Bit 9 contains EO, I guess that's a copy of the even/odd flag
+	  * of the frame on which the collision occurred.
+	  */
+	int collisionY;
 
 	/** V9938 palette.
 	  */

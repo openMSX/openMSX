@@ -18,32 +18,66 @@ public:
 	  */
 	VDPCmdEngine(VDP *vdp, const EmuTime &time);
 
-	/** Use this function to transfer pixel(s) from CPU to VDP.
+	/** Gets the command engine status (part of S#2).
+	  * Bit 7 (TR) is set when the command engine is ready for
+	  * a pixel transfer.
+	  * Bit 4 (BD) is set when the boundary colour is detected.
+	  * Bit 0 (CE) is set when a command is in progress.
 	  */
-	void write(byte value);
+	inline byte getStatus(const EmuTime &time) {
+		return status;
+	}
 
 	/** Use this function to transfer pixel(s) from VDP to CPU.
+	  * @param time The moment in emulated time this read occurs.
+	  * @return Colour value of the pixel.
 	  */
-	byte read();
+	byte read(const EmuTime &time);
 
-	/** Perform a number of steps of the active operation.
+	/** Synchronises the command engine with the VDP.
+	  * @param time The moment in emulated time to sync to.
 	  */
-	void loop();
+	inline void sync(const EmuTime &time) {
+	  // TODO: Currently, commands are executed instantaneously.
+	}
+
+	/** Gets the X coordinate of a border detected by SRCH.
+	  * @param time The moment in emulated time this get occurs.
+	  */
+	inline int getBorderX(const EmuTime &time) {
+		return borderX;
+	}
 
 	/** Writes to a command register.
 	  * @param index The register [0..14] to write to.
 	  * @param index The new value for the specified register.
 	  * @param time The moment in emulated time this write occurs.
 	  */
-	inline void setCmdReg(int index, byte value, const EmuTime &time) {
+	inline void setCmdReg(byte index, byte value, const EmuTime &time) {
+		// TODO: fMSX sets the register after calling write,
+		//       with write setting the register as well.
+		//       Is there a difference? Which is correct?
 		cmdReg[index] = value;
-		if (index == 14) executeCommand();
+		if (index == 12) write(value, time);
+		else if (index == 14) executeCommand();
 	}
 
 	/** Informs the command engine of a VDP display mode change.
+	  * @param mode The new display mode: M5..M1.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateDisplayMode(const EmuTime &time);
+	void updateDisplayMode(int mode, const EmuTime &time);
+
+	/** Informs the command engine of a change in VRAM contents.
+	  * TODO: Maybe this is a performance problem, if so think of a
+	  *   smarter way to update (for example, subscribe to VRAM
+	  *   address regions).
+	  * @param addr The address that will change.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	inline void updateVRAM(int addr, const EmuTime &time) {
+		// TODO: Sync until time if necessary.
+	}
 
 private:
 
@@ -52,6 +86,17 @@ private:
 	typedef void (VDPCmdEngine::*EngineMethod)();
 
 	// Methods:
+
+	/** Use this function to transfer pixel(s) from CPU to VDP.
+	  * @param value Colour value of the pixel.
+	  * @param time The moment in emulated time this write occurs.
+	  */
+	void write(byte value, const EmuTime &time);
+
+	/** Perform a number of steps of the active operation.
+	  * TODO: Legacy method, should be replaced eventually.
+	  */
+	void loop();
 
 	/** Calculate addr of a pixel in VRAM.
 	  */
@@ -178,6 +223,18 @@ private:
 	/** VDP command registers.
 	  */
 	byte cmdReg[15];
+
+	/** The command engine status (part of S#2).
+	  * Bit 7 (TR) is set when the command engine is ready for
+	  * a pixel transfer.
+	  * Bit 4 (BD) is set when the boundary colour is detected.
+	  * Bit 0 (CE) is set when a command is in progress.
+	  */
+	byte status;
+
+	/** The X coordinate of a border detected by SRCH.
+	  */
+	int borderX;
 
 	/** Operation timing.
 	  */
