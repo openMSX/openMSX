@@ -11,7 +11,7 @@ GlobalSettings::GlobalSettings()
 	, powerSetting("power", "turn power on/off", false, DONT_SAVE_SETTING)
 	, autoSaveSetting("save_settings_on_exit",
 	                  "automatically save settings when openMSX exits",
-	                  false)
+	                  true)
 	, consoleSetting("console", "turns console display on/off", false,
 	                 DONT_SAVE_SETTING)
 	, userDirSetting("user_directories", "list of user directories", "")
