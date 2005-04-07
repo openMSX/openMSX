@@ -115,9 +115,7 @@ public:
 		  *   VRAM before the write is performed.
 		  */
 		virtual void pset(const EmuTime& time, VDPVRAM* vram,
-			int addr, byte colour, byte mask
-			) = 0;
-	protected:
+		                  int addr, byte colour, byte mask) = 0;
 		virtual ~LogOp() {}
 	};
 

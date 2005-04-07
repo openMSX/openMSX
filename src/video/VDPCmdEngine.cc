@@ -38,6 +38,7 @@ TODO:
 #include <cstdio>
 #include <cassert>
 #include <algorithm>
+#include <memory>
 #include "VDPCmdEngine.hh"
 #include "EmuTime.hh"
 #include "VDP.hh"
@@ -47,7 +48,7 @@ TODO:
 
 using std::min;
 using std::max;
-
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -305,13 +306,16 @@ typedef TransparentOp<OrOp> TOrOp;
 typedef TransparentOp<XorOp> TXorOp;
 typedef TransparentOp<NotOp> TNotOp;
 
-static LogOp* dummyOp = new DummyOp();
-static LogOp* operations[16] = {
-	new ImpOp(), new AndOp(), new OrOp(), new XorOp(),
-	new NotOp(), dummyOp, dummyOp, dummyOp,
-	new TImpOp(), new TAndOp(), new TOrOp(), new TXorOp(),
-	new TNotOp(), dummyOp, dummyOp, dummyOp,
-	};
+static auto_ptr<LogOp> operations[16] = {
+	auto_ptr<LogOp>(new ImpOp()),   auto_ptr<LogOp>(new AndOp()),
+	auto_ptr<LogOp>(new OrOp()),    auto_ptr<LogOp>(new XorOp()),
+	auto_ptr<LogOp>(new NotOp()),   auto_ptr<LogOp>(new DummyOp()),
+	auto_ptr<LogOp>(new DummyOp()), auto_ptr<LogOp>(new DummyOp()),
+	auto_ptr<LogOp>(new TImpOp()),  auto_ptr<LogOp>(new TAndOp()),
+	auto_ptr<LogOp>(new TOrOp()),   auto_ptr<LogOp>(new TXorOp()),
+	auto_ptr<LogOp>(new TNotOp()),  auto_ptr<LogOp>(new DummyOp()),
+	auto_ptr<LogOp>(new DummyOp()), auto_ptr<LogOp>(new DummyOp()),
+};
 
 // Construction and destruction:
 
@@ -355,7 +359,7 @@ VDPCmdEngine::VDPCmdEngine(VDP* vdp_)
 	createEngines<HmmcCmd>(0xF);
 	currentCommand = NULL;
 
-	currentOperation = operations[LOG];
+	currentOperation = operations[LOG].get();
 
 	brokenTiming = false;
 	statusChangeTime = EmuTime::infinity;
@@ -547,7 +551,7 @@ void VDPCmdEngine::executeCommand(const EmuTime& time)
 	// Start command.
 	status |= 0x01;
 	currentCommand = commands[CMD][scrMode];
-	currentOperation = operations[LOG];
+	currentOperation = operations[LOG].get();
 	currentCommand->start(time);
 
 	// Finish command now if instantaneous command timing is active.
