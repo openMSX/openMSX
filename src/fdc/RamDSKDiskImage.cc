@@ -11,10 +11,8 @@ RamDSKDiskImage::RamDSKDiskImage(unsigned size)
 	nbSectors = size / SECTOR_SIZE;
 	diskdata = new byte[size];
 
-	// TODO format disk, this should be done by the MSXtar class
-	// but I have some trouble with the classes for now :-(
-	//MSXtar workhorse((SectorBasedDisk)this);
-	//workhorse.format();
+	MSXtar workhorse(*this);
+	workhorse.format();
 }
 
 RamDSKDiskImage::~RamDSKDiskImage()

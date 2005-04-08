@@ -5,9 +5,8 @@
 
 namespace openmsx {
 
-
 // bootblock created with regular nms8250 and '_format'
-byte MSXtar::Dos1BootBlock[] =
+static const byte dos1BootBlock[512] =
 {
 0xeb,0xfe,0x90,0x4e,0x4d,0x53,0x20,0x32,0x2e,0x30,0x50,0x00,0x02,0x02,0x01,0x00,
 0x02,0x70,0x00,0xa0,0x05,0xf9,0x03,0x00,0x09,0x00,0x02,0x00,0x00,0x00,0xd0,0xed,
@@ -44,7 +43,7 @@ byte MSXtar::Dos1BootBlock[] =
 };
 
 // bootblock created with nms8250 and MSX-DOS 2.20
-byte MSXtar::Dos2BootBlock[] =
+static const byte dos2BootBlock[512] =
 {
 0xeb,0xfe,0x90,0x4e,0x4d,0x53,0x20,0x32,0x2e,0x30,0x50,0x00,0x02,0x02,0x01,0x00,
 0x02,0x70,0x00,0xa0,0x05,0xf9,0x03,0x00,0x09,0x00,0x02,0x00,0x00,0x00,0x18,0x10,
@@ -81,55 +80,45 @@ byte MSXtar::Dos2BootBlock[] =
 };
 
 MSXtar::MSXtar(SectorBasedDisk& sectordisk)
+	: disk(sectordisk)
 {
-	disk=&sectordisk;
-
-	nbSectorsPerCluster=2;
-	MSXchrootStartIndex=0;
-	MSXpartition=0;
-	do_extract=false;
-	do_subdirs=true;
-	do_singlesided=false;
-	touch_option=false;
-	keep_option=false;
-	msxdir_option=false;
-	msxpart_option=false;
-	msx_allpart=false;
-	do_fat16=false;
-	DefaultBootBlock=Dos2BootBlock;
+	nbSectorsPerCluster = 2;
+	MSXchrootStartIndex = 0;
+	MSXpartition = 0;
+	do_extract = false;
+	do_subdirs = true;
+	do_singlesided = false;
+	touch_option = false;
+	keep_option = false;
+	msxdir_option = false;
+	msxpart_option = false;
+	msx_allpart = false;
+	do_fat16 = false;
+	defaultBootBlock = dos2BootBlock;
 }
 
-MSXtar::~MSXtar()
+// functions to change DirEntries
+static inline void setsh(byte* x, word y) 
 {
-
+	x[0] = (y >> 0) & 0xFF;
+	x[1] = (y >> 8) & 0xFF;
 }
-/* functions to change DirEntries */
-/* #define setsh(x,y) {x[0]=y;x[1]=y>>8;} */
-void MSXtar::setsh(byte* x,int y) 
+static inline void setlg(byte* x, int y)
 {
-	x[0]=(byte)(y & 255);
-	x[1]=(byte)((y>>8)&255);
-}
-/* #define setlg(x,y) {x[0]=y;x[1]=y>>8;x[2]=y>>16;x[3]=y>>24;} */
-void MSXtar::setlg(byte* x,int y)
-{
-	x[0]=(byte)(y & 255);
-	x[1]=(byte)((y>>8)&255);
-	x[2]=(byte)((y>>16)&255);
-	x[3]=(byte)((y>>24)&255);
+	x[0] = (y >>  0) & 0xFF;
+	x[1] = (y >>  8) & 0xFF;
+	x[2] = (y >> 16) & 0xFF;
+	x[3] = (y >> 24) & 0xFF;
 }
 
-/* functions to read DirEntries */
-/* #define rdsh(x) (x[0]+(x[1]<<8)) */
-word MSXtar::rdsh(byte* x)
+// functions to read DirEntries
+static inline word rdsh(byte* x)
 {
-	return  (x[0]+(x[1]<<8));
+	return (x[0] << 0) + (x[1] << 8);
 }
-
-/* #define rdlg(x) (x[0]+(x[1]<<8)+(x[2]<<16)+(x[3]<<24)) */
-int MSXtar::rdlg(byte* x)
+static inline int rdlg(byte* x)
 {
-	return (x[0]+(x[1]<<8)+(x[2]<<16)+(x[3]<<24));
+	return (x[0] << 0) + (x[1] << 8) + (x[2] << 16) + (x[3] << 24);
 }
 
 /** Transforms a clusternumber towards the first sector of this cluster
@@ -137,7 +126,7 @@ int MSXtar::rdlg(byte* x)
   */
 int MSXtar::clusterToSector(int cluster)
 {
-	return 1+RootDirEnd + sectorsPerCluster*( cluster - 2 );
+	return 1 + rootDirEnd + sectorsPerCluster * (cluster - 2);
 }
 
 /** Transforms a sectornumber towards it containing cluster
@@ -145,7 +134,7 @@ int MSXtar::clusterToSector(int cluster)
   */
 word MSXtar::sectorToCluster(int sector)
 {
-	return 2+(int)((sector-(1+RootDirEnd))/sectorsPerCluster);
+	return 2 + (int)((sector - (1 + rootDirEnd)) / sectorsPerCluster);
 }
 
 
@@ -153,148 +142,141 @@ word MSXtar::sectorToCluster(int sector)
   */
 void MSXtar::readBootSector(byte* buf)
 {
-	struct MSXBootSector *boot=(struct MSXBootSector*)buf;
+	MSXBootSector* boot = (MSXBootSector*)buf;
 
-	nbSectors = rdsh(boot->nrsectors); // asume a DS disk is used
+	nbSectors = rdsh(boot->nrsectors); // assume a DS disk is used
 	sectorsPerTrack = rdsh(boot->nrsectors);
 	nbSides = rdsh(boot->nrsides);
-	nbFats=(byte)boot->nrfats[0];
-	sectorsPerFat=rdsh(boot->sectorsfat);
-	nbRootDirSectors=rdsh(boot->direntries)/16;
-	sectorsPerCluster=(int)(byte)boot->spcluster[0] ;
+	nbFats = boot->nrfats[0];
+	sectorsPerFat = rdsh(boot->sectorsfat);
+	nbRootDirSectors = rdsh(boot->direntries) / 16;
+	sectorsPerCluster = (int)(byte)boot->spcluster[0];
 
-	RootDirStart=1+nbFats*sectorsPerFat;
-	MSXchrootSector=RootDirStart;
+	rootDirStart = 1 + nbFats * sectorsPerFat;
+	MSXchrootSector = rootDirStart;
 
-	RootDirEnd=RootDirStart+nbRootDirSectors-1;
-	maxCluster=sectorToCluster(nbSectors);
-	
+	rootDirEnd = rootDirStart + nbRootDirSectors - 1;
+	maxCluster = sectorToCluster(nbSectors);
 }
 
 // Create a correct bootsector depending on the required size of the filesystem
-void MSXtar::setBootSector(byte* buf, word nbsectors)
+void MSXtar::setBootSector(byte* buf, word nbSectors)
 {
 	// variables set to single sided disk by default
-	word nbSides=1;
-	byte nbFats=2;
-	byte nbReservedSectors=1; // Just copied from a 32MB IDE partition
-	byte nbSectorsPerFat=2;
-	byte nbHiddenSectors=1;
-	word nbDirEntry=112;
-	byte descriptor=0xf8;
+	word nbSides = 1;
+	byte nbFats = 2;
+	byte nbReservedSectors = 1; // Just copied from a 32MB IDE partition
+	byte nbSectorsPerFat = 2;
+	byte nbHiddenSectors = 1;
+	word nbDirEntry = 112;
+	byte descriptor = 0xF8;
 
 	// now set correct info according to size of image (in sectors!)
 	// and using the same layout as used by Jon in IDEFDISK v 3.1
-	if (nbSectors >= 32733 ) {
-		nbSides=2;		/*unknow yet */
-		nbFats=2;		/*unknow yet */
-		nbSectorsPerFat=12;	/*copied from a partition from an IDE HD */
-		nbSectorsPerCluster=16;
-		nbDirEntry=256;
-		nbSides=32;		/*copied from a partition from an IDE HD */
-		nbHiddenSectors=16;
-		descriptor=0xf0;
-	} else if (nbSectors >= 16389 ) {
-		nbSides=2;		/*unknow yet */
-		nbFats=2;		/*unknow yet */
-		nbSectorsPerFat=3;	/*unknow yet */
-		nbSectorsPerCluster=8;
-		nbDirEntry=256;
-		descriptor=0xf0;
-	} else if (nbSectors >= 8213 ) {
-		nbSides=2;		/*unknow yet */
-		nbFats=2;		/*unknow yet */
-		nbSectorsPerFat=3;	/*unknow yet */
-		nbSectorsPerCluster=4;
-		nbDirEntry=256;
-		descriptor=0xf0;
-	} else if (nbSectors >= 4127 ) {
-		nbSides=2;		/*unknow yet */
-		nbFats=2;		/*unknow yet */
-		nbSectorsPerFat=3;	/*unknow yet */
-		nbSectorsPerCluster=2;
-		nbDirEntry=256;
-		descriptor=0xf0;
-	} else if (nbSectors >= 2880 ) {
-		nbSides=2;		/*unknow yet */
-		nbFats=2;		/*unknow yet */
-		nbSectorsPerFat=3;	/*unknow yet */
-		nbSectorsPerCluster=1;
-		nbDirEntry=224;
-		descriptor=0xf0;
-	} else if (nbSectors >= 1441 ) {
-		nbSides=2;		/*unknow yet */
-		nbFats=2;		/*unknow yet */
-		nbSectorsPerFat=3;	/*unknow yet */
-		nbSectorsPerCluster=2;
-		nbDirEntry=112;
-		descriptor=0xf0;
+	if (nbSectors >= 32733) {
+		nbSides = 2;		// unknow yet
+		nbFats = 2;		// unknow yet
+		nbSectorsPerFat = 12;	// copied from a partition from an IDE HD
+		nbSectorsPerCluster = 16;
+		nbDirEntry = 256;
+		nbSides = 32;		// copied from a partition from an IDE HD
+		nbHiddenSectors = 16;
+		descriptor = 0xF0;
+	} else if (nbSectors >= 16389) {
+		nbSides = 2;		// unknow yet
+		nbFats = 2;		// unknow yet
+		nbSectorsPerFat = 3;	// unknow yet
+		nbSectorsPerCluster = 8;
+		nbDirEntry = 256;
+		descriptor = 0XF0;
+	} else if (nbSectors >= 8213) {
+		nbSides = 2;		// unknow yet
+		nbFats = 2;		// unknow yet
+		nbSectorsPerFat = 3;	// unknow yet
+		nbSectorsPerCluster = 4;
+		nbDirEntry = 256;
+		descriptor = 0xF0;
+	} else if (nbSectors >= 4127) {
+		nbSides = 2;		// unknow yet
+		nbFats = 2;		// unknow yet
+		nbSectorsPerFat = 3;	// unknow yet
+		nbSectorsPerCluster = 2;
+		nbDirEntry = 256;
+		descriptor = 0xF0;
+	} else if (nbSectors >= 2880) {
+		nbSides = 2;		// unknow yet
+		nbFats = 2;		// unknow yet
+		nbSectorsPerFat = 3;	// unknow yet
+		nbSectorsPerCluster = 1;
+		nbDirEntry = 224;
+		descriptor = 0xF0;
+	} else if (nbSectors >= 1441) {
+		nbSides = 2;		// unknow yet
+		nbFats = 2;		// unknow yet
+		nbSectorsPerFat = 3;	// unknow yet
+		nbSectorsPerCluster = 2;
+		nbDirEntry = 112;
+		descriptor = 0xF0;
 
-	} else if (nbSectors <= 720 ) {
+	} else if (nbSectors <= 720) {
 		// normal single sided disk
-		nbSectors = 720 ;
+		nbSectors = 720;
 	} else {
 		// normal double sided disk
-		nbSectors = 1440 ;
-		nbSides=2;
-		nbFats=2;
-		nbSectorsPerFat=3;
-		nbSectorsPerCluster=2;
-		nbDirEntry=112;
-		descriptor=0xf9;
+		nbSectors = 1440;
+		nbSides = 2;
+		nbFats = 2;
+		nbSectorsPerFat = 3;
+		nbSectorsPerCluster = 2;
+		nbDirEntry = 112;
+		descriptor = 0xF9;
 	}
-	struct MSXBootSector *boot=(struct MSXBootSector *)buf;
+	MSXBootSector* boot = (MSXBootSector*)buf;
 
-	setsh(boot->nrsectors,nbSectors);
-	setsh(boot->nrsides,nbSides);
-	boot->spcluster[0]=(byte)nbSectorsPerCluster;
-	boot->nrfats[0]=nbFats;
-	setsh(boot->sectorsfat,nbSectorsPerFat);
-	setsh(boot->direntries,nbDirEntry);
-	boot->descriptor[0]=descriptor;
-	setsh(boot->reservedsectors,nbReservedSectors);
-	setsh(boot->hiddensectors,nbHiddenSectors);
-
+	setsh(boot->nrsectors, nbSectors);
+	setsh(boot->nrsides, nbSides);
+	boot->spcluster[0] = nbSectorsPerCluster;
+	boot->nrfats[0] = nbFats;
+	setsh(boot->sectorsfat, nbSectorsPerFat);
+	setsh(boot->direntries, nbDirEntry);
+	boot->descriptor[0] = descriptor;
+	setsh(boot->reservedsectors, nbReservedSectors);
+	setsh(boot->hiddensectors, nbHiddenSectors);
 }
 
-// Format a diskimage with correct bootsector,FAT etc.
+// Format a diskimage with correct bootsector, FAT etc.
 void MSXtar::format()
 {
-	byte descriptor;
-	byte sectorbuf[512];
-
 	// first create a bootsector and start from the default bootblock
-	memcpy(sectorbuf, DefaultBootBlock, SECTOR_SIZE);
-	setBootSector(sectorbuf,disk->getNbSectors());
+	byte sectorbuf[512];
+	memcpy(sectorbuf, defaultBootBlock, SECTOR_SIZE);
+	setBootSector(sectorbuf, disk.getNbSectors());
 	readBootSector(sectorbuf); //set object variables to correct values
-	disk->writeLogicalSector(0,sectorbuf);
+	disk.writeLogicalSector(0, sectorbuf);
 
-	{
-	struct MSXBootSector *boot=(struct MSXBootSector*)sectorbuf;
-	descriptor = boot->descriptor[0];
-	}
+	MSXBootSector* boot = (MSXBootSector*)sectorbuf;
+	byte descriptor = boot->descriptor[0];
+
 	// Assign default empty values to disk
-	memset( sectorbuf, 0x00, SECTOR_SIZE);
-	for (int i=RootDirEnd ; i > 1 ; i--) {
-		disk->writeLogicalSector(i,sectorbuf);
+	memset(sectorbuf, 0x00, SECTOR_SIZE);
+	for (int i = 2; i <= rootDirEnd; ++i) {
+		disk.writeLogicalSector(i, sectorbuf);
 	}
-	// for some reason the first 3bytes are used to indicate the end of a cluster, making the first available cluster nr 2
-	// some sources say that this indicates the disk format and FAT[0]should 0xF7 for single sided disk, and 0xF9 for double sided disks
+	// for some reason the first 3bytes are used to indicate the end of a
+	// cluster, making the first available cluster nr 2 some sources say
+	// that this indicates the disk format and FAT[0] should 0xF7 for
+	// single sided disk, and 0xF9 for double sided disks
 	// TODO: check this :-)
 	// for now I simply repeat the media descriptor here
 	sectorbuf[0] = descriptor;
 	sectorbuf[1] = 0xFF;
 	sectorbuf[2] = 0xFF;
-	disk->writeLogicalSector(1,sectorbuf);
+	disk.writeLogicalSector(1, sectorbuf);
 
-
-	memset( sectorbuf, 0xE5, SECTOR_SIZE);
-	for (unsigned int i=1+RootDirEnd; i < disk->getNbSectors() ; i++) {
-		disk->writeLogicalSector(i,sectorbuf);
+	memset(sectorbuf, 0xE5, SECTOR_SIZE);
+	for (unsigned i = 1 + rootDirEnd; i < disk.getNbSectors(); ++i) {
+		disk.writeLogicalSector(i, sectorbuf);
 	}
-
-
 }
 
 } // namespace openmsx
-

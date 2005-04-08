@@ -8,15 +8,14 @@
 
 namespace openmsx {
 
-class DiskDrive;
+class RealDrive;
 
 class FileManipulator : public SimpleCommand
 {
 public:
-	static const unsigned SECTOR_SIZE = 512;
 	static FileManipulator& instance();
-	void registerDrive(DiskDrive& drive, const std::string& imageName);
-	void unregisterDrive(DiskDrive& drive, const std::string& imageName);
+	void registerDrive(RealDrive& drive, const std::string& imageName);
+	void unregisterDrive(RealDrive& drive, const std::string& imageName);
 
 private:
 	FileManipulator();
@@ -27,8 +26,10 @@ private:
 	virtual std::string help   (const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
-	void savedsk(DiskDrive* drive, const std::string filename);
-	std::map<const std::string, DiskDrive*> diskimages;
+	void savedsk(RealDrive* drive, const std::string& filename);
+	
+	typedef std::map<const std::string, RealDrive*> DiskImages;
+	DiskImages diskImages;
 };
 
 } // namespace openmsx

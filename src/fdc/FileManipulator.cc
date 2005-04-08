@@ -5,12 +5,12 @@
 #include "CommandException.hh"
 #include "File.hh"
 #include "SectorBasedDisk.hh"
+#include "DiskDrive.hh"
 #include <cassert>
 
 using std::set;
 using std::string;
 using std::vector;
-using std::map;
 
 namespace openmsx {
 
@@ -31,21 +31,21 @@ FileManipulator& FileManipulator::instance()
 }
 
 
-void FileManipulator::registerDrive(DiskDrive& drive, const string& imageName)
+void FileManipulator::registerDrive(RealDrive& drive, const string& imageName)
 {
-	assert(diskimages.find(imageName) == diskimages.end());
-	diskimages[imageName] = &drive;
+	assert(diskImages.find(imageName) == diskImages.end());
+	diskImages[imageName] = &drive;
 }
 
-void FileManipulator::unregisterDrive(DiskDrive& drive, const string& imageName)
+void FileManipulator::unregisterDrive(RealDrive& drive, const string& imageName)
 {
-	assert(diskimages.find(imageName) != diskimages.end());
-	assert(diskimages[imageName] == &drive);
-	diskimages.erase(imageName);
+	assert(diskImages.find(imageName) != diskImages.end());
+	assert(diskImages[imageName] == &drive);
+	diskImages.erase(imageName);
 }
 
 
-string FileManipulator::execute(const std::vector<string>& tokens)
+string FileManipulator::execute(const vector<string>& tokens)
 {
 	string result;
 	if (tokens.size() == 1) {
@@ -54,21 +54,19 @@ string FileManipulator::execute(const std::vector<string>& tokens)
 		if (tokens.size() != 4) {
 			throw CommandException("Incorrect number of parameters");
 		} else {
-			//throw CommandException("Not implemented yet");
-			std::map<const string, DiskDrive*>::const_iterator it =
-		         diskimages.find(tokens[2]);
-			if (it != diskimages.end() ){
+			DiskImages::const_iterator it = diskImages.find(tokens[2]);
+			if (it != diskImages.end()) {
 				savedsk(it->second, tokens[3]);
-			};
+			}
 		}
 	} else if (tokens[1] == "export") {
-		if ( tokens.size() <= 3 ) {
+		if (tokens.size() <= 3) {
 			throw CommandException("Incorrect number of parameters");
 		} else {
 			throw CommandException("Not implemented yet");
 		}
 	} else if (tokens[1] == "import") {
-		if ( tokens.size() <= 3 ) {
+		if (tokens.size() <= 3) {
 			throw CommandException("Incorrect number of parameters");
 		} else {
 			throw CommandException("Not implemented yet");
@@ -83,13 +81,13 @@ string FileManipulator::help(const vector<string>& /*tokens*/) const
 {
 	return
 	    "filemanipulator savedsk <drivename> <filename> : save drivename as dsk-file\n"
-	    "filemanipulator import <drivename> <dirname>  : import all files and subdirs from <dir>\n"
-	    "filemanipulator export <drivename> <dirname>  : extract all files to <dir>\n"
-	    "filemanipulator msxtree <drivename>  : show the dir+files structure\n"
+	    "filemanipulator import <drivename> <dirname>   : import all files and subdirs from <dir>\n"
+	    "filemanipulator export <drivename> <dirname>   : extract all files to <dir>\n"
+	    "filemanipulator msxtree <drivename>            : show the dir+files structure\n"
 	    "filemanipulator msxdir <drivename> <filename>  : long format dir of <filename>";
 }
 
-void FileManipulator::tabCompletion(std::vector<string>& tokens) const
+void FileManipulator::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		set<string> cmds;
@@ -101,9 +99,9 @@ void FileManipulator::tabCompletion(std::vector<string>& tokens) const
 		CommandController::completeString(tokens, cmds);
 	} else if (tokens.size() == 3) {
 		set<string> names;
-		for (std::map<const string, DiskDrive*>::const_iterator it =
-		         diskimages.begin(); it != diskimages.end(); ++it) {
-		     names.insert(it->first);
+		for (DiskImages::const_iterator it = diskImages.begin();
+		     it != diskImages.end(); ++it) {
+			names.insert(it->first);
 		}
 		CommandController::completeString(tokens, names);
 	} else if (tokens.size() >= 4) {
@@ -115,19 +113,20 @@ void FileManipulator::tabCompletion(std::vector<string>& tokens) const
 	}
 }
 
-void FileManipulator::savedsk(DiskDrive* drive, const std::string filename)
+void FileManipulator::savedsk(RealDrive* drive, const string& filename)
 {
-  /*
-	SectorBasedDisk disk=drive->getDisk();
-	int nrsectors=disk->getNbSectors;
-	byte buf[SECTOR_SIZE];
-	File file(filename);
-	for (int i=0 ; i < nrsectors ; i++) {
-		disk->readLogicalSector(i,buf);
-		file.write(buf,SECTOR_SIZE);
+	SectorBasedDisk* disk = dynamic_cast<SectorBasedDisk*>(&drive->getDisk());
+	if (!disk) {
+		// not a SectorBasedDisk
+		throw CommandException("Unsupported disk type");
 	}
-  */
+	unsigned nrsectors = disk->getNbSectors();
+	byte buf[SectorBasedDisk::SECTOR_SIZE];
+	File file(filename);
+	for (unsigned i = 0; i < nrsectors; ++i) {
+		disk->readLogicalSector(i, buf);
+		file.write(buf, SectorBasedDisk::SECTOR_SIZE);
+	}
 }
-
 
 } // namespace openmsx
