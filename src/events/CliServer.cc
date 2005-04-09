@@ -66,7 +66,7 @@ void CliServer::mainLoop()
 	}
 	CliComm::instance().printInfo(
 		"Listening on port " + StringOp::toString(port) +
-		" for incomming (local) connections.");
+		" for incoming (local) connections.");
 	listen(listenSock, SOMAXCONN);
 
 	// main loop
