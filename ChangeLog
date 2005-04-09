@@ -5,6 +5,7 @@ $Id$
 	   - during (very) short periods of silence, waveform counters
 	     should continue to increase (major improvement)
 	   - copied filter code from BlueMSX (minor improvement)
+	* Enabled pixel/line accurate rendering for V9990 (WIP)
 
 2005-04-09 Manuel Bilderbeek <manuel@msxnet.org>
 	* Switched the two YM2413 cores again. Okazaki is now default, because

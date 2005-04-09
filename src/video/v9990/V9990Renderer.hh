@@ -75,6 +75,13 @@ public:
 	  */
 	virtual void setImageWidth(int width) = 0;
 
+	/** Set scroll register
+	 */
+	virtual void updateScrollAX(const EmuTime& time) = 0;
+	virtual void updateScrollAY(const EmuTime& time) = 0;
+	virtual void updateScrollBX(const EmuTime& time) = 0;
+	virtual void updateScrollBY(const EmuTime& time) = 0;
+	
 protected:
 	RenderSettings& settings;
 };

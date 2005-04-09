@@ -288,9 +288,7 @@ void V9990::writeIO(byte port, byte val, const EmuTime& time)
 		
 		case SYSTEM_CONTROL:
 			status = (status & 0xFB) | ((val & 1) << 2); 
-			calcDisplayMode();
-			renderer->setDisplayMode(getDisplayMode(), time);
-			renderer->setImageWidth(getImageWidth());
+			syncAtNextLine(V9990_SET_MODE, time);
 		break;
 		
 		case KANJI_ROM_0:
@@ -328,6 +326,13 @@ void V9990::executeUntil(const EmuTime& time, int userData)
 			break;
 		case V9990_HSCAN:
 			raiseIRQ(HOR_IRQ);
+			break;
+
+		case V9990_SET_MODE:
+			calcDisplayMode();
+			renderer->setDisplayMode(getDisplayMode(), time);
+			renderer->setImageWidth(getImageWidth());
+			renderer->setColorMode(getColorMode(), time);
 			break;
 		default:
 			assert(false);
@@ -495,51 +500,79 @@ byte V9990::readRegister(byte reg, const EmuTime& time)
 	return result;
 }
 
+void V9990::syncAtNextLine(V9990SyncType type, const EmuTime& time)
+{
+	int line = getUCTicksThisFrame(time) / V9990DisplayTiming::UC_TICKS_PER_LINE;
+	int ticks = (line + 1) * V9990DisplayTiming::UC_TICKS_PER_LINE;
+	EmuTime nextTime = frameStartTime + ticks;
+	Scheduler::instance().setSyncPoint(nextTime, this, type);
+}
+
 void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 {
 	PRT_DEBUG("[" << time << "] "
 		  "V9990::writeRegister - reg=0x" << std::hex << int(reg) << 
 		                        " val=0x" << std::hex << int(val));
 
-	// TODO sync(time)
+	if ((regAccess[reg] == NO_ACCESS) || (regAccess[reg] == RD_ONLY)) {
+		// register not writable
+		return;
+	}
 	
-	if(regAccess[reg] != NO_ACCESS && regAccess[reg] != RD_ONLY) {
-		regs[reg] = val;
+	byte change = regs[reg] ^ val;
+	if (!change) return;
 
-		switch (reg) {
-			case INTERRUPT_0:
-				if (pendingIRQs & val) {
-					irq.set();
-				} else {
-					irq.reset();
-				}
-				break;
-			case INTERRUPT_1:
-			case INTERRUPT_2:
-			case INTERRUPT_3:
-				scheduleHscan(time);
-				break;
-			case SCREEN_MODE_0:
-			case SCREEN_MODE_1:
-				calcDisplayMode();
-				renderer->setDisplayMode(getDisplayMode(), time);
-				renderer->setImageWidth(getImageWidth());
-				// fall through!
-			case PALETTE_CONTROL:
-				renderer->setColorMode(getColorMode(), time);
-				break;
-			case BACK_DROP_COLOR:
-				renderer->updateBackgroundColor(val & 63, time);
-				break;
-			default: break;
-		}
-		if((reg >= CMD_PARAM_SRC_ADDRESS_0) && (reg <= CMD_PARAM_OPCODE)) {
-			//assert(cmdEngine != NULL);
-			cmdEngine->setCmdReg(reg, val, time);
-		}
-	} else {
-		PRT_DEBUG("[" << time << "] "
-		"V9990::writeRegister: Register not writable");
+	// Perform additional tasks before new value becomes active
+	switch (reg) {
+		case SCREEN_MODE_0:
+		case SCREEN_MODE_1:
+			// TODO verify this on real V9990
+			syncAtNextLine(V9990_SET_MODE, time);
+			break;
+		case PALETTE_CONTROL:
+			renderer->setColorMode(getColorMode(val), time);
+			break;
+		case BACK_DROP_COLOR:
+			renderer->updateBackgroundColor(val & 63, time);
+			break;
+		case SCROLL_CONTROL_AY0:
+		case SCROLL_CONTROL_AY1:
+			renderer->updateScrollAY(time);
+			break;
+		case SCROLL_CONTROL_AX0:
+		case SCROLL_CONTROL_AX1:
+			renderer->updateScrollAX(time);
+			break;
+		case SCROLL_CONTROL_BY0:
+		case SCROLL_CONTROL_BY1:
+			renderer->updateScrollBY(time);
+			break;
+		case SCROLL_CONTROL_BX0:
+		case SCROLL_CONTROL_BX1:
+			renderer->updateScrollBX(time);
+			break;
+	}
+	if ((reg >= CMD_PARAM_SRC_ADDRESS_0) && (reg <= CMD_PARAM_OPCODE)) {
+		cmdEngine->setCmdReg(reg, val, time);
+	}
+
+	// commit the change
+	regs[reg] = val;
+
+	// Perform additional tasks after new value became active
+	switch (reg) {
+		case INTERRUPT_0:
+			if (pendingIRQs & val) {
+				irq.set();
+			} else {
+				irq.reset();
+			}
+			break;
+		case INTERRUPT_1:
+		case INTERRUPT_2:
+		case INTERRUPT_3:
+			scheduleHscan(time);
+			break;
 	}
 }
 
@@ -598,18 +631,18 @@ void V9990::raiseIRQ(IRQType irqType)
 	}
 }
 
-V9990ColorMode V9990::getColorMode()
+V9990ColorMode V9990::getColorMode(byte pal_ctrl) const
 {
 	V9990ColorMode mode = INVALID_COLOR_MODE;
 
-	if(!regs[SCREEN_MODE_0] & 0x80) {
+	if (!regs[SCREEN_MODE_0] & 0x80) {
 		mode = BP4;
 	} else {
-		switch(regs[SCREEN_MODE_0] & 0x03) {
+		switch (regs[SCREEN_MODE_0] & 0x03) {
 			case 0x00: mode = BP2; break;
 			case 0x01: mode = BP4; break;
 			case 0x02: 
-				switch(regs[PALETTE_CONTROL] & 0xC0) {
+				switch (pal_ctrl & 0xC0) {
 					case 0x00: mode = BP6; break;
 					case 0x40: mode = BD8; break;
 					case 0x80: mode = BYJK; break;
@@ -619,22 +652,17 @@ V9990ColorMode V9990::getColorMode()
 				break;
 			case 0x03: mode = BD16; break;
 			default: assert(false); break;
-		}		
+		}
 	}
-	
-	PRT_DEBUG("[---------] V9990::getColorMode: mode = " <<
-	        ((mode == BP2)?  "BP2":
-	         (mode == BP4)?  "BP4":
-	         (mode == BP6)?  "BP6":
-	         (mode == BD8)?  "BD8":
-	         (mode == BD16)? "BD16":
-	         (mode == BYJK)? "BYJK":
-	         (mode == BYUV)? "BYUV":
-			 "Dunno"));
 
 	// TODO Check
-	if(mode == INVALID_COLOR_MODE) mode = BP4;
+	if (mode == INVALID_COLOR_MODE) mode = BP4;
 	return mode;
+}
+
+V9990ColorMode V9990::getColorMode() const
+{
+	return getColorMode(regs[PALETTE_CONTROL]);
 }
 
 void V9990::calcDisplayMode()
@@ -648,7 +676,7 @@ void V9990::calcDisplayMode()
 			mode = P2;
 			break;
 		case 0x80:
-			if(status & 0x04) { /* MCLK timing */
+			if(status & 0x04) { // MCLK timing
 				switch(regs[SCREEN_MODE_0] & 0x30) {
 				case 0x00: mode = B0; break;
 				case 0x10: mode = B2; break;
@@ -656,7 +684,7 @@ void V9990::calcDisplayMode()
 				case 0x30: mode = INVALID_DISPLAY_MODE; break;
 				default: assert(false);
 				}
-			} else { /* XTAL1 timing */
+			} else { // XTAL1 timing
 				switch(regs[SCREEN_MODE_0] & 0x30) {
 				case 0x00: mode = B1; break;
 				case 0x10: mode = B3; break;

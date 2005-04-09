@@ -5,6 +5,7 @@
 
 #include "V9990Renderer.hh"
 #include "SettingListener.hh"
+#include "RenderSettings.hh"
 #include "V9990DisplayTiming.hh"
 #include "openmsx.hh"
 
@@ -33,14 +34,20 @@ public:
 	void reset(const EmuTime& time);
 	void frameStart(const EmuTime& time);
 	void frameEnd(const EmuTime& time);
-	void renderUntil(const EmuTime& time);
 	void setDisplayMode(V9990DisplayMode mode, const EmuTime& time);
 	void setColorMode(V9990ColorMode mode, const EmuTime& time);
 	void updatePalette(int index, byte r, byte g, byte b, const EmuTime& time);
 	void updateBackgroundColor(int index, const EmuTime& time);
 	void setImageWidth(int width);
+	void updateScrollAX(const EmuTime& time);
+	void updateScrollAY(const EmuTime& time);
+	void updateScrollBX(const EmuTime& time);
+	void updateScrollBY(const EmuTime& time);
 
 private:
+	void sync(const EmuTime& time, bool force = false);
+	void renderUntil(const EmuTime& time);
+
 	/** Type of drawing to do.
 	  */
 	enum DrawType {
@@ -56,6 +63,10 @@ private:
 	  */ 
 	V9990Rasterizer* rasterizer;
 
+	/** Accuracy setting for current frame.
+	 */
+	RenderSettings::Accuracy accuracy;
+	
 	/** The last sync point's vertical position. In lines, starting
 	  * from VSYNC 
 	  */

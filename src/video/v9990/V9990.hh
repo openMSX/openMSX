@@ -172,7 +172,7 @@ public:
 
 	/** Return the current color mode
 	  */
-	V9990ColorMode getColorMode();
+	V9990ColorMode getColorMode() const;
 
 	/** Return the current back drop color
 	  * @return  Index the color palette
@@ -298,6 +298,10 @@ private:
 		/** Horizontal Sync (line interrupt)
 		  */
 		V9990_HSCAN,
+
+		/** Change screen mode
+		  */
+		V9990_SET_MODE,
 	};
 	
 	/** IRQ types
@@ -437,6 +441,8 @@ private:
 	
 	// --- methods ----------------------------------------------------
 
+	V9990ColorMode getColorMode(byte pal_ctrl) const;
+	
 	/** Get VRAM read or write address from V9990 registers
 	  * @param base  VRAM_READ_ADDRESS_0 or VRAM_WRITE_ADDRESS_0
 	  * @returns     VRAM read or write address
@@ -469,6 +475,10 @@ private:
 	  * @param time  Moment in emulated time to write register
 	  */
 	void writePaletteRegister(byte reg, byte val, const EmuTime& time);
+	
+	/** Schedule a sync point at the start of the next line
+	 */
+	void syncAtNextLine(V9990SyncType type, const EmuTime& time);
 	
 	/** Create a new renderer.
 	  * @param time  Moment in emulated time to create the renderer

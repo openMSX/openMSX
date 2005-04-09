@@ -1,6 +1,7 @@
 // $Id$
 
 #include "V9990.hh"
+#include "V9990VRAM.hh"
 #include "V9990DisplayTiming.hh"
 #include "V9990PixelRenderer.hh"
 #include "V9990Rasterizer.hh"
@@ -45,9 +46,6 @@ void V9990PixelRenderer::reset(const EmuTime& time)
 {
 	PRT_DEBUG("V9990PixelRenderer::reset");
 
-	lastX = 0;
-	lastY = 0;
-
 	setDisplayMode(vdp->getDisplayMode(), time);
 	setColorMode(vdp->getColorMode(), time);
 
@@ -76,6 +74,10 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 	}
 	if (!drawFrame) return;
 	
+	accuracy = settings.getAccuracy()->getValue();
+	lastX = 0;
+	lastY = 0;
+
 	// Make sure that the correct timing is used
 	setDisplayMode(vdp->getDisplayMode(), time);
 	rasterizer->frameStart(horTiming, verTiming);
@@ -87,39 +89,59 @@ void V9990PixelRenderer::frameEnd(const EmuTime& time)
 	
 	if (!drawFrame) return;
 
-	unsigned long long time1 = Timer::getTime();
-	
 	// Render last changes in this frame before starting a new frame
-	// sync(time);
-	renderUntil(time);
-	lastX = 0; lastY = 0;
+	sync(time, true);
+	
+	unsigned long long time1 = Timer::getTime();
 	rasterizer->frameEnd();
-
 	unsigned long long time2 = Timer::getTime();
 	unsigned long long current = time2 - time1;
 	const double ALPHA = 0.2;
 	finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
 	                      current * ALPHA;
 	
-	FinishFrameEvent *f = new FinishFrameEvent(VIDEO_GFX9000);
+	FinishFrameEvent* f = new FinishFrameEvent(VIDEO_GFX9000);
 	EventDistributor::instance().distributeEvent(f);
+}
+
+void V9990PixelRenderer::sync(const EmuTime& time, bool force)
+{
+	if (!drawFrame) return;
+
+	if (accuracy != RenderSettings::ACC_SCREEN || force) {
+		vdp->getVRAM()->sync(time);
+		renderUntil(time);
+	}
 }
 
 void V9990PixelRenderer::renderUntil(const EmuTime& time)
 {
-	PRT_DEBUG("V9990PixelRenderer::renderUntil");
-
 	// Translate time to pixel position
-	int nofTicks = vdp->getUCTicksThisFrame(time);
-	int toX      = nofTicks % V9990DisplayTiming::UC_TICKS_PER_LINE
-	               - horTiming->blank;
-	int toY      = nofTicks / V9990DisplayTiming::UC_TICKS_PER_LINE
-	               - verTiming->blank;
-	
-	// Screen accuracy for now...
-	if (nofTicks < V9990DisplayTiming::getUCTicksPerFrame(vdp->isPalTiming())) {
-		return;
+	int limitTicks = vdp->getUCTicksThisFrame(time);
+	assert(limitTicks <=
+	       V9990DisplayTiming::getUCTicksPerFrame(vdp->isPalTiming()));
+	int toX, toY;
+	switch (accuracy) {
+	case RenderSettings::ACC_PIXEL:
+		toX = limitTicks % V9990DisplayTiming::UC_TICKS_PER_LINE -
+		      horTiming->blank;
+		toY = limitTicks / V9990DisplayTiming::UC_TICKS_PER_LINE -
+		      verTiming->blank;
+		break;
+	case RenderSettings::ACC_LINE:
+	case RenderSettings::ACC_SCREEN:
+		// TODO figure out rounding point
+		toX = 0;
+		toY = (limitTicks + V9990DisplayTiming::UC_TICKS_PER_LINE - 400) /
+		             V9990DisplayTiming::UC_TICKS_PER_LINE -
+		      verTiming->blank;
+		break;
+	default:
+		assert(false);
+		toX = toY = 0; // avoid warning
 	}
+
+	if ((toX == lastX) && (toY == lastY)) return;
 	
 	// edges of the DISPLAY part of the vdp output
 	int left       = horTiming->border1;
@@ -230,10 +252,10 @@ void V9990PixelRenderer::render(int fromX, int fromY, int toX, int toY,
 
 }
 
-void V9990PixelRenderer::setDisplayMode(V9990DisplayMode mode, const EmuTime& /*time*/)
+void V9990PixelRenderer::setDisplayMode(V9990DisplayMode mode, const EmuTime& time)
 {
-	// sync(time);
-	switch(mode) {
+	sync(time);
+	switch (mode) {
 	case P1:
 	case P2:
 	case B1:
@@ -266,25 +288,44 @@ void V9990PixelRenderer::setDisplayMode(V9990DisplayMode mode, const EmuTime& /*
 }
 
 void V9990PixelRenderer::updatePalette(int index, byte r, byte g, byte b,
-                                       const EmuTime& /*time*/)
+                                       const EmuTime& time)
 {
-	// sync(time);
+	sync(time);
 	rasterizer->setPalette(index, r, g, b);
 }
-void V9990PixelRenderer::setColorMode(V9990ColorMode mode, const EmuTime& /*time*/)
+void V9990PixelRenderer::setColorMode(V9990ColorMode mode, const EmuTime& time)
 {
-	// sync(time);
+	sync(time);
 	rasterizer->setColorMode(mode);
 }
 
-void V9990PixelRenderer::updateBackgroundColor(int /*index*/, const EmuTime& /*time*/)
+void V9990PixelRenderer::updateBackgroundColor(int /*index*/, const EmuTime& time)
 {
-	// sync(time);
+	sync(time);
 }
 
 void V9990PixelRenderer::setImageWidth(int width)
 {
 	rasterizer->setImageWidth(width);
+}
+
+void V9990PixelRenderer::updateScrollAX(const EmuTime& time)
+{
+	sync(time);
+}
+void V9990PixelRenderer::updateScrollAY(const EmuTime& time)
+{
+	sync(time);
+}
+void V9990PixelRenderer::updateScrollBX(const EmuTime& time)
+{
+	// TODO only in P1 mode
+	sync(time);
+}
+void V9990PixelRenderer::updateScrollBY(const EmuTime& time)
+{
+	// TODO only in P1 mode
+	sync(time);
 }
 
 void V9990PixelRenderer::update(const Setting* setting)

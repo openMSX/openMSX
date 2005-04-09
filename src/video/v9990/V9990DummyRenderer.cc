@@ -45,4 +45,17 @@ void V9990DummyRenderer::setImageWidth(int /*width*/)
 {
 }
 
+void V9990DummyRenderer::updateScrollAX(const EmuTime& /*time*/)
+{
+}
+void V9990DummyRenderer::updateScrollAY(const EmuTime& /*time*/)
+{
+}
+void V9990DummyRenderer::updateScrollBX(const EmuTime& /*time*/)
+{
+}
+void V9990DummyRenderer::updateScrollBY(const EmuTime& /*time*/)
+{
+}
+
 } // namespace openmsx

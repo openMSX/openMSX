@@ -472,7 +472,7 @@ void PixelRenderer::updateWindow(bool /*enabled*/, const EmuTime& /*time*/)
 	// TODO: Can this be used as the main update method instead?
 }
 
-void PixelRenderer::sync(const EmuTime &time, bool force)
+void PixelRenderer::sync(const EmuTime& time, bool force)
 {
 	if (!renderFrame) return;
 
