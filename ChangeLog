@@ -1,5 +1,12 @@
 $Id$
 
+2005-04-09 Manuel Bilderbeek <manuel@msxnet.org>
+	* Switched the two YM2413 cores again. Okazaki is now default, because
+	  it sounds better now. Regarding drums, some sound better in Okazaki,
+	  some in Burczynski (e.g. the cymbal). Ideally the drums
+	  should be switchable and the normal FM should always be Okazaki.
+	  Thanks to Wolf for judging the sound quality.
+
 2005-04-04 David Heremans <david.heremans@gnu-linux.net>
 	* Actually trying to get the format routines from the original
 	  msxtar into openMSX. The idea is that this new class will perform
@@ -10,8 +17,8 @@ $Id$
 	* Fixed / cleaned up FileManipulator and RamDSK code:
 	  still TODO:
 	   - proposal: rename FileManipulator to DiskImageManipulator?
-	   - proposal: change "diska ramdsk" command to "diska -ramdisk [<name>]"
-	        (note: ramdsk vs ramdisk (or just ram?))
+	   - proposal: change "diska ramdsk" to "diska -ramdisk [<name>]"
+	     (note: ramdsk vs ramdisk (or just ram?))
 	   - keep ramdisk contents when disk is ejected/reinserted
 	   - automatically format ramdisk on first insert
 	* Simplified all SectorsBasedDisk subclasses
@@ -71,7 +78,7 @@ $Id$
 2005-03-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented step_in, step_over and run_to as TCL procs
 	* Try to listen on ports 9938-9958 (iso just 9938), and print a
-	  warning (iso crash) when none of these is available
+	   warning (iso crash) when none of these is available
 
 2005-03-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed crash on missing argument for 'debug set_bp/remove_bp'
@@ -114,8 +121,9 @@ $Id$
 
 2005-03-13 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Fixed win32 compile errors
-	  ToDo: * 2 warnings
-	  		* better integration of wsock32 in the buildsystem
+	  TODO: 
+	  - 2 warnings
+	  - better integration of wsock32 in the buildsystem
 
 2005-03-12 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added basic code to record openMSX sound to wav file. It is not used
