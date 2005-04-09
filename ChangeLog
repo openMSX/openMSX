@@ -1,5 +1,11 @@
 $Id$
 
+2005-04-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Improved SCC sound quality
+	   - during (very) short periods of silence, waveform counters
+	     should continue to increase (major improvement)
+	   - copied filter code from BlueMSX (minor improvement)
+
 2005-04-09 Manuel Bilderbeek <manuel@msxnet.org>
 	* Switched the two YM2413 cores again. Okazaki is now default, because
 	  it sounds better now. Regarding drums, some sound better in Okazaki,

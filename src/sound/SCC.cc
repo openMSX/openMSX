@@ -90,6 +90,12 @@ SCC::SCC(const string& name_, const XMLElement& config, const EmuTime& time,
 			wave[i][j] = 0;
 		}
 	}
+
+	nbSamples = 9999;
+	
+	in[0] = in[1] = in[2] = in[3] = in[4] = 0;
+	inHp [0] = inHp [1] = inHp [2] = 0;
+	outHp[0] = outHp[1] = outHp[2] = 0;
 	
 	reset(time);
 	registerSound(config);
@@ -135,14 +141,13 @@ void SCC::reset(const EmuTime& /*time*/)
 	}
 	deformValue = 0;
 	ch_enable = 0xFF;
-	scctime = 0;
 
 	checkMute();
 }
 
 void SCC::setSampleRate(int sampleRate)
 {
-	realstep = (unsigned)(((unsigned)(1 << 31)) / sampleRate);
+	baseStep = (1ULL << 28) * 3579545ULL / 32 / sampleRate;
 }
 
 void SCC::setVolume(int maxVolume)
@@ -311,13 +316,17 @@ void SCC::writeMemInterface(byte address, byte value, const EmuTime& time)
 	}
 }
 
+static inline int adjust(signed char wav, byte vol)
+{
+	return (static_cast<int>(wav) * vol) / 16;
+}
+
 void SCC::writeWave(byte channel, byte address, byte value)
 {
 	if (!readOnly[channel]) {
 		byte pos = address & 0x1F;
 		wave[channel][pos] = value;
-		volAdjustedWave[channel][pos] =
-		    (static_cast<signed char>(value) * volume[channel]) / 16;
+		volAdjustedWave[channel][pos] = adjust(value, volume[channel]);
 		if ((currentChipMode != SCC_plusmode) && (channel == 3)) {
 			// copy waveform 4 -> waveform 5
 			wave[4][pos] = wave[3][pos];
@@ -350,14 +359,14 @@ void SCC::setFreqVol(byte address, byte value)
 			// 4 bit frequency
 			frq >>= 8;
 		}
-		incr[channel] = (frq <= 8) ? 0 : (2 << GETA_BITS) / (frq + 1);
+		incr[channel] = (frq <= 8) ? 0 : baseStep / (frq + 1);
 	} else if (address < 0x0F) {
 		// change volume
 		byte channel = address - 0x0A;
 		volume[channel] = value & 0xF;
 		for (int i = 0; i < 32; ++i) {
 			volAdjustedWave[channel][i] =
-			    (wave[channel][i] * volume[channel]) / 16;
+				adjust(wave[channel][i], volume[channel]);
 		}
 		checkMute();
 	} else {
@@ -417,50 +426,63 @@ void SCC::setDeformReg(byte value, const EmuTime& time)
 	}
 }
 
+int SCC::filter(int input)
+{
+	// filter code copied from BlueMSX
+	in[4] = in[3];
+	in[3] = in[2];
+	in[2] = in[1];
+	in[1] = in[0];
+	in[0] = input;
 
+	inHp[2] = inHp[1];
+	inHp[1] = inHp[0];
+	inHp[0] = (1 * (in[0] + in[4]) + 12 * (in[1] + in[3]) + 45 * in[2]) / 100;
+
+	outHp[2] = outHp[1];
+	outHp[1] = outHp[0];
+	outHp[0] = ( 997 * ( inHp[0] + inHp[2]) +
+	            1994 * (outHp[1] - inHp[1]) -
+	             994 *  outHp[2]) / 1000;
+
+	return outHp[0];
+}
 
 void SCC::updateBuffer(int length, int* buffer)
 {
+	nbSamples += length;
 	if ((deformValue & 0xC0) == 0x00) {
 		// No rotation stuff, this is almost always true. So it makes
 		// sense to have a special optimized routine for this case
 		while (length--) {
-			scctime += realstep;
-			unsigned advance = scctime / SCC_STEP;
-			scctime %= SCC_STEP;
 			int mixed = 0;
 			byte enable = ch_enable;
 			for (int i = 0; i < 5; ++i, enable >>= 1) {
-				count[i] += incr[i] * advance;
+				count[i] = (count[i] + incr[i]) & 0xFFFFFFF;
 				if (enable & 1) {
-					mixed += volAdjustedWave[i]
-					      [(count[i] >> GETA_BITS) & 0x1F];
+					mixed += volAdjustedWave[i][(count[i] >> 23)];
 				}
 			}
-			*buffer++ = (masterVolume * mixed) / 256;
+			*buffer++ = filter((masterVolume * mixed) / 256);
 		}
 	} else {
 		// Rotation mode
 		//  TODO not completely correct
 		while (length--) {
-			scctime += realstep;
-			unsigned advance = scctime / SCC_STEP;
-			scctime %= SCC_STEP;
 			int mixed = 0;
 			byte enable = ch_enable;
 			for (int i = 0; i < 5; ++i, enable >>= 1) {
-				count[i] += incr[i] * advance;
-				int overflows = count[i] >> (GETA_BITS + 5);
-				count[i] &= ((1 << (GETA_BITS + 5)) -1);
+				int cnt = count[i] + incr[i];
 				if (rotate[i]) {
-					offset[i] += overflows;
+					offset[i] += cnt >> 28;
 				}
+				count[i] = cnt & 0xFFFFFFF;
 				if (enable & 1) {
-					byte pos = (count[i] >> GETA_BITS) + offset[i];
+					byte pos = (count[i] >> 23) + offset[i];
 					mixed += volAdjustedWave[i][pos & 0x1F];
 				}
 			}
-			*buffer++ = (masterVolume * mixed) / 256;
+			*buffer++ = filter((masterVolume * mixed) / 256);
 		}
 	}
 }
@@ -479,7 +501,12 @@ void SCC::checkMute()
 		enable >>= 1;
 		++volumePtr;
 	}
-	setMute(mute);
+	if (!mute) {
+		nbSamples = 0;
+		setMute(false);
+	} else if (nbSamples > 4000) {
+		setMute(true);
+	}
 }
 
 

@@ -51,6 +51,8 @@ private:
 	void setFreqVol(byte address, byte value);
 	byte getFreqVol(byte address);
 
+	int filter(int input);
+
 	static const int GETA_BITS = 22;
 	static const int CLOCK_FREQ = 3579545;
 	static const unsigned int SCC_STEP =
@@ -58,8 +60,8 @@ private:
 
 	ChipMode currentChipMode;
 	int masterVolume;
-	unsigned realstep;
-	unsigned scctime;
+	unsigned baseStep;
+	unsigned nbSamples;
 
 	signed char wave[5][32];
 	signed char volAdjustedWave[5][32];
@@ -76,6 +78,8 @@ private:
 	byte offset[5];
 
 	const std::string name;
+
+	int in[5], inHp[3], outHp[3];
 };
 
 } // namespace openmsx
