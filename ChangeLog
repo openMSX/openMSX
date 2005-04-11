@@ -1,5 +1,8 @@
 $Id$
 
+2005-04-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented V9990 vertical scroll rolling in Bx modes
+
 2005-04-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Improved SCC sound quality
 	   - during (very) short periods of silence, waveform counters

@@ -291,7 +291,7 @@ void V9990SDLRasterizer<Pixel, zoom>::drawP1Mode(
 			translateX<zoom>(fromX) * sizeof(Pixel));
 	while (displayHeight--) {
 		p1Converter.convertLine(pixelPtr, displayX, displayWidth,
-				                     displayY);
+		                        displayY);
 		displayY++;
 		pixelPtr += workScreen->w;
 	}
@@ -309,11 +309,18 @@ void V9990SDLRasterizer<Pixel, zoom>::drawP2Mode(
 			translateX<zoom>(fromX) * sizeof(Pixel));
 	while (displayHeight--) {
 		p2Converter.convertLine(pixelPtr, displayX, displayWidth,
-				                     displayY);
+		                        displayY);
 		displayY++;
 		pixelPtr += workScreen->w;
 	}
 }
+
+static unsigned rollMasks[4] = { 
+	0x1FFF, // no rolling
+	0x00FF,
+	0x01FF,
+	0x00FF // TODO check this (undocumented)
+};
 
 template <class Pixel, Renderer::Zoom zoom>
 void V9990SDLRasterizer<Pixel, zoom>::drawBxMode(
@@ -326,42 +333,26 @@ void V9990SDLRasterizer<Pixel, zoom>::drawBxMode(
 		  fromY * workScreen->pitch +
 		  translateX<zoom>(fromX) * sizeof(Pixel));
 
-	int scrollX = vdp->getScrollAX();
-	int scrollY = vdp->getScrollAY();
-	int y = displayY + scrollY & 0x1FFF; // TODO roll is ignored
-	uint address = vdp->XYtoVRAM(&displayX, y, colorMode);
-	int vramStep;
-	switch (colorMode) {
-		// TODO per pixel X scrolling doesn't work yet
-		case BP2:
-			vramStep = imageWidth / 4;
-			address += scrollX / 4;
-			break;
-		case BP4:
-		case PP:
-			vramStep = imageWidth / 2;
-			address += scrollX / 2;
-			break;
-		case BD16:
-			vramStep = imageWidth * 2;
-			address += scrollX * 2;
-			break;
-		default:
-			vramStep = imageWidth;
-			address += scrollX;
-	}
+	unsigned scrollX = vdp->getScrollAX();
+	unsigned x = displayX + scrollX;
+	
+	unsigned scrollY = vdp->getScrollAY();
 	int lineStep = 1;
 	if (vdp->isEvenOddEnabled()) {
 		if (vdp->getEvenOdd()) {
-			address += vramStep;
+			++displayY;
 		}
 		lineStep = 2;
 	}
+
+	unsigned rollMask = rollMasks[scrollY >> 14];
+	unsigned scrollYBase = scrollY & ~rollMask;
 	while (displayHeight--) {
+		unsigned y = scrollYBase + (displayY + scrollY) & rollMask;
+		unsigned address = vdp->XYtoVRAM(&x, y, colorMode);
 		bitmapConverter.convertLine(pixelPtr, address, displayWidth,
 		                            displayY);
 		displayY += lineStep;
-		address += lineStep * vramStep;
 		pixelPtr += workScreen->w;
 	}
 }

@@ -146,9 +146,9 @@ public:
 	  * @return      VRAM offset
 	  * TODO: Move this to V9990VRAM ??
 	  */
-	inline int XYtoVRAM(int *x, int y, V9990ColorMode mode) {
+	inline unsigned XYtoVRAM(unsigned* x, unsigned y, V9990ColorMode mode) {
 		int offset = *x + y * getImageWidth();
-		switch(mode) {
+		switch (mode) {
 			case PP:
 			case BYUV:
 			case BYUVP:
@@ -159,7 +159,7 @@ public:
 			case BD16: offset *= 2; break;
 			case BP4:  offset /= 2; *x &= ~1; break;
 			case BP2:  offset /= 4; *x &= ~3; break;
-			default:   offset = 0; break;
+			default: assert(false); break;
 		}
 		return offset;
 	}
@@ -177,37 +177,37 @@ public:
 	/** Return the current back drop color
 	  * @return  Index the color palette
 	  */
-	inline int getBackDropColor() {
+	inline byte getBackDropColor() {
 		return regs[BACK_DROP_COLOR];
 	}
 
 	/** Returns the X scroll offset for screen A of P1 and other modes
 	  */
-	inline int getScrollAX() {
+	inline unsigned getScrollAX() {
 		return regs[SCROLL_CONTROL_AX0] + 8 * regs[SCROLL_CONTROL_AX1];
 	}
 
 	/** Returns the Y scroll offset for screen A of P1 and other modes
 	  */
-	inline int getScrollAY() {
+	inline unsigned getScrollAY() {
 		return regs[SCROLL_CONTROL_AY0] + 256 * regs[SCROLL_CONTROL_AY1];
 	}
 
 	/** Returns the X scroll offset for screen B of P1 and other modes
 	  */
-	inline int getScrollBX() {
+	inline unsigned getScrollBX() {
 		return regs[SCROLL_CONTROL_BX0] + 8 * regs[SCROLL_CONTROL_BX1];
 	}
 
 	/** Returns the Y scroll offset for screen B of P1 and other modes
 	  */
-	inline int getScrollBY() {
+	inline unsigned getScrollBY() {
 		return regs[SCROLL_CONTROL_BY0] + 256 * regs[SCROLL_CONTROL_BY1];
 	}
 
 	/** Return the image width
 	  */
-	inline int getImageWidth() {
+	inline unsigned getImageWidth() {
 		switch (regs[SCREEN_MODE_0] & 0xC0) {
 		case 0x00: // P1
 			return 256;
