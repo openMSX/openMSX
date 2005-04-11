@@ -39,6 +39,7 @@ void FileManipulator::registerDrive(RealDrive& drive, const string& imageName)
 
 void FileManipulator::unregisterDrive(RealDrive& drive, const string& imageName)
 {
+	if (&drive); // avoid warning
 	assert(diskImages.find(imageName) != diskImages.end());
 	assert(diskImages[imageName] == &drive);
 	diskImages.erase(imageName);
