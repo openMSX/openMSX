@@ -480,7 +480,8 @@ inline void V9990::setVRAMAddr(RegisterId base, unsigned addr)
 byte V9990::readRegister(byte reg, const EmuTime& time)
 {
 	// TODO sync(time) (if needed at all)
-	//
+	
+	assert(reg < 64);
 	byte result;
 	if (regAccess[reg] != NO_ACCESS && regAccess[reg] != WR_ONLY) {
 		if (reg < CMD_PARAM_BORDER_X_0) {
@@ -514,8 +515,13 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 		  "V9990::writeRegister - reg=0x" << std::hex << int(reg) << 
 		                        " val=0x" << std::hex << int(val));
 
+	assert(reg < 64);
 	if ((regAccess[reg] == NO_ACCESS) || (regAccess[reg] == RD_ONLY)) {
 		// register not writable
+		return;
+	}
+	if (reg >= CMD_PARAM_SRC_ADDRESS_0) {
+		cmdEngine->setCmdReg(reg, val, time);
 		return;
 	}
 	
@@ -552,10 +558,6 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 			renderer->updateScrollBX(time);
 			break;
 	}
-	if ((reg >= CMD_PARAM_SRC_ADDRESS_0) && (reg <= CMD_PARAM_OPCODE)) {
-		cmdEngine->setCmdReg(reg, val, time);
-	}
-
 	// commit the change
 	regs[reg] = val;
 
