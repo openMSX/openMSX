@@ -81,6 +81,7 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
 
 	// Start with NTSC timing
 	palTiming = false;
+	setVerticalTiming();
 	
 	// Register debuggable
 	Debugger::instance().registerDebuggable("V9990 regs",    v9990RegDebug);
@@ -770,8 +771,10 @@ void V9990::scheduleHscan(const EmuTime& time)
 		// every line
 		offset = ticks - (ticks % V9990DisplayTiming::UC_TICKS_PER_LINE);
 	} else {
-		offset = (regs[INTERRUPT_1] + 256 * (regs[INTERRUPT_2] & 3)) *
-		       V9990DisplayTiming::UC_TICKS_PER_LINE;
+		int line = regs[INTERRUPT_1] + 256 * (regs[INTERRUPT_2] & 3) +
+		           15 + getVerticalTiming().border1 +
+		           2; // TODO figure this '2' out
+		offset = line * V9990DisplayTiming::UC_TICKS_PER_LINE;
 	}
 	int mult = (status & 0x04) ? 3 : 2; // MCLK / XTAL1
 	offset += (regs[INTERRUPT_3] & 0x0F) * 64 * mult;
