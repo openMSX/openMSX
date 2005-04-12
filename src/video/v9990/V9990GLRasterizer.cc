@@ -35,8 +35,7 @@ void V9990GLRasterizer::reset()
 	PRT_DEBUG("V9990GLRasterizer::reset()");
 }
 
-void V9990GLRasterizer::frameStart(const V9990DisplayPeriod* /*horTiming*/,
-                                   const V9990DisplayPeriod* /*verTiming*/)
+void V9990GLRasterizer::frameStart()
 {
 	PRT_DEBUG("V9990GLRasterizer::frameStart()");
 }

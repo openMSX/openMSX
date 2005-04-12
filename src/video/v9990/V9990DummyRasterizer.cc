@@ -24,8 +24,7 @@ void V9990DummyRasterizer::reset()
 {
 }
 
-void V9990DummyRasterizer::frameStart(const V9990DisplayPeriod* /*horTiming*/,
-                                      const V9990DisplayPeriod* /*verTiming*/)
+void V9990DummyRasterizer::frameStart()
 {
 }
 

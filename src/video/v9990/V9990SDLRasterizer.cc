@@ -120,26 +120,23 @@ void V9990SDLRasterizer<Pixel, zoom>::reset()
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void V9990SDLRasterizer<Pixel, zoom>::frameStart(
-	const V9990DisplayPeriod *horTiming,
-	const V9990DisplayPeriod *verTiming)
+void V9990SDLRasterizer<Pixel, zoom>::frameStart()
 {
 	PRT_DEBUG("V9990SDLRasterizer::frameStart()");
 
-	/* Center image on the window.
-	 *
-	 * In SDLLo, one window pixel represents 8 UC clockticks, so the
-	 * window = 320 * 8 UC ticks wide. In SDLHi, one pixel is 4 clock-
-	 * ticks and the window 640 pixels wide -- same amount of UC ticks.
-	 */
-	colZero  = horTiming->border1 + 
-	           (horTiming->display - SCREEN_WIDTH * 8) / 2;
+	const V9990DisplayPeriod& horTiming = vdp->getHorizontalTiming();
+	const V9990DisplayPeriod& verTiming = vdp->getVerticalTiming();
 
-	/* 240 display lines can be shown. In SDLHi, we can do interlace,
-	 * but still 240 lines per frame.
-	 */
-	lineZero = verTiming->border1 +
-	           (verTiming->display - SCREEN_HEIGHT) / 2;
+	// Center image on the window.
+
+	// In SDLLo, one window pixel represents 8 UC clockticks, so the
+	// window = 320 * 8 UC ticks wide. In SDLHi, one pixel is 4 clock-
+	// ticks and the window 640 pixels wide -- same amount of UC ticks.
+	colZero = horTiming.border1 + (horTiming.display - SCREEN_WIDTH * 8) / 2;
+
+	// 240 display lines can be shown. In SDLHi, we can do interlace,
+	// but still 240 lines per frame.
+	lineZero = verTiming.border1 + (verTiming.display - SCREEN_HEIGHT) / 2;
 }
 
 template <class Pixel, Renderer::Zoom zoom>

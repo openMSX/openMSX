@@ -244,6 +244,18 @@ public:
 		return regs[SPRITE_PALETTE_CONTROL] << 2;
 	}
 
+	/** Get horizontal display timings
+	 */
+	inline const V9990DisplayPeriod& getHorizontalTiming() const {
+		return *horTiming;
+	}
+
+	/** Get vertical display timings
+	 */
+	inline const V9990DisplayPeriod& getVerticalTiming() const {
+		return *verTiming;
+	}
+
 private:
 	// Schedulable interface:
 	virtual void executeUntil(const EmuTime& time, int userData);
@@ -291,16 +303,16 @@ private:
 	/** Types of V9990 Sync points that can be scheduled
 	  */
 	enum V9990SyncType {
-		/** Vertical Sync: transition to next frame.
-		  */
+		/** Vertical Sync: transition to next frame */
 		V9990_VSYNC,
 
-		/** Horizontal Sync (line interrupt)
-		  */
+		/** Vertical scanning: end of display */
+		V9990_VSCAN,
+		
+		/** Horizontal Sync (line interrupt) */
 		V9990_HSCAN,
 
-		/** Change screen mode
-		  */
+		/** Change screen mode */
 		V9990_SET_MODE,
 	};
 	
@@ -438,8 +450,16 @@ private:
 	/** Time of the last set HSCAN sync point
 	  */
 	EmuTime hScanSyncTime;
-	
+
+	/** Display timings
+	 */
+	const V9990DisplayPeriod* horTiming;
+	const V9990DisplayPeriod* verTiming;
+
 	// --- methods ----------------------------------------------------
+
+	void setHorizontalTiming();
+	void setVerticalTiming();
 
 	V9990ColorMode getColorMode(byte pal_ctrl) const;
 	

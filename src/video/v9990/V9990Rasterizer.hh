@@ -5,7 +5,6 @@
 
 #include "VideoLayer.hh"
 #include "V9990ModeEnum.hh"
-#include "V9990DisplayTiming.hh"
 
 namespace openmsx {
 
@@ -15,7 +14,6 @@ namespace openmsx {
 class V9990Rasterizer : public VideoLayer
 {
 public:
-
 	/** Destructor.
 	  */
 	virtual ~V9990Rasterizer() {}
@@ -25,11 +23,8 @@ public:
 	virtual void reset() = 0;
 
 	/** Indicates the start of a new frame.
-	  * @param horTiming  number of clockticks in the displayable area.
-	  * @param verTiming  number of display lines in the displayable area.
 	  */
-	virtual void frameStart(const V9990DisplayPeriod *horTiming,
-	                        const V9990DisplayPeriod *verTiming) = 0;
+	virtual void frameStart() = 0;
 
 	/** Indicates the end of the current frame.
 	  */ 
@@ -82,12 +77,10 @@ public:
 	virtual void drawDisplay(
 		int fromX, int fromY,
 		int displayX, int displayY,
-		int displayWidth, int displayHeight
-		) = 0;
+		int displayWidth, int displayHeight) = 0;
 
 protected:
 	V9990Rasterizer() : VideoLayer(VIDEO_GFX9000) {}
-
 };
 
 } // namespace openmsx

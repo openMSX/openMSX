@@ -23,8 +23,6 @@ V9990PixelRenderer::V9990PixelRenderer(V9990* vdp_)
 	: vdp(vdp_)
 	, rasterizer(Display::instance().getVideoSystem()
 	                                .createV9990Rasterizer(vdp_))
-	, horTiming(&V9990DisplayTiming::lineMCLK)
-	, verTiming(&V9990DisplayTiming::displayNTSC_MCLK)
 {
 	frameSkipCounter = 999; // force drawing of frame;
 	finishFrameDuration = 0;
@@ -80,7 +78,7 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 
 	// Make sure that the correct timing is used
 	setDisplayMode(vdp->getDisplayMode(), time);
-	rasterizer->frameStart(horTiming, verTiming);
+	rasterizer->frameStart();
 }
 
 void V9990PixelRenderer::frameEnd(const EmuTime& time)
@@ -116,6 +114,9 @@ void V9990PixelRenderer::sync(const EmuTime& time, bool force)
 
 void V9990PixelRenderer::renderUntil(const EmuTime& time)
 {
+	const V9990DisplayPeriod& horTiming = vdp->getHorizontalTiming();
+	const V9990DisplayPeriod& verTiming = vdp->getVerticalTiming();
+
 	// Translate time to pixel position
 	int limitTicks = vdp->getUCTicksThisFrame(time);
 	assert(limitTicks <=
@@ -124,9 +125,9 @@ void V9990PixelRenderer::renderUntil(const EmuTime& time)
 	switch (accuracy) {
 	case RenderSettings::ACC_PIXEL:
 		toX = limitTicks % V9990DisplayTiming::UC_TICKS_PER_LINE -
-		      horTiming->blank;
+		      horTiming.blank;
 		toY = limitTicks / V9990DisplayTiming::UC_TICKS_PER_LINE -
-		      verTiming->blank;
+		      verTiming.blank;
 		break;
 	case RenderSettings::ACC_LINE:
 	case RenderSettings::ACC_SCREEN:
@@ -134,7 +135,7 @@ void V9990PixelRenderer::renderUntil(const EmuTime& time)
 		toX = 0;
 		toY = (limitTicks + V9990DisplayTiming::UC_TICKS_PER_LINE - 400) /
 		             V9990DisplayTiming::UC_TICKS_PER_LINE -
-		      verTiming->blank;
+		      verTiming.blank;
 		break;
 	default:
 		assert(false);
@@ -144,12 +145,12 @@ void V9990PixelRenderer::renderUntil(const EmuTime& time)
 	if ((toX == lastX) && (toY == lastY)) return;
 	
 	// edges of the DISPLAY part of the vdp output
-	int left       = horTiming->border1;
-	int right      = left   + horTiming->display;
-	int rightEdge  = right  + horTiming->border2;
-	int top        = verTiming->border1;
-	int bottom     = top    + verTiming->display;
-	int bottomEdge = bottom + verTiming->border2;
+	int left       = horTiming.border1;
+	int right      = left   + horTiming.display;
+	int rightEdge  = right  + horTiming.border2;
+	int top        = verTiming.border1;
+	int bottom     = top    + verTiming.display;
+	int bottomEdge = bottom + verTiming.border2;
 
 	if (vdp->isDisplayEnabled()) {
 		// top border
@@ -184,8 +185,11 @@ void V9990PixelRenderer::draw(int fromX, int fromY, int toX, int toY,
 			fromX << "," << fromY << "," << toX << "," << toY << ","
 			<< ((type == DRAW_BORDER)? "BORDER": "DISPLAY") << ")");
 	
-	int displayX = fromX - horTiming->border1;
-	int displayY = fromY - verTiming->border1;
+	const V9990DisplayPeriod& horTiming = vdp->getHorizontalTiming();
+	const V9990DisplayPeriod& verTiming = vdp->getVerticalTiming();
+
+	int displayX = fromX - horTiming.border1;
+	int displayY = fromY - verTiming.border1;
 	int displayWidth = toX - fromX;
 	int displayHeight = toY - fromY;
 
@@ -255,35 +259,6 @@ void V9990PixelRenderer::render(int fromX, int fromY, int toX, int toY,
 void V9990PixelRenderer::setDisplayMode(V9990DisplayMode mode, const EmuTime& time)
 {
 	sync(time);
-	switch (mode) {
-	case P1:
-	case P2:
-	case B1:
-	case B3:
-	case B7:
-		horTiming = &V9990DisplayTiming::lineMCLK;
-		if(vdp->isPalTiming()) {
-			verTiming = &V9990DisplayTiming::displayPAL_MCLK;
-		} else {
-			verTiming = &V9990DisplayTiming::displayNTSC_MCLK;
-		}
-		break;
-	case B0:
-	case B2:
-	case B4:
-		horTiming = &V9990DisplayTiming::lineXTAL;
-		if(vdp->isPalTiming()) {
-			verTiming = &V9990DisplayTiming::displayPAL_XTAL;
-		} else {
-			verTiming = &V9990DisplayTiming::displayNTSC_XTAL;
-		}
-	case B5:
-	case B6:
-		break;
-	default:
-		assert(false);
-	}
-
 	rasterizer->setDisplayMode(mode);
 }
 

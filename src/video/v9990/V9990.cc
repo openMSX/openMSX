@@ -119,7 +119,9 @@ void V9990::reset(const EmuTime& time)
 	PRT_DEBUG("[" << time << "] V9990::reset");
 
 	Scheduler::instance().removeSyncPoint(this, V9990_VSYNC);
+	Scheduler::instance().removeSyncPoint(this, V9990_VSCAN);
 	Scheduler::instance().removeSyncPoint(this, V9990_HSCAN);
+	Scheduler::instance().removeSyncPoint(this, V9990_SET_MODE);
 
 	// Clear registers / ports
 	memset(regs, 0, sizeof(regs));
@@ -318,12 +320,17 @@ void V9990::executeUntil(const EmuTime& time, int userData)
 	          "V9990::executeUntil - data=0x" << std::hex << userData);
 	switch (userData)  {
 		case V9990_VSYNC:
+			// Transition from one frame to the next
 			renderer->frameEnd(time);
 			frameStart(time);
 
-			// TODO happens at a different moment in time
-			raiseIRQ(VER_IRQ);
+			raiseIRQ(VER_IRQ); // TODO happens at a different moment in time
 			break;
+
+		case V9990_VSCAN:
+			// TODO
+			break;
+			
 		case V9990_HSCAN:
 			raiseIRQ(HOR_IRQ);
 			break;
@@ -334,6 +341,7 @@ void V9990::executeUntil(const EmuTime& time, int userData)
 			renderer->setImageWidth(getImageWidth());
 			renderer->setColorMode(getColorMode(), time);
 			break;
+
 		default:
 			assert(false);
 	}
@@ -614,6 +622,7 @@ void V9990::frameStart(const EmuTime& time)
 {
 	// Update setings that are fixed at the start of a frame
 	palTiming = regs[SCREEN_MODE_1] & 0x08;
+	setVerticalTiming();
 	status ^= 0x02; // flip EO bit
 
 	renderer->frameStart(time);
@@ -630,6 +639,42 @@ void V9990::raiseIRQ(IRQType irqType)
 	pendingIRQs |= irqType;
 	if (pendingIRQs & regs[INTERRUPT_0]) {
 		irq.set();
+	}
+}
+
+void V9990::setHorizontalTiming()
+{
+	switch (mode) {
+	case P1: case P2:
+	case B1: case B3: case B7:
+		horTiming = &V9990DisplayTiming::lineMCLK;
+		break;
+	case B0: case B2: case B4:
+		horTiming = &V9990DisplayTiming::lineXTAL;
+	case B5: case B6:
+		break;
+	default:
+		assert(false);
+	}
+}
+
+void V9990::setVerticalTiming()
+{
+	switch (mode) {
+	case P1: case P2:
+	case B1: case B3: case B7:
+		verTiming = isPalTiming()
+		          ? &V9990DisplayTiming::displayPAL_MCLK
+		          : &V9990DisplayTiming::displayNTSC_MCLK;
+		break;
+	case B0: case B2: case B4:
+		verTiming = isPalTiming()
+		          ? &V9990DisplayTiming::displayPAL_XTAL
+		          : &V9990DisplayTiming::displayNTSC_XTAL;
+	case B5: case B6:
+		break;
+	default:
+		assert(false);
 	}
 }
 
@@ -702,6 +747,8 @@ void V9990::calcDisplayMode()
 
 	// TODO Check
 	if (mode == INVALID_DISPLAY_MODE) mode = P1;
+
+	setHorizontalTiming();
 }
 
 void V9990::scheduleHscan(const EmuTime& time)

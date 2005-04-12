@@ -335,7 +335,6 @@ void VDP::executeUntil(const EmuTime& time, int userData)
 	default:
 		assert(false);
 	}
-
 }
 
 const string& VDP::schedName() const

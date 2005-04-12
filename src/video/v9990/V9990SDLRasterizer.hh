@@ -35,8 +35,7 @@ public:
 
 	// Rasterizer interface:
 	virtual void reset();
-	virtual void frameStart(const V9990DisplayPeriod* horTiming,
-	                        const V9990DisplayPeriod* verTiming);
+	virtual void frameStart();
 	virtual void frameEnd();
 	virtual void setDisplayMode(V9990DisplayMode displayMode);
 	virtual void setColorMode(V9990ColorMode colorMode);

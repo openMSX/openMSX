@@ -6,7 +6,6 @@
 #include "V9990Renderer.hh"
 #include "SettingListener.hh"
 #include "RenderSettings.hh"
-#include "V9990DisplayTiming.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
@@ -77,14 +76,6 @@ private:
 	  */
 	int lastX;
 
-	/** Horizontal timing
-	  */
-	const V9990DisplayPeriod* horTiming;
-
-	/** Vertical timing
-	  */
-	const V9990DisplayPeriod* verTiming;
-
 	/** Should current frame be draw or can it be skipped.
 	  */
 	bool drawFrame;
@@ -115,8 +106,8 @@ private:
 	  * @param drawType Draw image or border
 	  */
 	void render(int fromX, int fromY, int toX, int toY,
-			    int clipL, int clipT, int clipR, int clipB,
-				DrawType drawType);
+	            int clipL, int clipT, int clipR, int clipB,
+	            DrawType drawType);
 
 	// SettingListener
 	virtual void update(const Setting* setting);
