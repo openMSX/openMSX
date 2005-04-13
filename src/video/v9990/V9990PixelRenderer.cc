@@ -44,6 +44,7 @@ void V9990PixelRenderer::reset(const EmuTime& time)
 {
 	PRT_DEBUG("V9990PixelRenderer::reset");
 
+	displayEnabled = vdp->isDisplayEnabled();
 	setDisplayMode(vdp->getDisplayMode(), time);
 	setColorMode(vdp->getColorMode(), time);
 
@@ -148,112 +149,82 @@ void V9990PixelRenderer::renderUntil(const EmuTime& time)
 	int left       = horTiming.border1;
 	int right      = left   + horTiming.display;
 	int rightEdge  = right  + horTiming.border2;
-	int top        = verTiming.border1;
-	int bottom     = top    + verTiming.display;
-	int bottomEdge = bottom + verTiming.border2;
 
-	if (vdp->isDisplayEnabled()) {
-		// top border
-		render(lastX, lastY, toX, toY,
-		       0, 0, rightEdge, top, DRAW_BORDER);
-
-		// display area: left border/display/right border
-		render(lastX, lastY, toX, toY,
-		       0, top, left, bottom, DRAW_BORDER);
-		render(lastX, lastY, toX, toY,
-		       left, top, right, bottom, DRAW_DISPLAY);
-		render(lastX, lastY, toX, toY,
-		       right, top, rightEdge, bottom, DRAW_BORDER);
-
-		// bottom border
-		render(lastX, lastY, toX, toY,
-		       0, bottom, rightEdge, bottomEdge, DRAW_BORDER);
+	if (displayEnabled) {
+		// left border
+		subdivide(lastX, lastY, toX, toY, 0, left, DRAW_BORDER);
+		// display area
+		subdivide(lastX, lastY, toX, toY, left, right, DRAW_DISPLAY);
+		// right border
+		subdivide(lastX, lastY, toX, toY, right, rightEdge, DRAW_BORDER);
 	} else {
 		// complete screen
-		render(lastX, lastY, toX, toY,
-		       0, 0, rightEdge, bottomEdge, DRAW_BORDER);
+		subdivide(lastX, lastY, toX, toY, 0, rightEdge, DRAW_BORDER);
 	}
 
 	lastX = toX;
 	lastY = toY;
 }
 
+void V9990PixelRenderer::subdivide(int fromX, int fromY, int toX, int toY,
+                                   int clipL, int clipR, DrawType drawType)
+{
+	// partial first line
+	if (fromX > clipL) {
+		if (fromX < clipR) {
+			bool atEnd = (fromY != toY) || (toX >= clipR);
+			draw(fromX, fromY, (atEnd ? clipR : toX), fromY + 1,
+			     drawType);
+		}
+		if (fromY == toY) return;
+		fromY++;
+	}
+
+	bool drawLast = false;
+	if (toX >= clipR) {
+		toY++;
+	} else if (toX > clipL) {
+		drawLast = true;
+	}
+	// full middle lines
+	if (fromY < toY) {
+		draw(clipL, fromY, clipR, toY, drawType);
+	}
+	
+	// partial last line
+	if (drawLast) draw(clipL, toY, toX, toY + 1, drawType);
+}
+
 void V9990PixelRenderer::draw(int fromX, int fromY, int toX, int toY,
                               DrawType type)
 {
 	PRT_DEBUG("V9990PixelRenderer::draw(" << std::dec <<
-			fromX << "," << fromY << "," << toX << "," << toY << ","
-			<< ((type == DRAW_BORDER)? "BORDER": "DISPLAY") << ")");
+	          fromX << "," << fromY << "," << toX << "," << toY << "," <<
+	          ((type == DRAW_BORDER)? "BORDER": "DISPLAY") << ")");
 	
-	const V9990DisplayPeriod& horTiming = vdp->getHorizontalTiming();
-	const V9990DisplayPeriod& verTiming = vdp->getVerticalTiming();
-
-	int displayX = fromX - horTiming.border1;
-	int displayY = fromY - verTiming.border1;
-	int displayWidth = toX - fromX;
-	int displayHeight = toY - fromY;
-
-	switch(type) {
-	case DRAW_BORDER:
+	if (type == DRAW_BORDER) {
 		rasterizer->drawBorder(fromX, fromY, toX, toY);
-		break;
-	case DRAW_DISPLAY:
-		rasterizer->drawDisplay(fromX, fromY,
-		                        displayX, displayY,
+
+	} else {
+		assert(type == DRAW_DISPLAY);
+		
+		const V9990DisplayPeriod& horTiming = vdp->getHorizontalTiming();
+		const V9990DisplayPeriod& verTiming = vdp->getVerticalTiming();
+
+		int displayX = fromX - horTiming.border1;
+		int displayY = fromY - verTiming.border1;
+		int displayWidth = toX - fromX;
+		int displayHeight = toY - fromY;
+
+		rasterizer->drawDisplay(fromX, fromY, displayX, displayY,
 		                        displayWidth, displayHeight);
-		break;
-	default:
-		assert(false);
 	}
 }
 
-void V9990PixelRenderer::render(int fromX, int fromY, int toX, int toY,
-                                int clipL, int clipT, int clipR, int clipB,
-                                DrawType drawType)
+void V9990PixelRenderer::updateDisplayEnabled(bool enabled, const EmuTime& time)
 {
-	PRT_DEBUG("V9990PixelRenderer::render(" <<
-		  fromX << "," << fromY << "," << toX << "," << toY << ", " <<
-		  clipL << "," << clipT << "," << clipR << "," << clipB << ", " <<
-		  ((drawType == DRAW_BORDER)? "BORDER": "DISPLAY") << ")");
-	
-	// clip top & bottom 
-	if(clipT > fromY) {
-		fromX = clipL;
-		fromY = clipT;
-	}
-	if(clipB < toY) {
-		toX = clipR;
-		toY = clipB - 1;
-	}
-	
-	if(fromY < toY) {
-		// draw partial first line
-		if(fromX > clipL) {
-			if(fromX < clipR) {
-				draw(fromX, fromY, clipR, fromY+1, drawType);
-			}
-			fromY++;
-		}
-
-		if(toX >= clipR) {
-			toY++;
-			toX = clipL - 1;
-		}
-
-		// draw middle recangle
-		if(fromY < toY) {
-			draw(clipL, fromY, clipR, toY, drawType);
-			fromY = toY;
-			fromX = clipL;
-		}
-	}
-	
-	// draw last part
-	if((fromY == toY) && (toY < clipB) && 
-	   (toX > fromX)) {
-		draw(fromX, fromY, toX, toY+1, drawType);
-	}
-
+	sync(time, true);
+	displayEnabled = enabled;
 }
 
 void V9990PixelRenderer::setDisplayMode(V9990DisplayMode mode, const EmuTime& time)
@@ -265,7 +236,12 @@ void V9990PixelRenderer::setDisplayMode(V9990DisplayMode mode, const EmuTime& ti
 void V9990PixelRenderer::updatePalette(int index, byte r, byte g, byte b,
                                        const EmuTime& time)
 {
-	sync(time);
+	if (displayEnabled) {
+		sync(time);
+	} else {
+		// TODO only sync if border color changed
+		sync(time);
+	}
 	rasterizer->setPalette(index, r, g, b);
 }
 void V9990PixelRenderer::setColorMode(V9990ColorMode mode, const EmuTime& time)
@@ -281,26 +257,26 @@ void V9990PixelRenderer::updateBackgroundColor(int /*index*/, const EmuTime& tim
 
 void V9990PixelRenderer::setImageWidth(int width)
 {
-	rasterizer->setImageWidth(width);
+	if (displayEnabled) rasterizer->setImageWidth(width);
 }
 
 void V9990PixelRenderer::updateScrollAX(const EmuTime& time)
 {
-	sync(time);
+	if (displayEnabled) sync(time);
 }
 void V9990PixelRenderer::updateScrollAY(const EmuTime& time)
 {
-	sync(time);
+	if (displayEnabled) sync(time);
 }
 void V9990PixelRenderer::updateScrollBX(const EmuTime& time)
 {
 	// TODO only in P1 mode
-	sync(time);
+	if (displayEnabled) sync(time);
 }
 void V9990PixelRenderer::updateScrollBY(const EmuTime& time)
 {
 	// TODO only in P1 mode
-	sync(time);
+	if (displayEnabled) sync(time);
 }
 
 void V9990PixelRenderer::update(const Setting* setting)

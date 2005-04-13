@@ -52,6 +52,14 @@ public:
 	  */
 	virtual void renderUntil(const EmuTime& time) = 0;
 
+	/** Informs the renderer of a VDP display enabled change.
+	 *  Both the regular border start/end and forced blanking by clearing
+	 *  the display enable bit are considered display enabled changes.
+	 *  @param enabled The new display enabled state.
+	 *  @param time The moment in emulated time this change occurs.
+	 */
+	virtual void updateDisplayEnabled(bool enabled, const EmuTime& time) = 0;
+	
 	/** Set screen mode
 	  */
 	virtual void setDisplayMode(V9990DisplayMode mode,

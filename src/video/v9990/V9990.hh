@@ -306,6 +306,9 @@ private:
 		/** Vertical Sync: transition to next frame */
 		V9990_VSYNC,
 
+		/** Start of display */
+		V9990_DISPLAY_START,
+		
 		/** Vertical scanning: end of display */
 		V9990_VSCAN,
 		

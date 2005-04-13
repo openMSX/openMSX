@@ -1,5 +1,9 @@
 $Id$
 
+2005-04-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Refactored V9990 'renderUntil' related code:
+	   should fix pixel accurate rendering
+
 2005-04-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented V9990 vertical scroll rolling in Bx modes
 

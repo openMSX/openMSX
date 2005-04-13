@@ -20,6 +20,11 @@ void V9990DummyRenderer::renderUntil(const EmuTime& /*time*/)
 {
 }
 
+void V9990DummyRenderer::updateDisplayEnabled(bool /*enabled*/,
+                                              const EmuTime& /*time*/)
+{
+}
+
 void V9990DummyRenderer::setDisplayMode(V9990DisplayMode /*mode*/,
 	                                const EmuTime& /*time*/)
 {

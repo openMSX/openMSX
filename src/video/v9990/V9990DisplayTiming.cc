@@ -12,13 +12,13 @@ const V9990DisplayPeriod V9990DisplayTiming::lineXTAL = V9990DisplayPeriod(
 
 /* Vertical display timing: NTSC or PAL */
 const V9990DisplayPeriod V9990DisplayTiming::displayNTSC_MCLK =
-	V9990DisplayPeriod(262, 18, 14, 212, 14);
+	V9990DisplayPeriod(262, 15, 14, 212, 14);
 const V9990DisplayPeriod V9990DisplayTiming::displayNTSC_XTAL =
-	V9990DisplayPeriod(262, 18,  0, 240,  0);
+	V9990DisplayPeriod(262, 15,  0, 240,  0);
 const V9990DisplayPeriod V9990DisplayTiming::displayPAL_MCLK  =
-	V9990DisplayPeriod(313, 18, 41, 212, 37);
+	V9990DisplayPeriod(313, 15, 41, 212, 37);
 const V9990DisplayPeriod V9990DisplayTiming::displayPAL_XTAL  =
-	V9990DisplayPeriod(313, 18,  0, 290,   0);
+	V9990DisplayPeriod(313, 15,  0, 290,   0);
 
 V9990DisplayPeriod::V9990DisplayPeriod(int cycle, int blank, int border1, int display, int border2)
 {

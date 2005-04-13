@@ -33,6 +33,7 @@ public:
 	void reset(const EmuTime& time);
 	void frameStart(const EmuTime& time);
 	void frameEnd(const EmuTime& time);
+	void updateDisplayEnabled(bool enabled, const EmuTime& time);
 	void setDisplayMode(V9990DisplayMode mode, const EmuTime& time);
 	void setColorMode(V9990ColorMode mode, const EmuTime& time);
 	void updatePalette(int index, byte r, byte g, byte b, const EmuTime& time);
@@ -65,6 +66,12 @@ private:
 	/** Accuracy setting for current frame.
 	 */
 	RenderSettings::Accuracy accuracy;
+
+	/** Is display enabled?
+	  * Enabled means the current line is in the display area and
+	  * forced blanking is off.
+	  */
+	bool displayEnabled;
 	
 	/** The last sync point's vertical position. In lines, starting
 	  * from VSYNC 
@@ -89,25 +96,11 @@ private:
 	  */
 	void draw(int fromX, int fromY, int toX, int toY, DrawType type);
 
-	/** Render a part of the screen.  Horizontal positions given in UC ticks
-	  * starting at HSYNC.  Vertical positions given in lines starting from
-	  * VSYNC.  FromX/Y define the rendering start point, toX/Y the end point.
-	  * The area to be rendered is limited to the borders set by the clip*
-	  * variables.
-	  * 
-	  * @param fromX    X position on line
-	  * @param fromY    Y position on line
-	  * @param toX      X position on line
-	  * @param toY      Y position on line
-	  * @param clipL    Left clipping position
-	  * @param clipT    Top clipping position
-	  * @param clipR    Right clipping position
-	  * @param clipB    Bottom clipping position
-	  * @param drawType Draw image or border
+	/** Subdivide an area specified by two scan positions into a series of
+	  * rectangles
 	  */
-	void render(int fromX, int fromY, int toX, int toY,
-	            int clipL, int clipT, int clipR, int clipB,
-	            DrawType drawType);
+	void subdivide(int fromX, int fromY, int toX, int toY,
+	               int clipL, int clipR, DrawType drawType);
 
 	// SettingListener
 	virtual void update(const Setting* setting);
