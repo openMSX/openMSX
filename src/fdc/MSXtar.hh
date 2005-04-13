@@ -21,6 +21,11 @@ class MSXtar
 public: 
 	MSXtar(SectorBasedDisk& sectordisk);
 	void format();
+	void format(int partitionsectorsize);
+	//static char toMSXChr(char a);
+
+	//temporary way to test import MSXtar functionality
+	void addDir(const std::string &rootDirName);
 
 private:
 	struct MSXBootSector {
@@ -49,6 +54,12 @@ private:
 		byte date[2];
 		byte startcluster[2];
 		byte size[4];
+	};
+	
+	struct fullMSXDirEntry {
+		byte* sectorbuf;
+		int sector;
+		byte direntryindex;
 	};
 
 	//Modified struct taken over from Linux' fdisk.h
@@ -100,6 +111,7 @@ private:
 	int MSXchrootSector;
 	int MSXchrootStartIndex;
 	int MSXpartition;
+	int partitionOffset;
 	bool do_extract;
 	bool do_subdirs;
 	bool do_singlesided;
@@ -116,6 +128,23 @@ private:
 	void setBootSector(byte* buf,word nbsectors);
 	word sectorToCluster(int sector);
 	void readBootSector(byte* buf);
+	word ReadFAT(word clnr);
+	void WriteFAT(word clnr, word val);
+	word findFirstFreeCluster(void);
+	byte findUsableIndexInSector(int sector);
+	byte findUsableIndexInSector(byte* buf);
+	int getNextSector(int sector);
+	int appendClusterToSubdir(int sector);
+	struct physDirEntry addEntryToDir(int sector,byte direntryindex);
+	std::string makeSimpleMSXFileName(const std::string& fullfilename);
+	int AddMSXSubdir(std::string msxName,int t,int d,int sector,byte direntryindex);
+	int AlterFileInDSK(struct MSXDirEntry* msxdirentry, std::string hostName);
+	int AddSubdirtoDSK(std::string hostName, std::string msxName,int sector,byte direntryindex);
+	struct fullMSXDirEntry findEntryInDir(std::string name,int sector,byte direntryindex,byte* sectorbuf);
+	int AddFiletoDSK(std::string hostName,std::string msxName,int sector,byte direntryindex);
+	void recurseDirFill(const std::string &DirName,int sector,int direntryindex);
+
+
 };
 
 } // namespace openmsx

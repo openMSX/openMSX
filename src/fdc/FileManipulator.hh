@@ -27,6 +27,7 @@ private:
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 	void savedsk(RealDrive* drive, const std::string& filename);
+	void addDir(RealDrive* drive, const std::string& filename);
 	
 	typedef std::map<const std::string, RealDrive*> DiskImages;
 	DiskImages diskImages;

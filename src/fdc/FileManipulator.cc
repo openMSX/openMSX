@@ -6,6 +6,7 @@
 #include "File.hh"
 #include "SectorBasedDisk.hh"
 #include "DiskDrive.hh"
+#include "MSXtar.hh"
 #include <cassert>
 
 using std::set;
@@ -51,6 +52,15 @@ string FileManipulator::execute(const vector<string>& tokens)
 	string result;
 	if (tokens.size() == 1) {
 		throw CommandException("Missing argument");
+	} else if (tokens[1] == "addDir") {
+		if (tokens.size() != 4) {
+			throw CommandException("Incorrect number of parameters");
+		} else {
+			DiskImages::const_iterator it = diskImages.find(tokens[2]);
+			if (it != diskImages.end()) {
+				addDir(it->second, tokens[3]);
+			}
+		}
 	} else if (tokens[1] == "savedsk") {
 		if (tokens.size() != 4) {
 			throw CommandException("Incorrect number of parameters");
@@ -92,6 +102,7 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		set<string> cmds;
+		cmds.insert("addDir");
 		cmds.insert("savedsk");
 		cmds.insert("import");
 		cmds.insert("export");
@@ -128,6 +139,18 @@ void FileManipulator::savedsk(RealDrive* drive, const string& filename)
 		disk->readLogicalSector(i, buf);
 		file.write(buf, SectorBasedDisk::SECTOR_SIZE);
 	}
+}
+
+void FileManipulator::addDir(RealDrive* drive, const string& filename)
+{
+	SectorBasedDisk* disk = dynamic_cast<SectorBasedDisk*>(&drive->getDisk());
+	if (!disk) {
+		// not a SectorBasedDisk
+		throw CommandException("Unsupported disk type");
+	}
+	MSXtar workhorse(*disk);
+	workhorse.format();
+	workhorse.addDir(filename);
 }
 
 } // namespace openmsx

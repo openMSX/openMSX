@@ -4,6 +4,12 @@ $Id$
 	* Refactored V9990 'renderUntil' related code:
 	   should fix pixel accurate rendering
 
+2005-04-13 David Heremans <david.heremans@gnu-linux.net>
+	* Got the needed routines to add files/subdirs to a dsk image into
+	  msxtar code.The code compiles but doesn't work yet. Going from
+	  an all-in-memory model to a one-sector-at-a-time model introduced
+	  a lot of partial (and untested) rewrites and some quick hacks.
+
 2005-04-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented V9990 vertical scroll rolling in Bx modes
 
