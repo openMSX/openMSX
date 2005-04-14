@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <utime.h>
 #include <unistd.h>
+#include <cassert>
 
 using std::string;
 
