@@ -125,26 +125,28 @@ private:
 	SectorBasedDisk& disk;
 
 	int clusterToSector(int cluster);
-	void setBootSector(byte* buf,word nbsectors);
+	void setBootSector(byte* buf, word nbsectors);
 	word sectorToCluster(int sector);
 	void readBootSector(byte* buf);
-	word ReadFAT(word clnr);
-	void WriteFAT(word clnr, word val);
+	word readFAT(word clnr);
+	void writeFAT(word clnr, word val);
 	word findFirstFreeCluster(void);
 	byte findUsableIndexInSector(int sector);
 	byte findUsableIndexInSector(byte* buf);
 	int getNextSector(int sector);
 	int appendClusterToSubdir(int sector);
-	struct physDirEntry addEntryToDir(int sector,byte direntryindex);
+	physDirEntry addEntryToDir(int sector, byte direntryindex);
 	std::string makeSimpleMSXFileName(const std::string& fullfilename);
-	int AddMSXSubdir(std::string msxName,int t,int d,int sector,byte direntryindex);
-	int AlterFileInDSK(struct MSXDirEntry* msxdirentry, std::string hostName);
-	int AddSubdirtoDSK(std::string hostName, std::string msxName,int sector,byte direntryindex);
-	struct fullMSXDirEntry findEntryInDir(std::string name,int sector,byte direntryindex,byte* sectorbuf);
-	int AddFiletoDSK(std::string hostName,std::string msxName,int sector,byte direntryindex);
-	void recurseDirFill(const std::string &DirName,int sector,int direntryindex);
-
-
+	int addMSXSubdir(const std::string& msxName, int t, int d, int sector,
+	                 byte direntryindex);
+	int alterFileInDSK(MSXDirEntry* msxdirentry, const std::string& hostName);
+	int addSubdirtoDSK(const std::string& hostName, const std::string& msxName,
+	                   int sector, byte direntryindex);
+	fullMSXDirEntry findEntryInDir(const std::string& name, int sector,
+	                               byte direntryindex, byte* sectorbuf);
+	int addFiletoDSK(const std::string& hostName, const std::string& msxName,
+	                 int sector, byte direntryindex);
+	void recurseDirFill(const std::string& dirName, int sector, int direntryindex);
 };
 
 } // namespace openmsx

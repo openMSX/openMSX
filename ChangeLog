@@ -1,5 +1,12 @@
 $Id$
 
+2005-04-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* MSXtar cleanup / fixes:
+	   - fixed compilation on windows (not actually tested):
+	      the type field 'd_type' in the struct 'dirent' is not generally
+	      available (not on windows for example)
+	   - lots of small cleanups (mainly layout)
+
 2005-04-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Refactored V9990 'renderUntil' related code:
 	   should fix pixel accurate rendering
