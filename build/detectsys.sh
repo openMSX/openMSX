@@ -35,6 +35,8 @@ case "$GUESSED_CPU" in
 		OPENMSX_TARGET_CPU=x86_64;;
 	powerpc)
 		OPENMSX_TARGET_CPU=ppc;;
+	sparc*)
+		OPENMSX_TARGET_CPU=sparc;;
 	*)
 		echo "  Unknown CPU \"$GUESSED_CPU\"!" 1>&2
 		exit 1

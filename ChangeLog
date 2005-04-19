@@ -1,5 +1,8 @@
 $Id$
 
+2005-04-19 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added support for Sparc CPUs.
+
 2005-04-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* MSXtar cleanup / fixes:
 	   - fixed compilation on windows (not actually tested):
