@@ -28,7 +28,8 @@ private:
 
 	void savedsk(RealDrive* drive, const std::string& filename);
 	void addDir(RealDrive* drive, const std::string& filename);
-	
+	void getDir(RealDrive* drive, const std::string& dirname);
+
 	typedef std::map<const std::string, RealDrive*> DiskImages;
 	DiskImages diskImages;
 };

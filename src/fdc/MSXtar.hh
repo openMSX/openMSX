@@ -14,18 +14,19 @@
 
 namespace openmsx {
 
-class SectorBasedDisk;
+class SectorAccessibleDisk;
 
 class MSXtar
 {
 public: 
-	MSXtar(SectorBasedDisk& sectordisk);
+	MSXtar(SectorAccessibleDisk& sectordisk);
 	void format();
 	void format(int partitionsectorsize);
 	//static char toMSXChr(char a);
 
 	//temporary way to test import MSXtar functionality
 	void addDir(const std::string &rootDirName);
+	void getDir(const std::string &rootDirName);
 
 private:
 	struct MSXBootSector {
@@ -122,12 +123,12 @@ private:
 	bool msx_allpart;
 	bool do_fat16;
 	const byte* defaultBootBlock;
-	SectorBasedDisk& disk;
+	SectorAccessibleDisk& disk;
 
 	int clusterToSector(int cluster);
 	void setBootSector(byte* buf, word nbsectors);
 	word sectorToCluster(int sector);
-	void readBootSector(byte* buf);
+	void readBootSector(const byte* buf);
 	word readFAT(word clnr);
 	void writeFAT(word clnr, word val);
 	word findFirstFreeCluster(void);
@@ -147,6 +148,10 @@ private:
 	int addFiletoDSK(const std::string& hostName, const std::string& msxName,
 	                 int sector, byte direntryindex);
 	void recurseDirFill(const std::string& dirName, int sector, int direntryindex);
+	std::string condensName(MSXDirEntry* direntry);
+	void changeTime(std::string resultFile, MSXDirEntry* direntry);
+	void fileExtract(std::string resultFile, MSXDirEntry* direntry);
+	void recurseDirExtract(const std::string &DirName,int sector,int direntryindex);
 };
 
 } // namespace openmsx

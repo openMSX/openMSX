@@ -5,13 +5,14 @@
 
 #include <memory>
 #include "IDEDevice.hh"
+#include "SectorAccessibleDisk.hh"
 
 namespace openmsx {
 
 class XMLElement;
 class File;
 
-class IDEHD : public IDEDevice
+class IDEHD : public IDEDevice, public SectorAccessibleDisk
 {
 public:
 	IDEHD(const XMLElement& config, const EmuTime& time);
@@ -24,6 +25,11 @@ public:
 
 	virtual void writeData(word value, const EmuTime& time);
 	virtual void writeReg(nibble reg, byte value, const EmuTime& time);
+
+	//SectorAccessibleDisk methods
+	virtual void readLogicalSector(unsigned sector, byte* buf);
+	virtual void writeLogicalSector(unsigned sector, const byte* buf) ;
+	virtual unsigned getNbSectors() const ;
 
 private:
 	void setError(byte error);

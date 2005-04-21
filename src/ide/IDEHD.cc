@@ -341,4 +341,27 @@ void IDEHD::setTransferWrite(bool status)
 	}
 }
 
+void IDEHD::readLogicalSector(unsigned sector, byte* buf)
+{
+	try {
+		file->seek(512 * sector);
+		file->read(buf, 512 );
+	} catch (FileException &e) {
+	}
+}
+
+void IDEHD::writeLogicalSector(unsigned sector, const byte* buf)
+{
+	try {
+		file->seek(512 * sector);
+		file->write(buf, 512);
+	} catch (FileException &e) {
+	}
+}
+
+unsigned IDEHD::getNbSectors() const
+{
+	return file->getSize() / 512;
+}
+
 } // namespace openmsx

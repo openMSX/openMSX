@@ -52,13 +52,14 @@ string FileManipulator::execute(const vector<string>& tokens)
 	string result;
 	if (tokens.size() == 1) {
 		throw CommandException("Missing argument");
-	} else if (tokens[1] == "addDir") {
+	} else if (tokens[1] == "addDir" || tokens[1] == "getDir" ) {
 		if (tokens.size() != 4) {
 			throw CommandException("Incorrect number of parameters");
 		} else {
 			DiskImages::const_iterator it = diskImages.find(tokens[2]);
 			if (it != diskImages.end()) {
-				addDir(it->second, tokens[3]);
+				if (tokens[1] == "getDir" ) getDir(it->second, tokens[3]);
+				if (tokens[1] == "addDir" ) addDir(it->second, tokens[3]);
 			}
 		}
 	} else if (tokens[1] == "savedsk") {
@@ -103,6 +104,7 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 	if (tokens.size() == 2) {
 		set<string> cmds;
 		cmds.insert("addDir");
+		cmds.insert("getDir");
 		cmds.insert("savedsk");
 		cmds.insert("import");
 		cmds.insert("export");
@@ -127,7 +129,7 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 
 void FileManipulator::savedsk(RealDrive* drive, const string& filename)
 {
-	SectorBasedDisk* disk = dynamic_cast<SectorBasedDisk*>(&drive->getDisk());
+	SectorAccessibleDisk* disk = dynamic_cast<SectorAccessibleDisk*>(&drive->getDisk());
 	if (!disk) {
 		// not a SectorBasedDisk
 		throw CommandException("Unsupported disk type");
@@ -143,7 +145,7 @@ void FileManipulator::savedsk(RealDrive* drive, const string& filename)
 
 void FileManipulator::addDir(RealDrive* drive, const string& filename)
 {
-	SectorBasedDisk* disk = dynamic_cast<SectorBasedDisk*>(&drive->getDisk());
+	SectorAccessibleDisk* disk = dynamic_cast<SectorAccessibleDisk*>(&drive->getDisk());
 	if (!disk) {
 		// not a SectorBasedDisk
 		throw CommandException("Unsupported disk type");
@@ -151,6 +153,17 @@ void FileManipulator::addDir(RealDrive* drive, const string& filename)
 	MSXtar workhorse(*disk);
 	workhorse.format();
 	workhorse.addDir(filename);
+}
+
+void FileManipulator::getDir(RealDrive* drive, const string& dirname)
+{
+	SectorAccessibleDisk* disk = dynamic_cast<SectorAccessibleDisk*>(&drive->getDisk());
+	if (!disk) {
+		// not a SectorBasedDisk
+		throw CommandException("Unsupported disk type");
+	}
+	MSXtar workhorse(*disk);
+	workhorse.getDir(dirname);
 }
 
 } // namespace openmsx

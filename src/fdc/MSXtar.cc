@@ -88,7 +88,7 @@ static const byte dos2BootBlock[512] =
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 };
 
-MSXtar::MSXtar(SectorBasedDisk& sectordisk)
+MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 	: disk(sectordisk)
 {
 	nbSectorsPerCluster = 2;
@@ -109,6 +109,7 @@ MSXtar::MSXtar(SectorBasedDisk& sectordisk)
 	//byte sectorbuf[SECTOR_SIZE];
 	//disk.readLogicalSector(0,sectorbuf);
 	//readBootSector(sectorbuf); //set object variables to correct values
+	readBootSector(defaultBootBlock); //set object variables to correct values
 }
 
 // functions to change DirEntries
@@ -154,7 +155,7 @@ word MSXtar::sectorToCluster(int sector)
 
 /** Initialize object variables by reading info from the bootsector
   */
-void MSXtar::readBootSector(byte* buf)
+void MSXtar::readBootSector(const byte* buf)
 {
 	MSXBootSector* boot = (MSXBootSector*)buf;
 
@@ -458,7 +459,7 @@ int MSXtar::appendClusterToSubdir(int sector)
 // This function returns the sector and dirindex for a new directory entry
 // if needed the involved subdirectroy is expanded by an extra cluster
 // returns: a physDirEntry containing sector and index
-//          if failed then the sectornumber is 0
+//          if failed then the sectornumber is 0 and index is 16
 MSXtar::physDirEntry MSXtar::addEntryToDir(int sector, byte /*direntryindex*/)
 {
 	// this routin adds the msxname to a directory sector, if needed (and
@@ -759,6 +760,7 @@ MSXtar::fullMSXDirEntry MSXtar::findEntryInDir(const string& name,
 	disk.readLogicalSector(partitionOffset + sector, sectorbuf);
 	byte* p = sectorbuf + 32 * direntryindex;
 	byte i = direntryindex;
+	bool entryfound=false;
 	do {
 		for (/* */;
 		     (i < 16) && (strncmp(name.c_str(), (char*)p, 11) != 0);
@@ -768,8 +770,8 @@ MSXtar::fullMSXDirEntry MSXtar::findEntryInDir(const string& name,
 			disk.readLogicalSector(partitionOffset + sector, sectorbuf);
 			p = sectorbuf;
 			if (sector) i = 0;
-		}
-	} while ((i > 15) && sector);
+		} else entryfound=true;
+	} while ((i < 16) && sector && !entryfound);
 
 	result.sector = sector;
 	result.direntryindex = i;
@@ -789,7 +791,7 @@ int MSXtar::addFiletoDSK(const string& hostName, const string& msxName,
 	byte buf[SECTOR_SIZE];
 	fullMSXDirEntry fullmsxdirentry = findEntryInDir(
 		makeSimpleMSXFileName(msxName), sector, direntryindex, buf);
-	if (fullmsxdirentry.direntryindex == 16) {
+	if (fullmsxdirentry.direntryindex != 16) {
 	//if (msxdirentry != NULL)
 		CliComm::instance().printWarning("Preserving entry " + msxName);
 		return 0;
@@ -856,10 +858,130 @@ void MSXtar::recurseDirFill(const string& dirName, int sector, int direntryindex
 	}
 }
 
+
+std::string MSXtar::condensName(MSXDirEntry* direntry)
+{
+	char condensedname[13];
+	int i;
+	char *P=condensedname;
+	for (i=0;i<8;i++){
+		if (direntry->filename[i] == ' '){
+			i=9;
+		} else {
+			*(P++)=tolower(direntry->filename[i]);
+		}
+	}
+	if (direntry->ext[0] != ' ' ||
+	    direntry->ext[1] != ' ' ||
+	    direntry->ext[2] != ' ' ){
+		*(P++)='.';
+		for (i=0;i<3;i++){
+			*P=tolower(direntry->ext[i]);
+			if (*P==' ')*P=(char)0;
+			P++;
+		}
+	};
+	*P=(char)0;
+	return string(condensedname);
+}
+
+
+/** Set the entries from direntry to the timestamp of resultFile
+  */
+void MSXtar::changeTime(std::string resultFile,MSXDirEntry* direntry)
+{
+	//if (touch_option){
+	//	return;
+	//};
+	int t=rdsh(direntry->time);
+	int d=rdsh(direntry->date);
+	struct tm mtim;
+	struct utimbuf utim;
+	mtim.tm_sec=( t & 0x1f ) << 1 ;
+	mtim.tm_min= ( t & 0x03e0) >> 5;
+	mtim.tm_hour= ( t & 0xf800) >> 11;
+	mtim.tm_mday= ( d & 0x1f);
+	mtim.tm_mon= ( d & 0x01e0) >> 5;
+	mtim.tm_year= (( d & 0xfe00) >> 9) + 80;
+	utim.actime=mktime(&mtim);
+	utim.modtime=mktime(&mtim);
+	utime(resultFile.c_str(), &utim);
+}
+
+void MSXtar::fileExtract(std::string resultFile, MSXDirEntry* direntry)
+{
+	long size=rdlg(direntry->size);
+	long savesize;
+	int sector=clusterToSector(rdsh(direntry->startcluster));
+	byte buf[SECTOR_SIZE];
+
+	FILE* file = fopen(resultFile.c_str(), "wb");
+	if (file == NULL) {
+		CliComm::instance().printWarning("Couldn't open file for writing!");
+		return ;
+	}
+	while (size && sector){
+		disk.readLogicalSector(partitionOffset + sector, buf);
+		savesize = (size > SECTOR_SIZE  ? SECTOR_SIZE  : size);
+		fwrite(buf , 1, savesize, file);
+		size -= savesize;
+		sector=getNextSector(sector);
+	}
+	if (sector==0 && size != 0){
+		CliComm::instance().printWarning( "no more sectors for file but file not ended ???");
+	}
+	fclose(file);
+	// now change the access time
+	changeTime(resultFile,direntry);
+}
+
+void MSXtar::recurseDirExtract(const string &DirName,int sector,int direntryindex)
+{
+	int i=direntryindex;
+	byte buf[SECTOR_SIZE];
+	do {
+		disk.readLogicalSector(partitionOffset + sector, buf);
+		do {
+		  MSXDirEntry* direntry =(MSXDirEntry*)(buf + 32*i);
+		  if (direntry->filename[0] != 0xe5 && direntry->filename[0] != 0x00 ){
+			string filename=condensName(direntry);
+			string fullname=filename;
+			if (! DirName.empty()){
+			  fullname=DirName+"/"+filename;
+			}
+			CliComm::instance().printWarning("extracting " + fullname);
+			//PRT_VERBOSE(fullname);
+			if (do_extract && direntry->attrib != T_MSX_DIR){
+				fileExtract(fullname,direntry);
+			}
+			if (direntry->attrib == T_MSX_DIR){
+				mkdir(fullname.c_str(),ACCESSPERMS);
+				// now change the access time
+				changeTime(fullname,direntry);
+				recurseDirExtract(
+				  fullname ,
+				  clusterToSector(rdsh(direntry->startcluster)) ,
+				  2); //read subdir and skip entries for '.' and '..'
+			}
+		  }
+		  i++;
+		} while (i <16);
+		sector=getNextSector(sector);
+		i=0;
+	} while (sector != 0);
+}
+
+
 //temporary way to test import MSXtar functionality
 void MSXtar::addDir(const string& rootDirName)
 {
-	recurseDirFill(rootDirName, 0, 0);
+	recurseDirFill(rootDirName, rootDirStart, 0);
+}
+
+//temporary way to test export MSXtar functionality
+void MSXtar::getDir(const string& rootDirName)
+{
+	recurseDirExtract(rootDirName, rootDirStart, 0);
 }
 
 } // namespace openmsx

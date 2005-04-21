@@ -4,13 +4,14 @@
 #define SECTORBASEDDISK_HH
 
 #include "Disk.hh"
+#include "SectorAccessibleDisk.hh"
 #include <memory>
 
 namespace openmsx {
 
 class PatchInterface;
 
-class SectorBasedDisk : public Disk
+class SectorBasedDisk : public Disk , public SectorAccessibleDisk
 {
 public: 
 	static const unsigned SECTOR_SIZE = 512;
@@ -26,8 +27,8 @@ public:
 	virtual bool ready();
 	virtual bool doubleSided();
 
-	virtual void readLogicalSector(unsigned sector, byte* buf) = 0;
-	virtual void writeLogicalSector(unsigned sector, const byte* buf) = 0;
+	//virtual void readLogicalSector(unsigned sector, byte* buf) = 0;
+	//virtual void writeLogicalSector(unsigned sector, const byte* buf) = 0;
 	virtual void applyPatch(const std::string& patchFile);
 	unsigned getNbSectors() const;
 
