@@ -955,7 +955,7 @@ void MSXtar::recurseDirExtract(const string &DirName,int sector,int direntryinde
 				fileExtract(fullname,direntry);
 			}
 			if (direntry->attrib == T_MSX_DIR){
-				mkdir(fullname.c_str(),ACCESSPERMS);
+				FileOperations::mkdirp(fullname);
 				// now change the access time
 				changeTime(fullname,direntry);
 				recurseDirExtract(
