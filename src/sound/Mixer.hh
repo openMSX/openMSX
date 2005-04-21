@@ -3,22 +3,18 @@
 #ifndef MIXER_HH
 #define MIXER_HH
 
-#include <SDL.h>
 #include <vector>
 #include <map>
 #include <memory>
 #include "EmuTime.hh"
 #include "SettingListener.hh"
 #include "InfoTopic.hh"
-#include "Schedulable.hh"
 #include "Command.hh"
 
 namespace openmsx {
 
 class SoundDevice;
-class MSXCPU;
-class SettingsConfig;
-class RealTime;
+class SoundDriver;
 class CliComm;
 class InfoCommand;
 class VolumeSetting;
@@ -26,7 +22,7 @@ class IntegerSetting;
 class BooleanSetting;
 template <typename T> class EnumSetting;
 
-class Mixer : private Schedulable, private SettingListener
+class Mixer : private SettingListener
 {
 public:
 	static const int MAX_VOLUME = 32767;
@@ -74,23 +70,18 @@ public:
 	 */
 	void mute();
 	void unmute();
-	
+
+	void generate(short* buffer, unsigned samples);
+
 private:
 	Mixer();
 	virtual ~Mixer();
 
 	void openSound();
-	void closeSound();
 	void reopenSound();
-	
-	void updtStrm(unsigned samples);
-	void updtStrm2(unsigned samples);
-	static void audioCallbackHelper(void* userdata, Uint8* stream, int len);
-	void audioCallback(short* stream, unsigned len);
 	void muteHelper();
 	
 	void updateMasterVolume(int masterVolume);
-	void reInit();
 
 	void startSoundLogging(const std::string& filename);
 	void endSoundLogging();
@@ -98,17 +89,11 @@ private:
 	// SettingListener
 	virtual void update(const Setting* setting);
 
-	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const std::string& schedName() const;
-	
 	SoundDevice* getSoundDevice(const std::string& name);
 
-	bool init;
+	std::auto_ptr<SoundDriver> driver;
 	int muteCount;
 
-	
-	
 	struct SoundDeviceInfo {
 		ChannelMode mode;
 		int normalVolume;
@@ -117,20 +102,9 @@ private:
 	};
 	std::map<SoundDevice*, SoundDeviceInfo> infos;
 
-	SDL_AudioSpec audioSpec;
 	std::vector<SoundDevice*> devices[NB_MODES];
 	std::vector<int*> buffers;
 
-	short* mixBuffer;
-	unsigned bufferSize;
-	unsigned readPtr, writePtr;
-	EmuTime prevTime;
-	EmuDuration interval1;
-	EmuDuration intervalAverage;
-
-	MSXCPU& cpu;
-	RealTime& realTime;
-	SettingsConfig& settingsConfig;
 	CliComm& output;
 	InfoCommand& infoCommand;
 
@@ -139,8 +113,6 @@ private:
 	std::auto_ptr<IntegerSetting> frequencySetting;
 	std::auto_ptr<IntegerSetting> samplesSetting;
 	BooleanSetting& pauseSetting;
-	IntegerSetting& speedSetting;
-	BooleanSetting& throttleSetting;
 	bool handlingUpdate;
 	
 	FILE* wavfp;

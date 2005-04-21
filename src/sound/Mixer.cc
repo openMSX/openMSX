@@ -1,25 +1,19 @@
 // $Id$
 
 #include "Mixer.hh"
-#include "MSXCPU.hh"
-#include "RealTime.hh"
+#include "SDLSoundDriver.hh"
 #include "SoundDevice.hh"
-#include "SettingsConfig.hh"
 #include "CliComm.hh"
 #include "InfoCommand.hh"
 #include "GlobalSettings.hh"
 #include "CommandArgument.hh"
 #include "CommandLineParser.hh"
-#include "Command.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
-#include "Scheduler.hh"
-#include "build-info.hh"
 #include <algorithm>
 #include <cassert>
 
-#include <sys/types.h>
 #include <dirent.h>
 #include "ReadDir.hh"
 #include "FileOperations.hh"
@@ -31,24 +25,16 @@ using std::set;
 using std::string;
 using std::vector;
 
-typedef unsigned short uint16;
-
 namespace openmsx {
 
 Mixer::Mixer()
 	: muteCount(0)
-	, cpu(MSXCPU::instance())
-	, realTime(RealTime::instance())
-	, settingsConfig(SettingsConfig::instance())
 	, output(CliComm::instance())
 	, infoCommand(InfoCommand::instance())
 	, pauseSetting(GlobalSettings::instance().getPauseSetting())
-	, speedSetting(GlobalSettings::instance().getSpeedSetting())
-	, throttleSetting(GlobalSettings::instance().getThrottleSetting())
 	, soundlogCommand(*this)
 	, soundDeviceInfo(*this)
 {
-	init = false;
 	handlingUpdate = false;
 	prevLeft = outLeft = 0;
 	prevRight = outRight = 0;
@@ -78,29 +64,27 @@ Mixer::Mixer()
 	frequencySetting->addListener(this);
 	samplesSetting->addListener(this);
 	pauseSetting.addListener(this);
-	speedSetting.addListener(this);
-	throttleSetting.addListener(this);
 
 	// Set correct initial mute state.
-	if (muteSetting->getValue()) muteCount++;
-	if (pauseSetting.getValue()) muteCount++;
+	if (muteSetting->getValue()) ++muteCount;
+	if (pauseSetting.getValue()) ++muteCount;
 
 	openSound();
 	muteHelper();
 
-	CommandController::instance().registerCommand(&soundlogCommand, "soundlog");
 	wavfp = NULL;
+	CommandController::instance().registerCommand(&soundlogCommand, "soundlog");
 }
 
 Mixer::~Mixer()
 {
+	assert(buffers.empty());
+	
 	CommandController::instance().unregisterCommand(&soundlogCommand, "soundlog");
 
 	endSoundLogging();
-	closeSound();
+	driver.reset();
 	
-	throttleSetting.removeListener(this);
-	speedSetting.removeListener(this);
 	pauseSetting.removeListener(this);
 	samplesSetting->removeListener(this);
 	frequencySetting->removeListener(this);
@@ -120,7 +104,7 @@ void Mixer::reopenSound()
 {
 	int numBuffers = buffers.size();
 
-	closeSound();
+	driver.reset();
 	for (int i = 0; i < numBuffers; ++i) {
 		delete[] buffers[i];
 	}
@@ -128,18 +112,9 @@ void Mixer::reopenSound()
 
 	openSound();
 	for (int i = 0; i < numBuffers; ++i) {
-		buffers.push_back(new int[2 * audioSpec.samples]);
+		buffers.push_back(new int[2 * driver->getSamples()]);
 	}
 	muteHelper();
-}
-
-static int roundUpPower2(int a)
-{
-	int res = 1;
-	while (a > res) {
-		res <<= 1;
-	}
-	return res;
 }
 
 void Mixer::openSound()
@@ -147,58 +122,17 @@ void Mixer::openSound()
 	if (!CommandLineParser::instance().wantSound()) {
 		return;
 	}
-	
-	SDL_AudioSpec desired;
-	desired.freq     = frequencySetting->getValue();
-	desired.samples  = roundUpPower2(samplesSetting->getValue());
-	desired.channels = 2;			// stereo
-	desired.format   = OPENMSX_BIGENDIAN ? AUDIO_S16MSB : AUDIO_S16LSB;
-	desired.callback = audioCallbackHelper;	// must be a static method
-	desired.userdata = this;
-	
-#ifndef NULL_OUTPUT
-	if (SDL_InitSubSystem(SDL_INIT_AUDIO) == 0) {
-		if (SDL_OpenAudio(&desired, &audioSpec) == 0) {
-			frequencySetting->setValue(audioSpec.freq);
-			samplesSetting->setValue(audioSpec.samples);
-			init = true;
-		} else {
-			SDL_QuitSubSystem(SDL_INIT_AUDIO);
-		}
+	try {
+		driver.reset(new SDLSoundDriver(*this,
+		                                frequencySetting->getValue(),
+		                                samplesSetting->getValue()));
+		handlingUpdate = true;
+		frequencySetting->setValue(driver->getFrequency());
+		samplesSetting->setValue(driver->getSamples());
+		handlingUpdate = false;
+	} catch (MSXException& e) {
+		output.printWarning(e.getMessage());
 	}
-#else
-	audioSpec.samples = desired.samples;
-	audioSpec.freq    = desired.freq;
-	audioSpec.size    = desired.samples * 2 * sizeof(short);
-	init = true;
-#endif 
-	
-	if (init) {
-		bufferSize = 4 * audioSpec.size / (2 * sizeof(short));
-		mixBuffer = new short[2 * bufferSize];
-		memset(mixBuffer, 0, bufferSize * 2 * sizeof(short));
-		readPtr = writePtr = 0;
-		reInit();
-		prevTime = Scheduler::instance().getCurrentTime();
-		EmuDuration interval2 = interval1 * audioSpec.samples;
-		Scheduler::instance().setSyncPoint(prevTime + interval2, this);
-	} else {
-		output.printWarning(
-			string("Couldn't open audio: ") + SDL_GetError());
-	}
-}
-
-void Mixer::closeSound()
-{
-	if (!init) return;
-	
-	Scheduler::instance().removeSyncPoint(this);
-#ifndef NULL_OUTPUT
-	SDL_CloseAudio();
-	SDL_QuitSubSystem(SDL_INIT_AUDIO);
-#endif
-	delete[] mixBuffer;
-	init = false;
 }
 
 
@@ -237,12 +171,10 @@ void Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 
 	lock();
 	devices[mode].push_back(&device);
-	device.setSampleRate(init ? audioSpec.freq : 44100);
+	device.setSampleRate(driver.get() ? driver->getFrequency() : 44100);
 	device.setVolume((info.normalVolume * info.volumeSetting->getValue() *
 	                   masterVolume->getValue()) / (100 * 100));
-	if (init) {
-		buffers.push_back(new int[2 * audioSpec.samples]);
-	}
+	buffers.push_back(new int[2 * (driver.get() ? driver->getSamples() : 512)]);
 	muteHelper();
 	unlock();
 }
@@ -255,10 +187,8 @@ void Mixer::unregisterSound(SoundDevice& device)
 		return;
 	}
 	lock();
-	if (init) {
-		delete[] buffers.back();
-		buffers.pop_back();
-	}
+	delete[] buffers.back();
+	buffers.pop_back();
 	ChannelMode mode = it->second.mode;
 	vector<SoundDevice*> &dev = devices[mode];
 	dev.erase(remove(dev.begin(), dev.end(), &device), dev.end());
@@ -273,128 +203,13 @@ void Mixer::unregisterSound(SoundDevice& device)
 }
 
 
-void Mixer::audioCallbackHelper (void* userdata, Uint8* strm, int len)
-{
-	short *stream = (short*)strm;
-	((Mixer*)userdata)->audioCallback(stream, len / (2 * sizeof(short)));
-}
-
-void Mixer::audioCallback(short* stream, unsigned len)
-{
-	unsigned available = (readPtr <= writePtr)
-	                   ? writePtr - readPtr
-	                   : writePtr - readPtr + bufferSize;
-	
-	if (available < ( 3 * bufferSize / 8)) {
-		int missing = len - available;
-		if (missing <= 0) {
-			// 1/4 full, speed up a little
-			if (interval1.length() > 100) { // may not become 0
-				interval1 /= 1.005;
-			}
-			//cout << "Mixer: low      " << available << '/' << len << ' '
-			//     << 1.0 / interval1.toDouble() << endl;
-		} else {
-			// buffer underrun
-			if (interval1.length() > 100) { // may not become 0
-				interval1 /= 1.01;
-			}
-			//cout << "Mixer: underrun " << available << '/' << len << ' '
-			//     << 1.0 / interval1.toDouble() << endl;
-			updtStrm2(missing);
-		}
-		EmuDuration minDuration = (intervalAverage * 255) / 256;
-		if (interval1 < minDuration) {
-			interval1 = minDuration;
-			//cout << "Mixer: clipped  " << available << '/' << len << ' '
-			//     << 1.0 / interval1.toDouble() << endl;
-		}
-	}
-	if ((readPtr + len) < bufferSize) {
-		memcpy(stream, &mixBuffer[2 * readPtr], len * 2 * sizeof(short));
-		readPtr += len;
-	} else {
-		unsigned len1 = bufferSize - readPtr;
-		memcpy(stream, &mixBuffer[2 * readPtr], len1 * 2 * sizeof(short));
-		unsigned len2 = len - len1;
-		memcpy(&stream[2 * len1], mixBuffer, len2 * 2 * sizeof(short));
-		readPtr = len2;
-	}
-	intervalAverage = (intervalAverage * 63 + interval1) / 64;
-}
-
-
-void Mixer::executeUntil(const EmuTime& time, int /*userData*/)
-{
-	if (!muteCount) {
-		// TODO not schedule at all if muted
-		updateStream(time);
-	}
-	EmuDuration interval2 = interval1 * audioSpec.samples;
-	Scheduler::instance().setSyncPoint(time + interval2, this);
-}
-
-const string& Mixer::schedName() const
-{
-	static const string NAME = "mixer";
-	return NAME;
-}
-
-
 void Mixer::updateStream(const EmuTime& time)
 {
-	if (!init) return;
-
-	assert(prevTime <= time);
-	EmuDuration duration = time - prevTime;
-	unsigned samples = duration / interval1;
-	if (samples == 0) {
-		return;
-	}
-	prevTime += interval1 * samples;
-	
-	lock();
-	updtStrm(samples);
-	unlock();
-	
-}
-void Mixer::updtStrm(unsigned samples)
-{
-#ifndef NULL_OUTPUT
-	if (samples > audioSpec.samples) {
-		samples = audioSpec.samples;
-	}
-	
-	unsigned available = (readPtr <= writePtr)
-	                   ? writePtr - readPtr
-	                   : writePtr - readPtr + bufferSize;
-	available += samples;
-	if (available > (7 * bufferSize / 8)) {
-		int overflow = available - (bufferSize - 1);
-		if (overflow <= 0) {
-			// 7/8 full slow down a bit
-			interval1 *= 1.005;
-			//cout << "Mixer: high     " << available << '/' << bufferSize << ' '
-			//     << 1.0 / interval1.toDouble() << endl;
-		} else {
-			// buffer overrun
-			interval1 *= 1.01;
-			//cout << "Mixer: overrun  " << available << '/' << bufferSize << ' '
-			//     << 1.0 / interval1.toDouble() << endl;
-			samples -= overflow;
-		}
-		EmuDuration maxDuration = (intervalAverage * 257) / 256;
-		if (interval1 > maxDuration) {
-			interval1 = maxDuration;
-			//cout << "Mixer: clipped  " << available << '/' << bufferSize << ' '
-			//     << 1.0 / interval1.toDouble() << endl;
-		}
-	}
-#endif
-	updtStrm2(samples);
+	if (!driver.get()) return;
+	driver->updateStream(time);
 }
 
-void Mixer::updtStrm2(unsigned samples)
+void Mixer::generate(short* buffer, unsigned samples)
 {
 	int modeOffset[NB_MODES];
 	int unmuted = 0;
@@ -445,33 +260,26 @@ void Mixer::updtStrm2(unsigned samples)
 		if      (outRight > 32767)  outRight =  32767;
 		else if (outRight < -32768) outRight = -32768;
 
-		mixBuffer[2 * writePtr + 0] = (short)outLeft;
-		mixBuffer[2 * writePtr + 1] = (short)outRight;
+		buffer[2 * j + 0] = static_cast<short>(outLeft);
+		buffer[2 * j + 1] = static_cast<short>(outRight);
 		if (wavfp) {
 			// TODO check write error
-			fwrite(&mixBuffer[2 * writePtr], 4, 1, wavfp);
+			fwrite(&buffer[2 * j], 4, 1, wavfp);
 			nofWavBytes += 4;
-		}
-		if (++writePtr == bufferSize) {
-			writePtr = 0;
 		}
 	}
 }
 
 void Mixer::lock()
 {
-	if (!init) return;
-#ifndef NULL_OUTPUT
-	SDL_LockAudio();
-#endif
+	if (!driver.get()) return;
+	driver->lock();
 }
 
 void Mixer::unlock()
 {
-	if (!init) return;
-#ifndef NULL_OUTPUT
-	SDL_UnlockAudio();
-#endif
+	if (!driver.get()) return;
+	driver->unlock();
 }
 
 void Mixer::mute()
@@ -487,18 +295,12 @@ void Mixer::unmute()
 }
 void Mixer::muteHelper()
 {
-	if (!init) return;
-#ifndef NULL_OUTPUT
-	SDL_PauseAudio(buffers.size() == 0 ? 1 : muteCount);
-#endif
-	reInit();
-}
-
-void Mixer::reInit()
-{
-	double percent = speedSetting.getValue();
-	interval1 = EmuDuration(percent / (audioSpec.freq * 100));
-	intervalAverage = EmuDuration(percent / (audioSpec.freq * 100));
+	if (!driver.get()) return;
+	if ((buffers.size() == 0) || muteCount) {
+		driver->mute();
+	} else {
+		driver->unmute();
+	}
 }
 
 // stuff for soundlogging
@@ -706,32 +508,24 @@ void Mixer::update(const Setting* setting)
 		if (handlingUpdate) return;
 		handlingUpdate = true;
 		reopenSound();
-		reInit();
 		handlingUpdate = false;
 	} else if (setting == frequencySetting.get()) {
 		if (handlingUpdate) return;
 		handlingUpdate = true;
-		if (wavfp!=0) {
+		if (wavfp != 0) {
 			endSoundLogging();
 			CliComm::instance().printWarning("Stopped logging sound, because of change of frequency setting");
 			// the alternative: ignore the change of setting and keep logging sound
 		}
 		reopenSound();
-		reInit();
 		for (int mode = 0; mode < NB_MODES; ++mode) {
 			for (vector<SoundDevice*>::const_iterator it =
 			             devices[mode].begin();
 			     it != devices[mode].end(); ++it) {
-				(*it)->setSampleRate(init ? audioSpec.freq : 44100);
+				(*it)->setSampleRate(driver.get() ? driver->getFrequency() : 44100);
 			}
 		}
 		handlingUpdate = false;
-	} else if (setting == &speedSetting) {
-		reInit();
-	} else if (setting == &throttleSetting) {
-		if (throttleSetting.getValue()) {
-			reInit();
-		}
 	} else if (setting == masterVolume.get()) {
 		updateMasterVolume(masterVolume->getValue());
 	} else if (dynamic_cast<const EnumSetting<ChannelMode>* >(setting)) {

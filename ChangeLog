@@ -5,6 +5,11 @@ $Id$
 	  It looks for the "share" directory first in the directory containing
 	  the executable and the search goes up one directory until it is found.
 
+2005-04-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Split Mixer in generic sample generation part and sound system
+	  dependant sound output part:
+	   - preparation to support other sound systems later (eg DirectSound)
+
 2005-04-20 David Heremans <david.heremans@gnu-linux.net>
 	* MXtar Work-In-Progress:
 	   - using the temporary addDir/getDir you can now import/export
