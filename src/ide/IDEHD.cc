@@ -217,8 +217,7 @@ void IDEHD::writeData(word value, const EmuTime& /*time*/)
 	transferCount--;
 	if ((transferCount & 255) == 0) {
 		try {
-			file->seek(512 * transferSectorNumber);
-			file->write(buffer, 512);
+			writeLogicalSector(transferSectorNumber, buffer);
 		} catch (FileException &e) {
 			setError(0x44);
 			setTransferWrite(false);
@@ -300,8 +299,7 @@ void IDEHD::executeCommand(byte cmd)
 			break;
 		}
 		try {
-			file->seek(512 * sectorNumber);
-			file->read(buffer, 512 * numSectors);
+			readLogicalSector(sectorNumber, buffer);
 		} catch (FileException &e) {
 			setError(0x44);
 			break;
@@ -343,20 +341,14 @@ void IDEHD::setTransferWrite(bool status)
 
 void IDEHD::readLogicalSector(unsigned sector, byte* buf)
 {
-	try {
-		file->seek(512 * sector);
-		file->read(buf, 512 );
-	} catch (FileException &e) {
-	}
+	file->seek(512 * sector);
+	file->read(buf, 512);
 }
 
 void IDEHD::writeLogicalSector(unsigned sector, const byte* buf)
 {
-	try {
-		file->seek(512 * sector);
-		file->write(buf, 512);
-	} catch (FileException &e) {
-	}
+	file->seek(512 * sector);
+	file->write(buf, 512);
 }
 
 unsigned IDEHD::getNbSectors() const
