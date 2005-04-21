@@ -1,5 +1,10 @@
 $Id$
 
+2005-04-21 Maarten ter Huurne <maarten@treewalker.org>
+	* Made openMSX relocatable on Mac OS X.
+	  It looks for the "share" directory first in the directory containing
+	  the executable and the search goes up one directory until it is found.
+
 2005-04-20 David Heremans <david.heremans@gnu-linux.net>
 	* MXtar Work-In-Progress:
 	   - using the temporary addDir/getDir you can now import/export

@@ -14,6 +14,11 @@
 #define	MAXPATHLEN	MAX_PATH
 #define	mode_t	unsigned short int
 #endif
+
+#ifdef __APPLE__
+#include <Carbon/Carbon.h>
+#endif
+
 #include <cerrno>
 #include <cstdlib>
 #include <sys/stat.h>
@@ -107,10 +112,105 @@ static int setenv(const char *name, const char *value, int overwrite)
 	}
 }
 
-#endif
+#endif // _WIN32
 
 
 namespace openmsx {
+
+#ifdef __APPLE__
+
+std::string findShareDir() {
+	ProcessSerialNumber psn;
+	if (GetCurrentProcess(&psn) != noErr) {
+		throw FatalError("Failed to get process serial number");
+	}
+	FSRef location;
+	if (GetProcessBundleLocation(&psn, &location) != noErr) {
+		throw FatalError("Failed to get process bundle location");
+	}
+	FSRef root;
+	if (FSPathMakeRef(reinterpret_cast<const UInt8*>("/"), &root, NULL) != noErr) {
+		throw FatalError("Failed to get reference to root directory");
+	}
+	while (true) {
+		OSErr err;
+		// Are we in the root yet?
+		err = FSCompareFSRefs(&location, &root);
+		if (err == noErr) {
+			throw FatalError("Could not find \"share\" directory anywhere");
+		}
+		// Go up one level.
+		// Initial location is the executable file itself, so the first level up
+		// will take us to the directory containing the executable.
+		if (FSGetCatalogInfo(
+			&location, kFSCatInfoNone, NULL, NULL, NULL, &location
+			) != noErr
+		) {
+			throw FatalError("Failed to get parent directory");
+		}
+
+		FSIterator iterator;
+		if (FSOpenIterator(&location, kFSIterateFlat, &iterator) != noErr) {
+			throw FatalError("Failed to open iterator");
+		}
+		bool filesLeft = true; // iterator has files left for next call
+		while (filesLeft) {
+			// Get several files at a time, to reduce the number of system calls.
+			const int MAX_SCANNED_FILES = 100;
+			ItemCount actualObjects;
+			FSRef refs[MAX_SCANNED_FILES];
+			FSCatalogInfo catalogInfos[MAX_SCANNED_FILES];
+			HFSUniStr255 names[MAX_SCANNED_FILES];
+			err = FSGetCatalogInfoBulk(
+				iterator,
+				MAX_SCANNED_FILES,
+				&actualObjects,
+				NULL /*containerChanged*/,
+				kFSCatInfoNodeFlags,
+				catalogInfos,
+				refs,
+				NULL /*specs*/,
+				names
+				);
+			if (err == errFSNoMoreItems) {
+				filesLeft = false;
+			} else if (err != noErr) {
+				throw FatalError("Catalog search failed");
+			}
+			for (ItemCount i = 0; i < actualObjects; i++) {
+				// We're only interested in directories.
+				if (catalogInfos[i].nodeFlags & kFSNodeIsDirectoryMask) {
+					// Convert the name to a CFString.
+					CFStringRef name = CFStringCreateWithCharactersNoCopy(
+						kCFAllocatorDefault,
+						names[i].unicode,
+						names[i].length,
+						kCFAllocatorNull // do not deallocate character buffer
+						);
+					// Is this the directory we are looking for?
+					static const CFStringRef SHARE = CFSTR("share");
+					CFComparisonResult cmp = CFStringCompare(SHARE, name, 0);
+					CFRelease(name);
+					if (cmp == kCFCompareEqualTo) {
+						// Clean up.
+						err = FSCloseIterator(iterator);
+						assert(err == noErr);
+						// Get full path of directory.
+						UInt8 path[256];
+						if (FSRefMakePath(&refs[i], path, sizeof(path)) != noErr) {
+							throw FatalError("Path too long");
+						}
+						return std::string(reinterpret_cast<char*>(path));
+					}
+				}
+			}
+		}
+		err = FSCloseIterator(iterator);
+		assert(err == noErr);
+	}
+}
+
+#endif // __APPLE__
 
 /* A wrapper for mkdir().  On some systems, mkdir() does not take permision in
  * arguments. For such systems, in this function, adjust arguments.
@@ -118,7 +218,7 @@ namespace openmsx {
 static int doMkdir(const char* name, mode_t mode)
 {
 #if	defined(__MINGW32__) || defined(_MSC_VER)
-	if ((name[0]=='/' || name[0]=='\\') && name[1]=='\0' || 
+	if ((name[0]=='/' || name[0]=='\\') && name[1]=='\0' ||
 	    (name[1]==':' && name[3]=='\0' && (name[2]=='/' || name[2]=='\\' || name[2]=='\0')
 	    && ((name[0]>='A' && name[0]<='Z')||(name[0]>='a' && name[0]<='z')))) {
 		// *(_errno()) = EEXIST;
@@ -238,7 +338,6 @@ const string& FileOperations::getUserHomeDir()
 			if (funcp) {
 				char p[MAX_PATH + 1];
 				int res = ((BOOL(*)(HWND, LPSTR, int, BOOL))funcp)(0, p, CSIDL_PERSONAL, 1);
-//				int res = ((BOOL(*)(HWND, LPSTR, int, BOOL))funcp)(0, p, CSIDL_APPDATA, 1);
 				if (res == TRUE) {
 					userDir = getConventionalPath(p);
 				}
@@ -306,15 +405,18 @@ string FileOperations::getSystemDataDir()
 	}
 	*(strrchr(p, '\\')) = '\0';
 	newValue = getConventionalPath(p) + "/share";
+#elif defined(__APPLE__)
+	newValue = findShareDir();
 #else
-	newValue = DATADIR; // defined in build-info.h (default /opt/openMSX/share)
+	// defined in build-info.hh (default /opt/openMSX/share)
+	newValue = DATADIR;
 #endif
 	setenv(NAME, newValue.c_str(), 0);
 	return newValue;
 }
 
 string FileOperations::expandCurrentDirFromDrive (const string& path)
-{			
+{
 	string result = path;
 #ifdef _WIN32
 	if (((path.size() == 2) && (path[1]==':')) ||
