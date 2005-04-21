@@ -5,7 +5,7 @@ $Id$
 	  It looks for the "share" directory first in the directory containing
 	  the executable and the search goes up one directory until it is found.
 
-2005-04-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2005-04-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Split Mixer in generic sample generation part and sound system
 	  dependant sound output part:
 	   - preparation to support other sound systems later (eg DirectSound)

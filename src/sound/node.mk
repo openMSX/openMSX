@@ -3,7 +3,7 @@
 include build/node-start.mk
 
 SRC_HDR:= \
-	Mixer \
+	Mixer SDLSoundDriver \
 	SoundDevice \
 	MSXPSG AY8910 AY8910Periphery \
 	DACSound16S DACSound8U \
@@ -17,6 +17,9 @@ SRC_HDR:= \
 	MSXTurboRPCM \
 	YMF262 YMF278 MSXMoonSound \
 	AudioInputConnector AudioInputDevice DummyAudioInputDevice WavAudioInput
+
+HDR_ONLY:= \
+	SoundDriver
 
 include build/node-end.mk
 
