@@ -1,6 +1,7 @@
 // $Id$
 
 #include "Mixer.hh"
+#include "NullSoundDriver.hh"
 #include "SDLSoundDriver.hh"
 #include "SoundDevice.hh"
 #include "CliComm.hh"
@@ -35,6 +36,7 @@ Mixer::Mixer()
 	, soundlogCommand(*this)
 	, soundDeviceInfo(*this)
 {
+	driver.reset(new NullSoundDriver());
 	handlingUpdate = false;
 	prevLeft = outLeft = 0;
 	prevRight = outRight = 0;
@@ -104,7 +106,7 @@ void Mixer::reopenSound()
 {
 	int numBuffers = buffers.size();
 
-	driver.reset();
+	driver.reset(new NullSoundDriver());
 	for (int i = 0; i < numBuffers; ++i) {
 		delete[] buffers[i];
 	}
@@ -171,10 +173,10 @@ void Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 
 	lock();
 	devices[mode].push_back(&device);
-	device.setSampleRate(driver.get() ? driver->getFrequency() : 44100);
+	device.setSampleRate(driver->getFrequency());
 	device.setVolume((info.normalVolume * info.volumeSetting->getValue() *
 	                   masterVolume->getValue()) / (100 * 100));
-	buffers.push_back(new int[2 * (driver.get() ? driver->getSamples() : 512)]);
+	buffers.push_back(new int[2 * driver->getSamples()]);
 	muteHelper();
 	unlock();
 }
@@ -205,7 +207,6 @@ void Mixer::unregisterSound(SoundDevice& device)
 
 void Mixer::updateStream(const EmuTime& time)
 {
-	if (!driver.get()) return;
 	driver->updateStream(time);
 }
 
@@ -272,13 +273,11 @@ void Mixer::generate(short* buffer, unsigned samples)
 
 void Mixer::lock()
 {
-	if (!driver.get()) return;
 	driver->lock();
 }
 
 void Mixer::unlock()
 {
-	if (!driver.get()) return;
 	driver->unlock();
 }
 
@@ -295,7 +294,6 @@ void Mixer::unmute()
 }
 void Mixer::muteHelper()
 {
-	if (!driver.get()) return;
 	if ((buffers.size() == 0) || muteCount) {
 		driver->mute();
 	} else {
@@ -522,7 +520,7 @@ void Mixer::update(const Setting* setting)
 			for (vector<SoundDevice*>::const_iterator it =
 			             devices[mode].begin();
 			     it != devices[mode].end(); ++it) {
-				(*it)->setSampleRate(driver.get() ? driver->getFrequency() : 44100);
+				(*it)->setSampleRate(driver->getFrequency());
 			}
 		}
 		handlingUpdate = false;
