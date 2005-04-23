@@ -105,7 +105,6 @@ void Rom::init(const XMLElement& config)
 					context.resolve(filename), patch));
 			}
 			unsigned patchSize = patch->getSize();
-			std::cout << "DEBUG patchSize: " << patchSize << std::endl; 
 			if (patchSize <= size) {
 				patch->copyBlock(0, const_cast<byte*>(rom), size);
 			} else {

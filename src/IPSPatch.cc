@@ -77,11 +77,6 @@ IPSPatch::IPSPatch(const std::string& filename,
 		PatchMap::const_iterator it = --patchMap.end();
 		size = std::max(parent->getSize(), getStop(it));
 	}
-	for (PatchMap::const_iterator it = patchMap.begin(); it != patchMap.end(); ++it) {
-		std::cout << "offset: " << std::hex << it->first
-		          << " size: " << std::hex << it->second.size() << std::endl;
-	}
-	std::cout << std::hex << "size: " << size << std::endl;
 }
 
 void IPSPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
