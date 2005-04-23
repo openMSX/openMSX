@@ -862,6 +862,15 @@ scanline
     set scanline <value>  change the value
 
 
+sound_driver
+------------
+
+  Select the sound output driver. The list of available sound drivers is
+  platform specific.
+
+  usage:
+    set sound_driver sdl
+
 speed
 -----
 

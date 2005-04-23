@@ -1,9 +1,11 @@
 $Id$
 
-2005-04-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2005-04-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Extended IPS patch support:
 	   - support IPS files with internally overlapping regions
 	   - support IPS files that extend the orginal file size
+	* Added sound_driver setting:
+	   currently only 'null' and 'sdl' drivers
 
 2005-04-21 Maarten ter Huurne <maarten@treewalker.org>
 	* Made openMSX relocatable on Mac OS X.

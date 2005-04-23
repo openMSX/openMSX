@@ -60,11 +60,21 @@ Mixer::Mixer()
 		"mixer samples",
 		defaultsamples, 64, 8192));
 
+	EnumSetting<SoundDriverType>::Map soundDriverMap;
+	soundDriverMap["null"] = SND_NULL;
+	soundDriverMap["sdl"]  = SND_SDL;
+	SoundDriverType defaultSoundDriver =
+		CommandLineParser::instance().wantSound() ? SND_SDL : SND_NULL;
+	soundDriverSetting.reset(new EnumSetting<SoundDriverType>(
+		"sound_driver", "select the sound output driver",
+		defaultSoundDriver, soundDriverMap));
+
 	infoCommand.registerTopic("sounddevice", &soundDeviceInfo);
 	muteSetting->addListener(this);
 	masterVolume->addListener(this);
 	frequencySetting->addListener(this);
 	samplesSetting->addListener(this);
+	soundDriverSetting->addListener(this);
 	pauseSetting.addListener(this);
 
 	// Set correct initial mute state.
@@ -88,6 +98,7 @@ Mixer::~Mixer()
 	driver.reset();
 	
 	pauseSetting.removeListener(this);
+	soundDriverSetting->removeListener(this);
 	samplesSetting->removeListener(this);
 	frequencySetting->removeListener(this);
 	masterVolume->removeListener(this);
@@ -121,13 +132,19 @@ void Mixer::reopenSound()
 
 void Mixer::openSound()
 {
-	if (!CommandLineParser::instance().wantSound()) {
-		return;
-	}
 	try {
-		driver.reset(new SDLSoundDriver(*this,
-		                                frequencySetting->getValue(),
-		                                samplesSetting->getValue()));
+		switch (soundDriverSetting->getValue()) {
+		case SND_NULL:
+			driver.reset(new NullSoundDriver());
+			break;
+		case SND_SDL:
+			driver.reset(new SDLSoundDriver(*this,
+			                    frequencySetting->getValue(),
+			                    samplesSetting->getValue()));
+			break;
+		default:
+			assert(false);
+		}
 		handlingUpdate = true;
 		frequencySetting->setValue(driver->getFrequency());
 		samplesSetting->setValue(driver->getSamples());
@@ -502,7 +519,8 @@ void Mixer::update(const Setting* setting)
 		} else {
 			unmute();
 		}
-	} else if (setting == samplesSetting.get()) {
+	} else if ((setting == samplesSetting.get()) ||
+	           (setting == soundDriverSetting.get())) {
 		if (handlingUpdate) return;
 		handlingUpdate = true;
 		reopenSound();
