@@ -10,12 +10,15 @@ using std::vector;
 
 namespace openmsx {
 
+static unsigned getStop(const IPSPatch::PatchMap::const_iterator& it)
+{
+	return it->first + it->second.size();
+}
+
 IPSPatch::IPSPatch(const std::string& filename,
                    std::auto_ptr<const PatchInterface> parent_)
 	: parent(parent_)
 {
-	unsigned size = parent->getSize();
-
 	File ipsFile(filename);
 
 	byte buf[5];
@@ -39,19 +42,46 @@ IPSPatch::IPSPatch(const std::string& filename,
 			v.resize(length);
 			ipsFile.read(&v.front(), length);
 		}
-		if ((offset + v.size()) > size) {
-			throw FatalError("Invalid IPS file: " + filename);
+		// find overlapping or adjacent patch regions
+		PatchMap::iterator b = patchMap.lower_bound(offset);
+		if (b != patchMap.begin()) {
+			--b;
+			if (getStop(b) < offset) ++b;
 		}
-		PatchMap::const_iterator b = patchMap.lower_bound(offset);
-		PatchMap::const_iterator e = patchMap.upper_bound(offset + v.size() - 1);
+		PatchMap::iterator e = patchMap.upper_bound(offset + v.size());
 		if (b != e) {
-			throw FatalError("Unsupported IPS file "
-				"(overlapping regions): " + filename);
+			// remove operlapping regions, merge adjacent regions
+			--e;
+			unsigned start = std::min(b->first, offset);
+			unsigned stop  = std::max(offset + length, getStop(e));
+			unsigned length2 = stop - start;
+			++e;
+			vector<byte> tmp(length2);
+			for (PatchMap::iterator it = b; it != e; ++it) {
+				memcpy(&tmp[it->first - start], &it->second[0],
+				       it->second.size());
+			}
+			memcpy(&tmp[offset - start], &v[0], v.size());
+			patchMap.erase(b, e);
+			patchMap[start] = tmp;
+		} else {
+			// add new region
+			patchMap[offset] = v;
 		}
-		patchMap[offset] = v;
 		
 		ipsFile.read(buf, 3);
 	}
+	if (patchMap.empty()) {
+		size = parent->getSize();
+	} else {
+		PatchMap::const_iterator it = --patchMap.end();
+		size = std::max(parent->getSize(), getStop(it));
+	}
+	for (PatchMap::const_iterator it = patchMap.begin(); it != patchMap.end(); ++it) {
+		std::cout << "offset: " << std::hex << it->first
+		          << " size: " << std::hex << it->second.size() << std::endl;
+	}
+	std::cout << std::hex << "size: " << size << std::endl;
 }
 
 void IPSPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
@@ -97,7 +127,7 @@ void IPSPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
 
 unsigned IPSPatch::getSize() const
 {
-	return parent->getSize();
+	return size;
 }
 
 } // namespace openmsx

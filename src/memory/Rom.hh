@@ -51,6 +51,7 @@ private:
 	const std::string description;
 	unsigned size;
 	const byte* rom;
+	byte* extendedRom;
 
 	std::auto_ptr<File> file;
 	std::auto_ptr<RomInfo> info;

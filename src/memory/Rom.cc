@@ -49,6 +49,7 @@ Rom::Rom(const string& name_, const string& description_,
 
 void Rom::init(const XMLElement& config)
 {
+	extendedRom = NULL;
 	XMLElement::Children sums;
 	config.getChildren("sha1", sums);
 	const XMLElement* filenameElem = config.findChild("filename");
@@ -103,8 +104,16 @@ void Rom::init(const XMLElement& config)
 				patch.reset(new IPSPatch(
 					context.resolve(filename), patch));
 			}
-			
-			patch->copyBlock(0, const_cast<byte*>(rom), size);
+			unsigned patchSize = patch->getSize();
+			std::cout << "DEBUG patchSize: " << patchSize << std::endl; 
+			if (patchSize <= size) {
+				patch->copyBlock(0, const_cast<byte*>(rom), size);
+			} else {
+				size = patchSize;
+				extendedRom = new byte[size];
+				patch->copyBlock(0, extendedRom, size);
+				rom = extendedRom;
+			}
 		}
 	}
 	info = RomInfo::fetchRomInfo(*this);
@@ -190,6 +199,7 @@ Rom::~Rom()
 	if (file.get()) {
 		file->munmap();
 	}
+	delete[] extendedRom;
 }
 
 

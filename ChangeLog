@@ -1,5 +1,10 @@
 $Id$
 
+2005-04-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Extended IPS patch support:
+	   - support IPS files with internally overlapping regions
+	   - support IPS files that extend the orginal file size
+
 2005-04-21 Maarten ter Huurne <maarten@treewalker.org>
 	* Made openMSX relocatable on Mac OS X.
 	  It looks for the "share" directory first in the directory containing
@@ -49,7 +54,7 @@ $Id$
 	   - copied filter code from BlueMSX (minor improvement)
 	* Enabled pixel/line accurate rendering for V9990 (WIP)
 
-2005-04-09 Manuel Bilderbeek <manuel@msxnet.org>
+005-04-09 Manuel Bilderbeek <manuel@msxnet.org>
 	* Switched the two YM2413 cores again. Okazaki is now default, because
 	  it sounds better now. Regarding drums, some sound better in Okazaki,
 	  some in Burczynski (e.g. the cymbal). Ideally the drums

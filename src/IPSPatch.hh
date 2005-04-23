@@ -24,6 +24,7 @@ private:
 	const std::auto_ptr<const PatchInterface> parent;
 	typedef std::map<unsigned, std::vector<byte> > PatchMap;
 	PatchMap patchMap;
+	unsigned size;
 };
 
 } // namespace openmsx
