@@ -1,5 +1,13 @@
 $Id$
 
+2005-04-24 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added EXPERIMENTAL AND UNTESTED build support for the following CPUs.
+	  DEC Alpha, ARM, HP PA-RISC, IA-64, Motorola 680x0, MIPS (Big and
+	  Little Endian), IBM S/390.
+	  Everything should work (endianness is OK), but we have no systems to
+	  test on. Let's wait until someone complains that it doesn't work and
+	  then fix it (if needed at all).
+
 2005-04-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Extended IPS patch support:
 	   - support IPS files with internally overlapping regions
@@ -18,7 +26,7 @@ $Id$
 	   - preparation to support other sound systems later (eg DirectSound)
 
 2005-04-20 David Heremans <david.heremans@gnu-linux.net>
-	* MXtar Work-In-Progress:
+	* MSXtar Work-In-Progress:
 	   - using the temporary addDir/getDir you can now import/export
 	     host-directories (and its subdirs) into a dsk image.
 	   - Creating some extra classes to later on facilitate IDEHD

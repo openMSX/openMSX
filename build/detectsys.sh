@@ -37,6 +37,24 @@ case "$GUESSED_CPU" in
 		OPENMSX_TARGET_CPU=ppc;;
 	sparc*)
 		OPENMSX_TARGET_CPU=sparc;;
+	m68k)
+		OPENMSX_TARGET_CPU=m68k;;
+	alpha*)
+		OPENMSX_TARGET_CPU=alpha;;
+	arm*)
+		OPENMSX_TARGET_CPU=arm;;
+	mips)
+		OPENMSX_TARGET_CPU=mips;;
+	mips*eb)
+		OPENMSX_TARGET_CPU=mips;;
+	mips*el)
+		OPENMSX_TARGET_CPU=mipsel;;
+	hppa*)
+		OPENMSX_TARGET_CPU=hppa;;
+	ia64)
+		OPENMSX_TARGET_CPU=ia64;;
+	s390*)
+		OPENMSX_TARGET_CPU=s390;;
 	*)
 		echo "  Unknown CPU \"$GUESSED_CPU\"!" 1>&2
 		exit 1
