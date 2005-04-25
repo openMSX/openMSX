@@ -10,7 +10,8 @@
 #include "MSXException.hh"
 #include <string.h>
 #include <cassert>
-#include <SDL.h> // 
+#include <SDL.h>       // 
+#include <SDL_syswm.h> // 
 
 using std::string;
 

@@ -7,6 +7,7 @@
 #include "SoundDriver.hh"
 #include "Schedulable.hh"
 #define DIRECTSOUND_VERSION 0x0500
+#include <windows.h>
 #include <dsound.h>
 
 /*
