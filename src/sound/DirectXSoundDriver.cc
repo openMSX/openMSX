@@ -179,7 +179,7 @@ unsigned DirectXSoundDriver::getSamples() const
 void DirectXSoundDriver::dxClear()
 {
 	void *audioBuffer1, *audioBuffer2;
-	unsigned audioSize1, audioSize2;
+	DWORD audioSize1, audioSize2;
 	if (IDirectSoundBuffer_Lock(
 	              primaryBuffer, 0, bufferSize,
 	              &audioBuffer1, &audioSize1,
@@ -198,7 +198,7 @@ void DirectXSoundDriver::dxClear()
 
 int DirectXSoundDriver::dxCanWrite(unsigned start, unsigned size) 
 {
-	unsigned readPos, writePos;
+	DWORD readPos, writePos;
 	IDirectSoundBuffer_GetCurrentPosition(
 		primaryBuffer, &readPos, &writePos);
 	unsigned end = start + size;
@@ -216,7 +216,7 @@ int DirectXSoundDriver::dxCanWrite(unsigned start, unsigned size)
 void DirectXSoundDriver::dxWriteOne(short* buffer, unsigned lockSize)
 {
 	void *audioBuffer1, *audioBuffer2;
-	unsigned audioSize1, audioSize2;
+	DWORD audioSize1, audioSize2;
 	do {
 		if (IDirectSoundBuffer_Lock(
 		            primaryBuffer, bufferOffset, lockSize,
@@ -245,7 +245,7 @@ void DirectXSoundDriver::dxWrite(short* buffer, unsigned count)
 	if (state == DX_SOUND_DISABLED) return;
 
 	if (state == DX_SOUND_ENABLED) {
-		unsigned readPos, writePos;
+		DWORD readPos, writePos;
 		IDirectSoundBuffer_GetCurrentPosition(
 			primaryBuffer, &readPos, &writePos);
 		bufferOffset = (readPos + bufferSize / 2) % bufferSize;
