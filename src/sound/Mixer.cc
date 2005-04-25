@@ -3,6 +3,7 @@
 #include "Mixer.hh"
 #include "NullSoundDriver.hh"
 #include "SDLSoundDriver.hh"
+#include "DirectXSoundDriver.hh"
 #include "SoundDevice.hh"
 #include "CliComm.hh"
 #include "InfoCommand.hh"
@@ -61,8 +62,12 @@ Mixer::Mixer()
 		defaultsamples, 64, 8192));
 
 	EnumSetting<SoundDriverType>::Map soundDriverMap;
-	soundDriverMap["null"] = SND_NULL;
-	soundDriverMap["sdl"]  = SND_SDL;
+	soundDriverMap["null"]    = SND_NULL;
+	soundDriverMap["sdl"]     = SND_SDL;
+#ifdef _WIN32
+	soundDriverMap["directx"] = SND_DIRECTX;
+#endif
+	// TODO on win32 make directx default when it's tested enough
 	SoundDriverType defaultSoundDriver =
 		CommandLineParser::instance().wantSound() ? SND_SDL : SND_NULL;
 	soundDriverSetting.reset(new EnumSetting<SoundDriverType>(
@@ -142,6 +147,13 @@ void Mixer::openSound()
 			                    frequencySetting->getValue(),
 			                    samplesSetting->getValue()));
 			break;
+#ifdef _WIN32
+		case SND_DIRECTX:
+			driver.reset(new DirectXSoundDriver(*this,
+			                    frequencySetting->getValue(),
+			                    samplesSetting->getValue()));
+			break;
+#endif
 		default:
 			assert(false);
 		}

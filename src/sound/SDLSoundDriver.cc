@@ -171,7 +171,6 @@ void SDLSoundDriver::updateStream(const EmuTime& time)
 	lock();
 	updtStrm(samples);
 	unlock();
-	
 }
 
 void SDLSoundDriver::updtStrm(unsigned samples)

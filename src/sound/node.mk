@@ -3,7 +3,8 @@
 include build/node-start.mk
 
 SRC_HDR:= \
-	Mixer SDLSoundDriver NullSoundDriver \
+	Mixer NullSoundDriver \
+	SDLSoundDriver DirectXSoundDriver \
 	SoundDevice \
 	MSXPSG AY8910 AY8910Periphery \
 	DACSound16S DACSound8U \

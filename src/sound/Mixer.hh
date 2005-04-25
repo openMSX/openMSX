@@ -112,7 +112,7 @@ private:
 	std::auto_ptr<IntegerSetting> masterVolume;
 	std::auto_ptr<IntegerSetting> frequencySetting;
 	std::auto_ptr<IntegerSetting> samplesSetting;
-	enum SoundDriverType { SND_NULL, SND_SDL };
+	enum SoundDriverType { SND_NULL, SND_SDL, SND_DIRECTX };
 	std::auto_ptr<EnumSetting<SoundDriverType> > soundDriverSetting;
 	BooleanSetting& pauseSetting;
 	bool handlingUpdate;
