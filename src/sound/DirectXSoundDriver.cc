@@ -10,6 +10,7 @@
 #include "MSXException.hh"
 #include <string.h>
 #include <cassert>
+#include <SDL.h> // 
 
 using std::string;
 
