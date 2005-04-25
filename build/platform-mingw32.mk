@@ -20,7 +20,7 @@ CXXFLAGS+= \
 	-DFS_CASEINSENSE
 
 # Linker flags.
-LINK_FLAGS:=-L/mingw/lib -L/mingw/lib/w32api -lwsock32\
+LINK_FLAGS:=-L/mingw/lib -L/mingw/lib/w32api -lwsock32 -ldsound \
 	`if test -d /usr/local/lib; then echo '-L/usr/local/lib'; fi` \
 	$(LINK_FLAGS)
 
