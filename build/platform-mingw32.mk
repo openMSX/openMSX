@@ -14,8 +14,8 @@ EXEEXT:=.exe
 # Compiler flags.
 CXXFLAGS+= \
 	-mthreads -mconsole -mms-bitfields \
-	-I/mingw/include -I/mingw/include/w32api \
-	`if test -d /usr/local/include; then echo '-I/usr/local/include'; fi` \
+	-I/mingw/include -I/mingw/include/w32api\
+	`if test -d /usr/local/include; then echo '-I/usr/local/include -I/usr/local/include/directx'; fi` \
 	-D__GTHREAD_HIDE_WIN32API \
 	-DFS_CASEINSENSE
 
