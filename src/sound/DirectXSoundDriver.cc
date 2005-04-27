@@ -34,8 +34,8 @@ static HWND getWindowHandle()
 
 DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
 	unsigned sampleRate, unsigned samples)
-	: mixer(mixer_)
-	, fragmentSize(samples)
+	: fragmentSize(samples)
+	, mixer(mixer_)
 	, speedSetting(GlobalSettings::instance().getSpeedSetting())
 {
 	if (DirectSoundCreate(NULL, &directSound, NULL) != DS_OK) {
