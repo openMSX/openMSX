@@ -96,7 +96,6 @@ private:
 	DxState state;
 	unsigned bufferOffset;
 	unsigned bufferSize;
-	unsigned fragmentCount;
 	unsigned fragmentSize;
 	int  skipCount;
 	LPDIRECTSOUNDBUFFER primaryBuffer;

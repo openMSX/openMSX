@@ -35,6 +35,7 @@ static HWND getWindowHandle()
 DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
 	unsigned sampleRate, unsigned samples)
 	: mixer(mixer_)
+	, fragmentSize(samples)
 	, speedSetting(GlobalSettings::instance().getSpeedSetting())
 {
 	if (DirectSoundCreate(NULL, &directSound, NULL) != DS_OK) {
@@ -75,17 +76,7 @@ DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
 	desc.dwSize = sizeof(DSBUFFERDESC);
 	desc.dwFlags = DSBCAPS_PRIMARYBUFFER;
 
-	unsigned bufSize = samples * CHANNELS * BYTES_PER_SAMPLE;
-	fragmentSize = 1;
-	while (bufSize / fragmentSize >= 32 || fragmentSize < 512) {
-		fragmentSize <<= 1;
-	}
-	fragmentCount = 1 + bufSize / fragmentSize;
-	while (fragmentCount < 8) {
-		fragmentCount *= 2;
-		fragmentSize /= 2;
-	}
-	bufferSize = fragmentCount * fragmentSize;
+	bufferSize =  4 * fragmentSize * CHANNELS * BYTES_PER_SAMPLE;
 
 	if (IDirectSound_CreateSoundBuffer(
 		directSound, &desc, &secondaryBuffer, NULL) != DS_OK) {
