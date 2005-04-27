@@ -33,7 +33,7 @@ static HWND getWindowHandle()
 }
 
 DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
-	unsigned sampleRate, unsigned bufferSize)
+	unsigned sampleRate, unsigned bufSize)
 	: mixer(mixer_)
 	, speedSetting(GlobalSettings::instance().getSpeedSetting())
 {
@@ -75,12 +75,12 @@ DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
 	desc.dwSize = sizeof(DSBUFFERDESC);
 	desc.dwFlags = DSBCAPS_PRIMARYBUFFER;
 
-	bufferSize = bufferSize * sampleRate / 1000 * CHANNELS * BYTES_PER_SAMPLE;
+	bufSize = bufSize * sampleRate / 1000 * CHANNELS * BYTES_PER_SAMPLE;
 	fragmentSize = 1;
-	while (bufferSize / fragmentSize >= 32 || fragmentSize < 512) {
+	while (bufSize / fragmentSize >= 32 || fragmentSize < 512) {
 		fragmentSize <<= 1;
 	}
-	fragmentCount = 1 + bufferSize / fragmentSize;
+	fragmentCount = 1 + bufSize / fragmentSize;
 	while (fragmentCount < 8) {
 		fragmentCount *= 2;
 		fragmentSize /= 2;
@@ -121,7 +121,7 @@ DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
 	bufferOffset = bufferSize;
 	dxClear();
 	skipCount = 0;
-	state = DX_SOUND_ENABLED;
+	state = DX_SOUND_DISABLED;
 	
 	frequency = sampleRate;
 	samples = bufferSize;
@@ -163,7 +163,7 @@ void DirectXSoundDriver::mute()
 void DirectXSoundDriver::unmute()
 {
 	state = DX_SOUND_ENABLED;
-	//reInit();
+	reInit();
 }
 
 unsigned DirectXSoundDriver::getFrequency() const
