@@ -33,7 +33,7 @@ static HWND getWindowHandle()
 }
 
 DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
-	unsigned sampleRate, unsigned bufSize)
+	unsigned sampleRate, unsigned samples)
 	: mixer(mixer_)
 	, speedSetting(GlobalSettings::instance().getSpeedSetting())
 {
@@ -75,7 +75,7 @@ DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
 	desc.dwSize = sizeof(DSBUFFERDESC);
 	desc.dwFlags = DSBCAPS_PRIMARYBUFFER;
 
-	bufSize = bufSize * sampleRate / 1000 * CHANNELS * BYTES_PER_SAMPLE;
+	unsigned bufSize = samples * CHANNELS * BYTES_PER_SAMPLE;
 	fragmentSize = 1;
 	while (bufSize / fragmentSize >= 32 || fragmentSize < 512) {
 		fragmentSize <<= 1;
@@ -124,12 +124,11 @@ DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
 	state = DX_SOUND_DISABLED;
 	
 	frequency = sampleRate;
-	samples = bufferSize;
-	mixBuffer = new short[CHANNELS * samples];
+	mixBuffer = new short[CHANNELS * fragmentSize];
 	
 	reInit();
 	prevTime = Scheduler::instance().getCurrentTime();
-	EmuDuration interval2 = interval1 * samples;
+	EmuDuration interval2 = interval1 * fragmentSize;
 	Scheduler::instance().setSyncPoint(prevTime + interval2, this);
 }
 
@@ -173,7 +172,7 @@ unsigned DirectXSoundDriver::getFrequency() const
 
 unsigned DirectXSoundDriver::getSamples() const
 {
-	return samples;
+	return fragmentSize;
 }
 
 void DirectXSoundDriver::dxClear()
@@ -280,7 +279,7 @@ void DirectXSoundDriver::updateStream(const EmuTime& time)
 	}
 	prevTime += interval1 * count;
 	
-	count = std::min(count, samples);
+	count = std::min(count, fragmentSize);
 	mixer.generate(mixBuffer, count);
 	dxWrite(mixBuffer, count);
 }
@@ -296,11 +295,11 @@ void DirectXSoundDriver::reInit()
 
 void DirectXSoundDriver::executeUntil(const EmuTime& time, int /*userData*/)
 {
-	if (state = DX_SOUND_RUNNING) {
+	if (state == DX_SOUND_RUNNING) {
 		// TODO not schedule at all if muted
 		updateStream(time);
 	}
-	EmuDuration interval2 = interval1 * samples;
+	EmuDuration interval2 = interval1 * fragmentSize;
 	Scheduler::instance().setSyncPoint(time + interval2, this);
 }
 

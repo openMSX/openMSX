@@ -105,7 +105,6 @@ private:
 	
 	Mixer& mixer;
 	unsigned frequency;
-	unsigned samples;
 
 	short* mixBuffer;
 	EmuTime prevTime;
