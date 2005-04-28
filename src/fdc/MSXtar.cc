@@ -10,9 +10,54 @@
 #include <unistd.h>
 #include <cassert>
 
+#include "File.hh"
+#include "FileContext.hh"
+#include "FileException.hh"
+
 using std::string;
 
 namespace openmsx {
+
+FileDriveCombo::FileDriveCombo(string filename)
+{
+	file.reset(new File(filename, CREATE));
+	
+}
+
+FileDriveCombo::~FileDriveCombo()
+{
+}
+
+SectorAccessibleDisk& FileDriveCombo::getDisk()
+{
+	return *this ;
+}
+
+void FileDriveCombo::readLogicalSector(unsigned sector, byte* buf)
+{
+	try {
+		file->seek(512 * sector);
+		file->read(buf, 512 );
+	} catch (FileException &e) {
+	}
+}
+
+void FileDriveCombo::writeLogicalSector(unsigned sector, const byte* buf)
+{
+
+	try {
+		file->seek(512 * sector);
+		file->write(buf, 512);
+	} catch (FileException &e) {
+	}
+}
+
+unsigned FileDriveCombo::getNbSectors() const 
+{
+   unsigned fileSize=file->getSize();
+   return fileSize/512 ;
+}
+
 
 // bootblock created with regular nms8250 and '_format'
 static const byte dos1BootBlock[512] =
@@ -88,13 +133,14 @@ static const byte dos2BootBlock[512] =
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 };
 
-MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
-	: disk(sectordisk)
+MSXtar::MSXtar(SectorAccessibleDisk* sectordisk)
 {
+	disk=sectordisk;
 	nbSectorsPerCluster = 2;
 	MSXchrootStartIndex = 0;
 	MSXpartition = 0;
-	do_extract = false;
+	partitionNbSectors = 0;
+	do_extract = true;
 	do_subdirs = true;
 	do_singlesided = false;
 	touch_option = false;
@@ -107,10 +153,11 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 	defaultBootBlock = dos2BootBlock;
 
 	//byte sectorbuf[SECTOR_SIZE];
-	//disk.readLogicalSector(0,sectorbuf);
+	//disk->readLogicalSector(0,sectorbuf);
 	//readBootSector(sectorbuf); //set object variables to correct values
 	readBootSector(defaultBootBlock); //set object variables to correct values
 }
+
 
 // functions to change DirEntries
 static inline void setsh(byte* x, word y) 
@@ -262,7 +309,11 @@ void MSXtar::setBootSector(byte* buf, word nbSectors)
 // Format a diskimage with correct bootsector, FAT etc.
 void MSXtar::format()
 {
-	format(disk.getNbSectors());
+	if (hasPartitionTable()) {
+		format(partitionNbSectors);
+	} else {
+		format(disk->getNbSectors());
+	};
 }
 
 void MSXtar::format(int partitionsectorsize)
@@ -272,7 +323,7 @@ void MSXtar::format(int partitionsectorsize)
 	memcpy(sectorbuf, defaultBootBlock, SECTOR_SIZE);
 	setBootSector(sectorbuf, partitionsectorsize);
 	readBootSector(sectorbuf); //set object variables to correct values
-	disk.writeLogicalSector(partitionOffset + 0, sectorbuf);
+	disk->writeLogicalSector(partitionOffset + 0, sectorbuf);
 
 	MSXBootSector* boot = (MSXBootSector*)sectorbuf;
 	byte descriptor = boot->descriptor[0];
@@ -280,7 +331,7 @@ void MSXtar::format(int partitionsectorsize)
 	// Assign default empty values to disk
 	memset(sectorbuf, 0x00, SECTOR_SIZE);
 	for (int i = 2; i <= rootDirEnd; ++i) {
-		disk.writeLogicalSector(partitionOffset + i, sectorbuf);
+		disk->writeLogicalSector(partitionOffset + i, sectorbuf);
 	}
 	// for some reason the first 3bytes are used to indicate the end of a
 	// cluster, making the first available cluster nr 2 some sources say
@@ -291,11 +342,11 @@ void MSXtar::format(int partitionsectorsize)
 	sectorbuf[0] = descriptor;
 	sectorbuf[1] = 0xFF;
 	sectorbuf[2] = 0xFF;
-	disk.writeLogicalSector(partitionOffset + 1, sectorbuf);
+	disk->writeLogicalSector(partitionOffset + 1, sectorbuf);
 
 	memset(sectorbuf, 0xE5, SECTOR_SIZE);
-	for (unsigned i = 1 + rootDirEnd; i < disk.getNbSectors(); ++i) {
-		disk.writeLogicalSector(partitionOffset + i, sectorbuf);
+	for (unsigned i = 1 + rootDirEnd; i < disk->getNbSectors(); ++i) {
+		disk->writeLogicalSector(partitionOffset + i, sectorbuf);
 	}
 }
 
@@ -307,7 +358,7 @@ word MSXtar::readFAT(word clnr)
 	//quick-nd-dirty read entire fat in a buffer to facilitate offset calculations
 	byte* sectorbuf = new byte[SECTOR_SIZE * sectorsPerFat];
 	for (int i = 0; i < sectorsPerFat; ++i){
-		disk.readLogicalSector(partitionOffset + 1 + i,
+		disk->readLogicalSector(partitionOffset + 1 + i,
 		                       &sectorbuf[i * SECTOR_SIZE]);
 	}
 
@@ -335,7 +386,7 @@ void MSXtar::writeFAT(word clnr, word val)
 	if (!do_fat16) {
 		PRT_DEBUG("writeFAT(cnlr= " << clnr << ",val= " << val << ");");
 		int sectornr = ((clnr * 3) / 2) / SECTOR_SIZE;
-		disk.readLogicalSector(partitionOffset + 1 + sectornr, sectorbuf);
+		disk->readLogicalSector(partitionOffset + 1 + sectornr, sectorbuf);
 		int offset = (clnr * 3) / 2 - SECTOR_SIZE * sectornr;
 
 		byte* p = &sectorbuf[offset];
@@ -348,7 +399,7 @@ void MSXtar::writeFAT(word clnr, word val)
 				p[0] = val;
 				p[1] = (p[1] & 0xF0) + ((val >> 8) & 0x0F);
 			}
-			disk.writeLogicalSector(partitionOffset + 1 + sectornr,
+			disk->writeLogicalSector(partitionOffset + 1 + sectornr,
 			                        sectorbuf);
 		} else {
 		  	// first byte in one sector next byte in following sector
@@ -357,10 +408,10 @@ void MSXtar::writeFAT(word clnr, word val)
 			} else {
 				p[0] = val;
 			}
-			disk.writeLogicalSector(partitionOffset + 1 + sectornr,
+			disk->writeLogicalSector(partitionOffset + 1 + sectornr,
 			                        sectorbuf);
 			
-			disk.readLogicalSector(partitionOffset + 2 + sectornr,
+			disk->readLogicalSector(partitionOffset + 2 + sectornr,
 			                       sectorbuf);
 			if (clnr & 1) { 
 				sectorbuf[0] = val >> 4;
@@ -368,7 +419,7 @@ void MSXtar::writeFAT(word clnr, word val)
 				sectorbuf[0] = (sectorbuf[0] & 0xF0) +
 				               ((val >> 8) & 0x0F);
 			}
-			disk.writeLogicalSector(partitionOffset + 2 + sectornr,
+			disk->writeLogicalSector(partitionOffset + 2 + sectornr,
 			                        sectorbuf);
 		}
 	} else {
@@ -396,7 +447,7 @@ word MSXtar::findFirstFreeCluster()
 byte MSXtar::findUsableIndexInSector(int sector)
 {
 	byte buf[SECTOR_SIZE];
-	disk.readLogicalSector(partitionOffset + sector, buf);
+	disk->readLogicalSector(partitionOffset + sector, buf);
 	return findUsableIndexInSector(buf);
 }
 
@@ -448,7 +499,7 @@ int MSXtar::appendClusterToSubdir(int sector)
 	byte buf[SECTOR_SIZE];
 	memset(buf, 0, SECTOR_SIZE);
 	for (int i = 0; i < sectorsPerCluster; ++i) {
-		disk.writeLogicalSector(partitionOffset + i + logicalSector, buf);
+		disk->writeLogicalSector(partitionOffset + i + logicalSector, buf);
 	}
 	writeFAT(curcl, nextcl);
 	writeFAT(nextcl, EOF_FAT);
@@ -570,7 +621,7 @@ int MSXtar::addMSXSubdir(const string& msxName, int t, int d, int sector,
 	}
 	// load the sector
 	byte buf[SECTOR_SIZE];
-	disk.readLogicalSector(partitionOffset + result.sector, buf);
+	disk->readLogicalSector(partitionOffset + result.sector, buf);
 
 	MSXDirEntry* direntry = (MSXDirEntry*)(buf + 32 * result.index);
 	direntry->attrib = T_MSX_DIR;
@@ -585,13 +636,13 @@ int MSXtar::addMSXSubdir(const string& msxName, int t, int d, int sector,
 	writeFAT(curcl, EOF_FAT);
 
 	//save the sector again
-	disk.writeLogicalSector(partitionOffset + result.sector, buf);
+	disk->writeLogicalSector(partitionOffset + result.sector, buf);
 
 	//clear this cluster
 	int logicalSector = clusterToSector(curcl);
 	memset(buf, 0, SECTOR_SIZE);
 	for (int i = 0; i < sectorsPerCluster; ++i) {
-		disk.writeLogicalSector(partitionOffset + i + logicalSector, buf);
+		disk->writeLogicalSector(partitionOffset + i + logicalSector, buf);
 	}
 
 	// now add the '.' and '..' entries!!
@@ -615,7 +666,7 @@ int MSXtar::addMSXSubdir(const string& msxName, int t, int d, int sector,
 	//setsh(direntry->startcluster, parentcluster);
 	setsh(direntry->startcluster, sectorToCluster(sector));
 	//and save this in the first sector of the new subdir
-	disk.writeLogicalSector(partitionOffset + logicalSector, buf);
+	disk->writeLogicalSector(partitionOffset + logicalSector, buf);
 
 	return logicalSector;
 }
@@ -680,14 +731,14 @@ int MSXtar::alterFileInDSK(MSXDirEntry* msxdirentry, const string& hostName)
 
 	while (size && (curcl <= maxCluster)) {
 		int logicalSector = clusterToSector(curcl);
-		disk.readLogicalSector(partitionOffset + logicalSector, buf);
+		disk->readLogicalSector(partitionOffset + logicalSector, buf);
 		for (int j = 0; j < sectorsPerCluster; ++j) {
 			if (size) {
 				PRT_DEBUG("alterFileInDSK: relative sector " << j << " in cluster " << curcl);
 				// more poitical correct:
 				// We should read 'size'-bytes instead of 'SECTOR_SIZE' if it is the end of the file
 				fread(buf, 1, SECTOR_SIZE, file);
-				disk.writeLogicalSector(
+				disk->writeLogicalSector(
 					partitionOffset + logicalSector + j, buf);
 			}
 			size -= (size > SECTOR_SIZE ? SECTOR_SIZE : size);
@@ -757,7 +808,7 @@ MSXtar::fullMSXDirEntry MSXtar::findEntryInDir(const string& name,
 	fullMSXDirEntry result;
 	result.sectorbuf = sectorbuf;
 
-	disk.readLogicalSector(partitionOffset + sector, sectorbuf);
+	disk->readLogicalSector(partitionOffset + sector, sectorbuf);
 	byte* p = sectorbuf + 32 * direntryindex;
 	byte i = direntryindex;
 	bool entryfound=false;
@@ -767,7 +818,7 @@ MSXtar::fullMSXDirEntry MSXtar::findEntryInDir(const string& name,
 		     ++i, p += 32);
 		if (i == 16) {
 			sector = getNextSector(sector);
-			disk.readLogicalSector(partitionOffset + sector, sectorbuf);
+			disk->readLogicalSector(partitionOffset + sector, sectorbuf);
 			p = sectorbuf;
 			if (sector) i = 0;
 		} else entryfound=true;
@@ -804,7 +855,7 @@ int MSXtar::addFiletoDSK(const string& hostName, const string& msxName,
 		return 255;
 	}
 
-	disk.readLogicalSector(partitionOffset + result.sector, buf);
+	disk->readLogicalSector(partitionOffset + result.sector, buf);
 	MSXDirEntry* direntry = (MSXDirEntry*)(buf + 32 * result.index);
 	direntry->attrib = T_MSX_REG;
 	//PRT_VERBOSE(hostName << " \t-> \"" << makeSimpleMSXFileName(msxName) << '"');
@@ -817,7 +868,7 @@ int MSXtar::addFiletoDSK(const string& hostName, const string& msxName,
 	setsh(direntry->date, date);
 
 	alterFileInDSK(direntry, hostName);
-	disk.writeLogicalSector(partitionOffset + result.sector, buf);
+	disk->writeLogicalSector(partitionOffset + result.sector, buf);
 	return 0;
 }
 
@@ -921,7 +972,7 @@ void MSXtar::fileExtract(std::string resultFile, MSXDirEntry* direntry)
 		return ;
 	}
 	while (size && sector){
-		disk.readLogicalSector(partitionOffset + sector, buf);
+		disk->readLogicalSector(partitionOffset + sector, buf);
 		savesize = (size > SECTOR_SIZE  ? SECTOR_SIZE  : size);
 		fwrite(buf , 1, savesize, file);
 		size -= savesize;
@@ -940,7 +991,7 @@ void MSXtar::recurseDirExtract(const string &DirName,int sector,int direntryinde
 	int i=direntryindex;
 	byte buf[SECTOR_SIZE];
 	do {
-		disk.readLogicalSector(partitionOffset + sector, buf);
+		disk->readLogicalSector(partitionOffset + sector, buf);
 		do {
 		  MSXDirEntry* direntry =(MSXDirEntry*)(buf + 32*i);
 		  if (direntry->filename[0] != 0xe5 && direntry->filename[0] != 0x00 ){
@@ -971,6 +1022,80 @@ void MSXtar::recurseDirExtract(const string &DirName,int sector,int direntryinde
 	} while (sector != 0);
 }
 
+/** returns: true if succesfull, false if partition isn't valid
+  */
+bool MSXtar::isPartitionTableSector(byte* buf)
+{
+	if (strncmp((char*)buf,"\353\376\220MSX_IDE ",11) != 0){
+		CliComm::instance().printWarning( "Not an idefdisk compitable 0 sector");
+		return false;
+	} else return true;
+
+}
+
+bool MSXtar::hasPartitionTable()
+{
+	byte buf[SECTOR_SIZE];
+	disk->readLogicalSector(0 , buf);
+	return isPartitionTableSector(buf);
+}
+
+bool MSXtar::usePartition(int partition)
+{
+	byte buf[SECTOR_SIZE];
+	disk->readLogicalSector(0 , buf);
+	if ( ! isPartitionTableSector(buf) ) return false;
+
+	struct partition *P=(struct partition *)(buf+14+(30-partition)*16);
+	if (rdlg(P->start4) == 0){
+		return false;
+		}
+	partitionOffset=rdlg(P->start4);
+	partitionNbSectors=rdlg(P->size4);
+	disk->readLogicalSector(partitionOffset , buf);
+	readBootSector(buf);
+	return true;
+	//P->size4
+}
+
+void MSXtar::createDiskFile(const std::string filename, vector<int> sizes, vector<std::string> options )
+{
+	FILE* file = fopen(filename.c_str(), "wb");
+	if (file == NULL) {
+		CliComm::instance().printWarning("Couldn't open file for writing!");
+		return ;
+	}
+	byte buf[SECTOR_SIZE];
+	memset(buf,0,SECTOR_SIZE); // Is this needed ?
+	if ( sizes.size() > 1) fwrite(buf , 1, 512, file); //extra sector to place partition table into.
+	for (unsigned int i=0 ;i < sizes.size() ; ++i ){
+		for (int j=0 ; j < sizes[i] ; ++j ){
+		  fwrite(buf , 1, 512, file);
+		}
+	}
+	fclose(file);
+	// then create a helperclass so that we can use this as 'disk' and call the format routines
+	disk = new FileDriveCombo(filename);
+	// now create the partition table if needed
+	if ( sizes.size() > 1){
+		byte bootsector[SECTOR_SIZE];
+		strncpy((char*)buf,"\353\376\220MSX_IDE ",11) ;
+
+		unsigned int startPartition=1 ; 
+		for (int i=0 ; (i < sizes.size()) && (i < 30) ; ++i ) {
+			struct partition *P=(struct partition *)(buf + (14+(30-i)*16));
+			setlg(P->start4,startPartition);
+			setlg(P->size4,sizes[i]);
+			setBootSector(bootsector,sizes[i]);
+			disk->writeLogicalSector(startPartition, bootsector);
+			startPartition+=sizes[i];
+		}
+	} else {
+		setBootSector(buf,sizes[0]);
+	}
+	disk->writeLogicalSector(0,buf);
+
+}
 
 //temporary way to test import MSXtar functionality
 void MSXtar::addDir(const string& rootDirName)

@@ -7,9 +7,11 @@
 #include <bitset>
 #include "EmuTime.hh"
 #include "Command.hh"
+#include "DiskContainer.hh"
 
 namespace openmsx {
 
+class SectorAccessibleDisk;
 class Disk;
 class XMLElement;
 
@@ -155,7 +157,7 @@ public:
  * This class implements a real drive, this is the parent class for both
  * sigle and double sided drives. Common methods are implemented here;
  */
-class RealDrive : public DiskDrive, public SimpleCommand
+class RealDrive : public DiskDrive, public SimpleCommand , public DiskContainer
 {
 public:
 	static const int MAX_DRIVES = 26;	// a-z
@@ -178,7 +180,7 @@ public:
 	virtual bool diskChanged();
 	virtual bool dummyDrive();
 
-	Disk& getDisk() const;
+	SectorAccessibleDisk& getDisk() ;
 
 protected:
 	static const int MAX_TRACK = 85;

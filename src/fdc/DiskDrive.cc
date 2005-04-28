@@ -15,6 +15,7 @@
 #include "LedEvent.hh"
 #include "CommandException.hh"
 #include "XMLElement.hh"
+#include "SectorAccessibleDisk.hh"
 #include "FileManipulator.hh"
 
 using std::string;
@@ -354,9 +355,10 @@ void RealDrive::ejectDisk()
 	disk.reset(new DummyDisk());
 }
 
-Disk& RealDrive::getDisk() const
+SectorAccessibleDisk& RealDrive::getDisk()
 {
-	return *disk.get();
+	//return *disk.get();
+	return  dynamic_cast<SectorAccessibleDisk&>(*disk.get());
 }
 
 string RealDrive::execute(const vector<string>& tokens)

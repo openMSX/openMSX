@@ -5,6 +5,7 @@
 #include "CommandException.hh"
 #include "File.hh"
 #include "SectorBasedDisk.hh"
+#include "StringOp.hh"
 #include "DiskDrive.hh"
 #include "MSXtar.hh"
 #include <cassert>
@@ -14,6 +15,8 @@ using std::string;
 using std::vector;
 
 namespace openmsx {
+
+int FileManipulator::partition=0;
 
 FileManipulator::FileManipulator()
 {
@@ -31,14 +34,30 @@ FileManipulator& FileManipulator::instance()
 	return oneInstance;
 }
 
+//Disk& FileManipulator::getDisk() const
+//{
+// return &this;
+//}
 
-void FileManipulator::registerDrive(RealDrive& drive, const string& imageName)
+void FileManipulator::readLogicalSector(unsigned sector, byte* buf)
+{
+  
+}
+void FileManipulator::writeLogicalSector(unsigned sector, const byte* buf)
+{
+}
+unsigned FileManipulator::getNbSectors() const
+{
+  return 1440; 
+}
+
+void FileManipulator::registerDrive(DiskContainer& drive, const string& imageName)
 {
 	assert(diskImages.find(imageName) == diskImages.end());
 	diskImages[imageName] = &drive;
 }
 
-void FileManipulator::unregisterDrive(RealDrive& drive, const string& imageName)
+void FileManipulator::unregisterDrive(DiskContainer& drive, const string& imageName)
 {
 	if (&drive); // avoid warning
 	assert(diskImages.find(imageName) != diskImages.end());
@@ -83,6 +102,19 @@ string FileManipulator::execute(const vector<string>& tokens)
 		} else {
 			throw CommandException("Not implemented yet");
 		}
+	} else if (tokens[1] == "usePartition") {
+		if (tokens.size() <= 2) {
+			throw CommandException("Incorrect number of parameters");
+		} else {
+			partition=strtol(tokens[2].c_str(),NULL,10);
+			result += "New partion used : " + StringOp::toString(partition);
+		}
+	} else if (tokens[1] == "create") {
+		if (tokens.size() <= 3) {
+			throw CommandException("Incorrect number of parameters");
+		} else {
+			create(tokens);
+		}
 	} else {
 		throw CommandException("Unknown subcommand: " + tokens[1]);
 	}
@@ -108,9 +140,17 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 		cmds.insert("savedsk");
 		cmds.insert("import");
 		cmds.insert("export");
+		cmds.insert("usePartition");
 		cmds.insert("msxtree");
 		cmds.insert("msxdir");
+		cmds.insert("create");
 		CommandController::completeString(tokens, cmds);
+	} else if (tokens.size() == 2 && tokens[1] == "usePartition") {
+		set<string> cmds;//TODO FIX this since I suppose that this can be simplified
+		cmds.insert(StringOp::toString(partition)); 
+		CommandController::completeString(tokens, cmds);
+	} else if (tokens.size() == 3 && tokens[1] == "create") {
+			CommandController::completeFileName(tokens);
 	} else if (tokens.size() == 3) {
 		set<string> names;
 		for (DiskImages::const_iterator it = diskImages.begin();
@@ -123,13 +163,21 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 		    (tokens[1] == "import")  ||
 		    (tokens[1] == "export")) {
 			CommandController::completeFileName(tokens);
+		} else if ( tokens[1] == "create") {
+			set<string> cmds;
+			cmds.insert("-dos1");
+			cmds.insert("-dos2");
+			cmds.insert("1440");
+			cmds.insert("720");
+			CommandController::completeString(tokens, cmds);
 		}
 	}
 }
 
-void FileManipulator::savedsk(RealDrive* drive, const string& filename)
+void FileManipulator::savedsk(DiskContainer* drive, const string& filename)
 {
-	SectorAccessibleDisk* disk = dynamic_cast<SectorAccessibleDisk*>(&drive->getDisk());
+	//SectorAccessibleDisk* disk = dynamic_cast<SectorAccessibleDisk*>(&drive->getDisk());
+	SectorAccessibleDisk* disk = &drive->getDisk();
 	if (!disk) {
 		// not a SectorBasedDisk
 		throw CommandException("Unsupported disk type");
@@ -143,26 +191,71 @@ void FileManipulator::savedsk(RealDrive* drive, const string& filename)
 	}
 }
 
-void FileManipulator::addDir(RealDrive* drive, const string& filename)
+void FileManipulator::create(const std::vector<std::string>& tokens)
 {
-	SectorAccessibleDisk* disk = dynamic_cast<SectorAccessibleDisk*>(&drive->getDisk());
+	//iterate over tokens and split into options or size specifications
+	// also alter all size specifications into sector based sizes
+	vector<string> options;
+	vector<int> sizes;
+	for (unsigned int i=2 ; i<tokens.size() ; ++i ){
+		if ( (tokens[i].c_str())[0] == '-' ){
+			options.push_back(tokens[i]);
+		} else {
+			char *Q;
+			int scale=512 ; //SECTOR_SIZE
+			int sectors=strtol( tokens[i].c_str() , &Q , 10 );
+
+			switch (*Q) {
+			  case 'b':
+			  case 'B':
+			    scale=1;
+			    break;
+			  case 'k':
+			  case 'K':
+			    scale=1024;
+			    break;
+			  case 'm':
+			  case 'M':
+			    scale=1024*1024;
+			    break;
+			  case 's':
+			  case 'S':
+			    scale=512 ; //SECTOR_SIZE;
+			    break;
+			}
+			sectors = (sectors*scale)/512 ; //SECTOR_SIZE;
+			sizes.push_back(sectors);
+		}
+		MSXtar workhorse(NULL);
+		workhorse.createDiskFile(tokens[2],sizes,options);
+		// here we call MSXtar to create the file
+		// then we run a (to be implemented) 'usefile' filemanipulator
+	}
+}
+
+
+void FileManipulator::addDir(DiskContainer* drive, const string& filename)
+{
+	SectorAccessibleDisk* disk = &drive->getDisk();
 	if (!disk) {
 		// not a SectorBasedDisk
 		throw CommandException("Unsupported disk type");
 	}
-	MSXtar workhorse(*disk);
+	MSXtar workhorse(disk);
+	workhorse.usePartition(partition);
 	workhorse.format();
 	workhorse.addDir(filename);
 }
 
-void FileManipulator::getDir(RealDrive* drive, const string& dirname)
+void FileManipulator::getDir(DiskContainer* drive, const string& dirname)
 {
-	SectorAccessibleDisk* disk = dynamic_cast<SectorAccessibleDisk*>(&drive->getDisk());
+	SectorAccessibleDisk* disk = &drive->getDisk();
 	if (!disk) {
 		// not a SectorBasedDisk
 		throw CommandException("Unsupported disk type");
 	}
-	MSXtar workhorse(*disk);
+	MSXtar workhorse(disk);
+	workhorse.usePartition(partition);
 	workhorse.getDir(dirname);
 }
 

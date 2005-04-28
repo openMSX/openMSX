@@ -6,13 +6,14 @@
 #include <memory>
 #include "IDEDevice.hh"
 #include "SectorAccessibleDisk.hh"
+#include "DiskContainer.hh"
 
 namespace openmsx {
 
 class XMLElement;
 class File;
 
-class IDEHD : public IDEDevice, public SectorAccessibleDisk
+class IDEHD : public IDEDevice, public SectorAccessibleDisk, public DiskContainer
 {
 public:
 	IDEHD(const XMLElement& config, const EmuTime& time);
@@ -30,6 +31,8 @@ public:
 	virtual void readLogicalSector(unsigned sector, byte* buf);
 	virtual void writeLogicalSector(unsigned sector, const byte* buf) ;
 	virtual unsigned getNbSectors() const ;
+	//Diskcontiainer
+	SectorAccessibleDisk& getDisk();
 
 private:
 	void setError(byte error);

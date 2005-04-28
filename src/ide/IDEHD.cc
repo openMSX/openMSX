@@ -7,6 +7,7 @@
 #include "FileException.hh"
 #include "XMLElement.hh"
 #include "EventDistributor.hh"
+#include "FileManipulator.hh"
 #include "LedEvent.hh"
 
 using std::string;
@@ -76,10 +77,13 @@ IDEHD::IDEHD(const XMLElement& config, const EmuTime& /*time*/)
 	identifyBlock[0x0D] = sectors / 0x100;
 
 	transferRead = transferWrite = false;
+
+	FileManipulator::instance().registerDrive(*this, std::string("IDEHD") );
 }
 
 IDEHD::~IDEHD()
 {
+	FileManipulator::instance().unregisterDrive(*this, std::string("IDEHD") );
 	delete[] buffer;
 }
 
@@ -356,6 +360,11 @@ void IDEHD::writeLogicalSector(unsigned sector, const byte* buf)
 unsigned IDEHD::getNbSectors() const
 {
 	return file->getSize() / 512;
+}
+
+SectorAccessibleDisk& IDEHD::getDisk()
+{
+	return *this ;
 }
 
 } // namespace openmsx

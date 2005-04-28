@@ -11,7 +11,7 @@ RamDSKDiskImage::RamDSKDiskImage(unsigned size)
 	nbSectors = size / SECTOR_SIZE;
 	diskdata = new byte[size];
 
-	MSXtar workhorse(*this);
+	MSXtar workhorse(this);
 	workhorse.format();
 }
 

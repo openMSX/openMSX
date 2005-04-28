@@ -1,5 +1,13 @@
 $Id$
 
+2005-04-28 David Heremans <david.heremans@gnu-linux.net>
+	* MSXtar Work-In-Progress:
+	   - the IDEHD is now accessible for the FileManipulator.
+	   - partition support is comming along nicely.
+	   - you can already do a 'getDir' to export an MSX-IDEHD partition 
+	     to your host-OS. No importing yet
+	   - untested create dsk image code with partition support :-)
+
 2005-04-28 Manuel Bilderbeek <manuel@msxnet.org>
 	* Fixed a small bug in IDE HD.
 

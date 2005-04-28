@@ -10,20 +10,46 @@
 #define MSXTAR_HH
 
 #include "openmsx.hh"
+#include "SectorAccessibleDisk.hh"
+#include "DiskContainer.hh"
 #include <string>
+#include <vector>
+
+using std::vector;
 
 namespace openmsx {
 
-class SectorAccessibleDisk;
+class File;
+
+class FileDriveCombo : public SectorAccessibleDisk, public DiskContainer
+{
+public:
+  FileDriveCombo(std::string filename);
+  ~FileDriveCombo();
+
+  //SectorAccessibleDisk
+  virtual void readLogicalSector(unsigned sector, byte* buf) ;
+  virtual void writeLogicalSector(unsigned sector, const byte* buf) ;
+  virtual unsigned getNbSectors() const ;
+
+  //DiskContainer
+  SectorAccessibleDisk& getDisk() ;
+
+private:
+  std::auto_ptr<File> file;
+
+};
 
 class MSXtar
 {
 public: 
-	MSXtar(SectorAccessibleDisk& sectordisk);
+	MSXtar(SectorAccessibleDisk* sectordisk);
 	void format();
 	void format(int partitionsectorsize);
 	//static char toMSXChr(char a);
+	bool usePartition(int partition);
 
+	void createDiskFile(const std::string filename, vector<int> sizes, vector<std::string> options );
 	//temporary way to test import MSXtar functionality
 	void addDir(const std::string &rootDirName);
 	void getDir(const std::string &rootDirName);
@@ -98,6 +124,7 @@ private:
 	std::string MSXhostdir;
 	std::string inputFile;
 	std::string outputFile;
+	int partitionNbSectors;
 	int nbSectors;
 	int maxCluster;
 	int sectorsPerCluster;
@@ -123,7 +150,7 @@ private:
 	bool msx_allpart;
 	bool do_fat16;
 	const byte* defaultBootBlock;
-	SectorAccessibleDisk& disk;
+	SectorAccessibleDisk* disk;
 
 	int clusterToSector(int cluster);
 	void setBootSector(byte* buf, word nbsectors);
@@ -152,6 +179,9 @@ private:
 	void changeTime(std::string resultFile, MSXDirEntry* direntry);
 	void fileExtract(std::string resultFile, MSXDirEntry* direntry);
 	void recurseDirExtract(const std::string &DirName,int sector,int direntryindex);
+
+	bool hasPartitionTable();
+	bool isPartitionTableSector(byte* buf);
 };
 
 } // namespace openmsx
