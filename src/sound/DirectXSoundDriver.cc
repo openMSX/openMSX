@@ -75,7 +75,7 @@ DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
 	desc.dwSize = sizeof(DSBUFFERDESC);
 	desc.dwFlags = DSBCAPS_PRIMARYBUFFER;
 
-	bufferSize = samples * 8;
+	bufferSize =  4 * samples * BYTES_PER_SAMPLE * CHANNELS;
 	fragmentSize = 1;
 	while (((bufferSize / fragmentSize) >= 32) || (fragmentSize < 512)) {
 		fragmentSize <<= 1;
@@ -128,7 +128,7 @@ DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
 
 	reInit();
 	prevTime = Scheduler::instance().getCurrentTime();
-	EmuDuration interval2 = interval1 * fragmentSize;
+	EmuDuration interval2 = interval1 * (fragmentSize / BYTES_PER_SAMPLE / CHANNELS);
 	Scheduler::instance().setSyncPoint(prevTime + interval2, this);
 }
 
@@ -299,7 +299,7 @@ void DirectXSoundDriver::executeUntil(const EmuTime& time, int /*userData*/)
 		// TODO not schedule at all if muted
 		updateStream(time);
 	}
-	EmuDuration interval2 = interval1 * fragmentSize;
+	EmuDuration interval2 = interval1 * (fragmentSize / BYTES_PER_SAMPLE / CHANNELS);
 	Scheduler::instance().setSyncPoint(time + interval2, this);
 }
 
