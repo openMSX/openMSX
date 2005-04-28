@@ -299,7 +299,9 @@ void IDEHD::executeCommand(byte cmd)
 			break;
 		}
 		try {
-			readLogicalSector(sectorNumber, buffer);
+			for (int i = 0; i < numSectors; ++i) {
+				readLogicalSector(sectorNumber + i, buffer + i * 512);
+			}
 		} catch (FileException &e) {
 			setError(0x44);
 			break;
@@ -342,7 +344,7 @@ void IDEHD::setTransferWrite(bool status)
 void IDEHD::readLogicalSector(unsigned sector, byte* buf)
 {
 	file->seek(512 * sector);
-	file->read(buf, 512 * getNumSectors());
+	file->read(buf, 512);
 }
 
 void IDEHD::writeLogicalSector(unsigned sector, const byte* buf)
