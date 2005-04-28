@@ -10,8 +10,8 @@
 #include "MSXException.hh"
 #include <string.h>
 #include <cassert>
-#include <SDL.h>       // 
-#include <SDL_syswm.h> // 
+#include <SDL.h>       //
+#include <SDL_syswm.h> //
 
 using std::string;
 
@@ -34,8 +34,7 @@ static HWND getWindowHandle()
 
 DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
 	unsigned sampleRate, unsigned samples)
-	: fragmentSize(samples)
-	, mixer(mixer_)
+	: mixer(mixer_)
 	, speedSetting(GlobalSettings::instance().getSpeedSetting())
 {
 	if (DirectSoundCreate(NULL, &directSound, NULL) != DS_OK) {
@@ -43,7 +42,7 @@ DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
 	}
 	HWND hwnd = getWindowHandle();
 	if (IDirectSound_SetCooperativeLevel(
-		directSound, hwnd, DSSCL_EXCLUSIVE) != DS_OK) {
+	                directSound, hwnd, DSSCL_EXCLUSIVE) != DS_OK) {
 		throw MSXException("TODO");
 	}
 
@@ -76,10 +75,20 @@ DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
 	desc.dwSize = sizeof(DSBUFFERDESC);
 	desc.dwFlags = DSBCAPS_PRIMARYBUFFER;
 
-	bufferSize =  4 * fragmentSize * CHANNELS * BYTES_PER_SAMPLE;
+	bufferSize = samples * 8;
+	fragmentSize = 1;
+	while (((bufferSize / fragmentSize) >= 32) || (fragmentSize < 512)) {
+		fragmentSize <<= 1;
+	}
+	DWORD fragmentCount = 1 + bufferSize / fragmentSize;
+	while (fragmentCount < 8) {
+		fragmentCount *= 2;
+		fragmentSize /= 2;
+	}
+	bufferSize = fragmentCount * fragmentSize;
 
 	if (IDirectSound_CreateSoundBuffer(
-		directSound, &desc, &secondaryBuffer, NULL) != DS_OK) {
+	                directSound, &desc, &secondaryBuffer, NULL) != DS_OK) {
 		// TODO throw
 	}
 
@@ -92,7 +101,7 @@ DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
 	desc.lpwfxFormat = (LPWAVEFORMATEX)&pcmwf;
 
 	if (IDirectSound_CreateSoundBuffer(
-		directSound, &desc, &primaryBuffer, NULL) != DS_OK) {
+	                directSound, &desc, &primaryBuffer, NULL) != DS_OK) {
 		// TODO throw
 	}
 
@@ -113,10 +122,10 @@ DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
 	dxClear();
 	skipCount = 0;
 	state = DX_SOUND_DISABLED;
-	
+
 	frequency = sampleRate;
-	mixBuffer = new short[CHANNELS * fragmentSize];
-	
+	mixBuffer = new short[bufferSize / BYTES_PER_SAMPLE];
+
 	reInit();
 	prevTime = Scheduler::instance().getCurrentTime();
 	EmuDuration interval2 = interval1 * fragmentSize;
@@ -127,7 +136,7 @@ DirectXSoundDriver::~DirectXSoundDriver()
 {
 	Scheduler::instance().removeSyncPoint(this);
 	delete[] mixBuffer;
-	
+
 	IDirectSoundBuffer_Stop(primaryBuffer);
 	IDirectSoundBuffer_Release(primaryBuffer);
 	IDirectSound_Release(directSound);
@@ -163,7 +172,7 @@ unsigned DirectXSoundDriver::getFrequency() const
 
 unsigned DirectXSoundDriver::getSamples() const
 {
-	return fragmentSize;
+	return bufferSize / BYTES_PER_SAMPLE / CHANNELS;
 }
 
 void DirectXSoundDriver::dxClear()
@@ -181,16 +190,16 @@ void DirectXSoundDriver::dxClear()
 			memset(audioBuffer2, 0, audioSize2);
 		}
 		IDirectSoundBuffer_Unlock(
-			primaryBuffer, audioBuffer1, audioSize1,
-			audioBuffer2, audioSize2);
+		        primaryBuffer, audioBuffer1, audioSize1,
+		        audioBuffer2, audioSize2);
 	}
 }
 
-int DirectXSoundDriver::dxCanWrite(unsigned start, unsigned size) 
+int DirectXSoundDriver::dxCanWrite(unsigned start, unsigned size)
 {
 	DWORD readPos, writePos;
 	IDirectSoundBuffer_GetCurrentPosition(
-		primaryBuffer, &readPos, &writePos);
+	        primaryBuffer, &readPos, &writePos);
 	unsigned end = start + size;
 	if (writePos < readPos) writePos += bufferSize;
 	if (start    < readPos) start    += bufferSize;
@@ -214,9 +223,9 @@ void DirectXSoundDriver::dxWriteOne(short* buffer, unsigned lockSize)
 		            &audioSize2, 0) == DSERR_BUFFERLOST) {
 			IDirectSoundBuffer_Restore(primaryBuffer);
 			IDirectSoundBuffer_Lock(
-				primaryBuffer, bufferOffset, lockSize,
-				&audioBuffer1, &audioSize1, &audioBuffer2,
-				&audioSize2, 0);
+			        primaryBuffer, bufferOffset, lockSize,
+			        &audioBuffer1, &audioSize1, &audioBuffer2,
+			        &audioSize2, 0);
 		}
 	} while ((audioSize1 + audioSize2) < lockSize);
 
@@ -237,13 +246,13 @@ void DirectXSoundDriver::dxWrite(short* buffer, unsigned count)
 	if (state == DX_SOUND_ENABLED) {
 		DWORD readPos, writePos;
 		IDirectSoundBuffer_GetCurrentPosition(
-			primaryBuffer, &readPos, &writePos);
+		        primaryBuffer, &readPos, &writePos);
 		bufferOffset = (readPos + bufferSize / 2) % bufferSize;
 
 		if (IDirectSoundBuffer_Play(primaryBuffer, 0, 0,
 		            DSBPLAY_LOOPING) == DSERR_BUFFERLOST) {
 			IDirectSoundBuffer_Play(
-				primaryBuffer, 0, 0, DSBPLAY_LOOPING);
+			        primaryBuffer, 0, 0, DSBPLAY_LOOPING);
 		}
 		state = DX_SOUND_RUNNING;
 	}
@@ -269,8 +278,8 @@ void DirectXSoundDriver::updateStream(const EmuTime& time)
 		return;
 	}
 	prevTime += interval1 * count;
-	
-	count = std::min(count, fragmentSize);
+
+	count = std::min(count, bufferSize / BYTES_PER_SAMPLE / CHANNELS);
 	mixer.generate(mixBuffer, count);
 	dxWrite(mixBuffer, count);
 }
@@ -279,7 +288,7 @@ void DirectXSoundDriver::reInit()
 {
 	double percent = speedSetting.getValue();
 	interval1 = EmuDuration(percent / (frequency * 100));
-	//intervalAverage = interval1; 
+	//intervalAverage = interval1;
 }
 
 // Schedulable

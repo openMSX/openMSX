@@ -158,8 +158,8 @@ void Mixer::openSound()
 			assert(false);
 		}
 		handlingUpdate = true;
-		frequencySetting->setValue(driver->getFrequency());
-		samplesSetting->setValue(driver->getSamples());
+		//frequencySetting->setValue(driver->getFrequency());
+		//samplesSetting->setValue(driver->getSamples());
 		handlingUpdate = false;
 	} catch (MSXException& e) {
 		output.printWarning(e.getMessage());
