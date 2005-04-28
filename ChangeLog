@@ -1,5 +1,8 @@
 $Id$
 
+2005-04-28 Manuel Bilderbeek <manuel@msxnet.org>
+	* Fixed a small bug in IDE HD.
+
 2005-04-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Experimental directX sound driver for win32:
 	   - I don't have a windows machine so this code is NOT TESTED

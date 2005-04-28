@@ -342,7 +342,7 @@ void IDEHD::setTransferWrite(bool status)
 void IDEHD::readLogicalSector(unsigned sector, byte* buf)
 {
 	file->seek(512 * sector);
-	file->read(buf, 512);
+	file->read(buf, 512 * getNumSectors());
 }
 
 void IDEHD::writeLogicalSector(unsigned sector, const byte* buf)
