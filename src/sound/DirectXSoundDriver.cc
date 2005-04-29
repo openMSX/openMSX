@@ -5,6 +5,7 @@
 #include "DirectXSoundDriver.hh"
 #include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
+#include "BooleanSetting.hh"
 #include "Mixer.hh"
 #include "Scheduler.hh"
 #include "MSXException.hh"
