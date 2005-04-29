@@ -1,5 +1,11 @@
 $Id$
 
+2005-04-28 Daniel Vik (daniel@vik.cc) (commited by Patrick van Arkel)
+	* added support for windows timers
+	* fixed directX sound driver for win32
+	* added RealTime.cc
+	  (Please talk to Daniel about line 96)
+
 2005-04-28 David Heremans <david.heremans@gnu-linux.net>
 	* MSXtar Work-In-Progress:
 	   - the IDEHD is now accessible for the FileManipulator.
