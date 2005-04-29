@@ -1,5 +1,8 @@
 $Id$
 
+2005-04-29 Patrick van Arkel (vampiermsx@gmail.com)
+	* added a new rom database after some cleanups
+
 2005-04-28 Daniel Vik (daniel@vik.cc) (commited by Patrick van Arkel)
 	* added support for windows timers
 	* fixed directX sound driver for win32
