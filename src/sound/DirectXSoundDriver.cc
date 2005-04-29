@@ -76,7 +76,7 @@ DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
 	desc.dwSize = sizeof(DSBUFFERDESC);
 	desc.dwFlags = DSBCAPS_PRIMARYBUFFER;
 
-	bufferSize = samples * BYTES_PER_SAMPLE * CHANNELS;
+	bufferSize = 2 * samples * BYTES_PER_SAMPLE * CHANNELS;
 	fragmentSize = 1;
 	while (bufferSize / fragmentSize >= 32 || fragmentSize < 512) {
 		fragmentSize <<= 1;

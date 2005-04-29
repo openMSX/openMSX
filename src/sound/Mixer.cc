@@ -68,8 +68,14 @@ Mixer::Mixer()
 	soundDriverMap["directx"] = SND_DIRECTX;
 #endif
 	// TODO on win32 make directx default when it's tested enough
-	SoundDriverType defaultSoundDriver =
-		CommandLineParser::instance().wantSound() ? SND_SDL : SND_NULL;
+	SoundDriverType defaultSoundDriver = SND_NULL;
+	if (CommandLineParser::instance().wantSound()) {
+#ifdef _WIN32
+		defaultSoundDriver = SND_DIRECTX;
+#else
+		defaultSoundDriver = SND_SDL;
+#endif
+	}
 	soundDriverSetting.reset(new EnumSetting<SoundDriverType>(
 		"sound_driver", "select the sound output driver",
 		defaultSoundDriver, soundDriverMap));
