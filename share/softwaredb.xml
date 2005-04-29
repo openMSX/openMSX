@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1109791716">
+<softwaredb xml:lang="en" timestamp="1114789829">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -2042,30 +2042,6 @@
 		<year>1984</year>
 		<country>Japan</country>
 		<dump>
-			<original value="false"/>
-			<rom>
-				<hash algo="sha1">c6e0b0bc71059583e7e9da22fe13be9e937ad7dc</hash>
-			</rom>
-		</dump>
-		<dump>
-			<original value="false"/>
-			<rom>
-				<hash algo="sha1">2a0f9899a4d8dba76db501d6e3435546cc7cd9aa</hash>
-			</rom>
-		</dump>
-		<dump>
-			<original value="false"/>
-			<rom>
-				<hash algo="crc32">2F256BA1</hash>
-			</rom>
-		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Cabbage Patch Kids (Jp</title>
-		<system>MSX</system>
-		<company>Konami</company>
-		<year>1984</year>
-		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">c06de0eda82e1daa3ea3cbc5eba5d884fd0ce8e8</hash>
@@ -2081,6 +2057,24 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="crc32">297D8460</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">c6e0b0bc71059583e7e9da22fe13be9e937ad7dc</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">2a0f9899a4d8dba76db501d6e3435546cc7cd9aa</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="crc32">2F256BA1</hash>
 			</rom>
 		</dump>
 	</software>
@@ -2279,6 +2273,7 @@
 		<system>MSX</system>
 		<company>JAM</company>
 		<year>2002</year>
+		<country>Japan</country>
 		<dump>
 			<original value="false"/>
 			<megarom>
@@ -2964,6 +2959,7 @@
 		<system>MSX</system>
 		<company>JAM</company>
 		<year>2002</year>
+		<country>Japan</country>
 		<dump>
 			<original value="false"/>
 			<megarom>
@@ -4084,9 +4080,9 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">DX7 Voicing Program (no disk support)</title>
+		<title xml:lang="en">DX7 Voicing Program</title>
 		<system>MSX</system>
-		<company>YRM-103</company>
+		<company>Yamaha</company>
 		<year>1984</year>
 		<country>Japan</country>
 		<dump>
@@ -4094,7 +4090,7 @@
 			<rom>
 				<hash algo="crc32">3DFA2059</hash>
 				<remark>
-					<text>Yamaha</text>
+					<text>no disk support </text>
 				</remark>
 			</rom>
 		</dump>
@@ -4103,7 +4099,7 @@
 			<rom>
 				<hash algo="sha1">c20def84efe71efdf91df3100919d151b2e7bdc1</hash>
 				<remark>
-					<text>Needs FMSound Synthesizer Unit</text>
+					<text>Needs FM Sound Synthesizer Unit / no disk support</text>
 				</remark>
 			</rom>
 		</dump>
@@ -4711,7 +4707,7 @@
 	<software>
 		<title xml:lang="en">FB-01 Voicing Program</title>
 		<system>MSX</system>
-		<company>YRM-506</company>
+		<company>Yamaha</company>
 		<year>1985</year>
 		<country>Japan</country>
 		<dump>
@@ -4719,7 +4715,7 @@
 			<rom>
 				<hash algo="sha1">43dbcc9536fe61c8172eceeec1481778f7a2b9bd</hash>
 				<remark>
-					<text>Needs FMSound Synthesizer Unit</text>
+					<text>Needs FM Sound Synthesizer Unit</text>
 				</remark>
 			</rom>
 		</dump>
@@ -5002,7 +4998,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">FM Music Composer (No disk support)</title>
+		<title xml:lang="en">FM Music Composer</title>
 		<system>MSX</system>
 		<company>YRM-101</company>
 		<year>1984</year>
@@ -5012,7 +5008,7 @@
 			<rom>
 				<hash algo="crc32">22812981</hash>
 				<remark>
-					<text>Yamaha</text>
+					<text>No disk support</text>
 				</remark>
 			</rom>
 		</dump>
@@ -5021,7 +5017,7 @@
 			<rom>
 				<hash algo="sha1">39c12004adb3442f2c43aade8a0be420d59eefb1</hash>
 				<remark>
-					<text>Needs FMSound Synthesizer Unit</text>
+					<text>Needs FM Sound Synthesizer Unit / No disk support</text>
 				</remark>
 			</rom>
 		</dump>
@@ -5029,7 +5025,7 @@
 	<software>
 		<title xml:lang="en">FM Music Composer II</title>
 		<system>MSX</system>
-		<company>YRM-505</company>
+		<company>Yamaha</company>
 		<year>1985</year>
 		<country>Japan</country>
 		<dump>
@@ -5037,15 +5033,15 @@
 			<rom>
 				<hash algo="sha1">e60e2abf907b66f5b275c7b7b710439adae58d37</hash>
 				<remark>
-					<text>Needs FMSound Synthesizer Unit</text>
+					<text>Needs FM Sound Synthesizer Unit</text>
 				</remark>
 			</rom>
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">FM Music Macro (No disk support)</title>
+		<title xml:lang="en">FM Music Macro</title>
 		<system>MSX</system>
-		<company>YRM-104</company>
+		<company>Yamaja</company>
 		<year>1984</year>
 		<country>Japan</country>
 		<dump>
@@ -5053,15 +5049,15 @@
 			<rom>
 				<hash algo="sha1">7c2743df543c0d8a4ba7e42bf7db580b996d102e</hash>
 				<remark>
-					<text>Needs FMSound Synthesizer Unit</text>
+					<text>Needs FM Sound Synthesizer Unit / No disk support</text>
 				</remark>
 			</rom>
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">FM Voicing Program (No disk support)</title>
+		<title xml:lang="en">FM Voicing Program</title>
 		<system>MSX</system>
-		<company>YRM-102</company>
+		<company>Yamaha</company>
 		<year>1984</year>
 		<country>Japan</country>
 		<dump>
@@ -5071,7 +5067,7 @@
 				<start>0x4000</start>
 				<hash algo="crc32">570C1150</hash>
 				<remark>
-					<text>Yamaha</text>
+					<text>No disk support</text>
 				</remark>
 			</rom>
 		</dump>
@@ -5082,7 +5078,7 @@
 				<start>0x4000</start>
 				<hash algo="sha1">e4c8f3b87d755c21572040c51cec1431ae59a0be</hash>
 				<remark>
-					<text>Needs FM Sound Synthesizer Unit</text>
+					<text>Needs FM Sound Synthesizer Unit / No disk support</text>
 				</remark>
 			</rom>
 		</dump>
@@ -5842,6 +5838,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="crc32">33506CAB</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">83fba43371d8d3c50a97c96923e52b40df2a7816</hash>
 				<remark>
 					<text>Dino Sourcers - Jaleco</text>
@@ -5855,18 +5857,6 @@
 				<remark>
 					<text>Dino Sourcers - Jaleco</text>
 				</remark>
-			</rom>
-		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Gozilla 3D (Jp</title>
-		<system>MSX</system>
-		<company>Bandai</company>
-		<year>1984</year>
-		<dump>
-			<original value="false"/>
-			<rom>
-				<hash algo="crc32">33506CAB</hash>
 			</rom>
 		</dump>
 	</software>
@@ -7771,7 +7761,7 @@
 	<software>
 		<title xml:lang="en">Kanji Rom - JIS 1st Class</title>
 		<system>MSX</system>
-		<company>For Jap. MSX-Write</company>
+		<company>ASCII</company>
 		<year>1986</year>
 		<country>Japan</country>
 		<dump>
@@ -7779,7 +7769,7 @@
 			<rom>
 				<hash algo="sha1">fc71561a64f73da0e0043d256f67fd18d7fc3a7f</hash>
 				<remark>
-					<text>Ascii</text>
+					<text>For Jap. MSX-Write</text>
 				</remark>
 			</rom>
 		</dump>
@@ -9612,13 +9602,6 @@
 				<hash algo="sha1">98b7a6ac44b82ccfc45eb51595e2905adabac1c7</hash>
 			</megarom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Meikyushinwa - Eggerland Mystery 2 [</title>
-		<system>MSX</system>
-		<company>Hal</company>
-		<year>1986</year>
-		<country>Japan</country>
 		<dump>
 			<original value="false"/>
 			<megarom>
@@ -10591,6 +10574,9 @@
 				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">fb968a2407eee00c683af3ac19e88015341564ad</hash>
+				<remark>
+					<text>Boot with Left Shift pressed down</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -12742,6 +12728,9 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">817bebb1be373e9c1bae4850a2bc1daec5586a91</hash>
+				<remark>
+					<text>Crack FM</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -13038,12 +13027,18 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">4937a8e35072012a980f85ecfc60604d9d900244</hash>
+				<remark>
+					<text>Tip : CALL START or CALL EDT</text>
+				</remark>
 			</rom>
 		</dump>
 		<dump>
 			<original value="false"/>
 			<rom>
 				<hash algo="crc32">022D9D97</hash>
+				<remark>
+					<text>Tip : CALL START or CALL EDT</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -14690,6 +14685,9 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">45bd813039977750c9a347952d2e527a4e1674c5</hash>
+				<remark>
+					<text>cr Crack Fm</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -17971,7 +17969,7 @@
 	<software>
 		<title xml:lang="en">Kanji ROM - JIS 1st+2nd Class</title>
 		<system>MSX</system>
-		<company>For MSX-Write II</company>
+		<company>Ascii</company>
 		<year>1988</year>
 		<country>Japan</country>
 		<dump>
@@ -17980,7 +17978,7 @@
 				<type>ASCII16</type>
 				<hash algo="sha1">f4dba5ba267b5dd1a35eb74a6ec4fd4d5ca9a1b4</hash>
 				<remark>
-					<text>Ascii</text>
+					<text>For MSX-Write II</text>
 				</remark>
 			</megarom>
 		</dump>
@@ -18413,6 +18411,9 @@
 			<megarom>
 				<type>Konami</type>
 				<hash algo="sha1">a52021f1b257c7c35d626d5d642134091c45e4f4</hash>
+				<remark>
+					<text>Does not work on Non Japanese systems</text>
+				</remark>
 			</megarom>
 		</dump>
 		<dump>
@@ -18420,6 +18421,9 @@
 			<megarom>
 				<type>Konami</type>
 				<hash algo="sha1">7d685547c2a4b92fa62e00854e4a9689d495f93d</hash>
+				<remark>
+					<text>Does not work on Non Japanese systems</text>
+				</remark>
 			</megarom>
 		</dump>
 		<dump>
@@ -18463,7 +18467,7 @@
 				<type>Konami</type>
 				<hash algo="sha1">65040fb1e9bc4b2d027d7d81e44be30e7620e368</hash>
 				<remark>
-					<text>Ulver crack</text>
+					<text>Ulver crack / Does not work on Non Japanese systems </text>
 				</remark>
 			</megarom>
 		</dump>
@@ -18822,6 +18826,42 @@
 				<type>ASCII8</type>
 				<hash algo="sha1">78507f3f8b8601d99bbedb6517bec6cddf0bd5b4</hash>
 			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Pallete editor v1.0</title>
+		<system>MSX</system>
+		<company>BiFi Productions</company>
+		<year>2005</year>
+		<country>The Netherlands</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">dc6437a5d52f77f524198b9d539b34dec6122854</hash>
+				<remark>
+					<text>http://bifi.msxnet.org/paledit/</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Pallete editor v1.1</title>
+		<system>MSX</system>
+		<company>BiFi Productions</company>
+		<year>2005</year>
+		<country>The Netherlands</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">b5414e11b227c3c828ee1de206bf2d8f14486bd4</hash>
+				<remark>
+					<text>http://bifi.msxnet.org/paledit/</text>
+				</remark>
+			</rom>
 		</dump>
 	</software>
 	<software>
@@ -21090,7 +21130,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">35195ab67c289a0b470883464df66bc6ea5b00d3</hash>
 			</systemrom>
 		</dump>
@@ -21127,7 +21167,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">9c43106dba3ae2829e9a11dffa9d000ed6d6454c</hash>
 			</systemrom>
 		</dump>
@@ -21155,7 +21195,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="crc32">9CE0DA44</hash>
 			</systemrom>
 		</dump>
@@ -21183,7 +21223,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">8963fc041975f31dc2ab1019cfdd4967999de53e</hash>
 			</systemrom>
 		</dump>
@@ -21269,7 +21309,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">affa3c5cd8db79a1450ad8a7f405a425b251653d</hash>
 			</systemrom>
 		</dump>
@@ -21283,7 +21323,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>kanji</type>
+				<type>Kanji1</type>
 				<hash algo="sha1">965f4982790f1817bcbabbb38c8777183b231a55</hash>
 			</systemrom>
 		</dump>
@@ -21340,7 +21380,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>kanji</type>
+				<type>Kanji1</type>
 				<hash algo="sha1">30fff22e3e3d464993707488442721a5e56a9707</hash>
 			</systemrom>
 		</dump>
@@ -21369,7 +21409,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">171b587bd5a947a13f3114120b6e7baca3b57d78</hash>
 			</systemrom>
 		</dump>
@@ -21517,7 +21557,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">409e82adac40f6bdd18eb6c84e8b2fbdc7fb5498</hash>
 			</systemrom>
 		</dump>
@@ -21531,7 +21571,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="crc32">76C46FE0</hash>
 			</systemrom>
 		</dump>
@@ -21619,7 +21659,8 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<hash algo="crc32">E57D6580</hash>
+				<type>FMPAK</type>
+				<hash algo="sha1">19BF90B8D2E695FFAD61FFF6F47F7FCDA2F24A1D</hash>
 			</systemrom>
 		</dump>
 	</software>
@@ -21645,7 +21686,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">829c00c3114f25b3dae5157c0a238b52a3ac37db</hash>
 			</systemrom>
 		</dump>
@@ -21659,7 +21700,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">ef3e010eb57e4476700a3bbff9d2119ab3acdf62</hash>
 			</systemrom>
 		</dump>
@@ -21673,7 +21714,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">d6720845928ee848cfa88a86accb067397685f02</hash>
 			</systemrom>
 		</dump>
@@ -21769,7 +21810,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">0cbe0df4af45e8f531e9c761403ac9e71808f20c</hash>
 			</systemrom>
 		</dump>
@@ -21941,6 +21982,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
+				<type>FMPAK</type>
 				<hash algo="sha1">b9ee4f30a36e283a2b1b9a28a70ab9b9831570c6</hash>
 			</systemrom>
 		</dump>
@@ -21954,7 +21996,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">c7a2c5baee6a9f0e1c6ee7d76944c0ab1886796c</hash>
 			</systemrom>
 		</dump>
@@ -21968,7 +22010,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">302afb5d8be26c758309ca3df611ae69cced2821</hash>
 			</systemrom>
 		</dump>
@@ -22025,7 +22067,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">df48902f5f12af8867ae1a87f255145f0e5e0774</hash>
 			</systemrom>
 		</dump>
@@ -22039,7 +22081,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>kanji</type>
+				<type>Kanji1</type>
 				<hash algo="sha1">9ed3ab6d893632b9246e91b412cd5db519e7586b</hash>
 			</systemrom>
 		</dump>
@@ -22067,7 +22109,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">0081ea0d25bc5cd8d70b60ad8cfdc7307812c0fd</hash>
 			</systemrom>
 		</dump>
@@ -22207,7 +22249,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>national</type>
+				<type>National</type>
 				<hash algo="sha1">005794c10a4237de3907ba4a44d436078d3c06c2</hash>
 			</systemrom>
 		</dump>
@@ -22278,7 +22320,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>kanji</type>
+				<type>Kanji1</type>
 				<hash algo="sha1">5e872d5853698731a0ed22fb72dbcdfd59cd19c3</hash>
 			</systemrom>
 		</dump>
@@ -22334,7 +22376,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">59967765d6e9328909dee4dac1cbe4cf9d47d315</hash>
 			</systemrom>
 		</dump>
@@ -22376,7 +22418,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">44e0dd215b2a9f0770dd76fb49187c05b083eed9</hash>
 			</systemrom>
 		</dump>
@@ -22627,14 +22669,14 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>fsa1fm2</type>
+				<type>FSA1FM2</type>
 				<hash algo="sha1">716952eab41077f18e6835d11caad6761b17d400</hash>
 			</systemrom>
 		</dump>
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>fsa1fm2</type>
+				<type>FSA1FM2</type>
 				<hash algo="sha1">f89e3d8f3b6855c29d71d3149cc762e0f6918ad5</hash>
 			</systemrom>
 		</dump>
@@ -22663,14 +22705,14 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>fsa1fm1</type>
+				<type>FSA1FM1</type>
 				<hash algo="sha1">304bb59b8fcc19fd76b6879331243f42f53fc47d</hash>
 			</systemrom>
 		</dump>
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>fsa1fm1</type>
+				<type>FSA1FM1</type>
 				<hash algo="sha1">2367ad17bc6bfaaf7b94a009ae26d508bdcf5565</hash>
 			</systemrom>
 		</dump>
@@ -22713,7 +22755,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>kanji</type>
+				<type>Kanji1</type>
 				<hash algo="sha1">e0e99cd91e88ce2676445663f832c835d74d6fd4</hash>
 			</systemrom>
 		</dump>
@@ -22762,7 +22804,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">e90f80a61d94c617850c415e12ad70ac41e66bb7</hash>
 			</systemrom>
 		</dump>
@@ -22812,14 +22854,14 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>panasonic32</type>
+				<type>Panasonic32</type>
 				<hash algo="sha1">e779c338eb91a7dea3ff75f3fde76b8af22c4a3a</hash>
 			</systemrom>
 		</dump>
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>panasonic32</type>
+				<type>Panasonic32</type>
 				<hash algo="sha1">6306ca2bc9fdd3becf13e51a921ea6d393f571ae</hash>
 			</systemrom>
 		</dump>
@@ -22905,7 +22947,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>kanji</type>
+				<type>Kanji1</type>
 				<hash algo="sha1">5aff2d9b6efc723bc395b0f96f0adfa83cc54a49</hash>
 			</systemrom>
 		</dump>
@@ -22947,7 +22989,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>panasonic16</type>
+				<type>Panasonic16</type>
 				<hash algo="sha1">c212b11fda13f83dafed688c54d098e7e47ab225</hash>
 			</systemrom>
 		</dump>
@@ -23039,7 +23081,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>panasonic16</type>
+				<type>Panasonic16</type>
 				<hash algo="sha1">3330d9b6b76e3c4ccb7cf252496ed15d08b95d3f</hash>
 			</systemrom>
 		</dump>
@@ -23053,7 +23095,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">f4433752d3bf876bfefb363c749d4d2e08a218b6</hash>
 			</systemrom>
 		</dump>
@@ -23110,7 +23152,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>panasonic16</type>
+				<type>Panasonic16</type>
 				<hash algo="sha1">d37ab4bd2bfddd8c97476cbe7347ae581a6f2972</hash>
 			</systemrom>
 		</dump>
@@ -23207,14 +23249,14 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>national</type>
+				<type>National</type>
 				<hash algo="crc32">2C4DC48D</hash>
 			</systemrom>
 		</dump>
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>national</type>
+				<type>National</type>
 				<hash algo="sha1">06fb8b9a0304037ae0e4196ca88cddf5affd4c5f</hash>
 			</systemrom>
 		</dump>
@@ -23228,7 +23270,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>panasonic16</type>
+				<type>Panasonic16</type>
 				<hash algo="sha1">13007f9340670deda42c4b53c06c19d3d3c09704</hash>
 			</systemrom>
 		</dump>
@@ -23330,7 +23372,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">6103b39f1e38d1aa2d84b1c3219c44f1abb5436e</hash>
 			</systemrom>
 		</dump>
@@ -23386,7 +23428,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="crc32">5CD35CED</hash>
 			</systemrom>
 		</dump>
@@ -23427,7 +23469,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">b17d9bea0eb16a1aa2d0ccbd7c9488da9f57698e</hash>
 				<remark>
 					<text>Ge</text>
@@ -23476,7 +23518,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="crc32">A317E6B4</hash>
 			</systemrom>
 		</dump>
@@ -23681,7 +23723,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">4ce41fcc1a603411ec4e99556409c442078f0ecf</hash>
 			</systemrom>
 		</dump>
@@ -23695,7 +23737,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>kanji</type>
+				<type>Kanji1</type>
 				<hash algo="sha1">84a645becec0a25d3ab7a909cde1b242699a8662</hash>
 			</systemrom>
 		</dump>
@@ -23709,7 +23751,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>kanji</type>
+				<type>Kanji1</type>
 				<hash algo="sha1">bcdb4dae303dfe5234f372d70a5e0271d3202c36</hash>
 			</systemrom>
 		</dump>
@@ -23773,7 +23815,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">663f8c512d04d213fa616b0db5eefe3774012a4b</hash>
 			</systemrom>
 		</dump>
@@ -23787,7 +23829,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">9425815446d468058705bae545ffa13646744a87</hash>
 			</systemrom>
 		</dump>
@@ -23831,7 +23873,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">5e7c8eab238712d1e18b0219c0f4d4dae180420d</hash>
 			</systemrom>
 		</dump>
@@ -23861,7 +23903,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">38a645febd0e0fe86d594f27c2d14be995acc730</hash>
 				<remark>
 					<text>Ge</text>
@@ -24025,7 +24067,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">e2fbd56e42da637609d23ae9df9efd1b4241b18a</hash>
 			</systemrom>
 		</dump>
@@ -24053,7 +24095,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>kanji</type>
+				<type>Kanji1</type>
 				<hash algo="crc32">7016DFD0</hash>
 			</systemrom>
 		</dump>
@@ -24081,7 +24123,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="crc32">2C7ED27B</hash>
 			</systemrom>
 		</dump>
@@ -24109,7 +24151,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>kanji</type>
+				<type>Kanji1</type>
 				<hash algo="sha1">6acaf2eeb57f65f7408235d5e07b7563229de799</hash>
 			</systemrom>
 		</dump>
@@ -24123,7 +24165,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>wd2783</type>
+				<type>WD2793</type>
 				<hash algo="sha1">1566532146fcfc28c707753777c66585dc12418a</hash>
 			</systemrom>
 		</dump>
@@ -24137,7 +24179,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">0de3c802057560560a03d7965fcc4cff69f8575c</hash>
 			</systemrom>
 		</dump>
@@ -24165,7 +24207,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">3926cdd91fa89657a811463e48cfbdb350676e51</hash>
 			</systemrom>
 		</dump>
@@ -24207,7 +24249,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">4811956f878c3e03da46317f787cdc4bebc86f47</hash>
 			</systemrom>
 		</dump>
@@ -24393,7 +24435,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="crc32">1CE9246C</hash>
 			</systemrom>
 		</dump>
@@ -24428,7 +24470,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="crc32">AD007D62</hash>
 			</systemrom>
 		</dump>
@@ -24464,7 +24506,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">87f4d0fa58cfe9cef818a3185df2735e6da6168c</hash>
 				<remark>
 					<text>Se</text>
@@ -24526,7 +24568,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="crc32">8CD3E845</hash>
 				<remark>
 					<text>Ag</text>
@@ -24574,7 +24616,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">4dad9de7c28b452351cc12910849b51bd9a37ab3</hash>
 			</systemrom>
 		</dump>
@@ -24616,14 +24658,14 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>cx5m</type>
+				<type>CX5M-MUSIC</type>
 				<hash algo="crc32">6C2545C9</hash>
 			</systemrom>
 		</dump>
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>cx5m</type>
+				<type>CX5M-MUSIC</type>
 				<hash algo="sha1">df2ef80e9cfabde8b630c1802fd697576102feb7</hash>
 			</systemrom>
 		</dump>
@@ -24669,7 +24711,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>caspatch</type>
+				<type>CasPatch</type>
 				<hash algo="sha1">0f851ee7a1cf79819f61cc89e9948ee72a413802</hash>
 				<remark>
 					<text>Ru</text>
@@ -24728,9 +24770,9 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database : 2347
+Roms in this database : 2349
 Good MSX entries 		: 755
-SHA1 values 			: 1767
-CRC32 values 			: 580
-Parse time 26.376 seconds on Wed Mar 2 11:29:03 Pacific Standard Time 2005
+SHA1 values 			: 1770
+CRC32 values 			: 579
+Parse time 8.611 seconds on Fri Apr 29 17:50:38 CEST 2005
  -->
