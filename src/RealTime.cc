@@ -16,7 +16,7 @@ using std::string;
 
 namespace openmsx {
 
-const double             SYNC_INTERVAL = 0.08;  // s
+const double             SYNC_INTERVAL = 0.001;  // s
 const long long          MAX_LAG       = 200000; // us
 const unsigned long long ALLOWED_LAG   =  20000; // us
 
@@ -93,7 +93,7 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 		long long sleep = idealRealTime - currentRealTime;
 		if (allowSleep) {
 			PRT_DEBUG("RT: want to sleep " << sleep << "us");
-			sleep += (long long)sleepAdjust;
+//			sleep += (long long)sleepAdjust;
 			long long delta = 0;
 			if (sleep > 0) {
 				PRT_DEBUG("RT: Sleeping for " << sleep << "us");
