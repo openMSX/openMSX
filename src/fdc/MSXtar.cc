@@ -1082,7 +1082,7 @@ void MSXtar::createDiskFile(const std::string filename, vector<int> sizes, vecto
 		strncpy((char*)buf,"\353\376\220MSX_IDE ",11) ;
 
 		unsigned int startPartition=1 ; 
-		for (int i=0 ; (i < sizes.size()) && (i < 30) ; ++i ) {
+		for (unsigned i = 0; (i < sizes.size()) && (i < 30); ++i) {
 			struct partition *P=(struct partition *)(buf + (14+(30-i)*16));
 			setlg(P->start4,startPartition);
 			setlg(P->size4,sizes[i]);
