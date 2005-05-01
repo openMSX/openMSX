@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1114789829">
+<softwaredb xml:lang="en" timestamp="1114973109">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -8743,13 +8743,6 @@
 			<rom>
 				<type>Synthesizer</type>
 				<hash algo="crc32">4545AFEA</hash>
-			</rom>
-		</dump>
-		<dump>
-			<original value="false"/>
-			<rom>
-				<type>Synthesizer</type>
-				<hash algo="sha1">73a40e7d6da2bc8489297fd57b7b93b2aa5a6440</hash>
 			</rom>
 		</dump>
 	</software>
@@ -24770,9 +24763,9 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database : 2349
+Roms in this database : 2348
 Good MSX entries 		: 755
-SHA1 values 			: 1770
+SHA1 values 			: 1769
 CRC32 values 			: 579
-Parse time 8.611 seconds on Fri Apr 29 17:50:38 CEST 2005
+Parse time 8.308 seconds on Sun May 1 20:45:17 CEST 2005
  -->
