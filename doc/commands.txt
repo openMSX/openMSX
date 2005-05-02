@@ -13,7 +13,8 @@ after
     after time <seconds> <command>  execute a command after some time
     after idle <seconds> <command>  execute a command after some time being idle
     after frame <command>           execute a command after a new frame is drawn
-    after break <command>           execute a command after a breakpoint is reached
+    after break <command>           execute a command after a breakpoint is
+                                    reached
     after info                      list all postponed commands
     after cancel <id>               cancel the postponed command with given id
 
@@ -109,20 +110,22 @@ escape_grab
   usage:
     escape_grab  temporarily release the input grab
 
+
 filemanipulator
 ---------------
 
-  used to manipulate the (files on) the current dsk image
-  For a indepth explication and examples see the file 'Using-filemanipulator.txt'
+  Used to manipulate the (files on) the current disk image.
+  For an in-depth explanation and examples see the file 
+  'Using-filemanipulator.txt'.
 
   usage:
-    filemanipulator savedsk      <diskname> <dskfilename>
-    filemanipulator import       <diskname> <hostdirectory>
-    filemanipulator export       <diskname> <hostdirectory>
-    filemanipulator usePartition <diskname> <partition number>
-    filemanipulator format       <diskname>
+    filemanipulator savedsk      <disk name> <dskfilename>
+    filemanipulator import       <disk name> <host directory>
+    filemanipulator export       <disk name> <host directory>
+    filemanipulator usePartition <disk name> <partition number>
+    filemanipulator format       <disk name>
 
-    filemanipulator create  <dskfilename> <size/option> <size/option>...
+    filemanipulator create  <dskfilename> <size/option> <size/option> ...
     filemanipulator useFile <dskfilename>
 
 
@@ -252,7 +255,7 @@ slotselect
 soundlog
 --------
 
-  Controls sound logging: writing the openMSX sound to a waf file.
+  Controls sound logging: writing the openMSX sound to a wav file.
 
   usage:
     soundlog start             Log sound to file "openmsxNNNN.wav"
