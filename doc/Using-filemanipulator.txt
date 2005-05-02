@@ -1,0 +1,124 @@
+filemanipulator
+---------------
+
+This is probalbly the most exhuberant console command available in openMSX.
+It implements the basic stuff needed to handle files and subdirs on MSX media.
+It also helps one creating new disk-image files, both simple 360KB as 720KB
+disks as well as IDE-HD images containing up to 30 partitions of each 32 MB.
+Creating diskimages and manipulating the files on them can be done without the
+need of a running emulated MSX (set power off)
+
+generic structure
+-----------------
+
+The general command structure is allways ofthe form:
+
+filemanipulator <command> <diskname> <command arguments> where
+
+  'commands' is one of: usePartition, import, export, savedsk, format, create,
+        useFile
+
+  'diskname' is most likely: diska, diskb, IDEHD or imagefile. 
+        imagefile is only available after a useFile command
+        diska,diskb or IDE-HD are the drives available to the running emulated
+        MSX machine. This allows interaction with the currently used diskimages
+
+  'command arguments' depend upon the command involved, see the detailed
+        descriptions of the commands below
+
+
+Detailed explications
+---------------------
+
+savedsk
+-------
+    structure:
+        filemanipulator savedsk <diskname> <dskfilename>
+
+    explication:
+        This simply reads all the sectors of the <diskname> and saves them
+        again in the file specified by <dskfilename>.
+        This is thus equivalent to copying a dsk file on your host OS.
+        the added values are:
+        * the possibility of saving a ramdsk (see diska ramdsk)
+        * saving your current DirAsDisk image into a real dsk file
+        * copying the currently used file in case your host-OS would give
+          sharing violations while the file is being used by openMSX (win32)
+        * saving a dsk file if you by accident already removed the directory
+          entry while openMSX is still using an open filehandler towards it.
+
+import
+------
+    structure:
+        filemanipulator import <diskname> <hostdirectory>
+
+    explication:
+        This will import the files and subdirectories in <hostdirectory> into
+        the disk inserted in <diskname>.
+        The place were the files will be added in the MSX directory structure
+        are influenced by the 'usePartition' and 'chdir' command.
+
+export
+------
+    structure:
+        filemanipulator export <diskname> <hostdirectory>
+
+    explication:
+        This will export he files and subdirectories from the disk inserted in
+        <diskname> to the <hostdirectory> on your host OS.
+        The subdirectory that will be exported from the MSX-images is
+        influenced by the 'usePartition' and 'chdir' command.
+
+usePartition
+------------
+    structure:
+        filemanipulator usePartition <diskname> <partition number>
+
+    explication:
+        In case the <diskname> contains a MSX IDE compatible partition table,
+        this command will select the partition to be used for the
+        import/export/chdir commands.
+        Using tabcompletion will show to currently selected partition for the
+        <diskname> device.
+        If no valid partion table is found this will be equivalent to using partition 0.
+
+format
+------
+    structure:
+        filemanipulator format <diskname>
+
+    explication:
+        The currently selected partition from <diskname> will be cleanly formated with a MSXDOS2 bootsector.
+        FAT and directory sectors will be correctly initialized.
+
+useFile
+-------
+    structure:
+        filemanipulator useFile <dskfilename>
+
+    explication:
+        Instead of relying on the devices emulated when performing operations
+        using filemanipulator you can use any dsk image available to you by
+        using the useFile command. This will register an extra '<diskname>'
+        named 'imagefile' that can be treated by filemanipulatorm even when the
+        current emulated MSX is in it's power off statem or doesn't has any
+        diskdrives what so ever.
+
+create
+------
+    structure:
+        filemanipulator create  <dskfilename> <size/option> <size/option>...
+
+    explication:
+        You can create new dsk files using this command.
+        This new disk will be formated using an MSXDOS2 bootsector
+        you can specify multiple sizes in which case an MSX IDE compatible
+        partitioned image will be created, each partition will be formatted as
+        required.
+        You can specify the disk/partion sizes be using the followin postfixes:
+                - no postfix  ->  size in sectors
+                - S or s      ->  size in sectors
+                - B or b      ->  size in bytes
+                - K or k      ->  size in kilobytes
+                - M or m      ->  size in megabytes
+
