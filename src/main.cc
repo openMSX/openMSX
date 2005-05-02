@@ -61,7 +61,7 @@ static int main(int argc, char **argv)
 			AfterCommand afterCommand;
 			RendererFactory::createVideoSystem();
 			MSXMotherBoard motherboard;
-			CliServer cliServer;
+			// CliServer cliServer; // disabled for security reasons
 			motherboard.run(parseStatus == CommandLineParser::RUN);
 		}
 	} catch (FatalError& e) {
