@@ -19,33 +19,37 @@
 
 namespace openmsx {
 
+static inline unsigned long long getSDLTicks()
+{
+	return (unsigned long long)SDL_GetTicks() * 1000;
+}
+
 unsigned long long Timer::getTime()
 {
 #if defined (WIN32)
-    static LONGLONG hfFrequency = 0;
-    LARGE_INTEGER li;
+	static LONGLONG hfFrequency = 0;
+	
+	LARGE_INTEGER li;
+	if (!hfFrequency) {
+		if (QueryPerformanceFrequency(&li)) {
+			hfFrequency = li.QuadPart;
+		} else {
+			return getSDLTicks();
+		}
+	}
+	QueryPerformanceCounter(&li);
 
-    if (!hfFrequency) {
-        if (QueryPerformanceFrequency(&li)) {
-            hfFrequency = li.QuadPart;
-        }
-        else {
-            return 0;
-        }
-    }
+	// Assumes that the timer never wraps. The mask is just to
+	// ensure that the multiplication doesn't wrap.
+	return (li.QuadPart & ((long long)-1 >> 20)) * 1000000 / hfFrequency;
 
-    QueryPerformanceCounter(&li);
-
-    // Assumes that the timer never wraps. The mask is just to
-    // ensure that the multiplication doesn't wrap.
-    return (li.QuadPart & ((long long)-1 >> 20)) * 1000000 / hfFrequency;
 #elif defined (HAVE_GETTIMEOFDAY)
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return (unsigned long long)tv.tv_sec * 1000000 +
 	       (unsigned long long)tv.tv_usec;
 #else
-	return (unsigned long long)SDL_GetTicks() * 1000;
+	return getSDLTicks();
 #endif
 }
 
@@ -63,17 +67,17 @@ static void CALLBACK timerCallback(unsigned int,
 void Timer::sleep(unsigned long long us)
 {
 #if defined (WIN32)
-    us /= 1000;
-
-    if (us > 0) {
-        static HANDLE timerEvent = NULL;
-        if (timerEvent == NULL) {
-            timerEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-        }
-        UINT id = timeSetEvent(us, 1, timerCallback, (DWORD)timerEvent, TIME_ONESHOT);
-        WaitForSingleObject(timerEvent, INFINITE);
-        timeKillEvent(id);
-    }
+	us /= 1000;
+	if (us > 0) {
+		static HANDLE timerEvent = NULL;
+		if (timerEvent == NULL) {
+			timerEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+		}
+		UINT id = timeSetEvent(us, 1, timerCallback, (DWORD)timerEvent,
+		                       TIME_ONESHOT);
+		WaitForSingleObject(timerEvent, INFINITE);
+		timeKillEvent(id);
+	}
 #elif defined (HAVE_USLEEP)
 	usleep(us);
 #else
