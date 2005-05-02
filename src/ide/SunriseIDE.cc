@@ -5,6 +5,8 @@
 #include "MSXCPU.hh"
 #include "IDEDeviceFactory.hh"
 #include "Rom.hh"
+#include "FileManipulator.hh"
+#include "DiskContainer.hh"
 #include "XMLElement.hh"
 
 namespace openmsx {
@@ -22,6 +24,24 @@ SunriseIDE::SunriseIDE(const XMLElement& config, const EmuTime& time)
 	          ? IDEDeviceFactory::create(*slaveElem, time)
 	          : new DummyIDEDevice());
 
+	/*
+	 * TODO : make this work so that we have more 'correct names' for our IDEHD devices
+	 * when this works the registration in IDEHD must be removed!
+	 *
+	 */
+	/*
+	if ( masterElem->getChildData("type") == "IDEHD") {
+		FileManipulator::instance().registerDrive(
+			static_cast<DiskContainer&>(*device[0]) ,
+			getName()+std::string("-M") );
+	};
+	if ( slaveElem->getChildData("type") == "IDEHD") {
+		FileManipulator::instance().registerDrive(
+			dynamic_cast<DiskContainer&>(*device[1]) ,
+			getName()+std::string("-S") );
+	};
+	*/
+
 	// make valgrind happy
 	internalBank = 0;
 	ideRegsEnabled = false;
@@ -32,6 +52,7 @@ SunriseIDE::SunriseIDE(const XMLElement& config, const EmuTime& time)
 
 SunriseIDE::~SunriseIDE()
 {
+  //TODO: unregister IDEHD with FileManipulator::instance()
 }
 
 

@@ -1,5 +1,14 @@
 $Id$
 
+2005-05-02 David Heremans <david.heremans@gnu-linux.net>
+	* MSXtar Work-In-Progress:
+	   - partition info per DiskContainer device
+	   - new format and useFile command.
+	   - renamed getDir/AddDir to import/export
+	   - IDEHD import seems to work :-)
+	   - 'create'-command works but IDE sector 0 is not fully correct yet.
+	   - extra documentation file concerning the filemanipulator
+
 2005-04-29 Patrick van Arkel (vampiermsx@gmail.com)
 	* added a new rom database after some cleanups
 

@@ -55,6 +55,7 @@ void FileDriveCombo::writeLogicalSector(unsigned sector, const byte* buf)
 unsigned FileDriveCombo::getNbSectors() const 
 {
    unsigned fileSize=file->getSize();
+   PRT_DEBUG("FileDriveCombo::getNbSectors() returns  " << (fileSize/512) );
    return fileSize/512 ;
 }
 
@@ -310,6 +311,7 @@ void MSXtar::setBootSector(byte* buf, word nbSectors)
 void MSXtar::format()
 {
 	if (hasPartitionTable()) {
+		PRT_DEBUG("format found hasPartitionTable so running format(partitionNbSectors)" << partitionNbSectors);
 		format(partitionNbSectors);
 	} else {
 		format(disk->getNbSectors());
@@ -345,7 +347,7 @@ void MSXtar::format(int partitionsectorsize)
 	disk->writeLogicalSector(partitionOffset + 1, sectorbuf);
 
 	memset(sectorbuf, 0xE5, SECTOR_SIZE);
-	for (unsigned i = 1 + rootDirEnd; i < disk->getNbSectors(); ++i) {
+	for (unsigned i = 1 + rootDirEnd; i < partitionsectorsize ; ++i) {
 		disk->writeLogicalSector(partitionOffset + i, sectorbuf);
 	}
 }
@@ -1044,7 +1046,11 @@ bool MSXtar::usePartition(int partition)
 {
 	byte buf[SECTOR_SIZE];
 	disk->readLogicalSector(0 , buf);
-	if ( ! isPartitionTableSector(buf) ) return false;
+	if ( ! isPartitionTableSector(buf) ) {
+		partitionOffset=0;
+		partitionNbSectors=disk->getNbSectors();
+		return false;
+	}
 
 	struct partition *P=(struct partition *)(buf+14+(30-partition)*16);
 	if (rdlg(P->start4) == 0){
@@ -1079,6 +1085,7 @@ void MSXtar::createDiskFile(const std::string filename, vector<int> sizes, vecto
 	// now create the partition table if needed
 	if ( sizes.size() > 1){
 		byte bootsector[SECTOR_SIZE];
+		memset(buf,0,SECTOR_SIZE); // Is this needed ?
 		strncpy((char*)buf,"\353\376\220MSX_IDE ",11) ;
 
 		unsigned int startPartition=1 ; 
@@ -1086,14 +1093,22 @@ void MSXtar::createDiskFile(const std::string filename, vector<int> sizes, vecto
 			struct partition *P=(struct partition *)(buf + (14+(30-i)*16));
 			setlg(P->start4,startPartition);
 			setlg(P->size4,sizes[i]);
-			setBootSector(bootsector,sizes[i]);
-			disk->writeLogicalSector(startPartition, bootsector);
+			/*
+			disk->writeLogicalSector(0,buf); //needed for usePartition below!! (reads sector 0)
+			setBootSector(bootsector,sizes[i]);//needed for usePartition below!! (reads bootsector of partition)
+			disk->writeLogicalSector(startPartition, bootsector);//needed for usePartition below!!
+			usePartition(i); // main purpose is to get partitionOffset correct (maybe we can do this and skip the previous 3 lines: I'll have to look into it 
+			*/
+			partitionOffset=startPartition;
+			format(sizes[i]); //does it's own setBootSector/readBootSector
 			startPartition+=sizes[i];
 		}
+		disk->writeLogicalSector(0,buf);
 	} else {
 		setBootSector(buf,sizes[0]);
+		usePartition(0);
+		format(sizes[0]);
 	}
-	disk->writeLogicalSector(0,buf);
 
 }
 

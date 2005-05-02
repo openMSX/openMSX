@@ -113,11 +113,18 @@ filemanipulator
 ---------------
 
   used to manipulate the (files on) the current dsk image
+  For a indepth explication and examples see the file 'Using-filemanipulator.txt'
 
   usage:
-    filemanipulator savedsk <diskname> <dsk file name>
-    filemanipulator import <diskname> <host directory>
-    filemanipulator export <diskname> <host directory>
+    filemanipulator savedsk      <diskname> <dskfilename>
+    filemanipulator import       <diskname> <hostdirectory>
+    filemanipulator export       <diskname> <hostdirectory>
+    filemanipulator usePartition <diskname> <partition number>
+    filemanipulator format       <diskname>
+
+    filemanipulator create  <dskfilename> <size/option> <size/option>...
+    filemanipulator useFile <dskfilename>
+
 
 help
 ----
