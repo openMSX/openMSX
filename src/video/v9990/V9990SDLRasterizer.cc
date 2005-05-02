@@ -258,20 +258,22 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 			displayHeight = screenH - fromY;
 		}
 		
-		displayX = V9990::UCtoX(displayX, displayMode);
-		displayWidth = V9990::UCtoX(displayWidth, displayMode);
+		if (displayHeight > 0) {
+			displayX = V9990::UCtoX(displayX, displayMode);
+			displayWidth = V9990::UCtoX(displayWidth, displayMode);
 
-		if (displayMode == P1) {
-			// TODO
-			drawP1Mode(fromX, fromY, displayX, displayY,
+			if (displayMode == P1) {
+				// TODO
+				drawP1Mode(fromX, fromY, displayX, displayY,
+						   displayWidth, displayHeight);
+			} else if (displayMode == P2) {
+				// TODO
+				drawP2Mode(fromX, fromY, displayX, displayY,
+						   displayWidth, displayHeight);
+			} else {
+				drawBxMode(fromX, fromY, displayX, displayY,
 					   displayWidth, displayHeight);
-		} else if (displayMode == P2) {
-			// TODO
-			drawP2Mode(fromX, fromY, displayX, displayY,
-					   displayWidth, displayHeight);
-		} else {
-			drawBxMode(fromX, fromY, displayX, displayY,
-			           displayWidth, displayHeight);
+			}
 		}
 	}
 }
