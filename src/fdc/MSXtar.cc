@@ -318,7 +318,7 @@ void MSXtar::format()
 	};
 }
 
-void MSXtar::format(int partitionsectorsize)
+void MSXtar::format(unsigned int partitionsectorsize)
 {
 	// first create a bootsector and start from the default bootblock
 	byte sectorbuf[512];
@@ -1084,7 +1084,7 @@ void MSXtar::createDiskFile(const std::string filename, vector<int> sizes, vecto
 	disk = new FileDriveCombo(filename);
 	// now create the partition table if needed
 	if ( sizes.size() > 1){
-		byte bootsector[SECTOR_SIZE];
+		// byte bootsector[SECTOR_SIZE]; // FIXME UNUSED?
 		memset(buf,0,SECTOR_SIZE); // Is this needed ?
 		strncpy((char*)buf,"\353\376\220MSX_IDE ",11) ;
 

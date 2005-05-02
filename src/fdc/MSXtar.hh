@@ -45,7 +45,7 @@ class MSXtar
 public: 
 	MSXtar(SectorAccessibleDisk* sectordisk);
 	void format();
-	void format(int partitionsectorsize);
+	void format(unsigned int partitionsectorsize);
 	//static char toMSXChr(char a);
 	bool usePartition(int partition);
 
