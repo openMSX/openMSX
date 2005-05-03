@@ -35,6 +35,7 @@ public:
 	virtual byte readB(const EmuTime& time);
 
 	/** Writes to the peripheral on port A.
+	  * @param value The value to write.
 	  * @param time The moment in time the value is written.
 	  *   On subsequent calls, the time will always be increasing.
 	  */
