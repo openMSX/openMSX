@@ -64,21 +64,22 @@ Mixer::Mixer()
 	EnumSetting<SoundDriverType>::Map soundDriverMap;
 	soundDriverMap["null"]    = SND_NULL;
 	soundDriverMap["sdl"]     = SND_SDL;
+	SoundDriverType defaultSoundDriver = SND_SDL;
+
 #ifdef _WIN32
 	soundDriverMap["directx"] = SND_DIRECTX;
+	defaultSoundDriver = SND_DIRECTX;
 #endif
-	// TODO on win32 make directx default when it's tested enough
-	SoundDriverType defaultSoundDriver = SND_NULL;
-	if (CommandLineParser::instance().wantSound()) {
-#ifdef _WIN32
-		defaultSoundDriver = SND_DIRECTX;
-#else
-		defaultSoundDriver = SND_SDL;
-#endif
-	}
+
 	soundDriverSetting.reset(new EnumSetting<SoundDriverType>(
 		"sound_driver", "select the sound output driver",
 		defaultSoundDriver, soundDriverMap));
+	if (!CommandLineParser::instance().wantSound()) {
+		CliComm::instance().printWarning(
+			"The option '-nosound' is deprecated. "
+			"Use sound_driver=null (see manual).");
+		soundDriverSetting->setValue(SND_NULL);
+	}
 
 	infoCommand.registerTopic("sounddevice", &soundDeviceInfo);
 	muteSetting->addListener(this);

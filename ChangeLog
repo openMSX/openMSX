@@ -1,5 +1,9 @@
 $Id$
 
+2005-05-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed -nosound option:
+	   - also marked as deprecated
+
 2005-05-02 David Heremans <david.heremans@gnu-linux.net>
 	* MSXtar Work-In-Progress:
 	   - partition info per DiskContainer device
