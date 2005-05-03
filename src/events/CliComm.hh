@@ -43,7 +43,7 @@ public:
 	void log(LogLevel level, const std::string& message);
 	void update(UpdateType type, const std::string& name, const std::string& value);
 
-	// convient methods
+	// convenience methods
 	void printInfo(const std::string& message) {
 		log(INFO, message);
 	}
