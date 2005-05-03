@@ -70,6 +70,9 @@ static int main(int argc, char **argv)
 	} catch (MSXException& e) {
 		cerr << "Uncaught exception: " << e.getMessage() << endl;
 		err = 1;
+	} catch (std::exception& e) {
+		cerr << "Uncaught std::exception: " << e.what() << endl;
+		err = 1;
 	} catch (...) {
 		cerr << "Uncaught exception of unexpected type." << endl;
 		err = 1;
