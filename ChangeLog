@@ -1,6 +1,10 @@
 $Id$
 
 2005-05-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Console refactoring:
+	   - simplified code / fixed a bug
+
+2005-05-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed -nosound option:
 	   - also marked as deprecated
 

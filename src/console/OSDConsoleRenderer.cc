@@ -33,8 +33,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	font.reset(new DummyFont());
 	blink = false;
 	lastBlinkTime = 0;
-	unsigned cursorY;
-	console.getCursorPosition(lastCursorPosition, cursorY);
+	lastCursorX = lastCursorY = 0;
 
 	active = false;
 	time = 0;
@@ -72,7 +71,6 @@ void OSDConsoleRenderer::initConsole()
 	console.setColumns(consoleColumnsSetting->getValue());
 	console.setRows(consoleRowsSetting->getValue());
 	adjustColRow();
-	console.setConsoleDimensions(consoleColumns, consoleRows);
 	
 	// placement
 	typedef EnumSetting<Placement>::Map PlaceMap;
@@ -182,7 +180,6 @@ bool OSDConsoleRenderer::updateConsoleRect()
 	unsigned x, y, w, h;
 	h = font->getHeight() * consoleRows;
 	w = (font->getWidth() * consoleColumns) + CHAR_BORDER;
-	console.setConsoleDimensions(consoleColumns, consoleRows);
 	
 	// TODO use setting listener in the future
 	switch (consolePlacementSetting->getValue()) {

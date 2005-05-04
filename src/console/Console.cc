@@ -4,7 +4,7 @@
 
 namespace openmsx {
 
-Console::Console ()
+Console::Console()
 {
 }
 
@@ -31,7 +31,5 @@ unsigned Console::getRows() const
 {
 	return rows;
 }
-
-
 
 } // namespace openmsx

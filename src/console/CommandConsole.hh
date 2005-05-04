@@ -22,13 +22,11 @@ public:
 
 	/** Prints a string on the console.
 	  */
-	void print(const std::string &text);
+	void print(std::string text);
 
 	virtual unsigned getScrollBack() const;
-	virtual const std::string &getLine(unsigned line) const;
+	virtual std::string getLine(unsigned line) const;
 	virtual void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const;
-	virtual void setCursorPosition(unsigned xPosition, unsigned yPosition);
-	virtual void setConsoleDimensions(unsigned columns, unsigned rows);
 
 private:
 	static const int LINESHISTORY = 1000;
@@ -45,37 +43,27 @@ private:
 	void backspace();
 	void delete_key();
 	void normalKey(word chr);
-	void putCommandHistory(const std::string &command);
-	void newLineConsole(const std::string &line);
+	void putCommandHistory(const std::string& command);
+	void newLineConsole(const std::string& line);
 	void putPrompt();
 	void resetScrollBack();
 
-	void combineLines(CircularBuffer<std::string, LINESHISTORY> &buffer,
-		CircularBuffer<bool, LINESHISTORY> &overflows,
-		bool fromTop = false );
-	void splitLines();
 	void loadHistory();
 	void saveHistory();
 
-	unsigned int maxHistory;
-	std::string editLine;
+	unsigned maxHistory;
 	std::string commandBuffer;
 	std::string prompt;
 	/** Are double commands allowed? */
 	bool removeDoubles;
 	CircularBuffer<std::string, LINESHISTORY> lines;
-	CircularBuffer<bool, LINESHISTORY> lineOverflows;
 	std::list<std::string> history;
 	std::list<std::string>::iterator commandScrollBack;
 	/** Saves Current Command to enable command recall. */
 	std::string currentLine;
 	int consoleScrollBack;
-	unsigned cursorLocationX;
-	unsigned cursorLocationY;
 	/** Position within the current command. */
 	unsigned cursorPosition;
-	unsigned consoleColumns;
-	unsigned consoleRows;
 
 	SettingsConfig& settingsConfig;
 	CommandController& commandController;

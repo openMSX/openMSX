@@ -60,7 +60,8 @@ protected:
 	std::auto_ptr<Font> font;
 	bool blink;
 	unsigned lastBlinkTime;
-	unsigned lastCursorPosition;
+	unsigned lastCursorX;
+	unsigned lastCursorY;
 	unsigned destX;
 	unsigned destY;
 	unsigned destW;

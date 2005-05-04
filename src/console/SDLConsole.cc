@@ -80,13 +80,13 @@ void SDLConsole::paint()
 		blink = !blink;
 	}
 
-	unsigned cursorX;
-	unsigned cursorY;
+	unsigned cursorX, cursorY;
 	console.getCursorPosition(cursorX, cursorY);
-	if (cursorX != lastCursorPosition){
+	if ((cursorX != lastCursorX) || (cursorY != lastCursorY)) {
 		blink = true; // force cursor
 		lastBlinkTime = SDL_GetTicks() + BLINK_RATE; // maximum time
-		lastCursorPosition = cursorX;
+		lastCursorX = cursorX;
+		lastCursorY = cursorY;
 	}
 	if (console.getScrollBack() == 0) {
 		if (blink) {
