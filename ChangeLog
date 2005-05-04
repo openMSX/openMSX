@@ -5,6 +5,8 @@ $Id$
 	   - simplified code / fixed a bug
 	* Use Tcl_DeleteCommandFromToken iso Tcl_DeleteCommand to unregister
 	  TCL commands: is safer when the user uses 'rename' on the commands
+	* Correctly fill in the 'LBA size' field in the IDEHD 'Identify Block':
+	   patch made by Adriano Camargo Rodrigues da Cunha
 
 2005-05-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed -nosound option:

@@ -76,6 +76,11 @@ IDEHD::IDEHD(const XMLElement& config, const EmuTime& /*time*/)
 	identifyBlock[0x0C] = sectors & 0xFF;
 	identifyBlock[0x0D] = sectors / 0x100;
 
+	identifyBlock[0x78] = (totalSectors & 0x000000FF) >>  0;
+	identifyBlock[0x79] = (totalSectors & 0x0000FF00) >>  8;
+	identifyBlock[0x7A] = (totalSectors & 0x00FF0000) >> 16;
+	identifyBlock[0x7B] = (totalSectors & 0xFF000000) >> 24;
+
 	transferRead = transferWrite = false;
 
 	//FileManipulator::instance().registerDrive(*this, std::string("IDEHD") );
