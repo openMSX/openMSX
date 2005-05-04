@@ -3,6 +3,7 @@
 #ifndef INTERPRETER_HH
 #define INTERPRETER_HH
 
+#include <map>
 #include <set>
 #include <string>
 #include <tcl.h>
@@ -49,6 +50,7 @@ private:
 
 	static Tcl_ChannelType channelType;
 	Tcl_Interp* interp;
+	std::map<std::string, Tcl_Command> commandTokenMap;
 };
 
 } // namespace openmsx

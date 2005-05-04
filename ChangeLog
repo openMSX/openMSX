@@ -3,6 +3,8 @@ $Id$
 2005-05-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Console refactoring:
 	   - simplified code / fixed a bug
+	* Use Tcl_DeleteCommandFromToken iso Tcl_DeleteCommand to unregister
+	  TCL commands: is safer when the user uses 'rename' on the commands
 
 2005-05-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed -nosound option:
