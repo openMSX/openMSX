@@ -4,6 +4,15 @@ $Id$
 	* Fixed -nosound option:
 	   - also marked as deprecated
 
+2005-05-04 David Heremans <david.heremans@gnu-linux.net>
+	* MSXtar Work-In-Progress:
+	   - new chdir,mkdir and dir command.
+	   - registering of IDEHD now done by the IDE controller
+	     which adds a Master or Slave indication to the name
+	   - enabled '.' and '..' support in some MSXtar routines
+	   - while cleaning up the code I added some verbose error
+	     messages in case of failure or wrong usage 
+
 2005-05-02 David Heremans <david.heremans@gnu-linux.net>
 	* MSXtar Work-In-Progress:
 	   - partition info per DiskContainer device

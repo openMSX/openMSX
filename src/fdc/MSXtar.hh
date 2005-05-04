@@ -50,6 +50,9 @@ public:
 	bool usePartition(int partition);
 
 	void createDiskFile(const std::string filename, vector<int> sizes, vector<std::string> options );
+	bool chdir (std::string newRootDir);
+	bool mkdir (std::string newRootDir);
+	std::string dir ();
 	//temporary way to test import MSXtar functionality
 	void addDir(const std::string &rootDirName);
 	void getDir(const std::string &rootDirName);
@@ -179,6 +182,7 @@ private:
 	void changeTime(std::string resultFile, MSXDirEntry* direntry);
 	void fileExtract(std::string resultFile, MSXDirEntry* direntry);
 	void recurseDirExtract(const std::string &DirName,int sector,int direntryindex);
+	bool chroot(std::string newRootDir,bool createDir);
 
 	bool hasPartitionTable();
 	bool isPartitionTableSector(byte* buf);

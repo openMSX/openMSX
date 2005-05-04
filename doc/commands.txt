@@ -119,11 +119,14 @@ filemanipulator
   'Using-filemanipulator.txt'.
 
   usage:
-    filemanipulator savedsk      <disk name> <dskfilename>
-    filemanipulator import       <disk name> <host directory>
-    filemanipulator export       <disk name> <host directory>
-    filemanipulator usePartition <disk name> <partition number>
-    filemanipulator format       <disk name>
+    filemanipulator savedsk      <diskname> <dskfilename>
+    filemanipulator import       <diskname> <hostdirectory>
+    filemanipulator export       <diskname> <hostdirectory>
+    filemanipulator mkdir        <diskname> <MSXdirectory>
+    filemanipulator chdir        <diskname> <MSXdirectory>
+    filemanipulator dir          <diskname>
+    filemanipulator usePartition <diskname> <partition number>
+    filemanipulator format       <diskname>
 
     filemanipulator create  <dskfilename> <size/option> <size/option> ...
     filemanipulator useFile <dskfilename>

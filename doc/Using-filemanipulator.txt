@@ -16,13 +16,14 @@ The general command structure is always of the form:
 filemanipulator <command> <disk name> <command arguments> where
 
   'commands' is one of: usePartition, import, export, savedsk, format, create,
+        useFile, dir, mkdir, chdir
         useFile.
 
   'disk name' is most likely: diska, diskb, IDEHD or imagefile. 
         imagefile is only available after a useFile command.
         diska, diskb or IDE-HD are the drives available to the running emulated
         MSX machine. This allows interaction with the currently used disk
-	images.
+        images.
 
   'command arguments' depend upon the command involved, see the detailed
         descriptions of the commands below.
@@ -70,6 +71,35 @@ export
         The subdirectory that will be exported from the MSX-images is
         influenced by the 'usePartition' and 'chdir' command.
 
+chdir
+-----
+    structure:
+        filemanipulator chdir <diskname> <MSXdirectory>
+
+    explication:
+        This command will select the directory on the MSX diskimage that will
+        be used for the export and import commands.
+
+
+mkdir
+-----
+    structure:
+        filemanipulator mkdir <diskname> <MSXdirectory>
+
+    explication:
+        This command will create the directory on the MSX diskimage.
+        Al the needed parent directories will be created if they do not yet exist
+
+dir
+---
+    structure:
+        filemanipulator dir <diskname>
+
+    explication:
+        This will show the directory content of the curring working directory.
+        The output is formated in a 'files,l' like manner.
+
+
 usePartition
 ------------
     structure:
@@ -82,7 +112,7 @@ usePartition
         Using tab completion will show to currently selected partition for the
         <disk name> device.
         If no valid partition table is found this will be equivalent to using
-	partition 0.
+        partition 0.
 
 format
 ------
@@ -90,9 +120,9 @@ format
         filemanipulator format <disk name>
 
     explanation:
-	The currently selected partition from <disk name> will be cleanly
-	formated with a MSX-DOS2 boot sector. 
-	FAT and directory sectors will be correctly initialised.
+        The currently selected partition from <disk name> will be cleanly
+        formated with a MSX-DOS2 boot sector. 
+        FAT and directory sectors will be correctly initialised.
 
 useFile
 -------
@@ -118,11 +148,13 @@ create
         you can specify multiple sizes in which case an MSX IDE compatible
         partitioned image will be created, each partition will be formatted as
         required.
-	You can specify the disk/partition sizes be using the following
-	postfixes:
-		- no postfix  ->  size in sectors
+        You can specify the disk/partition sizes be using the following
+        postfixes:
+                - no postfix  ->  size in sectors
                 - S or s      ->  size in sectors
                 - B or b      ->  size in bytes
                 - K or k      ->  size in kilobytes
                 - M or m      ->  size in megabytes
 
+        When the file is cerated a 'useFile' will automatically be called for
+        this new dsk image.

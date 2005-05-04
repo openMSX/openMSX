@@ -5,6 +5,7 @@
 #include "CliComm.hh"
 #include "ReadDir.hh"
 #include "FileOperations.hh"
+#include "StringOp.hh"
 #include <sys/stat.h>
 #include <utime.h>
 #include <unistd.h>
@@ -217,6 +218,7 @@ void MSXtar::readBootSector(const byte* buf)
 
 	rootDirStart = 1 + nbFats * sectorsPerFat;
 	MSXchrootSector = rootDirStart;
+	MSXchrootStartIndex = 0;
 
 	rootDirEnd = rootDirStart + nbRootDirSectors - 1;
 	maxCluster = sectorToCluster(nbSectors);
@@ -582,6 +584,12 @@ string MSXtar::makeSimpleMSXFileName(const string& fullfilename)
 		tmp = fullfilename;
 	}
 
+	// handle speciale case '.' and '..' first
+	if (tmp=="." || tmp==".."){
+		tmp += "           ";
+		return tmp.substr(0, 11);
+	}
+
 	string file, ext;
 	pos = tmp.find_last_of('.');
 	if (pos != string::npos) {
@@ -678,13 +686,20 @@ static void getTimeDate(const string& filename, int& time, int& date)
 {
 	struct stat fst;
 	memset(&fst, 0, sizeof(struct stat));
-	stat(filename.c_str(), &fst);
-	
-	tm* mtim = localtime(&(fst.st_mtime));
-	time = (mtim->tm_sec >> 1) + (mtim->tm_min << 5) + 
-	       (mtim->tm_hour << 11);
-	date = mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
-	       ((mtim->tm_year + 1900 - 1980) << 9);
+	CliComm::instance().printWarning("getTimeDate on "+filename);
+	//attempt to fix Vampiers win32 problem
+	if ( stat(filename.c_str(), &fst) != 0) {
+		CliComm::instance().printWarning("couldn't stat "+filename);
+		time=0;
+		date=0;
+	} else {
+		// some info indicates that fst.st_mtime could be useless on win32 with vfat.
+		tm* mtim = localtime(&(fst.st_mtime));
+		time = (mtim->tm_sec >> 1) + (mtim->tm_min << 5) + 
+		       (mtim->tm_hour << 11);
+		date = mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
+		       ((mtim->tm_year + 1900 - 1980) << 9);
+	}
 }
 
 // Add an MSXsubdir with the time properties from the HOST-OS subdir
@@ -961,6 +976,119 @@ void MSXtar::changeTime(std::string resultFile,MSXDirEntry* direntry)
 	utime(resultFile.c_str(), &utim);
 }
 
+std::string MSXtar::dir()
+{
+	std::string result;
+	//int i=MSXchrootStartIndex;
+	int i=0; // show '.' and '..'
+	int sector=MSXchrootSector;
+
+	byte buf[SECTOR_SIZE];
+	do {
+		disk->readLogicalSector(partitionOffset + sector, buf);
+		do {
+		  MSXDirEntry* direntry =(MSXDirEntry*)(buf + 32*i);
+		  if (direntry->filename[0] != 0xe5 && direntry->filename[0] != 0x00 ){
+			//filename first (in condensed form for human readablitly)....
+			std::string tmpstr=condensName(direntry);
+			result+=tmpstr+std::string("             ").substr(tmpstr.size());
+			//CliComm::instance().printWarning("MSXtar::dir " + tmpstr);
+			//attributes
+			tmpstr=(direntry->attrib & T_MSX_DIR ?"d":"-");
+			tmpstr+=(direntry->attrib & T_MSX_READ ?"r":"-");
+			tmpstr+=(direntry->attrib & T_MSX_HID ?"h":"-");
+			tmpstr+=(direntry->attrib & T_MSX_VOL ?"v":"-"); //todo check if this is the output of files,l
+			tmpstr+=(direntry->attrib & T_MSX_ARC ?"a":"-"); //todo check if this is the output of files,l
+			result+=tmpstr+"  ";
+			//filesize
+			result+=StringOp::toString(rdlg(direntry->size))+"\n";
+		  };
+
+		  i++;
+		} while (i <16);
+		sector=getNextSector(sector);
+		i=0;
+	} while (sector != 0);
+
+	return result;
+}
+
+//routines to update the global vars: MSXchrootSector,MSXchrootStartIndex
+bool MSXtar::chdir(std::string newRootDir)
+{
+	return chroot(newRootDir, false);
+}
+
+bool MSXtar::mkdir(std::string newRootDir)
+{
+	bool succes;
+	int tmpMSXchrootSector=MSXchrootSector;
+	int tmpMSXchrootStartIndex=MSXchrootStartIndex;
+
+	succes=chroot(newRootDir, true);
+
+	MSXchrootSector=tmpMSXchrootSector;
+	MSXchrootStartIndex=tmpMSXchrootStartIndex;
+
+	return succes;
+}
+
+bool MSXtar::chroot(std::string newRootDir, bool createDir)
+{
+  string work=newRootDir;
+  // if this is not a relative directory then reset MSXchrootSector,MSXchrootStartIndex
+  if (work.find_first_of("/\\")==0){
+	MSXchrootSector = rootDirStart;
+	MSXchrootStartIndex = 0;
+  }
+
+  //if (!msxdir_option){return;};
+  while (!work.empty() ){
+	PRT_DEBUG("chroot 0: work=" <<work);
+	//remove (multiple)leading '/'
+	while (work.find_first_of("/\\")==0){
+		work.erase(0,1);
+		PRT_DEBUG("chroot 1: work=" <<work);
+	}
+	string firstpart;
+	int pos;
+	pos= work.find_first_of("/\\");
+	if ( pos != string::npos){
+		firstpart=work.substr(0,pos);
+		work=work.substr(pos + 1);
+	} else {
+		firstpart=work;
+		work.clear();
+	};
+	// find firstpart directory or create it if requested
+	string simple=makeSimpleMSXFileName(firstpart);
+	byte buf[SECTOR_SIZE];
+	fullMSXDirEntry fullmsxdirentry = findEntryInDir(simple,MSXchrootSector,0,buf); // we use 0 instead of MSXchrootStartIndex since we might need to access '.' and '..' here
+	if (fullmsxdirentry.direntryindex == 16) {
+		if ( !createDir ) {return false;}
+		//creat new subdir
+		time_t now;
+		time( &now );
+		struct tm mtim = *localtime(&now);
+		int t = (mtim.tm_sec >> 1) + (mtim.tm_min << 5) + (mtim.tm_hour << 11);
+		int d = mtim.tm_mday + ((mtim.tm_mon + 1) << 5) + ((mtim.tm_year + 1900 - 1980) << 9);
+
+		PRT_DEBUG("Creating subdir " << simple) ;
+		MSXchrootSector=addMSXSubdir(simple,t,d,MSXchrootSector,MSXchrootStartIndex);
+		MSXchrootStartIndex=2;
+		if (MSXchrootSector == 0) {
+			//failed to create subdir
+			return false;
+		};
+	} else {
+		MSXDirEntry* direntry =(MSXDirEntry*)(buf + 32*fullmsxdirentry.direntryindex );
+		MSXchrootSector=clusterToSector(rdsh(direntry->startcluster));
+		MSXchrootStartIndex=2;
+	}
+  }
+  return true;
+}
+
 void MSXtar::fileExtract(std::string resultFile, MSXDirEntry* direntry)
 {
 	long size=rdlg(direntry->size);
@@ -1084,7 +1212,6 @@ void MSXtar::createDiskFile(const std::string filename, vector<int> sizes, vecto
 	disk = new FileDriveCombo(filename);
 	// now create the partition table if needed
 	if ( sizes.size() > 1){
-		// byte bootsector[SECTOR_SIZE]; // FIXME UNUSED?
 		memset(buf,0,SECTOR_SIZE); // Is this needed ?
 		strncpy((char*)buf,"\353\376\220MSX_IDE ",11) ;
 
@@ -1093,12 +1220,6 @@ void MSXtar::createDiskFile(const std::string filename, vector<int> sizes, vecto
 			struct partition *P=(struct partition *)(buf + (14+(30-i)*16));
 			setlg(P->start4,startPartition);
 			setlg(P->size4,sizes[i]);
-			/*
-			disk->writeLogicalSector(0,buf); //needed for usePartition below!! (reads sector 0)
-			setBootSector(bootsector,sizes[i]);//needed for usePartition below!! (reads bootsector of partition)
-			disk->writeLogicalSector(startPartition, bootsector);//needed for usePartition below!!
-			usePartition(i); // main purpose is to get partitionOffset correct (maybe we can do this and skip the previous 3 lines: I'll have to look into it 
-			*/
 			partitionOffset=startPartition;
 			format(sizes[i]); //does it's own setBootSector/readBootSector
 			startPartition+=sizes[i];
@@ -1115,13 +1236,15 @@ void MSXtar::createDiskFile(const std::string filename, vector<int> sizes, vecto
 //temporary way to test import MSXtar functionality
 void MSXtar::addDir(const string& rootDirName)
 {
-	recurseDirFill(rootDirName, rootDirStart, 0);
+	//recurseDirFill(rootDirName, rootDirStart, 0);
+	recurseDirFill(rootDirName, MSXchrootSector, MSXchrootStartIndex);
 }
 
 //temporary way to test export MSXtar functionality
 void MSXtar::getDir(const string& rootDirName)
 {
-	recurseDirExtract(rootDirName, rootDirStart, 0);
+	//recurseDirExtract(rootDirName, rootDirStart, 0);
+	recurseDirExtract(rootDirName, MSXchrootSector, MSXchrootStartIndex);
 }
 
 } // namespace openmsx

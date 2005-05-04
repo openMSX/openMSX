@@ -7,7 +7,7 @@
 #include "FileException.hh"
 #include "XMLElement.hh"
 #include "EventDistributor.hh"
-#include "FileManipulator.hh"
+//#include "FileManipulator.hh"
 #include "LedEvent.hh"
 
 using std::string;
@@ -78,12 +78,12 @@ IDEHD::IDEHD(const XMLElement& config, const EmuTime& /*time*/)
 
 	transferRead = transferWrite = false;
 
-	FileManipulator::instance().registerDrive(*this, std::string("IDEHD") );
+	//FileManipulator::instance().registerDrive(*this, std::string("IDEHD") );
 }
 
 IDEHD::~IDEHD()
 {
-	FileManipulator::instance().unregisterDrive(*this, std::string("IDEHD") );
+	//FileManipulator::instance().unregisterDrive(*this, std::string("IDEHD") );
 	delete[] buffer;
 }
 
