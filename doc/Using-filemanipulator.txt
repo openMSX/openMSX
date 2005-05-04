@@ -74,26 +74,27 @@ export
 chdir
 -----
     structure:
-        filemanipulator chdir <diskname> <MSXdirectory>
+        filemanipulator chdir <disk name> <MSX directory>
 
     explication:
-        This command will select the directory on the MSX diskimage that will
+        This command will select the directory on the MSX disk image that will
         be used for the export and import commands.
 
 
 mkdir
 -----
     structure:
-        filemanipulator mkdir <diskname> <MSXdirectory>
+        filemanipulator mkdir <disk name> <MSX directory>
 
     explication:
-        This command will create the directory on the MSX diskimage.
-        Al the needed parent directories will be created if they do not yet exist
+        This command will create the directory on the MSX disk image.
+        Al the needed parent directories will be created if they do not yet
+	exist.
 
 dir
 ---
     structure:
-        filemanipulator dir <diskname>
+        filemanipulator dir <disk name>
 
     explication:
         This will show the directory content of the curring working directory.
