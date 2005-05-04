@@ -576,7 +576,7 @@ static string removeTrailingSpaces(string str)
 // direntries on an MSX
 string MSXtar::makeSimpleMSXFileName(const string& fullfilename)
 {
-	unsigned pos = fullfilename.find_last_of('/');
+	string::size_type pos = fullfilename.find_last_of('/');
 	string tmp;
 	if (pos != string::npos) {
 		tmp = fullfilename.substr(pos + 1);
@@ -1051,15 +1051,14 @@ bool MSXtar::chroot(std::string newRootDir, bool createDir)
 		PRT_DEBUG("chroot 1: work=" <<work);
 	}
 	string firstpart;
-	int pos;
-	pos= work.find_first_of("/\\");
-	if ( pos != string::npos){
-		firstpart=work.substr(0,pos);
-		work=work.substr(pos + 1);
+	string::size_type pos = work.find_first_of("/\\");
+	if (pos != string::npos) {
+		firstpart = work.substr(0, pos);
+		work = work.substr(pos + 1);
 	} else {
-		firstpart=work;
+		firstpart = work;
 		work.clear();
-	};
+	}
 	// find firstpart directory or create it if requested
 	string simple=makeSimpleMSXFileName(firstpart);
 	byte buf[SECTOR_SIZE];
@@ -1192,7 +1191,8 @@ bool MSXtar::usePartition(int partition)
 	//P->size4
 }
 
-void MSXtar::createDiskFile(const std::string filename, vector<int> sizes, vector<std::string> options )
+void MSXtar::createDiskFile(const std::string filename, vector<int> sizes,
+                            vector<std::string> /*options*/)
 {
 	FILE* file = fopen(filename.c_str(), "wb");
 	if (file == NULL) {
