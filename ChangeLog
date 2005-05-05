@@ -1,5 +1,9 @@
 $Id$
 
+2005-05-05 Patrick van Arkel (vampiermsx@gmail.com)
+	* Added trainers.tcl to the scripts directory
+	  - This file will enable the users to 'cheat' games
+
 2005-05-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Console refactoring:
 	   - simplified code / fixed a bug
