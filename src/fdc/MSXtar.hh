@@ -49,7 +49,7 @@ public:
 	//static char toMSXChr(char a);
 	bool usePartition(int partition);
 
-	void createDiskFile(const std::string filename, vector<int> sizes, vector<std::string> options );
+	void createDiskFile(const std::string filename, vector<unsigned int> sizes, vector<std::string> options );
 	bool chdir (std::string newRootDir);
 	bool mkdir (std::string newRootDir);
 	std::string dir ();
@@ -156,7 +156,7 @@ private:
 	SectorAccessibleDisk* disk;
 
 	int clusterToSector(int cluster);
-	void setBootSector(byte* buf, word nbsectors);
+	void setBootSector(byte* buf, unsigned int nbsectors);
 	word sectorToCluster(int sector);
 	void readBootSector(const byte* buf);
 	word readFAT(word clnr);

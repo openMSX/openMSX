@@ -86,8 +86,8 @@ string FileManipulator::execute(const vector<string>& tokens)
 		}
 		DiskImages::const_iterator it = executeHelper(tokens[2],result);
 		if (it != diskImages.end()) {
-			if (tokens[1] == "export" ) exprt(it->second, tokens[3]);
-			if (tokens[1] == "import" ) import(it->second, tokens[3]);
+			if (tokens[1] == "export" ) exprt(it->second, tokens[3], result);
+			if (tokens[1] == "import" ) import(it->second, tokens[3], result);
 		}
 	} else if (tokens[1] == "savedsk") {
 		DiskImages::const_iterator it = executeHelper(tokens[2],result);
@@ -104,7 +104,7 @@ string FileManipulator::execute(const vector<string>& tokens)
 	} else if (tokens[1] == "chdir") {
 		DiskImages::const_iterator it = executeHelper(tokens[2],result);
 		if (it != diskImages.end()) {
-			if (chdir(it->second, tokens[3])) {
+			if (chdir(it->second, tokens[3],result)) {
 				//TODO clean-up this temp hack, used to enable relative paths
 				if (tokens[3].find_first_of("/\\")==0){
 					it->second->workingDir=tokens[3];
@@ -119,7 +119,7 @@ string FileManipulator::execute(const vector<string>& tokens)
 	} else if (tokens[1] == "mkdir") {
 		DiskImages::const_iterator it = executeHelper(tokens[2],result);
 		if (it != diskImages.end()) {
-			if (! mkdir(it->second, tokens[3])) {
+			if (! mkdir(it->second, tokens[3],result)) {
 				result += "mkdir "+tokens[3]+" failed!";
 			}
 		}
@@ -246,7 +246,7 @@ void FileManipulator::create(const std::vector<std::string>& tokens)
 	//iterate over tokens and split into options or size specifications
 	// also alter all size specifications into sector based sizes
 	vector<string> options;
-	vector<int> sizes;
+	vector<unsigned int> sizes;
 	CliComm::instance().printWarning("tokens.size() => "+StringOp::toString(tokens.size()) );
 	for (unsigned int i=3 ; i<tokens.size() ; ++i ){
 		CliComm::instance().printWarning("tokens["+StringOp::toString(i) +"] => "+tokens[i]);
@@ -276,6 +276,11 @@ void FileManipulator::create(const std::vector<std::string>& tokens)
 			    break;
 			}
 			sectors = (sectors*scale)/512 ; //SECTOR_SIZE;
+			// for a 32MB disk or greater the sectors would be >= 65536
+			// since MSX use 16 bits for this, in case of sectors=65536 
+			// the truncated word will be 0 -> formatted as 320 Kb disk!
+			if (sectors>65535) sectors=65535; // this is the max size :-)
+
 			sizes.push_back(sectors);
 		}
 	}
@@ -308,11 +313,14 @@ std::string FileManipulator::dir(DriveSettings* driveData)
 	}
 	MSXtar workhorse(disk);
 	workhorse.usePartition(driveData->partition);
-	workhorse.chdir(driveData->workingDir);
-	return workhorse.dir();
+	if ( workhorse.chdir(driveData->workingDir) ) {
+		return workhorse.dir();
+	} else {
+		return std::string( "Directory "+driveData->workingDir+" was not found anymore !" );
+	}
 }
 
-bool FileManipulator::chdir(DriveSettings* driveData, const string& filename)
+bool FileManipulator::chdir(DriveSettings* driveData, const string& filename,std::string& result)
 {
 	SectorAccessibleDisk* disk = &driveData->drive->getDisk();
 	if (!disk) {
@@ -321,11 +329,14 @@ bool FileManipulator::chdir(DriveSettings* driveData, const string& filename)
 	}
 	MSXtar workhorse(disk);
 	workhorse.usePartition(driveData->partition);
-	workhorse.chdir(driveData->workingDir);
+
+	if (! workhorse.chdir(driveData->workingDir) ) {
+		result+="Directory "+driveData->workingDir+" was not found anymore !\n";
+	}
 	return workhorse.chdir(filename);
 }
 
-bool FileManipulator::mkdir(DriveSettings* driveData, const string& filename)
+bool FileManipulator::mkdir(DriveSettings* driveData, const string& filename,std::string& result)
 {
 	SectorAccessibleDisk* disk = &driveData->drive->getDisk();
 	if (!disk) {
@@ -334,11 +345,15 @@ bool FileManipulator::mkdir(DriveSettings* driveData, const string& filename)
 	}
 	MSXtar workhorse(disk);
 	workhorse.usePartition(driveData->partition);
-	workhorse.chdir(driveData->workingDir);
-	return workhorse.mkdir(filename);
+	if ( workhorse.chdir(driveData->workingDir) ) {
+		return workhorse.mkdir(filename);
+	} else {
+		result+="Directory "+driveData->workingDir+" was not found anymore !";
+		return false;
+	}
 }
 
-void FileManipulator::import(DriveSettings* driveData, const string& filename)
+void FileManipulator::import(DriveSettings* driveData, const string& filename,std::string& result)
 {
 	SectorAccessibleDisk* disk = &driveData->drive->getDisk();
 	if (!disk) {
@@ -347,11 +362,14 @@ void FileManipulator::import(DriveSettings* driveData, const string& filename)
 	}
 	MSXtar workhorse(disk);
 	workhorse.usePartition(driveData->partition);
-	workhorse.chdir(driveData->workingDir);
-	workhorse.addDir(filename);
+	if ( workhorse.chdir(driveData->workingDir) ) {
+		workhorse.addDir(filename);
+	} else {
+		result+="Directory "+driveData->workingDir+" was not found anymore !";
+	}
 }
 
-void FileManipulator::exprt(DriveSettings* driveData, const string& dirname)
+void FileManipulator::exprt(DriveSettings* driveData, const string& dirname,std::string& result)
 {
 	SectorAccessibleDisk* disk = &driveData->drive->getDisk();
 	if (!disk) {
@@ -360,8 +378,11 @@ void FileManipulator::exprt(DriveSettings* driveData, const string& dirname)
 	}
 	MSXtar workhorse(disk);
 	workhorse.usePartition(driveData->partition);
-	workhorse.chdir(driveData->workingDir);
-	workhorse.getDir(dirname);
+	if ( workhorse.chdir(driveData->workingDir) ) {
+		workhorse.getDir(dirname);
+	} else {
+		result+="Directory "+driveData->workingDir+" was not found anymore !";
+	}
 }
 
 } // namespace openmsx

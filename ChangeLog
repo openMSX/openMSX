@@ -1,5 +1,14 @@
 $Id$
 
+2005-05-06 David Heremans <david.heremans@gnu-linux.net>
+	* MSXtar Work-In-Progress:
+	   - limited disk/partitions to 65535 sectors for now to solve
+	     the 'create disk of 32MB' problem.
+	   - improved bootsector guessing in the MSXtar constructor
+	     and commented it out already :-)
+	   - check against directory removals done be the emulated MSX
+	   - fixed some compile warnings
+
 2005-05-05 Patrick van Arkel (vampiermsx@gmail.com)
 	* Added trainers.tcl to the scripts directory
 	  - This file will enable the users to 'cheat' games

@@ -45,11 +45,11 @@ private:
 	void savedsk(DriveSettings* driveData, const std::string& filename);
 	void usefile(const std::string& filename);
 	void format(DriveSettings* driveData );
-	bool chdir(DriveSettings* driveData, const std::string& filename);
-	bool mkdir(DriveSettings* driveData, const std::string& filename);
+	bool chdir(DriveSettings* driveData, const std::string& filename,std::string& result);
+	bool mkdir(DriveSettings* driveData, const std::string& filename,std::string& result);
 	std::string dir(DriveSettings* driveData );
-	void import(DriveSettings* driveData, const std::string& filename);
-	void exprt(DriveSettings* driveData, const std::string& dirname); //using export as name is not feasable (reserved word)
+	void import(DriveSettings* driveData, const std::string& filename,std::string& result);
+	void exprt(DriveSettings* driveData, const std::string& dirname,std::string& result); //using export as name is not feasable (reserved word)
 
 
 };

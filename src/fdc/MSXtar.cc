@@ -135,32 +135,6 @@ static const byte dos2BootBlock[512] =
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 };
 
-MSXtar::MSXtar(SectorAccessibleDisk* sectordisk)
-{
-	disk=sectordisk;
-	nbSectorsPerCluster = 2;
-	MSXchrootStartIndex = 0;
-	MSXpartition = 0;
-	partitionNbSectors = 0;
-	do_extract = true;
-	do_subdirs = true;
-	do_singlesided = false;
-	touch_option = false;
-	keep_option = false;
-	msxdir_option = false;
-	msxpart_option = false;
-	msx_allpart = false;
-	do_fat16 = false;
-	partitionOffset=0;
-	defaultBootBlock = dos2BootBlock;
-
-	//byte sectorbuf[SECTOR_SIZE];
-	//disk->readLogicalSector(0,sectorbuf);
-	//readBootSector(sectorbuf); //set object variables to correct values
-	readBootSector(defaultBootBlock); //set object variables to correct values
-}
-
-
 // functions to change DirEntries
 static inline void setsh(byte* x, word y) 
 {
@@ -207,25 +181,89 @@ word MSXtar::sectorToCluster(int sector)
 void MSXtar::readBootSector(const byte* buf)
 {
 	MSXBootSector* boot = (MSXBootSector*)buf;
+	CliComm::instance().printWarning("-----------------------");
+	CliComm::instance().printWarning("ReadBootsector info:");
 
 	nbSectors = rdsh(boot->nrsectors); // assume a DS disk is used
+	CliComm::instance().printWarning("nbSectors   :" + StringOp::toString( nbSectors) );
+
 	sectorsPerTrack = rdsh(boot->nrsectors);
+	CliComm::instance().printWarning("sectorsPerTrack   :" + StringOp::toString( sectorsPerTrack) );
+
 	nbSides = rdsh(boot->nrsides);
+	CliComm::instance().printWarning("nbSides   :" + StringOp::toString( nbSides) );
+
 	nbFats = boot->nrfats[0];
+	CliComm::instance().printWarning("nbFats   :" + StringOp::toString( nbFats) );
+
 	sectorsPerFat = rdsh(boot->sectorsfat);
+	CliComm::instance().printWarning("sectorsPerFat   :" + StringOp::toString( sectorsPerFat) );
+
 	nbRootDirSectors = rdsh(boot->direntries) / 16;
+	CliComm::instance().printWarning("nbRootDirSectors   :" + StringOp::toString( nbRootDirSectors) );
+
 	sectorsPerCluster = (int)(byte)boot->spcluster[0];
+	CliComm::instance().printWarning("sectorsPerCluster   :" + StringOp::toString( sectorsPerCluster) );
 
 	rootDirStart = 1 + nbFats * sectorsPerFat;
+	CliComm::instance().printWarning("rootDirStart   :" + StringOp::toString( rootDirStart) );
+
 	MSXchrootSector = rootDirStart;
 	MSXchrootStartIndex = 0;
 
 	rootDirEnd = rootDirStart + nbRootDirSectors - 1;
+	CliComm::instance().printWarning("rootDirEnd   :" + StringOp::toString( rootDirEnd) );
+
 	maxCluster = sectorToCluster(nbSectors);
+	CliComm::instance().printWarning("maxCluster   :" + StringOp::toString( maxCluster) );
+
+	CliComm::instance().printWarning("-----------------------");
+
 }
 
+MSXtar::MSXtar(SectorAccessibleDisk* sectordisk)
+{
+	disk=sectordisk;
+	nbSectorsPerCluster = 2;
+	MSXchrootStartIndex = 0;
+	MSXpartition = 0;
+	partitionNbSectors = 0;
+	do_extract = true;
+	do_subdirs = true;
+	do_singlesided = false;
+	touch_option = false;
+	keep_option = false;
+	msxdir_option = false;
+	msxpart_option = false;
+	msx_allpart = false;
+	do_fat16 = false;
+	partitionOffset=0;
+	defaultBootBlock = dos2BootBlock;
+
+	//TODO : see if we can make usePartition always read the bootsector even 
+	// if no partition table is given.
+	// Since Filemanipulator will always call usePartition before doing any
+	// real manipulationm this would eliminate the followin code.
+	/*
+	if (disk != NULL){
+		byte sectorbuf[SECTOR_SIZE];
+		disk->readLogicalSector(0,sectorbuf);
+		if (! isPartitionTableSector(sectorbuf) ){
+			MSXBootSector* boot = (MSXBootSector*)sectorbuf;
+			if ( rdsh(boot->nrsectors)) readBootSector(sectorbuf); 
+			// assuming a regular disk is used,set object variables
+			// to correct values assuming this is a "normal dsk"
+			// check for 0 value because otherwise we would perform
+			// a division by zero....
+		}
+	}
+//	readBootSector(defaultBootBlock); //set object variables to correct values
+	*/
+}
+
+
 // Create a correct bootsector depending on the required size of the filesystem
-void MSXtar::setBootSector(byte* buf, word nbSectors)
+void MSXtar::setBootSector(byte* buf, unsigned int nbSectors)
 {
 	// variables set to single sided disk by default
 	word nbSides = 1;
@@ -1037,9 +1075,10 @@ bool MSXtar::chroot(std::string newRootDir, bool createDir)
 {
   string work=newRootDir;
   // if this is not a relative directory then reset MSXchrootSector,MSXchrootStartIndex
-  if (work.find_first_of("/\\")==0){
+  while (work.find_first_of("/\\")==0){
 	MSXchrootSector = rootDirStart;
 	MSXchrootStartIndex = 0;
+	work.erase(0,1);
   }
 
   //if (!msxdir_option){return;};
@@ -1176,6 +1215,8 @@ bool MSXtar::usePartition(int partition)
 	if ( ! isPartitionTableSector(buf) ) {
 		partitionOffset=0;
 		partitionNbSectors=disk->getNbSectors();
+		disk->readLogicalSector(partitionOffset , buf);
+		readBootSector(buf);
 		return false;
 	}
 
@@ -1191,8 +1232,7 @@ bool MSXtar::usePartition(int partition)
 	//P->size4
 }
 
-void MSXtar::createDiskFile(const std::string filename, vector<int> sizes,
-                            vector<std::string> /*options*/)
+void MSXtar::createDiskFile(const std::string filename, vector<unsigned int> sizes, vector<std::string> /*options*/ )
 {
 	FILE* file = fopen(filename.c_str(), "wb");
 	if (file == NULL) {
@@ -1203,7 +1243,7 @@ void MSXtar::createDiskFile(const std::string filename, vector<int> sizes,
 	memset(buf,0,SECTOR_SIZE); // Is this needed ?
 	if ( sizes.size() > 1) fwrite(buf , 1, 512, file); //extra sector to place partition table into.
 	for (unsigned int i=0 ;i < sizes.size() ; ++i ){
-		for (int j=0 ; j < sizes[i] ; ++j ){
+		for (unsigned int j=0 ; j < sizes[i] ; ++j ){
 		  fwrite(buf , 1, 512, file);
 		}
 	}
@@ -1227,6 +1267,7 @@ void MSXtar::createDiskFile(const std::string filename, vector<int> sizes,
 		disk->writeLogicalSector(0,buf);
 	} else {
 		setBootSector(buf,sizes[0]);
+		disk->writeLogicalSector(0,buf); //allow usePartition to read the bootsector!
 		usePartition(0);
 		format(sizes[0]);
 	}
