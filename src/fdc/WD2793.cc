@@ -1,4 +1,4 @@
-
+// $Id$
 
 #include "WD2793.hh"
 #include "DiskDrive.hh"
@@ -98,7 +98,7 @@ void WD2793::resetIRQ()
 
 void WD2793::setCommandReg(byte value, const EmuTime& time)
 {
-	//PRT_DEBUG("WD2793::setCommandReg() 0x" << hex << (int)value);
+	//PRT_DEBUG("WD2793::setCommandReg() 0x" << std::hex << (int)value);
 	commandReg = value;
 	resetIRQ();
 	transferring = false;
@@ -128,7 +128,7 @@ void WD2793::setCommandReg(byte value, const EmuTime& time)
 			break;
 		
 		case 0xD0: // Force interrupt
-			startType4Cmd();
+			startType4Cmd(time);
 			break;
 	}
 }
@@ -166,13 +166,13 @@ byte WD2793::getStatusReg(const EmuTime& time)
 	}
 
 	resetIRQ();
-	//PRT_DEBUG("WD2793::getStatusReg() 0x" << hex << (int)statusReg);
+	//PRT_DEBUG("WD2793::getStatusReg() 0x" << std::hex << (int)statusReg);
 	return statusReg;
 }
 
 void WD2793::setTrackReg(byte value, const EmuTime& /*time*/)
 {
-	//PRT_DEBUG("WD2793::setTrackReg() 0x" << hex << (int)value);
+	//PRT_DEBUG("WD2793::setTrackReg() 0x" << std::hex << (int)value);
 	trackReg = value;
 }
 
@@ -183,7 +183,7 @@ byte WD2793::getTrackReg(const EmuTime& /*time*/)
 
 void WD2793::setSectorReg(byte value, const EmuTime& /*time*/)
 {
-	//PRT_DEBUG("WD2793::setSectorReg() 0x" << hex << (int)value);
+	//PRT_DEBUG("WD2793::setSectorReg() 0x" << std::hex << (int)value);
 	sectorReg = value;
 }
 
@@ -194,7 +194,7 @@ byte WD2793::getSectorReg(const EmuTime& /*time*/)
 
 void WD2793::setDataReg(byte value, const EmuTime& time)
 {
-	//PRT_DEBUG("WD2793::setDataReg() 0x" << hex << (int)value);
+	//PRT_DEBUG("WD2793::setDataReg() 0x" << std::hex << (int)value);
 	// TODO Is this also true in case of sector write?
 	//      Not so according to ASM of brMSX
 	dataReg = value;
@@ -421,6 +421,9 @@ void WD2793::executeUntil(const EmuTime& time, int /*userData*/)
 				type3Loaded(time);
 			}
 			break;
+		case FSM_IDX_IRQ:
+			INTRQ = true;
+			break;
 		default:
 			assert(false);
 	}
@@ -590,6 +593,7 @@ void WD2793::type2Rotated()
 
 void WD2793::startType3Cmd(const EmuTime& time)
 {
+	//PRT_DEBUG("WD2793 start type 3 command");
 	statusReg &= ~(LOST_DATA | RECORD_NOT_FOUND | RECORD_TYPE);
 	statusReg |= BUSY;
 	DRQ = false;
@@ -669,19 +673,24 @@ void WD2793::writeTrackCmd(const EmuTime& time)
 	}
 }
 
-void WD2793::startType4Cmd()
+void WD2793::startType4Cmd(const EmuTime& time)
 {
 	// Force interrupt
 	PRT_DEBUG("WD2793 command: Force interrupt");
 	
 	byte flags = commandReg & 0x0F;
-	if ((flags & 0x07) != 0x00) {
+	if (flags & (N2R_IRQ | R2N_IRQ)) {
 		// all flags not yet supported
 		PRT_DEBUG("WD2793 type 4 cmd, unimplemented bits " << (int)flags);
 	}
 
 	if (flags == 0x00) {
 		immediateIRQ = false;
+	}
+	if ((flags & IDX_IRQ) && drive->ready()) {
+		schedule(FSM_IDX_IRQ, drive->getTimeTillIndexPulse(time));
+	} else {
+		Scheduler::instance().removeSyncPoint(this);
 	}
 	if (flags & IMM_IRQ) {
 		immediateIRQ = true;

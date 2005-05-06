@@ -1,5 +1,10 @@
 $Id$
 
+2005-05-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented missing WD2793 feature, interrupt on index pulse:
+	   - fixes 'write protected' message while formatting read-only disk
+	     images
+
 2005-05-06 David Heremans <david.heremans@gnu-linux.net>
 	* MSXtar Work-In-Progress:
 	   - limited disk/partitions to 65535 sectors for now to solve

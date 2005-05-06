@@ -39,6 +39,7 @@ public:
 	virtual int indexPulseCount(const EmuTime &begin,
 	                            const EmuTime &end);
 	virtual EmuTime getTimeTillSector(byte sector, const EmuTime& time);
+	virtual EmuTime getTimeTillIndexPulse(const EmuTime& time);
 	virtual void setHeadLoaded(bool status, const EmuTime &time);
 	virtual bool headLoaded(const EmuTime &time);
 	virtual void read (byte sector, byte* buf,

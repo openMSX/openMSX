@@ -51,9 +51,12 @@ private:
 	static const int V_FLAG     = 0x04;
 	static const int E_FLAG     = 0x04;
 	static const int H_FLAG     = 0x08;
-	static const int IMM_IRQ    = 0x08;
 	static const int T_FLAG     = 0x10;
 	static const int M_FLAG     = 0x10;
+	static const int N2R_IRQ    = 0x01;
+	static const int R2N_IRQ    = 0x02;
+	static const int IDX_IRQ    = 0x04;
+	static const int IMM_IRQ    = 0x08;
 	
 	enum FSMState {
 		FSM_NONE,
@@ -63,6 +66,7 @@ private:
 		FSM_TYPE2_ROTATED,
 		FSM_TYPE3_WAIT_LOAD,
 		FSM_TYPE3_LOADED,
+		FSM_IDX_IRQ,
 	} fsmState;
 	virtual void executeUntil(const EmuTime& time, int state);
 	virtual const std::string& schedName() const;
@@ -86,7 +90,7 @@ private:
 	void readTrackCmd();
 	void writeTrackCmd(const EmuTime& time);
 	
-	void startType4Cmd();
+	void startType4Cmd(const EmuTime& time);
 	
 	void endCmd();
 

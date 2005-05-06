@@ -90,6 +90,11 @@ EmuTime DummyDrive::getTimeTillSector(byte /*sector*/, const EmuTime& time)
 	return time;
 }
 
+EmuTime DummyDrive::getTimeTillIndexPulse(const EmuTime& time)
+{
+	return time;
+}
+
 void DummyDrive::setHeadLoaded(bool /*status*/, const EmuTime& /*time*/)
 {
 	// ignore
@@ -220,7 +225,9 @@ bool RealDrive::ready()
 
 bool RealDrive::writeProtected()
 {
-	return disk->writeProtected();
+	// write protected bit is always 0 when motor is off
+	// verified on NMS8280
+	return motorStatus && disk->writeProtected();
 }
 
 void RealDrive::step(bool direction, const EmuTime& /*time*/)
@@ -241,7 +248,9 @@ void RealDrive::step(bool direction, const EmuTime& /*time*/)
 
 bool RealDrive::track00(const EmuTime& /*time*/)
 {
-	return headPos == 0;
+	// track00 bit is always 0 when motor is off
+	// verified on NMS8280
+	return motorStatus && (headPos == 0);
 }
 
 void RealDrive::setMotor(bool status, const EmuTime& time)
@@ -279,7 +288,7 @@ int RealDrive::indexPulseCount(const EmuTime& begin,
 
 EmuTime RealDrive::getTimeTillSector(byte sector, const EmuTime& time)
 {
-	if (!motorStatus && disk->ready()) { // TODO is this correct?
+	if (!motorStatus || !disk->ready()) { // TODO is this correct?
 		return time;
 	}
 	// TODO this really belongs in the Disk class
@@ -294,6 +303,18 @@ EmuTime RealDrive::getTimeTillSector(byte sector, const EmuTime& time)
 	//          << " a2: " << sectorAngle
 	//          << " delta: " << delta << std::endl;
 	
+	EmuDuration dur = Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND>::
+	                      duration(delta);
+	return time + dur;
+}
+
+EmuTime RealDrive::getTimeTillIndexPulse(const EmuTime& time)
+{
+	if (!motorStatus || !disk->ready()) { // TODO is this correct?
+		return time;
+	}
+	int delta = TICKS_PER_ROTATION -
+	            (motorTimer.getTicksTill(time) % TICKS_PER_ROTATION);
 	EmuDuration dur = Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND>::
 	                      duration(delta);
 	return time + dur;
