@@ -6,7 +6,7 @@
   <primary slot="any">
 
     <secondary slot="any">
-      <SunriseIDE id="IDE">
+      <SunriseIDE id="Sunrise IDE">
         <mem base="0x0000" size="0x10000"/>
         <rom>
           <filename>roms/ide221.dat</filename>
