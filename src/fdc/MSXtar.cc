@@ -637,10 +637,15 @@ int MSXtar::addMSXSubdir(const string& msxName, int t, int d, int sector,
 static void getTimeDate(time_t* totalSeconds, int& time, int& date)
 {
 	tm* mtim = localtime(totalSeconds);
-	time = (mtim->tm_sec >> 1) + (mtim->tm_min << 5) + 
-	       (mtim->tm_hour << 11);
-	date = mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
-	       ((mtim->tm_year + 1900 - 1980) << 9);
+	if (!mtim) {
+		time = 0;
+		date = 0;
+	} else {
+		time = (mtim->tm_sec >> 1) + (mtim->tm_min << 5) + 
+		       (mtim->tm_hour << 11);
+		date = mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
+		       ((mtim->tm_year + 1900 - 1980) << 9);
+	}
 }
 
 // Get the time/date from a host file in MSX format
