@@ -634,9 +634,9 @@ int MSXtar::addMSXSubdir(const string& msxName, int t, int d, int sector,
 	return logicalSector;
 }
 
-static void getTimeDate(time_t* totalSeconds, int& time, int& date)
+static void getTimeDate(time_t& totalSeconds, int& time, int& date)
 {
-	tm* mtim = localtime(totalSeconds);
+	tm* mtim = localtime(&totalSeconds);
 	if (!mtim) {
 		time = 0;
 		date = 0;
@@ -660,7 +660,7 @@ static void getTimeDate(const string& filename, int& time, int& date)
 		date = 0;
 	} else {
 		// some info indicates that fst.st_mtime could be useless on win32 with vfat.
-		getTimeDate(&(fst.st_mtime), time, date);
+		getTimeDate(fst.st_mtime, time, date);
 	}
 }
 
@@ -677,7 +677,7 @@ int MSXtar::addSubdirtoDSK(const string& hostName, const string& msxName,
 	return addMSXSubdir(msxName, time, date, sector, direntryindex);
 }
 
-/** This file alters the filecontent of agiven file
+/** This file alters the filecontent of a given file
   * It only changes the file content (and the filesize in the msxdirentry)
   * It doesn't changes timestamps nor filename, filetype etc.
   * Output: nothing usefull yet
@@ -688,7 +688,11 @@ int MSXtar::alterFileInDSK(MSXDirEntry* msxdirentry, const string& hostName)
 	int fsize;
 	struct stat fst;
 	memset(&fst, 0, sizeof(struct stat));
-	stat(hostName.c_str(), &fst);
+	if (stat(hostName.c_str(), &fst) != 0) {
+		// TODO better error handling
+		PRT_DEBUG("couldn't stat " << hostName);
+		return 0;
+	}
 	fsize = fst.st_size;
 	PRT_DEBUG("alterFileInDSK: Filesize " << fsize);
 
@@ -706,6 +710,11 @@ int MSXtar::alterFileInDSK(MSXDirEntry* msxdirentry, const string& hostName)
 	int prevcl = 0;
 	//open file for reading
 	FILE* file = fopen(hostName.c_str(), "rb");
+	if (!file) {
+		// TODO better error handling
+		PRT_DEBUG("couldn't open file " << hostName);
+		return 0;
+	}
 	byte buf[SECTOR_SIZE];
 
 	while (size && (curcl <= maxCluster)) {
@@ -1014,7 +1023,7 @@ bool MSXtar::chroot(const string& newRootDir, bool createDir)
 			time_t now;
 			int t, d;
 			time(&now);
-			getTimeDate(&now, t, d);
+			getTimeDate(now, t, d);
 
 			PRT_DEBUG("Creating subdir " << simple) ;
 			MSXchrootSector = addMSXSubdir(simple, t, d, MSXchrootSector, MSXchrootStartIndex);
