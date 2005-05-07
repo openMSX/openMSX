@@ -27,11 +27,12 @@ public:
 	virtual void writeData(word value, const EmuTime& time);
 	virtual void writeReg(nibble reg, byte value, const EmuTime& time);
 
-	//SectorAccessibleDisk methods
+	// SectorAccessibleDisk
 	virtual void readLogicalSector(unsigned sector, byte* buf);
-	virtual void writeLogicalSector(unsigned sector, const byte* buf) ;
-	virtual unsigned getNbSectors() const ;
-	//Diskcontiainer
+	virtual void writeLogicalSector(unsigned sector, const byte* buf);
+	virtual unsigned getNbSectors() const;
+
+	// Diskcontiainer
 	SectorAccessibleDisk& getDisk();
 
 private:
@@ -61,7 +62,7 @@ private:
 	word* transferPntr;
 	unsigned transferSectorNumber;
 
-	static byte identifyBlock[512];
+	byte identifyBlock[512];
 };
 
 } // namespace openmsx

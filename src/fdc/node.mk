@@ -26,7 +26,8 @@ SRC_HDR:= \
 	MSXtar \
 	DiskContainer \
 	SectorAccessibleDisk \
-	FileManipulator
+	FileManipulator \
+	FileDriveCombo
 
 include build/node-end.mk
 

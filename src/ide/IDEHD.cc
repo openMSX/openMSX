@@ -1,20 +1,20 @@
 // $Id$
 
-#include <cassert>
 #include "IDEHD.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "XMLElement.hh"
 #include "EventDistributor.hh"
-//#include "FileManipulator.hh"
 #include "LedEvent.hh"
+#include <cassert>
+#include <string.h>
 
 using std::string;
 
 namespace openmsx {
 
-byte IDEHD::identifyBlock[512] = {
+static const byte defaultIdentifyBlock[512] = {
 	0x5a,0x0c,0xba,0x09,0x00,0x00,0x10,0x00,0x00,0x00,0x00,0x00,0x3f,0x00,0x00,0x00,
 	0x00,0x00,0x00,0x00,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,
 	0x20,0x20,0x20,0x20,0x20,0x20,0x31,0x20,0x00,0x00,0x00,0x01,0x04,0x00,0x31,0x56,
@@ -69,6 +69,7 @@ IDEHD::IDEHD(const XMLElement& config, const EmuTime& /*time*/)
 	word heads = 16;
 	word sectors = 32;
 	word cylinders = totalSectors / (heads * sectors);
+	memcpy(identifyBlock, defaultIdentifyBlock, sizeof(identifyBlock));
 	identifyBlock[0x02] = cylinders & 0xFF;
 	identifyBlock[0x03] = cylinders / 0x100;
 	identifyBlock[0x06] = heads & 0xFF;
@@ -82,13 +83,10 @@ IDEHD::IDEHD(const XMLElement& config, const EmuTime& /*time*/)
 	identifyBlock[0x7B] = (totalSectors & 0xFF000000) >> 24;
 
 	transferRead = transferWrite = false;
-
-	//FileManipulator::instance().registerDrive(*this, std::string("IDEHD") );
 }
 
 IDEHD::~IDEHD()
 {
-	//FileManipulator::instance().unregisterDrive(*this, std::string("IDEHD") );
 	delete[] buffer;
 }
 
@@ -369,7 +367,7 @@ unsigned IDEHD::getNbSectors() const
 
 SectorAccessibleDisk& IDEHD::getDisk()
 {
-	return *this ;
+	return *this;
 }
 
 } // namespace openmsx

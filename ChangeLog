@@ -1,6 +1,9 @@
 $Id$
 
 2005-05-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Large MSXtar / Filemanipulator (and related stuff) cleanup 
+
+2005-05-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented missing WD2793 feature, interrupt on index pulse:
 	   - fixes 'write protected' message while formatting read-only disk
 	     images

@@ -8,13 +8,32 @@
 #include "FileManipulator.hh"
 #include "IDEHD.hh"
 #include "XMLElement.hh"
+#include "MSXException.hh"
+#include <bitset>
+
+using std::string;
 
 namespace openmsx {
+
+static const int MAX_INTERFACES = 26 / 2;
+static std::bitset<MAX_INTERFACES> interfaceInUse;
 
 SunriseIDE::SunriseIDE(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
 	, rom(new Rom(getName() + " ROM", "rom", config))
 {
+	int i = 0;
+	for ( ; i < MAX_INTERFACES; ++i) {
+		if (!interfaceInUse[i]) {
+			interfaceNum = i;
+			interfaceInUse[i] = true;
+			break;
+		}
+	}
+	if (i == MAX_INTERFACES) {
+		throw FatalError("Too many IDE interfaces.");
+	}
+	
 	const XMLElement* masterElem = config.findChild("master");
 	const XMLElement* slaveElem  = config.findChild("slave");
 	device[0].reset(masterElem 
@@ -24,23 +43,8 @@ SunriseIDE::SunriseIDE(const XMLElement& config, const EmuTime& time)
 	          ? IDEDeviceFactory::create(*slaveElem, time)
 	          : new DummyIDEDevice());
 
-	std::string myName=getName();
-	if (masterElem) {
-		const std::string& myType=masterElem->getChildData("type");
-		if ( myType == "IDEHD") {
-			FileManipulator::instance().registerDrive(
-				dynamic_cast<IDEHD&>( *device[0].get() ) ,
-				myName+std::string("-M") );
-		};
-	};
-	if (slaveElem){
-		const std::string& myType=slaveElem->getChildData("type");
-		if ( myType == "IDEHD") {
-			FileManipulator::instance().registerDrive(
-				dynamic_cast<IDEHD&>( *(device[1].get()) ) ,
-				myName+std::string("-S") );
-		};
-	};
+	registerDrive(0);
+	registerDrive(1);
 
 	// make valgrind happy
 	internalBank = 0;
@@ -52,9 +56,27 @@ SunriseIDE::SunriseIDE(const XMLElement& config, const EmuTime& time)
 
 SunriseIDE::~SunriseIDE()
 {
-  //TODO: unregister IDEHD with FileManipulator::instance()
+	unregisterDrive(1);
+	unregisterDrive(0);
+
+	interfaceInUse[interfaceNum] = false;
 }
 
+void SunriseIDE::registerDrive(int n)
+{
+	if (DiskContainer* cont = dynamic_cast<DiskContainer*>(device[n].get())) {
+		string name = string("hd") + (char)('a' + 2 * interfaceNum + n);
+		FileManipulator::instance().registerDrive(*cont, name);
+	}
+}
+
+void SunriseIDE::unregisterDrive(int n)
+{
+	if (DiskContainer* cont = dynamic_cast<DiskContainer*>(device[n].get())) {
+		string name = string("hd") + (char)('a' + 2 * interfaceNum + n);
+		FileManipulator::instance().unregisterDrive(*cont, name);
+	}
+}
 
 void SunriseIDE::reset(const EmuTime& time)
 {

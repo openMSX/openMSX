@@ -24,6 +24,8 @@ public:
 	virtual const byte* getReadCacheLine(word start) const;
 
 private:
+	void registerDrive(int n);
+	void unregisterDrive(int n);
 	void writeControl(byte value);
 	
 	byte readDataLow(const EmuTime& time);
@@ -43,6 +45,7 @@ private:
 	byte writeLatch;
 	byte selectedDevice;
 	std::auto_ptr<IDEDevice> device[2];
+	int interfaceNum;
 };
 
 } // namespace openmsx

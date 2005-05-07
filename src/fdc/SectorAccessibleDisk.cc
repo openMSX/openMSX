@@ -4,13 +4,8 @@
 
 namespace openmsx {
 
-SectorAccessibleDisk::SectorAccessibleDisk()
-{
-}
-
 SectorAccessibleDisk::~SectorAccessibleDisk()
 {
 }
-
 
 } // namespace openmsx

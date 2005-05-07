@@ -4,15 +4,15 @@
 #define FILEMANIPULATOR_HH
 
 #include "Command.hh"
-#include "SectorAccessibleDisk.hh"
-#include "Command.hh"
 #include <map>
+#include <memory>
 
 namespace openmsx {
 
 class DiskContainer;
-class Disk;
-class DiskContainer;
+class SectorAccessibleDisk;
+class FileDriveCombo;
+class MSXtar;
 
 class FileManipulator : public SimpleCommand
 {
@@ -31,27 +31,33 @@ private:
 		std::string workingDir;
 		DiskContainer* drive;
 	};
-	typedef std::map<const std::string, DriveSettings*> DiskImages;
+	typedef std::map<const std::string, DriveSettings> DiskImages;
+	DiskImages diskImages;
+
+	std::auto_ptr<FileDriveCombo> imageFile;
+
+	void unregisterImageFile();
 
 	// Command interface
 	virtual std::string execute(const std::vector<std::string>& tokens);
 	virtual std::string help   (const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	DiskImages::const_iterator executeHelper(std::string diskname, std::string& result);
 
-	DiskImages diskImages;
+	DriveSettings& getDriveSettings(const std::string& diskname);
+	SectorAccessibleDisk& getDisk(const DriveSettings& driveData);
+	void restoreCWD(MSXtar& workhorse, DriveSettings& driveData);
 
 	void create(const std::vector<std::string>& tokens);
-	void savedsk(DriveSettings* driveData, const std::string& filename);
+	void savedsk(const DriveSettings& driveData,
+	             const std::string& filename);
 	void usefile(const std::string& filename);
-	void format(DriveSettings* driveData );
-	bool chdir(DriveSettings* driveData, const std::string& filename,std::string& result);
-	bool mkdir(DriveSettings* driveData, const std::string& filename,std::string& result);
-	std::string dir(DriveSettings* driveData );
-	void import(DriveSettings* driveData, const std::string& filename,std::string& result);
-	void exprt(DriveSettings* driveData, const std::string& dirname,std::string& result); //using export as name is not feasable (reserved word)
-
-
+	void format(DriveSettings& driveData);
+	void chdir(DriveSettings& driveData, const std::string& filename,
+	           std::string& result);
+	void mkdir(DriveSettings& driveData, const std::string& filename);
+	void dir(DriveSettings& driveData, std::string& result);
+	void import(DriveSettings& driveData, const std::string& filename);
+	void exprt(DriveSettings& driveData, const std::string& dirname);
 };
 
 } // namespace openmsx
