@@ -18,13 +18,6 @@ using std::string;
 
 namespace openmsx {
 
-// Force template instantiation
-template class IconLayer<SDLImage>;
-#ifdef COMPONENT_GL
-template class IconLayer<GLImage>;
-#endif
-
-
 static bool init = false;
 static bool ledStatus[LedEvent::NUM_LEDS];
 static unsigned long long ledTime[LedEvent::NUM_LEDS];
@@ -173,5 +166,12 @@ void IconLayer<IMAGE>::check(SettingImpl<FilenameSetting::Policy>& setting,
 		}
 	}
 }
+
+
+// Force template instantiation
+template class IconLayer<SDLImage>;
+#ifdef COMPONENT_GL
+template class IconLayer<GLImage>;
+#endif
 
 } // namespace openmsx

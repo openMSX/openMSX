@@ -13,11 +13,6 @@ using std::auto_ptr;
 
 namespace openmsx {
 
-// Force template instantiation.
-template class Scaler<word>;
-template class Scaler<unsigned int>;
-
-
 template <class Pixel>
 auto_ptr<Scaler<Pixel> > Scaler<Pixel>::createScaler(
 	ScalerID id, SDL_PixelFormat* format)
@@ -483,6 +478,11 @@ void Scaler<Pixel>::scale512(
 		srcY++;
 	}
 }
+
+
+// Force template instantiation.
+template class Scaler<word>;
+template class Scaler<unsigned int>;
 
 } // namespace openmsx
 

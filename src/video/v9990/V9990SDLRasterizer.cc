@@ -10,12 +10,6 @@ using std::string;
 
 namespace openmsx {
 
-// Force template instantiation.
-template class V9990SDLRasterizer<Uint16, Renderer::ZOOM_256>;
-template class V9990SDLRasterizer<Uint16, Renderer::ZOOM_REAL>;
-template class V9990SDLRasterizer<Uint32, Renderer::ZOOM_256>;
-template class V9990SDLRasterizer<Uint32, Renderer::ZOOM_REAL>;
-
 template <class Pixel, Renderer::Zoom zoom>
 V9990SDLRasterizer<Pixel, zoom>::V9990SDLRasterizer(
 	V9990* vdp_, SDL_Surface* screen_)
@@ -405,6 +399,13 @@ void V9990SDLRasterizer<Pixel, zoom>::setPalette(int index,
 	                                     ((r & 31) <<  5) +
 	                                      (b & 31)]; 
 }
+
+
+// Force template instantiation.
+template class V9990SDLRasterizer<Uint16, Renderer::ZOOM_256>;
+template class V9990SDLRasterizer<Uint16, Renderer::ZOOM_REAL>;
+template class V9990SDLRasterizer<Uint32, Renderer::ZOOM_256>;
+template class V9990SDLRasterizer<Uint32, Renderer::ZOOM_REAL>;
 
 } // namespace openmsx
 

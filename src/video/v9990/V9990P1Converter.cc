@@ -10,12 +10,6 @@
 
 namespace openmsx {
 
-// Force template instantiation
-template class V9990P1Converter<word, Renderer::ZOOM_256>;
-template class V9990P1Converter<word, Renderer::ZOOM_REAL>;
-template class V9990P1Converter<unsigned int, Renderer::ZOOM_256>;
-template class V9990P1Converter<unsigned int, Renderer::ZOOM_REAL>;
-
 #ifdef COMPONENT_GL
 // On some systems, "GLuint" is not equivalent to "unsigned int",
 // so BitmapConverter must be instantiated separately for those systems.
@@ -203,5 +197,12 @@ byte V9990P1Converter<Pixel, zoom>::getSpritePixel(
 	}
 	return 0;
 }
+
+
+// Force template instantiation
+template class V9990P1Converter<word, Renderer::ZOOM_256>;
+template class V9990P1Converter<word, Renderer::ZOOM_REAL>;
+template class V9990P1Converter<unsigned int, Renderer::ZOOM_256>;
+template class V9990P1Converter<unsigned int, Renderer::ZOOM_REAL>;
 
 } // namespace openmsx

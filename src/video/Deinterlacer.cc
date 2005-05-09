@@ -5,10 +5,6 @@
 
 namespace openmsx {
 
-// Force template instantiation.
-template class Deinterlacer<word>;
-template class Deinterlacer<unsigned int>;
-
 template <class Pixel>
 void Deinterlacer<Pixel>::deinterlaceLine256(
 	SDL_Surface* src0, SDL_Surface* src1, int srcY,
@@ -26,6 +22,11 @@ void Deinterlacer<Pixel>::deinterlaceLine512(
 	Scaler<Pixel>::copyLine(src0, srcY, dst, dstY);
 	Scaler<Pixel>::copyLine(src1, srcY, dst, dstY + 1);
 }
+
+
+// Force template instantiation.
+template class Deinterlacer<word>;
+template class Deinterlacer<unsigned int>;
 
 } // namespace openmsx
 

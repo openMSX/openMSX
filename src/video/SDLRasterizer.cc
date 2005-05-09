@@ -19,12 +19,6 @@ using std::string;
 
 namespace openmsx {
 
-// Force template instantiation.
-template class SDLRasterizer<Uint16, Renderer::ZOOM_256>;
-template class SDLRasterizer<Uint16, Renderer::ZOOM_REAL>;
-template class SDLRasterizer<Uint32, Renderer::ZOOM_256>;
-template class SDLRasterizer<Uint32, Renderer::ZOOM_REAL>;
-
 /** VDP ticks between start of line and start of left border.
   */
 static const int TICKS_LEFT_BORDER = 100 + 102;
@@ -830,5 +824,12 @@ void SDLRasterizer<Pixel, zoom>::update(const Setting* setting)
 		Rasterizer::update(setting);
 	}
 }
+
+
+// Force template instantiation.
+template class SDLRasterizer<Uint16, Renderer::ZOOM_256>;
+template class SDLRasterizer<Uint16, Renderer::ZOOM_REAL>;
+template class SDLRasterizer<Uint32, Renderer::ZOOM_256>;
+template class SDLRasterizer<Uint32, Renderer::ZOOM_REAL>;
 
 } // namespace openmsx

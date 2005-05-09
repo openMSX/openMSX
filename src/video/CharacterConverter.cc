@@ -40,12 +40,6 @@ TODO:
 
 namespace openmsx {
 
-// Force template instantiation.
-template class CharacterConverter<word, Renderer::ZOOM_256>;
-template class CharacterConverter<word, Renderer::ZOOM_REAL>;
-template class CharacterConverter<unsigned int, Renderer::ZOOM_256>;
-template class CharacterConverter<unsigned int, Renderer::ZOOM_REAL>;
-
 #ifdef COMPONENT_GL
 // On some systems, "GLuint" is not equivalent to "unsigned int",
 // so CharacterConverter must be instantiated separately for those systems.
@@ -362,6 +356,13 @@ void CharacterConverter<Pixel, zoom>::renderBogus(
 	}
 	for (int n = 8; n--; ) *pixelPtr++ = bg;
 }
+
+
+// Force template instantiation.
+template class CharacterConverter<word, Renderer::ZOOM_256>;
+template class CharacterConverter<word, Renderer::ZOOM_REAL>;
+template class CharacterConverter<unsigned int, Renderer::ZOOM_256>;
+template class CharacterConverter<unsigned int, Renderer::ZOOM_REAL>;
 
 } // namespace openmsx
 

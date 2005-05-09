@@ -7,11 +7,6 @@ using std::string;
 
 namespace openmsx {
 
-// Force template instantiation
-template class EmuTimer<12500, 0x40>;
-template class EmuTimer< 3125, 0x20>;
-
-
 template<int freq, byte flag>
 EmuTimer<freq, flag>::EmuTimer(EmuTimerCallback* cb_)
 	: count(256), counting(false), cb(cb_),
@@ -71,5 +66,10 @@ const string& EmuTimer<freq, flag>::schedName() const
 	static const string name("EmuTimer");
 	return name;
 }
+
+
+// Force template instantiation
+template class EmuTimer<12500, 0x40>;
+template class EmuTimer< 3125, 0x20>;
 
 } // namespace openmsx

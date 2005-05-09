@@ -6,12 +6,6 @@
 
 namespace openmsx {
 
-// Force template instantiation.
-template class BitmapConverter<word, Renderer::ZOOM_256>;
-template class BitmapConverter<word, Renderer::ZOOM_REAL>;
-template class BitmapConverter<unsigned int, Renderer::ZOOM_256>;
-template class BitmapConverter<unsigned int, Renderer::ZOOM_REAL>;
-
 #ifdef COMPONENT_GL
 // On some systems, "GLuint" is not equivalent to "unsigned int",
 // so BitmapConverter must be instantiated separately for those systems.
@@ -183,6 +177,13 @@ void BitmapConverter<Pixel, zoom>::renderBogus(
 	Pixel colour = palette16[0];
 	for (int n = 256; n--; ) *pixelPtr++ = colour;
 }
+
+
+// Force template instantiation.
+template class BitmapConverter<word, Renderer::ZOOM_256>;
+template class BitmapConverter<word, Renderer::ZOOM_REAL>;
+template class BitmapConverter<unsigned int, Renderer::ZOOM_256>;
+template class BitmapConverter<unsigned int, Renderer::ZOOM_REAL>;
 
 } // namespace openmsx
 

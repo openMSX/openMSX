@@ -8,10 +8,6 @@ using std::string;
 
 namespace openmsx {
 
-// Force template instantiation.
-template class SDLSnow<Uint16>;
-template class SDLSnow<Uint32>;
-
 template <class Pixel>
 SDLSnow<Pixel>::SDLSnow(SDL_Surface* screen)
 	: Layer(COVER_FULL, Z_BACKGROUND)
@@ -70,6 +66,11 @@ const string& SDLSnow<Pixel>::getName()
 	static const string NAME = "SDLSnow";
 	return NAME;
 }
+
+
+// Force template instantiation.
+template class SDLSnow<Uint16>;
+template class SDLSnow<Uint32>;
 
 } // namespace openmsx
 

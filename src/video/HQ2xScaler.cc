@@ -15,10 +15,6 @@ Visit the HiEnd3D site for info:
 
 namespace openmsx {
 
-// Force template instantiation.
-template class HQ2xScaler<word>;
-template class HQ2xScaler<unsigned>;
-
 template <class Pixel>
 static inline unsigned readPixel(const Pixel* pIn)
 {
@@ -2429,5 +2425,10 @@ void HQ2xScaler<Pixel>::scale512(
 		scaleLine512<Pixel>(src, srcY, dst, dstY, -srcPitch, 0);
 	}
 }
+
+
+// Force template instantiation.
+template class HQ2xScaler<word>;
+template class HQ2xScaler<unsigned>;
 
 } // namespace openmsx

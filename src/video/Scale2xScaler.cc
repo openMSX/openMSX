@@ -22,10 +22,6 @@ using std::min;
 
 namespace openmsx {
 
-// Force template instantiation.
-template class Scale2xScaler<word>;
-template class Scale2xScaler<unsigned int>;
-
 template <class Pixel>
 void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 	const Pixel* src0, const Pixel* src1, const Pixel* src2)
@@ -1106,5 +1102,10 @@ void Scale2xScaler<Pixel>::scale512(
 		srcY++;
 	}
 }
+
+
+// Force template instantiation.
+template class Scale2xScaler<word>;
+template class Scale2xScaler<unsigned int>;
 
 } // namespace openmsx

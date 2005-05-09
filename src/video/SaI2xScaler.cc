@@ -15,10 +15,6 @@ using std::max;
 
 namespace openmsx {
 
-// Force template instantiation.
-template class SaI2xScaler<word>;
-template class SaI2xScaler<unsigned int>;
-
 template <class Pixel>
 SaI2xScaler<Pixel>::SaI2xScaler(SDL_PixelFormat* format)
 	: blender(Blender<Pixel>::createFromFormat(format))
@@ -281,6 +277,11 @@ void SaI2xScaler<Pixel>::scale512(
 			srcLine0, srcLine1, srcLine2, srcLine3, dstUpper, dstLower );
 	}
 }
+
+
+// Force template instantiation.
+template class SaI2xScaler<word>;
+template class SaI2xScaler<unsigned int>;
 
 } // namespace openmsx
 

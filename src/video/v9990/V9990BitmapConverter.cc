@@ -13,13 +13,6 @@ using std::max;
 
 namespace openmsx {
 
-// Force template instantiation
-template class V9990BitmapConverter<word, Renderer::ZOOM_256>;
-template class V9990BitmapConverter<word, Renderer::ZOOM_REAL>;
-template class V9990BitmapConverter<unsigned int, Renderer::ZOOM_256>;
-template class V9990BitmapConverter<unsigned int, Renderer::ZOOM_REAL>;
-
-
 #ifdef COMPONENT_GL
 // On some systems, "GLuint" is not equivalent to "unsigned int",
 // so BitmapConverter must be instantiated separately for those systems.
@@ -500,6 +493,13 @@ void V9990BitmapConverter<Pixel, zoom>::convertLine(
 	}
 	(this->*blendMethod)(tmp, linePtr, nrPixels);
 }
+
+
+// Force template instantiation
+template class V9990BitmapConverter<word, Renderer::ZOOM_256>;
+template class V9990BitmapConverter<word, Renderer::ZOOM_REAL>;
+template class V9990BitmapConverter<unsigned int, Renderer::ZOOM_256>;
+template class V9990BitmapConverter<unsigned int, Renderer::ZOOM_REAL>;
 
 } // namespace openmsx
 

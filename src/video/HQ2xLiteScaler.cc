@@ -17,10 +17,6 @@
 
 namespace openmsx {
 
-// Force template instantiation.
-template class HQ2xLiteScaler<word>;
-template class HQ2xLiteScaler<unsigned>;
-
 template <class Pixel>
 static inline unsigned readPixel(const Pixel* pIn)
 {
@@ -1060,5 +1056,10 @@ void HQ2xLiteScaler<Pixel>::scale512(
 		scaleLine512<Pixel>(src, srcY, dst, dstY, -srcPitch, 0);
 	}
 }
+
+
+// Force template instantiation.
+template class HQ2xLiteScaler<word>;
+template class HQ2xLiteScaler<unsigned>;
 
 } // namespace openmsx

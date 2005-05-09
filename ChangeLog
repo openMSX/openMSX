@@ -1,6 +1,11 @@
 $Id$
 
-2005-05-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2005-05-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed linking problem with gcc-4.x:
+	   explicit template instantiation must be done _after_ template
+	   definition and implementation
+
+2005-05-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Large MSXtar / Filemanipulator (and related stuff) cleanup 
 
 2005-05-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>

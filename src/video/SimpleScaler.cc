@@ -10,11 +10,6 @@
 
 namespace openmsx {
 
-// Force template instantiation.
-template class SimpleScaler<word>;
-template class SimpleScaler<unsigned int>;
-
-
 // class Multiply<unsigned>
 
 Multiply<unsigned>::Multiply(SDL_PixelFormat* /*format*/)
@@ -809,5 +804,10 @@ void SimpleScaler<Pixel>::scale512(
 		average(prevDstLine0, dstLine0, dstLine1, scanline);
 	}
 }
+
+
+// Force template instantiation.
+template class SimpleScaler<word>;
+template class SimpleScaler<unsigned int>;
 
 } // namespace openmsx
