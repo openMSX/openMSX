@@ -217,9 +217,9 @@ private:
 	// Bitmask for status register 
 	static const int STATUS_T2      = R04_MASK_T2;
 	static const int STATUS_T1      = R04_MASK_T1;
-	// Timers
-	EmuTimer<12500, STATUS_T1> timer1;	//  80us
-	EmuTimer< 3125, STATUS_T2> timer2;	// 320us
+	// Timers (see EmuTimer class for details about timing)
+	EmuTimer<12379, STATUS_T1> timer1; //  80.8us OPL4  ( 80.5us OPL3)
+	EmuTimer< 3095, STATUS_T2> timer2; // 323.1us OPL4  (321.8us OPL3)
 
 	int chanout[18];		// 18 channels 
 	int maxVolume;

@@ -4,6 +4,8 @@ $Id$
 	* Fixed linking problem with gcc-4.x:
 	   explicit template instantiation must be done _after_ template
 	   definition and implementation
+	* Improved timer accuracy of MSX-AUDIO / OPL4:
+	   thanks to Daniel for figuring this out
 
 2005-05-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Large MSXtar / Filemanipulator (and related stuff) cleanup 

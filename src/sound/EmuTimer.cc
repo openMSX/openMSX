@@ -69,7 +69,9 @@ const string& EmuTimer<freq, flag>::schedName() const
 
 
 // Force template instantiation
-template class EmuTimer<12500, 0x40>;
-template class EmuTimer< 3125, 0x20>;
+template class EmuTimer<12429, 0x40>; //  3.579545 MHz / (72 * 4)
+template class EmuTimer< 3107, 0x20>; //  3.579545 MHz / (72 * 4 * 4)
+template class EmuTimer<12379, 0x40>; // 33.8688   MHz / (72 * 38)
+template class EmuTimer< 3095, 0x20>; // 33.8688   MHz / (72 * 38 * 4)
 
 } // namespace openmsx

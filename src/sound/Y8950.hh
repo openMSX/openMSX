@@ -332,9 +332,9 @@ private:
 
 	// Timers
 	/** 80us timer. */
-	EmuTimer<12500, STATUS_T1> timer1;
+	EmuTimer<12429, STATUS_T1> timer1;
 	/** 320us timer. */
-	EmuTimer< 3125, STATUS_T2> timer2;
+	EmuTimer< 3107, STATUS_T2> timer2;
 
 	// ADPCM
 	const std::auto_ptr<Y8950Adpcm> adpcm;
