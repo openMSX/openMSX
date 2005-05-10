@@ -1120,6 +1120,20 @@ bool MSXtar::hasPartitionTable()
 	return isPartitionTableSector(buf);
 }
 
+bool MSXtar::hasPartition(int partition)
+{
+	byte buf[SECTOR_SIZE];
+	disk.readLogicalSector(0, buf);
+	if (!isPartitionTableSector(buf)) {
+		return false;
+	};
+	Partition* p = (Partition*)(buf + 14 + (30 - partition) * 16);
+	if (rdlg(p->start4) == 0) {
+		return false;
+	}
+	return true;
+}
+
 bool MSXtar::usePartition(int partition)
 {
 	byte buf[SECTOR_SIZE];

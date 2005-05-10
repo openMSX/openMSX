@@ -51,8 +51,11 @@ void FileManipulator::registerDrive(DiskContainer& drive, const string& imageNam
 {
 	assert(diskImages.find(imageName) == diskImages.end());
 	diskImages[imageName].drive = &drive;
+	diskImages[imageName].defaultPartition = 0;
 	diskImages[imageName].partition = 0;
-	diskImages[imageName].workingDir = "\\";
+	for (int i=0 ; i < 31 ; ++i) {
+		diskImages[imageName].workingDir[i] = "\\";
+	}
 }
 
 void FileManipulator::unregisterDrive(DiskContainer& drive, const string& imageName)
@@ -67,12 +70,34 @@ void FileManipulator::unregisterDrive(DiskContainer& drive, const string& imageN
 FileManipulator::DriveSettings& FileManipulator::getDriveSettings(
 	const string& diskname)
 {
-	DiskImages::iterator it = diskImages.find(diskname);
+	// first split of the end numbers if present
+	// these will be used as partition indication
+
+	string::size_type pos = diskname.find_first_of("0123456789");
+	string tmp = (pos != string::npos)
+	           ? diskname.substr(0, pos )
+	           : diskname;
+	//CliComm::instance().printWarning("FileManipulator::getDriveSettings tmp= " + tmp);
+	//CliComm::instance().printWarning("FileManipulator::getDriveSettings pos= " + StringOp::toString(pos));
+
+	DiskImages::iterator it = diskImages.find(tmp);
 	if (it == diskImages.end()) {
-		throw CommandException("No \'"  + diskname + "\' known");
+		throw CommandException("No \'"  + tmp + "\' known");
+	}
+
+	it->second.partition = it->second.defaultPartition ;
+	if (pos != string::npos){
+		//CliComm::instance().printWarning("FileManipulator::getDriveSettings partition= " + diskname.substr(pos));
+		int i = strtol(diskname.substr(pos).c_str(), NULL , 10) ;
+		if (i==0 || i>31) {
+			throw CommandException("Invalid MSX-IDE partition specified");
+		} else {
+			it->second.partition = i-1;
+		}
 	}
 	return it->second;
 }
+
 SectorAccessibleDisk& FileManipulator::getDisk(const DriveSettings& driveData)
 {
 	SectorAccessibleDisk* disk = &driveData.drive->getDisk();
@@ -116,9 +141,14 @@ string FileManipulator::execute(const vector<string>& tokens)
 
 	} else if (tokens[1] == "usePartition") {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
-		settings.partition = StringOp::stringToInt(tokens[3]);
-		result += "New partion used : " + StringOp::toString(settings.partition);
-
+		int i= StringOp::stringToInt(tokens[3]) ;
+		if (i==0 || i>31) {
+			result += "Invalid partition specification,"
+		    " using current default partition " + StringOp::toString(1 + settings.defaultPartition) ; 
+		} else {
+			result += "New default partion: " + StringOp::toString(i);
+			settings.defaultPartition = i - 1 ;
+		}
 	} else if (tokens[1] == "chdir") {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
 		chdir(settings, tokens[3], result);
@@ -183,7 +213,7 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 			partition = it->second.partition;
 		}
 		set<string> cmds;
-		cmds.insert(StringOp::toString(partition)); 
+		cmds.insert(StringOp::toString(partition + 1)); 
 		CommandController::completeString(tokens, cmds);
 
 	} else if (tokens.size() == 2 && (tokens[1] == "create" || tokens[1] == "useFile")) {
@@ -194,6 +224,18 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 		for (DiskImages::const_iterator it = diskImages.begin();
 		     it != diskImages.end(); ++it) {
 			names.insert(it->first);
+			// if it has partitions then we also add the partition numbers to the autocompletion
+			SectorAccessibleDisk* SectorDisk=dynamic_cast<SectorAccessibleDisk*>(it->second.drive);
+			if (SectorDisk != NULL ) {
+				MSXtar workhorse(*SectorDisk);
+				if (workhorse.hasPartitionTable()){
+					for (int i=0 ; i < 31 ; ++i){
+						if (workhorse.hasPartition(i)){
+							names.insert(it->first + StringOp::toString(i+1));
+						}
+					}
+				}
+			}
 		}
 		CommandController::completeString(tokens, names);
 
@@ -206,8 +248,9 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 			set<string> cmds;
 			cmds.insert("-dos1");
 			cmds.insert("-dos2");
-			cmds.insert("1440");
+			cmds.insert("360");
 			cmds.insert("720");
+			cmds.insert("32M");
 			CommandController::completeString(tokens, cmds);
 		}
 	}
@@ -240,7 +283,7 @@ void FileManipulator::create(const vector<string>& tokens)
 	for (unsigned i = 3; i < tokens.size(); ++i) {
 		char* q;
 		int sectors = strtol(tokens[i].c_str(), &q, 10);
-		int scale = SectorBasedDisk::SECTOR_SIZE; 
+		int scale = 1024; //default now in kilobyte instead of SectorBasedDisk::SECTOR_SIZE; 
 		switch (tolower(*q)) {
 			case 'b':
 				scale = 1;
@@ -259,7 +302,7 @@ void FileManipulator::create(const vector<string>& tokens)
 		// for a 32MB disk or greater the sectors would be >= 65536
 		// since MSX use 16 bits for this, in case of sectors = 65536 
 		// the truncated word will be 0 -> formatted as 320 Kb disk!
-		if (sectors > 65535) sectors = 65535; // this is the max size :-)
+		if (sectors > 65535) sectors = 65535; // this is the max size for fat12 :-)
 
 		sizes.push_back(sectors);
 		totalSectors += sectors;
@@ -290,15 +333,18 @@ void FileManipulator::format(DriveSettings& driveData)
 	MSXtar workhorse(getDisk(driveData));
 	workhorse.usePartition(driveData.partition);
 	workhorse.format();
-	driveData.workingDir = "\\";
+	driveData.workingDir[driveData.partition] = "\\";
 }
 
 void FileManipulator::restoreCWD(MSXtar& workhorse, DriveSettings& driveData)
 {
-	workhorse.usePartition(driveData.partition);
-	if (!workhorse.chdir(driveData.workingDir)) {
-		driveData.workingDir = "\\";
-		throw CommandException("Directory " + driveData.workingDir +
+	if (!workhorse.usePartition(driveData.partition)) {
+		throw CommandException("Partition " + StringOp::toString(1+driveData.partition) +
+		          " doesn't exist on this device. Command aborted, please retry.");
+	}
+	if (!workhorse.chdir(driveData.workingDir[driveData.partition])) {
+		driveData.workingDir[driveData.partition] = "\\";
+		throw CommandException("Directory " + driveData.workingDir[driveData.partition] +
 		          " doesn't exist anymore. Went back to root "
 			  "directory. Command aborted, please retry.");
 	}
@@ -321,11 +367,11 @@ void FileManipulator::chdir(DriveSettings& driveData,
 	}
 	// TODO clean-up this temp hack, used to enable relative paths
 	if (filename.find_first_of("/\\") == 0) {
-		driveData.workingDir = filename;
+		driveData.workingDir[driveData.partition] = filename;
 	} else {
-		driveData.workingDir += '/' + filename;
+		driveData.workingDir[driveData.partition] += '/' + filename;
 	}
-	result += "New working directory: " + driveData.workingDir;
+	result += "New working directory: " + driveData.workingDir[driveData.partition];
 }
 
 void FileManipulator::mkdir(DriveSettings& driveData, const string& filename)

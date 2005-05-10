@@ -1,5 +1,8 @@
 $Id$
 
+2005-05-09 David Heremans <david.heremans@gnu-linux.net>
+	* Added support for linux style partitionnumbers in the FileManipulator
+
 2005-05-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed linking problem with gcc-4.x:
 	   explicit template instantiation must be done _after_ template
@@ -21,7 +24,7 @@ $Id$
 	     the 'create disk of 32MB' problem.
 	   - improved bootsector guessing in the MSXtar constructor
 	     and commented it out already :-)
-	   - check against directory removals done be the emulated MSX
+	   - check against directory removals done by the emulated MSX
 	   - fixed some compile warnings
 
 2005-05-05 Patrick van Arkel (vampiermsx@gmail.com)

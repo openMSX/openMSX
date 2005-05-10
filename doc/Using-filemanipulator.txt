@@ -19,11 +19,14 @@ filemanipulator <command> <disk name> <command arguments> where
         useFile, dir, mkdir, chdir
         useFile.
 
-  'disk name' is most likely: diska, diskb, IDEHD or imagefile. 
+  'disk name' is most likely: diska, diskb, hda or imagefile. 
         imagefile is only available after a useFile command.
         diska, diskb or IDE-HD are the drives available to the running emulated
         MSX machine. This allows interaction with the currently used disk
         images.
+        In case the disk contains an MSX-IDE compatible partitiontable you can
+        add a partitionnumber, from 1 till 31, to the disk name to determine on
+        which partition the command needs to act.
 
   'command arguments' depend upon the command involved, see the detailed
         descriptions of the commands below.
@@ -109,11 +112,12 @@ usePartition
     explanation:
         In case the <disk name> contains a MSX IDE compatible partition table,
         this command will select the partition to be used for the
-        import/export/chdir commands.
+        import/export/chdir commands in case no partition number is appended to
+        the disk name.
         Using tab completion will show to currently selected partition for the
         <disk name> device.
         If no valid partition table is found this will be equivalent to using
-        partition 0.
+        partition 1.
 
 format
 ------

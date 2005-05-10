@@ -24,6 +24,8 @@ public:
 
 	void format();
 	void format(unsigned partitionsectorsize);
+	bool hasPartitionTable();
+	bool hasPartition(int partition);
 	bool usePartition(int partition);
 
 	void createDiskFile(std::vector<unsigned> sizes);
@@ -136,7 +138,6 @@ private:
 	void recurseDirExtract(const std::string& dirName, int sector, int direntryindex);
 	bool chroot(const std::string& newRootDir, bool createDir);
 
-	bool hasPartitionTable();
 	bool isPartitionTableSector(byte* buf);
 };
 

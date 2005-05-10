@@ -28,7 +28,8 @@ private:
 	struct DriveSettings
 	{
 		int partition;
-		std::string workingDir;
+		int defaultPartition;
+		std::string workingDir[31] ;
 		DiskContainer* drive;
 	};
 	typedef std::map<const std::string, DriveSettings> DiskImages;
