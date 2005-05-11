@@ -29,7 +29,7 @@ private:
 	{
 		int partition;
 		int defaultPartition;
-		std::string workingDir[31] ;
+		std::string workingDir[31];
 		DiskContainer* drive;
 	};
 	typedef std::map<const std::string, DriveSettings> DiskImages;

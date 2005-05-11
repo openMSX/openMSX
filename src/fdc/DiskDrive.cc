@@ -376,10 +376,9 @@ void RealDrive::ejectDisk()
 	disk.reset(new DummyDisk());
 }
 
-SectorAccessibleDisk& RealDrive::getDisk()
+SectorAccessibleDisk* RealDrive::getDisk()
 {
-	//return *disk.get();
-	return  dynamic_cast<SectorAccessibleDisk&>(*disk.get());
+	return dynamic_cast<SectorAccessibleDisk*>(disk.get());
 }
 
 string RealDrive::execute(const vector<string>& tokens)

@@ -189,7 +189,7 @@ public:
 	virtual bool diskChanged();
 	virtual bool dummyDrive();
 
-	SectorAccessibleDisk& getDisk() ;
+	SectorAccessibleDisk* getDisk();
 
 protected:
 	static const int MAX_TRACK = 85;

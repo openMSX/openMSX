@@ -100,7 +100,7 @@ FileManipulator::DriveSettings& FileManipulator::getDriveSettings(
 
 SectorAccessibleDisk& FileManipulator::getDisk(const DriveSettings& driveData)
 {
-	SectorAccessibleDisk* disk = &driveData.drive->getDisk();
+	SectorAccessibleDisk* disk = driveData.drive->getDisk();
 	if (!disk) {
 		// not a SectorBasedDisk
 		throw CommandException("Unsupported disk type");
@@ -225,14 +225,12 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 		     it != diskImages.end(); ++it) {
 			names.insert(it->first);
 			// if it has partitions then we also add the partition numbers to the autocompletion
-			SectorAccessibleDisk* SectorDisk=dynamic_cast<SectorAccessibleDisk*>(it->second.drive);
-			if (SectorDisk != NULL ) {
-				MSXtar workhorse(*SectorDisk);
-				if (workhorse.hasPartitionTable()){
-					for (int i=0 ; i < 31 ; ++i){
-						if (workhorse.hasPartition(i)){
-							names.insert(it->first + StringOp::toString(i+1));
-						}
+			SectorAccessibleDisk* sectorDisk = it->second.drive->getDisk();
+			if (sectorDisk != NULL) {
+				MSXtar workhorse(*sectorDisk);
+				for (int i = 0; i < 31; ++i) {
+					if (workhorse.hasPartition(i)) {
+						names.insert(it->first + StringOp::toString(i + 1));
 					}
 				}
 			}

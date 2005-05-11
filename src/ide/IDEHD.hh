@@ -33,7 +33,7 @@ public:
 	virtual unsigned getNbSectors() const;
 
 	// Diskcontiainer
-	SectorAccessibleDisk& getDisk();
+	SectorAccessibleDisk* getDisk();
 
 private:
 	void setError(byte error);

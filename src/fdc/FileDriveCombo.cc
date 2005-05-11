@@ -10,9 +10,9 @@ FileDriveCombo::FileDriveCombo(const std::string& filename)
 	file.reset(new File(filename, CREATE));
 }
 
-SectorAccessibleDisk& FileDriveCombo::getDisk()
+SectorAccessibleDisk* FileDriveCombo::getDisk()
 {
-	return *this;
+	return this;
 }
 
 void FileDriveCombo::readLogicalSector(unsigned sector, byte* buf)

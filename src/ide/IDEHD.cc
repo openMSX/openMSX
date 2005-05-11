@@ -365,9 +365,9 @@ unsigned IDEHD::getNbSectors() const
 	return file->getSize() / 512;
 }
 
-SectorAccessibleDisk& IDEHD::getDisk()
+SectorAccessibleDisk* IDEHD::getDisk()
 {
-	return *this;
+	return this;
 }
 
 } // namespace openmsx

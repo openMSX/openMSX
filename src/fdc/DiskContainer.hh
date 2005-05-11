@@ -10,7 +10,7 @@ class SectorAccessibleDisk;
 class DiskContainer
 {
 public:
-	virtual SectorAccessibleDisk& getDisk() = 0;
+	virtual SectorAccessibleDisk* getDisk() = 0;
 
 protected:
 	virtual ~DiskContainer();

@@ -23,7 +23,7 @@ public:
 	virtual unsigned getNbSectors() const;
 
 	// DiskContainer
-	SectorAccessibleDisk& getDisk();
+	SectorAccessibleDisk* getDisk();
 
 private:
 	std::auto_ptr<File> file;
