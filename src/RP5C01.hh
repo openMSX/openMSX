@@ -10,7 +10,7 @@
 #define RP5C01_HH
 
 #include "openmsx.hh"
-#include "EmuTime.hh"
+#include "Clock.hh"
 #include <memory>
 
 namespace openmsx {

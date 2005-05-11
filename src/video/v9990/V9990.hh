@@ -5,6 +5,7 @@
 
 #include <string>
 #include "openmsx.hh"
+#include "Clock.hh"
 #include "Schedulable.hh"
 #include "EventListener.hh"
 #include "MSXDevice.hh"
@@ -19,7 +20,6 @@ namespace openmsx {
 class V9990VRAM;
 class V9990CmdEngine;
 class V9990Renderer;
-class EmuTime;
 
 /** Implementation of the Yamaha V9990 VDP as used in the GFX9000
   * cartridge by Sunrise.

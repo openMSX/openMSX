@@ -3,7 +3,7 @@
 #ifndef Z80_HH
 #define Z80_HH
 
-#include "EmuTime.hh"
+#include "DynamicClock.hh"
 
 namespace openmsx {
 

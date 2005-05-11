@@ -4,6 +4,7 @@
 #include "Rom.hh"
 #include "Debugger.hh"
 #include "Scheduler.hh"
+#include "Clock.hh"
 #include <cmath>
 
 using std::string;

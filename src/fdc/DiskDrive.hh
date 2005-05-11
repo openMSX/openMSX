@@ -5,7 +5,7 @@
 
 #include <memory>
 #include <bitset>
-#include "EmuTime.hh"
+#include "Clock.hh"
 #include "Command.hh"
 #include "DiskContainer.hh"
 

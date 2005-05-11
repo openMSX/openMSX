@@ -4,7 +4,7 @@
 #define VDPIODELAY_HH
 
 #include "MSXDevice.hh"
-#include "EmuTime.hh"
+#include "Clock.hh"
 
 namespace openmsx {
 

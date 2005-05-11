@@ -7,7 +7,7 @@ SUBDIRS:= \
 	input memory serial settings sound thread video
 
 SRC_HDR:= \
-	EmuTime \
+	EmuTime EmuDuration \
 	MSXDevice \
 	GlobalSettings \
 	MSXMotherBoard \
@@ -48,6 +48,7 @@ SRC_ONLY:= \
 
 HDR_ONLY:= \
 	openmsx \
+	Clock DynamicClock \
 	Schedulable \
 	MSXException InitException \
 	PatchInterface \

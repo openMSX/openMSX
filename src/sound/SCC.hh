@@ -5,7 +5,7 @@
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
-#include "EmuTime.hh"
+#include "Clock.hh"
 #include "Debuggable.hh"
 
 namespace openmsx {

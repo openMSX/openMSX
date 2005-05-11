@@ -10,7 +10,7 @@
 #include "EventListener.hh"
 #include "MSXDevice.hh"
 #include "IRQHelper.hh"
-#include "EmuTime.hh"
+#include "Clock.hh"
 #include "Command.hh"
 #include "DisplayMode.hh"
 #include "Debuggable.hh"

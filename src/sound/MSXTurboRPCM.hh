@@ -5,7 +5,7 @@
 
 #include <memory>
 #include "MSXDevice.hh"
-#include "EmuTime.hh"
+#include "Clock.hh"
 #include "AudioInputConnector.hh"
 
 namespace openmsx {

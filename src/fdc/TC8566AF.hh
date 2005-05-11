@@ -8,11 +8,10 @@
 #define TC8566AF_HH
 
 #include "openmsx.hh"
-#include "EmuTime.hh"
+#include "Clock.hh"
 
 namespace openmsx {
 
-class EmuTime;
 class DiskDrive;
 
 class TC8566AF

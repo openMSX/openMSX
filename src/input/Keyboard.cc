@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
+#include "Clock.hh"
 #include "Keyboard.hh"
 #include "EventDistributor.hh"
 #include "SettingsConfig.hh"

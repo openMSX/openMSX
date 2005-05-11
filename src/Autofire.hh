@@ -4,7 +4,7 @@
 #define AUTOFIRE_HH
 
 #include "SettingListener.hh"
-#include "EmuTime.hh"
+#include "DynamicClock.hh"
 #include "openmsx.hh"
 #include <string>
 #include <memory>

@@ -1,5 +1,13 @@
 $Id$
 
+2005-05-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Improved build time (~15% faster full build here):
+	   - split EmuTime.hh in EmuTime.hh EmuDuration.hh Clock.hh and
+	     DynamicClock.hh
+	   - don't #include <iostream> in openmsx.hh in non-debug builds
+	     PRT_DEBUG macro is not checked anymore for syntax errors in
+	     non-debug builds now, but I think that's not a big problem
+
 2005-05-09 David Heremans <david.heremans@gnu-linux.net>
 	* Added support for linux style partitionnumbers in the FileManipulator
 

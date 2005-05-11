@@ -5,7 +5,7 @@
 
 #include "JoystickDevice.hh"
 #include "EventListener.hh"
-#include "EmuTime.hh"
+#include "Clock.hh"
 
 namespace openmsx {
 

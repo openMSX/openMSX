@@ -4,7 +4,7 @@
 #define WAVIMAGE_HH
 
 #include "CassetteImage.hh"
-#include "EmuTime.hh"
+#include "DynamicClock.hh"
 #include <string>
 
 namespace openmsx {

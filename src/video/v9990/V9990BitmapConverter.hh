@@ -28,7 +28,7 @@ public:
 
 	/** Convert a line of VRAM into host pixels.
 	  */
-	void convertLine(Pixel* linePtr, uint address, int nrPixels, int displayY);
+	void convertLine(Pixel* linePtr, unsigned address, int nrPixels, int displayY);
 
 	/** Set the display mode: defines screen geometry.
 	  */
@@ -50,7 +50,7 @@ private:
 	/** Rastering method for the current color mode
 	  */
 	typedef void (V9990BitmapConverter<Pixel, zoom>::*RasterMethod)
-	             (Pixel* pixelPtr, uint address, int nrPixels);
+	             (Pixel* pixelPtr, unsigned address, int nrPixels);
 	RasterMethod rasterMethod;
 
 	/** Blend method for the current display mode
@@ -102,16 +102,16 @@ private:
 	void blend_none(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
 
 	/* private Raster methods */
-	void rasterP    (Pixel* outPixels, uint address, int nrPixels);
-	void rasterBYUV (Pixel* outPixels, uint address, int nrPixels);
-	void rasterBYUVP(Pixel* outPixels, uint address, int nrPixels);
-	void rasterBYJK (Pixel* outPixels, uint address, int nrPixels);
-	void rasterBYJKP(Pixel* outPixels, uint address, int nrPixels);
-	void rasterBD16 (Pixel* outPixels, uint address, int nrPixels);
-	void rasterBD8  (Pixel* outPixels, uint address, int nrPixels);
-	void rasterBP6  (Pixel* outPixels, uint address, int nrPixels);
-	void rasterBP4  (Pixel* outPixels, uint address, int nrPixels);
-	void rasterBP2  (Pixel* outPixels, uint address, int nrPixels);
+	void rasterP    (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBYUV (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBYUVP(Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBYJK (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBYJKP(Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBD16 (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBD8  (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBP6  (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBP4  (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBP2  (Pixel* outPixels, unsigned address, int nrPixels);
 
 	/* Cursor drawing methods */
 	void drawCursor(Pixel* buffer, int displayY,

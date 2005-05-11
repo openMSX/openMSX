@@ -3,7 +3,10 @@
 #ifndef OPENMSX_HH
 #define OPENMSX_HH
 
+// don't just always include this, saves about 1 minute build time!!
+#ifdef DEBUG
 #include <iostream>
+#endif
 
 /// Namespace of the openMSX emulation core.
 /** openMSX: the MSX emulator that aims for perfection
@@ -48,21 +51,18 @@ typedef long long int64;
 typedef unsigned long long uint64;
 #endif
 
-#ifdef DEBUGVAL
-#undef DEBUGVAL
-#endif
 #ifdef DEBUG
-#define DEBUGVAL 1
-#else
-#define DEBUGVAL 0
-#endif
 
 #define PRT_DEBUG(mes)				\
 	do {					\
-		if (DEBUGVAL) {			\
-			std::cout << mes << std::endl;	\
-		}				\
+		std::cout << mes << std::endl;	\
 	} while (0)
+
+#else
+
+#define PRT_DEBUG(mes)
+
+#endif
 
 } // namespace openmsx
 

@@ -4,6 +4,7 @@
 #include "V9990.hh"
 #include "V9990CmdEngine.hh"
 #include "V9990VRAM.hh"
+#include <iostream>
 
 namespace openmsx {
 

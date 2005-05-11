@@ -4,6 +4,7 @@
 #include "Y8950.hh"
 #include "Scheduler.hh"
 #include "Debugger.hh"
+#include "Clock.hh"
 
 using std::string;
 

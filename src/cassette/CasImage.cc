@@ -3,7 +3,7 @@
 
 #include "CasImage.hh"
 #include "File.hh"
-#include "EmuTime.hh"
+#include "Clock.hh"
 #include <cstdlib>
 #include <memory.h>
 

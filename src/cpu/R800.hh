@@ -3,7 +3,8 @@
 #ifndef R800_HH
 #define R800_HH
 
-#include "EmuTime.hh"
+#include "Clock.hh"
+#include "DynamicClock.hh"
 
 namespace openmsx {
 

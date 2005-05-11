@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include <iostream>
 #include <cassert>
 #include "MSXCPUInterface.hh"
 #include "Scheduler.hh"

@@ -3,7 +3,7 @@
 #ifndef WD2793_HH
 #define WD2793_HH
 
-#include "EmuTime.hh"
+#include "Clock.hh"
 #include "Schedulable.hh"
 
 namespace openmsx {

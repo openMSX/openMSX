@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <iomanip>
-#include "EmuTime.hh"
+#include "Clock.hh"
 #include "DebugDevice.hh"
 #include "FileOperations.hh"
 #include "FilenameSetting.hh"

@@ -2,6 +2,7 @@
 
 #include "EmuTimer.hh"
 #include "Scheduler.hh"
+#include "Clock.hh"
 
 using std::string;
 
