@@ -78,6 +78,7 @@
 		<ol class="toc">
 			<li><a class="internal" href="#audiosettings">7.1 Audio Settings</a></li>
 			<li><a class="internal" href="#midi">7.2 MIDI</a></li>
+			<li><a class="internal" href="#soundlogger">7.3 Recording Audio to File</a></li>
 		</ol>
 	</li>
 
@@ -164,6 +165,11 @@ only the big picture.
 </p>
 
 <dl>
+
+<dt>2005-05-12: Manuel Bilderbeek</dt>
+<dd>
+Updates for release 0.5.2.
+</dd>
 
 <dt>2005-01-26: Manuel Bilderbeek</dt>
 <dd>
@@ -472,6 +478,12 @@ you'll end up with a full disk when this cache is written!
 Note that this feature is willfully kept very bare bones: it
 doesn't support sub directories and it skips all remaining files if the virtual
 disk is full. Its main purpose is to facilitate cross platform development.
+</p>
+<p>
+Since openMSX 0.5.2 we added extra functionality to perform file
+imports and exports, with support for harddisk images with partitions and normal
+disk images. Please see the separate documentation for this in the
+<code>doc/Using-filemanipulator.txt</code> text file.
 </p>
 
 <h4><a id="realdisks">4.2.3 Using Real Disks</a></h4>
@@ -809,6 +821,13 @@ It does a good job on most graphics; it avoids excessive blurring and it keeps c
 On some graphics, it does not identify edges correctly, making those edges blocky instead of smooth.
 </dd>
 
+<dt>hq2xlite</dt>
+<dd>
+This is a variant of hq2x: the resulting image is close to hq2x, but it is
+calculated a lot faster. It has probably the best quality per CPU usage ratio.
+</dd>
+
+
 </dl>
 
 <p>
@@ -885,7 +904,11 @@ This feature works only in the <code>SDLGL</code> renderer.
 <h3><a id="gfx9000">6.6 GFX9000/Video source</a></h3>
 
 <p>
-Since openMSX 0.5.1, experimental GFX9000 emulation is available. Note that it is indeed experimental; it is also incomplete, unoptimised and contains loads of bugs. One of these things is the fact that it does not work with the SDLGL renderer yet. Despite of all this, we thought you might wanted to play around with it anyway...
+Since openMSX 0.5.1, experimental GFX9000 emulation is available. Note that it
+is indeed experimental; it is also incomplete, unoptimised and contains loads of
+bugs. One of these things is the fact that it does not work with the SDLGL
+renderer yet. Despite of all this, we thought you might wanted to play around
+with it anyway...
 </p>
 
 <p>
@@ -926,6 +949,12 @@ Each sound device in the MSX you are emulating also has its own volume setting. 
 All mono sound devices have an additional mode setting. You can use it to select whether this device should be audible on the left channel ("left"), the right channel ("right") or both channels ("mono"). Example: <code>set PSG_mode left</code>. Any sound device can also be individually muted by setting the channel mode to "off".
 </p>
 
+<p>
+For Windows users there is the choice to use DirectSound or SDL as an audio
+driver. By default, DirectSound is used, because it gives a better quality in
+most cases. Change it with the <code>sound_driver</code> setting, if you like.
+</p>
+
 <h3><a id="midi">7.2 MIDI</a></h3>
 
 <p>
@@ -950,6 +979,30 @@ device node, for example <code>/dev/midi</code>, as its output file. This is
 done by default. To play with this setting, use <code>set
 midi-out-logfilename</code>.  On Windows, real MIDI devices are separate
 pluggables.
+</p>
+
+<h3><a id="soundlogger">7.3 Recording Audio to File</a></h3>
+
+<p>
+A new feature since openMSX 0.5.2 is the so-called sound logger. It enables you
+to record the sound you hear on the speakers to a WAV file. Note that recording
+sound to the uncompressed WAV format will take a lot of disk space. At 44.1kHz
+it will take about 176 kB per second.
+</p>
+
+<p>
+You can simply start the recording of sound by issuing the command
+<code>soundlog start</code>. It will automatically choose a file name and save
+it in the <code>soundlogs</code> directory in your personal openMSX folder. You
+can also add an extra parameter to specify the filename for the new WAV file.
+The other two sub commands that speak for themselves are <code>soundlog
+stop</code> and <code>soundlog toggle</code>. The latter is useful if you bind
+this command to some hot key.
+</p>
+
+<p>
+Note that for now, the exact sound as you can hear it from the speakers will be
+recorded, including any stutters that may be in it.
 </p>
 
 <h2><a id="debugdevice">8. Debug Device</a></h2>
