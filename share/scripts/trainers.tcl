@@ -14,149 +14,6 @@
 # this time I turned it into something fun.
 #
 # Please cheat responsible!
-#
-# Included:
-# - 1942
-# - aleste1
-# - aleste2
-# - alestegaiden
-# - alifem36
-# - andorgynius
-# - antarticland
-# - arkanoid1
-# - arkanoid2
-# - arsenelupin3
-# - ashiguine1
-# - ashiguine2
-# - ashiguine3
-# - athleticland
-# - backtothefuture
-# - bastard
-# - beamrider
-# - blowup
-# - bombaman
-# - bomberking
-# - bombermanspecial
-# - boulderdash1
-# - bubblebobble
-# - buckrodgers
-# - cabbagepatchkids
-# - carfighter
-# - catboy
-# - circuscharlie
-# - comeonpicot
-# - comicbakkery
-# - craze
-# - crossblaim
-# - digdug
-# - dirdeaf
-# - dota
-# - dragonslayer4
-# - dragonslayer6
-# - druid
-# - dynamitedan
-# - eggerland1
-# - eggerland2
-# - elevatoraction
-# - f1spirit
-# - fantasmsoldier1
-# - feedback
-# - feud
-# - firebird
-# - fparodic1
-# - frogger
-# - galaga
-# - galious
-# - gallforce
-# - girlyblock
-# - godzilla
-# - goemon
-# - golvellius1
-# - goonies
-# - gradius1
-# - gradius2
-# - gradius3
-# - gryzor
-# - guardic
-# - gularve
-# - happyfret
-# - hero
-# - herzog
-# - higemaru
-# - holeinonespecial
-# - hyperrally
-# - ikariwarriors
-# - illusioncity
-# - inspecteurz
-# - jackiechprotector
-# - jackthenipper
-# - jackthenippercoconut
-# - jetsetwilly
-# - jpwinkle
-# - kikikaikai
-# - kingkong2
-# - kingsvalley1
-# - kingsvalley2
-# - knightmare
-# - konamisboxing
-# - magicaltree
-# - magicalwizzkid
-# - metalgear1
-# - metalgear2
-# - mobileplanet
-# - monmonmonster
-# - mopiranger
-# - mrghost
-# - msxlogo
-# - nyancleracing
-# - outrun
-# - pacman
-# - pacmania
-# - parodius
-# - pastfiner
-# - penguinadventure
-# - pineaplin
-# - psychoworld
-# - qbert
-# - r# -type
-# - raidonbungelingbay
-# - rambo
-# - rastansaga
-# - roadfighter
-# - salamander
-# - sdsnatcher_init
-# - skyjaguar
-# - spacemanbow
-# - starquake
-# - strategicmars
-# - supercobra
-# - supercooks
-# - superlaydock2
-# - superlaydockmissionstriker
-# - superlaydocmsx2
-# - superrambospecial
-# - supertriton
-# - tankbattalion
-# - terramex
-# - thecastle
-# - thecastleexcelent
-# - thexder1
-# - thexder2
-# - timepilot
-# - twinbee
-# - undeadline
-# - usas
-# - vampirekiller
-# - woodypoco
-# - xak1
-# - xak2
-# - yiearkungfu1
-# - yiearkungfu2
-# - ys1
-# - ys2
-# - ys3
-# - zanac
-# - zanac# -ex
 
 proc trainer_f1spirit {} { 
 	#always first place
@@ -464,23 +321,25 @@ proc trainer_gradius3 {} {
 	#activate option 2 
 	poke 0xe620 1   
 	#  5  normal laser
-	poke 0xe630 5   
+	#!poke 0xe630 5   
 	#  6  meteor laser
-	poke 0xe630 6   
+	#!poke 0xe630 6   
 	#  7  screw laser
-	poke 0xe630 7   
+	#!poke 0xe630 7   
 	#  8  extended blaster
 	poke 0xe630 8   
 	#  9  vector laser
-	poke 0xe630 9   
+	#!poke 0xe630 9   
 	# 10  ripple laser
-	poke 0xe630 10   
+	#!poke 0xe630 10   
 	# 11  fire blaster
-	poke 0xe630 11   
+	#!poke 0xe630 11   
 	#activate missle
-	poke 0xe632 16  	
+	#!poke 0xe632 16  	
 	#activate double too (replace 3 for 2 for 'back fire')
-	poke 0xe631 3  	
+	poke 0xe631 3
+	#current stage
+	#!poke 0xe361 X
 	
 	after time 2 trainer_gradius3 
 }
@@ -655,7 +514,23 @@ proc trainer_mrghost {} {
 	poke 0xc3a6 32
 	poke 0xc01d 255
 	poke 0xc01e 255
-	after time 2 trainer_mrghost
+	#invincible
+	poke 0xc291 255
+	after time 10 trainer_mrghost
+}
+
+proc trainer_dragonbuster {} {
+	#life and attacks
+	poke 0xc312 255 
+	#!exp
+	#!poke 0xc2e2 0x99
+	#!poke 0xc2e3 0x99
+	#!poke 0xc2e4 0x99
+	#!poke 0xc2fd 0x99
+	#!poke 0xc2fe 0x99
+	#!poke 0xc2ff 0x99
+
+	after time 5 trainer_dragonbuster
 }
 
 proc trainer_feedback {} {
@@ -816,7 +691,7 @@ proc trainer_undeadline {} {
 }
 
 
-proc trainer_andorgynius {} {
+proc trainer_andorogynus  {} {
 	#schield always on
 	poke 0xeca1 255
 	#lives 
@@ -834,9 +709,21 @@ proc trainer_andorgynius {} {
 	poke 0xec3a 5
 	#backpack
 	poke 0xec2c 2
-	after time 1 trainer_andorgynius
+	after time 1 trainer_andorogynus
 }
- 
+
+proc trainer_aliens2_msx1 {} {
+	#invincible
+	poke 0xe707 255
+	#life bar
+	poke 0xe247 16
+	#m40 boms
+	poke 0xe28f 250
+	#twin pulse ammo
+	poke 0xe28e 250
+	after time 15 trainer_aliens2_msx1
+}
+
 proc trainer_galaga {} {
 	#lives
 	poke 57358 99 
@@ -852,6 +739,23 @@ proc trainer_girlyblock {} {
 	poke 0xe4a3 255	
 	after time 2 trainer_girlyblock
 }
+
+proc trainer_finalzone1 {} {
+	#money
+	poke 0xe20d 0x99
+	poke 0xe20c 0x99
+	poke 0xe20b 0x99
+	after time 2 trainer_finalzone1
+}
+
+proc trainer_superpierot {} {
+	#have ball
+	poke 0xe7f0 1
+	#lives
+	poke 0xe046 255
+	after time 1 trainer_superpierot
+}
+
 
 proc trainer_magicalwizzkid {} {
 	#lives
@@ -1067,7 +971,6 @@ proc trainer_ashiguine3 {} {
 	poke 0xc59f 1
 	poke 0xc5a0 1
 	poke 0xc5a1 1
-		
 	after time 2 trainer_ashiguine3
 }
 
@@ -1307,6 +1210,9 @@ proc trainer_spacemanbow {} {
 	poke 0xcb08 16
 	#life
 	poke 0xcb0f 0x99
+	#invincible
+	poke 0xca53 03
+	poke 0xca54 03
 	after time 2 trainer_spacemanbow
 }
 
@@ -1679,6 +1585,52 @@ proc trainer_kingsvalley2 {} {
 	after time 2 trainer_kingsvalley2
 }
 
+
+proc trainer_malayanohibou {} {
+	#life
+	poke 0xccd3 15
+	#money
+	poke 0xccd4 255
+	poke 0xccd5 255
+	#have fires
+	poke 0xcd74 99
+	#have keys
+	poke 0xcd75 99
+	#have bombs
+	poke 0xcd76 99	
+	#have potions
+	poke 0xcd77 99	
+	#enable fire shooting
+	poke 0xcd25 31
+	#lives
+	poke 0xccf3 255
+	after time 2 trainer_malayanohibou
+}
+
+proc trainer_ninjakun {} {
+	#lives
+	poke 0xcb37 99
+	#protection scrolls
+	poke 0xcb2e 255
+	#time
+	poke 0xcb35 99
+	after time 1 trainer_ninjakun
+}
+
+proc trainer_projecta2 {} {
+	#power
+	poke 0xc476 100
+	after time 1 trainer_projecta2
+}
+
+proc trainer_returnofjelda {} {
+	#power
+	poke 0xc725 100
+	#damage
+	poke 0xc724 0
+	after time 1 trainer_returnofjelda
+}
+
 proc trainer_goemon {} {
 	#lives
 	poke 0xc260 0x99
@@ -1709,7 +1661,16 @@ proc trainer_goemon {} {
 	poke 0xc270 3
 	#cart combi's (thanks bifi)
 	poke 0xef00 255
+	#invincible
+	poke 0xc4a7 255
 	after time 2 trainer_goemon
+}
+
+proc trainer_garryuuo {} {
+	#invincible
+	poke 0xe0b7 255
+	after time 2 trainer_garryuuo
+
 }
 
 proc trainer_kingkong2 {} {
@@ -2048,8 +2009,6 @@ proc trainer_illusioncity {} {
 	after time 60 trainer_illusioncity 
 } 
 
-#---------------------------------------------
-
 proc trainer_yiearkungfu2 {} { 
 	#invincible by main enemy
 	poke 0xe29e 255
@@ -2080,7 +2039,6 @@ proc trainer_pineaplin {} {
 	poke 0xc025 9
 
 	after time 2 trainer_pineaplin 
-
 }
 
 
@@ -2541,6 +2499,24 @@ proc trainer_raidonbungelingbay {} {
 	#bombs
 	poke 0xe037 9 
 	after time 1 trainer_raidonbungelingbay
+}
+
+proc trainer_finaljustice {} {
+	#energy
+	poke 0xe411 100
+	after time 1 trainer_finaljustice
+}
+
+proc trainer_frontline {} {
+	#lives
+	poke 0xc001 255
+	after time 1 trainer_frontline
+}
+
+proc trainer_gyrodine {} {
+	#lives
+	poke 0xe5e0 10
+	after time 30 trainer_gyrodine
 }
 
 proc trainer_carfighter {} {
