@@ -177,17 +177,83 @@ string FileManipulator::execute(const vector<string>& tokens)
 	return result;
 }
 
-string FileManipulator::help(const vector<string>& /*tokens*/) const
+string FileManipulator::help(const vector<string>& tokens) const
 {
-	return
+	string helptext;
+	if (tokens.size() >= 2) {
+	  if (tokens[1] == "import" ) {
+	  helptext=
+	    "filemanipulator import <drivename> <dirname>\n"
+	    "import all files and subdirs from the host-OS in <dirname> into the\n"
+	    "<drivename> in the current MSX-subdirectory specified with the chdir-command\n";
+	  } else if (tokens[1] == "export" ) {
+	  helptext=
+	    "filemanipulator export <drivename> <dirname>\n"
+	    "extract all files and subdirs from the MSX-subdirectory specified with\n"
+	    "the chdir-command to the host-OS in <dirname>\n";
+	  } else if (tokens[1] == "savedsk") {
+	  helptext=
+	    "filemanipulator savedsk <drivename> <filename> : save drivename as dsk-file\n"
+	    "this saves the complete drive content to <filename>, it is not possible to\n"
+	    "save just one partition. The main purpose of this command is to make it\n"
+	    "possible to save a 'ramdsk' into a file and to take 'live backups' of\n"
+	    "dsk-files in use.\n";
+	  } else if (tokens[1] == "usePartition") {
+	  helptext=
+	    "filemanipulator usePartition <drivename> <partitionnumber>\n"
+	    "If <drivename> contains an MSX-IDE partitiontable, this command\n"
+	    "changes the default partition that will be used for commands like\n"
+	    "chdir,import,dir,.. in case you use these commands without appending\n"
+	    "the partionnumber to the drivename\n";
+	  } else if (tokens[1] == "chdir") {
+	  helptext=
+	    "filemanipulator chdir <drivename> <dirname>\n"
+	    "change the working directory on <drivename>. This will be the\n"
+	    "directory were the 'import','export' and 'dir' will place/retrieve\n"
+	    "the data.\n"
+	    "In case of a partioned drive, a seperate working directory is\n"
+	    "stored per partition\n";
+	  } else if (tokens[1] == "mkdir") {
+	  helptext=
+	    "filemanipulator mkdir <drivename> <dirname>\n"
+	    "This creates the directory on <drivename>. If needed all missing\n"
+	    "parent directories are created at the same time. Accepts both\n"
+	    "absolute and relative pathnames.\n";\n"
+	  } else if (tokens[1] == "create") {
+	  helptext=
+	    "filemanipulator create <filename> <size> [<size>...]\n"
+	    "Creates a formatted dsk-file with given size\n"
+	    "if multiple sizes are given this will create a partitioned\n"
+	    "diskimage and each partition having the size as indicated. By\n"
+	    "default the sizes are expressed in KB,add the postfix M for\n"
+	    "megabyte. \n";
+	  } else if (tokens[1] == "useFile") {
+	  helptext=
+	    "filemanipulator useFile <filename>             : allow manipulation of <filename>\n";
+	  } else if (tokens[1] == "format") {
+	  helptext=
+	    "filemanipulator format <drivename>             : format (a partition) on <drivename>\n";
+	  } else if (tokens[1] == "dir") {
+	  helptext=
+	    "filemanipulator dir <drivename>                : long format dir of current directory";
+	  } else {
+	  helptext="unknown filemanipulator subcommand: "+tokens[2] ;
+	  }
+	} else {
+	  helptext=string(
 	    "filemanipulator create <filename> <size> [<size>...] : create formatted dsk-file with given (partition)size(s)\n"
 	    "filemanipulator useFile <filename>             : allow manipulation of <filename>\n"
 	    "filemanipulator savedsk <drivename> <filename> : save drivename as dsk-file\n"
+	    "filemanipulator usePartition <drivename> <partitionnumber>    : change default partition for <drivename>\n"
+	    "filemanipulator format <drivename>             : format (a partition) on <drivename>\n"
 	    "filemanipulator chdir <drivename> <dirname>    : change directory on <drivename>\n"
 	    "filemanipulator mkdir <drivename> <dirname>    : create directory on <drivename>\n"
+	    "filemanipulator dir <drivename>                : long format dir of current directory"
 	    "filemanipulator import <drivename> <dirname>   : import all files and subdirs from <dir>\n"
 	    "filemanipulator export <drivename> <dirname>   : extract all files to <dir>\n"
-	    "filemanipulator dir <drivename>                : long format dir of current directory";
+	    "for more info use 'help filemanipulator <command>'\n");
+	}
+	return helptext;
 }
 
 void FileManipulator::tabCompletion(vector<string>& tokens) const

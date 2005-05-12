@@ -1,5 +1,8 @@
 $Id$
 
+2005-05-11 David Heremans <david.heremans@gnu-linux.net>
+	* More FileManipulator help
+
 2005-05-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Improved build time (~15% faster full build here):
 	   - split EmuTime.hh in EmuTime.hh EmuDuration.hh Clock.hh and
