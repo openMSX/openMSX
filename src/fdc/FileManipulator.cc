@@ -218,7 +218,7 @@ string FileManipulator::help(const vector<string>& tokens) const
 	    "filemanipulator mkdir <drivename> <dirname>\n"
 	    "This creates the directory on <drivename>. If needed all missing\n"
 	    "parent directories are created at the same time. Accepts both\n"
-	    "absolute and relative pathnames.\n";\n"
+	    "absolute and relative pathnames.\n";
 	  } else if (tokens[1] == "create") {
 	  helptext=
 	    "filemanipulator create <filename> <size> [<size>...]\n"
