@@ -230,13 +230,19 @@ string FileManipulator::help(const vector<string>& tokens) const
 	    "for megabyte.\n";
 	  } else if (tokens[1] == "useFile") {
 	  helptext=
-	    "filemanipulator useFile <filename>             : allow manipulation of <filename>\n";
+	    "filemanipulator useFile <filename>\n"
+	    "use this if you want to alter the content of a dsk file that isn't\n"
+	    "in use by the emulated MSX. It wil create a new diskname called\n"
+	    +IMAGE_FILE+" to manipulate the content of <filename>\n";
 	  } else if (tokens[1] == "format") {
 	  helptext=
-	    "filemanipulator format <drivename>             : format (a partition) on <drivename>\n";
+	    "filemanipulator format <drivename>\n"
+	    "formats the current (partition on) <drivename> with a regular\n"
+	    "FAT12 MSX filesystem\n";
 	  } else if (tokens[1] == "dir") {
 	  helptext=
-	    "filemanipulator dir <drivename>                : long format dir of current directory";
+	    "filemanipulator dir <drivename>\n"
+	    "Shows the content of the current directory on <drivename>\n";
 	  } else {
 	  helptext="unknown filemanipulator subcommand: "+tokens[2];
 	  }
