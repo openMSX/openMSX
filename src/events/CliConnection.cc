@@ -36,10 +36,8 @@ CliConnection::~CliConnection()
 
 void CliConnection::execute(const string& command)
 {
-	lock.down();
+	ScopedLock l(lock);
 	cmds.push_back(command);
-	lock.up();
-	Scheduler::instance().setSyncPoint(Scheduler::ASAP, *this);
 }
 
 static string reply(const string& message, bool status)
@@ -51,7 +49,7 @@ static string reply(const string& message, bool status)
 void CliConnection::executeUntil(const EmuTime& /*time*/, int /*userData*/)
 {
 	CommandController& controller = CommandController::instance();
-	lock.down();
+	ScopedLock l(lock);
 	while (!cmds.empty()) {
 		try {
 			string result = controller.executeCommand(cmds.front());
@@ -62,7 +60,6 @@ void CliConnection::executeUntil(const EmuTime& /*time*/, int /*userData*/)
 		}
 		cmds.pop_front();
 	}
-	lock.up();
 }
 
 const string& CliConnection::schedName() const

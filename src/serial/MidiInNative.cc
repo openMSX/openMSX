@@ -64,9 +64,8 @@ void MidiInNative::plugHelper(Connector* connector_, const EmuTime& time)
 
 void MidiInNative::unplugHelper(const EmuTime& time)
 {
-	lock.down();
+	ScopedLock l(lock);
 	thread.stop();
-	lock.up();
 	w32_midiInClose(devidx);
 }
 
@@ -83,12 +82,11 @@ const string& MidiInNative::getDescription() const
 void MidiInNative::procLongMsg(LPMIDIHDR p)
 {
 	if (p->dwBytesRecorded) {
-		lock.down();
+		ScopedLock l(lock);
 		for (unsigned i = 0; i < p->dwBytesRecorded; ++i) {
 			queue.push_back(p->lpData[i]);
 		}
 		Scheduler::instance().setSyncPoint(Scheduler::ASAP, this);
-		lock.up();
 	}
 }
 
@@ -103,13 +101,12 @@ void MidiInNative::procShortMsg(DWORD param)
 		default:
 			num = 1; break;
 	}
-	lock.down();
+	ScopedLock l(lock);
 	while (num--) {
 		queue.push_back(param & 0xFF);
 		param >>= 8;
 	}
 	Scheduler::instance().setSyncPoint(Scheduler::ASAP,this);
-	lock.up();
 }
 
 // Runnable
@@ -155,17 +152,12 @@ void MidiInNative::signal(const EmuTime& time)
 		queue.clear();
 		return;
 	}
-	if (!connector->ready()) {
-		return;
-	}
-	lock.down();
-	if (queue.empty()) {
-		lock.up();
-		return;
-	}
+	if (!connector->ready()) return;
+	
+	ScopedLock l(lock);
+	if (queue.empty()) return;
 	byte data = queue.front();
 	queue.pop_front();
-	lock.up();
 	connector->recvByte(data, time);
 }
 
@@ -175,9 +167,8 @@ void MidiInNative::executeUntil(const EmuTime& time, int userData)
 	if (getConnector()) {
 		signal(time);
 	} else {
-		lock.down();
+		ScopedLock l(lock);
 		queue.empty();
-		lock.up();
 	}
 }
 

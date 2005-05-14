@@ -37,17 +37,15 @@ Alarm::~Alarm()
 
 void Alarm::schedule(unsigned interval)
 {
-	sem.down();
+	ScopedLock lock(sem);
 	do_cancel();
 	id = SDL_AddTimer(interval / 1000, helper, this);
-	sem.up();
 }
 
 void Alarm::cancel()
 {
-	sem.down();
+	ScopedLock lock(sem);
 	do_cancel();
-	sem.up();
 }
 
 void Alarm::do_cancel()
@@ -60,10 +58,8 @@ void Alarm::do_cancel()
 
 bool Alarm::pending() const
 {
-	sem.down();
-	bool result = id;
-	sem.up();
-	return result;
+	ScopedLock lock(sem);
+	return id;
 }
 
 unsigned Alarm::helper(unsigned /*interval*/, void* param)
@@ -76,12 +72,11 @@ unsigned Alarm::helper(unsigned /*interval*/, void* param)
 	//      (Is this correct???) TODO adjust the documentation at the top
 	
 	Alarm* alarm = static_cast<Alarm*>(param);
-	alarm->sem.down();
+	ScopedLock lock(alarm->sem);
 	if (alarm->id) {
 		alarm->alarm();
 		alarm->id = 0;
 	}
-	alarm->sem.up();
 	return 0;
 }
 

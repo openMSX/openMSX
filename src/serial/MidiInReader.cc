@@ -45,9 +45,8 @@ void MidiInReader::plugHelper(Connector* connector_, const EmuTime& /*time*/)
 
 void MidiInReader::unplugHelper(const EmuTime& /*time*/)
 {
-	lock.down();
+	ScopedLock l(lock);
 	thread.stop();
-	lock.up();
 	fclose(file);
 }
 
@@ -77,10 +76,10 @@ void MidiInReader::run()
 			continue;
 		}
 		assert(getConnector());
-		lock.down();
+		
+		ScopedLock l(lock);
 		queue.push_back(buf);
 		Scheduler::instance().setSyncPoint(Scheduler::ASAP, *this);
-		lock.up();
 	}
 }
 
@@ -95,14 +94,11 @@ void MidiInReader::signal(const EmuTime& time)
 	if (!connector->ready()) {
 		return;
 	}
-	lock.down();
-	if (queue.empty()) {
-		lock.up();
-		return;
-	}
+	
+	ScopedLock l(lock);
+	if (queue.empty()) return;
 	byte data = queue.front();
 	queue.pop_front();
-	lock.up();
 	connector->recvByte(data, time);
 }
 
@@ -112,9 +108,8 @@ void MidiInReader::executeUntil(const EmuTime& time, int /*userData*/)
 	if (getConnector()) {
 		signal(time);
 	} else {
-		lock.down();
+		ScopedLock l(lock);
 		queue.empty();
-		lock.up();
 	}
 }
 

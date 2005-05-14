@@ -57,9 +57,8 @@ void RS232Tester::unplugHelper(const EmuTime& /*time*/)
 	outFile.close();
 
 	// input
-	lock.down();
+	ScopedLock l(lock);
 	thread.stop();
-	lock.up();
 	fclose(inFile);
 }
 
@@ -89,10 +88,9 @@ void RS232Tester::run()
 			continue;
 		}
 		assert(getConnector());
-		lock.down();
+		ScopedLock l(lock);
 		queue.push_back(buf);
 		Scheduler::instance().setSyncPoint(Scheduler::ASAP, *this);
-		lock.up();
 	}
 }
 
@@ -104,17 +102,12 @@ void RS232Tester::signal(const EmuTime& time)
 		queue.clear();
 		return;
 	}
-	if (!connector->ready()) {
-		return;
-	}
-	lock.down();
-	if (queue.empty()) {
-		lock.up();
-		return;
-	}
+	if (!connector->ready()) return;
+
+	ScopedLock l(lock);
+	if (queue.empty()) return;
 	byte data = queue.front();
 	queue.pop_front();
-	lock.up();
 	connector->recvByte(data, time);
 }
 
@@ -124,9 +117,8 @@ void RS232Tester::executeUntil(const EmuTime& time, int /*userData*/)
 	if (getConnector()) {
 		signal(time);
 	} else {
-		lock.down();
+		ScopedLock l(lock);
 		queue.empty();
-		lock.up();
 	}
 }
 
