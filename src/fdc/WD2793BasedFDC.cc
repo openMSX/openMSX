@@ -9,7 +9,7 @@ namespace openmsx {
 WD2793BasedFDC::WD2793BasedFDC(const XMLElement& config, const EmuTime& time)
 	: MSXFDC(config, time)
 	, multiplexer(new DriveMultiplexer(reinterpret_cast<DiskDrive**>(drives)))
-	, controller(new WD2793(multiplexer.get(), time))
+	, controller(new WD2793(*multiplexer, time))
 {
 }
 

@@ -9,7 +9,36 @@ using std::string;
 
 namespace openmsx {
 
-WD2793::WD2793(DiskDrive* drive_, const EmuTime& time)
+// Status register
+static const int BUSY             = 0x01;
+static const int INDEX            = 0x02;
+static const int S_DRQ            = 0x02;
+static const int TRACK00          = 0x04;
+static const int LOST_DATA        = 0x04;
+static const int CRC_ERROR        = 0x08;
+static const int SEEK_ERROR       = 0x10;
+static const int RECORD_NOT_FOUND = 0x10;
+static const int HEAD_LOADED      = 0x20;
+static const int RECORD_TYPE      = 0x20;
+static const int WRITE_PROTECTED  = 0x40;
+static const int NOT_READY        = 0x80;
+
+// Command register
+static const int STEP_SPEED = 0x03;
+static const int V_FLAG     = 0x04;
+static const int E_FLAG     = 0x04;
+static const int H_FLAG     = 0x08;
+static const int T_FLAG     = 0x10;
+static const int M_FLAG     = 0x10;
+static const int N2R_IRQ    = 0x01;
+static const int R2N_IRQ    = 0x02;
+static const int IDX_IRQ    = 0x04;
+static const int IMM_IRQ    = 0x08;
+
+// Sync point types
+enum SyncPointType { SCHED_FSM, SCHED_IDX_IRQ };
+
+WD2793::WD2793(DiskDrive& drive_, const EmuTime& time)
 	: drive(drive_)
 {
 	reset(time);
@@ -19,10 +48,11 @@ WD2793::~WD2793()
 {
 }
 
-void WD2793::reset(const EmuTime& /*time*/)
+void WD2793::reset(const EmuTime& time)
 {
 	//PRT_DEBUG("WD2793::reset()");
-	Scheduler::instance().removeSyncPoint(this);
+	Scheduler::instance().removeSyncPoint(this, SCHED_FSM);
+	Scheduler::instance().removeSyncPoint(this, SCHED_IDX_IRQ);
 	fsmState = FSM_NONE;
 
 	statusReg = 0;
@@ -30,20 +60,17 @@ void WD2793::reset(const EmuTime& /*time*/)
 	dataReg = 0;
 	directionIn = true;
 	
-	// According to the specs it nows issues a RestoreCommando (0x03)
-	// Afterwards the stepping rate can still be changed so that the
-	// remaining steps of the restorecommand can go faster. On an MSX this
-	// time can be ignored since the bootstrap of the MSX takes MUCH longer
-	// then an, even failing, Restorecommand
-	commandReg = 0x03;
-	sectorReg = 0x01;
-	DRQ = false;
-	INTRQ = false;
+	setDRQ(false, time);
+	resetIRQ();
 	immediateIRQ = false;
-	//statusReg bit 7 (Not Ready status) is already reset
 	
 	needInitWriteTrack = false;
 	formatting = false;
+	transferring = false;
+
+	// Execute Restore command
+	sectorReg = 0x01;
+	setCommandReg(0x03, time);
 }
 
 bool WD2793::getDTRQ(const EmuTime& time)
@@ -64,12 +91,12 @@ bool WD2793::getDTRQ(const EmuTime& time)
 				DRQ = true;
 			}
 		} else {
-			int pulses = drive->indexPulseCount(commandStart, time);
+			int pulses = drive.indexPulseCount(commandStart, time);
 			if (pulses == 1) {
 				transferring = true;
 			}
 		}
-		if (drive->indexPulseCount(commandStart, time) >= 2) {
+		if (drive.indexPulseCount(commandStart, time) >= 2) {
 			dataAvailable = 0;
 			dataCurrent = 0;
 			DRQ = false;
@@ -83,7 +110,7 @@ bool WD2793::getDTRQ(const EmuTime& time)
 bool WD2793::getIRQ(const EmuTime& /*time*/)
 {
 	//PRT_DEBUG("WD2793::getIRQ() " << INTRQ);
-	return INTRQ;
+	return INTRQ | immediateIRQ;
 }
 
 void WD2793::setIRQ()
@@ -93,12 +120,20 @@ void WD2793::setIRQ()
 
 void WD2793::resetIRQ()
 {
-	INTRQ = immediateIRQ;
+	INTRQ = false;
+}
+
+void WD2793::setDRQ(bool drq, const EmuTime& time)
+{
+	DRQ = drq;
+	DRQTimer.advance(time);
 }
 
 void WD2793::setCommandReg(byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("WD2793::setCommandReg() 0x" << std::hex << (int)value);
+	Scheduler::instance().removeSyncPoint(this, SCHED_FSM);
+
 	commandReg = value;
 	resetIRQ();
 	transferring = false;
@@ -138,16 +173,16 @@ byte WD2793::getStatusReg(const EmuTime& time)
 	if (((commandReg & 0x80) == 0) || ((commandReg & 0xF0) == 0xD0)) {
 		// Type I or type IV command 
 		statusReg &= ~(INDEX | TRACK00 | HEAD_LOADED | WRITE_PROTECTED);
-		if (drive->indexPulse(time)) {
+		if (drive.indexPulse(time)) {
 			statusReg |=  INDEX;
 		}
-		if (drive->track00(time)) {
+		if (drive.track00(time)) {
 			statusReg |=  TRACK00;
 		}
-		if (drive->headLoaded(time)) {
+		if (drive.headLoaded(time)) {
 			statusReg |=  HEAD_LOADED;
 		}
-		if (drive->writeProtected()) {
+		if (drive.writeProtected()) {
 			statusReg |=  WRITE_PROTECTED;
 		}
 	} else {
@@ -159,7 +194,7 @@ byte WD2793::getStatusReg(const EmuTime& time)
 		}
 	}
 
-	if (drive->ready()) {
+	if (drive.ready()) {
 		statusReg &= ~NOT_READY;
 	} else {
 		statusReg |=  NOT_READY;
@@ -203,16 +238,17 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 		dataBuffer[dataCurrent] = value;
 		dataCurrent++;
 		dataAvailable--;
-		DRQ = false;
-		DRQTimer.advance(time);
+		setDRQ(false, time);
 		if (dataAvailable == 0) {
 			transferring = false;
 			PRT_DEBUG("WD2793: Now we call the backend to write a sector");
 			try {
 				dataCurrent = 0;
-				drive->write(sectorReg, dataBuffer,
-				             onDiskTrack, onDiskSector,
-					     onDiskSide, onDiskSize);
+				byte onDiskTrack, onDiskSector, onDiskSide;
+				int  onDiskSize;
+				drive.write(sectorReg, dataBuffer,
+				            onDiskTrack, onDiskSector,
+				            onDiskSide, onDiskSize);
 				dataAvailable = onDiskSize;
 				if (onDiskTrack != trackReg) {
 					// TODO we should wait for 6 index holes
@@ -249,20 +285,18 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 			// the correct drive is not yet selected
 			PRT_DEBUG("WD2793: initWriteTrack()");
 			needInitWriteTrack = false;
-			drive->initWriteTrack();
+			drive.initWriteTrack();
 		}
-		//DRQ related timing
-		DRQ = false;
-		DRQTimer.advance(time);
+		setDRQ(false, time);
 		
 		//indexmark related timing
-		int pulses = drive->indexPulseCount(commandStart, time);
+		int pulses = drive.indexPulseCount(commandStart, time);
 		switch (pulses) {
 		case 0: // no index pulse yet
 			break;
 		case 1: // first index pulse passed
 			try {
-				drive->writeTrackData(value);
+				drive.writeTrackData(value);
 			} catch (MSXException& e) {
 				// ignore
 			}
@@ -329,8 +363,7 @@ byte WD2793::getDataReg(const EmuTime& time)
 		dataReg = dataBuffer[dataCurrent];
 		dataCurrent++;
 		dataAvailable--;
-		DRQ = false;
-		DRQTimer.advance(time);
+		setDRQ(false, time);
 		if (dataAvailable == 0) {
 			transferring = false;
 			if (!(commandReg & M_FLAG)) {
@@ -350,8 +383,10 @@ byte WD2793::getDataReg(const EmuTime& time)
 void WD2793::tryToReadSector()
 {
 	try {
-		drive->read(sectorReg, dataBuffer,
-		            onDiskTrack, onDiskSector, onDiskSide, onDiskSize);
+		byte onDiskTrack, onDiskSector, onDiskSide;
+		int  onDiskSize;
+		drive.read(sectorReg, dataBuffer,
+		           onDiskTrack, onDiskSector, onDiskSide, onDiskSize);
 		if (onDiskTrack != trackReg) {
 			// TODO we should wait for 6 index holes
 			statusReg |= RECORD_NOT_FOUND;
@@ -373,13 +408,19 @@ void WD2793::tryToReadSector()
 
 void WD2793::schedule(FSMState state, const EmuTime& time)
 {
-	Scheduler::instance().removeSyncPoint(this);
+	assert(!Scheduler::instance().pendingSyncPoint(this, SCHED_FSM));
 	fsmState = state;
-	Scheduler::instance().setSyncPoint(time, this);
+	Scheduler::instance().setSyncPoint(time, this, SCHED_FSM);
 }
 
-void WD2793::executeUntil(const EmuTime& time, int /*userData*/)
+void WD2793::executeUntil(const EmuTime& time, int userData)
 {
+	if (userData == SCHED_IDX_IRQ) {
+		INTRQ = true;
+		return;
+	}
+
+	assert(userData == SCHED_FSM);
 	FSMState state = fsmState;
 	fsmState = FSM_NONE;
 	switch (state) {
@@ -421,9 +462,6 @@ void WD2793::executeUntil(const EmuTime& time, int /*userData*/)
 				type3Loaded(time);
 			}
 			break;
-		case FSM_IDX_IRQ:
-			INTRQ = true;
-			break;
 		default:
 			assert(false);
 	}
@@ -439,9 +477,9 @@ void WD2793::startType1Cmd(const EmuTime& time)
 {
 	statusReg &= ~(SEEK_ERROR | CRC_ERROR);
 	statusReg |= BUSY;
-	DRQ = false;
+	setDRQ(false, time);
 
-	drive->setHeadLoaded(commandReg & H_FLAG, time);
+	drive.setHeadLoaded(commandReg & H_FLAG, time);
 
 	switch (commandReg & 0xF0) {
 		case 0x00: // restore
@@ -498,11 +536,11 @@ void WD2793::step(const EmuTime& time)
 			trackReg--;
 		}
 	}
-	if (!directionIn && drive->track00(time)) {
+	if (!directionIn && drive.track00(time)) {
 		trackReg = 0;
 		endType1Cmd();
 	} else {
-		drive->step(directionIn, time);
+		drive.step(directionIn, time);
 		Clock<1000> next(time);	// ms
 		next += timePerStep[commandReg & STEP_SPEED];
 		schedule(FSM_SEEK, next.getTime());
@@ -534,13 +572,13 @@ void WD2793::startType2Cmd(const EmuTime& time)
 	statusReg &= ~(LOST_DATA   | RECORD_NOT_FOUND |
 	               RECORD_TYPE | WRITE_PROTECTED);
 	statusReg |= BUSY;
-	DRQ = false;
+	setDRQ(false, time);
 
-	if (!drive->ready()) {
+	if (!drive.ready()) {
 		endCmd();
 	} else {
 		// WD2795/WD2797 would now set SSO output
-		drive->setHeadLoaded(true, time);
+		drive.setHeadLoaded(true, time);
 
 		if (commandReg & E_FLAG) {
 			Clock<1000> next(time);	// ms
@@ -562,13 +600,13 @@ void WD2793::type2WaitLoad(const EmuTime& time)
 
 void WD2793::type2Loaded(const EmuTime& time)
 {
-	if (((commandReg & 0xE0) == 0xA0) && (drive->writeProtected())) {
+	if (((commandReg & 0xE0) == 0xA0) && (drive.writeProtected())) {
 		// write command and write protected
 		PRT_DEBUG("WD2793: write protected");
 		statusReg |= WRITE_PROTECTED;
 		endCmd();
 	} else {
-		EmuTime next = drive->getTimeTillSector(sectorReg, time);
+		EmuTime next = drive.getTimeTillSector(sectorReg, time);
 		schedule(FSM_TYPE2_ROTATED, next);
 	}
 }
@@ -596,12 +634,13 @@ void WD2793::startType3Cmd(const EmuTime& time)
 	//PRT_DEBUG("WD2793 start type 3 command");
 	statusReg &= ~(LOST_DATA | RECORD_NOT_FOUND | RECORD_TYPE);
 	statusReg |= BUSY;
-	DRQ = false;
+	setDRQ(false, time);
+	commandStart = time; // done again later
 
-	if (!drive->ready()) {
+	if (!drive.ready()) {
 		endCmd();
 	} else {
-		drive->setHeadLoaded(true, time);
+		drive.setHeadLoaded(true, time);
 		// WD2795/WD2797 would now set SSO output
 
 		if (commandReg & E_FLAG) {
@@ -657,19 +696,17 @@ void WD2793::writeTrackCmd(const EmuTime& time)
 {
 	PRT_DEBUG("WD2793 command: write track");
 
-	if (drive->writeProtected()) {
+	if (drive.writeProtected()) {
 		// write track command and write protected
 		PRT_DEBUG("WD2793: write protected");
 		statusReg |= WRITE_PROTECTED;
 		endCmd();
 	} else {
-		DRQ = true;
-		
 		// TODO wait for indexPulse
 
 		needInitWriteTrack = true;
 		formatting = true;
-		DRQTimer.advance(time);
+		setDRQ(true, time);
 	}
 }
 
@@ -687,16 +724,17 @@ void WD2793::startType4Cmd(const EmuTime& time)
 	if (flags == 0x00) {
 		immediateIRQ = false;
 	}
-	if ((flags & IDX_IRQ) && drive->ready()) {
-		schedule(FSM_IDX_IRQ, drive->getTimeTillIndexPulse(time));
+	if ((flags & IDX_IRQ) && drive.ready()) {
+		Scheduler::instance().setSyncPoint(
+			drive.getTimeTillIndexPulse(time), this, SCHED_IDX_IRQ);
 	} else {
-		Scheduler::instance().removeSyncPoint(this);
+		Scheduler::instance().removeSyncPoint(this, SCHED_IDX_IRQ);
 	}
 	if (flags & IMM_IRQ) {
 		immediateIRQ = true;
 	}
 	
-	DRQ = false;
+	setDRQ(false, time);
 	statusReg &= ~BUSY;	// reset status on Busy
 }
 

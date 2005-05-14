@@ -13,7 +13,7 @@ class DiskDrive;
 class WD2793 : private Schedulable
 {
 public: 
-	WD2793(DiskDrive* drive, const EmuTime& time);
+	WD2793(DiskDrive& drive, const EmuTime& time);
 	virtual ~WD2793();
 
 	void reset(const EmuTime& time);
@@ -32,32 +32,6 @@ public:
 	bool getDTRQ(const EmuTime& time);
 
 private:
-	// Status register
-	static const int BUSY             = 0x01;
-	static const int INDEX            = 0x02;
-	static const int S_DRQ            = 0x02;
-	static const int TRACK00          = 0x04;
-	static const int LOST_DATA        = 0x04;
-	static const int CRC_ERROR        = 0x08;
-	static const int SEEK_ERROR       = 0x10;
-	static const int RECORD_NOT_FOUND = 0x10;
-	static const int HEAD_LOADED      = 0x20;
-	static const int RECORD_TYPE      = 0x20;
-	static const int WRITE_PROTECTED  = 0x40;
-	static const int NOT_READY        = 0x80;
-	
-	// Command register
-	static const int STEP_SPEED = 0x03;
-	static const int V_FLAG     = 0x04;
-	static const int E_FLAG     = 0x04;
-	static const int H_FLAG     = 0x08;
-	static const int T_FLAG     = 0x10;
-	static const int M_FLAG     = 0x10;
-	static const int N2R_IRQ    = 0x01;
-	static const int R2N_IRQ    = 0x02;
-	static const int IDX_IRQ    = 0x04;
-	static const int IMM_IRQ    = 0x08;
-	
 	enum FSMState {
 		FSM_NONE,
 		FSM_SEEK,
@@ -68,6 +42,7 @@ private:
 		FSM_TYPE3_LOADED,
 		FSM_IDX_IRQ,
 	} fsmState;
+
 	virtual void executeUntil(const EmuTime& time, int state);
 	virtual const std::string& schedName() const;
 
@@ -97,10 +72,11 @@ private:
 	void tryToReadSector();
 	inline void resetIRQ();
 	inline void setIRQ();
+	void setDRQ(bool drq, const EmuTime& time);
 
 	void schedule(FSMState state, const EmuTime& time);
 
-	DiskDrive* drive;
+	DiskDrive& drive;
 	
 	EmuTime commandStart;
 	Clock<1000000> DRQTimer;	// us
@@ -118,11 +94,6 @@ private:
 	bool transferring;
 	bool formatting;
 	bool needInitWriteTrack;
-
-	byte onDiskTrack;
-	byte onDiskSector;
-	byte onDiskSide;
-	int  onDiskSize;
 
 	byte dataBuffer[1024];	// max sector size possible
 	int dataCurrent;	// which byte in dataBuffer is next to be read/write

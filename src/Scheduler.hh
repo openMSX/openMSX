@@ -66,6 +66,11 @@ public:
 	void removeSyncPoint(Schedulable* device, int userdata = 0);
 
 	/**
+	 * Is there a pending syncPoint for this device?
+	 */
+	bool pendingSyncPoint(Schedulable* device, int userdata = 0);
+	
+	/**
 	 * Get the current scheduler time.
 	 */
 	const EmuTime& getCurrentTime() const;
