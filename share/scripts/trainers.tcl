@@ -1,19 +1,19 @@
-# Game Trainers version 1.0 
+# game trainers version 1.0 
 #
-# Credits:
-#   Copyright 2005 Albert Beevendorp all rights reserved
-#   Copyright 2005 Patrick van Arkel all rights reserved
+# credits:
+#   copyright 2005 albert beevendorp all rights reserved
+#   copyright 2005 patrick van arkel all rights reserved
 #
-# The definition of cheating according to google:
+# the definition of cheating according to google:
 #
 # - defeat someone in an expectation through trickery or deceit 
 # - deceiver: someone who leads you to believe something that is not true  
 # - a deception for profit to yourself 
 #
-# Although the definition of cheating is mostly negative 
-# this time I turned it into something fun.
+# although the definition of cheating is mostly negative 
+# this time i turned it into something fun.
 #
-# Please cheat responsible!
+# please cheat responsible!
 
 proc trainer_f1spirit {} { 
 	#always first place
@@ -339,7 +339,7 @@ proc trainer_gradius3 {} {
 	#activate double too (replace 3 for 2 for 'back fire')
 	poke 0xe631 3
 	#current stage
-	#!poke 0xe361 X
+	#!poke 0xe361 x
 	
 	after time 2 trainer_gradius3 
 }
@@ -406,6 +406,27 @@ proc trainer_craze {} {
 	poke 0xc054 20
 	poke 0xc059 20
 	after time 2 trainer_craze 
+}
+
+proc trainer_zombie_hunter {} { 
+	#exp
+	poke 0xc7e6 255
+	poke 0xc7e7 255
+	#life bar
+	poke 0xc7ea 255
+	poke 0xc7eb 255
+	#max level
+	poke 0xc7ee 31
+
+	after time 1 trainer_zombie_hunter 
+}
+
+proc trainer_xevious {} { 
+	#have all weapons and shield
+	poke 0xc005 255
+	#lives
+	poke 0xc502 99
+	after time 2 trainer_xevious 
 }
 
 proc trainer_parodius {} { 
@@ -1503,6 +1524,7 @@ proc trainer_eggerland2 {} {
 	poke 0xeb89 97
 	#timer in special stages
 	poke 0xec56 99
+
 	after time 2 trainer_eggerland2
 }
 
@@ -1629,6 +1651,20 @@ proc trainer_returnofjelda {} {
 	#damage
 	poke 0xc724 0
 	after time 1 trainer_returnofjelda
+}
+
+
+proc trainer_chukataisen {} {
+	#fire power
+	poke 0xa67f 7
+	#alternative firepower
+	poke 0xa681 11
+	#lives
+	poke 0xa685 99
+	#invincible
+	poke 0xa683 1
+	
+	after time 1 trainer_chukataisen
 }
 
 proc trainer_goemon {} {
@@ -1817,6 +1853,12 @@ proc trainer_eggerland1 {} {
 	poke 0xc811 0x99
 	#lives
 	poke 0xd0d0 0x99
+	#door is always open
+	poke 0xd1f2 0
+	#blocks collected
+	poke 0xd1f4 1
+	#time in special stages
+	poke 0xc81d 255
 after time 2 trainer_eggerland1
 }
 
@@ -1939,6 +1981,12 @@ proc trainer_terramex {} {
 	#unlimited lives
 	poke 0x5b94 25
 	after time 10 trainer_terramex
+}
+
+proc trainer_eindeloos {} {
+	#unlimited lives
+	poke 0x9c91 99
+	after time 10 trainer_eindeloos
 }
 
 proc trainer_mobileplanet {} {
