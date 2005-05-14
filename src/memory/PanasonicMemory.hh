@@ -19,6 +19,7 @@ public:
 
 	void registerRam(Ram& ram);
 	const byte* getRomBlock(unsigned block);
+	const byte* getRomRange(unsigned first, unsigned last);
 	byte* getRamBlock(unsigned block);
 	void setDRAM(bool dram);
 

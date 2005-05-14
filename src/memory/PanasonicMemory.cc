@@ -5,6 +5,7 @@
 #include "Ram.hh"
 #include "Rom.hh"
 #include "HardwareConfig.hh"
+#include "MSXException.hh"
 
 namespace openmsx {
 
@@ -53,6 +54,25 @@ const byte* PanasonicMemory::getRomBlock(unsigned block)
 		}
 		return &(*rom)[offset];
 	}
+}
+
+const byte* PanasonicMemory::getRomRange(unsigned first, unsigned last)
+{
+	if (last < first) {
+		throw FatalError("Error in config file: firstblock must "
+		                 "be smaller than lastblock");
+	}
+	unsigned start =  first     * 0x2000;
+	if (start >= rom->getSize()) {
+		throw FatalError("Error in config file: firstblock lies "
+		                 "outside of rom image.");
+	}
+	unsigned stop  = (last + 1) * 0x2000;
+	if (stop > rom->getSize()) {
+		throw FatalError("Error in config file: lastblock lies "
+		                 "outside of rom image.");
+	}
+	return &(*rom)[start];
 }
 
 byte* PanasonicMemory::getRamBlock(unsigned block)

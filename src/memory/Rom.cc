@@ -80,8 +80,7 @@ void Rom::init(const XMLElement& config)
 		int first = config.getChildDataAsInt("firstblock");
 		int last  = config.getChildDataAsInt("lastblock");
 		size = (last - first + 1) * 0x2000;
-		rom = PanasonicMemory::instance().getRomBlock(first);
-		assert(last >= first);
+		rom = PanasonicMemory::instance().getRomRange(first, last);
 		assert(rom);
 
 	} else {
