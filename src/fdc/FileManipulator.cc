@@ -118,12 +118,13 @@ string FileManipulator::execute(const vector<string>& tokens)
 	} else if ((tokens.size() != 4 && (tokens[1] == "import"
 	                                || tokens[1] == "savedsk"
 	                                || tokens[1] == "mkdir"
-	                                || tokens[1] == "chdir"
-	                                || tokens[1] == "usePartition"
 	                                || tokens[1] == "export"))
 	        || (tokens.size() != 3 && (tokens[1] == "dir"
-	                                || tokens[1] == "format"
-	                                || tokens[1] == "useFile"))
+	                                || tokens[1] == "format"))
+	        || ((tokens.size() < 3 || tokens.size() > 4) &&
+		  			(tokens[1] == "chdir"
+	                                || tokens[1] == "usePartition"))
+	        || (tokens.size() > 3 && tokens[1] == "useFile")
 	        || (tokens.size() <= 3 && (tokens[1] == "create"))) {
 		throw CommandException("Incorrect number of parameters");
 
@@ -141,18 +142,25 @@ string FileManipulator::execute(const vector<string>& tokens)
 
 	} else if (tokens[1] == "usePartition") {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
-		int i= StringOp::stringToInt(tokens[3]) ;
-		if (i==0 || i>31) {
-			result += "Invalid partition specification,"
-		    " using current default partition " + StringOp::toString(1 + settings.defaultPartition) ; 
+		if (tokens.size() == 3){
+			result += "Current default partition: "+StringOp::toString(1 + settings.defaultPartition);
 		} else {
-			result += "New default partion: " + StringOp::toString(i);
-			settings.defaultPartition = i - 1 ;
+			int i= StringOp::stringToInt(tokens[3]) ;
+			if (i==0 || i>31) {
+				result += "Invalid partition specification,"
+			    " using current default partition " + StringOp::toString(1 + settings.defaultPartition) ; 
+			} else {
+				result += "New default partion: " + StringOp::toString(i);
+				settings.defaultPartition = i - 1 ;
+			}
 		}
 	} else if (tokens[1] == "chdir") {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
-		chdir(settings, tokens[3], result);
-
+		if (tokens.size() == 3){
+			result += "Current directory: "+settings.workingDir[settings.partition];
+		} else {
+			chdir(settings, tokens[3], result);
+		}
 	} else if (tokens[1] == "mkdir") {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
 		mkdir(settings, tokens[3]);
@@ -161,7 +169,11 @@ string FileManipulator::execute(const vector<string>& tokens)
 		create(tokens);
 
 	} else if (tokens[1] == "useFile") {
-		usefile(tokens[2]);
+		if (tokens.size() == 3){
+			usefile(tokens[2]);
+		} else {
+			result += "Current file: "+fileInUse;
+		}
 
 	} else if (tokens[1] == "format") {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
@@ -344,8 +356,13 @@ void FileManipulator::savedsk(const DriveSettings& driveData,
 void FileManipulator::usefile(const string& filename)
 {
 	unregisterImageFile();
-	imageFile.reset(new FileDriveCombo(filename));
-	registerDrive(*imageFile.get(), IMAGE_FILE);
+	if (filename != "eject") {
+		fileInUse=filename;
+		imageFile.reset(new FileDriveCombo(filename));
+		registerDrive(*imageFile.get(), IMAGE_FILE);
+	} else {
+		fileInUse=std::string("");
+	}
 }
 
 void FileManipulator::create(const vector<string>& tokens)
@@ -410,7 +427,9 @@ void FileManipulator::format(DriveSettings& driveData)
 
 void FileManipulator::restoreCWD(MSXtar& workhorse, DriveSettings& driveData)
 {
-	if (!workhorse.usePartition(driveData.partition)) {
+	if (!workhorse.hasPartitionTable() ) {
+		workhorse.usePartition(0) ; //read the bootsector
+	} else if (!workhorse.usePartition(driveData.partition)) {
 		throw CommandException("Partition " + StringOp::toString(1+driveData.partition) +
 		          " doesn't exist on this device. Command aborted, please retry.");
 	}

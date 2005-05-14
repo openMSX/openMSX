@@ -16,7 +16,6 @@ class FileDriveCombo : public SectorAccessibleDisk, public DiskContainer
 {
 public:
 	FileDriveCombo(const std::string& filename);
-
 	// SectorAccessibleDisk
 	virtual void readLogicalSector(unsigned sector, byte* buf);
 	virtual void writeLogicalSector(unsigned sector, const byte* buf);

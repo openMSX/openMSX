@@ -1,5 +1,11 @@
 $Id$
 
+2005-05-14 David Heremans <david.heremans@gnu-linux.net>
+	* More FileManipulator stuff
+	  - get feedback on curretn situation from 'useFile', 'usePartition'
+	    and 'chdir' in the same was as our 'set <variable>' commands work
+	  - fixed small bug concerning non partitioned devices
+
 2005-05-11 David Heremans <david.heremans@gnu-linux.net>
 	* More FileManipulator help
 

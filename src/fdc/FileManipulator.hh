@@ -34,6 +34,7 @@ private:
 	};
 	typedef std::map<const std::string, DriveSettings> DiskImages;
 	DiskImages diskImages;
+	std::string fileInUse;
 
 	std::auto_ptr<FileDriveCombo> imageFile;
 
