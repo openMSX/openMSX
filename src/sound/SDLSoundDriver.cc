@@ -53,7 +53,7 @@ SDLSoundDriver::SDLSoundDriver(Mixer& mixer_,
 	reInit();
 	prevTime = Scheduler::instance().getCurrentTime();
 	EmuDuration interval2 = interval1 * audioSpec.samples;
-	Scheduler::instance().setSyncPoint(prevTime + interval2, this);
+	Scheduler::instance().setSyncPoint(prevTime + interval2, *this);
 	
 	speedSetting.addListener(this);
 	throttleSetting.addListener(this);
@@ -64,7 +64,7 @@ SDLSoundDriver::~SDLSoundDriver()
 	throttleSetting.removeListener(this);
 	speedSetting.removeListener(this);
 	
-	Scheduler::instance().removeSyncPoint(this);
+	Scheduler::instance().removeSyncPoint(*this);
 	
 	SDL_CloseAudio();
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
@@ -238,7 +238,7 @@ void SDLSoundDriver::executeUntil(const EmuTime& time, int /*userData*/)
 		updateStream(time);
 	}
 	EmuDuration interval2 = interval1 * audioSpec.samples;
-	Scheduler::instance().setSyncPoint(time + interval2, this);
+	Scheduler::instance().setSyncPoint(time + interval2, *this);
 }
 
 const string& SDLSoundDriver::schedName() const

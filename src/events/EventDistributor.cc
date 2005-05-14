@@ -121,7 +121,7 @@ void EventDistributor::distributeEvent(Event* event)
 		detachedListeners.equal_range(event->getType());
 	if (bounds2.first != bounds2.second) {
 		scheduledEvents.push_front(event);
-		Scheduler::instance().setSyncPoint(Scheduler::ASAP, this, DETACHED);
+		Scheduler::instance().setSyncPoint(Scheduler::ASAP, *this, DETACHED);
 		// TODO: We cannot deliver the event to an EMU listener as well,
 		//       because the object will be deleted after the DETACHED
 		//       listener gets it.
@@ -156,7 +156,7 @@ void EventDistributor::sync(const EmuTime& emuTime)
 			//PRT_DEBUG("input delay too short");
 			schedTime = emuTime;
 		}
-		Scheduler::instance().setSyncPoint(schedTime, this, EMU);
+		Scheduler::instance().setSyncPoint(schedTime, *this, EMU);
 	}
 	toBeScheduledEvents.clear();
 	

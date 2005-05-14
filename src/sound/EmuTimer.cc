@@ -45,13 +45,13 @@ void EmuTimer<freq, flag>::schedule(const EmuTime& time)
 {
 	Clock<freq> now(time);
 	now += count;
-	scheduler.setSyncPoint(now.getTime(), this);
+	scheduler.setSyncPoint(now.getTime(), *this);
 }
 
 template<int freq, byte flag>
 void EmuTimer<freq, flag>::unschedule()
 {
-	scheduler.removeSyncPoint(this);
+	scheduler.removeSyncPoint(*this);
 }
 
 template<int freq, byte flag>

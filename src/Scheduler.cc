@@ -32,27 +32,26 @@ Scheduler& Scheduler::instance()
 	return oneInstance;
 }
 
-void Scheduler::setSyncPoint(const EmuTime& time, Schedulable* device, int userData)
+void Scheduler::setSyncPoint(const EmuTime& time, Schedulable& device, int userData)
 {
 	//PRT_DEBUG("Sched: registering " << device->schedName() <<
 	//          " " << userData << " for emulation at " << time);
 
 	ScopedLock lock(sem);
-	assert(device);
 	assert(time == ASAP || time >= scheduleTime);
 
 	// Push sync point into queue.
-	syncPoints.push_back(SynchronizationPoint(time, device, userData));
+	syncPoints.push_back(SynchronizationPoint(time, &device, userData));
 	push_heap(syncPoints.begin(), syncPoints.end());
 }
 
-void Scheduler::removeSyncPoint(Schedulable* device, int userData)
+void Scheduler::removeSyncPoint(Schedulable& device, int userData)
 {
 	ScopedLock lock(sem);
 	for (SyncPoints::iterator it = syncPoints.begin();
 	     it != syncPoints.end(); ++it) {
 		SynchronizationPoint& sp = *it;
-		if ((sp.getDevice() == device) &&
+		if ((sp.getDevice() == &device) &&
 		    (sp.getUserData() == userData)) {
 			swap(sp, syncPoints.back());
 			syncPoints.pop_back();
@@ -62,12 +61,12 @@ void Scheduler::removeSyncPoint(Schedulable* device, int userData)
 	}
 }
 
-bool Scheduler::pendingSyncPoint(Schedulable* device, int userData)
+bool Scheduler::pendingSyncPoint(Schedulable& device, int userData)
 {
 	ScopedLock lock(sem);
 	for (SyncPoints::iterator it = syncPoints.begin();
 	     it != syncPoints.end(); ++it) {
-		if ((it->getDevice() == device) &&
+		if ((it->getDevice() == &device) &&
 		    (it->getUserData() == userData)) {
 			return true;
 		}

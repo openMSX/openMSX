@@ -39,7 +39,7 @@ void CliConnection::execute(const string& command)
 	lock.down();
 	cmds.push_back(command);
 	lock.up();
-	Scheduler::instance().setSyncPoint(Scheduler::ASAP, this);
+	Scheduler::instance().setSyncPoint(Scheduler::ASAP, *this);
 }
 
 static string reply(const string& message, bool status)

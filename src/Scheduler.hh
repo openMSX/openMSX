@@ -50,7 +50,7 @@ public:
 	 * if you want to distinguish between several syncPoint types.
 	 * If you do not supply "userData" it is assumed to be zero.
 	 */
-	void setSyncPoint(const EmuTime& timestamp, Schedulable* device,
+	void setSyncPoint(const EmuTime& timestamp, Schedulable& device,
 	                  int userData = 0);
 
 	/**
@@ -63,12 +63,12 @@ public:
 	 * if possible don't remove the syncPoint but ignore it in
 	 * your executeUntil() method.
 	 */
-	void removeSyncPoint(Schedulable* device, int userdata = 0);
+	void removeSyncPoint(Schedulable& device, int userdata = 0);
 
 	/**
 	 * Is there a pending syncPoint for this device?
 	 */
-	bool pendingSyncPoint(Schedulable* device, int userdata = 0);
+	bool pendingSyncPoint(Schedulable& device, int userdata = 0);
 	
 	/**
 	 * Get the current scheduler time.

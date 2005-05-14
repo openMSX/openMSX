@@ -119,11 +119,11 @@ void V9990::reset(const EmuTime& time)
 {
 	PRT_DEBUG("[" << time << "] V9990::reset");
 
-	Scheduler::instance().removeSyncPoint(this, V9990_VSYNC);
-	Scheduler::instance().removeSyncPoint(this, V9990_DISPLAY_START);
-	Scheduler::instance().removeSyncPoint(this, V9990_VSCAN);
-	Scheduler::instance().removeSyncPoint(this, V9990_HSCAN);
-	Scheduler::instance().removeSyncPoint(this, V9990_SET_MODE);
+	Scheduler::instance().removeSyncPoint(*this, V9990_VSYNC);
+	Scheduler::instance().removeSyncPoint(*this, V9990_DISPLAY_START);
+	Scheduler::instance().removeSyncPoint(*this, V9990_VSCAN);
+	Scheduler::instance().removeSyncPoint(*this, V9990_HSCAN);
+	Scheduler::instance().removeSyncPoint(*this, V9990_SET_MODE);
 
 	// Clear registers / ports
 	memset(regs, 0, sizeof(regs));
@@ -523,7 +523,7 @@ void V9990::syncAtNextLine(V9990SyncType type, const EmuTime& time)
 	int line = getUCTicksThisFrame(time) / V9990DisplayTiming::UC_TICKS_PER_LINE;
 	int ticks = (line + 1) * V9990DisplayTiming::UC_TICKS_PER_LINE;
 	EmuTime nextTime = frameStartTime + ticks;
-	Scheduler::instance().setSyncPoint(nextTime, this, type);
+	Scheduler::instance().setSyncPoint(nextTime, *this, type);
 }
 
 void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
@@ -641,19 +641,19 @@ void V9990::frameStart(const EmuTime& time)
 	// schedule next VSYNC
 	Scheduler::instance().setSyncPoint(
 		frameStartTime + V9990DisplayTiming::getUCTicksPerFrame(palTiming),
-		this, V9990_VSYNC);
+		*this, V9990_VSYNC);
 
 	// schedule DISPLAY_START
 	int topBorder = getVerticalTiming().blank + getVerticalTiming().border1;
 	Scheduler::instance().setSyncPoint(
 	        frameStartTime + topBorder * V9990DisplayTiming::UC_TICKS_PER_LINE,
-	        this, V9990_DISPLAY_START);
+	        *this, V9990_DISPLAY_START);
 	
 	// schedule VSCAN
 	int bottomBorder = topBorder + getVerticalTiming().display;
 	Scheduler::instance().setSyncPoint(
 	        frameStartTime + bottomBorder * V9990DisplayTiming::UC_TICKS_PER_LINE,
-	        this, V9990_VSCAN);
+	        *this, V9990_VSCAN);
 }
 
 void V9990::raiseIRQ(IRQType irqType)
@@ -777,7 +777,7 @@ void V9990::scheduleHscan(const EmuTime& time)
 {
 	// remove pending HSCAN, if any
 	if (hScanSyncTime > time) {
-		Scheduler::instance().removeSyncPoint(this, V9990_HSCAN);
+		Scheduler::instance().removeSyncPoint(*this, V9990_HSCAN);
 		hScanSyncTime = time;
 	}
 	
@@ -803,7 +803,7 @@ void V9990::scheduleHscan(const EmuTime& time)
 	}
 
 	hScanSyncTime = frameStartTime + offset;
-	Scheduler::instance().setSyncPoint(hScanSyncTime, this, V9990_HSCAN);
+	Scheduler::instance().setSyncPoint(hScanSyncTime, *this, V9990_HSCAN);
 }
 
 } // namespace openmsx

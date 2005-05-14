@@ -22,7 +22,7 @@ RS232Tester::RS232Tester()
 
 RS232Tester::~RS232Tester()
 {
-	Scheduler::instance().removeSyncPoint(this);
+	Scheduler::instance().removeSyncPoint(*this);
 }
 
 // Pluggable
@@ -91,7 +91,7 @@ void RS232Tester::run()
 		assert(getConnector());
 		lock.down();
 		queue.push_back(buf);
-		Scheduler::instance().setSyncPoint(Scheduler::ASAP, this);
+		Scheduler::instance().setSyncPoint(Scheduler::ASAP, *this);
 		lock.up();
 	}
 }

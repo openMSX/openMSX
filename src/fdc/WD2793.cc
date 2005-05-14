@@ -51,8 +51,8 @@ WD2793::~WD2793()
 void WD2793::reset(const EmuTime& time)
 {
 	//PRT_DEBUG("WD2793::reset()");
-	Scheduler::instance().removeSyncPoint(this, SCHED_FSM);
-	Scheduler::instance().removeSyncPoint(this, SCHED_IDX_IRQ);
+	Scheduler::instance().removeSyncPoint(*this, SCHED_FSM);
+	Scheduler::instance().removeSyncPoint(*this, SCHED_IDX_IRQ);
 	fsmState = FSM_NONE;
 
 	statusReg = 0;
@@ -132,7 +132,7 @@ void WD2793::setDRQ(bool drq, const EmuTime& time)
 void WD2793::setCommandReg(byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("WD2793::setCommandReg() 0x" << std::hex << (int)value);
-	Scheduler::instance().removeSyncPoint(this, SCHED_FSM);
+	Scheduler::instance().removeSyncPoint(*this, SCHED_FSM);
 
 	commandReg = value;
 	resetIRQ();
@@ -408,9 +408,9 @@ void WD2793::tryToReadSector()
 
 void WD2793::schedule(FSMState state, const EmuTime& time)
 {
-	assert(!Scheduler::instance().pendingSyncPoint(this, SCHED_FSM));
+	assert(!Scheduler::instance().pendingSyncPoint(*this, SCHED_FSM));
 	fsmState = state;
-	Scheduler::instance().setSyncPoint(time, this, SCHED_FSM);
+	Scheduler::instance().setSyncPoint(time, *this, SCHED_FSM);
 }
 
 void WD2793::executeUntil(const EmuTime& time, int userData)
@@ -726,9 +726,9 @@ void WD2793::startType4Cmd(const EmuTime& time)
 	}
 	if ((flags & IDX_IRQ) && drive.ready()) {
 		Scheduler::instance().setSyncPoint(
-			drive.getTimeTillIndexPulse(time), this, SCHED_IDX_IRQ);
+			drive.getTimeTillIndexPulse(time), *this, SCHED_IDX_IRQ);
 	} else {
-		Scheduler::instance().removeSyncPoint(this, SCHED_IDX_IRQ);
+		Scheduler::instance().removeSyncPoint(*this, SCHED_IDX_IRQ);
 	}
 	if (flags & IMM_IRQ) {
 		immediateIRQ = true;

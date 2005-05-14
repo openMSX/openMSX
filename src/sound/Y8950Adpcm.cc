@@ -73,6 +73,7 @@ Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, const string& name_, int sampleRam)
 
 Y8950Adpcm::~Y8950Adpcm()
 {
+	Scheduler::instance().removeSyncPoint(*this);
 	Debugger::instance().unregisterDebuggable(name, *this);
 	delete[] ramBank;
 }
@@ -126,7 +127,7 @@ void Y8950Adpcm::schedule(const EmuTime &time)
 		uint64 samples = stopAddr - playAddr + 1;
 		Clock<Y8950::CLK_FREQ> stop(time);
 		stop += (samples * (72 << 16) / delta);
-		Scheduler::instance().setSyncPoint(stop.getTime(), this);
+		Scheduler::instance().setSyncPoint(stop.getTime(), *this);
 	}
 }
 
@@ -162,7 +163,7 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			if (playing) {
 				schedule(time);
 			} else {
-				Scheduler::instance().removeSyncPoint(this);
+				Scheduler::instance().removeSyncPoint(*this);
 			}
 			break;
 

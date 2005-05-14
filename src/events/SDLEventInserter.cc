@@ -10,7 +10,7 @@ namespace openmsx {
 SDLEventInserter::SDLEventInserter(SDL_Event& evnt, const EmuTime& time)
 {
 	event = evnt;
-	Scheduler::instance().setSyncPoint(time, this);
+	Scheduler::instance().setSyncPoint(time, *this);
 }
 
 SDLEventInserter::~SDLEventInserter()

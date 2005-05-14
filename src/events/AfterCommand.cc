@@ -276,7 +276,7 @@ AfterCommand::AfterTimedCmd::AfterTimedCmd(const string& command, double time_)
 
 AfterCommand::AfterTimedCmd::~AfterTimedCmd()
 {
-	Scheduler::instance().removeSyncPoint(this);
+	Scheduler::instance().removeSyncPoint(*this);
 }
 
 double AfterCommand::AfterTimedCmd::getTime() const
@@ -286,9 +286,9 @@ double AfterCommand::AfterTimedCmd::getTime() const
 
 void AfterCommand::AfterTimedCmd::reschedule()
 {
-	Scheduler::instance().removeSyncPoint(this);
+	Scheduler::instance().removeSyncPoint(*this);
 	EmuTime t = Scheduler::instance().getCurrentTime() + EmuDuration(time);
-	Scheduler::instance().setSyncPoint(t, this);
+	Scheduler::instance().setSyncPoint(t, *this);
 }
 
 void AfterCommand::AfterTimedCmd::executeUntil(const EmuTime& /*time*/,

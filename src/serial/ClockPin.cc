@@ -128,13 +128,13 @@ void ClockPin::generateEdgeSignals(bool wanted, const EmuTime& time)
 
 void ClockPin::unschedule()
 {
-	scheduler.removeSyncPoint(this);
+	scheduler.removeSyncPoint(*this);
 }
 
 void ClockPin::schedule(const EmuTime& time)
 {
 	assert(signalEdge && periodic && listener);
-	scheduler.setSyncPoint(time, this);
+	scheduler.setSyncPoint(time, *this);
 }
 
 void ClockPin::executeUntil(const EmuTime& time, int /*userdata*/)

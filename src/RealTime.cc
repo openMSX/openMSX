@@ -32,14 +32,14 @@ RealTime::RealTime()
 	pauseSetting.addListener(this);
 	powerSetting.addListener(this);
 	
-	scheduler.setSyncPoint(Scheduler::ASAP, this);
+	scheduler.setSyncPoint(Scheduler::ASAP, *this);
 
 	resync();
 }
 
 RealTime::~RealTime()
 {
-	scheduler.removeSyncPoint(this);
+	scheduler.removeSyncPoint(*this);
 
 	powerSetting.removeListener(this);
 	pauseSetting.removeListener(this);
@@ -74,12 +74,12 @@ bool RealTime::timeLeft(unsigned long long us, const EmuTime& time)
 void RealTime::sync(const EmuTime& time, bool allowSleep)
 {
 	if (allowSleep) {
-		scheduler.removeSyncPoint(this);
+		scheduler.removeSyncPoint(*this);
 	}
 	internalSync(time, allowSleep);
 	if (allowSleep) {
 		scheduler.setSyncPoint(time + getEmuDuration(SYNC_INTERVAL),
-		                       this);
+		                       *this);
 	}
 }
 
@@ -120,7 +120,7 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 void RealTime::executeUntil(const EmuTime& time, int /*userData*/)
 {
 	internalSync(time, true);
-	scheduler.setSyncPoint(time + getEmuDuration(SYNC_INTERVAL), this);
+	scheduler.setSyncPoint(time + getEmuDuration(SYNC_INTERVAL), *this);
 }
 
 const string& RealTime::schedName() const
@@ -138,8 +138,8 @@ void RealTime::resync()
 {
 	idealRealTime = Timer::getTime();
 	sleepAdjust = 0.0;
-	scheduler.removeSyncPoint(this);
-	scheduler.setSyncPoint(Scheduler::ASAP, this);
+	scheduler.removeSyncPoint(*this);
+	scheduler.setSyncPoint(Scheduler::ASAP, *this);
 }
 
 } // namespace openmsx

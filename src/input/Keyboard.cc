@@ -368,7 +368,7 @@ void Keyboard::KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
 void Keyboard::KeyInserter::reschedule(const EmuTime& time)
 {
 	Clock<15> nextTime(time);
-	Scheduler::instance().setSyncPoint(nextTime + 1, this);
+	Scheduler::instance().setSyncPoint(nextTime + 1, *this);
 }
 
 const string& Keyboard::KeyInserter::schedName() const
