@@ -130,7 +130,7 @@ DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
 	reInit();
 	prevTime = Scheduler::instance().getCurrentTime();
 	EmuDuration interval2 = interval1 * fragmentSize;
-	Scheduler::instance().setSyncPoint(prevTime + interval2, this);
+	Scheduler::instance().setSyncPoint(prevTime + interval2, *this);
 
 	speedSetting.addListener(this);
 	throttleSetting.addListener(this);
@@ -141,7 +141,7 @@ DirectXSoundDriver::~DirectXSoundDriver()
 	throttleSetting.removeListener(this);
 	speedSetting.removeListener(this);
 
-	Scheduler::instance().removeSyncPoint(this);
+	Scheduler::instance().removeSyncPoint(*this);
 	delete[] mixBuffer;
 
 	IDirectSoundBuffer_Stop(primaryBuffer);
@@ -308,7 +308,7 @@ void DirectXSoundDriver::executeUntil(const EmuTime& time, int /*userData*/)
 		updateStream(time);
 	}
 	EmuDuration interval2 = interval1 * fragmentSize;
-	Scheduler::instance().setSyncPoint(time + interval2, this);
+	Scheduler::instance().setSyncPoint(time + interval2, *this);
 }
 
 const string& DirectXSoundDriver::schedName() const
