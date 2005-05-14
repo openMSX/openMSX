@@ -38,6 +38,7 @@ void CliConnection::execute(const string& command)
 {
 	ScopedLock l(lock);
 	cmds.push_back(command);
+	Scheduler::instance().setSyncPoint(Scheduler::ASAP, *this);
 }
 
 static string reply(const string& message, bool status)
