@@ -169,10 +169,10 @@ string FileManipulator::execute(const vector<string>& tokens)
 		create(tokens);
 
 	} else if (tokens[1] == "useFile") {
-		if (tokens.size() == 3){
+		if (tokens.size() == 3) {
 			usefile(tokens[2]);
 		} else {
-			result += "Current file: "+fileInUse;
+			result += "Current file: " + fileInUse;
 		}
 
 	} else if (tokens[1] == "format") {
@@ -360,12 +360,15 @@ void FileManipulator::savedsk(const DriveSettings& driveData,
 void FileManipulator::usefile(const string& filename)
 {
 	unregisterImageFile();
-	if (filename != "eject") {
-		fileInUse=filename;
+	if (filename == "eject") {
+		fileInUse.clear();
+	} else {
+		if (!FileOperations::isRegularFile(filename)) {
+			throw CommandException("Not such file: " + filename);
+		}
+		fileInUse = filename;
 		imageFile.reset(new FileDriveCombo(filename));
 		registerDrive(*imageFile.get(), IMAGE_FILE);
-	} else {
-		fileInUse=std::string("");
 	}
 }
 
