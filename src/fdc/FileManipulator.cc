@@ -313,11 +313,15 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 			// if it has partitions then we also add the partition numbers to the autocompletion
 			SectorAccessibleDisk* sectorDisk = it->second.drive->getDisk();
 			if (sectorDisk != NULL) {
-				MSXtar workhorse(*sectorDisk);
-				for (int i = 0; i < 31; ++i) {
-					if (workhorse.hasPartition(i)) {
-						names.insert(it->first + StringOp::toString(i + 1));
+				try {
+					MSXtar workhorse(*sectorDisk);
+					for (int i = 0; i < 31; ++i) {
+						if (workhorse.hasPartition(i)) {
+							names.insert(it->first + StringOp::toString(i + 1));
+						}
 					}
+				} catch (MSXException& e) {
+					// ignore
 				}
 			}
 		}
