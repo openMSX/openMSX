@@ -166,7 +166,6 @@ RealDrive::RealDrive(const EmuTime& time)
 		if (!drivesInUse[i]) {
 			name = string("disk") + static_cast<char>('a' + i);
 			drivesInUse[i] = true;
-			FileManipulator::instance().registerDrive(*this, name);
 			break;
 		}
 	}
@@ -207,6 +206,9 @@ RealDrive::RealDrive(const EmuTime& time)
 	if (CommandController::instance().hasCommand(name)) {
 		throw FatalError("Duplicated drive name: " + name);
 	}
+
+	// only register when everything went ok (no exceptions)
+	FileManipulator::instance().registerDrive(*this, name);
 	CommandController::instance().registerCommand(this, name);
 }
 
