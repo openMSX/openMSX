@@ -1038,7 +1038,7 @@ proc trainer_monmonmonster {} {
 	after time 2 trainer_monmonmonster
 }
 
-proc trainer_galious {} {
+proc trainer_maze_of_galious {} {
 	#arrows 
 	poke 0xe046 0x99
 	poke 0xe047 0x9
@@ -1174,7 +1174,7 @@ proc trainer_galious {} {
 	poke 0xe518 1
 	#big enemy dies after 1 hit
 	poke 0xe710 1
-	after time 1 trainer_galious
+	after time 1 trainer_maze_of_galious
 }
 
 proc trainer_vampirekiller {} {
@@ -1199,10 +1199,18 @@ proc trainer_vampirekiller {} {
 	after time 2 trainer_vampirekiller
 }
 
-proc trainer_superlaydockmissionstriker {} {
-	#power
-	poke 58099 255
-	after time 2 trainer_superlaydockmissionstriker
+proc trainer_superlaydock_mission_striker {} {
+	#power player 1
+	poke 0xe2f3 255
+	#power player 2
+	#!poke 0xe2fb 255
+	#all weapons player 1
+	poke 0xe480 255
+	#all weapons player 2
+	poke 0xe481 255
+	#docking
+	#!poke 0xe37c 200
+	after time 2 trainer_superlaydock_mission_striker
 }
 
 
@@ -1210,6 +1218,13 @@ proc trainer_superlaydock2  {} {
 	#power
 	poke 0x6817 255
 	after time 2 trainer_superlaydock2
+}
+
+proc trainer_americantruck  {} {
+	#disable collisions
+	poke 0xf29a 255
+	poke 0xf2a7 0
+	after frame trainer_americantruck
 }
 
 proc trainer_guardic {} {
@@ -1220,10 +1235,10 @@ proc trainer_guardic {} {
 	after time 60 trainer_guardic
 }
 
-proc trainer_superlaydocmsx2 {} {
+proc trainer_superlaydockmsx2 {} {
 	#power 
 	poke 0xa168 100
-	after time 2 trainer_superlaydocmsx2
+	after time 2 trainer_superlaydockmsx2
 }
 
 proc trainer_spacemanbow {} {
@@ -1443,7 +1458,18 @@ after time 2 trainer_arsenelupin3
 proc trainer_arsenelupin3_missle {} {
 	poke 0xe1ca 1
 }
-	
+
+
+proc trainer_superrunner {} {
+	#invincible
+	poke 0xccce 1
+	poke 0xcccf 255
+	#time
+	poke 0xcf23 59
+after time 5 trainer_superrunner
+
+}
+
 proc trainer_dragonslayer4 {} {
 	# life
 	poke 0xc067 109
@@ -1524,6 +1550,8 @@ proc trainer_eggerland2 {} {
 	poke 0xeb89 97
 	#timer in special stages
 	poke 0xec56 99
+	#containers left
+	poke 0xeb88 0
 
 	after time 2 trainer_eggerland2
 }
@@ -1590,7 +1618,9 @@ proc trainer_nyancleracing {} {
 	#damage
 	poke 0xd217 0
 	poke 0xd21e 0
-	after time 2 trainer_nyancleracing
+	#invincible
+	poke 0xd73e 255
+	after time 1 trainer_nyancleracing
 }
 
 proc trainer_kingsvalley2 {} {
@@ -2567,6 +2597,24 @@ proc trainer_gyrodine {} {
 	after time 30 trainer_gyrodine
 }
 
+proc trainer_superboyiii {} {
+	#grow big
+	poke 0xe190 255
+	#invincible
+	#!poke 0xe177 255
+	#time
+	poke 0xe18c 25
+	after time 1 trainer_superboyiii
+}
+
+proc trainer_zaxxon {} {
+	#fuel
+	poke 0xe176 16
+	#lives
+	poke 0xe00b 6
+	after time 2 trainer_zaxxon
+}
+
 proc trainer_carfighter {} {
 	#lives
 	poke 0xe080 9
@@ -2574,6 +2622,100 @@ proc trainer_carfighter {} {
 	poke 0xe082 9
 	after time 30 trainer_carfighter
 }
+
+proc trainer_aramo {} {
+	#exp
+	poke 0xc01c 255
+	#power
+	poke 0xc02b 255
+	#get jump boots and equip
+	#!poke 0xc05b 255
+	#!poke 0xc078 255
+	after time 5 trainer_aramo
+}
+
+proc trainer_hypersports3 {} {
+	#freeze time
+	poke 0xe0d0 0
+	#top speed cycling
+	poke 0xe0ad 255
+	#top speed long jump
+	poke 0xe121 255
+	after frame trainer_hypersports3
+}
+
+proc trainer_hydlide1 {} {
+	#level up after killing one enemy
+	poke 0xe004 100
+	#power
+	poke 0xe002 100
+	after time 1 trainer_hydlide1
+}
+
+proc trainer_decathlon {} {
+	#top speed
+	poke 0xe190 255
+	after frame trainer_decathlon
+}
+
+proc trainer_kingsknight {} {
+	#top speed
+	poke 0xef44 255
+	after frame trainer_kingsknight
+}
+
+proc trainer_scarlet7 {} {
+	#damage
+	poke 0xe106 11
+	after time 1 trainer_scarlet7
+}
+
+
+proc trainer_hydlide3 {} { 
+	#current power
+	poke 0xd01a 255
+	#max life
+	poke 0xd018 255
+	poke 0xd020 255
+	#magic points
+	poke 0xd022 255
+	poke 0xd023 255
+	poke 0xd024 255
+	poke 0xd025 255
+	#charm
+	poke 0xd036 255
+	#exp
+	poke 0xd039 255
+	poke 0xd03a 255
+	poke 0xd03b 255
+	#attack points
+	poke 0xd029 255
+	poke 0xd02a 255
+	#armor class
+	poke 0xd02b 255
+	poke 0xd02c 255
+	#agility
+	poke 0xd02d 255
+	poke 0xd02e 255
+	#intelligence 
+	poke 0xd032 255
+	#dexterity
+	poke 0xd030 255
+	#luck
+	poke 0xd034 255
+	#mindforce
+	poke 0xd038 255
+	#gold
+	#!poke 0xd087 255
+	#!poke 0xd088 255
+	#!poke 0xd089 255
+	#unknown
+	poke 0xd019 255
+	poke 0xd01b 255
+	poke 0xd03d 255
+	poke 0xd0a9 255
+	after time 2 trainer_hydlide3 
+} 
 
 proc poke {addr val} {
 	debug write memory $addr $val
