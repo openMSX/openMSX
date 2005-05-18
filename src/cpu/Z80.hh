@@ -38,6 +38,7 @@ protected:
 	inline void PUSH_DELAY()     { clock += 1; }
 	inline void INC_DELAY()      { clock += 1; }
 	inline void SMALL_DELAY()    { clock += 1; }  // TODO more detailed?
+	inline void DI_DELAY()       { }
 	inline int haltStates() { return 4 + WAIT_CYCLES; } // HALT + M1
 
 	inline void PRE_RDMEM_OPCODE(word /*address*/)

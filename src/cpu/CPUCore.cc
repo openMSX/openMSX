@@ -2679,6 +2679,7 @@ template <class T> void CPUCore<T>::exx()
 
 template <class T> void CPUCore<T>::di()
 {
+	T::DI_DELAY();
 	R.IFF1 = R.nextIFF1 = R.IFF2 = false;
 }
 template <class T> void CPUCore<T>::ei()

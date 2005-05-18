@@ -1,5 +1,9 @@
 $Id$
 
+2005-05-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* R800 timing fix:
+	   di instruction takes 2 cycles (ei takes just 1)
+
 2005-05-16 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added Sony HB-F700D config. Interesting characteristics are:
 	  256kB RAM, German ROMs (nice for German users), broken_fdc_read=true
