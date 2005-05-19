@@ -731,36 +731,32 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 {
 	//get emtpy dir entry
 	int dirindex = 0;
-	while ((dirindex < 112) && !mapdir[dirindex].filename.empty()) {
-	     dirindex++;
+	while (!mapdir[dirindex].filename.empty()) {
+		if (++dirindex == 112) {
+			CliComm::instance().printWarning(
+				"Couldn't add " + fullfilename +
+				": root dir full");
+			return;
+		}
 	}
-	PRT_DEBUG("Adding on dirindex " << dirindex);
-	if (dirindex == 112) {
-		CliComm::instance().printWarning(
-			"Couldn't add " + fullfilename + ": root dir full");
-		return;
-	}
-
-	// fill in native file name
-	mapdir[dirindex].filename = fullfilename;
 
 	// create correct MSX filename
 	string MSXfilename = makeSimpleMSXFileName(fullfilename);
-	PRT_DEBUG("Using MSX filename " << MSXfilename );
+	PRT_DEBUG("Using MSX filename " << MSXfilename);
 	if (checkMSXFileExists(MSXfilename)) {
 		//TODO: actually should increase vfat abrev if possible!!
 		CliComm::instance().printWarning(
-			"Couldn't add " + fullfilename + ": MSX name "
-		         + MSXfilename + " existed already");
+			"Couldn't add " + fullfilename + ": MSX name " +
+			MSXfilename + " existed already");
 		return;
 	}
 	
+	// fill in native file name
+	mapdir[dirindex].filename = fullfilename;
 	// fill in MSX file name
 	memcpy(&(mapdir[dirindex].msxinfo.filename), MSXfilename.c_str(), 11);
 	// Here actually call to updateFileInDisk!!!!
 	updateFileInDisk(dirindex);
-	return;
 }
-
 
 } // namespace openmsx
