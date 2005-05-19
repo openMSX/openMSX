@@ -2415,12 +2415,14 @@ template <class T> void CPUCore<T>::ret_z()  { T::SMALL_DELAY(); if (Z())  RET()
 template <class T> void CPUCore<T>::reti()
 {
 	// same as retn
+	T::RETN_DELAY();
 	R.IFF1 = R.nextIFF1 = R.IFF2;
 	slowInstructions = 2;
 	RET();
 }
 template <class T> void CPUCore<T>::retn()
 {
+	T::RETN_DELAY();
 	R.IFF1 = R.nextIFF1 = R.IFF2;
 	slowInstructions = 2;
 	RET(); 
