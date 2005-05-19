@@ -43,7 +43,7 @@ protected:
 		, lastPage(-1)
 	{
 	}
-	
+
 	inline void PRE_RDMEM_OPCODE(word address)
 	{
 		int newPage = address >> 8;
@@ -53,16 +53,19 @@ protected:
 		}
 	}
 
-	inline void PRE_RDMEM(word /*address*/)
+	inline void PRE_RDMEM(word address)
 	{
-		clock += 1;
-		lastPage = -1;
+		int newPage = (address >> 8) + 256;
+		if (newPage != lastPage) {
+			lastPage = newPage;
+			clock += 1;
+		}
 	}
 
 	inline void PRE_WRMEM(word /*address*/)
 	{
-		clock += 1;
 		lastPage = -1;
+		clock += 1;
 	}
 
 	inline void R800Refresh()

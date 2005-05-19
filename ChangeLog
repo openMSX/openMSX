@@ -2,8 +2,12 @@ $Id$
 
 2005-05-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* R800 timing fix:
-	   retn reti instructions takes 5 cycles (2 more than a simple 'ret',
-	   that's unexepcted if you look at the Z80 timings)
+	   - retn reti instructions takes 5 cycles (2 more than a simple 'ret',
+	     that's unexepcted if you look at the Z80 timings)
+	   - tweaked CAS/RAS optimization a bit, also optimize data fetches,
+	     but still don't optimize between opcode and data fetched
+	     I have no idea whether it really works like this, but the test
+	     results are better now
 
 2005-05-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* R800 timing fix:
