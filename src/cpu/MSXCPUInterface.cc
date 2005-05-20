@@ -256,18 +256,20 @@ void MSXCPUInterface::unregisterMemDevice(MSXDevice& device,
 
 void MSXCPUInterface::updateVisible(int page)
 {
-	MSXDevice *newDevice = slotLayout [primarySlotState[page]]
-	                                     [secondarySlotState[page]]
-	                                     [page];
+	MSXDevice* newDevice = slotLayout[primarySlotState[page]]
+	                                 [secondarySlotState[page]]
+	                                 [page];
 	if (visibleDevices[page] != newDevice) {
 		visibleDevices[page] = newDevice;
-		// Different device, so cache is no longer valid.
-		msxcpu.invalidateMemCache(page * 0x4000, 0x4000);
+		msxcpu.updateVisiblePage(page, primarySlotState[page],
+		                               secondarySlotState[page]);
 	}
-	/*PRT_DEBUG(" page: " << (int)page <<
+	/*
+	PRT_DEBUG(" page: " << (int)page <<
 	          " ps: " << (int)primarySlotState[page] <<
 	          " ss: " << (int)secondarySlotState[page] <<
-	          " device: " << newDevice->getName());*/
+	          " device: " << newDevice->getName());
+	*/
 }
 
 void MSXCPUInterface::reset()

@@ -1,5 +1,11 @@
 $Id$
 
+2005-05-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* fixed R800 memory access timing:
+	   - accessing internal RAM (or some ROMs in DRAM mode) takes 1 cycle
+	   - accessing internal ROM takes 2 cycles
+	   - accessing external slot takes 3 cycles
+
 2005-05-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* R800 timing fix:
 	   - retn reti instructions takes 5 cycles (2 more than a simple 'ret',

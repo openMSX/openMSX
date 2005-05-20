@@ -80,7 +80,9 @@ void MSXS1990::setCPUStatus(byte value)
 	cpuStatus = value & 0x60;
 	MSXCPU::instance().setActiveCPU((cpuStatus & 0x20) ? MSXCPU::CPU_Z80 :
 	                                                     MSXCPU::CPU_R800);
-	PanasonicMemory::instance().setDRAM((cpuStatus & 0x40) ? false : true);
+	bool dram = (cpuStatus & 0x40) ? false : true;
+	MSXCPU::instance().setDRAMmode(dram);
+	PanasonicMemory::instance().setDRAM(dram);
 	// TODO bit 7 -> reset MSX ?????
 }
 

@@ -268,20 +268,20 @@ template <class T> void CPUCore<T>::setFreq(unsigned freq_)
 template <class T> inline byte CPUCore<T>::READ_PORT(word port)
 {
 	memptr = port + 1;
-	T::clock += T::IO_DELAY1;
+	T::PRE_IO(port);
 	scheduler.schedule(T::clock.getTime());
 	byte result = interface->readIO(port, T::clock.getTime());
-	T::clock += T::IO_DELAY2;
+	T::POST_IO(port);
 	return result;
 }
 
 template <class T> inline void CPUCore<T>::WRITE_PORT(word port, byte value)
 {
 	memptr = port + 1;
-	T::clock += T::IO_DELAY1;
+	T::PRE_IO(port);
 	scheduler.schedule(T::clock.getTime());
 	interface->writeIO(port, value, T::clock.getTime());
-	T::clock += T::IO_DELAY2;
+	T::POST_IO(port);
 }
 
 template <class T> inline byte CPUCore<T>::RDMEM_common(word address)
@@ -289,9 +289,8 @@ template <class T> inline byte CPUCore<T>::RDMEM_common(word address)
 	int line = address >> CACHE_LINE_BITS;
 	if (readCacheLine[line] != NULL) {
 		// cached, fast path
-		T::clock += (T::MEM_DELAY1 + T::MEM_DELAY2);
-		byte result = readCacheLine[line][address&CACHE_LINE_LOW];
-		return result;
+		T::POST_MEM(address);
+		return readCacheLine[line][address&CACHE_LINE_LOW];
 	} else {
 		return RDMEMslow(address);	// not inlined
 	}
@@ -306,16 +305,14 @@ template <class T> byte CPUCore<T>::RDMEMslow(word address)
 		readCacheLine[line] = interface->getReadCacheLine(address&CACHE_LINE_HIGH);
 		if (readCacheLine[line] != NULL) {
 			// cached ok
-			T::clock += (T::MEM_DELAY1 + T::MEM_DELAY2);
-			byte result = readCacheLine[line][address&CACHE_LINE_LOW];
-			return result;
+			T::POST_MEM(address);
+			return readCacheLine[line][address&CACHE_LINE_LOW];
 		}
 	}
 	// uncacheable
-	T::clock += T::MEM_DELAY1;
 	scheduler.schedule(T::clock.getTime());
 	byte result = interface->readMem(address, T::clock.getTime());
-	T::clock += T::MEM_DELAY2;
+	T::POST_MEM(address);
 	return result;
 }
 
@@ -324,11 +321,11 @@ template <class T> inline void CPUCore<T>::WRMEM_common(word address, byte value
 	int line = address >> CACHE_LINE_BITS;
 	if (writeCacheLine[line] != NULL) {
 		// cached, fast path
-		T::clock += (T::MEM_DELAY1 + T::MEM_DELAY2);
+		T::POST_MEM(address);
 		writeCacheLine[line][address&CACHE_LINE_LOW] = value;
-		return;
+	} else {
+		WRMEMslow(address, value);	// not inlined
 	}
-	WRMEMslow(address, value);	// not inlined
 }
 template <class T> void CPUCore<T>::WRMEMslow(word address, byte value)
 {
@@ -341,16 +338,15 @@ template <class T> void CPUCore<T>::WRMEMslow(word address, byte value)
 			interface->getWriteCacheLine(address&CACHE_LINE_HIGH);
 		if (writeCacheLine[line] != NULL) {
 			// cached ok
-			T::clock += (T::MEM_DELAY1 + T::MEM_DELAY2);
+			T::POST_MEM(address);
 			writeCacheLine[line][address&CACHE_LINE_LOW] = value;
 			return;
 		}
 	}
 	// uncacheable
-	T::clock += T::MEM_DELAY1;
 	scheduler.schedule(T::clock.getTime());
 	interface->writeMem(address, value, T::clock.getTime());
-	T::clock += T::MEM_DELAY2;
+	T::POST_MEM(address);
 }
 
 template <class T> inline byte CPUCore<T>::RDMEM_OPCODE(word address)

@@ -95,6 +95,11 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 	}
 }
 
+void MSXCPU::setDRAMmode(bool dram)
+{
+	r800->setDRAMmode(dram);
+}
+
 void MSXCPU::execute()
 {
 	activeCPU->execute();
@@ -111,6 +116,12 @@ const EmuTime& MSXCPU::getCurrentTime() const
 	return activeCPU->getCurrentTime();
 }
 
+
+void MSXCPU::updateVisiblePage(byte page, byte primarySlot, byte secondarySlot)
+{
+	invalidateMemCache(page * 0x4000, 0x4000);
+	r800->updateVisiblePage(page, primarySlot, secondarySlot);
+}
 
 void MSXCPU::invalidateMemCache(word start, unsigned size)
 {

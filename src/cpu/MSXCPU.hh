@@ -34,6 +34,17 @@ public:
 	 * Switch between Z80 / R800
 	 */
 	void setActiveCPU(CPUType cpu);
+
+	/**
+	 * Sets DRAM or ROM mode (influences memory access speed for R800)
+	 */
+	void setDRAMmode(bool dram);
+	
+	/**
+	 * Inform CPU of bank switch. This will invalidate memory cache and
+	 * update memory timings on R800.
+	 */
+	void updateVisiblePage(byte page, byte primarySlot, byte secondarySlot);
 	
 	/**
 	 * Invalidate the CPU its cache for the interval [start, start + size)

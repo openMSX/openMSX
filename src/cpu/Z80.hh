@@ -11,10 +11,6 @@ class Z80TYPE
 {
 protected:
 	static const int CLOCK_FREQ = 3579545;
-	static const int IO_DELAY1 = 1;
-	static const int IO_DELAY2 = 3;
-	static const int MEM_DELAY1 = 1;
-	static const int MEM_DELAY2 = 2;
 	static const int WAIT_CYCLES = 1;
 
 	Z80TYPE(const EmuTime& /*time*/)
@@ -42,20 +38,13 @@ protected:
 	inline void RETN_DELAY()     { }
 	inline int haltStates() { return 4 + WAIT_CYCLES; } // HALT + M1
 
-	inline void PRE_RDMEM_OPCODE(word /*address*/)
-	{
-		// nothing
-	}
+	inline void PRE_RDMEM_OPCODE(word /*address*/) { clock += 1; }
+	inline void PRE_RDMEM       (word /*address*/) { clock += 1; }
+	inline void PRE_WRMEM       (word /*address*/) { clock += 1; }
+	inline void POST_MEM        (word /*address*/) { clock += 2; }
 
-	inline void PRE_RDMEM(word /*address*/)
-	{
-		// nothing
-	}
-
-	inline void PRE_WRMEM(word /*address*/)
-	{
-		// nothing
-	}
+	inline void PRE_IO (word /*port*/) { clock += 1; }
+	inline void POST_IO(word /*port*/) { clock += 3; }
 
 	inline void R800Refresh()
 	{

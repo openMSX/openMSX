@@ -10,12 +10,24 @@ namespace openmsx {
 
 class R800TYPE
 {
+public:
+	void updateVisiblePage(byte page, byte primarySlot, byte secondarySlot)
+	{
+		memoryDelay[page] =
+			memoryDelays[page][primarySlot][secondarySlot];
+	}
+	void setDRAMmode(bool dram)
+	{
+		// TODO currently hardcoded, move to config file?
+		unsigned val = dram ? 1 : 2;
+		memoryDelays[0][0][0] = val; // BIOS
+		memoryDelays[1][0][0] = val; // BASIC
+		memoryDelays[0][3][1] = val; // SUB-ROM
+		memoryDelays[1][3][1] = val; // KANJI-DRIVER
+	}
+
 protected:
 	static const int CLOCK_FREQ = 7159090;
-	static const int IO_DELAY1 = 0;
-	static const int IO_DELAY2 = 3;
-	static const int MEM_DELAY1 = 0;
-	static const int MEM_DELAY2 = 1;
 
 	inline void M1_DELAY()       { }
 	inline void ADD_16_8_DELAY() { clock += 1; }
@@ -42,6 +54,28 @@ protected:
 		: lastRefreshTime(time)
 		, lastPage(-1)
 	{
+		// TODO currently hardcoded, move to config file?
+		for (int page = 0; page < 4; ++page) {
+			for (int prim = 0; prim < 4; ++prim) {
+				for (int sec = 0; sec < 4; ++sec) {
+					unsigned val;
+					if ((prim == 1) || (prim == 2)) {
+						// external slot
+						val = 3;
+					} else if ((prim == 3) && (sec == 0)) {
+						// internal RAM
+						val = 1;
+					} else {
+						// internal ROM
+						val = 2;
+					}
+					memoryDelays[page][prim][sec] = val;
+				}
+			}
+		}
+		for (int page = 0; page < 4; ++page) {
+			memoryDelay[page] = memoryDelays[page][0][0];
+		}
 	}
 
 	inline void PRE_RDMEM_OPCODE(word address)
@@ -52,7 +86,6 @@ protected:
 			clock += 1;
 		}
 	}
-
 	inline void PRE_RDMEM(word address)
 	{
 		int newPage = (address >> 8) + 256;
@@ -61,12 +94,18 @@ protected:
 			clock += 1;
 		}
 	}
-
 	inline void PRE_WRMEM(word /*address*/)
 	{
 		lastPage = -1;
 		clock += 1;
 	}
+	inline void POST_MEM(word address)
+	{
+		clock += memoryDelay[address >> 14];
+	}
+	
+	inline void PRE_IO (word /*port*/) { }
+	inline void POST_IO(word /*port*/) { clock += 3; }
 
 	inline void R800Refresh()
 	{
@@ -80,8 +119,13 @@ protected:
 	}
 
 	DynamicClock clock;
+
+private:
 	Clock<CLOCK_FREQ> lastRefreshTime;
 	int lastPage;
+
+	unsigned memoryDelays[4][4][4];
+	unsigned memoryDelay[4];
 };
 
 } // namespace openmsx
