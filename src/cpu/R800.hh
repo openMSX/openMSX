@@ -80,17 +80,27 @@ protected:
 
 	inline void PRE_RDMEM_OPCODE(word address)
 	{
-		int newPage = address >> 8;
-		if (newPage != lastPage) {
-			lastPage = newPage;
+		if (memoryDelay[address >> 14] == 1) {
+			int newPage = address >> 8;
+			if (newPage != lastPage) {
+				lastPage = newPage;
+				clock += 1;
+			}
+		} else {
+			lastPage = -1;
 			clock += 1;
 		}
 	}
 	inline void PRE_RDMEM(word address)
 	{
-		int newPage = (address >> 8) + 256;
-		if (newPage != lastPage) {
-			lastPage = newPage;
+		if (memoryDelay[address >> 14] == 1) {
+			int newPage = (address >> 8) + 256;
+			if (newPage != lastPage) {
+				lastPage = newPage;
+				clock += 1;
+			}
+		} else {
+			lastPage = -1;
 			clock += 1;
 		}
 	}
