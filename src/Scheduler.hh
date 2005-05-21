@@ -3,9 +3,10 @@
 #ifndef SCHEDULER_HH
 #define SCHEDULER_HH
 
-#include <vector>
 #include "EmuTime.hh"
 #include "Semaphore.hh"
+#include "likely.hh"
+#include <vector>
 
 namespace openmsx {
 
@@ -93,7 +94,7 @@ public:
 		// TODO: Assumes syncPoints is not empty.
 		//       In practice that's true because VDP end-of-frame sync point
 		//       is always there, but it's ugly to rely on that.
-		if (limit >= syncPoints.front().getTime()) {
+		if (unlikely(limit >= syncPoints.front().getTime())) {
 			scheduleHelper(limit); // slow path not inlined
 		}
 	}

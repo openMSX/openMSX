@@ -16,6 +16,7 @@
 #include "CPUCore.hh"
 #include "Z80.hh"
 #include "R800.hh"
+#include "likely.hh"
 
 using std::string;
 
@@ -287,7 +288,7 @@ template <class T> inline void CPUCore<T>::WRITE_PORT(word port, byte value)
 template <class T> inline byte CPUCore<T>::RDMEM_common(word address)
 {
 	int line = address >> CACHE_LINE_BITS;
-	if (readCacheLine[line] != NULL) {
+	if (likely(readCacheLine[line] != NULL)) {
 		// cached, fast path
 		T::POST_MEM(address);
 		return readCacheLine[line][address&CACHE_LINE_LOW];
@@ -319,7 +320,7 @@ template <class T> byte CPUCore<T>::RDMEMslow(word address)
 template <class T> inline void CPUCore<T>::WRMEM_common(word address, byte value)
 {
 	int line = address >> CACHE_LINE_BITS;
-	if (writeCacheLine[line] != NULL) {
+	if (likely(writeCacheLine[line] != NULL)) {
 		// cached, fast path
 		T::POST_MEM(address);
 		writeCacheLine[line][address&CACHE_LINE_LOW] = value;
@@ -463,10 +464,10 @@ template <class T> inline void CPUCore<T>::executeFast()
 
 template <class T> void CPUCore<T>::executeSlow()
 {
-	if (nmiEdge) {
+	if (unlikely(nmiEdge)) {
 		nmiEdge = false;
 		nmi();	// NMI occured
-	} else if (R.IFF1 && IRQStatus) {
+	} else if (unlikely(R.IFF1 && IRQStatus)) {
 		// normal interrupt
 		switch (R.IM) {
 			case 0: irq0();
@@ -478,7 +479,7 @@ template <class T> void CPUCore<T>::executeSlow()
 			default:
 				assert(false);
 		}
-	} else if (R.HALT) {
+	} else if (unlikely(R.HALT)) {
 		// in halt mode
 		uint64 ticks = T::clock.getTicksTillUp(scheduler.getNext());
 		int hltStates = T::haltStates();

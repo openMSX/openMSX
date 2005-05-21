@@ -5,6 +5,7 @@
 
 #include "Clock.hh"
 #include "DynamicClock.hh"
+#include "likely.hh"
 
 namespace openmsx {
 
@@ -19,7 +20,7 @@ public:
 	void setDRAMmode(bool dram)
 	{
 		// TODO currently hardcoded, move to config file?
-		unsigned val = dram ? 1 : 2;
+		unsigned val = (dram ? 1 : 2) - OFFSET;
 		memoryDelays[0][0][0] = val; // BIOS
 		memoryDelays[1][0][0] = val; // BASIC
 		memoryDelays[0][3][1] = val; // SUB-ROM
@@ -69,7 +70,7 @@ protected:
 						// internal ROM
 						val = 2;
 					}
-					memoryDelays[page][prim][sec] = val;
+					memoryDelays[page][prim][sec] = val - OFFSET;
 				}
 			}
 		}
@@ -80,9 +81,9 @@ protected:
 
 	inline void PRE_RDMEM_OPCODE(word address)
 	{
-		if (memoryDelay[address >> 14] == 1) {
+		if (likely(memoryDelay[address >> 14] == (1 - OFFSET))) {
 			int newPage = address >> 8;
-			if (newPage != lastPage) {
+			if (unlikely(newPage != lastPage)) {
 				lastPage = newPage;
 				clock += 1;
 			}
@@ -93,9 +94,9 @@ protected:
 	}
 	inline void PRE_RDMEM(word address)
 	{
-		if (memoryDelay[address >> 14] == 1) {
+		if (likely(memoryDelay[address >> 14] == (1 - OFFSET))) {
 			int newPage = (address >> 8) + 256;
-			if (newPage != lastPage) {
+			if (unlikely(newPage != lastPage)) {
 				lastPage = newPage;
 				clock += 1;
 			}
@@ -111,7 +112,7 @@ protected:
 	}
 	inline void POST_MEM(word address)
 	{
-		clock += memoryDelay[address >> 14];
+		clock += memoryDelay[address >> 14] + OFFSET;
 	}
 	
 	inline void PRE_IO (word /*port*/) { }
@@ -122,7 +123,7 @@ protected:
 		// documentation says refresh every 222 clocks 
 		//  duration:  256/1024KB  13.5 clocks
 		//             512KB       21.5 clocks
-		if (lastRefreshTime.getTicksTill(clock.getTime()) >= 222) {
+		if (unlikely(lastRefreshTime.getTicksTill(clock.getTime()) >= 222)) {
 			lastRefreshTime.advance(clock.getTime());
 			clock += 22;
 		}
@@ -136,6 +137,7 @@ private:
 
 	unsigned memoryDelays[4][4][4];
 	unsigned memoryDelay[4];
+	static const unsigned OFFSET = 1; // to allow test (x == 0) iso (x == 1)
 };
 
 } // namespace openmsx
