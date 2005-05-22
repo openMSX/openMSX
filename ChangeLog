@@ -1,9 +1,10 @@
 $Id$
 
-2005-05-20 Patrick van Arkel (vampiermsx@gmail.com)
-	* added : ConsoleFontShaded.png
-		  ConsoleFontRaveShaded.png
-		  ConsoleBackgroundGrey.png
+2005-05-22 Manuel Bilderbeek <manuel@msxnet.org>
+	* Literally reVamped default console background and font! ;-)
+	  ConsoleFontRaveLShaded is default font now, ConsoleBackgroundGrey
+	  is default background (see poll). Added some others as well. All
+	  graphical work was done by Patrick van Arkel.
 
 2005-05-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* R800 timing improvements:
