@@ -1,5 +1,10 @@
 $Id$
 
+2005-05-20 Patrick van Arkel (vampiermsx@gmail.com)
+	* added : ConsoleFontShaded.png
+		  ConsoleFontRaveShaded.png
+		  ConsoleBackgroundGrey.png
+
 2005-05-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* R800 timing improvements:
 	   CAS/RAS optimization only works for internal RAM,
