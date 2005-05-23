@@ -65,6 +65,7 @@ SDLSoundDriver::~SDLSoundDriver()
 	speedSetting.removeListener(this);
 	
 	Scheduler::instance().removeSyncPoint(*this);
+	delete[] mixBuffer;
 	
 	SDL_CloseAudio();
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
