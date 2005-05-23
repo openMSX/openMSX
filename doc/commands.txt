@@ -112,25 +112,25 @@ escape_grab
     escape_grab  temporarily release the input grab
 
 
-filemanipulator
+diskmanipulator
 ---------------
 
   Used to manipulate the (files on) the current disk image.
   For an in-depth explanation and examples see the file 
-  'Using-filemanipulator.txt'.
+  'Using-filemanipulator.txt'. FIXME
 
   usage:
-    filemanipulator savedsk      <disk name> <dskfilename>
-    filemanipulator import       <disk name> <host directory>
-    filemanipulator export       <disk name> <host directory>
-    filemanipulator mkdir        <disk name> <MSX directory>
-    filemanipulator chdir        <disk name> <MSX directory>
-    filemanipulator dir          <disk name>
-    filemanipulator usePartition <disk name> <partition number>
-    filemanipulator format       <disk name>
+    diskmanipulator savedsk      <disk name> <dskfilename>
+    diskmanipulator import       <disk name> <host directory>
+    diskmanipulator export       <disk name> <host directory>
+    diskmanipulator mkdir        <disk name> <MSX directory>
+    diskmanipulator chdir        <disk name> <MSX directory>
+    diskmanipulator dir          <disk name>
+    diskmanipulator usePartition <disk name> <partition number>
+    diskmanipulator format       <disk name>
 
-    filemanipulator create  <dskfilename> <size/option> <size/option> ...
-    filemanipulator useFile <dskfilename>
+    diskmanipulator create  <dskfilename> <size/option> <size/option> ...
+    diskmanipulator useFile <dskfilename>
 
 
 help

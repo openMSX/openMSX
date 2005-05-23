@@ -22,14 +22,14 @@ namespace openmsx {
 
 FileManipulator::FileManipulator()
 {
-	CommandController::instance().registerCommand(this, "filemanipulator");
+	CommandController::instance().registerCommand(this, "diskmanipulator");
 }
 
 FileManipulator::~FileManipulator()
 {
 	unregisterImageFile();
 	assert(diskImages.empty()); // all DiskContainers must be unregistered
-	CommandController::instance().unregisterCommand(this, "filemanipulator");
+	CommandController::instance().unregisterCommand(this, "diskmanipulator");
 }
 
 FileManipulator& FileManipulator::instance()
@@ -195,32 +195,32 @@ string FileManipulator::help(const vector<string>& tokens) const
 	if (tokens.size() >= 2) {
 	  if (tokens[1] == "import" ) {
 	  helptext=
-	    "filemanipulator import <drivename> <dirname>\n"
+	    "diskmanipulator import <drivename> <dirname>\n"
 	    "Import all files and subdirs from the host OS in <dirname> into the\n"
 	    "<drivename> in the current MSX subdirectory as was specified with the\n"
 	    "last chdir command.\n";
 	  } else if (tokens[1] == "export" ) {
 	  helptext=
-	    "filemanipulator export <drivename> <dirname>\n"
+	    "diskmanipulator export <drivename> <dirname>\n"
 	    "Extract all files and subdirs from the MSX subdirectory specified with\n"
 	    "the chdir command to the host OS in <dirname>.\n";
 	  } else if (tokens[1] == "savedsk") {
 	  helptext=
-	    "filemanipulator savedsk <drivename> <filename> : save drivename as dsk-file\n"
+	    "diskmanipulator savedsk <drivename> <filename> : save drivename as dsk-file\n"
 	    "This saves the complete drive content to <filename>, it is not possible to\n"
 	    "save just one partition. The main purpose of this command is to make it\n"
 	    "possible to save a 'ramdsk' into a file and to take 'live backups' of\n"
 	    "dsk-files in use.\n";
 	  } else if (tokens[1] == "usePartition") {
 	  helptext=
-	    "filemanipulator usePartition <drivename> <partitionnumber>\n"
+	    "diskmanipulator usePartition <drivename> <partitionnumber>\n"
 	    "If <drivename> contains an MSX IDE partition table, this command\n"
 	    "changes the default partition that will be used for commands like\n"
 	    "chdir, import, dir, ... in case you use these commands without\n"
 	    "appending the partion number to the drivename.\n";
 	  } else if (tokens[1] == "chdir") {
 	  helptext=
-	    "filemanipulator chdir <drivename> <dirname>\n"
+	    "diskmanipulator chdir <drivename> <dirname>\n"
 	    "Change the working directory on <drivename>. This will be the\n"
 	    "directory were the 'import', 'export' and 'dir' commands will\n"
 	    "work on.\n"
@@ -228,13 +228,13 @@ string FileManipulator::help(const vector<string>& tokens) const
 	    "working directory.\n";
 	  } else if (tokens[1] == "mkdir") {
 	  helptext=
-	    "filemanipulator mkdir <drivename> <dirname>\n"
+	    "diskmanipulator mkdir <drivename> <dirname>\n"
 	    "This creates the directory on <drivename>. If needed, all missing\n"
 	    "parent directories are created at the same time. Accepts both\n"
 	    "absolute and relative pathnames.\n";
 	  } else if (tokens[1] == "create") {
 	  helptext=
-	    "filemanipulator create <filename> <size> [<size>...]\n"
+	    "diskmanipulator create <filename> <size> [<size>...]\n"
 	    "Creates a formatted dsk file with the given size.\n"
 	    "If multiple sizes are given, a partitioned disk image will\n"
 	    "be created with each partition having the size as indicated. By\n"
@@ -242,36 +242,36 @@ string FileManipulator::help(const vector<string>& tokens) const
 	    "for megabyte.\n";
 	  } else if (tokens[1] == "useFile") {
 	  helptext=
-	    "filemanipulator useFile <filename>\n"
+	    "diskmanipulator useFile <filename>\n"
 	    "use this if you want to alter the content of a dsk file that isn't\n"
 	    "in use by the emulated MSX. It wil create a new diskname called\n"
 	    +IMAGE_FILE+" to manipulate the content of <filename>\n";
 	  } else if (tokens[1] == "format") {
 	  helptext=
-	    "filemanipulator format <drivename>\n"
+	    "diskmanipulator format <drivename>\n"
 	    "formats the current (partition on) <drivename> with a regular\n"
 	    "FAT12 MSX filesystem\n";
 	  } else if (tokens[1] == "dir") {
 	  helptext=
-	    "filemanipulator dir <drivename>\n"
+	    "diskmanipulator dir <drivename>\n"
 	    "Shows the content of the current directory on <drivename>\n";
 	  } else {
-	  helptext="unknown filemanipulator subcommand: "+tokens[2];
+	  helptext="unknown diskmanipulator subcommand: "+tokens[2];
 	  }
 	} else {
 	  helptext=string(
-	    "filemanipulator create <fn> <sz> [<sz> ...] : create a formatted dsk file with name <fn>, having\n"
+	    "diskmanipulator create <fn> <sz> [<sz> ...] : create a formatted dsk file with name <fn>, having\n"
 	    "                                              the given (partition) size(s)\n"
-	    "filemanipulator useFile <filename>          : allow manipulation of <filename>\n"
-	    "filemanipulator savedsk <drivename> <fn>    : save <drivename> as dsk file with name <fn>\n"
-	    "filemanipulator usePartition <drv> <partnr> : change default partition for drive <drv> to <partnr>\n"
-	    "filemanipulator format <drivename>          : format (a partition) on <drivename>\n"
-	    "filemanipulator chdir <drivename> <dirname> : change directory on <drivename>\n"
-	    "filemanipulator mkdir <drivename> <dirname> : create directory on <drivename>\n"
-	    "filemanipulator dir <drivename>             : long format dir of current directory on <drivename>\n"
-	    "filemanipulator import <drvname> <dirname>  : import all files and subdirs from <dirname>\n"
-	    "filemanipulator export <drvname> <dirname>  : export all files on <drvname> to <dir>\n"
-	    "For more info use 'help filemanipulator <subcommand>'\n");
+	    "diskmanipulator useFile <filename>          : allow manipulation of <filename>\n"
+	    "diskmanipulator savedsk <drivename> <fn>    : save <drivename> as dsk file with name <fn>\n"
+	    "diskmanipulator usePartition <drv> <partnr> : change default partition for drive <drv> to <partnr>\n"
+	    "diskmanipulator format <drivename>          : format (a partition) on <drivename>\n"
+	    "diskmanipulator chdir <drivename> <dirname> : change directory on <drivename>\n"
+	    "diskmanipulator mkdir <drivename> <dirname> : create directory on <drivename>\n"
+	    "diskmanipulator dir <drivename>             : long format dir of current directory on <drivename>\n"
+	    "diskmanipulator import <drvname> <dirname>  : import all files and subdirs from <dirname>\n"
+	    "diskmanipulator export <drvname> <dirname>  : export all files on <drvname> to <dir>\n"
+	    "For more info use 'help diskmanipulator <subcommand>'\n");
 	}
 	return helptext;
 }

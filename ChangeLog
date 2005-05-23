@@ -2,6 +2,7 @@ $Id$
 
 2005-05-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Renamed 'eject' and 'ramdsk' to '-eject' and '-ramdsk'
+	* Renamed 'filemanipulator' to 'diskmanipulator'
 
 2005-05-22 Manuel Bilderbeek <manuel@msxnet.org>
 	* Literally reVamped default console background and font! ;-)
