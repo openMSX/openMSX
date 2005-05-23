@@ -181,10 +181,6 @@ RealDrive::RealDrive(const EmuTime& time)
 		try {
 			FileContext& context = diskConfig.getFileContext();
 			string diskImage = filename;
-			if (filename != "ramdsk") {
-				diskImage = context.resolve(filename);
-			}
-
 			vector<string> patchFiles;
 			XMLElement::Children children;
 			diskConfig.getChildren("ips", children);
@@ -339,30 +335,24 @@ bool RealDrive::headLoaded(const EmuTime& time)
 void RealDrive::insertDisk(const string& diskImage, const vector<string>& patches)
 {
 	ejectDisk();
-	if (diskImage == "ramdsk") {
-		PRT_DEBUG("Trying a RamDSK diskimage...");
+	if (diskImage == "-ramdsk") {
 		disk.reset(new RamDSKDiskImage());
-	} else
-	try {
-		// first try XSA
-		PRT_DEBUG("Trying an XSA diskimage...");
-		disk.reset(new XSADiskImage(diskImage));
-		PRT_DEBUG("Succeeded");
-	} catch (MSXException& e) {
+	} else {
 		try {
-			//First try the fake disk, because a DSK will always
-			//succeed if diskImage can be resolved 
-			//It is simply stat'ed, so even a directory name
-			//can be resolved and will be accepted as dsk name
-			PRT_DEBUG("Trying a DirAsDSK approach...");
-			// try to create fake DSK from a dir on host OS
-			disk.reset(new FDC_DirAsDSK(diskImage));
-			PRT_DEBUG("Succeeded");
+			// first try XSA
+			disk.reset(new XSADiskImage(diskImage));
 		} catch (MSXException& e) {
-			// then try normal DSK
-			PRT_DEBUG("Trying a DSK diskimage...");
-			disk.reset(new DSKDiskImage(diskImage));
-			PRT_DEBUG("Succeeded");
+			try {
+				//First try the fake disk, because a DSK will always
+				//succeed if diskImage can be resolved 
+				//It is simply stat'ed, so even a directory name
+				//can be resolved and will be accepted as dsk name
+				// try to create fake DSK from a dir on host OS
+				disk.reset(new FDC_DirAsDSK(diskImage));
+			} catch (MSXException& e) {
+				// then try normal DSK
+				disk.reset(new DSKDiskImage(diskImage));
+			}
 		}
 	}
 	for (vector<string>::const_iterator it = patches.begin();
@@ -370,12 +360,16 @@ void RealDrive::insertDisk(const string& diskImage, const vector<string>& patche
 		disk->applyPatch(*it);
 	}
 	diskElem->setData(diskImage);
+	diskChangedFlag = true;
+	CliComm::instance().update(CliComm::MEDIA, name, diskImage);
 }
 
 void RealDrive::ejectDisk()
 {
 	diskElem->setData("");
 	disk.reset(new DummyDisk());
+	diskChangedFlag = true;
+	CliComm::instance().update(CliComm::MEDIA, name, "");
 }
 
 SectorAccessibleDisk* RealDrive::getDisk()
@@ -394,14 +388,14 @@ string RealDrive::execute(const vector<string>& tokens)
 			result += "There is currently no disk inserted in drive with name \""
 			       + name + "\"" + '\n';
 		}
-	} else if (tokens[1] == "ramdsk") {
+	} else if (tokens[1] == "-ramdsk") {
 		vector<string> nopatchfiles;
 		insertDisk(tokens[1], nopatchfiles);
-		result += "Current disk is now RAM-image\n";
-		diskChangedFlag = true;
+	} else if (tokens[1] == "-eject") {
+		ejectDisk();
 	} else if (tokens[1] == "eject") {
 		ejectDisk();
-		CliComm::instance().update(CliComm::MEDIA, name, "");
+		result += "Warning: use of 'eject' is deprecated, instead use '-eject'";
 	} else {
 		try {
 			UserFileContext context;
@@ -410,9 +404,6 @@ string RealDrive::execute(const vector<string>& tokens)
 				patches.push_back(context.resolve(tokens[i]));
 			}
 			insertDisk(context.resolve(tokens[1]), patches);
-			diskChangedFlag = true;
-			CliComm::instance().update(CliComm::MEDIA,
-			                           name, tokens[1]);
 		} catch (FileException &e) {
 			throw CommandException(e.getMessage());
 		}
@@ -422,8 +413,8 @@ string RealDrive::execute(const vector<string>& tokens)
 
 string RealDrive::help(const vector<string>& /*tokens*/) const
 {
-	return name + " eject      : remove disk from virtual drive\n" +
-	       name + " ramdsk     : create a virtual disk in RAM\n" +
+	return name + " -eject      : remove disk from virtual drive\n" +
+	       name + " -ramdsk     : create a virtual disk in RAM\n" +
 	       name + " <filename> : change the disk file\n";
 }
 
