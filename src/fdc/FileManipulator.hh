@@ -28,7 +28,6 @@ private:
 	struct DriveSettings
 	{
 		int partition;
-		int defaultPartition;
 		std::string workingDir[31];
 		DiskContainer* drive;
 	};

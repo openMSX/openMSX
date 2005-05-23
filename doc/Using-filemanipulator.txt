@@ -15,7 +15,7 @@ The general command structure is always of the form:
 
 filemanipulator <command> <disk name> <command arguments> where
 
-  'commands' is one of: usePartition, import, export, savedsk, format, create,
+  'commands' is one of: import, export, savedsk, format, create,
         useFile, dir, mkdir, chdir
         useFile.
 
@@ -61,7 +61,7 @@ import
         This will import the files and subdirectories in <host directory> into
         the disk inserted in <disk name>.
         The place were the files will be added in the MSX directory structure
-        are influenced by the 'usePartition' and 'chdir' command.
+        are influenced by the 'chdir' command.
 
 export
 ------
@@ -72,7 +72,7 @@ export
         This will export the files and subdirectories from the disk inserted in
         <disk name> to the <host directory> on your host OS.
         The subdirectory that will be exported from the MSX-images is
-        influenced by the 'usePartition' and 'chdir' command.
+        influenced by the 'chdir' command.
 
 chdir
 -----
@@ -102,22 +102,6 @@ dir
     explanation:
         This will show the directory content of the curring working directory.
         The output is formated in a 'files,l' like manner.
-
-
-usePartition
-------------
-    structure:
-        filemanipulator usePartition <disk name> <partition number>
-
-    explanation:
-        In case the <disk name> contains a MSX IDE compatible partition table,
-        this command will select the partition to be used for the
-        import/export/chdir commands in case no partition number is appended to
-        the disk name.
-        Using tab completion will show to currently selected partition for the
-        <disk name> device.
-        If no valid partition table is found this will be equivalent to using
-        partition 1.
 
 format
 ------

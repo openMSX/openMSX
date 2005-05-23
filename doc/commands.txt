@@ -126,7 +126,6 @@ diskmanipulator
     diskmanipulator mkdir        <disk name> <MSX directory>
     diskmanipulator chdir        <disk name> <MSX directory>
     diskmanipulator dir          <disk name>
-    diskmanipulator usePartition <disk name> <partition number>
     diskmanipulator format       <disk name>
 
     diskmanipulator create  <dskfilename> <size/option> <size/option> ...

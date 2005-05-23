@@ -51,9 +51,8 @@ void FileManipulator::registerDrive(DiskContainer& drive, const string& imageNam
 {
 	assert(diskImages.find(imageName) == diskImages.end());
 	diskImages[imageName].drive = &drive;
-	diskImages[imageName].defaultPartition = 0;
 	diskImages[imageName].partition = 0;
-	for (int i=0 ; i < 31 ; ++i) {
+	for (int i = 0; i < 31; ++i) {
 		diskImages[imageName].workingDir[i] = "\\";
 	}
 }
@@ -72,28 +71,20 @@ FileManipulator::DriveSettings& FileManipulator::getDriveSettings(
 {
 	// first split of the end numbers if present
 	// these will be used as partition indication
-
 	string::size_type pos = diskname.find_first_of("0123456789");
-	string tmp = (pos != string::npos)
-	           ? diskname.substr(0, pos )
-	           : diskname;
-	//CliComm::instance().printWarning("FileManipulator::getDriveSettings tmp= " + tmp);
-	//CliComm::instance().printWarning("FileManipulator::getDriveSettings pos= " + StringOp::toString(pos));
-
+	string tmp = diskname.substr(0, pos);
 	DiskImages::iterator it = diskImages.find(tmp);
 	if (it == diskImages.end()) {
-		throw CommandException("No \'"  + tmp + "\' known");
+		throw CommandException("Unknown drive: "  + tmp);
 	}
-
-	it->second.partition = it->second.defaultPartition ;
-	if (pos != string::npos){
-		//CliComm::instance().printWarning("FileManipulator::getDriveSettings partition= " + diskname.substr(pos));
-		int i = strtol(diskname.substr(pos).c_str(), NULL , 10) ;
-		if (i==0 || i>31) {
-			throw CommandException("Invalid MSX-IDE partition specified");
-		} else {
-			it->second.partition = i-1;
+	
+	it->second.partition = 0;
+	if (pos != string::npos) {
+		int i = strtol(diskname.substr(pos).c_str(), NULL, 10);
+		if (i <= 0 || i > 31) {
+			throw CommandException("Invalid partition specified.");
 		}
+		it->second.partition = i - 1;
 	}
 	return it->second;
 }
@@ -122,8 +113,7 @@ string FileManipulator::execute(const vector<string>& tokens)
 	        || (tokens.size() != 3 && (tokens[1] == "dir"
 	                                || tokens[1] == "format"))
 	        || ((tokens.size() < 3 || tokens.size() > 4) &&
-		  			(tokens[1] == "chdir"
-	                                || tokens[1] == "usePartition"))
+	                                  (tokens[1] == "chdir"))
 	        || (tokens.size() > 3 && tokens[1] == "useFile")
 	        || (tokens.size() <= 3 && (tokens[1] == "create"))) {
 		throw CommandException("Incorrect number of parameters");
@@ -140,27 +130,15 @@ string FileManipulator::execute(const vector<string>& tokens)
 		DriveSettings& settings = getDriveSettings(tokens[2]);
 		savedsk(settings, tokens[3]);
 
-	} else if (tokens[1] == "usePartition") {
-		DriveSettings& settings = getDriveSettings(tokens[2]);
-		if (tokens.size() == 3){
-			result += "Current default partition: "+StringOp::toString(1 + settings.defaultPartition);
-		} else {
-			int i= StringOp::stringToInt(tokens[3]) ;
-			if (i==0 || i>31) {
-				result += "Invalid partition specification,"
-			    " using current default partition " + StringOp::toString(1 + settings.defaultPartition) ; 
-			} else {
-				result += "New default partion: " + StringOp::toString(i);
-				settings.defaultPartition = i - 1 ;
-			}
-		}
 	} else if (tokens[1] == "chdir") {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
 		if (tokens.size() == 3){
-			result += "Current directory: "+settings.workingDir[settings.partition];
+			result += "Current directory: " +
+			          settings.workingDir[settings.partition];
 		} else {
 			chdir(settings, tokens[3], result);
 		}
+
 	} else if (tokens[1] == "mkdir") {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
 		mkdir(settings, tokens[3]);
@@ -211,13 +189,6 @@ string FileManipulator::help(const vector<string>& tokens) const
 	    "save just one partition. The main purpose of this command is to make it\n"
 	    "possible to save a 'ramdsk' into a file and to take 'live backups' of\n"
 	    "dsk-files in use.\n";
-	  } else if (tokens[1] == "usePartition") {
-	  helptext=
-	    "diskmanipulator usePartition <drivename> <partitionnumber>\n"
-	    "If <drivename> contains an MSX IDE partition table, this command\n"
-	    "changes the default partition that will be used for commands like\n"
-	    "chdir, import, dir, ... in case you use these commands without\n"
-	    "appending the partion number to the drivename.\n";
 	  } else if (tokens[1] == "chdir") {
 	  helptext=
 	    "diskmanipulator chdir <drivename> <dirname>\n"
@@ -264,7 +235,6 @@ string FileManipulator::help(const vector<string>& tokens) const
 	    "                                              the given (partition) size(s)\n"
 	    "diskmanipulator useFile <filename>          : allow manipulation of <filename>\n"
 	    "diskmanipulator savedsk <drivename> <fn>    : save <drivename> as dsk file with name <fn>\n"
-	    "diskmanipulator usePartition <drv> <partnr> : change default partition for drive <drv> to <partnr>\n"
 	    "diskmanipulator format <drivename>          : format (a partition) on <drivename>\n"
 	    "diskmanipulator chdir <drivename> <dirname> : change directory on <drivename>\n"
 	    "diskmanipulator mkdir <drivename> <dirname> : create directory on <drivename>\n"
@@ -283,23 +253,12 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 		cmds.insert("import");
 		cmds.insert("export");
 		cmds.insert("savedsk");
-		cmds.insert("usePartition");
 		cmds.insert("dir");
 		cmds.insert("create");
 		cmds.insert("useFile");
 		cmds.insert("format");
 		cmds.insert("chdir");
 		cmds.insert("mkdir");
-		CommandController::completeString(tokens, cmds);
-
-	} else if (tokens.size() == 4 && tokens[1] == "usePartition") {
-		int partition = 0;
-		DiskImages::const_iterator it = diskImages.find(tokens[2]);
-		if (it != diskImages.end()) {
-			partition = it->second.partition;
-		}
-		set<string> cmds;
-		cmds.insert(StringOp::toString(partition + 1)); 
 		CommandController::completeString(tokens, cmds);
 
 	} else if (tokens.size() == 2 && (tokens[1] == "create" || tokens[1] == "useFile")) {
@@ -310,7 +269,8 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 		for (DiskImages::const_iterator it = diskImages.begin();
 		     it != diskImages.end(); ++it) {
 			names.insert(it->first);
-			// if it has partitions then we also add the partition numbers to the autocompletion
+			// if it has partitions then we also add the partition
+			// numbers to the autocompletion
 			SectorAccessibleDisk* sectorDisk = it->second.drive->getDisk();
 			if (sectorDisk != NULL) {
 				try {
@@ -379,7 +339,7 @@ void FileManipulator::create(const vector<string>& tokens)
 	for (unsigned i = 3; i < tokens.size(); ++i) {
 		char* q;
 		int sectors = strtol(tokens[i].c_str(), &q, 10);
-		int scale = 1024; //default now in kilobyte instead of SectorBasedDisk::SECTOR_SIZE; 
+		int scale = 1024; // default is kilobytes 
 		switch (tolower(*q)) {
 			case 'b':
 				scale = 1;
@@ -434,17 +394,19 @@ void FileManipulator::format(DriveSettings& driveData)
 
 void FileManipulator::restoreCWD(MSXtar& workhorse, DriveSettings& driveData)
 {
-	if (!workhorse.hasPartitionTable() ) {
-		workhorse.usePartition(0) ; //read the bootsector
+	if (!workhorse.hasPartitionTable()) {
+		workhorse.usePartition(0); //read the bootsector
 	} else if (!workhorse.usePartition(driveData.partition)) {
-		throw CommandException("Partition " + StringOp::toString(1+driveData.partition) +
-		          " doesn't exist on this device. Command aborted, please retry.");
+		throw CommandException(
+		    "Partition " + StringOp::toString(1 + driveData.partition) +
+		    " doesn't exist on this device. Command aborted, please retry.");
 	}
 	if (!workhorse.chdir(driveData.workingDir[driveData.partition])) {
 		driveData.workingDir[driveData.partition] = "\\";
-		throw CommandException("Directory " + driveData.workingDir[driveData.partition] +
-		          " doesn't exist anymore. Went back to root "
-			  "directory. Command aborted, please retry.");
+		throw CommandException(
+		    "Directory " + driveData.workingDir[driveData.partition] +
+		    " doesn't exist anymore. Went back to root "
+		    "directory. Command aborted, please retry.");
 	}
 }
 

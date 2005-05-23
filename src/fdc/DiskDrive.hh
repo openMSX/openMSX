@@ -165,7 +165,7 @@ public:
  * This class implements a real drive, this is the parent class for both
  * sigle and double sided drives. Common methods are implemented here;
  */
-class RealDrive : public DiskDrive, public SimpleCommand , public DiskContainer
+class RealDrive : public DiskDrive, public SimpleCommand, public DiskContainer
 {
 public:
 	static const int MAX_DRIVES = 26;	// a-z
