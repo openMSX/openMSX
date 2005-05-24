@@ -129,7 +129,7 @@ bool CommandConsole::signalEvent(const Event& event)
 {
 	Display::instance().repaintDelayed(40000); // 25fps
 
-	if (event.getType() == KEY_UP_EVENT) {
+	if (event.getType() == OPENMSX_KEY_UP_EVENT) {
 		return false;	// don't pass event to MSX-Keyboard
 	}
 

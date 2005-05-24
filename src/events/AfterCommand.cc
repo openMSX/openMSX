@@ -21,25 +21,25 @@ AfterCommand::AfterCmdMap AfterCommand::afterCmds;
 AfterCommand::AfterCommand()
 {
 	EventDistributor::instance().registerEventListener(
-		KEY_UP_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().registerEventListener(
-		KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().registerEventListener(
-		MOUSE_MOTION_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().registerEventListener(
-		MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().registerEventListener(
-		MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().registerEventListener(
-		JOY_AXIS_MOTION_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().registerEventListener(
-		JOY_BUTTON_UP_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().registerEventListener(
-		JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().registerEventListener(
-		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().registerEventListener(
-		BREAK_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_BREAK_EVENT, *this, EventDistributor::NATIVE);
 
 	CommandController::instance().registerCommand(this, "after");
 }
@@ -49,25 +49,25 @@ AfterCommand::~AfterCommand()
 	CommandController::instance().unregisterCommand(this, "after");
 	
 	EventDistributor::instance().unregisterEventListener(
-		BREAK_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_BREAK_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().unregisterEventListener(
-		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().unregisterEventListener(
-		JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().unregisterEventListener(
-		JOY_BUTTON_UP_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().unregisterEventListener(
-		JOY_AXIS_MOTION_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().unregisterEventListener(
-		MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().unregisterEventListener(
-		MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().unregisterEventListener(
-		MOUSE_MOTION_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().unregisterEventListener(
-		KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().unregisterEventListener(
-		KEY_UP_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::NATIVE);
 }
 
 string AfterCommand::execute(const vector<string>& tokens)
@@ -80,9 +80,9 @@ string AfterCommand::execute(const vector<string>& tokens)
 	} else if (tokens[1] == "idle") {
 		return afterIdle(tokens);
 	} else if (tokens[1] == "frame") {
-		return afterEvent<FINISH_FRAME_EVENT>(tokens);
+		return afterEvent<OPENMSX_FINISH_FRAME_EVENT>(tokens);
 	} else if (tokens[1] == "break") {
-		return afterEvent<BREAK_EVENT>(tokens);
+		return afterEvent<OPENMSX_BREAK_EVENT>(tokens);
 	} else if (tokens[1] == "info") {
 		return afterInfo(tokens);
 	} else if (tokens[1] == "cancel") {
@@ -194,10 +194,10 @@ void AfterCommand::tabCompletion(vector<string>& tokens) const
 
 bool AfterCommand::signalEvent(const Event& event)
 {
-	if (event.getType() == FINISH_FRAME_EVENT) {
-		executeEvents<FINISH_FRAME_EVENT>();
-	} else if (event.getType() == BREAK_EVENT) {
-		executeEvents<BREAK_EVENT>();
+	if (event.getType() == OPENMSX_FINISH_FRAME_EVENT) {
+		executeEvents<OPENMSX_FINISH_FRAME_EVENT>();
+	} else if (event.getType() == OPENMSX_BREAK_EVENT) {
+		executeEvents<OPENMSX_BREAK_EVENT>();
 	} else {
 		for (AfterCmdMap::const_iterator it = afterCmds.begin();
 		     it != afterCmds.end(); ++it) {
@@ -341,14 +341,14 @@ AfterCommand::AfterEventCmd<T>::AfterEventCmd(const string& command)
 }
 
 template<>
-const string& AfterCommand::AfterEventCmd<FINISH_FRAME_EVENT>::getType() const
+const string& AfterCommand::AfterEventCmd<OPENMSX_FINISH_FRAME_EVENT>::getType() const
 {
 	static const string type("frame");
 	return type;
 }
 
 template<>
-const string& AfterCommand::AfterEventCmd<BREAK_EVENT>::getType() const
+const string& AfterCommand::AfterEventCmd<OPENMSX_BREAK_EVENT>::getType() const
 {
 	static const string type("break");
 	return type;

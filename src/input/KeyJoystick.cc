@@ -32,9 +32,9 @@ KeyJoystick::KeyJoystick()
 	: keyJoyConfig(SettingsConfig::instance().getCreateChild("KeyJoystick"))
 {
 	EventDistributor & distributor(EventDistributor::instance());
-	distributor.registerEventListener(KEY_DOWN_EVENT,   *this);
-	distributor.registerEventListener(KEY_UP_EVENT,     *this);
-	distributor.registerEventListener(CONSOLE_ON_EVENT, *this);
+	distributor.registerEventListener(OPENMSX_KEY_DOWN_EVENT,   *this);
+	distributor.registerEventListener(OPENMSX_KEY_UP_EVENT,     *this);
+	distributor.registerEventListener(OPENMSX_CONSOLE_ON_EVENT, *this);
 	// We do not listen for CONSOLE_OFF_EVENTS because rescanning the
 
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
@@ -49,9 +49,9 @@ KeyJoystick::~KeyJoystick()
 	keyJoyConfig.removeListener(*this);
 
 	EventDistributor & distributor(EventDistributor::instance());
-	distributor.unregisterEventListener(KEY_UP_EVENT,   *this);
-	distributor.unregisterEventListener(KEY_DOWN_EVENT, *this);
-	distributor.unregisterEventListener(CONSOLE_ON_EVENT, *this);
+	distributor.unregisterEventListener(OPENMSX_KEY_UP_EVENT,   *this);
+	distributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
+	distributor.unregisterEventListener(OPENMSX_CONSOLE_ON_EVENT, *this);
 }
 
 void KeyJoystick::readKeys()
@@ -111,7 +111,7 @@ void KeyJoystick::write(byte /*value*/, const EmuTime& /*time*/)
 bool KeyJoystick::signalEvent(const Event& event)
 {
 	switch (event.getType()) {
-	case CONSOLE_ON_EVENT: 
+	case OPENMSX_CONSOLE_ON_EVENT: 
 		allUp();
 		break;
 	default: // must be keyEvent 
@@ -119,7 +119,7 @@ bool KeyJoystick::signalEvent(const Event& event)
 		Keys::KeyCode key = (Keys::KeyCode)((int)((KeyEvent&)event).getKeyCode() &
 		                                    (int)Keys::K_MASK);
 		switch (event.getType()) {
-		case KEY_DOWN_EVENT:
+		case OPENMSX_KEY_DOWN_EVENT:
 			if      (key == upKey)      status &= ~JOY_UP;
 			else if (key == downKey)    status &= ~JOY_DOWN;
 			else if (key == leftKey)    status &= ~JOY_LEFT;
@@ -127,7 +127,7 @@ bool KeyJoystick::signalEvent(const Event& event)
 			else if (key == buttonAKey) status &= ~JOY_BUTTONA;
 			else if (key == buttonBKey) status &= ~JOY_BUTTONB;
 			break;
-		case KEY_UP_EVENT:
+		case OPENMSX_KEY_UP_EVENT:
 			if      (key == upKey)      status |= JOY_UP;
 			else if (key == downKey)    status |= JOY_DOWN;
 			else if (key == leftKey)    status |= JOY_LEFT;

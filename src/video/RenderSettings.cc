@@ -68,13 +68,13 @@ RenderSettings::RenderSettings()
 	renderer->addListener(this);
 	fullScreen->addListener(this);
 	EventDistributor::instance().registerEventListener(
-		RENDERER_SWITCH_EVENT, *this, EventDistributor::DETACHED );
+		OPENMSX_RENDERER_SWITCH_EVENT, *this, EventDistributor::DETACHED);
 }
 
 RenderSettings::~RenderSettings()
 {
 	EventDistributor::instance().unregisterEventListener(
-		RENDERER_SWITCH_EVENT, *this, EventDistributor::DETACHED );
+		OPENMSX_RENDERER_SWITCH_EVENT, *this, EventDistributor::DETACHED);
 	fullScreen->removeListener(this);
 	renderer->removeListener(this);
 }
@@ -104,21 +104,21 @@ void RenderSettings::checkRendererSwitch()
 		currentRenderer = renderer->getValue();
 		// Renderer failed to sync; replace it.
 		EventDistributor::instance().distributeEvent(
-			new SimpleEvent<RENDERER_SWITCH_EVENT>());
+			new SimpleEvent<OPENMSX_RENDERER_SWITCH_EVENT>());
 	}
 }
 
 bool RenderSettings::signalEvent(const Event& event)
 {
 	if (&event); // avoid warning
-	assert(event.getType() == RENDERER_SWITCH_EVENT);
+	assert(event.getType() == OPENMSX_RENDERER_SWITCH_EVENT);
 
 	// Switch video system.
 	RendererFactory::createVideoSystem();
 
 	// Tell VDPs they can update their renderer now.
 	EventDistributor::instance().distributeEvent(
-		new SimpleEvent<RENDERER_SWITCH2_EVENT>() );
+		new SimpleEvent<OPENMSX_RENDERER_SWITCH2_EVENT>() );
 
 	return true;
 }

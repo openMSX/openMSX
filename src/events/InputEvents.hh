@@ -28,14 +28,14 @@ class KeyUpEvent : public KeyEvent
 {
 public:
 	KeyUpEvent(Keys::KeyCode keyCode, word unicode)
-		: KeyEvent(KEY_UP_EVENT, keyCode, unicode) {}
+		: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode, unicode) {}
 };
 
 class KeyDownEvent : public KeyEvent
 {
 public:
 	KeyDownEvent(Keys::KeyCode keyCode, word unicode)
-		: KeyEvent(KEY_DOWN_EVENT, keyCode, unicode) {}
+		: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode, unicode) {}
 };
 
 
@@ -59,21 +59,21 @@ class MouseButtonUpEvent : public MouseButtonEvent
 {
 public:
 	MouseButtonUpEvent(MouseButtonEvent::Button button)
-		: MouseButtonEvent(MOUSE_BUTTON_UP_EVENT, button) {}
+		: MouseButtonEvent(OPENMSX_MOUSE_BUTTON_UP_EVENT, button) {}
 };
 
 class MouseButtonDownEvent : public MouseButtonEvent
 {
 public:
 	MouseButtonDownEvent(MouseButtonEvent::Button button)
-		: MouseButtonEvent(MOUSE_BUTTON_DOWN_EVENT, button) {}
+		: MouseButtonEvent(OPENMSX_MOUSE_BUTTON_DOWN_EVENT, button) {}
 };
 
 class MouseMotionEvent : public Event
 {
 public:
 	MouseMotionEvent(int xrel_, int yrel_)
-		: Event(MOUSE_MOTION_EVENT), xrel(xrel_), yrel(yrel_) {}
+		: Event(OPENMSX_MOUSE_MOTION_EVENT), xrel(xrel_), yrel(yrel_) {}
 
 	int getX() const { return xrel; }
 	int getY() const { return yrel; }
@@ -114,14 +114,14 @@ class JoystickButtonUpEvent : public JoystickButtonEvent
 {
 public:
 	JoystickButtonUpEvent(unsigned joystick, unsigned button)
-		: JoystickButtonEvent(JOY_BUTTON_UP_EVENT, joystick, button) {}
+		: JoystickButtonEvent(OPENMSX_JOY_BUTTON_UP_EVENT, joystick, button) {}
 };
 
 class JoystickButtonDownEvent : public JoystickButtonEvent
 {
 public:
 	JoystickButtonDownEvent(unsigned joystick, unsigned button)
-		: JoystickButtonEvent(JOY_BUTTON_DOWN_EVENT, joystick, button) {}
+		: JoystickButtonEvent(OPENMSX_JOY_BUTTON_DOWN_EVENT, joystick, button) {}
 };
 
 class JoystickAxisMotionEvent : public JoystickEvent
@@ -131,7 +131,7 @@ public:
 		X_AXIS, Y_AXIS, OTHER
 	};
 	JoystickAxisMotionEvent(unsigned joystick, Axis axis_, short value_)
-		: JoystickEvent(JOY_AXIS_MOTION_EVENT, joystick),
+		: JoystickEvent(OPENMSX_JOY_AXIS_MOTION_EVENT, joystick),
 		  axis(axis_), value(value_) {}
 
 	Axis getAxis() const { return axis; }
@@ -146,7 +146,7 @@ class FocusEvent : public Event
 {
 public:
 	FocusEvent(bool gain_)
-		: Event(FOCUS_EVENT), gain(gain_) {}
+		: Event(OPENMSX_FOCUS_EVENT), gain(gain_) {}
 
 	bool getGain() const { return gain; }
 	
@@ -158,7 +158,7 @@ class ResizeEvent : public Event
 {
 public:
 	ResizeEvent(unsigned x_, unsigned y_)
-		: Event(RESIZE_EVENT), x(x_), y(y_) {}
+		: Event(OPENMSX_RESIZE_EVENT), x(x_), y(y_) {}
 
 	unsigned getX() const { return x; }
 	unsigned getY() const { return y; }
@@ -171,7 +171,7 @@ private:
 class QuitEvent : public Event
 {
 public:
-	QuitEvent() : Event(QUIT_EVENT) {}
+	QuitEvent() : Event(OPENMSX_QUIT_EVENT) {}
 };
 
 } // namespace openmsx

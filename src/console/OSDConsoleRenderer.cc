@@ -128,18 +128,18 @@ void OSDConsoleRenderer::setActive(bool active_)
 	inputEventGenerator.setKeyRepeat(active);
 	if (active) {
 		eventDistributor.registerEventListener(
-			KEY_UP_EVENT,   console, EventDistributor::NATIVE);
+			OPENMSX_KEY_UP_EVENT,   console, EventDistributor::NATIVE);
 		eventDistributor.registerEventListener(
-			KEY_DOWN_EVENT, console, EventDistributor::NATIVE);
+			OPENMSX_KEY_DOWN_EVENT, console, EventDistributor::NATIVE);
 		eventDistributor.distributeEvent(
-		  new SimpleEvent<CONSOLE_ON_EVENT>() );
+			new SimpleEvent<OPENMSX_CONSOLE_ON_EVENT>());
 	} else {
 		eventDistributor.unregisterEventListener(
-			KEY_DOWN_EVENT, console, EventDistributor::NATIVE);
+			OPENMSX_KEY_DOWN_EVENT, console, EventDistributor::NATIVE);
 		eventDistributor.unregisterEventListener(
-			KEY_UP_EVENT,   console, EventDistributor::NATIVE);
+			OPENMSX_KEY_UP_EVENT,   console, EventDistributor::NATIVE);
 		eventDistributor.distributeEvent(
-		  new SimpleEvent<CONSOLE_OFF_EVENT>() );
+			new SimpleEvent<OPENMSX_CONSOLE_OFF_EVENT>());
 	}
 }
 

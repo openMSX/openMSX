@@ -44,8 +44,8 @@ IconLayer<IMAGE>::IconLayer(SDL_Surface* screen)
 	createSettings(LedEvent::TURBO, "turbo");
 	createSettings(LedEvent::FDD,   "fdd");
 
-	EventDistributor::instance().registerEventListener(LED_EVENT, *this,
-	                                           EventDistributor::NATIVE);
+	EventDistributor::instance().registerEventListener(
+		OPENMSX_LED_EVENT, *this, EventDistributor::NATIVE);
 }
 
 template <class IMAGE>
@@ -81,8 +81,8 @@ void IconLayer<IMAGE>::createSettings(LedEvent::Led led, const string& name)
 template <class IMAGE>
 IconLayer<IMAGE>::~IconLayer()
 {
-	EventDistributor::instance().unregisterEventListener(LED_EVENT, *this,
-	                                             EventDistributor::NATIVE);
+	EventDistributor::instance().unregisterEventListener(
+		OPENMSX_LED_EVENT, *this, EventDistributor::NATIVE);
 }
 
 template <class IMAGE>
@@ -132,7 +132,7 @@ const string& IconLayer<IMAGE>::getName()
 template <class IMAGE>
 bool IconLayer<IMAGE>::signalEvent(const Event& event)
 {
-	assert(event.getType() == LED_EVENT);
+	assert(event.getType() == OPENMSX_LED_EVENT);
 	const LedEvent& ledEvent = static_cast<const LedEvent&>(event);
 	LedEvent::Led led = ledEvent.getLed();
 	bool status = ledEvent.getStatus();

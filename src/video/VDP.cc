@@ -131,13 +131,13 @@ VDP::VDP(const XMLElement& config, const EmuTime& time)
 		"VDP status regs", vdpStatusRegDebug );
 
 	EventDistributor::instance().registerEventListener(
-		RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED );
+		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
 }
 
 VDP::~VDP()
 {
 	EventDistributor::instance().unregisterEventListener(
-		RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED );
+		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
 
 	Debugger::instance().unregisterDebuggable("VDP status regs", vdpStatusRegDebug);
 	Debugger::instance().unregisterDebuggable("VDP regs", vdpRegDebug);
@@ -151,7 +151,7 @@ VDP::~VDP()
 bool VDP::signalEvent(const Event& event)
 {
 	if (&event); // avoid warning
-	assert(event.getType() == RENDERER_SWITCH2_EVENT);
+	assert(event.getType() == OPENMSX_RENDERER_SWITCH2_EVENT);
 	delete renderer;
 	createRenderer();
 	return true;

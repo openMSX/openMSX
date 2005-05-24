@@ -12,7 +12,7 @@ class FinishFrameEvent: public Event
 {
 public:
 	FinishFrameEvent(VideoSource source_)
-		: Event(FINISH_FRAME_EVENT)
+		: Event(OPENMSX_FINISH_FRAME_EVENT)
 		, source(source_)
 	{
 		// nothing

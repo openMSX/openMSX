@@ -41,13 +41,13 @@ SDLGLVideoSystem::SDLGLVideoSystem()
 	Display::instance().setVideoSystem(this);
 
 	EventDistributor::instance().registerEventListener(
-		RESIZE_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_RESIZE_EVENT, *this, EventDistributor::NATIVE);
 }
 
 SDLGLVideoSystem::~SDLGLVideoSystem()
 {
 	EventDistributor::instance().unregisterEventListener(
-		RESIZE_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_RESIZE_EVENT, *this, EventDistributor::NATIVE);
 
 	closeSDLVideo(screen);
 }
@@ -127,7 +127,7 @@ void SDLGLVideoSystem::resize(unsigned x, unsigned y)
 
 bool SDLGLVideoSystem::signalEvent(const Event& event)
 {
-	assert(event.getType() == RESIZE_EVENT);
+	assert(event.getType() == OPENMSX_RESIZE_EVENT);
 	const ResizeEvent& resizeEvent = static_cast<const ResizeEvent&>(event);
 	resize(resizeEvent.getX(), resizeEvent.getY());
 	return true;

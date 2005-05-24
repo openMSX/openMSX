@@ -23,7 +23,7 @@ InputEventGenerator::InputEventGenerator()
 {
 	setGrabInput(grabInput->getValue());
 	grabInput->addListener(this);
-	distributor.registerEventListener(FOCUS_EVENT, *this,
+	distributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this,
 	                                  EventDistributor::NATIVE);
 	CommandController::instance().registerCommand(&escapeGrabCmd, "escape_grab");
 
@@ -33,7 +33,7 @@ InputEventGenerator::InputEventGenerator()
 InputEventGenerator::~InputEventGenerator()
 {
 	CommandController::instance().unregisterCommand(&escapeGrabCmd, "escape_grab");
-	distributor.unregisterEventListener(FOCUS_EVENT, *this,
+	distributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this,
 	                                  EventDistributor::NATIVE);
 	grabInput->removeListener(this);
 }
@@ -206,7 +206,7 @@ void InputEventGenerator::update(const Setting* setting)
 
 bool InputEventGenerator::signalEvent(const Event& event)
 {
-	assert(event.getType() == FOCUS_EVENT);
+	assert(event.getType() == OPENMSX_FOCUS_EVENT);
 
 	const FocusEvent& focusEvent = static_cast<const FocusEvent&>(event);
 	switch (escapeGrabState) {

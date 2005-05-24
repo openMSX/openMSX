@@ -42,8 +42,8 @@ MSXMotherBoard::MSXMotherBoard()
 	pauseSetting.addListener(this);
 	powerSetting.addListener(this);
 
-	EventDistributor::instance().registerEventListener(QUIT_EVENT, *this,
-	                                            EventDistributor::NATIVE);
+	EventDistributor::instance().registerEventListener(
+		OPENMSX_QUIT_EVENT, *this, EventDistributor::NATIVE);
 
 	CommandController::instance().registerCommand(&quitCommand, "quit");
 	CommandController::instance().registerCommand(&quitCommand, "exit");
@@ -56,8 +56,8 @@ MSXMotherBoard::~MSXMotherBoard()
 	CommandController::instance().unregisterCommand(&quitCommand, "exit");
 	CommandController::instance().unregisterCommand(&quitCommand, "quit");
 
-	EventDistributor::instance().unregisterEventListener(QUIT_EVENT, *this,
-	                                              EventDistributor::NATIVE);
+	EventDistributor::instance().unregisterEventListener(
+		OPENMSX_QUIT_EVENT, *this, EventDistributor::NATIVE);
 
 	powerSetting.removeListener(this);
 	pauseSetting.removeListener(this);

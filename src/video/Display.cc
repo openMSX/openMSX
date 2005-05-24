@@ -46,9 +46,9 @@ Display::Display()
 	prevTimeStamp = Timer::getTime();
 
 	EventDistributor::instance().registerEventListener(
-		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().registerEventListener(
-		DELAYED_REPAINT_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_DELAYED_REPAINT_EVENT, *this, EventDistributor::DETACHED);
 	CommandController::instance().registerCommand(
 		&screenShotCmd, "screenshot" );
 	InfoCommand::instance().registerTopic("fps", &fpsInfo);
@@ -60,9 +60,9 @@ Display::~Display()
 	CommandController::instance().unregisterCommand(
 		&screenShotCmd, "screenshot" );
 	EventDistributor::instance().unregisterEventListener(
-		DELAYED_REPAINT_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_DELAYED_REPAINT_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().unregisterEventListener(
-		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE);
 
 	resetVideoSystem();
 }
@@ -117,7 +117,7 @@ Display::Layers::iterator Display::baseLayer()
 
 bool Display::signalEvent(const Event& event)
 {
-	if (event.getType() == FINISH_FRAME_EVENT) {
+	if (event.getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		const FinishFrameEvent& ffe = static_cast<const FinishFrameEvent&>(event);
 		VideoSource eventSource = ffe.getSource();
 		VideoSource visibleSource =
@@ -129,7 +129,7 @@ bool Display::signalEvent(const Event& event)
 		}
 
 		RealTime::instance().sync(Scheduler::instance().getCurrentTime(), draw);
-	} else if (event.getType() == DELAYED_REPAINT_EVENT) {
+	} else if (event.getType() == OPENMSX_DELAYED_REPAINT_EVENT) {
 		repaint();
 	} else {
 		assert(false);
@@ -219,7 +219,7 @@ void Display::RepaintAlarm::alarm()
 	// Note: runs is seperate thread, use event mechanism to repaint
 	//       in main thread
 	EventDistributor::instance().distributeEvent(
-		new SimpleEvent<DELAYED_REPAINT_EVENT>());
+		new SimpleEvent<OPENMSX_DELAYED_REPAINT_EVENT>());
 }
 
 

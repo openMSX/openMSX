@@ -21,7 +21,7 @@ public:
 	};
 
 	LedEvent(Led led_, bool status_)
-		: Event(LED_EVENT)
+		: Event(OPENMSX_LED_EVENT)
 		, led(led_)
 		, status(status_) {}
 

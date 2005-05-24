@@ -95,7 +95,7 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
 
 	reset(time);
 	EventDistributor::instance().registerEventListener(
-		RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
 }
 
 
@@ -108,7 +108,7 @@ V9990::~V9990()
 	Debugger::instance().unregisterDebuggable("V9990 palette", v9990PalDebug);
 	Debugger::instance().unregisterDebuggable("V9990 regs", v9990RegDebug);
 	EventDistributor::instance().unregisterEventListener(
-		RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
 }
 
 // -------------------------------------------------------------------------
@@ -370,7 +370,7 @@ const string& V9990::schedName() const
 bool V9990::signalEvent(const Event& event)
 {
 	if (&event); // avoid warning
-	assert(event.getType() == RENDERER_SWITCH2_EVENT);
+	assert(event.getType() == OPENMSX_RENDERER_SWITCH2_EVENT);
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
 	createRenderer(time);
 	renderer->frameStart(time);

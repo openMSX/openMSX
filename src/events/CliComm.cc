@@ -34,8 +34,8 @@ CliComm::CliComm()
 		updateEnabled[i] = false;
 	}
 	commandController.registerCommand(&updateCmd, "update");
-	EventDistributor::instance().registerEventListener(LED_EVENT, *this,
-	                                           EventDistributor::NATIVE);
+	EventDistributor::instance().registerEventListener(
+		OPENMSX_LED_EVENT, *this, EventDistributor::NATIVE);
 }
 
 CliComm::~CliComm()
@@ -45,8 +45,8 @@ CliComm::~CliComm()
 		delete *it;
 	}
 
-	EventDistributor::instance().unregisterEventListener(LED_EVENT, *this,
-	                                             EventDistributor::NATIVE);
+	EventDistributor::instance().unregisterEventListener(
+		OPENMSX_LED_EVENT, *this, EventDistributor::NATIVE);
 	commandController.unregisterCommand(&updateCmd, "update");
 }
 
@@ -161,7 +161,7 @@ bool CliComm::signalEvent(const Event& event)
 		ledName[LedEvent::FDD]   = "FDD";
 	}
 	
-	assert(event.getType() == LED_EVENT);
+	assert(event.getType() == OPENMSX_LED_EVENT);
 	const LedEvent& ledEvent = static_cast<const LedEvent&>(event);
 	update(LED, ledName[ledEvent.getLed()],
 	       ledEvent.getStatus() ? ON : OFF);

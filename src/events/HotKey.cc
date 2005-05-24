@@ -30,9 +30,9 @@ HotKey::HotKey()
 	initBindings();
 
 	EventDistributor::instance().registerEventListener(
-		KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().registerEventListener(
-		KEY_UP_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::NATIVE);
 
 	CommandController::instance().registerCommand(&bindCmd,   "bind");
 	CommandController::instance().registerCommand(&unbindCmd, "unbind");
@@ -88,9 +88,9 @@ HotKey::~HotKey()
 	}
 
 	EventDistributor::instance().unregisterEventListener(
-		KEY_UP_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().unregisterEventListener(
-		KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
 }
 
 void HotKey::registerHotKeyCommand(const string& key, const string& command)

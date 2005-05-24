@@ -24,16 +24,22 @@ Mouse::Mouse()
 	xrel = yrel = curxrel = curyrel = 0;
 	mouseMode = true;
 
-	EventDistributor::instance().registerEventListener(MOUSE_MOTION_EVENT,      *this);
-	EventDistributor::instance().registerEventListener(MOUSE_BUTTON_DOWN_EVENT, *this);
-	EventDistributor::instance().registerEventListener(MOUSE_BUTTON_UP_EVENT,   *this);
+	EventDistributor::instance().registerEventListener(
+		OPENMSX_MOUSE_MOTION_EVENT,      *this);
+	EventDistributor::instance().registerEventListener(
+		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
+	EventDistributor::instance().registerEventListener(
+		OPENMSX_MOUSE_BUTTON_UP_EVENT,   *this);
 }
 
 Mouse::~Mouse()
 {
-	EventDistributor::instance().unregisterEventListener(MOUSE_MOTION_EVENT,      *this);
-	EventDistributor::instance().unregisterEventListener(MOUSE_BUTTON_DOWN_EVENT, *this);
-	EventDistributor::instance().unregisterEventListener(MOUSE_BUTTON_UP_EVENT,   *this);
+	EventDistributor::instance().unregisterEventListener(
+		OPENMSX_MOUSE_MOTION_EVENT,      *this);
+	EventDistributor::instance().unregisterEventListener(
+		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
+	EventDistributor::instance().unregisterEventListener(
+		OPENMSX_MOUSE_BUTTON_UP_EVENT,   *this);
 }
 
 
@@ -180,7 +186,7 @@ void Mouse::write(byte value, const EmuTime& time)
 bool Mouse::signalEvent(const Event& event)
 {
 	switch (event.getType()) {
-	case MOUSE_MOTION_EVENT: {
+	case OPENMSX_MOUSE_MOTION_EVENT: {
 		const MouseMotionEvent* motionEvent =
 			dynamic_cast<const MouseMotionEvent*>(&event);
 		assert(motionEvent);
@@ -192,7 +198,7 @@ bool Mouse::signalEvent(const Event& event)
 		if (curyrel < -128 * SCALE) curyrel = -128 * SCALE;
 		break;
 	}
-	case MOUSE_BUTTON_DOWN_EVENT: {
+	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT: {
 		const MouseButtonEvent* buttonEvent =
 			dynamic_cast<const MouseButtonEvent*>(&event);
 		assert(buttonEvent);
@@ -209,7 +215,7 @@ bool Mouse::signalEvent(const Event& event)
 		}
 		break;
 	}
-	case MOUSE_BUTTON_UP_EVENT: {
+	case OPENMSX_MOUSE_BUTTON_UP_EVENT: {
 		const MouseButtonEvent* buttonEvent =
 			dynamic_cast<const MouseButtonEvent*>(&event);
 		assert(buttonEvent);

@@ -56,9 +56,12 @@ void Joystick::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
 		throw PlugException("Failed to open joystick device");
 	}
 
-	EventDistributor::instance().registerEventListener(JOY_AXIS_MOTION_EVENT, *this);
-	EventDistributor::instance().registerEventListener(JOY_BUTTON_DOWN_EVENT, *this);
-	EventDistributor::instance().registerEventListener(JOY_BUTTON_UP_EVENT,   *this);
+	EventDistributor::instance().registerEventListener(
+		OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
+	EventDistributor::instance().registerEventListener(
+		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
+	EventDistributor::instance().registerEventListener(
+		OPENMSX_JOY_BUTTON_UP_EVENT,   *this);
 
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
@@ -66,9 +69,13 @@ void Joystick::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
 
 void Joystick::unplugHelper(const EmuTime& /*time*/)
 {
-	EventDistributor::instance().unregisterEventListener(JOY_AXIS_MOTION_EVENT, *this);
-	EventDistributor::instance().unregisterEventListener(JOY_BUTTON_DOWN_EVENT, *this);
-	EventDistributor::instance().unregisterEventListener(JOY_BUTTON_UP_EVENT,   *this);
+	EventDistributor::instance().unregisterEventListener(
+		OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
+	EventDistributor::instance().unregisterEventListener(
+		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
+	EventDistributor::instance().unregisterEventListener(
+		OPENMSX_JOY_BUTTON_UP_EVENT,   *this);
+
 	SDL_JoystickClose(joystick);
 }
 
@@ -94,7 +101,7 @@ bool Joystick::signalEvent(const Event& event)
 	}
 
 	switch (event.getType()) {
-	case JOY_AXIS_MOTION_EVENT: {
+	case OPENMSX_JOY_AXIS_MOTION_EVENT: {
 		assert(dynamic_cast<const JoystickAxisMotionEvent*>(&event));
 		const JoystickAxisMotionEvent& motionEvent =
 			static_cast<const JoystickAxisMotionEvent&>(event);
@@ -130,7 +137,7 @@ bool Joystick::signalEvent(const Event& event)
 		}
 		break;
 	}
-	case JOY_BUTTON_DOWN_EVENT: {
+	case OPENMSX_JOY_BUTTON_DOWN_EVENT: {
 		assert(dynamic_cast<const JoystickButtonEvent*>(&event));
 		const JoystickButtonEvent& buttonEvent =
 			static_cast<const JoystickButtonEvent&>(event);
@@ -147,7 +154,7 @@ bool Joystick::signalEvent(const Event& event)
 		}
 		break;
 	}
-	case JOY_BUTTON_UP_EVENT: {
+	case OPENMSX_JOY_BUTTON_UP_EVENT: {
 		assert(dynamic_cast<const JoystickButtonEvent*>(&event));
 		const JoystickButtonEvent& buttonEvent =
 			static_cast<const JoystickButtonEvent&>(event);

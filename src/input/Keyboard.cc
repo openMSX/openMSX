@@ -92,9 +92,9 @@ Keyboard::Keyboard(bool keyG)
 	}
 
 	EventDistributor & distributor(EventDistributor::instance());
-	distributor.registerEventListener(KEY_DOWN_EVENT,   *this);
-	distributor.registerEventListener(KEY_UP_EVENT,     *this);
-	distributor.registerEventListener(CONSOLE_ON_EVENT, *this);
+	distributor.registerEventListener(OPENMSX_KEY_DOWN_EVENT,   *this);
+	distributor.registerEventListener(OPENMSX_KEY_UP_EVENT,     *this);
+	distributor.registerEventListener(OPENMSX_CONSOLE_ON_EVENT, *this);
 	// We do not listen for CONSOLE_OFF_EVENTS because rescanning the
 	// keyboard can have unwanted side effects
 
@@ -114,9 +114,9 @@ Keyboard::~Keyboard()
 	CommandController::instance().unregisterCommand(&keyMatrixUpCmd,   "keymatrixup");
 
 	EventDistributor & distributor(EventDistributor::instance());
-	distributor.unregisterEventListener(KEY_UP_EVENT,   *this);
-	distributor.unregisterEventListener(KEY_DOWN_EVENT, *this);
-	distributor.unregisterEventListener(CONSOLE_ON_EVENT, *this);
+	distributor.unregisterEventListener(OPENMSX_KEY_UP_EVENT,   *this);
+	distributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
+	distributor.unregisterEventListener(OPENMSX_CONSOLE_ON_EVENT, *this);
 }
 
 
@@ -143,10 +143,10 @@ void Keyboard::allUp()
 bool Keyboard::signalEvent(const Event& event)
 {
 	switch (event.getType()) {
-	case CONSOLE_ON_EVENT: 
+	case OPENMSX_CONSOLE_ON_EVENT: 
 		allUp();
 		break;
-	case CONSOLE_OFF_EVENT: 
+	case OPENMSX_CONSOLE_OFF_EVENT: 
 		// We do not rescan the keyboard since this may lead to an
 		// unwanted pressing of <return> in MSX after typing "set console
 		// off" in the console.
@@ -157,12 +157,12 @@ bool Keyboard::signalEvent(const Event& event)
 	                                    (int)Keys::K_MASK);
 		if (key < MAX_KEYSYM) {
 			switch (event.getType()) {
-			case KEY_DOWN_EVENT: {
+			case OPENMSX_KEY_DOWN_EVENT: {
 				// Key pressed: reset bit in keyMatrix
 				userKeyMatrix[keyTab[key][0]] &= ~keyTab[key][1];
 				break;
 			}
-			case KEY_UP_EVENT: {
+			case OPENMSX_KEY_UP_EVENT: {
 				// Key released: set bit in keyMatrix
 				userKeyMatrix[keyTab[key][0]] |= keyTab[key][1];
 				break;
