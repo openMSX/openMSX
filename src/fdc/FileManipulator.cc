@@ -106,8 +106,7 @@ string FileManipulator::execute(const vector<string>& tokens)
 	if (tokens.size() == 1) {
 		throw CommandException("Missing argument");
 
-	} else if ((tokens.size() != 4 && (tokens[1] == "import"
-	                                || tokens[1] == "savedsk"
+	} else if ((tokens.size() != 4 && ( tokens[1] == "savedsk"
 	                                || tokens[1] == "mkdir"
 	                                || tokens[1] == "export"))
 	        || (tokens.size() != 3 && (tokens[1] == "dir"
@@ -115,16 +114,25 @@ string FileManipulator::execute(const vector<string>& tokens)
 	        || ((tokens.size() < 3 || tokens.size() > 4) &&
 	                                  (tokens[1] == "chdir"))
 	        || (tokens.size() > 3 && tokens[1] == "useFile")
+	        || (tokens.size() < 4 && tokens[1] == "import")
 	        || (tokens.size() <= 3 && (tokens[1] == "create"))) {
 		throw CommandException("Incorrect number of parameters");
 
-	} else if (tokens[1] == "import" || tokens[1] == "export" ) {
+	} else if ( tokens[1] == "export" ) {
 		if (!FileOperations::isDirectory(tokens[3])) {
 			throw CommandException(tokens[3] + " is not a directory");
 		}
 		DriveSettings& settings = getDriveSettings(tokens[2]);
-		if (tokens[1] == "export") exprt (settings, tokens[3]);
-		if (tokens[1] == "import") import(settings, tokens[3]);
+		exprt (settings, tokens[3]);
+
+	} else if (tokens[1] == "import" ) {
+		DriveSettings& settings = getDriveSettings(tokens[2]);
+		std::vector<std::string>list=tokens;
+		// remove the first 3 items
+		list.erase(list.begin());
+		list.erase(list.begin());
+		list.erase(list.begin());
+		import(settings, list);
 
 	} else if (tokens[1] == "savedsk") {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
@@ -231,16 +239,16 @@ string FileManipulator::help(const vector<string>& tokens) const
 	  }
 	} else {
 	  helptext=string(
-	    "diskmanipulator create <fn> <sz> [<sz> ...] : create a formatted dsk file with name <fn>, having\n"
+	    "diskmanipulator create <fn> <sz> [<sz> ...]   : create a formatted dsk file with name <fn>, having\n"
 	    "                                              the given (partition) size(s)\n"
-	    "diskmanipulator useFile <filename>          : allow manipulation of <filename>\n"
-	    "diskmanipulator savedsk <drivename> <fn>    : save <drivename> as dsk file with name <fn>\n"
-	    "diskmanipulator format <drivename>          : format (a partition) on <drivename>\n"
-	    "diskmanipulator chdir <drivename> <dirname> : change directory on <drivename>\n"
-	    "diskmanipulator mkdir <drivename> <dirname> : create directory on <drivename>\n"
-	    "diskmanipulator dir <drivename>             : long format dir of current directory on <drivename>\n"
-	    "diskmanipulator import <drvname> <dirname>  : import all files and subdirs from <dirname>\n"
-	    "diskmanipulator export <drvname> <dirname>  : export all files on <drvname> to <dir>\n"
+	    "diskmanipulator useFile <filename>            : allow manipulation of <filename>\n"
+	    "diskmanipulator savedsk <drivename> <fn>      : save <drivename> as dsk file with name <fn>\n"
+	    "diskmanipulator format <drivename>            : format (a partition) on <drivename>\n"
+	    "diskmanipulator chdir <drivename> <dirname>   : change directory on <drivename>\n"
+	    "diskmanipulator mkdir <drivename> <dirname>   : create directory on <drivename>\n"
+	    "diskmanipulator dir <drivename>               : long format dir of current directory on <drivename>\n"
+	    "diskmanipulator import <drvname> <dir/file>.. : import files and subdirs from <dir/file>\n"
+	    "diskmanipulator export <drvname> <dirname>    : export all files on <drvname> to <dir>\n"
 	    "For more info use 'help diskmanipulator <subcommand>'\n");
 	}
 	return helptext;
@@ -443,11 +451,20 @@ void FileManipulator::mkdir(DriveSettings& driveData, const string& filename)
 	}
 }
 
-void FileManipulator::import(DriveSettings& driveData, const string& filename)
+void FileManipulator::import(DriveSettings& driveData, const std::vector<std::string>& filename)
 {
 	MSXtar workhorse(getDisk(driveData));
 	restoreCWD(workhorse, driveData);
-	workhorse.addDir(filename); // TODO can this fail?
+
+	std::vector<std::string>::const_iterator it;
+	for ( it = filename.begin() ; it != filename.end() ; it++ ) {
+		if (FileOperations::isDirectory(*it)) {
+			workhorse.addDir(*it); // TODO can this fail?
+		} else if (FileOperations::isRegularFile(*it)) {
+			workhorse.addFile(*it);
+		}
+		// TODO: do we warn the user when trying to import sockets/device-nodes/links?
+	}
 }
 
 void FileManipulator::exprt(DriveSettings& driveData, const string& dirname)

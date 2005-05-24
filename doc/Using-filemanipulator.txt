@@ -1,4 +1,4 @@
-filemanipulator
+diskmanipulator
 ---------------
 
 This is probably the most exuberant console command available in openMSX.
@@ -13,11 +13,10 @@ generic structure
 
 The general command structure is always of the form:
 
-filemanipulator <command> <disk name> <command arguments> where
+diskmanipulator <command> <disk name> <command arguments> where
 
   'commands' is one of: import, export, savedsk, format, create,
         useFile, dir, mkdir, chdir
-        useFile.
 
   'disk name' is most likely: diska, diskb, hda or imagefile. 
         imagefile is only available after a useFile command.
@@ -38,7 +37,7 @@ Detailed explanation
 savedsk
 -------
     structure:
-        filemanipulator savedsk <disk name> <dskfilename>
+        diskmanipulator savedsk <disk name> <dskfilename>
 
     explanation:
         This simply reads all the sectors of the <disk name> and saves them
@@ -55,18 +54,20 @@ savedsk
 import
 ------
     structure:
-        filemanipulator import <disk name> <host directory>
+        diskmanipulator import <disk name> <host directory|host file>...
 
     explanation:
-        This will import the files and subdirectories in <host directory> into
-        the disk inserted in <disk name>.
+        This will import the single <host file> into the disk inserted in
+        <disk name>.  In case of a <host directory> it  will import the
+        files and subdirectories in <host directory> into the inserted disk.
+        Multiple files and directories can be specified at the same time.
         The place were the files will be added in the MSX directory structure
         are influenced by the 'chdir' command.
 
 export
 ------
     structure:
-        filemanipulator export <disk name> <host directory>
+        diskmanipulator export <disk name> <host directory>
 
     explanation:
         This will export the files and subdirectories from the disk inserted in
@@ -77,7 +78,7 @@ export
 chdir
 -----
     structure:
-        filemanipulator chdir <disk name> <MSX directory>
+        diskmanipulator chdir <disk name> <MSX directory>
 
     explanation:
         This command will select the directory on the MSX disk image that will
@@ -87,7 +88,7 @@ chdir
 mkdir
 -----
     structure:
-        filemanipulator mkdir <disk name> <MSX directory>
+        diskmanipulator mkdir <disk name> <MSX directory>
 
     explanation:
         This command will create the directory on the MSX disk image.
@@ -97,7 +98,7 @@ mkdir
 dir
 ---
     structure:
-        filemanipulator dir <disk name>
+        diskmanipulator dir <disk name>
 
     explanation:
         This will show the directory content of the curring working directory.
@@ -106,7 +107,7 @@ dir
 format
 ------
     structure:
-        filemanipulator format <disk name>
+        diskmanipulator format <disk name>
 
     explanation:
         The currently selected partition from <disk name> will be cleanly
@@ -116,20 +117,20 @@ format
 useFile
 -------
     structure:
-        filemanipulator useFile <dskfilename>
+        diskmanipulator useFile <dskfilename>
 
     explanation:
         Instead of relying on the devices emulated when performing operations
-        using filemanipulator you can use any dsk image available to you by
+        using diskmanipulator you can use any dsk image available to you by
         using the useFile command. This will register an extra '<disk name>'
-        named 'imagefile' that can be treated by filemanipulator even when the
+        named 'imagefile' that can be treated by diskmanipulator even when the
         current emulated MSX is in its power off state or doesn't have any
         disk drives whatsoever.
 
 create
 ------
     structure:
-        filemanipulator create  <dskfilename> <size/option> <size/option>...
+        diskmanipulator create  <dskfilename> <size/option> <size/option>...
 
     explanation:
         You can create new dsk files using this command.

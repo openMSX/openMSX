@@ -1,5 +1,9 @@
 $Id$
 
+2005-05-24 David Heremans <david.heremans@gnu-linux.net>
+	* Enhanced the 'diskmanipulator import' function:
+	  It now accepts a list of files and directories as arguments
+
 2005-05-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Renamed 'eject' and 'ramdsk' to '-eject' and '-ramdsk'
 	* Renamed 'filemanipulator' to 'diskmanipulator'

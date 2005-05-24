@@ -34,6 +34,7 @@ public:
 	std::string dir();
 
 	// temporary way to test import MSXtar functionality
+	void addFile(const std::string& Filename);
 	void addDir(const std::string& rootDirName);
 	void getDir(const std::string& rootDirName);
 

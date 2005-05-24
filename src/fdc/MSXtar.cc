@@ -1191,6 +1191,16 @@ void MSXtar::addDir(const string& rootDirName)
 	recurseDirFill(rootDirName, MSXchrootSector, MSXchrootStartIndex);
 }
 
+void MSXtar::addFile(const string& Filename)
+{
+	// add file into fake dsk
+	string::size_type pos = Filename.find_last_of("/\\");
+	string name = (pos != string::npos)
+	           ? Filename.substr(pos + 1)
+	           : Filename;
+	addFiletoDSK(Filename, name, MSXchrootSector, MSXchrootStartIndex);
+}
+
 //temporary way to test export MSXtar functionality
 void MSXtar::getDir(const string& rootDirName)
 {
