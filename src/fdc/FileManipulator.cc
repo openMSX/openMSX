@@ -11,6 +11,7 @@
 #include "CliComm.hh"
 #include "StringOp.hh"
 #include "MSXtar.hh"
+#include "Interpreter.hh"
 #include <cassert>
 #include <ctype.h>
 
@@ -127,12 +128,8 @@ string FileManipulator::execute(const vector<string>& tokens)
 
 	} else if (tokens[1] == "import" ) {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
-		std::vector<std::string>list=tokens;
-		// remove the first 3 items
-		list.erase(list.begin());
-		list.erase(list.begin());
-		list.erase(list.begin());
-		import(settings, list);
+		vector<string> lists(tokens.begin() + 3, tokens.end());
+		import(settings, lists);
 
 	} else if (tokens[1] == "savedsk") {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
@@ -451,19 +448,26 @@ void FileManipulator::mkdir(DriveSettings& driveData, const string& filename)
 	}
 }
 
-void FileManipulator::import(DriveSettings& driveData, const std::vector<std::string>& filename)
+void FileManipulator::import(DriveSettings& driveData,
+                             const vector<string>& lists)
 {
 	MSXtar workhorse(getDisk(driveData));
 	restoreCWD(workhorse, driveData);
 
-	std::vector<std::string>::const_iterator it;
-	for ( it = filename.begin() ; it != filename.end() ; it++ ) {
-		if (FileOperations::isDirectory(*it)) {
-			workhorse.addDir(*it); // TODO can this fail?
-		} else if (FileOperations::isRegularFile(*it)) {
-			workhorse.addFile(*it);
+	for (vector<string>::const_iterator it = lists.begin();
+	     it != lists.end(); ++it) {
+		vector<string> list;
+		Interpreter::instance().splitList(*it, list);
+	
+		for (vector<string>::const_iterator it = list.begin();
+		     it != list.end(); ++it) {
+			if (FileOperations::isDirectory(*it)) {
+				workhorse.addDir(*it); // TODO can this fail?
+			} else if (FileOperations::isRegularFile(*it)) {
+				workhorse.addFile(*it);
+			}
+			// TODO: do we warn the user when trying to import sockets/device-nodes/links?
 		}
-		// TODO: do we warn the user when trying to import sockets/device-nodes/links?
 	}
 }
 
