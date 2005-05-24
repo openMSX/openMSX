@@ -240,7 +240,7 @@ void PipeConnection::close()
 	if (pipeHandle != INVALID_HANDLE_VALUE) {
 		// TODO: Proper locking
 		HANDLE _pipeHandle = pipeHandle;
-		pipeHandle = INVALID_HANDLE_VALUEl
+		pipeHandle = INVALID_HANDLE_VALUE;
 		CloseHandle(_pipeHandle);
 	}
 }
