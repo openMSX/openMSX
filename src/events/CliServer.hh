@@ -4,6 +4,7 @@
 #define CLISERVER_HH
 
 #include "Thread.hh"
+#include "Socket.hh"
 
 namespace openmsx {
 
@@ -17,6 +18,7 @@ private:
 	virtual void run();
 	void mainLoop();
 	Thread thread;
+	SOCKET listenSock;
 };
 
 } // namespace openmsx

@@ -1,5 +1,12 @@
 // $Id$
 
+// TODO:
+// - To avoid any possible conflicts, anything called from "run" should be
+//   locked.
+// - Maybe document for each method whether it is called from the listener
+//   thread or from the main thread?
+// - Unsubscribe at CliComm after stream is closed.
+
 #include "CliConnection.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
@@ -16,7 +23,7 @@ namespace openmsx {
 // class CliConnection
 
 CliConnection::CliConnection()
-	: lock(1)
+	: thread(this), lock(1)
 {
 	user_data.state = START;
 	user_data.unknownLevel = 0;
@@ -25,13 +32,25 @@ CliConnection::CliConnection()
 	sax_handler.startElement = (startElementSAXFunc)cb_start_element;
 	sax_handler.endElement   = (endElementSAXFunc)  cb_end_element;
 	sax_handler.characters   = (charactersSAXFunc)  cb_text;
-	
+
 	parser_context = xmlCreatePushParserCtxt(&sax_handler, &user_data, 0, 0, 0);
 }
 
 CliConnection::~CliConnection()
 {
 	xmlFreeParserCtxt(parser_context);
+}
+
+void CliConnection::start()
+{
+	output("<openmsx-output>\n");
+	thread.start();
+}
+
+void CliConnection::end()
+{
+	output("</openmsx-output>\n");
+	close();
 }
 
 void CliConnection::execute(const string& command)
@@ -55,7 +74,7 @@ void CliConnection::executeUntil(const EmuTime& /*time*/, int /*userData*/)
 		try {
 			string result = controller.executeCommand(cmds.front());
 			output(reply(result, true));
-		} catch (CommandException &e) {
+		} catch (CommandException& e) {
 			string result = e.getMessage() + '\n';
 			output(reply(result, false));
 		}
@@ -106,8 +125,7 @@ void CliConnection::cb_end_element(ParseState* user_data, const xmlChar* /*name*
 	}
 	switch (user_data->state) {
 		case TAG_OPENMSX:
-			user_data->object->output("</openmsx-output>\n");
-			user_data->object->close();
+			user_data->object->end();
 			user_data->state = END;
 			break;
 		case TAG_COMMAND:
@@ -131,22 +149,21 @@ void CliConnection::cb_text(ParseState* user_data, const xmlChar* chars, int len
 
 static const int BUF_SIZE = 4096;
 StdioConnection::StdioConnection()
-	: thread(this), ok(true)
+	: ok(true)
 {
-	output("<openmsx-output>\n");
-	thread.start();
+	start();
 }
 
 StdioConnection::~StdioConnection()
 {
-	output("</openmsx-output>\n");
+	end();
 }
 
 void StdioConnection::run()
 {
 	while (ok) {
 		char buf[BUF_SIZE];
-		int n = read(STDIN_FILENO, buf, 4096);
+		int n = read(STDIN_FILENO, buf, sizeof(buf));
 		if (n > 0) {
 			xmlParseChunk(parser_context, buf, n, 0);
 		} else if (n < 0) {
@@ -165,7 +182,13 @@ void StdioConnection::output(const string& message)
 
 void StdioConnection::close()
 {
-	ok = false;
+	if (ok) {
+		// TODO: close stdout?
+		::close(STDIN_FILENO);
+		::close(STDOUT_FILENO);
+		::close(STDERR_FILENO);
+		ok = false;
+	}
 }
 
 
@@ -173,7 +196,6 @@ void StdioConnection::close()
 // class PipeConnection
 
 PipeConnection::PipeConnection(const string& name)
-	: thread(this)
 {
 	string pipeName = "\\\\.\\pipe\\" + name;
 	pipeHandle = CreateFileA(pipeName.c_str(), GENERIC_READ, 0, NULL,
@@ -185,13 +207,12 @@ PipeConnection::PipeConnection(const string& name)
 		throw FatalError(msg);
 	}
 
-	output("<openmsx-output>\n");
-	thread.start();
+	start();
 }
 
 PipeConnection::~PipeConnection()
 {
-	output("</openmsx-output>\n");
+	end();
 }
 
 void PipeConnection::run()
@@ -216,8 +237,12 @@ void PipeConnection::output(const std::string& message)
 
 void PipeConnection::close()
 {
-	CloseHandle(pipeHandle);
-	pipeHandle = INVALID_HANDLE_VALUE;
+	if (pipeHandle != INVALID_HANDLE_VALUE) {
+		// TODO: Proper locking
+		HANDLE _pipeHandle = pipeHandle;
+		pipeHandle = INVALID_HANDLE_VALUEl
+		CloseHandle(_pipeHandle);
+	}
 }
 #endif // _WIN32
 
@@ -225,15 +250,14 @@ void PipeConnection::close()
 // class SocketConnection
 
 SocketConnection::SocketConnection(SOCKET sd_)
-	: thread(this), sd(sd_)
+	: sd(sd_)
 {
-	output("<openmsx-output>\n");
-	thread.start();
+	start();
 }
 
 SocketConnection::~SocketConnection()
 {
-	output("</openmsx-output>\n");
+	end();
 }
 
 void SocketConnection::run()
@@ -256,11 +280,12 @@ void SocketConnection::output(const std::string& message)
 
 	const char* data = message.data();
 	unsigned pos = 0;
-	unsigned num = message.size();
-	while (num) {
-		int n = sock_send(sd, &data[pos], num);
-		if (n > 0) {
-			num -= n;
+	unsigned bytesLeft = message.size();
+	while (bytesLeft) {
+		int bytesSend = sock_send(sd, &data[pos], bytesLeft);
+		if (bytesSend > 0) {
+			bytesLeft -= bytesSend;
+			pos += bytesSend;
 		} else {
 			close();
 			break;
@@ -270,8 +295,12 @@ void SocketConnection::output(const std::string& message)
 
 void SocketConnection::close()
 {
-	sock_close(sd);
-	sd = INVALID_SOCKET;
+	if (sd != INVALID_SOCKET) {
+		// TODO: Proper locking
+		SOCKET _sd = sd;
+		sd = INVALID_SOCKET;
+		sock_close(_sd);
+	}
 }
 
 } // namespace openmsx

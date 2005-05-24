@@ -3,7 +3,6 @@
 #include "CliServer.hh"
 #include "CliComm.hh"
 #include "CliConnection.hh"
-#include "Socket.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
 
@@ -19,6 +18,7 @@ CliServer::CliServer()
 
 CliServer::~CliServer()
 {
+	sock_close(listenSock);
 	thread.stop();
 	sock_cleanup();
 }
@@ -52,7 +52,7 @@ static int openPort(SOCKET listenSock, int min, int max)
 void CliServer::mainLoop()
 {
 	// setup listening socket
-	SOCKET listenSock = socket(AF_INET, SOCK_STREAM, 0);
+	listenSock = socket(AF_INET, SOCK_STREAM, 0);
 	if (listenSock == INVALID_SOCKET) {
 		throw FatalError(sock_error());
 	}
@@ -75,7 +75,9 @@ void CliServer::mainLoop()
 		SOCKET sd = accept(listenSock, NULL, NULL);
 		if (sd == INVALID_SOCKET) {
 			sock_close(listenSock);
-			throw FatalError(sock_error());
+			// TODO throw here or not?
+			// throw FatalError(sock_error());
+			return;
 		}
 		CliComm::instance().connections.push_back(new SocketConnection(sd));
 	}

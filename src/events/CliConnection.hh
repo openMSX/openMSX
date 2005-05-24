@@ -13,18 +13,34 @@
 
 namespace openmsx {
 
-class CliConnection : private Schedulable
+class CliConnection : private Schedulable, protected Runnable
 {
 public:
 	virtual ~CliConnection();
 
 	virtual void output(const std::string& message) = 0;
-	virtual void close() = 0;
 
 protected:
 	CliConnection();
 
+
+	/** Starts this connection by writing the opening tag
+	  * and starting the listener thread.
+	  * Subclasses should call this method at the end of their constructor.
+	  */
+	void start();
+
+	/** End this connection by sending the closing tag
+	  * and then closing the stream.
+	  * Subclasses should call this method at the start of their destructor.
+	  */
+	void end();
+
+	virtual void run() = 0;
+	virtual void close() = 0;
+
 	xmlParserCtxt* parser_context;
+	Thread thread; // TODO: Possible to make this private?
 
 private:
 	void execute(const std::string& command);
@@ -52,53 +68,50 @@ private:
 	std::deque<std::string> cmds;
 };
 
-class StdioConnection : public CliConnection, private Runnable
+class StdioConnection : public CliConnection
 {
 public:
 	StdioConnection();
 	virtual ~StdioConnection();
 
 	virtual void output(const std::string& message);
-	virtual void close();
 
 private:
+	virtual void close();
 	virtual void run();
 
-	Thread thread;
 	bool ok;
 };
 
 #ifdef _WIN32
-class PipeConnection : public CliConnection, private Runnable
+class PipeConnection : public CliConnection
 {
 public:
 	PipeConnection(const std::string& name);
 	virtual ~PipeConnection();
 
 	virtual void output(const std::string& message);
-	virtual void close();
 
 private:
+	virtual void close();
 	virtual void run();
 
-	Thread thread;
 	HANDLE pipeHandle;
 };
 #endif
 
-class SocketConnection : public CliConnection, private Runnable
+class SocketConnection : public CliConnection
 {
 public:
 	SocketConnection(SOCKET sd);
 	virtual ~SocketConnection();
 
 	virtual void output(const std::string& message);
-	virtual void close();
 
 private:
+	virtual void close();
 	virtual void run();
 
-	Thread thread;
 	SOCKET sd;
 };
 

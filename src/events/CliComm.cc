@@ -59,26 +59,32 @@ CliComm& CliComm::instance()
 void CliComm::startInput(CommandLineParser::ControlType type, const string& arguments)
 {
 	xmlOutput = true;
+	CliConnection* connection;
+	switch (type) {
+	case CommandLineParser::IO_PIPE: {
 #ifdef _WIN32
-	if (type == CommandLineParser::IO_PIPE) {
 		OSVERSIONINFO info;
 		info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 		GetVersionExA(&info);
 		if (info.dwPlatformId == VER_PLATFORM_WIN32_NT) {
-			connections.push_back(new PipeConnection(arguments));
-		} else if (type == CommandLineParser::IO_STD) {
-			connections.push_back(new StdioConnection());
+			connection = new PipeConnection(arguments);
+		} else {
+			throw FatalError(
+				"Pipes are not supported on this version of Windows");
 		}
-	}
-	else {
-		connections.push_back(new StdioConnection());	
-	}
 #else
-	type = type;            // avoid warning
-	if (arguments.empty()); // avoid warning
-
-	connections.push_back(new StdioConnection());
+		assert(false);
+		if (&arguments); // avoid warning
 #endif
+		break;
+	}
+	case CommandLineParser::IO_STD:
+		connection = new StdioConnection();
+		break;
+	default:
+		assert(false);
+	}
+	connections.push_back(connection);
 }
 
 const char* const updateStr[CliComm::NUM_UPDATES] = {
