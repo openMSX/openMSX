@@ -6,7 +6,7 @@
 #include <memory>
 #include <bitset>
 #include "Clock.hh"
-#include "Command.hh"
+#include "DiskChangeCommand.hh"
 #include "DiskContainer.hh"
 
 namespace openmsx {
@@ -165,7 +165,8 @@ public:
  * This class implements a real drive, this is the parent class for both
  * sigle and double sided drives. Common methods are implemented here;
  */
-class RealDrive : public DiskDrive, public SimpleCommand, public DiskContainer
+class RealDrive : public DiskDrive, public DiskContainer,
+                  private DiskChangeCommand
 {
 public:
 	static const int MAX_DRIVES = 26;	// a-z
@@ -205,13 +206,12 @@ protected:
 	Clock<1000> headLoadTimer; // ms
 
 private:
-	// Command interface
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help   (const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	void insertDisk(const std::string& disk,
-	                const std::vector<std::string>& patches);
-	void ejectDisk();
+	// DiskChangeCommand
+	virtual void insertDisk(const std::string& disk,
+	                        const std::vector<std::string>& patches);
+	virtual void ejectDisk();
+	virtual const std::string& getDriveName() const;
+	virtual const std::string& getCurrentDiskName() const;
 
 	std::string name;
 	bool diskChangedFlag;
