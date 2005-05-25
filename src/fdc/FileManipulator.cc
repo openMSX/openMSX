@@ -1,16 +1,18 @@
 // $Id$
 
 #include "FileManipulator.hh"
+#include "DiskContainer.hh"
+#include "DiskChanger.hh"
+#include "MSXtar.hh"
+#include "DSKDiskImage.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "File.hh"
 #include "FileException.hh"
 #include "FileOperations.hh"
 #include "SectorBasedDisk.hh"
-#include "FileDriveCombo.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"
-#include "MSXtar.hh"
 #include "Interpreter.hh"
 #include <cassert>
 #include <ctype.h>
@@ -24,11 +26,14 @@ namespace openmsx {
 FileManipulator::FileManipulator()
 {
 	CommandController::instance().registerCommand(this, "diskmanipulator");
+
+	virtualDrive.reset(new DiskChanger("virtual_drive", *this));
 }
 
 FileManipulator::~FileManipulator()
 {
-	unregisterImageFile();
+	virtualDrive.reset();
+
 	assert(diskImages.empty()); // all DiskContainers must be unregistered
 	CommandController::instance().unregisterCommand(this, "diskmanipulator");
 }
@@ -37,15 +42,6 @@ FileManipulator& FileManipulator::instance()
 {
 	static FileManipulator oneInstance;
 	return oneInstance;
-}
-
-static const string IMAGE_FILE = "imagefile";
-
-void FileManipulator::unregisterImageFile()
-{
-	if (imageFile.get()) {
-		unregisterDrive(*imageFile.get(), IMAGE_FILE);
-	}
 }
 
 void FileManipulator::registerDrive(DiskContainer& drive, const string& imageName)
@@ -92,7 +88,7 @@ FileManipulator::DriveSettings& FileManipulator::getDriveSettings(
 
 SectorAccessibleDisk& FileManipulator::getDisk(const DriveSettings& driveData)
 {
-	SectorAccessibleDisk* disk = driveData.drive->getDisk();
+	SectorAccessibleDisk* disk = driveData.drive->getSectorAccessibleDisk();
 	if (!disk) {
 		// not a SectorBasedDisk
 		throw CommandException("Unsupported disk type");
@@ -114,7 +110,6 @@ string FileManipulator::execute(const vector<string>& tokens)
 	                                || tokens[1] == "format"))
 	        || ((tokens.size() < 3 || tokens.size() > 4) &&
 	                                  (tokens[1] == "chdir"))
-	        || (tokens.size() > 3 && tokens[1] == "useFile")
 	        || (tokens.size() < 4 && tokens[1] == "import")
 	        || (tokens.size() <= 3 && (tokens[1] == "create"))) {
 		throw CommandException("Incorrect number of parameters");
@@ -150,13 +145,6 @@ string FileManipulator::execute(const vector<string>& tokens)
 
 	} else if (tokens[1] == "create") {
 		create(tokens);
-
-	} else if (tokens[1] == "useFile") {
-		if (tokens.size() == 3) {
-			usefile(tokens[2]);
-		} else {
-			result += "Current file: " + fileInUse;
-		}
 
 	} else if (tokens[1] == "format") {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
@@ -216,12 +204,6 @@ string FileManipulator::help(const vector<string>& tokens) const
 	    "be created with each partition having the size as indicated. By\n"
 	    "default the sizes are expressed in kilobyte, add the postfix M\n"
 	    "for megabyte.\n";
-	  } else if (tokens[1] == "useFile") {
-	  helptext=
-	    "diskmanipulator useFile <filename>\n"
-	    "use this if you want to alter the content of a dsk file that isn't\n"
-	    "in use by the emulated MSX. It wil create a new diskname called\n"
-	    +IMAGE_FILE+" to manipulate the content of <filename>\n";
 	  } else if (tokens[1] == "format") {
 	  helptext=
 	    "diskmanipulator format <drivename>\n"
@@ -238,7 +220,6 @@ string FileManipulator::help(const vector<string>& tokens) const
 	  helptext=string(
 	    "diskmanipulator create <fn> <sz> [<sz> ...]   : create a formatted dsk file with name <fn>, having\n"
 	    "                                              the given (partition) size(s)\n"
-	    "diskmanipulator useFile <filename>            : allow manipulation of <filename>\n"
 	    "diskmanipulator savedsk <drivename> <fn>      : save <drivename> as dsk file with name <fn>\n"
 	    "diskmanipulator format <drivename>            : format (a partition) on <drivename>\n"
 	    "diskmanipulator chdir <drivename> <dirname>   : change directory on <drivename>\n"
@@ -260,13 +241,12 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 		cmds.insert("savedsk");
 		cmds.insert("dir");
 		cmds.insert("create");
-		cmds.insert("useFile");
 		cmds.insert("format");
 		cmds.insert("chdir");
 		cmds.insert("mkdir");
 		CommandController::completeString(tokens, cmds);
 
-	} else if (tokens.size() == 2 && (tokens[1] == "create" || tokens[1] == "useFile")) {
+	} else if ((tokens.size() == 2) && (tokens[1] == "create")) {
 		CommandController::completeFileName(tokens);
 
 	} else if (tokens.size() == 3) {
@@ -276,7 +256,8 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 			names.insert(it->first);
 			// if it has partitions then we also add the partition
 			// numbers to the autocompletion
-			SectorAccessibleDisk* sectorDisk = it->second.drive->getDisk();
+			SectorAccessibleDisk* sectorDisk =
+				it->second.drive->getSectorAccessibleDisk();
 			if (sectorDisk != NULL) {
 				try {
 					MSXtar workhorse(*sectorDisk);
@@ -319,21 +300,6 @@ void FileManipulator::savedsk(const DriveSettings& driveData,
 	for (unsigned i = 0; i < nrsectors; ++i) {
 		disk.readLogicalSector(i, buf);
 		file.write(buf, SectorBasedDisk::SECTOR_SIZE);
-	}
-}
-
-void FileManipulator::usefile(const string& filename)
-{
-	unregisterImageFile();
-	if (filename == "eject") {
-		fileInUse.clear();
-	} else {
-		if (!FileOperations::isRegularFile(filename)) {
-			throw CommandException("Not such file: " + filename);
-		}
-		fileInUse = filename;
-		imageFile.reset(new FileDriveCombo(filename));
-		registerDrive(*imageFile.get(), IMAGE_FILE);
 	}
 }
 
@@ -381,11 +347,9 @@ void FileManipulator::create(const vector<string>& tokens)
 		throw CommandException("Couldn't create image: " + e.getMessage());
 	}
 
-	// use this file 
-	usefile(tokens[2]);
-
 	// initialize (create partition tables and format partitions)
-	MSXtar workhorse(*imageFile);
+	DSKDiskImage image(tokens[2]);
+	MSXtar workhorse(image);
 	workhorse.createDiskFile(sizes);
 }
 

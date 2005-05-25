@@ -1,6 +1,15 @@
 $Id$
 
-2005-05-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2005-05-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Removed 'useFile' sub command from 'diskmanipulator':
+	   the new 'virtual_drive' replaces its functionality
+	* Refactored DiskDrive code:
+	   factored out disk changing code into DiskChanger class
+	* Added 'virtual_drive':
+	   this drive is always available (even in power off state),
+	   its main use is for the diskmanipulator stuff
+
+2005-05-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Merged Maarten's 'close socket stuff' patch:
 	   - should fix exit problems on OSX
 

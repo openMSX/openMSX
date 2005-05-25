@@ -115,21 +115,20 @@ escape_grab
 diskmanipulator
 ---------------
 
-  Used to manipulate the (files on) the current disk image.
+  Used to manipulate the (files on) a disk image.
   For an in-depth explanation and examples see the file 
-  'Using-filemanipulator.txt'. FIXME
+  'Using-filemanipulator.txt'.  FIXME rename file
 
   usage:
-    diskmanipulator savedsk      <disk name> <dskfilename>
-    diskmanipulator import       <disk name> <host directory>
-    diskmanipulator export       <disk name> <host directory>
-    diskmanipulator mkdir        <disk name> <MSX directory>
-    diskmanipulator chdir        <disk name> <MSX directory>
-    diskmanipulator dir          <disk name>
-    diskmanipulator format       <disk name>
+    diskmanipulator savedsk <disk name> <dskfilename>
+    diskmanipulator import  <disk name> <host directory>
+    diskmanipulator export  <disk name> <host directory>
+    diskmanipulator mkdir   <disk name> <MSX directory>
+    diskmanipulator chdir   <disk name> <MSX directory>
+    diskmanipulator dir     <disk name>
+    diskmanipulator format  <disk name>
 
     diskmanipulator create  <dskfilename> <size/option> <size/option> ...
-    diskmanipulator useFile <dskfilename>
 
 
 help

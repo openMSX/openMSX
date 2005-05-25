@@ -10,8 +10,8 @@
 namespace openmsx {
 
 class DiskContainer;
+class DiskChanger;
 class SectorAccessibleDisk;
-class FileDriveCombo;
 class MSXtar;
 
 class FileManipulator : public SimpleCommand
@@ -33,11 +33,7 @@ private:
 	};
 	typedef std::map<const std::string, DriveSettings> DiskImages;
 	DiskImages diskImages;
-	std::string fileInUse;
-
-	std::auto_ptr<FileDriveCombo> imageFile;
-
-	void unregisterImageFile();
+	std::auto_ptr<DiskChanger> virtualDrive;
 
 	// Command interface
 	virtual std::string execute(const std::vector<std::string>& tokens);
@@ -51,7 +47,6 @@ private:
 	void create(const std::vector<std::string>& tokens);
 	void savedsk(const DriveSettings& driveData,
 	             const std::string& filename);
-	void usefile(const std::string& filename);
 	void format(DriveSettings& driveData);
 	void chdir(DriveSettings& driveData, const std::string& filename,
 	           std::string& result);

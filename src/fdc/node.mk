@@ -13,7 +13,7 @@ SRC_HDR:= \
 	TC8566AF \
 	DiskImageCLI \
 	DiskDrive \
-	DiskChangeCommand \
+	DiskChanger \
 	DriveMultiplexer \
 	Disk \
 	SectorBasedDisk \
@@ -28,7 +28,6 @@ SRC_HDR:= \
 	DiskContainer \
 	SectorAccessibleDisk \
 	FileManipulator \
-	FileDriveCombo
 
 include build/node-end.mk
 

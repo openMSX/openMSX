@@ -1,22 +1,12 @@
 // $Id$
 
 #include "DiskDrive.hh"
-#include "CommandController.hh"
-#include "GlobalSettings.hh"
-#include "DummyDisk.hh"
-#include "XSADiskImage.hh"
-#include "DSKDiskImage.hh"
-#include "RamDSKDiskImage.hh"
-#include "FDC_DirAsDSK.hh"
-#include "FileContext.hh"
-#include "FileException.hh"
-#include "CliComm.hh"
+#include "Disk.hh"
+#include "DiskChanger.hh"
 #include "EventDistributor.hh"
 #include "LedEvent.hh"
-#include "CommandException.hh"
-#include "XMLElement.hh"
-#include "SectorAccessibleDisk.hh"
 #include "FileManipulator.hh"
+#include <bitset>
 
 using std::string;
 using std::vector;
@@ -152,80 +142,40 @@ bool DummyDrive::dummyDrive()
 
 /// class RealDrive ///
 
-std::bitset<RealDrive::MAX_DRIVES> RealDrive::drivesInUse;
+static std::bitset<RealDrive::MAX_DRIVES> drivesInUse;
 
 RealDrive::RealDrive(const EmuTime& time)
-	: motorStatus(false), motorTimer(time)
+	: headPos(0), motorStatus(false), motorTimer(time)
 	, headLoadStatus(false), headLoadTimer(time)
 {
-	headPos = 0;
-	diskChangedFlag = false;
-
 	int i = 0;
-	for ( ; i < MAX_DRIVES; ++i) {
-		if (!drivesInUse[i]) {
-			name = string("disk") + static_cast<char>('a' + i);
-			drivesInUse[i] = true;
-			break;
+	while (drivesInUse[i]) {
+		if (++i == MAX_DRIVES) {
+			throw FatalError("Too many disk drives.");
 		}
 	}
-	if (i == MAX_DRIVES) {
-		throw FatalError("Too many disk drives.");
-	}
-	
-	XMLElement& config = GlobalSettings::instance().getMediaConfig();
-	XMLElement& diskConfig = config.getCreateChild(name);
-	diskElem = &diskConfig.getCreateChild("filename");
-	string filename = diskElem->getData();
-	if (!filename.empty()) {
-		try {
-			FileContext& context = diskConfig.getFileContext();
-			string diskImage = filename;
-			vector<string> patchFiles;
-			XMLElement::Children children;
-			diskConfig.getChildren("ips", children);
-			for (XMLElement::Children::const_iterator it = children.begin();
-			     it != children.end(); ++it) {
-				string patch = context.resolve((*it)->getData());
-				patchFiles.push_back(patch);
-			}
-			
-			insertDisk(diskImage, patchFiles);
-		} catch (FileException &e) {
-			// file not found
-			throw FatalError("Couldn't load diskimage: " + filename);
-		}
-	} else {
-		// nothing specified
-		ejectDisk();
-	}
-	if (CommandController::instance().hasCommand(name)) {
-		throw FatalError("Duplicated drive name: " + name);
-	}
+	drivesInUse[i] = true;
+	string driveName = string("disk") + static_cast<char>('a' + i);
 
-	// only register when everything went ok (no exceptions)
-	FileManipulator::instance().registerDrive(*this, name);
-	CommandController::instance().registerCommand(this, name);
+	changer.reset(new DiskChanger(driveName, FileManipulator::instance()));
 }
 
 RealDrive::~RealDrive()
 {
-	int driveNum = name[4] - 'a';
+	int driveNum = changer->getDriveName()[4] - 'a';
 	drivesInUse[driveNum] = false;
-	FileManipulator::instance().unregisterDrive(*this, name);
-	CommandController::instance().unregisterCommand(this, name);
 }
 
 bool RealDrive::ready()
 {
-	return disk->ready();
+	return changer->getDisk().ready();
 }
 
 bool RealDrive::writeProtected()
 {
 	// write protected bit is always 0 when motor is off
 	// verified on NMS8280
-	return motorStatus && disk->writeProtected();
+	return motorStatus && changer->getDisk().writeProtected();
 }
 
 void RealDrive::step(bool direction, const EmuTime& /*time*/)
@@ -266,7 +216,7 @@ void RealDrive::setMotor(bool status, const EmuTime& time)
 
 bool RealDrive::indexPulse(const EmuTime& time)
 {
-	if (!motorStatus && disk->ready()) {
+	if (!motorStatus && changer->getDisk().ready()) {
 		return false;
 	}
 	int angle = motorTimer.getTicksTill(time) % TICKS_PER_ROTATION;
@@ -276,7 +226,7 @@ bool RealDrive::indexPulse(const EmuTime& time)
 int RealDrive::indexPulseCount(const EmuTime& begin,
                                const EmuTime& end)
 {
-	if (!motorStatus && disk->ready()) {
+	if (!motorStatus && changer->getDisk().ready()) {
 		return 0;
 	}
 	int t1 = motorTimer.before(begin) ? motorTimer.getTicksTill(begin) : 0;
@@ -286,7 +236,7 @@ int RealDrive::indexPulseCount(const EmuTime& begin,
 
 EmuTime RealDrive::getTimeTillSector(byte sector, const EmuTime& time)
 {
-	if (!motorStatus || !disk->ready()) { // TODO is this correct?
+	if (!motorStatus || !changer->getDisk().ready()) { // TODO is this correct?
 		return time;
 	}
 	// TODO this really belongs in the Disk class
@@ -308,7 +258,7 @@ EmuTime RealDrive::getTimeTillSector(byte sector, const EmuTime& time)
 
 EmuTime RealDrive::getTimeTillIndexPulse(const EmuTime& time)
 {
-	if (!motorStatus || !disk->ready()) { // TODO is this correct?
+	if (!motorStatus || !changer->getDisk().ready()) { // TODO is this correct?
 		return time;
 	}
 	int delta = TICKS_PER_ROTATION -
@@ -332,65 +282,9 @@ bool RealDrive::headLoaded(const EmuTime& time)
 	       (headLoadTimer.getTicksTill(time) > 10);
 }
 
-void RealDrive::insertDisk(const string& diskImage, const vector<string>& patches)
-{
-	ejectDisk();
-	if (diskImage == "-ramdsk") {
-		disk.reset(new RamDSKDiskImage());
-	} else {
-		try {
-			// first try XSA
-			disk.reset(new XSADiskImage(diskImage));
-		} catch (MSXException& e) {
-			try {
-				//First try the fake disk, because a DSK will always
-				//succeed if diskImage can be resolved 
-				//It is simply stat'ed, so even a directory name
-				//can be resolved and will be accepted as dsk name
-				// try to create fake DSK from a dir on host OS
-				disk.reset(new FDC_DirAsDSK(diskImage));
-			} catch (MSXException& e) {
-				// then try normal DSK
-				disk.reset(new DSKDiskImage(diskImage));
-			}
-		}
-	}
-	for (vector<string>::const_iterator it = patches.begin();
-	     it != patches.end(); ++it) {
-		disk->applyPatch(*it);
-	}
-	diskElem->setData(diskImage);
-	diskChangedFlag = true;
-	CliComm::instance().update(CliComm::MEDIA, name, diskImage);
-}
-
-void RealDrive::ejectDisk()
-{
-	diskElem->setData("");
-	disk.reset(new DummyDisk());
-	diskChangedFlag = true;
-	CliComm::instance().update(CliComm::MEDIA, name, "");
-}
-
-const string& RealDrive::getDriveName() const
-{
-	return name;
-}
-const string& RealDrive::getCurrentDiskName() const
-{
-	return diskElem->getData();
-}
-
-SectorAccessibleDisk* RealDrive::getDisk()
-{
-	return dynamic_cast<SectorAccessibleDisk*>(disk.get());
-}
-
 bool RealDrive::diskChanged()
 {
-	bool ret = diskChangedFlag;
-	diskChangedFlag = false;
-	return ret;
+	return changer->diskChanged();
 }
 
 bool RealDrive::dummyDrive()
@@ -428,7 +322,7 @@ void SingleSidedDrive::read(byte sector, byte* buf,
 	onDiskSector = sector;
 	onDiskSide = 0;
 	onDiskSize = 512;
-	disk->read(headPos, sector, 0, 512, buf);
+	changer->getDisk().read(headPos, sector, 0, 512, buf);
 }
 
 void SingleSidedDrive::write(byte sector, const byte* buf,
@@ -439,27 +333,27 @@ void SingleSidedDrive::write(byte sector, const byte* buf,
 	onDiskSector = sector;
 	onDiskSide = 0;
 	onDiskSize = 512;
-	disk->write(headPos, sector, 0, 512, buf);
+	changer->getDisk().write(headPos, sector, 0, 512, buf);
 }
 
 void SingleSidedDrive::getSectorHeader(byte sector, byte* buf)
 {
-	disk->getSectorHeader(headPos, sector, 0, buf);
+	changer->getDisk().getSectorHeader(headPos, sector, 0, buf);
 }
 
 void SingleSidedDrive::getTrackHeader(byte* buf)
 {
-	disk->getTrackHeader(headPos, 0, buf);
+	changer->getDisk().getTrackHeader(headPos, 0, buf);
 }
 
 void SingleSidedDrive::initWriteTrack()
 {
-	disk->initWriteTrack(headPos, 0);
+	changer->getDisk().initWriteTrack(headPos, 0);
 }
 
 void SingleSidedDrive::writeTrackData(byte data)
 {
-	disk->writeTrackData(data);
+	changer->getDisk().writeTrackData(data);
 }
 
 
@@ -477,7 +371,7 @@ DoubleSidedDrive::~DoubleSidedDrive()
 
 bool DoubleSidedDrive::doubleSided()
 {
-	return disk->doubleSided();
+	return changer->getDisk().doubleSided();
 }
 
 void DoubleSidedDrive::setSide(bool side_)
@@ -493,7 +387,7 @@ void DoubleSidedDrive::read(byte sector, byte* buf,
 	onDiskSector = sector;
 	onDiskSide = side;
 	onDiskSize = 512;
-	disk->read(headPos, sector, side, 512, buf);
+	changer->getDisk().read(headPos, sector, side, 512, buf);
 }
 
 void DoubleSidedDrive::write(byte sector, const byte* buf,
@@ -504,27 +398,27 @@ void DoubleSidedDrive::write(byte sector, const byte* buf,
 	onDiskSector = sector;
 	onDiskSide = side;
 	onDiskSize = 512;
-	disk->write(headPos, sector, side, 512, buf);
+	changer->getDisk().write(headPos, sector, side, 512, buf);
 }
 
 void DoubleSidedDrive::getSectorHeader(byte sector, byte* buf)
 {
-	disk->getSectorHeader(headPos, sector, side, buf);
+	changer->getDisk().getSectorHeader(headPos, sector, side, buf);
 }
 
 void DoubleSidedDrive::getTrackHeader(byte* buf)
 {
-	disk->getTrackHeader(headPos, side, buf);
+	changer->getDisk().getTrackHeader(headPos, side, buf);
 }
 
 void DoubleSidedDrive::initWriteTrack()
 {
-	disk->initWriteTrack(headPos, side);
+	changer->getDisk().initWriteTrack(headPos, side);
 }
 
 void DoubleSidedDrive::writeTrackData(byte data)
 {
-	disk->writeTrackData(data);
+	changer->getDisk().writeTrackData(data);
 }
 
 } // namespace openmsx

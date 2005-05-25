@@ -3,15 +3,13 @@
 #ifndef DISKDRIVE_HH
 #define DISKDRIVE_HH
 
-#include <memory>
-#include <bitset>
 #include "Clock.hh"
-#include "DiskChangeCommand.hh"
-#include "DiskContainer.hh"
+#include <memory>
 
 namespace openmsx {
 
 class SectorAccessibleDisk;
+class DiskChanger;
 class Disk;
 class XMLElement;
 
@@ -165,8 +163,7 @@ public:
  * This class implements a real drive, this is the parent class for both
  * sigle and double sided drives. Common methods are implemented here;
  */
-class RealDrive : public DiskDrive, public DiskContainer,
-                  private DiskChangeCommand
+class RealDrive : public DiskDrive
 {
 public:
 	static const int MAX_DRIVES = 26;	// a-z
@@ -190,34 +187,18 @@ public:
 	virtual bool diskChanged();
 	virtual bool dummyDrive();
 
-	SectorAccessibleDisk* getDisk();
-
 protected:
 	static const int MAX_TRACK = 85;
 	static const int TICKS_PER_ROTATION = 6850;	// TODO
 	static const int ROTATIONS_PER_SECOND = 5;
 	static const int INDEX_DURATION = TICKS_PER_ROTATION / 50;
 
-	std::auto_ptr<Disk> disk;
 	int headPos;
 	bool motorStatus;
 	Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> motorTimer;
 	bool headLoadStatus;
 	Clock<1000> headLoadTimer; // ms
-
-private:
-	// DiskChangeCommand
-	virtual void insertDisk(const std::string& disk,
-	                        const std::vector<std::string>& patches);
-	virtual void ejectDisk();
-	virtual const std::string& getDriveName() const;
-	virtual const std::string& getCurrentDiskName() const;
-
-	std::string name;
-	bool diskChangedFlag;
-	XMLElement* diskElem;
-
-	static std::bitset<MAX_DRIVES> drivesInUse;
+	std::auto_ptr<DiskChanger> changer;
 };
 
 

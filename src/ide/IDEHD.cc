@@ -365,7 +365,7 @@ unsigned IDEHD::getNbSectors() const
 	return file->getSize() / 512;
 }
 
-SectorAccessibleDisk* IDEHD::getDisk()
+SectorAccessibleDisk* IDEHD::getSectorAccessibleDisk()
 {
 	return this;
 }
