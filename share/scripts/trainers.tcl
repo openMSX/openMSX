@@ -40,7 +40,7 @@ proc trainer_bubblebobble {} {
 	#shoot fire
 	#!poke 0xdae9 1
 	#extend filled
-	poke 0xdaf4 255
+	#!poke 0xdaf4 255
 	after time 1 trainer_bubblebobble 
 }
 
@@ -134,7 +134,14 @@ proc trainer_frogger {} {
 } 
 
 proc trainer_pippols {} { 
-	poke 0xe050 0x99 
+	#lives
+	poke 0xe050 0x99
+	#invincible
+	poke 0xe11b 255
+	#running shoes
+	poke 0xe1a8 1 
+	#jump shoes
+	poke 0xe1a9 1
 	after time 2 trainer_pippols 
 }
 
@@ -443,8 +450,10 @@ proc trainer_parodius {} {
 	poke 0xe420 1
 	poke 0xe430 0	
 	poke 0xe432 2	
-	poke 0xe433 2	
-	after time 2 trainer_parodius 
+	poke 0xe433 2
+	poke 0xe40a 15
+	poke 0xeb07 15
+	after time 1 trainer_parodius 
 } 
 
 
@@ -701,6 +710,10 @@ proc trainer_sdsnatcher_init {} {
 	#big 9 matrix
 	poke 0xc3f8 2
 	poke 0xc4f9 255
+	
+	#kill litle spiders in one blast
+	poke 0xc820 0
+	poke 0xc840 0
 	#after time 2 trainer_sdsnatcher
 }
 
@@ -913,7 +926,8 @@ proc trainer_metalgear2 {} {
 	poke 0xcb29 32
 	#invisible until an alert is triggered
 	poke 0xca3c 1
-	
+	#set avoiding time to 0
+	poke 0xd42b 0
 after time 2 trainer_metalgear2
 }
 
@@ -927,21 +941,52 @@ proc trainer_usas {} {
 	poke 0xc2d1 4
 	#cles's stars for jumping
 	poke 0xc2d2 2
-	#cles's mood 0=happy 1=angry 2=sad 3=happy poke 0xc2d6 x
+	#cles's mood 0=happy, 1=good mood, 2=sad, 3=angry
+	#!poke 0xc2b6 0
 	#live for wit
 	poke 0xc2b5 255
 	#wit's stars for speed
 	poke 0xc2b1 4
 	#wit's stars for jumping
 	poke 0xc2b2 2
-	#wit can walk in air as long as he wants (refresh atleast once a second)
+	#wit's ulimited airwalk
 	poke 0xc266 255
-	#wit's mood 0=happy 1=angry 2=sad 3=happy poke 0xc2d6 x
+	#wit's mood 0=happy, 1=good mood, 2=sad, 3=angry
+	#!poke 0xc2d6 0
 	#all combi's with konami carts (thanks bifi)
 	poke  0xc205 255	
 	#invinible player
 	poke 0xc256 1
-		
+	#uncapture wit
+	poke 0xc2b0 0
+	#uncapture cless
+	poke 0xc2d0 0
+	#vitality rate 1 coin
+	poke 0xc2b8 1
+	poke 0xc2b9 0
+	#vitality rate 1 coin
+	poke 0xc2ba 1
+	poke 0xc2bb 0
+	#speed rate 1 coin
+	poke 0xc2bc 1
+	poke 0xc2bd 0
+	#speed rate 1 coin
+	poke 0xc2d8 1
+	poke 0xc2d9 0
+	#jump rate 1 coin
+	poke 0xc2da 1
+	poke 0xc2db 0
+	#jump rate 1 coin
+	poke 0xc2dc 1
+	poke 0xc2dd 0
+	#big door open
+	#!poke 0xE328 1
+	#!poke 0xe330 1
+	#!poke 0xe338 1
+	#!poke 0xe340 1
+	
+	#temple enemy dies after 1 hit
+	poke 0xc412 1
 	after time 1 trainer_usas
 }
 
@@ -972,7 +1017,19 @@ proc trainer_aleste2 {} {
 	after time 1 trainer_aleste2
 }
 
-
+proc trainer_testament {} {
+	#lives
+	poke 0x59d7 144
+	#handgranades
+	poke 0x59de 32
+	#map
+	poke 0x59e3 1
+	#strong bullits
+	poke 0x59d9 255
+	#shield 
+	poke 0x59dd 1
+	after time 1 trainer_testament
+}
 
 proc trainer_ashiguine3 {} {
 	#life 
@@ -1185,7 +1242,9 @@ proc trainer_vampirekiller {} {
 	#power	
 	poke 0xc415 32
 	#invisible to enemies
-	poke 0xc43a 255
+	#!poke 0xc43a 255
+	#invincible
+	poke 0xc42d 255
 	#always have the white key
 	poke 0xc701 255
 	#always have small key
@@ -1196,6 +1255,8 @@ proc trainer_vampirekiller {} {
 	poke 0xc416 2
 	#game master combo (thanks bifi)
 	poke 0xe600 255
+	#enemy dies after 1 hit
+	poke 0xc418 0
 	after time 2 trainer_vampirekiller
 }
 
@@ -1256,7 +1317,17 @@ proc trainer_spacemanbow {} {
 proc trainer_fantasmsoldier1 {} {
 	#life
 	poke 0xf064 255
+	#max sword
+	poke 0xf294 3
 	after time 2 trainer_fantasmsoldier1
+}
+
+proc trainer_fantasmsoldier2 {} {
+	#life
+	poke 0xf937 255
+	#invincible
+	poke 0xf976 255
+	after time 2 trainer_fantasmsoldier2
 }
 
 proc trainer_dirdeaf {} {
@@ -1435,6 +1506,15 @@ proc trainer_penguinadventure  {} {
 after time 15 trainer_penguinadventure 
 } 
 
+proc trainer_stonedofwisdom {} {
+	#life
+	poke 0xe044 55
+	#power
+	poke 0xe042 55
+	#intel
+	poke 0xe040 55
+after time 2 trainer_stonedofwisdom
+}
 proc trainer_blowup {} {
 	#'cosmic' cheat active f1 to place bombs f5 to blow yourself up
 	poke 0x403b 1
@@ -1467,7 +1547,16 @@ proc trainer_superrunner {} {
 	#time
 	poke 0xcf23 59
 after time 5 trainer_superrunner
+}
 
+proc trainer_xyz {} {
+	#power
+	poke 0xe060 0x99
+	#something else
+	poke 0xe061 0x99
+	#dunno
+	poke 0xe062 0x99
+after time 5 trainer_xyz
 }
 
 proc trainer_dragonslayer4 {} {
