@@ -1,0 +1,166 @@
+diskmanipulator
+---------------
+
+This is probably the most exuberant console command available in openMSX.
+It implements the basic stuff needed to handle files and subdirs on MSX media.
+It also helps one creating new disk image files, both simple 360 kB and 720 kB
+disks as well as IDE-HD images containing up to 30 partitions of each 32 MB.
+Creating disk images and manipulating the files on them can be done without the
+need of a running emulated MSX (set power off).
+
+generic structure
+-----------------
+
+The general command structure is always of the form:
+
+diskmanipulator <command> <disk name> <command arguments> where
+
+  'commands' is one of: import, export, savedsk, format, create,
+        useFile, dir, mkdir, chdir
+
+  'disk name' is most likely: diska, diskb, hda or imagefile. 
+        imagefile is only available after a useFile command.
+        diska, diskb or IDE-HD are the drives available to the running emulated
+        MSX machine. This allows interaction with the currently used disk
+        images.
+        In case the disk contains an MSX-IDE compatible partitiontable you can
+        add a partitionnumber, from 1 till 31, to the disk name to determine on
+        which partition the command needs to act.
+
+  'command arguments' depend upon the command involved, see the detailed
+        descriptions of the commands below.
+
+
+Detailed explanation
+--------------------
+
+savedsk
+-------
+    structure:
+        diskmanipulator savedsk <disk name> <dskfilename>
+
+    explanation:
+        This simply reads all the sectors of the <disk name> and saves them
+        again in the file specified by <dskfilename>.
+        This is thus equivalent to copying a dsk file on your host OS.
+        The added values are:
+        * the possibility of saving a ramdsk (see diska -ramdsk)
+        * saving your current DirAsDisk image into a real dsk file
+        * copying the currently used imagefile in case your host-OS would give
+          sharing violations while the file is being used by openMSX (win32)
+        * saving a dsk file if you by accident already removed the directory
+          entry while openMSX is still using an open file handle towards it.
+
+import
+------
+    structure:
+        diskmanipulator import <disk name> <host directory|host file>...
+
+    explanation:
+        This will import the single <host file> into the disk inserted in
+        <disk name>.  In case of a <host directory> it  will import the
+        files and subdirectories in <host directory> into the inserted disk.
+        Multiple files and directories can be specified at the same time.
+        The place were the files will be added in the MSX directory structure
+        are influenced by the 'chdir' command.
+
+        If you want to use wildcards when importing files you will have to use
+        the TCL glob-command. This command will perform the wildcard expantion
+        and return a TCL list. Enclose the glob command inbetween '[' and ']'
+
+           diskmanipulator import hda1 [glob *.txt] [glob *.asc]
+
+        The glob-command can also take extra options. For instance, if you only
+        want to expand regular files and not the names of directories you can
+        do this:
+
+           diskmanipulator import hda1 [glob -type f info*] 
+
+        Consult you local TCL guru or documentation for more info about the
+        glob-command and TCL lists.
+
+
+export
+------
+    structure:
+        diskmanipulator export <disk name> <host directory>
+
+    explanation:
+        This will export the files and subdirectories from the disk inserted in
+        <disk name> to the <host directory> on your host OS.
+        The subdirectory that will be exported from the MSX-images is
+        influenced by the 'chdir' command.
+
+chdir
+-----
+    structure:
+        diskmanipulator chdir <disk name> <MSX directory>
+
+    explanation:
+        This command will select the directory on the MSX disk image that will
+        be used for the export and import commands.
+
+
+mkdir
+-----
+    structure:
+        diskmanipulator mkdir <disk name> <MSX directory>
+
+    explanation:
+        This command will create the directory on the MSX disk image.
+        Al the needed parent directories will be created if they do not yet
+        exist.
+
+dir
+---
+    structure:
+        diskmanipulator dir <disk name>
+
+    explanation:
+        This will show the directory content of the curring working directory.
+        The output is formated in a 'files,l' like manner.
+
+format
+------
+    structure:
+        diskmanipulator format <disk name>
+
+    explanation:
+        The currently selected partition from <disk name> will be cleanly
+        formated with a MSX-DOS2 boot sector. 
+        FAT and directory sectors will be correctly initialised.
+
+useFile
+-------
+    structure:
+        diskmanipulator useFile <dskfilename>
+
+    explanation:
+        Instead of relying on the devices emulated when performing operations
+        using diskmanipulator you can use any dsk image available to you by
+        using the useFile command. This will register an extra '<disk name>'
+        named 'imagefile' that can be treated by diskmanipulator even when the
+        current emulated MSX is in its power off state or doesn't have any
+        disk drives whatsoever.
+
+create
+------
+    structure:
+        diskmanipulator create  <dskfilename> <size/option> <size/option>...
+
+    explanation:
+        You can create new dsk files using this command.
+        This new disk will be formated using an MSX-DOS2 boot sector
+        you can specify multiple sizes in which case an MSX IDE compatible
+        partitioned image will be created, each partition will be formatted as
+        required.
+        You can specify the disk/partition sizes be using the following
+        postfixes:
+                - no postfix  ->  size in sectors
+                - S or s      ->  size in sectors
+                - B or b      ->  size in bytes
+                - K or k      ->  size in kilobytes
+                - M or m      ->  size in megabytes
+
+        When the file is cerated a 'useFile' will automatically be called for
+        this new dsk image.
