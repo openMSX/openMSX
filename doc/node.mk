@@ -9,7 +9,8 @@ SUBDIRS:=manual
 # Below is the list of docs that should be included in installation.
 INSTALL_DOCS:= \
 	release-notes.txt release-history.txt \
-	after-bussum-FAQ.txt commands.txt exampleconfigs.xml
+	after-bussum-FAQ.txt commands.txt exampleconfigs.xml \
+	Using-diskmanipulator.txt
 
 DIST:=$(INSTALL_DOCS) \
 	debugdevice.txt \
