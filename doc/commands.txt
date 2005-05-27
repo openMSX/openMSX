@@ -117,7 +117,7 @@ diskmanipulator
 
   Used to manipulate the (files on) a disk image.
   For an in-depth explanation and examples see the file 
-  'Using-filemanipulator.txt'.  FIXME rename file
+  'Using-diskmanipulator.txt'.
 
   usage:
     diskmanipulator savedsk <disk name> <dskfilename>
