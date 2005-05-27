@@ -43,7 +43,8 @@ MSX device support:
 - Updated Okazaki YM2413 core (now the default).
 - Added pixel accurate rendering to V9990 emulation. Note that the timing may
   still be quite incorrect.
-- Improved timing of R800.
+- Improved timing on turbo R machines. For example speed difference between
+  R800-ROM and R800-DRAM mode is now emulated.
 
 Build system, packaging, documentation:
 - Added experimental build support for Sparc, DEC Alpha, ARM, HP PA-RISC, IA-64,
