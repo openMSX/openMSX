@@ -16,16 +16,15 @@ The general command structure is always of the form:
 diskmanipulator <command> <disk name> <command arguments> where
 
   'commands' is one of: import, export, savedsk, format, create,
-        useFile, dir, mkdir, chdir
+        dir, mkdir, chdir
 
-  'disk name' is most likely: diska, diskb, hda or imagefile. 
-        imagefile is only available after a useFile command.
-        diska, diskb or IDE-HD are the drives available to the running emulated
-        MSX machine. This allows interaction with the currently used disk
-        images.
+  'disk name' is most likely: diska, diskb, hda or the special virtual_drive
+        device. diska, diskb or hda are the drives available to the running
+        emulated MSX machine. This allows interaction with the currently used
+        disk images.
         In case the disk contains an MSX-IDE compatible partitiontable you can
         add a partitionnumber, from 1 till 31, to the disk name to determine on
-        which partition the command needs to act.
+        which partition the command needs to act (eg. hda2, hdb3).
 
   'command arguments' depend upon the command involved, see the detailed
         descriptions of the commands below.
@@ -130,19 +129,6 @@ format
         formated with a MSX-DOS2 boot sector. 
         FAT and directory sectors will be correctly initialised.
 
-useFile
--------
-    structure:
-        diskmanipulator useFile <dskfilename>
-
-    explanation:
-        Instead of relying on the devices emulated when performing operations
-        using diskmanipulator you can use any dsk image available to you by
-        using the useFile command. This will register an extra '<disk name>'
-        named 'imagefile' that can be treated by diskmanipulator even when the
-        current emulated MSX is in its power off state or doesn't have any
-        disk drives whatsoever.
-
 create
 ------
     structure:
@@ -156,11 +142,7 @@ create
         required.
         You can specify the disk/partition sizes be using the following
         postfixes:
-                - no postfix  ->  size in sectors
                 - S or s      ->  size in sectors
                 - B or b      ->  size in bytes
-                - K or k      ->  size in kilobytes
+                - K or k      ->  size in kilobytes (default)
                 - M or m      ->  size in megabytes
-
-        When the file is cerated a 'useFile' will automatically be called for
-        this new dsk image.
