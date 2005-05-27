@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <utime.h>
 #include <unistd.h>
+#include <algorithm>
 #include <cassert>
 
 using std::string;
@@ -557,8 +558,8 @@ string MSXtar::makeSimpleMSXFileName(const string& fullfilename)
 	ext  = removeTrailingSpaces(ext);
 	
 	// put in major case and create '_' if needed
-	transform(file.begin(), file.end(), file.begin(), toMSXChr);
-	transform(ext.begin(),  ext.end(),  ext.begin(),  toMSXChr);
+	std::transform(file.begin(), file.end(), file.begin(), toMSXChr);
+	std::transform(ext.begin(),  ext.end(),  ext.begin(),  toMSXChr);
 
 	// add correct number of spaces
 	file.resize(8, ' ');

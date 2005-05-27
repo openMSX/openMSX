@@ -617,12 +617,8 @@ void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 				//the 3 vital informations needed
 				bool chgName=(memcmp( mapdir[dirCount].msxinfo.filename , buf, 11 ) ==0 ) ? true : false ;
 				
-				int tmpint=(int)(buf[25] + buf[26]<<8);
-				PRT_DEBUG(" buf[25] + buf[26]<<8 "<< tmpint << "?");
 				bool chgClus=( rdsh(mapdir[dirCount].msxinfo.startcluster) ==
 						(buf[25] + buf[26]<<8 )  ) ? true : false ;
-				tmpint=(int)(buf[27] + buf[27]<<8 + buf[27]<<16 + buf[27]<<24 );
-				PRT_DEBUG(" (buf[27] + buf[27]<<8 + buf[27]<<16 + buf[27]<<24 ) "<< tmpint << "?");
 				bool chgSize=( rdlg(mapdir[dirCount].msxinfo.size) ==
 						(buf[27] + buf[27]<<8 + buf[27]<<16 + buf[27]<<24 ) ) ? true : false ;
 

@@ -17,7 +17,7 @@ static int abs(unsigned char a)
 	return (a & 128) ? (256 - a) : a;
 }
 
-int dasm(const MSXCPUInterface& interf, word pc, byte* buf, std::string& dest)
+int dasm(const MSXCPUInterface& interf, word pc, byte buf[4], std::string& dest)
 {
 	const char* s;
 	char tmp[10];
