@@ -19,7 +19,7 @@ A last new (but still a bit experimental) feature is the file manipulator. This
 is a new built in toolkit to transfer files from the host OS to the MSX disks
 (disk images and hard disk images with partitions are all supported) and vice
 versa. You can also use it to create new (hard) disk images and format them. A
-complete description is in doc/Using-filemanipulator.txt.
+complete description is in doc/Using-diskmanipulator.txt.
 
 
 New or improved emulator features:
