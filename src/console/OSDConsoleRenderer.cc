@@ -68,8 +68,6 @@ void OSDConsoleRenderer::initConsole()
 		"number of columns in the console", columns, 32, 999));
 	consoleRowsSetting.reset(new IntegerSetting("consolerows",
 		"number of rows in the console", rows, 1, 99));
-	console.setColumns(consoleColumnsSetting->getValue());
-	console.setRows(consoleRowsSetting->getValue());
 	adjustColRow();
 	
 	// placement
@@ -103,10 +101,14 @@ void OSDConsoleRenderer::initConsole()
 
 void OSDConsoleRenderer::adjustColRow()
 {
-	consoleColumns = std::min(console.getColumns(),
-	                    (getScreenW() - CHAR_BORDER) / font->getWidth());
-	consoleRows = std::min(console.getRows(),
-	                     getScreenH() / font->getHeight());
+	unsigned consoleColumns = std::min<unsigned>(
+		consoleColumnsSetting->getValue(),
+		(getScreenW() - CHAR_BORDER) / font->getWidth());
+	unsigned consoleRows = std::min<unsigned>(
+		consoleRowsSetting->getValue(),
+		getScreenH() / font->getHeight());
+	console.setColumns(consoleColumns);
+	console.setRows(consoleRows);
 }
 
 void OSDConsoleRenderer::update(const Setting* setting)
@@ -171,15 +173,11 @@ bool OSDConsoleRenderer::updateConsoleRect()
 {
 	unsigned screenW = getScreenW();
 	unsigned screenH = getScreenH();
-	
-	// TODO use setting listener in the future
-	console.setRows(consoleRowsSetting->getValue());
-	console.setColumns(consoleColumnsSetting->getValue());
 	adjustColRow();
 
 	unsigned x, y, w, h;
-	h = font->getHeight() * consoleRows;
-	w = (font->getWidth() * consoleColumns) + CHAR_BORDER;
+	h = font->getHeight() * console.getRows();
+	w = (font->getWidth() * console.getColumns()) + CHAR_BORDER;
 	
 	// TODO use setting listener in the future
 	switch (consolePlacementSetting->getValue()) {

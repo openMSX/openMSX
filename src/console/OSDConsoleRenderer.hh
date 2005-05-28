@@ -50,8 +50,6 @@ protected:
 		CP_BOTTOMLEFT, CP_BOTTOM, CP_BOTTOMRIGHT
 	};
 
-	int consoleRows;
-	int consoleColumns;
 	std::auto_ptr<EnumSetting<Placement> > consolePlacementSetting;
 	std::auto_ptr<IntegerSetting> consoleRowsSetting;
 	std::auto_ptr<IntegerSetting> consoleColumnsSetting;
