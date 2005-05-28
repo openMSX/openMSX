@@ -214,10 +214,10 @@ string FileManipulator::help(const vector<string>& tokens) const
 	    "diskmanipulator dir <disk name>\n"
 	    "Shows the content of the current directory on <disk name>\n";
 	  } else {
-	  helptext="Unknown diskmanipulator subcommand.";/*: "+tokens[2];*/ // FIXME this gave a segfault!!
+	  helptext = "Unknown diskmanipulator subcommand: " + tokens[1];
 	  }
 	} else {
-	  helptext=string(
+	  helptext=
 	    "diskmanipulator create <fn> <sz> [<sz> ...]  : create a formatted dsk file with name <fn>\n"
 	    "                                               having the given (partition) size(s)\n"
 	    "diskmanipulator savedsk <disk name> <fn>     : save <disk name> as dsk file named as <fn>\n"
@@ -228,7 +228,7 @@ string FileManipulator::help(const vector<string>& tokens) const
 	    "                                               directory on <disk name>\n"
 	    "diskmanipulator import <disk> <dir/file> ... : import files and subdirs from <dir/file>\n"
 	    "diskmanipulator export <disk> <host dir>     : export all files on <disk> to <host dir>\n"
-	    "For more info use 'help diskmanipulator <subcommand>'.\n");
+	    "For more info use 'help diskmanipulator <subcommand>'.\n";
 	}
 	return helptext;
 }
