@@ -53,7 +53,7 @@ void OSDConsoleRenderer::initConsole()
 	// font
 	fontSetting.reset(new FilenameSetting(
 		"consolefont", "console font file",
-		"skins/ConsoleFont.png"));
+		"skins/ConsoleFontRaveLShaded.png"));
 	try {
 		fontSetting->setChecker(this);
 	} catch (MSXException& e) {
@@ -91,7 +91,7 @@ void OSDConsoleRenderer::initConsole()
 	// background
 	backgroundSetting.reset(new FilenameSetting(
 		"consolebackground", "console background file",
-		"skins/ConsoleBackground.png"));
+		"skins/ConsoleBackgroundGrey.png"));
 	try {
 		backgroundSetting->setChecker(this);
 	} catch (MSXException& e) {
