@@ -247,7 +247,7 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 		cmds.insert("mkdir");
 		CommandController::completeString(tokens, cmds);
 
-	} else if ((tokens.size() >= 2) && (tokens[1] == "create")) {
+	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
 		CommandController::completeFileName(tokens);
 
 	} else if (tokens.size() == 3) {
@@ -310,21 +310,30 @@ void FileManipulator::create(const vector<string>& tokens)
 	unsigned totalSectors = 0;
 	for (unsigned i = 3; i < tokens.size(); ++i) {
 		char* q;
-		int sectors = strtol(tokens[i].c_str(), &q, 10);
+		int sectors = strtol(tokens[i].c_str(), &q, 0);
 		int scale = 1024; // default is kilobytes 
-		switch (tolower(*q)) {
-			case 'b':
-				scale = 1;
-				break;
-			case 'k':
-				scale = 1024;
-				break;
-			case 'm':
-				scale = 1024 * 1024;
-				break;
-			case 's':
-				scale = SectorBasedDisk::SECTOR_SIZE;
-				break;
+		if (*q) {
+			if ((q == tokens[i].c_str()) || *(q + 1)) {
+				throw CommandException(
+					"Invalid size: " + tokens[i]);
+			}
+			switch (tolower(*q)) {
+				case 'b':
+					scale = 1;
+					break;
+				case 'k':
+					scale = 1024;
+					break;
+				case 'm':
+					scale = 1024 * 1024;
+					break;
+				case 's':
+					scale = SectorBasedDisk::SECTOR_SIZE;
+					break;
+				default:
+					throw CommandException(
+					    string("Invalid postfix: ") + q);
+			}
 		}
 		sectors = (sectors * scale) / SectorBasedDisk::SECTOR_SIZE;
 		// for a 32MB disk or greater the sectors would be >= 65536
