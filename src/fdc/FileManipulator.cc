@@ -91,7 +91,7 @@ SectorAccessibleDisk& FileManipulator::getDisk(const DriveSettings& driveData)
 	SectorAccessibleDisk* disk = driveData.drive->getSectorAccessibleDisk();
 	if (!disk) {
 		// not a SectorBasedDisk
-		throw CommandException("Unsupported disk type");
+		throw CommandException("Unsupported disk type or no disk inserted");
 	}
 	return *disk;
 }
@@ -166,39 +166,39 @@ string FileManipulator::help(const vector<string>& tokens) const
 	if (tokens.size() >= 2) {
 	  if (tokens[1] == "import" ) {
 	  helptext=
-	    "diskmanipulator import <drivename> <dirname>\n"
-	    "Import all files and subdirs from the host OS in <dirname> into the\n"
-	    "<drivename> in the current MSX subdirectory as was specified with the\n"
+	    "diskmanipulator import <disk name> <host directory|host file>\n"
+	    "Import all files and subdirs from the host OS as specified into the\n"
+	    "<disk name> in the current MSX subdirectory as was specified with the\n"
 	    "last chdir command.\n";
 	  } else if (tokens[1] == "export" ) {
 	  helptext=
-	    "diskmanipulator export <drivename> <dirname>\n"
+	    "diskmanipulator export <disk name> <host directory>\n"
 	    "Extract all files and subdirs from the MSX subdirectory specified with\n"
-	    "the chdir command to the host OS in <dirname>.\n";
+	    "the chdir command from <disk name> to the host OS in <host directory>.\n";
 	  } else if (tokens[1] == "savedsk") {
 	  helptext=
-	    "diskmanipulator savedsk <drivename> <filename> : save drivename as dsk-file\n"
-	    "This saves the complete drive content to <filename>, it is not possible to\n"
+	    "diskmanipulator savedsk <disk name> <dskfilename>\n"
+	    "This saves the complete drive content to <dskfilename>, it is not possible to\n"
 	    "save just one partition. The main purpose of this command is to make it\n"
 	    "possible to save a 'ramdsk' into a file and to take 'live backups' of\n"
 	    "dsk-files in use.\n";
 	  } else if (tokens[1] == "chdir") {
 	  helptext=
-	    "diskmanipulator chdir <drivename> <dirname>\n"
-	    "Change the working directory on <drivename>. This will be the\n"
+	    "diskmanipulator chdir <disk name> <MSX directory>\n"
+	    "Change the working directory on <disk name>. This will be the\n"
 	    "directory were the 'import', 'export' and 'dir' commands will\n"
 	    "work on.\n"
 	    "In case of a partitioned drive, each partition has its own\n"
 	    "working directory.\n";
 	  } else if (tokens[1] == "mkdir") {
 	  helptext=
-	    "diskmanipulator mkdir <drivename> <dirname>\n"
-	    "This creates the directory on <drivename>. If needed, all missing\n"
+	    "diskmanipulator mkdir <disk name> <MSX directory>\n"
+	    "This creates the directory on <disk name>. If needed, all missing\n"
 	    "parent directories are created at the same time. Accepts both\n"
 	    "absolute and relative pathnames.\n";
 	  } else if (tokens[1] == "create") {
 	  helptext=
-	    "diskmanipulator create <filename> <size> [<size>...]\n"
+	    "diskmanipulator create <dskfilename> <size/option> [<size/option>...]\n"
 	    "Creates a formatted dsk file with the given size.\n"
 	    "If multiple sizes are given, a partitioned disk image will\n"
 	    "be created with each partition having the size as indicated. By\n"
@@ -206,28 +206,29 @@ string FileManipulator::help(const vector<string>& tokens) const
 	    "for megabyte.\n";
 	  } else if (tokens[1] == "format") {
 	  helptext=
-	    "diskmanipulator format <drivename>\n"
-	    "formats the current (partition on) <drivename> with a regular\n"
-	    "FAT12 MSX filesystem\n";
+	    "diskmanipulator format <disk name>\n"
+	    "formats the current (partition on) <disk name> with a regular\n"
+	    "FAT12 MSX filesystem with an MSX-DOS2 boot sector.\n";
 	  } else if (tokens[1] == "dir") {
 	  helptext=
-	    "diskmanipulator dir <drivename>\n"
-	    "Shows the content of the current directory on <drivename>\n";
+	    "diskmanipulator dir <disk name>\n"
+	    "Shows the content of the current directory on <disk name>\n";
 	  } else {
-	  helptext="unknown diskmanipulator subcommand: "+tokens[2];
+	  helptext="Unknown diskmanipulator subcommand.";/*: "+tokens[2];*/ // FIXME this gave a segfault!!
 	  }
 	} else {
 	  helptext=string(
-	    "diskmanipulator create <fn> <sz> [<sz> ...]   : create a formatted dsk file with name <fn>, having\n"
-	    "                                              the given (partition) size(s)\n"
-	    "diskmanipulator savedsk <drivename> <fn>      : save <drivename> as dsk file with name <fn>\n"
-	    "diskmanipulator format <drivename>            : format (a partition) on <drivename>\n"
-	    "diskmanipulator chdir <drivename> <dirname>   : change directory on <drivename>\n"
-	    "diskmanipulator mkdir <drivename> <dirname>   : create directory on <drivename>\n"
-	    "diskmanipulator dir <drivename>               : long format dir of current directory on <drivename>\n"
-	    "diskmanipulator import <drvname> <dir/file>.. : import files and subdirs from <dir/file>\n"
-	    "diskmanipulator export <drvname> <dirname>    : export all files on <drvname> to <dir>\n"
-	    "For more info use 'help diskmanipulator <subcommand>'\n");
+	    "diskmanipulator create <fn> <sz> [<sz> ...]  : create a formatted dsk file with name <fn>\n"
+	    "                                               having the given (partition) size(s)\n"
+	    "diskmanipulator savedsk <disk name> <fn>     : save <disk name> as dsk file named as <fn>\n"
+	    "diskmanipulator format <disk name>           : format (a partition) on <disk name>\n"
+	    "diskmanipulator chdir <disk name> <MSX dir>  : change directory on <disk name>\n"
+	    "diskmanipulator mkdir <disk name> <MSX dir>  : create directory on <disk name>\n"
+	    "diskmanipulator dir <disk name>              : long format file listing of current\n"
+	    "                                               directory on <disk name>\n"
+	    "diskmanipulator import <disk> <dir/file> ... : import files and subdirs from <dir/file>\n"
+	    "diskmanipulator export <disk> <host dir>     : export all files on <disk> to <host dir>\n"
+	    "For more info use 'help diskmanipulator <subcommand>'.\n");
 	}
 	return helptext;
 }
