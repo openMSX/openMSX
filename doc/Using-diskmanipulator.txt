@@ -22,9 +22,11 @@ diskmanipulator <command> <disk name> <command arguments> where
         device. diska, diskb or hda are the drives available to the running
         emulated MSX machine. This allows interaction with the currently used
         disk images.
-        In case the disk contains an MSX-IDE compatible partitiontable you can
-        add a partitionnumber, from 1 till 31, to the disk name to determine on
-        which partition the command needs to act (eg. hda2, hdb3).
+        In case the disk contains an MSX-IDE compatible partition table you can
+        add a partition number, from 1 till 31, to the disk name to determine on
+        which partition the command needs to act (e.g. hda2 is the second
+	partition on the master IDE disk, hdb3 is the third partition on the
+	slave IDE disk).
 
   'command arguments' depend upon the command involved, see the detailed
         descriptions of the commands below.
@@ -45,10 +47,10 @@ savedsk
         The added values are:
         * the possibility of saving a ramdsk (see diska -ramdsk)
         * saving your current DirAsDisk image into a real dsk file
-        * copying the currently used imagefile in case your host-OS would give
-          sharing violations while the file is being used by openMSX (win32)
+        * copying the currently used image file in case your host-OS would give
+          sharing violations while the file is being used by openMSX (Windows)
         * saving a dsk file if you by accident already removed the directory
-          entry while openMSX is still using an open file handle towards it.
+          entry, while openMSX is still using an open file handle towards it.
 
 import
 ------
@@ -61,13 +63,17 @@ import
         files and subdirectories in <host directory> into the inserted disk.
         Multiple files and directories can be specified at the same time.
         The place were the files will be added in the MSX directory structure
-        are influenced by the 'chdir' command.
+        is influenced by the 'chdir' command.
 
-        If you want to use wildcards when importing files you will have to use
-        the TCL glob-command. This command will perform the wildcard expantion
-        and return a TCL list. Enclose the glob command inbetween '[' and ']'
+        If you want to use wild-cards when importing files, you will have to use
+        the TCL glob-command. This command will perform the wild-card expansion
+        and return a TCL list. Enclose the glob command in between '[' and ']':
 
            diskmanipulator import hda1 [glob *.txt] [glob *.asc]
+
+	This command will copy all files matching *.txt and *.asc in the current
+	directory on the host OS to the first partition of the master IDE drive
+	on the emulated MSX.
 
         The glob-command can also take extra options. For instance, if you only
         want to expand regular files and not the names of directories you can
@@ -87,7 +93,7 @@ export
     explanation:
         This will export the files and subdirectories from the disk inserted in
         <disk name> to the <host directory> on your host OS.
-        The subdirectory that will be exported from the MSX-images is
+        The subdirectory that will be exported from the MSX disk image is
         influenced by the 'chdir' command.
 
 chdir
@@ -117,7 +123,7 @@ dir
 
     explanation:
         This will show the directory content of the curring working directory.
-        The output is formated in a 'files,l' like manner.
+        The output is formatted in a 'files,l' like manner.
 
 format
 ------
@@ -136,8 +142,8 @@ create
 
     explanation:
         You can create new dsk files using this command.
-        This new disk will be formated using an MSX-DOS2 boot sector
-        you can specify multiple sizes in which case an MSX IDE compatible
+        This new disk will be formated using an MSX-DOS2 boot sector.
+        You can specify multiple sizes in which case an MSX IDE compatible
         partitioned image will be created, each partition will be formatted as
         required.
         You can specify the disk/partition sizes be using the following
