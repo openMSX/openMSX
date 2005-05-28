@@ -91,7 +91,7 @@ SectorAccessibleDisk& FileManipulator::getDisk(const DriveSettings& driveData)
 	SectorAccessibleDisk* disk = driveData.drive->getSectorAccessibleDisk();
 	if (!disk) {
 		// not a SectorBasedDisk
-		throw CommandException("Unsupported disk type or no disk inserted");
+		throw CommandException("Unsupported disk type.");
 	}
 	return *disk;
 }

@@ -11,7 +11,7 @@ namespace openmsx {
 
 class PatchInterface;
 
-class SectorBasedDisk : public Disk , public SectorAccessibleDisk
+class SectorBasedDisk : public Disk, public SectorAccessibleDisk
 {
 public: 
 	static const unsigned SECTOR_SIZE = 512;

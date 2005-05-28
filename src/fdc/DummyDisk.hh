@@ -3,25 +3,21 @@
 #ifndef FDCDUMMYBACKEND_HH
 #define FDCDUMMYBACKEND_HH
 
-#include "Disk.hh"
+#include "SectorBasedDisk.hh"
 
 namespace openmsx {
 
-class DummyDisk : public Disk
+class DummyDisk : public SectorBasedDisk
 {
 public:
-	virtual void read (byte track, byte sector,
-	                   byte side, unsigned size, byte* buf);
-	virtual void write(byte track, byte sector,
-	                   byte side, unsigned size, const byte* buf);
-	virtual void getSectorHeader(byte track, byte sector,
-	                             byte side, byte* buf);
-	virtual void getTrackHeader (byte track,
-	                             byte side, byte* buf);
+	DummyDisk();
 
 	virtual bool ready();
 	virtual bool writeProtected();
 	virtual bool doubleSided();
+
+	virtual void readLogicalSector(unsigned sector, byte* buf);
+	virtual void writeLogicalSector(unsigned sector, const byte* buf);
 };
 
 } // namespace openmsx

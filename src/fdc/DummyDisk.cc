@@ -5,27 +5,9 @@
 
 namespace openmsx {
 
-void DummyDisk::read(byte /*track*/, byte /*sector*/,
-                     byte /*side*/, unsigned /*size*/, byte* /*buf*/)
+DummyDisk::DummyDisk()
 {
-	throw DriveEmptyException("No disk in drive");
-}
-
-void DummyDisk::write(byte /*track*/, byte /*sector*/,
-                      byte /*side*/, unsigned /*size*/, const byte* /*buf*/)
-{
-	throw DriveEmptyException("No disk in drive");
-}
-
-void DummyDisk::getSectorHeader(byte /*track*/, byte /*sector*/,
-                                byte /*side*/, byte* /*buf*/)
-{
-	throw DriveEmptyException("No disk in drive");
-}
-
-void DummyDisk::getTrackHeader(byte /*track*/, byte /*side*/, byte* /*buf*/)
-{
-	throw DriveEmptyException("No disk in drive");
+	nbSectors = 0;
 }
 
 bool DummyDisk::ready()
@@ -41,6 +23,16 @@ bool DummyDisk::writeProtected()
 bool DummyDisk::doubleSided()
 {
 	return false;	// TODO check
+}
+
+void DummyDisk::readLogicalSector(unsigned /*sector*/, byte* /*buf*/)
+{
+	throw DriveEmptyException("No disk in drive");
+}
+
+void DummyDisk::writeLogicalSector(unsigned /*sector*/, const byte* /*buf*/)
+{
+	throw DriveEmptyException("No disk in drive");
 }
 
 } // namespace openmsx
