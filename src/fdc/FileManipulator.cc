@@ -247,7 +247,7 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 		cmds.insert("mkdir");
 		CommandController::completeString(tokens, cmds);
 
-	} else if ((tokens.size() == 2) && (tokens[1] == "create")) {
+	} else if ((tokens.size() >= 2) && (tokens[1] == "create")) {
 		CommandController::completeFileName(tokens);
 
 	} else if (tokens.size() == 3) {
