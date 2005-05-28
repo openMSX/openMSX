@@ -341,6 +341,13 @@ void FileManipulator::create(const vector<string>& tokens)
 		// the truncated word will be 0 -> formatted as 320 Kb disk!
 		if (sectors > 65535) sectors = 65535; // this is the max size for fat12 :-)
 
+		// TEMP FIX: the smallest bootsector we create in MSXtar is for
+		// a normal single sided disk.
+		// TODO: MSXtar must be altered and this temp fix must be set to
+		// the real smallest dsk possible (= bootsecor + minimal fat +
+		// minial dir + minimal data clusters)
+		if (sectors < 720) sectors = 720;
+
 		sizes.push_back(sectors);
 		totalSectors += sectors;
 	}
