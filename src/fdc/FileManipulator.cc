@@ -281,8 +281,6 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 			CommandController::completeFileName(tokens);
 		} else if (tokens[1] == "create") {
 			set<string> cmds;
-			cmds.insert("-dos1");
-			cmds.insert("-dos2");
 			cmds.insert("360");
 			cmds.insert("720");
 			cmds.insert("32M");
