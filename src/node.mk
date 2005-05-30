@@ -48,6 +48,7 @@ SRC_ONLY:= \
 
 HDR_ONLY:= \
 	openmsx \
+	likely \
 	Clock DynamicClock \
 	Schedulable \
 	MSXException InitException \
