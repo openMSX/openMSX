@@ -5,9 +5,10 @@
 #ifndef YMF278_HH
 #define YMF278_HH
 
-#include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "Debuggable.hh"
+#include "Clock.hh"
+#include "openmsx.hh"
 #include <memory>
 
 namespace openmsx {
