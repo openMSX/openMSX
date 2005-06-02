@@ -122,7 +122,8 @@ private:
 	  * @param mode Current display mode.
 	  * @param transparency True iff transparency is enabled.
 	  */
-	void precalcColourIndex0(DisplayMode mode, bool transparency = true);
+	void precalcColourIndex0(DisplayMode mode, bool transparency,
+	                         byte bgcolorIndex);
 
 	/** (Re)initialize workScreens array.
 	  * @param first True iff this is the first call.

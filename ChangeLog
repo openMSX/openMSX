@@ -1,5 +1,10 @@
 $Id$
 
+2005-06-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed background in screen6: 
+	   only use lower two bits for background color
+	   TODO use stripes
+
 2005-05-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed 'useFile' sub command from 'diskmanipulator':
 	   the new 'virtual_drive' replaces its functionality

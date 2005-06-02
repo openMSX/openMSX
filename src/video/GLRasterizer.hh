@@ -101,7 +101,8 @@ private:
 	  * @param mode Current display mode.
 	  * @param transparency True iff transparency is enabled.
 	  */
-	void precalcColourIndex0(DisplayMode mode, bool transparency = true);
+	void precalcColourIndex0(DisplayMode mode, bool transparency,
+	                         byte bgcolorIndex);
 
 	/** The VDP of which the video output is being rendered.
 	  */

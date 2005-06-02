@@ -386,7 +386,8 @@ void SDLRasterizer<Pixel, zoom>::setDisplayMode(DisplayMode mode)
 	} else {
 		characterConverter.setDisplayMode(mode);
 	}
-	precalcColourIndex0(mode, vdp->getTransparency());
+	precalcColourIndex0(mode, vdp->getTransparency(),
+	                    vdp->getBackgroundColour());
 	spriteConverter.setDisplayMode(mode);
 	spriteConverter.setPalette(
 		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg
@@ -398,41 +399,33 @@ void SDLRasterizer<Pixel, zoom>::setPalette(
 	int index, int grb)
 {
 	// Update SDL colours in palette.
-	palFg[index] = palBg[index] =
-		V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
-
-	// Is this the background colour?
-	if (vdp->getTransparency()
-	&& (index == 0 || index == vdp->getBackgroundColour()) ) {
-		// Transparent pixels have background colour.
-		precalcColourIndex0(vdp->getDisplayMode());
-		// Note: Relies on the fact that precalcColourIndex0 flushes the cache.
-	} else {
+	Pixel newColor = V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
+	if ((palFg[index] != newColor) || (palBg[index] != newColor)) {
+		palFg[index] = newColor;
+		palBg[index] = newColor;
 		// Any line containing pixels of this colour must be repainted.
 		// We don't know which lines contain which colours,
 		// so we have to repaint them all.
 		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 	}
+
+	precalcColourIndex0(vdp->getDisplayMode(), vdp->getTransparency(),
+	                    vdp->getBackgroundColour());
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRasterizer<Pixel, zoom>::setBackgroundColour(int index)
 {
-	if (vdp->getTransparency()) {
-		// Transparent pixels have background colour.
-		palFg[0] = palBg[index];
-		// Any line containing pixels of colour 0 must be repainted.
-		// We don't know which lines contain such pixels,
-		// so we have to repaint them all.
-		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
-	}
+	precalcColourIndex0(
+		vdp->getDisplayMode(), vdp->getTransparency(), index);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRasterizer<Pixel, zoom>::setTransparency(bool enabled)
 {
 	spriteConverter.setTransparency(enabled);
-	precalcColourIndex0(vdp->getDisplayMode(), enabled);
+	precalcColourIndex0(
+		vdp->getDisplayMode(), enabled, vdp->getBackgroundColour());
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -499,7 +492,7 @@ void SDLRasterizer<Pixel, zoom>::precalcPalette(double gamma)
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRasterizer<Pixel, zoom>::precalcColourIndex0(
-	DisplayMode mode, bool transparency)
+	DisplayMode mode, bool transparency, byte bgcolorIndex)
 {
 	// Graphic7 mode doesn't use transparency.
 	if (mode.getByte() == DisplayMode::GRAPHIC7) {
@@ -508,19 +501,21 @@ void SDLRasterizer<Pixel, zoom>::precalcColourIndex0(
 
 	int tpIndex = 0;
 	if (transparency) {
-		tpIndex = vdp->getBackgroundColour();
+		tpIndex = bgcolorIndex;
 		if (mode.getBase() == DisplayMode::GRAPHIC5) {
 			// TODO: Transparent pixels should be rendered in separate
 			//       colours for even/odd x, just like the border.
 			tpIndex &= 0x03;
 		}
 	}
-	palFg[0] = palBg[tpIndex];
+	if (palFg[0] != palBg[tpIndex]) {
+		palFg[0] = palBg[tpIndex];
 
-	// Any line containing pixels of colour 0 must be repainted.
-	// We don't know which lines contain such pixels,
-	// so we have to repaint them all.
-	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
+		// Any line containing pixels of colour 0 must be repainted.
+		// We don't know which lines contain such pixels,
+		// so we have to repaint them all.
+		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
+	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>

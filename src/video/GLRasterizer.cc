@@ -377,7 +377,8 @@ void GLRasterizer::setDisplayMode(DisplayMode mode)
 		}
 	}
 	lineWidth = mode.getLineWidth();
-	precalcColourIndex0(mode, vdp->getTransparency());
+	precalcColourIndex0(mode, vdp->getTransparency(),
+	                    vdp->getBackgroundColour());
 	spriteConverter.setDisplayMode(mode);
 	spriteConverter.setPalette(mode.getByte() == DisplayMode::GRAPHIC7 ?
 	                           palGraphic7Sprites : palBg);
@@ -387,41 +388,32 @@ void GLRasterizer::setPalette(
 	int index, int grb)
 {
 	// Update GL colour in palette.
-	palFg[index] = palBg[index] =
-		V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
-
-	// Is this the background colour?
-	if (vdp->getTransparency()
-	&& (index == 0 || index == vdp->getBackgroundColour()) ) {
-		// Transparent pixels have background colour.
-		precalcColourIndex0(vdp->getDisplayMode());
-		// Note: Relies on the fact that precalcColourIndex0 flushes the cache.
-	} else {
+	Pixel newColor = V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
+	if ((palFg[index] != newColor) || (palBg[index] != newColor)) {
+		palFg[index] = newColor;
+		palBg[index] = newColor;
 		// Any line containing pixels of this colour must be repainted.
 		// We don't know which lines contain which colours,
 		// so we have to repaint them all.
 		dirtyColour.flush();
 		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 	}
+	
+	precalcColourIndex0(vdp->getDisplayMode(), vdp->getTransparency(),
+	                    vdp->getBackgroundColour());
 }
 
 void GLRasterizer::setBackgroundColour(int index)
 {
-	if (vdp->getTransparency()) {
-		// Transparent pixels have background colour.
-		palFg[0] = palBg[index];
-		// Any line containing pixels of colour 0 must be repainted.
-		// We don't know which lines contain such pixels,
-		// so we have to repaint them all.
-		dirtyColour.flush();
-		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
-	}
+	precalcColourIndex0(
+		vdp->getDisplayMode(), vdp->getTransparency(), index);
 }
 
 void GLRasterizer::setTransparency(bool enabled)
 {
 	spriteConverter.setTransparency(enabled);
-	precalcColourIndex0(vdp->getDisplayMode(), enabled);
+	precalcColourIndex0(
+		vdp->getDisplayMode(), enabled, vdp->getBackgroundColour());
 }
 
 void GLRasterizer::precalcPalette(double gamma)
@@ -479,7 +471,9 @@ void GLRasterizer::precalcPalette(double gamma)
 	}
 }
 
-void GLRasterizer::precalcColourIndex0(DisplayMode mode, bool transparency) {
+void GLRasterizer::precalcColourIndex0(
+	DisplayMode mode, bool transparency, byte bgcolorIndex)
+{
 	// Graphic7 mode doesn't use transparency.
 	if (mode.getByte() == DisplayMode::GRAPHIC7) {
 		transparency = false;
@@ -487,20 +481,22 @@ void GLRasterizer::precalcColourIndex0(DisplayMode mode, bool transparency) {
 
 	int bgColour = 0;
 	if (transparency) {
-		bgColour = vdp->getBackgroundColour();
+		bgColour = bgcolorIndex;
 		if (mode.getBase() == DisplayMode::GRAPHIC5) {
 			// TODO: Transparent pixels should be rendered in separate
 			//       colours for even/odd x, just like the border.
 			bgColour &= 0x03;
 		}
 	}
-	palFg[0] = palBg[bgColour];
+	if (palFg[0] != palBg[bgColour]) {
+		palFg[0] = palBg[bgColour];
 
-	// Any line containing pixels of colour 0 must be repainted.
-	// We don't know which lines contain such pixels,
-	// so we have to repaint them all.
-	dirtyColour.flush();
-	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
+		// Any line containing pixels of colour 0 must be repainted.
+		// We don't know which lines contain such pixels,
+		// so we have to repaint them all.
+		dirtyColour.flush();
+		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
+	}
 }
 
 void GLRasterizer::updateVRAMCache(int address)
