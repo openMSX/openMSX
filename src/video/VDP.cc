@@ -175,6 +175,10 @@ void VDP::resetInit(const EmuTime& /*time*/)
 		// Boots (and remains) in PAL mode, all other VDPs boot in NTSC.
 		controlRegs[9] |= 0x02;
 	}
+	// According to page 6 of the V9938 data book the colour burst registers
+	// are loaded with these values at power on.
+	controlRegs[21] = 0x3B;
+	controlRegs[22] = 0x05;
 	// Note: frameStart is the actual place palTiming is written, but it
 	//       can be read before frameStart is called.
 	//       TODO: Clean up initialisation sequence.
@@ -551,7 +555,7 @@ void VDP::writeIO(byte port, byte value, const EmuTime& time)
 						);
 				} else {
 					// TODO what happens in this case?
-					// it's not a register write because 
+					// it's not a register write because
 					// that breaks "SNOW26" demo
 				}
 			} else {
@@ -674,7 +678,7 @@ byte VDP::readStatusReg(byte reg, const EmuTime& time)
 {
 	byte ret = peekStatusReg(reg, time);
 	switch (reg) {
-	case 0: 
+	case 0:
 		spriteChecker->resetStatus();
 		statusReg0 = 0;
 		irqVertical.reset();
