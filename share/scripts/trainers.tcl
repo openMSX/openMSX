@@ -31,8 +31,11 @@ proc trainer_f1spirit {} {
 	after time 1 trainer_f1spirit 
 } 
 proc trainer_bubblebobble {} {
-	#invincible
+	#invincible player 1
 	poke 0xdadd 200
+	#invincible player 2
+	poke 0xdb6b 100
+	#poke 0xdb6a 200
 	#super bobble
 	poke 0xdae8 255
 	#shoot bubbles
@@ -97,7 +100,6 @@ proc trainer_antarticland {} {
 	poke 0xe0e4 0x1
 	after time 60 trainer_antarticland 
 } 
-
 
 proc trainer_athleticland {} { 
 	#lives
@@ -405,6 +407,8 @@ proc trainer_thexder2 {} {
 	poke 0x134f 99
 	#flashers
 	poke 0x1350 99
+	#max energy 500
+	poke 0x12d8 250
 	after time 2 trainer_thexder2 
 } 
 
@@ -605,7 +609,7 @@ proc trainer_xak1 {} {
 	after time 2 trainer_xak1
 }
 
-proc trainer_sdsnatcher_init {} {
+proc trainer_sdsnatcher {} {
 
 #max out all stats
 	poke 0xce82 255
@@ -620,9 +624,13 @@ proc trainer_sdsnatcher_init {} {
 	poke 0xce8b 255
 	poke 0xce8c 255
 	
+	#max life
+	poke 0xce81 255
+	
 	#money
 	poke 0xce8d 255 
 	poke 0xce8e 255
+	
 	#junkers
 	poke 0xc451 99
         
@@ -674,47 +682,123 @@ proc trainer_sdsnatcher_init {} {
 	#flare
 	poke 0xc448 2
 	poke 0xc449 255
-
+	
 	#stringray
-	poke 0xc3b8 2
-	poke 0xc4b9 255
+	poke 0xc3a8 2
+	poke 0xc4a9 255
+	#skill for stringay
+	poke 0xc3ad 100
+	#ammo for stingray
+	poke 0xc3a9 231
+	poke 0xc3aa 3
 
 	#f. ball
-	poke 0xc3c0 2
-	poke 0xc4c1 255	
+	poke 0xc3b0 2
+	poke 0xc4b1 255	
+	#skill for f. ball
+	poke 0xc3b5 100
+	#ammo for f. ball
+	poke 0xc3b1 231
+	poke 0xc3b2 3
 
 	#k. sprint
+	poke 0xc3b8 2
+	poke 0xc4b9 255
+	#skill for k. sprint
+	poke 0xc3bd 100
+	#ammo for k. sprint
+	poke 0xc3b9 231
+	poke 0xc3ba 3
+	
+	#storm
+	poke 0xc3c0 2
+	poke 0xc4c1 255
+	#skill for storm
+	poke 0xc3c5 100
+	#ammo for storm
+	poke 0xc3c1 231
+	poke 0xc3c2 3
+	
+	#k. sprint
 	poke 0xc3c8 2
-	poke 0xc4c9 255
+	poke 0xc4c9 255	
+	#skill for k. sprint
+	poke 0xc3cd 100
+	#ammo for K. sprint
+	poke 0xc3c9 231
+	poke 0xc3ca 3
 
-	#s. storm
+	#b. hawk
 	poke 0xc3d0 2
-	poke 0xc4d1 255	
+	poke 0xc4d1 255
+	#skill for b. hawk
+	poke 0xc3d5 100
+	#ammo for b. hawk
+	poke 0xc3d1 231
+	poke 0xc3d2 3
 
 	#g. hound
 	poke 0xc3d8 2
 	poke 0xc4d9 255
+	#skill for g. hound
+	poke 0xc3dd 100
+	#ammo for g.hound
+	poke 0xc3d9 231
+	poke 0xc3da 3	
 
 	#i. cepter
 	poke 0xc3e0 2
 	poke 0xc4e1 255
-
+	#skill for i. cepter
+	poke 0xc3e5 100
+	#ammo for i. cepter
+	poke 0xc3e1 231
+	poke 0xc3e2 3
+	
 	#s. grade
 	poke 0xc3e8 2
 	poke 0xc4e9 255
-
+	#skill for s. grade
+	poke 0xc3ed 100
+	#ammo for s. grade
+	poke 0xc3e9 231
+	poke 0xc3ea 3
+	
 	#n. point
 	poke 0xc3f0 2
 	poke 0xc4f1 255
-
+	#skill for n. point
+	poke 0xc3f5 100
+	#ammo for n. point
+	poke 0xc3f1 231
+	poke 0xc3f2 3
+	
 	#big 9 matrix
 	poke 0xc3f8 2
 	poke 0xc4f9 255
+	#skill for g. matric
+	poke 0xc3fd 100
+	#ammo for big 9 matrix
+	poke 0xc3f9 231
+	poke 0xc3fa 3
 	
 	#kill litle spiders in one blast
 	poke 0xc820 0
 	poke 0xc840 0
-	#after time 2 trainer_sdsnatcher
+	
+	#max rank
+	poke 0xce80 64
+	#max str level
+	poke 0xce84 64
+	#max def level
+	poke 0xce87 64
+	#max speed level
+	poke 0xce8a 64
+	
+	#put weapons in slots (put the weapon value from 2 to 1 or else you will not be able to deselect it)
+	#!poke 0xc150 1
+	#!poke 0xc150 10
+	#!poke 0xc150 11
 }
 
 
@@ -1196,7 +1280,9 @@ proc trainer_maze_of_galious {} {
 	poke 0xe098 1
 	#salt	
 	poke 0xe099 1	
-
+	#cross
+	poke 0xe07a 1
+	
 	#use bible until kingdom come
 	poke 0xe531 1
 	#screen stays frozen for as long as you are in that screen
@@ -1604,12 +1690,19 @@ proc trainer_dragonslayer4 {} {
 	poke 0xc07e 99
 	
 	#invincible
-	poke 0xc08b 2559
-		
-after time 2 trainer_dragonslayer4
+	#!poke 0xc08b 255
+	#jump high
+	poke 0xc06b 40
+	#strong weapons
+	poke 0xc06c 255
+	#walk trough air
+	poke 0xc08c 2	
+	#shoot far
+	poke 0xc06e 40
+	#walk faster
+	poke 0xc08e 255
+after time 1 trainer_dragonslayer4
 }
-
-
 
 proc trainer_druid {} {
 	poke 0xc06e 140
@@ -2169,6 +2262,37 @@ proc trainer_supertriton {} {
 	after time 1 trainer_supertriton 
 } 
 
+proc trainer_triton {} { 
+	#exp
+	poke 0xe43b 100
+    #life
+	poke 0xe439 99
+	#magic balls
+	poke 0xe43c 99
+	after time 1 trainer_triton 
+} 
+
+proc trainer_afterburner {} { 
+	#missles
+	poke 0x5e23 255
+    #lives
+	poke 0x5e4e 100
+	after time 10 trainer_afterburner 
+} 
+
+proc trainer_iremkarate {} { 
+	#power
+	poke 0xecad 255
+	#time
+	poke 0xecc6 0x2
+	after time 10 trainer_iremkarate 
+} 
+
+proc trainer_rambo3 {} { 
+	#life
+	poke 60ee 0
+	after time 2 trainer_rambo3 
+} 
 proc trainer_illusioncity {} { 
 	#money
 	poke 0xc268 255
@@ -2759,6 +2883,14 @@ proc trainer_scarlet7 {} {
 	after time 1 trainer_scarlet7
 }
 
+proc trainer_anaza {} {
+	#power
+	poke 0xc016 32
+	#credit
+	poke 0xc01e 0x99
+	poke 0xc01d 0x99
+	after time 1 trainer_anaza
+}
 
 proc trainer_hydlide3 {} { 
 	#current power
@@ -2805,6 +2937,21 @@ proc trainer_hydlide3 {} {
 	poke 0xd0a9 255
 	after time 2 trainer_hydlide3 
 } 
+
+proc trainer_deepforest {} {
+	#power
+	poke 0xeb1a 255
+ 	#money
+    poke 0xeb1b 99 	
+    poke 0xeb1c 99 
+ 	after time 2 trainer_deepforest 	
+}
+
+proc trainer_volguard {} {
+	#power
+	poke 0xe392 255
+ 	after time 1 trainer_volguard 	
+}
 
 proc poke {addr val} {
 	debug write memory $addr $val
