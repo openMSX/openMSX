@@ -1,5 +1,10 @@
 $Id$
 
+2005-06-06 Manuel Bilderbeek <manuel@msxnet.org>
+	* Implemented new icon by Eric Boon (32x32 version).
+	* Cleaned up Icon code, to use a slightly modified GIMP C-Source image
+	  dump. It's now also easier to put in a larger bitmap.
+
 2005-06-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed background in screen6: 
 	   only use lower two bits for background color
