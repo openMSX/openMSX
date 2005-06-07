@@ -19,7 +19,7 @@
       <ROM id="C-BIOS Main ROM">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>efcdc66a5bdf045475978abbb055055ed8bc35d0</sha1>
+          <sha1>076c2eabde1379c5290392e0e6b49b0f4f7e4c5d</sha1>
           <filename>roms/cbios_main_msx1.rom</filename>
         </rom>
       </ROM>

@@ -21,7 +21,7 @@
       <ROM id="C-BIOS Main ROM">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>a263b323c9ba7fd86a986fab9233c006f4ed5082</sha1>
+          <sha1>23066467e57a0b85d0a806a4247a81244974b03c</sha1>
           <filename>roms/cbios_main_msx2+.rom</filename>
         </rom>
       </ROM>
@@ -37,7 +37,7 @@
         <ROM id="C-BIOS Sub ROM">
           <mem base="0x0000" size="0x4000"/>
           <rom>
-            <sha1>c8354e4809309d231aeaf07e021674d82b491ca8</sha1>
+            <sha1>e920187e690ab02c959346b5e40dd1bdee973968</sha1>
             <filename>roms/cbios_sub.rom</filename>
           </rom>
         </ROM>
