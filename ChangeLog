@@ -1,5 +1,8 @@
 $Id$
 
+2005-06-07 Maarten ter Huurne <maarten@treewalker.org>
+	* Updated C-BIOS to 0.21.
+
 2005-06-06 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented new icon by Eric Boon (32x32 version).
 	* Cleaned up Icon code, to use a slightly modified GIMP C-Source image
