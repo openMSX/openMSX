@@ -44,7 +44,7 @@ MSX device support:
 - Updated Okazaki YM2413 core (now the default).
 - Added pixel accurate rendering to V9990 emulation. Note that the timing may
   still be quite incorrect.
-- Improved timing on turbo R machines. For example speed difference between
+- Improved timing on turbo R machines. For example, speed difference between
   R800-ROM and R800-DRAM mode is now emulated.
 
 Build system, packaging, documentation:
@@ -54,6 +54,7 @@ Build system, packaging, documentation:
   around, without problems.
 - Our Debian packages are now uploaded to the Debian archive, soon after
   release.
+- Updated C-BIOS to 0.21.
 
 And of course the usual various bug fixes.
 
