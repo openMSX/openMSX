@@ -1,6 +1,6 @@
 $Id$
 
-C-BIOS 0.20
+C-BIOS 0.21
 ===========
 
 This software is a substitute BIOS which is can be used for running MSX
@@ -16,15 +16,15 @@ http://cbios.sourceforge.net/
 License
 -------
 
-Copyright (c) 2002-2004 BouKiCHi.  All rights reserved.
+Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
 Copyright (c) 2003 Reikan.  All rights reserved.
 Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
 Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
-Copyright (c) 2004 Patrick van Arkel.  All rights reserved.
+Copyright (c) 2004-2005 Patrick van Arkel.  All rights reserved.
 Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 Copyright (c) 2004-2005 Joost Yervante Damad.  All rights reserved.
 Copyright (c) 2004-2005 Jussi Pitkänen.  All rights reserved.
-Copyright (c) 2004 Eric Boon.  All rights reserved.
+Copyright (c) 2004-2005 Eric Boon.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -162,7 +162,15 @@ ver 0.20  2005-02-09(CET)
             is not enabled in the configurations.
           * Stubbed all non-implemented calls.
           * Various bug fixes.
-
+ver 0.21  2005-06-07(CET)
+          * Fixed RuMSX configuration files, thanks to Rudolf Lechleitner.
+          * Rewrote ROM search code; now all ROMs are recognized.
+            Also a clear error message is printed for BASIC ROMs.
+          * New boot logo for MSX2 and MSX2+.
+          * Changed boot sequence:
+            Show logo, switch to SCREEN 1 and search for ROMs.
+          * Improved video code; fixes several games.
+          * Various bug fixes.
 
 Special Thanks
 --------------
