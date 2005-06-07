@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.5.2 (2005-05-??) DRAFT
+Release Notes for openMSX 0.5.2 (2005-06-??) DRAFT
 ============================================
 
 This release is mainly a bug fix release with little new features, but a lot of
@@ -38,6 +38,7 @@ New or improved emulator features:
 - Use revamped console background and font as default. Note that you should
   change it yourself if you still use a settings.xml from a previous version.
   (Or remove this old settings.xml...)
+- New icon (made by Eric Boon)
 
 MSX device support:
 - Updated Okazaki YM2413 core (now the default).
