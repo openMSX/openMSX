@@ -18,8 +18,6 @@
 proc trainer_f1spirit {} { 
 	#always first place
 	poke 0xe331 1
-	#fuel
-	poke 0xe2bb 0
 	#all combi's with konami carts (thanks bifi)
 	poke  0xe1de 2
 	#escon
@@ -28,6 +26,10 @@ proc trainer_f1spirit {} {
 	poke 0xe1d6 1
 	#maxpoint
 	poke 0xe1df 1
+	#feul (finally!)
+	poke 0xe310 255
+	#no damage (this is a bitmask)
+	poke 0xe328 0
 	after time 1 trainer_f1spirit 
 } 
 proc trainer_bubblebobble {} {
@@ -94,6 +96,7 @@ proc trainer_thecastle {} {
 	poke 0xe336 255
 	after time 1 trainer_thecastle 
 }
+
 proc trainer_antarticland {} { 
 	#time
 	poke 0xe0e3 0x11
@@ -372,7 +375,9 @@ proc trainer_golvellius1 {} {
 	#max gold
 	poke 0xe050 255
 	poke 0xe051 255
-	after time 2 trainer_golvellius1 
+	#do not get paralized when hit by an enemy (should be done every frame)
+	poke 0xd01a 0
+	after time 1 trainer_golvellius1 
 } 
 
 proc trainer_goonies {} { 
@@ -1645,10 +1650,10 @@ proc trainer_xyz {} {
 after time 5 trainer_xyz
 }
 
-proc trainer_dragonslayer4 {} {
-	# life
+proc trainer_dragonslayer4_msx2 {} {
+	#life
 	poke 0xc067 109
-	#ammon
+	#magic
 	poke 0xc068 109
 	#money
 	poke 0xc069 109
@@ -1685,7 +1690,7 @@ proc trainer_dragonslayer4 {} {
 	#red globe
 	poke 0xc07c 99		
 	#crown
-	poke 0xc07d 99	
+	poke 0xc07d 1	
 	#sword
 	poke 0xc07e 99
 	
@@ -1697,11 +1702,13 @@ proc trainer_dragonslayer4 {} {
 	poke 0xc06c 255
 	#walk trough air
 	poke 0xc08c 2	
+	#kill enemies with body
+	poke 0xc08d 2	
 	#shoot far
 	poke 0xc06e 40
 	#walk faster
 	poke 0xc08e 255
-after time 1 trainer_dragonslayer4
+after time 1 trainer_dragonslayer4_msx2
 }
 
 proc trainer_druid {} {
@@ -2952,6 +2959,24 @@ proc trainer_volguard {} {
 	poke 0xe392 255
  	after time 1 trainer_volguard 	
 }
+
+proc trainer_leonidas {} { 
+	#homing shot
+	poke 0xe32e 6
+	#hearts
+	poke 0xe054 0x99
+	poke 0xe055 0x99
+	#air
+	poke 0xe057 64
+	#shot
+	poke 0xe058 64
+	#invincible (partly)
+	poke 0xe33a 4
+	poke 0xe33b 60
+	#lives
+	poke 0xe001 0x99
+	after time 1 trainer_leonidas 
+} 
 
 proc poke {addr val} {
 	debug write memory $addr $val
