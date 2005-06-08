@@ -1,44 +1,49 @@
-Release Notes for openMSX 0.5.2 (2005-06-??) DRAFT
+Release Notes for openMSX 0.5.2 (2005-06-09)
 ============================================
 
-This release is mainly a bug fix release with little new features, but a lot of
-improvements! We mainly tried to fix some sound problems with this release. We
-reworked the YM2413 engine by Okazaki, bringing the openMSXified version up to
-date with the latest release of MSXplug. We also fixed an annoying bug in the
-SCC, which screwed up some sound effects, amongst others, as well as the
-sampleRAM detection of MSX-AUDIO devices and the timer accuracy of OPL4 and
-MSX-AUDIO. Finally, we also added a DirectSound driver for Windows users. 
+This release is mainly a bug fix release with only a few new features, but a lot
+of quality improvements, mainly related to audio. We reworked the YM2413 engine
+by Okazaki, bringing the openMSX fork up to date with the latest release of
+MSXplug. We also fixed an bug in the SCC emulation, which screwed up some sound
+effects. Other fixes include MSX-AUDIO sample RAM access and the timer accuracy
+of OPL4 and MSX-AUDIO. Finally, we also added a DirectSound driver for Windows.
 
-A new sound related feature is the sound logger. It's pretty simple for now, you
-can enable and disable the logging of the sound you hear on the speakers to a
-WAV file. Note that this can take a huge amount of disk space, so be careful
-with it. Also, with this version all pops and stutters you may hear on the
-speakers will also end up in the file. Future versions will be better.
+A new sound related feature is the sound logger. It writes the sound played by
+openMSX to an uncompressed WAV file. The current version logs exactly what is
+sent to the sound driver, including any inaccuracies caused by realtime
+synchronization. We are planning a logger that is not timing sensitive to
+appear in a future openMSX release. For usage instructions, see section 7.3 of
+the openMSX User's Manual.
 
-A last new (but still a bit experimental) feature is the file manipulator. This
+A last new (but still a bit experimental) feature is the disk manipulator. This
 is a new built in toolkit to transfer files from the host OS to the MSX disks
 (disk images and hard disk images with partitions are all supported) and vice
 versa. You can also use it to create new (hard) disk images and format them. A
-complete description is in doc/Using-diskmanipulator.txt.
-
+complete description is in doc/using-diskmanipulator.txt.
 
 New or improved emulator features:
 - New scaler: HQ2xLite. This is a scaler that is almost as good as HQ2x, but
-  uses a lot less CPU. 
+  uses a lot less CPU.
+- Added DirectSound driver for Windows, which solves the problems some people
+  had with SDL on Windows. It also runs at a lower latency than the SDL driver.
+  Many thanks to Daniel Vik for helping with DirectSound. To switch between the
+  DirectSound and SDL sound drivers, use the new "sound_driver" setting.
 - Improved debugger, with some new (TCL based) commands like disasm, step_in,
   step_over and run_to.
-- Added a cheat finder script. For an explanation how to use it, see this
-  openMSX forum post: http://forum.openmsx.org/viewtopic.php?t=34
 - Extended IPS patch support, it should now support all IPS files.
-- New setting: sound_driver. DirectSound is default on Windows, 'sdl' on other
-  operating systems. Many thanks to Daniel Vik for helping with DirectSound.
 - Updated ROM database.
-- Added trainers.tcl: hundreds of game trainers! Use trainer_[TAB] in the
+- Added trainers.tcl: hundreds of game trainers. Use trainer_[TAB] in the
   console to switch on the trainer for the game you want.
-- Use revamped console background and font as default. Note that you should
-  change it yourself if you still use a settings.xml from a previous version.
-  (Or remove this old settings.xml...)
-- New icon (made by Eric Boon)
+- Added a cheat finder script: create your own game trainers. For an
+  explanation how to use it, see this openMSX forum post:
+    http://forum.openmsx.org/viewtopic.php?t=34
+- Use revamped console background and font as default. If you're upgrading from
+  an older openMSX version and want to use this new background and font, you
+  can either remove your settings.xml file or type the following lines in the
+  openMSX console:
+    set consolebackground skins/ConsoleBackgroundGrey.png
+    set consolefont skins/ConsoleFontRaveLShaded.png
+- New icon, made by Eric Boon.
 
 MSX device support:
 - Updated Okazaki YM2413 core (now the default).
@@ -46,12 +51,14 @@ MSX device support:
   still be quite incorrect.
 - Improved timing on turbo R machines. For example, speed difference between
   R800-ROM and R800-DRAM mode is now emulated.
+- Various IDE fixes from Adriano Camargo Rodrigues da Cunha.
 
 Build system, packaging, documentation:
+- Compile fixes for GCC 4.x.
 - Added experimental build support for Sparc, DEC Alpha, ARM, HP PA-RISC, IA-64,
   Motorola 680x0, MIPS and IBM S/390. Except for Sparc these are all untested.
-- openMSX is now relocatable on Mac OS X, which means you can move the binary
-  around, without problems.
+- openMSX is now relocatable on Mac OS X, which means you can move the
+  installation directory around.
 - Our Debian packages are now uploaded to the Debian archive, soon after
   release.
 - Updated C-BIOS to 0.21.
@@ -70,9 +77,9 @@ Known issues / caveats:
   example. Keep this in mind if you create machine descriptions, ROM database
   entries etc.
 - openMSX is confirmed to run on the following operating systems: Linux, Win32,
-  Mac OS X, FreeBSD, OpenBSD and NetBSD; on x86, x86-64, Sparc and PPC CPUs. 
+  Mac OS X, FreeBSD, OpenBSD and NetBSD; on x86, x86-64, Sparc and PPC CPUs.
   Running on other operating systems (wherever SDL runs) or CPUs should be
-  possible, but will require some modifications to the build system. If you are
+  possible, but may require some modifications to the build system. If you are
   compiling on a new platform, please share your experiences (see below for
   contact info), so we can make openMSX more portable.
 - CPU and graphics performance varies a lot, depending on the openMSX settings
