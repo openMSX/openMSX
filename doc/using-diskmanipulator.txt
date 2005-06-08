@@ -25,8 +25,8 @@ diskmanipulator <command> <disk name> <command arguments> where
         In case the disk contains an MSX-IDE compatible partition table you can
         add a partition number, from 1 till 31, to the disk name to determine on
         which partition the command needs to act (e.g. hda2 is the second
-	partition on the master IDE disk, hdb3 is the third partition on the
-	slave IDE disk).
+        partition on the master IDE disk, hdb3 is the third partition on the
+        slave IDE disk).
 
   'command arguments' depend upon the command involved, see the detailed
         descriptions of the commands below.
@@ -71,15 +71,15 @@ import
 
            diskmanipulator import hda1 [glob *.txt] [glob *.asc]
 
-	This command will copy all files matching *.txt and *.asc in the current
-	directory on the host OS to the first partition of the master IDE drive
-	on the emulated MSX.
+       This command will copy all files matching *.txt and *.asc in the current
+       directory on the host OS to the first partition of the master IDE drive
+       on the emulated MSX.
 
         The glob-command can also take extra options. For instance, if you only
         want to expand regular files and not the names of directories you can
         do this:
 
-           diskmanipulator import hda1 [glob -type f info*] 
+           diskmanipulator import hda1 [glob -type f info*]
 
         Consult you local TCL guru or documentation for more info about the
         glob-command and TCL lists.
@@ -132,7 +132,7 @@ format
 
     explanation:
         The currently selected partition from <disk name> will be cleanly
-        formated with a MSX-DOS2 boot sector. 
+        formated with a MSX-DOS2 boot sector.
         FAT and directory sectors will be correctly initialised.
 
 create
@@ -146,8 +146,8 @@ create
         You can specify multiple sizes in which case an MSX IDE compatible
         partitioned image will be created, each partition will be formatted as
         required. If a size of 360k or 720k is given, a normal floppy disk image
-	is created single or double sided, respectively, both double density.
-	Any larger value will result in a valid MSX IDE hard disk image.
+        is created single or double sided, respectively, both double density.
+        Any larger value will result in a valid MSX IDE hard disk image.
         You can specify the disk/partition sizes be using the following
         postfixes:
                 - S or s      ->  size in sectors
