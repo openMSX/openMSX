@@ -3,6 +3,71 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
+openMSX 0.5.2 (2005-06-09)
+--------------------------
+
+This release is mainly a bug fix release with only a few new features, but a lot
+of quality improvements, mainly related to audio. We reworked the YM2413 engine
+by Okazaki, bringing the openMSX fork up to date with the latest release of
+MSXplug. We also fixed an bug in the SCC emulation, which screwed up some sound
+effects. Other fixes include MSX-AUDIO sample RAM access and the timer accuracy
+of OPL4 and MSX-AUDIO. Finally, we also added a DirectSound driver for Windows.
+
+A new sound related feature is the sound logger. It writes the sound played by
+openMSX to an uncompressed WAV file. The current version logs exactly what is
+sent to the sound driver, including any inaccuracies caused by realtime
+synchronization. We are planning a logger that is not timing sensitive to
+appear in a future openMSX release. For usage instructions, see section 7.3 of
+the openMSX User's Manual.
+
+A last new (but still a bit experimental) feature is the disk manipulator. This
+is a new built in toolkit to transfer files from the host OS to the MSX disks
+(disk images and hard disk images with partitions are all supported) and vice
+versa. You can also use it to create new (hard) disk images and format them. A
+complete description is in doc/using-diskmanipulator.txt.
+
+New or improved emulator features:
+- New scaler: HQ2xLite. This is a scaler that is almost as good as HQ2x, but
+  uses a lot less CPU.
+- Added DirectSound driver for Windows, which solves the problems some people
+  had with SDL on Windows. It also runs at a lower latency than the SDL driver.
+  Many thanks to Daniel Vik for helping with DirectSound. To switch between the
+  DirectSound and SDL sound drivers, use the new "sound_driver" setting.
+- Improved debugger, with some new (TCL based) commands like disasm, step_in,
+  step_over and run_to.
+- Extended IPS patch support, it should now support all IPS files.
+- Updated ROM database.
+- Added trainers.tcl: hundreds of game trainers. Use trainer_[TAB] in the
+  console to switch on the trainer for the game you want.
+- Added a cheat finder script: create your own game trainers. For an
+  explanation how to use it, see this openMSX forum post:
+    http://forum.openmsx.org/viewtopic.php?t=34
+- Use revamped console background and font as default. If you're upgrading from
+  an older openMSX version and want to use this new background and font, you
+  can either remove your settings.xml file or type the following lines in the
+  openMSX console:
+    set consolebackground skins/ConsoleBackgroundGrey.png
+    set consolefont skins/ConsoleFontRaveLShaded.png
+- New icon, made by Eric Boon.
+
+MSX device support:
+- Updated Okazaki YM2413 core (now the default).
+- Added pixel accurate rendering to V9990 emulation. Note that the timing may
+  still be quite incorrect.
+- Improved timing on turbo R machines. For example, speed difference between
+  R800-ROM and R800-DRAM mode is now emulated.
+- Various IDE fixes from Adriano Camargo Rodrigues da Cunha.
+
+Build system, packaging, documentation:
+- Compile fixes for GCC 4.x.
+- Added experimental build support for Sparc, DEC Alpha, ARM, HP PA-RISC, IA-64,
+  Motorola 680x0, MIPS and IBM S/390. Except for Sparc these are all untested.
+- openMSX is now relocatable on Mac OS X, which means you can move the
+  installation directory around.
+- Our Debian packages are now uploaded to the Debian archive, soon after
+  release.
+- Updated C-BIOS to 0.21.
+
 openMSX 0.5.1 (2005-03-05)
 --------------------------
 
