@@ -27,11 +27,10 @@ DiskChanger::DiskChanger(const string& driveName_,
 	XMLElement& config = GlobalSettings::instance().getMediaConfig();
 	XMLElement& diskConfig = config.getCreateChild(driveName);
 	diskElem = &diskConfig.getCreateChild("filename");
-	const string& filename = diskElem->getData();
+	string filename = diskElem->getData();
 	if (!filename.empty()) {
 		try {
 			FileContext& context = diskConfig.getFileContext();
-			string diskImage = filename;
 			vector<string> patchFiles;
 			XMLElement::Children children;
 			diskConfig.getChildren("ips", children);
@@ -41,7 +40,7 @@ DiskChanger::DiskChanger(const string& driveName_,
 				patchFiles.push_back(patch);
 			}
 			
-			insertDisk(diskImage, patchFiles);
+			insertDisk(filename, patchFiles);
 		} catch (FileException& e) {
 			// file not found
 			throw FatalError("Couldn't load diskimage: " + filename);
