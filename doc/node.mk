@@ -10,7 +10,7 @@ SUBDIRS:=manual
 INSTALL_DOCS:= \
 	release-notes.txt release-history.txt \
 	after-bussum-FAQ.txt commands.txt exampleconfigs.xml \
-	Using-diskmanipulator.txt
+	using-diskmanipulator.txt
 
 DIST:=$(INSTALL_DOCS) \
 	debugdevice.txt \
