@@ -1,5 +1,11 @@
 $Id$
 
+2005-06-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Removed romdb.xml and romdb.dtd files:
+	   These files were already obsoleted by softwaredb.xml. OpenMSX
+	   still supports the old format, after the release we'll also
+	   remove this.
+
 2005-06-07 Maarten ter Huurne <maarten@treewalker.org>
 	* Updated C-BIOS to 0.21.
 
