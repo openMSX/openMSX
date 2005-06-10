@@ -58,7 +58,10 @@ void HotKey::initBindings()
 			registerHotKeyCommand("PRINT",      "screenshot");
 			registerHotKeyCommand("PAUSE",      "toggle pause");
 			registerHotKeyCommand("F9",         "toggle throttle");
+			registerHotKeyCommand("F9+ALT",     "vdrive diska");
+			registerHotKeyCommand("F9",         "toggle throttle");
 			registerHotKeyCommand("F10",        "toggle console");
+			registerHotKeyCommand("F10+ALT",    "vdrive diskb");
 			registerHotKeyCommand("F11",        "toggle mute");
 			registerHotKeyCommand("F12",        "toggle fullscreen");
 			registerHotKeyCommand("RETURN+ALT", "toggle fullscreen");
