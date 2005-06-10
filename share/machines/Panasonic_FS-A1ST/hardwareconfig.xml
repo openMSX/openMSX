@@ -86,12 +86,8 @@
       <io base="0xF4" num="1"/>
     </F4Device>
 
-    <TurboRLeds id="TurboRLeds">
-      <io base="0xA7" num="1" type="O"/>
-    </TurboRLeds>
-
     <TurboRPause id="TurboRPause">
-      <io base="0xA7" num="1" type="I"/>
+      <io base="0xA7" num="1"/>
     </TurboRPause>
 
     <TurboRPCM id="PCM">

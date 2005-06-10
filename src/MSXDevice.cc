@@ -237,4 +237,14 @@ byte* MSXDevice::getWriteCacheLine(word /*start*/) const
 	return NULL;	// uncacheable
 }
 
+MSXMotherBoard& MSXDevice::getMotherboard() const
+{
+	return *motherboard;
+}
+
+void MSXDevice::setMotherboard(MSXMotherBoard& motherboard_)
+{
+	motherboard = &motherboard_;
+}
+
 } // namespace openmsx

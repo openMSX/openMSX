@@ -33,8 +33,8 @@ public:
 	 */
 	void resetMSX();
 
-	void block() { ++blockedCounter; }
-	void unblock() { --blockedCounter; }
+	void block();
+	void unblock();
 
 private:
 	/**

@@ -10,6 +10,7 @@ namespace openmsx {
 
 class XMLElement;
 class EmuTime;
+class MSXMotherBoard;
 
 /** An MSXDevice is an emulated hardware component connected to the bus
   * of the emulated MSX. There is no communication among devices, only
@@ -132,6 +133,10 @@ public:
 	 */
 	virtual byte peekMem(word address) const;
 
+	// motherboard this device belongs to
+	MSXMotherBoard& getMotherboard() const;
+	void setMotherboard(MSXMotherBoard& motherboard);
+	
 protected:
 	/** Every MSXDevice has a config entry; this constructor gets
 	  * some device properties from that config entry.
@@ -159,6 +164,8 @@ private:
 	int ps;
 	int ss;
 	int pages;
+
+	MSXMotherBoard* motherboard;
 };
 
 } // namespace openmsx

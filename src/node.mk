@@ -16,7 +16,6 @@ SRC_HDR:= \
 	Scheduler \
 	MSXE6Timer \
 	MSXF4Device \
-	MSXTurboRLeds \
 	MSXTurboRPause \
 	MSXS1985 \
 	MSXS1990 \

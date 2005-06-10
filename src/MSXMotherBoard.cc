@@ -118,7 +118,16 @@ void MSXMotherBoard::createDevices(const XMLElement& elem)
 			createDevices(sub);
 		} else {
 			PRT_DEBUG("Instantiating: " << name);
-			addDevice(DeviceFactory::create(sub, EmuTime::zero));
+			std::auto_ptr<MSXDevice> device(
+				DeviceFactory::create(sub, EmuTime::zero));
+			if (device.get()) {
+				device->setMotherboard(*this);
+				addDevice(device);
+			} else {
+				output.printWarning("Deprecated device: \"" +
+					name + "\", please upgrade your "
+					"machine descriptions.");
+			}
 		}
 	}
 }
@@ -175,7 +184,7 @@ void MSXMotherBoard::unpause()
 	if (paused) {
 		paused = false;
 		output.update(CliComm::STATUS, "paused", "false");
-		--blockedCounter;
+		unblock();
 	}
 }
 
@@ -184,8 +193,7 @@ void MSXMotherBoard::pause()
 	if (!paused) {
 		paused = true;
 		output.update(CliComm::STATUS, "paused", "true");
-		++blockedCounter;
-		MSXCPU::instance().exitCPULoop();
+		block();
 	}
 }
 
@@ -196,7 +204,7 @@ void MSXMotherBoard::powerOn()
 		powerSetting.setValue(true);
 		EventDistributor::instance().distributeEvent(
 			new LedEvent(LedEvent::POWER, true));
-		--blockedCounter;
+		unblock();
 	}
 }
 
@@ -207,10 +215,21 @@ void MSXMotherBoard::powerOff()
 		powerSetting.setValue(false);
 		EventDistributor::instance().distributeEvent(
 			new LedEvent(LedEvent::POWER, false));
-		++blockedCounter;
-		MSXCPU::instance().exitCPULoop();
+		block();
 	}
 }
+
+void MSXMotherBoard::block()
+{
+	++blockedCounter;
+	MSXCPU::instance().exitCPULoop();
+}
+
+void MSXMotherBoard::unblock()
+{
+	--blockedCounter;
+}
+
 
 // SettingListener
 void MSXMotherBoard::update(const Setting* setting)

@@ -7,7 +7,6 @@
 #include "VDP.hh"
 #include "MSXE6Timer.hh"
 #include "MSXF4Device.hh"
-#include "MSXTurboRLeds.hh"
 #include "MSXTurboRPause.hh"
 #include "MSXTurboRPCM.hh"
 #include "MSXS1985.hh"
@@ -66,7 +65,8 @@ auto_ptr<MSXDevice> DeviceFactory::create(const XMLElement& conf, const EmuTime&
 		return auto_ptr<MSXDevice>(new MSXF4Device(conf, time));
 	}
 	if (type == "TurboRLeds") {
-		return auto_ptr<MSXDevice>(new MSXTurboRLeds(conf, time));
+		// deprecated, remove in next version
+		return auto_ptr<MSXDevice>(NULL);
 	}
 	if (type == "TurboRPause") {
 		return auto_ptr<MSXDevice>(new MSXTurboRPause(conf, time));
