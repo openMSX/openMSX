@@ -166,14 +166,7 @@ bool CommandLineParser::parseFileName(const string& arg, list<string>& cmdLine)
 	string::size_type begin = originalName.find_last_of('.');
 	if (begin != string::npos) {
 		// there is an extension
-		// TODO <filename>,<mappertype> is deprecated
-		string::size_type end = originalName.find_last_of(',');
-		string extension;
-		if ((end == string::npos) || (end <= begin)) {
-			extension = originalName.substr(begin + 1);
-		} else {
-			extension = originalName.substr(begin + 1, end - begin - 1);
-		}
+		string extension = originalName.substr(begin + 1);
 		FileTypeMap::const_iterator it2 = fileTypeMap.find(extension);
 		if (it2 != fileTypeMap.end()) {
 			// parse filetype

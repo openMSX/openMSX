@@ -71,20 +71,6 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 	string mapper;
 	string romfile = arg;
 
-	// backwards compatibility code: <romfile>,<mapper>
-	// will be removed in future versions
-	string::size_type pos = arg.find_last_of(',');
-	if (pos != string::npos) {
-		string tmp = arg.substr(pos + 1);
-		if (RomInfo::nameToRomType(tmp) != ROM_UNKNOWN) {
-			romfile = arg.substr(0, pos);
-			mapper = tmp;
-			CliComm::instance().printWarning(
-				"'<romfile>,<romtype>' format is deprecated, "
-				"instead use the -romtype option.");
-		}
-	}
-
 	// parse extra options  -ips  and  -romtype
 	while (true) {
 		string extra = peekArgument(cmdLine);

@@ -6,6 +6,7 @@ $Id$
 	  with a namespace 
 	* Implemented hard/soft pause bit in turbor (bit 1 in port 0xa7)
 	* Removed support for old romdb format
+	* Removed support for <romfile>,<romtype>  (use -romtype instead)
 
 2005-06-10 David Heremans <david.heremans@gnu-linux.net>
 	* Added vdrive.tcl script:
