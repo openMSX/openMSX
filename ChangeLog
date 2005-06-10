@@ -1,5 +1,8 @@
 $Id$
 
+2005-06-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Small speedup of simple scaler
+
 2005-06-10 David Heremans <david.heremans@gnu-linux.net>
 	* Added vdrive.tcl script:
 	   This scripts allows user to cycle through a uniformaly named
