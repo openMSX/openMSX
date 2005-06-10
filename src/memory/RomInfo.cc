@@ -93,13 +93,14 @@ static void initMap()
 	romtype["Page3"]       = ROM_PAGE3;
 }
 
-RomInfo::RomInfo(const string& ntitle, const string& nyear,
-                 const string& ncompany, const string& nremark,
-                 const RomType& nromType)
+RomInfo::RomInfo(const string& ntitle,   const string& nyear,
+                 const string& ncompany, const string& ncountry,
+                 const string& nremark,  const RomType& nromType)
 {
 	title = ntitle;
 	year = nyear;
 	company = ncompany;
+	country = ncountry;
 	remark = nremark;
 	romType = nromType;
 }
@@ -196,13 +197,14 @@ static void addEntry(RomInfo* romInfo, const string& sha1, DBMap& result)
 
 static void parseEntry(
 	const XMLElement& rom, DBMap& result,
-	const string& title, const string& year,
-	const string& company, const string& remark,
-	const string& type)
+	const string& title,   const string& year,
+	const string& company, const string& country,
+	const string& remark,  const string& type)
 {
 	RomType romType = RomInfo::nameToRomType(type);
-	RomInfo* romInfo = new RomInfo(title, year, company, remark, romType);
-		
+	RomInfo* romInfo = new RomInfo(title, year, company, country,
+	                               remark, romType);
+
 	XMLElement::Children hashTags;
 	rom.getChildren("hash", hashTags);
 	for (XMLElement::Children::const_iterator it2 = hashTags.begin();
@@ -243,6 +245,7 @@ static void parseDB(const XMLElement& doc, DBMap& result)
 		string title   = soft.getChildData("title", "");
 		string year    = soft.getChildData("year", "");
 		string company = soft.getChildData("company", "");
+		string country = soft.getChildData("country", "");
 		string remark  = parseRemarks(soft);
 		
 		XMLElement::Children dumps;
@@ -251,8 +254,9 @@ static void parseDB(const XMLElement& doc, DBMap& result)
 		     it2 != dumps.end(); ++it2) {
 			const XMLElement& dump = **it2;
 			if (const XMLElement* megarom = dump.findChild("megarom")) {
-				parseEntry(*megarom, result, title, year, company,
-				           remark, megarom->getChildData("type"));
+				parseEntry(*megarom, result, title, year,
+				           company, country, remark,
+				           megarom->getChildData("type"));
 			} else if (const XMLElement* rom = dump.findChild("rom")) {
 				string type = rom->getChildData("type", "Mirrored");
 				if (type == "Normal") {
@@ -261,7 +265,7 @@ static void parseDB(const XMLElement& doc, DBMap& result)
 					type += parseStart(*rom);
 				}
 				parseEntry(*rom, result, title, year, company,
-				           remark, type);
+				           country, remark, type);
 			}
 		}
 	}
@@ -317,7 +321,7 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 	int size = rom.getSize();
 	if (size == 0) {
 		return auto_ptr<RomInfo>(
-			new RomInfo("", "", "", "Empty ROM", ROM_UNKNOWN));
+			new RomInfo("", "", "", "", "Empty ROM", ROM_UNKNOWN));
 	}
 
 	const string& sha1sum = rom.getSHA1Sum();
@@ -336,7 +340,7 @@ auto_ptr<RomInfo> RomInfo::fetchRomInfo(const Rom& rom)
 	// Look for the ROM in the ROM DB.
 	auto_ptr<RomInfo> info(searchRomDB(rom));
 	if (!info.get()) {
-		info.reset(new RomInfo("", "", "", "", ROM_UNKNOWN));
+		info.reset(new RomInfo("", "", "", "", "", ROM_UNKNOWN));
 	}
 	return info;
 }
@@ -354,7 +358,8 @@ void RomInfo::print()
 	string info = "Found this ROM in the database:\n"
 	              "  Title:    " + getTitle() + "\n"
 	              "  Year:     " + year + "\n"
-	              "  Company:  " + company;
+	              "  Company:  " + company + "\n"
+	              "  Country:  " + country;
 	if (!getRemark().empty()) {
 		info += "\n  Remark:   " + getRemark();
 	}
