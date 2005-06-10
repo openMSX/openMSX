@@ -173,18 +173,12 @@ static string parseRemarks(const XMLElement& elem)
 	for (XMLElement::Children::const_iterator it = remarks.begin();
 	     it != remarks.end(); ++it) {
 		const XMLElement& remark = **it;
-		if (!remark.getChildren().empty()) {
-			// new format
-			XMLElement::Children texts;
-			remark.getChildren("text", texts);
-			for (XMLElement::Children::const_iterator it = texts.begin();
-			     it != texts.end(); ++it) {
-				// TODO language attribute is ignored
-				result += (*it)->getData() + '\n';
-			}
-		} else {
-			// old format
-			result += remark.getData() + '\n';
+		XMLElement::Children texts;
+		remark.getChildren("text", texts);
+		for (XMLElement::Children::const_iterator it = texts.begin();
+		     it != texts.end(); ++it) {
+			// TODO language attribute is ignored
+			result += (*it)->getData() + '\n';
 		}
 	}
 	return result;
@@ -196,29 +190,11 @@ static void addEntry(RomInfo* romInfo, const string& sha1, DBMap& result)
 		result[sha1] = romInfo;
 	} else {
 		CliComm::instance().printWarning(
-			"duplicate romdb entry SHA1: " + sha1);
+			"duplicate softwaredb entry SHA1: " + sha1);
 	}
 }
 
-static void parseOldEntry(
-	const XMLElement& soft, DBMap& result,
-	const string& title, const string& year,
-	const string& company, const string& remark,
-	const string& type)
-{
-	RomType romType = RomInfo::nameToRomType(type);
-	RomInfo* romInfo = new RomInfo(title, year, company, remark, romType);
-	
-	XMLElement::Children sha1Tags;
-	soft.getChildren("sha1", sha1Tags);
-	for (XMLElement::Children::const_iterator it2 = sha1Tags.begin();
-	     it2 != sha1Tags.end(); ++it2) {
-		string sha1 = (*it2)->getData();
-		addEntry(romInfo, sha1, result);
-	}
-}
-
-static void parseNewEntry(
+static void parseEntry(
 	const XMLElement& rom, DBMap& result,
 	const string& title, const string& year,
 	const string& company, const string& remark,
@@ -254,8 +230,7 @@ static void parseDB(const XMLElement& doc, DBMap& result)
 	const XMLElement::Children& children = doc.getChildren();
 	for (XMLElement::Children::const_iterator it1 = children.begin();
 	     it1 != children.end(); ++it1) {
-		// Parse all entries. In the old format it are <rom> tags,
-		// in the new format it are <software> tags
+		// Parse all <software> tags
 		const XMLElement& soft = **it1;
 		
 		const XMLElement* system = soft.findChild("system");
@@ -270,19 +245,14 @@ static void parseDB(const XMLElement& doc, DBMap& result)
 		string company = soft.getChildData("company", "");
 		string remark  = parseRemarks(soft);
 		
-		if (const XMLElement* romType = soft.findChild("romtype")) {
-			parseOldEntry(soft, result, title, year, company,
-			              remark, romType->getData());
-		}
-		
 		XMLElement::Children dumps;
 		soft.getChildren("dump", dumps);
 		for (XMLElement::Children::const_iterator it2 = dumps.begin();
 		     it2 != dumps.end(); ++it2) {
 			const XMLElement& dump = **it2;
 			if (const XMLElement* megarom = dump.findChild("megarom")) {
-				parseNewEntry(*megarom, result, title, year, company,
-				              remark, megarom->getChildData("type"));
+				parseEntry(*megarom, result, title, year, company,
+				           remark, megarom->getChildData("type"));
 			} else if (const XMLElement* rom = dump.findChild("rom")) {
 				string type = rom->getChildData("type", "Mirrored");
 				if (type == "Normal") {
@@ -290,8 +260,8 @@ static void parseDB(const XMLElement& doc, DBMap& result)
 				} else if (type == "Mirrored") {
 					type += parseStart(*rom);
 				}
-				parseNewEntry(*rom, result, title, year, company,
-				              remark, type);
+				parseEntry(*rom, result, title, year, company,
+				           remark, type);
 			}
 		}
 	}
@@ -329,13 +299,8 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 		const vector<string>& paths = context.getPaths();
 		for (vector<string>::const_iterator it = paths.begin();
 		     it != paths.end(); ++it) {
-			// first try new db
 			auto_ptr<XMLElement> doc(
 				openDB(*it + "softwaredb.xml", "softwaredb1.dtd"));
-			if (!doc.get()) {
-				// if that fails try old
-				doc = openDB(*it + "romdb.xml", "romdb.dtd");
-			}
 			if (doc.get()) {
 				DBMap tmp;
 				parseDB(*doc, tmp);
