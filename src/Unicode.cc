@@ -8,6 +8,8 @@ using std::string;
 
 namespace openmsx {
 
+namespace Unicode {
+
 /* decodes a a string possibly containing UTF-8 sequences to a 
  * string of 8-bit characters.
  * characters >= 0x100 are mapped to '?' for now
@@ -27,7 +29,7 @@ static void bad_utf(const char* s)
   fprintf(stdout,"error in UTF-8 encoding: %s\n",s);
 }
 
-string Unicode::utf8ToAscii(const string & utf8)
+string utf8ToAscii(const string & utf8)
 {
 	string res;
 
@@ -78,14 +80,6 @@ string Unicode::utf8ToAscii(const string & utf8)
 	return res;
 }
 
+} // namespace Unicode
+
 } // namespace openmsx
-
-
-
-
-
-
-
-
-
-
