@@ -4,8 +4,6 @@
 #define RENDERERFACTORY_HH
 
 #include <memory>
-#include "components.hh"
-#include "probed_defs.hh" // for HAVE_X11 (should be component instead?)
 
 namespace openmsx {
 
@@ -14,7 +12,6 @@ class Renderer;
 class VDP;
 class V9990Renderer;
 class V9990;
-class XMLElement;
 template <typename T> class EnumSetting;
 
 /** Interface for renderer factories.

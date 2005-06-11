@@ -9,7 +9,6 @@
 #include "InfoCommand.hh"
 #include "GlobalSettings.hh"
 #include "CommandArgument.hh"
-#include "CommandLineParser.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
@@ -74,12 +73,6 @@ Mixer::Mixer()
 	soundDriverSetting.reset(new EnumSetting<SoundDriverType>(
 		"sound_driver", "select the sound output driver",
 		defaultSoundDriver, soundDriverMap));
-	if (!CommandLineParser::instance().wantSound()) {
-		CliComm::instance().printWarning(
-			"The option '-nosound' is deprecated. "
-			"Use sound_driver=null (see manual).");
-		soundDriverSetting->setValue(SND_NULL);
-	}
 
 	infoCommand.registerTopic("sounddevice", &soundDeviceInfo);
 	muteSetting->addListener(this);
@@ -103,12 +96,12 @@ Mixer::Mixer()
 Mixer::~Mixer()
 {
 	assert(buffers.empty());
-	
+
 	CommandController::instance().unregisterCommand(&soundlogCommand, "soundlog");
 
 	endSoundLogging();
 	driver.reset();
-	
+
 	pauseSetting.removeListener(this);
 	soundDriverSetting->removeListener(this);
 	samplesSetting->removeListener(this);
@@ -200,7 +193,7 @@ void Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 		name + "_mode", "the channel mode of this sound chip",
 		modeMap[defaultMode], modeMap, Setting::DONT_SAVE);
 	info.modeSetting->setValue(mode);
-	
+
 	info.mode = mode;
 	info.normalVolume = (volume * 100 * 100) / (75 * 75);
 	info.modeSetting->addListener(this);
@@ -279,9 +272,9 @@ void Mixer::generate(short* buffer, unsigned samples)
 			left  += buffers[buf]  [2*j+0];
 			right += buffers[buf++][2*j+1];
 		}
-		
+
 		// DC removal filter
-		//   y(n) = x(n) - x(n-1) + R * y(n-1) 
+		//   y(n) = x(n) - x(n-1) + R * y(n-1)
 		//   R = 1 - (pi*2 * cut-off-frequency / samplerate)
 		// take R = 1022/1024
 		//   44100Hz --> cutt-off freq = 14Hz
@@ -290,7 +283,7 @@ void Mixer::generate(short* buffer, unsigned samples)
 		prevLeft  =  left;
 		outRight  = right - prevRight + ((1022 * outRight) >> 10);
 		prevRight = right;
-		
+
 		// clip
 		if      (outLeft  > 32767)  outLeft  =  32767;
 		else if (outLeft  < -32768) outLeft  = -32768;
@@ -361,7 +354,7 @@ static int getNum(dirent* d)
 string Mixer::SoundlogCommand::getFileName()
 {
 	int max_num = 0;
-	
+
 	string dirName = FileOperations::getUserOpenMSXDir() + "/soundlogs";
 	try {
 		FileOperations::mkdirp(dirName);
@@ -415,7 +408,7 @@ string Mixer::SoundlogCommand::startSoundLogging(const vector<string>& tokens)
 	default:
 		throw SyntaxError();
 	}
-	
+
 	if (!outer.wavfp) {
 		outer.startSoundLogging(filename);
 		CliComm::instance().printInfo("Started logging sound to " + filename);
@@ -435,7 +428,7 @@ string Mixer::SoundlogCommand::stopSoundLogging(const vector<string>& tokens)
 		return "Sound logging was not enabled, are you trying to fool me?";
 	}
 }
-	
+
 string Mixer::SoundlogCommand::toggleSoundLogging(const vector<string>& tokens)
 {
 	if (tokens.size() != 2) throw SyntaxError();
@@ -475,7 +468,7 @@ void Mixer::startSoundLogging(const string& filename)
 	 */
 
 	assert(!wavfp);
-	
+
 	wavfp = fopen(filename.c_str(), "wb");
 	if (!wavfp) {
 		// TODO

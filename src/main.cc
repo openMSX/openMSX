@@ -34,7 +34,7 @@ static void initializeSDL()
 #ifndef NDEBUG
 	flags |= SDL_INIT_NOPARACHUTE;
 #endif
-	if (SDL_Init(flags) < 0) { 
+	if (SDL_Init(flags) < 0) {
 		throw FatalError(string("Couldn't init SDL: ") + SDL_GetError());
 	}
 }
@@ -47,12 +47,12 @@ static void unexpectedExceptionHandler()
 static int main(int argc, char **argv)
 {
 	std::set_unexpected(unexpectedExceptionHandler);
-	
+
 	int err = 0;
 	try {
 		Interpreter::instance().init(argv[0]);
 		initializeSDL();
-		CommandLineParser& parser = CommandLineParser::instance();
+		CommandLineParser parser;
 		parser.parse(argc, argv);
 		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
 		if (parseStatus != CommandLineParser::EXIT) {

@@ -53,15 +53,10 @@ string CLIOption::peekArgument(const list<string>& cmdLine) const
 
 // class CommandLineParser
 
-CommandLineParser& CommandLineParser::instance()
-{
-	static CommandLineParser oneInstance;
-	return oneInstance;
-}
+bool CommandLineParser::hiddenStartup = true;
 
 CommandLineParser::CommandLineParser()
 	: parseStatus(UNPARSED)
-	, sound(true)
 	, hardwareConfig(HardwareConfig::instance())
 	, settingsConfig(SettingsConfig::instance())
 	, output(CliComm::instance())
@@ -71,7 +66,6 @@ CommandLineParser::CommandLineParser()
 	, controlOption(*this)
 	, machineOption(*this)
 	, settingOption(*this)
-	, noSoundOption(*this)
 	, msxRomCLI(new MSXRomCLI(*this))
 	, cliExtension(new CliExtension(*this))
 	, cassettePlayerCLI(new MSXCassettePlayerCLI(*this))
@@ -83,7 +77,6 @@ CommandLineParser::CommandLineParser()
 
 	registerOption("-machine",  &machineOption, 3);
 	registerOption("-setting",  &settingOption, 2);
-	registerOption("-nosound",  &noSoundOption, 1, 1);
 	registerOption("-h",        &helpOption, 1, 1);
 	registerOption("--help",    &helpOption, 1, 1);
 	registerOption("-v",        &versionOption, 1, 1);
@@ -254,18 +247,14 @@ void CommandLineParser::parse(int argc, char** argv)
 			"Error parsing command line: " + cmdLine.front() + "\n" +
 			"Use \"openmsx -h\" to see a list of available options" );
 	}
+
+	hiddenStartup = (parseStatus == CONTROL);
 }
 
 CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const
 {
 	assert(parseStatus != UNPARSED);
 	return parseStatus;
-}
-
-bool CommandLineParser::wantSound() const
-{
-	assert(parseStatus != UNPARSED);
-	return sound;
 }
 
 void CommandLineParser::loadMachine(const string& machine)
@@ -577,29 +566,5 @@ const string& CommandLineParser::SettingOption::optionHelp() const
 	return text;
 }
 
-
-// NoSoundOption
-
-CommandLineParser::NoSoundOption::NoSoundOption(CommandLineParser& parent_)
-	: parent(parent_)
-{
-}
-
-CommandLineParser::NoSoundOption::~NoSoundOption()
-{
-}
-
-bool CommandLineParser::NoSoundOption::parseOption(const string& /*option*/,
-		list<string>& /*cmdLine*/)
-{
-	parent.sound = false;
-	return true;
-}
-
-const string& CommandLineParser::NoSoundOption::optionHelp() const
-{
-	static const string text("Disable sound output");
-	return text;
-}
 
 } // namespace openmsx

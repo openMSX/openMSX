@@ -1,9 +1,14 @@
 $Id$
 
+2005-06-10 Maarten ter Huurne <maarten@treewalker.org>
+	* CommandLineParser is no longer a singleton.
+	* Removed -nosound command line option.
+	  Use the "null" sound driver instead.
+
 2005-06-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Small speedup of simple scaler
 	* replaced classes with only static methods inside (e.g. StringOp)
-	  with a namespace 
+	  with a namespace
 	* Implemented hard/soft pause bit in turbor (bit 1 in port 0xa7)
 	* Removed support for old romdb format
 	* Removed support for <romfile>,<romtype>  (use -romtype instead)
@@ -30,7 +35,7 @@ $Id$
 	  dump. It's now also easier to put in a larger bitmap.
 
 2005-06-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
-	* Fixed background in screen6: 
+	* Fixed background in screen6:
 	   only use lower two bits for background color
 	   TODO use stripes
 
@@ -76,7 +81,7 @@ $Id$
 2005-05-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* R800 timing fix:
 	   - retn reti instructions takes 5 cycles (2 more than a simple 'ret',
-	     that's unexepcted if you look at the Z80 timings)
+	     that's unexpected if you look at the Z80 timings)
 	   - tweaked CAS/RAS optimization a bit, also optimize data fetches,
 	     but still don't optimize between opcode and data fetched
 	     I have no idea whether it really works like this, but the test
@@ -125,7 +130,7 @@ $Id$
 	   thanks to Daniel for figuring this out
 
 2005-05-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
-	* Large MSXtar / Filemanipulator (and related stuff) cleanup 
+	* Large MSXtar / Filemanipulator (and related stuff) cleanup
 
 2005-05-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented missing WD2793 feature, interrupt on index pulse:
@@ -164,7 +169,7 @@ $Id$
 	     which adds a Master or Slave indication to the name
 	   - enabled '.' and '..' support in some MSXtar routines
 	   - while cleaning up the code I added some verbose error
-	     messages in case of failure or wrong usage 
+	     messages in case of failure or wrong usage
 
 2005-05-02 David Heremans <david.heremans@gnu-linux.net>
 	* MSXtar Work-In-Progress:
@@ -188,7 +193,7 @@ $Id$
 	* MSXtar Work-In-Progress:
 	   - the IDEHD is now accessible for the FileManipulator.
 	   - partition support is comming along nicely.
-	   - you can already do a 'getDir' to export an MSX-IDEHD partition 
+	   - you can already do a 'getDir' to export an MSX-IDEHD partition
 	     to your host-OS. No importing yet
 	   - untested create dsk image code with partition support :-)
 
@@ -384,7 +389,7 @@ $Id$
 
 2005-03-13 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Fixed win32 compile errors
-	  TODO: 
+	  TODO:
 	  - 2 warnings
 	  - better integration of wsock32 in the buildsystem
 

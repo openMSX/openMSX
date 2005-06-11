@@ -40,16 +40,9 @@ class CLIFileType
 {
 public:
 	virtual ~CLIFileType() {}
-	virtual void parseFileType(const std::string& filename, 
+	virtual void parseFileType(const std::string& filename,
 	                           std::list<std::string>& cmdLine) = 0;
 	virtual const std::string& fileTypeHelp() const = 0;
-};
-
-struct OptionData
-{
-	CLIOption* option;
-	byte prio;
-	byte length; // length in parameters
 };
 
 class CommandLineParser
@@ -57,18 +50,31 @@ class CommandLineParser
 public:
 	enum ParseStatus { UNPARSED, RUN, CONTROL, EXIT };
 	enum ControlType { IO_STD, IO_PIPE };
-	static CommandLineParser& instance();
+
+	/**
+	 * Suppress renderer window on startup.
+	 * TODO: Find a better place for this; now it has to be public because
+	 *       it's used in static RendererFactory::createRendererSetting.
+	 */
+	static bool hiddenStartup;
+
+	CommandLineParser();
+	~CommandLineParser();
 	void registerOption(const std::string& str, CLIOption* cliOption,
 		byte prio = 7, byte length = 2);
 	void registerFileClass(const std::string& str,
 	                       CLIFileType* cliFileType);
 	void parse(int argc, char** argv);
 	ParseStatus getParseStatus() const;
-	bool wantSound() const;
 
 private:
-	CommandLineParser();
-	~CommandLineParser();
+	struct OptionData
+	{
+		CLIOption* option;
+		byte prio;
+		byte length; // length in parameters
+	};
+
 	bool parseFileName(const std::string& arg,
 	                   std::list<std::string>& cmdLine);
 	bool parseOption(const std::string& arg,
@@ -87,7 +93,6 @@ private:
 	bool haveSettings;
 	bool issuedHelp;
 	ParseStatus parseStatus;
-	bool sound;
 
 	HardwareConfig& hardwareConfig;
 	SettingsConfig& settingsConfig;
@@ -148,18 +153,7 @@ private:
 	private:
 		CommandLineParser& parent;
 	} settingOption;
-	
-	class NoSoundOption : public CLIOption {
-	public:
-		NoSoundOption(CommandLineParser& parent);
-		virtual ~NoSoundOption();
-		virtual bool parseOption(const std::string& option,
-			std::list<std::string>& cmdLine);
-		virtual const std::string& optionHelp() const;
-	private:
-		CommandLineParser& parent;
-	} noSoundOption;
-	
+
 	const std::auto_ptr<MSXRomCLI> msxRomCLI;
 	const std::auto_ptr<CliExtension> cliExtension;
 	const std::auto_ptr<MSXCassettePlayerCLI> cassettePlayerCLI;

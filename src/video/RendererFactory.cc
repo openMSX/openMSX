@@ -6,6 +6,7 @@
 #include "EnumSetting.hh"
 
 // Video systems:
+#include "components.hh"
 #include "DummyVideoSystem.hh"
 #include "SDLVideoSystem.hh"
 #ifdef COMPONENT_GL
@@ -120,8 +121,7 @@ auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSettin
 		setting->setValue(SDLHI);
 	}
 	setting->setDefaultValue(setting->getValue());
-	if (CommandLineParser::instance().getParseStatus() ==
-	    CommandLineParser::CONTROL) {
+	if (CommandLineParser::hiddenStartup) {
 		setting->setValue(DUMMY);
 	}
 	return setting;
