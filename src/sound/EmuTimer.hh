@@ -18,7 +18,7 @@ protected:
 	virtual ~EmuTimerCallback() {}
 };
 
-template<int freq, byte flag>
+template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
 class EmuTimer : private Schedulable
 {
 public:
@@ -38,6 +38,11 @@ private:
 	EmuTimerCallback* cb;
 	Scheduler& scheduler;
 };
+
+typedef EmuTimer<0x40,  3579545, 72 *  4    > EmuTimerOPL3_1;
+typedef EmuTimer<0x20,  3579545, 72 *  4 * 4> EmuTimerOPL3_2;
+typedef EmuTimer<0x40, 33868800, 72 * 38    > EmuTimerOPL4_1;
+typedef EmuTimer<0x20, 33868800, 72 * 38 * 4> EmuTimerOPL4_2;
 
 } // namespace openmsx
 

@@ -8,27 +8,28 @@ using std::string;
 
 namespace openmsx {
 
-template<int freq, byte flag>
-EmuTimer<freq, flag>::EmuTimer(EmuTimerCallback* cb_)
+template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
+EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::EmuTimer(EmuTimerCallback* cb_)
 	: count(256), counting(false), cb(cb_),
 	  scheduler(Scheduler::instance())
 {
 }
 
-template<int freq, byte flag>
-EmuTimer<freq, flag>::~EmuTimer()
+template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
+EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::~EmuTimer()
 {
 	unschedule();
 }
 
-template<int freq, byte flag>
-void EmuTimer<freq, flag>::setValue(byte value)
+template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
+void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::setValue(byte value)
 {
 	count = 256 - value;
 }
 
-template<int freq, byte flag>
-void EmuTimer<freq, flag>::setStart(bool start, const EmuTime& time)
+template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
+void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::setStart(
+	bool start, const EmuTime& time)
 {
 	if (start != counting) {
 		counting = start;
@@ -40,29 +41,30 @@ void EmuTimer<freq, flag>::setStart(bool start, const EmuTime& time)
 	}
 }
 
-template<int freq, byte flag>
-void EmuTimer<freq, flag>::schedule(const EmuTime& time)
+template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
+void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::schedule(const EmuTime& time)
 {
-	Clock<freq> now(time);
+	Clock<FREQ_NOM, FREQ_DENOM> now(time);
 	now += count;
 	scheduler.setSyncPoint(now.getTime(), *this);
 }
 
-template<int freq, byte flag>
-void EmuTimer<freq, flag>::unschedule()
+template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
+void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::unschedule()
 {
 	scheduler.removeSyncPoint(*this);
 }
 
-template<int freq, byte flag>
-void EmuTimer<freq, flag>::executeUntil(const EmuTime& time, int /*userData*/)
+template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
+void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::executeUntil(
+	const EmuTime& time, int /*userData*/)
 {
-	cb->callback(flag);
+	cb->callback(FLAG);
 	schedule(time);
 }
 
-template<int freq, byte flag>
-const string& EmuTimer<freq, flag>::schedName() const
+template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
+const string& EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::schedName() const
 {
 	static const string name("EmuTimer");
 	return name;
@@ -70,9 +72,9 @@ const string& EmuTimer<freq, flag>::schedName() const
 
 
 // Force template instantiation
-template class EmuTimer<12429, 0x40>; //  3.579545 MHz / (72 * 4)
-template class EmuTimer< 3107, 0x20>; //  3.579545 MHz / (72 * 4 * 4)
-template class EmuTimer<12379, 0x40>; // 33.8688   MHz / (72 * 38)
-template class EmuTimer< 3095, 0x20>; // 33.8688   MHz / (72 * 38 * 4)
+template class EmuTimer<0x40,  3579545, 72 *  4    >; // EmuTimerOPL3_1
+template class EmuTimer<0x20,  3579545, 72 *  4 * 4>; // EmuTimerOPL3_2
+template class EmuTimer<0x40, 33868800, 72 * 38    >; // EmuTimerOPL4_1
+template class EmuTimer<0x20, 33868800, 72 * 38 * 4>; // EmuTimerOPL4_2
 
 } // namespace openmsx

@@ -30,7 +30,7 @@ public:
 	virtual byte peekIO(byte port, const EmuTime& time) const;
 
 private:
-	Clock<255681> reference; // 1/14 * 3.58MHz
+	Clock<3579545, 14> reference; // (3.58 / 14)Mhz
 };
 
 } // namespace openmsx

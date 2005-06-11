@@ -331,10 +331,8 @@ private:
 	IRQHelper irq;
 
 	// Timers
-	/** 80us timer. */
-	EmuTimer<12429, STATUS_T1> timer1;
-	/** 320us timer. */
-	EmuTimer< 3107, STATUS_T2> timer2;
+	EmuTimerOPL3_1 timer1; //  80us timer
+	EmuTimerOPL3_2 timer2; // 320us timer
 
 	// ADPCM
 	const std::auto_ptr<Y8950Adpcm> adpcm;

@@ -14,7 +14,7 @@ class EmuTime
 public:
 	// friends
 	friend std::ostream& operator<<(std::ostream& os, const EmuTime& time);
-	template<unsigned> friend class Clock;
+	template<unsigned, unsigned> friend class Clock;
 	friend class DynamicClock;
 
 	// constructors

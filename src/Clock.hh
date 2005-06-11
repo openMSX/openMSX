@@ -14,15 +14,28 @@ namespace openmsx {
   * A clock has a current time, which can be increased by
   * an integer number of ticks.
   */
-template <unsigned freq>
+template <unsigned FREQ_NOM, unsigned FREQ_DENOM = 1>
 class Clock
 {
+private:
+	// stuff below calculates:
+	//   MASTER_TICKS = MAIN_FREQ / (FREQ_NOM / FREQ_DENOM) + 0.5
+	// intermediate results are 96bit, that's why it's a bit complicated
+	static const unsigned long long P =
+		(MAIN_FREQ & 0xFFFFFFFF) * FREQ_DENOM + (FREQ_NOM / 2);
+	static const unsigned long long Q =
+		(MAIN_FREQ >> 32) * FREQ_DENOM + (P >> 32);
+	static const unsigned long long R1 = Q / FREQ_NOM;
+	static const unsigned long long R0 =
+		(((Q - (R1 * FREQ_NOM)) << 32) + (P & 0xFFFFFFFF)) / FREQ_NOM;
+	static const unsigned long long MASTER_TICKS = (R1 << 32) + R0;
+	
 public:
 	/** Calculates the duration of the given number of ticks at this
 	  * clock's frequency.
 	  */
 	static const EmuDuration duration(unsigned ticks) {
-		return EmuDuration(ticks * (MAIN_FREQ / freq));
+		return EmuDuration(ticks * MASTER_TICKS);
 	}
 
 	/** Create a new clock, which starts ticking at time zero.
@@ -50,14 +63,14 @@ public:
 	  */
 	unsigned getTicksTill(const EmuTime& e) const {
 		assert(e.time >= lastTick.time);
-		return (e.time - lastTick.time) / (MAIN_FREQ / freq);
+		return (e.time - lastTick.time) / MASTER_TICKS;
 	}
 
 	/** Calculate the time at which this clock will have ticked the given
 	  * number of times (counted from its last tick).
 	  */
 	const EmuTime operator+(uint64 n) const {
-		return EmuTime(lastTick.time + n * (MAIN_FREQ / freq));
+		return EmuTime(lastTick.time + n * MASTER_TICKS);
 	}
 
 	/** Reset the clock to start ticking at the given time.
@@ -72,13 +85,13 @@ public:
 	  */
 	void advance(const EmuTime& e) {
 		assert(lastTick.time <= e.time);
-		lastTick.time = e.time - (e.time - lastTick.time) % (MAIN_FREQ / freq);
+		lastTick.time = e.time - (e.time - lastTick.time) % MASTER_TICKS;
 	}
 
 	/** Advance this clock by the given number of ticks.
 	  */
 	void operator+=(unsigned n) {
-		lastTick.time += n * (MAIN_FREQ / freq);
+		lastTick.time += n * MASTER_TICKS;
 	}
 
 private:
