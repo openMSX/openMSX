@@ -15,6 +15,7 @@
 #include "CommandException.hh"
 #include "CliComm.hh"
 
+using std::set;
 using std::string;
 using std::vector;
 
@@ -179,9 +180,12 @@ string DiskChanger::help(const vector<string>& /*tokens*/) const
 
 void DiskChanger::tabCompletion(vector<string>& tokens) const
 {
-	// TODO insert "-eject", "-ramdsk"
 	if (tokens.size() >= 2) {
-		CommandController::completeFileName(tokens);
+		set<string> extra;
+		extra.insert("-eject");
+		extra.insert("-ramdsk");
+		UserFileContext context;
+		CommandController::completeFileName(tokens, context, extra);
 	}
 }
 

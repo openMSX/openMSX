@@ -395,6 +395,14 @@ void CommandController::completeFileName(vector<string>& tokens)
 void CommandController::completeFileName(vector<string>& tokens,
                                          const FileContext& context)
 {
+	set<string> empty;
+	completeFileName(tokens, context, empty);
+}
+
+void CommandController::completeFileName(vector<string>& tokens,
+                                         const FileContext& context,
+                                         const set<string>& extra)
+{
 	vector<string> paths(context.getPaths());
 	
 	string& filename = tokens[tokens.size() - 1];
@@ -405,7 +413,7 @@ void CommandController::completeFileName(vector<string>& tokens,
 		paths.push_back("");
 	}
 
-	set<string> filenames;
+	set<string> filenames(extra);
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end();
 	     ++it) {

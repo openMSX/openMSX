@@ -68,6 +68,9 @@ public:
 	static void completeFileName(std::vector<std::string>& tokens);
 	static void completeFileName(std::vector<std::string>& tokens,
 	                             const FileContext& context);
+	static void completeFileName(std::vector<std::string>& tokens,
+                                     const FileContext& context,
+                                     const std::set<std::string>& extra);
 
 	// should only be called by CommandConsole
 	void setCommandConsole(CommandConsole* console);

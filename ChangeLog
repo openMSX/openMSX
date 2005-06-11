@@ -2,6 +2,7 @@ $Id$
 
 2005-06-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* More accurate Clock class (when freq is a fraction of 3.58MHz)
+	* Also complete "-eject" and "-ramdsk" in "diska" command
 
 2005-06-10 Maarten ter Huurne <maarten@treewalker.org>
 	* CommandLineParser is no longer a singleton.
