@@ -30,7 +30,7 @@ namespace openmsx {
 
 static void initializeSDL()
 {
-	int flags = SDL_INIT_VIDEO | SDL_INIT_TIMER;
+	int flags = SDL_INIT_TIMER;
 #ifndef NDEBUG
 	flags |= SDL_INIT_NOPARACHUTE;
 #endif
@@ -51,11 +51,11 @@ static int main(int argc, char **argv)
 	int err = 0;
 	try {
 		Interpreter::instance().init(argv[0]);
-		initializeSDL();
 		CommandLineParser parser;
 		parser.parse(argc, argv);
 		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
 		if (parseStatus != CommandLineParser::EXIT) {
+			initializeSDL();
 			CartridgeSlotManager::instance().readConfig();
 			HotKey hotkey;
 			AfterCommand afterCommand;

@@ -1,5 +1,9 @@
 $Id$
 
+2005-06-11 Maarten ter Huurne <maarten@treewalker.org>
+	* Do not initialise SDL if openMSX doesn't start up (-h, --version).
+	* Initialise SDL video when the first screen is opened.
+
 2005-06-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* More accurate Clock class (when freq is a fraction of 3.58MHz)
 	* Also complete "-eject" and "-ramdsk" in "diska" command
