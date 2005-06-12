@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include "ClockPin.hh"
-#include "Scheduler.hh"
 
 using std::string;
 
@@ -10,7 +9,7 @@ namespace openmsx {
 
 ClockPin::ClockPin(ClockPinListener* listener_)
 	: listener(listener_), periodic(false), status(false),
-	  signalEdge(false), scheduler(Scheduler::instance())
+	  signalEdge(false)
 {
 }
 
@@ -46,7 +45,7 @@ void ClockPin::setPeriodicState(const EmuDuration& total,
 	referenceTime = time;
 	totalDur = total;
 	hiDur = hi;
-	
+
 	if (listener) {
 		if (periodic) {
 			unschedule();
@@ -76,7 +75,7 @@ bool ClockPin::isPeriodic() const
 	return periodic;
 }
 
-const EmuDuration& ClockPin::getTotalDuration() const 
+const EmuDuration& ClockPin::getTotalDuration() const
 {
 	assert(periodic);
 	return totalDur;
@@ -128,13 +127,13 @@ void ClockPin::generateEdgeSignals(bool wanted, const EmuTime& time)
 
 void ClockPin::unschedule()
 {
-	scheduler.removeSyncPoint(*this);
+	removeSyncPoint();
 }
 
 void ClockPin::schedule(const EmuTime& time)
 {
 	assert(signalEdge && periodic && listener);
-	scheduler.setSyncPoint(time, *this);
+	setSyncPoint(time);
 }
 
 void ClockPin::executeUntil(const EmuTime& time, int /*userdata*/)

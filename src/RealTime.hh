@@ -21,7 +21,7 @@ public:
 	/** Convert EmuTime to RealTime.
 	  */
 	double getRealDuration(const EmuTime& time1, const EmuTime& time2);
-	
+
 	/** Convert RealTime to EmuTime.
 	  */
 	EmuDuration getEmuDuration(double realDur);
@@ -32,7 +32,7 @@ public:
 	  * @param time Point in emulated time.
 	  */
 	bool timeLeft(unsigned long long us, const EmuTime& time);
-	
+
 	/** Synchronize EmuTime with RealTime.
 	  * @param time The current emulation time.
 	  * @param allowSleep Is this method allowed to sleep, typically the
@@ -41,7 +41,7 @@ public:
 	void sync(const EmuTime& time, bool allowSleep);
 
 private:
-	RealTime(); 
+	RealTime();
 	virtual ~RealTime();
 
 	// Schedulable
@@ -53,8 +53,6 @@ private:
 
 	void internalSync(const EmuTime& time, bool allowSleep);
 	void resync();
-
-	Scheduler& scheduler;
 
 	BooleanSetting& throttleSetting;
 	IntegerSetting& speedSetting;

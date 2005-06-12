@@ -21,8 +21,7 @@ const long long          MAX_LAG       = 200000; // us
 const unsigned long long ALLOWED_LAG   =  20000; // us
 
 RealTime::RealTime()
-	: scheduler(Scheduler::instance())
-	, throttleSetting(GlobalSettings::instance().getThrottleSetting())
+	: throttleSetting(GlobalSettings::instance().getThrottleSetting())
 	, speedSetting(GlobalSettings::instance().getSpeedSetting())
 	, pauseSetting(GlobalSettings::instance().getPauseSetting())
 	, powerSetting(GlobalSettings::instance().getPowerSetting())
@@ -31,15 +30,15 @@ RealTime::RealTime()
 	throttleSetting.addListener(this);
 	pauseSetting.addListener(this);
 	powerSetting.addListener(this);
-	
-	scheduler.setSyncPoint(Scheduler::ASAP, *this);
+
+	setSyncPoint(Scheduler::ASAP);
 
 	resync();
 }
 
 RealTime::~RealTime()
 {
-	scheduler.removeSyncPoint(*this);
+	removeSyncPoint();
 
 	powerSetting.removeListener(this);
 	pauseSetting.removeListener(this);
@@ -74,12 +73,11 @@ bool RealTime::timeLeft(unsigned long long us, const EmuTime& time)
 void RealTime::sync(const EmuTime& time, bool allowSleep)
 {
 	if (allowSleep) {
-		scheduler.removeSyncPoint(*this);
+		removeSyncPoint();
 	}
 	internalSync(time, allowSleep);
 	if (allowSleep) {
-		scheduler.setSyncPoint(time + getEmuDuration(SYNC_INTERVAL),
-		                       *this);
+		setSyncPoint(time + getEmuDuration(SYNC_INTERVAL));
 	}
 }
 
@@ -120,7 +118,7 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 void RealTime::executeUntil(const EmuTime& time, int /*userData*/)
 {
 	internalSync(time, true);
-	scheduler.setSyncPoint(time + getEmuDuration(SYNC_INTERVAL), *this);
+	setSyncPoint(time + getEmuDuration(SYNC_INTERVAL));
 }
 
 const string& RealTime::schedName() const
@@ -138,8 +136,8 @@ void RealTime::resync()
 {
 	idealRealTime = Timer::getTime();
 	sleepAdjust = 0.0;
-	scheduler.removeSyncPoint(*this);
-	scheduler.setSyncPoint(Scheduler::ASAP, *this);
+	removeSyncPoint();
+	setSyncPoint(Scheduler::ASAP);
 }
 
 } // namespace openmsx

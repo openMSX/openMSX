@@ -1,4 +1,4 @@
-// $Id$ 
+// $Id$
 
 #include "V9990.hh"
 #include "Scheduler.hh"
@@ -41,7 +41,7 @@ static const RegisterAccess regAccess[64] = {
 	WR_ONLY, WR_ONLY, WR_ONLY, WR_ONLY, // Cmd Parameter Size XY
 	WR_ONLY, WR_ONLY, WR_ONLY, WR_ONLY, // Cmd Parameter Arg, LogOp, WrtMask
 	WR_ONLY, WR_ONLY, WR_ONLY, WR_ONLY, // Cmd Parameter Font Color
-	WR_ONLY, RD_ONLY, RD_ONLY,          // Cmd Parameter OpCode, Border X 
+	WR_ONLY, RD_ONLY, RD_ONLY,          // Cmd Parameter OpCode, Border X
 	NO_ACCESS, NO_ACCESS, NO_ACCESS,    // registers 55-63
 	NO_ACCESS, NO_ACCESS, NO_ACCESS,
 	NO_ACCESS, NO_ACCESS, NO_ACCESS
@@ -82,7 +82,7 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
 	// Start with NTSC timing
 	palTiming = false;
 	setVerticalTiming();
-	
+
 	// Register debuggable
 	Debugger::instance().registerDebuggable("V9990 regs",    v9990RegDebug);
 	Debugger::instance().registerDebuggable("V9990 palette", v9990PalDebug);
@@ -102,7 +102,7 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
 V9990::~V9990()
 {
 	PRT_DEBUG("[--now--] V9990::Destroy");
-	
+
 	// Unregister everything that needs to be unregistered
 	CommandController::instance().unregisterCommand(&v9990RegsCmd, "v9990regs");
 	Debugger::instance().unregisterDebuggable("V9990 palette", v9990PalDebug);
@@ -119,18 +119,18 @@ void V9990::reset(const EmuTime& time)
 {
 	PRT_DEBUG("[" << time << "] V9990::reset");
 
-	Scheduler::instance().removeSyncPoint(*this, V9990_VSYNC);
-	Scheduler::instance().removeSyncPoint(*this, V9990_DISPLAY_START);
-	Scheduler::instance().removeSyncPoint(*this, V9990_VSCAN);
-	Scheduler::instance().removeSyncPoint(*this, V9990_HSCAN);
-	Scheduler::instance().removeSyncPoint(*this, V9990_SET_MODE);
+	removeSyncPoint(V9990_VSYNC);
+	removeSyncPoint(V9990_DISPLAY_START);
+	removeSyncPoint(V9990_VSCAN);
+	removeSyncPoint(V9990_HSCAN);
+	removeSyncPoint(V9990_SET_MODE);
 
 	// Clear registers / ports
 	memset(regs, 0, sizeof(regs));
 	status = 0;
 	regSelect = 0xFF; // TODO check value for power-on and reset
 	calcDisplayMode();
-	
+
 	// Reset IRQs
 	writeIO(INTERRUPT_FLAG, 0xFF, time);
 
@@ -146,7 +146,7 @@ void V9990::reset(const EmuTime& time)
 byte V9990::readIO(byte port, const EmuTime& time)
 {
 	port &= 0x0F;
-	
+
 	byte result = 0;
 	switch (port) {
 		case VRAM_DATA: {
@@ -189,7 +189,7 @@ byte V9990::readIO(byte port, const EmuTime& time)
 		case INTERRUPT_FLAG:
 			result = pendingIRQs;
 			break;
-		    
+
 		case STATUS: {
 			int ticks = getUCTicksThisFrame(time);
 			int x = UCtoX(ticks, getDisplayMode());
@@ -217,7 +217,7 @@ byte V9990::readIO(byte port, const EmuTime& time)
 			result = 0xFF;
 			break;
 	}
-	
+
 	//PRT_DEBUG("[" << time << "] "
 	//	  "V9990::readIO - port=0x" << std::hex << (int)port <<
 	//	                  " val=0x" << std::hex << (int)result);
@@ -234,9 +234,9 @@ byte V9990::peekIO(byte /*port*/, const EmuTime& /*time*/) const
 void V9990::writeIO(byte port, byte val, const EmuTime& time)
 {
 	port &= 0x0F;
-	
+
 	//PRT_DEBUG("[" << time << "] "
-	//	  "V9990::writeIO - port=0x" << std::hex << int(port) << 
+	//	  "V9990::writeIO - port=0x" << std::hex << int(port) <<
 	//	                   " val=0x" << std::hex << int(val));
 
 	switch (port) {
@@ -281,7 +281,7 @@ void V9990::writeIO(byte port, byte val, const EmuTime& time)
 		case STATUS:
 			// read-only, ignore writes
 			break;
-		
+
 		case INTERRUPT_FLAG:
 			pendingIRQs &= ~val;
 			if (!(pendingIRQs & regs[INTERRUPT_0])) {
@@ -289,19 +289,19 @@ void V9990::writeIO(byte port, byte val, const EmuTime& time)
 			}
 			scheduleHscan(time);
 			break;
-		
+
 		case SYSTEM_CONTROL:
-			status = (status & 0xFB) | ((val & 1) << 2); 
+			status = (status & 0xFB) | ((val & 1) << 2);
 			syncAtNextLine(V9990_SET_MODE, time);
 		break;
-		
+
 		case KANJI_ROM_0:
 		case KANJI_ROM_1:
 		case KANJI_ROM_2:
 		case KANJI_ROM_3:
 			// not used in Gfx9000, ignore
 			break;
-			
+
 		default:
 			// ignore
 			break;
@@ -451,10 +451,10 @@ V9990::V9990RegsCmd::V9990RegsCmd(V9990& v9990_)
 string V9990::V9990RegsCmd::execute(const vector<string>& /*tokens*/)
 {
 	// Print 55 registers in 4 colums
-	
+
 	static const int NCOLS = 4;
 	static const int NROWS = (55 + (NCOLS-1))/NCOLS;
-	
+
 	std::ostringstream out;
 	for(int row = 0; row < NROWS; row++) {
 		for(int col = 0; col < NCOLS; col++) {
@@ -497,7 +497,7 @@ inline void V9990::setVRAMAddr(RegisterId base, unsigned addr)
 byte V9990::readRegister(byte reg, const EmuTime& time)
 {
 	// TODO sync(time) (if needed at all)
-	
+
 	assert(reg < 64);
 	byte result;
 	if (regAccess[reg] != NO_ACCESS && regAccess[reg] != WR_ONLY) {
@@ -523,13 +523,13 @@ void V9990::syncAtNextLine(V9990SyncType type, const EmuTime& time)
 	int line = getUCTicksThisFrame(time) / V9990DisplayTiming::UC_TICKS_PER_LINE;
 	int ticks = (line + 1) * V9990DisplayTiming::UC_TICKS_PER_LINE;
 	EmuTime nextTime = frameStartTime + ticks;
-	Scheduler::instance().setSyncPoint(nextTime, *this, type);
+	setSyncPoint(nextTime, type);
 }
 
 void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 {
 	PRT_DEBUG("[" << time << "] "
-		  "V9990::writeRegister - reg=0x" << std::hex << int(reg) << 
+		  "V9990::writeRegister - reg=0x" << std::hex << int(reg) <<
 		                        " val=0x" << std::hex << int(val));
 
 	assert(reg < 64);
@@ -541,7 +541,7 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 		cmdEngine->setCmdReg(reg, val, time);
 		return;
 	}
-	
+
 	byte change = regs[reg] ^ val;
 	if (!change) return;
 
@@ -637,23 +637,23 @@ void V9990::frameStart(const EmuTime& time)
 	renderer->frameStart(time);
 	// Schedule next VSYNC
 	frameStartTime.advance(time);
-	
+
 	// schedule next VSYNC
-	Scheduler::instance().setSyncPoint(
+	setSyncPoint(
 		frameStartTime + V9990DisplayTiming::getUCTicksPerFrame(palTiming),
-		*this, V9990_VSYNC);
+		V9990_VSYNC);
 
 	// schedule DISPLAY_START
 	int topBorder = getVerticalTiming().blank + getVerticalTiming().border1;
-	Scheduler::instance().setSyncPoint(
+	setSyncPoint(
 	        frameStartTime + topBorder * V9990DisplayTiming::UC_TICKS_PER_LINE,
-	        *this, V9990_DISPLAY_START);
-	
+	        V9990_DISPLAY_START);
+
 	// schedule VSCAN
 	int bottomBorder = topBorder + getVerticalTiming().display;
-	Scheduler::instance().setSyncPoint(
+	setSyncPoint(
 	        frameStartTime + bottomBorder * V9990DisplayTiming::UC_TICKS_PER_LINE,
-	        *this, V9990_VSCAN);
+	        V9990_VSCAN);
 }
 
 void V9990::raiseIRQ(IRQType irqType)
@@ -710,7 +710,7 @@ V9990ColorMode V9990::getColorMode(byte pal_ctrl) const
 		switch (regs[SCREEN_MODE_0] & 0x03) {
 			case 0x00: mode = BP2; break;
 			case 0x01: mode = BP4; break;
-			case 0x02: 
+			case 0x02:
 				switch (pal_ctrl & 0xC0) {
 					case 0x00: mode = BP6; break;
 					case 0x40: mode = BD8; break;
@@ -777,10 +777,10 @@ void V9990::scheduleHscan(const EmuTime& time)
 {
 	// remove pending HSCAN, if any
 	if (hScanSyncTime > time) {
-		Scheduler::instance().removeSyncPoint(*this, V9990_HSCAN);
+		removeSyncPoint(V9990_HSCAN);
 		hScanSyncTime = time;
 	}
-	
+
 	if (pendingIRQs & HOR_IRQ) {
 		// flag already set, no need to schedule
 		return;
@@ -803,7 +803,7 @@ void V9990::scheduleHscan(const EmuTime& time)
 	}
 
 	hScanSyncTime = frameStartTime + offset;
-	Scheduler::instance().setSyncPoint(hScanSyncTime, *this, V9990_HSCAN);
+	setSyncPoint(hScanSyncTime, V9990_HSCAN);
 }
 
 } // namespace openmsx

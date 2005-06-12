@@ -1,7 +1,6 @@
 // $Id$
 
 #include "EmuTimer.hh"
-#include "Scheduler.hh"
 #include "Clock.hh"
 
 using std::string;
@@ -10,8 +9,7 @@ namespace openmsx {
 
 template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
 EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::EmuTimer(EmuTimerCallback* cb_)
-	: count(256), counting(false), cb(cb_),
-	  scheduler(Scheduler::instance())
+	: count(256), counting(false), cb(cb_)
 {
 }
 
@@ -46,13 +44,13 @@ void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::schedule(const EmuTime& time)
 {
 	Clock<FREQ_NOM, FREQ_DENOM> now(time);
 	now += count;
-	scheduler.setSyncPoint(now.getTime(), *this);
+	setSyncPoint(now.getTime());
 }
 
 template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
 void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::unschedule()
 {
-	scheduler.removeSyncPoint(*this);
+	removeSyncPoint();
 }
 
 template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>

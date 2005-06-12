@@ -47,7 +47,7 @@ AfterCommand::AfterCommand()
 AfterCommand::~AfterCommand()
 {
 	CommandController::instance().unregisterCommand(this, "after");
-	
+
 	EventDistributor::instance().unregisterEventListener(
 		OPENMSX_BREAK_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().unregisterEventListener(
@@ -235,7 +235,7 @@ AfterCommand::AfterCmd::AfterCmd(const string& command_)
 	ostringstream str;
 	str << "after#" << ++lastAfterId;
 	id = str.str();
-	
+
 	afterCmds[id] = this;
 }
 
@@ -276,7 +276,7 @@ AfterCommand::AfterTimedCmd::AfterTimedCmd(const string& command, double time_)
 
 AfterCommand::AfterTimedCmd::~AfterTimedCmd()
 {
-	Scheduler::instance().removeSyncPoint(*this);
+	removeSyncPoint();
 }
 
 double AfterCommand::AfterTimedCmd::getTime() const
@@ -286,9 +286,9 @@ double AfterCommand::AfterTimedCmd::getTime() const
 
 void AfterCommand::AfterTimedCmd::reschedule()
 {
-	Scheduler::instance().removeSyncPoint(*this);
+	removeSyncPoint();
 	EmuTime t = Scheduler::instance().getCurrentTime() + EmuDuration(time);
-	Scheduler::instance().setSyncPoint(t, *this);
+	setSyncPoint(t);
 }
 
 void AfterCommand::AfterTimedCmd::executeUntil(const EmuTime& /*time*/,

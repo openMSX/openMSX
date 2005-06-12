@@ -13,7 +13,7 @@ SRC_HDR:= \
 	MSXMotherBoard \
 	MSXPPI I8255 \
 	PlatformFactory DeviceFactory \
-	Scheduler \
+	Scheduler Schedulable \
 	MSXE6Timer \
 	MSXF4Device \
 	MSXTurboRPause \
@@ -49,7 +49,6 @@ HDR_ONLY:= \
 	openmsx \
 	likely \
 	Clock DynamicClock \
-	Schedulable \
 	MSXException InitException \
 	PatchInterface \
 

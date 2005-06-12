@@ -40,7 +40,7 @@ MidiInNative::MidiInNative(unsigned num)
 
 MidiInNative::~MidiInNative()
 {
-	Scheduler::instance().removeSyncPoint(*this);
+	removeSyncPoint();
 	//w32_midiInClean(); // TODO
 }
 
@@ -86,7 +86,7 @@ void MidiInNative::procLongMsg(LPMIDIHDR p)
 		for (unsigned i = 0; i < p->dwBytesRecorded; ++i) {
 			queue.push_back(p->lpData[i]);
 		}
-		Scheduler::instance().setSyncPoint(Scheduler::ASAP, *this);
+		setSyncPoint(Scheduler::ASAP);
 	}
 }
 
@@ -106,7 +106,7 @@ void MidiInNative::procShortMsg(DWORD param)
 		queue.push_back(param & 0xFF);
 		param >>= 8;
 	}
-	Scheduler::instance().setSyncPoint(Scheduler::ASAP,*this);
+	setSyncPoint(Scheduler::ASAP);
 }
 
 // Runnable
@@ -153,7 +153,7 @@ void MidiInNative::signal(const EmuTime& time)
 		return;
 	}
 	if (!connector->ready()) return;
-	
+
 	ScopedLock l(lock);
 	if (queue.empty()) return;
 	byte data = queue.front();

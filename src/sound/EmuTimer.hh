@@ -36,7 +36,6 @@ private:
 	int count;
 	bool counting;
 	EmuTimerCallback* cb;
-	Scheduler& scheduler;
 };
 
 typedef EmuTimer<0x40,  3579545, 72 *  4    > EmuTimerOPL3_1;

@@ -30,7 +30,7 @@ public:
 	void setState(bool status, const EmuTime& time);
 	void setPeriodicState(const EmuDuration& total,
 		const EmuDuration& hi, const EmuTime& time);
-	
+
 	// output side
 	bool getState(const EmuTime& time) const;
 	bool isPeriodic() const;
@@ -47,7 +47,7 @@ private:
 	void schedule(const EmuTime& time);
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const std::string& schedName() const;
-	
+
 	ClockPinListener* listener;
 
 	EmuDuration totalDur;
@@ -57,8 +57,6 @@ private:
 	bool periodic;
 	bool status;
 	bool signalEdge;
-
-	Scheduler& scheduler;
 };
 
 } // namespace openmsx

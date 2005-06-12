@@ -2,7 +2,6 @@
 
 #include "WD2793.hh"
 #include "DiskDrive.hh"
-#include "Scheduler.hh"
 #include "MSXException.hh"
 
 using std::string;
@@ -51,19 +50,19 @@ WD2793::~WD2793()
 void WD2793::reset(const EmuTime& time)
 {
 	//PRT_DEBUG("WD2793::reset()");
-	Scheduler::instance().removeSyncPoint(*this, SCHED_FSM);
-	Scheduler::instance().removeSyncPoint(*this, SCHED_IDX_IRQ);
+	removeSyncPoint(SCHED_FSM);
+	removeSyncPoint(SCHED_IDX_IRQ);
 	fsmState = FSM_NONE;
 
 	statusReg = 0;
 	trackReg = 0;
 	dataReg = 0;
 	directionIn = true;
-	
+
 	setDRQ(false, time);
 	resetIRQ();
 	immediateIRQ = false;
-	
+
 	needInitWriteTrack = false;
 	formatting = false;
 	transferring = false;
@@ -132,7 +131,7 @@ void WD2793::setDRQ(bool drq, const EmuTime& time)
 void WD2793::setCommandReg(byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("WD2793::setCommandReg() 0x" << std::hex << (int)value);
-	Scheduler::instance().removeSyncPoint(*this, SCHED_FSM);
+	removeSyncPoint(SCHED_FSM);
 
 	commandReg = value;
 	resetIRQ();
@@ -155,13 +154,13 @@ void WD2793::setCommandReg(byte value, const EmuTime& time)
 		case 0xB0: // write sector (multi)
 			startType2Cmd(time);
 			break;
-			
+
 		case 0xC0: // Read Address
 		case 0xE0: // read track
 		case 0xF0: // write track
 			startType3Cmd(time);
 			break;
-		
+
 		case 0xD0: // Force interrupt
 			startType4Cmd(time);
 			break;
@@ -171,7 +170,7 @@ void WD2793::setCommandReg(byte value, const EmuTime& time)
 byte WD2793::getStatusReg(const EmuTime& time)
 {
 	if (((commandReg & 0x80) == 0) || ((commandReg & 0xF0) == 0xD0)) {
-		// Type I or type IV command 
+		// Type I or type IV command
 		statusReg &= ~(INDEX | TRACK00 | HEAD_LOADED | WRITE_PROTECTED);
 		if (drive.indexPulse(time)) {
 			statusReg |=  INDEX;
@@ -288,7 +287,7 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 			drive.initWriteTrack();
 		}
 		setDRQ(false, time);
-		
+
 		//indexmark related timing
 		int pulses = drive.indexPulseCount(commandStart, time);
 		switch (pulses) {
@@ -350,7 +349,7 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 		   if (indexmark) {
 		   statusReg &= ~0x03;	// reset status on Busy and DRQ
 		   setIRQ();
-		   DRQ = false; 
+		   DRQ = false;
 		   }
 		 */
 	}
@@ -408,9 +407,9 @@ void WD2793::tryToReadSector()
 
 void WD2793::schedule(FSMState state, const EmuTime& time)
 {
-	assert(!Scheduler::instance().pendingSyncPoint(*this, SCHED_FSM));
+	assert(!pendingSyncPoint(SCHED_FSM));
 	fsmState = state;
-	Scheduler::instance().setSyncPoint(time, *this, SCHED_FSM);
+	setSyncPoint(time, SCHED_FSM);
 }
 
 void WD2793::executeUntil(const EmuTime& time, int userData)
@@ -450,14 +449,14 @@ void WD2793::executeUntil(const EmuTime& time, int userData)
 			break;
 		case FSM_TYPE3_WAIT_LOAD:
 			if (((commandReg & 0xC0) == 0xC0) &&
-			    ((commandReg & 0xF0) != 0xD0)) { 
+			    ((commandReg & 0xF0) != 0xD0)) {
 				// Type III command
 				type3WaitLoad(time);
 			}
 			break;
 		case FSM_TYPE3_LOADED:
 			if (((commandReg & 0xC0) == 0xC0) &&
-			    ((commandReg & 0xF0) != 0xD0)) { 
+			    ((commandReg & 0xF0) != 0xD0)) {
 				// Type III command
 				type3Loaded(time);
 			}
@@ -487,22 +486,22 @@ void WD2793::startType1Cmd(const EmuTime& time)
 			dataReg  = 0x00;
 			seek(time);
 			break;
-			
+
 		case 0x10: // seek
 			seek(time);
 			break;
-			
+
 		case 0x20: // step
 		case 0x30: // step (Update trackRegister)
 			step(time);
 			break;
-			
+
 		case 0x40: // step-in
 		case 0x50: // step-in (Update trackRegister)
 			directionIn = true;
 			step(time);
 			break;
-			
+
 		case 0x60: // step-out
 		case 0x70: // step-out (Update trackRegister)
 			directionIn = false;
@@ -714,7 +713,7 @@ void WD2793::startType4Cmd(const EmuTime& time)
 {
 	// Force interrupt
 	PRT_DEBUG("WD2793 command: Force interrupt");
-	
+
 	byte flags = commandReg & 0x0F;
 	if (flags & (N2R_IRQ | R2N_IRQ)) {
 		// all flags not yet supported
@@ -725,15 +724,14 @@ void WD2793::startType4Cmd(const EmuTime& time)
 		immediateIRQ = false;
 	}
 	if ((flags & IDX_IRQ) && drive.ready()) {
-		Scheduler::instance().setSyncPoint(
-			drive.getTimeTillIndexPulse(time), *this, SCHED_IDX_IRQ);
+		setSyncPoint(drive.getTimeTillIndexPulse(time), SCHED_IDX_IRQ);
 	} else {
-		Scheduler::instance().removeSyncPoint(*this, SCHED_IDX_IRQ);
+		removeSyncPoint(SCHED_IDX_IRQ);
 	}
 	if (flags & IMM_IRQ) {
 		immediateIRQ = true;
 	}
-	
+
 	setDRQ(false, time);
 	statusReg &= ~BUSY;	// reset status on Busy
 }

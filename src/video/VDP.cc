@@ -233,13 +233,13 @@ void VDP::resetMasks(const EmuTime& time)
 
 void VDP::reset(const EmuTime& time)
 {
-	Scheduler::instance().removeSyncPoint(*this, VSYNC);
-	Scheduler::instance().removeSyncPoint(*this, DISPLAY_START);
-	Scheduler::instance().removeSyncPoint(*this, VSCAN);
-	Scheduler::instance().removeSyncPoint(*this, HSCAN);
-	Scheduler::instance().removeSyncPoint(*this, HOR_ADJUST);
-	Scheduler::instance().removeSyncPoint(*this, SET_MODE);
-	Scheduler::instance().removeSyncPoint(*this, SET_BLANK);
+	removeSyncPoint(VSYNC);
+	removeSyncPoint(DISPLAY_START);
+	removeSyncPoint(VSCAN);
+	removeSyncPoint(HSCAN);
+	removeSyncPoint(HOR_ADJUST);
+	removeSyncPoint(SET_MODE);
+	removeSyncPoint(SET_BLANK);
 
 	// Reset subsystems.
 	cmdEngine->sync(time);
@@ -354,7 +354,7 @@ void VDP::scheduleDisplayStart(const EmuTime& time)
 {
 	// Remove pending DISPLAY_START sync point, if any.
 	if (displayStartSyncTime > time) {
-		Scheduler::instance().removeSyncPoint(*this, DISPLAY_START);
+		removeSyncPoint(DISPLAY_START);
 		//cerr << "removing predicted DISPLAY_START sync point\n";
 	}
 
@@ -375,8 +375,7 @@ void VDP::scheduleDisplayStart(const EmuTime& time)
 
 	// Register new DISPLAY_START sync point.
 	if (displayStartSyncTime > time) {
-		Scheduler::instance().setSyncPoint(
-			displayStartSyncTime, *this, DISPLAY_START);
+		setSyncPoint(displayStartSyncTime, DISPLAY_START);
 		//cerr << "inserting new DISPLAY_START sync point\n";
 	}
 
@@ -398,7 +397,7 @@ void VDP::scheduleVScan(const EmuTime& time)
 
 	// Remove pending VSCAN sync point, if any.
 	if (vScanSyncTime > time) {
-		Scheduler::instance().removeSyncPoint(*this, VSCAN);
+		removeSyncPoint(VSCAN);
 		//cerr << "removing predicted VSCAN sync point\n";
 	}
 
@@ -409,7 +408,7 @@ void VDP::scheduleVScan(const EmuTime& time)
 
 	// Register new VSCAN sync point.
 	if (vScanSyncTime > time) {
-		Scheduler::instance().setSyncPoint(vScanSyncTime, *this, VSCAN);
+		setSyncPoint(vScanSyncTime, VSCAN);
 		//cerr << "inserting new VSCAN sync point\n";
 	}
 }
@@ -418,7 +417,7 @@ void VDP::scheduleHScan(const EmuTime& time)
 {
 	// Remove pending HSCAN sync point, if any.
 	if (hScanSyncTime > time) {
-		Scheduler::instance().removeSyncPoint(*this, HSCAN);
+		removeSyncPoint(HSCAN);
 		hScanSyncTime = time;
 	}
 
@@ -454,7 +453,7 @@ void VDP::scheduleHScan(const EmuTime& time)
 		*/
 		hScanSyncTime = frameStartTime + horizontalScanOffset;
 		if (hScanSyncTime > time) {
-			Scheduler::instance().setSyncPoint(hScanSyncTime, *this, HSCAN);
+			setSyncPoint(hScanSyncTime, HSCAN);
 		}
 	}
 }
@@ -498,8 +497,7 @@ void VDP::frameStart(const EmuTime& time)
 
 	// Schedule next VSYNC.
 	frameStartTime.advance(time);
-	Scheduler::instance().setSyncPoint(
-		frameStartTime + getTicksPerFrame(), *this, VSYNC);
+	setSyncPoint(frameStartTime + getTicksPerFrame(), VSYNC);
 	// Schedule DISPLAY_START, VSCAN and HSCAN.
 	scheduleDisplayStart(time);
 
@@ -939,7 +937,7 @@ void VDP::syncAtNextLine(SyncType type, const EmuTime& time)
 	int line = getTicksThisFrame(time) / TICKS_PER_LINE;
 	int ticks = (line + 1) * TICKS_PER_LINE;
 	EmuTime nextTime = frameStartTime + ticks;
-	Scheduler::instance().setSyncPoint(nextTime, *this, type);
+	setSyncPoint(nextTime, type);
 }
 
 void VDP::updateColourBase(const EmuTime& time)

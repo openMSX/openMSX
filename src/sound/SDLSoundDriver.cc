@@ -35,7 +35,7 @@ SDLSoundDriver::SDLSoundDriver(Mixer& mixer_,
 	desired.format   = OPENMSX_BIGENDIAN ? AUDIO_S16MSB : AUDIO_S16LSB;
 	desired.callback = audioCallbackHelper; // must be a static method
 	desired.userdata = this;
-	
+
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
 		throw MSXException("Unable to initialize SDL audio subsystem: " +
 		                   string(SDL_GetError()));
@@ -53,8 +53,8 @@ SDLSoundDriver::SDLSoundDriver(Mixer& mixer_,
 	reInit();
 	prevTime = Scheduler::instance().getCurrentTime();
 	EmuDuration interval2 = interval1 * audioSpec.samples;
-	Scheduler::instance().setSyncPoint(prevTime + interval2, *this);
-	
+	setSyncPoint(prevTime + interval2);
+
 	speedSetting.addListener(this);
 	throttleSetting.addListener(this);
 }
@@ -63,10 +63,10 @@ SDLSoundDriver::~SDLSoundDriver()
 {
 	throttleSetting.removeListener(this);
 	speedSetting.removeListener(this);
-	
-	Scheduler::instance().removeSyncPoint(*this);
+
+	removeSyncPoint();
 	delete[] mixBuffer;
-	
+
 	SDL_CloseAudio();
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
@@ -119,7 +119,7 @@ void SDLSoundDriver::audioCallback(short* stream, unsigned len)
 	unsigned available = (readPtr <= writePtr)
 	                   ? writePtr - readPtr
 	                   : writePtr - readPtr + bufferSize;
-	
+
 	if (available < (3 * bufferSize / 8)) {
 		int missing = len - available;
 		if (missing <= 0) {
@@ -168,7 +168,7 @@ void SDLSoundDriver::updateStream(const EmuTime& time)
 		return;
 	}
 	prevTime += interval1 * samples;
-	
+
 	lock();
 	updtStrm(samples);
 	unlock();
@@ -177,7 +177,7 @@ void SDLSoundDriver::updateStream(const EmuTime& time)
 void SDLSoundDriver::updtStrm(unsigned samples)
 {
 	samples = std::min<unsigned>(samples, audioSpec.samples);
-	
+
 	unsigned available = (readPtr <= writePtr)
 	                   ? writePtr - readPtr
 	                   : writePtr - readPtr + bufferSize;
@@ -225,7 +225,7 @@ void SDLSoundDriver::reInit()
 {
 	double percent = speedSetting.getValue();
 	interval1 = EmuDuration(percent / (audioSpec.freq * 100));
-	intervalAverage = interval1; 
+	intervalAverage = interval1;
 }
 
 
@@ -239,7 +239,7 @@ void SDLSoundDriver::executeUntil(const EmuTime& time, int /*userData*/)
 		updateStream(time);
 	}
 	EmuDuration interval2 = interval1 * audioSpec.samples;
-	Scheduler::instance().setSyncPoint(time + interval2, *this);
+	setSyncPoint(time + interval2);
 }
 
 const string& SDLSoundDriver::schedName() const

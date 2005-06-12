@@ -5,12 +5,11 @@
 
 #include "EmuTime.hh"
 #include "Semaphore.hh"
+#include "Schedulable.hh"
 #include "likely.hh"
 #include <vector>
 
 namespace openmsx {
-
-class Schedulable;
 
 class Scheduler
 {
@@ -34,6 +33,42 @@ private:
 
 public:
 	static Scheduler& instance();
+
+public:
+	/**
+	 * Get the current scheduler time.
+	 */
+	const EmuTime& getCurrentTime() const;
+
+	/**
+	 * TODO
+	 */
+	inline const EmuTime& getNext() const
+	{
+		const EmuTime& time = syncPoints.front().getTime();
+		return time == ASAP ? scheduleTime : time;
+	}
+
+	/**
+	 * Schedule till a certain moment in time.
+	 */
+	inline void schedule(const EmuTime& limit)
+	{
+		// TODO: Faster to cache in member (or static) variable?
+		// TODO: Assumes syncPoints is not empty.
+		//       In practice that's true because VDP end-of-frame sync point
+		//       is always there, but it's ugly to rely on that.
+		if (unlikely(limit >= syncPoints.front().getTime())) {
+			scheduleHelper(limit); // slow path not inlined
+		}
+	}
+
+	static const EmuTime ASAP;
+
+private: // -> intended for Schedulable
+	friend void Schedulable::setSyncPoint(const EmuTime&, int);
+	friend void Schedulable::removeSyncPoint(int);
+	friend bool Schedulable::pendingSyncPoint(int);
 
 	/**
 	 * Register a syncPoint. When the emulation reaches "timestamp",
@@ -70,36 +105,6 @@ public:
 	 * Is there a pending syncPoint for this device?
 	 */
 	bool pendingSyncPoint(Schedulable& device, int userdata = 0);
-	
-	/**
-	 * Get the current scheduler time.
-	 */
-	const EmuTime& getCurrentTime() const;
-
-	/**
-	 * TODO
-	 */
-	inline const EmuTime& getNext() const
-	{
-		const EmuTime& time = syncPoints.front().getTime();
-		return time == ASAP ? scheduleTime : time;
-	}
-	
-	/**
-	 * Schedule till a certain moment in time.
-	 */
-	inline void schedule(const EmuTime& limit)
-	{
-		// TODO: Faster to cache in member (or static) variable?
-		// TODO: Assumes syncPoints is not empty.
-		//       In practice that's true because VDP end-of-frame sync point
-		//       is always there, but it's ugly to rely on that.
-		if (unlikely(limit >= syncPoints.front().getTime())) {
-			scheduleHelper(limit); // slow path not inlined
-		}
-	}
-
-	static const EmuTime ASAP;
 
 private:
 	Scheduler();

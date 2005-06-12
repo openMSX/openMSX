@@ -136,22 +136,22 @@ const byte* Keyboard::getKeys()
 
 void Keyboard::allUp()
 {
-	for (unsigned int i=0 ; i<NR_KEYROWS ; ++i) 
+	for (unsigned int i=0 ; i<NR_KEYROWS ; ++i)
 		userKeyMatrix[i]=0xFF;
 }
 
 bool Keyboard::signalEvent(const Event& event)
 {
 	switch (event.getType()) {
-	case OPENMSX_CONSOLE_ON_EVENT: 
+	case OPENMSX_CONSOLE_ON_EVENT:
 		allUp();
 		break;
-	case OPENMSX_CONSOLE_OFF_EVENT: 
+	case OPENMSX_CONSOLE_OFF_EVENT:
 		// We do not rescan the keyboard since this may lead to an
 		// unwanted pressing of <return> in MSX after typing "set console
 		// off" in the console.
 		break;
-	default: // must be keyEvent 
+	default: // must be keyEvent
 		assert(dynamic_cast<const KeyEvent*>(&event));
 		Keys::KeyCode key = (Keys::KeyCode)((int)((KeyEvent&)event).getKeyCode() &
 	                                    (int)Keys::K_MASK);
@@ -257,7 +257,7 @@ bool Keyboard::commonKeys(char asciiCode1, char asciiCode2)
 	byte mask11 = asciiTab[asciiCode1 & 0xFF][1] & 0xFF;
 	byte mask20 = asciiTab[asciiCode2 & 0xFF][0] & 0xFF;
 	byte mask21 = asciiTab[asciiCode2 & 0xFF][1] & 0xFF;
-	
+
 	// ignore modifier keys (shift, ctrl, graph, code)
 	if (row10 == 6) mask10 &= ~0x17;
 	if (row11 == 6) mask11 &= ~0x17;
@@ -284,7 +284,7 @@ string Keyboard::KeyMatrixUpCmd::execute(const vector<string>& tokens)
 
 string Keyboard::KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
 {
-	static const string helpText = 
+	static const string helpText =
 		"keymatrixup <row> <bitmask>  release a key in the keyboardmatrix\n";
 	return helpText;
 }
@@ -304,7 +304,7 @@ string Keyboard::KeyMatrixDownCmd::execute(const vector<string>& tokens)
 
 string Keyboard::KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
 {
-	static const string helpText= 
+	static const string helpText=
 		"keymatrixdown <row> <bitmask>  press a key in the keyboardmatrix\n";
 	return helpText;
 }
@@ -368,7 +368,7 @@ void Keyboard::KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
 void Keyboard::KeyInserter::reschedule(const EmuTime& time)
 {
 	Clock<15> nextTime(time);
-	Scheduler::instance().setSyncPoint(nextTime + 1, *this);
+	setSyncPoint(nextTime + 1);
 }
 
 const string& Keyboard::KeyInserter::schedName() const
@@ -382,7 +382,7 @@ const string& Keyboard::KeyInserter::schedName() const
 
 // Key-Matrix table
 //
-// row/bit  7     6     5     4     3     2     1     0   
+// row/bit  7     6     5     4     3     2     1     0
 //       +-----+-----+-----+-----+-----+-----+-----+-----+
 //   0   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |
 //       +-----+-----+-----+-----+-----+-----+-----+-----+
@@ -475,7 +475,7 @@ byte Keyboard::keyTab[MAX_KEYSYM][2] = {
   {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00}
 };
 
-// keypresses needed to type ascii characters 
+// keypresses needed to type ascii characters
 // for each character there are shorts S[0], S[2]
 // S[i] >> 8   adresses a row in the keyboard matrix
 // S[i] & 0xFF gives the keys that need to be pressed in that row
@@ -503,7 +503,7 @@ short Keyboard::asciiTab[256][2] =
 	{0x740},        {0x602, 0x540}, {0x602, 0x580}, {0x704},        // SEL, ^Y, EOF, ESC,
 	{0x880},        {0x810},        {0x820},        {0x840},        // RGT, LFT, UP, DWN,
 	// 0x20
-	{0x801},        {0x601, 0x002}, {0x601, 0x201}, {0x601, 0x008}, // SPC, !, ", #, 
+	{0x801},        {0x601, 0x002}, {0x601, 0x201}, {0x601, 0x008}, // SPC, !, ", #,
 	{0x601, 0x010}, {0x601, 0x020}, {0x601, 0x080}, {0x201},        // $, %, &, ',
 	{0x601, 0x102}, {0x601, 0x001}, {0x601, 0x101}, {0x601, 0x108}, // (, ), *, +,
 	{0x204},        {0x104},        {0x208},        {0x210},        // ,, -, ., /,

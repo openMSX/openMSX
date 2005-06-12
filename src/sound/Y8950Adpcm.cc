@@ -2,7 +2,6 @@
 
 #include "Y8950Adpcm.hh"
 #include "Y8950.hh"
-#include "Scheduler.hh"
 #include "Debugger.hh"
 #include "Clock.hh"
 
@@ -10,7 +9,7 @@ using std::string;
 
 namespace openmsx {
 
-// Relative volume between ADPCM part and FM part, 
+// Relative volume between ADPCM part and FM part,
 // value experimentally found by Manuel Bilderbeek
 const int ADPCM_VOLUME = 356;
 
@@ -73,7 +72,7 @@ Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, const string& name_, int sampleRam)
 
 Y8950Adpcm::~Y8950Adpcm()
 {
-	Scheduler::instance().removeSyncPoint(*this);
+	removeSyncPoint();
 	Debugger::instance().unregisterDebuggable(name, *this);
 	delete[] ramBank;
 }
@@ -127,7 +126,7 @@ void Y8950Adpcm::schedule(const EmuTime &time)
 		uint64 samples = stopAddr - playAddr + 1;
 		Clock<Y8950::CLK_FREQ> stop(time);
 		stop += (samples * (72 << 16) / delta);
-		Scheduler::instance().setSyncPoint(stop.getTime(), *this);
+		setSyncPoint(stop.getTime());
 	}
 }
 
@@ -159,15 +158,15 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			} else if ((data & R07_MEMORY_DATA) && !(data & R07_REC)) {
 				readDelay = 2;
 			}
-			
+
 			if (playing) {
 				schedule(time);
 			} else {
-				Scheduler::instance().removeSyncPoint(*this);
+				removeSyncPoint();
 			}
 			break;
 
-		case 0x08: // CSM/KEY BOARD SPLIT/-/-/SAMPLE/DA AD/64K/ROM 
+		case 0x08: // CSM/KEY BOARD SPLIT/-/-/SAMPLE/DA AD/64K/ROM
 			romBank = data & R08_ROM;
 			addrMask = data & R08_64K ? (1<<17)-1 : (1<<19)-1;
 			break;
@@ -176,7 +175,7 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			startAddr = (startAddr & 0x7F800) | (data << 3);
 			memPntr = 0;
 			break;
-		case 0x0A: // START ADDRESS (H) 
+		case 0x0A: // START ADDRESS (H)
 			startAddr = (startAddr & 0x007F8) | (data << 11);
 			memPntr = 0;
 			break;
@@ -184,7 +183,7 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 		case 0x0B: // STOP ADDRESS (L)
 			stopAddr = (stopAddr & 0x7F807) | (data << 3);
 			break;
-		case 0x0C: // STOP ADDRESS (H) 
+		case 0x0C: // STOP ADDRESS (H)
 			stopAddr = (stopAddr & 0x007FF) | (data << 11);
 			break;
 
@@ -207,18 +206,18 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			y8950.setStatus(Y8950::STATUS_BUF_RDY);
 			break;
 
-		case 0x10: // DELTA-N (L) 
+		case 0x10: // DELTA-N (L)
 			delta = (delta & 0xFF00) | data;
 			step = Y8950::rate_adjust(delta<<GETA_BITS, sampleRate);
 			volumeWStep = (int)((double)volume * step / MAX_STEP);
 			break;
-		case 0x11: // DELTA-N (H) 
+		case 0x11: // DELTA-N (H)
 			delta = (delta & 0x00FF) | (data << 8);
 			step = Y8950::rate_adjust(delta<<GETA_BITS, sampleRate);
 			volumeWStep = (int)((double)volume * step / MAX_STEP);
 			break;
 
-		case 0x12: { // ENVELOP CONTROL 
+		case 0x12: { // ENVELOP CONTROL
 			int oldVol = volume;
 			volume = (data * ADPCM_VOLUME) >> 8;
 			if (oldVol != 0) {
@@ -229,8 +228,8 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			volumeWStep = (int)((double)volume * step / MAX_STEP);
 			break;
 		}
-		case 0x0D: // PRESCALE (L) 
-		case 0x0E: // PRESCALE (H) 
+		case 0x0D: // PRESCALE (L)
+		case 0x0E: // PRESCALE (H)
 		case 0x15: // DAC-DATA  (bit9-2)
 		case 0x16: //           (bit1-0)
 		case 0x17: //           (exponent)
@@ -283,7 +282,7 @@ int Y8950Adpcm::calcSample()
 				   -1,  -3,  -5,  -7,  -9, -11, -13, -15};
 	static const int F2[16] = {57,  57,  57,  57,  77, 102, 128, 153,
 				   57,  57,  57,  57,  77, 102, 128, 153};
-	
+
 	if (muted()) {
 		return 0;
 	}
@@ -313,7 +312,7 @@ int Y8950Adpcm::calcSample()
 			int deltaNext = out - prevOut;
 			nowLeveling = nextLeveling;
 			nextLeveling = prevOut + deltaNext / 2;
-		
+
 			playAddr++;
 			if (playAddr > stopAddr) {
 				if (reg7 & R07_REPEAT) {
