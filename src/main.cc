@@ -9,7 +9,7 @@
 #include <iostream>
 #include <exception>
 #include <SDL.h>
-#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "CommandLineParser.hh"
 #include "CartridgeSlotManager.hh"
 #include "CliComm.hh"
@@ -60,9 +60,9 @@ static int main(int argc, char **argv)
 			HotKey hotkey;
 			AfterCommand afterCommand;
 			RendererFactory::createVideoSystem();
-			MSXMotherBoard motherboard;
+			Reactor reactor;
 			// CliServer cliServer; // disabled for security reasons
-			motherboard.run(parseStatus == CommandLineParser::RUN);
+			reactor.run(parseStatus == CommandLineParser::RUN);
 		}
 	} catch (FatalError& e) {
 		cerr << "Fatal error: " << e.getMessage() << endl;

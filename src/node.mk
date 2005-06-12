@@ -13,7 +13,7 @@ SRC_HDR:= \
 	MSXMotherBoard \
 	MSXPPI I8255 \
 	PlatformFactory DeviceFactory \
-	Scheduler Schedulable \
+	Reactor Scheduler Schedulable \
 	MSXE6Timer \
 	MSXF4Device \
 	MSXTurboRPause \
