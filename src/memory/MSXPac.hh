@@ -14,8 +14,8 @@ class MSXPac : public MSXDevice
 {
 public:
 	MSXPac(const XMLElement& config, const EmuTime& time);
-	virtual ~MSXPac(); 
-	
+	virtual ~MSXPac();
+
 	virtual void reset(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual void writeMem(word address, byte value, const EmuTime& time);
@@ -24,7 +24,7 @@ public:
 
 private:
 	void checkSramEnable();
-	
+
 	const std::auto_ptr<SRAM> sram;
 	byte r1ffe, r1fff;
 	bool sramEnabled;

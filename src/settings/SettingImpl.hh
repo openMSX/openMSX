@@ -43,7 +43,7 @@ public:
 	  * @param newValue The new value.
 	  */
 	void setValue(Type newValue);
-	
+
 	/** Get the default value of this setting
 	  */
 	const Type& getDefaultValue() const;
@@ -55,7 +55,7 @@ public:
 	/**
 	 */
 	void setChecker(SettingChecker<POLICY>* checker);
-	
+
 	// virtual methods from Setting class
 	virtual std::string getValueString() const;
 	virtual void setValueString(const std::string& valueString);

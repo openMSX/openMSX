@@ -60,7 +60,7 @@ Interpreter::Interpreter()
 {
 	interp = Tcl_CreateInterp();
 	Tcl_Preserve(interp);
-	
+
 	// TODO need to investigate this: doesn't work on windows
 	/*
 	if (Tcl_Init(interp) != TCL_OK) {
@@ -148,7 +148,7 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 void Interpreter::getCommandNames(set<string>& result)
 {
 	string list = execute("info commands");
-	
+
 	int argc;
 	const char** argv;
 	if (Tcl_SplitList(interp, list.c_str(), &argc, &argv) != TCL_OK) {
@@ -229,9 +229,9 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
                            const char* part1, const char* /*part2*/, int flags)
 {
 	static string static_string;
-	
+
 	Setting* variable = static_cast<Setting*>(clientData);
-	
+
 	if (flags & TCL_TRACE_READS) {
 		Tcl_SetVar(interp, part1, variable->getValueString().c_str(), 0);
 	}

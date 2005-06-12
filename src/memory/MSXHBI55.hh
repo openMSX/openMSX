@@ -15,8 +15,8 @@ class MSXHBI55 : public MSXDevice, public I8255Interface
 {
 // MSXDevice
 public:
-	MSXHBI55(const XMLElement& config, const EmuTime& time); 
-	virtual ~MSXHBI55(); 
+	MSXHBI55(const XMLElement& config, const EmuTime& time);
+	virtual ~MSXHBI55();
 
 	virtual void reset(const EmuTime& time);
 	virtual byte readIO(byte port, const EmuTime& time);

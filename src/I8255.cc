@@ -36,7 +36,7 @@ void I8255::reset(const EmuTime& time)
 	latchPortA = 0;
 	latchPortB = 0;
 	latchPortC = 0;
-	writeControlPort(SET_MODE | DIRECTION_A | DIRECTION_B | 
+	writeControlPort(SET_MODE | DIRECTION_A | DIRECTION_B |
 	                            DIRECTION_C0 | DIRECTION_C1, time); // all input
 }
 
@@ -232,7 +232,7 @@ void I8255::outputPortA(byte value, const EmuTime& time)
 		interface.writeA(value, time);
 	}
 }
-	
+
 void I8255::outputPortB(byte value, const EmuTime& time)
 {
 	latchPortB = value;
@@ -241,7 +241,7 @@ void I8255::outputPortB(byte value, const EmuTime& time)
 		interface.writeB(value, time);
 	}
 }
-	
+
 void I8255::outputPortC(byte value, const EmuTime& time)
 {
 	latchPortC = value;
@@ -295,4 +295,4 @@ void I8255::writeControlPort(byte value, const EmuTime& time)
 }
 
 } // namespace openmsx
-	
+

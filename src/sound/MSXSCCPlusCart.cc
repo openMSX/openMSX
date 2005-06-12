@@ -117,24 +117,24 @@ const byte* MSXSCCPlusCart::getReadCacheLine(word start) const
 void MSXSCCPlusCart::writeMem(word address, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("SCC+ write "<< hex << address << " " << (int)value << dec);
-	
+
 	if ((address < 0x4000) || (0xC000 <= address)) {
 		// outside memory range
 		return;
 	}
-	
+
 	// Mode register is mapped upon 0xBFFE and 0xBFFF
 	if ((address | 0x0001) == 0xBFFF) {
 		setModeRegister(value);
 		return;
 	}
-	
+
 	// Write to RAM
 	int regio = (address >> 13) - 2;
 	if (isRamSegment[regio]) {
 		//According to Sean Young
-		// when the regio's are in RAM mode you can read from 
-		// the SCC(+) but not write to them 
+		// when the regio's are in RAM mode you can read from
+		// the SCC(+) but not write to them
 		// => we assume a write to the memory but maybe
 		//    they are just discarded
 		// TODO check this out => ask Sean...
@@ -155,7 +155,7 @@ void MSXSCCPlusCart::writeMem(word address, byte value, const EmuTime& time)
 		setMapper(regio, value);
 		return;
 	}
-	
+
 	// call writeMemInterface of SCC if needed
 	switch (enable) {
 	case EN_NONE:
@@ -195,7 +195,7 @@ void MSXSCCPlusCart::setMapper(int regio, byte value)
 {
 	mapper[regio] = value;
 	value &= mapperMask;
-	
+
 	byte* block;
 	if ((!lowRAM  && (value <  8)) ||
 	    (!highRAM && (value >= 8))) {
@@ -205,7 +205,7 @@ void MSXSCCPlusCart::setMapper(int regio, byte value)
 		block = &(*ram)[0x2000 * value];
 		isMapped[regio] = true;
 	}
-	
+
 	checkEnable();
 	internalMemoryBank[regio] = block;
 	MSXCPU::instance().invalidateMemCache(0x4000 + regio * 0x2000, 0x2000);
@@ -215,13 +215,13 @@ void MSXSCCPlusCart::setModeRegister(byte value)
 {
 	modeRegister = value;
 	checkEnable();
-	
+
 	if (modeRegister & 0x20) {
 		scc->setChipMode(SCC::SCC_plusmode);
 	} else {
 		scc->setChipMode(SCC::SCC_Compatible);
 	}
-	
+
 	if (modeRegister & 0x10) {
 		isRamSegment[0] = true;
 		isRamSegment[1] = true;

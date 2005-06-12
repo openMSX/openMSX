@@ -120,7 +120,7 @@ bool XRenderer::checkSettings()
 {
 	// First check this is the right renderer.
 	if (!Renderer::checkSettings()) return false;
-	
+
 	// TODO: Check other settings, such as full screen.
 	return true;
 }

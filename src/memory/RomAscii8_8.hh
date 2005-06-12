@@ -16,7 +16,7 @@ public:
 	RomAscii8_8(const XMLElement& config, const EmuTime& time,
 	            std::auto_ptr<Rom> rom, SubType subType);
 	virtual ~RomAscii8_8();
-	
+
 	virtual void reset(const EmuTime& time);
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;

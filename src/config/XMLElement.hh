@@ -16,16 +16,16 @@ class XMLElementListener;
 class XMLElement
 {
 public:
-	// 
+	//
 	// Basic functions
 	//
-	
-	// construction, destruction, copy, assign 
+
+	// construction, destruction, copy, assign
 	XMLElement(const std::string& name, const std::string& data = "");
 	XMLElement(const XMLElement& element);
 	const XMLElement& operator=(const XMLElement& element);
 	virtual ~XMLElement();
-	
+
 	// name
 	const std::string& getName() const { return name; }
 	void setName(const std::string& name);
@@ -42,13 +42,13 @@ public:
 	// parent
 	XMLElement* getParent();
 	const XMLElement* getParent() const;
-	
+
 	// child
 	typedef std::vector<XMLElement*> Children;
 	void addChild(std::auto_ptr<XMLElement> child);
 	std::auto_ptr<XMLElement> removeChild(const XMLElement& child);
 	const Children& getChildren() const { return children; }
-	
+
 	// filecontext
 	void setFileContext(std::auto_ptr<FileContext> context);
 	FileContext& getFileContext() const;
@@ -56,7 +56,7 @@ public:
 	// listener
 	void addListener(XMLElementListener& listener);
 	void removeListener(XMLElementListener& listener);
-	
+
 	//
 	// Convenience functions
 	//
@@ -89,7 +89,7 @@ public:
 	XMLElement& getCreateChildWithAttribute(
 		const std::string& name, const std::string& attName,
 		const std::string& attValue, const std::string& defaultValue = "");
-	
+
 	const std::string& getChildData(const std::string& name) const;
 	std::string getChildData(const std::string& name,
 	                    const std::string& defaultValue) const;
@@ -97,17 +97,17 @@ public:
 	                        bool defaultValue = false) const;
 	int getChildDataAsInt(const std::string& name,
 	                      int defaultValue = 0) const;
-	
+
 	// various
 	std::string dump() const;
 	void merge(const XMLElement& source);
 	bool isShallowEqual(const XMLElement& other) const;
-	
+
 	static std::string XMLEscape(const std::string& str);
 
 private:
 	void dump(std::string& result, unsigned indentNum) const;
-	
+
 	std::string name;
 	std::string data;
 	Children children;

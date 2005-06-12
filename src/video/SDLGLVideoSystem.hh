@@ -39,7 +39,7 @@ public:
 
 private:
 	void resize(unsigned x, unsigned y);
-	
+
 	SDL_Surface* screen;
 };
 

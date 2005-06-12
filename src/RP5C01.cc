@@ -49,7 +49,7 @@ RP5C01::RP5C01(byte* data, const EmuTime& time)
 	modeMap["RealTime"] = REALTIME;
 	modeSetting.reset(new EnumSetting<RTCMode>(
 		"rtcmode", "Real Time Clock mode", EMUTIME, modeMap));
-	
+
 	initializeTime();
 	reset(time);
 }
@@ -146,7 +146,7 @@ void RP5C01::regs2Time()
 		if (hours >= 20) hours = (hours - 20) + 12;
 	}
 }
-	
+
 void RP5C01::time2Regs()
 {
 	int hours_ = hours;
@@ -154,7 +154,7 @@ void RP5C01::time2Regs()
 		// 12 hours mode
 		if (hours >= 12) hours_ = (hours - 12) + 20;
 	}
-	
+
 	reg[TIME_BLOCK  * 13 +  0] =  seconds   % 10;
 	reg[TIME_BLOCK  * 13 +  1] =  seconds   / 10;
 	reg[TIME_BLOCK  * 13 +  2] =  minutes   % 10;
@@ -171,12 +171,12 @@ void RP5C01::time2Regs()
 	reg[ALARM_BLOCK * 13 + 11] =  leapYear;
 }
 
-static int daysInMonth(int month, int leapYear) 
+static int daysInMonth(int month, int leapYear)
 {
 	const int daysInMonths[12] = {
 		31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 	};
-	
+
 	month %= 12;
 	return ((month == 1) && (leapYear == 0)) ? 29
 	                                         : daysInMonths[month];
@@ -196,12 +196,12 @@ void RP5C01::updateTimeRegs(const EmuTime& time)
 		uint64 testMinutes = (testReg & TEST_MINUTES) ? elapsed : 0;
 		uint64 testHours   = (testReg & TEST_HOURS  ) ? elapsed : 0;
 		uint64 testDays    = (testReg & TEST_DAYS   ) ? elapsed : 0;
-		
+
 		fraction += elapsed;
 		seconds  += fraction/FREQ  + testSeconds; fraction %= FREQ;
 		minutes  += seconds / 60   + testMinutes; seconds  %= 60;
 		hours    += minutes / 60   + testHours;   minutes  %= 60;
-		int carryDays = hours / 24 + testDays; 
+		int carryDays = hours / 24 + testDays;
 		days     += carryDays;      hours   %= 24;
 		dayWeek = (dayWeek + carryDays) % 7;
 		while (days >= daysInMonth(months, leapYear)) {
@@ -211,7 +211,7 @@ void RP5C01::updateTimeRegs(const EmuTime& time)
 		int carryYears = months / 12;
 		years = (years + carryYears) % 100; months %= 12;
 		leapYear = (leapYear + carryYears) % 4;
-		
+
 		time2Regs();
 	} else {
 		// sync with host clock

@@ -14,7 +14,7 @@ class MSXKanji12 : public MSXDevice, public MSXSwitchedDevice
 public:
 	MSXKanji12(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXKanji12();
-	
+
 	virtual void reset(const EmuTime& time);
 	virtual byte readIO(byte port, const EmuTime& time);
 	virtual byte peekIO(byte port, const EmuTime& time) const;

@@ -18,7 +18,7 @@ GLFont::GLFont(GLuint texture, int width, int height, GLfloat* texCoord)
 	GLfloat texHeight = texCoord[3];
 	GLfloat texChrWidth  = texWidth  / CHARS_PER_ROW;
 	GLfloat texChrHeight = texHeight / CHARS_PER_COL;
-	
+
 	listBase = glGenLists(NUM_CHRS);
 	for (int v = 0; v < CHARS_PER_COL; v++) {
 		for (int u = 0; u < NUM_CHRS; u++) {

@@ -16,7 +16,7 @@ class MSXMoonSound : public MSXDevice
 public:
 	MSXMoonSound(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXMoonSound();
-	
+
 	virtual void reset(const EmuTime& time);
 	virtual byte readIO(byte port, const EmuTime& time);
 	virtual byte peekIO(byte port, const EmuTime& time) const;

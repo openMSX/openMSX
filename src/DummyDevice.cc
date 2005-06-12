@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-DummyDevice::DummyDevice(const XMLElement& config, const EmuTime& time) 
+DummyDevice::DummyDevice(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
 {
 }

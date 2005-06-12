@@ -20,7 +20,7 @@ public:
 
 private:
 	void init();
-	
+
 	const XMLElement& config;
 	const char* header;
 };

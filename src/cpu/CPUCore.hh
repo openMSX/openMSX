@@ -24,12 +24,12 @@ template <class CPU_POLICY>
 class CPUCore : private CPU_POLICY, public CPU, private SettingListener
 {
 public:
-	typedef void (CPUCore::*FuncPtr)(); 
+	typedef void (CPUCore::*FuncPtr)();
 
 	CPUCore(const std::string& name, const BooleanSetting& traceSetting,
 	        const EmuTime& time);
 	virtual ~CPUCore();
-	
+
 	void setMotherboard(MSXMotherBoard* motherboard);
 	void setInterface(MSXCPUInterface* interf);
 
@@ -126,12 +126,12 @@ private:
 
 	Scheduler& scheduler;
 	MSXMotherBoard* motherboard;
-	
+
 	// dynamic freq
 	std::auto_ptr<BooleanSetting> freqLocked;
 	std::auto_ptr<IntegerSetting> freqValue;
 	unsigned freq;
-	
+
 	const BooleanSetting& traceSetting;
 
 
@@ -1510,7 +1510,7 @@ private:
 	void dd2();
 	void fd();
 	void fd2();
-	
+
 	friend class MSXCPU;
 	friend class Z80TYPE;
 	friend class R800TYPE;

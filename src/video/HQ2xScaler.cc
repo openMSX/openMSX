@@ -1408,7 +1408,7 @@ static void scaleLine256(
 
 		in  += 1;
 		out += 2;
-	} 
+	}
 }
 
 

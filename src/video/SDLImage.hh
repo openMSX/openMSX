@@ -19,12 +19,12 @@ public:
 	SDLImage(SDL_Surface* output, unsigned width, unsigned height,
 	         byte defaultAlpha = 255);
 	~SDLImage();
-	
+
 	void draw(unsigned x, unsigned y, byte alpha = 255);
 
 private:
 	void init(const std::string& filename);
-	
+
 	SDL_Surface* outputScreen;
 	SDL_Surface* image;
 	SDL_Surface* workImage;

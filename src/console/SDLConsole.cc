@@ -48,7 +48,7 @@ void SDLConsole::paint()
 {
 	byte visibility = getVisibility();
 	if (!visibility) return;
-	
+
 	updateConsoleRect();
 
 	// draw the background image if there is one

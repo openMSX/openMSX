@@ -42,7 +42,7 @@ byte NationalFDC::readMem(word address, const EmuTime& time)
 		// Drive control IRQ and DRQ lines are not connected to Z80 interrupt request
 		// bit 7: intrq
 		// bit 6: !dtrq
-		// other bits read 1 
+		// other bits read 1
 		value = 0x7F;
 		if (controller->getIRQ(time))  value |=  0x80;
 		if (controller->getDTRQ(time)) value &= ~0x40;

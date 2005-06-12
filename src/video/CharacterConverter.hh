@@ -37,7 +37,7 @@ public:
 	  */
 	CharacterConverter(VDP *vdp, const Pixel *palFg, const Pixel *palBg,
 		Blender<Pixel> blender = Blender<Pixel>::dummy() );
-	
+
 	/** Convert a line of V9938 VRAM to 512 host pixels.
 	  * Call this method in non-planar display modes (Graphic4 and Graphic5).
 	  * @param linePtr Pointer to array where host pixels will be written to.

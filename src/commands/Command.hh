@@ -60,7 +60,7 @@ class SimpleCommand : public Command
 {
 public:
 	virtual std::string execute(const std::vector<std::string>& tokens) = 0;
-	
+
 	virtual void execute(const std::vector<CommandArgument>& tokens,
 	                     CommandArgument& result);
 };

@@ -54,7 +54,7 @@ private:
 
 	std::auto_ptr<File> file;
 	int totalSectors;
-	
+
 	byte* buffer;
 	bool transferRead;
 	bool transferWrite;

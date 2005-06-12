@@ -23,9 +23,9 @@ MSXRam::MSXRam(const XMLElement& config, const EmuTime& time)
 	base = b * 1024;
 	int size = s * 1024;
 	end = base + size;
-	
+
 	assert(CPU::CACHE_LINE_SIZE <= 1024);	// size must be cache aligned
-	
+
 	ram.reset(new Ram(getName(), "ram", size));
 }
 

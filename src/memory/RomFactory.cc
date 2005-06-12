@@ -45,7 +45,7 @@ static RomType guessRomType(const Rom& rom)
 		return ROM_NORMAL;
 	}
 	const byte* data = &rom[0];
-	
+
 	if (size <= 0x10000) {
 		if (size == 0x10000) {
 			// There are some programs convert from tape to
@@ -57,8 +57,8 @@ static RomType guessRomType(const Rom& rom)
 			word initAddr = data[2] + 256 * data[3];
 			word textAddr = data[8] + 256 * data[9];
 			if ((textAddr & 0xC000) == 0x8000) {
-				if ((initAddr == 0) || 
-				    (((initAddr & 0xC000) == 0x8000) && 
+				if ((initAddr == 0) ||
+				    (((initAddr & 0xC000) == 0x8000) &&
 				     (data[initAddr & (size - 1)] == 0xC9))) {
 					return ROM_PAGE2;
 				}

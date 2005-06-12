@@ -1,7 +1,7 @@
 // $Id$
 
 // HYDLIDE2 cartridges
-// 
+//
 // this type is is almost completely a ASCII16 cartrdige
 // However, it has 2kB of SRAM (and 128 kB ROM)
 // Use value 0x10 to select the SRAM.

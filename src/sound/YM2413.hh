@@ -17,7 +17,7 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 	struct Patch {
 		Patch();
 		Patch(int n, const byte* data);
-		
+
 		bool AM, PM, EG;
 		byte KR; // 0-1
 		byte ML; // 0-15
@@ -30,7 +30,7 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 		byte SL; // 0-15
 		byte RR; // 0-15
 	};
-	
+
 	class Slot {
 	public:
 		Slot(bool type);
@@ -59,19 +59,19 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 		inline static int wave2_8pi(int e);
 		inline static int EG2DB(int d);
 		inline static int SL2EG(int d);
-	
-		Patch* patch;  
-		bool type;		// 0 : modulator 1 : carrier 
+
+		Patch* patch;
+		bool type;		// 0 : modulator 1 : carrier
 		bool slot_on_flag;
 
 		// OUTPUT
 		int feedback;
-		int output[5];	// Output value of slot 
+		int output[5];	// Output value of slot
 
 		// for Phase Generator (PG)
 		word* sintbl;		// Wavetable
-		unsigned int phase;	// Phase 
-		unsigned int dphase;	// Phase increment amount 
+		unsigned int phase;	// Phase
+		unsigned int dphase;	// Phase increment amount
 		unsigned int pgout;	// output
 
 		// for Envelope Generator (EG)
@@ -87,7 +87,7 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 		unsigned egout;		// output
 	};
 	friend class Slot;
-	
+
 	class Channel {
 	public:
 		Channel();
@@ -136,7 +136,7 @@ private:
 	static void makeDphaseDRTable(int sampleRate);
 	static void makeRksTable();
 	static void makeDB2LinTable();
-	
+
 	inline void keyOn_BD();
 	inline void keyOn_SD();
 	inline void keyOn_TOM();
@@ -200,7 +200,7 @@ private:
 	static const int EG_DP_BITS = 22;
 	static const int EG_DP_WIDTH = 1 << EG_DP_BITS;
 
-	// Bits for Pitch and Amp modulator 
+	// Bits for Pitch and Amp modulator
 	static const int PM_PG_BITS = 8;
 	static const int PM_PG_WIDTH = 1 << PM_PG_BITS;
 	static const int PM_DP_BITS = 16;
@@ -210,11 +210,11 @@ private:
 	static const int AM_DP_BITS = 16;
 	static const int AM_DP_WIDTH = 1 << AM_DP_BITS;
 
-	// PM table is calcurated by PM_AMP * pow(2,PM_DEPTH*sin(x)/1200) 
+	// PM table is calcurated by PM_AMP * pow(2,PM_DEPTH*sin(x)/1200)
 	static const int PM_AMP_BITS = 8;
 	static const int PM_AMP = 1 << PM_AMP_BITS;
 
-	// PM speed(Hz) and depth(cent) 
+	// PM speed(Hz) and depth(cent)
 	static const double PM_SPEED = 6.4;
 	static const double PM_DEPTH = 13.75;
 
@@ -239,7 +239,7 @@ private:
 	int noise_seed;
 
 	// CHECK check with orig code header file line 98-104
-	
+
 	// Channel & Slot
 	Channel ch[9];
 	Slot* slot[18];
@@ -284,7 +284,7 @@ private:
 	static unsigned int tllTable[16][8][1 << TL_BITS][4];
 	static int rksTable[2][8][2];
 
-	// Phase incr table for PG 
+	// Phase incr table for PG
 	static unsigned int dphaseTable[512][8][16];
 
 	const std::string name;

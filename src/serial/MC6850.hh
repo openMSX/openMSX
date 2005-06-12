@@ -11,8 +11,8 @@ class MC6850 : public MSXDevice
 {
 public:
 	MC6850(const XMLElement& config, const EmuTime& time);
-	virtual ~MC6850(); 
-	
+	virtual ~MC6850();
+
 	virtual void reset(const EmuTime& time);
 	virtual byte readIO(byte port, const EmuTime& time);
 	virtual byte peekIO(byte port, const EmuTime& time) const;

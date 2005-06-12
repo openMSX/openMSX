@@ -35,7 +35,7 @@ public:
 
 private:
 	void init();
-	
+
 	const std::string name;
 	const std::string description;
 	unsigned size;

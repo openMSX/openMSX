@@ -29,9 +29,9 @@ public:
 class I8251 : public SerialDataInterface, private Schedulable
 {
 public:
-	I8251(I8251Interface* interf, const EmuTime &time); 
-	virtual ~I8251(); 
-	
+	I8251(I8251Interface* interf, const EmuTime &time);
+	virtual ~I8251();
+
 	void reset(const EmuTime& time);
 	byte readIO(byte port, const EmuTime& time);
 	byte peekIO(byte port, const EmuTime& time) const;
@@ -68,14 +68,14 @@ private:
 	byte sync1, sync2;
 	ClockPin clock;
 	unsigned charLength;
-	
+
 	SerialDataInterface::DataBits  recvDataBits;
 	SerialDataInterface::StopBits  recvStopBits;
 	bool                           recvParityEnabled;
 	SerialDataInterface::ParityBit recvParityBit;
 	byte                           recvBuf;
 	bool recvReady;
-	
+
 	byte sendByte;
 	byte sendBuffer;
 	bool sendBuffered;

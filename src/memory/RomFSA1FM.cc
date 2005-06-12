@@ -87,7 +87,7 @@ byte RomFSA1FM1::readMem(word address, const EmuTime& /*time*/)
 {
 	if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
-		return (*rom)[(0x2000 * (sram[0x1FC4] & 0x0F)) + 
+		return (*rom)[(0x2000 * (sram[0x1FC4] & 0x0F)) +
 		              (address & 0x1FFF)];
 	} else if ((0x7FC0 <= address) && (address < 0x7FD0)) {
 		switch (address & 0x0F) {
@@ -127,7 +127,7 @@ const byte* RomFSA1FM1::getReadCacheLine(word address) const
 void RomFSA1FM1::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	// TODO 0x7FC0 - 0x7FCF is modem IO area
-	
+
 	//PRT_DEBUG("FSA1FM1: write "<<hex<<(int)address<<" "<<(int)value<<dec);
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		if (address == 0x7FC4) {

@@ -29,7 +29,7 @@ public:
 	/** The V9990 has an internal clock (MCLK @ 14MHz) and a terminal
 	  * for an external clock (XTAL1), which can be connected to a 21
 	  * or 25 MHz crystal. The Gfx9000 provides an 21 MHz crystal.
-	  * 
+	  *
 	  * The emulation combines these two clocks into one unified
 	  * clock (UC) running at 42MHz - the smallest common multple
 	  * of 14 and 21 MHz.

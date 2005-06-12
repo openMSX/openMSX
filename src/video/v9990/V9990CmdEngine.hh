@@ -21,7 +21,7 @@ public:
 	static const byte TR = 0x80;
 	static const byte BD = 0x10;
 	static const byte CE = 0x01;
-	
+
 	/** Constructor
 	  */
 	V9990CmdEngine(V9990* vdp, const EmuTime& time);
@@ -37,11 +37,11 @@ public:
 
 	/** Synchronises the command engine with the V9990
 	  * @param time The moment in emulated time to sync to.
-	  */  
+	  */
 	inline void sync(const EmuTime& time) {
 		if (currentCommand) currentCommand->execute(time);
 	}
-	
+
 	/** Set a value to one of the command registers
 	  */
 	void setCmdReg(byte reg, byte val, const EmuTime& time);
@@ -56,7 +56,7 @@ public:
 
 	/** Get command engine related status bits
 	  *  - TR command data transfer ready (bit 7)
-	  *  - BD border color detect         (bit 4)   
+	  *  - BD border color detect         (bit 4)
 	  *  - CE command being executed      (bit 0)
 	  */
 	byte getStatus(const EmuTime& time) {
@@ -78,13 +78,13 @@ private:
 		static const word ADDRESS_MASK    = 0x0003;
 		static inline uint addressOf(int x, int y, int imageWidth);
 		static inline word shiftDown(word data, int x);
-		static inline word point(V9990VRAM* vram, 
+		static inline word point(V9990VRAM* vram,
 		                         int x, int y, int imageWidth);
 		static inline void pset(V9990VRAM* vram,
 		                        int x, int y, int imageWidth,
 		                        word color);
 	};
-	
+
 	class V9990Bpp4 {
 	public:
 		static const word BITS_PER_PIXEL  = 4;
@@ -93,13 +93,13 @@ private:
 		static const word ADDRESS_MASK    = 0x0001;
 		static inline uint addressOf(int x, int y, int imageWidth);
 		static inline word shiftDown(word data, int x);
-		static inline word point(V9990VRAM* vram, 
+		static inline word point(V9990VRAM* vram,
 		                         int x, int y, int imageWidth);
 		static inline void pset(V9990VRAM* vram,
 		                        int x, int y, int imageWidth,
 		                        word color);
 	};
-	
+
 	class V9990Bpp8 {
 	public:
 		static const word BITS_PER_PIXEL  = 8;
@@ -108,13 +108,13 @@ private:
 		static const word ADDRESS_MASK    = 0x0000;
 		static inline uint addressOf(int x, int y, int imageWidth);
 		static inline word shiftDown(word data, int x);
-		static inline word point(V9990VRAM* vram, 
+		static inline word point(V9990VRAM* vram,
 		                         int x, int y, int imageWidth);
 		static inline void pset(V9990VRAM* vram,
 		                        int x, int y, int imageWidth,
 		                        word color);
 	};
-	
+
 	class V9990Bpp16 {
 	public:
 		static const word BITS_PER_PIXEL  = 16;
@@ -123,13 +123,13 @@ private:
 		static const word ADDRESS_MASK    = 0x0000;
 		static inline uint addressOf(int x, int y, int imageWidth);
 		static inline word shiftDown(word data, int x);
-		static inline word point(V9990VRAM* vram, 
+		static inline word point(V9990VRAM* vram,
 		                         int x, int y, int imageWidth);
 		static inline void pset(V9990VRAM* vram,
 		                        int x, int y, int imageWidth,
 		                        word color);
 	};
-	
+
 	/** This is an abstract base class for V9990 commands
 	  */
 	class V9990Cmd {
@@ -139,7 +139,7 @@ private:
 
 		virtual void start(const EmuTime& time) = 0;
 		virtual void execute(const EmuTime &time) = 0;
-	
+
 	protected:
 		V9990CmdEngine* engine;
 		V9990VRAM*      vram;
@@ -287,7 +287,7 @@ private:
 	/** The X coord of a border detected by SRCH
 	 */
 	word borderX;
-	
+
 	/** Data byte to transfer between V9990 and CPU
 	  */
 	byte data;
@@ -319,11 +319,11 @@ private:
 	/** counters
 	  */
 	word ASX, ADX, ANX, ANY;
-	
+
 	/** Only call reportV9990Command() when this setting is turned on
 	  */
 	BooleanSetting cmdTraceSetting;
-	
+
 	/** Create the engines for a given command.
 	  * For each bitdepth, a separate engine is created.
 	  */
@@ -341,7 +341,7 @@ private:
 	void cmdReady();
 
 	/** For debugging: Print the info about the current command.
-	  */ 
+	  */
 	void reportV9990Command();
 };
 

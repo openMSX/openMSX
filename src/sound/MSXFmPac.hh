@@ -14,8 +14,8 @@ class MSXFmPac : public MSXMusic
 {
 public:
 	MSXFmPac(const XMLElement& config, const EmuTime& time);
-	virtual ~MSXFmPac(); 
-	
+	virtual ~MSXFmPac();
+
 	virtual void reset(const EmuTime& time);
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
@@ -25,7 +25,7 @@ public:
 
 private:
 	void checkSramEnable();
-	
+
 	const std::auto_ptr<SRAM> sram;
 	byte enable;
 	byte bank;

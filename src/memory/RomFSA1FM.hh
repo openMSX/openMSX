@@ -29,7 +29,7 @@ public:
 	RomFSA1FM1(const XMLElement& config, const EmuTime& time,
 	           std::auto_ptr<Rom> rom);
 	virtual ~RomFSA1FM1();
-	
+
 	virtual void reset(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word address) const;
@@ -48,7 +48,7 @@ public:
 	RomFSA1FM2(const XMLElement& config, const EmuTime& time,
 	           std::auto_ptr<Rom> rom);
 	virtual ~RomFSA1FM2();
-	
+
 	virtual void reset(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word address) const;

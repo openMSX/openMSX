@@ -191,7 +191,7 @@ public:
 	inline bool isDisplayEnabled() const {
 		return isDisplayArea && displayEnabled;
 	}
-	
+
 	/** Are sprites enabled?
 	  * @return True iff blanking is off, the current mode supports
 	  *   sprites and sprites are not disabled.
@@ -202,7 +202,7 @@ public:
 	}
 
 	/** Is spritechecking done on this line?
-	  * This method is alomost equivalent to 
+	  * This method is alomost equivalent to
 	  *     spritesEnabled() && isDisplayEnabled()
 	  * excepts that 'display enabled' is shifted one line to above.
 	  */
@@ -448,7 +448,7 @@ private:
 	private:
 		VDP& parent;
 	} vdpStatusRegDebug;
-	
+
 	class VDPRegsCmd : public SimpleCommand {
 	public:
 		VDPRegsCmd(VDP& vdp);
@@ -466,7 +466,7 @@ private:
 	private:
 		VDP& vdp;
 	} paletteCmd;
-	
+
 	/** Time at which the internal VDP display line counter is reset,
 	  * expressed in ticks after vsync.
 	  * I would expect the counter to reset at line 16, but measurements
@@ -576,7 +576,7 @@ private:
 	byte vramRead(const EmuTime& time);
 
 	/** Read the contents of a status register
-	  */ 
+	  */
 	byte peekStatusReg(byte reg, const EmuTime& time) const;
 	byte readStatusReg(byte reg, const EmuTime& time);
 
@@ -585,7 +585,7 @@ private:
 	void changeRegister(byte reg, byte val, const EmuTime& time);
 
 	/** Schedule a sync point at the start of the next line.
-	  */ 
+	  */
 	void syncAtNextLine(SyncType type, const EmuTime& time);
 
 	/** Colour base mask has changed.

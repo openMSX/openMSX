@@ -59,11 +59,11 @@ void V9990P2Converter<Pixel, zoom>::convertLine(
 {
 	displayX = displayX + vdp->getScrollAX();
 	displayY = displayY + vdp->getScrollAY();
-	
+
 	for (int i = 0; i < 256; ++i) {
 		Pixel pix1 = raster(displayX++, displayY, 0x7C000, 0x00000);
 		Pixel pix2 = raster(displayX++, displayY, 0x7C000, 0x00000);
-		
+
 		if (zoom == Renderer::ZOOM_REAL) {
 			*linePtr++ = pix1;
 			*linePtr++ = pix2;
@@ -79,7 +79,7 @@ Pixel V9990P2Converter<Pixel, zoom>::raster(int x, int y,
 		unsigned int nameTable, unsigned int patternTable)
 {
 	byte offset = vdp->getPaletteOffset();
-	
+
 	byte p = getPixel(x, y, nameTable, patternTable) +
 	         ((offset & 0x03) << 4);
 	if (!(p & 0x0F)) { return vdp->getBackDropColor(); }

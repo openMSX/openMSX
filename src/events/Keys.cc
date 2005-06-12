@@ -57,7 +57,7 @@ Keys::KeyCode Keys::getCode(SDLKey key, SDLMod mod, bool release)
 const string Keys::getName(KeyCode keyCode)
 {
 	initialize();
-	
+
 	string result;
 	for (KeyMap::const_iterator it = keymap.begin();
 	     it != keymap.end(); ++it) {
@@ -66,7 +66,7 @@ const string Keys::getName(KeyCode keyCode)
 			break;
 		}
 	}
-	if (result.empty()) { 
+	if (result.empty()) {
 		return "unknown";
 	}
 	if (keyCode & KM_CTRL) {
@@ -226,7 +226,7 @@ void Keys::initialize()
 	keymap["LALT"]		= K_LALT;
 	keymap["RMETA"]		= K_RMETA;
 	keymap["LMETA"]		= K_LMETA;
-	keymap["LSUPER"]	= K_LSUPER;	// Left "Windows" key 
+	keymap["LSUPER"]	= K_LSUPER;	// Left "Windows" key
 	keymap["RSUPER"]	= K_RSUPER;	// Right "Windows" key
 	keymap["MODE"]		= K_MODE;	// "Alt Gr" key
 	keymap["COMPOSE"]	= K_COMPOSE;	// Multi-key compose key
@@ -245,7 +245,7 @@ void Keys::initialize()
 	keymap["CTRL"]		= KM_CTRL;
 	keymap["ALT"]		= KM_ALT;
 	keymap["META"]		= KM_META;
-	
+
 	// Direction modifiers
 	keymap["PRESS"]		= KD_PRESS;
 	keymap["RELEASE"]	= KD_RELEASE;

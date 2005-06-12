@@ -7,7 +7,7 @@ using std::string;
 namespace openmsx {
 
 // class StringSettingPolicy
- 
+
 const string& StringSettingPolicy::toString(const string& value) const
 {
 	return value;

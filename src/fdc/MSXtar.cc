@@ -103,7 +103,7 @@ static const byte dos2BootBlock[512] =
 };
 
 // functions to change DirEntries
-static inline void setsh(byte* x, word y) 
+static inline void setsh(byte* x, word y)
 {
 	x[0] = (y >> 0) & 0xFF;
 	x[1] = (y >> 8) & 0xFF;
@@ -160,7 +160,7 @@ void MSXtar::readBootSector(const byte* buf)
 	MSXchrootStartIndex = 0;
 	rootDirEnd = rootDirStart + nbRootDirSectors - 1;
 	maxCluster = sectorToCluster(nbSectors);
-	
+
 	PRT_DEBUG("ReadBootsector info:");
 	PRT_DEBUG("nbSectors         :" << nbSectors);
 	PRT_DEBUG("sectorsPerTrack   :" << sectorsPerTrack);
@@ -183,7 +183,7 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 	partitionOffset = 0;
 	defaultBootBlock = dos2BootBlock;
 
-	//TODO : see if we can make usePartition always read the bootsector even 
+	//TODO : see if we can make usePartition always read the bootsector even
 	// if no partition table is given.
 	// Since Filemanipulator will always call usePartition before doing any
 	// real manipulationm this would eliminate the followin code.
@@ -192,7 +192,7 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 	disk.readLogicalSector(0, sectorbuf);
 	if (!isPartitionTableSector(sectorbuf)) {
 		MSXBootSector* boot = (MSXBootSector*)sectorbuf;
-		if (rdsh(boot->nrsectors)) readBootSector(sectorbuf); 
+		if (rdsh(boot->nrsectors)) readBootSector(sectorbuf);
 		// assuming a regular disk is used, set object variables
 		// to correct values assuming this is a "normal dsk"
 		// check for 0 value because otherwise we would perform
@@ -362,7 +362,7 @@ void MSXtar::writeFAT(word clnr, word val)
 	byte* p = &sectorbuf[offset];
 	if (offset < (SECTOR_SIZE - 1)) {
 		// all actions in same sector
-		if (clnr & 1) { 
+		if (clnr & 1) {
 			p[0] = (p[0] & 0x0F) + (val << 4);
 			p[1] = val >> 4;
 		} else {
@@ -373,17 +373,17 @@ void MSXtar::writeFAT(word clnr, word val)
 		                         sectorbuf);
 	} else {
 		// first byte in one sector next byte in following sector
-		if (clnr & 1) { 
+		if (clnr & 1) {
 			p[0] = (p[0] & 0x0F) + (val << 4);
 		} else {
 			p[0] = val;
 		}
 		disk.writeLogicalSector(partitionOffset + 1 + sectornr,
 		                         sectorbuf);
-		
+
 		disk.readLogicalSector(partitionOffset + 2 + sectornr,
 		                        sectorbuf);
-		if (clnr & 1) { 
+		if (clnr & 1) {
 			sectorbuf[0] = val >> 4;
 		} else {
 			sectorbuf[0] = (sectorbuf[0] & 0xF0) +
@@ -556,7 +556,7 @@ string MSXtar::makeSimpleMSXFileName(const string& fullfilename)
 	}
 	file = removeTrailingSpaces(file);
 	ext  = removeTrailingSpaces(ext);
-	
+
 	// put in major case and create '_' if needed
 	std::transform(file.begin(), file.end(), file.begin(), toMSXChr);
 	std::transform(ext.begin(),  ext.end(),  ext.begin(),  toMSXChr);
@@ -612,7 +612,7 @@ int MSXtar::addMSXSubdir(const string& msxName, int t, int d, int sector,
 	direntry = (MSXDirEntry*)(buf);
 	memset(direntry, 0, sizeof(MSXDirEntry));
 	memset(direntry, ' ', 11);
-	memset(direntry, '.', 1); 
+	memset(direntry, '.', 1);
 	direntry->attrib = T_MSX_DIR;
 	setsh(direntry->time, t);
 	setsh(direntry->date, d);
@@ -621,7 +621,7 @@ int MSXtar::addMSXSubdir(const string& msxName, int t, int d, int sector,
 	++direntry;
 	memset(direntry, 0, sizeof(MSXDirEntry));
 	memset(direntry, ' ', 11);
-	memset(direntry, '.', 2); 
+	memset(direntry, '.', 2);
 	direntry->attrib = T_MSX_DIR;
 	setsh(direntry->time, t);
 	setsh(direntry->date, d);
@@ -641,7 +641,7 @@ static void getTimeDate(time_t& totalSeconds, int& time, int& date)
 		time = 0;
 		date = 0;
 	} else {
-		time = (mtim->tm_sec >> 1) + (mtim->tm_min << 5) + 
+		time = (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
 		       (mtim->tm_hour << 11);
 		date = mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
 		       ((mtim->tm_year + 1900 - 1980) << 9);
@@ -701,7 +701,7 @@ int MSXtar::alterFileInDSK(MSXDirEntry* msxdirentry, const string& hostName)
 		// if entry first used then no cluster assigned yet
 		curcl = findFirstFreeCluster();
 		setsh(msxdirentry->startcluster, curcl);
-		writeFAT(curcl, EOF_FAT); 
+		writeFAT(curcl, EOF_FAT);
 		needsNew = true;
 	}
 	PRT_DEBUG("alterFileInDSK: Starting at cluster " << curcl );
@@ -741,7 +741,7 @@ int MSXtar::alterFileInDSK(MSXDirEntry* msxdirentry, const string& hostName)
 		//do {
 		if (needsNew) {
 			//need extra space for this file
-			writeFAT(curcl, EOF_FAT); 
+			writeFAT(curcl, EOF_FAT);
 			curcl = findFirstFreeCluster();
 		} else {
 			// follow cluster-Fat-stream
@@ -762,10 +762,10 @@ int MSXtar::alterFileInDSK(MSXDirEntry* msxdirentry, const string& hostName)
 			prevcl = curcl;
 			curcl = readFAT(curcl);
 		}
-		writeFAT(prevcl, EOF_FAT); 
+		writeFAT(prevcl, EOF_FAT);
 		PRT_DEBUG("alterFileInDSK: Ending at cluster " << prevcl);
 		//cleaning rest of FAT chain if needed
-		while (!needsNew) { 
+		while (!needsNew) {
 			prevcl = curcl;
 			if (curcl != EOF_FAT) {
 				curcl = readFAT(curcl);
@@ -858,7 +858,7 @@ int MSXtar::addFiletoDSK(const string& hostName, const string& msxName,
 void MSXtar::recurseDirFill(const string& dirName, int sector, int direntryindex)
 {
 	PRT_DEBUG("Trying to read directory " << dirName);
-	
+
 	//read directory and fill the fake disk
 	ReadDir dir(dirName);
 	while (dirent* d = dir.getEntry()) {
@@ -1166,7 +1166,7 @@ void MSXtar::createDiskFile(vector<unsigned> sizes)
 		memset(buf, 0, SECTOR_SIZE);
 		strncpy((char*)buf, PARTAB_HEADER, 11);
 
-		unsigned startPartition = 1; 
+		unsigned startPartition = 1;
 		for (unsigned i = 0; (i < sizes.size()) && (i < 30); ++i) {
 			Partition* p = (Partition*)(buf + (14 + (30 - i) * 16));
 			setlg(p->start4, startPartition);

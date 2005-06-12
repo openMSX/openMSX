@@ -42,7 +42,7 @@ private:
 	 * This method should only be called at start-up
 	 */
 	void addDevice(std::auto_ptr<MSXDevice> device);
-	
+
 	void createDevices(const XMLElement& elem);
 	void powerDownMSX();
 	void powerUpMSX();
@@ -69,7 +69,7 @@ private:
 
 	int blockedCounter;
 	bool emulationRunning;
-	
+
 	BooleanSetting& pauseSetting;
 	BooleanSetting& powerSetting;
 	CliComm& output;

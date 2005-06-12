@@ -52,7 +52,7 @@ MSXMegaRam::MSXMegaRam(const XMLElement& config, const EmuTime& time)
 	if (config.findChild("rom")) {
 		rom.reset(new Rom(getName() + " ROM", "Mega-RAM DiskROM", config));
 	}
-	
+
 	for (int i = 0; i < 4; i++) {
 		setBank(i, 0);
 	}

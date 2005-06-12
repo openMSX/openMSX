@@ -11,10 +11,10 @@ class AudioInputDevice : public Pluggable
 {
 public:
 	/**
-	 * Read wave data 
+	 * Read wave data
 	 */
 	virtual short readSample(const EmuTime& time) = 0;
-	
+
 	// Pluggable
 	virtual const std::string& getClass() const;
 };

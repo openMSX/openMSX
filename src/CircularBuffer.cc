@@ -34,12 +34,12 @@ int main()
 	buf[0] = 27;
 	assert(buf[0] == 27);
 	assert(buf[1] == 35);
-	
+
 	int a = buf.removeBack();
 	assert(a == 35);
 	assert(buf.size() == 1);
 	assert(buf[0] == 27);
-	
+
 	int b = buf.removeFront();
 	assert(b == 27);
 	assert(buf.isEmpty());

@@ -14,7 +14,7 @@ public:
 	SDLEventInserter(SDL_Event& event, const EmuTime& time);
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const std::string& schedName() const;
-	
+
 protected:
 	virtual ~SDLEventInserter();
 

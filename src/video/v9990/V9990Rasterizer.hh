@@ -27,7 +27,7 @@ public:
 	virtual void frameStart() = 0;
 
 	/** Indicates the end of the current frame.
-	  */ 
+	  */
 	virtual void frameEnd() = 0;
 
 	/** The display mode determines the screens geometry and how V9990
@@ -49,12 +49,12 @@ public:
 	  * @param b      Blue component intensity (5 bits)
 	  */
 	virtual void setPalette(int index, byte r, byte g, byte b) = 0;
-	
+
 	/** Set image width
 	  * @param width (256, 512, 1024 or 2048)
 	  */
 	virtual void setImageWidth(int width) = 0;
-	
+
 	/** Render a rectangle of border pixels on the host screen.
 	  * The units are absolute lines (Y) and V9990 UC ticks (X).
 	  * @param fromX   X coordinate of render start (inclusive).

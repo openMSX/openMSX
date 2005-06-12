@@ -64,7 +64,7 @@ public:
 
 	void distributeEvent(Event* event);
 	void sync(const EmuTime& emuTime);
-	
+
 private:
 	EventDistributor();
 	virtual ~EventDistributor();

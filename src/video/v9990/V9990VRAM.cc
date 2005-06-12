@@ -113,7 +113,7 @@ void V9990VRAM::notifyObservers(unsigned address)
 // -------------------------------------------------------------------------
 // Debuggable
 // -------------------------------------------------------------------------
-	
+
 unsigned int V9990VRAM::getSize() const
 {
 	return VRAM_SIZE;

@@ -50,7 +50,7 @@ static bool IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
 		// Error writing the PNG file
 		goto error;
 	}
-	
+
 	/* Set the image information here.  Width and height are up to 2^31,
 	 * bit_depth is one of 1, 2, 4, 8, or 16, but valid values also depend on
 	 * the color_type selected. color_type is one of PNG_COLOR_TYPE_GRAY,
@@ -62,7 +62,7 @@ static bool IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
 
 	// WARNING Joost: for now always convert to 8bit/color (==24bit) image
 	// because that is by far the easiest thing to do
-	
+
 	png_set_IHDR(png_ptr, info_ptr, width, height, 8,
 	             PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
 	             PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
@@ -113,7 +113,7 @@ void ScreenShotSaver::save(SDL_Surface* surface, const string& filename)
 	frmt24.colorkey = 0;
 	frmt24.alpha = 0;
 	SDL_Surface* surf24 = SDL_ConvertSurface(surface, &frmt24, 0);
-	
+
 	// Create the array of pointers to image data
 	png_bytep* row_pointers = (png_bytep*)malloc(sizeof(png_bytep)*surface->h);
 	for (int i = 0; i < surface->h; ++i) {
@@ -124,7 +124,7 @@ void ScreenShotSaver::save(SDL_Surface* surface, const string& filename)
 
 	free(row_pointers);
 	SDL_FreeSurface(surf24);
-	
+
 	if (!result) {
 		throw CommandException("Failed to write " + filename);
 	}
@@ -159,7 +159,7 @@ static int getNum(dirent* d)
 string ScreenShotSaver::getFileName()
 {
 	int max_num = 0;
-	
+
 	string dirName = FileOperations::getUserOpenMSXDir() + "/screenshots";
 	try {
 		FileOperations::mkdirp(dirName);

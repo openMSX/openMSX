@@ -214,7 +214,7 @@ void Debugger::DebugCmd::write(const vector<CommandArgument>& tokens,
 	if (value >= 256) {
 		throw CommandException("Invalid value");
 	}
-	
+
 	device->write(addr, value);
 }
 
@@ -235,7 +235,7 @@ void Debugger::DebugCmd::writeBlock(const vector<CommandArgument>& tokens,
 	if ((num + addr) > size) {
 		throw CommandException("Invalid size");
 	}
-	
+
 	for (unsigned i = 0; i < num; ++i) {
 		device->write(addr + i, static_cast<byte>(buf[i]));
 	}
@@ -248,9 +248,9 @@ string Debugger::DebugCmd::help(const vector<string>& /*tokens*/) const
 		"debug desc <name>                         returns a description of this debuggable\n"
 		"debug size <name>                         returns the size of this debuggable\n"
 		"debug read <name> <addr>                  read a byte from a debuggable\n"
-		"debug write <name> <addr> <val>           write a byte to a debuggable\n" 
+		"debug write <name> <addr> <val>           write a byte to a debuggable\n"
 		"debug read_block <name> <addr> <size>     read a whole block at once\n"
-		"debug write_block <name> <addr> <values>  write a whole block at once\n" 
+		"debug write_block <name> <addr> <values>  write a whole block at once\n"
 		"debug set_bp <addr>                       insert a new breakpoint\n"
 		"debug remove_bp <addr>                    remove a certain breapoint\n"
 		"debug list_bp                             list the active breakpoints\n"

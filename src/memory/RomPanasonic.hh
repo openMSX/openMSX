@@ -15,7 +15,7 @@ public:
 	RomPanasonic(const XMLElement& config, const EmuTime& time,
 	             std::auto_ptr<Rom> rom);
 	virtual ~RomPanasonic();
-	
+
 	virtual void reset(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word address) const;
@@ -24,7 +24,7 @@ public:
 
 private:
 	void changeBank(byte region, int bank);
-	
+
 	byte control;
 	int bankSelect[8];
 	std::auto_ptr<SRAM> sram;

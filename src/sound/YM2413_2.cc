@@ -319,7 +319,7 @@ static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
 };
 
 // LFO Phase Modulation table (verified on real YM2413)
-static const char lfo_pm_table[8 * 8] = 
+static const char lfo_pm_table[8 * 8] =
 {
 	// FNUM2/FNUM = 0 00xxxxxx (0x0000)
 	0, 0, 0, 0, 0, 0, 0, 0,
@@ -462,7 +462,7 @@ inline void YM2413_2::advance()
 				// this is important behaviour:
 				// one can change percusive/non-percussive modes on the fly and
 				// the chip will remain in sustain phase - verified on real YM3812
-				if (op.eg_type) {    
+				if (op.eg_type) {
 					// non-percussive mode (sustained tone)
 					// do nothing
 				} else {
@@ -577,7 +577,7 @@ inline void YM2413_2::advance()
 	while (i--) {
 		//  int j = ((noise_rng) ^ (noise_rng >> 14) ^ (noise_rng >> 15) ^ (noise_rng >> 22)) & 1;
 		//  noise_rng = (j << 22) | (noise_rng >> 1);
-		//  
+		//
 		//    Instead of doing all the logic operations above, we
 		//    use a trick here (and use bit 0 as the noise output).
 		//    The difference is only that the noise bit changes one
@@ -685,13 +685,13 @@ inline int YM2413_2::rhythm_calc(bool noise)
 	Slot& SLOT7_2 = channels[7].slots[SLOT2];
 	Slot& SLOT8_1 = channels[8].slots[SLOT1];
 	Slot& SLOT8_2 = channels[8].slots[SLOT2];
-	
+
 	// Bass Drum (verified on real YM3812):
 	//  - depends on the channel 6 'connect' register:
 	//    when connect = 0 it works the same as in normal (non-rhythm) mode (op1->op2->out)
 	//    when connect = 1 _only_ operator 2 is present on output (op2->out), operator 1 is ignored
 	//  - output sample always is multiplied by 2
-	
+
 	// SLOT 1
 	int env = SLOT6_1.volume_calc(LFO_AM);
 
@@ -707,7 +707,7 @@ inline int YM2413_2::rhythm_calc(bool noise)
 		}
 		SLOT6_1.op1_out[1] = op_calc1(SLOT6_1.phase, env, (out << SLOT6_1.fb_shift), SLOT6_1.wavetable);
 	}
-	
+
 	// SLOT 2
 	env = SLOT6_2.volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
@@ -795,7 +795,7 @@ inline int YM2413_2::rhythm_calc(bool noise)
 	if (env < ENV_QUIET) {
 		output += op_calc(SLOT8_1.phase, env, 0, SLOT8_1.wavetable);
 	}
-	
+
 	// Top Cymbal (verified on real YM2413)
 	env = SLOT8_2.volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
@@ -831,7 +831,7 @@ void YM2413_2::init_tables()
 		return;
 	}
 	alreadyInit = true;
-	
+
 	for (int x = 0; x < TL_RES_LEN; x++) {
 		double m = (1 << 16) / pow(2, (x + 1) * (ENV_STEP / 4.0) / 8.0);
 		m = floor(m);
@@ -876,7 +876,7 @@ void YM2413_2::init_tables()
 		// waveform 0: standard sinus
 		sin_tab[i] = n * 2 + (m >= 0.0 ? 0: 1);
 
-		// waveform 1:  __      __     
+		// waveform 1:  __      __
 		//             /  \____/  \____
 		// output only first half of the sinus waveform (positive one)
 		if (i & (1 << (SIN_BITS - 1))) {
@@ -893,22 +893,22 @@ void YM2413_2::setSampleRate(int sampleRate)
 	const int CLOCK_FREQ = 3579545;
 	double freqbase = (CLOCK_FREQ / 72.0) / (double)sampleRate;
 
-	// make fnumber -> increment counter table 
+	// make fnumber -> increment counter table
 	for (int i = 0 ; i < 1024; i++) {
-		// OPLL (YM2413) phase increment counter = 18bit 
-		// -10 because chip works with 10.10 fixed point, while we use 16.16 
+		// OPLL (YM2413) phase increment counter = 18bit
+		// -10 because chip works with 10.10 fixed point, while we use 16.16
 		fn_tab[i] = (int)((double)i * 64 * freqbase * (1 << (FREQ_SH - 10)));
 	}
 
 	// Amplitude modulation: 27 output levels (triangle waveform)
-	// 1 level takes one of: 192, 256 or 448 samples 
-	// One entry from LFO_AM_TABLE lasts for 64 samples 
+	// 1 level takes one of: 192, 256 or 448 samples
+	// One entry from LFO_AM_TABLE lasts for 64 samples
 	lfo_am_inc = (unsigned)((1 << LFO_SH) * freqbase / 64);
 
-	// Vibrato: 8 output levels (triangle waveform); 1 level takes 1024 samples 
+	// Vibrato: 8 output levels (triangle waveform); 1 level takes 1024 samples
 	lfo_pm_inc = (unsigned)((1 << LFO_SH) * freqbase / 1024);
 
-	// Noise generator: a step takes 1 sample 
+	// Noise generator: a step takes 1 sample
 	noise_f = (unsigned)((1 << FREQ_SH) * freqbase);
 
 	eg_timer_add  = (unsigned)((1 << EG_SH) * freqbase);
@@ -918,7 +918,7 @@ inline void Slot::KEY_ON(byte key_set)
 {
 	if (!key) {
 		// do NOT restart Phase Generator (verified on real YM2413)
-		// phase -> Dump 
+		// phase -> Dump
 		state = EG_DMP;
 	}
 	key |= key_set;
@@ -929,7 +929,7 @@ inline void Slot::KEY_OFF(byte key_clr)
 	if (key) {
 		key &= ~key_clr;
 		if (!key) {
-			// phase -> Release 
+			// phase -> Release
 			if (state > EG_REL) {
 				state = EG_REL;
 			}
@@ -937,17 +937,17 @@ inline void Slot::KEY_OFF(byte key_clr)
 	}
 }
 
-// update phase increment counter of operator (also update the EG rates if necessary) 
+// update phase increment counter of operator (also update the EG rates if necessary)
 inline void Channel::CALC_FCSLOT(Slot* slot)
 {
-	// (frequency) phase increment counter 
+	// (frequency) phase increment counter
 	slot->freq = fc * slot->mul;
 	int ksr = kcode >> slot->KSR;
 
 	if (slot->ksr != ksr) {
 		slot->ksr = ksr;
 
-		// calculate envelope generator rates 
+		// calculate envelope generator rates
 		if ((slot->ar + slot->ksr) < (16 + 62)) {
 			slot->eg_sh_ar  = eg_rate_shift [slot->ar + slot->ksr];
 			slot->eg_sel_ar = eg_rate_select[slot->ar + slot->ksr];
@@ -970,7 +970,7 @@ inline void Channel::CALC_FCSLOT(Slot* slot)
 	slot->eg_sel_dp = eg_rate_select[SLOT_dp + slot->ksr];
 }
 
-// set multi,am,vib,EG-TYP,KSR,mul 
+// set multi,am,vib,EG-TYP,KSR,mul
 inline void YM2413_2::set_mul(byte sl, byte v)
 {
 	Channel& ch = channels[sl / 2];
@@ -984,35 +984,35 @@ inline void YM2413_2::set_mul(byte sl, byte v)
 	ch.CALC_FCSLOT(&slot);
 }
 
-// set ksl, tl 
+// set ksl, tl
 inline void YM2413_2::set_ksl_tl(byte chan, byte v)
 {
 	Channel& ch = channels[chan];
-	Slot& slot = ch.slots[SLOT1]; // modulator 
+	Slot& slot = ch.slots[SLOT1]; // modulator
 
-	int ksl = v >> 6; // 0 / 1.5 / 3.0 / 6.0 dB/OCT 
+	int ksl = v >> 6; // 0 / 1.5 / 3.0 / 6.0 dB/OCT
 
 	slot.ksl = ksl ? (3 - ksl) : 31;
-	slot.TL  = (v & 0x3F) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0) 
+	slot.TL  = (v & 0x3F) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
 	slot.TLL = slot.TL + (ch.ksl_base >> slot.ksl);
 }
 
-// set ksl , waveforms, feedback 
+// set ksl , waveforms, feedback
 inline void YM2413_2::set_ksl_wave_fb(byte chan, byte v)
 {
 	Channel& ch = channels[chan];
-	Slot& slot1 = ch.slots[SLOT1]; // modulator 
+	Slot& slot1 = ch.slots[SLOT1]; // modulator
 	slot1.wavetable = ((v & 0x08) >> 3) * SIN_LEN;
 	slot1.fb_shift  = (v & 7) ? ((v & 7) + 8) : 0;
 
 	Slot& slot2 = ch.slots[SLOT2];	//carrier
-	int ksl = v >> 6; // 0 / 1.5 / 3.0 / 6.0 dB/OCT 
+	int ksl = v >> 6; // 0 / 1.5 / 3.0 / 6.0 dB/OCT
 	slot2.ksl = ksl ? (3 - ksl) : 31;
 	slot2.TLL = slot2.TL + (ch.ksl_base >> slot2.ksl);
 	slot2.wavetable = ((v & 0x10) >> 4) * SIN_LEN;
 }
 
-// set attack rate & decay rate  
+// set attack rate & decay rate
 inline void YM2413_2::set_ar_dr(byte sl, byte v)
 {
 	Channel& ch = channels[sl / 2];
@@ -1032,7 +1032,7 @@ inline void YM2413_2::set_ar_dr(byte sl, byte v)
 	slot.eg_sel_dr = eg_rate_select[slot.dr + slot.ksr];
 }
 
-// set sustain level & release rate 
+// set sustain level & release rate
 inline void YM2413_2::set_sl_rr(byte sl, byte v)
 {
 	Channel& ch = channels[sl / 2];
@@ -1058,7 +1058,7 @@ void YM2413_2::load_instrument(byte chan, byte slot, byte* inst)
 
 void YM2413_2::update_instrument_zero(byte r)
 {
-	byte* inst = &inst_tab[0][0]; // point to user instrument 
+	byte* inst = &inst_tab[0][0]; // point to user instrument
 
 	byte chan_max = (rhythm) ? 6 : 9;
 	switch (r) {
@@ -1129,26 +1129,26 @@ void YM2413_2::setRhythmMode(bool newMode)
 	rhythm = newMode;
 	if (rhythm) {
 		// OFF -> ON
-		
+
 		// Load instrument settings for channel seven
 		load_instrument(6, 12, &inst_tab[16][0]);
 
 		// Load instrument settings for channel eight. (High hat and snare drum)
 		load_instrument(7, 14, &inst_tab[17][0]);
 		Channel& ch7 = channels[7];
-		Slot& slot71 = ch7.slots[SLOT1]; // modulator envelope is HH 
-		slot71.TL  = ((instvol_r[7] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0) 
+		Slot& slot71 = ch7.slots[SLOT1]; // modulator envelope is HH
+		slot71.TL  = ((instvol_r[7] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
 		slot71.TLL = slot71.TL + (ch7.ksl_base >> slot71.ksl);
 
-		// Load instrument settings for channel nine. (Tom-tom and top cymbal) 
+		// Load instrument settings for channel nine. (Tom-tom and top cymbal)
 		load_instrument(8, 16, &inst_tab[18][0]);
 		Channel& ch8 = channels[8];
-		Slot& slot81 = ch8.slots[SLOT1]; // modulator envelope is TOM 
-		slot81.TL  = ((instvol_r[8] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0) 
+		Slot& slot81 = ch8.slots[SLOT1]; // modulator envelope is TOM
+		slot81.TL  = ((instvol_r[8] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
 		slot81.TLL = slot81.TL + (ch8.ksl_base >> slot81.ksl);
 	} else {
 		// ON -> OFF
-		
+
 		// Load instrument settings for channel seven
 		load_instrument(6, 12, &inst_tab[instvol_r[6] >> 4][0]);
 
@@ -1157,17 +1157,17 @@ void YM2413_2::setRhythmMode(bool newMode)
 
 		// Load instrument settings for channel nine.
 		load_instrument(8, 16, &inst_tab[instvol_r[8] >> 4][0]);
-		
-		// BD key off 
+
+		// BD key off
 		channels[6].slots[SLOT1].KEY_OFF(2);
 		channels[6].slots[SLOT2].KEY_OFF(2);
-		// HH key off 
+		// HH key off
 		channels[7].slots[SLOT1].KEY_OFF(2);
-		// SD key off 
+		// SD key off
 		channels[7].slots[SLOT2].KEY_OFF(2);
-		// TOM key off 
+		// TOM key off
 		channels[8].slots[SLOT1].KEY_OFF(2);
-		// TOP-CY off 
+		// TOP-CY off
 		channels[8].slots[SLOT2].KEY_OFF(2);
 	}
 }
@@ -1180,28 +1180,28 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 	// update the output buffer before changing the register
 	Mixer::instance().updateStream(time);
 	Mixer::instance().lock();
-	
+
 	switch (r & 0xF0) {
 	case 0x00: {
-		// 00-0F:control 
+		// 00-0F:control
 		switch (r & 0x0F) {
-		case 0x00:  // AM/VIB/EGTYP/KSR/MULTI (modulator) 
-		case 0x01:  // AM/VIB/EGTYP/KSR/MULTI (carrier) 
-		case 0x02:  // Key Scale Level, Total Level (modulator) 
-		case 0x03:  // Key Scale Level, carrier waveform, modulator waveform, Feedback 
-		case 0x04:  // Attack, Decay (modulator) 
-		case 0x05:  // Attack, Decay (carrier) 
-		case 0x06:  // Sustain, Release (modulator) 
-		case 0x07:  // Sustain, Release (carrier) 
+		case 0x00:  // AM/VIB/EGTYP/KSR/MULTI (modulator)
+		case 0x01:  // AM/VIB/EGTYP/KSR/MULTI (carrier)
+		case 0x02:  // Key Scale Level, Total Level (modulator)
+		case 0x03:  // Key Scale Level, carrier waveform, modulator waveform, Feedback
+		case 0x04:  // Attack, Decay (modulator)
+		case 0x05:  // Attack, Decay (carrier)
+		case 0x06:  // Sustain, Release (modulator)
+		case 0x07:  // Sustain, Release (carrier)
 			inst_tab[0][r & 0x07] = v;
 			update_instrument_zero(r & 7);
 			break;
 
 		case 0x0E: {
-			// x, x, r,bd,sd,tom,tc,hh 
+			// x, x, r,bd,sd,tom,tc,hh
 			setRhythmMode(v & 0x20);
 			if (rhythm) {
-				// BD key on/off 
+				// BD key on/off
 				if (v & 0x10) {
 					channels[6].slots[SLOT1].KEY_ON (2);
 					channels[6].slots[SLOT2].KEY_ON (2);
@@ -1209,25 +1209,25 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 					channels[6].slots[SLOT1].KEY_OFF(2);
 					channels[6].slots[SLOT2].KEY_OFF(2);
 				}
-				// HH key on/off 
+				// HH key on/off
 				if (v & 0x01) {
 					channels[7].slots[SLOT1].KEY_ON (2);
 				} else {
 					channels[7].slots[SLOT1].KEY_OFF(2);
 				}
-				// SD key on/off 
+				// SD key on/off
 				if (v & 0x08) {
 					channels[7].slots[SLOT2].KEY_ON (2);
 				} else {
 					channels[7].slots[SLOT2].KEY_OFF(2);
 				}
-				// TOM key on/off 
+				// TOM key on/off
 				if (v & 0x04) {
 					channels[8].slots[SLOT1].KEY_ON (2);
 				} else {
 					channels[8].slots[SLOT1].KEY_OFF(2);
 				}
-				// TOP-CY key on/off 
+				// TOP-CY key on/off
 				if (v & 0x02) {
 					channels[8].slots[SLOT2].KEY_ON (2);
 				} else {
@@ -1241,15 +1241,15 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 	}
 	case 0x10:
 	case 0x20: {
-		byte chan = (r & 0x0F) % 9;	// verified on real YM2413 
+		byte chan = (r & 0x0F) % 9;	// verified on real YM2413
 		Channel& ch = channels[chan];
 
 		int block_fnum;
 		if (r & 0x10) {
-			// 10-18: FNUM 0-7 
+			// 10-18: FNUM 0-7
 			block_fnum  = (ch.block_fnum & 0x0F00) | v;
 		} else {
-			// 20-28: suson, keyon, block, FNUM 8 
+			// 20-28: suson, keyon, block, FNUM 8
 			block_fnum = ((v & 0x0F) << 8) | (ch.block_fnum & 0xFF);
 			if (v & 0x10) {
 				ch.slots[SLOT1].KEY_ON (1);
@@ -1260,22 +1260,22 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 			}
 			ch.sus = v & 0x20;
 		}
-		// update 
+		// update
 		if (ch.block_fnum != block_fnum) {
 			ch.block_fnum = block_fnum;
 
-			// BLK 2,1,0 bits -> bits 3,2,1 of kcode, FNUM MSB -> kcode LSB 
+			// BLK 2,1,0 bits -> bits 3,2,1 of kcode, FNUM MSB -> kcode LSB
 			ch.kcode    = (block_fnum & 0x0f00) >> 8;
 			ch.ksl_base = ksl_tab[block_fnum >> 5];
 			block_fnum  = block_fnum * 2;
 			byte block  = (block_fnum & 0x1C00) >> 10;
 			ch.fc       = fn_tab[block_fnum & 0x03FF] >> (7 - block);
 
-			// refresh Total Level in both SLOTs of this channel 
+			// refresh Total Level in both SLOTs of this channel
 			ch.slots[SLOT1].TLL = ch.slots[SLOT1].TL + (ch.ksl_base >> ch.slots[SLOT1].ksl);
 			ch.slots[SLOT2].TLL = ch.slots[SLOT2].TL + (ch.ksl_base >> ch.slots[SLOT2].ksl);
 
-			// refresh frequency counter in both SLOTs of this channel 
+			// refresh frequency counter in both SLOTs of this channel
 			ch.CALC_FCSLOT(&ch.slots[SLOT1]);
 			ch.CALC_FCSLOT(&ch.slots[SLOT2]);
 		}
@@ -1283,14 +1283,14 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 	}
 
 	case 0x30: {
-		// inst 4 MSBs, VOL 4 LSBs 
-		byte chan = (r & 0x0F) % 9;	// verified on real YM2413 
+		// inst 4 MSBs, VOL 4 LSBs
+		byte chan = (r & 0x0F) % 9;	// verified on real YM2413
 		byte old_instvol = instvol_r[chan];
-		instvol_r[chan] = v;  // store for later use 
+		instvol_r[chan] = v;  // store for later use
 
 		Channel& ch = channels[chan];
-		Slot& slot2 = ch.slots[SLOT2]; // carrier 
-		slot2.TL  = ((v & 0x0F) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0) 
+		Slot& slot2 = ch.slots[SLOT2]; // carrier
+		slot2.TL  = ((v & 0x0F) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
 		slot2.TLL = slot2.TL + (ch.ksl_base >> slot2.ksl);
 
 		//check wether we are in rhythm mode and handle instrument/volume register accordingly
@@ -1298,8 +1298,8 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 			// we're in rhythm mode
 			if (chan >= 7) {
 				// only for channel 7 and 8 (channel 6 is handled in usual way)
-				Slot& slot1 = ch.slots[SLOT1]; // modulator envelope is HH(chan=7) or TOM(chan=8) 
-				slot1.TL  = ((instvol_r[chan] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0) 
+				Slot& slot1 = ch.slots[SLOT1]; // modulator envelope is HH(chan=7) or TOM(chan=8)
+				slot1.TL  = ((instvol_r[chan] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
 				slot1.TLL = slot1.TL + (ch.ksl_base >> slot1.ksl);
 			}
 		} else {
@@ -1324,26 +1324,26 @@ void YM2413_2::reset(const EmuTime &time)
 {
 	eg_timer = 0;
 	eg_cnt   = 0;
-	noise_rng = 1;    // noise shift register 
+	noise_rng = 1;    // noise shift register
 
-	// setup instruments table 
+	// setup instruments table
 	for (int i = 0; i < 19; i++) {
 		for (int c = 0; c < 8; c++) {
 			inst_tab[i][c] = table[i][c];
 		}
 	}
 
-	// reset with register write 
+	// reset with register write
 	writeReg(0x0F, 0, time); //test reg
 	for (int i = 0x3F; i >= 0x10; i--) {
 		writeReg(i, 0, time);
 	}
 
-	// reset operator parameters 
+	// reset operator parameters
 	for (int c = 0; c < 9; c++) {
 		Channel& ch = channels[c];
 		for (int s = 0; s < 2; s++) {
-			// wave table 
+			// wave table
 			ch.slots[s].wavetable = 0;
 			ch.slots[s].state     = EG_OFF;
 			ch.slots[s].volume    = MAX_ATT_INDEX;

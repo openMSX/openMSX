@@ -30,9 +30,9 @@ public:
 };
 
 
-class Disk 
+class Disk
 {
-public: 
+public:
 	virtual ~Disk();
 	virtual void read (byte track, byte sector,
 			   byte side, unsigned size, byte* buf) = 0;
@@ -46,11 +46,11 @@ public:
 	virtual void writeTrackData(byte data);
 	virtual void initReadTrack(byte track, byte side);
 	virtual byte readTrackData();
-	
+
 	virtual bool ready() = 0;
 	virtual bool writeProtected() = 0;
 	virtual bool doubleSided() = 0;
-	
+
 	virtual void applyPatch(const std::string& patchFile);
 
 protected:

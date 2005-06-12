@@ -87,14 +87,14 @@ void Disk::detectGeometryFallback() // if all else fails, use statistics
 void Disk::detectGeometry()
 {
 	// From the MSX Red Book (p265):
-	// 
+	//
 	//  How to determine media types
 	//
 	//  a) Read the boot sector (track 0, sector 1) of the target drive
-	//  
+	//
 	//  b) Check if the first byte is either 0E9H or 0EBH (the JMP
 	//     instruction on 8086)
-	//     
+	//
 	//  c) If step b) fails, the disk is a version prior to MS-DOS 2.0;
 	//     therefore, use the first byte of the FAT passed from the caller
 	//     and make sure it is between 0F8h and 0FFh.
@@ -110,7 +110,7 @@ void Disk::detectGeometry()
 	//     +18 +19  Sectors per track
 	//     +1A +1B  Number of heads
 	//     ...
-	
+
 	//
 	//     Media Descriptor  0F8H  0F9H  0FAh  0FBH  0FCH  0FDH  0FEH  0FFH
 	//       byte (FATID)
@@ -118,7 +118,7 @@ void Disk::detectGeometry()
 	//     No. of sides         1     2     1     2     1     2     1     2
 	//     Tracks/side         80    80    80    80    40    40    40    40
 	//     ...
-	
+
 	try {
 		byte buf[512];
 		read(0, 1, 0, 512, buf);

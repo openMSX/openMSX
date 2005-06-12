@@ -12,10 +12,10 @@ class PhilipsFDC : public WD2793BasedFDC
 public:
 	PhilipsFDC(const XMLElement& config, const EmuTime& time);
 	virtual ~PhilipsFDC();
-	
+
 	virtual void reset(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
-	virtual void writeMem(word address, byte value, const EmuTime& time);  
+	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word address) const;
 

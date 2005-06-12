@@ -22,7 +22,7 @@ public:
 	enum ParityBit {
 		EVEN = 0, ODD = 1
 	};
-	
+
 	virtual ~SerialDataInterface() {}
 	virtual void setDataBits(DataBits bits) = 0;
 	virtual void setStopBits(StopBits bits) = 0;

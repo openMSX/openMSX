@@ -71,7 +71,7 @@ const byte FDC_DirAsDSK::DefaultBootBlock[] =
 
 // read FAT-entry from FAT in memory
 word FDC_DirAsDSK::ReadFAT(word clnr)
-{ 
+{
   byte *P = FAT + (clnr * 3) / 2;
   return (clnr & 1) ?
          (P[0] >> 4) + (P[1] << 4) :
@@ -83,7 +83,7 @@ void FDC_DirAsDSK::WriteFAT(word clnr, word val)
 {
 	PRT_DEBUG("Updating FAT "<<clnr<<" will point to "<<val);
 	byte* P=FAT + (clnr * 3) / 2;
-	if (clnr & 1) { 
+	if (clnr & 1) {
 		P[0] = (P[0] & 0x0F) + (val << 4);
 		P[1] = val >> 4;
 	} else {
@@ -191,7 +191,7 @@ FDC_DirAsDSK::FDC_DirAsDSK(const string& fileName)
 	MSXrootdir=fileName;
 
 	// First create structure for the fake disk
-	
+
 	nbSectors = 1440; // asume a DS disk is used
 	sectorsPerTrack = 9;
 	nbSides = 2;
@@ -219,7 +219,7 @@ FDC_DirAsDSK::FDC_DirAsDSK(const string& fileName)
 			}
 		}
 	}
-	
+
 	// Assign empty directory entries
 	for (int i = 0; i < 112; i++) {
 		memset(&mapdir[i].msxinfo, 0, sizeof(MSXDirEntry));
@@ -235,7 +235,7 @@ FDC_DirAsDSK::FDC_DirAsDSK(const string& fileName)
 	FAT[1] = 0xFF;
 	FAT[2] = 0xFF;
 	PRT_DEBUG("FAT located at : " << FAT);
-	
+
 	//clear the sectormap so that they all point to 'clean' sectors
 	for (int i = 0; i < 1440 ; i++) {
 		sectormap[i].dirEntryNr=NODIRENTRY;
@@ -253,7 +253,7 @@ FDC_DirAsDSK::FDC_DirAsDSK(const string& fileName)
 		d = readdir(dir);
 	}
 	closedir(dir);
-	
+
 	// And now read the cached sectors
 	//TODO: we should check if the other files have changed since we
 	//      wrote the cached sectors, this could invalided the cache !
@@ -267,7 +267,7 @@ FDC_DirAsDSK::FDC_DirAsDSK(const string& fileName)
 				saveCachedSectors=true; //make sure that we don't destroy the cache when destroying this object
 				int i;
 				byte* tmpbuf;
-				while ( fread(&i , 1, sizeof(int), file) ){ // feof(file) 
+				while ( fread(&i , 1, sizeof(int), file) ){ // feof(file)
 
 					PRT_DEBUG("reading cached sector " << i);
 					if (i == 0){
@@ -367,7 +367,7 @@ void FDC_DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 		// quick-and-dirty:
 		// we check all files in the faked disk for altered filesize
 		// remapping each fat entry to its direntry and do some bookkeeping
-		// to avoid multiple checks will probably be slower then this 
+		// to avoid multiple checks will probably be slower then this
 		for (int i = 0; i < 112; i++) {
 			if ( ! mapdir[i].filename.empty()) {
 				//PRT_DEBUG("Running checkAlterFileInDisk : " << i );
@@ -378,7 +378,7 @@ void FDC_DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 		sector = (sector - 1) % SECTORS_PER_FAT;
 		memcpy(buf, FAT + sector * SECTOR_SIZE, SECTOR_SIZE);
 	} else if (sector < 14) {
-		//create correct DIR sector 
+		//create correct DIR sector
 		PRT_DEBUG("Reading dir sector : " << sector );
 		sector -= (1 + 2 * SECTORS_PER_FAT);
 		int dirCount = sector * 16;
@@ -393,7 +393,7 @@ void FDC_DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 		PRT_DEBUG("Reading mapped sector : " << sector );
 		// else get map from sector to file and read correct block
 		// folowing same numbering as FAT eg. first data block is cluster 2
-		//int cluster = (int)((sector - 14) / 2) + 2; 
+		//int cluster = (int)((sector - 14) / 2) + 2;
 		//PRT_DEBUG("Reading cluster " << cluster );
 		if (sectormap[sector].dirEntryNr == NODIRENTRY ) {
 			//return an 'empty' sector
@@ -415,7 +415,7 @@ void FDC_DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 				fseek(file,offset,SEEK_SET);
 				fread(buf, 1, SECTOR_SIZE, file);
 				fclose(file);
-			} 
+			}
 			//if (!file || ferror(file)) {
 			//	throw DiskIOErrorException("Disk I/O error");
 			//}
@@ -437,12 +437,12 @@ void FDC_DirAsDSK::checkAlterFileInDisk(const int dirindex)
 	if (  mapdir[dirindex].filename.empty()) {
 		return;
 	}
-	
+
 	int fsize;
 	// compute time/date stamps
 	struct stat fst;
 	memset(&fst, 0, sizeof(struct stat));
-	
+
 	PRT_DEBUG("trying to stat : " << mapdir[dirindex].filename );
 	stat(mapdir[dirindex].filename.c_str(), &fst);
 	fsize = fst.st_size;
@@ -461,7 +461,7 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 	memset(&fst, 0, sizeof(struct stat));
 	stat(mapdir[dirindex].filename.c_str(), &fst);
 	struct tm* mtim = localtime(&(fst.st_mtime));
-	int t1 = mtim 
+	int t1 = mtim
 	       ? (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
 	         (mtim->tm_hour << 11)
 	       : 0;
@@ -486,7 +486,7 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 	PRT_DEBUG("Starting at cluster " << curcl );
 
 	unsigned size = fsize;
-	int prevcl = 0; 
+	int prevcl = 0;
 	while (size && (curcl <= MAX_CLUSTER)) {
 		int logicalSector= 14 + 2*( curcl - 2 );
 
@@ -510,7 +510,7 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 			curcl=ReadFAT(curcl);
 			if ( curcl == EOF_FAT ) {
 				followFATClusters=false;
-				curcl=findFirstFreeCluster(); 
+				curcl=findFirstFreeCluster();
 			}
 		} else {
 			do {
@@ -524,7 +524,7 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 		if(prevcl==0) {
 			WriteFAT(curcl, EOF_FAT);
 		} else {
-			WriteFAT(prevcl, EOF_FAT); 
+			WriteFAT(prevcl, EOF_FAT);
 		}
 
 		//clear remains of FAT if needed
@@ -581,7 +581,7 @@ void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 
 		//during formatting sectors > 1+SECTORS_PER_FAT are empty (all
 		//bytes are 0) so we would erase the 3 bytes indentifier at the
-		//beginning of the FAT !! 
+		//beginning of the FAT !!
 		//Since the two FATs should be identical after "normal" usage,
 		//we simply ignore writes (for now, later we could cache them
 		//perhaps)
@@ -598,12 +598,12 @@ void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 	} else if (sector < 14) {
 		//make sure we write changed sectors to the cache file later on
 		saveCachedSectors=true;
-		//create correct DIR sector 
+		//create correct DIR sector
 		/*
-		 We assume that the dir entry is updatet as latest: So 
+		 We assume that the dir entry is updatet as latest: So
 		 the fat and actual sectordata should already contain the correct data
 		 Most MSX disk roms honour this behaviour for normal fileactions
-		 Ofcourse some diskcaching programs en disk optimizers can abandon this behaviour 
+		 Ofcourse some diskcaching programs en disk optimizers can abandon this behaviour
 		 and in such case the logic used here goes haywire!!
 		*/
 		sector -= (1 + 2 * SECTORS_PER_FAT);
@@ -616,7 +616,7 @@ void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 
 				//the 3 vital informations needed
 				bool chgName=(memcmp( mapdir[dirCount].msxinfo.filename , buf, 11 ) ==0 ) ? true : false ;
-				
+
 				bool chgClus=( rdsh(mapdir[dirCount].msxinfo.startcluster) ==
 						(buf[25] + buf[26]<<8 )  ) ? true : false ;
 				bool chgSize=( rdlg(mapdir[dirCount].msxinfo.size) ==
@@ -649,7 +649,7 @@ void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 							"File has been renamed in emulated disk, Host OS file (" +
 							mapdir[dirCount].filename + ") remains untouched!");
 					}
-				} 
+				}
 
 				if ( !chgName && !chgClus && chgSize ) {
 					PRT_DEBUG("Content of "<<mapdir[dirCount].filename <<" changed");
@@ -712,7 +712,7 @@ void FDC_DirAsDSK::updateFileInDSK(const string& fullfilename)
 			"Not a regular file: " + fullfilename);
 		return;
 	}
-	    
+
 	if (!checkFileUsedInDSK(fullfilename)) {
 		// add file to fakedisk
 		PRT_DEBUG("Going to addFileToDSK");
@@ -746,7 +746,7 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 			MSXfilename + " existed already");
 		return;
 	}
-	
+
 	// fill in native file name
 	mapdir[dirindex].filename = fullfilename;
 	// fill in MSX file name

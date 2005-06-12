@@ -24,12 +24,12 @@ public:
 	 * Name that identifies this connector.
 	 */
 	const std::string& getName() const;
-	
+
 	/**
 	 * Get a description for this connector
 	 */
 	virtual const std::string& getDescription() const = 0;
-	
+
 	/**
 	 * A Connector belong to a certain class.
 	 * Only Pluggables of this class can be plugged in this Connector.

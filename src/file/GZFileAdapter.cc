@@ -35,7 +35,7 @@ void GZFileAdapter::decompress()
 	}
 
 	inflateInit2(&s, -MAX_WBITS);
-	
+
 	size = 64 * 1024;	// initial buffer size
 	buf = (byte*)malloc(size);
 	while (true) {
@@ -104,7 +104,7 @@ bool GZFileAdapter::skipHeader(z_stream& s)
 	}
 	return true;
 }
-    
+
 byte GZFileAdapter::getByte(z_stream &s)
 {
 	assert(s.avail_in);

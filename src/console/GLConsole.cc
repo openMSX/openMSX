@@ -68,7 +68,7 @@ void GLConsole::paint()
 {
 	byte visibility = getVisibility();
 	if (!visibility) return;
-	
+
 	glPushAttrib(GL_ENABLE_BIT);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
@@ -119,7 +119,7 @@ void GLConsole::paint()
 		lastBlinkTime = SDL_GetTicks() + BLINK_RATE;
 		blink = !blink;
 	}
-	
+
 	unsigned cursorX, cursorY;
 	console.getCursorPosition(cursorX, cursorY);
 	if ((cursorX != lastCursorX) || (cursorY != lastCursorY)) {

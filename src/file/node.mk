@@ -14,7 +14,7 @@ SRC_HDR:= \
 	ReadDir \
 	FilePool \
 	Date
-	
+
 HDR_ONLY:= \
 	FileException
 

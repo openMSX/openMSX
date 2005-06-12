@@ -23,7 +23,7 @@ void Ram::init()
 {
 	ram = new byte[size];
 	clear();
-	
+
 	Debugger::instance().registerDebuggable(name, *this);
 }
 

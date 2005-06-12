@@ -253,7 +253,7 @@ void SaI2xScaler<Pixel>::scale256(
 		const Pixel* srcLine3 = Scaler<Pixel>::linePtr(src, min(y + 2, endSrcY - 1));
 		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
 		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, min(dstY++, HEIGHT - 1));
-		
+
 		scaleLine256(
 			srcLine0, srcLine1, srcLine2, srcLine3, dstUpper, dstLower );
 	}
@@ -272,7 +272,7 @@ void SaI2xScaler<Pixel>::scale512(
 		const Pixel* srcLine3 = Scaler<Pixel>::linePtr(src, min(y + 2, endSrcY - 1));
 		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
 		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, min(dstY++, HEIGHT - 1));
-		
+
 		scaleLine512(
 			srcLine0, srcLine1, srcLine2, srcLine3, dstUpper, dstLower );
 	}

@@ -21,7 +21,7 @@ class XSADiskImage : public SectorBasedDisk
 public:
 	XSADiskImage(const std::string& fileName);
 	virtual ~XSADiskImage();
-	
+
 	virtual bool writeProtected();
 
 private:

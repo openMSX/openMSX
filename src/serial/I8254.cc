@@ -192,7 +192,7 @@ byte I8254::Counter::peekIO(const EmuTime& time) const
 	if (ltchCtrl) {
 		return latchedControl;
 	}
-	
+
 	const_cast<I8254::Counter*>(this)->advance(time);
 
 	word readData = ltchCntr ? latchedCounter : counter;
@@ -251,7 +251,7 @@ void I8254::Counter::writeLoad(word value, const EmuTime& time)
 	if ((mode==CNTR_M0) || (mode==CNTR_M4)) {
 		counter = counterLoad;
 	}
-	if (!active && ((mode == CNTR_M2) || (mode == CNTR_M2_) || 
+	if (!active && ((mode == CNTR_M2) || (mode == CNTR_M2_) ||
 	                 (mode == CNTR_M3) || (mode == CNTR_M3_))) {
 		if (clock.isPeriodic()) {
 			counter = counterLoad;
@@ -279,8 +279,8 @@ void I8254::Counter::writeControlWord(byte value, const EmuTime& time)
 		// new control mode
 		control = value;
 		writeOrder = LOW;
-		counting = true; 
-		active = false; 
+		counting = true;
+		active = false;
 		triggered = false;
 		switch (control & CNTR_MODE) {
 		case CNTR_M0:

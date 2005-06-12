@@ -70,7 +70,7 @@ private:
 	unsigned freq[5];
 	byte volume[5];
 	byte ch_enable;
-	
+
 	byte deformValue;
 	Clock<CLOCK_FREQ> deformTimer;
 	bool rotate[5];

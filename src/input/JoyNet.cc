@@ -147,7 +147,7 @@ void JoyNet::ConnectionListener::run()
 	struct sockaddr_in servaddr;
 
   //keep opening looping in case somebody close connection
-  while ( 1 ){ 
+  while ( 1 ){
 
 	// Build a socket -> bind -> listen
 	if ((listenfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -165,7 +165,7 @@ void JoyNet::ConnectionListener::run()
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	servaddr.sin_port = htons(port);
-	
+
 	std::ostringstream out;
 	out << "TCP/IP Trying to listen on port " << port;
 	CliComm::instance().printInfo(out.str());

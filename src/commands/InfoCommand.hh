@@ -18,7 +18,7 @@ public:
 	static InfoCommand& instance();
 	void registerTopic(const std::string& name, const InfoTopic* topic);
 	void unregisterTopic(const std::string& name, const InfoTopic* topic);
-	
+
 	// Command
 	virtual void execute(const std::vector<CommandArgument>& tokens,
 	                     CommandArgument& result);

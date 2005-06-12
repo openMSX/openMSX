@@ -18,7 +18,7 @@ class DiskChanger : private SimpleCommand, public DiskContainer
 public:
 	DiskChanger(const std::string& driveName, FileManipulator& manipulator);
 	~DiskChanger();
-	
+
 	const std::string& getDriveName() const;
 	const std::string& getDiskName() const;
 	bool diskChanged();
@@ -36,7 +36,7 @@ private:
 	virtual std::string execute(const std::vector<std::string>& tokens);
 	virtual std::string help   (const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	
+
 	std::string driveName;
 	FileManipulator& manipulator;
 	std::auto_ptr<Disk> disk;

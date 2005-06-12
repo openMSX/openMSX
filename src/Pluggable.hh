@@ -54,7 +54,7 @@ public:
 	  * pointer if this Pluggable is not plugged.
 	  */
 	Connector* getConnector() const;
-	
+
 protected:
 	virtual void plugHelper(Connector* newConnector, const EmuTime& time) = 0;
 	virtual void unplugHelper(const EmuTime& time) = 0;

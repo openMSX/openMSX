@@ -44,7 +44,7 @@ private:
 	virtual bool signalEvent(const Event& event);
 
 	typedef std::vector<Layer*> Layers;
-	
+
 	/** Find frontmost opaque layer.
 	  */
 	Layers::iterator baseLayer();
@@ -78,7 +78,7 @@ private:
 		Display& display;
 	} screenShotCmd;
 
-	// Info 
+	// Info
 	class FpsInfoTopic : public InfoTopic {
 	public:
 		FpsInfoTopic(Display& parent);

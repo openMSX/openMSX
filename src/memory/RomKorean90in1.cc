@@ -47,22 +47,22 @@ void RomKorean90in1::writeIO(byte /*port*/, byte value, const EmuTime& /*time*/)
 	switch (value & 0xC0) {
 		case 0x00:
 		case 0x40:
-			setRom(2, page + 0); 
-			setRom(3, page + 1); 
-			setRom(4, page + 0); 
-			setRom(5, page + 1); 
+			setRom(2, page + 0);
+			setRom(3, page + 1);
+			setRom(4, page + 0);
+			setRom(5, page + 1);
 			break;
 		case 0x80:
-			setRom(2, (page & ~2) + 0); 
-			setRom(3, (page & ~2) + 1); 
-			setRom(4, (page |  2) + 0); 
-			setRom(5, (page |  2) + 1); 
+			setRom(2, (page & ~2) + 0);
+			setRom(3, (page & ~2) + 1);
+			setRom(4, (page |  2) + 0);
+			setRom(5, (page |  2) + 1);
 			break;
 		case 0xC0:
-			setRom(2, page + 0); 
-			setRom(3, page + 1); 
-			setRom(4, page + 1); 
-			setRom(5, page + 0); 
+			setRom(2, page + 0);
+			setRom(3, page + 1);
+			setRom(4, page + 1);
+			setRom(5, page + 0);
 			break;
 		default:
 			assert(false);

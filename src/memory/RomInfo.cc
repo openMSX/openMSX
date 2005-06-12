@@ -32,8 +32,8 @@ static void initMap()
 		return;
 	}
 	init = true;
-	
-	// generic ROM types that don't exist in real ROMs 
+
+	// generic ROM types that don't exist in real ROMs
 	// (should not occur in any database!)
 	romtype["8kB"]         = ROM_GENERIC_8KB;
 	romtype["16kB"]        = ROM_GENERIC_16KB;
@@ -51,10 +51,10 @@ static void initMap()
 	romtype["Zemina90in1"] = ROM_ZEMINA90IN1;
 	romtype["Zemina126in1"]= ROM_ZEMINA126IN1;
 	romtype["ASCII16SRAM2"]= ROM_ASCII16_2;
-	romtype["ASCII8SRAM8"] = ROM_ASCII8_8; 
-	romtype["KoeiSRAM8"]   = ROM_KOEI_8; 
-	romtype["KoeiSRAM32"]  = ROM_KOEI_32; 
-	romtype["Wizardry"]    = ROM_WIZARDRY; 
+	romtype["ASCII8SRAM8"] = ROM_ASCII8_8;
+	romtype["KoeiSRAM8"]   = ROM_KOEI_8;
+	romtype["KoeiSRAM32"]  = ROM_KOEI_32;
+	romtype["Wizardry"]    = ROM_WIZARDRY;
 	romtype["GameMaster2"] = ROM_GAME_MASTER2;
 	romtype["Majutsushi"]  = ROM_MAJUTSUSHI;
 	romtype["Synthesizer"] = ROM_SYNTHESIZER;
@@ -112,7 +112,7 @@ RomInfo::~RomInfo()
 RomType RomInfo::nameToRomType(string name)
 {
 	initMap();
-	
+
 	typedef map<string, string, StringOp::caseless> AliasMap;
 	static AliasMap aliasMap;
 	static bool aliasMapInit = false;
@@ -234,20 +234,20 @@ static void parseDB(const XMLElement& doc, DBMap& result)
 	     it1 != children.end(); ++it1) {
 		// Parse all <software> tags
 		const XMLElement& soft = **it1;
-		
+
 		const XMLElement* system = soft.findChild("system");
 		if (system && (system->getData() != "MSX")) {
 			// skip non-MSX entries
 			continue;
 		}
-		
+
 		// TODO there can be multiple title tags
 		string title   = soft.getChildData("title", "");
 		string year    = soft.getChildData("year", "");
 		string company = soft.getChildData("company", "");
 		string country = soft.getChildData("country", "");
 		string remark  = parseRemarks(soft);
-		
+
 		XMLElement::Children dumps;
 		soft.getChildren("dump", dumps);
 		for (XMLElement::Children::const_iterator it2 = dumps.begin();
@@ -317,7 +317,7 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 				"Romtype detection might fail because of this.");
 		}
 	}
-	
+
 	int size = rom.getSize();
 	if (size == 0) {
 		return auto_ptr<RomInfo>(

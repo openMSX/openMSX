@@ -27,7 +27,7 @@
  * 30  PRINT "Done!"
  *
  * -----
- * 
+ *
  * Improved code mostly copied from blueMSX, many thanks to Daniel Vik.
  * http://cvs.sourceforge.net/viewcvs.py/bluemsx/blueMSX/Src/Memory/romMapperSonyHBI55.c
  */

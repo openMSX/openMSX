@@ -56,11 +56,11 @@ private:
 	};
 
 	/** The V9990 VDP
-	  */ 
+	  */
 	V9990* vdp;
 
 	/** The Rasterizer
-	  */ 
+	  */
 	V9990Rasterizer* rasterizer;
 
 	/** Accuracy setting for current frame.
@@ -72,9 +72,9 @@ private:
 	  * forced blanking is off.
 	  */
 	bool displayEnabled;
-	
+
 	/** The last sync point's vertical position. In lines, starting
-	  * from VSYNC 
+	  * from VSYNC
 	  */
 	int lastY;
 
@@ -91,7 +91,7 @@ private:
 	  */
 	int frameSkipCounter;
 	double finishFrameDuration;
-	
+
 	/**
 	  */
 	void draw(int fromX, int fromY, int toX, int toY, DrawType type);

@@ -125,7 +125,7 @@ void SHA1::transform(const byte buffer[64])
 	block.r0(a,b,c,d,e, 0); block.r0(e,a,b,c,d, 1); block.r0(d,e,a,b,c, 2);
 	block.r0(c,d,e,a,b, 3); block.r0(b,c,d,e,a, 4); block.r0(a,b,c,d,e, 5);
 	block.r0(e,a,b,c,d, 6); block.r0(d,e,a,b,c, 7); block.r0(c,d,e,a,b, 8);
-	block.r0(b,c,d,e,a, 9); block.r0(a,b,c,d,e,10); block.r0(e,a,b,c,d,11); 
+	block.r0(b,c,d,e,a, 9); block.r0(a,b,c,d,e,10); block.r0(e,a,b,c,d,11);
 	block.r0(d,e,a,b,c,12); block.r0(c,d,e,a,b,13); block.r0(b,c,d,e,a,14);
 	block.r0(a,b,c,d,e,15); block.r1(e,a,b,c,d,16); block.r1(d,e,a,b,c,17);
 	block.r1(c,d,e,a,b,18); block.r1(b,c,d,e,a,19); block.r2(a,b,c,d,e,20);
@@ -149,7 +149,7 @@ void SHA1::transform(const byte buffer[64])
 	block.r4(d,e,a,b,c,72); block.r4(c,d,e,a,b,73); block.r4(b,c,d,e,a,74);
 	block.r4(a,b,c,d,e,75); block.r4(e,a,b,c,d,76); block.r4(d,e,a,b,c,77);
 	block.r4(c,d,e,a,b,78); block.r4(b,c,d,e,a,79);
-	
+
 	// Add the working vars back into m_state[]
 	m_state[0] += a;
 	m_state[1] += b;

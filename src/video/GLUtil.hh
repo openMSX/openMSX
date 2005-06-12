@@ -22,7 +22,7 @@ class Texture
 public:
 	Texture();
 	virtual ~Texture();
-	
+
 	// TODO: I'd prefer to make this protected / friend.
 	void bind() {
 		glBindTexture(GL_TEXTURE_2D, textureId);

@@ -2,7 +2,7 @@
 
 /*
  * Lightweight version of the hq2x scaler (http://www.hiend3d.com/hq2x.html)
- * 
+ *
  * The difference between this version and the full version of hq2x is the
  * calculation of the distance between two colors. Here it's simplified to
  * just  color1 == color2
@@ -119,7 +119,7 @@ static void scaleLine256(
 		if (c5 != c7) pattern |= 0x20;
 		if (c5 != c8) pattern |= 0x40;
 		if (c5 != c9) pattern |= 0x80;
-                  
+
                 unsigned pixel1, pixel2, pixel3, pixel4;
 		switch (pattern) {
 		case 0x00: case 0x01: case 0x02: case 0x03:
@@ -602,7 +602,7 @@ static void scaleLine256(
 
 		in  += 1;
 		out += 2;
-	} 
+	}
 }
 
 template <class Pixel>
@@ -655,7 +655,7 @@ static void scaleLine512(
 		if (c5 != c7) pattern |= 0x20;
 		if (c5 != c8) pattern |= 0x40;
 		if (c5 != c9) pattern |= 0x80;
-                  
+
                 unsigned pixel1, pixel3;
 		switch (pattern) {
 		case 0x00: case 0x01: case 0x02: case 0x03:

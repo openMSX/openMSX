@@ -79,7 +79,7 @@ public:
 	byte peekReg(byte reg) const;
 	byte readStatus(const EmuTime& time);
 	byte peekStatus(const EmuTime& time) const;
-	
+
 private:
 	// SoundDevice
 	virtual const std::string& getName() const;
@@ -109,7 +109,7 @@ private:
 	private:
 		YMF278& parent;
 	} debugMemory;
-	
+
 	void writeReg(byte reg, byte data, const EmuTime& time);
 	byte readMem(unsigned address) const;
 	void writeMem(unsigned address, byte value);
@@ -137,7 +137,7 @@ private:
 	static const EmuDuration LOAD_DELAY;
 
 	YMF278Slot slots[24];
-	
+
 	/** Global envelope generator counter. */
 	unsigned eg_cnt;
 	/** Global envelope generator counter. */
@@ -146,7 +146,7 @@ private:
 	unsigned eg_timer_add;
 	/** Envelope generator timer overlfows every 1 sample (on real chip). */
 	unsigned eg_timer_overflow;
-	
+
 	char wavetblhdr;
 	char memmode;
 	int memadr;

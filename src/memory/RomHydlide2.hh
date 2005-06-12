@@ -15,7 +15,7 @@ public:
 	RomHydlide2(const XMLElement& config, const EmuTime& time,
 	            std::auto_ptr<Rom> rom);
 	virtual ~RomHydlide2();
-	
+
 	virtual void reset(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word address) const;

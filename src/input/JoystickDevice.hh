@@ -14,7 +14,7 @@ public:
 	/**
 	 * Read from the joystick device. The bits in the read byte have
 	 * following meaning:
-	 *   7    6       5         4         3       2      1     0 
+	 *   7    6       5         4         3       2      1     0
 	 * | xx | xx | BUTTON_B | BUTTON_A | RIGHT | LEFT | DOWN | UP  |
 	 * | xx | xx | pin7     | pin6     | pin4  | pin3 | pin2 | pin1|
 	 */

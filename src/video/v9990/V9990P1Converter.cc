@@ -56,14 +56,14 @@ void V9990P1Converter<Pixel, zoom>::convertLine(
 
 	int visibleSprites[16 + 1];
 	determineVisibleSprites(visibleSprites, displayY);
-	
+
 	if (displayY > prioY) prioX = 0;
-	
+
 	int displayAX = displayX + vdp->getScrollAX();
 	int displayAY = displayY + vdp->getScrollAY();
 	int displayBX = displayX + vdp->getScrollBX();
 	int displayBY = displayY + vdp->getScrollBY();
-	
+
 	int displayEnd = displayX + displayWidth;
 	int end = std::min(prioX, displayEnd);
 	for (/* */; displayX < end; ++displayX) {
@@ -108,12 +108,12 @@ Pixel V9990P1Converter<Pixel, zoom>::raster(int xA, int yA,
 		if (!(p & 0x0F)) {
 			// Back sprite plane
 			p = getSpritePixel(visibleSprites, x, y, false);
-			
+
 			if (!(p & 0x0F)) {
 				// Back image plane
 				p = getPixel(xB, yB, nameTableB, patternTableB) +
 				    ((offset & 0x0C) << 2);
-	
+
 				if (!(p & 0x0F)) {
 					// Backdrop color
 					p = vdp->getBackDropColor();
@@ -139,14 +139,14 @@ byte V9990P1Converter<Pixel, zoom>::getPixel(
 	byte dixel = vram->readVRAMP1(address);
 	if (!(x & 1)) dixel >>= 4;
 	return dixel & 0x0F;
-}	
+}
 
 template <class Pixel, Renderer::Zoom zoom>
 void V9990P1Converter<Pixel, zoom>::determineVisibleSprites(
 	int* visibleSprites, int displayY)
 {
 	static const unsigned int spriteTable = 0x3FE00;
-	
+
 	int index = 0;
 	for (int sprite = 0; sprite < 125; ++sprite) {
 		int spriteInfo = spriteTable + 4 * sprite;

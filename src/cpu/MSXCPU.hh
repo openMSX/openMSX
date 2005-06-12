@@ -39,13 +39,13 @@ public:
 	 * Sets DRAM or ROM mode (influences memory access speed for R800)
 	 */
 	void setDRAMmode(bool dram);
-	
+
 	/**
 	 * Inform CPU of bank switch. This will invalidate memory cache and
 	 * update memory timings on R800.
 	 */
 	void updateVisiblePage(byte page, byte primarySlot, byte secondarySlot);
-	
+
 	/**
 	 * Invalidate the CPU its cache for the interval [start, start + size)
 	 * For example MSXMemoryMapper and MSXGameCartrigde need to call this
@@ -91,7 +91,7 @@ public:
 	 * TODO
 	 */
 	void exitCPULoop();
-	
+
 	/**
 	 * Is the R800 currently active
 	 */
@@ -101,7 +101,7 @@ public:
 	 * Switch the Z80 clock freq
 	 */
 	void setZ80Freq(unsigned freq);
-	
+
 	void setInterface(MSXCPUInterface* interf);
 
 	// Debuggable
@@ -124,12 +124,12 @@ public:
 private:
 	MSXCPU();
 	virtual ~MSXCPU();
-	
+
 	// only for MSXMotherBoard
 	void execute();
 	void setMotherboard(MSXMotherBoard* motherboard);
 	friend class MSXMotherBoard;
-	
+
 	void wait(const EmuTime& time);
 	friend class VDPIODelay;
 
@@ -141,7 +141,7 @@ private:
 	 * TODO is this comment still true?
 	 */
 	const EmuTime& getCurrentTime() const;
-	
+
 	// SettingListener
 	void update(const Setting* setting);
 

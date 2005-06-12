@@ -20,7 +20,7 @@ public:
 
 	virtual unsigned getFrequency() const = 0;
 	virtual unsigned getSamples() const = 0;
-	
+
 	virtual void updateStream(const EmuTime& time) = 0;
 
 protected:

@@ -66,7 +66,7 @@ int dasm(const MSXCPUInterface& interf, word pc, byte buf[4], std::string& dest)
 			s = mnemonic_main[buf[0]];
 			i = 1;
 	}
-	
+
 	for (int j = 0; s[j]; ++j) {
 		switch (s[j]) {
 		case 'B':

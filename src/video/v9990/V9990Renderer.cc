@@ -16,7 +16,7 @@ V9990Renderer::V9990Renderer()
 V9990Renderer::~V9990Renderer()
 {
 }
-	
+
 void V9990Renderer::reset(const EmuTime& /*time*/)
 {
 }

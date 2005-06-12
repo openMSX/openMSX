@@ -68,7 +68,7 @@ private:
 	inline unsigned prev(unsigned a) const {
 		return (a != 0) ? a - 1 : MAXSIZE;
 	}
-	
+
 	unsigned first, last;
 	// one extra to be able to distinguish full and empty
 	T buffer[MAXSIZE + 1];

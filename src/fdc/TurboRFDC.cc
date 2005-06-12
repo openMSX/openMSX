@@ -77,7 +77,7 @@ const byte* TurboRFDC::getReadCacheLine(word start) const
 	}
 }
 
-void TurboRFDC::writeMem(word address, byte value, const EmuTime& time)  
+void TurboRFDC::writeMem(word address, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("TurboRFDC: write 0x" << hex << (int)address << " 0x" << (int)value << dec);
 	if ((address == 0x6000) || (address == 0x7FF0) || (address == 0x7FFE)) {

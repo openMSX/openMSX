@@ -30,7 +30,7 @@ public:
 
 private:
 	void emulateJoystick();
-	
+
 	byte status;
 	int faze;
 	int xrel, yrel;

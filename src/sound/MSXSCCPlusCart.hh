@@ -30,7 +30,7 @@ private:
 	void setMapper(int regio, byte value);
 	void setModeRegister(byte value);
 	void checkEnable();
-	
+
 	const std::auto_ptr<Ram> ram;
 	std::auto_ptr<SCC> scc;
 	byte modeRegister;
@@ -40,7 +40,7 @@ private:
 	byte* internalMemoryBank[4];	// 4 blocks of 8kB starting at #4000
 	byte mapper[4];
 	byte mapperMask;
-	bool lowRAM, highRAM; 
+	bool lowRAM, highRAM;
 };
 
 } // namespace openmsx

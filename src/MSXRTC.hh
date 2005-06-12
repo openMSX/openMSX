@@ -15,7 +15,7 @@ class MSXRTC : public MSXDevice
 {
 public:
 	MSXRTC(const XMLElement& config, const EmuTime& time);
-	virtual ~MSXRTC(); 
+	virtual ~MSXRTC();
 
 	virtual void reset(const EmuTime& time);
 	virtual byte readIO(byte port, const EmuTime& time);

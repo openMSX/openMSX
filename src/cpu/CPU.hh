@@ -21,7 +21,7 @@ public:
 	static const int CACHE_LINE_NUM  = 0x10000 / CACHE_LINE_SIZE;
 	static const int CACHE_LINE_LOW  = CACHE_LINE_SIZE - 1;
 	static const int CACHE_LINE_HIGH = 0xFFFF - CACHE_LINE_LOW;
-	
+
 	// flag positions
 	static const byte S_FLAG = 0x80;
 	static const byte Z_FLAG = 0x40;
@@ -32,9 +32,9 @@ public:
 	static const byte P_FLAG = V_FLAG;
 	static const byte N_FLAG = 0x02;
 	static const byte C_FLAG = 0x01;
-	
+
 	typedef std::multiset<word> BreakPoints;
-	
+
 	class CPURegs {
 	public:
 		word AF,  BC,  DE,  HL, IX, IY, PC, SP;
@@ -68,11 +68,11 @@ public:
 		inline void setIXl(byte x) { IX = (IX & 0xFF00) | x; }
 		inline void setIYh(byte x) { IY = (IY & 0x00FF) | (x << 8); }
 		inline void setIYl(byte x) { IY = (IY & 0xFF00) | x; }
-		
+
 		inline void ei() { IFF1 = nextIFF1 = IFF2 = true; }
 		inline void di() { IFF1 = nextIFF1 = IFF2 = false; }
 	};
-	
+
 	/**
 	 * TODO
 	 */
@@ -95,7 +95,7 @@ public:
 	virtual const EmuTime& getCurrentTime() const = 0;
 
 	/**
-	 * Wait 
+	 * Wait
 	 */
 	virtual void wait(const EmuTime& time) = 0;
 
@@ -141,14 +141,14 @@ public:
 protected:
 	CPU();
 	virtual ~CPU() {}
-	
+
 	// flag-register tables, initialized at run-time
 	static byte ZSTable[256];
 	static byte ZSXYTable[256];
 	static byte ZSPXYTable[256];
 	static byte ZSPTable[256];
 	static word DAATable[0x800];
-	
+
 	// TODO why exactly are these static?
 	// debug variables
 	static BreakPoints breakPoints;

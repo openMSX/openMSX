@@ -2,7 +2,7 @@
 
 // This class implements the Intel 8254 chip (and 8253)
 //
-// * Only the 8254 is emulated, no surrounding hardware. 
+// * Only the 8254 is emulated, no surrounding hardware.
 //   Use the class I8254Interface to do that.
 
 #ifndef I8254_HH
@@ -27,7 +27,7 @@ class I8254
 		void writeControlWord(byte value, const EmuTime& time);
 		void latchStatus(const EmuTime& time);
 		void latchCounter(const EmuTime& time);
-		
+
 	private:
 		enum ByteOrder {LOW, HIGH};
 		static const byte WRT_FRMT = 0x30;
@@ -65,14 +65,14 @@ class I8254
 
 public:
 	I8254(ClockPinListener* output0, ClockPinListener* output1,
-	      ClockPinListener* output2, const EmuTime& time); 
-	~I8254(); 
-	
+	      ClockPinListener* output2, const EmuTime& time);
+	~I8254();
+
 	void reset(const EmuTime& time);
 	byte readIO(byte port, const EmuTime& time);
 	byte peekIO(byte port, const EmuTime& time) const;
 	void writeIO(byte port, byte value, const EmuTime& time);
-	
+
 	void setGate(byte counter, bool status, const EmuTime& time);
 	ClockPin& getClockPin(byte cntr);
 	ClockPin& getOutputPin(byte cntr);
@@ -84,7 +84,7 @@ private:
 	static const byte RB_CNTR2  = 0x08;
 	static const byte RB_STATUS = 0x10;
 	static const byte RB_COUNT  = 0x20;
-	
+
 	void readBackHelper(byte value, byte cntr, const EmuTime& time);
 	Counter& getCounter(byte cntr);
 

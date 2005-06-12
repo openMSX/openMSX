@@ -19,12 +19,12 @@ public:
 	V9990VRAMObserver();
 	V9990VRAMObserver(unsigned startAddress, unsigned size);
 	virtual ~V9990VRAMObserver() {}
-	
+
 	/** Informs the observer of the VRAM content change.
 	  * @param offset  Offset in observed VRAM window of the byte that changed.
 	  */
 	virtual void updateVRAM(unsigned offset/*, const EmuTime& time*/) = 0;
-	
+
 	/** Checks whether address is within observed VRAM window
 	  * @param address Address to check
 	  */
@@ -37,7 +37,7 @@ private:
 	/** VRAM Window start address
 	  */
 	unsigned startAddress;
-	
+
 	/** VRAM Window size
 	  */
 	unsigned size;

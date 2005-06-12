@@ -2,7 +2,7 @@
 
 // This class implements the Intel 8255 chip
 //
-// * Only the 8255 is emulated, no surrounding hardware. 
+// * Only the 8255 is emulated, no surrounding hardware.
 //   Use the class I8255Interface to do that.
 // * Only mode 0 (basic input/output) is implemented
 // * For techncal details on 8255 see
@@ -38,9 +38,9 @@ public:
 class I8255
 {
 public:
-	I8255(I8255Interface &interf, const EmuTime& time); 
-	~I8255(); 
-	
+	I8255(I8255Interface &interf, const EmuTime& time);
+	~I8255();
+
 	void reset(const EmuTime& time);
 
 	byte readPortA(const EmuTime& time);
@@ -54,7 +54,7 @@ public:
 	void writePortB(byte value, const EmuTime& time);
 	void writePortC(byte value, const EmuTime& time);
 	void writeControlPort(byte value, const EmuTime& time);
-	
+
 private:
 	byte readC0(const EmuTime& time);
 	byte readC1(const EmuTime& time);

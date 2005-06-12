@@ -35,8 +35,8 @@ unsigned int Y8950::Slot::dphaseTable[1024][8][16];
 //                                                  //
 //**************************************************//
 
-int Y8950::Slot::ALIGN(int d, double SS, double SD) 
-{ 
+int Y8950::Slot::ALIGN(int d, double SS, double SD)
+{
 	return d*(int)(SS/SD);
 }
 
@@ -78,7 +78,7 @@ unsigned int Y8950::rate_adjust(double x, int rate)
 //                                                  //
 //**************************************************//
 
-// Table for AR to LogCurve. 
+// Table for AR to LogCurve.
 void Y8950::Slot::makeAdjustTable()
 {
 	AR_ADJUST_TABLE[0] = 1 << EG_BITS;
@@ -87,7 +87,7 @@ void Y8950::Slot::makeAdjustTable()
 		         (1 << EG_BITS) * ::log(i) / ::log(1 << EG_BITS)) >> 1;
 }
 
-// Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH) 
+// Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH)
 void Y8950::Slot::makeDB2LinTable()
 {
 	for (int i=0; i < 2*DB_MUTE; i++) {
@@ -98,7 +98,7 @@ void Y8950::Slot::makeDB2LinTable()
 	}
 }
 
-// Liner(+0.0 - +1.0) to dB((1<<DB_BITS) - 1 -- 0) 
+// Liner(+0.0 - +1.0) to dB((1<<DB_BITS) - 1 -- 0)
 int Y8950::Slot::lin2db(double d)
 {
 	if (d < 1e-4) {
@@ -112,7 +112,7 @@ int Y8950::Slot::lin2db(double d)
 		return DB_MUTE-1;
 }
 
-// Sin Table 
+// Sin Table
 void Y8950::Slot::makeSinTable()
 {
 	for (int i=0; i < PG_WIDTH/4; i++)
@@ -130,7 +130,7 @@ void Y8950::makeDphaseNoiseTable(int sampleRate)
 			dphaseNoiseTable[i][j] = rate_adjust(i<<j, sampleRate);
 }
 
-// Table for Pitch Modulator 
+// Table for Pitch Modulator
 void Y8950::makePmTable()
 {
 	for (int i=0; i<PM_PG_WIDTH; i++)
@@ -139,7 +139,7 @@ void Y8950::makePmTable()
 		pmtable[1][i] = (int)((double)PM_AMP * pow(2,(double)PM_DEPTH2*sin(2.0*PI*i/PM_PG_WIDTH)/1200));
 }
 
-// Table for Amp Modulator 
+// Table for Amp Modulator
 void Y8950::makeAmTable()
 {
 	for (int i=0; i<AM_PG_WIDTH; i++)
@@ -148,7 +148,7 @@ void Y8950::makeAmTable()
 		amtable[1][i] = (int)((double)AM_DEPTH2/2/DB_STEP * (1.0 + sin(2.0*PI*i/PM_PG_WIDTH)));
 }
 
-// Phase increment counter table  
+// Phase increment counter table
 void Y8950::Slot::makeDphaseTable(int sampleRate)
 {
 	int mltable[16] = {
@@ -158,7 +158,7 @@ void Y8950::Slot::makeDphaseTable(int sampleRate)
 	for (int fnum=0; fnum<1024; fnum++)
 		for (int block=0; block<8; block++)
 			for (int ML=0; ML<16; ML++)
-				dphaseTable[fnum][block][ML] = 
+				dphaseTable[fnum][block][ML] =
 					rate_adjust((((fnum * mltable[ML]) << block) >> (21 - DP_BITS)), sampleRate);
 }
 
@@ -182,14 +182,14 @@ void Y8950::Slot::makeTllTable()
 						int tmp = kltable[fnum] - dB2(3.000) * (7 - block);
 						if (tmp <= 0)
 							tllTable[fnum][block][TL][KL] = ALIGN(TL, TL_STEP, EG_STEP);
-						else 
+						else
 							tllTable[fnum][block][TL][KL] = (int)((tmp>>(3-KL))/EG_STEP) + ALIGN(TL, TL_STEP, EG_STEP);
 					}
 				}
 }
 
 
-// Rate Table for Attack 
+// Rate Table for Attack
 void Y8950::Slot::makeDphaseARTable(int sampleRate)
 {
 	for (int AR=0; AR<16; AR++)
@@ -197,7 +197,7 @@ void Y8950::Slot::makeDphaseARTable(int sampleRate)
 			int RM = AR + (Rks>>2);
 			int RL = Rks&3;
 			if (RM>15) RM=15;
-			switch (AR) { 
+			switch (AR) {
 			case 0:
 				dphaseARTable[AR][Rks] = 0;
 				break;
@@ -211,7 +211,7 @@ void Y8950::Slot::makeDphaseARTable(int sampleRate)
 		}
 }
 
-// Rate Table for Decay 
+// Rate Table for Decay
 void Y8950::Slot::makeDphaseDRTable(int sampleRate)
 {
 	for (int DR=0; DR<16; DR++)
@@ -219,7 +219,7 @@ void Y8950::Slot::makeDphaseDRTable(int sampleRate)
 			int RM = DR + (Rks>>2);
 			int RL = Rks&3;
 			if (RM>15) RM=15;
-			switch (DR) { 
+			switch (DR) {
 			case 0:
 				dphaseDRTable[DR][Rks] = 0;
 				break;
@@ -338,10 +338,10 @@ void Y8950::Slot::updateAll()
 	updatePG();
 	updateTLL();
 	updateRKS();
-	updateEG(); // EG should be last 
+	updateEG(); // EG should be last
 }
 
-// Slot key on  
+// Slot key on
 void Y8950::Slot::slotOn()
 {
 	if (!slotStatus) {
@@ -352,7 +352,7 @@ void Y8950::Slot::slotOn()
 	}
 }
 
-// Slot key off 
+// Slot key off
 void Y8950::Slot::slotOff()
 {
 	if (slotStatus) {
@@ -386,28 +386,28 @@ void Y8950::Channel::reset()
 	alg = false;
 }
 
-// Set F-Number ( fnum : 10bit ) 
+// Set F-Number ( fnum : 10bit )
 void Y8950::Channel::setFnumber(int fnum)
 {
 	car.fnum = fnum;
 	mod.fnum = fnum;
 }
 
-// Set Block data (block : 3bit ) 
+// Set Block data (block : 3bit )
 void Y8950::Channel::setBlock(int block)
 {
 	car.block = block;
 	mod.block = block;
 }
 
-// Channel key on 
+// Channel key on
 void Y8950::Channel::keyOn()
 {
 	mod.slotOn();
 	car.slotOn();
 }
 
-// Channel key off 
+// Channel key off
 void Y8950::Channel::keyOff()
 {
 	mod.slotOff();
@@ -503,14 +503,14 @@ void Y8950::reset(const EmuTime &time)
 
 	// update the output buffer before changing the register
 	Mixer::instance().updateStream(time);
-	for (int i = 0; i < 0x100; ++i) 
+	for (int i = 0; i < 0x100; ++i)
 		reg[i] = 0x00;
 
 	reg[0x04] = 0x18;
 	status = 0x00;
 	statusMask = 0;
 	irq.reset();
-	
+
 	adpcm->reset(time);
 	setMute(true);	// muted
 }
@@ -560,7 +560,7 @@ void Y8950::setRythmMode(int data)
 //                                                        //
 //********************************************************//
 
-// Convert Amp(0 to EG_HEIGHT) to Phase(0 to 4PI). 
+// Convert Amp(0 to EG_HEIGHT) to Phase(0 to 4PI).
 int Y8950::Slot::wave2_4pi(int e)
 {
 	int shift =  SLOT_AMP_BITS - PG_BITS - 1;
@@ -570,7 +570,7 @@ int Y8950::Slot::wave2_4pi(int e)
 		return e << -shift;
 }
 
-// Convert Amp(0 to EG_HEIGHT) to Phase(0 to 8PI). 
+// Convert Amp(0 to EG_HEIGHT) to Phase(0 to 8PI).
 int Y8950::Slot::wave2_8pi(int e)
 {
 	int shift = SLOT_AMP_BITS - PG_BITS - 2;
@@ -620,12 +620,12 @@ void Y8950::Slot::calc_phase()
 
 void Y8950::Slot::calc_envelope()
 {
-	#define S2E(x) (ALIGN((unsigned int)(x/SL_STEP),SL_STEP,EG_STEP)<<(EG_DP_BITS-EG_BITS)) 
+	#define S2E(x) (ALIGN((unsigned int)(x/SL_STEP),SL_STEP,EG_STEP)<<(EG_DP_BITS-EG_BITS))
 	static unsigned int SL[16] = {
 		S2E( 0), S2E( 3), S2E( 6), S2E( 9), S2E(12), S2E(15), S2E(18), S2E(21),
 		S2E(24), S2E(27), S2E(30), S2E(33), S2E(36), S2E(39), S2E(42), S2E(93)
 	};
-	
+
 	switch (eg_mode) {
 	case ATTACK:
 		eg_phase += eg_dphase;
@@ -667,7 +667,7 @@ void Y8950::Slot::calc_envelope()
 	case SUSTINE:
 	case RELEASE:
 		eg_phase += eg_dphase;
-		egout = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS); 
+		egout = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
 		if (egout >= (1<<EG_BITS)) {
 			eg_mode = FINISH;
 			egout = (1<<EG_BITS) - 1;
@@ -681,7 +681,7 @@ void Y8950::Slot::calc_envelope()
 
 	if (patch.AM)
 		egout = ALIGN(egout+tll,EG_STEP,DB_STEP) + (*plfo_am);
-	else 
+	else
 		egout = ALIGN(egout+tll,EG_STEP,DB_STEP);
 	if (egout >= DB_MUTE)
 		egout = DB_MUTE-1;
@@ -689,7 +689,7 @@ void Y8950::Slot::calc_envelope()
 
 int Y8950::Slot::calc_slot_car(int fm)
 {
-	calc_envelope(); 
+	calc_envelope();
 	calc_phase();
 	if (egout>=(DB_MUTE-1))
 		return 0;
@@ -699,7 +699,7 @@ int Y8950::Slot::calc_slot_car(int fm)
 int Y8950::Slot::calc_slot_mod()
 {
 	output[1] = output[0];
-	calc_envelope(); 
+	calc_envelope();
 	calc_phase();
 
 	if (egout>=(DB_MUTE-1)) {
@@ -709,7 +709,7 @@ int Y8950::Slot::calc_slot_mod()
 		output[0] = dB2LinTab[sintable[(pgout+fm)&(PG_WIDTH-1)] + egout];
 	} else
 		output[0] = dB2LinTab[sintable[pgout] + egout];
-	
+
 	feedback = (output[1] + output[0])>>1;
 	return feedback;
 }
@@ -717,7 +717,7 @@ int Y8950::Slot::calc_slot_mod()
 // TOM
 int Y8950::Slot::calc_slot_tom()
 {
-	calc_envelope(); 
+	calc_envelope();
 	calc_phase();
 	if (egout>=(DB_MUTE-1))
 		return 0;
@@ -765,7 +765,7 @@ int Y8950::calcSample(int channelMask)
 {
 	// while muted update_ampm() and update_noise() aren't called, probably ok
 	update_ampm();
-	update_noise();      
+	update_noise();
 
 	int mix = 0;
 
@@ -783,7 +783,7 @@ int Y8950::calcSample(int channelMask)
 		if (ch[8].mod.eg_mode != FINISH)
 			mix += ch[8].mod.calc_slot_tom();
 		if (channelMask & (1 << 8))
-			mix += ch[8].car.calc_slot_cym(noiseA, noiseB);	
+			mix += ch[8].car.calc_slot_cym(noiseA, noiseB);
 
 		channelMask &= (1<< 6) - 1;
 		mix *= 2;
@@ -794,11 +794,11 @@ int Y8950::calcSample(int channelMask)
 				mix += cp->car.calc_slot_car(0) +
 				       cp->mod.calc_slot_mod();
 			else
-				mix += cp->car.calc_slot_car( 
+				mix += cp->car.calc_slot_car(
 				         cp->mod.calc_slot_mod());
 		}
 	}
-	
+
 	mix += adpcm->calcSample();
 
 	return (mix*maxVolume) >> DB2LIN_AMP_BITS;
@@ -827,7 +827,7 @@ bool Y8950::checkMuteHelper()
 		if (ch[8].mod.eg_mode != FINISH) return false;
 		if (ch[8].car.eg_mode != FINISH) return false;
 	}
-	
+
 	return adpcm->muted();
 }
 
@@ -913,12 +913,12 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 			reg[rg] = data;
 			break;
 
-		case 0x03: // TIMER2 (reso. 320us) 
+		case 0x03: // TIMER2 (reso. 320us)
 			timer2.setValue(data);
 			reg[rg] = data;
 			break;
 
-		case 0x04: // FLAG CONTROL 
+		case 0x04: // FLAG CONTROL
 			if (data & R04_IRQ_RESET) {
 				resetStatus(0x78);	// reset all flags
 			} else {
@@ -929,28 +929,28 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 			}
 			break;
 
-		case 0x06: // (KEYBOARD OUT) 
+		case 0x06: // (KEYBOARD OUT)
 			connector->write(data, time);
 			reg[rg] = data;
 			break;
-		
+
 		case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET
-		case 0x08: // CSM/KEY BOARD SPLIT/-/-/SAMPLE/DA AD/64K/ROM 
-		case 0x09: // START ADDRESS (L) 
-		case 0x0A: // START ADDRESS (H) 
-		case 0x0B: // STOP ADDRESS (L) 
-		case 0x0C: // STOP ADDRESS (H) 
-		case 0x0D: // PRESCALE (L) 
-		case 0x0E: // PRESCALE (H) 
-		case 0x0F: // ADPCM-DATA 
-		case 0x10: // DELTA-N (L) 
-		case 0x11: // DELTA-N (H) 
+		case 0x08: // CSM/KEY BOARD SPLIT/-/-/SAMPLE/DA AD/64K/ROM
+		case 0x09: // START ADDRESS (L)
+		case 0x0A: // START ADDRESS (H)
+		case 0x0B: // STOP ADDRESS (L)
+		case 0x0C: // STOP ADDRESS (H)
+		case 0x0D: // PRESCALE (L)
+		case 0x0E: // PRESCALE (H)
+		case 0x0F: // ADPCM-DATA
+		case 0x10: // DELTA-N (L)
+		case 0x11: // DELTA-N (H)
 		case 0x12: // ENVELOP CONTROL
 		case 0x1A: // PCM-DATA
 			reg[rg] = data;
 			adpcm->writeReg(rg, data, time);
 			break;
-		
+
 		case 0x15: // DAC-DATA  (bit9-2)
 			reg[rg] = data;
 			if (reg[0x08] & 0x04) {
@@ -967,20 +967,20 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 		case 0x17: //           (exponent)
 			reg[rg] = data & 0x07;
 			break;
-		
+
 		case 0x18: // I/O-CONTROL (bit3-0)
 			// TODO
 			// 0 -> input
 			// 1 -> output
 			reg[rg] = data;
 			break;
-		
+
 		case 0x19: // I/O-DATA (bit3-0)
 			// TODO
 			reg[rg] = data;
 			break;
 		}
-		
+
 		break;
 	}
 	case 0x20: {
@@ -1005,7 +1005,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 		}
 		reg[rg] = data;
 		break;
-	} 
+	}
 	case 0x60: {
 		int s = stbl[rg&0x1f];
 		if (s >= 0) {
@@ -1015,7 +1015,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 		}
 		reg[rg] = data;
 		break;
-	} 
+	}
 	case 0x80: {
 		int s = stbl[rg&0x1f];
 		if (s >= 0) {
@@ -1025,12 +1025,12 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 		}
 		reg[rg] = data;
 		break;
-	} 
+	}
 	case 0xa0: {
 		if (rg==0xbd) {
 			am_mode = (data>>7)&1;
 			pm_mode = (data>>6)&1;
-			
+
 			setRythmMode(data);
 			if (rythm_mode) {
 				if (data&0x10) keyOn_BD();  else keyOff_BD();
@@ -1109,20 +1109,20 @@ byte Y8950::readReg(byte rg, const EmuTime &time)
 {
 	// TODO only when necessary
 	Mixer::instance().updateStream(time);
-	
+
 	byte result;
 	switch (rg) {
 		case 0x05: // (KEYBOARD IN)
 			result = connector->read(time);
 			break;
-		
+
 		case 0x0f: // ADPCM-DATA
 		case 0x13: //  ???
 		case 0x14: //  ???
 		case 0x1a: // PCM-DATA
 			result = adpcm->readReg(rg);
 			break;
-		
+
 		case 0x19: // I/O DATA   TODO
 			result = 0;
 			break;

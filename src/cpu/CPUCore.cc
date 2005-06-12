@@ -82,7 +82,7 @@ template <class T> const EmuTime& CPUCore<T>::getCurrentTime() const
 template <class T> void CPUCore<T>::invalidateMemCache(word start, unsigned size)
 {
 	unsigned first = start / CACHE_LINE_SIZE;
-	unsigned num = (size + CACHE_LINE_SIZE - 1) / CACHE_LINE_SIZE; 
+	unsigned num = (size + CACHE_LINE_SIZE - 1) / CACHE_LINE_SIZE;
 	memset(&readCacheLine  [first], 0, num * sizeof(byte*)); // NULL
 	memset(&writeCacheLine [first], 0, num * sizeof(byte*)); //
 	memset(&readCacheTried [first], 0, num * sizeof(bool));  // FALSE
@@ -122,7 +122,7 @@ template <class T> void CPUCore<T>::reset(const EmuTime& time)
 	memptr = 0xFFFF;
 	invalidateMemCache(0x0000, 0x10000);
 	T::clock.reset(time);
-	
+
 	assert(NMIStatus == 0); // other devices must reset their NMI source
 	assert(IRQStatus == 0); // other devices must reset their IRQ source
 }
@@ -689,7 +689,7 @@ template <class T> void CPUCore<T>::ld_xhl_l() { WR_HL_X(R.getL()); }
 
 // LD (HL),n
 template <class T> void CPUCore<T>::ld_xhl_byte()
-{ 
+{
 	byte val = RDMEM_OPCODE(R.PC++);
 	WR_HL_X(val);
 }
@@ -1130,7 +1130,7 @@ template <class T> inline void CPUCore<T>::XOR(byte reg)
 {
 	R.setA(R.getA() ^ reg);
 	R.setF(ZSPXYTable[R.getA()]);
-	
+
 }
 template <class T> void CPUCore<T>::xor_a()   { XOR(R.getA()); }
 template <class T> void CPUCore<T>::xor_b()   { XOR(R.getB()); }
@@ -1327,7 +1327,7 @@ template <class T> void CPUCore<T>::inc_sp() { ++R.SP; T::INC_16_DELAY(); }
 // BIT n,r
 template <class T> inline void CPUCore<T>::BIT(byte b, byte reg)
 {
-	R.setF((R.getF() & C_FLAG) | 
+	R.setF((R.getF() & C_FLAG) |
 	       ZSPTable[reg & (1 << b)] |
 	       (reg & (X_FLAG | Y_FLAG)) |
 	       H_FLAG);
@@ -1409,8 +1409,8 @@ template <class T> void CPUCore<T>::bit_7_xhl() { BIT_HL(7); }
 template <class T> inline void CPUCore<T>::BIT_IX(byte bit)
 {
 	memptr = R.IX + ofst;
-	R.setF((R.getF() & C_FLAG) | 
-	       ZSPTable[RDMEM(memptr) & (1 << bit)] | 
+	R.setF((R.getF() & C_FLAG) |
+	       ZSPTable[RDMEM(memptr) & (1 << bit)] |
 	       H_FLAG |
 	       (memptr >> 8) & (X_FLAG | Y_FLAG));
 	T::SMALL_DELAY();
@@ -1427,8 +1427,8 @@ template <class T> void CPUCore<T>::bit_7_xix() { BIT_IX(7); }
 template <class T> inline void CPUCore<T>::BIT_IY(byte bit)
 {
 	memptr = R.IY + ofst;
-	R.setF((R.getF() & C_FLAG) | 
-	       ZSPTable[RDMEM(memptr) & (1 << bit)] | 
+	R.setF((R.getF() & C_FLAG) |
+	       ZSPTable[RDMEM(memptr) & (1 << bit)] |
 	       H_FLAG |
 	       (memptr >> 8) & (X_FLAG | Y_FLAG));
 	T::SMALL_DELAY();
@@ -1507,7 +1507,7 @@ template <class T> void CPUCore<T>::res_7_l() { R.setL(RES(7, R.getL())); }
 
 template <class T> inline byte CPUCore<T>::RES_X(byte bit, word x)
 {
-	byte res = RES(bit, RDMEM(x)); 
+	byte res = RES(bit, RDMEM(x));
 	T::INC_DELAY();
 	WRMEM(x, res);
 	return res;
@@ -1732,7 +1732,7 @@ template <class T> void CPUCore<T>::set_7_l() { R.setL(SET(7, R.getL())); }
 
 template <class T> inline byte CPUCore<T>::SET_X(byte bit, word x)
 {
-	byte res = SET(bit, RDMEM(x)); 
+	byte res = SET(bit, RDMEM(x));
 	T::INC_DELAY();
 	WRMEM(x, res);
 	return res;
@@ -2422,7 +2422,7 @@ template <class T> void CPUCore<T>::retn()
 	T::RETN_DELAY();
 	R.IFF1 = R.nextIFF1 = R.IFF2;
 	slowInstructions = 2;
-	RET(); 
+	RET();
 }
 
 
@@ -2542,7 +2542,7 @@ template <class T> inline void CPUCore<T>::BLOCK_CP(bool increase, bool repeat)
 	byte val = RDMEM(R.HL);
 	T::BLOCK_DELAY();
 	byte res = R.getA() - val;
-	if (increase) R.HL++; else R.HL--; 
+	if (increase) R.HL++; else R.HL--;
 	R.BC--;
 	byte f = (R.getF() & C_FLAG) |
 	         ((R.getA() ^ val ^ res) & H_FLAG) |
@@ -2589,7 +2589,7 @@ template <class T> inline void CPUCore<T>::BLOCK_IN(bool increase, bool repeat)
 	byte val = READ_PORT(R.BC);
 	byte b = R.getB() - 1; R.setB(b);
 	WRMEM(R.HL, val);
-	if (increase) R.HL++; else R.HL--; 
+	if (increase) R.HL++; else R.HL--;
 	byte f = ZSTable[b];
 	if (val & S_FLAG) f |= N_FLAG;
 	int k = val + ((R.getC() + (increase ? 1 : -1)) & 0xFF);
@@ -2610,7 +2610,7 @@ template <class T> inline void CPUCore<T>::BLOCK_OUT(bool increase, bool repeat)
 	byte val = RDMEM(R.HL);
 	byte b = R.getB() - 1; R.setB(b);
 	WRITE_PORT(R.BC, val);
-	if (increase) R.HL++; else R.HL--; 
+	if (increase) R.HL++; else R.HL--;
 	byte f = ZSXYTable[b];
 	if (val & S_FLAG) f |= N_FLAG;
 	int k = val + R.getL();
@@ -2655,7 +2655,7 @@ template <class T> void CPUCore<T>::neg()
 	 SUB(i);
 }
 template <class T> void CPUCore<T>::scf()
-{ 
+{
 	R.setF((R.getF() & (S_FLAG | Z_FLAG | P_FLAG)) |
 	       C_FLAG |
 	       (R.getA() & (X_FLAG | Y_FLAG)));

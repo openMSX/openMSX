@@ -19,7 +19,7 @@ protected:
 	VideoSourceSettingPolicy(const std::string& name, const Map& map);
 	virtual void checkSetValue(VideoSource& value) const;
 	VideoSource checkGetValue(VideoSource value) const;
-	
+
 	std::set<VideoSource> activeSources;
 };
 

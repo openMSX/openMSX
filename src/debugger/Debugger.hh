@@ -27,7 +27,7 @@ public:
 private:
 	Debugger();
 	~Debugger();
-	
+
 	Debuggable* getDebuggable(const std::string& name);
 	void getDebuggables(std::set<std::string>& result) const;
 
@@ -53,10 +53,10 @@ private:
 		           CommandArgument& result);
 		void writeBlock(const std::vector<CommandArgument>& tokens,
 		                CommandArgument& result);
-		
+
 		Debugger& parent;
 	} debugCmd;
-	
+
 	std::map<std::string, Debuggable*> debuggables;
 	CommandController& commandController;
 	MSXCPU* cpu;

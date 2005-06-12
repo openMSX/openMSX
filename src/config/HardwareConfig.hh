@@ -19,7 +19,7 @@ public:
 private:
 	HardwareConfig();
 	~HardwareConfig();
-	
+
 	std::map<std::string, unsigned> idMap;
 };
 

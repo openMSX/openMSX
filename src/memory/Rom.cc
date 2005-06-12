@@ -137,7 +137,7 @@ void Rom::read(const XMLElement& config, const string& filename)
 	} catch (FileException& e) {
 		throw FatalError("Error reading ROM: " + filename);
 	}
-	
+
 	// get filesize
 	int fileSize;
 	string fileSizeStr = config.getChildData("filesize", "auto");
@@ -146,14 +146,14 @@ void Rom::read(const XMLElement& config, const string& filename)
 	} else {
 		fileSize = StringOp::stringToInt(fileSizeStr);
 	}
-	
+
 	// get offset
 	int offset = config.getChildDataAsInt("skip_headerbytes", 0);
 	if (fileSize <= offset) {
 		throw FatalError("Offset greater than filesize");
 	}
 	size = fileSize - offset;
-	
+
 	// read file
 	byte* tmp = 0;	// avoid warning
 	try {

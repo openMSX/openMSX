@@ -14,7 +14,7 @@ class KeyEvent : public Event
 public:
 	Keys::KeyCode getKeyCode() const { return keyCode; }
 	word getUnicode() const { return unicode; }
-	
+
 protected:
 	KeyEvent(EventType type, Keys::KeyCode keyCode_, word unicode_) :
 		Event(type), keyCode(keyCode_), unicode(unicode_) {}
@@ -46,7 +46,7 @@ public:
 		LEFT, RIGHT, MIDDLE, OTHER
 	};
 	Button getButton() const { return button; }
-	
+
 protected:
 	MouseButtonEvent(EventType type, Button button_)
 		: Event(type), button(button_) {}
@@ -101,7 +101,7 @@ class JoystickButtonEvent : public JoystickEvent
 {
 public:
 	unsigned getButton() const { return button; }
-	
+
 protected:
 	JoystickButtonEvent(EventType type, unsigned joystick, unsigned button_)
 		: JoystickEvent(type, joystick), button(button_) {}
@@ -149,7 +149,7 @@ public:
 		: Event(OPENMSX_FOCUS_EVENT), gain(gain_) {}
 
 	bool getGain() const { return gain; }
-	
+
 private:
 	bool gain;
 };

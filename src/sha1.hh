@@ -26,7 +26,7 @@ public:
 private:
 	void transform(const byte buffer[64]);
 	void finalize();
-	
+
 	uint32 m_state[5];
 	uint64 m_count;
 	byte m_buffer[64];

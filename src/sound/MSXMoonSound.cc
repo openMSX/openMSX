@@ -53,7 +53,7 @@ byte MSXMoonSound::readIO(byte port, const EmuTime& time)
 		switch (port & 0x03) {
 		case 0: // read status
 		case 2:
-			result = ymf262->readStatus() | 
+			result = ymf262->readStatus() |
 			         ymf278->readStatus(time);
 			break;
 		case 1:
@@ -90,7 +90,7 @@ byte MSXMoonSound::peekIO(byte port, const EmuTime& time) const
 		switch (port & 0x03) {
 		case 0: // read status
 		case 2:
-			result = ymf262->peekStatus() | 
+			result = ymf262->peekStatus() |
 			         ymf278->peekStatus(time);
 			break;
 		case 1:
@@ -123,7 +123,7 @@ void MSXMoonSound::writeIO(byte port, byte value, const EmuTime& time)
 	} else {
 		// FM part  0xC4-0xC7
 		switch (port & 0x03) {
-		case 0: // select register bank 0 
+		case 0: // select register bank 0
 			opl3latch = value;
 			break;
 		case 2: // select register bank 1

@@ -10,16 +10,16 @@ namespace openmsx {
 
 namespace Unicode {
 
-/* decodes a a string possibly containing UTF-8 sequences to a 
+/* decodes a a string possibly containing UTF-8 sequences to a
  * string of 8-bit characters.
  * characters >= 0x100 are mapped to '?' for now
- * this implementation follows the guidelines in 
+ * this implementation follows the guidelines in
  * http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
  * except for the following:
  *  - the two byte seqence 0xC0 0x80 for '\0' is allowed
  *  - surrogates are ignored
  *
- * 
+ *
  * TODO: catch surrogates
  * TODO: respond to malformed sequences in a more appropriate way
  */
@@ -43,10 +43,10 @@ string utf8ToAscii(const string & utf8)
 		case 0xC0:
 			char nbyte, mask, i;
 			unsigned int uni;
-			for (mask=0x20, first-=0xC0, nbyte=2 ; 
+			for (mask=0x20, first-=0xC0, nbyte=2 ;
 					 first & mask ; mask >>= 1, ++nbyte)
 				first-=mask;
-			if (nbyte>6) { 
+			if (nbyte>6) {
 				bad_utf("illegal byte");
 				uni=0xFFFD;
 				nbyte=0;

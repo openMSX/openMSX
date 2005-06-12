@@ -16,7 +16,7 @@ IDEDevice* IDEDeviceFactory::create(const XMLElement& config,
 	if (type == "IDEHD") {
 		return new IDEHD(config, time);
 	}
-	
+
 	throw FatalError("Unknown IDE device: " + type);
 }
 

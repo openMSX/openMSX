@@ -52,10 +52,10 @@ void HardwareConfig::loadHardware(XMLElement& root, const string& path,
 		assert(pos != string::npos);	// protocol must contain a '/'
 		url = url.substr(0, pos);
 		PRT_DEBUG("Hardware config: url "<<url);
-		
+
 		// TODO get user name
 		string userName;
-		
+
 		ConfigFileContext context2(url + '/', hwName, userName);
 		while (!doc->getChildren().empty()) {
 			auto_ptr<XMLElement> elem(doc->removeChild(

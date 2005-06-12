@@ -17,13 +17,13 @@ class MSXMemoryMapper : public MSXDevice
 public:
 	MSXMemoryMapper(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXMemoryMapper();
-	
+
 	virtual void powerUp(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
-	
+
 	virtual void reset(const EmuTime& time);
 
 protected:

@@ -16,7 +16,7 @@ public:
 	const std::string resolve(const std::string& filename);
 	const std::string resolveCreate(const std::string& filename);
 	const std::vector<std::string>& getPaths() const;
-	
+
 	virtual FileContext* clone() const = 0;
 
 protected:
@@ -39,7 +39,7 @@ public:
 
 private:
 	ConfigFileContext(const ConfigFileContext& rhs);
-	
+
 	static std::map<std::string, int> nonames;
 };
 

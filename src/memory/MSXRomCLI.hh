@@ -23,7 +23,7 @@ public:
 private:
 	void parse(const std::string& arg, const std::string& slotname,
 	           std::list<std::string>& cmdLine);
-	
+
 	int cartridgeNr;
 
 	class IpsOption : public CLIOption {

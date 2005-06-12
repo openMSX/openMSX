@@ -398,7 +398,7 @@ void GLRasterizer::setPalette(
 		dirtyColour.flush();
 		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 	}
-	
+
 	precalcColourIndex0(vdp->getDisplayMode(), vdp->getTransparency(),
 	                    vdp->getBackgroundColour());
 }

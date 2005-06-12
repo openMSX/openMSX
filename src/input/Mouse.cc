@@ -108,7 +108,7 @@ void Mouse::emulateJoystick()
 	if ((absx < TRESHOLD) && (absy < TRESHOLD)) {
 		return;
 	}
-	
+
 	// tan(pi/8) ~= 5/12
 	if (deltax > 0) {
 		if (deltay > 0) {
@@ -150,7 +150,7 @@ void Mouse::write(byte value, const EmuTime& time)
 	if (mouseMode) {
 		// TODO figure out the timeout mechanism
 		//      does it exist at all?
-		
+
 		const int TIMEOUT = 1000;	// TODO find a good value
 		int delta = lastTime.getTicksTill(time);
 		lastTime.advance(time);

@@ -30,7 +30,7 @@ SDLFont::SDLFont(File* file, SDL_Surface* surface)
 	}
 	fontSurface = SDL_DisplayFormatAlpha(image1);
 	SDL_FreeSurface(image1);
-	
+
 	charWidth  = fontSurface->w / CHARS_PER_ROW;
 	charHeight = fontSurface->h / CHARS_PER_COL;
 

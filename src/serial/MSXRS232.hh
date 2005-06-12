@@ -61,7 +61,7 @@ private:
 	private:
 		MSXRS232& rs232;
 	} cntr0;
-	
+
 	// counter 1 tx clock pin
 	class Counter1 : public ClockPinListener {
 	public:
@@ -74,7 +74,7 @@ private:
 	private:
 		MSXRS232& rs232;
 	} cntr1;
-	
+
 	const std::auto_ptr<I8254> i8254;
 
 	// I8251Interface
@@ -95,7 +95,7 @@ private:
 	private:
 		MSXRS232& rs232;
 	} interf;
-	
+
 	const std::auto_ptr<I8251> i8251;
 	const std::auto_ptr<Rom> rom;
 	std::auto_ptr<Ram> ram;

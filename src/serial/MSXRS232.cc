@@ -11,7 +11,7 @@ namespace openmsx {
 
 const unsigned RAM_OFFSET = 0x2000;
 const unsigned RAM_SIZE = 0x800;
-	
+
 MSXRS232::MSXRS232(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
 	, RS232Connector("msx-rs232")
@@ -26,7 +26,7 @@ MSXRS232::MSXRS232(const XMLElement& config, const EmuTime& time)
 	if (config.getChildDataAsBool("ram", false)) {
 		ram.reset(new Ram(MSXDevice::getName() + " RAM", "RS232 RAM", RAM_SIZE));
 	}
-	
+
 	EmuDuration total(1.0 / 1.8432e6); // 1.8432MHz
 	EmuDuration hi   (1.0 / 3.6864e6); //   half clock period
 	i8254->getClockPin(0).setPeriodicState(total, hi, time);

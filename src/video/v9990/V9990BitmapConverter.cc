@@ -142,7 +142,7 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYJKP(
 		for (int i = 0; i < 4; ++i) {
 			data[i] = vram->readVRAM(address++);
 		}
-		
+
 		char j = (data[2] & 7) + ((data[3] & 3) << 3) - ((data[3] & 4) << 3);
 		char k = (data[0] & 7) + ((data[1] & 3) << 3) - ((data[3] & 4) << 3);
 
@@ -358,7 +358,7 @@ void V9990BitmapConverter<Pixel, zoom>::blend_4on3(
 	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; p += 4) {
-		*outPixels++ = blendPixels2<3, 1>(&inPixels[p + 0]); 
+		*outPixels++ = blendPixels2<3, 1>(&inPixels[p + 0]);
 		*outPixels++ = blendPixels2<1, 1>(&inPixels[p + 1]);
 		*outPixels++ = blendPixels2<1, 3>(&inPixels[p + 2]);
 	}
@@ -451,7 +451,7 @@ void V9990BitmapConverter<Pixel, zoom>::drawCursor(
 		// don't display
 		return;
 	}
-	
+
 	unsigned pattern = (vram->readVRAM(patAddr + 4 * cursorLine + 0) << 24)
 	                 + (vram->readVRAM(patAddr + 4 * cursorLine + 1) << 16)
 	                 + (vram->readVRAM(patAddr + 4 * cursorLine + 2) <<  8)
@@ -461,7 +461,7 @@ void V9990BitmapConverter<Pixel, zoom>::drawCursor(
 		return;
 	}
 	unsigned x = vram->readVRAM(attrAddr + 4) + (attr & 3) * 256;
-	
+
 	// TODO EOR colors
 	Pixel color = palette64[(vdp->getPaletteOffset() << 2) + (attr >> 6)];
 	for (int i = 0; i < 32; ++i) {

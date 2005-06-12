@@ -23,14 +23,14 @@ public:
 	  * 	the created thread when it starts running.
 	  */
 	Thread(Runnable* runnable);
-	
+
 	~Thread();
-	
+
 	/** Start this thread.
 	  * It is not allowed to call this method on a running thread.
 	  */
 	void start();
-	
+
 	/** Destroys this thread.
 	  * Only use this method as a last resort, because it kills the thread
 	  * with no regard for locks or resources the thread may be holding,
@@ -38,7 +38,7 @@ public:
 	  * If this method is called on a stopped thread, nothing happens.
 	  */
 	void stop();
-	
+
 	/** Waits for this thread to terminate.
 	  * It is not allowed to call this method on a stopped thread.
 	  */

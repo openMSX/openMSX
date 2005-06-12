@@ -19,7 +19,7 @@ class SectorAccessibleDisk;
 
 class MSXtar
 {
-public: 
+public:
 	MSXtar(SectorAccessibleDisk& disk);
 
 	void format();
@@ -66,7 +66,7 @@ private:
 		byte startcluster[2];
 		byte size[4];
 	};
-	
+
 	struct FullMSXDirEntry {
 		byte* sectorbuf;
 		int sector;

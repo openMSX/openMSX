@@ -11,7 +11,7 @@ enum V9990DisplayMode {
 };
 
 enum V9990ColorMode {
-	INVALID_COLOR_MODE = -1, 
+	INVALID_COLOR_MODE = -1,
 	PP, BYUV, BYUVP, BYJK, BYJKP, BD16, BD8, BP6, BP4, BP2
 };
 

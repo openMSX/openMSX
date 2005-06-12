@@ -15,11 +15,11 @@ class WD2793BasedFDC : public MSXFDC
 {
 public:
 	virtual void reset(const EmuTime& time);
-	
+
 protected:
 	WD2793BasedFDC(const XMLElement& config, const EmuTime& time);
 	virtual ~WD2793BasedFDC();
-	
+
 	const std::auto_ptr<DriveMultiplexer> multiplexer;
 	const std::auto_ptr<WD2793> controller;
 };

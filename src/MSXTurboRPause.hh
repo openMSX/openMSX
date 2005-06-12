@@ -2,8 +2,8 @@
 
 /*
  * This class implements the 2 Turbo-R specific LEDS:
- *  
- * Bit 0 of IO-port 0xA7 turns the PAUSE led ON (1) or OFF (0) 
+ *
+ * Bit 0 of IO-port 0xA7 turns the PAUSE led ON (1) or OFF (0)
  * Bit 7                           TURBO
  * TODO merge doc below
  */
@@ -42,7 +42,7 @@ private:
 	void update(const Setting* setting);
 
 	void updatePause();
-	
+
 	BooleanSetting pauseSetting;
 	byte status;
 	bool pauseLed;

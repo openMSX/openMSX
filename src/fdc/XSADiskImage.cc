@@ -23,7 +23,7 @@ XSADiskImage::XSADiskImage(const string& fileName)
 	inbufpos = inbuf;
 	file.seek(0);
 	file.read(inbuf, fileSize);
-	
+
 	chkheader();
 	inithufinfo();	// initialize the cpdist tables
 	unlz77();
@@ -77,10 +77,10 @@ void XSADiskImage::chkheader()
 		origLen += base * charin();
 	}
 	nbSectors = origLen / 512;
-	
+
 	// skip compressed length
 	inbufpos += 4;
-	
+
 	outbuf = new byte[origLen];
 	outbufpos = outbuf;
 
@@ -92,7 +92,7 @@ void XSADiskImage::chkheader()
 void XSADiskImage::unlz77()
 {
 	bitcnt = 0;	// no bits read yet
-	
+
 	while (true) {
 		if (bitin()) {
 			// 1-bit

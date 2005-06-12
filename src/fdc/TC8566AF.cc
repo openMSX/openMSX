@@ -573,7 +573,7 @@ void TC8566AF::writeDataTransferPhase(byte data, const EmuTime& /*time*/)
 			}
 		}
 		break;
-	
+
 	case CMD_FORMAT:
 		switch(PhaseStep & 3) {
 		case 0:

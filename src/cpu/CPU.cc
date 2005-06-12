@@ -71,7 +71,7 @@ CPU::CPU()
 		if (nf ? (hf && (lo <= 5)) : (lo >= 10)) {
 			res_f |= H_FLAG;
 		}
-		DAATable[x] = (res_a << 8) + res_f; 
+		DAATable[x] = (res_a << 8) + res_f;
 	}
 }
 

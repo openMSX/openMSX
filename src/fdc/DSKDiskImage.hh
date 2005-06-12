@@ -12,7 +12,7 @@ class File;
 
 class DSKDiskImage : public SectorBasedDisk
 {
-public: 
+public:
 	DSKDiskImage(const std::string& fileName);
 	virtual ~DSKDiskImage();
 

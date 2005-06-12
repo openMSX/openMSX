@@ -13,10 +13,10 @@ class RS232Device : public Pluggable, public SerialDataInterface
 public:
 	// Pluggable (part)
 	virtual const std::string& getClass() const;
-	
+
 	// input
 	virtual void signal(const EmuTime& time) = 0;
-	
+
 	// SerialDataInterface (part) (output)
 	virtual void setDataBits(DataBits bits);
 	virtual void setStopBits(StopBits bits);

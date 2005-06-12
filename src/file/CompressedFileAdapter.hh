@@ -35,7 +35,7 @@ protected:
 
 private:
 	void fillBuffer();
-	
+
 	unsigned pos;
 	static int tmpCount;	   // nb of files in tmp dir
 	static std::string tmpDir; // name of tmp dir (when tmpCount > 0)

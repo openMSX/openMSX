@@ -17,18 +17,18 @@ namespace StringOp
 		s << t;
 		return s.str();
 	}
-	
+
 	template <typename T> std::string toHexString(const T& t)
 	{
 		std::ostringstream s;
 		s << std::hex << t;
 		return s.str();
 	}
-	
+
 	int stringToInt(const std::string& str);
 	bool stringToBool(const std::string& str);
 	double stringToDouble(const std::string& str);
-	
+
 	std::string toLower(const std::string& str);
 
 	// case insensitive less then operator

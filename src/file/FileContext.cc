@@ -57,7 +57,7 @@ string FileContext::resolve(const vector<string>& pathList,
 		// protocol specified or absolute path, don't resolve
 		return filepath;
 	}
-	
+
 	for (vector<string>::const_iterator it = pathList.begin();
 	     it != pathList.end();
 	     ++it) {
@@ -124,7 +124,7 @@ SystemFileContext::SystemFileContext(bool preferSystemDir)
 {
 	string userDir   = FileOperations::getUserDataDir()   + '/';
 	string systemDir = FileOperations::getSystemDataDir() + '/';
-	
+
 	if (preferSystemDir) {
 		paths.push_back(systemDir);
 		paths.push_back(userDir);
@@ -206,7 +206,7 @@ UserFileContext::UserFileContext(const string& savePath, bool skipUserDirs)
 				"user directories: " + e.getMessage());
 		}
 	}
-	
+
 	if (!savePath.empty()) {
 		savePaths.push_back(FileOperations::getUserOpenMSXDir() +
 		                    "/persistent/" + savePath + '/');

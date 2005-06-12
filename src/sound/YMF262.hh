@@ -64,7 +64,7 @@ public:
 	byte ksr;	// key scale rate: kcode>>KSR
 	byte mul;	// multiple: mul_tab[ML]
 
-	// Phase Generator 
+	// Phase Generator
 	unsigned Cnt;	// frequency counter
 	unsigned Incr;	// frequency counter step
 	byte FB;	// feedback shift value
@@ -72,8 +72,8 @@ public:
 	int op1_out[2];	// slot1 output for feedback
 	byte CON;	// connection (algorithm) type
 
-	// Envelope Generator 
-	byte eg_type;	// percussive/non-percussive mode 
+	// Envelope Generator
+	byte eg_type;	// percussive/non-percussive mode
 	byte state;	// phase type
 	unsigned TL;	// total level: TL << 2
 	int TLL;	// adjusted now TL
@@ -92,11 +92,11 @@ public:
 
 	byte key;	// 0 = KEY OFF, >0 = KEY ON
 
-	// LFO 
-	byte  AMmask;	// LFO Amplitude Modulation enable mask 
+	// LFO
+	byte  AMmask;	// LFO Amplitude Modulation enable mask
 	byte vib;	// LFO Phase Modulation enable flag (active high)
 
-	// waveform select 
+	// waveform select
 	byte waveform_number;
 	unsigned int wavetable;
 };
@@ -124,7 +124,7 @@ public:
 	//  9 and 12,
 	//  10 and 13,
 	//  11 and 14
-	byte extended;	// set to 1 if this channel forms up a 4op channel with another channel(only used by first of pair of channels, ie 0,1,2 and 9,10,11) 
+	byte extended;	// set to 1 if this channel forms up a 4op channel with another channel(only used by first of pair of channels, ie 0,1,2 and 9,10,11)
 };
 
 class YMF262 : private SoundDevice, private EmuTimerCallback, private Debuggable
@@ -132,14 +132,14 @@ class YMF262 : private SoundDevice, private EmuTimerCallback, private Debuggable
 public:
 	YMF262(const std::string& name, const XMLElement& config, const EmuTime& time);
 	virtual ~YMF262();
-	
+
 	virtual void reset(const EmuTime& time);
 	void writeReg(int r, byte v, const EmuTime& time);
 	byte readReg(int reg);
 	byte peekReg(int reg) const;
 	byte readStatus();
 	byte peekStatus() const;
-	
+
 private:
 	// SoundDevice
 	virtual const std::string& getName() const;
@@ -153,7 +153,7 @@ private:
 	//virtual const std::string& getDescription() const;  // also in SoundDevice!!
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
-	
+
 	void callback(byte flag);
 
 	void writeRegForce(int r, byte v, const EmuTime& time);
@@ -175,18 +175,18 @@ private:
 	byte reg[512];
 	YMF262Channel channels[18];	// OPL3 chips have 18 channels
 
-	unsigned pan[18*4];		// channels output masks (0xffffffff = enable); 4 masks per one channel 
+	unsigned pan[18*4];		// channels output masks (0xffffffff = enable); 4 masks per one channel
 
 	unsigned eg_cnt;		// global envelope generator counter
-	unsigned eg_timer;		// global envelope generator counter works at frequency = chipclock/288 (288=8*36) 
+	unsigned eg_timer;		// global envelope generator counter works at frequency = chipclock/288 (288=8*36)
 	unsigned eg_timer_add;		// step of eg_timer
 
 	unsigned fn_tab[1024];		// fnumber->increment counter
 
-	// LFO 
+	// LFO
 	byte LFO_AM;
 	byte LFO_PM;
-	
+
 	byte lfo_am_depth;
 	byte lfo_pm_depth_range;
 	unsigned lfo_am_cnt;
@@ -207,23 +207,23 @@ private:
 	byte statusMask;		// status mask
 	IRQHelper irq;
 
-	// Bitmask for register 0x04 
+	// Bitmask for register 0x04
 	static const int R04_ST1          = 0x01;	// Timer1 Start
 	static const int R04_ST2          = 0x02;	// Timer2 Start
-	static const int R04_MASK_T2      = 0x20;	// Mask Timer2 flag 
-	static const int R04_MASK_T1      = 0x40;	// Mask Timer1 flag 
-	static const int R04_IRQ_RESET    = 0x80;	// IRQ RESET 
+	static const int R04_MASK_T2      = 0x20;	// Mask Timer2 flag
+	static const int R04_MASK_T1      = 0x40;	// Mask Timer1 flag
+	static const int R04_IRQ_RESET    = 0x80;	// IRQ RESET
 
-	// Bitmask for status register 
+	// Bitmask for status register
 	static const int STATUS_T2      = R04_MASK_T2;
 	static const int STATUS_T1      = R04_MASK_T1;
 	// Timers (see EmuTimer class for details about timing)
 	EmuTimerOPL4_1 timer1; //  80.8us OPL4  ( 80.5us OPL3)
 	EmuTimerOPL4_2 timer2; // 323.1us OPL4  (321.8us OPL3)
 
-	int chanout[18];		// 18 channels 
+	int chanout[18];		// 18 channels
 	int maxVolume;
-	
+
 	const std::string name;
 };
 

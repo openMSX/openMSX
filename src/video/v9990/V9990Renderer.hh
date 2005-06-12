@@ -21,7 +21,7 @@ class V9990Renderer
 {
 public:
 	/** Create a new V9990Renderer.
-	  */ 
+	  */
 	V9990Renderer();
 
 	/** Destroy this V9990Renderer.
@@ -29,7 +29,7 @@ public:
 	virtual ~V9990Renderer();
 
 	/** Re-initialise the V9990Renderer's state.
-	  * @param time The moment in emulated time this reset occurs. 
+	  * @param time The moment in emulated time this reset occurs.
 	  */
 	virtual void reset(const EmuTime& time) = 0;
 
@@ -41,12 +41,12 @@ public:
 	  * @param time The moment in emulated time the frame starts.
 	  */
 	virtual void frameStart(const EmuTime& time) = 0;
-	
-	/** Signal the end of the current frame.  
+
+	/** Signal the end of the current frame.
 	  * @param time The moment in emulated time the frame ends.
 	  */
 	virtual void frameEnd(const EmuTime& time) = 0;
-	
+
 	/** Render until the given point in emulated time
 	  * @param time The moment in emulated time the frame ends.
 	  */
@@ -59,7 +59,7 @@ public:
 	 *  @param time The moment in emulated time this change occurs.
 	 */
 	virtual void updateDisplayEnabled(bool enabled, const EmuTime& time) = 0;
-	
+
 	/** Set screen mode
 	  */
 	virtual void setDisplayMode(V9990DisplayMode mode,
@@ -89,7 +89,7 @@ public:
 	virtual void updateScrollAY(const EmuTime& time) = 0;
 	virtual void updateScrollBX(const EmuTime& time) = 0;
 	virtual void updateScrollBY(const EmuTime& time) = 0;
-	
+
 protected:
 	RenderSettings& settings;
 };

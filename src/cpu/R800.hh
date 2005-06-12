@@ -114,13 +114,13 @@ protected:
 	{
 		clock += memoryDelay[address >> 14] + OFFSET;
 	}
-	
+
 	inline void PRE_IO (word /*port*/) { }
 	inline void POST_IO(word /*port*/) { clock += 3; }
 
 	inline void R800Refresh()
 	{
-		// documentation says refresh every 222 clocks 
+		// documentation says refresh every 222 clocks
 		//  duration:  256/1024KB  13.5 clocks
 		//             512KB       21.5 clocks
 		if (unlikely(lastRefreshTime.getTicksTill(clock.getTime()) >= 222)) {

@@ -16,7 +16,7 @@ class AfterCommand : public SimpleCommand, private EventListener
 public:
 	AfterCommand();
 	virtual ~AfterCommand();
-	
+
 	virtual std::string execute(const std::vector<std::string>& tokens);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
@@ -33,7 +33,7 @@ private:
 	// EventListener
 	virtual bool signalEvent(const Event& event);
 
-	
+
 	class AfterCmd {
 	public:
 		virtual ~AfterCmd();
@@ -59,7 +59,7 @@ private:
 	private:
 		virtual void executeUntil(const EmuTime& time, int userData);
 		virtual const std::string& schedName() const;
-		
+
 		double time;
 	};
 
@@ -68,20 +68,20 @@ private:
 		AfterTimeCmd(const std::string& command, double time);
 		virtual const std::string& getType() const;
 	};
-	
+
 	class AfterIdleCmd : public AfterTimedCmd {
 	public:
 		AfterIdleCmd(const std::string& command, double time);
 		virtual const std::string& getType() const;
 	};
-	
+
 	template<EventType T>
 	class AfterEventCmd : public AfterCmd {
 	public:
 		AfterEventCmd(const std::string& command);
 		virtual const std::string& getType() const;
 	};
-	
+
 	typedef std::map<std::string, AfterCmd*> AfterCmdMap;
 	static AfterCmdMap afterCmds;
 };

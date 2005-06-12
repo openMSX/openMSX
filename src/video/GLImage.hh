@@ -15,7 +15,7 @@ class GLImage
 public:
 	GLImage(SDL_Surface* output, const std::string& filename);
 	~GLImage();
-	
+
 	void draw(unsigned x, unsigned y, unsigned char alpha = 255);
 
 private:
@@ -23,7 +23,7 @@ private:
 	unsigned width;
 	unsigned height;
 	GLfloat texCoord[4];
-	
+
 public:
 	static GLuint loadTexture(const std::string& filename,
 	                          unsigned& width, unsigned& height,

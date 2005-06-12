@@ -59,7 +59,7 @@ private:
 	private:
 		MSXMidi& midi;
 	} cntr0;
-	
+
 	// counter 2 clock pin
 	class Counter2 : public ClockPinListener {
 	public:
@@ -72,7 +72,7 @@ private:
 	private:
 		MSXMidi& midi;
 	} cntr2;
-	
+
 	const std::auto_ptr<I8254> i8254;
 
 	// I8251Interface
@@ -93,7 +93,7 @@ private:
 	private:
 		MSXMidi& midi;
 	} interf;
-	
+
 	const std::auto_ptr<I8251> i8251;
 	const std::auto_ptr<MidiOutConnector> outConnector;
 };

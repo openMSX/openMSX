@@ -44,12 +44,12 @@ YM2413::Patch YM2413::nullPatch;
 //                                                   //
 //***************************************************//
 
-int YM2413::Slot::EG2DB(int d) 
+int YM2413::Slot::EG2DB(int d)
 {
 	return d * (int)(EG_STEP / DB_STEP);
 }
 int YM2413::TL2EG(int d)
-{ 
+{
 	return d * (int)(TL_STEP / EG_STEP);
 }
 int YM2413::Slot::SL2EG(int d)
@@ -158,8 +158,8 @@ static inline double saw(double phase)
 void YM2413::makePmTable()
 {
 	for (int i = 0; i < PM_PG_WIDTH; ++i) {
-		 pmtable[i] = (int)((double)PM_AMP * 
-		     pow(2, (double)PM_DEPTH * 
+		 pmtable[i] = (int)((double)PM_AMP *
+		     pow(2, (double)PM_DEPTH *
 		            saw(2.0 * PI * i / PM_PG_WIDTH) / 1200));
 	}
 }
@@ -184,7 +184,7 @@ void YM2413::makeDphaseTable(int sampleRate)
 	for (unsigned fnum = 0; fnum < 512; ++fnum) {
 		for (unsigned block = 0; block < 8; ++block) {
 			for (unsigned ML = 0; ML < 16; ++ML) {
-				dphaseTable[fnum][block][ML] = 
+				dphaseTable[fnum][block][ML] =
 				    rate_adjust(((fnum * mltable[ML]) << block) >>
 				                (20 - DP_BITS),
 				                sampleRate);
@@ -201,7 +201,7 @@ void YM2413::makeTllTable()
 		(18.000 * 2), (18.750 * 2), (19.125 * 2), (19.500 * 2),
 		(19.875 * 2), (20.250 * 2), (20.625 * 2), (21.000 * 2)
 	};
-  
+
 	for (int fnum = 0; fnum < 16; ++fnum) {
 		for (int block = 0; block < 8; ++block) {
 			for (int TL = 0; TL < 64; ++TL) {
@@ -229,7 +229,7 @@ void YM2413::makeDphaseARTable(int sampleRate)
 			int RM = AR + (Rks >> 2);
 			int RL = Rks & 3;
 			if (RM > 15) RM = 15;
-			switch (AR) { 
+			switch (AR) {
 			case 0:
 				dphaseARTable[AR][Rks] = 0;
 				break;
@@ -252,7 +252,7 @@ void YM2413::makeDphaseDRTable(int sampleRate)
 			int RM = DR + (Rks >> 2);
 			int RL = Rks & 3;
 			if (RM > 15) RM = 15;
-			switch(DR) { 
+			switch(DR) {
 			case 0:
 				dphaseDRTable[DR][Rks] = 0;
 				break;
@@ -724,7 +724,7 @@ void YM2413::update_key_status()
 //******************************************************//
 
 // Convert Amp(0 to EG_HEIGHT) to Phase(0 to 4PI)
-int YM2413::Slot::wave2_4pi(int e) 
+int YM2413::Slot::wave2_4pi(int e)
 {
 	int shift =  SLOT_AMP_BITS - PG_BITS - 1;
 	if (shift > 0) {
@@ -735,7 +735,7 @@ int YM2413::Slot::wave2_4pi(int e)
 }
 
 // Convert Amp(0 to EG_HEIGHT) to Phase(0 to 8PI)
-int YM2413::Slot::wave2_8pi(int e) 
+int YM2413::Slot::wave2_8pi(int e)
 {
 	int shift = SLOT_AMP_BITS - PG_BITS - 2;
 	if (shift > 0) {
@@ -776,7 +776,7 @@ inline void YM2413::update_noise()
 // EG
 void YM2413::Slot::calc_envelope(int lfo_am)
 {
-	#define S2E(x) (SL2EG((int)(x / SL_STEP)) << (EG_DP_BITS - EG_BITS)) 
+	#define S2E(x) (SL2EG((int)(x / SL_STEP)) << (EG_DP_BITS - EG_BITS))
 	static unsigned int SL[16] = {
 		S2E( 0.0), S2E( 3.0), S2E( 6.0), S2E( 9.0),
 		S2E(12.0), S2E(15.0), S2E(18.0), S2E(21.0),
@@ -847,7 +847,7 @@ void YM2413::Slot::calc_envelope(int lfo_am)
 	if (out >= (unsigned)DB_MUTE) {
 		out = DB_MUTE - 1;
 	}
-	
+
 	egout = out | 3;
 }
 
@@ -894,7 +894,7 @@ int YM2413::Slot::calc_slot_snare(bool noise)
 {
 	if (egout >= (DB_MUTE - 1)) {
 		return 0;
-	} 
+	}
 	if (BIT(pgout, 7)) {
 		return dB2LinTab[(noise ? DB_POS(0.0) : DB_POS(15.0)) + egout];
 	} else {
@@ -1145,7 +1145,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		ch[7].mod.updateAll();
 		ch[7].car.updateAll();
 		ch[8].mod.updateAll();
-		ch[8].car.updateAll();        
+		ch[8].car.updateAll();
 		break;
 
 	case 0x10:  case 0x11:  case 0x12:  case 0x13:
@@ -1180,7 +1180,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		break;
 	}
 	case 0x30: case 0x31: case 0x32: case 0x33: case 0x34:
-	case 0x35: case 0x36: case 0x37: case 0x38: 
+	case 0x35: case 0x36: case 0x37: case 0x38:
 	{
 		int cha = regis & 0x0F;
 		int j = (data >> 4) & 15;
@@ -1194,7 +1194,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 				ch[8].mod.setVolume(j << 2);
 				break;
 			}
-		} else { 
+		} else {
 			ch[cha].setPatch(j);
 		}
 		ch[cha].setVol(v << 2);

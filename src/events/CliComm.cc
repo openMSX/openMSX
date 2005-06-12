@@ -160,7 +160,7 @@ bool CliComm::signalEvent(const Event& event)
 		ledName[LedEvent::TURBO] = "turbo";
 		ledName[LedEvent::FDD]   = "FDD";
 	}
-	
+
 	assert(event.getType() == OPENMSX_LED_EVENT);
 	const LedEvent& ledEvent = static_cast<const LedEvent&>(event);
 	update(LED, ledName[ledEvent.getLed()],

@@ -24,7 +24,7 @@ public:
 	/** Construct V9990 VRAM.
 	  * @param vdp The V9990 vdp this VRAM belongs to
 	  * @param time  Moment in time to create the VRAM
-	  */ 
+	  */
 	V9990VRAM(V9990* vdp, const EmuTime& time);
 
 	/** Destruct V9990 VRAM
@@ -34,7 +34,7 @@ public:
 	/** VRAM Size
 	  */
 	static const unsigned VRAM_SIZE = 512 * 1024; // 512kB
-	
+
 	/** Update VRAM state to specified moment in time.
 	  * @param time Moment in emulated time to synchronise VRAM to
 	  */
@@ -58,7 +58,7 @@ public:
 	// Interface for V9990VRAMObservers
 	/** Add an observer to a window of the VRAM
 	  * @param observer  The observer
-	  */ 
+	  */
 	void addObserver(V9990VRAMObserver& observer);
 
 	/** Remove an observer
@@ -80,7 +80,7 @@ private:
 	/** V9990 VDP this VRAM belongs to.
 	  */
 	V9990* vdp;
-	
+
 	/** Pointer V9990 VRAM data.
 	  */
 	byte* data;

@@ -15,7 +15,7 @@ class KeyClick
 {
 public:
 	KeyClick(const XMLElement& config, const EmuTime& time);
-	virtual ~KeyClick(); 
+	virtual ~KeyClick();
 
 	void reset(const EmuTime& time);
 	void setClick(bool status, const EmuTime& time);

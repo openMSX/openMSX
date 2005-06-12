@@ -22,10 +22,10 @@ void ZipFileAdapter::decompress()
 	    ((*ptr++) != 0x03) || ((*ptr++) != 0x04)) {
 		throw FileException("Invalid ZIP file");
 	}
-	
+
 	// skip "version needed to extract" and "general purpose bit flag"
 	ptr += 2 + 2;
-	
+
 	// compression method
 	word method = *ptr++;
 	method += (*ptr++) << 8;
@@ -51,12 +51,12 @@ void ZipFileAdapter::decompress()
 	// filename length
 	word filename_len = *ptr++;
 	filename_len += (*ptr++) << 8;
-	
+
 	// extra field length
 	word extra_field_len = *ptr++;
 	extra_field_len += (*ptr++) << 8;
 
-	// original filename 
+	// original filename
 	originalName.assign((char*)ptr, filename_len);
 	ptr += filename_len;
 

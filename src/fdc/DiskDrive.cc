@@ -250,7 +250,7 @@ EmuTime RealDrive::getTimeTillSector(byte sector, const EmuTime& time)
 	//std::cout << "DEBUG a1: " << angle
 	//          << " a2: " << sectorAngle
 	//          << " delta: " << delta << std::endl;
-	
+
 	EmuDuration dur = Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND>::
 	                      duration(delta);
 	return time + dur;
@@ -278,7 +278,7 @@ void RealDrive::setHeadLoaded(bool status, const EmuTime& time)
 
 bool RealDrive::headLoaded(const EmuTime& time)
 {
-	return headLoadStatus && 
+	return headLoadStatus &&
 	       (headLoadTimer.getTicksTill(time) > 10);
 }
 

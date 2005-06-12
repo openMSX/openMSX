@@ -27,7 +27,7 @@ RomPanasonic::RomPanasonic(const XMLElement& config, const EmuTime& time,
 	} else {
 		maxSRAMBank = SRAM_BASE + (sramSize / 8);
 	}
-	
+
 	reset(time);
 }
 
@@ -116,7 +116,7 @@ void RomPanasonic::writeMem(word address, byte value, const EmuTime& /*time*/)
 			// RAM
 			bank[region][address & 0x1FFF] = value;
 		}
-	} 
+	}
 }
 
 byte* RomPanasonic::getWriteCacheLine(word address) const

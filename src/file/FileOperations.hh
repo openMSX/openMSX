@@ -21,7 +21,7 @@ public:
 	 * Acts like the unix command "mkdir -p". Creates the
 	 * specified directory, including the parent directories.
 	 * @param path The path of the directory to create
-	 * @return True iff successful 
+	 * @return True iff successful
 	 * @throw FileException
 	 */
 	static void mkdirp(const std::string& path);
@@ -87,14 +87,14 @@ public:
 	 * Default value is "~/.openMSX/share" (UNIX) or "~/openMSX/share" (win)
 	 */
 	static std::string getUserDataDir();
-	
+
 	/**
 	 * Get system directory.
 	 * UNI*Y: statically defined as "/opt/openMSX/share".
 	 * Win32: use "same directory as .exe" + "/share".
 	 */
 	static std::string getSystemDataDir();
-	
+
 	/**
 	* Get the current directory of the specified drive
 	* Linux: just return an empty string

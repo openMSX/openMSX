@@ -186,7 +186,7 @@ static string escapeChars(const string& str, const string& chars)
 			result += '\\';
 		}
 		result += chr;
-		
+
 	}
 	return result;
 }
@@ -261,14 +261,14 @@ void CommandController::tabCompletion(string &command)
 	if (subcmds.empty()) {
 		subcmds.push_back("");
 	}
-	
+
 	// split command string in tokens
 	vector<string> originalTokens;
 	split(subcmds.back(), originalTokens, ' ');
 	if (originalTokens.empty()) {
 		originalTokens.push_back("");
 	}
-	
+
 	// complete last token
 	vector<string> tokens;
 	removeEscaping(originalTokens, tokens, true);
@@ -276,7 +276,7 @@ void CommandController::tabCompletion(string &command)
 	tabCompletion(tokens);
 	unsigned newNum = tokens.size();
 	bool tokenFinished = oldNum != newNum;
-	
+
 	// replace last token
 	string& original = originalTokens.back();
 	string& completed = tokens[oldNum - 1];
@@ -289,7 +289,7 @@ void CommandController::tabCompletion(string &command)
 		assert(tokens.back().empty());
 		originalTokens.push_back("");
 	}
-	
+
 	// rebuild command string
 	subcmds.back() = join(originalTokens, ' ');
 	command = join(subcmds, ';');
@@ -355,7 +355,7 @@ bool CommandController::completeString2(string &str, set<string>& st,
 			// match is as long as first word
 			goto out;	// TODO rewrite this
 		}
-		// expand with one char and check all strings 
+		// expand with one char and check all strings
 		string string2 = (*it).substr(0, str.size() + 1);
 		for (;  it != st.end(); it++) {
 			if (!equal(string2, (*it).substr(0, string2.size()),
@@ -404,7 +404,7 @@ void CommandController::completeFileName(vector<string>& tokens,
                                          const set<string>& extra)
 {
 	vector<string> paths(context.getPaths());
-	
+
 	string& filename = tokens[tokens.size() - 1];
 	filename = FileOperations::expandTilde(filename);
 	filename = FileOperations::expandCurrentDirFromDrive(filename);
@@ -449,7 +449,7 @@ string CommandController::HelpCmd::execute(const vector<string>& tokens)
 {
 	string result;
 	switch (tokens.size()) {
-	case 1: 
+	case 1:
 		result += "Use 'help [command]' to get help for a specific command\n";
 		result += "The following commands exist:\n";
 		for (CompleterMap::const_iterator it =

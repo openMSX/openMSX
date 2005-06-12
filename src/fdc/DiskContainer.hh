@@ -6,7 +6,7 @@
 namespace openmsx {
 
 class SectorAccessibleDisk;
-  
+
 class DiskContainer
 {
 public:

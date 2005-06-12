@@ -84,16 +84,16 @@ class YM2413_2 : public YM2413Core, private SoundDevice, private Debuggable
 public:
 	YM2413_2(const std::string& name, const XMLElement& config, const EmuTime& time);
 	virtual ~YM2413_2();
-	
+
 	void reset(const EmuTime& time);
 	void writeReg(byte r, byte v, const EmuTime& time);
-	
+
 private:
 	void checkMute();
 	bool checkMuteHelper();
-	
+
 	void init_tables();
-	
+
 	inline void advance_lfo();
 	inline void advance();
 	inline int rhythm_calc(bool noise);
@@ -106,7 +106,7 @@ private:
 	void load_instrument(byte chan, byte slot, byte* inst);
 	void update_instrument_zero(byte r);
 	void setRhythmMode(bool newMode);
-	
+
 	// SoundDevice
 	virtual const std::string& getName() const;
 	virtual const std::string& getDescription() const;

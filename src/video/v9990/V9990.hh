@@ -30,11 +30,11 @@ class V9990 : public MSXDevice,
 {
 public:
 	/** Constructor
-	  */ 
+	  */
 	V9990(const XMLElement& config, const EmuTime& time);
 
 	/** Destructor
-	  */ 
+	  */
 	virtual ~V9990();
 
 	// MSXDevice interface:
@@ -79,9 +79,9 @@ public:
 		return !(regs[CONTROL] & 0x40);
 	}
 
-	/** Get palette offset. 
-	  * This is a number between [0..63], lowest two bits are always 0. 
-	  * @return palette offset 
+	/** Get palette offset.
+	  * This is a number between [0..63], lowest two bits are always 0.
+	  * @return palette offset
 	  */
 	inline byte getPaletteOffset() const {
 		return (regs[PALETTE_CONTROL] & 0x0F);
@@ -94,7 +94,7 @@ public:
 	  * @param b The corresponding b value (output parameter)
 	  */
 	void getPalette(int index, byte& r, byte& g, byte& b);
-	
+
 	/** Get the number of elapsed UC ticks in this frame.
 	  * @param  time Point in emulated time.
 	  * @return      Number of UC ticks.
@@ -135,10 +135,10 @@ public:
 		}
 		return x;
 	}
-	
+
 	/** Get VRAM offset for (X,Y) position.  Depending on the colormode,
 	  * one byte in VRAM may span several pixels, or one pixel may span
-	  * 1 or 2 bytes. 
+	  * 1 or 2 bytes.
 	  * @param x     Pointer to X position - on exit, the X position is the
 	  *              X position of the left most pixel at this VRAM address
 	  * @param y     Y position
@@ -225,8 +225,8 @@ public:
 		raiseIRQ(CMD_IRQ);
 	}
 
-	/** Return the sprite pattern table base address 
-	  */ 
+	/** Return the sprite pattern table base address
+	  */
 	inline int getSpritePatternAddress(V9990DisplayMode mode) {
 		switch(mode) {
 		case P1:
@@ -263,7 +263,7 @@ private:
 
 	// EventListener interface:
 	virtual bool signalEvent(const Event& event);
-	
+
 	// Debuggable: registers
 	class V9990RegDebug : public Debuggable {
 	public:
@@ -275,7 +275,7 @@ private:
 	private:
 		V9990& parent;
 	} v9990RegDebug;
-	
+
 	// Debuggable: palette
 	class V9990PalDebug : public Debuggable {
 	public:
@@ -308,17 +308,17 @@ private:
 
 		/** Start of display */
 		V9990_DISPLAY_START,
-		
+
 		/** Vertical scanning: end of display */
 		V9990_VSCAN,
-		
+
 		/** Horizontal Sync (line interrupt) */
 		V9990_HSCAN,
 
 		/** Change screen mode */
 		V9990_SET_MODE,
 	};
-	
+
 	/** IRQ types
 	  */
 	enum IRQType {
@@ -328,7 +328,7 @@ private:
 	};
 
 	/** I/O Ports
-	  */  
+	  */
 	enum PortId {
 		VRAM_DATA = 0,
 		PALETTE_DATA,
@@ -347,7 +347,7 @@ private:
 		RESERVED_2,
 		RESERVED_3
 	};
-	
+
 	/** Registers
 	  */
 	enum RegisterId {
@@ -414,11 +414,11 @@ private:
 	byte status;
 
 	/** Interrupt flag (P#6)
-	  */   
+	  */
 	byte pendingIRQs;
 
 	/** Registers
-	  */ 
+	  */
 	byte regs[0x40];
 	byte regSelect;
 
@@ -447,7 +447,7 @@ private:
 	Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND> frameStartTime;
 
 	/** Store display mode because it's queried a lot
-	  */ 
+	  */
 	V9990DisplayMode mode;
 
 	/** Time of the last set HSCAN sync point
@@ -465,13 +465,13 @@ private:
 	void setVerticalTiming();
 
 	V9990ColorMode getColorMode(byte pal_ctrl) const;
-	
+
 	/** Get VRAM read or write address from V9990 registers
 	  * @param base  VRAM_READ_ADDRESS_0 or VRAM_WRITE_ADDRESS_0
 	  * @returns     VRAM read or write address
 	  */
 	inline unsigned getVRAMAddr(RegisterId base) const;
-	
+
 	/** set VRAM read or write address into V9990 registers
 	  * @param base  VRAM_READ_ADDRESS_0 or VRAM_WRITE_ADDRESS_0
 	  * @param addr  Address to set
@@ -498,28 +498,28 @@ private:
 	  * @param time  Moment in emulated time to write register
 	  */
 	void writePaletteRegister(byte reg, byte val, const EmuTime& time);
-	
+
 	/** Schedule a sync point at the start of the next line
 	 */
 	void syncAtNextLine(V9990SyncType type, const EmuTime& time);
-	
+
 	/** Create a new renderer.
 	  * @param time  Moment in emulated time to create the renderer
 	  */
 	void createRenderer(const EmuTime& time);
 
-	/** Start a new frame. 
+	/** Start a new frame.
 	  * @param time  Moment in emulated time to start the frame
 	  */
 	void frameStart(const EmuTime& time);
-	
+
 	/** Raise an IRQ
 	  * @param irqType  Type of IRQ
-	  */ 
+	  */
 	void raiseIRQ(IRQType irqType);
-	
+
 	/** Precalculate the display mode
-	  */ 
+	  */
 	void calcDisplayMode();
 
 	/** Calculate the moment in time the next line interrupt will occur

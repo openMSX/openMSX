@@ -55,7 +55,7 @@ void FileBase::truncate(unsigned size)
 		write(buf, std::min(BUF_SIZE, grow));
 		grow -= BUF_SIZE;
 	}
-} 
+}
 
 const string FileBase::getOriginalName()
 {

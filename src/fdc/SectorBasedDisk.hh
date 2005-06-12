@@ -13,7 +13,7 @@ class PatchInterface;
 
 class SectorBasedDisk : public Disk, public SectorAccessibleDisk
 {
-public: 
+public:
 	static const unsigned SECTOR_SIZE = 512;
 
 	virtual void read(byte track, byte sector, byte side,
@@ -36,7 +36,7 @@ protected:
 	SectorBasedDisk();
 	virtual ~SectorBasedDisk();
 	virtual void detectGeometry();
-	
+
 	unsigned nbSectors;
 
 private:

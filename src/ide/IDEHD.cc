@@ -56,7 +56,7 @@ IDEHD::IDEHD(const XMLElement& config, const EmuTime& /*time*/)
 
 	const string& filename = config.getChildData("filename");
 	file.reset(new File(config.getFileContext().resolveCreate(filename), CREATE));
-	
+
 	unsigned wantedSize = config.getChildDataAsInt("size");	// in MB
 	wantedSize *= 1024 * 1024;
 	unsigned fileSize = file->getSize();
@@ -64,7 +64,7 @@ IDEHD::IDEHD(const XMLElement& config, const EmuTime& /*time*/)
 		// for safety only enlarge file
 		file->truncate(wantedSize);
 	}
-	
+
 	totalSectors = wantedSize / 512;
 	word heads = 16;
 	word sectors = 32;
@@ -110,23 +110,23 @@ byte IDEHD::readReg(nibble reg, const EmuTime& /*time*/)
 	switch (reg) {
 	case 1:	// error register
 		return errorReg;
-	
+
 	case 2:	// sector count register
 		return sectorCountReg;
-		
+
 	case 3:	// sector number register
 		return sectorNumReg;
-	
+
 	case 4:	// cyclinder low register
 		return cylinderLowReg;
-		
+
 	case 5:	// cyclinder high register
 		return cylinderHighReg;
-		
+
 	case 6:	// device/head register
 		// DEV bit is handled by IDE interface
 		return devHeadReg;
-		
+
 	case 7:	// status register
 		return statusReg;
 
@@ -138,7 +138,7 @@ byte IDEHD::readReg(nibble reg, const EmuTime& /*time*/)
 	case 13:
 	case 15:// not used
 		return 0x7F;
-		
+
 	case 0:	// data register, converted to readData by IDE interface
 	case 14:// alternate status reg, converted to read from normal
 		// status register by IDE interface
@@ -154,28 +154,28 @@ void IDEHD::writeReg(nibble reg, byte value, const EmuTime& /*time*/)
 	case 1:	// feature register
 		featureReg = value;
 		break;
-	
+
 	case 2:	// sector count register
 		sectorCountReg = value;
 		break;
-		
+
 	case 3:	// sector number register
 		sectorNumReg = value;
 		break;
-	
+
 	case 4:	// cyclinder low register
 		cylinderLowReg = value;
 		break;
-		
+
 	case 5:	// cyclinder high register
 		cylinderHighReg = value;
 		break;
-		
+
 	case 6:	// device/head register
 		// DEV bit is handled by IDE interface
 		devHeadReg = value;
 		break;
-		
+
 	case 7:	// command register
 		executeCommand(value);
 		break;
@@ -190,7 +190,7 @@ void IDEHD::writeReg(nibble reg, byte value, const EmuTime& /*time*/)
 	case 14:// device control register, handled by IDE interface
 		// do nothing
 		break;
-		
+
 	case 0:	// data register, converted to readData by IDE interface
 	default:
 		assert(false);

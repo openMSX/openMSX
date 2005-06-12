@@ -173,7 +173,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		distributor.distributeEvent(event);
 		break;
 	}
-	      
+
 	case SDL_ACTIVEEVENT: {
 		Event* event = new FocusEvent(evt.active.gain);
 		distributor.distributeEvent(event);
@@ -185,7 +185,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		distributor.distributeEvent(event);
 		break;
 	}
-	
+
 	case SDL_QUIT:
 		distributor.distributeEvent(new QuitEvent());
 		break;

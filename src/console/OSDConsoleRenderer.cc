@@ -60,7 +60,7 @@ void OSDConsoleRenderer::initConsole()
 		// we really need a font
 		throw FatalError(e.getMessage());
 	}
-	
+
 	// rows / columns
 	int columns = (((getScreenW() - CHAR_BORDER) / font->getWidth()) * 30) / 32;
 	int rows = ((getScreenH() / font->getHeight()) * 6) / 15;
@@ -69,7 +69,7 @@ void OSDConsoleRenderer::initConsole()
 	consoleRowsSetting.reset(new IntegerSetting("consolerows",
 		"number of rows in the console", rows, 1, 99));
 	adjustColRow();
-	
+
 	// placement
 	typedef EnumSetting<Placement>::Map PlaceMap;
 	PlaceMap placeMap;
@@ -85,9 +85,9 @@ void OSDConsoleRenderer::initConsole()
 	consolePlacementSetting.reset(new EnumSetting<Placement>(
 		"consoleplacement", "position of the console within the emulator",
 		CP_BOTTOM, placeMap));
-	
+
 	updateConsoleRect();
-	
+
 	// background
 	backgroundSetting.reset(new FilenameSetting(
 		"consolebackground", "console background file",
@@ -124,7 +124,7 @@ void OSDConsoleRenderer::setActive(bool active_)
 	active = active_;
 
 	Display::instance().repaintDelayed(40000); // 25 fps
-	
+
 	time = Timer::getTime();
 
 	inputEventGenerator.setKeyRepeat(active);
@@ -178,7 +178,7 @@ bool OSDConsoleRenderer::updateConsoleRect()
 	unsigned x, y, w, h;
 	h = font->getHeight() * console.getRows();
 	w = (font->getWidth() * console.getColumns()) + CHAR_BORDER;
-	
+
 	// TODO use setting listener in the future
 	switch (consolePlacementSetting->getValue()) {
 		case CP_TOPLEFT:
@@ -227,7 +227,7 @@ void OSDConsoleRenderer::check(SettingImpl<FilenameSetting::Policy>& setting,
                                string& value)
 {
 	assert(dynamic_cast<FilenameSetting*>(&setting));
-	
+
 	string filename = value.empty() ? value :
 		static_cast<FilenameSetting&>(setting).
 			getFileContext().resolve(value);

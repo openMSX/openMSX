@@ -35,7 +35,7 @@ MSXDeviceSwitch::MSXDeviceSwitch(const XMLElement& config, const EmuTime& time)
 		devices[i] = NULL;
 	}
 	selected = 0;
-	
+
 	for (byte port = 0x40; port < 0x50; ++port) {
 		MSXCPUInterface::instance().register_IO_In (port, this);
 		MSXCPUInterface::instance().register_IO_Out(port, this);

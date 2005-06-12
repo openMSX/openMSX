@@ -28,7 +28,7 @@ unsigned long long Timer::getTime()
 {
 #if defined (WIN32)
 	static LONGLONG hfFrequency = 0;
-	
+
 	LARGE_INTEGER li;
 	if (!hfFrequency) {
 		if (QueryPerformanceFrequency(&li)) {

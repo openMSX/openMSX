@@ -35,11 +35,11 @@ public:
 		STATUS,
 		NUM_UPDATES // must be last
 	};
-	
+
 	static CliComm& instance();
 	void startInput(CommandLineParser::ControlType type,
 	                const std::string& arguments);
-	
+
 	void log(LogLevel level, const std::string& message);
 	void update(UpdateType type, const std::string& name, const std::string& value);
 
@@ -54,7 +54,7 @@ public:
 private:
 	CliComm();
 	~CliComm();
-	
+
 	// EventListener
 	virtual bool signalEvent(const Event& event);
 

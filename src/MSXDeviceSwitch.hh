@@ -11,7 +11,7 @@ namespace openmsx {
  * The MSX2 Hardware Specification says ports 0x41-0x4F are Switched I/O ports.
  * Output of a ID value to port 0x40 selects a specific I/O device and connects
  * it to the CPU.
- * 
+ *
  * It is possible to give numbers between 0 and 255 as a device number.
  * However, when reading the device number, the complement is given, so 0 and
  * 255 are not used. ID numbers between 1 and 127 are manufacturers ID number
@@ -23,7 +23,7 @@ namespace openmsx {
  * bit for those ID which might be expanded in the future. Especially for
  * device which are connected with make ID can expand the address space by 256
  * times so it is future proofed.
- * 
+ *
  * Maker ID
  *    1 ASCII/Microsoft
  *    2 Canon
@@ -45,19 +45,19 @@ namespace openmsx {
  *   18 Spectravideo
  *   19 Toshiba
  *   20 Mitsumi
- * 
+ *
  * Device ID
  *  128 Image Scanner (Matsushita)
  *  247 Kanji 12x12
  *  254 MPS2 (ASCII)
- */  
+ */
 
 class MSXSwitchedDevice
 {
 public:
 	MSXSwitchedDevice(byte id);
 	virtual ~MSXSwitchedDevice();
-	
+
 	virtual void reset(const EmuTime& time);
 	virtual byte readIO(byte port, const EmuTime& time) = 0;
 	virtual byte peekIO(byte port, const EmuTime& time) const = 0;
@@ -76,8 +76,8 @@ public:
 	static MSXDeviceSwitch& instance();
 
 	// (un)register methods for devices
-	void registerDevice(byte id, MSXSwitchedDevice* device); 
-	void unregisterDevice(byte id); 
+	void registerDevice(byte id, MSXSwitchedDevice* device);
+	void unregisterDevice(byte id);
 
 	virtual void reset(const EmuTime& time);
 	virtual byte readIO(byte port, const EmuTime& time);
@@ -86,7 +86,7 @@ public:
 
 private:
 	MSXDeviceSwitch(const XMLElement& config, const EmuTime& time);
-	
+
 	byte selected;
 	MSXSwitchedDevice* devices[256];
 };

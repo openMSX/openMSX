@@ -21,12 +21,12 @@ public:
 		DRIVE_D = 3,
 		NO_DRIVE = 4,
 	};
-	
+
 	// Multiplexer interface
 	DriveMultiplexer(DiskDrive* drive[4]);
 	virtual ~DriveMultiplexer();
 	void selectDrive(DriveNum num, const EmuTime &time);
-	
+
 	// DiskDrive interface
 	virtual bool ready();
 	virtual bool writeProtected();

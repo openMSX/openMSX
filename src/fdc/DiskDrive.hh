@@ -79,14 +79,14 @@ public:
 	 * @return Time when the requested sector is under the drive head.
 	 */
 	virtual EmuTime getTimeTillSector(byte sector, const EmuTime& time) = 0;
-	
+
 	/** Return the time till the start of the next index pulse
 	 * When there is no disk in the drive or when the disk is not spinning,
 	 * this function returns the current time.
 	 * @param time The current time
 	 */
 	virtual EmuTime getTimeTillIndexPulse(const EmuTime& time) = 0;
-	
+
 	/** Set head loaded status.
 	 * @param status false = not loaded,
 	 *               true  = loaded.

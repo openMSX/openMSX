@@ -23,7 +23,7 @@ MSXDevice::MSXDevice(const XMLElement& config, const EmuTime& /*time*/)
 	registerSlots(config);
 	registerPorts(config);
 }
-	
+
 MSXDevice::~MSXDevice()
 {
 	unregisterPorts(deviceConfig);
@@ -124,7 +124,7 @@ void MSXDevice::registerPorts(const XMLElement& config)
 	vector<byte> inPorts;
 	vector<byte> outPorts;
 	getPorts(config, inPorts, outPorts);
-	
+
 	for (vector<byte>::iterator it = inPorts.begin();
 	     it != inPorts.end(); ++it) {
 		MSXCPUInterface::instance().register_IO_In(*it, this);
@@ -140,7 +140,7 @@ void MSXDevice::unregisterPorts(const XMLElement& config)
 	vector<byte> inPorts;
 	vector<byte> outPorts;
 	getPorts(config, inPorts, outPorts);
-	
+
 	MSXCPUInterface& cpuInterface = MSXCPUInterface::instance();
 	for (vector<byte>::iterator it = inPorts.begin();
 	     it != inPorts.end(); ++it) {

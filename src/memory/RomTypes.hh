@@ -60,7 +60,7 @@ enum RomType {
 	ROM_NORMALA000   = 56 + 5,
 	ROM_NORMALC000   = 56 + 6,
 	ROM_NORMALE000   = 56 + 7,
-	
+
 	ROM_HAS_SRAM     = 64,
 	ROM_ASCII8_8     = 64 + 0,
 	ROM_ASCII16_2    = 64 + 1,

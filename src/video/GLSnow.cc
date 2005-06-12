@@ -52,7 +52,7 @@ void GLSnow::paint()
 	glTexCoord2f(0.0f + x, 0.0f + y); glVertex2i(   0, HEIGHT);
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
-	
+
 	// TODO: Mark dirty in 100ms.
 }
 

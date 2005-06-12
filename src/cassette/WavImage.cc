@@ -14,7 +14,7 @@ WavImage::WavImage(const string& fileName)
 {
 	File file(fileName);
 	const char* name = file.getLocalName().c_str();
-	
+
 	SDL_AudioSpec wavSpec;
 	Uint8* wavBuf;
 	Uint32 wavLen;
@@ -22,7 +22,7 @@ WavImage::WavImage(const string& fileName)
 		string msg = string("CassettePlayer error: ") + SDL_GetError();
 		throw MSXException(msg);
 	}
-	
+
 	clock.setFreq(wavSpec.freq);
 	SDL_AudioCVT audioCVT;
 	if (SDL_BuildAudioCVT(
@@ -31,7 +31,7 @@ WavImage::WavImage(const string& fileName)
 		SDL_FreeWAV(wavBuf);
 		throw MSXException("Couldn't build wav converter");
 	}
-	
+
 	buffer = (Uint8*)malloc(wavLen * audioCVT.len_mult);
 	audioCVT.buf = buffer;
 	audioCVT.len = wavLen;

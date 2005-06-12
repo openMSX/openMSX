@@ -111,10 +111,10 @@ void KeyJoystick::write(byte /*value*/, const EmuTime& /*time*/)
 bool KeyJoystick::signalEvent(const Event& event)
 {
 	switch (event.getType()) {
-	case OPENMSX_CONSOLE_ON_EVENT: 
+	case OPENMSX_CONSOLE_ON_EVENT:
 		allUp();
 		break;
-	default: // must be keyEvent 
+	default: // must be keyEvent
 		assert(dynamic_cast<const KeyEvent*>(&event));
 		Keys::KeyCode key = (Keys::KeyCode)((int)((KeyEvent&)event).getKeyCode() &
 		                                    (int)Keys::K_MASK);

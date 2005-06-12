@@ -30,7 +30,7 @@ public:
 	 * Enable or disable keyboard event repeats
 	 */
 	void setKeyRepeat(bool enable);
-	
+
 	/**
 	 * This functions shouldn't be needed, but in the SDL library input
 	 * and video or closely coupled (sigh). For example when the video mode
@@ -66,7 +66,7 @@ private:
 	private:
 		InputEventGenerator& parent;
 	} escapeGrabCmd;
-	
+
 	bool keyRepeat;
 	EventDistributor& distributor;
 };

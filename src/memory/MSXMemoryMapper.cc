@@ -29,7 +29,7 @@ MSXMemoryMapper::MSXMemoryMapper(const XMLElement& config, const EmuTime& time)
 {
 	int kSize = deviceConfig.getChildDataAsInt("size");
 	if ((kSize % 16) != 0) {
-		throw FatalError("Mapper size is not a multiple of 16K: " + 
+		throw FatalError("Mapper size is not a multiple of 16K: " +
 		                 StringOp::toString(kSize));
 	}
 	nbBlocks = kSize / 16;
@@ -41,7 +41,7 @@ MSXMemoryMapper::MSXMemoryMapper(const XMLElement& config, const EmuTime& time)
 
 MSXMemoryMapper::~MSXMemoryMapper()
 {
-	mapperIO->unregisterMapper(nbBlocks); 
+	mapperIO->unregisterMapper(nbBlocks);
 	destroyMapperIO();
 }
 
@@ -60,7 +60,7 @@ void MSXMemoryMapper::createMapperIO(const EmuTime& time)
 		config->setFileContext(std::auto_ptr<FileContext>(
 			new SystemFileContext()));
 		mapperIO = new MSXMapperIO(*config, time);
-	
+
 		MSXCPUInterface& cpuInterface = MSXCPUInterface::instance();
 		cpuInterface.register_IO_Out(0xFC, mapperIO);
 		cpuInterface.register_IO_Out(0xFD, mapperIO);

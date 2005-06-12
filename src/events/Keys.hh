@@ -22,7 +22,7 @@ public:
 	//                exotic keyboard. Note that it might be possible
 	//                that there are multiple keys that produce this
 	//                code.
-	enum KeyCode 
+	enum KeyCode
 	{
 		K_NONE          = -1,
 		K_UNKNOWN	= SDLK_UNKNOWN,
@@ -158,7 +158,7 @@ public:
 		K_LALT		= SDLK_LALT,
 		K_RMETA		= SDLK_RMETA,
 		K_LMETA		= SDLK_LMETA,
-		K_LSUPER	= SDLK_LSUPER,	// Left "Windows" key 
+		K_LSUPER	= SDLK_LSUPER,	// Left "Windows" key
 		K_RSUPER	= SDLK_RSUPER,	// Right "Windows" key
 		K_MODE		= SDLK_MODE,	// "Alt Gr" key
 		K_COMPOSE	= SDLK_COMPOSE,	// Multi-key compose key
@@ -171,15 +171,15 @@ public:
 		K_MENU		= SDLK_MENU,
 		K_POWER		= SDLK_POWER,	// Power Macintosh power key
 		K_EURO		= SDLK_EURO,	// Some european keyboards
-		
+
 		K_MASK		= 0xFFFF,
-		
+
 		// Modifiers
 		KM_SHIFT	= 0x10000,
 		KM_CTRL		= 0x20000,
 		KM_ALT		= 0x40000,
 		KM_META		= 0x80000,
-		
+
 		// Direction modifiers
 		KD_PRESS	= 0,		// key press
 		KD_RELEASE	= 0x100000,	// key release

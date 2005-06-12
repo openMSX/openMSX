@@ -16,7 +16,7 @@ public:
 
 	void setRows(unsigned rows);
 	unsigned getRows() const;
-	
+
 	virtual unsigned getScrollBack() const = 0;
 	virtual std::string getLine(unsigned line) const = 0;
 	virtual void getCursorPosition(unsigned& xPosition,

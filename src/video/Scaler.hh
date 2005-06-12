@@ -85,9 +85,9 @@ public:
 		SDL_Surface* dst, int dstY );
 
 	// Utility methods  (put in seperate class?)
-	
+
 	/** Get the start address of a line in a surface
-	 */ 
+	 */
 	inline static Pixel* linePtr(SDL_Surface* surface, int y) {
 		assert(0 <= y && y < surface->h);
 		return (Pixel*)((byte*)surface->pixels + y * surface->pitch);
@@ -101,7 +101,7 @@ public:
 	  */
 	static void copyLine(
 		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
-	
+
 	/** Copies the given line.
 	  * @param pIn ptr to start of source line
 	  * @param pOut ptr to start of destination line
@@ -122,7 +122,7 @@ public:
 	  */
 	static void scaleLine(
 		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
-	
+
 	/** Scales the given line a factor 2 horizontally.
 	  * @param pIn ptr to start of source line
 	  * @param pOut ptr to start of destination line

@@ -10,7 +10,7 @@ namespace openmsx {
 
 class SettingListener;
 
-class Setting 
+class Setting
 {
 public:
 	enum SaveSetting {
@@ -40,7 +40,7 @@ public:
 	/** Restore the default value.
 	 */
 	virtual void restoreDefault() = 0;
-	
+
 	/** Complete a partly typed value.
 	  * Default implementation does not complete anything,
 	  * subclasses can override this to complete according to their

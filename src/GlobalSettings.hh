@@ -34,7 +34,7 @@ public:
 private:
 	GlobalSettings();
 	~GlobalSettings();
-	
+
 	std::auto_ptr<IntegerSetting> speedSetting;
 	std::auto_ptr<BooleanSetting> throttleSetting;
 	std::auto_ptr<BooleanSetting> pauseSetting;

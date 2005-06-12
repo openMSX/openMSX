@@ -33,10 +33,10 @@ SunriseIDE::SunriseIDE(const XMLElement& config, const EmuTime& time)
 	if (i == MAX_INTERFACES) {
 		throw FatalError("Too many IDE interfaces.");
 	}
-	
+
 	const XMLElement* masterElem = config.findChild("master");
 	const XMLElement* slaveElem  = config.findChild("slave");
-	device[0].reset(masterElem 
+	device[0].reset(masterElem
 	          ? IDEDeviceFactory::create(*masterElem, time)
 	          : new DummyIDEDevice());
 	device[1].reset(slaveElem
@@ -49,7 +49,7 @@ SunriseIDE::SunriseIDE(const XMLElement& config, const EmuTime& time)
 	// make valgrind happy
 	internalBank = 0;
 	ideRegsEnabled = false;
-	
+
 	writeControl(0xFF);
 	reset(time);
 }
@@ -207,7 +207,7 @@ byte SunriseIDE::readReg(nibble reg, const EmuTime& time)
 			// read status
 			result = 0xFF;	// BUSY
 		} else {
-			// all others 
+			// all others
 			result = 0x7F;	// don't care
 		}
 	} else {

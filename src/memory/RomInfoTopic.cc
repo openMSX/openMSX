@@ -60,7 +60,7 @@ RomInfoTopic::RomInfoTopic()
 	description[ROM_PAGE23] = "Plain 32kB page 2-3";
 	description[ROM_PAGE123] = "Plain 48kB page 1-3";
 	description[ROM_PAGE0123] = "Plain 64kB";
-	
+
 	// with SRAM
 	description[ROM_ASCII8_8] = "ASCII 8kB with 8kB SRAM";
 	description[ROM_ASCII16_2] = "ASCII 16kB with 2kB SRAM";
@@ -70,7 +70,7 @@ RomInfoTopic::RomInfoTopic()
 	description[ROM_KOEI_8] = "Koei with 8kB SRAM";
 	description[ROM_KOEI_32] = "Koei with 32kB SRAM";
 	description[ROM_WIZARDRY] = "Wizardry";
-	
+
 	// with DAC
 	description[ROM_MAJUTSUSHI] = "Hai no Majutsushi";
 	description[ROM_SYNTHESIZER] = "Konami's Synthesizer";

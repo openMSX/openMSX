@@ -15,7 +15,7 @@ HostCPU::HostCPU()
 
 	mmxFlag = false;
 	mmxExtFlag = false;
-	#ifdef ASM_X86 
+	#ifdef ASM_X86
 		// Is CPUID instruction supported?
 		unsigned hasCPUID;
 		asm (

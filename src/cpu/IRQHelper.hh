@@ -21,7 +21,7 @@ public:
 	  * @param nmi true iff non-maskable interrupts should be triggered.
 	  */
 	IRQHelper(bool nmi = false);
-	
+
 	/** Destroy this IRQHelper.
 	  * Resets interrupt request if it is active.
 	  */

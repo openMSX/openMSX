@@ -108,7 +108,7 @@ void FilePool::writeSha1sums()
 	for (Pool::const_iterator it = pool.begin(); it != pool.end(); ++it) {
 		file << it->first << "  "                        // sum
 		     << Date::toString(it->second.first) << "  " // date
-		     << it->second.second                        // filename 
+		     << it->second.second                        // filename
 		     << endl;
 	}
 }
@@ -127,7 +127,7 @@ string FilePool::getFile(const string& sha1sum)
 			return filename;
 		}
 	}
-	
+
 	return string(); // not found
 }
 

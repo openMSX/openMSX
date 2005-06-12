@@ -32,7 +32,7 @@ struct ReverseSector {
 
 class FDC_DirAsDSK : public SectorBasedDisk
 {
-public: 
+public:
 	FDC_DirAsDSK(const std::string& fileName);
 	virtual ~FDC_DirAsDSK();
 

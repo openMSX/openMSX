@@ -3,27 +3,27 @@
 // GAME MASTER 2
 //
 // This is a 1 megabit ROM cartridge with 8 Kb SRAM. Because of the SRAM,
-// the mappers have special features. 
-// 
-// Since the size of the mapper is 8Kb, the memory banks are: 
+// the mappers have special features.
+//
+// Since the size of the mapper is 8Kb, the memory banks are:
 //   Bank 1: 4000h - 5FFFh
 //   Bank 2: 6000h - 7FFFh
 //   Bank 3: 8000h - 9FFFh
 //   Bank 4: A000h - BFFFh
 //
-// And the addresses to change banks: 
+// And the addresses to change banks:
 //   Bank 1: <none>
 //   Bank 2: 6000h - 6FFFh (6000h used)
 //   Bank 3: 8000h - 8FFFh (8000h used)
 //   Bank 4: A000h - AFFFh (A000h used)
 //   SRAM write: B000h - BFFFh
-//   
+//
 // If SRAM is selected in bank 4, you can write to it in the memory area
-// B000h - BFFFh. 
+// B000h - BFFFh.
 //
 // The value you write to change banks also determines whether you select ROM
 // or SRAM. SRAM can be in any memory bank (except bank 1 which can't be
-// modified) but it can only be written too in bank 4. 
+// modified) but it can only be written too in bank 4.
 //
 //   bit      |  0 |  1 |  2 |  3 |      4       |  5 | 6 | 7 |
 //   ----------------------------------------------------------
@@ -32,11 +32,11 @@
 // If bit 4 is reset, bits 0 - 3 select the ROM page as you would expect them
 // to do. Bits 5 - 7 are ignored now. If bit 4 is set, bit 5 selects the SRAM
 // page (first or second 4Kb of the 8Kb). Bits 6 - 7 and bits 0 - 3 are
-// ignored now. 
+// ignored now.
 //
 // Since you can only select 4Kb of the SRAM at once in a memory bank and a
 // memory bank is 8Kb in size, the first and second 4Kb of the memory bank
-// read the same 4Kb of SRAM if SRAM is selected. 
+// read the same 4Kb of SRAM if SRAM is selected.
 
 #include "RomGameMaster2.hh"
 #include "Rom.hh"

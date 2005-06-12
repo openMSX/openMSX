@@ -36,7 +36,7 @@ private:
 	byte makeST1();
 	byte makeST2();
 	byte makeST3();
-	
+
 	DiskDrive* drive[4];
 
 	// Control register 0

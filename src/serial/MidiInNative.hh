@@ -29,7 +29,7 @@ public:
 	/** Register all available native midi in devcies
 	  */
 	static void registerAll(PluggingController* controller);
-	
+
 	MidiInNative(unsigned);
 	virtual ~MidiInNative();
 
@@ -52,7 +52,7 @@ private:
 
 	void procShortMsg(long unsigned int param);
 	void procLongMsg(LPMIDIHDR p);
-	
+
 	Thread thread;
 	unsigned int devidx;
 	unsigned int thrdid;

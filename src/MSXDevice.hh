@@ -37,7 +37,7 @@ public:
 
 	/**
 	 * This method is called when MSX is powered up. The default
-	 * implementation calls reset(), this is usually ok. 
+	 * implementation calls reset(), this is usually ok.
 	 * @param time The moment in time the power up occurs.
 	 */
 	virtual void powerUp(const EmuTime& time);
@@ -50,9 +50,9 @@ public:
 	 */
 	virtual const std::string& getName() const;
 
-	
+
 	// IO
-	
+
 	/**
 	 * Read a byte from an IO port at a certain time from this device.
 	 * The default implementation returns 255.
@@ -67,8 +67,8 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 
-	// Memory 
-	
+	// Memory
+
 	/**
 	 * Read a byte from a location at a certain time from this
 	 * device.
@@ -77,12 +77,12 @@ public:
 	virtual byte readMem(word address, const EmuTime& time);
 
 	/**
-	 * Write a given byte to a given location at a certain time 
+	 * Write a given byte to a given location at a certain time
 	 * to this device.
 	 * The default implementation ignores the write (does nothing).
 	 */
 	virtual void writeMem(word address, byte value, const EmuTime& time);
-	
+
 	/**
 	 * Read a byte from a given IO port. Reading via this method has no
 	 * side effects (doesn't change the device status). If save reading
@@ -92,26 +92,26 @@ public:
 	 * The default implementation just returns 0xFF.
 	 */
 	virtual byte peekIO(byte port, const EmuTime& time) const;
-	
+
 	/**
 	 * Test that the memory in the interval [start, start+CACHE_LINE_SIZE)
 	 * is cacheable for reading. If it is, a pointer to a buffer
 	 * containing this interval must be returned. If not, a null
 	 * pointer must be returned.
-	 * Cacheable for reading means the data may be read directly 
+	 * Cacheable for reading means the data may be read directly
 	 * from the buffer, thus bypassing the readMem() method, and
 	 * thus also ignoring EmuTime.
 	 * The default implementation always returns a null pointer.
 	 * The start of the interval is CACHE_LINE_SIZE alligned.
 	 */
 	virtual const byte* getReadCacheLine(word start) const;
-	
+
 	/**
 	 * Test that the memory in the interval [start, start+CACHE_LINE_SIZE)
 	 * is cacheable for writing. If it is, a pointer to a buffer
 	 * containing this interval must be returned. If not, a null
 	 * pointer must be returned.
-	 * Cacheable for writing means the data may be written directly 
+	 * Cacheable for writing means the data may be written directly
 	 * to the buffer, thus bypassing the writeMem() method, and
 	 * thus also ignoring EmuTime.
 	 * The default implementation always returns a null pointer.
@@ -136,7 +136,7 @@ public:
 	// motherboard this device belongs to
 	MSXMotherBoard& getMotherboard() const;
 	void setMotherboard(MSXMotherBoard& motherboard);
-	
+
 protected:
 	/** Every MSXDevice has a config entry; this constructor gets
 	  * some device properties from that config entry.
@@ -149,7 +149,7 @@ protected:
 
 	const XMLElement& deviceConfig;
 	friend class VDPIODelay;
-	
+
 	static byte unmappedRead[0x10000];	// Read only
 	static byte unmappedWrite[0x10000];	// Write only
 

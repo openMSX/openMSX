@@ -19,7 +19,7 @@ public:
 	void addDevice(MSXDevice* device);
 	void removeDevice(MSXDevice* device);
 	Devices& getDevices();
-	
+
 	// MSXDevice
 	virtual void reset(const EmuTime& time);
 	virtual void powerDown(const EmuTime& time);
@@ -32,7 +32,7 @@ public:
 private:
 	static const XMLElement& getMultiConfig();
 	void preCalcName();
-	
+
 	Devices devices;
 	std::string name;
 };

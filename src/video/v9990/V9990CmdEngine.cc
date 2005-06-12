@@ -164,7 +164,7 @@ V9990CmdEngine::V9990CmdEngine(V9990* vdp_, const EmuTime& time)
 V9990CmdEngine::~V9990CmdEngine()
 {
 	delete commands[0][0]; // Delete the STOP cmd
-	
+
 	for (int cmd = 1; cmd < 16; ++cmd) { // Delete the rest
 		for (int mode = 0; mode <= BP2; ++mode) {
 			delete commands[cmd][mode];
@@ -181,7 +181,7 @@ void V9990CmdEngine::reset(const EmuTime& /*time*/)
 
 void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
 {
-	PRT_DEBUG("[" << time << "] V9990CmdEngine::setCmdReg(" 
+	PRT_DEBUG("[" << time << "] V9990CmdEngine::setCmdReg("
 	          << std::dec << (int) reg << "," << (int) value << ")");
 	sync(time);
 	switch(reg - 32) {
@@ -294,7 +294,7 @@ void V9990CmdEngine::createEngines(int cmd)
 	#define CREATE_COMMAND(COLORMODE,BPP) \
 		commands[cmd][COLORMODE] = \
 			new Command<V9990CmdEngine::BPP>(this, vdp->getVRAM())
-	
+
 	CREATE_COMMAND(PP,    V9990Bpp4);
 	CREATE_COMMAND(BYUV,  V9990Bpp8);
 	CREATE_COMMAND(BYUVP, V9990Bpp8);
@@ -408,7 +408,7 @@ void V9990CmdEngine::CmdLMMC<Mode>::execute(const EmuTime& /*time*/)
 			value = engine->logOp((data >> (8 - Mode::BITS_PER_PIXEL)),
 			                      value, mask);
 			Mode::pset(vram, engine->DX, engine->DY, width, value);
-			
+
 			int dx = (engine->ARG & DIX) ? -1 : 1;
 			engine->DX += dx;
 			if (!--(engine->ANX)) {
@@ -450,11 +450,11 @@ template <class Mode>
 void V9990CmdEngine::CmdLMMV<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO can be optimized a lot
-	
+
 	int width = engine->vdp->getImageWidth();
 	if (Mode::PIXELS_PER_BYTE) {
 		// hack to avoid "warning: division by zero"
-		int ppb = Mode::PIXELS_PER_BYTE; 
+		int ppb = Mode::PIXELS_PER_BYTE;
 		width /= ppb;
 	}
 	int dx = (engine->ARG & DIX) ? -1 : 1;
@@ -465,7 +465,7 @@ void V9990CmdEngine::CmdLMMV<Mode>::execute(const EmuTime& /*time*/)
 		value = engine->logOp(Mode::shiftDown(engine->fgCol, engine->DX),
 		                      value, mask);
 		Mode::pset(vram, engine->DX, engine->DY, width, value);
-		
+
 		engine->DX += dx;
 		if (!--(engine->ANX)) {
 			engine->DX -= (engine->NX * dx);
@@ -526,11 +526,11 @@ template <class Mode>
 void V9990CmdEngine::CmdLMMM<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO can be optimized a lot
-	
+
 	int width = engine->vdp->getImageWidth();
 	if (Mode::PIXELS_PER_BYTE) {
 		// hack to avoid "warning: division by zero"
-		int ppb = Mode::PIXELS_PER_BYTE; 
+		int ppb = Mode::PIXELS_PER_BYTE;
 		width /= ppb;
 	}
 	int dx = (engine->ARG & DIX) ? -1 : 1;
@@ -541,7 +541,7 @@ void V9990CmdEngine::CmdLMMM<Mode>::execute(const EmuTime& /*time*/)
 		word mask = Mode::shiftDown(engine->WM, engine->DX);
 		dest = engine->logOp(src, dest, mask);
 		Mode::pset(vram, engine->DX, engine->DY, width, dest);
-		
+
 		engine->DX += dx;
 		engine->SX += dx;
 		if (!--(engine->ANX)) {
@@ -586,7 +586,7 @@ void V9990CmdEngine::CmdCMMC<Mode>::execute(const EmuTime& /*time*/)
 		int width = engine->vdp->getImageWidth();
 		if (Mode::PIXELS_PER_BYTE) {
 			// hack to avoid "warning: division by zero"
-			int ppb = Mode::PIXELS_PER_BYTE; 
+			int ppb = Mode::PIXELS_PER_BYTE;
 			width /= ppb;
 		}
 		int dx = (engine->ARG & DIX) ? -1 : 1;
@@ -594,14 +594,14 @@ void V9990CmdEngine::CmdCMMC<Mode>::execute(const EmuTime& /*time*/)
 		for (int i = 0; i < 8; ++i) {
 			bool bit = engine->data & 0x80;
 			engine->data <<= 1;
-			
+
 			word src = bit ? engine->fgCol : engine->bgCol;
 			word dest = Mode::point(vram, engine->DX, engine->DY, width);
 			word mask = Mode::shiftDown(engine->WM, engine->DX);
 			dest = engine->logOp(Mode::shiftDown(src, engine->DX),
 					     dest, mask);
 			Mode::pset(vram, engine->DX, engine->DY, width, dest);
-			
+
 			engine->DX += dx;
 			if (!--(engine->ANX)) {
 				engine->DX -= (engine->NX * dx);
@@ -666,11 +666,11 @@ template <class Mode>
 void V9990CmdEngine::CmdCMMM<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO can be optimized a lot
-	
+
 	int width = engine->vdp->getImageWidth();
 	if (Mode::PIXELS_PER_BYTE) {
 		// hack to avoid "warning: division by zero"
-		int ppb = Mode::PIXELS_PER_BYTE; 
+		int ppb = Mode::PIXELS_PER_BYTE;
 		width /= ppb;
 	}
 	int dx = (engine->ARG & DIX) ? -1 : 1;
@@ -683,14 +683,14 @@ void V9990CmdEngine::CmdCMMM<Mode>::execute(const EmuTime& /*time*/)
 		--engine->bitsLeft;
 		bool bit = engine->data & 0x80;
 		engine->data <<= 1;
-		
+
 		word src = bit ? engine->fgCol : engine->bgCol;
 		word dest = Mode::point(vram, engine->DX, engine->DY, width);
 		word mask = Mode::shiftDown(engine->WM, engine->DX);
 		dest = engine->logOp(Mode::shiftDown(src, engine->DX),
 		                     dest, mask);
 		Mode::pset(vram, engine->DX, engine->DY, width, dest);
-		
+
 		engine->DX += dx;
 		if (!--(engine->ANX)) {
 			engine->DX -= (engine->NX * dx);
@@ -722,7 +722,7 @@ void V9990CmdEngine::CmdBMXL<Mode>::start(const EmuTime& time)
 
 	engine->ANX = engine->NX;
 	engine->ANY = engine->NY;
-	
+
 	// TODO should be done by sync
 	execute(time);
 }
@@ -771,7 +771,7 @@ void V9990CmdEngine::CmdBMXL<Mode>::execute(const EmuTime& /*time*/)
 			value = engine->logOp((data >> (8 - Mode::BITS_PER_PIXEL)),
 			                      value, mask);
 			Mode::pset(vram, engine->DX, engine->DY, width, value);
-			
+
 			engine->DX += dx;
 			if (!--(engine->ANX)) {
 				engine->DX -= (engine->NX * dx);
@@ -818,7 +818,7 @@ void V9990CmdEngine::CmdBMLX<Mode>::execute(const EmuTime& /*time*/)
 	int width = engine->vdp->getImageWidth();
 	if (Mode::PIXELS_PER_BYTE) {
 		// hack to avoid "warning: division by zero"
-		int ppb = Mode::PIXELS_PER_BYTE; 
+		int ppb = Mode::PIXELS_PER_BYTE;
 		width /= ppb;
 	}
 	int dx = (engine->ARG & DIX) ? -1 : 1;
@@ -837,7 +837,7 @@ void V9990CmdEngine::CmdBMLX<Mode>::execute(const EmuTime& /*time*/)
 			engine->bitsLeft = 16;
 			tmp = 0;
 		}
-		
+
 		engine->DX += dx;
 		engine->SX += dx;
 		if (!--(engine->ANX)) {
@@ -888,7 +888,7 @@ void V9990CmdEngine::CmdBMLL<Mode>::execute(const EmuTime& /*time*/)
 		byte mask = (engine->dstAddress & 1)
 		          ? (engine->WM >> 8) : (engine->WM & 0xFF);
 		mask = 255;
-		byte res = (src & mask) | (dst & ~mask); 
+		byte res = (src & mask) | (dst & ~mask);
 		vram->writeVRAMInterleave(engine->dstAddress, res);
 		++engine->srcAddress;
 		++engine->dstAddress;
@@ -913,7 +913,7 @@ void V9990CmdEngine::CmdLINE<Mode>::start(const EmuTime& time)
 	engine->ASX = (engine->NX - 1) / 2;
 	engine->ADX = engine->DX;
 	engine->ANX = 0;
-	
+
 	// TODO should be done by sync
 	execute(time);
 }
@@ -924,7 +924,7 @@ void V9990CmdEngine::CmdLINE<Mode>::execute(const EmuTime& /*time*/)
 	int width = engine->vdp->getImageWidth();
 	if (Mode::PIXELS_PER_BYTE) {
 		// hack to avoid "warning: division by zero"
-		int ppb = Mode::PIXELS_PER_BYTE; 
+		int ppb = Mode::PIXELS_PER_BYTE;
 		width /= ppb;
 	}
 
@@ -942,7 +942,7 @@ void V9990CmdEngine::CmdLINE<Mode>::execute(const EmuTime& /*time*/)
 			                      value, mask);
 			Mode::pset(vram, engine->ADX, engine->DY, width, value);
 			//clock += delta;
-			
+
 			engine->ADX += TX;
 			if (engine->ASX < engine->NY) {
 				engine->ASX += engine->NX;
@@ -1005,7 +1005,7 @@ void V9990CmdEngine::CmdSRCH<Mode>::execute(const EmuTime& /*time*/)
 	int width = ppl;
 	if (Mode::PIXELS_PER_BYTE) {
 		// hack to avoid "warning: division by zero"
-		int ppb = Mode::PIXELS_PER_BYTE; 
+		int ppb = Mode::PIXELS_PER_BYTE;
 		width /= ppb;
 	}
 
@@ -1071,7 +1071,7 @@ void V9990CmdEngine::CmdPSET<Mode>::start(const EmuTime& /*time*/)
 	int width = engine->vdp->getImageWidth();
 	if (Mode::PIXELS_PER_BYTE) {
 		// hack to avoid "warning: division by zero"
-		int ppb = Mode::PIXELS_PER_BYTE; 
+		int ppb = Mode::PIXELS_PER_BYTE;
 		width /= ppb;
 	}
 	word value = Mode::point(vram, engine->DX, engine->DY, width);
@@ -1081,7 +1081,7 @@ void V9990CmdEngine::CmdPSET<Mode>::start(const EmuTime& /*time*/)
 	Mode::pset(vram, engine->DX, engine->DY, width, value);
 
 	// TODO advance DX DY
-	
+
 	engine->cmdReady();
 }
 
@@ -1125,7 +1125,7 @@ void V9990CmdEngine::setCmdData(byte value, const EmuTime& time)
 byte V9990CmdEngine::getCmdData(const EmuTime& time)
 {
 	sync(time);
-	
+
 	byte value = 0xFF;
 	if (status & TR) {
 		value = data;
@@ -1143,9 +1143,9 @@ word V9990CmdEngine::logOp(word src, word dest, word mask)
 		// but interleaving is different in Bx and Px modes
 		mask = 0xFFFF;
 	}
-	
+
 	word value = 0;
-	
+
 	if (!((LOG & 0x10) && (src == 0))) {
 		for (int i = 0; i < 16; ++i) {
 			value >>= 1;
@@ -1163,7 +1163,7 @@ word V9990CmdEngine::logOp(word src, word dest, word mask)
 			dest >>= 1;
 			mask >>= 1;
 		}
-	} else { 
+	} else {
 		value = dest;
 	}
 

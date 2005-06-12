@@ -127,7 +127,7 @@ void MSXCPUInterface::register_IO_In(byte port, MSXDevice* device)
 	PRT_DEBUG(device->getName() << " registers In-port " <<
 	          std::hex << (int)port << std::dec);
 	if (IO_In[port] == &dummyDevice) {
-		// first 
+		// first
 		IO_In[port] = device;
 	} else {
 		MSXDevice* dev2 = IO_In[port];
@@ -440,7 +440,7 @@ string MSXCPUInterface::getSlotSelection() const
 
 
 // class MemoryDebug
- 
+
 MSXCPUInterface::MemoryDebug::MemoryDebug(MSXCPUInterface& parent_)
 	: parent(parent_)
 {
@@ -471,7 +471,7 @@ void MSXCPUInterface::MemoryDebug::write(unsigned address, byte value)
 
 
 // class SlottedMemoryDebug
- 
+
 MSXCPUInterface::SlottedMemoryDebug::SlottedMemoryDebug(MSXCPUInterface& parent_)
 	: parent(parent_)
 {
@@ -585,7 +585,7 @@ string MSXCPUInterface::IOMapCmd::help(const vector<string>& /*tokens*/) const
 	return "Prints which I/O ports are connected to which devices.\n";
 }
 
-// class TurborCPUInterface 
+// class TurborCPUInterface
 
 TurborCPUInterface::TurborCPUInterface()
 {

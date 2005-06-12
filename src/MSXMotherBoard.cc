@@ -137,7 +137,7 @@ void MSXMotherBoard::run(bool power)
 	// Initialise devices.
 	//PRT_DEBUG(HardwareConfig::instance().getChild("devices").dump());
 	createDevices(HardwareConfig::instance().getChild("devices"));
-	
+
 	// First execute auto commands.
 	CommandController::instance().autoCommands();
 
@@ -149,7 +149,7 @@ void MSXMotherBoard::run(bool power)
 		powerOn();
 		powerUpMSX();
 	}
-	
+
 	while (emulationRunning) {
 		if (blockedCounter > 0) {
 			if (needPowerDown) {

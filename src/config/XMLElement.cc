@@ -53,7 +53,7 @@ void XMLElement::addChild(auto_ptr<XMLElement> child)
 	child->parent = this;
 	XMLElement* child2 = child.release();
 	children.push_back(child2);
-	
+
 	for (Listeners::const_iterator it = listeners.begin();
 	     it != listeners.end(); ++it) {
 		(*it)->childAdded(*this, *child2);

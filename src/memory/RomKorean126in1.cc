@@ -1,7 +1,7 @@
 // $Id$
 
 // Korean 126-in-1 cartridge
-// 
+//
 // Information obtained by studying MESS sources:
 //    0x4001 : 0x4000-0x7FFF
 //    0x4002 : 0x8000-0xBFFF

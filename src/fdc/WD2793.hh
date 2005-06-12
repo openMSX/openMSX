@@ -12,22 +12,22 @@ class DiskDrive;
 
 class WD2793 : private Schedulable
 {
-public: 
+public:
 	WD2793(DiskDrive& drive, const EmuTime& time);
 	virtual ~WD2793();
 
 	void reset(const EmuTime& time);
-	
+
 	byte getStatusReg(const EmuTime& time);
 	byte getTrackReg (const EmuTime& time);
 	byte getSectorReg(const EmuTime& time);
 	byte getDataReg  (const EmuTime& time);
-	
+
 	void setCommandReg(byte value, const EmuTime& time);
 	void setTrackReg  (byte value, const EmuTime& time);
 	void setSectorReg (byte value, const EmuTime& time);
 	void setDataReg   (byte value, const EmuTime& time);
-	
+
 	bool getIRQ (const EmuTime& time);
 	bool getDTRQ(const EmuTime& time);
 
@@ -52,21 +52,21 @@ private:
 	void step(const EmuTime& time);
 	void seekNext(const EmuTime& time);
 	void endType1Cmd();
-	
+
 	void startType2Cmd(const EmuTime& time);
 	void type2WaitLoad(const EmuTime& time);
 	void type2Loaded(const EmuTime& time);
 	void type2Rotated();
-	
+
 	void startType3Cmd(const EmuTime& time);
 	void type3WaitLoad(const EmuTime& time);
 	void type3Loaded(const EmuTime& time);
 	void readAddressCmd();
 	void readTrackCmd();
 	void writeTrackCmd(const EmuTime& time);
-	
+
 	void startType4Cmd(const EmuTime& time);
-	
+
 	void endCmd();
 
 	void tryToReadSector();
@@ -77,7 +77,7 @@ private:
 	void schedule(FSMState state, const EmuTime& time);
 
 	DiskDrive& drive;
-	
+
 	EmuTime commandStart;
 	Clock<1000000> DRQTimer;	// us
 

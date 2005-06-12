@@ -48,7 +48,7 @@ public:
 	 * (all braces, quotes, .. are balanced)
 	 */
 	bool isComplete(const std::string& command) const;
-	
+
 	/**
 	 * Execute a given command
 	 */
@@ -78,7 +78,7 @@ public:
 private:
 	CommandController();
 	~CommandController();
-	
+
 	void split(const std::string& str,
 	           std::vector<std::string>& tokens, char delimiter);
 	std::string join(const std::vector<std::string>& tokens, char delimiter);
@@ -111,7 +111,7 @@ private:
 	friend class HelpCmd;
 
 	CommandConsole* cmdConsole;
-	
+
 	InfoCommand& infoCommand;
 	Interpreter& interpreter;
 };

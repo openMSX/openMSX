@@ -21,22 +21,22 @@ template <typename T> class EnumSettingPolicy : public SettingPolicy<T>
 {
 public:
 	typedef std::map<std::string, T, StringOp::caseless> Map;
-	
+
 	void getPossibleValues(std::set<std::string>& result) const;
 
 protected:
 	EnumSettingPolicy(const std::string& name, const Map& map_);
 	virtual ~EnumSettingPolicy();
-	
+
 	std::string toString(T value) const;
 	T fromString(const std::string& str) const;
 	virtual void checkSetValue(T& value) const;
 	void tabCompletion(std::vector<std::string>& tokens) const;
-	
+
 private:
 	std::string name;
 	Map enumMap;
-	
+
 	class EnumInfo : public InfoTopic {
 	public:
 		EnumInfo(EnumSettingPolicy& parent);
@@ -53,7 +53,7 @@ template <typename T> class EnumSetting : public SettingImpl<EnumSettingPolicy<T
 public:
 	EnumSetting(const std::string& name, const std::string& description,
 	            T initialValue, const typename EnumSettingPolicy<T>::Map& map_,
-	            Setting::SaveSetting save = Setting::SAVE); 
+	            Setting::SaveSetting save = Setting::SAVE);
 };
 
 

@@ -12,7 +12,7 @@ class NullSoundDriver : public SoundDriver
 public:
 	NullSoundDriver();
 	virtual ~NullSoundDriver();
-	
+
 	virtual void lock();
 	virtual void unlock();
 

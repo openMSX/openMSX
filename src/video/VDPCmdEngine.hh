@@ -265,7 +265,7 @@ private:
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
-	
+
 	/** Abstract base class for block commands.
 	  */
 	class BlockCmd : public VDPCmd {
@@ -359,9 +359,9 @@ private:
 
 
 	virtual void update(const Setting* setting);
-	
+
 	void executeCommand(const EmuTime& time);
-	
+
 	/** Finshed executing graphical operation.
 	  */
 	void commandDone(const EmuTime& time);
@@ -369,7 +369,7 @@ private:
 	/** Get the current command timing, depends on vdp settings (sprites, display).
 	  */
 	inline int getTiming() {
-		return brokenTiming ? 4 : vdp->getAccessTiming(); 
+		return brokenTiming ? 4 : vdp->getAccessTiming();
 	}
 
 	/** Report the VDP command specified in the registers.

@@ -13,7 +13,7 @@ class DACSound8U : public DACSound16S
 {
 public:
 	DACSound8U(const std::string &name, const std::string& desc,
-	           const XMLElement& config, const EmuTime& time); 
+	           const XMLElement& config, const EmuTime& time);
 	virtual ~DACSound8U();
 
 	void writeDAC(byte value, const EmuTime& time);

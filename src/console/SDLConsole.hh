@@ -27,7 +27,7 @@ public:
 
 private:
 	void updateConsoleRect();
-	
+
 	SDL_Surface* outputScreen;
 	std::auto_ptr<SDLImage> backgroundImage;
 	std::string backgroundName;

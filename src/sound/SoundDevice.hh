@@ -24,7 +24,7 @@ public:
 	 * to be presented to the user.
 	 */
 	virtual const std::string& getDescription() const = 0;
-	
+
 	/**
 	 * Set the relative volume for this sound device.
 	 * This can be used for example to make an MSX-MUSIC sound louder
@@ -43,7 +43,7 @@ protected:
 	 * Initially, a sound device is muted.
 	 */
 	SoundDevice();
-	
+
 	/**
 	 * Destructor.
 	 * Does nothing.

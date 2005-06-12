@@ -28,7 +28,7 @@ class MSXCPUInterface
 public:
 	MSXCPUInterface();
 	static MSXCPUInterface& instance();
-	
+
 	/**
 	 * Devices can register their In ports. This is normally done
 	 * in their constructor. Once device are registered, their
@@ -55,7 +55,7 @@ public:
 	                       int primSl, int secSL, int pages);
 	void unregisterMemDevice(MSXDevice& device,
 	                         int primSl, int secSL, int pages);
-	
+
 	/**
 	 * Reset (the slot state)
 	 */
@@ -119,7 +119,7 @@ public:
 			return visibleDevices[start >> 14]->getReadCacheLine(start);
 		}
 	}
-	
+
 	/**
 	 * Test that the memory in the interval [start, start+CACHE_LINE_SIZE)
 	 * is cacheable for writing. If it is, a pointer to a buffer
@@ -168,13 +168,13 @@ public:
 
 protected:
 	virtual ~MSXCPUInterface();
-	
+
 	friend class std::auto_ptr<MSXCPUInterface>;
 
 private:
 	void registerSlot(MSXDevice* device,
 			  int primSl, int secSL, int page);
-	
+
 	class MemoryDebug : public Debuggable {
 	public:
 		MemoryDebug(MSXCPUInterface& parent);
@@ -284,7 +284,7 @@ public:
 
 private:
 	MSXDevice* getDelayDevice(MSXDevice& device);
-	
+
 	std::auto_ptr<VDPIODelay> delayDevice;
 };
 

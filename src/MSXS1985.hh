@@ -5,8 +5,8 @@
  *   backup RAM
  *   bitmap function
  * of the S1985 MSX-engine
- * 
- *  TODO explanation  
+ *
+ *  TODO explanation
  */
 
 #ifndef S1985_HH
@@ -25,7 +25,7 @@ class MSXS1985 : public MSXDevice, public MSXSwitchedDevice
 public:
 	MSXS1985(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXS1985();
-	
+
 	virtual void reset(const EmuTime& time);
 	virtual byte readIO(byte port, const EmuTime& time);
 	virtual byte peekIO(byte port, const EmuTime& time) const;

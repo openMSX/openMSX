@@ -52,7 +52,7 @@ void SettingsManager::registerSetting(Setting& setting)
 void SettingsManager::unregisterSetting(Setting& setting)
 {
 	interpreter.unregisterSetting(setting);
-	
+
 	const string& name = setting.getName();
 	assert(settingsMap.find(name) != settingsMap.end());
 	settingsMap.erase(name);
@@ -179,7 +179,7 @@ string SettingsManager::ToggleCommand::execute(const vector<string>& tokens)
 {
 	string result;
 	switch (tokens.size()) {
-	case 1: 
+	case 1:
 		// list all boolean settings
 		manager.getSettingNames<BooleanSetting>(result);
 		break;

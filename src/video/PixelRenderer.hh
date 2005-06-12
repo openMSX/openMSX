@@ -131,14 +131,14 @@ private:
 	int nextY;
 
 	/** Should current frame be draw or can it be skipped.
-	  */ 
+	  */
 	bool prevDrawFrame;
 	bool drawFrame;
 	bool renderFrame;
 
 	int frameSkipCounter;
 	double finishFrameDuration;
-	
+
 	// internal VDP counter, actually belongs in VDP
 	int textModeCounter;
 

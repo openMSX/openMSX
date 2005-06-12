@@ -18,7 +18,7 @@ private:
 	/** Mask used for blending.
 	  * The least significant bit of R,G,B must be 1,
 	  * all other bits must be 0.
-	  *     0000BBBBGGGGRRRR 
+	  *     0000BBBBGGGGRRRR
 	  * --> 0000000100010001
 	  */
 	Pixel blendMask;

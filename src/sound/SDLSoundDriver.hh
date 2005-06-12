@@ -20,7 +20,7 @@ class SDLSoundDriver : public SoundDriver, private Schedulable,
 public:
 	SDLSoundDriver(Mixer& mixer, unsigned frequency, unsigned samples);
 	virtual ~SDLSoundDriver();
-	
+
 	virtual void lock();
 	virtual void unlock();
 
@@ -38,17 +38,17 @@ private:
 	void updtStrm(unsigned samples);
 	void updtStrm2(unsigned samples);
 	void reInit();
-	
+
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const std::string& schedName() const;
-	
+
 	// SettingListener
 	virtual void update(const Setting* setting);
 
 	Mixer& mixer;
 	SDL_AudioSpec audioSpec;
-	
+
 	bool muted;
 	short* mixBuffer;
 	unsigned bufferSize;
@@ -56,7 +56,7 @@ private:
 	EmuTime prevTime;
 	EmuDuration interval1;
 	EmuDuration intervalAverage;
-	
+
 	IntegerSetting& speedSetting;
 	BooleanSetting& throttleSetting;
 };

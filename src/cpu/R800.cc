@@ -24,7 +24,7 @@ template<> const C::FuncPtr C::opcode_dd_cb[256] = {
  &C::sll_xix_h  ,&C::sll_xix_l  ,&C::sll_xix    ,&C::sll_xix_a  ,
  &C::srl_xix_b  ,&C::srl_xix_c  ,&C::srl_xix_d  ,&C::srl_xix_e  ,
  &C::srl_xix_h  ,&C::srl_xix_l  ,&C::srl_xix    ,&C::srl_xix_a  ,
- 
+
  &C::bit_0_xix  ,&C::bit_0_xix  ,&C::bit_0_xix  ,&C::bit_0_xix  ,
  &C::bit_0_xix  ,&C::bit_0_xix  ,&C::bit_0_xix  ,&C::bit_0_xix  ,
  &C::bit_1_xix  ,&C::bit_1_xix  ,&C::bit_1_xix  ,&C::bit_1_xix  ,
@@ -58,7 +58,7 @@ template<> const C::FuncPtr C::opcode_dd_cb[256] = {
  &C::res_6_xix_h,&C::res_6_xix_l,&C::res_6_xix  ,&C::res_6_xix_a,
  &C::res_7_xix_b,&C::res_7_xix_c,&C::res_7_xix_d,&C::res_7_xix_e,
  &C::res_7_xix_h,&C::res_7_xix_l,&C::res_7_xix  ,&C::res_7_xix_a,
- 
+
  &C::set_0_xix_b,&C::set_0_xix_c,&C::set_0_xix_d,&C::set_0_xix_e,
  &C::set_0_xix_h,&C::set_0_xix_l,&C::set_0_xix  ,&C::set_0_xix_a,
  &C::set_1_xix_b,&C::set_1_xix_c,&C::set_1_xix_d,&C::set_1_xix_e,
@@ -94,7 +94,7 @@ template<> const C::FuncPtr C::opcode_fd_cb[256] = {
  &C::sll_xiy_h  ,&C::sll_xiy_l  ,&C::sll_xiy    ,&C::sll_xiy_a  ,
  &C::srl_xiy_b  ,&C::srl_xiy_c  ,&C::srl_xiy_d  ,&C::srl_xiy_e  ,
  &C::srl_xiy_h  ,&C::srl_xiy_l  ,&C::srl_xiy    ,&C::srl_xiy_a  ,
- 
+
  &C::bit_0_xiy  ,&C::bit_0_xiy  ,&C::bit_0_xiy  ,&C::bit_0_xiy  ,
  &C::bit_0_xiy  ,&C::bit_0_xiy  ,&C::bit_0_xiy  ,&C::bit_0_xiy  ,
  &C::bit_1_xiy  ,&C::bit_1_xiy  ,&C::bit_1_xiy  ,&C::bit_1_xiy  ,
@@ -128,7 +128,7 @@ template<> const C::FuncPtr C::opcode_fd_cb[256] = {
  &C::res_6_xiy_h,&C::res_6_xiy_l,&C::res_6_xiy  ,&C::res_6_xiy_a,
  &C::res_7_xiy_b,&C::res_7_xiy_c,&C::res_7_xiy_d,&C::res_7_xiy_e,
  &C::res_7_xiy_h,&C::res_7_xiy_l,&C::res_7_xiy  ,&C::res_7_xiy_a,
- 
+
  &C::set_0_xiy_b,&C::set_0_xiy_c,&C::set_0_xiy_d,&C::set_0_xiy_e,
  &C::set_0_xiy_h,&C::set_0_xiy_l,&C::set_0_xiy  ,&C::set_0_xiy_a,
  &C::set_1_xiy_b,&C::set_1_xiy_c,&C::set_1_xiy_d,&C::set_1_xiy_e,
@@ -164,7 +164,7 @@ template<> const C::FuncPtr C::opcode_cb[256] = {
  &C::sll_h   ,&C::sll_l   ,&C::sll_xhl   ,&C::sll_a  ,
  &C::srl_b   ,&C::srl_c   ,&C::srl_d     ,&C::srl_e  ,
  &C::srl_h   ,&C::srl_l   ,&C::srl_xhl   ,&C::srl_a  ,
- 
+
  &C::bit_0_b ,&C::bit_0_c ,&C::bit_0_d   ,&C::bit_0_e,
  &C::bit_0_h ,&C::bit_0_l ,&C::bit_0_xhl ,&C::bit_0_a,
  &C::bit_1_b ,&C::bit_1_c ,&C::bit_1_d   ,&C::bit_1_e,
@@ -181,7 +181,7 @@ template<> const C::FuncPtr C::opcode_cb[256] = {
  &C::bit_6_h ,&C::bit_6_l ,&C::bit_6_xhl ,&C::bit_6_a,
  &C::bit_7_b ,&C::bit_7_c ,&C::bit_7_d   ,&C::bit_7_e,
  &C::bit_7_h ,&C::bit_7_l ,&C::bit_7_xhl ,&C::bit_7_a,
- 
+
  &C::res_0_b ,&C::res_0_c ,&C::res_0_d   ,&C::res_0_e,
  &C::res_0_h ,&C::res_0_l ,&C::res_0_xhl ,&C::res_0_a,
  &C::res_1_b ,&C::res_1_c ,&C::res_1_d   ,&C::res_1_e,
@@ -198,7 +198,7 @@ template<> const C::FuncPtr C::opcode_cb[256] = {
  &C::res_6_h ,&C::res_6_l ,&C::res_6_xhl ,&C::res_6_a,
  &C::res_7_b ,&C::res_7_c ,&C::res_7_d   ,&C::res_7_e,
  &C::res_7_h ,&C::res_7_l ,&C::res_7_xhl ,&C::res_7_a,
- 
+
  &C::set_0_b ,&C::set_0_c ,&C::set_0_d   ,&C::set_0_e,
  &C::set_0_h ,&C::set_0_l ,&C::set_0_xhl ,&C::set_0_a,
  &C::set_1_b ,&C::set_1_c ,&C::set_1_d   ,&C::set_1_e,
@@ -234,7 +234,7 @@ template<> const C::FuncPtr C::opcode_ed[256] = {
  &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
  &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
  &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
- 
+
  &C::in_b_c,&C::out_c_b,&C::sbc_hl_bc,&C::ld_xword_bc,
  &C::neg   ,&C::retn   ,&C::im_0     ,&C::ld_i_a     ,
  &C::in_c_c,&C::out_c_c,&C::adc_hl_bc,&C::ld_bc_xword,
@@ -251,7 +251,7 @@ template<> const C::FuncPtr C::opcode_ed[256] = {
  &C::neg   ,&C::retn   ,&C::im_1     ,&C::nop        ,
  &C::in_a_c,&C::out_c_a,&C::adc_hl_sp,&C::ld_sp_xword,
  &C::neg   ,&C::retn   ,&C::im_2     ,&C::nop        ,
- 
+
  &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
  &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
  &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
@@ -268,7 +268,7 @@ template<> const C::FuncPtr C::opcode_ed[256] = {
  &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
  &C::lddr  ,&C::cpdr   ,&C::indr     ,&C::otdr       ,
  &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
- 
+
  &C::nop   ,&C::mulub_a_b  ,&C::nop      ,&C::muluw_hl_bc,
  &C::nop   ,&C::nop        ,&C::nop      ,&C::nop        ,
  &C::nop   ,&C::mulub_a_c  ,&C::nop      ,&C::nop        ,
@@ -304,7 +304,7 @@ template<> const C::FuncPtr C::opcode_dd[256] = {
   &C::inc_xix   ,&C::dec_xix   ,&C::ld_xix_byte,&C::scf       ,
   &C::jr_c      ,&C::add_ix_sp ,&C::ld_a_xbyte ,&C::dec_sp    ,
   &C::inc_a     ,&C::dec_a     ,&C::ld_a_byte  ,&C::ccf       ,
- 
+
   &C::ld_b_b    ,&C::ld_b_c    ,&C::ld_b_d     ,&C::ld_b_e    ,
   &C::ld_b_ixh  ,&C::ld_b_ixl  ,&C::ld_b_xix   ,&C::ld_b_a    ,
   &C::ld_c_b    ,&C::ld_c_c    ,&C::ld_c_d     ,&C::ld_c_e    ,
@@ -321,7 +321,7 @@ template<> const C::FuncPtr C::opcode_dd[256] = {
   &C::ld_xix_h  ,&C::ld_xix_l  ,&C::halt       ,&C::ld_xix_a  ,
   &C::ld_a_b    ,&C::ld_a_c    ,&C::ld_a_d     ,&C::ld_a_e    ,
   &C::ld_a_ixh  ,&C::ld_a_ixl  ,&C::ld_a_xix   ,&C::ld_a_a    ,
-  
+
   &C::add_a_b   ,&C::add_a_c   ,&C::add_a_d    ,&C::add_a_e   ,
   &C::add_a_ixh ,&C::add_a_ixl ,&C::add_a_xix  ,&C::add_a_a   ,
   &C::adc_a_b   ,&C::adc_a_c   ,&C::adc_a_d    ,&C::adc_a_e   ,
@@ -338,7 +338,7 @@ template<> const C::FuncPtr C::opcode_dd[256] = {
   &C::or_ixh    ,&C::or_ixl    ,&C::or_xix     ,&C::or_a      ,
   &C::cp_b      ,&C::cp_c      ,&C::cp_d       ,&C::cp_e      ,
   &C::cp_ixh    ,&C::cp_ixl    ,&C::cp_xix     ,&C::cp_a      ,
-  
+
   &C::ret_nz    ,&C::pop_bc    ,&C::jp_nz      ,&C::jp        ,
   &C::call_nz   ,&C::push_bc   ,&C::add_a_byte ,&C::rst_00    ,
   &C::ret_z     ,&C::ret       ,&C::jp_z       ,&C::dd_cb     ,
@@ -354,7 +354,7 @@ template<> const C::FuncPtr C::opcode_dd[256] = {
   &C::ret_p     ,&C::pop_af    ,&C::jp_p       ,&C::di        ,
   &C::call_p    ,&C::push_af   ,&C::or_byte    ,&C::rst_30    ,
   &C::ret_m     ,&C::ld_sp_ix  ,&C::jp_m       ,&C::ei        ,
-  &C::call_m    ,&C::fd2       ,&C::cp_byte    ,&C::rst_38  
+  &C::call_m    ,&C::fd2       ,&C::cp_byte    ,&C::rst_38
 };
 
 template<> const C::FuncPtr C::opcode_fd[256] = {
@@ -374,7 +374,7 @@ template<> const C::FuncPtr C::opcode_fd[256] = {
   &C::inc_xiy   ,&C::dec_xiy   ,&C::ld_xiy_byte,&C::scf       ,
   &C::jr_c      ,&C::add_iy_sp ,&C::ld_a_xbyte ,&C::dec_sp    ,
   &C::inc_a     ,&C::dec_a     ,&C::ld_a_byte  ,&C::ccf       ,
- 
+
   &C::ld_b_b    ,&C::ld_b_c    ,&C::ld_b_d     ,&C::ld_b_e    ,
   &C::ld_b_iyh  ,&C::ld_b_iyl  ,&C::ld_b_xiy   ,&C::ld_b_a    ,
   &C::ld_c_b    ,&C::ld_c_c    ,&C::ld_c_d     ,&C::ld_c_e    ,
@@ -391,7 +391,7 @@ template<> const C::FuncPtr C::opcode_fd[256] = {
   &C::ld_xiy_h,  &C::ld_xiy_l,  &C::halt       ,&C::ld_xiy_a  ,
   &C::ld_a_b    ,&C::ld_a_c    ,&C::ld_a_d     ,&C::ld_a_e    ,
   &C::ld_a_iyh  ,&C::ld_a_iyl  ,&C::ld_a_xiy   ,&C::ld_a_a    ,
-  
+
   &C::add_a_b   ,&C::add_a_c   ,&C::add_a_d    ,&C::add_a_e   ,
   &C::add_a_iyh ,&C::add_a_iyl ,&C::add_a_xiy  ,&C::add_a_a   ,
   &C::adc_a_b   ,&C::adc_a_c   ,&C::adc_a_d    ,&C::adc_a_e   ,
@@ -424,7 +424,7 @@ template<> const C::FuncPtr C::opcode_fd[256] = {
   &C::ret_p     ,&C::pop_af    ,&C::jp_p       ,&C::di        ,
   &C::call_p    ,&C::push_af   ,&C::or_byte    ,&C::rst_30    ,
   &C::ret_m     ,&C::ld_sp_iy  ,&C::jp_m       ,&C::ei        ,
-  &C::call_m    ,&C::fd2       ,&C::cp_byte    ,&C::rst_38  
+  &C::call_m    ,&C::fd2       ,&C::cp_byte    ,&C::rst_38
 };
 
 template<> const C::FuncPtr C::opcode_main[256] = {
@@ -444,7 +444,7 @@ template<> const C::FuncPtr C::opcode_main[256] = {
  &C::inc_xhl ,&C::dec_xhl   ,&C::ld_xhl_byte,&C::scf       ,
  &C::jr_c    ,&C::add_hl_sp ,&C::ld_a_xbyte ,&C::dec_sp    ,
  &C::inc_a   ,&C::dec_a     ,&C::ld_a_byte  ,&C::ccf       ,
- 
+
  &C::ld_b_b  ,&C::ld_b_c    ,&C::ld_b_d     ,&C::ld_b_e    ,
  &C::ld_b_h  ,&C::ld_b_l    ,&C::ld_b_xhl   ,&C::ld_b_a    ,
  &C::ld_c_b  ,&C::ld_c_c    ,&C::ld_c_d     ,&C::ld_c_e    ,
@@ -461,7 +461,7 @@ template<> const C::FuncPtr C::opcode_main[256] = {
  &C::ld_xhl_h,&C::ld_xhl_l  ,&C::halt       ,&C::ld_xhl_a  ,
  &C::ld_a_b  ,&C::ld_a_c    ,&C::ld_a_d     ,&C::ld_a_e    ,
  &C::ld_a_h  ,&C::ld_a_l    ,&C::ld_a_xhl   ,&C::ld_a_a    ,
- 
+
  &C::add_a_b ,&C::add_a_c   ,&C::add_a_d    ,&C::add_a_e   ,
  &C::add_a_h ,&C::add_a_l   ,&C::add_a_xhl  ,&C::add_a_a   ,
  &C::adc_a_b ,&C::adc_a_c   ,&C::adc_a_d    ,&C::adc_a_e   ,
@@ -478,7 +478,7 @@ template<> const C::FuncPtr C::opcode_main[256] = {
  &C::or_h    ,&C::or_l      ,&C::or_xhl     ,&C::or_a      ,
  &C::cp_b    ,&C::cp_c      ,&C::cp_d       ,&C::cp_e      ,
  &C::cp_h    ,&C::cp_l      ,&C::cp_xhl     ,&C::cp_a      ,
- 
+
  &C::ret_nz  ,&C::pop_bc    ,&C::jp_nz      ,&C::jp        ,
  &C::call_nz ,&C::push_bc   ,&C::add_a_byte ,&C::rst_00    ,
  &C::ret_z   ,&C::ret       ,&C::jp_z       ,&C::cb        ,
@@ -494,7 +494,7 @@ template<> const C::FuncPtr C::opcode_main[256] = {
  &C::ret_p   ,&C::pop_af    ,&C::jp_p       ,&C::di        ,
  &C::call_p  ,&C::push_af   ,&C::or_byte    ,&C::rst_30    ,
  &C::ret_m   ,&C::ld_sp_hl  ,&C::jp_m       ,&C::ei        ,
- &C::call_m  ,&C::fd        ,&C::cp_byte    ,&C::rst_38  
+ &C::call_m  ,&C::fd        ,&C::cp_byte    ,&C::rst_38
 };
 
 } // namespace openmsx

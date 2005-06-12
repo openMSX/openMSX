@@ -1,7 +1,7 @@
 // $Id$
 
 // KONAMI4 8kB cartridges
-// 
+//
 // this type is used by Konami cartridges that do not have an SCC and some others
 // example of catrridges: Nemesis, Penguin Adventure, Usas, Metal Gear, Shalom,
 // The Maze of Galious, Aleste 1, 1942, Heaven, Mystery World, ...

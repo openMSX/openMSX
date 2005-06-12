@@ -15,7 +15,7 @@ public:
 	RomNational(const XMLElement& config, const EmuTime& time,
 	            std::auto_ptr<Rom> rom);
 	virtual ~RomNational();
-	
+
 	virtual void reset(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word address) const;

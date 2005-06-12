@@ -2,7 +2,7 @@
 
 // ASCII 8kB based cartridges with SRAM
 //   - ASCII8-8  /  KOEI-8  /  KOEI-32  /  WIZARDRY
-// 
+//
 // The address to change banks:
 //  bank 1: 0x6000 - 0x67ff (0x6000 used)
 //  bank 2: 0x6800 - 0x6fff (0x6800 used)

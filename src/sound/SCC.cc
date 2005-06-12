@@ -1,40 +1,40 @@
 // $Id$
 
 //-----------------------------------------------------------------------------
-// 
+//
 // On Mon, 24 Feb 2003, Jon De Schrijder wrote:
-// 
+//
 // I've done some measurements with the scope on the output of the SCC.
 // I didn't do timing tests, only amplitude checks:
-// 
+//
 // I know now for sure, the amplitude calculation works as follows:
-// 
+//
 // AmpOut=640+AmpA+AmpB+AmpC+AmpD+AmpE
-// 
+//
 // range AmpOut (11 bits positive number=SCC digital output): [+40...+1235]
-// 
+//
 // AmpA="((SampleValue*VolA) AND #7FF0) div 16"
 // AmpB="((SampleValue*VolB) AND #7FF0) div 16"
 // AmpC="((SampleValue*VolC) AND #7FF0) div 16"
 // AmpD="((SampleValue*VolD) AND #7FF0) div 16"
 // AmpE="((SampleValue*VolE) AND #7FF0) div 16"
-// 
+//
 // Setting the enablebit to zero, corresponds with VolX=0.
-// 
+//
 // SampleValue range [-128...+127]
 // VolX range [0..15]
-// 
-// Notes: 
+//
+// Notes:
 // * SampleValue*VolX is calculated (signed multiplication) and the lower 4
 //   bits are dropped (both in case the value is positive or negative), before
 //   the addition of the 5 values is done. This was tested by setting
 //   SampleValue=+1 and VolX=15 of different channels. The resulting AmpOut=640,
 //   indicating that the 4 lower bits were dropped *before* the addition.
-// 
+//
 //-----------------------------------------------------------------------------
 //
 // On Mon, 14 Apr 2003, Manuel Pazos wrote
-// 
+//
 // I have some info about SCC/SCC+ that I hope you find useful. It is about
 // "Mode Setting Register", also called "Deformation Register" Here it goes:
 //
@@ -59,7 +59,7 @@
 // Reading Mode Setting Register, is equivalent to write #FF to it.
 //
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 
+//
 // Additions:
 //   - Setting both bit0 and bit1 is equivalent to setting only bit1
 //   - A rotation goes like this:
@@ -92,11 +92,11 @@ SCC::SCC(const string& name_, const XMLElement& config, const EmuTime& time,
 	}
 
 	nbSamples = 9999;
-	
+
 	in[0] = in[1] = in[2] = in[3] = in[4] = 0;
 	inHp [0] = inHp [1] = inHp [2] = 0;
 	outHp[0] = outHp[1] = outHp[2] = 0;
-	
+
 	reset(time);
 	registerSound(config);
 	Debugger::instance().registerDebuggable(name + " SCC", sccDebuggable);
@@ -383,7 +383,7 @@ void SCC::setDeformReg(byte value, const EmuTime& time)
 	}
 	deformValue = value;
 	deformTimer.advance(time);
-	
+
 	if (currentChipMode != SCC_Real) {
 		value &= ~0x80;
 	}

@@ -16,7 +16,7 @@ class MSXMegaRam : public MSXDevice
 public:
 	MSXMegaRam(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXMegaRam();
-	
+
 	virtual void reset(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word address) const;

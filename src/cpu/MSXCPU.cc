@@ -58,8 +58,8 @@ void MSXCPU::setMotherboard(MSXMotherBoard* motherboard)
 
 void MSXCPU::setInterface(MSXCPUInterface* interface)
 {
-	z80 ->setInterface(interface); 
-	r800->setInterface(interface); 
+	z80 ->setInterface(interface);
+	r800->setInterface(interface);
 }
 
 void MSXCPU::reset(const EmuTime& time)
@@ -188,17 +188,17 @@ unsigned MSXCPU::getSize() const
 
 const string& MSXCPU::getDescription() const
 {
-	static const string desc = 
+	static const string desc =
 		"Registers of the active CPU (Z80 or R800)";
 	return desc;
 }
 
 byte MSXCPU::read(unsigned address)
 {
-	const CPU::CPURegs& regs = activeCPU->getRegisters(); 
+	const CPU::CPURegs& regs = activeCPU->getRegisters();
 	const word* registers[] = {
-		&regs.AF,  &regs.BC,  &regs.DE,  &regs.HL, 
-		&regs.AF2, &regs.BC2, &regs.DE2, &regs.HL2, 
+		&regs.AF,  &regs.BC,  &regs.DE,  &regs.HL,
+		&regs.AF2, &regs.BC2, &regs.DE2, &regs.HL2,
 		&regs.IX,  &regs.IY,  &regs.PC,  &regs.SP
 	};
 
@@ -223,10 +223,10 @@ byte MSXCPU::read(unsigned address)
 
 void MSXCPU::write(unsigned address, byte value)
 {
-	CPU::CPURegs& regs = activeCPU->getRegisters(); 
+	CPU::CPURegs& regs = activeCPU->getRegisters();
 	word* registers[] = {
-		&regs.AF,  &regs.BC,  &regs.DE,  &regs.HL, 
-		&regs.AF2, &regs.BC2, &regs.DE2, &regs.HL2, 
+		&regs.AF,  &regs.BC,  &regs.DE,  &regs.HL,
+		&regs.AF2, &regs.BC2, &regs.DE2, &regs.HL2,
 		&regs.IX,  &regs.IY,  &regs.PC,  &regs.SP
 	};
 

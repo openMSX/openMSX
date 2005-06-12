@@ -110,7 +110,7 @@ const string CompressedFileAdapter::getLocalName()
 #endif
 			FileOperations::mkdirp(tmpDir);
 		}
-		
+
 		// create temp file
 #ifdef	_WIN32
 		char tmpname[MAX_PATH];
@@ -125,7 +125,7 @@ const string CompressedFileAdapter::getLocalName()
 		int fd = mkstemp(localName);
 		FILE* fp = fdopen(fd, "w");
 #endif
-		
+
 		// write temp file
 		if (!fp) {
 			throw FileException("Couldn't create temp file");

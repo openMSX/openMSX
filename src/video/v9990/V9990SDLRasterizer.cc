@@ -91,7 +91,7 @@ void V9990SDLRasterizer<Pixel, zoom>::paint()
 			Scaler<Pixel>::copyLine(workScreen0, y, screen, 2 * y + 0);
 			Scaler<Pixel>::copyLine(workScreen1, y, screen, 2 * y + 1);
 		}
-	} else { 
+	} else {
 		SDL_BlitSurface(getWorkScreen(), NULL, screen, NULL);
 	}
 }
@@ -251,7 +251,7 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 		if ((fromY + displayHeight) > screenH) {
 			displayHeight = screenH - fromY;
 		}
-		
+
 		if (displayHeight > 0) {
 			displayX = V9990::UCtoX(displayX, displayMode);
 			displayWidth = V9990::UCtoX(displayWidth, displayMode);
@@ -308,7 +308,7 @@ void V9990SDLRasterizer<Pixel, zoom>::drawP2Mode(
 	}
 }
 
-static unsigned rollMasks[4] = { 
+static unsigned rollMasks[4] = {
 	0x1FFF, // no rolling
 	0x00FF,
 	0x01FF,
@@ -328,7 +328,7 @@ void V9990SDLRasterizer<Pixel, zoom>::drawBxMode(
 
 	unsigned scrollX = vdp->getScrollAX();
 	unsigned x = displayX + scrollX;
-	
+
 	unsigned scrollY = vdp->getScrollAY();
 	int lineStep = 1;
 	if (vdp->isEvenOddEnabled()) {
@@ -368,21 +368,21 @@ void V9990SDLRasterizer<Pixel, zoom>::precalcPalettes()
 			}
 		}
 	}
-	
+
 	// the 256 color palette
 	int mapRG[8] = { 0, 4, 9, 13, 18, 22, 27, 31 };
 	int mapB [4] = { 0, 11, 21, 31 };
 	for (int g = 0; g < 8; ++g) {
 		for (int r = 0; r < 8; ++r) {
 			for (int b = 0; b < 4; ++b) {
-				palette256[(g << 5) + (r << 2) + b] = 
+				palette256[(g << 5) + (r << 2) + b] =
 					palette32768[(mapRG[g] << 10) +
 					             (mapRG[r] <<  5) +
 					              mapB [b]];
 			}
 		}
 	}
-	
+
 	// get 64 color palette from VDP
 	for (int i = 0; i < 64; ++i) {
 		byte r, g, b;
@@ -395,9 +395,9 @@ template <class Pixel, Renderer::Zoom zoom>
 void V9990SDLRasterizer<Pixel, zoom>::setPalette(int index,
                                                  byte r, byte g, byte b)
 {
-	palette64[index & 63] = palette32768[((g & 31) << 10) + 
+	palette64[index & 63] = palette32768[((g & 31) << 10) +
 	                                     ((r & 31) <<  5) +
-	                                      (b & 31)]; 
+	                                      (b & 31)];
 }
 
 

@@ -17,7 +17,7 @@ class Interpreter
 {
 public:
 	static Interpreter& instance();
-	
+
 	void init(const char* programName);
 	void registerCommand(const std::string& name, Command& command);
 	void unregisterCommand(const std::string& name, Command& command);
@@ -25,7 +25,7 @@ public:
 	bool isComplete(const std::string& command) const;
 	std::string execute(const std::string& command);
 	std::string executeFile(const std::string& filename);
-	
+
 	void setVariable(const std::string& name, const std::string& value);
 	void unsetVariable(const std::string& name);
 	const char* getVariable(const std::string& name) const;
@@ -40,7 +40,7 @@ public:
 private:
 	Interpreter();
 	~Interpreter();
-	
+
 	static int outputProc(ClientData clientData, const char* buf,
 	        int toWrite, int* errorCodePtr);
 	static int commandProc(ClientData clientData, Tcl_Interp* interp,

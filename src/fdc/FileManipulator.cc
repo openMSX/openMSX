@@ -74,7 +74,7 @@ FileManipulator::DriveSettings& FileManipulator::getDriveSettings(
 	if (it == diskImages.end()) {
 		throw CommandException("Unknown drive: "  + tmp);
 	}
-	
+
 	it->second.partition = 0;
 	if (pos != string::npos) {
 		int i = strtol(diskname.substr(pos).c_str(), NULL, 10);
@@ -309,7 +309,7 @@ void FileManipulator::create(const vector<string>& tokens)
 	for (unsigned i = 3; i < tokens.size(); ++i) {
 		char* q;
 		int sectors = strtol(tokens[i].c_str(), &q, 0);
-		int scale = 1024; // default is kilobytes 
+		int scale = 1024; // default is kilobytes
 		if (*q) {
 			if ((q == tokens[i].c_str()) || *(q + 1)) {
 				throw CommandException(
@@ -335,7 +335,7 @@ void FileManipulator::create(const vector<string>& tokens)
 		}
 		sectors = (sectors * scale) / SectorBasedDisk::SECTOR_SIZE;
 		// for a 32MB disk or greater the sectors would be >= 65536
-		// since MSX use 16 bits for this, in case of sectors = 65536 
+		// since MSX use 16 bits for this, in case of sectors = 65536
 		// the truncated word will be 0 -> formatted as 320 Kb disk!
 		if (sectors > 65535) sectors = 65535; // this is the max size for fat12 :-)
 
@@ -353,7 +353,7 @@ void FileManipulator::create(const vector<string>& tokens)
 		// extra sector for partition table
 		++totalSectors;
 	}
-	
+
 	// create file with correct size
 	try {
 		File file(tokens[2], CREATE);
@@ -437,7 +437,7 @@ void FileManipulator::import(DriveSettings& driveData,
 	     it != lists.end(); ++it) {
 		vector<string> list;
 		Interpreter::instance().splitList(*it, list);
-	
+
 		for (vector<string>::const_iterator it = list.begin();
 		     it != list.end(); ++it) {
 			if (FileOperations::isDirectory(*it)) {

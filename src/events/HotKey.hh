@@ -33,7 +33,7 @@ private:
 	// XMLElementListener
 	virtual void childAdded(const XMLElement& parent,
 	                        const XMLElement& child);
-	
+
 	class HotKeyCmd {
 	public:
 		HotKeyCmd(const XMLElement& elem);
@@ -61,10 +61,10 @@ private:
 	private:
 		HotKey& parent;
 	} unbindCmd;
-	
+
 	typedef std::map<Keys::KeyCode, HotKeyCmd*> CommandMap;
 	CommandMap cmdMap;
-	
+
 	XMLElement& bindingsElement;
 };
 

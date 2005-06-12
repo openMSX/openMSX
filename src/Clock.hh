@@ -29,7 +29,7 @@ private:
 	static const unsigned long long R0 =
 		(((Q - (R1 * FREQ_NOM)) << 32) + (P & 0xFFFFFFFF)) / FREQ_NOM;
 	static const unsigned long long MASTER_TICKS = (R1 << 32) + R0;
-	
+
 public:
 	/** Calculates the duration of the given number of ticks at this
 	  * clock's frequency.

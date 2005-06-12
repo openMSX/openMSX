@@ -434,7 +434,7 @@ private:
 	virtual const std::string& getDescription() const;
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
-	 
+
 	/** VDP this VRAM belongs to.
 	  */
 	VDP* vdp;

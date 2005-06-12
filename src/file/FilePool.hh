@@ -16,7 +16,7 @@ class FilePool
 {
 public:
 	static FilePool& instance();
-	
+
 	std::string getFile(const std::string& sha1sum);
 
 private:

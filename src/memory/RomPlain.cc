@@ -38,7 +38,7 @@ RomPlain::RomPlain(const XMLElement& config, const EmuTime& time,
 		    ": invalid rom size: must be smaller than or equal to 64kB "
 		    "and must be a multiple of 8kB.");
 	}
-	
+
 	unsigned romBase = (start == -1)
 	                 ? guessLocation(windowBase, windowSize)
 	                 : start;
@@ -67,7 +67,7 @@ RomPlain::RomPlain(const XMLElement& config, const EmuTime& time,
 				setBank(page, unmappedRead);
 			}
 		}
-		
+
 	}
 }
 

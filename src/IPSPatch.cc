@@ -68,7 +68,7 @@ IPSPatch::IPSPatch(const std::string& filename,
 			// add new region
 			patchMap[offset] = v;
 		}
-		
+
 		ipsFile.read(buf, 3);
 	}
 	if (patchMap.empty()) {
@@ -82,7 +82,7 @@ IPSPatch::IPSPatch(const std::string& filename,
 void IPSPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
 {
 	parent->copyBlock(src, dst, num);
-	
+
 	PatchMap::const_iterator b = patchMap.lower_bound(src);
 	if (b != patchMap.begin()) --b;
 	PatchMap::const_iterator e = patchMap.upper_bound(src + num - 1);

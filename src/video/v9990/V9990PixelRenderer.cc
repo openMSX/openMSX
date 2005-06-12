@@ -27,7 +27,7 @@ V9990PixelRenderer::V9990PixelRenderer(V9990* vdp_)
 	frameSkipCounter = 999; // force drawing of frame;
 	finishFrameDuration = 0;
 	drawFrame = false; // don't draw before frameStart is called
-	
+
 	reset(Scheduler::instance().getCurrentTime());
 
 	settings.getMaxFrameSkip()->addListener(this);
@@ -72,7 +72,7 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 		}
 	}
 	if (!drawFrame) return;
-	
+
 	accuracy = settings.getAccuracy()->getValue();
 	lastX = 0;
 	lastY = 0;
@@ -85,12 +85,12 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 void V9990PixelRenderer::frameEnd(const EmuTime& time)
 {
 	PRT_DEBUG("V9990PixelRenderer::frameEnd");
-	
+
 	if (!drawFrame) return;
 
 	// Render last changes in this frame before starting a new frame
 	sync(time, true);
-	
+
 	unsigned long long time1 = Timer::getTime();
 	rasterizer->frameEnd();
 	unsigned long long time2 = Timer::getTime();
@@ -98,7 +98,7 @@ void V9990PixelRenderer::frameEnd(const EmuTime& time)
 	const double ALPHA = 0.2;
 	finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
 	                      current * ALPHA;
-	
+
 	FinishFrameEvent* f = new FinishFrameEvent(VIDEO_GFX9000);
 	EventDistributor::instance().distributeEvent(f);
 }
@@ -144,7 +144,7 @@ void V9990PixelRenderer::renderUntil(const EmuTime& time)
 	}
 
 	if ((toX == lastX) && (toY == lastY)) return;
-	
+
 	// edges of the DISPLAY part of the vdp output
 	int left       = horTiming.border1;
 	int right      = left   + horTiming.display;
@@ -190,7 +190,7 @@ void V9990PixelRenderer::subdivide(int fromX, int fromY, int toX, int toY,
 	if (fromY < toY) {
 		draw(clipL, fromY, clipR, toY, drawType);
 	}
-	
+
 	// partial last line
 	if (drawLast) draw(clipL, toY, toX, toY + 1, drawType);
 }
@@ -201,13 +201,13 @@ void V9990PixelRenderer::draw(int fromX, int fromY, int toX, int toY,
 	PRT_DEBUG("V9990PixelRenderer::draw(" << std::dec <<
 	          fromX << "," << fromY << "," << toX << "," << toY << "," <<
 	          ((type == DRAW_BORDER)? "BORDER": "DISPLAY") << ")");
-	
+
 	if (type == DRAW_BORDER) {
 		rasterizer->drawBorder(fromX, fromY, toX, toY);
 
 	} else {
 		assert(type == DRAW_DISPLAY);
-		
+
 		const V9990DisplayPeriod& horTiming = vdp->getHorizontalTiming();
 		const V9990DisplayPeriod& verTiming = vdp->getVerticalTiming();
 

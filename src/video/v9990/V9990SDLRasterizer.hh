@@ -54,7 +54,7 @@ private:
 	/** screenheight for SDLLo
 	  */
 	static const int SCREEN_HEIGHT = 240;
-	
+
 	/** Number of workscreens
 	  */
 	static const int NB_WORKSCREENS = (zoom == Renderer::ZOOM_256) ? 1 : 2;
@@ -88,7 +88,7 @@ private:
 	int colZero;
 
 	/** The current screen mode
-	  */ 
+	  */
 	V9990DisplayMode displayMode;
 	V9990ColorMode   colorMode;
 
@@ -108,7 +108,7 @@ private:
 	  * These are colors influenced by the palette IO ports and registers
 	  */
 	Pixel palette64[64];
-	
+
 	/** Bitmap converter. Converts VRAM into pixels
 	  */
 	V9990BitmapConverter<Pixel, zoom> bitmapConverter;
@@ -116,17 +116,17 @@ private:
 	/** P1 Converter
 	  */
 	V9990P1Converter<Pixel, zoom> p1Converter;
-	
+
 	/** P2 Converter
 	  */
 	V9990P2Converter<Pixel, zoom> p2Converter;
-	
+
 	/** Deinterlace setting
 	  */
 	BooleanSetting* deinterlaceSetting;
 
 	/** Get the active workscreen (for deinterlace)
-	  */ 
+	  */
 	SDL_Surface* getWorkScreen(bool prev = false) const;
 
 	/** Fill the palettes.
@@ -134,17 +134,17 @@ private:
 	void precalcPalettes();
 
 	/** Draw P1 mode.
-	  */ 
+	  */
 	void drawP1Mode(int fromX, int fromY, int displayX, int displayY,
 	                int displayWidth, int displayHeight);
 
 	/** Draw P2 mode.
-	  */ 
+	  */
 	void drawP2Mode(int fromX, int fromY, int displayX, int displayY,
 	                int displayWidth, int displayHeight);
 
 	/** Draw Bx mode.
-	  */ 
+	  */
 	void drawBxMode(int fromX, int fromY, int displayX, int displayY,
 	                int displayWidth, int displayHeight);
 };

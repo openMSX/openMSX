@@ -32,7 +32,7 @@ void SectorBasedDisk::read(byte track, byte sector, byte side,
 	}
 }
 
-void SectorBasedDisk::write(byte track, byte sector, byte side, 
+void SectorBasedDisk::write(byte track, byte sector, byte side,
                             unsigned size, const byte* buf)
 {
 	if (size); // avoid warning
@@ -61,7 +61,7 @@ void SectorBasedDisk::initWriteTrack(byte track, byte side)
 	if (writeProtected()) {
 		throw WriteProtectedException("");
 	}
-	
+
 	writeTrackBufCur = 0;
 	writeTrack_track = track;
 	writeTrack_side = side;
@@ -74,13 +74,13 @@ void SectorBasedDisk::writeTrackData(byte data)
 	if (writeProtected()) {
 		throw WriteProtectedException("");
 	}
-	
+
 	// if it is a 0xF7 ("two CRC characters") then the previous 512
 	// bytes could be actual sectordata bytes
 	if (data == 0xF7) {
 		if (writeTrack_CRCcount & 1) {
 			// first CRC is sector header CRC, second CRC is actual
-			// sector data CRC so write them 
+			// sector data CRC so write them
 			byte tempWriteBuf[512];
 			for (int i = 0; i < 512; i++) {
 				tempWriteBuf[i] =
@@ -90,7 +90,7 @@ void SectorBasedDisk::writeTrackData(byte data)
 			      writeTrack_side, 512, tempWriteBuf);
 			writeTrack_sector++; // update sector counter
 		}
-		writeTrack_CRCcount++; 
+		writeTrack_CRCcount++;
 	} else {
 		writeTrackBuf[writeTrackBufCur++] = data;
 		writeTrackBufCur &= 511;
@@ -114,7 +114,7 @@ void SectorBasedDisk::initReadTrack(byte track, byte side)
 	// '00' x 12, 'A1' x 3, 'FE' x 1,
 	// C,H,R,N,CRC(2bytes), '4E' x 22, '00' x 12,
 	// 'A1' x 4,'FB'('F8') x 1, data(512 bytes),CRC(2bytes),'4E'(gap3)
-	
+
 	readTrackDataCount = 0;
 	byte* tmppoint = readTrackDataBuf;
 	// Fill track header
@@ -177,20 +177,20 @@ unsigned SectorBasedDisk::getNbSectors() const
 void SectorBasedDisk::detectGeometry()
 {
 	// the following are just heuristics...
-	
+
 	if (nbSectors == 1440) {
 		// explicitly check for 720kb filesize
-		 
+
 		// "trojka.dsk" is 720kb, but has bootsector and FAT media ID
 		// for a single sided disk. From an emulator point of view it
 		// must be accessed as a double sided disk.
-		 
+
 		// "SDSNAT2.DSK" has invalid media ID in both FAT and
 		// bootsector, other data in the bootsector is invalid as well.
 		// Altough the first byte of the bootsector is 0xE9 to indicate
 		// valid bootsector data. The only way to detect the format is
 		// to look at the diskimage filesize.
-		
+
 		sectorsPerTrack = 9;
 		nbSides = 2;
 

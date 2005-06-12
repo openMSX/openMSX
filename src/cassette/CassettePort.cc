@@ -22,7 +22,7 @@ static CassettePortInterface* instanceHelper()
 		? static_cast<CassettePortInterface*>(new CassettePort())
 		: static_cast<CassettePortInterface*>(new DummyCassettePort());
 }
-	
+
 CassettePortInterface& CassettePortFactory::instance()
 {
 	static auto_ptr<CassettePortInterface> oneInstance(instanceHelper());

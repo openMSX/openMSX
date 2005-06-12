@@ -38,7 +38,7 @@ protected:
 		: minValue(minValue_), maxValue(maxValue_)
 	{
 	}
-	
+
 	void checkSetValue(T& value)
 	{
 		value = std::min(std::max(value, minValue), maxValue);

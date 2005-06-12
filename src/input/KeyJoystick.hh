@@ -35,7 +35,7 @@ private:
 	virtual void updateData(const XMLElement& element);
 	virtual void childAdded(const XMLElement& parent,
 	                        const XMLElement& child);
-	
+
 	void readKeys();
 	void allUp();
 

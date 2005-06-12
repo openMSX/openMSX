@@ -159,7 +159,7 @@ void CasImage::convert()
 					// unknown file type: using long header
 					writeData();
 				}
-			} else { 
+			} else {
 				// unknown file type: using long header
 				writeData();
 			}

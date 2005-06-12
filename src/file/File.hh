@@ -31,7 +31,7 @@ public:
 	 * @throws FileException
 	 */
 	File(const std::string& url, OpenMode mode = NORMAL);
-	
+
 	/**
 	 * Destroy file object.
 	 */
@@ -65,7 +65,7 @@ public:
 	byte* mmap(bool writeBack = false);
 
 	/**
-	 * Unmap file from memory. 
+	 * Unmap file from memory.
 	 * @throws FileException
 	 */
 	void munmap();
@@ -121,7 +121,7 @@ public:
 	 * @throws FileException
 	 */
 	const std::string getOriginalName();
-	
+
 	/**
 	 * Check if this file is readonly
 	 * @result true iff file is readonly

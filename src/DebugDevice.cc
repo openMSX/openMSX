@@ -34,14 +34,14 @@ void DebugDevice::writeIO(byte port, byte value, const EmuTime& time)
 		fileNameString = currentName;
 		openOutput(fileNameString);
 	}
-	
+
 	switch (port & 0x01) {
 		case 0:
 			switch ((value & 0x30) >> 4) {
-				case 0: 
+				case 0:
 					mode = OFF;
 					break;
-				case 1: 
+				case 1:
 					mode = SINGLEBYTE;
 					modeParameter = value & 0x0F;
 					break;
@@ -52,7 +52,7 @@ void DebugDevice::writeIO(byte port, byte value, const EmuTime& time)
 				case 3:
 					break;
 			}
-			if (!(value & 0x40)){ 
+			if (!(value & 0x40)){
 				(*outputstrm) << std::endl;
 			}
 			break;
@@ -93,7 +93,7 @@ void DebugDevice::outputSingleByte(byte value, const EmuTime& time)
 		(*outputstrm) << "' ";
 	}
 	Clock<3579545> zero;
-	(*outputstrm) << "emutime: " << zero.getTicksTill(time); 
+	(*outputstrm) << "emutime: " << zero.getTicksTill(time);
 	if ((modeParameter & 0x08) && ((value < ' ') || (value == 127))) {
 		displayByte(value, ASC); // do special effects
 	}
@@ -104,7 +104,7 @@ void DebugDevice::outputMultiByte(byte value)
 {
 	DisplayType dispType;
 	switch (modeParameter) {
-		case 0: 
+		case 0:
 			dispType = HEX;
 			break;
 		case 1:
@@ -117,7 +117,7 @@ void DebugDevice::outputMultiByte(byte value)
 		default:
 			dispType = ASC;
 			break;
-	}	
+	}
 	displayByte(value, dispType);
 }
 
@@ -158,7 +158,7 @@ void DebugDevice::openOutput(const string& name)
 	debugOut.close();
 	if (name == "stdout") {
 		outputstrm = &std::cout;
-	} else if (name == "stderr") { 
+	} else if (name == "stderr") {
 		outputstrm = &std::cerr;
 	} else {
 		string realName = FileOperations::expandTilde(name);

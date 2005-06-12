@@ -7,8 +7,8 @@
 //  second 16kb: 0x7000 - 0x7FFF (0x7000 and 0x7800 used)
 //               bit 4 selects ROM chip,
 //                if low  bit 3-0 select page
-//                   high     2-0 
-                   
+//                   high     2-0
+
 #include "RomRType.hh"
 #include "Rom.hh"
 

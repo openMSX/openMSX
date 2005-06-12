@@ -58,7 +58,7 @@ private:
 	LPDIRECTSOUNDBUFFER primaryBuffer;
 	LPDIRECTSOUNDBUFFER secondaryBuffer;
 	LPDIRECTSOUND directSound;
-	
+
 	Mixer& mixer;
 	unsigned frequency;
 
@@ -66,7 +66,7 @@ private:
 	EmuTime prevTime;
 	EmuDuration interval1;
 	//EmuDuration intervalAverage;
-	
+
 	IntegerSetting& speedSetting;
 	BooleanSetting& throttleSetting;
 };

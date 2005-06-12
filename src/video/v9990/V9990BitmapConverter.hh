@@ -35,14 +35,14 @@ public:
 	void setDisplayMode(V9990DisplayMode mode);
 
 	/** Set the color mode
-	  */ 
+	  */
 	void setColorMode(V9990ColorMode mode);
 
 private:
-	/** Pointer to VDP 
+	/** Pointer to VDP
 	  */
 	V9990* vdp;
-	
+
 	/** Pointer to VDP VRAM
 	  */
 	V9990VRAM* vram;
@@ -90,7 +90,7 @@ private:
 	inline Pixel blendPixels3(const Pixel* source);
 	template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
 	inline Pixel blendPixels4(const Pixel* source);
-	
+
 	void blend_1on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
 	void blend_1on2(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
 	void blend_1on1(const Pixel* inPixels, Pixel* outPixels, int nrPixels);

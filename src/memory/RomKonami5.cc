@@ -1,7 +1,7 @@
 // $Id$
 
 // KONAMI5 8kB cartridges
-// 
+//
 // this type is used by Konami cartridges that do have an SCC and some others
 // examples of cartridges: Nemesis 2, Nemesis 3, King's Valley 2, Space Manbow
 // Solid Snake, Quarth, Ashguine 1, Animal, Arkanoid 2, ...

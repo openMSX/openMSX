@@ -70,7 +70,7 @@ unsigned Alarm::helper(unsigned /*interval*/, void* param)
 	//   free memory read when the timer thread continues.
 	// TODO If the other thread just cancels the alarm there is no problem.
 	//      (Is this correct???) TODO adjust the documentation at the top
-	
+
 	Alarm* alarm = static_cast<Alarm*>(param);
 	ScopedLock lock(alarm->sem);
 	if (alarm->id) {

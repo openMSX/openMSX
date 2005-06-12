@@ -80,7 +80,7 @@ private:
 	void openSound();
 	void reopenSound();
 	void muteHelper();
-	
+
 	void updateMasterVolume(int masterVolume);
 
 	void startSoundLogging(const std::string& filename);
@@ -116,7 +116,7 @@ private:
 	std::auto_ptr<EnumSetting<SoundDriverType> > soundDriverSetting;
 	BooleanSetting& pauseSetting;
 	bool handlingUpdate;
-	
+
 	FILE* wavfp;
 	uint32 nofWavBytes;
 
@@ -137,7 +137,7 @@ private:
 		std::string getFileName();
 		Mixer& outer;
 	} soundlogCommand;
-	
+
 	// Info
 	class SoundDeviceInfoTopic : public InfoTopic {
 	public:
