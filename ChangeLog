@@ -1,5 +1,9 @@
 $Id$
 
+2005-06-12 Maarten ter Huurne <maarten@treewalker.org>
+	* Look for TCL in "lib64" directories as well.
+	  Fixes TCL detection on Fedora Core 3 x86-64.
+
 2005-06-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed romdb.xml and romdb.dtd files:
 	   These files were already obsoleted by softwaredb.xml. OpenMSX
@@ -15,7 +19,7 @@ $Id$
 	  dump. It's now also easier to put in a larger bitmap.
 
 2005-06-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
-	* Fixed background in screen6: 
+	* Fixed background in screen6:
 	   only use lower two bits for background color
 	   TODO use stripes
 
@@ -110,7 +114,7 @@ $Id$
 	   thanks to Daniel for figuring this out
 
 2005-05-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
-	* Large MSXtar / Filemanipulator (and related stuff) cleanup 
+	* Large MSXtar / Filemanipulator (and related stuff) cleanup
 
 2005-05-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented missing WD2793 feature, interrupt on index pulse:
@@ -149,7 +153,7 @@ $Id$
 	     which adds a Master or Slave indication to the name
 	   - enabled '.' and '..' support in some MSXtar routines
 	   - while cleaning up the code I added some verbose error
-	     messages in case of failure or wrong usage 
+	     messages in case of failure or wrong usage
 
 2005-05-02 David Heremans <david.heremans@gnu-linux.net>
 	* MSXtar Work-In-Progress:
@@ -173,7 +177,7 @@ $Id$
 	* MSXtar Work-In-Progress:
 	   - the IDEHD is now accessible for the FileManipulator.
 	   - partition support is comming along nicely.
-	   - you can already do a 'getDir' to export an MSX-IDEHD partition 
+	   - you can already do a 'getDir' to export an MSX-IDEHD partition
 	     to your host-OS. No importing yet
 	   - untested create dsk image code with partition support :-)
 
@@ -369,7 +373,7 @@ $Id$
 
 2005-03-13 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Fixed win32 compile errors
-	  TODO: 
+	  TODO:
 	  - 2 warnings
 	  - better integration of wsock32 in the buildsystem
 

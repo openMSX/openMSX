@@ -10,6 +10,8 @@ BEST_CFLAGS=
 BEST_LDFLAGS=
 
 for dir in \
+	/usr/local/lib64/tcl8.* /usr/lib64/tcl8.* \
+	/usr/local/lib64 /usr/lib64 \
 	/usr/local/lib/tcl8.* /usr/lib/tcl8.* \
 	/usr/local/lib /usr/lib \
 	/usr/local/bin /usr/bin \
