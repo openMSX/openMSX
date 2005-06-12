@@ -2,6 +2,8 @@ $Id$
 
 2005-06-12 Maarten ter Huurne <maarten@treewalker.org>
 	* Only Schedulable has access to setting and removing sync points.
+	* Look for TCL in "lib64" directories as well.
+	  Fixes TCL detection on Fedora Core 3 x86-64.
 
 2005-06-11 Maarten ter Huurne <maarten@treewalker.org>
 	* Do not initialise SDL if openMSX doesn't start up (-h, --version).
