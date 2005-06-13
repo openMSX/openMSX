@@ -24,6 +24,11 @@ static const int CHANNELS = 2;
 static HWND getWindowHandle()
 {
 	// This is SDL specific code, refactor when needed
+	
+	// !! Initialize video system, DirectX needs a handle to the window
+	// !! and this only works when SDL video part is initialized
+	if (!SDL_WasInit(SDL_INIT_VIDEO)) SDL_InitSubSystem(SDL_INIT_VIDEO);
+	
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
 	if (!SDL_GetWMInfo(&info)) {
