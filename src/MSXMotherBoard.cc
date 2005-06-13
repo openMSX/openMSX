@@ -8,7 +8,11 @@
 #include "EmuTime.hh"
 #include "HardwareConfig.hh"
 #include "DeviceFactory.hh"
+#include "LedEvent.hh"
 #include "CliComm.hh"
+#include "EventDistributor.hh"
+#include "GlobalSettings.hh"
+#include "BooleanSetting.hh"
 #include <cassert>
 
 using std::string;
@@ -17,18 +21,29 @@ using std::vector;
 namespace openmsx {
 
 MSXMotherBoard::MSXMotherBoard()
-	: blockedCounter(0)
+	: powered(false)
+	, blockedCounter(0)
+	, powerSetting(GlobalSettings::instance().getPowerSetting())
 	, output(CliComm::instance())
+	, resetCommand(*this)
 {
 	MSXCPU::instance().setMotherboard(this);
 
 	// Initialise devices.
 	//PRT_DEBUG(HardwareConfig::instance().getChild("devices").dump());
 	createDevices(HardwareConfig::instance().getChild("devices"));
+
+	powerSetting.addListener(this);
+
+	CommandController::instance().registerCommand(&resetCommand, "reset");
 }
 
 MSXMotherBoard::~MSXMotherBoard()
 {
+	CommandController::instance().unregisterCommand(&resetCommand, "reset");
+
+	powerSetting.removeListener(this);
+
 	// Destroy emulated MSX machine.
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
@@ -37,9 +52,14 @@ MSXMotherBoard::~MSXMotherBoard()
 	availableDevices.clear();
 }
 
-void MSXMotherBoard::execute()
+bool MSXMotherBoard::execute()
 {
-	MSXCPU::instance().execute();
+	if (!powered || blockedCounter) {
+		return false;
+	} else {
+		MSXCPU::instance().execute();
+		return true;
+	}
 }
 
 void MSXMotherBoard::block()
@@ -70,17 +90,20 @@ void MSXMotherBoard::resetMSX()
 	MSXCPU::instance().reset(time);
 }
 
-void MSXMotherBoard::powerDownMSX()
-{
-	const EmuTime& time = Scheduler::instance().getCurrentTime();
-	for (Devices::iterator it = availableDevices.begin();
-	     it != availableDevices.end(); ++it) {
-		(*it)->powerDown(time);
-	}
-}
-
 void MSXMotherBoard::powerUpMSX()
 {
+	if (powered) return;
+
+	powered = true;
+	// TODO: If our "powered" field is always equal to the power setting,
+	//       there is not really a point in keeping it.
+	assert(powerSetting.getValue() == powered);
+	powerSetting.setValue(true);
+	// TODO: We could make the power LED a device, so we don't have to handle
+	//       it separately here.
+	EventDistributor::instance().distributeEvent(
+		new LedEvent(LedEvent::POWER, true));
+
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
 	MSXCPUInterface::instance().reset();
 	for (Devices::iterator it = availableDevices.begin();
@@ -88,6 +111,28 @@ void MSXMotherBoard::powerUpMSX()
 		(*it)->powerUp(time);
 	}
 	MSXCPU::instance().reset(time);
+}
+
+void MSXMotherBoard::powerDownMSX()
+{
+	if (!powered) return;
+
+	powered = false;
+	// TODO: This assertion fails in 1 case: when quitting with a running MSX.
+	//       How do we want the Reactor to shutdown: immediately or after
+	//       handling all pending commands/events/updates?
+	//assert(powerSetting.getValue() == powered);
+	powerSetting.setValue(false);
+	EventDistributor::instance().distributeEvent(
+		new LedEvent(LedEvent::POWER, false));
+
+	MSXCPU::instance().exitCPULoop();
+
+	const EmuTime& time = Scheduler::instance().getCurrentTime();
+	for (Devices::iterator it = availableDevices.begin();
+	     it != availableDevices.end(); ++it) {
+		(*it)->powerDown(time);
+	}
 }
 
 void MSXMotherBoard::createDevices(const XMLElement& elem)
@@ -113,6 +158,38 @@ void MSXMotherBoard::createDevices(const XMLElement& elem)
 			}
 		}
 	}
+}
+
+// SettingListener
+void MSXMotherBoard::update(const Setting* setting)
+{
+	if (setting == &powerSetting) {
+		if (powerSetting.getValue()) {
+			powerUpMSX();
+		} else {
+			powerDownMSX();
+		}
+	} else {
+		assert(false);
+	}
+}
+
+// inner class ResetCmd:
+
+MSXMotherBoard::ResetCmd::ResetCmd(MSXMotherBoard& parent_)
+	: parent(parent_)
+{
+}
+
+string MSXMotherBoard::ResetCmd::execute(const vector<string>& /*tokens*/)
+{
+	parent.resetMSX();
+	return "";
+}
+
+string MSXMotherBoard::ResetCmd::help(const vector<string>& /*tokens*/) const
+{
+	return "Resets the MSX.\n";
 }
 
 } // namespace openmsx

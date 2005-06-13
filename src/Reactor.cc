@@ -6,7 +6,6 @@
 #include "Scheduler.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXCPU.hh"
-#include "LedEvent.hh"
 #include "CliComm.hh"
 #include "EventDistributor.hh"
 #include "Display.hh"
@@ -15,6 +14,7 @@
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
 #include "Interpreter.hh"
+#include <cassert>
 
 using std::string;
 using std::vector;
@@ -22,82 +22,67 @@ using std::vector;
 namespace openmsx {
 
 Reactor::Reactor()
-	: paused(false), powered(false)
-	, needReset(false), needPowerDown(false), needPowerUp(false)
-	, blockedCounter(1) // power off
-	, emulationRunning(true)
+	: paused(false)
+	, blockedCounter(0)
+	, running(true)
 	, pauseSetting(GlobalSettings::instance().getPauseSetting())
-	, powerSetting(GlobalSettings::instance().getPowerSetting())
 	, output(CliComm::instance())
-	, motherboard()
 	, quitCommand(*this)
-	, resetCommand(*this)
 {
 	pauseSetting.addListener(this);
-	powerSetting.addListener(this);
 
 	EventDistributor::instance().registerEventListener(
 		OPENMSX_QUIT_EVENT, *this, EventDistributor::NATIVE);
 
 	CommandController::instance().registerCommand(&quitCommand, "quit");
 	CommandController::instance().registerCommand(&quitCommand, "exit");
-	CommandController::instance().registerCommand(&resetCommand, "reset");
 }
 
 Reactor::~Reactor()
 {
-	CommandController::instance().unregisterCommand(&resetCommand, "reset");
 	CommandController::instance().unregisterCommand(&quitCommand, "exit");
 	CommandController::instance().unregisterCommand(&quitCommand, "quit");
 
 	EventDistributor::instance().unregisterEventListener(
 		OPENMSX_QUIT_EVENT, *this, EventDistributor::NATIVE);
 
-	powerSetting.removeListener(this);
 	pauseSetting.removeListener(this);
 }
 
-void Reactor::run(bool power)
+void Reactor::run(bool autoRun)
 {
-	// First execute auto commands.
-	CommandController::instance().autoCommands();
+	CommandController& commandController = CommandController::instance();
+	Display& display = Display::instance();
+	InputEventGenerator& inputEventGenerator = InputEventGenerator::instance();
+	Interpreter& interpreter = Interpreter::instance();
+	Scheduler& scheduler = Scheduler::instance();
 
-	// Initialize.
-	MSXCPUInterface::instance().reset();
+	// First execute auto commands.
+	commandController.autoCommands();
+
+	// Initialize MSX machine.
+	// TODO: Make this into a command.
+	motherboard.reset(new MSXMotherBoard());
 
 	// Run.
-	if (power) {
-		powerOn();
-		needPowerUp = true;
+	if (autoRun) {
+		commandController.executeCommand("set power on");
 	}
-
-	while (emulationRunning) {
-		if (blockedCounter > 0) {
-			if (needPowerDown) {
-				needPowerDown = false;
-				motherboard.powerDownMSX();
-			}
-			Display::instance().repaint();
+	while (running) {
+		bool blocked = blockedCounter > 0;
+		if (!blocked) blocked = !motherboard->execute();
+		if (blocked) {
+			display.repaint();
 			Timer::sleep(100 * 1000);
-			InputEventGenerator::instance().poll();
-			Interpreter::instance().poll();
-			Scheduler& scheduler = Scheduler::instance();
+			inputEventGenerator.poll();
+			interpreter.poll();
+			// TODO: Make Scheduler only responsible for events inside the MSX.
+			//       All other events should be handled by the Reactor.
 			scheduler.schedule(scheduler.getCurrentTime());
-		} else {
-			if (needPowerUp) {
-				needPowerUp = false;
-				motherboard.powerUpMSX();
-			}
-			if (needReset) {
-				needReset = false;
-				motherboard.resetMSX();
-			}
-			motherboard.execute();
 		}
 	}
 
-	powerOff();
-	motherboard.powerDownMSX();
+	motherboard->powerDownMSX();
 }
 
 void Reactor::unpause()
@@ -118,28 +103,6 @@ void Reactor::pause()
 	}
 }
 
-void Reactor::powerOn()
-{
-	if (!powered) {
-		powered = true;
-		powerSetting.setValue(true);
-		EventDistributor::instance().distributeEvent(
-			new LedEvent(LedEvent::POWER, true));
-		unblock();
-	}
-}
-
-void Reactor::powerOff()
-{
-	if (powered) {
-		powered = false;
-		powerSetting.setValue(false);
-		EventDistributor::instance().distributeEvent(
-			new LedEvent(LedEvent::POWER, false));
-		block();
-	}
-}
-
 void Reactor::block()
 {
 	++blockedCounter;
@@ -149,21 +112,14 @@ void Reactor::block()
 void Reactor::unblock()
 {
 	--blockedCounter;
+	assert(blockedCounter >= 0);
 }
 
 
 // SettingListener
 void Reactor::update(const Setting* setting)
 {
-	if (setting == &powerSetting) {
-		if (powerSetting.getValue()) {
-			powerOn();
-			needPowerUp = true;
-		} else {
-			powerOff();
-			needPowerDown = true;
-		}
-	} else if (setting == &pauseSetting) {
+	if (setting == &pauseSetting) {
 		if (pauseSetting.getValue()) {
 			pause();
 		} else {
@@ -175,15 +131,20 @@ void Reactor::update(const Setting* setting)
 }
 
 // EventListener
-bool Reactor::signalEvent(const Event& /*event*/)
+bool Reactor::signalEvent(const Event& event)
 {
-	emulationRunning = false;
-	MSXCPU::instance().exitCPULoop();
+	if (event.getType() == OPENMSX_QUIT_EVENT) {
+		running = false;
+		MSXCPU::instance().exitCPULoop();
+	} else {
+		assert(false);
+	}
 	return true;
 }
 
 
 // class QuitCommand
+// TODO: Unify QuitCommand and OPENMSX_QUIT_EVENT.
 
 Reactor::QuitCommand::QuitCommand(Reactor& parent_)
 	: parent(parent_)
@@ -192,7 +153,7 @@ Reactor::QuitCommand::QuitCommand(Reactor& parent_)
 
 string Reactor::QuitCommand::execute(const vector<string>& /*tokens*/)
 {
-	parent.emulationRunning = false;
+	parent.running = false;
 	MSXCPU::instance().exitCPULoop();
 	return "";
 }
@@ -201,26 +162,6 @@ string Reactor::QuitCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "Use this command to stop the emulator\n";
 }
-
-
-// class ResetCmd
-
-Reactor::ResetCmd::ResetCmd(Reactor& parent_)
-	: parent(parent_)
-{
-}
-
-string Reactor::ResetCmd::execute(const vector<string>& /*tokens*/)
-{
-	parent.needReset = true;
-	MSXCPU::instance().exitCPULoop();
-	return "";
-}
-string Reactor::ResetCmd::help(const vector<string>& /*tokens*/) const
-{
-	return "Resets the MSX.\n";
-}
-
 
 } // namespace openmsx
 

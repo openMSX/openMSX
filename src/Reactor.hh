@@ -3,17 +3,26 @@
 #ifndef REACTOR_HH
 #define REACTOR_HH
 
-#include <vector>
 #include "Command.hh"
 #include "SettingListener.hh"
 #include "EventListener.hh"
 #include "MSXMotherBoard.hh"
+#include <memory>
+#include <vector>
 
 namespace openmsx {
 
 class CliComm;
 class BooleanSetting;
 
+/**
+ * Contains the main loop of openMSX.
+ * openMSX is almost single threaded: the main thread does most of the work,
+ * we create additional threads only if we need blocking calls for
+ * communicating with peripherals.
+ * This class serializes all incoming requests so they can be handled by the
+ * main thread.
+ */
 class Reactor : private SettingListener, private EventListener
 {
 public:
@@ -21,12 +30,10 @@ public:
 	virtual ~Reactor();
 
 	/**
-	 * This starts the Scheduler.
+	 * Main loop.
+	 * @param autoRun Iff true, start emulation immediately.
 	 */
-	void run(bool powerOn);
-
-	void block();
-	void unblock();
+	void run(bool autoRun);
 
 private:
 
@@ -34,27 +41,29 @@ private:
 	virtual void update(const Setting* setting);
 
 	// EventListener
-	bool signalEvent(const Event& event);
+	virtual bool signalEvent(const Event& event);
+
+	void block();
+	void unblock();
 
 	void unpause();
 	void pause();
-	void powerOn();
-	void powerOff();
 
 	bool paused;
-	bool powered;
-	bool needReset;
-	bool needPowerDown;
-	bool needPowerUp;
 
 	int blockedCounter;
-	bool emulationRunning;
+
+	/**
+	 * True iff the Reactor should keep running.
+	 * When this is set to false, the Reactor will end the main loop after
+	 * finishing the pending request(s).
+	 */
+	bool running;
 
 	BooleanSetting& pauseSetting;
-	BooleanSetting& powerSetting;
 	CliComm& output;
 
-	MSXMotherBoard motherboard;
+	std::auto_ptr<MSXMotherBoard> motherboard;
 
 	class QuitCommand : public SimpleCommand {
 	public:
@@ -64,15 +73,6 @@ private:
 	private:
 		Reactor& parent;
 	} quitCommand;
-
-	class ResetCmd : public SimpleCommand {
-	public:
-		ResetCmd(Reactor& parent);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		Reactor& parent;
-	} resetCommand;
 };
 
 } // namespace openmsx

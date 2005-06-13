@@ -5,6 +5,11 @@ $Id$
 	* Look for TCL in "lib64" directories as well.
 	  Fixes TCL detection on Fedora Core 3 x86-64.
 	* Split off Reactor class from MSXMotherBoard. Work in progress.
+	* Decided that the "reset" command and the "power" setting apply to a
+	  specific MSX machine and therefore belong in MSXMotherBoard.
+	  The code that handles that command and setting already assumes that
+	  it is called from the Reactor instead of the Scheduler, but this is
+	  not yet the case, so currently assertions can be triggered.
 
 2005-06-11 Maarten ter Huurne <maarten@treewalker.org>
 	* Do not initialise SDL if openMSX doesn't start up (-h, --version).
