@@ -68,9 +68,9 @@ void MSXTurboRPause::updatePause()
 	if (newHwPause != hwPause) {
 		hwPause = newHwPause;
 		if (hwPause) {
-			getMotherboard().block();
+			getMotherboard().pause();
 		} else {
-			getMotherboard().unblock();
+			getMotherboard().unpause();
 		}
 	}
 

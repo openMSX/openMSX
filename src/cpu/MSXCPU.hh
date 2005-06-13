@@ -121,6 +121,9 @@ public:
 	std::string removeBreakPoint(word addr);
 	std::string listBreakPoints() const;
 
+	// Pause
+	void setPaused(bool paused);
+
 private:
 	MSXCPU();
 	virtual ~MSXCPU();

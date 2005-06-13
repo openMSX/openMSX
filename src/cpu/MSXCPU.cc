@@ -309,6 +309,12 @@ string MSXCPU::listBreakPoints() const
 }
 
 
+void MSXCPU::setPaused(bool paused)
+{
+	activeCPU->setPaused(paused);
+}
+
+
 // class TimeInfoTopic
 
 MSXCPU::TimeInfoTopic::TimeInfoTopic(MSXCPU& parent_)

@@ -4,8 +4,6 @@
 
 namespace openmsx {
 
-// class CPU
-
 byte CPU::ZSTable[256];
 byte CPU::ZSXYTable[256];
 byte CPU::ZSPXYTable[256];
@@ -16,6 +14,7 @@ CPU::BreakPoints CPU::breakPoints;
 bool CPU::breaked = false;
 bool CPU::continued = false;
 bool CPU::step = false;
+bool CPU::paused = false;
 
 word CPU::start_pc;
 
@@ -93,6 +92,12 @@ void CPU::removeBreakPoint(word addr)
 const CPU::BreakPoints& CPU::getBreakPoints() const
 {
 	return breakPoints;
+}
+
+void CPU::setPaused(bool paused_)
+{
+	paused = paused_;
+	exitCPULoop();
 }
 
 } // namespace openmsx

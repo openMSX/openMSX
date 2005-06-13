@@ -28,9 +28,19 @@ public:
 	 */
 	bool execute();
 
+	/**
+	 * Block the complete MSX (CPU and devices), used by breakpoints
+	 */
 	void block();
 	void unblock();
 
+	/**
+	 * Pause MSX machine. Only CPU is paused, other devices continue
+	 * running. Used by turbor hardware pause.
+	 */
+	void pause();
+	void unpause();
+	
 	void powerUpMSX();
 	void powerDownMSX();
 

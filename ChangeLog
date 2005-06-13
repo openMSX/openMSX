@@ -1,5 +1,8 @@
 $Id$
 
+2005-06-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Turbo R hw pause only pauses the CPU, not also all other devices.
+
 2005-06-12 Maarten ter Huurne <maarten@treewalker.org>
 	* Only Schedulable has access to setting and removing sync points.
 	* Look for TCL in "lib64" directories as well.

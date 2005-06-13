@@ -56,22 +56,36 @@ bool MSXMotherBoard::execute()
 {
 	if (!powered || blockedCounter) {
 		return false;
-	} else {
-		MSXCPU::instance().execute();
-		return true;
 	}
+
+	MSXCPU::instance().execute();
+	return true;
 }
 
 void MSXMotherBoard::block()
 {
+	// TODO mute
 	++blockedCounter;
 	MSXCPU::instance().exitCPULoop();
 }
 
 void MSXMotherBoard::unblock()
 {
+	// TODO mute
 	--blockedCounter;
 	assert(blockedCounter >= 0);
+}
+
+void MSXMotherBoard::pause()
+{
+	// TODO mute
+	MSXCPU::instance().setPaused(true);
+}
+
+void MSXMotherBoard::unpause()
+{
+	// TODO mute
+	MSXCPU::instance().setPaused(false);
 }
 
 void MSXMotherBoard::addDevice(std::auto_ptr<MSXDevice> device)
@@ -92,6 +106,7 @@ void MSXMotherBoard::resetMSX()
 
 void MSXMotherBoard::powerUpMSX()
 {
+	// TODO mute
 	if (powered) return;
 
 	powered = true;
@@ -115,6 +130,7 @@ void MSXMotherBoard::powerUpMSX()
 
 void MSXMotherBoard::powerDownMSX()
 {
+	// TODO mute
 	if (!powered) return;
 
 	powered = false;

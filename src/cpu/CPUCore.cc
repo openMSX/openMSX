@@ -479,7 +479,7 @@ template <class T> void CPUCore<T>::executeSlow()
 			default:
 				assert(false);
 		}
-	} else if (unlikely(R.HALT)) {
+	} else if (unlikely(R.HALT || paused)) {
 		// in halt mode
 		uint64 ticks = T::clock.getTicksTillUp(scheduler.getNext());
 		int hltStates = T::haltStates();

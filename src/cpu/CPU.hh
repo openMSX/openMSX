@@ -138,6 +138,12 @@ public:
 	 */
 	const BreakPoints& getBreakPoints() const;
 
+	/**
+	 * (un)pause CPU. During pause the CPU executes NOP instructions
+	 * continuously (just like during HALT). Used by turbor hw pause.
+	 */
+	void setPaused(bool paused);
+	
 protected:
 	CPU();
 	virtual ~CPU() {}
@@ -158,6 +164,9 @@ protected:
 
 	// CPU tracing
 	static word start_pc;
+
+	// CPU is paused, used for turbor hw pause
+	static bool paused;
 };
 
 } // namespace openmsx
