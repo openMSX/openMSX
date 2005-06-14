@@ -1,6 +1,10 @@
 $Id$
 
 2005-06-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented conditional breakpoints:
+	    TODO add more documentation and examples
+
+2005-06-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Turbo R hw pause only pauses the CPU, not also all other devices.
 
 2005-06-12 Maarten ter Huurne <maarten@treewalker.org>

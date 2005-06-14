@@ -3,6 +3,7 @@
 #ifndef MSXCPU_HH
 #define MSXCPU_HH
 
+#include "CPU.hh"
 #include "Debuggable.hh"
 #include "InfoTopic.hh"
 #include "SettingListener.hh"
@@ -16,7 +17,6 @@ class MSXCPUInterface;
 class InfoCommand;
 class Debugger;
 class BooleanSetting;
-class CPU;
 class Z80TYPE;
 class R800TYPE;
 template <typename T> class CPUCore;
@@ -110,16 +110,16 @@ public:
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 
-	void disasmCommand(const std::vector<CommandArgument>& tokens,
-                           CommandArgument& result) const;
+	void disasmCommand(const std::vector<TclObject*>& tokens,
+                           TclObject& result) const;
 
 	// Breakpoint stuff
-	std::string doStep();
-	std::string doContinue();
-	std::string doBreak();
-	std::string setBreakPoint(word addr);
-	std::string removeBreakPoint(word addr);
-	std::string listBreakPoints() const;
+	void doStep();
+	void doContinue();
+	void doBreak();
+	void insertBreakPoint(std::auto_ptr<BreakPoint> bp);
+	void removeBreakPoint(const BreakPoint& bp);
+	const CPU::BreakPoints& getBreakPoints() const;
 
 	// Pause
 	void setPaused(bool paused);
@@ -157,8 +157,8 @@ private:
 	class TimeInfoTopic : public InfoTopic {
 	public:
 		TimeInfoTopic(MSXCPU& parent);
-		virtual void execute(const std::vector<CommandArgument>& tokens,
-		                     CommandArgument& result) const;
+		virtual void execute(const std::vector<TclObject*>& tokens,
+		                     TclObject& result) const;
 		virtual std::string help (const std::vector<std::string>& tokens) const;
 	private:
 		MSXCPU& parent;

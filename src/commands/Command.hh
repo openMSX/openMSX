@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-class CommandArgument;
+class TclObject;
 
 class CommandCompleter
 {
@@ -40,8 +40,8 @@ public:
 	  * @throws CommandException Thrown when there was an error while
 	  *                          executing this command.
 	  */
-	virtual void execute(const std::vector<CommandArgument>& tokens,
-	                     CommandArgument& result) = 0;
+	virtual void execute(const std::vector<TclObject*>& tokens,
+	                     TclObject& result) = 0;
 
 	/** Attempt tab completion for this command.
 	  * Default implementation does nothing.
@@ -61,8 +61,8 @@ class SimpleCommand : public Command
 public:
 	virtual std::string execute(const std::vector<std::string>& tokens) = 0;
 
-	virtual void execute(const std::vector<CommandArgument>& tokens,
-	                     CommandArgument& result);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+	                     TclObject& result);
 };
 
 } // namespace openmsx

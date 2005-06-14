@@ -3,7 +3,7 @@
 #include "openmsx.hh"
 #include "Command.hh"
 #include "CommandConsole.hh"
-#include "CommandArgument.hh"
+#include "TclObject.hh"
 #include "CommandException.hh"
 #include "Setting.hh"
 #include "Scheduler.hh"
@@ -126,19 +126,24 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
                            int objc, Tcl_Obj* const objv[])
 {
 	Command& command = *static_cast<Command*>(clientData);
-	vector<CommandArgument> tokens;
+	vector<TclObject*> tokens;
 	tokens.reserve(objc);
 	for (int i = 0; i < objc; ++i) {
-		tokens.push_back(CommandArgument(interp, objv[i]));
+		tokens.push_back(new TclObject(interp, objv[i]));
 	}
-	CommandResult result(interp);
+	TclObject result(interp, Tcl_GetObjResult(interp));
+	int res = TCL_OK;
 	try {
 		command.execute(tokens, result);
-		return TCL_OK;
 	} catch (MSXException& e) {
 		result.setString(e.getMessage());
-		return TCL_ERROR;
+		res = TCL_ERROR;
 	}
+	for (vector<TclObject*>::const_iterator it = tokens.begin();
+	     it != tokens.end(); ++it) {
+		delete *it;
+	}
+	return res;
 }
 
 // Returns

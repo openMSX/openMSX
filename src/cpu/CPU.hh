@@ -3,14 +3,16 @@
 #ifndef CPU_HH
 #define CPU_HH
 
+#include "BreakPoint.hh"
 #include "openmsx.hh"
-#include "CommandArgument.hh"
 #include <vector>
-#include <set>
+#include <map>
+#include <memory>
 
 namespace openmsx {
 
 class EmuTime;
+class TclObject;
 
 class CPU
 {
@@ -33,7 +35,7 @@ public:
 	static const byte N_FLAG = 0x02;
 	static const byte C_FLAG = 0x01;
 
-	typedef std::multiset<word> BreakPoints;
+	typedef std::multimap<word, BreakPoint*> BreakPoints;
 
 	class CPURegs {
 	public:
@@ -115,8 +117,8 @@ public:
 
 	/**
 	 */
-	virtual void disasmCommand(const std::vector<CommandArgument>& tokens,
-	                           CommandArgument& result) const = 0;
+	virtual void disasmCommand(const std::vector<TclObject*>& tokens,
+	                           TclObject& result) const = 0;
 
 	/**
 	 */
@@ -128,11 +130,11 @@ public:
 
 	/**
 	 */
-	void insertBreakPoint(word address);
+	void insertBreakPoint(std::auto_ptr<BreakPoint> bp);
 
 	/**
 	 */
-	void removeBreakPoint(word address);
+	void removeBreakPoint(const BreakPoint& bp);
 
 	/**
 	 */
@@ -146,8 +148,27 @@ public:
 	
 protected:
 	CPU();
-	virtual ~CPU() {}
+	virtual ~CPU();
 
+	// breakpoint methods used by CPUCore
+	inline bool anyBreakPoints() const
+	{
+		return !breakPoints.empty();
+	}
+	bool hitBreakPoint(CPURegs& regs) const
+	{
+		std::pair<BreakPoints::const_iterator,
+		          BreakPoints::const_iterator> range =
+		                  breakPoints.equal_range(regs.PC);
+		for (BreakPoints::const_iterator it = range.first;
+		     it != range.second; ++it) {
+			if (it->second->isTrue()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	// flag-register tables, initialized at run-time
 	static byte ZSTable[256];
 	static byte ZSXYTable[256];
@@ -157,7 +178,6 @@ protected:
 
 	// TODO why exactly are these static?
 	// debug variables
-	static BreakPoints breakPoints;
 	static bool breaked;
 	static bool continued;
 	static bool step;
@@ -167,6 +187,9 @@ protected:
 
 	// CPU is paused, used for turbor hw pause
 	static bool paused;
+	
+private:
+	static BreakPoints breakPoints;
 };
 
 } // namespace openmsx

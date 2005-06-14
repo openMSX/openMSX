@@ -8,7 +8,7 @@
 #include "CliComm.hh"
 #include "InfoCommand.hh"
 #include "GlobalSettings.hh"
-#include "CommandArgument.hh"
+#include "TclObject.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
@@ -616,8 +616,8 @@ Mixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(Mixer& outer_)
 {
 }
 
-void Mixer::SoundDeviceInfoTopic::execute(const vector<CommandArgument>& tokens,
-	CommandArgument& result) const
+void Mixer::SoundDeviceInfoTopic::execute(const vector<TclObject*>& tokens,
+	TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2:
@@ -627,7 +627,7 @@ void Mixer::SoundDeviceInfoTopic::execute(const vector<CommandArgument>& tokens,
 		}
 		break;
 	case 3: {
-		SoundDevice* device = outer.getSoundDevice(tokens[2].getString());
+		SoundDevice* device = outer.getSoundDevice(tokens[2]->getString());
 		if (!device) {
 			throw CommandException("Unknown sound device");
 		}

@@ -82,8 +82,8 @@ private:
 	class FpsInfoTopic : public InfoTopic {
 	public:
 		FpsInfoTopic(Display& parent);
-		virtual void execute(const std::vector<CommandArgument>& tokens,
-		                     CommandArgument& result) const;
+		virtual void execute(const std::vector<TclObject*>& tokens,
+		                     TclObject& result) const;
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		Display& parent;

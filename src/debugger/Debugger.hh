@@ -34,25 +34,31 @@ private:
 	class DebugCmd : public Command {
 	public:
 		DebugCmd(Debugger& parent);
-		virtual void execute(const std::vector<CommandArgument>& tokens,
-		                     CommandArgument& result);
+		virtual void execute(const std::vector<TclObject*>& tokens,
+		                     TclObject& result);
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 	private:
-		void list(CommandArgument& result);
-		void desc(const std::vector<CommandArgument>& tokens,
-		          CommandArgument& result);
-		void size(const std::vector<CommandArgument>& tokens,
-		          CommandArgument& result);
-		void read(const std::vector<CommandArgument>& tokens,
-		          CommandArgument& result);
-		void readBlock(const std::vector<CommandArgument>& tokens,
-		               CommandArgument& result);
-		void write(const std::vector<CommandArgument>& tokens,
-		           CommandArgument& result);
-		void writeBlock(const std::vector<CommandArgument>& tokens,
-		                CommandArgument& result);
+		void list(TclObject& result);
+		void desc(const std::vector<TclObject*>& tokens,
+		          TclObject& result);
+		void size(const std::vector<TclObject*>& tokens,
+		          TclObject& result);
+		void read(const std::vector<TclObject*>& tokens,
+		          TclObject& result);
+		void readBlock(const std::vector<TclObject*>& tokens,
+		               TclObject& result);
+		void write(const std::vector<TclObject*>& tokens,
+		           TclObject& result);
+		void writeBlock(const std::vector<TclObject*>& tokens,
+		                TclObject& result);
+		void setBreakPoint(const std::vector<TclObject*>& tokens,
+		                   TclObject& result);
+		void removeBreakPoint(const std::vector<TclObject*>& tokens,
+		                      TclObject& result);
+		void listBreakPoints(const std::vector<TclObject*>& tokens,
+		                     TclObject& result);
 
 		Debugger& parent;
 	} debugCmd;

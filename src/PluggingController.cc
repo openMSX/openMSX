@@ -10,7 +10,7 @@
 #include "PluggableFactory.hh"
 #include "openmsx.hh"
 #include "InfoCommand.hh"
-#include "CommandArgument.hh"
+#include "TclObject.hh"
 #include "CommandException.hh"
 #include "CliComm.hh"
 
@@ -274,8 +274,8 @@ PluggingController::PluggableInfo::PluggableInfo(PluggingController& parent_)
 {
 }
 
-void PluggingController::PluggableInfo::execute(const vector<CommandArgument>& tokens,
-	CommandArgument& result) const
+void PluggingController::PluggableInfo::execute(const vector<TclObject*>& tokens,
+	TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2:
@@ -286,7 +286,7 @@ void PluggingController::PluggableInfo::execute(const vector<CommandArgument>& t
 		}
 		break;
 	case 3: {
-		const Pluggable* pluggable = parent.getPluggable(tokens[2].getString());
+		const Pluggable* pluggable = parent.getPluggable(tokens[2]->getString());
 		if (!pluggable) {
 			throw CommandException("No such pluggable");
 		}
@@ -324,8 +324,8 @@ PluggingController::ConnectorInfo::ConnectorInfo(PluggingController& parent_)
 {
 }
 
-void PluggingController::ConnectorInfo::execute(const vector<CommandArgument>& tokens,
-	CommandArgument& result) const
+void PluggingController::ConnectorInfo::execute(const vector<TclObject*>& tokens,
+	TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2:
@@ -336,7 +336,7 @@ void PluggingController::ConnectorInfo::execute(const vector<CommandArgument>& t
 		}
 		break;
 	case 3: {
-		const Connector* connector = parent.getConnector(tokens[2].getString());
+		const Connector* connector = parent.getConnector(tokens[2]->getString());
 		if (!connector) {
 			throw CommandException("No such connector");
 		}
@@ -373,8 +373,8 @@ PluggingController::ConnectionClassInfo::ConnectionClassInfo(PluggingController&
 {
 }
 
-void PluggingController::ConnectionClassInfo::execute(const vector<CommandArgument>& tokens,
-	CommandArgument& result) const
+void PluggingController::ConnectionClassInfo::execute(const vector<TclObject*>& tokens,
+	TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2: {
@@ -396,7 +396,7 @@ void PluggingController::ConnectionClassInfo::execute(const vector<CommandArgume
 		break;
 	}
 	case 3: {
-		string arg = tokens[2].getString();
+		string arg = tokens[2]->getString();
 		const Connector* connector = parent.getConnector(arg);
 		if (connector) {
 			result.setString(connector->getClass());

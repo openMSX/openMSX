@@ -2,7 +2,7 @@
 
 #include "RomInfoTopic.hh"
 #include "RomInfo.hh"
-#include "CommandArgument.hh"
+#include "TclObject.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include <map>
@@ -76,8 +76,8 @@ RomInfoTopic::RomInfoTopic()
 	description[ROM_SYNTHESIZER] = "Konami's Synthesizer";
 }
 
-void RomInfoTopic::execute(const vector<CommandArgument>& tokens,
-                           CommandArgument& result) const
+void RomInfoTopic::execute(const vector<TclObject*>& tokens,
+                           TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2: {
@@ -90,7 +90,7 @@ void RomInfoTopic::execute(const vector<CommandArgument>& tokens,
 		break;
 	}
 	case 3: {
-		RomType type = RomInfo::nameToRomType(tokens[2].getString());
+		RomType type = RomInfo::nameToRomType(tokens[2]->getString());
 		if (type == ROM_UNKNOWN) {
 			throw CommandException("Unknown rom type");
 		}

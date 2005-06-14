@@ -263,8 +263,8 @@ Display::FpsInfoTopic::FpsInfoTopic(Display& parent_)
 {
 }
 
-void Display::FpsInfoTopic::execute(const vector<CommandArgument>& /*tokens*/,
-                                    CommandArgument& result) const
+void Display::FpsInfoTopic::execute(const vector<TclObject*>& /*tokens*/,
+                                    TclObject& result) const
 {
 	double fps = 1000000.0 * NUM_FRAME_DURATIONS / parent.frameDurationSum;
 	result.setDouble(fps);

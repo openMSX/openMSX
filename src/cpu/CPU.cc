@@ -74,17 +74,34 @@ CPU::CPU()
 	}
 }
 
-void CPU::insertBreakPoint(word addr)
+CPU::~CPU()
 {
-	breakPoints.insert(addr);
+	// TODO deleting bp still crashes for some reason, I suspect
+	// destruction order of MSXCPU and Interpreter. MSXCPU shouldn't
+	// be a singleton anyway.
+	for (BreakPoints::const_iterator it = breakPoints.begin();
+	     it != breakPoints.end(); ++it) {
+		//delete it->second;
+	}
+}
+
+void CPU::insertBreakPoint(std::auto_ptr<BreakPoint> bp_)
+{
+	BreakPoint* bp = bp_.release();
+	breakPoints.insert(std::make_pair(bp->getAddress(), bp));
 	exitCPULoop();
 }
 
-void CPU::removeBreakPoint(word addr)
+void CPU::removeBreakPoint(const BreakPoint& bp)
 {
-	BreakPoints::iterator it = breakPoints.find(addr);
-	if (it != breakPoints.end()) {
-		breakPoints.erase(it);
+	std::pair<BreakPoints::iterator, BreakPoints::iterator> range =
+		breakPoints.equal_range(bp.getAddress());
+	for (BreakPoints::iterator it = range.first; it != range.second; ++it) {
+		if (it->second == &bp) {
+			delete &bp;
+			breakPoints.erase(it);
+			break;
+		}
 	}
 	exitCPULoop();
 }

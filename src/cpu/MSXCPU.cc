@@ -8,10 +8,9 @@
 #include "CPUCore.hh"
 #include "Z80.hh"
 #include "R800.hh"
-#include <sstream>
+#include "BreakPoint.hh"
 #include <cassert>
 
-using std::ostringstream;
 using std::string;
 using std::vector;
 
@@ -261,51 +260,40 @@ void MSXCPU::write(unsigned address, byte value)
 
 // Command
 
-string MSXCPU::doStep()
+void MSXCPU::doStep()
 {
 	activeCPU->doStep();
-	return "";
 }
 
-string MSXCPU::doContinue()
+void MSXCPU::doContinue()
 {
 	activeCPU->doContinue();
-	return "";
 }
 
-string MSXCPU::doBreak()
+void MSXCPU::doBreak()
 {
 	activeCPU->doBreak();
-	return "";
 }
 
-void MSXCPU::disasmCommand(const vector<CommandArgument>& tokens,
-                           CommandArgument& result) const
+void MSXCPU::disasmCommand(const vector<TclObject*>& tokens,
+                           TclObject& result) const
 {
 	activeCPU->disasmCommand(tokens, result);
 }
 
-string MSXCPU::setBreakPoint(word addr)
+void MSXCPU::insertBreakPoint(std::auto_ptr<BreakPoint> bp)
 {
-	activeCPU->insertBreakPoint(addr);
-	return "";
+	activeCPU->insertBreakPoint(bp);
 }
 
-string MSXCPU::removeBreakPoint(word addr)
+void MSXCPU::removeBreakPoint(const BreakPoint& bp)
 {
-	activeCPU->removeBreakPoint(addr);
-	return "";
+	activeCPU->removeBreakPoint(bp);
 }
 
-string MSXCPU::listBreakPoints() const
+const CPU::BreakPoints& MSXCPU::getBreakPoints() const
 {
-	const CPU::BreakPoints& breakPoints = activeCPU->getBreakPoints();
-	ostringstream os;
-	for (CPU::BreakPoints::const_iterator it = breakPoints.begin();
-	     it != breakPoints.end(); ++it) {
-		os << std::hex << *it << '\n';
-	}
-	return os.str();
+	return activeCPU->getBreakPoints();
 }
 
 
@@ -322,8 +310,8 @@ MSXCPU::TimeInfoTopic::TimeInfoTopic(MSXCPU& parent_)
 {
 }
 
-void MSXCPU::TimeInfoTopic::execute(const vector<CommandArgument>& /*tokens*/,
-                                    CommandArgument& result) const
+void MSXCPU::TimeInfoTopic::execute(const vector<TclObject*>& /*tokens*/,
+                                    TclObject& result) const
 {
 	EmuDuration dur = parent.getCurrentTime() - parent.reference;
 	result.setDouble(dur.toDouble());

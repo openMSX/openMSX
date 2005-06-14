@@ -20,8 +20,8 @@ public:
 	void unregisterTopic(const std::string& name, const InfoTopic* topic);
 
 	// Command
-	virtual void execute(const std::vector<CommandArgument>& tokens,
-	                     CommandArgument& result);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+	                     TclObject& result);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
@@ -33,8 +33,8 @@ private:
 
 	class VersionInfo : public InfoTopic {
 	public:
-		virtual void execute(const std::vector<CommandArgument>& tokens,
-		                     CommandArgument& result) const;
+		virtual void execute(const std::vector<TclObject*>& tokens,
+		                     TclObject& result) const;
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 	} versionInfo;
 	const std::auto_ptr<RomInfoTopic> romInfoTopic;

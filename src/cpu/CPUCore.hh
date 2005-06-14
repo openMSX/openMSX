@@ -49,8 +49,8 @@ public:
 	virtual void doContinue();
 	virtual void doBreak();
 
-	virtual void disasmCommand(const std::vector<CommandArgument>& tokens,
-                                   CommandArgument& result) const;
+	virtual void disasmCommand(const std::vector<TclObject*>& tokens,
+                                   TclObject& result) const;
 
 	/**
 	 * Read a byte from memory. If possible the byte is read from

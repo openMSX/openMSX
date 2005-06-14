@@ -11,7 +11,7 @@
 #include "CommandController.hh"
 #include "InfoTopic.hh"
 #include "InfoCommand.hh"
-#include "CommandArgument.hh"
+#include "TclObject.hh"
 #include "CommandException.hh"
 #include "StringOp.hh"
 
@@ -40,8 +40,8 @@ private:
 	class EnumInfo : public InfoTopic {
 	public:
 		EnumInfo(EnumSettingPolicy& parent);
-		virtual void execute(const std::vector<CommandArgument>& tokens,
-		                     CommandArgument& result) const;
+		virtual void execute(const std::vector<TclObject*>& tokens,
+		                     TclObject& result) const;
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		EnumSettingPolicy& parent;
@@ -132,8 +132,8 @@ EnumSettingPolicy<T>::EnumInfo::EnumInfo(EnumSettingPolicy& parent_)
 
 template<typename T>
 void EnumSettingPolicy<T>::EnumInfo::execute(
-	const std::vector<CommandArgument>& /*tokens*/,
-	CommandArgument& result) const
+	const std::vector<TclObject*>& /*tokens*/,
+	TclObject& result) const
 {
 	std::set<std::string> values;
 	parent.getPossibleValues(values);

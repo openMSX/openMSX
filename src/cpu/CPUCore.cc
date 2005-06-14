@@ -205,10 +205,10 @@ static void toHex(byte x, char* buf)
 }
 
 template <class T> void CPUCore<T>::disasmCommand(
-	const std::vector<CommandArgument>& tokens,
-	CommandArgument& result) const
+	const std::vector<TclObject*>& tokens,
+	TclObject& result) const
 {
-	word address = (tokens.size() < 3) ? R.PC : tokens[2].getInt();
+	word address = (tokens.size() < 3) ? R.PC : tokens[2]->getInt();
 	byte outBuf[4];
 	std::string dasmOutput;
 	int len = dasm(*interface, address, outBuf, dasmOutput);
@@ -515,7 +515,7 @@ template <class T> void CPUCore<T>::execute()
 		}
 	}
 
-	if (breakPoints.empty() && !traceSetting.getValue()) {
+	if (!anyBreakPoints() && !traceSetting.getValue()) {
 		// fast path, no breakpoints, no tracing
 		while (!exitLoop) {
 			if (slowInstructions) {
@@ -531,7 +531,7 @@ template <class T> void CPUCore<T>::execute()
 		}
 	} else {
 		while (!exitLoop) {
-			if (breakPoints.find(R.PC) != breakPoints.end()) {
+			if (unlikely(hitBreakPoint(R))) {
 				doBreak2();
 				return;
 			} else {

@@ -2,7 +2,7 @@
 
 #include "InfoCommand.hh"
 #include "CommandController.hh"
-#include "CommandArgument.hh"
+#include "TclObject.hh"
 #include "CommandException.hh"
 #include "RomInfoTopic.hh"
 #include "Version.hh"
@@ -52,8 +52,8 @@ void InfoCommand::unregisterTopic(const string& name,
 
 // Command
 
-void InfoCommand::execute(const vector<CommandArgument>& tokens,
-                          CommandArgument& result)
+void InfoCommand::execute(const vector<TclObject*>& tokens,
+                          TclObject& result)
 {
 	switch (tokens.size()) {
 	case 1:
@@ -66,7 +66,7 @@ void InfoCommand::execute(const vector<CommandArgument>& tokens,
 	default:
 		// show info about topic
 		assert(tokens.size() >= 2);
-		string topic = tokens[1].getString();
+		string topic = tokens[1]->getString();
 		map<string, const InfoTopic*>::const_iterator it =
 			infoTopics.find(topic);
 		if (it == infoTopics.end()) {
@@ -127,8 +127,8 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 
 // Version info
 
-void InfoCommand::VersionInfo::execute(const vector<CommandArgument>& /*tokens*/,
-                                       CommandArgument& result) const
+void InfoCommand::VersionInfo::execute(const vector<TclObject*>& /*tokens*/,
+                                       TclObject& result) const
 {
 	result.setString(Version::FULL_VERSION);
 }

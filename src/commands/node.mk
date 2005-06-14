@@ -9,7 +9,7 @@ SRC_HDR:= \
 	InfoCommand \
 	InfoTopic \
 	Interpreter \
-	CommandArgument
+	TclObject \
 
 include build/node-end.mk
 
