@@ -1961,7 +1961,6 @@ proc trainer_chukataisen {} {
 	poke 0xa685 99
 	#invincible
 	poke 0xa683 1
-	
 	after time 1 trainer_chukataisen
 }
 
@@ -3165,6 +3164,46 @@ proc trainer_spacecamp {} {
 	after time 1 trainer_spacecamp
 }
 
+proc trainer_hydefos {} {
+	#power
+	poke 0xc11c 255
+	#hydefos control
+	#!poke 0xc040 255
+	#speed
+	poke 0xc106 16
+	#lives
+	poke 0xd404 100
+	#power
+	poke 0xc118 100
+	after time 1 trainer_hydefos
+}
+
+proc trainer_ninjayoumakor {} { 
+	#damage
+	poke 0xd46d 0
+	after time 1 trainer_ninjayoumakor
+}
+
+proc trainer_silviana {} { 
+	#power
+	poke 0x8c9d 255
+	#gold
+	poke 0x8ca1 255
+	poke 0x8ca2 255
+	after time 1 trainer_silviana
+}
+
+proc trainer_exoide-z_area5 {} { 
+	#power
+	poke 0xe1d3 100
+	#lives
+	poke 0xe00b 99
+	#invincible red
+	poke 0xe30d 255
+	#invincible green
+	poke 0xe33e 255
+	after time 1 trainer_exoide-z_area5
+}
 
 proc poke {addr val} {
 	debug write memory $addr $val
