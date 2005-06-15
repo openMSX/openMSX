@@ -1,6 +1,9 @@
 $Id$
 
-2005-06-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2005-06-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added basic syntax checking for expressions in conditional bp's
+
+2005-06-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented conditional breakpoints:
 	    TODO add more documentation and examples
 

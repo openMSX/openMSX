@@ -106,5 +106,52 @@ bool TclObject::evalBool() const
 	return result;
 }
 
+void TclObject::checkExpression() const
+{
+	string tmp = getString();
+	parse(tmp.data(), tmp.size(), true);
+}
+
+void TclObject::parse(const char* str, int len, bool expression) const
+{
+	Tcl_Parse info;
+	if (expression ?
+	    Tcl_ParseExpr(interp, str, len, &info) :
+	    Tcl_ParseCommand(interp, str, len, 1, &info) != TCL_OK) {
+		throw CommandException(Tcl_GetStringResult(interp));
+	}
+	struct Cleanup {
+		~Cleanup() { Tcl_FreeParse(p); }
+		Tcl_Parse* p;
+	} cleanup = { &info };
+	if (&cleanup); // avoid warning
+	
+	if (!expression && (info.tokenPtr[0].type == TCL_TOKEN_SIMPLE_WORD)) {
+		// simple command name
+		Tcl_CmdInfo cmdinfo;
+		Tcl_Token& token2 = info.tokenPtr[1];
+		string procname(token2.start, token2.size);
+		if (!Tcl_GetCommandInfo(interp, procname.c_str(), &cmdinfo)) {
+			throw CommandException("invalid command name: \"" +
+			                       procname + '\"');
+		}
+	}
+	for (int i = 0; i < info.numTokens; ++i) {
+		Tcl_Token& token = info.tokenPtr[i];
+		if (token.type == TCL_TOKEN_COMMAND) {
+			parse(token.start + 1, token.size - 2, false);
+		} else if ((token.type == TCL_TOKEN_VARIABLE) &&
+				(token.numComponents == 1)) {
+			// simple variable (no array)
+			Tcl_Token& token2 = info.tokenPtr[i + 1];
+			string varname(token2.start, token2.size);
+			if (!Tcl_GetVar2Ex(interp, varname.c_str(), NULL,
+			                   TCL_LEAVE_ERR_MSG)) {
+				throw CommandException(Tcl_GetStringResult(interp));
+			}
+		}
+	}
+}
+
 } // namespace openmsx
 

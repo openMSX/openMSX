@@ -256,6 +256,7 @@ void Debugger::DebugCmd::setBreakPoint(const vector<TclObject*>& tokens,
 		break;
 	case 4: { // contional bp
 		auto_ptr<TclObject> cond(new TclObject(*tokens[3]));
+		cond->checkExpression();
 		bp.reset(new BreakPoint(addr, cond));
 		break;
 	}
