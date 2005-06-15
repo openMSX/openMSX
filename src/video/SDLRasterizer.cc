@@ -487,6 +487,10 @@ void SDLRasterizer<Pixel, zoom>::precalcPalette(double gamma)
 			palGraphic7Sprites[i] =
 				V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
 		}
+		// Initialize palette (avoid UMR)
+		for (int i = 0; i < 16; ++i) {
+			palFg[i] = palBg[i] = V9938_COLOURS[0][0][0];
+		}
 	}
 }
 
