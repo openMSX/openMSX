@@ -29,12 +29,8 @@ class V9990 : public MSXDevice,
               private EventListener
 {
 public:
-	/** Constructor
-	  */
-	V9990(const XMLElement& config, const EmuTime& time);
-
-	/** Destructor
-	  */
+	V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
+	      const EmuTime& time);
 	virtual ~V9990();
 
 	// MSXDevice interface:

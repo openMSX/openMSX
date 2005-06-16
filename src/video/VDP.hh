@@ -78,7 +78,8 @@ public:
 	  */
 	static const int TICKS_PER_LINE = 1368;
 
-	VDP(const XMLElement& config, const EmuTime& time);
+	VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
+	    const EmuTime& time);
 	virtual ~VDP();
 
 	// mainlife cycle of an MSXDevice

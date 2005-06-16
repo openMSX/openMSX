@@ -4,10 +4,10 @@
 
 namespace openmsx {
 
-IRQHelper::IRQHelper(bool nmi)
+IRQHelper::IRQHelper(MSXCPU& cpu_, bool nmi)
 	: nmi(nmi)
 	, request(false)
-	, cpu(MSXCPU::instance())
+	, cpu(cpu_)
 {
 }
 

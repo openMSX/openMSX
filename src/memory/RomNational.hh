@@ -12,8 +12,8 @@ class SRAM;
 class RomNational : public Rom16kBBlocks
 {
 public:
-	RomNational(const XMLElement& config, const EmuTime& time,
-	            std::auto_ptr<Rom> rom);
+	RomNational(MSXMotherBoard& motherBoard, const XMLElement& config,
+	            const EmuTime& time, std::auto_ptr<Rom> rom);
 	virtual ~RomNational();
 
 	virtual void reset(const EmuTime& time);

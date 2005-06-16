@@ -27,6 +27,7 @@
 #include "MSXMegaRam.hh"
 #include "XMLElement.hh"
 #include "MSXCPU.hh"
+#include "MSXMotherBoard.hh"
 #include "Ram.hh"
 #include "Rom.hh"
 
@@ -42,15 +43,18 @@ static int roundUpPow2(int a)
 	return result;
 }
 
-MSXMegaRam::MSXMegaRam(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config,
+                       const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 {
 	int size = config.getChildDataAsInt("size");
 	numBlocks = size / 8;	// 8kb blocks
 	maskBlocks = roundUpPow2(numBlocks) - 1;
 	ram.reset(new Ram(getName() + " RAM", "Mega-RAM", numBlocks * 0x2000));
 	if (config.findChild("rom")) {
-		rom.reset(new Rom(getName() + " ROM", "Mega-RAM DiskROM", config));
+		rom.reset(new Rom(motherBoard, 
+		                  getName() + " ROM", "Mega-RAM DiskROM",
+		                  config));
 	}
 
 	for (int i = 0; i < 4; i++) {
@@ -127,7 +131,7 @@ byte MSXMegaRam::readIO(byte port, const EmuTime& /*time*/)
 			if (rom.get()) romMode = true;
 			break;
 	}
-	MSXCPU::instance().invalidateMemCache(0x0000, 0x10000);
+	getMotherBoard().getCPU().invalidateMemCache(0x0000, 0x10000);
 	return 0xFF;	// return value doesn't matter
 }
 
@@ -148,14 +152,14 @@ void MSXMegaRam::writeIO(byte port, byte /*value*/, const EmuTime& /*time*/)
 			if (rom.get()) romMode = true;
 			break;
 	}
-	MSXCPU::instance().invalidateMemCache(0x0000, 0x10000);
+	getMotherBoard().getCPU().invalidateMemCache(0x0000, 0x10000);
 }
 
 void MSXMegaRam::setBank(byte page, byte block)
 {
 	bank[page] = block & maskBlocks;
-	MSXCPU& cpu = MSXCPU::instance();
 	word adr = page * 0x2000;
+	MSXCPU& cpu = getMotherBoard().getCPU();
 	cpu.invalidateMemCache(adr + 0x0000, 0x2000);
 	cpu.invalidateMemCache(adr + 0x8000, 0x2000);
 }

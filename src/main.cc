@@ -10,6 +10,7 @@
 #include <exception>
 #include <SDL.h>
 #include "Reactor.hh"
+#include "MSXMotherBoard.hh"
 #include "CommandLineParser.hh"
 #include "CartridgeSlotManager.hh"
 #include "CliComm.hh"
@@ -51,16 +52,17 @@ static int main(int argc, char **argv)
 	int err = 0;
 	try {
 		Interpreter::instance().init(argv[0]);
-		CommandLineParser parser;
+		MSXMotherBoard motherBoard;
+		CommandLineParser parser(motherBoard);
 		parser.parse(argc, argv);
 		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
 		if (parseStatus != CommandLineParser::EXIT) {
 			initializeSDL();
-			CartridgeSlotManager::instance().readConfig();
 			HotKey hotkey;
 			AfterCommand afterCommand;
 			RendererFactory::createVideoSystem();
-			Reactor reactor;
+			motherBoard.readConfig();
+			Reactor reactor(motherBoard);
 			// CliServer cliServer; // disabled for security reasons
 			reactor.run(parseStatus == CommandLineParser::RUN);
 		}

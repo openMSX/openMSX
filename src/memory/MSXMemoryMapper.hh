@@ -15,7 +15,8 @@ class Ram;
 class MSXMemoryMapper : public MSXDevice
 {
 public:
-	MSXMemoryMapper(const XMLElement& config, const EmuTime& time);
+	MSXMemoryMapper(MSXMotherBoard& motherBoard, const XMLElement& config,
+	                const EmuTime& time);
 	virtual ~MSXMemoryMapper();
 
 	virtual void powerUp(const EmuTime& time);
@@ -30,7 +31,7 @@ protected:
 	std::auto_ptr<Ram> ram;
 
 private:
-	void createMapperIO(const EmuTime& time);
+	void createMapperIO(MSXMotherBoard& motherBoard, const EmuTime& time);
 	void destroyMapperIO();
 
 	/** Converts a Z80 address to a RAM address.

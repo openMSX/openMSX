@@ -16,9 +16,9 @@
 
 namespace openmsx {
 
-RomAscii8kB::RomAscii8kB(const XMLElement& config, const EmuTime& time,
-                         std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(config, time, rom)
+RomAscii8kB::RomAscii8kB(MSXMotherBoard& motherBoard, const XMLElement& config,
+                         const EmuTime& time, std::auto_ptr<Rom> rom)
+	: Rom8kBBlocks(motherBoard, config, time, rom)
 {
 	reset(time);
 }

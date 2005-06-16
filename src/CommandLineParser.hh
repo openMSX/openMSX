@@ -20,6 +20,7 @@ class CliExtension;
 class MSXCassettePlayerCLI;
 class DiskImageCLI;
 class SettingsManager;
+class MSXMotherBoard;
 template <typename T> class EnumSetting;
 
 class CLIOption
@@ -58,7 +59,7 @@ public:
 	 */
 	static bool hiddenStartup;
 
-	CommandLineParser();
+	CommandLineParser(MSXMotherBoard& motherBoard);
 	~CommandLineParser();
 	void registerOption(const std::string& str, CLIOption* cliOption,
 		byte prio = 7, byte length = 2);
@@ -66,6 +67,8 @@ public:
 	                       CLIFileType* cliFileType);
 	void parse(int argc, char** argv);
 	ParseStatus getParseStatus() const;
+
+	MSXMotherBoard& getMotherBoard() const;
 
 private:
 	struct OptionData
@@ -98,6 +101,7 @@ private:
 	SettingsConfig& settingsConfig;
 	CliComm& output;
 	SettingsManager& settingsManager;
+	MSXMotherBoard& motherBoard;
 
 	class HelpOption : public CLIOption {
 	public:

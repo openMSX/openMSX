@@ -9,6 +9,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "PanasonicMemory.hh"
+#include "MSXMotherBoard.hh"
 #include "StringOp.hh"
 #include "Debugger.hh"
 #include "sha1.hh"
@@ -24,15 +25,16 @@ using std::auto_ptr;
 
 namespace openmsx {
 
-Rom::Rom(const string& name_, const string& description_,
-         const XMLElement& config)
+Rom::Rom(MSXMotherBoard& motherBoard, const string& name_, 
+         const string& description_, const XMLElement& config)
 	: name(name_), description(description_)
 {
-	init(config.getChild("rom"));
+	init(motherBoard, config.getChild("rom"));
 }
 
-Rom::Rom(const string& name_, const string& description_,
-         const XMLElement& config, const string& id)
+Rom::Rom(MSXMotherBoard& motherBoard, const string& name_,
+         const string& description_, const XMLElement& config,
+         const string& id)
 	: name(name_), description(description_)
 {
 	XMLElement::Children romConfigs;
@@ -40,14 +42,14 @@ Rom::Rom(const string& name_, const string& description_,
 	for (XMLElement::Children::const_iterator it = romConfigs.begin();
 	     it != romConfigs.end(); ++it) {
 		if ((*it)->getId() == id) {
-			init(**it);
+			init(motherBoard, **it);
 			return;
 		}
 	}
 	throw ConfigException("ROM tag \"" + id + "\" missing.");
 }
 
-void Rom::init(const XMLElement& config)
+void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 {
 	extendedRom = NULL;
 	XMLElement::Children sums;
@@ -80,7 +82,7 @@ void Rom::init(const XMLElement& config)
 		int first = config.getChildDataAsInt("firstblock");
 		int last  = config.getChildDataAsInt("lastblock");
 		size = (last - first + 1) * 0x2000;
-		rom = PanasonicMemory::instance().getRomRange(first, last);
+		rom = motherBoard.getPanasonicMemory().getRomRange(first, last);
 		assert(rom);
 
 	} else {

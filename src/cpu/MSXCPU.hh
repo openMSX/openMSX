@@ -26,7 +26,8 @@ class MSXCPU : private Debuggable, private SettingListener
 public:
 	enum CPUType { CPU_Z80, CPU_R800 };
 
-	static MSXCPU& instance();
+	MSXCPU();
+	virtual ~MSXCPU();
 
 	virtual void reset(const EmuTime& time);
 
@@ -125,9 +126,6 @@ public:
 	void setPaused(bool paused);
 
 private:
-	MSXCPU();
-	virtual ~MSXCPU();
-
 	// only for MSXMotherBoard
 	void execute();
 	void setMotherboard(MSXMotherBoard* motherboard);

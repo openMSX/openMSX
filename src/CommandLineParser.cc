@@ -55,12 +55,13 @@ string CLIOption::peekArgument(const list<string>& cmdLine) const
 
 bool CommandLineParser::hiddenStartup = true;
 
-CommandLineParser::CommandLineParser()
+CommandLineParser::CommandLineParser(MSXMotherBoard& motherBoard_)
 	: parseStatus(UNPARSED)
 	, hardwareConfig(HardwareConfig::instance())
 	, settingsConfig(SettingsConfig::instance())
 	, output(CliComm::instance())
 	, settingsManager(SettingsManager::instance()) // lifetime management
+	, motherBoard(motherBoard_)
 	, helpOption(*this)
 	, versionOption(*this)
 	, controlOption(*this)
@@ -255,6 +256,11 @@ CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const
 {
 	assert(parseStatus != UNPARSED);
 	return parseStatus;
+}
+
+MSXMotherBoard& CommandLineParser::getMotherBoard() const
+{
+	return motherBoard;
 }
 
 void CommandLineParser::loadMachine(const string& machine)

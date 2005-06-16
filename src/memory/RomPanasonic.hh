@@ -12,8 +12,8 @@ class SRAM;
 class RomPanasonic : public Rom8kBBlocks
 {
 public:
-	RomPanasonic(const XMLElement& config, const EmuTime& time,
-	             std::auto_ptr<Rom> rom);
+	RomPanasonic(MSXMotherBoard& motherBoard, const XMLElement& config,
+	             const EmuTime& time, std::auto_ptr<Rom> rom);
 	virtual ~RomPanasonic();
 
 	virtual void reset(const EmuTime& time);

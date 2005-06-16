@@ -6,14 +6,13 @@
 #include "Command.hh"
 #include "SettingListener.hh"
 #include "EventListener.hh"
-#include "MSXMotherBoard.hh"
-#include <memory>
 #include <vector>
 
 namespace openmsx {
 
 class CliComm;
 class BooleanSetting;
+class MSXMotherBoard;
 
 /**
  * Contains the main loop of openMSX.
@@ -26,7 +25,7 @@ class BooleanSetting;
 class Reactor : private SettingListener, private EventListener
 {
 public:
-	Reactor();
+	Reactor(MSXMotherBoard& motherBoard);
 	virtual ~Reactor();
 
 	/**
@@ -62,8 +61,7 @@ private:
 
 	BooleanSetting& pauseSetting;
 	CliComm& output;
-
-	std::auto_ptr<MSXMotherBoard> motherboard;
+	MSXMotherBoard& motherBoard;
 
 	class QuitCommand : public SimpleCommand {
 	public:

@@ -6,8 +6,9 @@
 
 namespace openmsx {
 
-MicrosolFDC::MicrosolFDC(const XMLElement& config, const EmuTime& time)
-	: WD2793BasedFDC(config, time)
+MicrosolFDC::MicrosolFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
+                         const EmuTime& time)
+	: WD2793BasedFDC(motherBoard, config, time)
 {
 }
 

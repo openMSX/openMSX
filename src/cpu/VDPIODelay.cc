@@ -2,6 +2,7 @@
 
 #include "VDPIODelay.hh"
 #include "MSXCPU.hh"
+#include "MSXMotherBoard.hh"
 #include "FileContext.hh"
 #include "XMLElement.hh"
 
@@ -20,10 +21,11 @@ const XMLElement& VDPIODelay::getConfig()
 	return deviceElem;
 }
 
-VDPIODelay::VDPIODelay(MSXDevice& device_, const EmuTime& time)
-	: MSXDevice(getConfig(), time),
-	  cpu(MSXCPU::instance()),
-	  device(device_)
+VDPIODelay::VDPIODelay(MSXMotherBoard& motherboard, MSXDevice& device_,
+                       const EmuTime& time)
+	: MSXDevice(motherboard, getConfig(), time)
+	, cpu(motherBoard.getCPU())
+	, device(device_)
 {
 }
 

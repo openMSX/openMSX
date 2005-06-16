@@ -5,6 +5,7 @@
 #include "MSXMapperIO.hh"
 #include "XMLElement.hh"
 #include "MSXCPUInterface.hh"
+#include "MSXMotherBoard.hh"
 #include "FileContext.hh"
 #include "Ram.hh"
 #include "StringOp.hh"
@@ -24,8 +25,9 @@ inline unsigned MSXMemoryMapper::calcAddress(word address) const
 	return (page << 14) | (address & 0x3FFF);
 }
 
-MSXMemoryMapper::MSXMemoryMapper(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+MSXMemoryMapper::MSXMemoryMapper(MSXMotherBoard& motherBoard,
+                                 const XMLElement& config, const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 {
 	int kSize = deviceConfig.getChildDataAsInt("size");
 	if ((kSize % 16) != 0) {
@@ -35,7 +37,7 @@ MSXMemoryMapper::MSXMemoryMapper(const XMLElement& config, const EmuTime& time)
 	nbBlocks = kSize / 16;
 	ram.reset(new Ram(getName(), "memory mapper", nbBlocks * 0x4000));
 
-	createMapperIO(time);
+	createMapperIO(motherBoard, time);
 	mapperIO->registerMapper(nbBlocks);
 }
 
@@ -50,7 +52,8 @@ void MSXMemoryMapper::powerUp(const EmuTime& /*time*/)
 	ram->clear();
 }
 
-void MSXMemoryMapper::createMapperIO(const EmuTime& time)
+void MSXMemoryMapper::createMapperIO(MSXMotherBoard& motherBoard,
+                                     const EmuTime& time)
 {
 	if (!counter) {
 		assert(!mapperIO && !config);
@@ -59,9 +62,9 @@ void MSXMemoryMapper::createMapperIO(const EmuTime& time)
 		config->addAttribute("id", "MapperIO");
 		config->setFileContext(std::auto_ptr<FileContext>(
 			new SystemFileContext()));
-		mapperIO = new MSXMapperIO(*config, time);
+		mapperIO = new MSXMapperIO(motherBoard, *config, time);
 
-		MSXCPUInterface& cpuInterface = MSXCPUInterface::instance();
+		MSXCPUInterface& cpuInterface = getMotherBoard().getCPUInterface();
 		cpuInterface.register_IO_Out(0xFC, mapperIO);
 		cpuInterface.register_IO_Out(0xFD, mapperIO);
 		cpuInterface.register_IO_Out(0xFE, mapperIO);
@@ -78,7 +81,7 @@ void MSXMemoryMapper::destroyMapperIO()
 {
 	--counter;
 	if (!counter) {
-		MSXCPUInterface& cpuInterface = MSXCPUInterface::instance();
+		MSXCPUInterface& cpuInterface = getMotherBoard().getCPUInterface();
 		cpuInterface.unregister_IO_Out(0xFC, mapperIO);
 		cpuInterface.unregister_IO_Out(0xFD, mapperIO);
 		cpuInterface.unregister_IO_Out(0xFE, mapperIO);

@@ -3,15 +3,19 @@
 #include "MSXMidi.hh"
 #include "I8254.hh"
 #include "MidiOutConnector.hh"
+#include "MSXMotherBoard.hh"
 #include <cassert>
 
 namespace openmsx {
 
-MSXMidi::MSXMidi(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+MSXMidi::MSXMidi(MSXMotherBoard& motherBoard, const XMLElement& config,
+                 const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 	, MidiInConnector("msx-midi-in")
 	, timerIRQlatch(false), timerIRQenabled(false)
+	, timerIRQ(getMotherBoard().getCPU())
 	, rxrdyIRQlatch(false), rxrdyIRQenabled(false)
+	, rxrdyIRQ(getMotherBoard().getCPU())
 	, cntr0(*this), cntr2(*this)
 	, i8254(new I8254(&cntr0, NULL, &cntr2, time))
 	, interf(*this)

@@ -10,8 +10,8 @@ namespace openmsx {
 class RomKorean80in1 : public Rom8kBBlocks
 {
 public:
-	RomKorean80in1(const XMLElement& config, const EmuTime& time,
-	               std::auto_ptr<Rom> rom);
+	RomKorean80in1(MSXMotherBoard& motherBoard, const XMLElement& config,
+	               const EmuTime& time, std::auto_ptr<Rom> rom);
 	virtual ~RomKorean80in1();
 
 	virtual void reset(const EmuTime& time);

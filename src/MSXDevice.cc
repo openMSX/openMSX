@@ -3,6 +3,7 @@
 #include "XMLElement.hh"
 #include "StringOp.hh"
 #include "MSXCPUInterface.hh"
+#include "MSXMotherBoard.hh"
 #include "CartridgeSlotManager.hh"
 #include "MSXDevice.hh"
 #include "MSXException.hh"
@@ -16,8 +17,9 @@ byte MSXDevice::unmappedRead[0x10000];
 byte MSXDevice::unmappedWrite[0x10000];
 
 
-MSXDevice::MSXDevice(const XMLElement& config, const EmuTime& /*time*/)
-	: deviceConfig(config), pages(0)
+MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
+                     const EmuTime& /*time*/)
+	: deviceConfig(config), pages(0), motherBoard(motherBoard_)
 {
 	initMem();
 	registerSlots(config);
@@ -56,6 +58,7 @@ void MSXDevice::registerSlots(const XMLElement& config)
 		pages |= 1 << page;
 	}
 
+	CartridgeSlotManager& slotManager = getMotherBoard().getSlotManager();
 	ps = 0;
 	ss = 0;
 	const XMLElement* parent = config.getParent();
@@ -63,10 +66,10 @@ void MSXDevice::registerSlots(const XMLElement& config)
 		const string& name = parent->getName();
 		if (name == "secondary") {
 			const string& secondSlot = parent->getAttribute("slot");
-			ss = CartridgeSlotManager::getSlotNum(secondSlot);
+			ss = slotManager.getSlotNum(secondSlot);
 		} else if (name == "primary") {
 			const string& primSlot = parent->getAttribute("slot");
-			ps = CartridgeSlotManager::getSlotNum(primSlot);
+			ps = slotManager.getSlotNum(primSlot);
 			break;
 		}
 		parent = parent->getParent();
@@ -77,20 +80,22 @@ void MSXDevice::registerSlots(const XMLElement& config)
 
 	if (ps == -256) {
 		// any slot
-		CartridgeSlotManager::instance().getSlot(ps, ss);
+		slotManager.getSlot(ps, ss);
 	} else if (ps < 0) {
 		// specified slot by name (carta, cartb, ...)
-		CartridgeSlotManager::instance().getSlot(-ps - 1, ps, ss);
+		slotManager.getSlot(-ps - 1, ps, ss);
 	} else {
 		// numerical specified slot (0, 1, 2, 3)
 	}
-	MSXCPUInterface::instance().registerMemDevice(*this, ps, ss, pages);
+	getMotherBoard().getCPUInterface().registerMemDevice(
+		*this, ps, ss, pages);
 }
 
 void MSXDevice::unregisterSlots()
 {
 	if (pages) {
-		MSXCPUInterface::instance().unregisterMemDevice(*this, ps, ss, pages);
+		getMotherBoard().getCPUInterface().unregisterMemDevice(
+			*this, ps, ss, pages);
 	}
 }
 
@@ -127,11 +132,11 @@ void MSXDevice::registerPorts(const XMLElement& config)
 
 	for (vector<byte>::iterator it = inPorts.begin();
 	     it != inPorts.end(); ++it) {
-		MSXCPUInterface::instance().register_IO_In(*it, this);
+		getMotherBoard().getCPUInterface().register_IO_In(*it, this);
 	}
 	for (vector<byte>::iterator it = outPorts.begin();
 	     it != outPorts.end(); ++it) {
-		MSXCPUInterface::instance().register_IO_Out(*it, this);
+		getMotherBoard().getCPUInterface().register_IO_Out(*it, this);
 	}
 }
 
@@ -141,14 +146,13 @@ void MSXDevice::unregisterPorts(const XMLElement& config)
 	vector<byte> outPorts;
 	getPorts(config, inPorts, outPorts);
 
-	MSXCPUInterface& cpuInterface = MSXCPUInterface::instance();
 	for (vector<byte>::iterator it = inPorts.begin();
 	     it != inPorts.end(); ++it) {
-		cpuInterface.unregister_IO_In(*it, this);
+		getMotherBoard().getCPUInterface().unregister_IO_In(*it, this);
 	}
 	for (vector<byte>::iterator it = outPorts.begin();
 	     it != outPorts.end(); ++it) {
-		cpuInterface.unregister_IO_Out(*it, this);
+		getMotherBoard().getCPUInterface().unregister_IO_Out(*it, this);
 	}
 }
 
@@ -235,16 +239,6 @@ byte MSXDevice::peekMem(word address) const
 byte* MSXDevice::getWriteCacheLine(word /*start*/) const
 {
 	return NULL;	// uncacheable
-}
-
-MSXMotherBoard& MSXDevice::getMotherboard() const
-{
-	return *motherboard;
-}
-
-void MSXDevice::setMotherboard(MSXMotherBoard& motherboard_)
-{
-	motherboard = &motherboard_;
 }
 
 } // namespace openmsx

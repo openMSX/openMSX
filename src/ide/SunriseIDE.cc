@@ -3,6 +3,7 @@
 #include "SunriseIDE.hh"
 #include "DummyIDEDevice.hh"
 #include "MSXCPU.hh"
+#include "MSXMotherBoard.hh"
 #include "IDEDeviceFactory.hh"
 #include "Rom.hh"
 #include "FileManipulator.hh"
@@ -18,9 +19,10 @@ namespace openmsx {
 static const int MAX_INTERFACES = 26 / 2;
 static std::bitset<MAX_INTERFACES> interfaceInUse;
 
-SunriseIDE::SunriseIDE(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
-	, rom(new Rom(getName() + " ROM", "rom", config))
+SunriseIDE::SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config,
+                       const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
+	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {
 	int i = 0;
 	for ( ; i < MAX_INTERFACES; ++i) {
@@ -158,12 +160,13 @@ static byte reverse(byte a)
 
 void SunriseIDE::writeControl(byte value)
 {
+	MSXCPU& cpu = getMotherBoard().getCPU();
 	if (ideRegsEnabled != (value & 1)) {
 		ideRegsEnabled = value & 1;
-		MSXCPU::instance().invalidateMemCache(0x3C00, 0x0300);
-		MSXCPU::instance().invalidateMemCache(0x7C00, 0x0300);
-		MSXCPU::instance().invalidateMemCache(0xBC00, 0x0300);
-		MSXCPU::instance().invalidateMemCache(0xFC00, 0x0300);
+		cpu.invalidateMemCache(0x3C00, 0x0300);
+		cpu.invalidateMemCache(0x7C00, 0x0300);
+		cpu.invalidateMemCache(0xBC00, 0x0300);
+		cpu.invalidateMemCache(0xFC00, 0x0300);
 	}
 
 	byte bank = reverse(value & 0xF8);
@@ -172,7 +175,7 @@ void SunriseIDE::writeControl(byte value)
 	}
 	if (internalBank != &(*rom)[0x4000 * bank]) {
 		internalBank = &(*rom)[0x4000 * bank];
-		MSXCPU::instance().invalidateMemCache(0x4000, 0x4000);
+		cpu.invalidateMemCache(0x4000, 0x4000);
 	}
 }
 

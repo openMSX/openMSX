@@ -13,7 +13,8 @@ class Ram;
 class MSXRam : public MSXDevice
 {
 public:
-	MSXRam(const XMLElement& config, const EmuTime& time);
+	MSXRam(MSXMotherBoard& motherBoard, const XMLElement& config,
+	       const EmuTime& time);
 	virtual ~MSXRam();
 
 	virtual void powerUp(const EmuTime& time);

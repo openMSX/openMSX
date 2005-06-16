@@ -22,14 +22,11 @@ public:
 	virtual const std::string& getName() const;
 
 protected:
-	MSXRom(const XMLElement& config, const EmuTime& time,
-	       std::auto_ptr<Rom> rom);
+	MSXRom(MSXMotherBoard& motherBoard, const XMLElement& config,
+	       const EmuTime& time, std::auto_ptr<Rom> rom);
 
 	const std::auto_ptr<Rom> rom;
-	static class MSXCPU* cpu;
-
-private:
-	void init();
+	MSXCPU& cpu;
 };
 
 } // namespace openmsx

@@ -17,7 +17,8 @@ public:
 	virtual void reset(const EmuTime& time);
 
 protected:
-	WD2793BasedFDC(const XMLElement& config, const EmuTime& time);
+	WD2793BasedFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
+	               const EmuTime& time);
 	virtual ~WD2793BasedFDC();
 
 	const std::auto_ptr<DriveMultiplexer> multiplexer;

@@ -15,7 +15,8 @@ class SRAM;
 class MSXMatsushita : public MSXDevice, public MSXSwitchedDevice
 {
 public:
-	MSXMatsushita(const XMLElement& config, const EmuTime& time);
+	MSXMatsushita(MSXMotherBoard& motherBoard, const XMLElement& config,
+	              const EmuTime& time);
 	virtual ~MSXMatsushita();
 
 	virtual void reset(const EmuTime& time);

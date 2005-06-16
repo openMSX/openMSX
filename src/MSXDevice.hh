@@ -133,19 +133,21 @@ public:
 	 */
 	virtual byte peekMem(word address) const;
 
-	// motherboard this device belongs to
-	MSXMotherBoard& getMotherboard() const;
-	void setMotherboard(MSXMotherBoard& motherboard);
+	/** Get the mother board this device belongs to
+	  */
+	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
 
 protected:
 	/** Every MSXDevice has a config entry; this constructor gets
 	  * some device properties from that config entry.
 	  * All subclasses must call this super-constructor.
+	  * @param motherBoard the mother board this device belongs to
 	  * @param config config entry for this device.
 	  * @param time the moment in emulated time this MSXDevice is
 	  *   created (typically at time zero: power-up).
 	  */
-	MSXDevice(const XMLElement& config, const EmuTime& time);
+	MSXDevice(MSXMotherBoard& motherBoard, const XMLElement& config,
+	          const EmuTime& time);
 
 	const XMLElement& deviceConfig;
 	friend class VDPIODelay;
@@ -165,7 +167,7 @@ private:
 	int ss;
 	int pages;
 
-	MSXMotherBoard* motherboard;
+	MSXMotherBoard& motherBoard;
 };
 
 } // namespace openmsx

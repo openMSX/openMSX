@@ -13,7 +13,8 @@ class SRAM;
 class MSXPac : public MSXDevice
 {
 public:
-	MSXPac(const XMLElement& config, const EmuTime& time);
+	MSXPac(MSXMotherBoard& motherBoard, const XMLElement& config,
+	       const EmuTime& time);
 	virtual ~MSXPac();
 
 	virtual void reset(const EmuTime& time);

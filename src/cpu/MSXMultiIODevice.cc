@@ -24,8 +24,8 @@ const XMLElement& MSXMultiIODevice::getMultiConfig()
 	return deviceElem;
 }
 
-MSXMultiIODevice::MSXMultiIODevice()
-	: MSXDevice(getMultiConfig(), EmuTime::zero)
+MSXMultiIODevice::MSXMultiIODevice(MSXMotherBoard& motherboard)
+	: MSXDevice(motherboard, getMultiConfig(), EmuTime::zero)
 {
 }
 

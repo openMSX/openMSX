@@ -3,14 +3,16 @@
 #include "MSXPac.hh"
 #include "SRAM.hh"
 #include "MSXCPU.hh"
+#include "MSXMotherBoard.hh"
 #include "CPU.hh"
 
 namespace openmsx {
 
 static const char* const PAC_Header = "PAC2 BACKUP DATA";
 
-MSXPac::MSXPac(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+MSXPac::MSXPac(MSXMotherBoard& motherBoard, const XMLElement& config,
+               const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 	, sram(new SRAM(getName() + " SRAM", 0x1FFE, config, PAC_Header))
 {
 	reset(time);
@@ -101,7 +103,7 @@ void MSXPac::checkSramEnable()
 	bool newEnabled = (r1ffe == 0x4D) && (r1fff == 0x69);
 	if (sramEnabled != newEnabled) {
 		sramEnabled = newEnabled;
-		MSXCPU::instance().invalidateMemCache(0x0000, 0x10000);
+		getMotherBoard().getCPU().invalidateMemCache(0x0000, 0x10000);
 	}
 }
 

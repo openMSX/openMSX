@@ -15,6 +15,7 @@ namespace openmsx {
 class Y8950Adpcm;
 class Y8950KeyboardConnector;
 class DACSound16S;
+class MSXCPU;
 
 class Y8950 : private SoundDevice, private EmuTimerCallback, private Debuggable
 {
@@ -168,7 +169,7 @@ class Y8950 : private SoundDevice, private EmuTimerCallback, private Debuggable
 
 public:
 	Y8950(const std::string& name, const XMLElement& config, int sampleRam,
-	      const EmuTime& time);
+	      const EmuTime& time, MSXCPU& cpu);
 	virtual ~Y8950();
 
 	void reset(const EmuTime &time);

@@ -8,8 +8,9 @@
 
 namespace openmsx {
 
-PhilipsFDC::PhilipsFDC(const XMLElement& config, const EmuTime& time)
-	: WD2793BasedFDC(config, time)
+PhilipsFDC::PhilipsFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
+                       const EmuTime& time)
+	: WD2793BasedFDC(motherBoard, config, time)
 {
 	brokenFDCread = config.getChildDataAsBool("broken_fdc_read", false);
 	reset(time);

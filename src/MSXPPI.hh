@@ -34,7 +34,6 @@
 namespace openmsx {
 
 class KeyClick;
-class MSXCPUInterface;
 class CassettePortInterface;
 class RenShaTurbo;
 class Keyboard;
@@ -43,7 +42,8 @@ class MSXPPI: public MSXDevice, public I8255Interface
 {
 // MSXDevice
 public:
-	MSXPPI(const XMLElement& config, const EmuTime& time);
+	MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
+	       const EmuTime& time);
 	virtual ~MSXPPI();
 
 	virtual void reset(const EmuTime& time);
@@ -72,7 +72,6 @@ public:
 
 private:
 	CassettePortInterface& cassettePort;
-	MSXCPUInterface& cpuInterface;
 	RenShaTurbo& renshaTurbo;
 	std::auto_ptr<KeyClick> click;
 	std::auto_ptr<Keyboard> keyboard;

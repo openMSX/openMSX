@@ -27,7 +27,8 @@ namespace openmsx {
 class MSXTurboRPause : public MSXDevice, private SettingListener
 {
 public:
-	MSXTurboRPause(const XMLElement& config, const EmuTime& time);
+	MSXTurboRPause(MSXMotherBoard& motherBoard, const XMLElement& config,
+	               const EmuTime& time);
 	virtual ~MSXTurboRPause();
 
 	virtual void reset(const EmuTime& time);

@@ -21,9 +21,9 @@
 
 namespace openmsx {
 
-RomKonami5::RomKonami5(const XMLElement& config, const EmuTime& time,
-                       std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(config, time, rom)
+RomKonami5::RomKonami5(MSXMotherBoard& motherBoard, const XMLElement& config,
+                       const EmuTime& time, std::auto_ptr<Rom> rom)
+	: Rom8kBBlocks(motherBoard, config, time, rom)
 {
 	scc.reset(new SCC(getName(), config, time));
 	reset(time);
@@ -79,7 +79,7 @@ void RomKonami5::writeMem(word address, byte value, const EmuTime& time)
 	if ((address & 0xF800) == 0x9000) {
 		// SCC enable/disable
 		sccEnabled = ((value & 0x3F) == 0x3F);
-		cpu->invalidateMemCache(0x9800, 0x0800);
+		cpu.invalidateMemCache(0x9800, 0x0800);
 	}
 	if ((address & 0x1800) == 0x1000) {
 		// page selection

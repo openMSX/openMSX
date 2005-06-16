@@ -10,12 +10,11 @@ namespace openmsx {
 class DummyDevice : public MSXDevice
 {
 public:
-	static DummyDevice& instance();
-	virtual void reset(const EmuTime& time);
-
-private:
-	DummyDevice(const XMLElement& config, const EmuTime& time);
+	DummyDevice(MSXMotherBoard& motherBoard, const XMLElement& config,
+	            const EmuTime& time);
 	virtual ~DummyDevice();
+	
+	virtual void reset(const EmuTime& time);
 };
 
 } // namespace openmsx

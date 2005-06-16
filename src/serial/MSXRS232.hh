@@ -19,7 +19,8 @@ class ClockPin;
 class MSXRS232 : public MSXDevice, public RS232Connector
 {
 public:
-	MSXRS232(const XMLElement& config, const EmuTime& time);
+	MSXRS232(MSXMotherBoard& motherBoard, const XMLElement& config,
+	         const EmuTime& time);
 	virtual ~MSXRS232();
 
 	virtual void reset(const EmuTime& time);

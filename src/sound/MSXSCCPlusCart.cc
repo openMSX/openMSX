@@ -10,6 +10,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "MSXCPU.hh"
+#include "MSXMotherBoard.hh"
 #include "CPU.hh"
 #include "XMLElement.hh"
 
@@ -17,8 +18,9 @@ using std::string;
 
 namespace openmsx {
 
-MSXSCCPlusCart::MSXSCCPlusCart(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
+                               const XMLElement& config, const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 	, ram(new Ram(getName() + " RAM", "SCC+ RAM", 0x20000))
 {
 	const XMLElement* fileElem = config.findChild("filename");
@@ -208,7 +210,8 @@ void MSXSCCPlusCart::setMapper(int regio, byte value)
 
 	checkEnable();
 	internalMemoryBank[regio] = block;
-	MSXCPU::instance().invalidateMemCache(0x4000 + regio * 0x2000, 0x2000);
+	getMotherBoard().getCPU().invalidateMemCache(
+		0x4000 + regio * 0x2000, 0x2000);
 }
 
 void MSXSCCPlusCart::setModeRegister(byte value)
@@ -228,11 +231,12 @@ void MSXSCCPlusCart::setModeRegister(byte value)
 		isRamSegment[2] = true;
 		isRamSegment[3] = true;
 	} else {
+		MSXCPU& cpu = getMotherBoard().getCPU();
 		if (modeRegister & 0x01) {
 			isRamSegment[0] = true;
 		} else {
 			if (isRamSegment[0]) {
-				MSXCPU::instance().invalidateMemCache(0x4000, 0x2000);
+				cpu.invalidateMemCache(0x4000, 0x2000);
 				isRamSegment[0] = false;
 			}
 		}
@@ -240,7 +244,7 @@ void MSXSCCPlusCart::setModeRegister(byte value)
 			isRamSegment[1] = true;
 		} else {
 			if (isRamSegment[1]) {
-				MSXCPU::instance().invalidateMemCache(0x6000, 0x2000);
+				cpu.invalidateMemCache(0x6000, 0x2000);
 				isRamSegment[1] = false;
 			}
 		}
@@ -249,12 +253,12 @@ void MSXSCCPlusCart::setModeRegister(byte value)
 			isRamSegment[2] = true;
 		} else {
 			if (isRamSegment[2]) {
-				MSXCPU::instance().invalidateMemCache(0x8000, 0x2000);
+				cpu.invalidateMemCache(0x8000, 0x2000);
 				isRamSegment[2] = false;
 			}
 		}
 		if (isRamSegment[3]) {
-			MSXCPU::instance().invalidateMemCache(0xA000, 0x2000);
+			cpu.invalidateMemCache(0xA000, 0x2000);
 			isRamSegment[3] = false;
 		}
 	}

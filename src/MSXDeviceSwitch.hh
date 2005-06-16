@@ -55,7 +55,7 @@ namespace openmsx {
 class MSXSwitchedDevice
 {
 public:
-	MSXSwitchedDevice(byte id);
+	MSXSwitchedDevice(MSXMotherBoard& motherBoard, byte id);
 	virtual ~MSXSwitchedDevice();
 
 	virtual void reset(const EmuTime& time);
@@ -64,6 +64,7 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time) = 0;
 
 private:
+	MSXMotherBoard& motherBoard;
 	byte id;
 };
 
@@ -71,9 +72,9 @@ private:
 class MSXDeviceSwitch : public MSXDevice
 {
 public:
+	MSXDeviceSwitch(MSXMotherBoard& motherBoard, const XMLElement& config,
+	                const EmuTime& time);
 	virtual ~MSXDeviceSwitch();
-
-	static MSXDeviceSwitch& instance();
 
 	// (un)register methods for devices
 	void registerDevice(byte id, MSXSwitchedDevice* device);
@@ -85,8 +86,6 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	MSXDeviceSwitch(const XMLElement& config, const EmuTime& time);
-
 	byte selected;
 	MSXSwitchedDevice* devices[256];
 };

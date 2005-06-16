@@ -422,8 +422,9 @@ void Y8950::Channel::keyOff()
 //**********************************************************//
 
 Y8950::Y8950(const string& name_, const XMLElement& config, int sampleRam,
-             const EmuTime& time)
-	: timer1(this), timer2(this)
+             const EmuTime& time, MSXCPU& cpu)
+	: irq(cpu)
+	, timer1(this), timer2(this)
 	, adpcm(new Y8950Adpcm(*this, name_, sampleRam))
 	, connector(new Y8950KeyboardConnector())
 	, dac13(new DACSound16S(name_ + " DAC", "MSX-AUDIO 13-bit DAC", config, time))

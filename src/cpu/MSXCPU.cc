@@ -43,12 +43,6 @@ MSXCPU::~MSXCPU()
 	infoCmd.unregisterTopic("time", &timeInfo);
 }
 
-MSXCPU& MSXCPU::instance()
-{
-	static MSXCPU oneInstance;
-	return oneInstance;
-}
-
 void MSXCPU::setMotherboard(MSXMotherBoard* motherboard)
 {
 	z80 ->setMotherboard(motherboard);

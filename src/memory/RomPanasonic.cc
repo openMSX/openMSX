@@ -2,6 +2,7 @@
 
 #include "RomPanasonic.hh"
 #include "PanasonicMemory.hh"
+#include "MSXMotherBoard.hh"
 #include "XMLElement.hh"
 #include "SRAM.hh"
 #include "CPU.hh"
@@ -13,9 +14,10 @@ const int SRAM_BASE = 0x80;
 const int RAM_BASE  = 0x180;
 
 
-RomPanasonic::RomPanasonic(const XMLElement& config, const EmuTime& time,
-                           std::auto_ptr<Rom> rom_)
-	: Rom8kBBlocks(config, time, rom_)
+RomPanasonic::RomPanasonic(
+	MSXMotherBoard& motherBoard, const XMLElement& config,
+	const EmuTime& time, std::auto_ptr<Rom> rom_)
+	: Rom8kBBlocks(motherBoard, config, time, rom_)
 {
 	int sramSize = config.getChildDataAsInt("sramsize", 0);
 	if (sramSize) {
@@ -157,7 +159,7 @@ void RomPanasonic::changeBank(byte region, int bank)
 		setBank(region, &sram->operator[](offset));
 	} else if (RAM_BASE <= bank) {
 		// RAM
-		setBank(region, PanasonicMemory::instance().
+		setBank(region, getMotherBoard().getPanasonicMemory().
 			getRamBlock(bank - RAM_BASE));
 	} else {
 		// ROM

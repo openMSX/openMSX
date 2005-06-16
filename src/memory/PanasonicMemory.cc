@@ -1,6 +1,7 @@
 // $Id$
 
 #include "PanasonicMemory.hh"
+#include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 #include "Ram.hh"
 #include "Rom.hh"
@@ -14,21 +15,16 @@ static XMLElement& getRomConfig()
 	return HardwareConfig::instance().getChild("PanasonicRom");
 }
 
-PanasonicMemory::PanasonicMemory()
-	: rom(new Rom("PanasonicRom", "Turbo-R main ROM", getRomConfig()))
+PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)
+	: rom(new Rom(motherBoard, "PanasonicRom", "Turbo-R main ROM",
+	              getRomConfig()))
 	, ram(NULL), dram(false)
-	, msxcpu(MSXCPU::instance())
+	, msxcpu(motherBoard.getCPU())
 {
 }
 
 PanasonicMemory::~PanasonicMemory()
 {
-}
-
-PanasonicMemory& PanasonicMemory::instance()
-{
-	static PanasonicMemory oneInstance;
-	return oneInstance;
 }
 
 void PanasonicMemory::registerRam(Ram& ram_)

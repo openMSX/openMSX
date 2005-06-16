@@ -2,6 +2,7 @@
 
 #include "MSXMatsushita.hh"
 #include "MSXCPU.hh"
+#include "MSXMotherBoard.hh"
 #include "FirmwareSwitch.hh"
 #include "SRAM.hh"
 #include "BooleanSetting.hh"
@@ -10,9 +11,10 @@ namespace openmsx {
 
 const byte ID = 0x08;
 
-MSXMatsushita::MSXMatsushita(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
-	, MSXSwitchedDevice(ID)
+MSXMatsushita::MSXMatsushita(MSXMotherBoard& motherBoard,
+                             const XMLElement& config, const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
+	, MSXSwitchedDevice(motherBoard, ID)
 	, firmwareSwitch(new FirmwareSwitch())
 	, sram(new SRAM(getName() + " SRAM", 0x800, config))
 {
@@ -79,10 +81,10 @@ void MSXMatsushita::writeIO(byte port, byte value, const EmuTime& /*time*/)
 	case 1:
 		if (value & 1) {
 			// bit0 = 1 -> 3.5MHz
-			MSXCPU::instance().setZ80Freq(3579545);
+			getMotherBoard().getCPU().setZ80Freq(3579545);
 		} else {
 			// bit0 = 0 -> 5.3MHz
-			MSXCPU::instance().setZ80Freq(5369318);	// 3579545 * 3/2
+			getMotherBoard().getCPU().setZ80Freq(5369318);	// 3579545 * 3/2
 		}
 		break;
 	case 3:

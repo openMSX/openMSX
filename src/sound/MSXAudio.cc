@@ -2,15 +2,18 @@
 
 #include "MSXAudio.hh"
 #include "Y8950.hh"
+#include "MSXMotherBoard.hh"
 #include "XMLElement.hh"
 
 namespace openmsx {
 
-MSXAudio::MSXAudio(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config,
+                   const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 {
 	int ramSize = config.getChildDataAsInt("sampleram", 256); // size in kb
-	y8950.reset(new Y8950(getName(), config, ramSize * 1024, time));
+	y8950.reset(new Y8950(getName(), config, ramSize * 1024, time,
+	                      getMotherBoard().getCPU()));
 	reset(time);
 }
 

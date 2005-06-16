@@ -10,8 +10,8 @@ namespace openmsx {
 class RomAscii16kB : public Rom16kBBlocks
 {
 public:
-	RomAscii16kB(const XMLElement& config, const EmuTime& time,
-	             std::auto_ptr<Rom> rom);
+	RomAscii16kB(MSXMotherBoard& motherBoard, const XMLElement& config,
+	             const EmuTime& time, std::auto_ptr<Rom> rom);
 	virtual ~RomAscii16kB();
 
 	virtual void reset(const EmuTime& time);

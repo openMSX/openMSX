@@ -12,8 +12,9 @@ using std::string;
 
 namespace openmsx {
 
-DebugDevice::DebugDevice(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+DebugDevice::DebugDevice(MSXMotherBoard& motherBoard, const XMLElement& config,
+                         const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 {
 	mode = OFF;
 	string outputFile = config.getChildData("filename", "stdout");

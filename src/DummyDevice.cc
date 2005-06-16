@@ -1,15 +1,13 @@
 // $Id$
 
-#include <cassert>
 #include "DummyDevice.hh"
-#include "EmuTime.hh"
-#include "XMLElement.hh"
-#include "FileContext.hh"
+#include <cassert>
 
 namespace openmsx {
 
-DummyDevice::DummyDevice(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+DummyDevice::DummyDevice(MSXMotherBoard& motherBoard, const XMLElement& config,
+                         const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 {
 }
 
@@ -17,25 +15,9 @@ DummyDevice::~DummyDevice()
 {
 }
 
-DummyDevice& DummyDevice::instance()
-{
-	static bool init = false;
-	static XMLElement deviceElem("Dummy");
-	if (!init) {
-		init = true;
-		deviceElem.addAttribute("id", "empty");
-		deviceElem.setFileContext(std::auto_ptr<FileContext>(
-		                                 new SystemFileContext()));
-	}
-	static DummyDevice oneInstance(deviceElem, EmuTime::zero);
-	return oneInstance;
-}
-
-
-// Block usage of the following methods
-
 void DummyDevice::reset(const EmuTime& /*time*/)
 {
+	// Block usage
 	assert(false);
 }
 

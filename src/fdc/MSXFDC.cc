@@ -9,9 +9,10 @@
 
 namespace openmsx {
 
-MSXFDC::MSXFDC(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
-	, rom(new Rom(getName() + " ROM", "rom", config))
+MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
+               const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
+	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {
 	int numDrives = config.getChildDataAsInt("drives", 1);
 	if ((0 >= numDrives) || (numDrives >= 4)) {

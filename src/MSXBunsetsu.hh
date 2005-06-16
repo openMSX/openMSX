@@ -11,7 +11,8 @@ namespace openmsx {
 class MSXBunsetsu : public MSXDevice
 {
 public:
-	MSXBunsetsu(const XMLElement& config, const EmuTime& time);
+	MSXBunsetsu(MSXMotherBoard& motherBoard, const XMLElement& config,
+	            const EmuTime& time);
 	virtual ~MSXBunsetsu();
 
 	virtual void reset(const EmuTime& time);

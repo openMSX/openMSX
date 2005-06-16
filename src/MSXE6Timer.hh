@@ -20,7 +20,8 @@ namespace openmsx {
 class MSXE6Timer : public MSXDevice
 {
 public:
-	MSXE6Timer(const XMLElement& config, const EmuTime& time);
+	MSXE6Timer(MSXMotherBoard& motherBoard, const XMLElement& config,
+	           const EmuTime& time);
 	virtual ~MSXE6Timer();
 
 	virtual void reset(const EmuTime& time);

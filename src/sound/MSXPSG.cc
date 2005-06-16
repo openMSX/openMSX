@@ -11,8 +11,9 @@
 namespace openmsx {
 
 // MSXDevice
-MSXPSG::MSXPSG(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+MSXPSG::MSXPSG(MSXMotherBoard& motherBoard, const XMLElement& config,
+               const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 	, cassette(CassettePortFactory::instance())
 	, prev(255)
 {

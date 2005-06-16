@@ -21,12 +21,13 @@ using std::vector;
 
 namespace openmsx {
 
-Reactor::Reactor()
+Reactor::Reactor(MSXMotherBoard& motherBoard_)
 	: paused(false)
 	, blockedCounter(0)
 	, running(true)
 	, pauseSetting(GlobalSettings::instance().getPauseSetting())
 	, output(CliComm::instance())
+	, motherBoard(motherBoard_)
 	, quitCommand(*this)
 {
 	pauseSetting.addListener(this);
@@ -60,17 +61,13 @@ void Reactor::run(bool autoRun)
 	// First execute auto commands.
 	commandController.autoCommands();
 
-	// Initialize MSX machine.
-	// TODO: Make this into a command.
-	motherboard.reset(new MSXMotherBoard());
-
 	// Run.
 	if (autoRun) {
 		commandController.executeCommand("set power on");
 	}
 	while (running) {
 		bool blocked = blockedCounter > 0;
-		if (!blocked) blocked = !motherboard->execute();
+		if (!blocked) blocked = !motherBoard.execute();
 		if (blocked) {
 			display.repaint();
 			Timer::sleep(100 * 1000);
@@ -82,7 +79,7 @@ void Reactor::run(bool autoRun)
 		}
 	}
 
-	motherboard->powerDownMSX();
+	motherBoard.powerDownMSX();
 }
 
 void Reactor::unpause()
@@ -106,7 +103,7 @@ void Reactor::pause()
 void Reactor::block()
 {
 	++blockedCounter;
-	MSXCPU::instance().exitCPULoop();
+	motherBoard.getCPU().exitCPULoop();
 }
 
 void Reactor::unblock()
@@ -135,7 +132,7 @@ bool Reactor::signalEvent(const Event& event)
 {
 	if (event.getType() == OPENMSX_QUIT_EVENT) {
 		running = false;
-		MSXCPU::instance().exitCPULoop();
+		motherBoard.getCPU().exitCPULoop();
 	} else {
 		assert(false);
 	}
@@ -154,7 +151,7 @@ Reactor::QuitCommand::QuitCommand(Reactor& parent_)
 string Reactor::QuitCommand::execute(const vector<string>& /*tokens*/)
 {
 	parent.running = false;
-	MSXCPU::instance().exitCPULoop();
+	parent.motherBoard.getCPU().exitCPULoop();
 	return "";
 }
 

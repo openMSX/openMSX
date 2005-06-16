@@ -752,11 +752,11 @@ byte YMF278::peekStatus(const EmuTime& time) const
 	return result;
 }
 
-YMF278::YMF278(const string& name_, int ramSize, const XMLElement& config,
-               const EmuTime& time)
+YMF278::YMF278(MSXMotherBoard& motherBoard, const string& name_, int ramSize,
+               const XMLElement& config, const EmuTime& time)
 	: debugRegisters(*this), debugMemory(*this)
 	, name(name_)
-	, rom(new Rom(getName() + " ROM", "rom", config))
+	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {
 	memadr = 0;	// avoid UMR
 	setSampleRate(44100);	// make valgrind happy

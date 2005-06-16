@@ -17,7 +17,8 @@ class MidiOutConnector;
 class MSXMidi: public MSXDevice, public MidiInConnector
 {
 public:
-	MSXMidi(const XMLElement& config, const EmuTime& time);
+	MSXMidi(MSXMotherBoard& motherBoard, const XMLElement& config,
+	        const EmuTime& time);
 	virtual ~MSXMidi();
 
 	virtual void reset(const EmuTime& time);

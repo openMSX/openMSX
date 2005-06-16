@@ -3,17 +3,21 @@
 #include "MSXMoonSound.hh"
 #include "YMF262.hh"
 #include "YMF278.hh"
+#include "MSXMotherBoard.hh"
 #include "XMLElement.hh"
 #include "Mixer.hh"
 
 namespace openmsx {
 
-MSXMoonSound::MSXMoonSound(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+MSXMoonSound::MSXMoonSound(MSXMotherBoard& motherBoard,
+                           const XMLElement& config, const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 {
 	int ramSize = config.getChildDataAsInt("sampleram", 512); // size in kb
-	ymf262.reset(new YMF262(getName() + " FM", config, time));
-	ymf278.reset(new YMF278(getName() + " wave", ramSize, config, time));
+	ymf262.reset(new YMF262(getName() + " FM", config, time,
+	                        getMotherBoard().getCPU()));
+	ymf278.reset(new YMF278(motherBoard, getName() + " wave", ramSize,
+	                        config, time));
 	reset(time);
 }
 

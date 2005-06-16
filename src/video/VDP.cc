@@ -30,6 +30,7 @@ TODO:
 #include "Debugger.hh"
 #include "RendererFactory.hh"
 #include "Renderer.hh"
+#include "MSXMotherBoard.hh"
 #include "MSXException.hh"
 #include <sstream>
 #include <iomanip>
@@ -47,12 +48,15 @@ namespace openmsx {
 
 // Init and cleanup:
 
-VDP::VDP(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
+         const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 	, vdpRegDebug(*this)
 	, vdpStatusRegDebug(*this)
 	, vdpRegsCmd(*this)
 	, paletteCmd(*this)
+	, irqVertical(getMotherBoard().getCPU())
+	, irqHorizontal(getMotherBoard().getCPU())
 {
 	PRT_DEBUG("Creating a VDP object");
 

@@ -10,8 +10,8 @@ namespace openmsx {
 class RomRType : public Rom16kBBlocks
 {
 public:
-	RomRType(const XMLElement& config, const EmuTime& time,
-	         std::auto_ptr<Rom> rom);
+	RomRType(MSXMotherBoard& motherBoard, const XMLElement& config,
+	         const EmuTime& time, std::auto_ptr<Rom> rom);
 	virtual ~RomRType();
 
 	virtual void reset(const EmuTime& time);

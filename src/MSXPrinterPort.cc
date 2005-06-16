@@ -9,8 +9,9 @@ using std::string;
 
 namespace openmsx {
 
-MSXPrinterPort::MSXPrinterPort(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+MSXPrinterPort::MSXPrinterPort(MSXMotherBoard& motherBoard,
+                               const XMLElement& config, const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 	, Connector("printerport", std::auto_ptr<Pluggable>(
 	                                       new DummyPrinterPortDevice()))
 {

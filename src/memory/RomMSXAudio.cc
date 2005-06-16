@@ -8,9 +8,9 @@
 
 namespace openmsx {
 
-RomMSXAudio::RomMSXAudio(const XMLElement& config, const EmuTime& time,
-                         std::auto_ptr<Rom> rom)
-	: MSXRom(config, time, rom)
+RomMSXAudio::RomMSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config,
+                         const EmuTime& time, std::auto_ptr<Rom> rom)
+	: MSXRom(motherBoard, config, time, rom)
 	, ram(new Ram(getName() + " RAM", "MSX-AUDIO mapped RAM", 0x1000))
 {
 	reset(time);
@@ -24,7 +24,7 @@ void RomMSXAudio::reset(const EmuTime& /*time*/)
 {
 	ram->clear();	// TODO check
 	bankSelect = 0;
-	cpu->invalidateMemCache(0x0000, 0x10000);
+	cpu.invalidateMemCache(0x0000, 0x10000);
 }
 
 byte RomMSXAudio::readMem(word address, const EmuTime& /*time*/)
@@ -50,7 +50,7 @@ void RomMSXAudio::writeMem(word address, byte value, const EmuTime& /*time*/)
 	address &= 0x7FFF;
 	if (address == 0x7FFE) {
 		bankSelect = value & 3;
-		cpu->invalidateMemCache(0x0000, 0x10000);
+		cpu.invalidateMemCache(0x0000, 0x10000);
 	}
 	address &= 0x3FFF;
 	if ((bankSelect == 0) && (address >= 0x3000)) {

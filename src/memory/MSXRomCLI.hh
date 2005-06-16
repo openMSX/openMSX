@@ -24,6 +24,7 @@ private:
 	void parse(const std::string& arg, const std::string& slotname,
 	           std::list<std::string>& cmdLine);
 
+	CommandLineParser& cmdLineParser;
 	int cartridgeNr;
 
 	class IpsOption : public CLIOption {

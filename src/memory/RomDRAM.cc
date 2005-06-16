@@ -2,17 +2,16 @@
 
 #include "RomDRAM.hh"
 #include "PanasonicMemory.hh"
-#include "MSXCPU.hh"
-#include "CPU.hh"
+#include "MSXMotherBoard.hh"
 #include "Rom.hh"
 #include "XMLElement.hh"
 
 namespace openmsx {
 
-RomDRAM::RomDRAM(const XMLElement& config, const EmuTime& time,
-                           std::auto_ptr<Rom> rom)
-	: MSXRom(config, time, rom)
-	, panasonicMemory(PanasonicMemory::instance())
+RomDRAM::RomDRAM(MSXMotherBoard& motherBoard, const XMLElement& config,
+                 const EmuTime& time, std::auto_ptr<Rom> rom)
+	: MSXRom(motherBoard, config, time, rom)
+	, panasonicMemory(motherBoard.getPanasonicMemory())
 {
 	int base = config.getChild("mem").getAttributeAsInt("base");
 	int first = config.getChild("rom").getChildDataAsInt("firstblock");

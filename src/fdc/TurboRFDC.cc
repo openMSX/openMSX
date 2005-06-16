@@ -8,12 +8,14 @@
 #include "TC8566AF.hh"
 #include "Rom.hh"
 #include "MSXCPU.hh"
+#include "MSXMotherBoard.hh"
 #include "CPU.hh"
 
 namespace openmsx {
 
-TurboRFDC::TurboRFDC(const XMLElement& config, const EmuTime& time)
-	: MSXFDC(config, time)
+TurboRFDC::TurboRFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
+                     const EmuTime& time)
+	: MSXFDC(motherBoard, config, time)
 	, controller(new TC8566AF(reinterpret_cast<DiskDrive**>(drives), time))
 {
 	blockMask = (rom->getSize() / 0x4000) - 1;
@@ -81,7 +83,7 @@ void TurboRFDC::writeMem(word address, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("TurboRFDC: write 0x" << hex << (int)address << " 0x" << (int)value << dec);
 	if ((address == 0x6000) || (address == 0x7FF0) || (address == 0x7FFE)) {
-		MSXCPU::instance().invalidateMemCache(0x4000, 0x4000);
+		getMotherBoard().getCPU().invalidateMemCache(0x4000, 0x4000);
 		memory = &(*rom)[0x4000 * (value & blockMask)];
 		return;
 	} else {

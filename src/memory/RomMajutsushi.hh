@@ -12,8 +12,8 @@ class DACSound8U;
 class RomMajutsushi : public Rom8kBBlocks
 {
 public:
-	RomMajutsushi(const XMLElement& config, const EmuTime& time,
-	              std::auto_ptr<Rom> rom);
+	RomMajutsushi(MSXMotherBoard& motherBoard, const XMLElement& config,
+	              const EmuTime& time, std::auto_ptr<Rom> rom);
 	virtual ~RomMajutsushi();
 
 	virtual void reset(const EmuTime& time);

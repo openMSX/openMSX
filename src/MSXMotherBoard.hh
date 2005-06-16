@@ -14,6 +14,12 @@ class CliComm;
 class MSXDevice;
 class XMLElement;
 class BooleanSetting;
+class CartridgeSlotManager;
+class DummyDevice;
+class MSXCPU;
+class MSXCPUInterface;
+class PanasonicMemory;
+class MSXDeviceSwitch;
 
 class MSXMotherBoard : private SettingListener
 {
@@ -50,6 +56,18 @@ public:
 	 */
 	void resetMSX();
 
+	/** Parse machine config file and instantiate MSX machine
+	  */
+	void readConfig();
+
+	// The following classes are unique per MSX machine
+	CartridgeSlotManager& getSlotManager() const { return *slotManager; }
+	DummyDevice& getDummyDevice();
+	MSXCPU& getCPU() const { return *msxCpu; }
+	MSXCPUInterface& getCPUInterface();
+	PanasonicMemory& getPanasonicMemory();
+	MSXDeviceSwitch& getDeviceSwitch();
+	
 private:
 	// SettingListener
 	virtual void update(const Setting* setting);
@@ -71,6 +89,14 @@ private:
 
 	BooleanSetting& powerSetting;
 	CliComm& output;
+	std::auto_ptr<CartridgeSlotManager> slotManager;
+	std::auto_ptr<XMLElement> dummyDeviceConfig;
+	std::auto_ptr<DummyDevice> dummyDevice;
+	std::auto_ptr<MSXCPU> msxCpu;
+	std::auto_ptr<MSXCPUInterface> msxCpuInterface;
+	std::auto_ptr<PanasonicMemory> panasonicMemory;
+	std::auto_ptr<XMLElement> devSwitchConfig;
+	std::auto_ptr<MSXDeviceSwitch> deviceSwitch;
 
 	class ResetCmd : public SimpleCommand {
 	public:

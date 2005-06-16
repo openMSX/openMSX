@@ -10,8 +10,8 @@ namespace openmsx {
 class RomPageNN : public Rom8kBBlocks
 {
 public:
-	RomPageNN(const XMLElement& config, const EmuTime& time,
-	          std::auto_ptr<Rom> rom, byte pages);
+	RomPageNN(MSXMotherBoard& motherBoard, const XMLElement& config,
+	          const EmuTime& time, std::auto_ptr<Rom> rom, byte pages);
 	virtual ~RomPageNN();
 };
 

@@ -6,6 +6,7 @@
 #include "LedEvent.hh"
 #include "EventDistributor.hh"
 #include "MSXCPUInterface.hh"
+#include "MSXMotherBoard.hh"
 #include "KeyClick.hh"
 #include "CassettePort.hh"
 #include "XMLElement.hh"
@@ -15,10 +16,10 @@ namespace openmsx {
 
 // MSXDevice
 
-MSXPPI::MSXPPI(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
+               const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 	, cassettePort(CassettePortFactory::instance())
-	, cpuInterface(MSXCPUInterface::instance())
 	, renshaTurbo(RenShaTurbo::instance())
 	, prevBits(15)
 {
@@ -115,7 +116,7 @@ byte MSXPPI::peekA(const EmuTime& /*time*/) const
 }
 void MSXPPI::writeA(byte value, const EmuTime& /*time*/)
 {
-	cpuInterface.setPrimarySlots(value);
+	getMotherBoard().getCPUInterface().setPrimarySlots(value);
 }
 
 byte MSXPPI::readB(const EmuTime& time)

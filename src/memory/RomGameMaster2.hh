@@ -13,8 +13,8 @@ class SRAM;
 class RomGameMaster2 : public Rom4kBBlocks
 {
 public:
-	RomGameMaster2(const XMLElement& config, const EmuTime& time,
-	               std::auto_ptr<Rom> rom);
+	RomGameMaster2(MSXMotherBoard& motherBoard, const XMLElement& config,
+	               const EmuTime& time, std::auto_ptr<Rom> rom);
 	virtual ~RomGameMaster2();
 
 	virtual void reset(const EmuTime& time);

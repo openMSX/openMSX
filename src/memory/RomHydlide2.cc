@@ -20,9 +20,9 @@
 
 namespace openmsx {
 
-RomHydlide2::RomHydlide2(const XMLElement& config, const EmuTime& time,
-                         std::auto_ptr<Rom> rom)
-	: RomAscii16kB(config, time, rom)
+RomHydlide2::RomHydlide2(MSXMotherBoard& motherBoard, const XMLElement& config,
+                         const EmuTime& time, std::auto_ptr<Rom> rom)
+	: RomAscii16kB(motherBoard, config, time, rom)
 	, sram(new SRAM(getName() + " SRAM", 0x0800, config))
 {
 	reset(time);
@@ -64,7 +64,7 @@ void RomHydlide2::writeMem(word address, byte value, const EmuTime& /*time*/)
 		if (value == 0x10) {
 			// SRAM block
 			sramEnabled |= (1 << region);
-			cpu->invalidateMemCache(0x4000 * region, 0x4000);
+			cpu.invalidateMemCache(0x4000 * region, 0x4000);
 		} else {
 			// ROM block
 			setRom(region, value);

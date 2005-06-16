@@ -1,35 +1,22 @@
 // $Id$
 
 #include "MSXRom.hh"
-#include "MSXCPU.hh"
+#include "MSXMotherBoard.hh"
 #include "Rom.hh"
 
 using std::string;
 
 namespace openmsx {
 
-MSXCPU* MSXRom::cpu;
-
-MSXRom::MSXRom(const XMLElement& config, const EmuTime& time,
-               std::auto_ptr<Rom> rom_)
-	: MSXDevice(config, time), rom(rom_)
+MSXRom::MSXRom(MSXMotherBoard& motherBoard, const XMLElement& config,
+               const EmuTime& time, std::auto_ptr<Rom> rom_)
+	: MSXDevice(motherBoard, config, time), rom(rom_)
+	, cpu(motherBoard.getCPU())
 {
-	init();
 }
 
 MSXRom::~MSXRom()
 {
-}
-
-void MSXRom::init()
-{
-	static bool alreadyInit = false;
-	if (alreadyInit) {
-		return;
-	}
-	alreadyInit = true;
-
-	cpu = &MSXCPU::instance();
 }
 
 

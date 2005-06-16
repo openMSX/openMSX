@@ -15,21 +15,23 @@
 
 #include "RomKorean90in1.hh"
 #include "MSXCPUInterface.hh"
+#include "MSXMotherBoard.hh"
 #include "Rom.hh"
 
 namespace openmsx {
 
-RomKorean90in1::RomKorean90in1(const XMLElement& config, const EmuTime& time,
-                               std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(config, time, rom)
+RomKorean90in1::RomKorean90in1(
+	MSXMotherBoard& motherBoard, const XMLElement& config,
+	const EmuTime& time, std::auto_ptr<Rom> rom)
+	: Rom8kBBlocks(motherBoard, config, time, rom)
 {
 	reset(time);
-	MSXCPUInterface::instance().register_IO_Out(0x77, this);
+	getMotherBoard().getCPUInterface().register_IO_Out(0x77, this);
 }
 
 RomKorean90in1::~RomKorean90in1()
 {
-	MSXCPUInterface::instance().unregister_IO_Out(0x77, this);
+	getMotherBoard().getCPUInterface().unregister_IO_Out(0x77, this);
 }
 
 void RomKorean90in1::reset(const EmuTime& time)

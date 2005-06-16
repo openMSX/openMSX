@@ -12,7 +12,8 @@ namespace openmsx {
 class MSXKanji12 : public MSXDevice, public MSXSwitchedDevice
 {
 public:
-	MSXKanji12(const XMLElement& config, const EmuTime& time);
+	MSXKanji12(MSXMotherBoard& motherBoard, const XMLElement& config,
+	           const EmuTime& time);
 	virtual ~MSXKanji12();
 
 	virtual void reset(const EmuTime& time);

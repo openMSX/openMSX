@@ -4,6 +4,7 @@
 #include "MSXMapperIOTurboR.hh"
 #include "MSXMapperIOPhilips.hh"
 #include "MSXCPU.hh"
+#include "MSXMotherBoard.hh"
 #include "HardwareConfig.hh"
 #include "MSXException.hh"
 
@@ -11,8 +12,9 @@ using std::string;
 
 namespace openmsx {
 
-MSXMapperIO::MSXMapperIO(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config,
+                         const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 {
 	string type = HardwareConfig::instance().
 		getChildData("MapperReadBackBits", "largest");
@@ -69,7 +71,7 @@ void MSXMapperIO::writeIO(byte port, byte value, const EmuTime& /*time*/)
 {
 	port &= 0x03;
 	page[port] = value;
-	MSXCPU::instance().invalidateMemCache(0x4000 * port, 0x4000);
+	getMotherBoard().getCPU().invalidateMemCache(0x4000 * port, 0x4000);
 }
 
 byte MSXMapperIO::getSelectedPage(byte bank)
@@ -78,4 +80,3 @@ byte MSXMapperIO::getSelectedPage(byte bank)
 }
 
 } // namespace openmsx
-

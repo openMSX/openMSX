@@ -1,14 +1,16 @@
 // $Id$
 
 #include "PanasonicRam.hh"
+#include "MSXMotherBoard.hh"
 #include "PanasonicMemory.hh"
 
 namespace openmsx {
 
-PanasonicRam::PanasonicRam(const XMLElement& config, const EmuTime& time)
-	: MSXMemoryMapper(config, time)
+PanasonicRam::PanasonicRam(MSXMotherBoard& motherBoard,
+                           const XMLElement& config, const EmuTime& time)
+	: MSXMemoryMapper(motherBoard, config, time)
 {
-	PanasonicMemory::instance().registerRam(*ram);
+	motherBoard.getPanasonicMemory().registerRam(*ram);
 }
 
 PanasonicRam::~PanasonicRam()

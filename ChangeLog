@@ -1,5 +1,13 @@
 $Id$
 
+2005-06-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Large refactoring, get rid of some singletons:
+	   MSXMapperIO, MultiIODevice, MSXDeviceSwitch, DummyDevice,
+	   PanasonicMemory, MSXCPUInterface, MSXCPU are no longer
+	   singletons. Instead the (single) object of this class should
+	   be get from MSXMotherBoard. MSXDevices and some other classes
+	   now have a backpointer to MSXMotherBoard
+
 2005-06-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added basic syntax checking for expressions in conditional bp's
 

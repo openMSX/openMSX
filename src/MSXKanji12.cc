@@ -7,9 +7,11 @@ namespace openmsx {
 
 const byte ID = 0xF7;
 
-MSXKanji12::MSXKanji12(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXSwitchedDevice(ID),
-	  rom(getName(), "Kanji-12 ROM", config)
+MSXKanji12::MSXKanji12(MSXMotherBoard& motherBoard, const XMLElement& config,
+                       const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
+	, MSXSwitchedDevice(motherBoard, ID)
+	, rom(motherBoard, getName(), "Kanji-12 ROM", config)
 {
 	size = rom.getSize();
 	if ((size != 0x20000) && (size != 0x40000)) {

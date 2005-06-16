@@ -21,9 +21,10 @@ static std::string toString(unsigned start, unsigned len)
 	        "0x" + StringOp::toHexString(start + len) + ']';
 }
 
-RomPlain::RomPlain(const XMLElement& config, const EmuTime& time,
-                   std::auto_ptr<Rom> rom_, MirrorType mirrored, int start)
-	: Rom8kBBlocks(config, time, rom_)
+RomPlain::RomPlain(MSXMotherBoard& motherBoard, const XMLElement& config,
+                   const EmuTime& time, std::auto_ptr<Rom> rom_,
+                   MirrorType mirrored, int start)
+	: Rom8kBBlocks(motherBoard, config, time, rom_)
 {
 	unsigned windowBase =  0x0000;
 	unsigned windowSize = 0x10000;

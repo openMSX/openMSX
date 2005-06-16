@@ -7,8 +7,9 @@
 
 namespace openmsx {
 
-MSXTurboRPause::MSXTurboRPause(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+MSXTurboRPause::MSXTurboRPause(MSXMotherBoard& motherBoard,
+                               const XMLElement& config, const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 	, pauseSetting("turborpause", "status of the TurboR pause", false)
 	, status(255)
 	, pauseLed(false)
@@ -68,9 +69,9 @@ void MSXTurboRPause::updatePause()
 	if (newHwPause != hwPause) {
 		hwPause = newHwPause;
 		if (hwPause) {
-			getMotherboard().pause();
+			getMotherBoard().pause();
 		} else {
-			getMotherboard().unpause();
+			getMotherBoard().unpause();
 		}
 	}
 

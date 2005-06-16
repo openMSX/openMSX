@@ -46,123 +46,124 @@ using std::string;
 
 namespace openmsx {
 
-auto_ptr<MSXDevice> DeviceFactory::create(const XMLElement& conf, const EmuTime& time)
+auto_ptr<MSXDevice> DeviceFactory::create(
+	MSXMotherBoard& motherBoard, const XMLElement& conf, const EmuTime& time)
 {
 	const string& type = conf.getName();
 	if (type == "PPI") {
-		return auto_ptr<MSXDevice>(new MSXPPI(conf, time));
+		return auto_ptr<MSXDevice>(new MSXPPI(motherBoard, conf, time));
 	}
 	if (type == "RAM") {
-		return auto_ptr<MSXDevice>(new MSXRam(conf, time));
+		return auto_ptr<MSXDevice>(new MSXRam(motherBoard, conf, time));
 	}
 	if (type == "VDP") {
-		return auto_ptr<MSXDevice>(new VDP(conf, time));
+		return auto_ptr<MSXDevice>(new VDP(motherBoard, conf, time));
 	}
 	if (type == "E6Timer") {
-		return auto_ptr<MSXDevice>(new MSXE6Timer(conf, time));
+		return auto_ptr<MSXDevice>(new MSXE6Timer(motherBoard, conf, time));
 	}
 	if (type == "F4Device") {
-		return auto_ptr<MSXDevice>(new MSXF4Device(conf, time));
+		return auto_ptr<MSXDevice>(new MSXF4Device(motherBoard, conf, time));
 	}
 	if (type == "TurboRLeds") {
 		// deprecated, remove in next version
 		return auto_ptr<MSXDevice>(NULL);
 	}
 	if (type == "TurboRPause") {
-		return auto_ptr<MSXDevice>(new MSXTurboRPause(conf, time));
+		return auto_ptr<MSXDevice>(new MSXTurboRPause(motherBoard, conf, time));
 	}
 	if (type == "TurboRPCM") {
-		return auto_ptr<MSXDevice>(new MSXTurboRPCM(conf, time));
+		return auto_ptr<MSXDevice>(new MSXTurboRPCM(motherBoard, conf, time));
 	}
 	if (type == "S1985") {
-		return auto_ptr<MSXDevice>(new MSXS1985(conf, time));
+		return auto_ptr<MSXDevice>(new MSXS1985(motherBoard, conf, time));
 	}
 	if (type == "S1990") {
-		return auto_ptr<MSXDevice>(new MSXS1990(conf, time));
+		return auto_ptr<MSXDevice>(new MSXS1990(motherBoard, conf, time));
 	}
 	if (type == "PSG") {
-		return auto_ptr<MSXDevice>(new MSXPSG(conf, time));
+		return auto_ptr<MSXDevice>(new MSXPSG(motherBoard, conf, time));
 	}
 	if (type == "MSX-MUSIC") {
-		return auto_ptr<MSXDevice>(new MSXMusic(conf, time));
+		return auto_ptr<MSXDevice>(new MSXMusic(motherBoard, conf, time));
 	}
 	if (type == "FMPAC") {
-		return auto_ptr<MSXDevice>(new MSXFmPac(conf, time));
+		return auto_ptr<MSXDevice>(new MSXFmPac(motherBoard, conf, time));
 	}
 	if (type == "MSX-AUDIO") {
-		return auto_ptr<MSXDevice>(new MSXAudio(conf, time));
+		return auto_ptr<MSXDevice>(new MSXAudio(motherBoard, conf, time));
 	}
 	if (type == "MusicModuleMIDI") {
-		return auto_ptr<MSXDevice>(new MC6850(conf, time));
+		return auto_ptr<MSXDevice>(new MC6850(motherBoard, conf, time));
 	}
 	if (type == "MoonSound") {
-		return auto_ptr<MSXDevice>(new MSXMoonSound(conf, time));
+		return auto_ptr<MSXDevice>(new MSXMoonSound(motherBoard, conf, time));
 	}
 	if (type == "Kanji") {
-		return auto_ptr<MSXDevice>(new MSXKanji(conf, time));
+		return auto_ptr<MSXDevice>(new MSXKanji(motherBoard, conf, time));
 	}
 	if (type == "Bunsetsu") {
-		return auto_ptr<MSXDevice>(new MSXBunsetsu(conf, time));
+		return auto_ptr<MSXDevice>(new MSXBunsetsu(motherBoard, conf, time));
 	}
 	if (type == "MemoryMapper") {
-		return auto_ptr<MSXDevice>(new MSXMemoryMapper(conf, time));
+		return auto_ptr<MSXDevice>(new MSXMemoryMapper(motherBoard, conf, time));
 	}
 	if (type == "PanasonicRAM") {
-		return auto_ptr<MSXDevice>(new PanasonicRam(conf, time));
+		return auto_ptr<MSXDevice>(new PanasonicRam(motherBoard, conf, time));
 	}
 	if (type == "RTC") {
-		return auto_ptr<MSXDevice>(new MSXRTC(conf, time));
+		return auto_ptr<MSXDevice>(new MSXRTC(motherBoard, conf, time));
 	}
 	if (type == "ROM") {
-		return RomFactory::create(conf, time);
+		return RomFactory::create(motherBoard, conf, time);
 	}
 	if (type == "PrinterPort") {
-		return auto_ptr<MSXDevice>(new MSXPrinterPort(conf, time));
+		return auto_ptr<MSXDevice>(new MSXPrinterPort(motherBoard, conf, time));
 	}
 	if (type == "SCCplus") { // Note: it's actually called SCC-I
-		return auto_ptr<MSXDevice>(new MSXSCCPlusCart(conf, time));
+		return auto_ptr<MSXDevice>(new MSXSCCPlusCart(motherBoard, conf, time));
 	}
 	if (type == "WD2793") {
-		return auto_ptr<MSXDevice>(new PhilipsFDC(conf, time));
+		return auto_ptr<MSXDevice>(new PhilipsFDC(motherBoard, conf, time));
 	}
 	if (type == "Microsol") {
-		return auto_ptr<MSXDevice>(new MicrosolFDC(conf, time));
+		return auto_ptr<MSXDevice>(new MicrosolFDC(motherBoard, conf, time));
 	}
 	if (type == "MB8877A") {
-		return auto_ptr<MSXDevice>(new NationalFDC(conf, time));
+		return auto_ptr<MSXDevice>(new NationalFDC(motherBoard, conf, time));
 	}
 	if (type == "TC8566AF") {
-		return auto_ptr<MSXDevice>(new TurboRFDC(conf, time));
+		return auto_ptr<MSXDevice>(new TurboRFDC(motherBoard, conf, time));
 	}
 	if (type == "SunriseIDE") {
-		return auto_ptr<MSXDevice>(new SunriseIDE(conf, time));
+		return auto_ptr<MSXDevice>(new SunriseIDE(motherBoard, conf, time));
 	}
 	if (type == "Matsushita") {
-		return auto_ptr<MSXDevice>(new MSXMatsushita(conf, time));
+		return auto_ptr<MSXDevice>(new MSXMatsushita(motherBoard, conf, time));
 	}
 	if (type == "Kanji12") {
-		return auto_ptr<MSXDevice>(new MSXKanji12(conf, time));
+		return auto_ptr<MSXDevice>(new MSXKanji12(motherBoard, conf, time));
 	}
 	if (type == "MSX-MIDI") {
-		return auto_ptr<MSXDevice>(new MSXMidi(conf, time));
+		return auto_ptr<MSXDevice>(new MSXMidi(motherBoard, conf, time));
 	}
 	if (type == "MSX-RS232") {
-		return auto_ptr<MSXDevice>(new MSXRS232(conf, time));
+		return auto_ptr<MSXDevice>(new MSXRS232(motherBoard, conf, time));
 	}
 	if (type == "MegaRam") {
-		return auto_ptr<MSXDevice>(new MSXMegaRam(conf, time));
+		return auto_ptr<MSXDevice>(new MSXMegaRam(motherBoard, conf, time));
 	}
 	if (type == "PAC") {
-		return auto_ptr<MSXDevice>(new MSXPac(conf, time));
+		return auto_ptr<MSXDevice>(new MSXPac(motherBoard, conf, time));
 	}
 	if (type == "HBI55") {
-		return auto_ptr<MSXDevice>(new MSXHBI55(conf, time));
+		return auto_ptr<MSXDevice>(new MSXHBI55(motherBoard, conf, time));
 	}
 	if (type == "DebugDevice") {
-		return auto_ptr<MSXDevice>(new DebugDevice(conf, time));
+		return auto_ptr<MSXDevice>(new DebugDevice(motherBoard, conf, time));
 	}
 	if (type == "V9990") {
-		return auto_ptr<MSXDevice>(new V9990(conf, time));
+		return auto_ptr<MSXDevice>(new V9990(motherBoard, conf, time));
 	}
 
 	throw FatalError("Unknown device \"" + type + "\" specified in configuration");

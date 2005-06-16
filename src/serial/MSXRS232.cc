@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXRS232.hh"
+#include "MSXMotherBoard.hh"
 #include "I8254.hh"
 #include "Ram.hh"
 #include "Rom.hh"
@@ -12,16 +13,18 @@ namespace openmsx {
 const unsigned RAM_OFFSET = 0x2000;
 const unsigned RAM_SIZE = 0x800;
 
-MSXRS232::MSXRS232(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+MSXRS232::MSXRS232(MSXMotherBoard& motherBoard, const XMLElement& config,
+                   const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 	, RS232Connector("msx-rs232")
 	, rxrdyIRQlatch(false)
 	, rxrdyIRQenabled(false)
+	, rxrdyIRQ(getMotherBoard().getCPU())
 	, cntr0(*this), cntr1(*this)
 	, i8254(new I8254(&cntr0, &cntr1, NULL, time))
 	, interf(*this)
 	, i8251(new I8251(&interf, time))
-	, rom(new Rom(MSXDevice::getName() + " ROM", "rom", config))
+	, rom(new Rom(motherBoard, MSXDevice::getName() + " ROM", "rom", config))
 {
 	if (config.getChildDataAsBool("ram", false)) {
 		ram.reset(new Ram(MSXDevice::getName() + " RAM", "RS232 RAM", RAM_SIZE));

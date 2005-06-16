@@ -3,8 +3,12 @@
 #include "MSXMotherBoard.hh"
 #include "MSXDevice.hh"
 #include "Scheduler.hh"
+#include "CartridgeSlotManager.hh"
+#include "DummyDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXCPU.hh"
+#include "PanasonicMemory.hh"
+#include "MSXDeviceSwitch.hh"
 #include "EmuTime.hh"
 #include "HardwareConfig.hh"
 #include "DeviceFactory.hh"
@@ -13,6 +17,7 @@
 #include "EventDistributor.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
+#include "FileContext.hh"
 #include <cassert>
 
 using std::string;
@@ -25,13 +30,11 @@ MSXMotherBoard::MSXMotherBoard()
 	, blockedCounter(0)
 	, powerSetting(GlobalSettings::instance().getPowerSetting())
 	, output(CliComm::instance())
+	, slotManager(new CartridgeSlotManager(*this))
+	, msxCpu(new MSXCPU())
 	, resetCommand(*this)
 {
-	MSXCPU::instance().setMotherboard(this);
-
-	// Initialise devices.
-	//PRT_DEBUG(HardwareConfig::instance().getChild("devices").dump());
-	createDevices(HardwareConfig::instance().getChild("devices"));
+	getCPU().setMotherboard(this);
 
 	powerSetting.addListener(this);
 
@@ -52,13 +55,63 @@ MSXMotherBoard::~MSXMotherBoard()
 	availableDevices.clear();
 }
 
+DummyDevice& MSXMotherBoard::getDummyDevice()
+{
+	if (!dummyDevice.get()) {
+		dummyDeviceConfig.reset(new XMLElement("Dummy"));
+		dummyDeviceConfig->addAttribute("id", "empty");
+		dummyDeviceConfig->setFileContext(std::auto_ptr<FileContext>(
+			new SystemFileContext()));
+		dummyDevice.reset(
+			new DummyDevice(*this, *dummyDeviceConfig, EmuTime::zero));
+	}
+	return *dummyDevice;
+}
+
+MSXCPUInterface& MSXMotherBoard::getCPUInterface()
+{
+	if (!msxCpuInterface.get()) {
+		// TODO assert hw config already loaded
+		msxCpuInterface = MSXCPUInterface::create(
+			*this, HardwareConfig::instance());
+	}
+	return *msxCpuInterface; 
+}
+
+PanasonicMemory& MSXMotherBoard::getPanasonicMemory()
+{
+	if (!panasonicMemory.get()) {
+		panasonicMemory.reset(new PanasonicMemory(*this));
+	}
+	return *panasonicMemory;
+}
+
+MSXDeviceSwitch& MSXMotherBoard::getDeviceSwitch()
+{
+	if (!deviceSwitch.get()) {
+		devSwitchConfig.reset(new XMLElement("DeviceSwitch"));
+		devSwitchConfig->addAttribute("id", "DeviceSwitch");
+		devSwitchConfig->setFileContext(std::auto_ptr<FileContext>(
+			new SystemFileContext()));
+		deviceSwitch.reset(
+			new MSXDeviceSwitch(*this, *devSwitchConfig, EmuTime::zero));
+	}
+	return *deviceSwitch;
+}
+
+void MSXMotherBoard::readConfig()
+{
+	getSlotManager().readConfig();
+	createDevices(HardwareConfig::instance().getChild("devices"));
+}
+
 bool MSXMotherBoard::execute()
 {
 	if (!powered || blockedCounter) {
 		return false;
 	}
 
-	MSXCPU::instance().execute();
+	getCPU().execute();
 	return true;
 }
 
@@ -66,7 +119,7 @@ void MSXMotherBoard::block()
 {
 	// TODO mute
 	++blockedCounter;
-	MSXCPU::instance().exitCPULoop();
+	getCPU().exitCPULoop();
 }
 
 void MSXMotherBoard::unblock()
@@ -79,13 +132,13 @@ void MSXMotherBoard::unblock()
 void MSXMotherBoard::pause()
 {
 	// TODO mute
-	MSXCPU::instance().setPaused(true);
+	getCPU().setPaused(true);
 }
 
 void MSXMotherBoard::unpause()
 {
 	// TODO mute
-	MSXCPU::instance().setPaused(false);
+	getCPU().setPaused(false);
 }
 
 void MSXMotherBoard::addDevice(std::auto_ptr<MSXDevice> device)
@@ -96,12 +149,12 @@ void MSXMotherBoard::addDevice(std::auto_ptr<MSXDevice> device)
 void MSXMotherBoard::resetMSX()
 {
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
-	MSXCPUInterface::instance().reset();
+	getCPUInterface().reset();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		(*it)->reset(time);
 	}
-	MSXCPU::instance().reset(time);
+	getCPU().reset(time);
 }
 
 void MSXMotherBoard::powerUpMSX()
@@ -120,12 +173,12 @@ void MSXMotherBoard::powerUpMSX()
 		new LedEvent(LedEvent::POWER, true));
 
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
-	MSXCPUInterface::instance().reset();
+	getCPUInterface().reset();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		(*it)->powerUp(time);
 	}
-	MSXCPU::instance().reset(time);
+	getCPU().reset(time);
 }
 
 void MSXMotherBoard::powerDownMSX()
@@ -142,7 +195,7 @@ void MSXMotherBoard::powerDownMSX()
 	EventDistributor::instance().distributeEvent(
 		new LedEvent(LedEvent::POWER, false));
 
-	MSXCPU::instance().exitCPULoop();
+	getCPU().exitCPULoop();
 
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
 	for (Devices::iterator it = availableDevices.begin();
@@ -163,9 +216,8 @@ void MSXMotherBoard::createDevices(const XMLElement& elem)
 		} else {
 			PRT_DEBUG("Instantiating: " << name);
 			std::auto_ptr<MSXDevice> device(
-				DeviceFactory::create(sub, EmuTime::zero));
+				DeviceFactory::create(*this, sub, EmuTime::zero));
 			if (device.get()) {
-				device->setMotherboard(*this);
 				addDevice(device);
 			} else {
 				output.printWarning("Deprecated device: \"" +

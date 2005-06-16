@@ -8,6 +8,7 @@
 #include "MSXCPUInterface.hh"
 #include "DummyDevice.hh"
 #include "CommandController.hh"
+#include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 #include "Scheduler.hh"
 #include "HardwareConfig.hh"
@@ -27,32 +28,27 @@ using std::vector;
 
 namespace openmsx {
 
-static MSXCPUInterface* instanceHelper()
+auto_ptr<MSXCPUInterface> MSXCPUInterface::create(MSXMotherBoard& motherBoard,
+                                                  HardwareConfig& config)
 {
-	if (HardwareConfig::instance().getChild("devices").findChild("S1990")) {
-		return new TurborCPUInterface();
+	if (config.getChild("devices").findChild("S1990")) {
+		return auto_ptr<MSXCPUInterface>(new TurborCPUInterface(motherBoard));
 	} else {
-		return new MSXCPUInterface();
+		return auto_ptr<MSXCPUInterface>(new MSXCPUInterface(motherBoard));
 	}
 }
 
-MSXCPUInterface& MSXCPUInterface::instance()
-{
-	static auto_ptr<MSXCPUInterface> oneInstance(instanceHelper());
-	return *oneInstance.get();
-}
-
-MSXCPUInterface::MSXCPUInterface()
+MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 	: memoryDebug(*this),
 	  slottedMemoryDebug(*this),
 	  ioDebug(*this),
 	  slotMapCmd(*this),
 	  slotSelectCmd(*this),
 	  ioMapCmd(*this),
-	  dummyDevice(DummyDevice::instance()),
+	  dummyDevice(motherBoard.getDummyDevice()),
 	  hardwareConfig(HardwareConfig::instance()),
 	  commandController(CommandController::instance()),
-	  msxcpu(MSXCPU::instance()),
+	  msxcpu(motherBoard.getCPU()),
 	  scheduler(Scheduler::instance()),
 	  debugger(Debugger::instance()),
 	  cliCommOutput(CliComm::instance())
@@ -133,7 +129,8 @@ void MSXCPUInterface::register_IO_In(byte port, MSXDevice* device)
 		MSXDevice* dev2 = IO_In[port];
 		if (multiIn.find(port) == multiIn.end()) {
 			// second
-			MSXMultiIODevice* multi = new MSXMultiIODevice();
+			MSXMultiIODevice* multi =
+				new MSXMultiIODevice(device->getMotherBoard());
 			multiIn.insert(port);
 			multi->addDevice(dev2);
 			multi->addDevice(device);
@@ -181,7 +178,8 @@ void MSXCPUInterface::register_IO_Out(byte port, MSXDevice* device)
 		MSXDevice* dev2 = IO_Out[port];
 		if (multiOut.find(port) == multiOut.end()) {
 			// second
-			MSXMultiIODevice* multi = new MSXMultiIODevice();
+			MSXMultiIODevice* multi =
+				new MSXMultiIODevice(device->getMotherBoard());
 			multiOut.insert(port);
 			multi->addDevice(dev2);
 			multi->addDevice(device);
@@ -587,7 +585,8 @@ string MSXCPUInterface::IOMapCmd::help(const vector<string>& /*tokens*/) const
 
 // class TurborCPUInterface
 
-TurborCPUInterface::TurborCPUInterface()
+TurborCPUInterface::TurborCPUInterface(MSXMotherBoard& motherBoard)
+	: MSXCPUInterface(motherBoard)
 {
 }
 
@@ -630,7 +629,8 @@ void TurborCPUInterface::unregister_IO_Out(byte port, MSXDevice* device)
 MSXDevice* TurborCPUInterface::getDelayDevice(MSXDevice& device)
 {
 	if (!delayDevice.get()) {
-		delayDevice.reset(new VDPIODelay(device, EmuTime::zero));
+		delayDevice.reset(new VDPIODelay(device.getMotherBoard(),
+		                                 device, EmuTime::zero));
 	}
 	assert(&delayDevice->getDevice() == &device);
 	return delayDevice.get();

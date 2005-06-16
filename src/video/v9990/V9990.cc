@@ -9,6 +9,7 @@
 #include "V9990VRAM.hh"
 #include "V9990CmdEngine.hh"
 #include "V9990Renderer.hh"
+#include "MSXMotherBoard.hh"
 #include <cassert>
 #include <iomanip>
 
@@ -51,11 +52,13 @@ static const RegisterAccess regAccess[64] = {
 // Constructor & Destructor
 // -------------------------------------------------------------------------
 
-V9990::V9990(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
+             const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 	, v9990RegDebug(*this)
 	, v9990PalDebug(*this)
 	, v9990RegsCmd(*this)
+	, irq(getMotherBoard().getCPU())
 	, pendingIRQs(0)
 	, hScanSyncTime(time)
 {

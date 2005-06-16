@@ -4,6 +4,7 @@
 #include "openmsx.hh"
 #include "StringOp.hh"
 #include "CartridgeSlotManager.hh"
+#include "MSXMotherBoard.hh"
 #include "HardwareConfig.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXException.hh"
@@ -17,9 +18,9 @@ const int EXISTS   = 32;
 const int PRIMARY  = 64;
 
 
-CartridgeSlotManager::CartridgeSlotManager()
-	: hardwareConfig(HardwareConfig::instance()),
-	  cpuInterface(MSXCPUInterface::instance())
+CartridgeSlotManager::CartridgeSlotManager(MSXMotherBoard& motherBoard_)
+	: motherBoard(motherBoard_)
+	, hardwareConfig(HardwareConfig::instance())
 {
 	for (int slot = 0; slot < 16; ++slot) {
 		slots[slot] = 0;
@@ -30,13 +31,6 @@ CartridgeSlotManager::CartridgeSlotManager()
 CartridgeSlotManager::~CartridgeSlotManager()
 {
 }
-
-CartridgeSlotManager& CartridgeSlotManager::instance()
-{
-	static CartridgeSlotManager oneInstance;
-	return oneInstance;
-}
-
 
 void CartridgeSlotManager::reserveSlot(int slot)
 {
@@ -87,7 +81,7 @@ void CartridgeSlotManager::readConfig()
 			if (ps < 0) {
 				getSlot(ps);
 			}
-			cpuInterface.setExpanded(ps, true);
+			motherBoard.getCPUInterface().setExpanded(ps, true);
 			if ((*it2)->getAttributeAsBool("external", false)) {
 				createExternal(ps, ss);
 			}

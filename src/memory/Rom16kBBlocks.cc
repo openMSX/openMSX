@@ -6,9 +6,10 @@
 
 namespace openmsx {
 
-Rom16kBBlocks::Rom16kBBlocks(const XMLElement& config, const EmuTime& time,
-                             std::auto_ptr<Rom> rom)
-	: MSXRom(config, time, rom)
+Rom16kBBlocks::Rom16kBBlocks(
+	MSXMotherBoard& motherBoard, const XMLElement& config,
+	const EmuTime& time, std::auto_ptr<Rom> rom)
+	: MSXRom(motherBoard, config, time, rom)
 {
 	for (int i = 0; i < 4; i++) {
 		setRom(i, 0);
@@ -32,7 +33,7 @@ const byte* Rom16kBBlocks::getReadCacheLine(word address) const
 void Rom16kBBlocks::setBank(byte region, byte* adr)
 {
 	bank[region] = adr;
-	cpu->invalidateMemCache(region * 0x4000, 0x4000);
+	cpu.invalidateMemCache(region * 0x4000, 0x4000);
 }
 
 void Rom16kBBlocks::setRom(byte region, int block)

@@ -8,13 +8,15 @@
 namespace openmsx {
 
 class MSXDevice;
+class MSXMotherBoard;
 class XMLElement;
 class EmuTime;
 
 class DeviceFactory {
 public:
-	static std::auto_ptr<MSXDevice> create(const XMLElement& conf,
-	                                       const EmuTime& time);
+	static std::auto_ptr<MSXDevice> create(
+		MSXMotherBoard& motherBoard, const XMLElement& conf,
+		const EmuTime& time);
 };
 
 } // namespace openmsx

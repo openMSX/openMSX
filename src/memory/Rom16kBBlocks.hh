@@ -14,8 +14,8 @@ public:
 	virtual const byte* getReadCacheLine(word start) const;
 
 protected:
-	Rom16kBBlocks(const XMLElement& config, const EmuTime& time,
-	              std::auto_ptr<Rom> rom);
+	Rom16kBBlocks(MSXMotherBoard& motherBoard, const XMLElement& config,
+	              const EmuTime& time, std::auto_ptr<Rom> rom);
 	virtual ~Rom16kBBlocks();
 
 	void setBank(byte region, byte* adr);

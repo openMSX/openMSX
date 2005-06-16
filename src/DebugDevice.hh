@@ -15,7 +15,8 @@ class FilenameSetting;
 class DebugDevice : public MSXDevice
 {
 public:
-	DebugDevice(const XMLElement& config, const EmuTime& time);
+	DebugDevice(MSXMotherBoard& motherBoard, const XMLElement& config,
+	            const EmuTime& time);
 	virtual ~DebugDevice();
 
 	virtual void writeIO(byte port, byte value, const EmuTime& time);

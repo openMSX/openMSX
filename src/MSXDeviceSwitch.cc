@@ -1,24 +1,22 @@
 // $Id$
 
 #include "MSXDeviceSwitch.hh"
-#include "EmuTime.hh"
-#include "XMLElement.hh"
-#include "FileContext.hh"
 #include "MSXCPUInterface.hh"
+#include "MSXMotherBoard.hh"
 
 namespace openmsx {
 
 /// class MSXSwitchedDevice ///
 
-MSXSwitchedDevice::MSXSwitchedDevice(byte id_)
-	: id(id_)
+MSXSwitchedDevice::MSXSwitchedDevice(MSXMotherBoard& motherBoard_, byte id_)
+	: motherBoard(motherBoard_), id(id_)
 {
-	MSXDeviceSwitch::instance().registerDevice(id, this);
+	motherBoard.getDeviceSwitch().registerDevice(id, this);
 }
 
 MSXSwitchedDevice::~MSXSwitchedDevice()
 {
-	MSXDeviceSwitch::instance().unregisterDevice(id);
+	motherBoard.getDeviceSwitch().unregisterDevice(id);
 }
 
 void MSXSwitchedDevice::reset(const EmuTime& /*time*/)
@@ -28,25 +26,29 @@ void MSXSwitchedDevice::reset(const EmuTime& /*time*/)
 
 /// class MSXDeviceSwitch ///
 
-MSXDeviceSwitch::MSXDeviceSwitch(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+MSXDeviceSwitch::MSXDeviceSwitch(MSXMotherBoard& motherBoard,
+                                 const XMLElement& config, const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 {
 	for (int i = 0; i < 256; ++i) {
 		devices[i] = NULL;
 	}
 	selected = 0;
 
+	// TODO register/unregister dynamically
+	MSXCPUInterface& interface = getMotherBoard().getCPUInterface();
 	for (byte port = 0x40; port < 0x50; ++port) {
-		MSXCPUInterface::instance().register_IO_In (port, this);
-		MSXCPUInterface::instance().register_IO_Out(port, this);
+		interface.register_IO_In (port, this);
+		interface.register_IO_Out(port, this);
 	}
 }
 
 MSXDeviceSwitch::~MSXDeviceSwitch()
 {
+	MSXCPUInterface& interface = getMotherBoard().getCPUInterface();
 	for (byte port = 0x40; port < 0x50; ++port) {
-		MSXCPUInterface::instance().unregister_IO_Out(port, this);
-		MSXCPUInterface::instance().unregister_IO_In (port, this);
+		interface.unregister_IO_Out(port, this);
+		interface.unregister_IO_In (port, this);
 	}
 	/*
 	for (int i = 0; i < 256; i++) {
@@ -54,21 +56,6 @@ MSXDeviceSwitch::~MSXDeviceSwitch()
 		assert(devices[i] == NULL);
 	}
 	*/
-}
-
-
-MSXDeviceSwitch& MSXDeviceSwitch::instance()
-{
-	static XMLElement config("DeviceSwitch");
-	static bool init = false;
-	if (!init) {
-		init = true;
-		config.addAttribute("id", "DeviceSwitch");
-		config.setFileContext(std::auto_ptr<FileContext>(
-		                                  new SystemFileContext()));
-	}
-	static MSXDeviceSwitch oneInstance(config, EmuTime::zero);
-	return oneInstance;
 }
 
 

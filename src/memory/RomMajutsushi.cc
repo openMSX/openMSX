@@ -15,9 +15,10 @@
 
 namespace openmsx {
 
-RomMajutsushi::RomMajutsushi(const XMLElement& config, const EmuTime& time,
-                             std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(config, time, rom)
+RomMajutsushi::RomMajutsushi(
+	MSXMotherBoard& motherBoard, const XMLElement& config,
+	const EmuTime& time, std::auto_ptr<Rom> rom)
+	: Rom8kBBlocks(motherBoard, config, time, rom)
 {
 	dac.reset(new DACSound8U(getName(), "Majutsushi DAC", config, time));
 	reset(time);

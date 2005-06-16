@@ -65,9 +65,9 @@ byte* FSA1FMRam::getSRAM(const XMLElement& config)
 
 // Mapper for slot 3-1 //
 
-RomFSA1FM1::RomFSA1FM1(const XMLElement& config, const EmuTime& time,
-                       std::auto_ptr<Rom> rom)
-	: MSXRom(config, time, rom)
+RomFSA1FM1::RomFSA1FM1(MSXMotherBoard& motherBoard, const XMLElement& config,
+                       const EmuTime& time, std::auto_ptr<Rom> rom)
+	: MSXRom(motherBoard, config, time, rom)
 	, firmwareSwitch(new FirmwareSwitch())
 {
 	sram = FSA1FMRam::getSRAM(config);
@@ -132,7 +132,7 @@ void RomFSA1FM1::writeMem(word address, byte value, const EmuTime& /*time*/)
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		if (address == 0x7FC4) {
 			// switch rom bank
-			cpu->invalidateMemCache(0x4000, 0x2000);
+			cpu.invalidateMemCache(0x4000, 0x2000);
 		}
 		sram[address & 0x1FFF] = value;
 	}
@@ -153,9 +153,9 @@ byte* RomFSA1FM1::getWriteCacheLine(word address) const
 
 // Mapper for slot 3-3 //
 
-RomFSA1FM2::RomFSA1FM2(const XMLElement& config, const EmuTime& time,
-                       std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(config, time, rom)
+RomFSA1FM2::RomFSA1FM2(MSXMotherBoard& motherBoard, const XMLElement& config,
+                       const EmuTime& time, std::auto_ptr<Rom> rom)
+	: Rom8kBBlocks(motherBoard, config, time, rom)
 {
 	sram = FSA1FMRam::getSRAM(config);
 	reset(time);
@@ -272,7 +272,7 @@ void RomFSA1FM2::changeBank(byte region, byte bank)
 			isRam[region]   = false;
 			isEmpty[region] = true;
 		}
-		cpu->invalidateMemCache(0x2000 * region, 0x2000);
+		cpu.invalidateMemCache(0x2000 * region, 0x2000);
 	} else {
 		isRam[region]   = false;
 		isEmpty[region] = false;

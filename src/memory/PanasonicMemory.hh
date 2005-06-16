@@ -8,6 +8,7 @@
 
 namespace openmsx {
 
+class MSXMotherBoard;
 class MSXCPU;
 class Ram;
 class Rom;
@@ -15,7 +16,8 @@ class Rom;
 class PanasonicMemory
 {
 public:
-	static PanasonicMemory& instance();
+	PanasonicMemory(MSXMotherBoard& motherBoard);
+	~PanasonicMemory();
 
 	void registerRam(Ram& ram);
 	const byte* getRomBlock(unsigned block);
@@ -24,9 +26,6 @@ public:
 	void setDRAM(bool dram);
 
 private:
-	PanasonicMemory();
-	~PanasonicMemory();
-
 	const std::auto_ptr<Rom> rom;
 	byte* ram;
 	unsigned ramSize;

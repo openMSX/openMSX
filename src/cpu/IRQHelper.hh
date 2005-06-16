@@ -20,7 +20,7 @@ public:
 	  * Initially there is no interrupt request on the bus.
 	  * @param nmi true iff non-maskable interrupts should be triggered.
 	  */
-	IRQHelper(bool nmi = false);
+	IRQHelper(MSXCPU& cpu, bool nmi = false);
 
 	/** Destroy this IRQHelper.
 	  * Resets interrupt request if it is active.

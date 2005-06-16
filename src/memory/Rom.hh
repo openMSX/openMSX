@@ -10,6 +10,7 @@
 
 namespace openmsx {
 
+class MSXMotherBoard;
 class EmuTime;
 class XMLElement;
 class File;
@@ -18,10 +19,11 @@ class RomInfo;
 class Rom : public Debuggable
 {
 public:
-	Rom(const std::string& name, const std::string& description,
-	    const XMLElement& config);
-	Rom(const std::string& name, const std::string& description,
-	    const XMLElement& config, const std::string& id);
+	Rom(MSXMotherBoard& motherBoard, const std::string& name,
+	    const std::string& description, const XMLElement& config);
+	Rom(MSXMotherBoard& motherBoard, const std::string& name,
+	    const std::string& description, const XMLElement& config,
+	    const std::string& id);
 	virtual ~Rom();
 
 	const byte& operator[](unsigned address) const {
@@ -43,7 +45,7 @@ public:
 	virtual void write(unsigned address, byte value);
 
 private:
-	void init(const XMLElement& config);
+	void init(MSXMotherBoard& motherBoard, const XMLElement& config);
 	void read(const XMLElement& config, const std::string& filename);
 	bool checkSHA1(const XMLElement& config);
 

@@ -2,14 +2,16 @@
 
 #include "MSXS1990.hh"
 #include "MSXCPU.hh"
+#include "MSXMotherBoard.hh"
 #include "PanasonicMemory.hh"
 #include "BooleanSetting.hh"
 #include "FirmwareSwitch.hh"
 
 namespace openmsx {
 
-MSXS1990::MSXS1990(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time)
+MSXS1990::MSXS1990(MSXMotherBoard& motherBoard, const XMLElement& config,
+                   const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
 	, firmwareSwitch(new FirmwareSwitch())
 {
 	reset(time);
@@ -78,11 +80,12 @@ void MSXS1990::writeIO(byte port, byte value, const EmuTime& /*time*/)
 void MSXS1990::setCPUStatus(byte value)
 {
 	cpuStatus = value & 0x60;
-	MSXCPU::instance().setActiveCPU((cpuStatus & 0x20) ? MSXCPU::CPU_Z80 :
-	                                                     MSXCPU::CPU_R800);
+	MSXCPU& cpu = getMotherBoard().getCPU();
+	cpu.setActiveCPU((cpuStatus & 0x20) ? MSXCPU::CPU_Z80 :
+	                                      MSXCPU::CPU_R800);
 	bool dram = (cpuStatus & 0x40) ? false : true;
-	MSXCPU::instance().setDRAMmode(dram);
-	PanasonicMemory::instance().setDRAM(dram);
+	cpu.setDRAMmode(dram);
+	getMotherBoard().getPanasonicMemory().setDRAM(dram);
 	// TODO bit 7 -> reset MSX ?????
 }
 

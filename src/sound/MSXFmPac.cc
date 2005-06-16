@@ -4,6 +4,7 @@
 #include "SRAM.hh"
 #include "Rom.hh"
 #include "MSXCPU.hh"
+#include "MSXMotherBoard.hh"
 #include "CPU.hh"
 
 namespace openmsx {
@@ -11,8 +12,9 @@ namespace openmsx {
 static const char* const PAC_Header = "PAC2 BACKUP DATA";
 //                                     1234567890123456
 
-MSXFmPac::MSXFmPac(const XMLElement& config, const EmuTime& time)
-	: MSXMusic(config, time)
+MSXFmPac::MSXFmPac(MSXMotherBoard& motherBoard, const XMLElement& config,
+                   const EmuTime& time)
+	: MSXMusic(motherBoard, config, time)
 	, sram(new SRAM(getName() + " SRAM", 0x1FFE, config, PAC_Header))
 {
 	reset(time);
@@ -109,7 +111,7 @@ void MSXFmPac::writeMem(word address, byte value, const EmuTime& time)
 			byte newBank = value & 0x03;
 			if (bank != newBank) {
 				bank = newBank;
-				MSXCPU::instance().invalidateMemCache(
+				getMotherBoard().getCPU().invalidateMemCache(
 					0x0000, 0x10000);
 			}
 			break;
@@ -142,7 +144,7 @@ void MSXFmPac::checkSramEnable()
 	bool newEnabled = (r1ffe == 0x4D) && (r1fff == 0x69);
 	if (sramEnabled != newEnabled) {
 		sramEnabled = newEnabled;
-		MSXCPU::instance().invalidateMemCache(0x0000, 0x10000);
+		getMotherBoard().getCPU().invalidateMemCache(0x0000, 0x10000);
 	}
 }
 

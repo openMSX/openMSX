@@ -13,9 +13,10 @@
 
 namespace openmsx {
 
-RomKorean126in1::RomKorean126in1(const XMLElement& config, const EmuTime& time,
-                                 std::auto_ptr<Rom> rom)
-	: Rom16kBBlocks(config, time, rom)
+RomKorean126in1::RomKorean126in1(
+	MSXMotherBoard& motherBoard, const XMLElement& config,
+	const EmuTime& time, std::auto_ptr<Rom> rom)
+	: Rom16kBBlocks(motherBoard, config, time, rom)
 {
 	reset(time);
 }

@@ -12,8 +12,8 @@ class DACSound8U;
 class RomSynthesizer : public Rom16kBBlocks
 {
 public:
-	RomSynthesizer(const XMLElement& config, const EmuTime& time,
-	               std::auto_ptr<Rom> rom);
+	RomSynthesizer(MSXMotherBoard& motherBoard, const XMLElement& config,
+	               const EmuTime& time, std::auto_ptr<Rom> rom);
 	virtual ~RomSynthesizer();
 
 	virtual void reset(const EmuTime& time);

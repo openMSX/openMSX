@@ -10,8 +10,8 @@ namespace openmsx {
 class RomGeneric16kB : public Rom16kBBlocks
 {
 public:
-	RomGeneric16kB(const XMLElement& config, const EmuTime& time,
-	               std::auto_ptr<Rom> rom);
+	RomGeneric16kB(MSXMotherBoard& motherBoard, const XMLElement& config,
+	               const EmuTime& time, std::auto_ptr<Rom> rom);
 	virtual ~RomGeneric16kB();
 
 	virtual void reset(const EmuTime& time);

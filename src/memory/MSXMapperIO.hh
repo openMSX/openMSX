@@ -20,7 +20,8 @@ public:
 class MSXMapperIO : public MSXDevice
 {
 public:
-	MSXMapperIO(const XMLElement& config, const EmuTime& time);
+	MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config,
+	            const EmuTime& time);
 	virtual ~MSXMapperIO();
 
 	virtual void reset(const EmuTime& time);

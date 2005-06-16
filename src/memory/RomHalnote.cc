@@ -6,9 +6,9 @@
 
 namespace openmsx {
 
-RomHalnote::RomHalnote(const XMLElement& config, const EmuTime& time,
-                       std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(config, time, rom)
+RomHalnote::RomHalnote(MSXMotherBoard& motherBoard, const XMLElement& config,
+                       const EmuTime& time, std::auto_ptr<Rom> rom)
+	: Rom8kBBlocks(motherBoard, config, time, rom)
 {
 	reset(time);
 }

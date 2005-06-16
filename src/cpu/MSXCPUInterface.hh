@@ -18,6 +18,7 @@ class VDPIODelay;
 class DummyDevice;
 class HardwareConfig;
 class CommandController;
+class MSXMotherBoard;
 class MSXCPU;
 class Scheduler;
 class Debugger;
@@ -26,8 +27,11 @@ class CliComm;
 class MSXCPUInterface
 {
 public:
-	MSXCPUInterface();
-	static MSXCPUInterface& instance();
+	/** Factory method for MSXCPUInterface. Depending om the machine
+	  * this method returns a MSXCPUInterface or a TurborCPUInterface
+	  */
+	static std::auto_ptr<MSXCPUInterface> create(MSXMotherBoard& motherBoard,
+	                                             HardwareConfig& config);
 
 	/**
 	 * Devices can register their In ports. This is normally done
@@ -167,8 +171,8 @@ public:
 	void setExpanded(int ps, bool expanded);
 
 protected:
+	MSXCPUInterface(MSXMotherBoard& motherBoard);
 	virtual ~MSXCPUInterface();
-
 	friend class std::auto_ptr<MSXCPUInterface>;
 
 private:
@@ -274,15 +278,16 @@ private:
 class TurborCPUInterface : public MSXCPUInterface
 {
 public:
-	TurborCPUInterface();
-	virtual ~TurborCPUInterface();
-
 	virtual void register_IO_In(byte port, MSXDevice* device);
 	virtual void unregister_IO_In(byte port, MSXDevice* device);
 	virtual void register_IO_Out(byte port, MSXDevice* device);
 	virtual void unregister_IO_Out(byte port, MSXDevice* device);
 
 private:
+	TurborCPUInterface(MSXMotherBoard& motherBoard);
+	virtual ~TurborCPUInterface();
+	friend class MSXCPUInterface;
+
 	MSXDevice* getDelayDevice(MSXDevice& device);
 
 	std::auto_ptr<VDPIODelay> delayDevice;

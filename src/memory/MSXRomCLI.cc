@@ -3,6 +3,7 @@
 #include "StringOp.hh"
 #include "XMLElement.hh"
 #include "MSXRomCLI.hh"
+#include "MSXMotherBoard.hh"
 #include "CartridgeSlotManager.hh"
 #include "HardwareConfig.hh"
 #include "FileOperations.hh"
@@ -18,8 +19,9 @@ using std::vector;
 
 namespace openmsx {
 
-MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser)
-	: cartridgeNr(0)
+MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser_)
+	: cmdLineParser(cmdLineParser_)
+	, cartridgeNr(0)
 {
 	cmdLineParser.registerOption("-ips", &ipsOption);
 	cmdLineParser.registerOption("-romtype", &romTypeOption);
@@ -37,7 +39,7 @@ bool MSXRomCLI::parseOption(const string& option, list<string>& cmdLine)
 	string slotname;
 	if (option.length() == 6) {
 		int slot = option[5] - 'a';
-		CartridgeSlotManager::instance().reserveSlot(slot);
+		cmdLineParser.getMotherBoard().getSlotManager().reserveSlot(slot);
 		slotname = option[5];
 	} else {
 		slotname = "any";

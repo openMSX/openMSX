@@ -48,6 +48,8 @@
 
 namespace openmsx {
 
+class MSXCPU;
+
 class YMF262Slot
 {
 public:
@@ -130,7 +132,8 @@ public:
 class YMF262 : private SoundDevice, private EmuTimerCallback, private Debuggable
 {
 public:
-	YMF262(const std::string& name, const XMLElement& config, const EmuTime& time);
+	YMF262(const std::string& name, const XMLElement& config,
+	       const EmuTime& time, MSXCPU& cpu);
 	virtual ~YMF262();
 
 	virtual void reset(const EmuTime& time);
