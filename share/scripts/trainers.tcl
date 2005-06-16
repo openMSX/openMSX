@@ -1481,6 +1481,10 @@ after time 3 trainer_gryzor
 proc trainer_rastansaga  {} {
 	#life bar
 	poke 0xd91c 160
+	#get firesword
+	poke 0xd919 3
+	#weapon expiration timer
+	poke 0xd91a 255
 after time 2 trainer_rastansaga 
 }
 
@@ -2141,6 +2145,8 @@ proc trainer_rambo {} {
 	#food
 	poke 0xe812 6
 	poke 0xe817 24
+	#activate all weapons
+	poke 0xe80e 255
 after time 2 trainer_rambo
 }
 
@@ -2687,7 +2693,7 @@ proc trainer_r-type {} {
 	#pods
 	poke 0xea29 2
 	poke 0xea2f 2
-	after time 10 trainer_r-type
+	after time 1 trainer_r-type
 }
 
 proc trainer_buckrodgers {} {	
@@ -3197,12 +3203,23 @@ proc trainer_exoide-z_area5 {} {
 	#power
 	poke 0xe1d3 100
 	#lives
-	poke 0xe00b 99
+	poke 0xe00b 0x99
 	#invincible red
 	poke 0xe30d 255
 	#invincible green
 	poke 0xe33e 255
+	#silver color ship
+	poke 0xe313 15
 	after time 1 trainer_exoide-z_area5
+}
+
+proc trainer_thseus {} { 
+	#power
+	poke 0xede3 0x9
+	poke 0xede2 0x99
+	#time
+	poke 0xeddc 0x02	
+	after time 1 trainer_thseus
 }
 
 proc poke {addr val} {
