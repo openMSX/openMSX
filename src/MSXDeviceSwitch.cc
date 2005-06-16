@@ -4,6 +4,8 @@
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 
+#include <cassert>
+
 namespace openmsx {
 
 /// class MSXSwitchedDevice ///
