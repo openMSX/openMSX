@@ -8,6 +8,8 @@
 
 namespace openmsx {
 
+class PluggingController;
+
 class DummyY8950KeyboardDevice : public Y8950KeyboardDevice
 {
 public:
@@ -22,7 +24,7 @@ public:
 class Y8950KeyboardConnector : public Connector
 {
 public:
-	Y8950KeyboardConnector();
+	Y8950KeyboardConnector(PluggingController& pluggingController);
 	virtual ~Y8950KeyboardConnector();
 
 	void write(byte data, const EmuTime& time);
@@ -35,6 +37,7 @@ public:
 	virtual Y8950KeyboardDevice& getPlugged() const;
 
 private:
+	PluggingController& pluggingController;
 	byte data;
 };
 

@@ -65,12 +65,6 @@ PluggingController::~PluggingController()
 	}
 }
 
-PluggingController& PluggingController::instance()
-{
-	static PluggingController oneInstance;
-	return oneInstance;
-}
-
 void PluggingController::registerConnector(Connector* connector)
 {
 	connectors.push_back(connector);

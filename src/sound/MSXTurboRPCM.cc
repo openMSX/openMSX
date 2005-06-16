@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXTurboRPCM.hh"
+#include "MSXMotherBoard.hh"
 #include "DACSound8U.hh"
 
 namespace openmsx {
@@ -8,7 +9,7 @@ namespace openmsx {
 MSXTurboRPCM::MSXTurboRPCM(MSXMotherBoard& motherBoard,
                            const XMLElement& config, const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, AudioInputConnector("pcminput")
+	, AudioInputConnector(motherBoard.getPluggingController(), "pcminput")
 {
 	dac.reset(new DACSound8U("PCM", "Turbo-R PCM", config, time));
 

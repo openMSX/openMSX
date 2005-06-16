@@ -9,10 +9,13 @@
 
 namespace openmsx {
 
+class PluggingController;
+
 class JoystickPort : public Connector
 {
 public:
-	JoystickPort(const std::string& name);
+	JoystickPort(PluggingController& pluggingController,
+	             const std::string& name);
 	virtual ~JoystickPort();
 
 	// Connector
@@ -25,6 +28,7 @@ public:
 	void write(byte value, const EmuTime& time);
 
 private:
+	PluggingController& pluggingController;
 	byte lastValue;
 };
 

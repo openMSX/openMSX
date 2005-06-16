@@ -20,6 +20,8 @@ class MSXCPU;
 class MSXCPUInterface;
 class PanasonicMemory;
 class MSXDeviceSwitch;
+class PluggingController;
+class CassettePortInterface;
 
 class MSXMotherBoard : private SettingListener
 {
@@ -61,13 +63,15 @@ public:
 	void readConfig();
 
 	// The following classes are unique per MSX machine
-	CartridgeSlotManager& getSlotManager() const { return *slotManager; }
+	CartridgeSlotManager& getSlotManager();
+	PluggingController& getPluggingController();
 	DummyDevice& getDummyDevice();
 	MSXCPU& getCPU() const { return *msxCpu; }
 	MSXCPUInterface& getCPUInterface();
 	PanasonicMemory& getPanasonicMemory();
 	MSXDeviceSwitch& getDeviceSwitch();
-	
+	CassettePortInterface& getCassettePort();
+
 private:
 	// SettingListener
 	virtual void update(const Setting* setting);
@@ -97,6 +101,8 @@ private:
 	std::auto_ptr<PanasonicMemory> panasonicMemory;
 	std::auto_ptr<XMLElement> devSwitchConfig;
 	std::auto_ptr<MSXDeviceSwitch> deviceSwitch;
+	std::auto_ptr<PluggingController> pluggingController;
+	std::auto_ptr<CassettePortInterface> cassettePort;
 
 	class ResetCmd : public SimpleCommand {
 	public:

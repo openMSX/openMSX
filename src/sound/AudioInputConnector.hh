@@ -8,10 +8,13 @@
 
 namespace openmsx {
 
+class PluggingController;
+
 class AudioInputConnector : public Connector
 {
 public:
-	AudioInputConnector(const std::string& name);
+	AudioInputConnector(PluggingController& pluggingController,
+	                    const std::string& name);
 	virtual ~AudioInputConnector();
 
 	// Connector
@@ -20,6 +23,9 @@ public:
 	virtual AudioInputDevice& getPlugged() const;
 
 	short readSample(const EmuTime& time) const;
+
+private:
+	PluggingController& pluggingController;
 };
 
 } // namespace openmsx

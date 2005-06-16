@@ -9,6 +9,8 @@
 #include "MSXCPU.hh"
 #include "PanasonicMemory.hh"
 #include "MSXDeviceSwitch.hh"
+#include "PluggingController.hh"
+#include "CassettePort.hh"
 #include "EmuTime.hh"
 #include "HardwareConfig.hh"
 #include "DeviceFactory.hh"
@@ -30,7 +32,6 @@ MSXMotherBoard::MSXMotherBoard()
 	, blockedCounter(0)
 	, powerSetting(GlobalSettings::instance().getPowerSetting())
 	, output(CliComm::instance())
-	, slotManager(new CartridgeSlotManager(*this))
 	, msxCpu(new MSXCPU())
 	, resetCommand(*this)
 {
@@ -53,6 +54,22 @@ MSXMotherBoard::~MSXMotherBoard()
 		delete *it;
 	}
 	availableDevices.clear();
+}
+
+CartridgeSlotManager& MSXMotherBoard::getSlotManager()
+{
+	if (!slotManager.get()) {
+		slotManager.reset(new CartridgeSlotManager(*this));
+	}
+	return *slotManager;
+}
+
+PluggingController& MSXMotherBoard::getPluggingController()
+{
+	if (!pluggingController.get()) {
+		pluggingController.reset(new PluggingController());
+	}
+	return *pluggingController;
 }
 
 DummyDevice& MSXMotherBoard::getDummyDevice()
@@ -97,6 +114,18 @@ MSXDeviceSwitch& MSXMotherBoard::getDeviceSwitch()
 			new MSXDeviceSwitch(*this, *devSwitchConfig, EmuTime::zero));
 	}
 	return *deviceSwitch;
+}
+
+CassettePortInterface& MSXMotherBoard::getCassettePort()
+{
+	if (!cassettePort.get()) {
+		if (HardwareConfig::instance().findChild("CassettePort")) {
+			cassettePort.reset(new CassettePort(getPluggingController()));
+		} else {
+			cassettePort.reset(new DummyCassettePort());
+		}
+	}
+	return *cassettePort;
 }
 
 void MSXMotherBoard::readConfig()

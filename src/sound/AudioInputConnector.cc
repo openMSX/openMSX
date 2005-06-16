@@ -8,15 +8,17 @@ using std::string;
 
 namespace openmsx {
 
-AudioInputConnector::AudioInputConnector(const string& name)
+AudioInputConnector::AudioInputConnector(PluggingController& pluggingController_,
+                                         const string& name)
 	: Connector(name, std::auto_ptr<Pluggable>(new DummyAudioInputDevice()))
+	, pluggingController(pluggingController_)
 {
-	PluggingController::instance().registerConnector(this);
+	pluggingController.registerConnector(this);
 }
 
 AudioInputConnector::~AudioInputConnector()
 {
-	PluggingController::instance().unregisterConnector(this);
+	pluggingController.unregisterConnector(this);
 }
 
 const string& AudioInputConnector::getDescription() const

@@ -8,15 +8,17 @@ using std::string;
 
 namespace openmsx {
 
-RS232Connector::RS232Connector(const string &name)
+RS232Connector::RS232Connector(PluggingController& pluggingController_,
+                               const string &name)
 	: Connector(name, std::auto_ptr<Pluggable>(new DummyRS232Device()))
+	, pluggingController(pluggingController_)
 {
-	PluggingController::instance().registerConnector(this);
+	pluggingController.registerConnector(this);
 }
 
 RS232Connector::~RS232Connector()
 {
-	PluggingController::instance().unregisterConnector(this);
+	pluggingController.unregisterConnector(this);
 }
 
 const string& RS232Connector::getDescription() const

@@ -4,6 +4,7 @@
 #include "MSXPrinterPort.hh"
 #include "PrinterPortDevice.hh"
 #include "PluggingController.hh"
+#include "MSXMotherBoard.hh"
 
 using std::string;
 
@@ -19,12 +20,12 @@ MSXPrinterPort::MSXPrinterPort(MSXMotherBoard& motherBoard,
 	strobe = false;	// != true;
 	reset(time);
 
-	PluggingController::instance().registerConnector(this);
+	getMotherBoard().getPluggingController().registerConnector(this);
 }
 
 MSXPrinterPort::~MSXPrinterPort()
 {
-	PluggingController::instance().unregisterConnector(this);
+	getMotherBoard().getPluggingController().unregisterConnector(this);
 }
 
 void MSXPrinterPort::reset(const EmuTime& time)

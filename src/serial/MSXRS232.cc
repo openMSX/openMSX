@@ -16,7 +16,7 @@ const unsigned RAM_SIZE = 0x800;
 MSXRS232::MSXRS232(MSXMotherBoard& motherBoard, const XMLElement& config,
                    const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, RS232Connector("msx-rs232")
+	, RS232Connector(motherBoard.getPluggingController(), "msx-rs232")
 	, rxrdyIRQlatch(false)
 	, rxrdyIRQenabled(false)
 	, rxrdyIRQ(getMotherBoard().getCPU())

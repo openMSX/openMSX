@@ -19,7 +19,7 @@ namespace openmsx {
 MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
                const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, cassettePort(CassettePortFactory::instance())
+	, cassettePort(motherBoard.getCassettePort())
 	, renshaTurbo(RenShaTurbo::instance())
 	, prevBits(15)
 {

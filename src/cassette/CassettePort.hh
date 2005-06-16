@@ -11,6 +11,7 @@
 namespace openmsx {
 
 class CassettePlayer;
+class PluggingController;
 
 class CassettePortInterface : public Connector
 {
@@ -60,7 +61,7 @@ public:
 class CassettePort : public CassettePortInterface
 {
 public:
-	CassettePort();
+	CassettePort(PluggingController& pluggingController);
 	virtual ~CassettePort();
 	virtual void setMotor(bool status, const EmuTime& time);
 	virtual void cassetteOut(bool output, const EmuTime& time);
@@ -69,6 +70,7 @@ public:
 private:
 	static const int BUFSIZE = 256;
 
+	PluggingController& pluggingController;
 	bool lastOutput;
 	short nextSample;
 	EmuTime prevTime;
@@ -85,18 +87,6 @@ public:
 	virtual void cassetteOut(bool output, const EmuTime& time);
 	virtual bool cassetteIn(const EmuTime& time);
 	virtual void flushOutput(const EmuTime& time);
-};
-
-
-class CassettePortFactory
-{
-public:
-	/**
-	* If an Cassette was specified in the config file this method
-	* returns a CassettePort object, otherwise a DummyCassettePort
-	* object
-	*/
-	static CassettePortInterface& instance();
 };
 
 } // namespace openmsx

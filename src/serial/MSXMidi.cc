@@ -11,7 +11,7 @@ namespace openmsx {
 MSXMidi::MSXMidi(MSXMotherBoard& motherBoard, const XMLElement& config,
                  const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, MidiInConnector("msx-midi-in")
+	, MidiInConnector(motherBoard.getPluggingController(), "msx-midi-in")
 	, timerIRQlatch(false), timerIRQenabled(false)
 	, timerIRQ(getMotherBoard().getCPU())
 	, rxrdyIRQlatch(false), rxrdyIRQenabled(false)
@@ -20,7 +20,8 @@ MSXMidi::MSXMidi(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, i8254(new I8254(&cntr0, NULL, &cntr2, time))
 	, interf(*this)
 	, i8251(new I8251(&interf, time))
-	, outConnector(new MidiOutConnector("msx-midi-out"))
+	, outConnector(new MidiOutConnector(motherBoard.getPluggingController(),
+	                                    "msx-midi-out"))
 {
 	EmuDuration total(1.0 / 4e6); // 4MHz
 	EmuDuration hi   (1.0 / 8e6); // 8MHz half clock period

@@ -9,10 +9,13 @@
 
 namespace openmsx {
 
+class PluggingController;
+
 class RS232Connector : public Connector, public SerialDataInterface
 {
 public:
-	RS232Connector(const std::string& name);
+	RS232Connector(PluggingController& pluggingController,
+	               const std::string& name);
 	virtual ~RS232Connector();
 
 	// Connector
@@ -27,6 +30,9 @@ public:
 	virtual void recvByte(byte value, const EmuTime& time) = 0;
 	virtual bool ready() = 0;
 	virtual bool acceptsData() = 0;
+
+private:
+	PluggingController& pluggingController;
 };
 
 } // namespace openmsx

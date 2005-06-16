@@ -12,8 +12,7 @@ MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: MSXDevice(motherBoard, config, time)
 {
 	int ramSize = config.getChildDataAsInt("sampleram", 256); // size in kb
-	y8950.reset(new Y8950(getName(), config, ramSize * 1024, time,
-	                      getMotherBoard().getCPU()));
+	y8950.reset(new Y8950(motherBoard, getName(), config, ramSize * 1024, time));
 	reset(time);
 }
 

@@ -8,16 +8,18 @@ using std::string;
 
 namespace openmsx {
 
-JoystickPort::JoystickPort(const string &name)
+JoystickPort::JoystickPort(PluggingController& pluggingController_,
+                           const string &name)
 	: Connector(name, std::auto_ptr<Pluggable>(new DummyJoystick()))
+	, pluggingController(pluggingController_)
+	, lastValue(255) // != 0
 {
-	lastValue = 255;	// != 0
-	PluggingController::instance().registerConnector(this);
+	pluggingController.registerConnector(this);
 }
 
 JoystickPort::~JoystickPort()
 {
-	PluggingController::instance().unregisterConnector(this);
+	pluggingController.unregisterConnector(this);
 }
 
 const string& JoystickPort::getDescription() const

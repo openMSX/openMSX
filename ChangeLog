@@ -7,6 +7,8 @@ $Id$
 	   singletons. Instead the (single) object of this class should
 	   be get from MSXMotherBoard. MSXDevices and some other classes
 	   now have a backpointer to MSXMotherBoard
+	* Get rid of more singletons:
+	   PluggingController, CassettePortFactory
 
 2005-06-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added basic syntax checking for expressions in conditional bp's

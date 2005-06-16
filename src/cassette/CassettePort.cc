@@ -13,23 +13,6 @@ using std::string;
 
 namespace openmsx {
 
-// CassettePortFactory //
-
-static CassettePortInterface* instanceHelper()
-{
-	// TODO move to PSG/PPI ?
-	return HardwareConfig::instance().findChild("CassettePort")
-		? static_cast<CassettePortInterface*>(new CassettePort())
-		: static_cast<CassettePortInterface*>(new DummyCassettePort());
-}
-
-CassettePortInterface& CassettePortFactory::instance()
-{
-	static auto_ptr<CassettePortInterface> oneInstance(instanceHelper());
-	return *oneInstance.get();
-}
-
-
 // CassettePortInterface //
 
 CassettePortInterface::CassettePortInterface()
@@ -88,19 +71,20 @@ void DummyCassettePort::flushOutput(const EmuTime& /*time*/)
 
 // CassettePort //
 
-CassettePort::CassettePort()
+CassettePort::CassettePort(PluggingController& pluggingController_)
 	: CassettePortInterface()
+	, pluggingController(pluggingController_)
 {
 	cassettePlayer.reset(new CassettePlayer());
 	buffer = new short[BUFSIZE];
-	PluggingController::instance().registerConnector(this);
-	PluggingController::instance().registerPluggable(cassettePlayer.get());
+	pluggingController.registerConnector(this);
+	pluggingController.registerPluggable(cassettePlayer.get());
 }
 
 CassettePort::~CassettePort()
 {
-	PluggingController::instance().unregisterPluggable(cassettePlayer.get());
-	PluggingController::instance().unregisterConnector(this);
+	pluggingController.unregisterPluggable(cassettePlayer.get());
+	pluggingController.unregisterConnector(this);
 	delete[] buffer;
 }
 

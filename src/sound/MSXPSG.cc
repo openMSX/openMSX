@@ -4,6 +4,7 @@
 #include "LedEvent.hh"
 #include "EventDistributor.hh"
 #include "CassettePort.hh"
+#include "MSXMotherBoard.hh"
 #include "JoystickPort.hh"
 #include "XMLElement.hh"
 #include "RenShaTurbo.hh"
@@ -14,15 +15,16 @@ namespace openmsx {
 MSXPSG::MSXPSG(MSXMotherBoard& motherBoard, const XMLElement& config,
                const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, cassette(CassettePortFactory::instance())
+	, cassette(motherBoard.getCassettePort())
 	, prev(255)
 {
 	keyLayoutBit = deviceConfig.getChildData("keyboardlayout", "") == "JIS";
 	ay8910.reset(new AY8910(*this, config, time));
 
 	selectedPort = 0;
-	ports[0].reset(new JoystickPort("joyporta"));
-	ports[1].reset(new JoystickPort("joyportb"));
+	PluggingController& controller = motherBoard.getPluggingController();
+	ports[0].reset(new JoystickPort(controller, "joyporta"));
+	ports[1].reset(new JoystickPort(controller, "joyportb"));
 
 	reset(time);
 }

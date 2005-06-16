@@ -9,6 +9,7 @@
 #include "Y8950.hh"
 #include "Y8950Adpcm.hh"
 #include "Y8950KeyboardConnector.hh"
+#include "MSXMotherBoard.hh"
 #include "DACSound16S.hh"
 #include "Debugger.hh"
 #include "Scheduler.hh"
@@ -421,12 +422,12 @@ void Y8950::Channel::keyOff()
 //                                                          //
 //**********************************************************//
 
-Y8950::Y8950(const string& name_, const XMLElement& config, int sampleRam,
-             const EmuTime& time, MSXCPU& cpu)
-	: irq(cpu)
+Y8950::Y8950(MSXMotherBoard& motherBoard, const string& name_,
+             const XMLElement& config, int sampleRam, const EmuTime& time)
+	: irq(motherBoard.getCPU())
 	, timer1(this), timer2(this)
 	, adpcm(new Y8950Adpcm(*this, name_, sampleRam))
-	, connector(new Y8950KeyboardConnector())
+	, connector(new Y8950KeyboardConnector(motherBoard.getPluggingController()))
 	, dac13(new DACSound16S(name_ + " DAC", "MSX-AUDIO 13-bit DAC", config, time))
 	, name(name_)
 {

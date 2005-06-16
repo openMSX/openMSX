@@ -9,10 +9,13 @@
 
 namespace openmsx {
 
+class PluggingController;
+
 class MidiInConnector : public Connector, public SerialDataInterface
 {
 public:
-	MidiInConnector(const std::string &name);
+	MidiInConnector(PluggingController& pluggingController,
+	                const std::string &name);
 	virtual ~MidiInConnector();
 
 	// Connector
@@ -22,6 +25,9 @@ public:
 
 	virtual bool ready() = 0;
 	virtual bool acceptsData() = 0;
+
+private:
+	PluggingController& pluggingController;
 };
 
 } // namespace openmsx

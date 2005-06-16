@@ -7,17 +7,19 @@ using std::string;
 
 namespace openmsx {
 
-Y8950KeyboardConnector::Y8950KeyboardConnector()
+Y8950KeyboardConnector::Y8950KeyboardConnector(
+	PluggingController& pluggingController_)
 	: Connector("audiokeyboardport",
 	            std::auto_ptr<Pluggable>(new DummyY8950KeyboardDevice()))
+	, pluggingController(pluggingController_)
 	, data(255)
 {
-	PluggingController::instance().registerConnector(this);
+	pluggingController.registerConnector(this);
 }
 
 Y8950KeyboardConnector::~Y8950KeyboardConnector()
 {
-	PluggingController::instance().unregisterConnector(this);
+	pluggingController.unregisterConnector(this);
 }
 
 void Y8950KeyboardConnector::write(byte newData, const EmuTime& time)

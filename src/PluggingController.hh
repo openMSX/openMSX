@@ -21,7 +21,8 @@ class InfoCommand;
 class PluggingController
 {
 public:
-	static PluggingController& instance();
+	PluggingController();
+	~PluggingController();
 
 	/**
 	 * Connectors can be (un)registered
@@ -46,9 +47,6 @@ public:
 	void unregisterPluggable(Pluggable* pluggable);
 
 private:
-	PluggingController();
-	~PluggingController();
-
 	Connector* getConnector(const std::string& name);
 	Pluggable* getPluggable(const std::string& name);
 
