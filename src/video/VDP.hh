@@ -181,10 +181,10 @@ public:
 	  * @return Colour value in the format of the palette registers:
 	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
 	  */
-	inline int getPalette(int index) const {
+	inline word getPalette(int index) const {
 		return palette[index];
 	}
-
+	
 	/** Is the display enabled?
 	  * Both the regular border and forced blanking by clearing
 	  * the display enable bit are considered disabled display.
@@ -455,6 +455,17 @@ private:
 		VDP& parent;
 	} vdpStatusRegDebug;
 
+	class VDPPaletteDebug : public Debuggable {
+	public:
+		VDPPaletteDebug(VDP& parent);
+		virtual unsigned getSize() const;
+		virtual const std::string& getDescription() const;
+		virtual byte read(unsigned address);
+		virtual void write(unsigned address, byte value);
+	private:
+		VDP& parent;
+	} vdpPaletteDebug;
+
 	class VDPRegsCmd : public SimpleCommand {
 	public:
 		VDPRegsCmd(VDP& vdp);
@@ -618,6 +629,14 @@ private:
 	  * Update displayMode's value and inform the Renderer.
 	  */
 	void updateDisplayMode(DisplayMode newMode, const EmuTime& time);
+
+	/** Sets a palette entry.
+	  * @param index The index [0..15] in the palette.
+	  * @param grb value in the format of the palette registers:
+	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
+	  * @param time Moment in time palette change occurs.
+	  */
+	void setPalette(int index, word grb, const EmuTime& time);
 
 	/** Renderer that converts this VDP's state into an image.
 	  */

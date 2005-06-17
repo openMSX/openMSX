@@ -5,6 +5,7 @@ $Id$
 	* Debugger is no longer singleton
 	* Use references iso pointers where possible in VDP code
 	* Made memory mapper registers debuggable (MapperIO)
+	* Made V99x8 palette debuggable
 
 2005-06-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Large refactoring, get rid of some singletons:

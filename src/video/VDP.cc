@@ -53,6 +53,7 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: MSXDevice(motherBoard, config, time)
 	, vdpRegDebug(*this)
 	, vdpStatusRegDebug(*this)
+	, vdpPaletteDebug(*this)
 	, vdpRegsCmd(*this)
 	, paletteCmd(*this)
 	, irqVertical(motherBoard.getCPU())
@@ -133,6 +134,9 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	debugger.registerDebuggable("VDP regs",        vdpRegDebug);
 	debugger.registerDebuggable("VDP status regs", vdpStatusRegDebug);
+	if (!isMSX1VDP()) {
+		debugger.registerDebuggable("VDP palette", vdpPaletteDebug);
+	}
 
 	EventDistributor::instance().registerEventListener(
 		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
@@ -143,6 +147,9 @@ VDP::~VDP()
 	EventDistributor::instance().unregisterEventListener(
 		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
 
+	if (!isMSX1VDP()) {
+		debugger.unregisterDebuggable("VDP palette", vdpPaletteDebug);
+	}
 	debugger.unregisterDebuggable("VDP status regs", vdpStatusRegDebug);
 	debugger.unregisterDebuggable("VDP regs",        vdpRegDebug);
 
@@ -578,10 +585,7 @@ void VDP::writeIO(byte port, byte value, const EmuTime& time)
 		if (paletteDataStored) {
 			int index = controlRegs[16];
 			int grb = ((value << 8) | dataLatch) & 0x777;
-			if (palette[index] != grb) {
-				renderer->updatePalette(index, grb, time);
-				palette[index] = grb;
-			}
+			setPalette(index, grb, time);
 			controlRegs[16] = (index + 1) & 0x0F;
 			paletteDataStored = false;
 		} else {
@@ -601,6 +605,14 @@ void VDP::writeIO(byte port, byte value, const EmuTime& time)
 		}
 		break;
 	}
+	}
+}
+
+void VDP::setPalette(int index, word grb, const EmuTime& time)
+{
+	if (palette[index] != grb) {
+		renderer->updatePalette(index, grb, time);
+		palette[index] = grb;
 	}
 }
 
@@ -1124,6 +1136,41 @@ byte VDP::VDPStatusRegDebug::read(unsigned address)
 void VDP::VDPStatusRegDebug::write(unsigned /*address*/, byte /*value*/)
 {
 	// not possible
+}
+
+// VDPPaletteDebug
+
+VDP::VDPPaletteDebug::VDPPaletteDebug(VDP& parent_)
+	: parent(parent_)
+{
+}
+
+unsigned VDP::VDPPaletteDebug::getSize() const
+{
+	return 0x20;
+}
+
+const std::string& VDP::VDPPaletteDebug::getDescription() const
+{
+	static const string desc = "V99x8 palette (RBG format)";
+	return desc;
+}
+
+byte VDP::VDPPaletteDebug::read(unsigned address)
+{
+	word grb = parent.getPalette(address / 2);
+	return (address & 1) ? (grb >> 8) : (grb & 0xff);
+}
+
+void VDP::VDPPaletteDebug::write(unsigned address, byte value)
+{
+	const EmuTime& time = Scheduler::instance().getCurrentTime();
+	int index = address / 2;
+	word grb = parent.getPalette(index);
+	grb = (address & 1)
+	    ? (grb & 0x0077) | ((value & 0x07) << 8)
+	    : (grb & 0x0700) |  (value & 0x77);
+	parent.setPalette(index, grb, time);
 }
 
 
