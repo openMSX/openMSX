@@ -48,7 +48,8 @@
 
 namespace openmsx {
 
-class MSXCPU;
+class MSXMotherBoard;
+class Debugger;
 
 class YMF262Slot
 {
@@ -132,8 +133,8 @@ public:
 class YMF262 : private SoundDevice, private EmuTimerCallback, private Debuggable
 {
 public:
-	YMF262(const std::string& name, const XMLElement& config,
-	       const EmuTime& time, MSXCPU& cpu);
+	YMF262(MSXMotherBoard& motherBoard, const std::string& name,
+	       const XMLElement& config, const EmuTime& time);
 	virtual ~YMF262();
 
 	virtual void reset(const EmuTime& time);
@@ -227,6 +228,7 @@ private:
 	int chanout[18];		// 18 channels
 	int maxVolume;
 
+	Debugger& debugger;
 	const std::string name;
 };
 

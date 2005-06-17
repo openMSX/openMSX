@@ -25,31 +25,31 @@ using std::auto_ptr;
 
 namespace openmsx {
 
-Rom::Rom(MSXMotherBoard& motherBoard, const string& name_, 
+Rom::Rom(MSXMotherBoard& motherBoard_, const string& name_, 
          const string& description_, const XMLElement& config)
-	: name(name_), description(description_)
+	: motherBoard(motherBoard_), name(name_), description(description_)
 {
-	init(motherBoard, config.getChild("rom"));
+	init(config.getChild("rom"));
 }
 
-Rom::Rom(MSXMotherBoard& motherBoard, const string& name_,
+Rom::Rom(MSXMotherBoard& motherBoard_, const string& name_,
          const string& description_, const XMLElement& config,
          const string& id)
-	: name(name_), description(description_)
+	: motherBoard(motherBoard_), name(name_), description(description_)
 {
 	XMLElement::Children romConfigs;
 	config.getChildren("rom", romConfigs);
 	for (XMLElement::Children::const_iterator it = romConfigs.begin();
 	     it != romConfigs.end(); ++it) {
 		if ((*it)->getId() == id) {
-			init(motherBoard, **it);
+			init(**it);
 			return;
 		}
 	}
 	throw ConfigException("ROM tag \"" + id + "\" missing.");
 }
 
-void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
+void Rom::init(const XMLElement& config)
 {
 	extendedRom = NULL;
 	XMLElement::Children sums;
@@ -125,7 +125,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 	}
 
 	if (size) {
-		Debugger::instance().registerDebuggable(name, *this);
+		motherBoard.getDebugger().registerDebuggable(name, *this);
 	}
 }
 
@@ -194,7 +194,7 @@ bool Rom::checkSHA1(const XMLElement& config)
 Rom::~Rom()
 {
 	if (size) {
-		Debugger::instance().unregisterDebuggable(name, *this);
+		motherBoard.getDebugger().unregisterDebuggable(name, *this);
 	}
 	if (file.get()) {
 		file->munmap();

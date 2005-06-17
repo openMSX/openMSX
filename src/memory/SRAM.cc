@@ -11,16 +11,21 @@ using std::string;
 
 namespace openmsx {
 
-SRAM::SRAM(const string& name, int size,
+SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name, int size,
            const XMLElement& config_, const char* header_)
-	: Ram(name, "sram", size), config(config_), header(header_)
+	: Ram(motherBoard, name, "sram", size)
+	, config(config_)
+	, header(header_)
 {
 	init();
 }
 
-SRAM::SRAM(const string& name, const string& description, int size,
+SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name,
+           const string& description, int size,
 	   const XMLElement& config_, const char* header_)
-	: Ram(name, description, size), config(config_), header(header_)
+	: Ram(motherBoard, name, description, size)
+	, config(config_)
+	, header(header_)
 {
 	init();
 }

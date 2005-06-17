@@ -35,7 +35,8 @@ MSXMemoryMapper::MSXMemoryMapper(MSXMotherBoard& motherBoard,
 		                 StringOp::toString(kSize));
 	}
 	nbBlocks = kSize / 16;
-	ram.reset(new Ram(getName(), "memory mapper", nbBlocks * 0x4000));
+	ram.reset(new Ram(motherBoard, getName(), "memory mapper",
+	                  nbBlocks * 0x4000));
 
 	createMapperIO(motherBoard, time);
 	mapperIO->registerMapper(nbBlocks);

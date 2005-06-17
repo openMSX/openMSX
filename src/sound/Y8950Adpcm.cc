@@ -67,13 +67,13 @@ Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, const string& name_, int sampleRam)
 	ramBank = new byte[ramSize];
 	memset(ramBank, 0xFF, ramSize);
 
-	Debugger::instance().registerDebuggable(name, *this);
+	y8950.debugger.registerDebuggable(name, *this);
 }
 
 Y8950Adpcm::~Y8950Adpcm()
 {
 	removeSyncPoint();
-	Debugger::instance().unregisterDebuggable(name, *this);
+	y8950.debugger.unregisterDebuggable(name, *this);
 	delete[] ramBank;
 }
 

@@ -17,7 +17,8 @@ class MSXCPU;
 class Debugger
 {
 public:
-	static Debugger& instance();
+	Debugger();
+	~Debugger();
 
 	void registerDebuggable  (const std::string& name, Debuggable& interface);
 	void unregisterDebuggable(const std::string& name, Debuggable& interface);
@@ -25,9 +26,6 @@ public:
 	void setCPU(MSXCPU* cpu);
 
 private:
-	Debugger();
-	~Debugger();
-
 	Debuggable* getDebuggable(const std::string& name);
 	void getDebuggables(std::set<std::string>& result) const;
 

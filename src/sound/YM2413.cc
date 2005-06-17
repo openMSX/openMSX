@@ -568,8 +568,9 @@ static byte inst_data[16 + 3][8] = {
 	{ 0x25,0x11,0x00,0x00,0xf8,0xfa,0xf8,0x55 }
 };
 
-YM2413::YM2413(const string& name_, const XMLElement& config, const EmuTime& time)
-	: name(name_)
+YM2413::YM2413(Debugger& debugger_, const string& name_,
+               const XMLElement& config, const EmuTime& time)
+	: debugger(debugger_), name(name_)
 {
 	for (int i = 0; i < 16 + 3; ++i) {
 		patches[2 * i + 0] = Patch(0, inst_data[i]);
@@ -594,12 +595,12 @@ YM2413::YM2413(const string& name_, const XMLElement& config, const EmuTime& tim
 
 	reset(time);
 	registerSound(config);
-	Debugger::instance().registerDebuggable(name + " regs", *this);
+	debugger.registerDebuggable(name + " regs", *this);
 }
 
 YM2413::~YM2413()
 {
-	Debugger::instance().unregisterDebuggable(name + " regs", *this);
+	debugger.unregisterDebuggable(name + " regs", *this);
 	unregisterSound();
 }
 

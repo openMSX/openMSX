@@ -11,6 +11,7 @@
 namespace openmsx {
 
 class EmuTime;
+class Debugger;
 
 class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 {
@@ -106,7 +107,8 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 	};
 
 public:
-	YM2413(const std::string& name, const XMLElement& config, const EmuTime& time);
+	YM2413(Debugger& debugger, const std::string& name,
+	       const XMLElement& config, const EmuTime& time);
 	virtual ~YM2413();
 
 	void reset(const EmuTime& time);
@@ -287,6 +289,7 @@ private:
 	// Phase incr table for PG
 	static unsigned int dphaseTable[512][8][16];
 
+	Debugger& debugger;
 	const std::string name;
 };
 

@@ -15,12 +15,13 @@ class MSXDevice;
 class XMLElement;
 class BooleanSetting;
 class CartridgeSlotManager;
+class PluggingController;
+class Debugger;
 class DummyDevice;
 class MSXCPU;
 class MSXCPUInterface;
 class PanasonicMemory;
 class MSXDeviceSwitch;
-class PluggingController;
 class CassettePortInterface;
 class RenShaTurbo;
 
@@ -66,6 +67,7 @@ public:
 	// The following classes are unique per MSX machine
 	CartridgeSlotManager& getSlotManager();
 	PluggingController& getPluggingController();
+	Debugger& getDebugger();
 	DummyDevice& getDummyDevice();
 	MSXCPU& getCPU() const { return *msxCpu; }
 	MSXCPUInterface& getCPUInterface();
@@ -96,6 +98,8 @@ private:
 	BooleanSetting& powerSetting;
 	CliComm& output;
 	std::auto_ptr<CartridgeSlotManager> slotManager;
+	std::auto_ptr<PluggingController> pluggingController;
+	std::auto_ptr<Debugger> debugger;
 	std::auto_ptr<XMLElement> dummyDeviceConfig;
 	std::auto_ptr<DummyDevice> dummyDevice;
 	std::auto_ptr<MSXCPU> msxCpu;
@@ -103,7 +107,6 @@ private:
 	std::auto_ptr<PanasonicMemory> panasonicMemory;
 	std::auto_ptr<XMLElement> devSwitchConfig;
 	std::auto_ptr<MSXDeviceSwitch> deviceSwitch;
-	std::auto_ptr<PluggingController> pluggingController;
 	std::auto_ptr<CassettePortInterface> cassettePort;
 	std::auto_ptr<RenShaTurbo> renShaTurbo;
 

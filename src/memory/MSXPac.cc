@@ -13,7 +13,8 @@ static const char* const PAC_Header = "PAC2 BACKUP DATA";
 MSXPac::MSXPac(MSXMotherBoard& motherBoard, const XMLElement& config,
                const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, sram(new SRAM(getName() + " SRAM", 0x1FFE, config, PAC_Header))
+	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x1FFE, config,
+	                PAC_Header))
 {
 	reset(time);
 }

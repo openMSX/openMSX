@@ -10,6 +10,7 @@
 namespace openmsx {
 
 class AY8910Periphery;
+class Debugger;
 class XMLElement;
 class EmuTime;
 
@@ -20,8 +21,8 @@ class EmuTime;
 class AY8910 : private SoundDevice, private Debuggable
 {
 public:
-	AY8910(AY8910Periphery& periphery_, const XMLElement& config,
-	       const EmuTime& time );
+	AY8910(Debugger& debugger, AY8910Periphery& periphery_,
+	       const XMLElement& config, const EmuTime& time);
 	virtual ~AY8910();
 
 	byte readRegister(byte reg, const EmuTime& time);
@@ -141,6 +142,7 @@ private:
 	void checkMute();
 
 	AY8910Periphery& periphery;
+	Debugger& debugger;
 	unsigned int updateStep;
 	byte regs[16];
 	byte oldEnable;

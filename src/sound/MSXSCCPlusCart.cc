@@ -21,7 +21,7 @@ namespace openmsx {
 MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
                                const XMLElement& config, const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, ram(new Ram(getName() + " RAM", "SCC+ RAM", 0x20000))
+	, ram(new Ram(motherBoard, getName() + " RAM", "SCC+ RAM", 0x20000))
 {
 	const XMLElement* fileElem = config.findChild("filename");
 	if (fileElem) {
@@ -59,7 +59,8 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
 		mapper[i] = 0;
 	}
 
-	scc.reset(new SCC(getName(), config, time, SCC::SCC_Compatible));
+	scc.reset(new SCC(motherBoard.getDebugger(), getName(), config, time,
+	                  SCC::SCC_Compatible));
 
 	reset(time);
 }

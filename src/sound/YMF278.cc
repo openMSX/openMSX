@@ -4,6 +4,7 @@
 #include "Rom.hh"
 #include "Debugger.hh"
 #include "Scheduler.hh"
+#include "MSXMotherBoard.hh"
 #include <cmath>
 
 using std::string;
@@ -755,7 +756,7 @@ byte YMF278::peekStatus(const EmuTime& time) const
 YMF278::YMF278(MSXMotherBoard& motherBoard, const string& name_, int ramSize,
                const XMLElement& config, const EmuTime& time)
 	: debugRegisters(*this), debugMemory(*this)
-	, name(name_)
+	, debugger(motherBoard.getDebugger()), name(name_)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {
 	memadr = 0;	// avoid UMR
@@ -768,18 +769,14 @@ YMF278::YMF278(MSXMotherBoard& motherBoard, const string& name_, int ramSize,
 
 	reset(time);
 	registerSound(config, Mixer::STEREO);
-	Debugger::instance().registerDebuggable(
-		getName() + " regs", debugRegisters );
-	Debugger::instance().registerDebuggable(
-		getName() + " mem", debugMemory );
+	debugger.registerDebuggable(getName() + " regs", debugRegisters);
+	debugger.registerDebuggable(getName() + " mem",  debugMemory);
 }
 
 YMF278::~YMF278()
 {
-	Debugger::instance().unregisterDebuggable(
-		getName() + " mem", debugMemory);
-	Debugger::instance().unregisterDebuggable(
-		getName() + " regs", debugRegisters);
+	debugger.unregisterDebuggable(getName() + " mem",  debugMemory);
+	debugger.unregisterDebuggable(getName() + " regs", debugRegisters);
 	unregisterSound();
 	delete[] ram;
 }

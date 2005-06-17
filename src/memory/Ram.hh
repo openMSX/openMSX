@@ -9,12 +9,16 @@
 
 namespace openmsx {
 
+class MSXMotherBoard;
+class Debugger;
+
 class Ram : public Debuggable
 {
 public:
-	Ram(const std::string& name, unsigned size);
-	Ram(const std::string& name, const std::string& description,
+	Ram(MSXMotherBoard& motherBoard, const std::string& name,
 	    unsigned size);
+	Ram(MSXMotherBoard& motherBoard, const std::string& name,
+	    const std::string& description, unsigned size);
 	virtual ~Ram();
 
 	const byte& operator[](unsigned addr) const {
@@ -36,6 +40,7 @@ public:
 private:
 	void init();
 
+	Debugger& debugger;
 	const std::string name;
 	const std::string description;
 	unsigned size;

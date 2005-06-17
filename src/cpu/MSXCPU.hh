@@ -26,7 +26,7 @@ class MSXCPU : private Debuggable, private SettingListener
 public:
 	enum CPUType { CPU_Z80, CPU_R800 };
 
-	MSXCPU();
+	MSXCPU(Debugger& debugger);
 	virtual ~MSXCPU();
 
 	virtual void reset(const EmuTime& time);

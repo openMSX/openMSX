@@ -424,7 +424,8 @@ void Y8950::Channel::keyOff()
 
 Y8950::Y8950(MSXMotherBoard& motherBoard, const string& name_,
              const XMLElement& config, int sampleRam, const EmuTime& time)
-	: irq(motherBoard.getCPU())
+	: debugger(motherBoard.getDebugger())
+	, irq(motherBoard.getCPU())
 	, timer1(this), timer2(this)
 	, adpcm(new Y8950Adpcm(*this, name_, sampleRam))
 	, connector(new Y8950KeyboardConnector(motherBoard.getPluggingController()))
@@ -451,12 +452,12 @@ Y8950::Y8950(MSXMotherBoard& motherBoard, const string& name_,
 
 	reset(time);
 	registerSound(config);
-	Debugger::instance().registerDebuggable(name + " regs", *this);
+	debugger.registerDebuggable(name + " regs", *this);
 }
 
 Y8950::~Y8950()
 {
-	Debugger::instance().unregisterDebuggable(name + " regs", *this);
+	debugger.unregisterDebuggable(name + " regs", *this);
 	unregisterSound();
 }
 

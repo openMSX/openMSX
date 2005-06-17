@@ -288,7 +288,6 @@ private:
 class VDPVRAM : private Debuggable
 {
 public:
-
 	VRAMWindow cmdReadWindow;
 	VRAMWindow cmdWriteWindow;
 	VRAMWindow nameTable;
@@ -299,7 +298,7 @@ public:
 	VRAMWindow spriteAttribTable;
 	VRAMWindow spritePatternTable;
 
-	VDPVRAM(VDP* vdp, unsigned size, const EmuTime& time);
+	VDPVRAM(VDP& vdp, unsigned size, const EmuTime& time);
 	virtual ~VDPVRAM();
 
 	/** Update VRAM state to specified moment in time.
@@ -307,7 +306,7 @@ public:
 	  * TODO: Replace this method by VRAMWindow::sync().
 	  */
 	inline void sync(const EmuTime& time) {
-		assert(vdp->isInsideFrame(time));
+		assert(vdp.isInsideFrame(time));
 		cmdEngine->sync(time);
 	}
 
@@ -321,7 +320,7 @@ public:
 		// Rewriting history is not allowed.
 		assert(time >= clock.getTime());
 
-		assert(vdp->isInsideFrame(time));
+		assert(vdp.isInsideFrame(time));
 
 		// Check that VRAM will actually be changed.
 		// A lot of costly syncs can be saved if the same value is written.
@@ -365,7 +364,7 @@ public:
 	  */
 	inline void cpuWrite(unsigned address, byte value, const EmuTime& time) {
 		assert(time >= clock.getTime());
-		assert(vdp->isInsideFrame(time));
+		assert(vdp.isInsideFrame(time));
 		if (cmdReadWindow.isInside(address)
 		|| cmdWriteWindow.isInside(address)) {
 			cmdEngine->sync(time);
@@ -382,7 +381,7 @@ public:
 		// VRAM should never get ahead of CPU.
 		assert(time >= clock.getTime());
 
-		assert(vdp->isInsideFrame(time));
+		assert(vdp.isInsideFrame(time));
 
 		if (cmdWriteWindow.isInside(address)) {
 			cmdEngine->sync(time);
@@ -437,7 +436,7 @@ private:
 
 	/** VDP this VRAM belongs to.
 	  */
-	VDP* vdp;
+	VDP& vdp;
 
 	/** Pointer to VRAM data block.
 	  */

@@ -11,7 +11,7 @@ MSXS1985::MSXS1985(MSXMotherBoard& motherBoard, const XMLElement& config,
                    const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
 	, MSXSwitchedDevice(motherBoard, ID)
-	, ram(new Ram(getName() + " RAM", "S1985 RAM", 0x10))
+	, ram(new Ram(motherBoard, getName() + " RAM", "S1985 RAM", 0x10))
 {
 	// TODO load ram
 }

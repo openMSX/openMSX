@@ -80,9 +80,10 @@ using std::string;
 
 namespace openmsx {
 
-SCC::SCC(const string& name_, const XMLElement& config, const EmuTime& time,
-	 ChipMode mode)
-	: sccDebuggable(*this), currentChipMode(mode), name(name_)
+SCC::SCC(Debugger& debugger_, const string& name_, const XMLElement& config,
+         const EmuTime& time, ChipMode mode)
+	: sccDebuggable(*this), currentChipMode(mode), debugger(debugger_)
+	, name(name_)
 {
 	// Clear wave forms.
 	for (unsigned i = 0; i < 5; ++i) {
@@ -99,12 +100,12 @@ SCC::SCC(const string& name_, const XMLElement& config, const EmuTime& time,
 
 	reset(time);
 	registerSound(config);
-	Debugger::instance().registerDebuggable(name + " SCC", sccDebuggable);
+	debugger.registerDebuggable(name + " SCC", sccDebuggable);
 }
 
 SCC::~SCC()
 {
-	Debugger::instance().unregisterDebuggable(name + " SCC", sccDebuggable);
+	debugger.unregisterDebuggable(name + " SCC", sccDebuggable);
 	unregisterSound();
 }
 

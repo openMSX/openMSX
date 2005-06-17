@@ -25,7 +25,7 @@ RomAscii8_8::RomAscii8_8(
 	MSXMotherBoard& motherBoard, const XMLElement& config,
         const EmuTime& time, std::auto_ptr<Rom> rom_, SubType subType)
 	: Rom8kBBlocks(motherBoard, config, time, rom_)
-	, sram(new SRAM(getName() + " SRAM",
+	, sram(new SRAM(motherBoard, getName() + " SRAM",
 	                (subType == KOEI_32) ? 0x8000 : 0x2000, config))
 {
 	sramEnableBit = (subType == WIZARDRY) ? 0x80

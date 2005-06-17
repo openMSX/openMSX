@@ -5,6 +5,7 @@
 #include "YM2413_2.hh"
 #include "Rom.hh"
 #include "XMLElement.hh"
+#include "MSXMotherBoard.hh"
 
 namespace openmsx {
 
@@ -14,9 +15,11 @@ MSXMusic::MSXMusic(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {
 	if (config.getChildDataAsBool("alternative", false)) {
-		ym2413.reset(new YM2413_2(getName(), config, time));
+		ym2413.reset(new YM2413_2(motherBoard.getDebugger(), getName(),
+		                          config, time));
 	} else {
-		ym2413.reset(new YM2413(getName(), config, time));
+		ym2413.reset(new YM2413(motherBoard.getDebugger(), getName(),
+		                        config, time));
 	}
 	reset(time);
 }

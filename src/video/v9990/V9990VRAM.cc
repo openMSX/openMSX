@@ -22,18 +22,18 @@ static const char* const DEBUG_ID = "V9990 VRAM";
 // Constructor & Destructor
 // -------------------------------------------------------------------------
 
-V9990VRAM::V9990VRAM(V9990* vdp_, const EmuTime& /*time*/)
+V9990VRAM::V9990VRAM(V9990& vdp_, const EmuTime& /*time*/)
 	: vdp(vdp_)
 {
 	data = new byte[VRAM_SIZE];
 	memset(data, 0, VRAM_SIZE);
 
-	Debugger::instance().registerDebuggable(DEBUG_ID, *this);
+	vdp.getDebugger().registerDebuggable(DEBUG_ID, *this);
 }
 
 V9990VRAM::~V9990VRAM()
 {
-	Debugger::instance().unregisterDebuggable(DEBUG_ID, *this);
+	vdp.getDebugger().unregisterDebuggable(DEBUG_ID, *this);
 	delete[] data;
 }
 
@@ -67,12 +67,12 @@ static unsigned mapAddress(unsigned address, V9990DisplayMode mode) {
 
 byte V9990VRAM::readVRAM(unsigned address)
 {
-	return data[mapAddress(address, vdp->getDisplayMode())];
+	return data[mapAddress(address, vdp.getDisplayMode())];
 }
 
 void V9990VRAM::writeVRAM(unsigned address, byte value)
 {
-	data[mapAddress(address, vdp->getDisplayMode())] = value;
+	data[mapAddress(address, vdp.getDisplayMode())] = value;
 	notifyObservers(address);
 }
 
@@ -127,12 +127,12 @@ const string& V9990VRAM::getDescription() const
 
 byte V9990VRAM::read(unsigned address)
 {
-	return data[mapAddress(address, vdp->getDisplayMode())];
+	return data[mapAddress(address, vdp.getDisplayMode())];
 }
 
 void V9990VRAM::write(unsigned address, byte value)
 {
-	data[mapAddress(address, vdp->getDisplayMode())] = value;
+	data[mapAddress(address, vdp.getDisplayMode())] = value;
 }
 
 } // namespace openmsx

@@ -11,6 +11,7 @@
 namespace openmsx {
 
 class EmuTime;
+class Debugger;
 
 class Slot
 {
@@ -82,7 +83,8 @@ public:
 class YM2413_2 : public YM2413Core, private SoundDevice, private Debuggable
 {
 public:
-	YM2413_2(const std::string& name, const XMLElement& config, const EmuTime& time);
+	YM2413_2(Debugger& debugger_, const std::string& name,
+	         const XMLElement& config, const EmuTime& time);
 	virtual ~YM2413_2();
 
 	void reset(const EmuTime& time);
@@ -122,14 +124,14 @@ private:
 
 	int maxVolume;
 
-	Channel channels[9];		// OPLL chips have 9 channels
-	byte instvol_r[9];		// instrument/volume (or volume/volume in percussive mode)
+	Channel channels[9];	// OPLL chips have 9 channels
+	byte instvol_r[9];	// instrument/volume (or volume/volume in percussive mode)
 
-	unsigned eg_cnt;		// global envelope generator counter
-	unsigned eg_timer;		// global envelope generator counter works at frequency = chipclock/72
-	unsigned eg_timer_add;	    	// step of eg_timer
+	unsigned eg_cnt;	// global envelope generator counter
+	unsigned eg_timer;	// global envelope generator counter works at frequency = chipclock/72
+	unsigned eg_timer_add; 	// step of eg_timer
 
-	bool rhythm;			// Rhythm mode
+	bool rhythm;		// Rhythm mode
 
 	// LFO
 	unsigned lfo_am_cnt;
@@ -148,11 +150,12 @@ private:
 	//   17-18 - other percussion instruments
 	byte inst_tab[19][8];
 
-	int fn_tab[1024];		// fnumber->increment counter
+	int fn_tab[1024];	// fnumber->increment counter
 
 	byte LFO_AM;
 	byte LFO_PM;
 
+	Debugger& debugger;
 	const std::string name;
 	byte reg[0x40];
 };

@@ -1,7 +1,8 @@
 $Id$
 
 2005-06-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
-	* RenShaTurbo is no longer singelton
+	* RenShaTurbo is no longer singleton
+	* Debugger is no longer singleton
 
 2005-06-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Large refactoring, get rid of some singletons:

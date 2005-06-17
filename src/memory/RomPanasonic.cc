@@ -21,7 +21,8 @@ RomPanasonic::RomPanasonic(
 {
 	int sramSize = config.getChildDataAsInt("sramsize", 0);
 	if (sramSize) {
-		sram.reset(new SRAM(getName() + " SRAM", sramSize * 1024, config));
+		sram.reset(new SRAM(motherBoard, getName() + " SRAM",
+		                    sramSize * 1024, config));
 	}
 
 	if (config.getChildDataAsBool("sram-mirrored", false)) {

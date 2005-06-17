@@ -8,16 +8,19 @@
 
 namespace openmsx {
 
+class MSXMotherBoard;
 class SRAM;
 class FirmwareSwitch;
 
 class FSA1FMRam
 {
 public:
-	static byte* getSRAM(const XMLElement& config);
+	// TODO
+	static byte* getSRAM(MSXMotherBoard& motherBoard,
+	                     const XMLElement& config);
 
 private:
-	FSA1FMRam(const XMLElement& config);
+	FSA1FMRam(MSXMotherBoard& motherBoard, const XMLElement& config);
 	~FSA1FMRam();
 
 	const std::auto_ptr<SRAM> sram;

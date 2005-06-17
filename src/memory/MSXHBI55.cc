@@ -44,7 +44,7 @@ MSXHBI55::MSXHBI55(MSXMotherBoard& motherBoard, const XMLElement& config,
                    const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
 	, i8255(new I8255(*this, time))
-	, sram(new SRAM(getName() + " SRAM", 0x1000, config))
+	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x1000, config))
 {
 
 	reset(time);

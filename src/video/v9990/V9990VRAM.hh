@@ -25,7 +25,7 @@ public:
 	  * @param vdp The V9990 vdp this VRAM belongs to
 	  * @param time  Moment in time to create the VRAM
 	  */
-	V9990VRAM(V9990* vdp, const EmuTime& time);
+	V9990VRAM(V9990& vdp, const EmuTime& time);
 
 	/** Destruct V9990 VRAM
 	  */
@@ -79,7 +79,7 @@ private:
 
 	/** V9990 VDP this VRAM belongs to.
 	  */
-	V9990* vdp;
+	V9990& vdp;
 
 	/** Pointer V9990 VRAM data.
 	  */

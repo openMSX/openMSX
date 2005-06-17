@@ -16,7 +16,7 @@ MSXMatsushita::MSXMatsushita(MSXMotherBoard& motherBoard,
 	: MSXDevice(motherBoard, config, time)
 	, MSXSwitchedDevice(motherBoard, ID)
 	, firmwareSwitch(new FirmwareSwitch())
-	, sram(new SRAM(getName() + " SRAM", 0x800, config))
+	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x800, config))
 {
 	// TODO find out what ports 0x41 0x45 0x46 are used for
 	//      (and if they belong to this device)

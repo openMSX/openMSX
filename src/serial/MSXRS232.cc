@@ -27,7 +27,8 @@ MSXRS232::MSXRS232(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, rom(new Rom(motherBoard, MSXDevice::getName() + " ROM", "rom", config))
 {
 	if (config.getChildDataAsBool("ram", false)) {
-		ram.reset(new Ram(MSXDevice::getName() + " RAM", "RS232 RAM", RAM_SIZE));
+		ram.reset(new Ram(motherBoard, MSXDevice::getName() + " RAM",
+		                  "RS232 RAM", RAM_SIZE));
 	}
 
 	EmuDuration total(1.0 / 1.8432e6); // 1.8432MHz

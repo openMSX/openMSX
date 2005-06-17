@@ -47,8 +47,8 @@ namespace openmsx {
 
 // common sram //
 
-FSA1FMRam::FSA1FMRam(const XMLElement& config)
-	: sram(new SRAM(config.getId() + " SRAM", 0x2000, config))
+FSA1FMRam::FSA1FMRam(MSXMotherBoard& motherBoard, const XMLElement& config)
+	: sram(new SRAM(motherBoard, config.getId() + " SRAM", 0x2000, config))
 {
 }
 
@@ -56,9 +56,9 @@ FSA1FMRam::~FSA1FMRam()
 {
 }
 
-byte* FSA1FMRam::getSRAM(const XMLElement& config)
+byte* FSA1FMRam::getSRAM(MSXMotherBoard& motherBoard, const XMLElement& config)
 {
-	static FSA1FMRam oneInstance(config);
+	static FSA1FMRam oneInstance(motherBoard, config);
 	return &(*oneInstance.sram)[0];
 }
 
@@ -70,7 +70,7 @@ RomFSA1FM1::RomFSA1FM1(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: MSXRom(motherBoard, config, time, rom)
 	, firmwareSwitch(new FirmwareSwitch())
 {
-	sram = FSA1FMRam::getSRAM(config);
+	sram = FSA1FMRam::getSRAM(motherBoard, config);
 	reset(time);
 }
 
@@ -157,7 +157,7 @@ RomFSA1FM2::RomFSA1FM2(MSXMotherBoard& motherBoard, const XMLElement& config,
                        const EmuTime& time, std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, time, rom)
 {
-	sram = FSA1FMRam::getSRAM(config);
+	sram = FSA1FMRam::getSRAM(motherBoard, config);
 	reset(time);
 }
 

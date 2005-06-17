@@ -20,6 +20,7 @@ namespace openmsx {
 class V9990VRAM;
 class V9990CmdEngine;
 class V9990Renderer;
+class Debugger;
 
 /** Implementation of the Yamaha V9990 VDP as used in the GFX9000
   * cartridge by Sunrise.
@@ -250,6 +251,10 @@ public:
 	 */
 	inline const V9990DisplayPeriod& getVerticalTiming() const {
 		return *verTiming;
+	}
+
+	Debugger& getDebugger() {
+		return debugger;
 	}
 
 private:
@@ -523,6 +528,10 @@ private:
 	  * @result Timestamp for next hor irq
 	  */
 	void scheduleHscan(const EmuTime& time);
+
+	/** The Debugger object.
+	  */
+	Debugger& debugger;
 };
 
 } // namespace openmsx

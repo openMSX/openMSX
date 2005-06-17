@@ -16,6 +16,7 @@ class Y8950Adpcm;
 class Y8950KeyboardConnector;
 class DACSound16S;
 class MSXMotherBoard;
+class Debugger;
 
 class Y8950 : private SoundDevice, private EmuTimerCallback, private Debuggable
 {
@@ -237,6 +238,8 @@ private:
 	void changeStatusMask(byte newMask);
 
 	void callback(byte flag);
+
+	Debugger& debugger;
 
 	int adr;
 	int output[2];

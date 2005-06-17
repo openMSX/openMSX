@@ -15,6 +15,7 @@ namespace openmsx {
 
 class Rom;
 class MSXMotherBoard;
+class Debugger;
 
 class YMF278Slot
 {
@@ -155,6 +156,7 @@ private:
 	int fm_l, fm_r;
 	int pcm_l, pcm_r;
 
+	Debugger& debugger;
 	const std::string name;
 	const std::auto_ptr<Rom> rom;
 	byte* ram;

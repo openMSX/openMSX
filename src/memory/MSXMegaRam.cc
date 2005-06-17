@@ -50,7 +50,8 @@ MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config,
 	int size = config.getChildDataAsInt("size");
 	numBlocks = size / 8;	// 8kb blocks
 	maskBlocks = roundUpPow2(numBlocks) - 1;
-	ram.reset(new Ram(getName() + " RAM", "Mega-RAM", numBlocks * 0x2000));
+	ram.reset(new Ram(motherBoard, getName() + " RAM", "Mega-RAM",
+	                  numBlocks * 0x2000));
 	if (config.findChild("rom")) {
 		rom.reset(new Rom(motherBoard, 
 		                  getName() + " ROM", "Mega-RAM DiskROM",

@@ -50,7 +50,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 	  commandController(CommandController::instance()),
 	  msxcpu(motherBoard.getCPU()),
 	  scheduler(Scheduler::instance()),
-	  debugger(Debugger::instance()),
+	  debugger(motherBoard.getDebugger()),
 	  cliCommOutput(CliComm::instance())
 {
 	for (int port = 0; port < 256; ++port) {

@@ -21,12 +21,9 @@ VRAMWindow::VRAMWindow() {
 
 // class VDPVRAM:
 
-VDPVRAM::VDPVRAM(VDP *vdp, unsigned size, const EmuTime& time)
-	: clock(time)
+VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size_, const EmuTime& time)
+	: vdp(vdp_), size(size_), clock(time)
 {
-	this->vdp = vdp;
-	this->size = size;
-
 	// Initialise VRAM data array.
 	data = new byte[size];
 	// TODO: Fill with checkerboard pattern NMS8250 has.
@@ -50,12 +47,12 @@ VDPVRAM::VDPVRAM(VDP *vdp, unsigned size, const EmuTime& time)
 	// TODO: Move this to cache registration.
 	bitmapCacheWindow.setMask(0x1FFFF, -1 << 17, EmuTime::zero);
 
-	Debugger::instance().registerDebuggable("VRAM", *this);
+	vdp.getDebugger().registerDebuggable("VRAM", *this);
 }
 
 VDPVRAM::~VDPVRAM()
 {
-	Debugger::instance().unregisterDebuggable("VRAM", *this);
+	vdp.getDebugger().unregisterDebuggable("VRAM", *this);
 
 	delete[] data;
 }
@@ -67,14 +64,14 @@ void VDPVRAM::updateDisplayMode(DisplayMode mode, const EmuTime &time) {
 }
 
 void VDPVRAM::updateDisplayEnabled(bool enabled, const EmuTime &time) {
-	assert(vdp->isInsideFrame(time));
+	assert(vdp.isInsideFrame(time));
 	renderer->updateDisplayEnabled(enabled, time);
 	cmdEngine->sync(time);
 	spriteChecker->updateDisplayEnabled(enabled, time);
 }
 
 void VDPVRAM::updateSpritesEnabled(bool enabled, const EmuTime &time) {
-	assert(vdp->isInsideFrame(time));
+	assert(vdp.isInsideFrame(time));
 	renderer->updateSpritesEnabled(enabled, time);
 	cmdEngine->sync(time);
 	spriteChecker->updateSpritesEnabled(enabled, time);

@@ -55,8 +55,9 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, vdpStatusRegDebug(*this)
 	, vdpRegsCmd(*this)
 	, paletteCmd(*this)
-	, irqVertical(getMotherBoard().getCPU())
-	, irqHorizontal(getMotherBoard().getCPU())
+	, irqVertical(motherBoard.getCPU())
+	, irqHorizontal(motherBoard.getCPU())
+	, debugger(motherBoard.getDebugger())
 {
 	PRT_DEBUG("Creating a VDP object");
 
@@ -99,7 +100,7 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 	vramSize *= 1024;
 	vramMask = vramSize - 1;
-	vram.reset(new VDPVRAM(this, vramSize, time));
+	vram.reset(new VDPVRAM(*this, vramSize, time));
 
 	// Create sprite checker.
 	spriteChecker.reset(new SpriteChecker(this));
@@ -130,9 +131,8 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	CommandController::instance().registerCommand(&vdpRegsCmd, "vdpregs");
 	CommandController::instance().registerCommand(&paletteCmd, "palette");
 
-	Debugger::instance().registerDebuggable("VDP regs", vdpRegDebug);
-	Debugger::instance().registerDebuggable(
-		"VDP status regs", vdpStatusRegDebug );
+	debugger.registerDebuggable("VDP regs",        vdpRegDebug);
+	debugger.registerDebuggable("VDP status regs", vdpStatusRegDebug);
 
 	EventDistributor::instance().registerEventListener(
 		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
@@ -143,8 +143,8 @@ VDP::~VDP()
 	EventDistributor::instance().unregisterEventListener(
 		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
 
-	Debugger::instance().unregisterDebuggable("VDP status regs", vdpStatusRegDebug);
-	Debugger::instance().unregisterDebuggable("VDP regs", vdpRegDebug);
+	debugger.unregisterDebuggable("VDP status regs", vdpStatusRegDebug);
+	debugger.unregisterDebuggable("VDP regs",        vdpRegDebug);
 
 	CommandController::instance().unregisterCommand(&vdpRegsCmd, "vdpregs");
 	CommandController::instance().unregisterCommand(&paletteCmd, "palette");

@@ -37,12 +37,6 @@ Debugger::~Debugger()
 	commandController.unregisterCommand(&debugCmd, "debug");
 }
 
-Debugger& Debugger::instance()
-{
-	static Debugger oneInstance;
-	return oneInstance;
-}
-
 void Debugger::setCPU(MSXCPU* cpu_)
 {
 	cpu = cpu_;

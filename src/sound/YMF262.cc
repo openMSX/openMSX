@@ -44,6 +44,7 @@
 #include "openmsx.hh"
 #include "Mixer.hh"
 #include "Debugger.hh"
+#include "MSXMotherBoard.hh"
 #include "Scheduler.hh"
 
 using std::string;
@@ -1809,9 +1810,10 @@ void YMF262::reset(const EmuTime& time)
 	setMute(true);
 }
 
-YMF262::YMF262(const string& name_, const XMLElement& config,
-               const EmuTime& time, MSXCPU& cpu)
-	: irq(cpu), timer1(this), timer2(this) , name(name_)
+YMF262::YMF262(MSXMotherBoard& motherBoard, const string& name_,
+               const XMLElement& config, const EmuTime& time)
+	: irq(motherBoard.getCPU()), timer1(this), timer2(this)
+	, debugger(motherBoard.getDebugger()), name(name_)
 {
 	LFO_AM = LFO_PM = 0;
 	lfo_am_depth = lfo_pm_depth_range = lfo_am_cnt = lfo_pm_cnt = 0;
@@ -1824,12 +1826,12 @@ YMF262::YMF262(const string& name_, const XMLElement& config,
 
 	reset(time);
 	registerSound(config, Mixer::STEREO);
-	Debugger::instance().registerDebuggable(getName() + " regs", *this);
+	debugger.registerDebuggable(getName() + " regs", *this);
 }
 
 YMF262::~YMF262()
 {
-	Debugger::instance().unregisterDebuggable(getName() + " regs", *this);
+	debugger.unregisterDebuggable(getName() + " regs", *this);
 	unregisterSound();
 }
 

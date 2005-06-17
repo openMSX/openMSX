@@ -45,10 +45,11 @@ public:
 	virtual void write(unsigned address, byte value);
 
 private:
-	void init(MSXMotherBoard& motherBoard, const XMLElement& config);
+	void init(const XMLElement& config);
 	void read(const XMLElement& config, const std::string& filename);
 	bool checkSHA1(const XMLElement& config);
 
+	MSXMotherBoard& motherBoard;
 	std::string name;
 	const std::string description;
 	unsigned size;

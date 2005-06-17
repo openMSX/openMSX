@@ -16,13 +16,13 @@ using std::vector;
 
 namespace openmsx {
 
-MSXCPU::MSXCPU()
+MSXCPU::MSXCPU(Debugger& debugger_)
 	: traceSetting(new BooleanSetting("cputrace", "CPU tracing on/off", false))
 	, z80 (new CPUCore<Z80TYPE> ("z80",  *traceSetting, EmuTime::zero))
 	, r800(new CPUCore<R800TYPE>("r800", *traceSetting, EmuTime::zero))
 	, timeInfo(*this)
 	, infoCmd(InfoCommand::instance())
-	, debugger(Debugger::instance())
+	, debugger(debugger_)
 {
 	activeCPU = z80.get();	// setActiveCPU(CPU_Z80);
 	reset(EmuTime::zero);

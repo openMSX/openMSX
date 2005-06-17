@@ -58,9 +58,10 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, v9990RegDebug(*this)
 	, v9990PalDebug(*this)
 	, v9990RegsCmd(*this)
-	, irq(getMotherBoard().getCPU())
+	, irq(motherBoard.getCPU())
 	, pendingIRQs(0)
 	, hScanSyncTime(time)
+	, debugger(motherBoard.getDebugger())
 {
 	PRT_DEBUG("[" << time << "] V9990::Create");
 
@@ -77,7 +78,7 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 
 	// create VRAM
-	vram.reset(new V9990VRAM(this, time));
+	vram.reset(new V9990VRAM(*this, time));
 
 	// create Command Engine
 	cmdEngine.reset(new V9990CmdEngine(this, time));
@@ -87,8 +88,8 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 	setVerticalTiming();
 
 	// Register debuggable
-	Debugger::instance().registerDebuggable("V9990 regs",    v9990RegDebug);
-	Debugger::instance().registerDebuggable("V9990 palette", v9990PalDebug);
+	debugger.registerDebuggable("V9990 regs",    v9990RegDebug);
+	debugger.registerDebuggable("V9990 palette", v9990PalDebug);
 
 	// Register console commands
 	CommandController::instance().registerCommand(&v9990RegsCmd, "v9990regs");
@@ -108,8 +109,8 @@ V9990::~V9990()
 
 	// Unregister everything that needs to be unregistered
 	CommandController::instance().unregisterCommand(&v9990RegsCmd, "v9990regs");
-	Debugger::instance().unregisterDebuggable("V9990 palette", v9990PalDebug);
-	Debugger::instance().unregisterDebuggable("V9990 regs", v9990RegDebug);
+	debugger.unregisterDebuggable("V9990 palette", v9990PalDebug);
+	debugger.unregisterDebuggable("V9990 regs", v9990RegDebug);
 	EventDistributor::instance().unregisterEventListener(
 		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
 }

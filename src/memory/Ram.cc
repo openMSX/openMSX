@@ -1,20 +1,24 @@
 // $Id$
 
 #include "Ram.hh"
+#include "MSXMotherBoard.hh"
 #include "Debugger.hh"
 
 using std::string;
 
 namespace openmsx {
 
-Ram::Ram(const string& name_, unsigned size_)
-	: name(name_), description("ram"), size(size_)
+Ram::Ram(MSXMotherBoard& motherBoard, const string& name_, unsigned size_)
+	: debugger(motherBoard.getDebugger())
+	, name(name_), description("ram"), size(size_)
 {
 	init();
 }
 
-Ram::Ram(const string& name_, const string& description_, unsigned size_)
-	: name(name_), description(description_), size(size_)
+Ram::Ram(MSXMotherBoard& motherBoard, const string& name_,
+         const string& description_, unsigned size_)
+	: debugger(motherBoard.getDebugger())
+	, name(name_), description(description_), size(size_)
 {
 	init();
 }
@@ -24,12 +28,12 @@ void Ram::init()
 	ram = new byte[size];
 	clear();
 
-	Debugger::instance().registerDebuggable(name, *this);
+	debugger.registerDebuggable(name, *this);
 }
 
 Ram::~Ram()
 {
-	Debugger::instance().unregisterDebuggable(name, *this);
+	debugger.unregisterDebuggable(name, *this);
 
 	delete[] ram;
 }

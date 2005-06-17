@@ -4,12 +4,13 @@
 #include "MSXDevice.hh"
 #include "Scheduler.hh"
 #include "CartridgeSlotManager.hh"
+#include "PluggingController.hh"
+#include "Debugger.hh"
 #include "DummyDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXCPU.hh"
 #include "PanasonicMemory.hh"
 #include "MSXDeviceSwitch.hh"
-#include "PluggingController.hh"
 #include "CassettePort.hh"
 #include "RenShaTurbo.hh"
 #include "EmuTime.hh"
@@ -33,7 +34,8 @@ MSXMotherBoard::MSXMotherBoard()
 	, blockedCounter(0)
 	, powerSetting(GlobalSettings::instance().getPowerSetting())
 	, output(CliComm::instance())
-	, msxCpu(new MSXCPU())
+	, debugger(new Debugger())
+	, msxCpu(new MSXCPU(getDebugger()))
 	, resetCommand(*this)
 {
 	getCPU().setMotherboard(this);
@@ -71,6 +73,11 @@ PluggingController& MSXMotherBoard::getPluggingController()
 		pluggingController.reset(new PluggingController());
 	}
 	return *pluggingController;
+}
+
+Debugger& MSXMotherBoard::getDebugger()
+{
+	return *debugger;
 }
 
 DummyDevice& MSXMotherBoard::getDummyDevice()

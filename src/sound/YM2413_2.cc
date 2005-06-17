@@ -1352,8 +1352,9 @@ void YM2413_2::reset(const EmuTime &time)
 }
 
 
-YM2413_2::YM2413_2(const string& name_, const XMLElement& config, const EmuTime& time)
-	: name(name_)
+YM2413_2::YM2413_2(Debugger& debugger_, const string& name_,
+                   const XMLElement& config, const EmuTime& time)
+	: debugger(debugger_), name(name_)
 {
 	eg_cnt = eg_timer = 0;
 	rhythm = 0;
@@ -1367,12 +1368,12 @@ YM2413_2::YM2413_2(const string& name_, const XMLElement& config, const EmuTime&
 
 	reset(time);
 	registerSound(config);
-	Debugger::instance().registerDebuggable(name + " regs", *this);
+	debugger.registerDebuggable(name + " regs", *this);
 }
 
 YM2413_2::~YM2413_2()
 {
-	Debugger::instance().unregisterDebuggable(name + " regs", *this);
+	debugger.unregisterDebuggable(name + " regs", *this);
 	unregisterSound();
 }
 

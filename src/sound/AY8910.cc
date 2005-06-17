@@ -337,9 +337,10 @@ inline void AY8910::Envelope::advance(int duration)
 
 // AY8910 main class:
 
-AY8910::AY8910(AY8910Periphery& periphery_, const XMLElement& config,
-               const EmuTime& time)
+AY8910::AY8910(Debugger& debugger_, AY8910Periphery& periphery_,
+               const XMLElement& config, const EmuTime& time)
 	: periphery(periphery_)
+	, debugger(debugger_)
 	, envelope(amplitude)
 {
 	// make valgrind happy
@@ -348,12 +349,12 @@ AY8910::AY8910(AY8910Periphery& periphery_, const XMLElement& config,
 
 	reset(time);
 	registerSound(config);
-	Debugger::instance().registerDebuggable(getName() + " regs", *this);
+	debugger.registerDebuggable(getName() + " regs", *this);
 }
 
 AY8910::~AY8910()
 {
-	Debugger::instance().unregisterDebuggable(getName() + " regs", *this);
+	debugger.unregisterDebuggable(getName() + " regs", *this);
 	unregisterSound();
 }
 
