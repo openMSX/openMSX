@@ -3,12 +3,13 @@
 #ifndef MSXMAPPERIO_HH
 #define MSXMAPPERIO_HH
 
-#include "openmsx.hh"
 #include "MSXDevice.hh"
-#include <set>
 #include <memory>
+#include <set>
 
 namespace openmsx {
+
+class Ram;
 
 class MapperMask
 {
@@ -43,9 +44,9 @@ public:
 
 private:
 	std::auto_ptr<MapperMask> mapperMask;
+	std::auto_ptr<Ram> registers;
 	std::multiset<unsigned> mapperSizes;
 	byte mask;
-	byte page[4];
 };
 
 } // namespace openmsx
