@@ -164,9 +164,9 @@ inline static int translateX(int absoluteX)
 // TODO: Cache this?
 inline GLRasterizer::Pixel GLRasterizer::getBorderColour()
 {
-	int mode = vdp->getDisplayMode().getByte();
-	int bgColour = vdp->getBackgroundColour();
-	if (vdp->getDisplayMode().getBase() == DisplayMode::GRAPHIC5) {
+	int mode = vdp.getDisplayMode().getByte();
+	int bgColour = vdp.getBackgroundColour();
+	if (vdp.getDisplayMode().getBase() == DisplayMode::GRAPHIC5) {
 		// TODO: Border in SCREEN6 has separate colour for even and odd pixels.
 		//       Until that is supported, only use odd pixel colour.
 		bgColour &= 0x03;
@@ -178,7 +178,7 @@ inline void GLRasterizer::renderBitmapLine(byte mode, int vramLine)
 {
 	if (lineValidInMode[vramLine] != mode) {
 		const byte *vramPtr =
-			vram->bitmapCacheWindow.readArea(vramLine << 7);
+			vram.bitmapCacheWindow.readArea(vramLine << 7);
 		bitmapConverter.convertLine(lineBuffer, vramPtr);
 		bitmapTextures[vramLine].update(lineBuffer, lineWidth);
 		lineValidInMode[vramLine] = mode;
@@ -187,14 +187,14 @@ inline void GLRasterizer::renderBitmapLine(byte mode, int vramLine)
 
 inline void GLRasterizer::renderBitmapLines(byte line, int count)
 {
-	byte mode = vdp->getDisplayMode().getByte();
+	byte mode = vdp.getDisplayMode().getByte();
 	// Which bits in the name mask determine the page?
-	int pageMask = 0x200 | vdp->getEvenOddMask();
+	int pageMask = 0x200 | vdp.getEvenOddMask();
 	while (count--) {
 		// TODO: Optimise addr and line; too many conversions right now.
-		int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
+		int vramLine = (vram.nameTable.getMask() >> 7) & (pageMask | line);
 		renderBitmapLine(mode, vramLine);
-		if (vdp->isMultiPageScrolling()) {
+		if (vdp.isMultiPageScrolling()) {
 			vramLine &= ~0x100;
 			renderBitmapLine(mode, vramLine);
 		}
@@ -208,8 +208,8 @@ inline void GLRasterizer::renderPlanarBitmapLine(byte mode, int vramLine)
 	    (lineValidInMode[vramLine | 512] != mode)) {
 		int addr0 = vramLine << 7;
 		int addr1 = addr0 | 0x10000;
-		const byte* vramPtr0 = vram->bitmapCacheWindow.readArea(addr0);
-		const byte* vramPtr1 = vram->bitmapCacheWindow.readArea(addr1);
+		const byte* vramPtr0 = vram.bitmapCacheWindow.readArea(addr0);
+		const byte* vramPtr1 = vram.bitmapCacheWindow.readArea(addr1);
 		bitmapConverter.convertLinePlanar(lineBuffer, vramPtr0, vramPtr1);
 		bitmapTextures[vramLine].update(lineBuffer, lineWidth);
 		lineValidInMode[vramLine] =
@@ -219,14 +219,14 @@ inline void GLRasterizer::renderPlanarBitmapLine(byte mode, int vramLine)
 
 inline void GLRasterizer::renderPlanarBitmapLines(byte line, int count)
 {
-	byte mode = vdp->getDisplayMode().getByte();
+	byte mode = vdp.getDisplayMode().getByte();
 	// Which bits in the name mask determine the page?
-	int pageMask = vdp->getEvenOddMask();
+	int pageMask = vdp.getEvenOddMask();
 	while (count--) {
 		// TODO: Optimise addr and line; too many conversions right now.
-		int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
+		int vramLine = (vram.nameTable.getMask() >> 7) & (pageMask | line);
 		renderPlanarBitmapLine(mode, vramLine);
-		if (vdp->isMultiPageScrolling()) {
+		if (vdp.isMultiPageScrolling()) {
 			vramLine &= ~0x100;
 			renderPlanarBitmapLine(mode, vramLine);
 		}
@@ -234,14 +234,12 @@ inline void GLRasterizer::renderPlanarBitmapLines(byte line, int count)
 	}
 }
 
-GLRasterizer::GLRasterizer(VDP* vdp)
-	: characterConverter(vdp, palFg, palBg)
+GLRasterizer::GLRasterizer(VDP& vdp_)
+	: vdp(vdp_), vram(vdp.getVRAM())
+	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
-	, spriteConverter(vdp->getSpriteChecker())
+	, spriteConverter(vdp.getSpriteChecker())
 {
-	this->vdp = vdp;
-	vram = vdp->getVRAM();
-
 	GLint size;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
 	//printf("Max texture size: %d\n", size);
@@ -279,25 +277,25 @@ GLRasterizer::GLRasterizer(VDP* vdp)
 	}
 
 	// Create bitmap display cache.
-	bitmapTextures = vdp->isMSX1VDP() ? NULL : new LineTexture[4 * 256];
+	bitmapTextures = vdp.isMSX1VDP() ? NULL : new LineTexture[4 * 256];
 
 	// Init the palette.
-	precalcPalette(RenderSettings::instance().getGamma()->getValue());
+	precalcPalette(RenderSettings::instance().getGamma().getValue());
 
 	// Store current (black) frame as a texture.
 	SDL_Surface* surface = SDL_GetVideoSurface();
 	storedFrame.store(surface->w, surface->h);
 
 	// Register caches with VDPVRAM.
-	vram->patternTable.setObserver(&dirtyPattern);
-	vram->colourTable.setObserver(&dirtyColour);
+	vram.patternTable.setObserver(&dirtyPattern);
+	vram.colourTable.setObserver(&dirtyColour);
 }
 
 GLRasterizer::~GLRasterizer()
 {
 	// Unregister caches with VDPVRAM.
-	vram->patternTable.resetObserver();
-	vram->colourTable.resetObserver();
+	vram.patternTable.resetObserver();
+	vram.colourTable.resetObserver();
 
 	// TODO: Free all textures.
 	delete[] bitmapTextures;
@@ -306,8 +304,8 @@ GLRasterizer::~GLRasterizer()
 void GLRasterizer::reset()
 {
 	// Init renderer state.
-	setDisplayMode(vdp->getDisplayMode());
-	spriteConverter.setTransparency(vdp->getTransparency());
+	setDisplayMode(vdp.getDisplayMode());
+	spriteConverter.setTransparency(vdp.getTransparency());
 
 	// Invalidate bitmap cache.
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
@@ -317,10 +315,10 @@ void GLRasterizer::reset()
 
 void GLRasterizer::resetPalette()
 {
-	if (!vdp->isMSX1VDP()) {
+	if (!vdp.isMSX1VDP()) {
 		// Reset the palette.
 		for (int i = 0; i < 16; i++) {
-			setPalette(i, vdp->getPalette(i));
+			setPalette(i, vdp.getPalette(i));
 		}
 	}
 }
@@ -332,9 +330,9 @@ void GLRasterizer::frameStart()
 	// 240 - 212 = 28 lines available for top/bottom border; 14 each.
 	// NTSC: display at [32..244),
 	// PAL:  display at [59..271).
-	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
+	lineRenderTop = vdp.isPalTiming() ? 59 - 14 : 32 - 14;
 
-	double gamma = RenderSettings::instance().getGamma()->getValue();
+	double gamma = RenderSettings::instance().getGamma().getValue();
 	// (gamma != prevGamma) gives compiler warnings
 	if ((gamma > prevGamma) || (gamma < prevGamma)) {
 		precalcPalette(gamma);
@@ -346,7 +344,7 @@ void GLRasterizer::frameEnd()
 {
 	// Glow effect.
 	// Must be applied before storedImage is updated.
-	int glowSetting = RenderSettings::instance().getGlow()->getValue();
+	int glowSetting = RenderSettings::instance().getGlow().getValue();
 	if (glowSetting != 0 && storedFrame.isStored()) {
 		// Note:
 		// 100% glow means current frame has no influence at all.
@@ -377,8 +375,8 @@ void GLRasterizer::setDisplayMode(DisplayMode mode)
 		}
 	}
 	lineWidth = mode.getLineWidth();
-	precalcColourIndex0(mode, vdp->getTransparency(),
-	                    vdp->getBackgroundColour());
+	precalcColourIndex0(mode, vdp.getTransparency(),
+	                    vdp.getBackgroundColour());
 	spriteConverter.setDisplayMode(mode);
 	spriteConverter.setPalette(mode.getByte() == DisplayMode::GRAPHIC7 ?
 	                           palGraphic7Sprites : palBg);
@@ -399,21 +397,21 @@ void GLRasterizer::setPalette(
 		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 	}
 
-	precalcColourIndex0(vdp->getDisplayMode(), vdp->getTransparency(),
-	                    vdp->getBackgroundColour());
+	precalcColourIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
+	                    vdp.getBackgroundColour());
 }
 
 void GLRasterizer::setBackgroundColour(int index)
 {
 	precalcColourIndex0(
-		vdp->getDisplayMode(), vdp->getTransparency(), index);
+		vdp.getDisplayMode(), vdp.getTransparency(), index);
 }
 
 void GLRasterizer::setTransparency(bool enabled)
 {
 	spriteConverter.setTransparency(enabled);
 	precalcColourIndex0(
-		vdp->getDisplayMode(), enabled, vdp->getBackgroundColour());
+		vdp.getDisplayMode(), enabled, vdp.getBackgroundColour());
 }
 
 void GLRasterizer::precalcPalette(double gamma)
@@ -423,7 +421,7 @@ void GLRasterizer::precalcPalette(double gamma)
 	// It's gamma correction, so apply in reverse.
 	gamma = 1.0 / gamma;
 
-	if (vdp->isMSX1VDP()) {
+	if (vdp.isMSX1VDP()) {
 		// Fixed palette.
 		for (int i = 0; i < 16; i++) {
 			const byte *rgb = Renderer::TMS99X8A_PALETTE[i];
@@ -510,9 +508,9 @@ void GLRasterizer::paint()
 
 	// Determine which effects to apply.
 	int blurSetting =
-		RenderSettings::instance().getHorizontalBlur()->getValue();
+		RenderSettings::instance().getHorizontalBlur().getValue();
 	int scanlineAlpha = (
-		RenderSettings::instance().getScanlineAlpha()->getValue() * 255
+		RenderSettings::instance().getScanlineAlpha().getValue() * 255
 		) / 100;
 
 	// TODO: Turn off scanlines when deinterlacing.
@@ -578,11 +576,11 @@ void GLRasterizer::renderText1(
 	int vramLine, int screenLine, int count, int minX, int maxX
 ) {
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
-	Pixel fg = palFg[vdp->getForegroundColour()];
-	Pixel bg = palBg[vdp->getBackgroundColour()];
+	Pixel fg = palFg[vdp.getForegroundColour()];
+	Pixel bg = palBg[vdp.getBackgroundColour()];
 	GLSetTexEnvCol(fg);
 
-	int leftBackground = translateX(vdp->getLeftBackground());
+	int leftBackground = translateX(vdp.getLeftBackground());
 
 	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
@@ -594,20 +592,20 @@ void GLRasterizer::renderText1(
 	int endCol = (maxX + 11) / 12;
 	int endRow = (vramLine + count + 7) / 8;
 	screenLine -= (vramLine & 7) * 2;
-	int verticalScroll = vdp->getVerticalScroll();
+	int verticalScroll = vdp.getVerticalScroll();
 	for (int row = vramLine / 8; row < endRow; row++) {
 		for (int col = begCol; col < endCol; col++) {
 			// TODO: Only bind texture once?
 			//       Currently both subroutines bind the same texture.
 			int name = (row & 31) * 40 + col;
-			int charcode = vram->nameTable.readNP((name + 0xC00) | (-1 << 12));
+			int charcode = vram.nameTable.readNP((name + 0xC00) | (-1 << 12));
 			GLuint textureId = characterCache[charcode];
 			if (!dirtyPattern.validate(charcode)) {
 				// Update cache for current character.
 				byte charPixels[8 * 8];
 				characterConverter.convertMonoBlock(
 					charPixels,
-					vram->patternTable.readArea((-1 << 11) | (charcode * 8))
+					vram.patternTable.readArea((-1 << 11) | (charcode * 8))
 					);
 				GLBindMonoBlock(textureId, charPixels);
 			}
@@ -626,7 +624,7 @@ void GLRasterizer::renderText2(
 {
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
 
-	int leftBackground = translateX(vdp->getLeftBackground());
+	int leftBackground = translateX(vdp.getLeftBackground());
 
 	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
@@ -634,13 +632,13 @@ void GLRasterizer::renderText2(
 	          maxX - minX, screenHeight);
 	glEnable(GL_SCISSOR_TEST);
 
-	Pixel plainFg = palFg[vdp->getForegroundColour()];
-	Pixel plainBg = palBg[vdp->getBackgroundColour()];
+	Pixel plainFg = palFg[vdp.getForegroundColour()];
+	Pixel plainBg = palBg[vdp.getBackgroundColour()];
 	Pixel blinkFg, blinkBg;
- 	if (vdp->getBlinkState()) {
-		int fg = vdp->getBlinkForegroundColour();
-		blinkFg = palBg[fg ? fg : vdp->getBlinkBackgroundColour()];
-		blinkBg = palBg[vdp->getBlinkBackgroundColour()];
+ 	if (vdp.getBlinkState()) {
+		int fg = vdp.getBlinkForegroundColour();
+		blinkFg = palBg[fg ? fg : vdp.getBlinkBackgroundColour()];
+		blinkBg = palBg[vdp.getBlinkBackgroundColour()];
 	} else {
 		blinkFg = plainFg;
 		blinkBg = plainBg;
@@ -652,12 +650,12 @@ void GLRasterizer::renderText2(
 	int endCol = (maxX + 5) / 6;
 	int endRow = (vramLine + count + 7) / 8;
 	screenLine -= (vramLine & 7) * 2;
-	int verticalScroll = vdp->getVerticalScroll();
+	int verticalScroll = vdp.getVerticalScroll();
 	for (int row = vramLine / 8; row < endRow; row++) {
 		for (int col = begCol; col < endCol; col++) {
 			// TODO: Only bind texture once?
 			//       Currently both subroutines bind the same texture.
-			int charcode = vram->nameTable.readNP(
+			int charcode = vram.nameTable.readNP(
 				(-1 << 12) | (row * 80 + col) );
 			GLuint textureId = characterCache[charcode];
 			if (!dirtyPattern.validate(charcode)) {
@@ -665,12 +663,12 @@ void GLRasterizer::renderText2(
 				byte charPixels[8 * 8];
 				characterConverter.convertMonoBlock(
 					charPixels,
-					vram->patternTable.readArea((-1 << 11) | (charcode * 8)));
+					vram.patternTable.readArea((-1 << 11) | (charcode * 8)));
 				GLBindMonoBlock(textureId, charPixels);
 			}
 			// Plot current character.
 			int colourPattern =
-				vram->colourTable.readNP((-1 << 9) | (row * 10 + col / 8));
+				vram.colourTable.readNP((-1 << 9) | (row * 10 + col / 8));
 			bool blink = (colourPattern << (col & 7)) & 0x80;
 			if (blink != prevBlink) {
 				GLSetTexEnvCol(blink ? blinkFg : plainFg);
@@ -694,7 +692,7 @@ void GLRasterizer::renderGraphic1(
 
 	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
-	glScissor(translateX(vdp->getLeftBackground()) + minX, // x
+	glScissor(translateX(vdp.getLeftBackground()) + minX, // x
 	          HEIGHT - screenLine - screenHeight,          // y
 	          maxX - minX,   // w
 	          screenHeight); // h
@@ -716,20 +714,20 @@ void GLRasterizer::renderGraphic1Row(
 {
 	int nameStart = row * 32 + col;
 	int nameEnd = row * 32 + endCol;
-	int x = translateX(vdp->getLeftBackground()) + col * 16;
+	int x = translateX(vdp.getLeftBackground()) + col * 16;
 
 	for (int name = nameStart; name < nameEnd; name++) {
-		int charNr = vram->nameTable.readNP((-1 << 10) | name);
+		int charNr = vram.nameTable.readNP((-1 << 10) | name);
 		GLuint textureId = characterCache[charNr];
 		bool valid = dirtyPattern.validate(charNr);
 		if (!valid) {
 			byte charPixels[8 * 8];
 			characterConverter.convertMonoBlock(
 				charPixels,
-				vram->patternTable.readArea((-1 << 11) | (charNr * 8)));
+				vram.patternTable.readArea((-1 << 11) | (charNr * 8)));
 			GLBindMonoBlock(textureId, charPixels);
 		}
-		int colour = vram->colourTable.readNP((-1 << 6) | (charNr / 8));
+		int colour = vram.colourTable.readNP((-1 << 6) | (charNr / 8));
 		Pixel fg = palFg[colour >> 4];
 		Pixel bg = palFg[colour & 0x0F];
 		GLSetTexEnvCol(fg);
@@ -745,7 +743,7 @@ void GLRasterizer::renderGraphic2(
 
 	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
-	glScissor(translateX(vdp->getLeftBackground()) + minX, // x
+	glScissor(translateX(vdp.getLeftBackground()) + minX, // x
 	          HEIGHT - screenLine - screenHeight,          // y
 	          maxX - minX,   // w
 	          screenHeight); // h
@@ -768,9 +766,9 @@ void GLRasterizer::renderGraphic2Row(
 	int nameStart = row * 32 + col;
 	int nameEnd = row * 32 + endCol;
 	int quarter = nameStart & ~0xFF;
-	int patternMask = (vram->patternTable.getMask() / 8) & 0x3FF;
-	int colourMask = (vram->colourTable.getMask() / 8) & 0x3FF;
-	int x = translateX(vdp->getLeftBackground()) + col * 16;
+	int patternMask = (vram.patternTable.getMask() / 8) & 0x3FF;
+	int colourMask = (vram.colourTable.getMask() / 8) & 0x3FF;
+	int x = translateX(vdp.getLeftBackground()) + col * 16;
 
 	// Note:
 	// Because cached tiles depend on both the pattern table and the colour
@@ -780,7 +778,7 @@ void GLRasterizer::renderGraphic2Row(
 	bool useCache = patternMask == colourMask;
 
 	for (int name = nameStart; name < nameEnd; name++) {
-		int charNr = quarter | vram->nameTable.readNP((-1 << 10) | name);
+		int charNr = quarter | vram.nameTable.readNP((-1 << 10) | name);
 		bool valid;
 		if (useCache) {
 			// If mirrored, use lowest-numbered character that looks the same,
@@ -809,8 +807,8 @@ void GLRasterizer::renderGraphic2Row(
 			int index = (-1 << 13) | (charNr * 8);
 			characterConverter.convertColourBlock(
 				charPixels,
-				vram->patternTable.readArea(index),
-				vram->colourTable.readArea(index));
+				vram.patternTable.readArea(index),
+				vram.colourTable.readArea(index));
 			GLBindColourBlock(textureId, charPixels);
 		}
 		GLDrawColourBlock(textureId, x, screenLine);
@@ -821,7 +819,7 @@ void GLRasterizer::renderGraphic2Row(
 void GLRasterizer::renderMultiColour(
 	int vramLine, int screenLine, int count, int minX, int maxX)
 {
-	int leftBackground = translateX(vdp->getLeftBackground());
+	int leftBackground = translateX(vdp.getLeftBackground());
 
 	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
@@ -837,11 +835,11 @@ void GLRasterizer::renderMultiColour(
 	int rowEnd = (vramLine + count + 3) / 4;
 	screenLine -= (vramLine & 3) * 2;
 	for (int row = rowStart; row < rowEnd; row++) {
-		const byte *namePtr = vram->nameTable.readArea(
+		const byte *namePtr = vram.nameTable.readArea(
 			(-1 << 10) | (row / 2) * 32 );
 		for (int col = colStart; col < colEnd; col++) {
 			int charcode = namePtr[col];
-			int colour = vram->patternTable.readNP(
+			int colour = vram.patternTable.readNP(
 				(-1 << 11) | (charcode * 8) | (row & 7) );
 			int x = leftBackground + col * 16;
 			GLFillBlock(x, screenLine,
@@ -864,17 +862,17 @@ void GLRasterizer::drawDisplay(
 {
 	int screenX = translateX(fromX);
 	int screenY = (fromY - lineRenderTop) * 2;
-	if (!(RenderSettings::instance().getDeinterlace()->getValue()) &&
-	    vdp->isInterlaced() && vdp->getEvenOdd()) {
+	if (!(RenderSettings::instance().getDeinterlace().getValue()) &&
+	    vdp.isInterlaced() && vdp.getEvenOdd()) {
 		// Display odd field half a line lower.
 		screenY++;
 	}
 	int screenLimitY = screenY + displayHeight * 2;
 
-	DisplayMode mode = vdp->getDisplayMode();
+	DisplayMode mode = vdp.getDisplayMode();
 	int hScroll = mode.isTextMode()
 	            ? 0
-	            : 16 * (vdp->getHorizontalScrollHigh() & 0x1F);
+	            : 16 * (vdp.getHorizontalScrollHigh() & 0x1F);
 
 	// Page border is display X coordinate where to stop drawing current page.
 	// This is either the multi page split point, or the right edge of the
@@ -883,8 +881,8 @@ void GLRasterizer::drawDisplay(
 	// in that case only the second page should be drawn.
 	int pageBorder = displayX + displayWidth;
 	int scrollPage1, scrollPage2;
-	if (vdp->isMultiPageScrolling()) {
-		scrollPage1 = vdp->getHorizontalScrollHigh() >> 5;
+	if (vdp.isMultiPageScrolling()) {
+		scrollPage1 = vdp.getHorizontalScrollHigh() >> 5;
 		scrollPage2 = scrollPage1 ^ 1;
 		int pageSplit = 512 - hScroll;
 		if (pageSplit < pageBorder) {
@@ -907,24 +905,24 @@ void GLRasterizer::drawDisplay(
 
 		// Which bits in the name mask determine the page?
 		bool deinterlaced =
-			RenderSettings::instance().getDeinterlace()->getValue()
-			&& vdp->isInterlaced() && vdp->isEvenOddEnabled();
+			RenderSettings::instance().getDeinterlace().getValue()
+			&& vdp.isInterlaced() && vdp.isEvenOddEnabled();
 		int pageMaskEven, pageMaskOdd;
-		if (deinterlaced || vdp->isMultiPageScrolling()) {
+		if (deinterlaced || vdp.isMultiPageScrolling()) {
 			pageMaskEven = mode.isPlanar() ? 0x000 : 0x200;
 			pageMaskOdd  = pageMaskEven | 0x100;
 		} else {
 			pageMaskEven = pageMaskOdd =
-				(mode.isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
+				(mode.isPlanar() ? 0x000 : 0x200) | vdp.getEvenOddMask();
 		}
 
 		// Copy from cache to screen.
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		for (int y = screenY; y < screenLimitY; y += 2) {
 			int vramLine[2];
-			vramLine[0] = (vram->nameTable.getMask() >> 7)
+			vramLine[0] = (vram.nameTable.getMask() >> 7)
 				& (pageMaskEven | displayY);
-			vramLine[1] = (vram->nameTable.getMask() >> 7)
+			vramLine[1] = (vram.nameTable.getMask() >> 7)
 				& (pageMaskOdd  | displayY);
 			if (deinterlaced) {
 				bitmapTextures[vramLine[0]].draw(
@@ -1003,19 +1001,19 @@ void GLRasterizer::drawSprites(
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	int screenX = translateX(vdp->getLeftSprites()) + displayX * 2;
+	int screenX = translateX(vdp.getLeftSprites()) + displayX * 2;
 	// TODO: Code duplicated from drawDisplay.
 	int screenY = (fromY - lineRenderTop) * 2;
-	if (!(RenderSettings::instance().getDeinterlace()->getValue()) &&
-	    vdp->isInterlaced() && vdp->getEvenOdd()) {
+	if (!(RenderSettings::instance().getDeinterlace().getValue()) &&
+	    vdp.isInterlaced() && vdp.getEvenOdd()) {
 		// Display odd field half a line lower.
 		screenY++;
 	}
 
-	int spriteMode = vdp->getDisplayMode().getSpriteMode();
+	int spriteMode = vdp.getDisplayMode().getSpriteMode();
 	int displayLimitX = displayX + displayWidth;
 	int limitY = fromY + displayHeight;
-	byte mode = vdp->getDisplayMode().getByte();
+	byte mode = vdp.getDisplayMode().getByte();
 	int pixelZoom =
 		(mode == DisplayMode::GRAPHIC5 || mode == DisplayMode::GRAPHIC6)
 		? 2 : 1;

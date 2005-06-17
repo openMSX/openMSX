@@ -38,40 +38,40 @@ public:
 	static RenderSettings& instance();
 
 	/** Accuracy [screen, line, pixel]. */
-	EnumSetting<Accuracy>* getAccuracy() const { return accuracy.get(); }
+	EnumSetting<Accuracy>& getAccuracy() const { return *accuracy; }
 
 	/** Deinterlacing [on, off]. */
-	BooleanSetting* getDeinterlace() const { return deinterlace.get(); }
+	BooleanSetting& getDeinterlace() const { return *deinterlace; }
 
 	/** The current max frameskip. */
-	IntegerSetting* getMaxFrameSkip() const { return maxFrameSkip.get(); }
+	IntegerSetting& getMaxFrameSkip() const { return *maxFrameSkip; }
 
 	/** The current min frameskip. */
-	IntegerSetting* getMinFrameSkip() const { return minFrameSkip.get(); }
+	IntegerSetting& getMinFrameSkip() const { return *minFrameSkip; }
 
 	/** Full screen [on, off]. */
-	BooleanSetting* getFullScreen() const { return fullScreen.get(); }
+	BooleanSetting& getFullScreen() const { return *fullScreen; }
 
 	/** The amount of gamma correction. */
-	FloatSetting* getGamma() const { return gamma.get(); }
+	FloatSetting& getGamma() const { return *gamma; }
 
 	/** The amount of glow [0..100]. */
-	IntegerSetting* getGlow() const { return glow.get(); }
+	IntegerSetting& getGlow() const { return *glow; }
 
 	/** The amount of horizontal blur [0..100]. */
-	IntegerSetting* getHorizontalBlur() const { return horizontalBlur.get(); }
+	IntegerSetting& getHorizontalBlur() const { return *horizontalBlur; }
 
 	/** The current renderer. */
-	RendererFactory::RendererSetting* getRenderer() const { return renderer.get(); }
+	RendererFactory::RendererSetting& getRenderer() const { return *renderer; }
 
 	/** The current scaling algorithm. */
-	EnumSetting<ScalerID>* getScaler() const { return scaler.get(); }
+	EnumSetting<ScalerID>& getScaler() const { return *scaler; }
 
 	/** The alpha value [0..100] of the scanlines. */
-	IntegerSetting* getScanlineAlpha() const { return scanlineAlpha.get(); }
+	IntegerSetting& getScanlineAlpha() const { return *scanlineAlpha; }
 
 	/** The video source to display on the screen. */
-	VideoSourceSetting* getVideoSource() const { return videoSource.get(); }
+	VideoSourceSetting& getVideoSource() const { return *videoSource; }
 
 private:
 	RenderSettings();

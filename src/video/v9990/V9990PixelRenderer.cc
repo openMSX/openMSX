@@ -19,7 +19,7 @@
 
 namespace openmsx {
 
-V9990PixelRenderer::V9990PixelRenderer(V9990* vdp_)
+V9990PixelRenderer::V9990PixelRenderer(V9990& vdp_)
 	: vdp(vdp_)
 	, rasterizer(Display::instance().getVideoSystem()
 	                                .createV9990Rasterizer(vdp_))
@@ -30,23 +30,23 @@ V9990PixelRenderer::V9990PixelRenderer(V9990* vdp_)
 
 	reset(Scheduler::instance().getCurrentTime());
 
-	settings.getMaxFrameSkip()->addListener(this);
-	settings.getMinFrameSkip()->addListener(this);
+	settings.getMaxFrameSkip().addListener(this);
+	settings.getMinFrameSkip().addListener(this);
 }
 
 V9990PixelRenderer::~V9990PixelRenderer()
 {
-	settings.getMaxFrameSkip()->removeListener(this);
-	settings.getMinFrameSkip()->removeListener(this);
+	settings.getMaxFrameSkip().removeListener(this);
+	settings.getMinFrameSkip().removeListener(this);
 }
 
 void V9990PixelRenderer::reset(const EmuTime& time)
 {
 	PRT_DEBUG("V9990PixelRenderer::reset");
 
-	displayEnabled = vdp->isDisplayEnabled();
-	setDisplayMode(vdp->getDisplayMode(), time);
-	setColorMode(vdp->getColorMode(), time);
+	displayEnabled = vdp.isDisplayEnabled();
+	setDisplayMode(vdp.getDisplayMode(), time);
+	setColorMode(vdp.getColorMode(), time);
 
 	rasterizer->reset();
 }
@@ -57,10 +57,10 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 		// V99x8 is active
 		frameSkipCounter = 0;
 		drawFrame = false;
-	} else if (frameSkipCounter < settings.getMinFrameSkip()->getValue()) {
+	} else if (frameSkipCounter < settings.getMinFrameSkip().getValue()) {
 		++frameSkipCounter;
 		drawFrame = false;
-	} else if (frameSkipCounter >= settings.getMaxFrameSkip()->getValue()) {
+	} else if (frameSkipCounter >= settings.getMaxFrameSkip().getValue()) {
 		frameSkipCounter = 0;
 		drawFrame = true;
 	} else {
@@ -73,12 +73,12 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 	}
 	if (!drawFrame) return;
 
-	accuracy = settings.getAccuracy()->getValue();
+	accuracy = settings.getAccuracy().getValue();
 	lastX = 0;
 	lastY = 0;
 
 	// Make sure that the correct timing is used
-	setDisplayMode(vdp->getDisplayMode(), time);
+	setDisplayMode(vdp.getDisplayMode(), time);
 	rasterizer->frameStart();
 }
 
@@ -108,20 +108,20 @@ void V9990PixelRenderer::sync(const EmuTime& time, bool force)
 	if (!drawFrame) return;
 
 	if (accuracy != RenderSettings::ACC_SCREEN || force) {
-		vdp->getVRAM()->sync(time);
+		vdp.getVRAM().sync(time);
 		renderUntil(time);
 	}
 }
 
 void V9990PixelRenderer::renderUntil(const EmuTime& time)
 {
-	const V9990DisplayPeriod& horTiming = vdp->getHorizontalTiming();
-	const V9990DisplayPeriod& verTiming = vdp->getVerticalTiming();
+	const V9990DisplayPeriod& horTiming = vdp.getHorizontalTiming();
+	const V9990DisplayPeriod& verTiming = vdp.getVerticalTiming();
 
 	// Translate time to pixel position
-	int limitTicks = vdp->getUCTicksThisFrame(time);
+	int limitTicks = vdp.getUCTicksThisFrame(time);
 	assert(limitTicks <=
-	       V9990DisplayTiming::getUCTicksPerFrame(vdp->isPalTiming()));
+	       V9990DisplayTiming::getUCTicksPerFrame(vdp.isPalTiming()));
 	int toX, toY;
 	switch (accuracy) {
 	case RenderSettings::ACC_PIXEL:
@@ -208,8 +208,8 @@ void V9990PixelRenderer::draw(int fromX, int fromY, int toX, int toY,
 	} else {
 		assert(type == DRAW_DISPLAY);
 
-		const V9990DisplayPeriod& horTiming = vdp->getHorizontalTiming();
-		const V9990DisplayPeriod& verTiming = vdp->getVerticalTiming();
+		const V9990DisplayPeriod& horTiming = vdp.getHorizontalTiming();
+		const V9990DisplayPeriod& verTiming = vdp.getVerticalTiming();
 
 		int displayX = fromX - horTiming.border1;
 		int displayY = fromY - verTiming.border1;
@@ -281,8 +281,8 @@ void V9990PixelRenderer::updateScrollBY(const EmuTime& time)
 
 void V9990PixelRenderer::update(const Setting* setting)
 {
-	if (setting == settings.getMinFrameSkip() ||
-	    setting == settings.getMaxFrameSkip()) {
+	if (setting == &settings.getMinFrameSkip() ||
+	    setting == &settings.getMaxFrameSkip()) {
 		// Force drawing of frame
 		frameSkipCounter = 999;
 	} else {

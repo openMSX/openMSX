@@ -35,15 +35,15 @@ public:
 	  * @param blender Blender to use for combining two narrow pixels
 	  *   into a single wide one. Only necessary for ZOOM_256.
 	  */
-	CharacterConverter(VDP *vdp, const Pixel *palFg, const Pixel *palBg,
-		Blender<Pixel> blender = Blender<Pixel>::dummy() );
+	CharacterConverter(VDP& vdp, const Pixel* palFg, const Pixel* palBg,
+		Blender<Pixel> blender = Blender<Pixel>::dummy());
 
 	/** Convert a line of V9938 VRAM to 512 host pixels.
 	  * Call this method in non-planar display modes (Graphic4 and Graphic5).
 	  * @param linePtr Pointer to array where host pixels will be written to.
 	  * @param line Display line number [0..255].
 	  */
-	inline void convertLine(Pixel *linePtr, int line)
+	inline void convertLine(Pixel* linePtr, int line)
 	{
 		(this->*renderMethod)(linePtr, line);
 	}
@@ -56,7 +56,7 @@ private:
 	  * @param bg Background colour.
 	  */
 	inline void convertBlockRow(
-		Pixel *blockPtr, byte pattern, Pixel fg, Pixel bg)
+		Pixel* blockPtr, byte pattern, Pixel fg, Pixel bg)
 	{
 		blockPtr[0] = pattern & 0x80 ? fg : bg;
 		blockPtr[1] = pattern & 0x40 ? fg : bg;
@@ -73,7 +73,7 @@ private:
 	  * @param pattern Pattern to convert.
 	  */
 	inline void convertMonoBlockRow(
-		byte *blockPtr, const byte pattern)
+		byte* blockPtr, const byte pattern)
 	{
 		blockPtr[0] = pattern & 0x80 ? 0xFF : 0;
 		blockPtr[1] = pattern & 0x40 ? 0xFF : 0;
@@ -92,7 +92,7 @@ private:
 	  * @param bg Background colour.
 	  */
 	inline void convertBlockRow(
-		Pixel *blockPtr, byte pattern, byte colour)
+		Pixel* blockPtr, byte pattern, byte colour)
 	{
 		convertBlockRow(
 			blockPtr, pattern, palFg[colour >> 4], palFg[colour & 0x0F] );
@@ -104,7 +104,7 @@ public:
 	  * @param patternPtr Pointer to 8 pattern entries to convert.
 	  */
 	inline void convertMonoBlock(
-		byte *blockPtr, const byte *patternPtr)
+		byte* blockPtr, const byte* patternPtr)
 	{
 		convertMonoBlockRow(blockPtr,      patternPtr[0]);
 		convertMonoBlockRow(blockPtr +  8, patternPtr[1]);
@@ -122,7 +122,7 @@ public:
 	  * @param colourPtr Pointer to 8 colour entries to convert.
 	  */
 	inline void convertColourBlock(
-		Pixel *blockPtr, const byte *patternPtr, const byte *colourPtr)
+		Pixel* blockPtr, const byte* patternPtr, const byte* colourPtr)
 	{
 		convertBlockRow(blockPtr,      patternPtr[0], colourPtr[0]);
 		convertBlockRow(blockPtr +  8, patternPtr[1], colourPtr[1]);
@@ -147,27 +147,27 @@ private:
 	  */
 	static RenderMethod modeToRenderMethod[];
 
-	void renderText1(Pixel *pixelPtr, int line);
-	void renderText1Q(Pixel *pixelPtr, int line);
-	void renderText2(Pixel *pixelPtr, int line);
-	void renderGraphic1(Pixel *pixelPtr, int line);
-	void renderGraphic2(Pixel *pixelPtr, int line);
-	void renderMultiHelper(Pixel *pixelPtr, int line,
+	void renderText1   (Pixel* pixelPtr, int line);
+	void renderText1Q  (Pixel* pixelPtr, int line);
+	void renderText2   (Pixel* pixelPtr, int line);
+	void renderGraphic1(Pixel* pixelPtr, int line);
+	void renderGraphic2(Pixel* pixelPtr, int line);
+	void renderMulti   (Pixel* pixelPtr, int line);
+	void renderMultiQ  (Pixel* pixelPtr, int line);
+	void renderBogus   (Pixel* pixelPtr, int line);
+	void renderMultiHelper(Pixel* pixelPtr, int line,
 	                       int mask, int patternQuarter);
-	void renderMulti(Pixel *pixelPtr, int line);
-	void renderMultiQ(Pixel *pixelPtr, int line);
-	void renderBogus(Pixel *pixelPtr, int line);
 
 	/** Rendering method for the current display mode.
 	  */
 	RenderMethod renderMethod;
 
-	const Pixel *palFg;
-	const Pixel *palBg;
+	VDP& vdp;
+	VDPVRAM& vram;
 
-	VDP *vdp;
-	VDPVRAM *vram;
-
+	const Pixel* palFg;
+	const Pixel* palBg;
+	
 	Blender<Pixel> blender;
 
 	/** Dirty tables indicate which character blocks must be repainted.

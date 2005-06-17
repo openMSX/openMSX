@@ -38,12 +38,12 @@ public:
 	/** Create the Renderer selected by the current renderer setting.
 	  * @param vdp The VDP whose display will be rendered.
 	  */
-	static Renderer* createRenderer(VDP* vdp);
+	static Renderer* createRenderer(VDP& vdp);
 
 	/** Create the V9990 Renderer selected by the current renderer setting.
 	  * @param vdp The V9990 VDP whose display will be rendered.
 	  */
-	static V9990Renderer* createV9990Renderer(V9990* vdp);
+	static V9990Renderer* createV9990Renderer(V9990& vdp);
 
 	/** Create the renderer setting.
 	  * The map of this setting contains only the available renderers.

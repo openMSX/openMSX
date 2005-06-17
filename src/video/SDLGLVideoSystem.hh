@@ -5,12 +5,14 @@
 
 #include "VideoSystem.hh"
 #include "EventListener.hh"
+#include <string>
 
 struct SDL_Surface;
 
 namespace openmsx {
 
 class VDP;
+class V9990;
 class Rasterizer;
 
 class SDLGLVideoSystem : public VideoSystem, private EventListener
@@ -28,8 +30,8 @@ public:
 	virtual ~SDLGLVideoSystem();
 
 	// VideoSystem interface:
-	virtual Rasterizer* createRasterizer(VDP* vdp);
-	virtual V9990Rasterizer* createV9990Rasterizer(V9990* vdp);
+	virtual Rasterizer* createRasterizer(VDP& vdp);
+	virtual V9990Rasterizer* createV9990Rasterizer(V9990& vdp);
 	virtual bool checkSettings();
 	virtual void flush();
 	virtual void takeScreenShot(const std::string& filename);

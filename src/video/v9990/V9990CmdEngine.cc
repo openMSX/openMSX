@@ -25,22 +25,22 @@ inline word V9990CmdEngine::V9990Bpp2::shiftDown(word value, int x)
 	return ((value >> shift) & MASK);
 }
 
-inline word V9990CmdEngine::V9990Bpp2::point(V9990VRAM* vram,
+inline word V9990CmdEngine::V9990Bpp2::point(V9990VRAM& vram,
                                              int x, int y, int imageWidth)
 {
-	word value = (word)(vram->readVRAM(addressOf(x,y, imageWidth)));
+	word value = (word)(vram.readVRAM(addressOf(x,y, imageWidth)));
 	int  shift = (~x & ADDRESS_MASK) * BITS_PER_PIXEL;
 	return ((value >> shift) & MASK);
 }
 
-inline void V9990CmdEngine::V9990Bpp2::pset(V9990VRAM* vram,
+inline void V9990CmdEngine::V9990Bpp2::pset(V9990VRAM& vram,
                                             int x, int y, int imageWidth,
                                             word color)
 {
 	uint addr = addressOf(x, y, imageWidth);
 	int  shift = (~x & ADDRESS_MASK) * BITS_PER_PIXEL;
-	word value = (word)(vram->readVRAM(addr));
-	vram->writeVRAM(addr,
+	word value = (word)(vram.readVRAM(addr));
+	vram.writeVRAM(addr,
 		(byte)(value & ~(MASK << shift)) | ((color & MASK) << shift));
 }
 
@@ -56,22 +56,22 @@ inline word V9990CmdEngine::V9990Bpp4::shiftDown(word value, int x)
 	return ((value >> shift) & MASK);
 }
 
-inline word V9990CmdEngine::V9990Bpp4::point(V9990VRAM* vram,
+inline word V9990CmdEngine::V9990Bpp4::point(V9990VRAM& vram,
                                              int x, int y, int imageWidth)
 {
-	word value = (word)(vram->readVRAM(addressOf(x,y, imageWidth)));
+	word value = (word)(vram.readVRAM(addressOf(x,y, imageWidth)));
 	int  shift = (~x & ADDRESS_MASK) * BITS_PER_PIXEL;
 	return ((value >> shift) & MASK);
 }
 
-inline void V9990CmdEngine::V9990Bpp4::pset(V9990VRAM* vram,
+inline void V9990CmdEngine::V9990Bpp4::pset(V9990VRAM& vram,
                                             int x, int y, int imageWidth,
                                             word color)
 {
 	uint addr  = addressOf(x, y, imageWidth);
 	int  shift = (~x & ADDRESS_MASK) * BITS_PER_PIXEL;
-	word value = (word)(vram->readVRAM(addr));
-	vram->writeVRAM(addr,
+	word value = (word)(vram.readVRAM(addr));
+	vram.writeVRAM(addr,
 		(byte)(value & ~(MASK << shift)) | ((color & MASK) << shift));
 }
 
@@ -86,19 +86,19 @@ inline word V9990CmdEngine::V9990Bpp8::shiftDown(word value, int x)
 	return (x & 1) ? value >> 8 : value & 0xFF;
 }
 
-inline word V9990CmdEngine::V9990Bpp8::point(V9990VRAM* vram,
+inline word V9990CmdEngine::V9990Bpp8::point(V9990VRAM& vram,
                                              int x, int y, int imageWidth)
 {
-	word value = (word)(vram->readVRAM(addressOf(x,y, imageWidth)));
+	word value = (word)(vram.readVRAM(addressOf(x,y, imageWidth)));
 	return (value);
 }
 
-inline void V9990CmdEngine::V9990Bpp8::pset(V9990VRAM* vram,
+inline void V9990CmdEngine::V9990Bpp8::pset(V9990VRAM& vram,
                                             int x, int y, int imageWidth,
                                             word color)
 {
 	uint addr = addressOf(x, y, imageWidth);
-	vram->writeVRAM(addr, (byte)(color & 0xFF));
+	vram.writeVRAM(addr, (byte)(color & 0xFF));
 }
 
 // 16 bpp -------------------------------------------------------------
@@ -112,32 +112,32 @@ inline word V9990CmdEngine::V9990Bpp16::shiftDown(word value, int /*x*/)
 	return value;
 }
 
-inline word V9990CmdEngine::V9990Bpp16::point(V9990VRAM* vram,
+inline word V9990CmdEngine::V9990Bpp16::point(V9990VRAM& vram,
                                              int x, int y, int imageWidth)
 {
 	int addr = addressOf(x,y, imageWidth);
-	word value = vram->readVRAM(addr)+(vram->readVRAM(addr+1) << 8);
+	word value = vram.readVRAM(addr)+(vram.readVRAM(addr+1) << 8);
 	return value;
 }
 
-inline void V9990CmdEngine::V9990Bpp16::pset(V9990VRAM* vram,
+inline void V9990CmdEngine::V9990Bpp16::pset(V9990VRAM& vram,
                                             int x, int y, int imageWidth,
                                             word color)
 {
 	int addr = addressOf(x,y, imageWidth);
-	vram->writeVRAM(addr,   (color & 0xFF));
-	vram->writeVRAM(addr+1, ((color >> 8) & 0xFF));
+	vram.writeVRAM(addr,   (color & 0xFF));
+	vram.writeVRAM(addr+1, ((color >> 8) & 0xFF));
 }
 
 // ====================================================================
 /** Constructor
   */
-V9990CmdEngine::V9990CmdEngine(V9990* vdp_, const EmuTime& time)
+V9990CmdEngine::V9990CmdEngine(V9990& vdp_, const EmuTime& time)
 	: vdp(vdp_)
 	, cmdTraceSetting("v9990cmdtrace", "V9990 command tracing on/off", false)
 {
 	V9990CmdEngine::CmdSTOP* stopCmd =
-		new V9990CmdEngine::CmdSTOP(this, vdp->getVRAM());
+		new V9990CmdEngine::CmdSTOP(*this, vdp.getVRAM());
 	for (int mode = 0; mode <= BP2; ++mode) {
 		commands[0][mode] = stopCmd;
 	}
@@ -255,7 +255,7 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
 			reportV9990Command();
 		}
 		status |= CE;
-		currentCommand = commands[CMD >> 4][vdp->getColorMode()];
+		currentCommand = commands[CMD >> 4][vdp.getColorMode()];
 		if (currentCommand) currentCommand->start(time);
 		break;
 	}
@@ -293,7 +293,7 @@ void V9990CmdEngine::createEngines(int cmd)
 {
 	#define CREATE_COMMAND(COLORMODE,BPP) \
 		commands[cmd][COLORMODE] = \
-			new Command<V9990CmdEngine::BPP>(this, vdp->getVRAM())
+			new Command<V9990CmdEngine::BPP>(*this, vdp.getVRAM())
 
 	CREATE_COMMAND(PP,    V9990Bpp4);
 	CREATE_COMMAND(BYUV,  V9990Bpp8);
@@ -310,11 +310,10 @@ void V9990CmdEngine::createEngines(int cmd)
 // ====================================================================
 // V9990Cmd
 
-V9990CmdEngine::V9990Cmd::V9990Cmd(V9990CmdEngine* engine_,
-                                   V9990VRAM*      vram_)
+V9990CmdEngine::V9990Cmd::V9990Cmd(V9990CmdEngine& engine_,
+                                   V9990VRAM& vram_)
+	: engine(engine_), vram(vram_)
 {
-	this->engine = engine_;
-	this->vram   = vram_;
 }
 
 V9990CmdEngine::V9990Cmd::~V9990Cmd()
@@ -324,15 +323,15 @@ V9990CmdEngine::V9990Cmd::~V9990Cmd()
 // ====================================================================
 // STOP
 
-V9990CmdEngine::CmdSTOP::CmdSTOP(V9990CmdEngine* engine_,
-                                 V9990VRAM*      vram_)
+V9990CmdEngine::CmdSTOP::CmdSTOP(V9990CmdEngine& engine_,
+                                 V9990VRAM& vram_)
 	: V9990Cmd(engine_, vram_)
 {
 }
 
 void V9990CmdEngine::CmdSTOP::start(const EmuTime& /*time*/)
 {
-	engine->cmdReady();
+	engine.cmdReady();
 }
 
 void V9990CmdEngine::CmdSTOP::execute(const EmuTime& /*time*/)
@@ -343,8 +342,8 @@ void V9990CmdEngine::CmdSTOP::execute(const EmuTime& /*time*/)
 // LMMC
 
 template <class Mode>
-V9990CmdEngine::CmdLMMC<Mode>::CmdLMMC(V9990CmdEngine* engine,
-                                       V9990VRAM*      vram)
+V9990CmdEngine::CmdLMMC<Mode>::CmdLMMC(V9990CmdEngine& engine,
+                                       V9990VRAM& vram)
 	: V9990Cmd(engine, vram)
 {
 }
@@ -353,43 +352,43 @@ template <class Mode>
 void V9990CmdEngine::CmdLMMC<Mode>::start(const EmuTime& /*time*/)
 {
 	if (Mode::BITS_PER_PIXEL == 16) {
-		engine->dstAddress = Mode::addressOf(engine->DX,
-		                                     engine->DY,
-		                                     engine->vdp->getImageWidth());
+		engine.dstAddress = Mode::addressOf(engine.DX,
+		                                     engine.DY,
+		                                     engine.vdp.getImageWidth());
 	}
-	engine->ANX = engine->NX;
-	engine->ANY = engine->NY;
-	engine->status &= ~TR;
+	engine.ANX = engine.NX;
+	engine.ANY = engine.NY;
+	engine.status &= ~TR;
 }
 
 template <>
 void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(
 	const EmuTime& /*time*/)
 {
-	if (engine->status & TR) {
-		engine->status &= ~TR;
-		int width = engine->vdp->getImageWidth();
+	if (engine.status & TR) {
+		engine.status &= ~TR;
+		int width = engine.vdp.getImageWidth();
 
-		byte value = vram->readVRAM(engine->dstAddress);
-		byte mask = (engine->dstAddress & 1) ? engine->WM & 0xFF
-		                                     : engine->WM >> 8;
-		value = engine->logOp(engine->data, value, mask);
-		vram->writeVRAM(engine->dstAddress, value);
-		if(! (++(engine->dstAddress) & 0x01)) {
-			int dx = (engine->ARG & DIX) ? -1 : 1;
-			engine->DX += dx;
-			if (!(--(engine->ANX))) {
-				int dy = (engine->ARG & DIY) ? -1 : 1;
-				engine->DX -= (engine->NX * dx);
-				engine->DY += dy;
-				if(! (--(engine->ANY))) {
-					engine->cmdReady();
+		byte value = vram.readVRAM(engine.dstAddress);
+		byte mask = (engine.dstAddress & 1) ? engine.WM & 0xFF
+		                                     : engine.WM >> 8;
+		value = engine.logOp(engine.data, value, mask);
+		vram.writeVRAM(engine.dstAddress, value);
+		if(! (++(engine.dstAddress) & 0x01)) {
+			int dx = (engine.ARG & DIX) ? -1 : 1;
+			engine.DX += dx;
+			if (!(--(engine.ANX))) {
+				int dy = (engine.ARG & DIY) ? -1 : 1;
+				engine.DX -= (engine.NX * dx);
+				engine.DY += dy;
+				if(! (--(engine.ANY))) {
+					engine.cmdReady();
 				} else {
-					engine->ANX = engine->NX;
+					engine.ANX = engine.NX;
 				}
 			}
-			engine->dstAddress = V9990Bpp16::addressOf(engine->DX,
-			                                           engine->DY,
+			engine.dstAddress = V9990Bpp16::addressOf(engine.DX,
+			                                           engine.DY,
 			                                           width);
 		}
 	}
@@ -398,27 +397,27 @@ void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(
 template <class Mode>
 void V9990CmdEngine::CmdLMMC<Mode>::execute(const EmuTime& /*time*/)
 {
-	if (engine->status & TR) {
-		engine->status &= ~TR;
-		int width = engine->vdp->getImageWidth() / Mode::PIXELS_PER_BYTE;
-		byte data = engine->data;
-		for (int i = 0; (engine->ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
-			byte value = Mode::point(vram, engine->DX, engine->DY, width);
-			byte mask = Mode::shiftDown(engine->WM, engine->DX);
-			value = engine->logOp((data >> (8 - Mode::BITS_PER_PIXEL)),
+	if (engine.status & TR) {
+		engine.status &= ~TR;
+		int width = engine.vdp.getImageWidth() / Mode::PIXELS_PER_BYTE;
+		byte data = engine.data;
+		for (int i = 0; (engine.ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
+			byte value = Mode::point(vram, engine.DX, engine.DY, width);
+			byte mask = Mode::shiftDown(engine.WM, engine.DX);
+			value = engine.logOp((data >> (8 - Mode::BITS_PER_PIXEL)),
 			                      value, mask);
-			Mode::pset(vram, engine->DX, engine->DY, width, value);
+			Mode::pset(vram, engine.DX, engine.DY, width, value);
 
-			int dx = (engine->ARG & DIX) ? -1 : 1;
-			engine->DX += dx;
-			if (!--(engine->ANX)) {
-				int dy = (engine->ARG & DIY) ? -1 : 1;
-				engine->DX -= (engine->NX * dx);
-				engine->DY += dy;
-				if (!--(engine->ANY)) {
-					engine->cmdReady();
+			int dx = (engine.ARG & DIX) ? -1 : 1;
+			engine.DX += dx;
+			if (!--(engine.ANX)) {
+				int dy = (engine.ARG & DIY) ? -1 : 1;
+				engine.DX -= (engine.NX * dx);
+				engine.DY += dy;
+				if (!--(engine.ANY)) {
+					engine.cmdReady();
 				} else {
-					engine->ANX = engine->NX;
+					engine.ANX = engine.NX;
 				}
 			}
 			data <<= Mode::BITS_PER_PIXEL;
@@ -430,8 +429,8 @@ void V9990CmdEngine::CmdLMMC<Mode>::execute(const EmuTime& /*time*/)
 // LMMV
 
 template <class Mode>
-V9990CmdEngine::CmdLMMV<Mode>::CmdLMMV(V9990CmdEngine* engine,
-                                       V9990VRAM*      vram)
+V9990CmdEngine::CmdLMMV<Mode>::CmdLMMV(V9990CmdEngine& engine,
+                                       V9990VRAM& vram)
 	: V9990Cmd(engine, vram)
 {
 }
@@ -439,8 +438,8 @@ V9990CmdEngine::CmdLMMV<Mode>::CmdLMMV(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdLMMV<Mode>::start(const EmuTime& time)
 {
-	engine->ANX = engine->NX;
-	engine->ANY = engine->NY;
+	engine.ANX = engine.NX;
+	engine.ANY = engine.NY;
 
 	// TODO should be done by sync
 	execute(time);
@@ -451,30 +450,30 @@ void V9990CmdEngine::CmdLMMV<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO can be optimized a lot
 
-	int width = engine->vdp->getImageWidth();
+	int width = engine.vdp.getImageWidth();
 	if (Mode::PIXELS_PER_BYTE) {
 		// hack to avoid "warning: division by zero"
 		int ppb = Mode::PIXELS_PER_BYTE;
 		width /= ppb;
 	}
-	int dx = (engine->ARG & DIX) ? -1 : 1;
-	int dy = (engine->ARG & DIY) ? -1 : 1;
+	int dx = (engine.ARG & DIX) ? -1 : 1;
+	int dy = (engine.ARG & DIY) ? -1 : 1;
 	while (true) {
-		word value = Mode::point(vram, engine->DX, engine->DY, width);
-		word mask = Mode::shiftDown(engine->WM, engine->DX);
-		value = engine->logOp(Mode::shiftDown(engine->fgCol, engine->DX),
+		word value = Mode::point(vram, engine.DX, engine.DY, width);
+		word mask = Mode::shiftDown(engine.WM, engine.DX);
+		value = engine.logOp(Mode::shiftDown(engine.fgCol, engine.DX),
 		                      value, mask);
-		Mode::pset(vram, engine->DX, engine->DY, width, value);
+		Mode::pset(vram, engine.DX, engine.DY, width, value);
 
-		engine->DX += dx;
-		if (!--(engine->ANX)) {
-			engine->DX -= (engine->NX * dx);
-			engine->DY += dy;
-			if (!--(engine->ANY)) {
-				engine->cmdReady();
+		engine.DX += dx;
+		if (!--(engine.ANX)) {
+			engine.DX -= (engine.NX * dx);
+			engine.DY += dy;
+			if (!--(engine.ANY)) {
+				engine.cmdReady();
 				return;
 			} else {
-				engine->ANX = engine->NX;
+				engine.ANX = engine.NX;
 			}
 		}
 	}
@@ -484,8 +483,8 @@ void V9990CmdEngine::CmdLMMV<Mode>::execute(const EmuTime& /*time*/)
 // LMCM
 
 template <class Mode>
-V9990CmdEngine::CmdLMCM<Mode>::CmdLMCM(V9990CmdEngine* engine,
-                                       V9990VRAM*      vram)
+V9990CmdEngine::CmdLMCM<Mode>::CmdLMCM(V9990CmdEngine& engine,
+                                       V9990VRAM& vram)
 	: V9990Cmd(engine, vram)
 {
 }
@@ -494,7 +493,7 @@ template <class Mode>
 void V9990CmdEngine::CmdLMCM<Mode>::start(const EmuTime& /*time*/)
 {
 	std::cout << "V9990: LMCM not yet implemented" << std::endl;
-	engine->cmdReady(); // TODO dummy implementation
+	engine.cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -506,8 +505,8 @@ void V9990CmdEngine::CmdLMCM<Mode>::execute(const EmuTime& /*time*/)
 // LMMM
 
 template <class Mode>
-V9990CmdEngine::CmdLMMM<Mode>::CmdLMMM(V9990CmdEngine* engine,
-                                       V9990VRAM*      vram)
+V9990CmdEngine::CmdLMMM<Mode>::CmdLMMM(V9990CmdEngine& engine,
+                                       V9990VRAM& vram)
 	: V9990Cmd(engine, vram)
 {
 }
@@ -515,8 +514,8 @@ V9990CmdEngine::CmdLMMM<Mode>::CmdLMMM(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdLMMM<Mode>::start(const EmuTime& time)
 {
-	engine->ANX = engine->NX;
-	engine->ANY = engine->NY;
+	engine.ANX = engine.NX;
+	engine.ANY = engine.NY;
 
 	// TODO should be done by sync
 	execute(time);
@@ -527,33 +526,33 @@ void V9990CmdEngine::CmdLMMM<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO can be optimized a lot
 
-	int width = engine->vdp->getImageWidth();
+	int width = engine.vdp.getImageWidth();
 	if (Mode::PIXELS_PER_BYTE) {
 		// hack to avoid "warning: division by zero"
 		int ppb = Mode::PIXELS_PER_BYTE;
 		width /= ppb;
 	}
-	int dx = (engine->ARG & DIX) ? -1 : 1;
-	int dy = (engine->ARG & DIY) ? -1 : 1;
+	int dx = (engine.ARG & DIX) ? -1 : 1;
+	int dy = (engine.ARG & DIY) ? -1 : 1;
 	while (true) {
-		word src  = Mode::point(vram, engine->SX, engine->SY, width);
-		word dest = Mode::point(vram, engine->DX, engine->DY, width);
-		word mask = Mode::shiftDown(engine->WM, engine->DX);
-		dest = engine->logOp(src, dest, mask);
-		Mode::pset(vram, engine->DX, engine->DY, width, dest);
+		word src  = Mode::point(vram, engine.SX, engine.SY, width);
+		word dest = Mode::point(vram, engine.DX, engine.DY, width);
+		word mask = Mode::shiftDown(engine.WM, engine.DX);
+		dest = engine.logOp(src, dest, mask);
+		Mode::pset(vram, engine.DX, engine.DY, width, dest);
 
-		engine->DX += dx;
-		engine->SX += dx;
-		if (!--(engine->ANX)) {
-			engine->DX -= (engine->NX * dx);
-			engine->SX -= (engine->NX * dx);
-			engine->DY += dy;
-			engine->SY += dy;
-			if (!--(engine->ANY)) {
-				engine->cmdReady();
+		engine.DX += dx;
+		engine.SX += dx;
+		if (!--(engine.ANX)) {
+			engine.DX -= (engine.NX * dx);
+			engine.SX -= (engine.NX * dx);
+			engine.DY += dy;
+			engine.SY += dy;
+			if (!--(engine.ANY)) {
+				engine.cmdReady();
 				return;
 			} else {
-				engine->ANX = engine->NX;
+				engine.ANX = engine.NX;
 			}
 		}
 	}
@@ -563,8 +562,8 @@ void V9990CmdEngine::CmdLMMM<Mode>::execute(const EmuTime& /*time*/)
 // CMMC
 
 template <class Mode>
-V9990CmdEngine::CmdCMMC<Mode>::CmdCMMC(V9990CmdEngine* engine,
-                                       V9990VRAM*      vram)
+V9990CmdEngine::CmdCMMC<Mode>::CmdCMMC(V9990CmdEngine& engine,
+                                       V9990VRAM& vram)
 	: V9990Cmd(engine, vram)
 {
 }
@@ -572,45 +571,45 @@ V9990CmdEngine::CmdCMMC<Mode>::CmdCMMC(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdCMMC<Mode>::start(const EmuTime& /*time*/)
 {
-	engine->ANX = engine->NX;
-	engine->ANY = engine->NY;
-	engine->status &= ~TR;
+	engine.ANX = engine.NX;
+	engine.ANY = engine.NY;
+	engine.status &= ~TR;
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdCMMC<Mode>::execute(const EmuTime& /*time*/)
 {
-	if (engine->status & TR) {
-		engine->status &= ~TR;
+	if (engine.status & TR) {
+		engine.status &= ~TR;
 
-		int width = engine->vdp->getImageWidth();
+		int width = engine.vdp.getImageWidth();
 		if (Mode::PIXELS_PER_BYTE) {
 			// hack to avoid "warning: division by zero"
 			int ppb = Mode::PIXELS_PER_BYTE;
 			width /= ppb;
 		}
-		int dx = (engine->ARG & DIX) ? -1 : 1;
-		int dy = (engine->ARG & DIY) ? -1 : 1;
+		int dx = (engine.ARG & DIX) ? -1 : 1;
+		int dy = (engine.ARG & DIY) ? -1 : 1;
 		for (int i = 0; i < 8; ++i) {
-			bool bit = engine->data & 0x80;
-			engine->data <<= 1;
+			bool bit = engine.data & 0x80;
+			engine.data <<= 1;
 
-			word src = bit ? engine->fgCol : engine->bgCol;
-			word dest = Mode::point(vram, engine->DX, engine->DY, width);
-			word mask = Mode::shiftDown(engine->WM, engine->DX);
-			dest = engine->logOp(Mode::shiftDown(src, engine->DX),
+			word src = bit ? engine.fgCol : engine.bgCol;
+			word dest = Mode::point(vram, engine.DX, engine.DY, width);
+			word mask = Mode::shiftDown(engine.WM, engine.DX);
+			dest = engine.logOp(Mode::shiftDown(src, engine.DX),
 					     dest, mask);
-			Mode::pset(vram, engine->DX, engine->DY, width, dest);
+			Mode::pset(vram, engine.DX, engine.DY, width, dest);
 
-			engine->DX += dx;
-			if (!--(engine->ANX)) {
-				engine->DX -= (engine->NX * dx);
-				engine->DY += dy;
-				if (!--(engine->ANY)) {
-					engine->cmdReady();
+			engine.DX += dx;
+			if (!--(engine.ANX)) {
+				engine.DX -= (engine.NX * dx);
+				engine.DY += dy;
+				if (!--(engine.ANY)) {
+					engine.cmdReady();
 					return;
 				} else {
-					engine->ANX = engine->NX;
+					engine.ANX = engine.NX;
 				}
 			}
 		}
@@ -621,8 +620,8 @@ void V9990CmdEngine::CmdCMMC<Mode>::execute(const EmuTime& /*time*/)
 // CMMK
 
 template <class Mode>
-V9990CmdEngine::CmdCMMK<Mode>::CmdCMMK(V9990CmdEngine* engine,
-                                       V9990VRAM*      vram)
+V9990CmdEngine::CmdCMMK<Mode>::CmdCMMK(V9990CmdEngine& engine,
+                                       V9990VRAM& vram)
 	: V9990Cmd(engine, vram)
 {
 }
@@ -631,7 +630,7 @@ template <class Mode>
 void V9990CmdEngine::CmdCMMK<Mode>::start(const EmuTime& /*time*/)
 {
 	std::cout << "V9990: CMMK not yet implemented" << std::endl;
-	engine->cmdReady(); // TODO dummy implementation
+	engine.cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -643,8 +642,8 @@ void V9990CmdEngine::CmdCMMK<Mode>::execute(const EmuTime& /*time*/)
 // CMMM
 
 template <class Mode>
-V9990CmdEngine::CmdCMMM<Mode>::CmdCMMM(V9990CmdEngine* engine,
-                                       V9990VRAM*      vram)
+V9990CmdEngine::CmdCMMM<Mode>::CmdCMMM(V9990CmdEngine& engine,
+                                       V9990VRAM& vram)
 	: V9990Cmd(engine, vram)
 {
 }
@@ -652,11 +651,11 @@ V9990CmdEngine::CmdCMMM<Mode>::CmdCMMM(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdCMMM<Mode>::start(const EmuTime& time)
 {
-	engine->srcAddress = (engine->SX & 0xFF) + ((engine->SY & 0x7FF) << 8);
+	engine.srcAddress = (engine.SX & 0xFF) + ((engine.SY & 0x7FF) << 8);
 
-	engine->ANX = engine->NX;
-	engine->ANY = engine->NY;
-	engine->bitsLeft = 0;
+	engine.ANX = engine.NX;
+	engine.ANY = engine.NY;
+	engine.bitsLeft = 0;
 
 	// TODO should be done by sync
 	execute(time);
@@ -667,39 +666,39 @@ void V9990CmdEngine::CmdCMMM<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO can be optimized a lot
 
-	int width = engine->vdp->getImageWidth();
+	int width = engine.vdp.getImageWidth();
 	if (Mode::PIXELS_PER_BYTE) {
 		// hack to avoid "warning: division by zero"
 		int ppb = Mode::PIXELS_PER_BYTE;
 		width /= ppb;
 	}
-	int dx = (engine->ARG & DIX) ? -1 : 1;
-	int dy = (engine->ARG & DIY) ? -1 : 1;
+	int dx = (engine.ARG & DIX) ? -1 : 1;
+	int dy = (engine.ARG & DIY) ? -1 : 1;
 	while (true) {
-		if (!engine->bitsLeft) {
-			engine->data = vram->readVRAM(engine->srcAddress++);
-			engine->bitsLeft = 8;
+		if (!engine.bitsLeft) {
+			engine.data = vram.readVRAM(engine.srcAddress++);
+			engine.bitsLeft = 8;
 		}
-		--engine->bitsLeft;
-		bool bit = engine->data & 0x80;
-		engine->data <<= 1;
+		--engine.bitsLeft;
+		bool bit = engine.data & 0x80;
+		engine.data <<= 1;
 
-		word src = bit ? engine->fgCol : engine->bgCol;
-		word dest = Mode::point(vram, engine->DX, engine->DY, width);
-		word mask = Mode::shiftDown(engine->WM, engine->DX);
-		dest = engine->logOp(Mode::shiftDown(src, engine->DX),
+		word src = bit ? engine.fgCol : engine.bgCol;
+		word dest = Mode::point(vram, engine.DX, engine.DY, width);
+		word mask = Mode::shiftDown(engine.WM, engine.DX);
+		dest = engine.logOp(Mode::shiftDown(src, engine.DX),
 		                     dest, mask);
-		Mode::pset(vram, engine->DX, engine->DY, width, dest);
+		Mode::pset(vram, engine.DX, engine.DY, width, dest);
 
-		engine->DX += dx;
-		if (!--(engine->ANX)) {
-			engine->DX -= (engine->NX * dx);
-			engine->DY += dy;
-			if (!--(engine->ANY)) {
-				engine->cmdReady();
+		engine.DX += dx;
+		if (!--(engine.ANX)) {
+			engine.DX -= (engine.NX * dx);
+			engine.DY += dy;
+			if (!--(engine.ANY)) {
+				engine.cmdReady();
 				return;
 			} else {
-				engine->ANX = engine->NX;
+				engine.ANX = engine.NX;
 			}
 		}
 	}
@@ -709,8 +708,8 @@ void V9990CmdEngine::CmdCMMM<Mode>::execute(const EmuTime& /*time*/)
 // BMXL
 
 template <class Mode>
-V9990CmdEngine::CmdBMXL<Mode>::CmdBMXL(V9990CmdEngine* engine,
-                                       V9990VRAM*      vram)
+V9990CmdEngine::CmdBMXL<Mode>::CmdBMXL(V9990CmdEngine& engine,
+                                       V9990VRAM& vram)
 	: V9990Cmd(engine, vram)
 {
 }
@@ -718,10 +717,10 @@ V9990CmdEngine::CmdBMXL<Mode>::CmdBMXL(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdBMXL<Mode>::start(const EmuTime& time)
 {
-	engine->srcAddress = (engine->SX & 0xFF) + ((engine->SY & 0x7FF) << 8);
+	engine.srcAddress = (engine.SX & 0xFF) + ((engine.SY & 0x7FF) << 8);
 
-	engine->ANX = engine->NX;
-	engine->ANY = engine->NY;
+	engine.ANX = engine.NX;
+	engine.ANY = engine.NY;
 
 	// TODO should be done by sync
 	execute(time);
@@ -731,26 +730,26 @@ template <>
 void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(
 	const EmuTime& /*time*/)
 {
-	int width = engine->vdp->getImageWidth();
-	int dx = (engine->ARG & DIX) ? -1 : 1;
-	int dy = (engine->ARG & DIY) ? -1 : 1;
+	int width = engine.vdp.getImageWidth();
+	int dx = (engine.ARG & DIX) ? -1 : 1;
+	int dy = (engine.ARG & DIY) ? -1 : 1;
 
 	while (true) {
-		word dest = V9990Bpp16::point(vram, engine->DX, engine->DY, width);
-		word src  = vram->readVRAM(engine->srcAddress + 0) +
-		            vram->readVRAM(engine->srcAddress + 1) * 256;
-		word res = engine->logOp(src, dest, engine->WM);
-		V9990Bpp16::pset(vram, engine->DX, engine->DY, width, res);
-		engine->srcAddress += 2;
-		engine->DX += dx;
-		if (!(--(engine->ANX))) {
-			engine->DX -= (engine->NX * dx);
-			engine->DY += dy;
-			if(! (--(engine->ANY))) {
-				engine->cmdReady();
+		word dest = V9990Bpp16::point(vram, engine.DX, engine.DY, width);
+		word src  = vram.readVRAM(engine.srcAddress + 0) +
+		            vram.readVRAM(engine.srcAddress + 1) * 256;
+		word res = engine.logOp(src, dest, engine.WM);
+		V9990Bpp16::pset(vram, engine.DX, engine.DY, width, res);
+		engine.srcAddress += 2;
+		engine.DX += dx;
+		if (!(--(engine.ANX))) {
+			engine.DX -= (engine.NX * dx);
+			engine.DY += dy;
+			if(! (--(engine.ANY))) {
+				engine.cmdReady();
 				return;
 			} else {
-				engine->ANX = engine->NX;
+				engine.ANX = engine.NX;
 			}
 		}
 	}
@@ -759,28 +758,28 @@ void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(
 template <class Mode>
 void V9990CmdEngine::CmdBMXL<Mode>::execute(const EmuTime& /*time*/)
 {
-	int width = engine->vdp->getImageWidth() / Mode::PIXELS_PER_BYTE;
-	int dx = (engine->ARG & DIX) ? -1 : 1;
-	int dy = (engine->ARG & DIY) ? -1 : 1;
+	int width = engine.vdp.getImageWidth() / Mode::PIXELS_PER_BYTE;
+	int dx = (engine.ARG & DIX) ? -1 : 1;
+	int dy = (engine.ARG & DIY) ? -1 : 1;
 
 	while (true) {
-		byte data = vram->readVRAM(engine->srcAddress++);
-		for (int i = 0; (engine->ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
-			word value = Mode::point(vram, engine->DX, engine->DY, width);
-			word mask = Mode::shiftDown(engine->WM, engine->DX);
-			value = engine->logOp((data >> (8 - Mode::BITS_PER_PIXEL)),
+		byte data = vram.readVRAM(engine.srcAddress++);
+		for (int i = 0; (engine.ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
+			word value = Mode::point(vram, engine.DX, engine.DY, width);
+			word mask = Mode::shiftDown(engine.WM, engine.DX);
+			value = engine.logOp((data >> (8 - Mode::BITS_PER_PIXEL)),
 			                      value, mask);
-			Mode::pset(vram, engine->DX, engine->DY, width, value);
+			Mode::pset(vram, engine.DX, engine.DY, width, value);
 
-			engine->DX += dx;
-			if (!--(engine->ANX)) {
-				engine->DX -= (engine->NX * dx);
-				engine->DY += dy;
-				if (!--(engine->ANY)) {
-					engine->cmdReady();
+			engine.DX += dx;
+			if (!--(engine.ANX)) {
+				engine.DX -= (engine.NX * dx);
+				engine.DY += dy;
+				if (!--(engine.ANY)) {
+					engine.cmdReady();
 					return;
 				} else {
-					engine->ANX = engine->NX;
+					engine.ANX = engine.NX;
 				}
 			}
 			data <<= Mode::BITS_PER_PIXEL;
@@ -792,8 +791,8 @@ void V9990CmdEngine::CmdBMXL<Mode>::execute(const EmuTime& /*time*/)
 // BMLX
 
 template <class Mode>
-V9990CmdEngine::CmdBMLX<Mode>::CmdBMLX(V9990CmdEngine* engine,
-                                       V9990VRAM*      vram)
+V9990CmdEngine::CmdBMLX<Mode>::CmdBMLX(V9990CmdEngine& engine,
+                                       V9990VRAM& vram)
 	: V9990Cmd(engine, vram)
 {
 }
@@ -801,10 +800,10 @@ V9990CmdEngine::CmdBMLX<Mode>::CmdBMLX(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdBMLX<Mode>::start(const EmuTime& time)
 {
-	engine->dstAddress = (engine->DX & 0xFF) + ((engine->DY & 0x7FF) << 8);
+	engine.dstAddress = (engine.DX & 0xFF) + ((engine.DY & 0x7FF) << 8);
 
-	engine->ANX = engine->NX;
-	engine->ANY = engine->NY;
+	engine.ANX = engine.NX;
+	engine.ANY = engine.NY;
 
 	// TODO should be done by sync
 	execute(time);
@@ -815,42 +814,42 @@ void V9990CmdEngine::CmdBMLX<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO lots of corner cases still go wrong
 	//      very dumb implementation, can be made much faster
-	int width = engine->vdp->getImageWidth();
+	int width = engine.vdp.getImageWidth();
 	if (Mode::PIXELS_PER_BYTE) {
 		// hack to avoid "warning: division by zero"
 		int ppb = Mode::PIXELS_PER_BYTE;
 		width /= ppb;
 	}
-	int dx = (engine->ARG & DIX) ? -1 : 1;
-	int dy = (engine->ARG & DIY) ? -1 : 1;
+	int dx = (engine.ARG & DIX) ? -1 : 1;
+	int dy = (engine.ARG & DIY) ? -1 : 1;
 
 	word tmp = 0;
-	engine->bitsLeft = 16;
+	engine.bitsLeft = 16;
 	while (true) {
-		word src  = Mode::point(vram, engine->SX, engine->SY, width);
+		word src  = Mode::point(vram, engine.SX, engine.SY, width);
 		tmp <<= Mode::BITS_PER_PIXEL;
 		tmp |= src;
-		engine->bitsLeft -= Mode::BITS_PER_PIXEL;
-		if (!engine->bitsLeft) {
-			vram->writeVRAM(engine->dstAddress++, tmp & 0xFF);
-			vram->writeVRAM(engine->dstAddress++, tmp >> 8);
-			engine->bitsLeft = 16;
+		engine.bitsLeft -= Mode::BITS_PER_PIXEL;
+		if (!engine.bitsLeft) {
+			vram.writeVRAM(engine.dstAddress++, tmp & 0xFF);
+			vram.writeVRAM(engine.dstAddress++, tmp >> 8);
+			engine.bitsLeft = 16;
 			tmp = 0;
 		}
 
-		engine->DX += dx;
-		engine->SX += dx;
-		if (!--(engine->ANX)) {
-			engine->DX -= (engine->NX * dx);
-			engine->SX -= (engine->NX * dx);
-			engine->DY += dy;
-			engine->SY += dy;
-			if (!--(engine->ANY)) {
-				engine->cmdReady();
+		engine.DX += dx;
+		engine.SX += dx;
+		if (!--(engine.ANX)) {
+			engine.DX -= (engine.NX * dx);
+			engine.SX -= (engine.NX * dx);
+			engine.DY += dy;
+			engine.SY += dy;
+			if (!--(engine.ANY)) {
+				engine.cmdReady();
 				// TODO handle last pixels
 				return;
 			} else {
-				engine->ANX = engine->NX;
+				engine.ANX = engine.NX;
 			}
 		}
 	}
@@ -860,8 +859,8 @@ void V9990CmdEngine::CmdBMLX<Mode>::execute(const EmuTime& /*time*/)
 // BMLL
 
 template <class Mode>
-V9990CmdEngine::CmdBMLL<Mode>::CmdBMLL(V9990CmdEngine* engine,
-                                       V9990VRAM*      vram)
+V9990CmdEngine::CmdBMLL<Mode>::CmdBMLL(V9990CmdEngine& engine,
+                                       V9990VRAM& vram)
 	: V9990Cmd(engine, vram)
 {
 }
@@ -869,9 +868,9 @@ V9990CmdEngine::CmdBMLL<Mode>::CmdBMLL(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdBMLL<Mode>::start(const EmuTime& time)
 {
-	engine->srcAddress = (engine->SX & 0xFF) + ((engine->SY & 0x7FF) << 8);
-	engine->dstAddress = (engine->DX & 0xFF) + ((engine->DY & 0x7FF) << 8);
-	engine->nbBytes    = (engine->NX & 0xFF) + ((engine->NY & 0x7FF) << 8);
+	engine.srcAddress = (engine.SX & 0xFF) + ((engine.SY & 0x7FF) << 8);
+	engine.dstAddress = (engine.DX & 0xFF) + ((engine.DY & 0x7FF) << 8);
+	engine.nbBytes    = (engine.NX & 0xFF) + ((engine.NY & 0x7FF) << 8);
 
 	// TODO should be done by sync
 	execute(time);
@@ -882,27 +881,27 @@ void V9990CmdEngine::CmdBMLL<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO DIX DIY?
 	//      Log op?
-	while (engine->nbBytes) {
-		byte src = vram->readVRAMInterleave(engine->srcAddress);
-		byte dst = vram->readVRAMInterleave(engine->dstAddress);
-		byte mask = (engine->dstAddress & 1)
-		          ? (engine->WM >> 8) : (engine->WM & 0xFF);
+	while (engine.nbBytes) {
+		byte src = vram.readVRAMInterleave(engine.srcAddress);
+		byte dst = vram.readVRAMInterleave(engine.dstAddress);
+		byte mask = (engine.dstAddress & 1)
+		          ? (engine.WM >> 8) : (engine.WM & 0xFF);
 		mask = 255;
 		byte res = (src & mask) | (dst & ~mask);
-		vram->writeVRAMInterleave(engine->dstAddress, res);
-		++engine->srcAddress;
-		++engine->dstAddress;
-		--engine->nbBytes;
+		vram.writeVRAMInterleave(engine.dstAddress, res);
+		++engine.srcAddress;
+		++engine.dstAddress;
+		--engine.nbBytes;
 	}
-	engine->cmdReady();
+	engine.cmdReady();
 }
 
 // ====================================================================
 // LINE
 
 template <class Mode>
-V9990CmdEngine::CmdLINE<Mode>::CmdLINE(V9990CmdEngine* engine,
-                                       V9990VRAM*      vram)
+V9990CmdEngine::CmdLINE<Mode>::CmdLINE(V9990CmdEngine& engine,
+                                       V9990VRAM& vram)
 	: V9990Cmd(engine, vram)
 {
 }
@@ -910,9 +909,9 @@ V9990CmdEngine::CmdLINE<Mode>::CmdLINE(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdLINE<Mode>::start(const EmuTime& time)
 {
-	engine->ASX = (engine->NX - 1) / 2;
-	engine->ADX = engine->DX;
-	engine->ANX = 0;
+	engine.ASX = (engine.NX - 1) / 2;
+	engine.ADX = engine.DX;
+	engine.ANX = 0;
 
 	// TODO should be done by sync
 	execute(time);
@@ -921,37 +920,37 @@ void V9990CmdEngine::CmdLINE<Mode>::start(const EmuTime& time)
 template <class Mode>
 void V9990CmdEngine::CmdLINE<Mode>::execute(const EmuTime& /*time*/)
 {
-	int width = engine->vdp->getImageWidth();
+	int width = engine.vdp.getImageWidth();
 	if (Mode::PIXELS_PER_BYTE) {
 		// hack to avoid "warning: division by zero"
 		int ppb = Mode::PIXELS_PER_BYTE;
 		width /= ppb;
 	}
 
-	int TX = (engine->ARG & DIX) ? -1 : 1;
-	int TY = (engine->ARG & DIY) ? -1 : 1;
-	//int delta = LINE_TIMING[engine->getTiming()];
+	int TX = (engine.ARG & DIX) ? -1 : 1;
+	int TY = (engine.ARG & DIY) ? -1 : 1;
+	//int delta = LINE_TIMING[engine.getTiming()];
 
-	if ((engine->ARG & MAJ) == 0) {
+	if ((engine.ARG & MAJ) == 0) {
 		// X-Axis is major direction.
 		//while (clock.before(time)) {
 		while (true) {
-			word value = Mode::point(vram, engine->ADX, engine->DY, width);
-			word mask = Mode::shiftDown(engine->WM, engine->DX);
-			value = engine->logOp(Mode::shiftDown(engine->fgCol, engine->DX),
+			word value = Mode::point(vram, engine.ADX, engine.DY, width);
+			word mask = Mode::shiftDown(engine.WM, engine.DX);
+			value = engine.logOp(Mode::shiftDown(engine.fgCol, engine.DX),
 			                      value, mask);
-			Mode::pset(vram, engine->ADX, engine->DY, width, value);
+			Mode::pset(vram, engine.ADX, engine.DY, width, value);
 			//clock += delta;
 
-			engine->ADX += TX;
-			if (engine->ASX < engine->NY) {
-				engine->ASX += engine->NX;
-				engine->DY += TY;
+			engine.ADX += TX;
+			if (engine.ASX < engine.NY) {
+				engine.ASX += engine.NX;
+				engine.DY += TY;
 			}
-			engine->ASX -= engine->NY;
-			//engine->ASX &= 1023; // mask to 10 bits range
-			if (engine->ANX++ == engine->NX || (engine->ADX & width)) {
-				engine->cmdReady();
+			engine.ASX -= engine.NY;
+			//engine.ASX &= 1023; // mask to 10 bits range
+			if (engine.ANX++ == engine.NX || (engine.ADX & width)) {
+				engine.cmdReady();
 				break;
 			}
 		}
@@ -959,21 +958,21 @@ void V9990CmdEngine::CmdLINE<Mode>::execute(const EmuTime& /*time*/)
 		// Y-Axis is major direction.
 		//while (clock.before(time)) {
 		while (true) {
-			word value = Mode::point(vram, engine->ADX, engine->DY, width);
-			word mask = Mode::shiftDown(engine->WM, engine->DX);
-			value = engine->logOp(Mode::shiftDown(engine->fgCol, engine->DX),
+			word value = Mode::point(vram, engine.ADX, engine.DY, width);
+			word mask = Mode::shiftDown(engine.WM, engine.DX);
+			value = engine.logOp(Mode::shiftDown(engine.fgCol, engine.DX),
 			                      value, mask);
-			Mode::pset(vram, engine->ADX, engine->DY, width, value);
+			Mode::pset(vram, engine.ADX, engine.DY, width, value);
 			//clock += delta;
-			engine->DY += TY;
-			if (engine->ASX < engine->NY) {
-				engine->ASX += engine->NX;
-				engine->ADX += TX;
+			engine.DY += TY;
+			if (engine.ASX < engine.NY) {
+				engine.ASX += engine.NX;
+				engine.ADX += TX;
 			}
-			engine->ASX -= engine->NY;
-			//engine->ASX &= 1023; // mask to 10 bits range
-			if (engine->ANX++ == engine->NX || (engine->ADX & width)) {
-				engine->cmdReady();
+			engine.ASX -= engine.NY;
+			//engine.ASX &= 1023; // mask to 10 bits range
+			if (engine.ANX++ == engine.NX || (engine.ADX & width)) {
+				engine.cmdReady();
 				break;
 			}
 		}
@@ -984,8 +983,8 @@ void V9990CmdEngine::CmdLINE<Mode>::execute(const EmuTime& /*time*/)
 // SRCH
 
 template <class Mode>
-V9990CmdEngine::CmdSRCH<Mode>::CmdSRCH(V9990CmdEngine* engine,
-                                       V9990VRAM*      vram)
+V9990CmdEngine::CmdSRCH<Mode>::CmdSRCH(V9990CmdEngine& engine,
+                                       V9990VRAM& vram)
 	: V9990Cmd(engine, vram)
 {
 }
@@ -993,7 +992,7 @@ V9990CmdEngine::CmdSRCH<Mode>::CmdSRCH(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdSRCH<Mode>::start(const EmuTime& time)
 {
-	engine->ASX = engine->SX;
+	engine.ASX = engine.SX;
 	// TODO should be done by sync
 	execute(time);
 }
@@ -1001,7 +1000,7 @@ void V9990CmdEngine::CmdSRCH<Mode>::start(const EmuTime& time)
 template <class Mode>
 void V9990CmdEngine::CmdSRCH<Mode>::execute(const EmuTime& /*time*/)
 {
-	int ppl = engine->vdp->getImageWidth();
+	int ppl = engine.vdp.getImageWidth();
 	int width = ppl;
 	if (Mode::PIXELS_PER_BYTE) {
 		// hack to avoid "warning: division by zero"
@@ -1009,25 +1008,25 @@ void V9990CmdEngine::CmdSRCH<Mode>::execute(const EmuTime& /*time*/)
 		width /= ppb;
 	}
 
-	word CL = Mode::shiftDown(engine->fgCol, 0);
-	int TX = (engine->ARG & DIX) ? -1 : 1;
-	bool AEQ = (engine->ARG & NEQ) != 0; // TODO: Do we look for "==" or "!="?
-	//int delta = LINE_TIMING[engine->getTiming()];
+	word CL = Mode::shiftDown(engine.fgCol, 0);
+	int TX = (engine.ARG & DIX) ? -1 : 1;
+	bool AEQ = (engine.ARG & NEQ) != 0; // TODO: Do we look for "==" or "!="?
+	//int delta = LINE_TIMING[engine.getTiming()];
 
 	//while (clock.before(time)) {
 	while (true) {
 		//clock += delta;
-		word value = Mode::point(vram, engine->ASX, engine->SY, width);
+		word value = Mode::point(vram, engine.ASX, engine.SY, width);
 		if ((value == CL) ^ AEQ) {
-			engine->status |= BD; // border detected
-			engine->cmdReady();
-			engine->borderX = engine->ASX;
+			engine.status |= BD; // border detected
+			engine.cmdReady();
+			engine.borderX = engine.ASX;
 			break;
 		}
-		if ((engine->ASX += TX) & ppl) {
-			engine->status &= ~BD; // border not detected
-			engine->cmdReady();
-			engine->borderX = engine->ASX;
+		if ((engine.ASX += TX) & ppl) {
+			engine.status &= ~BD; // border not detected
+			engine.cmdReady();
+			engine.borderX = engine.ASX;
 			break;
 		}
 	}
@@ -1037,8 +1036,8 @@ void V9990CmdEngine::CmdSRCH<Mode>::execute(const EmuTime& /*time*/)
 // POINT
 
 template <class Mode>
-V9990CmdEngine::CmdPOINT<Mode>::CmdPOINT(V9990CmdEngine* engine,
-                                       V9990VRAM*      vram)
+V9990CmdEngine::CmdPOINT<Mode>::CmdPOINT(V9990CmdEngine& engine,
+                                       V9990VRAM& vram)
 	: V9990Cmd(engine, vram)
 {
 }
@@ -1047,7 +1046,7 @@ template <class Mode>
 void V9990CmdEngine::CmdPOINT<Mode>::start(const EmuTime& /*time*/)
 {
 	std::cout << "V9990: POINT not yet implemented" << std::endl;
-	engine->cmdReady(); // TODO dummy implementation
+	engine.cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -1059,8 +1058,8 @@ void V9990CmdEngine::CmdPOINT<Mode>::execute(const EmuTime& /*time*/)
 // PSET
 
 template <class Mode>
-V9990CmdEngine::CmdPSET<Mode>::CmdPSET(V9990CmdEngine* engine,
-                                       V9990VRAM*      vram)
+V9990CmdEngine::CmdPSET<Mode>::CmdPSET(V9990CmdEngine& engine,
+                                       V9990VRAM& vram)
 	: V9990Cmd(engine, vram)
 {
 }
@@ -1068,21 +1067,21 @@ V9990CmdEngine::CmdPSET<Mode>::CmdPSET(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdPSET<Mode>::start(const EmuTime& /*time*/)
 {
-	int width = engine->vdp->getImageWidth();
+	int width = engine.vdp.getImageWidth();
 	if (Mode::PIXELS_PER_BYTE) {
 		// hack to avoid "warning: division by zero"
 		int ppb = Mode::PIXELS_PER_BYTE;
 		width /= ppb;
 	}
-	word value = Mode::point(vram, engine->DX, engine->DY, width);
-	word mask = Mode::shiftDown(engine->WM, engine->DX);
-	value = engine->logOp(Mode::shiftDown(engine->fgCol, engine->DX),
+	word value = Mode::point(vram, engine.DX, engine.DY, width);
+	word mask = Mode::shiftDown(engine.WM, engine.DX);
+	value = engine.logOp(Mode::shiftDown(engine.fgCol, engine.DX),
 	                      value, mask);
-	Mode::pset(vram, engine->DX, engine->DY, width, value);
+	Mode::pset(vram, engine.DX, engine.DY, width, value);
 
 	// TODO advance DX DY
 
-	engine->cmdReady();
+	engine.cmdReady();
 }
 
 template <class Mode>
@@ -1094,8 +1093,8 @@ void V9990CmdEngine::CmdPSET<Mode>::execute(const EmuTime& /*time*/)
 // ADVN
 
 template <class Mode>
-V9990CmdEngine::CmdADVN<Mode>::CmdADVN(V9990CmdEngine* engine,
-                                       V9990VRAM*      vram)
+V9990CmdEngine::CmdADVN<Mode>::CmdADVN(V9990CmdEngine& engine,
+                                       V9990VRAM& vram)
 	: V9990Cmd(engine, vram)
 {
 }
@@ -1104,7 +1103,7 @@ template <class Mode>
 void V9990CmdEngine::CmdADVN<Mode>::start(const EmuTime& /*time*/)
 {
 	std::cout << "V9990: ADVN not yet implemented" << std::endl;
-	engine->cmdReady(); // TODO dummy implementation
+	engine.cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -1136,7 +1135,7 @@ byte V9990CmdEngine::getCmdData(const EmuTime& time)
 
 word V9990CmdEngine::logOp(word src, word dest, word mask)
 {
-	if ((vdp->getDisplayMode() == P1) || (vdp->getDisplayMode() == P2)) {
+	if ((vdp.getDisplayMode() == P1) || (vdp.getDisplayMode() == P2)) {
 		// TODO temporary workaround, ignore mask in Px modes
 		//  low  byte of mask works on VRAM0
 		//  high                       VRAM1
@@ -1174,7 +1173,7 @@ void V9990CmdEngine::cmdReady()
 {
 	currentCommand = NULL;
 	status &= ~CE;
-	vdp->cmdReady();
+	vdp.cmdReady();
 }
 
 } // namespace openmsx

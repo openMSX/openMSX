@@ -114,14 +114,14 @@ public:
 
 	/** Get the VRAM object for this VDP.
 	  */
-	inline VDPVRAM *getVRAM() {
-		return vram.get();
+	inline VDPVRAM& getVRAM() {
+		return *vram;
 	}
 
 	/** Get the sprite checker for this VDP.
 	  */
-	inline SpriteChecker *getSpriteChecker() {
-		return spriteChecker.get();
+	inline SpriteChecker& getSpriteChecker() {
+		return *spriteChecker;
 	}
 
 	/** Gets the current transparency setting.

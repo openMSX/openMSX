@@ -19,14 +19,13 @@ namespace openmsx {
 class VDP;
 class VDPVRAM;
 class SpriteChecker;
-class VDP;
 
 /** Renderer using Xlib
   */
 class XRenderer : public Renderer
 {
-	friend int LoopCaller (void *caller) {
-		reinterpret_cast <XRenderer *>(caller)->EventLoop ();
+	friend int LoopCaller (void* caller) {
+		reinterpret_cast<XRenderer*>(caller)->EventLoop();
 		return 0;
 	}
 public:
@@ -63,18 +62,18 @@ private:
 
 	/** Constructor, called by XRendererFactory.
 	  */
-	XRenderer(RendererFactory::RendererID id, VDP *vdp);
+	XRenderer(RendererFactory::RendererID id, VDP& vdp);
 
 	/** Destructor.
 	  */
 	virtual ~XRenderer();
 
 	void EventLoop(void);	// new thread
-	VDP *vdp;
-	VDPVRAM *vram;
+	VDP& vdp;
+	VDPVRAM& vram;
 	// for clarity Xlib specific variables are put in a struct
 	struct {
-		Display *display;
+		Display* display;
 		int screen;
 		int depth;
 		Window window;

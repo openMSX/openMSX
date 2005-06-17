@@ -24,12 +24,12 @@ public:
 	  * Turning it off can improve games with a lot of flashing sprites,
 	  * such as Aleste.
 	  */
-	BooleanSetting* getLimitSprites() { return limitSprites.get(); }
+	BooleanSetting& getLimitSprites() { return *limitSprites; }
 
 	/** CmdTiming [real, broken].
 	  * This setting is intended for debugging only, not for users.
 	  */
-	EnumSetting<bool>* getCmdTiming() { return cmdTiming.get(); }
+	EnumSetting<bool>& getCmdTiming() { return *cmdTiming; }
 
 private:
 	VDPSettings();

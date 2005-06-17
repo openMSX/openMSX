@@ -24,7 +24,7 @@ public:
 
 	/** Constructor
 	  */
-	V9990CmdEngine(V9990* vdp, const EmuTime& time);
+	V9990CmdEngine(V9990& vdp, const EmuTime& time);
 
 	/** Destructor
 	  */
@@ -78,9 +78,9 @@ private:
 		static const word ADDRESS_MASK    = 0x0003;
 		static inline uint addressOf(int x, int y, int imageWidth);
 		static inline word shiftDown(word data, int x);
-		static inline word point(V9990VRAM* vram,
+		static inline word point(V9990VRAM& vram,
 		                         int x, int y, int imageWidth);
-		static inline void pset(V9990VRAM* vram,
+		static inline void pset(V9990VRAM& vram,
 		                        int x, int y, int imageWidth,
 		                        word color);
 	};
@@ -93,9 +93,9 @@ private:
 		static const word ADDRESS_MASK    = 0x0001;
 		static inline uint addressOf(int x, int y, int imageWidth);
 		static inline word shiftDown(word data, int x);
-		static inline word point(V9990VRAM* vram,
+		static inline word point(V9990VRAM& vram,
 		                         int x, int y, int imageWidth);
-		static inline void pset(V9990VRAM* vram,
+		static inline void pset(V9990VRAM& vram,
 		                        int x, int y, int imageWidth,
 		                        word color);
 	};
@@ -108,9 +108,9 @@ private:
 		static const word ADDRESS_MASK    = 0x0000;
 		static inline uint addressOf(int x, int y, int imageWidth);
 		static inline word shiftDown(word data, int x);
-		static inline word point(V9990VRAM* vram,
+		static inline word point(V9990VRAM& vram,
 		                         int x, int y, int imageWidth);
-		static inline void pset(V9990VRAM* vram,
+		static inline void pset(V9990VRAM& vram,
 		                        int x, int y, int imageWidth,
 		                        word color);
 	};
@@ -123,9 +123,9 @@ private:
 		static const word ADDRESS_MASK    = 0x0000;
 		static inline uint addressOf(int x, int y, int imageWidth);
 		static inline word shiftDown(word data, int x);
-		static inline word point(V9990VRAM* vram,
+		static inline word point(V9990VRAM& vram,
 		                         int x, int y, int imageWidth);
-		static inline void pset(V9990VRAM* vram,
+		static inline void pset(V9990VRAM& vram,
 		                        int x, int y, int imageWidth,
 		                        word color);
 	};
@@ -134,20 +134,20 @@ private:
 	  */
 	class V9990Cmd {
 	public:
-		V9990Cmd(V9990CmdEngine* engine_, V9990VRAM* vram_);
+		V9990Cmd(V9990CmdEngine& engine_, V9990VRAM& vram_);
 		virtual ~V9990Cmd();
 
 		virtual void start(const EmuTime& time) = 0;
 		virtual void execute(const EmuTime &time) = 0;
 
 	protected:
-		V9990CmdEngine* engine;
-		V9990VRAM*      vram;
+		V9990CmdEngine& engine;
+		V9990VRAM&      vram;
 	};
 
 	class CmdSTOP: public V9990Cmd {
 	public:
-		CmdSTOP(V9990CmdEngine* engine, V9990VRAM* vram);
+		CmdSTOP(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -155,7 +155,7 @@ private:
 	template <class Mode>
 	class CmdLMMC: public V9990Cmd {
 	public:
-		CmdLMMC(V9990CmdEngine* engine, V9990VRAM* vram);
+		CmdLMMC(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -163,7 +163,7 @@ private:
 	template <class Mode>
 	class CmdLMMV: public V9990Cmd {
 	public:
-		CmdLMMV(V9990CmdEngine* engine, V9990VRAM* vram);
+		CmdLMMV(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -171,7 +171,7 @@ private:
 	template <class Mode>
 	class CmdLMCM: public V9990Cmd {
 	public:
-		CmdLMCM(V9990CmdEngine* engine, V9990VRAM* vram);
+		CmdLMCM(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -179,7 +179,7 @@ private:
 	template <class Mode>
 	class CmdLMMM: public V9990Cmd {
 	public:
-		CmdLMMM(V9990CmdEngine* engine, V9990VRAM* vram);
+		CmdLMMM(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -187,7 +187,7 @@ private:
 	template <class Mode>
 	class CmdCMMC: public V9990Cmd {
 	public:
-		CmdCMMC(V9990CmdEngine* engine, V9990VRAM* vram);
+		CmdCMMC(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -195,7 +195,7 @@ private:
 	template <class Mode>
 	class CmdCMMK: public V9990Cmd {
 	public:
-		CmdCMMK(V9990CmdEngine* engine, V9990VRAM* vram);
+		CmdCMMK(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -203,7 +203,7 @@ private:
 	template <class Mode>
 	class CmdCMMM: public V9990Cmd {
 	public:
-		CmdCMMM(V9990CmdEngine* engine, V9990VRAM* vram);
+		CmdCMMM(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -211,7 +211,7 @@ private:
 	template <class Mode>
 	class CmdBMXL: public V9990Cmd {
 	public:
-		CmdBMXL(V9990CmdEngine* engine, V9990VRAM* vram);
+		CmdBMXL(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -219,7 +219,7 @@ private:
 	template <class Mode>
 	class CmdBMLX: public V9990Cmd {
 	public:
-		CmdBMLX(V9990CmdEngine* engine, V9990VRAM* vram);
+		CmdBMLX(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -227,7 +227,7 @@ private:
 	template <class Mode>
 	class CmdBMLL: public V9990Cmd {
 	public:
-		CmdBMLL(V9990CmdEngine* engine, V9990VRAM* vram);
+		CmdBMLL(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -235,7 +235,7 @@ private:
 	template <class Mode>
 	class CmdLINE: public V9990Cmd {
 	public:
-		CmdLINE(V9990CmdEngine* engine, V9990VRAM* vram);
+		CmdLINE(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -243,7 +243,7 @@ private:
 	template <class Mode>
 	class CmdSRCH: public V9990Cmd {
 	public:
-		CmdSRCH(V9990CmdEngine* engine, V9990VRAM* vram);
+		CmdSRCH(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -251,7 +251,7 @@ private:
 	template <class Mode>
 	class CmdPOINT: public V9990Cmd {
 	public:
-		CmdPOINT(V9990CmdEngine* engine, V9990VRAM* vram);
+		CmdPOINT(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -259,7 +259,7 @@ private:
 	template <class Mode>
 	class CmdPSET: public V9990Cmd {
 	public:
-		CmdPSET(V9990CmdEngine* engine, V9990VRAM* vram);
+		CmdPSET(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -267,18 +267,18 @@ private:
 	template <class Mode>
 	class CmdADVN: public V9990Cmd {
 	public:
-		CmdADVN(V9990CmdEngine* engine, V9990VRAM* vram);
+		CmdADVN(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
 
 	/** V9990 VDP this engine belongs to
 	  */
-	V9990* vdp;
+	V9990& vdp;
 
 	/** VRAM
 	  */
-	//V9990VRAM* vram;
+	//V9990VRAM& vram;
 
 	/** Status bits
 	 */

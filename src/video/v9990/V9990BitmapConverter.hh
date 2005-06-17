@@ -19,7 +19,7 @@ template <class Pixel, Renderer::Zoom zoom>
 class V9990BitmapConverter
 {
 public:
-	V9990BitmapConverter(V9990* vdp,
+	V9990BitmapConverter(V9990& vdp,
 	                     SDL_PixelFormat fmt,
 	                     Pixel* palette64,
 	                     Pixel* palette256,
@@ -39,13 +39,13 @@ public:
 	void setColorMode(V9990ColorMode mode);
 
 private:
-	/** Pointer to VDP
+	/** Reference to VDP
 	  */
-	V9990* vdp;
+	V9990& vdp;
 
-	/** Pointer to VDP VRAM
+	/** Reference to VDP VRAM
 	  */
-	V9990VRAM* vram;
+	V9990VRAM& vram;
 
 	/** Rastering method for the current color mode
 	  */

@@ -40,14 +40,12 @@ template class V9990BitmapConverter<
 
 template <class Pixel, Renderer::Zoom zoom>
 V9990BitmapConverter<Pixel, zoom>::V9990BitmapConverter(
-	V9990* vdp_,
+	V9990& vdp_,
 	SDL_PixelFormat format_,
 	Pixel* palette64_, Pixel* palette256_, Pixel* palette32768_)
-	: vdp(vdp_), format(format_)
+	: vdp(vdp_), vram(vdp.getVRAM()), format(format_)
         , palette64(palette64_), palette256(palette256_), palette32768(palette32768_)
 {
-	vram = vdp->getVRAM();
-
 	// make sure function pointers have valid values
 	setDisplayMode(P1);
 	setColorMode(PP);
@@ -67,7 +65,7 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYUV(
 	for (int p = 0; p < nrPixels; p += 4) {
 		byte data[4];
 		for (int i = 0; i < 4; ++i) {
-			data[i] = vram->readVRAM(address++);
+			data[i] = vram.readVRAM(address++);
 		}
 
 		char u = (data[2] & 7) + ((data[3] & 3) << 3) - ((data[3] & 4) << 3);
@@ -90,7 +88,7 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYUVP(
 	for (int p = 0; p < nrPixels; p += 4) {
 		byte data[4];
 		for (int i = 0; i < 4; ++i) {
-			data[i] = vram->readVRAM(address++);
+			data[i] = vram.readVRAM(address++);
 		}
 
 		char u = (data[2] & 7) + ((data[3] & 3) << 3) - ((data[3] & 4) << 3);
@@ -117,7 +115,7 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYJK(
 	for (int p = 0; p < nrPixels; p += 4) {
 		byte data[4];
 		for (int i = 0; i < 4; ++i) {
-			data[i] = vram->readVRAM(address++);
+			data[i] = vram.readVRAM(address++);
 		}
 
 		char j = (data[2] & 7) + ((data[3] & 3) << 3) - ((data[3] & 4) << 3);
@@ -140,7 +138,7 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYJKP(
 	for (int p = 0; p < nrPixels; p += 4) {
 		byte data[4];
 		for (int i = 0; i < 4; ++i) {
-			data[i] = vram->readVRAM(address++);
+			data[i] = vram.readVRAM(address++);
 		}
 
 		char j = (data[2] & 7) + ((data[3] & 3) << 3) - ((data[3] & 4) << 3);
@@ -165,8 +163,8 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBD16(
 	Pixel* pixelPtr, unsigned address, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; ++p) {
-		byte low  = vram->readVRAM(address++);
-		byte high = vram->readVRAM(address++);
+		byte low  = vram.readVRAM(address++);
+		byte high = vram.readVRAM(address++);
 		*pixelPtr++ = palette32768[(low + 256 * high) & 0x7FFF];
 	}
 }
@@ -176,7 +174,7 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBD8(
 	Pixel* pixelPtr, unsigned address, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; ++p) {
-		*pixelPtr++ = palette256[vram->readVRAM(address++)];
+		*pixelPtr++ = palette256[vram.readVRAM(address++)];
 	}
 }
 
@@ -185,7 +183,7 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBP6(
 	Pixel* pixelPtr, unsigned address, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; ++p) {
-		*pixelPtr++ = palette64[vram->readVRAM(address++) & 0x3F];
+		*pixelPtr++ = palette64[vram.readVRAM(address++) & 0x3F];
 	}
 }
 
@@ -194,7 +192,7 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBP4(
 	Pixel* pixelPtr, unsigned address, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; p += 2) {
-		byte data = vram->readVRAM(address++);
+		byte data = vram.readVRAM(address++);
 		*pixelPtr++ = palette64[data >> 4];
 		*pixelPtr++ = palette64[data & 0x0F];
 	}
@@ -205,7 +203,7 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBP2(
 	Pixel* pixelPtr, unsigned address, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; p += 4) {
-		byte data = vram->readVRAM(address++);
+		byte data = vram.readVRAM(address++);
 		*pixelPtr++ = palette64[(data & 0xC0) >> 6];
 		*pixelPtr++ = palette64[(data & 0x30) >> 4];
 		*pixelPtr++ = palette64[(data & 0x0C) >> 2];
@@ -440,30 +438,30 @@ template <class Pixel, Renderer::Zoom zoom>
 void V9990BitmapConverter<Pixel, zoom>::drawCursor(
 	Pixel* buffer, int displayY, unsigned attrAddr, unsigned patAddr)
 {
-	int cursorY = vram->readVRAM(attrAddr + 0) +
-	             (vram->readVRAM(attrAddr + 2) & 1) * 256;
+	int cursorY = vram.readVRAM(attrAddr + 0) +
+	             (vram.readVRAM(attrAddr + 2) & 1) * 256;
 	++cursorY; // one line later
 	int cursorLine = (displayY - cursorY) & 511;
 	if (cursorLine >= 32) return;
 
-	byte attr = vram->readVRAM(attrAddr + 6);
+	byte attr = vram.readVRAM(attrAddr + 6);
 	if (attr & 0x10) {
 		// don't display
 		return;
 	}
 
-	unsigned pattern = (vram->readVRAM(patAddr + 4 * cursorLine + 0) << 24)
-	                 + (vram->readVRAM(patAddr + 4 * cursorLine + 1) << 16)
-	                 + (vram->readVRAM(patAddr + 4 * cursorLine + 2) <<  8)
-	                 + (vram->readVRAM(patAddr + 4 * cursorLine + 3) <<  0);
+	unsigned pattern = (vram.readVRAM(patAddr + 4 * cursorLine + 0) << 24)
+	                 + (vram.readVRAM(patAddr + 4 * cursorLine + 1) << 16)
+	                 + (vram.readVRAM(patAddr + 4 * cursorLine + 2) <<  8)
+	                 + (vram.readVRAM(patAddr + 4 * cursorLine + 3) <<  0);
 	if (!pattern) {
 		// optimization, completely transparant line
 		return;
 	}
-	unsigned x = vram->readVRAM(attrAddr + 4) + (attr & 3) * 256;
+	unsigned x = vram.readVRAM(attrAddr + 4) + (attr & 3) * 256;
 
 	// TODO EOR colors
-	Pixel color = palette64[(vdp->getPaletteOffset() << 2) + (attr >> 6)];
+	Pixel color = palette64[(vdp.getPaletteOffset() << 2) + (attr >> 6)];
 	for (int i = 0; i < 32; ++i) {
 		if (pattern & 0x80000000) {
 			buffer[(x + i) & 1023] = color;
@@ -488,7 +486,7 @@ void V9990BitmapConverter<Pixel, zoom>::convertLine(
 	assert(nrPixels <= 1024);
 	Pixel tmp[1024 * sizeof(Pixel)];
 	(this->*rasterMethod)(tmp, address, nrPixels);
-	if (vdp->spritesEnabled()) {
+	if (vdp.spritesEnabled()) {
 		drawCursors(tmp, displayY);
 	}
 	(this->*blendMethod)(tmp, linePtr, nrPixels);

@@ -39,11 +39,11 @@ void PixelRenderer::draw(
 		assert(drawType == DRAW_DISPLAY);
 
 		// Calculate display coordinates.
-		int zero = vdp->getLineZero();
-		int displayX = (startX - vdp->getLeftSprites()) / 2;
+		int zero = vdp.getLineZero();
+		int displayX = (startX - vdp.getLeftSprites()) / 2;
 		int displayY = startY - zero;
-		if (!vdp->getDisplayMode().isTextMode()) {
-			displayY += vdp->getVerticalScroll();
+		if (!vdp.getDisplayMode().isTextMode()) {
+			displayY += vdp.getVerticalScroll();
 		} else {
 			// this is not what the real VDP does, but it is good
 			// enough for "Boring scroll" demo part of "Relax"
@@ -64,10 +64,10 @@ void PixelRenderer::draw(
 
 		rasterizer->drawDisplay(
 			startX, startY,
-			displayX - vdp->getHorizontalScrollLow() * 2, displayY,
+			displayX - vdp.getHorizontalScrollLow() * 2, displayY,
 			displayWidth, displayHeight
 			);
-		if (vdp->spritesEnabled()) {
+		if (vdp.spritesEnabled()) {
 			rasterizer->drawSprites(
 				startX, startY,
 				displayX / 2, displayY,
@@ -109,33 +109,31 @@ void PixelRenderer::subdivide(
 	if (drawLast) draw(clipL, endY, endX, endY + 1, drawType, false);
 }
 
-PixelRenderer::PixelRenderer(VDP* vdp)
+PixelRenderer::PixelRenderer(VDP& vdp_)
+	: vdp(vdp_), vram(vdp.getVRAM()), spriteChecker(vdp.getSpriteChecker())
 {
-	this->vdp = vdp;
-	vram = vdp->getVRAM();
-	spriteChecker = vdp->getSpriteChecker();
 	rasterizer = Display::instance().getVideoSystem().createRasterizer(vdp);
 
 	frameSkipCounter = 999; // force drawing of frame
 	finishFrameDuration = 0;
 	prevDrawFrame = drawFrame = renderFrame = false; // don't draw before frameStart is called
-	displayEnabled = vdp->isDisplayEnabled();
+	displayEnabled = vdp.isDisplayEnabled();
 	rasterizer->reset();
 
-	settings.getMaxFrameSkip()->addListener(this);
-	settings.getMinFrameSkip()->addListener(this);
+	settings.getMaxFrameSkip().addListener(this);
+	settings.getMinFrameSkip().addListener(this);
 }
 
 PixelRenderer::~PixelRenderer()
 {
-	settings.getMinFrameSkip()->removeListener(this);
-	settings.getMaxFrameSkip()->removeListener(this);
+	settings.getMinFrameSkip().removeListener(this);
+	settings.getMaxFrameSkip().removeListener(this);
 }
 
 void PixelRenderer::reset(const EmuTime& time)
 {
 	rasterizer->reset();
-	displayEnabled = vdp->isDisplayEnabled();
+	displayEnabled = vdp.isDisplayEnabled();
 	frameStart(time);
 }
 
@@ -151,9 +149,9 @@ void PixelRenderer::frameStart(const EmuTime& time)
 	if (rasterizer->getZ() == Layer::Z_MSX_PASSIVE) {
 		// V9990 is active
 		frameSkipCounter = 0;
-	} else if (frameSkipCounter < settings.getMinFrameSkip()->getValue()) {
+	} else if (frameSkipCounter < settings.getMinFrameSkip().getValue()) {
 		++frameSkipCounter;
-	} else if (frameSkipCounter >= settings.getMaxFrameSkip()->getValue()) {
+	} else if (frameSkipCounter >= settings.getMaxFrameSkip().getValue()) {
 		frameSkipCounter = 0;
 		draw = true;
 	} else {
@@ -167,13 +165,13 @@ void PixelRenderer::frameStart(const EmuTime& time)
 	prevDrawFrame = drawFrame;
 	drawFrame = draw;
 	renderFrame = drawFrame ||
-	     (prevDrawFrame && vdp->isInterlaced() &&
-	      RenderSettings::instance().getDeinterlace()->getValue());
+	     (prevDrawFrame && vdp.isInterlaced() &&
+	      RenderSettings::instance().getDeinterlace().getValue());
 	if (!renderFrame) return;
 
 	rasterizer->frameStart();
 
-	accuracy = settings.getAccuracy()->getValue();
+	accuracy = settings.getAccuracy().getValue();
 
 	nextX = 0;
 	nextY = 0;
@@ -245,7 +243,7 @@ void PixelRenderer::updateBackgroundColour(
 	int colour, const EmuTime& time)
 {
 	sync(time);
-	if (vdp->getDisplayMode().getByte() != DisplayMode::GRAPHIC7) {
+	if (vdp.getDisplayMode().getByte() != DisplayMode::GRAPHIC7) {
 		rasterizer->setBackgroundColour(colour);
 	}
 }
@@ -279,14 +277,14 @@ void PixelRenderer::updatePalette(
 		sync(time);
 	} else {
 		// Only sync if border colour changed.
-		DisplayMode mode = vdp->getDisplayMode();
+		DisplayMode mode = vdp.getDisplayMode();
 		if (mode.getBase() == DisplayMode::GRAPHIC5) {
-			int bgColour = vdp->getBackgroundColour();
+			int bgColour = vdp.getBackgroundColour();
 			if (index == (bgColour & 3) || (index == (bgColour >> 2))) {
 				sync(time);
 			}
 		} else if (mode.getByte() != DisplayMode::GRAPHIC7) {
-			if (index == vdp->getBackgroundColour()) {
+			if (index == vdp.getBackgroundColour()) {
 				sync(time);
 			}
 		}
@@ -310,7 +308,7 @@ void PixelRenderer::updateDisplayMode(
 	DisplayMode mode, const EmuTime& time)
 {
 	// Sync if in display area or if border drawing process changes.
-	DisplayMode oldMode = vdp->getDisplayMode();
+	DisplayMode oldMode = vdp.getDisplayMode();
 	if (displayEnabled
 	|| oldMode.getByte() == DisplayMode::GRAPHIC5
 	|| oldMode.getByte() == DisplayMode::GRAPHIC7
@@ -378,17 +376,17 @@ inline bool PixelRenderer::checkSync(int offset, const EmuTime& time)
 	// Calculate what display lines are scanned between current
 	// renderer time and update-to time.
 	// Note: displayY1 is inclusive.
-	int deltaY = vdp->getVerticalScroll() - vdp->getLineZero();
-	int limitY = vdp->getTicksThisFrame(time) / VDP::TICKS_PER_LINE;
+	int deltaY = vdp.getVerticalScroll() - vdp.getLineZero();
+	int limitY = vdp.getTicksThisFrame(time) / VDP::TICKS_PER_LINE;
 	int displayY0 = (nextY + deltaY) & 255;
 	int displayY1 = (limitY + deltaY) & 255;
 
-	switch(vdp->getDisplayMode().getBase()) {
+	switch(vdp.getDisplayMode().getBase()) {
 	case DisplayMode::GRAPHIC2:
 	case DisplayMode::GRAPHIC3:
-		if (vram->colourTable.isInside(offset)) {
+		if (vram.colourTable.isInside(offset)) {
 			int vramQuarter = (offset & 0x1800) >> 11;
-			int mask = (vram->colourTable.getMask() & 0x1800) >> 11;
+			int mask = (vram.colourTable.getMask() & 0x1800) >> 11;
 			for (int i = 0; i < 4; i++) {
 				if ( (i & mask) == vramQuarter
 				&& overlap(displayY0, displayY1, i * 64, (i + 1) * 64) ) {
@@ -400,9 +398,9 @@ inline bool PixelRenderer::checkSync(int offset, const EmuTime& time)
 				}
 			}
 		}
-		if (vram->patternTable.isInside(offset)) {
+		if (vram.patternTable.isInside(offset)) {
 			int vramQuarter = (offset & 0x1800) >> 11;
-			int mask = (vram->patternTable.getMask() & 0x1800) >> 11;
+			int mask = (vram.patternTable.getMask() & 0x1800) >> 11;
 			for (int i = 0; i < 4; i++) {
 				if ( (i & mask) == vramQuarter
 				&& overlap(displayY0, displayY1, i * 64, (i + 1) * 64) ) {
@@ -414,7 +412,7 @@ inline bool PixelRenderer::checkSync(int offset, const EmuTime& time)
 				}
 			}
 		}
-		if (vram->nameTable.isInside(offset)) {
+		if (vram.nameTable.isInside(offset)) {
 			int vramLine = ((offset & 0x3FF) / 32) * 8;
 			if (overlap(displayY0, displayY1, vramLine, vramLine + 8)) {
 				/*fprintf(stderr,
@@ -429,9 +427,9 @@ inline bool PixelRenderer::checkSync(int offset, const EmuTime& time)
 	case DisplayMode::GRAPHIC5: {
 		// Is the address inside the visual page(s)?
 		// TODO: Also look at which lines are touched inside pages.
-		int visiblePage = vram->nameTable.getMask()
-			& (0x10000 | (vdp->getEvenOddMask() << 7));
-		if (vdp->isMultiPageScrolling()) {
+		int visiblePage = vram.nameTable.getMask()
+			& (0x10000 | (vdp.getEvenOddMask() << 7));
+		if (vdp.isMultiPageScrolling()) {
 			return (offset & 0x18000) == visiblePage
 				|| (offset & 0x18000) == (visiblePage & 0x10000);
 		} else {
@@ -443,9 +441,9 @@ inline bool PixelRenderer::checkSync(int offset, const EmuTime& time)
 		return true; // TODO: Implement better detection.
 	default:
 		// Range unknown; assume full range.
-		return vram->nameTable.isInside(offset)
-			|| vram->colourTable.isInside(offset)
-			|| vram->patternTable.isInside(offset);
+		return vram.nameTable.isInside(offset)
+			|| vram.colourTable.isInside(offset)
+			|| vram.patternTable.isInside(offset);
 	}
 }
 
@@ -456,7 +454,7 @@ void PixelRenderer::updateVRAM(unsigned offset, const EmuTime& time)
 	if (renderFrame && displayEnabled && checkSync(offset, time)) {
 		/*
 		fprintf(stderr, "vram sync @ line %d\n",
-			vdp->getTicksThisFrame(time) / VDP::TICKS_PER_LINE
+			vdp.getTicksThisFrame(time) / VDP::TICKS_PER_LINE
 			);
 		*/
 		renderUntil(time);
@@ -489,7 +487,7 @@ void PixelRenderer::sync(const EmuTime& time, bool force)
 	//       scheme at a higher level. Probably. But how...
 	//if ((frameSkipCounter == 0) && TODO
 	if (accuracy != RenderSettings::ACC_SCREEN || force) {
-		vram->sync(time);
+		vram.sync(time);
 		renderUntil(time);
 	}
 }
@@ -497,8 +495,8 @@ void PixelRenderer::sync(const EmuTime& time, bool force)
 void PixelRenderer::renderUntil(const EmuTime& time)
 {
 	// Translate from time to pixel position.
-	int limitTicks = vdp->getTicksThisFrame(time);
-	assert(limitTicks <= vdp->getTicksPerFrame());
+	int limitTicks = vdp.getTicksThisFrame(time);
+	assert(limitTicks <= vdp.getTicksPerFrame());
 	int limitX, limitY;
 	switch (accuracy) {
 	case RenderSettings::ACC_PIXEL: {
@@ -530,9 +528,9 @@ void PixelRenderer::renderUntil(const EmuTime& time)
 	if (limitX == nextX && limitY == nextY) return;
 
 	if (displayEnabled) {
-		if (vdp->spritesEnabled()) {
+		if (vdp.spritesEnabled()) {
 			// Update sprite checking, so that rasterizer can call getSprites.
-			spriteChecker->checkUntil(time);
+			spriteChecker.checkUntil(time);
 		}
 
 		// Calculate start and end of borders in ticks since start of line.
@@ -541,10 +539,10 @@ void PixelRenderer::renderUntil(const EmuTime& time)
 		// but sprites above these pixels are clipped at the actual border
 		// rather than the end of the border coloured area.
 		// TODO: Move these calculations and getDisplayLeft() to VDP.
-		int borderL = vdp->getLeftBorder();
+		int borderL = vdp.getLeftBorder();
 		int displayL =
-			vdp->isBorderMasked() ? borderL : vdp->getLeftBackground();
-		int borderR = vdp->getRightBorder();
+			vdp.isBorderMasked() ? borderL : vdp.getLeftBackground();
+		int borderR = vdp.getRightBorder();
 
 		// Left border.
 		subdivide(nextX, nextY, limitX, limitY,
@@ -566,8 +564,8 @@ void PixelRenderer::renderUntil(const EmuTime& time)
 
 void PixelRenderer::update(const Setting* setting)
 {
-	if (setting == settings.getMinFrameSkip()
-	|| setting == settings.getMaxFrameSkip() ) {
+	if (setting == &settings.getMinFrameSkip()
+	|| setting == &settings.getMaxFrameSkip() ) {
 		// Force drawing of frame.
 		frameSkipCounter = 999;
 	} else {

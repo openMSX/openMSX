@@ -19,7 +19,7 @@ class V9990GLRasterizer : public V9990Rasterizer
 public:
 	/** Constructor
 	  */
-	V9990GLRasterizer(V9990* vdp);
+	V9990GLRasterizer(V9990& vdp);
 
 	/** Destructor
 	  */
@@ -45,11 +45,11 @@ public:
 private:
 	/** The VDP of which the video output is rendered
 	  */
-	V9990* vdp;
+	V9990& vdp;
 
 	/** The VRAM connected to the V9990 VDP
 	  */
-	V9990VRAM* vram;
+	V9990VRAM& vram;
 };
 
 } // namespace openmsx

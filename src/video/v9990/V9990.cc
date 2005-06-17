@@ -81,7 +81,7 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 	vram.reset(new V9990VRAM(*this, time));
 
 	// create Command Engine
-	cmdEngine.reset(new V9990CmdEngine(this, time));
+	cmdEngine.reset(new V9990CmdEngine(*this, time));
 
 	// Start with NTSC timing
 	palTiming = false;
@@ -627,7 +627,7 @@ void V9990::getPalette(int index, byte& r, byte& g, byte& b)
 void V9990::createRenderer(const EmuTime& time)
 {
 	renderer.reset(); // delete old renderer before creating new one
-	renderer.reset(RendererFactory::createV9990Renderer(this));
+	renderer.reset(RendererFactory::createV9990Renderer(*this));
 	renderer->reset(time);
 }
 

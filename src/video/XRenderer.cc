@@ -16,10 +16,10 @@
 
 namespace openmsx {
 
-XRenderer::XRenderer(RendererFactory::RendererID id, VDP* vdp)
-	: Renderer (id)
-	, vdp (vdp)
-	, vram (vdp->getVRAM())
+XRenderer::XRenderer(RendererFactory::RendererID id, VDP& vdp_)
+	: Renderer(id)
+	, vdp(vdp_)
+	, vram(vdp.getVRAM())
 {
 	SDL_CreateThread (LoopCaller, this);
 }

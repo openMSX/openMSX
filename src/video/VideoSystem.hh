@@ -24,14 +24,14 @@ public:
 	  * @param vdp The VDP whose display will be rendered.
 	  * @return The rasterizer created.
 	  */
-	virtual Rasterizer* createRasterizer(VDP* vdp);
+	virtual Rasterizer* createRasterizer(VDP& vdp);
 
 	/** Create the V9990 rasterizer selected by the current renderer setting.
 	  * Video systems that use a rasterizer must override this method.
 	  * @param vdp The V9990 whose display will be rendered.
 	  * @return The rasterizer created.
 	  */
-	virtual V9990Rasterizer* createV9990Rasterizer(V9990* vdp) = 0;
+	virtual V9990Rasterizer* createV9990Rasterizer(V9990& vdp) = 0;
 
 	/** Requests that this renderer checks its settings against the
 	  * current RenderSettings. If possible, update the settings of this

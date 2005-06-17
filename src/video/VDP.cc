@@ -103,11 +103,11 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	vram.reset(new VDPVRAM(*this, vramSize, time));
 
 	// Create sprite checker.
-	spriteChecker.reset(new SpriteChecker(this));
+	spriteChecker.reset(new SpriteChecker(*this));
 	vram->setSpriteChecker(spriteChecker.get());
 
 	// Create command engine.
-	cmdEngine.reset(new VDPCmdEngine(this));
+	cmdEngine.reset(new VDPCmdEngine(*this));
 	vram->setCmdEngine(cmdEngine.get());
 
 	resetInit(time); // must be done early to avoid UMRs
@@ -163,7 +163,7 @@ bool VDP::signalEvent(const Event& event)
 
 void VDP::createRenderer()
 {
-	renderer = RendererFactory::createRenderer(this);
+	renderer = RendererFactory::createRenderer(*this);
 	// TODO: Is it safe to use frameStartTime,
 	//       which is most likely in the past?
 	//renderer->reset(frameStartTime.getTime());

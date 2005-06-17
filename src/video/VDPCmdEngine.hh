@@ -22,7 +22,7 @@ class VDPCmdEngine : private SettingListener
 public:
 	/** Constructor.
 	  */
-	VDPCmdEngine(VDP* vdp);
+	VDPCmdEngine(VDP& vdp);
 
 	/** Destructor
 	  */
@@ -114,7 +114,7 @@ public:
 		  * @param mask Read mask: bit positions that are 1 are read from
 		  *   VRAM before the write is performed.
 		  */
-		virtual void pset(const EmuTime& time, VDPVRAM* vram,
+		virtual void pset(const EmuTime& time, VDPVRAM& vram,
 		                  int addr, byte colour, byte mask) = 0;
 		virtual ~LogOp() {}
 	};
@@ -130,9 +130,9 @@ private:
 		static const byte PIXELS_PER_BYTE_SHIFT = 1;
 		static const word PIXELS_PER_LINE = 256;
 		static inline int addressOf(int x, int y);
-		static inline byte point(VDPVRAM* vram, int x, int y);
-		static inline void pset(const EmuTime& time, VDPVRAM* vram,
-			int x, int y, byte colour, LogOp* op);
+		static inline byte point(VDPVRAM& vram, int x, int y);
+		static inline void pset(const EmuTime& time, VDPVRAM& vram,
+			int x, int y, byte colour, LogOp& op);
 	};
 
 	/** Represents V9938 Graphic 5 mode (SCREEN6).
@@ -144,9 +144,9 @@ private:
 		static const byte PIXELS_PER_BYTE_SHIFT = 2;
 		static const word PIXELS_PER_LINE = 512;
 		static inline int addressOf(int x, int y);
-		static inline byte point(VDPVRAM* vram, int x, int y);
-		static inline void pset(const EmuTime& time, VDPVRAM* vram,
-			int x, int y, byte colour, LogOp* op);
+		static inline byte point(VDPVRAM& vram, int x, int y);
+		static inline void pset(const EmuTime& time, VDPVRAM& vram,
+			int x, int y, byte colour, LogOp& op);
 	};
 
 	/** Represents V9938 Graphic 6 mode (SCREEN7).
@@ -158,9 +158,9 @@ private:
 		static const byte PIXELS_PER_BYTE_SHIFT = 1;
 		static const word PIXELS_PER_LINE = 512;
 		static inline int addressOf(int x, int y);
-		static inline byte point(VDPVRAM* vram, int x, int y);
-		static inline void pset(const EmuTime& time, VDPVRAM* vram,
-			int x, int y, byte colour, LogOp* op);
+		static inline byte point(VDPVRAM& vram, int x, int y);
+		static inline void pset(const EmuTime& time, VDPVRAM& vram,
+			int x, int y, byte colour, LogOp& op);
 	};
 
 	/** Represents V9938 Graphic 7 mode (SCREEN8).
@@ -172,16 +172,16 @@ private:
 		static const byte PIXELS_PER_BYTE_SHIFT = 0;
 		static const word PIXELS_PER_LINE = 256;
 		static inline int addressOf(int x, int y);
-		static inline byte point(VDPVRAM* vram, int x, int y);
-		static inline void pset(const EmuTime& time, VDPVRAM* vram,
-			int x, int y, byte colour, LogOp* op);
+		static inline byte point(VDPVRAM& vram, int x, int y);
+		static inline void pset(const EmuTime& time, VDPVRAM& vram,
+			int x, int y, byte colour, LogOp& op);
 	};
 
 	/** This is an abstract base class the VDP commands
 	  */
 	class VDPCmd {
 	public:
-		VDPCmd(VDPCmdEngine* engine, VDPVRAM* vram);
+		VDPCmd(VDPCmdEngine& engine, VDPVRAM& vram);
 		virtual ~VDPCmd();
 
 		/** Prepare execution of cmd
@@ -195,11 +195,11 @@ private:
 		/** Copy progress state from another command.
 		  * TODO: Look for a design in which this method is not needed.
 		  */
-		void copyProgressFrom(VDPCmd* other);
+		void copyProgressFrom(VDPCmd& other);
 
 	protected:
-		VDPCmdEngine* engine;
-		VDPVRAM* vram;
+		VDPCmdEngine& engine;
+		VDPVRAM& vram;
 
 		/** Time at which the next operation cycle starts.
 		  * A cycle consists of reading source VRAM (if applicable),
@@ -221,7 +221,7 @@ private:
 	  */
 	class AbortCmd : public VDPCmd {
 	public:
-		AbortCmd(VDPCmdEngine* engine, VDPVRAM* vram);
+		AbortCmd(VDPCmdEngine& engine, VDPVRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -231,7 +231,7 @@ private:
 	template <class Mode>
 	class PointCmd : public VDPCmd {
 	public:
-		PointCmd(VDPCmdEngine* engine, VDPVRAM* vram);
+		PointCmd(VDPCmdEngine& engine, VDPVRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -241,7 +241,7 @@ private:
 	template <class Mode>
 	class PsetCmd : public VDPCmd {
 	public:
-		PsetCmd(VDPCmdEngine* engine, VDPVRAM* vram);
+		PsetCmd(VDPCmdEngine& engine, VDPVRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -251,7 +251,7 @@ private:
 	template <class Mode>
 	class SrchCmd : public VDPCmd {
 	public:
-		SrchCmd(VDPCmdEngine* engine, VDPVRAM* vram);
+		SrchCmd(VDPCmdEngine& engine, VDPVRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -261,7 +261,7 @@ private:
 	template <class Mode>
 	class LineCmd : public VDPCmd {
 	public:
-		LineCmd(VDPCmdEngine* engine, VDPVRAM* vram);
+		LineCmd(VDPCmdEngine& engine, VDPVRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -270,7 +270,7 @@ private:
 	  */
 	class BlockCmd : public VDPCmd {
 	public:
-		BlockCmd(VDPCmdEngine* engine, VDPVRAM* vram, const int* timing);
+		BlockCmd(VDPCmdEngine& engine, VDPVRAM& vram, const int* timing);
 	protected:
 		void calcFinishTime(word NX, word NY);
 
@@ -282,7 +282,7 @@ private:
 	template <class Mode>
 	class LmmvCmd : public BlockCmd {
 	public:
-		LmmvCmd(VDPCmdEngine* engine, VDPVRAM* vram);
+		LmmvCmd(VDPCmdEngine& engine, VDPVRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -292,7 +292,7 @@ private:
 	template <class Mode>
 	class LmmmCmd : public BlockCmd {
 	public:
-		LmmmCmd(VDPCmdEngine* engine, VDPVRAM* vram);
+		LmmmCmd(VDPCmdEngine& engine, VDPVRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -302,7 +302,7 @@ private:
 	template <class Mode>
 	class LmcmCmd : public BlockCmd {
 	public:
-		LmcmCmd(VDPCmdEngine* engine, VDPVRAM* vram);
+		LmcmCmd(VDPCmdEngine& engine, VDPVRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -312,7 +312,7 @@ private:
 	template <class Mode>
 	class LmmcCmd : public BlockCmd {
 	public:
-		LmmcCmd(VDPCmdEngine* engine, VDPVRAM* vram);
+		LmmcCmd(VDPCmdEngine& engine, VDPVRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -322,7 +322,7 @@ private:
 	template <class Mode>
 	class HmmvCmd : public BlockCmd {
 	public:
-		HmmvCmd(VDPCmdEngine* engine, VDPVRAM* vram);
+		HmmvCmd(VDPCmdEngine& engine, VDPVRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -332,7 +332,7 @@ private:
 	template <class Mode>
 	class HmmmCmd : public BlockCmd {
 	public:
-		HmmmCmd(VDPCmdEngine* engine, VDPVRAM* vram);
+		HmmmCmd(VDPCmdEngine& engine, VDPVRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -342,7 +342,7 @@ private:
 	template <class Mode>
 	class YmmmCmd : public BlockCmd {
 	public:
-		YmmmCmd(VDPCmdEngine* engine, VDPVRAM* vram);
+		YmmmCmd(VDPCmdEngine& engine, VDPVRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -352,7 +352,7 @@ private:
 	template <class Mode>
 	class HmmcCmd : public BlockCmd {
 	public:
-		HmmcCmd(VDPCmdEngine* engine, VDPVRAM* vram);
+		HmmcCmd(VDPCmdEngine& engine, VDPVRAM& vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
 	};
@@ -369,7 +369,7 @@ private:
 	/** Get the current command timing, depends on vdp settings (sprites, display).
 	  */
 	inline int getTiming() {
-		return brokenTiming ? 4 : vdp->getAccessTiming();
+		return brokenTiming ? 4 : vdp.getAccessTiming();
 	}
 
 	/** Report the VDP command specified in the registers.
@@ -401,8 +401,8 @@ private:
 
 	/** The VDP this command engine is part of.
 	  */
-	VDP* vdp;
-	VDPVRAM* vram;
+	VDP& vdp;
+	VDPVRAM& vram;
 
 	/** Current screen mode.
 	  * 0 -> SCREEN5, 1 -> SCREEN6, 2 -> SCREEN7, 3 -> SCREEN8,

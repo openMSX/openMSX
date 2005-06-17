@@ -23,7 +23,7 @@ class V9990SDLRasterizer : public V9990Rasterizer
 public:
 	/** Constructor.
 	  */
-	V9990SDLRasterizer(V9990* vdp, SDL_Surface* screen);
+	V9990SDLRasterizer(V9990& vdp, SDL_Surface* screen);
 
 	/** Destructor.
 	  */
@@ -61,11 +61,11 @@ private:
 
 	/** The VDP of which the video output is being rendered.
 	  */
-	V9990* vdp;
+	V9990& vdp;
 
 	/** The VRAM whose contents are rendered.
 	  */
-	V9990VRAM* vram;
+	V9990VRAM& vram;
 
 	/** The surface which is visible to the user.
 	  */
@@ -123,7 +123,7 @@ private:
 
 	/** Deinterlace setting
 	  */
-	BooleanSetting* deinterlaceSetting;
+	BooleanSetting& deinterlaceSetting;
 
 	/** Get the active workscreen (for deinterlace)
 	  */

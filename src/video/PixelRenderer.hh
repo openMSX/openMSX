@@ -24,7 +24,7 @@ class PixelRenderer : public Renderer, private SettingListener
 public:
 	/** Constructor.
 	  */
-	PixelRenderer(VDP* vdp);
+	PixelRenderer(VDP& vdp);
 
 	/** Destructor.
 	  */
@@ -32,12 +32,12 @@ public:
 
 	// Renderer interface:
 	virtual void reset(const EmuTime& time);
-	virtual void frameStart(const EmuTime &time);
-	virtual void frameEnd(const EmuTime &time);
-	virtual void updateHorizontalScrollLow(byte scroll, const EmuTime &time);
-	virtual void updateHorizontalScrollHigh(byte scroll, const EmuTime &time);
-	virtual void updateBorderMask(bool masked, const EmuTime &time);
-	virtual void updateMultiPage(bool multiPage, const EmuTime &time);
+	virtual void frameStart(const EmuTime& time);
+	virtual void frameEnd(const EmuTime& time);
+	virtual void updateHorizontalScrollLow(byte scroll, const EmuTime& time);
+	virtual void updateHorizontalScrollHigh(byte scroll, const EmuTime& time);
+	virtual void updateBorderMask(bool masked, const EmuTime& time);
+	virtual void updateMultiPage(bool multiPage, const EmuTime& time);
 	virtual void updateTransparency(bool enabled, const EmuTime& time);
 	virtual void updateForegroundColour(int colour, const EmuTime& time);
 	virtual void updateBackgroundColour(int colour, const EmuTime& time);
@@ -47,14 +47,14 @@ public:
 	virtual void updatePalette(int index, int grb, const EmuTime& time);
 	virtual void updateVerticalScroll(int scroll, const EmuTime& time);
 	virtual void updateHorizontalAdjust(int adjust, const EmuTime& time);
-	virtual void updateDisplayEnabled(bool enabled, const EmuTime &time);
+	virtual void updateDisplayEnabled(bool enabled, const EmuTime& time);
 	virtual void updateDisplayMode(DisplayMode mode, const EmuTime& time);
 	virtual void updateNameBase(int addr, const EmuTime& time);
 	virtual void updatePatternBase(int addr, const EmuTime& time);
 	virtual void updateColourBase(int addr, const EmuTime& time);
-	virtual void updateSpritesEnabled(bool enabled, const EmuTime &time);
-	virtual void updateVRAM(unsigned offset, const EmuTime &time);
-	virtual void updateWindow(bool enabled, const EmuTime &time);
+	virtual void updateSpritesEnabled(bool enabled, const EmuTime& time);
+	virtual void updateVRAM(unsigned offset, const EmuTime& time);
+	virtual void updateWindow(bool enabled, const EmuTime& time);
 
 private:
 	/** Indicates whether the area to be drawn is border or display. */
@@ -81,14 +81,14 @@ private:
 		int startX, int startY, int endX, int endY,
 		int clipL, int clipR, DrawType drawType );
 
-	inline bool checkSync(int offset, const EmuTime &time);
+	inline bool checkSync(int offset, const EmuTime& time);
 
 	/** Update renderer state to specified moment in time.
 	  * @param time Moment in emulated time to update to.
 	  * @param force When screen accuracy is used,
 	  * 	rendering is only performed if this parameter is true.
 	  */
-	void sync(const EmuTime &time, bool force = false);
+	void sync(const EmuTime& time, bool force = false);
 
 	/** Render lines until specified moment in time.
 	  * Unlike sync(), this method does not sync with VDPVRAM.
@@ -96,19 +96,19 @@ private:
 	  * from the current time to the specified time.
 	  * @param time Moment in emulated time to render lines until.
 	  */
-	void renderUntil(const EmuTime &time);
+	void renderUntil(const EmuTime& time);
 
 	/** The VDP of which the video output is being rendered.
 	  */
-	VDP *vdp;
+	VDP& vdp;
 
 	/** The VRAM whose contents are rendered.
 	  */
-	VDPVRAM *vram;
+	VDPVRAM& vram;
 
 	/** The sprite checker whose sprites are rendered.
 	  */
-	SpriteChecker *spriteChecker;
+	SpriteChecker& spriteChecker;
 
 	/** Accuracy setting for current frame.
 	  */

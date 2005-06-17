@@ -27,7 +27,7 @@ namespace openmsx {
 
 VideoSystem* RendererFactory::createVideoSystem()
 {
-	RendererID id = RenderSettings::instance().getRenderer()->getValue();
+	RendererID id = RenderSettings::instance().getRenderer().getValue();
 	switch (id) {
 	case DUMMY: {
 		return new DummyVideoSystem();
@@ -52,9 +52,9 @@ VideoSystem* RendererFactory::createVideoSystem()
 	}
 }
 
-Renderer* RendererFactory::createRenderer(VDP* vdp)
+Renderer* RendererFactory::createRenderer(VDP& vdp)
 {
-	RendererID id = RenderSettings::instance().getRenderer()->getValue();
+	RendererID id = RenderSettings::instance().getRenderer().getValue();
 	switch (id) {
 	case DUMMY: {
 		return new DummyRenderer();
@@ -75,9 +75,9 @@ Renderer* RendererFactory::createRenderer(VDP* vdp)
 	}
 }
 
-V9990Renderer* RendererFactory::createV9990Renderer(V9990* vdp)
+V9990Renderer* RendererFactory::createV9990Renderer(V9990& vdp)
 {
-	RendererID id = RenderSettings::instance().getRenderer()->getValue();
+	RendererID id = RenderSettings::instance().getRenderer().getValue();
 	switch (id) {
 	case DUMMY: {
 		return new V9990DummyRenderer();

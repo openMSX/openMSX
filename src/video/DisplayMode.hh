@@ -87,20 +87,20 @@ public:
 
 	/** Assignment operator.
 	  */
-	inline DisplayMode &operator =(const DisplayMode &newMode) {
+	inline DisplayMode& operator=(const DisplayMode& newMode) {
 		mode = newMode.mode;
 		return *this;
 	}
 
 	/** Equals operator.
 	  */
-	inline bool operator ==(const DisplayMode &otherMode) const {
+	inline bool operator==(const DisplayMode& otherMode) const {
 		return mode == otherMode.mode;
 	}
 
 	/** Does-not-equal operator.
 	  */
-	inline bool operator !=(const DisplayMode &otherMode) const {
+	inline bool operator!=(const DisplayMode& otherMode) const {
 		return mode != otherMode.mode;
 	}
 

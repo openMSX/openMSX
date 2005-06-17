@@ -36,8 +36,8 @@ public:
 	  *   into a single wide one. Only necessary for ZOOM_256.
 	  */
 	BitmapConverter(
-		const Pixel *palette16, const Pixel *palette256,
-		const Pixel *palette32768,
+		const Pixel* palette16, const Pixel* palette256,
+		const Pixel* palette32768,
 		Blender<Pixel> blender = Blender<Pixel>::dummy()
 		);
 
@@ -47,7 +47,7 @@ public:
 	  * @param vramPtr Pointer to VRAM contents.
 	  */
 	inline void convertLine(
-		Pixel *linePtr, const byte *vramPtr)
+		Pixel* linePtr, const byte* vramPtr)
 	{
 		(this->*renderMethod)(linePtr, vramPtr, 0);
 	}
@@ -59,7 +59,7 @@ public:
 	  * @param vramPtr1 Pointer to VRAM contents, second plane.
 	  */
 	inline void convertLinePlanar(
-		Pixel *linePtr, const byte *vramPtr0, const byte *vramPtr1)
+		Pixel* linePtr, const byte* vramPtr0, const byte* vramPtr1)
 	{
 		(this->*renderMethod)(linePtr, vramPtr0, vramPtr1);
 	}
@@ -101,22 +101,22 @@ public:
 private:
 
 	typedef void (BitmapConverter::*RenderMethod)
-		(Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1);
+		(Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
 
 	void renderGraphic4(
-		Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1);
+		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
 	void renderGraphic5(
-		Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1);
+		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
 	void renderGraphic6(
-		Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1);
+		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
 	void renderGraphic7(
-		Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1);
+		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
 	void renderYJK(
-		Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1);
+		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
 	void renderYAE(
-		Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1);
+		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
 	void renderBogus(
-		Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1);
+		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
 
 	/** Rendering method for the current display mode.
 	  */

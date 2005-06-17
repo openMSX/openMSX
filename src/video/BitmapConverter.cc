@@ -31,8 +31,8 @@ template class BitmapConverter<
 
 template <class Pixel, Renderer::Zoom zoom>
 BitmapConverter<Pixel, zoom>::BitmapConverter(
-	const Pixel *palette16, const Pixel *palette256,
-	const Pixel *palette32768, Blender<Pixel> blender)
+	const Pixel* palette16, const Pixel* palette256,
+	const Pixel* palette32768, Blender<Pixel> blender)
 	: blender(blender)
 {
 	this->palette16 = palette16;
@@ -73,7 +73,7 @@ void BitmapConverter<Pixel, zoom>::renderGraphic5(
 
 template <class Pixel, Renderer::Zoom zoom>
 void BitmapConverter<Pixel, zoom>::renderGraphic6(
-	Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1)
+	Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
 	for (int n = 128; n--; ) {
 		byte colour = *vramPtr0++;
@@ -97,7 +97,7 @@ void BitmapConverter<Pixel, zoom>::renderGraphic6(
 
 template <class Pixel, Renderer::Zoom zoom>
 void BitmapConverter<Pixel, zoom>::renderGraphic7(
-	Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1)
+	Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
 	for (int n = 128; n--; ) {
 		*pixelPtr++ = palette256[*vramPtr0++];
@@ -107,7 +107,7 @@ void BitmapConverter<Pixel, zoom>::renderGraphic7(
 
 template <class Pixel, Renderer::Zoom zoom>
 void BitmapConverter<Pixel, zoom>::renderYJK(
-	Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1)
+	Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
 	for (int n = 64; n--; ) {
 		byte p[4];
@@ -136,7 +136,7 @@ void BitmapConverter<Pixel, zoom>::renderYJK(
 
 template <class Pixel, Renderer::Zoom zoom>
 void BitmapConverter<Pixel, zoom>::renderYAE(
-	Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1)
+	Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
 	for (int n = 64; n--; ) {
 		byte p[4];

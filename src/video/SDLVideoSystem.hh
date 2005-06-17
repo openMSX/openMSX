@@ -22,8 +22,8 @@ public:
 	virtual ~SDLVideoSystem();
 
 	// VideoSystem interface:
-	virtual Rasterizer* createRasterizer(VDP* vdp);
-	virtual V9990Rasterizer* createV9990Rasterizer(V9990* vdp);
+	virtual Rasterizer* createRasterizer(VDP& vdp);
+	virtual V9990Rasterizer* createV9990Rasterizer(V9990& vdp);
 	virtual bool checkSettings();
 	virtual bool prepare();
 	virtual void flush();

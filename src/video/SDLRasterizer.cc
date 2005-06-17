@@ -61,9 +61,9 @@ inline Pixel* SDLRasterizer<Pixel, zoom>::getLinePtr(
 template <class Pixel, Renderer::Zoom zoom>
 inline Pixel SDLRasterizer<Pixel, zoom>::getBorderColour()
 {
-	int mode = vdp->getDisplayMode().getByte();
-	int bgColour = vdp->getBackgroundColour();
-	if (vdp->getDisplayMode().getBase() == DisplayMode::GRAPHIC5) {
+	int mode = vdp.getDisplayMode().getByte();
+	int bgColour = vdp.getBackgroundColour();
+	if (vdp.getDisplayMode().getBase() == DisplayMode::GRAPHIC5) {
 		// TODO: Border in SCREEN6 has separate colour for even and odd pixels.
 		//       Until that is supported, only use odd pixel colour.
 		bgColour &= 0x03;
@@ -77,7 +77,7 @@ inline void SDLRasterizer<Pixel, zoom>::renderBitmapLine(
 {
 	if (lineValidInMode[vramLine] != mode) {
 		const byte* vramPtr =
-			vram->bitmapCacheWindow.readArea(vramLine << 7);
+			vram.bitmapCacheWindow.readArea(vramLine << 7);
 		bitmapConverter.convertLine(
 			getLinePtr(bitmapDisplayCache, vramLine), vramPtr );
 		lineValidInMode[vramLine] = mode;
@@ -88,16 +88,16 @@ template <class Pixel, Renderer::Zoom zoom>
 inline void SDLRasterizer<Pixel, zoom>::renderBitmapLines(
 	byte line, int count)
 {
-	byte mode = vdp->getDisplayMode().getByte();
+	byte mode = vdp.getDisplayMode().getByte();
 	// Which bits in the name mask determine the page?
-	int pageMask = 0x200 | vdp->getEvenOddMask();
-	int nameMask = vram->nameTable.getMask() >> 7;
+	int pageMask = 0x200 | vdp.getEvenOddMask();
+	int nameMask = vram.nameTable.getMask() >> 7;
 
 	while (count--) {
 		// TODO: Optimise addr and line; too many conversions right now.
 		int vramLine = nameMask & (pageMask | line);
 		renderBitmapLine(mode, vramLine);
-		if (vdp->isMultiPageScrolling()) {
+		if (vdp.isMultiPageScrolling()) {
 			vramLine &= ~0x100;
 			renderBitmapLine(mode, vramLine);
 		}
@@ -114,9 +114,9 @@ inline void SDLRasterizer<Pixel, zoom>::renderPlanarBitmapLine(
 		int addr0 = vramLine << 7;
 		int addr1 = addr0 | 0x10000;
 		const byte* vramPtr0 =
-			vram->bitmapCacheWindow.readArea(addr0);
+			vram.bitmapCacheWindow.readArea(addr0);
 		const byte* vramPtr1 =
-			vram->bitmapCacheWindow.readArea(addr1);
+			vram.bitmapCacheWindow.readArea(addr1);
 		bitmapConverter.convertLinePlanar(
 			getLinePtr(bitmapDisplayCache, vramLine),
 			vramPtr0, vramPtr1
@@ -130,14 +130,14 @@ template <class Pixel, Renderer::Zoom zoom>
 inline void SDLRasterizer<Pixel, zoom>::renderPlanarBitmapLines(
 	byte line, int count)
 {
-	byte mode = vdp->getDisplayMode().getByte();
+	byte mode = vdp.getDisplayMode().getByte();
 	// Which bits in the name mask determine the page?
-	int pageMask = vdp->getEvenOddMask();
+	int pageMask = vdp.getEvenOddMask();
 	while (count--) {
 		// TODO: Optimise addr and line; too many conversions right now.
-		int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
+		int vramLine = (vram.nameTable.getMask() >> 7) & (pageMask | line);
 		renderPlanarBitmapLine(mode, vramLine);
-		if (vdp->isMultiPageScrolling()) {
+		if (vdp.isMultiPageScrolling()) {
 			vramLine &= ~0x100;
 			renderPlanarBitmapLine(mode, vramLine);
 		}
@@ -158,18 +158,16 @@ inline void SDLRasterizer<Pixel, zoom>::renderCharacterLines(
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-SDLRasterizer<Pixel, zoom>::SDLRasterizer(
-	VDP* vdp, SDL_Surface* screen)
-	: characterConverter(vdp, palFg, palBg,
-		Blender<Pixel>::createFromFormat(screen->format) )
+SDLRasterizer<Pixel, zoom>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
+	: vdp(vdp_), vram(vdp.getVRAM())
+	, characterConverter(vdp, palFg, palBg,
+		Blender<Pixel>::createFromFormat(screen->format))
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS,
-		Blender<Pixel>::createFromFormat(screen->format) )
-	, spriteConverter(vdp->getSpriteChecker(),
-		Blender<Pixel>::createFromFormat(screen->format) )
+		Blender<Pixel>::createFromFormat(screen->format))
+	, spriteConverter(vdp.getSpriteChecker(),
+		Blender<Pixel>::createFromFormat(screen->format))
 {
 	interlaced = false;
-	this->vdp = vdp;
-	vram = vdp->getVRAM();
 	this->screen = screen;
 	currScalerID = (ScalerID)-1; // not a valid scaler
 
@@ -185,14 +183,14 @@ SDLRasterizer<Pixel, zoom>::SDLRasterizer(
 	charDisplayCache = SDL_CreateRGBSurface(
 		SDL_SWSURFACE,
 		zoom == Renderer::ZOOM_256 ? 256 : 512,
-		vdp->isMSX1VDP() ? 192 : 256,
+		vdp.isMSX1VDP() ? 192 : 256,
 		screen->format->BitsPerPixel,
 		screen->format->Rmask,
 		screen->format->Gmask,
 		screen->format->Bmask,
 		screen->format->Amask
 		);
-	bitmapDisplayCache = ( vdp->isMSX1VDP()
+	bitmapDisplayCache = ( vdp.isMSX1VDP()
 		? NULL
 		: SDL_CreateRGBSurface(
 			SDL_SWSURFACE,
@@ -207,15 +205,15 @@ SDLRasterizer<Pixel, zoom>::SDLRasterizer(
 		);
 
 	// Init the palette.
-	precalcPalette(RenderSettings::instance().getGamma()->getValue());
+	precalcPalette(RenderSettings::instance().getGamma().getValue());
 
-	RenderSettings::instance().getDeinterlace()->addListener(this);
+	RenderSettings::instance().getDeinterlace().addListener(this);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 SDLRasterizer<Pixel, zoom>::~SDLRasterizer()
 {
-	RenderSettings::instance().getDeinterlace()->removeListener(this);
+	RenderSettings::instance().getDeinterlace().removeListener(this);
 
 	SDL_FreeSurface(charDisplayCache);
 	if (bitmapDisplayCache) SDL_FreeSurface(bitmapDisplayCache);
@@ -237,18 +235,18 @@ void SDLRasterizer<Pixel, zoom>::paint()
 	}
 
 	const bool deinterlace =
-		interlaced && RenderSettings::instance().getDeinterlace()->getValue();
+		interlaced && RenderSettings::instance().getDeinterlace().getValue();
 	assert(!deinterlace || workScreens[1]);
 
 	// New scaler algorithm selected?
-	ScalerID scalerID = RenderSettings::instance().getScaler()->getValue();
+	ScalerID scalerID = RenderSettings::instance().getScaler().getValue();
 	if (currScalerID != scalerID) {
 		currScaler = Scaler<Pixel>::createScaler(scalerID, screen->format);
 		currScalerID = scalerID;
 	}
 
 	// Scale image.
-	const unsigned deltaY = interlaced && vdp->getEvenOdd() ? 1 : 0;
+	const unsigned deltaY = interlaced && vdp.getEvenOdd() ? 1 : 0;
 	unsigned startY = 0;
 	while (startY < HEIGHT / 2) {
 		const LineContent content = lineContent[startY];
@@ -328,8 +326,8 @@ template <class Pixel, Renderer::Zoom zoom>
 void SDLRasterizer<Pixel, zoom>::reset()
 {
 	// Init renderer state.
-	setDisplayMode(vdp->getDisplayMode());
-	spriteConverter.setTransparency(vdp->getTransparency());
+	setDisplayMode(vdp.getDisplayMode());
+	spriteConverter.setTransparency(vdp.getTransparency());
 
 	// Invalidate bitmap cache.
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
@@ -340,10 +338,10 @@ void SDLRasterizer<Pixel, zoom>::reset()
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRasterizer<Pixel, zoom>::resetPalette()
 {
-	if (!vdp->isMSX1VDP()) {
+	if (!vdp.isMSX1VDP()) {
 		// Reset the palette.
 		for (int i = 0; i < 16; i++) {
-			setPalette(i, vdp->getPalette(i));
+			setPalette(i, vdp.getPalette(i));
 		}
 	}
 }
@@ -351,20 +349,20 @@ void SDLRasterizer<Pixel, zoom>::resetPalette()
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRasterizer<Pixel, zoom>::frameStart()
 {
-	calcWorkScreen(vdp->getEvenOdd());
+	calcWorkScreen(vdp.getEvenOdd());
 
 	// Remember interlace status of the completed frame,
 	// for use in paint().
-	interlaced = vdp->isInterlaced();
+	interlaced = vdp.isInterlaced();
 
 	// Calculate line to render at top of screen.
 	// Make sure the display area is centered.
 	// 240 - 212 = 28 lines available for top/bottom border; 14 each.
 	// NTSC: display at [32..244),
 	// PAL:  display at [59..271).
-	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
+	lineRenderTop = vdp.isPalTiming() ? 59 - 14 : 32 - 14;
 
-	double gamma = RenderSettings::instance().getGamma()->getValue();
+	double gamma = RenderSettings::instance().getGamma().getValue();
 	// (gamma != prevGamma) gives compiler warnings
 	if ((gamma > prevGamma) || (gamma < prevGamma)) {
 		precalcPalette(gamma);
@@ -386,8 +384,8 @@ void SDLRasterizer<Pixel, zoom>::setDisplayMode(DisplayMode mode)
 	} else {
 		characterConverter.setDisplayMode(mode);
 	}
-	precalcColourIndex0(mode, vdp->getTransparency(),
-	                    vdp->getBackgroundColour());
+	precalcColourIndex0(mode, vdp.getTransparency(),
+	                    vdp.getBackgroundColour());
 	spriteConverter.setDisplayMode(mode);
 	spriteConverter.setPalette(
 		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg
@@ -409,15 +407,15 @@ void SDLRasterizer<Pixel, zoom>::setPalette(
 		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 	}
 
-	precalcColourIndex0(vdp->getDisplayMode(), vdp->getTransparency(),
-	                    vdp->getBackgroundColour());
+	precalcColourIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
+	                    vdp.getBackgroundColour());
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRasterizer<Pixel, zoom>::setBackgroundColour(int index)
 {
 	precalcColourIndex0(
-		vdp->getDisplayMode(), vdp->getTransparency(), index);
+		vdp.getDisplayMode(), vdp.getTransparency(), index);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -425,7 +423,7 @@ void SDLRasterizer<Pixel, zoom>::setTransparency(bool enabled)
 {
 	spriteConverter.setTransparency(enabled);
 	precalcColourIndex0(
-		vdp->getDisplayMode(), enabled, vdp->getBackgroundColour());
+		vdp.getDisplayMode(), enabled, vdp.getBackgroundColour());
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -436,7 +434,7 @@ void SDLRasterizer<Pixel, zoom>::precalcPalette(double gamma)
 	// It's gamma correction, so apply in reverse.
 	gamma = 1.0 / gamma;
 
-	if (vdp->isMSX1VDP()) {
+	if (vdp.isMSX1VDP()) {
 		// Fixed palette.
 		for (int i = 0; i < 16; i++) {
 			const byte* rgb = Renderer::TMS99X8A_PALETTE[i];
@@ -526,7 +524,7 @@ template <class Pixel, Renderer::Zoom zoom>
 void SDLRasterizer<Pixel, zoom>::initWorkScreens(bool first)
 {
 	const bool deinterlace =
-		RenderSettings::instance().getDeinterlace()->getValue();
+		RenderSettings::instance().getDeinterlace().getValue();
 
 	// Make sure current frame is in workScreens[0].
 	if (!first && workScreen == workScreens[1]) {
@@ -557,7 +555,7 @@ void SDLRasterizer<Pixel, zoom>::initWorkScreens(bool first)
 		}
 	}
 
-	calcWorkScreen(vdp->getEvenOdd());
+	calcWorkScreen(vdp.getEvenOdd());
 
 	// Make sure that the surface which contains the current frame's image
 	// is the one pointed to by workScreen.
@@ -573,7 +571,7 @@ template <class Pixel, Renderer::Zoom zoom>
 void SDLRasterizer<Pixel, zoom>::calcWorkScreen(bool oddField)
 {
 	workScreen = workScreens[
-		RenderSettings::instance().getDeinterlace()->getValue()
+		RenderSettings::instance().getDeinterlace().getValue()
 		&& oddField ? 1 : 0
 		];
 }
@@ -609,7 +607,7 @@ void SDLRasterizer<Pixel, zoom>::drawBorder(
 		}
 	}
 
-	bool narrow = vdp->getDisplayMode().getLineWidth() == 512;
+	bool narrow = vdp.getDisplayMode().getLineWidth() == 512;
 
 	SDL_Rect rect;
 	rect.x = translateX(fromX, narrow);
@@ -634,7 +632,7 @@ void SDLRasterizer<Pixel, zoom>::drawDisplay(
 	int displayX, int displayY,
 	int displayWidth, int displayHeight
 ) {
-	DisplayMode mode = vdp->getDisplayMode();
+	DisplayMode mode = vdp.getDisplayMode();
 	int lineWidth = mode.getLineWidth();
 	if (zoom == Renderer::ZOOM_256 || lineWidth == 256) {
 		int endX = displayX + displayWidth;
@@ -657,14 +655,14 @@ void SDLRasterizer<Pixel, zoom>::drawDisplay(
 	if (displayHeight <= 0) return;
 
 	int leftBackground =
-		translateX(vdp->getLeftBackground(), lineWidth == 512);
+		translateX(vdp.getLeftBackground(), lineWidth == 512);
 	// TODO: Find out why this causes 1-pixel jitter:
 	//dest.x = translateX(fromX);
 	LineContent lineType = lineWidth == 256 ? LINE_256 : LINE_512;
 	int hScroll =
 		  mode.isTextMode()
 		? 0
-		: 8 * (lineWidth / 256) * (vdp->getHorizontalScrollHigh() & 0x1F);
+		: 8 * (lineWidth / 256) * (vdp.getHorizontalScrollHigh() & 0x1F);
 
 	// Page border is display X coordinate where to stop drawing current page.
 	// This is either the multi page split point, or the right edge of the
@@ -673,8 +671,8 @@ void SDLRasterizer<Pixel, zoom>::drawDisplay(
 	// in that case only the second page should be drawn.
 	int pageBorder = displayX + displayWidth;
 	int scrollPage1, scrollPage2;
-	if (vdp->isMultiPageScrolling()) {
-		scrollPage1 = vdp->getHorizontalScrollHigh() >> 5;
+	if (vdp.isMultiPageScrolling()) {
+		scrollPage1 = vdp.getHorizontalScrollHigh() >> 5;
 		scrollPage2 = scrollPage1 ^ 1;
 	} else {
 		scrollPage1 = 0;
@@ -697,20 +695,20 @@ void SDLRasterizer<Pixel, zoom>::drawDisplay(
 
 		// Which bits in the name mask determine the page?
 		int pageMaskEven, pageMaskOdd;
-		if (vdp->isMultiPageScrolling()) {
+		if (vdp.isMultiPageScrolling()) {
 			pageMaskEven = mode.isPlanar() ? 0x000 : 0x200;
 			pageMaskOdd  = pageMaskEven | 0x100;
 		} else {
 			pageMaskEven = pageMaskOdd =
-				(mode.isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
+				(mode.isPlanar() ? 0x000 : 0x200) | vdp.getEvenOddMask();
 		}
 
 		// Copy from cache to screen.
 		SDL_Rect source, dest;
 		for (int y = screenY; y < screenLimitY; y++) {
 			const int vramLine[2] = {
-				(vram->nameTable.getMask() >> 7) & (pageMaskEven | displayY),
-				(vram->nameTable.getMask() >> 7) & (pageMaskOdd  | displayY)
+				(vram.nameTable.getMask() >> 7) & (pageMaskEven | displayY),
+				(vram.nameTable.getMask() >> 7) & (pageMaskOdd  | displayY)
 				};
 
 			// TODO: Can we safely use SDL_LowerBlit?
@@ -750,7 +748,7 @@ void SDLRasterizer<Pixel, zoom>::drawDisplay(
 		// TODO: Implement horizontal scroll high.
 		SDL_Rect source, dest;
 		for (int y = screenY; y < screenLimitY; y++) {
-			assert(!vdp->isMSX1VDP() || displayY < 192);
+			assert(!vdp.isMSX1VDP() || displayY < 192);
 			source.x = displayX;
 			source.y = displayY;
 			source.w = displayWidth;
@@ -794,14 +792,14 @@ void SDLRasterizer<Pixel, zoom>::drawSprites(
 	// Render sprites.
 	// TODO: Call different SpriteConverter methods depending on narrow/wide
 	//       pixels in this display mode?
-	int spriteMode = vdp->getDisplayMode().getSpriteMode();
+	int spriteMode = vdp.getDisplayMode().getSpriteMode();
 	int displayLimitX = displayX + displayWidth;
 	int limitY = fromY + displayHeight;
 	Pixel* pixelPtr = (Pixel*)(
 		(byte*)workScreen->pixels
 		+ screenY * workScreen->pitch
-		+ translateX(vdp->getLeftSprites(),
-			vdp->getDisplayMode().getLineWidth() == 512) * sizeof(Pixel)
+		+ translateX(vdp.getLeftSprites(),
+			vdp.getDisplayMode().getLineWidth() == 512) * sizeof(Pixel)
 		);
 	for (int y = fromY; y < limitY; y++) {
 		if (spriteMode == 1) {
@@ -817,7 +815,7 @@ void SDLRasterizer<Pixel, zoom>::drawSprites(
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRasterizer<Pixel, zoom>::update(const Setting* setting)
 {
-	if (setting == RenderSettings::instance().getDeinterlace()) {
+	if (setting == &RenderSettings::instance().getDeinterlace()) {
 		initWorkScreens();
 	} else {
 		Rasterizer::update(setting);

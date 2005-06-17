@@ -121,7 +121,7 @@ bool Display::signalEvent(const Event& event)
 		const FinishFrameEvent& ffe = static_cast<const FinishFrameEvent&>(event);
 		VideoSource eventSource = ffe.getSource();
 		VideoSource visibleSource =
-			RenderSettings::instance().getVideoSource()->getValue();
+			RenderSettings::instance().getVideoSource().getValue();
 
 		bool draw = visibleSource == eventSource;
 		if (draw) {

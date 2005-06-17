@@ -3,6 +3,7 @@ $Id$
 2005-06-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* RenShaTurbo is no longer singleton
 	* Debugger is no longer singleton
+	* Use references iso pointers where possible in VDP code
 
 2005-06-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Large refactoring, get rid of some singletons:

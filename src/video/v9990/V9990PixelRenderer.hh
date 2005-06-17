@@ -23,7 +23,7 @@ class V9990PixelRenderer : public V9990Renderer, private SettingListener
 public:
 	/** Constructor.
 	  */
-	V9990PixelRenderer(V9990* vdp_);
+	V9990PixelRenderer(V9990& vdp);
 
 	/** Destructor.
 	  */
@@ -57,7 +57,7 @@ private:
 
 	/** The V9990 VDP
 	  */
-	V9990* vdp;
+	V9990& vdp;
 
 	/** The Rasterizer
 	  */

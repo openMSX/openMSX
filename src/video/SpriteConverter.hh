@@ -32,11 +32,10 @@ public:
 	  * @param blender Blender to use for combining two narrow pixels
 	  *   into a single wide one. Only necessary for ZOOM_256.
 	  */
-	SpriteConverter(SpriteChecker* spriteChecker,
+	SpriteConverter(SpriteChecker& spriteChecker_,
 		Blender<Pixel> blender = Blender<Pixel>::dummy() )
-		: blender(blender)
+		: spriteChecker(spriteChecker_), blender(blender)
 	{
-		this->spriteChecker = spriteChecker;
 	}
 
 	/** Update the transparency setting.
@@ -75,7 +74,7 @@ public:
 		// Determine sprites visible on this line.
 		SpriteChecker::SpriteInfo* visibleSprites;
 		int visibleIndex =
-			spriteChecker->getSprites(absLine, visibleSprites);
+			spriteChecker.getSprites(absLine, visibleSprites);
 		// Optimisation: return at once if no sprites on this line.
 		// Lines without any sprites are very common in most programs.
 		if (visibleIndex == 0) return;
@@ -131,7 +130,7 @@ public:
 		// Determine sprites visible on this line.
 		SpriteChecker::SpriteInfo* visibleSprites;
 		int visibleIndex =
-			spriteChecker->getSprites(absLine, visibleSprites);
+			spriteChecker.getSprites(absLine, visibleSprites);
 		// Optimisation: return at once if no sprites on this line.
 		// Lines without any sprites are very common in most programs.
 		if (visibleIndex == 0) return;
@@ -207,7 +206,7 @@ public:
 
 private:
 
-	SpriteChecker* spriteChecker;
+	SpriteChecker& spriteChecker;
 
 	/** VDP transparency setting (R#8, bit5).
 	  */

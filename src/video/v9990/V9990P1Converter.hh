@@ -15,16 +15,16 @@ template <class Pixel, Renderer::Zoom zoom>
 class V9990P1Converter
 {
 public:
-	V9990P1Converter(V9990* vdp_, Pixel* palette64);
+	V9990P1Converter(V9990& vdp, Pixel* palette64);
 	~V9990P1Converter();
 
 	void convertLine(Pixel* linePtr,
 	                 int displayX, int displayWidth, int displayY);
 
 private:
-	V9990* vdp;
+	V9990& vdp;
+	V9990VRAM& vram;
 	Pixel* palette64;
-	V9990VRAM* vram;
 
 	Pixel raster(int xA, int yA,
 	             unsigned int nameTableA, unsigned int patternTableA,

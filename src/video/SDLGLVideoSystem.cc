@@ -52,12 +52,12 @@ SDLGLVideoSystem::~SDLGLVideoSystem()
 	closeSDLVideo(screen);
 }
 
-Rasterizer* SDLGLVideoSystem::createRasterizer(VDP* vdp)
+Rasterizer* SDLGLVideoSystem::createRasterizer(VDP& vdp)
 {
 	return new GLRasterizer(vdp);
 }
 
-V9990Rasterizer* SDLGLVideoSystem::createV9990Rasterizer(V9990* vdp)
+V9990Rasterizer* SDLGLVideoSystem::createV9990Rasterizer(V9990& vdp)
 {
 	return new V9990GLRasterizer(vdp);
 }
@@ -69,7 +69,7 @@ bool SDLGLVideoSystem::checkSettings()
 	// Check full screen setting.
 	bool fullScreenState = (screen->flags & SDL_FULLSCREEN) != 0;
 	const bool fullScreenTarget =
-		RenderSettings::instance().getFullScreen()->getValue();
+		RenderSettings::instance().getFullScreen().getValue();
 	if (fullScreenState == fullScreenTarget) return true;
 
 #ifdef _WIN32

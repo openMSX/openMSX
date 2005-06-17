@@ -29,7 +29,7 @@ class SDLRasterizer : public Rasterizer
 public:
 	/** Constructor.
 	  */
-	SDLRasterizer(VDP* vdp, SDL_Surface* screen);
+	SDLRasterizer(VDP& vdp, SDL_Surface* screen);
 
 	/** Destructor.
 	  */
@@ -139,11 +139,11 @@ private:
 
 	/** The VDP of which the video output is being rendered.
 	  */
-	VDP* vdp;
+	VDP& vdp;
 
 	/** The VRAM whose contents are rendered.
 	  */
-	VDPVRAM* vram;
+	VDPVRAM& vram;
 
 	/** Line to render at top of display.
 	  * After all, our screen is 240 lines while display is 262 or 313.

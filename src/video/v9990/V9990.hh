@@ -42,8 +42,8 @@ public:
 
 	/** Obtain a reference to the V9990's VRAM
 	  */
-	inline V9990VRAM* getVRAM() {
-		return vram.get();
+	inline V9990VRAM& getVRAM() {
+		return *vram;
 	}
 
 	/** Get even/odd page alternation status.

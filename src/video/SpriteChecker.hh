@@ -29,7 +29,7 @@ private:
 		assert(!syncInProgress);
 		syncInProgress += 0; // avoid warning in none assert build (icc)
 		syncInProgress = true;
-		vram->sync(time);
+		vram.sync(time);
 		checkUntil(time);
 		syncInProgress = false;
 	}
@@ -63,7 +63,7 @@ public:
 	/** Create a sprite checker.
 	  * @param vdp The VDP this sprite checker is part of.
 	  */
-	SpriteChecker(VDP* vdp);
+	SpriteChecker(VDP& vdp);
 
 	virtual ~SpriteChecker();
 
@@ -213,7 +213,7 @@ public:
 	inline void frameStart(const EmuTime& time) {
 		frameStartTime.advance(time);
 		currentLine = 0;
-		linesPerFrame = vdp->isPalTiming() ? 313 : 262;
+		linesPerFrame = vdp.isPalTiming() ? 313 : 262;
 		// Debug: -1 means uninitialised.
 		for (int i = 0; i < 313; i++) spriteCount[i] = -1;
 		// TODO: Reset anything else? Does the real VDP?
@@ -371,11 +371,11 @@ private:
 
 	/** The VDP this sprite checker is part of.
 	  */
-	VDP* vdp;
+	VDP& vdp;
 
 	/** The VRAM to get sprites data from.
 	  */
-	VDPVRAM* vram;
+	VDPVRAM& vram;
 
 	/** Limit number of sprites per display line?
 	  * Option only affects display, not MSX state.
@@ -383,7 +383,7 @@ private:
 	  * sprites drawn, but the status register acts like the usual limit
 	  * is still effective.
 	  */
-	BooleanSetting *limitSpritesSetting;
+	BooleanSetting& limitSpritesSetting;
 
 	/** The emulation time when this frame was started (vsync).
 	  */
@@ -420,7 +420,6 @@ private:
 	  * in spriteBuffer[i].
 	  */
 	int spriteCount[313];
-
 };
 
 } // namespace openmsx

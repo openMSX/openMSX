@@ -12,8 +12,8 @@ namespace openmsx {
 
 template <class Pixel, Renderer::Zoom zoom>
 V9990SDLRasterizer<Pixel, zoom>::V9990SDLRasterizer(
-	V9990* vdp_, SDL_Surface* screen_)
-	: vdp(vdp_)
+	V9990& vdp_, SDL_Surface* screen_)
+	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
 	, bitmapConverter(vdp, *screen->format,
 	                  palette64, palette256, palette32768)
@@ -29,7 +29,6 @@ V9990SDLRasterizer<Pixel, zoom>::V9990SDLRasterizer(
 	static const int height = (zoom == Renderer::ZOOM_256)
 	                        ? SCREEN_HEIGHT
 	                        : SCREEN_HEIGHT * 2;
-	vram = vdp->getVRAM();
 
 	// Create Work screen
 	SDL_PixelFormat* format = screen->format;
@@ -62,15 +61,15 @@ SDL_Surface* V9990SDLRasterizer<Pixel, zoom>::getWorkScreen(bool prev) const
 	if (zoom == Renderer::ZOOM_256) {
 		return workScreens[0];
 	} else {
-		if (!vdp->isEvenOddEnabled() ||
-		    !deinterlaceSetting->getValue()) {
+		if (!vdp.isEvenOddEnabled() ||
+		    !deinterlaceSetting.getValue()) {
 			return workScreens[0];
 		} else {
 			if (!prev) {
-				return (vdp->getEvenOdd()) ? workScreens[1]
+				return (vdp.getEvenOdd()) ? workScreens[1]
 				                           : workScreens[0];
 			} else {
-				return (vdp->getEvenOdd()) ? workScreens[0]
+				return (vdp.getEvenOdd()) ? workScreens[0]
 				                           : workScreens[1];
 			}
 		}
@@ -84,7 +83,7 @@ void V9990SDLRasterizer<Pixel, zoom>::paint()
 
 	// Simple scaler for SDLHi
 	if (zoom == Renderer::ZOOM_REAL) {
-		bool even = vdp->getEvenOdd();
+		bool even = vdp.getEvenOdd();
 		SDL_Surface* workScreen0 = getWorkScreen(even);
 		SDL_Surface* workScreen1 = getWorkScreen(!even);
 		for (int y = 0; y < SCREEN_HEIGHT; ++y) {
@@ -108,9 +107,9 @@ void V9990SDLRasterizer<Pixel, zoom>::reset()
 {
 	PRT_DEBUG("V9990SDLRasterizer::reset()");
 
-	setDisplayMode(vdp->getDisplayMode());
-	setColorMode(vdp->getColorMode());
-	imageWidth = vdp->getImageWidth();
+	setDisplayMode(vdp.getDisplayMode());
+	setColorMode(vdp.getColorMode());
+	imageWidth = vdp.getImageWidth();
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -118,8 +117,8 @@ void V9990SDLRasterizer<Pixel, zoom>::frameStart()
 {
 	PRT_DEBUG("V9990SDLRasterizer::frameStart()");
 
-	const V9990DisplayPeriod& horTiming = vdp->getHorizontalTiming();
-	const V9990DisplayPeriod& verTiming = vdp->getVerticalTiming();
+	const V9990DisplayPeriod& horTiming = vdp.getHorizontalTiming();
+	const V9990DisplayPeriod& verTiming = vdp.getVerticalTiming();
 
 	// Center image on the window.
 
@@ -211,7 +210,7 @@ void V9990SDLRasterizer<Pixel, zoom>::drawBorder(
 		rect.w = translateX<zoom>(width);
 		rect.y = fromY;
 		rect.h = height;
-		Pixel bgColor = palette64[vdp->getBackDropColor() & 63];
+		Pixel bgColor = palette64[vdp.getBackDropColor() & 63];
 		SDL_FillRect(getWorkScreen(), &rect, bgColor);
 	}
 }
@@ -326,13 +325,13 @@ void V9990SDLRasterizer<Pixel, zoom>::drawBxMode(
 		  fromY * workScreen->pitch +
 		  translateX<zoom>(fromX) * sizeof(Pixel));
 
-	unsigned scrollX = vdp->getScrollAX();
+	unsigned scrollX = vdp.getScrollAX();
 	unsigned x = displayX + scrollX;
 
-	unsigned scrollY = vdp->getScrollAY();
+	unsigned scrollY = vdp.getScrollAY();
 	int lineStep = 1;
-	if (vdp->isEvenOddEnabled()) {
-		if (vdp->getEvenOdd()) {
+	if (vdp.isEvenOddEnabled()) {
+		if (vdp.getEvenOdd()) {
 			++displayY;
 		}
 		lineStep = 2;
@@ -342,7 +341,7 @@ void V9990SDLRasterizer<Pixel, zoom>::drawBxMode(
 	unsigned scrollYBase = scrollY & ~rollMask;
 	while (displayHeight--) {
 		unsigned y = scrollYBase + (displayY + scrollY) & rollMask;
-		unsigned address = vdp->XYtoVRAM(&x, y, colorMode);
+		unsigned address = vdp.XYtoVRAM(&x, y, colorMode);
 		bitmapConverter.convertLine(pixelPtr, address, displayWidth,
 		                            displayY);
 		displayY += lineStep;
@@ -386,7 +385,7 @@ void V9990SDLRasterizer<Pixel, zoom>::precalcPalettes()
 	// get 64 color palette from VDP
 	for (int i = 0; i < 64; ++i) {
 		byte r, g, b;
-		vdp->getPalette(i, r, g, b);
+		vdp.getPalette(i, r, g, b);
 		setPalette(i, r, g, b);
 	}
 }

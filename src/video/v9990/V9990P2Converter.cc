@@ -39,13 +39,9 @@ template class V9990P2Converter<
 #endif // COMPONENT_GL
 
 template <class Pixel, Renderer::Zoom zoom>
-V9990P2Converter<Pixel, zoom>::V9990P2Converter(
-		V9990* vdp_,
-		Pixel* palette64_)
-		: vdp(vdp_),
-		  palette64(palette64_)
+V9990P2Converter<Pixel, zoom>::V9990P2Converter(V9990& vdp_, Pixel* palette64_)
+	: vdp(vdp_), vram(vdp.getVRAM()), palette64(palette64_)
 {
-	vram = vdp->getVRAM();
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -57,8 +53,8 @@ template <class Pixel, Renderer::Zoom zoom>
 void V9990P2Converter<Pixel, zoom>::convertLine(
 	Pixel* linePtr, int displayX, int /*displayWidth*/, int displayY)
 {
-	displayX = displayX + vdp->getScrollAX();
-	displayY = displayY + vdp->getScrollAY();
+	displayX = displayX + vdp.getScrollAX();
+	displayY = displayY + vdp.getScrollAY();
 
 	for (int i = 0; i < 256; ++i) {
 		Pixel pix1 = raster(displayX++, displayY, 0x7C000, 0x00000);
@@ -78,11 +74,11 @@ template <class Pixel, Renderer::Zoom zoom>
 Pixel V9990P2Converter<Pixel, zoom>::raster(int x, int y,
 		unsigned int nameTable, unsigned int patternTable)
 {
-	byte offset = vdp->getPaletteOffset();
+	byte offset = vdp.getPaletteOffset();
 
 	byte p = getPixel(x, y, nameTable, patternTable) +
 	         ((offset & 0x03) << 4);
-	if (!(p & 0x0F)) { return vdp->getBackDropColor(); }
+	if (!(p & 0x0F)) { return vdp.getBackDropColor(); }
 	return palette64[p];
 }
 
@@ -93,12 +89,12 @@ byte V9990P2Converter<Pixel, zoom>::getPixel(
 	x &= 1023;
 	y &= 1023;
 	unsigned int address = nameTable + (((y/8)*128 + (x/8)) * 2);
-	unsigned int pattern = (vram->readVRAM(address + 0) +
-	                        vram->readVRAM(address + 1) * 256) & 0x3FFF;
+	unsigned int pattern = (vram.readVRAM(address + 0) +
+	                        vram.readVRAM(address + 1) * 256) & 0x3FFF;
 	int x2 = (pattern%64) * 8 + (x%8);
 	int y2 = (pattern/64) * 8 + (y%8);
 	address = patternTable + y2 * 256 + x2/2;
-	byte dixel = vram->readVRAM(address);
+	byte dixel = vram.readVRAM(address);
 	if(!(x & 1)) dixel >>= 4;
 	return dixel & 15;
 }

@@ -51,7 +51,7 @@ SDL_Surface* openSDLVideo(int width, int height, int flags)
 	SDL_ShowCursor(SDL_DISABLE);
 
 	// Add full screen flag if desired.
-	if (RenderSettings::instance().getFullScreen()->getValue()) {
+	if (RenderSettings::instance().getFullScreen().getValue()) {
 		flags |= SDL_FULLSCREEN;
 	}
 	// OpenGL double buffering uses GL attribute instead of flag.

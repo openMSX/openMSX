@@ -35,11 +35,10 @@ template class V9990P1Converter<
 #endif // COMPONENT_GL
 
 template <class Pixel, Renderer::Zoom zoom>
-V9990P1Converter<Pixel, zoom>::V9990P1Converter(V9990* vdp_, Pixel* palette64_)
-	: vdp(vdp_)
+V9990P1Converter<Pixel, zoom>::V9990P1Converter(V9990& vdp_, Pixel* palette64_)
+	: vdp(vdp_), vram(vdp.getVRAM())
 	, palette64(palette64_)
 {
-	vram = vdp->getVRAM();
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -59,10 +58,10 @@ void V9990P1Converter<Pixel, zoom>::convertLine(
 
 	if (displayY > prioY) prioX = 0;
 
-	int displayAX = displayX + vdp->getScrollAX();
-	int displayAY = displayY + vdp->getScrollAY();
-	int displayBX = displayX + vdp->getScrollBX();
-	int displayBY = displayY + vdp->getScrollBY();
+	int displayAX = displayX + vdp.getScrollAX();
+	int displayAY = displayY + vdp.getScrollAY();
+	int displayBX = displayX + vdp.getScrollBX();
+	int displayBY = displayY + vdp.getScrollBY();
 
 	int displayEnd = displayX + displayWidth;
 	int end = std::min(prioX, displayEnd);
@@ -101,7 +100,7 @@ Pixel V9990P1Converter<Pixel, zoom>::raster(int xA, int yA,
 
 	if (!(p & 0x0F)) {
 		// Front image plane
-		byte offset = vdp->getPaletteOffset();
+		byte offset = vdp.getPaletteOffset();
 		p = getPixel(xA, yA, nameTableA, patternTableA) +
 		    ((offset & 0x03) << 4);
 
@@ -116,7 +115,7 @@ Pixel V9990P1Converter<Pixel, zoom>::raster(int xA, int yA,
 
 				if (!(p & 0x0F)) {
 					// Backdrop color
-					p = vdp->getBackDropColor();
+					p = vdp.getBackDropColor();
 				}
 			}
 		}
@@ -131,12 +130,12 @@ byte V9990P1Converter<Pixel, zoom>::getPixel(
 	x &= 511;
 	y &= 511;
 	unsigned int address = nameTable + (((y / 8) * 64 + (x / 8)) * 2);
-	unsigned int pattern = (vram->readVRAMP1(address + 0) +
-	                        vram->readVRAMP1(address + 1) * 256) & 0x1FFF;
+	unsigned int pattern = (vram.readVRAMP1(address + 0) +
+	                        vram.readVRAMP1(address + 1) * 256) & 0x1FFF;
 	int x2 = (pattern % 32) * 8 + (x % 8);
 	int y2 = (pattern / 32) * 8 + (y % 8);
 	address = patternTable + y2 * 128 + x2 / 2;
-	byte dixel = vram->readVRAMP1(address);
+	byte dixel = vram.readVRAMP1(address);
 	if (!(x & 1)) dixel >>= 4;
 	return dixel & 0x0F;
 }
@@ -150,10 +149,10 @@ void V9990P1Converter<Pixel, zoom>::determineVisibleSprites(
 	int index = 0;
 	for (int sprite = 0; sprite < 125; ++sprite) {
 		int spriteInfo = spriteTable + 4 * sprite;
-		byte attr = vram->readVRAMP1(spriteInfo + 3);
+		byte attr = vram.readVRAMP1(spriteInfo + 3);
 
 		if (!(attr & 0x10)) {
-			byte spriteY = vram->readVRAMP1(spriteInfo) + 1;
+			byte spriteY = vram.readVRAMP1(spriteInfo) + 1;
 			byte posY = displayY - spriteY;
 			if (posY < 16) {
 				visibleSprites[index++] = sprite;
@@ -169,25 +168,25 @@ byte V9990P1Converter<Pixel, zoom>::getSpritePixel(
 	int* visibleSprites, int x, int y, bool front)
 {
 	static const unsigned int spriteTable = 0x3FE00;
-	int spritePatternTable = vdp->getSpritePatternAddress(P1);
+	int spritePatternTable = vdp.getSpritePatternAddress(P1);
 
 	for (int sprite = 0; visibleSprites[sprite] != -1; ++sprite) {
 		int   addr       = spriteTable + 4 * visibleSprites[sprite];
-		int   spriteX    = vram->readVRAMP1(addr + 2);
-		byte  spriteAttr = vram->readVRAMP1(addr + 3);
+		int   spriteX    = vram.readVRAMP1(addr + 2);
+		byte  spriteAttr = vram.readVRAMP1(addr + 3);
 		spriteX += 256 * (spriteAttr & 0x03);
 		if (spriteX > 1008) spriteX -= 1024; // hack X coord into -16..1008
 
 		unsigned posX = x - spriteX;
 		if ((posX < 16) && (front ^ !!(spriteAttr & 0x20))) {
-			byte spriteY  = vram->readVRAMP1(addr + 0);
-			byte spriteNo = vram->readVRAMP1(addr + 1);
+			byte spriteY  = vram.readVRAMP1(addr + 0);
+			byte spriteNo = vram.readVRAMP1(addr + 1);
 			spriteY = y - (spriteY + 1);
 			addr = spritePatternTable
 			     + (128 * ((spriteNo & 0xF0) + spriteY))
 			     + (  8 *  (spriteNo & 0x0F))
 			     + (posX / 2);
-			byte dixel = vram->readVRAMP1(addr);
+			byte dixel = vram.readVRAMP1(addr);
 			if (!(posX & 1)) dixel >>= 4;
 			dixel &= 0x0F;
 			if (dixel) {

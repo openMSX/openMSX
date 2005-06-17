@@ -20,13 +20,12 @@ TODO:
 
 namespace openmsx {
 
-SpriteChecker::SpriteChecker(VDP *vdp)
+SpriteChecker::SpriteChecker(VDP& vdp_)
+	: vdp(vdp_), vram(vdp.getVRAM())
+	, limitSpritesSetting(VDPSettings::instance().getLimitSprites())
 {
-	this->vdp = vdp;
-	limitSpritesSetting = VDPSettings::instance().getLimitSprites();
-	vram = vdp->getVRAM();
-	vram->spriteAttribTable.setObserver(this);
-	vram->spritePatternTable.setObserver(this);
+	vram.spriteAttribTable.setObserver(this);
+	vram.spritePatternTable.setObserver(this);
 }
 
 SpriteChecker::~SpriteChecker()
@@ -60,15 +59,15 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePattern(
 	int patternNr, int y)
 {
 	// Note: For sprite pattern, mask and index never overlap.
-	const byte *patternPtr = vram->spritePatternTable.readArea(
+	const byte *patternPtr = vram.spritePatternTable.readArea(
 		planar ? 0x0FC00 : 0x1F800 );
 	int index = patternNr * 8 + y;
 	if (planar) index = ((index << 16) | (index >> 1)) & 0x1FFFF;
 	SpritePattern pattern = patternPtr[index] << 24;
-	if (vdp->getSpriteSize() == 16) {
+	if (vdp.getSpriteSize() == 16) {
 		pattern |= patternPtr[index + (planar ? 8 : 16)] << 16;
 	}
-	return vdp->getSpriteMag() == 1 ? pattern : doublePattern(pattern);
+	return vdp.getSpriteMag() == 1 ? pattern : doublePattern(pattern);
 }
 
 // TODO: Integrate with calculatePattern.
@@ -76,33 +75,33 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternNP(
 	int patternNr, int y)
 {
 	// Note: For sprite pattern, mask and index never overlap.
-	const byte *patternPtr = vram->spritePatternTable.readArea((-1 << 11) | 0);
+	const byte *patternPtr = vram.spritePatternTable.readArea((-1 << 11) | 0);
 	int index = patternNr * 8 + y;
 	SpritePattern pattern = patternPtr[index] << 24;
-	if (vdp->getSpriteSize() == 16) {
+	if (vdp.getSpriteSize() == 16) {
 		pattern |= patternPtr[index + 16] << 16;
 	}
-	return vdp->getSpriteMag() == 1 ? pattern : doublePattern(pattern);
+	return vdp.getSpriteMag() == 1 ? pattern : doublePattern(pattern);
 }
 
 inline int SpriteChecker::checkSprites1(
 	int line, SpriteChecker::SpriteInfo *visibleSprites)
 {
-	if (!vdp->needSpriteChecks(line)) {
+	if (!vdp.needSpriteChecks(line)) {
 		return 0;
 	}
 
 	// Calculate display line.
 	// This is the line sprites are checked at; the line they are displayed
 	// at is one lower.
-	line = line - vdp->getLineZero() + vdp->getVerticalScroll();
+	line = line - vdp.getLineZero() + vdp.getVerticalScroll();
 
 	// Get sprites for this line and detect 5th sprite if any.
-	bool limitSprites = limitSpritesSetting->getValue();
+	bool limitSprites = limitSpritesSetting.getValue();
 	int sprite, visibleIndex = 0;
-	int size = vdp->getSpriteSize();
-	int mag = vdp->getSpriteMag();
-	const byte *attributePtr = vram->spriteAttribTable.readArea((-1 << 7) | 0);
+	int size = vdp.getSpriteSize();
+	int mag = vdp.getSpriteMag();
+	const byte *attributePtr = vram.spriteAttribTable.readArea((-1 << 7) | 0);
 	byte patternIndexMask = size == 16 ? 0xFC : 0xFF;
 	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
 		int y = *attributePtr;
@@ -185,24 +184,24 @@ inline int SpriteChecker::checkSprites1(
 inline int SpriteChecker::checkSprites2(
 	int line, SpriteChecker::SpriteInfo *visibleSprites)
 {
-	if (!vdp->needSpriteChecks(line)) {
+	if (!vdp.needSpriteChecks(line)) {
 		return 0;
 	}
 
 	// Calculate display line.
 	// This is the line sprites are checked at; the line they are displayed
 	// at is one lower.
-	line = line - vdp->getLineZero() + vdp->getVerticalScroll();
+	line = line - vdp.getLineZero() + vdp.getVerticalScroll();
 
 	// Get sprites for this line and detect 5th sprite if any.
-	bool limitSprites = limitSpritesSetting->getValue();
+	bool limitSprites = limitSpritesSetting.getValue();
 	int sprite, visibleIndex = 0;
-	int size = vdp->getSpriteSize();
-	int mag = vdp->getSpriteMag();
+	int size = vdp.getSpriteSize();
+	int mag = vdp.getSpriteMag();
 	// TODO: Should masks be applied while processing the tables?
 	//       For attribute, no (7 bits index), for
 	// Bit9 is set for attribute table, reset for colour table.
-	const byte *attributePtr = vram->spriteAttribTable.readArea(
+	const byte *attributePtr = vram.spriteAttribTable.readArea(
 		planar ? 0x0FF00 : 0x1FE00 );
 	byte patternIndexMask = size == 16 ? 0xFC : 0xFF;
 	int index1 = planar ? 0x10000 : 1;
@@ -227,7 +226,7 @@ inline int SpriteChecker::checkSprites2(
 			int colourIndex = ((-1 << 10) | (sprite * 16 + spriteLine)) & 0x1FFFF;
 			if (planar) colourIndex =
 				((colourIndex << 16) | (colourIndex >> 1)) & 0x1FFFF;
-			byte colourAttrib = vram->spriteAttribTable.readNP(colourIndex);
+			byte colourAttrib = vram.spriteAttribTable.readNP(colourIndex);
 			// Sprites with CC=1 are only visible if preceded by
 			// a sprite with CC=0.
 			if ((colourAttrib & 0x40) && visibleIndex == 0) continue;
