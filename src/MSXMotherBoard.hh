@@ -22,6 +22,7 @@ class PanasonicMemory;
 class MSXDeviceSwitch;
 class PluggingController;
 class CassettePortInterface;
+class RenShaTurbo;
 
 class MSXMotherBoard : private SettingListener
 {
@@ -71,6 +72,7 @@ public:
 	PanasonicMemory& getPanasonicMemory();
 	MSXDeviceSwitch& getDeviceSwitch();
 	CassettePortInterface& getCassettePort();
+	RenShaTurbo& getRenShaTurbo();
 
 private:
 	// SettingListener
@@ -103,6 +105,7 @@ private:
 	std::auto_ptr<MSXDeviceSwitch> deviceSwitch;
 	std::auto_ptr<PluggingController> pluggingController;
 	std::auto_ptr<CassettePortInterface> cassettePort;
+	std::auto_ptr<RenShaTurbo> renShaTurbo;
 
 	class ResetCmd : public SimpleCommand {
 	public:

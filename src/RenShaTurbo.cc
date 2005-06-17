@@ -6,12 +6,6 @@
 
 namespace openmsx {
 
-RenShaTurbo& RenShaTurbo::instance()
-{
-	static RenShaTurbo oneInstance;
-	return oneInstance;
-}
-
 RenShaTurbo::RenShaTurbo()
 {
 	const XMLElement* config = HardwareConfig::instance().findChild("RenShaTurbo");

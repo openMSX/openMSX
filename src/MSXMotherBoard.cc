@@ -11,6 +11,7 @@
 #include "MSXDeviceSwitch.hh"
 #include "PluggingController.hh"
 #include "CassettePort.hh"
+#include "RenShaTurbo.hh"
 #include "EmuTime.hh"
 #include "HardwareConfig.hh"
 #include "DeviceFactory.hh"
@@ -126,6 +127,14 @@ CassettePortInterface& MSXMotherBoard::getCassettePort()
 		}
 	}
 	return *cassettePort;
+}
+
+RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
+{
+	if (!renShaTurbo.get()) {
+		renShaTurbo.reset(new RenShaTurbo());
+	}
+	return *renShaTurbo;
 }
 
 void MSXMotherBoard::readConfig()

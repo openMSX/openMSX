@@ -11,6 +11,7 @@
 namespace openmsx {
 
 class CassettePortInterface;
+class RenShaTurbo;
 class JoystickPort;
 
 class MSXPSG : public MSXDevice, public AY8910Periphery
@@ -34,6 +35,7 @@ private:
 	std::auto_ptr<AY8910> ay8910;
 	std::auto_ptr<JoystickPort> ports[2];
 	CassettePortInterface& cassette;
+	RenShaTurbo& renShaTurbo;
 
 	int registerLatch;
 	int selectedPort;

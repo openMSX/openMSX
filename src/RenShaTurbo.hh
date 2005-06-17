@@ -21,7 +21,8 @@ class Autofire;
 class RenShaTurbo
 {
 public:
-	static RenShaTurbo& instance();
+	RenShaTurbo();
+	~RenShaTurbo();
 
 	/**
 	 * Give the output signal in negative logic
@@ -34,9 +35,6 @@ public:
 	byte getSignal(const EmuTime& time);
 
 private:
-	RenShaTurbo();
-	~RenShaTurbo();
-
 	// The Autofire circuit
 	std::auto_ptr<Autofire> autofire;
 };

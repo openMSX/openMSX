@@ -20,7 +20,7 @@ MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
                const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
 	, cassettePort(motherBoard.getCassettePort())
-	, renshaTurbo(RenShaTurbo::instance())
+	, renshaTurbo(motherBoard.getRenShaTurbo())
 	, prevBits(15)
 {
 	bool keyGhosting = deviceConfig.getChildDataAsBool("key_ghosting", true);
