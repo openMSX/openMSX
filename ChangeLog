@@ -1,12 +1,14 @@
 $Id$
 
-2005-06-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2005-06-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed problem with event distribution:
 	   Current implementation can't handle new subsriptions while events
 	   are being distributed. In this case it was easy to avoid but in the
 	   future we may have to change the implementation to allow this. I
 	   also added some asserts to more easily detect this type of problem
 	   in the future.
+	* Reimplemented "palette" and "vdpregs" commands as TCL scripts
+	* Added Vampiers "setcolor" TCL script (slightly modified)
 
 2005-06-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* RenShaTurbo is no longer singleton

@@ -54,8 +54,6 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, vdpRegDebug(*this)
 	, vdpStatusRegDebug(*this)
 	, vdpPaletteDebug(*this)
-	, vdpRegsCmd(*this)
-	, paletteCmd(*this)
 	, irqVertical(motherBoard.getCPU())
 	, irqHorizontal(motherBoard.getCPU())
 	, debugger(motherBoard.getDebugger())
@@ -128,10 +126,6 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// Reset state.
 	reset(time);
 
-	// Register console commands.
-	CommandController::instance().registerCommand(&vdpRegsCmd, "vdpregs");
-	CommandController::instance().registerCommand(&paletteCmd, "palette");
-
 	debugger.registerDebuggable("VDP regs",        vdpRegDebug);
 	debugger.registerDebuggable("VDP status regs", vdpStatusRegDebug);
 	if (!isMSX1VDP()) {
@@ -152,9 +146,6 @@ VDP::~VDP()
 	}
 	debugger.unregisterDebuggable("VDP status regs", vdpStatusRegDebug);
 	debugger.unregisterDebuggable("VDP regs",        vdpRegDebug);
-
-	CommandController::instance().unregisterCommand(&vdpRegsCmd, "vdpregs");
-	CommandController::instance().unregisterCommand(&paletteCmd, "palette");
 
 	delete renderer;
 }
@@ -1171,66 +1162,6 @@ void VDP::VDPPaletteDebug::write(unsigned address, byte value)
 	    ? (grb & 0x0077) | ((value & 0x07) << 8)
 	    : (grb & 0x0700) |  (value & 0x77);
 	parent.setPalette(index, grb, time);
-}
-
-
-// VDPRegsCmd inner class:
-
-VDP::VDPRegsCmd::VDPRegsCmd(VDP& vdp_)
-	: vdp(vdp_)
-{
-}
-
-string VDP::VDPRegsCmd::execute(const vector<string>& /*tokens*/)
-{
-	// Print palette in 4x4 table.
-	std::ostringstream out;
-	for (int row = 0; row < 8; row++) {
-		for (int col = 0; col < 4; col++) {
-			int reg = col * 8 + row;
-			int value = vdp.controlRegs[reg];
-			out << std::dec << std::setw(2) << std::setfill(' ')<< reg;
-			out << " : ";
-			out << std::hex << "0x" << std::setw(2) << std::setfill('0') << value;
-			out << "   ";
-		}
-		out << "\n";
-	}
-	return out.str();
-}
-
-string VDP::VDPRegsCmd::help(const vector<string>& /*tokens*/) const
-{
-	return "Prints the current state of the VDP registers.\n";
-}
-
-// PaletteCmd inner class:
-
-VDP::PaletteCmd::PaletteCmd(VDP& vdp_)
-	: vdp(vdp_)
-{
-}
-
-string VDP::PaletteCmd::execute(const vector<string>& /*tokens*/)
-{
-	// Print palette in 4x4 table.
-	std::ostringstream out;
-	for (int row = 0; row < 4; row++) {
-		for (int col = 0; col < 4; col++) {
-			int i = col * 4 + row;
-			int grb = vdp.getPalette(i);
-			out << std::hex << i << std::dec << ":"
-				<< ((grb >> 4) & 7) << ((grb >> 8) & 7) << (grb & 7)
-				<< "  ";
-		}
-		out << "\n";
-	}
-	return out.str();
-}
-
-string VDP::PaletteCmd::help(const vector<string>& /*tokens*/) const
-{
-	return "Prints the current VDP palette (i:rgb).\n";
 }
 
 } // namespace openmsx

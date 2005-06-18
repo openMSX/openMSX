@@ -11,7 +11,6 @@
 #include "MSXDevice.hh"
 #include "IRQHelper.hh"
 #include "Clock.hh"
-#include "Command.hh"
 #include "DisplayMode.hh"
 #include "Debuggable.hh"
 
@@ -465,24 +464,6 @@ private:
 	private:
 		VDP& parent;
 	} vdpPaletteDebug;
-
-	class VDPRegsCmd : public SimpleCommand {
-	public:
-		VDPRegsCmd(VDP& vdp);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		VDP& vdp;
-	} vdpRegsCmd;
-
-	class PaletteCmd : public SimpleCommand {
-	public:
-		PaletteCmd(VDP& vdp);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		VDP& vdp;
-	} paletteCmd;
 
 	/** Time at which the internal VDP display line counter is reset,
 	  * expressed in ticks after vsync.
