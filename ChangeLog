@@ -1,5 +1,8 @@
 $Id$
 
+2005-06-18 Maarten ter Huurne <maarten@treewalker.org>
+	* Released openmsx-0.5.2.
+
 2005-06-12 Maarten ter Huurne <maarten@treewalker.org>
 	* Look for TCL in "lib64" directories as well.
 	  Fixes TCL detection on Fedora Core 3 x86-64.
