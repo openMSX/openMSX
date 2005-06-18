@@ -17,12 +17,12 @@ using std::string;
 namespace openmsx {
 
 XMLElement::XMLElement(const string& name_, const string& data_)
-	: name(name_), data(data_), parent(NULL)
+	: name(name_), data(data_), parent(NULL), notifyInProgress(0)
 {
 }
 
 XMLElement::XMLElement(const XMLElement& element)
-	: parent(NULL)
+	: parent(NULL), notifyInProgress(0)
 {
 	*this = element;
 }
@@ -54,10 +54,12 @@ void XMLElement::addChild(auto_ptr<XMLElement> child)
 	XMLElement* child2 = child.release();
 	children.push_back(child2);
 
+	++notifyInProgress;
 	for (Listeners::const_iterator it = listeners.begin();
 	     it != listeners.end(); ++it) {
 		(*it)->childAdded(*this, *child2);
 	}
+	--notifyInProgress;
 }
 
 auto_ptr<XMLElement> XMLElement::removeChild(const XMLElement& child)
@@ -99,10 +101,12 @@ void XMLElement::setData(const string& data_)
 {
 	//assert(children.empty()); // no mixed-content elements
 	data = data_;
+	++notifyInProgress;
 	for (Listeners::const_iterator it = listeners.begin();
 	     it != listeners.end(); ++it) {
 		(*it)->updateData(*this);
 	}
+	--notifyInProgress;
 }
 
 void XMLElement::getChildren(const string& name, Children& result) const
@@ -354,11 +358,13 @@ bool XMLElement::isShallowEqual(const XMLElement& other) const
 
 void XMLElement::addListener(XMLElementListener& listener)
 {
+	assert(!notifyInProgress);
 	listeners.push_back(&listener);
 }
 
 void XMLElement::removeListener(XMLElementListener& listener)
 {
+	assert(!notifyInProgress);
 	assert(std::count(listeners.begin(), listeners.end(), &listener) == 1);
 	listeners.erase(std::find(listeners.begin(), listeners.end(), &listener));
 }

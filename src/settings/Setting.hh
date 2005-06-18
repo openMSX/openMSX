@@ -78,6 +78,7 @@ private:
 	 */
 	typedef std::vector<SettingListener*> Listeners;
 	Listeners listeners;
+	mutable int notifyInProgress;
 };
 
 } // namespace openmsx

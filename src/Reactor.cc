@@ -14,6 +14,7 @@
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
 #include "Interpreter.hh"
+#include "RealTime.hh"
 #include <cassert>
 
 using std::string;
@@ -58,6 +59,9 @@ void Reactor::run(bool autoRun)
 	Interpreter& interpreter = Interpreter::instance();
 	Scheduler& scheduler = Scheduler::instance();
 
+	// TODO should not be a singleton
+	RealTime::instance(); // sigh, fix instantiation order! 
+	
 	// First execute auto commands.
 	commandController.autoCommands();
 

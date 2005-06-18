@@ -116,6 +116,7 @@ private:
 	std::auto_ptr<FileContext> context;
 	typedef std::vector<XMLElementListener*> Listeners;
 	Listeners listeners;
+	int notifyInProgress;
 };
 
 } // namespace openmsx
