@@ -4,7 +4,6 @@
 #include "Scheduler.hh"
 #include "EventDistributor.hh"
 #include "Debugger.hh"
-#include "CommandController.hh"
 #include "RendererFactory.hh"
 #include "V9990VRAM.hh"
 #include "V9990CmdEngine.hh"
@@ -57,7 +56,6 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: MSXDevice(motherBoard, config, time)
 	, v9990RegDebug(*this)
 	, v9990PalDebug(*this)
-	, v9990RegsCmd(*this)
 	, irq(motherBoard.getCPU())
 	, pendingIRQs(0)
 	, hScanSyncTime(time)
@@ -91,9 +89,6 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 	debugger.registerDebuggable("V9990 regs",    v9990RegDebug);
 	debugger.registerDebuggable("V9990 palette", v9990PalDebug);
 
-	// Register console commands
-	CommandController::instance().registerCommand(&v9990RegsCmd, "v9990regs");
-
 	// Initialise rendering system
 	createRenderer(time);
 
@@ -108,7 +103,6 @@ V9990::~V9990()
 	PRT_DEBUG("[--now--] V9990::Destroy");
 
 	// Unregister everything that needs to be unregistered
-	CommandController::instance().unregisterCommand(&v9990RegsCmd, "v9990regs");
 	debugger.unregisterDebuggable("V9990 palette", v9990PalDebug);
 	debugger.unregisterDebuggable("V9990 regs", v9990RegDebug);
 	EventDistributor::instance().unregisterEventListener(
@@ -441,42 +435,6 @@ void V9990::V9990PalDebug::write(unsigned address, byte value)
 {
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
 	parent.writePaletteRegister(address, value, time);
-}
-
-// -------------------------------------------------------------------------
-// V9990RegsCmd
-// -------------------------------------------------------------------------
-
-V9990::V9990RegsCmd::V9990RegsCmd(V9990& v9990_)
-	: v9990(v9990_)
-{
-}
-
-string V9990::V9990RegsCmd::execute(const vector<string>& /*tokens*/)
-{
-	// Print 55 registers in 4 colums
-
-	static const int NCOLS = 4;
-	static const int NROWS = (55 + (NCOLS-1))/NCOLS;
-
-	std::ostringstream out;
-	for(int row = 0; row < NROWS; row++) {
-		for(int col = 0; col < NCOLS; col++) {
-			int reg   = col * NROWS + row;
-			if(reg < 55) {
-				int value = v9990.regs[reg];
-				out << std::dec << std::setw(2) << reg << " : "
-			    	<< std::hex << std::setw(2) << value << "   ";
-			}
-		}
-		out << "\n";
-	}
-	return out.str();
-}
-
-string V9990::V9990RegsCmd::help(const vector<string>& /*tokens*/) const
-{
-	return "Prints the current state of the V9990 registers.\n";
 }
 
 // -------------------------------------------------------------------------

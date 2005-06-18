@@ -9,6 +9,7 @@ $Id$
 	   in the future.
 	* Reimplemented "palette" and "vdpregs" commands as TCL scripts
 	* Added Vampiers "setcolor" TCL script (slightly modified)
+	* Reimplemented "v9990regs" command as a TCL script
 
 2005-06-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* RenShaTurbo is no longer singleton

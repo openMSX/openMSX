@@ -20,12 +20,14 @@ proc setcolor { index rgb } {
 }
 
 proc __format_table { entries columns frmt sep func } {
-	set rows [expr $entries / $columns]
+	set rows [expr ($entries + $columns - 1) / $columns]
 	for {set row 0} { $row < $rows } { incr row } {
 		set line ""
 		for { set col 0 } { $col < $columns } { incr col } {
 			set index [expr $row + ($col * $rows)]
-			append line [format $frmt $index [$func $index]] $sep
+			if { $index < $entries } {
+				append line [format $frmt $index [$func $index]] $sep
+			}
 		}
 		puts $line
 	}
@@ -36,6 +38,13 @@ proc vdpreg { reg } {
 }
 proc vdpregs { } {
 	__format_table 32 4 "%2d : 0x%02x" "   " vdpreg
+}
+
+proc v9990reg { reg } {
+	debug read "V9990 regs" $reg
+}
+proc v9990regs { } {
+	__format_table 55 5 "%2d : 0x%02x" "   " v9990reg
 }
 
 proc palette { } {

@@ -24,7 +24,6 @@ TODO:
 #include "VDPCmdEngine.hh"
 #include "SpriteChecker.hh"
 #include "EventDistributor.hh"
-#include "CommandController.hh"
 #include "Scheduler.hh"
 #include "XMLElement.hh"
 #include "Debugger.hh"

@@ -11,7 +11,6 @@
 #include "MSXDevice.hh"
 #include "Debuggable.hh"
 #include "IRQHelper.hh"
-#include "Command.hh"
 #include "V9990DisplayTiming.hh"
 #include "V9990ModeEnum.hh"
 
@@ -288,16 +287,6 @@ private:
 	private:
 		V9990& parent;
 	} v9990PalDebug;
-
-	// Command:
-	class V9990RegsCmd : public SimpleCommand {
-	public:
-		V9990RegsCmd(V9990& v9990);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		V9990& v9990;
-	} v9990RegsCmd;
 
 	// --- types ------------------------------------------------------
 
