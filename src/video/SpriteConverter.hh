@@ -28,13 +28,13 @@ public:
 	/** Constructor.
 	  * After construction, also call the various set methods to complete
 	  * initialisation.
-	  * @param spriteChecker Delivers the sprite data to be rendered.
-	  * @param blender Blender to use for combining two narrow pixels
+	  * @param spriteChecker_ Delivers the sprite data to be rendered.
+	  * @param blender_ Blender to use for combining two narrow pixels
 	  *   into a single wide one. Only necessary for ZOOM_256.
 	  */
 	SpriteConverter(SpriteChecker& spriteChecker_,
-		Blender<Pixel> blender = Blender<Pixel>::dummy() )
-		: spriteChecker(spriteChecker_), blender(blender)
+		Blender<Pixel> blender_ = Blender<Pixel>::dummy() )
+		: spriteChecker(spriteChecker_), blender(blender_)
 	{
 	}
 
