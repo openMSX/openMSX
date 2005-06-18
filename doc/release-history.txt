@@ -3,7 +3,7 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
-openMSX 0.5.2 (2005-06-09)
+openMSX 0.5.2 (2005-06-18)
 --------------------------
 
 This release is mainly a bug fix release with only a few new features, but a lot

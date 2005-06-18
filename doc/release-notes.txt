@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.5.2 (2005-06-09)
+Release Notes for openMSX 0.5.2 (2005-06-18)
 ============================================
 
 This release is mainly a bug fix release with only a few new features, but a lot
