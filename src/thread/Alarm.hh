@@ -10,7 +10,7 @@ namespace openmsx {
 class Alarm
 {
 public:
-	void schedule(unsigned interval);
+	void schedule(unsigned us);
 	void cancel();
 	bool pending() const;
 

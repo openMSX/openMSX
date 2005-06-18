@@ -16,7 +16,7 @@ class FSA1FMRam
 {
 public:
 	// TODO
-	static byte* getSRAM(MSXMotherBoard& motherBoard,
+	static SRAM& getSRAM(MSXMotherBoard& motherBoard,
 	                     const XMLElement& config);
 
 private:
@@ -41,7 +41,7 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 
 private:
-	byte* sram;	// 8kb (shared) sram
+	SRAM& sram;	// 8kb (shared) sram
 	const std::auto_ptr<FirmwareSwitch> firmwareSwitch;
 };
 
@@ -62,8 +62,8 @@ public:
 private:
 	void changeBank(byte region, byte bank);
 
+	SRAM& sram;	// 8kb (shared) sram
 	byte control;
-	byte* sram;	// 8kb (shared) sram
 	byte bankSelect[8];
 	bool isRam[8];
 	bool isEmpty[8];

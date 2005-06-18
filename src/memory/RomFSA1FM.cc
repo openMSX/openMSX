@@ -56,10 +56,10 @@ FSA1FMRam::~FSA1FMRam()
 {
 }
 
-byte* FSA1FMRam::getSRAM(MSXMotherBoard& motherBoard, const XMLElement& config)
+SRAM& FSA1FMRam::getSRAM(MSXMotherBoard& motherBoard, const XMLElement& config)
 {
 	static FSA1FMRam oneInstance(motherBoard, config);
-	return &(*oneInstance.sram)[0];
+	return *oneInstance.sram;
 }
 
 
@@ -68,9 +68,9 @@ byte* FSA1FMRam::getSRAM(MSXMotherBoard& motherBoard, const XMLElement& config)
 RomFSA1FM1::RomFSA1FM1(MSXMotherBoard& motherBoard, const XMLElement& config,
                        const EmuTime& time, std::auto_ptr<Rom> rom)
 	: MSXRom(motherBoard, config, time, rom)
+	, sram(FSA1FMRam::getSRAM(motherBoard, config))
 	, firmwareSwitch(new FirmwareSwitch())
 {
-	sram = FSA1FMRam::getSRAM(motherBoard, config);
 	reset(time);
 }
 
@@ -134,7 +134,7 @@ void RomFSA1FM1::writeMem(word address, byte value, const EmuTime& /*time*/)
 			// switch rom bank
 			cpu.invalidateMemCache(0x4000, 0x2000);
 		}
-		sram[address & 0x1FFF] = value;
+		sram.write(address & 0x1FFF, value);
 	}
 }
 
@@ -144,7 +144,8 @@ byte* RomFSA1FM1::getWriteCacheLine(word address) const
 		// dont't cache IO area
 		return NULL;
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
-		return &sram[address & 0x1FFF];
+		// don't cache SRAM writes
+		return NULL;
 	} else {
 		return unmappedWrite;
 	}
@@ -156,8 +157,8 @@ byte* RomFSA1FM1::getWriteCacheLine(word address) const
 RomFSA1FM2::RomFSA1FM2(MSXMotherBoard& motherBoard, const XMLElement& config,
                        const EmuTime& time, std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, time, rom)
+	, sram(FSA1FMRam::getSRAM(motherBoard, config))
 {
-	sram = FSA1FMRam::getSRAM(motherBoard, config);
 	reset(time);
 }
 
@@ -246,7 +247,7 @@ void RomFSA1FM2::writeMem(word address, byte value,
 		// write control byte
 		control = value;
 	} else if (isRam[address >> 13]) {
-		sram[address & 0x1FFF] = value;
+		sram.write(address & 0x1FFF, value);
 	}
 }
 
@@ -255,7 +256,7 @@ byte* RomFSA1FM2::getWriteCacheLine(word address) const
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		return NULL;
 	} else if (isRam[address >> 13]) {
-		return &sram[address & 0x1FFF];
+		return NULL;
 	} else {
 		return unmappedWrite;
 	}

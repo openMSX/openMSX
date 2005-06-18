@@ -23,6 +23,7 @@ public:
 
 private:
 	const std::auto_ptr<SRAM> sram;
+	word sramOffset;
 	bool sramEnabled;
 };
 

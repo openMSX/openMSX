@@ -12,7 +12,7 @@ MSXRTC::MSXRTC(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: MSXDevice(motherBoard, config, time)
 {
 	sram.reset(new SRAM(motherBoard, getName() + " SRAM", 4 * 13, config));
-	rp5c01.reset(new RP5C01(&(*sram)[0], time));
+	rp5c01.reset(new RP5C01(*sram, time));
 	registerLatch = 0; // TODO verify on real hardware
 }
 

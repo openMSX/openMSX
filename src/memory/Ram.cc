@@ -9,7 +9,7 @@ using std::string;
 namespace openmsx {
 
 Ram::Ram(MSXMotherBoard& motherBoard, const string& name_, unsigned size_)
-	: debugger(motherBoard.getDebugger())
+	: debug(*this), debugger(motherBoard.getDebugger())
 	, name(name_), description("ram"), size(size_)
 {
 	init();
@@ -17,7 +17,7 @@ Ram::Ram(MSXMotherBoard& motherBoard, const string& name_, unsigned size_)
 
 Ram::Ram(MSXMotherBoard& motherBoard, const string& name_,
          const string& description_, unsigned size_)
-	: debugger(motherBoard.getDebugger())
+	: debug(*this), debugger(motherBoard.getDebugger())
 	, name(name_), description(description_), size(size_)
 {
 	init();
@@ -28,19 +28,14 @@ void Ram::init()
 	ram = new byte[size];
 	clear();
 
-	debugger.registerDebuggable(name, *this);
+	debugger.registerDebuggable(name, debug);
 }
 
 Ram::~Ram()
 {
-	debugger.unregisterDebuggable(name, *this);
+	debugger.unregisterDebuggable(name, debug);
 
 	delete[] ram;
-}
-
-void Ram::clear()
-{
-	memset(ram, 0xFF, size);
 }
 
 unsigned Ram::getSize() const
@@ -48,21 +43,36 @@ unsigned Ram::getSize() const
 	return size;
 }
 
-const string& Ram::getDescription() const
+void Ram::clear()
 {
-	return description;
+	memset(ram, 0xFF, size);
 }
 
-byte Ram::read(unsigned address)
+Ram::Debug::Debug(Ram& parent_)
+	: parent(parent_)
 {
-	assert(address < size);
-	return ram[address];
 }
 
-void Ram::write(unsigned address, byte value)
+unsigned Ram::Debug::getSize() const
 {
-	assert(address < size);
-	ram[address] = value;
+	return parent.getSize();
+}
+
+const string& Ram::Debug::getDescription() const
+{
+	return parent.description;
+}
+
+byte Ram::Debug::read(unsigned address)
+{
+	assert(address < parent.getSize());
+	return parent[address];
+}
+
+void Ram::Debug::write(unsigned address, byte value)
+{
+	assert(address < parent.getSize());
+	parent[address] = value;
 }
 
 } // namespace openmsx

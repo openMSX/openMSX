@@ -73,7 +73,7 @@ void RomHydlide2::writeMem(word address, byte value, const EmuTime& /*time*/)
 	} else {
 		// write sram
 		if ((1 << (address >> 14)) & sramEnabled & 0x04) {
-			(*sram)[address & 0x07FF] = value;
+			sram->write(address & 0x07FF, value);
 		}
 	}
 }
@@ -81,7 +81,8 @@ void RomHydlide2::writeMem(word address, byte value, const EmuTime& /*time*/)
 byte* RomHydlide2::getWriteCacheLine(word address) const
 {
 	if ((1 << (address >> 14)) & sramEnabled & 0x04) {
-		return const_cast<byte*>(&(*sram)[address & 0x07FF]);
+		// write sram
+		return NULL;
 	} else {
 		return RomAscii16kB::getWriteCacheLine(address);
 	}

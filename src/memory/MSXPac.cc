@@ -81,7 +81,7 @@ void MSXPac::writeMem(word address, byte value, const EmuTime& /*time*/)
 			break;
 		default:
 			if (sramEnabled && (address < 0x1FFE)) {
-				(*sram)[address] = value;
+				sram->write(address, value);
 			}
 	}
 }
@@ -93,7 +93,7 @@ byte* MSXPac::getWriteCacheLine(word address) const
 		return NULL;
 	}
 	if (sramEnabled && (address < 0x1FFE)) {
-		return const_cast<byte*>(&(*sram)[address]);
+		return NULL;
 	} else {
 		return unmappedWrite;
 	}

@@ -35,11 +35,11 @@ Alarm::~Alarm()
 	assert(!pending());
 }
 
-void Alarm::schedule(unsigned interval)
+void Alarm::schedule(unsigned us)
 {
 	ScopedLock lock(sem);
 	do_cancel();
-	id = SDL_AddTimer(interval / 1000, helper, this);
+	id = SDL_AddTimer(us / 1000, helper, this);
 }
 
 void Alarm::cancel()

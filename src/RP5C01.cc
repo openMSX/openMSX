@@ -3,6 +3,7 @@
 #include "RP5C01.hh"
 #include "SettingsConfig.hh"
 #include "EnumSetting.hh"
+#include "SRAM.hh"
 #include <cassert>
 #include <ctime>
 #include <string>
@@ -41,8 +42,8 @@ static const nibble mask[4][13] = {
 };
 
 
-RP5C01::RP5C01(byte* data, const EmuTime& time)
-	: reg(data), reference(time)
+RP5C01::RP5C01(SRAM& regs_, const EmuTime& time)
+	: regs(regs_), reference(time)
 {
 	EnumSetting<RTCMode>::Map modeMap;
 	modeMap["EmuTime"] = EMUTIME;
@@ -80,7 +81,7 @@ nibble RP5C01::readPort(nibble port, const EmuTime& time)
 			int block = modeReg & MODE_BLOKSELECT;
 			if (block == TIME_BLOCK)
 				updateTimeRegs(time);
-			nibble tmp = reg[block * 13 + port];
+			nibble tmp = regs[block * 13 + port];
 			return tmp & mask[block][port];
 	}
 }
@@ -108,7 +109,7 @@ void RP5C01::writePort(nibble port, nibble value, const EmuTime& time)
 			int block = modeReg & MODE_BLOKSELECT;
 			if (block == TIME_BLOCK)
 				updateTimeRegs(time);
-			reg[block * 13 + port] = value & mask[block][port];
+			regs.write(block * 13 + port, value & mask[block][port]);
 			if (block == TIME_BLOCK)
 				regs2Time();
 	}
@@ -132,16 +133,16 @@ void RP5C01::initializeTime()
 
 void RP5C01::regs2Time()
 {
-	seconds  = reg[TIME_BLOCK * 13 + 0] + 10 * reg[TIME_BLOCK * 13 + 1];
-	minutes  = reg[TIME_BLOCK * 13 + 2] + 10 * reg[TIME_BLOCK * 13 + 3];
-	hours    = reg[TIME_BLOCK * 13 + 4] + 10 * reg[TIME_BLOCK * 13 + 5];
-	dayWeek  = reg[TIME_BLOCK * 13 + 6];
-	days     = reg[TIME_BLOCK * 13 + 7] + 10 * reg[TIME_BLOCK * 13 + 8] - 1;
-	months   = reg[TIME_BLOCK * 13 + 9] + 10 * reg[TIME_BLOCK * 13 +10] - 1;
-	years    = reg[TIME_BLOCK * 13 +11] + 10 * reg[TIME_BLOCK * 13 +12];
-	leapYear = reg[ALARM_BLOCK * 13 +11];
+	seconds  = regs[TIME_BLOCK * 13 + 0] + 10 * regs[TIME_BLOCK * 13 + 1];
+	minutes  = regs[TIME_BLOCK * 13 + 2] + 10 * regs[TIME_BLOCK * 13 + 3];
+	hours    = regs[TIME_BLOCK * 13 + 4] + 10 * regs[TIME_BLOCK * 13 + 5];
+	dayWeek  = regs[TIME_BLOCK * 13 + 6];
+	days     = regs[TIME_BLOCK * 13 + 7] + 10 * regs[TIME_BLOCK * 13 + 8] - 1;
+	months   = regs[TIME_BLOCK * 13 + 9] + 10 * regs[TIME_BLOCK * 13 +10] - 1;
+	years    = regs[TIME_BLOCK * 13 +11] + 10 * regs[TIME_BLOCK * 13 +12];
+	leapYear = regs[ALARM_BLOCK * 13 +11];
 
-	if (!reg[ALARM_BLOCK * 13 + 10]) {
+	if (!regs[ALARM_BLOCK * 13 + 10]) {
 		// 12 hours mode
 		if (hours >= 20) hours = (hours - 20) + 12;
 	}
@@ -150,25 +151,25 @@ void RP5C01::regs2Time()
 void RP5C01::time2Regs()
 {
 	int hours_ = hours;
-	if (!reg[ALARM_BLOCK * 13 + 10]) {
+	if (!regs[ALARM_BLOCK * 13 + 10]) {
 		// 12 hours mode
 		if (hours >= 12) hours_ = (hours - 12) + 20;
 	}
 
-	reg[TIME_BLOCK  * 13 +  0] =  seconds   % 10;
-	reg[TIME_BLOCK  * 13 +  1] =  seconds   / 10;
-	reg[TIME_BLOCK  * 13 +  2] =  minutes   % 10;
-	reg[TIME_BLOCK  * 13 +  3] =  minutes   / 10;
-	reg[TIME_BLOCK  * 13 +  4] =  hours_    % 10;
-	reg[TIME_BLOCK  * 13 +  5] =  hours_    / 10;
-	reg[TIME_BLOCK  * 13 +  6] =  dayWeek;
-	reg[TIME_BLOCK  * 13 +  7] = (days+1)   % 10;	// 0-30 -> 1-31
-	reg[TIME_BLOCK  * 13 +  8] = (days+1)   / 10;	// 0-11 -> 1-12
-	reg[TIME_BLOCK  * 13 +  9] = (months+1) % 10;
-	reg[TIME_BLOCK  * 13 + 10] = (months+1) / 10;
-	reg[TIME_BLOCK  * 13 + 11] =  years     % 10;
-	reg[TIME_BLOCK  * 13 + 12] =  years     / 10;
-	reg[ALARM_BLOCK * 13 + 11] =  leapYear;
+	regs.write(TIME_BLOCK  * 13 +  0,  seconds   % 10);
+	regs.write(TIME_BLOCK  * 13 +  1,  seconds   / 10);
+	regs.write(TIME_BLOCK  * 13 +  2,  minutes   % 10);
+	regs.write(TIME_BLOCK  * 13 +  3,  minutes   / 10);
+	regs.write(TIME_BLOCK  * 13 +  4,  hours_    % 10);
+	regs.write(TIME_BLOCK  * 13 +  5,  hours_    / 10);
+	regs.write(TIME_BLOCK  * 13 +  6,  dayWeek);
+	regs.write(TIME_BLOCK  * 13 +  7, (days+1)   % 10);	// 0-30 -> 1-31
+	regs.write(TIME_BLOCK  * 13 +  8, (days+1)   / 10);	// 0-11 -> 1-12
+	regs.write(TIME_BLOCK  * 13 +  9, (months+1) % 10);
+	regs.write(TIME_BLOCK  * 13 + 10, (months+1) / 10);
+	regs.write(TIME_BLOCK  * 13 + 11,  years     % 10);
+	regs.write(TIME_BLOCK  * 13 + 12,  years     / 10);
+	regs.write(ALARM_BLOCK * 13 + 11,  leapYear);
 }
 
 static int daysInMonth(int month, int leapYear)
@@ -223,7 +224,7 @@ void RP5C01::updateTimeRegs(const EmuTime& time)
 void RP5C01::resetAlarm()
 {
 	for (int i = 2; i <= 8; i++) {
-		reg[ALARM_BLOCK * 13 + i] = 0;
+		regs.write(ALARM_BLOCK * 13 + i, 0);
 	}
 }
 

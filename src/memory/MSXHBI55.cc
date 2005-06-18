@@ -171,7 +171,7 @@ void MSXHBI55::writeB(byte value, const EmuTime& /*time*/)
 			writeAddress = address;
 			break;
 		case 2:
-			(*sram)[writeAddress] = writeLatch;
+			sram->write(writeAddress, writeLatch);
 			break;
 		case 3:
 			readAddress = address;
@@ -204,7 +204,7 @@ void MSXHBI55::writeC1(nibble value, const EmuTime& /*time*/)
 {
 	writeLatch = (writeLatch & 0x0F) | (value << 4);
 	if (mode == 1) {
-		(*sram)[writeAddress] = writeLatch;
+		sram->write(writeAddress, writeLatch);
 	}
 }
 

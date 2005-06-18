@@ -83,7 +83,7 @@ void RomNational::writeMem(word address, byte value, const EmuTime& /*time*/)
 			// SRAM address bits 7-0
 			sramAddr = (sramAddr & 0xFFFF00) | value;
 		} else if (address == 0x3FFD) {
-			(*sram)[sramAddr++ & 0x0FFF] = value;
+			sram->write((sramAddr++ & 0x0FFF), value);
 		}
 	}
 }

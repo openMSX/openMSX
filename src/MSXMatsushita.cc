@@ -105,7 +105,7 @@ void MSXMatsushita::writeIO(byte port, byte value, const EmuTime& /*time*/)
 	case 9:
 		// write sram
 		if (address < 0x800) {
-			(*sram)[address] = value;
+			sram->write(address, value);
 		}
 		address = (address + 1) & 0x1FFF;
 		break;

@@ -15,12 +15,13 @@
 
 namespace openmsx {
 
+class SRAM;
 template <typename T> class EnumSetting;
 
 class RP5C01
 {
 public:
-	RP5C01(byte* data, const EmuTime& time);
+	RP5C01(SRAM& regs, const EmuTime& time);
 	~RP5C01();
 
 	void reset(const EmuTime& time);
@@ -38,7 +39,7 @@ private:
 	static const int FREQ = 16384;
 
 	nibble modeReg, testReg, resetReg;
-	byte* reg;
+	SRAM& regs;
 
 	Clock<FREQ> reference;
 	int fraction;

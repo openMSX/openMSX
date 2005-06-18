@@ -13,27 +13,32 @@ namespace openmsx {
 
 SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name, int size,
            const XMLElement& config_, const char* header_)
-	: Ram(motherBoard, name, "sram", size)
+	: ram(motherBoard, name, "sram", size)
 	, config(config_)
 	, header(header_)
 {
-	init();
+	load();
 }
 
 SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name,
            const string& description, int size,
 	   const XMLElement& config_, const char* header_)
-	: Ram(motherBoard, name, description, size)
+	: ram(motherBoard, name, description, size)
 	, config(config_)
 	, header(header_)
 {
-	init();
+	load();
 }
 
-void SRAM::init()
+SRAM::~SRAM()
+{
+	cancel(); // cancel pending alarm
+	save();
+}
+
+void SRAM::load()
 {
 	const string& filename = config.getChildData("sramname");
-	PRT_DEBUG("SRAM: read " << filename);
 	try {
 		bool headerOk = true;
 		File file(config.getFileContext().resolveCreate(filename),
@@ -48,7 +53,7 @@ void SRAM::init()
 			delete[] temp;
 		}
 		if (headerOk) {
-			file.read(&(this->operator[](0)), getSize());
+			file.read(&ram[0], getSize());
 		} else {
 			CliComm::instance().printWarning(
 				"Warning no correct SRAM file: " + filename);
@@ -60,10 +65,9 @@ void SRAM::init()
 	}
 }
 
-SRAM::~SRAM()
+void SRAM::save()
 {
 	const string& filename = config.getChildData("sramname");
-	PRT_DEBUG("SRAM: save " << filename);
 	try {
 		File file(config.getFileContext().resolveCreate(filename),
 			  SAVE_PERSISTENT);
@@ -71,12 +75,17 @@ SRAM::~SRAM()
 			int length = strlen(header);
 			file.write((const byte*)header, length);
 		}
-		file.write(&(this->operator[](0)), getSize());
+		file.write(&ram[0], getSize());
 	} catch (FileException& e) {
 		CliComm::instance().printWarning(
 			"Couldn't save SRAM " + filename +
 			" (" + e.getMessage() + ").");
 	}
+}
+
+void SRAM::alarm()
+{
+	save();
 }
 
 } // namespace openmsx

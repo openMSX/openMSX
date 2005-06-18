@@ -114,10 +114,11 @@ void RomPanasonic::writeMem(word address, byte value, const EmuTime& /*time*/)
 		if (sram.get() && (SRAM_BASE <= selectedBank) &&
 			    (selectedBank < maxSRAMBank)) {
 			// SRAM
-			bank[region][address & 0x1FFF] = value;
+			int block = selectedBank - SRAM_BASE;
+			sram->write((block * 0x2000) | (address & 0x1FFF), value);
 		} else if (RAM_BASE <= selectedBank) {
 			// RAM
-			bank[region][address & 0x1FFF] = value;
+			const_cast<byte*>(bank[region])[address & 0x1FFF] = value;
 		}
 	}
 }
@@ -132,10 +133,13 @@ byte* RomPanasonic::getWriteCacheLine(word address) const
 	} else if ((0x8000 <= address) && (address < 0xC000)) {
 		int region = address >> 13;
 		int selectedBank = bankSelect[region];
-		if ((sram.get() && (SRAM_BASE <= selectedBank) &&
-			     (selectedBank < maxSRAMBank)) ||
-		    (RAM_BASE <= selectedBank)) {
-			return &bank[region][address & 0x1FFF];
+		if (sram.get() && (SRAM_BASE <= selectedBank) &&
+			     (selectedBank < maxSRAMBank)) {
+			// SRAM
+			return NULL;
+		} else if (RAM_BASE <= selectedBank) {
+			// RAM
+			return const_cast<byte*>(&bank[region][address & 0x1FFF]);
 		} else {
 			return unmappedWrite;
 		}

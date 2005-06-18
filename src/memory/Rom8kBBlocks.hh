@@ -18,10 +18,10 @@ protected:
 	             const EmuTime& time, std::auto_ptr<Rom> rom);
 	virtual ~Rom8kBBlocks();
 
-	void setBank(byte region, byte* adr);
+	void setBank(byte region, const byte* adr);
 	void setRom(byte region, int block);
 
-	byte* bank[8];
+	const byte* bank[8];
 };
 
 } // namespace openmsx

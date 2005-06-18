@@ -30,7 +30,7 @@ const byte* Rom8kBBlocks::getReadCacheLine(word address) const
 	return &bank[address >> 13][address & 0x1FFF];
 }
 
-void Rom8kBBlocks::setBank(byte region, byte* adr)
+void Rom8kBBlocks::setBank(byte region, const byte* adr)
 {
 	bank[region] = adr;
 	cpu.invalidateMemCache(region * 0x2000, 0x2000);
@@ -41,7 +41,7 @@ void Rom8kBBlocks::setRom(byte region, int block)
 	int nrBlocks = rom->getSize() >> 13;
 	if (nrBlocks != 0) {
 		block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-		setBank(region, const_cast<byte*>(&(*rom)[block << 13]));
+		setBank(region, &(*rom)[block << 13]);
 	} else {
 		setBank(region, unmappedRead);
 	}

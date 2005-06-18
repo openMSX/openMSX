@@ -59,19 +59,19 @@ void RomAscii8_8::writeMem(word address, byte value, const EmuTime& /*time*/)
 		// bank switching
 		byte region = ((address >> 11) & 3) + 2;
 		if (value & sramEnableBit) {
+			sramEnabled |= (1 << region) & sramPages;
 			sramBlock[region] = value & ((sram->getSize() / 0x2000) - 1);
 			setBank(region, &(*sram)[sramBlock[region] * 0x2000]);
-			sramEnabled |= (1 << region) & sramPages;
 		} else {
-			setRom(region, value);
 			sramEnabled &= ~(1 << region);
+			setRom(region, value);
 		}
 	} else {
 		byte bank = address >> 13;
 		if ((1 << bank) & sramEnabled) {
 			// write to SRAM
 			word addr = (sramBlock[bank] * 0x2000) + (address & 0x1FFF);
-			(*sram)[addr] = value;
+			sram->write(addr, value);
 		}
 	}
 }
@@ -83,9 +83,7 @@ byte* RomAscii8_8::getWriteCacheLine(word address) const
 		return NULL;
 	} else if ((1 << (address >> 13)) & sramEnabled) {
 		// write to SRAM
-		byte bank = address >> 13;
-		word addr = (sramBlock[bank] * 0x2000) + (address & 0x1FFF);
-		return const_cast<byte*>(&(*sram)[addr]);
+		return NULL;
 	} else {
 		return unmappedWrite;
 	}

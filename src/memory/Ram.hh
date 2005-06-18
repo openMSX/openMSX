@@ -3,16 +3,16 @@
 #ifndef RAM_HH
 #define RAM_HH
 
-#include <cassert>
-#include "openmsx.hh"
 #include "Debuggable.hh"
+#include "openmsx.hh"
+#include <cassert>
 
 namespace openmsx {
 
 class MSXMotherBoard;
 class Debugger;
 
-class Ram : public Debuggable
+class Ram
 {
 public:
 	Ram(MSXMotherBoard& motherBoard, const std::string& name,
@@ -29,16 +29,22 @@ public:
 		assert(addr < size);
 		return ram[addr];
 	}
+	unsigned getSize() const;
 	void clear();
-
-	// Debuggable
-	virtual unsigned getSize() const;
-	virtual const std::string& getDescription() const;
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
 
 private:
 	void init();
+	
+	class Debug : public Debuggable {
+	public:
+		Debug(Ram& parent);
+		virtual unsigned getSize() const;
+		virtual const std::string& getDescription() const;
+		virtual byte read(unsigned address);
+		virtual void write(unsigned address, byte value);
+	private:
+		Ram& parent;
+	} debug;
 
 	Debugger& debugger;
 	const std::string name;
