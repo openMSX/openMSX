@@ -10,6 +10,8 @@ $Id$
 	* Reimplemented "palette" and "vdpregs" commands as TCL scripts
 	* Added Vampiers "setcolor" TCL script (slightly modified)
 	* Reimplemented "v9990regs" command as a TCL script
+	* Updated cpu.tcl, made a proc to read/write individual registers,
+	  see documentation in cpu.tcl for details
 
 2005-06-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* RenShaTurbo is no longer singleton
