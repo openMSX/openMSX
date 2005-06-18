@@ -1,4 +1,4 @@
-package provide findcheater 0.5
+package provide cheatdfinder 0.5
 # Cheat finder version 0.5
 #
 # Welcome to the openMSX findcheater. Please visit
