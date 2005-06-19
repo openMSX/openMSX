@@ -1,7 +1,7 @@
 openmsx (0.5.2-1) unstable; urgency=low
   * new upstream release
   * build on all archs (Closes: #307252)
-  * updated IPS patch support (Closes: #305853
+  * updated IPS patch support (Closes: #305853)
 
  -- Joost Yervante Damad <joost@lumatec.be>  Sun, 19 Jun 2005 15:13:55 +0200
 
