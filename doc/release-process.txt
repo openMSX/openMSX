@@ -88,7 +88,7 @@ Put the release on SourceForge:
   edit boxes.
 - Select the uploaded file from the file list and choose "Add Files and/or
   Refresh View".
-- File info: "Processor = Platform Independent", "File Type = Source .gz".
+- File info: "Processor = Any", "File Type = Source .gz".
   Finally, choose "Update/Refresh".
 
 Announce:
