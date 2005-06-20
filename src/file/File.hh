@@ -99,6 +99,12 @@ public:
 	void truncate(unsigned size);
 
 	/**
+	 * Force a write of all buffered data to disk. There is no need to
+	 * call this function before destroying a File object.
+	 */ 
+	void flush();
+	
+	/**
 	 * Returns the URL of this file object.
 	 * @throws FileException
 	 */

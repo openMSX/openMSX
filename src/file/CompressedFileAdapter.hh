@@ -17,6 +17,7 @@ public:
 	virtual void seek(unsigned pos);
 	virtual unsigned getPos();
 	virtual void truncate(unsigned size);
+	virtual void flush();
 	virtual const std::string getURL() const;
 	virtual const std::string getLocalName();
 	virtual const std::string getOriginalName();

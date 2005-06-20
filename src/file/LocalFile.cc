@@ -138,6 +138,11 @@ void LocalFile::truncate(unsigned size)
 }
 #endif
 
+void LocalFile::flush()
+{
+	fflush(file);
+}
+
 const string LocalFile::getURL() const
 {
 	static const string prefix("file://");

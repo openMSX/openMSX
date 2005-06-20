@@ -27,6 +27,7 @@ public:
 #ifdef HAVE_FTRUNCATE
 	virtual void truncate(unsigned size);
 #endif
+	virtual void flush();
 	virtual const std::string getURL() const;
 	virtual const std::string getLocalName();
 	virtual bool isReadOnly() const;

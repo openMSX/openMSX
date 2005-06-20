@@ -36,6 +36,8 @@ void PrinterPortLogger::setStrobe(bool strobe, const EmuTime& /*time*/)
 		// falling edge
 		PRT_DEBUG("PRINTER: save in printlog file " << toPrint);
 		file->write(&toPrint, 1);
+		file->flush(); // optimize when it turns out flushing
+		               // every time is too slow
 	}
 	prevStrobe = strobe;
 }

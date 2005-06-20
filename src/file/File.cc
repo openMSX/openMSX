@@ -93,6 +93,11 @@ void File::truncate(unsigned size)
 	return file->truncate(size);
 }
 
+void File::flush()
+{
+	file->flush();
+}
+
 const string File::getURL() const
 {
 	return file->getURL();

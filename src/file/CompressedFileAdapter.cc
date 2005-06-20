@@ -86,6 +86,11 @@ void CompressedFileAdapter::truncate(unsigned /*size*/)
 	throw FileException("Truncating compressed files not yet supported.");
 }
 
+void CompressedFileAdapter::flush()
+{
+	// nothing because writing is not supported 
+}
+
 const string CompressedFileAdapter::getURL() const
 {
 	return file->getURL();

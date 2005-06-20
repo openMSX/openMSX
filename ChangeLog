@@ -1,5 +1,8 @@
 $Id$
 
+2005-06-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Flush PrinterPortLogger data
+
 2005-06-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed problem with event distribution:
 	   Current implementation can't handle new subsriptions while events
