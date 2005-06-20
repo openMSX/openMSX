@@ -308,63 +308,10 @@ proc trainer_gradius2 {} {
 	poke 0xe439 3
 	#all combi's with konami carts (thanks bifi)
 	poke  0xf0f5 255
-		
 	after time 2 trainer_gradius2
 }
 
-proc trainer_gradius3 {} { 
-	#activate find
-	poke 0xe39c 1
-	#activate expand
-	poke 0xe39e 1
-	#activate good
-	poke 0xe39d 2
-	#activate hard
-	poke 0xe39b 0 
-	poke 0xe39d 1 
-	#options
-	poke 0xe43a 255 
-	#shield
-	poke 0xe43a 255 
-	#missle
-	poke 0xe435 255 
-	#laser
-	poke 0xe439 255 
-	#set forcefield
-	poke 0xe600 3
-	#set option 2
- 	poke 0xe608 2 
- 	#activate option 1  
-	poke 0xe610 1  
-	#activate option 2 
-	poke 0xe620 1   
-	#  5  normal laser
-	#!poke 0xe630 5   
-	#  6  meteor laser
-	#!poke 0xe630 6   
-	#  7  screw laser
-	#!poke 0xe630 7   
-	#  8  extended blaster
-	poke 0xe630 8   
-	#  9  vector laser
-	#!poke 0xe630 9   
-	# 10  ripple laser
-	#!poke 0xe630 10   
-	# 11  fire blaster
-	#!poke 0xe630 11   
-	#activate missle
-	#!poke 0xe632 16  	
-	#activate double too (replace 3 for 2 for 'back fire')
-	poke 0xe631 3
-	#current stage
-	#!poke 0xe361 x
-	
-	after time 2 trainer_gradius3 
-}
-
-
 proc trainer_golvellius1 {} { 
-	
 	#max health and full bar
 	poke 0xe022 240
 	poke 0xe03d 240
@@ -515,6 +462,8 @@ proc trainer_salamander {} {
 	poke 0xe341 3
 	#who needs a shield anyway
 	poke 0xe202 0 
+	#all special weapons player 1
+	poke 0xe310 7
 
 	after time 5 trainer_salamander 
 }
@@ -1328,6 +1277,8 @@ proc trainer_maze_of_galious {} {
 	poke 0xe518 1
 	#big enemy dies after 1 hit
 	poke 0xe710 1
+	#blink every second
+	#!poke 0xec87 4
 	after time 1 trainer_maze_of_galious
 }
 
@@ -2161,7 +2112,7 @@ proc trainer_eggerland1 {} {
 	poke 0xd1f4 1
 	#time in special stages
 	poke 0xc81d 255
-after time 2 trainer_eggerland1
+after time 1 trainer_eggerland1
 }
 
 proc trainer_higemaru {} {
@@ -3220,6 +3171,158 @@ proc trainer_thseus {} {
 	#time
 	poke 0xeddc 0x02	
 	after time 1 trainer_thseus
+}
+
+proc trainer_monstersfair {} {
+	#power
+	poke 0xd7e2 50
+	#give motha some balls
+	poke 0xd7cb 99
+	after time 1 trainer_monstersfair
+}
+
+proc trainer_jagur {} {
+	#power
+	poke 0xec00 99
+	after time 1 trainer_jagur
+}
+
+proc trainer_heaven {} {
+	#life
+	poke 0xe038 0x99
+	poke 0xe039 0x99
+	#defend
+	poke 0xe03a 0x99
+	poke 0xe03b 0x99
+	#attack
+	poke 0xe03c 0x99
+	poke 0xe03d 0x99
+	#money
+	poke 0xe03e 0x99
+	poke 0xe03f 0x99
+	after time 1 trainer_heaven
+}
+
+proc trainer_digitaldevil {} {
+	#life
+	poke 0xd271 255
+	after time 1 trainer_digitaldevil
+}
+
+proc trainer_gradius3 {} {
+	#get all options
+	poke 0xe608 2
+	poke 0xe610 1
+	poke 0xe620 2
+	#set laser (to screw)
+	poke 0xe630 7
+	#set uplaser
+	poke 0xe631 13
+	#set guided missle
+	poke 0xe632 19
+	#set all weapons and upgrades (find)
+	poke 0xe36f 7
+	#activate find
+	poke 0xe39c 1
+	#activate expand
+	poke 0xe39e 1
+	#activate good
+	poke 0xe39d 2
+	#activate hard
+	poke 0xe39b 0 
+	poke 0xe39d 1
+	#set forcefield
+	poke 0xe600 3
+	#set 3 maps found
+	poke 0xe393 1
+	poke 0xe394 1
+	poke 0xe395 1
+	#spacefighter shield
+	poke 0xe396 1
+	#censor	
+	poke 0xe397 1
+	#choose vixen
+	poke 0xe380 2
+	#choose option 
+	poke 0xe37e 3
+	#choose shield
+	poke 0xe37f 2
+	after time 1 trainer_gradius3
+}
+
+proc trainer_alien8 {} {
+	#counter to 9999
+	poke 0xd83a 136
+	poke 0xd839 136
+	poke 0xd838 136
+	poke 0xd837 136
+	#lives
+	poke 0xd81b 10
+	after time 1 trainer_alien8
+}
+
+proc trainer_strangeloop {} {
+	#patches
+	poke 0xc48f 99
+	#charges
+	poke 0xc48d 99
+	poke 0xc48e 99
+	after time 1 trainer_strangeloop
+}
+
+proc trainer_batman {} {
+	#lives
+	poke 0x19dc 0x99
+	#shield
+	poke 0x19db 0x99
+	#jump
+	poke 0x19da 0x99
+	#elec bolt
+	poke 0x19d9 0x99
+	#get all items
+	poke 0x19d8 255
+	after time 1 trainer_batman
+}
+
+proc trainer_headoverheals {} {
+	#lives player 1
+	poke 0x2242 0x99
+	#shield player 1
+	poke 0x2240 0x99
+	#elec bolt player 1
+	poke 0x223d 0x99
+	#ammo player 1
+	poke 0x2243 0x99
+
+	#lives player 2
+	poke 0x2241 0x99
+	#shield player 2
+	poke 0x223f 0x99
+	#jump player 2
+	poke 0x223e 0x99		
+	after time 1 trainer_headoverheals
+}
+
+proc trainer_nightshade {} {
+	#power
+	poke 0xd04f 3
+	after time 1 trainer_nightshade
+}
+
+proc trainer_predator {} {
+	#power
+	poke 0xc207 255
+	#mines
+	poke 0xc230 9
+	poke 0xc231 9
+	#handgrenade
+	poke 0xc235 9
+	poke 0xc236 9
+	#bullit
+	poke 0xc232 9
+	poke 0xc233 9
+	poke 0xc234 9
+	after time 1 trainer_predator
 }
 
 proc poke {addr val} {
