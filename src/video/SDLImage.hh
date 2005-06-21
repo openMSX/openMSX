@@ -15,9 +15,9 @@ class SDLImage
 public:
 	SDLImage(SDL_Surface* output, const std::string& filename);
 	SDLImage(SDL_Surface* output, const std::string& filename,
-	         unsigned width, unsigned height, byte defaultAlpha = 255);
-	SDLImage(SDL_Surface* output, unsigned width, unsigned height,
-	         byte defaultAlpha = 255);
+	         unsigned width, unsigned height);
+	SDLImage(SDL_Surface* output,
+	         unsigned width, unsigned height, byte alpha);
 	~SDLImage();
 
 	void draw(unsigned x, unsigned y, byte alpha = 255);
@@ -30,19 +30,13 @@ private:
 	SDL_Surface* workImage;
 
 public:
-	static SDL_Surface* loadImage(
-		const std::string& filename,
-		byte defaultAlpha = 255);
-	static SDL_Surface* loadImage(
-		const std::string& filename,
-		unsigned width, unsigned height,
-		byte defaultAlpha = 255);
+	static SDL_Surface* loadImage(const std::string& filename);
+	static SDL_Surface* loadImage(const std::string& filename,
+	                              unsigned width, unsigned height);
 	static SDL_Surface* readImage(const std::string& filename);
-	static SDL_Surface* scaleImage32(
-		SDL_Surface* input,
-		unsigned width, unsigned height);
-	static SDL_Surface* convertToDisplayFormat(
-		SDL_Surface* input, byte defaultAlpha);
+	static SDL_Surface* scaleImage32(SDL_Surface* input,
+	                                 unsigned width, unsigned height);
+	static SDL_Surface* convertToDisplayFormat(SDL_Surface* input);
 	static int zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth);
 };
 

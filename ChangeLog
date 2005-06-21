@@ -8,6 +8,12 @@ $Id$
 	     it's not automatically enabled at any optimization level because
 	     it sometimes also creates slower code
 	* Changed result format of "diska" command, updated vdrive script
+	* Don't use default alpha value in SDL console:
+	   When the background image had a contant alpha value (or no alpha
+	   value at all) we took a default alpha value. This behaviour is
+	   different from the GL Console. It's also not very useful because it
+	   prevents using a background with a different (constant) alpha
+	   value (or no alpha at all).
 
 2005-06-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Flush PrinterPortLogger data

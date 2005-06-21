@@ -19,15 +19,15 @@ SDLImage::SDLImage(SDL_Surface* output, const string& filename)
 }
 
 SDLImage::SDLImage(SDL_Surface* output, const string& filename,
-	           unsigned width, unsigned height, byte defaultAlpha)
+	           unsigned width, unsigned height)
 	: outputScreen(output)
 {
-	image = loadImage(filename, width, height, defaultAlpha);
+	image = loadImage(filename, width, height);
 	init(filename);
 }
 
 SDLImage::SDLImage(SDL_Surface* output, unsigned width, unsigned height,
-                   byte defaultAlpha)
+                   byte alpha)
 	: outputScreen(output)
 {
 	SDL_PixelFormat* format = outputScreen->format;
@@ -35,7 +35,7 @@ SDLImage::SDLImage(SDL_Surface* output, unsigned width, unsigned height,
 		width, height, format->BitsPerPixel,
 		format->Rmask, format->Gmask, format->Bmask, 0);
 	if (image) {
-		SDL_SetAlpha(image, SDL_SRCALPHA, defaultAlpha);
+		SDL_SetAlpha(image, SDL_SRCALPHA, alpha);
 	}
 	init("");
 }
@@ -84,20 +84,20 @@ void SDLImage::draw(unsigned x, unsigned y, byte alpha)
 }
 
 
-SDL_Surface* SDLImage::loadImage(const string& filename, byte defaultAlpha)
+SDL_Surface* SDLImage::loadImage(const string& filename)
 {
 	SDL_Surface* picture = readImage(filename);
 	if (picture == NULL) {
 		return NULL;
 	}
 
-	SDL_Surface* result = convertToDisplayFormat(picture, defaultAlpha);
+	SDL_Surface* result = convertToDisplayFormat(picture);
 	SDL_FreeSurface(picture);
 	return result;
 }
 
 SDL_Surface* SDLImage::loadImage(const string& filename,
-	unsigned width, unsigned height, byte defaultAlpha)
+                                 unsigned width, unsigned height)
 {
 	SDL_Surface* picture = readImage(filename);
 	if (picture == NULL) {
@@ -107,7 +107,7 @@ SDL_Surface* SDLImage::loadImage(const string& filename,
 	SDL_Surface* scaled = scaleImage32(picture, width, height);
 	SDL_FreeSurface(picture);
 
-	SDL_Surface* result = convertToDisplayFormat(scaled, defaultAlpha);
+	SDL_Surface* result = convertToDisplayFormat(scaled);
 	SDL_FreeSurface(scaled);
 	return result;
 }
@@ -157,8 +157,7 @@ SDL_Surface* SDLImage::scaleImage32(
 	return result;
 }
 
-SDL_Surface* SDLImage::convertToDisplayFormat(
-	SDL_Surface* input, byte defaultAlpha)
+SDL_Surface* SDLImage::convertToDisplayFormat(SDL_Surface* input)
 {
 	// scan image, are all alpha values the same?
 	const char* pixels = (char*)input->pixels;
@@ -167,7 +166,8 @@ SDL_Surface* SDLImage::convertToDisplayFormat(
 	unsigned pitch = input->pitch;
 	unsigned Amask = input->format->Amask;
 	unsigned bytes = input->format->BytesPerPixel;
-	unsigned alpha = *((Uint32*)pixels) & Amask;
+	unsigned pixel = *((Uint32*)pixels);
+	unsigned alpha = pixel & Amask;
 
 	bool constant = true;
 	for (unsigned y = 0; y < height; ++y) {
@@ -185,7 +185,9 @@ SDL_Surface* SDLImage::convertToDisplayFormat(
 	// convert the background to the right format
 	SDL_Surface* result;
 	if (constant) {
-		SDL_SetAlpha(input, SDL_SRCALPHA, defaultAlpha);
+		Uint8 r, g, b, a;
+		SDL_GetRGBA(pixel, input->format, &r, &g, &b, &a);
+		SDL_SetAlpha(input, SDL_SRCALPHA, a);
 		result = SDL_DisplayFormat(input);
 	} else {
 		result = SDL_DisplayFormatAlpha(input);

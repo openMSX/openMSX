@@ -111,8 +111,8 @@ void SDLConsole::loadBackground(const string& filename)
 		backgroundImage.reset();
 		return;
 	}
-	backgroundImage.reset(new SDLImage(outputScreen, filename,
-		destW, destH, CONSOLE_ALPHA));
+	backgroundImage.reset(
+		new SDLImage(outputScreen, filename, destW, destH));
 	backgroundName = filename;
 }
 
