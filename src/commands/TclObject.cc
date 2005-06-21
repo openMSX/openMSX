@@ -3,6 +3,7 @@
 #include <tcl.h>
 #include "TclObject.hh"
 #include "CommandException.hh"
+#include <cassert>
 
 using std::string;
 
