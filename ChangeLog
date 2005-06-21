@@ -1,6 +1,14 @@
 $Id$
 
 2005-06-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Unrolled inner loops in CharacterConverter:
+	   - rendering text2 mode is between 1% and 2% faster now (on total
+	     simulation time)
+	   - gcc only unrolls loops when the option -funroll-loops is given
+	     it's not automatically enabled at any optimization level because
+	     it sometimes also creates slower code
+
+2005-06-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Flush PrinterPortLogger data
 
 2005-06-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>

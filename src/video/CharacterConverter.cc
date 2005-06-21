@@ -124,14 +124,15 @@ void CharacterConverter<Pixel, zoom>::renderText1(
 		int charcode = vram.nameTable.readNP((name + 0xC00) | (-1 << 12));
 		if (dirtyColours || dirtyName[name] || dirtyPattern[charcode]) {
 			int pattern = vram.patternTable.readNP(
-				patternBaseLine | (charcode * 8) );
-			for (int i = 6; i--; ) {
-				*pixelPtr++ = (pattern & 0x80) ? fg : bg;
-				pattern <<= 1;
-			}
-		} else {
-			pixelPtr += 6;
+				patternBaseLine | (charcode * 8));
+			pixelPtr[0] = (pattern & 0x80) ? fg : bg;
+			pixelPtr[1] = (pattern & 0x40) ? fg : bg;
+			pixelPtr[2] = (pattern & 0x20) ? fg : bg;
+			pixelPtr[3] = (pattern & 0x10) ? fg : bg;
+			pixelPtr[4] = (pattern & 0x08) ? fg : bg;
+			pixelPtr[5] = (pattern & 0x04) ? fg : bg;
 		}
+		pixelPtr += 6;
 	}
 }
 
@@ -157,13 +158,14 @@ void CharacterConverter<Pixel, zoom>::renderText1Q(
 		if (dirtyColours || dirtyName[name] || dirtyPattern[patternNr]) {
 			int pattern = vram.patternTable.readNP(
 				patternBaseLine | (patternNr * 8) );
-			for (int i = 6; i--; ) {
-				*pixelPtr++ = (pattern & 0x80) ? fg : bg;
-				pattern <<= 1;
-			}
-		} else {
-			pixelPtr += 6;
+			pixelPtr[0] = (pattern & 0x80) ? fg : bg;
+			pixelPtr[1] = (pattern & 0x40) ? fg : bg;
+			pixelPtr[2] = (pattern & 0x20) ? fg : bg;
+			pixelPtr[3] = (pattern & 0x10) ? fg : bg;
+			pixelPtr[4] = (pattern & 0x08) ? fg : bg;
+			pixelPtr[5] = (pattern & 0x04) ? fg : bg;
 		}
+		pixelPtr += 6;
 	}
 }
 
@@ -214,22 +216,25 @@ void CharacterConverter<Pixel, zoom>::renderText2(
 				patternBaseLine | (charcode * 8) );
 			if (zoom == Renderer::ZOOM_256) {
 				Pixel mix = blender.blend(fg, bg);
-				for (int i = 3; i--; ) {
-					*pixelPtr++ =
-						  (pattern & 0x80)
-						? ((pattern & 0x40) ? fg : mix)
-						: ((pattern & 0x40) ? mix : bg);
-					pattern <<= 2;
-				}
+				pixelPtr[0] = (pattern & 0x80)
+				            ? ((pattern & 0x40) ? fg : mix)
+					    : ((pattern & 0x40) ? mix : bg);
+				pixelPtr[1] = (pattern & 0x20)
+				            ? ((pattern & 0x10) ? fg : mix)
+					    : ((pattern & 0x10) ? mix : bg);
+				pixelPtr[2] = (pattern & 0x08)
+				            ? ((pattern & 0x04) ? fg : mix)
+					    : ((pattern & 0x04) ? mix : bg);
 			} else {
-				for (int i = 6; i--; ) {
-					*pixelPtr++ = (pattern & 0x80) ? fg : bg;
-					pattern <<= 1;
-				}
+				pixelPtr[0] = (pattern & 0x80) ? fg : bg;
+				pixelPtr[1] = (pattern & 0x40) ? fg : bg;
+				pixelPtr[2] = (pattern & 0x20) ? fg : bg;
+				pixelPtr[3] = (pattern & 0x10) ? fg : bg;
+				pixelPtr[4] = (pattern & 0x08) ? fg : bg;
+				pixelPtr[5] = (pattern & 0x04) ? fg : bg;
 			}
-		} else {
-			pixelPtr += zoom == Renderer::ZOOM_256 ? 3 : 6;
 		}
+		pixelPtr += zoom == Renderer::ZOOM_256 ? 3 : 6;
 	}
 }
 
@@ -253,15 +258,17 @@ void CharacterConverter<Pixel, zoom>::renderGraphic1(
 			Pixel bg = palFg[colour & 0x0F];
 
 			int pattern = vram.patternTable.readNP(
-				patternBaseLine | (charcode * 8) );
-			// TODO: Compare performance of this loop vs unrolling.
-			for (int i = 8; i--; ) {
-				*pixelPtr++ = (pattern & 0x80) ? fg : bg;
-				pattern <<= 1;
-			}
-		} else {
-			pixelPtr += 8;
+				patternBaseLine | (charcode * 8));
+			pixelPtr[0] = (pattern & 0x80) ? fg : bg;
+			pixelPtr[1] = (pattern & 0x40) ? fg : bg;
+			pixelPtr[2] = (pattern & 0x20) ? fg : bg;
+			pixelPtr[3] = (pattern & 0x10) ? fg : bg;
+			pixelPtr[4] = (pattern & 0x08) ? fg : bg;
+			pixelPtr[5] = (pattern & 0x04) ? fg : bg;
+			pixelPtr[6] = (pattern & 0x02) ? fg : bg;
+			pixelPtr[7] = (pattern & 0x01) ? fg : bg;
 		}
+		pixelPtr += 8;
 	}
 }
 
@@ -286,14 +293,16 @@ void CharacterConverter<Pixel, zoom>::renderGraphic2(
 			int colour = vram.colourTable.readNP(index);
 			Pixel fg = palFg[colour >> 4];
 			Pixel bg = palFg[colour & 0x0F];
-			for (int i = 8; i--; ) {
-				*pixelPtr++ = (pattern & 0x80) ? fg : bg;
-				pattern <<= 1;
-			}
+			pixelPtr[0] = (pattern & 0x80) ? fg : bg;
+			pixelPtr[1] = (pattern & 0x40) ? fg : bg;
+			pixelPtr[2] = (pattern & 0x20) ? fg : bg;
+			pixelPtr[3] = (pattern & 0x10) ? fg : bg;
+			pixelPtr[4] = (pattern & 0x08) ? fg : bg;
+			pixelPtr[5] = (pattern & 0x04) ? fg : bg;
+			pixelPtr[6] = (pattern & 0x02) ? fg : bg;
+			pixelPtr[7] = (pattern & 0x01) ? fg : bg;
 		}
-		else {
-			pixelPtr += 8;
-		}
+		pixelPtr += 8;
 	}
 }
 
@@ -313,11 +322,12 @@ void CharacterConverter<Pixel, zoom>::renderMultiHelper(
 			int colour = vram.patternTable.readNP((patternNr * 8) | baseLine);
 			Pixel cl = palFg[colour >> 4];
 			Pixel cr = palFg[colour & 0x0F];
-			for (int n = 4; n--; ) *pixelPtr++ = cl;
-			for (int n = 4; n--; ) *pixelPtr++ = cr;
-		} else {
-			pixelPtr += 8;
+			pixelPtr[0] = cl; pixelPtr[1] = cl;
+			pixelPtr[2] = cl; pixelPtr[3] = cl;
+			pixelPtr[4] = cr; pixelPtr[5] = cr;
+			pixelPtr[6] = cr; pixelPtr[7] = cr;
 		}
+		pixelPtr += 8;
 	}
 }
 template <class Pixel, Renderer::Zoom zoom>
