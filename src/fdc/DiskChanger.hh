@@ -13,7 +13,7 @@ namespace openmsx {
 class XMLElement;
 class FileManipulator;
 
-class DiskChanger : private SimpleCommand, public DiskContainer
+class DiskChanger : private Command, public DiskContainer
 {
 public:
 	DiskChanger(const std::string& driveName, FileManipulator& manipulator);
@@ -33,7 +33,8 @@ private:
 	void ejectDisk();
 
 	// Command interface
-	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+	                     TclObject& result);
 	virtual std::string help   (const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 

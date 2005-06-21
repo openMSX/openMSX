@@ -21,10 +21,16 @@ TclObject::TclObject(Tcl_Interp* interp_, const string& value)
 	init(Tcl_NewStringObj(value.data(), value.size()));
 }
 
+TclObject::TclObject(Tcl_Interp* interp_)
+	: interp(interp_)
+{
+	init(Tcl_NewObj());
+}
+
 TclObject::TclObject(const TclObject& object)
 	: interp(object.interp)
 {
-	init(Tcl_DuplicateObj(object.obj));
+	init(object.obj);
 }
 
 void TclObject::init(Tcl_Obj* obj_)
@@ -41,29 +47,62 @@ TclObject::~TclObject()
 	}
 }
 
+Tcl_Interp* TclObject::getInterpreter() const
+{
+	return interp;
+}
+
+void TclObject::unshare()
+{
+	if (Tcl_IsShared(obj)) {
+		assert(owned);
+		Tcl_DecrRefCount(obj);
+		obj = Tcl_DuplicateObj(obj);
+		Tcl_IncrRefCount(obj);
+	}
+	assert(!Tcl_IsShared(obj));
+}
+
 void TclObject::setString(const string& value)
 {
+	unshare();
 	Tcl_SetStringObj(obj, value.c_str(), value.length());
 }
 
 void TclObject::setInt(int value)
 {
+	unshare();
 	Tcl_SetIntObj(obj, value);
 }
 
 void TclObject::setDouble(double value)
 {
+	unshare();
 	Tcl_SetDoubleObj(obj, value);
 }
 
 void TclObject::setBinary(byte* buf, unsigned length)
 {
+	unshare();
 	Tcl_SetByteArrayObj(obj, buf, length);
 }
 
 void TclObject::addListElement(const string& element)
 {
-	Tcl_AppendElement(interp, element.c_str());
+	addListElement(Tcl_NewStringObj(element.data(), element.size()));
+}
+
+void TclObject::addListElement(TclObject& element)
+{
+	addListElement(element.obj);
+}
+
+void TclObject::addListElement(Tcl_Obj* element)
+{
+	unshare();
+	if (Tcl_ListObjAppendElement(interp, obj, element) != TCL_OK) {
+		throw CommandException(Tcl_GetStringResult(interp));
+	}
 }
 
 int TclObject::getInt() const
@@ -95,6 +134,15 @@ const byte* TclObject::getBinary(unsigned& length) const
 {
 	return static_cast<const byte*>(Tcl_GetByteArrayFromObj(
 		obj, reinterpret_cast<int*>(&length)));
+}
+
+unsigned TclObject::getListLength() const
+{
+	int result;
+	if (Tcl_ListObjLength(interp, obj, &result) != TCL_OK) {
+		throw CommandException(Tcl_GetStringResult(interp));
+	}
+	return result;
 }
 
 bool TclObject::evalBool() const

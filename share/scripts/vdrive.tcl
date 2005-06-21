@@ -2,18 +2,18 @@
 # version 1.0
 #
 # What does it do:
-#   It is a simple TCL script that binded to a hotkey (f.i. F9+ALT) allows
-#   users to swap disks without using the commandconsole or Compass for
-#   file selection. This is especially usefull for games and demos that
+#   It is a simple TCL script that bound to a hotkey (f.i. F9+ALT) allows
+#   users to swap disks without using the commandconsole or Catapult for
+#   file selection. This is especially useful for games and demos that
 #   span over multiple disks.
 #
 # Preparations:
-# 1. If you have a software that spans multiple disks, you have to name then
+# 1. If you have a software that spans multiple disks, you have to name them
 #    according to the scheme: name+digit+extention for example [metal1.dsk,
-#    metal2.dsk, metal3.dsk], ofcourse they may all be compressed with gzip
+#    metal2.dsk, metal3.dsk], of course they may all be compressed with gzip
 #    so that you end up with [metal1.dsk.gz, metal2.dsk.gz, metal3.dsk.gz].
 #    The script recognizes as extentions dsk, di1, di2 and xsa, with an
-#    optinal '.gz' affix.
+#    optional '.gz' suffix.
 #
 # 2. bind the vdrive script to a hotkey for instance use in the console:
 #      bind ALT+F9 "vdrive diska"
@@ -22,9 +22,9 @@
 #    it use diska
 #
 # Using:
-#   While emulating an MSX, and the sofware ask for the next disk simply
-#   press the hot-key. The script will select the next disk in the sequence
-#   if the last disk is reached, the script will select the first disk
+#   While emulating an MSX, and the sofware asks for the next disk, simply
+#   press the hot-key. The script will select the next disk in the sequence.
+#   If the last disk is reached, the script will select the first disk
 #   again. So you actually are cycling through the entire disk set as shown
 #   in the diagram below
 #
@@ -38,35 +38,22 @@
 #   copyright 2005 david heremans all rights reserved
 #
 
-
 proc vdrive { { diskdrive "diska" } } { 
-	#get current disk in diska
-	set image ""
-	set image [ $diskdrive ]
-#	#if diska doesn't exist (invalid command name "diska") then quit
-#	if [ string equal $image "" ] {
-#	  error "no diska available"
-#	}
+	# get current disk
+	if [catch {set cmd [$diskdrive]}] { error "No such drive: $diskdrive" }
 
-	# check if there is a disk in diska
-	if [ string equal [ string range $image 0 43 ] "There is currently no disk inserted in drive" ] {
-	  error $image
-	}
-
-	#get imagename part
-	set image [ string range $image 14 end-1 ]
-
-	# skip if it is a 'special' disk
-	if [ string equal "-ramdsk" $image ] {
-	  error "vdrive not possible on ramdsk"
-	}
-
-	#skip if it is a DirAsDisk
-	if [ file isdirectory $image ] {
-	  error "vdrive not possible on DirAsDisk"
+	# skip for empty drive or 'special' disk
+	set options [lindex $cmd 2]
+	if       {[lsearch $options "empty"    ] != -1} {
+		error "No disk in drive: $diskdrive"
+	} elseif {[lsearch $options "ramdsk"   ] != -1} {
+		error "Vdrive not possible on ramdsk"
+	} elseif {[lsearch $options "dirasdisk"] != -1} {
+		error "Vdrive not possible on DirAsDisk"
 	}
 
 	#remove (dsk|di1|di2|xsa)(.gz)? extention
+	set image [lindex $cmd 1]
 	set ext ""
 	set ext2 [ string range $image end-2 end ]
 	if [ string equal -nocase ".gz" $ext2  ] {
@@ -86,7 +73,7 @@ proc vdrive { { diskdrive "diska" } } {
 	set image [ string range $image 0 end-1 ]
 
 	if { ! [ string is digit $digit ] } {
-	  error "no digit as last char in name"
+	  error "No digit as last char in name"
 	}
 	# increase the number by 1 until file exists
 	# file could be erased while testing so we can not assume that the
@@ -103,8 +90,7 @@ proc vdrive { { diskdrive "diska" } } {
 	}
 
 	if { $digit != $origdigit && [ file exists $test ] } {
-		puts " New diskimage $test"
 		diska $test
+		return " New diskimage $test"
 	}
-
 }

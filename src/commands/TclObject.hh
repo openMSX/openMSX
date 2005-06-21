@@ -15,22 +15,28 @@ class TclObject
 {
 public:
 	TclObject(Tcl_Interp* interp, Tcl_Obj* object);
-	TclObject(Tcl_Interp* interp_, const std::string& value);
+	TclObject(Tcl_Interp* interp, const std::string& value);
+	explicit TclObject(Tcl_Interp* interp);
 	TclObject(const TclObject& object);
 	~TclObject();
 
-	// setters
+	// get associated interpreter
+	Tcl_Interp* getInterpreter() const;
+	
+	// value setters
 	void setString(const std::string& value);
 	void setInt(int value);
 	void setDouble(double value);
 	void setBinary(byte* buf, unsigned length);
 	void addListElement(const std::string& element);
+	void addListElement(TclObject& element);
 
-	// getters
+	// value getters
 	std::string getString() const;
 	int getInt() const;
 	double getDouble() const;
 	const byte* getBinary(unsigned& length) const;
+	unsigned getListLength() const;
 
 	// expressions
 	bool evalBool() const;
@@ -46,6 +52,8 @@ public:
 
 private:
 	void init(Tcl_Obj* obj_);
+	void unshare();
+	void addListElement(Tcl_Obj* element);
 	void parse(const char* str, int len, bool expression) const;
 
 	Tcl_Interp* interp;
