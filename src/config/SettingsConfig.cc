@@ -19,6 +19,7 @@ namespace openmsx {
 
 SettingsConfig::SettingsConfig()
 	: XMLElement("settings")
+	, mustSaveSettings(false)
 	, saveSettingsCommand(*this)
 	, loadSettingsCommand(*this)
 {
@@ -69,6 +70,7 @@ void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 void SettingsConfig::saveSetting(const string& filename)
 {
 	const string& name = filename.empty() ? saveName : filename;
+	if (name.empty()) return;
 	File file(name, TRUNCATE);
 	string data = "<!DOCTYPE settings SYSTEM 'settings.dtd'>\n" +
 	              dump();
