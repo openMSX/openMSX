@@ -1068,7 +1068,7 @@ proc trainer_testament {} {
 	poke 0x59de 32
 	#map
 	poke 0x59e3 1
-	#strong bullits
+	#strong bullets
 	poke 0x59d9 255
 	#shield 
 	poke 0x59dd 1
@@ -3309,6 +3309,62 @@ proc trainer_nightshade {} {
 	after time 1 trainer_nightshade
 }
 
+proc trainer_highwaystar {} {
+	#power
+	poke 0xe20d 255
+	poke 0xe20e 5
+	#cars
+	poke 0xe211 0x0b
+	after time 1 trainer_highwaystar
+}
+
+proc trainer_pitfall1 {} {
+	#power (6789ab)
+	poke 0xe1d6 9
+	poke 0xe1d7 9
+	poke 0xe1d8 9
+	poke 0xe1d9 9
+	poke 0xe1da 9
+	poke 0xe1db 9
+	#lives
+	poke 0xe012 255
+	after time 1 trainer_pitfall1
+}
+
+proc trainer_gunfright {} {
+	#lives
+	poke 0xd05e 3
+	#bullets
+	poke 0xd05d 5
+	#money
+	poke 0xd052 99
+	#invincible (player dissapears)
+	#!poke 0xd078 1	
+	after time 1 trainer_gunfright
+}
+
+proc trainer_knightlore {} {
+	#lives
+	poke 0xd81b 9
+	#days spend
+	poke 0xd81a 0
+	after time 1 trainer_knightlore
+}
+
+proc trainer_pitfall2 {} {
+    if {[peek 0xe05d] != 9} {
+	    poke 0xe050 0
+    }
+	#power (89abcd)
+	poke 0xe058 9
+	poke 0xe059 9
+	poke 0xe05a 9
+	poke 0xe05b 9
+	poke 0xe05c 9
+	poke 0xe05d 9
+	after time 1 trainer_pitfall2
+}
+
 proc trainer_predator {} {
 	#power
 	poke 0xc207 255
@@ -3318,11 +3374,87 @@ proc trainer_predator {} {
 	#handgrenade
 	poke 0xc235 9
 	poke 0xc236 9
-	#bullit
+	#bullet
 	poke 0xc232 9
 	poke 0xc233 9
 	poke 0xc234 9
 	after time 1 trainer_predator
+}
+
+proc trainer_runemaster1 {} {
+	#money
+	poke 0x61e2 0x0f
+	poke 0x61e3 0x27
+	#player 1 power
+	poke 0x61dc 255
+	after time 1 trainer_runemaster1
+}
+
+proc trainer_mastersoftheuniverse {} {
+	#life he-man
+	poke 0xcb01 90
+	#time
+	poke 0xd23c 9
+	poke 0xd23e 9
+	poke 0xd23f 9
+	#have all cords
+	poke 0xccd4 255
+	#lives
+	poke 0xa4e3 9
+	after time 1 trainer_mastersoftheuniverse
+}
+
+proc trainer_thingbouncesback {} {
+	#oil level
+	poke 0x8e4e 180
+	after time 1 trainer_thingbouncesback
+}
+
+proc trainer_bounder {} {
+	#lives
+	poke 0x96f 101
+	after time 10 trainer_bounder
+}
+
+proc trainer_fruityfrank {} {
+	#lives
+	poke 0x4144 4
+	after time 10 trainer_fruityfrank
+}
+
+proc trainer_batmanthemovie {} {
+	#life
+	poke 0x613d 255
+	#time
+	poke 0x5dac 58
+	poke 0x5daa 58	
+	after time 1 trainer_batmanthemovie
+}
+
+proc trainer_venomstrikesback {} {
+	#lives
+	poke 0x2bb1 255
+	poke 0x2bb2 255
+	#power slot 1 filled with penetrator
+	poke 0x2c33 1
+	poke 0x2c34 0x99
+	#power slot 2 filled with lifter
+	poke 0x2c38 6
+	poke 0x2c39 0x99
+	#power slot 3 filled with Jack Rabbit
+	poke 0x2c3d 5
+	poke 0x2c3e 0x99
+	after time 1 trainer_venomstrikesback
+}
+
+proc trainer_alehop {} {
+	#mood (stay happy)
+	poke 0xdb68 4
+	#time
+	poke 0xdb5d 9
+	poke 0xdb5e 9
+	poke 0xdb5f 1	
+	after time 10 trainer_alehop
 }
 
 proc poke {addr val} {
