@@ -1,5 +1,8 @@
 $Id$
 
+2005-06-23 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Fixed problem with saving SRAM to a machine that wasn't used before.
+
 2005-06-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Unrolled inner loops in CharacterConverter:
 	   - rendering text2 mode is between 1% and 2% faster now (on total

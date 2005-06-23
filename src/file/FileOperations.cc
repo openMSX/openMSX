@@ -218,15 +218,20 @@ std::string findShareDir() {
 static int doMkdir(const char* name, mode_t mode)
 {
 #if	defined(__MINGW32__) || defined(_MSC_VER)
-	if ((name[0]=='/' || name[0]=='\\') && name[1]=='\0' ||
-	    (name[1]==':' && name[3]=='\0' && (name[2]=='/' || name[2]=='\\' || name[2]=='\0')
-	    && ((name[0]>='A' && name[0]<='Z')||(name[0]>='a' && name[0]<='z')))) {
-		// *(_errno()) = EEXIST;
-		// return -1;
+	int len=strlen(name);
+	if (len==0){
 		return 0;
-	} else {
-		return mkdir(name);
 	}
+	if ((name[0]=='/' || name[0]=='\\') && len==1){
+		return 0;
+	}
+	if (name[len-1]==':'){
+		return 0;
+	}
+	if ((len>1) && name[len-2]==':' && (name[len-1]=='\\' || name[len-1]=='/')){
+		return 0;				
+	}
+	return mkdir(name);			
 #else
 	return mkdir(name, mode);
 #endif
