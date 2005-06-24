@@ -4,18 +4,31 @@
 #define FILEOPERATIONS_HH
 
 #include <string>
+#include <sys/types.h>
 
 namespace openmsx {
 
-class FileOperations
-{
-public:
+namespace FileOperations {
+
 	/**
 	 * Expand the '~' character to the users home directory
 	 * @param path Pathname, with or without '~' character
 	 * @result The expanded pathname
 	 */
-	static std::string expandTilde(const std::string& path);
+	std::string expandTilde(const std::string& path);
+
+	/**
+	 * Create the specified directory. Does some sanity checks so that
+	 * it bahaves the same on all platforms. The mode parameter is ignored
+	 * on windows. For compatibility with *nix creating the root dir (or a
+	 * drivename) is not an error instead the operation is silently
+	 * ignored. This function can only create one dircetory at-a-time. You
+	 * probably want to use the mkdirp function (see below).
+	 * @param path The path of the directory to create
+	 * @param mode The permission bits (*nix only)
+	 * @throw FileException
+	 */
+	void mkdir(const std::string& path, mode_t mode);
 
 	/**
 	 * Acts like the unix command "mkdir -p". Creates the
@@ -24,14 +37,14 @@ public:
 	 * @return True iff successful
 	 * @throw FileException
 	 */
-	static void mkdirp(const std::string& path);
+	void mkdirp(const std::string& path);
 
 	/**
 	 * Returns the file portion of a path name.
 	 * @param path The pathname
 	 * @result The file portion
 	 */
-	static std::string getFilename(const std::string& path);
+	std::string getFilename(const std::string& path);
 
 	/**
 	 * Returns the directory portion of a path.
@@ -40,7 +53,7 @@ public:
 	 *         If path doesn't has a directory portion the result
 	 *         is an empty string.
 	 */
-	static std::string getBaseName(const std::string& path);
+	std::string getBaseName(const std::string& path);
 
 	/**
 	 * Returns the path in conventional path-delimiter.
@@ -49,7 +62,7 @@ public:
 	 * 	On UNI*Y systems, it will have no effect indeed.
 	 * 	Just for portability issue. (Especially for Win32)
 	 */
-	static std::string getConventionalPath(const std::string& path);
+	std::string getConventionalPath(const std::string& path);
 
 	/**
 	 * Returns the path in native path-delimiter.
@@ -58,14 +71,14 @@ public:
 	 * 	On UNI*Y systems, it will have no effect indeed.
 	 * 	Just for portability issue. (Especially for Win32)
 	 */
-	static std::string getNativePath(const std::string& path);
+	std::string getNativePath(const std::string& path);
 
 	/**
 	 * Checks whether it's a absolute path or not.
 	 * @param path The pathname.
 	 * @result 1 when absolute path. 0 when relative path.
 	 */
-	static bool isAbsolutePath(const std::string& path);
+	bool isAbsolutePath(const std::string& path);
 
 	/**
 	 * Get user's home directory.
@@ -74,48 +87,49 @@ public:
 	 *        Not "Documents and Settings".
 	 *        This is because to support Win9x.
 	 */
-	static const std::string& getUserHomeDir();
+	const std::string& getUserHomeDir();
 
 	/**
 	 * Get the openMSX dir in the user's home directory.
 	 * Default value is "~/.openMSX" (UNIX) or "~/openMSX" (win)
 	 */
-	static const std::string& getUserOpenMSXDir();
+	const std::string& getUserOpenMSXDir();
 
 	/**
 	 * Get the openMSX data dir in the user's home directory.
 	 * Default value is "~/.openMSX/share" (UNIX) or "~/openMSX/share" (win)
 	 */
-	static std::string getUserDataDir();
+	std::string getUserDataDir();
 
 	/**
 	 * Get system directory.
 	 * UNI*Y: statically defined as "/opt/openMSX/share".
 	 * Win32: use "same directory as .exe" + "/share".
 	 */
-	static std::string getSystemDataDir();
+	std::string getSystemDataDir();
 
 	/**
 	* Get the current directory of the specified drive
 	* Linux: just return an empty string
 	*/
-	static std::string expandCurrentDirFromDrive(const std::string& path);
+	std::string expandCurrentDirFromDrive(const std::string& path);
 
 	/**
 	 * Is this a regular file (no directory, device, ..)?
 	 */
-	static bool isRegularFile(const std::string& filename);
+	bool isRegularFile(const std::string& filename);
 
 	/**
 	 * Is this a directory?
 	 */
-	static bool isDirectory(const std::string& directory);
+	bool isDirectory(const std::string& directory);
 
 	/**
 	 * Does this file (directory) exists?
 	 */
-	static bool exists(const std::string& filename);
-};
+	bool exists(const std::string& filename);
+
+} // namespace FileOperations
 
 } // namespace openmsx
 

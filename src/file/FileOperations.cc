@@ -22,7 +22,6 @@
 #include <cerrno>
 #include <cstdlib>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include "build-info.hh"
 #include "FileOperations.hh"
@@ -116,6 +115,8 @@ static int setenv(const char *name, const char *value, int overwrite)
 
 
 namespace openmsx {
+
+namespace FileOperations {
 
 #ifdef __APPLE__
 
@@ -212,33 +213,7 @@ std::string findShareDir() {
 
 #endif // __APPLE__
 
-/* A wrapper for mkdir().  On some systems, mkdir() does not take permision in
- * arguments. For such systems, in this function, adjust arguments.
- */
-static int doMkdir(const char* name, mode_t mode)
-{
-#if	defined(__MINGW32__) || defined(_MSC_VER)
-	int len=strlen(name);
-	if (len==0){
-		return 0;
-	}
-	if ((name[0]=='/' || name[0]=='\\') && len==1){
-		return 0;
-	}
-	if (name[len-1]==':'){
-		return 0;
-	}
-	if ((len>1) && name[len-2]==':' && (name[len-1]=='\\' || name[len-1]=='/')){
-		return 0;				
-	}
-	return mkdir(name);			
-#else
-	return mkdir(name, mode);
-#endif
-}
-
-
-string FileOperations::expandTilde(const string& path)
+string expandTilde(const string& path)
 {
 	if ((path.size() <= 1) || (path[0] != '~')) {
 		return path;
@@ -254,8 +229,24 @@ string FileOperations::expandTilde(const string& path)
 	}
 }
 
+void mkdir(const string& path, mode_t mode)
+{
+#if	defined(__MINGW32__) || defined(_MSC_VER)
+	if ((path == "/") ||
+	    StringOp::endsWith(path, ":") ||
+	    StringOp::endsWith(path, ":/")) {
+		return;
+	}
+	int result = ::mkdir(getNativePath(path).c_str());
+#else
+	int result = ::mkdir(getNativePath(path).c_str(), mode);
+#endif
+	if (result && (errno != EEXIST)) {
+		throw FileException("Error creating dir " + path);
+	}
+}
 
-void FileOperations::mkdirp(const string& path_)
+void mkdirp(const string& path_)
 {
 	if (path_.empty()) {
 		return;
@@ -265,10 +256,7 @@ void FileOperations::mkdirp(const string& path_)
 	string::size_type pos = 0;
 	do {
 		pos = path.find_first_of('/', pos + 1);
-		if (doMkdir(getNativePath(path).substr(0, pos).c_str(), 0755) &&
-		    (errno != EEXIST)) {
-			throw FileException("Error creating dir " + path);
-		}
+		mkdir(path.substr(0, pos), 0755);
 	} while (pos != string::npos);
 
 	struct stat st;
@@ -277,7 +265,7 @@ void FileOperations::mkdirp(const string& path_)
 	}
 }
 
-string FileOperations::getFilename(const string& path)
+string getFilename(const string& path)
 {
 	string::size_type pos = path.rfind('/');
 	if (pos == string::npos) {
@@ -287,7 +275,7 @@ string FileOperations::getFilename(const string& path)
 	}
 }
 
-string FileOperations::getBaseName(const string& path)
+string getBaseName(const string& path)
 {
 	string::size_type pos = path.rfind('/');
 	if (pos == string::npos) {
@@ -297,7 +285,7 @@ string FileOperations::getBaseName(const string& path)
 	}
 }
 
-string FileOperations::getNativePath(const string &path)
+string getNativePath(const string &path)
 {
 #if	defined(_WIN32)
 	string result(path);
@@ -308,7 +296,7 @@ string FileOperations::getNativePath(const string &path)
 #endif
 }
 
-string FileOperations::getConventionalPath(const string &path)
+string getConventionalPath(const string &path)
 {
 #if	defined(_WIN32)
 	string result(path);
@@ -319,7 +307,7 @@ string FileOperations::getConventionalPath(const string &path)
 #endif
 }
 
-bool FileOperations::isAbsolutePath(const string& path)
+bool isAbsolutePath(const string& path)
 {
 #if	defined(_WIN32)
 	if ((path.size() >= 3) && (path[1] == ':') && (path[2] == '/')) {
@@ -332,7 +320,7 @@ bool FileOperations::isAbsolutePath(const string& path)
 	return !path.empty() && (path[0] == '/');
 }
 
-const string& FileOperations::getUserHomeDir()
+const string& getUserHomeDir()
 {
 	static string userDir;
 	if (userDir.empty()) {
@@ -367,7 +355,7 @@ const string& FileOperations::getUserHomeDir()
 	return userDir;
 }
 
-const string& FileOperations::getUserOpenMSXDir()
+const string& getUserOpenMSXDir()
 {
 #if defined(_WIN32)
 	static const string OPENMSX_DIR = expandTilde("~/openMSX");
@@ -377,7 +365,7 @@ const string& FileOperations::getUserOpenMSXDir()
 	return OPENMSX_DIR;
 }
 
-string FileOperations::getUserDataDir()
+string getUserDataDir()
 {
 	const char* const NAME = "OPENMSX_USER_DATA";
 	char* value = getenv(NAME);
@@ -390,7 +378,7 @@ string FileOperations::getUserDataDir()
 	return newValue;
 }
 
-string FileOperations::getSystemDataDir()
+string getSystemDataDir()
 {
 	const char* const NAME = "OPENMSX_SYSTEM_DATA";
 	char* value = getenv(NAME);
@@ -420,7 +408,7 @@ string FileOperations::getSystemDataDir()
 	return newValue;
 }
 
-string FileOperations::expandCurrentDirFromDrive (const string& path)
+string expandCurrentDirFromDrive (const string& path)
 {
 	string result = path;
 #ifdef _WIN32
@@ -446,24 +434,26 @@ string FileOperations::expandCurrentDirFromDrive (const string& path)
 	return result;
 }
 
-bool FileOperations::isRegularFile(const string& filename)
+bool isRegularFile(const string& filename)
 {
 	struct stat st;
 	int ret = stat(filename.c_str(), &st);
 	return (ret == 0) && S_ISREG(st.st_mode);
 }
 
-bool FileOperations::isDirectory(const string& directory)
+bool isDirectory(const string& directory)
 {
 	struct stat st;
 	int ret = stat(directory.c_str(), &st);
 	return (ret == 0) && S_ISDIR(st.st_mode);
 }
 
-bool FileOperations::exists(const string& filename)
+bool exists(const string& filename)
 {
 	struct stat st;
 	return stat(filename.c_str(), &st) == 0;
 }
+
+} // namespace FileOperations
 
 } // namespace openmsx
