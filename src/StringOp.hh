@@ -31,6 +31,9 @@ namespace StringOp
 
 	std::string toLower(const std::string& str);
 
+	bool startsWith(const std::string& total, const std::string& part);
+	bool endsWith  (const std::string& total, const std::string& part);
+	
 	// case insensitive less then operator
 	struct caseless {
 		bool operator()(const std::string& s1, const std::string& s2) const {

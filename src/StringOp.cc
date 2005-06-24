@@ -4,6 +4,8 @@
 #include <algorithm>
 #include "StringOp.hh"
 
+using std::advance;
+using std::equal;
 using std::string;
 using std::transform;
 
@@ -32,6 +34,19 @@ string toLower(const string& str)
 	string result = str;
 	transform(result.begin(), result.end(), result.begin(), ::tolower);
 	return result;
+}
+
+bool startsWith(const string& total, const string& part)
+{
+	if (total.size() < part.size()) return false;
+	return equal(part.begin(), part.end(), total.begin());
+}
+
+bool endsWith(const string& total, const string& part)
+{
+	int offset = total.size() - part.size();
+	if (offset < 0) return false;
+	return equal(part.begin(), part.end(), total.begin() + offset);
 }
 
 } // namespace StringOp
