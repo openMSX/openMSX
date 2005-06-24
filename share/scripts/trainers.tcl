@@ -1,4 +1,4 @@
-# game trainers version 1.0 
+# game trainers version 1.1
 #
 # credits:
 #   copyright 2005 albert beevendorp all rights reserved
@@ -477,9 +477,13 @@ proc trainer_jackiechprotector {} {
 }
 
 proc trainer_zanac {} {
-	#life 
+	#invincible 
 	poke 0xe305 128
+	poke 0xe31b 255
+	#super shot
 	poke 0xe10f 48
+	#lives
+	poke 0xe10a 99
 	after time 1 trainer_zanac 
 }
 
@@ -904,6 +908,15 @@ proc trainer_metalgear1 {} {
 	poke 0xc51c 8	
 	#enemies can't hurt you
 	poke 0xc199 255
+	
+	#undetected
+	poke 0xc012 44
+	poke 0xc032 44
+	poke 0xc052 44
+	poke 0xc159 44
+	poke 0xc602 0
+	poke 0xc604 0
+	poke 0xc606 0
 	after time 2 trainer_metalgear1
 }
 
@@ -1734,7 +1747,6 @@ proc trainer_dragonslayer4_msx1 {} {
 	after time 1 trainer_dragonslayer4_msx1
 }
 
-
 proc trainer_druid {} {
 	poke 0xc06e 140
 	#ammo 1
@@ -2187,7 +2199,6 @@ proc trainer_gallforce {} {
 	after time 2 trainer_gallforce 
 }
 
-
 proc trainer_beamrider {} {
 	#unlimited bombs
 	poke 0xe22c 99
@@ -2288,8 +2299,15 @@ proc trainer_superrambospecial {} {
 	poke 0xc169 255	
 	#bazooka
 	poke 0xc16a 255	
+	#flowers
+	poke 0xc16c 255
 	#keys
 	poke 0xc16b 255	
+	#summon sidekick
+	poke 0xc218 1
+	#prevent sidekick from screaming and moaning
+	poke 0xc216 255
+	poke 0xc225 255
 	after time 2 trainer_superrambospecial 
 } 
 
@@ -3441,7 +3459,7 @@ proc trainer_venomstrikesback {} {
 	#power slot 2 filled with lifter
 	poke 0x2c38 6
 	poke 0x2c39 0x99
-	#power slot 3 filled with Jack Rabbit
+	#power slot 3 filled with jack rabbit
 	poke 0x2c3d 5
 	poke 0x2c3e 0x99
 	after time 1 trainer_venomstrikesback
@@ -3455,6 +3473,285 @@ proc trainer_alehop {} {
 	poke 0xdb5e 9
 	poke 0xdb5f 1	
 	after time 10 trainer_alehop
+}
+
+proc trainer_policeacademy1 {} {
+	#65535 bullits 
+	poke 0x4d39 255
+	poke 0x4d3a 255
+	after time 1 trainer_policeacademy1
+}
+
+proc trainer_policeacademy2 {} {
+	#health 
+	poke 0xc006 0
+	#mistakes
+	poke 0xc007 0
+	#bullits
+	poke 0xc003 255
+	after time 1 trainer_policeacademy2
+}
+
+proc trainer_ttracer {} {
+	#temp 
+	poke 0x5ad9 255
+	after time 1 trainer_ttracer
+}
+
+proc trainer_humphrey {} {
+	#lives 
+	poke 0x6797 9
+	after time 10 trainer_humphrey
+}
+
+proc trainer_arkos1 {} {
+	#lives 
+	poke 0x5bf2 10
+	after time 10 trainer_arkos1
+}
+
+proc trainer_arkos2 {} {
+	#lives 
+	poke 0x5bf2 10
+	after time 10 trainer_arkos2
+}
+
+proc trainer_arkos3 {} {
+	#lives 
+	poke 0x5bf2 10
+	after time 10 trainer_arkos3
+}
+
+proc trainer_afterthewar1 {} {
+	#power 
+	poke 0xba9a 16
+	after time 1 trainer_afterthewar1
+}
+
+proc trainer_satan1 {} {
+	#power unlimited
+	poke 0x8462 0
+	#some gauge 
+	poke 0xc88f 100
+	after time 1 trainer_satan1
+}
+
+proc trainer_indianajonesandthelastcrusade {} {
+	#power 
+	poke 0x7ac0 255
+	#whip
+	poke 0x7abe 10
+	#lives/vidas
+	poke 0x7ac1 9
+	after time 1 trainer_indianajonesandthelastcrusade
+}
+
+proc trainer_indianajonesandthetempleofdoom {} {
+	#lives
+	poke 0xc234 59
+	after time 1 trainer_indianajonesandthetempleofdoom
+}
+
+proc trainer_corsarios1 {} {
+	#power 
+	poke 0x96f2 99
+	after time 1 trainer_corsarios1
+}
+
+proc trainer_corsarios2 {} {
+	#power 
+	poke 0x979b 9
+	after time 1 trainer_corsarios2
+}
+
+proc trainer_greenberret {} {
+	#lives
+	poke 0xf120 57
+	#have bazooka
+	poke 0xf0c3 4
+	after time 1 trainer_greenberret
+}
+	
+proc trainer_discwarrior {} {
+	#power 
+	poke 0x8513 255
+	after time 1 trainer_discwarrior
+}
+
+proc trainer_eidelon {} {
+	#power 
+	poke 0x012f 16
+	after time 1 trainer_eidelon
+}
+
+proc trainer_hardboiled {} {
+	#power 
+	poke 0xd047 32
+	after time 1 trainer_hardboiled
+}
+
+proc trainer_battlechopper {} {
+	#power 
+	poke 0x8335 0
+	after time 1 trainer_battlechopper
+}
+
+proc trainer_tnt {} {
+	#lives 
+	poke 0x7074 100
+	#ammo
+	poke 0x4894 255
+	after time 1 trainer_tnt
+}
+
+proc trainer_goody {} {
+	#invincible
+	poke 0xaeaf 8
+	after time 10 trainer_goody
+}
+
+proc trainer_alpharoid {} {
+	#enemy dies after one kick
+	poke 0xe8f7 0
+	poke 0xeb0e 231
+	#invincible (in space)
+	poke 0xe399 4
+	#lives
+	poke 0xe3a2 98
+	after time 1 trainer_alpharoid
+}
+
+proc trainer_operationwolf {} {
+	#invincible
+	poke 0x9ae9 0
+	#grenades
+	poke 0x9ae6 9
+	#bullits
+	poke 0xa316 32
+	#mag
+	poke 0x9ae7 9
+	after time 2 trainer_operationwolf
+}
+
+proc trainer_teenageninjamutantheroturtles {} {
+	#invincible
+	poke 0x5f66 16
+	after time 1 trainer_teenageninjamutantheroturtles
+}
+
+proc trainer_bladelords {} {
+	#lives
+	poke 0x0430 0x99
+	#invincible
+	poke 0x0429 255
+	#have blades
+	poke 0x0424 255
+	after time 1 trainer_bladelords
+}
+
+proc trainer_chiller {} {
+	#power
+	poke 0x9ab8 25
+	poke 0x9ab9 0
+	after time 1 trainer_chiller
+}
+
+proc trainer_crusader {} {
+	#power
+	poke 0xe491 255
+	after time 1 trainer_crusader
+}
+
+proc trainer_dokidokipenguinland {} {
+	#eggs
+	poke 0xe111 100
+	after time 1 trainer_dokidokipenguinland
+}
+
+proc trainer_pegasus {} {
+	#power
+	poke 0xc006 43
+	#stage (change value to get that stage)
+	#!poke 0xc007 1
+	#big pegasus
+	poke 0xc009 4
+	after time 1 trainer_pegasus
+}
+
+proc trainer_avenger {} {
+	#green sun
+	poke 0xbdf8 255
+	#red sun
+	poke 0xbdf9 255
+	#do not die
+	#!poke 0xbdfa 0
+	#shuriken
+	poke 0xacd5 255
+	#keys
+	poke 0xacd3 255
+	after time 1 trainer_avenger
+}
+
+proc trainer_randar3 {} {
+	#life player 1
+	poke 0xd014 0x3
+	poke 0xd015	0xe7
+	#magic player 1
+	poke 0xd016 0x3
+	poke 0xd017	0xe7
+	
+	#life mick
+	poke 0xd074 0x3
+	poke 0xd075	0xe7
+	#magic mick
+	poke 0xd076 0x3
+	poke 0xd077	0xe7	
+	
+	#money
+	poke 0xd185 254
+	poke 0xd186 255
+	poke 0xd187 255
+		
+	after time 1 trainer_randar3
+}
+
+proc trainer_BattennoDaibouken  {} {
+	#power
+	poke 0xe2ed 128
+	after time 1 trainer_BattennoDaibouken 
+}
+
+proc trainer_blackcyclon  {} {
+	#power
+	poke 0x76f0 30
+	poke 0xd1e3 30
+	after time 1 trainer_blackcyclon 
+}
+
+proc trainer_casanova {} {
+	#lives
+	poke 0xb489 255
+	after time 1 trainer_casanova
+}
+
+proc trainer_chubbygristle {} {
+	#lives
+	poke 0x7532 255
+	after time 1 trainer_chubbygristle
+}
+
+proc trainer_darwin4078 {} {
+	#max weapons
+	poke 0xe8e6 144
+	poke 0xe8f0 135
+	poke 0xe9bb 144
+	after time 1 trainer_darwin4078
+}
+
+proc trainer_demonia {} {
+	#max weapons
+	poke 0x806c 255
+	after time 1 trainer_demonia
 }
 
 proc poke {addr val} {
