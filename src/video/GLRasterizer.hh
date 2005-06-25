@@ -80,12 +80,6 @@ private:
 	  */
 	inline Pixel graphic7Colour(byte index);
 
-	/** Get the pixel colour of the border.
-	  * SCREEN6 has separate even/odd pixels in the border.
-	  * TODO: Implement the case that even_colour != odd_colour.
-	  */
-	inline Pixel getBorderColour();
-
 	/** Reload entire palette from VDP.
 	  */
 	void resetPalette();
@@ -197,6 +191,7 @@ private:
 	DirtyChecker<(1<<10), 8> dirtyColour;
 
 	GLuint characterCache[4 * 256];
+	GLuint stripeTexture;
 
 	/** VRAM to pixels converter for character display modes.
 	  */

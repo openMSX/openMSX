@@ -8,6 +8,7 @@
 #include "Scaler.hh"
 #include "BooleanSetting.hh"
 #include "FloatSetting.hh"
+#include "MemoryOps.hh"
 #include <SDL.h>
 #include <algorithm>
 #include <cassert>
@@ -55,20 +56,6 @@ inline Pixel* SDLRasterizer<Pixel, zoom>::getLinePtr(
 {
 	return (Pixel*)( (byte*)displayCache->pixels
 		+ line * displayCache->pitch );
-}
-
-// TODO: Cache this?
-template <class Pixel, Renderer::Zoom zoom>
-inline Pixel SDLRasterizer<Pixel, zoom>::getBorderColour()
-{
-	int mode = vdp.getDisplayMode().getByte();
-	int bgColour = vdp.getBackgroundColour();
-	if (vdp.getDisplayMode().getBase() == DisplayMode::GRAPHIC5) {
-		// TODO: Border in SCREEN6 has separate colour for even and odd pixels.
-		//       Until that is supported, only use odd pixel colour.
-		bgColour &= 0x03;
-	}
-	return (mode == DisplayMode::GRAPHIC7 ? PALETTE256 : palBg)[bgColour];
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -160,12 +147,10 @@ inline void SDLRasterizer<Pixel, zoom>::renderCharacterLines(
 template <class Pixel, Renderer::Zoom zoom>
 SDLRasterizer<Pixel, zoom>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
 	: vdp(vdp_), vram(vdp.getVRAM())
-	, characterConverter(vdp, palFg, palBg,
-		Blender<Pixel>::createFromFormat(screen->format))
-	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS,
-		Blender<Pixel>::createFromFormat(screen->format))
-	, spriteConverter(vdp.getSpriteChecker(),
-		Blender<Pixel>::createFromFormat(screen->format))
+	, blender(Blender<Pixel>::createFromFormat(screen->format))
+	, characterConverter(vdp, palFg, palBg, blender)
+	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS, blender)
+	, spriteConverter(vdp.getSpriteChecker(), blender)
 {
 	interlaced = false;
 	this->screen = screen;
@@ -586,44 +571,61 @@ template <class Pixel, Renderer::Zoom zoom>
 void SDLRasterizer<Pixel, zoom>::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {
+	DisplayMode mode = vdp.getDisplayMode();
+	byte modeBase = mode.getBase();
+	int bgColor = vdp.getBackgroundColour();
+	Pixel border0, border1;
+	if (modeBase == DisplayMode::GRAPHIC5) {
+		// border in SCREEN6 has separate color for even and odd pixels.
+		// TODO odd/even swapped?
+		border0 = palBg[bgColor & 0x03];
+		border1 = palBg[(bgColor & 0x0C) >> 2];
+		if (zoom == Renderer::ZOOM_256) {
+			border0 = border1 = blender.blend(border0, border1);
+		}
+	} else if (modeBase == DisplayMode::GRAPHIC7) {
+		border0 = border1 = PALETTE256[bgColor];
+	} else {
+		border0 = border1 = palBg[bgColor & 0x0F];
+	}
+
+	int startY = max(fromY - lineRenderTop, 0);
+	int endY = min(limitY - lineRenderTop, (int)HEIGHT / LINE_ZOOM);
 	if (fromX == 0 && limitX == VDP::TICKS_PER_LINE) {
 		// TODO: Disabled this optimisation during interlace, because
 		//       lineContent administration is available only for current
 		//       frame, not for previous frame, which led to glitches.
-		if (LINE_ZOOM == 2 && !interlaced) {
+		if ((LINE_ZOOM == 2) && !interlaced &&
+		    (modeBase != DisplayMode::GRAPHIC5)) {
 			//fprintf(stderr, "saved: %d-%d\n", fromY, limitY);
 			//int endY = rect.y + rect.h;
 			//for (int y = rect.y; y < endY; y++) {
-			int startY = max(fromY - lineRenderTop, 0);
-			int endY = min(limitY - lineRenderTop, (int)HEIGHT / 2);
 			for (int y = startY; y < endY; y++) {
 				*reinterpret_cast<Pixel*>(
 					reinterpret_cast<byte*>(workScreen->pixels) +
 					workScreen->pitch * y
-					) = getBorderColour();
+					) = border0;
 				lineContent[y] = LINE_BLANK;
 			}
 			return;
 		}
 	}
 
-	bool narrow = vdp.getDisplayMode().getLineWidth() == 512;
-
-	SDL_Rect rect;
-	rect.x = translateX(fromX, narrow);
-	rect.w = translateX(limitX, narrow) - rect.x;
-	rect.y = fromY - lineRenderTop;
-	rect.h = limitY - fromY;
-	// Note: return code ignored.
-	SDL_FillRect(workScreen, &rect, getBorderColour());
-
-	if (LINE_ZOOM == 2) {
-		LineContent lineType = narrow ? LINE_512 : LINE_256;
-		int endY = rect.y + rect.h;
-		for (int y = rect.y; y < endY; y++) {
+	bool narrow = mode.getLineWidth() == 512;
+	unsigned x = translateX(fromX, narrow);
+	unsigned num = translateX(limitX, narrow) - x;
+	char* pixels = (char*)workScreen->pixels + x * sizeof(Pixel) +
+	               startY * workScreen->pitch; 
+	
+	LineContent lineType = narrow ? LINE_512 : LINE_256;
+	for (int y = startY; y < endY; ++y) {
+		MemoryOps::memset_2<Pixel, MemoryOps::NO_STREAMING>(
+			(Pixel*)pixels, num, border0, border1);
+		pixels += workScreen->pitch;
+		if (LINE_ZOOM == 2) {
 			lineContent[y] = lineType;
- 		}
- 	}
+		}
+	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>

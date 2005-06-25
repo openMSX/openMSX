@@ -145,6 +145,25 @@ inline static void GLDrawColourBlock(GLuint textureId, int x, int y)
 	glEnd();
 }
 
+inline static void drawStripes(
+	int x1, int y1, int x2, int y2,
+	GLRasterizer::Pixel col0, GLRasterizer::Pixel col1,
+	GLuint textureId)
+{
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
+	GLSetTexEnvCol(col0);
+	GLSetColour(col1);
+	glBegin(GL_QUADS);
+	glTexCoord2f(x1 / 2.0f, 1.0f); glVertex2i(x1, y2); // Bottom Left
+	glTexCoord2f(x2 / 2.0f, 1.0f); glVertex2i(x2, y2); // Bottom Right
+	glTexCoord2f(x2 / 2.0f, 0.0f); glVertex2i(x2, y1); // Top Right
+	glTexCoord2f(x1 / 2.0f, 0.0f); glVertex2i(x1, y1); // Top Left
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+}
+
 /** Translate from absolute VDP coordinates to screen coordinates:
   * Note: In reality, there are only 569.5 visible pixels on a line.
   *       Because it looks better, the borders are extended to 640.
@@ -159,19 +178,6 @@ inline static int translateX(int absoluteX)
 	int screenX = WIDTH / 2 +
 		((absoluteX & ~1) - (TICKS_VISIBLE_MIDDLE & ~1)) / 2;
 	return screenX < 0 ? 0 : screenX;
-}
-
-// TODO: Cache this?
-inline GLRasterizer::Pixel GLRasterizer::getBorderColour()
-{
-	int mode = vdp.getDisplayMode().getByte();
-	int bgColour = vdp.getBackgroundColour();
-	if (vdp.getDisplayMode().getBase() == DisplayMode::GRAPHIC5) {
-		// TODO: Border in SCREEN6 has separate colour for even and odd pixels.
-		//       Until that is supported, only use odd pixel colour.
-		bgColour &= 0x03;
-	}
-	return (mode == DisplayMode::GRAPHIC7 ? PALETTE256 : palBg)[bgColour];
 }
 
 inline void GLRasterizer::renderBitmapLine(byte mode, int vramLine)
@@ -275,6 +281,22 @@ GLRasterizer::GLRasterizer(VDP& vdp_)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
+	
+	// texture for drawing stripes 
+	glGenTextures(1, &stripeTexture);
+	glBindTexture(GL_TEXTURE_2D, stripeTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	byte pattern[2] = { 0xFF, 0x00 };
+	glTexImage2D(GL_TEXTURE_2D,
+	             0, // level
+	             GL_LUMINANCE8,
+	             2, // width
+	             1, // height
+	             0, // border
+	             GL_LUMINANCE,
+	             GL_UNSIGNED_BYTE,
+	             pattern);
 
 	// Create bitmap display cache.
 	bitmapTextures = vdp.isMSX1VDP() ? NULL : new LineTexture[4 * 256];
@@ -567,9 +589,24 @@ const string& GLRasterizer::getName()
 
 void GLRasterizer::drawBorder(int fromX, int fromY, int limitX, int limitY)
 {
-	GLFillBlock(translateX(fromX), (fromY - lineRenderTop) * 2,
-	            translateX(limitX), (limitY - lineRenderTop) * 2,
-	            getBorderColour());
+	int x1 = translateX(fromX);
+	int x2 = translateX(limitX);
+	int y1 = (fromY  - lineRenderTop) * 2;
+	int y2 = (limitY - lineRenderTop) * 2;
+	
+	byte mode = vdp.getDisplayMode().getByte();
+	int bgColor = vdp.getBackgroundColour();
+
+	if (mode != DisplayMode::GRAPHIC5) {
+		Pixel col = (mode != DisplayMode::GRAPHIC7)
+		          ? palBg[bgColor & 0x0F]
+		          : PALETTE256[bgColor];
+		GLFillBlock(x1, y1, x2, y2, col);
+	} else {
+		Pixel col0 = palBg[(bgColor & 0x03) >> 0];
+		Pixel col1 = palBg[(bgColor & 0x0C) >> 2];
+		drawStripes(x1, y1, x2, y2, col0, col1, stripeTexture);
+	}
 }
 
 void GLRasterizer::renderText1(

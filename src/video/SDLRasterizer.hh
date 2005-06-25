@@ -101,12 +101,6 @@ private:
 	  */
 	inline Pixel graphic7Colour(byte index);
 
-	/** Get the pixel colour of the border.
-	  * SCREEN6 has separate even/odd pixels in the border.
-	  * TODO: Implement the case that even_colour != odd_colour.
-	  */
-	inline Pixel getBorderColour();
-
 	/** Reload entire palette from VDP.
 	  */
 	void resetPalette();
@@ -163,9 +157,6 @@ private:
 		/** Line contains 512 (narrow) pixels.
 		  */
 		LINE_512,
-		/** Line does not need postprocessing.
-		  */
-		LINE_DONTTOUCH
 	};
 	LineContent lineContent[HEIGHT / LINE_ZOOM];
 
@@ -253,6 +244,10 @@ private:
 	  * 0xFF means invalid in every mode.
 	  */
 	byte lineValidInMode[256 * 4];
+
+	/** Blend to pixel colors
+	 */
+	Blender<Pixel> blender;
 
 	/** VRAM to pixels converter for character display modes.
 	  */

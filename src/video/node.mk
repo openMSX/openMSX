@@ -23,7 +23,8 @@ SRC_HDR:= \
 	Layer \
 	DummyVideoSystem \
 	IconLayer \
-	SDLImage
+	SDLImage \
+	MemoryOps
 
 HDR_ONLY:= \
 	DirtyChecker \

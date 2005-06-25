@@ -1,5 +1,8 @@
 $Id$
 
+2005-06-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented stripes in border in screen6
+
 2005-06-23 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Fixed problem with saving SRAM to a machine that wasn't used before.
 
