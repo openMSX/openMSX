@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1118214445">
+<softwaredb xml:lang="en" timestamp="1119725091">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -9606,7 +9606,7 @@
 	<software>
 		<title xml:lang="en">MIDI Macro and Monitor</title>
 		<system>MSX</system>
-		<company>YRM-303</company>
+		<company>Yamaha</company>
 		<year>1986</year>
 		<country>JP</country>
 		<dump>
@@ -9614,7 +9614,7 @@
 			<rom>
 				<hash algo="sha1">e7c800fa576b3a9554836aa9c5eaa3ae893805d4</hash>
 				<remark>
-					<text>Needs FMSound Synthesizer Unit</text>
+					<text>YRM-303 Needs FMSound Synthesizer Unit</text>
 				</remark>
 			</rom>
 		</dump>
@@ -9622,7 +9622,7 @@
 	<software>
 		<title xml:lang="en">MIDI Recorder</title>
 		<system>MSX</system>
-		<company>YRM-301</company>
+		<company>Yamaha</company>
 		<year>1986</year>
 		<country>JP</country>
 		<dump>
@@ -9630,7 +9630,7 @@
 			<rom>
 				<hash algo="crc32">ECEE5307</hash>
 				<remark>
-					<text>Yamaha</text>
+					<text>YRM-301</text>
 				</remark>
 			</rom>
 		</dump>
@@ -24763,9 +24763,9 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database 	: 2348
+Roms in this database : 2348
 Good MSX entries 		: 755
 SHA1 values 			: 1769
 CRC32 values 			: 579
-Parse time 12.987 seconds on Wed Jun 8 9:07:38 CEST 2005
+Parse time 7.958 seconds on Sat Jun 25 20:44:59 CEST 2005
  -->
