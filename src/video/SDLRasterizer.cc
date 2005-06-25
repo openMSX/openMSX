@@ -578,8 +578,8 @@ void SDLRasterizer<Pixel, zoom>::drawBorder(
 	if (modeBase == DisplayMode::GRAPHIC5) {
 		// border in SCREEN6 has separate color for even and odd pixels.
 		// TODO odd/even swapped?
-		border0 = palBg[bgColor & 0x03];
-		border1 = palBg[(bgColor & 0x0C) >> 2];
+		border0 = palBg[(bgColor & 0x0C) >> 2];
+		border1 = palBg[(bgColor & 0x03) >> 0];
 		if (zoom == Renderer::ZOOM_256) {
 			border0 = border1 = blender.blend(border0, border1);
 		}

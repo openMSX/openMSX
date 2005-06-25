@@ -603,8 +603,8 @@ void GLRasterizer::drawBorder(int fromX, int fromY, int limitX, int limitY)
 		          : PALETTE256[bgColor];
 		GLFillBlock(x1, y1, x2, y2, col);
 	} else {
-		Pixel col0 = palBg[(bgColor & 0x03) >> 0];
-		Pixel col1 = palBg[(bgColor & 0x0C) >> 2];
+		Pixel col0 = palBg[(bgColor & 0x0C) >> 2];
+		Pixel col1 = palBg[(bgColor & 0x03) >> 0];
 		drawStripes(x1, y1, x2, y2, col0, col1, stripeTexture);
 	}
 }
