@@ -6,6 +6,7 @@
 #include "CartridgeSlotManager.hh"
 #include "PluggingController.hh"
 #include "Debugger.hh"
+#include "Mixer.hh"
 #include "DummyDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXCPU.hh"
@@ -70,7 +71,7 @@ CartridgeSlotManager& MSXMotherBoard::getSlotManager()
 PluggingController& MSXMotherBoard::getPluggingController()
 {
 	if (!pluggingController.get()) {
-		pluggingController.reset(new PluggingController());
+		pluggingController.reset(new PluggingController(*this));
 	}
 	return *pluggingController;
 }
@@ -78,6 +79,14 @@ PluggingController& MSXMotherBoard::getPluggingController()
 Debugger& MSXMotherBoard::getDebugger()
 {
 	return *debugger;
+}
+
+Mixer& MSXMotherBoard::getMixer()
+{
+	if (!mixer.get()) {
+		mixer.reset(new Mixer());
+	}
+	return *mixer;
 }
 
 DummyDevice& MSXMotherBoard::getDummyDevice()
@@ -128,7 +137,7 @@ CassettePortInterface& MSXMotherBoard::getCassettePort()
 {
 	if (!cassettePort.get()) {
 		if (HardwareConfig::instance().findChild("CassettePort")) {
-			cassettePort.reset(new CassettePort(getPluggingController()));
+			cassettePort.reset(new CassettePort(*this));
 		} else {
 			cassettePort.reset(new DummyCassettePort());
 		}

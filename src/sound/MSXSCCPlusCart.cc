@@ -59,7 +59,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
 		mapper[i] = 0;
 	}
 
-	scc.reset(new SCC(motherBoard.getDebugger(), getName(), config, time,
+	scc.reset(new SCC(motherBoard, getName(), config, time,
 	                  SCC::SCC_Compatible));
 
 	reset(time);

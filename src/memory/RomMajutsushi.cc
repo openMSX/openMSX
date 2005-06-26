@@ -10,6 +10,7 @@
 // by writting at 0x6000,0x8000 and 0xa000
 
 #include "RomMajutsushi.hh"
+#include "MSXMotherBoard.hh"
 #include "DACSound8U.hh"
 #include "Rom.hh"
 
@@ -20,7 +21,8 @@ RomMajutsushi::RomMajutsushi(
 	const EmuTime& time, std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, time, rom)
 {
-	dac.reset(new DACSound8U(getName(), "Majutsushi DAC", config, time));
+	dac.reset(new DACSound8U(motherBoard.getMixer(), getName(),
+	          "Majutsushi DAC", config, time));
 	reset(time);
 }
 

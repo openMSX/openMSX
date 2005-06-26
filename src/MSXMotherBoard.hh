@@ -17,6 +17,7 @@ class BooleanSetting;
 class CartridgeSlotManager;
 class PluggingController;
 class Debugger;
+class Mixer;
 class DummyDevice;
 class MSXCPU;
 class MSXCPUInterface;
@@ -68,6 +69,7 @@ public:
 	CartridgeSlotManager& getSlotManager();
 	PluggingController& getPluggingController();
 	Debugger& getDebugger();
+	Mixer& getMixer();
 	DummyDevice& getDummyDevice();
 	MSXCPU& getCPU() const { return *msxCpu; }
 	MSXCPUInterface& getCPUInterface();
@@ -100,6 +102,7 @@ private:
 	std::auto_ptr<CartridgeSlotManager> slotManager;
 	std::auto_ptr<PluggingController> pluggingController;
 	std::auto_ptr<Debugger> debugger;
+	std::auto_ptr<Mixer> mixer;
 	std::auto_ptr<XMLElement> dummyDeviceConfig;
 	std::auto_ptr<DummyDevice> dummyDevice;
 	std::auto_ptr<MSXCPU> msxCpu;

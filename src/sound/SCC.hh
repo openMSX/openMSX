@@ -10,6 +10,7 @@
 
 namespace openmsx {
 
+class MSXMotherBoard;
 class Debugger;
 
 class SCC : private SoundDevice
@@ -17,7 +18,7 @@ class SCC : private SoundDevice
 public:
 	enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};
 
-	SCC(Debugger& debugger, const std::string& name,
+	SCC(MSXMotherBoard& motherBoard, const std::string& name,
 	    const XMLElement& config, const EmuTime& time,
 	    ChipMode mode = SCC_Real);
 	virtual ~SCC();

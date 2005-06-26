@@ -19,6 +19,7 @@
 */
 
 #include "RomSynthesizer.hh"
+#include "MSXMotherBoard.hh"
 #include "DACSound8U.hh"
 #include "CPU.hh"
 #include "Rom.hh"
@@ -35,8 +36,8 @@ RomSynthesizer::RomSynthesizer(
 	setRom (2, 1);
 	setBank(3, unmappedRead);
 
-	dac.reset(new DACSound8U(getName(), "Konami Synthesizer DAC",
-	                         config, time));
+	dac.reset(new DACSound8U(motherBoard.getMixer(), getName(),
+	                         "Konami Synthesizer DAC", config, time));
 
 	reset(time);
 }

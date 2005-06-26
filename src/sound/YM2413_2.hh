@@ -11,6 +11,7 @@
 namespace openmsx {
 
 class EmuTime;
+class MSXMotherBoard;
 class Debugger;
 
 class Slot
@@ -83,7 +84,7 @@ public:
 class YM2413_2 : public YM2413Core, private SoundDevice, private Debuggable
 {
 public:
-	YM2413_2(Debugger& debugger_, const std::string& name,
+	YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
 	         const XMLElement& config, const EmuTime& time);
 	virtual ~YM2413_2();
 

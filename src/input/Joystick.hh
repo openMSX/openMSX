@@ -19,7 +19,7 @@ public:
 	/** Register all available SDL joysticks.
 	  * @param controller Register here.
 	  */
-	static void registerAll(PluggingController* controller);
+	static void registerAll(PluggingController& controller);
 
 	//Pluggable
 	virtual const std::string& getName() const;

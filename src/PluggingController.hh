@@ -9,6 +9,7 @@
 
 namespace openmsx {
 
+class MSXMotherBoard;
 class Connector;
 class Pluggable;
 class Scheduler;
@@ -21,7 +22,7 @@ class InfoCommand;
 class PluggingController
 {
 public:
-	PluggingController();
+	PluggingController(MSXMotherBoard& motherBoard);
 	~PluggingController();
 
 	/**

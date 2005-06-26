@@ -6,9 +6,9 @@ using std::string;
 
 namespace openmsx {
 
-DACSound8U::DACSound8U(const string& name, const string& desc,
+DACSound8U::DACSound8U(Mixer& mixer, const string& name, const string& desc,
                        const XMLElement& config, const EmuTime& time)
-	: DACSound16S(name, desc, config, time)
+	: DACSound16S(mixer, name, desc, config, time)
 {
 }
 

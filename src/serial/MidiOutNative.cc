@@ -10,12 +10,12 @@ using std::string;
 
 namespace openmsx {
 
-void MidiOutNative::registerAll(PluggingController* controller)
+void MidiOutNative::registerAll(PluggingController& controller)
 {
 	w32_midiOutInit();
 	unsigned devnum = w32_midiOutGetVFNsNum();
 	for (unsigned i = 0; i < devnum; ++i) {
-		controller->registerPluggable(new MidiOutNative(i));
+		controller.registerPluggable(new MidiOutNative(i));
 	}
 }
 

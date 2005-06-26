@@ -20,7 +20,7 @@ using std::vector;
 
 namespace openmsx {
 
-PluggingController::PluggingController()
+PluggingController::PluggingController(MSXMotherBoard& motherBoard)
 	: plugCmd(*this),
 	  unplugCmd(*this),
 	  pluggableInfo(*this),
@@ -30,7 +30,7 @@ PluggingController::PluggingController()
 	  commandController(CommandController::instance()),
 	  infoCommand(InfoCommand::instance())
 {
-	PluggableFactory::createAll(this);
+	PluggableFactory::createAll(*this, motherBoard);
 
 	commandController.registerCommand(&plugCmd,   "plug");
 	commandController.registerCommand(&unplugCmd, "unplug");

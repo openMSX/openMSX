@@ -755,7 +755,8 @@ byte YMF278::peekStatus(const EmuTime& time) const
 
 YMF278::YMF278(MSXMotherBoard& motherBoard, const string& name_, int ramSize,
                const XMLElement& config, const EmuTime& time)
-	: debugRegisters(*this), debugMemory(*this)
+	: SoundDevice(motherBoard.getMixer())
+	, debugRegisters(*this), debugMemory(*this)
 	, debugger(motherBoard.getDebugger()), name(name_)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {

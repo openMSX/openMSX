@@ -11,7 +11,8 @@ MSXTurboRPCM::MSXTurboRPCM(MSXMotherBoard& motherBoard,
 	: MSXDevice(motherBoard, config, time)
 	, AudioInputConnector(motherBoard.getPluggingController(), "pcminput")
 {
-	dac.reset(new DACSound8U("PCM", "Turbo-R PCM", config, time));
+	dac.reset(new DACSound8U(motherBoard.getMixer(), "PCM", "Turbo-R PCM",
+	                         config, time));
 
 	reset(time);
 }

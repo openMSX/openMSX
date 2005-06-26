@@ -23,6 +23,7 @@
 
 #include <cmath>
 #include "YM2413_2.hh"
+#include "MSXMotherBoard.hh"
 #include "Debugger.hh"
 #include "Scheduler.hh"
 
@@ -1178,8 +1179,8 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 	reg[r] = v;
 
 	// update the output buffer before changing the register
-	Mixer::instance().updateStream(time);
-	Mixer::instance().lock();
+	getMixer().updateStream(time);
+	getMixer().lock();
 
 	switch (r & 0xF0) {
 	case 0x00: {
@@ -1315,7 +1316,7 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 	default:
 		break;
 	}
-	Mixer::instance().unlock();
+	getMixer().unlock();
 	checkMute();
 }
 
@@ -1352,9 +1353,10 @@ void YM2413_2::reset(const EmuTime &time)
 }
 
 
-YM2413_2::YM2413_2(Debugger& debugger_, const string& name_,
+YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const string& name_,
                    const XMLElement& config, const EmuTime& time)
-	: debugger(debugger_), name(name_)
+	: SoundDevice(motherBoard.getMixer())
+	, debugger(motherBoard.getDebugger()), name(name_)
 {
 	eg_cnt = eg_timer = 0;
 	rhythm = 0;

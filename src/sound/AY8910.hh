@@ -9,6 +9,7 @@
 
 namespace openmsx {
 
+class MSXMotherBoard;
 class AY8910Periphery;
 class Debugger;
 class XMLElement;
@@ -21,7 +22,7 @@ class EmuTime;
 class AY8910 : private SoundDevice, private Debuggable
 {
 public:
-	AY8910(Debugger& debugger, AY8910Periphery& periphery_,
+	AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
 	       const XMLElement& config, const EmuTime& time);
 	virtual ~AY8910();
 

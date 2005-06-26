@@ -11,7 +11,7 @@ using std::string;
 
 namespace openmsx {
 
-void Joystick::registerAll(PluggingController *controller)
+void Joystick::registerAll(PluggingController& controller)
 {
 	if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
 		SDL_InitSubSystem(SDL_INIT_JOYSTICK);
@@ -20,7 +20,7 @@ void Joystick::registerAll(PluggingController *controller)
 
 	unsigned numJoysticks = SDL_NumJoysticks();
 	for (unsigned i = 0; i < numJoysticks; i++) {
-		controller->registerPluggable(new Joystick(i));
+		controller.registerPluggable(new Joystick(i));
 	}
 }
 

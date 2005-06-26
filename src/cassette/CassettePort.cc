@@ -5,6 +5,7 @@
 #include "CassetteDevice.hh"
 #include "CassettePlayer.hh"
 #include "DummyCassetteDevice.hh"
+#include "MSXMotherBoard.hh"
 #include "PluggingController.hh"
 #include "HardwareConfig.hh"
 
@@ -71,11 +72,11 @@ void DummyCassettePort::flushOutput(const EmuTime& /*time*/)
 
 // CassettePort //
 
-CassettePort::CassettePort(PluggingController& pluggingController_)
+CassettePort::CassettePort(MSXMotherBoard& motherBoard)
 	: CassettePortInterface()
-	, pluggingController(pluggingController_)
+	, pluggingController(motherBoard.getPluggingController())
 {
-	cassettePlayer.reset(new CassettePlayer());
+	cassettePlayer.reset(new CassettePlayer(motherBoard.getMixer()));
 	buffer = new short[BUFSIZE];
 	pluggingController.registerConnector(this);
 	pluggingController.registerPluggable(cassettePlayer.get());

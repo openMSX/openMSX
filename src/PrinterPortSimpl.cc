@@ -9,7 +9,8 @@ using std::string;
 
 namespace openmsx {
 
-PrinterPortSimpl::PrinterPortSimpl()
+PrinterPortSimpl::PrinterPortSimpl(Mixer& mixer_)
+	: mixer(mixer_)
 {
 }
 
@@ -46,7 +47,8 @@ void PrinterPortSimpl::plugHelper(Connector* /*connector*/, const EmuTime& time)
 			new XMLElement("mode", "mono")));
 		simplConfig.addChild(soundElem);
 	}
-	dac.reset(new DACSound8U("simpl", getDescription(), simplConfig, time));
+	dac.reset(new DACSound8U(mixer, "simpl", getDescription(),
+	          simplConfig, time));
 }
 
 void PrinterPortSimpl::unplugHelper(const EmuTime& /*time*/)

@@ -3,17 +3,18 @@
 #ifndef CASSETTEPLAYER_HH
 #define CASSETTEPLAYER_HH
 
-#include <memory>
 #include "CassetteDevice.hh"
 #include "EmuTime.hh"
 #include "Command.hh"
 #include "CommandLineParser.hh"
 #include "SoundDevice.hh"
+#include <memory>
 
 namespace openmsx {
 
 class CassetteImage;
 class XMLElement;
+class Mixer;
 
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
@@ -32,7 +33,7 @@ class CassettePlayer : public CassetteDevice, public SoundDevice,
                        private SimpleCommand
 {
 public:
-	CassettePlayer();
+	CassettePlayer(Mixer& mixer);
 	virtual ~CassettePlayer();
 
 	void insertTape(const std::string& filename);

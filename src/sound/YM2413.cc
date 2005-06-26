@@ -10,6 +10,7 @@
 #include <cassert>
 #include <algorithm>
 #include "YM2413.hh"
+#include "MSXMotherBoard.hh"
 #include "Mixer.hh"
 #include "Debugger.hh"
 #include "Scheduler.hh"
@@ -568,9 +569,10 @@ static byte inst_data[16 + 3][8] = {
 	{ 0x25,0x11,0x00,0x00,0xf8,0xfa,0xf8,0x55 }
 };
 
-YM2413::YM2413(Debugger& debugger_, const string& name_,
+YM2413::YM2413(MSXMotherBoard& motherBoard, const string& name_,
                const XMLElement& config, const EmuTime& time)
-	: debugger(debugger_), name(name_)
+	: SoundDevice(motherBoard.getMixer())
+	, debugger(motherBoard.getDebugger()), name(name_)
 {
 	for (int i = 0; i < 16 + 3; ++i) {
 		patches[2 * i + 0] = Patch(0, inst_data[i]);
@@ -1038,8 +1040,8 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	//PRT_DEBUG("YM2413: write reg "<<(int)regis<<" "<<(int)data);
 
 	// update the output buffer before changing the register
-	Mixer::instance().updateStream(time);
-	Mixer::instance().lock();
+	getMixer().updateStream(time);
+	getMixer().lock();
 
 	assert (regis < 0x40);
 	reg[regis] = data;
@@ -1206,7 +1208,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	default:
 		break;
 	}
-	Mixer::instance().unlock();
+	getMixer().unlock();
 	checkMute();
 }
 

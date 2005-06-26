@@ -424,12 +424,14 @@ void Y8950::Channel::keyOff()
 
 Y8950::Y8950(MSXMotherBoard& motherBoard, const string& name_,
              const XMLElement& config, int sampleRam, const EmuTime& time)
-	: debugger(motherBoard.getDebugger())
+	: SoundDevice(motherBoard.getMixer())
+	, debugger(motherBoard.getDebugger())
 	, irq(motherBoard.getCPU())
 	, timer1(this), timer2(this)
 	, adpcm(new Y8950Adpcm(*this, name_, sampleRam))
 	, connector(new Y8950KeyboardConnector(motherBoard.getPluggingController()))
-	, dac13(new DACSound16S(name_ + " DAC", "MSX-AUDIO 13-bit DAC", config, time))
+	, dac13(new DACSound16S(motherBoard.getMixer(), name_ + " DAC",
+	                        "MSX-AUDIO 13-bit DAC", config, time))
 	, name(name_)
 {
 	makePmTable();
@@ -505,7 +507,7 @@ void Y8950::reset(const EmuTime &time)
 	noiseB_dphase = 0;
 
 	// update the output buffer before changing the register
-	Mixer::instance().updateStream(time);
+	getMixer().updateStream(time);
 	for (int i = 0; i < 0x100; ++i)
 		reg[i] = 0x00;
 
@@ -874,9 +876,9 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 	//TODO also ADPCM
 	//if (rg>=0x20) {
 		// update the output buffer before changing the register
-		Mixer::instance().updateStream(time);
+		getMixer().updateStream(time);
 	//}
-	Mixer::instance().lock();
+	getMixer().lock();
 
 	switch (rg & 0xe0) {
 	case 0x00: {
@@ -1103,7 +1105,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 		reg[rg] = data;
 	}
 	}
-	Mixer::instance().unlock();
+	getMixer().unlock();
 	//TODO only for registers that influence sound
 	checkMute();
 }
@@ -1111,7 +1113,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 byte Y8950::readReg(byte rg, const EmuTime &time)
 {
 	// TODO only when necessary
-	Mixer::instance().updateStream(time);
+	getMixer().updateStream(time);
 
 	byte result;
 	switch (rg) {

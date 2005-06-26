@@ -1812,7 +1812,8 @@ void YMF262::reset(const EmuTime& time)
 
 YMF262::YMF262(MSXMotherBoard& motherBoard, const string& name_,
                const XMLElement& config, const EmuTime& time)
-	: irq(motherBoard.getCPU()), timer1(this), timer2(this)
+	: SoundDevice(motherBoard.getMixer())
+	, irq(motherBoard.getCPU()), timer1(this), timer2(this)
 	, debugger(motherBoard.getDebugger()), name(name_)
 {
 	LFO_AM = LFO_PM = 0;

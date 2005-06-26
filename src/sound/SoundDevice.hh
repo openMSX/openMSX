@@ -3,8 +3,8 @@
 #ifndef SOUNDDEVICE_HH
 #define SOUNDDEVICE_HH
 
-#include <string>
 #include "Mixer.hh"
+#include <string>
 
 namespace openmsx {
 
@@ -42,7 +42,7 @@ protected:
 	 * Constructor.
 	 * Initially, a sound device is muted.
 	 */
-	SoundDevice();
+	SoundDevice(Mixer& mixer);
 
 	/**
 	 * Destructor.
@@ -73,6 +73,10 @@ protected:
 	 * Call this method before any deallocation is done.
 	 */
 	void unregisterSound();
+
+	/** Returns the Mixer associated with this SoundDevice
+	 */
+	Mixer& getMixer() const { return mixer; }
 
 public: // Will be called by Mixer:
 	/**
@@ -107,6 +111,7 @@ public: // Will be called by Mixer:
 	virtual void updateBuffer(int length, int* buffer) = 0;
 
 private:
+	Mixer& mixer;
 	bool muted;
 };
 

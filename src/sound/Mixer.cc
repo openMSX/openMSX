@@ -111,12 +111,6 @@ Mixer::~Mixer()
 	infoCommand.unregisterTopic("sounddevice", &soundDeviceInfo);
 }
 
-Mixer& Mixer::instance()
-{
-	static Mixer oneInstance;
-	return oneInstance;
-}
-
 
 void Mixer::reopenSound()
 {

@@ -11,6 +11,7 @@
  */
 
 #include "AY8910.hh"
+#include "MSXMotherBoard.hh"
 #include "Mixer.hh"
 #include "Debugger.hh"
 #include "Scheduler.hh"
@@ -337,10 +338,11 @@ inline void AY8910::Envelope::advance(int duration)
 
 // AY8910 main class:
 
-AY8910::AY8910(Debugger& debugger_, AY8910Periphery& periphery_,
+AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
                const XMLElement& config, const EmuTime& time)
-	: periphery(periphery_)
-	, debugger(debugger_)
+	: SoundDevice(motherBoard.getMixer())
+	, periphery(periphery_)
+	, debugger(motherBoard.getDebugger())
 	, envelope(amplitude)
 {
 	// make valgrind happy
@@ -430,11 +432,11 @@ void AY8910::writeRegister(byte reg, byte value, const EmuTime& time)
 	assert(reg <= 15);
 	if ((reg < AY_PORTA) && (reg == AY_ESHAPE || regs[reg] != value)) {
 		// Update the output buffer before changing the register.
-		Mixer::instance().updateStream(time);
+		getMixer().updateStream(time);
 	}
-	Mixer::instance().lock();
+	getMixer().lock();
 	wrtReg(reg, value, time);
-	Mixer::instance().unlock();
+	getMixer().unlock();
 }
 void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 {

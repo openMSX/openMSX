@@ -13,7 +13,7 @@ class PluggingController;
 class MidiOutNative : public MidiOutDevice
 {
 public:
-	static void registerAll(PluggingController* controller);
+	static void registerAll(PluggingController& controller);
 
 	MidiOutNative(unsigned num);
 	virtual ~MidiOutNative();

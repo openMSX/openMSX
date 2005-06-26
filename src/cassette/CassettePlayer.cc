@@ -53,8 +53,9 @@ const string& MSXCassettePlayerCLI::fileTypeHelp() const
 }
 
 
-CassettePlayer::CassettePlayer()
-	: motor(false), forcePlay(false)
+CassettePlayer::CassettePlayer(Mixer& mixer)
+	: SoundDevice(mixer)
+	, motor(false), forcePlay(false)
 {
 	XMLElement& config = GlobalSettings::instance().getMediaConfig();
 	playerElem = &config.getCreateChild("cassetteplayer");

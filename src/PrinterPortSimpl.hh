@@ -3,17 +3,18 @@
 #ifndef PRINTERPORTSIMPLE_HH
 #define PRINTERPORTSIMPLE_HH
 
-#include <memory>
 #include "PrinterPortDevice.hh"
+#include <memory>
 
 namespace openmsx {
 
+class Mixer;
 class DACSound8U;
 
 class PrinterPortSimpl : public PrinterPortDevice
 {
 public:
-	PrinterPortSimpl();
+	PrinterPortSimpl(Mixer& mixer);
 	virtual ~PrinterPortSimpl();
 
 	// PrinterPortDevice
@@ -28,6 +29,7 @@ public:
 	virtual void unplugHelper(const EmuTime& time);
 
 private:
+	Mixer& mixer;
 	std::auto_ptr<DACSound8U> dac;
 };
 

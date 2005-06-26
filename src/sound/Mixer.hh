@@ -30,7 +30,8 @@ public:
 		MONO, MONO_LEFT, MONO_RIGHT, STEREO, OFF, NB_MODES
 	};
 
-	static Mixer& instance();
+	Mixer();
+	virtual ~Mixer();
 
 	/**
 	 * Use this method to register a given sounddevice.
@@ -74,9 +75,6 @@ public:
 	void generate(short* buffer, unsigned samples);
 
 private:
-	Mixer();
-	virtual ~Mixer();
-
 	void openSound();
 	void reopenSound();
 	void muteHelper();

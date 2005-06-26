@@ -7,7 +7,8 @@ using std::string;
 
 namespace openmsx {
 
-SoundDevice::SoundDevice()
+SoundDevice::SoundDevice(Mixer& mixer_)
+	: mixer(mixer_)
 {
 	muted = true;
 }
@@ -41,12 +42,12 @@ void SoundDevice::registerSound(const XMLElement& config,
 			mode = Mixer::MONO;
 		}
 	}
-	Mixer::instance().registerSound(*this, volume, mode);
+	mixer.registerSound(*this, volume, mode);
 }
 
 void SoundDevice::unregisterSound()
 {
-	Mixer::instance().unregisterSound(*this);
+	mixer.unregisterSound(*this);
 }
 
 } // namespace openmsx

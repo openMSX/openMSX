@@ -72,6 +72,7 @@
 //-----------------------------------------------------------------------------
 
 #include "SCC.hh"
+#include "MSXMotherBoard.hh"
 #include "Mixer.hh"
 #include "Scheduler.hh"
 #include "Debugger.hh"
@@ -80,9 +81,11 @@ using std::string;
 
 namespace openmsx {
 
-SCC::SCC(Debugger& debugger_, const string& name_, const XMLElement& config,
+SCC::SCC(MSXMotherBoard& motherBoard, const string& name_, const XMLElement& config,
          const EmuTime& time, ChipMode mode)
-	: sccDebuggable(*this), currentChipMode(mode), debugger(debugger_)
+	: SoundDevice(motherBoard.getMixer())
+	, sccDebuggable(*this), currentChipMode(mode)
+	, debugger(motherBoard.getDebugger())
 	, name(name_)
 {
 	// Clear wave forms.
@@ -265,7 +268,7 @@ byte SCC::getFreqVol(byte address)
 
 void SCC::writeMemInterface(byte address, byte value, const EmuTime& time)
 {
-	Mixer::instance().updateStream(time);
+	getMixer().updateStream(time);
 
 	switch (currentChipMode) {
 	case SCC_Real:

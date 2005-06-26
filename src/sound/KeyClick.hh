@@ -7,6 +7,7 @@
 
 namespace openmsx {
 
+class Mixer;
 class XMLElement;
 class EmuTime;
 class DACSound8U;
@@ -14,7 +15,7 @@ class DACSound8U;
 class KeyClick
 {
 public:
-	KeyClick(const XMLElement& config, const EmuTime& time);
+	KeyClick(Mixer& mixer, const XMLElement& config, const EmuTime& time);
 	virtual ~KeyClick();
 
 	void reset(const EmuTime& time);
