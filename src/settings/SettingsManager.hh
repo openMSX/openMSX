@@ -31,12 +31,11 @@ public:
 	  * @return The Setting with the given name,
 	  *   or NULL if there is no such Setting.
 	  */
-	Setting* getByName(const std::string& name) const {
-		SettingsMap::const_iterator it = settingsMap.find(name);
-		// TODO: The cast is valid because currently all nodes are leaves.
-		//       In the future this will no longer be the case.
-		return it != settingsMap.end() ? it->second : NULL;
-	}
+	Setting* getByName(const std::string& name) const;
+
+	/** Fills the given vector with all known settings
+	 */
+	void getAllSettings(std::vector<const Setting*>& result) const;
 
 	void registerSetting(Setting& setting);
 	void unregisterSetting(Setting& setting);

@@ -135,6 +135,20 @@ const XMLElement* XMLElement::findChild(const string& name) const
 	return const_cast<XMLElement*>(this)->findChild(name);
 }
 
+XMLElement* XMLElement::findChildWithAttribute(const string& name,
+	const string& attName, const string& attValue)
+{
+	Children children;
+	getChildren(name, children);
+	for (Children::iterator it = children.begin();
+	     it != children.end(); ++it) {
+		if ((*it)->getAttribute(attName) == attValue) {
+			return *it;
+		}
+	}
+	return NULL;
+}
+
 XMLElement& XMLElement::getChild(const string& name)
 {
 	XMLElement* elem = findChild(name);
@@ -164,17 +178,12 @@ XMLElement& XMLElement::getCreateChildWithAttribute(
 	const string& name, const string& attName,
 	const string& attValue, const string& defaultValue)
 {
-	Children children;
-	getChildren(name, children);
-	for (Children::iterator it = children.begin();
-	     it != children.end(); ++it) {
-		if ((*it)->getAttribute(attName) == attValue) {
-			return **it;
-		}
+	XMLElement* result = findChildWithAttribute(name, attName, attValue);
+	if (!result) {
+		result = new XMLElement(name, defaultValue);
+		result->addAttribute(attName, attValue);
+		addChild(auto_ptr<XMLElement>(result));
 	}
-	XMLElement* result = new XMLElement(name, defaultValue);
-	result->addAttribute(attName, attValue);
-	addChild(auto_ptr<XMLElement>(result));
 	return *result;
 }
 

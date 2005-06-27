@@ -41,6 +41,10 @@ public:
 	 */
 	virtual void restoreDefault() = 0;
 
+	/** Checks whether the current value is the default value.
+	 */
+	virtual bool hasDefaultValue() const = 0;
+
 	/** Complete a partly typed value.
 	  * Default implementation does not complete anything,
 	  * subclasses can override this to complete according to their

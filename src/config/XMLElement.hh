@@ -81,6 +81,10 @@ public:
 	const XMLElement* findChild(const std::string& name) const;
 	XMLElement* findChild(const std::string& name);
 	const XMLElement& getChild(const std::string& name) const;
+	XMLElement* findChildWithAttribute(
+		const std::string& name, const std::string& attName,
+		const std::string& attValue);
+
 	XMLElement& getChild(const std::string& name);
 	void getChildren(const std::string& name, Children& result) const;
 

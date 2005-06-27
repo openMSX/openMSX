@@ -4,6 +4,11 @@ $Id$
 	* Mute sound when a bp is hit and during turbor HW pause
 	* Implemented HW mute bit in turbor PCM device
 	* SettingsManager is no longer a singleton
+	* Don't save settings that (still) have their default value:
+	   - this way the user no longer needs to delete his settings.xml
+	     file to get the new default values when he upgrades
+	   - TODO: this broke the load_settings command. I'll fix it
+	     after keybindings and keyjoystick are refactored
 
 2005-06-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Mixer is no longer a singleton

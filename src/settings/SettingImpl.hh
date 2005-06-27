@@ -60,6 +60,7 @@ public:
 	virtual std::string getValueString() const;
 	virtual void setValueString(const std::string& valueString);
 	virtual void restoreDefault();
+	virtual bool hasDefaultValue() const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 protected:
@@ -211,6 +212,12 @@ template<typename POLICY>
 void SettingImpl<POLICY>::restoreDefault()
 {
 	setValue(getDefaultValue());
+}
+
+template<typename POLICY>
+bool SettingImpl<POLICY>::hasDefaultValue() const
+{
+	return getValue() == getDefaultValue();
 }
 
 template<typename POLICY>

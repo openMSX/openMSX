@@ -92,6 +92,22 @@ T& SettingsManager::getByName(const string& cmd, const string& name) const
 	return *typeSetting;
 }
 
+Setting* SettingsManager::getByName(const std::string& name) const
+{
+	SettingsMap::const_iterator it = settingsMap.find(name);
+	// TODO: The cast is valid because currently all nodes are leaves.
+	//       In the future this will no longer be the case.
+	return it != settingsMap.end() ? it->second : NULL;
+}
+
+void SettingsManager::getAllSettings(std::vector<const Setting*>& result) const
+{
+	for (SettingsMap::const_iterator it = settingsMap.begin();
+	     it != settingsMap.end(); ++it) {
+		result.push_back(it->second);
+	}
+}
+
 
 // SetCompleter implementation:
 

@@ -72,9 +72,29 @@ void SettingsConfig::saveSetting(const string& filename)
 {
 	const string& name = filename.empty() ? saveName : filename;
 	if (name.empty()) return;
+
+	XMLElement copy(*this);
+	XMLElement* copySettings = copy.findChild("settings");
+	if (copySettings) {
+		vector<const Setting*> allSettings;
+		getSettingsManager().getAllSettings(allSettings);
+		for (vector<const Setting*>::const_iterator it = allSettings.begin();
+		     it != allSettings.end(); ++it) {
+			const Setting& setting = **it;
+			if (setting.hasDefaultValue()) {
+				// don't save settings that have their default value
+				XMLElement* elem = copySettings->findChildWithAttribute(
+					"setting", "id", setting.getName());
+				if (elem) {
+					copySettings->removeChild(*elem);
+				}
+			}
+		}
+	}
+	
 	File file(name, TRUNCATE);
 	string data = "<!DOCTYPE settings SYSTEM 'settings.dtd'>\n" +
-	              dump();
+	              copy.dump();
 	file.write((const byte*)data.c_str(), data.size());
 }
 
