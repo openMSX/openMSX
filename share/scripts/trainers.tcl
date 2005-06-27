@@ -13,6 +13,9 @@
 # although the definition of cheating is mostly negative 
 # this time i turned it into something fun.
 #
+# OpenMSX is made to work together with IPS patches. Albert has some IPS
+# patches ready at http://ips.msx.nu/ for even more chatting ;)
+#
 # please cheat responsible!
 
 proc trainer_f1spirit {} { 
@@ -537,9 +540,22 @@ proc trainer_feedback {} {
 	#life 
 	poke 0xd213 16
 	#speed
-	poke 0xd212 16
+	poke 0xd212 10
 	#invincible
 	poke 0xd21b 255
+	#red missle
+	poke 0xd17a 255
+	poke 0xd17e 2
+	#have one red missle ready :)
+	poke 0xd21a 1
+	#make sure those stay on the screen
+	poke 0xd10a 255
+	poke 0xd11a 255
+	poke 0xd12a 255
+	poke 0xd13a 255
+	poke 0xd14a 255
+	poke 0xd15a 255
+	poke 0xd16a 255
 	after time 2 trainer_feedback
 }
 
@@ -822,12 +838,26 @@ proc trainer_girlyblock {} {
 	after time 2 trainer_girlyblock
 }
 
-proc trainer_finalzone1 {} {
+proc trainer_fantasyzone1 {} {
 	#money
 	poke 0xe20d 0x99
 	poke 0xe20c 0x99
 	poke 0xe20b 0x99
-	after time 2 trainer_finalzone1
+	after time 2 trainer_fantasyzone1
+}
+
+proc trainer_fantasyzone2 {} {
+	#money
+	poke 0xe599 0x99
+	poke 0xe59a 0x99
+	poke 0xe59b 0x99
+	after time 1 trainer_finasyzone2
+}
+
+proc trainer_richandmich {} {
+	#shield
+	poke 0xce13 255
+	after time 10 trainer_richandmich
 }
 
 proc trainer_superpierot {} {
@@ -1767,6 +1797,21 @@ proc trainer_druid {} {
 	
 	after time 2 trainer_druid
 }
+proc trainer_eggerland1 {} {
+	#bullets
+	poke 0xc811 0x99
+	#lives
+	poke 0xd0d0 0x99
+	#door is always open
+	poke 0xd1f2 0
+	#blocks collected
+	poke 0xd1f4 1
+	#time in special stages
+	poke 0xc81d 255
+	#stage number
+	#!poke c81b x
+after time 1 trainer_eggerland1
+}
 
 proc trainer_eggerland2 {} {
 	#shots always active
@@ -1777,8 +1822,9 @@ proc trainer_eggerland2 {} {
 	poke 0xec56 99
 	#containers left
 	poke 0xeb88 0
-
-	after time 2 trainer_eggerland2
+	#stay alive
+	poke 0xeb94 0
+	after time 1 trainer_eggerland2
 }
 
 proc trainer_wonderboy {} {
@@ -1843,6 +1889,23 @@ proc trainer_knightmare {} {
 	poke 0xe60e 0x99
 	
 	after time 2 trainer_knightmare
+}
+
+proc trainer_quinpl {} {
+	#timer
+	poke 0xe231 0x99
+	poke 0xe233 0x99
+	#black pin
+	poke 0xe020 0x9
+	#white pin
+	poke 0xe021 0x9
+	#red pin
+	poke 0xe022 0x9	
+	#blue pin
+	poke 0xe023 0x9
+	#duck
+	poke 0xe024 0x9	
+	after time 1 trainer_quinpl
 }
 
 proc trainer_nyancleracing {} {
@@ -1918,6 +1981,13 @@ proc trainer_returnofjelda {} {
 	after time 1 trainer_returnofjelda
 }
 
+proc trainer_scrambleformation {} {
+	#help planes
+	poke 0xc102 5
+	#lives
+	poke 0xc101 0x99
+	after time 1 trainer_scrambleformation
+}
 
 proc trainer_chukataisen {} {
 	#fire power
@@ -1972,6 +2042,15 @@ proc trainer_garryuuo {} {
 	after time 2 trainer_garryuuo
 }
 
+proc trainer_familyboxing {} {
+	#power
+	poke 0xc008 0
+	poke 0xc010 0
+	poke 0xc04e 28
+	poke 0xc04f 28
+	after time 1 trainer_familyboxing
+}
+
 proc trainer_kingkong2 {} {
 	#life
 	poke 0xc129 0x99
@@ -1986,8 +2065,25 @@ proc trainer_kingkong2 {} {
 	#money
 	poke 0xc135 0x99
 	poke 0xc136 0x99
+	
+	#knife
+	poke 0xc2a0 1
+	poke 0xc340 255
+	#club
+	poke 0xc2a2 2
+	poke 0xc341 255
 	#stones
+	poke 0xc2a4 8
 	poke 0xc347 0x99
+	#boomerang
+	poke 0xc2a6 10
+	poke 0xc349 0x99
+	
+	#vortex
+	poke 0xc2c0 34
+	poke 0xc2c1 255
+	poke 0xc361 255
+	
 	after time 2 trainer_kingkong2
 }
 
@@ -2111,20 +2207,6 @@ proc trainer_rambo {} {
 	#activate all weapons
 	poke 0xe80e 255
 after time 2 trainer_rambo
-}
-
-proc trainer_eggerland1 {} {
-	#bullets
-	poke 0xc811 0x99
-	#lives
-	poke 0xd0d0 0x99
-	#door is always open
-	poke 0xd1f2 0
-	#blocks collected
-	poke 0xd1f4 1
-	#time in special stages
-	poke 0xc81d 255
-after time 1 trainer_eggerland1
 }
 
 proc trainer_higemaru {} {
@@ -3752,6 +3834,80 @@ proc trainer_demonia {} {
 	#max weapons
 	poke 0x806c 255
 	after time 1 trainer_demonia
+}
+
+proc trainer_jaws {} {
+	#max hits
+	poke 0x84a7 128
+	#invincible
+	poke 0x84a5 255
+	#time
+	poke 0x806c 255
+	#lives
+	poke 0x8078 0x99
+	after time 1 trainer_jaws
+}
+
+
+proc trainer_joeblade {} {
+	#max hits
+	poke 0x8d97 128
+	#let enemies think you are one of them
+	poke 0x8dbe 1
+	#ammo
+	poke 0x8d98 255
+	#keys
+	poke 0x8d8e 57
+	poke 0x8d8f 57
+	#bombs
+	poke 0x8d90 57
+	poke 0x8d91 57	
+	#bomb defusion timer
+	poke 0x8dc0 41
+	after time 1 trainer_joeblade
+}
+
+proc trainer_drarchie {} {
+	#life
+	poke 0xd3c8 64
+	#gold
+	poke 0x404 0x99
+	poke 0x405 0x99
+	poke 0x406 0x99
+	#exp
+	poke 0xd3c9 60
+	after time 1 trainer_drarchie
+}
+
+proc trainer_ghostbusters {} {
+	#lives
+	poke 0xefa8 0x99
+	poke 0xefa9 0x99
+	#tries to get past the mars mellow man
+	poke 0xf13a 255
+	#fast time
+	poke 0xefe9 0x99
+	after time 1 trainer_ghostbusters
+}
+
+proc trainer_replicart {} {
+	#this trainer has been made with BiFi's IPS patch he deserves the credit :)
+	poke 0xC0AD 1
+	poke 0xC20C 33 
+	poke 0xC4B8 1 
+	poke 0xC4BB 255
+	poke 0xF1A3 255 
+	poke 0xF1A4 255
+	poke 0xF1A5 255 
+	poke 0xF1A6 255 
+	poke 0xF1A9 5
+	poke 0xFBF5 31 
+	poke 0xFBF7 28 
+	poke 0xFBF8 31 
+	#freeze time before chistal moves
+	poke 0xc182 53
+	poke 0xc181 53
+	after time 1 trainer_replicart
 }
 
 proc poke {addr val} {
