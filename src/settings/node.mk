@@ -9,7 +9,8 @@ SRC_HDR:= \
 	FloatSetting \
 	StringSetting \
 	BooleanSetting \
-	FilenameSetting
+	FilenameSetting \
+	KeyCodeSetting
 
 HDR_ONLY:= \
 	SettingImpl \

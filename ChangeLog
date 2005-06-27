@@ -9,6 +9,13 @@ $Id$
 	     file to get the new default values when he upgrades
 	   - TODO: this broke the load_settings command. I'll fix it
 	     after keybindings and keyjoystick are refactored
+	* Added second keyjoystick:
+	    Names are now 'keyjoystick1' and 'keyjoystick2'. This is not
+	    backwards compatible with the old name 'keyjoystick'. Do we need
+	    a compatibilty thing for this?
+	* Made keyjoysticks configurable with settings (iso directly having
+	  to edit settings.xml):
+	    Setting names are like this 'keyjoystick1.up', 'xx.down', etc
 
 2005-06-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Mixer is no longer a singleton

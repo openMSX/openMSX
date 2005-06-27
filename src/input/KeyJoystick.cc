@@ -1,35 +1,20 @@
 // $Id$
 
-#include <cassert>
-#include <iostream>
 #include "KeyJoystick.hh"
 #include "EventDistributor.hh"
-#include "Keys.hh"
+#include "KeyCodeSetting.hh"
 #include "SettingsConfig.hh"
 #include "CliComm.hh"
 #include "InputEvents.hh"
+#include <cassert>
+#include <iostream>
 
 using std::string;
 
 namespace openmsx {
 
-static Keys::KeyCode getConfigKeyCode(const string& keyname,
-                                      const string& defaultValue,
-                                      XMLElement& config)
-{
-	XMLElement& keyElem = config.getCreateChild(keyname, defaultValue);
-	string key = keyElem.getData();
-	Keys::KeyCode testKey = Keys::getCode(key);
-	if (testKey == Keys::K_NONE) {
-		CliComm::instance().printWarning(
-			"unknown keycode \"" + key + "\" for key \"" +
-			keyname + "\" in KeyJoystick configuration");
-	}
-	return testKey;
-}
-
-KeyJoystick::KeyJoystick()
-	: keyJoyConfig(SettingsConfig::instance().getCreateChild("KeyJoystick"))
+KeyJoystick::KeyJoystick(const string& name_)
+	: name(name_)
 {
 	EventDistributor & distributor(EventDistributor::instance());
 	distributor.registerEventListener(OPENMSX_KEY_DOWN_EVENT,   *this);
@@ -40,35 +25,32 @@ KeyJoystick::KeyJoystick()
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
 
-	readKeys();
-	keyJoyConfig.addListener(*this);
+	up.reset   (new KeyCodeSetting(name + ".up",
+		"key for direction up",    Keys::K_UP));
+	down.reset (new KeyCodeSetting(name + ".down",
+		"key for direction down",  Keys::K_DOWN));
+	left.reset (new KeyCodeSetting(name + ".left",
+		"key for direction left",  Keys::K_LEFT));
+	right.reset(new KeyCodeSetting(name + ".right",
+		"key for direction right", Keys::K_RIGHT));
+	trigA.reset(new KeyCodeSetting(name + ".triga",
+		"key for trigger A",       Keys::K_SPACE));
+	trigB.reset(new KeyCodeSetting(name + ".trigb",
+		"key for trigger B",       Keys::K_M));
 }
 
 KeyJoystick::~KeyJoystick()
 {
-	keyJoyConfig.removeListener(*this);
-
 	EventDistributor & distributor(EventDistributor::instance());
 	distributor.unregisterEventListener(OPENMSX_KEY_UP_EVENT,   *this);
 	distributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
 	distributor.unregisterEventListener(OPENMSX_CONSOLE_ON_EVENT, *this);
 }
 
-void KeyJoystick::readKeys()
-{
-	upKey      = getConfigKeyCode("upkey",      "UP",    keyJoyConfig);
-	rightKey   = getConfigKeyCode("rightkey",   "RIGHT", keyJoyConfig);
-	downKey    = getConfigKeyCode("downkey",    "DOWN",  keyJoyConfig);
-	leftKey    = getConfigKeyCode("leftkey",    "LEFT",  keyJoyConfig);
-	buttonAKey = getConfigKeyCode("buttonakey", "SPACE", keyJoyConfig);
-	buttonBKey = getConfigKeyCode("buttonbkey", "M",     keyJoyConfig);
-}
-
 
 // Pluggable
 const string& KeyJoystick::getName() const
 {
-	static const string name("keyjoystick");
 	return name;
 }
 
@@ -120,38 +102,26 @@ bool KeyJoystick::signalEvent(const Event& event)
 		                                    (int)Keys::K_MASK);
 		switch (event.getType()) {
 		case OPENMSX_KEY_DOWN_EVENT:
-			if      (key == upKey)      status &= ~JOY_UP;
-			else if (key == downKey)    status &= ~JOY_DOWN;
-			else if (key == leftKey)    status &= ~JOY_LEFT;
-			else if (key == rightKey)   status &= ~JOY_RIGHT;
-			else if (key == buttonAKey) status &= ~JOY_BUTTONA;
-			else if (key == buttonBKey) status &= ~JOY_BUTTONB;
+			if      (key == up->getValue())    status &= ~JOY_UP;
+			else if (key == down->getValue())  status &= ~JOY_DOWN;
+			else if (key == left->getValue())  status &= ~JOY_LEFT;
+			else if (key == right->getValue()) status &= ~JOY_RIGHT;
+			else if (key == trigA->getValue()) status &= ~JOY_BUTTONA;
+			else if (key == trigB->getValue()) status &= ~JOY_BUTTONB;
 			break;
 		case OPENMSX_KEY_UP_EVENT:
-			if      (key == upKey)      status |= JOY_UP;
-			else if (key == downKey)    status |= JOY_DOWN;
-			else if (key == leftKey)    status |= JOY_LEFT;
-			else if (key == rightKey)   status |= JOY_RIGHT;
-			else if (key == buttonAKey) status |= JOY_BUTTONA;
-			else if (key == buttonBKey) status |= JOY_BUTTONB;
+			if      (key == up->getValue())    status |= JOY_UP;
+			else if (key == down->getValue())  status |= JOY_DOWN;
+			else if (key == left->getValue())  status |= JOY_LEFT;
+			else if (key == right->getValue()) status |= JOY_RIGHT;
+			else if (key == trigA->getValue()) status |= JOY_BUTTONA;
+			else if (key == trigB->getValue()) status |= JOY_BUTTONB;
 			break;
 		default:
 			assert(false);
 		}
 	}
 	return true;
-}
-
-// XMLElementListener
-void KeyJoystick::updateData(const XMLElement& /*element*/)
-{
-	readKeys();
-}
-
-void KeyJoystick::childAdded(const XMLElement& /*parent*/,
-                             const XMLElement& /*child*/)
-{
-	readKeys();
 }
 
 } // namespace openmsx

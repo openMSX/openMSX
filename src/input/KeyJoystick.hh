@@ -5,16 +5,16 @@
 
 #include "JoystickDevice.hh"
 #include "EventListener.hh"
-#include "XMLElementListener.hh"
-#include "Keys.hh"
+#include <memory>
 
 namespace openmsx {
 
-class KeyJoystick : public JoystickDevice, private EventListener,
-                    private XMLElementListener
+class KeyCodeSetting;
+
+class KeyJoystick : public JoystickDevice, private EventListener
 {
 public:
-	KeyJoystick();
+	KeyJoystick(const std::string& name);
 	virtual ~KeyJoystick();
 
 	// Pluggable
@@ -31,23 +31,17 @@ private:
 	// EventListener
 	virtual bool signalEvent(const Event& event);
 
-	// XMLElementListener
-	virtual void updateData(const XMLElement& element);
-	virtual void childAdded(const XMLElement& parent,
-	                        const XMLElement& child);
-
-	void readKeys();
 	void allUp();
 
+	std::auto_ptr<KeyCodeSetting> up;
+	std::auto_ptr<KeyCodeSetting> right;
+	std::auto_ptr<KeyCodeSetting> down;
+	std::auto_ptr<KeyCodeSetting> left;
+	std::auto_ptr<KeyCodeSetting> trigA;
+	std::auto_ptr<KeyCodeSetting> trigB;
+	
+	std::string name;
 	byte status;
-
-	Keys::KeyCode upKey;
-	Keys::KeyCode rightKey;
-	Keys::KeyCode downKey;
-	Keys::KeyCode leftKey;
-	Keys::KeyCode buttonAKey;
-	Keys::KeyCode buttonBKey;
-	XMLElement& keyJoyConfig;
 };
 
 } // namespace openmsx

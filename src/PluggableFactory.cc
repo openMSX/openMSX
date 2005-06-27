@@ -36,7 +36,8 @@ void PluggableFactory::createAll(PluggingController& controller,
 #ifdef	HAVE_SYS_SOCKET_H
 	controller.registerPluggable(new JoyNet());
 #endif
-	controller.registerPluggable(new KeyJoystick());
+	controller.registerPluggable(new KeyJoystick("keyjoystick1"));
+	controller.registerPluggable(new KeyJoystick("keyjoystick2"));
 	Joystick::registerAll(controller);
 
 	// SE tris II copy protection
