@@ -40,6 +40,7 @@ MSXMotherBoard::MSXMotherBoard()
 	, resetCommand(*this)
 {
 	getCPU().setMotherboard(this);
+	getMixer().mute(); // powered down
 
 	powerSetting.addListener(this);
 
@@ -171,28 +172,28 @@ bool MSXMotherBoard::execute()
 
 void MSXMotherBoard::block()
 {
-	// TODO mute
 	++blockedCounter;
 	getCPU().exitCPULoop();
+	getMixer().mute();
 }
 
 void MSXMotherBoard::unblock()
 {
-	// TODO mute
 	--blockedCounter;
 	assert(blockedCounter >= 0);
+	getMixer().unmute();
 }
 
 void MSXMotherBoard::pause()
 {
-	// TODO mute
 	getCPU().setPaused(true);
+	getMixer().mute();
 }
 
 void MSXMotherBoard::unpause()
 {
-	// TODO mute
 	getCPU().setPaused(false);
+	getMixer().unmute();
 }
 
 void MSXMotherBoard::addDevice(std::auto_ptr<MSXDevice> device)
@@ -213,7 +214,6 @@ void MSXMotherBoard::resetMSX()
 
 void MSXMotherBoard::powerUpMSX()
 {
-	// TODO mute
 	if (powered) return;
 
 	powered = true;
@@ -233,11 +233,11 @@ void MSXMotherBoard::powerUpMSX()
 		(*it)->powerUp(time);
 	}
 	getCPU().reset(time);
+	getMixer().unmute();
 }
 
 void MSXMotherBoard::powerDownMSX()
 {
-	// TODO mute
 	if (!powered) return;
 
 	powered = false;
@@ -250,6 +250,7 @@ void MSXMotherBoard::powerDownMSX()
 		new LedEvent(LedEvent::POWER, false));
 
 	getCPU().exitCPULoop();
+	getMixer().mute();
 
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
 	for (Devices::iterator it = availableDevices.begin();
