@@ -2,6 +2,7 @@ $Id$
 
 2005-06-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Mute sound when a bp is hit and during turbor HW pause
+	* Implemented HW mute bit in turbor PCM device
 
 2005-06-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Mixer is no longer a singleton

@@ -10,15 +10,17 @@ MSXTurboRPCM::MSXTurboRPCM(MSXMotherBoard& motherBoard,
                            const XMLElement& config, const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
 	, AudioInputConnector(motherBoard.getPluggingController(), "pcminput")
+	, mixer(motherBoard.getMixer())
+	, hwMute(false)
 {
-	dac.reset(new DACSound8U(motherBoard.getMixer(), "PCM", "Turbo-R PCM",
-	                         config, time));
+	dac.reset(new DACSound8U(mixer, "PCM", "Turbo-R PCM", config, time));
 
 	reset(time);
 }
 
 MSXTurboRPCM::~MSXTurboRPCM()
 {
+	hardwareMute(false);
 }
 
 void MSXTurboRPCM::reset(const EmuTime& time)
@@ -26,6 +28,7 @@ void MSXTurboRPCM::reset(const EmuTime& time)
 	reference.advance(time);
 	status = 0;
 	dac->reset(time);
+	hardwareMute(false);
 }
 
 byte MSXTurboRPCM::readIO(byte port, const EmuTime& time)
@@ -93,11 +96,11 @@ void MSXTurboRPCM::writeIO(byte port, byte value, const EmuTime& time)
 		if ((change & 0x01) && ((status & 0x01) == 0)) {
 			dac->writeDAC(DValue, time);
 		}
-		// TODO hardwareMute(status & 0x02);
 		// TODO status & 0x08
 		if ((change & 0x10) && (status & 0x10)) {
 			hold = getSample(time);
 		}
+		hardwareMute(!(status & 0x02));
 		break;
 	}
 }
@@ -121,5 +124,16 @@ bool MSXTurboRPCM::getComp(const EmuTime& time) const
 	return sample >= DValue;
 }
 
+void MSXTurboRPCM::hardwareMute(bool mute)
+{
+	if (mute ^ hwMute) {
+		hwMute = mute;
+		if (hwMute) {
+			mixer.mute();
+		} else {
+			mixer.unmute();
+		}
+	}
+}
 
 } // namespace openmsx
