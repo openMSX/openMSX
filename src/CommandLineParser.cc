@@ -20,7 +20,6 @@
 #include "DiskImageCLI.hh"
 #include "ConfigException.hh"
 #include "FileException.hh"
-#include "SettingsManager.hh"
 #include "EnumSetting.hh"
 
 using std::cout;
@@ -60,7 +59,6 @@ CommandLineParser::CommandLineParser(MSXMotherBoard& motherBoard_)
 	, hardwareConfig(HardwareConfig::instance())
 	, settingsConfig(SettingsConfig::instance())
 	, output(CliComm::instance())
-	, settingsManager(SettingsManager::instance()) // lifetime management
 	, motherBoard(motherBoard_)
 	, helpOption(*this)
 	, versionOption(*this)

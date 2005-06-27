@@ -5,8 +5,11 @@
 
 #include "XMLElement.hh"
 #include "Command.hh"
+#include <memory>
 
 namespace openmsx {
+
+class SettingsManager;
 
 class SettingsConfig : public XMLElement
 {
@@ -17,12 +20,11 @@ public:
 	void saveSetting(const std::string& filename = "");
 	void setSaveSettings(bool save);
 
+	SettingsManager& getSettingsManager();
+
 private:
 	SettingsConfig();
 	~SettingsConfig();
-
-	std::string saveName;
-	bool mustSaveSettings;
 
 	// SaveSettings command
 	class SaveSettingsCommand : public SimpleCommand {
@@ -45,6 +47,10 @@ private:
 	private:
 		SettingsConfig& parent;
 	} loadSettingsCommand;
+	
+	std::auto_ptr<SettingsManager> settingsManager;
+	std::string saveName;
+	bool mustSaveSettings;
 };
 
 } // namespace openmsx

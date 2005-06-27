@@ -34,12 +34,6 @@ SettingsManager::~SettingsManager()
 	commandController.unregisterCompleter(&setCompleter,     "set");
 }
 
-SettingsManager& SettingsManager::instance()
-{
-	static SettingsManager oneInstance;
-	return oneInstance;
-}
-
 void SettingsManager::registerSetting(Setting& setting)
 {
 	const string& name = setting.getName();

@@ -24,7 +24,8 @@ private:
 	SettingsMap settingsMap;
 
 public:
-	static SettingsManager& instance();
+	SettingsManager();
+	~SettingsManager();
 
 	/** Get a setting by specifying its name.
 	  * @return The Setting with the given name,
@@ -41,9 +42,6 @@ public:
 	void unregisterSetting(Setting& setting);
 
 private:
-	SettingsManager();
-	~SettingsManager();
-
 	template <typename T>
 	void getSettingNames(std::string& result) const;
 

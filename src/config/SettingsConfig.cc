@@ -1,6 +1,7 @@
 // $Id$
 
 #include "SettingsConfig.hh"
+#include "SettingsManager.hh"
 #include "XMLLoader.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -19,9 +20,9 @@ namespace openmsx {
 
 SettingsConfig::SettingsConfig()
 	: XMLElement("settings")
-	, mustSaveSettings(false)
 	, saveSettingsCommand(*this)
 	, loadSettingsCommand(*this)
+	, mustSaveSettings(false)
 {
 	setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
 	CommandController::instance().
@@ -80,6 +81,14 @@ void SettingsConfig::saveSetting(const string& filename)
 void SettingsConfig::setSaveSettings(bool save)
 {
 	mustSaveSettings = save;
+}
+
+SettingsManager& SettingsConfig::getSettingsManager()
+{
+	if (!settingsManager.get()) {
+		settingsManager.reset(new SettingsManager());
+	}
+	return *settingsManager;
 }
 
 

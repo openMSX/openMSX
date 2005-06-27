@@ -126,13 +126,13 @@ void SettingImpl<POLICY>::init(SaveSetting save)
 		updateData(*xmlNode);
 		xmlNode->addListener(*this);
 	}
-	SettingsManager::instance().registerSetting(*this);
+	SettingsConfig::instance().getSettingsManager().registerSetting(*this);
 }
 
 template<typename POLICY>
 SettingImpl<POLICY>::~SettingImpl()
 {
-	SettingsManager::instance().unregisterSetting(*this);
+	SettingsConfig::instance().getSettingsManager().unregisterSetting(*this);
 	if (xmlNode) {
 		xmlNode->removeListener(*this);
 	}

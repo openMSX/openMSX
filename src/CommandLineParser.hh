@@ -19,7 +19,6 @@ class MSXRomCLI;
 class CliExtension;
 class MSXCassettePlayerCLI;
 class DiskImageCLI;
-class SettingsManager;
 class MSXMotherBoard;
 template <typename T> class EnumSetting;
 
@@ -100,7 +99,6 @@ private:
 	HardwareConfig& hardwareConfig;
 	SettingsConfig& settingsConfig;
 	CliComm& output;
-	SettingsManager& settingsManager;
 	MSXMotherBoard& motherBoard;
 
 	class HelpOption : public CLIOption {
