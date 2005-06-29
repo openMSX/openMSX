@@ -29,10 +29,7 @@ XMLElement::XMLElement(const XMLElement& element)
 
 XMLElement::~XMLElement()
 {
-	for (Children::const_iterator it = children.begin();
-	     it != children.end(); ++it) {
-		delete *it;
-	}
+	removeAllChildren();
 	assert(listeners.empty());
 }
 
@@ -210,6 +207,15 @@ int XMLElement::getChildDataAsInt(const string& name, int defaultValue) const
 {
 	const XMLElement* child = findChild(name);
 	return child ? StringOp::stringToInt(child->getData()) : defaultValue;
+}
+
+void XMLElement::removeAllChildren()
+{
+	for (Children::const_iterator it = children.begin();
+	     it != children.end(); ++it) {
+		delete *it;
+	}
+	children.clear();
 }
 
 bool XMLElement::hasAttribute(const string& name) const

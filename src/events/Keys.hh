@@ -199,6 +199,10 @@ public:
 	 */
 	static const std::string getName(KeyCode keyCode);
 
+	/** Convenience method to create key combinations (hides ugly casts)
+	 */
+	static KeyCode combine(KeyCode key, KeyCode modifier);
+
 private:
 	static void initialize();
 

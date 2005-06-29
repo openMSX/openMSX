@@ -10,6 +10,7 @@
 #include "GlobalSettings.hh"
 #include "CliComm.hh"
 #include "BooleanSetting.hh"
+#include "HotKey.hh"
 #include <memory>
 
 using std::auto_ptr;
@@ -22,6 +23,7 @@ SettingsConfig::SettingsConfig()
 	: XMLElement("settings")
 	, saveSettingsCommand(*this)
 	, loadSettingsCommand(*this)
+	, hotKey(0)
 	, mustSaveSettings(false)
 {
 	setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
@@ -33,6 +35,7 @@ SettingsConfig::SettingsConfig()
 
 SettingsConfig::~SettingsConfig()
 {
+	assert(!hotKey);
 	if (mustSaveSettings) {
 		try {
 			saveSetting();
@@ -53,14 +56,21 @@ SettingsConfig& SettingsConfig::instance()
 	return oneInstance;
 }
 
+void SettingsConfig::setHotKey(HotKey* hotKey_)
+{
+	hotKey = hotKey_;
+}
+
 void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 {
+	assert(hotKey);
 	try {
 		saveName = context.resolveCreate(filename);
 		File file(context.resolve(filename));
 		auto_ptr<XMLElement> doc(XMLLoader::loadXML(
 			file.getLocalName(), "settings.dtd"));
 		merge(*doc);
+		hotKey->loadBindings(*this);
 	} catch (XMLException& e) {
 		CliComm::instance().printWarning(
 			"Loading of settings failed: " + e.getMessage() + "\n"
@@ -91,6 +101,10 @@ void SettingsConfig::saveSetting(const string& filename)
 			}
 		}
 	}
+	/* TODO reenable when singleton web is cleaned up
+	  assert(hotKey);
+	  hotKey->saveBindings(*this);
+	*/
 	
 	File file(name, TRUNCATE);
 	string data = "<!DOCTYPE settings SYSTEM 'settings.dtd'>\n" +

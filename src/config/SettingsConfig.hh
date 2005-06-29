@@ -10,12 +10,15 @@
 namespace openmsx {
 
 class SettingsManager;
+class HotKey;
 
 class SettingsConfig : public XMLElement
 {
 public:
 	static SettingsConfig& instance();
 
+	void setHotKey(HotKey* hotKey); // TODO cleanup
+	
 	void loadSetting(FileContext& context, const std::string& filename);
 	void saveSetting(const std::string& filename = "");
 	void setSaveSettings(bool save);
@@ -49,6 +52,7 @@ private:
 	} loadSettingsCommand;
 	
 	std::auto_ptr<SettingsManager> settingsManager;
+	HotKey* hotKey;
 	std::string saveName;
 	bool mustSaveSettings;
 };

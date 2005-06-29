@@ -87,6 +87,11 @@ const string Keys::getName(KeyCode keyCode)
 	return result;
 }
 
+Keys::KeyCode Keys::combine(KeyCode key, KeyCode modifier)
+{
+	return (KeyCode)((int)key | (int)modifier);
+}
+
 void Keys::initialize()
 {
 	static bool init = false;

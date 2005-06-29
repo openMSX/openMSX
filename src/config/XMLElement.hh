@@ -102,6 +102,8 @@ public:
 	int getChildDataAsInt(const std::string& name,
 	                      int defaultValue = 0) const;
 
+	void removeAllChildren();
+
 	// various
 	std::string dump() const;
 	void merge(const XMLElement& source);
