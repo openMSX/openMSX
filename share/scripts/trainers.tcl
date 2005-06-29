@@ -287,9 +287,6 @@ proc trainer_gradius1 {} {
 proc trainer_gradius2 {} { 
 	#lives
 	poke 0xe200 0x99
-	#all weapons
-	poke 0xe206 7
-	poke 0xe20f 7
 	# fake metalion mode
 	poke 0xe446 1
 	#nice colors
@@ -297,20 +294,27 @@ proc trainer_gradius2 {} {
 	poke 0xe283 14
 	#shield 2=on 0=off
 	poke 0xe400 2
-	#option #1
-	poke 0xe33b 2
-	poke 0xe40b 2
-	poke 0xe410 1 
-	#option #2	
-	poke 0xe420 1 
-	#napalm missle (missle #3)
-	poke 0xe433 3
-	#uplaser
-	poke 0xe434 3	
-	#nemesis 3 circling options
-	poke 0xe439 3
-	#all combi's with konami carts (thanks bifi)
+
+	#nemesis 3 style circling options
+	#!poke 0xe439 3
+	#all combi's with konami carts 
 	poke  0xf0f5 255
+	#speed set to 5
+	poke 0xe402 5
+	#napalm missle
+	poke 0xe433 3
+	#deactivate normal shot
+	poke 0xe430 0
+	#get laser
+	poke 0xe432 3
+	#get options
+	poke 0xe40b 2
+	poke 0xe410 1
+	poke 0xe420 1
+	#up laser
+	poke 0xe434 2
+	#down laser
+	poke 0xe435 2
 	after time 2 trainer_gradius2
 }
 
@@ -1429,10 +1433,77 @@ proc trainer_dirdeaf {} {
 
 proc trainer_supercooks {} {
 	#life
-	poke 0xcfa1 90
+	poke 0xcfa1 0x00
+	poke 0xcfa2 0x02
+	#max hearts
+	poke 0xcf9d 0x00
+	poke 0xcf9e 0x02
 	#dish
-	poke 0xcfac 90
-	after time 2 trainer_supercooks
+	poke 0xcfac 0x99
+	poke 0xcfad 0x99
+	after time 10 trainer_supercooks
+}
+
+proc trainer_golvellius2 {} {
+	#life
+	poke 0xcba1 0x00
+	poke 0xcba2 0x02
+	#max hearts
+	poke 0xcb9d 0x00
+	poke 0xcb9e 0x02
+	#find
+	poke 0xcbac 0x99
+	poke 0xcbad 0x99
+	
+	#iron sword
+	#!poke 0xcb01 1
+	#bronze sword
+	#!poke 0xcb02 1
+	#gold sword
+	poke 0xcb03 1	
+	#water boots
+	poke 0xcb04 1
+	#air boots
+	poke 0xcb05 1
+	#scepter
+	poke 0xcb06 1
+	#iron shield
+	#!poke 0xcb07 1
+	#bronze shield
+	poke 0xcb08 1
+	#gold ring
+	poke 0xcb09 1
+	#harp
+	#!poke 0xcb0a 1
+	#heart pendant
+	#!poke 0xcb0b 1
+	#candle
+	#!poke 0xcb0c 1
+	#mirror
+	#!poke 0xcb0d 1
+	#silver ring
+	poke 0xcb0e 1
+	#blue potion
+	#!poke 0xcb0f 1
+	#blue diamond
+	#!poke 0xcb10 1	
+	#silver broche
+	#!poke 0xcb11 1
+	#fruit
+	#!poke 0xcb12 1
+	#fairy
+	#!poke 0xcb13 1	
+	#necklace
+	#!poke 0xcb14 1	
+	#golden lost ring
+	#!poke 0xcb15 1	
+	#document to get first sword
+	#!poke 0xcb16 1	
+	#key
+	poke 0xcb17 1
+	#herb
+	#!poke 0xcb18 1
+	after time 10 trainer_golvellius2
 }
 
 proc trainer_starquake {} {
@@ -3908,6 +3979,13 @@ proc trainer_replicart {} {
 	poke 0xc182 53
 	poke 0xc181 53
 	after time 1 trainer_replicart
+}
+
+proc trainer_dass {} {
+	#special power
+	poke 0aea1 162
+	
+	after time 1 trainer_dass
 }
 
 proc poke {addr val} {
