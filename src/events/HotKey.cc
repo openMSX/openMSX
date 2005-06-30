@@ -78,8 +78,6 @@ void HotKey::initDefaultBindings()
 		bindDefault(Keys::K_F12,   "toggle fullscreen");
 		bindDefault(Keys::combine(Keys::K_F4, Keys::KM_ALT),     "quit");
 		bindDefault(Keys::combine(Keys::K_PAUSE, Keys::KM_CTRL), "quit");
-		bindDefault(Keys::combine(Keys::K_F9, Keys::KM_ALT),     "vdrive diska");
-		bindDefault(Keys::combine(Keys::K_F10, Keys::KM_ALT),    "vdrive diskb");
 		bindDefault(Keys::combine(Keys::K_RETURN, Keys::KM_ALT), "toggle fullscreen");
 	}
 }

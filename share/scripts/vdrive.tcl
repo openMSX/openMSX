@@ -38,6 +38,9 @@
 #   copyright 2005 david heremans all rights reserved
 #
 
+bind_default ALT+F9  "vdrive diska"
+bind_default ALT+F10 "vdrive diskb"
+
 proc vdrive { { diskdrive "diska" } } { 
 	# get current disk
 	if [catch {set cmd [$diskdrive]}] { error "No such drive: $diskdrive" }
