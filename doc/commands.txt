@@ -25,11 +25,14 @@ after
     after cancel 2
     
 
-bind / unbind
--------------
+bind / unbind / bind_default / unbind_default
+---------------------------------------------
   
   Associate key presses with commands. Whenever you press one of the programmed
   keys, the corresponding command will be executed.
+  To customize your keybindings you should use the (un)bind commands. A script
+  that wants to provide a default binding for its functionality needs to use
+  bind_default. 
   
   usage:
     bind                    shows all bindings
