@@ -58,15 +58,15 @@ void BitmapConverter<Pixel, zoom>::renderGraphic5(
 	for (int n = 128; n--; ) {
 		byte colour = *vramPtr0++;
 		if (zoom != Renderer::ZOOM_256) {
-			*pixelPtr++ = palette16[(colour >> 6) & 3];
-			*pixelPtr++ = palette16[(colour >> 4) & 3];
-			*pixelPtr++ = palette16[(colour >> 2) & 3];
-			*pixelPtr++ = palette16[(colour >> 0) & 3];
+			*pixelPtr++ = palette16[ 0 + ((colour >> 6) & 3)];
+			*pixelPtr++ = palette16[16 + ((colour >> 4) & 3)];
+			*pixelPtr++ = palette16[ 0 + ((colour >> 2) & 3)];
+			*pixelPtr++ = palette16[16 + ((colour >> 0) & 3)];
 		} else {
-			*pixelPtr++ = blender.blend(palette16[(colour >> 6) & 3],
-			                            palette16[(colour >> 4) & 3]);
-			*pixelPtr++ = blender.blend(palette16[(colour >> 2) & 3],
-			                            palette16[(colour >> 0) & 3]);
+			*pixelPtr++ = blender.blend(palette16[ 0 + ((colour >> 6) & 3)],
+			                            palette16[16 + ((colour >> 4) & 3)]);
+			*pixelPtr++ = blender.blend(palette16[ 0 + ((colour >> 2) & 3)],
+			                            palette16[16 + ((colour >> 0) & 3)]);
 		}
 	}
 }

@@ -1,5 +1,8 @@
 $Id$
 
+2005-07-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented stripes for screen6 background
+
 2005-06-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Moved vdrive key bindings from openMSX code to vdrive.tcl script
 

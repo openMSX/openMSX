@@ -383,9 +383,12 @@ void SDLRasterizer<Pixel, zoom>::setPalette(
 {
 	// Update SDL colours in palette.
 	Pixel newColor = V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
-	if ((palFg[index] != newColor) || (palBg[index] != newColor)) {
-		palFg[index] = newColor;
-		palBg[index] = newColor;
+	if ((palFg[index     ] != newColor) ||
+	    (palFg[index + 16] != newColor) ||
+	    (palBg[index     ] != newColor)) {
+		palFg[index     ] = newColor;
+		palFg[index + 16] = newColor;
+		palBg[index     ] = newColor;
 		// Any line containing pixels of this colour must be repainted.
 		// We don't know which lines contain which colours,
 		// so we have to repaint them all.
@@ -423,7 +426,7 @@ void SDLRasterizer<Pixel, zoom>::precalcPalette(double gamma)
 		// Fixed palette.
 		for (int i = 0; i < 16; i++) {
 			const byte* rgb = Renderer::TMS99X8A_PALETTE[i];
-			palFg[i] = palBg[i] = SDL_MapRGB(
+			palFg[i] = palFg[i + 16] = palBg[i] = SDL_MapRGB(
 				screen->format,
 				(int)(::pow((double)rgb[0] / 255.0, gamma) * 255),
 				(int)(::pow((double)rgb[1] / 255.0, gamma) * 255),
@@ -472,7 +475,7 @@ void SDLRasterizer<Pixel, zoom>::precalcPalette(double gamma)
 		}
 		// Initialize palette (avoid UMR)
 		for (int i = 0; i < 16; ++i) {
-			palFg[i] = palBg[i] = V9938_COLOURS[0][0][0];
+			palFg[i] = palFg[i + 16] = palBg[i] = V9938_COLOURS[0][0][0];
 		}
 	}
 }
@@ -486,22 +489,27 @@ void SDLRasterizer<Pixel, zoom>::precalcColourIndex0(
 		transparency = false;
 	}
 
-	int tpIndex = 0;
-	if (transparency) {
-		tpIndex = bgcolorIndex;
-		if (mode.getBase() == DisplayMode::GRAPHIC5) {
-			// TODO: Transparent pixels should be rendered in separate
-			//       colours for even/odd x, just like the border.
-			tpIndex &= 0x03;
-		}
-	}
-	if (palFg[0] != palBg[tpIndex]) {
-		palFg[0] = palBg[tpIndex];
+	int tpIndex = transparency ? bgcolorIndex : 0;
+	if (mode.getBase() != DisplayMode::GRAPHIC5) {
+		if (palFg[0] != palBg[tpIndex]) {
+			palFg[0] = palBg[tpIndex];
 
-		// Any line containing pixels of colour 0 must be repainted.
-		// We don't know which lines contain such pixels,
-		// so we have to repaint them all.
-		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
+			// Any line containing pixels of colour 0 must be repainted.
+			// We don't know which lines contain such pixels,
+			// so we have to repaint them all.
+			memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
+		}
+	} else {
+		if ((palFg[ 0] != palBg[tpIndex >> 2]) ||
+		    (palFg[16] != palBg[tpIndex &  3])) {
+			palFg[ 0] = palBg[tpIndex >> 2];
+			palFg[16] = palBg[tpIndex &  3];
+
+			// Any line containing pixels of colour 0 must be repainted.
+			// We don't know which lines contain such pixels,
+			// so we have to repaint them all.
+			memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
+		}
 	}
 }
 

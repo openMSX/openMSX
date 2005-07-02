@@ -118,9 +118,12 @@ private:
 
 	/** RGB colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,
+	  *       The 16 first entries are for even pixels, the next 16 are for
+	  *       odd pixels. Second part is only needed (and guaranteed to be
+	  *       up-to-date) in Graphics5 mode.
 	  * palBg has entry 0 set to black.
 	  */
-	Pixel palFg[16], palBg[16];
+	Pixel palFg[16 * 2], palBg[16];
 
 	/** RGB colours corresponding to each Graphic 7 sprite colour.
 	  */
