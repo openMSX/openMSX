@@ -100,11 +100,55 @@ Setting* SettingsManager::getByName(const std::string& name) const
 	return it != settingsMap.end() ? it->second : NULL;
 }
 
-void SettingsManager::getAllSettings(std::vector<const Setting*>& result) const
+void SettingsManager::loadSettings(const XMLElement& config)
 {
+	// restore default values
 	for (SettingsMap::const_iterator it = settingsMap.begin();
 	     it != settingsMap.end(); ++it) {
-		result.push_back(it->second);
+		const Setting& setting = *it->second;
+		if (setting.needLoadSave()) { 
+			it->second->restoreDefault();
+		}
+	}
+
+	// load new values
+	const XMLElement* settings = config.findChild("settings");
+	if (!settings) return;
+	for (SettingsMap::const_iterator it = settingsMap.begin();
+	     it != settingsMap.end(); ++it) {
+		const string& name = it->first;
+		Setting& setting = *it->second;
+		if (!setting.needLoadSave()) continue;
+		const XMLElement* elem = settings->findChildWithAttribute(
+			"setting", "id", name);
+		if (elem) {
+			try {
+				setting.setValueString(elem->getData());
+			} catch (MSXException& e) {
+				// ignore, keep default value
+			}
+		}
+	}
+}
+
+void SettingsManager::saveSettings(XMLElement& config) const
+{
+	XMLElement& settings = config.getCreateChild("settings");
+	for (SettingsMap::const_iterator it = settingsMap.begin();
+	     it != settingsMap.end(); ++it) {
+		const string& name = it->first;
+		const Setting& setting = *it->second;
+		if (setting.hasDefaultValue()) {
+			// remove setting
+			const XMLElement* elem = settings.findChildWithAttribute(
+				"setting", "id", name);
+			if (elem) settings.removeChild(*elem);
+		} else {
+			// add (or overwrite) setting
+			XMLElement& elem = settings.getCreateChildWithAttribute(
+				"setting", "id", name);
+			elem.setData(setting.getValueString());
+		}
 	}
 }
 

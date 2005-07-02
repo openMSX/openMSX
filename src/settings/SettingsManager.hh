@@ -14,6 +14,7 @@ namespace openmsx {
 class Setting;
 class CommandController;
 class Interpreter;
+class XMLElement;
 
 /** Manages all settings.
   */
@@ -33,10 +34,9 @@ public:
 	  */
 	Setting* getByName(const std::string& name) const;
 
-	/** Fills the given vector with all known settings
-	 */
-	void getAllSettings(std::vector<const Setting*>& result) const;
-
+	void loadSettings(const XMLElement& config);
+	void saveSettings(XMLElement& config) const;
+	
 	void registerSetting(Setting& setting);
 	void unregisterSetting(Setting& setting);
 

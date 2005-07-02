@@ -54,7 +54,7 @@ static int main(int argc, char **argv)
 	try {
 		Interpreter::instance().init(argv[0]);
 		MSXMotherBoard motherBoard;
-		
+
 		// TODO cleanup once singleton mess is cleaned up
 		HotKey hotKey;
 		SettingsConfig::instance().setHotKey(&hotKey);
@@ -71,8 +71,6 @@ static int main(int argc, char **argv)
 			// CliServer cliServer; // disabled for security reasons
 			reactor.run(parseStatus == CommandLineParser::RUN);
 		}
-		
-		SettingsConfig::instance().setHotKey(NULL);
 
 	} catch (FatalError& e) {
 		cerr << "Fatal error: " << e.getMessage() << endl;

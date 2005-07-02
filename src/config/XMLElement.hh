@@ -11,7 +11,6 @@
 namespace openmsx {
 
 class FileContext;
-class XMLElementListener;
 
 class XMLElement
 {
@@ -53,10 +52,6 @@ public:
 	void setFileContext(std::auto_ptr<FileContext> context);
 	FileContext& getFileContext() const;
 
-	// listener
-	void addListener(XMLElementListener& listener);
-	void removeListener(XMLElementListener& listener);
-
 	//
 	// Convenience functions
 	//
@@ -81,6 +76,9 @@ public:
 	const XMLElement* findChild(const std::string& name) const;
 	XMLElement* findChild(const std::string& name);
 	const XMLElement& getChild(const std::string& name) const;
+	const XMLElement* findChildWithAttribute(
+		const std::string& name, const std::string& attName,
+		const std::string& attValue) const;
 	XMLElement* findChildWithAttribute(
 		const std::string& name, const std::string& attName,
 		const std::string& attValue);
@@ -120,9 +118,6 @@ private:
 	Attributes attributes;
 	XMLElement* parent;
 	std::auto_ptr<FileContext> context;
-	typedef std::vector<XMLElementListener*> Listeners;
-	Listeners listeners;
-	int notifyInProgress;
 };
 
 } // namespace openmsx

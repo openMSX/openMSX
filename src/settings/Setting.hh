@@ -60,8 +60,13 @@ public:
 	  */
 	void removeListener(SettingListener* listener);
 
+	/** Needs this setting to be loaded or saved
+	 */
+	bool needLoadSave() const;
+
 protected:
-	Setting(const std::string& name, const std::string& description);
+	Setting(const std::string& name, const std::string& description,
+	        SaveSetting save);
 
 	virtual ~Setting();
 
@@ -83,6 +88,10 @@ private:
 	typedef std::vector<SettingListener*> Listeners;
 	Listeners listeners;
 	mutable int notifyInProgress;
+
+	/** need to be saved flag
+	 */
+	bool save;
 };
 
 } // namespace openmsx

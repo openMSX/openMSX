@@ -226,11 +226,8 @@ bool OSDConsoleRenderer::updateConsoleRect()
 void OSDConsoleRenderer::check(SettingImpl<FilenameSetting::Policy>& setting,
                                string& value)
 {
-	assert(dynamic_cast<FilenameSetting*>(&setting));
-
-	string filename = value.empty() ? value :
-		static_cast<FilenameSetting&>(setting).
-			getFileContext().resolve(value);
+	SystemFileContext context;
+	string filename = value.empty() ? value : context.resolve(value);
 	if (&setting == backgroundSetting.get()) {
 		loadBackground(filename);
 	} else if (&setting == fontSetting.get()) {

@@ -7,7 +7,7 @@ SRC_HDR:= \
 	HardwareConfig SettingsConfig
 
 HDR_ONLY:= \
-	ConfigException XMLElementListener
+	ConfigException
 
 include build/node-end.mk
 

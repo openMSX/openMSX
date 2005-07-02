@@ -35,7 +35,6 @@ SettingsConfig::SettingsConfig()
 
 SettingsConfig::~SettingsConfig()
 {
-	assert(!hotKey);
 	if (mustSaveSettings) {
 		try {
 			saveSetting();
@@ -69,7 +68,8 @@ void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 		File file(context.resolve(filename));
 		auto_ptr<XMLElement> doc(XMLLoader::loadXML(
 			file.getLocalName(), "settings.dtd"));
-		merge(*doc);
+		XMLElement::operator=(*doc);
+		getSettingsManager().loadSettings(*this);
 		hotKey->loadBindings(*this);
 	} catch (XMLException& e) {
 		CliComm::instance().printWarning(
@@ -83,32 +83,14 @@ void SettingsConfig::saveSetting(const string& filename)
 	const string& name = filename.empty() ? saveName : filename;
 	if (name.empty()) return;
 
-	XMLElement copy(*this);
-	XMLElement* copySettings = copy.findChild("settings");
-	if (copySettings) {
-		vector<const Setting*> allSettings;
-		getSettingsManager().getAllSettings(allSettings);
-		for (vector<const Setting*>::const_iterator it = allSettings.begin();
-		     it != allSettings.end(); ++it) {
-			const Setting& setting = **it;
-			if (setting.hasDefaultValue()) {
-				// don't save settings that have their default value
-				XMLElement* elem = copySettings->findChildWithAttribute(
-					"setting", "id", setting.getName());
-				if (elem) {
-					copySettings->removeChild(*elem);
-				}
-			}
-		}
-	}
+	getSettingsManager().saveSettings(*this);
 	/* TODO reenable when singleton web is cleaned up
 	  assert(hotKey);
 	  hotKey->saveBindings(*this);
 	*/
 	
 	File file(name, TRUNCATE);
-	string data = "<!DOCTYPE settings SYSTEM 'settings.dtd'>\n" +
-	              copy.dump();
+	string data = "<!DOCTYPE settings SYSTEM 'settings.dtd'>\n" + dump();
 	file.write((const byte*)data.c_str(), data.size());
 }
 

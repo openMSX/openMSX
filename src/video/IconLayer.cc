@@ -148,9 +148,7 @@ template <class IMAGE>
 void IconLayer<IMAGE>::check(SettingImpl<FilenameSetting::Policy>& setting,
                              string& value)
 {
-	FileContext& context =
-	       static_cast<FilenameSetting&>(setting).getFileContext();
-
+	SystemFileContext context;
 	for (int i = 0; i < LedEvent::NUM_LEDS; ++i) {
 		for (int j = 0; j < 2; ++j) {
 			if (&setting == ledInfo[i].name[j].get()) {

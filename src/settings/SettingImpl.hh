@@ -7,7 +7,6 @@
 #include "SettingsManager.hh"
 #include "Setting.hh"
 #include "SettingsConfig.hh"
-#include "XMLElementListener.hh"
 #include "MSXException.hh"
 
 namespace openmsx {
@@ -15,7 +14,7 @@ namespace openmsx {
 template<typename T> class SettingChecker;
 
 template <typename POLICY>
-class SettingImpl : public Setting, public POLICY, private XMLElementListener
+class SettingImpl : public Setting, public POLICY
 {
 public:
 	typedef POLICY Policy;
@@ -63,16 +62,10 @@ public:
 	virtual bool hasDefaultValue() const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
-protected:
-	XMLElement* xmlNode;
-
 private:
-	void init(SaveSetting save);
+	void init();
 	void setValue2(Type newValue, bool check);
 	void setValueString2(const std::string& valueString, bool check);
-
-	// XMLElementListener
-	virtual void updateData(const XMLElement& element);
 
 	Type value;
 	Type defaultValue;
@@ -94,12 +87,11 @@ template<typename POLICY>
 SettingImpl<POLICY>::SettingImpl(
 	const std::string& name, const std::string& description,
 	const Type& initialValue, SaveSetting save)
-	: Setting(name, description)
-	, xmlNode(NULL)
+	: Setting(name, description, save)
 	, value(initialValue), defaultValue(initialValue)
 	, checker(NULL)
 {
-	init(save);
+	init();
 }
 
 template<typename POLICY>
@@ -107,25 +99,31 @@ template<typename T1, typename T2>
 SettingImpl<POLICY>::SettingImpl(
 	const std::string& name, const std::string& description,
 	const Type& initialValue, SaveSetting save, T1 extra1, T2 extra2)
-	: Setting(name, description)
+	: Setting(name, description, save)
 	, POLICY(extra1, extra2)
-	, xmlNode(NULL)
 	, value(initialValue), defaultValue(initialValue)
 	, checker(NULL)
 {
-	init(save);
+	init();
 }
 
 template<typename POLICY>
-void SettingImpl<POLICY>::init(SaveSetting save)
+void SettingImpl<POLICY>::init()
 {
-	if (save == SAVE) {
-		XMLElement& config = SettingsConfig::instance().
-			getCreateChild("settings");
-		xmlNode = &config.getCreateChildWithAttribute(
-			"setting", "id", getName(), getValueString());
-		updateData(*xmlNode);
-		xmlNode->addListener(*this);
+	if (needLoadSave()) {
+		const XMLElement* config = SettingsConfig::instance().
+			findChild("settings");
+		if (config) {
+			const XMLElement* elem = config->findChildWithAttribute(
+				"setting", "id", getName());
+			if (elem) {
+				try {
+					setValueString2(elem->getData(), false);
+				} catch (MSXException& e) {
+					// saved value no longer valid, just keep default
+				}
+			}
+		}
 	}
 	SettingsConfig::instance().getSettingsManager().registerSetting(*this);
 }
@@ -134,9 +132,6 @@ template<typename POLICY>
 SettingImpl<POLICY>::~SettingImpl()
 {
 	SettingsConfig::instance().getSettingsManager().unregisterSetting(*this);
-	if (xmlNode) {
-		xmlNode->removeListener(*this);
-	}
 }
 
 template<typename POLICY>
@@ -163,9 +158,6 @@ void SettingImpl<POLICY>::setValue2(Type newValue, bool check)
 	if (newValue != value) {
 		value = newValue;
 		notify();
-		if (xmlNode) {
-			xmlNode->setData(getValueString());
-		}
 	}
 }
 
@@ -224,18 +216,6 @@ template<typename POLICY>
 void SettingImpl<POLICY>::tabCompletion(std::vector<std::string>& tokens) const
 {
 	POLICY::tabCompletion(tokens);
-}
-
-template<typename POLICY>
-void SettingImpl<POLICY>::updateData(const XMLElement& element)
-{
-	if (&element); // avoid warning
-	assert(&element == xmlNode);
-	try {
-		setValueString2(xmlNode->getData(), false);
-	} catch (MSXException& e) {
-		// saved value no longer valid, just keep default
-	}
 }
 
 } // namespace openmsx
