@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
 <!--
  The romdb.xml file contains information about rom mapper types
@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1119725091">
+<softwaredb xml:lang="en" timestamp="1120422766">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -5000,7 +5000,7 @@
 	<software>
 		<title xml:lang="en">FM Music Composer</title>
 		<system>MSX</system>
-		<company>YRM-101</company>
+		<company>Yamaha</company>
 		<year>1984</year>
 		<country>JP</country>
 		<dump>
@@ -5086,7 +5086,7 @@
 	<software>
 		<title xml:lang="en">FM Voicing Program II</title>
 		<system>MSX</system>
-		<company>YRM-502</company>
+		<company>Yamaha</company>
 		<year>1985</year>
 		<country>JP</country>
 		<dump>
@@ -5095,9 +5095,6 @@
 				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">51F7DDD1</hash>
-				<remark>
-					<text>Yamaha</text>
-				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -21629,7 +21626,7 @@
 	<software>
 		<title xml:lang="en">FM Pana Amusement Cartridge</title>
 		<system>MSX</system>
-		<company>FM-PAC</company>
+		<company>PanaSoft</company>
 		<year>1988</year>
 		<country>JP</country>
 		<dump>
@@ -24767,5 +24764,5 @@ Roms in this database : 2348
 Good MSX entries 		: 755
 SHA1 values 			: 1769
 CRC32 values 			: 579
-Parse time 7.958 seconds on Sat Jun 25 20:44:59 CEST 2005
+Parse time 8.873 seconds on Sun Jul 3 22:32:55 CEST 2005
  -->
