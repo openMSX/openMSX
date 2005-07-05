@@ -1390,7 +1390,8 @@ const string& YM2413_2::getDescription() const
 	return desc;
 }
 
-void YM2413_2::updateBuffer(int length, int* buffer)
+void YM2413_2::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
 	while (length--) {
 		int output = 0;

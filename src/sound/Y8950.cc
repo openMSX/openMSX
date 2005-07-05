@@ -836,7 +836,8 @@ bool Y8950::checkMuteHelper()
 	return adpcm->muted();
 }
 
-void Y8950::updateBuffer(int length, int* buffer)
+void Y8950::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
 	int channelMask = 0;
 	for (int i = 9; i--; ) {

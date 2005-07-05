@@ -56,7 +56,8 @@ public:
 	// SoundDevice
 	virtual void setVolume(int newVolume);
 	virtual void setSampleRate(int sampleRate);
-	virtual void updateBuffer(int length, int* buffer);
+	virtual void updateBuffer(unsigned length, int* buffer,
+		const EmuTime& time, const EmuDuration& sampDur);
 
 private:
 	void rewind();

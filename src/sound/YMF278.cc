@@ -434,7 +434,8 @@ bool YMF278::anyActive()
 	return false;
 }
 
-void YMF278::updateBuffer(int length, int* buffer)
+void YMF278::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
 	int vl = mix_level[pcm_l];
 	int vr = mix_level[pcm_r];

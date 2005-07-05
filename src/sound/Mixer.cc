@@ -233,7 +233,8 @@ void Mixer::updateStream(const EmuTime& time)
 	driver->updateStream(time);
 }
 
-void Mixer::generate(short* buffer, unsigned samples)
+void Mixer::generate(short* buffer, unsigned samples,
+	const EmuTime& start, const EmuDuration& sampDur)
 {
 	int modeOffset[NB_MODES];
 	int unmuted = 0;
@@ -243,7 +244,8 @@ void Mixer::generate(short* buffer, unsigned samples)
 		           devices[mode].begin();
 		     it != devices[mode].end(); ++it) {
 			if (!(*it)->isMuted()) {
-				(*it)->updateBuffer(samples, buffers[unmuted++]);
+				(*it)->updateBuffer(samples, buffers[unmuted++],
+				                    start, sampDur);
 			}
 		}
 	}

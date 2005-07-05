@@ -1,5 +1,13 @@
 $Id$
 
+2005-07-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Refactored SoundDevice code:
+	    pass estimated EmuTime and EmuDuration to updateBuffer()
+	    preparation for DACSound improvements
+	* Improved DACSound sound quality:
+	    - 2x oversample signal (and downsample with 4th order FIR filter)
+	    - use time average to extract the (unfiltered) signal
+
 2005-07-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented stripes for screen6 background
 	* Fixed "load_settings" command

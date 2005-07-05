@@ -167,11 +167,12 @@ void SDLSoundDriver::updateStream(const EmuTime& time)
 	if (samples == 0) {
 		return;
 	}
-	prevTime += interval1 * samples;
 
 	lock();
 	updtStrm(samples);
 	unlock();
+
+	prevTime += interval1 * samples;
 }
 
 void SDLSoundDriver::updtStrm(unsigned samples)
@@ -210,13 +211,16 @@ void SDLSoundDriver::updtStrm2(unsigned samples)
 {
 	unsigned left = bufferSize - writePtr;
 	if (samples < left) {
-		mixer.generate(&mixBuffer[2 * writePtr], samples);
+		mixer.generate(&mixBuffer[2 * writePtr], samples,
+		               prevTime, interval1);
 		writePtr += samples;
 	} else {
-		mixer.generate(&mixBuffer[2 * writePtr], left);
+		mixer.generate(&mixBuffer[2 * writePtr], left,
+		               prevTime, interval1);
 		writePtr = samples - left;
 		if (writePtr > 0) {
-			mixer.generate(mixBuffer, writePtr);
+			mixer.generate(mixBuffer, writePtr,
+			               prevTime + interval1 * left, interval1);
 		}
 	}
 }

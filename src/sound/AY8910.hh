@@ -131,7 +131,8 @@ private:
 	virtual const std::string& getDescription() const;
 	virtual void setVolume(int volume);
 	virtual void setSampleRate(int sampleRate);
-	virtual void updateBuffer(int length, int* buffer);
+	virtual void updateBuffer(unsigned length, int* buffer,
+		const EmuTime& time, const EmuDuration& sampDur);
 
 	// Debuggable:
 	virtual unsigned getSize() const;

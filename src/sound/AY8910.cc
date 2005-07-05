@@ -525,7 +525,8 @@ void AY8910::setSampleRate(int sampleRate)
 }
 
 
-void AY8910::updateBuffer(int length, int* buffer)
+void AY8910::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
 	/*
 	static long long totalSamples = 0, noiseOff = 0, toneOff = 0, bothOff = 0;

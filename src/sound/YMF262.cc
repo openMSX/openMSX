@@ -1881,7 +1881,8 @@ bool YMF262::checkMuteHelper()
 	return true;
 }
 
-void YMF262::updateBuffer(int length, int* buffer)
+void YMF262::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
 	bool rhythmEnabled = rhythm & 0x20;
 

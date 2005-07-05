@@ -452,7 +452,8 @@ int SCC::filter(int input)
 	return outHp[0];
 }
 
-void SCC::updateBuffer(int length, int* buffer)
+void SCC::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
 	nbSamples += length;
 	if ((deformValue & 0xC0) == 0x00) {

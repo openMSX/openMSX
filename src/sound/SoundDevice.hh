@@ -98,17 +98,27 @@ public: // Will be called by Mixer:
 	bool isMuted() const;
 
 	/**
+	 * Generate sample data
+	 * @param length The number of required samples
+	 * @param buffer This buffer should be filled
+	 * @param start EmuTime of the first sample. This might not be 100%
+	 *              exact, but it is guaranteed to increase monotonically.
+	 * @param sampDur Estimated duration of one sample. Note that the
+	 *                following equation is not always true (because it's
+	 *                just an estimation, otherwise it is true)
+	 *                  start + samples * length  !=  next(start)
+	 *
 	 * This method is regularly called from the Mixer, it should return a
 	 * pointer to a buffer filled with the required number of samples.
 	 * Samples are always ints, later they are converted to the systems
 	 * native format (e.g. 16-bit signed).
 	 * The Mixer will not call this method if the sound device is muted.
 	 *
-	 * Note: this method runs in a different thread, you can
-	 *       (un)lock this thread with lock() and unlock()
-	 *       methods in Mixer
+	 * Note: this method possibly runs in a different thread, you can
+	 *       (un)lock this thread with the (un)lock() methods in Mixer
 	 */
-	virtual void updateBuffer(int length, int* buffer) = 0;
+	virtual void updateBuffer(unsigned length, int* buffer,
+	        const EmuTime& start, const EmuDuration& sampDur) = 0;
 
 private:
 	Mixer& mixer;

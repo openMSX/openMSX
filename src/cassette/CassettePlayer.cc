@@ -236,7 +236,8 @@ void CassettePlayer::setSampleRate(int sampleRate)
 	delta = EmuDuration(1.0 / sampleRate);
 }
 
-void CassettePlayer::updateBuffer(int length, int* buffer)
+void CassettePlayer::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
 	while (length--) {
 		*(buffer++) = (((int)getSample(playTapeTime)) * volume) >> 15;

@@ -1015,7 +1015,8 @@ bool YM2413::checkMuteHelper()
 	return true;	// nothing is playing, then mute
 }
 
-void YM2413::updateBuffer(int length, int* buffer)
+void YM2413::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
 	while (length--) {
 		*(buffer++) = calcSample();

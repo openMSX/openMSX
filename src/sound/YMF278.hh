@@ -88,7 +88,8 @@ private:
 	virtual const std::string& getDescription() const;
 	virtual void setSampleRate(int sampleRate);
 	virtual void setVolume(int newVolume);
-	virtual void updateBuffer(int length, int* buffer);
+	virtual void updateBuffer(unsigned length, int* buffer,
+		const EmuTime& start, const EmuDuration& sampDur);
 
 	class DebugRegisters : public Debuggable {
 	public:

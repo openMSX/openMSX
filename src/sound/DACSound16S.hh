@@ -5,9 +5,10 @@
 #ifndef DACSOUND16S_HH
 #define DACSOUND16S_HH
 
-#include <string>
-#include "openmsx.hh"
 #include "SoundDevice.hh"
+#include "EmuTime.hh"
+#include "openmsx.hh"
+#include <deque>
 
 namespace openmsx {
 
@@ -27,15 +28,26 @@ public:
 	virtual const std::string& getDescription() const;
 	virtual void setVolume(int newVolume);
 	virtual void setSampleRate(int sampleRate);
-	virtual void updateBuffer(int length, int* buffer);
+	virtual void updateBuffer(unsigned length, int* buffer,
+	        const EmuTime& time, const EmuDuration& sampDur);
 
 private:
-	short lastWrittenValue;
-	int sample;
-	int volume;
-
 	const std::string name;
 	const std::string desc;
+
+	struct Sample {
+		Sample(const EmuTime& time_, int value_)
+			: time(time_), value(value_) {}
+		EmuTime time;
+		int value;
+	};
+	typedef std::deque<Sample> Queue;
+	Queue queue;
+
+	int volume;
+	int prevValue;
+	int prevA, prevB;
+	short lastWrittenValue;
 };
 
 } // namespace openmsx

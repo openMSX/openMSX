@@ -35,7 +35,8 @@ private:
 	virtual const std::string& getDescription() const;
 	virtual void setSampleRate(int sampleRate);
 	virtual void setVolume(int maxVolume);
-	virtual void updateBuffer(int length, int* buffer);
+	virtual void updateBuffer(unsigned length, int* buffer,
+		const EmuTime& time, const EmuDuration& sampDur);
 
 	class SCCDebuggable : public Debuggable {
 	public:

@@ -72,7 +72,8 @@ public:
 	void mute();
 	void unmute();
 
-	void generate(short* buffer, unsigned samples);
+	void generate(short* buffer, unsigned samples, const EmuTime& start,
+	              const EmuDuration& sampDur);
 
 private:
 	void openSound();

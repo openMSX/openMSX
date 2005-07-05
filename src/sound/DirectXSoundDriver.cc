@@ -289,11 +289,12 @@ void DirectXSoundDriver::updateStream(const EmuTime& time)
 	if (count == 0) {
 		return;
 	}
-	prevTime += interval1 * count;
 
 	count = std::min(count, bufferSize / BYTES_PER_SAMPLE / CHANNELS);
-	mixer.generate(mixBuffer, count);
+	mixer.generate(mixBuffer, count, prevTime, interval1);
 	dxWrite(mixBuffer, count * CHANNELS);
+	
+	prevTime += interval1 * count;
 }
 
 void DirectXSoundDriver::reInit()
