@@ -1,5 +1,11 @@
 $Id$
 
+2005-07-06 Manuel Bilderbeek <manuel@msxnet.org>
+	* Renamed 'eject', 'rewind', 'force_play' and 'no_force_play' to 
+	  '-eject', '-rewind', '-force_play' and '-no_force_play' in the
+	  CassettePlayer.
+	* Added completion for these options.
+
 2005-07-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Refactored SoundDevice code:
 	    pass estimated EmuTime and EmuDuration to updateBuffer()

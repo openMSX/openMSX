@@ -16,6 +16,7 @@ using std::auto_ptr;
 using std::list;
 using std::string;
 using std::vector;
+using std::set;
 
 namespace openmsx {
 
@@ -181,20 +182,36 @@ string CassettePlayer::execute(const vector<string>& tokens)
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	if (tokens[1] == "eject") {
+	if (tokens[1] == "-eject") {
 		result += "Tape ejected\n";
 		removeTape();
 		CliComm::instance().update(CliComm::MEDIA,
 		                           "cassetteplayer", "");
-	} else if (tokens[1] == "rewind") {
+	} else if (tokens[1] == "eject") {
+		result += "Tape ejected\nWarning: use of 'eject' is deprecated, instead use '-eject'\n";
+		removeTape();
+		CliComm::instance().update(CliComm::MEDIA,
+		                           "cassetteplayer", "");
+	} else if (tokens[1] == "-rewind") {
 		result += "Tape rewinded\n";
 		rewind();
+	} else if (tokens[1] == "rewind") {
+		result += "Tape rewinded\nWarning: use of 'rewind' is deprecated, instead use '-rewind'\n";
+		rewind();
+	} else if (tokens[1] == "-force_play") {
+		forcePlay = true;
+		setMute(false);
 	} else if (tokens[1] == "force_play") {
 		forcePlay = true;
 		setMute(false);
+		result += "Warning: use of 'force_play' is deprecated, instead use '-force_play'\n";
+	} else if (tokens[1] == "-no_force_play") {
+		forcePlay = false;
+		setMute(!motor);
 	} else if (tokens[1] == "no_force_play") {
 		forcePlay = false;
 		setMute(!motor);
+		result += "Warning: use of 'no_force_play' is deprecated, instead use '-no_force_play'\n";
 	} else {
 		try {
 			result += "Changing tape\n";
@@ -211,20 +228,25 @@ string CassettePlayer::execute(const vector<string>& tokens)
 
 string CassettePlayer::help(const vector<string>& /*tokens*/) const
 {
-	return "cassetteplayer eject         : remove tape from virtual player\n"
-	       "cassetteplayer rewind        : rewind tape in virtual player\n"
-	       "cassetteplayer force_play    : force playing of tape (no remote)\n"
-	       "cassetteplayer no_force_play : don't force playing of tape\n"
-	       "cassetteplayer <filename>    : change the tape file\n";
+	return "cassetteplayer -eject         : remove tape from virtual player\n"
+	       "cassetteplayer -rewind        : rewind tape in virtual player\n"
+	       "cassetteplayer -force_play    : force playing of tape (no remote)\n"
+	       "cassetteplayer -no_force_play : don't force playing of tape\n"
+	       "cassetteplayer <filename>     : change the tape file\n";
 }
 
 void CassettePlayer::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		CommandController::completeFileName(tokens);
+		set<string> extra;
+		extra.insert("-eject");
+		extra.insert("-rewind");
+		extra.insert("-force_play");
+		extra.insert("-no_force_play");
+		UserFileContext context;
+		CommandController::completeFileName(tokens, context, extra);
 	}
 }
-
 
 void CassettePlayer::setVolume(int newVolume)
 {
