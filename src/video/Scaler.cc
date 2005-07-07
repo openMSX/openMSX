@@ -86,10 +86,9 @@ void Scaler<Pixel>::copyLine(const Pixel* pIn, Pixel* pOut, unsigned width,
 			, "r" (pOut) // 1
 			, "r" (nBytes) // 2
 			, "r" (0) // 3
-			:
 			#ifdef __MMX__
-			"mm0", "mm1", "mm2", "mm3" ,
-			"mm4", "mm5", "mm6", "mm7"
+			: "mm0", "mm1", "mm2", "mm3",
+			  "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
 		return;
@@ -129,10 +128,9 @@ void Scaler<Pixel>::copyLine(const Pixel* pIn, Pixel* pOut, unsigned width,
 			, "r" (pOut) // 1
 			, "r" (nBytes) // 2
 			, "r" (0) // 3
-			:
 			#ifdef __MMX__
-			"mm0", "mm1", "mm2", "mm3",
-			"mm4", "mm5", "mm6", "mm7"
+			: "mm0", "mm1", "mm2", "mm3",
+			  "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
 		return;
@@ -201,10 +199,9 @@ void Scaler<Pixel>::scaleLine(const Pixel* pIn, Pixel* pOut, unsigned width,
 			, "r" (pOut) // 1
 			, "r" (width) // 2
 			, "r" (0) // 3
-			:
 			#ifdef __MMX__
-			"mm0", "mm1", "mm2", "mm3",
-			"mm4", "mm5", "mm6", "mm7"
+			: "mm0", "mm1", "mm2", "mm3",
+			  "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
 		return;
@@ -253,10 +250,9 @@ void Scaler<Pixel>::scaleLine(const Pixel* pIn, Pixel* pOut, unsigned width,
 			, "r" (pOut) // 1
 			, "r" (width) // 2
 			, "r" (0) // 3
-			:
 			#ifdef __MMX__
-			"mm0", "mm1", "mm2", "mm3",
-			"mm4", "mm5", "mm6", "mm7"
+			: "mm0", "mm1", "mm2", "mm3",
+			  "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
 		return;
@@ -305,10 +301,9 @@ void Scaler<Pixel>::scaleLine(const Pixel* pIn, Pixel* pOut, unsigned width,
 			, "r" (pOut) // 1
 			, "r" (width) // 2
 			, "r" (0) // 3
-			:
 			#ifdef __MMX__
-			"mm0", "mm1", "mm2", "mm3",
-			"mm4", "mm5", "mm6", "mm7"
+			: "mm0", "mm1", "mm2", "mm3",
+			  "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
 		return;
@@ -357,10 +352,9 @@ void Scaler<Pixel>::scaleLine(const Pixel* pIn, Pixel* pOut, unsigned width,
 			, "r" (pOut) // 1
 			, "r" (width) // 2
 			, "r" (0) // 3
-			:
 			#ifdef __MMX__
-			"mm0", "mm1", "mm2", "mm3",
-			"mm4", "mm5", "mm6", "mm7"
+			: "mm0", "mm1", "mm2", "mm3",
+			  "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
 		return;
@@ -414,9 +408,8 @@ void Scaler<Pixel>::fillLine(Pixel* pOut, Pixel colour, unsigned width)
 			, "rm" (col32) // 1
 			, "r" (width * sizeof(Pixel)) // 2
 			, "r" (0) // 3
-			:
 			#ifdef __MMX__
-			"mm0"
+			: "mm0"
 			#endif
 		);
 		return;
@@ -450,9 +443,8 @@ void Scaler<Pixel>::fillLine(Pixel* pOut, Pixel colour, unsigned width)
 			, "rm" (col32) // 1
 			, "r" (width * sizeof(Pixel)) // 2
 			, "r" (0) // 3
-			:
 			#ifdef __MMX__
-			"mm0"
+			: "mm0"
 			#endif
 		);
 		return;

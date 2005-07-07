@@ -71,13 +71,13 @@ static inline void memset4_2_MMX(
 		p[0] = val1; // start at odd pixel
 		++p; --n;
 	}
-	unsigned tmp[2] = { val0, val1 }; 
+	unsigned tmp[2] = { val0, val1 };
 	asm volatile (
 		"movq   (%0), %%mm0;"
 		: // no output
-		: "r" (tmp) :
+		: "r" (tmp)
 		#ifdef __MMX__
-		"mm0"
+		: "mm0"
 		#endif
 	);
 	unsigned* e = p + n - 7;
@@ -121,13 +121,13 @@ static inline void memset4_2_MMX_s(
 		p[0] = val1; // start at odd pixel
 		++p; --n;
 	}
-	unsigned tmp[2] = { val0, val1 }; 
+	unsigned tmp[2] = { val0, val1 };
 	asm volatile (
 		"movq   (%0), %%mm0;"
 		: // no output
-		: "r" (tmp) :
+		: "r" (tmp)
 		#ifdef __MMX__
-		"mm0"
+		: "mm0"
 		#endif
 	);
 	unsigned* e = p + n - 7;
@@ -186,9 +186,9 @@ static inline void memset4_2_SSE(
 			"unpcklps %%xmm1, %%xmm1;"
 			"unpcklps %%xmm1, %%xmm0;"
 			: // no output
-			: "m" (val0), "m" (val1) :
+			: "m" (val0), "m" (val1)
 			#ifdef __SSE__
-			"xmm0", "xmm1"
+			: "xmm0", "xmm1"
 			#endif
 		);
 		unsigned* e = p + n - 7;
@@ -241,9 +241,9 @@ static inline void memset4_2_SSE_s(
 			"unpcklps %%xmm1, %%xmm1;"
 			"unpcklps %%xmm1, %%xmm0;"
 			: // no output
-			: "m" (val0), "m" (val1) :
+			: "m" (val0), "m" (val1)
 			#ifdef __SSE__
-			"xmm0", "xmm1"
+			: "xmm0", "xmm1"
 			#endif
 		);
 		unsigned* e = p + n - 7;
