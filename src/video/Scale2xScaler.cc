@@ -132,8 +132,10 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			, "r" (src2) // 2
 			, "r" (dst)  // 3
 			: "eax"
+			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	};
@@ -254,8 +256,10 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			, "r" (src2) // 2
 			, "r" (dst)  // 3
 			: "eax"
+			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	};
@@ -364,8 +368,10 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			, "r" (src2) // 2
 			, "r" (dst)  // 3
 			: "eax"
+			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	};
@@ -570,8 +576,10 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			, "r" (src2) // 2
 			, "r" (dst)  // 3
 			: "eax"
+			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	};
@@ -702,8 +710,10 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			, "r" (src2) // 2
 			, "r" (dst)  // 3
 			: "eax"
+			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	};
@@ -805,8 +815,10 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			, "r" (src2) // 2
 			, "r" (dst)  // 3
 			: "eax"
+			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	};
@@ -922,8 +934,10 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			, "r" (src2) // 2
 			, "r" (dst)  // 3
 			: "eax"
+			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	};
@@ -1037,8 +1051,10 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			, "r" (src2) // 2
 			, "r" (dst)  // 3
 			: "eax"
+			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	};

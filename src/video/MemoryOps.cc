@@ -75,8 +75,10 @@ static inline void memset4_2_MMX(
 	asm volatile (
 		"movq   (%0), %%mm0;"
 		: // no output
-		: "r" (tmp)
-		: "mm0"
+		: "r" (tmp) :
+		#ifdef __MMX__
+		"mm0"
+		#endif
 	);
 	unsigned* e = p + n - 7;
 	for (/**/; p < e; p += 8) {
@@ -123,8 +125,10 @@ static inline void memset4_2_MMX_s(
 	asm volatile (
 		"movq   (%0), %%mm0;"
 		: // no output
-		: "r" (tmp)
-		: "mm0"
+		: "r" (tmp) :
+		#ifdef __MMX__
+		"mm0"
+		#endif
 	);
 	unsigned* e = p + n - 7;
 	for (/**/; p < e; p += 8) {
@@ -182,8 +186,10 @@ static inline void memset4_2_SSE(
 			"unpcklps %%xmm1, %%xmm1;"
 			"unpcklps %%xmm1, %%xmm0;"
 			: // no output
-			: "m" (val0), "m" (val1)
-			: "xmm0", "xmm1"
+			: "m" (val0), "m" (val1) :
+			#ifdef __SSE__
+			"xmm0", "xmm1"
+			#endif
 		);
 		unsigned* e = p + n - 7;
 		for (/**/; p < e; p += 8) {
@@ -235,8 +241,10 @@ static inline void memset4_2_SSE_s(
 			"unpcklps %%xmm1, %%xmm1;"
 			"unpcklps %%xmm1, %%xmm0;"
 			: // no output
-			: "m" (val0), "m" (val1)
-			: "xmm0", "xmm1"
+			: "m" (val0), "m" (val1) :
+			#ifdef __SSE__
+			"xmm0", "xmm1"
+			#endif
 		);
 		unsigned* e = p + n - 7;
 		for (/**/; p < e; p += 8) {

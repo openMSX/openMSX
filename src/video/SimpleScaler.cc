@@ -330,8 +330,10 @@ void SimpleScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 			, "r" (pOut)  // 1
 			, "r" (c1)    // 2
 			, "r" (c2)    // 3
-			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
-			, "eax"
+			: "eax"
+			#ifdef __MMX__
+			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	}
@@ -491,8 +493,10 @@ void SimpleScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 			, "r" (pOut)  // 1
 			, "r" (c1)    // 2
 			, "r" (c2)    // 3
-			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
-			, "eax"
+			: "eax"
+			#ifdef __MMX__
+			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	}
@@ -599,8 +603,10 @@ void SimpleScaler<Pixel>::average(
 			, "r" (src2)  // 1
 			, "r" (dst)   // 2
 			, "r" (alpha << 8) // 3
-			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
-			, "eax"
+			: "eax"
+			#ifdef __MMX__
+			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 
@@ -646,8 +652,10 @@ void SimpleScaler<Pixel>::average(
 			, "r" (src2)  // 1
 			, "r" (dst)   // 2
 			, "r" (alpha << 7) // 3
-			: "mm0", "mm1", "mm2", "mm3", "mm6", "mm7"
-			, "eax"
+			: "eax"
+			#ifdef __MMX__
+			, "mm0", "mm1", "mm2", "mm3", "mm6", "mm7"
+			#endif
 		);
 		return;
 	}
@@ -724,8 +732,10 @@ void SimpleScaler<Pixel>::average(
 			, "r" (table) // 2
 			, "r" (dst)   // 3
 			, "m" (mask)   // 4
-			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm7"
-			, "eax", "ecx"
+			: "eax", "ecx"
+			#ifdef __MMX__
+			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm7"
+			#endif
 		);
 		return;
 	}

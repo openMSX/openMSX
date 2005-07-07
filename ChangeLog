@@ -1,5 +1,11 @@
 $Id$
 
+2005-07-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed linking problem for gcc4
+	* Fixed inline assembler for gcc4:
+	   we need to hide the MMX/SSE registers in the clobber list from the
+	   compiler when the target CPU doesn't know about these registers
+
 2005-07-06 Manuel Bilderbeek <manuel@msxnet.org>
 	* Renamed 'eject', 'rewind', 'force_play' and 'no_force_play' to 
 	  '-eject', '-rewind', '-force_play' and '-no_force_play' in the
