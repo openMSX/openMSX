@@ -178,21 +178,17 @@ private:
 
 	// Dynamic range (Accuracy of sin table)
 	static const int DB_BITS = 8;
-	static const double DB_STEP = 48.0 / (1 << DB_BITS);
 	static const int DB_MUTE = 1 << DB_BITS;
 
 	// Dynamic range of envelope
-	static const double EG_STEP = 0.375;
 	static const int EG_BITS = 7;
 	static const int EG_MUTE = 1 << EG_BITS;
 
 	// Dynamic range of total level
-	static const double TL_STEP = 0.75;
 	static const int TL_BITS = 6;
 	static const int TL_MUTE = 1 << TL_BITS;
 
 	// Dynamic range of sustine level
-	static const double SL_STEP = 3.0;
 	static const int SL_BITS = 4;
 	static const int SL_MUTE = 1 << SL_BITS;
 
@@ -217,14 +213,6 @@ private:
 	// PM table is calcurated by PM_AMP * pow(2,PM_DEPTH*sin(x)/1200)
 	static const int PM_AMP_BITS = 8;
 	static const int PM_AMP = 1 << PM_AMP_BITS;
-
-	// PM speed(Hz) and depth(cent)
-	static const double PM_SPEED = 6.4;
-	static const double PM_DEPTH = 13.75;
-
-	// AM speed(Hz) and depth(dB)
-	static const double AM_SPEED = 3.6413;
-	static const double AM_DEPTH = 4.875;
 
 	int maxVolume;
 

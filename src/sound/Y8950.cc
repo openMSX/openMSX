@@ -19,6 +19,23 @@ using std::string;
 
 namespace openmsx {
 
+static const double PI = 3.14159265358979;
+
+static const double EG_STEP = 0.1875;
+static const double SL_STEP = 3.0;
+static const double TL_STEP = 0.75;
+static const double DB_STEP = 0.1875;
+
+// PM speed(Hz) and depth(cent)
+static const double PM_SPEED  = 6.4;
+static const double PM_DEPTH  = 13.75 / 2;
+static const double PM_DEPTH2 = 13.75;
+
+// AM speed(Hz) and depth(dB)
+static const double AM_SPEED  = 3.7;
+static const double AM_DEPTH  = 1.0;
+static const double AM_DEPTH2 = 4.8;
+
 short Y8950::dB2LinTab[(2*DB_MUTE)*2];
 int   Y8950::Slot::sintable[PG_WIDTH];
 int   Y8950::Slot::tllTable[16][8][1<<TL_BITS][4];
