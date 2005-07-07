@@ -38,30 +38,11 @@ TODO:
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 
+// We need this for the template instantiation required by SDLRasterizer.
+#include <SDL.h>
+
+
 namespace openmsx {
-
-#ifdef COMPONENT_GL
-// On some systems, "GLuint" is not equivalent to "unsigned int",
-// so CharacterConverter must be instantiated separately for those systems.
-// But on systems where it is equivalent, it's an error to expand
-// the same template twice.
-// The following piece of template metaprogramming expands
-// CharacterConverter<GLuint, Renderer::ZOOM_REAL> to an empty class if
-// "GLuint" is equivalent to "unsigned int"; otherwise it is expanded to
-// the actual BitmapConverter implementation.
-class NoExpansion {};
-// ExpandFilter::ExpandType = (Type == unsigned int ? NoExpansion : Type)
-template <class Type> class ExpandFilter {
-	typedef Type ExpandType;
-};
-template <> class ExpandFilter<unsigned int> {
-	typedef NoExpansion ExpandType;
-};
-template <Renderer::Zoom zoom> class CharacterConverter<NoExpansion, zoom> {};
-template class CharacterConverter<
-	ExpandFilter<GLuint>::ExpandType, Renderer::ZOOM_REAL >;
-#endif // COMPONENT_GL
-
 
 template <class Pixel, Renderer::Zoom zoom>
 typename CharacterConverter<Pixel, zoom>::RenderMethod
@@ -365,10 +346,32 @@ void CharacterConverter<Pixel, zoom>::renderBogus(
 
 
 // Force template instantiation.
-template class CharacterConverter<word, Renderer::ZOOM_256>;
-template class CharacterConverter<word, Renderer::ZOOM_REAL>;
-template class CharacterConverter<unsigned int, Renderer::ZOOM_256>;
-template class CharacterConverter<unsigned int, Renderer::ZOOM_REAL>;
+template class CharacterConverter<Uint16, Renderer::ZOOM_256>;
+template class CharacterConverter<Uint16, Renderer::ZOOM_REAL>;
+template class CharacterConverter<Uint32, Renderer::ZOOM_256>;
+template class CharacterConverter<Uint32, Renderer::ZOOM_REAL>;
+
+#ifdef COMPONENT_GL
+// On some systems, "GLuint" is not equivalent to "Uint32",
+// so CharacterConverter must be instantiated separately for those systems.
+// But on systems where it is equivalent, it's an error to expand
+// the same template twice.
+// The following piece of template metaprogramming expands
+// CharacterConverter<GLuint, Renderer::ZOOM_REAL> to an empty class if
+// "GLuint" is equivalent to "Uint32"; otherwise it is expanded to
+// the actual BitmapConverter implementation.
+class NoExpansion {};
+// ExpandFilter::ExpandType = (Type == Uint32 ? NoExpansion : Type)
+template <class Type> class ExpandFilter {
+	typedef Type ExpandType;
+};
+template <> class ExpandFilter<Uint32> {
+	typedef NoExpansion ExpandType;
+};
+template <Renderer::Zoom zoom> class CharacterConverter<NoExpansion, zoom> {};
+template class CharacterConverter<
+	ExpandFilter<GLuint>::ExpandType, Renderer::ZOOM_REAL >;
+#endif // COMPONENT_GL
 
 } // namespace openmsx
 
