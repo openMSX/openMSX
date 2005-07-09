@@ -352,25 +352,21 @@ template class CharacterConverter<Uint32, Renderer::ZOOM_256>;
 template class CharacterConverter<Uint32, Renderer::ZOOM_REAL>;
 
 #ifdef COMPONENT_GL
-// On some systems, "GLuint" is not equivalent to "Uint32",
-// so CharacterConverter must be instantiated separately for those systems.
-// But on systems where it is equivalent, it's an error to expand
-// the same template twice.
-// The following piece of template metaprogramming expands
-// CharacterConverter<GLuint, Renderer::ZOOM_REAL> to an empty class if
-// "GLuint" is equivalent to "Uint32"; otherwise it is expanded to
-// the actual BitmapConverter implementation.
+// The type "GLuint" can be either be equivalent to "Uint16", "Uint32" or still
+// some completely other type. In the later case we need to expand the
+// CharacterConverter<GLuint> template, in the two former cases it is an error
+// to expand it again (it is already instantiated above).
+// The following piece of template metaprogramming takes care of this.
+
 class NoExpansion {};
-// ExpandFilter::ExpandType = (Type == Uint32 ? NoExpansion : Type)
-template <class Type> class ExpandFilter {
-	typedef Type ExpandType;
-};
-template <> class ExpandFilter<Uint32> {
-	typedef NoExpansion ExpandType;
-};
-template <Renderer::Zoom zoom> class CharacterConverter<NoExpansion, zoom> {};
-template class CharacterConverter<
-	ExpandFilter<GLuint>::ExpandType, Renderer::ZOOM_REAL >;
+// ExpandFilter<T>::type = (T == Uint32 || T == Uint16) ? NoExpansion : T
+template<class T> class ExpandFilter  { typedef T           type; };
+template<> class ExpandFilter<Uint16> { typedef NoExpansion type; };
+template<> class ExpandFilter<Uint32> { typedef NoExpansion type; };
+
+template<Renderer::Zoom zoom> class CharacterConverter<NoExpansion, zoom> {};
+template class CharacterConverter<ExpandFilter<GLuint>::type, Renderer::ZOOM_REAL>;
+
 #endif // COMPONENT_GL
 
 } // namespace openmsx
