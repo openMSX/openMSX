@@ -136,7 +136,7 @@ void SDLSoundDriver::audioCallback(short* stream, unsigned len)
 			}
 			//cout << "Mixer: underrun " << available << '/' << len << ' '
 			//     << 1.0 / interval1.toDouble() << endl;
-			updtStrm2(missing);
+			updtStrm2(missing, prevTime, interval1);
 		}
 		EmuDuration minDuration = (intervalAverage * 255) / 256;
 		if (interval1 < minDuration) {
@@ -162,20 +162,20 @@ void SDLSoundDriver::audioCallback(short* stream, unsigned len)
 void SDLSoundDriver::updateStream(const EmuTime& time)
 {
 	assert(prevTime <= time);
+	lock();
 	EmuDuration duration = time - prevTime;
 	unsigned samples = duration / interval1;
-	if (samples == 0) {
-		return;
+	if (samples != 0) {
+		EmuTime start = prevTime;
+		prevTime += interval1 * samples;
+		assert(prevTime <= time);
+		updtStrm(samples, start, interval1);
 	}
-
-	lock();
-	updtStrm(samples);
 	unlock();
-
-	prevTime += interval1 * samples;
 }
 
-void SDLSoundDriver::updtStrm(unsigned samples)
+void SDLSoundDriver::updtStrm(unsigned samples, const EmuTime& start,
+                              const EmuDuration& sampDur)
 {
 	samples = std::min<unsigned>(samples, audioSpec.samples);
 
@@ -204,23 +204,24 @@ void SDLSoundDriver::updtStrm(unsigned samples)
 			//     << 1.0 / interval1.toDouble() << endl;
 		}
 	}
-	updtStrm2(samples);
+	updtStrm2(samples, start, sampDur);
 }
 
-void SDLSoundDriver::updtStrm2(unsigned samples)
+void SDLSoundDriver::updtStrm2(unsigned samples, const EmuTime& start,
+                               const EmuDuration& sampDur)
 {
 	unsigned left = bufferSize - writePtr;
 	if (samples < left) {
 		mixer.generate(&mixBuffer[2 * writePtr], samples,
-		               prevTime, interval1);
+		               start, sampDur);
 		writePtr += samples;
 	} else {
 		mixer.generate(&mixBuffer[2 * writePtr], left,
-		               prevTime, interval1);
+		               start, sampDur);
 		writePtr = samples - left;
 		if (writePtr > 0) {
 			mixer.generate(mixBuffer, writePtr,
-			               prevTime + interval1 * left, interval1);
+			               start + sampDur * left, sampDur);
 		}
 	}
 }

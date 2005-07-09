@@ -35,8 +35,10 @@ public:
 private:
 	static void audioCallbackHelper(void* userdata, Uint8* strm, int len);
 	void audioCallback(short* stream, unsigned len);
-	void updtStrm(unsigned samples);
-	void updtStrm2(unsigned samples);
+	void updtStrm(unsigned samples, const EmuTime& start,
+	              const EmuDuration& sampDur);
+	void updtStrm2(unsigned samples, const EmuTime& start,
+	               const EmuDuration& sampDur);
 	void reInit();
 
 	// Schedulable
