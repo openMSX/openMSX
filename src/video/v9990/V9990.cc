@@ -365,14 +365,13 @@ const string& V9990::schedName() const
 // EventListener
 // -------------------------------------------------------------------------
 
-bool V9990::signalEvent(const Event& event)
+void V9990::signalEvent(const Event& event)
 {
 	if (&event); // avoid warning
 	assert(event.getType() == OPENMSX_RENDERER_SWITCH2_EVENT);
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
 	createRenderer(time);
 	renderer->frameStart(time);
-	return true;
 }
 
 // -------------------------------------------------------------------------

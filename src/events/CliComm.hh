@@ -56,7 +56,7 @@ private:
 	~CliComm();
 
 	// EventListener
-	virtual bool signalEvent(const Event& event);
+	virtual void signalEvent(const Event& event);
 
 	class UpdateCmd : public SimpleCommand {
 	public:

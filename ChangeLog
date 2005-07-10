@@ -1,5 +1,10 @@
 $Id$
 
+2005-07-10 Maarten ter Huurne <maarten@treewalker.org>
+	* Introduced UserInputEventDistributor, as a first step to get rid of the
+	  "native" event handlers. This distributor forwards keyboard events to
+	  the console or the MSX depending on whether the console is active.
+
 2005-07-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed linking problem for gcc4
 	* Fixed inline assembler for gcc4:
@@ -7,7 +12,7 @@ $Id$
 	   compiler when the target CPU doesn't know about these registers
 
 2005-07-06 Manuel Bilderbeek <manuel@msxnet.org>
-	* Renamed 'eject', 'rewind', 'force_play' and 'no_force_play' to 
+	* Renamed 'eject', 'rewind', 'force_play' and 'no_force_play' to
 	  '-eject', '-rewind', '-force_play' and '-no_force_play' in the
 	  CassettePlayer.
 	* Added completion for these options.
@@ -90,7 +95,7 @@ $Id$
 	  see documentation in cpu.tcl for details
 	* Implemented SRAM syncing:
 	   at most 5 seconds after a write to SRAM the content of the SRAM is
-	   saved to disk. 
+	   saved to disk.
 
 2005-06-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* RenShaTurbo is no longer singleton

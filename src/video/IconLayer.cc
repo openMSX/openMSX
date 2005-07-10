@@ -130,7 +130,7 @@ const string& IconLayer<IMAGE>::getName()
 }
 
 template <class IMAGE>
-bool IconLayer<IMAGE>::signalEvent(const Event& event)
+void IconLayer<IMAGE>::signalEvent(const Event& event)
 {
 	assert(event.getType() == OPENMSX_LED_EVENT);
 	const LedEvent& ledEvent = static_cast<const LedEvent&>(event);
@@ -141,7 +141,6 @@ bool IconLayer<IMAGE>::signalEvent(const Event& event)
 		ledTime[led] = Timer::getTime();
 		Display::instance().repaintDelayed(40000); // 25 fps
 	}
-	return true;
 }
 
 template <class IMAGE>

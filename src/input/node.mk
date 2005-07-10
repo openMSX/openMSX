@@ -11,7 +11,11 @@ SRC_HDR:= \
 	KeyJoystick \
 	SETetrisDongle \
 	Mouse \
-	JoyNet
+	JoyNet \
+	UserInputEventDistributor
+
+HDR_ONLY:= \
+	UserInputEventListener
 
 include build/node-end.mk
 

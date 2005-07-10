@@ -92,12 +92,14 @@ void Joystick::write(byte /*value*/, const EmuTime& /*time*/)
 }
 
 //EventListener
-bool Joystick::signalEvent(const Event& event)
+void Joystick::signalEvent(const Event& event)
 {
 	assert(dynamic_cast<const JoystickEvent*>(&event));
 	const JoystickEvent& joyEvent = static_cast<const JoystickEvent&>(event);
+	// TODO: It would be more efficient to make a dispatcher instead of
+	//       sending the event to all joysticks.
 	if (joyEvent.getJoystick() != joyNum) {
-		return true;
+		return;
 	}
 
 	switch (event.getType()) {
@@ -174,7 +176,6 @@ bool Joystick::signalEvent(const Event& event)
 	default:
 		assert(false);
 	}
-	return true;
 }
 
 } // namespace openmsx

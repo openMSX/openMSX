@@ -31,7 +31,7 @@ private:
 	template<EventType T> void executeEvents();
 
 	// EventListener
-	virtual bool signalEvent(const Event& event);
+	virtual void signalEvent(const Event& event);
 
 
 	class AfterCmd {

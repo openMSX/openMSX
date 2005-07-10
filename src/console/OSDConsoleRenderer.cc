@@ -7,6 +7,9 @@
 #include "BooleanSetting.hh"
 #include "GlobalSettings.hh"
 #include "Display.hh"
+#include "Event.hh"
+#include "InputEvents.hh"
+#include "UserInputEventDistributor.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
 #include "Timer.hh"
@@ -25,7 +28,6 @@ namespace openmsx {
 OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	: Layer(COVER_NONE, Z_CONSOLE)
 	, console(console_)
-	, eventDistributor(EventDistributor::instance())
 	, inputEventGenerator(InputEventGenerator::instance())
 	, consoleSetting(GlobalSettings::instance().getConsoleSetting())
 {
@@ -129,19 +131,15 @@ void OSDConsoleRenderer::setActive(bool active_)
 
 	inputEventGenerator.setKeyRepeat(active);
 	if (active) {
-		eventDistributor.registerEventListener(
-			OPENMSX_KEY_UP_EVENT,   console, EventDistributor::NATIVE);
-		eventDistributor.registerEventListener(
-			OPENMSX_KEY_DOWN_EVENT, console, EventDistributor::NATIVE);
-		eventDistributor.distributeEvent(
-			new SimpleEvent<OPENMSX_CONSOLE_ON_EVENT>());
+		UserInputEventDistributor::instance().registerEventListener(
+			UserInputEventDistributor::CONSOLE, console );
+		EventDistributor::instance().distributeEvent(
+			new ConsoleEvent(OPENMSX_CONSOLE_ON_EVENT) );
 	} else {
-		eventDistributor.unregisterEventListener(
-			OPENMSX_KEY_DOWN_EVENT, console, EventDistributor::NATIVE);
-		eventDistributor.unregisterEventListener(
-			OPENMSX_KEY_UP_EVENT,   console, EventDistributor::NATIVE);
-		eventDistributor.distributeEvent(
-			new SimpleEvent<OPENMSX_CONSOLE_OFF_EVENT>());
+		UserInputEventDistributor::instance().unregisterEventListener(
+			UserInputEventDistributor::CONSOLE, console );
+		EventDistributor::instance().distributeEvent(
+			new ConsoleEvent(OPENMSX_CONSOLE_OFF_EVENT) );
 	}
 }
 

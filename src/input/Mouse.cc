@@ -183,7 +183,7 @@ void Mouse::write(byte value, const EmuTime& time)
 
 
 //EventListener
-bool Mouse::signalEvent(const Event& event)
+void Mouse::signalEvent(const Event& event)
 {
 	switch (event.getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
@@ -235,7 +235,6 @@ bool Mouse::signalEvent(const Event& event)
 	default:
 		assert(false);
 	}
-	return true;
 }
 
 } // namespace openmsx

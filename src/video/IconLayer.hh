@@ -31,7 +31,7 @@ private:
 	void createSettings(LedEvent::Led led, const std::string& name);
 
 	// EventListener interface:
-	virtual bool signalEvent(const Event& event);
+	virtual void signalEvent(const Event& event);
 
 	// SettingChecker
 	virtual void check(SettingImpl<FilenameSetting::Policy>& setting,

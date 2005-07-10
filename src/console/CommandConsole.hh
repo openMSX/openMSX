@@ -33,7 +33,7 @@ private:
 
 	CommandConsole();
 	virtual ~CommandConsole();
-	virtual bool signalEvent(const Event& event);
+	virtual bool signalEvent(const UserInputEvent& event);
 	void tabCompletion();
 	void commandExecute();
 	void scroll(int delta);

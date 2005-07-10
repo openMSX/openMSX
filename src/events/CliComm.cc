@@ -145,7 +145,7 @@ void CliComm::update(UpdateType type, const string& name, const string& value)
 	}
 }
 
-bool CliComm::signalEvent(const Event& event)
+void CliComm::signalEvent(const Event& event)
 {
 	static const string ON = "on";
 	static const string OFF = "off";
@@ -165,7 +165,6 @@ bool CliComm::signalEvent(const Event& event)
 	const LedEvent& ledEvent = static_cast<const LedEvent&>(event);
 	update(LED, ledName[ledEvent.getLed()],
 	       ledEvent.getStatus() ? ON : OFF);
-	return true;
 }
 
 

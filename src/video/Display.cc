@@ -115,7 +115,7 @@ Display::Layers::iterator Display::baseLayer()
 	}
 }
 
-bool Display::signalEvent(const Event& event)
+void Display::signalEvent(const Event& event)
 {
 	if (event.getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		const FinishFrameEvent& ffe = static_cast<const FinishFrameEvent&>(event);
@@ -134,7 +134,6 @@ bool Display::signalEvent(const Event& event)
 	} else {
 		assert(false);
 	}
-	return true;
 }
 
 void Display::repaint()

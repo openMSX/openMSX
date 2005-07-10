@@ -9,7 +9,20 @@
 
 namespace openmsx {
 
-class KeyEvent : public Event
+/**
+ * Base class for user input events.
+ * TODO: Does not do anything special yet.
+ *       I expect it will gain functionality in the future, but if it doesn't,
+ *       maybe we shouldn't make it a separate class.
+ */
+class UserInputEvent : public Event
+{
+protected:
+	UserInputEvent(EventType type) :
+		Event(type) {}
+};
+
+class KeyEvent : public UserInputEvent
 {
 public:
 	Keys::KeyCode getKeyCode() const { return keyCode; }
@@ -17,7 +30,7 @@ public:
 
 protected:
 	KeyEvent(EventType type, Keys::KeyCode keyCode_, word unicode_) :
-		Event(type), keyCode(keyCode_), unicode(unicode_) {}
+		UserInputEvent(type), keyCode(keyCode_), unicode(unicode_) {}
 
 private:
 	Keys::KeyCode keyCode;
@@ -39,7 +52,7 @@ public:
 };
 
 
-class MouseButtonEvent : public Event
+class MouseButtonEvent : public UserInputEvent
 {
 public:
 	enum Button {
@@ -49,7 +62,7 @@ public:
 
 protected:
 	MouseButtonEvent(EventType type, Button button_)
-		: Event(type), button(button_) {}
+		: UserInputEvent(type), button(button_) {}
 
 private:
 	Button button;
@@ -69,11 +82,12 @@ public:
 		: MouseButtonEvent(OPENMSX_MOUSE_BUTTON_DOWN_EVENT, button) {}
 };
 
-class MouseMotionEvent : public Event
+class MouseMotionEvent : public UserInputEvent
 {
 public:
 	MouseMotionEvent(int xrel_, int yrel_)
-		: Event(OPENMSX_MOUSE_MOTION_EVENT), xrel(xrel_), yrel(yrel_) {}
+		: UserInputEvent(OPENMSX_MOUSE_MOTION_EVENT)
+		, xrel(xrel_), yrel(yrel_) {}
 
 	int getX() const { return xrel; }
 	int getY() const { return yrel; }
@@ -84,14 +98,14 @@ private:
 };
 
 
-class JoystickEvent : public Event
+class JoystickEvent : public UserInputEvent
 {
 public:
 	unsigned getJoystick() const { return joystick; }
 
 protected:
 	JoystickEvent(EventType type, unsigned joystick_)
-		: Event(type), joystick(joystick_) {}
+		: UserInputEvent(type), joystick(joystick_) {}
 
 private:
 	unsigned joystick;
@@ -141,6 +155,26 @@ private:
 	Axis axis;
 	short value;
 };
+
+/**
+ * Used for console on/off events.
+ * These events tell a lower layer (the MSX keyboard) that key down/up events
+ * will be (on) or have been (off) withheld. With that information, the layer
+ * can take measures against hanging keys.
+ * TODO: Should this be modeled as an event, or as an additional call on
+ *       the UserInputEventHandler interface?
+ */
+class ConsoleEvent : public UserInputEvent
+{
+public:
+	ConsoleEvent(EventType type) :
+		UserInputEvent(type) {}
+};
+
+// Note: The following events are sent by the windowing system, but they
+//       shouldn't be processed by the same listener stack as for example
+//       keyboard events, so we won't let them inherit from UserInputEvent.
+// TODO: Move them to a different file?
 
 class FocusEvent : public Event
 {

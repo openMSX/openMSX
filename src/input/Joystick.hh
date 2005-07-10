@@ -32,7 +32,7 @@ public:
 	virtual void write(byte value, const EmuTime& time);
 
 	//EventListener
-	virtual bool signalEvent(const Event& event);
+	virtual void signalEvent(const Event& event);
 
 private:
 	Joystick(unsigned joyNum);

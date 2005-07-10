@@ -3,7 +3,7 @@
 #include "HotKey.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
-#include "EventDistributor.hh"
+#include "UserInputEventDistributor.hh"
 #include "CliComm.hh"
 #include "InputEvents.hh"
 #include "XMLElement.hh"
@@ -31,10 +31,8 @@ HotKey::HotKey()
 {
 	initDefaultBindings();
 
-	EventDistributor::instance().registerEventListener(
-		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
-	EventDistributor::instance().registerEventListener(
-		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::NATIVE);
+	UserInputEventDistributor::instance().registerEventListener(
+		UserInputEventDistributor::HOTKEY, *this );
 
 	CommandController::instance().registerCommand(&bindCmd,   "bind");
 	CommandController::instance().registerCommand(&unbindCmd, "unbind");
@@ -49,16 +47,14 @@ HotKey::~HotKey()
 	CommandController::instance().unregisterCommand(&bindDefaultCmd,   "bind_default");
 	CommandController::instance().unregisterCommand(&unbindDefaultCmd, "unbind_default");
 
-	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::NATIVE);
-	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
+	UserInputEventDistributor::instance().unregisterEventListener(
+		UserInputEventDistributor::HOTKEY, *this );
 }
 
 void HotKey::initDefaultBindings()
 {
 	// TODO move to TCL script?
-	
+
 	if (META_HOT_KEYS) {
 		// Hot key combos using Mac's Command key.
 		bindDefault(Keys::combine(Keys::K_D, Keys::KM_META), "screenshot");
@@ -98,7 +94,7 @@ void HotKey::loadBindings(const XMLElement& config)
 	boundKeys.clear();
 	cmdMap.clear();
 	cmdMap.insert(defaultMap.begin(), defaultMap.end());
-	
+
 	// load bindings
 	const XMLElement* bindingsElement = config.findChild("bindings");
 	if (!bindingsElement) return;
@@ -153,7 +149,7 @@ void HotKey::bind(Keys::KeyCode key, const string& command)
 	boundKeys.insert(key);
 	defaultMap.erase(key);
 	cmdMap[key] = command;
-	
+
 	// TODO hack, remove when singleton stuff is cleaned up
 	if (!loading) {
 		saveBindings(SettingsConfig::instance());
@@ -169,7 +165,7 @@ void HotKey::unbind(Keys::KeyCode key)
 	boundKeys.erase(key);
 	defaultMap.erase(key);
 	cmdMap.erase(key);
-	
+
 	// TODO hack, remove when singleton stuff is cleaned up
 	if (!loading) {
 		saveBindings(SettingsConfig::instance());
@@ -196,8 +192,13 @@ void HotKey::unbindDefault(Keys::KeyCode key)
 	defaultMap.erase(key);
 }
 
-bool HotKey::signalEvent(const Event& event)
+bool HotKey::signalEvent(const UserInputEvent& event)
 {
+	// In the future we might support joystick buttons as hot keys as well.
+	if (event.getType() != OPENMSX_KEY_DOWN_EVENT) {
+		return true;
+	}
+
 	assert(dynamic_cast<const KeyEvent*>(&event));
 	Keys::KeyCode key = static_cast<const KeyEvent&>(event).getKeyCode();
 	BindMap::iterator it = cmdMap.find(key);
@@ -209,7 +210,7 @@ bool HotKey::signalEvent(const Event& event)
 			CliComm::instance().printWarning(
 				"Error executing hot key command: " + e.getMessage());
 		}
-		return false;
+		return false; // deny event to other key listeners
 	}
 	return true;
 }

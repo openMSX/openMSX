@@ -60,8 +60,8 @@ void Reactor::run(bool autoRun)
 	Scheduler& scheduler = Scheduler::instance();
 
 	// TODO should not be a singleton
-	RealTime::instance(); // sigh, fix instantiation order! 
-	
+	RealTime::instance(); // sigh, fix instantiation order!
+
 	// First execute auto commands.
 	commandController.autoCommands();
 
@@ -132,7 +132,7 @@ void Reactor::update(const Setting* setting)
 }
 
 // EventListener
-bool Reactor::signalEvent(const Event& event)
+void Reactor::signalEvent(const Event& event)
 {
 	if (event.getType() == OPENMSX_QUIT_EVENT) {
 		running = false;
@@ -140,7 +140,6 @@ bool Reactor::signalEvent(const Event& event)
 	} else {
 		assert(false);
 	}
-	return true;
 }
 
 

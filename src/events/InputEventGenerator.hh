@@ -49,7 +49,7 @@ private:
 	virtual void update(const Setting* setting);
 
 	// EventListener
-	virtual bool signalEvent(const Event& event);
+	virtual void signalEvent(const Event& event);
 
 	std::auto_ptr<BooleanSetting> grabInput;
 	enum EscapeGrabState {

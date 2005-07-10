@@ -90,7 +90,7 @@ void KeyJoystick::write(byte /*value*/, const EmuTime& /*time*/)
 
 
 // EventListener
-bool KeyJoystick::signalEvent(const Event& event)
+void KeyJoystick::signalEvent(const Event& event)
 {
 	switch (event.getType()) {
 	case OPENMSX_CONSOLE_ON_EVENT:
@@ -121,7 +121,6 @@ bool KeyJoystick::signalEvent(const Event& event)
 			assert(false);
 		}
 	}
-	return true;
 }
 
 } // namespace openmsx

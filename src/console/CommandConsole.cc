@@ -125,12 +125,13 @@ string CommandConsole::getLine(unsigned line) const
 	return "";
 }
 
-bool CommandConsole::signalEvent(const Event& event)
+bool CommandConsole::signalEvent(const UserInputEvent& event)
 {
-	Display::instance().repaintDelayed(40000); // 25fps
-
 	if (event.getType() == OPENMSX_KEY_UP_EVENT) {
-		return false;	// don't pass event to MSX-Keyboard
+		return false; // don't pass event to MSX-Keyboard
+	}
+	if (event.getType() != OPENMSX_KEY_DOWN_EVENT) {
+		return true; // pass non-keyboard events to MSX
 	}
 
 	assert(dynamic_cast<const KeyEvent*>(&event));
@@ -197,7 +198,9 @@ bool CommandConsole::signalEvent(const Event& event)
 				normalKey(keyEvent.getUnicode());
 			}
 	}
-	return false;	// don't pass event to MSX-Keyboard
+
+	Display::instance().repaintDelayed(40000); // 25fps
+	return false; // don't pass event to MSX-Keyboard
 }
 
 void CommandConsole::print(string text)

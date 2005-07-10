@@ -37,7 +37,7 @@ public:
 	virtual void takeScreenShot(const std::string& filename);
 
 	// EventListener
-	bool signalEvent(const Event& event);
+	void signalEvent(const Event& event);
 
 private:
 	void resize(unsigned x, unsigned y);

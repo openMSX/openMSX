@@ -262,7 +262,7 @@ private:
 	virtual const std::string& schedName() const;
 
 	// EventListener interface:
-	virtual bool signalEvent(const Event& event);
+	virtual void signalEvent(const Event& event);
 
 	// Debuggable: registers
 	class V9990RegDebug : public Debuggable {

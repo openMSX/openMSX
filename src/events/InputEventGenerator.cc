@@ -204,7 +204,7 @@ void InputEventGenerator::update(const Setting* setting)
 	setGrabInput(grabInput->getValue());
 }
 
-bool InputEventGenerator::signalEvent(const Event& event)
+void InputEventGenerator::signalEvent(const Event& event)
 {
 	assert(event.getType() == OPENMSX_FOCUS_EVENT);
 
@@ -227,7 +227,6 @@ bool InputEventGenerator::signalEvent(const Event& event)
 		default:
 			assert(false);
 	}
-	return true;
 }
 
 void InputEventGenerator::setGrabInput(bool grab)

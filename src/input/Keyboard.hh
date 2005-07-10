@@ -5,7 +5,7 @@
 
 #include <string>
 #include "openmsx.hh"
-#include "EventListener.hh"
+#include "UserInputEventListener.hh"
 #include "Command.hh"
 #include "Schedulable.hh"
 
@@ -13,7 +13,7 @@ namespace openmsx {
 
 class EmuTime;
 
-class Keyboard : public EventListener
+class Keyboard : private UserInputEventListener
 {
 public:
 	/**
@@ -30,7 +30,7 @@ public:
 	const byte* getKeys();
 
 	//EventListener
-	virtual bool signalEvent(const Event& event);
+	virtual bool signalEvent(const UserInputEvent& event);
 
 	static const unsigned NR_KEYROWS = 16;
 

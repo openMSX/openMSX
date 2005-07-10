@@ -183,7 +183,7 @@ public:
 	inline word getPalette(int index) const {
 		return palette[index];
 	}
-	
+
 	/** Is the display enabled?
 	  * Both the regular border and forced blanking by clearing
 	  * the display enable bit are considered disabled display.
@@ -527,7 +527,7 @@ private:
 	}
 
 	// EventListener interface:
-	virtual bool signalEvent(const Event& event);
+	virtual void signalEvent(const Event& event);
 
 	/** Called both on init and on reset.
 	  * Puts VDP into reset state.

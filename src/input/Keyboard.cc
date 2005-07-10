@@ -7,6 +7,7 @@
 #include "Clock.hh"
 #include "Keyboard.hh"
 #include "EventDistributor.hh"
+#include "UserInputEventDistributor.hh"
 #include "SettingsConfig.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -91,10 +92,8 @@ Keyboard::Keyboard(bool keyG)
 		loadKeymapfile(config->getFileContext().resolve(filename));
 	}
 
-	EventDistributor & distributor(EventDistributor::instance());
-	distributor.registerEventListener(OPENMSX_KEY_DOWN_EVENT,   *this);
-	distributor.registerEventListener(OPENMSX_KEY_UP_EVENT,     *this);
-	distributor.registerEventListener(OPENMSX_CONSOLE_ON_EVENT, *this);
+	UserInputEventDistributor::instance().registerEventListener(
+		UserInputEventDistributor::MSX, *this );
 	// We do not listen for CONSOLE_OFF_EVENTS because rescanning the
 	// keyboard can have unwanted side effects
 
@@ -108,15 +107,12 @@ Keyboard::Keyboard(bool keyG)
 
 Keyboard::~Keyboard()
 {
-
 	CommandController::instance().unregisterCommand(&keyTypeCmd,       "type");
 	CommandController::instance().unregisterCommand(&keyMatrixDownCmd, "keymatrixdown");
 	CommandController::instance().unregisterCommand(&keyMatrixUpCmd,   "keymatrixup");
 
-	EventDistributor & distributor(EventDistributor::instance());
-	distributor.unregisterEventListener(OPENMSX_KEY_UP_EVENT,   *this);
-	distributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
-	distributor.unregisterEventListener(OPENMSX_CONSOLE_ON_EVENT, *this);
+	UserInputEventDistributor::instance().unregisterEventListener(
+		UserInputEventDistributor::MSX, *this );
 }
 
 
@@ -140,7 +136,7 @@ void Keyboard::allUp()
 		userKeyMatrix[i]=0xFF;
 }
 
-bool Keyboard::signalEvent(const Event& event)
+bool Keyboard::signalEvent(const UserInputEvent& event)
 {
 	switch (event.getType()) {
 	case OPENMSX_CONSOLE_ON_EVENT:

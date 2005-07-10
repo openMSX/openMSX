@@ -41,7 +41,7 @@ private:
 	Display();
 	virtual ~Display();
 
-	virtual bool signalEvent(const Event& event);
+	virtual void signalEvent(const Event& event);
 
 	typedef std::vector<Layer*> Layers;
 

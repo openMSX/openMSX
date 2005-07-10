@@ -108,7 +108,7 @@ void RenderSettings::checkRendererSwitch()
 	}
 }
 
-bool RenderSettings::signalEvent(const Event& event)
+void RenderSettings::signalEvent(const Event& event)
 {
 	if (&event); // avoid warning
 	assert(event.getType() == OPENMSX_RENDERER_SWITCH_EVENT);
@@ -119,8 +119,6 @@ bool RenderSettings::signalEvent(const Event& event)
 	// Tell VDPs they can update their renderer now.
 	EventDistributor::instance().distributeEvent(
 		new SimpleEvent<OPENMSX_RENDERER_SWITCH2_EVENT>() );
-
-	return true;
 }
 
 } // namespace openmsx

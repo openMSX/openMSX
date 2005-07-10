@@ -192,7 +192,7 @@ void AfterCommand::tabCompletion(vector<string>& tokens) const
 }
 
 
-bool AfterCommand::signalEvent(const Event& event)
+void AfterCommand::signalEvent(const Event& event)
 {
 	if (event.getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		executeEvents<OPENMSX_FINISH_FRAME_EVENT>();
@@ -206,7 +206,6 @@ bool AfterCommand::signalEvent(const Event& event)
 			}
 		}
 	}
-	return true;
 }
 
 template<EventType T> void AfterCommand::executeEvents()

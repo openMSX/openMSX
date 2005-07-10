@@ -81,7 +81,7 @@ private:
 	virtual void update(const Setting* setting);
 
 	// EventListener interface:
-	virtual bool signalEvent(const Event& event);
+	virtual void signalEvent(const Event& event);
 
 	void checkRendererSwitch();
 

@@ -15,7 +15,6 @@ namespace openmsx {
 class IntegerSetting;
 class Font;
 class InputEventGenerator;
-class EventDistributor;
 class BooleanSetting;
 class Console;
 template <typename T> class EnumSetting;
@@ -77,7 +76,6 @@ private:
 
 	bool active;
 	unsigned long long time;
-	EventDistributor& eventDistributor;
 	InputEventGenerator& inputEventGenerator;
 	BooleanSetting& consoleSetting;
 };

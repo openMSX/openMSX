@@ -125,12 +125,11 @@ void SDLGLVideoSystem::resize(unsigned x, unsigned y)
 	glMatrixMode(GL_MODELVIEW);
 }
 
-bool SDLGLVideoSystem::signalEvent(const Event& event)
+void SDLGLVideoSystem::signalEvent(const Event& event)
 {
 	assert(event.getType() == OPENMSX_RESIZE_EVENT);
 	const ResizeEvent& resizeEvent = static_cast<const ResizeEvent&>(event);
 	resize(resizeEvent.getX(), resizeEvent.getY());
-	return true;
 }
 
 } // namespace openmsx

@@ -29,7 +29,7 @@ public:
 
 private:
 	// EventListener
-	virtual bool signalEvent(const Event& event);
+	virtual void signalEvent(const Event& event);
 
 	void allUp();
 
@@ -39,7 +39,7 @@ private:
 	std::auto_ptr<KeyCodeSetting> left;
 	std::auto_ptr<KeyCodeSetting> trigA;
 	std::auto_ptr<KeyCodeSetting> trigB;
-	
+
 	std::string name;
 	byte status;
 };

@@ -97,20 +97,13 @@ void EventDistributor::distributeEvent(Event* event)
 	//       iterating through it.
 	//       For example, assign NULL first and then iterate again after
 	//       delivering events to remove the NULL values.
-	bool cont = true;
 	pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
 		nativeListeners.equal_range(event->getType());
 	for (ListenerMap::iterator it = bounds.first;
 	     it != bounds.second; ++it) {
 		sem.up();
-		cont &= it->second->signalEvent(*event);
+		it->second->signalEvent(*event);
 		sem.down();
-		if (!cont) break;
-	}
-	if (!cont) {
-		// Block event from other listeners.
-		delete event;
-		return;
 	}
 
 	// Deliver event to DETACHED listeners.

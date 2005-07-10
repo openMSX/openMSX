@@ -149,13 +149,12 @@ VDP::~VDP()
 	delete renderer;
 }
 
-bool VDP::signalEvent(const Event& event)
+void VDP::signalEvent(const Event& event)
 {
 	if (&event); // avoid warning
 	assert(event.getType() == OPENMSX_RENDERER_SWITCH2_EVENT);
 	delete renderer;
 	createRenderer();
-	return true;
 }
 
 void VDP::createRenderer()
