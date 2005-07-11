@@ -4,27 +4,23 @@
 #include "CasImage.hh"
 #include "File.hh"
 #include "Clock.hh"
-#include <cstdlib>
-#include <memory.h>
+#include <string.h> // for memcmp
 
 using std::string;
 
 namespace openmsx {
 
 // output settings
-const int OUTPUT_FREQUENCY = 43200;
+const int FACTOR = 2; // double speed (2400 baud)
+const int OUTPUT_FREQUENCY = 2400 * FACTOR;
 
 // number of ouput bytes for silent parts
-const int SHORT_SILENCE = OUTPUT_FREQUENCY;	// 1 second
-const int LONG_SILENCE  = OUTPUT_FREQUENCY * 2;	// 2 seconds
+const int SHORT_SILENCE = OUTPUT_FREQUENCY * 1; // 1 second
+const int LONG_SILENCE  = OUTPUT_FREQUENCY * 2; // 2 seconds
 
-// frequency for pulses
-const int LONG_PULSE  = 1200;
-const int SHORT_PULSE = 2400;
-
-// number of short pulses for headers
-const int LONG_HEADER  = 16000;
-const int SHORT_HEADER = 4000;
+// number of 1-bits for headers
+const int LONG_HEADER  = 16000 / 2;
+const int SHORT_HEADER =  4000 / 2;
 
 // headers definitions
 const byte HEADER[8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
@@ -39,7 +35,6 @@ CasImage::CasImage(const string& fileName)
 	size = file.getSize();
 	buf = file.mmap();
 	pos = 0;
-	baudRate = 2400;
 	convert();
 	file.munmap();
 }
@@ -55,26 +50,26 @@ short CasImage::getSampleAt(const EmuTime& time)
 	return pos < output.size() ? output[pos] * 256 : 0;
 }
 
-
-// write a pulse
-void CasImage::writePulse(int f)
+void CasImage::write0()
 {
-	int length = OUTPUT_FREQUENCY / (baudRate * (f / 1200));
-
-	int i = 0;
-	for ( ; i < (length / 2); i++) {
-		output.push_back(127);
-	}
-	for ( ; i < length; i++) {
-		output.push_back(-127);
-	}
+	output.push_back( 127);
+	output.push_back( 127);
+	output.push_back(-127);
+	output.push_back(-127);
+}
+void CasImage::write1()
+{
+	output.push_back( 127);
+	output.push_back(-127);
+	output.push_back( 127);
+	output.push_back(-127);
 }
 
 // write a header signal
 void CasImage::writeHeader(int s)
 {
-	for (int i = 0; i < s * (baudRate / 1200); i++) {
-		writePulse(SHORT_PULSE);
+	for (int i = 0; i < s; ++i) {
+		write1();
 	}
 }
 
@@ -88,23 +83,18 @@ void CasImage::writeSilence(int s)
 void CasImage::writeByte(byte b)
 {
 	// one start bit
-	writePulse(LONG_PULSE);
-
+	write0();
 	// eight data bits
-	for (int i = 0; i < 8; i++) {
-		if (b & 1) {
-			writePulse(SHORT_PULSE);
-			writePulse(SHORT_PULSE);
+	for (int i = 0; i < 8; ++i) {
+		if (b & (1 << i)) {
+			write1();
 		} else {
-			writePulse(LONG_PULSE);
+			write0();
 		}
-		b = b >> 1;
 	}
-
 	// two stop bits
-	for (int i = 0; i < 4; i++) {
-		writePulse(SHORT_PULSE);
-	}
+	write1();
+	write1();
 }
 
 // write data until a header is detected

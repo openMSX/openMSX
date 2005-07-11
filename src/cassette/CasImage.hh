@@ -3,10 +3,10 @@
 #ifndef CASIMAGE_HH
 #define CASIMAGE_HH
 
-#include <vector>
-#include <string>
 #include "CassetteImage.hh"
 #include "openmsx.hh"
+#include <string>
+#include <vector>
 
 namespace openmsx {
 
@@ -22,7 +22,8 @@ public:
 	virtual short getSampleAt(const EmuTime& time);
 
 private:
-	void writePulse(int f);
+	void write0();
+	void write1();
 	void writeHeader(int s);
 	void writeSilence(int s);
 	void writeByte(byte b);
@@ -31,7 +32,6 @@ private:
 
 	unsigned pos, size;
 	byte* buf;
-	int baudRate;
 	std::vector<char> output;
 };
 
