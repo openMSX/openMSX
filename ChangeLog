@@ -3,6 +3,8 @@ $Id$
 2005-07-11 Manuel Bilderbeek <manuel@msxnet.org>
 	* Thanks to Wouter's improvements to CasImage, I could boost the
 	  baudrate of cas images to 5520! :) Any more and it blows ;-)
+	* Don't use allUp(), but just let key up events through to the MSX
+	  when console is active.
 
 2005-07-10 Maarten ter Huurne <maarten@treewalker.org>
 	* Introduced UserInputEventDistributor, as a first step to get rid of
