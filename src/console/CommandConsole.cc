@@ -127,9 +127,9 @@ string CommandConsole::getLine(unsigned line) const
 
 bool CommandConsole::signalEvent(const UserInputEvent& event)
 {
-	if (event.getType() == OPENMSX_KEY_UP_EVENT) {
-		return false; // don't pass event to MSX-Keyboard
-	}
+	// Note: we let OPENMSX_KEY_UP events pass to MSX-Keyboard
+	// to prevent 'hanging' keys when entering the console
+
 	if (event.getType() != OPENMSX_KEY_DOWN_EVENT) {
 		return true; // pass non-keyboard events to MSX
 	}

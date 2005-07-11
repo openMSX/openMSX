@@ -130,41 +130,23 @@ const byte* Keyboard::getKeys()
 	return keyMatrix;
 }
 
-void Keyboard::allUp()
-{
-	for (unsigned int i=0 ; i<NR_KEYROWS ; ++i)
-		userKeyMatrix[i]=0xFF;
-}
-
 bool Keyboard::signalEvent(const UserInputEvent& event)
 {
-	switch (event.getType()) {
-	case OPENMSX_CONSOLE_ON_EVENT:
-		allUp();
-		break;
-	case OPENMSX_CONSOLE_OFF_EVENT:
-		// We do not rescan the keyboard since this may lead to an
-		// unwanted pressing of <return> in MSX after typing "set console
-		// off" in the console.
-		break;
-	default: // must be keyEvent
+	EventType type = event.getType();
+	if (type == OPENMSX_KEY_DOWN_EVENT || type == OPENMSX_KEY_UP_EVENT) {
+		// Ignore possible console on/off events:
+		// we do not rescan the keyboard since this may lead to
+		// an unwanted pressing of <return> in MSX after typing
+		// "set console off" in the console.
 		assert(dynamic_cast<const KeyEvent*>(&event));
-		Keys::KeyCode key = (Keys::KeyCode)((int)((KeyEvent&)event).getKeyCode() &
-	                                    (int)Keys::K_MASK);
+		Keys::KeyCode key = (Keys::KeyCode)((int)((KeyEvent&)event).getKeyCode() & (int)Keys::K_MASK);
 		if (key < MAX_KEYSYM) {
-			switch (event.getType()) {
-			case OPENMSX_KEY_DOWN_EVENT: {
+			if (type == OPENMSX_KEY_DOWN_EVENT) {
 				// Key pressed: reset bit in keyMatrix
 				userKeyMatrix[keyTab[key][0]] &= ~keyTab[key][1];
-				break;
-			}
-			case OPENMSX_KEY_UP_EVENT: {
+			} else { // OPENMSX_KEY_UP_EVENT
 				// Key released: set bit in keyMatrix
 				userKeyMatrix[keyTab[key][0]] |= keyTab[key][1];
-				break;
-			}
-			default:
-				assert(false);
 			}
 		}
 	}

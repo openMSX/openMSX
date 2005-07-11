@@ -35,7 +35,6 @@ public:
 	static const unsigned NR_KEYROWS = 16;
 
 private:
-	void allUp();
 	void doKeyGhosting();
 	void parseKeymapfile(const byte* buf, unsigned size);
 	void loadKeymapfile(const std::string& filename);
