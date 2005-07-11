@@ -11,8 +11,8 @@ using std::string;
 namespace openmsx {
 
 // output settings
-const int FACTOR = 2; // double speed (2400 baud)
-const int OUTPUT_FREQUENCY = 2400 * FACTOR;
+const double FACTOR = 4.6; // 4.6 times normal speed (5520 baud, higher doesn't work anymore, the BIOS code (and Z80) is too slow for that)
+const int OUTPUT_FREQUENCY = static_cast<int>(2400 * FACTOR);
 
 // number of ouput bytes for silent parts
 const int SHORT_SILENCE = OUTPUT_FREQUENCY * 1; // 1 second

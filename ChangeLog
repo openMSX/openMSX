@@ -1,9 +1,13 @@
 $Id$
 
+2005-07-11 Manuel Bilderbeek <manuel@msxnet.org>
+	* Thanks to Wouter's improvements to CasImage, I could boost the
+	  baudrate of cas images to 5520! :) Any more and it blows ;-)
+
 2005-07-10 Maarten ter Huurne <maarten@treewalker.org>
-	* Introduced UserInputEventDistributor, as a first step to get rid of the
-	  "native" event handlers. This distributor forwards keyboard events to
-	  the console or the MSX depending on whether the console is active.
+	* Introduced UserInputEventDistributor, as a first step to get rid of
+	the "native" event handlers. This distributor forwards keyboard events
+	to the console or the MSX depending on whether the console is active.
 
 2005-07-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed linking problem for gcc4
