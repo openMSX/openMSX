@@ -3,6 +3,7 @@
 #include "Setting.hh"
 #include "SettingListener.hh"
 #include "CliComm.hh"
+#include "XMLElement.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -49,6 +50,22 @@ void Setting::removeListener(SettingListener* listener)
 bool Setting::needLoadSave() const
 {
 	return save;
+}
+
+void Setting::sync(XMLElement& config) const
+{
+	XMLElement& settings = config.getCreateChild("settings");
+	if (hasDefaultValue()) {
+		// remove setting
+		const XMLElement* elem = settings.findChildWithAttribute(
+				"setting", "id", getName());
+		if (elem) settings.removeChild(*elem);
+	} else {
+		// add (or overwrite) setting
+		XMLElement& elem = settings.getCreateChildWithAttribute(
+				"setting", "id", getName());
+		elem.setData(getValueString());
+	}
 }
 
 } // namespace openmsx

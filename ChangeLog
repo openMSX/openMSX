@@ -1,5 +1,8 @@
 $Id$
 
+2005-07-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed auto saving of settings at exit
+
 2005-07-11 Manuel Bilderbeek <manuel@msxnet.org>
 	* Thanks to Wouter's improvements to CasImage, I could boost the
 	  baudrate of cas images to 5520! :) Any more and it blows ;-)

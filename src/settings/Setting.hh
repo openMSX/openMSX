@@ -9,6 +9,7 @@
 namespace openmsx {
 
 class SettingListener;
+class XMLElement;
 
 class Setting
 {
@@ -61,9 +62,15 @@ public:
 	void removeListener(SettingListener* listener);
 
 	/** Needs this setting to be loaded or saved
-	 */
+	  */
 	bool needLoadSave() const;
 
+	/** Synchronize the setting with the SettingsConfig. Should be called
+	  * just before saving the setting or just before the setting is
+	  * deleted.
+	  */
+	void sync(XMLElement& config) const;
+	
 protected:
 	Setting(const std::string& name, const std::string& description,
 	        SaveSetting save);

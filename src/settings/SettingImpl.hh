@@ -131,6 +131,7 @@ void SettingImpl<POLICY>::init()
 template<typename POLICY>
 SettingImpl<POLICY>::~SettingImpl()
 {
+	sync(SettingsConfig::instance());
 	SettingsConfig::instance().getSettingsManager().unregisterSetting(*this);
 }
 

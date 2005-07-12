@@ -133,22 +133,9 @@ void SettingsManager::loadSettings(const XMLElement& config)
 
 void SettingsManager::saveSettings(XMLElement& config) const
 {
-	XMLElement& settings = config.getCreateChild("settings");
 	for (SettingsMap::const_iterator it = settingsMap.begin();
 	     it != settingsMap.end(); ++it) {
-		const string& name = it->first;
-		const Setting& setting = *it->second;
-		if (setting.hasDefaultValue()) {
-			// remove setting
-			const XMLElement* elem = settings.findChildWithAttribute(
-				"setting", "id", name);
-			if (elem) settings.removeChild(*elem);
-		} else {
-			// add (or overwrite) setting
-			XMLElement& elem = settings.getCreateChildWithAttribute(
-				"setting", "id", name);
-			elem.setData(setting.getValueString());
-		}
+		it->second->sync(config);
 	}
 }
 
