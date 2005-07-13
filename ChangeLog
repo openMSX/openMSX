@@ -1,5 +1,8 @@
 $Id$
 
+2005-07-13 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed the new icon on big endian machines.
+
 2005-07-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed auto saving of settings at exit
 
