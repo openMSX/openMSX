@@ -39,19 +39,19 @@ auto_ptr<MSXCPUInterface> MSXCPUInterface::create(MSXMotherBoard& motherBoard,
 }
 
 MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
-	: memoryDebug(*this),
-	  slottedMemoryDebug(*this),
-	  ioDebug(*this),
-	  slotMapCmd(*this),
-	  slotSelectCmd(*this),
-	  ioMapCmd(*this),
-	  dummyDevice(motherBoard.getDummyDevice()),
-	  hardwareConfig(HardwareConfig::instance()),
-	  commandController(CommandController::instance()),
-	  msxcpu(motherBoard.getCPU()),
-	  scheduler(Scheduler::instance()),
-	  debugger(motherBoard.getDebugger()),
-	  cliCommOutput(CliComm::instance())
+	: memoryDebug(*this)
+	, slottedMemoryDebug(*this)
+	, subSlottedDebug(*this)
+	, ioDebug(*this)
+	, slotMapCmd(*this)
+	, ioMapCmd(*this)
+	, dummyDevice(motherBoard.getDummyDevice())
+	, hardwareConfig(HardwareConfig::instance())
+	, commandController(CommandController::instance())
+	, msxcpu(motherBoard.getCPU())
+	, scheduler(Scheduler::instance())
+	, debugger(motherBoard.getDebugger())
+	, cliCommOutput(CliComm::instance())
 {
 	for (int port = 0; port < 256; ++port) {
 		IO_In [port] = &dummyDevice;
@@ -75,11 +75,11 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 
 	// Register console commands
 	commandController.registerCommand(&slotMapCmd,    "slotmap");
-	commandController.registerCommand(&slotSelectCmd, "slotselect");
 	commandController.registerCommand(&ioMapCmd,      "iomap");
 
 	debugger.registerDebuggable("memory", memoryDebug);
 	debugger.registerDebuggable("slotted memory", slottedMemoryDebug);
+	debugger.registerDebuggable("issubslotted", subSlottedDebug);
 	debugger.registerDebuggable("ioports", ioDebug);
 
 	msxcpu.setInterface(this);
@@ -91,10 +91,10 @@ MSXCPUInterface::~MSXCPUInterface()
 
 	debugger.unregisterDebuggable("memory", memoryDebug);
 	debugger.unregisterDebuggable("slotted memory", slottedMemoryDebug);
+	debugger.unregisterDebuggable("issubslotted", subSlottedDebug);
 	debugger.unregisterDebuggable("ioports", ioDebug);
 
 	commandController.unregisterCommand(&slotMapCmd,    "slotmap");
-	commandController.unregisterCommand(&slotSelectCmd, "slotselect");
 	commandController.unregisterCommand(&ioMapCmd,      "iomap");
 
 	assert(multiIn.empty());
@@ -417,25 +417,6 @@ void MSXCPUInterface::printSlotMapPages(std::ostream &out,
 	}
 }
 
-string MSXCPUInterface::getSlotSelection() const
-{
-	ostringstream out;
-	for (int page = 0; page < 4; ++page) {
-		char pageStr[5];
-		snprintf(pageStr, sizeof(pageStr), "%04X", page * 0x4000);
-		out << pageStr << ": ";
-
-		int prim = primarySlotState[page];
-		int sec = (subSlotRegister[prim] >> (page * 2)) & 3;
-		if (isSubSlotted[prim]) {
-			out << "slot " << prim << "." << sec << "\n";
-		} else {
-			out << "slot " << prim << "\n";
-		}
-	}
-	return out.str();
-}
-
 
 // class MemoryDebug
 
@@ -499,6 +480,36 @@ void MSXCPUInterface::SlottedMemoryDebug::write(unsigned address, byte value)
 }
 
 
+// class SubSlottedDebug
+
+MSXCPUInterface::SubSlottedDebug::SubSlottedDebug(MSXCPUInterface& parent_)
+	: parent(parent_)
+{
+}
+
+unsigned MSXCPUInterface::SubSlottedDebug::getSize() const
+{
+	return 4;
+}
+
+const string& MSXCPUInterface::SubSlottedDebug::getDescription() const
+{
+	static const string desc =
+		"Indicates whether a certain primary slot is expanded.";
+	return desc;
+}
+
+byte MSXCPUInterface::SubSlottedDebug::read(unsigned address)
+{
+	return parent.isSubSlotted[address] ? 0xFF : 0x00;
+}
+
+void MSXCPUInterface::SubSlottedDebug::write(unsigned /*address*/, byte /*value*/)
+{
+	// nothing
+}
+
+
 // class IODebug
 
 MSXCPUInterface::IODebug::IODebug(MSXCPUInterface& parent_)
@@ -548,23 +559,6 @@ string MSXCPUInterface::SlotMapCmd::help(const vector<string>& /*tokens*/) const
 	return "Prints which slots contain which devices.\n";
 }
 
-
-// class SlotSelectCmd
-
-MSXCPUInterface::SlotSelectCmd::SlotSelectCmd(MSXCPUInterface& parent_)
-	: parent(parent_)
-{
-}
-
-string MSXCPUInterface::SlotSelectCmd::execute(const vector<string>& /*tokens*/)
-{
-	return parent.getSlotSelection();
-}
-
-string MSXCPUInterface::SlotSelectCmd::help(const vector<string>& /*tokens*/) const
-{
-	return "Prints which slots are currently selected.\n";
-}
 
 // class IOMapCmd
 

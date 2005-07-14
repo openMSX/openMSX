@@ -200,6 +200,17 @@ private:
 	private:
 		MSXCPUInterface& parent;
 	} slottedMemoryDebug;
+	
+	class SubSlottedDebug : public Debuggable {
+	public:
+		SubSlottedDebug(MSXCPUInterface& parent);
+		virtual unsigned getSize() const;
+		virtual const std::string& getDescription() const;
+		virtual byte read(unsigned address);
+		virtual void write(unsigned address, byte value);
+	private:
+		MSXCPUInterface& parent;
+	} subSlottedDebug;
 
 	class IODebug : public Debuggable {
 	public:
@@ -220,15 +231,6 @@ private:
 	private:
 		MSXCPUInterface& parent;
 	} slotMapCmd;
-
-	class SlotSelectCmd : public SimpleCommand {
-	public:
-		SlotSelectCmd(MSXCPUInterface& parent);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		MSXCPUInterface& parent;
-	} slotSelectCmd;
 
 	class IOMapCmd : public SimpleCommand {
 	public:
@@ -252,7 +254,6 @@ private:
 	void printSlotMapPages(std::ostream&, const MSXDevice* const*) const;
 	std::string getSlotMap() const;
 	std::string getIOMap() const;
-	std::string getSlotSelection() const;
 
 	MSXDevice* IO_In [256];
 	MSXDevice* IO_Out[256];

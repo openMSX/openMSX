@@ -1,5 +1,11 @@
 $Id$
 
+2005-07-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added "issubslotted" debuggable
+	* Reimplemented "slotselect" command as a TCL proc
+	* Added "pc_in_slot" TCL proc. Can be used to set a bp in
+	  a specific slot.
+
 2005-07-13 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed the new icon on big endian machines.
 
