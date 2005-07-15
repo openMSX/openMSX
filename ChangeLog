@@ -1,5 +1,8 @@
 $Id$
 
+2005-07-15 Manuel Bilderbeek <manuel@msxnet.org>
+	* Updated the IDE ROM to version 2.40.
+
 2005-07-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added "issubslotted" debuggable
 	* Reimplemented "slotselect" command as a TCL proc
