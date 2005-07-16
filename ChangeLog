@@ -3,6 +3,7 @@ $Id$
 2005-07-16 Maarten ter Huurne <maarten@treewalker.org>
 	* Optimized PNG images.
 	  I used the tools pngrewrite and OptiPNG.
+	* Optimized PNGs some more using advpng.
 
 2005-07-15 Manuel Bilderbeek <manuel@msxnet.org>
 	* Updated the IDE ROM to version 2.40.
