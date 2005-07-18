@@ -193,7 +193,8 @@ private:
 	/** Dirty checker for colour table. */
 	DirtyChecker<(1<<10), 8> dirtyColour;
 
-	GLuint characterCache[4 * 256];
+	GLuint colorChrTex[4 * 256];
+	GLuint monoChrTex[256];
 	GLuint stripeTexture;
 
 	/** VRAM to pixels converter for character display modes.

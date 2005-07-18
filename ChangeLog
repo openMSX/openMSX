@@ -7,6 +7,8 @@ $Id$
 
 2005-07-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made CPU breaked status queryable with "debug breaked" subcommand
+	* Use glTexSubImage2D to reuse existing textures:
+	   can be faster in certain openGL implementations
 
 2005-07-16 Maarten ter Huurne <maarten@treewalker.org>
 	* Optimized PNG images.

@@ -88,30 +88,30 @@ inline static void GLFillBlock(int x1, int y1, int x2, int y2,
 inline static void GLBindMonoBlock(GLuint textureId, const byte* pixels)
 {
 	glBindTexture(GL_TEXTURE_2D, textureId);
-	glTexImage2D(GL_TEXTURE_2D,
-	             0, // level
-	             GL_LUMINANCE8,
-	             8, // width
-	             8, // height
-	             0, // border
-	             GL_LUMINANCE,
-	             GL_UNSIGNED_BYTE,
-	             pixels);
+	glTexSubImage2D(GL_TEXTURE_2D,    // target
+	                0,                // level
+	                0,                // x-offset
+	                0,                // y-offset
+	                8,                // width
+	                8,                // height
+	                GL_LUMINANCE,     // format
+	                GL_UNSIGNED_BYTE, // type
+	                pixels);          // data
 }
 
 inline static void GLBindColourBlock(
 	GLuint textureId, const GLRasterizer::Pixel *pixels)
 {
 	glBindTexture(GL_TEXTURE_2D, textureId);
-	glTexImage2D(GL_TEXTURE_2D,
-	             0, // level
-	             GL_RGBA,
-	             8, // width
-	             8, // height
-	             0, // border
-	             GL_RGBA,
-	             GL_UNSIGNED_BYTE,
-	             pixels);
+	glTexSubImage2D(GL_TEXTURE_2D,    // target
+	                0,                // level
+	                0,                // x-offset
+	                0,                // y-offset
+	                8,                // width
+	                8,                // height
+	                GL_RGBA,          // format
+	                GL_UNSIGNED_BYTE, // type
+	                pixels);          // data
 }
 
 inline static void GLDrawMonoBlock(
@@ -275,11 +275,37 @@ GLRasterizer::GLRasterizer(VDP& vdp_)
 
 	// Create character display cache.
 	// Block based:
-	glGenTextures(4 * 256, characterCache);
-	for (int i = 0; i < 4 * 256; i++) {
-		glBindTexture(GL_TEXTURE_2D, characterCache[i]);
+	glGenTextures(4 * 256, colorChrTex);
+	for (int i = 0; i < 4 * 256; ++i) {
+		byte dummy[8 * 8 * 4];
+		glBindTexture(GL_TEXTURE_2D, colorChrTex[i]);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D,    // target
+			     0,                // level
+			     GL_RGBA,          // internal format
+			     8,                // width
+			     8,                // height
+			     0,                // border
+			     GL_RGBA,          // format
+			     GL_UNSIGNED_BYTE, // type
+			     dummy);           // data
+	}
+	glGenTextures(256, monoChrTex);
+	for (int i = 0; i < 256; ++i) {
+		byte dummy[8 * 8];
+		glBindTexture(GL_TEXTURE_2D, monoChrTex[i]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D,    // target
+			     0,                // level
+			     GL_LUMINANCE8,    // internal format
+			     8,                // width
+			     8,                // height
+			     0,                // border
+			     GL_LUMINANCE,     // format
+			     GL_UNSIGNED_BYTE, // type
+			     dummy);           // data 
 	}
 	
 	// texture for drawing stripes 
@@ -649,7 +675,7 @@ void GLRasterizer::renderText1(
 			//       Currently both subroutines bind the same texture.
 			int name = (row & 31) * 40 + col;
 			int charcode = vram.nameTable.readNP((name + 0xC00) | (-1 << 12));
-			GLuint textureId = characterCache[charcode];
+			GLuint textureId = monoChrTex[charcode];
 			if (!dirtyPattern.validate(charcode)) {
 				// Update cache for current character.
 				byte charPixels[8 * 8];
@@ -707,7 +733,7 @@ void GLRasterizer::renderText2(
 			//       Currently both subroutines bind the same texture.
 			int charcode = vram.nameTable.readNP(
 				(-1 << 12) | (row * 80 + col) );
-			GLuint textureId = characterCache[charcode];
+			GLuint textureId = monoChrTex[charcode];
 			if (!dirtyPattern.validate(charcode)) {
 				// Update cache for current character.
 				byte charPixels[8 * 8];
@@ -768,7 +794,7 @@ void GLRasterizer::renderGraphic1Row(
 
 	for (int name = nameStart; name < nameEnd; name++) {
 		int charNr = vram.nameTable.readNP((-1 << 10) | name);
-		GLuint textureId = characterCache[charNr];
+		GLuint textureId = monoChrTex[charNr];
 		bool valid = dirtyPattern.validate(charNr);
 		if (!valid) {
 			byte charPixels[8 * 8];
@@ -839,7 +865,7 @@ void GLRasterizer::renderGraphic2Row(
 		} else {
 			valid = false;
 		}
-		GLuint textureId = characterCache[charNr];
+		GLuint textureId = colorChrTex[charNr];
 
 		// Print cache stats, approx once per frame.
 		/*

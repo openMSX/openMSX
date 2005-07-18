@@ -26,22 +26,37 @@ Texture::~Texture()
 // class LineTexture
 
 LineTexture::LineTexture()
-	: Texture()
+	: Texture(), prevLineWidth(-1)
 {
 }
 
 void LineTexture::update(const GLuint* data, int lineWidth)
 {
 	bind();
-	glTexImage2D(GL_TEXTURE_2D,
-	             0, // level
-	             GL_RGBA,
-	             lineWidth, // width
-	             1, // height
-	             0, // border
-	             GL_RGBA,
-	             GL_UNSIGNED_BYTE,
-	             data);
+	if (prevLineWidth == lineWidth) {
+		// reuse existing texture
+		glTexSubImage2D(GL_TEXTURE_2D,    // target
+		                0,                // level
+		                0,                // x-offset
+		                0,                // y-offset
+		                lineWidth,        // width
+		                1,                // height
+		                GL_RGBA,          // format
+		                GL_UNSIGNED_BYTE, // type
+		                data);            // data
+	} else {
+		// create new texture
+		prevLineWidth = lineWidth;
+		glTexImage2D(GL_TEXTURE_2D,    // target
+		             0,                // level
+		             GL_RGBA,          // internal format
+		             lineWidth,        // width
+		             1,                // height
+		             0,                // border
+		             GL_RGBA,          // format
+		             GL_UNSIGNED_BYTE, // type
+		             data);            // data 
+	}
 }
 
 void LineTexture::draw(
@@ -78,11 +93,28 @@ StoredFrame::StoredFrame()
 void StoredFrame::store(unsigned x, unsigned y)
 {
 	texture.bind();
-	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0,
-	                 powerOfTwo(x), powerOfTwo(y), 0);
+	if ((width == x) && (height == y)) {
+		glCopyTexSubImage2D(GL_TEXTURE_2D, // target
+		                    0,             // level
+		                    0,             // x-offset
+		                    0,             // y-offset
+		                    0,             // x
+		                    0,             // y
+		                    width,         // width
+		                    height);       // height
+	} else {
+		width = x;
+		height = y;
+		glCopyTexImage2D(GL_TEXTURE_2D,      // target
+		                 0,                  // level
+		                 GL_RGB,             // internal format
+		                 0,                  // x
+		                 0,                  // y
+		                 powerOfTwo(width),  // width
+		                 powerOfTwo(height), // height
+		                 0);                 // border
+	}
 	stored = true;
-	width = x;
-	height = y;
 }
 
 void StoredFrame::draw(int offsetX, int offsetY)

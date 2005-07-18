@@ -37,6 +37,8 @@ public:
 	LineTexture();
 	void update(const GLuint* data, int lineWidth);
 	void draw(int texX, int screenX, int screenY, int width, int height);
+private:
+	int prevLineWidth;
 };
 
 class StoredFrame
