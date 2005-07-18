@@ -21,25 +21,25 @@ AfterCommand::AfterCmdMap AfterCommand::afterCmds;
 AfterCommand::AfterCommand()
 {
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_BREAK_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_BREAK_EVENT, *this, EventDistributor::DETACHED);
 
 	CommandController::instance().registerCommand(this, "after");
 }
@@ -49,25 +49,25 @@ AfterCommand::~AfterCommand()
 	CommandController::instance().unregisterCommand(this, "after");
 
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_BREAK_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_BREAK_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::DETACHED);
 }
 
 string AfterCommand::execute(const vector<string>& tokens)

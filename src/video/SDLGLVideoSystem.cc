@@ -41,13 +41,13 @@ SDLGLVideoSystem::SDLGLVideoSystem()
 	Display::instance().setVideoSystem(this);
 
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_RESIZE_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_RESIZE_EVENT, *this, EventDistributor::DETACHED);
 }
 
 SDLGLVideoSystem::~SDLGLVideoSystem()
 {
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_RESIZE_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_RESIZE_EVENT, *this, EventDistributor::DETACHED);
 
 	closeSDLVideo(screen);
 }

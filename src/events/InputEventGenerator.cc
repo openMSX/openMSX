@@ -24,7 +24,7 @@ InputEventGenerator::InputEventGenerator()
 	setGrabInput(grabInput->getValue());
 	grabInput->addListener(this);
 	distributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this,
-	                                  EventDistributor::NATIVE);
+	                                  EventDistributor::DETACHED);
 	CommandController::instance().registerCommand(&escapeGrabCmd, "escape_grab");
 
 	reinit();
@@ -34,7 +34,7 @@ InputEventGenerator::~InputEventGenerator()
 {
 	CommandController::instance().unregisterCommand(&escapeGrabCmd, "escape_grab");
 	distributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this,
-	                                  EventDistributor::NATIVE);
+	                                  EventDistributor::DETACHED);
 	grabInput->removeListener(this);
 }
 

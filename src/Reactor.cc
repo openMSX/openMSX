@@ -34,7 +34,7 @@ Reactor::Reactor(MSXMotherBoard& motherBoard_)
 	pauseSetting.addListener(this);
 
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_QUIT_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_QUIT_EVENT, *this, EventDistributor::DETACHED);
 
 	CommandController::instance().registerCommand(&quitCommand, "quit");
 	CommandController::instance().registerCommand(&quitCommand, "exit");
@@ -46,7 +46,7 @@ Reactor::~Reactor()
 	CommandController::instance().unregisterCommand(&quitCommand, "quit");
 
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_QUIT_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_QUIT_EVENT, *this, EventDistributor::DETACHED);
 
 	pauseSetting.removeListener(this);
 }

@@ -48,8 +48,6 @@ EventDistributor::ListenerMap& EventDistributor::getListeners(
 	ListenerType listenerType )
 {
 	switch(listenerType) {
-	case NATIVE:
-		return nativeListeners;
 	case DETACHED:
 		return detachedListeners;
 	case EMU:
@@ -92,24 +90,16 @@ void EventDistributor::distributeEvent(Event* event)
 
 	assert(event);
 
-	// Deliver event to NATIVE listeners.
+	// Deliver event to DETACHED listeners.
 	// TODO: Implement a real solution against modifying data structure while
 	//       iterating through it.
 	//       For example, assign NULL first and then iterate again after
 	//       delivering events to remove the NULL values.
-	pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
-		nativeListeners.equal_range(event->getType());
-	for (ListenerMap::iterator it = bounds.first;
-	     it != bounds.second; ++it) {
-		sem.up();
-		it->second->signalEvent(*event);
-		sem.down();
-	}
-
-	// Deliver event to DETACHED listeners.
 	// TODO: Is there an easier way to search a map?
 	// TODO: Is it guaranteed that the Nth entry in scheduledEvents always
 	//       corresponds to the Nth call to executeUntil?
+	// TODO: Is it useful to test for 0 listeners or should we just always
+	//       queue the event?
 	pair<ListenerMap::iterator, ListenerMap::iterator> bounds2 =
 		detachedListeners.equal_range(event->getType());
 	if (bounds2.first != bounds2.second) {
@@ -118,7 +108,8 @@ void EventDistributor::distributeEvent(Event* event)
 		// TODO: We cannot deliver the event to an EMU listener as well,
 		//       because the object will be deleted after the DETACHED
 		//       listener gets it.
-		//       If this is acceptable behaviour, document it.
+		//       In the future this will not be an issue, because DETACHED
+		//       and EMU events will be processed by separate distributors.
 		return;
 	}
 

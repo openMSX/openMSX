@@ -35,7 +35,7 @@ CliComm::CliComm()
 	}
 	commandController.registerCommand(&updateCmd, "update");
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_LED_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_LED_EVENT, *this, EventDistributor::DETACHED);
 }
 
 CliComm::~CliComm()
@@ -46,7 +46,7 @@ CliComm::~CliComm()
 	}
 
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_LED_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_LED_EVENT, *this, EventDistributor::DETACHED);
 	commandController.unregisterCommand(&updateCmd, "update");
 }
 

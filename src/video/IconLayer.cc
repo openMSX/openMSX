@@ -45,7 +45,7 @@ IconLayer<IMAGE>::IconLayer(SDL_Surface* screen)
 	createSettings(LedEvent::FDD,   "fdd");
 
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_LED_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_LED_EVENT, *this, EventDistributor::DETACHED);
 }
 
 template <class IMAGE>
@@ -82,7 +82,7 @@ template <class IMAGE>
 IconLayer<IMAGE>::~IconLayer()
 {
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_LED_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_LED_EVENT, *this, EventDistributor::DETACHED);
 }
 
 template <class IMAGE>

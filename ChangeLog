@@ -4,6 +4,7 @@ $Id$
 	* Introduced RawFrame: a class which contains an unscaled frame.
 	  This is an architectural improvement which will later allow bug fixes,
 	  cleaner code and new features.
+	* Removed NATIVE event listeners (replaced by DETACHED).
 
 2005-07-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made CPU breaked status queryable with "debug breaked" subcommand

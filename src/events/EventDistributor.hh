@@ -25,14 +25,6 @@ public:
 	/** Ways in which an event can be delivered to a listener.
 	  */
 	enum ListenerType {
-		/** Deliver the event immediately, in the same thread that posted it.
-		  * A native event handler can block the event from being processed
-		  * by other listener types.
-		  * Low overhead, but watch out for threading issues and do not
-		  * unregister listeners in the callback.
-		  */
-		NATIVE,
-
 		/** Deliver the event immediately, in a separate thread.
 		  * A bit of overhead, but safe.
 		  */
@@ -74,7 +66,6 @@ private:
 	virtual const std::string& schedName() const;
 
 	typedef std::multimap<EventType, EventListener*> ListenerMap;
-	ListenerMap nativeListeners;
 	ListenerMap detachedListeners;
 	ListenerMap emuListeners;
 	ListenerMap& getListeners(ListenerType listenerType);

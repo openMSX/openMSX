@@ -46,7 +46,7 @@ Display::Display()
 	prevTimeStamp = Timer::getTime();
 
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().registerEventListener(
 		OPENMSX_DELAYED_REPAINT_EVENT, *this, EventDistributor::DETACHED);
 	CommandController::instance().registerCommand(
@@ -62,7 +62,7 @@ Display::~Display()
 	EventDistributor::instance().unregisterEventListener(
 		OPENMSX_DELAYED_REPAINT_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE);
+		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::DETACHED);
 
 	resetVideoSystem();
 }
