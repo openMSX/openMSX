@@ -269,6 +269,11 @@ void MSXCPU::doBreak()
 	activeCPU->doBreak();
 }
 
+bool MSXCPU::isBreaked()
+{
+	return activeCPU->isBreaked();
+}
+
 void MSXCPU::disasmCommand(const vector<TclObject*>& tokens,
                            TclObject& result) const
 {

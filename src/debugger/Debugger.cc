@@ -122,6 +122,8 @@ void Debugger::DebugCmd::execute(const vector<TclObject*>& tokens,
 		parent.cpu->disasmCommand(tokens, result);
 	} else if (subCmd == "break") {
 		parent.cpu->doBreak();
+	} else if (subCmd == "breaked") {
+		result.setInt(parent.cpu->isBreaked());
 	} else if (subCmd == "set_bp") {
 		setBreakPoint(tokens, result);
 	} else if (subCmd == "remove_bp") {
@@ -333,6 +335,7 @@ string Debugger::DebugCmd::help(const vector<string>& /*tokens*/) const
 		"debug cont                                continue execution aftre break\n"
 		"debug step                                execute one instruction\n"
 		"debug break                               break CPU at current position\n"
+		"debug breaked                             query CPU breaked status\n"
 		"debug disasm <addr>                       disassemble instruction\n";
 	return helpText;
 }
@@ -353,6 +356,7 @@ void Debugger::DebugCmd::tabCompletion(vector<string>& tokens) const
 			cmds.insert("cont");
 			cmds.insert("disasm");
 			cmds.insert("break");
+			cmds.insert("breaked");
 			cmds.insert("set_bp");
 			cmds.insert("remove_bp");
 			cmds.insert("list_bp");

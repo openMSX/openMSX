@@ -1,6 +1,7 @@
 // $Id$
 
 #include "CPU.hh"
+#include "TclObject.hh"
 
 namespace openmsx {
 
@@ -83,6 +84,11 @@ CPU::~CPU()
 	     it != breakPoints.end(); ++it) {
 		//delete it->second;
 	}
+}
+
+bool CPU::isBreaked() const
+{
+	return breaked;
 }
 
 void CPU::insertBreakPoint(std::auto_ptr<BreakPoint> bp_)

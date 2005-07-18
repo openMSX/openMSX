@@ -79,6 +79,8 @@ debug
     debug list_bp                       list the active breakpoints
     debug cont                          continue execution after break
     debug step                          execute one instruction
+    debug break                         break CPU at current position
+    debug breaked                       query CPU breaked status
     debug read_block <name> <addr> <size>     read a whole block at once
     debug write_block <name> <addr> <values>  write a whole block at once 
     debug disasm [<addr>]               disassemble instructions at PC or given

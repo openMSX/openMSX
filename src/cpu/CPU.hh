@@ -130,6 +130,10 @@ public:
 
 	/**
 	 */
+	bool isBreaked() const; 
+
+	/**
+	 */
 	void insertBreakPoint(std::auto_ptr<BreakPoint> bp);
 
 	/**

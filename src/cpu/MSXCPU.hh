@@ -118,6 +118,7 @@ public:
 	void doStep();
 	void doContinue();
 	void doBreak();
+	bool isBreaked();
 	void insertBreakPoint(std::auto_ptr<BreakPoint> bp);
 	void removeBreakPoint(const BreakPoint& bp);
 	const CPU::BreakPoints& getBreakPoints() const;

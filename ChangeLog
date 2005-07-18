@@ -1,5 +1,8 @@
 $Id$
 
+2005-07-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Made CPU breaked status queryable with "debug breaked" subcommand
+
 2005-07-16 Maarten ter Huurne <maarten@treewalker.org>
 	* Optimized PNG images.
 	  I used the tools pngrewrite and OptiPNG.
