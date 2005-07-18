@@ -19,6 +19,7 @@ namespace openmsx {
 template <class Pixel> class Scaler;
 class VDP;
 class VDPVRAM;
+class RawFrame;
 
 
 /** Rasterizer using SDL.
@@ -119,17 +120,21 @@ private:
 	void precalcColourIndex0(DisplayMode mode, bool transparency,
 	                         byte bgcolorIndex);
 
-	/** (Re)initialize workScreens array.
+	/** (Re)initialize the "abcdFrame" variables.
 	  * @param first True iff this is the first call.
 	  *   The first call should be done by the constructor.
 	  */
-	void initWorkScreens(bool first = false);
+	void initFrames(bool first = false);
 
-	/** Determine which surface to render to this frame;
-	  * initializes workScreen pointer.
+	/** Sets up the "abcdFrame" variables for a new frame.
+	  * TODO: The point of passing the finished frame in and the new workFrame
+	  *       out is to be able to split off the scaler application as a
+	  *       separate class.
+	  * @param finishedFrame Frame that has just become available.
 	  * @param oddField Display odd field (true) or even field (false).
+	  * @return RawFrame object that can be used for building the next frame.
 	  */
-	void calcWorkScreen(bool oddField);
+	RawFrame* rotateFrames(RawFrame* finishedFrame, bool oddField);
 
 	/** The VDP of which the video output is being rendered.
 	  */
@@ -143,22 +148,6 @@ private:
 	  * After all, our screen is 240 lines while display is 262 or 313.
 	  */
 	int lineRenderTop;
-
-	/** Remembers the type of pixels on a line.
-	  * This is used to select the right scaler algorithm for a line.
-	  */
-	enum LineContent {
-		/** Line contains border colour.
-		  */
-		LINE_BLANK,
-		/** Line contains 256 (wide) pixels.
-		  */
-		LINE_256,
-		/** Line contains 512 (narrow) pixels.
-		  */
-		LINE_512,
-	};
-	LineContent lineContent[HEIGHT / LINE_ZOOM];
 
 	/** Is the last completed frame interlaced?
 	  * This is a copy of the VDP's interlace status,
@@ -212,19 +201,17 @@ private:
 	  */
 	SDL_Surface* screen;
 
-	/** Points to the surface in workScreens that is used
-	  * for the current frame.
+	/** The next frame as it is delivered by the VDP, work in progress.
 	  */
-	SDL_Surface* workScreen;
+	RawFrame* workFrame;
 
-	/** Surfaces used in the render pipeline inbetween the caches and
-	  * the visible screen.
-	  * When the deinterlace feature is disabled, only index 0 is used.
-	  * When it is enabled, index 0 is used for the even field and
-	  * index 1 is used for the odd field.
-	  * Unused entries are NULL.
+	/** The last finished frame, ready to be displayed.
 	  */
-	SDL_Surface* workScreens[2];
+	RawFrame* currFrame;
+
+	/** The frame before currFrame, ready to be displayed.
+	  */
+	RawFrame* prevFrame;
 
 	/** Cache for rendered VRAM in character modes.
 	  * Cache line (N + scroll) corresponds to display line N.
