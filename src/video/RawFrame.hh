@@ -20,23 +20,21 @@ namespace openmsx {
 class RawFrame
 {
 public:
-	/** Constructor.
+	/** What role does this frame play in interlacing?
 	  */
-	RawFrame(SDL_PixelFormat* format, bool oddField);
+	enum FieldType {
+		/** Interlacing is off for this frame.
+		  */
+		FIELD_NONINTERLACED,
+		/** Interlacing is on and this is an even frame.
+		  */
+		FIELD_EVEN,
+		/** Interlacing is on and this is an odd frame.
+		  */
+		FIELD_ODD,
+	};
 
-	/** Destructor.
-	  */
-	~RawFrame();
-
-	/** Call this before using the object.
-	  * It is also possible to reuse a RawFrame by calling this method.
-	  * Reusing objects instead of reallocating them is important because we use
-	  * 50 or 60 of them each second and the amount of data is rather large.
-	  * @param oddField False for even fields, true for odd fields.
-	  */
-	void reinit(bool oddField);
-
-	/** Remembers the type of pixels on a line.
+	/** The type of pixels on a line.
 	  * This is used to select the correct scaler algorithm for a line.
 	  */
 	enum LineContent {
@@ -51,6 +49,22 @@ public:
 		LINE_512,
 	};
 
+	/** Constructor.
+	  */
+	RawFrame(SDL_PixelFormat* format, FieldType field);
+
+	/** Destructor.
+	  */
+	~RawFrame();
+
+	/** Call this before using the object.
+	  * It is also possible to reuse a RawFrame by calling this method.
+	  * Reusing objects instead of reallocating them is important because we use
+	  * 50 or 60 of them each second and the amount of data is rather large.
+	  * @param field Interlacing status of this frame.
+	  */
+	void reinit(FieldType field);
+
 	inline SDL_Surface* getSurface() {
 		return surface;
 	}
@@ -64,18 +78,18 @@ public:
 	}
 
 	inline LineContent getLineContent(unsigned line) {
-		assert(0 <= line && line < HEIGHT);
+		assert(line < HEIGHT);
 		return lineContent[line];
 	}
 
 	// TODO: Replace this by "setBlank", "set256" and "set512"?
 	inline void setLineContent(unsigned line, LineContent content) {
-		assert(0 <= line && line < HEIGHT);
+		assert(line < HEIGHT);
 		lineContent[line] = content;
 	}
 
 	template <class Pixel>
-	inline Pixel* setBlank(unsigned line, Pixel colour0, Pixel colour1) {
+	inline void setBlank(unsigned line, Pixel colour0, Pixel colour1) {
 		assert(line < HEIGHT);
 		Pixel* pixels = getPixelPtr<Pixel>(0, line);
 		pixels[0] = colour0;
@@ -83,8 +97,8 @@ public:
 		lineContent[line] = LINE_BLANK;
 	}
 
-	inline bool isOddField() {
-		return oddField;
+	inline FieldType getField() {
+		return field;
 	}
 
 private:
@@ -104,7 +118,7 @@ private:
 
 	SDL_Surface* surface;
 
-	bool oddField;
+	FieldType field;
 
 };
 

@@ -4,6 +4,7 @@
 #define SDLRASTERIZER_HH
 
 #include "Rasterizer.hh"
+#include "RawFrame.hh"
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
 #include "SpriteConverter.hh"
@@ -19,7 +20,6 @@ namespace openmsx {
 template <class Pixel> class Scaler;
 class VDP;
 class VDPVRAM;
-class RawFrame;
 
 
 /** Rasterizer using SDL.
@@ -131,10 +131,11 @@ private:
 	  *       out is to be able to split off the scaler application as a
 	  *       separate class.
 	  * @param finishedFrame Frame that has just become available.
-	  * @param oddField Display odd field (true) or even field (false).
+	  * @param field Specifies what role (if any) the new frame plays in
+	  *   interlacing.
 	  * @return RawFrame object that can be used for building the next frame.
 	  */
-	RawFrame* rotateFrames(RawFrame* finishedFrame, bool oddField);
+	RawFrame* rotateFrames(RawFrame* finishedFrame, RawFrame::FieldType field);
 
 	/** The VDP of which the video output is being rendered.
 	  */
@@ -148,14 +149,6 @@ private:
 	  * After all, our screen is 240 lines while display is 262 or 313.
 	  */
 	int lineRenderTop;
-
-	/** Is the last completed frame interlaced?
-	  * This is a copy of the VDP's interlace status,
-	  * because the VDP keeps this status for the current frame.
-	  * TODO: If GLRasterizer can use this as well,
-	  *       it can be moved to Rasterizer?
-	  */
-	bool interlaced;
 
 	/** The currently active scaler.
 	  */

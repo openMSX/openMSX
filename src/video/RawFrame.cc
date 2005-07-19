@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-RawFrame::RawFrame(SDL_PixelFormat* format, bool oddField)
+RawFrame::RawFrame(SDL_PixelFormat* format, FieldType field)
 {
 	surface = SDL_CreateRGBSurface(
 		SDL_SWSURFACE,
@@ -16,7 +16,7 @@ RawFrame::RawFrame(SDL_PixelFormat* format, bool oddField)
 		format->Bmask,
 		format->Amask
 		);
-	reinit(oddField);
+	reinit(field);
 }
 
 RawFrame::~RawFrame()
@@ -24,9 +24,9 @@ RawFrame::~RawFrame()
 	SDL_FreeSurface(surface);
 }
 
-void RawFrame::reinit(bool oddField)
+void RawFrame::reinit(FieldType field)
 {
-	this->oddField = oddField;
+	this->field = field;
 
 	// Initialise lineContent.
 	// TODO: Colour of blank lines should be initialised as well.

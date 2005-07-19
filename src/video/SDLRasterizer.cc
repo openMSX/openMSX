@@ -5,7 +5,6 @@
 #include "VDPVRAM.hh"
 #include "Renderer.hh"
 #include "RenderSettings.hh"
-#include "RawFrame.hh"
 #include "Scaler.hh"
 #include "BooleanSetting.hh"
 #include "FloatSetting.hh"
@@ -154,7 +153,6 @@ SDLRasterizer<Pixel, zoom>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS, blender)
 	, spriteConverter(vdp.getSpriteChecker(), blender)
 {
-	interlaced = false;
 	this->screen = screen;
 	currScalerID = (ScalerID)-1; // not a valid scaler
 
@@ -217,8 +215,10 @@ void SDLRasterizer<Pixel, zoom>::paint()
 		return;
 	}
 
+	const RawFrame::FieldType field = currFrame->getField();
 	const bool deinterlace =
-		interlaced && RenderSettings::instance().getDeinterlace().getValue();
+		field != RawFrame::FIELD_NONINTERLACED
+		&& RenderSettings::instance().getDeinterlace().getValue();
 
 	// New scaler algorithm selected?
 	ScalerID scalerID = RenderSettings::instance().getScaler().getValue();
@@ -230,7 +230,7 @@ void SDLRasterizer<Pixel, zoom>::paint()
 	// Scale image.
 	// TODO: Check deinterlace first: now that we keep LineContent info per
 	//       frame, we should take the content of two frames into account.
-	const unsigned deltaY = interlaced && vdp.getEvenOdd() ? 1 : 0;
+	const unsigned deltaY = field == RawFrame::FIELD_ODD ? 1 : 0;
 	unsigned startY = 0;
 	while (startY < HEIGHT / 2) {
 		const RawFrame::LineContent content = currFrame->getLineContent(startY);
@@ -264,7 +264,9 @@ void SDLRasterizer<Pixel, zoom>::paint()
 		case RawFrame::LINE_256:
 			if (deinterlace) {
 				for (unsigned y = startY; y < endY; y++) {
-					bool odd = currFrame->isOddField();
+					RawFrame::FieldType field = currFrame->getField();
+					assert(field != RawFrame::FIELD_NONINTERLACED);
+					bool odd = field == RawFrame::FIELD_ODD;
 					deinterlacer.deinterlaceLine256(
 						(odd ? prevFrame : currFrame)->getSurface(), // even
 						(odd ? currFrame : prevFrame)->getSurface(), // odd
@@ -281,7 +283,9 @@ void SDLRasterizer<Pixel, zoom>::paint()
 		case RawFrame::LINE_512:
 			if (deinterlace) {
 				for (unsigned y = startY; y < endY; y++) {
-					bool odd = currFrame->isOddField();
+					RawFrame::FieldType field = currFrame->getField();
+					assert(field != RawFrame::FIELD_NONINTERLACED);
+					bool odd = field == RawFrame::FIELD_ODD;
 					deinterlacer.deinterlaceLine512(
 						(odd ? prevFrame : currFrame)->getSurface(), // even
 						(odd ? currFrame : prevFrame)->getSurface(), // odd
@@ -340,11 +344,12 @@ void SDLRasterizer<Pixel, zoom>::resetPalette()
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRasterizer<Pixel, zoom>::frameStart()
 {
-	workFrame = rotateFrames(workFrame, vdp.getEvenOdd());
-
-	// Remember interlace status of the completed frame,
-	// for use in paint().
-	interlaced = vdp.isInterlaced();
+	workFrame = rotateFrames(
+		workFrame,
+		  vdp.isInterlaced()
+		? ( vdp.getEvenOdd() ? RawFrame::FIELD_ODD : RawFrame::FIELD_EVEN )
+		: RawFrame::FIELD_NONINTERLACED
+		);
 
 	// Calculate line to render at top of screen.
 	// Make sure the display area is centered.
@@ -529,21 +534,22 @@ void SDLRasterizer<Pixel, zoom>::initFrames(bool first)
 	//       And it looks better if the user activates deinterlace when
 	//       the emulator is paused.
 	if (first) {
-		bool oddField = vdp.getEvenOdd();
-		workFrame = new RawFrame(screen->format, oddField);
-		currFrame = new RawFrame(screen->format, !oddField);
-		prevFrame = new RawFrame(screen->format, oddField);
+		// Note: Since these frames contain just black lines, there is no point
+		//       in getting accurate interlace info.
+		workFrame = new RawFrame(screen->format, RawFrame::FIELD_NONINTERLACED);
+		currFrame = new RawFrame(screen->format, RawFrame::FIELD_NONINTERLACED);
+		prevFrame = new RawFrame(screen->format, RawFrame::FIELD_NONINTERLACED);
 	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 RawFrame* SDLRasterizer<Pixel, zoom>::rotateFrames(
-	RawFrame* finishedFrame, bool oddField )
+	RawFrame* finishedFrame, RawFrame::FieldType field )
 {
 	RawFrame* reuseFrame = prevFrame;
 	prevFrame = currFrame;
 	currFrame = finishedFrame;
-	reuseFrame->reinit(vdp.getEvenOdd());
+	reuseFrame->reinit(field);
 	return reuseFrame;
 }
 
@@ -578,19 +584,10 @@ void SDLRasterizer<Pixel, zoom>::drawBorder(
 	int startY = max(fromY - lineRenderTop, 0);
 	int endY = min(limitY - lineRenderTop, (int)HEIGHT / LINE_ZOOM);
 	if (fromX == 0 && limitX == VDP::TICKS_PER_LINE) {
-		// TODO: Disabled this optimisation during interlace, because
-		//       lineContent administration is available only for current
-		//       frame, not for previous frame, which led to glitches.
-		if ((LINE_ZOOM == 2) && !interlaced &&
-		    (modeBase != DisplayMode::GRAPHIC5)) {
-			//fprintf(stderr, "saved: %d-%d\n", fromY, limitY);
-			//int endY = rect.y + rect.h;
-			//for (int y = rect.y; y < endY; y++) {
-			for (int y = startY; y < endY; y++) {
-				workFrame->setBlank(y, border0, border1);
-			}
-			return;
+		for (int y = startY; y < endY; y++) {
+			workFrame->setBlank(y, border0, border1);
 		}
+		return;
 	}
 
 	bool narrow = mode.getLineWidth() == 512;
@@ -601,9 +598,7 @@ void SDLRasterizer<Pixel, zoom>::drawBorder(
 	for (int y = startY; y < endY; ++y) {
 		MemoryOps::memset_2<Pixel, MemoryOps::NO_STREAMING>(
 			workFrame->getPixelPtr<Pixel>(x, y), num, border0, border1);
-		if (LINE_ZOOM == 2) {
-			workFrame->setLineContent(y, lineType);
-		}
+		workFrame->setLineContent(y, lineType);
 	}
 }
 
@@ -719,9 +714,7 @@ void SDLRasterizer<Pixel, zoom>::drawDisplay(
 					bitmapDisplayCache, &source, workFrame->getSurface(), &dest
 					);
 			}
-			if (LINE_ZOOM == 2) {
-				workFrame->setLineContent(y, lineType);
-			}
+			workFrame->setLineContent(y, lineType);
 
 			displayY = (displayY + 1) & 255;
 		}
@@ -745,9 +738,7 @@ void SDLRasterizer<Pixel, zoom>::drawDisplay(
 				source.y, dest.y);
 			*/
 			SDL_BlitSurface(charDisplayCache, &source, workFrame->getSurface(), &dest);
-			if (LINE_ZOOM == 2) {
-				workFrame->setLineContent(y, lineType);
-			}
+			workFrame->setLineContent(y, lineType);
 			displayY = (displayY + 1) & 255;
 		}
 	}
