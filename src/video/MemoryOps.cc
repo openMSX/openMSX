@@ -4,6 +4,7 @@
 #include "HostCPU.hh"
 #include "likely.hh"
 #include "openmsx.hh"
+#include "build-info.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -17,7 +18,7 @@ static inline void memset4_2_CPP(
 		p[0] = val1; // start at odd pixel
 		++p; --n;
 	}
-	unsigned* e = p + n - 16;
+	unsigned* e = p + n - 15;
 	for (/**/; p < e; p += 16) {
 		p[ 0] = val0;
 		p[ 1] = val1;
@@ -310,7 +311,10 @@ template<bool STREAMING> static inline void memset_2_helper(
 		out[0] = val1;
 		++out; --num;
 	}
-	unsigned val = val0 | (val1 << 16);
+	unsigned val =
+		  OPENMSX_BIGENDIAN
+		? (val0 << 16) | val1
+		: val0 | (val1 << 16);
 	memset_2<unsigned, STREAMING>((unsigned*)out, num / 2, val, val);
 }
 
