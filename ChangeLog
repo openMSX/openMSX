@@ -1,5 +1,13 @@
 $Id$
 
+2005-07-20 Maarten ter Huurne <maarten@treewalker.org>
+	* Split off PostProcessor from SDLRasterizer.
+	* Fixed bug in memset4_2_CPP.
+	  This was the cause for "[1237004] OSX Tiger GFX bug".
+	* Fixed endianness bug in memset_2_helper 16bpp support.
+	* Used a different GCC 3.3 bug workaround, because the previous one
+	  caused bus errors on Mac OS 10.3.
+
 2005-07-18 Maarten ter Huurne <maarten@treewalker.org>
 	* Introduced RawFrame: a class which contains an unscaled frame.
 	  This is an architectural improvement which will later allow bug fixes,
