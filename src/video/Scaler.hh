@@ -23,6 +23,8 @@ enum ScalerID {
 	SCALER_HQ2X,
 	/** HQ2xLiteScaler. */
 	SCALER_HQ2XLITE,
+	/** Low resolution (320x240) scaler */
+	SCALER_LOW,
 };
 
 /** Abstract base class for scalers.
