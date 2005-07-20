@@ -241,7 +241,8 @@ inline void GLRasterizer::renderPlanarBitmapLines(byte line, int count)
 }
 
 GLRasterizer::GLRasterizer(VDP& vdp_)
-	: vdp(vdp_), vram(vdp.getVRAM())
+	: VideoLayer(VIDEO_MSX)
+	, vdp(vdp_), vram(vdp.getVRAM())
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 	, spriteConverter(vdp.getSpriteChecker())
@@ -347,6 +348,11 @@ GLRasterizer::~GLRasterizer()
 
 	// TODO: Free all textures.
 	delete[] bitmapTextures;
+}
+
+bool GLRasterizer::isActive()
+{
+	return getZ() != Layer::Z_MSX_PASSIVE;
 }
 
 void GLRasterizer::reset()

@@ -16,7 +16,7 @@ namespace openmsx {
 
 /** Hi-res (640x480) rasterizer using OpenGL.
   */
-class GLRasterizer : public Rasterizer
+class GLRasterizer : public Rasterizer, public VideoLayer
 {
 public:
 	// TODO: Make private.
@@ -37,6 +37,7 @@ public:
 	virtual const std::string& getName();
 
 	// Rasterizer interface:
+	virtual bool isActive();
 	virtual void reset();
 	virtual void frameStart();
 	virtual void frameEnd();

@@ -25,7 +25,7 @@ SRC_HDR:= \
 	IconLayer \
 	SDLImage \
 	MemoryOps \
-	RawFrame
+	RawFrame PostProcessor
 
 HDR_ONLY:= \
 	DirtyChecker \

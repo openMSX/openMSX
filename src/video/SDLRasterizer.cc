@@ -5,8 +5,7 @@
 #include "VDPVRAM.hh"
 #include "Renderer.hh"
 #include "RenderSettings.hh"
-#include "Scaler.hh"
-#include "BooleanSetting.hh"
+#include "PostProcessor.hh"
 #include "FloatSetting.hh"
 #include "MemoryOps.hh"
 #include <SDL.h>
@@ -148,16 +147,14 @@ inline void SDLRasterizer<Pixel, zoom>::renderCharacterLines(
 template <class Pixel, Renderer::Zoom zoom>
 SDLRasterizer<Pixel, zoom>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
 	: vdp(vdp_), vram(vdp.getVRAM())
+	, postProcessor(new PostProcessor<Pixel, zoom>(screen))
 	, blender(Blender<Pixel>::createFromFormat(screen->format))
 	, characterConverter(vdp, palFg, palBg, blender)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS, blender)
 	, spriteConverter(vdp.getSpriteChecker(), blender)
 {
 	this->screen = screen;
-	currScalerID = (ScalerID)-1; // not a valid scaler
-
-	// Allocate work surface.
-	initFrames(true);
+	workFrame = NULL;
 
 	// Create display caches.
 	charDisplayCache = SDL_CreateRGBSurface(
@@ -186,135 +183,20 @@ SDLRasterizer<Pixel, zoom>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
 
 	// Init the palette.
 	precalcPalette(RenderSettings::instance().getGamma().getValue());
-
-	RenderSettings::instance().getDeinterlace().addListener(this);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 SDLRasterizer<Pixel, zoom>::~SDLRasterizer()
 {
-	RenderSettings::instance().getDeinterlace().removeListener(this);
-
 	SDL_FreeSurface(charDisplayCache);
 	if (bitmapDisplayCache) SDL_FreeSurface(bitmapDisplayCache);
 	delete workFrame;
-	delete currFrame;
-	delete prevFrame;
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::paint()
+bool SDLRasterizer<Pixel, zoom>::isActive()
 {
-	// All of the current postprocessing steps require hi-res.
-	if (LINE_ZOOM != 2) {
-		// Just copy the image as-is.
-		// TODO: This is incorrect, since the image is now always 640 wide.
-		if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
-		SDL_BlitSurface(currFrame->getSurface(), NULL, screen, NULL);
-		if (SDL_MUSTLOCK(screen)) SDL_LockSurface(screen);
-		return;
-	}
-
-	const RawFrame::FieldType field = currFrame->getField();
-	const bool deinterlace =
-		field != RawFrame::FIELD_NONINTERLACED
-		&& RenderSettings::instance().getDeinterlace().getValue();
-
-	// New scaler algorithm selected?
-	ScalerID scalerID = RenderSettings::instance().getScaler().getValue();
-	if (currScalerID != scalerID) {
-		currScaler = Scaler<Pixel>::createScaler(scalerID, screen->format);
-		currScalerID = scalerID;
-	}
-
-	// Scale image.
-	// TODO: Check deinterlace first: now that we keep LineContent info per
-	//       frame, we should take the content of two frames into account.
-	const unsigned deltaY = field == RawFrame::FIELD_ODD ? 1 : 0;
-	unsigned startY = 0;
-	while (startY < HEIGHT / 2) {
-		const RawFrame::LineContent content = currFrame->getLineContent(startY);
-		unsigned endY = startY + 1;
-		while (endY < HEIGHT / 2
-			&& currFrame->getLineContent(endY) == content) endY++;
-
-		switch (content) {
-		case RawFrame::LINE_BLANK: {
-			// Reduce area to same-colour starting segment.
-			const Pixel colour = *currFrame->getPixelPtr<Pixel>(0, startY);
-			for (unsigned y = startY + 1; y < endY; y++) {
-				const Pixel colour2 = *currFrame->getPixelPtr<Pixel>(0, y);
-				if (colour != colour2) endY = y;
-			}
-
-			if (deinterlace) {
-				// TODO: This isn't 100% accurate:
-				//       on the previous frame, this area may have contained
-				//       graphics instead of blank pixels.
-				currScaler->scaleBlank(
-					colour, screen,
-					startY * 2 + deltaY, endY * 2 + deltaY );
-			} else {
-				currScaler->scaleBlank(
-					colour, screen,
-					startY * 2 + deltaY, endY * 2 + deltaY );
-			}
-			break;
-		}
-		case RawFrame::LINE_256:
-			if (deinterlace) {
-				for (unsigned y = startY; y < endY; y++) {
-					RawFrame::FieldType field = currFrame->getField();
-					assert(field != RawFrame::FIELD_NONINTERLACED);
-					bool odd = field == RawFrame::FIELD_ODD;
-					deinterlacer.deinterlaceLine256(
-						(odd ? prevFrame : currFrame)->getSurface(), // even
-						(odd ? currFrame : prevFrame)->getSurface(), // odd
-						y, screen, y * 2
-						);
-				}
-			} else {
-				currScaler->scale256(
-					currFrame->getSurface(),
-					startY, endY, screen, startY * 2 + deltaY
-					);
-			}
-			break;
-		case RawFrame::LINE_512:
-			if (deinterlace) {
-				for (unsigned y = startY; y < endY; y++) {
-					RawFrame::FieldType field = currFrame->getField();
-					assert(field != RawFrame::FIELD_NONINTERLACED);
-					bool odd = field == RawFrame::FIELD_ODD;
-					deinterlacer.deinterlaceLine512(
-						(odd ? prevFrame : currFrame)->getSurface(), // even
-						(odd ? currFrame : prevFrame)->getSurface(), // odd
-						y, screen, y * 2
-						);
-				}
-			} else {
-				currScaler->scale512(
-					currFrame->getSurface(),
-					startY, endY, screen, startY * 2 + deltaY
-					);
-			}
-			break;
-		default:
-			assert(false);
-			break;
-		}
-
-		//fprintf(stderr, "post processing lines %d-%d: %d\n",
-		//	startY, endY, content );
-		startY = endY;
-	}
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-const string& SDLRasterizer<Pixel, zoom>::getName()
-{
-	static const string NAME = "SDLRasterizer";
-	return NAME;
+	return postProcessor->getZ() != Layer::Z_MSX_PASSIVE;
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -344,7 +226,7 @@ void SDLRasterizer<Pixel, zoom>::resetPalette()
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRasterizer<Pixel, zoom>::frameStart()
 {
-	workFrame = rotateFrames(
+	workFrame = postProcessor->rotateFrames(
 		workFrame,
 		  vdp.isInterlaced()
 		? ( vdp.getEvenOdd() ? RawFrame::FIELD_ODD : RawFrame::FIELD_EVEN )
@@ -525,35 +407,6 @@ void SDLRasterizer<Pixel, zoom>::precalcColourIndex0(
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::initFrames(bool first)
-{
-	// TODO: Before, we only kept prevFrame if deinterlacing was active.
-	//       It is much simpler to do it always and that also leaves the way
-	//       open for video effects such as the framerate control by
-	//       interpolation idea from Daniel Vik.
-	//       And it looks better if the user activates deinterlace when
-	//       the emulator is paused.
-	if (first) {
-		// Note: Since these frames contain just black lines, there is no point
-		//       in getting accurate interlace info.
-		workFrame = new RawFrame(screen->format, RawFrame::FIELD_NONINTERLACED);
-		currFrame = new RawFrame(screen->format, RawFrame::FIELD_NONINTERLACED);
-		prevFrame = new RawFrame(screen->format, RawFrame::FIELD_NONINTERLACED);
-	}
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-RawFrame* SDLRasterizer<Pixel, zoom>::rotateFrames(
-	RawFrame* finishedFrame, RawFrame::FieldType field )
-{
-	RawFrame* reuseFrame = prevFrame;
-	prevFrame = currFrame;
-	currFrame = finishedFrame;
-	reuseFrame->reinit(field);
-	return reuseFrame;
-}
-
-template <class Pixel, Renderer::Zoom zoom>
 void SDLRasterizer<Pixel, zoom>::updateVRAMCache(int address)
 {
 	lineValidInMode[address >> 7] = 0xFF;
@@ -583,7 +436,7 @@ void SDLRasterizer<Pixel, zoom>::drawBorder(
 
 	int startY = max(fromY - lineRenderTop, 0);
 	int endY = min(limitY - lineRenderTop, (int)HEIGHT / LINE_ZOOM);
-	if (fromX == 0 && limitX == VDP::TICKS_PER_LINE) {
+	if (LINE_ZOOM == 2 && fromX == 0 && limitX == VDP::TICKS_PER_LINE) {
 		for (int y = startY; y < endY; y++) {
 			workFrame->setBlank(y, border0, border1);
 		}
@@ -597,7 +450,7 @@ void SDLRasterizer<Pixel, zoom>::drawBorder(
 	RawFrame::LineContent lineType = narrow ? RawFrame::LINE_512 : RawFrame::LINE_256;
 	for (int y = startY; y < endY; ++y) {
 		MemoryOps::memset_2<Pixel, MemoryOps::NO_STREAMING>(
-			workFrame->getPixelPtr<Pixel>(x, y), num, border0, border1);
+			workFrame->getPixelPtr(x, y, (Pixel*)0), num, border0, border1);
 		workFrame->setLineContent(y, lineType);
 	}
 }
@@ -776,22 +629,12 @@ void SDLRasterizer<Pixel, zoom>::drawSprites(
 		vdp.getDisplayMode().getLineWidth() == 512
 		);
 	for (int y = fromY; y < limitY; y++, screenY++) {
-		Pixel* pixelPtr = workFrame->getPixelPtr<Pixel>(screenX, screenY);
+		Pixel* pixelPtr = workFrame->getPixelPtr(screenX, screenY, (Pixel*)0);
 		if (spriteMode == 1) {
 			spriteConverter.drawMode1(y, displayX, displayLimitX, pixelPtr);
 		} else {
 			spriteConverter.drawMode2(y, displayX, displayLimitX, pixelPtr);
 		}
-	}
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::update(const Setting* setting)
-{
-	if (setting == &RenderSettings::instance().getDeinterlace()) {
-		initFrames();
-	} else {
-		Rasterizer::update(setting);
 	}
 }
 

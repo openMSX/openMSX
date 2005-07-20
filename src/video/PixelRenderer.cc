@@ -146,8 +146,7 @@ void PixelRenderer::updateDisplayEnabled(bool enabled, const EmuTime& time)
 void PixelRenderer::frameStart(const EmuTime& time)
 {
 	bool draw = false;
-	if (rasterizer->getZ() == Layer::Z_MSX_PASSIVE) {
-		// V9990 is active
+	if (!rasterizer->isActive()) {
 		frameSkipCounter = 0;
 	} else if (frameSkipCounter < settings.getMinFrameSkip().getValue()) {
 		++frameSkipCounter;

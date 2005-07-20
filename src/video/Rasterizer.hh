@@ -8,12 +8,19 @@
 
 namespace openmsx {
 
-class Rasterizer: public VideoLayer
+class Rasterizer
 {
 public:
 	/** Destructor.
 	  */
 	virtual ~Rasterizer() {}
+
+	/** Will the output of this Rasterizer be displayed?
+	  * There is no point in producing a frame that will not be displayed.
+	  * TODO: Is querying the next pipeline step the best way to solve this,
+	  *       or is it better to explicitly disable the first step in the pipeline?
+	  */
+	virtual bool isActive() = 0;
 
 	/** Resynchronize with VDP: all cached states are flushed.
 	  */
@@ -93,9 +100,6 @@ public:
 		int displayX, int displayY,
 		int displayWidth, int displayHeight
 		) = 0;
-
-protected:
-	Rasterizer() : VideoLayer(VIDEO_MSX) {}
 
 };
 
