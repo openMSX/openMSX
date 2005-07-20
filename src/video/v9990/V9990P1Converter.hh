@@ -11,7 +11,7 @@ namespace openmsx {
 class V9990;
 class V9990VRAM;
 
-template <class Pixel, Renderer::Zoom zoom>
+template <class Pixel>
 class V9990P1Converter
 {
 public:

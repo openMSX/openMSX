@@ -71,7 +71,7 @@ public:
 
 	template <class Pixel>
 	//inline Pixel* getPixelPtr(int x, int y) {
-	inline Pixel* getPixelPtr(int x, int y, Pixel* dummy = 0) {
+	inline Pixel* getPixelPtr(int x, int y, Pixel* /*dummy*/ = 0) {
 		return reinterpret_cast<Pixel*>(
 			reinterpret_cast<byte*>(surface->pixels) + y * surface->pitch
 			) + x;

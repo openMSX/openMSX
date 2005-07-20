@@ -20,19 +20,13 @@ using std::string;
 
 namespace openmsx {
 
-SDLVideoSystem::SDLVideoSystem(RendererFactory::RendererID id)
-	: id(id)
+SDLVideoSystem::SDLVideoSystem()
 {
 	// Destruct old layers, so resources are freed before new allocations
 	// are done.
 	Display::instance().resetVideoSystem();
 
-	assert(id == RendererFactory::SDLHI || id == RendererFactory::SDLLO);
-	screen = openSDLVideo(
-		(id == RendererFactory::SDLLO) ? 320 : 640, // width
-		(id == RendererFactory::SDLLO) ? 240 : 480, // height
-		SDL_SWSURFACE
-		);
+	screen = openSDLVideo(640, 480, SDL_SWSURFACE);
 
 	switch (screen->format->BytesPerPixel) {
 	case 2:
@@ -62,17 +56,9 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 {
 	switch (screen->format->BytesPerPixel) {
 	case 2:
-		if (id == RendererFactory::SDLLO) {
-			return new SDLRasterizer<Uint16, Renderer::ZOOM_256>(vdp, screen);
-		} else {
-			return new SDLRasterizer<Uint16, Renderer::ZOOM_REAL>(vdp, screen);
-		}
+		return new SDLRasterizer<Uint16>(vdp, screen);
 	case 4:
-		if (id == RendererFactory::SDLLO) {
-			return new SDLRasterizer<Uint32, Renderer::ZOOM_256>(vdp, screen);
-		} else {
-			return new SDLRasterizer<Uint32, Renderer::ZOOM_REAL>(vdp, screen);
-		}
+		return new SDLRasterizer<Uint32>(vdp, screen);
 	default:
 		assert(false);
 		return 0;
@@ -83,21 +69,9 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 {
 	switch (screen->format->BytesPerPixel) {
 	case 2:
-		if (id == RendererFactory::SDLLO) {
-			return new V9990SDLRasterizer<Uint16, Renderer::ZOOM_256>(
-				vdp, screen );
-		} else {
-			return new V9990SDLRasterizer<Uint16, Renderer::ZOOM_REAL>(
-				vdp, screen );
-		}
+		return new V9990SDLRasterizer<Uint16>(vdp, screen);
 	case 4:
-		if (id == RendererFactory::SDLLO) {
-			return new V9990SDLRasterizer<Uint32, Renderer::ZOOM_256>(
-				vdp, screen );
-		} else {
-			return new V9990SDLRasterizer<Uint32, Renderer::ZOOM_REAL>(
-				vdp, screen );
-		}
+		return new V9990SDLRasterizer<Uint32>(vdp, screen);
 	default:
 		assert(false);
 		return 0;

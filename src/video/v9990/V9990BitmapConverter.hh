@@ -15,7 +15,7 @@ class V9990VRAM;
 
 /** Utility class to convert VRAM content to host pixels.
   */
-template <class Pixel, Renderer::Zoom zoom>
+template <class Pixel>
 class V9990BitmapConverter
 {
 public:
@@ -49,13 +49,13 @@ private:
 
 	/** Rastering method for the current color mode
 	  */
-	typedef void (V9990BitmapConverter<Pixel, zoom>::*RasterMethod)
+	typedef void (V9990BitmapConverter<Pixel>::*RasterMethod)
 	             (Pixel* pixelPtr, unsigned address, int nrPixels);
 	RasterMethod rasterMethod;
 
 	/** Blend method for the current display mode
 	  */
-	typedef void (V9990BitmapConverter<Pixel, zoom>::*BlendMethod)
+	typedef void (V9990BitmapConverter<Pixel>::*BlendMethod)
 	             (const Pixel* source, Pixel* dest, int nrPixels);
 	BlendMethod blendMethod;
 

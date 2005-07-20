@@ -44,9 +44,9 @@ TODO:
 
 namespace openmsx {
 
-template <class Pixel, Renderer::Zoom zoom>
-typename CharacterConverter<Pixel, zoom>::RenderMethod
-	CharacterConverter<Pixel, zoom>::modeToRenderMethod[] = {
+template <class Pixel>
+typename CharacterConverter<Pixel>::RenderMethod
+	CharacterConverter<Pixel>::modeToRenderMethod[] = {
 		// M5 M4 = 0 0  (MSX1 modes)
 		&CharacterConverter::renderGraphic1,
 		&CharacterConverter::renderText1,
@@ -63,11 +63,10 @@ typename CharacterConverter<Pixel, zoom>::RenderMethod
 		&CharacterConverter::renderBogus
 	};
 
-template <class Pixel, Renderer::Zoom zoom>
-CharacterConverter<Pixel, zoom>::CharacterConverter(
-	VDP& vdp_, const Pixel* palFg_, const Pixel* palBg_, Blender<Pixel> blender)
+template <class Pixel>
+CharacterConverter<Pixel>::CharacterConverter(
+	VDP& vdp_, const Pixel* palFg_, const Pixel* palBg_)
 	: vdp(vdp_), vram(vdp.getVRAM()), palFg(palFg_), palBg(palBg_)
-	, blender(blender)
 {
 	anyDirtyColour = anyDirtyPattern = anyDirtyName = true;
 	dirtyColour.set();
@@ -76,15 +75,15 @@ CharacterConverter<Pixel, zoom>::CharacterConverter(
 	dirtyForeground = dirtyBackground = true;
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void CharacterConverter<Pixel, zoom>::setDisplayMode(DisplayMode mode)
+template <class Pixel>
+void CharacterConverter<Pixel>::setDisplayMode(DisplayMode mode)
 {
 	assert(mode.getBase() < 0x0C);
 	renderMethod = modeToRenderMethod[mode.getBase()];
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void CharacterConverter<Pixel, zoom>::renderText1(
+template <class Pixel>
+void CharacterConverter<Pixel>::renderText1(
 	Pixel* pixelPtr, int line)
 {
 	bool dirtyColours = dirtyForeground || dirtyBackground;
@@ -117,8 +116,8 @@ void CharacterConverter<Pixel, zoom>::renderText1(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void CharacterConverter<Pixel, zoom>::renderText1Q(
+template <class Pixel>
+void CharacterConverter<Pixel>::renderText1Q(
 	Pixel* pixelPtr, int line)
 {
 	bool dirtyColours = dirtyForeground || dirtyBackground;
@@ -150,8 +149,8 @@ void CharacterConverter<Pixel, zoom>::renderText1Q(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void CharacterConverter<Pixel, zoom>::renderText2(
+template <class Pixel>
+void CharacterConverter<Pixel>::renderText2(
 	Pixel* pixelPtr, int line)
 {
 	bool dirtyColours = dirtyForeground || dirtyBackground;
@@ -195,32 +194,19 @@ void CharacterConverter<Pixel, zoom>::renderText2(
 			}
 			int pattern = vram.patternTable.readNP(
 				patternBaseLine | (charcode * 8) );
-			if (zoom == Renderer::ZOOM_256) {
-				Pixel mix = blender.blend(fg, bg);
-				pixelPtr[0] = (pattern & 0x80)
-				            ? ((pattern & 0x40) ? fg : mix)
-					    : ((pattern & 0x40) ? mix : bg);
-				pixelPtr[1] = (pattern & 0x20)
-				            ? ((pattern & 0x10) ? fg : mix)
-					    : ((pattern & 0x10) ? mix : bg);
-				pixelPtr[2] = (pattern & 0x08)
-				            ? ((pattern & 0x04) ? fg : mix)
-					    : ((pattern & 0x04) ? mix : bg);
-			} else {
-				pixelPtr[0] = (pattern & 0x80) ? fg : bg;
-				pixelPtr[1] = (pattern & 0x40) ? fg : bg;
-				pixelPtr[2] = (pattern & 0x20) ? fg : bg;
-				pixelPtr[3] = (pattern & 0x10) ? fg : bg;
-				pixelPtr[4] = (pattern & 0x08) ? fg : bg;
-				pixelPtr[5] = (pattern & 0x04) ? fg : bg;
-			}
+			pixelPtr[0] = (pattern & 0x80) ? fg : bg;
+			pixelPtr[1] = (pattern & 0x40) ? fg : bg;
+			pixelPtr[2] = (pattern & 0x20) ? fg : bg;
+			pixelPtr[3] = (pattern & 0x10) ? fg : bg;
+			pixelPtr[4] = (pattern & 0x08) ? fg : bg;
+			pixelPtr[5] = (pattern & 0x04) ? fg : bg;
 		}
-		pixelPtr += zoom == Renderer::ZOOM_256 ? 3 : 6;
+		pixelPtr += 6;
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void CharacterConverter<Pixel, zoom>::renderGraphic1(
+template <class Pixel>
+void CharacterConverter<Pixel>::renderGraphic1(
 	Pixel* pixelPtr, int line)
 {
 	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
@@ -253,8 +239,8 @@ void CharacterConverter<Pixel, zoom>::renderGraphic1(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void CharacterConverter<Pixel, zoom>::renderGraphic2(
+template <class Pixel>
+void CharacterConverter<Pixel>::renderGraphic2(
 	Pixel* pixelPtr, int line)
 {
 	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
@@ -287,8 +273,8 @@ void CharacterConverter<Pixel, zoom>::renderGraphic2(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void CharacterConverter<Pixel, zoom>::renderMultiHelper(
+template <class Pixel>
+void CharacterConverter<Pixel>::renderMultiHelper(
 	Pixel* pixelPtr, int line, int mask, int patternQuarter)
 {
 	if (!(anyDirtyName || anyDirtyPattern)) return;
@@ -311,16 +297,16 @@ void CharacterConverter<Pixel, zoom>::renderMultiHelper(
 		pixelPtr += 8;
 	}
 }
-template <class Pixel, Renderer::Zoom zoom>
-void CharacterConverter<Pixel, zoom>::renderMulti(
+template <class Pixel>
+void CharacterConverter<Pixel>::renderMulti(
 	Pixel* pixelPtr, int line)
 {
 	int mask = (-1 << 11);
 	renderMultiHelper(pixelPtr, line, mask, 0);
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void CharacterConverter<Pixel, zoom>::renderMultiQ(
+template <class Pixel>
+void CharacterConverter<Pixel>::renderMultiQ(
 	Pixel* pixelPtr, int line)
 {
 	int mask = (-1 << 13);
@@ -328,8 +314,8 @@ void CharacterConverter<Pixel, zoom>::renderMultiQ(
 	renderMultiHelper(pixelPtr, line, mask, patternQuarter);
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void CharacterConverter<Pixel, zoom>::renderBogus(
+template <class Pixel>
+void CharacterConverter<Pixel>::renderBogus(
 	Pixel* pixelPtr, int /*line*/)
 {
 	if (!(dirtyForeground || dirtyBackground)) return;
@@ -346,10 +332,8 @@ void CharacterConverter<Pixel, zoom>::renderBogus(
 
 
 // Force template instantiation.
-template class CharacterConverter<Uint16, Renderer::ZOOM_256>;
-template class CharacterConverter<Uint16, Renderer::ZOOM_REAL>;
-template class CharacterConverter<Uint32, Renderer::ZOOM_256>;
-template class CharacterConverter<Uint32, Renderer::ZOOM_REAL>;
+template class CharacterConverter<Uint16>;
+template class CharacterConverter<Uint32>;
 
 #ifdef COMPONENT_GL
 // The type "GLuint" can be either be equivalent to "Uint16", "Uint32" or still
@@ -364,8 +348,8 @@ template<class T> class ExpandFilter  { typedef T           type; };
 template<> class ExpandFilter<Uint16> { typedef NoExpansion type; };
 template<> class ExpandFilter<Uint32> { typedef NoExpansion type; };
 
-template<Renderer::Zoom zoom> class CharacterConverter<NoExpansion, zoom> {};
-template class CharacterConverter<ExpandFilter<GLuint>::type, Renderer::ZOOM_REAL>;
+template<> class CharacterConverter<NoExpansion> {};
+template class CharacterConverter<ExpandFilter<GLuint>::type>;
 
 #endif // COMPONENT_GL
 

@@ -18,7 +18,7 @@ class V9990Rasterizer;
 class SDLVideoSystem: public VideoSystem
 {
 public:
-	SDLVideoSystem(RendererFactory::RendererID id);
+	SDLVideoSystem();
 	virtual ~SDLVideoSystem();
 
 	// VideoSystem interface:
@@ -30,7 +30,6 @@ public:
 	virtual void takeScreenShot(const std::string& filename);
 
 private:
-	RendererFactory::RendererID id;
 	SDL_Surface* screen;
 };
 

@@ -9,19 +9,18 @@
 
 namespace openmsx {
 
-template <class Pixel, Renderer::Zoom zoom>
-BitmapConverter<Pixel, zoom>::BitmapConverter(
+template <class Pixel>
+BitmapConverter<Pixel>::BitmapConverter(
 	const Pixel* palette16, const Pixel* palette256,
-	const Pixel* palette32768, Blender<Pixel> blender)
-	: blender(blender)
+	const Pixel* palette32768)
 {
 	this->palette16 = palette16;
 	this->palette256 = palette256;
 	this->palette32768 = palette32768;
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void BitmapConverter<Pixel, zoom>::renderGraphic4(
+template <class Pixel>
+void BitmapConverter<Pixel>::renderGraphic4(
 	Pixel* pixelPtr, const byte* vramPtr0, const byte* /*vramPtr1*/)
 {
 	for (int n = 128; n--; ) {
@@ -31,52 +30,36 @@ void BitmapConverter<Pixel, zoom>::renderGraphic4(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void BitmapConverter<Pixel, zoom>::renderGraphic5(
+template <class Pixel>
+void BitmapConverter<Pixel>::renderGraphic5(
 	Pixel* pixelPtr, const byte* vramPtr0, const byte* /*vramPtr1*/)
 {
 	for (int n = 128; n--; ) {
 		byte colour = *vramPtr0++;
-		if (zoom != Renderer::ZOOM_256) {
-			*pixelPtr++ = palette16[ 0 + ((colour >> 6) & 3)];
-			*pixelPtr++ = palette16[16 + ((colour >> 4) & 3)];
-			*pixelPtr++ = palette16[ 0 + ((colour >> 2) & 3)];
-			*pixelPtr++ = palette16[16 + ((colour >> 0) & 3)];
-		} else {
-			*pixelPtr++ = blender.blend(palette16[ 0 + ((colour >> 6) & 3)],
-			                            palette16[16 + ((colour >> 4) & 3)]);
-			*pixelPtr++ = blender.blend(palette16[ 0 + ((colour >> 2) & 3)],
-			                            palette16[16 + ((colour >> 0) & 3)]);
-		}
+		*pixelPtr++ = palette16[ 0 + ((colour >> 6) & 3)];
+		*pixelPtr++ = palette16[16 + ((colour >> 4) & 3)];
+		*pixelPtr++ = palette16[ 0 + ((colour >> 2) & 3)];
+		*pixelPtr++ = palette16[16 + ((colour >> 0) & 3)];
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void BitmapConverter<Pixel, zoom>::renderGraphic6(
+template <class Pixel>
+void BitmapConverter<Pixel>::renderGraphic6(
 	Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
 	for (int n = 128; n--; ) {
-		byte colour = *vramPtr0++;
-		if (zoom != Renderer::ZOOM_256) {
-			*pixelPtr++ = palette16[colour >> 4];
-			*pixelPtr++ = palette16[colour & 0x0F];
-		} else {
-			*pixelPtr++ = blender.blend(palette16[colour >> 4],
-			                            palette16[colour & 0x0F]);
-		}
-		colour = *vramPtr1++;
-		if (zoom != Renderer::ZOOM_256) {
-			*pixelPtr++ = palette16[colour >> 4];
-			*pixelPtr++ = palette16[colour & 0x0F];
-		} else {
-			*pixelPtr++ = blender.blend(palette16[colour >> 4],
-			                            palette16[colour & 0x0F]);
-		}
+		byte color1 = *vramPtr0++;
+		*pixelPtr++ = palette16[color1 >> 4];
+		*pixelPtr++ = palette16[color1 & 0x0F];
+
+		byte color2 = *vramPtr1++;
+		*pixelPtr++ = palette16[color2 >> 4];
+		*pixelPtr++ = palette16[color2 & 0x0F];
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void BitmapConverter<Pixel, zoom>::renderGraphic7(
+template <class Pixel>
+void BitmapConverter<Pixel>::renderGraphic7(
 	Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
 	for (int n = 128; n--; ) {
@@ -85,8 +68,8 @@ void BitmapConverter<Pixel, zoom>::renderGraphic7(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void BitmapConverter<Pixel, zoom>::renderYJK(
+template <class Pixel>
+void BitmapConverter<Pixel>::renderYJK(
 	Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
 	for (int n = 64; n--; ) {
@@ -114,8 +97,8 @@ void BitmapConverter<Pixel, zoom>::renderYJK(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void BitmapConverter<Pixel, zoom>::renderYAE(
+template <class Pixel>
+void BitmapConverter<Pixel>::renderYAE(
 	Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
 	for (int n = 64; n--; ) {
@@ -150,8 +133,8 @@ void BitmapConverter<Pixel, zoom>::renderYAE(
 }
 
 // TODO: Check what happens on real V9938.
-template <class Pixel, Renderer::Zoom zoom>
-void BitmapConverter<Pixel, zoom>::renderBogus(
+template <class Pixel>
+void BitmapConverter<Pixel>::renderBogus(
 	Pixel* pixelPtr, const byte* /*vramPtr0*/, const byte* /*vramPtr1*/)
 {
 	Pixel colour = palette16[0];
@@ -160,10 +143,8 @@ void BitmapConverter<Pixel, zoom>::renderBogus(
 
 
 // Force template instantiation.
-template class BitmapConverter<Uint16, Renderer::ZOOM_256>;
-template class BitmapConverter<Uint16, Renderer::ZOOM_REAL>;
-template class BitmapConverter<Uint32, Renderer::ZOOM_256>;
-template class BitmapConverter<Uint32, Renderer::ZOOM_REAL>;
+template class BitmapConverter<Uint16>;
+template class BitmapConverter<Uint32>;
 
 #ifdef COMPONENT_GL
 // The type "GLuint" can be either be equivalent to "Uint16", "Uint32" or still
@@ -178,8 +159,8 @@ template<class T> class ExpandFilter  { typedef T           type; };
 template<> class ExpandFilter<Uint16> { typedef NoExpansion type; };
 template<> class ExpandFilter<Uint32> { typedef NoExpansion type; };
 
-template<Renderer::Zoom zoom> class BitmapConverter<NoExpansion, zoom> {};
-template class BitmapConverter<ExpandFilter<GLuint>::type, Renderer::ZOOM_REAL>;
+template<> class BitmapConverter<NoExpansion> {};
+template class BitmapConverter<ExpandFilter<GLuint>::type>;
 
 #endif // COMPONENT_GL
 

@@ -32,9 +32,8 @@ VideoSystem* RendererFactory::createVideoSystem()
 	case DUMMY: {
 		return new DummyVideoSystem();
 	}
-	case SDLHI:
-	case SDLLO: {
-		return new SDLVideoSystem(id);
+	case SDLHI: {
+		return new SDLVideoSystem();
 	}
 #ifdef COMPONENT_GL
 	case SDLGL: {
@@ -60,7 +59,6 @@ Renderer* RendererFactory::createRenderer(VDP& vdp)
 		return new DummyRenderer();
 	}
 	case SDLHI:
-	case SDLLO:
 	case SDLGL: {
 		return new PixelRenderer(vdp);
 	}
@@ -83,7 +81,6 @@ V9990Renderer* RendererFactory::createV9990Renderer(V9990& vdp)
 		return new V9990DummyRenderer();
 	}
 	case SDLHI:
-	case SDLLO:
 	case SDLGL: {
 		return new V9990PixelRenderer(vdp);
 	}
@@ -105,7 +102,6 @@ auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSettin
 	RendererMap rendererMap;
 	rendererMap["none"] = DUMMY; // TODO: only register when in CliComm mode
 	rendererMap["SDLHi"] = SDLHI;
-	rendererMap["SDLLo"] = SDLLO;
 #ifdef COMPONENT_GL
 	rendererMap["SDLGL"] = SDLGL;
 #endif

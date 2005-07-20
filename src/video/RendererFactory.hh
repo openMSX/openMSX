@@ -25,7 +25,7 @@ public:
 	/** Enumeration of Renderers known to openMSX.
 	  * This is the full list, the list of available renderers may be smaller.
 	  */
-	enum RendererID { DUMMY, SDLHI, SDLLO, SDLGL, XLIB };
+	enum RendererID { DUMMY, SDLHI, SDLGL, XLIB };
 
 	virtual ~RendererFactory() {}
 

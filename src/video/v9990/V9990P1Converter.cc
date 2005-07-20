@@ -29,25 +29,24 @@ template <class Type> class ExpandFilter {
 template <> class ExpandFilter<unsigned int> {
 	typedef NoExpansion ExpandType;
 };
-template <Renderer::Zoom zoom> class V9990P1Converter<NoExpansion, zoom> {};
-template class V9990P1Converter<
-	ExpandFilter<GLuint>::ExpandType, Renderer::ZOOM_REAL >;
+template <> class V9990P1Converter<NoExpansion> {};
+template class V9990P1Converter<ExpandFilter<GLuint>::ExpandType>;
 #endif // COMPONENT_GL
 
-template <class Pixel, Renderer::Zoom zoom>
-V9990P1Converter<Pixel, zoom>::V9990P1Converter(V9990& vdp_, Pixel* palette64_)
+template <class Pixel>
+V9990P1Converter<Pixel>::V9990P1Converter(V9990& vdp_, Pixel* palette64_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, palette64(palette64_)
 {
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-V9990P1Converter<Pixel, zoom>::~V9990P1Converter()
+template <class Pixel>
+V9990P1Converter<Pixel>::~V9990P1Converter()
 {
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void V9990P1Converter<Pixel, zoom>::convertLine(
+template <class Pixel>
+void V9990P1Converter<Pixel>::convertLine(
 	Pixel* linePtr, int displayX, int displayWidth, int displayY)
 {
 	int prioX = 256; // TODO get prio X & Y from reg #27
@@ -70,7 +69,7 @@ void V9990P1Converter<Pixel, zoom>::convertLine(
 		                   displayBX, displayBY, 0x7E000, 0x40000, // B
 		                   visibleSprites, displayX, displayY);
 		*linePtr++ = pix;
-		if (zoom == Renderer::ZOOM_REAL) *linePtr++ = pix;
+		*linePtr++ = pix;
 
 		displayAX++;
 		displayBX++;
@@ -80,15 +79,15 @@ void V9990P1Converter<Pixel, zoom>::convertLine(
 		                   displayAX, displayAY, 0x7C000, 0x00000, // A
 		                   visibleSprites, displayX, displayY);
 		*linePtr++ = pix;
-		if (zoom == Renderer::ZOOM_REAL) *linePtr++ = pix;
+		*linePtr++ = pix;
 
 		displayAX++;
 		displayBX++;
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-Pixel V9990P1Converter<Pixel, zoom>::raster(int xA, int yA,
+template <class Pixel>
+Pixel V9990P1Converter<Pixel>::raster(int xA, int yA,
 	unsigned int nameTableA, unsigned int patternTableA,
 	int xB, int yB,
 	unsigned int nameTableB, unsigned int patternTableB,
@@ -123,8 +122,8 @@ Pixel V9990P1Converter<Pixel, zoom>::raster(int xA, int yA,
 	return palette64[p];
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-byte V9990P1Converter<Pixel, zoom>::getPixel(
+template <class Pixel>
+byte V9990P1Converter<Pixel>::getPixel(
 	int x, int y, unsigned int nameTable, unsigned int patternTable)
 {
 	x &= 511;
@@ -140,8 +139,8 @@ byte V9990P1Converter<Pixel, zoom>::getPixel(
 	return dixel & 0x0F;
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void V9990P1Converter<Pixel, zoom>::determineVisibleSprites(
+template <class Pixel>
+void V9990P1Converter<Pixel>::determineVisibleSprites(
 	int* visibleSprites, int displayY)
 {
 	static const unsigned int spriteTable = 0x3FE00;
@@ -163,8 +162,8 @@ void V9990P1Converter<Pixel, zoom>::determineVisibleSprites(
 	visibleSprites[index] = -1;
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-byte V9990P1Converter<Pixel, zoom>::getSpritePixel(
+template <class Pixel>
+byte V9990P1Converter<Pixel>::getSpritePixel(
 	int* visibleSprites, int x, int y, bool front)
 {
 	static const unsigned int spriteTable = 0x3FE00;
@@ -199,9 +198,7 @@ byte V9990P1Converter<Pixel, zoom>::getSpritePixel(
 
 
 // Force template instantiation
-template class V9990P1Converter<word, Renderer::ZOOM_256>;
-template class V9990P1Converter<word, Renderer::ZOOM_REAL>;
-template class V9990P1Converter<unsigned int, Renderer::ZOOM_256>;
-template class V9990P1Converter<unsigned int, Renderer::ZOOM_REAL>;
+template class V9990P1Converter<word>;
+template class V9990P1Converter<unsigned>;
 
 } // namespace openmsx

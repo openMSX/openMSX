@@ -58,7 +58,7 @@ RenderSettings::RenderSettings()
 	scalerMap["Scale2x"] = SCALER_SCALE2X;
 	scalerMap["hq2x"] = SCALER_HQ2X;
 	scalerMap["hq2xlite"] = SCALER_HQ2XLITE;
-	//scalerMap["low"] = SCALER_LOW; // disabled for now
+	scalerMap["low"] = SCALER_LOW;
 	scaler.reset(new EnumSetting<ScalerID>(
 		"scaler", "scaler algorithm", SCALER_SIMPLE, scalerMap));
 

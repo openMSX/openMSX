@@ -10,8 +10,8 @@ using std::string;
 
 namespace openmsx {
 
-template <class Pixel, Renderer::Zoom zoom>
-V9990SDLRasterizer<Pixel, zoom>::V9990SDLRasterizer(
+template <class Pixel>
+V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 	V9990& vdp_, SDL_Surface* screen_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
@@ -23,18 +23,11 @@ V9990SDLRasterizer<Pixel, zoom>::V9990SDLRasterizer(
 {
 	PRT_DEBUG("V9990SDLRasterizer::V9990SDLRasterizer");
 
-	static const int width = (zoom == Renderer::ZOOM_256)
-	                       ? SCREEN_WIDTH
-	                       : SCREEN_WIDTH * 2;
-	static const int height = (zoom == Renderer::ZOOM_256)
-	                        ? SCREEN_HEIGHT
-	                        : SCREEN_HEIGHT * 2;
-
 	// Create Work screen
 	SDL_PixelFormat* format = screen->format;
 	for (int i = 0; i < NB_WORKSCREENS; ++i) {
 		workScreens[i] = SDL_CreateRGBSurface(
-			SDL_SWSURFACE, width, height, format->BitsPerPixel,
+			SDL_SWSURFACE, 640, 480, format->BitsPerPixel,
 			format->Rmask, format->Gmask, format->Bmask, format->Amask);
 		if (!workScreens[i]) {
 			throw FatalError("Can't allocate workscreens for V9990.");
@@ -45,8 +38,8 @@ V9990SDLRasterizer<Pixel, zoom>::V9990SDLRasterizer(
 	precalcPalettes();
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-V9990SDLRasterizer<Pixel, zoom>::~V9990SDLRasterizer()
+template <class Pixel>
+V9990SDLRasterizer<Pixel>::~V9990SDLRasterizer()
 {
 	PRT_DEBUG("V9990SDLRasterizer::~V9990SDLRasterizer");
 
@@ -55,55 +48,48 @@ V9990SDLRasterizer<Pixel, zoom>::~V9990SDLRasterizer()
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-SDL_Surface* V9990SDLRasterizer<Pixel, zoom>::getWorkScreen(bool prev) const
+template <class Pixel>
+SDL_Surface* V9990SDLRasterizer<Pixel>::getWorkScreen(bool prev) const
 {
-	if (zoom == Renderer::ZOOM_256) {
+	if (!vdp.isEvenOddEnabled() ||
+	    !deinterlaceSetting.getValue()) {
 		return workScreens[0];
 	} else {
-		if (!vdp.isEvenOddEnabled() ||
-		    !deinterlaceSetting.getValue()) {
-			return workScreens[0];
+		if (!prev) {
+			return (vdp.getEvenOdd()) ? workScreens[1]
+						   : workScreens[0];
 		} else {
-			if (!prev) {
-				return (vdp.getEvenOdd()) ? workScreens[1]
-				                           : workScreens[0];
-			} else {
-				return (vdp.getEvenOdd()) ? workScreens[0]
-				                           : workScreens[1];
-			}
+			return (vdp.getEvenOdd()) ? workScreens[0]
+						   : workScreens[1];
 		}
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void V9990SDLRasterizer<Pixel, zoom>::paint()
+template <class Pixel>
+void V9990SDLRasterizer<Pixel>::paint()
 {
 	PRT_DEBUG("V9990SDLRasterizer::paint()");
 
-	// Simple scaler for SDLHi
-	if (zoom == Renderer::ZOOM_REAL) {
-		bool even = vdp.getEvenOdd();
-		SDL_Surface* workScreen0 = getWorkScreen(even);
-		SDL_Surface* workScreen1 = getWorkScreen(!even);
-		for (int y = 0; y < SCREEN_HEIGHT; ++y) {
-			Scaler<Pixel>::copyLine(workScreen0, y, screen, 2 * y + 0);
-			Scaler<Pixel>::copyLine(workScreen1, y, screen, 2 * y + 1);
-		}
-	} else {
-		SDL_BlitSurface(getWorkScreen(), NULL, screen, NULL);
+	// Simple scaler
+	// TODO use real scalers
+	bool even = vdp.getEvenOdd();
+	SDL_Surface* workScreen0 = getWorkScreen(even);
+	SDL_Surface* workScreen1 = getWorkScreen(!even);
+	for (int y = 0; y < SCREEN_HEIGHT; ++y) {
+		Scaler<Pixel>::copyLine(workScreen0, y, screen, 2 * y + 0);
+		Scaler<Pixel>::copyLine(workScreen1, y, screen, 2 * y + 1);
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-const string& V9990SDLRasterizer<Pixel, zoom>::getName()
+template <class Pixel>
+const string& V9990SDLRasterizer<Pixel>::getName()
 {
 	static const string NAME = "V9990SDLRasterizer";
 	return NAME;
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void V9990SDLRasterizer<Pixel, zoom>::reset()
+template <class Pixel>
+void V9990SDLRasterizer<Pixel>::reset()
 {
 	PRT_DEBUG("V9990SDLRasterizer::reset()");
 
@@ -112,8 +98,8 @@ void V9990SDLRasterizer<Pixel, zoom>::reset()
 	imageWidth = vdp.getImageWidth();
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void V9990SDLRasterizer<Pixel, zoom>::frameStart()
+template <class Pixel>
+void V9990SDLRasterizer<Pixel>::frameStart()
 {
 	PRT_DEBUG("V9990SDLRasterizer::frameStart()");
 
@@ -132,14 +118,14 @@ void V9990SDLRasterizer<Pixel, zoom>::frameStart()
 	lineZero = verTiming.border1 + (verTiming.display - SCREEN_HEIGHT) / 2;
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void V9990SDLRasterizer<Pixel, zoom>::frameEnd()
+template <class Pixel>
+void V9990SDLRasterizer<Pixel>::frameEnd()
 {
 	PRT_DEBUG("V9990SDLRasterizer::frameEnd()");
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void V9990SDLRasterizer<Pixel, zoom>::setDisplayMode(V9990DisplayMode mode)
+template <class Pixel>
+void V9990SDLRasterizer<Pixel>::setDisplayMode(V9990DisplayMode mode)
 {
 	PRT_DEBUG("V9990SDLRasterizer::setDisplayMode(" << std::dec <<
 	          (int) mode << ")");
@@ -148,8 +134,8 @@ void V9990SDLRasterizer<Pixel, zoom>::setDisplayMode(V9990DisplayMode mode)
 	bitmapConverter.setDisplayMode(mode);
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void V9990SDLRasterizer<Pixel, zoom>::setColorMode(V9990ColorMode mode)
+template <class Pixel>
+void V9990SDLRasterizer<Pixel>::setColorMode(V9990ColorMode mode)
 {
 	PRT_DEBUG("V9990SDLRasterizer::setColorMode(" << std::dec <<
 	          (int) mode << ")");
@@ -158,21 +144,20 @@ void V9990SDLRasterizer<Pixel, zoom>::setColorMode(V9990ColorMode mode)
 	bitmapConverter.setColorMode(mode);
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void V9990SDLRasterizer<Pixel, zoom>::setImageWidth(int width)
+template <class Pixel>
+void V9990SDLRasterizer<Pixel>::setImageWidth(int width)
 {
 	// sync?
 	imageWidth = width;
 }
 
-template <Renderer::Zoom zoom>
 static inline int translateX(int x)
 {
-	return x / ((zoom == Renderer::ZOOM_256) ? 8 : 4);
+	return x / 4;
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void V9990SDLRasterizer<Pixel, zoom>::drawBorder(
+template <class Pixel>
+void V9990SDLRasterizer<Pixel>::drawBorder(
 	int fromX, int fromY, int toX, int toY)
 {
 	PRT_DEBUG("V9990SDLRasterizer::drawBorder(" << std::dec <<
@@ -206,8 +191,8 @@ void V9990SDLRasterizer<Pixel, zoom>::drawBorder(
 
 	if ((width > 0) && (height > 0)) {
 		SDL_Rect rect;
-		rect.x = translateX<zoom>(fromX);
-		rect.w = translateX<zoom>(width);
+		rect.x = translateX(fromX);
+		rect.w = translateX(width);
 		rect.y = fromY;
 		rect.h = height;
 		Pixel bgColor = palette64[vdp.getBackDropColor() & 63];
@@ -215,8 +200,8 @@ void V9990SDLRasterizer<Pixel, zoom>::drawBorder(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
+template <class Pixel>
+void V9990SDLRasterizer<Pixel>::drawDisplay(
 	int fromX, int fromY,
 	int displayX, int displayY, int displayWidth, int displayHeight)
 {
@@ -271,8 +256,8 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void V9990SDLRasterizer<Pixel, zoom>::drawP1Mode(
+template <class Pixel>
+void V9990SDLRasterizer<Pixel>::drawP1Mode(
 	int fromX, int fromY, int displayX, int displayY,
 	int displayWidth, int displayHeight)
 {
@@ -280,7 +265,7 @@ void V9990SDLRasterizer<Pixel, zoom>::drawP1Mode(
 	Pixel* pixelPtr = (Pixel*)(
 			(byte*)workScreen->pixels +
 			fromY * workScreen->pitch +
-			translateX<zoom>(fromX) * sizeof(Pixel));
+			translateX(fromX) * sizeof(Pixel));
 	while (displayHeight--) {
 		p1Converter.convertLine(pixelPtr, displayX, displayWidth,
 		                        displayY);
@@ -289,8 +274,8 @@ void V9990SDLRasterizer<Pixel, zoom>::drawP1Mode(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void V9990SDLRasterizer<Pixel, zoom>::drawP2Mode(
+template <class Pixel>
+void V9990SDLRasterizer<Pixel>::drawP2Mode(
 	int fromX, int fromY, int displayX, int displayY,
 	int displayWidth, int displayHeight)
 {
@@ -298,7 +283,7 @@ void V9990SDLRasterizer<Pixel, zoom>::drawP2Mode(
 	Pixel* pixelPtr = (Pixel*)(
 			(byte*)workScreen->pixels +
 			fromY * workScreen->pitch +
-			translateX<zoom>(fromX) * sizeof(Pixel));
+			translateX(fromX) * sizeof(Pixel));
 	while (displayHeight--) {
 		p2Converter.convertLine(pixelPtr, displayX, displayWidth,
 		                        displayY);
@@ -314,8 +299,8 @@ static unsigned rollMasks[4] = {
 	0x00FF // TODO check this (undocumented)
 };
 
-template <class Pixel, Renderer::Zoom zoom>
-void V9990SDLRasterizer<Pixel, zoom>::drawBxMode(
+template <class Pixel>
+void V9990SDLRasterizer<Pixel>::drawBxMode(
 	int fromX, int fromY, int displayX, int displayY,
 	int displayWidth, int displayHeight)
 {
@@ -323,7 +308,7 @@ void V9990SDLRasterizer<Pixel, zoom>::drawBxMode(
 	Pixel* pixelPtr = (Pixel*)(
 		  (byte*)workScreen->pixels +
 		  fromY * workScreen->pitch +
-		  translateX<zoom>(fromX) * sizeof(Pixel));
+		  translateX(fromX) * sizeof(Pixel));
 
 	unsigned scrollX = vdp.getScrollAX();
 	unsigned x = displayX + scrollX;
@@ -350,8 +335,8 @@ void V9990SDLRasterizer<Pixel, zoom>::drawBxMode(
 }
 
 
-template <class Pixel, Renderer::Zoom zoom>
-void V9990SDLRasterizer<Pixel, zoom>::precalcPalettes()
+template <class Pixel>
+void V9990SDLRasterizer<Pixel>::precalcPalettes()
 {
 	PRT_DEBUG("V9990SDLRasterizer::precalcPalettes()");
 
@@ -390,8 +375,8 @@ void V9990SDLRasterizer<Pixel, zoom>::precalcPalettes()
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void V9990SDLRasterizer<Pixel, zoom>::setPalette(int index,
+template <class Pixel>
+void V9990SDLRasterizer<Pixel>::setPalette(int index,
                                                  byte r, byte g, byte b)
 {
 	palette64[index & 63] = palette32768[((g & 31) << 10) +
@@ -401,10 +386,8 @@ void V9990SDLRasterizer<Pixel, zoom>::setPalette(int index,
 
 
 // Force template instantiation.
-template class V9990SDLRasterizer<Uint16, Renderer::ZOOM_256>;
-template class V9990SDLRasterizer<Uint16, Renderer::ZOOM_REAL>;
-template class V9990SDLRasterizer<Uint32, Renderer::ZOOM_256>;
-template class V9990SDLRasterizer<Uint32, Renderer::ZOOM_REAL>;
+template class V9990SDLRasterizer<Uint16>;
+template class V9990SDLRasterizer<Uint32>;
 
 } // namespace openmsx
 

@@ -6,13 +6,12 @@
 #include "openmsx.hh"
 #include "Renderer.hh"
 #include "DisplayMode.hh"
-#include "Blender.hh"
 
 namespace openmsx {
 
 /** Utility class for converting VRAM contents to host pixels.
   */
-template <class Pixel, Renderer::Zoom zoom>
+template <class Pixel>
 class BitmapConverter
 {
 public:
@@ -33,14 +32,10 @@ public:
 	  *   This is kept as a pointer, so any changes to the palette
 	  *   are immediately picked up by convertLine.
 	  *   Used when YJK filter is active.
-	  * @param blender Blender to use for combining two narrow pixels
-	  *   into a single wide one. Only necessary for ZOOM_256.
 	  */
-	BitmapConverter(
-		const Pixel* palette16, const Pixel* palette256,
-		const Pixel* palette32768,
-		Blender<Pixel> blender = Blender<Pixel>::dummy()
-		);
+	BitmapConverter(const Pixel* palette16,
+	                const Pixel* palette256,
+	                const Pixel* palette32768);
 
 	/** Convert a line of V9938 VRAM to 512 host pixels.
 	  * Call this method in non-planar display modes (Graphic4 and Graphic5).
@@ -126,8 +121,6 @@ private:
 	const Pixel* palette16;
 	const Pixel* palette256;
 	const Pixel* palette32768;
-
-	Blender<Pixel> blender;
 };
 
 } // namespace openmsx

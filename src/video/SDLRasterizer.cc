@@ -31,35 +31,34 @@ static const int TICKS_LEFT_BORDER = 100 + 102;
 static const int TICKS_VISIBLE_MIDDLE =
 	TICKS_LEFT_BORDER + (VDP::TICKS_PER_LINE - TICKS_LEFT_BORDER - 27) / 2;
 
-template <class Pixel, Renderer::Zoom zoom>
-inline int SDLRasterizer<Pixel, zoom>::translateX(int absoluteX, bool narrow)
+template <class Pixel>
+inline int SDLRasterizer<Pixel>::translateX(int absoluteX, bool narrow)
 {
-	int maxX = narrow ? WIDTH : WIDTH / LINE_ZOOM;
+	int maxX = narrow ? 640 : 320;
 	if (absoluteX == VDP::TICKS_PER_LINE) return maxX;
 
 	// Note: The ROUND_MASK forces the ticks to a pixel (2-tick) boundary.
 	//       If this is not done, rounding errors will occur.
 	//       This is especially tricky because division of a negative number
 	//       is rounded towards zero instead of down.
-	const int ROUND_MASK =
-		zoom == Renderer::ZOOM_REAL && narrow ? ~1 : ~3;
+	const int ROUND_MASK = narrow ? ~1 : ~3;
 	int screenX =
 		((absoluteX & ROUND_MASK) - (TICKS_VISIBLE_MIDDLE & ROUND_MASK))
-		/ (zoom == Renderer::ZOOM_REAL && narrow ? 2 : 4)
+		/ (narrow ? 2 : 4)
 		+ maxX / 2;
 	return max(screenX, 0);
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-inline Pixel* SDLRasterizer<Pixel, zoom>::getLinePtr(
+template <class Pixel>
+inline Pixel* SDLRasterizer<Pixel>::getLinePtr(
 	SDL_Surface* displayCache, int line)
 {
 	return (Pixel*)( (byte*)displayCache->pixels
 		+ line * displayCache->pitch );
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-inline void SDLRasterizer<Pixel, zoom>::renderBitmapLine(
+template <class Pixel>
+inline void SDLRasterizer<Pixel>::renderBitmapLine(
 	byte mode, int vramLine)
 {
 	if (lineValidInMode[vramLine] != mode) {
@@ -71,8 +70,8 @@ inline void SDLRasterizer<Pixel, zoom>::renderBitmapLine(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-inline void SDLRasterizer<Pixel, zoom>::renderBitmapLines(
+template <class Pixel>
+inline void SDLRasterizer<Pixel>::renderBitmapLines(
 	byte line, int count)
 {
 	byte mode = vdp.getDisplayMode().getByte();
@@ -92,8 +91,8 @@ inline void SDLRasterizer<Pixel, zoom>::renderBitmapLines(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-inline void SDLRasterizer<Pixel, zoom>::renderPlanarBitmapLine(
+template <class Pixel>
+inline void SDLRasterizer<Pixel>::renderPlanarBitmapLine(
 	byte mode, int vramLine)
 {
 	if ( lineValidInMode[vramLine] != mode
@@ -113,8 +112,8 @@ inline void SDLRasterizer<Pixel, zoom>::renderPlanarBitmapLine(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-inline void SDLRasterizer<Pixel, zoom>::renderPlanarBitmapLines(
+template <class Pixel>
+inline void SDLRasterizer<Pixel>::renderPlanarBitmapLines(
 	byte line, int count)
 {
 	byte mode = vdp.getDisplayMode().getByte();
@@ -132,8 +131,8 @@ inline void SDLRasterizer<Pixel, zoom>::renderPlanarBitmapLines(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-inline void SDLRasterizer<Pixel, zoom>::renderCharacterLines(
+template <class Pixel>
+inline void SDLRasterizer<Pixel>::renderCharacterLines(
 	byte line, int count)
 {
 	while (count--) {
@@ -144,14 +143,13 @@ inline void SDLRasterizer<Pixel, zoom>::renderCharacterLines(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-SDLRasterizer<Pixel, zoom>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
+template <class Pixel>
+SDLRasterizer<Pixel>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
 	: vdp(vdp_), vram(vdp.getVRAM())
-	, postProcessor(new PostProcessor<Pixel, zoom>(screen))
-	, blender(Blender<Pixel>::createFromFormat(screen->format))
-	, characterConverter(vdp, palFg, palBg, blender)
-	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS, blender)
-	, spriteConverter(vdp.getSpriteChecker(), blender)
+	, postProcessor(new PostProcessor<Pixel>(screen))
+	, characterConverter(vdp, palFg, palBg)
+	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
+	, spriteConverter(vdp.getSpriteChecker())
 {
 	this->screen = screen;
 	workFrame = NULL;
@@ -159,7 +157,7 @@ SDLRasterizer<Pixel, zoom>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
 	// Create display caches.
 	charDisplayCache = SDL_CreateRGBSurface(
 		SDL_SWSURFACE,
-		zoom == Renderer::ZOOM_256 ? 256 : 512,
+		512,
 		vdp.isMSX1VDP() ? 192 : 256,
 		screen->format->BitsPerPixel,
 		screen->format->Rmask,
@@ -171,7 +169,7 @@ SDLRasterizer<Pixel, zoom>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
 		? NULL
 		: SDL_CreateRGBSurface(
 			SDL_SWSURFACE,
-			zoom == Renderer::ZOOM_256 ? 256 : 512,
+			512,
 			256 * 4,
 			screen->format->BitsPerPixel,
 			screen->format->Rmask,
@@ -185,22 +183,22 @@ SDLRasterizer<Pixel, zoom>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
 	precalcPalette(RenderSettings::instance().getGamma().getValue());
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-SDLRasterizer<Pixel, zoom>::~SDLRasterizer()
+template <class Pixel>
+SDLRasterizer<Pixel>::~SDLRasterizer()
 {
 	SDL_FreeSurface(charDisplayCache);
 	if (bitmapDisplayCache) SDL_FreeSurface(bitmapDisplayCache);
 	delete workFrame;
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-bool SDLRasterizer<Pixel, zoom>::isActive()
+template <class Pixel>
+bool SDLRasterizer<Pixel>::isActive()
 {
 	return postProcessor->getZ() != Layer::Z_MSX_PASSIVE;
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::reset()
+template <class Pixel>
+void SDLRasterizer<Pixel>::reset()
 {
 	// Init renderer state.
 	setDisplayMode(vdp.getDisplayMode());
@@ -212,8 +210,8 @@ void SDLRasterizer<Pixel, zoom>::reset()
 	resetPalette();
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::resetPalette()
+template <class Pixel>
+void SDLRasterizer<Pixel>::resetPalette()
 {
 	if (!vdp.isMSX1VDP()) {
 		// Reset the palette.
@@ -223,8 +221,8 @@ void SDLRasterizer<Pixel, zoom>::resetPalette()
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::frameStart()
+template <class Pixel>
+void SDLRasterizer<Pixel>::frameStart()
 {
 	workFrame = postProcessor->rotateFrames(
 		workFrame,
@@ -248,14 +246,14 @@ void SDLRasterizer<Pixel, zoom>::frameStart()
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::frameEnd()
+template <class Pixel>
+void SDLRasterizer<Pixel>::frameEnd()
 {
 	// Nothing to do.
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::setDisplayMode(DisplayMode mode)
+template <class Pixel>
+void SDLRasterizer<Pixel>::setDisplayMode(DisplayMode mode)
 {
 	if (mode.isBitmapMode()) {
 		bitmapConverter.setDisplayMode(mode);
@@ -270,8 +268,8 @@ void SDLRasterizer<Pixel, zoom>::setDisplayMode(DisplayMode mode)
 		);
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::setPalette(
+template <class Pixel>
+void SDLRasterizer<Pixel>::setPalette(
 	int index, int grb)
 {
 	// Update SDL colours in palette.
@@ -292,23 +290,23 @@ void SDLRasterizer<Pixel, zoom>::setPalette(
 	                    vdp.getBackgroundColour());
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::setBackgroundColour(int index)
+template <class Pixel>
+void SDLRasterizer<Pixel>::setBackgroundColour(int index)
 {
 	precalcColourIndex0(
 		vdp.getDisplayMode(), vdp.getTransparency(), index);
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::setTransparency(bool enabled)
+template <class Pixel>
+void SDLRasterizer<Pixel>::setTransparency(bool enabled)
 {
 	spriteConverter.setTransparency(enabled);
 	precalcColourIndex0(
 		vdp.getDisplayMode(), enabled, vdp.getBackgroundColour());
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::precalcPalette(double gamma)
+template <class Pixel>
+void SDLRasterizer<Pixel>::precalcPalette(double gamma)
 {
 	prevGamma = gamma;
 
@@ -373,8 +371,8 @@ void SDLRasterizer<Pixel, zoom>::precalcPalette(double gamma)
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::precalcColourIndex0(
+template <class Pixel>
+void SDLRasterizer<Pixel>::precalcColourIndex0(
 	DisplayMode mode, bool transparency, byte bgcolorIndex)
 {
 	// Graphic7 mode doesn't use transparency.
@@ -406,14 +404,14 @@ void SDLRasterizer<Pixel, zoom>::precalcColourIndex0(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::updateVRAMCache(int address)
+template <class Pixel>
+void SDLRasterizer<Pixel>::updateVRAMCache(int address)
 {
 	lineValidInMode[address >> 7] = 0xFF;
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::drawBorder(
+template <class Pixel>
+void SDLRasterizer<Pixel>::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {
 	DisplayMode mode = vdp.getDisplayMode();
@@ -425,9 +423,6 @@ void SDLRasterizer<Pixel, zoom>::drawBorder(
 		// TODO odd/even swapped?
 		border0 = palBg[(bgColor & 0x0C) >> 2];
 		border1 = palBg[(bgColor & 0x03) >> 0];
-		if (zoom == Renderer::ZOOM_256) {
-			border0 = border1 = blender.blend(border0, border1);
-		}
 	} else if (modeBase == DisplayMode::GRAPHIC7) {
 		border0 = border1 = PALETTE256[bgColor];
 	} else {
@@ -435,8 +430,8 @@ void SDLRasterizer<Pixel, zoom>::drawBorder(
 	}
 
 	int startY = max(fromY - lineRenderTop, 0);
-	int endY = min(limitY - lineRenderTop, (int)HEIGHT / LINE_ZOOM);
-	if (LINE_ZOOM == 2 && fromX == 0 && limitX == VDP::TICKS_PER_LINE) {
+	int endY = min(limitY - lineRenderTop, 240);
+	if ((fromX == 0) && (limitX == VDP::TICKS_PER_LINE)) {
 		for (int y = startY; y < endY; y++) {
 			workFrame->setBlank(y, border0, border1);
 		}
@@ -455,15 +450,15 @@ void SDLRasterizer<Pixel, zoom>::drawBorder(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::drawDisplay(
+template <class Pixel>
+void SDLRasterizer<Pixel>::drawDisplay(
 	int /*fromX*/, int fromY,
 	int displayX, int displayY,
 	int displayWidth, int displayHeight
 ) {
 	DisplayMode mode = vdp.getDisplayMode();
 	int lineWidth = mode.getLineWidth();
-	if (zoom == Renderer::ZOOM_256 || lineWidth == 256) {
+	if (lineWidth == 256) {
 		int endX = displayX + displayWidth;
 		displayX /= 2;
 		displayWidth = endX / 2 - displayX;
@@ -472,7 +467,7 @@ void SDLRasterizer<Pixel, zoom>::drawDisplay(
 	// Clip to screen area.
 	int screenLimitY = min(
 		fromY + displayHeight - lineRenderTop,
-		(int)HEIGHT / LINE_ZOOM
+		240
 		);
 	int screenY = fromY - lineRenderTop;
 	if (screenY < 0) {
@@ -597,8 +592,8 @@ void SDLRasterizer<Pixel, zoom>::drawDisplay(
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::drawSprites(
+template <class Pixel>
+void SDLRasterizer<Pixel>::drawSprites(
 	int /*fromX*/, int fromY,
 	int displayX, int displayY,
 	int displayWidth, int displayHeight
@@ -607,7 +602,7 @@ void SDLRasterizer<Pixel, zoom>::drawSprites(
 	// TODO: Code duplicated from drawDisplay.
 	int screenLimitY = min(
 		fromY + displayHeight - lineRenderTop,
-		(int)HEIGHT / LINE_ZOOM
+		240
 		);
 	int screenY = fromY - lineRenderTop;
 	if (screenY < 0) {
@@ -640,9 +635,7 @@ void SDLRasterizer<Pixel, zoom>::drawSprites(
 
 
 // Force template instantiation.
-template class SDLRasterizer<Uint16, Renderer::ZOOM_256>;
-template class SDLRasterizer<Uint16, Renderer::ZOOM_REAL>;
-template class SDLRasterizer<Uint32, Renderer::ZOOM_256>;
-template class SDLRasterizer<Uint32, Renderer::ZOOM_REAL>;
+template class SDLRasterizer<Uint16>;
+template class SDLRasterizer<Uint32>;
 
 } // namespace openmsx

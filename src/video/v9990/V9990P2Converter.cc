@@ -33,45 +33,36 @@ template <class Type> class ExpandFilter {
 template <> class ExpandFilter<unsigned int> {
 	typedef NoExpansion ExpandType;
 };
-template <Renderer::Zoom zoom> class V9990P2Converter<NoExpansion, zoom> {};
-template class V9990P2Converter<
-	ExpandFilter<GLuint>::ExpandType, Renderer::ZOOM_REAL >;
+template <> class V9990P2Converter<NoExpansion> {};
+template class V9990P2Converter<ExpandFilter<GLuint>::ExpandType>;
 #endif // COMPONENT_GL
 
-template <class Pixel, Renderer::Zoom zoom>
-V9990P2Converter<Pixel, zoom>::V9990P2Converter(V9990& vdp_, Pixel* palette64_)
+template <class Pixel>
+V9990P2Converter<Pixel>::V9990P2Converter(V9990& vdp_, Pixel* palette64_)
 	: vdp(vdp_), vram(vdp.getVRAM()), palette64(palette64_)
 {
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-V9990P2Converter<Pixel, zoom>::~V9990P2Converter()
+template <class Pixel>
+V9990P2Converter<Pixel>::~V9990P2Converter()
 {
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void V9990P2Converter<Pixel, zoom>::convertLine(
+template <class Pixel>
+void V9990P2Converter<Pixel>::convertLine(
 	Pixel* linePtr, int displayX, int /*displayWidth*/, int displayY)
 {
 	displayX = displayX + vdp.getScrollAX();
 	displayY = displayY + vdp.getScrollAY();
 
 	for (int i = 0; i < 256; ++i) {
-		Pixel pix1 = raster(displayX++, displayY, 0x7C000, 0x00000);
-		Pixel pix2 = raster(displayX++, displayY, 0x7C000, 0x00000);
-
-		if (zoom == Renderer::ZOOM_REAL) {
-			*linePtr++ = pix1;
-			*linePtr++ = pix2;
-		} else {
-			// TODO use blender a la BitmapConverter::blendPixels2()
-			*linePtr++ = pix1;
-		}
+		*linePtr++ = raster(displayX++, displayY, 0x7C000, 0x00000);
+		*linePtr++ = raster(displayX++, displayY, 0x7C000, 0x00000);
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-Pixel V9990P2Converter<Pixel, zoom>::raster(int x, int y,
+template <class Pixel>
+Pixel V9990P2Converter<Pixel>::raster(int x, int y,
 		unsigned int nameTable, unsigned int patternTable)
 {
 	byte offset = vdp.getPaletteOffset();
@@ -82,8 +73,8 @@ Pixel V9990P2Converter<Pixel, zoom>::raster(int x, int y,
 	return palette64[p];
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-byte V9990P2Converter<Pixel, zoom>::getPixel(
+template <class Pixel>
+byte V9990P2Converter<Pixel>::getPixel(
 		int x, int y, unsigned int nameTable, unsigned int patternTable)
 {
 	x &= 1023;
@@ -101,10 +92,7 @@ byte V9990P2Converter<Pixel, zoom>::getPixel(
 
 
 // Force template instantiation
-template class V9990P2Converter<word, Renderer::ZOOM_256>;
-template class V9990P2Converter<word, Renderer::ZOOM_REAL>;
-template class V9990P2Converter<unsigned int, Renderer::ZOOM_256>;
-template class V9990P2Converter<unsigned int, Renderer::ZOOM_REAL>;
+template class V9990P2Converter<word>;
+template class V9990P2Converter<unsigned int>;
 
 } // namespace openmsx
-

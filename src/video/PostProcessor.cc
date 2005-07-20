@@ -11,10 +11,9 @@
 
 namespace openmsx {
 
-template <class Pixel, Renderer::Zoom zoom>
-PostProcessor<Pixel, zoom>::PostProcessor(SDL_Surface* screen)
+template <class Pixel>
+PostProcessor<Pixel>::PostProcessor(SDL_Surface* screen)
 	: VideoLayer(VIDEO_MSX)
-	, blender(Blender<Pixel>::createFromFormat(screen->format))
 {
 	this->screen = screen;
 	currScalerID = (ScalerID)-1; // not a valid scaler
@@ -25,26 +24,16 @@ PostProcessor<Pixel, zoom>::PostProcessor(SDL_Surface* screen)
 	prevFrame = new RawFrame(screen->format, RawFrame::FIELD_NONINTERLACED);
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-PostProcessor<Pixel, zoom>::~PostProcessor()
+template <class Pixel>
+PostProcessor<Pixel>::~PostProcessor()
 {
 	delete currFrame;
 	delete prevFrame;
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-void PostProcessor<Pixel, zoom>::paint()
+template <class Pixel>
+void PostProcessor<Pixel>::paint()
 {
-	// All of the current postprocessing steps require hi-res.
-	if (LINE_ZOOM != 2) {
-		// Just copy the image as-is.
-		// TODO: This is incorrect, since the image is now always 640 wide.
-		if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
-		SDL_BlitSurface(currFrame->getSurface(), NULL, screen, NULL);
-		if (SDL_MUSTLOCK(screen)) SDL_LockSurface(screen);
-		return;
-	}
-
 	const RawFrame::FieldType field = currFrame->getField();
 	const bool deinterlace =
 		field != RawFrame::FIELD_NONINTERLACED
@@ -62,11 +51,11 @@ void PostProcessor<Pixel, zoom>::paint()
 	//       frame, we should take the content of two frames into account.
 	const unsigned deltaY = field == RawFrame::FIELD_ODD ? 1 : 0;
 	unsigned startY = 0;
-	while (startY < HEIGHT / 2) {
+	while (startY < 240) {
 		const RawFrame::LineContent content = currFrame->getLineContent(startY);
 		unsigned endY = startY + 1;
-		while (endY < HEIGHT / 2
-			&& currFrame->getLineContent(endY) == content) endY++;
+		while ((endY < 240) &&
+		       (currFrame->getLineContent(endY) == content)) endY++;
 
 		switch (content) {
 		case RawFrame::LINE_BLANK: {
@@ -141,16 +130,16 @@ void PostProcessor<Pixel, zoom>::paint()
 	}
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-const std::string& PostProcessor<Pixel, zoom>::getName()
+template <class Pixel>
+const std::string& PostProcessor<Pixel>::getName()
 {
 	// TODO: A more useful name, maybe parameter of constructor?
 	static const std::string NAME = "PostProcessor";
 	return NAME;
 }
 
-template <class Pixel, Renderer::Zoom zoom>
-RawFrame* PostProcessor<Pixel, zoom>::rotateFrames(
+template <class Pixel>
+RawFrame* PostProcessor<Pixel>::rotateFrames(
 	RawFrame* finishedFrame, RawFrame::FieldType field )
 {
 	RawFrame* reuseFrame = prevFrame;
@@ -164,9 +153,7 @@ RawFrame* PostProcessor<Pixel, zoom>::rotateFrames(
 
 
 // Force template instantiation.
-template class PostProcessor<Uint16, Renderer::ZOOM_256>;
-template class PostProcessor<Uint16, Renderer::ZOOM_REAL>;
-template class PostProcessor<Uint32, Renderer::ZOOM_256>;
-template class PostProcessor<Uint32, Renderer::ZOOM_REAL>;
+template class PostProcessor<Uint16>;
+template class PostProcessor<Uint32>;
 
 } // namespace openmsx

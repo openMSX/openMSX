@@ -200,15 +200,15 @@ private:
 
 	/** VRAM to pixels converter for character display modes.
 	  */
-	CharacterConverter<Pixel, Renderer::ZOOM_REAL> characterConverter;
+	CharacterConverter<Pixel> characterConverter;
 
 	/** VRAM to pixels converter for bitmap display modes.
 	  */
-	BitmapConverter<Pixel, Renderer::ZOOM_REAL> bitmapConverter;
+	BitmapConverter<Pixel> bitmapConverter;
 
 	/** VRAM to pixels converter for sprites.
 	  */
-	SpriteConverter<Pixel, Renderer::ZOOM_REAL> spriteConverter;
+	SpriteConverter<Pixel> spriteConverter;
 };
 
 } // namespace openmsx

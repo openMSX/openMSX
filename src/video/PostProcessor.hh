@@ -8,16 +8,14 @@
 #include "Deinterlacer.hh"
 #include "Renderer.hh"
 #include "VideoLayer.hh"
-#include "Blender.hh"
 
 struct SDL_Surface;
-
 
 namespace openmsx {
 
 /** Rasterizer using SDL.
   */
-template <class Pixel, Renderer::Zoom zoom>
+template <class Pixel>
 class PostProcessor : public VideoLayer
 {
 public:
@@ -45,18 +43,6 @@ public:
 	RawFrame* rotateFrames(RawFrame* finishedFrame, RawFrame::FieldType field);
 
 private:
-	/** Horizontal dimensions of the screen.
-	  */
-	static const unsigned WIDTH = (zoom == Renderer::ZOOM_256 ? 320 : 640);
-
-	/** Vertical dimensions of the screen.
-	  */
-	static const unsigned HEIGHT = (zoom == Renderer::ZOOM_256 ? 240 : 480);
-
-	/** Number of host screen lines per VDP display line.
-	  */
-	static const int LINE_ZOOM = (zoom == Renderer::ZOOM_256 ? 1 : 2);
-
 	/** (Re)initialize the "abcdFrame" variables.
 	  * @param first True iff this is the first call.
 	  *   The first call should be done by the constructor.
@@ -85,11 +71,6 @@ private:
 	/** The frame before currFrame, ready to be displayed.
 	  */
 	RawFrame* prevFrame;
-
-	/** Blend to pixel colors
-	 */
-	Blender<Pixel> blender;
-
 };
 
 } // namespace openmsx

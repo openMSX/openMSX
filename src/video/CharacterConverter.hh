@@ -8,7 +8,6 @@
 #include "openmsx.hh"
 #include "Renderer.hh"
 #include "DisplayMode.hh"
-#include "Blender.hh"
 
 namespace openmsx {
 
@@ -18,7 +17,7 @@ class VDPVRAM;
 
 /** Utility class for converting VRAM contents to host pixels.
   */
-template <class Pixel, Renderer::Zoom zoom>
+template <class Pixel>
 class CharacterConverter
 {
 public:
@@ -32,11 +31,8 @@ public:
 	  *   VDP background colour index to host pixel mapping.
 	  *   This is kept as a pointer, so any changes to the palette
 	  *   are immediately picked up by convertLine.
-	  * @param blender Blender to use for combining two narrow pixels
-	  *   into a single wide one. Only necessary for ZOOM_256.
 	  */
-	CharacterConverter(VDP& vdp, const Pixel* palFg, const Pixel* palBg,
-		Blender<Pixel> blender = Blender<Pixel>::dummy());
+	CharacterConverter(VDP& vdp, const Pixel* palFg, const Pixel* palBg);
 
 	/** Convert a line of V9938 VRAM to 512 host pixels.
 	  * Call this method in non-planar display modes (Graphic4 and Graphic5).
@@ -168,8 +164,6 @@ private:
 	const Pixel* palFg;
 	const Pixel* palBg;
 	
-	Blender<Pixel> blender;
-
 	/** Dirty tables indicate which character blocks must be repainted.
 	  * The anyDirty variables are true when there is at least one
 	  * element in the dirty table that is true.

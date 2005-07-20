@@ -1,5 +1,9 @@
 $Id$
 
+2005-07-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Removed SDLLo renderer, SDLLo renderer will be replaced with "low"
+	  scaler soon
+
 2005-07-20 Maarten ter Huurne <maarten@treewalker.org>
 	* Split off PostProcessor from SDLRasterizer.
 	* Fixed bug in memset4_2_CPP.

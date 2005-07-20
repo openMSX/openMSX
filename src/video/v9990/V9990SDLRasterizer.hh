@@ -17,7 +17,7 @@ class BooleanSetting;
 
 /** Rasterizer using SDL.
   */
-template <class Pixel, Renderer::Zoom zoom>
+template <class Pixel>
 class V9990SDLRasterizer : public V9990Rasterizer
 {
 public:
@@ -57,7 +57,7 @@ private:
 
 	/** Number of workscreens
 	  */
-	static const int NB_WORKSCREENS = (zoom == Renderer::ZOOM_256) ? 1 : 2;
+	static const int NB_WORKSCREENS = 2;
 
 	/** The VDP of which the video output is being rendered.
 	  */
@@ -111,15 +111,15 @@ private:
 
 	/** Bitmap converter. Converts VRAM into pixels
 	  */
-	V9990BitmapConverter<Pixel, zoom> bitmapConverter;
+	V9990BitmapConverter<Pixel> bitmapConverter;
 
 	/** P1 Converter
 	  */
-	V9990P1Converter<Pixel, zoom> p1Converter;
+	V9990P1Converter<Pixel> p1Converter;
 
 	/** P2 Converter
 	  */
-	V9990P2Converter<Pixel, zoom> p2Converter;
+	V9990P2Converter<Pixel> p2Converter;
 
 	/** Deinterlace setting
 	  */

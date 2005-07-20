@@ -18,12 +18,12 @@ namespace openmsx {
 
 class VDP;
 class VDPVRAM;
-template <class Pixel, Renderer::Zoom zoom> class PostProcessor;
+template <class Pixel> class PostProcessor;
 
 
 /** Rasterizer using SDL.
   */
-template <class Pixel, Renderer::Zoom zoom>
+template <class Pixel>
 class SDLRasterizer : public Rasterizer
 {
 public:
@@ -58,18 +58,6 @@ public:
 		);
 
 private:
-	/** Horizontal dimensions of the screen.
-	  */
-	static const unsigned WIDTH = (zoom == Renderer::ZOOM_256 ? 320 : 640);
-
-	/** Vertical dimensions of the screen.
-	  */
-	static const unsigned HEIGHT = (zoom == Renderer::ZOOM_256 ? 240 : 480);
-
-	/** Number of host screen lines per VDP display line.
-	  */
-	static const int LINE_ZOOM = (zoom == Renderer::ZOOM_256 ? 1 : 2);
-
 	/** Translate from absolute VDP coordinates to screen coordinates:
 	  * Note: In reality, there are only 569.5 visible pixels on a line.
 	  *       Because it looks better, the borders are extended to 640.
@@ -157,7 +145,7 @@ private:
 	/** The video post processor which displays the frames produced by this
 	  *  rasterizer.
 	  */
-	std::auto_ptr<PostProcessor<Pixel, zoom> > postProcessor;
+	std::auto_ptr<PostProcessor<Pixel> > postProcessor;
 
 	/** The surface which is visible to the user.
 	  */
@@ -197,21 +185,17 @@ private:
 	  */
 	byte lineValidInMode[256 * 4];
 
-	/** Blend to pixel colors
-	 */
-	Blender<Pixel> blender;
-
 	/** VRAM to pixels converter for character display modes.
 	  */
-	CharacterConverter<Pixel, zoom> characterConverter;
+	CharacterConverter<Pixel> characterConverter;
 
 	/** VRAM to pixels converter for bitmap display modes.
 	  */
-	BitmapConverter<Pixel, zoom> bitmapConverter;
+	BitmapConverter<Pixel> bitmapConverter;
 
 	/** VRAM to pixels converter for sprites.
 	  */
-	SpriteConverter<Pixel, zoom> spriteConverter;
+	SpriteConverter<Pixel> spriteConverter;
 };
 
 } // namespace openmsx

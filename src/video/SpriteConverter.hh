@@ -12,13 +12,12 @@ TODO:
 #include "Renderer.hh"
 #include "SpriteChecker.hh"
 #include "DisplayMode.hh"
-#include "Blender.hh"
 
 namespace openmsx {
 
 /** Utility class for converting VRAM contents to host pixels.
   */
-template <class Pixel, Renderer::Zoom zoom>
+template <class Pixel>
 class SpriteConverter
 {
 public:
@@ -29,12 +28,9 @@ public:
 	  * After construction, also call the various set methods to complete
 	  * initialisation.
 	  * @param spriteChecker_ Delivers the sprite data to be rendered.
-	  * @param blender_ Blender to use for combining two narrow pixels
-	  *   into a single wide one. Only necessary for ZOOM_256.
 	  */
-	SpriteConverter(SpriteChecker& spriteChecker_,
-		Blender<Pixel> blender_ = Blender<Pixel>::dummy() )
-		: spriteChecker(spriteChecker_), blender(blender_)
+	SpriteConverter(SpriteChecker& spriteChecker_)
+		: spriteChecker(spriteChecker_)
 	{
 	}
 
@@ -182,22 +178,15 @@ public:
 				if (mode.getByte() == DisplayMode::GRAPHIC5) {
 					Pixel pixL = palette[colour >> 2];
 					Pixel pixR = palette[colour & 3];
-					if (zoom == Renderer::ZOOM_256) {
-						pixelPtr[pixelDone] = blender.blend(pixL, pixR);
-					} else { // ZOOM_REAL
-						int i = pixelDone * 2;
-						pixelPtr[i] = pixL;
-						pixelPtr[i + 1] = pixR;
-					}
+					pixelPtr[pixelDone * 2 + 0] = pixL;
+					pixelPtr[pixelDone * 2 + 1] = pixR;
 				} else {
 					Pixel pix = palette[colour];
-					if (mode.getByte() == DisplayMode::GRAPHIC6
-					&& zoom == Renderer::ZOOM_REAL) {
-						int i = pixelDone * 2;
-						pixelPtr[i] = pix;
-						pixelPtr[i + 1] = pix;
+					if (mode.getByte() == DisplayMode::GRAPHIC6) {
+						pixelPtr[pixelDone * 2 + 0] = pix;
+						pixelPtr[pixelDone * 2 + 1] = pix;
 					} else {
-						pixelPtr[pixelDone] = palette[colour];
+						pixelPtr[pixelDone] = pix;
 					}
 				}
 			}
@@ -205,7 +194,6 @@ public:
 	}
 
 private:
-
 	SpriteChecker& spriteChecker;
 
 	/** VDP transparency setting (R#8, bit5).
@@ -219,8 +207,6 @@ private:
 	/** The current sprite palette.
 	  */
 	Pixel* palette;
-
-	Blender<Pixel> blender;
 };
 
 } // namespace openmsx
