@@ -76,8 +76,13 @@ void V9990SDLRasterizer<Pixel>::paint()
 	SDL_Surface* workScreen0 = getWorkScreen(even);
 	SDL_Surface* workScreen1 = getWorkScreen(!even);
 	for (int y = 0; y < SCREEN_HEIGHT; ++y) {
-		Scaler<Pixel>::copyLine(workScreen0, y, screen, 2 * y + 0);
-		Scaler<Pixel>::copyLine(workScreen1, y, screen, 2 * y + 1);
+		Pixel* srcLine0 = Scaler<Pixel>::linePtr(workScreen0, y);
+		Pixel* dstLine0 = Scaler<Pixel>::linePtr(screen, 2 * y + 0);
+		Scaler<Pixel>::copyLine(srcLine0, dstLine0, 640);
+
+		Pixel* srcLine1 = Scaler<Pixel>::linePtr(workScreen1, y);
+		Pixel* dstLine1 = Scaler<Pixel>::linePtr(screen, 2 * y + 1);
+		Scaler<Pixel>::copyLine(srcLine1, dstLine1, 640);
 	}
 }
 

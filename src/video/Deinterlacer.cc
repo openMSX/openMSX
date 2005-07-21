@@ -1,26 +1,35 @@
 // $Id$
 
 #include "Deinterlacer.hh"
+#include "RawFrame.hh"
 #include "Scaler.hh"
 
 namespace openmsx {
 
 template <class Pixel>
 void Deinterlacer<Pixel>::deinterlaceLine256(
-	SDL_Surface* src0, SDL_Surface* src1, int srcY,
-	SDL_Surface* dst, int dstY )
+	RawFrame& src0, RawFrame& src1, SDL_Surface* dst, unsigned y)
 {
-	Scaler<Pixel>::scaleLine(src0, srcY, dst, dstY);
-	Scaler<Pixel>::scaleLine(src1, srcY, dst, dstY + 1);
+	Pixel* srcLine0 = src0.getPixelPtr(0, y, (Pixel*)0);
+	Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 2 * y + 0);
+	Scaler<Pixel>::scaleLine(srcLine0, dstLine0, 320);
+
+	Pixel* srcLine1 = src1.getPixelPtr(0, y, (Pixel*)0);
+	Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 2 * y + 1);
+	Scaler<Pixel>::scaleLine(srcLine1, dstLine1, 320);
 }
 
 template <class Pixel>
 void Deinterlacer<Pixel>::deinterlaceLine512(
-	SDL_Surface* src0, SDL_Surface* src1, int srcY,
-	SDL_Surface* dst, int dstY )
+	RawFrame& src0, RawFrame& src1, SDL_Surface* dst, unsigned y)
 {
-	Scaler<Pixel>::copyLine(src0, srcY, dst, dstY);
-	Scaler<Pixel>::copyLine(src1, srcY, dst, dstY + 1);
+	Pixel* srcLine0 = src0.getPixelPtr(0, y, (Pixel*)0);
+	Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 2 * y + 0);
+	Scaler<Pixel>::copyLine(srcLine0, dstLine0, 640);
+
+	Pixel* srcLine1 = src1.getPixelPtr(0, y, (Pixel*)0);
+	Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 2 * y + 1);
+	Scaler<Pixel>::copyLine(srcLine1, dstLine1, 640);
 }
 
 

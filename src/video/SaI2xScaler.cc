@@ -7,6 +7,7 @@
 // Modified for use in openMSX by Maarten ter Huurne.
 
 #include "SaI2xScaler.hh"
+#include "RawFrame.hh"
 #include "openmsx.hh"
 #include <cassert>
 
@@ -21,8 +22,8 @@ SaI2xScaler<Pixel>::SaI2xScaler(SDL_PixelFormat* format)
 {
 }
 
-const int WIDTH256 = 320; // TODO: Specify this in a clean way.
-const int HEIGHT = 480;
+const unsigned WIDTH256 = 320; // TODO: Specify this in a clean way.
+const unsigned HEIGHT = 480;
 
 template <class Pixel>
 void SaI2xScaler<Pixel>::scaleLine256(
@@ -31,16 +32,16 @@ void SaI2xScaler<Pixel>::scaleLine256(
 	Pixel* dstUpper, Pixel* dstLower )
 {
 	// TODO: Scale border pixels as well.
-	for (int x = 0; x < WIDTH256; x++) {
+	for (unsigned x = 0; x < WIDTH256; x++) {
 		// Map of the pixels:
 		//   I|E F|J
 		//   G|A B|K
 		//   H|C D|L
 		//   M|N O|P
 
-		int xl = max(x - 1, 0);
-		int xr = min(x + 1, WIDTH256 - 1);
-		int xrr = min(x + 2, WIDTH256 - 1);
+		unsigned xl  = x ? x - 1 : 0;
+		unsigned xr  = min(x + 1, WIDTH256 - 1);
+		unsigned xrr = min(x + 2, WIDTH256 - 1);
 
 		// TODO: Possible performance improvements:
 		// - Play with order of fetching (effect on data cache).
@@ -242,39 +243,40 @@ void SaI2xScaler<Pixel>::scaleLine512(
 }
 
 template <class Pixel>
-void SaI2xScaler<Pixel>::scale256(
-	SDL_Surface* src, int srcY, int endSrcY, SDL_Surface* dst, int dstY )
+void SaI2xScaler<Pixel>::scale256(RawFrame& src, SDL_Surface* dst,
+                                  unsigned startY, unsigned endY, bool lower)
 {
 	assert(dst->w == WIDTH256 * 2);
-	for (int y = srcY; y < endSrcY; y++) {
-		const Pixel* srcLine0 = Scaler<Pixel>::linePtr(src, max(y - 1, srcY));
-		const Pixel* srcLine1 = Scaler<Pixel>::linePtr(src, y);
-		const Pixel* srcLine2 = Scaler<Pixel>::linePtr(src, min(y + 1, endSrcY - 1));
-		const Pixel* srcLine3 = Scaler<Pixel>::linePtr(src, min(y + 2, endSrcY - 1));
+	unsigned dstY = 2 * startY + (lower ? 1 : 0);
+	for (unsigned y = startY; y < endY; ++y) {
+		const Pixel* srcLine0 = src.getPixelPtr(0, max(y - 1, startY),   (Pixel*)0);
+		const Pixel* srcLine1 = src.getPixelPtr(0, y,                    (Pixel*)0);
+		const Pixel* srcLine2 = src.getPixelPtr(0, min(y + 1, endY - 1), (Pixel*)0);
+		const Pixel* srcLine3 = src.getPixelPtr(0, min(y + 2, endY - 1), (Pixel*)0);
 		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
 		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, min(dstY++, HEIGHT - 1));
 
-		scaleLine256(
-			srcLine0, srcLine1, srcLine2, srcLine3, dstUpper, dstLower );
+		scaleLine256(srcLine0, srcLine1, srcLine2, srcLine3,
+		             dstUpper, dstLower);
 	}
 }
 
 template <class Pixel>
-void SaI2xScaler<Pixel>::scale512(
-	SDL_Surface* src, int srcY, int endSrcY,
-	SDL_Surface* dst, int dstY )
+void SaI2xScaler<Pixel>::scale512(RawFrame& src, SDL_Surface* dst,
+                                  unsigned startY, unsigned endY, bool lower)
 {
 	assert(dst->w == WIDTH512);
-	for (int y = srcY; y < endSrcY; y++) {
-		const Pixel* srcLine0 = Scaler<Pixel>::linePtr(src, max(y - 1, srcY));
-		const Pixel* srcLine1 = Scaler<Pixel>::linePtr(src, y);
-		const Pixel* srcLine2 = Scaler<Pixel>::linePtr(src, min(y + 1, endSrcY - 1));
-		const Pixel* srcLine3 = Scaler<Pixel>::linePtr(src, min(y + 2, endSrcY - 1));
+	unsigned dstY = 2 * startY + (lower ? 1 : 0);
+	for (unsigned y = startY; y < endY; y++) {
+		const Pixel* srcLine0 = src.getPixelPtr(0, max(y - 1, startY),   (Pixel*)0);
+		const Pixel* srcLine1 = src.getPixelPtr(0, y,                    (Pixel*)0);
+		const Pixel* srcLine2 = src.getPixelPtr(0, min(y + 1, endY - 1), (Pixel*)0);
+		const Pixel* srcLine3 = src.getPixelPtr(0, min(y + 2, endY - 1), (Pixel*)0);
 		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
 		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, min(dstY++, HEIGHT - 1));
 
-		scaleLine512(
-			srcLine0, srcLine1, srcLine2, srcLine3, dstUpper, dstLower );
+		scaleLine512(srcLine0, srcLine1, srcLine2, srcLine3,
+		             dstUpper, dstLower);
 	}
 }
 

@@ -1,6 +1,7 @@
 // $Id$
 
 #include "LowScaler.hh"
+#include "RawFrame.hh"
 #include "HostCPU.hh"
 #include "openmsx.hh"
 #include <cassert>
@@ -16,27 +17,6 @@ LowScaler<Pixel>::LowScaler(SDL_PixelFormat* format)
 template <typename Pixel>
 LowScaler<Pixel>::~LowScaler()
 {
-}
-
-template <typename Pixel>
-void LowScaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
-                                  int dstY, int endDstY)
-{
-	while (dstY < endDstY) {
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstY++);
-		Scaler<Pixel>::fillLine(dstLine, color, 320);
-	}
-}
-
-template <typename Pixel>
-void LowScaler<Pixel>::scale256(SDL_Surface* src, int srcY, int endSrcY,
-                                SDL_Surface* dst, int dstY)
-{
-	while (srcY < endSrcY) {
-		Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY++);
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstY++);
-		Scaler<Pixel>::copyLine(srcLine, dstLine, 320, false);
-	}
 }
 
 template <typename Pixel>
@@ -267,12 +247,33 @@ void LowScaler<Pixel>::halve(const Pixel* pIn, Pixel* pOut)
 }
 
 template <typename Pixel>
-void LowScaler<Pixel>::scale512(SDL_Surface* src, int srcY, int endSrcY,
-                                SDL_Surface* dst, int dstY)
+void LowScaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
+                                  unsigned startY, unsigned endY, bool /*lower*/)
 {
-	while (srcY < endSrcY) {
-		Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY++);
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstY++);
+	for (unsigned y = startY; y < endY; ++y) {
+		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
+		Scaler<Pixel>::fillLine(dstLine, color, 320);
+	}
+}
+
+template <typename Pixel>
+void LowScaler<Pixel>::scale256(RawFrame& src, SDL_Surface* dst,
+                                unsigned startY, unsigned endY, bool /*lower*/)
+{
+	for (unsigned y = startY; y < endY; ++y) {
+		const Pixel* srcLine = src.getPixelPtr(0, y, (Pixel*)0);
+		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
+		Scaler<Pixel>::copyLine(srcLine, dstLine, 320, false);
+	}
+}
+
+template <typename Pixel>
+void LowScaler<Pixel>::scale512(RawFrame& src, SDL_Surface* dst,
+                                unsigned startY, unsigned endY, bool /*lower*/)
+{
+	for (unsigned y = startY; y < endY; ++y) {
+		const Pixel* srcLine = src.getPixelPtr(0, y, (Pixel*)0);
+		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
 		halve(srcLine, dstLine);
 	}
 }

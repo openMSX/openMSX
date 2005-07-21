@@ -16,21 +16,20 @@ class SaI2xScaler: public Scaler<Pixel>
 {
 public:
 	SaI2xScaler(SDL_PixelFormat* format);
-	void scale256(
-		SDL_Surface* src, int srcY, int endSrcY,
-		SDL_Surface* dst, int dstY );
-	void scale512(
-		SDL_Surface* src, int srcY, int endSrcY,
-		SDL_Surface* dst, int dstY );
+	virtual void scale256(RawFrame& src, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY, bool lower);
+	virtual void scale512(RawFrame& src, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY, bool lower);
+
 private:
 	void scaleLine256(
 		const Pixel* srcLine0, const Pixel* srcLine1,
 		const Pixel* srcLine2, const Pixel* srcLine3,
-		Pixel* dstUpper, Pixel* dstLower );
+		Pixel* dstUpper, Pixel* dstLower);
 	void scaleLine512(
 		const Pixel* srcLine0, const Pixel* srcLine1,
 		const Pixel* srcLine2, const Pixel* srcLine3,
-		Pixel* dstUpper, Pixel* dstLower );
+		Pixel* dstUpper, Pixel* dstLower);
 	Blender<Pixel> blender;
 };
 

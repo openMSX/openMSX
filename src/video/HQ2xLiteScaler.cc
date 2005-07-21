@@ -13,7 +13,11 @@
  */
 
 #include "HQ2xLiteScaler.hh"
+#include "RawFrame.hh"
+#include <algorithm>
 #include <cassert>
+
+using std::min;
 
 namespace openmsx {
 
@@ -84,30 +88,25 @@ static inline unsigned interp521(unsigned c1, unsigned c2, unsigned c3)
 }
 
 template <class Pixel>
-static void scaleLine256(
-	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY,
-	const int prev, const int next)
+static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
+                         Pixel* out0, Pixel* out1)
 {
 	const unsigned WIDTH = 320;
 
-	const int srcPitch = src->pitch / sizeof(Pixel);
-	const int dstPitch = dst->pitch / sizeof(Pixel);
-
-	Pixel* in = (Pixel*)src->pixels + srcY * srcPitch;
-	Pixel* out = (Pixel*)dst->pixels + dstY * dstPitch;
-
 	unsigned c1, c2, c3, c4, c5, c6, c7, c8, c9;
-	c1 = c2 = readPixel(in + prev);
-	c4 = c5 = readPixel(in);
-	c7 = c8 = readPixel(in + next);
-	c3 = c6 = c9 = 0; // avoid warning
-	in += 1;
+	c2 = c3 = readPixel(in0);
+	c5 = c6 = readPixel(in1);
+	c8 = c9 = readPixel(in2);
 
 	for (unsigned x = 0; x < WIDTH; ++x) {
+		c1 = c2; c4 = c5; c7 = c8;
+		c2 = c3; c5 = c6; c8 = c9;
+		++in0; ++in1; ++in2;
+
 		if (x != WIDTH - 1) {
-			c3 = readPixel(in + prev);
-			c6 = readPixel(in);
-			c9 = readPixel(in + next);
+			c3 = readPixel(in0);
+			c6 = readPixel(in1);
+			c9 = readPixel(in2);
 		}
 
 		unsigned pattern = 0;
@@ -479,31 +478,21 @@ static void scaleLine256(
 			break;
 		}
 		}
-		pset(out,                pixel1);
-		pset(out + 1,            pixel2);
-		pset(out + dstPitch,     pixel3);
-		pset(out + dstPitch + 1, pixel4);
+		pset(out1 + 0, pixel3);
+		pset(out1 + 1, pixel4);
+		pset(out0 + 0, pixel1);
+		pset(out0 + 1, pixel2);
 
 		c1 = c2; c2 = c3; c4 = c5; c5 = c6; c7 = c8; c8 = c9;
-
-		in  += 1;
-		out += 2;
+		out0 += 2; out1 += 2;
 	}
 }
 
 template <class Pixel>
-static void scaleLine512(
-	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY,
-	const int prevLine, const int nextLine )
+static void scaleLine512(const Pixel* in0, const Pixel* in1, const Pixel* in2,
+                         Pixel* out0, Pixel* out1)
 {
-	const int width = 640; // TODO: Specify this in a clean way.
-	const int srcPitch = src->pitch / sizeof(Pixel);
-	const int dstPitch = dst->pitch / sizeof(Pixel);
-
-	Pixel* pIn = (Pixel*)src->pixels + srcY * srcPitch;
-	Pixel* pOut = (Pixel*)dst->pixels + dstY * dstPitch;
-
-	unsigned c1, c2, c3, c4, c5, c6, c7, c8, c9;
+	const unsigned WIDTH = 640; // TODO: Specify this in a clean way.
 
 	//   +----+----+----+
 	//   |    |    |    |
@@ -515,21 +504,20 @@ static void scaleLine512(
 	//   |    |    |    |
 	//   | c7 | c8 | c9 |
 	//   +----+----+----+
+	unsigned c1, c2, c3, c4, c5, c6, c7, c8, c9;
+	c2 = c3 = readPixel(in0);
+	c5 = c6 = readPixel(in1);
+	c8 = c9 = readPixel(in2);
 
-	c2 = c3 = readPixel(pIn + prevLine);
-	c5 = c6 = readPixel(pIn);
-	c8 = c9 = readPixel(pIn + nextLine);
-
-	for (int i = 0; i < width; i++) {
+	for (unsigned i = 0; i < WIDTH; i++) {
 		c1 = c2; c4 = c5; c7 = c8;
 		c2 = c3; c5 = c6; c8 = c9;
+		++in0; ++in1; ++in2;
 
-		pIn += 1;
-
-		if (i < width - 1) {
-			c3 = readPixel(pIn + prevLine);
-			c6 = readPixel(pIn);
-			c9 = readPixel(pIn + nextLine);
+		if (i < WIDTH - 1) {
+			c3 = readPixel(in0);
+			c6 = readPixel(in1);
+			c9 = readPixel(in2);
 		}
 
 		unsigned pattern = 0;
@@ -653,53 +641,52 @@ static void scaleLine512(
 			break;
 		}
 		}
-		pset(pOut,            pixel1);
-		pset(pOut + dstPitch, pixel3);
-
-		++pOut;
+		pset(out1++, pixel3);
+		pset(out0++, pixel1);
 	}
 }
 
 template <class Pixel>
-void HQ2xLiteScaler<Pixel>::scale256(
-	SDL_Surface* src, int srcY, int endSrcY,
-	SDL_Surface* dst, int dstY )
+void HQ2xLiteScaler<Pixel>::scale256(RawFrame& src, SDL_Surface* dst,
+                                     unsigned startY, unsigned endY, bool lower)
 {
-	const int srcPitch = src->pitch / sizeof(Pixel);
-	assert(srcY < endSrcY);
-	scaleLine256<Pixel>(src, srcY, dst, dstY,
-		0, srcY < endSrcY - 1 ? srcPitch : 0
-		);
-	srcY += 1;
-	dstY += 2;
-	while (srcY < endSrcY - 1) {
-		scaleLine256<Pixel>(src, srcY, dst, dstY, -srcPitch, srcPitch);
-		srcY += 1;
+	unsigned dstY = 2 * startY + (lower ? 1 : 0);
+	unsigned prevY = startY;
+	while (startY < endY) {
+		Pixel* dummy = 0;
+		const Pixel* srcPrev = src.getPixelPtr(0, prevY,  dummy);
+		const Pixel* srcCurr = src.getPixelPtr(0, startY, dummy);
+		const Pixel* srcNext = src.getPixelPtr(0, min(startY + 1, endY - 1), dummy);
+		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY + 0);
+		Pixel* dstLower = (dstY != (480 - 1))
+		                ? Scaler<Pixel>::linePtr(dst, dstY + 1)
+		                : dstUpper;
+		scaleLine256(srcPrev, srcCurr, srcNext, dstUpper, dstLower);
+		prevY = startY;
+		++startY;
 		dstY += 2;
-	}
-	if (srcY < endSrcY) {
-		scaleLine256<Pixel>(src, srcY, dst, dstY, -srcPitch, 0);
 	}
 }
 
 template <class Pixel>
-void HQ2xLiteScaler<Pixel>::scale512(
-	SDL_Surface* src, int srcY, int endSrcY,
-	SDL_Surface* dst, int dstY )
+void HQ2xLiteScaler<Pixel>::scale512(RawFrame& src, SDL_Surface* dst,
+                                     unsigned startY, unsigned endY, bool lower)
 {
-	const int srcPitch = src->pitch / sizeof(Pixel);
-	assert(srcY < endSrcY);
-	scaleLine512<Pixel>(src, srcY, dst, dstY,
-	             0, srcY < endSrcY - 1 ? srcPitch : 0);
-	srcY += 1;
-	dstY += 2;
-	while (srcY < endSrcY - 1) {
-		scaleLine512<Pixel>(src, srcY, dst, dstY, -srcPitch, srcPitch);
-		srcY += 1;
+	unsigned dstY = 2 * startY + (lower ? 1 : 0);
+	unsigned prevY = startY;
+	while (startY < endY) {
+		Pixel* dummy = 0;
+		const Pixel* srcPrev = src.getPixelPtr(0, prevY,  dummy);
+		const Pixel* srcCurr = src.getPixelPtr(0, startY, dummy);
+		const Pixel* srcNext = src.getPixelPtr(0, min(startY + 1, endY - 1), dummy);
+		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY + 0);
+		Pixel* dstLower = (dstY != (480 - 1))
+		                ? Scaler<Pixel>::linePtr(dst, dstY + 1)
+		                : dstUpper;
+		scaleLine512(srcPrev, srcCurr, srcNext, dstUpper, dstLower);
+		prevY = startY;
+		++startY;
 		dstY += 2;
-	}
-	if (srcY < endSrcY) {
-		scaleLine512<Pixel>(src, srcY, dst, dstY, -srcPitch, 0);
 	}
 }
 

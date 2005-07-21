@@ -13,6 +13,7 @@ Visit the Scale2x site for info:
 */
 
 #include "Scale2xScaler.hh"
+#include "RawFrame.hh"
 #include "HostCPU.hh"
 #include "openmsx.hh"
 #include <cassert>
@@ -1080,42 +1081,44 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 }
 
 template <class Pixel>
-void Scale2xScaler<Pixel>::scale256(
-	SDL_Surface* src, int srcY, int endSrcY,
-	SDL_Surface* dst, int dstY )
+void Scale2xScaler<Pixel>::scale256(RawFrame& src, SDL_Surface* dst,
+                                    unsigned startY, unsigned endY, bool lower)
 {
-	int prevY = srcY;
-	while (srcY < endSrcY) {
-		Pixel* srcPrev = Scaler<Pixel>::linePtr(src, prevY);
-		Pixel* srcCurr = Scaler<Pixel>::linePtr(src, srcY);
-		Pixel* srcNext = Scaler<Pixel>::linePtr(src, min(srcY + 1, endSrcY - 1));
+	unsigned dstY = 2 * startY + (lower ? 1 : 0);
+	unsigned prevY = startY;
+	while (startY < endY) {
+		Pixel* dummy = 0;
+		const Pixel* srcPrev = src.getPixelPtr(0, prevY,  dummy);
+		const Pixel* srcCurr = src.getPixelPtr(0, startY, dummy);
+		const Pixel* srcNext = src.getPixelPtr(0, min(startY + 1, endY - 1), dummy);
 		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
 		scaleLine256Half(dstUpper, srcPrev, srcCurr, srcNext);
-		if (dstY == dst->h) break;
+		if (dstY == 480) break;
 		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, dstY++);
 		scaleLine256Half(dstLower, srcNext, srcCurr, srcPrev);
-		prevY = srcY;
-		srcY++;
+		prevY = startY;
+		++startY;
 	}
 }
 
 template <class Pixel>
-void Scale2xScaler<Pixel>::scale512(
-	SDL_Surface* src, int srcY, int endSrcY,
-	SDL_Surface* dst, int dstY)
+void Scale2xScaler<Pixel>::scale512(RawFrame& src, SDL_Surface* dst,
+                                    unsigned startY, unsigned endY, bool lower)
 {
-	int prevY = srcY;
-	while (srcY < endSrcY) {
-		Pixel* srcPrev = Scaler<Pixel>::linePtr(src, prevY);
-		Pixel* srcCurr = Scaler<Pixel>::linePtr(src, srcY);
-		Pixel* srcNext = Scaler<Pixel>::linePtr(src, min(srcY + 1, endSrcY - 1));
+	unsigned dstY = 2 * startY + (lower ? 1 : 0);
+	unsigned prevY = startY;
+	while (startY < endY) {
+		Pixel* dummy = 0;
+		const Pixel* srcPrev = src.getPixelPtr(0, prevY,  dummy);
+		const Pixel* srcCurr = src.getPixelPtr(0, startY, dummy);
+		const Pixel* srcNext = src.getPixelPtr(0, min(startY + 1, endY - 1), dummy);
 		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
 		scaleLine512Half(dstUpper, srcPrev, srcCurr, srcNext);
-		if (dstY == dst->h) break;
+		if (dstY == 480) break;
 		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, dstY++);
 		scaleLine512Half(dstLower, srcNext, srcCurr, srcPrev);
-		prevY = srcY;
-		srcY++;
+		prevY = startY;
+		++startY;
 	}
 }
 

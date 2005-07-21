@@ -49,7 +49,7 @@ void PostProcessor<Pixel>::paint()
 	// Scale image.
 	// TODO: Check deinterlace first: now that we keep LineContent info per
 	//       frame, we should take the content of two frames into account.
-	const unsigned deltaY = field == RawFrame::FIELD_ODD ? 1 : 0;
+	bool lower = field == RawFrame::FIELD_ODD;
 	unsigned startY = 0;
 	while (startY < 240) {
 		const RawFrame::LineContent content = currFrame->getLineContent(startY);
@@ -70,14 +70,11 @@ void PostProcessor<Pixel>::paint()
 				// TODO: This isn't 100% accurate:
 				//       on the previous frame, this area may have contained
 				//       graphics instead of blank pixels.
-				// TODO: Why add deltaY when deinterlacing?
-				currScaler->scaleBlank(
-					colour, screen,
-					startY * 2 + deltaY, endY * 2 + deltaY );
+				currScaler->scaleBlank(colour, screen,
+				                       startY, endY, false);
 			} else {
-				currScaler->scaleBlank(
-					colour, screen,
-					startY * 2 + deltaY, endY * 2 + deltaY );
+				currScaler->scaleBlank(colour, screen,
+				                       startY, endY, lower);
 			}
 			break;
 		}
@@ -88,16 +85,13 @@ void PostProcessor<Pixel>::paint()
 					assert(field != RawFrame::FIELD_NONINTERLACED);
 					bool odd = field == RawFrame::FIELD_ODD;
 					deinterlacer.deinterlaceLine256(
-						(odd ? prevFrame : currFrame)->getSurface(), // even
-						(odd ? currFrame : prevFrame)->getSurface(), // odd
-						y, screen, y * 2
-						);
+						*(odd ? prevFrame : currFrame), // even
+						*(odd ? currFrame : prevFrame), // odd
+						screen, y);
 				}
 			} else {
-				currScaler->scale256(
-					currFrame->getSurface(),
-					startY, endY, screen, startY * 2 + deltaY
-					);
+				currScaler->scale256(*currFrame, screen,
+				                     startY, endY, lower);
 			}
 			break;
 		case RawFrame::LINE_512:
@@ -107,16 +101,13 @@ void PostProcessor<Pixel>::paint()
 					assert(field != RawFrame::FIELD_NONINTERLACED);
 					bool odd = field == RawFrame::FIELD_ODD;
 					deinterlacer.deinterlaceLine512(
-						(odd ? prevFrame : currFrame)->getSurface(), // even
-						(odd ? currFrame : prevFrame)->getSurface(), // odd
-						y, screen, y * 2
-						);
+						*(odd ? prevFrame : currFrame), // even
+						*(odd ? currFrame : prevFrame), // odd
+						screen, y);
 				}
 			} else {
-				currScaler->scale512(
-					currFrame->getSurface(),
-					startY, endY, screen, startY * 2 + deltaY
-					);
+				currScaler->scale512(*currFrame, screen,
+				                     startY, endY, lower);
 			}
 			break;
 		default:

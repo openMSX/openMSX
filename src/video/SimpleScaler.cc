@@ -1,6 +1,7 @@
 // $Id$
 
 #include "SimpleScaler.hh"
+#include "RawFrame.hh"
 #include "RenderSettings.hh"
 #include "IntegerSetting.hh"
 #include "HostCPU.hh"
@@ -189,20 +190,22 @@ SimpleScaler<Pixel>::~SimpleScaler()
 }
 
 template <class Pixel>
-void SimpleScaler<Pixel>::scaleBlank(Pixel colour, SDL_Surface* dst,
-                                     int dstY, int endDstY)
+void SimpleScaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
+                                     unsigned startY, unsigned endY, bool lower)
 {
-	Pixel scanlineColour = scanlineSetting.getValue() == 0
-		? colour
-		: mult1.multiply(colour,
+	Pixel scanlineColor = scanlineSetting.getValue() == 0
+		? color
+		: mult1.multiply(color,
 		                255 - (scanlineSetting.getValue() * 255) / 100);
 
-	while (dstY < endDstY) {
-		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
-		Scaler<Pixel>::fillLine(dstUpper, colour, dst->w);
-		if (dstY == endDstY) break;
-		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, dstY++);
-		Scaler<Pixel>::fillLine(dstLower, scanlineColour, dst->w);
+	unsigned y1 = 2 * startY + (lower ? 1 : 0);
+	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
+	for (unsigned y = y1; y < y2; y += 2) {
+		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, y + 0);
+		Scaler<Pixel>::fillLine(dstUpper, color, 640);
+		if (y == (480 - 1)) break;
+		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, y + 1);
+		Scaler<Pixel>::fillLine(dstLower, scanlineColor, 640);
 	}
 }
 
@@ -752,19 +755,20 @@ void SimpleScaler<Pixel>::average(
 }
 
 template <class Pixel>
-void SimpleScaler<Pixel>::scale256(SDL_Surface* src, int srcY, int endSrcY,
-	                           SDL_Surface* dst, int dstY )
+void SimpleScaler<Pixel>::scale256(RawFrame& src, SDL_Surface* dst,
+                                   unsigned startY, unsigned endY, bool lower)
 {
 	int blur = (blurSetting.getValue() * 256) / 100;
 	int scanline = 255 - (scanlineSetting.getValue() * 255) / 100;
 
-	Pixel* srcLine  = Scaler<Pixel>::linePtr(src, srcY++);
+	unsigned dstY = 2 * startY + (lower ? 1 : 0);
+	const Pixel* srcLine = src.getPixelPtr(0, startY++, (Pixel*)0);
 	Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, dstY++);
 	Pixel* prevDstLine0 = dstLine0;
 	blur256(srcLine, dstLine0, blur);
 
-	while (srcY < endSrcY) {
-		srcLine = Scaler<Pixel>::linePtr(src, srcY++);
+	while (startY < endY) {
+		srcLine = src.getPixelPtr(0, startY++, (Pixel*)0);
 		dstLine0 = Scaler<Pixel>::linePtr(dst, dstY + 1);
 		blur256(srcLine, dstLine0, blur);
 
@@ -776,27 +780,27 @@ void SimpleScaler<Pixel>::scale256(SDL_Surface* src, int srcY, int endSrcY,
 	}
 
 	// When interlace is enabled, bottom line can fall off the screen.
-	if (dstY < dst->h) {
+	if (dstY < 480) {
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY);
 		average(prevDstLine0, dstLine0, dstLine1, scanline);
 	}
 }
 
 template <class Pixel>
-void SimpleScaler<Pixel>::scale512(
-	SDL_Surface* src, int srcY, int endSrcY,
-	SDL_Surface* dst, int dstY )
+void SimpleScaler<Pixel>::scale512(RawFrame& src, SDL_Surface* dst,
+                                   unsigned startY, unsigned endY, bool lower)
 {
 	int blur = (blurSetting.getValue() * 256) / 100;
 	int scanline = 255 - (scanlineSetting.getValue() * 255) / 100;
 
-	Pixel* srcLine  = Scaler<Pixel>::linePtr(src, srcY++);
+	unsigned dstY = 2 * startY + (lower ? 1 : 0);
+	const Pixel* srcLine = src.getPixelPtr(0, startY++, (Pixel*)0);
 	Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, dstY++);
 	Pixel* prevDstLine0 = dstLine0;
 	blur512(srcLine, dstLine0, blur);
 
-	while (srcY < endSrcY) {
-		srcLine = Scaler<Pixel>::linePtr(src, srcY++);
+	while (startY < endY) {
+		srcLine = src.getPixelPtr(0, startY++, (Pixel*)0);
 		dstLine0 = Scaler<Pixel>::linePtr(dst, dstY + 1);
 		blur512(srcLine, dstLine0, blur);
 
@@ -808,7 +812,7 @@ void SimpleScaler<Pixel>::scale512(
 	}
 
 	// When interlace is enabled, bottom line can fall off the screen.
-	if (dstY < dst->h) {
+	if (dstY < 480) {
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY);
 		average(prevDstLine0, dstLine0, dstLine1, scanline);
 	}

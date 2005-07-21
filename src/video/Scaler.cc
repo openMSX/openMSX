@@ -7,7 +7,9 @@
 #include "HQ2xScaler.hh"
 #include "HQ2xLiteScaler.hh"
 #include "LowScaler.hh"
+#include "RawFrame.hh"
 #include "HostCPU.hh"
+#include <algorithm>
 #include <cstring>
 
 using std::auto_ptr;
@@ -38,20 +40,10 @@ auto_ptr<Scaler<Pixel> > Scaler<Pixel>::createScaler(
 }
 
 template <class Pixel>
-void Scaler<Pixel>::copyLine(
-	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY )
-{
-	assert(src->w == dst->w);
-	Pixel* pIn  = linePtr(src, srcY);
-	Pixel* pOut = linePtr(dst, dstY);
-	copyLine(pIn, pOut, src->w);
-}
-
-template <class Pixel>
 void Scaler<Pixel>::copyLine(const Pixel* pIn, Pixel* pOut, unsigned width,
                              bool inCache)
 {
-	const int nBytes = width * sizeof(Pixel);
+	unsigned nBytes = width * sizeof(Pixel);
 
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
@@ -141,16 +133,6 @@ void Scaler<Pixel>::copyLine(const Pixel* pIn, Pixel* pOut, unsigned width,
 	#endif
 
 	memcpy(pOut, pIn, nBytes);
-}
-
-template <class Pixel>
-void Scaler<Pixel>::scaleLine(
-	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY )
-{
-	assert(dst->w == 640);
-	Pixel* pIn  = linePtr(src, srcY);
-	Pixel* pOut = linePtr(dst, dstY);
-	scaleLine(pIn, pOut, 320);
 }
 
 template <class Pixel>
@@ -463,45 +445,56 @@ void Scaler<Pixel>::fillLine(Pixel* pOut, Pixel colour, unsigned width)
 
 template <class Pixel>
 void Scaler<Pixel>::scaleBlank(
-	Pixel colour,
-	SDL_Surface* dst, int dstY, int endDstY)
+	Pixel color, SDL_Surface* dst,
+	unsigned startY, unsigned endY, bool lower)
 {
-	while (dstY < endDstY) {
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstY++);
-		fillLine(dstLine, colour, dst->w);
+	unsigned y1 = 2 * startY + (lower ? 1 : 0);
+	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
+	y2 = std::min(480u, y2);
+	for (unsigned y = y1; y < y2; ++y) {
+		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
+		fillLine(dstLine, color, dst->w);
 	}
 }
 
 template <class Pixel>
 void Scaler<Pixel>::scale256(
-	SDL_Surface* src, int srcY, int endSrcY,
-	SDL_Surface* dst, int dstY )
+	RawFrame& src, SDL_Surface* dst,
+	unsigned startY, unsigned endY, bool lower)
 {
-	while (srcY < endSrcY) {
-		scaleLine(src, srcY, dst, dstY++);
-		if (dstY == dst->h) break;
-		scaleLine(src, srcY, dst, dstY++);
-		srcY++;
+	unsigned y1 = 2 * startY + (lower ? 1 : 0);
+	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
+	for (unsigned y = y1; y < y2; y += 2, ++startY) {
+		const Pixel* srcLine = src.getPixelPtr(0, startY, (Pixel*)0);
+		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 0);
+		scaleLine(srcLine, dstLine1, 320);
+		if (y == (480 - 1)) break;
+		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 1);
+		scaleLine(srcLine, dstLine2, 320);
 	}
 }
 
 template <class Pixel>
 void Scaler<Pixel>::scale512(
-	SDL_Surface* src, int srcY, int endSrcY,
-	SDL_Surface* dst, int dstY )
+	RawFrame& src, SDL_Surface* dst,
+	unsigned startY, unsigned endY, bool lower)
 {
-	while (srcY < endSrcY) {
-		copyLine(src, srcY, dst, dstY++);
-		if (dstY == dst->h) break;
-		copyLine(src, srcY, dst, dstY++);
-		srcY++;
+	unsigned y1 = 2 * startY + (lower ? 1 : 0);
+	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
+	for (unsigned y = y1; y < y2; y += 2, ++startY) {
+		const Pixel* srcLine = src.getPixelPtr(0, startY, (Pixel*)0);
+		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 0);
+		copyLine(srcLine, dstLine1, 640);
+		if (y == (480 - 1)) break;
+		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 1);
+		copyLine(srcLine, dstLine2, 640);
 	}
 }
 
 
 // Force template instantiation.
 template class Scaler<word>;
-template class Scaler<unsigned int>;
+template class Scaler<unsigned>;
 
 } // namespace openmsx
 
