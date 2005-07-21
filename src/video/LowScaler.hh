@@ -19,11 +19,17 @@ public:
 	                        unsigned startY, unsigned endY, bool lower);
 	virtual void scale256(RawFrame& src, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY, bool lower);
+	virtual void scale256(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY);
 	virtual void scale512(RawFrame& src, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY, bool lower);
+	virtual void scale512(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY);
 
 private:
-	void halve(const Pixel* pIn, Pixel* pOut);
+	void halve       (const Pixel* pIn,                     Pixel* pOut);
+	void average     (const Pixel* pIn0, const Pixel* pIn1, Pixel* pOut);
+	void averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel* pOut);
 
 	Blender<Pixel> blender;
 };
