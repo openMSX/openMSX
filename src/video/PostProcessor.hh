@@ -5,7 +5,6 @@
 
 #include "RawFrame.hh"
 #include "Scaler.hh"
-#include "Deinterlacer.hh"
 #include "Renderer.hh"
 #include "VideoLayer.hh"
 
@@ -57,8 +56,6 @@ private:
 	  * Used to detect scaler changes.
 	  */
 	ScalerID currScalerID;
-
-	Deinterlacer<Pixel> deinterlacer;
 
 	/** The surface which is visible to the user.
 	  */

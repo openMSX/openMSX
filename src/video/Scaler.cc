@@ -444,9 +444,8 @@ void Scaler<Pixel>::fillLine(Pixel* pOut, Pixel colour, unsigned width)
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scaleBlank(
-	Pixel color, SDL_Surface* dst,
-	unsigned startY, unsigned endY, bool lower)
+void Scaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
+                               unsigned startY, unsigned endY, bool lower)
 {
 	unsigned y1 = 2 * startY + (lower ? 1 : 0);
 	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
@@ -458,9 +457,8 @@ void Scaler<Pixel>::scaleBlank(
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale256(
-	RawFrame& src, SDL_Surface* dst,
-	unsigned startY, unsigned endY, bool lower)
+void Scaler<Pixel>::scale256(RawFrame& src, SDL_Surface* dst,
+                             unsigned startY, unsigned endY, bool lower)
 {
 	unsigned y1 = 2 * startY + (lower ? 1 : 0);
 	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
@@ -475,9 +473,23 @@ void Scaler<Pixel>::scale256(
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale512(
-	RawFrame& src, SDL_Surface* dst,
-	unsigned startY, unsigned endY, bool lower)
+void Scaler<Pixel>::scale256(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+                             unsigned startY, unsigned endY)
+{
+	for (unsigned y = startY; y < endY; ++y) {
+		const Pixel* srcLine0 = src0.getPixelPtr(0, y, (Pixel*)0);
+		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 2 * y + 0);
+		scaleLine(srcLine0, dstLine0, 320);
+
+		const Pixel* srcLine1 = src1.getPixelPtr(0, y, (Pixel*)0);
+		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 2 * y + 1);
+		scaleLine(srcLine1, dstLine1, 320);
+	}
+}
+
+template <class Pixel>
+void Scaler<Pixel>::scale512(RawFrame& src, SDL_Surface* dst,
+                             unsigned startY, unsigned endY, bool lower)
 {
 	unsigned y1 = 2 * startY + (lower ? 1 : 0);
 	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
@@ -488,6 +500,21 @@ void Scaler<Pixel>::scale512(
 		if (y == (480 - 1)) break;
 		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 1);
 		copyLine(srcLine, dstLine2, 640);
+	}
+}
+
+template <class Pixel>
+void Scaler<Pixel>::scale512(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+                             unsigned startY, unsigned endY)
+{
+	for (unsigned y = startY; y < endY; ++y) {
+		const Pixel* srcLine0 = src0.getPixelPtr(0, y, (Pixel*)0);
+		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 2 * y + 0);
+		copyLine(srcLine0, dstLine0, 640);
+
+		const Pixel* srcLine1 = src1.getPixelPtr(0, y, (Pixel*)0);
+		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 2 * y + 1);
+		copyLine(srcLine1, dstLine1, 640);
 	}
 }
 

@@ -80,15 +80,14 @@ void PostProcessor<Pixel>::paint()
 		}
 		case RawFrame::LINE_256:
 			if (deinterlace) {
-				for (unsigned y = startY; y < endY; y++) {
-					RawFrame::FieldType field = currFrame->getField();
-					assert(field != RawFrame::FIELD_NONINTERLACED);
-					bool odd = field == RawFrame::FIELD_ODD;
-					deinterlacer.deinterlaceLine256(
-						*(odd ? prevFrame : currFrame), // even
-						*(odd ? currFrame : prevFrame), // odd
-						screen, y);
-				}
+				RawFrame::FieldType field = currFrame->getField();
+				assert(field != RawFrame::FIELD_NONINTERLACED);
+				bool odd = field == RawFrame::FIELD_ODD;
+				currScaler->scale256(
+					*(odd ? prevFrame : currFrame), // even
+					*(odd ? currFrame : prevFrame), // odd
+					screen, startY, endY);
+					
 			} else {
 				currScaler->scale256(*currFrame, screen,
 				                     startY, endY, lower);
@@ -96,15 +95,14 @@ void PostProcessor<Pixel>::paint()
 			break;
 		case RawFrame::LINE_512:
 			if (deinterlace) {
-				for (unsigned y = startY; y < endY; y++) {
-					RawFrame::FieldType field = currFrame->getField();
-					assert(field != RawFrame::FIELD_NONINTERLACED);
-					bool odd = field == RawFrame::FIELD_ODD;
-					deinterlacer.deinterlaceLine512(
-						*(odd ? prevFrame : currFrame), // even
-						*(odd ? currFrame : prevFrame), // odd
-						screen, y);
-				}
+				RawFrame::FieldType field = currFrame->getField();
+				assert(field != RawFrame::FIELD_NONINTERLACED);
+				bool odd = field == RawFrame::FIELD_ODD;
+				currScaler->scale512(
+					*(odd ? prevFrame : currFrame), // even
+					*(odd ? currFrame : prevFrame), // odd
+					screen, startY, endY);
+					
 			} else {
 				currScaler->scale512(*currFrame, screen,
 				                     startY, endY, lower);

@@ -66,6 +66,8 @@ public:
 	  */
 	virtual void scale256(RawFrame& src, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY, bool lower);
+	virtual void scale256(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY);
 
 	/** Scales the given area. Scaling factor depends on the concrete scaler
 	  * The default implementation scales each pixel to a 1x2 rectangle.
@@ -78,6 +80,8 @@ public:
 	  */
 	virtual void scale512(RawFrame& src, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY, bool lower);
+	virtual void scale512(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY);
 
 	// Utility methods  (put in seperate class?)
 

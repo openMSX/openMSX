@@ -3,6 +3,8 @@ $Id$
 2005-07-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made Scaler interface independent from scale factor:
 	   - low scaler works now, although still in a 640x480 window
+	* Moved Deinterlacer functionality to Scaler:
+	   - preparation for low scaler deinterlacer
 
 2005-07-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed SDLLo renderer, SDLLo renderer will be replaced with "low"
