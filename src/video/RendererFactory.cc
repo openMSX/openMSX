@@ -36,7 +36,7 @@ VideoSystem* RendererFactory::createVideoSystem()
 		case DUMMY:
 			result = new DummyVideoSystem();
 			break;
-		case SDLHI:
+		case SDL:
 			result = new SDLVideoSystem();
 			break;
 #ifdef COMPONENT_GL
@@ -60,7 +60,7 @@ Renderer* RendererFactory::createRenderer(VDP& vdp)
 		case DUMMY:
 			result = new DummyRenderer();
 			break;
-		case SDLHI:
+		case SDL:
 		case SDLGL:
 			result = new PixelRenderer(vdp);
 			break;
@@ -85,7 +85,7 @@ V9990Renderer* RendererFactory::createV9990Renderer(V9990& vdp)
 		case DUMMY:
 			result = new V9990DummyRenderer();
 			break;
-		case SDLHI:
+		case SDL:
 		case SDLGL:
 			result = new V9990PixelRenderer(vdp);
 			break;
@@ -108,7 +108,7 @@ auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSettin
 	typedef EnumSetting<RendererID>::Map RendererMap;
 	RendererMap rendererMap;
 	rendererMap["none"] = DUMMY; // TODO: only register when in CliComm mode
-	rendererMap["SDLHi"] = SDLHI;
+	rendererMap["SDL"] = SDL;
 #ifdef COMPONENT_GL
 	rendererMap["SDLGL"] = SDLGL;
 #endif
@@ -118,10 +118,10 @@ auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSettin
 #endif
 	auto_ptr<RendererSetting> setting(new RendererSetting(
 		"renderer", "rendering back-end used to display the MSX screen",
-		SDLHI, rendererMap));
+		SDL, rendererMap));
 	if (setting->getValue() == DUMMY) {
 		// workaround: sometimes the saved value becomes "none"
-		setting->setValue(SDLHI);
+		setting->setValue(SDL);
 	}
 	setting->setDefaultValue(setting->getValue());
 	if (CommandLineParser::hiddenStartup) {

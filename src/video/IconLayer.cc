@@ -54,7 +54,7 @@ void IconLayer<IMAGE>::createSettings(LedEvent::Led led, const string& name)
 	string icon_name = "icon." + name;
 	ledInfo[led].xcoord.reset(new IntegerSetting(icon_name + ".xcoord",
 		"X-coordinate for LED icon", ((int)led) * 60, 0, 640));
-	//Default is SDLHi and we want the default icons on the bottom
+	//Default is 640x480 and we want the default icons on the bottom
 	ledInfo[led].ycoord.reset(new IntegerSetting(icon_name + ".ycoord",
 		"Y-coordinate for LED icon", 444, 0, 480));
 	for (int i = 0; i < 2; ++i) {
