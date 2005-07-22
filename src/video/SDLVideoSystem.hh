@@ -30,6 +30,8 @@ public:
 	virtual void takeScreenShot(const std::string& filename);
 
 private:
+	void getWindowSize(unsigned& width, unsigned& height);
+
 	SDL_Surface* screen;
 };
 

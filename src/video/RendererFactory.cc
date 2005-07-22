@@ -25,75 +25,82 @@ using std::auto_ptr;
 
 namespace openmsx {
 
+int RendererFactory::createInProgress = 0;
+
+
 VideoSystem* RendererFactory::createVideoSystem()
 {
-	RendererID id = RenderSettings::instance().getRenderer().getValue();
-	switch (id) {
-	case DUMMY: {
-		return new DummyVideoSystem();
-	}
-	case SDLHI: {
-		return new SDLVideoSystem();
-	}
+	++createInProgress;
+	VideoSystem* result;
+	switch (RenderSettings::instance().getRenderer().getValue()) {
+		case DUMMY:
+			result = new DummyVideoSystem();
+			break;
+		case SDLHI:
+			result = new SDLVideoSystem();
+			break;
 #ifdef COMPONENT_GL
-	case SDLGL: {
-		return new SDLGLVideoSystem();
-	}
+		case SDLGL:
+			result = new SDLGLVideoSystem();
+			break;
 #endif
-#ifdef HAVE_X11
-	case XLIB: {
-		return 0; // TODO: Implement X11 video system.
+		default:
+			result = 0;
 	}
-#endif
-	default:
-		assert(false);
-		return 0;
-	}
+	--createInProgress;
+	assert(result);
+	return result;
 }
 
 Renderer* RendererFactory::createRenderer(VDP& vdp)
 {
-	RendererID id = RenderSettings::instance().getRenderer().getValue();
-	switch (id) {
-	case DUMMY: {
-		return new DummyRenderer();
-	}
-	case SDLHI:
-	case SDLGL: {
-		return new PixelRenderer(vdp);
-	}
+	++createInProgress;
+	Renderer* result;
+	switch (RenderSettings::instance().getRenderer().getValue()) {
+		case DUMMY:
+			result = new DummyRenderer();
+			break;
+		case SDLHI:
+		case SDLGL:
+			result = new PixelRenderer(vdp);
+			break;
 #ifdef HAVE_X11
-	case XLIB: {
-		return new XRenderer(XLIB, vdp);
-	}
+		case XLIB:
+			result = new XRenderer(XLIB, vdp);
+			break;
 #endif
-	default:
-		assert(false);
-		return 0;
+		default:
+			result = 0;
 	}
+	--createInProgress;
+	assert(result);
+	return result;
 }
 
 V9990Renderer* RendererFactory::createV9990Renderer(V9990& vdp)
 {
-	RendererID id = RenderSettings::instance().getRenderer().getValue();
-	switch (id) {
-	case DUMMY: {
-		return new V9990DummyRenderer();
-	}
-	case SDLHI:
-	case SDLGL: {
-		return new V9990PixelRenderer(vdp);
-	}
+	++createInProgress;
+	V9990Renderer* result;
+	switch (RenderSettings::instance().getRenderer().getValue()) {
+		case DUMMY:
+			result = new V9990DummyRenderer();
+			break;
+		case SDLHI:
+		case SDLGL:
+			result = new V9990PixelRenderer(vdp);
+			break;
 #ifdef HAVE_X11
-	case XLIB: {
-		return new V9990DummyRenderer();
-		//return new V9990XRenderer(XLIB, vdp);
-	}
+		case XLIB:
+			result = new V9990DummyRenderer();
+			//result = new V9990XRenderer(XLIB, vdp);
+			break;
 #endif
-	default:
-		assert(false);
-		return 0;
+		default:
+			result = 0;
 	}
+	--createInProgress;
+	assert(result);
+	return result;
 }
 
 auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSetting()
@@ -121,6 +128,11 @@ auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSettin
 		setting->setValue(DUMMY);
 	}
 	return setting;
+}
+
+bool RendererFactory::isCreateInProgress()
+{
+	return createInProgress;
 }
 
 } // namespace openmsx

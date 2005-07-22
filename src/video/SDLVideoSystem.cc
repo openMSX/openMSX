@@ -26,7 +26,9 @@ SDLVideoSystem::SDLVideoSystem()
 	// are done.
 	Display::instance().resetVideoSystem();
 
-	screen = openSDLVideo(640, 480, SDL_SWSURFACE);
+	unsigned width, height;
+	getWindowSize(width, height);
+	screen = openSDLVideo(width, height, SDL_SWSURFACE);
 
 	switch (screen->format->BytesPerPixel) {
 	case 2:
@@ -78,11 +80,32 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 	}
 }
 
+void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
+{
+	RenderSettings& settings = RenderSettings::instance();
+	if (settings.getVideoSource().getValue() == VIDEO_MSX &&
+	    settings.getScaler().getValue() == SCALER_LOW) {
+		width = 320;
+		height = 240;
+	} else {
+		width = 640;
+		height = 480;
+	}
+}
+
 // TODO: If we can switch video system at any time (not just frame end),
 //       is this polling approach necessary at all?
 // TODO: Code is exactly the same as SDLGLVideoSystem::checkSettings.
 bool SDLVideoSystem::checkSettings()
 {
+	// Check resolution 
+	unsigned width, height;
+	getWindowSize(width, height);
+	if ((width  != (unsigned)screen->w) ||
+	    (height != (unsigned)screen->h)) {
+		return false;
+	}
+	
 	// Check full screen setting.
 	bool fullScreenState = (screen->flags & SDL_FULLSCREEN) != 0;
 	const bool fullScreenTarget =
@@ -97,7 +120,10 @@ bool SDLVideoSystem::checkSettings()
 	SDL_WM_ToggleFullScreen(screen);
 	fullScreenState =
 		(((volatile SDL_Surface*)screen)->flags & SDL_FULLSCREEN) != 0;
-	return fullScreenState == fullScreenTarget;
+	if (fullScreenState != fullScreenTarget) {
+		return false;
+	}
+	return true;
 #endif
 }
 

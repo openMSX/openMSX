@@ -30,10 +30,6 @@ public:
 	  */
 	enum Accuracy { ACC_SCREEN, ACC_LINE, ACC_PIXEL };
 
-	/** Video sources: devices which produce a video stream.
-	  */
-	enum VideoSource { VIDEO_MSX, VIDEO_GFX9000 };
-
 	/** Gets the singleton instance. */
 	static RenderSettings& instance();
 
@@ -100,7 +96,6 @@ private:
 	std::auto_ptr<VideoSourceSetting> videoSource;
 
 	RendererFactory::RendererID currentRenderer;
-	bool videoSources[VIDEO_GFX9000 + 1];
 };
 
 } // namespace openmsx

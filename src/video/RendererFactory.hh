@@ -49,6 +49,14 @@ public:
 	  * The map of this setting contains only the available renderers.
 	  */
 	static std::auto_ptr<RendererSetting> createRendererSetting();
+
+	/** TODO this is ugly, can it be done better?
+	  * Create renderer in progress? 
+	  */
+	static bool isCreateInProgress();
+
+private:
+	static int createInProgress;
 };
 
 } // namespace openmsx

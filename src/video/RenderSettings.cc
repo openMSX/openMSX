@@ -68,6 +68,8 @@ RenderSettings::RenderSettings()
 
 	renderer->addListener(this);
 	fullScreen->addListener(this);
+	scaler->addListener(this);
+	videoSource->addListener(this);
 	EventDistributor::instance().registerEventListener(
 		OPENMSX_RENDERER_SWITCH_EVENT, *this, EventDistributor::DETACHED);
 }
@@ -76,6 +78,8 @@ RenderSettings::~RenderSettings()
 {
 	EventDistributor::instance().unregisterEventListener(
 		OPENMSX_RENDERER_SWITCH_EVENT, *this, EventDistributor::DETACHED);
+	videoSource->removeListener(this);
+	scaler->removeListener(this);
 	fullScreen->removeListener(this);
 	renderer->removeListener(this);
 }
@@ -92,6 +96,10 @@ void RenderSettings::update(const Setting* setting)
 		checkRendererSwitch();
 	} else if (setting == fullScreen.get()) {
 		checkRendererSwitch();
+	} else if (setting == scaler.get()) {
+		checkRendererSwitch();
+	} else if (setting == videoSource.get()) {
+		checkRendererSwitch();
 	} else {
 		assert(false);
 	}
@@ -99,6 +107,9 @@ void RenderSettings::update(const Setting* setting)
 
 void RenderSettings::checkRendererSwitch()
 {
+	if (RendererFactory::isCreateInProgress()) {
+		return;
+	}
 	// Tell renderer to sync with render settings.
 	if ((renderer->getValue() != currentRenderer) ||
 	    !Display::instance().getVideoSystem().checkSettings()) {

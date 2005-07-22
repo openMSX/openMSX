@@ -1,5 +1,8 @@
 $Id$
 
+2005-07-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented resolution changing for low scaler
+
 2005-07-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made Scaler interface independent from scale factor:
 	   - low scaler works now, although still in a 640x480 window
