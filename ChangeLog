@@ -1,5 +1,11 @@
 $Id$
 
+2005-07-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed bug in EventDistributor:
+	   event order could get swapped for events close together in time
+	* Scheduler now keeps sync points with same EmuTime in the same order
+	  as they are registered
+
 2005-07-23 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added -nommx and -nommxext command line options, to disable MMX and
 	  MMXEXT usage, if available. This is useful only for debugging

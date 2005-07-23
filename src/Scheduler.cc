@@ -7,12 +7,6 @@
 #include <cassert>
 #include <algorithm>
 
-using std::swap;
-using std::make_heap;
-using std::push_heap;
-using std::pop_heap;
-
-
 namespace openmsx {
 
 const EmuTime Scheduler::ASAP;
@@ -41,8 +35,10 @@ void Scheduler::setSyncPoint(const EmuTime& time, Schedulable& device, int userD
 	assert(time == ASAP || time >= scheduleTime);
 
 	// Push sync point into queue.
-	syncPoints.push_back(SynchronizationPoint(time, &device, userData));
-	push_heap(syncPoints.begin(), syncPoints.end());
+	SyncPoints::iterator it =
+		upper_bound(syncPoints.begin(), syncPoints.end(), time,
+		            LessSyncPoint());
+	syncPoints.insert(it, SynchronizationPoint(time, &device, userData));
 }
 
 void Scheduler::removeSyncPoint(Schedulable& device, int userData)
@@ -50,13 +46,10 @@ void Scheduler::removeSyncPoint(Schedulable& device, int userData)
 	ScopedLock lock(sem);
 	for (SyncPoints::iterator it = syncPoints.begin();
 	     it != syncPoints.end(); ++it) {
-		SynchronizationPoint& sp = *it;
-		if ((sp.getDevice() == &device) &&
-		    (sp.getUserData() == userData)) {
-			swap(sp, syncPoints.back());
-			syncPoints.pop_back();
-			make_heap(syncPoints.begin(), syncPoints.end());
-			return;
+		if (((*it).getDevice() == &device) &&
+		    ((*it).getUserData() == userData)) {
+			syncPoints.erase(it);
+			break;
 		}
 	}
 }
@@ -101,8 +94,7 @@ void Scheduler::scheduleHelper(const EmuTime& limit)
 		assert(scheduleTime <= time);
 		scheduleTime = time;
 
-		pop_heap(syncPoints.begin(), syncPoints.end());
-		syncPoints.pop_back();
+		syncPoints.erase(syncPoints.begin());
 		sem.up();
 
 		Schedulable* device = sp.getDevice();

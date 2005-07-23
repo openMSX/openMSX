@@ -23,18 +23,29 @@ private:
 		const EmuTime& getTime() const { return timeStamp; }
 		Schedulable* getDevice() const { return device; }
 		int getUserData() const { return userData; }
-		bool operator<(const SynchronizationPoint& n) const
-			{ return getTime() > n.getTime(); } // smaller time is higher priority
 	private:
 		EmuTime timeStamp;
 		Schedulable* device;
 		int userData;
 	};
+	struct LessSyncPoint {
+		bool operator()(
+			const EmuTime& time,
+			const Scheduler::SynchronizationPoint& sp) const
+		{
+			return time < sp.getTime();
+		}
+		bool operator()(
+			const Scheduler::SynchronizationPoint& sp,
+			const EmuTime& time) const
+		{
+			return sp.getTime() < time;
+		}
+	};
 
 public:
 	static Scheduler& instance();
 
-public:
 	/**
 	 * Get the current scheduler time.
 	 */
@@ -54,7 +65,6 @@ public:
 	 */
 	inline void schedule(const EmuTime& limit)
 	{
-		// TODO: Faster to cache in member (or static) variable?
 		// TODO: Assumes syncPoints is not empty.
 		//       In practice that's true because VDP end-of-frame sync point
 		//       is always there, but it's ugly to rely on that.
