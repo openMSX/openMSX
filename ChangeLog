@@ -1,5 +1,10 @@
 $Id$
 
+2005-07-23 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added -nommx and -nommxext command line options, to disable MMX and
+	  MMXEXT usage, if available. This is useful only for debugging
+	  purposes and may change in the near future.
+
 2005-07-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented resolution changing for low scaler
 	* Renamed 'SDLHi' renderer to 'SDL'

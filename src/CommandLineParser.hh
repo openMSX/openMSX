@@ -156,6 +156,28 @@ private:
 		CommandLineParser& parent;
 	} settingOption;
 
+	class NoMMXOption : public CLIOption {
+	public:
+		NoMMXOption(CommandLineParser& parent);
+		virtual ~NoMMXOption();
+		virtual bool parseOption(const std::string& option,
+			std::list<std::string>& cmdLine);
+		virtual const std::string& optionHelp() const;
+	private:
+		CommandLineParser& parent;
+	} noMMXOption;
+
+	class NoMMXEXTOption : public CLIOption {
+	public:
+		NoMMXEXTOption(CommandLineParser& parent);
+		virtual ~NoMMXEXTOption();
+		virtual bool parseOption(const std::string& option,
+			std::list<std::string>& cmdLine);
+		virtual const std::string& optionHelp() const;
+	private:
+		CommandLineParser& parent;
+	} noMMXEXTOption;
+
 	const std::auto_ptr<MSXRomCLI> msxRomCLI;
 	const std::auto_ptr<CliExtension> cliExtension;
 	const std::auto_ptr<MSXCassettePlayerCLI> cassettePlayerCLI;

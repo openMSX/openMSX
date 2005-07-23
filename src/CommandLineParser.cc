@@ -21,6 +21,7 @@
 #include "ConfigException.hh"
 #include "FileException.hh"
 #include "EnumSetting.hh"
+#include "HostCPU.hh"
 
 using std::cout;
 using std::endl;
@@ -65,6 +66,8 @@ CommandLineParser::CommandLineParser(MSXMotherBoard& motherBoard_)
 	, controlOption(*this)
 	, machineOption(*this)
 	, settingOption(*this)
+	, noMMXOption(*this)
+	, noMMXEXTOption(*this)
 	, msxRomCLI(new MSXRomCLI(*this))
 	, cliExtension(new CliExtension(*this))
 	, cassettePlayerCLI(new MSXCassettePlayerCLI(*this))
@@ -81,6 +84,10 @@ CommandLineParser::CommandLineParser(MSXMotherBoard& motherBoard_)
 	registerOption("-v",        &versionOption, 1, 1);
 	registerOption("--version", &versionOption, 1, 1);
 	registerOption("-control",  &controlOption, 1, 1);
+	#ifdef ASM_X86
+	registerOption("-nommx",    &noMMXOption, 1, 1);
+	registerOption("-nommxext", &noMMXEXTOption, 1, 1);
+	#endif
 }
 
 CommandLineParser::~CommandLineParser()
@@ -570,5 +577,54 @@ const string& CommandLineParser::SettingOption::optionHelp() const
 	return text;
 }
 
+// class NoMMXOption
+
+CommandLineParser::NoMMXOption::NoMMXOption(CommandLineParser& parent_)
+	: parent(parent_)
+{
+}
+
+CommandLineParser::NoMMXOption::~NoMMXOption()
+{
+}
+
+bool CommandLineParser::NoMMXOption::parseOption(const string& /*option*/,
+		list<string>& /*cmdLine*/)
+{
+	cout << "Disabling MMX " << endl;
+	HostCPU::getInstance().forceDisableMMX();
+	return true;
+}
+
+const string& CommandLineParser::NoMMXOption::optionHelp() const
+{
+	static const string text("Disables usage of MMX, including extensions (for debugging)");
+	return text;
+}
+
+// class NoMMXEXTOption
+
+CommandLineParser::NoMMXEXTOption::NoMMXEXTOption(CommandLineParser& parent_)
+	: parent(parent_)
+{
+}
+
+CommandLineParser::NoMMXEXTOption::~NoMMXEXTOption()
+{
+}
+
+bool CommandLineParser::NoMMXEXTOption::parseOption(const string& /*option*/,
+		list<string>& /*cmdLine*/)
+{
+	cout << "Disabling MMX extensions" << endl;
+	HostCPU::getInstance().forceDisableMMXEXT();
+	return true;
+}
+
+const string& CommandLineParser::NoMMXEXTOption::optionHelp() const
+{
+	static const string text("Disables usage of MMX extensions (for debugging)");
+	return text;
+}
 
 } // namespace openmsx

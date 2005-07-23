@@ -36,6 +36,14 @@ public:
 	  */
 	bool hasMMXEXT() const { return mmxExtFlag; }
 
+	/** Force openMSX to not use any MMX instructions, if available
+	  */
+	void forceDisableMMX() { mmxFlag = false; mmxExtFlag = false; }
+
+	/** Force openMSX to not use any MMX extensions that came with SSE, if available
+	  */
+	void forceDisableMMXEXT() { mmxExtFlag = false; }
+
 private:
 	HostCPU();
 
