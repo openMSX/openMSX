@@ -1197,8 +1197,11 @@ proc trainer_aleste1 {} {
 	poke 0xc810 255
 	#maxed up normal shot
 	poke 0xc012 8
+	#maxed up special shot
+	poke 0xc019 3
 	#scroll speed
 	#poke 0xc4ad x
+	
 	after time 1 trainer_aleste1
 }
 
@@ -2981,11 +2984,13 @@ proc trainer_inspecteurz {} {
 proc trainer_1942 {} {
 	#infinitive lives
 	poke 0xed2f 9
-   #infinitive loops
+	#infinitive loops
 	poke 0xee81 9
-   #unvulnerable (do not use speed up!)
-    poke 0xee80 1
-	after frame trainer_1942
+	#get big shot and become invincible
+	poke 0xee83 255
+	#stage
+	#!poke 0xed20 x
+	after time 1 trainer_1942
 }
 
 proc trainer_boulderdash1 {} {
