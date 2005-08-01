@@ -19,7 +19,7 @@ public:
 
 	void reset(const EmuTime& time);
 	void setSampleRate(int sr);
-	bool muted();
+	bool muted() const;
 	void writeReg(byte rg, byte data, const EmuTime& time);
 	byte readReg(byte rg);
 	int calcSample();
@@ -39,6 +39,12 @@ private:
 	int CLAP(int min, int x, int max);
 	void restart();
 
+	bool playing() const;
+	void writeData(byte data);
+	byte readData();
+	void writeMemory(byte value);
+	byte readMemory();
+
 	Y8950& y8950;
 	const std::string name;
 
@@ -47,13 +53,11 @@ private:
 	int ramSize;
 	int startAddr;
 	int stopAddr;
-	int playAddr;
 	int addrMask;
 	int memPntr;
 	bool romBank;
 	byte* ramBank;
 
-	bool playing;
 	int volume;
 	word delta;
 	unsigned int nowStep, step;
@@ -65,6 +69,7 @@ private:
 
 	byte reg7;
 	byte reg15;
+	byte adpcm_data;
 	int readDelay;
 };
 
