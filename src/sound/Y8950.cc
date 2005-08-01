@@ -440,12 +440,12 @@ void Y8950::Channel::keyOff()
 //**********************************************************//
 
 Y8950::Y8950(MSXMotherBoard& motherBoard, const string& name_,
-             const XMLElement& config, int sampleRam, const EmuTime& time)
+             const XMLElement& config, unsigned sampleRam, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer())
 	, debugger(motherBoard.getDebugger())
 	, irq(motherBoard.getCPU())
 	, timer1(this), timer2(this)
-	, adpcm(new Y8950Adpcm(*this, name_, sampleRam))
+	, adpcm(new Y8950Adpcm(*this, motherBoard, name_, sampleRam))
 	, connector(new Y8950KeyboardConnector(motherBoard.getPluggingController()))
 	, dac13(new DACSound16S(motherBoard.getMixer(), name_ + " DAC",
 	                        "MSX-AUDIO 13-bit DAC", config, time))

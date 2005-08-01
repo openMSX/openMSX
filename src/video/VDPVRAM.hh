@@ -3,13 +3,13 @@
 #ifndef VDPVRAM_HH
 #define VDPVRAM_HH
 
-#include <cassert>
 #include "VRAMObserver.hh"
-#include "openmsx.hh"
 #include "VDP.hh"
 #include "VDPCmdEngine.hh"
 #include "DisplayMode.hh"
-#include "Debuggable.hh"
+#include "Ram.hh"
+#include "openmsx.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -285,7 +285,7 @@ private:
   * VDPVRAM does not apply planar remapping to addresses, this is the
   * responsibility of the caller.
   */
-class VDPVRAM : private Debuggable
+class VDPVRAM
 {
 public:
 	VRAMWindow cmdReadWindow;
@@ -299,7 +299,6 @@ public:
 	VRAMWindow spritePatternTable;
 
 	VDPVRAM(VDP& vdp, unsigned size, const EmuTime& time);
-	virtual ~VDPVRAM();
 
 	/** Update VRAM state to specified moment in time.
 	  * @param time Moment in emulated time to update VRAM to.
@@ -386,7 +385,6 @@ public:
 		if (cmdWriteWindow.isInside(address)) {
 			cmdEngine->sync(time);
 		}
-		assert(address < size);
 		return data[address];
 	}
 
@@ -428,23 +426,13 @@ public:
 	}
 
 private:
-	// Debuggable
-	virtual unsigned getSize() const;
-	virtual const std::string& getDescription() const;
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
-
 	/** VDP this VRAM belongs to.
 	  */
 	VDP& vdp;
 
-	/** Pointer to VRAM data block.
+	/** VRAM data block.
 	  */
-	byte* data;
-
-	/** Size of VRAM in bytes.
-	  */
-	unsigned size;
+	Ram data;
 
 	// TODO: Renderer field can be removed, if updateDisplayMode
 	//       and updateDisplayEnabled are moved back to VDP.

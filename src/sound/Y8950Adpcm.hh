@@ -3,18 +3,21 @@
 #ifndef Y8950ADPCM_HH
 #define Y8950ADPCM_HH
 
-#include "openmsx.hh"
 #include "Schedulable.hh"
-#include "Debuggable.hh"
+#include "openmsx.hh"
+#include <memory>
 
 namespace openmsx {
 
 class Y8950;
+class MSXMotherBoard;
+class Ram;
 
-class Y8950Adpcm : private Schedulable, private Debuggable
+class Y8950Adpcm : private Schedulable
 {
 public:
-	Y8950Adpcm(Y8950& y8950, const std::string& name, int sampleRam);
+	Y8950Adpcm(Y8950& y8950, MSXMotherBoard& motherBoard,
+	           const std::string& name, unsigned sampleRam);
 	virtual ~Y8950Adpcm();
 
 	void reset(const EmuTime& time);
@@ -25,12 +28,6 @@ public:
 	int calcSample();
 
 private:
-	// Debuggable
-	virtual unsigned getSize() const;
-	virtual const std::string& getDescription() const;
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
-
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const std::string& schedName() const;
@@ -46,17 +43,15 @@ private:
 	byte readMemory();
 
 	Y8950& y8950;
-	const std::string name;
+	std::auto_ptr<Ram> ram;
 
 	int sampleRate;
 
-	int ramSize;
-	int startAddr;
-	int stopAddr;
-	int addrMask;
-	int memPntr;
+	unsigned startAddr;
+	unsigned stopAddr;
+	unsigned addrMask;
+	unsigned memPntr;
 	bool romBank;
-	byte* ramBank;
 
 	int volume;
 	word delta;

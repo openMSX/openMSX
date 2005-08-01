@@ -2,8 +2,8 @@
 
 #include "Y8950Adpcm.hh"
 #include "Y8950.hh"
-#include "Debugger.hh"
 #include "Clock.hh"
+#include "Ram.hh"
 
 using std::string;
 
@@ -62,20 +62,18 @@ int Y8950Adpcm::CLAP(int min, int x, int max)
 //                                                          //
 //**********************************************************//
 
-Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, const string& name_, int sampleRam)
-	: y8950(y8950_), name(name_ + " RAM"), ramSize(sampleRam), volume(0)
+Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, MSXMotherBoard& motherBoard,
+                       const string& name, unsigned sampleRam)
+	: y8950(y8950_)
+	, ram(new Ram(motherBoard, name + " RAM", "Y8950 sample RAM", sampleRam))
+	, volume(0)
 {
-	ramBank = new byte[ramSize];
-	memset(ramBank, 0xFF, ramSize);
-
-	y8950.debugger.registerDebuggable(name, *this);
+	memset(&(*ram)[0], 0xFF, ram->getSize());
 }
 
 Y8950Adpcm::~Y8950Adpcm()
 {
 	removeSyncPoint();
-	y8950.debugger.unregisterDebuggable(name, *this);
-	delete[] ramBank;
 }
 
 void Y8950Adpcm::reset(const EmuTime &time)
@@ -333,18 +331,18 @@ byte Y8950Adpcm::readData()
 
 void Y8950Adpcm::writeMemory(byte value)
 {
-	int addr = (memPntr / 2) & addrMask;
-	if ((addr < ramSize) && !romBank) {
-		ramBank[addr] = value;
+	unsigned addr = (memPntr / 2) & addrMask;
+	if ((addr < ram->getSize()) && !romBank) {
+		(*ram)[addr] = value;
 	}
 }
 byte Y8950Adpcm::readMemory()
 {
-	int addr = (memPntr / 2) & addrMask;
-	if (romBank || (addr >= ramSize)) {
+	unsigned addr = (memPntr / 2) & addrMask;
+	if (romBank || (addr >= ram->getSize())) {
 		return 0; // checked on a real machine
 	} else {
-		return ramBank[addr];
+		return (*ram)[addr];
 	}
 }
 
@@ -407,28 +405,4 @@ int Y8950Adpcm::calcSample()
 	return output >> 12;
 }
 
-
-// Debuggable
-unsigned Y8950Adpcm::getSize() const
-{
-	return ramSize;
-}
-
-const string& Y8950Adpcm::getDescription() const
-{
-	static const string desc = "Y8950 sample RAM";
-	return desc;
-}
-
-byte Y8950Adpcm::read(unsigned address)
-{
-	return ramBank[address];
-}
-
-void Y8950Adpcm::write(unsigned address, byte value)
-{
-	ramBank[address] = value;
-}
-
 } // namespace openmsx
-

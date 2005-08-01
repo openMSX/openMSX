@@ -2,16 +2,14 @@
 
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
-#include "Debugger.hh"
 #include "Renderer.hh"
-
-using std::string;
 
 namespace openmsx {
 
 // class VRAMWindow:
 
-VRAMWindow::VRAMWindow() {
+VRAMWindow::VRAMWindow()
+{
 	observer = NULL;
 	baseAddr = -1;
 	combiMask = 0;	// doesn't matter but makes valgrind happy
@@ -21,63 +19,59 @@ VRAMWindow::VRAMWindow() {
 
 // class VDPVRAM:
 
-VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size_, const EmuTime& time)
-	: vdp(vdp_), size(size_), clock(time)
+VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, const EmuTime& time)
+	: vdp(vdp_)
+	, data(vdp.getMotherBoard(), "VRAM", "Video RAM.", size)
+	, clock(time)
 {
 	// Initialise VRAM data array.
-	data = new byte[size];
 	// TODO: Fill with checkerboard pattern NMS8250 has.
-	memset(data, 0, size);
+	memset(&data[0], 0, data.getSize());
 
 	// Initialise access windows.
 	// TODO: Use vram.read(window, index) instead of vram.window.read(index)?
 	//       The former doesn't need setData.
-	cmdReadWindow.setData(data);
-	cmdWriteWindow.setData(data);
-	nameTable.setData(data);
-	colourTable.setData(data);
-	patternTable.setData(data);
-	bitmapVisibleWindow.setData(data);
-	bitmapCacheWindow.setData(data);
-	spriteAttribTable.setData(data);
-	spritePatternTable.setData(data);
+	cmdReadWindow.setData(&data[0]);
+	cmdWriteWindow.setData(&data[0]);
+	nameTable.setData(&data[0]);
+	colourTable.setData(&data[0]);
+	patternTable.setData(&data[0]);
+	bitmapVisibleWindow.setData(&data[0]);
+	bitmapCacheWindow.setData(&data[0]);
+	spriteAttribTable.setData(&data[0]);
+	spritePatternTable.setData(&data[0]);
 
 	// Whole VRAM is cachable.
 	// Because this window has no observer, any EmuTime can be passed.
 	// TODO: Move this to cache registration.
 	bitmapCacheWindow.setMask(0x1FFFF, -1 << 17, EmuTime::zero);
-
-	vdp.getDebugger().registerDebuggable("VRAM", *this);
 }
 
-VDPVRAM::~VDPVRAM()
+void VDPVRAM::updateDisplayMode(DisplayMode mode, const EmuTime& time)
 {
-	vdp.getDebugger().unregisterDebuggable("VRAM", *this);
-
-	delete[] data;
-}
-
-void VDPVRAM::updateDisplayMode(DisplayMode mode, const EmuTime &time) {
 	renderer->updateDisplayMode(mode, time);
 	cmdEngine->updateDisplayMode(mode, time);
 	spriteChecker->updateDisplayMode(mode, time);
 }
 
-void VDPVRAM::updateDisplayEnabled(bool enabled, const EmuTime &time) {
+void VDPVRAM::updateDisplayEnabled(bool enabled, const EmuTime& time)
+{
 	assert(vdp.isInsideFrame(time));
 	renderer->updateDisplayEnabled(enabled, time);
 	cmdEngine->sync(time);
 	spriteChecker->updateDisplayEnabled(enabled, time);
 }
 
-void VDPVRAM::updateSpritesEnabled(bool enabled, const EmuTime &time) {
+void VDPVRAM::updateSpritesEnabled(bool enabled, const EmuTime& time)
+{
 	assert(vdp.isInsideFrame(time));
 	renderer->updateSpritesEnabled(enabled, time);
 	cmdEngine->sync(time);
 	spriteChecker->updateSpritesEnabled(enabled, time);
 }
 
-void VDPVRAM::setRenderer(Renderer *renderer, const EmuTime &time) {
+void VDPVRAM::setRenderer(Renderer* renderer, const EmuTime& time)
+{
 	this->renderer = renderer;
 
 	bitmapVisibleWindow.resetObserver();
@@ -89,28 +83,4 @@ void VDPVRAM::setRenderer(Renderer *renderer, const EmuTime &time) {
 	bitmapVisibleWindow.setObserver(renderer);
 }
 
-// Debuggable
-
-unsigned VDPVRAM::getSize() const
-{
-	return size;
-}
-
-const string& VDPVRAM::getDescription() const
-{
-	static const string desc = "Video RAM.";
-	return desc;
-}
-
-byte VDPVRAM::read(unsigned address)
-{
-	return data[address];
-}
-
-void VDPVRAM::write(unsigned address, byte value)
-{
-	data[address] = value;
-}
-
 } // namespace openmsx
-

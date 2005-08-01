@@ -20,7 +20,6 @@ class Renderer;
 class VDPCmdEngine;
 class VDPVRAM;
 class SpriteChecker;
-class Debugger;
 
 /** Unified implementation of MSX Video Display Processors (VDPs).
   * MSX1 VDP is Texas Instruments TMS9918A or TMS9928A.
@@ -427,10 +426,6 @@ public:
 		return getLeftSprites() + getHorizontalScrollLow() * 4;
 	}
 
-	Debugger& getDebugger() {
-		return debugger;
-	}
-
 private:
 	class VDPRegDebug : public Debuggable {
 	public:
@@ -803,10 +798,6 @@ private:
 	  * Contains the lower 14 bits of the current VRAM access address.
 	  */
 	int vramPointer;
-
-	/** The Debugger object.
-	  */
-	Debugger& debugger;
 };
 
 } // namespace openmsx

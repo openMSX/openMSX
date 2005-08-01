@@ -167,7 +167,7 @@ class Y8950 : private SoundDevice, private EmuTimerCallback, private Debuggable
 
 public:
 	Y8950(MSXMotherBoard& motherBoard, const std::string& name,
-	      const XMLElement& config, int sampleRam, const EmuTime& time);
+	      const XMLElement& config, unsigned sampleRam, const EmuTime& time);
 	virtual ~Y8950();
 
 	void reset(const EmuTime &time);

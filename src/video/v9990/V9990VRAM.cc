@@ -5,57 +5,36 @@
   * Video RAM for the V9990
   */
 
-#include "Debugger.hh"
 #include "V9990.hh"
 #include "V9990VRAM.hh"
 #include "V9990VRAMObserver.hh"
 #include <algorithm>
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
-
-static const char* const DEBUG_ID = "V9990 VRAM";
-
-// -------------------------------------------------------------------------
-// Constructor & Destructor
-// -------------------------------------------------------------------------
 
 V9990VRAM::V9990VRAM(V9990& vdp_, const EmuTime& /*time*/)
 	: vdp(vdp_)
+	, data(vdp.getMotherBoard(), "V9990 VRAM", "V9990 Video RAM", VRAM_SIZE)
 {
-	data = new byte[VRAM_SIZE];
-	memset(data, 0, VRAM_SIZE);
-
-	vdp.getDebugger().registerDebuggable(DEBUG_ID, *this);
+	memset(&data[0], 0, data.getSize());
 }
-
-V9990VRAM::~V9990VRAM()
-{
-	vdp.getDebugger().unregisterDebuggable(DEBUG_ID, *this);
-	delete[] data;
-}
-
-// -------------------------------------------------------------------------
-// V9990VRAM
-// -------------------------------------------------------------------------
 
 static unsigned interleave(unsigned address)
 {
 	return ((address & 1) << 18) | ((address & 0x7FFFE) >> 1);
 }
 
-static unsigned mapAddress(unsigned address, V9990DisplayMode mode) {
+static unsigned mapAddress(unsigned address, V9990DisplayMode mode)
+{
 	address &= 0x7FFFF;
-	switch(mode) {
+	switch (mode) {
 		case P1:
 			break;
 		case P2:
-			if(address < 0x7BE00) {
+			if (address < 0x7BE00) {
 				address = ((address >>16) & 0x1) |
 				          ((address << 1) & 0x7FFFF);
-			} else if(address < 0x7C000) {
+			} else if (address < 0x7C000) {
 				address &= 0x3FFFF;
 			} /* else { address = address; } */
 			break;
@@ -108,31 +87,6 @@ void V9990VRAM::notifyObservers(unsigned address)
 			(*it)->updateVRAM(address);
 		}
 	}
-}
-
-// -------------------------------------------------------------------------
-// Debuggable
-// -------------------------------------------------------------------------
-
-unsigned int V9990VRAM::getSize() const
-{
-	return VRAM_SIZE;
-}
-
-const string& V9990VRAM::getDescription() const
-{
-	static const string desc = "V9990 Video RAM";
-	return desc;
-}
-
-byte V9990VRAM::read(unsigned address)
-{
-	return data[mapAddress(address, vdp.getDisplayMode())];
-}
-
-void V9990VRAM::write(unsigned address, byte value)
-{
-	data[mapAddress(address, vdp.getDisplayMode())] = value;
 }
 
 } // namespace openmsx

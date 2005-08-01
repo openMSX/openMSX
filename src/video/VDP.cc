@@ -55,7 +55,6 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, vdpPaletteDebug(*this)
 	, irqVertical(motherBoard.getCPU())
 	, irqHorizontal(motherBoard.getCPU())
-	, debugger(motherBoard.getDebugger())
 {
 	PRT_DEBUG("Creating a VDP object");
 
@@ -125,6 +124,7 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// Reset state.
 	reset(time);
 
+	Debugger& debugger = getMotherBoard().getDebugger();
 	debugger.registerDebuggable("VDP regs",        vdpRegDebug);
 	debugger.registerDebuggable("VDP status regs", vdpStatusRegDebug);
 	if (!isMSX1VDP()) {
@@ -140,6 +140,7 @@ VDP::~VDP()
 	EventDistributor::instance().unregisterEventListener(
 		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
 
+	Debugger& debugger = getMotherBoard().getDebugger();
 	if (!isMSX1VDP()) {
 		debugger.unregisterDebuggable("VDP palette", vdpPaletteDebug);
 	}
