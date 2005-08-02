@@ -752,11 +752,10 @@ byte YMF278::peekStatus(const EmuTime& time) const
 	return result;
 }
 
-YMF278::YMF278(MSXMotherBoard& motherBoard, const string& name_, int ramSize,
+YMF278::YMF278(MSXMotherBoard& motherBoard, const string& name, int ramSize,
                const XMLElement& config, const EmuTime& time)
-	: SoundDevice(motherBoard.getMixer())
-	, name(name_)
-	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
+	: SoundDevice(motherBoard.getMixer(), name, "MoonSound wave-part")
+	, rom(new Rom(motherBoard, name + " ROM", "rom", config))
 	, debugRegisters(*this, motherBoard.getDebugger())
 	, debugMemory   (*this, motherBoard.getDebugger())
 {
@@ -776,17 +775,6 @@ YMF278::~YMF278()
 {
 	unregisterSound();
 	delete[] ram;
-}
-
-const string& YMF278::getName() const
-{
-	return name;
-}
-
-const string& YMF278::getDescription() const
-{
-	static const string desc("MoonSound wave-part");
-	return desc;
 }
 
 void YMF278::reset(const EmuTime& time)

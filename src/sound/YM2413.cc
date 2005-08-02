@@ -581,12 +581,11 @@ static byte inst_data[16 + 3][8] = {
 	{ 0x25,0x11,0x00,0x00,0xf8,0xfa,0xf8,0x55 }
 };
 
-YM2413::YM2413(MSXMotherBoard& motherBoard, const string& name_,
+YM2413::YM2413(MSXMotherBoard& motherBoard, const string& name,
                const XMLElement& config, const EmuTime& time)
-	: SoundDevice(motherBoard.getMixer())
-	, SimpleDebuggable(motherBoard.getDebugger(), name_ + " regs",
+	: SoundDevice(motherBoard.getMixer(), name, "MSX-MUSIC")
+	, SimpleDebuggable(motherBoard.getDebugger(), name + " regs",
 	                   "MSX-MUSIC", 0x40)
-	, name(name_)
 {
 	for (int i = 0; i < 16 + 3; ++i) {
 		patches[2 * i + 0] = Patch(0, inst_data[i]);
@@ -616,17 +615,6 @@ YM2413::YM2413(MSXMotherBoard& motherBoard, const string& name_,
 YM2413::~YM2413()
 {
 	unregisterSound();
-}
-
-const string& YM2413::getName() const
-{
-	return name;
-}
-
-const string& YM2413::getDescription() const
-{
-	static const string desc("MSX-MUSIC");
-	return desc;
 }
 
 // Reset whole of OPLL except patch datas

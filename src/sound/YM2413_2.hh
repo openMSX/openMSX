@@ -110,8 +110,6 @@ private:
 	void setRhythmMode(bool newMode);
 
 	// SoundDevice
-	virtual const std::string& getName() const;
-	virtual const std::string& getDescription() const;
 	virtual void setVolume(int newVolume);
 	virtual void setSampleRate(int sampleRate);
 	virtual void updateBuffer(unsigned length, int* buffer,
@@ -153,8 +151,6 @@ private:
 
 	byte LFO_AM;
 	byte LFO_PM;
-
-	const std::string name;
 
 	byte reg[0x40];
 };

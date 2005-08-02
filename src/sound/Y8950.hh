@@ -176,8 +176,6 @@ public:
 
 private:
 	// SoundDevice
-	virtual const std::string& getName() const;
-	virtual const std::string& getDescription() const;
 	virtual void setVolume(int maxVolume);
 	virtual void setSampleRate(int sampleRate);
 	virtual void updateBuffer(unsigned length, int* buffer,
@@ -330,8 +328,6 @@ private:
 
 	/** 13-bit (exponential) DAC. */
 	const std::auto_ptr<DACSound16S> dac13;
-
-	const std::string name;
 };
 
 } // namespace openmsx

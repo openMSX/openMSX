@@ -437,18 +437,17 @@ void Y8950::Channel::keyOff()
 //                                                          //
 //**********************************************************//
 
-Y8950::Y8950(MSXMotherBoard& motherBoard, const string& name_,
+Y8950::Y8950(MSXMotherBoard& motherBoard, const string& name,
              const XMLElement& config, unsigned sampleRam, const EmuTime& time)
-	: SoundDevice(motherBoard.getMixer())
-	, SimpleDebuggable(motherBoard.getDebugger(), name_ + " regs",
+	: SoundDevice(motherBoard.getMixer(), name, "MSX-AUDIO")
+	, SimpleDebuggable(motherBoard.getDebugger(), name + " regs",
 	                   "MSX-AUDIO", 0x100)
 	, irq(motherBoard.getCPU())
 	, timer1(this), timer2(this)
-	, adpcm(new Y8950Adpcm(*this, motherBoard, name_, sampleRam))
+	, adpcm(new Y8950Adpcm(*this, motherBoard, name, sampleRam))
 	, connector(new Y8950KeyboardConnector(motherBoard.getPluggingController()))
-	, dac13(new DACSound16S(motherBoard.getMixer(), name_ + " DAC",
+	, dac13(new DACSound16S(motherBoard.getMixer(), name + " DAC",
 	                        "MSX-AUDIO 13-bit DAC", config, time))
-	, name(name_)
 {
 	makePmTable();
 	makeAmTable();
@@ -475,17 +474,6 @@ Y8950::Y8950(MSXMotherBoard& motherBoard, const string& name_,
 Y8950::~Y8950()
 {
 	unregisterSound();
-}
-
-const string& Y8950::getName() const
-{
-	return name;
-}
-
-const string& Y8950::getDescription() const
-{
-	static const string desc("MSX-AUDIO");
-	return desc;
 }
 
 void Y8950::setSampleRate(int sampleRate)

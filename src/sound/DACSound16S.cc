@@ -7,10 +7,9 @@ using std::string;
 
 namespace openmsx {
 
-DACSound16S::DACSound16S(Mixer& mixer, const string& name_, const string& desc_,
+DACSound16S::DACSound16S(Mixer& mixer, const string& name, const string& desc,
                          const XMLElement& config, const EmuTime& /*time*/)
-	: SoundDevice(mixer)
-	, name(name_), desc(desc_)
+	: SoundDevice(mixer, name, desc)
 {
 	lastWrittenValue = 0;
 	prevValue = prevA = prevB = 0;
@@ -20,16 +19,6 @@ DACSound16S::DACSound16S(Mixer& mixer, const string& name_, const string& desc_,
 DACSound16S::~DACSound16S()
 {
 	unregisterSound();
-}
-
-const string& DACSound16S::getName() const
-{
-	return name;
-}
-
-const string& DACSound16S::getDescription() const
-{
-	return desc;
 }
 
 void DACSound16S::setVolume(int newVolume)

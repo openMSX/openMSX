@@ -126,8 +126,6 @@ private:
 	};
 
 	// SoundDevice:
-	virtual const std::string& getName() const;
-	virtual const std::string& getDescription() const;
 	virtual void setVolume(int volume);
 	virtual void setSampleRate(int sampleRate);
 	virtual void updateBuffer(unsigned length, int* buffer,

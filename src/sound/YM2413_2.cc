@@ -1351,12 +1351,11 @@ void YM2413_2::reset(const EmuTime &time)
 }
 
 
-YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const string& name_,
+YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const string& name,
                    const XMLElement& config, const EmuTime& time)
-	: SoundDevice(motherBoard.getMixer())
-	, SimpleDebuggable(motherBoard.getDebugger(), name_ + " regs",
+	: SoundDevice(motherBoard.getMixer(), name, "MSX-MUSIC")
+	, SimpleDebuggable(motherBoard.getDebugger(), name + " regs",
 	                   "MSX-MUSIC", 0x40)
-	, name(name_)
 {
 	eg_cnt = eg_timer = 0;
 	rhythm = 0;
@@ -1375,17 +1374,6 @@ YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const string& name_,
 YM2413_2::~YM2413_2()
 {
 	unregisterSound();
-}
-
-const string& YM2413_2::getName() const
-{
-	return name;
-}
-
-const string& YM2413_2::getDescription() const
-{
-	static const string desc("MSX-MUSIC");
-	return desc;
 }
 
 void YM2413_2::updateBuffer(unsigned length, int* buffer,

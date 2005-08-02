@@ -7,14 +7,24 @@ using std::string;
 
 namespace openmsx {
 
-SoundDevice::SoundDevice(Mixer& mixer_)
-	: mixer(mixer_)
+SoundDevice::SoundDevice(Mixer& mixer_, const string& name_,
+                         const string& description_)
+	: mixer(mixer_), name(name_), description(description_), muted(true)
 {
-	muted = true;
 }
 
 SoundDevice::~SoundDevice()
 {
+}
+
+const std::string& SoundDevice::getName() const
+{
+	return name;
+}
+
+const std::string& SoundDevice::getDescription() const
+{
+	return description;
 }
 
 void SoundDevice::setMute(bool muted)

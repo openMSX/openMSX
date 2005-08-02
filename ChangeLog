@@ -3,6 +3,7 @@ $Id$
 2005-08-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added SimpleDebuggable class:
 	   made code of most Debuggables a lot simpler
+	* Simplified SoundDevice class
 
 2005-07-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed bug in EventDistributor:

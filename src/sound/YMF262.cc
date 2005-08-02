@@ -1808,13 +1808,12 @@ void YMF262::reset(const EmuTime& time)
 	setMute(true);
 }
 
-YMF262::YMF262(MSXMotherBoard& motherBoard, const string& name_,
+YMF262::YMF262(MSXMotherBoard& motherBoard, const string& name,
                const XMLElement& config, const EmuTime& time)
-	: SoundDevice(motherBoard.getMixer())
-	, SimpleDebuggable(motherBoard.getDebugger(), name_ + " regs",
+	: SoundDevice(motherBoard.getMixer(), name, "Moonsound FM-part")
+	, SimpleDebuggable(motherBoard.getDebugger(), name + " regs",
 	                   "Moonsound FM-part registers", 0x200)
 	, irq(motherBoard.getCPU()), timer1(this), timer2(this)
-	, name(name_)
 {
 	LFO_AM = LFO_PM = 0;
 	lfo_am_depth = lfo_pm_depth_range = lfo_am_cnt = lfo_pm_cnt = 0;
@@ -1832,17 +1831,6 @@ YMF262::YMF262(MSXMotherBoard& motherBoard, const string& name_,
 YMF262::~YMF262()
 {
 	unregisterSound();
-}
-
-const string& YMF262::getName() const
-{
-	return name;
-}
-
-const string& YMF262::getDescription() const
-{
-	static const string desc("MoonSound FM-part");
-	return desc;
 }
 
 byte YMF262::readStatus()

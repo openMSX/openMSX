@@ -24,17 +24,12 @@ public:
 	void writeDAC(short value, const EmuTime& time);
 
 	// SoundDevice
-	virtual const std::string& getName() const;
-	virtual const std::string& getDescription() const;
 	virtual void setVolume(int newVolume);
 	virtual void setSampleRate(int sampleRate);
 	virtual void updateBuffer(unsigned length, int* buffer,
 	        const EmuTime& time, const EmuDuration& sampDur);
 
 private:
-	const std::string name;
-	const std::string desc;
-
 	struct Sample {
 		Sample(const EmuTime& time_, int value_)
 			: time(time_), value(value_) {}

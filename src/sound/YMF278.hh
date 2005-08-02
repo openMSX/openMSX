@@ -84,8 +84,6 @@ public:
 
 private:
 	// SoundDevice
-	virtual const std::string& getName() const;
-	virtual const std::string& getDescription() const;
 	virtual void setSampleRate(int sampleRate);
 	virtual void setVolume(int newVolume);
 	virtual void updateBuffer(unsigned length, int* buffer,
@@ -135,7 +133,6 @@ private:
 	int fm_l, fm_r;
 	int pcm_l, pcm_r;
 
-	const std::string name;
 	const std::auto_ptr<Rom> rom;
 	byte* ram;
 	unsigned endRom;

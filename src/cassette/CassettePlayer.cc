@@ -55,7 +55,7 @@ const string& MSXCassettePlayerCLI::fileTypeHelp() const
 
 
 CassettePlayer::CassettePlayer(Mixer& mixer)
-	: SoundDevice(mixer)
+	: SoundDevice(mixer, getName(), getDescription())
 	, motor(false), forcePlay(false)
 {
 	XMLElement& config = GlobalSettings::instance().getMediaConfig();

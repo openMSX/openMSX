@@ -116,8 +116,6 @@ public:
 
 private:
 	// SoundDevice
-	virtual const std::string& getName() const;
-	virtual const std::string& getDescription() const;
 	virtual void setVolume(int newVolume);
 	virtual void setSampleRate(int sampleRate);
 	virtual void updateBuffer(unsigned length, int* buffer,
@@ -274,8 +272,6 @@ private:
 
 	// Phase incr table for PG
 	static unsigned int dphaseTable[512][8][16];
-
-	const std::string name;
 };
 
 } // namespace openmsx

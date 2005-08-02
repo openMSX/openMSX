@@ -338,7 +338,7 @@ inline void AY8910::Envelope::advance(int duration)
 
 AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
                const XMLElement& config, const EmuTime& time)
-	: SoundDevice(motherBoard.getMixer())
+	: SoundDevice(motherBoard.getMixer(), "PSG", "PSG")
 	, SimpleDebuggable(motherBoard.getDebugger(),
 	                   getName() + " regs", "PSG", 0x10)
 	, periphery(periphery_)
@@ -355,18 +355,6 @@ AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
 AY8910::~AY8910()
 {
 	unregisterSound();
-}
-
-const string& AY8910::getName() const
-{
-	static const string name("PSG");
-	return name;
-}
-
-const string& AY8910::getDescription() const
-{
-	static const string desc("PSG");
-	return desc;
 }
 
 void AY8910::reset(const EmuTime& time)

@@ -30,8 +30,6 @@ public:
 
 private:
 	// SoundDevice
-	virtual const std::string& getName() const;
-	virtual const std::string& getDescription() const;
 	virtual void setSampleRate(int sampleRate);
 	virtual void setVolume(int maxVolume);
 	virtual void updateBuffer(unsigned length, int* buffer,
@@ -73,8 +71,6 @@ private:
 	bool rotate[5];
 	bool readOnly[5];
 	byte offset[5];
-
-	const std::string name;
 
 	int in[5], inHp[3], outHp[3];
 };

@@ -45,11 +45,9 @@ public:
 	virtual void writeWave(short* buf, int length);
 	virtual int getWriteSampleRate();
 
-	// Pluggable + SoundDevice
+	// Pluggable
 	virtual const std::string& getName() const;
 	virtual const std::string& getDescription() const;
-
-	// Pluggable
 	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 

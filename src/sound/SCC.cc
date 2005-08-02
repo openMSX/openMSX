@@ -79,13 +79,17 @@ using std::string;
 
 namespace openmsx {
 
-SCC::SCC(MSXMotherBoard& motherBoard, const string& name_, const XMLElement& config,
+static string calcDescription(SCC::ChipMode mode)
+{
+	return (mode == SCC::SCC_Real) ? "Konami SCC" : "Konami SCC+";
+}
+
+SCC::SCC(MSXMotherBoard& motherBoard, const string& name, const XMLElement& config,
          const EmuTime& time, ChipMode mode)
-	: SoundDevice(motherBoard.getMixer())
-	, SimpleDebuggable(motherBoard.getDebugger(), name_,
+	: SoundDevice(motherBoard.getMixer(), name, calcDescription(mode))
+	, SimpleDebuggable(motherBoard.getDebugger(), name,
 	                   "SCC registers in SCC+ format", 0x100)
 	, currentChipMode(mode)
-	, name(name_)
 {
 	// Clear wave forms.
 	for (unsigned i = 0; i < 5; ++i) {
@@ -107,19 +111,6 @@ SCC::SCC(MSXMotherBoard& motherBoard, const string& name_, const XMLElement& con
 SCC::~SCC()
 {
 	unregisterSound();
-}
-
-const string& SCC::getName() const
-{
-	return name;
-}
-
-const string& SCC::getDescription() const
-{
-	static const string desc_scc ("Konami SCC");
-	static const string desc_sccp("Konami SCC+");
-	return (currentChipMode == SCC_Real) ? desc_scc
-	                                     : desc_sccp;
 }
 
 void SCC::reset(const EmuTime& /*time*/)

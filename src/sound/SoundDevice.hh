@@ -17,13 +17,13 @@ public:
 	 * Get the unique name that identifies this sound device.
 	 * Used to create setting names.
 	 */
-	virtual const std::string& getName() const = 0;
+	const std::string& getName() const;
 
 	/**
 	 * Gets a description of this sound device,
 	 * to be presented to the user.
 	 */
-	virtual const std::string& getDescription() const = 0;
+	const std::string& getDescription() const;
 
 	/**
 	 * Set the relative volume for this sound device.
@@ -41,13 +41,12 @@ protected:
 	/**
 	 * Constructor.
 	 * Initially, a sound device is muted.
+	 * @param mixer The Mixer object
+	 * @param name Unique name per sound device
+	 * @param description Description for this sound device
 	 */
-	SoundDevice(Mixer& mixer);
-
-	/**
-	 * Destructor.
-	 * Does nothing.
-	 */
+	SoundDevice(Mixer& mixer, const std::string& name,
+	            const std::string& description);
 	virtual ~SoundDevice();
 
 	/**
@@ -122,6 +121,9 @@ public: // Will be called by Mixer:
 
 private:
 	Mixer& mixer;
+	const std::string name;
+	const std::string description;
+
 	bool muted;
 };
 
