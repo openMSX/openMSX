@@ -4,13 +4,11 @@
 #define MSXMAPPERIO_HH
 
 #include "MSXDevice.hh"
-#include "Debuggable.hh"
+#include "SimpleDebuggable.hh"
 #include <memory>
 #include <set>
 
 namespace openmsx {
-
-class Debugger;
 
 class MapperMask
 {
@@ -19,7 +17,7 @@ public:
 	virtual byte calcMask(const std::multiset<unsigned>& mapperSizes) = 0;
 };
 
-class MSXMapperIO : public MSXDevice, private Debuggable
+class MSXMapperIO : public MSXDevice, private SimpleDebuggable
 {
 public:
 	MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config,
@@ -44,13 +42,10 @@ public:
 	byte getSelectedPage(byte bank) const;
 
 private:
-	// Debuggable
-	virtual unsigned getSize() const;
-	virtual const std::string& getDescription() const;
+	// SimpleDebuggable
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 
-	Debugger& debugger;
 	std::auto_ptr<MapperMask> mapperMask;
 	std::multiset<unsigned> mapperSizes;
 	byte registers[4];

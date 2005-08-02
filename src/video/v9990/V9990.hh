@@ -9,7 +9,7 @@
 #include "Schedulable.hh"
 #include "EventListener.hh"
 #include "MSXDevice.hh"
-#include "Debuggable.hh"
+#include "SimpleDebuggable.hh"
 #include "IRQHelper.hh"
 #include "V9990DisplayTiming.hh"
 #include "V9990ModeEnum.hh"
@@ -19,7 +19,6 @@ namespace openmsx {
 class V9990VRAM;
 class V9990CmdEngine;
 class V9990Renderer;
-class Debugger;
 
 /** Implementation of the Yamaha V9990 VDP as used in the GFX9000
   * cartridge by Sunrise.
@@ -252,10 +251,6 @@ public:
 		return *verTiming;
 	}
 
-	Debugger& getDebugger() {
-		return debugger;
-	}
-
 private:
 	// Schedulable interface:
 	virtual void executeUntil(const EmuTime& time, int userData);
@@ -265,27 +260,23 @@ private:
 	virtual void signalEvent(const Event& event);
 
 	// Debuggable: registers
-	class V9990RegDebug : public Debuggable {
+	class V9990RegDebug : public SimpleDebuggable {
 	public:
-		V9990RegDebug(V9990& parent);
-		virtual unsigned getSize() const;
-		virtual const std::string& getDescription() const;
+		V9990RegDebug(V9990& v9990);
 		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value);
+		virtual void write(unsigned address, byte value, const EmuTime& time);
 	private:
-		V9990& parent;
+		V9990& v9990;
 	} v9990RegDebug;
 
 	// Debuggable: palette
-	class V9990PalDebug : public Debuggable {
+	class V9990PalDebug : public SimpleDebuggable {
 	public:
-		V9990PalDebug(V9990& parent);
-		virtual unsigned getSize() const;
-		virtual const std::string& getDescription() const;
+		V9990PalDebug(V9990& v9990);
 		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value);
+		virtual void write(unsigned address, byte value, const EmuTime& time);
 	private:
-		V9990& parent;
+		V9990& v9990;
 	} v9990PalDebug;
 
 	// --- types ------------------------------------------------------
@@ -426,7 +417,7 @@ private:
 
 	/** Palette
 	  */
-	byte palette[256];
+	byte palette[0x100];
 
 	/** Is PAL timing active?  False means NTSC timing
 	  */
@@ -517,10 +508,6 @@ private:
 	  * @result Timestamp for next hor irq
 	  */
 	void scheduleHscan(const EmuTime& time);
-
-	/** The Debugger object.
-	  */
-	Debugger& debugger;
 };
 
 } // namespace openmsx

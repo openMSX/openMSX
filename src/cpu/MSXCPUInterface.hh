@@ -9,7 +9,7 @@
 #include "openmsx.hh"
 #include "CPU.hh"
 #include "Command.hh"
-#include "Debuggable.hh"
+#include "SimpleDebuggable.hh"
 #include "MSXDevice.hh"
 
 namespace openmsx {
@@ -21,7 +21,6 @@ class CommandController;
 class MSXMotherBoard;
 class MSXCPU;
 class Scheduler;
-class Debugger;
 class CliComm;
 
 class MSXCPUInterface
@@ -179,46 +178,37 @@ private:
 	void registerSlot(MSXDevice* device,
 			  int primSl, int secSL, int page);
 
-	class MemoryDebug : public Debuggable {
+	class MemoryDebug : public SimpleDebuggable {
 	public:
-		MemoryDebug(MSXCPUInterface& parent);
-		virtual unsigned getSize() const;
-		virtual const std::string& getDescription() const;
+		MemoryDebug(MSXCPUInterface& parent, Debugger& debugger);
 		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value);
+		virtual void write(unsigned address, byte value, const EmuTime& time);
 	private:
 		MSXCPUInterface& parent;
 	} memoryDebug;
 
-	class SlottedMemoryDebug : public Debuggable {
+	class SlottedMemoryDebug : public SimpleDebuggable {
 	public:
-		SlottedMemoryDebug(MSXCPUInterface& parent);
-		virtual unsigned getSize() const;
-		virtual const std::string& getDescription() const;
+		SlottedMemoryDebug(MSXCPUInterface& parent, Debugger& debugger);
 		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value);
+		virtual void write(unsigned address, byte value, const EmuTime& time);
 	private:
 		MSXCPUInterface& parent;
 	} slottedMemoryDebug;
 	
-	class SubSlottedDebug : public Debuggable {
+	class SubSlottedDebug : public SimpleDebuggable {
 	public:
-		SubSlottedDebug(MSXCPUInterface& parent);
-		virtual unsigned getSize() const;
-		virtual const std::string& getDescription() const;
+		SubSlottedDebug(MSXCPUInterface& parent, Debugger& debugger);
 		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value);
 	private:
 		MSXCPUInterface& parent;
 	} subSlottedDebug;
 
-	class IODebug : public Debuggable {
+	class IODebug : public SimpleDebuggable {
 	public:
-		IODebug(MSXCPUInterface& parent);
-		virtual unsigned getSize() const;
-		virtual const std::string& getDescription() const;
-		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value);
+		IODebug(MSXCPUInterface& parent, Debugger& debugger);
+		virtual byte read(unsigned address, const EmuTime& time);
+		virtual void write(unsigned address, byte value, const EmuTime& time);
 	private:
 		MSXCPUInterface& parent;
 	} ioDebug;
@@ -272,7 +262,6 @@ private:
 	CommandController& commandController;
 	MSXCPU& msxcpu;
 	Scheduler& scheduler;
-	Debugger& debugger;
 	CliComm& cliCommOutput;
 };
 

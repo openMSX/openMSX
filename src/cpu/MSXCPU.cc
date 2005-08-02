@@ -17,7 +17,9 @@ using std::vector;
 namespace openmsx {
 
 MSXCPU::MSXCPU(Debugger& debugger_)
-	: traceSetting(new BooleanSetting("cputrace", "CPU tracing on/off", false))
+	: SimpleDebuggable(debugger_, "CPU regs",
+	                   "Registers of the active CPU (Z80 or R800)", 28)
+	, traceSetting(new BooleanSetting("cputrace", "CPU tracing on/off", false))
 	, z80 (new CPUCore<Z80TYPE> ("z80",  *traceSetting, EmuTime::zero))
 	, r800(new CPUCore<R800TYPE>("r800", *traceSetting, EmuTime::zero))
 	, timeInfo(*this)
@@ -29,7 +31,6 @@ MSXCPU::MSXCPU(Debugger& debugger_)
 
 	infoCmd.registerTopic("time", &timeInfo);
 	debugger.setCPU(this);
-	debugger.registerDebuggable("CPU regs", *this);
 
 	traceSetting->addListener(this);
 }
@@ -38,7 +39,6 @@ MSXCPU::~MSXCPU()
 {
 	traceSetting->removeListener(this);
 
-	debugger.unregisterDebuggable("CPU regs", *this);
 	debugger.setCPU(0);
 	infoCmd.unregisterTopic("time", &timeInfo);
 }
@@ -173,18 +173,6 @@ void MSXCPU::update(const Setting* setting)
 // 16 -> IXH    17 -> IXL    18 -> IYH    19 -> IYL
 // 20 -> PCH    21 -> PCL    22 -> SPH    23 -> SPL
 // 24 ->  I     25 ->  R     26 -> IM     27 -> IFF1/2
-
-unsigned MSXCPU::getSize() const
-{
-	return 28; // number of 8 bits registers (16 bits = 2 registers)
-}
-
-const string& MSXCPU::getDescription() const
-{
-	static const string desc =
-		"Registers of the active CPU (Z80 or R800)";
-	return desc;
-}
 
 byte MSXCPU::read(unsigned address)
 {

@@ -4,7 +4,7 @@
 #define MSXCPU_HH
 
 #include "CPU.hh"
-#include "Debuggable.hh"
+#include "SimpleDebuggable.hh"
 #include "InfoTopic.hh"
 #include "SettingListener.hh"
 #include "EmuTime.hh"
@@ -21,7 +21,7 @@ class Z80TYPE;
 class R800TYPE;
 template <typename T> class CPUCore;
 
-class MSXCPU : private Debuggable, private SettingListener
+class MSXCPU : private SimpleDebuggable, private SettingListener
 {
 public:
 	enum CPUType { CPU_Z80, CPU_R800 };
@@ -105,9 +105,7 @@ public:
 
 	void setInterface(MSXCPUInterface* interf);
 
-	// Debuggable
-	virtual unsigned getSize() const;
-	virtual const std::string& getDescription() const;
+	// SimpleDebuggable
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 

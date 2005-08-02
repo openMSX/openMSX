@@ -6,15 +6,14 @@
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "YM2413Core.hh"
-#include "Debuggable.hh"
+#include "SimpleDebuggable.hh"
 
 namespace openmsx {
 
 class EmuTime;
 class MSXMotherBoard;
-class Debugger;
 
-class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
+class YM2413 : public YM2413Core, private SoundDevice, private SimpleDebuggable
 {
 	struct Patch {
 		Patch();
@@ -115,6 +114,7 @@ public:
 	void reset(const EmuTime& time);
 	void writeReg(byte reg, byte value, const EmuTime& time);
 
+private:
 	// SoundDevice
 	virtual const std::string& getName() const;
 	virtual const std::string& getDescription() const;
@@ -123,7 +123,10 @@ public:
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
 
-private:
+	// SimpleDebuggable
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value, const EmuTime& time);
+
 	inline int calcSample();
 
 	void checkMute();
@@ -159,12 +162,6 @@ private:
 	inline static int TL2EG(int d);
 	inline static unsigned int DB_POS(double x);
 	inline static unsigned int DB_NEG(double x);
-
-	// Debuggable
-	virtual unsigned getSize() const;
-	//virtual const std::string& getDescription() const;  // also in SoundDevice!!
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
 
 private:
 	// Size of Sintable ( 8 -- 18 can be used, but 9 recommended.)
@@ -216,7 +213,6 @@ private:
 
 	int maxVolume;
 
-	// Register
 	byte reg[0x40];
 
 	// Pitch Modulator
@@ -279,7 +275,6 @@ private:
 	// Phase incr table for PG
 	static unsigned int dphaseTable[512][8][16];
 
-	Debugger& debugger;
 	const std::string name;
 };
 

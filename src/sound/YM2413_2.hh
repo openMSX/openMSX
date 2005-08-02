@@ -6,13 +6,12 @@
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "YM2413Core.hh"
-#include "Debuggable.hh"
+#include "SimpleDebuggable.hh"
 
 namespace openmsx {
 
 class EmuTime;
 class MSXMotherBoard;
-class Debugger;
 
 class Slot
 {
@@ -81,7 +80,7 @@ public:
 	byte sus;	// sus on/off (release speed in percussive mode)
 };
 
-class YM2413_2 : public YM2413Core, private SoundDevice, private Debuggable
+class YM2413_2 : public YM2413Core, private SoundDevice, private SimpleDebuggable
 {
 public:
 	YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
@@ -118,12 +117,10 @@ private:
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
 
-	// Debuggable
-	virtual unsigned getSize() const;
-	//virtual const std::string& getDescription() const;  // also in SoundDevice!!
+	// SimpleDebuggable
 	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
-
+	virtual void write(unsigned address, byte value, const EmuTime& time);
+	
 	int maxVolume;
 
 	Channel channels[9];	// OPLL chips have 9 channels
@@ -157,8 +154,8 @@ private:
 	byte LFO_AM;
 	byte LFO_PM;
 
-	Debugger& debugger;
 	const std::string name;
+
 	byte reg[0x40];
 };
 

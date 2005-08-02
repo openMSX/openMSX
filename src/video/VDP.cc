@@ -24,9 +24,7 @@ TODO:
 #include "VDPCmdEngine.hh"
 #include "SpriteChecker.hh"
 #include "EventDistributor.hh"
-#include "Scheduler.hh"
 #include "XMLElement.hh"
-#include "Debugger.hh"
 #include "RendererFactory.hh"
 #include "Renderer.hh"
 #include "MSXMotherBoard.hh"
@@ -124,13 +122,6 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// Reset state.
 	reset(time);
 
-	Debugger& debugger = getMotherBoard().getDebugger();
-	debugger.registerDebuggable("VDP regs",        vdpRegDebug);
-	debugger.registerDebuggable("VDP status regs", vdpStatusRegDebug);
-	if (!isMSX1VDP()) {
-		debugger.registerDebuggable("VDP palette", vdpPaletteDebug);
-	}
-
 	EventDistributor::instance().registerEventListener(
 		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
 }
@@ -139,13 +130,6 @@ VDP::~VDP()
 {
 	EventDistributor::instance().unregisterEventListener(
 		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
-
-	Debugger& debugger = getMotherBoard().getDebugger();
-	if (!isMSX1VDP()) {
-		debugger.unregisterDebuggable("VDP palette", vdpPaletteDebug);
-	}
-	debugger.unregisterDebuggable("VDP status regs", vdpStatusRegDebug);
-	debugger.unregisterDebuggable("VDP regs",        vdpRegDebug);
 
 	delete renderer;
 }
@@ -1065,102 +1049,70 @@ void VDP::updateDisplayMode(DisplayMode newMode, const EmuTime& time)
 
 // VDPRegDebug
 
-VDP::VDPRegDebug::VDPRegDebug(VDP& parent_)
-	: parent(parent_)
+VDP::VDPRegDebug::VDPRegDebug(VDP& vdp_)
+	: SimpleDebuggable(vdp_.getMotherBoard().getDebugger(),
+	                   "VDP regs", "VDP registers.",
+	                   0x40)
+	, vdp(vdp_)
 {
-}
-
-unsigned VDP::VDPRegDebug::getSize() const
-{
-	return 0x40;
-}
-
-const string& VDP::VDPRegDebug::getDescription() const
-{
-	static const string desc = "VDP registers.";
-	return desc;
 }
 
 byte VDP::VDPRegDebug::read(unsigned address)
 {
 	if (address < 0x20) {
-		return parent.controlRegs[address];
+		return vdp.controlRegs[address];
 	} else if (address < 0x2F) {
-		return parent.cmdEngine->peekCmdReg(address - 0x20);
+		return vdp.cmdEngine->peekCmdReg(address - 0x20);
 	} else {
 		return 0xFF;
 	}
 }
 
-void VDP::VDPRegDebug::write(unsigned address, byte value)
+void VDP::VDPRegDebug::write(unsigned address, byte value, const EmuTime& time)
 {
-	const EmuTime& time = Scheduler::instance().getCurrentTime();
-	parent.changeRegister(address, value, time);
+	vdp.changeRegister(address, value, time);
 }
 
 
 // VDPStatusRegDebug
 
-VDP::VDPStatusRegDebug::VDPStatusRegDebug(VDP& parent_)
-	: parent(parent_)
+VDP::VDPStatusRegDebug::VDPStatusRegDebug(VDP& vdp_)
+	: SimpleDebuggable(vdp_.getMotherBoard().getDebugger(),
+	                   "VDP status regs", "VDP status registers.",
+	                   0x10)
+	, vdp(vdp_)
 {
 }
 
-unsigned VDP::VDPStatusRegDebug::getSize() const
+byte VDP::VDPStatusRegDebug::read(unsigned address, const EmuTime& time)
 {
-	return 0x10;
-}
-
-const string& VDP::VDPStatusRegDebug::getDescription() const
-{
-	static const string desc = "VDP status registers.";
-	return desc;
-}
-
-byte VDP::VDPStatusRegDebug::read(unsigned address)
-{
-	const EmuTime& time = Scheduler::instance().getCurrentTime();
-	return parent.peekStatusReg(address, time);
-}
-
-void VDP::VDPStatusRegDebug::write(unsigned /*address*/, byte /*value*/)
-{
-	// not possible
+	return vdp.peekStatusReg(address, time);
 }
 
 // VDPPaletteDebug
 
-VDP::VDPPaletteDebug::VDPPaletteDebug(VDP& parent_)
-	: parent(parent_)
+VDP::VDPPaletteDebug::VDPPaletteDebug(VDP& vdp_)
+	: SimpleDebuggable(vdp_.getMotherBoard().getDebugger(),
+	                   "VDP palette", "V99x8 palette (RBG format)",
+	                   0x20)
+	, vdp(vdp_)
 {
-}
-
-unsigned VDP::VDPPaletteDebug::getSize() const
-{
-	return 0x20;
-}
-
-const std::string& VDP::VDPPaletteDebug::getDescription() const
-{
-	static const string desc = "V99x8 palette (RBG format)";
-	return desc;
 }
 
 byte VDP::VDPPaletteDebug::read(unsigned address)
 {
-	word grb = parent.getPalette(address / 2);
+	word grb = vdp.getPalette(address / 2);
 	return (address & 1) ? (grb >> 8) : (grb & 0xff);
 }
 
-void VDP::VDPPaletteDebug::write(unsigned address, byte value)
+void VDP::VDPPaletteDebug::write(unsigned address, byte value, const EmuTime& time)
 {
-	const EmuTime& time = Scheduler::instance().getCurrentTime();
 	int index = address / 2;
-	word grb = parent.getPalette(index);
+	word grb = vdp.getPalette(index);
 	grb = (address & 1)
 	    ? (grb & 0x0077) | ((value & 0x07) << 8)
 	    : (grb & 0x0700) |  (value & 0x77);
-	parent.setPalette(index, grb, time);
+	vdp.setPalette(index, grb, time);
 }
 
 } // namespace openmsx

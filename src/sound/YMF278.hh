@@ -6,7 +6,7 @@
 #define YMF278_HH
 
 #include "SoundDevice.hh"
-#include "Debuggable.hh"
+#include "SimpleDebuggable.hh"
 #include "Clock.hh"
 #include "openmsx.hh"
 #include <memory>
@@ -91,28 +91,6 @@ private:
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& start, const EmuDuration& sampDur);
 
-	class DebugRegisters : public Debuggable {
-	public:
-		DebugRegisters(YMF278& parent);
-		virtual unsigned getSize() const;
-		virtual const std::string& getDescription() const;
-		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value);
-	private:
-		YMF278& parent;
-	} debugRegisters;
-
-	class DebugMemory : public Debuggable {
-	public:
-		DebugMemory(YMF278& parent);
-		virtual unsigned getSize() const;
-		virtual const std::string& getDescription() const;
-		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value);
-	private:
-		YMF278& parent;
-	} debugMemory;
-
 	void writeReg(byte reg, byte data, const EmuTime& time);
 	byte readMem(unsigned address) const;
 	void writeMem(unsigned address, byte value);
@@ -157,7 +135,6 @@ private:
 	int fm_l, fm_r;
 	int pcm_l, pcm_r;
 
-	Debugger& debugger;
 	const std::string name;
 	const std::auto_ptr<Rom> rom;
 	byte* ram;
@@ -177,6 +154,24 @@ private:
 	EmuTime loadTime;
 	/** Time until which the YMF278 is busy. */
 	EmuTime busyTime;
+	
+	class DebugRegisters : public SimpleDebuggable {
+	public:
+		DebugRegisters(YMF278& ymf278, Debugger& debugger);
+		virtual byte read(unsigned address);
+		virtual void write(unsigned address, byte value, const EmuTime& time);
+	private:
+		YMF278& ymf278;
+	} debugRegisters;
+
+	class DebugMemory : public SimpleDebuggable {
+	public:
+		DebugMemory(YMF278& ymf278, Debugger& debugger);
+		virtual byte read(unsigned address);
+		virtual void write(unsigned address, byte value);
+	private:
+		YMF278& ymf278;
+	} debugMemory;
 };
 
 } // namespace openmsx

@@ -4,13 +4,9 @@
 #define AY8910PERIPHERY_HH
 
 #include "openmsx.hh"
-//#include "SoundDevice.hh"
-//#include "Debuggable.hh"
-//#include "EmuState.hh"
 
 namespace openmsx {
 
-//class XMLElement;
 class EmuTime;
 
 /** Models the general purpose I/O ports of the AY8910.

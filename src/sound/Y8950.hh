@@ -7,7 +7,7 @@
 #include "SoundDevice.hh"
 #include "IRQHelper.hh"
 #include "EmuTimer.hh"
-#include "Debuggable.hh"
+#include "SimpleDebuggable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -16,9 +16,8 @@ class Y8950Adpcm;
 class Y8950KeyboardConnector;
 class DACSound16S;
 class MSXMotherBoard;
-class Debugger;
 
-class Y8950 : private SoundDevice, private EmuTimerCallback, private Debuggable
+class Y8950 : private SoundDevice, private EmuTimerCallback, private SimpleDebuggable
 {
 	class Patch {
 	public:
@@ -171,8 +170,8 @@ public:
 	virtual ~Y8950();
 
 	void reset(const EmuTime &time);
-	void writeReg(byte reg, byte data, const EmuTime &time);
-	byte readReg(byte reg, const EmuTime &time);
+	void writeReg(byte reg, byte data, const EmuTime& time);
+	byte readReg(byte reg, const EmuTime& time);
 	byte readStatus();
 
 private:
@@ -184,12 +183,10 @@ private:
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& start, const EmuDuration& sampDur);
 
-	// Debuggable
-	virtual unsigned getSize() const;
-	//virtual const std::string& getDescription() const;  // also in SoundDevice!!
+	// SimpleDebuggable
 	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
-
+	virtual void write(unsigned address, byte value, const EmuTime& time);
+	
 	// Definition of envelope mode
 	enum { ATTACK,DECAY,SUSHOLD,SUSTINE,RELEASE,FINISH };
 	// Dynamic range
@@ -236,11 +233,9 @@ private:
 
 	void callback(byte flag);
 
-	Debugger& debugger;
-
 	int adr;
 	int output[2];
-	// Register
+	// Registers
 	byte reg[0x100];
 	bool rythm_mode;
 	// Pitch Modulator

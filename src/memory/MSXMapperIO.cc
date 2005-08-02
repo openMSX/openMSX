@@ -7,7 +7,6 @@
 #include "MSXMotherBoard.hh"
 #include "HardwareConfig.hh"
 #include "MSXException.hh"
-#include "Debugger.hh"
 
 using std::string;
 
@@ -16,7 +15,8 @@ namespace openmsx {
 MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config,
                          const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, debugger(motherBoard.getDebugger())
+	, SimpleDebuggable(motherBoard.getDebugger(), getName(),
+	                   "Memory mapper registers", 4)
 {
 	string type = HardwareConfig::instance().
 		getChildData("MapperReadBackBits", "largest");
@@ -30,13 +30,10 @@ MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config,
 	mask = mapperMask->calcMask(mapperSizes);
 
 	reset(time);
-
-	debugger.registerDebuggable(getName(), *this);
 }
 
 MSXMapperIO::~MSXMapperIO()
 {
-	debugger.unregisterDebuggable(getName(), *this);
 }
 
 void MSXMapperIO::registerMapper(unsigned blocks)
@@ -83,16 +80,7 @@ byte MSXMapperIO::getSelectedPage(byte bank) const
 }
 
 
-unsigned MSXMapperIO::getSize() const
-{
-	return 4;
-}
-
-const string& MSXMapperIO::getDescription() const
-{
-	static const string desc = "Memory mapper registers";
-	return desc;
-}
+// SimpleDebuggable
 
 byte MSXMapperIO::read(unsigned address)
 {

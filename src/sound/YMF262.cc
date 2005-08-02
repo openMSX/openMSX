@@ -39,13 +39,11 @@
  * - YMF262 does not support CSM mode
  */
 
-#include <cmath>
 #include "YMF262.hh"
-#include "openmsx.hh"
 #include "Mixer.hh"
-#include "Debugger.hh"
 #include "MSXMotherBoard.hh"
-#include "Scheduler.hh"
+#include "openmsx.hh"
+#include <cmath>
 
 using std::string;
 
@@ -1813,8 +1811,10 @@ void YMF262::reset(const EmuTime& time)
 YMF262::YMF262(MSXMotherBoard& motherBoard, const string& name_,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer())
+	, SimpleDebuggable(motherBoard.getDebugger(), name_ + " regs",
+	                   "Moonsound FM-part registers", 0x200)
 	, irq(motherBoard.getCPU()), timer1(this), timer2(this)
-	, debugger(motherBoard.getDebugger()), name(name_)
+	, name(name_)
 {
 	LFO_AM = LFO_PM = 0;
 	lfo_am_depth = lfo_pm_depth_range = lfo_am_cnt = lfo_pm_cnt = 0;
@@ -1827,12 +1827,10 @@ YMF262::YMF262(MSXMotherBoard& motherBoard, const string& name_,
 
 	reset(time);
 	registerSound(config, Mixer::STEREO);
-	debugger.registerDebuggable(getName() + " regs", *this);
 }
 
 YMF262::~YMF262()
 {
-	debugger.unregisterDebuggable(getName() + " regs", *this);
 	unregisterSound();
 }
 
@@ -1985,20 +1983,16 @@ void YMF262::setVolume(int newVolume)
 }
 
 
-// Debuggable
-unsigned YMF262::getSize() const
-{
-	return 0x200;
-}
+// SimpleDebuggable
 
 byte YMF262::read(unsigned address)
 {
 	return peekReg(address);
 }
 
-void YMF262::write(unsigned address, byte value)
+void YMF262::write(unsigned address, byte value, const EmuTime& time)
 {
-	writeRegForce(address, value, Scheduler::instance().getCurrentTime());
+	writeRegForce(address, value, time);
 	checkMute();
 }
 

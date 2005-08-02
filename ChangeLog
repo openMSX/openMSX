@@ -1,5 +1,9 @@
 $Id$
 
+2005-08-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added SimpleDebuggable class:
+	   made code of most Debuggables a lot simpler
+
 2005-07-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed bug in EventDistributor:
 	   event order could get swapped for events close together in time

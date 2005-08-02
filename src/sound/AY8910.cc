@@ -13,8 +13,6 @@
 #include "AY8910.hh"
 #include "MSXMotherBoard.hh"
 #include "Mixer.hh"
-#include "Debugger.hh"
-#include "Scheduler.hh"
 #include "AY8910Periphery.hh"
 #include <cassert>
 
@@ -341,8 +339,9 @@ inline void AY8910::Envelope::advance(int duration)
 AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer())
+	, SimpleDebuggable(motherBoard.getDebugger(),
+	                   getName() + " regs", "PSG", 0x10)
 	, periphery(periphery_)
-	, debugger(motherBoard.getDebugger())
 	, envelope(amplitude)
 {
 	// make valgrind happy
@@ -351,12 +350,10 @@ AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
 
 	reset(time);
 	registerSound(config);
-	debugger.registerDebuggable(getName() + " regs", *this);
 }
 
 AY8910::~AY8910()
 {
-	debugger.unregisterDebuggable(getName() + " regs", *this);
 	unregisterSound();
 }
 
@@ -653,22 +650,16 @@ void AY8910::updateBuffer(unsigned length, int* buffer,
 }
 
 
-// Debuggable
+// SimpleDebuggable
 
-unsigned AY8910::getSize() const
+byte AY8910::read(unsigned address, const EmuTime& time)
 {
-	return 0x10;
+	return readRegister(address, time);
 }
 
-byte AY8910::read(unsigned address)
+void AY8910::write(unsigned address, byte value, const EmuTime& time)
 {
-	return readRegister(address, Scheduler::instance().getCurrentTime());
-}
-
-void AY8910::write(unsigned address, byte value)
-{
-	return writeRegister(address, value,
-	                     Scheduler::instance().getCurrentTime());
+	return writeRegister(address, value, time);
 }
 
 } // namespace openmsx

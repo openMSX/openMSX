@@ -21,11 +21,9 @@
  *    Which games use this feature ?
  */
 
-#include <cmath>
 #include "YM2413_2.hh"
 #include "MSXMotherBoard.hh"
-#include "Debugger.hh"
-#include "Scheduler.hh"
+#include <cmath>
 
 using std::string;
 
@@ -1356,7 +1354,9 @@ void YM2413_2::reset(const EmuTime &time)
 YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const string& name_,
                    const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer())
-	, debugger(motherBoard.getDebugger()), name(name_)
+	, SimpleDebuggable(motherBoard.getDebugger(), name_ + " regs",
+	                   "MSX-MUSIC", 0x40)
+	, name(name_)
 {
 	eg_cnt = eg_timer = 0;
 	rhythm = 0;
@@ -1370,12 +1370,10 @@ YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const string& name_,
 
 	reset(time);
 	registerSound(config);
-	debugger.registerDebuggable(name + " regs", *this);
 }
 
 YM2413_2::~YM2413_2()
 {
-	debugger.unregisterDebuggable(name + " regs", *this);
 	unregisterSound();
 }
 
@@ -1448,21 +1446,16 @@ void YM2413_2::setVolume(int newVolume)
 }
 
 
-// Debuggable
-
-unsigned YM2413_2::getSize() const
-{
-	return 0x40;
-}
+// YM2413_2Registers
 
 byte YM2413_2::read(unsigned address)
 {
 	return reg[address];
 }
 
-void YM2413_2::write(unsigned address, byte value)
+void YM2413_2::write(unsigned address, byte value, const EmuTime& time)
 {
-	writeReg(address, value, Scheduler::instance().getCurrentTime());
+	writeReg(address, value, time);
 }
 
 } // namespace openmsx

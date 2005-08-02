@@ -3,17 +3,16 @@
 #ifndef SCC_HH
 #define SCC_HH
 
-#include "openmsx.hh"
 #include "SoundDevice.hh"
+#include "SimpleDebuggable.hh"
 #include "Clock.hh"
-#include "Debuggable.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 
 class MSXMotherBoard;
-class Debugger;
 
-class SCC : private SoundDevice
+class SCC : private SoundDevice, private SimpleDebuggable
 {
 public:
 	enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};
@@ -38,16 +37,9 @@ private:
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
 
-	class SCCDebuggable : public Debuggable {
-	public:
-		SCCDebuggable(SCC& parent);
-		virtual unsigned getSize() const;
-		virtual const std::string& getDescription() const;
-		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value);
-	private:
-		SCC& parent;
-	} sccDebuggable;
+	// SimpleDebuggable
+	virtual byte read(unsigned address, const EmuTime& time);
+	virtual void write(unsigned address, byte value, const EmuTime& time);
 
 	inline void checkMute();
 	byte readWave(byte channel, byte address, const EmuTime& time);
@@ -82,7 +74,6 @@ private:
 	bool readOnly[5];
 	byte offset[5];
 
-	Debugger& debugger;
 	const std::string name;
 
 	int in[5], inHp[3], outHp[3];

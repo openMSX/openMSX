@@ -13,7 +13,6 @@
 #include "Scheduler.hh"
 #include "HardwareConfig.hh"
 #include "VDPIODelay.hh"
-#include "Debugger.hh"
 #include "CliComm.hh"
 #include "MSXMultiIODevice.hh"
 #include "MSXException.hh"
@@ -39,10 +38,10 @@ auto_ptr<MSXCPUInterface> MSXCPUInterface::create(MSXMotherBoard& motherBoard,
 }
 
 MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
-	: memoryDebug(*this)
-	, slottedMemoryDebug(*this)
-	, subSlottedDebug(*this)
-	, ioDebug(*this)
+	: memoryDebug       (*this, motherBoard.getDebugger())
+	, slottedMemoryDebug(*this, motherBoard.getDebugger())
+	, subSlottedDebug   (*this, motherBoard.getDebugger())
+	, ioDebug           (*this, motherBoard.getDebugger())
 	, slotMapCmd(*this)
 	, ioMapCmd(*this)
 	, dummyDevice(motherBoard.getDummyDevice())
@@ -50,7 +49,6 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 	, commandController(CommandController::instance())
 	, msxcpu(motherBoard.getCPU())
 	, scheduler(Scheduler::instance())
-	, debugger(motherBoard.getDebugger())
 	, cliCommOutput(CliComm::instance())
 {
 	for (int port = 0; port < 256; ++port) {
@@ -77,22 +75,12 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 	commandController.registerCommand(&slotMapCmd,    "slotmap");
 	commandController.registerCommand(&ioMapCmd,      "iomap");
 
-	debugger.registerDebuggable("memory", memoryDebug);
-	debugger.registerDebuggable("slotted memory", slottedMemoryDebug);
-	debugger.registerDebuggable("issubslotted", subSlottedDebug);
-	debugger.registerDebuggable("ioports", ioDebug);
-
 	msxcpu.setInterface(this);
 }
 
 MSXCPUInterface::~MSXCPUInterface()
 {
 	msxcpu.setInterface(NULL);
-
-	debugger.unregisterDebuggable("memory", memoryDebug);
-	debugger.unregisterDebuggable("slotted memory", slottedMemoryDebug);
-	debugger.unregisterDebuggable("issubslotted", subSlottedDebug);
-	debugger.unregisterDebuggable("ioports", ioDebug);
 
 	commandController.unregisterCommand(&slotMapCmd,    "slotmap");
 	commandController.unregisterCommand(&ioMapCmd,      "iomap");
@@ -420,21 +408,12 @@ void MSXCPUInterface::printSlotMapPages(std::ostream &out,
 
 // class MemoryDebug
 
-MSXCPUInterface::MemoryDebug::MemoryDebug(MSXCPUInterface& parent_)
-	: parent(parent_)
+MSXCPUInterface::MemoryDebug::MemoryDebug(
+		MSXCPUInterface& parent_, Debugger& debugger)
+	: SimpleDebuggable(debugger, "memory",
+	                   "The memory currently visible for the CPU.", 0x10000)
+	, parent(parent_)
 {
-}
-
-unsigned MSXCPUInterface::MemoryDebug::getSize() const
-{
-	return 0x10000;
-}
-
-const string& MSXCPUInterface::MemoryDebug::getDescription() const
-{
-	static const string desc =
-		"The memory currently visible for the CPU.";
-	return desc;
 }
 
 byte MSXCPUInterface::MemoryDebug::read(unsigned address)
@@ -442,30 +421,21 @@ byte MSXCPUInterface::MemoryDebug::read(unsigned address)
 	return parent.peekMem(address);
 }
 
-void MSXCPUInterface::MemoryDebug::write(unsigned address, byte value)
+void MSXCPUInterface::MemoryDebug::write(unsigned address, byte value,
+                                         const EmuTime& time)
 {
-	const EmuTime& time = parent.scheduler.getCurrentTime();
 	return parent.writeMem(address, value, time);
 }
 
 
 // class SlottedMemoryDebug
 
-MSXCPUInterface::SlottedMemoryDebug::SlottedMemoryDebug(MSXCPUInterface& parent_)
-	: parent(parent_)
+MSXCPUInterface::SlottedMemoryDebug::SlottedMemoryDebug(
+		MSXCPUInterface& parent_, Debugger& debugger)
+	: SimpleDebuggable(debugger, "slotted memory",
+	                   "The memory in slots and subslots.", 0x10000 * 4 * 4)
+	, parent(parent_)
 {
-}
-
-unsigned MSXCPUInterface::SlottedMemoryDebug::getSize() const
-{
-	return 0x10000 * 4 * 4;
-}
-
-const string& MSXCPUInterface::SlottedMemoryDebug::getDescription() const
-{
-	static const string desc =
-		"The memory in slots and subslots.";
-	return desc;
 }
 
 byte MSXCPUInterface::SlottedMemoryDebug::read(unsigned address)
@@ -473,30 +443,21 @@ byte MSXCPUInterface::SlottedMemoryDebug::read(unsigned address)
 	return parent.peekSlottedMem(address);
 }
 
-void MSXCPUInterface::SlottedMemoryDebug::write(unsigned address, byte value)
+void MSXCPUInterface::SlottedMemoryDebug::write(unsigned address, byte value,
+                                                const EmuTime& time)
 {
-	const EmuTime& time = parent.scheduler.getCurrentTime();
 	return parent.writeSlottedMem(address, value, time);
 }
 
 
 // class SubSlottedDebug
 
-MSXCPUInterface::SubSlottedDebug::SubSlottedDebug(MSXCPUInterface& parent_)
-	: parent(parent_)
+MSXCPUInterface::SubSlottedDebug::SubSlottedDebug(
+		MSXCPUInterface& parent_, Debugger& debugger)
+	: SimpleDebuggable(debugger, "issubslotted",
+              "Indicates whether a certain primary slot is expanded.", 4)
+	, parent(parent_)
 {
-}
-
-unsigned MSXCPUInterface::SubSlottedDebug::getSize() const
-{
-	return 4;
-}
-
-const string& MSXCPUInterface::SubSlottedDebug::getDescription() const
-{
-	static const string desc =
-		"Indicates whether a certain primary slot is expanded.";
-	return desc;
 }
 
 byte MSXCPUInterface::SubSlottedDebug::read(unsigned address)
@@ -504,40 +465,22 @@ byte MSXCPUInterface::SubSlottedDebug::read(unsigned address)
 	return parent.isSubSlotted[address] ? 0xFF : 0x00;
 }
 
-void MSXCPUInterface::SubSlottedDebug::write(unsigned /*address*/, byte /*value*/)
-{
-	// nothing
-}
-
 
 // class IODebug
 
-MSXCPUInterface::IODebug::IODebug(MSXCPUInterface& parent_)
-	: parent(parent_)
+MSXCPUInterface::IODebug::IODebug(MSXCPUInterface& parent_, Debugger& debugger)
+	: SimpleDebuggable(debugger, "ioports", "IO ports.", 0x100)
+	, parent(parent_)
 {
 }
 
-unsigned MSXCPUInterface::IODebug::getSize() const
+byte MSXCPUInterface::IODebug::read(unsigned address, const EmuTime& time)
 {
-	return 0x100;
-}
-
-const string& MSXCPUInterface::IODebug::getDescription() const
-{
-	static const string desc =
-		"IO ports.";
-	return desc;
-}
-
-byte MSXCPUInterface::IODebug::read(unsigned address)
-{
-	const EmuTime& time = parent.scheduler.getCurrentTime();
 	return parent.IO_In[address & 0xFF]->peekIO(address, time);
 }
 
-void MSXCPUInterface::IODebug::write(unsigned address, byte value)
+void MSXCPUInterface::IODebug::write(unsigned address, byte value, const EmuTime& time)
 {
-	const EmuTime& time = parent.scheduler.getCurrentTime();
 	parent.writeIO((word)address, value, time);
 }
 

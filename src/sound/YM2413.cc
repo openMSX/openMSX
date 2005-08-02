@@ -12,8 +12,6 @@
 #include "YM2413.hh"
 #include "MSXMotherBoard.hh"
 #include "Mixer.hh"
-#include "Debugger.hh"
-#include "Scheduler.hh"
 
 using std::string;
 
@@ -586,7 +584,9 @@ static byte inst_data[16 + 3][8] = {
 YM2413::YM2413(MSXMotherBoard& motherBoard, const string& name_,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer())
-	, debugger(motherBoard.getDebugger()), name(name_)
+	, SimpleDebuggable(motherBoard.getDebugger(), name_ + " regs",
+	                   "MSX-MUSIC", 0x40)
+	, name(name_)
 {
 	for (int i = 0; i < 16 + 3; ++i) {
 		patches[2 * i + 0] = Patch(0, inst_data[i]);
@@ -611,12 +611,10 @@ YM2413::YM2413(MSXMotherBoard& motherBoard, const string& name_,
 
 	reset(time);
 	registerSound(config);
-	debugger.registerDebuggable(name + " regs", *this);
 }
 
 YM2413::~YM2413()
 {
-	debugger.unregisterDebuggable(name + " regs", *this);
 	unregisterSound();
 }
 
@@ -1228,21 +1226,16 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 }
 
 
-// Debuggable
-
-unsigned YM2413::getSize() const
-{
-	return 0x40;
-}
+// SimpleDebuggable
 
 byte YM2413::read(unsigned address)
 {
 	return reg[address];
 }
 
-void YM2413::write(unsigned address, byte value)
+void YM2413::write(unsigned address, byte value, const EmuTime& time)
 {
-	writeReg(address, value, Scheduler::instance().getCurrentTime());
+	writeReg(address, value, time);
 }
 
 } // namespace openmsx

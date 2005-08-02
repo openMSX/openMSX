@@ -5,13 +5,12 @@
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
-#include "Debuggable.hh"
+#include "SimpleDebuggable.hh"
 
 namespace openmsx {
 
 class MSXMotherBoard;
 class AY8910Periphery;
-class Debugger;
 class XMLElement;
 class EmuTime;
 
@@ -19,7 +18,7 @@ class EmuTime;
   * Only the AY-3-8910 is emulated, no surrounding hardware,
   * use the class AY8910Periphery to connect peripherals.
   */
-class AY8910 : private SoundDevice, private Debuggable
+class AY8910 : private SoundDevice, private SimpleDebuggable
 {
 public:
 	AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
@@ -134,17 +133,14 @@ private:
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
 
-	// Debuggable:
-	virtual unsigned getSize() const;
-	//virtual const std::string& getDescription() const;  // also in SoundDevice!!
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
+	// SimpleDebuggable
+	virtual byte read(unsigned address, const EmuTime& time);
+	virtual void write(unsigned address, byte value, const EmuTime& time);
 
 	void wrtReg(byte reg, byte value, const EmuTime& time);
 	void checkMute();
 
 	AY8910Periphery& periphery;
-	Debugger& debugger;
 	unsigned int updateStep;
 	byte regs[16];
 	byte oldEnable;

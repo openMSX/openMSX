@@ -11,8 +11,6 @@
 #include "Y8950KeyboardConnector.hh"
 #include "MSXMotherBoard.hh"
 #include "DACSound16S.hh"
-#include "Debugger.hh"
-#include "Scheduler.hh"
 #include <cmath>
 
 using std::string;
@@ -442,7 +440,8 @@ void Y8950::Channel::keyOff()
 Y8950::Y8950(MSXMotherBoard& motherBoard, const string& name_,
              const XMLElement& config, unsigned sampleRam, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer())
-	, debugger(motherBoard.getDebugger())
+	, SimpleDebuggable(motherBoard.getDebugger(), name_ + " regs",
+	                   "MSX-AUDIO", 0x100)
 	, irq(motherBoard.getCPU())
 	, timer1(this), timer2(this)
 	, adpcm(new Y8950Adpcm(*this, motherBoard, name_, sampleRam))
@@ -471,12 +470,10 @@ Y8950::Y8950(MSXMotherBoard& motherBoard, const string& name_,
 
 	reset(time);
 	registerSound(config);
-	debugger.registerDebuggable(name + " regs", *this);
 }
 
 Y8950::~Y8950()
 {
-	debugger.unregisterDebuggable(name + " regs", *this);
 	unregisterSound();
 }
 
@@ -1201,19 +1198,14 @@ void Y8950::changeStatusMask(byte newMask)
 
 // Debuggable
 
-unsigned Y8950::getSize() const
-{
-	return 0x100;
-}
-
 byte Y8950::read(unsigned address)
 {
 	return reg[address];
 }
 
-void Y8950::write(unsigned address, byte value)
+void Y8950::write(unsigned address, byte value, const EmuTime& time)
 {
-	writeReg(address, value, Scheduler::instance().getCurrentTime());
+	writeReg(address, value, time);
 }
 
 } // namespace openmsx

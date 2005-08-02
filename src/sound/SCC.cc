@@ -74,8 +74,6 @@
 #include "SCC.hh"
 #include "MSXMotherBoard.hh"
 #include "Mixer.hh"
-#include "Scheduler.hh"
-#include "Debugger.hh"
 
 using std::string;
 
@@ -84,8 +82,9 @@ namespace openmsx {
 SCC::SCC(MSXMotherBoard& motherBoard, const string& name_, const XMLElement& config,
          const EmuTime& time, ChipMode mode)
 	: SoundDevice(motherBoard.getMixer())
-	, sccDebuggable(*this), currentChipMode(mode)
-	, debugger(motherBoard.getDebugger())
+	, SimpleDebuggable(motherBoard.getDebugger(), name_,
+	                   "SCC registers in SCC+ format", 0x100)
+	, currentChipMode(mode)
 	, name(name_)
 {
 	// Clear wave forms.
@@ -103,12 +102,10 @@ SCC::SCC(MSXMotherBoard& motherBoard, const string& name_, const XMLElement& con
 
 	reset(time);
 	registerSound(config);
-	debugger.registerDebuggable(name + " SCC", sccDebuggable);
 }
 
 SCC::~SCC()
 {
-	debugger.unregisterDebuggable(name + " SCC", sccDebuggable);
 	unregisterSound();
 }
 
@@ -514,54 +511,35 @@ void SCC::checkMute()
 	}
 }
 
+// SimpleDebuggable
 
-// class SCCDebuggable
-
-SCC::SCCDebuggable::SCCDebuggable(SCC& parent_)
-	: parent(parent_)
-{
-}
-
-unsigned SCC::SCCDebuggable::getSize() const
-{
-	return 0x100;
-}
-
-const string& SCC::SCCDebuggable::getDescription() const
-{
-	static const string desc = "SCC registers in SCC+ format";
-	return desc;
-}
-
-byte SCC::SCCDebuggable::read(unsigned address)
+byte SCC::read(unsigned address, const EmuTime& time)
 {
 	if (address < 0xA0) {
 		// read wave form 1..5
-		const EmuTime& time = Scheduler::instance().getCurrentTime();
-		return parent.readWave(address >> 5, address, time);
+		return readWave(address >> 5, address, time);
 	} else if (address < 0xC0) {
 		// freq volume block
-		return parent.getFreqVol(address);
+		return getFreqVol(address);
 	} else if (address < 0xE0) {
 		// peek deformation register
-		return parent.deformValue;
+		return deformValue;
 	} else {
 		return 0xFF;
 	}
 }
 
-void SCC::SCCDebuggable::write(unsigned address, byte value)
+void SCC::write(unsigned address, byte value, const EmuTime& time)
 {
 	if (address < 0xA0) {
 		// read wave form 1..5
-		parent.writeWave(address >> 5, address, value);
+		writeWave(address >> 5, address, value);
 	} else if (address < 0xC0) {
 		// freq volume block
-		 parent.setFreqVol(address, value);
+		 setFreqVol(address, value);
 	} else if (address < 0xE0) {
 		// deformation register
-		const EmuTime& time = Scheduler::instance().getCurrentTime();
-		parent.setDeformReg(value, time);
+		setDeformReg(value, time);
 	} else {
 		// ignore
 	}

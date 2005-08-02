@@ -2,8 +2,6 @@
 
 #include "YMF278.hh"
 #include "Rom.hh"
-#include "Debugger.hh"
-#include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
 #include <cmath>
 
@@ -757,9 +755,10 @@ byte YMF278::peekStatus(const EmuTime& time) const
 YMF278::YMF278(MSXMotherBoard& motherBoard, const string& name_, int ramSize,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer())
-	, debugRegisters(*this), debugMemory(*this)
-	, debugger(motherBoard.getDebugger()), name(name_)
+	, name(name_)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
+	, debugRegisters(*this, motherBoard.getDebugger())
+	, debugMemory   (*this, motherBoard.getDebugger())
 {
 	memadr = 0;	// avoid UMR
 	setSampleRate(44100);	// make valgrind happy
@@ -771,14 +770,10 @@ YMF278::YMF278(MSXMotherBoard& motherBoard, const string& name_, int ramSize,
 
 	reset(time);
 	registerSound(config, Mixer::STEREO);
-	debugger.registerDebuggable(getName() + " regs", debugRegisters);
-	debugger.registerDebuggable(getName() + " mem",  debugMemory);
 }
 
 YMF278::~YMF278()
 {
-	debugger.unregisterDebuggable(getName() + " mem",  debugMemory);
-	debugger.unregisterDebuggable(getName() + " regs", debugRegisters);
 	unregisterSound();
 	delete[] ram;
 }
@@ -855,61 +850,42 @@ void YMF278::writeMem(unsigned address, byte value)
 
 // class DebugRegisters
 
-YMF278::DebugRegisters::DebugRegisters(YMF278& parent_)
-	: parent(parent_)
+YMF278::DebugRegisters::DebugRegisters(YMF278& ymf278_, Debugger& debugger)
+	: SimpleDebuggable(debugger, ymf278_.getName() + " regs",
+	                   "OPL4 registers", 0x100)
+	, ymf278(ymf278_)
 {
-}
-
-unsigned YMF278::DebugRegisters::getSize() const
-{
-	return 0x100;
-}
-
-const string& YMF278::DebugRegisters::getDescription() const
-{
-	static const string desc = "OPL4 registers";
-	return desc;
 }
 
 byte YMF278::DebugRegisters::read(unsigned address)
 {
-	return parent.peekReg(address);
+	return ymf278.peekReg(address);
 }
 
-void YMF278::DebugRegisters::write(unsigned address, byte value)
+void YMF278::DebugRegisters::write(unsigned address, byte value, const EmuTime& time)
 {
-	parent.writeReg(address, value, Scheduler::instance().getCurrentTime());
+	ymf278.writeReg(address, value, time);
 }
 
 
 // class DebugMemory
 
-YMF278::DebugMemory::DebugMemory(YMF278& parent_)
-	: parent(parent_)
+YMF278::DebugMemory::DebugMemory(YMF278& ymf278_, Debugger& debugger)
+	: SimpleDebuggable(debugger, ymf278_.getName() + " mem",
+	                   "OPL4 memory (includes both ROM and RAM)", 0x400000) // 4MB
+	, ymf278(ymf278_)
 {
-}
-
-unsigned YMF278::DebugMemory::getSize() const
-{
-	return 0x400000; // 4MB
-}
-
-const string& YMF278::DebugMemory::getDescription() const
-{
-	static const string desc = "OPL4 memory (includes both ROM and RAM)";
-	return desc;
 }
 
 byte YMF278::DebugMemory::read(unsigned address)
 {
-	return parent.readMem(address);
+	return ymf278.readMem(address);
 }
 
 void YMF278::DebugMemory::write(unsigned address, byte value)
 {
-	parent.writeMem(address, value);
+	ymf278.writeMem(address, value);
 }
 
 
 } // namespace openmsx
-

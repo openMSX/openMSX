@@ -3,7 +3,6 @@
 #include "V9990.hh"
 #include "Scheduler.hh"
 #include "EventDistributor.hh"
-#include "Debugger.hh"
 #include "RendererFactory.hh"
 #include "V9990VRAM.hh"
 #include "V9990CmdEngine.hh"
@@ -59,7 +58,6 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, irq(motherBoard.getCPU())
 	, pendingIRQs(0)
 	, hScanSyncTime(time)
-	, debugger(motherBoard.getDebugger())
 {
 	PRT_DEBUG("[" << time << "] V9990::Create");
 
@@ -85,10 +83,6 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 	palTiming = false;
 	setVerticalTiming();
 
-	// Register debuggable
-	debugger.registerDebuggable("V9990 regs",    v9990RegDebug);
-	debugger.registerDebuggable("V9990 palette", v9990PalDebug);
-
 	// Initialise rendering system
 	createRenderer(time);
 
@@ -103,8 +97,6 @@ V9990::~V9990()
 	PRT_DEBUG("[--now--] V9990::Destroy");
 
 	// Unregister everything that needs to be unregistered
-	debugger.unregisterDebuggable("V9990 palette", v9990PalDebug);
-	debugger.unregisterDebuggable("V9990 regs", v9990RegDebug);
 	EventDistributor::instance().unregisterEventListener(
 		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
 }
@@ -378,62 +370,43 @@ void V9990::signalEvent(const Event& event)
 // V9990RegDebug
 // -------------------------------------------------------------------------
 
-V9990::V9990RegDebug::V9990RegDebug(V9990& parent_)
-	: parent(parent_)
+V9990::V9990RegDebug::V9990RegDebug(V9990& v9990_)
+	: SimpleDebuggable(v9990_.getMotherBoard().getDebugger(),
+	                   "V9990 regs", "V9990 registers", 0x40)
+	, v9990(v9990_)
 {
-}
-
-unsigned V9990::V9990RegDebug::getSize() const
-{
-	return 0x40;
-}
-
-const string& V9990::V9990RegDebug::getDescription() const
-{
-	static const string desc = "V9990 registers.";
-	return desc;
 }
 
 byte V9990::V9990RegDebug::read(unsigned address)
 {
-	return parent.regs[address];
+	return v9990.regs[address];
 }
 
-void V9990::V9990RegDebug::write(unsigned address, byte value)
+void V9990::V9990RegDebug::write(unsigned address, byte value, const EmuTime& time)
 {
-	const EmuTime& time = Scheduler::instance().getCurrentTime();
-	parent.writeRegister(address, value, time);
+	v9990.writeRegister(address, value, time);
 }
 
 // -------------------------------------------------------------------------
 // V9990PalDebug
 // -------------------------------------------------------------------------
 
-V9990::V9990PalDebug::V9990PalDebug(V9990& parent_)
-	: parent(parent_)
+V9990::V9990PalDebug::V9990PalDebug(V9990& v9990_)
+	: SimpleDebuggable(v9990_.getMotherBoard().getDebugger(),
+	                   "V9990 regs", "V9990 palette (format is R, G, B, 0).",
+	                   0x100)
+	, v9990(v9990_)
 {
-}
-
-unsigned V9990::V9990PalDebug::getSize() const
-{
-	return 0x100;
-}
-
-const string& V9990::V9990PalDebug::getDescription() const
-{
-	static const string desc = "V9990 palette (format is R, G, B, 0).";
-	return desc;
 }
 
 byte V9990::V9990PalDebug::read(unsigned address)
 {
-	return parent.palette[address];
+	return v9990.palette[address];
 }
 
-void V9990::V9990PalDebug::write(unsigned address, byte value)
+void V9990::V9990PalDebug::write(unsigned address, byte value, const EmuTime& time)
 {
-	const EmuTime& time = Scheduler::instance().getCurrentTime();
-	parent.writePaletteRegister(address, value, time);
+	v9990.writePaletteRegister(address, value, time);
 }
 
 // -------------------------------------------------------------------------

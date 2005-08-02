@@ -41,15 +41,15 @@
 #ifndef YMF262_HH
 #define YMF262_HH
 
-#include "openmsx.hh"
 #include "SoundDevice.hh"
+#include "SimpleDebuggable.hh"
 #include "IRQHelper.hh"
 #include "EmuTimer.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 
 class MSXMotherBoard;
-class Debugger;
 
 class YMF262Slot
 {
@@ -130,7 +130,7 @@ public:
 	byte extended;	// set to 1 if this channel forms up a 4op channel with another channel(only used by first of pair of channels, ie 0,1,2 and 9,10,11)
 };
 
-class YMF262 : private SoundDevice, private EmuTimerCallback, private Debuggable
+class YMF262 : private SoundDevice, private EmuTimerCallback, private SimpleDebuggable
 {
 public:
 	YMF262(MSXMotherBoard& motherBoard, const std::string& name,
@@ -153,11 +153,9 @@ private:
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
 
-	// Debuggable
-	virtual unsigned getSize() const;
-	//virtual const std::string& getDescription() const;  // also in SoundDevice!!
+	// SimpleDebuggable
 	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
+	virtual void write(unsigned address, byte value, const EmuTime& time);
 
 	void callback(byte flag);
 
@@ -229,7 +227,6 @@ private:
 	int chanout[18];		// 18 channels
 	int maxVolume;
 
-	Debugger& debugger;
 	const std::string name;
 };
 

@@ -12,7 +12,7 @@
 #include "IRQHelper.hh"
 #include "Clock.hh"
 #include "DisplayMode.hh"
-#include "Debuggable.hh"
+#include "SimpleDebuggable.hh"
 
 namespace openmsx {
 
@@ -427,37 +427,30 @@ public:
 	}
 
 private:
-	class VDPRegDebug : public Debuggable {
+	class VDPRegDebug : public SimpleDebuggable {
 	public:
-		VDPRegDebug(VDP& parent);
-		virtual unsigned getSize() const;
-		virtual const std::string& getDescription() const;
+		VDPRegDebug(VDP& vdp);
 		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value);
+		virtual void write(unsigned address, byte value, const EmuTime& time);
 	private:
-		VDP& parent;
+		VDP& vdp;
 	} vdpRegDebug;
 
-	class VDPStatusRegDebug : public Debuggable {
+	class VDPStatusRegDebug : public SimpleDebuggable {
 	public:
-		VDPStatusRegDebug(VDP& parent);
-		virtual unsigned getSize() const;
-		virtual const std::string& getDescription() const;
-		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value);
+		VDPStatusRegDebug(VDP& vdp);
+		virtual byte read(unsigned address, const EmuTime& time);
 	private:
-		VDP& parent;
+		VDP& vdp;
 	} vdpStatusRegDebug;
 
-	class VDPPaletteDebug : public Debuggable {
+	class VDPPaletteDebug : public SimpleDebuggable {
 	public:
-		VDPPaletteDebug(VDP& parent);
-		virtual unsigned getSize() const;
-		virtual const std::string& getDescription() const;
+		VDPPaletteDebug(VDP& vdp);
 		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value);
+		virtual void write(unsigned address, byte value, const EmuTime& time);
 	private:
-		VDP& parent;
+		VDP& vdp;
 	} vdpPaletteDebug;
 
 	/** Time at which the internal VDP display line counter is reset,
