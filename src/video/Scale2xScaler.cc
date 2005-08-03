@@ -77,15 +77,15 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"pandn  %%mm3, %%mm6;"       // !c & m2
 			"movq	%%mm1, %%mm0;"
 			"por	%%mm6, %%mm7;"       // c ? n2 : m2
-			"movq	%%mm2, %%mm1;"       // swap mm0,mm1 
-			     
+			"movq	%%mm2, %%mm1;"       // swap mm0,mm1
+
 			"movntq	%%mm5, (%3,%%eax,2);"
 			"movntq	%%mm7, 8(%3,%%eax,2);"
-		
+
 			"addl	$8, %%eax;"
 			"cmpl   $1272, %%eax;"
 			"jl	0b;"
-			
+
 			// last pixel
 			"movq	(%1,%%eax), %%mm2;"  // n1 | n2
 			"movq	%%mm2, %%mm3;"       // n1 | n2
@@ -120,7 +120,7 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"pand	%%mm6, %%mm7;"       // c  & n2
 			"pandn  %%mm3, %%mm6;"       // !c & m2
 			"por	%%mm6, %%mm7;"       // c ? n2 : m2
-			     
+
 			"movntq	%%mm5, (%3,%%eax,2);"
 			"movntq	%%mm7, 8(%3,%%eax,2);"
 
@@ -132,8 +132,10 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			, "r" (src2) // 2
 			, "r" (dst)  // 3
 			: "eax"
+			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	};
@@ -189,22 +191,22 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"pandn  %%mm4, %%mm6;"       // !c & m2
 			"movq	%%mm1, %%mm0;"
 			"por	%%mm6, %%mm7;"       // c ? n2 : m2
-			"movq	%%mm2, %%mm1;"       // swap mm0,mm1 
-			     
+			"movq	%%mm2, %%mm1;"       // swap mm0,mm1
+
 			"movq	%%mm5, (%3,%%eax,2);"
 			"movq	%%mm7, 8(%3,%%eax,2);"
-		
+
 			"addl	$8, %%eax;"
 			"cmpl   $1272, %%eax;"
 			"jl	0b;"
-			
+
 			// last pixel
 			"movq	(%1,%%eax), %%mm2;"  // n1 | n2
 			"movq	%%mm2, %%mm3;"       // n1 | n2
 			"movq	%%mm2, %%mm5;"       // n1 | xx
 			"pcmpeqd (%2,%%eax), %%mm3;" // n1 = s1 | n2 = s2
 			"punpckldq %%mm5, %%mm5;"    // n1 | n1
-			"movq	%%mm3, %%mm4;"	     // n1 = s1 | n2 = s2  
+			"movq	%%mm3, %%mm4;"	     // n1 = s1 | n2 = s2
 			"movq	%%mm0, %%mm7;"       // xx | w1
 			"punpckldq %%mm4, %%mm4;"    // n1 = s1 | n1 = s1
 			"punpckhdq %%mm1, %%mm7;"    // w1 | e1
@@ -242,7 +244,7 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"pand	%%mm6, %%mm7;"       // c  & n2
 			"pandn  %%mm4, %%mm6;"       // !c & m2
 			"por	%%mm6, %%mm7;"       // c ? n2 : m2
-			     
+
 			"movq	%%mm5, (%3,%%eax,2);"
 			"movq	%%mm7, 8(%3,%%eax,2);"
 
@@ -254,8 +256,10 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			, "r" (src2) // 2
 			, "r" (dst)  // 3
 			: "eax"
+			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	};
@@ -304,18 +308,18 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"pand	%%mm4, %%mm5;"       //  cond & (c c d d)
 			"pandn  %%mm6, %%mm4;"       // !cond & (3 3 4 4)
 			"por	%%mm5, %%mm4;"       // cond ? (c c d d) : (3 3 4 4)
-			
+
 			"movntq	%%mm7,  (%3,%%eax,2);"
 			"movntq	%%mm4, 8(%3,%%eax,2);"
 
 			"movq	%%mm0, %%mm2;"
 			"movq	%%mm1, %%mm0;"
-			"movq	%%mm2, %%mm1;"       // swap mm0,mm1 
-			     
+			"movq	%%mm2, %%mm1;"       // swap mm0,mm1
+
 			"addl	$8, %%eax;"
 			"cmpl   $632, %%eax;"
 			"jl	0b;"
-			
+
 			// last pixel
 			"movq	(%1,%%eax), %%mm2;"  // a b c d
 			"movq	%%mm2, %%mm3;"       // a b c d
@@ -352,7 +356,7 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"pand	%%mm4, %%mm5;"       //  cond & (c c d d)
 			"pandn  %%mm6, %%mm4;"       // !cond & (3 3 4 4)
 			"por	%%mm5, %%mm4;"       // cond ? (c c d d) : (3 3 4 4)
-			
+
 			"movntq	%%mm7, (%3,%%eax,2);"
 			"movntq	%%mm4, 8(%3,%%eax,2);"
 
@@ -364,8 +368,10 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			, "r" (src2) // 2
 			, "r" (dst)  // 3
 			: "eax"
+			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	};
@@ -397,7 +403,7 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"movq	%%mm2, %%mm5;"       // a b c d
 			"punpcklwd %%mm5, %%mm5;"    // a a b b
 			"pcmpeqw %%mm5, %%mm6;"      // 0=a 2=a 1=b 3=b
-			
+
 			"movq	%%mm1, %%mm7;"       // 1 2 3 4
 			"psllq	$16, %%mm7;"         // x 1 2 3
 			"pxor	%%mm5, %%mm5;"       // x x x x
@@ -412,7 +418,7 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"movq	%%mm2, %%mm5;"       // a b c d
 			"punpcklwd %%mm5, %%mm5;"    // a a b b
 			"pcmpeqw %%mm5, %%mm7;"      // 2=a 0=a 3=b 1=b
-			
+
 			"movq	%%mm3, %%mm4;"       // a=e b=f c=g d=h
 			"punpcklwd %%mm4, %%mm4;"    // a=e a=e b=f b=f
 			"pandn	%%mm6, %%mm4;"       // 0=a & a!=e  .. .. ..
@@ -455,7 +461,7 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"movq	%%mm2, %%mm5;"       // a b c d
 			"punpckhwd %%mm5, %%mm5;"    // c c d d
 			"pcmpeqw %%mm5, %%mm4;"      // 4=c 2=c 5=d 3=d
-			
+
 			"pandn	%%mm6, %%mm3;"       // 2=c & c!=g .. .. ..
 			"pandn	%%mm3, %%mm4;"       // 2=c & c!=g & 4!=c
 			"movq	%%mm1, %%mm6;"       // 1 2 3 4
@@ -463,17 +469,17 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"pand	%%mm4, %%mm5;"       //  cond & (c c d d)
 			"pandn  %%mm6, %%mm4;"       // !cond & (3 3 4 4)
 			"por	%%mm5, %%mm4;"       // cond ? (c c d d) : (3 3 4 4)
-			
+
 			"movq	%%mm4, 8(%3,%%eax,2);"
 
 			"movq	%%mm0, %%mm2;"
 			"movq	%%mm1, %%mm0;"
-			"movq	%%mm2, %%mm1;"       // swap mm0,mm1 
-			     
+			"movq	%%mm2, %%mm1;"       // swap mm0,mm1
+
 			"addl	$8, %%eax;"
 			"cmpl   $632, %%eax;"
 			"jl	0b;"
-			
+
 			// last pixel
 			"movq	(%1,%%eax), %%mm2;"  // a b c d
 			"movq	%%mm2, %%mm3;"       // a b c d
@@ -492,7 +498,7 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"movq	%%mm2, %%mm5;"       // a b c d
 			"punpcklwd %%mm5, %%mm5;"    // a a b b
 			"pcmpeqw %%mm5, %%mm6;"      // 0=a 2=a 1=b 3=b
-			
+
 			"movq	%%mm1, %%mm7;"       // 1 2 3 4
 			"psllq	$16, %%mm7;"         // x 1 2 3
 			"pxor	%%mm5, %%mm5;"       // x x x x
@@ -507,7 +513,7 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"movq	%%mm2, %%mm5;"       // a b c d
 			"punpcklwd %%mm5, %%mm5;"    // a a b b
 			"pcmpeqw %%mm5, %%mm7;"      // 2=a 0=a 3=b 1=b
-			
+
 			"movq	%%mm3, %%mm4;"       // a=e b=f c=g d=h
 			"punpcklwd %%mm4, %%mm4;"    // a=e a=e b=f b=f
 			"pandn	%%mm6, %%mm4;"       // 0=a & a!=e  .. .. ..
@@ -551,7 +557,7 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"movq	%%mm2, %%mm5;"       // a b c d
 			"punpckhwd %%mm5, %%mm5;"    // c c d d
 			"pcmpeqw %%mm5, %%mm4;"      // 4=c 2=c 5=d 3=d
-			
+
 			"pandn	%%mm6, %%mm3;"       // 2=c & c!=g .. .. ..
 			"pandn	%%mm3, %%mm4;"       // 2=c & c!=g & 4!=c
 			"movq	%%mm1, %%mm6;"       // 1 2 3 4
@@ -559,7 +565,7 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"pand	%%mm4, %%mm5;"       //  cond & (c c d d)
 			"pandn  %%mm6, %%mm4;"       // !cond & (3 3 4 4)
 			"por	%%mm5, %%mm4;"       // cond ? (c c d d) : (3 3 4 4)
-			
+
 			"movq	%%mm4, 8(%3,%%eax,2);"
 
 			"emms;"
@@ -570,8 +576,10 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			, "r" (src2) // 2
 			, "r" (dst)  // 3
 			: "eax"
+			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	};
@@ -606,7 +614,7 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 	//    ab ef
 	// x0 12 34 5x
 	//    cd gh
-	
+
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (false && (sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
@@ -627,12 +635,12 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			                             // b=1 & b!=d
 			"punpckldq %%mm1, %%mm3;"    // 2 3
 			"pcmpeqd %%mm3, %%mm6;"      // a=2 b=3
-			"pandn	%%mm5, %%mm6;"       // a=0 & a!=c & a!=2 
+			"pandn	%%mm5, %%mm6;"       // a=0 & a!=c & a!=2
 			                             // b=1 & b!=d & b!=3
 			"pand	%%mm6, %%mm4;"       //  cond & (a b)
 			"pandn	%%mm0, %%mm6;"       // !cond & (1 2)
 			"por	%%mm4, %%mm6;"       // cond ? (a b) : (1 2)
-			
+
 			"movq	8(%1,%%eax), %%mm4;" // e f
 			"pshufw	$238, %%mm1, %%mm2;" // 4 4
 			"pcmpeqd %%mm4, %%mm3;"      // e=2 f=3
@@ -644,15 +652,15 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			                             // f=3 & f!=h
 			"punpckldq %%mm0, %%mm2;"    // 4 5
 			"pcmpeqd %%mm2, %%mm7;"      // e=4 f=5
-			"pandn	%%mm5, %%mm7;"       // e=2 & e!=g & e!=4 
+			"pandn	%%mm5, %%mm7;"       // e=2 & e!=g & e!=4
 			                             // f=3 & f!=h & f!=5
 			"pand	%%mm7, %%mm4;"       //  cond & (e f)
 			"pandn	%%mm1, %%mm7;"       // !cond & (3 4)
 			"por	%%mm4, %%mm7;"       // cond ? (e f) : (3 4)
-			
+
 			"movntq	%%mm6, (%3,%%eax);"
 			"movntq	%%mm7, 8(%3,%%eax);"
-		
+
 			"addl	$16, %%eax;"
 			"cmpl   $2544, %%eax;"
 			"jl	0b;"
@@ -668,12 +676,12 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			                             // b=1 & b!=d
 			"punpckldq %%mm1, %%mm3;"    // 2 3
 			"pcmpeqd %%mm3, %%mm6;"      // a=2 b=3
-			"pandn	%%mm5, %%mm6;"       // a=0 & a!=c & a!=2 
+			"pandn	%%mm5, %%mm6;"       // a=0 & a!=c & a!=2
 			                             // b=1 & b!=d & b!=3
 			"pand	%%mm6, %%mm4;"       //  cond & (a b)
 			"pandn	%%mm0, %%mm6;"       // !cond & (1 2)
 			"por	%%mm4, %%mm6;"       // cond ? (a b) : (1 2)
-			
+
 			"movq	8(%1,%%eax), %%mm4;" // e f
 			"pshufw	$238, %%mm1, %%mm2;" // 4 4
 			"pcmpeqd %%mm4, %%mm3;"      // e=2 f=3
@@ -685,15 +693,15 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			                             // f=3 & f!=h
 			"punpckldq %%mm0, %%mm2;"    // 4 5
 			"pcmpeqd %%mm2, %%mm7;"      // e=4 f=5
-			"pandn	%%mm5, %%mm7;"       // e=2 & e!=g & e!=4 
+			"pandn	%%mm5, %%mm7;"       // e=2 & e!=g & e!=4
 			                             // f=3 & f!=h & f!=5
 			"pand	%%mm7, %%mm4;"       //  cond & (e f)
 			"pandn	%%mm1, %%mm7;"       // !cond & (3 4)
 			"por	%%mm4, %%mm7;"       // cond ? (e f) : (3 4)
-			
+
 			"movntq	%%mm6, (%3,%%eax);"
 			"movntq	%%mm7, 8(%3,%%eax);"
-			
+
 			"emms;"
 
 			: // no output
@@ -702,8 +710,10 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			, "r" (src2) // 2
 			, "r" (dst)  // 3
 			: "eax"
+			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	};
@@ -727,12 +737,12 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			                             // b=1 & b!=d
 			"punpckldq %%mm1, %%mm3;"    // 2 3
 			"pcmpeqd %%mm3, %%mm6;"      // a=2 b=3
-			"pandn	%%mm5, %%mm6;"       // a=0 & a!=c & a!=2 
+			"pandn	%%mm5, %%mm6;"       // a=0 & a!=c & a!=2
 			                             // b=1 & b!=d & b!=3
 			"pand	%%mm6, %%mm4;"       //  cond & (a b)
 			"pandn	%%mm0, %%mm6;"       // !cond & (1 2)
 			"por	%%mm4, %%mm6;"       // cond ? (a b) : (1 2)
-			
+
 			"movq	8(%1,%%eax), %%mm4;" // e f
 			"movq	%%mm1, %%mm2;"       // 3 4
 			"punpckldq %%mm2, %%mm2;"    // 4 4
@@ -745,15 +755,15 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			                             // f=3 & f!=h
 			"punpckldq %%mm0, %%mm2;"    // 4 5
 			"pcmpeqd %%mm2, %%mm7;"      // e=4 f=5
-			"pandn	%%mm5, %%mm7;"       // e=2 & e!=g & e!=4 
+			"pandn	%%mm5, %%mm7;"       // e=2 & e!=g & e!=4
 			                             // f=3 & f!=h & f!=5
 			"pand	%%mm7, %%mm4;"       //  cond & (e f)
 			"pandn	%%mm1, %%mm7;"       // !cond & (3 4)
 			"por	%%mm4, %%mm7;"       // cond ? (e f) : (3 4)
-			
+
 			"movq	%%mm6, (%3,%%eax);"
 			"movq	%%mm7, 8(%3,%%eax);"
-		
+
 			"addl	$16, %%eax;"
 			"cmpl   $2544, %%eax;"
 			"jl	0b;"
@@ -770,12 +780,12 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			                             // b=1 & b!=d
 			"punpckldq %%mm1, %%mm3;"    // 2 3
 			"pcmpeqd %%mm3, %%mm6;"      // a=2 b=3
-			"pandn	%%mm5, %%mm6;"       // a=0 & a!=c & a!=2 
+			"pandn	%%mm5, %%mm6;"       // a=0 & a!=c & a!=2
 			                             // b=1 & b!=d & b!=3
 			"pand	%%mm6, %%mm4;"       //  cond & (a b)
 			"pandn	%%mm0, %%mm6;"       // !cond & (1 2)
 			"por	%%mm4, %%mm6;"       // cond ? (a b) : (1 2)
-			
+
 			"movq	8(%1,%%eax), %%mm4;" // e f
 			"movq	%%mm1, %%mm2;"       // 3 4
 			"punpckldq %%mm2, %%mm2;"    // 4 4
@@ -788,15 +798,15 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			                             // f=3 & f!=h
 			"punpckldq %%mm0, %%mm2;"    // 4 5
 			"pcmpeqd %%mm2, %%mm7;"      // e=4 f=5
-			"pandn	%%mm5, %%mm7;"       // e=2 & e!=g & e!=4 
+			"pandn	%%mm5, %%mm7;"       // e=2 & e!=g & e!=4
 			                             // f=3 & f!=h & f!=5
 			"pand	%%mm7, %%mm4;"       //  cond & (e f)
 			"pandn	%%mm1, %%mm7;"       // !cond & (3 4)
 			"por	%%mm4, %%mm7;"       // cond ? (e f) : (3 4)
-			
+
 			"movq	%%mm6, (%3,%%eax);"
 			"movq	%%mm7, 8(%3,%%eax);"
-			
+
 			"emms;"
 
 			: // no output
@@ -805,8 +815,10 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			, "r" (src2) // 2
 			, "r" (dst)  // 3
 			: "eax"
+			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	};
@@ -840,7 +852,7 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			"pand	%%mm6, %%mm4;"       //  cond & aceg
 			"pandn	%%mm1, %%mm6;"       // !cond & 1234
 			"por	%%mm4, %%mm6;"       // cond ? aceg : 1234
-			
+
 			"movq	8(%1,%%eax), %%mm4;" // ikmo
 			"psrlq	$48, %%mm1;"         // 4...
 			"movq	8(%2,%%eax), %%mm5;" // jlnp
@@ -861,10 +873,10 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			"pand	%%mm7, %%mm4;"       //  cond & ikmo
 			"pandn	%%mm0, %%mm7;"       // !cond & 5678
 			"por	%%mm4, %%mm7;"       // cond ? ikmo : 5678
-			
+
 			"movntq	%%mm6, (%3,%%eax);"
 			"movntq	%%mm7, 8(%3,%%eax);"
-		
+
 			"addl	$16, %%eax;"
 			"cmpl   $2544, %%eax;"
 			"jl	0b;"
@@ -889,7 +901,7 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			"pand	%%mm6, %%mm4;"       //  cond & aceg
 			"pandn	%%mm1, %%mm6;"       // !cond & 1234
 			"por	%%mm4, %%mm6;"       // cond ? aceg : 1234
-			
+
 			"movq	8(%1,%%eax), %%mm4;" // ikmo
 			"psrlq	$48, %%mm1;"         // 4...
 			"movq	8(%2,%%eax), %%mm5;" // jlnp
@@ -910,10 +922,10 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			"pand	%%mm7, %%mm4;"       //  cond & ikmo
 			"pandn	%%mm0, %%mm7;"       // !cond & 5678
 			"por	%%mm4, %%mm7;"       // cond ? ikmo : 5678
-			
+
 			"movntq	%%mm6, (%3,%%eax);"
 			"movntq	%%mm7, 8(%3,%%eax);"
-			
+
 			"emms;"
 
 			: // no output
@@ -922,8 +934,10 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			, "r" (src2) // 2
 			, "r" (dst)  // 3
 			: "eax"
+			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	};
@@ -955,7 +969,7 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			"pand	%%mm6, %%mm4;"       //  cond & aceg
 			"pandn	%%mm1, %%mm6;"       // !cond & 1234
 			"por	%%mm4, %%mm6;"       // cond ? aceg : 1234
-			
+
 			"movq	8(%1,%%eax), %%mm4;" // ikmo
 			"psrlq	$48, %%mm1;"         // 4...
 			"movq	8(%2,%%eax), %%mm5;" // jlnp
@@ -976,10 +990,10 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			"pand	%%mm7, %%mm4;"       //  cond & ikmo
 			"pandn	%%mm0, %%mm7;"       // !cond & 5678
 			"por	%%mm4, %%mm7;"       // cond ? ikmo : 5678
-			
+
 			"movq	%%mm6, (%3,%%eax);"
 			"movq	%%mm7, 8(%3,%%eax);"
-		
+
 			"addl	$16, %%eax;"
 			"cmpl   $2544, %%eax;"
 			"jl	0b;"
@@ -1004,7 +1018,7 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			"pand	%%mm6, %%mm4;"       //  cond & aceg
 			"pandn	%%mm1, %%mm6;"       // !cond & 1234
 			"por	%%mm4, %%mm6;"       // cond ? aceg : 1234
-			
+
 			"movq	8(%1,%%eax), %%mm4;" // ikmo
 			"psrlq	$48, %%mm1;"         // 4...
 			"movq	8(%2,%%eax), %%mm5;" // jlnp
@@ -1025,10 +1039,10 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			"pand	%%mm7, %%mm4;"       //  cond & ikmo
 			"pandn	%%mm0, %%mm7;"       // !cond & 5678
 			"por	%%mm4, %%mm7;"       // cond ? ikmo : 5678
-			
+
 			"movq	%%mm6, (%3,%%eax);"
 			"movq	%%mm7, 8(%3,%%eax);"
-			
+
 			"emms;"
 
 			: // no output
@@ -1037,8 +1051,10 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			, "r" (src2) // 2
 			, "r" (dst)  // 3
 			: "eax"
+			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	};

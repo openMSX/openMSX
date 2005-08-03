@@ -73,7 +73,7 @@ Multiply<word>::Multiply(SDL_PixelFormat* format)
 	Rshift2 = 2 * (2 + format->Rloss) - format->Rshift - 10;
 	Gshift2 = 2 * (2 + format->Gloss) - format->Gshift - 10;
 	Bshift2 = 2 * (2 + format->Bloss) - format->Bshift - 10;
-	
+
 	Rshift3 = Rshift1 + 0;
 	Gshift3 = Gshift1 + 10;
 	Bshift3 = Bshift1 + 20;
@@ -88,7 +88,7 @@ inline word Multiply<word>::multiply(word p, unsigned f)
 	unsigned g = (((p & Gmask1) * f) >> 8) & Gmask1;
 	unsigned b = (((p & Bmask1) * f) >> 8) & Bmask1;
 	return r | g | b;
-	
+
 }
 
 void Multiply<word>::setFactor(unsigned f)
@@ -173,8 +173,8 @@ word* Darkener<unsigned>::getTable()
 
 template <class Pixel>
 SimpleScaler<Pixel>::SimpleScaler(SDL_PixelFormat* format)
-	: scanlineSetting(*RenderSettings::instance().getScanlineAlpha())
-	, blurSetting(*RenderSettings::instance().getHorizontalBlur())
+-	: scanlineSetting(*RenderSettings::instance().getScanlineAlpha())
+-	, blurSetting(*RenderSettings::instance().getHorizontalBlur())
 	, blender(Blender<Pixel>::createFromFormat(format))
 	, mult1(format)
 	, mult2(format)
@@ -210,15 +210,15 @@ template <class Pixel>
 void SimpleScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 {
 	/* This routine is functionally equivalent to the following:
-	 * 
+	 *
 	 * void blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 	 * {
 	 *         unsigned c1 = alpha;
 	 *         unsigned c2 = 256 - c1;
-	 * 
+	 *
 	 *         Pixel prev, curr, next;
 	 *         prev = curr = pIn[0];
-	 * 
+	 *
 	 *         unsigned x;
 	 *         for (x = 0; x < (320 - 1); ++x) {
 	 *                 pOut[2 * x + 0] = (c1 * prev + c2 * curr) >> 8;
@@ -227,12 +227,12 @@ void SimpleScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 	 *                 prev = curr;
 	 *                 curr = next;
 	 *         }
-	 * 
+	 *
 	 *         pOut[2 * x + 0] = (c1 * prev + c2 * curr) >> 8;
 	 *         next = curr;
 	 *         pOut[2 * x + 1] = (c1 * next + c2 * curr) >> 8;
 	 * }
-	 * 
+	 *
 	 * The loop is 2x unrolled and all common subexpressions and redundant
 	 * assignments have been eliminated. 1 loop iteration processes 4
 	 * (output) pixels.
@@ -260,13 +260,13 @@ void SimpleScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 			"punpcklwd %%mm6, %%mm6;"
 			"punpckldq %%mm6, %%mm6;"	// mm6 = c2
 			"pxor	%%mm7, %%mm7;"
-			
-			"movd	(%0,%%eax,4), %%mm0;"
+
+			"movd	(%0,%%eax), %%mm0;"
 			"punpcklbw %%mm7, %%mm0;"	// p0 = pIn[0]
 			"movq	%%mm0, %%mm2;"
 			"pmullw	%%mm5, %%mm2;"		// f0 = multiply(p0, c1)
 			"movq	%%mm2, %%mm3;"		// f1 = f0
-			
+
 			".p2align 4,,15;"
 		"1:"
 			"pmullw	%%mm6, %%mm0;"
@@ -274,31 +274,31 @@ void SimpleScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 			"paddw	%%mm3, %%mm0;"
 			"psrlw	$8, %%mm0;"		// f1 + tmp
 
-			"movd	4(%0,%%eax,4), %%mm1;"
+			"movd	4(%0,%%eax), %%mm1;"
 			"punpcklbw %%mm7, %%mm1;"	// p1 = pIn[x + 1]
 			"movq	%%mm1, %%mm3;"
 			"pmullw	%%mm5, %%mm3;"		// f1 = multiply(p1, c1)
 			"paddw	%%mm3, %%mm4;"
 			"psrlw	$8, %%mm4;"		// f1 + tmp
 			"packuswb %%mm4, %%mm0;"
-			"movq	%%mm0, (%1,%%eax,8);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
+			"movq	%%mm0, (%1,%%eax,2);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
 
 			"pmullw	%%mm6, %%mm1;"
 			"movq	%%mm1, %%mm4;"		// tmp = multiply(p1, c2)
 			"paddw	%%mm2, %%mm1;"
 			"psrlw	$8, %%mm1;"		// f0 + tmp
 
-			"movd	8(%0,%%eax,4), %%mm0;"
+			"movd	8(%0,%%eax), %%mm0;"
 			"punpcklbw %%mm7, %%mm0;"	// p0 = pIn[x + 2]
 			"movq	%%mm0, %%mm2;"
 			"pmullw %%mm5, %%mm2;"		// f0 = multiply(p0, c1)
 			"paddw	%%mm2, %%mm4;"
 			"psrlw	$8, %%mm4;"		// f0 + tmp
 			"packuswb %%mm4, %%mm1;"
-			"movq	%%mm1, 8(%1,%%eax,8);"	// pOut[2*x+2] = ..  pOut[2*x+3] = ..
+			"movq	%%mm1, 8(%1,%%eax,2);"	// pOut[2*x+2] = ..  pOut[2*x+3] = ..
 
-			"addl	$2, %%eax;"
-			"cmpl	$318, %%eax;"
+			"addl	$8, %%eax;"
+			"cmpl	$1272, %%eax;"
 			"jl	1b;"
 
 			"pmullw	%%mm6, %%mm0;"
@@ -306,23 +306,23 @@ void SimpleScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 			"paddw	%%mm3, %%mm0;"
 			"psrlw	$8, %%mm0;"		// f1 + tmp
 
-			"movd	4(%0,%%eax,4), %%mm1;"
+			"movd	4(%0,%%eax), %%mm1;"
 			"punpcklbw %%mm7, %%mm1;"	// p1 = pIn[x + 1]
 			"movq	%%mm1, %%mm3;"
 			"pmullw	%%mm5, %%mm3;"		// f1 = multiply(p1, c1)
 			"paddw	%%mm3, %%mm4;"
 			"psrlw	$8, %%mm4;"		// f1 + tmp
 			"packuswb %%mm4, %%mm0;"
-			"movq	%%mm0, (%1,%%eax,8);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
-			
+			"movq	%%mm0, (%1,%%eax,2);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
+
 			"movq	%%mm1, %%mm4;"
 			"pmullw	%%mm6, %%mm1;" 		// tmp = multiply(p1, c2)
 			"paddw	%%mm2, %%mm1;"
 			"psrlw	$8, %%mm1;"		// f0 + tmp
 
 			"packuswb %%mm4, %%mm1;"
-			"movq	%%mm1, 8(%1,%%eax,8);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
-			
+			"movq	%%mm1, 8(%1,%%eax,2);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
+
 			"emms;"
 
 			: // no output
@@ -330,17 +330,19 @@ void SimpleScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 			, "r" (pOut)  // 1
 			, "r" (c1)    // 2
 			, "r" (c2)    // 3
-			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
-			, "eax"
+			: "eax"
+			#ifdef __MMX__
+			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	}
 	#endif
-	
+
 	// non-MMX routine, both 16bpp and 32bpp
 	mult1.setFactor(c1);
 	mult2.setFactor(c2);
-	 
+
 	Pixel p0 = pIn[0];
 	Pixel p1;
 	unsigned f0 = mult1.mul32(p0);
@@ -381,15 +383,15 @@ template <class Pixel>
 void SimpleScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 {
 	/* This routine is functionally equivalent to the following:
-	 * 
+	 *
 	 * void blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 	 * {
 	 *         unsigned c1 = alpha / 2;
 	 *         unsigned c2 = 256 - alpha;
-	 * 
+	 *
 	 *         Pixel prev, curr, next;
 	 *         prev = curr = pIn[0];
-	 * 
+	 *
 	 *         unsigned x;
 	 *         for (x = 0; x < (640 - 1); ++x) {
 	 *                 next = pIn[x + 1];
@@ -397,7 +399,7 @@ void SimpleScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 	 *                 prev = curr;
 	 *                 curr = next;
 	 *         }
-	 * 
+	 *
 	 *         next = curr;
 	 *         pOut[x] = c1 * prev + c2 * curr + c1 * next;
 	 * }
@@ -428,16 +430,16 @@ void SimpleScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 			"punpcklwd %%mm6, %%mm6;"
 			"punpckldq %%mm6, %%mm6;"	// mm6 = c2
 			"pxor	%%mm7, %%mm7;"
-		
-			"movd	(%0,%%eax,4), %%mm0;"
+
+			"movd	(%0,%%eax), %%mm0;"
 			"punpcklbw %%mm7, %%mm0;"	// p0 = pIn[0]
 			"movq	%%mm0, %%mm2;"
 			"pmullw	%%mm5, %%mm2;"		// f0 = multiply(p0, c1)
 			"movq	%%mm2, %%mm3;"		// f1 = f0
-		
+
 			".p2align 4,,15;"
 		"1:"
-			"movd	4(%0,%%eax,4), %%mm1;"
+			"movd	4(%0,%%eax), %%mm1;"
 			"pxor	%%mm7, %%mm7;"
 			"punpcklbw %%mm7, %%mm1;"	// p1 = pIn[x + 1]
 			"movq	%%mm0, %%mm4;"
@@ -449,7 +451,7 @@ void SimpleScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 			"psrlw	$8, %%mm4;"		// f0 + t + t0
 			"movq	%%mm0, %%mm2;"		// f0 = t0
 
-			"movd	8(%0,%%eax,4), %%mm0;"
+			"movd	8(%0,%%eax), %%mm0;"
 			"punpcklbw %%mm7, %%mm0;"
 			"movq	%%mm1, %%mm7;"
 			"pmullw	%%mm6, %%mm7;"		// t = multiply(p1, c2)
@@ -460,13 +462,13 @@ void SimpleScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 			"psrlw	$8, %%mm7;"		// f1 + t + t1
 			"movq	%%mm1, %%mm3;"		// f1 = t1
 			"packuswb %%mm7, %%mm4;"
-			"movq	%%mm4, (%1,%%eax,4);"	// pOut[x] = ..  pOut[x+1] = ..
-			
-			"addl	$2, %%eax;"
-			"cmpl	$638, %%eax;"
+			"movq	%%mm4, (%1,%%eax);"	// pOut[x] = ..  pOut[x+1] = ..
+
+			"addl	$8, %%eax;"
+			"cmpl	$2552, %%eax;"
 			"jl	1b;"
 
-			"movd	4(%0,%%eax,4), %%mm1;"
+			"movd	4(%0,%%eax), %%mm1;"
 			"pxor	%%mm7, %%mm7;"
 			"punpcklbw %%mm7, %%mm1;"	// p1 = pIn[x + 1]
 			"movq	%%mm0, %%mm4;"
@@ -482,8 +484,8 @@ void SimpleScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 			"paddw	%%mm0, %%mm1;"
 			"psrlw	$8, %%mm1;"		// f1 + t + t1
 			"packuswb %%mm1, %%mm4;"
-			"movq	%%mm4, (%1,%%eax,4);"	// pOut[x] = ..  pOut[x+1] = ..
-			
+			"movq	%%mm4, (%1,%%eax);"	// pOut[x] = ..  pOut[x+1] = ..
+
 			"emms;"
 
 			: // no output
@@ -491,8 +493,10 @@ void SimpleScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 			, "r" (pOut)  // 1
 			, "r" (c1)    // 2
 			, "r" (c2)    // 3
-			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
-			, "eax"
+			: "eax"
+			#ifdef __MMX__
+			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 	}
@@ -535,7 +539,7 @@ void SimpleScaler<Pixel>::average(
 		Scaler<Pixel>::copyLine(src1, dst, 640);
 		return;
 	}
-	
+
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
@@ -547,8 +551,8 @@ void SimpleScaler<Pixel>::average(
 			"pshufw $0, %%mm6, %%mm6;"
 			".p2align 4,,15;"
 		"1:"
-			"movq	(%0,%%eax,4), %%mm0;"
-			"pavgb	(%1,%%eax,4), %%mm0;"
+			"movq	(%0,%%eax), %%mm0;"
+			"pavgb	(%1,%%eax), %%mm0;"
 			"movq	%%mm0, %%mm4;"
 			"punpcklbw %%mm7, %%mm0;"
 			"punpckhbw %%mm7, %%mm4;"
@@ -556,8 +560,8 @@ void SimpleScaler<Pixel>::average(
 			"pmulhuw %%mm6, %%mm4;"
 			"packuswb %%mm4, %%mm0;"
 
-			"movq	8(%0,%%eax,4), %%mm1;"
-			"pavgb	8(%1,%%eax,4), %%mm1;"
+			"movq	8(%0,%%eax), %%mm1;"
+			"pavgb	8(%1,%%eax), %%mm1;"
 			"movq	%%mm1, %%mm5;"
 			"punpcklbw %%mm7, %%mm1;"
 			"punpckhbw %%mm7, %%mm5;"
@@ -565,8 +569,8 @@ void SimpleScaler<Pixel>::average(
 			"pmulhuw %%mm6, %%mm5;"
 			"packuswb %%mm5, %%mm1;"
 
-			"movq	16(%0,%%eax,4), %%mm2;"
-			"pavgb	16(%1,%%eax,4), %%mm2;"
+			"movq	16(%0,%%eax), %%mm2;"
+			"pavgb	16(%1,%%eax), %%mm2;"
 			"movq	%%mm2, %%mm4;"
 			"punpcklbw %%mm7, %%mm2;"
 			"punpckhbw %%mm7, %%mm4;"
@@ -574,8 +578,8 @@ void SimpleScaler<Pixel>::average(
 			"pmulhuw %%mm6, %%mm4;"
 			"packuswb %%mm4, %%mm2;"
 
-			"movq	24(%0,%%eax,4), %%mm3;"
-			"pavgb	24(%1,%%eax,4), %%mm3;"
+			"movq	24(%0,%%eax), %%mm3;"
+			"pavgb	24(%1,%%eax), %%mm3;"
 			"movq	%%mm3, %%mm5;"
 			"punpcklbw %%mm7, %%mm3;"
 			"punpckhbw %%mm7, %%mm5;"
@@ -583,24 +587,26 @@ void SimpleScaler<Pixel>::average(
 			"pmulhuw %%mm6, %%mm5;"
 			"packuswb %%mm5, %%mm3;"
 
-			"movntq %%mm0,   (%2,%%eax,4);"
-			"movntq %%mm1,  8(%2,%%eax,4);"
-			"movntq %%mm2, 16(%2,%%eax,4);"
-			"movntq %%mm3, 24(%2,%%eax,4);"
-			
-			"addl	$8, %%eax;"
-			"cmpl	$640, %%eax;"
+			"movntq %%mm0,   (%2,%%eax);"
+			"movntq %%mm1,  8(%2,%%eax);"
+			"movntq %%mm2, 16(%2,%%eax);"
+			"movntq %%mm3, 24(%2,%%eax);"
+
+			"addl	$32, %%eax;"
+			"cmpl	$2560, %%eax;"
 			"jl	1b;"
-			
+
 			"emms;"
-			
+
 			: // no output
 			: "r" (src1)  // 0
 			, "r" (src2)  // 1
 			, "r" (dst)   // 2
 			, "r" (alpha << 8) // 3
-			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
-			, "eax"
+			: "eax"
+			#ifdef __MMX__
+			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+			#endif
 		);
 		return;
 
@@ -610,15 +616,14 @@ void SimpleScaler<Pixel>::average(
 			"movd	%3, %%mm6;"
 			"pxor	%%mm7, %%mm7;"
 			"punpcklwd %%mm6, %%mm6;"
-			"punpckldq %%mm6, %%mm6;"
-
 			"xorl	%%eax, %%eax;"
+			"punpckldq %%mm6, %%mm6;"
 			".p2align 4,,15;"
 		"1:"
 			// load
-			"movq	(%0,%%eax,4), %%mm0;"
+			"movq	(%0,%%eax), %%mm0;"
 			"movq	%%mm0, %%mm1;"
-			"movq	(%1,%%eax,4), %%mm2;"
+			"movq	(%1,%%eax), %%mm2;"
 			"movq	%%mm2, %%mm3;"
 			// unpack
 			"punpcklbw %%mm7, %%mm0;"
@@ -634,21 +639,23 @@ void SimpleScaler<Pixel>::average(
 			// pack
 			"packuswb %%mm1, %%mm0;"
 			// store
-			"movq %%mm0, (%2,%%eax,4);"
-			
-			"addl	$2, %%eax;"
-			"cmpl	$640, %%eax;"
+			"movq %%mm0, (%2,%%eax);"
+
+			"addl	$8, %%eax;"
+			"cmpl	$2560, %%eax;"
 			"jl	1b;"
-			
+
 			"emms;"
-			
+
 			: // no output
 			: "r" (src1)  // 0
 			, "r" (src2)  // 1
 			, "r" (dst)   // 2
 			, "r" (alpha << 7) // 3
-			: "mm0", "mm1", "mm2", "mm3", "mm6", "mm7"
-			, "eax"
+			: "eax"
+			#ifdef __MMX__
+			, "mm0", "mm1", "mm2", "mm3", "mm6", "mm7"
+			#endif
 		);
 		return;
 	}
@@ -659,17 +666,17 @@ void SimpleScaler<Pixel>::average(
 		darkener.setFactor(alpha);
 		word* table = darkener.getTable();
 		Pixel mask = ~blender.getMask();
-		
+
 		asm (
 			"movd	%4, %%mm7;"
 			"xorl	%%ecx, %%ecx;"
 			"pshufw	$0, %%mm7, %%mm7;"
-			
+
 			".p2align 4,,15;"
-		"1:"	"movq	 (%0,%%ecx,2), %%mm0;"
-			"movq	8(%0,%%ecx,2), %%mm1;"
-			"movq	 (%1,%%ecx,2), %%mm2;"
-			"movq	8(%1,%%ecx,2), %%mm3;"
+		"1:"	"movq	 (%0,%%ecx), %%mm0;"
+			"movq	8(%0,%%ecx), %%mm1;"
+			"movq	 (%1,%%ecx), %%mm2;"
+			"movq	8(%1,%%ecx), %%mm3;"
 
 			"movq	%%mm7, %%mm4;"
 			"movq	%%mm7, %%mm5;"
@@ -683,14 +690,14 @@ void SimpleScaler<Pixel>::average(
 			"pavgw	%%mm3, %%mm1;"
 			"paddw	%%mm4, %%mm0;"
 			"paddw	%%mm5, %%mm1;"
-			
+
 			"pextrw	$0, %%mm0, %%eax;"
 			"movw	(%2,%%eax,2), %%ax;"
 			"pinsrw	$0, %%eax, %%mm0;"
 			"pextrw	$0, %%mm1, %%eax;"
 			"movw	(%2,%%eax,2), %%ax;"
 			"pinsrw	$0, %%eax, %%mm1;"
-			
+
 			"pextrw	$1, %%mm0, %%eax;"
 			"movw	(%2,%%eax,2), %%ax;"
 			"pinsrw	$1, %%eax, %%mm0;"
@@ -711,12 +718,12 @@ void SimpleScaler<Pixel>::average(
 			"pextrw	$3, %%mm1, %%eax;"
 			"movw	(%2,%%eax,2), %%ax;"
 			"pinsrw	$3, %%eax, %%mm1;"
-			
-			"movntq	%%mm0,   (%3,%%ecx,2);"
-			"movntq	%%mm1,  8(%3,%%ecx,2);"
 
-			"addl	$8, %%ecx;"
-			"cmpl	$640, %%ecx;"
+			"movntq	%%mm0,   (%3,%%ecx);"
+			"movntq	%%mm1,  8(%3,%%ecx);"
+
+			"addl	$16, %%ecx;"
+			"cmpl	$1280, %%ecx;"
 			"jl	1b;"
 			"emms;"
 			: // no output
@@ -725,16 +732,18 @@ void SimpleScaler<Pixel>::average(
 			, "r" (table) // 2
 			, "r" (dst)   // 3
 			, "m" (mask)   // 4
-			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm7"
-			, "eax", "ecx"
+			: "eax", "ecx"
+			#ifdef __MMX__
+			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm7"
+			#endif
 		);
 		return;
 	}
 	// MMX routine 16bpp is missing, but it's difficult to write because
 	// of the missing "pextrw" and "pinsrw" instructions
-	
+
 	#endif
-		
+
 	// non-MMX routine, both 16bpp and 32bpp
 	for (unsigned x = 0; x < 640; ++x) {
 		dst[x] = mult1.multiply(
@@ -758,7 +767,7 @@ void SimpleScaler<Pixel>::scale256(SDL_Surface* src, int srcY, int endSrcY,
 		srcLine = Scaler<Pixel>::linePtr(src, srcY++);
 		dstLine0 = Scaler<Pixel>::linePtr(dst, dstY + 1);
 		blur256(srcLine, dstLine0, blur);
-		
+
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY);
 		average(prevDstLine0, dstLine0, dstLine1, scanline);
 		prevDstLine0 = dstLine0;
@@ -790,7 +799,7 @@ void SimpleScaler<Pixel>::scale512(
 		srcLine = Scaler<Pixel>::linePtr(src, srcY++);
 		dstLine0 = Scaler<Pixel>::linePtr(dst, dstY + 1);
 		blur512(srcLine, dstLine0, blur);
-		
+
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY);
 		average(prevDstLine0, dstLine0, dstLine1, scanline);
 		prevDstLine0 = dstLine0;
