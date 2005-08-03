@@ -1,3 +1,20 @@
+openmsx (0.5.2-4) unstable; urgency=low
+  * backport gcc4 fixes from upstream
+
+ -- Joost Yervante Damad <joost@lumatec.be>  Wed,  3 Aug 2005 21:51:02 +0200
+
+openmsx (0.5.2-3) unstable; urgency=low
+  * no -ba build
+
+ -- Joost Yervante Damad <joost@lumatec.be>  Mon,  4 Jul 2005 21:08:03 +0200
+
+openmsx (0.5.2-2) unstable; urgency=low
+  * patch for ppc build
+  * patch for 68k build
+  * patch for verbose probe, to try and find issues on some archs
+
+ -- Joost Yervante Damad <joost@lumatec.be>  Mon,  4 Jul 2005 19:16:07 +0200
+
 openmsx (0.5.2-1) unstable; urgency=low
   * new upstream release
   * build on all archs (Closes: #307252)

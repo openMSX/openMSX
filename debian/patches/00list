@@ -1,4 +1,7 @@
 #01_change_default_machine
 02_no_contrib
 #03_use_ccache
-
+04_verbose_probe
+05_fix_ppc_gcc_opt
+06_m68k
+07_gcc4_1

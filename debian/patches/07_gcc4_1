@@ -1,0 +1,1177 @@
+#!/bin/sh -e
+##  by Joost Yervante Damad <joost@lumatec.be>
+##
+## DP: backport of gcc4 fix
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
+
+case "$1" in
+       -patch) patch $patch_opts -p1 < $0;;
+       -unpatch) patch $patch_opts -p1 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+                exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+diff -ur openmsx-0.5.2/src/video/Scale2xScaler.cc openmsx-0.5.2.new/src/video/Scale2xScaler.cc
+--- openmsx-0.5.2/src/video/Scale2xScaler.cc	2005-08-03 21:44:50.000000000 +0200
++++ openmsx-0.5.2.new/src/video/Scale2xScaler.cc	2005-08-03 20:28:55.000000000 +0200
+@@ -1,4 +1,4 @@
+-// $Id$
++// $Id$
+ 
+ /*
+ Original code: Copyright (C) 2001-2003 Andrea Mazzoleni
+@@ -77,15 +77,15 @@
+ 			"pandn  %%mm3, %%mm6;"       // !c & m2
+ 			"movq	%%mm1, %%mm0;"
+ 			"por	%%mm6, %%mm7;"       // c ? n2 : m2
+-			"movq	%%mm2, %%mm1;"       // swap mm0,mm1 
+-			     
++			"movq	%%mm2, %%mm1;"       // swap mm0,mm1
++
+ 			"movntq	%%mm5, (%3,%%eax,2);"
+ 			"movntq	%%mm7, 8(%3,%%eax,2);"
+-		
++
+ 			"addl	$8, %%eax;"
+ 			"cmpl   $1272, %%eax;"
+ 			"jl	0b;"
+-			
++
+ 			// last pixel
+ 			"movq	(%1,%%eax), %%mm2;"  // n1 | n2
+ 			"movq	%%mm2, %%mm3;"       // n1 | n2
+@@ -120,7 +120,7 @@
+ 			"pand	%%mm6, %%mm7;"       // c  & n2
+ 			"pandn  %%mm3, %%mm6;"       // !c & m2
+ 			"por	%%mm6, %%mm7;"       // c ? n2 : m2
+-			     
++
+ 			"movntq	%%mm5, (%3,%%eax,2);"
+ 			"movntq	%%mm7, 8(%3,%%eax,2);"
+ 
+@@ -132,8 +132,10 @@
+ 			, "r" (src2) // 2
+ 			, "r" (dst)  // 3
+ 			: "eax"
++			#ifdef __MMX__
+ 			, "mm0", "mm1", "mm2", "mm3"
+ 			, "mm4", "mm5", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	};
+@@ -189,22 +191,22 @@
+ 			"pandn  %%mm4, %%mm6;"       // !c & m2
+ 			"movq	%%mm1, %%mm0;"
+ 			"por	%%mm6, %%mm7;"       // c ? n2 : m2
+-			"movq	%%mm2, %%mm1;"       // swap mm0,mm1 
+-			     
++			"movq	%%mm2, %%mm1;"       // swap mm0,mm1
++
+ 			"movq	%%mm5, (%3,%%eax,2);"
+ 			"movq	%%mm7, 8(%3,%%eax,2);"
+-		
++
+ 			"addl	$8, %%eax;"
+ 			"cmpl   $1272, %%eax;"
+ 			"jl	0b;"
+-			
++
+ 			// last pixel
+ 			"movq	(%1,%%eax), %%mm2;"  // n1 | n2
+ 			"movq	%%mm2, %%mm3;"       // n1 | n2
+ 			"movq	%%mm2, %%mm5;"       // n1 | xx
+ 			"pcmpeqd (%2,%%eax), %%mm3;" // n1 = s1 | n2 = s2
+ 			"punpckldq %%mm5, %%mm5;"    // n1 | n1
+-			"movq	%%mm3, %%mm4;"	     // n1 = s1 | n2 = s2  
++			"movq	%%mm3, %%mm4;"	     // n1 = s1 | n2 = s2
+ 			"movq	%%mm0, %%mm7;"       // xx | w1
+ 			"punpckldq %%mm4, %%mm4;"    // n1 = s1 | n1 = s1
+ 			"punpckhdq %%mm1, %%mm7;"    // w1 | e1
+@@ -242,7 +244,7 @@
+ 			"pand	%%mm6, %%mm7;"       // c  & n2
+ 			"pandn  %%mm4, %%mm6;"       // !c & m2
+ 			"por	%%mm6, %%mm7;"       // c ? n2 : m2
+-			     
++
+ 			"movq	%%mm5, (%3,%%eax,2);"
+ 			"movq	%%mm7, 8(%3,%%eax,2);"
+ 
+@@ -254,8 +256,10 @@
+ 			, "r" (src2) // 2
+ 			, "r" (dst)  // 3
+ 			: "eax"
++			#ifdef __MMX__
+ 			, "mm0", "mm1", "mm2", "mm3"
+ 			, "mm4", "mm5", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	};
+@@ -304,18 +308,18 @@
+ 			"pand	%%mm4, %%mm5;"       //  cond & (c c d d)
+ 			"pandn  %%mm6, %%mm4;"       // !cond & (3 3 4 4)
+ 			"por	%%mm5, %%mm4;"       // cond ? (c c d d) : (3 3 4 4)
+-			
++
+ 			"movntq	%%mm7,  (%3,%%eax,2);"
+ 			"movntq	%%mm4, 8(%3,%%eax,2);"
+ 
+ 			"movq	%%mm0, %%mm2;"
+ 			"movq	%%mm1, %%mm0;"
+-			"movq	%%mm2, %%mm1;"       // swap mm0,mm1 
+-			     
++			"movq	%%mm2, %%mm1;"       // swap mm0,mm1
++
+ 			"addl	$8, %%eax;"
+ 			"cmpl   $632, %%eax;"
+ 			"jl	0b;"
+-			
++
+ 			// last pixel
+ 			"movq	(%1,%%eax), %%mm2;"  // a b c d
+ 			"movq	%%mm2, %%mm3;"       // a b c d
+@@ -352,7 +356,7 @@
+ 			"pand	%%mm4, %%mm5;"       //  cond & (c c d d)
+ 			"pandn  %%mm6, %%mm4;"       // !cond & (3 3 4 4)
+ 			"por	%%mm5, %%mm4;"       // cond ? (c c d d) : (3 3 4 4)
+-			
++
+ 			"movntq	%%mm7, (%3,%%eax,2);"
+ 			"movntq	%%mm4, 8(%3,%%eax,2);"
+ 
+@@ -364,8 +368,10 @@
+ 			, "r" (src2) // 2
+ 			, "r" (dst)  // 3
+ 			: "eax"
++			#ifdef __MMX__
+ 			, "mm0", "mm1", "mm2", "mm3"
+ 			, "mm4", "mm5", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	};
+@@ -397,7 +403,7 @@
+ 			"movq	%%mm2, %%mm5;"       // a b c d
+ 			"punpcklwd %%mm5, %%mm5;"    // a a b b
+ 			"pcmpeqw %%mm5, %%mm6;"      // 0=a 2=a 1=b 3=b
+-			
++
+ 			"movq	%%mm1, %%mm7;"       // 1 2 3 4
+ 			"psllq	$16, %%mm7;"         // x 1 2 3
+ 			"pxor	%%mm5, %%mm5;"       // x x x x
+@@ -412,7 +418,7 @@
+ 			"movq	%%mm2, %%mm5;"       // a b c d
+ 			"punpcklwd %%mm5, %%mm5;"    // a a b b
+ 			"pcmpeqw %%mm5, %%mm7;"      // 2=a 0=a 3=b 1=b
+-			
++
+ 			"movq	%%mm3, %%mm4;"       // a=e b=f c=g d=h
+ 			"punpcklwd %%mm4, %%mm4;"    // a=e a=e b=f b=f
+ 			"pandn	%%mm6, %%mm4;"       // 0=a & a!=e  .. .. ..
+@@ -455,7 +461,7 @@
+ 			"movq	%%mm2, %%mm5;"       // a b c d
+ 			"punpckhwd %%mm5, %%mm5;"    // c c d d
+ 			"pcmpeqw %%mm5, %%mm4;"      // 4=c 2=c 5=d 3=d
+-			
++
+ 			"pandn	%%mm6, %%mm3;"       // 2=c & c!=g .. .. ..
+ 			"pandn	%%mm3, %%mm4;"       // 2=c & c!=g & 4!=c
+ 			"movq	%%mm1, %%mm6;"       // 1 2 3 4
+@@ -463,17 +469,17 @@
+ 			"pand	%%mm4, %%mm5;"       //  cond & (c c d d)
+ 			"pandn  %%mm6, %%mm4;"       // !cond & (3 3 4 4)
+ 			"por	%%mm5, %%mm4;"       // cond ? (c c d d) : (3 3 4 4)
+-			
++
+ 			"movq	%%mm4, 8(%3,%%eax,2);"
+ 
+ 			"movq	%%mm0, %%mm2;"
+ 			"movq	%%mm1, %%mm0;"
+-			"movq	%%mm2, %%mm1;"       // swap mm0,mm1 
+-			     
++			"movq	%%mm2, %%mm1;"       // swap mm0,mm1
++
+ 			"addl	$8, %%eax;"
+ 			"cmpl   $632, %%eax;"
+ 			"jl	0b;"
+-			
++
+ 			// last pixel
+ 			"movq	(%1,%%eax), %%mm2;"  // a b c d
+ 			"movq	%%mm2, %%mm3;"       // a b c d
+@@ -492,7 +498,7 @@
+ 			"movq	%%mm2, %%mm5;"       // a b c d
+ 			"punpcklwd %%mm5, %%mm5;"    // a a b b
+ 			"pcmpeqw %%mm5, %%mm6;"      // 0=a 2=a 1=b 3=b
+-			
++
+ 			"movq	%%mm1, %%mm7;"       // 1 2 3 4
+ 			"psllq	$16, %%mm7;"         // x 1 2 3
+ 			"pxor	%%mm5, %%mm5;"       // x x x x
+@@ -507,7 +513,7 @@
+ 			"movq	%%mm2, %%mm5;"       // a b c d
+ 			"punpcklwd %%mm5, %%mm5;"    // a a b b
+ 			"pcmpeqw %%mm5, %%mm7;"      // 2=a 0=a 3=b 1=b
+-			
++
+ 			"movq	%%mm3, %%mm4;"       // a=e b=f c=g d=h
+ 			"punpcklwd %%mm4, %%mm4;"    // a=e a=e b=f b=f
+ 			"pandn	%%mm6, %%mm4;"       // 0=a & a!=e  .. .. ..
+@@ -551,7 +557,7 @@
+ 			"movq	%%mm2, %%mm5;"       // a b c d
+ 			"punpckhwd %%mm5, %%mm5;"    // c c d d
+ 			"pcmpeqw %%mm5, %%mm4;"      // 4=c 2=c 5=d 3=d
+-			
++
+ 			"pandn	%%mm6, %%mm3;"       // 2=c & c!=g .. .. ..
+ 			"pandn	%%mm3, %%mm4;"       // 2=c & c!=g & 4!=c
+ 			"movq	%%mm1, %%mm6;"       // 1 2 3 4
+@@ -559,7 +565,7 @@
+ 			"pand	%%mm4, %%mm5;"       //  cond & (c c d d)
+ 			"pandn  %%mm6, %%mm4;"       // !cond & (3 3 4 4)
+ 			"por	%%mm5, %%mm4;"       // cond ? (c c d d) : (3 3 4 4)
+-			
++
+ 			"movq	%%mm4, 8(%3,%%eax,2);"
+ 
+ 			"emms;"
+@@ -570,8 +576,10 @@
+ 			, "r" (src2) // 2
+ 			, "r" (dst)  // 3
+ 			: "eax"
++			#ifdef __MMX__
+ 			, "mm0", "mm1", "mm2", "mm3"
+ 			, "mm4", "mm5", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	};
+@@ -606,7 +614,7 @@
+ 	//    ab ef
+ 	// x0 12 34 5x
+ 	//    cd gh
+-	
++
+ 	#ifdef ASM_X86
+ 	const HostCPU& cpu = HostCPU::getInstance();
+ 	if (false && (sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
+@@ -627,12 +635,12 @@
+ 			                             // b=1 & b!=d
+ 			"punpckldq %%mm1, %%mm3;"    // 2 3
+ 			"pcmpeqd %%mm3, %%mm6;"      // a=2 b=3
+-			"pandn	%%mm5, %%mm6;"       // a=0 & a!=c & a!=2 
++			"pandn	%%mm5, %%mm6;"       // a=0 & a!=c & a!=2
+ 			                             // b=1 & b!=d & b!=3
+ 			"pand	%%mm6, %%mm4;"       //  cond & (a b)
+ 			"pandn	%%mm0, %%mm6;"       // !cond & (1 2)
+ 			"por	%%mm4, %%mm6;"       // cond ? (a b) : (1 2)
+-			
++
+ 			"movq	8(%1,%%eax), %%mm4;" // e f
+ 			"pshufw	$238, %%mm1, %%mm2;" // 4 4
+ 			"pcmpeqd %%mm4, %%mm3;"      // e=2 f=3
+@@ -644,15 +652,15 @@
+ 			                             // f=3 & f!=h
+ 			"punpckldq %%mm0, %%mm2;"    // 4 5
+ 			"pcmpeqd %%mm2, %%mm7;"      // e=4 f=5
+-			"pandn	%%mm5, %%mm7;"       // e=2 & e!=g & e!=4 
++			"pandn	%%mm5, %%mm7;"       // e=2 & e!=g & e!=4
+ 			                             // f=3 & f!=h & f!=5
+ 			"pand	%%mm7, %%mm4;"       //  cond & (e f)
+ 			"pandn	%%mm1, %%mm7;"       // !cond & (3 4)
+ 			"por	%%mm4, %%mm7;"       // cond ? (e f) : (3 4)
+-			
++
+ 			"movntq	%%mm6, (%3,%%eax);"
+ 			"movntq	%%mm7, 8(%3,%%eax);"
+-		
++
+ 			"addl	$16, %%eax;"
+ 			"cmpl   $2544, %%eax;"
+ 			"jl	0b;"
+@@ -668,12 +676,12 @@
+ 			                             // b=1 & b!=d
+ 			"punpckldq %%mm1, %%mm3;"    // 2 3
+ 			"pcmpeqd %%mm3, %%mm6;"      // a=2 b=3
+-			"pandn	%%mm5, %%mm6;"       // a=0 & a!=c & a!=2 
++			"pandn	%%mm5, %%mm6;"       // a=0 & a!=c & a!=2
+ 			                             // b=1 & b!=d & b!=3
+ 			"pand	%%mm6, %%mm4;"       //  cond & (a b)
+ 			"pandn	%%mm0, %%mm6;"       // !cond & (1 2)
+ 			"por	%%mm4, %%mm6;"       // cond ? (a b) : (1 2)
+-			
++
+ 			"movq	8(%1,%%eax), %%mm4;" // e f
+ 			"pshufw	$238, %%mm1, %%mm2;" // 4 4
+ 			"pcmpeqd %%mm4, %%mm3;"      // e=2 f=3
+@@ -685,15 +693,15 @@
+ 			                             // f=3 & f!=h
+ 			"punpckldq %%mm0, %%mm2;"    // 4 5
+ 			"pcmpeqd %%mm2, %%mm7;"      // e=4 f=5
+-			"pandn	%%mm5, %%mm7;"       // e=2 & e!=g & e!=4 
++			"pandn	%%mm5, %%mm7;"       // e=2 & e!=g & e!=4
+ 			                             // f=3 & f!=h & f!=5
+ 			"pand	%%mm7, %%mm4;"       //  cond & (e f)
+ 			"pandn	%%mm1, %%mm7;"       // !cond & (3 4)
+ 			"por	%%mm4, %%mm7;"       // cond ? (e f) : (3 4)
+-			
++
+ 			"movntq	%%mm6, (%3,%%eax);"
+ 			"movntq	%%mm7, 8(%3,%%eax);"
+-			
++
+ 			"emms;"
+ 
+ 			: // no output
+@@ -702,8 +710,10 @@
+ 			, "r" (src2) // 2
+ 			, "r" (dst)  // 3
+ 			: "eax"
++			#ifdef __MMX__
+ 			, "mm0", "mm1", "mm2", "mm3"
+ 			, "mm4", "mm5", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	};
+@@ -727,12 +737,12 @@
+ 			                             // b=1 & b!=d
+ 			"punpckldq %%mm1, %%mm3;"    // 2 3
+ 			"pcmpeqd %%mm3, %%mm6;"      // a=2 b=3
+-			"pandn	%%mm5, %%mm6;"       // a=0 & a!=c & a!=2 
++			"pandn	%%mm5, %%mm6;"       // a=0 & a!=c & a!=2
+ 			                             // b=1 & b!=d & b!=3
+ 			"pand	%%mm6, %%mm4;"       //  cond & (a b)
+ 			"pandn	%%mm0, %%mm6;"       // !cond & (1 2)
+ 			"por	%%mm4, %%mm6;"       // cond ? (a b) : (1 2)
+-			
++
+ 			"movq	8(%1,%%eax), %%mm4;" // e f
+ 			"movq	%%mm1, %%mm2;"       // 3 4
+ 			"punpckldq %%mm2, %%mm2;"    // 4 4
+@@ -745,15 +755,15 @@
+ 			                             // f=3 & f!=h
+ 			"punpckldq %%mm0, %%mm2;"    // 4 5
+ 			"pcmpeqd %%mm2, %%mm7;"      // e=4 f=5
+-			"pandn	%%mm5, %%mm7;"       // e=2 & e!=g & e!=4 
++			"pandn	%%mm5, %%mm7;"       // e=2 & e!=g & e!=4
+ 			                             // f=3 & f!=h & f!=5
+ 			"pand	%%mm7, %%mm4;"       //  cond & (e f)
+ 			"pandn	%%mm1, %%mm7;"       // !cond & (3 4)
+ 			"por	%%mm4, %%mm7;"       // cond ? (e f) : (3 4)
+-			
++
+ 			"movq	%%mm6, (%3,%%eax);"
+ 			"movq	%%mm7, 8(%3,%%eax);"
+-		
++
+ 			"addl	$16, %%eax;"
+ 			"cmpl   $2544, %%eax;"
+ 			"jl	0b;"
+@@ -770,12 +780,12 @@
+ 			                             // b=1 & b!=d
+ 			"punpckldq %%mm1, %%mm3;"    // 2 3
+ 			"pcmpeqd %%mm3, %%mm6;"      // a=2 b=3
+-			"pandn	%%mm5, %%mm6;"       // a=0 & a!=c & a!=2 
++			"pandn	%%mm5, %%mm6;"       // a=0 & a!=c & a!=2
+ 			                             // b=1 & b!=d & b!=3
+ 			"pand	%%mm6, %%mm4;"       //  cond & (a b)
+ 			"pandn	%%mm0, %%mm6;"       // !cond & (1 2)
+ 			"por	%%mm4, %%mm6;"       // cond ? (a b) : (1 2)
+-			
++
+ 			"movq	8(%1,%%eax), %%mm4;" // e f
+ 			"movq	%%mm1, %%mm2;"       // 3 4
+ 			"punpckldq %%mm2, %%mm2;"    // 4 4
+@@ -788,15 +798,15 @@
+ 			                             // f=3 & f!=h
+ 			"punpckldq %%mm0, %%mm2;"    // 4 5
+ 			"pcmpeqd %%mm2, %%mm7;"      // e=4 f=5
+-			"pandn	%%mm5, %%mm7;"       // e=2 & e!=g & e!=4 
++			"pandn	%%mm5, %%mm7;"       // e=2 & e!=g & e!=4
+ 			                             // f=3 & f!=h & f!=5
+ 			"pand	%%mm7, %%mm4;"       //  cond & (e f)
+ 			"pandn	%%mm1, %%mm7;"       // !cond & (3 4)
+ 			"por	%%mm4, %%mm7;"       // cond ? (e f) : (3 4)
+-			
++
+ 			"movq	%%mm6, (%3,%%eax);"
+ 			"movq	%%mm7, 8(%3,%%eax);"
+-			
++
+ 			"emms;"
+ 
+ 			: // no output
+@@ -805,8 +815,10 @@
+ 			, "r" (src2) // 2
+ 			, "r" (dst)  // 3
+ 			: "eax"
++			#ifdef __MMX__
+ 			, "mm0", "mm1", "mm2", "mm3"
+ 			, "mm4", "mm5", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	};
+@@ -840,7 +852,7 @@
+ 			"pand	%%mm6, %%mm4;"       //  cond & aceg
+ 			"pandn	%%mm1, %%mm6;"       // !cond & 1234
+ 			"por	%%mm4, %%mm6;"       // cond ? aceg : 1234
+-			
++
+ 			"movq	8(%1,%%eax), %%mm4;" // ikmo
+ 			"psrlq	$48, %%mm1;"         // 4...
+ 			"movq	8(%2,%%eax), %%mm5;" // jlnp
+@@ -861,10 +873,10 @@
+ 			"pand	%%mm7, %%mm4;"       //  cond & ikmo
+ 			"pandn	%%mm0, %%mm7;"       // !cond & 5678
+ 			"por	%%mm4, %%mm7;"       // cond ? ikmo : 5678
+-			
++
+ 			"movntq	%%mm6, (%3,%%eax);"
+ 			"movntq	%%mm7, 8(%3,%%eax);"
+-		
++
+ 			"addl	$16, %%eax;"
+ 			"cmpl   $2544, %%eax;"
+ 			"jl	0b;"
+@@ -889,7 +901,7 @@
+ 			"pand	%%mm6, %%mm4;"       //  cond & aceg
+ 			"pandn	%%mm1, %%mm6;"       // !cond & 1234
+ 			"por	%%mm4, %%mm6;"       // cond ? aceg : 1234
+-			
++
+ 			"movq	8(%1,%%eax), %%mm4;" // ikmo
+ 			"psrlq	$48, %%mm1;"         // 4...
+ 			"movq	8(%2,%%eax), %%mm5;" // jlnp
+@@ -910,10 +922,10 @@
+ 			"pand	%%mm7, %%mm4;"       //  cond & ikmo
+ 			"pandn	%%mm0, %%mm7;"       // !cond & 5678
+ 			"por	%%mm4, %%mm7;"       // cond ? ikmo : 5678
+-			
++
+ 			"movntq	%%mm6, (%3,%%eax);"
+ 			"movntq	%%mm7, 8(%3,%%eax);"
+-			
++
+ 			"emms;"
+ 
+ 			: // no output
+@@ -922,8 +934,10 @@
+ 			, "r" (src2) // 2
+ 			, "r" (dst)  // 3
+ 			: "eax"
++			#ifdef __MMX__
+ 			, "mm0", "mm1", "mm2", "mm3"
+ 			, "mm4", "mm5", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	};
+@@ -955,7 +969,7 @@
+ 			"pand	%%mm6, %%mm4;"       //  cond & aceg
+ 			"pandn	%%mm1, %%mm6;"       // !cond & 1234
+ 			"por	%%mm4, %%mm6;"       // cond ? aceg : 1234
+-			
++
+ 			"movq	8(%1,%%eax), %%mm4;" // ikmo
+ 			"psrlq	$48, %%mm1;"         // 4...
+ 			"movq	8(%2,%%eax), %%mm5;" // jlnp
+@@ -976,10 +990,10 @@
+ 			"pand	%%mm7, %%mm4;"       //  cond & ikmo
+ 			"pandn	%%mm0, %%mm7;"       // !cond & 5678
+ 			"por	%%mm4, %%mm7;"       // cond ? ikmo : 5678
+-			
++
+ 			"movq	%%mm6, (%3,%%eax);"
+ 			"movq	%%mm7, 8(%3,%%eax);"
+-		
++
+ 			"addl	$16, %%eax;"
+ 			"cmpl   $2544, %%eax;"
+ 			"jl	0b;"
+@@ -1004,7 +1018,7 @@
+ 			"pand	%%mm6, %%mm4;"       //  cond & aceg
+ 			"pandn	%%mm1, %%mm6;"       // !cond & 1234
+ 			"por	%%mm4, %%mm6;"       // cond ? aceg : 1234
+-			
++
+ 			"movq	8(%1,%%eax), %%mm4;" // ikmo
+ 			"psrlq	$48, %%mm1;"         // 4...
+ 			"movq	8(%2,%%eax), %%mm5;" // jlnp
+@@ -1025,10 +1039,10 @@
+ 			"pand	%%mm7, %%mm4;"       //  cond & ikmo
+ 			"pandn	%%mm0, %%mm7;"       // !cond & 5678
+ 			"por	%%mm4, %%mm7;"       // cond ? ikmo : 5678
+-			
++
+ 			"movq	%%mm6, (%3,%%eax);"
+ 			"movq	%%mm7, 8(%3,%%eax);"
+-			
++
+ 			"emms;"
+ 
+ 			: // no output
+@@ -1037,8 +1051,10 @@
+ 			, "r" (src2) // 2
+ 			, "r" (dst)  // 3
+ 			: "eax"
++			#ifdef __MMX__
+ 			, "mm0", "mm1", "mm2", "mm3"
+ 			, "mm4", "mm5", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	};
+diff -ur openmsx-0.5.2/src/video/Scaler.cc openmsx-0.5.2.new/src/video/Scaler.cc
+--- openmsx-0.5.2/src/video/Scaler.cc	2005-08-03 21:44:50.000000000 +0200
++++ openmsx-0.5.2.new/src/video/Scaler.cc	2005-08-03 20:46:07.000000000 +0200
+@@ -1,4 +1,4 @@
+-// $Id$
++// $Id$
+ 
+ #include "Scaler.hh"
+ #include "SimpleScaler.hh"
+@@ -86,8 +86,11 @@
+ 			, "r" (pOut) // 1
+ 			, "r" (nBytes) // 2
+ 			, "r" (0) // 3
+-			: "mm0", "mm1", "mm2", "mm3"
+-			, "mm4", "mm5", "mm6", "mm7"
++			:
++			#ifdef __MMX__
++			"mm0", "mm1", "mm2", "mm3" ,
++			"mm4", "mm5", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	}
+@@ -126,8 +129,11 @@
+ 			, "r" (pOut) // 1
+ 			, "r" (nBytes) // 2
+ 			, "r" (0) // 3
+-			: "mm0", "mm1", "mm2", "mm3"
+-			, "mm4", "mm5", "mm6", "mm7"
++			:
++			#ifdef __MMX__
++			"mm0", "mm1", "mm2", "mm3",
++			"mm4", "mm5", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	}
+@@ -195,8 +201,11 @@
+ 			, "r" (pOut) // 1
+ 			, "r" (width) // 2
+ 			, "r" (0) // 3
+-			: "mm0", "mm1", "mm2", "mm3"
+-			, "mm4", "mm5", "mm6", "mm7"
++			:
++			#ifdef __MMX__
++			"mm0", "mm1", "mm2", "mm3",
++			"mm4", "mm5", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	}
+@@ -244,8 +253,11 @@
+ 			, "r" (pOut) // 1
+ 			, "r" (width) // 2
+ 			, "r" (0) // 3
+-			: "mm0", "mm1", "mm2", "mm3"
+-			, "mm4", "mm5", "mm6", "mm7"
++			:
++			#ifdef __MMX__
++			"mm0", "mm1", "mm2", "mm3",
++			"mm4", "mm5", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	}
+@@ -293,8 +305,11 @@
+ 			, "r" (pOut) // 1
+ 			, "r" (width) // 2
+ 			, "r" (0) // 3
+-			: "mm0", "mm1", "mm2", "mm3"
+-			, "mm4", "mm5", "mm6", "mm7"
++			:
++			#ifdef __MMX__
++			"mm0", "mm1", "mm2", "mm3",
++			"mm4", "mm5", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	}
+@@ -342,8 +357,11 @@
+ 			, "r" (pOut) // 1
+ 			, "r" (width) // 2
+ 			, "r" (0) // 3
+-			: "mm0", "mm1", "mm2", "mm3"
+-			, "mm4", "mm5", "mm6", "mm7"
++			:
++			#ifdef __MMX__
++			"mm0", "mm1", "mm2", "mm3",
++			"mm4", "mm5", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	}
+@@ -396,7 +414,10 @@
+ 			, "rm" (col32) // 1
+ 			, "r" (width * sizeof(Pixel)) // 2
+ 			, "r" (0) // 3
+-			: "mm0"
++			:
++			#ifdef __MMX__
++			"mm0"
++			#endif
+ 		);
+ 		return;
+ 	}
+@@ -429,7 +450,10 @@
+ 			, "rm" (col32) // 1
+ 			, "r" (width * sizeof(Pixel)) // 2
+ 			, "r" (0) // 3
+-			: "mm0"
++			:
++			#ifdef __MMX__
++			"mm0"
++			#endif
+ 		);
+ 		return;
+ 	}
+diff -ur openmsx-0.5.2/src/video/SimpleScaler.cc openmsx-0.5.2.new/src/video/SimpleScaler.cc
+--- openmsx-0.5.2/src/video/SimpleScaler.cc	2005-08-03 21:44:50.000000000 +0200
++++ openmsx-0.5.2.new/src/video/SimpleScaler.cc	2005-08-03 21:42:09.000000000 +0200
+@@ -1,4 +1,4 @@
+-// $Id$
++// $Id$
+ 
+ #include "SimpleScaler.hh"
+ #include "RenderSettings.hh"
+@@ -73,7 +73,7 @@
+ 	Rshift2 = 2 * (2 + format->Rloss) - format->Rshift - 10;
+ 	Gshift2 = 2 * (2 + format->Gloss) - format->Gshift - 10;
+ 	Bshift2 = 2 * (2 + format->Bloss) - format->Bshift - 10;
+-	
++
+ 	Rshift3 = Rshift1 + 0;
+ 	Gshift3 = Gshift1 + 10;
+ 	Bshift3 = Bshift1 + 20;
+@@ -88,7 +88,7 @@
+ 	unsigned g = (((p & Gmask1) * f) >> 8) & Gmask1;
+ 	unsigned b = (((p & Bmask1) * f) >> 8) & Bmask1;
+ 	return r | g | b;
+-	
++
+ }
+ 
+ void Multiply<word>::setFactor(unsigned f)
+@@ -173,8 +173,8 @@
+ 
+ template <class Pixel>
+ SimpleScaler<Pixel>::SimpleScaler(SDL_PixelFormat* format)
+-	: scanlineSetting(*RenderSettings::instance().getScanlineAlpha())
+-	, blurSetting(*RenderSettings::instance().getHorizontalBlur())
++-	: scanlineSetting(*RenderSettings::instance().getScanlineAlpha())
++-	, blurSetting(*RenderSettings::instance().getHorizontalBlur())
+ 	, blender(Blender<Pixel>::createFromFormat(format))
+ 	, mult1(format)
+ 	, mult2(format)
+@@ -210,15 +210,15 @@
+ void SimpleScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
+ {
+ 	/* This routine is functionally equivalent to the following:
+-	 * 
++	 *
+ 	 * void blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
+ 	 * {
+ 	 *         unsigned c1 = alpha;
+ 	 *         unsigned c2 = 256 - c1;
+-	 * 
++	 *
+ 	 *         Pixel prev, curr, next;
+ 	 *         prev = curr = pIn[0];
+-	 * 
++	 *
+ 	 *         unsigned x;
+ 	 *         for (x = 0; x < (320 - 1); ++x) {
+ 	 *                 pOut[2 * x + 0] = (c1 * prev + c2 * curr) >> 8;
+@@ -227,12 +227,12 @@
+ 	 *                 prev = curr;
+ 	 *                 curr = next;
+ 	 *         }
+-	 * 
++	 *
+ 	 *         pOut[2 * x + 0] = (c1 * prev + c2 * curr) >> 8;
+ 	 *         next = curr;
+ 	 *         pOut[2 * x + 1] = (c1 * next + c2 * curr) >> 8;
+ 	 * }
+-	 * 
++	 *
+ 	 * The loop is 2x unrolled and all common subexpressions and redundant
+ 	 * assignments have been eliminated. 1 loop iteration processes 4
+ 	 * (output) pixels.
+@@ -260,13 +260,13 @@
+ 			"punpcklwd %%mm6, %%mm6;"
+ 			"punpckldq %%mm6, %%mm6;"	// mm6 = c2
+ 			"pxor	%%mm7, %%mm7;"
+-			
+-			"movd	(%0,%%eax,4), %%mm0;"
++
++			"movd	(%0,%%eax), %%mm0;"
+ 			"punpcklbw %%mm7, %%mm0;"	// p0 = pIn[0]
+ 			"movq	%%mm0, %%mm2;"
+ 			"pmullw	%%mm5, %%mm2;"		// f0 = multiply(p0, c1)
+ 			"movq	%%mm2, %%mm3;"		// f1 = f0
+-			
++
+ 			".p2align 4,,15;"
+ 		"1:"
+ 			"pmullw	%%mm6, %%mm0;"
+@@ -274,31 +274,31 @@
+ 			"paddw	%%mm3, %%mm0;"
+ 			"psrlw	$8, %%mm0;"		// f1 + tmp
+ 
+-			"movd	4(%0,%%eax,4), %%mm1;"
++			"movd	4(%0,%%eax), %%mm1;"
+ 			"punpcklbw %%mm7, %%mm1;"	// p1 = pIn[x + 1]
+ 			"movq	%%mm1, %%mm3;"
+ 			"pmullw	%%mm5, %%mm3;"		// f1 = multiply(p1, c1)
+ 			"paddw	%%mm3, %%mm4;"
+ 			"psrlw	$8, %%mm4;"		// f1 + tmp
+ 			"packuswb %%mm4, %%mm0;"
+-			"movq	%%mm0, (%1,%%eax,8);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
++			"movq	%%mm0, (%1,%%eax,2);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
+ 
+ 			"pmullw	%%mm6, %%mm1;"
+ 			"movq	%%mm1, %%mm4;"		// tmp = multiply(p1, c2)
+ 			"paddw	%%mm2, %%mm1;"
+ 			"psrlw	$8, %%mm1;"		// f0 + tmp
+ 
+-			"movd	8(%0,%%eax,4), %%mm0;"
++			"movd	8(%0,%%eax), %%mm0;"
+ 			"punpcklbw %%mm7, %%mm0;"	// p0 = pIn[x + 2]
+ 			"movq	%%mm0, %%mm2;"
+ 			"pmullw %%mm5, %%mm2;"		// f0 = multiply(p0, c1)
+ 			"paddw	%%mm2, %%mm4;"
+ 			"psrlw	$8, %%mm4;"		// f0 + tmp
+ 			"packuswb %%mm4, %%mm1;"
+-			"movq	%%mm1, 8(%1,%%eax,8);"	// pOut[2*x+2] = ..  pOut[2*x+3] = ..
++			"movq	%%mm1, 8(%1,%%eax,2);"	// pOut[2*x+2] = ..  pOut[2*x+3] = ..
+ 
+-			"addl	$2, %%eax;"
+-			"cmpl	$318, %%eax;"
++			"addl	$8, %%eax;"
++			"cmpl	$1272, %%eax;"
+ 			"jl	1b;"
+ 
+ 			"pmullw	%%mm6, %%mm0;"
+@@ -306,23 +306,23 @@
+ 			"paddw	%%mm3, %%mm0;"
+ 			"psrlw	$8, %%mm0;"		// f1 + tmp
+ 
+-			"movd	4(%0,%%eax,4), %%mm1;"
++			"movd	4(%0,%%eax), %%mm1;"
+ 			"punpcklbw %%mm7, %%mm1;"	// p1 = pIn[x + 1]
+ 			"movq	%%mm1, %%mm3;"
+ 			"pmullw	%%mm5, %%mm3;"		// f1 = multiply(p1, c1)
+ 			"paddw	%%mm3, %%mm4;"
+ 			"psrlw	$8, %%mm4;"		// f1 + tmp
+ 			"packuswb %%mm4, %%mm0;"
+-			"movq	%%mm0, (%1,%%eax,8);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
+-			
++			"movq	%%mm0, (%1,%%eax,2);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
++
+ 			"movq	%%mm1, %%mm4;"
+ 			"pmullw	%%mm6, %%mm1;" 		// tmp = multiply(p1, c2)
+ 			"paddw	%%mm2, %%mm1;"
+ 			"psrlw	$8, %%mm1;"		// f0 + tmp
+ 
+ 			"packuswb %%mm4, %%mm1;"
+-			"movq	%%mm1, 8(%1,%%eax,8);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
+-			
++			"movq	%%mm1, 8(%1,%%eax,2);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
++
+ 			"emms;"
+ 
+ 			: // no output
+@@ -330,17 +330,19 @@
+ 			, "r" (pOut)  // 1
+ 			, "r" (c1)    // 2
+ 			, "r" (c2)    // 3
+-			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+-			, "eax"
++			: "eax"
++			#ifdef __MMX__
++			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	}
+ 	#endif
+-	
++
+ 	// non-MMX routine, both 16bpp and 32bpp
+ 	mult1.setFactor(c1);
+ 	mult2.setFactor(c2);
+-	 
++
+ 	Pixel p0 = pIn[0];
+ 	Pixel p1;
+ 	unsigned f0 = mult1.mul32(p0);
+@@ -381,15 +383,15 @@
+ void SimpleScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
+ {
+ 	/* This routine is functionally equivalent to the following:
+-	 * 
++	 *
+ 	 * void blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
+ 	 * {
+ 	 *         unsigned c1 = alpha / 2;
+ 	 *         unsigned c2 = 256 - alpha;
+-	 * 
++	 *
+ 	 *         Pixel prev, curr, next;
+ 	 *         prev = curr = pIn[0];
+-	 * 
++	 *
+ 	 *         unsigned x;
+ 	 *         for (x = 0; x < (640 - 1); ++x) {
+ 	 *                 next = pIn[x + 1];
+@@ -397,7 +399,7 @@
+ 	 *                 prev = curr;
+ 	 *                 curr = next;
+ 	 *         }
+-	 * 
++	 *
+ 	 *         next = curr;
+ 	 *         pOut[x] = c1 * prev + c2 * curr + c1 * next;
+ 	 * }
+@@ -428,16 +430,16 @@
+ 			"punpcklwd %%mm6, %%mm6;"
+ 			"punpckldq %%mm6, %%mm6;"	// mm6 = c2
+ 			"pxor	%%mm7, %%mm7;"
+-		
+-			"movd	(%0,%%eax,4), %%mm0;"
++
++			"movd	(%0,%%eax), %%mm0;"
+ 			"punpcklbw %%mm7, %%mm0;"	// p0 = pIn[0]
+ 			"movq	%%mm0, %%mm2;"
+ 			"pmullw	%%mm5, %%mm2;"		// f0 = multiply(p0, c1)
+ 			"movq	%%mm2, %%mm3;"		// f1 = f0
+-		
++
+ 			".p2align 4,,15;"
+ 		"1:"
+-			"movd	4(%0,%%eax,4), %%mm1;"
++			"movd	4(%0,%%eax), %%mm1;"
+ 			"pxor	%%mm7, %%mm7;"
+ 			"punpcklbw %%mm7, %%mm1;"	// p1 = pIn[x + 1]
+ 			"movq	%%mm0, %%mm4;"
+@@ -449,7 +451,7 @@
+ 			"psrlw	$8, %%mm4;"		// f0 + t + t0
+ 			"movq	%%mm0, %%mm2;"		// f0 = t0
+ 
+-			"movd	8(%0,%%eax,4), %%mm0;"
++			"movd	8(%0,%%eax), %%mm0;"
+ 			"punpcklbw %%mm7, %%mm0;"
+ 			"movq	%%mm1, %%mm7;"
+ 			"pmullw	%%mm6, %%mm7;"		// t = multiply(p1, c2)
+@@ -460,13 +462,13 @@
+ 			"psrlw	$8, %%mm7;"		// f1 + t + t1
+ 			"movq	%%mm1, %%mm3;"		// f1 = t1
+ 			"packuswb %%mm7, %%mm4;"
+-			"movq	%%mm4, (%1,%%eax,4);"	// pOut[x] = ..  pOut[x+1] = ..
+-			
+-			"addl	$2, %%eax;"
+-			"cmpl	$638, %%eax;"
++			"movq	%%mm4, (%1,%%eax);"	// pOut[x] = ..  pOut[x+1] = ..
++
++			"addl	$8, %%eax;"
++			"cmpl	$2552, %%eax;"
+ 			"jl	1b;"
+ 
+-			"movd	4(%0,%%eax,4), %%mm1;"
++			"movd	4(%0,%%eax), %%mm1;"
+ 			"pxor	%%mm7, %%mm7;"
+ 			"punpcklbw %%mm7, %%mm1;"	// p1 = pIn[x + 1]
+ 			"movq	%%mm0, %%mm4;"
+@@ -482,8 +484,8 @@
+ 			"paddw	%%mm0, %%mm1;"
+ 			"psrlw	$8, %%mm1;"		// f1 + t + t1
+ 			"packuswb %%mm1, %%mm4;"
+-			"movq	%%mm4, (%1,%%eax,4);"	// pOut[x] = ..  pOut[x+1] = ..
+-			
++			"movq	%%mm4, (%1,%%eax);"	// pOut[x] = ..  pOut[x+1] = ..
++
+ 			"emms;"
+ 
+ 			: // no output
+@@ -491,8 +493,10 @@
+ 			, "r" (pOut)  // 1
+ 			, "r" (c1)    // 2
+ 			, "r" (c2)    // 3
+-			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+-			, "eax"
++			: "eax"
++			#ifdef __MMX__
++			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	}
+@@ -535,7 +539,7 @@
+ 		Scaler<Pixel>::copyLine(src1, dst, 640);
+ 		return;
+ 	}
+-	
++
+ 	#ifdef ASM_X86
+ 	const HostCPU& cpu = HostCPU::getInstance();
+ 	if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
+@@ -547,8 +551,8 @@
+ 			"pshufw $0, %%mm6, %%mm6;"
+ 			".p2align 4,,15;"
+ 		"1:"
+-			"movq	(%0,%%eax,4), %%mm0;"
+-			"pavgb	(%1,%%eax,4), %%mm0;"
++			"movq	(%0,%%eax), %%mm0;"
++			"pavgb	(%1,%%eax), %%mm0;"
+ 			"movq	%%mm0, %%mm4;"
+ 			"punpcklbw %%mm7, %%mm0;"
+ 			"punpckhbw %%mm7, %%mm4;"
+@@ -556,8 +560,8 @@
+ 			"pmulhuw %%mm6, %%mm4;"
+ 			"packuswb %%mm4, %%mm0;"
+ 
+-			"movq	8(%0,%%eax,4), %%mm1;"
+-			"pavgb	8(%1,%%eax,4), %%mm1;"
++			"movq	8(%0,%%eax), %%mm1;"
++			"pavgb	8(%1,%%eax), %%mm1;"
+ 			"movq	%%mm1, %%mm5;"
+ 			"punpcklbw %%mm7, %%mm1;"
+ 			"punpckhbw %%mm7, %%mm5;"
+@@ -565,8 +569,8 @@
+ 			"pmulhuw %%mm6, %%mm5;"
+ 			"packuswb %%mm5, %%mm1;"
+ 
+-			"movq	16(%0,%%eax,4), %%mm2;"
+-			"pavgb	16(%1,%%eax,4), %%mm2;"
++			"movq	16(%0,%%eax), %%mm2;"
++			"pavgb	16(%1,%%eax), %%mm2;"
+ 			"movq	%%mm2, %%mm4;"
+ 			"punpcklbw %%mm7, %%mm2;"
+ 			"punpckhbw %%mm7, %%mm4;"
+@@ -574,8 +578,8 @@
+ 			"pmulhuw %%mm6, %%mm4;"
+ 			"packuswb %%mm4, %%mm2;"
+ 
+-			"movq	24(%0,%%eax,4), %%mm3;"
+-			"pavgb	24(%1,%%eax,4), %%mm3;"
++			"movq	24(%0,%%eax), %%mm3;"
++			"pavgb	24(%1,%%eax), %%mm3;"
+ 			"movq	%%mm3, %%mm5;"
+ 			"punpcklbw %%mm7, %%mm3;"
+ 			"punpckhbw %%mm7, %%mm5;"
+@@ -583,24 +587,26 @@
+ 			"pmulhuw %%mm6, %%mm5;"
+ 			"packuswb %%mm5, %%mm3;"
+ 
+-			"movntq %%mm0,   (%2,%%eax,4);"
+-			"movntq %%mm1,  8(%2,%%eax,4);"
+-			"movntq %%mm2, 16(%2,%%eax,4);"
+-			"movntq %%mm3, 24(%2,%%eax,4);"
+-			
+-			"addl	$8, %%eax;"
+-			"cmpl	$640, %%eax;"
++			"movntq %%mm0,   (%2,%%eax);"
++			"movntq %%mm1,  8(%2,%%eax);"
++			"movntq %%mm2, 16(%2,%%eax);"
++			"movntq %%mm3, 24(%2,%%eax);"
++
++			"addl	$32, %%eax;"
++			"cmpl	$2560, %%eax;"
+ 			"jl	1b;"
+-			
++
+ 			"emms;"
+-			
++
+ 			: // no output
+ 			: "r" (src1)  // 0
+ 			, "r" (src2)  // 1
+ 			, "r" (dst)   // 2
+ 			, "r" (alpha << 8) // 3
+-			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+-			, "eax"
++			: "eax"
++			#ifdef __MMX__
++			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 
+@@ -610,15 +616,14 @@
+ 			"movd	%3, %%mm6;"
+ 			"pxor	%%mm7, %%mm7;"
+ 			"punpcklwd %%mm6, %%mm6;"
+-			"punpckldq %%mm6, %%mm6;"
+-
+ 			"xorl	%%eax, %%eax;"
++			"punpckldq %%mm6, %%mm6;"
+ 			".p2align 4,,15;"
+ 		"1:"
+ 			// load
+-			"movq	(%0,%%eax,4), %%mm0;"
++			"movq	(%0,%%eax), %%mm0;"
+ 			"movq	%%mm0, %%mm1;"
+-			"movq	(%1,%%eax,4), %%mm2;"
++			"movq	(%1,%%eax), %%mm2;"
+ 			"movq	%%mm2, %%mm3;"
+ 			// unpack
+ 			"punpcklbw %%mm7, %%mm0;"
+@@ -634,21 +639,23 @@
+ 			// pack
+ 			"packuswb %%mm1, %%mm0;"
+ 			// store
+-			"movq %%mm0, (%2,%%eax,4);"
+-			
+-			"addl	$2, %%eax;"
+-			"cmpl	$640, %%eax;"
++			"movq %%mm0, (%2,%%eax);"
++
++			"addl	$8, %%eax;"
++			"cmpl	$2560, %%eax;"
+ 			"jl	1b;"
+-			
++
+ 			"emms;"
+-			
++
+ 			: // no output
+ 			: "r" (src1)  // 0
+ 			, "r" (src2)  // 1
+ 			, "r" (dst)   // 2
+ 			, "r" (alpha << 7) // 3
+-			: "mm0", "mm1", "mm2", "mm3", "mm6", "mm7"
+-			, "eax"
++			: "eax"
++			#ifdef __MMX__
++			, "mm0", "mm1", "mm2", "mm3", "mm6", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	}
+@@ -659,17 +666,17 @@
+ 		darkener.setFactor(alpha);
+ 		word* table = darkener.getTable();
+ 		Pixel mask = ~blender.getMask();
+-		
++
+ 		asm (
+ 			"movd	%4, %%mm7;"
+ 			"xorl	%%ecx, %%ecx;"
+ 			"pshufw	$0, %%mm7, %%mm7;"
+-			
++
+ 			".p2align 4,,15;"
+-		"1:"	"movq	 (%0,%%ecx,2), %%mm0;"
+-			"movq	8(%0,%%ecx,2), %%mm1;"
+-			"movq	 (%1,%%ecx,2), %%mm2;"
+-			"movq	8(%1,%%ecx,2), %%mm3;"
++		"1:"	"movq	 (%0,%%ecx), %%mm0;"
++			"movq	8(%0,%%ecx), %%mm1;"
++			"movq	 (%1,%%ecx), %%mm2;"
++			"movq	8(%1,%%ecx), %%mm3;"
+ 
+ 			"movq	%%mm7, %%mm4;"
+ 			"movq	%%mm7, %%mm5;"
+@@ -683,14 +690,14 @@
+ 			"pavgw	%%mm3, %%mm1;"
+ 			"paddw	%%mm4, %%mm0;"
+ 			"paddw	%%mm5, %%mm1;"
+-			
++
+ 			"pextrw	$0, %%mm0, %%eax;"
+ 			"movw	(%2,%%eax,2), %%ax;"
+ 			"pinsrw	$0, %%eax, %%mm0;"
+ 			"pextrw	$0, %%mm1, %%eax;"
+ 			"movw	(%2,%%eax,2), %%ax;"
+ 			"pinsrw	$0, %%eax, %%mm1;"
+-			
++
+ 			"pextrw	$1, %%mm0, %%eax;"
+ 			"movw	(%2,%%eax,2), %%ax;"
+ 			"pinsrw	$1, %%eax, %%mm0;"
+@@ -711,12 +718,12 @@
+ 			"pextrw	$3, %%mm1, %%eax;"
+ 			"movw	(%2,%%eax,2), %%ax;"
+ 			"pinsrw	$3, %%eax, %%mm1;"
+-			
+-			"movntq	%%mm0,   (%3,%%ecx,2);"
+-			"movntq	%%mm1,  8(%3,%%ecx,2);"
+ 
+-			"addl	$8, %%ecx;"
+-			"cmpl	$640, %%ecx;"
++			"movntq	%%mm0,   (%3,%%ecx);"
++			"movntq	%%mm1,  8(%3,%%ecx);"
++
++			"addl	$16, %%ecx;"
++			"cmpl	$1280, %%ecx;"
+ 			"jl	1b;"
+ 			"emms;"
+ 			: // no output
+@@ -725,16 +732,18 @@
+ 			, "r" (table) // 2
+ 			, "r" (dst)   // 3
+ 			, "m" (mask)   // 4
+-			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm7"
+-			, "eax", "ecx"
++			: "eax", "ecx"
++			#ifdef __MMX__
++			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm7"
++			#endif
+ 		);
+ 		return;
+ 	}
+ 	// MMX routine 16bpp is missing, but it's difficult to write because
+ 	// of the missing "pextrw" and "pinsrw" instructions
+-	
++
+ 	#endif
+-		
++
+ 	// non-MMX routine, both 16bpp and 32bpp
+ 	for (unsigned x = 0; x < 640; ++x) {
+ 		dst[x] = mult1.multiply(
+@@ -758,7 +767,7 @@
+ 		srcLine = Scaler<Pixel>::linePtr(src, srcY++);
+ 		dstLine0 = Scaler<Pixel>::linePtr(dst, dstY + 1);
+ 		blur256(srcLine, dstLine0, blur);
+-		
++
+ 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY);
+ 		average(prevDstLine0, dstLine0, dstLine1, scanline);
+ 		prevDstLine0 = dstLine0;
+@@ -790,7 +799,7 @@
+ 		srcLine = Scaler<Pixel>::linePtr(src, srcY++);
+ 		dstLine0 = Scaler<Pixel>::linePtr(dst, dstY + 1);
+ 		blur512(srcLine, dstLine0, blur);
+-		
++
+ 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY);
+ 		average(prevDstLine0, dstLine0, dstLine1, scanline);
+ 		prevDstLine0 = dstLine0;
