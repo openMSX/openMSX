@@ -1,0 +1,39 @@
+#!/bin/sh -e
+##  by Joost Yervante Damad <joost@lumatec.be>
+##
+## DP: fix ppc gcc option
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
+
+case "$1" in
+       -patch) patch $patch_opts -p1 < $0;;
+       -unpatch) patch $patch_opts -p1 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+                exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+diff -ur openmsx-0.5.2.orig/build/flavour-ppc.mk openmsx-0.5.2/build/flavour-ppc.mk
+--- openmsx-0.5.2.orig/build/flavour-ppc.mk  2005-02-25 02:41:27.000000000 +0100
++++ openmsx-0.5.2/build/flavour-ppc.mk      2005-06-29 18:56:07.000000000 +0200
+@@ -5,8 +5,8 @@
+
+ # Optimisation flags.
+ CXXFLAGS+=-O3 -DNDEBUG -mpowerpc-gfxopt
+-#CXXFLAGS+=-mcpu=750
+-CXXFLAGS+=-mcpu=G3
++CXXFLAGS+=-mcpu=750
++#CXXFLAGS+=-mcpu=G3
+
+ # Strip executable?
+ # TODO: Stripping would be good, but linker doesn't understand "--strip-all".
+
