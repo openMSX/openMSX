@@ -679,17 +679,6 @@ diff -ur openmsx-0.5.2/src/video/SimpleScaler.cc openmsx-0.5.2.new/src/video/Sim
  }
  
  void Multiply<word>::setFactor(unsigned f)
-@@ -173,8 +173,8 @@
- 
- template <class Pixel>
- SimpleScaler<Pixel>::SimpleScaler(SDL_PixelFormat* format)
--	: scanlineSetting(*RenderSettings::instance().getScanlineAlpha())
--	, blurSetting(*RenderSettings::instance().getHorizontalBlur())
-+-	: scanlineSetting(*RenderSettings::instance().getScanlineAlpha())
-+-	, blurSetting(*RenderSettings::instance().getHorizontalBlur())
- 	, blender(Blender<Pixel>::createFromFormat(format))
- 	, mult1(format)
- 	, mult2(format)
 @@ -210,15 +210,15 @@
  void SimpleScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
  {
