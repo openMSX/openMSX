@@ -115,11 +115,9 @@ class Y8950 : private SoundDevice, private EmuTimerCallback, private Debuggable
 
 
 		// Dynamic range of envelope
-		static const double EG_STEP = 0.1875;
 		static const int EG_BITS = 9;
 		static const int EG_MUTE = 1<<EG_BITS;
 		// Dynamic range of sustine level
-		static const double SL_STEP = 3.0;
 		static const int SL_BITS = 4;
 		static const int SL_MUTE = 1<<SL_BITS;
 		// Size of Sintable ( 1 -- 18 can be used, but 7 -- 14 recommended.)
@@ -133,7 +131,6 @@ class Y8950 : private SoundDevice, private EmuTimerCallback, private Debuggable
 		static const int EG_DP_BITS = 23;
 		static const int EG_DP_WIDTH = 1<<EG_DP_BITS;
 		// Dynamic range of total level
-		static const double TL_STEP = 0.75;
 		static const int TL_BITS = 6;
 		static const int TL_MUTE = 1<<TL_BITS;
 
@@ -193,7 +190,6 @@ private:
 	// Definition of envelope mode
 	enum { ATTACK,DECAY,SUSHOLD,SUSTINE,RELEASE,FINISH };
 	// Dynamic range
-	static const double DB_STEP = 0.1875;
 	static const int DB_BITS = 9;
 	static const int DB_MUTE = 1<<DB_BITS;
 	// PM table is calcurated by PM_AMP * pow(2,PM_DEPTH*sin(x)/1200)
@@ -264,15 +260,6 @@ private:
 	Slot *slot[18];
 
 	static const int CLK_FREQ = 3579545;
-	static const double PI = 3.14159265358979;
-	// PM speed(Hz) and depth(cent)
-	static const double PM_SPEED = 6.4;
-	static const double PM_DEPTH = (13.75/2);
-	static const double PM_DEPTH2 = 13.75;
-	// AM speed(Hz) and depth(dB)
-	static const double AM_SPEED = 3.7;
-	static const double AM_DEPTH = 1.0;
-	static const double AM_DEPTH2 = 4.8;
 	// Bits for liner value
 	static const int DB2LIN_AMP_BITS = 11;
 	static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
