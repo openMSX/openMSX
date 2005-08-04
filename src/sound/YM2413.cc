@@ -20,6 +20,18 @@ namespace openmsx {
 
 static const int CLOCK_FREQ = 3579545;
 static const double PI = 3.14159265358979323846;
+static const double DB_STEP = 48.0 / (1 << 8); //   48 / (1 << DB_BITS)
+static const double EG_STEP = 0.375;
+static const double TL_STEP = 0.75;
+static const double SL_STEP = 3.0;
+
+// PM speed(Hz) and depth(cent)
+static const double PM_SPEED = 6.4;
+static const double PM_DEPTH = 13.75;
+
+// AM speed(Hz) and depth(dB)
+static const double AM_SPEED = 3.6413;
+static const double AM_DEPTH = 4.875;
 
 int YM2413::pmtable[PM_PG_WIDTH];
 int YM2413::amtable[AM_PG_WIDTH];
