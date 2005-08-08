@@ -3,6 +3,7 @@
 #include "SDLRasterizer.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
+#include "RawFrame.hh"
 #include "Renderer.hh"
 #include "RenderSettings.hh"
 #include "PostProcessor.hh"

@@ -4,7 +4,6 @@
 #define SDLRASTERIZER_HH
 
 #include "Rasterizer.hh"
-#include "RawFrame.hh"
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
 #include "SpriteConverter.hh"
@@ -13,11 +12,11 @@
 
 struct SDL_Surface;
 
-
 namespace openmsx {
 
 class VDP;
 class VDPVRAM;
+class RawFrame;
 template <class Pixel> class PostProcessor;
 
 
@@ -154,14 +153,6 @@ private:
 	/** The next frame as it is delivered by the VDP, work in progress.
 	  */
 	RawFrame* workFrame;
-
-	/** The last finished frame, ready to be displayed.
-	  */
-	RawFrame* currFrame;
-
-	/** The frame before currFrame, ready to be displayed.
-	  */
-	RawFrame* prevFrame;
 
 	/** Cache for rendered VRAM in character modes.
 	  * Cache line (N + scroll) corresponds to display line N.
