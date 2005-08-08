@@ -2,6 +2,7 @@
 
 #include "V9990.hh"
 #include "V9990SDLRasterizer.hh"
+#include "RawFrame.hh"
 #include "BooleanSetting.hh"
 #include "RenderSettings.hh"
 #include <SDL.h>
@@ -21,18 +22,9 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 	, p2Converter(vdp, palette64)
 	, deinterlaceSetting(RenderSettings::instance().getDeinterlace())
 {
-	PRT_DEBUG("V9990SDLRasterizer::V9990SDLRasterizer");
-
-	// Create Work screen
-	SDL_PixelFormat* format = screen->format;
-	for (int i = 0; i < NB_WORKSCREENS; ++i) {
-		workScreens[i] = SDL_CreateRGBSurface(
-			SDL_SWSURFACE, 640, 480, format->BitsPerPixel,
-			format->Rmask, format->Gmask, format->Bmask, format->Amask);
-		if (!workScreens[i]) {
-			throw FatalError("Can't allocate workscreens for V9990.");
-		}
-	}
+	workFrame = new RawFrame(screen->format, RawFrame::FIELD_NONINTERLACED);
+	currFrame = new RawFrame(screen->format, RawFrame::FIELD_NONINTERLACED);
+	prevFrame = new RawFrame(screen->format, RawFrame::FIELD_NONINTERLACED);
 
 	// Fill palettes
 	precalcPalettes();
@@ -41,28 +33,9 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 template <class Pixel>
 V9990SDLRasterizer<Pixel>::~V9990SDLRasterizer()
 {
-	PRT_DEBUG("V9990SDLRasterizer::~V9990SDLRasterizer");
-
-	for (int i = 0; i < NB_WORKSCREENS; ++i) {
-		SDL_FreeSurface(workScreens[i]);
-	}
-}
-
-template <class Pixel>
-SDL_Surface* V9990SDLRasterizer<Pixel>::getWorkScreen(bool prev) const
-{
-	if (!vdp.isEvenOddEnabled() ||
-	    !deinterlaceSetting.getValue()) {
-		return workScreens[0];
-	} else {
-		if (!prev) {
-			return (vdp.getEvenOdd()) ? workScreens[1]
-						   : workScreens[0];
-		} else {
-			return (vdp.getEvenOdd()) ? workScreens[0]
-						   : workScreens[1];
-		}
-	}
+	delete workFrame;
+	delete currFrame;
+	delete prevFrame;
 }
 
 template <class Pixel>
@@ -72,15 +45,26 @@ void V9990SDLRasterizer<Pixel>::paint()
 
 	// Simple scaler
 	// TODO use real scalers
-	bool even = vdp.getEvenOdd();
-	SDL_Surface* workScreen0 = getWorkScreen(even);
-	SDL_Surface* workScreen1 = getWorkScreen(!even);
+	SDL_Surface* screen0;
+	SDL_Surface* screen1;
+	if (!vdp.isEvenOddEnabled() || !deinterlaceSetting.getValue()) {
+		screen0 = currFrame->getSurface();
+		screen1 = currFrame->getSurface();
+	} else {
+		if (vdp.getEvenOdd()) { // TODO check
+			screen0 = currFrame->getSurface();
+			screen1 = prevFrame->getSurface();
+		} else {
+			screen0 = prevFrame->getSurface();
+			screen1 = currFrame->getSurface();
+		}
+	}
 	for (int y = 0; y < SCREEN_HEIGHT; ++y) {
-		Pixel* srcLine0 = Scaler<Pixel>::linePtr(workScreen0, y);
+		Pixel* srcLine0 = Scaler<Pixel>::linePtr(screen0, y);
 		Pixel* dstLine0 = Scaler<Pixel>::linePtr(screen, 2 * y + 0);
 		Scaler<Pixel>::copyLine(srcLine0, dstLine0, 640);
 
-		Pixel* srcLine1 = Scaler<Pixel>::linePtr(workScreen1, y);
+		Pixel* srcLine1 = Scaler<Pixel>::linePtr(screen1, y);
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(screen, 2 * y + 1);
 		Scaler<Pixel>::copyLine(srcLine1, dstLine1, 640);
 	}
@@ -127,6 +111,14 @@ template <class Pixel>
 void V9990SDLRasterizer<Pixel>::frameEnd()
 {
 	PRT_DEBUG("V9990SDLRasterizer::frameEnd()");
+	
+	// TODO use PostProcessor::rotateFrame()
+	RawFrame* reuseFrame = prevFrame;
+	prevFrame = currFrame;
+	currFrame = workFrame;
+	workFrame = reuseFrame;
+	
+	reuseFrame->reinit(RawFrame::FIELD_NONINTERLACED); // TODO
 }
 
 template <class Pixel>
@@ -201,7 +193,7 @@ void V9990SDLRasterizer<Pixel>::drawBorder(
 		rect.y = fromY;
 		rect.h = height;
 		Pixel bgColor = palette64[vdp.getBackDropColor() & 63];
-		SDL_FillRect(getWorkScreen(), &rect, bgColor);
+		SDL_FillRect(workFrame->getSurface(), &rect, bgColor);
 	}
 }
 
@@ -266,16 +258,13 @@ void V9990SDLRasterizer<Pixel>::drawP1Mode(
 	int fromX, int fromY, int displayX, int displayY,
 	int displayWidth, int displayHeight)
 {
-	SDL_Surface* workScreen = getWorkScreen();
-	Pixel* pixelPtr = (Pixel*)(
-			(byte*)workScreen->pixels +
-			fromY * workScreen->pitch +
-			translateX(fromX) * sizeof(Pixel));
 	while (displayHeight--) {
+		Pixel* pixelPtr = workFrame->getPixelPtr(
+			translateX(fromX), fromY, (Pixel*)0);
 		p1Converter.convertLine(pixelPtr, displayX, displayWidth,
 		                        displayY);
-		displayY++;
-		pixelPtr += workScreen->w;
+		++fromY;
+		++displayY;
 	}
 }
 
@@ -284,16 +273,13 @@ void V9990SDLRasterizer<Pixel>::drawP2Mode(
 	int fromX, int fromY, int displayX, int displayY,
 	int displayWidth, int displayHeight)
 {
-	SDL_Surface* workScreen = getWorkScreen();
-	Pixel* pixelPtr = (Pixel*)(
-			(byte*)workScreen->pixels +
-			fromY * workScreen->pitch +
-			translateX(fromX) * sizeof(Pixel));
 	while (displayHeight--) {
+		Pixel* pixelPtr = workFrame->getPixelPtr(
+			translateX(fromX), fromY, (Pixel*)0);
 		p2Converter.convertLine(pixelPtr, displayX, displayWidth,
 		                        displayY);
-		displayY++;
-		pixelPtr += workScreen->w;
+		++fromY;
+		++displayY;
 	}
 }
 
@@ -309,12 +295,6 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 	int fromX, int fromY, int displayX, int displayY,
 	int displayWidth, int displayHeight)
 {
-	SDL_Surface* workScreen = getWorkScreen();
-	Pixel* pixelPtr = (Pixel*)(
-		  (byte*)workScreen->pixels +
-		  fromY * workScreen->pitch +
-		  translateX(fromX) * sizeof(Pixel));
-
 	unsigned scrollX = vdp.getScrollAX();
 	unsigned x = displayX + scrollX;
 
@@ -332,10 +312,12 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 	while (displayHeight--) {
 		unsigned y = scrollYBase + (displayY + scrollY) & rollMask;
 		unsigned address = vdp.XYtoVRAM(&x, y, colorMode);
+		Pixel* pixelPtr = workFrame->getPixelPtr(
+			translateX(fromX), fromY, (Pixel*)0);
 		bitmapConverter.convertLine(pixelPtr, address, displayWidth,
 		                            displayY);
+		++fromY;
 		displayY += lineStep;
-		pixelPtr += workScreen->w;
 	}
 }
 
