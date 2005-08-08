@@ -3,18 +3,13 @@
 #ifndef V9990VRAM_HH
 #define V9990VRAM_HH
 
-#include "V9990ModeEnum.hh"
 #include "Ram.hh"
 #include "openmsx.hh"
-#include <vector>
 
 namespace openmsx {
 
 class EmuTime;
 class V9990;
-class V9990VRAMObserver;
-
-typedef std::vector<V9990VRAMObserver*> V9990VRAMObservers;
 
 /** Video RAM for the V9990.
   */
@@ -45,22 +40,7 @@ public:
 	void writeVRAMInterleave(unsigned address, byte val);
 	inline byte readVRAMP1(unsigned address) { return data[address]; }
 
-	// Interface for V9990VRAMObservers
-	/** Add an observer to a window of the VRAM
-	  * @param observer  The observer
-	  */
-	void addObserver(V9990VRAMObserver& observer);
-
-	/** Remove an observer
-	  * @param observer  Observer to be removed
-	  */
-	void removeObserver(V9990VRAMObserver& observer);
-
 private:
-	/** Inform observers of an update
-	  */
-	void notifyObservers(unsigned address);
-
 	/** V9990 VDP this VRAM belongs to.
 	  */
 	V9990& vdp;
@@ -68,15 +48,7 @@ private:
 	/** Pointer V9990 VRAM data.
 	  */
 	Ram data;
-
-	/** Display mode.
-	  */
-	V9990DisplayMode displayMode;
-
-	/** Observers
-	  */
-	V9990VRAMObservers observers;
-}; // class V9990VRAM
+};
 
 } // namespace openmsx
 

@@ -19,7 +19,6 @@ HDR_ONLY:= \
 	V9990Rasterizer \
 	V9990Renderer \
 	V9990ModeEnum \
-	V9990VRAMObserver
 
 SRC_HDR_$(COMPONENT_GL)+= \
 	V9990GLRasterizer

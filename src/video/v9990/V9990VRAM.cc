@@ -7,8 +7,6 @@
 
 #include "V9990.hh"
 #include "V9990VRAM.hh"
-#include "V9990VRAMObserver.hh"
-#include <algorithm>
 
 namespace openmsx {
 
@@ -52,7 +50,6 @@ byte V9990VRAM::readVRAM(unsigned address)
 void V9990VRAM::writeVRAM(unsigned address, byte value)
 {
 	data[mapAddress(address, vdp.getDisplayMode())] = value;
-	notifyObservers(address);
 }
 
 byte V9990VRAM::readVRAMInterleave(unsigned address)
@@ -63,30 +60,6 @@ byte V9990VRAM::readVRAMInterleave(unsigned address)
 void V9990VRAM::writeVRAMInterleave(unsigned address, byte value)
 {
 	data[interleave(address)] = value;
-}
-
-void V9990VRAM::addObserver(V9990VRAMObserver& observer)
-{
-	assert(std::find(observers.begin(), observers.end(), &observer)
-	       == observers.end());
-	observers.push_back(&observer);
-}
-
-void V9990VRAM::removeObserver(V9990VRAMObserver& observer)
-{
-	assert(std::find(observers.begin(), observers.end(), &observer)
-	       != observers.end());
-	observers.erase(std::find(observers.begin(), observers.end(), &observer));
-}
-
-void V9990VRAM::notifyObservers(unsigned address)
-{
-	for (V9990VRAMObservers::iterator it = observers.begin();
-	     it != observers.end(); ++it) {
-		if ((*it)->isInWindow(address)) {
-			(*it)->updateVRAM(address);
-		}
-	}
 }
 
 } // namespace openmsx
