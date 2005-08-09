@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef STRINGSETTING_HH
-#define STRINGSETTING_HH
+#ifndef KEYCODESETTING_HH
+#define KEYCODESETTING_HH
 
 #include "SettingPolicy.hh"
 #include "SettingImpl.hh"
