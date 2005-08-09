@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef TIMER_HH
-#define TIMER_HH
+#ifndef EMUTIMER_HH
+#define EMUTIMER_HH
 
 #include "Schedulable.hh"
 #include "openmsx.hh"
