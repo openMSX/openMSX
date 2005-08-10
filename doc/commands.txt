@@ -222,8 +222,9 @@ screenshot
   Take a screenshot.
 
   usage:
-    screenshot             Write screenshot to file "openmsxNNNN.png"
-    screenshot <filename>  Write screenshot to indicated file
+    screenshot              Write screenshot to file "openmsxNNNN.png"
+    screenshot <filename>   Write screenshot to indicated file
+    screenshot -prefix foo  Write screenshot to file "fooNNNN.png"
 
 
 set

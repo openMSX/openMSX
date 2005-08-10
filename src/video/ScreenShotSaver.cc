@@ -139,15 +139,18 @@ void ScreenShotSaver::save(unsigned width, unsigned height,
 }
 
 
-static int getNum(dirent* d)
+static int getNum(dirent* d, const string& prefix, const string& extension, const unsigned int nofdigits)
 {
+	const unsigned int extensionlen = extension.length();
+	const unsigned int prefixlen = prefix.length();
 	string name(d->d_name);
-	if ((name.length() != 15) ||
-	    (name.substr(0, 7) != "openmsx") ||
-	    (name.substr(11, 4) != ".png")) {
+
+	if ((name.length() != (prefixlen + nofdigits + extensionlen)) ||
+	    (name.substr(0, prefixlen) != prefix) ||
+	    (name.substr(prefixlen + nofdigits, extensionlen) != extension)) {
 		return 0;
 	}
-	string num(name.substr(7, 4));
+	string num(name.substr(prefixlen, nofdigits));
 	char* endpos;
 	unsigned long n = strtoul(num.c_str(), &endpos, 10);
 	if (*endpos != '\0') {
@@ -156,11 +159,19 @@ static int getNum(dirent* d)
 	return n;
 }
 
-string ScreenShotSaver::getFileName()
+string ScreenShotSaver::getFileName(const string& prefix)
 {
+	// TODO: move this to some general file class, so it can be reused for
+	// soundlogs as well. For that: make the directory name and extension
+	// also parameters. Maybe also even the number of digits
+
+	const string extension = ".png";
+	const string directory = "screenshots";
+	const unsigned int nofdigits = 4;
+
 	int max_num = 0;
 
-	string dirName = FileOperations::getUserOpenMSXDir() + "/screenshots";
+	string dirName = FileOperations::getUserOpenMSXDir() + "/" + directory;
 	try {
 		FileOperations::mkdirp(dirName);
 	} catch (FileException& e) {
@@ -169,14 +180,14 @@ string ScreenShotSaver::getFileName()
 
 	ReadDir dir(dirName.c_str());
 	while (dirent* d = dir.getEntry()) {
-		max_num = std::max(max_num, getNum(d));
+		max_num = std::max(max_num, getNum(d, prefix, extension, nofdigits));
 	}
 
 	std::ostringstream os;
-	os << dirName << "/openmsx";
-	os.width(4);
+	os << dirName << "/" << prefix;
+	os.width(nofdigits);
 	os.fill('0');
-	os << (max_num + 1) << ".png";
+	os << (max_num + 1) << extension;
 	return os.str();
 }
 

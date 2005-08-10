@@ -234,10 +234,21 @@ string Display::ScreenShotCmd::execute(const vector<string>& tokens)
 	string filename;
 	switch (tokens.size()) {
 	case 1:
-		filename = ScreenShotSaver::getFileName();
+		filename = ScreenShotSaver::getFileName("openmsx");
 		break;
 	case 2:
-		filename = tokens[1];
+		if (tokens[1] == "-prefix") {
+			throw SyntaxError();
+		} else {
+			filename = tokens[1];
+		}
+		break;
+	case 3:
+		if (tokens[1] == "-prefix") {
+			filename = ScreenShotSaver::getFileName(tokens[2]);
+		} else {
+			throw SyntaxError();
+		}
 		break;
 	default:
 		throw SyntaxError();
@@ -251,8 +262,9 @@ string Display::ScreenShotCmd::execute(const vector<string>& tokens)
 string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 {
 	return
-		"screenshot             Write screenshot to file \"openmsxNNNN.png\"\n"
-		"screenshot <filename>  Write screenshot to indicated file\n";
+		"screenshot              Write screenshot to file \"openmsxNNNN.png\"\n"
+		"screenshot <filename>   Write screenshot to indicated file\n"
+		"screenshot -prefix foo  Write screenshot to file \"fooNNNN.png\"\n";
 }
 
 // FpsInfoTopic inner class:

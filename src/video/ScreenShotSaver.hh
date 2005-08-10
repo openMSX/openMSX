@@ -19,7 +19,7 @@ public:
 	static void save(unsigned witdh, unsigned height,
 	                 byte** row_pointers, const std::string& filename);
 
-	static std::string getFileName();
+	static std::string getFileName(const std::string& prefix);
 };
 
 } // namespace openmsx
