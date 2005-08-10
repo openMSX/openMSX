@@ -7,14 +7,12 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
-#include <dirent.h>
 #include <sys/types.h>
 #include <png.h>
 #include "ScreenShotSaver.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
 #include "CommandException.hh"
-#include "ReadDir.hh"
 #include <SDL.h>
 
 using std::string;
@@ -136,59 +134,6 @@ void ScreenShotSaver::save(unsigned width, unsigned height,
 	if (!IMG_SavePNG_RW(width, height, (png_bytep*)row_pointers, filename)) {
 		throw CommandException("Failed to write " + filename);
 	}
-}
-
-
-static int getNum(dirent* d, const string& prefix, const string& extension, const unsigned int nofdigits)
-{
-	const unsigned int extensionlen = extension.length();
-	const unsigned int prefixlen = prefix.length();
-	string name(d->d_name);
-
-	if ((name.length() != (prefixlen + nofdigits + extensionlen)) ||
-	    (name.substr(0, prefixlen) != prefix) ||
-	    (name.substr(prefixlen + nofdigits, extensionlen) != extension)) {
-		return 0;
-	}
-	string num(name.substr(prefixlen, nofdigits));
-	char* endpos;
-	unsigned long n = strtoul(num.c_str(), &endpos, 10);
-	if (*endpos != '\0') {
-		return 0;
-	}
-	return n;
-}
-
-string ScreenShotSaver::getFileName(const string& prefix)
-{
-	// TODO: move this to some general file class, so it can be reused for
-	// soundlogs as well. For that: make the directory name and extension
-	// also parameters. Maybe also even the number of digits
-
-	const string extension = ".png";
-	const string directory = "screenshots";
-	const unsigned int nofdigits = 4;
-
-	int max_num = 0;
-
-	string dirName = FileOperations::getUserOpenMSXDir() + "/" + directory;
-	try {
-		FileOperations::mkdirp(dirName);
-	} catch (FileException& e) {
-		// ignore
-	}
-
-	ReadDir dir(dirName.c_str());
-	while (dirent* d = dir.getEntry()) {
-		max_num = std::max(max_num, getNum(d, prefix, extension, nofdigits));
-	}
-
-	std::ostringstream os;
-	os << dirName << "/" << prefix;
-	os.width(nofdigits);
-	os.fill('0');
-	os << (max_num + 1) << extension;
-	return os.str();
 }
 
 } // namespace openmsx

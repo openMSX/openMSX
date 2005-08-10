@@ -133,7 +133,6 @@ private:
 		std::string stopSoundLogging(const std::vector<std::string>& tokens);
 		std::string startSoundLogging(const std::vector<std::string>& tokens);
 		std::string toggleSoundLogging(const std::vector<std::string>& tokens);
-		std::string getFileName();
 		Mixer& outer;
 	} soundlogCommand;
 

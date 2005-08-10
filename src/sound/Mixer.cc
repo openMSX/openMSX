@@ -15,8 +15,6 @@
 #include <algorithm>
 #include <cassert>
 
-#include <dirent.h>
-#include "ReadDir.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
 
@@ -328,49 +326,6 @@ void Mixer::muteHelper()
 
 // stuff for soundlogging
 
-// TODO: generalize this with ScreenShotSaver.cc
-static int getNum(dirent* d)
-{
-	string name(d->d_name);
-	if ((name.length() != 15) ||
-	    (name.substr(0, 7) != "openmsx") ||
-	    (name.substr(11, 4) != ".wav")) {
-		return 0;
-	}
-	string num(name.substr(7, 4));
-	char* endpos;
-	unsigned long n = strtoul(num.c_str(), &endpos, 10);
-	if (*endpos != '\0') {
-		return 0;
-	}
-	return n;
-}
-
-// TODO: generalize this with ScreenShotSaver.cc
-string Mixer::SoundlogCommand::getFileName()
-{
-	int max_num = 0;
-
-	string dirName = FileOperations::getUserOpenMSXDir() + "/soundlogs";
-	try {
-		FileOperations::mkdirp(dirName);
-	} catch (FileException& e) {
-		// ignore
-	}
-
-	ReadDir dir(dirName.c_str());
-	while (dirent* d = dir.getEntry()) {
-		max_num = std::max(max_num, getNum(d));
-	}
-
-	std::ostringstream os;
-	os << dirName << "/openmsx";
-	os.width(4);
-	os.fill('0');
-	os << (max_num + 1) << ".wav";
-	return os.str();
-}
-
 Mixer::SoundlogCommand::SoundlogCommand(Mixer& outer_)
 	: outer(outer_)
 {
@@ -396,10 +351,21 @@ string Mixer::SoundlogCommand::startSoundLogging(const vector<string>& tokens)
 	string filename;
 	switch (tokens.size()) {
 	case 2:
-		filename = getFileName();
+		filename = FileOperations::getNextNumberedFileName("soundlogs", "openmsx", ".wav");
 		break;
 	case 3:
-		filename = tokens[2];
+		if (tokens[2] == "-prefix") {
+			throw SyntaxError();
+		} else {
+			filename = tokens[2];
+		}
+		break;
+	case 4:
+		if (tokens[2] == "-prefix") {
+			filename = FileOperations::getNextNumberedFileName("soundlogs", tokens[3], ".wav");
+		} else {
+			throw SyntaxError();
+		}
 		break;
 	default:
 		throw SyntaxError();
@@ -438,10 +404,11 @@ string Mixer::SoundlogCommand::toggleSoundLogging(const vector<string>& tokens)
 string Mixer::SoundlogCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "Controls sound logging: writing the openMSX sound to a wav file.\n"
-	       "soundlog start             Log sound to file \"openmsxNNNN.wav\"\n"
-	       "soundlog start <filename>  Log sound to indicated file\n"
-	       "soundlog stop              Stop logging sound\n"
-	       "soundlog toggle            Toggle sound logging state\n";
+	       "soundlog start              Log sound to file \"openmsxNNNN.wav\"\n"
+	       "soundlog start <filename>   Log sound to indicated file\n"
+	       "soundlog start -prefix foo  Log sound to file \"fooNNNN.wav\"\n"
+	       "soundlog stop               Stop logging sound\n"
+	       "soundlog toggle             Toggle sound logging state\n";
 }
 
 void Mixer::SoundlogCommand::tabCompletion(vector<string>& tokens) const
@@ -451,6 +418,10 @@ void Mixer::SoundlogCommand::tabCompletion(vector<string>& tokens) const
 		cmds.insert("start");
 		cmds.insert("stop");
 		cmds.insert("toggle");
+		CommandController::completeString(tokens, cmds);
+	} else if ((tokens.size() == 3) && (tokens[1] == "start")) {
+		set<string> cmds;
+		cmds.insert("-prefix");
 		CommandController::completeString(tokens, cmds);
 	}
 }

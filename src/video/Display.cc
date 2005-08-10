@@ -5,6 +5,7 @@
 #include "ScreenShotSaver.hh"
 #include "EventDistributor.hh"
 #include "FinishFrameEvent.hh"
+#include "FileOperations.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "InfoCommand.hh"
@@ -234,7 +235,7 @@ string Display::ScreenShotCmd::execute(const vector<string>& tokens)
 	string filename;
 	switch (tokens.size()) {
 	case 1:
-		filename = ScreenShotSaver::getFileName("openmsx");
+		filename = FileOperations::getNextNumberedFileName("screenshots", "openmsx", ".png");
 		break;
 	case 2:
 		if (tokens[1] == "-prefix") {
@@ -245,7 +246,7 @@ string Display::ScreenShotCmd::execute(const vector<string>& tokens)
 		break;
 	case 3:
 		if (tokens[1] == "-prefix") {
-			filename = ScreenShotSaver::getFileName(tokens[2]);
+			filename = FileOperations::getNextNumberedFileName("screenshots", tokens[2], ".png");
 		} else {
 			throw SyntaxError();
 		}

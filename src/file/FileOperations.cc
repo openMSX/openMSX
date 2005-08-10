@@ -23,6 +23,8 @@
 #include <cstdlib>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <dirent.h>
+#include "ReadDir.hh"
 #include "build-info.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
@@ -452,6 +454,61 @@ bool exists(const string& filename)
 {
 	struct stat st;
 	return stat(filename.c_str(), &st) == 0;
+}
+
+static int getNextNum(dirent* d, const string& prefix, const string& extension, const unsigned int nofdigits)
+{
+	const unsigned int extensionlen = extension.length();
+	const unsigned int prefixlen = prefix.length();
+	string name(d->d_name);
+
+	if ((name.length() != (prefixlen + nofdigits + extensionlen)) ||
+	    (name.substr(0, prefixlen) != prefix) ||
+	    (name.substr(prefixlen + nofdigits, extensionlen) != extension)) {
+		return 0;
+	}
+	string num(name.substr(prefixlen, nofdigits));
+	char* endpos;
+	unsigned long n = strtoul(num.c_str(), &endpos, 10);
+	if (*endpos != '\0') {
+		return 0;
+	}
+	return n;
+}
+
+/**
+ * Gets the next numbered file name with the specified prefix in the specified
+ * directory, with the specified extension. Examples: automatic numbering of
+ * filenames for new screenshots or sound logs.
+ * @param directory Name of the directory in the openMSX user dir in which 
+ * should be searched for the next filename
+ * @param prefix Prefix of the filename with numbers
+ * @param extension Extension of the filename with numbers
+ */
+string getNextNumberedFileName(const string& directory, const string& prefix, const string& extension)
+{
+	const unsigned int nofdigits = 4;
+
+	int max_num = 0;
+
+	string dirName = getUserOpenMSXDir() + "/" + directory;
+	try {
+		mkdirp(dirName);
+	} catch (FileException& e) {
+		// ignore
+	}
+
+	ReadDir dir(dirName.c_str());
+	while (dirent* d = dir.getEntry()) {
+		max_num = std::max(max_num, getNextNum(d, prefix, extension, nofdigits));
+	}
+
+	std::ostringstream os;
+	os << dirName << "/" << prefix;
+	os.width(nofdigits);
+	os.fill('0');
+	os << (max_num + 1) << extension;
+	return os.str();
 }
 
 } // namespace FileOperations

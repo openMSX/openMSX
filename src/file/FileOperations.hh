@@ -129,6 +129,18 @@ namespace FileOperations {
 	 */
 	bool exists(const std::string& filename);
 
+	/**
+	 * Gets the next numbered file name with the specified prefix in the
+	 * specified directory, with the specified extension. Examples:
+	 * automatic numbering of filenames for new screenshots or sound logs.
+	 * @param directory Name of the directory in the openMSX user dir in
+	 * which should be searched for the next filename
+	 * @param prefix Prefix of the filename with numbers
+	 * @param extension Extension of the filename with numbers
+	 */
+	std::string getNextNumberedFileName(const std::string& directory, const std::string& prefix, const std::string& extension);
+
+
 } // namespace FileOperations
 
 } // namespace openmsx

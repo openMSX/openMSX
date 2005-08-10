@@ -2,9 +2,9 @@ $Id$
 
 2005-08-10 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added -prefix option to screenshot command
-	* TODO: move getName() to a general file class, so that soundlogger
-	  and possibly other stuff can reuse it without copying the code.
-	  Soundlogger can also implement -prefix then.
+	* Moved getName from ScreenShotSaver to FileOperations, with new name
+	  "getNextNumberedFilename" and used it in Display and Mixer. Removes
+	  code duplication between those 2.
 
 2005-08-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed using precompiled headers:
