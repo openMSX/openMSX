@@ -6,7 +6,6 @@
 #include <cassert>
 #include "Clock.hh"
 #include "Keyboard.hh"
-#include "EventDistributor.hh"
 #include "UserInputEventDistributor.hh"
 #include "SettingsConfig.hh"
 #include "File.hh"

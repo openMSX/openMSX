@@ -29,12 +29,12 @@ public:
 	 */
 	const byte* getKeys();
 
-	//EventListener
-	virtual bool signalEvent(const UserInputEvent& event);
-
 	static const unsigned NR_KEYROWS = 16;
 
 private:
+	// UserInputEventListener
+	virtual bool signalEvent(const UserInputEvent& event);
+
 	void doKeyGhosting();
 	void parseKeymapfile(const byte* buf, unsigned size);
 	void loadKeymapfile(const std::string& filename);

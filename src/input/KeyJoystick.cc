@@ -1,7 +1,7 @@
 // $Id$
 
 #include "KeyJoystick.hh"
-#include "EventDistributor.hh"
+#include "UserInputEventDistributor.hh"
 #include "KeyCodeSetting.hh"
 #include "SettingsConfig.hh"
 #include "CliComm.hh"
@@ -16,11 +16,8 @@ namespace openmsx {
 KeyJoystick::KeyJoystick(const string& name_)
 	: name(name_)
 {
-	EventDistributor & distributor(EventDistributor::instance());
-	distributor.registerEventListener(OPENMSX_KEY_DOWN_EVENT,   *this);
-	distributor.registerEventListener(OPENMSX_KEY_UP_EVENT,     *this);
-	distributor.registerEventListener(OPENMSX_CONSOLE_ON_EVENT, *this);
-	// We do not listen for CONSOLE_OFF_EVENTS because rescanning the
+	UserInputEventDistributor::instance().registerEventListener(
+		UserInputEventDistributor::MSX, *this);
 
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
@@ -41,10 +38,8 @@ KeyJoystick::KeyJoystick(const string& name_)
 
 KeyJoystick::~KeyJoystick()
 {
-	EventDistributor & distributor(EventDistributor::instance());
-	distributor.unregisterEventListener(OPENMSX_KEY_UP_EVENT,   *this);
-	distributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
-	distributor.unregisterEventListener(OPENMSX_CONSOLE_ON_EVENT, *this);
+	UserInputEventDistributor::instance().unregisterEventListener(
+		UserInputEventDistributor::MSX, *this);
 }
 
 
@@ -90,7 +85,7 @@ void KeyJoystick::write(byte /*value*/, const EmuTime& /*time*/)
 
 
 // EventListener
-void KeyJoystick::signalEvent(const Event& event)
+bool KeyJoystick::signalEvent(const UserInputEvent& event)
 {
 	switch (event.getType()) {
 	case OPENMSX_CONSOLE_ON_EVENT:
@@ -121,6 +116,7 @@ void KeyJoystick::signalEvent(const Event& event)
 			assert(false);
 		}
 	}
+	return true;
 }
 
 } // namespace openmsx

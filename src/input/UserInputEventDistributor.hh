@@ -5,7 +5,7 @@
 
 #include "EventListener.hh"
 #include "Event.hh"
-
+#include <vector>
 
 namespace openmsx {
 
@@ -63,7 +63,8 @@ private:
 
 	virtual void signalEvent(const Event& event);
 
-	UserInputEventListener* listeners[NUM_SLOTS];
+	typedef std::vector<UserInputEventListener*> Listeners;
+	Listeners listeners[NUM_SLOTS];
 };
 
 } // namespace openmsx

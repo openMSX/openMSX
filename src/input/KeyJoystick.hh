@@ -4,14 +4,14 @@
 #define KEYJOYSTICK_HH
 
 #include "JoystickDevice.hh"
-#include "EventListener.hh"
+#include "UserInputEventListener.hh"
 #include <memory>
 
 namespace openmsx {
 
 class KeyCodeSetting;
 
-class KeyJoystick : public JoystickDevice, private EventListener
+class KeyJoystick : public JoystickDevice, private UserInputEventListener
 {
 public:
 	KeyJoystick(const std::string& name);
@@ -28,8 +28,8 @@ public:
 	virtual void write(byte value, const EmuTime& time);
 
 private:
-	// EventListener
-	virtual void signalEvent(const Event& event);
+	// UserInputEventListener
+	virtual bool signalEvent(const UserInputEvent& event);
 
 	void allUp();
 

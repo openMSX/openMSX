@@ -4,17 +4,14 @@
 #include "UserInputEventListener.hh"
 #include "InputEvents.hh"
 #include "EventDistributor.hh"
+#include <algorithm>
 #include <cassert>
 #include <iostream>
-
 
 namespace openmsx {
 
 UserInputEventDistributor::UserInputEventDistributor()
 {
-	for (int i = 0; i < NUM_SLOTS; i++) {
-		listeners[i] = NULL;
-	}
 	EventDistributor& eventDistributor(EventDistributor::instance());
 	eventDistributor.registerEventListener(
 		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED );
@@ -36,7 +33,7 @@ UserInputEventDistributor::~UserInputEventDistributor()
 	eventDistributor.unregisterEventListener(
 		OPENMSX_CONSOLE_ON_EVENT, *this, EventDistributor::DETACHED );
 	for (int i = 0; i < NUM_SLOTS; i++) {
-		if (listeners[i] != NULL) {
+		if (!listeners[i].empty()) {
 			std::cerr << "~UserInputEventDistributor: "
 				"slot " << i << " was not unregistered" << std::endl;
 		}
@@ -50,17 +47,21 @@ UserInputEventDistributor& UserInputEventDistributor::instance()
 }
 
 void UserInputEventDistributor::registerEventListener(
-	ListenerSlot slot, UserInputEventListener& listener )
+	ListenerSlot slot, UserInputEventListener& listener)
 {
-	assert(listeners[slot] == NULL);
-	listeners[slot] = &listener;
+	Listeners::iterator it =
+	   find(listeners[slot].begin(), listeners[slot].end(), &listener);
+	assert(it == listeners[slot].end());
+	listeners[slot].push_back(&listener);
 }
 
 void UserInputEventDistributor::unregisterEventListener(
-	ListenerSlot slot, UserInputEventListener& listener )
+	ListenerSlot slot, UserInputEventListener& listener)
 {
-	assert(listeners[slot] == &listener);
-	listeners[slot] = NULL;
+	Listeners::iterator it =
+	   find(listeners[slot].begin(), listeners[slot].end(), &listener);
+	assert(it != listeners[slot].end());
+	listeners[slot].erase(it);
 }
 
 void UserInputEventDistributor::signalEvent(const Event& event)
@@ -70,10 +71,10 @@ void UserInputEventDistributor::signalEvent(const Event& event)
 		static_cast<const UserInputEvent&>(event);
 
 	bool cont = true;
-	for (int i = 0; cont && i < NUM_SLOTS; i++) {
-		UserInputEventListener* listener = listeners[i];
-		if (listener) {
-			cont = listener->signalEvent(userInputEvent);
+	for (int i = 0; cont && i < NUM_SLOTS; ++i) {
+		for (Listeners::const_iterator it = listeners[i].begin();
+		     it != listeners[i].end(); ++it) {
+			cont &= (*it)->signalEvent(userInputEvent);
 		}
 	}
 }
