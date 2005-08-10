@@ -70,75 +70,123 @@ public:
 	}
 
 private:
+	class V9990P1 {
+	public:
+		typedef byte Type;
+		static const word BITS_PER_PIXEL  = 4;
+		static const word PIXELS_PER_BYTE = 2;
+		static inline unsigned getPitch(unsigned width);
+		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
+		static inline byte getColor(word data, unsigned x);
+		static inline byte point(V9990VRAM& vram,
+		                         unsigned x, unsigned y, unsigned pitch);
+		static inline byte shift(byte value, unsigned fromX, unsigned toX);
+		static inline const byte* getLogOpLUT(byte op);
+		static inline byte logOp(const byte* lut, byte src, byte dst);
+		static inline void pset(
+			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+			byte srcColor, word mask, const byte* lut, byte op);
+	};
+
+	class V9990P2 {
+	public:
+		typedef byte Type;
+		static const word BITS_PER_PIXEL  = 4;
+		static const word PIXELS_PER_BYTE = 2;
+		static inline unsigned getPitch(unsigned width);
+		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
+		static inline byte getColor(word data, unsigned x);
+		static inline byte point(V9990VRAM& vram,
+		                         unsigned x, unsigned y, unsigned pitch);
+		static inline byte shift(byte value, unsigned fromX, unsigned toX);
+		static inline const byte* getLogOpLUT(byte op);
+		static inline byte logOp(const byte* lut, byte src, byte dst);
+		static inline void pset(
+			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+			byte srcColor, word mask, const byte* lut, byte op);
+	};
+
 	class V9990Bpp2 {
 	public:
+		typedef byte Type;
 		static const word BITS_PER_PIXEL  = 2;
-		static const word MASK            = 0x0003;
 		static const word PIXELS_PER_BYTE = 4;
-		static const word ADDRESS_MASK    = 0x0003;
-		static inline uint addressOf(int x, int y, int imageWidth);
-		static inline word shiftDown(word data, int x);
-		static inline word point(V9990VRAM& vram,
-		                         int x, int y, int imageWidth);
-		static inline void pset(V9990VRAM& vram,
-		                        int x, int y, int imageWidth,
-		                        word color);
+		static inline unsigned getPitch(unsigned width);
+		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
+		static inline byte getColor(word data, unsigned x);
+		static inline byte point(V9990VRAM& vram,
+		                         unsigned x, unsigned y, unsigned pitch);
+		static inline byte shift(byte value, unsigned fromX, unsigned toX);
+		static inline const byte* getLogOpLUT(byte op);
+		static inline byte logOp(const byte* lut, byte src, byte dst);
+		static inline void pset(
+			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+			byte srcColor, word mask, const byte* lut, byte op);
 	};
 
 	class V9990Bpp4 {
 	public:
+		typedef byte Type;
 		static const word BITS_PER_PIXEL  = 4;
-		static const word MASK            = 0x000F;
 		static const word PIXELS_PER_BYTE = 2;
-		static const word ADDRESS_MASK    = 0x0001;
-		static inline uint addressOf(int x, int y, int imageWidth);
-		static inline word shiftDown(word data, int x);
-		static inline word point(V9990VRAM& vram,
-		                         int x, int y, int imageWidth);
-		static inline void pset(V9990VRAM& vram,
-		                        int x, int y, int imageWidth,
-		                        word color);
+		static inline unsigned getPitch(unsigned width);
+		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
+		static inline byte getColor(word data, unsigned x);
+		static inline byte point(V9990VRAM& vram,
+		                         unsigned x, unsigned y, unsigned pitch);
+		static inline byte shift(byte value, unsigned fromX, unsigned toX);
+		static inline const byte* getLogOpLUT(byte op);
+		static inline byte logOp(const byte* lut, byte src, byte dst);
+		static inline void pset(
+			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+			byte srcColor, word mask, const byte* lut, byte op);
 	};
 
 	class V9990Bpp8 {
 	public:
+		typedef byte Type;
 		static const word BITS_PER_PIXEL  = 8;
-		static const word MASK            = 0x00FF;
 		static const word PIXELS_PER_BYTE = 1;
-		static const word ADDRESS_MASK    = 0x0000;
-		static inline uint addressOf(int x, int y, int imageWidth);
-		static inline word shiftDown(word data, int x);
-		static inline word point(V9990VRAM& vram,
-		                         int x, int y, int imageWidth);
-		static inline void pset(V9990VRAM& vram,
-		                        int x, int y, int imageWidth,
-		                        word color);
+		static inline unsigned getPitch(unsigned width);
+		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
+		static inline byte getColor(word data, unsigned x);
+		static inline byte point(V9990VRAM& vram,
+		                         unsigned x, unsigned y, unsigned pitch);
+		static inline byte shift(byte value, unsigned fromX, unsigned toX);
+		static inline const byte* getLogOpLUT(byte op);
+		static inline byte logOp(const byte* lut, byte src, byte dst);
+		static inline void pset(
+			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+			byte srcColor, word mask, const byte* lut, byte op);
 	};
 
 	class V9990Bpp16 {
 	public:
+		typedef word Type;
 		static const word BITS_PER_PIXEL  = 16;
-		static const word MASK            = 0xFFFF;
 		static const word PIXELS_PER_BYTE = 0;
-		static const word ADDRESS_MASK    = 0x0000;
-		static inline uint addressOf(int x, int y, int imageWidth);
-		static inline word shiftDown(word data, int x);
+		static inline unsigned getPitch(unsigned width);
+		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
+		static inline word getColor(word data, unsigned x);
 		static inline word point(V9990VRAM& vram,
-		                         int x, int y, int imageWidth);
-		static inline void pset(V9990VRAM& vram,
-		                        int x, int y, int imageWidth,
-		                        word color);
+		                         unsigned x, unsigned y, unsigned pitch);
+		static inline word shift(word value, unsigned fromX, unsigned toX);
+		static inline const byte* getLogOpLUT(byte op);
+		static inline word logOp(const byte* lut, word src, word dst, bool transp);
+		static inline void pset(
+			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+			word srcColor, word mask, const byte* lut, byte op);
 	};
 
 	/** This is an abstract base class for V9990 commands
 	  */
 	class V9990Cmd {
 	public:
-		V9990Cmd(V9990CmdEngine& engine_, V9990VRAM& vram_);
+		V9990Cmd(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual ~V9990Cmd();
 
 		virtual void start(const EmuTime& time) = 0;
-		virtual void execute(const EmuTime &time) = 0;
+		virtual void execute(const EmuTime& time) = 0;
 
 	protected:
 		V9990CmdEngine& engine;
@@ -276,10 +324,6 @@ private:
 	  */
 	V9990& vdp;
 
-	/** VRAM
-	  */
-	//V9990VRAM& vram;
-
 	/** Status bits
 	 */
 	byte status;
@@ -298,7 +342,7 @@ private:
 
 	/** All commands
 	  */
-	V9990Cmd *commands[16][BP2 + 1];
+	V9990Cmd* commands[16][6];
 
 	/** The current command
 	  */
@@ -329,12 +373,6 @@ private:
 	  */
 	template <template <class Mode> class Command>
 	void createEngines(int cmd);
-
-	/** Perform the specified operation on a pixel, specified as
-	  * inverse write mask (eg. 0xF0, will write in lower nibble and
-	  * leave upper nibble intact)
-	  */
-	 word logOp(word src, word dest, word mask);
 
 	/** The running command is complete. Perform neccessary clean-up actions.
 	  */

@@ -17,49 +17,27 @@ V9990VRAM::V9990VRAM(V9990& vdp_, const EmuTime& /*time*/)
 	memset(&data[0], 0, data.getSize());
 }
 
-static unsigned interleave(unsigned address)
+unsigned V9990VRAM::mapAddress(unsigned address)
 {
-	return ((address & 1) << 18) | ((address & 0x7FFFE) >> 1);
-}
-
-static unsigned mapAddress(unsigned address, V9990DisplayMode mode)
-{
-	address &= 0x7FFFF;
-	switch (mode) {
+	address &= 0x7FFFF; // change to assert?
+	switch (vdp.getDisplayMode()) {
 		case P1:
-			break;
+			return transformP1(address);
 		case P2:
-			if (address < 0x7BE00) {
-				address = ((address >>16) & 0x1) |
-				          ((address << 1) & 0x7FFFF);
-			} else if (address < 0x7C000) {
-				address &= 0x3FFFF;
-			} /* else { address = address; } */
-			break;
+			return transformP2(address);
 		default /* Bx */:
-			address = interleave(address);
+			return transformBx(address);
 	}
-	return address;
 }
 
-byte V9990VRAM::readVRAM(unsigned address)
+byte V9990VRAM::readVRAMSlow(unsigned address)
 {
-	return data[mapAddress(address, vdp.getDisplayMode())];
+	return data[mapAddress(address)];
 }
 
-void V9990VRAM::writeVRAM(unsigned address, byte value)
+void V9990VRAM::writeVRAMSlow(unsigned address, byte value)
 {
-	data[mapAddress(address, vdp.getDisplayMode())] = value;
-}
-
-byte V9990VRAM::readVRAMInterleave(unsigned address)
-{
-	return data[interleave(address)];
-}
-
-void V9990VRAM::writeVRAMInterleave(unsigned address, byte value)
-{
-	data[interleave(address)] = value;
+	data[mapAddress(address)] = value;
 }
 
 } // namespace openmsx

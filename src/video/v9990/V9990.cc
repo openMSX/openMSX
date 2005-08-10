@@ -142,7 +142,7 @@ byte V9990::readIO(byte port, const EmuTime& time)
 		case VRAM_DATA: {
 			// read from VRAM
 			unsigned addr = getVRAMAddr(VRAM_READ_ADDRESS_0);
-			result = vram->readVRAM(addr);
+			result = vram->readVRAMSlow(addr);
 			if (!(regs[VRAM_READ_ADDRESS_2] & 0x80)) {
 				setVRAMAddr(VRAM_READ_ADDRESS_0, addr + 1);
 			}
@@ -233,7 +233,7 @@ void V9990::writeIO(byte port, byte val, const EmuTime& time)
 		case VRAM_DATA: {
 			// write VRAM
 			unsigned addr = getVRAMAddr(VRAM_WRITE_ADDRESS_0);
-			vram->writeVRAM(addr, val);
+			vram->writeVRAMSlow(addr, val);
 			if (!(regs[VRAM_WRITE_ADDRESS_2] & 0x80)) {
 				setVRAMAddr(VRAM_WRITE_ADDRESS_0, addr + 1);
 			}

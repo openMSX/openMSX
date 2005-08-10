@@ -77,15 +77,16 @@ template <class Pixel>
 byte V9990P2Converter<Pixel>::getPixel(
 		int x, int y, unsigned int nameTable, unsigned int patternTable)
 {
+	// TODO optimization: more specific readVRAMP2 methods
 	x &= 1023;
 	y &= 1023;
 	unsigned int address = nameTable + (((y/8)*128 + (x/8)) * 2);
-	unsigned int pattern = (vram.readVRAM(address + 0) +
-	                        vram.readVRAM(address + 1) * 256) & 0x3FFF;
+	unsigned int pattern = (vram.readVRAMP2(address + 0) +
+	                        vram.readVRAMP2(address + 1) * 256) & 0x3FFF;
 	int x2 = (pattern%64) * 8 + (x%8);
 	int y2 = (pattern/64) * 8 + (y%8);
 	address = patternTable + y2 * 256 + x2/2;
-	byte dixel = vram.readVRAM(address);
+	byte dixel = vram.readVRAMP2(address);
 	if(!(x & 1)) dixel >>= 4;
 	return dixel & 15;
 }

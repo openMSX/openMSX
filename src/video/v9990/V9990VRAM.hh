@@ -34,13 +34,56 @@ public:
 		// not much to do, yet
 	}
 
-	byte readVRAM(unsigned address);
-	void writeVRAM(unsigned address, byte val);
-	byte readVRAMInterleave(unsigned address);
-	void writeVRAMInterleave(unsigned address, byte val);
-	inline byte readVRAMP1(unsigned address) { return data[address]; }
+	static inline unsigned transformBx(unsigned address) {
+		return ((address & 1) << 18) | ((address & 0x7FFFE) >> 1);
+	}
+	static inline unsigned transformP1(unsigned address) {
+		return address;
+	}
+	static inline unsigned transformP2(unsigned address) {
+		// TODO check this
+		if (address < 0x78000) {
+			return transformBx(address);
+		} else if (address < 0x7C000) {
+			return address - 0x3C000;
+		} else {
+			return address;
+		}
+	}
+
+	inline byte readVRAMBx(unsigned address) {
+		return data[transformBx(address)];
+	}
+	inline byte readVRAMP1(unsigned address) {
+		return data[transformP1(address)];
+	}
+	inline byte readVRAMP2(unsigned address) {
+		return data[transformP2(address)];
+	}
+
+	inline void writeVRAMBx(unsigned address, byte value) {
+		data[transformBx(address)] = value;
+	}
+	inline void writeVRAMP1(unsigned address, byte value) {
+		data[transformP1(address)] = value;
+	}
+	inline void writeVRAMP2(unsigned address, byte value) {
+		data[transformP2(address)] = value;
+	}
+	
+	inline byte readVRAMDirect(unsigned address) {
+		return data[address];
+	}
+	inline void writeVRAMDirect(unsigned address, byte value) {
+		data[address] = value;
+	}
+
+	byte readVRAMSlow(unsigned address);
+	void writeVRAMSlow(unsigned address, byte val);
 
 private:
+	unsigned mapAddress(unsigned address);
+
 	/** V9990 VDP this VRAM belongs to.
 	  */
 	V9990& vdp;

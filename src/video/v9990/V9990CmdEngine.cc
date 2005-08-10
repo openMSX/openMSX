@@ -8,125 +8,484 @@
 
 namespace openmsx {
 
+static byte bitLUT[8][16][2][2];
+static byte logOpLUT[4][16][0x100][0x100]; // 4MB !!  optimize if needed
+enum { LOG_NO_T, LOG_BPP2, LOG_BPP4, LOG_BPP8 };
+enum CommandMode { CMD_P1, CMD_P2, CMD_BPP2, CMD_BPP4, CMD_BPP8, CMD_BPP16 };
+
+static void initBitTab()
+{
+	for (unsigned op = 0; op < 16; ++op) {
+		unsigned tmp = op;
+		for (unsigned src = 0; src < 2; ++src) {
+			for (unsigned dst = 0; dst < 2; ++dst) {
+				unsigned b = tmp & 1;
+				for (unsigned bit = 0; bit < 8; ++bit) {
+					bitLUT[bit][op][src][dst] = b << bit;
+				}
+				tmp >>= 1;
+			}
+		}
+	}
+}
+
+static inline byte func01(unsigned op, unsigned src, unsigned dst)
+{
+	if ((src & 0x03) == 0) return dst & 0x03;
+	byte res = 0;
+	res |= bitLUT[0][op][(src & 0x01) >> 0][(dst & 0x01) >> 0];
+	res |= bitLUT[1][op][(src & 0x02) >> 1][(dst & 0x02) >> 1];
+	return res;
+}
+static inline byte func23(unsigned op, unsigned src, unsigned dst)
+{
+	if ((src & 0x0C) == 0) return dst & 0x0C;
+	byte res = 0;
+	res |= bitLUT[2][op][(src & 0x04) >> 2][(dst & 0x04) >> 2];
+	res |= bitLUT[3][op][(src & 0x08) >> 3][(dst & 0x08) >> 3];
+	return res;
+}
+static inline byte func45(unsigned op, unsigned src, unsigned dst)
+{
+	if ((src & 0x30) == 0) return dst & 0x30;
+	byte res = 0;
+	res |= bitLUT[4][op][(src & 0x10) >> 4][(dst & 0x10) >> 4];
+	res |= bitLUT[5][op][(src & 0x20) >> 5][(dst & 0x20) >> 5];
+	return res;
+}
+static inline byte func67(unsigned op, unsigned src, unsigned dst)
+{
+	if ((src & 0xC0) == 0) return dst & 0xC0;
+	byte res = 0;
+	res |= bitLUT[6][op][(src & 0x40) >> 6][(dst & 0x40) >> 6];
+	res |= bitLUT[7][op][(src & 0x80) >> 7][(dst & 0x80) >> 7];
+	return res;
+}
+
+static inline byte func03(unsigned op, unsigned src, unsigned dst)
+{
+	if ((src & 0x0F) == 0) return dst & 0x0F;
+	byte res = 0;
+	res |= bitLUT[0][op][(src & 0x01) >> 0][(dst & 0x01) >> 0];
+	res |= bitLUT[1][op][(src & 0x02) >> 1][(dst & 0x02) >> 1];
+	res |= bitLUT[2][op][(src & 0x04) >> 2][(dst & 0x04) >> 2];
+	res |= bitLUT[3][op][(src & 0x08) >> 3][(dst & 0x08) >> 3];
+	return res;
+}
+static inline byte func47(unsigned op, unsigned src, unsigned dst)
+{
+	if ((src & 0xF0) == 0) return dst & 0xF0;
+	byte res = 0;
+	res |= bitLUT[4][op][(src & 0x10) >> 4][(dst & 0x10) >> 4];
+	res |= bitLUT[5][op][(src & 0x20) >> 5][(dst & 0x20) >> 5];
+	res |= bitLUT[6][op][(src & 0x40) >> 6][(dst & 0x40) >> 6];
+	res |= bitLUT[7][op][(src & 0x80) >> 7][(dst & 0x80) >> 7];
+	return res;
+}
+
+static inline byte func07(unsigned op, unsigned src, unsigned dst)
+{
+	// if (src == 0) return dst;  // handled in fillTable8
+	byte res = 0;
+	res |= bitLUT[0][op][(src & 0x01) >> 0][(dst & 0x01) >> 0];
+	res |= bitLUT[1][op][(src & 0x02) >> 1][(dst & 0x02) >> 1];
+	res |= bitLUT[2][op][(src & 0x04) >> 2][(dst & 0x04) >> 2];
+	res |= bitLUT[3][op][(src & 0x08) >> 3][(dst & 0x08) >> 3];
+	res |= bitLUT[4][op][(src & 0x10) >> 4][(dst & 0x10) >> 4];
+	res |= bitLUT[5][op][(src & 0x20) >> 5][(dst & 0x20) >> 5];
+	res |= bitLUT[6][op][(src & 0x40) >> 6][(dst & 0x40) >> 6];
+	res |= bitLUT[7][op][(src & 0x80) >> 7][(dst & 0x80) >> 7];
+	return res;
+}
+
+static void fillTableNoT(unsigned op, byte* table)
+{
+	for (unsigned dst = 0; dst < 256; ++dst) {
+		for (unsigned src = 0; src < 256; ++src) {
+			table[dst * 256 + src] = func07(op, src, dst);
+		}
+	} 
+}
+
+static void fillTable2(unsigned op, byte* table)
+{
+	for (unsigned dst = 0; dst < 256; ++dst) {
+		for (unsigned src = 0; src < 256; ++src) {
+			byte res = 0;
+			res |= func01(op, src, dst);
+			res |= func23(op, src, dst);
+			res |= func45(op, src, dst);
+			res |= func67(op, src, dst);
+			table[dst * 256 + src] = res;
+		}
+	} 
+}
+
+static void fillTable4(unsigned op, byte* table)
+{
+	for (unsigned dst = 0; dst < 256; ++dst) {
+		for (unsigned src = 0; src < 256; ++src) {
+			byte res = 0;
+			res |= func03(op, src, dst);
+			res |= func47(op, src, dst);
+			table[dst * 256 + src] = res;
+		}
+	} 
+}
+
+static void fillTable8(unsigned op, byte* table)
+{
+	for (unsigned dst = 0; dst < 256; ++dst) {
+		{ // src == 0
+			table[dst * 256 + 0  ] = dst;
+		}
+		for (unsigned src = 1; src < 256; ++src) { // src != 0
+			table[dst * 256 + src] = func07(op, src, dst);
+		}
+	} 
+}
+
+static void initTabs()
+{
+	initBitTab();
+	for (int op = 0; op < 0x10; ++op) {
+		fillTableNoT(op, &logOpLUT[LOG_NO_T][op][0][0]);
+		fillTable2  (op, &logOpLUT[LOG_BPP2][op][0][0]);
+		fillTable4  (op, &logOpLUT[LOG_BPP4][op][0][0]);
+		fillTable8  (op, &logOpLUT[LOG_BPP8][op][0][0]);
+	}
+}
+
+
 static const byte DIY = 0x08;
 static const byte DIX = 0x04;
 static const byte NEQ = 0x02;
 static const byte MAJ = 0x01;
 
+// P1 --------------------------------------------------------------
+inline unsigned V9990CmdEngine::V9990P1::getPitch(unsigned width)
+{
+	return width / 2;
+}
+
+inline unsigned V9990CmdEngine::V9990P1::addressOf(
+	unsigned x, unsigned y, unsigned pitch)
+{
+	return V9990VRAM::transformP1(((x / 2) & (pitch - 1)) + y * pitch);
+}
+
+inline byte V9990CmdEngine::V9990P1::getColor(word mask, unsigned x)
+{
+	return (x & 2) ? (mask >> 8) : (mask & 0xFF);
+}
+
+inline byte V9990CmdEngine::V9990P1::point(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
+{
+	return vram.readVRAMDirect(addressOf(x, y, pitch));
+}
+
+inline byte V9990CmdEngine::V9990P1::shift(
+	byte value, unsigned fromX, unsigned toX)
+{
+	unsigned shift = 4 * ((toX & 1) - (fromX & 1));
+	return (shift > 0) ? (value >> shift) : (value << shift);
+}
+
+inline const byte* V9990CmdEngine::V9990P1::getLogOpLUT(byte op)
+{
+	return &logOpLUT[(op & 0x10) ? LOG_BPP4 : LOG_NO_T][op & 0xF][0][0];
+}
+
+inline byte V9990CmdEngine::V9990P1::logOp(
+	const byte* lut, byte src, byte dst)
+{
+	return lut[256 * dst + src];
+}
+
+inline void V9990CmdEngine::V9990P1::pset(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+	byte srcColor, word mask, const byte* lut, byte /*op*/)
+{
+	unsigned addr = addressOf(x, y, pitch);
+	byte dstColor = vram.readVRAMDirect(addr);
+	byte newColor = logOp(lut, srcColor, dstColor);
+	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
+	byte color = (dstColor & ~mask2) | (newColor & mask2); 
+	vram.writeVRAMDirect(addr, color);
+}
+
+// P2 --------------------------------------------------------------
+inline unsigned V9990CmdEngine::V9990P2::getPitch(unsigned width)
+{
+	return width / 2;
+}
+
+inline unsigned V9990CmdEngine::V9990P2::addressOf(
+	unsigned x, unsigned y, unsigned pitch)
+{
+	// TODO check
+	return V9990VRAM::transformP2(((x / 2) & (pitch - 1)) + y * pitch);
+}
+
+inline byte V9990CmdEngine::V9990P2::getColor(word mask, unsigned x)
+{
+	return (x & 2) ? (mask >> 8) : (mask & 0xFF);
+}
+
+inline byte V9990CmdEngine::V9990P2::point(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
+{
+	return vram.readVRAMDirect(addressOf(x, y, pitch));
+}
+
+inline byte V9990CmdEngine::V9990P2::shift(
+	byte value, unsigned fromX, unsigned toX)
+{
+	unsigned shift = 4 * ((toX & 1) - (fromX & 1));
+	return (shift > 0) ? (value >> shift) : (value << shift);
+}
+
+inline const byte* V9990CmdEngine::V9990P2::getLogOpLUT(byte op)
+{
+	return &logOpLUT[(op & 0x10) ? LOG_BPP4 : LOG_NO_T][op & 0xF][0][0];
+}
+
+inline byte V9990CmdEngine::V9990P2::logOp(
+	const byte* lut, byte src, byte dst)
+{
+	return lut[256 * dst + src];
+}
+
+inline void V9990CmdEngine::V9990P2::pset(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+	byte srcColor, word mask, const byte* lut, byte /*op*/)
+{
+	unsigned addr = addressOf(x, y, pitch);
+	byte dstColor = vram.readVRAMDirect(addr);
+	byte newColor = logOp(lut, srcColor, dstColor);
+	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
+	byte color = (dstColor & ~mask2) | (newColor & mask2); 
+	vram.writeVRAMDirect(addr, color);
+}
+
 // 2 bpp --------------------------------------------------------------
-inline uint V9990CmdEngine::V9990Bpp2::addressOf(int x, int y, int imageWidth)
+inline unsigned V9990CmdEngine::V9990Bpp2::getPitch(unsigned width)
 {
-	return ((x/PIXELS_PER_BYTE) % imageWidth) + y * imageWidth;
+	return width / 4;
 }
 
-inline word V9990CmdEngine::V9990Bpp2::shiftDown(word value, int x)
+inline unsigned V9990CmdEngine::V9990Bpp2::addressOf(
+	unsigned x, unsigned y, unsigned pitch)
 {
-	int  shift = (~x & 7) * BITS_PER_PIXEL;
-	return ((value >> shift) & MASK);
+	return V9990VRAM::transformBx(((x / 4) & (pitch - 1)) + y * pitch);
 }
 
-inline word V9990CmdEngine::V9990Bpp2::point(V9990VRAM& vram,
-                                             int x, int y, int imageWidth)
+inline byte V9990CmdEngine::V9990Bpp2::getColor(word mask, unsigned x)
 {
-	word value = (word)(vram.readVRAM(addressOf(x,y, imageWidth)));
-	int  shift = (~x & ADDRESS_MASK) * BITS_PER_PIXEL;
-	return ((value >> shift) & MASK);
+	return (x & 4) ? (mask >> 8) : (mask & 0xFF);
 }
 
-inline void V9990CmdEngine::V9990Bpp2::pset(V9990VRAM& vram,
-                                            int x, int y, int imageWidth,
-                                            word color)
+inline byte V9990CmdEngine::V9990Bpp2::point(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
 {
-	uint addr = addressOf(x, y, imageWidth);
-	int  shift = (~x & ADDRESS_MASK) * BITS_PER_PIXEL;
-	word value = (word)(vram.readVRAM(addr));
-	vram.writeVRAM(addr,
-		(byte)(value & ~(MASK << shift)) | ((color & MASK) << shift));
+	return vram.readVRAMDirect(addressOf(x, y, pitch));
+}
+
+inline byte V9990CmdEngine::V9990Bpp2::shift(
+	byte value, unsigned fromX, unsigned toX)
+{
+	unsigned shift = 2 * ((toX & 3) - (fromX & 3));
+	return (shift > 0) ? (value >> shift) : (value << shift);
+}
+
+inline const byte* V9990CmdEngine::V9990Bpp2::getLogOpLUT(byte op)
+{
+	return &logOpLUT[(op & 0x10) ? LOG_BPP2 : LOG_NO_T][op & 0xF][0][0];
+}
+
+inline byte V9990CmdEngine::V9990Bpp2::logOp(
+	const byte* lut, byte src, byte dst)
+{
+	return lut[256 * dst + src];
+}
+
+inline void V9990CmdEngine::V9990Bpp2::pset(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+	byte srcColor, word mask, const byte* lut, byte /*op*/)
+{
+	unsigned addr = addressOf(x, y, pitch);
+	byte dstColor = vram.readVRAMDirect(addr);
+	byte newColor = logOp(lut, srcColor, dstColor);
+	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask2 = mask1 & (0xC0 >> (2 * (x & 3)));
+	byte color = (dstColor & ~mask2) | (newColor & mask2); 
+	vram.writeVRAMDirect(addr, color);
 }
 
 // 4 bpp --------------------------------------------------------------
-inline uint V9990CmdEngine::V9990Bpp4::addressOf(int x, int y, int imageWidth)
+inline unsigned V9990CmdEngine::V9990Bpp4::getPitch(unsigned width)
 {
-	return ((x/PIXELS_PER_BYTE) % imageWidth) + y * imageWidth;
+	return width / 2;
 }
 
-inline word V9990CmdEngine::V9990Bpp4::shiftDown(word value, int x)
+inline unsigned V9990CmdEngine::V9990Bpp4::addressOf(
+	unsigned x, unsigned y, unsigned pitch)
 {
-	int  shift = (~x & 3) * BITS_PER_PIXEL;
-	return ((value >> shift) & MASK);
+	return V9990VRAM::transformBx(((x / 2) & (pitch - 1)) + y * pitch);
 }
 
-inline word V9990CmdEngine::V9990Bpp4::point(V9990VRAM& vram,
-                                             int x, int y, int imageWidth)
+inline byte V9990CmdEngine::V9990Bpp4::getColor(word mask, unsigned x)
 {
-	word value = (word)(vram.readVRAM(addressOf(x,y, imageWidth)));
-	int  shift = (~x & ADDRESS_MASK) * BITS_PER_PIXEL;
-	return ((value >> shift) & MASK);
+	return (x & 2) ? (mask >> 8) : (mask & 0xFF);
 }
 
-inline void V9990CmdEngine::V9990Bpp4::pset(V9990VRAM& vram,
-                                            int x, int y, int imageWidth,
-                                            word color)
+inline byte V9990CmdEngine::V9990Bpp4::point(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
 {
-	uint addr  = addressOf(x, y, imageWidth);
-	int  shift = (~x & ADDRESS_MASK) * BITS_PER_PIXEL;
-	word value = (word)(vram.readVRAM(addr));
-	vram.writeVRAM(addr,
-		(byte)(value & ~(MASK << shift)) | ((color & MASK) << shift));
+	return vram.readVRAMDirect(addressOf(x, y, pitch));
+}
+
+inline byte V9990CmdEngine::V9990Bpp4::shift(
+	byte value, unsigned fromX, unsigned toX)
+{
+	unsigned shift = 4 * ((toX & 1) - (fromX & 1));
+	return (shift > 0) ? (value >> shift) : (value << shift);
+}
+
+inline const byte* V9990CmdEngine::V9990Bpp4::getLogOpLUT(byte op)
+{
+	return &logOpLUT[(op & 0x10) ? LOG_BPP4 : LOG_NO_T][op & 0xF][0][0];
+}
+
+inline byte V9990CmdEngine::V9990Bpp4::logOp(
+	const byte* lut, byte src, byte dst)
+{
+	return lut[256 * dst + src];
+}
+
+inline void V9990CmdEngine::V9990Bpp4::pset(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+	byte srcColor, word mask, const byte* lut, byte /*op*/)
+{
+	unsigned addr = addressOf(x, y, pitch);
+	byte dstColor = vram.readVRAMDirect(addr);
+	byte newColor = logOp(lut, srcColor, dstColor);
+	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
+	byte color = (dstColor & ~mask2) | (newColor & mask2); 
+	vram.writeVRAMDirect(addr, color);
 }
 
 // 8 bpp --------------------------------------------------------------
-inline uint V9990CmdEngine::V9990Bpp8::addressOf(int x, int y, int imageWidth)
+inline unsigned V9990CmdEngine::V9990Bpp8::getPitch(unsigned width)
 {
-	return ((x/PIXELS_PER_BYTE) % imageWidth) + y * imageWidth;
+	return width;
 }
 
-inline word V9990CmdEngine::V9990Bpp8::shiftDown(word value, int x)
+inline unsigned V9990CmdEngine::V9990Bpp8::addressOf(
+	unsigned x, unsigned y, unsigned pitch)
 {
-	return (x & 1) ? value >> 8 : value & 0xFF;
+	return V9990VRAM::transformBx((x & (pitch - 1)) + y * pitch);
 }
 
-inline word V9990CmdEngine::V9990Bpp8::point(V9990VRAM& vram,
-                                             int x, int y, int imageWidth)
+inline byte V9990CmdEngine::V9990Bpp8::getColor(word mask, unsigned x)
 {
-	word value = (word)(vram.readVRAM(addressOf(x,y, imageWidth)));
-	return (value);
+	return (x & 1) ? (mask >> 8) : (mask & 0xFF);
 }
 
-inline void V9990CmdEngine::V9990Bpp8::pset(V9990VRAM& vram,
-                                            int x, int y, int imageWidth,
-                                            word color)
+inline byte V9990CmdEngine::V9990Bpp8::point(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
 {
-	uint addr = addressOf(x, y, imageWidth);
-	vram.writeVRAM(addr, (byte)(color & 0xFF));
+	return vram.readVRAMDirect(addressOf(x, y, pitch));
+}
+
+inline byte V9990CmdEngine::V9990Bpp8::shift(
+	byte value, unsigned /*fromX*/, unsigned /*toX*/)
+{
+	return value;
+}
+
+inline const byte* V9990CmdEngine::V9990Bpp8::getLogOpLUT(byte op)
+{
+	return &logOpLUT[(op & 0x10) ? LOG_BPP8 : LOG_NO_T][op & 0xF][0][0];
+}
+
+inline byte V9990CmdEngine::V9990Bpp8::logOp(
+	const byte* lut, byte src, byte dst)
+{
+	return lut[256 * dst + src];
+}
+
+inline void V9990CmdEngine::V9990Bpp8::pset(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+	byte srcColor, word mask, const byte* lut, byte /*op*/)
+{
+	unsigned addr = addressOf(x, y, pitch);
+	byte dstColor = vram.readVRAMDirect(addr);
+	byte newColor = logOp(lut, srcColor, dstColor);
+	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte color = (dstColor & ~mask1) | (newColor & mask1); 
+	vram.writeVRAMDirect(addr, color);
 }
 
 // 16 bpp -------------------------------------------------------------
-inline uint V9990CmdEngine::V9990Bpp16::addressOf(int x, int y, int imageWidth)
+inline unsigned V9990CmdEngine::V9990Bpp16::getPitch(unsigned width)
 {
-	return ((x % imageWidth) + y * imageWidth) << 1;
+	return width * 2;
 }
 
-inline word V9990CmdEngine::V9990Bpp16::shiftDown(word value, int /*x*/)
+inline unsigned V9990CmdEngine::V9990Bpp16::addressOf(
+	unsigned x, unsigned y, unsigned pitch)
+{
+	return V9990VRAM::transformBx(((x * 2) & (pitch - 1)) + y * pitch);
+}
+
+inline word V9990CmdEngine::V9990Bpp16::getColor(word mask, unsigned /*x*/)
+{
+	return mask;
+}
+
+inline word V9990CmdEngine::V9990Bpp16::point(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
+{
+	unsigned addr = addressOf(x, y, pitch);
+	return vram.readVRAMDirect(addr + 0x00000) +
+	       vram.readVRAMDirect(addr + 0x40000) * 256;
+}
+
+inline word V9990CmdEngine::V9990Bpp16::shift(
+	word value, unsigned /*fromX*/, unsigned /*toX*/)
 {
 	return value;
 }
 
-inline word V9990CmdEngine::V9990Bpp16::point(V9990VRAM& vram,
-                                             int x, int y, int imageWidth)
+inline const byte* V9990CmdEngine::V9990Bpp16::getLogOpLUT(byte op)
 {
-	int addr = addressOf(x,y, imageWidth);
-	word value = vram.readVRAM(addr)+(vram.readVRAM(addr+1) << 8);
-	return value;
+	return &logOpLUT[LOG_NO_T][op & 0xF][0][0];
 }
 
-inline void V9990CmdEngine::V9990Bpp16::pset(V9990VRAM& vram,
-                                            int x, int y, int imageWidth,
-                                            word color)
+inline word V9990CmdEngine::V9990Bpp16::logOp(
+	const byte* lut, word src, word dst, bool transp)
 {
-	int addr = addressOf(x,y, imageWidth);
-	vram.writeVRAM(addr,   (color & 0xFF));
-	vram.writeVRAM(addr+1, ((color >> 8) & 0xFF));
+	if (transp && (src == 0)) return dst;
+	return (lut[((dst & 0x00FF) << 8) + ((src & 0x00FF) >> 0)] << 0) +
+	       (lut[((dst & 0xFF00) << 0) + ((src & 0xFF00) >> 8)] << 8);
+}
+
+inline void V9990CmdEngine::V9990Bpp16::pset(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+	word srcColor, word mask, const byte* lut, byte op)
+{
+	unsigned addr = addressOf(x, y, pitch);
+	word dstColor = vram.readVRAMDirect(addr + 0x00000) +
+	                vram.readVRAMDirect(addr + 0x40000) * 256;
+	word newColor = logOp(lut, srcColor, dstColor, op & 0x10);
+	word color = (dstColor & ~mask) | (newColor & mask); 
+	vram.writeVRAMDirect(addr + 0x00000, color & 0xFF);
+	vram.writeVRAMDirect(addr + 0x40000, color >> 8);
 }
 
 // ====================================================================
@@ -136,9 +495,10 @@ V9990CmdEngine::V9990CmdEngine(V9990& vdp_, const EmuTime& time)
 	: vdp(vdp_)
 	, cmdTraceSetting("v9990cmdtrace", "V9990 command tracing on/off", false)
 {
-	V9990CmdEngine::CmdSTOP* stopCmd =
-		new V9990CmdEngine::CmdSTOP(*this, vdp.getVRAM());
-	for (int mode = 0; mode <= BP2; ++mode) {
+	initTabs();
+	
+	CmdSTOP* stopCmd = new CmdSTOP(*this, vdp.getVRAM());
+	for (int mode = 0; mode < 6; ++mode) {
 		commands[0][mode] = stopCmd;
 	}
 
@@ -161,12 +521,24 @@ V9990CmdEngine::V9990CmdEngine(V9990& vdp_, const EmuTime& time)
 	reset(time);
 }
 
+template <template <class Mode> class Command>
+void V9990CmdEngine::createEngines(int cmd)
+{
+	V9990VRAM& vram = vdp.getVRAM();
+	commands[cmd][CMD_P1   ] = new Command<V9990P1>   (*this, vram);
+	commands[cmd][CMD_P2   ] = new Command<V9990P2>   (*this, vram);
+	commands[cmd][CMD_BPP2 ] = new Command<V9990Bpp2> (*this, vram);
+	commands[cmd][CMD_BPP4 ] = new Command<V9990Bpp4> (*this, vram);
+	commands[cmd][CMD_BPP8 ] = new Command<V9990Bpp8> (*this, vram);
+	commands[cmd][CMD_BPP16] = new Command<V9990Bpp16>(*this, vram);
+}
+
 V9990CmdEngine::~V9990CmdEngine()
 {
 	delete commands[0][0]; // Delete the STOP cmd
 
 	for (int cmd = 1; cmd < 16; ++cmd) { // Delete the rest
-		for (int mode = 0; mode <= BP2; ++mode) {
+		for (int mode = 0; mode < 6; ++mode) {
 			delete commands[cmd][mode];
 		}
 	}
@@ -245,22 +617,48 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
 	case 19: // Font color - BG high
 		bgCol = (bgCol & 0x00FF) | (value << 8);
 		break;
-	case 20: // CMD
-	{
+	case 20: { // CMD
 		CMD = value;
-		if (currentCommand) {
-			// Do Something to stop the running command
-		}
 		if (cmdTraceSetting.getValue()) {
 			reportV9990Command();
 		}
 		status |= CE;
-		currentCommand = commands[CMD >> 4][vdp.getColorMode()];
-		if (currentCommand) currentCommand->start(time);
+
+		CommandMode cmdMode;
+		V9990DisplayMode dispMode = vdp.getDisplayMode();
+		if (dispMode == P1) {
+			cmdMode = CMD_P1;
+		} else if (dispMode == P2) {
+			cmdMode = CMD_P2;
+		} else { // Bx
+			switch (vdp.getColorMode()) {
+				default:
+					assert(false);
+				case BP2:
+					cmdMode = CMD_BPP2;
+					break;
+				case PP:
+				case BP4:
+					cmdMode = CMD_BPP4;
+					break;
+				case BYUV:
+				case BYUVP:
+				case BYJK:
+				case BYJKP:
+				case BD8:
+				case BP6:
+					cmdMode = CMD_BPP8;
+					break;
+				case BD16:
+					cmdMode = CMD_BPP16;
+					break;
+			}
+		}
+		currentCommand = commands[CMD >> 4][cmdMode];
+		
+		currentCommand->start(time);
 		break;
 	}
-	default: /* nada */
-		;
 	}
 }
 
@@ -286,25 +684,6 @@ void V9990CmdEngine::reportV9990Command()
 	          << " BC="  << std::hex << bgCol
 	          << " CMD=" << std::hex << (int)CMD
 	          << std::endl;
-}
-
-template <template <class Mode> class Command>
-void V9990CmdEngine::createEngines(int cmd)
-{
-	#define CREATE_COMMAND(COLORMODE,BPP) \
-		commands[cmd][COLORMODE] = \
-			new Command<V9990CmdEngine::BPP>(*this, vdp.getVRAM())
-
-	CREATE_COMMAND(PP,    V9990Bpp4);
-	CREATE_COMMAND(BYUV,  V9990Bpp8);
-	CREATE_COMMAND(BYUVP, V9990Bpp8);
-	CREATE_COMMAND(BYJK,  V9990Bpp8);
-	CREATE_COMMAND(BYJKP, V9990Bpp8);
-	CREATE_COMMAND(BD16,  V9990Bpp16);
-	CREATE_COMMAND(BD8,   V9990Bpp8);
-	CREATE_COMMAND(BP6,   V9990Bpp8);
-	CREATE_COMMAND(BP4,   V9990Bpp4);
-	CREATE_COMMAND(BP2,   V9990Bpp2);
 }
 
 // ====================================================================
@@ -352,9 +731,9 @@ template <class Mode>
 void V9990CmdEngine::CmdLMMC<Mode>::start(const EmuTime& /*time*/)
 {
 	if (Mode::BITS_PER_PIXEL == 16) {
-		engine.dstAddress = Mode::addressOf(engine.DX,
-		                                     engine.DY,
-		                                     engine.vdp.getImageWidth());
+		engine.dstAddress = Mode::addressOf(
+			engine.DX, engine.DY,
+			Mode::getPitch(engine.vdp.getImageWidth()));
 	}
 	engine.ANX = engine.NX;
 	engine.ANY = engine.NY;
@@ -367,14 +746,15 @@ void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(
 {
 	if (engine.status & TR) {
 		engine.status &= ~TR;
-		int width = engine.vdp.getImageWidth();
+		unsigned pitch = V9990Bpp16::getPitch(engine.vdp.getImageWidth());
+		const byte* lut = V9990Bpp16::getLogOpLUT(engine.LOG);
 
-		byte value = vram.readVRAM(engine.dstAddress);
-		byte mask = (engine.dstAddress & 1) ? engine.WM & 0xFF
-		                                     : engine.WM >> 8;
-		value = engine.logOp(engine.data, value, mask);
-		vram.writeVRAM(engine.dstAddress, value);
-		if(! (++(engine.dstAddress) & 0x01)) {
+		byte value = vram.readVRAMDirect(engine.dstAddress);
+		//byte mask = (engine.dstAddress & 1) ? engine.WM & 0xFF
+		//                                     : engine.WM >> 8;
+		value = V9990Bpp16::logOp(lut, engine.data, value, engine.LOG);
+		vram.writeVRAMDirect(engine.dstAddress, value); // TODO mask
+		if (engine.dstAddress & 0x40000) {
 			int dx = (engine.ARG & DIX) ? -1 : 1;
 			engine.DX += dx;
 			if (!(--(engine.ANX))) {
@@ -387,9 +767,10 @@ void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(
 					engine.ANX = engine.NX;
 				}
 			}
-			engine.dstAddress = V9990Bpp16::addressOf(engine.DX,
-			                                           engine.DY,
-			                                           width);
+			engine.dstAddress = V9990Bpp16::addressOf(
+				engine.DX, engine.DY, pitch);
+		} else {
+			engine.dstAddress += 0x40000;
 		}
 	}
 }
@@ -399,14 +780,11 @@ void V9990CmdEngine::CmdLMMC<Mode>::execute(const EmuTime& /*time*/)
 {
 	if (engine.status & TR) {
 		engine.status &= ~TR;
-		int width = engine.vdp.getImageWidth() / Mode::PIXELS_PER_BYTE;
-		byte data = engine.data;
+		unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
+		const byte* lut = Mode::getLogOpLUT(engine.LOG);
 		for (int i = 0; (engine.ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
-			byte value = Mode::point(vram, engine.DX, engine.DY, width);
-			byte mask = Mode::shiftDown(engine.WM, engine.DX);
-			value = engine.logOp((data >> (8 - Mode::BITS_PER_PIXEL)),
-			                      value, mask);
-			Mode::pset(vram, engine.DX, engine.DY, width, value);
+			Mode::pset(vram, engine.DX, engine.DY, pitch,
+			           engine.data, engine.WM, lut, engine.LOG);
 
 			int dx = (engine.ARG & DIX) ? -1 : 1;
 			engine.DX += dx;
@@ -420,7 +798,6 @@ void V9990CmdEngine::CmdLMMC<Mode>::execute(const EmuTime& /*time*/)
 					engine.ANX = engine.NX;
 				}
 			}
-			data <<= Mode::BITS_PER_PIXEL;
 		}
 	}
 }
@@ -450,20 +827,14 @@ void V9990CmdEngine::CmdLMMV<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO can be optimized a lot
 
-	int width = engine.vdp.getImageWidth();
-	if (Mode::PIXELS_PER_BYTE) {
-		// hack to avoid "warning: division by zero"
-		int ppb = Mode::PIXELS_PER_BYTE;
-		width /= ppb;
-	}
+	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
+	const byte* lut = Mode::getLogOpLUT(engine.LOG);
 	while (true) {
-		word value = Mode::point(vram, engine.DX, engine.DY, width);
-		word mask = Mode::shiftDown(engine.WM, engine.DX);
-		value = engine.logOp(Mode::shiftDown(engine.fgCol, engine.DX),
-		                      value, mask);
-		Mode::pset(vram, engine.DX, engine.DY, width, value);
+		Mode::pset(vram, engine.DX, engine.DY, pitch,
+		           Mode::getColor(engine.fgCol, engine.DX),
+		           engine.WM, lut, engine.LOG);
 
 		engine.DX += dx;
 		if (!--(engine.ANX)) {
@@ -526,20 +897,15 @@ void V9990CmdEngine::CmdLMMM<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO can be optimized a lot
 
-	int width = engine.vdp.getImageWidth();
-	if (Mode::PIXELS_PER_BYTE) {
-		// hack to avoid "warning: division by zero"
-		int ppb = Mode::PIXELS_PER_BYTE;
-		width /= ppb;
-	}
+	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
+	const byte* lut = Mode::getLogOpLUT(engine.LOG);
 	while (true) {
-		word src  = Mode::point(vram, engine.SX, engine.SY, width);
-		word dest = Mode::point(vram, engine.DX, engine.DY, width);
-		word mask = Mode::shiftDown(engine.WM, engine.DX);
-		dest = engine.logOp(src, dest, mask);
-		Mode::pset(vram, engine.DX, engine.DY, width, dest);
+		typename Mode::Type src = Mode::point(vram, engine.SX, engine.SY, pitch);
+		src = Mode::shift(src, engine.SX, engine.DX);
+		Mode::pset(vram, engine.DX, engine.DY, pitch,
+		           src, engine.WM, lut, engine.LOG);
 
 		engine.DX += dx;
 		engine.SX += dx;
@@ -582,24 +948,18 @@ void V9990CmdEngine::CmdCMMC<Mode>::execute(const EmuTime& /*time*/)
 	if (engine.status & TR) {
 		engine.status &= ~TR;
 
-		int width = engine.vdp.getImageWidth();
-		if (Mode::PIXELS_PER_BYTE) {
-			// hack to avoid "warning: division by zero"
-			int ppb = Mode::PIXELS_PER_BYTE;
-			width /= ppb;
-		}
+		unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 		int dx = (engine.ARG & DIX) ? -1 : 1;
 		int dy = (engine.ARG & DIY) ? -1 : 1;
-		for (int i = 0; i < 8; ++i) {
+		const byte* lut = Mode::getLogOpLUT(engine.LOG);
+		for (unsigned i = 0; i < 8; ++i) {
 			bool bit = engine.data & 0x80;
 			engine.data <<= 1;
 
 			word src = bit ? engine.fgCol : engine.bgCol;
-			word dest = Mode::point(vram, engine.DX, engine.DY, width);
-			word mask = Mode::shiftDown(engine.WM, engine.DX);
-			dest = engine.logOp(Mode::shiftDown(src, engine.DX),
-					     dest, mask);
-			Mode::pset(vram, engine.DX, engine.DY, width, dest);
+			Mode::pset(vram, engine.DX, engine.DY, pitch,
+			           Mode::getColor(src, engine.DX),
+			           engine.WM, lut, engine.LOG);
 
 			engine.DX += dx;
 			if (!--(engine.ANX)) {
@@ -666,29 +1026,22 @@ void V9990CmdEngine::CmdCMMM<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO can be optimized a lot
 
-	int width = engine.vdp.getImageWidth();
-	if (Mode::PIXELS_PER_BYTE) {
-		// hack to avoid "warning: division by zero"
-		int ppb = Mode::PIXELS_PER_BYTE;
-		width /= ppb;
-	}
+	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
+	const byte* lut = Mode::getLogOpLUT(engine.LOG);
 	while (true) {
 		if (!engine.bitsLeft) {
-			engine.data = vram.readVRAM(engine.srcAddress++);
+			engine.data = vram.readVRAMBx(engine.srcAddress++);
 			engine.bitsLeft = 8;
 		}
 		--engine.bitsLeft;
 		bool bit = engine.data & 0x80;
 		engine.data <<= 1;
 
-		word src = bit ? engine.fgCol : engine.bgCol;
-		word dest = Mode::point(vram, engine.DX, engine.DY, width);
-		word mask = Mode::shiftDown(engine.WM, engine.DX);
-		dest = engine.logOp(Mode::shiftDown(src, engine.DX),
-		                     dest, mask);
-		Mode::pset(vram, engine.DX, engine.DY, width, dest);
+		word color = bit ? engine.fgCol : engine.bgCol;
+		Mode::pset(vram, engine.DX, engine.DY, pitch,
+		           Mode::getColor(color, engine.DX), engine.WM, lut, engine.LOG);
 
 		engine.DX += dx;
 		if (!--(engine.ANX)) {
@@ -730,16 +1083,16 @@ template <>
 void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(
 	const EmuTime& /*time*/)
 {
-	int width = engine.vdp.getImageWidth();
+	unsigned pitch = V9990Bpp16::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
+	const byte* lut = V9990Bpp16::getLogOpLUT(engine.LOG);
 
 	while (true) {
-		word dest = V9990Bpp16::point(vram, engine.DX, engine.DY, width);
-		word src  = vram.readVRAM(engine.srcAddress + 0) +
-		            vram.readVRAM(engine.srcAddress + 1) * 256;
-		word res = engine.logOp(src, dest, engine.WM);
-		V9990Bpp16::pset(vram, engine.DX, engine.DY, width, res);
+		word src  = vram.readVRAMBx(engine.srcAddress + 0) +
+		            vram.readVRAMBx(engine.srcAddress + 1) * 256;
+		V9990Bpp16::pset(vram, engine.DX, engine.DY, pitch,
+		                 src, engine.WM, lut, engine.LOG);
 		engine.srcAddress += 2;
 		engine.DX += dx;
 		if (!(--(engine.ANX))) {
@@ -758,18 +1111,16 @@ void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(
 template <class Mode>
 void V9990CmdEngine::CmdBMXL<Mode>::execute(const EmuTime& /*time*/)
 {
-	int width = engine.vdp.getImageWidth() / Mode::PIXELS_PER_BYTE;
+	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
+	const byte* lut = Mode::getLogOpLUT(engine.LOG);
 
 	while (true) {
-		byte data = vram.readVRAM(engine.srcAddress++);
+		byte data = vram.readVRAMBx(engine.srcAddress++);
 		for (int i = 0; (engine.ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
-			word value = Mode::point(vram, engine.DX, engine.DY, width);
-			word mask = Mode::shiftDown(engine.WM, engine.DX);
-			value = engine.logOp((data >> (8 - Mode::BITS_PER_PIXEL)),
-			                      value, mask);
-			Mode::pset(vram, engine.DX, engine.DY, width, value);
+			Mode::pset(vram, engine.DX, engine.DY, pitch,
+			           data, engine.WM, lut, engine.LOG);
 
 			engine.DX += dx;
 			if (!--(engine.ANX)) {
@@ -782,7 +1133,6 @@ void V9990CmdEngine::CmdBMXL<Mode>::execute(const EmuTime& /*time*/)
 					engine.ANX = engine.NX;
 				}
 			}
-			data <<= Mode::BITS_PER_PIXEL;
 		}
 	}
 }
@@ -814,25 +1164,21 @@ void V9990CmdEngine::CmdBMLX<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO lots of corner cases still go wrong
 	//      very dumb implementation, can be made much faster
-	int width = engine.vdp.getImageWidth();
-	if (Mode::PIXELS_PER_BYTE) {
-		// hack to avoid "warning: division by zero"
-		int ppb = Mode::PIXELS_PER_BYTE;
-		width /= ppb;
-	}
+	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
 
 	word tmp = 0;
 	engine.bitsLeft = 16;
 	while (true) {
-		word src  = Mode::point(vram, engine.SX, engine.SY, width);
+		typename Mode::Type src  = Mode::point(vram, engine.SX, engine.SY, pitch);
+		src = Mode::shift(src, engine.SX, 0); // TODO optimize
 		tmp <<= Mode::BITS_PER_PIXEL;
 		tmp |= src;
 		engine.bitsLeft -= Mode::BITS_PER_PIXEL;
 		if (!engine.bitsLeft) {
-			vram.writeVRAM(engine.dstAddress++, tmp & 0xFF);
-			vram.writeVRAM(engine.dstAddress++, tmp >> 8);
+			vram.writeVRAMBx(engine.dstAddress++, tmp & 0xFF);
+			vram.writeVRAMBx(engine.dstAddress++, tmp >> 8);
 			engine.bitsLeft = 16;
 			tmp = 0;
 		}
@@ -882,13 +1228,14 @@ void V9990CmdEngine::CmdBMLL<Mode>::execute(const EmuTime& /*time*/)
 	// TODO DIX DIY?
 	//      Log op?
 	while (engine.nbBytes) {
-		byte src = vram.readVRAMInterleave(engine.srcAddress);
-		byte dst = vram.readVRAMInterleave(engine.dstAddress);
+		// VRAM always mapped as in Bx modes
+		byte src = vram.readVRAMBx(engine.srcAddress);
+		byte dst = vram.readVRAMBx(engine.dstAddress);
 		byte mask = (engine.dstAddress & 1)
 		          ? (engine.WM >> 8) : (engine.WM & 0xFF);
-		mask = 255;
+		mask = 255; // TODO check
 		byte res = (src & mask) | (dst & ~mask);
-		vram.writeVRAMInterleave(engine.dstAddress, res);
+		vram.writeVRAMBx(engine.dstAddress, res);
 		++engine.srcAddress;
 		++engine.dstAddress;
 		--engine.nbBytes;
@@ -920,26 +1267,21 @@ void V9990CmdEngine::CmdLINE<Mode>::start(const EmuTime& time)
 template <class Mode>
 void V9990CmdEngine::CmdLINE<Mode>::execute(const EmuTime& /*time*/)
 {
-	int width = engine.vdp.getImageWidth();
-	if (Mode::PIXELS_PER_BYTE) {
-		// hack to avoid "warning: division by zero"
-		int ppb = Mode::PIXELS_PER_BYTE;
-		width /= ppb;
-	}
+	unsigned width = engine.vdp.getImageWidth();
+	unsigned pitch = Mode::getPitch(width);
 
 	int TX = (engine.ARG & DIX) ? -1 : 1;
 	int TY = (engine.ARG & DIY) ? -1 : 1;
+	const byte* lut = Mode::getLogOpLUT(engine.LOG);
 	//int delta = LINE_TIMING[engine.getTiming()];
 
 	if ((engine.ARG & MAJ) == 0) {
 		// X-Axis is major direction.
 		//while (clock.before(time)) {
 		while (true) {
-			word value = Mode::point(vram, engine.ADX, engine.DY, width);
-			word mask = Mode::shiftDown(engine.WM, engine.DX);
-			value = engine.logOp(Mode::shiftDown(engine.fgCol, engine.DX),
-			                      value, mask);
-			Mode::pset(vram, engine.ADX, engine.DY, width, value);
+			Mode::pset(vram, engine.ADX, engine.DY, pitch,
+			           Mode::getColor(engine.fgCol, engine.DX),
+			           engine.WM, lut, engine.LOG);
 			//clock += delta;
 
 			engine.ADX += TX;
@@ -958,11 +1300,9 @@ void V9990CmdEngine::CmdLINE<Mode>::execute(const EmuTime& /*time*/)
 		// Y-Axis is major direction.
 		//while (clock.before(time)) {
 		while (true) {
-			word value = Mode::point(vram, engine.ADX, engine.DY, width);
-			word mask = Mode::shiftDown(engine.WM, engine.DX);
-			value = engine.logOp(Mode::shiftDown(engine.fgCol, engine.DX),
-			                      value, mask);
-			Mode::pset(vram, engine.ADX, engine.DY, width, value);
+			Mode::pset(vram, engine.ADX, engine.DY, pitch,
+			           Mode::getColor(engine.fgCol, engine.DX),
+			           engine.WM, lut, engine.LOG);
 			//clock += delta;
 			engine.DY += TY;
 			if (engine.ASX < engine.NY) {
@@ -1000,15 +1340,10 @@ void V9990CmdEngine::CmdSRCH<Mode>::start(const EmuTime& time)
 template <class Mode>
 void V9990CmdEngine::CmdSRCH<Mode>::execute(const EmuTime& /*time*/)
 {
-	int ppl = engine.vdp.getImageWidth();
-	int width = ppl;
-	if (Mode::PIXELS_PER_BYTE) {
-		// hack to avoid "warning: division by zero"
-		int ppb = Mode::PIXELS_PER_BYTE;
-		width /= ppb;
-	}
+	unsigned width = engine.vdp.getImageWidth();
+	unsigned pitch = Mode::getPitch(width);
 
-	word CL = Mode::shiftDown(engine.fgCol, 0);
+	typename Mode::Type CL = Mode::getColor(engine.fgCol, 0);
 	int TX = (engine.ARG & DIX) ? -1 : 1;
 	bool AEQ = (engine.ARG & NEQ) != 0; // TODO: Do we look for "==" or "!="?
 	//int delta = LINE_TIMING[engine.getTiming()];
@@ -1016,14 +1351,15 @@ void V9990CmdEngine::CmdSRCH<Mode>::execute(const EmuTime& /*time*/)
 	//while (clock.before(time)) {
 	while (true) {
 		//clock += delta;
-		word value = Mode::point(vram, engine.ASX, engine.SY, width);
+		typename Mode::Type value = Mode::point(vram, engine.ASX, engine.SY, pitch);
+		value = Mode::shift(value, engine.SX, 0); // TODO check
 		if ((value == CL) ^ AEQ) {
 			engine.status |= BD; // border detected
 			engine.cmdReady();
 			engine.borderX = engine.ASX;
 			break;
 		}
-		if ((engine.ASX += TX) & ppl) {
+		if ((engine.ASX += TX) & width) {
 			engine.status &= ~BD; // border not detected
 			engine.cmdReady();
 			engine.borderX = engine.ASX;
@@ -1067,17 +1403,10 @@ V9990CmdEngine::CmdPSET<Mode>::CmdPSET(V9990CmdEngine& engine,
 template <class Mode>
 void V9990CmdEngine::CmdPSET<Mode>::start(const EmuTime& /*time*/)
 {
-	int width = engine.vdp.getImageWidth();
-	if (Mode::PIXELS_PER_BYTE) {
-		// hack to avoid "warning: division by zero"
-		int ppb = Mode::PIXELS_PER_BYTE;
-		width /= ppb;
-	}
-	word value = Mode::point(vram, engine.DX, engine.DY, width);
-	word mask = Mode::shiftDown(engine.WM, engine.DX);
-	value = engine.logOp(Mode::shiftDown(engine.fgCol, engine.DX),
-	                      value, mask);
-	Mode::pset(vram, engine.DX, engine.DY, width, value);
+	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
+	const byte* lut = Mode::getLogOpLUT(engine.LOG);
+	Mode::pset(vram, engine.DX, engine.DY, pitch,
+	           Mode::getColor(engine.fgCol, engine.DX), engine.WM, lut, engine.LOG);
 
 	// TODO advance DX DY
 
@@ -1133,42 +1462,6 @@ byte V9990CmdEngine::getCmdData(const EmuTime& time)
 	return value;
 }
 
-word V9990CmdEngine::logOp(word src, word dest, word mask)
-{
-	if ((vdp.getDisplayMode() == P1) || (vdp.getDisplayMode() == P2)) {
-		// TODO temporary workaround, ignore mask in Px modes
-		//  low  byte of mask works on VRAM0
-		//  high                       VRAM1
-		// but interleaving is different in Bx and Px modes
-		mask = 0xFFFF;
-	}
-
-	word value = 0;
-
-	if (!((LOG & 0x10) && (src == 0))) {
-		for (int i = 0; i < 16; ++i) {
-			value >>= 1;
-			if (mask & 1) {
-				int shift = ((src & 1) << 1) | (dest & 1);
-				if (LOG & (1 << shift)) {
-					value |= 0x8000;
-				}
-			} else {
-				if (dest & 1) {
-					value |= 0x8000;
-				}
-			}
-			src  >>= 1;
-			dest >>= 1;
-			mask >>= 1;
-		}
-	} else {
-		value = dest;
-	}
-
-	return value;
-}
-
 void V9990CmdEngine::cmdReady()
 {
 	currentCommand = NULL;
@@ -1177,3 +1470,4 @@ void V9990CmdEngine::cmdReady()
 }
 
 } // namespace openmsx
+
