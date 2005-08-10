@@ -1,5 +1,17 @@
 $Id$
 
+2005-08-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed using precompiled headers:
+	   - include guards should be unique in the whole tree
+	   - split Icon.hh in Icon.hh and Icon.cc
+	* Fixed KeyJoystick:
+	   - UserInputEventDistributer can now handle multiple listeners with
+	     the same priority
+	* Large V9990 speedup:
+	   - added faster VRAM access methods, specific for certain display
+	     modes
+	   - optimized logical operations in V9990CmdEngine with LUT
+
 2005-08-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added SimpleDebuggable class:
 	   made code of most Debuggables a lot simpler
