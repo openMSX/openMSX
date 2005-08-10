@@ -39,7 +39,8 @@ SDL_Surface* openSDLVideo(int width, int height, int flags)
 
 	// Set icon.
 	SDL_Surface* iconSurf = SDL_CreateRGBSurfaceFrom(
-		openMSX_icon.pixel_data, openMSX_icon.width, openMSX_icon.height,
+		const_cast<char*>(openMSX_icon.pixel_data),
+		openMSX_icon.width, openMSX_icon.height,
 		openMSX_icon.bytes_per_pixel * 8,
 		openMSX_icon.bytes_per_pixel * openMSX_icon.width,
 		OPENMSX_BIGENDIAN ? 0xFF000000 : 0x000000FF,

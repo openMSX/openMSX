@@ -24,7 +24,8 @@ SRC_HDR:= \
 	IconLayer \
 	SDLImage \
 	MemoryOps \
-	RawFrame PostProcessor
+	RawFrame PostProcessor \
+	Icon
 
 HDR_ONLY:= \
 	DirtyChecker \
@@ -32,8 +33,7 @@ HDR_ONLY:= \
 	VRAMObserver \
 	SpriteConverter \
 	Blender \
-	Rasterizer \
-	Icon
+	Rasterizer
 
 SRC_HDR_$(COMPONENT_GL)+= \
 	SDLGLVideoSystem GLRasterizer GLSnow GLUtil GLImage
