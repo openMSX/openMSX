@@ -171,12 +171,7 @@ inline unsigned V9990CmdEngine::V9990P1::getPitch(unsigned width)
 inline unsigned V9990CmdEngine::V9990P1::addressOf(
 	unsigned x, unsigned y, unsigned pitch)
 {
-	return V9990VRAM::transformP1(((x / 2) & (pitch - 1)) + y * pitch);
-}
-
-inline byte V9990CmdEngine::V9990P1::getColor(word mask, unsigned x)
-{
-	return (x & 2) ? (mask >> 8) : (mask & 0xFF);
+	return V9990VRAM::transformP1(((x / 2) & (pitch - 1)) + y * pitch) & 0x7FFFF;
 }
 
 inline byte V9990CmdEngine::V9990P1::point(
@@ -212,8 +207,21 @@ inline void V9990CmdEngine::V9990P1::pset(
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
 	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
-	byte color = (dstColor & ~mask2) | (newColor & mask2); 
-	vram.writeVRAMDirect(addr, color);
+	byte result = (dstColor & ~mask2) | (newColor & mask2); 
+	vram.writeVRAMDirect(addr, result);
+}
+inline void V9990CmdEngine::V9990P1::psetColor(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+	word color, word mask, const byte* lut, byte /*op*/)
+{
+	unsigned addr = addressOf(x, y, pitch);
+	byte srcColor = (addr & 0x40000) ? (color >> 8) : (color & 0xFF);
+	byte dstColor = vram.readVRAMDirect(addr);
+	byte newColor = logOp(lut, srcColor, dstColor);
+	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
+	byte result = (dstColor & ~mask2) | (newColor & mask2); 
+	vram.writeVRAMDirect(addr, result);
 }
 
 // P2 --------------------------------------------------------------
@@ -226,12 +234,7 @@ inline unsigned V9990CmdEngine::V9990P2::addressOf(
 	unsigned x, unsigned y, unsigned pitch)
 {
 	// TODO check
-	return V9990VRAM::transformP2(((x / 2) & (pitch - 1)) + y * pitch);
-}
-
-inline byte V9990CmdEngine::V9990P2::getColor(word mask, unsigned x)
-{
-	return (x & 2) ? (mask >> 8) : (mask & 0xFF);
+	return V9990VRAM::transformP2(((x / 2) & (pitch - 1)) + y * pitch) & 0x7FFFF;
 }
 
 inline byte V9990CmdEngine::V9990P2::point(
@@ -267,8 +270,22 @@ inline void V9990CmdEngine::V9990P2::pset(
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
 	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
-	byte color = (dstColor & ~mask2) | (newColor & mask2); 
-	vram.writeVRAMDirect(addr, color);
+	byte result = (dstColor & ~mask2) | (newColor & mask2); 
+	vram.writeVRAMDirect(addr, result);
+}
+
+inline void V9990CmdEngine::V9990P2::psetColor(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+	word color, word mask, const byte* lut, byte /*op*/)
+{
+	unsigned addr = addressOf(x, y, pitch);
+	byte srcColor = (addr & 0x40000) ? (color >> 8) : (color & 0xFF);
+	byte dstColor = vram.readVRAMDirect(addr);
+	byte newColor = logOp(lut, srcColor, dstColor);
+	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
+	byte result = (dstColor & ~mask2) | (newColor & mask2); 
+	vram.writeVRAMDirect(addr, result);
 }
 
 // 2 bpp --------------------------------------------------------------
@@ -280,12 +297,7 @@ inline unsigned V9990CmdEngine::V9990Bpp2::getPitch(unsigned width)
 inline unsigned V9990CmdEngine::V9990Bpp2::addressOf(
 	unsigned x, unsigned y, unsigned pitch)
 {
-	return V9990VRAM::transformBx(((x / 4) & (pitch - 1)) + y * pitch);
-}
-
-inline byte V9990CmdEngine::V9990Bpp2::getColor(word mask, unsigned x)
-{
-	return (x & 4) ? (mask >> 8) : (mask & 0xFF);
+	return V9990VRAM::transformBx(((x / 4) & (pitch - 1)) + y * pitch) & 0x7FFFF;
 }
 
 inline byte V9990CmdEngine::V9990Bpp2::point(
@@ -321,8 +333,22 @@ inline void V9990CmdEngine::V9990Bpp2::pset(
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
 	byte mask2 = mask1 & (0xC0 >> (2 * (x & 3)));
-	byte color = (dstColor & ~mask2) | (newColor & mask2); 
-	vram.writeVRAMDirect(addr, color);
+	byte result = (dstColor & ~mask2) | (newColor & mask2); 
+	vram.writeVRAMDirect(addr, result);
+}
+
+inline void V9990CmdEngine::V9990Bpp2::psetColor(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+	word color, word mask, const byte* lut, byte /*op*/)
+{
+	unsigned addr = addressOf(x, y, pitch);
+	byte srcColor = (addr & 0x40000) ? (color >> 8) : (color & 0xFF);
+	byte dstColor = vram.readVRAMDirect(addr);
+	byte newColor = logOp(lut, srcColor, dstColor);
+	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask2 = mask1 & (0xC0 >> (2 * (x & 3)));
+	byte result = (dstColor & ~mask2) | (newColor & mask2); 
+	vram.writeVRAMDirect(addr, result);
 }
 
 // 4 bpp --------------------------------------------------------------
@@ -334,12 +360,7 @@ inline unsigned V9990CmdEngine::V9990Bpp4::getPitch(unsigned width)
 inline unsigned V9990CmdEngine::V9990Bpp4::addressOf(
 	unsigned x, unsigned y, unsigned pitch)
 {
-	return V9990VRAM::transformBx(((x / 2) & (pitch - 1)) + y * pitch);
-}
-
-inline byte V9990CmdEngine::V9990Bpp4::getColor(word mask, unsigned x)
-{
-	return (x & 2) ? (mask >> 8) : (mask & 0xFF);
+	return V9990VRAM::transformBx(((x / 2) & (pitch - 1)) + y * pitch) & 0x7FFFF;
 }
 
 inline byte V9990CmdEngine::V9990Bpp4::point(
@@ -375,8 +396,22 @@ inline void V9990CmdEngine::V9990Bpp4::pset(
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
 	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
-	byte color = (dstColor & ~mask2) | (newColor & mask2); 
-	vram.writeVRAMDirect(addr, color);
+	byte result = (dstColor & ~mask2) | (newColor & mask2); 
+	vram.writeVRAMDirect(addr, result);
+}
+
+inline void V9990CmdEngine::V9990Bpp4::psetColor(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+	word color, word mask, const byte* lut, byte /*op*/)
+{
+	unsigned addr = addressOf(x, y, pitch);
+	byte srcColor = (addr & 0x40000) ? (color >> 8) : (color & 0xFF);
+	byte dstColor = vram.readVRAMDirect(addr);
+	byte newColor = logOp(lut, srcColor, dstColor);
+	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
+	byte result = (dstColor & ~mask2) | (newColor & mask2); 
+	vram.writeVRAMDirect(addr, result);
 }
 
 // 8 bpp --------------------------------------------------------------
@@ -388,12 +423,7 @@ inline unsigned V9990CmdEngine::V9990Bpp8::getPitch(unsigned width)
 inline unsigned V9990CmdEngine::V9990Bpp8::addressOf(
 	unsigned x, unsigned y, unsigned pitch)
 {
-	return V9990VRAM::transformBx((x & (pitch - 1)) + y * pitch);
-}
-
-inline byte V9990CmdEngine::V9990Bpp8::getColor(word mask, unsigned x)
-{
-	return (x & 1) ? (mask >> 8) : (mask & 0xFF);
+	return V9990VRAM::transformBx((x & (pitch - 1)) + y * pitch) & 0x7FFFF;
 }
 
 inline byte V9990CmdEngine::V9990Bpp8::point(
@@ -427,8 +457,21 @@ inline void V9990CmdEngine::V9990Bpp8::pset(
 	byte dstColor = vram.readVRAMDirect(addr);
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
-	byte color = (dstColor & ~mask1) | (newColor & mask1); 
-	vram.writeVRAMDirect(addr, color);
+	byte result = (dstColor & ~mask1) | (newColor & mask1); 
+	vram.writeVRAMDirect(addr, result);
+}
+
+inline void V9990CmdEngine::V9990Bpp8::psetColor(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+	word color, word mask, const byte* lut, byte /*op*/)
+{
+	unsigned addr = addressOf(x, y, pitch);
+	byte srcColor = (addr & 0x40000) ? (color >> 8) : (color & 0xFF);
+	byte dstColor = vram.readVRAMDirect(addr);
+	byte newColor = logOp(lut, srcColor, dstColor);
+	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte result = (dstColor & ~mask1) | (newColor & mask1); 
+	vram.writeVRAMDirect(addr, result);
 }
 
 // 16 bpp -------------------------------------------------------------
@@ -440,12 +483,7 @@ inline unsigned V9990CmdEngine::V9990Bpp16::getPitch(unsigned width)
 inline unsigned V9990CmdEngine::V9990Bpp16::addressOf(
 	unsigned x, unsigned y, unsigned pitch)
 {
-	return V9990VRAM::transformBx(((x * 2) & (pitch - 1)) + y * pitch);
-}
-
-inline word V9990CmdEngine::V9990Bpp16::getColor(word mask, unsigned /*x*/)
-{
-	return mask;
+	return V9990VRAM::transformBx(((x * 2) & (pitch - 1)) + y * pitch) & 0x7FFFF;
 }
 
 inline word V9990CmdEngine::V9990Bpp16::point(
@@ -483,9 +521,22 @@ inline void V9990CmdEngine::V9990Bpp16::pset(
 	word dstColor = vram.readVRAMDirect(addr + 0x00000) +
 	                vram.readVRAMDirect(addr + 0x40000) * 256;
 	word newColor = logOp(lut, srcColor, dstColor, op & 0x10);
-	word color = (dstColor & ~mask) | (newColor & mask); 
-	vram.writeVRAMDirect(addr + 0x00000, color & 0xFF);
-	vram.writeVRAMDirect(addr + 0x40000, color >> 8);
+	word result = (dstColor & ~mask) | (newColor & mask); 
+	vram.writeVRAMDirect(addr + 0x00000, result & 0xFF);
+	vram.writeVRAMDirect(addr + 0x40000, result >> 8);
+}
+
+inline void V9990CmdEngine::V9990Bpp16::psetColor(
+	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+	word srcColor, word mask, const byte* lut, byte op)
+{
+	unsigned addr = addressOf(x, y, pitch);
+	word dstColor = vram.readVRAMDirect(addr + 0x00000) +
+	                vram.readVRAMDirect(addr + 0x40000) * 256;
+	word newColor = logOp(lut, srcColor, dstColor, op & 0x10);
+	word result = (dstColor & ~mask) | (newColor & mask); 
+	vram.writeVRAMDirect(addr + 0x00000, result & 0xFF);
+	vram.writeVRAMDirect(addr + 0x40000, result >> 8);
 }
 
 // ====================================================================
@@ -832,9 +883,8 @@ void V9990CmdEngine::CmdLMMV<Mode>::execute(const EmuTime& /*time*/)
 	int dy = (engine.ARG & DIY) ? -1 : 1;
 	const byte* lut = Mode::getLogOpLUT(engine.LOG);
 	while (true) {
-		Mode::pset(vram, engine.DX, engine.DY, pitch,
-		           Mode::getColor(engine.fgCol, engine.DX),
-		           engine.WM, lut, engine.LOG);
+		Mode::psetColor(vram, engine.DX, engine.DY, pitch,
+		                engine.fgCol, engine.WM, lut, engine.LOG);
 
 		engine.DX += dx;
 		if (!--(engine.ANX)) {
@@ -957,9 +1007,8 @@ void V9990CmdEngine::CmdCMMC<Mode>::execute(const EmuTime& /*time*/)
 			engine.data <<= 1;
 
 			word src = bit ? engine.fgCol : engine.bgCol;
-			Mode::pset(vram, engine.DX, engine.DY, pitch,
-			           Mode::getColor(src, engine.DX),
-			           engine.WM, lut, engine.LOG);
+			Mode::psetColor(vram, engine.DX, engine.DY, pitch,
+			                src, engine.WM, lut, engine.LOG);
 
 			engine.DX += dx;
 			if (!--(engine.ANX)) {
@@ -1040,8 +1089,8 @@ void V9990CmdEngine::CmdCMMM<Mode>::execute(const EmuTime& /*time*/)
 		engine.data <<= 1;
 
 		word color = bit ? engine.fgCol : engine.bgCol;
-		Mode::pset(vram, engine.DX, engine.DY, pitch,
-		           Mode::getColor(color, engine.DX), engine.WM, lut, engine.LOG);
+		Mode::psetColor(vram, engine.DX, engine.DY, pitch,
+		                color, engine.WM, lut, engine.LOG);
 
 		engine.DX += dx;
 		if (!--(engine.ANX)) {
@@ -1279,9 +1328,8 @@ void V9990CmdEngine::CmdLINE<Mode>::execute(const EmuTime& /*time*/)
 		// X-Axis is major direction.
 		//while (clock.before(time)) {
 		while (true) {
-			Mode::pset(vram, engine.ADX, engine.DY, pitch,
-			           Mode::getColor(engine.fgCol, engine.DX),
-			           engine.WM, lut, engine.LOG);
+			Mode::psetColor(vram, engine.ADX, engine.DY, pitch,
+			                engine.fgCol, engine.WM, lut, engine.LOG);
 			//clock += delta;
 
 			engine.ADX += TX;
@@ -1300,9 +1348,8 @@ void V9990CmdEngine::CmdLINE<Mode>::execute(const EmuTime& /*time*/)
 		// Y-Axis is major direction.
 		//while (clock.before(time)) {
 		while (true) {
-			Mode::pset(vram, engine.ADX, engine.DY, pitch,
-			           Mode::getColor(engine.fgCol, engine.DX),
-			           engine.WM, lut, engine.LOG);
+			Mode::psetColor(vram, engine.ADX, engine.DY, pitch,
+			                engine.fgCol, engine.WM, lut, engine.LOG);
 			//clock += delta;
 			engine.DY += TY;
 			if (engine.ASX < engine.NY) {
@@ -1343,7 +1390,7 @@ void V9990CmdEngine::CmdSRCH<Mode>::execute(const EmuTime& /*time*/)
 	unsigned width = engine.vdp.getImageWidth();
 	unsigned pitch = Mode::getPitch(width);
 
-	typename Mode::Type CL = Mode::getColor(engine.fgCol, 0);
+	typename Mode::Type CL = engine.fgCol; // TODO
 	int TX = (engine.ARG & DIX) ? -1 : 1;
 	bool AEQ = (engine.ARG & NEQ) != 0; // TODO: Do we look for "==" or "!="?
 	//int delta = LINE_TIMING[engine.getTiming()];
@@ -1405,8 +1452,8 @@ void V9990CmdEngine::CmdPSET<Mode>::start(const EmuTime& /*time*/)
 {
 	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 	const byte* lut = Mode::getLogOpLUT(engine.LOG);
-	Mode::pset(vram, engine.DX, engine.DY, pitch,
-	           Mode::getColor(engine.fgCol, engine.DX), engine.WM, lut, engine.LOG);
+	Mode::psetColor(vram, engine.DX, engine.DY, pitch,
+	                engine.fgCol, engine.WM, lut, engine.LOG);
 
 	// TODO advance DX DY
 

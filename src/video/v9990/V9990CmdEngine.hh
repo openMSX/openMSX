@@ -77,7 +77,6 @@ private:
 		static const word PIXELS_PER_BYTE = 2;
 		static inline unsigned getPitch(unsigned width);
 		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
-		static inline byte getColor(word data, unsigned x);
 		static inline byte point(V9990VRAM& vram,
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline byte shift(byte value, unsigned fromX, unsigned toX);
@@ -86,6 +85,9 @@ private:
 		static inline void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 			byte srcColor, word mask, const byte* lut, byte op);
+		static inline void psetColor(
+			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+			word color, word mask, const byte* lut, byte op);
 	};
 
 	class V9990P2 {
@@ -95,7 +97,6 @@ private:
 		static const word PIXELS_PER_BYTE = 2;
 		static inline unsigned getPitch(unsigned width);
 		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
-		static inline byte getColor(word data, unsigned x);
 		static inline byte point(V9990VRAM& vram,
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline byte shift(byte value, unsigned fromX, unsigned toX);
@@ -104,6 +105,9 @@ private:
 		static inline void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 			byte srcColor, word mask, const byte* lut, byte op);
+		static inline void psetColor(
+			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+			word color, word mask, const byte* lut, byte op);
 	};
 
 	class V9990Bpp2 {
@@ -113,7 +117,6 @@ private:
 		static const word PIXELS_PER_BYTE = 4;
 		static inline unsigned getPitch(unsigned width);
 		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
-		static inline byte getColor(word data, unsigned x);
 		static inline byte point(V9990VRAM& vram,
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline byte shift(byte value, unsigned fromX, unsigned toX);
@@ -122,6 +125,9 @@ private:
 		static inline void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 			byte srcColor, word mask, const byte* lut, byte op);
+		static inline void psetColor(
+			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+			word color, word mask, const byte* lut, byte op);
 	};
 
 	class V9990Bpp4 {
@@ -131,7 +137,6 @@ private:
 		static const word PIXELS_PER_BYTE = 2;
 		static inline unsigned getPitch(unsigned width);
 		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
-		static inline byte getColor(word data, unsigned x);
 		static inline byte point(V9990VRAM& vram,
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline byte shift(byte value, unsigned fromX, unsigned toX);
@@ -140,6 +145,9 @@ private:
 		static inline void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 			byte srcColor, word mask, const byte* lut, byte op);
+		static inline void psetColor(
+			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+			word color, word mask, const byte* lut, byte op);
 	};
 
 	class V9990Bpp8 {
@@ -149,7 +157,6 @@ private:
 		static const word PIXELS_PER_BYTE = 1;
 		static inline unsigned getPitch(unsigned width);
 		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
-		static inline byte getColor(word data, unsigned x);
 		static inline byte point(V9990VRAM& vram,
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline byte shift(byte value, unsigned fromX, unsigned toX);
@@ -158,6 +165,9 @@ private:
 		static inline void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 			byte srcColor, word mask, const byte* lut, byte op);
+		static inline void psetColor(
+			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+			word color, word mask, const byte* lut, byte op);
 	};
 
 	class V9990Bpp16 {
@@ -167,7 +177,6 @@ private:
 		static const word PIXELS_PER_BYTE = 0;
 		static inline unsigned getPitch(unsigned width);
 		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
-		static inline word getColor(word data, unsigned x);
 		static inline word point(V9990VRAM& vram,
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline word shift(word value, unsigned fromX, unsigned toX);
@@ -176,6 +185,9 @@ private:
 		static inline void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 			word srcColor, word mask, const byte* lut, byte op);
+		static inline void psetColor(
+			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
+			word color, word mask, const byte* lut, byte op);
 	};
 
 	/** This is an abstract base class for V9990 commands
