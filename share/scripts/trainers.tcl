@@ -1012,28 +1012,28 @@ proc trainer_metalgear1 {} {
 	    poke 0xc142 16
     }
 	#cart 1
-	if {[peek 0xc3d2] == 2}  {puts "cart 1"}
-	if {[peek 0xc3d2] == 66} {puts "cart 1"}
+	#if {[peek 0xc3d2] == 2}  {puts "cart 1"}
+	#if {[peek 0xc3d2] == 66} {puts "cart 1"}
 	#cart 2
-	if {[peek 0xc3d2] == 3}  {puts "cart 2"}
-	if {[peek 0xc3d2] == 67} {puts "cart 2"}
-	
+	#if {[peek 0xc3d2] == 3}  {puts "cart 2"}
+	#if {[peek 0xc3d2] == 67} {puts "cart 2"}
+
 	#cart 3
-	if {[peek 0xc3d2] == 4}  {puts "cart 3"}
-	if {[peek 0xc3d2] == 68} {puts "cart 3"}
+	#if {[peek 0xc3d2] == 4}  {puts "cart 3"}
+	#if {[peek 0xc3d2] == 68} {puts "cart 3"}
 	#cart 4
-	if {[peek 0xc3d2] == 5}  {puts "cart 4"}
-	if {[peek 0xc3d2] == 69} {puts "cart 4"}
+	#if {[peek 0xc3d2] == 5}  {puts "cart 4"}
+	#if {[peek 0xc3d2] == 69} {puts "cart 4"}
 	#cart 5
-	if {[peek 0xc3d2] == 6}  {puts "cart 5"}
-	if {[peek 0xc3d2] == 76} {puts "cart 5"}
-	if {[peek 0xc3d2] == 70} {puts "cart 5"}
-    #cart 6
- 	if {[peek 0xc3d2] == 7}  {puts "cart 6"}   
-	if {[peek 0xc3d2] == 47} {puts "cart 6"}
-    #cart 7	
-    if {[peek 0xc3d2] == 8}  {puts "cart 7"}
-	if {[peek 0xc3d2] == 72} {puts "cart 7"}
+	#if {[peek 0xc3d2] == 6}  {puts "cart 5"}
+	#if {[peek 0xc3d2] == 76} {puts "cart 5"}
+	#if {[peek 0xc3d2] == 70} {puts "cart 5"}
+	#cart 6
+	#if {[peek 0xc3d2] == 7}  {puts "cart 6"}   
+	#if {[peek 0xc3d2] == 47} {puts "cart 6"}
+	#cart 7	
+	#if {[peek 0xc3d2] == 8}  {puts "cart 7"}
+	#if {[peek 0xc3d2] == 72} {puts "cart 7"}
 	
 	#cart 1-8
 	#!poke 0xc135 14
@@ -1045,13 +1045,21 @@ proc trainer_metalgear1 {} {
 	#!poke 0xc135 20
 	#!poke 0xc135 21
 
-    #active keycard
-    #! poke 0xc135 x (13+x)
-    
-    #stop destruction timer
+	#active keycard
+	#! poke 0xc135 x (13+x)
+
+	#stop destruction timer
 	#!poke 0xc13d 0x99
-    #!poke 0xc13e 0x99
+	#!poke 0xc13e 0x99
     
+	#open all doors
+	for {set i 0xC450} { $i < 0xc4fe } { incr i } {
+		poke $i 0	
+	}
+
+	for {set i 0xC490} { $i < 0xc4a9 } { incr i } {
+		poke $i 0	
+	}
 	after time 2 trainer_metalgear1
 }
 
@@ -1791,6 +1799,9 @@ proc trainer_penguinadventure  {} {
 	#!slot 3
 	#!poke 0xe12f 0xa
 	#!poke 0xe132 0xa
+	
+	#kill dragon with one shot
+	poke 0xe53c 19
 
 after time 15 trainer_penguinadventure 
 } 
@@ -2855,9 +2866,7 @@ proc trainer_ys3 {} {
 	poke 0x7f97 255
 
 	after time 10 trainer_ys3
-
 }
-
 
 proc trainer_catboy {} {
 	#big cat
@@ -2962,9 +2971,15 @@ proc trainer_arkanoid1 {} {
 proc trainer_arkanoid2 {} {
 	#always fire
 	poke 0xc789 3
+	#all destroying ball
+	poke 0xe2e6 1
 	#infinitive lives
 	poke 0xc78a 6
-	after time 1 trainer_arkanoid2
+	#prevent ball from going beyond the limit
+	if {[peek 0xc020] >183} {
+		poke 0xc020 0	  
+	}
+	after frame trainer_arkanoid2
 }
 
 proc trainer_inspecteurz {} {
@@ -3288,6 +3303,14 @@ proc trainer_volguard {} {
 	#power
 	poke 0xe392 255
  	after time 1 trainer_volguard 	
+}
+
+proc trainer_gyrodine {} {
+	#get parachute when hit
+	poke 0xe5e4 250
+	#lives
+	poke 0xe5e0 10
+ 	after time 1 trainer_gyrodine 	
 }
 
 proc trainer_leonidas {} { 
@@ -4115,13 +4138,22 @@ proc trainer_replicart {} {
 proc trainer_dass {} {
 	#special power
 	poke 0aea1 162
-	
 	after time 1 trainer_dass
 }
 
+proc trainer_mirai {} {
+	#special power
+	poke 0aea1 162
+	after time 1 trainer_mirai
+}
 
 proc poke {addr val} {
 	debug write memory $addr $val
+}
+proc trainer_sonyc {} {
+	#99 rings... hooray :P
+	poke 0xd311 0x99
+	after time 1 trainer_sonyc
 }
 
 proc peek {addr} {
