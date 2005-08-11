@@ -42,6 +42,7 @@ byte SimpleDebuggable::read(unsigned address)
 byte SimpleDebuggable::read(unsigned /*address*/, const EmuTime& /*time*/)
 {
 	assert(false);
+	return 0;
 }
 
 void SimpleDebuggable::write(unsigned address, byte value)
