@@ -3,6 +3,7 @@ $Id$
 2005-08-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Changed 'issubslotted' from Debuggable into InfoTopic
 	* Added 'isexternalslot' InfoTopic
+	* Added 'guess_title' script
 
 2005-08-10 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added -prefix option to screenshot command
