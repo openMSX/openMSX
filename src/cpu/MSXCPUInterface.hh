@@ -21,6 +21,7 @@ class HardwareConfig;
 class InfoCommand;
 class CommandController;
 class MSXMotherBoard;
+class CartridgeSlotManager;
 class MSXCPU;
 class Scheduler;
 class CliComm;
@@ -216,6 +217,16 @@ private:
 	private:
 		MSXCPUInterface& parent;
 	} subSlottedInfo;
+
+	class ExternalSlotInfo : public InfoTopic {
+	public:
+		ExternalSlotInfo(CartridgeSlotManager& manager);
+		virtual void execute(const std::vector<TclObject*>& tokens,
+		                     TclObject& result) const;
+		virtual std::string help(const std::vector<std::string>& tokens) const;
+	private:
+		CartridgeSlotManager& manager;
+	} externalSlotInfo;
 
 	class SlotMapCmd : public SimpleCommand {
 	public:

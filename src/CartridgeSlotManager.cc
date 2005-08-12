@@ -142,4 +142,15 @@ void CartridgeSlotManager::getSlot(int& ps)
 	throw FatalError("No free primary slot");
 }
 
+bool CartridgeSlotManager::isExternalSlot(int ps, int ss) const
+{
+	int tmp = EXISTS | (ss << 2) | ps;
+	for (int slot = 0; slot < 16; ++slot) {
+		if ((slots[slot] & (EXISTS | 0xF)) == tmp) {
+			return true;
+		}
+	}
+	return false;
+}
+
 } // namespace openmsx

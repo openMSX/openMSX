@@ -23,6 +23,8 @@ public:
 
 	static int getSlotNum(const std::string& slot);
 
+	bool isExternalSlot(int ps, int ss) const;
+
 private:
 	void createExternal(unsigned ps);
 	void createExternal(unsigned ps, unsigned ss);

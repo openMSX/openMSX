@@ -19,6 +19,7 @@
 #include "CliComm.hh"
 #include "MSXMultiIODevice.hh"
 #include "MSXException.hh"
+#include "CartridgeSlotManager.hh"
 
 using std::auto_ptr;
 using std::ostringstream;
@@ -45,6 +46,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 	, slottedMemoryDebug(*this, motherBoard.getDebugger())
 	, ioDebug           (*this, motherBoard.getDebugger())
 	, subSlottedInfo(*this)
+	, externalSlotInfo(motherBoard.getSlotManager())
 	, slotMapCmd(*this)
 	, ioMapCmd(*this)
 	, dummyDevice(motherBoard.getDummyDevice())
@@ -77,6 +79,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 
 	// Register console commands
 	infoCommand.registerTopic("issubslotted", &subSlottedInfo);
+	infoCommand.registerTopic("isexternalslot", &externalSlotInfo);
 	commandController.registerCommand(&slotMapCmd, "slotmap");
 	commandController.registerCommand(&ioMapCmd,   "iomap");
 
@@ -89,6 +92,7 @@ MSXCPUInterface::~MSXCPUInterface()
 
 	commandController.unregisterCommand(&slotMapCmd, "slotmap");
 	commandController.unregisterCommand(&ioMapCmd,   "iomap");
+	infoCommand.unregisterTopic("isexternalslot", &externalSlotInfo);
 	infoCommand.unregisterTopic("issubslotted", &subSlottedInfo);
 
 	assert(multiIn.empty());
@@ -458,6 +462,15 @@ void MSXCPUInterface::SlottedMemoryDebug::write(unsigned address, byte value,
 
 // class SubSlottedInfo
 
+static unsigned getSlot(TclObject* token)
+{
+	unsigned slot = token->getInt();
+	if (slot >= 4) {
+		throw CommandException("Slot must be in range 0..3");
+	}
+	return slot;
+}
+
 MSXCPUInterface::SubSlottedInfo::SubSlottedInfo(MSXCPUInterface& parent_)
 	: parent(parent_)
 {
@@ -470,17 +483,46 @@ void MSXCPUInterface::SubSlottedInfo::execute(
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	unsigned slot = tokens[2]->getInt();
-	if (slot >= 4) {
-		throw CommandException("Slot must be in range 0..3");
-	}
-	result.setInt(parent.isSubSlotted[slot]);
+	result.setInt(parent.isSubSlotted[getSlot(tokens[2])]);
 }
 
 std::string MSXCPUInterface::SubSlottedInfo::help(
 	const std::vector<std::string>& /*tokens*/) const
 {
 	return "Indicates whether a certain primary slot is expanded.";
+}
+
+
+// class ExternalSlotInfo
+
+MSXCPUInterface::ExternalSlotInfo::ExternalSlotInfo(CartridgeSlotManager& manager_)
+	: manager(manager_)
+{
+}
+
+void MSXCPUInterface::ExternalSlotInfo::execute(
+	const std::vector<TclObject*>& tokens,
+	TclObject& result) const
+{
+	int ps = 0;
+	int ss = 0;
+	switch (tokens.size()) {
+	case 4:
+		ss = getSlot(tokens[3]);
+		// Fall-through
+	case 3:
+		ps = getSlot(tokens[2]);
+		break;
+	default:
+		throw SyntaxError();
+	}
+	result.setInt(manager.isExternalSlot(ps, ss));
+}
+
+std::string MSXCPUInterface::ExternalSlotInfo::help(
+	const std::vector<std::string>& /*tokens*/) const
+{
+	return "Indicates whether a certain slot is external or internal.";
 }
 
 
