@@ -10,6 +10,7 @@
 #include "CPU.hh"
 #include "Command.hh"
 #include "SimpleDebuggable.hh"
+#include "InfoTopic.hh"
 #include "MSXDevice.hh"
 
 namespace openmsx {
@@ -17,6 +18,7 @@ namespace openmsx {
 class VDPIODelay;
 class DummyDevice;
 class HardwareConfig;
+class InfoCommand;
 class CommandController;
 class MSXMotherBoard;
 class MSXCPU;
@@ -196,14 +198,6 @@ private:
 		MSXCPUInterface& parent;
 	} slottedMemoryDebug;
 	
-	class SubSlottedDebug : public SimpleDebuggable {
-	public:
-		SubSlottedDebug(MSXCPUInterface& parent, Debugger& debugger);
-		virtual byte read(unsigned address);
-	private:
-		MSXCPUInterface& parent;
-	} subSlottedDebug;
-
 	class IODebug : public SimpleDebuggable {
 	public:
 		IODebug(MSXCPUInterface& parent, Debugger& debugger);
@@ -212,6 +206,16 @@ private:
 	private:
 		MSXCPUInterface& parent;
 	} ioDebug;
+
+	class SubSlottedInfo : public InfoTopic {
+	public:
+		SubSlottedInfo(MSXCPUInterface& parent);
+		virtual void execute(const std::vector<TclObject*>& tokens,
+		                     TclObject& result) const;
+		virtual std::string help(const std::vector<std::string>& tokens) const;
+	private:
+		MSXCPUInterface& parent;
+	} subSlottedInfo;
 
 	class SlotMapCmd : public SimpleCommand {
 	public:
@@ -230,7 +234,6 @@ private:
 	private:
 		MSXCPUInterface& parent;
 	} ioMapCmd;
-
 
 	/** Updated visibleDevices for a given page and clears the cache
 	  * on changes.
@@ -259,6 +262,7 @@ private:
 
 	DummyDevice& dummyDevice;
 	HardwareConfig& hardwareConfig;
+	InfoCommand& infoCommand;
 	CommandController& commandController;
 	MSXCPU& msxcpu;
 	Scheduler& scheduler;

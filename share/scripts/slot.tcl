@@ -11,7 +11,7 @@
 proc get_selected_slot { page } {
 	set ps_reg [debug read "ioports" 0xA8]
 	set ps [expr ($ps_reg >> (2 * $page)) & 0x03]
-	if [debug read "issubslotted" $ps] {
+	if [openmsx_info "issubslotted" $ps] {
 		set ss_reg [debug read "slotted memory" [expr 0x10000 * $ps + 0xFFFF]]
 		set ss [expr (($ss_reg ^ 255) >> (2 * $page)) & 0x03]
 	} else {

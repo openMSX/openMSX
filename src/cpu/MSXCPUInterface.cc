@@ -7,7 +7,10 @@
 #include <algorithm>
 #include "MSXCPUInterface.hh"
 #include "DummyDevice.hh"
+#include "InfoCommand.hh"
 #include "CommandController.hh"
+#include "CommandException.hh"
+#include "TclObject.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 #include "Scheduler.hh"
@@ -40,12 +43,13 @@ auto_ptr<MSXCPUInterface> MSXCPUInterface::create(MSXMotherBoard& motherBoard,
 MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 	: memoryDebug       (*this, motherBoard.getDebugger())
 	, slottedMemoryDebug(*this, motherBoard.getDebugger())
-	, subSlottedDebug   (*this, motherBoard.getDebugger())
 	, ioDebug           (*this, motherBoard.getDebugger())
+	, subSlottedInfo(*this)
 	, slotMapCmd(*this)
 	, ioMapCmd(*this)
 	, dummyDevice(motherBoard.getDummyDevice())
 	, hardwareConfig(HardwareConfig::instance())
+	, infoCommand(InfoCommand::instance())
 	, commandController(CommandController::instance())
 	, msxcpu(motherBoard.getCPU())
 	, scheduler(Scheduler::instance())
@@ -72,8 +76,9 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 	// Note: SlotState is initialised at reset
 
 	// Register console commands
-	commandController.registerCommand(&slotMapCmd,    "slotmap");
-	commandController.registerCommand(&ioMapCmd,      "iomap");
+	infoCommand.registerTopic("issubslotted", &subSlottedInfo);
+	commandController.registerCommand(&slotMapCmd, "slotmap");
+	commandController.registerCommand(&ioMapCmd,   "iomap");
 
 	msxcpu.setInterface(this);
 }
@@ -82,8 +87,9 @@ MSXCPUInterface::~MSXCPUInterface()
 {
 	msxcpu.setInterface(NULL);
 
-	commandController.unregisterCommand(&slotMapCmd,    "slotmap");
-	commandController.unregisterCommand(&ioMapCmd,      "iomap");
+	commandController.unregisterCommand(&slotMapCmd, "slotmap");
+	commandController.unregisterCommand(&ioMapCmd,   "iomap");
+	infoCommand.unregisterTopic("issubslotted", &subSlottedInfo);
 
 	assert(multiIn.empty());
 	assert(multiOut.empty());
@@ -450,19 +456,31 @@ void MSXCPUInterface::SlottedMemoryDebug::write(unsigned address, byte value,
 }
 
 
-// class SubSlottedDebug
+// class SubSlottedInfo
 
-MSXCPUInterface::SubSlottedDebug::SubSlottedDebug(
-		MSXCPUInterface& parent_, Debugger& debugger)
-	: SimpleDebuggable(debugger, "issubslotted",
-              "Indicates whether a certain primary slot is expanded.", 4)
-	, parent(parent_)
+MSXCPUInterface::SubSlottedInfo::SubSlottedInfo(MSXCPUInterface& parent_)
+	: parent(parent_)
 {
 }
 
-byte MSXCPUInterface::SubSlottedDebug::read(unsigned address)
+void MSXCPUInterface::SubSlottedInfo::execute(
+	const std::vector<TclObject*>& tokens,
+	TclObject& result) const
 {
-	return parent.isSubSlotted[address] ? 0xFF : 0x00;
+	if (tokens.size() != 3) {
+		throw SyntaxError();
+	}
+	unsigned slot = tokens[2]->getInt();
+	if (slot >= 4) {
+		throw CommandException("Slot must be in range 0..3");
+	}
+	result.setInt(parent.isSubSlotted[slot]);
+}
+
+std::string MSXCPUInterface::SubSlottedInfo::help(
+	const std::vector<std::string>& /*tokens*/) const
+{
+	return "Indicates whether a certain primary slot is expanded.";
 }
 
 
