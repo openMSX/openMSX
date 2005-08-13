@@ -2,22 +2,15 @@
 
 #include "V9990DummyRasterizer.hh"
 
-using std::string;
-
 namespace openmsx {
-
-void V9990DummyRasterizer::paint()
-{
-}
 
 V9990DummyRasterizer::~V9990DummyRasterizer()
 {
 }
 
-const string& V9990DummyRasterizer::getName()
+bool V9990DummyRasterizer::isActive()
 {
-	static const string NAME = "V9990DummyRasterizer";
-	return NAME;
+	return false;
 }
 
 void V9990DummyRasterizer::reset()

@@ -30,6 +30,11 @@ VideoLayer::~VideoLayer()
 	videoSourceSetting.removeListener(this);
 }
 
+VideoSource VideoLayer::getVideoSource() const
+{
+	return videoSource;
+}
+
 void VideoLayer::update(const Setting* setting)
 {
 	if (setting == &videoSourceSetting) {

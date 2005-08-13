@@ -53,8 +53,7 @@ void V9990PixelRenderer::reset(const EmuTime& time)
 
 void V9990PixelRenderer::frameStart(const EmuTime& time)
 {
-	if (rasterizer->getZ() == Layer::Z_MSX_PASSIVE) {
-		// V99x8 is active
+	if (!rasterizer->isActive()) {
 		frameSkipCounter = 0;
 		drawFrame = false;
 	} else if (frameSkipCounter < settings.getMinFrameSkip().getValue()) {

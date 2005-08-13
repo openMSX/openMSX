@@ -18,16 +18,9 @@ V9990GLRasterizer::~V9990GLRasterizer()
 	PRT_DEBUG("V9990GLRasterizer::~V9990GLRasterizer()");
 }
 
-void V9990GLRasterizer::paint()
+bool V9990GLRasterizer::isActive()
 {
-	PRT_DEBUG("V9990GLRasterizer::paint()");
-}
-
-const string& V9990GLRasterizer::getName()
-{
-	PRT_DEBUG("V9990GLRasterizer::getName()");
-	static const string NAME = "V9990GLRasterizer";
-	return NAME;
+	return false;
 }
 
 void V9990GLRasterizer::reset()

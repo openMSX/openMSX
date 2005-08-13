@@ -18,12 +18,7 @@ template <class Pixel>
 class PostProcessor : public VideoLayer
 {
 public:
-	/** Constructor.
-	  */
-	PostProcessor(SDL_Surface* screen);
-
-	/** Destructor.
-	  */
+	PostProcessor(SDL_Surface* screen, VideoSource videoSource);
 	virtual ~PostProcessor();
 
 	// Layer interface:

@@ -3,20 +3,25 @@
 #ifndef V9990RASTERIZER_HH
 #define V9990RASTERIZER_HH
 
-#include "VideoLayer.hh"
 #include "V9990ModeEnum.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 
 /** If this seems awfully familiar, take a look at Rasterizer.hh
   * It's virtually the same class, but for a different video processor.
   */
-class V9990Rasterizer : public VideoLayer
+class V9990Rasterizer
 {
 public:
-	/** Destructor.
-	  */
 	virtual ~V9990Rasterizer() {}
+
+	/** Will the output of this Rasterizer be displayed?
+	  * There is no point in producing a frame that will not be displayed.
+	  * TODO: Is querying the next pipeline step the best way to solve this,
+	  *       or is it better to explicitly disable the first step in the pipeline?
+	  */
+	virtual bool isActive() = 0;
 
 	/** Resynchronize with VDP - flush caches etc.
 	  */
@@ -78,9 +83,6 @@ public:
 		int fromX, int fromY,
 		int displayX, int displayY,
 		int displayWidth, int displayHeight) = 0;
-
-protected:
-	V9990Rasterizer() : VideoLayer(VIDEO_GFX9000) {}
 };
 
 } // namespace openmsx

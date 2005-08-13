@@ -147,7 +147,7 @@ inline void SDLRasterizer<Pixel>::renderCharacterLines(
 template <class Pixel>
 SDLRasterizer<Pixel>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
 	: vdp(vdp_), vram(vdp.getVRAM())
-	, postProcessor(new PostProcessor<Pixel>(screen))
+	, postProcessor(new PostProcessor<Pixel>(screen, VIDEO_MSX))
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 	, spriteConverter(vdp.getSpriteChecker())

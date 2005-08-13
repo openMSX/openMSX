@@ -1,8 +1,9 @@
 // $Id$
 
-#include "V9990.hh"
 #include "V9990SDLRasterizer.hh"
+#include "V9990.hh"
 #include "RawFrame.hh"
+#include "PostProcessor.hh"
 #include "BooleanSetting.hh"
 #include "RenderSettings.hh"
 #include <SDL.h>
@@ -16,6 +17,7 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 	V9990& vdp_, SDL_Surface* screen_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
+	, postProcessor(new PostProcessor<Pixel>(screen, VIDEO_GFX9000))
 	, bitmapConverter(vdp, *screen->format,
 	                  palette64, palette256, palette32768)
 	, p1Converter(vdp, palette64)
@@ -23,8 +25,6 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 	, deinterlaceSetting(RenderSettings::instance().getDeinterlace())
 {
 	workFrame = new RawFrame(screen->format, RawFrame::FIELD_NONINTERLACED);
-	currFrame = new RawFrame(screen->format, RawFrame::FIELD_NONINTERLACED);
-	prevFrame = new RawFrame(screen->format, RawFrame::FIELD_NONINTERLACED);
 
 	// Fill palettes
 	precalcPalettes();
@@ -34,54 +34,17 @@ template <class Pixel>
 V9990SDLRasterizer<Pixel>::~V9990SDLRasterizer()
 {
 	delete workFrame;
-	delete currFrame;
-	delete prevFrame;
 }
 
 template <class Pixel>
-void V9990SDLRasterizer<Pixel>::paint()
+bool V9990SDLRasterizer<Pixel>::isActive()
 {
-	PRT_DEBUG("V9990SDLRasterizer::paint()");
-
-	// Simple scaler
-	// TODO use real scalers
-	SDL_Surface* screen0;
-	SDL_Surface* screen1;
-	if (!vdp.isEvenOddEnabled() || !deinterlaceSetting.getValue()) {
-		screen0 = currFrame->getSurface();
-		screen1 = currFrame->getSurface();
-	} else {
-		if (vdp.getEvenOdd()) { // TODO check
-			screen0 = currFrame->getSurface();
-			screen1 = prevFrame->getSurface();
-		} else {
-			screen0 = prevFrame->getSurface();
-			screen1 = currFrame->getSurface();
-		}
-	}
-	for (int y = 0; y < SCREEN_HEIGHT; ++y) {
-		Pixel* srcLine0 = Scaler<Pixel>::linePtr(screen0, y);
-		Pixel* dstLine0 = Scaler<Pixel>::linePtr(screen, 2 * y + 0);
-		Scaler<Pixel>::copyLine(srcLine0, dstLine0, 640);
-
-		Pixel* srcLine1 = Scaler<Pixel>::linePtr(screen1, y);
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(screen, 2 * y + 1);
-		Scaler<Pixel>::copyLine(srcLine1, dstLine1, 640);
-	}
-}
-
-template <class Pixel>
-const string& V9990SDLRasterizer<Pixel>::getName()
-{
-	static const string NAME = "V9990SDLRasterizer";
-	return NAME;
+	return postProcessor->getZ() != Layer::Z_MSX_PASSIVE;
 }
 
 template <class Pixel>
 void V9990SDLRasterizer<Pixel>::reset()
 {
-	PRT_DEBUG("V9990SDLRasterizer::reset()");
-
 	setDisplayMode(vdp.getDisplayMode());
 	setColorMode(vdp.getColorMode());
 	imageWidth = vdp.getImageWidth();
@@ -90,8 +53,6 @@ void V9990SDLRasterizer<Pixel>::reset()
 template <class Pixel>
 void V9990SDLRasterizer<Pixel>::frameStart()
 {
-	PRT_DEBUG("V9990SDLRasterizer::frameStart()");
-
 	const V9990DisplayPeriod& horTiming = vdp.getHorizontalTiming();
 	const V9990DisplayPeriod& verTiming = vdp.getVerticalTiming();
 
@@ -110,23 +71,16 @@ void V9990SDLRasterizer<Pixel>::frameStart()
 template <class Pixel>
 void V9990SDLRasterizer<Pixel>::frameEnd()
 {
-	PRT_DEBUG("V9990SDLRasterizer::frameEnd()");
-	
-	// TODO use PostProcessor::rotateFrame()
-	RawFrame* reuseFrame = prevFrame;
-	prevFrame = currFrame;
-	currFrame = workFrame;
-	workFrame = reuseFrame;
-	
-	reuseFrame->reinit(RawFrame::FIELD_NONINTERLACED); // TODO
+	workFrame = postProcessor->rotateFrames(
+	    workFrame,
+	    vdp.isEvenOddEnabled() ? (vdp.getEvenOdd() ? RawFrame::FIELD_EVEN
+	                                               : RawFrame::FIELD_ODD)
+	                           : RawFrame::FIELD_NONINTERLACED);
 }
 
 template <class Pixel>
 void V9990SDLRasterizer<Pixel>::setDisplayMode(V9990DisplayMode mode)
 {
-	PRT_DEBUG("V9990SDLRasterizer::setDisplayMode(" << std::dec <<
-	          (int) mode << ")");
-
 	displayMode = mode;
 	bitmapConverter.setDisplayMode(mode);
 }
@@ -134,9 +88,6 @@ void V9990SDLRasterizer<Pixel>::setDisplayMode(V9990DisplayMode mode)
 template <class Pixel>
 void V9990SDLRasterizer<Pixel>::setColorMode(V9990ColorMode mode)
 {
-	PRT_DEBUG("V9990SDLRasterizer::setColorMode(" << std::dec <<
-	          (int) mode << ")");
-
 	colorMode = mode;
 	bitmapConverter.setColorMode(mode);
 }
@@ -157,9 +108,6 @@ template <class Pixel>
 void V9990SDLRasterizer<Pixel>::drawBorder(
 	int fromX, int fromY, int toX, int toY)
 {
-	PRT_DEBUG("V9990SDLRasterizer::drawBorder(" << std::dec <<
-	          fromX << "," << fromY << "," << toX << "," << toY << ")");
-
 	static int const screenW = SCREEN_WIDTH * 8;
 	static int const screenH = SCREEN_HEIGHT;
 
@@ -195,6 +143,9 @@ void V9990SDLRasterizer<Pixel>::drawBorder(
 		Pixel bgColor = palette64[vdp.getBackDropColor() & 63];
 		SDL_FillRect(workFrame->getSurface(), &rect, bgColor);
 	}
+	for (int y = fromY; y < toY; ++y) {
+		workFrame->setLineWidth(y, 512); // TODO
+	}
 }
 
 template <class Pixel>
@@ -202,11 +153,6 @@ void V9990SDLRasterizer<Pixel>::drawDisplay(
 	int fromX, int fromY,
 	int displayX, int displayY, int displayWidth, int displayHeight)
 {
-	PRT_DEBUG("V9990SDLRasterizer::drawDisplay(" << std::dec <<
-	          fromX << "," << fromY << "," <<
-	          displayX << "," << displayY << "," <<
-	          displayWidth << "," << displayHeight << ")");
-
 	static int const screenW = SCREEN_WIDTH * 8;
 	static int const screenH = SCREEN_HEIGHT;
 
@@ -238,16 +184,17 @@ void V9990SDLRasterizer<Pixel>::drawDisplay(
 			displayWidth = V9990::UCtoX(displayWidth, displayMode);
 
 			if (displayMode == P1) {
-				// TODO
 				drawP1Mode(fromX, fromY, displayX, displayY,
 						   displayWidth, displayHeight);
 			} else if (displayMode == P2) {
-				// TODO
 				drawP2Mode(fromX, fromY, displayX, displayY,
 						   displayWidth, displayHeight);
 			} else {
 				drawBxMode(fromX, fromY, displayX, displayY,
 					   displayWidth, displayHeight);
+			}
+			for (int y = 0; y < displayHeight; ++y) {
+				workFrame->setLineWidth(y + fromY, 512); // TODO
 			}
 		}
 	}
@@ -325,8 +272,6 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 template <class Pixel>
 void V9990SDLRasterizer<Pixel>::precalcPalettes()
 {
-	PRT_DEBUG("V9990SDLRasterizer::precalcPalettes()");
-
 	// the 32768 color palette
 	for (int g = 0; g < 32; ++g) {
 		for (int r = 0; r < 32; ++r) {

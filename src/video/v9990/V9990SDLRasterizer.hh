@@ -7,7 +7,7 @@
 #include "V9990BitmapConverter.hh"
 #include "V9990P1Converter.hh"
 #include "V9990P2Converter.hh"
-#include "Renderer.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -15,6 +15,7 @@ class V9990;
 class V9990VRAM;
 class RawFrame;
 class BooleanSetting;
+template <class Pixel> class PostProcessor;
 
 /** Rasterizer using SDL.
   */
@@ -22,19 +23,11 @@ template <class Pixel>
 class V9990SDLRasterizer : public V9990Rasterizer
 {
 public:
-	/** Constructor.
-	  */
 	V9990SDLRasterizer(V9990& vdp, SDL_Surface* screen);
-
-	/** Destructor.
-	  */
 	virtual ~V9990SDLRasterizer();
 
-	// Layer interface:
-	virtual void paint();
-	virtual const std::string& getName();
-
 	// Rasterizer interface:
+	virtual bool isActive();
 	virtual void reset();
 	virtual void frameStart();
 	virtual void frameEnd();
@@ -68,12 +61,9 @@ private:
 	  */
 	SDL_Surface* screen;
 
-	/** Work screen, current screen and previous screen
-	  * TODO move currFrame and prevFrame to PostProcessor
+	/** The next frame as it is delivered by the VDP, work in progress.
 	  */
 	RawFrame* workFrame;
-	RawFrame* currFrame;
-	RawFrame* prevFrame;
 
 	/** First display line to draw. Since the number of VDP lines >=
 	  * the screen height, lineZero is >= 0. Only part of the video
@@ -108,6 +98,11 @@ private:
 	  * These are colors influenced by the palette IO ports and registers
 	  */
 	Pixel palette64[64];
+
+	/** The video post processor which displays the frames produced by this
+	  *  rasterizer.
+	  */
+	std::auto_ptr<PostProcessor<Pixel> > postProcessor;
 
 	/** Bitmap converter. Converts VRAM into pixels
 	  */

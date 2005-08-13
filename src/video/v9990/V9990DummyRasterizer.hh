@@ -11,9 +11,8 @@ class V9990DummyRasterizer : public V9990Rasterizer
 {
 public:
 	// V9990Rasterizer interface
-	virtual void paint();
+	virtual bool isActive();
 	virtual ~V9990DummyRasterizer();
-	virtual const std::string& getName();
 	virtual void reset();
 	virtual void frameStart();
 	virtual void frameEnd();

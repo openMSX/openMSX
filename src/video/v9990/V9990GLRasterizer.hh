@@ -17,19 +17,11 @@ class V9990VRAM;
 class V9990GLRasterizer : public V9990Rasterizer
 {
 public:
-	/** Constructor
-	  */
 	V9990GLRasterizer(V9990& vdp);
-
-	/** Destructor
-	  */
 	virtual ~V9990GLRasterizer();
 
-	// Layer interface:
-	virtual void paint();
-	virtual const std::string& getName();
-
 	// Rasterizer interface:
+	virtual bool isActive();
 	virtual void reset();
 	virtual void frameStart();
 	virtual void frameEnd();

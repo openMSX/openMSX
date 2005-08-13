@@ -1,5 +1,11 @@
 $Id$
 
+2005-08-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Use PostProcessor for V9990:
+	   - this means scaler, scanline, blur settings have now also effect
+	     on V9990 display
+	   - TODO all V9990 lines are internally still rendered 640 pixels wide
+
 2005-08-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Changed 'issubslotted' from Debuggable into InfoTopic
 	* Added 'isexternalslot' InfoTopic

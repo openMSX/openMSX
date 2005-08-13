@@ -12,8 +12,8 @@
 namespace openmsx {
 
 template <class Pixel>
-PostProcessor<Pixel>::PostProcessor(SDL_Surface* screen)
-	: VideoLayer(VIDEO_MSX)
+PostProcessor<Pixel>::PostProcessor(SDL_Surface* screen, VideoSource videoSource)
+	: VideoLayer(videoSource)
 {
 	this->screen = screen;
 	currScalerID = (ScalerID)-1; // not a valid scaler
@@ -122,9 +122,9 @@ void PostProcessor<Pixel>::paint()
 template <class Pixel>
 const std::string& PostProcessor<Pixel>::getName()
 {
-	// TODO: A more useful name, maybe parameter of constructor?
-	static const std::string NAME = "PostProcessor";
-	return NAME;
+	static const std::string V99x8_NAME = "V99x8 PostProcessor";
+	static const std::string V9990_NAME = "V9990 PostProcessor";
+	return (getVideoSource() == VIDEO_GFX9000) ? V9990_NAME : V99x8_NAME;
 }
 
 template <class Pixel>

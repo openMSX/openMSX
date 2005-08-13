@@ -16,6 +16,7 @@ class VideoLayer: public Layer, protected SettingListener
 {
 public:
 	virtual ~VideoLayer();
+	VideoSource getVideoSource() const;
 
 protected:
 	VideoLayer(VideoSource videoSource);
