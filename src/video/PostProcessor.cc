@@ -48,17 +48,17 @@ void PostProcessor<Pixel>::paint()
 
 	// Scale image.
 	// TODO: Check deinterlace first: now that we keep LineContent info per
-	//       frame, we should take the content of two frames into account.
+	//       frame, we should take the lineWidth of two frames into account.
 	bool lower = field == RawFrame::FIELD_ODD;
 	unsigned startY = 0;
 	while (startY < 240) {
-		const RawFrame::LineContent content = currFrame->getLineContent(startY);
+		unsigned lineWidth = currFrame->getLineWidth(startY);
 		unsigned endY = startY + 1;
 		while ((endY < 240) &&
-		       (currFrame->getLineContent(endY) == content)) endY++;
+		       (currFrame->getLineWidth(endY) == lineWidth)) endY++;
 
-		switch (content) {
-		case RawFrame::LINE_BLANK: {
+		switch (lineWidth) {
+		case 0: { // blank line
 			// Reduce area to same-colour starting segment.
 			const Pixel colour = *currFrame->getPixelPtr(0, startY, (Pixel*)0);
 			for (unsigned y = startY + 1; y < endY; y++) {
@@ -78,7 +78,7 @@ void PostProcessor<Pixel>::paint()
 			}
 			break;
 		}
-		case RawFrame::LINE_256:
+		case 256:
 			if (deinterlace) {
 				RawFrame::FieldType field = currFrame->getField();
 				assert(field != RawFrame::FIELD_NONINTERLACED);
@@ -93,7 +93,7 @@ void PostProcessor<Pixel>::paint()
 				                     startY, endY, lower);
 			}
 			break;
-		case RawFrame::LINE_512:
+		case 512:
 			if (deinterlace) {
 				RawFrame::FieldType field = currFrame->getField();
 				assert(field != RawFrame::FIELD_NONINTERLACED);
@@ -114,7 +114,7 @@ void PostProcessor<Pixel>::paint()
 		}
 
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
-		//	startY, endY, content );
+		//	startY, endY, lineWidth );
 		startY = endY;
 	}
 }

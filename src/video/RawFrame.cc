@@ -2,7 +2,6 @@
 
 #include "RawFrame.hh"
 
-
 namespace openmsx {
 
 RawFrame::RawFrame(SDL_PixelFormat* format, FieldType field)
@@ -28,11 +27,11 @@ void RawFrame::reinit(FieldType field)
 {
 	this->field = field;
 
-	// Initialise lineContent.
+	// Initialise lineWidth.
 	// TODO: Colour of blank lines should be initialised as well.
 	// TODO: Is there a point to initialising this at all?
 	for (unsigned y = 0; y < HEIGHT; y++) {
-		lineContent[y] = LINE_BLANK;
+		lineWidth[y] = 0;
 	}
 }
 

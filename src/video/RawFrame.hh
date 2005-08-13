@@ -23,38 +23,15 @@ public:
 	/** What role does this frame play in interlacing?
 	  */
 	enum FieldType {
-		/** Interlacing is off for this frame.
-		  */
+		/** Interlacing is off for this frame */
 		FIELD_NONINTERLACED,
-		/** Interlacing is on and this is an even frame.
-		  */
+		/** Interlacing is on and this is an even frame */
 		FIELD_EVEN,
-		/** Interlacing is on and this is an odd frame.
-		  */
+		/** Interlacing is on and this is an odd frame */
 		FIELD_ODD,
 	};
 
-	/** The type of pixels on a line.
-	  * This is used to select the correct scaler algorithm for a line.
-	  */
-	enum LineContent {
-		/** Line contains border colour.
-		  */
-		LINE_BLANK,
-		/** Line contains 256 (wide) pixels.
-		  */
-		LINE_256,
-		/** Line contains 512 (narrow) pixels.
-		  */
-		LINE_512,
-	};
-
-	/** Constructor.
-	  */
 	RawFrame(SDL_PixelFormat* format, FieldType field);
-
-	/** Destructor.
-	  */
 	~RawFrame();
 
 	/** Call this before using the object.
@@ -77,15 +54,15 @@ public:
 			) + x;
 	}
 
-	inline LineContent getLineContent(unsigned line) {
+	inline unsigned getLineWidth(unsigned line) {
 		assert(line < HEIGHT);
-		return lineContent[line];
+		return lineWidth[line];
 	}
 
-	// TODO: Replace this by "setBlank", "set256" and "set512"?
-	inline void setLineContent(unsigned line, LineContent content) {
+	inline void setLineWidth(unsigned line, unsigned width) {
 		assert(line < HEIGHT);
-		lineContent[line] = content;
+		assert(width <= (unsigned)surface->w);
+		lineWidth[line] = width;
 	}
 
 	template <class Pixel>
@@ -94,7 +71,7 @@ public:
 		Pixel* pixels = getPixelPtr<Pixel>(0, line);
 		pixels[0] = colour0;
 		pixels[1] = colour1; // TODO: We store colour1, but no-one uses it.
-		lineContent[line] = LINE_BLANK;
+		lineWidth[line] = 0;
 	}
 
 	inline FieldType getField() {
@@ -114,12 +91,11 @@ private:
 	  */
 	static const unsigned HEIGHT = 240;
 
-	LineContent lineContent[HEIGHT];
+	unsigned lineWidth[HEIGHT];
 
 	SDL_Surface* surface;
 
 	FieldType field;
-
 };
 
 // Workaround for bug in GCC versions prior to 3.4.

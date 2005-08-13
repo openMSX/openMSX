@@ -439,15 +439,13 @@ void SDLRasterizer<Pixel>::drawBorder(
 		return;
 	}
 
-	bool narrow = mode.getLineWidth() == 512;
-	unsigned x = translateX(fromX, narrow);
-	unsigned num = translateX(limitX, narrow) - x;
-
-	RawFrame::LineContent lineType = narrow ? RawFrame::LINE_512 : RawFrame::LINE_256;
+	unsigned lineWidth = mode.getLineWidth();
+	unsigned x = translateX(fromX, (lineWidth == 512));
+	unsigned num = translateX(limitX, (lineWidth == 512)) - x;
 	for (int y = startY; y < endY; ++y) {
 		MemoryOps::memset_2<Pixel, MemoryOps::NO_STREAMING>(
 			workFrame->getPixelPtr(x, y, (Pixel*)0), num, border0, border1);
-		workFrame->setLineContent(y, lineType);
+		workFrame->setLineWidth(y, lineWidth);
 	}
 }
 
@@ -458,7 +456,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 	int displayWidth, int displayHeight
 ) {
 	DisplayMode mode = vdp.getDisplayMode();
-	int lineWidth = mode.getLineWidth();
+	unsigned lineWidth = mode.getLineWidth();
 	if (lineWidth == 256) {
 		int endX = displayX + displayWidth;
 		displayX /= 2;
@@ -483,7 +481,6 @@ void SDLRasterizer<Pixel>::drawDisplay(
 		translateX(vdp.getLeftBackground(), lineWidth == 512);
 	// TODO: Find out why this causes 1-pixel jitter:
 	//dest.x = translateX(fromX);
-	RawFrame::LineContent lineType = lineWidth == 256 ? RawFrame::LINE_256 : RawFrame::LINE_512;
 	int hScroll =
 		  mode.isTextMode()
 		? 0
@@ -563,7 +560,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 					bitmapDisplayCache, &source, workFrame->getSurface(), &dest
 					);
 			}
-			workFrame->setLineContent(y, lineType);
+			workFrame->setLineWidth(y, lineWidth);
 
 			displayY = (displayY + 1) & 255;
 		}
@@ -587,7 +584,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 				source.y, dest.y);
 			*/
 			SDL_BlitSurface(charDisplayCache, &source, workFrame->getSurface(), &dest);
-			workFrame->setLineContent(y, lineType);
+			workFrame->setLineWidth(y, lineWidth);
 			displayY = (displayY + 1) & 255;
 		}
 	}
