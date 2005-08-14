@@ -157,7 +157,8 @@ bool CommandLineParser::parseFileName(const string& arg, list<string>& cmdLine)
 {
 	string originalName(arg);
 	try {
-		File file(arg);
+		UserFileContext context;
+		File file(context.resolve(arg));
 		originalName = file.getOriginalName();
 	} catch (FileException& e) {
 		// ignore

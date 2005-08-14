@@ -42,7 +42,7 @@ DiskChanger::DiskChanger(const string& driveName_,
 				patchFiles.push_back(patch);
 			}
 
-			insertDisk(filename, patchFiles);
+			insertDisk(context.resolve(filename), patchFiles);
 		} catch (FileException& e) {
 			// file not found
 			throw FatalError("Couldn't load diskimage: " + filename);
@@ -95,7 +95,7 @@ SectorAccessibleDisk* DiskChanger::getSectorAccessibleDisk()
 }
 
 void DiskChanger::insertDisk(const string& diskImage,
-                                   const vector<string>& patches)
+                             const vector<string>& patches)
 {
 	ejectDisk();
 	if (diskImage == "-ramdsk") {
