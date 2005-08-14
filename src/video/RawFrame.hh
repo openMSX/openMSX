@@ -31,7 +31,7 @@ public:
 		FIELD_ODD,
 	};
 
-	RawFrame(SDL_PixelFormat* format, FieldType field);
+	RawFrame(SDL_PixelFormat* format, unsigned maxWidth);
 	~RawFrame();
 
 	/** Call this before using the object.
@@ -66,6 +66,11 @@ public:
 	}
 
 	template <class Pixel>
+	inline void setBlank(unsigned line, Pixel color) {
+		setBlank(line, color, color);
+	}
+
+	template <class Pixel>
 	inline void setBlank(unsigned line, Pixel colour0, Pixel colour1) {
 		assert(line < HEIGHT);
 		Pixel* pixels = getPixelPtr<Pixel>(0, line);
@@ -82,10 +87,6 @@ private:
 
 	// TODO: Use MSX-derived dimensions instead?
 	//       That would be better if we ever want to support resizable screens.
-
-	/** Horizontal dimensions of the screen.
-	  */
-	static const unsigned WIDTH = 640;
 
 	/** Vertical dimensions of the screen.
 	  */

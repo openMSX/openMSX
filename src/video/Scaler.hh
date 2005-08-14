@@ -83,6 +83,28 @@ public:
 	virtual void scale512(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY);
 
+	virtual void scale192(RawFrame& src, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY, bool lower);
+	virtual void scale192(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY);
+	virtual void scale384(RawFrame& src, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY, bool lower);
+	virtual void scale384(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY);
+	virtual void scale640(RawFrame& src, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY, bool lower);
+	virtual void scale640(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY);
+	virtual void scale768(RawFrame& src, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY, bool lower);
+	virtual void scale768(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY);
+	virtual void scale1024(RawFrame& src, SDL_Surface* dst,
+	                       unsigned startY, unsigned endY, bool lower);
+	virtual void scale1024(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	                       unsigned startY, unsigned endY);
+
+
 	// Utility methods  (put in seperate class?)
 
 	/** Get the start address of a line in a surface
@@ -123,8 +145,34 @@ public:
 	 */
 	static void fillLine(Pixel* pOut, Pixel colour, unsigned width);
 
+	// TODO optimize these routines
+	void scale_1on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
+	void scale_1on2(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
+	void scale_1on1(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
+	void scale_2on1(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
+	void scale_4on1(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
+	void scale_2on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
+	void scale_4on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
+	void scale_8on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
+	
+
 protected:
-	Scaler();
+	Scaler(SDL_PixelFormat* format);
+
+private:
+	inline unsigned red(Pixel pixel);
+	inline unsigned green(Pixel pixel);
+	inline unsigned blue(Pixel pixel);
+	inline Pixel combine(unsigned r, unsigned g, unsigned b);
+
+	template <unsigned w1, unsigned w2>
+	inline Pixel blendPixels2(const Pixel* source);
+	template <unsigned w1, unsigned w2, unsigned w3>
+	inline Pixel blendPixels3(const Pixel* source);
+	template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
+	inline Pixel blendPixels4(const Pixel* source);
+
+	SDL_PixelFormat format;
 };
 
 } // namespace openmsx

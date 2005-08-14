@@ -38,10 +38,6 @@ void V9990DummyRasterizer::setPalette(
 {
 }
 
-void V9990DummyRasterizer::setImageWidth(int /*width*/)
-{
-}
-
 void V9990DummyRasterizer::drawBorder(int /*fromX*/, int /*fromY*/,
                                       int /*limitX*/, int /*limitY*/)
 {

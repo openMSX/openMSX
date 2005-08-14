@@ -20,7 +20,6 @@ public:
 	void setColorMode(V9990ColorMode mode, const EmuTime& time);
 	void updatePalette(int index, byte r, byte g, byte b, const EmuTime& time);
 	void updateBackgroundColor(int index, const EmuTime& time);
-	void setImageWidth(int width);
 	void updateScrollAX(const EmuTime& time);
 	void updateScrollAY(const EmuTime& time);
 	void updateScrollBX(const EmuTime& time);

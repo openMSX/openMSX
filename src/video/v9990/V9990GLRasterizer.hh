@@ -26,7 +26,6 @@ public:
 	virtual void frameStart();
 	virtual void frameEnd();
 	virtual void setDisplayMode(V9990DisplayMode displayMode);
-	virtual void setImageWidth(int width);
 	virtual void setColorMode(V9990ColorMode colorMode);
 	virtual void setPalette(int index, byte r, byte g, byte b);
 	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY);

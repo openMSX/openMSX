@@ -18,7 +18,8 @@ namespace openmsx {
 
 template <class Pixel>
 SaI2xScaler<Pixel>::SaI2xScaler(SDL_PixelFormat* format)
-	: blender(Blender<Pixel>::createFromFormat(format))
+	: Scaler<Pixel>(format)
+	, blender(Blender<Pixel>::createFromFormat(format))
 {
 }
 

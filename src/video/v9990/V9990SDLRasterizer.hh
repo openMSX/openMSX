@@ -8,6 +8,7 @@
 #include "V9990P1Converter.hh"
 #include "V9990P2Converter.hh"
 #include <memory>
+#include <SDL.h>
 
 namespace openmsx {
 
@@ -34,7 +35,6 @@ public:
 	virtual void setDisplayMode(V9990DisplayMode displayMode);
 	virtual void setColorMode(V9990ColorMode colorMode);
 	virtual void setPalette(int index, byte r, byte g, byte b);
-	virtual void setImageWidth(int width);
 	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY);
 	virtual void drawDisplay(int fromX, int fromY,
 	                         int displayX, int displayY,
@@ -65,11 +65,10 @@ private:
 	  */
 	RawFrame* workFrame;
 
-	/** First display line to draw. Since the number of VDP lines >=
-	  * the screen height, lineZero is >= 0. Only part of the video
-	  * image is visible.
+	/** Line to render at top of display.
+	  * After all, our screen is 240 lines while display is 262 or 313.
 	  */
-	int lineZero;
+	int lineRenderTop;
 
 	/** First display column to draw.  Since the width of the VDP lines <=
 	  * the screen width, colZero is <= 0. The non-displaying parts of the
@@ -81,10 +80,6 @@ private:
 	  */
 	V9990DisplayMode displayMode;
 	V9990ColorMode   colorMode;
-
-	/** Image width in pixels
-	  */
-	int imageWidth;
 
 	/** Palette containing the complete V9990 Color space
 	  */

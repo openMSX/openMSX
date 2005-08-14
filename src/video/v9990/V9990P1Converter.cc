@@ -69,7 +69,6 @@ void V9990P1Converter<Pixel>::convertLine(
 		                   displayBX, displayBY, 0x7E000, 0x40000, // B
 		                   visibleSprites, displayX, displayY);
 		*linePtr++ = pix;
-		*linePtr++ = pix;
 
 		displayAX++;
 		displayBX++;
@@ -78,7 +77,6 @@ void V9990P1Converter<Pixel>::convertLine(
 		Pixel pix = raster(displayBX, displayBY, 0x7E000, 0x40000, // B
 		                   displayAX, displayAY, 0x7C000, 0x00000, // A
 		                   visibleSprites, displayX, displayY);
-		*linePtr++ = pix;
 		*linePtr++ = pix;
 
 		displayAX++;

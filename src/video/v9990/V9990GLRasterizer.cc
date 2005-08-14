@@ -80,12 +80,6 @@ void V9990GLRasterizer::drawDisplay(
 	          displayWidth << "," << displayHeight << ")");
 }
 
-void V9990GLRasterizer::setImageWidth(int width)
-{
-	if (width); // avoid warning
-	PRT_DEBUG("V9990GLRasterizer::setImageWidth(" << std::dec << width << ")");
-}
-
 } // namespace openmsx
 
 

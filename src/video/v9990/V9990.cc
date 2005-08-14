@@ -337,7 +337,6 @@ void V9990::executeUntil(const EmuTime& time, int userData)
 		case V9990_SET_MODE:
 			calcDisplayMode();
 			renderer->setDisplayMode(getDisplayMode(), time);
-			renderer->setImageWidth(getImageWidth());
 			renderer->setColorMode(getColorMode(), time);
 			break;
 

@@ -11,6 +11,8 @@ template <class Pixel>
 class HQ2xLiteScaler: public Scaler<Pixel>
 {
 public:
+	HQ2xLiteScaler(SDL_PixelFormat* format);
+	
 	virtual void scale256(RawFrame& src, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY, bool lower);
 	virtual void scale512(RawFrame& src, SDL_Surface* dst,

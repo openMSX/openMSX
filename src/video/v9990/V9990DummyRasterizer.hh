@@ -19,7 +19,6 @@ public:
 	virtual void setDisplayMode(V9990DisplayMode displayMode);
 	virtual void setColorMode(V9990ColorMode colorMode);
 	virtual void setPalette(int index, byte r, byte g, byte b);
-	virtual void setImageWidth(int width);
 	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY);
 	virtual void drawDisplay(int fromX, int fromY,
 		                 int displayX, int displayY,

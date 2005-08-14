@@ -12,16 +12,15 @@
 namespace openmsx {
 
 template <class Pixel>
-PostProcessor<Pixel>::PostProcessor(SDL_Surface* screen, VideoSource videoSource)
+PostProcessor<Pixel>::PostProcessor(SDL_Surface* screen, VideoSource videoSource,
+                                    unsigned maxWidth)
 	: VideoLayer(videoSource)
 {
 	this->screen = screen;
 	currScalerID = (ScalerID)-1; // not a valid scaler
 
-	// Note: Since these frames contain just black lines, there is no point
-	//       in getting accurate interlace info.
-	currFrame = new RawFrame(screen->format, RawFrame::FIELD_NONINTERLACED);
-	prevFrame = new RawFrame(screen->format, RawFrame::FIELD_NONINTERLACED);
+	currFrame = new RawFrame(screen->format, maxWidth);
+	prevFrame = new RawFrame(screen->format, maxWidth);
 }
 
 template <class Pixel>
@@ -35,9 +34,19 @@ template <class Pixel>
 void PostProcessor<Pixel>::paint()
 {
 	const RawFrame::FieldType field = currFrame->getField();
-	const bool deinterlace =
-		field != RawFrame::FIELD_NONINTERLACED
-		&& RenderSettings::instance().getDeinterlace().getValue();
+	const bool deinterlace = (field != RawFrame::FIELD_NONINTERLACED) &&
+                        RenderSettings::instance().getDeinterlace().getValue();
+	RawFrame* frameEven = 0;
+	RawFrame* frameOdd  = 0;
+	if (deinterlace) {
+		if (field == RawFrame::FIELD_ODD) {
+			frameEven = prevFrame;
+			frameOdd  = currFrame;
+		} else {
+			frameEven = currFrame;
+			frameOdd  = prevFrame;
+		}
+	}
 
 	// New scaler algorithm selected?
 	ScalerID scalerID = RenderSettings::instance().getScaler().getValue();
@@ -78,34 +87,68 @@ void PostProcessor<Pixel>::paint()
 			}
 			break;
 		}
+		// TODO find a better way to implement this
+		case 192:
+			if (deinterlace) {
+				currScaler->scale192(*frameEven, *frameOdd,
+				                     screen, startY, endY);
+			} else {
+				currScaler->scale192(*currFrame, screen,
+				                     startY, endY, lower);
+			}
+			break;
 		case 256:
 			if (deinterlace) {
-				RawFrame::FieldType field = currFrame->getField();
-				assert(field != RawFrame::FIELD_NONINTERLACED);
-				bool odd = field == RawFrame::FIELD_ODD;
-				currScaler->scale256(
-					*(odd ? prevFrame : currFrame), // even
-					*(odd ? currFrame : prevFrame), // odd
-					screen, startY, endY);
-					
+				currScaler->scale256(*frameEven, *frameOdd,
+				                     screen, startY, endY);
 			} else {
 				currScaler->scale256(*currFrame, screen,
 				                     startY, endY, lower);
 			}
 			break;
+		case 384:
+			if (deinterlace) {
+				currScaler->scale384(*frameEven, *frameOdd,
+				                     screen, startY, endY);
+			} else {
+				currScaler->scale384(*currFrame, screen,
+				                     startY, endY, lower);
+			}
+			break;
 		case 512:
 			if (deinterlace) {
-				RawFrame::FieldType field = currFrame->getField();
-				assert(field != RawFrame::FIELD_NONINTERLACED);
-				bool odd = field == RawFrame::FIELD_ODD;
-				currScaler->scale512(
-					*(odd ? prevFrame : currFrame), // even
-					*(odd ? currFrame : prevFrame), // odd
-					screen, startY, endY);
-					
+				currScaler->scale512(*frameEven, *frameOdd,
+				                     screen, startY, endY);
 			} else {
 				currScaler->scale512(*currFrame, screen,
 				                     startY, endY, lower);
+			}
+			break;
+		case 640:
+			if (deinterlace) {
+				currScaler->scale640(*frameEven, *frameOdd,
+				                     screen, startY, endY);
+			} else {
+				currScaler->scale640(*currFrame, screen,
+				                     startY, endY, lower);
+			}
+			break;
+		case 768:
+			if (deinterlace) {
+				currScaler->scale768(*frameEven, *frameOdd,
+				                     screen, startY, endY);
+			} else {
+				currScaler->scale768(*currFrame, screen,
+				                     startY, endY, lower);
+			}
+			break;
+		case 1024:
+			if (deinterlace) {
+				currScaler->scale1024(*frameEven, *frameOdd,
+				                      screen, startY, endY);
+			} else {
+				currScaler->scale1024(*currFrame, screen,
+				                      startY, endY, lower);
 			}
 			break;
 		default:
@@ -129,13 +172,11 @@ const std::string& PostProcessor<Pixel>::getName()
 
 template <class Pixel>
 RawFrame* PostProcessor<Pixel>::rotateFrames(
-	RawFrame* finishedFrame, RawFrame::FieldType field )
+	RawFrame* finishedFrame, RawFrame::FieldType field)
 {
 	RawFrame* reuseFrame = prevFrame;
 	prevFrame = currFrame;
-	currFrame = finishedFrame
-		? finishedFrame
-		: new RawFrame(screen->format, RawFrame::FIELD_NONINTERLACED);
+	currFrame = finishedFrame;
 	reuseFrame->reinit(field);
 	return reuseFrame;
 }

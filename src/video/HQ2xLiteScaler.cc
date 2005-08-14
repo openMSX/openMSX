@@ -22,6 +22,12 @@ using std::min;
 namespace openmsx {
 
 template <class Pixel>
+HQ2xLiteScaler<Pixel>::HQ2xLiteScaler(SDL_PixelFormat* format)
+	: Scaler<Pixel>(format)
+{
+}
+
+template <class Pixel>
 static inline unsigned readPixel(const Pixel* pIn)
 {
 	// TODO: Use surface info instead.

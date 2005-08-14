@@ -1,6 +1,12 @@
 $Id$
 
 2005-08-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* V9990 no longer internally renders 640 pixels wide lines. The
+	  PostProcessor now scales the lines to the correct width.
+	* Extended Scalers with scale192() scale384() scale768() scale1024():
+	   TODO find a better way to do this
+
+2005-08-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use PostProcessor for V9990:
 	   - this means scaler, scanline, blur settings have now also effect
 	     on V9990 display

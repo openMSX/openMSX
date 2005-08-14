@@ -147,13 +147,13 @@ inline void SDLRasterizer<Pixel>::renderCharacterLines(
 template <class Pixel>
 SDLRasterizer<Pixel>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
 	: vdp(vdp_), vram(vdp.getVRAM())
-	, postProcessor(new PostProcessor<Pixel>(screen, VIDEO_MSX))
+	, postProcessor(new PostProcessor<Pixel>(screen, VIDEO_MSX, 640))
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 	, spriteConverter(vdp.getSpriteChecker())
 {
 	this->screen = screen;
-	workFrame = NULL;
+	workFrame = new RawFrame(screen->format, 640);
 
 	// Create display caches.
 	charDisplayCache = SDL_CreateRGBSurface(

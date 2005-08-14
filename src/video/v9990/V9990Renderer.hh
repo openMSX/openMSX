@@ -79,10 +79,6 @@ public:
 	  */
 	virtual void updateBackgroundColor(int index, const EmuTime& time) = 0;
 
-	/** Set image width
-	  */
-	virtual void setImageWidth(int width) = 0;
-
 	/** Set scroll register
 	 */
 	virtual void updateScrollAX(const EmuTime& time) = 0;

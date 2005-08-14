@@ -46,10 +46,6 @@ void V9990DummyRenderer::updateBackgroundColor(
 {
 }
 
-void V9990DummyRenderer::setImageWidth(int /*width*/)
-{
-}
-
 void V9990DummyRenderer::updateScrollAX(const EmuTime& /*time*/)
 {
 }

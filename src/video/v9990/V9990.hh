@@ -115,7 +115,7 @@ public:
 	static inline int UCtoX(int ticks, V9990DisplayMode mode) {
 		int x;
 		ticks = ticks % V9990DisplayTiming::UC_TICKS_PER_LINE;
-		switch(mode) {
+		switch (mode) {
 			case P1: x = ticks / 8;  break;
 			case P2: x = ticks / 4;  break;
 			case B0: x = ticks /12;  break;
@@ -211,6 +211,22 @@ public:
 		case 0x80: // Bx
 		default:   // standby TODO check this
 			return (256 << ((regs[SCREEN_MODE_0] & 0x0C) >> 2));
+		}
+	}
+	/** Return the display width
+	  */
+	inline unsigned getLineWidth() {
+		switch (getDisplayMode()) {
+		case B0:          return  192;
+		case P1: case B1: return  256;
+		case B2:          return  384;
+		case P2: case B3: return  512;
+		case B4:          return  768;
+		case B5: case B6: return  640;
+		case B7:          return 1024;
+		default:
+			assert(false);
+			return 0;
 		}
 	}
 

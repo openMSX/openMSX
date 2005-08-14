@@ -4,9 +4,7 @@
 #define V9990BITMAPCONVERTER_HH
 
 #include "openmsx.hh"
-#include "Renderer.hh"
 #include "V9990ModeEnum.hh"
-#include <SDL.h>
 
 namespace openmsx {
 
@@ -20,19 +18,11 @@ class V9990BitmapConverter
 {
 public:
 	V9990BitmapConverter(V9990& vdp,
-	                     SDL_PixelFormat fmt,
-	                     Pixel* palette64,
-	                     Pixel* palette256,
-	                     Pixel* palette32768);
-	~V9990BitmapConverter();
+	             Pixel* palette64, Pixel* palette256, Pixel* palette32768);
 
 	/** Convert a line of VRAM into host pixels.
 	  */
 	void convertLine(Pixel* linePtr, unsigned address, int nrPixels, int displayY);
-
-	/** Set the display mode: defines screen geometry.
-	  */
-	void setDisplayMode(V9990DisplayMode mode);
 
 	/** Set the color mode
 	  */
@@ -53,16 +43,6 @@ private:
 	             (Pixel* pixelPtr, unsigned address, int nrPixels);
 	RasterMethod rasterMethod;
 
-	/** Blend method for the current display mode
-	  */
-	typedef void (V9990BitmapConverter<Pixel>::*BlendMethod)
-	             (const Pixel* source, Pixel* dest, int nrPixels);
-	BlendMethod blendMethod;
-
-	/** Pixel format
-	  */
-	SDL_PixelFormat format;
-
 	/** The 64 color palette for P1, P2 and BP* modes
 	  * This is the palette manipulated through the palette port and register
 	  */
@@ -77,29 +57,6 @@ private:
 	  * This is the complete color space for the V9990
 	  */
 	Pixel* palette32768;
-
-	/* private blending methods */
-	inline unsigned int red(Pixel pixel);
-	inline unsigned int green(Pixel pixel);
-	inline unsigned int blue(Pixel pixel);
-	inline Pixel combine(unsigned r, unsigned g, unsigned b);
-
-	template <unsigned w1, unsigned w2>
-	inline Pixel blendPixels2(const Pixel* source);
-	template <unsigned w1, unsigned w2, unsigned w3>
-	inline Pixel blendPixels3(const Pixel* source);
-	template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
-	inline Pixel blendPixels4(const Pixel* source);
-
-	void blend_1on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void blend_1on2(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void blend_1on1(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void blend_2on1(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void blend_4on1(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void blend_2on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void blend_4on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void blend_8on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void blend_none(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
 
 	/* private Raster methods */
 	void rasterP    (Pixel* outPixels, unsigned address, int nrPixels);

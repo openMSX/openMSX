@@ -24,6 +24,12 @@ using std::min;
 namespace openmsx {
 
 template <class Pixel>
+Scale2xScaler<Pixel>::Scale2xScaler(SDL_PixelFormat* format)
+	: Scaler<Pixel>(format)
+{
+}
+
+template <class Pixel>
 void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 	const Pixel* src0, const Pixel* src1, const Pixel* src2)
 {

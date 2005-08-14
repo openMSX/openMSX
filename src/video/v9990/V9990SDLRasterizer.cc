@@ -6,9 +6,13 @@
 #include "PostProcessor.hh"
 #include "BooleanSetting.hh"
 #include "RenderSettings.hh"
+#include "MemoryOps.hh"
+#include <algorithm>
 #include <SDL.h>
 
 using std::string;
+using std::min;
+using std::max;
 
 namespace openmsx {
 
@@ -17,14 +21,13 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 	V9990& vdp_, SDL_Surface* screen_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
-	, postProcessor(new PostProcessor<Pixel>(screen, VIDEO_GFX9000))
-	, bitmapConverter(vdp, *screen->format,
-	                  palette64, palette256, palette32768)
+	, postProcessor(new PostProcessor<Pixel>(screen, VIDEO_GFX9000, 1280))
+	, bitmapConverter(vdp, palette64, palette256, palette32768)
 	, p1Converter(vdp, palette64)
 	, p2Converter(vdp, palette64)
 	, deinterlaceSetting(RenderSettings::instance().getDeinterlace())
 {
-	workFrame = new RawFrame(screen->format, RawFrame::FIELD_NONINTERLACED);
+	workFrame = new RawFrame(screen->format, 1280);
 
 	// Fill palettes
 	precalcPalettes();
@@ -47,7 +50,6 @@ void V9990SDLRasterizer<Pixel>::reset()
 {
 	setDisplayMode(vdp.getDisplayMode());
 	setColorMode(vdp.getColorMode());
-	imageWidth = vdp.getImageWidth();
 }
 
 template <class Pixel>
@@ -61,11 +63,13 @@ void V9990SDLRasterizer<Pixel>::frameStart()
 	// In SDLLo, one window pixel represents 8 UC clockticks, so the
 	// window = 320 * 8 UC ticks wide. In SDLHi, one pixel is 4 clock-
 	// ticks and the window 640 pixels wide -- same amount of UC ticks.
-	colZero = horTiming.border1 + (horTiming.display - SCREEN_WIDTH * 8) / 2;
+	colZero = horTiming.blank + horTiming.border1 +
+	          (horTiming.display - SCREEN_WIDTH * 8) / 2;
 
 	// 240 display lines can be shown. In SDLHi, we can do interlace,
 	// but still 240 lines per frame.
-	lineZero = verTiming.border1 + (verTiming.display - SCREEN_HEIGHT) / 2;
+	lineRenderTop = verTiming.blank + verTiming.border1 +
+	                (verTiming.display - SCREEN_HEIGHT) / 2;
 }
 
 template <class Pixel>
@@ -82,7 +86,6 @@ template <class Pixel>
 void V9990SDLRasterizer<Pixel>::setDisplayMode(V9990DisplayMode mode)
 {
 	displayMode = mode;
-	bitmapConverter.setDisplayMode(mode);
 }
 
 template <class Pixel>
@@ -93,58 +96,33 @@ void V9990SDLRasterizer<Pixel>::setColorMode(V9990ColorMode mode)
 }
 
 template <class Pixel>
-void V9990SDLRasterizer<Pixel>::setImageWidth(int width)
-{
-	// sync?
-	imageWidth = width;
-}
-
-static inline int translateX(int x)
-{
-	return x / 4;
-}
-
-template <class Pixel>
 void V9990SDLRasterizer<Pixel>::drawBorder(
-	int fromX, int fromY, int toX, int toY)
+	int fromX, int fromY, int limitX, int limitY)
 {
-	static int const screenW = SCREEN_WIDTH * 8;
-	static int const screenH = SCREEN_HEIGHT;
+	Pixel bgColor = palette64[vdp.getBackDropColor() & 63];
 
-	// From vdp coordinates (UC ticks/lines) to screen coordinates
-	fromX -= colZero;
-	fromY -= lineZero;
-	toX   -= colZero;
-	toY   -= lineZero;
+	int startY = max(fromY  - lineRenderTop,   0);
+	int endY   = min(limitY - lineRenderTop, 240);
+	if (startY >= endY) return;
 
-	// Clip or expand to screen edges
-	if ((fromX <= -colZero) || (fromX < 0)) {
-		fromX = 0;
-	}
-	if ((fromY <= -lineZero) || (fromY < 0)) {
-		fromY = 0;
-	}
-	if ((toX >= screenW + colZero) || (toX > screenW)) {
-		toX = screenW;
-	}
-	if ((toY >= screenH + lineZero) || (toY > screenH)) {
-		toY = screenH;
+	if ((fromX == 0) && (limitX == V9990DisplayTiming::UC_TICKS_PER_LINE)) {
+		for (int y = startY; y < endY; ++y) {
+			workFrame->setBlank(y, bgColor);
+		}
+		return;
 	}
 
-	int width = toX - fromX;
-	int height = toY - fromY;
-
-	if ((width > 0) && (height > 0)) {
-		SDL_Rect rect;
-		rect.x = translateX(fromX);
-		rect.w = translateX(width);
-		rect.y = fromY;
-		rect.h = height;
-		Pixel bgColor = palette64[vdp.getBackDropColor() & 63];
-		SDL_FillRect(workFrame->getSurface(), &rect, bgColor);
-	}
-	for (int y = fromY; y < toY; ++y) {
-		workFrame->setLineWidth(y, 512); // TODO
+	static int const screenW = SCREEN_WIDTH * 8; // in ticks
+	int startX = V9990::UCtoX(max(fromX  - colZero,       0), displayMode);
+	int endX   = V9990::UCtoX(min(limitX - colZero, screenW), displayMode);
+	if (startX >= endX) return;
+	
+	unsigned lineWidth = vdp.getLineWidth();
+	for (int y = startY; y < endY; ++y) {
+		MemoryOps::memset<Pixel, MemoryOps::NO_STREAMING>(
+			workFrame->getPixelPtr(startX, y, (Pixel*)0),
+			endX - startX, bgColor);
+		workFrame->setLineWidth(y, lineWidth);
 	}
 }
 
@@ -159,7 +137,7 @@ void V9990SDLRasterizer<Pixel>::drawDisplay(
 	if ((displayWidth > 0) && (displayHeight > 0)) {
 		// from VDP coordinates to screen coordinates
 		fromX -= colZero;
-		fromY -= lineZero;
+		fromY -= lineRenderTop;
 
 		// Clip to screen
 		if (fromX < 0) {
@@ -180,21 +158,19 @@ void V9990SDLRasterizer<Pixel>::drawDisplay(
 		}
 
 		if (displayHeight > 0) {
+			fromX = V9990::UCtoX(fromX, displayMode);
 			displayX = V9990::UCtoX(displayX, displayMode);
 			displayWidth = V9990::UCtoX(displayWidth, displayMode);
 
 			if (displayMode == P1) {
 				drawP1Mode(fromX, fromY, displayX, displayY,
-						   displayWidth, displayHeight);
+				           displayWidth, displayHeight);
 			} else if (displayMode == P2) {
 				drawP2Mode(fromX, fromY, displayX, displayY,
-						   displayWidth, displayHeight);
+				           displayWidth, displayHeight);
 			} else {
 				drawBxMode(fromX, fromY, displayX, displayY,
-					   displayWidth, displayHeight);
-			}
-			for (int y = 0; y < displayHeight; ++y) {
-				workFrame->setLineWidth(y + fromY, 512); // TODO
+				           displayWidth, displayHeight);
 			}
 		}
 	}
@@ -207,9 +183,10 @@ void V9990SDLRasterizer<Pixel>::drawP1Mode(
 {
 	while (displayHeight--) {
 		Pixel* pixelPtr = workFrame->getPixelPtr(
-			translateX(fromX), fromY, (Pixel*)0);
+			fromX, fromY, (Pixel*)0);
 		p1Converter.convertLine(pixelPtr, displayX, displayWidth,
 		                        displayY);
+		workFrame->setLineWidth(fromY, 256);
 		++fromY;
 		++displayY;
 	}
@@ -222,9 +199,10 @@ void V9990SDLRasterizer<Pixel>::drawP2Mode(
 {
 	while (displayHeight--) {
 		Pixel* pixelPtr = workFrame->getPixelPtr(
-			translateX(fromX), fromY, (Pixel*)0);
+			fromX, fromY, (Pixel*)0);
 		p2Converter.convertLine(pixelPtr, displayX, displayWidth,
 		                        displayY);
+		workFrame->setLineWidth(fromY, 512);
 		++fromY;
 		++displayY;
 	}
@@ -260,9 +238,10 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 		unsigned y = scrollYBase + (displayY + scrollY) & rollMask;
 		unsigned address = vdp.XYtoVRAM(&x, y, colorMode);
 		Pixel* pixelPtr = workFrame->getPixelPtr(
-			translateX(fromX), fromY, (Pixel*)0);
+			fromX, fromY, (Pixel*)0);
 		bitmapConverter.convertLine(pixelPtr, address, displayWidth,
 		                            displayY);
+		workFrame->setLineWidth(fromY, vdp.getLineWidth());
 		++fromY;
 		displayY += lineStep;
 	}

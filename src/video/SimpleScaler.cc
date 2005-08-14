@@ -174,7 +174,8 @@ word* Darkener<unsigned>::getTable()
 
 template <class Pixel>
 SimpleScaler<Pixel>::SimpleScaler(SDL_PixelFormat* format)
-	: scanlineSetting(RenderSettings::instance().getScanlineAlpha())
+	: Scaler<Pixel>(format)
+	, scanlineSetting(RenderSettings::instance().getScanlineAlpha())
 	, blurSetting(RenderSettings::instance().getHorizontalBlur())
 	, blender(Blender<Pixel>::createFromFormat(format))
 	, mult1(format)

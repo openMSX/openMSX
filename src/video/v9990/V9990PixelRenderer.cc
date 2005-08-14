@@ -115,7 +115,6 @@ void V9990PixelRenderer::sync(const EmuTime& time, bool force)
 void V9990PixelRenderer::renderUntil(const EmuTime& time)
 {
 	const V9990DisplayPeriod& horTiming = vdp.getHorizontalTiming();
-	const V9990DisplayPeriod& verTiming = vdp.getVerticalTiming();
 
 	// Translate time to pixel position
 	int limitTicks = vdp.getUCTicksThisFrame(time);
@@ -124,18 +123,15 @@ void V9990PixelRenderer::renderUntil(const EmuTime& time)
 	int toX, toY;
 	switch (accuracy) {
 	case RenderSettings::ACC_PIXEL:
-		toX = limitTicks % V9990DisplayTiming::UC_TICKS_PER_LINE -
-		      horTiming.blank;
-		toY = limitTicks / V9990DisplayTiming::UC_TICKS_PER_LINE -
-		      verTiming.blank;
+		toX = limitTicks % V9990DisplayTiming::UC_TICKS_PER_LINE;
+		toY = limitTicks / V9990DisplayTiming::UC_TICKS_PER_LINE;
 		break;
 	case RenderSettings::ACC_LINE:
 	case RenderSettings::ACC_SCREEN:
 		// TODO figure out rounding point
 		toX = 0;
 		toY = (limitTicks + V9990DisplayTiming::UC_TICKS_PER_LINE - 400) /
-		             V9990DisplayTiming::UC_TICKS_PER_LINE -
-		      verTiming.blank;
+		             V9990DisplayTiming::UC_TICKS_PER_LINE;
 		break;
 	default:
 		assert(false);
@@ -145,9 +141,9 @@ void V9990PixelRenderer::renderUntil(const EmuTime& time)
 	if ((toX == lastX) && (toY == lastY)) return;
 
 	// edges of the DISPLAY part of the vdp output
-	int left       = horTiming.border1;
+	int left       = horTiming.blank + horTiming.border1;
 	int right      = left   + horTiming.display;
-	int rightEdge  = right  + horTiming.border2;
+	int rightEdge  = V9990DisplayTiming::UC_TICKS_PER_LINE;
 
 	if (displayEnabled) {
 		// left border
@@ -210,8 +206,8 @@ void V9990PixelRenderer::draw(int fromX, int fromY, int toX, int toY,
 		const V9990DisplayPeriod& horTiming = vdp.getHorizontalTiming();
 		const V9990DisplayPeriod& verTiming = vdp.getVerticalTiming();
 
-		int displayX = fromX - horTiming.border1;
-		int displayY = fromY - verTiming.border1;
+		int displayX = fromX - horTiming.blank - horTiming.border1;
+		int displayY = fromY - verTiming.blank - verTiming.border1;
 		int displayWidth = toX - fromX;
 		int displayHeight = toY - fromY;
 
@@ -252,11 +248,6 @@ void V9990PixelRenderer::setColorMode(V9990ColorMode mode, const EmuTime& time)
 void V9990PixelRenderer::updateBackgroundColor(int /*index*/, const EmuTime& time)
 {
 	sync(time);
-}
-
-void V9990PixelRenderer::setImageWidth(int width)
-{
-	if (displayEnabled) rasterizer->setImageWidth(width);
 }
 
 void V9990PixelRenderer::updateScrollAX(const EmuTime& time)

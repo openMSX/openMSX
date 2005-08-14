@@ -18,7 +18,8 @@ template <class Pixel>
 class PostProcessor : public VideoLayer
 {
 public:
-	PostProcessor(SDL_Surface* screen, VideoSource videoSource);
+	PostProcessor(SDL_Surface* screen, VideoSource videoSource,
+	              unsigned maxWidth);
 	virtual ~PostProcessor();
 
 	// Layer interface:

@@ -26,6 +26,23 @@ public:
 	virtual void scale512(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY);
 
+	virtual void scale192(RawFrame& src, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY, bool lower);
+	virtual void scale192(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY);
+	virtual void scale384(RawFrame& src, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY, bool lower);
+	virtual void scale384(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY);
+	virtual void scale768(RawFrame& src, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY, bool lower);
+	virtual void scale768(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	                      unsigned startY, unsigned endY);
+	virtual void scale1024(RawFrame& src, SDL_Surface* dst,
+	                       unsigned startY, unsigned endY, bool lower);
+	virtual void scale1024(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	                       unsigned startY, unsigned endY);
+
 private:
 	void halve       (const Pixel* pIn,                     Pixel* pOut);
 	void average     (const Pixel* pIn0, const Pixel* pIn1, Pixel* pOut);

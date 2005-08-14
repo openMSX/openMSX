@@ -4,18 +4,18 @@
 
 namespace openmsx {
 
-RawFrame::RawFrame(SDL_PixelFormat* format, FieldType field)
+RawFrame::RawFrame(SDL_PixelFormat* format, unsigned maxWidth)
 {
 	surface = SDL_CreateRGBSurface(
 		SDL_SWSURFACE,
-		WIDTH, HEIGHT,
+		maxWidth, HEIGHT,
 		format->BitsPerPixel,
 		format->Rmask,
 		format->Gmask,
 		format->Bmask,
 		format->Amask
 		);
-	reinit(field);
+	reinit(FIELD_NONINTERLACED);
 }
 
 RawFrame::~RawFrame()

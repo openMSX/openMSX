@@ -39,20 +39,12 @@ template class V9990BitmapConverter<ExpandFilter<GLuint>::ExpandType>;
 
 template <class Pixel>
 V9990BitmapConverter<Pixel>::V9990BitmapConverter(
-	V9990& vdp_,
-	SDL_PixelFormat format_,
-	Pixel* palette64_, Pixel* palette256_, Pixel* palette32768_)
-	: vdp(vdp_), vram(vdp.getVRAM()), format(format_)
+	V9990& vdp_, Pixel* palette64_, Pixel* palette256_, Pixel* palette32768_)
+	: vdp(vdp_), vram(vdp.getVRAM())
         , palette64(palette64_), palette256(palette256_), palette32768(palette32768_)
 {
 	// make sure function pointers have valid values
-	setDisplayMode(P1);
 	setColorMode(PP);
-}
-
-template <class Pixel>
-V9990BitmapConverter<Pixel>::~V9990BitmapConverter()
-{
 }
 
 // - Rasterizers -------------------------------------------------------
@@ -212,206 +204,11 @@ void V9990BitmapConverter<Pixel>::rasterBP2(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterP(
-	Pixel* pixelPtr, unsigned address, int nrPixels)
+	Pixel* /*pixelPtr*/, unsigned /*address*/, int /*nrPixels*/)
 {
-	rasterBP4(pixelPtr, address, nrPixels);
+	assert(false);
 }
 
-// -- Blenders --------------------------------------------------------
-
-template <class Pixel>
-inline unsigned int V9990BitmapConverter<Pixel>::red(Pixel pix) {
-	return (pix & format.Rmask) >> format.Rshift;
-}
-
-template <class Pixel>
-inline unsigned int V9990BitmapConverter<Pixel>::green(Pixel pix) {
-	return (pix & format.Gmask) >> format.Gshift;
-}
-
-template <class Pixel>
-inline unsigned int V9990BitmapConverter<Pixel>::blue(Pixel pix) {
-	return (pix & format.Bmask) >> format.Bshift;
-}
-
-template <class Pixel>
-inline Pixel V9990BitmapConverter<Pixel>::combine(
-	unsigned r, unsigned g, unsigned b)
-{
-	return (Pixel)(((r << format.Rshift) & format.Rmask) |
-	               ((g << format.Gshift) & format.Gmask) |
-	               ((b << format.Bshift) & format.Bmask));
-}
-
-template <class Pixel>
-template <unsigned w1, unsigned w2>
-inline Pixel V9990BitmapConverter<Pixel>::blendPixels2(const Pixel* source)
-{
-	unsigned total = w1 + w2;
-	unsigned r = (red  (source[0]) * w1 + red  (source[1]) * w2) / total;
-	unsigned g = (green(source[0]) * w1 + green(source[1]) * w2) / total;
-	unsigned b = (blue (source[0]) * w1 + blue (source[1]) * w2) / total;
-	return combine(r, g, b);
-}
-
-template <class Pixel>
-template <unsigned w1, unsigned w2, unsigned w3>
-inline Pixel V9990BitmapConverter<Pixel>::blendPixels3(const Pixel* source)
-{
-	unsigned total = w1 + w2 + w3;
-	unsigned r = (red  (source[0]) * w1 +
-	              red  (source[1]) * w2 +
-	              red  (source[2]) * w3) / total;
-	unsigned g = (green(source[0]) * w1 +
-	              green(source[1]) * w2 +
-	              green(source[2]) * w3) / total;
-	unsigned b = (blue (source[0]) * w1 +
-	              blue (source[1]) * w2 +
-	              blue (source[2]) * w3) / total;
-	return combine(r, g, b);
-}
-
-template <class Pixel>
-template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
-inline Pixel V9990BitmapConverter<Pixel>::blendPixels4(const Pixel* source)
-{
-	unsigned total = w1 + w2 + w3 + w4;
-	unsigned r = (red  (source[0]) * w1 +
-	              red  (source[1]) * w2 +
-	              red  (source[2]) * w3 +
-	              red  (source[3]) * w4) / total;
-	unsigned g = (green(source[0]) * w1 +
-	              green(source[1]) * w2 +
-	              green(source[2]) * w3 +
-	              green(source[3]) * w4) / total;
-	unsigned b = (blue (source[0]) * w1 +
-	              blue (source[1]) * w2 +
-	              blue (source[2]) * w3 +
-	              blue (source[3]) * w4) / total;
-	return combine(r, g, b);
-}
-
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::blend_1on3(
-	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
-{
-	for (int p = 0; p < nrPixels; ++p) {
-		Pixel pix = inPixels[p];
-		*outPixels++ = pix;
-		*outPixels++ = pix;
-		*outPixels++ = pix;
-	}
-}
-
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::blend_1on2(
-	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
-{
-	for (int p = 0; p < nrPixels; ++p) {
-		Pixel pix = inPixels[p];
-		*outPixels++ = pix;
-		*outPixels++ = pix;
-	}
-}
-
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::blend_1on1(
-	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
-{
-	memcpy(outPixels, inPixels, nrPixels * sizeof(Pixel));
-}
-
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::blend_2on1(
-	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
-{
-	for (int p = 0; p < nrPixels; p += 2) {
-		*outPixels++ = blendPixels2<1, 1>(&inPixels[p]);
-	}
-}
-
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::blend_4on1(
-	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
-{
-	for (int p = 0; p < nrPixels; p += 4) {
-		*outPixels++ = blendPixels4<1, 1, 1, 1>(&inPixels[p]);
-	}
-}
-
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::blend_2on3(
-	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
-{
-	for (int p = 0; p < nrPixels; p += 2) {
-		*outPixels++ =                     inPixels[p + 0];
-		*outPixels++ = blendPixels2<1, 1>(&inPixels[p + 0]);
-		*outPixels++ =                     inPixels[p + 1];
-	}
-}
-
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::blend_4on3(
-	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
-{
-	for (int p = 0; p < nrPixels; p += 4) {
-		*outPixels++ = blendPixels2<3, 1>(&inPixels[p + 0]);
-		*outPixels++ = blendPixels2<1, 1>(&inPixels[p + 1]);
-		*outPixels++ = blendPixels2<1, 3>(&inPixels[p + 2]);
-	}
-}
-
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::blend_8on3(
-	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
-{
-	for (int p = 0; p < nrPixels; p += 8) {
-		*outPixels++ = blendPixels3<3, 3, 2>   (&inPixels[p + 0]);
-		*outPixels++ = blendPixels4<1, 3, 3, 1>(&inPixels[p + 2]);
-		*outPixels++ = blendPixels3<2, 3, 3>   (&inPixels[p + 5]);
-	}
-}
-
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::blend_none(
-	const Pixel* /*inPixels*/, Pixel* outPixels, int nrPixels)
-{
-	memset(outPixels, 0, nrPixels * sizeof(Pixel));
-}
-
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::setDisplayMode(V9990DisplayMode mode)
-{
-	// Select pixel blender
-	/*if (zoom == Renderer::ZOOM_256) {
-	switch (mode) {
-		case P1:
-		case B1: blendMethod = &V9990BitmapConverter::blend_1on1; break;
-		case P2:
-		case B3: blendMethod = &V9990BitmapConverter::blend_2on1; break;
-		case B7: blendMethod = &V9990BitmapConverter::blend_4on1; break;
-		case B0: blendMethod = &V9990BitmapConverter::blend_2on3; break;
-		case B2: blendMethod = &V9990BitmapConverter::blend_4on3; break;
-		case B4: blendMethod = &V9990BitmapConverter::blend_8on3; break;
-		case B5:
-		case B6: blendMethod = &V9990BitmapConverter::blend_none; break;
-		default: assert(false);
-	}*/
-
-	switch (mode) {
-		case P1:
-		case B1: blendMethod = &V9990BitmapConverter::blend_1on2; break;
-		case P2:
-		case B3: blendMethod = &V9990BitmapConverter::blend_1on1; break;
-		case B7: blendMethod = &V9990BitmapConverter::blend_2on1; break;
-		case B0: blendMethod = &V9990BitmapConverter::blend_1on3; break;
-		case B2: blendMethod = &V9990BitmapConverter::blend_2on3; break;
-		case B4: blendMethod = &V9990BitmapConverter::blend_4on3; break;
-		case B5:
-		case B6: blendMethod = &V9990BitmapConverter::blend_none; break;
-		default: assert(false);
-	}
-}
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::setColorMode(V9990ColorMode mode)
@@ -481,19 +278,18 @@ template <class Pixel>
 void V9990BitmapConverter<Pixel>::convertLine(
 	Pixel* linePtr, unsigned address, int nrPixels, int displayY)
 {
+	// TODO cursor goes wrong when startX != 0
 	assert(nrPixels <= 1024);
-	Pixel tmp[1024 * sizeof(Pixel)];
-	(this->*rasterMethod)(tmp, address, nrPixels);
+	(this->*rasterMethod)(linePtr, address, nrPixels);
 	if (vdp.spritesEnabled()) {
-		drawCursors(tmp, displayY);
+		drawCursors(linePtr, displayY);
 	}
-	(this->*blendMethod)(tmp, linePtr, nrPixels);
 }
 
 
 // Force template instantiation
-template class V9990BitmapConverter<Uint16>;
-template class V9990BitmapConverter<Uint32>;
+template class V9990BitmapConverter<word>;
+template class V9990BitmapConverter<unsigned>;
 
 } // namespace openmsx
 
