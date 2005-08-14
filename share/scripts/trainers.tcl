@@ -1053,11 +1053,11 @@ proc trainer_metalgear1 {} {
 	#!poke 0xc13e 0x99
     
 	#open all doors
-	for {set i 0xC450} { $i < 0xc4fe } { incr i } {
+	for {set i 0xc450} { $i < 0xc4fe } { incr i } {
 		poke $i 0	
 	}
 
-	for {set i 0xC490} { $i < 0xc4a9 } { incr i } {
+	for {set i 0xc490} { $i < 0xc4a9 } { incr i } {
 		poke $i 0	
 	}
 	after time 2 trainer_metalgear1
@@ -1763,7 +1763,7 @@ proc trainer_penguinadventure  {} {
 	poke 0xe16c 1
 	#blue boots
 	poke 0xe16d 1
-	#red shoes (extra grip?)
+	#red shoes for extra grip
 	poke 0xe16e 1	
 	#feather
 	poke 0xe16f 1
@@ -1802,6 +1802,9 @@ proc trainer_penguinadventure  {} {
 	
 	#kill dragon with one shot
 	poke 0xe53c 19
+	
+	#get 8 dancing penguins
+	poke 0xe0dd 8
 
 after time 15 trainer_penguinadventure 
 } 
@@ -2490,8 +2493,8 @@ proc trainer_beamrider {} {
 	#unlimited bombs
 	poke 0xe22c 99
 	#lives
-	poke 0xe223 255
-	after time 2 trainer_beamrider
+	poke 0xe223 12
+	after time 5 trainer_beamrider
 }
 
 proc trainer_happyfret {} {
@@ -4147,13 +4150,44 @@ proc trainer_mirai {} {
 	after time 1 trainer_mirai
 }
 
-proc poke {addr val} {
-	debug write memory $addr $val
-}
 proc trainer_sonyc {} {
-	#99 rings... hooray :P
+	#99 rings... hooray :p
 	poke 0xd311 0x99
 	after time 1 trainer_sonyc
+}
+
+proc trainer_brotheradventure {} {
+	#3 lives
+	poke 0xe812 3
+	after time 1 trainer_brotheradventure
+}
+
+proc trainer_tensairabbiandaifunsen {} {
+	#lives
+	poke 0xec23 255
+	#timer
+	poke 0xec27 255
+	after time 10 trainer_tensairabbiandaifunsen
+}
+
+proc trainer_madrider {} {
+	#timer
+	poke 0xc510 59
+	after time 1 trainer_madrider
+}
+
+proc trainer_castle_of_blackburn {} {
+	#lives
+	poke 0xda32 99
+	#unlimited swords
+	poke 0xda2c 99
+	#invincible
+	poke 0xda0e 255
+	after time 10 trainer_castle_of_blackburn
+}
+
+proc poke {addr val} {
+	debug write memory $addr $val
 }
 
 proc peek {addr} {
