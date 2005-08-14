@@ -183,8 +183,8 @@ inline byte V9990CmdEngine::V9990P1::point(
 inline byte V9990CmdEngine::V9990P1::shift(
 	byte value, unsigned fromX, unsigned toX)
 {
-	unsigned shift = 4 * ((toX & 1) - (fromX & 1));
-	return (shift > 0) ? (value >> shift) : (value << shift);
+	int shift = 4 * ((toX & 1) - (fromX & 1));
+	return (shift > 0) ? (value >> shift) : (value << -shift);
 }
 
 inline const byte* V9990CmdEngine::V9990P1::getLogOpLUT(byte op)
@@ -246,8 +246,8 @@ inline byte V9990CmdEngine::V9990P2::point(
 inline byte V9990CmdEngine::V9990P2::shift(
 	byte value, unsigned fromX, unsigned toX)
 {
-	unsigned shift = 4 * ((toX & 1) - (fromX & 1));
-	return (shift > 0) ? (value >> shift) : (value << shift);
+	int shift = 4 * ((toX & 1) - (fromX & 1));
+	return (shift > 0) ? (value >> shift) : (value << -shift);
 }
 
 inline const byte* V9990CmdEngine::V9990P2::getLogOpLUT(byte op)
@@ -309,8 +309,8 @@ inline byte V9990CmdEngine::V9990Bpp2::point(
 inline byte V9990CmdEngine::V9990Bpp2::shift(
 	byte value, unsigned fromX, unsigned toX)
 {
-	unsigned shift = 2 * ((toX & 3) - (fromX & 3));
-	return (shift > 0) ? (value >> shift) : (value << shift);
+	int shift = 2 * ((toX & 3) - (fromX & 3));
+	return (shift > 0) ? (value >> shift) : (value << -shift);
 }
 
 inline const byte* V9990CmdEngine::V9990Bpp2::getLogOpLUT(byte op)
@@ -372,8 +372,8 @@ inline byte V9990CmdEngine::V9990Bpp4::point(
 inline byte V9990CmdEngine::V9990Bpp4::shift(
 	byte value, unsigned fromX, unsigned toX)
 {
-	unsigned shift = 4 * ((toX & 1) - (fromX & 1));
-	return (shift > 0) ? (value >> shift) : (value << shift);
+	int shift = 4 * ((toX & 1) - (fromX & 1));
+	return (shift > 0) ? (value >> shift) : (value << -shift);
 }
 
 inline const byte* V9990CmdEngine::V9990Bpp4::getLogOpLUT(byte op)
