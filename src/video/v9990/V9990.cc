@@ -59,8 +59,6 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, pendingIRQs(0)
 	, hScanSyncTime(time)
 {
-	PRT_DEBUG("[" << time << "] V9990::Create");
-
         // clear regs TODO find realistic init values
         memset(regs, 0, sizeof(regs));
 	calcDisplayMode();
@@ -94,8 +92,6 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 V9990::~V9990()
 {
-	PRT_DEBUG("[--now--] V9990::Destroy");
-
 	// Unregister everything that needs to be unregistered
 	EventDistributor::instance().unregisterEventListener(
 		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
@@ -107,8 +103,6 @@ V9990::~V9990()
 
 void V9990::reset(const EmuTime& time)
 {
-	PRT_DEBUG("[" << time << "] V9990::reset");
-
 	removeSyncPoint(V9990_VSYNC);
 	removeSyncPoint(V9990_DISPLAY_START);
 	removeSyncPoint(V9990_VSCAN);
@@ -308,8 +302,8 @@ void V9990::writeIO(byte port, byte val, const EmuTime& time)
 
 void V9990::executeUntil(const EmuTime& time, int userData)
 {
-	PRT_DEBUG("[" << time << "] "
-	          "V9990::executeUntil - data=0x" << std::hex << userData);
+	//PRT_DEBUG("[" << time << "] "
+	//          "V9990::executeUntil - data=0x" << std::hex << userData);
 	switch (userData)  {
 		case V9990_VSYNC:
 			// Transition from one frame to the next
@@ -348,7 +342,6 @@ void V9990::executeUntil(const EmuTime& time, int userData)
 const string& V9990::schedName() const
 {
 	static const string name("V9990");
-	PRT_DEBUG("[--now---] V9990::SchedName - \"" << name << "\"");
 	return name;
 }
 
@@ -445,9 +438,9 @@ byte V9990::readRegister(byte reg, const EmuTime& time)
 		result = 0xFF;
 	}
 
-	PRT_DEBUG("[" << time << "] "
-		  "V9990::readRegister - reg=0x" << std::hex << (int)reg <<
-		                       " val=0x" << std::hex << (int)result);
+	//PRT_DEBUG("[" << time << "] "
+	//	  "V9990::readRegister - reg=0x" << std::hex << (int)reg <<
+	//	                       " val=0x" << std::hex << (int)result);
 	return result;
 }
 
@@ -461,9 +454,9 @@ void V9990::syncAtNextLine(V9990SyncType type, const EmuTime& time)
 
 void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 {
-	PRT_DEBUG("[" << time << "] "
-		  "V9990::writeRegister - reg=0x" << std::hex << int(reg) <<
-		                        " val=0x" << std::hex << int(val));
+	//PRT_DEBUG("[" << time << "] "
+	//	  "V9990::writeRegister - reg=0x" << std::hex << int(reg) <<
+	//	                        " val=0x" << std::hex << int(val));
 
 	assert(reg < 64);
 	if ((regAccess[reg] == NO_ACCESS) || (regAccess[reg] == RD_ONLY)) {
