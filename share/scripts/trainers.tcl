@@ -4186,6 +4186,43 @@ proc trainer_castle_of_blackburn {} {
 	after time 10 trainer_castle_of_blackburn
 }
 
+proc trainer_daiva5 {} {
+	#Battle ships in stock
+	poke 0xd0b8 99
+	#o.m in stock
+	poke 0xd0cc 98
+	#missle ships in stock
+	poke 0xd0d6 97
+	#cruisers in stock
+	poke 0xd0c2 99
+	
+	#damage on planets
+	poke 0x950a 0
+	poke 0x950b 0
+	
+	#stop timer on planets
+	poke 0x94ee 0
+	
+	#money
+	poke 0xd7ab 255
+	poke 0xd7ac 255
+
+after time 1 trainer_daiva5
+}
+
+proc trainer_daiva4 {} {
+	#all kind of ships in stock
+	poke 0xc4ee 99
+	poke 0xc4ef 99
+	poke 0xc4f0 99
+	poke 0xc4f1 99
+
+	#life on planet
+	poke 0xd408 255
+	
+	after time 10 trainer_daiva4
+}
+
 proc poke {addr val} {
 	debug write memory $addr $val
 }
