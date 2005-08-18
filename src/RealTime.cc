@@ -90,19 +90,19 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 		unsigned long long currentRealTime = Timer::getTime();
 		long long sleep = idealRealTime - currentRealTime;
 		if (allowSleep) {
-			PRT_DEBUG("RT: want to sleep " << sleep << "us");
+			//PRT_DEBUG("RT: want to sleep " << sleep << "us");
 			sleep += (long long)sleepAdjust;
 			long long delta = 0;
 			if (sleep > 0) {
-				PRT_DEBUG("RT: Sleeping for " << sleep << "us");
+				//PRT_DEBUG("RT: Sleeping for " << sleep << "us");
 				Timer::sleep(sleep);
 				long long slept = Timer::getTime() - currentRealTime;
-				PRT_DEBUG("RT: Realy slept for " << slept << "us");
+				//PRT_DEBUG("RT: Realy slept for " << slept << "us");
 				delta = sleep - slept;
 			}
 			const double ALPHA = 0.2;
 			sleepAdjust = sleepAdjust * (1 - ALPHA) + delta * ALPHA;
-			PRT_DEBUG("RT: SleepAdjust: " << sleepAdjust);
+			//PRT_DEBUG("RT: SleepAdjust: " << sleepAdjust);
 		}
 		if (-sleep > MAX_LAG) {
 			idealRealTime = currentRealTime - MAX_LAG / 2;
