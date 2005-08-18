@@ -171,7 +171,7 @@ byte TC8566AF::readReg(int reg, const EmuTime& time)
 		case PHASE_DATATRANSFER:
 			result = readDataTransferPhase(time);
 			RequestForMaster = 0;
-			delayTime.advance(time);
+			delayTime.reset(time);
 			delayTime += 15;
 			break;
 		case PHASE_RESULT:
@@ -298,7 +298,7 @@ void TC8566AF::writeReg(int reg, byte data, const EmuTime& time)
 		case PHASE_DATATRANSFER:
 			writeDataTransferPhase(data, time);
 			RequestForMaster = 0;
-			delayTime.advance(time);
+			delayTime.reset(time);
 			delayTime += 15;
 			break;
 
