@@ -1115,38 +1115,49 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 
 byte Y8950::readReg(byte rg, const EmuTime &time)
 {
-	// TODO only when necessary
-	getMixer().updateStream(time);
+	getMixer().updateStream(time); // TODO only when necessary
 
-	byte result;
 	switch (rg) {
-		case 0x05: // (KEYBOARD IN)
-			result = connector->read(time);
-			break;
-
-		case 0x0f: // ADPCM-DATA
+		case 0x0F: // ADPCM-DATA
 		case 0x13: //  ???
 		case 0x14: //  ???
-		case 0x1a: // PCM-DATA
-			result = adpcm->readReg(rg);
-			break;
+		case 0x1A: // PCM-DATA
+			return adpcm->readReg(rg);
+
+		default:
+			return peekReg(rg, time);
+	}
+}
+
+byte Y8950::peekReg(byte rg, const EmuTime &time) const
+{
+	switch (rg) {
+		case 0x05: // (KEYBOARD IN)
+			return connector->read(time); // TODO peek iso read 
+
+		case 0x0F: // ADPCM-DATA
+		case 0x13: //  ???
+		case 0x14: //  ???
+		case 0x1A: // PCM-DATA
+			return adpcm->peekReg(rg);
 
 		case 0x19: // I/O DATA   TODO
-			result = 0;
-			break;
+			return 0;
+
 		default:
-			result = 255;
+			return 255;
 	}
-	//PRT_DEBUG("Y8950 read " << (int)rg<<" "<<(int)result);
-	return result;
 }
 
 byte Y8950::readStatus()
 {
 	setStatus(STATUS_BUF_RDY);	// temp hack
-	byte tmp = status & (0x80 | statusMask);
-	//PRT_DEBUG("Y8950 read status " << (int)tmp);
-	return tmp | 0x06;	// bit 1 and 2 are always 1
+	return peekStatus();
+}
+
+byte Y8950::peekStatus() const
+{
+	return (status & (0x80 | statusMask)) | 0x06; // bit 1 and 2 are always 1
 }
 
 void Y8950::callback(byte flag)

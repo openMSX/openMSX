@@ -12,12 +12,10 @@
 namespace openmsx {
 
 class SettingsConfig;
-class InfoCommand;
 class IntegerSetting;
 class FloatSetting;
 class BooleanSetting;
 class VideoSourceSetting;
-
 
 /** Singleton containing all settings for renderers.
   * Keeping the settings here makes sure they are preserved when the user

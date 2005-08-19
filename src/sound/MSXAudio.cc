@@ -28,26 +28,14 @@ void MSXAudio::reset(const EmuTime& time)
 
 byte MSXAudio::readIO(byte port, const EmuTime& time)
 {
-	byte result;
-	switch (port & 0x01) {
-	case 0:
-		result = y8950->readStatus();
-		break;
-	case 1:
-		result = y8950->readReg(registerLatch, time);
-		break;
-	default: // unreachable, avoid warning
-		assert(false);
-		result = 0;
-	}
-	//PRT_DEBUG("Audio: read "<<hex<<(int)port<<" "<<(int)result<<dec);
-	return result;
+	return (port & 1) ? y8950->readReg(registerLatch, time)  // port 1
+	                  : y8950->readStatus();                 // port 0
 }
 
-byte MSXAudio::peekIO(byte /*port*/, const EmuTime& /*time*/) const
+byte MSXAudio::peekIO(byte port, const EmuTime& time) const
 {
-	// TODO not implemented
-	return 0xFF;
+	return (port & 1) ? y8950->peekReg(registerLatch, time)  // port 1
+	                  : y8950->peekStatus();                 // port 0
 }
 
 void MSXAudio::writeIO(byte port, byte value, const EmuTime& time)

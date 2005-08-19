@@ -172,7 +172,9 @@ public:
 	void reset(const EmuTime &time);
 	void writeReg(byte reg, byte data, const EmuTime& time);
 	byte readReg(byte reg, const EmuTime& time);
+	byte peekReg(byte reg, const EmuTime& time) const;
 	byte readStatus();
+	byte peekStatus() const;
 
 private:
 	// SoundDevice

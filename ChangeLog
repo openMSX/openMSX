@@ -1,6 +1,9 @@
 $Id$
 
-2005-08-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2005-08-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented peekIO (debug IO reads) for MSX-AUDIO
+
+2005-08-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* V9990 no longer internally renders 640 pixels wide lines. The
 	  PostProcessor now scales the lines to the correct width.
 	* Extended Scalers with scale192() scale384() scale768() scale1024():

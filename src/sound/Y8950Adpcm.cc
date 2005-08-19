@@ -274,40 +274,39 @@ void Y8950Adpcm::writeData(byte data)
 
 byte Y8950Adpcm::readReg(byte rg)
 {
-	byte result;
-	switch (rg) {
-		case 0x0F: // ADPCM-DATA
-			result = readData();
-			break;
-		case 0x13: // TODO check
-			result = out & 0xFF;
-			break;
-		case 0x14: // TODO check
-			result = out / 256;
-			break;
-		default:
-			result = 255;
-	}
+	byte result = (rg == 0x0F)
+	            ? readData()   // ADPCM-DATA
+	            : peekReg(rg); // other
 	//PRT_DEBUG("Y8950Adpcm: read "<<(int)rg<<" "<<(int)result);
 	return result;
 }
 
+byte Y8950Adpcm::peekReg(byte rg) const
+{
+	switch (rg) {
+		case 0x0F: // ADPCM-DATA
+			return peekData();
+		case 0x13: // TODO check
+			return out & 0xFF;
+		case 0x14: // TODO check
+			return out / 256;
+		default:
+			return 255;
+	}
+}
+
 byte Y8950Adpcm::readData()
 {
-	byte result;
 	if ((reg7 & R07_MODE) == R07_MEMORY_DATA) {
 		// external memory read
 		if (readDelay) {
 			// two dummy reads
 			memPntr = startAddr;
 			--readDelay;
-			result = reg15;
 		} else if (memPntr > stopAddr) {
 			// set EOS bit in status register
 			y8950.setStatus(Y8950::STATUS_EOS);
-			result = 0;
 		} else {
-			result = readMemory();
 			memPntr += 2; // two nibbles at a time
 
 			// reset BRDY bit in status register, which means we
@@ -323,10 +322,24 @@ byte Y8950Adpcm::readData()
 			// set BRDY bit in status register
 			y8950.setStatus(Y8950::STATUS_BUF_RDY);
 		}
-	} else {
-		result = 0; // TODO check
 	}
-	return result;
+	return peekData();
+}
+
+byte Y8950Adpcm::peekData() const
+{
+	if ((reg7 & R07_MODE) == R07_MEMORY_DATA) {
+		// external memory read
+		if (readDelay) {
+			return reg15;
+		} else if (memPntr > stopAddr) {
+			return 0;
+		} else {
+			return readMemory();
+		}
+	} else {
+		return 0; // TODO check
+	}
 }
 
 void Y8950Adpcm::writeMemory(byte value)
@@ -336,7 +349,7 @@ void Y8950Adpcm::writeMemory(byte value)
 		(*ram)[addr] = value;
 	}
 }
-byte Y8950Adpcm::readMemory()
+byte Y8950Adpcm::readMemory() const
 {
 	unsigned addr = (memPntr / 2) & addrMask;
 	if (romBank || (addr >= ram->getSize())) {

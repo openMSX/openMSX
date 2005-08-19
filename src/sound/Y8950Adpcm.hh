@@ -25,6 +25,7 @@ public:
 	bool muted() const;
 	void writeReg(byte rg, byte data, const EmuTime& time);
 	byte readReg(byte rg);
+	byte peekReg(byte rg) const;
 	int calcSample();
 
 private:
@@ -39,8 +40,9 @@ private:
 	bool playing() const;
 	void writeData(byte data);
 	byte readData();
+	byte peekData() const;
 	void writeMemory(byte value);
-	byte readMemory();
+	byte readMemory() const;
 
 	Y8950& y8950;
 	std::auto_ptr<Ram> ram;
