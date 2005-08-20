@@ -105,17 +105,12 @@ int FDC_DirAsDSK::findFirstFreeCluster()
 bool FDC_DirAsDSK::checkMSXFileExists(const string& msxfilename)
 {
 	//TODO: complete this
-	string::size_type pos = msxfilename.find_last_of('/');
-	string tmp;
-	if (pos != string::npos) {
-		tmp = msxfilename.substr(pos + 1);
-	} else {
-		tmp = msxfilename;
-	}
+	string dir, file;
+	StringOp::splitOnLast(msxfilename, "/", dir, file);
 
 	for (int i = 0; i < 112; i++) {
 		if (strncmp((const char*)(mapdir[i].msxinfo.filename),
-			    tmp.c_str(), 11) == 0 ) {
+			    file.c_str(), 11) == 0 ) {
 			return true;
 		}
 	}
@@ -144,32 +139,16 @@ static char toMSXChr(char a)
 }
 string FDC_DirAsDSK::makeSimpleMSXFileName(const string& fullfilename)
 {
-	string::size_type pos = fullfilename.find_last_of('/');
-	string tmp;
-	if (pos != string::npos) {
-		tmp = fullfilename.substr(pos + 1);
-	} else {
-		tmp = fullfilename;
-	}
-	PRT_DEBUG("filename before transform " << tmp);
-	transform(tmp.begin(), tmp.end(), tmp.begin(), toMSXChr);
-	PRT_DEBUG("filename after transform " << tmp);
+	string dir, file, ext;
+	StringOp::splitOnLast(fullfilename, "/", dir, file);
+	
+	transform(file.begin(), file.end(), file.begin(), toMSXChr);
 
-	string file, ext;
-	pos = tmp.find_last_of('.');
-	if (pos != string::npos) {
-		file = tmp.substr(0, pos);
-		ext  = tmp.substr(pos + 1);
-	} else {
-		file = tmp;
-		ext = "";
-	}
+	StringOp::splitOnLast(file, ".", file, ext);
+	if (file.empty()) swap(file, ext);
 
-	PRT_DEBUG("adding correct amount of spaces");
-	file += "        ";
-	ext  += "   ";
-	file = file.substr(0, 8);
-	ext  = ext.substr(0, 3);
+	file.resize(8, ' ');
+	ext .resize(3, ' ');
 
 	return file + ext;
 }

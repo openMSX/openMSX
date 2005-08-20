@@ -49,7 +49,7 @@ bool endsWith(const string& total, const string& part)
 	return equal(part.begin(), part.end(), total.begin() + offset);
 }
 
-void trimRight(std::string& str, const std::string& chars)
+void trimRight(string& str, const string& chars)
 {
 	string::size_type pos = str.find_last_not_of(chars);
 	if (pos != string::npos) {
@@ -59,9 +59,33 @@ void trimRight(std::string& str, const std::string& chars)
 	}
 }
 
-void trimLeft (std::string& str, const std::string& chars)
+void trimLeft (string& str, const string& chars)
 {
 	str.erase(0, str.find_first_not_of(chars));
+}
+
+void splitOnFirst(const string& str, const string& chars, string& first, string& last)
+{
+	std::string::size_type pos = str.find_first_of(chars);
+	if (pos == std::string::npos) {
+		first = str;
+		last.clear();
+	} else {
+		first = str.substr(0, pos);
+		last  = str.substr(pos + 1);
+	}
+}
+
+void splitOnLast(const string& str, const string& chars, string& first, string& last)
+{
+	std::string::size_type pos = str.find_last_of(chars);
+	if (pos == std::string::npos) {
+		first.clear();
+		last = str;
+	} else {
+		first = str.substr(0, pos);
+		last  = str.substr(pos + 1);
+	}
 }
 
 } // namespace StringOp

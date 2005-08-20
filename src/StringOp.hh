@@ -36,7 +36,12 @@ namespace StringOp
 
 	void trimRight(std::string& str, const std::string& chars);
 	void trimLeft (std::string& str, const std::string& chars);
-	
+
+	void splitOnFirst(const std::string& str, const std::string& chars,
+	                  std::string& first, std::string& last);
+	void splitOnLast (const std::string& str, const std::string& chars,
+	                  std::string& first, std::string& last);
+
 	// case insensitive less then operator
 	struct caseless {
 		bool operator()(const std::string& s1, const std::string& s2) const {

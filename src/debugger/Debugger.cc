@@ -272,7 +272,7 @@ void Debugger::DebugCmd::removeBreakPoint(const std::vector<TclObject*>& tokens,
 	const CPU::BreakPoints& breakPoints = parent.cpu->getBreakPoints();
 	
 	string tmp = tokens[2]->getString();
-	if (tmp.substr(0,3) == "bp#") {
+	if (StringOp::startsWith(tmp, "bp#")) {
 		// remove by id
 		unsigned id = StringOp::stringToInt(tmp.substr(3));
 		for (CPU::BreakPoints::const_iterator it = breakPoints.begin();

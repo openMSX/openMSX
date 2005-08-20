@@ -523,26 +523,18 @@ static char toMSXChr(char a)
 // direntries on an MSX
 string MSXtar::makeSimpleMSXFileName(const string& fullfilename)
 {
-	string::size_type pos = fullfilename.find_last_of('/');
-	string tmp = (pos != string::npos)
-	           ? fullfilename.substr(pos + 1)
-	           : fullfilename;
+	string dir, file, ext;
+	StringOp::splitOnLast(fullfilename, "/", dir, file);
 
 	// handle speciale case '.' and '..' first
-	if ((tmp == ".") || (tmp == "..")) {
-		tmp.resize(11, ' ');
-		return tmp;
+	if ((file == ".") || (file == "..")) {
+		file.resize(11, ' ');
+		return file;
 	}
 
-	string file, ext;
-	pos = tmp.find_last_of('.');
-	if (pos != string::npos) {
-		file = tmp.substr(0, pos);
-		ext  = tmp.substr(pos + 1);
-	} else {
-		file = tmp;
-		ext = "";
-	}
+	StringOp::splitOnLast(file, ".", file, ext);
+	if (file.empty()) swap(file, ext);
+
 	StringOp::trimRight(file, " ");
 	StringOp::trimRight(ext,  " ");
 
@@ -973,16 +965,10 @@ bool MSXtar::chroot(const string& newRootDir, bool createDir)
 	}
 
 	while (!work.empty()) {
-		StringOp::trimLeft(work, "/\\");
 		string firstpart;
-		string::size_type pos = work.find_first_of("/\\");
-		if (pos != string::npos) {
-			firstpart = work.substr(0, pos);
-			work = work.substr(pos + 1);
-		} else {
-			firstpart = work;
-			work.clear();
-		}
+		StringOp::splitOnFirst(work, "/\\", firstpart, work);
+		StringOp::trimLeft(work, "/\\");
+
 		// find firstpart directory or create it if requested
 		string simple = makeSimpleMSXFileName(firstpart);
 		byte buf[SECTOR_SIZE];
@@ -1156,24 +1142,20 @@ void MSXtar::createDiskFile(vector<unsigned> sizes)
 //temporary way to test import MSXtar functionality
 void MSXtar::addDir(const string& rootDirName)
 {
-	//recurseDirFill(rootDirName, rootDirStart, 0);
 	recurseDirFill(rootDirName, MSXchrootSector, MSXchrootStartIndex);
 }
 
-void MSXtar::addFile(const string& Filename)
+// add file into fake dsk
+void MSXtar::addFile(const string& filename)
 {
-	// add file into fake dsk
-	string::size_type pos = Filename.find_last_of("/\\");
-	string name = (pos != string::npos)
-	           ? Filename.substr(pos + 1)
-	           : Filename;
-	addFiletoDSK(Filename, name, MSXchrootSector, MSXchrootStartIndex);
+	string dir, file;
+	StringOp::splitOnLast(filename, "/\\", dir, file);
+	addFiletoDSK(filename, file, MSXchrootSector, MSXchrootStartIndex);
 }
 
 //temporary way to test export MSXtar functionality
 void MSXtar::getDir(const string& rootDirName)
 {
-	//recurseDirExtract(rootDirName, rootDirStart, 0);
 	recurseDirExtract(rootDirName, MSXchrootSector, MSXchrootStartIndex);
 }
 

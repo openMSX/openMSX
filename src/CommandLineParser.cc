@@ -333,17 +333,10 @@ CommandLineParser::ControlOption::~ControlOption()
 bool CommandLineParser::ControlOption::parseOption(const string& option,
 		list<string>& cmdLine)
 {
-	string arg(getArgument(option, cmdLine));
-	string::size_type colon = arg.find(':');
-	string type_name;
-	string arguments;
-	if (colon == string::npos) {
-		type_name = arg;
-		//arguments = "";
-	} else {
-		type_name = arg.substr(0, colon);
-		arguments = arg.substr(colon + 1);
-	}
+	string type_name, arguments;
+	StringOp::splitOnFirst(getArgument(option, cmdLine),
+	                       ":", type_name, arguments);
+	
 	map<string, CommandLineParser::ControlType> controlTypeMap;
 	controlTypeMap["stdio"] = IO_STD;
 #ifdef _WIN32
