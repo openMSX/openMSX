@@ -88,7 +88,7 @@ void CliComm::startInput(CommandLineParser::ControlType type, const string& argu
 }
 
 const char* const updateStr[CliComm::NUM_UPDATES] = {
-	"led", "break", "setting", "plug", "unplug", "media", "status"
+	"led", "break", "resume", "setting", "plug", "unplug", "media", "status"
 };
 void CliComm::log(LogLevel level, const string& message)
 {

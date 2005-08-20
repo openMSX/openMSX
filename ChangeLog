@@ -1,5 +1,8 @@
 $Id$
 
+2005-08-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added resume update event
+
 2005-08-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented peekIO (debug IO reads) for MSX-AUDIO
 

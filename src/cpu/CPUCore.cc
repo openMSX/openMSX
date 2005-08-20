@@ -1,9 +1,5 @@
 // $Id$
 
-#include <sstream>
-#include <iomanip>
-#include <iostream>
-#include <cassert>
 #include "MSXCPUInterface.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
@@ -16,7 +12,11 @@
 #include "CPUCore.hh"
 #include "Z80.hh"
 #include "R800.hh"
+#include "StringOp.hh"
 #include "likely.hh"
+#include <iomanip>
+#include <iostream>
+#include <cassert>
 
 using std::string;
 
@@ -178,9 +178,8 @@ template <class T> void CPUCore<T>::doBreak2()
 
 	motherboard->block();
 
-	std::ostringstream os;
-	os << "0x" << std::hex << (int)R.PC;
-	CliComm::instance().update(CliComm::BREAK, "pc", os.str());
+	CliComm::instance().update(CliComm::BREAK, "pc",
+	                           "0x" + StringOp::toHexString(R.PC));
 	Event* breakEvent = new SimpleEvent<OPENMSX_BREAK_EVENT>();
 	EventDistributor::instance().distributeEvent(breakEvent);
 }
@@ -225,6 +224,8 @@ template <class T> void CPUCore<T>::doContinue()
 	if (breaked) {
 		breaked = false;
 		continued = true;
+		CliComm::instance().update(CliComm::RESUME, "pc",
+	                                   "0x" + StringOp::toHexString(R.PC));
 		motherboard->unblock();
 	}
 }
