@@ -106,6 +106,10 @@ public:
 		return palTiming;
 	}
 
+	inline bool isOverScan() const {
+		return (mode == B0) || (mode == B2) || (mode == B4);
+	}
+
 	/** Convert UC ticks to V9990 pixel position on a line
 	  * @param ticks  Nr of UC Ticks
 	  * @param mode   Display mode

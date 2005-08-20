@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <SDL.h>
 
-using std::string;
 using std::min;
 using std::max;
 
@@ -99,7 +98,9 @@ template <class Pixel>
 void V9990SDLRasterizer<Pixel>::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {
-	Pixel bgColor = palette64[vdp.getBackDropColor() & 63];
+	Pixel bgColor = vdp.isOverScan()
+	              ? 0
+	              : palette64[vdp.getBackDropColor() & 63];
 
 	int startY = max(fromY  - lineRenderTop,   0);
 	int endY   = min(limitY - lineRenderTop, 240);
@@ -113,8 +114,12 @@ void V9990SDLRasterizer<Pixel>::drawBorder(
 	}
 
 	static int const screenW = SCREEN_WIDTH * 8; // in ticks
-	int startX = V9990::UCtoX(max(fromX  - colZero,       0), displayMode);
-	int endX   = V9990::UCtoX(min(limitX - colZero, screenW), displayMode);
+	assert((limitX - colZero) <= screenW);
+	int startX = V9990::UCtoX(max(fromX - colZero, 0), displayMode);
+	int endX = V9990::UCtoX(
+		(limitX == V9990DisplayTiming::UC_TICKS_PER_LINE) ?
+		    screenW : limitX - colZero,
+		displayMode);
 	if (startX >= endX) return;
 	
 	unsigned lineWidth = vdp.getLineWidth();
