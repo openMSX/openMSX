@@ -161,17 +161,17 @@ void MSXtar::readBootSector(const byte* buf)
 	rootDirEnd = rootDirStart + nbRootDirSectors - 1;
 	maxCluster = sectorToCluster(nbSectors);
 
-	PRT_DEBUG("ReadBootsector info:");
-	PRT_DEBUG("nbSectors         :" << nbSectors);
-	PRT_DEBUG("sectorsPerTrack   :" << sectorsPerTrack);
-	PRT_DEBUG("nbSides           :" << nbSides);
-	PRT_DEBUG("nbFats            :" << nbFats);
-	PRT_DEBUG("sectorsPerFat     :" << sectorsPerFat);
-	PRT_DEBUG("nbRootDirSectors  :" << nbRootDirSectors);
-	PRT_DEBUG("sectorsPerCluster :" << sectorsPerCluster);
-	PRT_DEBUG("rootDirStart      :" << rootDirStart);
-	PRT_DEBUG("rootDirEnd        :" << rootDirEnd);
-	PRT_DEBUG("maxCluster        :" << maxCluster);
+	//PRT_DEBUG("ReadBootsector info:");
+	//PRT_DEBUG("nbSectors         :" << nbSectors);
+	//PRT_DEBUG("sectorsPerTrack   :" << sectorsPerTrack);
+	//PRT_DEBUG("nbSides           :" << nbSides);
+	//PRT_DEBUG("nbFats            :" << nbFats);
+	//PRT_DEBUG("sectorsPerFat     :" << sectorsPerFat);
+	//PRT_DEBUG("nbRootDirSectors  :" << nbRootDirSectors);
+	//PRT_DEBUG("sectorsPerCluster :" << sectorsPerCluster);
+	//PRT_DEBUG("rootDirStart      :" << rootDirStart);
+	//PRT_DEBUG("rootDirEnd        :" << rootDirEnd);
+	//PRT_DEBUG("maxCluster        :" << maxCluster);
 }
 
 MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
@@ -292,8 +292,6 @@ void MSXtar::setBootSector(byte* buf, unsigned nbSectors)
 void MSXtar::format()
 {
 	if (hasPartitionTable()) {
-		PRT_DEBUG("format found hasPartitionTable so running "
-		          "format(partitionNbSectors)" << partitionNbSectors);
 		format(partitionNbSectors);
 	} else {
 		format(disk.getNbSectors());
@@ -473,7 +471,7 @@ int MSXtar::appendClusterToSubdir(int sector)
 // if needed the involved subdirectroy is expanded by an extra cluster
 // returns: a PhysDirEntry containing sector and index
 //          if failed then the sectornumber is 0 and index is 16
-MSXtar::PhysDirEntry MSXtar::addEntryToDir(int sector, byte /*direntryindex*/)
+MSXtar::PhysDirEntry MSXtar::addEntryToDir(int sector)
 {
 	// this routin adds the msxname to a directory sector, if needed (and
 	// possible) the directory is extened with an extra cluster
@@ -496,7 +494,6 @@ MSXtar::PhysDirEntry MSXtar::addEntryToDir(int sector, byte /*direntryindex*/)
 				int nextsector = getNextSector(sector);
 				if (nextsector == 0) {
 					nextsector = appendClusterToSubdir(sector);
-					PRT_DEBUG("appendClusterToSubdir(" << sector << ") returns" << nextsector);
 					if (nextsector == 0) {
 						CliComm::instance().printWarning(
 							"Disk is full!");
@@ -520,14 +517,6 @@ static char toMSXChr(char a)
 		a = '_';
 	}
 	return a;
-}
-
-static string removeTrailingSpaces(string str)
-{
-	while (!str.empty() && (str[str.size() - 1] == ' ')) {
-		str = str.substr(0, str.size() - 1);
-	}
-	return str;
 }
 
 // Transform a long hostname in a 8.3 uppercase filename as used in the
@@ -554,8 +543,8 @@ string MSXtar::makeSimpleMSXFileName(const string& fullfilename)
 		file = tmp;
 		ext = "";
 	}
-	file = removeTrailingSpaces(file);
-	ext  = removeTrailingSpaces(ext);
+	StringOp::trimRight(file, " ");
+	StringOp::trimRight(ext,  " ");
 
 	// put in major case and create '_' if needed
 	std::transform(file.begin(), file.end(), file.begin(), toMSXChr);
@@ -573,11 +562,10 @@ string MSXtar::makeSimpleMSXFileName(const string& fullfilename)
 // created subdir the entries for '.' and '..' are created
 // returns: the first sector of the new subdir
 //          0 in case no directory could be created
-int MSXtar::addMSXSubdir(const string& msxName, int t, int d, int sector,
-                         byte direntryindex)
+int MSXtar::addMSXSubdir(const string& msxName, int t, int d, int sector)
 {
 	// returns the sector for the first cluster of this subdir
-	PhysDirEntry result = addEntryToDir(sector, direntryindex);
+	PhysDirEntry result = addEntryToDir(sector);
 	if (result.index > 15) {
 		CliComm::instance().printWarning("couldn't add entry" + msxName);
 		return 0;
@@ -594,7 +582,6 @@ int MSXtar::addMSXSubdir(const string& msxName, int t, int d, int sector,
 
 	//direntry->filesize = fsize;
 	word curcl = findFirstFreeCluster();
-	PRT_DEBUG("New subdir starting at cluster " << curcl);
 	setsh(direntry->startcluster, curcl);
 	writeFAT(curcl, EOF_FAT);
 
@@ -653,9 +640,8 @@ static void getTimeDate(const string& filename, int& time, int& date)
 {
 	struct stat fst;
 	memset(&fst, 0, sizeof(struct stat));
-	PRT_DEBUG("getTimeDate on " << filename);
 	if (stat(filename.c_str(), &fst) != 0) {
-		PRT_DEBUG("couldn't stat " << filename);
+		// stat failed
 		time = 0;
 		date = 0;
 	} else {
@@ -666,7 +652,7 @@ static void getTimeDate(const string& filename, int& time, int& date)
 
 // Add an MSXsubdir with the time properties from the HOST-OS subdir
 int MSXtar::addSubdirtoDSK(const string& hostName, const string& msxName,
-                           int sector, byte direntryindex)
+                           int sector)
 {
 	//MSXDirEntry* direntry = (MSXDirEntry*)
 	//   (FSImage + SECTOR_SIZE * result.sector + 32 * result.index);
@@ -674,7 +660,7 @@ int MSXtar::addSubdirtoDSK(const string& hostName, const string& msxName,
 	int time, date;
 	getTimeDate(hostName, time, date);
 
-	return addMSXSubdir(msxName, time, date, sector, direntryindex);
+	return addMSXSubdir(msxName, time, date, sector);
 }
 
 /** This file alters the filecontent of a given file
@@ -690,11 +676,10 @@ int MSXtar::alterFileInDSK(MSXDirEntry* msxdirentry, const string& hostName)
 	memset(&fst, 0, sizeof(struct stat));
 	if (stat(hostName.c_str(), &fst) != 0) {
 		// TODO better error handling
-		PRT_DEBUG("couldn't stat " << hostName);
+		// stat failed
 		return 0;
 	}
 	fsize = fst.st_size;
-	PRT_DEBUG("alterFileInDSK: Filesize " << fsize);
 
 	word curcl = rdsh(msxdirentry->startcluster) ;
 	if (curcl == 0){
@@ -704,7 +689,6 @@ int MSXtar::alterFileInDSK(MSXDirEntry* msxdirentry, const string& hostName)
 		writeFAT(curcl, EOF_FAT);
 		needsNew = true;
 	}
-	PRT_DEBUG("alterFileInDSK: Starting at cluster " << curcl );
 
 	int size = fsize;
 	int prevcl = 0;
@@ -712,7 +696,6 @@ int MSXtar::alterFileInDSK(MSXDirEntry* msxdirentry, const string& hostName)
 	FILE* file = fopen(hostName.c_str(), "rb");
 	if (!file) {
 		// TODO better error handling
-		PRT_DEBUG("couldn't open file " << hostName);
 		return 0;
 	}
 	byte buf[SECTOR_SIZE];
@@ -722,9 +705,10 @@ int MSXtar::alterFileInDSK(MSXDirEntry* msxdirentry, const string& hostName)
 		disk.readLogicalSector(partitionOffset + logicalSector, buf);
 		for (int j = 0; j < sectorsPerCluster; ++j) {
 			if (size) {
-				PRT_DEBUG("alterFileInDSK: relative sector " << j << " in cluster " << curcl);
 				// more poitical correct:
-				// We should read 'size'-bytes instead of 'SECTOR_SIZE' if it is the end of the file
+				// We should read 'size'-bytes instead of
+				// 'SECTOR_SIZE'
+				// if it is the end of the file
 				fread(buf, 1, SECTOR_SIZE, file);
 				disk.writeLogicalSector(
 					partitionOffset + logicalSector + j, buf);
@@ -738,7 +722,6 @@ int MSXtar::alterFileInDSK(MSXDirEntry* msxdirentry, const string& hostName)
 		prevcl = curcl;
 		// now we check if we continue in the current clusterstring or
 		// need to allocate extra unused blocks
-		//do {
 		if (needsNew) {
 			//need extra space for this file
 			writeFAT(curcl, EOF_FAT);
@@ -751,8 +734,6 @@ int MSXtar::alterFileInDSK(MSXDirEntry* msxdirentry, const string& hostName)
 				needsNew = true;
 			}
 		}
-		//} while((curcl <= maxCluster) && readFAT(curcl));
-		PRT_DEBUG("alterFileInDSK: Continuing at cluster " << curcl);
 	}
 	fclose(file);
 
@@ -763,7 +744,6 @@ int MSXtar::alterFileInDSK(MSXDirEntry* msxdirentry, const string& hostName)
 			curcl = readFAT(curcl);
 		}
 		writeFAT(prevcl, EOF_FAT);
-		PRT_DEBUG("alterFileInDSK: Ending at cluster " << prevcl);
 		//cleaning rest of FAT chain if needed
 		while (!needsNew) {
 			prevcl = curcl;
@@ -772,7 +752,6 @@ int MSXtar::alterFileInDSK(MSXDirEntry* msxdirentry, const string& hostName)
 			} else {
 				needsNew = true;
 			}
-			PRT_DEBUG("alterFileInDSK: Cleaning cluster " << prevcl << " from FAT");
 			writeFAT(prevcl, 0);
 		}
 	} else {
@@ -809,7 +788,9 @@ MSXtar::FullMSXDirEntry MSXtar::findEntryInDir(const string& name,
 			disk.readLogicalSector(partitionOffset + sector, sectorbuf);
 			p = sectorbuf;
 			if (sector) i = 0;
-		} else entryfound=true;
+		} else {
+			entryfound=true;
+		}
 	} while ((i < 16) && sector && !entryfound);
 
 	result.sector = sector;
@@ -831,7 +812,7 @@ int MSXtar::addFiletoDSK(const string& hostName, const string& msxName,
 		return 0;
 	}
 
-	PhysDirEntry result = addEntryToDir(sector, direntryindex);
+	PhysDirEntry result = addEntryToDir(sector);
 	if (result.index > 15) {
 		CliComm::instance().printWarning("Couldn't add entry " + hostName);
 		return 255;
@@ -857,8 +838,6 @@ int MSXtar::addFiletoDSK(const string& hostName, const string& msxName,
 // Transfer directory and all its subdirectories to the MSX diskimage
 void MSXtar::recurseDirFill(const string& dirName, int sector, int direntryindex)
 {
-	PRT_DEBUG("Trying to read directory " << dirName);
-
 	//read directory and fill the fake disk
 	ReadDir dir(dirName);
 	while (dirent* d = dir.getEntry()) {
@@ -872,7 +851,6 @@ void MSXtar::recurseDirFill(const string& dirName, int sector, int direntryindex
 		} else if (FileOperations::isDirectory(fullName) &&
 			   (name != ".") && (name != "..")) {
 			string msxFileName = makeSimpleMSXFileName(name);
-			PRT_DEBUG(fullName << " \t-> \"" << msxFileName << '"');
 			byte buf[SECTOR_SIZE];
 			FullMSXDirEntry fullmsxdirentry = findEntryInDir(msxFileName, sector, direntryindex, buf);
 			int result;
@@ -881,9 +859,8 @@ void MSXtar::recurseDirFill(const string& dirName, int sector, int direntryindex
 				MSXDirEntry* msxdirentry = (MSXDirEntry*)(buf + 32 * fullmsxdirentry.direntryindex);
 				result = clusterToSector(rdsh(msxdirentry->startcluster));
 			} else {
-				PRT_DEBUG("Adding dir entry " << name);
 				// add file into fake dsk
-				result = addSubdirtoDSK(fullName, name, sector, direntryindex);
+				result = addSubdirtoDSK(fullName, name, sector);
 			}
 
 			recurseDirFill(fullName, result, 0);
@@ -934,7 +911,6 @@ void MSXtar::changeTime(string resultFile, MSXDirEntry* direntry)
 string MSXtar::dir()
 {
 	string result;
-	//int i=MSXchrootStartIndex;
 	int i = 0; // show '.' and '..'
 	int sector = MSXchrootSector;
 
@@ -948,7 +924,6 @@ string MSXtar::dir()
 				string tmp = condensName(direntry);
 				tmp.resize(13, ' ');
 				result += tmp;
-				//CliComm::instance().printWarning("MSXtar::dir " + tmpstr);
 				//attributes
 				result += (direntry->attrib & T_MSX_DIR  ? "d" : "-");
 				result += (direntry->attrib & T_MSX_READ ? "r" : "-");
@@ -990,20 +965,15 @@ bool MSXtar::mkdir(const string& newRootDir)
 bool MSXtar::chroot(const string& newRootDir, bool createDir)
 {
 	string work = newRootDir;
-	// if this is not a relative directory then reset MSXchrootSector,MSXchrootStartIndex
-	while (work.find_first_of("/\\") == 0) {
+	if (work.find_first_of("/\\") == 0) {
+		// absolute path, reset MSXchrootSector, MSXchrootStartIndex
 		MSXchrootSector = rootDirStart;
 		MSXchrootStartIndex = 0;
-		work.erase(0, 1);
+		StringOp::trimLeft(work, "/\\");
 	}
 
 	while (!work.empty()) {
-		PRT_DEBUG("chroot 0: work=" << work);
-		//remove (multiple)leading '/'
-		while (work.find_first_of("/\\") == 0) {
-			work.erase(0, 1);
-			PRT_DEBUG("chroot 1: work=" << work);
-		}
+		StringOp::trimLeft(work, "/\\");
 		string firstpart;
 		string::size_type pos = work.find_first_of("/\\");
 		if (pos != string::npos) {
@@ -1025,8 +995,7 @@ bool MSXtar::chroot(const string& newRootDir, bool createDir)
 			time(&now);
 			getTimeDate(now, t, d);
 
-			PRT_DEBUG("Creating subdir " << simple) ;
-			MSXchrootSector = addMSXSubdir(simple, t, d, MSXchrootSector, MSXchrootStartIndex);
+			MSXchrootSector = addMSXSubdir(simple, t, d, MSXchrootSector);
 			MSXchrootStartIndex = 2;
 			if (MSXchrootSector == 0) {
 				//failed to create subdir

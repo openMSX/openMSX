@@ -49,6 +49,21 @@ bool endsWith(const string& total, const string& part)
 	return equal(part.begin(), part.end(), total.begin() + offset);
 }
 
+void trimRight(std::string& str, const std::string& chars)
+{
+	string::size_type pos = str.find_last_not_of(chars);
+	if (pos != string::npos) {
+		str.erase(pos + 1);
+	} else {
+		str.clear();
+	}
+}
+
+void trimLeft (std::string& str, const std::string& chars)
+{
+	str.erase(0, str.find_first_not_of(chars));
+}
+
 } // namespace StringOp
 
 } // namespace openmsx

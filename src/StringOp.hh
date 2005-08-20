@@ -33,6 +33,9 @@ namespace StringOp
 
 	bool startsWith(const std::string& total, const std::string& part);
 	bool endsWith  (const std::string& total, const std::string& part);
+
+	void trimRight(std::string& str, const std::string& chars);
+	void trimLeft (std::string& str, const std::string& chars);
 	
 	// case insensitive less then operator
 	struct caseless {

@@ -121,13 +121,12 @@ private:
 	byte findUsableIndexInSector(byte* buf);
 	int getNextSector(int sector);
 	int appendClusterToSubdir(int sector);
-	PhysDirEntry addEntryToDir(int sector, byte direntryindex);
+	PhysDirEntry addEntryToDir(int sector);
 	std::string makeSimpleMSXFileName(const std::string& fullfilename);
-	int addMSXSubdir(const std::string& msxName, int t, int d, int sector,
-	                 byte direntryindex);
+	int addMSXSubdir(const std::string& msxName, int t, int d, int sector);
 	int alterFileInDSK(MSXDirEntry* msxdirentry, const std::string& hostName);
 	int addSubdirtoDSK(const std::string& hostName, const std::string& msxName,
-	                   int sector, byte direntryindex);
+	                   int sector);
 	FullMSXDirEntry findEntryInDir(const std::string& name, int sector,
 	                               byte direntryindex, byte* sectorbuf);
 	int addFiletoDSK(const std::string& hostName, const std::string& msxName,
