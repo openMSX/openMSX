@@ -1,5 +1,11 @@
 $Id$
 
+2005-08-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* MSXtar cleanup:
+	   - don't use CliComm to print warnings or errors, instead
+	     report them as normal TCL output or TCL error msgs
+	   - more robust error handling
+
 2005-08-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added resume update event
 

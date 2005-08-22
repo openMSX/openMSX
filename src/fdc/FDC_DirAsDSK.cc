@@ -139,12 +139,13 @@ static char toMSXChr(char a)
 }
 string FDC_DirAsDSK::makeSimpleMSXFileName(const string& fullfilename)
 {
-	string dir, file, ext;
-	StringOp::splitOnLast(fullfilename, "/", dir, file);
+	string dir, fullfile;
+	StringOp::splitOnLast(fullfilename, "/", dir, fullfile);
 	
-	transform(file.begin(), file.end(), file.begin(), toMSXChr);
+	transform(fullfile.begin(), fullfile.end(), fullfile.begin(), toMSXChr);
 
-	StringOp::splitOnLast(file, ".", file, ext);
+	string file, ext;
+	StringOp::splitOnLast(fullfile, ".", file, ext);
 	if (file.empty()) swap(file, ext);
 
 	file.resize(8, ' ');

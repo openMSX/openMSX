@@ -50,7 +50,7 @@ void FileManipulator::registerDrive(DiskContainer& drive, const string& imageNam
 	diskImages[imageName].drive = &drive;
 	diskImages[imageName].partition = 0;
 	for (int i = 0; i < 31; ++i) {
-		diskImages[imageName].workingDir[i] = "\\";
+		diskImages[imageName].workingDir[i] = "/";
 	}
 }
 
@@ -124,7 +124,7 @@ string FileManipulator::execute(const vector<string>& tokens)
 	} else if (tokens[1] == "import" ) {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
 		vector<string> lists(tokens.begin() + 3, tokens.end());
-		import(settings, lists);
+		result = import(settings, lists);
 
 	} else if (tokens[1] == "savedsk") {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
@@ -132,7 +132,7 @@ string FileManipulator::execute(const vector<string>& tokens)
 
 	} else if (tokens[1] == "chdir") {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
-		if (tokens.size() == 3){
+		if (tokens.size() == 3) {
 			result += "Current directory: " +
 			          settings.workingDir[settings.partition];
 		} else {
@@ -373,7 +373,7 @@ void FileManipulator::format(DriveSettings& driveData)
 	MSXtar workhorse(getDisk(driveData));
 	workhorse.usePartition(driveData.partition);
 	workhorse.format();
-	driveData.workingDir[driveData.partition] = "\\";
+	driveData.workingDir[driveData.partition] = "/";
 }
 
 void FileManipulator::restoreCWD(MSXtar& workhorse, DriveSettings& driveData)
@@ -385,8 +385,10 @@ void FileManipulator::restoreCWD(MSXtar& workhorse, DriveSettings& driveData)
 		    "Partition " + StringOp::toString(1 + driveData.partition) +
 		    " doesn't exist on this device. Command aborted, please retry.");
 	}
-	if (!workhorse.chdir(driveData.workingDir[driveData.partition])) {
-		driveData.workingDir[driveData.partition] = "\\";
+	try {
+		workhorse.chdir(driveData.workingDir[driveData.partition]);
+	} catch (MSXException& e) {
+		driveData.workingDir[driveData.partition] = "/";
 		throw CommandException(
 		    "Directory " + driveData.workingDir[driveData.partition] +
 		    " doesn't exist anymore. Went back to root "
@@ -406,30 +408,37 @@ void FileManipulator::chdir(DriveSettings& driveData,
 {
 	MSXtar workhorse(getDisk(driveData));
 	restoreCWD(workhorse, driveData);
-	if (!workhorse.chdir(filename)) {
-		throw CommandException("chdir " + filename + " failed");
+	try {
+		workhorse.chdir(filename);
+	} catch (MSXException& e) {
+		throw CommandException("chdir failed: " + e.getMessage());
 	}
 	// TODO clean-up this temp hack, used to enable relative paths
-	if (filename.find_first_of("/\\") == 0) {
-		driveData.workingDir[driveData.partition] = filename;
+	string& cwd = driveData.workingDir[driveData.partition];
+	if (filename.find_first_of("/") == 0) {
+		cwd = filename;
 	} else {
-		driveData.workingDir[driveData.partition] += '/' + filename;
+		if (cwd[cwd.size() - 1] != '/') cwd += '/';
+		cwd += filename;
 	}
-	result += "New working directory: " + driveData.workingDir[driveData.partition];
+	result += "New working directory: " + cwd;
 }
 
 void FileManipulator::mkdir(DriveSettings& driveData, const string& filename)
 {
 	MSXtar workhorse(getDisk(driveData));
 	restoreCWD(workhorse, driveData);
-	if (!workhorse.mkdir(filename)) {
-		throw CommandException ("mkdir " + filename + " failed");
+	try {
+		workhorse.mkdir(filename);
+	} catch (MSXException& e) {
+		throw CommandException(e.getMessage());
 	}
 }
 
-void FileManipulator::import(DriveSettings& driveData,
+string FileManipulator::import(DriveSettings& driveData,
                              const vector<string>& lists)
 {
+	string messages;
 	MSXtar workhorse(getDisk(driveData));
 	restoreCWD(workhorse, driveData);
 
@@ -440,21 +449,32 @@ void FileManipulator::import(DriveSettings& driveData,
 
 		for (vector<string>::const_iterator it = list.begin();
 		     it != list.end(); ++it) {
-			if (FileOperations::isDirectory(*it)) {
-				workhorse.addDir(*it); // TODO can this fail?
-			} else if (FileOperations::isRegularFile(*it)) {
-				workhorse.addFile(*it);
+			try {
+				if (FileOperations::isDirectory(*it)) {
+					messages += workhorse.addDir(*it);
+				} else if (FileOperations::isRegularFile(*it)) {
+					messages += workhorse.addFile(*it);
+				} else {
+					// ignore other stuff (sockets, device nodes, ..)
+					messages += "Ignoring " + *it + '\n';
+				}
+			} catch (MSXException& e) {
+				throw CommandException(e.getMessage());
 			}
-			// TODO: do we warn the user when trying to import sockets/device-nodes/links?
 		}
 	}
+	return messages;
 }
 
 void FileManipulator::exprt(DriveSettings& driveData, const string& dirname)
 {
-	MSXtar workhorse(getDisk(driveData));
-	restoreCWD(workhorse, driveData);
-	workhorse.getDir(dirname); // TODO can this fail?
+	try {
+		MSXtar workhorse(getDisk(driveData));
+		restoreCWD(workhorse, driveData);
+		workhorse.getDir(dirname);
+	} catch (MSXException& e) {
+		throw CommandException(e.getMessage());
+	}
 }
 
 } // namespace openmsx

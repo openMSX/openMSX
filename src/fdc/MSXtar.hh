@@ -29,13 +29,13 @@ public:
 	bool usePartition(int partition);
 
 	void createDiskFile(std::vector<unsigned> sizes);
-	bool chdir(const std::string& newRootDir);
-	bool mkdir(const std::string& newRootDir);
+	void chdir(const std::string& newRootDir);
+	void mkdir(const std::string& newRootDir);
 	std::string dir();
 
 	// temporary way to test import MSXtar functionality
-	void addFile(const std::string& Filename);
-	void addDir(const std::string& rootDirName);
+	std::string addFile(const std::string& Filename);
+	std::string addDir(const std::string& rootDirName);
 	void getDir(const std::string& rootDirName);
 
 private:
@@ -67,12 +67,6 @@ private:
 		byte size[4];
 	};
 
-	struct FullMSXDirEntry {
-		byte* sectorbuf;
-		int sector;
-		byte direntryindex;
-	};
-
 	//Modified struct taken over from Linux' fdisk.h
 	struct Partition {
 		byte boot_ind;         // 0x80 - active
@@ -87,9 +81,9 @@ private:
 		byte size4[4];         // nr of sectors in partition
 	};
 
-	struct PhysDirEntry {
+	struct DirEntry {
 		int sector;
-		byte index;
+		int index;
 	};
 
 	int partitionNbSectors;
@@ -105,7 +99,6 @@ private:
 	int rootDirStart; // first sector from the root directory
 	int rootDirEnd;   // last sector from the root directory
 	int MSXchrootSector;
-	int MSXchrootStartIndex;
 	int partitionOffset;
 	const byte* defaultBootBlock;
 	SectorAccessibleDisk& disk;
@@ -117,26 +110,25 @@ private:
 	word readFAT(word clnr);
 	void writeFAT(word clnr, word val);
 	word findFirstFreeCluster(void);
-	byte findUsableIndexInSector(int sector);
-	byte findUsableIndexInSector(byte* buf);
+	int findUsableIndexInSector(int sector);
 	int getNextSector(int sector);
 	int appendClusterToSubdir(int sector);
-	PhysDirEntry addEntryToDir(int sector);
+	DirEntry addEntryToDir(int sector);
 	std::string makeSimpleMSXFileName(const std::string& fullfilename);
 	int addMSXSubdir(const std::string& msxName, int t, int d, int sector);
-	int alterFileInDSK(MSXDirEntry* msxdirentry, const std::string& hostName);
-	int addSubdirtoDSK(const std::string& hostName, const std::string& msxName,
-	                   int sector);
-	FullMSXDirEntry findEntryInDir(const std::string& name, int sector,
-	                               byte direntryindex, byte* sectorbuf);
-	int addFiletoDSK(const std::string& hostName, const std::string& msxName,
-	                 int sector, byte direntryindex);
-	void recurseDirFill(const std::string& dirName, int sector, int direntryindex);
-	std::string condensName(MSXDirEntry* direntry);
-	void changeTime(std::string resultFile, MSXDirEntry* direntry);
-	void fileExtract(std::string resultFile, MSXDirEntry* direntry);
-	void recurseDirExtract(const std::string& dirName, int sector, int direntryindex);
-	bool chroot(const std::string& newRootDir, bool createDir);
+	void alterFileInDSK(MSXDirEntry& msxdirentry, const std::string& hostName);
+	int addSubdirtoDSK(const std::string& hostName,
+	                   const std::string& msxName, int sector);
+	DirEntry findEntryInDir(const std::string& name, int sector,
+	                        byte* sectorbuf);
+	std::string addFiletoDSK(const std::string& hostName,
+	                         const std::string& msxName, int sector);
+	std::string recurseDirFill(const std::string& dirName, int sector);
+	std::string condensName(MSXDirEntry& direntry);
+	void changeTime(std::string resultFile, MSXDirEntry& direntry);
+	void fileExtract(std::string resultFile, MSXDirEntry& direntry);
+	void recurseDirExtract(const std::string& dirName, int sector);
+	void chroot(const std::string& newRootDir, bool createDir);
 
 	bool isPartitionTableSector(byte* buf);
 };
