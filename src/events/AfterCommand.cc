@@ -20,22 +20,24 @@ AfterCommand::AfterCmdMap AfterCommand::afterCmds;
 
 AfterCommand::AfterCommand()
 {
+	// TODO DETACHED <-> EMU types should be cleaned up
+	//      (moved to event iso listener?)
 	EventDistributor::instance().registerEventListener(
 		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().registerEventListener(
 		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::EMU);
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::EMU);
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::EMU);
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::EMU);
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::EMU);
 	EventDistributor::instance().registerEventListener(
-		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::EMU);
 	EventDistributor::instance().registerEventListener(
 		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().registerEventListener(
@@ -53,17 +55,17 @@ AfterCommand::~AfterCommand()
 	EventDistributor::instance().unregisterEventListener(
 		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::EMU);
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::EMU);
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::EMU);
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::EMU);
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::EMU);
 	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::EMU);
 	EventDistributor::instance().unregisterEventListener(
 		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().unregisterEventListener(

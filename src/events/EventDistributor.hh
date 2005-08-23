@@ -77,7 +77,9 @@ private:
 		unsigned long long time;
 	};
 	std::vector<EventTime> toBeScheduledEvents;
-	std::deque<Event*> scheduledEvents;
+	typedef std::deque<Event*> EventQueue;
+	EventQueue scheduledEvents;
+	EventQueue scheduledEventsEmu;
 	Semaphore sem;
 
 	EmuTime prevEmu;

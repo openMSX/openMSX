@@ -36,6 +36,10 @@ EventDistributor::~EventDistributor()
 	     it != scheduledEvents.end(); ++it) {
 		delete *it;
 	}
+	for (std::deque<Event*>::iterator it = scheduledEventsEmu.begin();
+	     it != scheduledEventsEmu.end(); ++it) {
+		delete *it;
+	}
 }
 
 EventDistributor& EventDistributor::instance()
@@ -132,7 +136,7 @@ void EventDistributor::sync(const EmuTime& emuTime)
 	for (vector<EventTime>::const_iterator it = toBeScheduledEvents.begin();
 	     it != toBeScheduledEvents.end(); ++it) {
 		assert(it->time <= curRealTime);
-		scheduledEvents.push_back(it->event);
+		scheduledEventsEmu.push_back(it->event);
 		unsigned long long offset = curRealTime - it->time;
 		EmuDuration emuOffset(factor * offset);
 		EmuTime schedTime = time + emuOffset;
@@ -153,8 +157,9 @@ void EventDistributor::executeUntil(const EmuTime& /*time*/, int userData)
 	ScopedLock lock(sem);
 
 	ListenerMap& listeners = getListeners(static_cast<ListenerType>(userData));
-	Event* event = scheduledEvents.front();
-	scheduledEvents.pop_front();
+	EventQueue& queue = (userData == EMU) ? scheduledEventsEmu: scheduledEvents;
+	Event* event = queue.front();
+	queue.pop_front();
 	pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
 		listeners.equal_range(event->getType());
 	for (ListenerMap::iterator it = bounds.first;
