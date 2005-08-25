@@ -67,16 +67,6 @@ private:
 		SettingsManager& manager;
 	} settingCompleter;
 
-	class ToggleCommand : public SimpleCommand {
-	public:
-		ToggleCommand(SettingsManager& manager);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-		virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	private:
-		SettingsManager& manager;
-	} toggleCommand;
-
 	CommandController& commandController;
 };
 

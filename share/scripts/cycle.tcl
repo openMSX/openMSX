@@ -1,18 +1,32 @@
-# Cycle through the possible values of an enumsettings
+# Cycle through the possible values of an enum setting
 #
 # Usage:
-#   cycle <enumsetting> [<step>]
+#   cycle <enum_setting> [<cycle_list>]
 #
 # Example:
 #   cycle scaler
+#   cycle scaler "hq2x hq2xlite"
 
-proc cycle {setting {step 1}} {
-	if [catch {
-		set values [openmsx_info $setting]
-		set cur [lsearch -exact $values [set ::$setting]]
-	} ] {
-		error "Not an enum setting: $setting"
-	}
-	set new [expr ($cur + $step) % [llength $values]]
-	set ::$setting [lindex $values $new]
+proc cycle { setting { cycle_list {}}} {
+        if { [llength $cycle_list] == 0 } {
+	        if [catch { set cycle_list [openmsx_info $setting] } ] {
+		        error "Not an enum setting: $setting"
+	        }
+        }
+	set cur [lsearch -exact $cycle_list [set ::$setting]]
+	set new [expr ($cur + 1) % [llength $cycle_list]]
+	set ::$setting [lindex $cycle_list $new]
+}
+
+
+# Toogles a boolean setting
+#
+# Usage:
+#   toggle <boolean_setting>
+#
+# Example:
+#   toggle fullscreen
+
+proc toggle { setting } {
+        cycle $setting "on off"
 }

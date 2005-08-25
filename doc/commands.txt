@@ -296,7 +296,6 @@ toggle
   Toggles any boolean (on-off) setting.
 
   usage:
-    toggle            shows all boolean settings
     toggle <setting>  toggles the specified setting
 
   examples:

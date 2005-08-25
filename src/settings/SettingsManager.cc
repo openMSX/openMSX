@@ -1,9 +1,11 @@
 // $Id$
 
 #include "SettingsManager.hh"
-#include "BooleanSetting.hh"
 #include "CommandController.hh"
 #include "Interpreter.hh"
+#include "Setting.hh"
+#include "CommandException.hh"
+#include "XMLElement.hh"
 
 using std::set;
 using std::string;
@@ -16,18 +18,15 @@ namespace openmsx {
 SettingsManager::SettingsManager()
 	: setCompleter(*this)
 	, settingCompleter(*this)
-	, toggleCommand(*this)
 	, commandController(CommandController::instance())
 {
 	commandController.registerCompleter(&setCompleter,     "set");
 	commandController.registerCompleter(&settingCompleter, "incr");
 	commandController.registerCompleter(&settingCompleter, "unset");
-	commandController.registerCommand(&toggleCommand,  "toggle");
 }
 
 SettingsManager::~SettingsManager()
 {
-	commandController.unregisterCommand(&toggleCommand,  "toggle");
 	commandController.unregisterCompleter(&settingCompleter, "unset");
 	commandController.unregisterCompleter(&settingCompleter, "incr");
 	commandController.unregisterCompleter(&setCompleter,     "set");
@@ -201,54 +200,6 @@ void SettingsManager::SettingCompleter::tabCompletion(vector<string>& tokens) co
 			// complete setting name
 			set<string> settings;
 			manager.getSettingNames<Setting>(settings);
-			CommandController::completeString(tokens, settings);
-			break;
-		}
-	}
-}
-
-
-// ToggleCommand implementation:
-
-SettingsManager::ToggleCommand::ToggleCommand(SettingsManager& manager_)
-	: manager(manager_)
-{
-}
-
-string SettingsManager::ToggleCommand::execute(const vector<string>& tokens)
-{
-	string result;
-	switch (tokens.size()) {
-	case 1:
-		// list all boolean settings
-		manager.getSettingNames<BooleanSetting>(result);
-		break;
-
-	case 2: {
-		BooleanSetting& boolSetting =
-			manager.getByName<BooleanSetting>("toggle", tokens[1]);
-		boolSetting.setValue(!boolSetting.getValue());
-		break;
-	}
-	default:
-		throw CommandException("toggle: wrong number of parameters");
-	}
-	return result;
-}
-
-string SettingsManager::ToggleCommand::help(const vector<string>& /*tokens*/) const
-{
-	return "toggle      : list all boolean settings\n"
-	       "toggle name : toggles a boolean setting\n";
-}
-
-void SettingsManager::ToggleCommand::tabCompletion(vector<string>& tokens) const
-{
-	switch (tokens.size()) {
-		case 2: {
-			// complete setting name
-			set<string> settings;
-			manager.getSettingNames<BooleanSetting>(settings);
 			CommandController::completeString(tokens, settings);
 			break;
 		}
