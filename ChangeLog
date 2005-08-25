@@ -2,6 +2,7 @@ $Id$
 
 2005-08-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Moved implementation of 'toggle' command to a TCL script
+	* Removed CondVar class, it was not used anymore
 
 2005-08-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* MSXtar cleanup:
