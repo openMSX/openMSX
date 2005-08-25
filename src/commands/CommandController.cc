@@ -23,16 +23,16 @@ namespace openmsx {
 
 CommandController::CommandController()
 	: helpCmd(*this), cmdConsole(NULL)
-	, infoCommand(InfoCommand::instance())
 	, interpreter(new Interpreter())
+	, infoCommand(new InfoCommand())
 {
 	registerCommand(&helpCmd, "help");
-	registerCommand(&infoCommand, "openmsx_info");
+	registerCommand(&getInfoCommand(), "openmsx_info");
 }
 
 CommandController::~CommandController()
 {
-	unregisterCommand(&infoCommand, "openmsx_info");
+	unregisterCommand(&getInfoCommand(), "openmsx_info");
 	unregisterCommand(&helpCmd, "help");
 	assert(commands.empty());
 	assert(commandCompleters.empty());
@@ -45,9 +45,14 @@ CommandController& CommandController::instance()
 	return oneInstance;
 }
 
-Interpreter& CommandController::getInterpreter()
+Interpreter& CommandController::getInterpreter() const
 {
 	return *interpreter;
+}
+
+InfoCommand& CommandController::getInfoCommand() const
+{
+	return *infoCommand;
 }
 
 void CommandController::registerCommand(Command* command,

@@ -16,7 +16,7 @@ namespace openmsx {
 class SoundDevice;
 class SoundDriver;
 class CliComm;
-class InfoCommand;
+class CommandController;
 class VolumeSetting;
 class IntegerSetting;
 class BooleanSetting;
@@ -105,7 +105,7 @@ private:
 	std::vector<int*> buffers;
 
 	CliComm& output;
-	InfoCommand& infoCommand;
+	CommandController& commandController;
 
 	std::auto_ptr<BooleanSetting> muteSetting;
 	std::auto_ptr<IntegerSetting> masterVolume;

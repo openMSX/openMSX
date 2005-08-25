@@ -28,12 +28,6 @@ InfoCommand::~InfoCommand()
 	unregisterTopic("version", &versionInfo);
 }
 
-InfoCommand& InfoCommand::instance()
-{
-	static InfoCommand oneInstance;
-	return oneInstance;
-}
-
 void InfoCommand::registerTopic(const string& name,
                                 const InfoTopic* topic)
 {

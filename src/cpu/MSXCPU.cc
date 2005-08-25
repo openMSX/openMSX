@@ -2,6 +2,7 @@
 
 #include "MSXCPU.hh"
 #include "CPU.hh"
+#include "CommandController.hh"
 #include "InfoCommand.hh"
 #include "Debugger.hh"
 #include "BooleanSetting.hh"
@@ -23,13 +24,12 @@ MSXCPU::MSXCPU(Debugger& debugger_)
 	, z80 (new CPUCore<Z80TYPE> ("z80",  *traceSetting, EmuTime::zero))
 	, r800(new CPUCore<R800TYPE>("r800", *traceSetting, EmuTime::zero))
 	, timeInfo(*this)
-	, infoCmd(InfoCommand::instance())
 	, debugger(debugger_)
 {
 	activeCPU = z80.get();	// setActiveCPU(CPU_Z80);
 	reset(EmuTime::zero);
 
-	infoCmd.registerTopic("time", &timeInfo);
+	CommandController::instance().getInfoCommand().registerTopic("time", &timeInfo);
 	debugger.setCPU(this);
 
 	traceSetting->addListener(this);
@@ -40,7 +40,7 @@ MSXCPU::~MSXCPU()
 	traceSetting->removeListener(this);
 
 	debugger.setCPU(0);
-	infoCmd.unregisterTopic("time", &timeInfo);
+	CommandController::instance().getInfoCommand().unregisterTopic("time", &timeInfo);
 }
 
 void MSXCPU::setMotherboard(MSXMotherBoard* motherboard)

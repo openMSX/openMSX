@@ -162,7 +162,6 @@ private:
 	} timeInfo;
 	EmuTime reference;
 
-	InfoCommand& infoCmd;
 	Debugger& debugger;
 };
 

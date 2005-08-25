@@ -51,7 +51,6 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 	, ioMapCmd(*this)
 	, dummyDevice(motherBoard.getDummyDevice())
 	, hardwareConfig(HardwareConfig::instance())
-	, infoCommand(InfoCommand::instance())
 	, commandController(CommandController::instance())
 	, msxcpu(motherBoard.getCPU())
 	, scheduler(Scheduler::instance())
@@ -78,6 +77,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 	// Note: SlotState is initialised at reset
 
 	// Register console commands
+	InfoCommand& infoCommand = commandController.getInfoCommand();
 	infoCommand.registerTopic("issubslotted", &subSlottedInfo);
 	infoCommand.registerTopic("isexternalslot", &externalSlotInfo);
 	commandController.registerCommand(&slotMapCmd, "slotmap");
@@ -92,6 +92,7 @@ MSXCPUInterface::~MSXCPUInterface()
 
 	commandController.unregisterCommand(&slotMapCmd, "slotmap");
 	commandController.unregisterCommand(&ioMapCmd,   "iomap");
+	InfoCommand& infoCommand = commandController.getInfoCommand();
 	infoCommand.unregisterTopic("isexternalslot", &externalSlotInfo);
 	infoCommand.unregisterTopic("issubslotted", &subSlottedInfo);
 

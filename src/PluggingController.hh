@@ -14,7 +14,6 @@ class Connector;
 class Pluggable;
 class Scheduler;
 class CommandController;
-class InfoCommand;
 
 /**
  * Central administration of Connectors and Pluggables.
@@ -112,7 +111,6 @@ private:
 
 	Scheduler& scheduler;
 	CommandController& commandController;
-	InfoCommand& infoCommand;
 };
 
 } // namespace openmsx

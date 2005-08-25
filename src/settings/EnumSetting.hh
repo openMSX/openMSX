@@ -64,13 +64,13 @@ EnumSettingPolicy<T>::EnumSettingPolicy(
 	const std::string& name_, const Map& map_)
 	: name(name_), enumMap(map_), enumInfo(*this)
 {
-	InfoCommand::instance().registerTopic(name, &enumInfo);
+	CommandController::instance().getInfoCommand().registerTopic(name, &enumInfo);
 }
 
 template <typename T>
 EnumSettingPolicy<T>::~EnumSettingPolicy()
 {
-	InfoCommand::instance().unregisterTopic(name, &enumInfo);
+	CommandController::instance().getInfoCommand().unregisterTopic(name, &enumInfo);
 }
 
 template<typename T>

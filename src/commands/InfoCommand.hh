@@ -15,7 +15,9 @@ class RomInfoTopic;
 class InfoCommand : public Command
 {
 public:
-	static InfoCommand& instance();
+	InfoCommand();
+	virtual ~InfoCommand();
+
 	void registerTopic(const std::string& name, const InfoTopic* topic);
 	void unregisterTopic(const std::string& name, const InfoTopic* topic);
 
@@ -26,9 +28,6 @@ public:
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 private:
-	InfoCommand();
-	virtual ~InfoCommand();
-
 	std::map<std::string, const InfoTopic*> infoTopics;
 
 	class VersionInfo : public InfoTopic {

@@ -6,6 +6,7 @@
 #include "DirectXSoundDriver.hh"
 #include "SoundDevice.hh"
 #include "CliComm.hh"
+#include "CommandController.hh"
 #include "InfoCommand.hh"
 #include "GlobalSettings.hh"
 #include "TclObject.hh"
@@ -29,7 +30,7 @@ namespace openmsx {
 Mixer::Mixer()
 	: muteCount(0)
 	, output(CliComm::instance())
-	, infoCommand(InfoCommand::instance())
+	, commandController(CommandController::instance())
 	, pauseSetting(GlobalSettings::instance().getPauseSetting())
 	, soundlogCommand(*this)
 	, soundDeviceInfo(*this)
@@ -72,7 +73,7 @@ Mixer::Mixer()
 		"sound_driver", "select the sound output driver",
 		defaultSoundDriver, soundDriverMap));
 
-	infoCommand.registerTopic("sounddevice", &soundDeviceInfo);
+	commandController.getInfoCommand().registerTopic("sounddevice", &soundDeviceInfo);
 	muteSetting->addListener(this);
 	masterVolume->addListener(this);
 	frequencySetting->addListener(this);
@@ -106,7 +107,7 @@ Mixer::~Mixer()
 	frequencySetting->removeListener(this);
 	masterVolume->removeListener(this);
 	muteSetting->removeListener(this);
-	infoCommand.unregisterTopic("sounddevice", &soundDeviceInfo);
+	commandController.getInfoCommand().unregisterTopic("sounddevice", &soundDeviceInfo);
 }
 
 

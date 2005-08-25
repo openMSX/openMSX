@@ -52,12 +52,12 @@ Display::Display()
 		OPENMSX_DELAYED_REPAINT_EVENT, *this, EventDistributor::DETACHED);
 	CommandController::instance().registerCommand(
 		&screenShotCmd, "screenshot" );
-	InfoCommand::instance().registerTopic("fps", &fpsInfo);
+	CommandController::instance().getInfoCommand().registerTopic("fps", &fpsInfo);
 }
 
 Display::~Display()
 {
-	InfoCommand::instance().unregisterTopic("fps", &fpsInfo);
+	CommandController::instance().getInfoCommand().unregisterTopic("fps", &fpsInfo);
 	CommandController::instance().unregisterCommand(
 		&screenShotCmd, "screenshot" );
 	EventDistributor::instance().unregisterEventListener(

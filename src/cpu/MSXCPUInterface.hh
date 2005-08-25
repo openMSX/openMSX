@@ -18,7 +18,6 @@ namespace openmsx {
 class VDPIODelay;
 class DummyDevice;
 class HardwareConfig;
-class InfoCommand;
 class CommandController;
 class MSXMotherBoard;
 class CartridgeSlotManager;
@@ -273,7 +272,6 @@ private:
 
 	DummyDevice& dummyDevice;
 	HardwareConfig& hardwareConfig;
-	InfoCommand& infoCommand;
 	CommandController& commandController;
 	MSXCPU& msxcpu;
 	Scheduler& scheduler;

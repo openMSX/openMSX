@@ -24,7 +24,11 @@ public:
 
 	/** Returns the TCL interpreter that is associated with these commands
 	 */
-	Interpreter& getInterpreter();
+	Interpreter& getInterpreter() const;
+
+	/** Returns the InfoCommand
+	 */
+	InfoCommand& getInfoCommand() const;
 
 	/**
 	 * (Un)register a command
@@ -116,8 +120,8 @@ private:
 
 	CommandConsole* cmdConsole;
 
-	InfoCommand& infoCommand;
 	const std::auto_ptr<Interpreter> interpreter;
+	const std::auto_ptr<InfoCommand> infoCommand;
 };
 
 } // namespace openmsx

@@ -27,13 +27,13 @@ PluggingController::PluggingController(MSXMotherBoard& motherBoard)
 	  connectorInfo(*this),
 	  connectionClassInfo(*this),
 	  scheduler(Scheduler::instance()),
-	  commandController(CommandController::instance()),
-	  infoCommand(InfoCommand::instance())
+	  commandController(CommandController::instance())
 {
 	PluggableFactory::createAll(*this, motherBoard);
 
 	commandController.registerCommand(&plugCmd,   "plug");
 	commandController.registerCommand(&unplugCmd, "unplug");
+	InfoCommand& infoCommand = commandController.getInfoCommand();
 	infoCommand.registerTopic("pluggable", &pluggableInfo);
 	infoCommand.registerTopic("connector", &connectorInfo);
 	infoCommand.registerTopic("connectionclass", &connectionClassInfo);
@@ -43,6 +43,7 @@ PluggingController::~PluggingController()
 {
 	commandController.unregisterCommand(&plugCmd,   "plug");
 	commandController.unregisterCommand(&unplugCmd, "unplug");
+	InfoCommand& infoCommand = commandController.getInfoCommand();
 	infoCommand.unregisterTopic("pluggable", &pluggableInfo);
 	infoCommand.unregisterTopic("connector", &connectorInfo);
 	infoCommand.unregisterTopic("connectionclass", &connectionClassInfo);
