@@ -6,6 +6,7 @@
 #include "Setting.hh"
 #include "CommandException.hh"
 #include "XMLElement.hh"
+#include <cassert>
 
 using std::set;
 using std::string;
@@ -104,7 +105,7 @@ void SettingsManager::loadSettings(const XMLElement& config)
 	for (SettingsMap::const_iterator it = settingsMap.begin();
 	     it != settingsMap.end(); ++it) {
 		const Setting& setting = *it->second;
-		if (setting.needLoadSave()) { 
+		if (setting.needLoadSave()) {
 			it->second->restoreDefault();
 		}
 	}
