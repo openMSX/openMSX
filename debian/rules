@@ -43,7 +43,7 @@ clean-patched:
 	rm -f build-stamp
 	-$(MAKE) clean
 	- rm -rf derived/
-	- rm -rf debian/tmp
+	- rm -rf debian/openmsx
 	- rm -f openmsx.1
 
 
@@ -56,17 +56,17 @@ install: build
 	dh_installdirs
 
 	$(MAKE) install \
-		INSTALL_BINARY_DIR=$(CURDIR)/debian/tmp/usr/bin \
-		INSTALL_SHARE_DIR=$(CURDIR)/debian/tmp/usr/share/openmsx \
-		INSTALL_DOC_DIR=$(CURDIR)/debian/tmp/usr/share/doc/openmsx \
+		INSTALL_BINARY_DIR=$(CURDIR)/debian/openmsx/usr/bin \
+		INSTALL_SHARE_DIR=$(CURDIR)/debian/openmsx/usr/share/openmsx \
+		INSTALL_DOC_DIR=$(CURDIR)/debian/openmsx/usr/share/doc/openmsx \
 		SYMLINK_FOR_BINARY=false \
-		OPENMSX_INSTALL=$(CURDIR)/debian/tmp/usr
-	@cp -f $(CURDIR)/debian/binary.lintian-overrides $(CURDIR)/debian/tmp/usr/share/lintian/overrides/openmsx
+		OPENMSX_INSTALL=$(CURDIR)/debian/openmsx/usr
+	@cp -f $(CURDIR)/debian/binary.lintian-overrides $(CURDIR)/debian/openmsx/usr/share/lintian/overrides/openmsx
 	@echo "  Cleaning up the installed package..."
-	@rm $(CURDIR)/debian/tmp/usr/share/doc/openmsx/GPL
-	@find $(CURDIR)/debian/tmp/usr/share -name CVS | xargs rm -rf
-	@find $(CURDIR)/debian/tmp/usr/share/openmsx/extensions/ -name hardwareconfig.xml -exec chmod a-x {} \;
-	@find $(CURDIR)/debian/tmp -name .cvsignore |xargs rm -f
+	@rm $(CURDIR)/debian/openmsx/usr/share/doc/openmsx/GPL
+	@find $(CURDIR)/debian/openmsx/usr/share -name CVS | xargs rm -rf
+	@find $(CURDIR)/debian/openmsx/usr/share/openmsx/extensions/ -name hardwareconfig.xml -exec chmod a-x {} \;
+	@find $(CURDIR)/debian/openmsx -name .cvsignore |xargs rm -f
 
 
 

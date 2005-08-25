@@ -1,7 +1,8 @@
 openmsx (0.5.2-4) unstable; urgency=low
-  * backport gcc4 fixes from upstream
+  * compat level 4
+  * gcc4 compatible (Closes: #323118)
 
- -- Joost Yervante Damad <joost@lumatec.be>  Wed,  3 Aug 2005 21:51:02 +0200
+ -- Joost Yervante Damad <joost@lumatec.be>  Tue, 23 Aug 2005 08:28:34 +0200
 
 openmsx (0.5.2-3) unstable; urgency=low
   * no -ba build
