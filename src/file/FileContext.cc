@@ -4,6 +4,7 @@
 #include "FileOperations.hh"
 #include "FileException.hh"
 #include "GlobalSettings.hh"
+#include "CommandController.hh"
 #include "Interpreter.hh"
 #include "CliComm.hh"
 #include "CommandException.hh"
@@ -188,7 +189,7 @@ UserFileContext::UserFileContext(const string& savePath, bool skipUserDirs)
 			vector<string> dirs;
 			const string& list = GlobalSettings::instance().
 				getUserDirSetting().getValue();
-			Interpreter::instance().splitList(list, dirs);
+			CommandController::instance().getInterpreter().splitList(list, dirs);
 			for (vector<string>::const_iterator it = dirs.begin();
 			     it != dirs.end(); ++it) {
 				string path = *it;

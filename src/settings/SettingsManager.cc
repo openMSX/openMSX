@@ -14,11 +14,10 @@ namespace openmsx {
 // SettingsManager implementation:
 
 SettingsManager::SettingsManager()
-	: setCompleter(*this),
-	  settingCompleter(*this),
-	  toggleCommand(*this),
-	  commandController(CommandController::instance()),
-	  interpreter(Interpreter::instance())
+	: setCompleter(*this)
+	, settingCompleter(*this)
+	, toggleCommand(*this)
+	, commandController(CommandController::instance())
 {
 	commandController.registerCompleter(&setCompleter,     "set");
 	commandController.registerCompleter(&settingCompleter, "incr");
@@ -40,12 +39,12 @@ void SettingsManager::registerSetting(Setting& setting)
 	assert(settingsMap.find(name) == settingsMap.end());
 	settingsMap[name] = &setting;
 
-	interpreter.registerSetting(setting);
+	commandController.getInterpreter().registerSetting(setting);
 }
 
 void SettingsManager::unregisterSetting(Setting& setting)
 {
-	interpreter.unregisterSetting(setting);
+	commandController.getInterpreter().unregisterSetting(setting);
 
 	const string& name = setting.getName();
 	assert(settingsMap.find(name) != settingsMap.end());

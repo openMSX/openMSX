@@ -16,6 +16,7 @@
 #include "CliComm.hh"
 #include "CliServer.hh"
 #include "AfterCommand.hh"
+#include "CommandController.hh"
 #include "Interpreter.hh"
 #include "Display.hh"
 #include "RendererFactory.hh"
@@ -52,7 +53,7 @@ static int main(int argc, char **argv)
 
 	int err = 0;
 	try {
-		Interpreter::instance().init(argv[0]);
+		CommandController::instance().getInterpreter().init(argv[0]);
 		MSXMotherBoard motherBoard;
 
 		// TODO cleanup once singleton mess is cleaned up

@@ -3,11 +3,12 @@
 #ifndef COMMANDCONTROLLER_HH
 #define COMMANDCONTROLLER_HH
 
+#include "Command.hh"
 #include <string>
 #include <map>
 #include <set>
 #include <vector>
-#include "Command.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -20,6 +21,10 @@ class CommandController
 {
 public:
 	static CommandController& instance();
+
+	/** Returns the TCL interpreter that is associated with these commands
+	 */
+	Interpreter& getInterpreter();
 
 	/**
 	 * (Un)register a command
@@ -108,12 +113,11 @@ private:
 	private:
 		CommandController& parent;
 	} helpCmd;
-	friend class HelpCmd;
 
 	CommandConsole* cmdConsole;
 
 	InfoCommand& infoCommand;
-	Interpreter& interpreter;
+	const std::auto_ptr<Interpreter> interpreter;
 };
 
 } // namespace openmsx

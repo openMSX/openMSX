@@ -92,12 +92,6 @@ Interpreter::~Interpreter()
 	Tcl_Release(interp);
 }
 
-Interpreter& Interpreter::instance()
-{
-	static Interpreter oneInstance;
-	return oneInstance;
-}
-
 int Interpreter::outputProc(ClientData /*clientData*/, const char* buf,
                  int toWrite, int* /*errorCodePtr*/)
 {

@@ -445,7 +445,7 @@ string FileManipulator::import(DriveSettings& driveData,
 	for (vector<string>::const_iterator it = lists.begin();
 	     it != lists.end(); ++it) {
 		vector<string> list;
-		Interpreter::instance().splitList(*it, list);
+		CommandController::instance().getInterpreter().splitList(*it, list);
 
 		for (vector<string>::const_iterator it = list.begin();
 		     it != list.end(); ++it) {

@@ -16,7 +16,8 @@ class Setting;
 class Interpreter
 {
 public:
-	static Interpreter& instance();
+	Interpreter();
+	~Interpreter();
 
 	void init(const char* programName);
 	void registerCommand(const std::string& name, Command& command);
@@ -38,9 +39,6 @@ public:
 	void poll();
 
 private:
-	Interpreter();
-	~Interpreter();
-
 	static int outputProc(ClientData clientData, const char* buf,
 	        int toWrite, int* errorCodePtr);
 	static int commandProc(ClientData clientData, Tcl_Interp* interp,

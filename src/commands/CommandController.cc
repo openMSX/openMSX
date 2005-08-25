@@ -24,7 +24,7 @@ namespace openmsx {
 CommandController::CommandController()
 	: helpCmd(*this), cmdConsole(NULL)
 	, infoCommand(InfoCommand::instance())
-	, interpreter(Interpreter::instance())
+	, interpreter(new Interpreter())
 {
 	registerCommand(&helpCmd, "help");
 	registerCommand(&infoCommand, "openmsx_info");
@@ -45,6 +45,10 @@ CommandController& CommandController::instance()
 	return oneInstance;
 }
 
+Interpreter& CommandController::getInterpreter()
+{
+	return *interpreter;
+}
 
 void CommandController::registerCommand(Command* command,
                                         const string& str)
@@ -53,7 +57,7 @@ void CommandController::registerCommand(Command* command,
 
 	registerCompleter(command, str);
 	commands[str] = command;
-	interpreter.registerCommand(str, *command);
+	interpreter->registerCommand(str, *command);
 }
 
 void CommandController::unregisterCommand(Command* command,
@@ -62,7 +66,7 @@ void CommandController::unregisterCommand(Command* command,
 	assert(commands.find(str) != commands.end());
 	assert(commands.find(str)->second == command);
 
-	interpreter.unregisterCommand(str, *command);
+	interpreter->unregisterCommand(str, *command);
 	commands.erase(str);
 	unregisterCompleter(command, str);
 }
@@ -226,12 +230,12 @@ string CommandController::join(const vector<string>& tokens, char delimiter)
 
 bool CommandController::isComplete(const string& command) const
 {
-	return interpreter.isComplete(command);
+	return interpreter->isComplete(command);
 }
 
 string CommandController::executeCommand(const string& cmd)
 {
-	return interpreter.execute(cmd);
+	return interpreter->execute(cmd);
 }
 
 void CommandController::autoCommands()
@@ -239,7 +243,7 @@ void CommandController::autoCommands()
 	try {
 		SystemFileContext context(true); // only in system dir
 		File file(context.resolve("init.tcl"));
-		interpreter.executeFile(file.getLocalName());
+		interpreter->executeFile(file.getLocalName());
 	} catch (FileException& e) {
 		// no init.tcl
 	} catch (CommandException& e) {
@@ -304,7 +308,7 @@ void CommandController::tabCompletion(vector<string> &tokens)
 	if (tokens.size() == 1) {
 		// build a list of all command strings
 		set<string> cmds;
-		interpreter.getCommandNames(cmds);
+		interpreter->getCommandNames(cmds);
 		completeString(tokens, cmds);
 	} else {
 		CompleterMap::const_iterator it = commandCompleters.find(tokens.front());

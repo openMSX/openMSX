@@ -56,8 +56,8 @@ void Reactor::run(bool autoRun)
 	CommandController& commandController = CommandController::instance();
 	Display& display = Display::instance();
 	InputEventGenerator& inputEventGenerator = InputEventGenerator::instance();
-	Interpreter& interpreter = Interpreter::instance();
 	Scheduler& scheduler = Scheduler::instance();
+	Interpreter& interpreter = commandController.getInterpreter();
 
 	// TODO should not be a singleton
 	RealTime::instance(); // sigh, fix instantiation order!

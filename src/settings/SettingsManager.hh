@@ -13,7 +13,6 @@ namespace openmsx {
 
 class Setting;
 class CommandController;
-class Interpreter;
 class XMLElement;
 
 /** Manages all settings.
@@ -79,7 +78,6 @@ private:
 	} toggleCommand;
 
 	CommandController& commandController;
-	Interpreter& interpreter;
 };
 
 } // namespace openmsx
