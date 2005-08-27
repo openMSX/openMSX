@@ -13,6 +13,7 @@ class SDL_Surface;
 
 namespace openmsx {
 
+class Display;
 class IntegerSetting;
 
 template <class IMAGE>
@@ -20,7 +21,7 @@ class IconLayer : public Layer, private EventListener,
                   private SettingChecker<FilenameSetting::Policy>
 {
 public:
-	IconLayer(SDL_Surface* screen);
+	IconLayer(Display& display, SDL_Surface* screen);
 	virtual ~IconLayer();
 
 	// Layer interface:
@@ -37,6 +38,7 @@ private:
 	virtual void check(SettingImpl<FilenameSetting::Policy>& setting,
 	                   std::string& value);
 
+	Display& display;
 	SDL_Surface* outputScreen;
 
 	struct LedInfo {

@@ -11,6 +11,7 @@
 
 namespace openmsx {
 
+class Display;
 class Rasterizer;
 class VDP;
 class SpriteChecker;
@@ -22,12 +23,8 @@ class VDPVRAM;
 class PixelRenderer : public Renderer, private SettingListener
 {
 public:
-	/** Constructor.
-	  */
-	PixelRenderer(VDP& vdp);
-
-	/** Destructor.
-	  */
+	PixelRenderer(Display& display, RenderSettings& renderSettings,
+	              VDP& vdp);
 	virtual ~PixelRenderer();
 
 	// Renderer interface:
@@ -98,6 +95,10 @@ private:
 	  */
 	void renderUntil(const EmuTime& time);
 
+	/** Setting shared between all renderers
+	  */
+	RenderSettings& renderSettings;
+	
 	/** The VDP of which the video output is being rendered.
 	  */
 	VDP& vdp;

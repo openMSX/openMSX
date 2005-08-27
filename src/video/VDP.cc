@@ -56,7 +56,7 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 {
 	PRT_DEBUG("Creating a VDP object");
 
-	interlaced=false;
+	interlaced = false;
 
 	string versionString = deviceConfig.getChildData("version");
 	if (versionString == "TMS99X8A") version = TMS99X8A;
@@ -144,7 +144,10 @@ void VDP::signalEvent(const Event& event)
 
 void VDP::createRenderer()
 {
-	renderer = RendererFactory::createRenderer(*this);
+	renderer = RendererFactory::createRenderer(
+		getMotherBoard().getRenderSettings(),
+		getMotherBoard().getDisplay(),
+		*this);
 	// TODO: Is it safe to use frameStartTime,
 	//       which is most likely in the past?
 	//renderer->reset(frameStartTime.getTime());

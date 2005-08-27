@@ -4,12 +4,15 @@
 #define SDLVIDEOSYSTEM_HH
 
 #include "VideoSystem.hh"
-#include "RendererFactory.hh"
 
 struct SDL_Surface;
 
 namespace openmsx {
 
+class UserInputEventDistributor;
+class RenderSettings;
+class Console;
+class Display;
 class VDP;
 class Rasterizer;
 class V9990;
@@ -18,7 +21,9 @@ class V9990Rasterizer;
 class SDLVideoSystem: public VideoSystem
 {
 public:
-	SDLVideoSystem();
+	SDLVideoSystem(UserInputEventDistributor& userInputEventDistributor,
+	               RenderSettings& renderSettings_,
+	               Console& console, Display& display);
 	virtual ~SDLVideoSystem();
 
 	// VideoSystem interface:
@@ -32,6 +37,8 @@ public:
 private:
 	void getWindowSize(unsigned& width, unsigned& height);
 
+	RenderSettings& renderSettings;
+	Display& display;
 	SDL_Surface* screen;
 };
 

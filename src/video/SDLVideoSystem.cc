@@ -9,7 +9,6 @@
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
 #include "SDLUtil.hh"
-#include "CommandConsole.hh"
 #include "InitException.hh"
 #include "ScreenShotSaver.hh"
 #include "IconLayer.hh"
@@ -20,33 +19,37 @@ using std::string;
 
 namespace openmsx {
 
-SDLVideoSystem::SDLVideoSystem()
+SDLVideoSystem::SDLVideoSystem(UserInputEventDistributor& userInputEventDistributor,
+                               RenderSettings& renderSettings_,
+                               Console& console, Display& display_)
+	: renderSettings(renderSettings_)
+	, display(display_)
 {
 	// Destruct old layers, so resources are freed before new allocations
 	// are done.
-	Display::instance().resetVideoSystem();
+	display.resetVideoSystem();
 
 	unsigned width, height;
 	getWindowSize(width, height);
-	screen = openSDLVideo(width, height, SDL_SWSURFACE);
+	screen = openSDLVideo(renderSettings, width, height, SDL_SWSURFACE);
 
 	switch (screen->format->BytesPerPixel) {
 	case 2:
-		new SDLSnow<Uint16>(screen);
+		new SDLSnow<Uint16>(display, screen);
 		break;
 	case 4:
-		new SDLSnow<Uint32>(screen);
+		new SDLSnow<Uint32>(display, screen);
 		break;
 	default:
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		throw InitException("unsupported colour depth");
 	}
-	new SDLConsole(CommandConsole::instance(), screen);
+	new SDLConsole(userInputEventDistributor, console, display, screen);
 
-	Layer* iconLayer = new SDLIconLayer(screen);
-	Display::instance().addLayer(iconLayer);
+	Layer* iconLayer = new SDLIconLayer(display, screen);
+	display.addLayer(iconLayer);
 
-	Display::instance().setVideoSystem(this);
+	display.setVideoSystem(this);
 }
 
 SDLVideoSystem::~SDLVideoSystem()
@@ -58,9 +61,11 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 {
 	switch (screen->format->BytesPerPixel) {
 	case 2:
-		return new SDLRasterizer<Uint16>(vdp, screen);
+		return new SDLRasterizer<Uint16>(
+			renderSettings, display, vdp, screen);
 	case 4:
-		return new SDLRasterizer<Uint32>(vdp, screen);
+		return new SDLRasterizer<Uint32>(
+			renderSettings, display, vdp, screen);
 	default:
 		assert(false);
 		return 0;
@@ -71,9 +76,11 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 {
 	switch (screen->format->BytesPerPixel) {
 	case 2:
-		return new V9990SDLRasterizer<Uint16>(vdp, screen);
+		return new V9990SDLRasterizer<Uint16>(
+			renderSettings, display, vdp, screen);
 	case 4:
-		return new V9990SDLRasterizer<Uint32>(vdp, screen);
+		return new V9990SDLRasterizer<Uint32>(
+			renderSettings, display, vdp, screen);
 	default:
 		assert(false);
 		return 0;
@@ -82,9 +89,8 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 
 void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
 {
-	RenderSettings& settings = RenderSettings::instance();
-	if (settings.getVideoSource().getValue() == VIDEO_MSX &&
-	    settings.getScaler().getValue() == SCALER_LOW) {
+	if (renderSettings.getVideoSource().getValue() == VIDEO_MSX &&
+	    renderSettings.getScaler().getValue() == SCALER_LOW) {
 		width = 320;
 		height = 240;
 	} else {
@@ -109,7 +115,7 @@ bool SDLVideoSystem::checkSettings()
 	// Check full screen setting.
 	bool fullScreenState = (screen->flags & SDL_FULLSCREEN) != 0;
 	const bool fullScreenTarget =
-		RenderSettings::instance().getFullScreen().getValue();
+		renderSettings.getFullScreen().getValue();
 	if (fullScreenState == fullScreenTarget) return true;
 
 #ifdef _WIN32

@@ -14,12 +14,16 @@
 #include "MSXDeviceSwitch.hh"
 #include "CassettePort.hh"
 #include "RenShaTurbo.hh"
+#include "CommandConsole.hh"
+#include "Display.hh"
+#include "RenderSettings.hh"
 #include "EmuTime.hh"
 #include "HardwareConfig.hh"
 #include "DeviceFactory.hh"
 #include "LedEvent.hh"
 #include "CliComm.hh"
 #include "EventDistributor.hh"
+#include "UserInputEventDistributor.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
 #include "FileContext.hh"
@@ -68,6 +72,16 @@ CartridgeSlotManager& MSXMotherBoard::getSlotManager()
 	}
 	return *slotManager;
 }
+
+UserInputEventDistributor& MSXMotherBoard::getUserInputEventDistributor()
+{
+	if (!userInputEventDistributor.get()) {
+		userInputEventDistributor.reset(
+			new UserInputEventDistributor(EventDistributor::instance()));
+	}
+	return *userInputEventDistributor;
+}
+
 
 PluggingController& MSXMotherBoard::getPluggingController()
 {
@@ -152,6 +166,32 @@ RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
 		renShaTurbo.reset(new RenShaTurbo());
 	}
 	return *renShaTurbo;
+}
+
+CommandConsole& MSXMotherBoard::getCommandConsole()
+{
+	if (!commandConsole.get()) {
+		commandConsole.reset(new CommandConsole());
+	}
+	return *commandConsole;
+}
+
+RenderSettings& MSXMotherBoard::getRenderSettings()
+{
+	if (!renderSettings.get()) {
+		renderSettings.reset(new RenderSettings());
+	}
+	return *renderSettings;
+}
+
+Display& MSXMotherBoard::getDisplay()
+{
+	if (!display.get()) {
+		display.reset(new Display(getUserInputEventDistributor(),
+		                          getRenderSettings(),
+		                          getCommandConsole()));
+	}
+	return *display;
 }
 
 void MSXMotherBoard::readConfig()

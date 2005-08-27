@@ -9,7 +9,7 @@ using std::string;
 namespace openmsx {
 
 template <class Pixel>
-SDLSnow<Pixel>::SDLSnow(SDL_Surface* screen)
+SDLSnow<Pixel>::SDLSnow(Display& display, SDL_Surface* screen)
 	: Layer(COVER_FULL, Z_BACKGROUND)
 	, screen(screen)
 {
@@ -19,12 +19,7 @@ SDLSnow<Pixel>::SDLSnow(SDL_Surface* screen)
 	}
 
 	// Register as display layer.
-	Display::instance().addLayer(this);
-}
-
-template <class Pixel>
-SDLSnow<Pixel>::~SDLSnow()
-{
+	display.addLayer(this);
 }
 
 // random routine, less random than libc rand(), but a lot faster

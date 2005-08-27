@@ -8,6 +8,7 @@
 
 namespace openmsx {
 
+class RenderSettings;
 class IntegerSetting;
 
 /**
@@ -74,7 +75,7 @@ template <class Pixel>
 class SimpleScaler: public Scaler<Pixel>
 {
 public:
-	SimpleScaler(SDL_PixelFormat* format);
+	SimpleScaler(SDL_PixelFormat* format, RenderSettings& renderSettings);
 	virtual ~SimpleScaler();
 
 	virtual void scaleBlank(Pixel color, SDL_Surface* dst,

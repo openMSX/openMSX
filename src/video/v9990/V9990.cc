@@ -549,7 +549,10 @@ void V9990::getPalette(int index, byte& r, byte& g, byte& b)
 void V9990::createRenderer(const EmuTime& time)
 {
 	renderer.reset(); // delete old renderer before creating new one
-	renderer.reset(RendererFactory::createV9990Renderer(*this));
+	renderer.reset(RendererFactory::createV9990Renderer(
+		getMotherBoard().getRenderSettings(),
+		getMotherBoard().getDisplay(),
+		*this));
 	renderer->reset(time);
 }
 

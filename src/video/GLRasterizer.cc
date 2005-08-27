@@ -240,8 +240,10 @@ inline void GLRasterizer::renderPlanarBitmapLines(byte line, int count)
 	}
 }
 
-GLRasterizer::GLRasterizer(VDP& vdp_)
-	: VideoLayer(VIDEO_MSX)
+GLRasterizer::GLRasterizer(RenderSettings& renderSettings_, Display& display,
+                           VDP& vdp_)
+	: VideoLayer(VIDEO_MSX, renderSettings_, display)
+	, renderSettings(renderSettings_)
 	, vdp(vdp_), vram(vdp.getVRAM())
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
@@ -329,7 +331,7 @@ GLRasterizer::GLRasterizer(VDP& vdp_)
 	bitmapTextures = vdp.isMSX1VDP() ? NULL : new LineTexture[4 * 256];
 
 	// Init the palette.
-	precalcPalette(RenderSettings::instance().getGamma().getValue());
+	precalcPalette(renderSettings.getGamma().getValue());
 
 	// Store current (black) frame as a texture.
 	SDL_Surface* surface = SDL_GetVideoSurface();
@@ -386,7 +388,7 @@ void GLRasterizer::frameStart()
 	// PAL:  display at [59..271).
 	lineRenderTop = vdp.isPalTiming() ? 59 - 14 : 32 - 14;
 
-	double gamma = RenderSettings::instance().getGamma().getValue();
+	double gamma = renderSettings.getGamma().getValue();
 	// (gamma != prevGamma) gives compiler warnings
 	if ((gamma > prevGamma) || (gamma < prevGamma)) {
 		precalcPalette(gamma);
@@ -398,7 +400,7 @@ void GLRasterizer::frameEnd()
 {
 	// Glow effect.
 	// Must be applied before storedImage is updated.
-	int glowSetting = RenderSettings::instance().getGlow().getValue();
+	int glowSetting = renderSettings.getGlow().getValue();
 	if (glowSetting != 0 && storedFrame.isStored()) {
 		// Note:
 		// 100% glow means current frame has no influence at all.
@@ -574,11 +576,9 @@ void GLRasterizer::paint()
 	if (frameDirty) storedFrame.draw(0, 0);
 
 	// Determine which effects to apply.
-	int blurSetting =
-		RenderSettings::instance().getHorizontalBlur().getValue();
-	int scanlineAlpha = (
-		RenderSettings::instance().getScanlineAlpha().getValue() * 255
-		) / 100;
+	int blurSetting = renderSettings.getHorizontalBlur().getValue();
+	int scanlineAlpha =
+		(renderSettings.getScanlineAlpha().getValue() * 255) / 100;
 
 	// TODO: Turn off scanlines when deinterlacing.
 	bool horizontalBlur = blurSetting != 0;
@@ -944,7 +944,7 @@ void GLRasterizer::drawDisplay(
 {
 	int screenX = translateX(fromX);
 	int screenY = (fromY - lineRenderTop) * 2;
-	if (!(RenderSettings::instance().getDeinterlace().getValue()) &&
+	if (!(renderSettings.getDeinterlace().getValue()) &&
 	    vdp.isInterlaced() && vdp.getEvenOdd()) {
 		// Display odd field half a line lower.
 		screenY++;
@@ -987,8 +987,8 @@ void GLRasterizer::drawDisplay(
 
 		// Which bits in the name mask determine the page?
 		bool deinterlaced =
-			RenderSettings::instance().getDeinterlace().getValue()
-			&& vdp.isInterlaced() && vdp.isEvenOddEnabled();
+			renderSettings.getDeinterlace().getValue() &&
+			vdp.isInterlaced() && vdp.isEvenOddEnabled();
 		int pageMaskEven, pageMaskOdd;
 		if (deinterlaced || vdp.isMultiPageScrolling()) {
 			pageMaskEven = mode.isPlanar() ? 0x000 : 0x200;
@@ -1086,7 +1086,7 @@ void GLRasterizer::drawSprites(
 	int screenX = translateX(vdp.getLeftSprites()) + displayX * 2;
 	// TODO: Code duplicated from drawDisplay.
 	int screenY = (fromY - lineRenderTop) * 2;
-	if (!(RenderSettings::instance().getDeinterlace().getValue()) &&
+	if (!(renderSettings.getDeinterlace().getValue()) &&
 	    vdp.isInterlaced() && vdp.getEvenOdd()) {
 		// Display odd field half a line lower.
 		screenY++;

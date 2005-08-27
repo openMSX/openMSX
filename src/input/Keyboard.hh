@@ -12,6 +12,7 @@
 namespace openmsx {
 
 class EmuTime;
+class UserInputEventDistributor;
 
 class Keyboard : private UserInputEventListener
 {
@@ -20,7 +21,7 @@ public:
 	 * Constructs a new Keyboard object.
 	 * @param keyGhosting turn keyGhosting on/off
 	 */
-	Keyboard(bool keyGhosting);
+	Keyboard(UserInputEventDistributor& eventDistributor, bool keyGhosting);
 
 	virtual ~Keyboard();
 
@@ -83,6 +84,7 @@ private:
 		std::string text;
 	} keyTypeCmd;
 
+	UserInputEventDistributor& eventDistributor;
 	byte cmdKeyMatrix[NR_KEYROWS];
 	byte userKeyMatrix[NR_KEYROWS];
 	byte keyMatrix[NR_KEYROWS];

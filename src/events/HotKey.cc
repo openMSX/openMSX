@@ -24,15 +24,16 @@ const bool META_HOT_KEYS =
 	false;
 #endif
 
-HotKey::HotKey()
+HotKey::HotKey(UserInputEventDistributor& userInputEventDistributor_)
 	: bindCmd(*this), unbindCmd(*this)
 	, bindDefaultCmd(*this), unbindDefaultCmd(*this)
+	, userInputEventDistributor(userInputEventDistributor_)
 	, loading(false)
 {
 	initDefaultBindings();
 
-	UserInputEventDistributor::instance().registerEventListener(
-		UserInputEventDistributor::HOTKEY, *this );
+	userInputEventDistributor.registerEventListener(
+		UserInputEventDistributor::HOTKEY, *this);
 
 	CommandController::instance().registerCommand(&bindCmd,   "bind");
 	CommandController::instance().registerCommand(&unbindCmd, "unbind");
@@ -47,8 +48,8 @@ HotKey::~HotKey()
 	CommandController::instance().unregisterCommand(&bindDefaultCmd,   "bind_default");
 	CommandController::instance().unregisterCommand(&unbindDefaultCmd, "unbind_default");
 
-	UserInputEventDistributor::instance().unregisterEventListener(
-		UserInputEventDistributor::HOTKEY, *this );
+	userInputEventDistributor.unregisterEventListener(
+		UserInputEventDistributor::HOTKEY, *this);
 }
 
 void HotKey::initDefaultBindings()

@@ -76,8 +76,9 @@ void Keyboard::loadKeymapfile(const string& filename)
 	}
 }
 
-Keyboard::Keyboard(bool keyG)
+Keyboard::Keyboard(UserInputEventDistributor& eventDistributor_, bool keyG)
 	: keyMatrixUpCmd(*this), keyMatrixDownCmd(*this), keyTypeCmd(*this)
+	, eventDistributor(eventDistributor_)
 {
 	keyGhosting = keyG;
 	keysChanged = false;
@@ -91,7 +92,7 @@ Keyboard::Keyboard(bool keyG)
 		loadKeymapfile(config->getFileContext().resolve(filename));
 	}
 
-	UserInputEventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		UserInputEventDistributor::MSX, *this );
 	// We do not listen for CONSOLE_OFF_EVENTS because rescanning the
 	// keyboard can have unwanted side effects
@@ -110,7 +111,7 @@ Keyboard::~Keyboard()
 	CommandController::instance().unregisterCommand(&keyMatrixDownCmd, "keymatrixdown");
 	CommandController::instance().unregisterCommand(&keyMatrixUpCmd,   "keymatrixup");
 
-	UserInputEventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		UserInputEventDistributor::MSX, *this );
 }
 

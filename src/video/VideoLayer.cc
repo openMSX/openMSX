@@ -9,16 +9,18 @@
 
 namespace openmsx {
 
-VideoLayer::VideoLayer(VideoSource videoSource_)
+VideoLayer::VideoLayer(VideoSource videoSource_, RenderSettings& renderSettings_,
+                       Display& display)
 	: videoSource(videoSource_)
-	, videoSourceSetting(RenderSettings::instance().getVideoSource())
+	, renderSettings(renderSettings_)
+	, videoSourceSetting(renderSettings.getVideoSource())
 	, videoSourceActivator(videoSourceSetting, videoSource)
 	, powerSetting(GlobalSettings::instance().getPowerSetting())
 {
 	setCoverage(getCoverage());
 	setZ(calcZ());
 	// Register as display layer.
-	Display::instance().addLayer(this);
+	display.addLayer(this);
 
 	videoSourceSetting.addListener(this);
 	powerSetting.addListener(this);
@@ -48,7 +50,7 @@ void VideoLayer::update(const Setting* setting)
 
 Layer::ZIndex VideoLayer::calcZ()
 {
-	return RenderSettings::instance().getVideoSource().getValue() == videoSource
+	return renderSettings.getVideoSource().getValue() == videoSource
 		? Z_MSX_ACTIVE
 		: Z_MSX_PASSIVE;
 }

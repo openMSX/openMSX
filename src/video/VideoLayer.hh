@@ -9,6 +9,8 @@
 
 namespace openmsx {
 
+class RenderSettings;
+class Display;
 template <class T> class EnumSetting;
 class BooleanSetting;
 
@@ -19,7 +21,8 @@ public:
 	VideoSource getVideoSource() const;
 
 protected:
-	VideoLayer(VideoSource videoSource);
+	VideoLayer(VideoSource videoSource, RenderSettings& renderSettings,
+	           Display& display);
 
 	// SettingListener interface:
 	virtual void update(const Setting* setting);
@@ -32,6 +35,8 @@ private:
 
 	/** Video source that displays on this layer. */
 	VideoSource videoSource;
+	/** Settings shared between all renderers. */
+	RenderSettings& renderSettings;
 	/** Reference to "videosource" setting. */
 	VideoSourceSetting& videoSourceSetting;
 	/** Activate the videosource */

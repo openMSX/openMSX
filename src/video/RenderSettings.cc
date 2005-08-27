@@ -5,11 +5,6 @@
 #include "FloatSetting.hh"
 #include "BooleanSetting.hh"
 #include "VideoSourceSetting.hh"
-#include "Display.hh"
-#include "VideoSystem.hh"
-#include "Event.hh"
-#include "EventDistributor.hh"
-
 
 namespace openmsx {
 
@@ -50,7 +45,6 @@ RenderSettings::RenderSettings()
 
 	// Get user-preferred renderer from config.
 	renderer = RendererFactory::createRendererSetting();
-	currentRenderer = renderer->getValue();
 
 	EnumSetting<ScalerID>::Map scalerMap;
 	scalerMap["simple"] = SCALER_SIMPLE;
@@ -65,72 +59,10 @@ RenderSettings::RenderSettings()
 	scanlineAlpha.reset(new IntegerSetting(
 		"scanline", "amount of scanline effect: 0 = none, 100 = full",
 		20, 0, 100));
-
-	renderer->addListener(this);
-	fullScreen->addListener(this);
-	scaler->addListener(this);
-	videoSource->addListener(this);
-	EventDistributor::instance().registerEventListener(
-		OPENMSX_RENDERER_SWITCH_EVENT, *this, EventDistributor::DETACHED);
 }
 
 RenderSettings::~RenderSettings()
 {
-	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_RENDERER_SWITCH_EVENT, *this, EventDistributor::DETACHED);
-	videoSource->removeListener(this);
-	scaler->removeListener(this);
-	fullScreen->removeListener(this);
-	renderer->removeListener(this);
-}
-
-RenderSettings& RenderSettings::instance()
-{
-	static RenderSettings oneInstance;
-	return oneInstance;
-}
-
-void RenderSettings::update(const Setting* setting)
-{
-	if (setting == renderer.get()) {
-		checkRendererSwitch();
-	} else if (setting == fullScreen.get()) {
-		checkRendererSwitch();
-	} else if (setting == scaler.get()) {
-		checkRendererSwitch();
-	} else if (setting == videoSource.get()) {
-		checkRendererSwitch();
-	} else {
-		assert(false);
-	}
-}
-
-void RenderSettings::checkRendererSwitch()
-{
-	if (RendererFactory::isCreateInProgress()) {
-		return;
-	}
-	// Tell renderer to sync with render settings.
-	if ((renderer->getValue() != currentRenderer) ||
-	    !Display::instance().getVideoSystem().checkSettings()) {
-		currentRenderer = renderer->getValue();
-		// Renderer failed to sync; replace it.
-		EventDistributor::instance().distributeEvent(
-			new SimpleEvent<OPENMSX_RENDERER_SWITCH_EVENT>());
-	}
-}
-
-void RenderSettings::signalEvent(const Event& event)
-{
-	if (&event); // avoid warning
-	assert(event.getType() == OPENMSX_RENDERER_SWITCH_EVENT);
-
-	// Switch video system.
-	RendererFactory::createVideoSystem();
-
-	// Tell VDPs they can update their renderer now.
-	EventDistributor::instance().distributeEvent(
-		new SimpleEvent<OPENMSX_RENDERER_SWITCH2_EVENT>() );
 }
 
 } // namespace openmsx

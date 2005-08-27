@@ -12,6 +12,8 @@
 
 namespace openmsx {
 
+class RenderSettings;
+class Display;
 class V9990;
 class V9990VRAM;
 class RawFrame;
@@ -24,7 +26,8 @@ template <class Pixel>
 class V9990SDLRasterizer : public V9990Rasterizer
 {
 public:
-	V9990SDLRasterizer(V9990& vdp, SDL_Surface* screen);
+	V9990SDLRasterizer(RenderSettings& renderSettings, Display& display,
+	                   V9990& vdp, SDL_Surface* screen);
 	virtual ~V9990SDLRasterizer();
 
 	// Rasterizer interface:

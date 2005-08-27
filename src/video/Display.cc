@@ -8,12 +8,14 @@
 #include "FileOperations.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
+#include "CommandConsole.hh"
 #include "InfoCommand.hh"
 #include "CliComm.hh"
 #include "Scheduler.hh"
 #include "RealTime.hh"
 #include "Timer.hh"
 #include "RenderSettings.hh"
+#include "BooleanSetting.hh"
 #include "VideoSourceSetting.hh"
 #include <algorithm>
 #include <cassert>
@@ -27,18 +29,19 @@ using std::vector;
 
 namespace openmsx {
 
-// Display:
-
-Display& Display::instance()
-{
-	static Display oneInstance;
-	return oneInstance;
-}
-
-Display::Display()
+Display::Display(UserInputEventDistributor& userInputEventDistributor_,
+                 RenderSettings& renderSettings_,
+                 Console& console_)
 	: screenShotCmd(*this)
 	, fpsInfo(*this)
+	, userInputEventDistributor(userInputEventDistributor_)
+	, renderSettings(renderSettings_)
+	, console(console_)
 {
+	// TODO clean up
+	assert(dynamic_cast<CommandConsole*>(&console));
+	static_cast<CommandConsole&>(console).setDisplay(this);
+	
 	frameDurationSum = 0;
 	for (unsigned i = 0; i < NUM_FRAME_DURATIONS; ++i) {
 		frameDurations.addFront(20);
@@ -46,26 +49,46 @@ Display::Display()
 	}
 	prevTimeStamp = Timer::getTime();
 
+	currentRenderer = renderSettings.getRenderer().getValue();
+
 	EventDistributor::instance().registerEventListener(
 		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().registerEventListener(
 		OPENMSX_DELAYED_REPAINT_EVENT, *this, EventDistributor::DETACHED);
+	EventDistributor::instance().registerEventListener(
+		OPENMSX_RENDERER_SWITCH_EVENT, *this, EventDistributor::DETACHED);
+
 	CommandController::instance().registerCommand(
 		&screenShotCmd, "screenshot" );
 	CommandController::instance().getInfoCommand().registerTopic("fps", &fpsInfo);
+
+	renderSettings.getRenderer().addListener(this);
+	renderSettings.getFullScreen().addListener(this);
+	renderSettings.getScaler().addListener(this);
+	renderSettings.getVideoSource().addListener(this);
 }
 
 Display::~Display()
 {
+	renderSettings.getRenderer().removeListener(this);
+	renderSettings.getFullScreen().removeListener(this);
+	renderSettings.getScaler().removeListener(this);
+	renderSettings.getVideoSource().removeListener(this);
+
 	CommandController::instance().getInfoCommand().unregisterTopic("fps", &fpsInfo);
 	CommandController::instance().unregisterCommand(
 		&screenShotCmd, "screenshot" );
+
+	EventDistributor::instance().unregisterEventListener(
+		OPENMSX_RENDERER_SWITCH_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().unregisterEventListener(
 		OPENMSX_DELAYED_REPAINT_EVENT, *this, EventDistributor::DETACHED);
 	EventDistributor::instance().unregisterEventListener(
 		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::DETACHED);
 
 	resetVideoSystem();
+	
+	static_cast<CommandConsole&>(console).setDisplay(0);
 }
 
 VideoSystem& Display::getVideoSystem()
@@ -122,7 +145,7 @@ void Display::signalEvent(const Event& event)
 		const FinishFrameEvent& ffe = static_cast<const FinishFrameEvent&>(event);
 		VideoSource eventSource = ffe.getSource();
 		VideoSource visibleSource =
-			RenderSettings::instance().getVideoSource().getValue();
+			renderSettings.getVideoSource().getValue();
 
 		bool draw = visibleSource == eventSource;
 		if (draw) {
@@ -132,8 +155,46 @@ void Display::signalEvent(const Event& event)
 		RealTime::instance().sync(Scheduler::instance().getCurrentTime(), draw);
 	} else if (event.getType() == OPENMSX_DELAYED_REPAINT_EVENT) {
 		repaint();
+	} else if (event.getType() == OPENMSX_RENDERER_SWITCH_EVENT) {
+		// Switch video system.
+		RendererFactory::createVideoSystem(
+			userInputEventDistributor, renderSettings, console, *this);
+
+		// Tell VDPs they can update their renderer now.
+		EventDistributor::instance().distributeEvent(
+			new SimpleEvent<OPENMSX_RENDERER_SWITCH2_EVENT>());
 	} else {
 		assert(false);
+	}
+}
+
+void Display::update(const Setting* setting)
+{
+	if (setting == &renderSettings.getRenderer()) {
+		checkRendererSwitch();
+	} else if (setting == &renderSettings.getFullScreen()) {
+		checkRendererSwitch();
+	} else if (setting == &renderSettings.getScaler()) {
+		checkRendererSwitch();
+	} else if (setting == &renderSettings.getVideoSource()) {
+		checkRendererSwitch();
+	} else {
+		assert(false);
+	}
+}
+
+void Display::checkRendererSwitch()
+{
+	if (RendererFactory::isCreateInProgress()) {
+		return;
+	}
+	// Tell renderer to sync with render settings.
+	if ((renderSettings.getRenderer().getValue() != currentRenderer) ||
+	    !getVideoSystem().checkSettings()) {
+		currentRenderer = renderSettings.getRenderer().getValue();
+		// Renderer failed to sync; replace it.
+		EventDistributor::instance().distributeEvent(
+			new SimpleEvent<OPENMSX_RENDERER_SWITCH_EVENT>());
 	}
 }
 
@@ -255,7 +316,7 @@ string Display::ScreenShotCmd::execute(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 
-	Display::instance().getVideoSystem().takeScreenShot(filename);
+	display.getVideoSystem().takeScreenShot(filename);
 	CliComm::instance().printInfo("Screen saved to " + filename);
 	return filename;
 }
@@ -270,15 +331,15 @@ string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 
 // FpsInfoTopic inner class:
 
-Display::FpsInfoTopic::FpsInfoTopic(Display& parent_)
-	: parent(parent_)
+Display::FpsInfoTopic::FpsInfoTopic(Display& display_)
+	: display(display_)
 {
 }
 
 void Display::FpsInfoTopic::execute(const vector<TclObject*>& /*tokens*/,
                                     TclObject& result) const
 {
-	double fps = 1000000.0 * NUM_FRAME_DURATIONS / parent.frameDurationSum;
+	double fps = 1000000.0 * NUM_FRAME_DURATIONS / display.frameDurationSum;
 	result.setDouble(fps);
 }
 

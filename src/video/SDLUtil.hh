@@ -7,6 +7,8 @@ struct SDL_Surface;
 
 namespace openmsx {
 
+class RenderSettings;
+
 /** Initialise SDL's video subsystem and find a usable video mode.
   * Also configures all window properties, like title, icon and
   * disabling the mouse cursor.
@@ -19,7 +21,8 @@ namespace openmsx {
   * @throws InitException If initialisation fails
   *   or no suitable video mode is found.
   */
-SDL_Surface* openSDLVideo(int width, int height, int flags);
+SDL_Surface* openSDLVideo(RenderSettings& renderSettings,
+                          int width, int height, int flags);
 
 /** Shuts down SDL's video subsystem.
   */

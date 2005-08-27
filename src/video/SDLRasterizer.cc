@@ -145,9 +145,13 @@ inline void SDLRasterizer<Pixel>::renderCharacterLines(
 }
 
 template <class Pixel>
-SDLRasterizer<Pixel>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
-	: vdp(vdp_), vram(vdp.getVRAM())
-	, postProcessor(new PostProcessor<Pixel>(screen, VIDEO_MSX, 640))
+SDLRasterizer<Pixel>::SDLRasterizer(
+		RenderSettings& renderSettings_, Display& display,
+		VDP& vdp_, SDL_Surface* screen)
+	: renderSettings(renderSettings_)
+	, vdp(vdp_), vram(vdp.getVRAM())
+	, postProcessor(new PostProcessor<Pixel>(
+	                      renderSettings, display, screen, VIDEO_MSX, 640))
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 	, spriteConverter(vdp.getSpriteChecker())
@@ -181,7 +185,7 @@ SDLRasterizer<Pixel>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
 		);
 
 	// Init the palette.
-	precalcPalette(RenderSettings::instance().getGamma().getValue());
+	precalcPalette(renderSettings.getGamma().getValue());
 }
 
 template <class Pixel>
@@ -239,7 +243,7 @@ void SDLRasterizer<Pixel>::frameStart()
 	// PAL:  display at [59..271).
 	lineRenderTop = vdp.isPalTiming() ? 59 - 14 : 32 - 14;
 
-	double gamma = RenderSettings::instance().getGamma().getValue();
+	double gamma = renderSettings.getGamma().getValue();
 	// (gamma != prevGamma) gives compiler warnings
 	if ((gamma > prevGamma) || (gamma < prevGamma)) {
 		precalcPalette(gamma);

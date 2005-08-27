@@ -6,12 +6,14 @@
 #include <map>
 #include <set>
 #include <string>
+#include <vector>
 #include <tcl.h>
 
 namespace openmsx {
 
 class Command;
 class Setting;
+class InterpreterOutput;
 
 class Interpreter
 {
@@ -19,6 +21,8 @@ public:
 	Interpreter();
 	~Interpreter();
 
+	void setOutput(InterpreterOutput* output);
+	
 	void init(const char* programName);
 	void registerCommand(const std::string& name, Command& command);
 	void unregisterCommand(const std::string& name, Command& command);
@@ -49,6 +53,7 @@ private:
 	static Tcl_ChannelType channelType;
 	Tcl_Interp* interp;
 	std::map<std::string, Tcl_Command> commandTokenMap;
+	InterpreterOutput* output;
 };
 
 } // namespace openmsx

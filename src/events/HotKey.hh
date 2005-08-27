@@ -13,11 +13,12 @@
 namespace openmsx {
 
 class XMLElement;
+class UserInputEventDistributor;
 
 class HotKey : private UserInputEventListener
 {
 public:
-	HotKey();
+	HotKey(UserInputEventDistributor& userInputEventDistributor);
 	virtual ~HotKey();
 
 	void loadBindings(const XMLElement& config);
@@ -75,6 +76,7 @@ private:
 	BindMap defaultMap;
 	KeySet boundKeys;
 	KeySet unboundKeys;
+	UserInputEventDistributor& userInputEventDistributor;
 	bool loading; // hack
 };
 

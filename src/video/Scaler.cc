@@ -18,21 +18,27 @@ namespace openmsx {
 
 template <class Pixel>
 auto_ptr<Scaler<Pixel> > Scaler<Pixel>::createScaler(
-	ScalerID id, SDL_PixelFormat* format)
+	ScalerID id, SDL_PixelFormat* format, RenderSettings& renderSettings)
 {
 	switch(id) {
 	case SCALER_SIMPLE:
-		return auto_ptr<Scaler<Pixel> >(new SimpleScaler<Pixel>(format));
+		return auto_ptr<Scaler<Pixel> >(
+			new SimpleScaler<Pixel>(format, renderSettings));
 	case SCALER_SAI2X:
-		return auto_ptr<Scaler<Pixel> >(new SaI2xScaler<Pixel>(format));
+		return auto_ptr<Scaler<Pixel> >(
+			new SaI2xScaler<Pixel>(format));
 	case SCALER_SCALE2X:
-		return auto_ptr<Scaler<Pixel> >(new Scale2xScaler<Pixel>(format));
+		return auto_ptr<Scaler<Pixel> >(
+			new Scale2xScaler<Pixel>(format));
 	case SCALER_HQ2X:
-		return auto_ptr<Scaler<Pixel> >(new HQ2xScaler<Pixel>(format));
+		return auto_ptr<Scaler<Pixel> >(
+			new HQ2xScaler<Pixel>(format));
 	case SCALER_HQ2XLITE:
-		return auto_ptr<Scaler<Pixel> >(new HQ2xLiteScaler<Pixel>(format));
+		return auto_ptr<Scaler<Pixel> >(
+			new HQ2xLiteScaler<Pixel>(format));
 	case SCALER_LOW:
-		return auto_ptr<Scaler<Pixel> >(new LowScaler<Pixel>(format));
+		return auto_ptr<Scaler<Pixel> >(
+			new LowScaler<Pixel>(format));
 	default:
 		assert(false);
 		return auto_ptr<Scaler<Pixel> >();

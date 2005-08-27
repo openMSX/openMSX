@@ -25,6 +25,10 @@ class PanasonicMemory;
 class MSXDeviceSwitch;
 class CassettePortInterface;
 class RenShaTurbo;
+class CommandConsole;
+class Display;
+class RenderSettings;
+class UserInputEventDistributor;
 
 class MSXMotherBoard : private SettingListener
 {
@@ -67,6 +71,7 @@ public:
 
 	// The following classes are unique per MSX machine
 	CartridgeSlotManager& getSlotManager();
+	UserInputEventDistributor& getUserInputEventDistributor();
 	PluggingController& getPluggingController();
 	Debugger& getDebugger();
 	Mixer& getMixer();
@@ -77,6 +82,9 @@ public:
 	MSXDeviceSwitch& getDeviceSwitch();
 	CassettePortInterface& getCassettePort();
 	RenShaTurbo& getRenShaTurbo();
+	CommandConsole& getCommandConsole();
+	RenderSettings& getRenderSettings();
+	Display& getDisplay();
 
 private:
 	// SettingListener
@@ -99,7 +107,10 @@ private:
 
 	BooleanSetting& powerSetting;
 	CliComm& output;
+
+	// order of auto_ptr's is important!
 	std::auto_ptr<CartridgeSlotManager> slotManager;
+	std::auto_ptr<UserInputEventDistributor> userInputEventDistributor;
 	std::auto_ptr<PluggingController> pluggingController;
 	std::auto_ptr<Debugger> debugger;
 	std::auto_ptr<Mixer> mixer;
@@ -112,6 +123,9 @@ private:
 	std::auto_ptr<MSXDeviceSwitch> deviceSwitch;
 	std::auto_ptr<CassettePortInterface> cassettePort;
 	std::auto_ptr<RenShaTurbo> renShaTurbo;
+	std::auto_ptr<CommandConsole> commandConsole;
+	std::auto_ptr<RenderSettings> renderSettings;
+	std::auto_ptr<Display> display;
 
 	class ResetCmd : public SimpleCommand {
 	public:

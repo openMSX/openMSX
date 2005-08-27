@@ -13,10 +13,12 @@ using std::string;
 
 namespace openmsx {
 
-KeyJoystick::KeyJoystick(const string& name_)
-	: name(name_)
+KeyJoystick::KeyJoystick(UserInputEventDistributor& eventDistributor_,
+                         const string& name_)
+	: eventDistributor(eventDistributor_)
+	, name(name_)
 {
-	UserInputEventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		UserInputEventDistributor::MSX, *this);
 
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
@@ -38,7 +40,7 @@ KeyJoystick::KeyJoystick(const string& name_)
 
 KeyJoystick::~KeyJoystick()
 {
-	UserInputEventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		UserInputEventDistributor::MSX, *this);
 }
 

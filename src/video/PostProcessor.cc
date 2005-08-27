@@ -12,9 +12,11 @@
 namespace openmsx {
 
 template <class Pixel>
-PostProcessor<Pixel>::PostProcessor(SDL_Surface* screen, VideoSource videoSource,
-                                    unsigned maxWidth)
-	: VideoLayer(videoSource)
+PostProcessor<Pixel>::PostProcessor(
+	RenderSettings& renderSettings_, Display& display,
+	SDL_Surface* screen, VideoSource videoSource, unsigned maxWidth)
+	: VideoLayer(videoSource, renderSettings_, display)
+	, renderSettings(renderSettings_)
 {
 	this->screen = screen;
 	currScalerID = (ScalerID)-1; // not a valid scaler
@@ -35,7 +37,7 @@ void PostProcessor<Pixel>::paint()
 {
 	const RawFrame::FieldType field = currFrame->getField();
 	const bool deinterlace = (field != RawFrame::FIELD_NONINTERLACED) &&
-                        RenderSettings::instance().getDeinterlace().getValue();
+                        renderSettings.getDeinterlace().getValue();
 	RawFrame* frameEven = 0;
 	RawFrame* frameOdd  = 0;
 	if (deinterlace) {
@@ -49,9 +51,10 @@ void PostProcessor<Pixel>::paint()
 	}
 
 	// New scaler algorithm selected?
-	ScalerID scalerID = RenderSettings::instance().getScaler().getValue();
+	ScalerID scalerID = renderSettings.getScaler().getValue();
 	if (currScalerID != scalerID) {
-		currScaler = Scaler<Pixel>::createScaler(scalerID, screen->format);
+		currScaler = Scaler<Pixel>::createScaler(
+			scalerID, screen->format, renderSettings);
 		currScalerID = scalerID;
 	}
 

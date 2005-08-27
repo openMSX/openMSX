@@ -23,6 +23,7 @@
 #include "MSXException.hh"
 #include "HotKey.hh"
 #include "SettingsConfig.hh"
+#include "CommandConsole.hh"
 
 using std::auto_ptr;
 using std::cerr;
@@ -57,7 +58,7 @@ static int main(int argc, char **argv)
 		MSXMotherBoard motherBoard;
 
 		// TODO cleanup once singleton mess is cleaned up
-		HotKey hotKey;
+		HotKey hotKey(motherBoard.getUserInputEventDistributor());
 		SettingsConfig::instance().setHotKey(&hotKey);
 
 		CommandLineParser parser(motherBoard);
@@ -66,7 +67,11 @@ static int main(int argc, char **argv)
 		if (parseStatus != CommandLineParser::EXIT) {
 			initializeSDL();
 			AfterCommand afterCommand;
-			RendererFactory::createVideoSystem();
+			RendererFactory::createVideoSystem(
+				motherBoard.getUserInputEventDistributor(),
+				motherBoard.getRenderSettings(),
+				motherBoard.getCommandConsole(),
+				motherBoard.getDisplay());
 			motherBoard.readConfig();
 			Reactor reactor(motherBoard);
 			// CliServer cliServer; // disabled for security reasons
@@ -87,7 +92,6 @@ static int main(int argc, char **argv)
 		err = 1;
 	}
 	// Clean up.
-	Display::instance().resetVideoSystem();
 	if (SDL_WasInit(SDL_INIT_EVERYTHING)) {
 		SDL_Quit();
 	}

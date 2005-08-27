@@ -1,22 +1,26 @@
 // $Id$
 
-#include <cassert>
-#include "Display.hh"
 #include "GLConsole.hh"
+#include "MSXMotherBoard.hh"
+#include "Display.hh"
 #include "GLFont.hh"
 #include "Console.hh"
 #include "GLImage.hh"
+#include <cassert>
 
 using std::string;
 
 namespace openmsx {
 
-GLConsole::GLConsole(Console& console_)
-	: OSDConsoleRenderer(console_)
+GLConsole::GLConsole(
+		UserInputEventDistributor& userInputEventDistributor,
+		Console& console,
+		Display& display)
+	: OSDConsoleRenderer(userInputEventDistributor, console, display)
 	, backgroundTexture(0)
 {
 	initConsole();
-	Display::instance().addLayer(this);
+	display.addLayer(this);
 }
 
 GLConsole::~GLConsole()

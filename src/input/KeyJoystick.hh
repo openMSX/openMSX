@@ -10,11 +10,13 @@
 namespace openmsx {
 
 class KeyCodeSetting;
+class UserInputEventDistributor;
 
 class KeyJoystick : public JoystickDevice, private UserInputEventListener
 {
 public:
-	KeyJoystick(const std::string& name);
+	KeyJoystick(UserInputEventDistributor& eventDistributor,
+	            const std::string& name);
 	virtual ~KeyJoystick();
 
 	// Pluggable
@@ -40,6 +42,7 @@ private:
 	std::auto_ptr<KeyCodeSetting> trigA;
 	std::auto_ptr<KeyCodeSetting> trigB;
 
+	UserInputEventDistributor& eventDistributor;
 	std::string name;
 	byte status;
 };

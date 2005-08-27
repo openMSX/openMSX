@@ -12,7 +12,7 @@ namespace openmsx {
 static const int WIDTH = 640;
 static const int HEIGHT = 480;
 
-GLSnow::GLSnow()
+GLSnow::GLSnow(Display& display)
 	: Layer(COVER_FULL, Z_BACKGROUND)
 {
 	// Create noise texture.
@@ -28,7 +28,7 @@ GLSnow::GLSnow()
 	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf);
 
 	// Register as display layer.
-	Display::instance().addLayer(this);
+	display.addLayer(this);
 }
 
 GLSnow::~GLSnow()

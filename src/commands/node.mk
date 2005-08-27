@@ -11,5 +11,8 @@ SRC_HDR:= \
 	Interpreter \
 	TclObject \
 
+HDR_ONLY:= \
+	InterpreterOutput
+
 include build/node-end.mk
 

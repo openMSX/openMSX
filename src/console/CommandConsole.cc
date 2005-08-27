@@ -3,6 +3,7 @@
 #include "CommandConsole.hh"
 #include "CommandException.hh"
 #include "CommandController.hh"
+#include "Interpreter.hh"
 #include "Keys.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
@@ -13,6 +14,7 @@
 #include "Display.hh"
 #include <algorithm>
 #include <fstream>
+#include <cassert>
 
 using std::min;
 using std::max;
@@ -29,7 +31,8 @@ const char* const PROMPT2 = "| ";
 CommandConsole::CommandConsole()
 	: settingsConfig(SettingsConfig::instance())
 	, commandController(CommandController::instance())
-	, output(CliComm::instance())
+	, cliComm(CliComm::instance())
+	, display(NULL)
 {
 	resetScrollBack();
 	prompt = PROMPT1;
@@ -45,18 +48,21 @@ CommandConsole::CommandConsole()
 	}
 	loadHistory();
 	commandController.setCommandConsole(this);
+
+	commandController.getInterpreter().setOutput(this);
 }
 
 CommandConsole::~CommandConsole()
 {
+	commandController.getInterpreter().setOutput(NULL);
 	commandController.setCommandConsole(NULL);
 	saveHistory();
+	assert(display == NULL);
 }
 
-CommandConsole& CommandConsole::instance()
+void CommandConsole::setDisplay(Display* display_)
 {
-	static CommandConsole oneInstance;
-	return oneInstance;
+	display = display_;
 }
 
 void CommandConsole::saveHistory()
@@ -74,7 +80,7 @@ void CommandConsole::saveHistory()
 			outputfile << it->substr(prompt.length()) << std::endl;
 		}
 	} catch (FileException& e) {
-		output.printWarning(e.getMessage());
+		cliComm.printWarning(e.getMessage());
 	}
 }
 
@@ -199,8 +205,14 @@ bool CommandConsole::signalEvent(const UserInputEvent& event)
 			}
 	}
 
-	Display::instance().repaintDelayed(40000); // 25fps
+	assert(display);
+	display->repaintDelayed(40000); // 25fps
 	return false; // don't pass event to MSX-Keyboard
+}
+
+void CommandConsole::output(const std::string& text)
+{
+	print(text);
 }
 
 void CommandConsole::print(string text)

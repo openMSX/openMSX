@@ -3,36 +3,42 @@
 #ifndef COMMANDCONSOLE_HH
 #define COMMANDCONSOLE_HH
 
-#include <list>
-#include <string>
 #include "Console.hh"
+#include "InterpreterOutput.hh"
 #include "CircularBuffer.hh"
 #include "openmsx.hh"
+#include <list>
+#include <string>
 
 namespace openmsx {
 
 class SettingsConfig;
 class CommandController;
 class CliComm;
+class Display;
 
-class CommandConsole : public Console
+class CommandConsole : public Console, private InterpreterOutput
 {
 public:
-	static CommandConsole& instance();
+	CommandConsole();
+	virtual ~CommandConsole();
 
 	/** Prints a string on the console.
 	  */
-	void print(std::string text);
+	virtual void print(std::string text);
 
 	virtual unsigned getScrollBack() const;
 	virtual std::string getLine(unsigned line) const;
 	virtual void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const;
 
+	void setDisplay(Display* display);
+
 private:
+	// InterpreterOutput
+	virtual void output(const std::string& text);
+	
 	static const int LINESHISTORY = 1000;
 
-	CommandConsole();
-	virtual ~CommandConsole();
 	virtual bool signalEvent(const UserInputEvent& event);
 	void tabCompletion();
 	void commandExecute();
@@ -67,7 +73,8 @@ private:
 
 	SettingsConfig& settingsConfig;
 	CommandController& commandController;
-	CliComm& output;
+	CliComm& cliComm;
+	Display* display;
 };
 
 } // namespace openmsx

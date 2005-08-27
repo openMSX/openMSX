@@ -22,7 +22,8 @@ using std::string;
 
 namespace openmsx {
 
-SDL_Surface* openSDLVideo(int width, int height, int flags)
+SDL_Surface* openSDLVideo(RenderSettings& renderSettings,
+                          int width, int height, int flags)
 {
 	if (!SDL_WasInit(SDL_INIT_VIDEO)
 	&& SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
@@ -56,7 +57,7 @@ SDL_Surface* openSDLVideo(int width, int height, int flags)
 	SDL_ShowCursor(SDL_DISABLE);
 
 	// Add full screen flag if desired.
-	if (RenderSettings::instance().getFullScreen().getValue()) {
+	if (renderSettings.getFullScreen().getValue()) {
 		flags |= SDL_FULLSCREEN;
 	}
 	// OpenGL double buffering uses GL attribute instead of flag.

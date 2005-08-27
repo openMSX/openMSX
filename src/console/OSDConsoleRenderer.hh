@@ -12,11 +12,14 @@
 
 namespace openmsx {
 
+class MSXMotherBoard;
 class IntegerSetting;
 class Font;
 class InputEventGenerator;
 class BooleanSetting;
+class UserInputEventDistributor;
 class Console;
+class Display;
 template <typename T> class EnumSetting;
 
 class OSDConsoleRenderer : public Layer, private SettingListener,
@@ -30,7 +33,10 @@ public:
 	virtual unsigned getScreenH() const = 0;
 
 protected:
-	OSDConsoleRenderer(Console& console);
+	OSDConsoleRenderer(
+		UserInputEventDistributor& userInputEventDistributor,
+		Console& console,
+		Display& display);
 	void initConsole();
 	bool updateConsoleRect();
 	byte getVisibility() const;
@@ -63,6 +69,7 @@ protected:
 	unsigned destY;
 	unsigned destW;
 	unsigned destH;
+	UserInputEventDistributor& userInputEventDistributor;
 	Console& console;
 
 private:
@@ -78,6 +85,7 @@ private:
 	unsigned long long time;
 	InputEventGenerator& inputEventGenerator;
 	BooleanSetting& consoleSetting;
+	Display& display;
 };
 
 } // namespace openmsx

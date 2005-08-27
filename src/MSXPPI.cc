@@ -24,7 +24,8 @@ MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, prevBits(15)
 {
 	bool keyGhosting = deviceConfig.getChildDataAsBool("key_ghosting", true);
-	keyboard.reset(new Keyboard(keyGhosting));
+	keyboard.reset(new Keyboard(motherBoard.getUserInputEventDistributor(),
+	                            keyGhosting));
 	i8255.reset(new I8255(*this, time));
 	click.reset(new KeyClick(motherBoard.getMixer(), config, time));
 

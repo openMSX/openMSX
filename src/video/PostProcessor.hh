@@ -12,13 +12,17 @@ struct SDL_Surface;
 
 namespace openmsx {
 
+class RenderSettings;
+class Display;
+
 /** Rasterizer using SDL.
   */
 template <class Pixel>
 class PostProcessor : public VideoLayer
 {
 public:
-	PostProcessor(SDL_Surface* screen, VideoSource videoSource,
+	PostProcessor(RenderSettings& renderSettings, Display& display,
+	              SDL_Surface* screen, VideoSource videoSource,
 	              unsigned maxWidth);
 	virtual ~PostProcessor();
 
@@ -43,6 +47,10 @@ private:
 	  *   The first call should be done by the constructor.
 	  */
 	void initFrames(bool first = false);
+
+	/** Render settings
+	  */
+	RenderSettings& renderSettings;
 
 	/** The currently active scaler.
 	  */

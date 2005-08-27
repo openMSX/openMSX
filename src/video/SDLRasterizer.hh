@@ -14,11 +14,12 @@ struct SDL_Surface;
 
 namespace openmsx {
 
+class RenderSettings;
+class Display;
 class VDP;
 class VDPVRAM;
 class RawFrame;
 template <class Pixel> class PostProcessor;
-
 
 /** Rasterizer using SDL.
   */
@@ -26,12 +27,8 @@ template <class Pixel>
 class SDLRasterizer : public Rasterizer
 {
 public:
-	/** Constructor.
-	  */
-	SDLRasterizer(VDP& vdp, SDL_Surface* screen);
-
-	/** Destructor.
-	  */
+	SDLRasterizer(RenderSettings& renderSettings, Display& display,
+	              VDP& vdp, SDL_Surface* screen);
 	virtual ~SDLRasterizer();
 
 	// Rasterizer interface:
@@ -99,6 +96,10 @@ private:
 	void precalcColourIndex0(DisplayMode mode, bool transparency,
 	                         byte bgcolorIndex);
 
+	/** Settings shared between all renderers
+	  */
+	RenderSettings& renderSettings;
+	
 	/** The VDP of which the video output is being rendered.
 	  */
 	VDP& vdp;

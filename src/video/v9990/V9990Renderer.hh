@@ -20,12 +20,6 @@ class RenderSettings;
 class V9990Renderer
 {
 public:
-	/** Create a new V9990Renderer.
-	  */
-	V9990Renderer();
-
-	/** Destroy this V9990Renderer.
-	  */
 	virtual ~V9990Renderer();
 
 	/** Re-initialise the V9990Renderer's state.
@@ -87,7 +81,7 @@ public:
 	virtual void updateScrollBY(const EmuTime& time) = 0;
 
 protected:
-	RenderSettings& settings;
+	V9990Renderer();
 };
 
 } // namespace openmsx

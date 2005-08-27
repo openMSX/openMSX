@@ -14,6 +14,9 @@
 
 namespace openmsx {
 
+class RenderSettings;
+class Display;
+
 /** Hi-res (640x480) rasterizer using OpenGL.
   */
 class GLRasterizer : public Rasterizer, public VideoLayer
@@ -24,12 +27,8 @@ public:
 	// are using this type.
 	typedef GLuint Pixel;
 
-	/** Constructor.
-	  */
-	GLRasterizer(VDP& vdp);
-
-	/** Destructor.
-	  */
+	GLRasterizer(RenderSettings& renderSettings, Display& display,
+	             VDP& vdp);
 	virtual ~GLRasterizer();
 
 	// Layer interface:
@@ -98,6 +97,10 @@ private:
 	  */
 	void precalcColourIndex0(DisplayMode mode, bool transparency,
 	                         byte bgcolorIndex);
+
+	/** Settings shared between all renderers
+	 */
+	RenderSettings& renderSettings;
 
 	/** The VDP of which the video output is being rendered.
 	  */

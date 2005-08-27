@@ -3,33 +3,30 @@
 #ifndef RENDERSETTINGS_HH
 #define RENDERSETTINGS_HH
 
-#include <memory>
 #include "RendererFactory.hh"
 #include "Scaler.hh"
-#include "SettingListener.hh"
-#include "EventListener.hh"
+#include <memory>
 
 namespace openmsx {
 
-class SettingsConfig;
 class IntegerSetting;
 class FloatSetting;
 class BooleanSetting;
 class VideoSourceSetting;
 
-/** Singleton containing all settings for renderers.
+/** Class containing all settings for renderers.
   * Keeping the settings here makes sure they are preserved when the user
   * switches to another renderer.
   */
-class RenderSettings: private SettingListener, private EventListener
+class RenderSettings
 {
 public:
 	/** Render accuracy: granularity of the rendered area.
 	  */
 	enum Accuracy { ACC_SCREEN, ACC_LINE, ACC_PIXEL };
 
-	/** Gets the singleton instance. */
-	static RenderSettings& instance();
+	RenderSettings();
+	~RenderSettings();
 
 	/** Accuracy [screen, line, pixel]. */
 	EnumSetting<Accuracy>& getAccuracy() const { return *accuracy; }
@@ -68,17 +65,6 @@ public:
 	VideoSourceSetting& getVideoSource() const { return *videoSource; }
 
 private:
-	RenderSettings();
-	virtual ~RenderSettings();
-
-	// SettingListener interface:
-	virtual void update(const Setting* setting);
-
-	// EventListener interface:
-	virtual void signalEvent(const Event& event);
-
-	void checkRendererSwitch();
-
 	// Please keep the settings ordered alphabetically.
 	std::auto_ptr<EnumSetting<Accuracy> > accuracy;
 	std::auto_ptr<BooleanSetting> deinterlace;
@@ -92,8 +78,6 @@ private:
 	std::auto_ptr<EnumSetting<ScalerID> > scaler;
 	std::auto_ptr<IntegerSetting> scanlineAlpha;
 	std::auto_ptr<VideoSourceSetting> videoSource;
-
-	RendererFactory::RendererID currentRenderer;
 };
 
 } // namespace openmsx

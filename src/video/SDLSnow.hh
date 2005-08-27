@@ -9,14 +9,15 @@ struct SDL_Surface;
 
 namespace openmsx {
 
+class Display;
+
 /** Snow effect for background layer.
   */
 template <class Pixel>
 class SDLSnow: public Layer
 {
 public:
-	SDLSnow(SDL_Surface* screen);
-	virtual ~SDLSnow();
+	SDLSnow(Display& display, SDL_Surface* screen);
 
 	// Layer interface:
 	virtual void paint();

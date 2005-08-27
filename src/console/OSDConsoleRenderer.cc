@@ -25,11 +25,16 @@ namespace openmsx {
 
 // class OSDConsoleRenderer
 
-OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
+OSDConsoleRenderer::OSDConsoleRenderer(
+		UserInputEventDistributor& userInputEventDistributor_,
+		Console& console_,
+		Display& display_)
 	: Layer(COVER_NONE, Z_CONSOLE)
+	, userInputEventDistributor(userInputEventDistributor_)
 	, console(console_)
 	, inputEventGenerator(InputEventGenerator::instance())
 	, consoleSetting(GlobalSettings::instance().getConsoleSetting())
+	, display(display_)
 {
 	destX = destY = destW = destH = 0; // avoid UMR
 	font.reset(new DummyFont());
@@ -125,21 +130,21 @@ void OSDConsoleRenderer::setActive(bool active_)
 	if (active == active_) return;
 	active = active_;
 
-	Display::instance().repaintDelayed(40000); // 25 fps
+	display.repaintDelayed(40000); // 25 fps
 
 	time = Timer::getTime();
 
 	inputEventGenerator.setKeyRepeat(active);
 	if (active) {
-		UserInputEventDistributor::instance().registerEventListener(
-			UserInputEventDistributor::CONSOLE, console );
+		userInputEventDistributor.registerEventListener(
+			UserInputEventDistributor::CONSOLE, console);
 		EventDistributor::instance().distributeEvent(
-			new ConsoleEvent(OPENMSX_CONSOLE_ON_EVENT) );
+			new ConsoleEvent(OPENMSX_CONSOLE_ON_EVENT));
 	} else {
-		UserInputEventDistributor::instance().unregisterEventListener(
-			UserInputEventDistributor::CONSOLE, console );
+		userInputEventDistributor.unregisterEventListener(
+			UserInputEventDistributor::CONSOLE, console);
 		EventDistributor::instance().distributeEvent(
-			new ConsoleEvent(OPENMSX_CONSOLE_OFF_EVENT) );
+			new ConsoleEvent(OPENMSX_CONSOLE_OFF_EVENT));
 	}
 }
 
@@ -154,14 +159,14 @@ byte OSDConsoleRenderer::getVisibility() const
 		if (dur > FADE_IN_DURATION) {
 			return 255;
 		} else {
-			Display::instance().repaintDelayed(40000); // 25 fps
+			display.repaintDelayed(40000); // 25 fps
 			return (dur * 255) / FADE_IN_DURATION;
 		}
 	} else {
 		if (dur > FADE_OUT_DURATION) {
 			return 0;
 		} else {
-			Display::instance().repaintDelayed(40000); // 25 fps
+			display.repaintDelayed(40000); // 25 fps
 			return 255 - ((dur * 255) / FADE_OUT_DURATION);
 		}
 	}

@@ -23,9 +23,10 @@ static bool ledStatus[LedEvent::NUM_LEDS];
 static unsigned long long ledTime[LedEvent::NUM_LEDS];
 
 template <class IMAGE>
-IconLayer<IMAGE>::IconLayer(SDL_Surface* screen)
+IconLayer<IMAGE>::IconLayer(Display& display_, SDL_Surface* screen)
 	// Just assume partial coverage and let paint() sort it out.
 	: Layer(COVER_PARTIAL, Z_ICONS)
+	, display(display_)
 	, outputScreen(screen)
 {
 	if (!init) {
@@ -107,11 +108,11 @@ void IconLayer<IMAGE>::paint()
 		} else if (diff < fadeTime) {
 			// no fading yet
 			alpha = 255;
-			Display::instance().repaintDelayed(200000); // 5 fps
+			display.repaintDelayed(200000); // 5 fps
 		} else {
 			// fading out
 			alpha = 255 - (255 * (diff - fadeTime) / fadeDuration);
-			Display::instance().repaintDelayed(40000); // 25 fps
+			display.repaintDelayed(40000); // 25 fps
 		}
 		IMAGE* icon = led.icon[status].get();
 		if (icon) {
@@ -139,7 +140,7 @@ void IconLayer<IMAGE>::signalEvent(const Event& event)
 	if (status != ledStatus[led]) {
 		ledStatus[led] = status;
 		ledTime[led] = Timer::getTime();
-		Display::instance().repaintDelayed(40000); // 25 fps
+		display.repaintDelayed(40000); // 25 fps
 	}
 }
 

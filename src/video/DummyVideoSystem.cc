@@ -6,11 +6,10 @@
 
 namespace openmsx {
 
-DummyVideoSystem::DummyVideoSystem()
+DummyVideoSystem::DummyVideoSystem(Display& display)
 {
-	// Destruct old layers.
-	Display::instance().resetVideoSystem();
-	Display::instance().setVideoSystem(this);
+	display.resetVideoSystem(); // destruct old layers
+	display.setVideoSystem(this);
 }
 
 DummyVideoSystem::~DummyVideoSystem()

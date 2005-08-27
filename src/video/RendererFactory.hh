@@ -7,8 +7,12 @@
 
 namespace openmsx {
 
+class UserInputEventDistributor;
 class VideoSystem;
 class Renderer;
+class RenderSettings;
+class Console;
+class Display;
 class VDP;
 class V9990Renderer;
 class V9990;
@@ -33,17 +37,23 @@ public:
 
 	/** Create the video system required by the current renderer setting.
 	  */
-	static VideoSystem* createVideoSystem();
+	static VideoSystem* createVideoSystem(
+		UserInputEventDistributor& userInputEventDistributor,
+		RenderSettings& renderSettings,
+		Console& console,
+		Display& display);
 
 	/** Create the Renderer selected by the current renderer setting.
 	  * @param vdp The VDP whose display will be rendered.
 	  */
-	static Renderer* createRenderer(VDP& vdp);
+	static Renderer* createRenderer(
+		RenderSettings& renderSettings, Display& display, VDP& vdp);
 
 	/** Create the V9990 Renderer selected by the current renderer setting.
 	  * @param vdp The V9990 VDP whose display will be rendered.
 	  */
-	static V9990Renderer* createV9990Renderer(V9990& vdp);
+	static V9990Renderer* createV9990Renderer(
+		RenderSettings& renderSettings, Display& display, V9990& vdp);
 
 	/** Create the renderer setting.
 	  * The map of this setting contains only the available renderers.

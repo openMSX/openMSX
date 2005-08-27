@@ -64,7 +64,6 @@ const word Renderer::GRAPHIC7_SPRITE_PALETTE[16] = {
 };
 
 Renderer::Renderer()
-	: settings(RenderSettings::instance())
 {
 }
 

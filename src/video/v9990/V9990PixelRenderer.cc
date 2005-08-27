@@ -19,10 +19,11 @@
 
 namespace openmsx {
 
-V9990PixelRenderer::V9990PixelRenderer(V9990& vdp_)
-	: vdp(vdp_)
-	, rasterizer(Display::instance().getVideoSystem()
-	                                .createV9990Rasterizer(vdp_))
+V9990PixelRenderer::V9990PixelRenderer(RenderSettings& renderSettings_,
+                                       Display& display, V9990& vdp_)
+	: renderSettings(renderSettings_)
+	, vdp(vdp_)
+	, rasterizer(display.getVideoSystem().createV9990Rasterizer(vdp_))
 {
 	frameSkipCounter = 999; // force drawing of frame;
 	finishFrameDuration = 0;
@@ -30,14 +31,14 @@ V9990PixelRenderer::V9990PixelRenderer(V9990& vdp_)
 
 	reset(Scheduler::instance().getCurrentTime());
 
-	settings.getMaxFrameSkip().addListener(this);
-	settings.getMinFrameSkip().addListener(this);
+	renderSettings.getMaxFrameSkip().addListener(this);
+	renderSettings.getMinFrameSkip().addListener(this);
 }
 
 V9990PixelRenderer::~V9990PixelRenderer()
 {
-	settings.getMaxFrameSkip().removeListener(this);
-	settings.getMinFrameSkip().removeListener(this);
+	renderSettings.getMaxFrameSkip().removeListener(this);
+	renderSettings.getMinFrameSkip().removeListener(this);
 }
 
 void V9990PixelRenderer::reset(const EmuTime& time)
@@ -54,10 +55,10 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 	if (!rasterizer->isActive()) {
 		frameSkipCounter = 0;
 		drawFrame = false;
-	} else if (frameSkipCounter < settings.getMinFrameSkip().getValue()) {
+	} else if (frameSkipCounter < renderSettings.getMinFrameSkip().getValue()) {
 		++frameSkipCounter;
 		drawFrame = false;
-	} else if (frameSkipCounter >= settings.getMaxFrameSkip().getValue()) {
+	} else if (frameSkipCounter >= renderSettings.getMaxFrameSkip().getValue()) {
 		frameSkipCounter = 0;
 		drawFrame = true;
 	} else {
@@ -70,7 +71,7 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 	}
 	if (!drawFrame) return;
 
-	accuracy = settings.getAccuracy().getValue();
+	accuracy = renderSettings.getAccuracy().getValue();
 	lastX = 0;
 	lastY = 0;
 
@@ -267,8 +268,8 @@ void V9990PixelRenderer::updateScrollBY(const EmuTime& time)
 
 void V9990PixelRenderer::update(const Setting* setting)
 {
-	if (setting == &settings.getMinFrameSkip() ||
-	    setting == &settings.getMaxFrameSkip()) {
+	if (setting == &renderSettings.getMinFrameSkip() ||
+	    setting == &renderSettings.getMaxFrameSkip()) {
 		// Force drawing of frame
 		frameSkipCounter = 999;
 	} else {

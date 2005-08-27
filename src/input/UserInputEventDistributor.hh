@@ -10,6 +10,7 @@
 namespace openmsx {
 
 class UserInputEventListener;
+class EventDistributor;
 
 /**
  * Layered user input event distribution system: high priority listeners
@@ -41,7 +42,8 @@ public:
 		NUM_SLOTS, // not an actual slot
 	};
 
-	static UserInputEventDistributor& instance();
+	UserInputEventDistributor(EventDistributor& eventDistributor);
+	virtual ~UserInputEventDistributor();
 
 	/**
 	 * Registers a given object to receive certain events.
@@ -58,13 +60,11 @@ public:
 		ListenerSlot slot, UserInputEventListener& listener );
 
 private:
-	UserInputEventDistributor();
-	virtual ~UserInputEventDistributor();
-
 	virtual void signalEvent(const Event& event);
 
 	typedef std::vector<UserInputEventListener*> Listeners;
 	Listeners listeners[NUM_SLOTS];
+	EventDistributor& eventDistributor;
 };
 
 } // namespace openmsx

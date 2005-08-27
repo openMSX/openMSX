@@ -54,7 +54,7 @@ Reactor::~Reactor()
 void Reactor::run(bool autoRun)
 {
 	CommandController& commandController = CommandController::instance();
-	Display& display = Display::instance();
+	Display& display = motherBoard.getDisplay();
 	InputEventGenerator& inputEventGenerator = InputEventGenerator::instance();
 	Scheduler& scheduler = Scheduler::instance();
 	Interpreter& interpreter = commandController.getInterpreter();

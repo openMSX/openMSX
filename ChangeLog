@@ -1,5 +1,10 @@
 $Id$
 
+2005-08-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* More singleton cleanups:
+	    UserInputEventDistributor, CommandConsole, RenderSettings and
+	    Display are no longer singletons
+
 2005-08-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Moved implementation of 'toggle' command to a TCL script
 	* Removed CondVar class, it was not used anymore

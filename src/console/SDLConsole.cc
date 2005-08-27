@@ -6,31 +6,30 @@
  *  in any of your programs.
  */
 
-#include <cassert>
-#include "Display.hh"
 #include "SDLConsole.hh"
+#include "MSXMotherBoard.hh"
+#include "Display.hh"
 #include "Console.hh"
 #include "SDLFont.hh"
 #include "File.hh"
 #include "SDLImage.hh"
+#include <cassert>
 
 using std::string;
 
 namespace openmsx {
 
-SDLConsole::SDLConsole(Console& console_, SDL_Surface* screen)
-	: OSDConsoleRenderer(console_)
+SDLConsole::SDLConsole(
+		UserInputEventDistributor& userInputEventDistributor,
+		Console& console, Display& display, SDL_Surface* screen)
+	: OSDConsoleRenderer(userInputEventDistributor, console, display)
 	, outputScreen(screen)
 {
 	blink = false;
 	lastBlinkTime = 0;
 
 	initConsole();
-	Display::instance().addLayer(this);
-}
-
-SDLConsole::~SDLConsole()
-{
+	display.addLayer(this);
 }
 
 void SDLConsole::updateConsoleRect()

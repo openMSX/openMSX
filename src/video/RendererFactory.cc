@@ -28,20 +28,27 @@ namespace openmsx {
 int RendererFactory::createInProgress = 0;
 
 
-VideoSystem* RendererFactory::createVideoSystem()
+VideoSystem* RendererFactory::createVideoSystem(
+	UserInputEventDistributor& userInputEventDistributor,
+	RenderSettings& renderSettings,
+	Console& console, Display& display)
 {
 	++createInProgress;
 	VideoSystem* result;
-	switch (RenderSettings::instance().getRenderer().getValue()) {
+	switch (renderSettings.getRenderer().getValue()) {
 		case DUMMY:
-			result = new DummyVideoSystem();
+			result = new DummyVideoSystem(display);
 			break;
 		case SDL:
-			result = new SDLVideoSystem();
+			result = new SDLVideoSystem(
+				userInputEventDistributor, renderSettings,
+				console, display);
 			break;
 #ifdef COMPONENT_GL
 		case SDLGL:
-			result = new SDLGLVideoSystem();
+			result = new SDLGLVideoSystem(
+				userInputEventDistributor, renderSettings,
+				console, display);
 			break;
 #endif
 		default:
@@ -52,17 +59,18 @@ VideoSystem* RendererFactory::createVideoSystem()
 	return result;
 }
 
-Renderer* RendererFactory::createRenderer(VDP& vdp)
+Renderer* RendererFactory::createRenderer(
+	RenderSettings& renderSettings, Display& display, VDP& vdp)
 {
 	++createInProgress;
 	Renderer* result;
-	switch (RenderSettings::instance().getRenderer().getValue()) {
+	switch (renderSettings.getRenderer().getValue()) {
 		case DUMMY:
 			result = new DummyRenderer();
 			break;
 		case SDL:
 		case SDLGL:
-			result = new PixelRenderer(vdp);
+			result = new PixelRenderer(display, renderSettings, vdp);
 			break;
 #ifdef HAVE_X11
 		case XLIB:
@@ -77,17 +85,19 @@ Renderer* RendererFactory::createRenderer(VDP& vdp)
 	return result;
 }
 
-V9990Renderer* RendererFactory::createV9990Renderer(V9990& vdp)
+V9990Renderer* RendererFactory::createV9990Renderer(
+	RenderSettings& renderSettings, Display& display, V9990& vdp)
 {
 	++createInProgress;
 	V9990Renderer* result;
-	switch (RenderSettings::instance().getRenderer().getValue()) {
+	switch (renderSettings.getRenderer().getValue()) {
 		case DUMMY:
 			result = new V9990DummyRenderer();
 			break;
 		case SDL:
 		case SDLGL:
-			result = new V9990PixelRenderer(vdp);
+			result = new V9990PixelRenderer(
+				renderSettings, display, vdp);
 			break;
 #ifdef HAVE_X11
 		case XLIB:

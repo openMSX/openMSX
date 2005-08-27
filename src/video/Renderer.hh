@@ -3,13 +3,12 @@
 #ifndef RENDERER_HH
 #define RENDERER_HH
 
-#include "openmsx.hh"
 #include "VRAMObserver.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 
 class EmuTime;
-class RenderSettings;
 class DisplayMode;
 
 /** Abstract base class for Renderers.
@@ -23,12 +22,6 @@ class DisplayMode;
 class Renderer : public VRAMObserver
 {
 public:
-	/** Creates a new Renderer.
-	  */
-	Renderer();
-
-	/** Destroy this Renderer.
-	  */
 	virtual ~Renderer();
 
 	/** Reinitialise Renderer state.
@@ -188,7 +181,8 @@ public:
 	static const word GRAPHIC7_SPRITE_PALETTE[16];
 
 protected:
-	RenderSettings& settings;
+	Renderer();
+
 };
 
 } // namespace openmsx

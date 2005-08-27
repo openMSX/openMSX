@@ -1,13 +1,13 @@
 // $Id$
 
-#include "openmsx.hh"
+#include "Interpreter.hh"
 #include "Command.hh"
-#include "CommandConsole.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "Setting.hh"
 #include "Scheduler.hh"
-#include "Interpreter.hh"
+#include "InterpreterOutput.hh"
+#include "openmsx.hh"
 //#include <tk.h>
 
 using std::set;
@@ -75,7 +75,7 @@ Interpreter::Interpreter()
 	*/
 
 	Tcl_Channel channel = Tcl_CreateChannel(&channelType,
-		"openMSX console", NULL, TCL_WRITABLE);
+		"openMSX console", this, TCL_WRITABLE);
 	if (channel != NULL) {
 		Tcl_SetChannelOption(interp, channel, "-translation", "binary");
 		Tcl_SetChannelOption(interp, channel, "-buffering", "line");
@@ -92,12 +92,19 @@ Interpreter::~Interpreter()
 	Tcl_Release(interp);
 }
 
-int Interpreter::outputProc(ClientData /*clientData*/, const char* buf,
+void Interpreter::setOutput(InterpreterOutput* output_)
+{
+	output = output_;
+}
+
+int Interpreter::outputProc(ClientData clientData, const char* buf,
                  int toWrite, int* /*errorCodePtr*/)
 {
-	string output(buf, toWrite);
-	if (!output.empty()) {
-		CommandConsole::instance().print(output);
+	InterpreterOutput* output = ((Interpreter*)clientData)->output;
+
+	string text(buf, toWrite);
+	if (!text.empty() && output) {
+		output->output(text);
 	}
 	return toWrite;
 }

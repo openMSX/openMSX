@@ -109,10 +109,13 @@ void PixelRenderer::subdivide(
 	if (drawLast) draw(clipL, endY, endX, endY + 1, drawType, false);
 }
 
-PixelRenderer::PixelRenderer(VDP& vdp_)
-	: vdp(vdp_), vram(vdp.getVRAM()), spriteChecker(vdp.getSpriteChecker())
+PixelRenderer::PixelRenderer(Display& display, RenderSettings& renderSettings_,
+                             VDP& vdp_)
+	: renderSettings(renderSettings_)
+	, vdp(vdp_), vram(vdp.getVRAM())
+	, spriteChecker(vdp.getSpriteChecker())
 {
-	rasterizer = Display::instance().getVideoSystem().createRasterizer(vdp);
+	rasterizer = display.getVideoSystem().createRasterizer(vdp);
 
 	frameSkipCounter = 999; // force drawing of frame
 	finishFrameDuration = 0;
@@ -120,14 +123,14 @@ PixelRenderer::PixelRenderer(VDP& vdp_)
 	displayEnabled = vdp.isDisplayEnabled();
 	rasterizer->reset();
 
-	settings.getMaxFrameSkip().addListener(this);
-	settings.getMinFrameSkip().addListener(this);
+	renderSettings.getMaxFrameSkip().addListener(this);
+	renderSettings.getMinFrameSkip().addListener(this);
 }
 
 PixelRenderer::~PixelRenderer()
 {
-	settings.getMinFrameSkip().removeListener(this);
-	settings.getMaxFrameSkip().removeListener(this);
+	renderSettings.getMinFrameSkip().removeListener(this);
+	renderSettings.getMaxFrameSkip().removeListener(this);
 }
 
 void PixelRenderer::reset(const EmuTime& time)
@@ -148,9 +151,9 @@ void PixelRenderer::frameStart(const EmuTime& time)
 	bool draw = false;
 	if (!rasterizer->isActive()) {
 		frameSkipCounter = 0;
-	} else if (frameSkipCounter < settings.getMinFrameSkip().getValue()) {
+	} else if (frameSkipCounter < renderSettings.getMinFrameSkip().getValue()) {
 		++frameSkipCounter;
-	} else if (frameSkipCounter >= settings.getMaxFrameSkip().getValue()) {
+	} else if (frameSkipCounter >= renderSettings.getMaxFrameSkip().getValue()) {
 		frameSkipCounter = 0;
 		draw = true;
 	} else {
@@ -165,12 +168,12 @@ void PixelRenderer::frameStart(const EmuTime& time)
 	drawFrame = draw;
 	renderFrame = drawFrame ||
 	     (prevDrawFrame && vdp.isInterlaced() &&
-	      RenderSettings::instance().getDeinterlace().getValue());
+	      renderSettings.getDeinterlace().getValue());
 	if (!renderFrame) return;
 
 	rasterizer->frameStart();
 
-	accuracy = settings.getAccuracy().getValue();
+	accuracy = renderSettings.getAccuracy().getValue();
 
 	nextX = 0;
 	nextY = 0;
@@ -563,8 +566,8 @@ void PixelRenderer::renderUntil(const EmuTime& time)
 
 void PixelRenderer::update(const Setting* setting)
 {
-	if (setting == &settings.getMinFrameSkip()
-	|| setting == &settings.getMaxFrameSkip() ) {
+	if (setting == &renderSettings.getMinFrameSkip()
+	|| setting == &renderSettings.getMaxFrameSkip() ) {
 		// Force drawing of frame.
 		frameSkipCounter = 999;
 	} else {
