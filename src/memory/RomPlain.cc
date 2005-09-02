@@ -17,8 +17,8 @@ static inline bool isInside(unsigned x, unsigned start, unsigned len)
 
 static std::string toString(unsigned start, unsigned len)
 {
-	return "[0x" + StringOp::toHexString(start) + ", " +
-	        "0x" + StringOp::toHexString(start + len) + ']';
+	return "[0x" + StringOp::toHexString(start, 4) + ", " +
+	        "0x" + StringOp::toHexString(start + len, 4) + ']';
 }
 
 RomPlain::RomPlain(MSXMotherBoard& motherBoard, const XMLElement& config,

@@ -179,7 +179,7 @@ template <class T> void CPUCore<T>::doBreak2()
 	motherboard->block();
 
 	CliComm::instance().update(CliComm::BREAK, "pc",
-	                           "0x" + StringOp::toHexString(R.PC));
+	                           "0x" + StringOp::toHexString(R.PC, 4));
 	Event* breakEvent = new SimpleEvent<OPENMSX_BREAK_EVENT>();
 	EventDistributor::instance().distributeEvent(breakEvent);
 }
@@ -225,7 +225,7 @@ template <class T> void CPUCore<T>::doContinue()
 		breaked = false;
 		continued = true;
 		CliComm::instance().update(CliComm::RESUME, "pc",
-	                                   "0x" + StringOp::toHexString(R.PC));
+	                                 "0x" + StringOp::toHexString(R.PC, 4));
 		motherboard->unblock();
 	}
 }

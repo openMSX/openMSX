@@ -1,5 +1,9 @@
 $Id$
 
+2005-09-02 Manuel Bilderbeek <manuel@msxnet.org>
+	* Fixed a bug in the disassembler (thanks for the anonymous poster for
+	  telling us about it); it now uses stringstreams iso char arrays.
+
 2005-08-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* More singleton cleanups:
 	    UserInputEventDistributor, CommandConsole, RenderSettings and
