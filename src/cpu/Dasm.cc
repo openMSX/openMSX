@@ -4,7 +4,6 @@
 #include "DasmTables.hh"
 #include "MSXCPUInterface.hh"
 #include "StringOp.hh"
-#include <sstream>
 
 namespace openmsx {
 
@@ -21,7 +20,6 @@ static int abs(unsigned char a)
 int dasm(const MSXCPUInterface& interf, word pc, byte buf[4], std::string& dest)
 {
 	const char* s;
-	std::ostringstream tmp;
 	int i = 0;
 	const char* r = 0;
 
@@ -72,47 +70,39 @@ int dasm(const MSXCPUInterface& interf, word pc, byte buf[4], std::string& dest)
 		switch (s[j]) {
 		case 'B':
 			buf[i] = interf.peekMem(pc + i);
-			tmp << "#" << StringOp::toHexString((unsigned short) buf[i], 2); 
+			dest += "#" + StringOp::toHexString((unsigned short) buf[i], 2); 
 			i += 1;
-			dest += tmp.str();
 			break;
 		case 'R':
 			buf[i] = interf.peekMem(pc + i);
-			tmp << "#" << StringOp::toHexString((pc + 2 + (signed char)buf[i]) & 0xFFFF, 4); 
+			dest += "#" + StringOp::toHexString((pc + 2 + (signed char)buf[i]) & 0xFFFF, 4); 
 			i += 1;
-			dest += tmp.str();
 			break;
 		case 'W':
 			buf[i + 0] = interf.peekMem(pc + i + 0);
 			buf[i + 1] = interf.peekMem(pc + i + 1);
-			tmp << "#" << StringOp::toHexString( buf[i] + buf[i + 1] * 256, 4); 
+			dest += "#" + StringOp::toHexString( buf[i] + buf[i + 1] * 256, 4); 
 			i += 2;
-			dest += tmp.str();
 			break;
 		case 'X':
 			buf[i] = interf.peekMem(pc + i);
-			tmp << r << sign(buf[i]) << "#" << StringOp::toHexString(abs(buf[i]), 2); 
+			dest += std::string(r) + sign(buf[i]) + "#" + StringOp::toHexString(abs(buf[i]), 2); 
 			i += 1;
-			dest += tmp.str();
 			break;
 		case 'Y':
-			tmp << r << sign(buf[2]) << "#" << StringOp::toHexString(abs(buf[2]), 2); 
-			dest += tmp.str();
+			dest += std::string(r) + sign(buf[2]) + "#" + StringOp::toHexString(abs(buf[2]), 2); 
 			break;
 		case 'I':
 			dest += r;
 			break;
 		case '!':
-			tmp << "db     #ED,#" << StringOp::toHexString(buf[1], 2); 
-			dest = tmp.str();
+			dest = "db     #ED,#" + StringOp::toHexString(buf[1], 2); 
 			return 2;
 		case '@':
-			tmp << "db     #" << StringOp::toHexString(buf[0], 2); 
-			dest = tmp.str();
+			dest = "db     #" + StringOp::toHexString(buf[0], 2); 
 			return 1;
 		case '#':
-			tmp << "db     #" << StringOp::toHexString(buf[0], 2) << ",#CB,#" << StringOp::toHexString(buf[2], 2);
-			dest = tmp.str();
+			dest = "db     #" + StringOp::toHexString(buf[0], 2) + ",#CB,#" + StringOp::toHexString(buf[2], 2);
 			return 2;
 		case ' ': {
 			dest.resize(7, ' ');
