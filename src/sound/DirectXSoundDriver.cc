@@ -37,11 +37,11 @@ static HWND getWindowHandle()
 	return info.window;
 }
 
-DirectXSoundDriver::DirectXSoundDriver(Mixer& mixer_,
-		unsigned sampleRate, unsigned samples)
+DirectXSoundDriver::DirectXSoundDriver(GlobalSettings& globalSettings,
+		Mixer& mixer_, unsigned sampleRate, unsigned samples)
 	: mixer(mixer_)
-	, speedSetting(GlobalSettings::instance().getSpeedSetting())
-	, throttleSetting(GlobalSettings::instance().getThrottleSetting())
+	, speedSetting(globalSettings.getSpeedSetting())
+	, throttleSetting(globalSettings.getThrottleSetting())
 {
 	if (DirectSoundCreate(NULL, &directSound, NULL) != DS_OK) {
 		throw MSXException("Couldn't initialize DirectSound driver");
