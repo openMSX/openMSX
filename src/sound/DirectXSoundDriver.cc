@@ -135,7 +135,7 @@ DirectXSoundDriver::DirectXSoundDriver(Scheduler& scheduler,
 	mixBuffer = new short[bufferSize / BYTES_PER_SAMPLE];
 
 	reInit();
-	prevTime = Scheduler::instance().getCurrentTime();
+	prevTime = scheduler.getCurrentTime();
 	EmuDuration interval2 = interval1 * fragmentSize;
 	setSyncPoint(prevTime + interval2);
 
