@@ -9,6 +9,11 @@ namespace openmsx {
 
 // class KeyCodeSettingPolicy
 
+KeyCodeSettingPolicy::KeyCodeSettingPolicy(CommandController& commandController)
+	: SettingPolicy<Keys::KeyCode>(commandController)
+{
+}
+
 string KeyCodeSettingPolicy::toString(Keys::KeyCode key) const
 {
 	return Keys::getName(key);
@@ -25,10 +30,12 @@ Keys::KeyCode KeyCodeSettingPolicy::fromString(const string& str) const
 
 // class KeyCodeSetting
 
-KeyCodeSetting::KeyCodeSetting(const string& name, const string& description,
+KeyCodeSetting::KeyCodeSetting(CommandController& commandController,
+                               const string& name, const string& description,
                                Keys::KeyCode initialValue)
-	: SettingImpl<KeyCodeSettingPolicy>(name, description, initialValue,
-	                                    Setting::SAVE)
+	: SettingImpl<KeyCodeSettingPolicy>(
+		commandController, name, description, initialValue,
+		Setting::SAVE)
 {
 }
 

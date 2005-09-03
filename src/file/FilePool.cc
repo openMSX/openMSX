@@ -24,9 +24,9 @@ namespace openmsx {
 
 const char* const FILE_CACHE = "/.filecache";
 
-FilePool::FilePool()
+FilePool::FilePool(SettingsConfig& settingsConfig)
 {
-	const XMLElement* config = SettingsConfig::instance().findChild("RomPool");
+	const XMLElement* config = settingsConfig.findChild("RomPool");
 	if (config) {
 		XMLElement::Children dirs;
 		config->getChildren("directory", dirs);
@@ -50,12 +50,6 @@ FilePool::FilePool()
 FilePool::~FilePool()
 {
 	writeSha1sums();
-}
-
-FilePool& FilePool::instance()
-{
-	static FilePool oneInstance;
-	return oneInstance;
 }
 
 static bool parse(const string& line, string& sha1, time_t& time, string& filename)

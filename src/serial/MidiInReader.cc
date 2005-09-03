@@ -11,9 +11,11 @@ using std::string;
 
 namespace openmsx {
 
-MidiInReader::MidiInReader()
-	: thread(this), lock(1)
-	, readFilenameSetting(new FilenameSetting("midi-in-readfilename",
+MidiInReader::MidiInReader(Scheduler& scheduler,
+                           CommandController& commandController)
+	: Schedulable(scheduler), thread(this), lock(1)
+	, readFilenameSetting(new FilenameSetting(
+		commandController, "midi-in-readfilename",
 		"filename of the file where the MIDI input is read from",
 		"/dev/midi"))
 {

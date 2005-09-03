@@ -11,8 +11,10 @@
 
 namespace openmsx {
 
-class EmuTime;
+class Scheduler;
+class CommandController;
 class UserInputEventDistributor;
+class EmuTime;
 
 class Keyboard : private UserInputEventListener
 {
@@ -21,7 +23,8 @@ public:
 	 * Constructs a new Keyboard object.
 	 * @param keyGhosting turn keyGhosting on/off
 	 */
-	Keyboard(UserInputEventDistributor& eventDistributor, bool keyGhosting);
+	Keyboard(Scheduler& scheduler, CommandController& commandController,
+	         UserInputEventDistributor& eventDistributor, bool keyGhosting);
 
 	virtual ~Keyboard();
 
@@ -45,26 +48,30 @@ private:
 
 	class KeyMatrixUpCmd : public SimpleCommand {
 	public:
-		KeyMatrixUpCmd(Keyboard& parent);
+		KeyMatrixUpCmd(CommandController& commandController,
+		               Keyboard& keyboard);
 		virtual std::string execute(const std::vector<std::string>& tokens);
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
-		Keyboard& parent;
+		Keyboard& keyboard;
 	} keyMatrixUpCmd;
 
 	class KeyMatrixDownCmd : public SimpleCommand {
 	public:
-		KeyMatrixDownCmd(Keyboard& parent);
+		KeyMatrixDownCmd(CommandController& commandController,
+		                 Keyboard& keyboard);
 		virtual std::string execute(const std::vector<std::string>& tokens);
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
-		Keyboard& parent;
+		Keyboard& keyboard;
 	} keyMatrixDownCmd;
 
 	class KeyInserter : public SimpleCommand, private Schedulable
 	{
 	public:
-		KeyInserter(Keyboard& parent);
+		KeyInserter(Scheduler& scheduler,
+		            CommandController& commandController,
+		            Keyboard& keyboard);
 		virtual ~KeyInserter();
 
 	private:
@@ -79,7 +86,7 @@ private:
 		virtual void executeUntil(const EmuTime& time, int userData);
 		virtual const std::string& schedName() const;
 
-		Keyboard& parent;
+		Keyboard& keyboard;
 		char last;
 		std::string text;
 	} keyTypeCmd;

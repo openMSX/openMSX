@@ -17,9 +17,9 @@ MSXMidi::MSXMidi(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, rxrdyIRQlatch(false), rxrdyIRQenabled(false)
 	, rxrdyIRQ(getMotherBoard().getCPU())
 	, cntr0(*this), cntr2(*this)
-	, i8254(new I8254(&cntr0, NULL, &cntr2, time))
+	, i8254(new I8254(motherBoard.getScheduler(), &cntr0, NULL, &cntr2, time))
 	, interf(*this)
-	, i8251(new I8251(&interf, time))
+	, i8251(new I8251(motherBoard.getScheduler(), &interf, time))
 	, outConnector(new MidiOutConnector(motherBoard.getPluggingController(),
 	                                    "msx-midi-out"))
 {

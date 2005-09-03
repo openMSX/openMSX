@@ -2,7 +2,6 @@
 
 #include "FDC_DirAsDSK.hh"
 #include "CliComm.hh"
-
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
@@ -154,8 +153,8 @@ string FDC_DirAsDSK::makeSimpleMSXFileName(const string& fullfilename)
 	return file + ext;
 }
 
-
-FDC_DirAsDSK::FDC_DirAsDSK(const string& fileName)
+FDC_DirAsDSK::FDC_DirAsDSK(CliComm& cliComm_, const string& fileName)
+	: cliComm(cliComm_)
 {
 	// Here we create the fake diskimages based upon the files that can be
 	// found in the 'fileName' directory
@@ -277,7 +276,7 @@ FDC_DirAsDSK::FDC_DirAsDSK(const string& fileName)
 				//fread(BootBlock, 1, SECTOR_SIZE, file);
 				fclose(file);
 			} else {
-				CliComm::instance().printWarning(
+				cliComm.printWarning(
 					"Couldn't open file " + tmpfilename);
 			}
 		} else {
@@ -317,7 +316,7 @@ FDC_DirAsDSK::~FDC_DirAsDSK()
 			}
 			fclose(file);
 		} else {
-			CliComm::instance().printWarning(
+			cliComm.printWarning(
 				"Couldn't create cached sector file " + filename);
 		}
 	} else {
@@ -528,7 +527,7 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 	} else {
 		//TODO: don't we need a EOF_FAT in this case as well ?
 		// find out and adjust code here
-		CliComm::instance().printWarning("Fake Diskimage full: " +
+		cliComm.printWarning("Fake Diskimage full: " +
 			mapdir[dirindex].filename + " truncated.");
 	}
 	//write (possibly truncated) file size
@@ -551,7 +550,7 @@ void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 			fwrite(buf, 1, SECTOR_SIZE, file);
 			fclose(file);
 		} else {
-			CliComm::instance().printWarning(
+			cliComm.printWarning(
 				"Couldn't create bootsector file " + filename);
 		}
 	} else if (sector < (1 + 2 * SECTORS_PER_FAT)) {
@@ -609,7 +608,7 @@ void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 				if ( chgClus && chgName){
 					PRT_DEBUG("Major change: new file started !!!!");
 				} else {
-					CliComm::instance().printWarning(
+					cliComm.printWarning(
 						"! A unussual change has been performed on this disk\n"
 						"! are you running a disk editor or optimizer, or maybe\n"
 						"! a diskcache program\n"
@@ -625,7 +624,7 @@ void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 					//enough for host OS files when writing
 					//sectors?
 					} else {
-						CliComm::instance().printWarning(
+						cliComm.printWarning(
 							"File has been renamed in emulated disk, Host OS file (" +
 							mapdir[dirCount].filename + ") remains untouched!");
 					}
@@ -643,7 +642,7 @@ void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 			dirCount++;
 			buf += 32;
 		}
-		CliComm::instance().printWarning(
+		cliComm.printWarning(
 			"writing to DIR not yet fully implemented !!!!");
 	} else {
 	  // simply buffering everything for now, no write-through to host-OS
@@ -682,14 +681,12 @@ void FDC_DirAsDSK::updateFileInDSK(const string& fullfilename)
 	struct stat fst;
 
 	if (stat(fullfilename.c_str(), &fst)) {
-		CliComm::instance().printWarning(
-			"Error accessing " + fullfilename);
+		cliComm.printWarning("Error accessing " + fullfilename);
 		return;
 	}
 	if (!S_ISREG(fst.st_mode)) {
 		// we only handle regular files for now
-		CliComm::instance().printWarning(
-			"Not a regular file: " + fullfilename);
+		cliComm.printWarning("Not a regular file: " + fullfilename);
 		return;
 	}
 
@@ -709,7 +706,7 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 	int dirindex = 0;
 	while (!mapdir[dirindex].filename.empty()) {
 		if (++dirindex == 112) {
-			CliComm::instance().printWarning(
+			cliComm.printWarning(
 				"Couldn't add " + fullfilename +
 				": root dir full");
 			return;
@@ -721,7 +718,7 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 	PRT_DEBUG("Using MSX filename " << MSXfilename);
 	if (checkMSXFileExists(MSXfilename)) {
 		//TODO: actually should increase vfat abrev if possible!!
-		CliComm::instance().printWarning(
+		cliComm.printWarning(
 			"Couldn't add " + fullfilename + ": MSX name " +
 			MSXfilename + " existed already");
 		return;

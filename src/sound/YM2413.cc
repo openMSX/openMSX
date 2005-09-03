@@ -584,8 +584,7 @@ static byte inst_data[16 + 3][8] = {
 YM2413::YM2413(MSXMotherBoard& motherBoard, const string& name,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer(), name, "MSX-MUSIC")
-	, SimpleDebuggable(motherBoard.getDebugger(), name + " regs",
-	                   "MSX-MUSIC", 0x40)
+	, SimpleDebuggable(motherBoard, name + " regs", "MSX-MUSIC", 0x40)
 {
 	for (int i = 0; i < 16 + 3; ++i) {
 		patches[2 * i + 0] = Patch(0, inst_data[i]);

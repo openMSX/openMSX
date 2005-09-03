@@ -15,12 +15,13 @@
 
 namespace openmsx {
 
+class CommandController;
 class FilenameSetting;
 
 class RS232Tester : public RS232Device, private Runnable, private Schedulable
 {
 public:
-	RS232Tester();
+	RS232Tester(Scheduler& scheduler, CommandController& commandController);
 	virtual ~RS232Tester();
 
 	// Pluggable

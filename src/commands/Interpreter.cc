@@ -34,21 +34,21 @@ static int dummyGetHandle(ClientData /*instanceData*/, int /*direction*/,
 	return TCL_ERROR;
 }
 Tcl_ChannelType Interpreter::channelType = {
-	"openMSX console",	// Type name
-	NULL,			// Always non-blocking
-	dummyClose,		// Close proc
-	dummyInput,		// Input proc
-	Interpreter::outputProc,// Output proc
-	NULL,			// Seek proc
-	NULL,			// Set option proc
-	NULL,			// Get option proc
-	dummyWatch,		// Watch for events on console
-	dummyGetHandle,		// Get a handle from the device
-	NULL,			// Tcl_DriverClose2Proc
-	NULL,			// Tcl_DriverBlockModeProc
-	NULL,			// Tcl_DriverFlushProc
-	NULL,			// Tcl_DriverHandlerProc
-	NULL,			// Tcl_DriverWideSeekProc
+	(char*)"openMSX console",// Type name
+	NULL,			 // Always non-blocking
+	dummyClose,		 // Close proc
+	dummyInput,		 // Input proc
+	Interpreter::outputProc, // Output proc
+	NULL,			 // Seek proc
+	NULL,			 // Set option proc
+	NULL,			 // Get option proc
+	dummyWatch,		 // Watch for events on console
+	dummyGetHandle,		 // Get a handle from the device
+	NULL,			 // Tcl_DriverClose2Proc
+	NULL,			 // Tcl_DriverBlockModeProc
+	NULL,			 // Tcl_DriverFlushProc
+	NULL,			 // Tcl_DriverHandlerProc
+	NULL,			 // Tcl_DriverWideSeekProc
 };
 
 void Interpreter::init(const char* programName)
@@ -56,7 +56,8 @@ void Interpreter::init(const char* programName)
 	Tcl_FindExecutable(programName);
 }
 
-Interpreter::Interpreter()
+Interpreter::Interpreter(Scheduler& scheduler)
+	: PollInterface(scheduler)
 {
 	interp = Tcl_CreateInterp();
 	Tcl_Preserve(interp);

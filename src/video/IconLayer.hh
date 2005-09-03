@@ -13,6 +13,8 @@ class SDL_Surface;
 
 namespace openmsx {
 
+class CommandController;
+class EventDistributor;
 class Display;
 class IntegerSetting;
 
@@ -21,7 +23,9 @@ class IconLayer : public Layer, private EventListener,
                   private SettingChecker<FilenameSetting::Policy>
 {
 public:
-	IconLayer(Display& display, SDL_Surface* screen);
+	IconLayer(CommandController& commandController,
+	          EventDistributor& eventDistributor,
+	          Display& display, SDL_Surface* screen);
 	virtual ~IconLayer();
 
 	// Layer interface:
@@ -29,7 +33,8 @@ public:
 	virtual const std::string& getName();
 
 private:
-	void createSettings(LedEvent::Led led, const std::string& name);
+	void createSettings(CommandController& commandController,
+	                    LedEvent::Led led, const std::string& name);
 
 	// EventListener interface:
 	virtual void signalEvent(const Event& event);
@@ -38,6 +43,7 @@ private:
 	virtual void check(SettingImpl<FilenameSetting::Policy>& setting,
 	                   std::string& value);
 
+	EventDistributor& eventDistributor;
 	Display& display;
 	SDL_Surface* outputScreen;
 

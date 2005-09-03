@@ -9,6 +9,8 @@
 
 namespace openmsx {
 
+class CommandController;
+
 class FileContext
 {
 public:
@@ -66,7 +68,8 @@ private:
 class UserFileContext : public FileContext
 {
 public:
-	UserFileContext(const std::string& savePath = "", bool skipUserDirs = false);
+	UserFileContext(CommandController& commandController,
+	          const std::string& savePath = "", bool skipUserDirs = false);
 	virtual UserFileContext* clone() const;
 
 private:

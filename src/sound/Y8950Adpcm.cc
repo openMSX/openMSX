@@ -4,6 +4,7 @@
 #include "Y8950.hh"
 #include "Clock.hh"
 #include "Ram.hh"
+#include "MSXMotherBoard.hh"
 
 using std::string;
 
@@ -64,7 +65,8 @@ int Y8950Adpcm::CLAP(int min, int x, int max)
 
 Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, MSXMotherBoard& motherBoard,
                        const string& name, unsigned sampleRam)
-	: y8950(y8950_)
+	: Schedulable(motherBoard.getScheduler())
+	, y8950(y8950_)
 	, ram(new Ram(motherBoard, name + " RAM", "Y8950 sample RAM", sampleRam))
 	, volume(0)
 {

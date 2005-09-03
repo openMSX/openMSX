@@ -19,17 +19,15 @@ using std::string;
 
 namespace openmsx {
 
-SDLConsole::SDLConsole(
-		UserInputEventDistributor& userInputEventDistributor,
-		Console& console, Display& display, SDL_Surface* screen)
-	: OSDConsoleRenderer(userInputEventDistributor, console, display)
+SDLConsole::SDLConsole(MSXMotherBoard& motherBoard, SDL_Surface* screen)
+	: OSDConsoleRenderer(motherBoard)
 	, outputScreen(screen)
 {
 	blink = false;
 	lastBlinkTime = 0;
 
 	initConsole();
-	display.addLayer(this);
+	getDisplay().addLayer(this);
 }
 
 void SDLConsole::updateConsoleRect()
@@ -64,6 +62,7 @@ void SDLConsole::paint()
 		backgroundImage->draw(destX, destY, visibility);
 	}
 
+	Console& console = getConsole();
 	int screenlines = destH / font->getHeight();
 	for (int loop = 0; loop < screenlines; ++loop) {
 		int num = loop + console.getScrollBack();

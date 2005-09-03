@@ -10,34 +10,31 @@
 
 namespace openmsx {
 
-GlobalSettings::GlobalSettings()
+GlobalSettings::GlobalSettings(CommandController& commandController_)
+	: commandController(commandController_)
 {
-	speedSetting.reset(new IntegerSetting("speed",
+	speedSetting.reset(new IntegerSetting(commandController, "speed",
 	       "controls the emulation speed: higher is faster, 100 is normal",
 	       100, 1, 1000000));
-	throttleSetting.reset(new BooleanSetting("throttle",
+	throttleSetting.reset(new BooleanSetting(commandController, "throttle",
 	       "controls speed throttling", true, Setting::DONT_SAVE));
-	pauseSetting.reset(new BooleanSetting("pause", "pauses the emulation",
-	       false, Setting::DONT_SAVE));
-	powerSetting.reset(new BooleanSetting("power", "turn power on/off",
-	        false, Setting::DONT_SAVE));
-	autoSaveSetting.reset(new BooleanSetting("save_settings_on_exit",
+	pauseSetting.reset(new BooleanSetting(commandController, "pause",
+	       "pauses the emulation", false, Setting::DONT_SAVE));
+	powerSetting.reset(new BooleanSetting(commandController, "power",
+	        "turn power on/off", false, Setting::DONT_SAVE));
+	autoSaveSetting.reset(new BooleanSetting(commandController,
+	        "save_settings_on_exit",
 	        "automatically save settings when openMSX exits", true));
-	consoleSetting.reset(new BooleanSetting("console",
+	consoleSetting.reset(new BooleanSetting(commandController, "console",
 	        "turns console display on/off", false, Setting::DONT_SAVE));
-	userDirSetting.reset(new StringSetting("user_directories",
-	        "list of user directories", ""));
+	userDirSetting.reset(new StringSetting(commandController,
+	        "user_directories", "list of user directories", ""));
 }
 
 GlobalSettings::~GlobalSettings()
 {
-	SettingsConfig::instance().setSaveSettings(autoSaveSetting->getValue());
-}
-
-GlobalSettings& GlobalSettings::instance()
-{
-	static GlobalSettings oneInstance;
-	return oneInstance;
+	commandController.getSettingsConfig().setSaveSettings(
+		autoSaveSetting->getValue());
 }
 
 IntegerSetting& GlobalSettings::getSpeedSetting()
@@ -80,7 +77,8 @@ XMLElement& GlobalSettings::getMediaConfig()
 	if (!mediaConfig.get()) {
 		mediaConfig.reset(new XMLElement("media"));
 		mediaConfig->setFileContext(
-			std::auto_ptr<FileContext>(new UserFileContext()));
+			std::auto_ptr<FileContext>(
+				new UserFileContext(commandController)));
 	}
 	return *mediaConfig;
 }

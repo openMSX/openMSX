@@ -19,9 +19,9 @@
 namespace openmsx {
 
 class VideoSystem;
-class UserInputEventDistributor;
+class MSXMotherBoard;
+class EventDistributor;
 class RenderSettings;
-class Console;
 
 /** Represents the output window/screen of openMSX.
   * A display contains several layers.
@@ -30,9 +30,7 @@ class Display : private EventListener, private SettingListener,
                 private LayerListener
 {
 public:
-	Display(UserInputEventDistributor& userInputEventDistributor,
-	        RenderSettings& renderSettings,
-	        Console& console);
+	Display(MSXMotherBoard& motherboard);
 	virtual ~Display();
 
 	VideoSystem& getVideoSystem();
@@ -79,14 +77,17 @@ private:
 
 	// Delayed repaint stuff
 	class RepaintAlarm : public Alarm {
-	private:
+	public:
+		RepaintAlarm(EventDistributor& eventDistributor);
 		virtual void alarm();
+	private:
+		EventDistributor& eventDistributor;
 	} alarm;
 
 	// Commands
 	class ScreenShotCmd : public SimpleCommand {
 	public:
-		ScreenShotCmd(Display& display);
+		ScreenShotCmd(CommandController& commandController, Display& display);
 		virtual std::string execute(const std::vector<std::string>& tokens);
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
@@ -96,7 +97,7 @@ private:
 	// Info
 	class FpsInfoTopic : public InfoTopic {
 	public:
-		FpsInfoTopic(Display& display);
+		FpsInfoTopic(CommandController& commandController, Display& display);
 		virtual void execute(const std::vector<TclObject*>& tokens,
 		                     TclObject& result) const;
 		virtual std::string help(const std::vector<std::string>& tokens) const;
@@ -104,9 +105,8 @@ private:
 		Display& display;
 	} fpsInfo;
 
-	UserInputEventDistributor& userInputEventDistributor;
+	MSXMotherBoard& motherboard;
 	RenderSettings& renderSettings;
-	Console& console;
 };
 
 } // namespace openmsx

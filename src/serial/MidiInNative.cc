@@ -21,18 +21,19 @@ using std::string;
 
 namespace openmsx {
 
-void MidiInNative::registerAll(PluggingController& controller)
+void MidiInNative::registerAll(Scheduler& scheduler,
+                               PluggingController& controller)
 {
 	w32_midiInInit();
 	unsigned devnum = w32_midiInGetVFNsNum();
 	for (unsigned i = 0 ; i <devnum; ++i) {
-		controller.registerPluggable(new MidiInNative(i));
+		controller.registerPluggable(new MidiInNative(scheduler, i));
 	}
 }
 
 
-MidiInNative::MidiInNative(unsigned num)
-	: thread(this), lock(1)
+MidiInNative::MidiInNative(Scheduler& scheduler, unsigned num)
+	: Schedulable(scheduler), thread(this), lock(1)
 {
 	name = w32_midiInGetVFN(num);
 	desc = w32_midiInGetRDN(num);

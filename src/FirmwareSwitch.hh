@@ -8,11 +8,12 @@
 namespace openmsx {
 
 class BooleanSetting;
+class CommandController;
 
 class FirmwareSwitch
 {
 public:
-	FirmwareSwitch();
+	FirmwareSwitch(CommandController& commandController);
 	bool getStatus() const;
 
 private:

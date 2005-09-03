@@ -11,6 +11,7 @@
 
 namespace openmsx {
 
+class CommandController;
 class IntegerSetting;
 
 /**
@@ -24,7 +25,8 @@ class IntegerSetting;
 class Autofire : private SettingListener
 {
 public:
-	Autofire(unsigned newMinInts, unsigned newMaxInts,
+	Autofire(CommandController& commandController,
+	         unsigned newMinInts, unsigned newMaxInts,
 	         const std::string& name);
 	virtual ~Autofire();
 

@@ -12,6 +12,7 @@ struct SDL_Surface;
 
 namespace openmsx {
 
+class CommandController;
 class RenderSettings;
 class Display;
 
@@ -21,7 +22,8 @@ template <class Pixel>
 class PostProcessor : public VideoLayer
 {
 public:
-	PostProcessor(RenderSettings& renderSettings, Display& display,
+	PostProcessor(CommandController& commandController,
+	              RenderSettings& renderSettings, Display& display,
 	              SDL_Surface* screen, VideoSource videoSource,
 	              unsigned maxWidth);
 	virtual ~PostProcessor();

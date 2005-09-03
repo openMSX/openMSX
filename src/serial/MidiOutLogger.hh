@@ -9,12 +9,13 @@
 
 namespace openmsx {
 
+class CommandController;
 class FilenameSetting;
 
 class MidiOutLogger : public MidiOutDevice
 {
 public:
-	MidiOutLogger();
+	MidiOutLogger(CommandController& commandController);
 	virtual ~MidiOutLogger();
 
 	// Pluggable

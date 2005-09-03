@@ -1,11 +1,11 @@
 // $Id$
 
-#include "CommandController.hh"
 #include "Debuggable.hh"
 #include "Debugger.hh"
 #include "MSXCPU.hh"
 #include "BreakPoint.hh"
 #include "TclObject.hh"
+#include "CommandController.hh"
 #include "CommandException.hh"
 #include "StringOp.hh"
 #include <cassert>
@@ -22,19 +22,16 @@ using std::auto_ptr;
 
 namespace openmsx {
 
-Debugger::Debugger()
-	: debugCmd(*this),
-	  commandController(CommandController::instance()),
-	  cpu(0)
+Debugger::Debugger(CommandController& commandController)
+	: debugCmd(commandController, *this)
+	, cpu(0)
 {
-	commandController.registerCommand(&debugCmd, "debug");
 }
 
 Debugger::~Debugger()
 {
 	assert(!cpu);
 	assert(debuggables.empty());
-	commandController.unregisterCommand(&debugCmd, "debug");
 }
 
 void Debugger::setCPU(MSXCPU* cpu_)
@@ -88,8 +85,11 @@ static word getAddress(const vector<TclObject*>& tokens)
 	return addr;
 }
 
-Debugger::DebugCmd::DebugCmd(Debugger& parent_)
-	: parent(parent_)
+Debugger::DebugCmd::DebugCmd(CommandController& commandController_,
+                             Debugger& debugger_)
+	: Command(commandController_, "debug")
+	, debugger(debugger_)
+	, commandController(commandController_)
 {
 }
 
@@ -115,15 +115,15 @@ void Debugger::DebugCmd::execute(const vector<TclObject*>& tokens,
 	} else if (subCmd == "list") {
 		list(result);
 	} else if (subCmd == "step") {
-		parent.cpu->doStep();
+		debugger.cpu->doStep();
 	} else if (subCmd == "cont") {
-		parent.cpu->doContinue();
+		debugger.cpu->doContinue();
 	} else if (subCmd == "disasm") {
-		parent.cpu->disasmCommand(tokens, result);
+		debugger.cpu->disasmCommand(tokens, result);
 	} else if (subCmd == "break") {
-		parent.cpu->doBreak();
+		debugger.cpu->doBreak();
 	} else if (subCmd == "breaked") {
-		result.setInt(parent.cpu->isBreaked());
+		result.setInt(debugger.cpu->isBreaked());
 	} else if (subCmd == "set_bp") {
 		setBreakPoint(tokens, result);
 	} else if (subCmd == "remove_bp") {
@@ -138,8 +138,8 @@ void Debugger::DebugCmd::execute(const vector<TclObject*>& tokens,
 void Debugger::DebugCmd::list(TclObject& result)
 {
 	for (map<string, Debuggable*>::const_iterator it =
-	       parent.debuggables.begin();
-	     it != parent.debuggables.end(); ++it) {
+	       debugger.debuggables.begin();
+	     it != debugger.debuggables.end(); ++it) {
 		result.addListElement(it->first);
 	}
 }
@@ -149,7 +149,7 @@ void Debugger::DebugCmd::desc(const vector<TclObject*>& tokens, TclObject& resul
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	Debuggable* device = parent.getDebuggable(tokens[2]->getString());
+	Debuggable* device = debugger.getDebuggable(tokens[2]->getString());
 	result.setString(device->getDescription());
 }
 
@@ -158,7 +158,7 @@ void Debugger::DebugCmd::size(const vector<TclObject*>& tokens, TclObject& resul
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	Debuggable* device = parent.getDebuggable(tokens[2]->getString());
+	Debuggable* device = debugger.getDebuggable(tokens[2]->getString());
 	result.setInt(device->getSize());
 }
 
@@ -167,7 +167,7 @@ void Debugger::DebugCmd::read(const vector<TclObject*>& tokens, TclObject& resul
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
-	Debuggable* device = parent.getDebuggable(tokens[2]->getString());
+	Debuggable* device = debugger.getDebuggable(tokens[2]->getString());
 	unsigned addr = tokens[3]->getInt();
 	if (addr >= device->getSize()) {
 		throw CommandException("Invalid address");
@@ -180,7 +180,7 @@ void Debugger::DebugCmd::readBlock(const vector<TclObject*>& tokens, TclObject& 
 	if (tokens.size() != 5) {
 		throw SyntaxError();
 	}
-	Debuggable* device = parent.getDebuggable(tokens[2]->getString());
+	Debuggable* device = debugger.getDebuggable(tokens[2]->getString());
 	unsigned size = device->getSize();
 	unsigned addr = tokens[3]->getInt();
 	if (addr >= size) {
@@ -205,7 +205,7 @@ void Debugger::DebugCmd::write(const vector<TclObject*>& tokens,
 	if (tokens.size() != 5) {
 		throw SyntaxError();
 	}
-	Debuggable* device = parent.getDebuggable(tokens[2]->getString());
+	Debuggable* device = debugger.getDebuggable(tokens[2]->getString());
 	unsigned addr = tokens[3]->getInt();
 	if (addr >= device->getSize()) {
 		throw CommandException("Invalid address");
@@ -224,7 +224,7 @@ void Debugger::DebugCmd::writeBlock(const vector<TclObject*>& tokens,
 	if (tokens.size() != 5) {
 		throw SyntaxError();
 	}
-	Debuggable* device = parent.getDebuggable(tokens[2]->getString());
+	Debuggable* device = debugger.getDebuggable(tokens[2]->getString());
 	unsigned size = device->getSize();
 	unsigned addr = tokens[3]->getInt();
 	if (addr >= size) {
@@ -248,19 +248,19 @@ void Debugger::DebugCmd::setBreakPoint(const vector<TclObject*>& tokens,
 	auto_ptr<BreakPoint> bp;
 	switch (tokens.size()) {
 	case 3: // no condition
-		bp.reset(new BreakPoint(addr));
+		bp.reset(new BreakPoint(commandController.getCliComm(), addr));
 		break;
 	case 4: { // contional bp
 		auto_ptr<TclObject> cond(new TclObject(*tokens[3]));
 		cond->checkExpression();
-		bp.reset(new BreakPoint(addr, cond));
+		bp.reset(new BreakPoint(commandController.getCliComm(), addr, cond));
 		break;
 	}
 	default:
 		throw CommandException("Too many arguments.");
 	}
 	result.setString("bp#" + StringOp::toString(bp->getId()));
-	parent.cpu->insertBreakPoint(bp);
+	debugger.cpu->insertBreakPoint(bp);
 }
 
 void Debugger::DebugCmd::removeBreakPoint(const std::vector<TclObject*>& tokens,
@@ -269,7 +269,7 @@ void Debugger::DebugCmd::removeBreakPoint(const std::vector<TclObject*>& tokens,
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	const CPU::BreakPoints& breakPoints = parent.cpu->getBreakPoints();
+	const CPU::BreakPoints& breakPoints = debugger.cpu->getBreakPoints();
 	
 	string tmp = tokens[2]->getString();
 	if (StringOp::startsWith(tmp, "bp#")) {
@@ -279,7 +279,7 @@ void Debugger::DebugCmd::removeBreakPoint(const std::vector<TclObject*>& tokens,
 		     it != breakPoints.end(); ++it) {
 			const BreakPoint& bp = *it->second;
 			if (bp.getId() == id) {
-				parent.cpu->removeBreakPoint(bp);
+				debugger.cpu->removeBreakPoint(bp);
 				return;
 			}
 		}
@@ -294,7 +294,7 @@ void Debugger::DebugCmd::removeBreakPoint(const std::vector<TclObject*>& tokens,
 		     it != range.second; ++it) {
 			const BreakPoint& bp = *it->second;
 			if (bp.getCondition().empty()) {
-				parent.cpu->removeBreakPoint(bp);
+				debugger.cpu->removeBreakPoint(bp);
 				return;
 			}
 		}
@@ -306,7 +306,7 @@ void Debugger::DebugCmd::removeBreakPoint(const std::vector<TclObject*>& tokens,
 void Debugger::DebugCmd::listBreakPoints(const std::vector<TclObject*>& /*tokens*/,
                                          TclObject& result)
 {
-	const CPU::BreakPoints& breakPoints = parent.cpu->getBreakPoints();
+	const CPU::BreakPoints& breakPoints = debugger.cpu->getBreakPoints();
 	ostringstream os;
 	os.fill('0');
 	for (CPU::BreakPoints::const_iterator it = breakPoints.begin();
@@ -360,13 +360,13 @@ void Debugger::DebugCmd::tabCompletion(vector<string>& tokens) const
 			cmds.insert("set_bp");
 			cmds.insert("remove_bp");
 			cmds.insert("list_bp");
-			CommandController::completeString(tokens, cmds);
+			completeString(tokens, cmds);
 			break;
 		}
 		case 3: {
 			set<string> debuggables;
-			parent.getDebuggables(debuggables);
-			CommandController::completeString(tokens, debuggables);
+			debugger.getDebuggables(debuggables);
+			completeString(tokens, debuggables);
 			break;
 		}
 	}

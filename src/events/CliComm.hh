@@ -11,6 +11,8 @@
 
 namespace openmsx {
 
+class Scheduler;
+class EventDistributor;
 class CommandController;
 class CliConnection;
 
@@ -37,7 +39,10 @@ public:
 		NUM_UPDATES // must be last
 	};
 
-	static CliComm& instance();
+	CliComm(Scheduler& scheduler, CommandController& commandController,
+	        EventDistributor& eventDistributor);
+	virtual ~CliComm();
+
 	void startInput(CommandLineParser::ControlType type,
 	                const std::string& arguments);
 
@@ -53,30 +58,32 @@ public:
 	}
 
 private:
-	CliComm();
-	~CliComm();
-
 	// EventListener
 	virtual void signalEvent(const Event& event);
 
 	class UpdateCmd : public SimpleCommand {
 	public:
-		UpdateCmd(CliComm& parent);
+		UpdateCmd(CommandController& commandController,
+		          CliComm& cliComm);
 		virtual std::string execute(const std::vector<std::string>& tokens);
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
-		CliComm& parent;
+		CliComm& cliComm;
 	} updateCmd;
 
 	bool updateEnabled[NUM_UPDATES];
 	std::map<std::string, std::string> prevValues[NUM_UPDATES];
+
+	Scheduler& scheduler;
 	CommandController& commandController;
+	EventDistributor& eventDistributor;
 
 	bool xmlOutput;
 	typedef std::vector<CliConnection*> Connections;
 	Connections connections;
 	friend class CliServer;
+
 };
 
 } // namespace openmsx

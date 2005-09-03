@@ -11,8 +11,9 @@ namespace openmsx {
 
 // class IntegerSettingPolicy
 
-IntegerSettingPolicy::IntegerSettingPolicy(int minValue, int maxValue)
-	: SettingRangePolicy<int>(minValue, maxValue)
+IntegerSettingPolicy::IntegerSettingPolicy(CommandController& commandController,
+                                           int minValue, int maxValue)
+	: SettingRangePolicy<int>(commandController, minValue, maxValue)
 {
 }
 
@@ -36,10 +37,12 @@ int IntegerSettingPolicy::fromString(const std::string& str) const
 
 // class IntegerSetting
 
-IntegerSetting::IntegerSetting(const string& name, const string& description,
+IntegerSetting::IntegerSetting(CommandController& commandController,
+                               const string& name, const string& description,
                                int initialValue, int minValue, int maxValue)
-	: SettingImpl<IntegerSettingPolicy>(name, description, initialValue,
-	                                    Setting::SAVE, minValue, maxValue)
+	: SettingImpl<IntegerSettingPolicy>(
+		commandController, name, description, initialValue,
+		Setting::SAVE, minValue, maxValue)
 {
 }
 

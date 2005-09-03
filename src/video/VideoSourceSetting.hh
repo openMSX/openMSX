@@ -16,7 +16,8 @@ enum VideoSource { VIDEO_MSX, VIDEO_GFX9000 };
 class VideoSourceSettingPolicy : public EnumSettingPolicy<VideoSource>
 {
 protected:
-	VideoSourceSettingPolicy(const std::string& name, const Map& map);
+	VideoSourceSettingPolicy(CommandController& commandController,
+	                         const std::string& name, const Map& map);
 	virtual void checkSetValue(VideoSource& value) const;
 	VideoSource checkGetValue(VideoSource value) const;
 
@@ -27,7 +28,7 @@ protected:
 class VideoSourceSetting : public SettingImpl<VideoSourceSettingPolicy>
 {
 public:
-	VideoSourceSetting();
+	VideoSourceSetting(CommandController& commandController);
 	void registerVideoSource(VideoSource source);
 	void unregisterVideoSource(VideoSource source);
 };

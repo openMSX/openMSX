@@ -181,15 +181,16 @@ SettingFileContext::SettingFileContext(const SettingFileContext& rhs)
 
 // class UserFileContext
 
-UserFileContext::UserFileContext(const string& savePath, bool skipUserDirs)
+UserFileContext::UserFileContext(CommandController& commandController,
+                                 const string& savePath, bool skipUserDirs)
 {
 	paths.push_back("./");
 	if (!skipUserDirs) {
 		try {
 			vector<string> dirs;
-			const string& list = GlobalSettings::instance().
+			const string& list = commandController.getGlobalSettings().
 				getUserDirSetting().getValue();
-			CommandController::instance().getInterpreter().splitList(list, dirs);
+			commandController.getInterpreter().splitList(list, dirs);
 			for (vector<string>::const_iterator it = dirs.begin();
 			     it != dirs.end(); ++it) {
 				string path = *it;
@@ -203,7 +204,7 @@ UserFileContext::UserFileContext(const string& savePath, bool skipUserDirs)
 				paths.push_back(path);
 			}
 		} catch (CommandException& e) {
-			CliComm::instance().printWarning(
+			commandController.getCliComm().printWarning(
 				"user directories: " + e.getMessage());
 		}
 	}

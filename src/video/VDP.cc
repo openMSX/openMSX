@@ -48,6 +48,7 @@ namespace openmsx {
 VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
          const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
+	, Schedulable(motherBoard.getScheduler())
 	, vdpRegDebug(*this)
 	, vdpStatusRegDebug(*this)
 	, vdpPaletteDebug(*this)
@@ -122,13 +123,13 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// Reset state.
 	reset(time);
 
-	EventDistributor::instance().registerEventListener(
+	getMotherBoard().getEventDistributor().registerEventListener(
 		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
 }
 
 VDP::~VDP()
 {
-	EventDistributor::instance().unregisterEventListener(
+	getMotherBoard().getEventDistributor().unregisterEventListener(
 		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
 
 	delete renderer;
@@ -144,10 +145,7 @@ void VDP::signalEvent(const Event& event)
 
 void VDP::createRenderer()
 {
-	renderer = RendererFactory::createRenderer(
-		getMotherBoard().getRenderSettings(),
-		getMotherBoard().getDisplay(),
-		*this);
+	renderer = RendererFactory::createRenderer(*this);
 	// TODO: Is it safe to use frameStartTime,
 	//       which is most likely in the past?
 	//renderer->reset(frameStartTime.getTime());
@@ -1053,9 +1051,8 @@ void VDP::updateDisplayMode(DisplayMode newMode, const EmuTime& time)
 // VDPRegDebug
 
 VDP::VDPRegDebug::VDPRegDebug(VDP& vdp_)
-	: SimpleDebuggable(vdp_.getMotherBoard().getDebugger(),
-	                   "VDP regs", "VDP registers.",
-	                   0x40)
+	: SimpleDebuggable(vdp_.getMotherBoard(),
+	                   "VDP regs", "VDP registers.", 0x40)
 	, vdp(vdp_)
 {
 }
@@ -1080,9 +1077,8 @@ void VDP::VDPRegDebug::write(unsigned address, byte value, const EmuTime& time)
 // VDPStatusRegDebug
 
 VDP::VDPStatusRegDebug::VDPStatusRegDebug(VDP& vdp_)
-	: SimpleDebuggable(vdp_.getMotherBoard().getDebugger(),
-	                   "VDP status regs", "VDP status registers.",
-	                   0x10)
+	: SimpleDebuggable(vdp_.getMotherBoard(),
+	                   "VDP status regs", "VDP status registers.", 0x10)
 	, vdp(vdp_)
 {
 }
@@ -1095,9 +1091,8 @@ byte VDP::VDPStatusRegDebug::read(unsigned address, const EmuTime& time)
 // VDPPaletteDebug
 
 VDP::VDPPaletteDebug::VDPPaletteDebug(VDP& vdp_)
-	: SimpleDebuggable(vdp_.getMotherBoard().getDebugger(),
-	                   "VDP palette", "V99x8 palette (RBG format)",
-	                   0x20)
+	: SimpleDebuggable(vdp_.getMotherBoard(),
+	                   "VDP palette", "V99x8 palette (RBG format)", 0x20)
 	, vdp(vdp_)
 {
 }

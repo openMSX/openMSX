@@ -13,6 +13,7 @@ namespace openmsx {
 class CliComm;
 class BooleanSetting;
 class MSXMotherBoard;
+class CommandController;
 
 /**
  * Contains the main loop of openMSX.
@@ -59,17 +60,17 @@ private:
 	 */
 	bool running;
 
-	BooleanSetting& pauseSetting;
-	CliComm& output;
 	MSXMotherBoard& motherBoard;
+	BooleanSetting& pauseSetting;
+	CliComm& cliComm;
 
 	class QuitCommand : public SimpleCommand {
 	public:
-		QuitCommand(Reactor& parent);
+		QuitCommand(CommandController& commandController, Reactor& reactor);
 		virtual std::string execute(const std::vector<std::string>& tokens);
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
-		Reactor& parent;
+		Reactor& reactor;
 	} quitCommand;
 };
 

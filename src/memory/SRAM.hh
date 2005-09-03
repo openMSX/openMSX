@@ -10,6 +10,7 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class XMLElement;
+class CliComm;
 
 class SRAM : private Alarm
 {
@@ -44,6 +45,7 @@ private:
 	Ram ram;
 	const XMLElement& config;
 	const char* header;
+	CliComm& cliComm;
 };
 
 } // namespace openmsx

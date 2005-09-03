@@ -5,26 +5,34 @@
 
 #include "SettingListener.hh"
 #include "EventListener.hh"
+#include "PollInterface.hh"
 #include "Command.hh"
 #include <SDL.h>
 #include <memory>
 
 namespace openmsx {
 
+class CommandController;
 class BooleanSetting;
 class EventDistributor;
 
-class InputEventGenerator : private SettingListener, private EventListener
+class InputEventGenerator : private SettingListener, private EventListener,
+                            private PollInterface
 {
 public:
-	static InputEventGenerator& instance();
+	InputEventGenerator(Scheduler& scheduler,
+	                    CommandController& commandController,
+	                    EventDistributor& eventDistributor);
+	virtual ~InputEventGenerator();
 
 	/** Poll / wait for an event and handle it.
 	  * These methods should be called from the main thread.
 	  */
-	void poll();
 	void wait();
 	void notify();
+	
+	// PollInterface
+	virtual void poll();
 
 	/**
 	 * Enable or disable keyboard event repeats
@@ -39,9 +47,6 @@ public:
 	void reinit();
 
 private:
-	InputEventGenerator();
-	virtual ~InputEventGenerator();
-
 	void handle(const SDL_Event &event);
 	void setGrabInput(bool grab);
 
@@ -60,15 +65,16 @@ private:
 
 	class EscapeGrabCmd : public SimpleCommand {
 	public:
-		EscapeGrabCmd(InputEventGenerator& parent);
+		EscapeGrabCmd(CommandController& commandController,
+		              InputEventGenerator& inputEventGenerator);
 		virtual std::string execute(const std::vector<std::string>& tokens);
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
-		InputEventGenerator& parent;
+		InputEventGenerator& inputEventGenerator;
 	} escapeGrabCmd;
 
 	bool keyRepeat;
-	EventDistributor& distributor;
+	EventDistributor& eventDistributor;
 };
 
 } // namespace openmsx

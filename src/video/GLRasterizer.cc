@@ -240,9 +240,10 @@ inline void GLRasterizer::renderPlanarBitmapLines(byte line, int count)
 	}
 }
 
-GLRasterizer::GLRasterizer(RenderSettings& renderSettings_, Display& display,
+GLRasterizer::GLRasterizer(CommandController& commandController,
+                           RenderSettings& renderSettings_, Display& display,
                            VDP& vdp_)
-	: VideoLayer(VIDEO_MSX, renderSettings_, display)
+	: VideoLayer(VIDEO_MSX, commandController, renderSettings_, display)
 	, renderSettings(renderSettings_)
 	, vdp(vdp_), vram(vdp.getVRAM())
 	, characterConverter(vdp, palFg, palBg)

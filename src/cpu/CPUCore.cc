@@ -23,20 +23,23 @@ using std::string;
 namespace openmsx {
 
 template <class T> CPUCore<T>::CPUCore(
-	const string& name, const BooleanSetting& traceSetting_,
-	const EmuTime& time)
+		MSXMotherBoard& motherboard_, const string& name,
+		const BooleanSetting& traceSetting_, const EmuTime& time)
 	: T(time)
 	, nmiEdge(false)
 	, NMIStatus(0)
 	, IRQStatus(0)
 	, interface(NULL)
-	, scheduler(Scheduler::instance())
-	, freqLocked(new BooleanSetting(name + "_freq_locked",
-	             "real (locked) or custom (unlocked) " + name + " frequency",
-	             true))
-	, freqValue(new IntegerSetting(name + "_freq",
-	            "custom " + name + " frequency (only valid when unlocked)",
-	            T::CLOCK_FREQ, 1000000, 100000000))
+	, motherboard(motherboard_)
+	, scheduler(motherboard.getScheduler())
+	, freqLocked(new BooleanSetting(motherboard.getCommandController(),
+	        name + "_freq_locked",
+	        "real (locked) or custom (unlocked) " + name + " frequency",
+	        true))
+	, freqValue(new IntegerSetting(motherboard.getCommandController(),
+	        name + "_freq",
+	        "custom " + name + " frequency (only valid when unlocked)",
+	        T::CLOCK_FREQ, 1000000, 100000000))
 	, freq(T::CLOCK_FREQ)
 	, traceSetting(traceSetting_)
 {
@@ -57,11 +60,6 @@ template <class T> CPUCore<T>::~CPUCore()
 {
 	freqValue->removeListener(this);
 	freqLocked->removeListener(this);
-}
-
-template <class T> void CPUCore<T>::setMotherboard(MSXMotherBoard* motherboard_)
-{
-	motherboard = motherboard_;
 }
 
 template <class T> void CPUCore<T>::setInterface(MSXCPUInterface* interf)
@@ -176,12 +174,12 @@ template <class T> void CPUCore<T>::doBreak2()
 	assert(!breaked);
 	breaked = true;
 
-	motherboard->block();
+	motherboard.block();
 
-	CliComm::instance().update(CliComm::BREAK, "pc",
+	motherboard.getCliComm().update(CliComm::BREAK, "pc",
 	                           "0x" + StringOp::toHexString(R.PC, 4));
 	Event* breakEvent = new SimpleEvent<OPENMSX_BREAK_EVENT>();
-	EventDistributor::instance().distributeEvent(breakEvent);
+	motherboard.getEventDistributor().distributeEvent(breakEvent);
 }
 
 template <class T> void CPUCore<T>::doStep()
@@ -189,7 +187,7 @@ template <class T> void CPUCore<T>::doStep()
 	if (breaked) {
 		breaked = false;
 		step = true;
-		motherboard->unblock();
+		motherboard.unblock();
 	}
 }
 
@@ -224,9 +222,9 @@ template <class T> void CPUCore<T>::doContinue()
 	if (breaked) {
 		breaked = false;
 		continued = true;
-		CliComm::instance().update(CliComm::RESUME, "pc",
-	                                 "0x" + StringOp::toHexString(R.PC, 4));
-		motherboard->unblock();
+		motherboard.getCliComm().update(CliComm::RESUME, "pc",
+	                                   "0x" + StringOp::toHexString(R.PC, 4));
+		motherboard.unblock();
 	}
 }
 

@@ -11,6 +11,7 @@
 namespace openmsx {
 
 class Mixer;
+class GlobalSettings;
 class IntegerSetting;
 class BooleanSetting;
 
@@ -18,7 +19,8 @@ class SDLSoundDriver : public SoundDriver, private Schedulable,
                        private SettingListener
 {
 public:
-	SDLSoundDriver(Mixer& mixer, unsigned frequency, unsigned samples);
+	SDLSoundDriver(Scheduler& scheduler, GlobalSettings& globalSettings,
+	               Mixer& mixer, unsigned frequency, unsigned samples);
 	virtual ~SDLSoundDriver();
 
 	virtual void lock();

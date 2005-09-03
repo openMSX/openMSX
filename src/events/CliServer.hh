@@ -8,10 +8,14 @@
 
 namespace openmsx {
 
+class Scheduler;
+class CommandController;
+class CliComm;
+
 class CliServer : private Runnable
 {
 public:
-	CliServer();
+	CliServer(Scheduler& scheduler, CommandController& commandController);
 	~CliServer();
 
 private:
@@ -19,6 +23,10 @@ private:
 	void mainLoop();
 	Thread thread;
 	SOCKET listenSock;
+
+	Scheduler& scheduler;
+	CommandController& commandController;
+	CliComm& cliComm;
 };
 
 } // namespace openmsx

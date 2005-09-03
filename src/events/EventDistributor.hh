@@ -14,13 +14,16 @@
 
 namespace openmsx {
 
+class CommandController;
 class EventListener;
 class FloatSetting;
 
 class EventDistributor : private Schedulable
 {
 public:
-	static EventDistributor& instance();
+	EventDistributor(Scheduler& scheduler,
+	                 CommandController& commandController);
+	virtual ~EventDistributor();
 
 	/** Ways in which an event can be delivered to a listener.
 	  */
@@ -58,9 +61,6 @@ public:
 	void sync(const EmuTime& emuTime);
 
 private:
-	EventDistributor();
-	virtual ~EventDistributor();
-
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const std::string& schedName() const;

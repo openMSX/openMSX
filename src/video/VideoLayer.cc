@@ -3,19 +3,22 @@
 #include "VideoLayer.hh"
 #include "RenderSettings.hh"
 #include "Display.hh"
+#include "CommandController.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
 #include <cassert>
 
 namespace openmsx {
 
-VideoLayer::VideoLayer(VideoSource videoSource_, RenderSettings& renderSettings_,
+VideoLayer::VideoLayer(VideoSource videoSource_,
+                       CommandController& commandController,
+                       RenderSettings& renderSettings_,
                        Display& display)
 	: videoSource(videoSource_)
 	, renderSettings(renderSettings_)
 	, videoSourceSetting(renderSettings.getVideoSource())
 	, videoSourceActivator(videoSourceSetting, videoSource)
-	, powerSetting(GlobalSettings::instance().getPowerSetting())
+	, powerSetting(commandController.getGlobalSettings().getPowerSetting())
 {
 	setCoverage(getCoverage());
 	setZ(calcZ());

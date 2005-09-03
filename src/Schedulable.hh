@@ -17,8 +17,6 @@ class Scheduler;
 class Schedulable
 {
 public:
-	Schedulable();
-
 	/**
 	 * When the previously registered syncPoint is reached, this
 	 * method gets called. The parameter "userData" is the same
@@ -31,7 +29,10 @@ public:
 	 */
 	virtual const std::string& schedName() const = 0;
 
+	Scheduler& getScheduler() const;
+
 protected:
+	Schedulable(Scheduler& scheduler);
 	virtual ~Schedulable();
 
 	// Scheduler needs special permissions to declare these methods friends.

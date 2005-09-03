@@ -22,7 +22,8 @@ using std::string;
 
 namespace openmsx {
 
-SDL_Surface* openSDLVideo(RenderSettings& renderSettings,
+SDL_Surface* openSDLVideo(InputEventGenerator& inputEventGenerator,
+                          RenderSettings& renderSettings,
                           int width, int height, int flags)
 {
 	if (!SDL_WasInit(SDL_INIT_VIDEO)
@@ -96,7 +97,7 @@ SDL_Surface* openSDLVideo(RenderSettings& renderSettings,
 	}
 #endif
 
-	InputEventGenerator::instance().reinit();
+	inputEventGenerator.reinit();
 
 	return screen;
 }

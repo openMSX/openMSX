@@ -14,12 +14,13 @@
 
 namespace openmsx {
 
+class CommandController;
 class FilenameSetting;
 
 class MidiInReader : public MidiInDevice, private Runnable, private Schedulable
 {
 public:
-	MidiInReader();
+	MidiInReader(Scheduler& scheduler, CommandController& commandController);
 	virtual ~MidiInReader();
 
 	// Pluggable

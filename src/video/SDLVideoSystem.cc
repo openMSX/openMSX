@@ -12,6 +12,7 @@
 #include "InitException.hh"
 #include "ScreenShotSaver.hh"
 #include "IconLayer.hh"
+#include "MSXMotherBoard.hh"
 #include <SDL.h>
 #include <cassert>
 
@@ -19,11 +20,9 @@ using std::string;
 
 namespace openmsx {
 
-SDLVideoSystem::SDLVideoSystem(UserInputEventDistributor& userInputEventDistributor,
-                               RenderSettings& renderSettings_,
-                               Console& console, Display& display_)
-	: renderSettings(renderSettings_)
-	, display(display_)
+SDLVideoSystem::SDLVideoSystem(MSXMotherBoard& motherboard)
+	: renderSettings(motherboard.getRenderSettings())
+	, display(motherboard.getDisplay())
 {
 	// Destruct old layers, so resources are freed before new allocations
 	// are done.
@@ -31,7 +30,8 @@ SDLVideoSystem::SDLVideoSystem(UserInputEventDistributor& userInputEventDistribu
 
 	unsigned width, height;
 	getWindowSize(width, height);
-	screen = openSDLVideo(renderSettings, width, height, SDL_SWSURFACE);
+	screen = openSDLVideo(motherboard.getInputEventGenerator(),
+	                      renderSettings, width, height, SDL_SWSURFACE);
 
 	switch (screen->format->BytesPerPixel) {
 	case 2:
@@ -44,9 +44,11 @@ SDLVideoSystem::SDLVideoSystem(UserInputEventDistributor& userInputEventDistribu
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		throw InitException("unsupported colour depth");
 	}
-	new SDLConsole(userInputEventDistributor, console, display, screen);
+	new SDLConsole(motherboard, screen);
 
-	Layer* iconLayer = new SDLIconLayer(display, screen);
+	Layer* iconLayer = new SDLIconLayer(motherboard.getCommandController(),
+	                                    motherboard.getEventDistributor(),
+	                                    display, screen);
 	display.addLayer(iconLayer);
 
 	display.setVideoSystem(this);
@@ -61,11 +63,9 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 {
 	switch (screen->format->BytesPerPixel) {
 	case 2:
-		return new SDLRasterizer<Uint16>(
-			renderSettings, display, vdp, screen);
+		return new SDLRasterizer<Uint16>(vdp, screen);
 	case 4:
-		return new SDLRasterizer<Uint32>(
-			renderSettings, display, vdp, screen);
+		return new SDLRasterizer<Uint32>(vdp, screen);
 	default:
 		assert(false);
 		return 0;
@@ -76,11 +76,9 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 {
 	switch (screen->format->BytesPerPixel) {
 	case 2:
-		return new V9990SDLRasterizer<Uint16>(
-			renderSettings, display, vdp, screen);
+		return new V9990SDLRasterizer<Uint16>(vdp, screen);
 	case 4:
-		return new V9990SDLRasterizer<Uint32>(
-			renderSettings, display, vdp, screen);
+		return new V9990SDLRasterizer<Uint32>(vdp, screen);
 	default:
 		assert(false);
 		return 0;

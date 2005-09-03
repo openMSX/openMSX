@@ -7,6 +7,7 @@ struct SDL_Surface;
 
 namespace openmsx {
 
+class InputEventGenerator;
 class RenderSettings;
 
 /** Initialise SDL's video subsystem and find a usable video mode.
@@ -21,7 +22,8 @@ class RenderSettings;
   * @throws InitException If initialisation fails
   *   or no suitable video mode is found.
   */
-SDL_Surface* openSDLVideo(RenderSettings& renderSettings,
+SDL_Surface* openSDLVideo(InputEventGenerator& inputEventGenerator,
+                          RenderSettings& renderSettings,
                           int width, int height, int flags);
 
 /** Shuts down SDL's video subsystem.

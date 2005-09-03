@@ -8,6 +8,7 @@
 #include "Setting.hh"
 #include "SettingsConfig.hh"
 #include "MSXException.hh"
+#include "CommandController.hh"
 
 namespace openmsx {
 
@@ -20,11 +21,13 @@ public:
 	typedef POLICY Policy;
 	typedef typename POLICY::Type Type;
 
-	SettingImpl(const std::string& name, const std::string& description,
+	SettingImpl(CommandController& commandController,
+	            const std::string& name, const std::string& description,
 	            const Type& initialValue, SaveSetting save);
 
 	template <typename T1, typename T2>
-	SettingImpl(const std::string& name, const std::string& description,
+	SettingImpl(CommandController& commandController,
+	            const std::string& name, const std::string& description,
 	            const Type& initialValue, SaveSetting save,
 	            T1 extra1, T2 extra2);
 
@@ -85,9 +88,11 @@ protected:
 
 template<typename POLICY>
 SettingImpl<POLICY>::SettingImpl(
+	CommandController& commandController,
 	const std::string& name, const std::string& description,
 	const Type& initialValue, SaveSetting save)
-	: Setting(name, description, save)
+	: Setting(commandController, name, description, save)
+	, POLICY(commandController)
 	, value(initialValue), defaultValue(initialValue)
 	, checker(NULL)
 {
@@ -97,10 +102,11 @@ SettingImpl<POLICY>::SettingImpl(
 template<typename POLICY>
 template<typename T1, typename T2>
 SettingImpl<POLICY>::SettingImpl(
+	CommandController& commandController,
 	const std::string& name, const std::string& description,
 	const Type& initialValue, SaveSetting save, T1 extra1, T2 extra2)
-	: Setting(name, description, save)
-	, POLICY(extra1, extra2)
+	: Setting(commandController, name, description, save)
+	, POLICY(commandController, extra1, extra2)
 	, value(initialValue), defaultValue(initialValue)
 	, checker(NULL)
 {
@@ -110,9 +116,9 @@ SettingImpl<POLICY>::SettingImpl(
 template<typename POLICY>
 void SettingImpl<POLICY>::init()
 {
+	SettingsConfig& settingsConfig = Setting::getCommandController().getSettingsConfig();
 	if (needLoadSave()) {
-		const XMLElement* config = SettingsConfig::instance().
-			findChild("settings");
+		const XMLElement* config = settingsConfig.findChild("settings");
 		if (config) {
 			const XMLElement* elem = config->findChildWithAttribute(
 				"setting", "id", getName());
@@ -125,14 +131,15 @@ void SettingImpl<POLICY>::init()
 			}
 		}
 	}
-	SettingsConfig::instance().getSettingsManager().registerSetting(*this);
+	settingsConfig.getSettingsManager().registerSetting(*this);
 }
 
 template<typename POLICY>
 SettingImpl<POLICY>::~SettingImpl()
 {
-	sync(SettingsConfig::instance());
-	SettingsConfig::instance().getSettingsManager().unregisterSetting(*this);
+	SettingsConfig& settingsConfig = Setting::getCommandController().getSettingsConfig();
+	sync(settingsConfig);
+	settingsConfig.getSettingsManager().unregisterSetting(*this);
 }
 
 template<typename POLICY>

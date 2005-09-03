@@ -40,7 +40,8 @@ SRC_HDR:= \
 	Unicode \
 	EmptyPatch IPSPatch \
 	Version \
-	HostCPU
+	HostCPU \
+	PollInterface \
 
 SRC_ONLY:= \
 	main

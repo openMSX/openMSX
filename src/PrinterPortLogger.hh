@@ -8,13 +8,14 @@
 
 namespace openmsx {
 
+class CommandController;
 class File;
 class FilenameSetting;
 
 class PrinterPortLogger : public PrinterPortDevice
 {
 public:
-	PrinterPortLogger();
+	PrinterPortLogger(CommandController& commandController);
 	virtual ~PrinterPortLogger();
 
 	// PrinterPortDevice

@@ -15,6 +15,7 @@ class EmuTime;
 class XMLElement;
 class File;
 class RomInfo;
+class CliComm;
 
 class Rom : public Debuggable
 {
@@ -45,7 +46,7 @@ public:
 	virtual void write(unsigned address, byte value);
 
 private:
-	void init(const XMLElement& config);
+	void init(CliComm& cliComm, const XMLElement& config);
 	void read(const XMLElement& config, const std::string& filename);
 	bool checkSHA1(const XMLElement& config);
 

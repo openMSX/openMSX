@@ -10,11 +10,16 @@
 
 namespace openmsx {
 
-class CliComm;
 class MSXDevice;
 class XMLElement;
-class BooleanSetting;
+class Scheduler;
 class CartridgeSlotManager;
+class CommandController;
+class EventDistributor;
+class UserInputEventDistributor;
+class InputEventGenerator;
+class CliComm;
+class RealTime;
 class PluggingController;
 class Debugger;
 class Mixer;
@@ -26,9 +31,11 @@ class MSXDeviceSwitch;
 class CassettePortInterface;
 class RenShaTurbo;
 class CommandConsole;
-class Display;
 class RenderSettings;
-class UserInputEventDistributor;
+class Display;
+class FileManipulator;
+class FilePool;
+class BooleanSetting;
 
 class MSXMotherBoard : private SettingListener
 {
@@ -70,13 +77,19 @@ public:
 	void readConfig();
 
 	// The following classes are unique per MSX machine
+	Scheduler& getScheduler();
 	CartridgeSlotManager& getSlotManager();
+	CommandController& getCommandController();
+	EventDistributor& getEventDistributor();
 	UserInputEventDistributor& getUserInputEventDistributor();
+	InputEventGenerator& getInputEventGenerator();
+	CliComm& getCliComm();
+	RealTime& getRealTime();
 	PluggingController& getPluggingController();
 	Debugger& getDebugger();
 	Mixer& getMixer();
 	DummyDevice& getDummyDevice();
-	MSXCPU& getCPU() const { return *msxCpu; }
+	MSXCPU& getCPU();
 	MSXCPUInterface& getCPUInterface();
 	PanasonicMemory& getPanasonicMemory();
 	MSXDeviceSwitch& getDeviceSwitch();
@@ -85,6 +98,8 @@ public:
 	CommandConsole& getCommandConsole();
 	RenderSettings& getRenderSettings();
 	Display& getDisplay();
+	FileManipulator& getFileManipulator();
+	FilePool& getFilePool();
 
 private:
 	// SettingListener
@@ -105,12 +120,15 @@ private:
 
 	int blockedCounter;
 
-	BooleanSetting& powerSetting;
-	CliComm& output;
-
 	// order of auto_ptr's is important!
+	std::auto_ptr<Scheduler> scheduler;
 	std::auto_ptr<CartridgeSlotManager> slotManager;
+	std::auto_ptr<CommandController> commandController;
+	std::auto_ptr<EventDistributor> eventDistributor;
 	std::auto_ptr<UserInputEventDistributor> userInputEventDistributor;
+	std::auto_ptr<InputEventGenerator> inputEventGenerator;
+	std::auto_ptr<CliComm> cliComm;
+	std::auto_ptr<RealTime> realTime;
 	std::auto_ptr<PluggingController> pluggingController;
 	std::auto_ptr<Debugger> debugger;
 	std::auto_ptr<Mixer> mixer;
@@ -126,15 +144,20 @@ private:
 	std::auto_ptr<CommandConsole> commandConsole;
 	std::auto_ptr<RenderSettings> renderSettings;
 	std::auto_ptr<Display> display;
+	std::auto_ptr<FileManipulator> fileManipulator;
+	std::auto_ptr<FilePool> filePool;
 
 	class ResetCmd : public SimpleCommand {
 	public:
-		ResetCmd(MSXMotherBoard& parent);
+		ResetCmd(CommandController& commandController,
+		         MSXMotherBoard& motherBoard);
 		virtual std::string execute(const std::vector<std::string>& tokens);
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
-		MSXMotherBoard& parent;
+		MSXMotherBoard& motherBoard;
 	} resetCommand;
+
+	BooleanSetting& powerSetting;
 };
 
 } // namespace openmsx

@@ -12,7 +12,7 @@ namespace openmsx {
 MSXS1990::MSXS1990(MSXMotherBoard& motherBoard, const XMLElement& config,
                    const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, firmwareSwitch(new FirmwareSwitch())
+	, firmwareSwitch(new FirmwareSwitch(motherBoard.getCommandController()))
 {
 	reset(time);
 }

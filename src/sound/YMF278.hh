@@ -154,7 +154,7 @@ private:
 	
 	class DebugRegisters : public SimpleDebuggable {
 	public:
-		DebugRegisters(YMF278& ymf278, Debugger& debugger);
+		DebugRegisters(YMF278& ymf278, MSXMotherBoard& motherBoard);
 		virtual byte read(unsigned address);
 		virtual void write(unsigned address, byte value, const EmuTime& time);
 	private:
@@ -163,7 +163,7 @@ private:
 
 	class DebugMemory : public SimpleDebuggable {
 	public:
-		DebugMemory(YMF278& ymf278, Debugger& debugger);
+		DebugMemory(YMF278& ymf278, MSXMotherBoard& motherBoard);
 		virtual byte read(unsigned address);
 		virtual void write(unsigned address, byte value);
 	private:

@@ -5,8 +5,8 @@
 
 namespace openmsx {
 
-FirmwareSwitch::FirmwareSwitch()
-	: setting(new BooleanSetting("firmwareswitch",
+FirmwareSwitch::FirmwareSwitch(CommandController& commandController)
+	: setting(new BooleanSetting(commandController, "firmwareswitch",
 	          "This setting controls the firmware switch",
 	          false))
 {

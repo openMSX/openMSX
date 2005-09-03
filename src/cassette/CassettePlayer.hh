@@ -15,17 +15,21 @@ namespace openmsx {
 class CassetteImage;
 class XMLElement;
 class Mixer;
+class CliComm;
 
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
 public:
-	MSXCassettePlayerCLI(CommandLineParser& cmdLineParser);
+	MSXCassettePlayerCLI(CommandLineParser& commandLineParser);
 	virtual bool parseOption(const std::string& option,
 	                         std::list<std::string>& cmdLine);
 	virtual const std::string& optionHelp() const;
 	virtual void parseFileType(const std::string& filename,
 	                           std::list<std::string>& cmdLine);
 	virtual const std::string& fileTypeHelp() const;
+
+private:
+	CommandLineParser& commandLineParser;
 };
 
 
@@ -33,7 +37,8 @@ class CassettePlayer : public CassetteDevice, public SoundDevice,
                        private SimpleCommand
 {
 public:
-	CassettePlayer(Mixer& mixer);
+	CassettePlayer(CliComm& cliComm, CommandController& commandController,
+	               Mixer& mixer);
 	virtual ~CassettePlayer();
 
 	void insertTape(const std::string& filename);
@@ -54,8 +59,9 @@ public:
 	// SoundDevice
 	virtual void setVolume(int newVolume);
 	virtual void setSampleRate(int sampleRate);
-	virtual void updateBuffer(unsigned length, int* buffer,
-		const EmuTime& time, const EmuDuration& sampDur);
+	virtual void updateBuffer(
+		unsigned length, int* buffer, const EmuTime& time,
+		const EmuDuration& sampDur);
 
 private:
 	void rewind();
@@ -77,6 +83,8 @@ private:
 	EmuDuration delta;
 	EmuTime playTapeTime;
 	XMLElement* playerElem;
+
+	CliComm& cliComm;
 };
 
 } // namespace openmsx

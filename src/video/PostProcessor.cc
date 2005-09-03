@@ -12,10 +12,10 @@
 namespace openmsx {
 
 template <class Pixel>
-PostProcessor<Pixel>::PostProcessor(
+PostProcessor<Pixel>::PostProcessor(CommandController& commandController,
 	RenderSettings& renderSettings_, Display& display,
 	SDL_Surface* screen, VideoSource videoSource, unsigned maxWidth)
-	: VideoLayer(videoSource, renderSettings_, display)
+	: VideoLayer(videoSource, commandController, renderSettings_, display)
 	, renderSettings(renderSettings_)
 {
 	this->screen = screen;

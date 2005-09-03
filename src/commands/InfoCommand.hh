@@ -3,23 +3,21 @@
 #ifndef INFOCOMMAND_HH
 #define INFOCOMMAND_HH
 
-#include <map>
-#include <memory>
 #include "Command.hh"
-#include "InfoTopic.hh"
+#include <map>
 
 namespace openmsx {
 
-class RomInfoTopic;
+class InfoTopic;
 
 class InfoCommand : public Command
 {
 public:
-	InfoCommand();
+	InfoCommand(CommandController& commandController);
 	virtual ~InfoCommand();
 
-	void registerTopic(const std::string& name, const InfoTopic* topic);
-	void unregisterTopic(const std::string& name, const InfoTopic* topic);
+	void   registerTopic(InfoTopic& topic, const std::string& name);
+	void unregisterTopic(InfoTopic& topic, const std::string& name);
 
 	// Command
 	virtual void execute(const std::vector<TclObject*>& tokens,
@@ -29,14 +27,6 @@ public:
 
 private:
 	std::map<std::string, const InfoTopic*> infoTopics;
-
-	class VersionInfo : public InfoTopic {
-	public:
-		virtual void execute(const std::vector<TclObject*>& tokens,
-		                     TclObject& result) const;
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	} versionInfo;
-	const std::auto_ptr<RomInfoTopic> romInfoTopic;
 };
 
 } // namespace openmsx

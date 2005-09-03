@@ -15,7 +15,7 @@ namespace openmsx {
 MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config,
                          const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, SimpleDebuggable(motherBoard.getDebugger(), getName(),
+	, SimpleDebuggable(motherBoard, getName(),
 	                   "Memory mapper registers", 4)
 {
 	string type = HardwareConfig::instance().

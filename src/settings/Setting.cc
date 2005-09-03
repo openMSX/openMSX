@@ -2,6 +2,7 @@
 
 #include "Setting.hh"
 #include "SettingListener.hh"
+#include "CommandController.hh"
 #include "CliComm.hh"
 #include "XMLElement.hh"
 #include <algorithm>
@@ -11,8 +12,10 @@ using std::string;
 
 namespace openmsx {
 
-Setting::Setting(const string& name_, const string& description_, SaveSetting save_)
-	: name(name_), description(description_), notifyInProgress(0)
+Setting::Setting(CommandController& commandController_, const string& name_,
+                 const string& description_, SaveSetting save_)
+	: commandController(commandController_), name(name_)
+	, description(description_), notifyInProgress(0)
 	, save(save_ == SAVE)
 {
 }
@@ -29,7 +32,7 @@ void Setting::notify() const
 	     it != listeners.end(); ++it) {
 		(*it)->update(this);
 	}
-	CliComm::instance().update(CliComm::SETTING, getName(),
+	commandController.getCliComm().update(CliComm::SETTING, getName(),
 	                           getValueString());
 	--notifyInProgress;
 }
@@ -66,6 +69,11 @@ void Setting::sync(XMLElement& config) const
 				"setting", "id", getName());
 		elem.setData(getValueString());
 	}
+}
+
+CommandController& Setting::getCommandController() const
+{
+	return commandController;
 }
 
 } // namespace openmsx

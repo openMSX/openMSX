@@ -9,12 +9,12 @@ using std::string;
 
 namespace openmsx {
 
-IDEDevice* IDEDeviceFactory::create(const XMLElement& config,
-                                    const EmuTime& time)
+IDEDevice* IDEDeviceFactory::create(EventDistributor& eventDistributor,
+            const XMLElement& config, const EmuTime& time)
 {
 	const string& type = config.getChildData("type");
 	if (type == "IDEHD") {
-		return new IDEHD(config, time);
+		return new IDEHD(eventDistributor, config, time);
 	}
 
 	throw FatalError("Unknown IDE device: " + type);

@@ -21,12 +21,13 @@ static int roundUpPower2(int a)
 	return res;
 }
 
-SDLSoundDriver::SDLSoundDriver(Mixer& mixer_,
-                               unsigned frequency, unsigned samples)
-	: mixer(mixer_)
+SDLSoundDriver::SDLSoundDriver(Scheduler& scheduler, GlobalSettings& globalSettings,
+                               Mixer& mixer_, unsigned frequency, unsigned samples)
+	: Schedulable(scheduler)
+	, mixer(mixer_)
 	, muted(true)
-	, speedSetting(GlobalSettings::instance().getSpeedSetting())
-	, throttleSetting(GlobalSettings::instance().getThrottleSetting())
+	, speedSetting(globalSettings.getSpeedSetting())
+	, throttleSetting(globalSettings.getThrottleSetting())
 {
 	SDL_AudioSpec desired;
 	desired.freq     = frequency;
@@ -51,7 +52,7 @@ SDLSoundDriver::SDLSoundDriver(Mixer& mixer_,
 	memset(mixBuffer, 0, bufferSize * 2 * sizeof(short));
 	readPtr = writePtr = 0;
 	reInit();
-	prevTime = Scheduler::instance().getCurrentTime();
+	prevTime = scheduler.getCurrentTime();
 	EmuDuration interval2 = interval1 * audioSpec.samples;
 	setSyncPoint(prevTime + interval2);
 

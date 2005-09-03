@@ -87,7 +87,7 @@ static string calcDescription(SCC::ChipMode mode)
 SCC::SCC(MSXMotherBoard& motherBoard, const string& name, const XMLElement& config,
          const EmuTime& time, ChipMode mode)
 	: SoundDevice(motherBoard.getMixer(), name, calcDescription(mode))
-	, SimpleDebuggable(motherBoard.getDebugger(), name + " SCC",
+	, SimpleDebuggable(motherBoard, name + " SCC",
 	                   "SCC registers in SCC+ format", 0x100)
 	, currentChipMode(mode)
 {

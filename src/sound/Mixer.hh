@@ -3,19 +3,19 @@
 #ifndef MIXER_HH
 #define MIXER_HH
 
-#include <vector>
-#include <map>
-#include <memory>
-#include "EmuTime.hh"
 #include "SettingListener.hh"
 #include "InfoTopic.hh"
 #include "Command.hh"
+#include "EmuTime.hh"
+#include <vector>
+#include <map>
+#include <memory>
 
 namespace openmsx {
 
 class SoundDevice;
 class SoundDriver;
-class CliComm;
+class Scheduler;
 class CommandController;
 class VolumeSetting;
 class IntegerSetting;
@@ -30,7 +30,7 @@ public:
 		MONO, MONO_LEFT, MONO_RIGHT, STEREO, OFF, NB_MODES
 	};
 
-	Mixer();
+	Mixer(Scheduler& scheduler, CommandController& commandController);
 	virtual ~Mixer();
 
 	/**
@@ -104,7 +104,7 @@ private:
 	std::vector<SoundDevice*> devices[NB_MODES];
 	std::vector<int*> buffers;
 
-	CliComm& output;
+	Scheduler& scheduler;
 	CommandController& commandController;
 
 	std::auto_ptr<BooleanSetting> muteSetting;
@@ -125,7 +125,7 @@ private:
 	// Commands
 	class SoundlogCommand : public SimpleCommand {
 	public:
-		SoundlogCommand(Mixer& outer);
+		SoundlogCommand(CommandController& commandController, Mixer& outer);
 		virtual std::string execute(const std::vector<std::string>& tokens);
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 		virtual void tabCompletion(std::vector<std::string>& tokens) const;
@@ -139,7 +139,7 @@ private:
 	// Info
 	class SoundDeviceInfoTopic : public InfoTopic {
 	public:
-		SoundDeviceInfoTopic(Mixer& outer);
+		SoundDeviceInfoTopic(CommandController& commandController, Mixer& outer);
 		virtual void execute(const std::vector<TclObject*>& tokens,
 		                     TclObject& result) const;
 		virtual std::string help(const std::vector<std::string>& tokens) const;

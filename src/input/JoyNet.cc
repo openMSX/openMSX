@@ -3,16 +3,19 @@
 #include "probed_defs.hh"
 #ifdef	HAVE_SYS_SOCKET_H
 
-#include <sstream>
 #include "JoyNet.hh"
+#include "CommandController.hh"
 #include "SettingsConfig.hh"
 #include "CliComm.hh"
+#include <sstream>
 
 using std::string;
 
 namespace openmsx {
 
-JoyNet::JoyNet()
+JoyNet::JoyNet(CommandController& commandController)
+	: cliComm(commandController.getCliComm())
+	, settingsConfig(commandController.getSettingsConfig())
 {
 	sockfd = 0;
 	status = 255;
@@ -65,7 +68,7 @@ void JoyNet::write(byte value, const EmuTime& /*time*/)
 
 void JoyNet::setupConnections()
 {
-	const XMLElement* config = SettingsConfig::instance().findChild("joynet");
+	const XMLElement* config = settingsConfig.findChild("joynet");
 	if (!config) {
 		return;
 	}
@@ -77,7 +80,7 @@ void JoyNet::setupConnections()
 
 	//first listener in case the connect wants to talk to it's own listener
 	if (config->getChildDataAsBool("startlisten")) {
-		listener.reset(new ConnectionListener(listenport, &status));
+		listener.reset(new ConnectionListener(cliComm, listenport, &status));
 	}
 	// Currently done when first write is tried
 	/*if (config->getParameterAsBool("startconnect")) {
@@ -90,8 +93,7 @@ void JoyNet::setupConnections()
 void JoyNet::setupWriter()
 {
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		CliComm::instance().printWarning(
-			"JoyNet: socket error in connection setup");
+		cliComm.printWarning("JoyNet: socket error in connection setup");
 		sockfd = 0;
 	} else {
 		memset(&servaddr, 0, sizeof(servaddr));
@@ -99,13 +101,12 @@ void JoyNet::setupWriter()
 		servaddr.sin_port = htons(portname);
 
 		if (inet_pton(AF_INET, hostname.c_str(), &servaddr.sin_addr) <= 0) {
-			CliComm::instance().printWarning(
+			cliComm.printWarning(
 				"JoyNet: inet_pton error for " + hostname);
 			sockfd = 0;
 		} else {
 			if (connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
-				CliComm::instance().printWarning(
-					"JoyNet: connect error");
+				cliComm.printWarning("JoyNet: connect error");
 				sockfd = 0;
 			}
 		}
@@ -128,8 +129,9 @@ void JoyNet::sendByte(byte value)
 	 */
 }
 
-JoyNet::ConnectionListener::ConnectionListener(int listenport, byte* linestatus) :
-	thread(this)
+JoyNet::ConnectionListener::ConnectionListener(
+		CliComm& cliComm_, int listenport, byte* linestatus)
+	: cliComm(cliComm_), thread(this)
 {
 	port = listenport;
 	statuspointer = linestatus;
@@ -151,15 +153,13 @@ void JoyNet::ConnectionListener::run()
 
 	// Build a socket -> bind -> listen
 	if ((listenfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		CliComm::instance().printWarning(
-			"Socket error");
+		cliComm.printWarning("Socket error");
 		return;
 	}
 
 	int opt = 1;
 	if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt)) == -1)
-		CliComm::instance().printWarning(
-			"TCP/IP Problems SO_REUSEADDR");
+		cliComm.printWarning("TCP/IP Problems SO_REUSEADDR");
 
 	memset(&servaddr, 0, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
@@ -168,22 +168,19 @@ void JoyNet::ConnectionListener::run()
 
 	std::ostringstream out;
 	out << "TCP/IP Trying to listen on port " << port;
-	CliComm::instance().printInfo(out.str());
+	cliComm.printInfo(out.str());
 
 	if (bind(listenfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
-		CliComm::instance().printWarning(
-			"TCP/IP Bind error");
+		cliComm.printWarning("TCP/IP Bind error");
 		return;
 	}
 
 	if (listen(listenfd, 1024) < 0) {
-		CliComm::instance().printWarning(
-			"TCP/IP Listen error");
+		cliComm.printWarning("TCP/IP Listen error");
 		return;
 	}
 	if ((connectfd = accept(listenfd, (struct sockaddr*)NULL, NULL)) < 0) {
-		CliComm::instance().printWarning(
-			"TCP/IP accept error");
+		cliComm.printWarning("TCP/IP accept error");
 		return;
 	}
 	//Accept only one connection!
@@ -193,8 +190,7 @@ void JoyNet::ConnectionListener::run()
 	while ((charcounter = ::read(connectfd, statuspointer, 1)) > 0) {
 	}
 	if (charcounter < 0) {
-		CliComm::instance().printWarning(
-			"TCP/IP read error");
+		cliComm.printWarning("TCP/IP read error");
 	}
   }
 }

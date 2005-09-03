@@ -11,10 +11,11 @@ using std::string;
 
 namespace openmsx {
 
-PrinterPortLogger::PrinterPortLogger()
+PrinterPortLogger::PrinterPortLogger(CommandController& commandController)
 	: prevStrobe(true)
 {
-	logFilenameSetting.reset(new FilenameSetting("printerlogfilename",
+	logFilenameSetting.reset(new FilenameSetting(commandController,
+		"printerlogfilename",
 		"filename of the file where the printer output is logged to",
 		"printer.log"));
 }

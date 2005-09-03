@@ -42,13 +42,14 @@ static const nibble mask[4][13] = {
 };
 
 
-RP5C01::RP5C01(SRAM& regs_, const EmuTime& time)
+RP5C01::RP5C01(CommandController& commandController, SRAM& regs_,
+               const EmuTime& time)
 	: regs(regs_), reference(time)
 {
 	EnumSetting<RTCMode>::Map modeMap;
 	modeMap["EmuTime"] = EMUTIME;
 	modeMap["RealTime"] = REALTIME;
-	modeSetting.reset(new EnumSetting<RTCMode>(
+	modeSetting.reset(new EnumSetting<RTCMode>(commandController,
 		"rtcmode", "Real Time Clock mode", EMUTIME, modeMap));
 
 	initializeTime();

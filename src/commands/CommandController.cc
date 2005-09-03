@@ -1,7 +1,5 @@
 // $Id$
 
-#include <cassert>
-#include <cstdlib>
 #include "CommandController.hh"
 #include "CommandConsole.hh"
 #include "FileOperations.hh"
@@ -14,6 +12,13 @@
 #include "ReadDir.hh"
 #include "CommandException.hh"
 #include "FileException.hh"
+#include "SettingsConfig.hh"
+#include "GlobalSettings.hh"
+#include "RomInfoTopic.hh"
+#include "TclObject.hh"
+#include "Version.hh"
+#include <cassert>
+#include <cstdlib>
 
 using std::set;
 using std::string;
@@ -21,74 +26,96 @@ using std::vector;
 
 namespace openmsx {
 
-CommandController::CommandController()
-	: helpCmd(*this), cmdConsole(NULL)
-	, interpreter(new Interpreter())
-	, infoCommand(new InfoCommand())
+CommandController::CommandController(Scheduler& scheduler_)
+	: scheduler(scheduler_)
+	, cmdConsole(NULL)
+	, cliComm(NULL)
+	, infoCommand(new InfoCommand(*this))
+	, helpCmd(*this)
+	, versionInfo(*this)
+	, romInfoTopic(new RomInfoTopic(*this))
 {
-	registerCommand(&helpCmd, "help");
-	registerCommand(&getInfoCommand(), "openmsx_info");
 }
 
 CommandController::~CommandController()
 {
-	unregisterCommand(&getInfoCommand(), "openmsx_info");
-	unregisterCommand(&helpCmd, "help");
-	assert(commands.empty());
-	assert(commandCompleters.empty());
+	//assert(commands.empty());            // TODO
+	//assert(commandCompleters.empty());   // TODO
 	assert(!cmdConsole);
 }
 
-CommandController& CommandController::instance()
+void CommandController::setCliComm(CliComm* cliComm_)
 {
-	static CommandController oneInstance;
-	return oneInstance;
+	cliComm = cliComm_;
 }
 
-Interpreter& CommandController::getInterpreter() const
+CliComm& CommandController::getCliComm()
 {
+	assert(cliComm);
+	return *cliComm;
+}
+
+Interpreter& CommandController::getInterpreter()
+{
+	if (!interpreter.get()) {
+		interpreter.reset(new Interpreter(scheduler));
+	}
 	return *interpreter;
 }
 
-InfoCommand& CommandController::getInfoCommand() const
+InfoCommand& CommandController::getInfoCommand()
 {
 	return *infoCommand;
 }
 
-void CommandController::registerCommand(Command* command,
+SettingsConfig& CommandController::getSettingsConfig()
+{
+	if (!settingsConfig.get()) {
+		settingsConfig.reset(new SettingsConfig(*this));
+	}
+	return *settingsConfig;
+}
+
+GlobalSettings& CommandController::getGlobalSettings()
+{
+	if (!globalSettings.get()) {
+		globalSettings.reset(new GlobalSettings(*this));
+	}
+	return *globalSettings;
+}
+
+void CommandController::registerCommand(Command& command,
                                         const string& str)
 {
 	assert(commands.find(str) == commands.end());
 
-	registerCompleter(command, str);
-	commands[str] = command;
-	interpreter->registerCommand(str, *command);
+	commands[str] = &command;
+	getInterpreter().registerCommand(str, command);
 }
 
-void CommandController::unregisterCommand(Command* command,
+void CommandController::unregisterCommand(Command& command,
                                           const string& str)
 {
 	assert(commands.find(str) != commands.end());
-	assert(commands.find(str)->second == command);
+	assert(commands.find(str)->second == &command);
 
-	interpreter->unregisterCommand(str, *command);
+	getInterpreter().unregisterCommand(str, command);
 	commands.erase(str);
-	unregisterCompleter(command, str);
 }
 
-void CommandController::registerCompleter(CommandCompleter* completer,
+void CommandController::registerCompleter(CommandCompleter& completer,
                                           const string& str)
 {
 	assert(commandCompleters.find(str) == commandCompleters.end());
-	commandCompleters[str] = completer;
+	commandCompleters[str] = &completer;
 }
 
-void CommandController::unregisterCompleter(CommandCompleter* completer,
+void CommandController::unregisterCompleter(CommandCompleter& completer,
                                             const string& str)
 {
-	if (completer); // avoid warning
+	if (&completer); // avoid warning
 	assert(commandCompleters.find(str) != commandCompleters.end());
-	assert(commandCompleters.find(str)->second == completer);
+	assert(commandCompleters.find(str)->second == &completer);
 	commandCompleters.erase(str);
 }
 
@@ -233,14 +260,14 @@ string CommandController::join(const vector<string>& tokens, char delimiter)
 	return result;
 }
 
-bool CommandController::isComplete(const string& command) const
+bool CommandController::isComplete(const string& command)
 {
-	return interpreter->isComplete(command);
+	return getInterpreter().isComplete(command);
 }
 
 string CommandController::executeCommand(const string& cmd)
 {
-	return interpreter->execute(cmd);
+	return getInterpreter().execute(cmd);
 }
 
 void CommandController::autoCommands()
@@ -248,11 +275,11 @@ void CommandController::autoCommands()
 	try {
 		SystemFileContext context(true); // only in system dir
 		File file(context.resolve("init.tcl"));
-		interpreter->executeFile(file.getLocalName());
+		getInterpreter().executeFile(file.getLocalName());
 	} catch (FileException& e) {
 		// no init.tcl
 	} catch (CommandException& e) {
-		CliComm::instance().printWarning(
+		getCliComm().printWarning(
 			 "While executing init.tcl: " + e.getMessage());
 	}
 }
@@ -313,7 +340,7 @@ void CommandController::tabCompletion(vector<string> &tokens)
 	if (tokens.size() == 1) {
 		// build a list of all command strings
 		set<string> cmds;
-		interpreter->getCommandNames(cmds);
+		getInterpreter().getCommandNames(cmds);
 		completeString(tokens, cmds);
 	} else {
 		CompleterMap::const_iterator it = commandCompleters.find(tokens.front());
@@ -323,8 +350,7 @@ void CommandController::tabCompletion(vector<string> &tokens)
 	}
 }
 
-bool CommandController::equal(const string& s1, const string& s2,
-                              bool caseSensitive)
+static bool equal(const string& s1, const string& s2, bool caseSensitive)
 {
 	if (caseSensitive) {
 		return s1 == s2;
@@ -336,7 +362,6 @@ bool CommandController::equal(const string& s1, const string& s2,
 bool CommandController::completeString2(string &str, set<string>& st,
                                         bool caseSensitive)
 {
-	CommandConsole* cmdConsole = CommandController::instance().cmdConsole;
 	assert(cmdConsole);
 	set<string>::iterator it = st.begin();
 	while (it != st.end()) {
@@ -397,7 +422,7 @@ void CommandController::completeString(vector<string>& tokens,
 
 void CommandController::completeFileName(vector<string>& tokens)
 {
-	UserFileContext context;
+	UserFileContext context(*this);
 	completeFileName(tokens, context);
 }
 
@@ -449,8 +474,9 @@ void CommandController::completeFileName(vector<string>& tokens,
 
 // Help Command
 
-CommandController::HelpCmd::HelpCmd(CommandController& parent_)
-	: parent(parent_)
+CommandController::HelpCmd::HelpCmd(CommandController& commandController)
+	: SimpleCommand(commandController, "help")
+	, parent(commandController)
 {
 }
 
@@ -492,6 +518,25 @@ void CommandController::HelpCmd::tabCompletion(vector<string>& tokens) const
 	tokens.erase(tokens.begin());
 	parent.tabCompletion(tokens);
 	tokens.insert(tokens.begin(), front);
+}
+
+
+// Version info
+
+CommandController::VersionInfo::VersionInfo(CommandController& commandController)
+	: InfoTopic(commandController, "version")
+{
+}
+
+void CommandController::VersionInfo::execute(const vector<TclObject*>& /*tokens*/,
+                                       TclObject& result) const
+{
+	result.setString(Version::FULL_VERSION);
+}
+
+string CommandController::VersionInfo::help(const vector<string>& /*tokens*/) const
+{
+	return "Prints openMSX version.";
 }
 
 } // namespace openmsx

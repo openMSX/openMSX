@@ -3,6 +3,7 @@
 #ifndef INFOTOPIC_HH
 #define INFOTOPIC_HH
 
+#include "Command.hh" // TODO split
 #include <string>
 #include <vector>
 
@@ -10,7 +11,7 @@ namespace openmsx {
 
 class TclObject;
 
-class InfoTopic
+class InfoTopic : public CommandCompleter
 {
 public:
 	/** Show info on this topic
@@ -39,7 +40,8 @@ public:
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 protected:
-	virtual ~InfoTopic() {}
+	InfoTopic(CommandController& commandController, const std::string& name);
+	virtual ~InfoTopic();
 };
 
 } // namespace openmsx

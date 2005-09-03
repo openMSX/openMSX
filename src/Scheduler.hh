@@ -11,6 +11,8 @@
 
 namespace openmsx {
 
+class PollInterface;
+
 class Scheduler
 {
 private:
@@ -44,7 +46,7 @@ private:
 	};
 
 public:
-	static Scheduler& instance();
+	Scheduler();
 
 	/**
 	 * Get the current scheduler time.
@@ -72,6 +74,11 @@ public:
 			scheduleHelper(limit); // slow path not inlined
 		}
 	}
+
+	// TODO move to reactor?
+	void   registerPoll(PollInterface& poll);
+	void unregisterPoll(PollInterface& poll);
+	void doPoll();
 
 	static const EmuTime ASAP;
 
@@ -117,9 +124,6 @@ private: // -> intended for Schedulable
 	bool pendingSyncPoint(Schedulable& device, int userdata = 0);
 
 private:
-	Scheduler();
-	~Scheduler();
-
 	void scheduleHelper(const EmuTime& limit);
 
 	/** Vector used as heap, not a priority queue because that
@@ -130,6 +134,9 @@ private:
 	Semaphore sem;	// protects syncPoints
 
 	EmuTime scheduleTime;
+
+	typedef std::vector<PollInterface*> PollInterfaces;
+	PollInterfaces pollInterfaces;
 };
 
 } // namespace openmsx

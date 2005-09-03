@@ -11,12 +11,15 @@
 namespace openmsx {
 
 class XMLElement;
+class CommandController;
 class FileManipulator;
 
 class DiskChanger : private Command, public DiskContainer
 {
 public:
-	DiskChanger(const std::string& driveName, FileManipulator& manipulator);
+	DiskChanger(const std::string& driveName,
+	            CommandController& commandController,
+	            FileManipulator& manipulator);
 	~DiskChanger();
 
 	const std::string& getDriveName() const;

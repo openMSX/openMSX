@@ -3,18 +3,23 @@
 #ifndef AFTERCOMMAND_HH
 #define AFTERCOMMAND_HH
 
-#include <map>
 #include "Command.hh"
 #include "EventListener.hh"
 #include "Schedulable.hh"
 #include "Event.hh"
+#include <map>
 
 namespace openmsx {
+
+class EventDistributor;
+class CommandController;
 
 class AfterCommand : public SimpleCommand, private EventListener
 {
 public:
-	AfterCommand();
+	AfterCommand(Scheduler& scheduler,
+	             EventDistributor& eventDistributor,
+	             CommandController& commandController);
 	virtual ~AfterCommand();
 
 	virtual std::string execute(const std::vector<std::string>& tokens);
@@ -42,8 +47,10 @@ private:
 		virtual const std::string& getType() const = 0;
 		void execute();
 	protected:
-		AfterCmd(const std::string& command);
+		AfterCmd(CommandController& commandController,
+		         const std::string& command);
 	private:
+		CommandController& commandController;
 		std::string command;
 		std::string id;
 		static unsigned lastAfterId;
@@ -55,7 +62,9 @@ private:
 		double getTime() const;
 		void reschedule();
 	protected:
-		AfterTimedCmd(const std::string& command, double time);
+		AfterTimedCmd(Scheduler& scheduler,
+		              CommandController& commandController,
+		              const std::string& command, double time);
 	private:
 		virtual void executeUntil(const EmuTime& time, int userData);
 		virtual const std::string& schedName() const;
@@ -65,25 +74,34 @@ private:
 
 	class AfterTimeCmd : public AfterTimedCmd {
 	public:
-		AfterTimeCmd(const std::string& command, double time);
+		AfterTimeCmd(Scheduler& scheduler,
+		             CommandController& commandController,
+		             const std::string& command, double time);
 		virtual const std::string& getType() const;
 	};
 
 	class AfterIdleCmd : public AfterTimedCmd {
 	public:
-		AfterIdleCmd(const std::string& command, double time);
+		AfterIdleCmd(Scheduler& scheduler,
+		             CommandController& commandController,
+		             const std::string& command, double time);
 		virtual const std::string& getType() const;
 	};
 
 	template<EventType T>
 	class AfterEventCmd : public AfterCmd {
 	public:
-		AfterEventCmd(const std::string& command);
+		AfterEventCmd(CommandController& commandController,
+		              const std::string& command);
 		virtual const std::string& getType() const;
 	};
 
 	typedef std::map<std::string, AfterCmd*> AfterCmdMap;
 	static AfterCmdMap afterCmds;
+
+	Scheduler& scheduler;
+	EventDistributor& eventDistributor;
+	CommandController& commandController;
 };
 
 } // namespace openmsx

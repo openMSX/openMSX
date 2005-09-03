@@ -12,7 +12,8 @@ namespace openmsx {
 class BooleanSetting : public EnumSetting<bool>
 {
 public:
-	BooleanSetting(const std::string& name, const std::string& description,
+	BooleanSetting(CommandController& CommandController,
+	               const std::string& name, const std::string& description,
 	               bool initialValue, SaveSetting save = SAVE);
 
 private:

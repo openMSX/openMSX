@@ -24,7 +24,9 @@ MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, prevBits(15)
 {
 	bool keyGhosting = deviceConfig.getChildDataAsBool("key_ghosting", true);
-	keyboard.reset(new Keyboard(motherBoard.getUserInputEventDistributor(),
+	keyboard.reset(new Keyboard(motherBoard.getScheduler(),
+	                            motherBoard.getCommandController(),
+	                            motherBoard.getUserInputEventDistributor(),
 	                            keyGhosting));
 	i8255.reset(new I8255(*this, time));
 	click.reset(new KeyClick(motherBoard.getMixer(), config, time));
@@ -44,7 +46,7 @@ void MSXPPI::reset(const EmuTime& time)
 
 void MSXPPI::powerDown(const EmuTime& /*time*/)
 {
-	EventDistributor::instance().distributeEvent(
+	getMotherBoard().getEventDistributor().distributeEvent(
 		new LedEvent(LedEvent::CAPS, false));
 }
 
@@ -162,7 +164,7 @@ void MSXPPI::writeC1(nibble value, const EmuTime& time)
 		cassettePort.cassetteOut(value & 2, time);
 	}
 	if ((prevBits ^ value) & 4) {
-		EventDistributor::instance().distributeEvent(
+		getMotherBoard().getEventDistributor().distributeEvent(
 			new LedEvent(LedEvent::CAPS, !(value & 4)));
 	}
 	if ((prevBits ^ value) & 8) {

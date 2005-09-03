@@ -11,10 +11,7 @@ struct SDL_Surface;
 
 namespace openmsx {
 
-class UserInputEventDistributor;
-class RenderSettings;
-class Console;
-class Display;
+class MSXMotherBoard;
 class VDP;
 class V9990;
 class Rasterizer;
@@ -25,9 +22,7 @@ public:
 	/** Activates this video system.
 	  * @throw InitException If initialisation fails.
 	  */
-	SDLGLVideoSystem(UserInputEventDistributor& userInputEventDistributor,
-	                 RenderSettings& renderSettings,
-	                 Console& console, Display& display);
+	SDLGLVideoSystem(MSXMotherBoard& motherboard);
 
 	/** Deactivates this video system.
 	  */
@@ -46,8 +41,7 @@ public:
 private:
 	void resize(unsigned x, unsigned y);
 
-	RenderSettings& renderSettings;
-	Display& display;
+	MSXMotherBoard& motherboard;
 	SDL_Surface* screen;
 };
 

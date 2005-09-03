@@ -12,13 +12,15 @@
 
 namespace openmsx {
 
-class XMLElement;
+class CommandController;
 class UserInputEventDistributor;
+class XMLElement;
 
 class HotKey : private UserInputEventListener
 {
 public:
-	HotKey(UserInputEventDistributor& userInputEventDistributor);
+	HotKey(CommandController& commandController,
+	       UserInputEventDistributor& userInputEventDistributor);
 	virtual ~HotKey();
 
 	void loadBindings(const XMLElement& config);
@@ -36,38 +38,38 @@ private:
 
 	class BindCmd : public SimpleCommand {
 	public:
-		BindCmd(HotKey& parent);
+		BindCmd(CommandController& commandController, HotKey& hotKey);
 		virtual std::string execute(const std::vector<std::string>& tokens);
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
-		HotKey& parent;
+		HotKey& hotKey;
 	} bindCmd;
 
 	class UnbindCmd : public SimpleCommand {
 	public:
-		UnbindCmd(HotKey& parent);
+		UnbindCmd(CommandController& commandController, HotKey& hotKey);
 		virtual std::string execute(const std::vector<std::string>& tokens);
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
-		HotKey& parent;
+		HotKey& hotKey;
 	} unbindCmd;
 
 	class BindDefaultCmd : public SimpleCommand {
 	public:
-		BindDefaultCmd(HotKey& parent);
+		BindDefaultCmd(CommandController& commandController, HotKey& hotKey);
 		virtual std::string execute(const std::vector<std::string>& tokens);
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
-		HotKey& parent;
+		HotKey& hotKey;
 	} bindDefaultCmd;
 
 	class UnbindDefaultCmd : public SimpleCommand {
 	public:
-		UnbindDefaultCmd(HotKey& parent);
+		UnbindDefaultCmd(CommandController& commandController, HotKey& hotKey);
 		virtual std::string execute(const std::vector<std::string>& tokens);
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
-		HotKey& parent;
+		HotKey& hotKey;
 	} unbindDefaultCmd;
 
 	typedef std::map<Keys::KeyCode, std::string> BindMap;
@@ -76,6 +78,7 @@ private:
 	BindMap defaultMap;
 	KeySet boundKeys;
 	KeySet unboundKeys;
+	CommandController& commandController;
 	UserInputEventDistributor& userInputEventDistributor;
 	bool loading; // hack
 };

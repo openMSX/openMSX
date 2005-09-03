@@ -7,13 +7,10 @@
 #include <algorithm>
 #include "MSXCPUInterface.hh"
 #include "DummyDevice.hh"
-#include "InfoCommand.hh"
-#include "CommandController.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
-#include "Scheduler.hh"
 #include "HardwareConfig.hh"
 #include "VDPIODelay.hh"
 #include "CliComm.hh"
@@ -42,19 +39,18 @@ auto_ptr<MSXCPUInterface> MSXCPUInterface::create(MSXMotherBoard& motherBoard,
 }
 
 MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
-	: memoryDebug       (*this, motherBoard.getDebugger())
-	, slottedMemoryDebug(*this, motherBoard.getDebugger())
-	, ioDebug           (*this, motherBoard.getDebugger())
-	, subSlottedInfo(*this)
-	, externalSlotInfo(motherBoard.getSlotManager())
-	, slotMapCmd(*this)
-	, ioMapCmd(*this)
+	: memoryDebug       (*this, motherBoard)
+	, slottedMemoryDebug(*this, motherBoard)
+	, ioDebug           (*this, motherBoard)
+	, subSlottedInfo  (motherBoard.getCommandController(), *this)
+	, externalSlotInfo(motherBoard.getCommandController(),
+	                   motherBoard.getSlotManager())
+	, slotMapCmd      (motherBoard.getCommandController(), *this)
+	, ioMapCmd        (motherBoard.getCommandController(), *this)
 	, dummyDevice(motherBoard.getDummyDevice())
 	, hardwareConfig(HardwareConfig::instance())
-	, commandController(CommandController::instance())
 	, msxcpu(motherBoard.getCPU())
-	, scheduler(Scheduler::instance())
-	, cliCommOutput(CliComm::instance())
+	, cliCommOutput(motherBoard.getCliComm())
 {
 	for (int port = 0; port < 256; ++port) {
 		IO_In [port] = &dummyDevice;
@@ -76,25 +72,12 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 
 	// Note: SlotState is initialised at reset
 
-	// Register console commands
-	InfoCommand& infoCommand = commandController.getInfoCommand();
-	infoCommand.registerTopic("issubslotted", &subSlottedInfo);
-	infoCommand.registerTopic("isexternalslot", &externalSlotInfo);
-	commandController.registerCommand(&slotMapCmd, "slotmap");
-	commandController.registerCommand(&ioMapCmd,   "iomap");
-
 	msxcpu.setInterface(this);
 }
 
 MSXCPUInterface::~MSXCPUInterface()
 {
 	msxcpu.setInterface(NULL);
-
-	commandController.unregisterCommand(&slotMapCmd, "slotmap");
-	commandController.unregisterCommand(&ioMapCmd,   "iomap");
-	InfoCommand& infoCommand = commandController.getInfoCommand();
-	infoCommand.unregisterTopic("isexternalslot", &externalSlotInfo);
-	infoCommand.unregisterTopic("issubslotted", &subSlottedInfo);
 
 	assert(multiIn.empty());
 	assert(multiOut.empty());
@@ -420,44 +403,44 @@ void MSXCPUInterface::printSlotMapPages(std::ostream &out,
 // class MemoryDebug
 
 MSXCPUInterface::MemoryDebug::MemoryDebug(
-		MSXCPUInterface& parent_, Debugger& debugger)
-	: SimpleDebuggable(debugger, "memory",
+		MSXCPUInterface& interface_, MSXMotherBoard& motherBoard)
+	: SimpleDebuggable(motherBoard, "memory",
 	                   "The memory currently visible for the CPU.", 0x10000)
-	, parent(parent_)
+	, interface(interface_)
 {
 }
 
 byte MSXCPUInterface::MemoryDebug::read(unsigned address)
 {
-	return parent.peekMem(address);
+	return interface.peekMem(address);
 }
 
 void MSXCPUInterface::MemoryDebug::write(unsigned address, byte value,
                                          const EmuTime& time)
 {
-	return parent.writeMem(address, value, time);
+	return interface.writeMem(address, value, time);
 }
 
 
 // class SlottedMemoryDebug
 
 MSXCPUInterface::SlottedMemoryDebug::SlottedMemoryDebug(
-		MSXCPUInterface& parent_, Debugger& debugger)
-	: SimpleDebuggable(debugger, "slotted memory",
+		MSXCPUInterface& interface_, MSXMotherBoard& motherBoard)
+	: SimpleDebuggable(motherBoard, "slotted memory",
 	                   "The memory in slots and subslots.", 0x10000 * 4 * 4)
-	, parent(parent_)
+	, interface(interface_)
 {
 }
 
 byte MSXCPUInterface::SlottedMemoryDebug::read(unsigned address)
 {
-	return parent.peekSlottedMem(address);
+	return interface.peekSlottedMem(address);
 }
 
 void MSXCPUInterface::SlottedMemoryDebug::write(unsigned address, byte value,
                                                 const EmuTime& time)
 {
-	return parent.writeSlottedMem(address, value, time);
+	return interface.writeSlottedMem(address, value, time);
 }
 
 
@@ -472,8 +455,11 @@ static unsigned getSlot(TclObject* token)
 	return slot;
 }
 
-MSXCPUInterface::SubSlottedInfo::SubSlottedInfo(MSXCPUInterface& parent_)
-	: parent(parent_)
+MSXCPUInterface::SubSlottedInfo::SubSlottedInfo(
+		CommandController& commandController,
+		MSXCPUInterface& interface_)
+	: InfoTopic(commandController, "issubslotted")
+	, interface(interface_)
 {
 }
 
@@ -484,7 +470,7 @@ void MSXCPUInterface::SubSlottedInfo::execute(
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	result.setInt(parent.isSubSlotted[getSlot(tokens[2])]);
+	result.setInt(interface.isSubSlotted[getSlot(tokens[2])]);
 }
 
 std::string MSXCPUInterface::SubSlottedInfo::help(
@@ -496,8 +482,11 @@ std::string MSXCPUInterface::SubSlottedInfo::help(
 
 // class ExternalSlotInfo
 
-MSXCPUInterface::ExternalSlotInfo::ExternalSlotInfo(CartridgeSlotManager& manager_)
-	: manager(manager_)
+MSXCPUInterface::ExternalSlotInfo::ExternalSlotInfo(
+		CommandController& commandController,
+		CartridgeSlotManager& manager_)
+	: InfoTopic(commandController, "isexternalslot")
+	, manager(manager_)
 {
 }
 
@@ -529,33 +518,37 @@ std::string MSXCPUInterface::ExternalSlotInfo::help(
 
 // class IODebug
 
-MSXCPUInterface::IODebug::IODebug(MSXCPUInterface& parent_, Debugger& debugger)
-	: SimpleDebuggable(debugger, "ioports", "IO ports.", 0x100)
-	, parent(parent_)
+MSXCPUInterface::IODebug::IODebug(MSXCPUInterface& interface_,
+                                  MSXMotherBoard& motherBoard)
+	: SimpleDebuggable(motherBoard, "ioports", "IO ports.", 0x100)
+	, interface(interface_)
 {
 }
 
 byte MSXCPUInterface::IODebug::read(unsigned address, const EmuTime& time)
 {
-	return parent.IO_In[address & 0xFF]->peekIO(address, time);
+	return interface.IO_In[address & 0xFF]->peekIO(address, time);
 }
 
 void MSXCPUInterface::IODebug::write(unsigned address, byte value, const EmuTime& time)
 {
-	parent.writeIO((word)address, value, time);
+	interface.writeIO((word)address, value, time);
 }
 
 
 // class SlotMapCmd
 
-MSXCPUInterface::SlotMapCmd::SlotMapCmd(MSXCPUInterface& parent_)
-	: parent(parent_)
+MSXCPUInterface::SlotMapCmd::SlotMapCmd(
+		CommandController& commandController,
+		MSXCPUInterface& interface_)
+	: SimpleCommand(commandController, "slotmap")
+	, interface(interface_)
 {
 }
 
 string MSXCPUInterface::SlotMapCmd::execute(const vector<string>& /*tokens*/)
 {
-	return parent.getSlotMap();
+	return interface.getSlotMap();
 }
 
 string MSXCPUInterface::SlotMapCmd::help(const vector<string>& /*tokens*/) const
@@ -566,14 +559,17 @@ string MSXCPUInterface::SlotMapCmd::help(const vector<string>& /*tokens*/) const
 
 // class IOMapCmd
 
-MSXCPUInterface::IOMapCmd::IOMapCmd(MSXCPUInterface& parent_)
-	: parent(parent_)
+MSXCPUInterface::IOMapCmd::IOMapCmd(
+		CommandController& commandController,
+		MSXCPUInterface& interface_)
+	: SimpleCommand(commandController, "iomap")
+	, interface(interface_)
 {
 }
 
 string MSXCPUInterface::IOMapCmd::execute(const vector<string>& /*tokens*/)
 {
-	return parent.getIOMap();
+	return interface.getIOMap();
 }
 
 string MSXCPUInterface::IOMapCmd::help(const vector<string>& /*tokens*/) const

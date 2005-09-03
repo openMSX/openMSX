@@ -1,6 +1,8 @@
 // $Id$
 
 #include "DiskImageCLI.hh"
+#include "MSXMotherBoard.hh"
+#include "CommandController.hh"
 #include "GlobalSettings.hh"
 #include "XMLElement.hh"
 #include "FileContext.hh"
@@ -10,12 +12,13 @@ using std::string;
 
 namespace openmsx {
 
-DiskImageCLI::DiskImageCLI(CommandLineParser& cmdLineParser)
+DiskImageCLI::DiskImageCLI(CommandLineParser& commandLineParser)
+	: commandController(commandLineParser.getMotherBoard().getCommandController())
 {
-	cmdLineParser.registerOption("-diska", this);
-	cmdLineParser.registerOption("-diskb", this);
+	commandLineParser.registerOption("-diska", this);
+	commandLineParser.registerOption("-diskb", this);
 
-	cmdLineParser.registerFileClass("diskimage", this);
+	commandLineParser.registerFileClass("diskimage", this);
 	driveLetter = 'a';
 }
 
@@ -35,10 +38,11 @@ const string& DiskImageCLI::optionHelp() const
 void DiskImageCLI::parseFileType(const string& filename,
                                  list<string>& cmdLine)
 {
-	XMLElement& config = GlobalSettings::instance().getMediaConfig();
+	XMLElement& config = commandController.getGlobalSettings().getMediaConfig();
 	XMLElement& diskElem = config.getCreateChild(string("disk") + driveLetter);
 	diskElem.getCreateChild("filename", filename);
-	diskElem.setFileContext(std::auto_ptr<FileContext>(new UserFileContext()));
+	diskElem.setFileContext(std::auto_ptr<FileContext>(new UserFileContext(
+	                                                commandController)));
 	while (peekArgument(cmdLine) == "-ips") {
 		cmdLine.pop_front();
 		string ipsFile = getArgument("-ips", cmdLine);

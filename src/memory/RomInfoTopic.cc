@@ -18,7 +18,8 @@ namespace openmsx {
 typedef map<RomType, string> Description;
 static Description description;
 
-RomInfoTopic::RomInfoTopic()
+RomInfoTopic::RomInfoTopic(CommandController& commandController)
+	: InfoTopic(commandController, "romtype")
 {
 	description[ROM_GENERIC_8KB] = "Generic 8kB";
 	description[ROM_GENERIC_16KB] = "Generic 16kB";
@@ -118,7 +119,7 @@ void RomInfoTopic::tabCompletion(vector<string>& tokens) const
 	if (tokens.size() == 3) {
 		set<string> romTypes;
 		RomInfo::getAllRomTypes(romTypes);
-		CommandController::completeString(tokens, romTypes, false);
+		completeString(tokens, romTypes, false);
 	}
 }
 

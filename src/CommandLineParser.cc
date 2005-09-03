@@ -8,6 +8,7 @@
 #include "ReadDir.hh"
 #include "CommandLineParser.hh"
 #include "HardwareConfig.hh"
+#include "CommandController.hh"
 #include "SettingsConfig.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -22,6 +23,7 @@
 #include "FileException.hh"
 #include "EnumSetting.hh"
 #include "HostCPU.hh"
+#include "MSXMotherBoard.hh"
 
 using std::cout;
 using std::endl;
@@ -57,10 +59,10 @@ bool CommandLineParser::hiddenStartup = true;
 
 CommandLineParser::CommandLineParser(MSXMotherBoard& motherBoard_)
 	: parseStatus(UNPARSED)
-	, hardwareConfig(HardwareConfig::instance())
-	, settingsConfig(SettingsConfig::instance())
-	, output(CliComm::instance())
 	, motherBoard(motherBoard_)
+	, hardwareConfig(HardwareConfig::instance())
+	, settingsConfig(motherBoard.getCommandController().getSettingsConfig())
+	, output(motherBoard.getCliComm())
 	, helpOption(*this)
 	, versionOption(*this)
 	, controlOption(*this)
@@ -157,7 +159,7 @@ bool CommandLineParser::parseFileName(const string& arg, list<string>& cmdLine)
 {
 	string originalName(arg);
 	try {
-		UserFileContext context;
+		UserFileContext context(motherBoard.getCommandController());
 		File file(context.resolve(arg));
 		originalName = file.getOriginalName();
 	} catch (FileException& e) {
@@ -314,7 +316,8 @@ void CommandLineParser::createMachineSetting()
 
 	machines["C-BIOS_MSX2+"] = 0; // default machine
 
-	machineSetting.reset(new EnumSetting<int>("machine",
+	machineSetting.reset(new EnumSetting<int>(
+		motherBoard.getCommandController(), "machine",
 		"default machine (takes effect next time openMSX is started)",
 		0, machines));
 }
@@ -347,7 +350,7 @@ bool CommandLineParser::ControlOption::parseOption(const string& option,
 	}
 	CommandLineParser::ControlType type = controlTypeMap[type_name];
 
-	CliComm::instance().startInput(type, arguments);
+	parent.getMotherBoard().getCliComm().startInput(type, arguments);
 	parent.parseStatus = CONTROL;
 	return true;
 }
@@ -554,7 +557,8 @@ bool CommandLineParser::SettingOption::parseOption(const string &option,
 		throw FatalError("Only one setting option allowed");
 	}
 	try {
-		UserFileContext context("", true); // skip user directories
+		UserFileContext context(parent.motherBoard.getCommandController(),
+		                        "", true); // skip user directories
 		parent.settingsConfig.loadSetting(
 			context, getArgument(option, cmdLine));
 		parent.haveSettings = true;

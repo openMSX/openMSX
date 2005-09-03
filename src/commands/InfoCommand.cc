@@ -1,11 +1,9 @@
 // $Id$
 
 #include "InfoCommand.hh"
-#include "CommandController.hh"
+#include "InfoTopic.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
-#include "RomInfoTopic.hh"
-#include "Version.hh"
 #include <cassert>
 
 using std::map;
@@ -15,32 +13,26 @@ using std::vector;
 
 namespace openmsx {
 
-InfoCommand::InfoCommand()
-	: romInfoTopic(new RomInfoTopic())
+InfoCommand::InfoCommand(CommandController& commandController)
+	: Command(commandController, "openmsx_info")
 {
-	registerTopic("version", &versionInfo);
-	registerTopic("romtype", romInfoTopic.get());
 }
 
 InfoCommand::~InfoCommand()
 {
-	unregisterTopic("romtype", romInfoTopic.get());
-	unregisterTopic("version", &versionInfo);
 }
 
-void InfoCommand::registerTopic(const string& name,
-                                const InfoTopic* topic)
+void InfoCommand::registerTopic(InfoTopic& topic, const string& name)
 {
 	assert(infoTopics.find(name) == infoTopics.end());
-	infoTopics[name] = topic;
+	infoTopics[name] = &topic;
 }
 
-void InfoCommand::unregisterTopic(const string& name,
-                                  const InfoTopic* topic)
+void InfoCommand::unregisterTopic(InfoTopic& topic, const string& name)
 {
-	if (topic); // avoid warning
+	if (&topic); // avoid warning
 	assert(infoTopics.find(name) != infoTopics.end());
-	assert(infoTopics[name] == topic);
+	assert(infoTopics[name] == &topic);
 	infoTopics.erase(name);
 }
 
@@ -104,7 +96,7 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 		       infoTopics.begin(); it != infoTopics.end(); ++it) {
 			topics.insert(it->first);
 		}
-		CommandController::completeString(tokens, topics);
+		completeString(tokens, topics);
 		break;
 	}
 	default:
@@ -117,19 +109,6 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 		}
 		break;
 	}
-}
-
-// Version info
-
-void InfoCommand::VersionInfo::execute(const vector<TclObject*>& /*tokens*/,
-                                       TclObject& result) const
-{
-	result.setString(Version::FULL_VERSION);
-}
-
-string InfoCommand::VersionInfo::help(const vector<string>& /*tokens*/) const
-{
-	return "Prints openMSX version.";
 }
 
 } // namespace openmsx

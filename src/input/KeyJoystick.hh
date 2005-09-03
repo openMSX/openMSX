@@ -9,13 +9,15 @@
 
 namespace openmsx {
 
+class CommandController;
 class KeyCodeSetting;
 class UserInputEventDistributor;
 
 class KeyJoystick : public JoystickDevice, private UserInputEventListener
 {
 public:
-	KeyJoystick(UserInputEventDistributor& eventDistributor,
+	KeyJoystick(CommandController& commandController,
+	            UserInputEventDistributor& eventDistributor,
 	            const std::string& name);
 	virtual ~KeyJoystick();
 

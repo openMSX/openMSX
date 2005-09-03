@@ -12,6 +12,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class Connector;
 class Pluggable;
+class CliComm;
 class Scheduler;
 class CommandController;
 
@@ -58,59 +59,64 @@ private:
 	// Commands
 	class PlugCmd : public SimpleCommand {
 	public:
-		PlugCmd(PluggingController& parent);
+		PlugCmd(CommandController& commandController,
+		        PluggingController& pluggingController);
 		virtual std::string execute(const std::vector<std::string>& tokens);
 		virtual std::string help   (const std::vector<std::string>& tokens) const;
 		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
-		PluggingController& parent;
+		PluggingController& pluggingController;
 	} plugCmd;
 
 	class UnplugCmd : public SimpleCommand {
 	public:
-		UnplugCmd(PluggingController& parent);
+		UnplugCmd(CommandController& commandController,
+		          PluggingController& pluggingController);
 		virtual std::string execute(const std::vector<std::string>& tokens);
 		virtual std::string help   (const std::vector<std::string>& tokens) const;
 		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
-		PluggingController& parent;
+		PluggingController& pluggingController;
 	} unplugCmd;
 
 	class PluggableInfo : public InfoTopic {
 	public:
-		PluggableInfo(PluggingController& parent);
+		PluggableInfo(CommandController& commandController,
+		              PluggingController& pluggingController);
 		virtual void execute(const std::vector<TclObject*>& tokens,
 		                     TclObject& result) const;
 		virtual std::string help   (const std::vector<std::string>& tokens) const;
 		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
-		PluggingController& parent;
+		PluggingController& pluggingController;
 	} pluggableInfo;
 
 	class ConnectorInfo : public InfoTopic {
 	public:
-		ConnectorInfo(PluggingController& parent);
+		ConnectorInfo(CommandController& commandController,
+		              PluggingController& pluggingController);
 		virtual void execute(const std::vector<TclObject*>& tokens,
 		                     TclObject& result) const;
 		virtual std::string help   (const std::vector<std::string>& tokens) const;
 		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
-		PluggingController& parent;
+		PluggingController& pluggingController;
 	} connectorInfo;
 
 	class ConnectionClassInfo : public InfoTopic {
 	public:
-		ConnectionClassInfo(PluggingController& parent);
+		ConnectionClassInfo(CommandController& commandController,
+		                    PluggingController& pluggingController);
 		virtual void execute(const std::vector<TclObject*>& tokens,
 		                     TclObject& result) const;
 		virtual std::string help   (const std::vector<std::string>& tokens) const;
 		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
-		PluggingController& parent;
+		PluggingController& pluggingController;
 	} connectionClassInfo;
 
+	CliComm& cliComm;
 	Scheduler& scheduler;
-	CommandController& commandController;
 };
 
 } // namespace openmsx

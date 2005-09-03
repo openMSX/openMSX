@@ -11,7 +11,6 @@
 namespace openmsx {
 
 class RenderSettings;
-class Display;
 class V9990;
 class V9990Rasterizer;
 
@@ -23,8 +22,7 @@ class V9990Rasterizer;
 class V9990PixelRenderer : public V9990Renderer, private SettingListener
 {
 public:
-	V9990PixelRenderer(RenderSettings& renderSettings, Display& display,
-	                   V9990& vdp);
+	V9990PixelRenderer(V9990& vdp);
 	virtual ~V9990PixelRenderer();
 
 	// V9990Renderer interface:
@@ -52,14 +50,14 @@ private:
 		DRAW_DISPLAY
 	};
 
-	/** Settings shared between all renderers
-	  */
-	RenderSettings& renderSettings;
-	
 	/** The V9990 VDP
 	  */
 	V9990& vdp;
 
+	/** Settings shared between all renderers
+	  */
+	RenderSettings& renderSettings;
+	
 	/** The Rasterizer
 	  */
 	V9990Rasterizer* rasterizer;

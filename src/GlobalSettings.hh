@@ -7,10 +7,11 @@
 
 namespace openmsx {
 
-class XMLElement;
+class CommandController;
 class IntegerSetting;
 class BooleanSetting;
 class StringSetting;
+class XMLElement;
 
 /**
  * This class contains settings that are used by several other class
@@ -20,7 +21,8 @@ class StringSetting;
 class GlobalSettings
 {
 public:
-	static GlobalSettings& instance();
+	GlobalSettings(CommandController& commandController);
+	~GlobalSettings();
 
 	IntegerSetting& getSpeedSetting();
 	BooleanSetting& getThrottleSetting();
@@ -32,8 +34,7 @@ public:
 	XMLElement& getMediaConfig();
 
 private:
-	GlobalSettings();
-	~GlobalSettings();
+	CommandController& commandController;
 
 	std::auto_ptr<IntegerSetting> speedSetting;
 	std::auto_ptr<BooleanSetting> throttleSetting;

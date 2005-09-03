@@ -7,7 +7,6 @@ SUBDIRS:= \
 
 SRC_HDR:= \
 	VDP VDPCmdEngine VDPVRAM SpriteChecker \
-	VDPSettings \
 	VideoSourceSetting \
 	Renderer RendererFactory RenderSettings PixelRenderer \
 	SDLVideoSystem SDLRasterizer SDLSnow \

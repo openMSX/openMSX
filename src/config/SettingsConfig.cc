@@ -6,11 +6,10 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "CommandController.hh"
-#include "GlobalSettings.hh"
 #include "CliComm.hh"
-#include "BooleanSetting.hh"
 #include "HotKey.hh"
+#include "CommandException.hh"
+#include "CommandController.hh"
 #include <memory>
 
 using std::auto_ptr;
@@ -19,18 +18,16 @@ using std::vector;
 
 namespace openmsx {
 
-SettingsConfig::SettingsConfig()
+SettingsConfig::SettingsConfig(CommandController& commandController_)
 	: XMLElement("settings")
-	, saveSettingsCommand(*this)
-	, loadSettingsCommand(*this)
+	, commandController(commandController_)
+	, saveSettingsCommand(commandController, *this)
+	, loadSettingsCommand(commandController, *this)
 	, hotKey(0)
 	, mustSaveSettings(false)
 {
 	setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
-	CommandController::instance().
-		registerCommand(&saveSettingsCommand, "save_settings");
-	CommandController::instance().
-		registerCommand(&loadSettingsCommand, "load_settings");
+	settingsManager.reset(new SettingsManager(commandController));
 }
 
 SettingsConfig::~SettingsConfig()
@@ -39,20 +36,10 @@ SettingsConfig::~SettingsConfig()
 		try {
 			saveSetting();
 		} catch (FileException& e) {
-			CliComm::instance().printWarning(
+			commandController.getCliComm().printWarning(
 				"Auto-saving of settings failed: " + e.getMessage() );
 		}
 	}
-	CommandController::instance().
-		unregisterCommand(&loadSettingsCommand, "load_settings");
-	CommandController::instance().
-		unregisterCommand(&saveSettingsCommand, "save_settings");
-}
-
-SettingsConfig& SettingsConfig::instance()
-{
-	static SettingsConfig oneInstance;
-	return oneInstance;
 }
 
 void SettingsConfig::setHotKey(HotKey* hotKey_)
@@ -72,7 +59,7 @@ void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 		getSettingsManager().loadSettings(*this);
 		hotKey->loadBindings(*this);
 	} catch (XMLException& e) {
-		CliComm::instance().printWarning(
+		commandController.getCliComm().printWarning(
 			"Loading of settings failed: " + e.getMessage() + "\n"
 			"Reverting to default settings.");
 	}
@@ -101,18 +88,17 @@ void SettingsConfig::setSaveSettings(bool save)
 
 SettingsManager& SettingsConfig::getSettingsManager()
 {
-	if (!settingsManager.get()) {
-		settingsManager.reset(new SettingsManager());
-	}
-	return *settingsManager;
+	return *settingsManager; // ***
 }
 
 
 // class SaveSettingsCommand
 
 SettingsConfig::SaveSettingsCommand::SaveSettingsCommand(
-	SettingsConfig& parent_)
-	: parent(parent_)
+		CommandController& commandController,
+		SettingsConfig& settingsConfig_)
+	: SimpleCommand(commandController, "save_settings")
+	, settingsConfig(settingsConfig_)
 {
 }
 
@@ -122,10 +108,10 @@ string SettingsConfig::SaveSettingsCommand::execute(
 	try {
 		switch (tokens.size()) {
 			case 1:
-				parent.saveSetting();
+				settingsConfig.saveSetting();
 				break;
 			case 2:
-				parent.saveSetting(tokens[1]);
+				settingsConfig.saveSetting(tokens[1]);
 				break;
 			default:
 				throw SyntaxError();
@@ -146,7 +132,7 @@ void SettingsConfig::SaveSettingsCommand::tabCompletion(
 	vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		CommandController::completeFileName(tokens);
+		completeFileName(tokens);
 	}
 }
 
@@ -154,8 +140,10 @@ void SettingsConfig::SaveSettingsCommand::tabCompletion(
 // class LoadSettingsCommand
 
 SettingsConfig::LoadSettingsCommand::LoadSettingsCommand(
-	SettingsConfig& parent_)
-	: parent(parent_)
+		CommandController& commandController,
+		SettingsConfig& settingsConfig_)
+	: SimpleCommand(commandController, "load_settings")
+	, settingsConfig(settingsConfig_)
 {
 }
 
@@ -166,7 +154,7 @@ string SettingsConfig::LoadSettingsCommand::execute(
 		throw SyntaxError();
 	}
 	SystemFileContext context;
-	parent.loadSetting(context, tokens[1]);
+	settingsConfig.loadSetting(context, tokens[1]);
 	return "";
 }
 
@@ -180,7 +168,7 @@ void SettingsConfig::LoadSettingsCommand::tabCompletion(
 	vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		CommandController::completeFileName(tokens);
+		completeFileName(tokens);
 	}
 }
 

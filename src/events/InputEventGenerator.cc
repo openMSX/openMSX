@@ -4,7 +4,6 @@
 #include "openmsx.hh"
 #include "InputEventGenerator.hh"
 #include "EventDistributor.hh"
-#include "CommandController.hh"
 #include "InputEvents.hh"
 #include "BooleanSetting.hh"
 
@@ -13,35 +12,31 @@ using std::vector;
 
 namespace openmsx {
 
-InputEventGenerator::InputEventGenerator()
-	: grabInput(new BooleanSetting("grabinput",
+InputEventGenerator::InputEventGenerator(Scheduler& scheduler,
+                                         CommandController& commandController,
+                                         EventDistributor& eventDistributor_)
+	: PollInterface(scheduler)
+	, grabInput(new BooleanSetting(commandController, "grabinput",
 		"This setting controls if openmsx takes over mouse and keyboard input",
 		false))
-	, escapeGrabCmd(*this)
+	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
+	, escapeGrabCmd(commandController, *this)
 	, keyRepeat(false)
-	, distributor(EventDistributor::instance())
+	, eventDistributor(eventDistributor_)
 {
 	setGrabInput(grabInput->getValue());
 	grabInput->addListener(this);
-	distributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this,
+	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this,
 	                                  EventDistributor::DETACHED);
-	CommandController::instance().registerCommand(&escapeGrabCmd, "escape_grab");
 
 	reinit();
 }
 
 InputEventGenerator::~InputEventGenerator()
 {
-	CommandController::instance().unregisterCommand(&escapeGrabCmd, "escape_grab");
-	distributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this,
+	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this,
 	                                  EventDistributor::DETACHED);
 	grabInput->removeListener(this);
-}
-
-InputEventGenerator& InputEventGenerator::instance()
-{
-	static InputEventGenerator oneInstance;
-	return oneInstance;
 }
 
 void InputEventGenerator::reinit()
@@ -123,7 +118,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		                                            evt.key.keysym.mod,
 		                                            true),
 		                              evt.key.keysym.unicode);
-		distributor.distributeEvent(event);
+		eventDistributor.distributeEvent(event);
 		break;
 	}
 	case SDL_KEYDOWN: {
@@ -131,63 +126,63 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		                                              evt.key.keysym.mod,
 		                                              false),
 		                                evt.key.keysym.unicode);
-		distributor.distributeEvent(event);
+		eventDistributor.distributeEvent(event);
 		break;
 	}
 
 	case SDL_MOUSEBUTTONUP: {
 		Event* event = new MouseButtonUpEvent(
 		                        convertMouseButton(evt.button.button));
-		distributor.distributeEvent(event);
+		eventDistributor.distributeEvent(event);
 		break;
 	}
 	case SDL_MOUSEBUTTONDOWN: {
 		Event* event = new MouseButtonDownEvent(
 		                        convertMouseButton(evt.button.button));
-		distributor.distributeEvent(event);
+		eventDistributor.distributeEvent(event);
 		break;
 	}
 	case SDL_MOUSEMOTION: {
 		Event* event = new MouseMotionEvent(evt.motion.xrel,
 		                                    evt.motion.yrel);
-		distributor.distributeEvent(event);
+		eventDistributor.distributeEvent(event);
 		break;
 	}
 
 	case SDL_JOYBUTTONUP: {
 		Event* event = new JoystickButtonUpEvent(evt.jbutton.which,
 		                                         evt.jbutton.button);
-		distributor.distributeEvent(event);
+		eventDistributor.distributeEvent(event);
 		break;
 	}
 	case SDL_JOYBUTTONDOWN: {
 		Event* event = new JoystickButtonDownEvent(evt.jbutton.which,
 		                                           evt.jbutton.button);
-		distributor.distributeEvent(event);
+		eventDistributor.distributeEvent(event);
 		break;
 	}
 	case SDL_JOYAXISMOTION: {
 		Event* event = new JoystickAxisMotionEvent(evt.jaxis.which,
 		                              convertJoyAxis(evt.jaxis.axis),
 		                              evt.jaxis.value);
-		distributor.distributeEvent(event);
+		eventDistributor.distributeEvent(event);
 		break;
 	}
 
 	case SDL_ACTIVEEVENT: {
 		Event* event = new FocusEvent(evt.active.gain);
-		distributor.distributeEvent(event);
+		eventDistributor.distributeEvent(event);
 		break;
 	}
 
 	case SDL_VIDEORESIZE: {
 		Event* event = new ResizeEvent(evt.resize.w, evt.resize.h);
-		distributor.distributeEvent(event);
+		eventDistributor.distributeEvent(event);
 		break;
 	}
 
 	case SDL_QUIT:
-		distributor.distributeEvent(new QuitEvent());
+		eventDistributor.distributeEvent(new QuitEvent());
 		break;
 
 	default:
@@ -235,16 +230,19 @@ void InputEventGenerator::setGrabInput(bool grab)
 }
 
 // class EscapeGrabCmd
-InputEventGenerator::EscapeGrabCmd::EscapeGrabCmd(InputEventGenerator& parent_)
-	: parent(parent_)
+InputEventGenerator::EscapeGrabCmd::EscapeGrabCmd(
+		CommandController& commandController,
+		InputEventGenerator& inputEventGenerator_)
+	: SimpleCommand(commandController, "escape_grab")
+	, inputEventGenerator(inputEventGenerator_)
 {
 }
 
 string InputEventGenerator::EscapeGrabCmd::execute(const vector<string>& /*tokens*/)
 {
-	if (parent.grabInput->getValue()) {
-		parent.escapeGrabState = ESCAPE_GRAB_WAIT_LOST;
-		parent.setGrabInput(false);
+	if (inputEventGenerator.grabInput->getValue()) {
+		inputEventGenerator.escapeGrabState = ESCAPE_GRAB_WAIT_LOST;
+		inputEventGenerator.setGrabInput(false);
 	}
 	return "";
 }

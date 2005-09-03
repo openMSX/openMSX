@@ -1,5 +1,13 @@
 $Id$
 
+2005-09-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Large singleton cleanup (only a few remain now):
+	   - singleton classes had a lot a inter-dependencies, it was not
+	     possible to make this change in smaller steps
+	   - these dependencies still exist, but now there are explicitly
+	     visible in the code (in some places it looks ugly now)
+	   - TODO break some of these dependencies
+
 2005-09-02 Manuel Bilderbeek <manuel@msxnet.org>
 	* Fixed a bug in the disassembler (thanks for the anonymous poster for
 	  telling us about it); it now uses stringstreams iso char arrays.

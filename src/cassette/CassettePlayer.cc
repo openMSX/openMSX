@@ -1,6 +1,5 @@
 // $Id$
 
-#include <cstdlib>
 #include "CassettePlayer.hh"
 #include "CommandController.hh"
 #include "GlobalSettings.hh"
@@ -11,6 +10,8 @@
 #include "DummyCassetteImage.hh"
 #include "CliComm.hh"
 #include "CommandException.hh"
+#include "MSXMotherBoard.hh"
+#include <cstdlib>
 
 using std::auto_ptr;
 using std::list;
@@ -20,10 +21,11 @@ using std::set;
 
 namespace openmsx {
 
-MSXCassettePlayerCLI::MSXCassettePlayerCLI(CommandLineParser& cmdLineParser)
+MSXCassettePlayerCLI::MSXCassettePlayerCLI(CommandLineParser& commandLineParser_)
+	: commandLineParser(commandLineParser_)
 {
-	cmdLineParser.registerOption("-cassetteplayer", this);
-	cmdLineParser.registerFileClass("cassetteimage", this);
+	commandLineParser.registerOption("-cassetteplayer", this);
+	commandLineParser.registerFileClass("cassetteimage", this);
 }
 
 bool MSXCassettePlayerCLI::parseOption(const string& option,
@@ -42,10 +44,13 @@ const string& MSXCassettePlayerCLI::optionHelp() const
 void MSXCassettePlayerCLI::parseFileType(const string& filename,
                                          list<string>& /*cmdLine*/)
 {
-	XMLElement& config = GlobalSettings::instance().getMediaConfig();
+	XMLElement& config = commandLineParser.getMotherBoard().
+	                getCommandController().getGlobalSettings().getMediaConfig();
 	XMLElement& playerElem = config.getCreateChild("cassetteplayer");
 	playerElem.setData(filename);
-	playerElem.setFileContext(auto_ptr<FileContext>(new UserFileContext()));
+	playerElem.setFileContext(auto_ptr<FileContext>(
+		new UserFileContext(commandLineParser.getMotherBoard().
+		                       getCommandController())));
 }
 const string& MSXCassettePlayerCLI::fileTypeHelp() const
 {
@@ -54,11 +59,15 @@ const string& MSXCassettePlayerCLI::fileTypeHelp() const
 }
 
 
-CassettePlayer::CassettePlayer(Mixer& mixer)
+CassettePlayer::CassettePlayer(
+		CliComm& cliComm_, CommandController& commandController,
+		Mixer& mixer)
 	: SoundDevice(mixer, getName(), getDescription())
+	, SimpleCommand(commandController, "cassetteplayer")
 	, motor(false), forcePlay(false)
+	, cliComm(cliComm_)
 {
-	XMLElement& config = GlobalSettings::instance().getMediaConfig();
+	XMLElement& config = commandController.getGlobalSettings().getMediaConfig();
 	playerElem = &config.getCreateChild("cassetteplayer");
 	const string filename = playerElem->getData();
 	if (!filename.empty()) {
@@ -80,13 +89,10 @@ CassettePlayer::CassettePlayer(Mixer& mixer)
 		cassettePlayerConfig.addChild(sound);
 	}
 	registerSound(cassettePlayerConfig);
-
-	CommandController::instance().registerCommand(this, "cassetteplayer");
 }
 
 CassettePlayer::~CassettePlayer()
 {
-	CommandController::instance().unregisterCommand(this, "cassetteplayer");
 	unregisterSound();
 }
 
@@ -185,12 +191,12 @@ string CassettePlayer::execute(const vector<string>& tokens)
 	if (tokens[1] == "-eject") {
 		result += "Tape ejected\n";
 		removeTape();
-		CliComm::instance().update(CliComm::MEDIA,
+		cliComm.update(CliComm::MEDIA,
 		                           "cassetteplayer", "");
 	} else if (tokens[1] == "eject") {
 		result += "Tape ejected\nWarning: use of 'eject' is deprecated, instead use '-eject'\n";
 		removeTape();
-		CliComm::instance().update(CliComm::MEDIA,
+		cliComm.update(CliComm::MEDIA,
 		                           "cassetteplayer", "");
 	} else if (tokens[1] == "-rewind") {
 		result += "Tape rewinded\n";
@@ -215,10 +221,10 @@ string CassettePlayer::execute(const vector<string>& tokens)
 	} else {
 		try {
 			result += "Changing tape\n";
-			UserFileContext context;
+			UserFileContext context(getCommandController());
 			insertTape(context.resolve(tokens[1]));
-			CliComm::instance().update(CliComm::MEDIA,
-			                         "cassetteplayer", tokens[1]);
+			cliComm.update(CliComm::MEDIA,
+			               "cassetteplayer", tokens[1]);
 		} catch (MSXException &e) {
 			throw CommandException(e.getMessage());
 		}
@@ -243,8 +249,8 @@ void CassettePlayer::tabCompletion(vector<string>& tokens) const
 		extra.insert("-rewind");
 		extra.insert("-force_play");
 		extra.insert("-no_force_play");
-		UserFileContext context;
-		CommandController::completeFileName(tokens, context, extra);
+		UserFileContext context(getCommandController());
+		completeFileName(tokens, context, extra);
 	}
 }
 

@@ -24,9 +24,13 @@ const bool META_HOT_KEYS =
 	false;
 #endif
 
-HotKey::HotKey(UserInputEventDistributor& userInputEventDistributor_)
-	: bindCmd(*this), unbindCmd(*this)
-	, bindDefaultCmd(*this), unbindDefaultCmd(*this)
+HotKey::HotKey(CommandController& commandController_,
+               UserInputEventDistributor& userInputEventDistributor_)
+	: bindCmd         (commandController_, *this)
+	, unbindCmd       (commandController_, *this)
+	, bindDefaultCmd  (commandController_, *this)
+	, unbindDefaultCmd(commandController_, *this)
+	, commandController(commandController_)
 	, userInputEventDistributor(userInputEventDistributor_)
 	, loading(false)
 {
@@ -34,20 +38,10 @@ HotKey::HotKey(UserInputEventDistributor& userInputEventDistributor_)
 
 	userInputEventDistributor.registerEventListener(
 		UserInputEventDistributor::HOTKEY, *this);
-
-	CommandController::instance().registerCommand(&bindCmd,   "bind");
-	CommandController::instance().registerCommand(&unbindCmd, "unbind");
-	CommandController::instance().registerCommand(&bindDefaultCmd,   "bind_default");
-	CommandController::instance().registerCommand(&unbindDefaultCmd, "unbind_default");
 }
 
 HotKey::~HotKey()
 {
-	CommandController::instance().unregisterCommand(&bindCmd,   "bind");
-	CommandController::instance().unregisterCommand(&unbindCmd, "unbind");
-	CommandController::instance().unregisterCommand(&bindDefaultCmd,   "bind_default");
-	CommandController::instance().unregisterCommand(&unbindDefaultCmd, "unbind_default");
-
 	userInputEventDistributor.unregisterEventListener(
 		UserInputEventDistributor::HOTKEY, *this);
 }
@@ -64,7 +58,7 @@ void HotKey::initDefaultBindings()
 		bindDefault(Keys::combine(Keys::K_L, Keys::KM_META), "toggle console");
 		bindDefault(Keys::combine(Keys::K_U, Keys::KM_META), "toggle mute");
 		bindDefault(Keys::combine(Keys::K_F, Keys::KM_META), "toggle fullscreen");
-		bindDefault(Keys::combine(Keys::K_Q, Keys::KM_META), "quit");
+		bindDefault(Keys::combine(Keys::K_Q, Keys::KM_META), "exit");
 	} else {
 		// Hot key combos for typical PC keyboards.
 		bindDefault(Keys::K_PRINT, "screenshot");
@@ -73,8 +67,8 @@ void HotKey::initDefaultBindings()
 		bindDefault(Keys::K_F10,   "toggle console");
 		bindDefault(Keys::K_F11,   "toggle mute");
 		bindDefault(Keys::K_F12,   "toggle fullscreen");
-		bindDefault(Keys::combine(Keys::K_F4, Keys::KM_ALT),     "quit");
-		bindDefault(Keys::combine(Keys::K_PAUSE, Keys::KM_CTRL), "quit");
+		bindDefault(Keys::combine(Keys::K_F4, Keys::KM_ALT),     "exit");
+		bindDefault(Keys::combine(Keys::K_PAUSE, Keys::KM_CTRL), "exit");
 		bindDefault(Keys::combine(Keys::K_RETURN, Keys::KM_ALT), "toggle fullscreen");
 	}
 }
@@ -112,7 +106,7 @@ void HotKey::loadBindings(const XMLElement& config)
 				unbind(getCode(elem.getAttribute("key")));
 			}
 		} catch (MSXException& e) {
-			CliComm::instance().printWarning(
+			commandController.getCliComm().printWarning(
 				"Error while loading key bindings: " + e.getMessage());
 		}
 	}
@@ -153,7 +147,7 @@ void HotKey::bind(Keys::KeyCode key, const string& command)
 
 	// TODO hack, remove when singleton stuff is cleaned up
 	if (!loading) {
-		saveBindings(SettingsConfig::instance());
+		saveBindings(commandController.getSettingsConfig());
 	}
 }
 
@@ -169,7 +163,7 @@ void HotKey::unbind(Keys::KeyCode key)
 
 	// TODO hack, remove when singleton stuff is cleaned up
 	if (!loading) {
-		saveBindings(SettingsConfig::instance());
+		saveBindings(commandController.getSettingsConfig());
 	}
 }
 
@@ -206,9 +200,9 @@ bool HotKey::signalEvent(const UserInputEvent& event)
 	if (it != cmdMap.end()) {
 		try {
 			// ignore return value
-			CommandController::instance().executeCommand(it->second);
+			commandController.executeCommand(it->second);
 		} catch (CommandException& e) {
-			CliComm::instance().printWarning(
+			commandController.getCliComm().printWarning(
 				"Error executing hot key command: " + e.getMessage());
 		}
 		return false; // deny event to other key listeners
@@ -219,8 +213,9 @@ bool HotKey::signalEvent(const UserInputEvent& event)
 
 // class BindCmd
 
-HotKey::BindCmd::BindCmd(HotKey& parent_)
-	: parent(parent_)
+HotKey::BindCmd::BindCmd(CommandController& commandController, HotKey& hotKey_)
+	: SimpleCommand(commandController, "bind")
+	, hotKey(hotKey_)
 {
 }
 
@@ -232,8 +227,8 @@ string HotKey::BindCmd::execute(const vector<string>& tokens)
 		assert(false);
 	case 1:
 		// show all bounded keys
-		for (BindMap::iterator it = parent.cmdMap.begin();
-		     it != parent.cmdMap.end(); it++) {
+		for (BindMap::iterator it = hotKey.cmdMap.begin();
+		     it != hotKey.cmdMap.end(); it++) {
 			result += Keys::getName(it->first) + ":  " +
 			          it->second + '\n';
 		}
@@ -241,8 +236,8 @@ string HotKey::BindCmd::execute(const vector<string>& tokens)
 	case 2: {
 		// show bindings for this key
 		BindMap::const_iterator it =
-			parent.cmdMap.find(getCode(tokens[1]));
-		if (it == parent.cmdMap.end()) {
+			hotKey.cmdMap.find(getCode(tokens[1]));
+		if (it == hotKey.cmdMap.end()) {
 			throw CommandException("Key not bound");
 		}
 		result = Keys::getName(it->first) + ":  " + it->second + '\n';
@@ -255,7 +250,7 @@ string HotKey::BindCmd::execute(const vector<string>& tokens)
 			if (i != 2) command += ' ';
 			command += tokens[i];
 		}
-		parent.bind(getCode(tokens[1]), command);
+		hotKey.bind(getCode(tokens[1]), command);
 		break;
 	}
 	}
@@ -271,8 +266,10 @@ string HotKey::BindCmd::help(const vector<string>& /*tokens*/) const
 
 // class UnbindCmd
 
-HotKey::UnbindCmd::UnbindCmd(HotKey& parent_)
-	: parent(parent_)
+HotKey::UnbindCmd::UnbindCmd(CommandController& commandController,
+                             HotKey& hotKey_)
+	: SimpleCommand(commandController, "unbind")
+	, hotKey(hotKey_)
 {
 }
 
@@ -281,7 +278,7 @@ string HotKey::UnbindCmd::execute(const vector<string>& tokens)
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	parent.unbind(getCode(tokens[1]));
+	hotKey.unbind(getCode(tokens[1]));
 	return "";
 }
 string HotKey::UnbindCmd::help(const vector<string>& /*tokens*/) const
@@ -289,10 +286,12 @@ string HotKey::UnbindCmd::help(const vector<string>& /*tokens*/) const
 	return "unbind <key> : unbind this key\n";
 }
 
-// class BindCmd
+// class BindDefaultCmd
 
-HotKey::BindDefaultCmd::BindDefaultCmd(HotKey& parent_)
-	: parent(parent_)
+HotKey::BindDefaultCmd::BindDefaultCmd(CommandController& commandController,
+                                       HotKey& hotKey_)
+	: SimpleCommand(commandController, "bind_default")
+	, hotKey(hotKey_)
 {
 }
 
@@ -304,8 +303,8 @@ string HotKey::BindDefaultCmd::execute(const vector<string>& tokens)
 		assert(false);
 	case 1:
 		// show all bounded keys
-		for (BindMap::iterator it = parent.defaultMap.begin();
-		     it != parent.defaultMap.end(); it++) {
+		for (BindMap::iterator it = hotKey.defaultMap.begin();
+		     it != hotKey.defaultMap.end(); it++) {
 			result += Keys::getName(it->first) + ":  " +
 			          it->second + '\n';
 		}
@@ -313,8 +312,8 @@ string HotKey::BindDefaultCmd::execute(const vector<string>& tokens)
 	case 2: {
 		// show bindings for this key
 		BindMap::const_iterator it =
-			parent.defaultMap.find(getCode(tokens[1]));
-		if (it == parent.defaultMap.end()) {
+			hotKey.defaultMap.find(getCode(tokens[1]));
+		if (it == hotKey.defaultMap.end()) {
 			throw CommandException("Key not bound");
 		}
 		result = Keys::getName(it->first) + ":  " + it->second + '\n';
@@ -327,7 +326,7 @@ string HotKey::BindDefaultCmd::execute(const vector<string>& tokens)
 			if (i != 2) command += ' ';
 			command += tokens[i];
 		}
-		parent.bindDefault(getCode(tokens[1]), command);
+		hotKey.bindDefault(getCode(tokens[1]), command);
 		break;
 	}
 	}
@@ -343,8 +342,10 @@ string HotKey::BindDefaultCmd::help(const vector<string>& /*tokens*/) const
 
 // class UnbindDefaultCmd
 
-HotKey::UnbindDefaultCmd::UnbindDefaultCmd(HotKey& parent_)
-	: parent(parent_)
+HotKey::UnbindDefaultCmd::UnbindDefaultCmd(CommandController& commandController,
+                                           HotKey& hotKey_)
+	: SimpleCommand(commandController, "unbind_default")
+	, hotKey(hotKey_)
 {
 }
 
@@ -353,7 +354,7 @@ string HotKey::UnbindDefaultCmd::execute(const vector<string>& tokens)
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	parent.unbindDefault(getCode(tokens[1]));
+	hotKey.unbindDefault(getCode(tokens[1]));
 	return "";
 }
 string HotKey::UnbindDefaultCmd::help(const vector<string>& /*tokens*/) const

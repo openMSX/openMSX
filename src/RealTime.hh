@@ -10,13 +10,17 @@
 namespace openmsx {
 
 class Scheduler;
+class EventDistributor;
+class GlobalSettings;
 class IntegerSetting;
 class BooleanSetting;
 
 class RealTime : private Schedulable, private SettingListener
 {
 public:
-	static RealTime& instance();
+	RealTime(Scheduler& scheduler, EventDistributor& eventDistributor,
+	         GlobalSettings& globalSettings);
+	virtual ~RealTime();
 
 	/** Convert EmuTime to RealTime.
 	  */
@@ -41,9 +45,6 @@ public:
 	void sync(const EmuTime& time, bool allowSleep);
 
 private:
-	RealTime();
-	virtual ~RealTime();
-
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const std::string& schedName() const;
@@ -54,6 +55,7 @@ private:
 	void internalSync(const EmuTime& time, bool allowSleep);
 	void resync();
 
+	EventDistributor& eventDistributor;
 	BooleanSetting& throttleSetting;
 	IntegerSetting& speedSetting;
 	BooleanSetting& pauseSetting;

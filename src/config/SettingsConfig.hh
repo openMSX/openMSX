@@ -15,7 +15,8 @@ class HotKey;
 class SettingsConfig : public XMLElement
 {
 public:
-	static SettingsConfig& instance();
+	SettingsConfig(CommandController& commandController);
+	~SettingsConfig();
 
 	void setHotKey(HotKey* hotKey); // TODO cleanup
 	
@@ -26,29 +27,30 @@ public:
 	SettingsManager& getSettingsManager();
 
 private:
-	SettingsConfig();
-	~SettingsConfig();
-
+	CommandController& commandController;
+	
 	// SaveSettings command
 	class SaveSettingsCommand : public SimpleCommand {
 	public:
-		SaveSettingsCommand(SettingsConfig& parent);
+		SaveSettingsCommand(CommandController& commandController,
+		                    SettingsConfig& settingsConfig);
 		virtual std::string execute(const std::vector<std::string>& tokens);
 		virtual std::string help   (const std::vector<std::string>& tokens) const;
 		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
-		SettingsConfig& parent;
+		SettingsConfig& settingsConfig;
 	} saveSettingsCommand;
 
 	// LoadSettings command
 	class LoadSettingsCommand : public SimpleCommand {
 	public:
-		LoadSettingsCommand(SettingsConfig& parent);
+		LoadSettingsCommand(CommandController& commandController,
+		                    SettingsConfig& settingsConfig);
 		virtual std::string execute(const std::vector<std::string>& tokens);
 		virtual std::string help   (const std::vector<std::string>& tokens) const;
 		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
-		SettingsConfig& parent;
+		SettingsConfig& settingsConfig;
 	} loadSettingsCommand;
 	
 	std::auto_ptr<SettingsManager> settingsManager;

@@ -1,6 +1,7 @@
 // $Id$
 
 #include "CliServer.hh"
+#include "CommandController.hh"
 #include "CliComm.hh"
 #include "CliConnection.hh"
 #include "StringOp.hh"
@@ -8,10 +9,13 @@
 
 namespace openmsx {
 
-CliServer::CliServer()
+CliServer::CliServer(Scheduler& scheduler_,
+                     CommandController& commandController_)
 	: thread(this)
+	, scheduler(scheduler_)
+	, commandController(commandController_)
+	, cliComm(commandController.getCliComm())
 {
-	CliComm::instance(); // make sure it's instantiated in main thread
 	sock_startup();
 	thread.start();
 }
@@ -28,7 +32,7 @@ void CliServer::run()
 	try {
 		mainLoop();
 	} catch (MSXException& e) {
-		CliComm::instance().printWarning(e.getMessage());
+		cliComm.printWarning(e.getMessage());
 	}
 }
 
@@ -64,7 +68,7 @@ void CliServer::mainLoop()
 		throw FatalError("Couldn't open socket.");
 		return;
 	}
-	CliComm::instance().printInfo(
+	cliComm.printInfo(
 		"Listening on port " + StringOp::toString(port) +
 		" for incoming (local) connections.");
 	listen(listenSock, SOMAXCONN);
@@ -79,7 +83,8 @@ void CliServer::mainLoop()
 			// throw FatalError(sock_error());
 			return;
 		}
-		CliComm::instance().connections.push_back(new SocketConnection(sd));
+		cliComm.connections.push_back(new SocketConnection(
+				scheduler, commandController, sd));
 	}
 }
 

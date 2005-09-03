@@ -15,7 +15,8 @@ namespace openmsx {
 class MSXMotherBoard;
 class MSXCPUInterface;
 class InfoCommand;
-class Debugger;
+class EventDistributor;
+class CommandController;
 class BooleanSetting;
 class Z80TYPE;
 class R800TYPE;
@@ -26,7 +27,7 @@ class MSXCPU : private SimpleDebuggable, private SettingListener
 public:
 	enum CPUType { CPU_Z80, CPU_R800 };
 
-	MSXCPU(Debugger& debugger);
+	MSXCPU(MSXMotherBoard& motherboard);
 	virtual ~MSXCPU();
 
 	virtual void reset(const EmuTime& time);
@@ -127,7 +128,6 @@ public:
 private:
 	// only for MSXMotherBoard
 	void execute();
-	void setMotherboard(MSXMotherBoard* motherboard);
 	friend class MSXMotherBoard;
 
 	void wait(const EmuTime& time);
@@ -145,6 +145,7 @@ private:
 	// SettingListener
 	void update(const Setting* setting);
 
+	MSXMotherBoard& motherboard;
 	const std::auto_ptr<BooleanSetting> traceSetting;
 	const std::auto_ptr<CPUCore<Z80TYPE> > z80;
 	const std::auto_ptr<CPUCore<R800TYPE> > r800;
@@ -153,16 +154,15 @@ private:
 
 	class TimeInfoTopic : public InfoTopic {
 	public:
-		TimeInfoTopic(MSXCPU& parent);
+		TimeInfoTopic(CommandController& commandController,
+		              MSXCPU& msxcpu);
 		virtual void execute(const std::vector<TclObject*>& tokens,
 		                     TclObject& result) const;
 		virtual std::string help (const std::vector<std::string>& tokens) const;
 	private:
-		MSXCPU& parent;
+		MSXCPU& msxcpu;
 	} timeInfo;
 	EmuTime reference;
-
-	Debugger& debugger;
 };
 
 } // namespace openmsx

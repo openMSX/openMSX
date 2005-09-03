@@ -22,8 +22,11 @@ namespace openmsx {
 
 // class CliConnection
 
-CliConnection::CliConnection()
-	: thread(this), lock(1)
+CliConnection::CliConnection(Scheduler& scheduler,
+                             CommandController& commandController_)
+	: Schedulable(scheduler)
+	, thread(this), lock(1)
+	, commandController(commandController_)
 {
 	user_data.state = START;
 	user_data.unknownLevel = 0;
@@ -68,11 +71,11 @@ static string reply(const string& message, bool status)
 
 void CliConnection::executeUntil(const EmuTime& /*time*/, int /*userData*/)
 {
-	CommandController& controller = CommandController::instance();
 	ScopedLock l(lock);
 	while (!cmds.empty()) {
 		try {
-			string result = controller.executeCommand(cmds.front());
+			string result = commandController.executeCommand(
+				cmds.front());
 			output(reply(result, true));
 		} catch (CommandException& e) {
 			string result = e.getMessage() + '\n';
@@ -148,8 +151,10 @@ void CliConnection::cb_text(ParseState* user_data, const xmlChar* chars, int len
 // class StdioConnection
 
 static const int BUF_SIZE = 4096;
-StdioConnection::StdioConnection()
-	: ok(true)
+StdioConnection::StdioConnection(Scheduler& scheduler,
+                                 CommandController& commandController)
+	: CliConnection(scheduler, commandController)
+	, ok(true)
 {
 	start();
 }
@@ -195,7 +200,10 @@ void StdioConnection::close()
 #ifdef _WIN32
 // class PipeConnection
 
-PipeConnection::PipeConnection(const string& name)
+PipeConnection::PipeConnection(Scheduler& scheduler,
+                               CommandController& commandController,
+                               const string& name)
+	: CliConnection(scheduler, commandController)
 {
 	string pipeName = "\\\\.\\pipe\\" + name;
 	pipeHandle = CreateFileA(pipeName.c_str(), GENERIC_READ, 0, NULL,
@@ -249,8 +257,11 @@ void PipeConnection::close()
 
 // class SocketConnection
 
-SocketConnection::SocketConnection(SOCKET sd_)
-	: sd(sd_)
+SocketConnection::SocketConnection(Scheduler& scheduler,
+                                   CommandController& commandController,
+                                   SOCKET sd_)
+	: CliConnection(scheduler, commandController)
+	, sd(sd_)
 {
 	start();
 }

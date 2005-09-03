@@ -5,7 +5,6 @@
 #include "EventDistributor.hh"
 #include "EventListener.hh"
 #include "Timer.hh"
-#include "RealTime.hh"
 #include "Scheduler.hh"
 #include "FloatSetting.hh"
 
@@ -15,9 +14,11 @@ using std::vector;
 
 namespace openmsx {
 
-EventDistributor::EventDistributor()
-	: sem(1)
-	, delaySetting(new FloatSetting("inputdelay",
+EventDistributor::EventDistributor(Scheduler& scheduler,
+                                   CommandController& commandController)
+	: Schedulable(scheduler)
+	, sem(1)
+	, delaySetting(new FloatSetting(commandController, "inputdelay",
 	               "EXPERIMENTAL: delay input to avoid keyskips",
 	               0.03, 0.0, 10.0))
 {
@@ -40,12 +41,6 @@ EventDistributor::~EventDistributor()
 	     it != scheduledEventsEmu.end(); ++it) {
 		delete *it;
 	}
-}
-
-EventDistributor& EventDistributor::instance()
-{
-	static EventDistributor oneInstance;
-	return oneInstance;
 }
 
 EventDistributor::ListenerMap& EventDistributor::getListeners(
@@ -130,8 +125,10 @@ void EventDistributor::sync(const EmuTime& emuTime)
 	EmuDuration emuDuration = emuTime - prevEmu;
 
 	double factor = emuDuration.toDouble() / realDuration;
-	EmuDuration extraDelay =
-		RealTime::instance().getEmuDuration(delaySetting->getValue());
+	// TODO should we use RealTime here?
+	// RealTime::instance().getEmuDuration(delaySetting->getValue());
+	EmuDuration extraDelay(delaySetting->getValue());
+
 	EmuTime time = prevEmu + extraDelay;
 	for (vector<EventTime>::const_iterator it = toBeScheduledEvents.begin();
 	     it != toBeScheduledEvents.end(); ++it) {

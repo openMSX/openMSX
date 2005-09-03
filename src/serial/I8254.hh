@@ -14,11 +14,14 @@
 
 namespace openmsx {
 
+class Scheduler;
+
 class I8254
 {
 	class Counter {
 	public:
-		Counter(ClockPinListener* listener, const EmuTime& time);
+		Counter(Scheduler& scheduler, ClockPinListener* listener,
+		        const EmuTime& time);
 		void reset(const EmuTime& time);
 		byte readIO(const EmuTime& time);
 		byte peekIO(const EmuTime& time) const;
@@ -64,8 +67,9 @@ class I8254
 	};
 
 public:
-	I8254(ClockPinListener* output0, ClockPinListener* output1,
-	      ClockPinListener* output2, const EmuTime& time);
+	I8254(Scheduler& scheduler, ClockPinListener* output0,
+	      ClockPinListener* output1, ClockPinListener* output2,
+	      const EmuTime& time);
 	~I8254();
 
 	void reset(const EmuTime& time);

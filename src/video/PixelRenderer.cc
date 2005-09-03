@@ -18,6 +18,7 @@ TODO:
 #include "EventDistributor.hh"
 #include "FinishFrameEvent.hh"
 #include "RealTime.hh"
+#include "MSXMotherBoard.hh"
 #include "Timer.hh"
 #include <algorithm>
 #include <cassert>
@@ -109,13 +110,15 @@ void PixelRenderer::subdivide(
 	if (drawLast) draw(clipL, endY, endX, endY + 1, drawType, false);
 }
 
-PixelRenderer::PixelRenderer(Display& display, RenderSettings& renderSettings_,
-                             VDP& vdp_)
-	: renderSettings(renderSettings_)
-	, vdp(vdp_), vram(vdp.getVRAM())
+PixelRenderer::PixelRenderer(VDP& vdp_)
+	: vdp(vdp_), vram(vdp.getVRAM())
+	, eventDistributor(vdp.getMotherBoard().getEventDistributor())
+	, realTime(vdp.getMotherBoard().getRealTime())
+	, renderSettings(vdp.getMotherBoard().getRenderSettings())
 	, spriteChecker(vdp.getSpriteChecker())
 {
-	rasterizer = display.getVideoSystem().createRasterizer(vdp);
+	rasterizer = vdp.getMotherBoard().getDisplay().getVideoSystem().
+	                    createRasterizer(vdp);
 
 	frameSkipCounter = 999; // force drawing of frame
 	finishFrameDuration = 0;
@@ -158,8 +161,7 @@ void PixelRenderer::frameStart(const EmuTime& time)
 		draw = true;
 	} else {
 		++frameSkipCounter;
-		draw = RealTime::instance().timeLeft(
-			(unsigned)finishFrameDuration, time);
+		draw = realTime.timeLeft((unsigned)finishFrameDuration, time);
 		if (draw) {
 			frameSkipCounter = 0;
 		}
@@ -199,7 +201,7 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 
 		if (drawFrame) {
 			FinishFrameEvent* f = new FinishFrameEvent(VIDEO_MSX);
-			EventDistributor::instance().distributeEvent(f);
+			eventDistributor.distributeEvent(f);
 		}
 	}
 }

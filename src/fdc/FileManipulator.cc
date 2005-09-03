@@ -23,11 +23,11 @@ using std::vector;
 
 namespace openmsx {
 
-FileManipulator::FileManipulator()
+FileManipulator::FileManipulator(CommandController& commandController)
+	: SimpleCommand(commandController, "diskmanipulator")
 {
-	CommandController::instance().registerCommand(this, "diskmanipulator");
-
-	virtualDrive.reset(new DiskChanger("virtual_drive", *this));
+	virtualDrive.reset(new DiskChanger("virtual_drive", commandController,
+	                                   *this));
 }
 
 FileManipulator::~FileManipulator()
@@ -35,13 +35,6 @@ FileManipulator::~FileManipulator()
 	virtualDrive.reset();
 
 	assert(diskImages.empty()); // all DiskContainers must be unregistered
-	CommandController::instance().unregisterCommand(this, "diskmanipulator");
-}
-
-FileManipulator& FileManipulator::instance()
-{
-	static FileManipulator oneInstance;
-	return oneInstance;
 }
 
 void FileManipulator::registerDrive(DiskContainer& drive, const string& imageName)
@@ -245,10 +238,10 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 		cmds.insert("format");
 		cmds.insert("chdir");
 		cmds.insert("mkdir");
-		CommandController::completeString(tokens, cmds);
+		completeString(tokens, cmds);
 
 	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
-		CommandController::completeFileName(tokens);
+		completeFileName(tokens);
 
 	} else if (tokens.size() == 3) {
 		set<string> names;
@@ -272,19 +265,19 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 				}
 			}
 		}
-		CommandController::completeString(tokens, names);
+		completeString(tokens, names);
 
 	} else if (tokens.size() >= 4) {
 		if ((tokens[1] == "savedsk") ||
 		    (tokens[1] == "import")  ||
 		    (tokens[1] == "export")) {
-			CommandController::completeFileName(tokens);
+			completeFileName(tokens);
 		} else if (tokens[1] == "create") {
 			set<string> cmds;
 			cmds.insert("360");
 			cmds.insert("720");
 			cmds.insert("32M");
-			CommandController::completeString(tokens, cmds);
+			completeString(tokens, cmds);
 		}
 	}
 }
@@ -445,7 +438,7 @@ string FileManipulator::import(DriveSettings& driveData,
 	for (vector<string>::const_iterator it = lists.begin();
 	     it != lists.end(); ++it) {
 		vector<string> list;
-		CommandController::instance().getInterpreter().splitList(*it, list);
+		getCommandController().getInterpreter().splitList(*it, list);
 
 		for (vector<string>::const_iterator it = list.begin();
 		     it != list.end(); ++it) {

@@ -37,8 +37,9 @@ static const int IMM_IRQ    = 0x08;
 // Sync point types
 enum SyncPointType { SCHED_FSM, SCHED_IDX_IRQ };
 
-WD2793::WD2793(DiskDrive& drive_, const EmuTime& time)
-	: drive(drive_)
+WD2793::WD2793(Scheduler& scheduler, DiskDrive& drive_, const EmuTime& time)
+	: Schedulable(scheduler)
+	, drive(drive_)
 {
 	reset(time);
 }

@@ -6,7 +6,9 @@ using std::string;
 
 namespace openmsx {
 
-SDLEventInserter::SDLEventInserter(SDL_Event& evnt, const EmuTime& time)
+SDLEventInserter::SDLEventInserter(Scheduler& scheduler, SDL_Event& evnt,
+                                   const EmuTime& time)
+	: Schedulable(scheduler)
 {
 	event = evnt;
 	setSyncPoint(time);

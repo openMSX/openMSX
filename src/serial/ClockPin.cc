@@ -7,9 +7,9 @@ using std::string;
 
 namespace openmsx {
 
-ClockPin::ClockPin(ClockPinListener* listener_)
-	: listener(listener_), periodic(false), status(false),
-	  signalEdge(false)
+ClockPin::ClockPin(Scheduler& scheduler, ClockPinListener* listener_)
+	: Schedulable(scheduler), listener(listener_), periodic(false)
+	, status(false), signalEdge(false)
 {
 }
 

@@ -54,24 +54,24 @@ static int main(int argc, char **argv)
 
 	int err = 0;
 	try {
-		CommandController::instance().getInterpreter().init(argv[0]);
 		MSXMotherBoard motherBoard;
+		motherBoard.getCommandController().getInterpreter().init(argv[0]);
 
 		// TODO cleanup once singleton mess is cleaned up
-		HotKey hotKey(motherBoard.getUserInputEventDistributor());
-		SettingsConfig::instance().setHotKey(&hotKey);
+		HotKey hotKey(motherBoard.getCommandController(),
+		              motherBoard.getUserInputEventDistributor());
+		motherBoard.getCommandController().getSettingsConfig().setHotKey(&hotKey);
 
 		CommandLineParser parser(motherBoard);
 		parser.parse(argc, argv);
 		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
 		if (parseStatus != CommandLineParser::EXIT) {
 			initializeSDL();
-			AfterCommand afterCommand;
-			RendererFactory::createVideoSystem(
-				motherBoard.getUserInputEventDistributor(),
-				motherBoard.getRenderSettings(),
-				motherBoard.getCommandConsole(),
-				motherBoard.getDisplay());
+			AfterCommand afterCommand(
+				motherBoard.getScheduler(),
+				motherBoard.getEventDistributor(),
+				motherBoard.getCommandController());                  
+			RendererFactory::createVideoSystem(motherBoard);
 			motherBoard.readConfig();
 			Reactor reactor(motherBoard);
 			// CliServer cliServer; // disabled for security reasons

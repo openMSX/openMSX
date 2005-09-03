@@ -12,6 +12,9 @@ class SectorAccessibleDisk;
 class DiskChanger;
 class Disk;
 class XMLElement;
+class CommandController;
+class EventDistributor;
+class FileManipulator;
 
 /**
  * This (abstract) class defines the DiskDrive interface
@@ -168,7 +171,10 @@ class RealDrive : public DiskDrive
 public:
 	static const int MAX_DRIVES = 26;	// a-z
 
-	RealDrive(const EmuTime& time);
+	RealDrive(CommandController& commandController,
+	          EventDistributor& eventDistributor,
+	          FileManipulator& fileManipulator,
+	          const EmuTime& time);
 	virtual ~RealDrive();
 
 	// DiskDrive interface
@@ -199,6 +205,8 @@ protected:
 	bool headLoadStatus;
 	Clock<1000> headLoadTimer; // ms
 	std::auto_ptr<DiskChanger> changer;
+
+	EventDistributor& eventDistributor;
 };
 
 
@@ -208,7 +216,10 @@ protected:
 class SingleSidedDrive : public RealDrive
 {
 public:
-	SingleSidedDrive(const EmuTime& time);
+	SingleSidedDrive(CommandController& commandController,
+	                 EventDistributor& eventDistributor,
+	                 FileManipulator& fileManipulator,
+	                 const EmuTime& time);
 	virtual ~SingleSidedDrive();
 	virtual bool doubleSided();
 	virtual void setSide(bool side);
@@ -231,7 +242,10 @@ public:
 class DoubleSidedDrive : public RealDrive
 {
 public:
-	DoubleSidedDrive(const EmuTime& time);
+	DoubleSidedDrive(CommandController& commandController,
+	                 EventDistributor& eventDistributor,
+	                 FileManipulator& fileManipulator,
+	                 const EmuTime& time);
 	virtual ~DoubleSidedDrive();
 	virtual bool doubleSided();
 	virtual void setSide(bool side);

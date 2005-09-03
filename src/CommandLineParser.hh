@@ -96,10 +96,10 @@ private:
 	bool issuedHelp;
 	ParseStatus parseStatus;
 
+	MSXMotherBoard& motherBoard;
 	HardwareConfig& hardwareConfig;
 	SettingsConfig& settingsConfig;
 	CliComm& output;
-	MSXMotherBoard& motherBoard;
 
 	class HelpOption : public CLIOption {
 	public:

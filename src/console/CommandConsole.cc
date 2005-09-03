@@ -28,10 +28,8 @@ namespace openmsx {
 const char* const PROMPT1 = "> ";
 const char* const PROMPT2 = "| ";
 
-CommandConsole::CommandConsole()
-	: settingsConfig(SettingsConfig::instance())
-	, commandController(CommandController::instance())
-	, cliComm(CliComm::instance())
+CommandConsole::CommandConsole(CommandController& commandController_)
+	: commandController(commandController_)
 	, display(NULL)
 {
 	resetScrollBack();
@@ -40,7 +38,8 @@ CommandConsole::CommandConsole()
 	putPrompt();
 	maxHistory = 100;
 	removeDoubles = true;
-	if (const XMLElement* config = settingsConfig.findChild("Console")) {
+	if (const XMLElement* config = commandController.getSettingsConfig().
+	                                                 findChild("Console")) {
 		maxHistory = config->getChildDataAsInt(
 			"historysize", maxHistory);
 		removeDoubles = config->getChildDataAsBool(
@@ -68,7 +67,7 @@ void CommandConsole::setDisplay(Display* display_)
 void CommandConsole::saveHistory()
 {
 	try {
-		UserFileContext context("console");
+		UserFileContext context(commandController, "console");
 		std::ofstream outputfile(FileOperations::expandTilde(
 		        context.resolveCreate("history.txt")).c_str());
 		if (!outputfile) {
@@ -80,14 +79,14 @@ void CommandConsole::saveHistory()
 			outputfile << it->substr(prompt.length()) << std::endl;
 		}
 	} catch (FileException& e) {
-		cliComm.printWarning(e.getMessage());
+		commandController.getCliComm().printWarning(e.getMessage());
 	}
 }
 
 void CommandConsole::loadHistory()
 {
 	try {
-		UserFileContext context("console");
+		UserFileContext context(commandController, "console");
 		std::ifstream inputfile(FileOperations::expandTilde(
 		        context.resolveCreate("history.txt")).c_str());
 		if (!inputfile) {

@@ -28,9 +28,10 @@ class MidiInNative : public MidiInDevice, private Runnable, private Schedulable
 public:
 	/** Register all available native midi in devcies
 	  */
-	static void registerAll(PluggingController& controller);
+	static void registerAll(Scheduler& scheduler,
+	                        PluggingController& controller);
 
-	MidiInNative(unsigned);
+	MidiInNative(Scheduler& scheduler, unsigned num);
 	virtual ~MidiInNative();
 
 	// Pluggable

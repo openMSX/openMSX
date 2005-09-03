@@ -50,7 +50,9 @@ static const byte defaultIdentifyBlock[512] = {
 };
 
 
-IDEHD::IDEHD(const XMLElement& config, const EmuTime& /*time*/)
+IDEHD::IDEHD(EventDistributor& eventDistributor_, const XMLElement& config,
+             const EmuTime& /*time*/)
+	: eventDistributor(eventDistributor_)
 {
 	buffer = new byte[512 * 256];
 
@@ -330,7 +332,7 @@ void IDEHD::setTransferRead(bool status)
 		transferRead = status;
 		if (!transferWrite) {
 			// (this is a bit of a hack!)
-			EventDistributor::instance().distributeEvent(
+			eventDistributor.distributeEvent(
 				new LedEvent(LedEvent::FDD, transferRead));
 		}
 	}
@@ -342,7 +344,7 @@ void IDEHD::setTransferWrite(bool status)
 		transferWrite = status;
 		if (!transferRead) {
 			// (this is a bit of a hack!)
-			EventDistributor::instance().distributeEvent(
+			eventDistributor.distributeEvent(
 				new LedEvent(LedEvent::FDD, transferWrite));
 		}
 	}

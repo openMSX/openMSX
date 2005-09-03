@@ -5,6 +5,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "MSXMotherBoard.hh"
 #include "CliComm.hh"
 
 using std::string;
@@ -16,6 +17,7 @@ SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name, int size,
 	: ram(motherBoard, name, "sram", size)
 	, config(config_)
 	, header(header_)
+	, cliComm(motherBoard.getCliComm())
 {
 	load();
 }
@@ -26,6 +28,7 @@ SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name,
 	: ram(motherBoard, name, description, size)
 	, config(config_)
 	, header(header_)
+	, cliComm(motherBoard.getCliComm())
 {
 	load();
 }
@@ -55,13 +58,12 @@ void SRAM::load()
 		if (headerOk) {
 			file.read(&ram[0], getSize());
 		} else {
-			CliComm::instance().printWarning(
+			cliComm.printWarning(
 				"Warning no correct SRAM file: " + filename);
 		}
 	} catch (FileException &e) {
-		CliComm::instance().printWarning(
-			"Couldn't load SRAM " + filename +
-			" (" + e.getMessage() + ").");
+		cliComm.printWarning("Couldn't load SRAM " + filename +
+		                     " (" + e.getMessage() + ").");
 	}
 }
 
@@ -77,9 +79,8 @@ void SRAM::save()
 		}
 		file.write(&ram[0], getSize());
 	} catch (FileException& e) {
-		CliComm::instance().printWarning(
-			"Couldn't save SRAM " + filename +
-			" (" + e.getMessage() + ").");
+		cliComm.printWarning("Couldn't save SRAM " + filename +
+		                     " (" + e.getMessage() + ").");
 	}
 }
 

@@ -3,6 +3,7 @@
 #ifndef INTERPRETER_HH
 #define INTERPRETER_HH
 
+#include "PollInterface.hh"
 #include <map>
 #include <set>
 #include <string>
@@ -11,14 +12,15 @@
 
 namespace openmsx {
 
+class Scheduler;
 class Command;
 class Setting;
 class InterpreterOutput;
 
-class Interpreter
+class Interpreter : public PollInterface
 {
 public:
-	Interpreter();
+	Interpreter(Scheduler& scheduler);
 	~Interpreter();
 
 	void setOutput(InterpreterOutput* output);
@@ -40,7 +42,8 @@ public:
 	void splitList(const std::string& list,
 	               std::vector<std::string>& result);
 
-	void poll();
+	// PollInterface
+	virtual void poll();
 
 private:
 	static int outputProc(ClientData clientData, const char* buf,

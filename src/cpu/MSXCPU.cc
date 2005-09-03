@@ -2,6 +2,7 @@
 
 #include "MSXCPU.hh"
 #include "CPU.hh"
+#include "MSXMotherBoard.hh"
 #include "CommandController.hh"
 #include "InfoCommand.hh"
 #include "Debugger.hh"
@@ -17,36 +18,29 @@ using std::vector;
 
 namespace openmsx {
 
-MSXCPU::MSXCPU(Debugger& debugger_)
-	: SimpleDebuggable(debugger_, "CPU regs",
+MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
+	: SimpleDebuggable(motherboard_, "CPU regs",
 	                   "Registers of the active CPU (Z80 or R800)", 28)
-	, traceSetting(new BooleanSetting("cputrace", "CPU tracing on/off", false))
-	, z80 (new CPUCore<Z80TYPE> ("z80",  *traceSetting, EmuTime::zero))
-	, r800(new CPUCore<R800TYPE>("r800", *traceSetting, EmuTime::zero))
-	, timeInfo(*this)
-	, debugger(debugger_)
+	, motherboard(motherboard_)
+	, traceSetting(new BooleanSetting(motherboard.getCommandController(),
+	                              "cputrace", "CPU tracing on/off", false))
+	, z80 (new CPUCore<Z80TYPE> (motherboard, "z80",  *traceSetting,
+	                             EmuTime::zero))
+	, r800(new CPUCore<R800TYPE>(motherboard, "r800", *traceSetting,
+	                             EmuTime::zero))
+	, timeInfo(motherboard.getCommandController(), *this)
 {
 	activeCPU = z80.get();	// setActiveCPU(CPU_Z80);
 	reset(EmuTime::zero);
 
-	CommandController::instance().getInfoCommand().registerTopic("time", &timeInfo);
-	debugger.setCPU(this);
-
+	motherboard.getDebugger().setCPU(this);
 	traceSetting->addListener(this);
 }
 
 MSXCPU::~MSXCPU()
 {
 	traceSetting->removeListener(this);
-
-	debugger.setCPU(0);
-	CommandController::instance().getInfoCommand().unregisterTopic("time", &timeInfo);
-}
-
-void MSXCPU::setMotherboard(MSXMotherBoard* motherboard)
-{
-	z80 ->setMotherboard(motherboard);
-	r800->setMotherboard(motherboard);
+	motherboard.getDebugger().setCPU(0);
 }
 
 void MSXCPU::setInterface(MSXCPUInterface* interface)
@@ -292,15 +286,17 @@ void MSXCPU::setPaused(bool paused)
 
 // class TimeInfoTopic
 
-MSXCPU::TimeInfoTopic::TimeInfoTopic(MSXCPU& parent_)
-	: parent(parent_)
+MSXCPU::TimeInfoTopic::TimeInfoTopic(CommandController& commandController,
+                                     MSXCPU& msxcpu_)
+	: InfoTopic(commandController, "time")
+	, msxcpu(msxcpu_)
 {
 }
 
 void MSXCPU::TimeInfoTopic::execute(const vector<TclObject*>& /*tokens*/,
                                     TclObject& result) const
 {
-	EmuDuration dur = parent.getCurrentTime() - parent.reference;
+	EmuDuration dur = msxcpu.getCurrentTime() - msxcpu.reference;
 	result.setDouble(dur.toDouble());
 }
 

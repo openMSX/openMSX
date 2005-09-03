@@ -1,6 +1,7 @@
 // $Id$
 
 #include "SimpleDebuggable.hh"
+#include "MSXMotherBoard.hh"
 #include "Debugger.hh"
 #include "Scheduler.hh"
 #include <cassert>
@@ -9,19 +10,19 @@
 namespace openmsx {
 
 SimpleDebuggable::SimpleDebuggable(
-		Debugger& debugger_, const std::string& name_,
+		MSXMotherBoard& motherBoard_, const std::string& name_,
 		const std::string& description_, unsigned size_)
-	: debugger(debugger_)
+	: motherBoard(motherBoard_)
 	, name(name_)
 	, description(description_)
 	, size(size_)
 {
-	debugger.registerDebuggable(name, *this);
+	motherBoard.getDebugger().registerDebuggable(name, *this);
 }
 
 SimpleDebuggable::~SimpleDebuggable()
 {
-	debugger.unregisterDebuggable(name, *this);
+	motherBoard.getDebugger().unregisterDebuggable(name, *this);
 }
 
 unsigned SimpleDebuggable::getSize() const
@@ -36,7 +37,7 @@ const std::string& SimpleDebuggable::getDescription() const
 
 byte SimpleDebuggable::read(unsigned address)
 {
-	return read(address, Scheduler::instance().getCurrentTime());
+	return read(address, motherBoard.getScheduler().getCurrentTime());
 }
 
 byte SimpleDebuggable::read(unsigned /*address*/, const EmuTime& /*time*/)
@@ -47,7 +48,7 @@ byte SimpleDebuggable::read(unsigned /*address*/, const EmuTime& /*time*/)
 
 void SimpleDebuggable::write(unsigned address, byte value)
 {
-	write(address, value, Scheduler::instance().getCurrentTime());
+	write(address, value, motherBoard.getScheduler().getCurrentTime());
 }
 
 void SimpleDebuggable::write(unsigned /*address*/, byte /*value*/,

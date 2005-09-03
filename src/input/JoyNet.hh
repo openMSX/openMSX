@@ -36,7 +36,6 @@
 #include "probed_defs.hh"
 #ifdef	HAVE_SYS_SOCKET_H
 
-#include <memory>
 #include "JoystickDevice.hh"
 #include "Thread.hh"
 #include <sys/socket.h>
@@ -44,13 +43,18 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <memory>
 
 namespace openmsx {
+
+class CommandController;
+class CliComm;
+class SettingsConfig;
 
 class JoyNet : public JoystickDevice
 {
 public:
-	JoyNet();
+	JoyNet(CommandController& commandController);
 	virtual ~JoyNet();
 
 	//Pluggable
@@ -65,13 +69,15 @@ public:
 
 private:
 	//Sub class for listener thread
-	class ConnectionListener: public Runnable
-	{
+	// TODO cleanup, inner class not really needed
+	class ConnectionListener: public Runnable {
 	public:
-		ConnectionListener(int listenport,byte* linestatus);
+		ConnectionListener(CliComm& CliComm, int listenport,
+		                   byte* linestatus);
 		virtual ~ConnectionListener();
 		virtual void run();
 	private:
+		CliComm& cliComm;
 		int port;
 		byte* statuspointer;
 		Thread thread;
@@ -89,6 +95,9 @@ private:
 	void setupWriter();
 	void sendByte(byte value);
 	std::auto_ptr<ConnectionListener> listener;
+
+	CliComm& cliComm;
+	SettingsConfig& settingsConfig;
 };
 
 } // namespace openmsx

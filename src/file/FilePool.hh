@@ -10,21 +10,19 @@
 
 namespace openmsx {
 
-class Config;
+class SettingsConfig;
 
 class FilePool
 {
 public:
-	static FilePool& instance();
+	FilePool(SettingsConfig& settingsConfig);
+	~FilePool();
 
 	std::string getFile(const std::string& sha1sum);
 
 private:
 	typedef std::multimap<std::string, std::pair<time_t, std::string> > Pool;
 	typedef std::vector<std::string> Directories;
-
-	FilePool();
-	~FilePool();
 
 	void readSha1sums();
 	void writeSha1sums();

@@ -10,13 +10,15 @@
 
 namespace openmsx {
 
+class EventDistributor;
 class XMLElement;
 class File;
 
 class IDEHD : public IDEDevice, public SectorAccessibleDisk, public DiskContainer
 {
 public:
-	IDEHD(const XMLElement& config, const EmuTime& time);
+	IDEHD(EventDistributor& eventDistributor, const XMLElement& config,
+	      const EmuTime& time);
 	virtual ~IDEHD();
 
 	virtual void reset(const EmuTime& time);
@@ -63,6 +65,8 @@ private:
 	unsigned transferSectorNumber;
 
 	byte identifyBlock[512];
+
+	EventDistributor& eventDistributor;
 };
 
 } // namespace openmsx

@@ -2,8 +2,11 @@
 
 #include "RendererFactory.hh"
 #include "RenderSettings.hh"
+#include "MSXMotherBoard.hh"
 #include "CommandLineParser.hh"
 #include "EnumSetting.hh"
+#include "VDP.hh"
+#include "V9990.hh"
 
 // Video systems:
 #include "components.hh"
@@ -28,27 +31,20 @@ namespace openmsx {
 int RendererFactory::createInProgress = 0;
 
 
-VideoSystem* RendererFactory::createVideoSystem(
-	UserInputEventDistributor& userInputEventDistributor,
-	RenderSettings& renderSettings,
-	Console& console, Display& display)
+VideoSystem* RendererFactory::createVideoSystem(MSXMotherBoard& motherboard)
 {
 	++createInProgress;
 	VideoSystem* result;
-	switch (renderSettings.getRenderer().getValue()) {
+	switch (motherboard.getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
-			result = new DummyVideoSystem(display);
+			result = new DummyVideoSystem(motherboard.getDisplay());
 			break;
 		case SDL:
-			result = new SDLVideoSystem(
-				userInputEventDistributor, renderSettings,
-				console, display);
+			result = new SDLVideoSystem(motherboard);
 			break;
 #ifdef COMPONENT_GL
 		case SDLGL:
-			result = new SDLGLVideoSystem(
-				userInputEventDistributor, renderSettings,
-				console, display);
+			result = new SDLGLVideoSystem(motherboard);
 			break;
 #endif
 		default:
@@ -59,18 +55,17 @@ VideoSystem* RendererFactory::createVideoSystem(
 	return result;
 }
 
-Renderer* RendererFactory::createRenderer(
-	RenderSettings& renderSettings, Display& display, VDP& vdp)
+Renderer* RendererFactory::createRenderer(VDP& vdp)
 {
 	++createInProgress;
 	Renderer* result;
-	switch (renderSettings.getRenderer().getValue()) {
+	switch (vdp.getMotherBoard().getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
 			result = new DummyRenderer();
 			break;
 		case SDL:
 		case SDLGL:
-			result = new PixelRenderer(display, renderSettings, vdp);
+			result = new PixelRenderer(vdp);
 			break;
 #ifdef HAVE_X11
 		case XLIB:
@@ -85,19 +80,17 @@ Renderer* RendererFactory::createRenderer(
 	return result;
 }
 
-V9990Renderer* RendererFactory::createV9990Renderer(
-	RenderSettings& renderSettings, Display& display, V9990& vdp)
+V9990Renderer* RendererFactory::createV9990Renderer(V9990& vdp)
 {
 	++createInProgress;
 	V9990Renderer* result;
-	switch (renderSettings.getRenderer().getValue()) {
+	switch (vdp.getMotherBoard().getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
 			result = new V9990DummyRenderer();
 			break;
 		case SDL:
 		case SDLGL:
-			result = new V9990PixelRenderer(
-				renderSettings, display, vdp);
+			result = new V9990PixelRenderer(vdp);
 			break;
 #ifdef HAVE_X11
 		case XLIB:
@@ -113,7 +106,8 @@ V9990Renderer* RendererFactory::createV9990Renderer(
 	return result;
 }
 
-auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSetting()
+auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSetting(
+		CommandController& commandController)
 {
 	typedef EnumSetting<RendererID>::Map RendererMap;
 	RendererMap rendererMap;
@@ -126,7 +120,7 @@ auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSettin
 	// XRenderer is not ready for users.
 	// rendererMap["Xlib" ] = XLIB;
 #endif
-	auto_ptr<RendererSetting> setting(new RendererSetting(
+	auto_ptr<RendererSetting> setting(new RendererSetting(commandController,
 		"renderer", "rendering back-end used to display the MSX screen",
 		SDL, rendererMap));
 	if (setting->getValue() == DUMMY) {

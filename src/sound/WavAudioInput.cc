@@ -10,10 +10,11 @@ using std::string;
 
 namespace openmsx {
 
-WavAudioInput::WavAudioInput()
+WavAudioInput::WavAudioInput(CommandController& commandController)
 	: length(0), buffer(0), freq(44100)
 	, plugged(false)
-	, audioInputFilenameSetting(new FilenameSetting("audio-inputfilename",
+	, audioInputFilenameSetting(new FilenameSetting(
+		commandController, "audio-inputfilename",
 		"filename of the file where the sampler reads data from",
 		"audio-input.wav"))
 {
@@ -113,7 +114,7 @@ void WavAudioInput::update(const Setting* setting)
 			loadWave();
 		} catch (MSXException &e) {
 			// TODO proper error handling, message should go to console
-			CliComm::instance().printWarning(
+			setting->getCommandController().getCliComm().printWarning(
 				"Load of wave file failed: " + e.getMessage());
 		}
 	}

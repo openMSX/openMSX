@@ -122,7 +122,9 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 	device->addChild(auto_ptr<XMLElement>(
 		new XMLElement("sramname", sramfile + ".SRAM")));
 	device->setFileContext(auto_ptr<FileContext>(
-		new UserFileContext("roms/" + sramfile)));
+		new UserFileContext(
+			cmdLineParser.getMotherBoard().getCommandController(),
+			"roms/" + sramfile)));
 
 	secondary->addChild(device);
 	primary->addChild(secondary);

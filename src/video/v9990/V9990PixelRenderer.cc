@@ -12,6 +12,7 @@
 #include "RealTime.hh"
 #include "Timer.hh"
 #include "EventDistributor.hh"
+#include "MSXMotherBoard.hh"
 #include "RenderSettings.hh"
 #include "IntegerSetting.hh"
 #include "openmsx.hh"
@@ -19,17 +20,17 @@
 
 namespace openmsx {
 
-V9990PixelRenderer::V9990PixelRenderer(RenderSettings& renderSettings_,
-                                       Display& display, V9990& vdp_)
-	: renderSettings(renderSettings_)
-	, vdp(vdp_)
-	, rasterizer(display.getVideoSystem().createV9990Rasterizer(vdp_))
+V9990PixelRenderer::V9990PixelRenderer(V9990& vdp_)
+	: vdp(vdp_)
+	, renderSettings(vdp.getMotherBoard().getRenderSettings())
+	, rasterizer(vdp.getMotherBoard().getDisplay().getVideoSystem().
+	                createV9990Rasterizer(vdp))
 {
 	frameSkipCounter = 999; // force drawing of frame;
 	finishFrameDuration = 0;
 	drawFrame = false; // don't draw before frameStart is called
 
-	reset(Scheduler::instance().getCurrentTime());
+	reset(vdp.getMotherBoard().getScheduler().getCurrentTime());
 
 	renderSettings.getMaxFrameSkip().addListener(this);
 	renderSettings.getMinFrameSkip().addListener(this);
@@ -63,7 +64,7 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 		drawFrame = true;
 	} else {
 		++frameSkipCounter;
-		drawFrame = RealTime::instance().timeLeft(
+		drawFrame = vdp.getMotherBoard().getRealTime().timeLeft(
 			(unsigned)finishFrameDuration, time);
 		if (drawFrame) {
 			frameSkipCounter = 0;
@@ -96,7 +97,7 @@ void V9990PixelRenderer::frameEnd(const EmuTime& time)
 	                      current * ALPHA;
 
 	FinishFrameEvent* f = new FinishFrameEvent(VIDEO_GFX9000);
-	EventDistributor::instance().distributeEvent(f);
+	vdp.getMotherBoard().getEventDistributor().distributeEvent(f);
 }
 
 void V9990PixelRenderer::sync(const EmuTime& time, bool force)

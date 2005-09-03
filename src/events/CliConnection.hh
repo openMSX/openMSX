@@ -13,6 +13,9 @@
 
 namespace openmsx {
 
+class Scheduler;
+class CommandController;
+
 class CliConnection : private Schedulable, protected Runnable
 {
 public:
@@ -21,8 +24,8 @@ public:
 	virtual void output(const std::string& message) = 0;
 
 protected:
-	CliConnection();
-
+	CliConnection(Scheduler& scheduler,
+	              CommandController& commandController);
 
 	/** Starts this connection by writing the opening tag
 	  * and starting the listener thread.
@@ -66,12 +69,15 @@ private:
 	ParseState user_data;
 	Semaphore lock;
 	std::deque<std::string> cmds;
+
+	CommandController& commandController;
 };
 
 class StdioConnection : public CliConnection
 {
 public:
-	StdioConnection();
+	StdioConnection(Scheduler& scheduler,
+	                CommandController& commandController);
 	virtual ~StdioConnection();
 
 	virtual void output(const std::string& message);
@@ -87,7 +93,9 @@ private:
 class PipeConnection : public CliConnection
 {
 public:
-	PipeConnection(const std::string& name);
+	PipeConnection(Scheduler& scheduler,
+	               CommandController& commandController,
+	               const std::string& name);
 	virtual ~PipeConnection();
 
 	virtual void output(const std::string& message);
@@ -103,7 +111,9 @@ private:
 class SocketConnection : public CliConnection
 {
 public:
-	SocketConnection(SOCKET sd);
+	SocketConnection(Scheduler& scheduler,
+	                 CommandController& commandController,
+	                 SOCKET sd);
 	virtual ~SocketConnection();
 
 	virtual void output(const std::string& message);

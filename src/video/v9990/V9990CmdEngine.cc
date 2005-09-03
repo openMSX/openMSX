@@ -1,9 +1,10 @@
 // $Id$
 
-#include "openmsx.hh"
 #include "V9990.hh"
 #include "V9990CmdEngine.hh"
 #include "V9990VRAM.hh"
+#include "MSXMotherBoard.hh"
+#include "openmsx.hh"
 #include <iostream>
 
 namespace openmsx {
@@ -544,7 +545,8 @@ inline void V9990CmdEngine::V9990Bpp16::psetColor(
   */
 V9990CmdEngine::V9990CmdEngine(V9990& vdp_, const EmuTime& time)
 	: vdp(vdp_)
-	, cmdTraceSetting("v9990cmdtrace", "V9990 command tracing on/off", false)
+	, cmdTraceSetting(vdp.getMotherBoard().getCommandController(),
+	                "v9990cmdtrace", "V9990 command tracing on/off", false)
 {
 	initTabs();
 	

@@ -7,8 +7,9 @@ using std::string;
 
 namespace openmsx {
 
-MidiOutLogger::MidiOutLogger()
-	: logFilenameSetting(new FilenameSetting("midi-out-logfilename",
+MidiOutLogger::MidiOutLogger(CommandController& commandController)
+	: logFilenameSetting(new FilenameSetting(
+		commandController, "midi-out-logfilename",
 		"filename of the file where the MIDI output is logged to",
 		"/dev/midi"))
 {

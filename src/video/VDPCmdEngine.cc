@@ -35,17 +35,18 @@ TODO:
     is "SX/DX & 255".
 */
 
+#include "VDPCmdEngine.hh"
+#include "EmuTime.hh"
+#include "VDP.hh"
+#include "VDPVRAM.hh"
+#include "BooleanSetting.hh"
+#include "MSXMotherBoard.hh"
+#include "RenderSettings.hh"
 #include <cstdio>
 #include <iostream>
 #include <cassert>
 #include <algorithm>
 #include <memory>
-#include "VDPCmdEngine.hh"
-#include "EmuTime.hh"
-#include "VDP.hh"
-#include "VDPVRAM.hh"
-#include "VDPSettings.hh"
-#include "BooleanSetting.hh"
 
 using std::min;
 using std::max;
@@ -330,8 +331,9 @@ void VDPCmdEngine::createEngines(int cmd) {
 
 VDPCmdEngine::VDPCmdEngine(VDP& vdp_)
 	: vdp(vdp_), vram(vdp.getVRAM())
-	, cmdTraceSetting(new BooleanSetting("vdpcmdtrace",
-	                         "VDP command tracing on/off", false))
+	, cmdTraceSetting(new BooleanSetting(
+		vdp.getMotherBoard().getCommandController(),
+		"vdpcmdtrace", "VDP command tracing on/off", false))
 {
 	status = 0;
 	transfer = false;
@@ -363,12 +365,12 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_)
 	brokenTiming = false;
 	statusChangeTime = EmuTime::infinity;
 
-	VDPSettings::instance().getCmdTiming().addListener(this);
+	vdp.getMotherBoard().getRenderSettings().getCmdTiming().addListener(this);
 }
 
 VDPCmdEngine::~VDPCmdEngine()
 {
-	VDPSettings::instance().getCmdTiming().removeListener(this);
+	vdp.getMotherBoard().getRenderSettings().getCmdTiming().removeListener(this);
 
 	// Abort command:
 	delete commands[0][0];

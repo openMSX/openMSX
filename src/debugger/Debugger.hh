@@ -17,7 +17,7 @@ class MSXCPU;
 class Debugger
 {
 public:
-	Debugger();
+	Debugger(CommandController& commandController);
 	~Debugger();
 
 	void registerDebuggable  (const std::string& name, Debuggable& interface);
@@ -31,7 +31,8 @@ private:
 
 	class DebugCmd : public Command {
 	public:
-		DebugCmd(Debugger& parent);
+		DebugCmd(CommandController& commandController,
+		         Debugger& debugger);
 		virtual void execute(const std::vector<TclObject*>& tokens,
 		                     TclObject& result);
 		virtual std::string help(const std::vector<std::string>& tokens) const;
@@ -58,11 +59,11 @@ private:
 		void listBreakPoints(const std::vector<TclObject*>& tokens,
 		                     TclObject& result);
 
-		Debugger& parent;
+		Debugger& debugger;
+		CommandController& commandController;
 	} debugCmd;
 
 	std::map<std::string, Debuggable*> debuggables;
-	CommandController& commandController;
 	MSXCPU* cpu;
 };
 

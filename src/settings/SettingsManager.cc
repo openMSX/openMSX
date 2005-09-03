@@ -16,21 +16,16 @@ namespace openmsx {
 
 // SettingsManager implementation:
 
-SettingsManager::SettingsManager()
-	: setCompleter(*this)
-	, settingCompleter(*this)
-	, commandController(CommandController::instance())
+SettingsManager::SettingsManager(CommandController& commandController_)
+	: setCompleter(commandController_, *this)
+	, incrCompleter(commandController_, *this, "incr")
+	, unsetCompleter(commandController_, *this, "unset")
+	, commandController(commandController_)
 {
-	commandController.registerCompleter(&setCompleter,     "set");
-	commandController.registerCompleter(&settingCompleter, "incr");
-	commandController.registerCompleter(&settingCompleter, "unset");
 }
 
 SettingsManager::~SettingsManager()
 {
-	commandController.unregisterCompleter(&settingCompleter, "unset");
-	commandController.unregisterCompleter(&settingCompleter, "incr");
-	commandController.unregisterCompleter(&setCompleter,     "set");
 }
 
 void SettingsManager::registerSetting(Setting& setting)
@@ -141,8 +136,9 @@ void SettingsManager::saveSettings(XMLElement& config) const
 
 // SetCompleter implementation:
 
-SettingsManager::SetCompleter::SetCompleter(SettingsManager& manager_)
-	: manager(manager_)
+SettingsManager::SetCompleter::SetCompleter(CommandController& commandController,
+                                            SettingsManager& manager_)
+	: CommandCompleter(commandController, "set"), manager(manager_)
 {
 }
 
@@ -166,7 +162,7 @@ void SettingsManager::SetCompleter::tabCompletion(vector<string>& tokens) const
 			// complete setting name
 			set<string> settings;
 			manager.getSettingNames<Setting>(settings);
-			CommandController::completeString(tokens, settings);
+			completeString(tokens, settings);
 			break;
 		}
 		case 3: {
@@ -184,8 +180,11 @@ void SettingsManager::SetCompleter::tabCompletion(vector<string>& tokens) const
 
 // SettingCompleter implementation
 
-SettingsManager::SettingCompleter::SettingCompleter(SettingsManager& manager_)
-	: manager(manager_)
+SettingsManager::SettingCompleter::SettingCompleter(
+		CommandController& commandController, SettingsManager& manager_,
+		const string& name)
+	: CommandCompleter(commandController, name)
+	, manager(manager_)
 {
 }
 
@@ -201,7 +200,7 @@ void SettingsManager::SettingCompleter::tabCompletion(vector<string>& tokens) co
 			// complete setting name
 			set<string> settings;
 			manager.getSettingNames<Setting>(settings);
-			CommandController::completeString(tokens, settings);
+			completeString(tokens, settings);
 			break;
 		}
 	}

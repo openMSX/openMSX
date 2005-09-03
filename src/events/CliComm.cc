@@ -1,14 +1,13 @@
 // $Id$
 
 #include "CliComm.hh"
-#include "CommandController.hh"
 #include "CommandException.hh"
-#include "Scheduler.hh"
 #include "XMLElement.hh"
 #include "EventDistributor.hh"
 #include "LedEvent.hh"
 #include "CliConnection.hh"
 #include "Socket.hh"
+#include "CommandController.hh"
 #include "StringOp.hh"
 #include <map>
 #include <iostream>
@@ -24,17 +23,20 @@ using std::vector;
 
 namespace openmsx {
 
-CliComm::CliComm()
-	: updateCmd(*this)
-	, commandController(CommandController::instance())
+CliComm::CliComm(Scheduler& scheduler_, CommandController& commandController_,
+                 EventDistributor& eventDistributor_)
+	: updateCmd(commandController_, *this)
+	, scheduler(scheduler_)
+	, commandController(commandController_)
+	, eventDistributor(eventDistributor_)
 	, xmlOutput(false)
 {
-	Scheduler::instance(); // make sure it is instantiated in main thread
+	commandController.setCliComm(this);
+	
 	for (int i = 0; i < NUM_UPDATES; ++i) {
 		updateEnabled[i] = false;
 	}
-	commandController.registerCommand(&updateCmd, "update");
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_LED_EVENT, *this, EventDistributor::DETACHED);
 }
 
@@ -45,15 +47,10 @@ CliComm::~CliComm()
 		delete *it;
 	}
 
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_LED_EVENT, *this, EventDistributor::DETACHED);
-	commandController.unregisterCommand(&updateCmd, "update");
-}
-
-CliComm& CliComm::instance()
-{
-	static CliComm oneInstance;
-	return oneInstance;
+	
+	commandController.setCliComm(0);
 }
 
 void CliComm::startInput(CommandLineParser::ControlType type, const string& arguments)
@@ -67,7 +64,8 @@ void CliComm::startInput(CommandLineParser::ControlType type, const string& argu
 		info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 		GetVersionExA(&info);
 		if (info.dwPlatformId == VER_PLATFORM_WIN32_NT) {
-			connection = new PipeConnection(arguments);
+			connection = new PipeConnection(
+				scheduler, commandController, arguments);
 		} else {
 			throw FatalError(
 				"Pipes are not supported on this version of Windows");
@@ -79,7 +77,7 @@ void CliComm::startInput(CommandLineParser::ControlType type, const string& argu
 		break;
 	}
 	case CommandLineParser::IO_STD:
-		connection = new StdioConnection();
+		connection = new StdioConnection(scheduler, commandController);
 		break;
 	default:
 		assert(false);
@@ -170,8 +168,10 @@ void CliComm::signalEvent(const Event& event)
 
 // class UpdateCmd
 
-CliComm::UpdateCmd::UpdateCmd(CliComm& parent_)
-	: parent(parent_)
+CliComm::UpdateCmd::UpdateCmd(CommandController& commandController,
+                              CliComm& cliComm_)
+	: SimpleCommand(commandController, "update")
+	, cliComm(cliComm_)
 {
 }
 
@@ -191,9 +191,9 @@ string CliComm::UpdateCmd::execute(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	if (tokens[1] == "enable") {
-		parent.updateEnabled[getType(tokens[2])] = true;
+		cliComm.updateEnabled[getType(tokens[2])] = true;
 	} else if (tokens[1] == "disable") {
-		parent.updateEnabled[getType(tokens[2])] = false;
+		cliComm.updateEnabled[getType(tokens[2])] = false;
 	} else {
 		throw SyntaxError();
 	}
@@ -213,11 +213,11 @@ void CliComm::UpdateCmd::tabCompletion(vector<string>& tokens) const
 			set<string> ops;
 			ops.insert("enable");
 			ops.insert("disable");
-			CommandController::completeString(tokens, ops);
+			completeString(tokens, ops);
 		}
 		case 3: {
 			set<string> types(updateStr, updateStr + NUM_UPDATES);
-			CommandController::completeString(tokens, types);
+			completeString(tokens, types);
 		}
 	}
 }

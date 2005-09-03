@@ -53,6 +53,7 @@ static const RegisterAccess regAccess[64] = {
 V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
              const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
+	, Schedulable(motherBoard.getScheduler())
 	, v9990RegDebug(*this)
 	, v9990PalDebug(*this)
 	, irq(motherBoard.getCPU())
@@ -85,7 +86,7 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 	createRenderer(time);
 
 	reset(time);
-	EventDistributor::instance().registerEventListener(
+	getMotherBoard().getEventDistributor().registerEventListener(
 		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
 }
 
@@ -93,7 +94,7 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 V9990::~V9990()
 {
 	// Unregister everything that needs to be unregistered
-	EventDistributor::instance().unregisterEventListener(
+	getMotherBoard().getEventDistributor().unregisterEventListener(
 		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
 }
 
@@ -353,7 +354,7 @@ void V9990::signalEvent(const Event& event)
 {
 	if (&event); // avoid warning
 	assert(event.getType() == OPENMSX_RENDERER_SWITCH2_EVENT);
-	const EmuTime& time = Scheduler::instance().getCurrentTime();
+	const EmuTime& time = getMotherBoard().getScheduler().getCurrentTime();
 	createRenderer(time);
 	renderer->frameStart(time);
 }
@@ -363,7 +364,7 @@ void V9990::signalEvent(const Event& event)
 // -------------------------------------------------------------------------
 
 V9990::V9990RegDebug::V9990RegDebug(V9990& v9990_)
-	: SimpleDebuggable(v9990_.getMotherBoard().getDebugger(),
+	: SimpleDebuggable(v9990_.getMotherBoard(),
 	                   "V9990 regs", "V9990 registers", 0x40)
 	, v9990(v9990_)
 {
@@ -384,7 +385,7 @@ void V9990::V9990RegDebug::write(unsigned address, byte value, const EmuTime& ti
 // -------------------------------------------------------------------------
 
 V9990::V9990PalDebug::V9990PalDebug(V9990& v9990_)
-	: SimpleDebuggable(v9990_.getMotherBoard().getDebugger(),
+	: SimpleDebuggable(v9990_.getMotherBoard(),
 	                   "V9990 palette", "V9990 palette (format is R, G, B, 0).",
 	                   0x100)
 	, v9990(v9990_)
@@ -549,10 +550,7 @@ void V9990::getPalette(int index, byte& r, byte& g, byte& b)
 void V9990::createRenderer(const EmuTime& time)
 {
 	renderer.reset(); // delete old renderer before creating new one
-	renderer.reset(RendererFactory::createV9990Renderer(
-		getMotherBoard().getRenderSettings(),
-		getMotherBoard().getDisplay(),
-		*this));
+	renderer.reset(RendererFactory::createV9990Renderer(*this));
 	renderer->reset(time);
 }
 

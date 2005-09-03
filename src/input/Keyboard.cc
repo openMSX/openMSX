@@ -76,8 +76,11 @@ void Keyboard::loadKeymapfile(const string& filename)
 	}
 }
 
-Keyboard::Keyboard(UserInputEventDistributor& eventDistributor_, bool keyG)
-	: keyMatrixUpCmd(*this), keyMatrixDownCmd(*this), keyTypeCmd(*this)
+Keyboard::Keyboard(Scheduler& scheduler, CommandController& commandController,
+                   UserInputEventDistributor& eventDistributor_, bool keyG)
+	: keyMatrixUpCmd(commandController, *this)
+	, keyMatrixDownCmd(commandController, *this)
+	, keyTypeCmd(scheduler, commandController, *this)
 	, eventDistributor(eventDistributor_)
 {
 	keyGhosting = keyG;
@@ -86,7 +89,8 @@ Keyboard::Keyboard(UserInputEventDistributor& eventDistributor_, bool keyG)
 	memset(cmdKeyMatrix,  255, sizeof(cmdKeyMatrix));
 	memset(userKeyMatrix, 255, sizeof(userKeyMatrix));
 
-	const XMLElement* config = SettingsConfig::instance().findChild("KeyMap");
+	const XMLElement* config = commandController.getSettingsConfig().
+	                                                 findChild("KeyMap");
 	if (config) {
 		string filename = config->getData();
 		loadKeymapfile(config->getFileContext().resolve(filename));
@@ -99,18 +103,10 @@ Keyboard::Keyboard(UserInputEventDistributor& eventDistributor_, bool keyG)
 
 	// We may do something with focus-change events later, but SDL does
 	// not send them
-
-	CommandController::instance().registerCommand(&keyMatrixUpCmd,   "keymatrixup");
-	CommandController::instance().registerCommand(&keyMatrixDownCmd, "keymatrixdown");
-	CommandController::instance().registerCommand(&keyTypeCmd,       "type");
 }
 
 Keyboard::~Keyboard()
 {
-	CommandController::instance().unregisterCommand(&keyTypeCmd,       "type");
-	CommandController::instance().unregisterCommand(&keyMatrixDownCmd, "keymatrixdown");
-	CommandController::instance().unregisterCommand(&keyMatrixUpCmd,   "keymatrixup");
-
 	eventDistributor.unregisterEventListener(
 		UserInputEventDistributor::MSX, *this );
 }
@@ -250,14 +246,16 @@ bool Keyboard::commonKeys(char asciiCode1, char asciiCode2)
 
 // class KeyMatrixUpCmd
 
-Keyboard::KeyMatrixUpCmd::KeyMatrixUpCmd(Keyboard& parent_)
-	: parent(parent_)
+Keyboard::KeyMatrixUpCmd::KeyMatrixUpCmd(CommandController& commandController,
+                                         Keyboard& keyboard_)
+	: SimpleCommand(commandController, "keymatrixup")
+	, keyboard(keyboard_)
 {
 }
 
 string Keyboard::KeyMatrixUpCmd::execute(const vector<string>& tokens)
 {
-	return parent.processCmd(tokens, true);
+	return keyboard.processCmd(tokens, true);
 }
 
 string Keyboard::KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
@@ -270,14 +268,16 @@ string Keyboard::KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
 
 // class KeyMatrixDownCmd
 
-Keyboard::KeyMatrixDownCmd::KeyMatrixDownCmd(Keyboard& parent_)
-	: parent(parent_)
+Keyboard::KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandController,
+                                             Keyboard& keyboard_)
+	: SimpleCommand(commandController, "keymatrixdown")
+	, keyboard(keyboard_)
 {
 }
 
 string Keyboard::KeyMatrixDownCmd::execute(const vector<string>& tokens)
 {
-	return parent.processCmd(tokens, false);
+	return keyboard.processCmd(tokens, false);
 }
 
 string Keyboard::KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
@@ -290,8 +290,11 @@ string Keyboard::KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
 
 // class KeyInserter
 
-Keyboard::KeyInserter::KeyInserter(Keyboard& parent_)
-	: parent(parent_), last(-1)
+Keyboard::KeyInserter::KeyInserter(Scheduler& scheduler,
+		CommandController& commandController, Keyboard& keyboard_)
+	: SimpleCommand(commandController, "type")
+	, Schedulable(scheduler)
+	, keyboard(keyboard_), last(-1)
 {
 }
 
@@ -319,24 +322,23 @@ void Keyboard::KeyInserter::type(const string& str)
 	if (str.empty()) {
 		return;
 	}
-	Scheduler& scheduler = Scheduler::instance();
 	if (text.empty()) {
-		reschedule(scheduler.getCurrentTime());
+		reschedule(getScheduler().getCurrentTime());
 	}
 	text += Unicode::utf8ToAscii(str);
 }
 
 void Keyboard::KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
 {
-	parent.pressAscii(last, false);
+	keyboard.pressAscii(last, false);
 	if (text.empty()) {
 		return;
 	}
 	char current = text[0];
-	if (parent.commonKeys(last, current)) {
+	if (keyboard.commonKeys(last, current)) {
 		last = -1;
 	} else {
-		parent.pressAscii(current, true);
+		keyboard.pressAscii(current, true);
 		last = current;
 		text = text.substr(1);
 	}

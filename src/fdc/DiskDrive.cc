@@ -6,6 +6,7 @@
 #include "EventDistributor.hh"
 #include "LedEvent.hh"
 #include "FileManipulator.hh"
+#include "CommandController.hh"
 #include <bitset>
 
 using std::string;
@@ -144,9 +145,12 @@ bool DummyDrive::dummyDrive()
 
 static std::bitset<RealDrive::MAX_DRIVES> drivesInUse;
 
-RealDrive::RealDrive(const EmuTime& time)
+RealDrive::RealDrive(CommandController& commandController,
+                     EventDistributor& eventDistributor_,
+                     FileManipulator& fileManipulator, const EmuTime& time)
 	: headPos(0), motorStatus(false), motorTimer(time)
 	, headLoadStatus(false), headLoadTimer(time)
+	, eventDistributor(eventDistributor_)
 {
 	int i = 0;
 	while (drivesInUse[i]) {
@@ -157,7 +161,11 @@ RealDrive::RealDrive(const EmuTime& time)
 	drivesInUse[i] = true;
 	string driveName = string("disk") + static_cast<char>('a' + i);
 
-	changer.reset(new DiskChanger(driveName, FileManipulator::instance()));
+	if (commandController.hasCommand(driveName)) {
+		throw FatalError("Duplicated drive name: " + driveName);
+	}
+	changer.reset(new DiskChanger(driveName, commandController,
+		                      fileManipulator));
 }
 
 RealDrive::~RealDrive()
@@ -209,7 +217,7 @@ void RealDrive::setMotor(bool status, const EmuTime& time)
 		/* The following is a hack to emulate the drive LED behaviour.
 		 * This is in real life dependent on the FDC and should be
 		 * investigated in detail to implement it properly... TODO */
-		EventDistributor::instance().distributeEvent(
+		eventDistributor.distributeEvent(
 			new LedEvent(LedEvent::FDD, motorStatus));
 	}
 }
@@ -295,8 +303,12 @@ bool RealDrive::dummyDrive()
 
 /// class SingleSidedDrive ///
 
-SingleSidedDrive::SingleSidedDrive(const EmuTime& time)
-	: RealDrive(time)
+SingleSidedDrive::SingleSidedDrive(
+		CommandController& commandController,
+		EventDistributor& eventDistributor,
+		FileManipulator& fileManipulator,
+		const EmuTime& time)
+	: RealDrive(commandController, eventDistributor, fileManipulator, time)
 {
 }
 
@@ -359,8 +371,12 @@ void SingleSidedDrive::writeTrackData(byte data)
 
 /// class DoubleSidedDrive ///
 
-DoubleSidedDrive::DoubleSidedDrive(const EmuTime& time)
-	: RealDrive(time)
+DoubleSidedDrive::DoubleSidedDrive(
+		CommandController& commandController,
+		EventDistributor& eventDistributor,
+		FileManipulator& fileManipulator,
+		const EmuTime& time)
+	: RealDrive(commandController, eventDistributor, fileManipulator, time)
 {
 	side = 0;
 }

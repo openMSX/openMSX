@@ -6,6 +6,7 @@
 #include "XMLElement.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
+#include "MSXMotherBoard.hh"
 
 namespace openmsx {
 
@@ -21,7 +22,11 @@ MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 	int i = 0;
 	for ( ; i < numDrives; ++i) {
-		drives[i].reset(new DoubleSidedDrive(time));
+		drives[i].reset(new DoubleSidedDrive(
+			getMotherBoard().getCommandController(),
+			getMotherBoard().getEventDistributor(),
+			getMotherBoard().getFileManipulator(),
+			time));
 	}
 	for ( ; i < 4; ++i) {
 		drives[i].reset(new DummyDrive());

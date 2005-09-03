@@ -9,6 +9,7 @@
 #include "PostProcessor.hh"
 #include "FloatSetting.hh"
 #include "MemoryOps.hh"
+#include "MSXMotherBoard.hh"
 #include <SDL.h>
 #include <algorithm>
 #include <cassert>
@@ -145,13 +146,13 @@ inline void SDLRasterizer<Pixel>::renderCharacterLines(
 }
 
 template <class Pixel>
-SDLRasterizer<Pixel>::SDLRasterizer(
-		RenderSettings& renderSettings_, Display& display,
-		VDP& vdp_, SDL_Surface* screen)
-	: renderSettings(renderSettings_)
-	, vdp(vdp_), vram(vdp.getVRAM())
+SDLRasterizer<Pixel>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
+	: vdp(vdp_), vram(vdp.getVRAM())
 	, postProcessor(new PostProcessor<Pixel>(
-	                      renderSettings, display, screen, VIDEO_MSX, 640))
+		vdp.getMotherBoard().getCommandController(),
+		vdp.getMotherBoard().getRenderSettings(),
+		vdp.getMotherBoard().getDisplay(),
+		screen, VIDEO_MSX, 640))
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 	, spriteConverter(vdp.getSpriteChecker())
@@ -185,7 +186,7 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 		);
 
 	// Init the palette.
-	precalcPalette(renderSettings.getGamma().getValue());
+	precalcPalette(vdp.getMotherBoard().getRenderSettings().getGamma().getValue());
 }
 
 template <class Pixel>
@@ -243,7 +244,7 @@ void SDLRasterizer<Pixel>::frameStart()
 	// PAL:  display at [59..271).
 	lineRenderTop = vdp.isPalTiming() ? 59 - 14 : 32 - 14;
 
-	double gamma = renderSettings.getGamma().getValue();
+	double gamma = vdp.getMotherBoard().getRenderSettings().getGamma().getValue();
 	// (gamma != prevGamma) gives compiler warnings
 	if ((gamma > prevGamma) || (gamma < prevGamma)) {
 		precalcPalette(gamma);

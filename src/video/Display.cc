@@ -17,6 +17,7 @@
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
 #include "VideoSourceSetting.hh"
+#include "MSXMotherBoard.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -29,18 +30,15 @@ using std::vector;
 
 namespace openmsx {
 
-Display::Display(UserInputEventDistributor& userInputEventDistributor_,
-                 RenderSettings& renderSettings_,
-                 Console& console_)
-	: screenShotCmd(*this)
-	, fpsInfo(*this)
-	, userInputEventDistributor(userInputEventDistributor_)
-	, renderSettings(renderSettings_)
-	, console(console_)
+Display::Display(MSXMotherBoard& motherboard_)
+	: alarm(motherboard_.getEventDistributor())
+	, screenShotCmd(motherboard_.getCommandController(), *this)
+	, fpsInfo(motherboard_.getCommandController(), *this)
+	, motherboard(motherboard_)
+	, renderSettings(motherboard.getRenderSettings())
 {
 	// TODO clean up
-	assert(dynamic_cast<CommandConsole*>(&console));
-	static_cast<CommandConsole&>(console).setDisplay(this);
+	motherboard.getCommandConsole().setDisplay(this);
 	
 	frameDurationSum = 0;
 	for (unsigned i = 0; i < NUM_FRAME_DURATIONS; ++i) {
@@ -51,16 +49,13 @@ Display::Display(UserInputEventDistributor& userInputEventDistributor_,
 
 	currentRenderer = renderSettings.getRenderer().getValue();
 
-	EventDistributor::instance().registerEventListener(
-		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::DETACHED);
-	EventDistributor::instance().registerEventListener(
-		OPENMSX_DELAYED_REPAINT_EVENT, *this, EventDistributor::DETACHED);
-	EventDistributor::instance().registerEventListener(
-		OPENMSX_RENDERER_SWITCH_EVENT, *this, EventDistributor::DETACHED);
-
-	CommandController::instance().registerCommand(
-		&screenShotCmd, "screenshot" );
-	CommandController::instance().getInfoCommand().registerTopic("fps", &fpsInfo);
+	EventDistributor& eventDistributor = motherboard.getEventDistributor();
+	eventDistributor.registerEventListener(OPENMSX_FINISH_FRAME_EVENT,
+			*this, EventDistributor::DETACHED);
+	eventDistributor.registerEventListener(OPENMSX_DELAYED_REPAINT_EVENT,
+			*this, EventDistributor::DETACHED);
+	eventDistributor.registerEventListener(OPENMSX_RENDERER_SWITCH_EVENT,
+			*this, EventDistributor::DETACHED);
 
 	renderSettings.getRenderer().addListener(this);
 	renderSettings.getFullScreen().addListener(this);
@@ -75,20 +70,17 @@ Display::~Display()
 	renderSettings.getScaler().removeListener(this);
 	renderSettings.getVideoSource().removeListener(this);
 
-	CommandController::instance().getInfoCommand().unregisterTopic("fps", &fpsInfo);
-	CommandController::instance().unregisterCommand(
-		&screenShotCmd, "screenshot" );
-
-	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_RENDERER_SWITCH_EVENT, *this, EventDistributor::DETACHED);
-	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_DELAYED_REPAINT_EVENT, *this, EventDistributor::DETACHED);
-	EventDistributor::instance().unregisterEventListener(
-		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::DETACHED);
+	EventDistributor& eventDistributor = motherboard.getEventDistributor();
+	eventDistributor.unregisterEventListener(OPENMSX_RENDERER_SWITCH_EVENT,
+			*this, EventDistributor::DETACHED);
+	eventDistributor.unregisterEventListener(OPENMSX_DELAYED_REPAINT_EVENT,
+			*this, EventDistributor::DETACHED);
+	eventDistributor.unregisterEventListener(OPENMSX_FINISH_FRAME_EVENT,
+			*this, EventDistributor::DETACHED);
 
 	resetVideoSystem();
 	
-	static_cast<CommandConsole&>(console).setDisplay(0);
+	motherboard.getCommandConsole().setDisplay(0);
 }
 
 VideoSystem& Display::getVideoSystem()
@@ -152,16 +144,16 @@ void Display::signalEvent(const Event& event)
 			repaint();
 		}
 
-		RealTime::instance().sync(Scheduler::instance().getCurrentTime(), draw);
+		motherboard.getRealTime().sync(
+			motherboard.getScheduler().getCurrentTime(), draw);
 	} else if (event.getType() == OPENMSX_DELAYED_REPAINT_EVENT) {
 		repaint();
 	} else if (event.getType() == OPENMSX_RENDERER_SWITCH_EVENT) {
 		// Switch video system.
-		RendererFactory::createVideoSystem(
-			userInputEventDistributor, renderSettings, console, *this);
+		RendererFactory::createVideoSystem(motherboard);
 
 		// Tell VDPs they can update their renderer now.
-		EventDistributor::instance().distributeEvent(
+		motherboard.getEventDistributor().distributeEvent(
 			new SimpleEvent<OPENMSX_RENDERER_SWITCH2_EVENT>());
 	} else {
 		assert(false);
@@ -193,7 +185,7 @@ void Display::checkRendererSwitch()
 	    !getVideoSystem().checkSettings()) {
 		currentRenderer = renderSettings.getRenderer().getValue();
 		// Renderer failed to sync; replace it.
-		EventDistributor::instance().distributeEvent(
+		motherboard.getEventDistributor().distributeEvent(
 			new SimpleEvent<OPENMSX_RENDERER_SWITCH_EVENT>());
 	}
 }
@@ -275,19 +267,26 @@ void Display::updateZ(Layer* layer, Layer::ZIndex /*z*/)
 
 // RepaintAlarm inner class
 
+Display::RepaintAlarm::RepaintAlarm(EventDistributor& eventDistributor_)
+	: eventDistributor(eventDistributor_)
+{
+}
+
 void Display::RepaintAlarm::alarm()
 {
 	// Note: runs is seperate thread, use event mechanism to repaint
 	//       in main thread
-	EventDistributor::instance().distributeEvent(
+	eventDistributor.distributeEvent(
 		new SimpleEvent<OPENMSX_DELAYED_REPAINT_EVENT>());
 }
 
 
 // ScreenShotCmd inner class:
 
-Display::ScreenShotCmd::ScreenShotCmd(Display& display_)
-	: display(display_)
+Display::ScreenShotCmd::ScreenShotCmd(CommandController& commandController,
+                                      Display& display_)
+	: SimpleCommand(commandController, "screenshot")
+	, display(display_)
 {
 }
 
@@ -317,7 +316,7 @@ string Display::ScreenShotCmd::execute(const vector<string>& tokens)
 	}
 
 	display.getVideoSystem().takeScreenShot(filename);
-	CliComm::instance().printInfo("Screen saved to " + filename);
+	getCommandController().getCliComm().printInfo("Screen saved to " + filename);
 	return filename;
 }
 
@@ -331,8 +330,10 @@ string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 
 // FpsInfoTopic inner class:
 
-Display::FpsInfoTopic::FpsInfoTopic(Display& display_)
-	: display(display_)
+Display::FpsInfoTopic::FpsInfoTopic(CommandController& commandController,
+                                    Display& display_)
+	: InfoTopic(commandController, "fps")
+	, display(display_)
 {
 }
 

@@ -51,8 +51,8 @@ enum SyncPointType {
 };
 
 
-I8251::I8251(I8251Interface* interf_, const EmuTime& time)
-	: interf(interf_), recvBuf(0)
+I8251::I8251(Scheduler& scheduler, I8251Interface* interf_, const EmuTime& time)
+	: Schedulable(scheduler), interf(interf_), clock(scheduler), recvBuf(0)
 {
 	reset(time);
 }

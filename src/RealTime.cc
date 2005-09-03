@@ -20,11 +20,14 @@ const double             SYNC_INTERVAL = 0.08;  // s
 const long long          MAX_LAG       = 200000; // us
 const unsigned long long ALLOWED_LAG   =  20000; // us
 
-RealTime::RealTime()
-	: throttleSetting(GlobalSettings::instance().getThrottleSetting())
-	, speedSetting(GlobalSettings::instance().getSpeedSetting())
-	, pauseSetting(GlobalSettings::instance().getPauseSetting())
-	, powerSetting(GlobalSettings::instance().getPowerSetting())
+RealTime::RealTime(Scheduler& scheduler, EventDistributor& eventDistributor_,
+                   GlobalSettings& globalSettings)
+	: Schedulable(scheduler)
+	, eventDistributor(eventDistributor_)
+	, throttleSetting(globalSettings.getThrottleSetting())
+	, speedSetting   (globalSettings.getSpeedSetting())
+	, pauseSetting   (globalSettings.getPauseSetting())
+	, powerSetting   (globalSettings.getPowerSetting())
 {
 	speedSetting.addListener(this);
 	throttleSetting.addListener(this);
@@ -44,12 +47,6 @@ RealTime::~RealTime()
 	pauseSetting.removeListener(this);
 	throttleSetting.removeListener(this);
 	speedSetting.removeListener(this);
-}
-
-RealTime& RealTime::instance()
-{
-	static RealTime oneInstance;
-	return oneInstance;
 }
 
 double RealTime::getRealDuration(const EmuTime& time1, const EmuTime& time2)
@@ -109,7 +106,7 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 		}
 	}
 	if (allowSleep) {
-		EventDistributor::instance().sync(time);
+		eventDistributor.sync(time);
 	}
 
 	emuTime = time;

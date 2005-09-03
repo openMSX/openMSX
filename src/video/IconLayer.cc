@@ -23,9 +23,12 @@ static bool ledStatus[LedEvent::NUM_LEDS];
 static unsigned long long ledTime[LedEvent::NUM_LEDS];
 
 template <class IMAGE>
-IconLayer<IMAGE>::IconLayer(Display& display_, SDL_Surface* screen)
+IconLayer<IMAGE>::IconLayer(CommandController& commandController,
+                            EventDistributor& eventDistributor_,
+                            Display& display_, SDL_Surface* screen)
 	// Just assume partial coverage and let paint() sort it out.
 	: Layer(COVER_PARTIAL, Z_ICONS)
+	, eventDistributor(eventDistributor_)
 	, display(display_)
 	, outputScreen(screen)
 {
@@ -38,42 +41,48 @@ IconLayer<IMAGE>::IconLayer(Display& display_, SDL_Surface* screen)
 		}
 	}
 
-	createSettings(LedEvent::POWER, "power");
-	createSettings(LedEvent::CAPS,  "caps");
-	createSettings(LedEvent::KANA,  "kana");
-	createSettings(LedEvent::PAUSE, "pause");
-	createSettings(LedEvent::TURBO, "turbo");
-	createSettings(LedEvent::FDD,   "fdd");
+	createSettings(commandController, LedEvent::POWER, "power");
+	createSettings(commandController, LedEvent::CAPS,  "caps");
+	createSettings(commandController, LedEvent::KANA,  "kana");
+	createSettings(commandController, LedEvent::PAUSE, "pause");
+	createSettings(commandController, LedEvent::TURBO, "turbo");
+	createSettings(commandController, LedEvent::FDD,   "fdd");
 
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_LED_EVENT, *this, EventDistributor::DETACHED);
 }
 
 template <class IMAGE>
-void IconLayer<IMAGE>::createSettings(LedEvent::Led led, const string& name)
+void IconLayer<IMAGE>::createSettings(CommandController& commandController,
+                                      LedEvent::Led led, const string& name)
 {
 	string icon_name = "icon." + name;
-	ledInfo[led].xcoord.reset(new IntegerSetting(icon_name + ".xcoord",
-		"X-coordinate for LED icon", ((int)led) * 60, 0, 640));
+	ledInfo[led].xcoord.reset(new IntegerSetting(commandController,
+		icon_name + ".xcoord", "X-coordinate for LED icon",
+		((int)led) * 60, 0, 640));
 	//Default is 640x480 and we want the default icons on the bottom
-	ledInfo[led].ycoord.reset(new IntegerSetting(icon_name + ".ycoord",
-		"Y-coordinate for LED icon", 444, 0, 480));
+	ledInfo[led].ycoord.reset(new IntegerSetting(commandController,
+		icon_name + ".ycoord", "Y-coordinate for LED icon",
+		444, 0, 480));
 	for (int i = 0; i < 2; ++i) {
 		string tmp = icon_name + (i ? ".active" : ".non-active");
-		ledInfo[led].name[i].reset(new FilenameSetting(tmp + ".image",
+		ledInfo[led].name[i].reset(new FilenameSetting(
+			commandController, tmp + ".image",
 			"Image for active LED icon",
 			"skins/set1/" +( i ?  name + "-on.png" : name + "-off.png")));
-		ledInfo[led].fadeTime[i].reset(new IntegerSetting(tmp + ".fade-delay",
-			"Time (in ms) after which the icons start to fade (0 means no fading)",
-			5000, 0, 1000000));
-		ledInfo[led].fadeDuration[i].reset(new IntegerSetting(tmp + ".fade-duration",
-			"Time (in ms) it takes for the icons the fade from completely opaque "
-			"to completely transparent", 5000, 0, 1000000));
+		ledInfo[led].fadeTime[i].reset(new IntegerSetting(
+			commandController, tmp + ".fade-delay",
+			"Time (in ms) after which the icons start to fade "
+			"(0 means no fading)", 5000, 0, 1000000));
+		ledInfo[led].fadeDuration[i].reset(new IntegerSetting(
+			commandController, tmp + ".fade-duration",
+			"Time (in ms) it takes for the icons the fade from "
+			"completely opaque to completely transparent", 5000, 0, 1000000));
 
 		try {
 			ledInfo[led].name[i]->setChecker(this);
 		} catch (MSXException& e) {
-			CliComm::instance().printWarning(e.getMessage());
+			commandController.getCliComm().printWarning(e.getMessage());
 		}
 	}
 }
@@ -82,7 +91,7 @@ void IconLayer<IMAGE>::createSettings(LedEvent::Led led, const string& name)
 template <class IMAGE>
 IconLayer<IMAGE>::~IconLayer()
 {
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_LED_EVENT, *this, EventDistributor::DETACHED);
 }
 

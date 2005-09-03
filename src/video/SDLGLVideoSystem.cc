@@ -3,6 +3,7 @@
 #include "SDLGLVideoSystem.hh"
 #include "GLRasterizer.hh"
 #include "V9990GLRasterizer.hh"
+#include "MSXMotherBoard.hh"
 #include "GLSnow.hh"
 #include "GLConsole.hh"
 #include "GLUtil.hh"
@@ -21,36 +22,34 @@ using std::string;
 
 namespace openmsx {
 
-SDLGLVideoSystem::SDLGLVideoSystem(
-		UserInputEventDistributor& userInputEventDistributor,
-		RenderSettings& renderSettings_,
-		Console& console, Display& display_)
-	: renderSettings(renderSettings_)
-	, display(display_)
+SDLGLVideoSystem::SDLGLVideoSystem(MSXMotherBoard& motherboard_)
+	: motherboard(motherboard_)
 {
 	// Destruct old layers, so resources are freed before new allocations
 	// are done.
 	// TODO: This has to be done before every video system (re)init,
 	//       so move it to a central location.
+	Display& display = motherboard.getDisplay();
 	display.resetVideoSystem();
 
 	resize(640, 480);
 
 	new GLSnow(display);
-	new GLConsole(userInputEventDistributor, console, display);
+	new GLConsole(motherboard);
 
-	Layer* iconLayer = new GLIconLayer(display, screen);
+	Layer* iconLayer = new GLIconLayer(motherboard.getCommandController(),
+	                                   motherboard.getEventDistributor(),
+	                                   display, screen);
 	display.addLayer(iconLayer);
-
 	display.setVideoSystem(this);
 
-	EventDistributor::instance().registerEventListener(
+	motherboard.getEventDistributor().registerEventListener(
 		OPENMSX_RESIZE_EVENT, *this, EventDistributor::DETACHED);
 }
 
 SDLGLVideoSystem::~SDLGLVideoSystem()
 {
-	EventDistributor::instance().unregisterEventListener(
+	motherboard.getEventDistributor().unregisterEventListener(
 		OPENMSX_RESIZE_EVENT, *this, EventDistributor::DETACHED);
 
 	closeSDLVideo(screen);
@@ -58,7 +57,9 @@ SDLGLVideoSystem::~SDLGLVideoSystem()
 
 Rasterizer* SDLGLVideoSystem::createRasterizer(VDP& vdp)
 {
-	return new GLRasterizer(renderSettings, display, vdp);
+	return new GLRasterizer(motherboard.getCommandController(),
+	                        motherboard.getRenderSettings(),
+	                        motherboard.getDisplay(), vdp);
 }
 
 V9990Rasterizer* SDLGLVideoSystem::createV9990Rasterizer(V9990& vdp)
@@ -72,7 +73,8 @@ bool SDLGLVideoSystem::checkSettings()
 {
 	// Check full screen setting.
 	bool fullScreenState = (screen->flags & SDL_FULLSCREEN) != 0;
-	const bool fullScreenTarget = renderSettings.getFullScreen().getValue();
+	const bool fullScreenTarget = motherboard.getRenderSettings().
+		getFullScreen().getValue();
 	if (fullScreenState == fullScreenTarget) return true;
 
 #ifdef _WIN32
@@ -119,7 +121,9 @@ void SDLGLVideoSystem::resize(unsigned x, unsigned y)
 {
 	int flags = SDL_OPENGL | SDL_HWSURFACE | SDL_DOUBLEBUF;
 	//flags |= SDL_RESIZABLE;
-	screen = openSDLVideo(renderSettings, x, y, flags);
+	screen = openSDLVideo(motherboard.getInputEventGenerator(),
+	                      motherboard.getRenderSettings(),
+	                      x, y, flags);
 
 	glViewport(0, 0, x, y);
 	glMatrixMode(GL_PROJECTION);

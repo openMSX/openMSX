@@ -7,10 +7,11 @@ using std::string;
 
 namespace openmsx {
 
-Autofire::Autofire(unsigned newMinInts, unsigned newMaxInts, const string& name)
+Autofire::Autofire(CommandController& commandController,
+                   unsigned newMinInts, unsigned newMaxInts, const string& name)
 	: min_ints(newMinInts)
 	, max_ints(newMaxInts)
-	, speedSetting(new IntegerSetting(name,
+	, speedSetting(new IntegerSetting(commandController, name,
 	               "controls the speed of this autofire circuit", 0, 0, 100))
 {
 	if (min_ints < 1) {

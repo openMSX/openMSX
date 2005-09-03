@@ -23,7 +23,7 @@ protected:
 class ClockPin : private Schedulable
 {
 public:
-	ClockPin(ClockPinListener* listener = NULL);
+	ClockPin(Scheduler& scheduler, ClockPinListener* listener = NULL);
 	virtual ~ClockPin();
 
 	// input side

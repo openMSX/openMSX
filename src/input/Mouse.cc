@@ -17,28 +17,29 @@ const int FAZE_YLOW  = 3;
 const int STROBE = 0x04;
 
 
-Mouse::Mouse()
+Mouse::Mouse(EventDistributor& eventDistributor_)
+	: eventDistributor(eventDistributor_)
 {
 	status = JOY_BUTTONA | JOY_BUTTONB;
 	faze = FAZE_YLOW;
 	xrel = yrel = curxrel = curyrel = 0;
 	mouseMode = true;
 
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_MOUSE_MOTION_EVENT,      *this);
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_MOUSE_BUTTON_UP_EVENT,   *this);
 }
 
 Mouse::~Mouse()
 {
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_MOUSE_MOTION_EVENT,      *this);
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_MOUSE_BUTTON_UP_EVENT,   *this);
 }
 

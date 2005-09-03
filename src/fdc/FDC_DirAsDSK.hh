@@ -8,6 +8,8 @@
 
 namespace openmsx {
 
+class CliComm;
+
 struct MSXDirEntry {
 	byte filename[8];
 	byte ext[3];
@@ -33,7 +35,7 @@ struct ReverseSector {
 class FDC_DirAsDSK : public SectorBasedDisk
 {
 public:
-	FDC_DirAsDSK(const std::string& fileName);
+	FDC_DirAsDSK(CliComm& cliComm, const std::string& fileName);
 	virtual ~FDC_DirAsDSK();
 
 	virtual bool writeProtected();
@@ -67,6 +69,8 @@ private:
 	std::string MSXrootdir;
 	std::map<const int, byte*> cachedSectors;
 	bool saveCachedSectors;
+
+	CliComm& cliComm; // TODO don't use CliComm to report errors/warnings
 };
 
 } // namespace openmsx

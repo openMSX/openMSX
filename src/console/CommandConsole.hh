@@ -12,15 +12,13 @@
 
 namespace openmsx {
 
-class SettingsConfig;
 class CommandController;
-class CliComm;
 class Display;
 
 class CommandConsole : public Console, private InterpreterOutput
 {
 public:
-	CommandConsole();
+	CommandConsole(CommandController& commandController);
 	virtual ~CommandConsole();
 
 	/** Prints a string on the console.
@@ -71,9 +69,7 @@ private:
 	/** Position within the current command. */
 	unsigned cursorPosition;
 
-	SettingsConfig& settingsConfig;
 	CommandController& commandController;
-	CliComm& cliComm;
 	Display* display;
 };
 

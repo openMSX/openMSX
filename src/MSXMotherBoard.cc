@@ -15,18 +15,23 @@
 #include "CassettePort.hh"
 #include "RenShaTurbo.hh"
 #include "CommandConsole.hh"
-#include "Display.hh"
 #include "RenderSettings.hh"
+#include "Display.hh"
+#include "FileManipulator.hh"
+#include "FilePool.hh"
 #include "EmuTime.hh"
 #include "HardwareConfig.hh"
 #include "DeviceFactory.hh"
 #include "LedEvent.hh"
-#include "CliComm.hh"
 #include "EventDistributor.hh"
 #include "UserInputEventDistributor.hh"
-#include "GlobalSettings.hh"
+#include "InputEventGenerator.hh"
+#include "CliComm.hh"
+#include "CommandController.hh"
+#include "RealTime.hh"
 #include "BooleanSetting.hh"
 #include "FileContext.hh"
+#include "GlobalSettings.hh"
 #include <cassert>
 
 using std::string;
@@ -37,24 +42,15 @@ namespace openmsx {
 MSXMotherBoard::MSXMotherBoard()
 	: powered(false)
 	, blockedCounter(0)
-	, powerSetting(GlobalSettings::instance().getPowerSetting())
-	, output(CliComm::instance())
-	, debugger(new Debugger())
-	, msxCpu(new MSXCPU(getDebugger()))
-	, resetCommand(*this)
+	, resetCommand(getCommandController(), *this)
+	, powerSetting(getCommandController().getGlobalSettings().getPowerSetting())
 {
-	getCPU().setMotherboard(this);
 	getMixer().mute(); // powered down
-
 	powerSetting.addListener(this);
-
-	CommandController::instance().registerCommand(&resetCommand, "reset");
 }
 
 MSXMotherBoard::~MSXMotherBoard()
 {
-	CommandController::instance().unregisterCommand(&resetCommand, "reset");
-
 	powerSetting.removeListener(this);
 
 	// Destroy emulated MSX machine.
@@ -65,6 +61,14 @@ MSXMotherBoard::~MSXMotherBoard()
 	availableDevices.clear();
 }
 
+Scheduler& MSXMotherBoard::getScheduler()
+{
+	if (!scheduler.get()) {
+		scheduler.reset(new Scheduler());
+	}
+	return *scheduler;
+}
+
 CartridgeSlotManager& MSXMotherBoard::getSlotManager()
 {
 	if (!slotManager.get()) {
@@ -73,15 +77,60 @@ CartridgeSlotManager& MSXMotherBoard::getSlotManager()
 	return *slotManager;
 }
 
+CommandController& MSXMotherBoard::getCommandController()
+{
+	if (!commandController.get()) {
+		commandController.reset(new CommandController(getScheduler()));
+	}
+	return *commandController;
+}
+
+EventDistributor& MSXMotherBoard::getEventDistributor()
+{
+	if (!eventDistributor.get()) {
+		eventDistributor.reset(new EventDistributor(
+			getScheduler(), getCommandController()));
+	}
+	return *eventDistributor;
+}
+
 UserInputEventDistributor& MSXMotherBoard::getUserInputEventDistributor()
 {
 	if (!userInputEventDistributor.get()) {
 		userInputEventDistributor.reset(
-			new UserInputEventDistributor(EventDistributor::instance()));
+			new UserInputEventDistributor(getEventDistributor()));
 	}
 	return *userInputEventDistributor;
 }
 
+InputEventGenerator& MSXMotherBoard::getInputEventGenerator()
+{
+	if (!inputEventGenerator.get()) {
+		inputEventGenerator.reset(new InputEventGenerator(
+			getScheduler(), getCommandController(),
+			getEventDistributor()));
+	}
+	return *inputEventGenerator;
+}
+
+CliComm& MSXMotherBoard::getCliComm()
+{
+	if (!cliComm.get()) {
+		cliComm.reset(new CliComm(getScheduler(),
+			getCommandController(), getEventDistributor()));
+	}
+	return *cliComm;
+}
+
+RealTime& MSXMotherBoard::getRealTime()
+{
+	if (!realTime.get()) {
+		realTime.reset(new RealTime(
+			getScheduler(), getEventDistributor(),
+			getCommandController().getGlobalSettings()));
+	}
+	return *realTime;
+}
 
 PluggingController& MSXMotherBoard::getPluggingController()
 {
@@ -93,13 +142,16 @@ PluggingController& MSXMotherBoard::getPluggingController()
 
 Debugger& MSXMotherBoard::getDebugger()
 {
+	if (!debugger.get()) {
+		debugger.reset(new Debugger(getCommandController()));
+	}
 	return *debugger;
 }
 
 Mixer& MSXMotherBoard::getMixer()
 {
 	if (!mixer.get()) {
-		mixer.reset(new Mixer());
+		mixer.reset(new Mixer(getScheduler(), getCommandController()));
 	}
 	return *mixer;
 }
@@ -115,6 +167,14 @@ DummyDevice& MSXMotherBoard::getDummyDevice()
 			new DummyDevice(*this, *dummyDeviceConfig, EmuTime::zero));
 	}
 	return *dummyDevice;
+}
+
+MSXCPU& MSXMotherBoard::getCPU()
+{
+	if (!msxCpu.get()) {
+		msxCpu.reset(new MSXCPU(*this));
+	}
+	return *msxCpu;
 }
 
 MSXCPUInterface& MSXMotherBoard::getCPUInterface()
@@ -163,7 +223,7 @@ CassettePortInterface& MSXMotherBoard::getCassettePort()
 RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
 {
 	if (!renShaTurbo.get()) {
-		renShaTurbo.reset(new RenShaTurbo());
+		renShaTurbo.reset(new RenShaTurbo(getCommandController()));
 	}
 	return *renShaTurbo;
 }
@@ -171,7 +231,7 @@ RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
 CommandConsole& MSXMotherBoard::getCommandConsole()
 {
 	if (!commandConsole.get()) {
-		commandConsole.reset(new CommandConsole());
+		commandConsole.reset(new CommandConsole(getCommandController()));
 	}
 	return *commandConsole;
 }
@@ -179,7 +239,7 @@ CommandConsole& MSXMotherBoard::getCommandConsole()
 RenderSettings& MSXMotherBoard::getRenderSettings()
 {
 	if (!renderSettings.get()) {
-		renderSettings.reset(new RenderSettings());
+		renderSettings.reset(new RenderSettings(getCommandController()));
 	}
 	return *renderSettings;
 }
@@ -187,11 +247,27 @@ RenderSettings& MSXMotherBoard::getRenderSettings()
 Display& MSXMotherBoard::getDisplay()
 {
 	if (!display.get()) {
-		display.reset(new Display(getUserInputEventDistributor(),
-		                          getRenderSettings(),
-		                          getCommandConsole()));
+		display.reset(new Display(*this));
 	}
 	return *display;
+}
+
+FileManipulator& MSXMotherBoard::getFileManipulator()
+{
+	if (!fileManipulator.get()) {
+		fileManipulator.reset(new FileManipulator(
+			getCommandController()));
+	}
+	return *fileManipulator;
+}
+
+FilePool& MSXMotherBoard::getFilePool()
+{
+	if (!filePool.get()) {
+		filePool.reset(new FilePool(
+			getCommandController().getSettingsConfig()));
+	}
+	return *filePool;
 }
 
 void MSXMotherBoard::readConfig()
@@ -243,7 +319,7 @@ void MSXMotherBoard::addDevice(std::auto_ptr<MSXDevice> device)
 
 void MSXMotherBoard::resetMSX()
 {
-	const EmuTime& time = Scheduler::instance().getCurrentTime();
+	const EmuTime& time = getScheduler().getCurrentTime();
 	getCPUInterface().reset();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
@@ -263,10 +339,10 @@ void MSXMotherBoard::powerUpMSX()
 	powerSetting.setValue(true);
 	// TODO: We could make the power LED a device, so we don't have to handle
 	//       it separately here.
-	EventDistributor::instance().distributeEvent(
+	getEventDistributor().distributeEvent(
 		new LedEvent(LedEvent::POWER, true));
 
-	const EmuTime& time = Scheduler::instance().getCurrentTime();
+	const EmuTime& time = getScheduler().getCurrentTime();
 	getCPUInterface().reset();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
@@ -286,13 +362,13 @@ void MSXMotherBoard::powerDownMSX()
 	//       handling all pending commands/events/updates?
 	//assert(powerSetting.getValue() == powered);
 	powerSetting.setValue(false);
-	EventDistributor::instance().distributeEvent(
+	getEventDistributor().distributeEvent(
 		new LedEvent(LedEvent::POWER, false));
 
 	getCPU().exitCPULoop();
 	getMixer().mute();
 
-	const EmuTime& time = Scheduler::instance().getCurrentTime();
+	const EmuTime& time = getScheduler().getCurrentTime();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		(*it)->powerDown(time);
@@ -315,7 +391,7 @@ void MSXMotherBoard::createDevices(const XMLElement& elem)
 			if (device.get()) {
 				addDevice(device);
 			} else {
-				output.printWarning("Deprecated device: \"" +
+				getCliComm().printWarning("Deprecated device: \"" +
 					name + "\", please upgrade your "
 					"machine descriptions.");
 			}
@@ -339,14 +415,16 @@ void MSXMotherBoard::update(const Setting* setting)
 
 // inner class ResetCmd:
 
-MSXMotherBoard::ResetCmd::ResetCmd(MSXMotherBoard& parent_)
-	: parent(parent_)
+MSXMotherBoard::ResetCmd::ResetCmd(CommandController& commandController,
+                                   MSXMotherBoard& motherBoard_)
+	: SimpleCommand(commandController, "reset")
+	, motherBoard(motherBoard_)
 {
 }
 
 string MSXMotherBoard::ResetCmd::execute(const vector<string>& /*tokens*/)
 {
-	parent.resetMSX();
+	motherBoard.resetMSX();
 	return "";
 }
 

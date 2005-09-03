@@ -4,6 +4,7 @@
 #define COMMANDCONTROLLER_HH
 
 #include "Command.hh"
+#include "InfoTopic.hh"
 #include <string>
 #include <map>
 #include <set>
@@ -12,35 +13,41 @@
 
 namespace openmsx {
 
+class Scheduler;
+class CliComm;
 class CommandConsole;
 class InfoCommand;
 class Interpreter;
 class FileContext;
+class SettingsConfig;
+class GlobalSettings;
+class RomInfoTopic;
 
 class CommandController
 {
 public:
-	static CommandController& instance();
+	CommandController(Scheduler& scheduler);
+	~CommandController();
 
-	/** Returns the TCL interpreter that is associated with these commands
-	 */
-	Interpreter& getInterpreter() const;
-
-	/** Returns the InfoCommand
-	 */
-	InfoCommand& getInfoCommand() const;
+	void setCliComm(CliComm* cliComm);
+		
+	CliComm& getCliComm();
+	Interpreter& getInterpreter();
+	InfoCommand& getInfoCommand();
+	SettingsConfig& getSettingsConfig();
+	GlobalSettings& getGlobalSettings();
 
 	/**
 	 * (Un)register a command
 	 */
-	void registerCommand(Command* command, const std::string& str);
-	void unregisterCommand(Command* command, const std::string& str);
+	void   registerCommand(Command& command, const std::string& str);
+	void unregisterCommand(Command& command, const std::string& str);
 
 	/**
 	 * (Un)register a command completer, used to complete build-in TCL cmds
 	 */
-	void registerCompleter(CommandCompleter* completer, const std::string& str);
-	void unregisterCompleter(CommandCompleter* completer, const std::string& str);
+	void   registerCompleter(CommandCompleter& completer, const std::string& str);
+	void unregisterCompleter(CommandCompleter& completer, const std::string& str);
 
 	/**
 	 * Does a command with this name already exist?
@@ -56,7 +63,7 @@ public:
 	 * Returns true iff the command is complete
 	 * (all braces, quotes, .. are balanced)
 	 */
-	bool isComplete(const std::string& command) const;
+	bool isComplete(const std::string& command);
 
 	/**
 	 * Execute a given command
@@ -71,23 +78,20 @@ public:
 	/**
 	 * TODO
 	 */
-	static void completeString(std::vector<std::string>& tokens,
-	                           std::set<std::string>& set,
-	                           bool caseSensitive = true);
-	static void completeFileName(std::vector<std::string>& tokens);
-	static void completeFileName(std::vector<std::string>& tokens,
-	                             const FileContext& context);
-	static void completeFileName(std::vector<std::string>& tokens,
-                                     const FileContext& context,
-                                     const std::set<std::string>& extra);
+	void completeString(std::vector<std::string>& tokens,
+	                    std::set<std::string>& set,
+	                    bool caseSensitive = true);
+	void completeFileName(std::vector<std::string>& tokens);
+	void completeFileName(std::vector<std::string>& tokens,
+	                      const FileContext& context);
+	void completeFileName(std::vector<std::string>& tokens,
+	                      const FileContext& context,
+	                      const std::set<std::string>& extra);
 
 	// should only be called by CommandConsole
 	void setCommandConsole(CommandConsole* console);
 
 private:
-	CommandController();
-	~CommandController();
-
 	void split(const std::string& str,
 	           std::vector<std::string>& tokens, char delimiter);
 	std::string join(const std::vector<std::string>& tokens, char delimiter);
@@ -97,15 +101,22 @@ private:
 	std::string addEscaping(const std::string& str, bool quote, bool finished);
 
 	void tabCompletion(std::vector<std::string>& tokens);
-	static bool completeString2(std::string& str, std::set<std::string>& set,
-	                            bool caseSensitive);
-	static bool equal(const std::string& s1, const std::string& s2,
-	                  bool caseSensitive);
+	bool completeString2(std::string& str, std::set<std::string>& set,
+	                     bool caseSensitive);
 
 	typedef std::map<std::string, Command*> CommandMap;
 	typedef std::map<std::string, CommandCompleter*> CompleterMap;
 	CommandMap commands;
 	CompleterMap commandCompleters;
+
+	Scheduler& scheduler;
+	CommandConsole* cmdConsole;
+	CliComm* cliComm;
+
+	std::auto_ptr<Interpreter> interpreter;
+	std::auto_ptr<InfoCommand> infoCommand;
+	std::auto_ptr<SettingsConfig> settingsConfig;
+	std::auto_ptr<GlobalSettings> globalSettings;
 
 	// Commands
 	class HelpCmd : public SimpleCommand {
@@ -118,10 +129,14 @@ private:
 		CommandController& parent;
 	} helpCmd;
 
-	CommandConsole* cmdConsole;
-
-	const std::auto_ptr<Interpreter> interpreter;
-	const std::auto_ptr<InfoCommand> infoCommand;
+	class VersionInfo : public InfoTopic {
+	public:
+		VersionInfo(CommandController& commandController);
+		virtual void execute(const std::vector<TclObject*>& tokens,
+		                     TclObject& result) const;
+		virtual std::string help(const std::vector<std::string>& tokens) const;
+	} versionInfo;
+	const std::auto_ptr<RomInfoTopic> romInfoTopic;
 };
 
 } // namespace openmsx

@@ -7,6 +7,8 @@
 
 namespace openmsx {
 
+class CommandController;
+
 class DiskImageCLI : public CLIOption, public CLIFileType
 {
 public:
@@ -19,6 +21,7 @@ public:
 	virtual const std::string& fileTypeHelp() const;
 
 private:
+	CommandController& commandController;
 	char driveLetter;
 };
 

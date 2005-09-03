@@ -185,17 +185,18 @@ static string parseRemarks(const XMLElement& elem)
 	return result;
 }
 
-static void addEntry(RomInfo* romInfo, const string& sha1, DBMap& result)
+static void addEntry(CliComm& cliComm, RomInfo* romInfo,
+                     const string& sha1, DBMap& result)
 {
 	if (result.find(sha1) == result.end()) {
 		result[sha1] = romInfo;
 	} else {
-		CliComm::instance().printWarning(
+		cliComm.printWarning(
 			"duplicate softwaredb entry SHA1: " + sha1);
 	}
 }
 
-static void parseEntry(
+static void parseEntry(CliComm& cliComm, 
 	const XMLElement& rom, DBMap& result,
 	const string& title,   const string& year,
 	const string& company, const string& country,
@@ -213,7 +214,7 @@ static void parseEntry(
 			continue;
 		}
 		string sha1 = (*it2)->getData();
-		addEntry(romInfo, sha1, result);
+		addEntry(cliComm, romInfo, sha1, result);
 	}
 }
 
@@ -227,7 +228,7 @@ static string parseStart(const XMLElement& rom)
 	else return "";
 }
 
-static void parseDB(const XMLElement& doc, DBMap& result)
+static void parseDB(CliComm& cliComm, const XMLElement& doc, DBMap& result)
 {
 	const XMLElement::Children& children = doc.getChildren();
 	for (XMLElement::Children::const_iterator it1 = children.begin();
@@ -254,7 +255,7 @@ static void parseDB(const XMLElement& doc, DBMap& result)
 		     it2 != dumps.end(); ++it2) {
 			const XMLElement& dump = **it2;
 			if (const XMLElement* megarom = dump.findChild("megarom")) {
-				parseEntry(*megarom, result, title, year,
+				parseEntry(cliComm, *megarom, result, title, year,
 				           company, country, remark,
 				           megarom->getChildData("type"));
 			} else if (const XMLElement* rom = dump.findChild("rom")) {
@@ -264,14 +265,15 @@ static void parseDB(const XMLElement& doc, DBMap& result)
 				} else if (type == "Mirrored") {
 					type += parseStart(*rom);
 				}
-				parseEntry(*rom, result, title, year, company,
-				           country, remark, type);
+				parseEntry(cliComm, *rom, result, title, year,
+				           company, country, remark, type);
 			}
 		}
 	}
 }
 
-static auto_ptr<XMLElement> openDB(const string& filename, const string& type)
+static auto_ptr<XMLElement> openDB(CliComm& cliComm, const string& filename,
+                                   const string& type)
 {
 	auto_ptr<XMLElement> doc;
 	try {
@@ -280,14 +282,14 @@ static auto_ptr<XMLElement> openDB(const string& filename, const string& type)
 	} catch (FileException& e) {
 		// couldn't read file
 	} catch (XMLException& e) {
-		CliComm::instance().printWarning(
+		cliComm.printWarning(
 			"Could not parse ROM DB: " + e.getMessage() + "\n"
 			"Romtype detection might fail because of this.");
 	}
 	return doc;
 }
 
-auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
+auto_ptr<RomInfo> RomInfo::searchRomDB(CliComm& cliComm, const Rom& rom)
 {
 	// TODO: Turn ROM DB into a separate class.
 	// TODO - mem leak on duplicate entries
@@ -304,15 +306,16 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 		for (vector<string>::const_iterator it = paths.begin();
 		     it != paths.end(); ++it) {
 			auto_ptr<XMLElement> doc(
-				openDB(*it + "softwaredb.xml", "softwaredb1.dtd"));
+				openDB(cliComm, *it + "softwaredb.xml",
+				       "softwaredb1.dtd"));
 			if (doc.get()) {
 				DBMap tmp;
-				parseDB(*doc, tmp);
+				parseDB(cliComm, *doc, tmp);
 				romDBSHA1.insert(tmp.begin(), tmp.end());
 			}
 		}
 		if (romDBSHA1.empty()) {
-			CliComm::instance().printWarning(
+			cliComm.printWarning(
 				"Couldn't load rom database.\n"
 				"Romtype detection might fail because of this.");
 		}
@@ -326,7 +329,7 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 
 	const string& sha1sum = rom.getSHA1Sum();
 	if (romDBSHA1.find(sha1sum) != romDBSHA1.end()) {
-		romDBSHA1[sha1sum]->print();
+		romDBSHA1[sha1sum]->print(cliComm);
 		// Return a copy of the DB entry.
 		return auto_ptr<RomInfo>(new RomInfo(*romDBSHA1[sha1sum]));
 	}
@@ -335,17 +338,17 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 	return auto_ptr<RomInfo>(NULL);
 }
 
-auto_ptr<RomInfo> RomInfo::fetchRomInfo(const Rom& rom)
+auto_ptr<RomInfo> RomInfo::fetchRomInfo(CliComm& cliComm, const Rom& rom)
 {
 	// Look for the ROM in the ROM DB.
-	auto_ptr<RomInfo> info(searchRomDB(rom));
+	auto_ptr<RomInfo> info(searchRomDB(cliComm, rom));
 	if (!info.get()) {
 		info.reset(new RomInfo("", "", "", "", "", ROM_UNKNOWN));
 	}
 	return info;
 }
 
-void RomInfo::print()
+void RomInfo::print(CliComm& cliComm)
 {
 	string year(getYear());
 	if (year.empty()) {
@@ -363,7 +366,7 @@ void RomInfo::print()
 	if (!getRemark().empty()) {
 		info += "\n  Remark:   " + getRemark();
 	}
-	CliComm::instance().printInfo(info);
+	cliComm.printInfo(info);
 }
 
 } // namespace openmsx

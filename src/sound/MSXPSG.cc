@@ -42,7 +42,7 @@ void MSXPSG::reset(const EmuTime& time)
 
 void MSXPSG::powerDown(const EmuTime& /*time*/)
 {
-	EventDistributor::instance().distributeEvent(
+	getMotherBoard().getEventDistributor().distributeEvent(
 		new LedEvent(LedEvent::KANA, false));
 }
 
@@ -91,7 +91,7 @@ void MSXPSG::writeB(byte value, const EmuTime& time)
 	selectedPort = (value & 0x40) >> 6;
 
 	if ((prev ^ value) & 0x80) {
-		EventDistributor::instance().distributeEvent(
+		getMotherBoard().getEventDistributor().distributeEvent(
 			new LedEvent(LedEvent::KANA, !(value & 0x80)));
 	}
 	prev = value;

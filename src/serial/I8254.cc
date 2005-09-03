@@ -8,11 +8,12 @@ namespace openmsx {
 
 /// class I8254 ///
 
-I8254::I8254(ClockPinListener* output0, ClockPinListener* output1,
-             ClockPinListener* output2, const EmuTime& time)
-	: counter0(output0, time),
-	  counter1(output1, time),
-	  counter2(output2, time)
+I8254::I8254(Scheduler& scheduler, ClockPinListener* output0,
+             ClockPinListener* output1, ClockPinListener* output2,
+             const EmuTime& time)
+	: counter0(scheduler, output0, time)
+	, counter1(scheduler, output1, time)
+	, counter2(scheduler, output2, time)
 {
 }
 
@@ -136,8 +137,9 @@ I8254::Counter& I8254::getCounter(byte cntr)
 
 /// class Counter ///
 
-I8254::Counter::Counter(ClockPinListener* listener, const EmuTime& time)
-	: output(listener)
+I8254::Counter::Counter(Scheduler& scheduler, ClockPinListener* listener,
+                        const EmuTime& time)
+	: clock(scheduler), output(scheduler, listener)
 {
 	gate = true;
 	counter = 0;

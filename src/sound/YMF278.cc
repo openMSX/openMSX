@@ -756,8 +756,8 @@ YMF278::YMF278(MSXMotherBoard& motherBoard, const string& name, int ramSize,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer(), name, "MoonSound wave-part")
 	, rom(new Rom(motherBoard, name + " ROM", "rom", config))
-	, debugRegisters(*this, motherBoard.getDebugger())
-	, debugMemory   (*this, motherBoard.getDebugger())
+	, debugRegisters(*this, motherBoard)
+	, debugMemory   (*this, motherBoard)
 {
 	memadr = 0;	// avoid UMR
 	setSampleRate(44100);	// make valgrind happy
@@ -838,8 +838,9 @@ void YMF278::writeMem(unsigned address, byte value)
 
 // class DebugRegisters
 
-YMF278::DebugRegisters::DebugRegisters(YMF278& ymf278_, Debugger& debugger)
-	: SimpleDebuggable(debugger, ymf278_.getName() + " regs",
+YMF278::DebugRegisters::DebugRegisters(YMF278& ymf278_,
+                                       MSXMotherBoard& motherBoard)
+	: SimpleDebuggable(motherBoard, ymf278_.getName() + " regs",
 	                   "OPL4 registers", 0x100)
 	, ymf278(ymf278_)
 {
@@ -858,8 +859,8 @@ void YMF278::DebugRegisters::write(unsigned address, byte value, const EmuTime& 
 
 // class DebugMemory
 
-YMF278::DebugMemory::DebugMemory(YMF278& ymf278_, Debugger& debugger)
-	: SimpleDebuggable(debugger, ymf278_.getName() + " mem",
+YMF278::DebugMemory::DebugMemory(YMF278& ymf278_, MSXMotherBoard& motherBoard)
+	: SimpleDebuggable(motherBoard, ymf278_.getName() + " mem",
 	                   "OPL4 memory (includes both ROM and RAM)", 0x400000) // 4MB
 	, ymf278(ymf278_)
 {

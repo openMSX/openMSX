@@ -11,7 +11,8 @@ namespace openmsx {
 class SDLEventInserter : private Schedulable
 {
 public:
-	SDLEventInserter(SDL_Event& event, const EmuTime& time);
+	SDLEventInserter(Scheduler& scheduler, SDL_Event& event,
+	                 const EmuTime& time);
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const std::string& schedName() const;
 

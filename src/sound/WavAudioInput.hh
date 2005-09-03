@@ -10,12 +10,13 @@
 
 namespace openmsx {
 
+class CommandController;
 class FilenameSetting;
 
 class WavAudioInput : public AudioInputDevice, private SettingListener
 {
 public:
-	WavAudioInput();
+	WavAudioInput(CommandController& commandController);
 	virtual ~WavAudioInput();
 
 	// AudioInputDevice

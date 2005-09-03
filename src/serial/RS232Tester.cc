@@ -9,12 +9,15 @@ using std::string;
 
 namespace openmsx {
 
-RS232Tester::RS232Tester()
-	: thread(this), lock(1)
-	, rs232InputFilenameSetting(new FilenameSetting("rs232-inputfilename",
+RS232Tester::RS232Tester(Scheduler& scheduler,
+                         CommandController& commandController)
+	: Schedulable(scheduler), thread(this), lock(1)
+	, rs232InputFilenameSetting(new FilenameSetting(
+	        commandController, "rs232-inputfilename",
 	        "filename of the file where the RS232 input is read from",
 	        "rs232-input"))
-	, rs232OutputFilenameSetting(new FilenameSetting("rs232-outputfilename",
+	, rs232OutputFilenameSetting(new FilenameSetting(
+	        commandController, "rs232-outputfilename",
 	        "filename of the file where the RS232 output is written to",
 	        "rs232-output"))
 {

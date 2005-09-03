@@ -9,6 +9,7 @@
 
 namespace openmsx {
 
+class CommandController;
 class RenderSettings;
 class Display;
 template <class T> class EnumSetting;
@@ -21,7 +22,9 @@ public:
 	VideoSource getVideoSource() const;
 
 protected:
-	VideoLayer(VideoSource videoSource, RenderSettings& renderSettings,
+	VideoLayer(VideoSource videoSource,
+	           CommandController& commandController,
+	           RenderSettings& renderSettings,
 	           Display& display);
 
 	// SettingListener interface:

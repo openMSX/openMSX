@@ -10,7 +10,8 @@ namespace openmsx {
 MSXTurboRPause::MSXTurboRPause(MSXMotherBoard& motherBoard,
                                const XMLElement& config, const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, pauseSetting("turborpause", "status of the TurboR pause", false)
+	, pauseSetting(motherBoard.getCommandController(), "turborpause",
+	               "status of the TurboR pause", false)
 	, status(255)
 	, pauseLed(false)
 	, turboLed(false)
@@ -52,7 +53,7 @@ void MSXTurboRPause::writeIO(byte /*port*/, byte value, const EmuTime& /*time*/)
 	bool newTurboLed = (status & 0x80);
 	if (newTurboLed != turboLed) {
 		turboLed = newTurboLed;
-		EventDistributor::instance().distributeEvent(
+		getMotherBoard().getEventDistributor().distributeEvent(
 			new LedEvent(LedEvent::TURBO, turboLed));
 	}
 	updatePause();
@@ -78,7 +79,7 @@ void MSXTurboRPause::updatePause()
 	bool newPauseLed = (status & 0x01) || hwPause;
 	if (newPauseLed != pauseLed) {
 		pauseLed = newPauseLed;
-		EventDistributor::instance().distributeEvent(
+		getMotherBoard().getEventDistributor().distributeEvent(
 			new LedEvent(LedEvent::PAUSE, pauseLed));
 	}
 }

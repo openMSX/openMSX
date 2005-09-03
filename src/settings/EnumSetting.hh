@@ -3,19 +3,21 @@
 #ifndef ENUMSETTING_HH
 #define ENUMSETTING_HH
 
-#include <map>
-#include <set>
-#include <cassert>
 #include "SettingPolicy.hh"
 #include "SettingImpl.hh"
-#include "CommandController.hh"
 #include "InfoTopic.hh"
 #include "InfoCommand.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "StringOp.hh"
+#include <map>
+#include <set>
+#include <cassert>
 
 namespace openmsx {
+
+class CommandController;
+
 
 template <typename T> class EnumSettingPolicy : public SettingPolicy<T>
 {
@@ -25,7 +27,8 @@ public:
 	void getPossibleValues(std::set<std::string>& result) const;
 
 protected:
-	EnumSettingPolicy(const std::string& name, const Map& map_);
+	EnumSettingPolicy(CommandController& commandController,
+	                  const std::string& name, const Map& map_);
 	virtual ~EnumSettingPolicy();
 
 	std::string toString(T value) const;
@@ -39,7 +42,8 @@ private:
 
 	class EnumInfo : public InfoTopic {
 	public:
-		EnumInfo(EnumSettingPolicy& parent);
+		EnumInfo(CommandController& commandController,
+		         EnumSettingPolicy& parent, const std::string& name);
 		virtual void execute(const std::vector<TclObject*>& tokens,
 		                     TclObject& result) const;
 		virtual std::string help(const std::vector<std::string>& tokens) const;
@@ -51,8 +55,9 @@ private:
 template <typename T> class EnumSetting : public SettingImpl<EnumSettingPolicy<T> >
 {
 public:
-	EnumSetting(const std::string& name, const std::string& description,
-	            T initialValue, const typename EnumSettingPolicy<T>::Map& map_,
+	EnumSetting(CommandController& CommandController, const std::string& name,
+	            const std::string& description, T initialValue,
+	            const typename EnumSettingPolicy<T>::Map& map_,
 	            Setting::SaveSetting save = Setting::SAVE);
 };
 
@@ -61,16 +66,17 @@ public:
 
 template <typename T>
 EnumSettingPolicy<T>::EnumSettingPolicy(
-	const std::string& name_, const Map& map_)
-	: name(name_), enumMap(map_), enumInfo(*this)
+		CommandController& commandController,
+		const std::string& name_, const Map& map_)
+	: SettingPolicy<T>(commandController)
+	, name(name_), enumMap(map_)
+	, enumInfo(commandController, *this, name)
 {
-	CommandController::instance().getInfoCommand().registerTopic(name, &enumInfo);
 }
 
 template <typename T>
 EnumSettingPolicy<T>::~EnumSettingPolicy()
 {
-	CommandController::instance().getInfoCommand().unregisterTopic(name, &enumInfo);
 }
 
 template<typename T>
@@ -121,12 +127,15 @@ void EnumSettingPolicy<T>::tabCompletion(std::vector<std::string>& tokens) const
 {
 	std::set<std::string> stringSet;
 	getPossibleValues(stringSet);
-	CommandController::completeString(tokens, stringSet, false); // case insensitive
+	this->getCommandController().completeString(tokens, stringSet, false); // case insensitive
 }
 
 template<typename T>
-EnumSettingPolicy<T>::EnumInfo::EnumInfo(EnumSettingPolicy& parent_)
-	: parent(parent_)
+EnumSettingPolicy<T>::EnumInfo::EnumInfo(CommandController& commandController,
+                                         EnumSettingPolicy& parent_,
+                                         const std::string& name)
+	: InfoTopic(commandController, name)
+	, parent(parent_)
 {
 }
 
@@ -154,11 +163,13 @@ std::string EnumSettingPolicy<T>::EnumInfo::help(
 
 template <typename T>
 EnumSetting<T>::EnumSetting(
-	const std::string& name, const std::string& description,
-	T initialValue, const typename EnumSettingPolicy<T>::Map& map_,
-	Setting::SaveSetting save)
-	: SettingImpl<EnumSettingPolicy<T> >(name, description, initialValue,
-	                                     save, name, map_)
+		CommandController& commandController, const std::string& name,
+		const std::string& description, T initialValue,
+		const typename EnumSettingPolicy<T>::Map& map_,
+		Setting::SaveSetting save)
+	: SettingImpl<EnumSettingPolicy<T> >(
+		commandController, name, description, initialValue, save,
+		name, map_)
 {
 }
 

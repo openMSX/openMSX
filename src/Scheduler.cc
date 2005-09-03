@@ -2,9 +2,7 @@
 
 #include "Scheduler.hh"
 #include "Schedulable.hh"
-#include "InputEventGenerator.hh"
-#include "CommandController.hh"
-#include "Interpreter.hh"
+#include "PollInterface.hh"
 #include <cassert>
 #include <algorithm>
 
@@ -15,16 +13,6 @@ const EmuTime Scheduler::ASAP;
 Scheduler::Scheduler()
 	: sem(1)
 {
-}
-
-Scheduler::~Scheduler()
-{
-}
-
-Scheduler& Scheduler::instance()
-{
-	static Scheduler oneInstance;
-	return oneInstance;
 }
 
 void Scheduler::setSyncPoint(const EmuTime& time, Schedulable& device, int userData)
@@ -75,8 +63,7 @@ const EmuTime& Scheduler::getCurrentTime() const
 
 void Scheduler::scheduleHelper(const EmuTime& limit)
 {
-	InputEventGenerator::instance().poll();
-	CommandController::instance().getInterpreter().poll();
+	doPoll(); // TODO
 
 	while (true) {
 		// Get next sync point.
@@ -106,6 +93,28 @@ void Scheduler::scheduleHelper(const EmuTime& limit)
 		device->executeUntil(time, userData);
 	}
 	scheduleTime = limit;
+}
+
+void Scheduler::registerPoll(PollInterface& poll)
+{
+	assert(find(pollInterfaces.begin(), pollInterfaces.end(), &poll) ==
+	       pollInterfaces.end());
+	pollInterfaces.push_back(&poll);
+}
+
+void Scheduler::unregisterPoll(PollInterface& poll)
+{
+	assert(find(pollInterfaces.begin(), pollInterfaces.end(), &poll) !=
+	       pollInterfaces.end());
+	pollInterfaces.erase(find(pollInterfaces.begin(), pollInterfaces.end(), &poll));
+}
+
+void Scheduler::doPoll()
+{
+	for (PollInterfaces::const_iterator it = pollInterfaces.begin();
+	     it != pollInterfaces.end(); ++it) {
+		(*it)->poll();
+	}
 }
 
 } // namespace openmsx

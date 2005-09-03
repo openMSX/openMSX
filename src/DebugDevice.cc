@@ -7,6 +7,7 @@
 #include "FileOperations.hh"
 #include "FilenameSetting.hh"
 #include "XMLElement.hh"
+#include "MSXMotherBoard.hh"
 
 using std::string;
 
@@ -18,7 +19,8 @@ DebugDevice::DebugDevice(MSXMotherBoard& motherBoard, const XMLElement& config,
 {
 	mode = OFF;
 	string outputFile = config.getChildData("filename", "stdout");
-	fileNameSetting.reset(new FilenameSetting("debugoutput",
+	fileNameSetting.reset(new FilenameSetting(
+		motherBoard.getCommandController(), "debugoutput",
 		"name of the file the debugdevice outputs to", outputFile));
 	fileNameString = fileNameSetting->getValueString();
 	openOutput(fileNameString);

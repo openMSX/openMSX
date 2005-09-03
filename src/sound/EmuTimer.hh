@@ -8,8 +8,6 @@
 
 namespace openmsx {
 
-class Scheduler;
-
 class EmuTimerCallback
 {
 public:
@@ -22,7 +20,7 @@ template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
 class EmuTimer : private Schedulable
 {
 public:
-	EmuTimer(EmuTimerCallback* cb);
+	EmuTimer(Scheduler& scheduler, EmuTimerCallback* cb);
 	virtual ~EmuTimer();
 	void setValue(byte value);
 	void setStart(bool start, const EmuTime& time);

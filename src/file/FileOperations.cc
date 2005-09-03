@@ -19,17 +19,18 @@
 #include <Carbon/Carbon.h>
 #endif
 
-#include <cerrno>
-#include <cstdlib>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <dirent.h>
 #include "ReadDir.hh"
 #include "build-info.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
 #include "openmsx.hh"
 #include "CliComm.hh"
+#include <cerrno>
+#include <cstdlib>
+#include <iostream>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
 
 using std::string;
 
@@ -225,8 +226,7 @@ string expandTilde(const string& path)
 		return getUserHomeDir() + path.substr(1);
 	} else {
 		// other user
-		CliComm::instance().printWarning(
-			"~<user>/ not yet implemented");
+		std::cerr << "Warning: ~<user>/ not yet implemented" << std::endl;
 		return path;
 	}
 }

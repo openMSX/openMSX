@@ -26,11 +26,10 @@ class CPUCore : private CPU_POLICY, public CPU, private SettingListener
 public:
 	typedef void (CPUCore::*FuncPtr)();
 
-	CPUCore(const std::string& name, const BooleanSetting& traceSetting,
-	        const EmuTime& time);
+	CPUCore(MSXMotherBoard& motherboard, const std::string& name,
+	        const BooleanSetting& traceSetting, const EmuTime& time);
 	virtual ~CPUCore();
 
-	void setMotherboard(MSXMotherBoard* motherboard);
 	void setInterface(MSXCPUInterface* interf);
 
 	/**
@@ -124,8 +123,8 @@ private:
 	bool readCacheTried [CACHE_LINE_NUM];
 	bool writeCacheTried[CACHE_LINE_NUM];
 
+	MSXMotherBoard& motherboard;
 	Scheduler& scheduler;
-	MSXMotherBoard* motherboard;
 
 	// dynamic freq
 	std::auto_ptr<BooleanSetting> freqLocked;

@@ -21,9 +21,9 @@ MSXRS232::MSXRS232(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, rxrdyIRQenabled(false)
 	, rxrdyIRQ(getMotherBoard().getCPU())
 	, cntr0(*this), cntr1(*this)
-	, i8254(new I8254(&cntr0, &cntr1, NULL, time))
+	, i8254(new I8254(motherBoard.getScheduler(), &cntr0, &cntr1, NULL, time))
 	, interf(*this)
-	, i8251(new I8251(&interf, time))
+	, i8251(new I8251(motherBoard.getScheduler(), &interf, time))
 	, rom(new Rom(motherBoard, MSXDevice::getName() + " ROM", "rom", config))
 {
 	if (config.getChildDataAsBool("ram", false)) {

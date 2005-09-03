@@ -12,6 +12,7 @@ namespace openmsx {
 
 class Rom;
 class XMLElement;
+class CliComm;
 
 class RomInfo
 {
@@ -27,9 +28,10 @@ public:
 	const std::string& getCountry()   const { return country; }
 	const std::string& getRemark()    const { return remark; }
 	const RomType& getRomType() const { return romType; }
-	void print();
+	void print(CliComm& cliComm);
 
-	static std::auto_ptr<RomInfo> fetchRomInfo(const Rom& rom);
+	static std::auto_ptr<RomInfo> fetchRomInfo(
+		CliComm& cliComm, const Rom& rom);
 	static RomType nameToRomType(std::string name);
 	static void getAllRomTypes(std::set<std::string>& result);
 
@@ -39,7 +41,8 @@ private:
 	  * @return The information found in the database,
 	  * 	or NULL if the given ROM is not in the database.
 	  */
-	static std::auto_ptr<RomInfo> searchRomDB(const Rom& rom);
+	static std::auto_ptr<RomInfo> searchRomDB(
+		CliComm& cliComm, const Rom& rom);
 
 	std::string title;
 	std::string year;

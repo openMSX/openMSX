@@ -10,11 +10,8 @@
 #include "EventDistributor.hh"
 #include "Display.hh"
 #include "Timer.hh"
-#include "InputEventGenerator.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
-#include "Interpreter.hh"
-#include "RealTime.hh"
 #include <cassert>
 
 using std::string;
@@ -26,26 +23,21 @@ Reactor::Reactor(MSXMotherBoard& motherBoard_)
 	: paused(false)
 	, blockedCounter(0)
 	, running(true)
-	, pauseSetting(GlobalSettings::instance().getPauseSetting())
-	, output(CliComm::instance())
 	, motherBoard(motherBoard_)
-	, quitCommand(*this)
+	, pauseSetting(motherBoard.getCommandController().getGlobalSettings().
+	                   getPauseSetting())
+	, cliComm(motherBoard.getCliComm())
+	, quitCommand(motherBoard.getCommandController(), *this)
 {
 	pauseSetting.addListener(this);
 
-	EventDistributor::instance().registerEventListener(
+	motherBoard.getEventDistributor().registerEventListener(
 		OPENMSX_QUIT_EVENT, *this, EventDistributor::DETACHED);
-
-	CommandController::instance().registerCommand(&quitCommand, "quit");
-	CommandController::instance().registerCommand(&quitCommand, "exit");
 }
 
 Reactor::~Reactor()
 {
-	CommandController::instance().unregisterCommand(&quitCommand, "exit");
-	CommandController::instance().unregisterCommand(&quitCommand, "quit");
-
-	EventDistributor::instance().unregisterEventListener(
+	motherBoard.getEventDistributor().unregisterEventListener(
 		OPENMSX_QUIT_EVENT, *this, EventDistributor::DETACHED);
 
 	pauseSetting.removeListener(this);
@@ -53,14 +45,9 @@ Reactor::~Reactor()
 
 void Reactor::run(bool autoRun)
 {
-	CommandController& commandController = CommandController::instance();
-	Display& display = motherBoard.getDisplay();
-	InputEventGenerator& inputEventGenerator = InputEventGenerator::instance();
-	Scheduler& scheduler = Scheduler::instance();
-	Interpreter& interpreter = commandController.getInterpreter();
-
-	// TODO should not be a singleton
-	RealTime::instance(); // sigh, fix instantiation order!
+	CommandController& commandController(motherBoard.getCommandController());
+	Display& display(motherBoard.getDisplay());
+	Scheduler& scheduler(motherBoard.getScheduler());
 
 	// First execute auto commands.
 	commandController.autoCommands();
@@ -75,8 +62,7 @@ void Reactor::run(bool autoRun)
 		if (blocked) {
 			display.repaint();
 			Timer::sleep(100 * 1000);
-			inputEventGenerator.poll();
-			interpreter.poll();
+			motherBoard.getScheduler().doPoll();
 			// TODO: Make Scheduler only responsible for events inside the MSX.
 			//       All other events should be handled by the Reactor.
 			scheduler.schedule(scheduler.getCurrentTime());
@@ -90,7 +76,7 @@ void Reactor::unpause()
 {
 	if (paused) {
 		paused = false;
-		output.update(CliComm::STATUS, "paused", "false");
+		cliComm.update(CliComm::STATUS, "paused", "false");
 		unblock();
 	}
 }
@@ -99,7 +85,7 @@ void Reactor::pause()
 {
 	if (!paused) {
 		paused = true;
-		output.update(CliComm::STATUS, "paused", "true");
+		cliComm.update(CliComm::STATUS, "paused", "true");
 		block();
 	}
 }
@@ -146,15 +132,17 @@ void Reactor::signalEvent(const Event& event)
 // class QuitCommand
 // TODO: Unify QuitCommand and OPENMSX_QUIT_EVENT.
 
-Reactor::QuitCommand::QuitCommand(Reactor& parent_)
-	: parent(parent_)
+Reactor::QuitCommand::QuitCommand(CommandController& commandController,
+                                  Reactor& reactor_)
+	: SimpleCommand(commandController, "exit")
+	, reactor(reactor_)
 {
 }
 
 string Reactor::QuitCommand::execute(const vector<string>& /*tokens*/)
 {
-	parent.running = false;
-	parent.motherBoard.getCPU().exitCPULoop();
+	reactor.running = false;
+	reactor.motherBoard.getCPU().exitCPULoop();
 	return "";
 }
 

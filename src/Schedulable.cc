@@ -5,8 +5,8 @@
 
 namespace openmsx {
 
-Schedulable::Schedulable()
-	: scheduler(Scheduler::instance())
+Schedulable::Schedulable(Scheduler& scheduler_)
+	: scheduler(scheduler_)
 {
 }
 
@@ -24,6 +24,11 @@ void Schedulable::removeSyncPoint(int userData) {
 
 bool Schedulable::pendingSyncPoint(int userData) {
 	return scheduler.pendingSyncPoint(*this, userData);
+}
+
+Scheduler& Schedulable::getScheduler() const
+{
+	return scheduler;
 }
 
 } // namespace openmsx

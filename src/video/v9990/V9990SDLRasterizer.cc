@@ -7,6 +7,7 @@
 #include "BooleanSetting.hh"
 #include "RenderSettings.hh"
 #include "MemoryOps.hh"
+#include "MSXMotherBoard.hh"
 #include <algorithm>
 #include <SDL.h>
 
@@ -16,17 +17,18 @@ using std::max;
 namespace openmsx {
 
 template <class Pixel>
-V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
-	RenderSettings& renderSettings, Display& display, V9990& vdp_,
-	SDL_Surface* screen_)
+V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(V9990& vdp_, SDL_Surface* screen_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
 	, postProcessor(new PostProcessor<Pixel>(
-	                 renderSettings, display, screen, VIDEO_GFX9000, 1280))
+		vdp.getMotherBoard().getCommandController(),
+		vdp.getMotherBoard().getRenderSettings(),
+		vdp.getMotherBoard().getDisplay(),
+		screen, VIDEO_GFX9000, 1280))
 	, bitmapConverter(vdp, palette64, palette256, palette32768)
 	, p1Converter(vdp, palette64)
 	, p2Converter(vdp, palette64)
-	, deinterlaceSetting(renderSettings.getDeinterlace())
+	, deinterlaceSetting(vdp.getMotherBoard().getRenderSettings().getDeinterlace())
 {
 	workFrame = new RawFrame(screen->format, 1280);
 

@@ -11,7 +11,8 @@ using std::string;
 
 namespace openmsx {
 
-void Joystick::registerAll(PluggingController& controller)
+void Joystick::registerAll(EventDistributor& eventDistributor,
+                           PluggingController& controller)
 {
 	if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
 		SDL_InitSubSystem(SDL_INIT_JOYSTICK);
@@ -20,12 +21,13 @@ void Joystick::registerAll(PluggingController& controller)
 
 	unsigned numJoysticks = SDL_NumJoysticks();
 	for (unsigned i = 0; i < numJoysticks; i++) {
-		controller.registerPluggable(new Joystick(i));
+		controller.registerPluggable(new Joystick(eventDistributor, i));
 	}
 }
 
-Joystick::Joystick(unsigned joyNum_)
-	: joyNum(joyNum_)
+Joystick::Joystick(EventDistributor& eventDistributor_, unsigned joyNum_)
+	: eventDistributor(eventDistributor_)
+	, joyNum(joyNum_)
 {
 	PRT_DEBUG("Creating a Joystick object for joystick " << joyNum);
 	assert(joyNum < (unsigned)SDL_NumJoysticks());
@@ -56,11 +58,11 @@ void Joystick::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
 		throw PlugException("Failed to open joystick device");
 	}
 
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_JOY_BUTTON_UP_EVENT,   *this);
 
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
@@ -69,11 +71,11 @@ void Joystick::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
 
 void Joystick::unplugHelper(const EmuTime& /*time*/)
 {
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_JOY_BUTTON_UP_EVENT,   *this);
 
 	SDL_JoystickClose(joystick);

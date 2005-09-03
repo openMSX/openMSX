@@ -9,10 +9,12 @@
 
 namespace openmsx {
 
+class EventDistributor;
+
 class Mouse : public JoystickDevice, private EventListener
 {
 public:
-	Mouse();
+	Mouse(EventDistributor& eventDistributor);
 	virtual ~Mouse();
 
 	//Pluggable
@@ -31,6 +33,7 @@ public:
 private:
 	void emulateJoystick();
 
+	EventDistributor& eventDistributor;
 	byte status;
 	int faze;
 	int xrel, yrel;

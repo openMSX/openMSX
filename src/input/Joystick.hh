@@ -9,6 +9,7 @@
 
 namespace openmsx {
 
+class EventDistributor;
 class PluggingController;
 
 /** Uses an SDL joystick to emulate an MSX joystick.
@@ -19,7 +20,8 @@ public:
 	/** Register all available SDL joysticks.
 	  * @param controller Register here.
 	  */
-	static void registerAll(PluggingController& controller);
+	static void registerAll(EventDistributor& eventDistributor,
+	                        PluggingController& controller);
 
 	//Pluggable
 	virtual const std::string& getName() const;
@@ -35,10 +37,12 @@ public:
 	virtual void signalEvent(const Event& event);
 
 private:
-	Joystick(unsigned joyNum);
+	Joystick(EventDistributor& eventDistributor, unsigned joyNum);
 	virtual ~Joystick();
 
 	static const int THRESHOLD = 32768/10;
+
+	EventDistributor& eventDistributor;
 
 	std::string name;
 	std::string desc;

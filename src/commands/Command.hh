@@ -5,10 +5,13 @@
 
 #include <string>
 #include <vector>
+#include <set>
 
 namespace openmsx {
 
+class FileContext;
 class TclObject;
+class CommandController;
 
 class CommandCompleter
 {
@@ -24,8 +27,25 @@ public:
 	  */
 	virtual void tabCompletion(std::vector<std::string>& tokens) const = 0;
 
+	void completeString(std::vector<std::string>& tokens,
+	                    std::set<std::string>& set,
+	                    bool caseSensitive = true) const;
+	void completeFileName(std::vector<std::string>& tokens) const;
+	void completeFileName(std::vector<std::string>& tokens,
+	                      const FileContext& context,
+	                      const std::set<std::string>& extra) const;
+
+	CommandController& getCommandController() const;
+	const std::string& getName() const;
+	
 protected:
-	virtual ~CommandCompleter() {}
+	CommandCompleter(CommandController& commandController,
+	                 const std::string& name);
+	virtual ~CommandCompleter();
+
+private:
+	CommandController& commandController;
+	const std::string name;
 };
 
 
@@ -50,6 +70,10 @@ public:
 	  * 	The last token is incomplete, this method tries to complete it.
 	  */
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+
+protected:
+	Command(CommandController& commandController, const std::string& name);
+	virtual ~Command();
 };
 
 /**
@@ -63,6 +87,10 @@ public:
 
 	virtual void execute(const std::vector<TclObject*>& tokens,
 	                     TclObject& result);
+
+protected:
+	SimpleCommand(CommandController& commandController, const std::string& name);
+	virtual ~SimpleCommand();
 };
 
 } // namespace openmsx

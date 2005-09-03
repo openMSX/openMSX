@@ -27,13 +27,13 @@ using std::vector;
 
 namespace openmsx {
 
-Mixer::Mixer()
+Mixer::Mixer(Scheduler& scheduler_, CommandController& commandController_)
 	: muteCount(0)
-	, output(CliComm::instance())
-	, commandController(CommandController::instance())
-	, pauseSetting(GlobalSettings::instance().getPauseSetting())
-	, soundlogCommand(*this)
-	, soundDeviceInfo(*this)
+	, scheduler(scheduler_)
+	, commandController(commandController_)
+	, pauseSetting(commandController.getGlobalSettings().getPauseSetting())
+	, soundlogCommand(commandController, *this)
+	, soundDeviceInfo(commandController, *this)
 {
 	driver.reset(new NullSoundDriver());
 	handlingUpdate = false;
@@ -47,17 +47,15 @@ Mixer::Mixer()
 	const int defaultsamples = 1024;
 #endif
 
-	muteSetting.reset(new BooleanSetting(
+	muteSetting.reset(new BooleanSetting(commandController,
 		"mute", "(un)mute the emulation sound", false,
 		Setting::DONT_SAVE));
-	masterVolume.reset(new IntegerSetting(
+	masterVolume.reset(new IntegerSetting(commandController,
 		"master_volume", "master volume", 75, 0, 100));
-	frequencySetting.reset(new IntegerSetting("frequency",
-		"mixer frequency",
-		44100, 11025, 48000));
-	samplesSetting.reset(new IntegerSetting("samples",
-		"mixer samples",
-		defaultsamples, 64, 8192));
+	frequencySetting.reset(new IntegerSetting(commandController,
+		"frequency", "mixer frequency", 44100, 11025, 48000));
+	samplesSetting.reset(new IntegerSetting(commandController,
+		"samples", "mixer samples", defaultsamples, 64, 8192));
 
 	EnumSetting<SoundDriverType>::Map soundDriverMap;
 	soundDriverMap["null"]    = SND_NULL;
@@ -70,10 +68,10 @@ Mixer::Mixer()
 #endif
 
 	soundDriverSetting.reset(new EnumSetting<SoundDriverType>(
-		"sound_driver", "select the sound output driver",
+		commandController, "sound_driver",
+		"select the sound output driver",
 		defaultSoundDriver, soundDriverMap));
 
-	commandController.getInfoCommand().registerTopic("sounddevice", &soundDeviceInfo);
 	muteSetting->addListener(this);
 	masterVolume->addListener(this);
 	frequencySetting->addListener(this);
@@ -89,14 +87,11 @@ Mixer::Mixer()
 	muteHelper();
 
 	wavfp = NULL;
-	CommandController::instance().registerCommand(&soundlogCommand, "soundlog");
 }
 
 Mixer::~Mixer()
 {
 	assert(buffers.empty());
-
-	CommandController::instance().unregisterCommand(&soundlogCommand, "soundlog");
 
 	endSoundLogging();
 	driver.reset();
@@ -107,7 +102,6 @@ Mixer::~Mixer()
 	frequencySetting->removeListener(this);
 	masterVolume->removeListener(this);
 	muteSetting->removeListener(this);
-	commandController.getInfoCommand().unregisterTopic("sounddevice", &soundDeviceInfo);
 }
 
 
@@ -136,9 +130,10 @@ void Mixer::openSound()
 			driver.reset(new NullSoundDriver());
 			break;
 		case SND_SDL:
-			driver.reset(new SDLSoundDriver(*this,
-			                    frequencySetting->getValue(),
-			                    samplesSetting->getValue()));
+			driver.reset(new SDLSoundDriver(scheduler,
+				commandController.getGlobalSettings(), *this,
+				frequencySetting->getValue(),
+				samplesSetting->getValue()));
 			break;
 #ifdef _WIN32
 		case SND_DIRECTX:
@@ -155,7 +150,7 @@ void Mixer::openSound()
 		//samplesSetting->setValue(driver->getSamples());
 		handlingUpdate = false;
 	} catch (MSXException& e) {
-		output.printWarning(e.getMessage());
+		commandController.getCliComm().printWarning(e.getMessage());
 	}
 }
 
@@ -164,7 +159,7 @@ void Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 {
 	const string& name = device.getName();
 	SoundDeviceInfo info;
-	info.volumeSetting = new IntegerSetting(
+	info.volumeSetting = new IntegerSetting(commandController, 
 		name + "_volume", "the volume of this sound chip", 75, 0, 100);
 
 	// once we're stereo, stay stereo. Once mono, stay mono.
@@ -182,7 +177,7 @@ void Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 		modeMap["right"] = MONO_RIGHT;
 	}
 	modeMap["off"] = OFF;
-	info.modeSetting = new EnumSetting<ChannelMode>(
+	info.modeSetting = new EnumSetting<ChannelMode>(commandController,
 		name + "_mode", "the channel mode of this sound chip",
 		modeMap[defaultMode], modeMap, Setting::DONT_SAVE);
 	info.modeSetting->setValue(mode);
@@ -327,8 +322,10 @@ void Mixer::muteHelper()
 
 // stuff for soundlogging
 
-Mixer::SoundlogCommand::SoundlogCommand(Mixer& outer_)
-	: outer(outer_)
+Mixer::SoundlogCommand::SoundlogCommand(
+		CommandController& commandController, Mixer& outer_)
+	: SimpleCommand(commandController, "soundlog")
+	, outer(outer_)
 {
 }
 
@@ -374,7 +371,8 @@ string Mixer::SoundlogCommand::startSoundLogging(const vector<string>& tokens)
 
 	if (!outer.wavfp) {
 		outer.startSoundLogging(filename);
-		CliComm::instance().printInfo("Started logging sound to " + filename);
+		outer.commandController.getCliComm().printInfo(
+			"Started logging sound to " + filename);
 		return filename;
 	} else {
 		return "Already logging!";
@@ -419,11 +417,11 @@ void Mixer::SoundlogCommand::tabCompletion(vector<string>& tokens) const
 		cmds.insert("start");
 		cmds.insert("stop");
 		cmds.insert("toggle");
-		CommandController::completeString(tokens, cmds);
+		completeString(tokens, cmds);
 	} else if ((tokens.size() == 3) && (tokens[1] == "start")) {
 		set<string> cmds;
 		cmds.insert("-prefix");
-		CommandController::completeString(tokens, cmds);
+		completeString(tokens, cmds);
 	}
 }
 
@@ -510,7 +508,9 @@ void Mixer::update(const Setting* setting)
 		handlingUpdate = true;
 		if (wavfp != 0) {
 			endSoundLogging();
-			CliComm::instance().printWarning("Stopped logging sound, because of change of frequency setting");
+			commandController.getCliComm().printWarning(
+				"Stopped logging sound, because of change of "
+				"frequency setting");
 			// the alternative: ignore the change of setting and keep logging sound
 		}
 		reopenSound();
@@ -579,8 +579,10 @@ SoundDevice* Mixer::getSoundDevice(const string& name)
 	return NULL;
 }
 
-Mixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(Mixer& outer_)
-	: outer(outer_)
+Mixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(
+		CommandController& commandController, Mixer& outer_)
+	: InfoTopic(commandController, "sounddevice")
+	, outer(outer_)
 {
 }
 
@@ -620,7 +622,7 @@ void Mixer::SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
 		       outer.infos.begin(); it != outer.infos.end(); ++it) {
 			devices.insert(it->first->getName());
 		}
-		CommandController::completeString(tokens, devices);
+		completeString(tokens, devices);
 	}
 }
 

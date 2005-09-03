@@ -1,7 +1,8 @@
 // $Id$
 
 #include "OSDConsoleRenderer.hh"
-#include "Console.hh"
+#include "CommandController.hh"
+#include "CommandConsole.hh"
 #include "EnumSetting.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
@@ -16,6 +17,7 @@
 #include "DummyFont.hh"
 #include "FileContext.hh"
 #include "CliComm.hh"
+#include "MSXMotherBoard.hh"
 #include <algorithm>
 #include <SDL.h>
 
@@ -25,16 +27,11 @@ namespace openmsx {
 
 // class OSDConsoleRenderer
 
-OSDConsoleRenderer::OSDConsoleRenderer(
-		UserInputEventDistributor& userInputEventDistributor_,
-		Console& console_,
-		Display& display_)
+OSDConsoleRenderer::OSDConsoleRenderer(MSXMotherBoard& motherBoard_)
 	: Layer(COVER_NONE, Z_CONSOLE)
-	, userInputEventDistributor(userInputEventDistributor_)
-	, console(console_)
-	, inputEventGenerator(InputEventGenerator::instance())
-	, consoleSetting(GlobalSettings::instance().getConsoleSetting())
-	, display(display_)
+	, motherBoard(motherBoard_)
+	, consoleSetting(motherBoard.getCommandController().getGlobalSettings().
+	                    getConsoleSetting())
 {
 	destX = destY = destW = destH = 0; // avoid UMR
 	font.reset(new DummyFont());
@@ -57,8 +54,9 @@ OSDConsoleRenderer::~OSDConsoleRenderer()
 
 void OSDConsoleRenderer::initConsole()
 {
+	CommandController& commandController = motherBoard.getCommandController();
 	// font
-	fontSetting.reset(new FilenameSetting(
+	fontSetting.reset(new FilenameSetting(commandController,
 		"consolefont", "console font file",
 		"skins/ConsoleFontRaveLShaded.png"));
 	try {
@@ -71,10 +69,11 @@ void OSDConsoleRenderer::initConsole()
 	// rows / columns
 	int columns = (((getScreenW() - CHAR_BORDER) / font->getWidth()) * 30) / 32;
 	int rows = ((getScreenH() / font->getHeight()) * 6) / 15;
-	consoleColumnsSetting.reset(new IntegerSetting("consolecolumns",
-		"number of columns in the console", columns, 32, 999));
-	consoleRowsSetting.reset(new IntegerSetting("consolerows",
-		"number of rows in the console", rows, 1, 99));
+	consoleColumnsSetting.reset(new IntegerSetting(commandController,
+		"consolecolumns", "number of columns in the console", columns,
+		32, 999));
+	consoleRowsSetting.reset(new IntegerSetting(commandController,
+		"consolerows", "number of rows in the console", rows, 1, 99));
 	adjustColRow();
 
 	// placement
@@ -89,20 +88,20 @@ void OSDConsoleRenderer::initConsole()
 	placeMap["bottomleft"]  = CP_BOTTOMLEFT;
 	placeMap["bottom"]      = CP_BOTTOM;
 	placeMap["bottomright"] = CP_BOTTOMRIGHT;
-	consolePlacementSetting.reset(new EnumSetting<Placement>(
+	consolePlacementSetting.reset(new EnumSetting<Placement>(commandController,
 		"consoleplacement", "position of the console within the emulator",
 		CP_BOTTOM, placeMap));
 
 	updateConsoleRect();
 
 	// background
-	backgroundSetting.reset(new FilenameSetting(
+	backgroundSetting.reset(new FilenameSetting(commandController,
 		"consolebackground", "console background file",
 		"skins/ConsoleBackgroundGrey.png"));
 	try {
 		backgroundSetting->setChecker(this);
 	} catch (MSXException& e) {
-		CliComm::instance().printWarning(e.getMessage());
+		motherBoard.getCliComm().printWarning(e.getMessage());
 	}
 }
 
@@ -114,8 +113,8 @@ void OSDConsoleRenderer::adjustColRow()
 	unsigned consoleRows = std::min<unsigned>(
 		consoleRowsSetting->getValue(),
 		getScreenH() / font->getHeight());
-	console.setColumns(consoleColumns);
-	console.setRows(consoleRows);
+	getConsole().setColumns(consoleColumns);
+	getConsole().setRows(consoleRows);
 }
 
 void OSDConsoleRenderer::update(const Setting* setting)
@@ -130,20 +129,20 @@ void OSDConsoleRenderer::setActive(bool active_)
 	if (active == active_) return;
 	active = active_;
 
-	display.repaintDelayed(40000); // 25 fps
+	getDisplay().repaintDelayed(40000); // 25 fps
 
 	time = Timer::getTime();
 
-	inputEventGenerator.setKeyRepeat(active);
+	motherBoard.getInputEventGenerator().setKeyRepeat(active);
 	if (active) {
-		userInputEventDistributor.registerEventListener(
-			UserInputEventDistributor::CONSOLE, console);
-		EventDistributor::instance().distributeEvent(
+		motherBoard.getUserInputEventDistributor().registerEventListener(
+			UserInputEventDistributor::CONSOLE, getConsole());
+		motherBoard.getEventDistributor().distributeEvent(
 			new ConsoleEvent(OPENMSX_CONSOLE_ON_EVENT));
 	} else {
-		userInputEventDistributor.unregisterEventListener(
-			UserInputEventDistributor::CONSOLE, console);
-		EventDistributor::instance().distributeEvent(
+		motherBoard.getUserInputEventDistributor().unregisterEventListener(
+			UserInputEventDistributor::CONSOLE, getConsole());
+		motherBoard.getEventDistributor().distributeEvent(
 			new ConsoleEvent(OPENMSX_CONSOLE_OFF_EVENT));
 	}
 }
@@ -159,14 +158,14 @@ byte OSDConsoleRenderer::getVisibility() const
 		if (dur > FADE_IN_DURATION) {
 			return 255;
 		} else {
-			display.repaintDelayed(40000); // 25 fps
+			getDisplay().repaintDelayed(40000); // 25 fps
 			return (dur * 255) / FADE_IN_DURATION;
 		}
 	} else {
 		if (dur > FADE_OUT_DURATION) {
 			return 0;
 		} else {
-			display.repaintDelayed(40000); // 25 fps
+			getDisplay().repaintDelayed(40000); // 25 fps
 			return 255 - ((dur * 255) / FADE_OUT_DURATION);
 		}
 	}
@@ -179,8 +178,8 @@ bool OSDConsoleRenderer::updateConsoleRect()
 	adjustColRow();
 
 	unsigned x, y, w, h;
-	h = font->getHeight() * console.getRows();
-	w = (font->getWidth() * console.getColumns()) + CHAR_BORDER;
+	h = font->getHeight() * getConsole().getRows();
+	w = (font->getWidth() * getConsole().getColumns()) + CHAR_BORDER;
 
 	// TODO use setting listener in the future
 	switch (consolePlacementSetting->getValue()) {
@@ -238,6 +237,16 @@ void OSDConsoleRenderer::check(SettingImpl<FilenameSetting::Policy>& setting,
 	} else {
 		assert(false);
 	}
+}
+
+Display& OSDConsoleRenderer::getDisplay() const
+{
+	return motherBoard.getDisplay();
+}
+
+Console& OSDConsoleRenderer::getConsole() const
+{
+	return motherBoard.getCommandConsole();
 }
 
 } // namespace openmsx

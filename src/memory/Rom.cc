@@ -29,7 +29,7 @@ Rom::Rom(MSXMotherBoard& motherBoard_, const string& name_,
          const string& description_, const XMLElement& config)
 	: motherBoard(motherBoard_), name(name_), description(description_)
 {
-	init(config.getChild("rom"));
+	init(motherBoard.getCliComm(), config.getChild("rom"));
 }
 
 Rom::Rom(MSXMotherBoard& motherBoard_, const string& name_,
@@ -42,14 +42,14 @@ Rom::Rom(MSXMotherBoard& motherBoard_, const string& name_,
 	for (XMLElement::Children::const_iterator it = romConfigs.begin();
 	     it != romConfigs.end(); ++it) {
 		if ((*it)->getId() == id) {
-			init(**it);
+			init(motherBoard.getCliComm(), **it);
 			return;
 		}
 	}
 	throw ConfigException("ROM tag \"" + id + "\" missing.");
 }
 
-void Rom::init(const XMLElement& config)
+void Rom::init(CliComm& cliComm, const XMLElement& config)
 {
 	extendedRom = NULL;
 	XMLElement::Children sums;
@@ -64,7 +64,7 @@ void Rom::init(const XMLElement& config)
 		for (XMLElement::Children::const_iterator it = sums.begin();
 		     it != sums.end(); ++it) {
 			const string& sha1 = (*it)->getData();
-			string sha1File = FilePool::instance().getFile(sha1);
+			string sha1File = motherBoard.getFilePool().getFile(sha1);
 			if (!sha1File.empty()) {
 				filename = sha1File;
 				sha1sum = sha1;
@@ -116,7 +116,7 @@ void Rom::init(const XMLElement& config)
 			}
 		}
 	}
-	info = RomInfo::fetchRomInfo(*this);
+	info = RomInfo::fetchRomInfo(cliComm, *this);
 
 	// TODO fix this, this is a hack that depends heavily on MSXRomCLI.cc
 	if (!info->getTitle().empty() &&
@@ -167,10 +167,9 @@ void Rom::read(const XMLElement& config, const string& filename)
 
 	// verify SHA1
 	if (!checkSHA1(config)) {
-		CliComm::instance().printWarning(
+		motherBoard.getCliComm().printWarning(
 			"SHA1 sum for '" + config.getId() +
-			"' does not match with sum of '" + filename +
-			"'.");
+			"' does not match with sum of '" + filename + "'.");
 	}
 }
 

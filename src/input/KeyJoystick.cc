@@ -13,7 +13,8 @@ using std::string;
 
 namespace openmsx {
 
-KeyJoystick::KeyJoystick(UserInputEventDistributor& eventDistributor_,
+KeyJoystick::KeyJoystick(CommandController& commandController,
+                         UserInputEventDistributor& eventDistributor_,
                          const string& name_)
 	: eventDistributor(eventDistributor_)
 	, name(name_)
@@ -24,17 +25,17 @@ KeyJoystick::KeyJoystick(UserInputEventDistributor& eventDistributor_,
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
 
-	up.reset   (new KeyCodeSetting(name + ".up",
+	up.reset   (new KeyCodeSetting(commandController, name + ".up",
 		"key for direction up",    Keys::K_UP));
-	down.reset (new KeyCodeSetting(name + ".down",
+	down.reset (new KeyCodeSetting(commandController, name + ".down",
 		"key for direction down",  Keys::K_DOWN));
-	left.reset (new KeyCodeSetting(name + ".left",
+	left.reset (new KeyCodeSetting(commandController, name + ".left",
 		"key for direction left",  Keys::K_LEFT));
-	right.reset(new KeyCodeSetting(name + ".right",
+	right.reset(new KeyCodeSetting(commandController, name + ".right",
 		"key for direction right", Keys::K_RIGHT));
-	trigA.reset(new KeyCodeSetting(name + ".triga",
+	trigA.reset(new KeyCodeSetting(commandController, name + ".triga",
 		"key for trigger A",       Keys::K_SPACE));
-	trigB.reset(new KeyCodeSetting(name + ".trigb",
+	trigB.reset(new KeyCodeSetting(commandController, name + ".trigb",
 		"key for trigger B",       Keys::K_M));
 }
 

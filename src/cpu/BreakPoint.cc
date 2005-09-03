@@ -10,14 +10,17 @@ namespace openmsx {
 unsigned BreakPoint::lastId = 0;
 
 
-BreakPoint::BreakPoint(word address_)
-	: address(address_)
+BreakPoint::BreakPoint(CliComm& cliComm_, word address_)
+	: cliComm(cliComm_)
+	, address(address_)
 {
 	id = ++lastId;
 }
 
-BreakPoint::BreakPoint(word address_, std::auto_ptr<TclObject> condition_)
-	: address(address_), condition(condition_)
+BreakPoint::BreakPoint(CliComm& cliComm_, word address_,
+                       std::auto_ptr<TclObject> condition_)
+	: cliComm(cliComm_)
+	, address(address_), condition(condition_)
 {
 	id = ++lastId;
 }
@@ -50,7 +53,7 @@ bool BreakPoint::isTrue() const
 	try {
 		return condition->evalBool();
 	} catch (CommandException& e) {
-		CliComm::instance().printWarning(e.getMessage());
+		cliComm.printWarning(e.getMessage());
 		return false;
 	}
 }

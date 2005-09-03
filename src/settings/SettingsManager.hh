@@ -24,7 +24,7 @@ private:
 	SettingsMap settingsMap;
 
 public:
-	SettingsManager();
+	SettingsManager(CommandController& commandController);
 	~SettingsManager();
 
 	/** Get a setting by specifying its name.
@@ -51,7 +51,8 @@ private:
 
 	class SetCompleter : public CommandCompleter {
 	public:
-		SetCompleter(SettingsManager& manager);
+		SetCompleter(CommandController& commandController,
+		             SettingsManager& manager);
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
@@ -60,12 +61,16 @@ private:
 
 	class SettingCompleter : public CommandCompleter {
 	public:
-		SettingCompleter(SettingsManager& manager);
+		SettingCompleter(CommandController& commandController,
+		                 SettingsManager& manager,
+		                 const std::string& name);
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
 		SettingsManager& manager;
-	} settingCompleter;
+	};
+	SettingCompleter incrCompleter;
+	SettingCompleter unsetCompleter;
 
 	CommandController& commandController;
 };

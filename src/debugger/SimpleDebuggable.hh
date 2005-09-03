@@ -7,13 +7,13 @@
 
 namespace openmsx {
 
-class Debugger;
+class MSXMotherBoard;
 class EmuTime;
 
 class SimpleDebuggable : public Debuggable
 {
 public:
-	SimpleDebuggable(Debugger& debugger, const std::string& name,
+	SimpleDebuggable(MSXMotherBoard& motherBoard, const std::string& name,
 	                 const std::string& description, unsigned size);
 	virtual ~SimpleDebuggable();
 
@@ -26,7 +26,7 @@ public:
 	virtual void write(unsigned address, byte value, const EmuTime& time);
 
 private:
-	Debugger& debugger;
+	MSXMotherBoard& motherBoard;
 	const std::string name;
 	const std::string description;
 	unsigned size;

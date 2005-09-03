@@ -1811,9 +1811,11 @@ void YMF262::reset(const EmuTime& time)
 YMF262::YMF262(MSXMotherBoard& motherBoard, const string& name,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer(), name, "MoonSound FM-part")
-	, SimpleDebuggable(motherBoard.getDebugger(), name + " regs",
+	, SimpleDebuggable(motherBoard, name + " regs",
 	                   "MoonSound FM-part registers", 0x200)
-	, irq(motherBoard.getCPU()), timer1(this), timer2(this)
+	, irq(motherBoard.getCPU())
+	, timer1(motherBoard.getScheduler(), this)
+	, timer2(motherBoard.getScheduler(), this)
 {
 	LFO_AM = LFO_PM = 0;
 	lfo_am_depth = lfo_pm_depth_range = lfo_am_cnt = lfo_pm_cnt = 0;

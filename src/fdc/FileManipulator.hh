@@ -9,6 +9,8 @@
 
 namespace openmsx {
 
+class CommandController;
+class GlobalSettings;
 class DiskContainer;
 class DiskChanger;
 class SectorAccessibleDisk;
@@ -17,14 +19,13 @@ class MSXtar;
 class FileManipulator : public SimpleCommand
 {
 public:
-	static FileManipulator& instance();
+	FileManipulator(CommandController& commandController);
+	~FileManipulator();
+
 	void registerDrive(DiskContainer& drive, const std::string& imageName);
 	void unregisterDrive(DiskContainer& drive, const std::string& imageName);
 
 private:
-	FileManipulator();
-	~FileManipulator();
-
 	struct DriveSettings
 	{
 		int partition;

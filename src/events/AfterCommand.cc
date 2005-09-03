@@ -18,57 +18,59 @@ namespace openmsx {
 
 AfterCommand::AfterCmdMap AfterCommand::afterCmds;
 
-AfterCommand::AfterCommand()
+AfterCommand::AfterCommand(Scheduler& scheduler_,
+                           EventDistributor& eventDistributor_,
+                           CommandController& commandController_)
+	: SimpleCommand(commandController_, "after")
+	, scheduler(scheduler_)
+	, eventDistributor(eventDistributor_)
+	, commandController(commandController_)
 {
 	// TODO DETACHED <-> EMU types should be cleaned up
 	//      (moved to event iso listener?)
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::DETACHED);
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::EMU);
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::EMU);
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::EMU);
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::EMU);
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::EMU);
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::EMU);
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::DETACHED);
-	EventDistributor::instance().registerEventListener(
+	eventDistributor.registerEventListener(
 		OPENMSX_BREAK_EVENT, *this, EventDistributor::DETACHED);
-
-	CommandController::instance().registerCommand(this, "after");
 }
 
 AfterCommand::~AfterCommand()
 {
-	CommandController::instance().unregisterCommand(this, "after");
-
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_BREAK_EVENT, *this, EventDistributor::DETACHED);
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::DETACHED);
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::EMU);
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::EMU);
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::EMU);
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::EMU);
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::EMU);
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::EMU);
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
-	EventDistributor::instance().unregisterEventListener(
+	eventDistributor.unregisterEventListener(
 		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::DETACHED);
 }
 
@@ -111,7 +113,8 @@ string AfterCommand::afterTime(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	double time = getTime(tokens[2]);
-	AfterTimeCmd* cmd = new AfterTimeCmd(tokens[3], time);
+	AfterTimeCmd* cmd = new AfterTimeCmd(scheduler, commandController,
+	                                     tokens[3], time);
 	return cmd->getId();
 }
 
@@ -121,7 +124,8 @@ string AfterCommand::afterIdle(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	double time = getTime(tokens[2]);
-	AfterIdleCmd* cmd = new AfterIdleCmd(tokens[3], time);
+	AfterIdleCmd* cmd = new AfterIdleCmd(scheduler, commandController,
+	                                     tokens[3], time);
 	return cmd->getId();
 }
 
@@ -131,7 +135,7 @@ string AfterCommand::afterEvent(const vector<string>& tokens)
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	AfterEventCmd<T>* cmd = new AfterEventCmd<T>(tokens[2]);
+	AfterEventCmd<T>* cmd = new AfterEventCmd<T>(commandController, tokens[2]);
 	return cmd->getId();
 }
 
@@ -188,7 +192,7 @@ void AfterCommand::tabCompletion(vector<string>& tokens) const
 		cmds.insert("break");
 		cmds.insert("info");
 		cmds.insert("cancel");
-		CommandController::completeString(tokens, cmds);
+		completeString(tokens, cmds);
 	}
 	// TODO : make more complete
 }
@@ -230,8 +234,9 @@ template<EventType T> void AfterCommand::executeEvents()
 
 unsigned AfterCommand::AfterCmd::lastAfterId = 0;
 
-AfterCommand::AfterCmd::AfterCmd(const string& command_)
-	: command(command_)
+AfterCommand::AfterCmd::AfterCmd(CommandController& commandController_,
+                                 const string& command_)
+	: commandController(commandController_), command(command_)
 {
 	ostringstream str;
 	str << "after#" << ++lastAfterId;
@@ -258,9 +263,9 @@ const string& AfterCommand::AfterCmd::getId() const
 void AfterCommand::AfterCmd::execute()
 {
 	try {
-		CommandController::instance().executeCommand(command);
+		commandController.executeCommand(command);
 	} catch (CommandException& e) {
-		CliComm::instance().printWarning(
+		commandController.getCliComm().printWarning(
 			"Error executig delayed command: " + e.getMessage());
 	}
 	delete this;
@@ -269,8 +274,14 @@ void AfterCommand::AfterCmd::execute()
 
 // class  AfterTimedCmd
 
-AfterCommand::AfterTimedCmd::AfterTimedCmd(const string& command, double time_)
-	: AfterCmd(command), time(time_)
+AfterCommand::AfterTimedCmd::AfterTimedCmd(
+		Scheduler& scheduler,
+		CommandController& commandController,
+		const string& command, double time_)
+	: AfterCmd(commandController, command)
+	, Schedulable(scheduler)
+	, time(time_)
+
 {
 	reschedule();
 }
@@ -288,7 +299,7 @@ double AfterCommand::AfterTimedCmd::getTime() const
 void AfterCommand::AfterTimedCmd::reschedule()
 {
 	removeSyncPoint();
-	EmuTime t = Scheduler::instance().getCurrentTime() + EmuDuration(time);
+	EmuTime t = getScheduler().getCurrentTime() + EmuDuration(time);
 	setSyncPoint(t);
 }
 
@@ -307,8 +318,11 @@ const string& AfterCommand::AfterTimedCmd::schedName() const
 
 // class AfterTimeCmd
 
-AfterCommand::AfterTimeCmd::AfterTimeCmd(const string& command, double time)
-	: AfterTimedCmd(command, time)
+AfterCommand::AfterTimeCmd::AfterTimeCmd(
+		Scheduler& scheduler,
+		CommandController& commandController,
+		const string& command, double time)
+	: AfterTimedCmd(scheduler, commandController, command, time)
 {
 }
 
@@ -321,8 +335,11 @@ const string& AfterCommand::AfterTimeCmd::getType() const
 
 // class AfterIdleCmd
 
-AfterCommand::AfterIdleCmd::AfterIdleCmd(const string& command, double time)
-	: AfterTimedCmd(command, time)
+AfterCommand::AfterIdleCmd::AfterIdleCmd(
+		Scheduler& scheduler,
+		CommandController& commandController, 
+		const string& command, double time)
+	: AfterTimedCmd(scheduler, commandController, command, time)
 {
 }
 
@@ -336,8 +353,9 @@ const string& AfterCommand::AfterIdleCmd::getType() const
 // class AfterEventCmd
 
 template<EventType T>
-AfterCommand::AfterEventCmd<T>::AfterEventCmd(const string& command)
-	: AfterCmd(command)
+AfterCommand::AfterEventCmd<T>::AfterEventCmd(
+		CommandController& commandController, const string& command)
+	: AfterCmd(commandController, command)
 {
 }
 

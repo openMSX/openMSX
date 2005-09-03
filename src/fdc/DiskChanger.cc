@@ -23,10 +23,12 @@ using std::vector;
 namespace openmsx {
 
 DiskChanger::DiskChanger(const string& driveName_,
+                         CommandController& commandController,
                          FileManipulator& manipulator_)
-	: driveName(driveName_), manipulator(manipulator_)
+	: Command(commandController, driveName_)
+	, driveName(driveName_), manipulator(manipulator_)
 {
-	XMLElement& config = GlobalSettings::instance().getMediaConfig();
+	XMLElement& config = commandController.getGlobalSettings().getMediaConfig();
 	XMLElement& diskConfig = config.getCreateChild(driveName);
 	diskElem = &diskConfig.getCreateChild("filename");
 	string filename = diskElem->getData();
@@ -52,18 +54,12 @@ DiskChanger::DiskChanger(const string& driveName_,
 		ejectDisk();
 	}
 
-	if (CommandController::instance().hasCommand(driveName)) {
-		throw FatalError("Duplicated drive name: " + driveName);
-	}
-
 	// only register when everything went ok (no exceptions)
 	manipulator.registerDrive(*this, driveName);
-	CommandController::instance().registerCommand(this, driveName);
 }
 
 DiskChanger::~DiskChanger()
 {
-	CommandController::instance().unregisterCommand(this, driveName);
 	manipulator.unregisterDrive(*this, driveName);
 }
 
@@ -111,7 +107,9 @@ void DiskChanger::insertDisk(const string& diskImage,
 				//It is simply stat'ed, so even a directory name
 				//can be resolved and will be accepted as dsk name
 				// try to create fake DSK from a dir on host OS
-				disk.reset(new FDC_DirAsDSK(diskImage));
+				disk.reset(new FDC_DirAsDSK(
+					getCommandController().getCliComm(),
+					diskImage));
 			} catch (MSXException& e) {
 				// then try normal DSK
 				disk.reset(new DSKDiskImage(diskImage));
@@ -124,7 +122,8 @@ void DiskChanger::insertDisk(const string& diskImage,
 	}
 	diskElem->setData(diskImage);
 	diskChangedFlag = true;
-	CliComm::instance().update(CliComm::MEDIA, getDriveName(), getDiskName());
+	getCommandController().getCliComm().update(
+		CliComm::MEDIA, getDriveName(), getDiskName());
 }
 
 void DiskChanger::ejectDisk()
@@ -133,7 +132,8 @@ void DiskChanger::ejectDisk()
 
 	diskElem->setData("");
 	diskChangedFlag = true;
-	CliComm::instance().update(CliComm::MEDIA, getDriveName(), getDiskName());
+	getCommandController().getCliComm().update(
+		CliComm::MEDIA, getDriveName(), getDiskName());
 }
 
 
@@ -170,7 +170,7 @@ void DiskChanger::execute(const vector<TclObject*>& tokens, TclObject& result)
 			"Warning: use of 'eject' is deprecated, instead use '-eject'");
 	} else {
 		try {
-			UserFileContext context;
+			UserFileContext context(getCommandController());
 			vector<string> patches;
 			for (unsigned i = 2; i < tokens.size(); ++i) {
 				patches.push_back(context.resolve(
@@ -197,8 +197,8 @@ void DiskChanger::tabCompletion(vector<string>& tokens) const
 		set<string> extra;
 		extra.insert("-eject");
 		extra.insert("-ramdsk");
-		UserFileContext context;
-		CommandController::completeFileName(tokens, context, extra);
+		UserFileContext context(getCommandController());
+		completeFileName(tokens, context, extra);
 	}
 }
 

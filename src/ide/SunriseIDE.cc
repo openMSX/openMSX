@@ -38,11 +38,12 @@ SunriseIDE::SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	const XMLElement* masterElem = config.findChild("master");
 	const XMLElement* slaveElem  = config.findChild("slave");
+	EventDistributor& eventDistributor = getMotherBoard().getEventDistributor();
 	device[0].reset(masterElem
-	          ? IDEDeviceFactory::create(*masterElem, time)
+	          ? IDEDeviceFactory::create(eventDistributor, *masterElem, time)
 	          : new DummyIDEDevice());
 	device[1].reset(slaveElem
-	          ? IDEDeviceFactory::create(*slaveElem, time)
+	          ? IDEDeviceFactory::create(eventDistributor, *slaveElem, time)
 	          : new DummyIDEDevice());
 
 	registerDrive(0);
@@ -68,7 +69,7 @@ void SunriseIDE::registerDrive(int n)
 {
 	if (DiskContainer* cont = dynamic_cast<DiskContainer*>(device[n].get())) {
 		string name = string("hd") + (char)('a' + 2 * interfaceNum + n);
-		FileManipulator::instance().registerDrive(*cont, name);
+		getMotherBoard().getFileManipulator().registerDrive(*cont, name);
 	}
 }
 
@@ -76,7 +77,7 @@ void SunriseIDE::unregisterDrive(int n)
 {
 	if (DiskContainer* cont = dynamic_cast<DiskContainer*>(device[n].get())) {
 		string name = string("hd") + (char)('a' + 2 * interfaceNum + n);
-		FileManipulator::instance().unregisterDrive(*cont, name);
+		getMotherBoard().getFileManipulator().unregisterDrive(*cont, name);
 	}
 }
 

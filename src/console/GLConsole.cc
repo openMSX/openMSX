@@ -12,15 +12,12 @@ using std::string;
 
 namespace openmsx {
 
-GLConsole::GLConsole(
-		UserInputEventDistributor& userInputEventDistributor,
-		Console& console,
-		Display& display)
-	: OSDConsoleRenderer(userInputEventDistributor, console, display)
+GLConsole::GLConsole(MSXMotherBoard& motherBoard)
+	: OSDConsoleRenderer(motherBoard)
 	, backgroundTexture(0)
 {
 	initConsole();
-	display.addLayer(this);
+	getDisplay().addLayer(this);
 }
 
 GLConsole::~GLConsole()
@@ -108,6 +105,7 @@ void GLConsole::paint()
 	glVertex2i(destW, 0);
 	glEnd();
 
+	Console& console = getConsole();
 	int screenlines = destH / font->getHeight();
 	for (int loop = 0; loop < screenlines; loop++) {
 		int num = loop + console.getScrollBack();

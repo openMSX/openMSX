@@ -8,12 +8,13 @@
 
 namespace openmsx {
 
+class Scheduler;
 class DiskDrive;
 
 class WD2793 : private Schedulable
 {
 public:
-	WD2793(DiskDrive& drive, const EmuTime& time);
+	WD2793(Scheduler& scheduler, DiskDrive& drive, const EmuTime& time);
 	virtual ~WD2793();
 
 	void reset(const EmuTime& time);

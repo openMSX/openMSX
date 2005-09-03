@@ -6,9 +6,11 @@ using std::string;
 
 namespace openmsx {
 
-BooleanSetting::BooleanSetting(const string& name, const string& description,
-                               bool initialValue, SaveSetting save)
-	: EnumSetting<bool>(name, description, initialValue, getMap(), save)
+BooleanSetting::BooleanSetting(
+		CommandController& commandController, const string& name,
+		const string& description, bool initialValue, SaveSetting save)
+	: EnumSetting<bool>(commandController, name, description, initialValue,
+	                    getMap(), save)
 {
 }
 

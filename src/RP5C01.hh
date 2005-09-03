@@ -15,13 +15,15 @@
 
 namespace openmsx {
 
+class CommandController;
 class SRAM;
 template <typename T> class EnumSetting;
 
 class RP5C01
 {
 public:
-	RP5C01(SRAM& regs, const EmuTime& time);
+	RP5C01(CommandController& commandController, SRAM& regs,
+	       const EmuTime& time);
 	~RP5C01();
 
 	void reset(const EmuTime& time);

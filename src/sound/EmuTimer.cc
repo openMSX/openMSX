@@ -8,8 +8,9 @@ using std::string;
 namespace openmsx {
 
 template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
-EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::EmuTimer(EmuTimerCallback* cb_)
-	: count(256), counting(false), cb(cb_)
+EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::EmuTimer(
+		Scheduler& scheduler, EmuTimerCallback* cb_)
+	: Schedulable(scheduler), count(256), counting(false), cb(cb_)
 {
 }
 

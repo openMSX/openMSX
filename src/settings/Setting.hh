@@ -8,6 +8,7 @@
 
 namespace openmsx {
 
+class CommandController;
 class SettingListener;
 class XMLElement;
 
@@ -70,11 +71,12 @@ public:
 	  * deleted.
 	  */
 	void sync(XMLElement& config) const;
-	
-protected:
-	Setting(const std::string& name, const std::string& description,
-	        SaveSetting save);
 
+	CommandController& getCommandController() const;
+
+protected:
+	Setting(CommandController& commandController, const std::string& name,
+	        const std::string& description, SaveSetting save);
 	virtual ~Setting();
 
 	/** Notify all listeners of a change to this setting's value.
@@ -82,6 +84,8 @@ protected:
 	void notify() const;
 
 private:
+	CommandController& commandController;
+	
 	/** The name of this setting.
 	  */
 	std::string name;
