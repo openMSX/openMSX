@@ -137,7 +137,7 @@ void Mixer::openSound()
 			break;
 #ifdef _WIN32
 		case SND_DIRECTX:
-			driver.reset(new DirectXSoundDriver(
+			driver.reset(new DirectXSoundDriver(scheduler,
 				commandController.getGlobalSettings(), *this,
 				frequencySetting->getValue(),
 				samplesSetting->getValue()));

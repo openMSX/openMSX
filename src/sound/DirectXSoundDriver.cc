@@ -37,9 +37,11 @@ static HWND getWindowHandle()
 	return info.window;
 }
 
-DirectXSoundDriver::DirectXSoundDriver(GlobalSettings& globalSettings,
-		Mixer& mixer_, unsigned sampleRate, unsigned samples)
-	: mixer(mixer_)
+DirectXSoundDriver::DirectXSoundDriver(Scheduler& scheduler,
+		GlobalSettings& globalSettings, Mixer& mixer_,
+		unsigned sampleRate, unsigned samples)
+	: Schedulable(scheduler)
+	, mixer(mixer_)
 	, speedSetting(globalSettings.getSpeedSetting())
 	, throttleSetting(globalSettings.getThrottleSetting())
 {

@@ -13,6 +13,7 @@
 
 namespace openmsx {
 
+class Scheduler;
 class GlobalSettings;
 class Mixer;
 class IntegerSetting;
@@ -22,8 +23,8 @@ class DirectXSoundDriver : public SoundDriver, private Schedulable,
                            private SettingListener
 {
 public:
-	DirectXSoundDriver(GlobalSettings& globalSettings, Mixer& mixer,
-	                   unsigned sampleRate, unsigned bufferSize);
+	DirectXSoundDriver(Scheduler& scheduler, GlobalSettings& globalSettings,
+	                   Mixer& mixer, unsigned sampleRate, unsigned bufferSize);
 	virtual ~DirectXSoundDriver();
 
 	virtual void lock();
