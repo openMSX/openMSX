@@ -6,6 +6,7 @@
 #include <string>
 #include <sstream>
 #include <strings.h>
+#include <iomanip>
 
 namespace openmsx {
 
@@ -18,10 +19,10 @@ namespace StringOp
 		return s.str();
 	}
 
-	template <typename T> std::string toHexString(const T& t)
+	template <typename T> std::string toHexString(const T& t, int width)
 	{
 		std::ostringstream s;
-		s << std::hex << t;
+		s << std::hex << std::setw(width) << std::setfill('0') << t;
 		return s.str();
 	}
 
