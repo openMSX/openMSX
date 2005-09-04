@@ -11,6 +11,7 @@
 #include "CommandException.hh"
 #include "CommandController.hh"
 #include <memory>
+#include <cassert>
 
 using std::auto_ptr;
 using std::string;
@@ -75,7 +76,7 @@ void SettingsConfig::saveSetting(const string& filename)
 	  assert(hotKey);
 	  hotKey->saveBindings(*this);
 	*/
-	
+
 	File file(name, TRUNCATE);
 	string data = "<!DOCTYPE settings SYSTEM 'settings.dtd'>\n" + dump();
 	file.write((const byte*)data.c_str(), data.size());
