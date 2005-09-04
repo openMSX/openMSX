@@ -5,6 +5,7 @@
 #include "FileException.hh"
 #include <SDL_image.h>
 #include <SDL.h>
+#include <cassert>
 
 using std::string;
 
