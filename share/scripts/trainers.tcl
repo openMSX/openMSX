@@ -4188,7 +4188,7 @@ proc trainer_castle_of_blackburn {} {
 }
 
 proc trainer_daiva5 {} {
-	#Battle ships in stock
+	#battle ships in stock
 	poke 0xd0b8 99
 	#o.m in stock
 	poke 0xd0cc 98
@@ -4231,6 +4231,56 @@ proc trainer_pennantrace1 {} {
 	poke 0xe196 0
 	#always have 2 strikes
 	poke 0xe198 2
+}
+
+proc trainer_princessmaker {} { 
+	#inf gold 
+	poke 0x1c96 255 
+	poke 0x1c97 255 
+	#0 fatigue 
+	poke 0x1c3c 0 
+	after time 1 trainer_princessmaker 
+}
+
+proc trainer_magunam {} { 
+	#ammo
+	#poke 0xe048 255 
+	#trigger timer
+	poke 0xe062 4
+	#lives
+	poke 0xe043 9
+	after time 1 trainer_magunam 
+}
+
+proc trainer_mashou_no_yakata_gabalin {} { 
+	#invincible
+	poke 0xc0b8 255
+	after time 1 trainer_mashou_no_yakata_gabalin 
+}
+
+proc trainer_iceworld {} { 
+	#lives
+	poke 0xe00b 5 
+	after time 10 trainer_iceworld 
+}
+
+proc trainer_manes {} { 
+	#lives
+	poke 0xdb93 5 
+	after time 10 trainer_manes 
+}
+
+proc trainer_issunhoushi_no_donnamondai  {} { 
+	#power
+	poke 0xe1b5 64 
+	after frame trainer_issunhoushi_no_donnamondai 
+}
+
+
+proc trainer_scarlet7 {} { 
+	#power
+	poke 0xe106 10 
+	after frame trainer_scarlet7
 }
 
 proc poke {addr val} {
