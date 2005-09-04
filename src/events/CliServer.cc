@@ -78,9 +78,7 @@ void CliServer::mainLoop()
 		// We have a new connection coming in!
 		SOCKET sd = accept(listenSock, NULL, NULL);
 		if (sd == INVALID_SOCKET) {
-			sock_close(listenSock);
-			// TODO throw here or not?
-			// throw FatalError(sock_error());
+			// sock_close(listenSock);  // hangs on win32
 			return;
 		}
 		cliComm.connections.push_back(new SocketConnection(
