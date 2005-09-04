@@ -3,7 +3,6 @@
 #include "SDLImage.hh"
 #include "File.hh"
 #include "FileException.hh"
-#include "CliComm.hh"
 #include <SDL_image.h>
 #include <SDL.h>
 
@@ -42,9 +41,7 @@ SDLImage::SDLImage(SDL_Surface* output, unsigned width, unsigned height,
 
 void SDLImage::init(const string& filename)
 {
-	if (!image) {
-		throw MSXException("Error loading image " + filename);
-	}
+	assert(image);
 	SDL_PixelFormat* format = image->format;
 	workImage = SDL_CreateRGBSurface(SDL_SWSURFACE,
 		image->w, image->h, format->BitsPerPixel,
@@ -87,10 +84,6 @@ void SDLImage::draw(unsigned x, unsigned y, byte alpha)
 SDL_Surface* SDLImage::loadImage(const string& filename)
 {
 	SDL_Surface* picture = readImage(filename);
-	if (picture == NULL) {
-		return NULL;
-	}
-
 	SDL_Surface* result = convertToDisplayFormat(picture);
 	SDL_FreeSurface(picture);
 	return result;
@@ -100,10 +93,6 @@ SDL_Surface* SDLImage::loadImage(const string& filename,
                                  unsigned width, unsigned height)
 {
 	SDL_Surface* picture = readImage(filename);
-	if (picture == NULL) {
-		return NULL;
-	}
-
 	SDL_Surface* scaled = scaleImage32(picture, width, height);
 	SDL_FreeSurface(picture);
 
@@ -127,21 +116,13 @@ SDL_Surface* SDLImage::loadImage(const string& filename,
 
 SDL_Surface* SDLImage::readImage(const string& filename)
 {
-	// If file does exist, but cannot be read as an image,
-	// IMG_Load returns NULL.
-	try {
-		File file(filename);
-		SDL_Surface* result = IMG_Load(file.getLocalName().c_str());
-		if (result == NULL) {
-			// *** CliComm::instance().printWarning("File \"" +
-			// ***        file.getURL() + "\" is not a valid image");
-		}
-		return result;
-	} catch (FileException& e) {
-		// *** CliComm::instance().printWarning("Could not open file \"" +
-		// ***        filename + "\": " + e.getMessage());
-		return NULL;
+	File file(filename);
+	SDL_Surface* result = IMG_Load(file.getLocalName().c_str());
+	if (!result) {
+		throw MSXException("File \"" + file.getURL() +
+		                   "\" is not a valid image");
 	}
+	return result;
 }
 
 SDL_Surface* SDLImage::scaleImage32(
