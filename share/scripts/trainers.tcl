@@ -1209,7 +1209,8 @@ proc trainer_aleste1 {} {
 	poke 0xc019 3
 	#scroll speed
 	#poke 0xc4ad x
-	
+	#always keep weapon on 99
+	poke 0xc01b 99
 	after time 1 trainer_aleste1
 }
 
@@ -4221,6 +4222,15 @@ proc trainer_daiva4 {} {
 	poke 0xd408 255
 	
 	after time 10 trainer_daiva4
+}
+
+proc trainer_pennantrace1 {} {
+	#3 out (both teams)
+	poke 0xe19a 3
+	#player 2 always 0 points (end total)
+	poke 0xe196 0
+	#always have 2 strikes
+	poke 0xe198 2
 }
 
 proc poke {addr val} {
