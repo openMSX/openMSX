@@ -4,6 +4,12 @@
 #include "CassettePort.hh"
 #include "CassetteDevice.hh"
 #include "CassettePlayer.hh"
+#include "components.hh"
+#ifdef COMPONENT_JACK
+#include "CassetteJack.hh"
+#else
+#error "Jack is lost"
+#endif
 #include "DummyCassetteDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "PluggingController.hh"
@@ -17,13 +23,12 @@ namespace openmsx {
 // CassettePortInterface //
 
 CassettePortInterface::CassettePortInterface()
-	: Connector("cassetteport", auto_ptr<Pluggable>(new DummyCassetteDevice()))
+    : Connector("cassetteport", auto_ptr<Pluggable>(new DummyCassetteDevice()))
 {
 }
 
 void CassettePortInterface::unplug(const EmuTime& time)
 {
-	flushOutput(time);
 	Connector::unplug(time);
 }
 
@@ -64,9 +69,9 @@ bool DummyCassettePort::cassetteIn(const EmuTime& /*time*/)
 {
 	return true;	// TODO check on Turbo-R
 }
-void DummyCassettePort::flushOutput(const EmuTime& /*time*/)
+bool DummyCassettePort::lastOut() const
 {
-	// do nothing
+  return false; // not relevant
 }
 
 
@@ -75,20 +80,27 @@ void DummyCassettePort::flushOutput(const EmuTime& /*time*/)
 CassettePort::CassettePort(MSXMotherBoard& motherBoard)
 	: CassettePortInterface()
 	, pluggingController(motherBoard.getPluggingController())
+        , nextSample(0)
 {
 	cassettePlayer.reset(new CassettePlayer(
 		motherBoard.getCliComm(), motherBoard.getCommandController(),
 		motherBoard.getMixer()));
-	buffer = new short[BUFSIZE];
 	pluggingController.registerConnector(this);
 	pluggingController.registerPluggable(cassettePlayer.get());
+#ifdef COMPONENT_JACK
+	cassetteJack.reset(new CassetteJack(motherBoard.getScheduler()));
+	pluggingController.registerPluggable(cassetteJack.get());
+#endif
 }
 
 CassettePort::~CassettePort()
 {
+	unplug(prevTime);
 	pluggingController.unregisterPluggable(cassettePlayer.get());
+#ifdef COMPONENT_JACK
+	pluggingController.unregisterPluggable(cassetteJack.get());
+#endif
 	pluggingController.unregisterConnector(this);
-	delete[] buffer;
 }
 
 
@@ -97,17 +109,20 @@ void CassettePort::setMotor(bool status, const EmuTime& time)
 	//TODO make 'click' sound
 	//PRT_DEBUG("CassettePort: motor " << status);
 	getPlugged().setMotor(status, time);
+	prevTime=time;
 }
 
-void CassettePort::cassetteOut(bool output, const EmuTime& /*time*/)
+void CassettePort::cassetteOut(bool output, const EmuTime& time)
 {
-	// this implements a VERY rough filter
-	//   on a transition the output is 0
-	//   everywhere else it is +A or -A
-	// this is probably good enough
-	//flushOutput(time);
-	nextSample = 0;
 	lastOutput = output;
+	// leave everything to the pluggable
+	getPlugged().setSignal(output, time);
+	prevTime=time;
+}
+
+bool CassettePort::lastOut() const
+{
+  return lastOutput;
 }
 
 bool CassettePort::cassetteIn(const EmuTime& time)
@@ -120,33 +135,4 @@ bool CassettePort::cassetteIn(const EmuTime& time)
 	//PRT_DEBUG("CassettePort:: read " << result);
 	return result;
 }
-
-void CassettePort::flushOutput(const EmuTime& time)
-{
-	CassetteDevice& device = getPlugged();
-	// can be changed since prev flush
-	int sampleRate = device.getWriteSampleRate();
-	if (sampleRate == 0) {
-		// 99% of the time
-		//PRT_DEBUG("Cas: must not generate wave");
-		prevTime = time;
-		return;
-	}
-	int samples = (int)((time - prevTime).toDouble() * sampleRate);
-	prevTime = time;
-	//PRT_DEBUG("Cas: generate " << samples << " samples");
-
-	// dumb implementation, good enough for now
-	device.writeWave(&nextSample, 1);
-	samples--;
-	nextSample = lastOutput ? 32767 : -32768;
-	int numSamples = (samples > BUFSIZE) ? BUFSIZE : samples;
-	for (int i=1; i<numSamples; i++) buffer[i] = nextSample;
-	while (samples) {
-		device.writeWave(buffer, numSamples);
-		samples -= numSamples;
-		numSamples = (samples > BUFSIZE) ? BUFSIZE : samples;
-	}
-}
-
 } // namespace openmsx

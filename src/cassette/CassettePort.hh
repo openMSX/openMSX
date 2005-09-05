@@ -7,11 +7,15 @@
 #include "EmuTime.hh"
 #include "Connector.hh"
 #include "CassetteDevice.hh"
+#include "components.hh"
 
 namespace openmsx {
 
 class MSXMotherBoard;
 class CassettePlayer;
+#ifdef COMPONENT_JACK
+class CassetteJack;
+#endif
 class PluggingController;
 
 class CassettePortInterface : public Connector
@@ -20,7 +24,7 @@ public:
 	CassettePortInterface();
 
 	/**
-	* Sets the casette motor relay
+	* Sets the cassette motor relay
 	*  false = off   true = on
 	*/
 	virtual void setMotor(bool status, const EmuTime& time) = 0;
@@ -34,6 +38,12 @@ public:
 	*/
 	virtual void cassetteOut(bool output, const EmuTime& time) = 0;
 
+    /**
+    * last bit written to CasOut.
+    * for use in Pluggable::plugHelper()
+    */
+    virtual bool lastOut() const = 0;
+
 	/**
 	* Reads one bit from the cassette port.
 	* From the RedBook:
@@ -43,14 +53,6 @@ public:
 	*   but is otherwise unprocessed.
 	*/
 	virtual bool cassetteIn(const EmuTime& time) = 0;
-
-	/**
-	* Writes all buffered data to CassetteDevice.
-	*  A CassettePort may write data anytime it wants to, but a
-	*  CassetteDevice may ask for an 'early' write because for
-	*  example it wants to remove the tape.
-	*/
-	virtual void flushOutput(const EmuTime& time) = 0;
 
 	// Connector
 	virtual const std::string& getDescription() const;
@@ -67,17 +69,17 @@ public:
 	virtual void setMotor(bool status, const EmuTime& time);
 	virtual void cassetteOut(bool output, const EmuTime& time);
 	virtual bool cassetteIn(const EmuTime& time);
-	virtual void flushOutput(const EmuTime& time);
+	virtual bool lastOut() const;
 private:
-	static const int BUFSIZE = 256;
-
 	PluggingController& pluggingController;
 	bool lastOutput;
 	short nextSample;
 	EmuTime prevTime;
-	short *buffer;
 
 	std::auto_ptr<CassettePlayer> cassettePlayer;
+#ifdef COMPONENT_JACK
+	std::auto_ptr<CassetteJack> cassetteJack;
+#endif
 };
 
 class DummyCassettePort : public CassettePortInterface
@@ -87,7 +89,7 @@ public:
 	virtual void setMotor(bool status, const EmuTime& time);
 	virtual void cassetteOut(bool output, const EmuTime& time);
 	virtual bool cassetteIn(const EmuTime& time);
-	virtual void flushOutput(const EmuTime& time);
+	virtual bool lastOut() const;
 };
 
 } // namespace openmsx
