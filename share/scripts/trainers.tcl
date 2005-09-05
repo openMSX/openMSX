@@ -1549,6 +1549,52 @@ proc trainer_fantasmsoldier2 {} {
 proc trainer_dirdeaf {} {
 	#life
 	poke 0xb9ca 64
+	
+	#weapon 2
+	poke 0xb8b0 1
+	#weapon 3
+	poke 0xb8b1 1
+	#weapon 4
+	poke 0xb8b2 1
+	#weapon 5
+	poke 0xb8b3 1
+	#weapon 6
+	poke 0xb8b4 1
+	#weapon 57
+	poke 0xb8b35 1
+	#weapon 58
+	poke 0xb8b6 1
+		
+	#life container 1
+	poke 0xb8bb 255
+	#life container 2
+	poke 0xb8bc 255	
+	
+	#defence 1
+	poke 0xb8b7 1
+	#defence 2
+	poke 0xb8b8 1
+	#defence 3
+	poke 0xb8b9 1	
+	#defence 4
+	poke 0xb8ba 1	
+			
+	#card1
+	poke 0xb8bf 1
+	#card2
+	poke 0xb8c0 1
+	#card3
+	poke 0xb8c1 1		
+	#card4
+	poke 0xb8c2 1	
+	#card5
+	poke 0xb8c3 1
+	#card6
+	poke 0xb8c4 1	
+	#card7
+	poke 0xb8c5 1	
+	#card8
+	poke 0xb8c6 1		
 	after time 2 trainer_dirdeaf
 }
 
