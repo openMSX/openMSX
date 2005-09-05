@@ -7,8 +7,6 @@
 #include "components.hh"
 #ifdef COMPONENT_JACK
 #include "CassetteJack.hh"
-#else
-#error "Jack is lost"
 #endif
 #include "DummyCassetteDevice.hh"
 #include "MSXMotherBoard.hh"
