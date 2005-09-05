@@ -475,7 +475,7 @@ host OS! If the files are bigger than the original size then the extra data
 sectors needed will be stored in a hidden sector cache and the extra data will
 not be reflected in the host OS files! When stopping the emulator, or
 ejecting the fake disk, this sector cache is written in the same directory as
-the original files, so that it can be load					<li><></li>ed again when restarting the emulator.
+the original files, so that it can be loaded again when restarting the emulator.
 So if you use the DirAsDsk feature on a real floppy disk, chances are that
 you'll end up with a full disk when this cache is written!
 </p>
@@ -596,26 +596,12 @@ Other cassetteplayer related commands/settings you need to know of are:
 
 <h4><a id="cas">4.3.1 Using CAS files</a></h4>
 <p>
-You can also use the so-called CAS files. In the console, type:
-</p>
-<div class="commandline">
-     cas &lt;tapeimage&gt;.cas
-</div>
-<p>
-and
-</p>
-<div class="commandline">
-     cas eject
-</div>
-<p>
-to remove the tape from the virtual cassette player. This only works with a
-patched BIOS ROM, though. You can find an example of the patch in
-<code>exampleconfigs.xml</code>. This means you will have to modify the hardware configuration file of the MSX you are using. See the <a class="external" href="setup.html">Setup Guide</a>.
+You can also use the so-called CAS files. Use them exactly as you would use WAV files, described in the previous section.
 </p>
 
 <p>
-Because patching a BIOS is not really something you want, you can also use CAS
-files with cassetteplayer as if they were WAV files. They are automatically
+We don't support using CAS files anymore by a BIOS, because it is not really something you want.
+So, nowadays, the CAS files are automatically
 converted to WAV files, internally. Note that the loading time is drastically
 longer this way. On the other hand, you will be able to hear the cassette
 sounds now also with the CAS files... What is using cassettes with an MSX
