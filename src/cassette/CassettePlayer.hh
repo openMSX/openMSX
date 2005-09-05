@@ -20,11 +20,11 @@ class CliComm;
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
 public:
-	MSXCassettePlayerCLI(CommandLineParser& commandLineParser);
-	virtual bool parseOption(const std::string& option,
-	                         std::list<std::string>& cmdLine);
-	virtual const std::string& optionHelp() const;
-	virtual void parseFileType(const std::string& filename,
+    MSXCassettePlayerCLI(CommandLineParser& commandLineParser);
+    virtual bool parseOption(const std::string& option,
+							 std::list<std::string>& cmdLine);
+    virtual const std::string& optionHelp() const;
+    virtual void parseFileType(const std::string& filename,
 	                           std::list<std::string>& cmdLine);
 	virtual const std::string& fileTypeHelp() const;
 
@@ -47,8 +47,7 @@ public:
 	// CassetteDevice
 	virtual void setMotor(bool status, const EmuTime& time);
 	virtual short readSample(const EmuTime& time);
-	virtual void writeWave(short* buf, int length);
-	virtual int getWriteSampleRate();
+	virtual void setSignal(bool output, const EmuTime &time);
 
 	// Pluggable
 	virtual const std::string& getName() const;

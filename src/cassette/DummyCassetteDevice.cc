@@ -20,13 +20,9 @@ short DummyCassetteDevice::readSample(const EmuTime& /*time*/)
 	return 32767;	// TODO check value
 }
 
-void DummyCassetteDevice::writeWave(short* /*buf*/, int /*length*/)
+void DummyCassetteDevice::setSignal(bool /*output*/, const EmuTime& /*time*/)
 {
 	// do nothing
-}
-int DummyCassetteDevice::getWriteSampleRate()
-{
-	return 0;	// 0 means not interested
 }
 
 const string& DummyCassetteDevice::getDescription() const

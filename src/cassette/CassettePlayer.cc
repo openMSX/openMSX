@@ -50,7 +50,7 @@ void MSXCassettePlayerCLI::parseFileType(const string& filename,
 	playerElem.setData(filename);
 	playerElem.setFileContext(auto_ptr<FileContext>(
 		new UserFileContext(commandLineParser.getMotherBoard().
-		                       getCommandController())));
+							getCommandController())));
 }
 const string& MSXCassettePlayerCLI::fileTypeHelp() const
 {
@@ -60,8 +60,8 @@ const string& MSXCassettePlayerCLI::fileTypeHelp() const
 
 
 CassettePlayer::CassettePlayer(
-		CliComm& cliComm_, CommandController& commandController,
-		Mixer& mixer)
+	CliComm& cliComm_, CommandController& commandController,
+	Mixer& mixer)
 	: SoundDevice(mixer, getName(), getDescription())
 	, SimpleCommand(commandController, "cassetteplayer")
 	, motor(false), forcePlay(false)
@@ -105,7 +105,7 @@ void CassettePlayer::insertTape(const string& filename)
 		// if that fails use CAS
 		cassette.reset(new CasImage(filename));
 	}
-
+	
 	rewind();
 	playerElem->setData(filename);
 }
@@ -149,17 +149,10 @@ short CassettePlayer::readSample(const EmuTime& time)
 	return getSample(tapeTime);
 }
 
-void CassettePlayer::writeWave(short* /*buf*/, int /*length*/)
+void CassettePlayer::setSignal(bool output, const EmuTime & time)
 {
-	// recording not implemented yet
+	// recording not implemented for cassetteplayer
 }
-
-int CassettePlayer::getWriteSampleRate()
-{
-	// recording not implemented yet
-	return 0;	// 0 -> not interested in writeWave() data
-}
-
 
 const string& CassettePlayer::getName() const
 {
@@ -173,7 +166,8 @@ const string& CassettePlayer::getDescription() const
 	return desc;
 }
 
-void CassettePlayer::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
+void 
+CassettePlayer::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
 {
 }
 

@@ -22,16 +22,10 @@ public:
 	virtual short readSample(const EmuTime &time) = 0;
 
 	/**
-	 * Write wave data to cassette device
+	 * Sets the cassette output signal
+	 *  false = low   true = high
 	 */
-	virtual void writeWave(short *buf, int length) = 0;
-
-	/**
-	 * Returns the sample rate of the writeWave() wave form.
-	 * A sample rate of 0 means this CassetteDevice is not interested
-	 * in writeWave() data (iow is not recording).
-	 */
-	virtual int getWriteSampleRate() = 0;
+	virtual void setSignal(bool output, const EmuTime &time) = 0;
 
 	// Pluggable
 	virtual const std::string &getClass() const;
