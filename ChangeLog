@@ -1,5 +1,16 @@
 $Id$
 
+2005-09-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added listen_host and list_port_min/listen_port_max settings:
+	   - valid values for listen_host are 'all', 'local' and 'none'.
+	     Default is 'local'
+	   - listen_port_min/max is a range of port number on which openmsx
+	     will listen for incomming connection (openmsx session will take
+	     the lowest free port, it's a range to allow multiple
+	     simultaneous openmsx sesions). Default is 9938 - 9958.
+	   - TODO better names for these settings?
+	   - TODO documentation
+
 2005-09-05  Arnold Metselaar  <arnold.metselaar@planet.nl>
 	* Added support for interaction between cassette port and jack
 	  audio connection kit

@@ -74,9 +74,8 @@ static int main(int argc, char **argv)
 			RendererFactory::createVideoSystem(motherBoard);
 			motherBoard.readConfig();
 			Reactor reactor(motherBoard);
-			// TODO disabled for security reasons
-			//CliServer cliServer(motherBoard.getScheduler(),
-			//                    motherBoard.getCommandController()); // disabled for security reasons
+			CliServer cliServer(motherBoard.getScheduler(),
+			                    motherBoard.getCommandController());
 			reactor.run(parseStatus == CommandLineParser::RUN);
 		}
 
