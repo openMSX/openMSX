@@ -52,6 +52,11 @@
 				</ol>
 			</li>
 			<li><a class="internal" href="#tape">4.3 Running Tape Software</a></li>
+				<ol class="toc">
+					<li><a class="internal" href="#tapewav">4.3.1 Using WAV files</a></li>
+					<li><a class="internal" href="#cas">4.3.2 Using CAS files</a></li>
+					<li><a class="internal" href="#tapejack">4.3.3 Using Jack audio connection kit</a></li>
+				</ol>
 		</ol>
 	</li>
 
@@ -414,7 +419,7 @@ You can also change disks at run time of course. Just type
 in the console to put the specified disk image in drive A. To eject the disk from drive A, use:
 </p>
 <div class="commandline">
-    diska eject
+    diska -eject
 </div>
 
 <p>
@@ -470,7 +475,7 @@ host OS! If the files are bigger than the original size then the extra data
 sectors needed will be stored in a hidden sector cache and the extra data will
 not be reflected in the host OS files! When stopping the emulator, or
 ejecting the fake disk, this sector cache is written in the same directory as
-the original files, so that it can be loaded again when restarting the emulator.
+the original files, so that it can be load					<li><></li>ed again when restarting the emulator.
 So if you use the DirAsDsk feature on a real floppy disk, chances are that
 you'll end up with a full disk when this cache is written!
 </p>
@@ -548,6 +553,7 @@ href="#dirasdisk">DirAsDsk section</a> for more details.
 </p>
 
 <h3><a id="tape">4.3 Running Tape Software</a></h3>
+<h4><a id="tapewav">4.3.1 Using WAV files</a></h4>
 
 <p>
 openMSX supports WAV files for tape emulation! Just configure your MSX with a
@@ -580,6 +586,16 @@ Note that in Linux, one should not use the special file <code>/dev/pcm</code> fo
 </p>
 
 <p>
+Other cassetteplayer related commands/settings you need to know of are:
+</p>
+<ul>
+	<li><code>cassetteplayer -rewind</code>, to rewind the tape</li>
+	<li><code>cassetteplayer -eject</code>, to eject the tape</li>
+	<li><code>set cassetteplayer_volume</code>, to set the volume of the cassette player sound (yeah, the screeching tape sounds!)</li>
+</ul>
+
+<h4><a id="cas">4.3.1 Using CAS files</a></h4>
+<p>
 You can also use the so-called CAS files. In the console, type:
 </p>
 <div class="commandline">
@@ -606,17 +622,58 @@ sounds now also with the CAS files... What is using cassettes with an MSX
 without those characteristic sounds?
 </p>
 
+<h4><a id="tapejack">4.3.1 Using Jack audio connection kit</a></h4>
+
 <p>
-Other cassetteplayer related commands/settings you need to know of are:
+Using <a class="external"
+href="http://jackit.sourceforge.net/">Jack</a> is not the easiest
+option for running a tape-program, but it is currently the only way in
+which openMSX supports saving to cassette.
+</p>
+
+<p>
+To be able to connect the openMSX cassetteport to other applications
+via Jack you will need:
 </p>
 <ul>
-	<li><code>cassetteplayer rewind</code>, to rewind the tape</li>
-	<li><code>cassetteplayer eject</code>, to eject the tape</li>
-	<li><code>set cassetteplayer_volume</code>, to set the volume of the cassette player sound (yeah, the screeching tape sounds!)</li>
+<li>An openMSX build compiled with Jack-support</li>
+<li>An MSX config with a cassette port (see above)</li>
+<li>A running Jack daemon</li>
 </ul>
 
 <p>
-A final note: saving to cassette is not supported in openMSX yet.
+Type the following int the console to make the cassette port available
+to Jack:
+</p>
+<div class="commandline">
+    plug cassetteport cassettejack
+</div>
+
+<p>
+Now you need to start an external program to make actual
+connections. e.g.
+</p>
+<div class="commandline">
+    qjackctl
+</div>
+
+<p>
+Be aware that the Jack-pluggable does not filter out the DC-component
+of the cassette signal; if you direct the cassette-out signal to real
+equipment without a DC filter you may damage some hardware even when
+you don't hear any sound! OpenMSX developers will not accept any
+responsibility for damage caused by the usage of openMSX.
+</p>
+
+<p>
+The Jack-pluggable has been succesfully tested with
+<code>timemachine</code> as recorder and <code>jack.play</code> as
+player. More conenient setups may become available as Jack is still
+being developed.
+</p>
+<p>
+Note that openMSX can be compiled without Jack-support; if you use a
+build compiled without jack, you cannot save to tape.
 </p>
 
 <h2><a id="input">5. Input Devices</a></h2>
