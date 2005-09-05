@@ -51,11 +51,13 @@ USLEEP_HEADER:=<unistd.h>
 # =======
 
 CHECK_HEADERS:=$(addsuffix _H, \
-	GL GL_GL PNG SDL SDL_IMAGE SYS_MMAN SYS_SOCKET TCL XML ZLIB )
+	GL GL_GL JACK PNG SDL SDL_IMAGE SYS_MMAN SYS_SOCKET TCL XML ZLIB )
 
 GL_HEADER:=<gl.h>
 
 GL_GL_HEADER:=<GL/gl.h>
+
+JACK_HEADER:=<jack/jack.h>
 
 PNG_HEADER:=<png.h>
 PNG_CFLAGS:=`libpng-config --cflags 2>> $(LOG)`
@@ -83,11 +85,14 @@ ZLIB_HEADER:=<zlib.h>
 # Libraries
 # =========
 
-CHECK_LIBS:=GL PNG SDL SDL_IMAGE TCL XML ZLIB
+CHECK_LIBS:=GL JACK PNG SDL SDL_IMAGE TCL XML ZLIB
 CHECK_LIBS+=ABC XYZ
 
 GL_LDFLAGS:=-lGL
 GL_RESULT:=yes
+
+JACK_LDFLAGS:=-ljack
+JACK_RESULT:=yes
 
 PNG_LDFLAGS:=`libpng-config --ldflags 2>> $(LOG)`
 PNG_RESULT:=`libpng-config --version`

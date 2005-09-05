@@ -14,5 +14,9 @@ SRC_HDR:= \
 HDR_ONLY:= \
 	CassetteImage
 
+SRC_HDR_$(COMPONENT_JACK)+= \
+	CassetteJack 
+
+
 include build/node-end.mk
 

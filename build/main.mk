@@ -221,6 +221,7 @@ ifeq ($(PROBE_MAKE_INCLUDED),true)
 include $(COMPONENTS_MAKE)
 $(call BOOLCHECK,COMPONENT_CORE)
 $(call BOOLCHECK,COMPONENT_GL)
+$(call BOOLCHECK,COMPONENT_JACK)
 endif
 endif
 
@@ -349,7 +350,7 @@ endif
 INCLUDE_INTERNAL:=$(filter-out %/CVS,$(shell find $(SOURCES_PATH) -type d))
 INCLUDE_INTERNAL+=$(CONFIG_PATH)
 INCLUDE_EXTERNAL:= # TODO: Define these here or platform-*.mk?
-INCLUDE_EXTERNAL+=/usr/X11R6/include
+INCLUDE_EXTERNAL+=/usr/X11R6/include 
 COMPILE_FLAGS:=$(addprefix -I,$(INCLUDE_INTERNAL) $(INCLUDE_EXTERNAL))
 
 # Determine common link flags.
@@ -364,6 +365,10 @@ endif
 ifeq ($(COMPONENT_GL),true)
 COMPILE_FLAGS+=$(GL_CFLAGS)
 LINK_FLAGS+=$(GL_LDFLAGS)
+endif
+ifeq ($(COMPONENT_JACK),true)
+COMPILE_FLAGS+=$(JACK_CFLAGS)
+LINK_FLAGS+=$(JACK_LDFLAGS)
 endif
 
 
@@ -503,9 +508,9 @@ install: all
 	@mkdir -p $(INSTALL_DOC_DIR)/manual
 	@cp -f $(addprefix doc/manual/,*.html *.css *.png) \
 		$(INSTALL_DOC_DIR)/manual
-	@echo "  C-BIOS..."
-	@cp -f Contrib/README.cbios $(INSTALL_DOC_DIR)/cbios.txt
-	@cp -rf Contrib/cbios/C-BIOS_* $(INSTALL_SHARE_DIR)/machines/
+#	@echo "  C-BIOS..."
+#	@cp -f Contrib/README.cbios $(INSTALL_DOC_DIR)/cbios.txt
+#	@cp -rf Contrib/cbios/C-BIOS_* $(INSTALL_SHARE_DIR)/machines/
 ifeq ($(USE_SYMLINK),true)
 	@echo "  Creating symlinks..."
 	@ln -nsf National_CF-1200 $(INSTALL_SHARE_DIR)/machines/msx1

@@ -24,7 +24,15 @@ endif
 endif
 COMPONENT_GL?=true
 
-COMPONENTS:=CORE GL
+ifeq ($(HAVE_JACK_LIB),)
+COMPONENT_JACK:=false
+endif
+ifeq ($(HAVE_JACK_H),)
+COMPONENT_JACK:=false
+endif
+COMPONENT_JACK?=true
+
+COMPONENTS:=CORE GL JACK
 COMPONENTS_TRUE:=$(strip $(foreach COMP,$(COMPONENTS), \
 	$(if $(filter true,$(COMPONENT_$(COMP))),$(COMP),) \
 	))
