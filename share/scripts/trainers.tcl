@@ -4276,12 +4276,31 @@ proc trainer_issunhoushi_no_donnamondai  {} {
 	after frame trainer_issunhoushi_no_donnamondai 
 }
 
-
 proc trainer_scarlet7 {} { 
 	#power
 	poke 0xe106 10 
-	after frame trainer_scarlet7
+	after time 1 trainer_scarlet7
 }
+
+proc trainer_zoom909 {} {
+	#fuel
+	poke 0xe021 0
+	after time 1 trainer_zoom909	
+} 
+
+proc trainer_finalfantasy {} {
+	#gold
+	poke 0xc255 255
+	poke 0xc256 255
+	
+	after time 1 trainer_finalfantasy	
+} 
+
+proc trainer_breaker {} {
+	#balls
+	poke 0x953d 99
+	after time 1 trainer_breaker	
+} 
 
 proc poke {addr val} {
 	debug write memory $addr $val
