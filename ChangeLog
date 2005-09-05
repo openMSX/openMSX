@@ -1,5 +1,13 @@
 $Id$
 
+2005-09-05  Arnold Metselaar  <arnold.metselaar@planet.nl>
+	* Added support for interaction between cassette port and jack
+	  audio connection kit
+	   - added CassetteJack
+	   - moved the generation of samples from Cassette to the Pluggable.
+	   - build system updated
+	   - description in user.html
+
 2005-09-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Large singleton cleanup (only a few remain now):
 	   - singleton classes had a lot a inter-dependencies, it was not
