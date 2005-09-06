@@ -83,7 +83,7 @@ void CliServer::stop()
 
 int CliServer::openPort(SOCKET listenSock)
 {
-	in_addr_t addr;
+	unsigned addr; // win32 doesn't have in_addr_t
 	switch (listenHost->getValue()) {
 		case NONE:
 			return -1;
