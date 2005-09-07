@@ -375,9 +375,7 @@ string getUserDataDir()
 		return value;
 	}
 
-	string newValue = getUserOpenMSXDir() + "/share";
-	setenv(NAME, newValue.c_str(), 0);
-	return newValue;
+	return getUserOpenMSXDir() + "/share";
 }
 
 string getSystemDataDir()
@@ -406,7 +404,6 @@ string getSystemDataDir()
 	// defined in build-info.hh (default /opt/openMSX/share)
 	newValue = DATADIR;
 #endif
-	setenv(NAME, newValue.c_str(), 0);
 	return newValue;
 }
 

@@ -8,6 +8,7 @@
 #include "Scheduler.hh"
 #include "InterpreterOutput.hh"
 #include "openmsx.hh"
+#include "FileOperations.hh"
 //#include <tk.h>
 
 using std::set;
@@ -83,6 +84,9 @@ Interpreter::Interpreter(Scheduler& scheduler)
 		Tcl_SetChannelOption(interp, channel, "-encoding", "binary");
 	}
 	Tcl_SetStdChannel(channel, TCL_STDOUT);
+
+	setVariable("env(OPENMSX_USER_DATA)", FileOperations::getUserDataDir());
+	setVariable("env(OPENMSX_SYSTEM_DATA)", FileOperations::getSystemDataDir());
 }
 
 Interpreter::~Interpreter()

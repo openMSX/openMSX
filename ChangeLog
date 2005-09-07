@@ -1,5 +1,10 @@
 $Id$
 
+2005-09-07 Maarten ter Huurne <maarten@treewalker.org>
+	* Set environment variables though TCL interpreter.
+	  Fixes problem on Mac OS X where OPENMSX_(SYSTEM|USER)_DATA is not
+	  updated in TCL, causing "init.tcl" to fail.
+
 2005-09-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added listen_host and list_port_min/listen_port_max settings:
 	   - valid values for listen_host are 'all', 'local' and 'none'.
