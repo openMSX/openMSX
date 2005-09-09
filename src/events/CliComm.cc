@@ -33,9 +33,6 @@ CliComm::CliComm(Scheduler& scheduler_, CommandController& commandController_,
 {
 	commandController.setCliComm(this);
 	
-	for (int i = 0; i < NUM_UPDATES; ++i) {
-		updateEnabled[i] = false;
-	}
 	eventDistributor.registerEventListener(
 		OPENMSX_LED_EVENT, *this, EventDistributor::DETACHED);
 }
@@ -111,9 +108,6 @@ void CliComm::log(LogLevel level, const string& message)
 void CliComm::update(UpdateType type, const string& name, const string& value)
 {
 	assert(type < NUM_UPDATES);
-	if (!updateEnabled[type]) {
-		return;
-	}
 	map<string, string>::iterator it = prevValues[type].find(name);
 	if (it != prevValues[type].end()) {
 		if (it->second == value) {
@@ -131,15 +125,11 @@ void CliComm::update(UpdateType type, const string& name, const string& value)
 		str += '>' + XMLElement::XMLEscape(value) + "</update>\n";
 		for (Connections::const_iterator it = connections.begin();
 		     it != connections.end(); ++it) {
-			(*it)->output(str);
+			CliConnection& connection = **it;
+			if (connection.getUpdateEnable(type)) {
+				connection.output(str);
+			}
 		}
-	}
-	if (!xmlOutput) {
-		cout << updateStr[type] << ": ";
-		if (!name.empty()) {
-			cout << name << " = ";
-		}
-		cout << value << endl;
 	}
 }
 
@@ -175,14 +165,24 @@ CliComm::UpdateCmd::UpdateCmd(CommandController& commandController,
 {
 }
 
-static unsigned getType(const string& name)
+static CliComm::UpdateType getType(const string& name)
 {
 	for (unsigned i = 0; i < CliComm::NUM_UPDATES; ++i) {
 		if (updateStr[i] == name) {
-			return i;
+			return static_cast<CliComm::UpdateType>(i);
 		}
 	}
 	throw CommandException("No such update type: " + name);
+}
+
+CliConnection& CliComm::UpdateCmd::getConnection()
+{
+	CliConnection* connection = getCommandController().getConnection();
+	if (!connection) {
+		throw CommandException("This command only makes sense when "
+		                    "it's used from an external connection.");
+	}
+	return *connection;
 }
 
 string CliComm::UpdateCmd::execute(const vector<string>& tokens)
@@ -191,9 +191,9 @@ string CliComm::UpdateCmd::execute(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	if (tokens[1] == "enable") {
-		cliComm.updateEnabled[getType(tokens[2])] = true;
+		getConnection().setUpdateEnable(getType(tokens[2]), true);
 	} else if (tokens[1] == "disable") {
-		cliComm.updateEnabled[getType(tokens[2])] = false;
+		getConnection().setUpdateEnable(getType(tokens[2]), false);
 	} else {
 		throw SyntaxError();
 	}

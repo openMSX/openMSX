@@ -15,6 +15,7 @@ namespace openmsx {
 
 class Scheduler;
 class CliComm;
+class CliConnection;
 class CommandConsole;
 class InfoCommand;
 class Interpreter;
@@ -36,6 +37,8 @@ public:
 	InfoCommand& getInfoCommand();
 	SettingsConfig& getSettingsConfig();
 	GlobalSettings& getGlobalSettings();
+	
+	CliConnection* getConnection() const;
 
 	/**
 	 * (Un)register a command
@@ -68,7 +71,8 @@ public:
 	/**
 	 * Execute a given command
 	 */
-	std::string executeCommand(const std::string& command);
+	std::string executeCommand(const std::string& command,
+	                           CliConnection* connection = NULL);
 
 	/**
 	 * Complete a given command
@@ -112,6 +116,7 @@ private:
 	Scheduler& scheduler;
 	CommandConsole* cmdConsole;
 	CliComm* cliComm;
+	CliConnection* connection;
 
 	std::auto_ptr<Interpreter> interpreter;
 	std::auto_ptr<InfoCommand> infoCommand;

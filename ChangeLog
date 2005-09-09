@@ -1,5 +1,8 @@
 $Id$
 
+2005-09-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* update events are now enabled/disabled per connection
+
 2005-09-07 Maarten ter Huurne <maarten@treewalker.org>
 	* Set environment variables though TCL interpreter.
 	  Fixes problem on Mac OS X where OPENMSX_(SYSTEM|USER)_DATA is not

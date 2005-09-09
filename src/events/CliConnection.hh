@@ -7,6 +7,7 @@
 #include "Schedulable.hh"
 #include "Semaphore.hh"
 #include "Socket.hh"
+#include "CliComm.hh"
 #include <libxml/parser.h>
 #include <deque>
 #include <string>
@@ -22,6 +23,9 @@ public:
 	virtual ~CliConnection();
 
 	virtual void output(const std::string& message) = 0;
+
+	void setUpdateEnable(CliComm::UpdateType type, bool value);
+	bool getUpdateEnable(CliComm::UpdateType type) const;
 
 protected:
 	CliConnection(Scheduler& scheduler,
@@ -69,6 +73,8 @@ private:
 	ParseState user_data;
 	Semaphore lock;
 	std::deque<std::string> cmds;
+
+	bool updateEnabled[CliComm::NUM_UPDATES];
 
 	CommandController& commandController;
 };

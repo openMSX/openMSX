@@ -30,6 +30,7 @@ CommandController::CommandController(Scheduler& scheduler_)
 	: scheduler(scheduler_)
 	, cmdConsole(NULL)
 	, cliComm(NULL)
+	, connection(NULL)
 	, infoCommand(new InfoCommand(*this))
 	, helpCmd(*this)
 	, versionInfo(*this)
@@ -53,6 +54,11 @@ CliComm& CommandController::getCliComm()
 {
 	assert(cliComm);
 	return *cliComm;
+}
+
+CliConnection* CommandController::getConnection() const
+{
+	return connection;
 }
 
 Interpreter& CommandController::getInterpreter()
@@ -265,8 +271,17 @@ bool CommandController::isComplete(const string& command)
 	return getInterpreter().isComplete(command);
 }
 
-string CommandController::executeCommand(const string& cmd)
+string CommandController::executeCommand(
+	const string& cmd, CliConnection* connection_)
 {
+	struct Restore {
+		Restore(CliConnection*& connection) : c(connection) {}
+		~Restore() { c = NULL; }
+		CliConnection*& c;
+	} restore(connection);
+	
+	assert(connection == NULL);
+	connection = connection_;
 	return getInterpreter().execute(cmd);
 }
 

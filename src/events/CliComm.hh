@@ -69,10 +69,10 @@ private:
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
+		CliConnection& UpdateCmd::getConnection();
 		CliComm& cliComm;
 	} updateCmd;
 
-	bool updateEnabled[NUM_UPDATES];
 	std::map<std::string, std::string> prevValues[NUM_UPDATES];
 
 	Scheduler& scheduler;

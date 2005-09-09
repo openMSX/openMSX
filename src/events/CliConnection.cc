@@ -37,11 +37,25 @@ CliConnection::CliConnection(Scheduler& scheduler,
 	sax_handler.characters   = (charactersSAXFunc)  cb_text;
 
 	parser_context = xmlCreatePushParserCtxt(&sax_handler, &user_data, 0, 0, 0);
+	
+	for (int i = 0; i < CliComm::NUM_UPDATES; ++i) {
+		updateEnabled[i] = false;
+	}
 }
 
 CliConnection::~CliConnection()
 {
 	xmlFreeParserCtxt(parser_context);
+}
+
+void CliConnection::setUpdateEnable(CliComm::UpdateType type, bool value)
+{
+	updateEnabled[type] = value;
+}
+
+bool CliConnection::getUpdateEnable(CliComm::UpdateType type) const
+{
+	return updateEnabled[type];
 }
 
 void CliConnection::start()
@@ -75,7 +89,7 @@ void CliConnection::executeUntil(const EmuTime& /*time*/, int /*userData*/)
 	while (!cmds.empty()) {
 		try {
 			string result = commandController.executeCommand(
-				cmds.front());
+				cmds.front(), this);
 			output(reply(result, true));
 		} catch (CommandException& e) {
 			string result = e.getMessage() + '\n';
