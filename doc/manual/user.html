@@ -601,7 +601,7 @@ You can also use the so-called CAS files. Use them exactly as you would use WAV 
 </p>
 
 <p>
-We don't support using CAS files anymore by a BIOS, because it is not really something you want.
+We don't support using CAS files anymore by patching a BIOS, because it is not really something you want.
 So, nowadays, the CAS files are automatically
 converted to WAV files, internally. Note that the loading time is drastically
 longer this way. On the other hand, you will be able to hear the cassette
@@ -744,14 +744,14 @@ If you are using openMSX in windowed mode, it might be tricky to use the mouse. 
 <h3><a id="renderers">6.1 Renderers</a></h3>
 
 <p>
-A renderer is a part of the emulator that generates the graphical part of the emulation: the MSX 'screen'. At the moment, there are three working renderers:
+A renderer is a part of the emulator that generates the graphical part of the emulation: the MSX 'screen'. At the moment, there are two working renderers (this has been changed after openMSX 0.5.2!):
 </p>
 
 <dl>
 
-<dt>SDLHi</dt>
+<dt>SDL</dt>
 <dd>
-This is the default renderer. It uses a window of 640&times;480 pixels. This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be quite high though. It is about 50% on Manuel's Athlon XP 1600+, when emulating a 3.5MHz MSX. The CPU load is smaller if you use a 16 bit per pixel video mode or when you have a CPU with MMX and/or MMXext extensions.
+This is the default renderer. It uses a window of 640&times;480 pixels by default. If you want to use a lower resolution, you should use the 'low' scaler, see below. This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be quite high though. It is about 50% on Manuel's Athlon XP 1600+, when emulating a 3.5MHz MSX. The CPU load is smaller if you use a 16 bit per pixel video mode or when you have a CPU with MMX and/or MMXext extensions.
 </dd>
 
 <dt>SDLGL</dt>
@@ -763,16 +763,6 @@ The SDLGL renderer is only useful if you have a hardware accelerated
 OpenGL library; a software GL implementation will be very slow.
 See the Setup Guide for
 <a class="external" href="setup.html#opengl">OpenGL performance tips</a>.
-</dd>
-
-<dt>SDLLo</dt>
-<dd>
-This renderer uses a window of only 320&times;240 pixels.
-For 256&times;212 MSX modes, this is a good fit.
-For 512&times;212 MSX modes, two pixels will be interpolated to produce
-a single output pixel.
-This renderer is mainly useful if you have a slow computer;
-when using it full screen the low resolution is not a problem, especially because most MSX software uses a 256&times;212 mode.
 </dd>
 
 </dl>
@@ -830,7 +820,7 @@ you're running than on the accuracy setting.
 <h3><a id="scalers">6.3 Scalers</a></h3>
 
 <p>
-Most MSX screen modes are only 256&times;212 pixels big. However, the SDLHi renderer uses a 640&times;480 screen mode to display the MSX screen. The conversion from the low resolution MSX image to the high resolution PC image is done by a <em>scaler</em>. openMSX contains several scalers:
+Most MSX screen modes are only 256&times;212 pixels big. However, the SDL renderer uses a 640&times;480 screen mode to display the MSX screen. The conversion from the low resolution MSX image to the high resolution PC image is done by a <em>scaler</em>. After openMSX 0.5.2, there is also a way to force scaling to a 320&times;240 screen mode. openMSX contains several scalers:
 </p>
 
 <dl>
@@ -840,6 +830,18 @@ Most MSX screen modes are only 256&times;212 pixels big. However, the SDLHi rend
 This scaler simply expands each MSX pixels to a square of 2&times;2 PC pixels.
 This is the default scaler and it is fast.
 The image looks blocky, especially diagonal edges.
+</dd>
+
+<dt>low</dt>
+<dd>
+This scaler scales the MSX pixels back to a 320x240 window. This is what was
+previously the SDLLo renderer.  For 256&times;212 MSX modes, this is a good
+fit.
+For 512&times;212 MSX modes, two pixels will be interpolated to produce
+a single output pixel.
+This scaler is mainly useful if you have a slow computer;
+when using it full screen the low resolution is not a problem, especially
+because most MSX software uses a 256&times;212 mode.  
 </dd>
 
 <dt><a class="external" href="http://scale2x.sourceforge.net/">Scale2x</a></dt>
@@ -910,14 +912,14 @@ The after glow on a TV and some processes in the human brain combine both frames
 The deinterlace feature combines the even and the odd frames into a single output frame, thus eliminating the flicker.
 The <code>deinterlace</code> setting controls this feature:
 it can be on (enabled) or off (disabled); it is enabled by default.
-This feature works in the <code>SDLHi</code> and <code>SDLGL</code> renderers.
+This feature works in the <code>SDL</code> and <code>SDLGL</code> renderers, but is disabled when a scaler other than <code>simple</code> is used.
 </dd>
 
 <dt>scanlines</dt>
 <dd>
 On TVs and MSX monitors, you can see a small black space in between the display lines, especially when using NTSC.
 The scanlines feature simulates this by drawing every other line a bit darker.
-This feature works in the <code>SDLHi</code> and <code>SDLGL</code> renderers,
+This feature works in the <code>SDL</code> and <code>SDLGL</code> renderers,
 but is disabled when a scaler other than <code>simple</code> is used.
 </dd>
 
@@ -930,7 +932,7 @@ The <code>blur</code> settings control this:
 0 means no blur (completely sharp), 50 means some blur (like a monitor),
 100 means maximum blur (like a TV).
 All other values between 0 and 100 are also possible of course.
-This feature works in the <code>SDLHi</code> and <code>SDLGL</code> renderers,
+This feature works in the <code>SDL</code> and <code>SDLGL</code> renderers,
 but is disabled when a scaler other than <code>simple</code> is used.
 </dd>
 
