@@ -656,7 +656,7 @@ icon.<name>.non-active.fade-duration
   non-active version have the same position. The value is in pixels and (0,0)
   corresponds to the top-left of the screen.
   Note: In the future this will most likely change so that it is resolution
-        independent (SDLHi <-> SDLLo)
+        independent (low scaler)
 
   The image for the LED can be specified with the '(non-)active.image' setting.
   This can be an image of any size and the image can have an alpha
@@ -812,8 +812,7 @@ renderer
 
   usage:
     set renderer        shows the current setting
-    set renderer SDLHi  switch to the SDLHi renderer
-    set renderer SDLLo  switch to the SDLLo renderer
+    set renderer SDL    switch to the SDL renderer
     set renderer SDLGL  switch to the SDLGL renderer
 
 renshaturbo
