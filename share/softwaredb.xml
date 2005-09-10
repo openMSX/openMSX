@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1120422766">
+<softwaredb xml:lang="en" timestamp="1126374788">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -7823,6 +7823,35 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">09779f0e9ec0c36ee3700690e2b6e282a4b40a0b</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Keyboard Master</title>
+		<system>MSX</system>
+		<company>Konami</company>
+		<year>1984</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">2308dd0f15fb5395a1d8a08489daff65ead8e0f2</hash>
+				<remark>
+					<text>the _voice ROM should always be with the ROM image</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">4f36d139ee4baa7d5980f765de9895570ee05f40</hash>
+				<remark>
+					<text>the _voice ROM should always be with the ROM image</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -24760,9 +24789,9 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database : 2348
+Roms in this database : 2350
 Good MSX entries 		: 755
-SHA1 values 			: 1769
+SHA1 values 			: 1771
 CRC32 values 			: 579
-Parse time 8.873 seconds on Sun Jul 3 22:32:55 CEST 2005
+Parse time 7.577 seconds on Sat Sep 10 19:53:15 CEST 2005
  -->
