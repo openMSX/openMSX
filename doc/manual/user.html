@@ -751,7 +751,7 @@ A renderer is a part of the emulator that generates the graphical part of the em
 
 <dt>SDL</dt>
 <dd>
-This is the default renderer. It uses a window of 640&times;480 pixels by default. If you want to use a lower resolution, you should use the 'low' scaler, see below. This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be quite high though. It is about 50% on Manuel's Athlon XP 1600+, when emulating a 3.5MHz MSX. The CPU load is smaller if you use a 16 bit per pixel video mode or when you have a CPU with MMX and/or MMXext extensions.
+This is the default renderer. This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be quite high though. It is about 50% on Manuel's Athlon XP 1600+, when emulating a 3.5MHz MSX. The CPU load is smaller if you use a 16 bit per pixel video mode or when you have a CPU with MMX and/or MMXext extensions.
 </dd>
 
 <dt>SDLGL</dt>
@@ -834,7 +834,7 @@ The image looks blocky, especially diagonal edges.
 
 <dt>low</dt>
 <dd>
-This scaler scales the MSX pixels back to a 320x240 window. This is what was
+Normally, the SDL renderer uses a window of 640&times;480 pixels. If you want to use a lower resolution, you can use this scaler, which scales the MSX pixels back to a 320&times;240 window. This is what was
 previously the SDLLo renderer.  For 256&times;212 MSX modes, this is a good
 fit.
 For 512&times;212 MSX modes, two pixels will be interpolated to produce
