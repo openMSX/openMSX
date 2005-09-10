@@ -67,6 +67,30 @@
 //   - Channel 4-5 rotation speed is set by channel 5 freq (channel 4 freq
 //     is ignored for rotation)
 //
+//-----------------------------------------------------------------------------
+//
+// On Sat, 09 Sep 2005, NYYRIKKI wrote (MRC post)
+//
+// ...
+//
+// One important thing to know is that change of volume is not implemented
+// immediately in SCC. Normally it is changed when next byte from sample memory
+// is played, but writing value to frequency causes current byte to be started
+// again. As in this example we write values very quickly to frequency registers
+// the internal sample counter does not actually move at all.
+//
+// Third method is a variation of first method. As we don't know where SCC is
+// playing, let's update the whole sample memory with one and same new value.
+// To make sample rate not variable in low sample rates we first stop SCC from
+// reading sample memory. This can be done by writing value less than 9 to
+// frequency. Now we can update sample RAM so, that output does not change.
+// After sample RAM has been updated, we start SCC internal counter so that
+// value (where ever the counter was) is sent to output. This routine can be
+// found below as example 3.
+//
+// ...
+//
+//
 //
 // Something completely different: the SCC+ is actually called SCC-I.
 //-----------------------------------------------------------------------------
@@ -96,6 +120,7 @@ SCC::SCC(MSXMotherBoard& motherBoard, const string& name, const XMLElement& conf
 		for (unsigned j = 0; j < 32; ++j) {
 			wave[i][j] = 0;
 		}
+		out[i] = 0;
 	}
 
 	nbSamples = 9999;
@@ -125,11 +150,11 @@ void SCC::reset(const EmuTime& /*time*/)
 			volAdjustedWave[i][j] = 0;
 		}
 		count[i] = 0;
+		pos[i] = (unsigned)-1;
 		freq[i] = 0;
 		volume[i] = 0;
 		rotate[i] = false;
 		readOnly[i] = false;
-		offset[i] = 0;
 	}
 	deformValue = 0;
 	ch_enable = 0xFF;
@@ -352,6 +377,9 @@ void SCC::setFreqVol(byte address, byte value)
 			frq >>= 8;
 		}
 		incr[channel] = (frq <= 8) ? 0 : baseStep / (frq + 1);
+		count[channel] &= 0x0F800000; // reset to begin of byte
+		pos[channel] = (unsigned)-1;
+
 	} else if (address < 0x0F) {
 		// change volume
 		byte channel = address - 0x0A;
@@ -384,7 +412,6 @@ void SCC::setDeformReg(byte value, const EmuTime& time)
 			for (unsigned i = 0; i < 5; ++i) {
 				rotate[i] = false;
 				readOnly[i] = false;
-				offset[i] = 0;
 			}
 			break;
 		case 0x40:
@@ -451,9 +478,14 @@ void SCC::updateBuffer(unsigned length, int* buffer,
 			int mixed = 0;
 			byte enable = ch_enable;
 			for (int i = 0; i < 5; ++i, enable >>= 1) {
-				count[i] = (count[i] + incr[i]) & 0xFFFFFFF;
+				count[i] = (count[i] + incr[i]) & 0x0FFFFFFF;
+				unsigned newPos = count[i] >> 23;
+				if (newPos != pos[i]) {
+					pos[i] = newPos;
+					out[i] = volAdjustedWave[i][newPos];
+				}
 				if (enable & 1) {
-					mixed += volAdjustedWave[i][(count[i] >> 23)];
+					mixed += out[i];
 				}
 			}
 			*buffer++ = filter((masterVolume * mixed) / 256);
@@ -465,14 +497,18 @@ void SCC::updateBuffer(unsigned length, int* buffer,
 			int mixed = 0;
 			byte enable = ch_enable;
 			for (int i = 0; i < 5; ++i, enable >>= 1) {
-				int cnt = count[i] + incr[i];
+				unsigned cnt = count[i] + incr[i];
 				if (rotate[i]) {
-					offset[i] += cnt >> 28;
+					cnt += (cnt >> 28) << 23;
 				}
-				count[i] = cnt & 0xFFFFFFF;
+				count[i] = cnt & 0x0FFFFFFF;
+				unsigned newPos = count[i] >> 23;
+				if (newPos != pos[i]) {
+					pos[i] = newPos;
+					out[i] = volAdjustedWave[i][newPos];
+				}
 				if (enable & 1) {
-					byte pos = (count[i] >> 23) + offset[i];
-					mixed += volAdjustedWave[i][pos & 0x1F];
+					mixed += out[i];
 				}
 			}
 			*buffer++ = filter((masterVolume * mixed) / 256);

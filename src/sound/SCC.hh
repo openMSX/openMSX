@@ -48,7 +48,6 @@ private:
 
 	int filter(int input);
 
-	static const int GETA_BITS = 22;
 	static const int CLOCK_FREQ = 3579545;
 	static const unsigned int SCC_STEP =
 		(unsigned)(((unsigned)(1 << 31)) / (CLOCK_FREQ / 2));
@@ -62,7 +61,9 @@ private:
 	signed char volAdjustedWave[5][32];
 	unsigned incr[5];
 	unsigned count[5];
+	unsigned pos[5];
 	unsigned freq[5];
+	int out[5];
 	byte volume[5];
 	byte ch_enable;
 
@@ -70,7 +71,6 @@ private:
 	Clock<CLOCK_FREQ> deformTimer;
 	bool rotate[5];
 	bool readOnly[5];
-	byte offset[5];
 
 	int in[5], inHp[3], outHp[3];
 };
