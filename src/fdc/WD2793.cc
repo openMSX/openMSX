@@ -107,10 +107,20 @@ bool WD2793::getDTRQ(const EmuTime& time)
 	return DRQ;
 }
 
+bool WD2793::peekDTRQ(const EmuTime& /*time*/)
+{
+	return DRQ; // TODO can be improved
+}
+
 bool WD2793::getIRQ(const EmuTime& /*time*/)
 {
 	//PRT_DEBUG("WD2793::getIRQ() " << INTRQ);
 	return INTRQ | immediateIRQ;
+}
+
+bool WD2793::peekIRQ(const EmuTime& time)
+{
+	return getIRQ(time);
 }
 
 void WD2793::setIRQ()
@@ -205,6 +215,11 @@ byte WD2793::getStatusReg(const EmuTime& time)
 	return statusReg;
 }
 
+byte WD2793::peekStatusReg(const EmuTime& time)
+{
+	return getStatusReg(time);
+}
+
 void WD2793::setTrackReg(byte value, const EmuTime& /*time*/)
 {
 	//PRT_DEBUG("WD2793::setTrackReg() 0x" << std::hex << (int)value);
@@ -216,6 +231,11 @@ byte WD2793::getTrackReg(const EmuTime& /*time*/)
 	return trackReg;
 }
 
+byte WD2793::peekTrackReg (const EmuTime& time)
+{
+	return getTrackReg(time);
+}
+
 void WD2793::setSectorReg(byte value, const EmuTime& /*time*/)
 {
 	//PRT_DEBUG("WD2793::setSectorReg() 0x" << std::hex << (int)value);
@@ -225,6 +245,11 @@ void WD2793::setSectorReg(byte value, const EmuTime& /*time*/)
 byte WD2793::getSectorReg(const EmuTime& /*time*/)
 {
 	return sectorReg;
+}
+
+byte WD2793::peekSectorReg(const EmuTime& time)
+{
+	return getSectorReg(time);
 }
 
 void WD2793::setDataReg(byte value, const EmuTime& time)
@@ -378,6 +403,16 @@ byte WD2793::getDataReg(const EmuTime& time)
 		}
 	}
 	return dataReg;
+}
+
+byte WD2793::peekDataReg(const EmuTime& /*time*/)
+{
+	if (((commandReg & 0xE0) == 0x80) && (statusReg & BUSY)) {
+		// READ SECTOR
+		return dataBuffer[dataCurrent];
+	} else {
+		return dataReg;
+	}
 }
 
 void WD2793::tryToReadSector()

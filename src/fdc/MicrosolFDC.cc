@@ -36,20 +36,38 @@ byte MicrosolFDC::readIO(byte port, const EmuTime& time)
 		value = driveD4;
 		break;
 	default:
-		// This port should not have been registered.
-		assert(false);
 		value = 255;
 		break;
 	}
-	PRT_DEBUG("MicrosolFDC: read 0x" << std::hex << (int)port << " 0x"
-	          << (int)value << std::dec);
+	//PRT_DEBUG("MicrosolFDC: read 0x" << std::hex << (int)port << " 0x"
+	//          << (int)value << std::dec);
 	return value;
 }
 
-byte MicrosolFDC::peekIO(byte /*port*/, const EmuTime& /*time*/) const
+byte MicrosolFDC::peekIO(byte port, const EmuTime& time) const
 {
-	// TODO peekIO not implemented
-	return 0xFF;
+	byte value;
+	switch (port & 0x07) {
+	case 0:
+		value = controller->peekStatusReg(time);
+		break;
+	case 1:
+		value = controller->peekTrackReg(time);
+		break;
+	case 2:
+		value = controller->peekSectorReg(time);
+		break;
+	case 3:
+		value = controller->peekDataReg(time);
+		break;
+	case 4:
+		value = driveD4;
+		break;
+	default:
+		value = 255;
+		break;
+	}
+	return value;
 }
 
 void MicrosolFDC::writeIO(byte port, byte value, const EmuTime& time)

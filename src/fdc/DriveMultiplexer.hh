@@ -53,6 +53,7 @@ public:
 	virtual void initWriteTrack();
 	virtual void writeTrackData(byte data);
 	virtual bool diskChanged();
+	virtual bool peekDiskChanged() const;
 	virtual bool dummyDrive();
 
 private:

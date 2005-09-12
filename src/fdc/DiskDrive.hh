@@ -118,6 +118,7 @@ public:
 	/** Is disk changed?
 	 */
 	virtual bool diskChanged() = 0;
+	virtual bool peekDiskChanged() const = 0;
 
 	/** Is there a dummy (unconncted) drive?
 	 */
@@ -158,6 +159,7 @@ public:
 	virtual void initWriteTrack();
 	virtual void writeTrackData(byte data);
 	virtual bool diskChanged();
+	virtual bool peekDiskChanged() const;
 	virtual bool dummyDrive();
 };
 
@@ -191,6 +193,7 @@ public:
 	virtual void setHeadLoaded(bool status, const EmuTime& time);
 	virtual bool headLoaded(const EmuTime& time);
 	virtual bool diskChanged();
+	virtual bool peekDiskChanged() const;
 	virtual bool dummyDrive();
 
 protected:

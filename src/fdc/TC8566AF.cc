@@ -106,7 +106,7 @@ void TC8566AF::reset(const EmuTime& time)
 	PCN = 0;		// Present Cylinder Number
 }
 
-byte TC8566AF::makeST0()
+byte TC8566AF::makeST0() const
 {
 	return  (ST0_IC << 6) |		// bit 7,6	Interrupt Code
 	        (ST0_SE << 5) |		// bit 5	Seek End
@@ -116,7 +116,7 @@ byte TC8566AF::makeST0()
 	        (ST0_DS << 0);		// bit 1,0	Drive Select
 }
 
-byte TC8566AF::makeST1()
+byte TC8566AF::makeST1() const
 {
 	return  (ST1_EN << 7) |		// bit 7	End of Cylinder
 	        (ST1_DE << 5) |		// bit 5	data Error
@@ -126,7 +126,7 @@ byte TC8566AF::makeST1()
 	        (ST1_MA << 0);		// bit 0	Missing Address Mark
 }
 
-byte TC8566AF::makeST2()
+byte TC8566AF::makeST2() const
 {
 	return  (ST2_CM << 6) |		// bit 6	Control Mark
 	        (ST2_DD << 5) |		// bit 5	data Error in data Field
@@ -137,7 +137,7 @@ byte TC8566AF::makeST2()
 	        (ST2_MD << 0);		// bit 0	Missing Address Mark in data Field
 }
 
-byte TC8566AF::makeST3()
+byte TC8566AF::makeST3() const
 {
 	return  (ST3_FLT << 7) |	// bit 7	Fault
 	        (ST3_WP  << 6) |	// bit 6	Write Protect
@@ -169,13 +169,13 @@ byte TC8566AF::readReg(int reg, const EmuTime& time)
 	case 5: // data port
 		switch (Phase) {
 		case PHASE_DATATRANSFER:
-			result = readDataTransferPhase(time);
+			result = readDataTransferPhase();
 			RequestForMaster = 0;
 			delayTime.reset(time);
 			delayTime += 15;
 			break;
 		case PHASE_RESULT:
-			result = readDataResultPhase(time);
+			result = readDataResultPhase();
 			break;
 		}
 		break;
@@ -183,7 +183,28 @@ byte TC8566AF::readReg(int reg, const EmuTime& time)
 	return result;
 }
 
-byte TC8566AF::readDataTransferPhase(const EmuTime& /*time*/)
+byte TC8566AF::peekReg(int reg, const EmuTime& time)
+{
+	byte result = 0xFF;
+	switch (reg) {
+	case 5: // data port
+		switch (Phase) {
+		case PHASE_DATATRANSFER:
+			result = peekDataTransferPhase();
+			break;
+		case PHASE_RESULT:
+			result = peekDataResultPhase();
+			break;
+		}
+		break;
+	default:
+		result = readReg(reg, time);
+		break;
+	}
+	return result;
+}
+
+byte TC8566AF::readDataTransferPhase()
 {
 	byte result = 0xFF;
 	switch (Command) {
@@ -201,14 +222,27 @@ byte TC8566AF::readDataTransferPhase(const EmuTime& /*time*/)
 	return result;
 }
 
-byte TC8566AF::readDataResultPhase(const EmuTime& /*time*/)
+byte TC8566AF::peekDataTransferPhase() const
+{
+	byte result = 0xFF;
+	switch (Command) {
+	case CMD_READ_DATA:
+		if (SectorByteCount > 0) {
+			result = Sector[SectorPtr];
+		}
+		break;
+	}
+	return result;
+}
+
+byte TC8566AF::readDataResultPhase()
 {
 	byte result = 0xFF;
 	switch (Command) {
 	case CMD_READ_DATA:
 	case CMD_WRITE_DATA:
 	case CMD_FORMAT:
-		switch	(PhaseStep++) {
+		switch (PhaseStep++) {
 		case 0:
 			result = makeST0();
 			break;
@@ -260,6 +294,60 @@ byte TC8566AF::readDataResultPhase(const EmuTime& /*time*/)
 			Phase = PHASE_IDLE;
 			dataInputOutput = 0;
 			Command = CMD_UNKNOWN;
+			break;
+		}
+		break;
+	}
+	return result;
+}
+
+byte TC8566AF::peekDataResultPhase() const
+{
+	byte result = 0xFF;
+	switch (Command) {
+	case CMD_READ_DATA:
+	case CMD_WRITE_DATA:
+	case CMD_FORMAT:
+		switch (PhaseStep) {
+		case 0:
+			result = makeST0();
+			break;
+		case 1:
+			result = makeST1();
+			break;
+		case 2:
+			result = makeST2();
+			break;
+		case 3:
+			result = StartCylinder;
+			break;
+		case 4:
+			result = StartHead;
+			break;
+		case 5:
+			result = StartRecord;
+			break;
+		case 6:
+			result = StartN;
+			break;
+		}
+		break;
+
+	case CMD_SENSE_INTERRUPT_STATUS:
+		switch (PhaseStep) {
+		case 0:
+			result = makeST0();
+			break;
+		case 1:
+			result = PCN;
+			break;
+		}
+		break;
+
+	case CMD_SENSE_DEVICE_STATUS:
+		switch	(PhaseStep) {
+		case 0:
+			result = makeST3();
 			break;
 		}
 		break;
@@ -608,6 +696,11 @@ void TC8566AF::writeDataTransferPhase(byte data, const EmuTime& /*time*/)
 bool TC8566AF::diskChanged(int driveno)
 {
 	return drive[driveno]->diskChanged();
+}
+
+bool TC8566AF::peekDiskChanged(int driveno) const
+{
+	return drive[driveno]->peekDiskChanged();
 }
 
 } // namespace openmsx

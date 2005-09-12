@@ -29,6 +29,7 @@ TurboRFDC::~TurboRFDC()
 void TurboRFDC::reset(const EmuTime& time)
 {
 	memory = &(*rom)[0];
+	getMotherBoard().getCPU().invalidateMemCache(0x4000, 0x4000);
 	controller->reset(time);
 }
 
@@ -38,11 +39,6 @@ byte TurboRFDC::readMem(word address, const EmuTime& time)
 	if (0x3FF0 <= (address & 0x3FFF)) {
 		switch (address & 0x3FFF) {
 		case 0x3FF1:
-			// bit 0	FD2HD1	High Density detect drive 1
-			// bit 1	FD2HD2	High Density detect drive 2
-			// bit 4	FDCHG1	Disk Change detect on drive 1
-			// bit 5	FDCHG2	Disk Change detect on drive 2
-			// active low
 			result = 0x33;
 			if (controller->diskChanged(0)) result &= ~0x10;
 			if (controller->diskChanged(1)) result &= ~0x20;
@@ -54,6 +50,39 @@ byte TurboRFDC::readMem(word address, const EmuTime& time)
 		case 0x3FF5:
 		case 0x3FFB:
 			result = controller->readReg(5, time);
+			break;
+		default:
+			result = peekMem(address, time);
+			break;
+		}
+	} else {
+		result = peekMem(address, time);
+	}
+	return result;
+}
+
+byte TurboRFDC::peekMem(word address, const EmuTime& time) const
+{
+	byte result;
+	if (0x3FF0 <= (address & 0x3FFF)) {
+		switch (address & 0x3FFF) {
+		case 0x3FF1:
+			// bit 0	FD2HD1	High Density detect drive 1
+			// bit 1	FD2HD2	High Density detect drive 2
+			// bit 4	FDCHG1	Disk Change detect on drive 1
+			// bit 5	FDCHG2	Disk Change detect on drive 2
+			// active low
+			result = 0x33;
+			if (controller->peekDiskChanged(0)) result &= ~0x10;
+			if (controller->peekDiskChanged(1)) result &= ~0x20;
+			break;
+		case 0x3FF4:
+		case 0x3FFA:
+			result = controller->peekReg(4, time);
+			break;
+		case 0x3FF5:
+		case 0x3FFB:
+			result = controller->peekReg(5, time);
 			break;
 		default:
 			result = 0xFF;

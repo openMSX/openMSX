@@ -22,20 +22,24 @@ public:
 
 	void reset(const EmuTime& time);
 	byte readReg(int reg, const EmuTime& time);
+	byte peekReg(int reg, const EmuTime& time);
 	void writeReg(int reg, byte value, const EmuTime& time);
 	bool diskChanged(int driveno);
+	bool peekDiskChanged(int driveno) const;
 
 private:
-	byte readDataTransferPhase(const EmuTime& time);
-	byte readDataResultPhase(const EmuTime& time);
+	byte readDataTransferPhase();
+	byte peekDataTransferPhase() const;
+	byte readDataResultPhase();
+	byte peekDataResultPhase() const;
 	void writeDataIdlePhase(byte data, const EmuTime& time);
 	void writeDataCommandPhase(byte data, const EmuTime& time);
 	void writeDataTransferPhase(byte data, const EmuTime& time);
 
-	byte makeST0();
-	byte makeST1();
-	byte makeST2();
-	byte makeST3();
+	byte makeST0() const;
+	byte makeST1() const;
+	byte makeST2() const;
+	byte makeST3() const;
 
 	DiskDrive* drive[4];
 

@@ -36,15 +36,43 @@ byte PhilipsFDC::readMem(word address, const EmuTime& time)
 		break;
 	case 0x3FF9:
 		value = brokenFDCread ? 255 : controller->getTrackReg(time);
+		break;
+	case 0x3FFA:
+		value = brokenFDCread ? 255 : controller->getSectorReg(time);
+		break;
+	case 0x3FFB:
+		value = controller->getDataReg(time);
+		break;
+	case 0x3FFF:
+		value = 0xC0;
+		if (controller->getIRQ(time)) value &= ~0x40;
+		if (controller->getDTRQ(time)) value &= ~0x80;
+		break;
+	default:
+		value = peekMem(address, time);
+		break;
+	}
+	return value;
+}
+
+byte PhilipsFDC::peekMem(word address, const EmuTime& time) const
+{
+	byte value;
+	switch (address & 0x3FFF) {
+	case 0x3FF8:
+		value = controller->peekStatusReg(time);
+		break;
+	case 0x3FF9:
+		value = brokenFDCread ? 255 : controller->peekTrackReg(time);
 		//TODO: check if such broken interfaces indeed return 255 or something else
 		// example of such machines : Sony 700 series
 		break;
 	case 0x3FFA:
-		value = brokenFDCread ? 255 : controller->getSectorReg(time);
+		value = brokenFDCread ? 255 : controller->peekSectorReg(time);
 		//TODO: check if such broken interfaces indeed return 255 or something else
 		break;
 	case 0x3FFB:
-		value = controller->getDataReg(time);
+		value = controller->peekDataReg(time);
 		break;
 	case 0x3FFC:
 		//bit 0 = side select
@@ -67,14 +95,14 @@ byte PhilipsFDC::readMem(word address, const EmuTime& time)
 		// bit 7: !dtrq
 		//TODO check other bits !!
 		value = 0xC0;
-		if (controller->getIRQ(time)) value &= ~0x40;
-		if (controller->getDTRQ(time)) value &= ~0x80;
+		if (controller->peekIRQ(time)) value &= ~0x40;
+		if (controller->peekDTRQ(time)) value &= ~0x80;
 		break;
 
 	default:
 		if (address < 0x8000) {
 			// ROM only visible in 0x0000-0x7FFF
-			value = MSXFDC::readMem(address, time);
+			value = MSXFDC::peekMem(address, time);
 		} else {
 			value = 255;
 		}

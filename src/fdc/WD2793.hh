@@ -24,6 +24,11 @@ public:
 	byte getSectorReg(const EmuTime& time);
 	byte getDataReg  (const EmuTime& time);
 
+	byte peekStatusReg(const EmuTime& time);
+	byte peekTrackReg (const EmuTime& time);
+	byte peekSectorReg(const EmuTime& time);
+	byte peekDataReg  (const EmuTime& time);
+
 	void setCommandReg(byte value, const EmuTime& time);
 	void setTrackReg  (byte value, const EmuTime& time);
 	void setSectorReg (byte value, const EmuTime& time);
@@ -31,6 +36,9 @@ public:
 
 	bool getIRQ (const EmuTime& time);
 	bool getDTRQ(const EmuTime& time);
+
+	bool peekIRQ (const EmuTime& time);
+	bool peekDTRQ(const EmuTime& time);
 
 private:
 	enum FSMState {

@@ -1,6 +1,10 @@
 $Id$
 
-2005-09-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2005-09-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added EmuTime parameter to peekMem() method
+	* Implemented debug reads for FDC's
+
+2005-09-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed some SCC details (needed for playing samples on SCC):
 	   - stuff was discovered by NYYRIKKI
 	   - see comments SCC.cc for details

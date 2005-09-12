@@ -80,6 +80,11 @@ bool DiskChanger::diskChanged()
 	return ret;
 }
 
+bool DiskChanger::peekDiskChanged() const
+{
+	return diskChangedFlag;
+}
+
 Disk& DiskChanger::getDisk()
 {
 	return *disk;

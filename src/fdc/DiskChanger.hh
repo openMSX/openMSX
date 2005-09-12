@@ -25,6 +25,7 @@ public:
 	const std::string& getDriveName() const;
 	const std::string& getDiskName() const;
 	bool diskChanged();
+	bool peekDiskChanged() const;
 	Disk& getDisk();
 
 	// DiskContainer

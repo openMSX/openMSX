@@ -135,6 +135,11 @@ bool DummyDrive::diskChanged()
 	return false;
 }
 
+bool DummyDrive::peekDiskChanged() const
+{
+	return false;
+}
+
 bool DummyDrive::dummyDrive()
 {
 	return true;
@@ -293,6 +298,11 @@ bool RealDrive::headLoaded(const EmuTime& time)
 bool RealDrive::diskChanged()
 {
 	return changer->diskChanged();
+}
+
+bool RealDrive::peekDiskChanged() const
+{
+	return changer->peekDiskChanged();
 }
 
 bool RealDrive::dummyDrive()

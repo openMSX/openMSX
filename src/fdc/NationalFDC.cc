@@ -20,9 +20,6 @@ NationalFDC::~NationalFDC()
 byte NationalFDC::readMem(word address, const EmuTime& time)
 {
 	byte value;
-	// According to atarulum:
-	//  7FBC        is mirrored in 7FBC - 7FBF
-	//  7FB8 - 7FBF is mirrored in 7F80 - 7FBF
 	switch (address & 0x3FC7) {
 	case 0x3F80:
 		value = controller->getStatusReg(time);
@@ -40,18 +37,52 @@ byte NationalFDC::readMem(word address, const EmuTime& time)
 	case 0x3F85:
 	case 0x3F86:
 	case 0x3F87:
-		// Drive control IRQ and DRQ lines are not connected to Z80 interrupt request
-		// bit 7: intrq
-		// bit 6: !dtrq
-		// other bits read 1
 		value = 0x7F;
 		if (controller->getIRQ(time))  value |=  0x80;
 		if (controller->getDTRQ(time)) value &= ~0x40;
 		break;
 	default:
+		value = peekMem(address, time);
+		break;
+	}
+	return value;
+}
+
+byte NationalFDC::peekMem(word address, const EmuTime& time) const
+{
+	byte value;
+	// According to atarulum:
+	//  7FBC        is mirrored in 7FBC - 7FBF
+	//  7FB8 - 7FBF is mirrored in 7F80 - 7FBF
+	switch (address & 0x3FC7) {
+	case 0x3F80:
+		value = controller->peekStatusReg(time);
+		break;
+	case 0x3F81:
+		value = controller->peekTrackReg(time);
+		break;
+	case 0x3F82:
+		value = controller->peekSectorReg(time);
+		break;
+	case 0x3F83:
+		value = controller->peekDataReg(time);
+		break;
+	case 0x3F84:
+	case 0x3F85:
+	case 0x3F86:
+	case 0x3F87:
+		// Drive control IRQ and DRQ lines are not connected to Z80 interrupt request
+		// bit 7: intrq
+		// bit 6: !dtrq
+		// other bits read 1
+		value = 0x7F;
+		if (controller->peekIRQ(time))  value |=  0x80;
+		if (controller->peekDTRQ(time)) value &= ~0x40;
+		break;
+	default:
 		if (address < 0x8000) {
 			// ROM only visible in 0x0000-0x7FFF
-			value = MSXFDC::readMem(address, time);
+			value = MSXFDC::peekMem(address, time);
 		} else {
 			value = 255;
 		}
