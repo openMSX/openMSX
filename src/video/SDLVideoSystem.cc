@@ -102,14 +102,14 @@ void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
 // TODO: Code is exactly the same as SDLGLVideoSystem::checkSettings.
 bool SDLVideoSystem::checkSettings()
 {
-	// Check resolution 
+	// Check resolution
 	unsigned width, height;
 	getWindowSize(width, height);
 	if ((width  != (unsigned)screen->w) ||
 	    (height != (unsigned)screen->h)) {
 		return false;
 	}
-	
+
 	// Check full screen setting.
 	bool fullScreenState = (screen->flags & SDL_FULLSCREEN) != 0;
 	const bool fullScreenTarget =

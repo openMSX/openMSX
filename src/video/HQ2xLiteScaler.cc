@@ -244,7 +244,7 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 			if (c2 == c4) pixel1 = t;
 			if (c2 == c6) pixel2 = t;
 			break;
-		} 
+		}
 		case 0x53: case 0x72: case 0x73: {
 			unsigned t = interp31(c5, c6);
 			if (c2 == c6) pixel2 = t;
@@ -327,7 +327,7 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 			if (c4 == c8) pixel3 = t;
 			if (c6 == c8) pixel4 = t;
 			break;
-		} 
+		}
 		case 0xda: {
 			unsigned t = interp31(c5, c2);
 			if (c2 == c4) pixel1 = t;
@@ -605,7 +605,7 @@ static void scaleLine512(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 			if (c4 == c8) pixel3 = interp31(c5, c4);
 			break;
 
-		case 0x4e: case 0x5a: case 0x5e: case 0xca: 
+		case 0x4e: case 0x5a: case 0x5e: case 0xca:
 		case 0xce: case 0xda: {
 			unsigned t = interp31(c5, c4);
 			if (c2 == c4) pixel1 = t;

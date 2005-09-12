@@ -157,7 +157,7 @@ public:
 	void scale_2on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
 	void scale_4on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
 	void scale_8on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	
+
 
 protected:
 	Scaler(SDL_PixelFormat* format);

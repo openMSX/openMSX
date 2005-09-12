@@ -55,7 +55,7 @@ void LineTexture::update(const GLuint* data, int lineWidth)
 		             0,                // border
 		             GL_RGBA,          // format
 		             GL_UNSIGNED_BYTE, // type
-		             data);            // data 
+		             data);            // data
 	}
 }
 

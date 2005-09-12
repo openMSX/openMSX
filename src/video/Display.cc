@@ -39,7 +39,7 @@ Display::Display(MSXMotherBoard& motherboard_)
 {
 	// TODO clean up
 	motherboard.getCommandConsole().setDisplay(this);
-	
+
 	frameDurationSum = 0;
 	for (unsigned i = 0; i < NUM_FRAME_DURATIONS; ++i) {
 		frameDurations.addFront(20);
@@ -79,7 +79,7 @@ Display::~Display()
 			*this, EventDistributor::DETACHED);
 
 	resetVideoSystem();
-	
+
 	motherboard.getCommandConsole().setDisplay(0);
 }
 

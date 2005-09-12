@@ -309,10 +309,10 @@ GLRasterizer::GLRasterizer(CommandController& commandController,
 			     0,                // border
 			     GL_LUMINANCE,     // format
 			     GL_UNSIGNED_BYTE, // type
-			     dummy);           // data 
+			     dummy);           // data
 	}
-	
-	// texture for drawing stripes 
+
+	// texture for drawing stripes
 	glGenTextures(1, &stripeTexture);
 	glBindTexture(GL_TEXTURE_2D, stripeTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -557,7 +557,7 @@ void GLRasterizer::precalcColourIndex0(
 		    (palFg[16] != palBg[tpIndex &  3])) {
 			palFg[ 0] = palBg[tpIndex >> 2];
 			palFg[16] = palBg[tpIndex &  3];
-			
+
 			// Any line containing pixels of colour 0 must be repainted.
 			// We don't know which lines contain such pixels,
 			// so we have to repaint them all.
@@ -639,7 +639,7 @@ void GLRasterizer::drawBorder(int fromX, int fromY, int limitX, int limitY)
 	int x2 = translateX(limitX);
 	int y1 = (fromY  - lineRenderTop) * 2;
 	int y2 = (limitY - lineRenderTop) * 2;
-	
+
 	byte mode = vdp.getDisplayMode().getByte();
 	int bgColor = vdp.getBackgroundColour();
 

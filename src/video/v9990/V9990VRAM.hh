@@ -70,7 +70,7 @@ public:
 	inline void writeVRAMP2(unsigned address, byte value) {
 		data[transformP2(address)] = value;
 	}
-	
+
 	inline byte readVRAMDirect(unsigned address) {
 		return data[address];
 	}

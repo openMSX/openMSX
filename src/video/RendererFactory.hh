@@ -54,7 +54,7 @@ public:
 			CommandController& commandController);
 
 	/** TODO this is ugly, can it be done better?
-	  * Create renderer in progress? 
+	  * Create renderer in progress?
 	  */
 	static bool isCreateInProgress();
 

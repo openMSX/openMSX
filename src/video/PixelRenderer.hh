@@ -107,7 +107,7 @@ private:
 	EventDistributor& eventDistributor;
 	RealTime& realTime;
 	RenderSettings& renderSettings;
-	
+
 	/** The sprite checker whose sprites are rendered.
 	  */
 	SpriteChecker& spriteChecker;

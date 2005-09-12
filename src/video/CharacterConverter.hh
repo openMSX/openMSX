@@ -163,7 +163,7 @@ private:
 
 	const Pixel* palFg;
 	const Pixel* palBg;
-	
+
 	/** Dirty tables indicate which character blocks must be repainted.
 	  * The anyDirty variables are true when there is at least one
 	  * element in the dirty table that is true.

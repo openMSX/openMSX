@@ -105,7 +105,7 @@ static void fillTableNoT(unsigned op, byte* table)
 		for (unsigned src = 0; src < 256; ++src) {
 			table[dst * 256 + src] = func07(op, src, dst);
 		}
-	} 
+	}
 }
 
 static void fillTable2(unsigned op, byte* table)
@@ -119,7 +119,7 @@ static void fillTable2(unsigned op, byte* table)
 			res |= func67(op, src, dst);
 			table[dst * 256 + src] = res;
 		}
-	} 
+	}
 }
 
 static void fillTable4(unsigned op, byte* table)
@@ -131,7 +131,7 @@ static void fillTable4(unsigned op, byte* table)
 			res |= func47(op, src, dst);
 			table[dst * 256 + src] = res;
 		}
-	} 
+	}
 }
 
 static void fillTable8(unsigned op, byte* table)
@@ -143,7 +143,7 @@ static void fillTable8(unsigned op, byte* table)
 		for (unsigned src = 1; src < 256; ++src) { // src != 0
 			table[dst * 256 + src] = func07(op, src, dst);
 		}
-	} 
+	}
 }
 
 static void initTabs()
@@ -208,7 +208,7 @@ inline void V9990CmdEngine::V9990P1::pset(
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
 	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
-	byte result = (dstColor & ~mask2) | (newColor & mask2); 
+	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
 }
 inline void V9990CmdEngine::V9990P1::psetColor(
@@ -221,7 +221,7 @@ inline void V9990CmdEngine::V9990P1::psetColor(
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
 	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
-	byte result = (dstColor & ~mask2) | (newColor & mask2); 
+	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
 }
 
@@ -271,7 +271,7 @@ inline void V9990CmdEngine::V9990P2::pset(
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
 	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
-	byte result = (dstColor & ~mask2) | (newColor & mask2); 
+	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
 }
 
@@ -285,7 +285,7 @@ inline void V9990CmdEngine::V9990P2::psetColor(
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
 	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
-	byte result = (dstColor & ~mask2) | (newColor & mask2); 
+	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
 }
 
@@ -334,7 +334,7 @@ inline void V9990CmdEngine::V9990Bpp2::pset(
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
 	byte mask2 = mask1 & (0xC0 >> (2 * (x & 3)));
-	byte result = (dstColor & ~mask2) | (newColor & mask2); 
+	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
 }
 
@@ -348,7 +348,7 @@ inline void V9990CmdEngine::V9990Bpp2::psetColor(
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
 	byte mask2 = mask1 & (0xC0 >> (2 * (x & 3)));
-	byte result = (dstColor & ~mask2) | (newColor & mask2); 
+	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
 }
 
@@ -397,7 +397,7 @@ inline void V9990CmdEngine::V9990Bpp4::pset(
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
 	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
-	byte result = (dstColor & ~mask2) | (newColor & mask2); 
+	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
 }
 
@@ -411,7 +411,7 @@ inline void V9990CmdEngine::V9990Bpp4::psetColor(
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
 	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
-	byte result = (dstColor & ~mask2) | (newColor & mask2); 
+	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
 }
 
@@ -458,7 +458,7 @@ inline void V9990CmdEngine::V9990Bpp8::pset(
 	byte dstColor = vram.readVRAMDirect(addr);
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
-	byte result = (dstColor & ~mask1) | (newColor & mask1); 
+	byte result = (dstColor & ~mask1) | (newColor & mask1);
 	vram.writeVRAMDirect(addr, result);
 }
 
@@ -471,7 +471,7 @@ inline void V9990CmdEngine::V9990Bpp8::psetColor(
 	byte dstColor = vram.readVRAMDirect(addr);
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
-	byte result = (dstColor & ~mask1) | (newColor & mask1); 
+	byte result = (dstColor & ~mask1) | (newColor & mask1);
 	vram.writeVRAMDirect(addr, result);
 }
 
@@ -522,7 +522,7 @@ inline void V9990CmdEngine::V9990Bpp16::pset(
 	word dstColor = vram.readVRAMDirect(addr + 0x00000) +
 	                vram.readVRAMDirect(addr + 0x40000) * 256;
 	word newColor = logOp(lut, srcColor, dstColor, op & 0x10);
-	word result = (dstColor & ~mask) | (newColor & mask); 
+	word result = (dstColor & ~mask) | (newColor & mask);
 	vram.writeVRAMDirect(addr + 0x00000, result & 0xFF);
 	vram.writeVRAMDirect(addr + 0x40000, result >> 8);
 }
@@ -535,7 +535,7 @@ inline void V9990CmdEngine::V9990Bpp16::psetColor(
 	word dstColor = vram.readVRAMDirect(addr + 0x00000) +
 	                vram.readVRAMDirect(addr + 0x40000) * 256;
 	word newColor = logOp(lut, srcColor, dstColor, op & 0x10);
-	word result = (dstColor & ~mask) | (newColor & mask); 
+	word result = (dstColor & ~mask) | (newColor & mask);
 	vram.writeVRAMDirect(addr + 0x00000, result & 0xFF);
 	vram.writeVRAMDirect(addr + 0x40000, result >> 8);
 }
@@ -549,7 +549,7 @@ V9990CmdEngine::V9990CmdEngine(V9990& vdp_, const EmuTime& time)
 	                "v9990cmdtrace", "V9990 command tracing on/off", false)
 {
 	initTabs();
-	
+
 	CmdSTOP* stopCmd = new CmdSTOP(*this, vdp.getVRAM());
 	for (int mode = 0; mode < 6; ++mode) {
 		commands[0][mode] = stopCmd;
@@ -708,7 +708,7 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
 			}
 		}
 		currentCommand = commands[CMD >> 4][cmdMode];
-		
+
 		currentCommand->start(time);
 		break;
 	}

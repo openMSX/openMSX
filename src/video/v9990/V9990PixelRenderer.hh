@@ -57,7 +57,7 @@ private:
 	/** Settings shared between all renderers
 	  */
 	RenderSettings& renderSettings;
-	
+
 	/** The Rasterizer
 	  */
 	V9990Rasterizer* rasterizer;

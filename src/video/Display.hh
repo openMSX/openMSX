@@ -47,7 +47,7 @@ public:
 private:
 	// EventListener interface
 	virtual void signalEvent(const Event& event);
-	
+
 	// SettingListener interface
 	virtual void update(const Setting* setting);
 
@@ -68,7 +68,7 @@ private:
 
 	// the current renderer
 	RendererFactory::RendererID currentRenderer;
-	
+
 	// fps related data
 	static const unsigned NUM_FRAME_DURATIONS = 50;
 	CircularBuffer<unsigned long long, NUM_FRAME_DURATIONS> frameDurations;

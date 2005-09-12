@@ -26,7 +26,7 @@ void LowScaler<Pixel>::halve(const Pixel* pIn, Pixel* pOut)
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
-		// extended-MMX routine, 32bpp 
+		// extended-MMX routine, 32bpp
 		asm volatile (
 			"xorl %%eax, %%eax;"
 			".p2align 4,,15;"
@@ -61,7 +61,7 @@ void LowScaler<Pixel>::halve(const Pixel* pIn, Pixel* pOut)
 		return;
 	}
 	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
-		// MMX routine, 32bpp 
+		// MMX routine, 32bpp
 		asm volatile (
 			"xorl	%%eax, %%eax;"
 			"pxor	%%mm7, %%mm7;"
@@ -77,7 +77,7 @@ void LowScaler<Pixel>::halve(const Pixel* pIn, Pixel* pOut)
 			"paddw	%%mm4, %%mm0;"          // 0 = A + B
 			"punpckhbw	%%mm7, %%mm1;"  // 1 = 0D
 			"punpcklbw	%%mm7, %%mm5;"  // 5 = 0C
-			"psrlw	$1, %%mm0;"             // 0 = (A + B) / 2 
+			"psrlw	$1, %%mm0;"             // 0 = (A + B) / 2
 			"paddw	%%mm5, %%mm1;"          // 1 = C + D
 			"movq	%%mm2, %%mm4;"          // 4 = EF
 			"punpckhbw	%%mm7, %%mm2;"  // 2 = 0F
@@ -112,7 +112,7 @@ void LowScaler<Pixel>::halve(const Pixel* pIn, Pixel* pOut)
 		return;
 	}
 	if ((sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
-		// extended-MMX routine, 16bpp 
+		// extended-MMX routine, 16bpp
 		unsigned mask = blender.getMask();
 		mask = ~(mask | (mask << 16));
 		asm volatile (
@@ -175,7 +175,7 @@ void LowScaler<Pixel>::halve(const Pixel* pIn, Pixel* pOut)
 		return;
 	}
 	if ((sizeof(Pixel) == 2) && cpu.hasMMX()) {
-		// MMX routine, 16bpp 
+		// MMX routine, 16bpp
 		unsigned mask = blender.getMask();
 		mask = ~(mask | (mask << 16));
 		asm volatile (
@@ -238,7 +238,7 @@ void LowScaler<Pixel>::halve(const Pixel* pIn, Pixel* pOut)
 		return;
 	}
 	#endif
-	
+
 	// pure C++ version
 	for (int i = 0; i < 320; ++i) {
 		pOut[i] = blender.blend(pIn[2 * i + 0], pIn[2 * i + 1]);
