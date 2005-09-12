@@ -163,8 +163,8 @@ public:
 	 * Peek memory location
 	 * @see MSXDevice::peekMem()
 	 */
-	byte peekMem(word address) const;
-	byte peekSlottedMem(unsigned address) const;
+	byte peekMem(word address, const EmuTime& time) const;
+	byte peekSlottedMem(unsigned address, const EmuTime& time) const;
 	void writeSlottedMem(unsigned address, byte value,
 	                     const EmuTime& time);
 
@@ -183,7 +183,7 @@ private:
 	public:
 		MemoryDebug(MSXCPUInterface& interface,
 		            MSXMotherBoard& motherBoard);
-		virtual byte read(unsigned address);
+		virtual byte read(unsigned address, const EmuTime& time);
 		virtual void write(unsigned address, byte value, const EmuTime& time);
 	private:
 		MSXCPUInterface& interface;
@@ -193,7 +193,7 @@ private:
 	public:
 		SlottedMemoryDebug(MSXCPUInterface& interface,
 		                   MSXMotherBoard& motherBoard);
-		virtual byte read(unsigned address);
+		virtual byte read(unsigned address, const EmuTime& time);
 		virtual void write(unsigned address, byte value, const EmuTime& time);
 	private:
 		MSXCPUInterface& interface;

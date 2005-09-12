@@ -66,6 +66,16 @@ public:
 	 */
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
+	/**
+	 * Read a byte from a given IO port. Reading via this method has no
+	 * side effects (doesn't change the device status). If save reading
+	 * is not possible this method returns 0xFF.
+	 * This method is not used by the emulation. It can however be used
+	 * by a debugger.
+	 * The default implementation just returns 0xFF.
+	 */
+	virtual byte peekIO(byte port, const EmuTime& time) const;
+
 
 	// Memory
 
@@ -82,16 +92,6 @@ public:
 	 * The default implementation ignores the write (does nothing).
 	 */
 	virtual void writeMem(word address, byte value, const EmuTime& time);
-
-	/**
-	 * Read a byte from a given IO port. Reading via this method has no
-	 * side effects (doesn't change the device status). If save reading
-	 * is not possible this method returns 0xFF.
-	 * This method is not used by the emulation. It can however be used
-	 * by a debugger.
-	 * The default implementation just returns 0xFF.
-	 */
-	virtual byte peekIO(byte port, const EmuTime& time) const;
 
 	/**
 	 * Test that the memory in the interval [start, start+CACHE_LINE_SIZE)
@@ -131,7 +131,7 @@ public:
 	 * cacheable you cannot read it by default, Override this
 	 * method if you want to improve this behaviour.
 	 */
-	virtual byte peekMem(word address) const;
+	virtual byte peekMem(word address, const EmuTime& time) const;
 
 	/** Get the mother board this device belongs to
 	  */

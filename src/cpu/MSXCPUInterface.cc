@@ -281,16 +281,16 @@ void MSXCPUInterface::setSubSlot(byte primSlot, byte value)
 	}
 }
 
-byte MSXCPUInterface::peekMem(word address) const
+byte MSXCPUInterface::peekMem(word address, const EmuTime& time) const
 {
 	if ((address == 0xFFFF) && isSubSlotted[primarySlotState[3]]) {
 		return 0xFF ^ subSlotRegister[primarySlotState[3]];
 	} else {
-		return visibleDevices[address >> 14]->peekMem(address);
+		return visibleDevices[address >> 14]->peekMem(address, time);
 	}
 }
 
-byte MSXCPUInterface::peekSlottedMem(unsigned address) const
+byte MSXCPUInterface::peekSlottedMem(unsigned address, const EmuTime& time) const
 {
 	byte primSlot = (address & 0xC0000) >> 18;
 	byte subSlot = (address & 0x30000) >> 16;
@@ -303,7 +303,7 @@ byte MSXCPUInterface::peekSlottedMem(unsigned address) const
 	if ((offset == 0xFFFF) && isSubSlotted[primSlot]) {
 		return 0xFF ^ subSlotRegister[primSlot];
 	} else {
-		return slotLayout[primSlot][subSlot][page]->peekMem(offset);
+		return slotLayout[primSlot][subSlot][page]->peekMem(offset, time);
 	}
 }
 
@@ -410,9 +410,9 @@ MSXCPUInterface::MemoryDebug::MemoryDebug(
 {
 }
 
-byte MSXCPUInterface::MemoryDebug::read(unsigned address)
+byte MSXCPUInterface::MemoryDebug::read(unsigned address, const EmuTime& time)
 {
-	return interface.peekMem(address);
+	return interface.peekMem(address, time);
 }
 
 void MSXCPUInterface::MemoryDebug::write(unsigned address, byte value,
@@ -432,9 +432,9 @@ MSXCPUInterface::SlottedMemoryDebug::SlottedMemoryDebug(
 {
 }
 
-byte MSXCPUInterface::SlottedMemoryDebug::read(unsigned address)
+byte MSXCPUInterface::SlottedMemoryDebug::read(unsigned address, const EmuTime& time)
 {
-	return interface.peekSlottedMem(address);
+	return interface.peekSlottedMem(address, time);
 }
 
 void MSXCPUInterface::SlottedMemoryDebug::write(unsigned address, byte value,

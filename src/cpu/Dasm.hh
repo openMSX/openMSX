@@ -7,6 +7,7 @@
 #include <string>
 
 class MSXCPUInterface;
+class EmuTime;
 
 namespace openmsx {
 
@@ -18,7 +19,8 @@ namespace openmsx {
   * @param dest String representation of the disassembled opcode
   * @return Length of the disassembled opcode in bytes
   */
-int dasm(const MSXCPUInterface& interf, word pc, byte buf[4], std::string& dest);
+int dasm(const MSXCPUInterface& interf, word pc, byte buf[4], std::string& dest,
+         const EmuTime& time);
 
 } // namespace openmsx
 

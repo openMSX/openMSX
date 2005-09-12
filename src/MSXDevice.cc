@@ -223,7 +223,7 @@ void MSXDevice::writeMem(word address, byte /*value*/,
 	// do nothing
 }
 
-byte MSXDevice::peekMem(word address) const
+byte MSXDevice::peekMem(word address, const EmuTime& /*time*/) const
 {
 	word base = address & CPU::CACHE_LINE_HIGH;
 	const byte* cache = getReadCacheLine(base);

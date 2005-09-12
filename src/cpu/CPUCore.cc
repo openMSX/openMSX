@@ -208,7 +208,8 @@ template <class T> void CPUCore<T>::disasmCommand(
 	word address = (tokens.size() < 3) ? R.PC : tokens[2]->getInt();
 	byte outBuf[4];
 	std::string dasmOutput;
-	int len = dasm(*interface, address, outBuf, dasmOutput);
+	int len = dasm(*interface, address, outBuf, dasmOutput,
+	               T::clock.getTime());
 	result.addListElement(dasmOutput);
 	char tmp[3]; tmp[2] = 0;
 	for (int i = 0; i < len; ++i) {
@@ -441,7 +442,7 @@ template <class T> inline void CPUCore<T>::cpuTracePost()
 	if (traceSetting.getValue()) {
 		byte opbuf[4];
 		string dasmOutput;
-		dasm(*interface, start_pc, opbuf, dasmOutput);
+		dasm(*interface, start_pc, opbuf, dasmOutput, T::clock.getTime());
 		std::cout << std::setfill('0') << std::hex << std::setw(4) << start_pc
 		     << " : " << dasmOutput
 		     << " AF=" << std::setw(4) << R.AF
