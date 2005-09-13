@@ -3,6 +3,7 @@
 #ifndef RAWFRAME_HH
 #define RAWFRAME_HH
 
+#include "FrameSource.hh"
 // For definition of "byte", remove later?
 #include "openmsx.hh"
 
@@ -17,22 +18,14 @@ namespace openmsx {
 /** A video frame as output by the VDP scanline conversion unit,
   * before any postprocessing filters are applied.
   */
-class RawFrame
+class RawFrame : public FrameSource
 {
 public:
-	/** What role does this frame play in interlacing?
-	  */
-	enum FieldType {
-		/** Interlacing is off for this frame */
-		FIELD_NONINTERLACED,
-		/** Interlacing is on and this is an even frame */
-		FIELD_EVEN,
-		/** Interlacing is on and this is an odd frame */
-		FIELD_ODD,
-	};
-
 	RawFrame(SDL_PixelFormat* format, unsigned maxWidth);
 	~RawFrame();
+
+	virtual FieldType getField();
+	virtual unsigned getLineWidth(unsigned line);
 
 	/** Call this before using the object.
 	  * It is also possible to reuse a RawFrame by calling this method.
@@ -40,23 +33,10 @@ public:
 	  * 50 or 60 of them each second and the amount of data is rather large.
 	  * @param field Interlacing status of this frame.
 	  */
-	void reinit(FieldType field);
+	void init(FieldType field);
 
 	inline SDL_Surface* getSurface() {
 		return surface;
-	}
-
-	template <class Pixel>
-	//inline Pixel* getPixelPtr(int x, int y) {
-	inline Pixel* getPixelPtr(int x, int y, Pixel* /*dummy*/ = 0) {
-		return reinterpret_cast<Pixel*>(
-			reinterpret_cast<byte*>(surface->pixels) + y * surface->pitch
-			) + x;
-	}
-
-	inline unsigned getLineWidth(unsigned line) {
-		assert(line < HEIGHT);
-		return lineWidth[line];
 	}
 
 	inline void setLineWidth(unsigned line, unsigned width) {
@@ -73,22 +53,23 @@ public:
 	template <class Pixel>
 	inline void setBlank(unsigned line, Pixel colour0, Pixel colour1) {
 		assert(line < HEIGHT);
-		Pixel* pixels = getPixelPtr<Pixel>(0, line);
+		Pixel* pixels = getLinePtr(line, (Pixel*)0);
 		pixels[0] = colour0;
 		pixels[1] = colour1; // TODO: We store colour1, but no-one uses it.
 		lineWidth[line] = 0;
 	}
 
-	inline FieldType getField() {
-		return field;
+protected:
+	virtual void* getLinePtrImpl(unsigned line) {
+		return reinterpret_cast<byte*>(surface->pixels) + line * surface->pitch;
 	}
 
 private:
 
-	// TODO: Use MSX-derived dimensions instead?
-	//       That would be better if we ever want to support resizable screens.
 
 	/** Vertical dimensions of the screen.
+	  * TODO: Use MSX-derived dimensions instead.
+	  *       That would be better if we ever want to support resizable screens.
 	  */
 	static const unsigned HEIGHT = 240;
 
@@ -98,12 +79,6 @@ private:
 
 	FieldType field;
 };
-
-// Workaround for bug in GCC versions prior to 3.4.
-//   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=795
-// Note that we never define this function, just declaring it is enough to
-// make GCC do the right thing.
-//template <class Pixel> void getPixelPtr();
 
 } // namespace openmsx
 

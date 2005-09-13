@@ -1,5 +1,9 @@
 $Id$
 
+2005-09-12 Maarten ter Huurne <maarten@treewalker.org>
+	* Preparations for cleaner deinterlacing:
+	  introduced FrameSource as an abstract superclass of RawFrame.
+
 2005-09-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added EmuTime parameter to peekMem() method
 	* Implemented debug reads for FDC's

@@ -13,7 +13,7 @@ Visit the Scale2x site for info:
 */
 
 #include "Scale2xScaler.hh"
-#include "RawFrame.hh"
+#include "FrameSource.hh"
 #include "HostCPU.hh"
 #include "openmsx.hh"
 #include <cassert>
@@ -1087,16 +1087,16 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 }
 
 template <class Pixel>
-void Scale2xScaler<Pixel>::scale256(RawFrame& src, SDL_Surface* dst,
+void Scale2xScaler<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
                                     unsigned startY, unsigned endY, bool lower)
 {
 	unsigned dstY = 2 * startY + (lower ? 1 : 0);
 	unsigned prevY = startY;
 	while (startY < endY) {
 		Pixel* dummy = 0;
-		const Pixel* srcPrev = src.getPixelPtr(0, prevY,  dummy);
-		const Pixel* srcCurr = src.getPixelPtr(0, startY, dummy);
-		const Pixel* srcNext = src.getPixelPtr(0, min(startY + 1, endY - 1), dummy);
+		const Pixel* srcPrev = src.getLinePtr(prevY,  dummy);
+		const Pixel* srcCurr = src.getLinePtr(startY, dummy);
+		const Pixel* srcNext = src.getLinePtr(min(startY + 1, endY - 1), dummy);
 		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
 		scaleLine256Half(dstUpper, srcPrev, srcCurr, srcNext);
 		if (dstY == 480) break;
@@ -1108,16 +1108,16 @@ void Scale2xScaler<Pixel>::scale256(RawFrame& src, SDL_Surface* dst,
 }
 
 template <class Pixel>
-void Scale2xScaler<Pixel>::scale512(RawFrame& src, SDL_Surface* dst,
+void Scale2xScaler<Pixel>::scale512(FrameSource& src, SDL_Surface* dst,
                                     unsigned startY, unsigned endY, bool lower)
 {
 	unsigned dstY = 2 * startY + (lower ? 1 : 0);
 	unsigned prevY = startY;
 	while (startY < endY) {
 		Pixel* dummy = 0;
-		const Pixel* srcPrev = src.getPixelPtr(0, prevY,  dummy);
-		const Pixel* srcCurr = src.getPixelPtr(0, startY, dummy);
-		const Pixel* srcNext = src.getPixelPtr(0, min(startY + 1, endY - 1), dummy);
+		const Pixel* srcPrev = src.getLinePtr(prevY,  dummy);
+		const Pixel* srcCurr = src.getLinePtr(startY, dummy);
+		const Pixel* srcNext = src.getLinePtr(min(startY + 1, endY - 1), dummy);
 		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
 		scaleLine512Half(dstUpper, srcPrev, srcCurr, srcNext);
 		if (dstY == 480) break;

@@ -129,7 +129,7 @@ void V9990SDLRasterizer<Pixel>::drawBorder(
 	unsigned lineWidth = vdp.getLineWidth();
 	for (int y = startY; y < endY; ++y) {
 		MemoryOps::memset<Pixel, MemoryOps::NO_STREAMING>(
-			workFrame->getPixelPtr(startX, y, (Pixel*)0),
+			workFrame->getLinePtr(y, (Pixel*)0) + startX,
 			endX - startX, bgColor);
 		workFrame->setLineWidth(y, lineWidth);
 	}
@@ -191,8 +191,7 @@ void V9990SDLRasterizer<Pixel>::drawP1Mode(
 	int displayWidth, int displayHeight)
 {
 	while (displayHeight--) {
-		Pixel* pixelPtr = workFrame->getPixelPtr(
-			fromX, fromY, (Pixel*)0);
+		Pixel* pixelPtr = workFrame->getLinePtr(fromY, (Pixel*)0) + fromX;
 		p1Converter.convertLine(pixelPtr, displayX, displayWidth,
 		                        displayY);
 		workFrame->setLineWidth(fromY, 256);
@@ -207,8 +206,7 @@ void V9990SDLRasterizer<Pixel>::drawP2Mode(
 	int displayWidth, int displayHeight)
 {
 	while (displayHeight--) {
-		Pixel* pixelPtr = workFrame->getPixelPtr(
-			fromX, fromY, (Pixel*)0);
+		Pixel* pixelPtr = workFrame->getLinePtr(fromY, (Pixel*)0) + fromX;
 		p2Converter.convertLine(pixelPtr, displayX, displayWidth,
 		                        displayY);
 		workFrame->setLineWidth(fromY, 512);
@@ -246,8 +244,7 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 	while (displayHeight--) {
 		unsigned y = scrollYBase + (displayY + scrollY) & rollMask;
 		unsigned address = vdp.XYtoVRAM(&x, y, colorMode);
-		Pixel* pixelPtr = workFrame->getPixelPtr(
-			fromX, fromY, (Pixel*)0);
+		Pixel* pixelPtr = workFrame->getLinePtr(fromY, (Pixel*)0) + fromX;
 		bitmapConverter.convertLine(pixelPtr, address, displayWidth,
 		                            displayY);
 		workFrame->setLineWidth(fromY, vdp.getLineWidth());

@@ -32,7 +32,8 @@ HDR_ONLY:= \
 	VRAMObserver \
 	SpriteConverter \
 	Blender \
-	Rasterizer
+	Rasterizer \
+	FrameSource
 
 SRC_HDR_$(COMPONENT_GL)+= \
 	SDLGLVideoSystem GLRasterizer GLSnow GLUtil GLImage

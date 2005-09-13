@@ -7,7 +7,7 @@
 // Modified for use in openMSX by Maarten ter Huurne.
 
 #include "SaI2xScaler.hh"
-#include "RawFrame.hh"
+#include "FrameSource.hh"
 #include "openmsx.hh"
 #include <cassert>
 
@@ -244,16 +244,16 @@ void SaI2xScaler<Pixel>::scaleLine512(
 }
 
 template <class Pixel>
-void SaI2xScaler<Pixel>::scale256(RawFrame& src, SDL_Surface* dst,
+void SaI2xScaler<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
                                   unsigned startY, unsigned endY, bool lower)
 {
 	assert(dst->w == WIDTH256 * 2);
 	unsigned dstY = 2 * startY + (lower ? 1 : 0);
 	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine0 = src.getPixelPtr(0, max(y - 1, startY),   (Pixel*)0);
-		const Pixel* srcLine1 = src.getPixelPtr(0, y,                    (Pixel*)0);
-		const Pixel* srcLine2 = src.getPixelPtr(0, min(y + 1, endY - 1), (Pixel*)0);
-		const Pixel* srcLine3 = src.getPixelPtr(0, min(y + 2, endY - 1), (Pixel*)0);
+		const Pixel* srcLine0 = src.getLinePtr(max(y - 1, startY),   (Pixel*)0);
+		const Pixel* srcLine1 = src.getLinePtr(y,                    (Pixel*)0);
+		const Pixel* srcLine2 = src.getLinePtr(min(y + 1, endY - 1), (Pixel*)0);
+		const Pixel* srcLine3 = src.getLinePtr(min(y + 2, endY - 1), (Pixel*)0);
 		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
 		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, min(dstY++, HEIGHT - 1));
 
@@ -263,16 +263,16 @@ void SaI2xScaler<Pixel>::scale256(RawFrame& src, SDL_Surface* dst,
 }
 
 template <class Pixel>
-void SaI2xScaler<Pixel>::scale512(RawFrame& src, SDL_Surface* dst,
+void SaI2xScaler<Pixel>::scale512(FrameSource& src, SDL_Surface* dst,
                                   unsigned startY, unsigned endY, bool lower)
 {
 	assert(dst->w == WIDTH512);
 	unsigned dstY = 2 * startY + (lower ? 1 : 0);
 	for (unsigned y = startY; y < endY; y++) {
-		const Pixel* srcLine0 = src.getPixelPtr(0, max(y - 1, startY),   (Pixel*)0);
-		const Pixel* srcLine1 = src.getPixelPtr(0, y,                    (Pixel*)0);
-		const Pixel* srcLine2 = src.getPixelPtr(0, min(y + 1, endY - 1), (Pixel*)0);
-		const Pixel* srcLine3 = src.getPixelPtr(0, min(y + 2, endY - 1), (Pixel*)0);
+		const Pixel* srcLine0 = src.getLinePtr(max(y - 1, startY),   (Pixel*)0);
+		const Pixel* srcLine1 = src.getLinePtr(y,                    (Pixel*)0);
+		const Pixel* srcLine2 = src.getLinePtr(min(y + 1, endY - 1), (Pixel*)0);
+		const Pixel* srcLine3 = src.getLinePtr(min(y + 2, endY - 1), (Pixel*)0);
 		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
 		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, min(dstY++, HEIGHT - 1));
 

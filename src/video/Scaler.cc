@@ -7,7 +7,7 @@
 #include "HQ2xScaler.hh"
 #include "HQ2xLiteScaler.hh"
 #include "LowScaler.hh"
-#include "RawFrame.hh"
+#include "FrameSource.hh"
 #include "HostCPU.hh"
 #include <algorithm>
 #include <cstring>
@@ -615,13 +615,13 @@ void Scaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale256(RawFrame& src, SDL_Surface* dst,
+void Scaler<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
                              unsigned startY, unsigned endY, bool lower)
 {
 	unsigned y1 = 2 * startY + (lower ? 1 : 0);
 	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
 	for (unsigned y = y1; y < y2; y += 2, ++startY) {
-		const Pixel* srcLine = src.getPixelPtr(0, startY, (Pixel*)0);
+		const Pixel* srcLine = src.getLinePtr(startY, (Pixel*)0);
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 0);
 		scaleLine(srcLine, dstLine1, 320);
 		if (y == (480 - 1)) break;
@@ -631,28 +631,28 @@ void Scaler<Pixel>::scale256(RawFrame& src, SDL_Surface* dst,
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale256(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+void Scaler<Pixel>::scale256(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
                              unsigned startY, unsigned endY)
 {
 	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine0 = src0.getPixelPtr(0, y, (Pixel*)0);
+		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 2 * y + 0);
 		scaleLine(srcLine0, dstLine0, 320);
 
-		const Pixel* srcLine1 = src1.getPixelPtr(0, y, (Pixel*)0);
+		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 2 * y + 1);
 		scaleLine(srcLine1, dstLine1, 320);
 	}
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale512(RawFrame& src, SDL_Surface* dst,
+void Scaler<Pixel>::scale512(FrameSource& src, SDL_Surface* dst,
                              unsigned startY, unsigned endY, bool lower)
 {
 	unsigned y1 = 2 * startY + (lower ? 1 : 0);
 	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
 	for (unsigned y = y1; y < y2; y += 2, ++startY) {
-		const Pixel* srcLine = src.getPixelPtr(0, startY, (Pixel*)0);
+		const Pixel* srcLine = src.getLinePtr(startY, (Pixel*)0);
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 0);
 		copyLine(srcLine, dstLine1, 640);
 		if (y == (480 - 1)) break;
@@ -662,28 +662,28 @@ void Scaler<Pixel>::scale512(RawFrame& src, SDL_Surface* dst,
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale512(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+void Scaler<Pixel>::scale512(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
                              unsigned startY, unsigned endY)
 {
 	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine0 = src0.getPixelPtr(0, y, (Pixel*)0);
+		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 2 * y + 0);
 		copyLine(srcLine0, dstLine0, 640);
 
-		const Pixel* srcLine1 = src1.getPixelPtr(0, y, (Pixel*)0);
+		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 2 * y + 1);
 		copyLine(srcLine1, dstLine1, 640);
 	}
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale192(RawFrame& src, SDL_Surface* dst,
+void Scaler<Pixel>::scale192(FrameSource& src, SDL_Surface* dst,
                              unsigned startY, unsigned endY, bool lower)
 {
 	unsigned y1 = 2 * startY + (lower ? 1 : 0);
 	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
 	for (unsigned y = y1; y < y2; y += 2, ++startY) {
-		const Pixel* srcLine = src.getPixelPtr(0, startY, (Pixel*)0);
+		const Pixel* srcLine = src.getLinePtr(startY, (Pixel*)0);
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 0);
 		scale_1on3(srcLine, dstLine1, 213); // TODO
 		if (y == (480 - 1)) break;
@@ -693,28 +693,28 @@ void Scaler<Pixel>::scale192(RawFrame& src, SDL_Surface* dst,
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale192(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+void Scaler<Pixel>::scale192(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
                              unsigned startY, unsigned endY)
 {
 	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine0 = src0.getPixelPtr(0, y, (Pixel*)0);
+		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 2 * y + 0);
 		scale_1on3(srcLine0, dstLine0, 213); // TODO
 
-		const Pixel* srcLine1 = src1.getPixelPtr(0, y, (Pixel*)0);
+		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 2 * y + 1);
 		scale_1on3(srcLine1, dstLine1, 213); // TODO
 	}
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale384(RawFrame& src, SDL_Surface* dst,
+void Scaler<Pixel>::scale384(FrameSource& src, SDL_Surface* dst,
                              unsigned startY, unsigned endY, bool lower)
 {
 	unsigned y1 = 2 * startY + (lower ? 1 : 0);
 	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
 	for (unsigned y = y1; y < y2; y += 2, ++startY) {
-		const Pixel* srcLine = src.getPixelPtr(0, startY, (Pixel*)0);
+		const Pixel* srcLine = src.getLinePtr(startY, (Pixel*)0);
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 0);
 		scale_2on3(srcLine, dstLine1, 426); // TODO
 		if (y == (480 - 1)) break;
@@ -724,42 +724,42 @@ void Scaler<Pixel>::scale384(RawFrame& src, SDL_Surface* dst,
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale384(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+void Scaler<Pixel>::scale384(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
                              unsigned startY, unsigned endY)
 {
 	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine0 = src0.getPixelPtr(0, y, (Pixel*)0);
+		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 2 * y + 0);
 		scale_2on3(srcLine0, dstLine0, 426); // TODO
 
-		const Pixel* srcLine1 = src1.getPixelPtr(0, y, (Pixel*)0);
+		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 2 * y + 1);
 		scale_2on3(srcLine1, dstLine1, 426); // TODO
 	}
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale640(RawFrame& /*src*/, SDL_Surface* /*dst*/,
+void Scaler<Pixel>::scale640(FrameSource& /*src*/, SDL_Surface* /*dst*/,
                              unsigned /*startY*/, unsigned /*endY*/, bool /*lower*/)
 {
 	// TODO
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale640(RawFrame& /*src0*/, RawFrame& /*src1*/, SDL_Surface* /*dst*/,
+void Scaler<Pixel>::scale640(FrameSource& /*src0*/, FrameSource& /*src1*/, SDL_Surface* /*dst*/,
                              unsigned /*startY*/, unsigned /*endY*/)
 {
 	// TODO
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale768(RawFrame& src, SDL_Surface* dst,
+void Scaler<Pixel>::scale768(FrameSource& src, SDL_Surface* dst,
                              unsigned startY, unsigned endY, bool lower)
 {
 	unsigned y1 = 2 * startY + (lower ? 1 : 0);
 	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
 	for (unsigned y = y1; y < y2; y += 2, ++startY) {
-		const Pixel* srcLine = src.getPixelPtr(0, startY, (Pixel*)0);
+		const Pixel* srcLine = src.getLinePtr(startY, (Pixel*)0);
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 0);
 		scale_4on3(srcLine, dstLine1, 853); // TODO
 		if (y == (480 - 1)) break;
@@ -769,28 +769,28 @@ void Scaler<Pixel>::scale768(RawFrame& src, SDL_Surface* dst,
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale768(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+void Scaler<Pixel>::scale768(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
                              unsigned startY, unsigned endY)
 {
 	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine0 = src0.getPixelPtr(0, y, (Pixel*)0);
+		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 2 * y + 0);
 		scale_4on3(srcLine0, dstLine0, 853); // TODO
 
-		const Pixel* srcLine1 = src1.getPixelPtr(0, y, (Pixel*)0);
+		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 2 * y + 1);
 		scale_4on3(srcLine1, dstLine1, 853); // TODO
 	}
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale1024(RawFrame& src, SDL_Surface* dst,
+void Scaler<Pixel>::scale1024(FrameSource& src, SDL_Surface* dst,
                               unsigned startY, unsigned endY, bool lower)
 {
 	unsigned y1 = 2 * startY + (lower ? 1 : 0);
 	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
 	for (unsigned y = y1; y < y2; y += 2, ++startY) {
-		const Pixel* srcLine = src.getPixelPtr(0, startY, (Pixel*)0);
+		const Pixel* srcLine = src.getLinePtr(startY, (Pixel*)0);
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 0);
 		scale_2on1(srcLine, dstLine1, 1280);
 		if (y == (480 - 1)) break;
@@ -800,15 +800,15 @@ void Scaler<Pixel>::scale1024(RawFrame& src, SDL_Surface* dst,
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale1024(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+void Scaler<Pixel>::scale1024(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
                               unsigned startY, unsigned endY)
 {
 	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine0 = src0.getPixelPtr(0, y, (Pixel*)0);
+		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 2 * y + 0);
 		scale_2on1(srcLine0, dstLine0, 1280); // TODO
 
-		const Pixel* srcLine1 = src1.getPixelPtr(0, y, (Pixel*)0);
+		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 2 * y + 1);
 		scale_2on1(srcLine1, dstLine1, 1280); // TODO
 	}

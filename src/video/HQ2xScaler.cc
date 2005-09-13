@@ -11,7 +11,7 @@ Visit the HiEnd3D site for info:
 */
 
 #include "HQ2xScaler.hh"
-#include "RawFrame.hh"
+#include "FrameSource.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -2375,16 +2375,16 @@ static void scaleLine512(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 }
 
 template <class Pixel>
-void HQ2xScaler<Pixel>::scale256(RawFrame& src, SDL_Surface* dst,
+void HQ2xScaler<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
                                  unsigned startY, unsigned endY, bool lower)
 {
 	unsigned dstY = 2 * startY + (lower ? 1 : 0);
 	unsigned prevY = startY;
 	while (startY < endY) {
 		Pixel* dummy = 0;
-		const Pixel* srcPrev = src.getPixelPtr(0, prevY,  dummy);
-		const Pixel* srcCurr = src.getPixelPtr(0, startY, dummy);
-		const Pixel* srcNext = src.getPixelPtr(0, min(startY + 1, endY - 1), dummy);
+		const Pixel* srcPrev = src.getLinePtr(prevY,  dummy);
+		const Pixel* srcCurr = src.getLinePtr(startY, dummy);
+		const Pixel* srcNext = src.getLinePtr(min(startY + 1, endY - 1), dummy);
 		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY + 0);
 		Pixel* dstLower = (dstY != (480 - 1))
 		                ? Scaler<Pixel>::linePtr(dst, dstY + 1)
@@ -2397,16 +2397,16 @@ void HQ2xScaler<Pixel>::scale256(RawFrame& src, SDL_Surface* dst,
 }
 
 template <class Pixel>
-void HQ2xScaler<Pixel>::scale512(RawFrame& src, SDL_Surface* dst,
+void HQ2xScaler<Pixel>::scale512(FrameSource& src, SDL_Surface* dst,
                                  unsigned startY, unsigned endY, bool lower)
 {
 	unsigned dstY = 2 * startY + (lower ? 1 : 0);
 	unsigned prevY = startY;
 	while (startY < endY) {
 		Pixel* dummy = 0;
-		const Pixel* srcPrev = src.getPixelPtr(0, prevY,  dummy);
-		const Pixel* srcCurr = src.getPixelPtr(0, startY, dummy);
-		const Pixel* srcNext = src.getPixelPtr(0, min(startY + 1, endY - 1), dummy);
+		const Pixel* srcPrev = src.getLinePtr(prevY,  dummy);
+		const Pixel* srcCurr = src.getLinePtr(startY, dummy);
+		const Pixel* srcNext = src.getLinePtr(min(startY + 1, endY - 1), dummy);
 		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY + 0);
 		Pixel* dstLower = (dstY != (480 - 1))
 		                ? Scaler<Pixel>::linePtr(dst, dstY + 1)

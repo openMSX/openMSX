@@ -72,9 +72,9 @@ void PostProcessor<Pixel>::paint()
 		switch (lineWidth) {
 		case 0: { // blank line
 			// Reduce area to same-colour starting segment.
-			const Pixel colour = *currFrame->getPixelPtr(0, startY, (Pixel*)0);
+			const Pixel colour = *currFrame->getLinePtr(startY, (Pixel*)0);
 			for (unsigned y = startY + 1; y < endY; y++) {
-				const Pixel colour2 = *currFrame->getPixelPtr(0, y, (Pixel*)0);
+				const Pixel colour2 = *currFrame->getLinePtr(y, (Pixel*)0);
 				if (colour != colour2) endY = y;
 			}
 
@@ -180,7 +180,7 @@ RawFrame* PostProcessor<Pixel>::rotateFrames(
 	RawFrame* reuseFrame = prevFrame;
 	prevFrame = currFrame;
 	currFrame = finishedFrame;
-	reuseFrame->reinit(field);
+	reuseFrame->init(field);
 	return reuseFrame;
 }
 

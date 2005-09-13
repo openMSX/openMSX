@@ -11,7 +11,7 @@
 namespace openmsx {
 
 class RenderSettings;
-class RawFrame;
+class FrameSource;
 
 /** Enumeration of Scalers known to openMSX.
   */
@@ -67,9 +67,9 @@ public:
 	  * @param endY Y-coordinate of the bottom source line (exclusive).
 	  * @param lower True iff frame must be displayed half a line lower
 	  */
-	virtual void scale256(RawFrame& src, SDL_Surface* dst,
+	virtual void scale256(FrameSource& src, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY, bool lower);
-	virtual void scale256(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	virtual void scale256(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY);
 
 	/** Scales the given area. Scaling factor depends on the concrete scaler
@@ -81,30 +81,30 @@ public:
 	  * @param endY Y-coordinate of the bottom source line (exclusive).
 	  * @param lower True iff frame must be displayed half a line lower
 	  */
-	virtual void scale512(RawFrame& src, SDL_Surface* dst,
+	virtual void scale512(FrameSource& src, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY, bool lower);
-	virtual void scale512(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	virtual void scale512(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY);
 
-	virtual void scale192(RawFrame& src, SDL_Surface* dst,
+	virtual void scale192(FrameSource& src, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY, bool lower);
-	virtual void scale192(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	virtual void scale192(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY);
-	virtual void scale384(RawFrame& src, SDL_Surface* dst,
+	virtual void scale384(FrameSource& src, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY, bool lower);
-	virtual void scale384(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	virtual void scale384(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY);
-	virtual void scale640(RawFrame& src, SDL_Surface* dst,
+	virtual void scale640(FrameSource& src, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY, bool lower);
-	virtual void scale640(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	virtual void scale640(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY);
-	virtual void scale768(RawFrame& src, SDL_Surface* dst,
+	virtual void scale768(FrameSource& src, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY, bool lower);
-	virtual void scale768(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	virtual void scale768(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY);
-	virtual void scale1024(RawFrame& src, SDL_Surface* dst,
+	virtual void scale1024(FrameSource& src, SDL_Surface* dst,
 	                       unsigned startY, unsigned endY, bool lower);
-	virtual void scale1024(RawFrame& src0, RawFrame& src1, SDL_Surface* dst,
+	virtual void scale1024(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                       unsigned startY, unsigned endY);
 
 

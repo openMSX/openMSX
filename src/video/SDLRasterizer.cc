@@ -449,7 +449,7 @@ void SDLRasterizer<Pixel>::drawBorder(
 	unsigned num = translateX(limitX, (lineWidth == 512)) - x;
 	for (int y = startY; y < endY; ++y) {
 		MemoryOps::memset_2<Pixel, MemoryOps::NO_STREAMING>(
-			workFrame->getPixelPtr(x, y, (Pixel*)0), num, border0, border1);
+			workFrame->getLinePtr(y, (Pixel*)0) + x, num, border0, border1);
 		workFrame->setLineWidth(y, lineWidth);
 	}
 }
@@ -627,7 +627,7 @@ void SDLRasterizer<Pixel>::drawSprites(
 		vdp.getDisplayMode().getLineWidth() == 512
 		);
 	for (int y = fromY; y < limitY; y++, screenY++) {
-		Pixel* pixelPtr = workFrame->getPixelPtr(screenX, screenY, (Pixel*)0);
+		Pixel* pixelPtr = workFrame->getLinePtr(screenY, (Pixel*)0) + screenX;
 		if (spriteMode == 1) {
 			spriteConverter.drawMode1(y, displayX, displayLimitX, pixelPtr);
 		} else {

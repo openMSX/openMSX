@@ -15,9 +15,9 @@ class Scale2xScaler: public Scaler<Pixel>
 public:
 	Scale2xScaler(SDL_PixelFormat* format);
 
-	virtual void scale256(RawFrame& src, SDL_Surface* dst,
+	virtual void scale256(FrameSource& src, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY, bool lower);
-	virtual void scale512(RawFrame& src, SDL_Surface* dst,
+	virtual void scale512(FrameSource& src, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY, bool lower);
 
 private:

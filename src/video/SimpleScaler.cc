@@ -1,7 +1,7 @@
 // $Id$
 
 #include "SimpleScaler.hh"
-#include "RawFrame.hh"
+#include "FrameSource.hh"
 #include "RenderSettings.hh"
 #include "IntegerSetting.hh"
 #include "HostCPU.hh"
@@ -757,20 +757,20 @@ void SimpleScaler<Pixel>::average(
 }
 
 template <class Pixel>
-void SimpleScaler<Pixel>::scale256(RawFrame& src, SDL_Surface* dst,
+void SimpleScaler<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
                                    unsigned startY, unsigned endY, bool lower)
 {
 	int blur = (blurSetting.getValue() * 256) / 100;
 	int scanline = 255 - (scanlineSetting.getValue() * 255) / 100;
 
 	unsigned dstY = 2 * startY + (lower ? 1 : 0);
-	const Pixel* srcLine = src.getPixelPtr(0, startY++, (Pixel*)0);
+	const Pixel* srcLine = src.getLinePtr(startY++, (Pixel*)0);
 	Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, dstY++);
 	Pixel* prevDstLine0 = dstLine0;
 	blur256(srcLine, dstLine0, blur);
 
 	while (startY < endY) {
-		srcLine = src.getPixelPtr(0, startY++, (Pixel*)0);
+		srcLine = src.getLinePtr(startY++, (Pixel*)0);
 		dstLine0 = Scaler<Pixel>::linePtr(dst, dstY + 1);
 		blur256(srcLine, dstLine0, blur);
 
@@ -789,20 +789,20 @@ void SimpleScaler<Pixel>::scale256(RawFrame& src, SDL_Surface* dst,
 }
 
 template <class Pixel>
-void SimpleScaler<Pixel>::scale512(RawFrame& src, SDL_Surface* dst,
+void SimpleScaler<Pixel>::scale512(FrameSource& src, SDL_Surface* dst,
                                    unsigned startY, unsigned endY, bool lower)
 {
 	int blur = (blurSetting.getValue() * 256) / 100;
 	int scanline = 255 - (scanlineSetting.getValue() * 255) / 100;
 
 	unsigned dstY = 2 * startY + (lower ? 1 : 0);
-	const Pixel* srcLine = src.getPixelPtr(0, startY++, (Pixel*)0);
+	const Pixel* srcLine = src.getLinePtr(startY++, (Pixel*)0);
 	Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, dstY++);
 	Pixel* prevDstLine0 = dstLine0;
 	blur512(srcLine, dstLine0, blur);
 
 	while (startY < endY) {
-		srcLine = src.getPixelPtr(0, startY++, (Pixel*)0);
+		srcLine = src.getLinePtr(startY++, (Pixel*)0);
 		dstLine0 = Scaler<Pixel>::linePtr(dst, dstY + 1);
 		blur512(srcLine, dstLine0, blur);
 

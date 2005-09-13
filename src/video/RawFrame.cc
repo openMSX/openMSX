@@ -4,6 +4,8 @@
 
 namespace openmsx {
 
+static const unsigned WIDTH_UNINITIALIZED = 13;
+
 RawFrame::RawFrame(SDL_PixelFormat* format, unsigned maxWidth)
 {
 	surface = SDL_CreateRGBSurface(
@@ -15,7 +17,7 @@ RawFrame::RawFrame(SDL_PixelFormat* format, unsigned maxWidth)
 		format->Bmask,
 		format->Amask
 		);
-	reinit(FIELD_NONINTERLACED);
+	init(FIELD_UNINITIALIZED);
 }
 
 RawFrame::~RawFrame()
@@ -23,15 +25,27 @@ RawFrame::~RawFrame()
 	SDL_FreeSurface(surface);
 }
 
-void RawFrame::reinit(FieldType field)
+RawFrame::FieldType RawFrame::getField()
+{
+	assert(field != -1);
+	return field;
+}
+
+unsigned RawFrame::getLineWidth(unsigned line)
+{
+	assert(line < HEIGHT);
+	unsigned width = lineWidth[line];
+	assert(width != WIDTH_UNINITIALIZED);
+	return width;
+}
+
+void RawFrame::init(FieldType field)
 {
 	this->field = field;
 
-	// Initialise lineWidth.
-	// TODO: Colour of blank lines should be initialised as well.
-	// TODO: Is there a point to initialising this at all?
+	// Mark lineWidth as uninitialized.
 	for (unsigned y = 0; y < HEIGHT; y++) {
-		lineWidth[y] = 0;
+		lineWidth[y] = WIDTH_UNINITIALIZED;
 	}
 }
 
