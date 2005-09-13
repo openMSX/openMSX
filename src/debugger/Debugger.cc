@@ -312,7 +312,7 @@ void Debugger::DebugCmd::listBreakPoints(const std::vector<TclObject*>& /*tokens
 	for (CPU::BreakPoints::const_iterator it = breakPoints.begin();
 	     it != breakPoints.end(); ++it) {
 		const BreakPoint& bp = *it->second;
-		os << "bp#" << bp.getId() << " "
+		os << "bp#" << std::dec << bp.getId() << " "
 		      "0x" << std::hex << std::setw(4) << bp.getAddress() <<
 		      ' ' << bp.getCondition() << '\n';
 	}
