@@ -4,13 +4,9 @@
 #define RAWFRAME_HH
 
 #include "FrameSource.hh"
-// For definition of "byte", remove later?
-#include "openmsx.hh"
-
-// Get rid of this later.
-#include <SDL.h>
-
 #include <cassert>
+// TODO: Get rid of SDL dependency.
+#include <SDL.h>
 
 
 namespace openmsx {
@@ -60,9 +56,7 @@ public:
 	}
 
 protected:
-	virtual void* getLinePtrImpl(unsigned line) {
-		return reinterpret_cast<byte*>(surface->pixels) + line * surface->pitch;
-	}
+	virtual void* getLinePtrImpl(unsigned line);
 
 private:
 

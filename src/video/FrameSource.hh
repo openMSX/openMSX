@@ -23,9 +23,6 @@ public:
 		/** Interlacing is on and this is an odd frame.
 		  */
 		FIELD_ODD,
-		/** Used to detect use of not properly initialized variables.
-		  */
-		FIELD_UNINITIALIZED,
 	};
 
 	virtual ~FrameSource() {};
