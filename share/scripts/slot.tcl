@@ -37,10 +37,29 @@ proc slotselect { } {
 }
 
 #
+# Returns the size of the memory mapper in a given slot.
+# Result is 0 when there is no memory mapper in the slot.
+#
+proc get_mapper_size { ps ss } {
+	set result 0
+	catch {
+		set slots [split [slotmap] \n]
+		set slot_name "$ps"
+		if [openmsx_info issubslotted $ps] { append slot_name ".$ss" }
+		set index [lsearch $slots "slot $slot_name:"]
+		set device [lrange [lindex $slots [expr $index + 2]] 1 end]
+		if { [debug desc $device] == "memory mapper" } {
+			set result [expr [debug size $device] / 0x4000]
+		}
+	}
+	return $result
+}
+
+#
 # Test whether the CPU's program counter is inside a certain slot.
 # Typically used to set breakpoints in specific slots.
 #
-proc pc_in_slot { ps {ss "X"} } {
+proc pc_in_slot { ps {ss "X"} {mapper "X"} } {
 	set d "CPU regs"
 	set pc [expr [debug read $d 20] * 256 + [debug read $d 21]]
 	set page [expr $pc >> 14]
@@ -48,7 +67,9 @@ proc pc_in_slot { ps {ss "X"} } {
 	set pc_ps [lindex $tmp 0]
 	set pc_ss [lindex $tmp 1]
 	if { $ps != $pc_ps } { return false }
-	if [string equal $ss    "X"] { return true }
-	if [string equal $pc_ss "X"] { return true }
-	return [expr $ss == $pc_ss]
+	if {($ss != "X") && ($pc_ss != "X") && ($pc_ss != $ss)} { return false }
+	set mapper_size [get_mapper_size $pc_ps $pc_ss]
+	if { ($mapper_size == 0) || ($mapper == "X" ) } { return true }
+	set pc_mapper [debug read "MapperIO" $page]
+	return [expr $mapper == ($pc_mapper & ($mapper_size - 1))]
 }
