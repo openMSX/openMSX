@@ -1,30 +1,29 @@
 // $Id$
 
 #include "RawFrame.hh"
-// For definition of "byte", remove later?
-#include "openmsx.hh"
 #include <cstring>
-
+#include <cstdlib>
 
 namespace openmsx {
 
-RawFrame::RawFrame(SDL_PixelFormat* format, unsigned maxWidth)
+RawFrame::RawFrame(unsigned bytesPerPixel, unsigned maxWidth_, unsigned height_)
+	: maxWidth(maxWidth_)
+	, height(height_)
 {
-	surface = SDL_CreateRGBSurface(
-		SDL_SWSURFACE,
-		maxWidth, HEIGHT,
-		format->BitsPerPixel,
-		format->Rmask,
-		format->Gmask,
-		format->Bmask,
-		format->Amask
-		);
+	lineWidth = new unsigned[height];
+	
+	// Allocate memory, make sure each line begins at a 64 byte boundary
+	//  SSE instruction need 16 byte alligned data
+	//  cache line size on athlon and P4 CPUs is 64 bytes
+	pitch = ((bytesPerPixel * maxWidth) + 63) & ~63;
+	unallignedData = malloc(pitch * height + 63);
+	data = (char*)(((unsigned)unallignedData + 63) & ~63);
 
 	// Start with a black frame.
 	init(FIELD_NONINTERLACED);
-	for (unsigned line = 0; line < HEIGHT; line++) {
+	for (unsigned line = 0; line < height; line++) {
 		// Make first two pixels black.
-		memset(getLinePtrImpl(line), 0, format->BitsPerPixel * 2);
+		memset(getLinePtrImpl(line), 0, bytesPerPixel * 2);
 		// Mark line as border.
 		lineWidth[line] = 0;
 	}
@@ -32,7 +31,8 @@ RawFrame::RawFrame(SDL_PixelFormat* format, unsigned maxWidth)
 
 RawFrame::~RawFrame()
 {
-	SDL_FreeSurface(surface);
+	free(unallignedData);
+	delete[] lineWidth;
 }
 
 RawFrame::FieldType RawFrame::getField()
@@ -42,7 +42,7 @@ RawFrame::FieldType RawFrame::getField()
 
 unsigned RawFrame::getLineWidth(unsigned line)
 {
-	assert(line < HEIGHT);
+	assert(line < height);
 	return lineWidth[line];
 }
 
@@ -51,8 +51,9 @@ void RawFrame::init(FieldType field)
 	this->field = field;
 }
 
-void* RawFrame::getLinePtrImpl(unsigned line) {
-	return reinterpret_cast<byte*>(surface->pixels) + line * surface->pitch;
+void* RawFrame::getLinePtrImpl(unsigned line)
+{
+	return data + line * pitch;
 }
 
 } // namespace openmsx

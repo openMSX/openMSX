@@ -24,13 +24,13 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(V9990& vdp_, SDL_Surface* screen_)
 		vdp.getMotherBoard().getCommandController(),
 		vdp.getMotherBoard().getRenderSettings(),
 		vdp.getMotherBoard().getDisplay(),
-		screen, VIDEO_GFX9000, 1280))
+		screen, VIDEO_GFX9000, 1280, 240))
 	, bitmapConverter(vdp, palette64, palette256, palette32768)
 	, p1Converter(vdp, palette64)
 	, p2Converter(vdp, palette64)
 	, deinterlaceSetting(vdp.getMotherBoard().getRenderSettings().getDeinterlace())
 {
-	workFrame = new RawFrame(screen->format, 1280);
+	workFrame = new RawFrame(sizeof(Pixel), 1280, 240);
 
 	// Fill palettes
 	precalcPalettes();

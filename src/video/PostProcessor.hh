@@ -25,7 +25,7 @@ public:
 	PostProcessor(CommandController& commandController,
 	              RenderSettings& renderSettings, Display& display,
 	              SDL_Surface* screen, VideoSource videoSource,
-	              unsigned maxWidth);
+	              unsigned maxWidth, unsigned height);
 	virtual ~PostProcessor();
 
 	// Layer interface:

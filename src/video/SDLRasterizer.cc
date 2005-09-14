@@ -52,14 +52,6 @@ inline int SDLRasterizer<Pixel>::translateX(int absoluteX, bool narrow)
 }
 
 template <class Pixel>
-inline Pixel* SDLRasterizer<Pixel>::getLinePtr(
-	SDL_Surface* displayCache, int line)
-{
-	return (Pixel*)( (byte*)displayCache->pixels
-		+ line * displayCache->pitch );
-}
-
-template <class Pixel>
 inline void SDLRasterizer<Pixel>::renderBitmapLine(
 	byte mode, int vramLine)
 {
@@ -67,7 +59,8 @@ inline void SDLRasterizer<Pixel>::renderBitmapLine(
 		const byte* vramPtr =
 			vram.bitmapCacheWindow.readArea(vramLine << 7);
 		bitmapConverter.convertLine(
-			getLinePtr(bitmapDisplayCache, vramLine), vramPtr );
+			bitmapDisplayCache->getLinePtr(vramLine, (Pixel*)0),
+			vramPtr);
 		lineValidInMode[vramLine] = mode;
 	}
 }
@@ -106,7 +99,7 @@ inline void SDLRasterizer<Pixel>::renderPlanarBitmapLine(
 		const byte* vramPtr1 =
 			vram.bitmapCacheWindow.readArea(addr1);
 		bitmapConverter.convertLinePlanar(
-			getLinePtr(bitmapDisplayCache, vramLine),
+			bitmapDisplayCache->getLinePtr(vramLine, (Pixel*)0),
 			vramPtr0, vramPtr1
 			);
 		lineValidInMode[vramLine] =
@@ -140,7 +133,7 @@ inline void SDLRasterizer<Pixel>::renderCharacterLines(
 	while (count--) {
 		// Render this line.
 		characterConverter.convertLine(
-			getLinePtr(charDisplayCache, line), line);
+			charDisplayCache->getLinePtr(line, (Pixel*)0), line);
 		line++; // is a byte, so wraps at 256
 	}
 }
@@ -152,38 +145,20 @@ SDLRasterizer<Pixel>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
 		vdp.getMotherBoard().getCommandController(),
 		vdp.getMotherBoard().getRenderSettings(),
 		vdp.getMotherBoard().getDisplay(),
-		screen, VIDEO_MSX, 640))
+		screen, VIDEO_MSX, 640, 240))
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 	, spriteConverter(vdp.getSpriteChecker())
 {
 	this->screen = screen;
-	workFrame = new RawFrame(screen->format, 640);
+	workFrame = new RawFrame(sizeof(Pixel), 640, 240);
 
 	// Create display caches.
-	charDisplayCache = SDL_CreateRGBSurface(
-		SDL_SWSURFACE,
-		512,
-		vdp.isMSX1VDP() ? 192 : 256,
-		screen->format->BitsPerPixel,
-		screen->format->Rmask,
-		screen->format->Gmask,
-		screen->format->Bmask,
-		screen->format->Amask
-		);
-	bitmapDisplayCache = ( vdp.isMSX1VDP()
-		? NULL
-		: SDL_CreateRGBSurface(
-			SDL_SWSURFACE,
-			512,
-			256 * 4,
-			screen->format->BitsPerPixel,
-			screen->format->Rmask,
-			screen->format->Gmask,
-			screen->format->Bmask,
-			screen->format->Amask
-			)
-		);
+	charDisplayCache = new RawFrame(
+		sizeof(Pixel), 512, vdp.isMSX1VDP() ? 192 : 256);
+	bitmapDisplayCache = vdp.isMSX1VDP()
+	                   ? NULL
+	                   : new RawFrame(sizeof(Pixel), 512, 256 * 4);
 
 	// Init the palette.
 	precalcPalette(vdp.getMotherBoard().getRenderSettings().getGamma().getValue());
@@ -192,8 +167,8 @@ SDLRasterizer<Pixel>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
 template <class Pixel>
 SDLRasterizer<Pixel>::~SDLRasterizer()
 {
-	SDL_FreeSurface(charDisplayCache);
-	if (bitmapDisplayCache) SDL_FreeSurface(bitmapDisplayCache);
+	delete bitmapDisplayCache;
+	delete charDisplayCache;
 	delete workFrame;
 }
 
@@ -531,7 +506,6 @@ void SDLRasterizer<Pixel>::drawDisplay(
 		}
 
 		// Copy from cache to screen.
-		SDL_Rect source, dest;
 		for (int y = screenY; y < screenLimitY; y++) {
 			const int vramLine[2] = {
 				(vram.nameTable.getMask() >> 7) & (pageMaskEven | displayY),
@@ -541,29 +515,25 @@ void SDLRasterizer<Pixel>::drawDisplay(
 			// TODO: Can we safely use SDL_LowerBlit?
 			int firstPageWidth = pageBorder - displayX;
 			if (firstPageWidth > 0) {
-				source.x = displayX + hScroll;
-				source.y = vramLine[scrollPage1];
-				source.w = firstPageWidth;
-				source.h = 1;
-				dest.x = leftBackground + displayX;
-				dest.y = y;
-				SDL_BlitSurface(
-					bitmapDisplayCache, &source, workFrame->getSurface(), &dest
-					);
+				const Pixel* src = bitmapDisplayCache->getLinePtr(
+					vramLine[scrollPage1], (Pixel*)0) +
+						displayX + hScroll;
+				Pixel* dst = workFrame->getLinePtr(y, (Pixel*)0)
+				           + leftBackground + displayX;
+				memcpy(dst, src, firstPageWidth * sizeof(Pixel));
 			} else {
 				firstPageWidth = 0;
 			}
 			if (firstPageWidth < displayWidth) {
-				source.x = displayX < pageBorder
+				unsigned x = displayX < pageBorder
 					? 0 : displayX + hScroll - lineWidth;
-				source.y = vramLine[scrollPage2];
-				source.w = displayWidth - firstPageWidth;
-				source.h = 1;
-				dest.x = leftBackground + displayX + firstPageWidth;
-				dest.y = y;
-				SDL_BlitSurface(
-					bitmapDisplayCache, &source, workFrame->getSurface(), &dest
-					);
+				unsigned num = displayWidth - firstPageWidth;
+				const Pixel* src = bitmapDisplayCache->getLinePtr(
+					vramLine[scrollPage2], (Pixel*)0) + x;
+				Pixel* dst = workFrame->getLinePtr(y, (Pixel*)0)
+				           + leftBackground + displayX
+					   + firstPageWidth;
+				memcpy(dst, src, num * sizeof(Pixel));
 			}
 			workFrame->setLineWidth(y, lineWidth);
 
@@ -573,22 +543,15 @@ void SDLRasterizer<Pixel>::drawDisplay(
 		renderCharacterLines(displayY, displayHeight);
 
 		// TODO: Implement horizontal scroll high.
-		SDL_Rect source, dest;
 		for (int y = screenY; y < screenLimitY; y++) {
 			assert(!vdp.isMSX1VDP() || displayY < 192);
-			source.x = displayX;
-			source.y = displayY;
-			source.w = displayWidth;
-			source.h = 1;
-			dest.x = leftBackground + displayX;
-			dest.y = y;
-			// TODO: Can we safely use SDL_LowerBlit?
-			// Note: return value is ignored.
-			/*
-			printf("plotting character cache line %d to screen line %d\n",
-				source.y, dest.y);
-			*/
-			SDL_BlitSurface(charDisplayCache, &source, workFrame->getSurface(), &dest);
+
+			const Pixel* src = charDisplayCache->getLinePtr(
+				displayY, (Pixel*)0) + displayX;
+			Pixel* dst = workFrame->getLinePtr(y, (Pixel*)0)
+			           + leftBackground + displayX;
+			memcpy(dst, src, displayWidth * sizeof(Pixel));
+
 			workFrame->setLineWidth(y, lineWidth);
 			displayY = (displayY + 1) & 255;
 		}

@@ -65,12 +65,6 @@ private:
 	inline void renderPlanarBitmapLines(byte line, int count);
 	inline void renderCharacterLines(byte line, int count);
 
-	/** Get a pointer to the start of a VRAM line in the cache.
-	  * @param displayCache The display cache to use.
-	  * @param line The VRAM line, range depends on display cache.
-	  */
-	inline Pixel* getLinePtr(SDL_Surface* displayCache, int line);
-
 	/** Get the pixel colour of a graphics 7 colour index.
 	  */
 	inline Pixel graphic7Colour(byte index);
@@ -152,14 +146,14 @@ private:
 	  * Cache line (N + scroll) corresponds to display line N.
 	  * It holds a single page of 256 lines.
 	  */
-	SDL_Surface* charDisplayCache;
+	RawFrame* charDisplayCache;
 
 	/** Cache for rendered VRAM in bitmap modes.
 	  * Cache line N corresponds to VRAM at N * 128.
 	  * It holds up to 4 pages of 256 lines each.
 	  * In Graphics6/7 the lower two pages are used.
 	  */
-	SDL_Surface* bitmapDisplayCache;
+	RawFrame* bitmapDisplayCache;
 
 	/** Previous value of gamma setting.
 	  */

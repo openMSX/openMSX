@@ -14,15 +14,16 @@ namespace openmsx {
 template <class Pixel>
 PostProcessor<Pixel>::PostProcessor(CommandController& commandController,
 	RenderSettings& renderSettings_, Display& display,
-	SDL_Surface* screen, VideoSource videoSource, unsigned maxWidth)
+	SDL_Surface* screen, VideoSource videoSource,
+	unsigned maxWidth, unsigned height)
 	: VideoLayer(videoSource, commandController, renderSettings_, display)
 	, renderSettings(renderSettings_)
 {
 	this->screen = screen;
 	currScalerID = (ScalerID)-1; // not a valid scaler
 
-	currFrame = new RawFrame(screen->format, maxWidth);
-	prevFrame = new RawFrame(screen->format, maxWidth);
+	currFrame = new RawFrame(sizeof(Pixel), maxWidth, height);
+	prevFrame = new RawFrame(sizeof(Pixel), maxWidth, height);
 }
 
 template <class Pixel>

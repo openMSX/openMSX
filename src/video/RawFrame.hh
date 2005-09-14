@@ -5,8 +5,6 @@
 
 #include "FrameSource.hh"
 #include <cassert>
-// TODO: Get rid of SDL dependency.
-#include <SDL.h>
 
 
 namespace openmsx {
@@ -17,7 +15,7 @@ namespace openmsx {
 class RawFrame : public FrameSource
 {
 public:
-	RawFrame(SDL_PixelFormat* format, unsigned maxWidth);
+	RawFrame(unsigned bytesPerPixel, unsigned maxWidth, unsigned height);
 	~RawFrame();
 
 	virtual FieldType getField();
@@ -31,13 +29,9 @@ public:
 	  */
 	void init(FieldType field);
 
-	inline SDL_Surface* getSurface() {
-		return surface;
-	}
-
 	inline void setLineWidth(unsigned line, unsigned width) {
-		assert(line < HEIGHT);
-		assert(width <= (unsigned)surface->w);
+		assert(line < height);
+		assert(width <= maxWidth);
 		lineWidth[line] = width;
 	}
 
@@ -48,7 +42,7 @@ public:
 
 	template <class Pixel>
 	inline void setBlank(unsigned line, Pixel colour0, Pixel colour1) {
-		assert(line < HEIGHT);
+		assert(line < height);
 		Pixel* pixels = getLinePtr(line, (Pixel*)0);
 		pixels[0] = colour0;
 		pixels[1] = colour1; // TODO: We store colour1, but no-one uses it.
@@ -59,18 +53,12 @@ protected:
 	virtual void* getLinePtrImpl(unsigned line);
 
 private:
-
-
-	/** Vertical dimensions of the screen.
-	  * TODO: Use MSX-derived dimensions instead.
-	  *       That would be better if we ever want to support resizable screens.
-	  */
-	static const unsigned HEIGHT = 240;
-
-	unsigned lineWidth[HEIGHT];
-
-	SDL_Surface* surface;
-
+	unsigned maxWidth;
+	unsigned height;
+	unsigned* lineWidth;
+	unsigned pitch;
+	void* unallignedData;
+	char* data;
 	FieldType field;
 };
 
