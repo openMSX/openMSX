@@ -9,6 +9,7 @@
 #include "JoyNet.hh"
 #include "Joystick.hh"
 #include "SETetrisDongle.hh"
+#include "MagicKey.hh"
 #include "KeyJoystick.hh"
 #include "MidiInReader.hh"
 #include "MidiOutLogger.hh"
@@ -47,8 +48,9 @@ void PluggableFactory::createAll(PluggingController& controller,
 		commandController, userInputEventDistributor, "keyjoystick2"));
 	Joystick::registerAll(eventDistributor, controller);
 
-	// SE tris II copy protection
+	// Dongles
 	controller.registerPluggable(new SETetrisDongle());
+	controller.registerPluggable(new MagicKey());
 
 	// Logging:
 	controller.registerPluggable(new PrinterPortLogger(
