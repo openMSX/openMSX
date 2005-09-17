@@ -317,15 +317,19 @@ void MSXMotherBoard::addDevice(std::auto_ptr<MSXDevice> device)
 	availableDevices.push_back(device.release());
 }
 
-void MSXMotherBoard::resetMSX()
+void MSXMotherBoard::scheduleReset()
 {
-	const EmuTime& time = getScheduler().getCurrentTime();
+	getCPU().scheduleReset();
+}
+
+void MSXMotherBoard::doReset(const EmuTime& time)
+{
 	getCPUInterface().reset();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		(*it)->reset(time);
 	}
-	getCPU().reset(time);
+	getCPU().doReset(time);
 }
 
 void MSXMotherBoard::powerUpMSX()
@@ -348,7 +352,7 @@ void MSXMotherBoard::powerUpMSX()
 	     it != availableDevices.end(); ++it) {
 		(*it)->powerUp(time);
 	}
-	getCPU().reset(time);
+	getCPU().doReset(time);
 	getMixer().unmute();
 }
 
@@ -424,7 +428,7 @@ MSXMotherBoard::ResetCmd::ResetCmd(CommandController& commandController,
 
 string MSXMotherBoard::ResetCmd::execute(const vector<string>& /*tokens*/)
 {
-	motherBoard.resetMSX();
+	motherBoard.scheduleReset();
 	return "";
 }
 

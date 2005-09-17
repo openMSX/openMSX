@@ -2,6 +2,7 @@ $Id$
 
 2005-09-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 'magic key' dongle
+	* Fixed assert on reset (happened most often on turbor)
 
 2005-09-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made RawFrame SDL independent

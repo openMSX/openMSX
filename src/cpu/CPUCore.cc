@@ -29,6 +29,7 @@ template <class T> CPUCore<T>::CPUCore(
 	, nmiEdge(false)
 	, NMIStatus(0)
 	, IRQStatus(0)
+	, needReset(false)
 	, interface(NULL)
 	, motherboard(motherboard_)
 	, scheduler(motherboard.getScheduler())
@@ -53,7 +54,7 @@ template <class T> CPUCore<T>::CPUCore(
 
 	freqLocked->addListener(this);
 	freqValue->addListener(this);
-	reset(time);
+	doReset(time);
 }
 
 template <class T> CPUCore<T>::~CPUCore()
@@ -67,9 +68,10 @@ template <class T> void CPUCore<T>::setInterface(MSXCPUInterface* interf)
 	interface = interf;
 }
 
-template <class T> void CPUCore<T>::advance(const EmuTime& time)
+template <class T> void CPUCore<T>::warp(const EmuTime& time)
 {
-	T::clock.advance(time);
+	assert(T::clock.getTime() < time);
+	T::clock.reset(time);
 }
 
 template <class T> const EmuTime& CPUCore<T>::getCurrentTime() const
@@ -92,7 +94,13 @@ template <class T> CPU::CPURegs& CPUCore<T>::getRegisters()
 	return R;
 }
 
-template <class T> void CPUCore<T>::reset(const EmuTime& time)
+template <class T> void CPUCore<T>::scheduleReset()
+{
+	needReset = true;
+	exitCPULoop();
+}
+
+template <class T> void CPUCore<T>::doReset(const EmuTime& time)
 {
 	// AF and SP are 0xFFFF
 	// PC, R, IFF1, IFF2, HALT and IM are 0x0
@@ -119,6 +127,8 @@ template <class T> void CPUCore<T>::reset(const EmuTime& time)
 	R.R2 = 0;
 	memptr = 0xFFFF;
 	invalidateMemCache(0x0000, 0x10000);
+
+	assert(T::clock.getTime() <= time);
 	T::clock.reset(time);
 
 	assert(NMIStatus == 0); // other devices must reset their NMI source
@@ -166,7 +176,7 @@ template <class T> void CPUCore<T>::wait(const EmuTime& time)
 {
 	assert(time >= getCurrentTime());
 	scheduler.schedule(time);
-	advance(time);
+	T::clock.advance(time);
 }
 
 template <class T> void CPUCore<T>::doBreak2()
@@ -547,6 +557,10 @@ template <class T> void CPUCore<T>::execute()
 				}
 			}
 		}
+	}
+	if (needReset) {
+		needReset = false;
+		motherboard.doReset(T::clock.getTime());
 	}
 }
 

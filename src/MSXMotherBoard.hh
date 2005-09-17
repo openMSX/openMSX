@@ -36,6 +36,7 @@ class Display;
 class FileManipulator;
 class FilePool;
 class BooleanSetting;
+class EmuTime;
 
 class MSXMotherBoard : private SettingListener
 {
@@ -70,7 +71,8 @@ public:
 	 * This will reset all MSXDevices (the reset() method of
 	 * all registered MSXDevices is called)
 	 */
-	void resetMSX();
+	void scheduleReset();
+	void doReset(const EmuTime& time);
 
 	/** Parse machine config file and instantiate MSX machine
 	  */

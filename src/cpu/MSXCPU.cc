@@ -31,7 +31,6 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	, timeInfo(motherboard.getCommandController(), *this)
 {
 	activeCPU = z80.get();	// setActiveCPU(CPU_Z80);
-	reset(EmuTime::zero);
 
 	motherboard.getDebugger().setCPU(this);
 	traceSetting->addListener(this);
@@ -49,14 +48,18 @@ void MSXCPU::setInterface(MSXCPUInterface* interface)
 	r800->setInterface(interface);
 }
 
-void MSXCPU::reset(const EmuTime& time)
+void MSXCPU::scheduleReset()
 {
-	z80 ->reset(time);
-	r800->reset(time);
+	activeCPU->scheduleReset();
+}
+
+void MSXCPU::doReset(const EmuTime& time)
+{
+	z80 ->doReset(time);
+	r800->doReset(time);
 
 	reference = time;
 }
-
 
 void MSXCPU::setActiveCPU(CPUType cpu)
 {
@@ -75,7 +78,7 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 			newCPU = NULL;	// prevent warning
 	}
 	if (newCPU != activeCPU) {
-		newCPU->advance(activeCPU->getCurrentTime());
+		newCPU->warp(activeCPU->getCurrentTime());
 		newCPU->invalidateMemCache(0x0000, 0x10000);
 		exitCPULoop();
 		activeCPU = newCPU;

@@ -28,9 +28,16 @@ public:
 	enum CPUType { CPU_Z80, CPU_R800 };
 
 	MSXCPU(MSXMotherBoard& motherboard);
-	virtual ~MSXCPU();
+	~MSXCPU();
 
-	virtual void reset(const EmuTime& time);
+	/** 
+	 * Finish current instruction and reset MSX.
+	 *   Real hw probably does not wait for this, but aborting
+	 *   instructions does not fit well in the current emulation
+	 *   model
+	 */
+	void scheduleReset();
+	void doReset(const EmuTime& time);
 
 	/**
 	 * Switch between Z80 / R800
