@@ -14,21 +14,21 @@ public:
 	 * Sets the cassette motor relay
 	 *  false = off   true = on
 	 */
-	virtual void setMotor(bool status, const EmuTime &time) = 0;
+	virtual void setMotor(bool status, const EmuTime& time) = 0;
 
 	/**
 	 * Read wave data from cassette device
 	 */
-	virtual short readSample(const EmuTime &time) = 0;
+	virtual short readSample(const EmuTime& time) = 0;
 
 	/**
 	 * Sets the cassette output signal
 	 *  false = low   true = high
 	 */
-	virtual void setSignal(bool output, const EmuTime &time) = 0;
+	virtual void setSignal(bool output, const EmuTime& time) = 0;
 
 	// Pluggable
-	virtual const std::string &getClass() const;
+	virtual const std::string& getClass() const;
 };
 
 } // namespace openmsx

@@ -149,7 +149,7 @@ short CassettePlayer::readSample(const EmuTime& time)
 	return getSample(tapeTime);
 }
 
-void CassettePlayer::setSignal(bool output, const EmuTime & time)
+void CassettePlayer::setSignal(bool /*output*/, const EmuTime& /*time*/)
 {
 	// recording not implemented for cassetteplayer
 }

@@ -153,12 +153,12 @@ CassetteJack::~CassetteJack()
 		getConnector()->unplug(basetime+timestep);
 }
 void
-CassetteJack::setMotor(bool status, const EmuTime &time)
+CassetteJack::setMotor(bool /*status*/, const EmuTime& /*time*/)
 {
 	// TODO emit QT4-signal?
 }
 short
-CassetteJack::readSample(const EmuTime &time)
+CassetteJack::readSample(const EmuTime& time)
 {
 	double index_d;
 	size_t index_i;
@@ -269,7 +269,7 @@ CassetteJack::unplugHelper(const EmuTime& time)
 	delete bf_in;
 }
 void 
-CassetteJack::executeUntil(const EmuTime& time, int userData)
+CassetteJack::executeUntil(const EmuTime& time, int /*userData*/)
 {
 	if (!running)
 		return;
@@ -332,7 +332,7 @@ CassetteJack::srateCallBack(jack_nframes_t newrate)
 }
 
 int
-CassetteJack::bufsizeCallBack(jack_nframes_t newsize)
+CassetteJack::bufsizeCallBack(jack_nframes_t /*newsize*/)
 {
 	// it may be possible to stay connected duringa change in buffersize,
 	// but we don't even try

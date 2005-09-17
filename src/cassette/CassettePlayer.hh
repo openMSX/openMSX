@@ -47,7 +47,7 @@ public:
 	// CassetteDevice
 	virtual void setMotor(bool status, const EmuTime& time);
 	virtual short readSample(const EmuTime& time);
-	virtual void setSignal(bool output, const EmuTime &time);
+	virtual void setSignal(bool output, const EmuTime& time);
 
 	// Pluggable
 	virtual const std::string& getName() const;
