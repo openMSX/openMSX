@@ -10,6 +10,7 @@ SRC_HDR:= \
 	Joystick \
 	KeyJoystick \
 	SETetrisDongle \
+	MagicKey \
 	Mouse \
 	JoyNet \
 	UserInputEventDistributor
