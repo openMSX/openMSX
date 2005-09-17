@@ -150,22 +150,23 @@ byte TC8566AF::makeST3() const
 
 byte TC8566AF::readReg(int reg, const EmuTime& time)
 {
-	byte result = 0xFF;
+	byte result;
 	switch (reg) {
-	case 4: // Main Status Register
+	case 4: { // Main Status Register
 		if (delayTime.before(time)) {
 			RequestForMaster = 1;
 		}
+		bool dma = NonDMAMode && (Phase == PHASE_DATATRANSFER);
 		result = (RequestForMaster << 7) |
 		         (dataInputOutput  << 6) |
-		         (NonDMAMode       << 5) |
+		         (dma              << 5) |
 		         (FDCBusy          << 4) |
 		         (FDD3Busy         << 3) |
 		         (FDD2Busy         << 2) |
 		         (FDD1Busy         << 1) |
 		         (FDD0Busy         << 0);
 		break;
-
+	}
 	case 5: // data port
 		switch (Phase) {
 		case PHASE_DATATRANSFER:
@@ -177,15 +178,20 @@ byte TC8566AF::readReg(int reg, const EmuTime& time)
 		case PHASE_RESULT:
 			result = readDataResultPhase();
 			break;
+		default:
+			result = 0;
 		}
 		break;
+
+	default:
+		result = 0xFF;
 	}
 	return result;
 }
 
 byte TC8566AF::peekReg(int reg, const EmuTime& time)
 {
-	byte result = 0xFF;
+	byte result;
 	switch (reg) {
 	case 5: // data port
 		switch (Phase) {
@@ -195,6 +201,8 @@ byte TC8566AF::peekReg(int reg, const EmuTime& time)
 		case PHASE_RESULT:
 			result = peekDataResultPhase();
 			break;
+		default:
+			result = readReg(reg, time);
 		}
 		break;
 	default:
