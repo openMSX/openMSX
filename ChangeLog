@@ -1,5 +1,11 @@
 $Id$
 
+2005-09-18 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added a new -testconfig option, which just tries to load the
+	  specified machine/extension/etc. config and then exits. Can be used
+	  to probe what machine configs are installed correctly, including ROM
+	  images
+
 2005-09-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 'magic key' dongle
 	* Fixed assert on reset (happened most often on turbor)

@@ -70,6 +70,7 @@ CommandLineParser::CommandLineParser(MSXMotherBoard& motherBoard_)
 	, settingOption(*this)
 	, noMMXOption(*this)
 	, noMMXEXTOption(*this)
+	, testConfigOption(*this)
 	, msxRomCLI(new MSXRomCLI(*this))
 	, cliExtension(new CliExtension(*this))
 	, cassettePlayerCLI(new MSXCassettePlayerCLI(*this))
@@ -79,17 +80,18 @@ CommandLineParser::CommandLineParser(MSXMotherBoard& motherBoard_)
 	haveSettings = false;
 	issuedHelp = false;
 
-	registerOption("-machine",  &machineOption, 3);
-	registerOption("-setting",  &settingOption, 2);
-	registerOption("-h",        &helpOption, 1, 1);
-	registerOption("--help",    &helpOption, 1, 1);
-	registerOption("-v",        &versionOption, 1, 1);
-	registerOption("--version", &versionOption, 1, 1);
-	registerOption("-control",  &controlOption, 1, 1);
+	registerOption("-machine",    &machineOption, 3);
+	registerOption("-setting",    &settingOption, 2);
+	registerOption("-h",          &helpOption, 1, 1);
+	registerOption("--help",      &helpOption, 1, 1);
+	registerOption("-v",          &versionOption, 1, 1);
+	registerOption("--version",   &versionOption, 1, 1);
+	registerOption("-control",    &controlOption, 1, 1);
 	#ifdef ASM_X86
-	registerOption("-nommx",    &noMMXOption, 1, 1);
-	registerOption("-nommxext", &noMMXEXTOption, 1, 1);
+	registerOption("-nommx",      &noMMXOption, 1, 1);
+	registerOption("-nommxext",   &noMMXEXTOption, 1, 1);
 	#endif
+	registerOption("-testconfig", &testConfigOption, 1, 1);
 }
 
 CommandLineParser::~CommandLineParser()
@@ -257,7 +259,7 @@ void CommandLineParser::parse(int argc, char** argv)
 			"Use \"openmsx -h\" to see a list of available options" );
 	}
 
-	hiddenStartup = (parseStatus == CONTROL);
+	hiddenStartup = (parseStatus == CONTROL || parseStatus == TEST );
 }
 
 CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const
@@ -624,5 +626,35 @@ const string& CommandLineParser::NoMMXEXTOption::optionHelp() const
 	static const string text("Disables usage of MMX extensions (for debugging)");
 	return text;
 }
+
+// TestConfig option
+
+CommandLineParser::TestConfigOption::TestConfigOption(CommandLineParser& parent_)
+	: parent(parent_)
+{
+}
+
+CommandLineParser::TestConfigOption::~TestConfigOption()
+{
+}
+
+bool CommandLineParser::TestConfigOption::parseOption(const string& option,
+		list<string>& cmdLine)
+{
+	/*
+	if (!parent.haveSettings) {
+		return false; // not parsed yet, load settings first
+	}
+*/
+	parent.parseStatus = TEST;
+	return true;
+}
+
+const string& CommandLineParser::TestConfigOption::optionHelp() const
+{
+	static const string text("Test if the specified config works and exit");
+	return text;
+}
+
 
 } // namespace openmsx

@@ -48,7 +48,7 @@ public:
 class CommandLineParser
 {
 public:
-	enum ParseStatus { UNPARSED, RUN, CONTROL, EXIT };
+	enum ParseStatus { UNPARSED, RUN, CONTROL, TEST, EXIT };
 	enum ControlType { IO_STD, IO_PIPE };
 
 	/**
@@ -178,6 +178,17 @@ private:
 		CommandLineParser& parent;
 	} noMMXEXTOption;
 
+	class TestConfigOption : public CLIOption {
+	public:
+		TestConfigOption(CommandLineParser& parent);
+		virtual ~TestConfigOption();
+		virtual bool parseOption(const std::string& option,
+			std::list<std::string>& cmdLine);
+		virtual const std::string& optionHelp() const;
+	private:
+		CommandLineParser& parent;
+	} testConfigOption;
+	
 	const std::auto_ptr<MSXRomCLI> msxRomCLI;
 	const std::auto_ptr<CliExtension> cliExtension;
 	const std::auto_ptr<MSXCassettePlayerCLI> cassettePlayerCLI;

@@ -65,7 +65,10 @@ static int main(int argc, char **argv)
 		CommandLineParser parser(motherBoard);
 		parser.parse(argc, argv);
 		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
-		if (parseStatus != CommandLineParser::EXIT) {
+
+		if (parseStatus == CommandLineParser::TEST) {
+			motherBoard.readConfig(); // just testing this!
+		} else if (parseStatus != CommandLineParser::EXIT) {
 			initializeSDL();
 			AfterCommand afterCommand(
 				motherBoard.getScheduler(),
@@ -78,7 +81,6 @@ static int main(int argc, char **argv)
 			                    motherBoard.getCommandController());
 			reactor.run(parseStatus == CommandLineParser::RUN);
 		}
-
 	} catch (FatalError& e) {
 		cerr << "Fatal error: " << e.getMessage() << endl;
 		err = 1;
