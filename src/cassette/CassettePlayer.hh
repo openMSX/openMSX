@@ -76,6 +76,12 @@ private:
 
 	CassettePlayerMode mode;
 
+	FILE* wavfp;
+	uint32 nofWavBytes;	
+
+	void startRecording(const std::string& filename);
+	void stopRecording();
+
 	// Tape Command
 	virtual std::string execute(const std::vector<std::string>& tokens);
 	virtual std::string help(const std::vector<std::string>& tokens) const;

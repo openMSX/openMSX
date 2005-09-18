@@ -11,6 +11,7 @@
 #include "CliComm.hh"
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"
+#include "FileOperations.hh"
 #include <cstdlib>
 
 using std::auto_ptr;
@@ -64,7 +65,7 @@ CassettePlayer::CassettePlayer(
 	Mixer& mixer)
 	: SoundDevice(mixer, getName(), getDescription())
 	, SimpleCommand(commandController, "cassetteplayer")
-	, motor(false), forcePlay(false), mode(PLAY)
+	, motor(false), forcePlay(false), mode(PLAY), wavfp(NULL)
 	, cliComm(cliComm_)
 {
 	XMLElement& config = commandController.getGlobalSettings().getMediaConfig();
@@ -176,25 +177,92 @@ void CassettePlayer::unplugHelper(const EmuTime& /*time*/)
 }
 
 
+void CassettePlayer::startRecording(const string& filename)
+{
+	/* TODO on the recorder:
+	 * - take care of endianness (this probably won't work on PPC now)
+	 * - error handling, fwrite or fopen may fail miserably
+	 * - fix duplicated code with soundlogger
+	 */
+
+	assert(!wavfp);
+
+	wavfp = fopen(filename.c_str(), "wb");
+	if (!wavfp) {
+		// TODO
+	}
+	nofWavBytes = 0;
+
+	// write wav header
+	char header[44] = {
+		'R', 'I', 'F', 'F', //
+		0, 0, 0, 0,         // total size (filled in later)
+		'W', 'A', 'V', 'E', //
+		'f', 'm', 't', ' ', //
+		16, 0, 0, 0,        // size of fmt block
+		1, 0,               // format tag = 1
+		1, 0,               // nb of channels = 1 TODO: fill in later!
+		0, 0, 0, 0,         // samples per second (filled in)
+		0, 0, 0, 0,         // avg bytes per second (filled in)
+		4, 0,               // block align (2 * bits per samp / 16)
+		16, 0,              // bits per sample
+		'd', 'a', 't', 'a', //
+		0, 0, 0, 0,         // size of data block (filled in later)
+	};
+	const int channels = 1;
+	const int bitsPerSample = 8;
+	uint32 samplesPerSecond = 44100; // TODO: is this necessary?
+	*reinterpret_cast<uint32*>(header + 24) = samplesPerSecond;
+	*reinterpret_cast<uint32*>(header + 28) = (channels * samplesPerSecond *
+	                                           bitsPerSample) / 8;
+	fwrite(header, sizeof(header), 1, wavfp);
+}
+
+void CassettePlayer::stopRecording()
+{
+	if (wavfp) {
+		// TODO error handling
+		uint32 totalsize = nofWavBytes + 44;
+		fseek(wavfp, 4, SEEK_SET);
+		fwrite(&totalsize, 4, 1, wavfp);
+		fseek(wavfp, 40, SEEK_SET);
+		fwrite(&nofWavBytes, 4, 1, wavfp);
+
+		fclose(wavfp);
+		wavfp = NULL;
+	}
+}
+
 string CassettePlayer::execute(const vector<string>& tokens)
 {
 	string result;
 	if (tokens[1] == "-mode") {
-		if (tokens[2] == "record") {
-			// TODO: add filename parameter and maybe also -prefix option
-			result += "Record mode set\n";
-			mode = RECORD;
-		} else if (tokens[2] == "play") {
-			result += "Play mode set\n";
-			mode = PLAY;
-		} else if (tokens.size() == 2) {
+		if (tokens.size() == 2) {
 			result += "Mode is: ";
 			if (mode == PLAY) {
-				result+="play";
+				result += "play";
 			} else if (mode == RECORD) {
-				result+= "record";
+				result += "record";
 			} else assert(false); // Illegal mode!? impossible...
 			result += "\n";
+		} else if (tokens[2] == "record") {
+			// TODO: add filename parameter and maybe also -prefix option
+			if (mode != RECORD) {
+				result += "Record mode set\n";
+				mode = RECORD;
+				string filename = FileOperations::getNextNumberedFileName("taperecordings", "openmsx", ".wav");
+				startRecording(filename);
+			} else {
+				result += "Already in recording mode...\n";
+			}
+		} else if (tokens[2] == "play") {
+			if (mode != PLAY) {
+				result += "Play mode set\n";
+				mode = PLAY;
+				stopRecording();
+			} else {
+				result += "Already in play mode...\n";
+			}
 		} else throw SyntaxError();
 	} else if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -263,6 +331,12 @@ void CassettePlayer::tabCompletion(vector<string>& tokens) const
 		extra.insert("-mode");
 		UserFileContext context(getCommandController());
 		completeFileName(tokens, context, extra);
+	}
+	else if (tokens.size() == 3 && tokens[1] == "-mode") {
+		set<string> options;
+		options.insert("record");
+		options.insert("play");
+		completeString(tokens, options);
 	}
 }
 
