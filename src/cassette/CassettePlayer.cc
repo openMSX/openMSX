@@ -94,6 +94,7 @@ CassettePlayer::CassettePlayer(
 
 CassettePlayer::~CassettePlayer()
 {
+	stopRecording();
 	unregisterSound();
 }
 
