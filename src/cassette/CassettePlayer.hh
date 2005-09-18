@@ -17,6 +17,8 @@ class XMLElement;
 class Mixer;
 class CliComm;
 
+enum CassettePlayerMode { PLAY, RECORD };
+
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
 public:
@@ -71,6 +73,8 @@ private:
 	bool motor, forcePlay;
 	EmuTime tapeTime;
 	EmuTime prevTime;
+
+	CassettePlayerMode mode;
 
 	// Tape Command
 	virtual std::string execute(const std::vector<std::string>& tokens);

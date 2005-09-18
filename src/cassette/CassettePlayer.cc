@@ -64,7 +64,7 @@ CassettePlayer::CassettePlayer(
 	Mixer& mixer)
 	: SoundDevice(mixer, getName(), getDescription())
 	, SimpleCommand(commandController, "cassetteplayer")
-	, motor(false), forcePlay(false)
+	, motor(false), forcePlay(false), mode(PLAY)
 	, cliComm(cliComm_)
 {
 	XMLElement& config = commandController.getGlobalSettings().getMediaConfig();
@@ -179,10 +179,26 @@ void CassettePlayer::unplugHelper(const EmuTime& /*time*/)
 string CassettePlayer::execute(const vector<string>& tokens)
 {
 	string result;
-	if (tokens.size() != 2) {
+	if (tokens[1] == "-mode") {
+		if (tokens[2] == "record") {
+			// TODO: add filename parameter and maybe also -prefix option
+			result += "Record mode set\n";
+			mode = RECORD;
+		} else if (tokens[2] == "play") {
+			result += "Play mode set\n";
+			mode = PLAY;
+		} else if (tokens.size() == 2) {
+			result += "Mode is: ";
+			if (mode == PLAY) {
+				result+="play";
+			} else if (mode == RECORD) {
+				result+= "record";
+			} else assert(false); // Illegal mode!? impossible...
+			result += "\n";
+		} else throw SyntaxError();
+	} else if (tokens.size() != 2) {
 		throw SyntaxError();
-	}
-	if (tokens[1] == "-eject") {
+	} else 	if (tokens[1] == "-eject") {
 		result += "Tape ejected\n";
 		removeTape();
 		cliComm.update(CliComm::MEDIA,
@@ -232,6 +248,7 @@ string CassettePlayer::help(const vector<string>& /*tokens*/) const
 	       "cassetteplayer -rewind        : rewind tape in virtual player\n"
 	       "cassetteplayer -force_play    : force playing of tape (no remote)\n"
 	       "cassetteplayer -no_force_play : don't force playing of tape\n"
+	       "cassetteplayer -mode          : change mode (record or play)\n"
 	       "cassetteplayer <filename>     : change the tape file\n";
 }
 
@@ -243,6 +260,7 @@ void CassettePlayer::tabCompletion(vector<string>& tokens) const
 		extra.insert("-rewind");
 		extra.insert("-force_play");
 		extra.insert("-no_force_play");
+		extra.insert("-mode");
 		UserFileContext context(getCommandController());
 		completeFileName(tokens, context, extra);
 	}
