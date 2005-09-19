@@ -31,7 +31,8 @@ public:
 	~CommandController();
 
 	void setCliComm(CliComm* cliComm);
-		
+
+	Scheduler& getScheduler();
 	CliComm& getCliComm();
 	Interpreter& getInterpreter();
 	InfoCommand& getInfoCommand();

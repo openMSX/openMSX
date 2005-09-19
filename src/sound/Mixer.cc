@@ -5,6 +5,7 @@
 #include "SDLSoundDriver.hh"
 #include "DirectXSoundDriver.hh"
 #include "SoundDevice.hh"
+#include "WavWriter.hh"
 #include "CliComm.hh"
 #include "CommandController.hh"
 #include "InfoCommand.hh"
@@ -13,11 +14,9 @@
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
+#include "FileOperations.hh"
 #include <algorithm>
 #include <cassert>
-
-#include "FileOperations.hh"
-#include "FileException.hh"
 
 using std::map;
 using std::remove;
@@ -85,15 +84,12 @@ Mixer::Mixer(Scheduler& scheduler_, CommandController& commandController_)
 
 	openSound();
 	muteHelper();
-
-	wavfp = NULL;
 }
 
 Mixer::~Mixer()
 {
 	assert(buffers.empty());
 
-	endSoundLogging();
 	driver.reset();
 
 	pauseSetting.removeListener(this);
@@ -283,10 +279,8 @@ void Mixer::generate(short* buffer, unsigned samples,
 
 		buffer[2 * j + 0] = static_cast<short>(outLeft);
 		buffer[2 * j + 1] = static_cast<short>(outRight);
-		if (wavfp) {
-			// TODO check write error
-			fwrite(&buffer[2 * j], 4, 1, wavfp);
-			nofWavBytes += 4;
+		if (wavWriter.get()) {
+			wavWriter->write16stereo(outLeft, outRight);
 		}
 	}
 }
@@ -370,11 +364,16 @@ string Mixer::SoundlogCommand::startSoundLogging(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 
-	if (!outer.wavfp) {
-		outer.startSoundLogging(filename);
-		outer.commandController.getCliComm().printInfo(
-			"Started logging sound to " + filename);
-		return filename;
+	if (!outer.wavWriter.get()) {
+		try {
+			outer.wavWriter.reset(new WavWriter(filename,
+				2, 16, outer.frequencySetting->getValue()));
+			outer.commandController.getCliComm().printInfo(
+				"Started logging sound to " + filename);
+			return filename;
+		} catch (MSXException& e) {
+			throw CommandException(e.getMessage());
+		}
 	} else {
 		return "Already logging!";
 	}
@@ -383,8 +382,8 @@ string Mixer::SoundlogCommand::startSoundLogging(const vector<string>& tokens)
 string Mixer::SoundlogCommand::stopSoundLogging(const vector<string>& tokens)
 {
 	if (tokens.size() != 2) throw SyntaxError();
-	if (outer.wavfp) {
-		outer.endSoundLogging();
+	if (outer.wavWriter.get()) {
+		outer.wavWriter.reset();
 		return "SoundLogging stopped.";
 	} else {
 		return "Sound logging was not enabled, are you trying to fool me?";
@@ -394,7 +393,7 @@ string Mixer::SoundlogCommand::stopSoundLogging(const vector<string>& tokens)
 string Mixer::SoundlogCommand::toggleSoundLogging(const vector<string>& tokens)
 {
 	if (tokens.size() != 2) throw SyntaxError();
-	if (!outer.wavfp) {
+	if (!outer.wavWriter.get()) {
 		return startSoundLogging(tokens);
 	} else {
 		return stopSoundLogging(tokens);
@@ -426,62 +425,6 @@ void Mixer::SoundlogCommand::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-void Mixer::startSoundLogging(const string& filename)
-{
-	/* TODO on the soundlogger:
-	 * - take care of endianness (this probably won't work on PPC now)
-	 * - properly unite the getFileName stuff with ScreenShotSaver
-	 * - error handling, fwrite or fopen may fail miserably
-	 */
-
-	assert(!wavfp);
-
-	wavfp = fopen(filename.c_str(), "wb");
-	if (!wavfp) {
-		// TODO
-	}
-	nofWavBytes = 0;
-
-	// write wav header
-	char header[44] = {
-		'R', 'I', 'F', 'F', //
-		0, 0, 0, 0,         // total size (filled in later)
-		'W', 'A', 'V', 'E', //
-		'f', 'm', 't', ' ', //
-		16, 0, 0, 0,        // size of fmt block
-		1, 0,               // format tag = 1
-		2, 0,               // nb of channels = 2
-		0, 0, 0, 0,         // samples per second (filled in)
-		0, 0, 0, 0,         // avg bytes per second (filled in)
-		4, 0,               // block align (2 * bits per samp / 16)
-		16, 0,              // bits per sample
-		'd', 'a', 't', 'a', //
-		0, 0, 0, 0,         // size of data block (filled in later)
-	};
-	const int channels = 2;
-	const int bitsPerSample = 16;
-	uint32 samplesPerSecond = frequencySetting->getValue();
-	*reinterpret_cast<uint32*>(header + 24) = samplesPerSecond;
-	*reinterpret_cast<uint32*>(header + 28) = (channels * samplesPerSecond *
-	                                           bitsPerSample) / 8;
-	fwrite(header, sizeof(header), 1, wavfp);
-}
-
-void Mixer::endSoundLogging()
-{
-	if (wavfp) {
-		// TODO error handling
-		uint32 totalsize = nofWavBytes + 44;
-		fseek(wavfp, 4, SEEK_SET);
-		fwrite(&totalsize, 4, 1, wavfp);
-		fseek(wavfp, 40, SEEK_SET);
-		fwrite(&nofWavBytes, 4, 1, wavfp);
-
-		fclose(wavfp);
-		wavfp = NULL;
-	}
-}
-
 // end stuff for soundlogging
 
 void Mixer::update(const Setting* setting)
@@ -507,8 +450,8 @@ void Mixer::update(const Setting* setting)
 	} else if (setting == frequencySetting.get()) {
 		if (handlingUpdate) return;
 		handlingUpdate = true;
-		if (wavfp != 0) {
-			endSoundLogging();
+		if (wavWriter.get()) {
+			wavWriter.reset();
 			commandController.getCliComm().printWarning(
 				"Stopped logging sound, because of change of "
 				"frequency setting");

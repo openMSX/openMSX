@@ -17,7 +17,9 @@ SRC_HDR:= \
 	YM2413Core YM2413 YM2413_2 \
 	MSXTurboRPCM \
 	YMF262 YMF278 MSXMoonSound \
-	AudioInputConnector AudioInputDevice DummyAudioInputDevice WavAudioInput
+	AudioInputConnector AudioInputDevice \
+	DummyAudioInputDevice WavAudioInput \
+	WavWriter
 
 HDR_ONLY:= \
 	SoundDriver

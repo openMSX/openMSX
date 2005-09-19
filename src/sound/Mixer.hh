@@ -21,6 +21,7 @@ class VolumeSetting;
 class IntegerSetting;
 class BooleanSetting;
 template <typename T> class EnumSetting;
+class WavWriter;
 
 class Mixer : private SettingListener
 {
@@ -82,9 +83,6 @@ private:
 
 	void updateMasterVolume(int masterVolume);
 
-	void startSoundLogging(const std::string& filename);
-	void endSoundLogging();
-
 	// SettingListener
 	virtual void update(const Setting* setting);
 
@@ -116,8 +114,7 @@ private:
 	BooleanSetting& pauseSetting;
 	bool handlingUpdate;
 
-	FILE* wavfp;
-	uint32 nofWavBytes;
+	std::auto_ptr<WavWriter> wavWriter;
 
 	int prevLeft, outLeft;
 	int prevRight, outRight;

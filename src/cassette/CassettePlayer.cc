@@ -11,8 +11,9 @@
 #include "CliComm.hh"
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"
+#include "Scheduler.hh"
 #include "FileOperations.hh"
-#include <cstdlib>
+#include "WavWriter.hh"
 
 using std::auto_ptr;
 using std::list;
@@ -65,7 +66,8 @@ CassettePlayer::CassettePlayer(
 	Mixer& mixer)
 	: SoundDevice(mixer, getName(), getDescription())
 	, SimpleCommand(commandController, "cassetteplayer")
-	, motor(false), forcePlay(false), mode(PLAY), wavfp(NULL)
+	, motor(false), forcePlay(false)
+	, lastOutput(false)
 	, cliComm(cliComm_)
 {
 	XMLElement& config = commandController.getGlobalSettings().getMediaConfig();
@@ -94,7 +96,6 @@ CassettePlayer::CassettePlayer(
 
 CassettePlayer::~CassettePlayer()
 {
-	stopRecording();
 	unregisterSound();
 }
 
@@ -138,6 +139,8 @@ void CassettePlayer::setMotor(bool status, const EmuTime& time)
 	updatePosition(time);
 	motor = status;
 	setMute(!motor && !forcePlay);
+
+	setSignal(lastOutput, time);
 }
 
 short CassettePlayer::getSample(const EmuTime& time)
@@ -151,9 +154,17 @@ short CassettePlayer::readSample(const EmuTime& time)
 	return getSample(tapeTime);
 }
 
-void CassettePlayer::setSignal(bool /*output*/, const EmuTime& /*time*/)
+void CassettePlayer::setSignal(bool output, const EmuTime& time)
 {
-	// recording not implemented for cassetteplayer
+	lastOutput = output;
+	if (!wavWriter.get() || !motor) return; // not recording
+
+	unsigned samples = prevWavTime.getTicksTill(time);
+	unsigned char value = output ? 0 : 255;
+	while (samples--) {
+		wavWriter->write8mono(value);
+	}
+	prevWavTime.reset(time);
 }
 
 const string& CassettePlayer::getName() const
@@ -164,12 +175,13 @@ const string& CassettePlayer::getName() const
 
 const string& CassettePlayer::getDescription() const
 {
-	static const string desc("Cassetteplayer, use to read .cas or .wav files.\n");
+	static const string desc(
+		"Cassetteplayer, use to read .cas or .wav files.");
 	return desc;
 }
 
-void 
-CassettePlayer::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
+void CassettePlayer::plugHelper(
+	Connector* /*connector*/, const EmuTime& /*time*/)
 {
 }
 
@@ -178,128 +190,90 @@ void CassettePlayer::unplugHelper(const EmuTime& /*time*/)
 }
 
 
-void CassettePlayer::startRecording(const string& filename)
-{
-	/* TODO on the recorder:
-	 * - take care of endianness (this probably won't work on PPC now)
-	 * - error handling, fwrite or fopen may fail miserably
-	 * - fix duplicated code with soundlogger
-	 */
-
-	assert(!wavfp);
-
-	wavfp = fopen(filename.c_str(), "wb");
-	if (!wavfp) {
-		// TODO
-	}
-	nofWavBytes = 0;
-
-	// write wav header
-	char header[44] = {
-		'R', 'I', 'F', 'F', //
-		0, 0, 0, 0,         // total size (filled in later)
-		'W', 'A', 'V', 'E', //
-		'f', 'm', 't', ' ', //
-		16, 0, 0, 0,        // size of fmt block
-		1, 0,               // format tag = 1
-		1, 0,               // nb of channels = 1 TODO: fill in later!
-		0, 0, 0, 0,         // samples per second (filled in)
-		0, 0, 0, 0,         // avg bytes per second (filled in)
-		4, 0,               // block align (2 * bits per samp / 16)
-		16, 0,              // bits per sample
-		'd', 'a', 't', 'a', //
-		0, 0, 0, 0,         // size of data block (filled in later)
-	};
-	const int channels = 1;
-	const int bitsPerSample = 8;
-	uint32 samplesPerSecond = 44100; // TODO: is this necessary?
-	*reinterpret_cast<uint32*>(header + 24) = samplesPerSecond;
-	*reinterpret_cast<uint32*>(header + 28) = (channels * samplesPerSecond *
-	                                           bitsPerSample) / 8;
-	fwrite(header, sizeof(header), 1, wavfp);
-}
-
-void CassettePlayer::stopRecording()
-{
-	if (wavfp) {
-		// TODO error handling
-		uint32 totalsize = nofWavBytes + 44;
-		fseek(wavfp, 4, SEEK_SET);
-		fwrite(&totalsize, 4, 1, wavfp);
-		fseek(wavfp, 40, SEEK_SET);
-		fwrite(&nofWavBytes, 4, 1, wavfp);
-
-		fclose(wavfp);
-		wavfp = NULL;
-	}
-}
-
 string CassettePlayer::execute(const vector<string>& tokens)
 {
 	string result;
+	if (tokens.size() < 2) {
+		throw SyntaxError();
+	}
 	if (tokens[1] == "-mode") {
-		if (tokens.size() == 2) {
+		switch (tokens.size()) {
+		case 2:
 			result += "Mode is: ";
-			if (mode == PLAY) {
-				result += "play";
-			} else if (mode == RECORD) {
-				result += "record";
-			} else assert(false); // Illegal mode!? impossible...
-			result += "\n";
-		} else if (tokens[2] == "record") {
-			// TODO: add filename parameter and maybe also -prefix option
-			if (mode != RECORD) {
-				result += "Record mode set\n";
-				mode = RECORD;
-				string filename = FileOperations::getNextNumberedFileName("taperecordings", "openmsx", ".wav");
-				startRecording(filename);
+			result += wavWriter.get() ? "record" : "play";
+			break;
+		case 3:
+			if (tokens[2] == "record") {
+				// TODO: add filename parameter and maybe also
+				//       -prefix option
+				if (!wavWriter.get()) {
+					prevWavTime.reset(getCommandController().getScheduler().getCurrentTime());
+					string filename = FileOperations::getNextNumberedFileName("taperecordings", "openmsx", ".wav");
+					wavWriter.reset(new WavWriter(filename,
+						1, 8, 44100));
+					result += "Record mode set, writing to file: " + filename;
+				} else {
+					result += "Already in recording mode.";
+				}
+			} else if (tokens[2] == "play") {
+				if (wavWriter.get()) {
+					result += "Play mode set";
+					wavWriter.reset();
+				} else {
+					result += "Already in play mode.";
+				}
 			} else {
-				result += "Already in recording mode...\n";
+				throw SyntaxError();
 			}
-		} else if (tokens[2] == "play") {
-			if (mode != PLAY) {
-				result += "Play mode set\n";
-				mode = PLAY;
-				stopRecording();
-			} else {
-				result += "Already in play mode...\n";
-			}
-		} else throw SyntaxError();
+			break;
+		default:
+			throw SyntaxError();
+		}
+
 	} else if (tokens.size() != 2) {
 		throw SyntaxError();
-	} else 	if (tokens[1] == "-eject") {
-		result += "Tape ejected\n";
+
+	} else if (tokens[1] == "-eject") {
+		result += "Tape ejected";
 		removeTape();
-		cliComm.update(CliComm::MEDIA,
-		                           "cassetteplayer", "");
+		cliComm.update(CliComm::MEDIA, "cassetteplayer", "");
 	} else if (tokens[1] == "eject") {
-		result += "Tape ejected\nWarning: use of 'eject' is deprecated, instead use '-eject'\n";
+		result += "Tape ejected\n"
+		          "Warning: use of 'eject' is deprecated, "
+		          "instead use '-eject'";
 		removeTape();
-		cliComm.update(CliComm::MEDIA,
-		                           "cassetteplayer", "");
+		cliComm.update(CliComm::MEDIA, "cassetteplayer", "");
+
 	} else if (tokens[1] == "-rewind") {
-		result += "Tape rewinded\n";
+		result += "Tape rewinded";
 		rewind();
 	} else if (tokens[1] == "rewind") {
-		result += "Tape rewinded\nWarning: use of 'rewind' is deprecated, instead use '-rewind'\n";
+		result += "Tape rewinded\n"
+		          "Warning: use of 'rewind' is deprecated, "
+		          "instead use '-rewind'";
 		rewind();
+
 	} else if (tokens[1] == "-force_play") {
 		forcePlay = true;
 		setMute(false);
 	} else if (tokens[1] == "force_play") {
 		forcePlay = true;
 		setMute(false);
-		result += "Warning: use of 'force_play' is deprecated, instead use '-force_play'\n";
+		result += "Warning: use of 'force_play' is deprecated, "
+		          "instead use '-force_play'";
+
 	} else if (tokens[1] == "-no_force_play") {
 		forcePlay = false;
 		setMute(!motor);
 	} else if (tokens[1] == "no_force_play") {
 		forcePlay = false;
 		setMute(!motor);
-		result += "Warning: use of 'no_force_play' is deprecated, instead use '-no_force_play'\n";
+		result += "Warning: use of 'no_force_play' is deprecated, "
+		          "instead use '-no_force_play'";
+
 	} else {
 		try {
-			result += "Changing tape\n";
+			result += "Changing tape";
 			UserFileContext context(getCommandController());
 			insertTape(context.resolve(tokens[1]));
 			cliComm.update(CliComm::MEDIA,
@@ -332,8 +306,7 @@ void CassettePlayer::tabCompletion(vector<string>& tokens) const
 		extra.insert("-mode");
 		UserFileContext context(getCommandController());
 		completeFileName(tokens, context, extra);
-	}
-	else if (tokens.size() == 3 && tokens[1] == "-mode") {
+	} else if ((tokens.size() == 3) && (tokens[1] == "-mode")) {
 		set<string> options;
 		options.insert("record");
 		options.insert("play");

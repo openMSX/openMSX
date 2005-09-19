@@ -45,6 +45,11 @@ CommandController::~CommandController()
 	assert(!cmdConsole);
 }
 
+Scheduler& CommandController::getScheduler()
+{
+	return scheduler;
+}
+
 void CommandController::setCliComm(CliComm* cliComm_)
 {
 	cliComm = cliComm_;

@@ -8,6 +8,7 @@
 #include "Command.hh"
 #include "CommandLineParser.hh"
 #include "SoundDevice.hh"
+#include "Clock.hh"
 #include <memory>
 
 namespace openmsx {
@@ -16,8 +17,7 @@ class CassetteImage;
 class XMLElement;
 class Mixer;
 class CliComm;
-
-enum CassettePlayerMode { PLAY, RECORD };
+class WavWriter;
 
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
@@ -74,13 +74,9 @@ private:
 	EmuTime tapeTime;
 	EmuTime prevTime;
 
-	CassettePlayerMode mode;
-
-	FILE* wavfp;
-	uint32 nofWavBytes;	
-
-	void startRecording(const std::string& filename);
-	void stopRecording();
+	std::auto_ptr<WavWriter> wavWriter;
+	Clock<44100> prevWavTime;
+	bool lastOutput;
 
 	// Tape Command
 	virtual std::string execute(const std::vector<std::string>& tokens);
