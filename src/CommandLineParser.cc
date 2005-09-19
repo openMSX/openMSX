@@ -68,8 +68,6 @@ CommandLineParser::CommandLineParser(MSXMotherBoard& motherBoard_)
 	, controlOption(*this)
 	, machineOption(*this)
 	, settingOption(*this)
-	, noMMXOption(*this)
-	, noMMXEXTOption(*this)
 	, testConfigOption(*this)
 	, msxRomCLI(new MSXRomCLI(*this))
 	, cliExtension(new CliExtension(*this))
@@ -98,7 +96,8 @@ CommandLineParser::~CommandLineParser()
 {
 }
 
-void CommandLineParser::registerOption(const string &str, CLIOption* cliOption, byte prio, byte length)
+void CommandLineParser::registerOption(
+	const string& str, CLIOption* cliOption, byte prio, byte length)
 {
 	OptionData temp;
 	temp.option = cliOption;
@@ -107,8 +106,8 @@ void CommandLineParser::registerOption(const string &str, CLIOption* cliOption, 
 	optionMap[str] = temp;
 }
 
-void CommandLineParser::registerFileClass(const string &str,
-		CLIFileType* cliFileType)
+void CommandLineParser::registerFileClass(
+	const string& str, CLIFileType* cliFileType)
 {
 	fileClassMap[str] = cliFileType;
 }
@@ -145,7 +144,8 @@ void CommandLineParser::postRegisterFileTypes()
 	}
 }
 
-bool CommandLineParser::parseOption(const string& arg, list<string>& cmdLine, byte priority)
+bool CommandLineParser::parseOption(
+	const string& arg, list<string>& cmdLine, byte priority)
 {
 	map<string, OptionData>::const_iterator it1 = optionMap.find(arg);
 	if (it1 != optionMap.end()) {
@@ -326,12 +326,8 @@ void CommandLineParser::createMachineSetting()
 
 // Control option
 
-CommandLineParser::ControlOption::ControlOption(CommandLineParser& parent_)
-	: parent(parent_)
-{
-}
-
-CommandLineParser::ControlOption::~ControlOption()
+CommandLineParser::ControlOption::ControlOption(CommandLineParser& parser_)
+	: parser(parser_)
 {
 }
 
@@ -352,8 +348,8 @@ bool CommandLineParser::ControlOption::parseOption(const string& option,
 	}
 	CommandLineParser::ControlType type = controlTypeMap[type_name];
 
-	parent.getMotherBoard().getCliComm().startInput(type, arguments);
-	parent.parseStatus = CONTROL;
+	parser.getMotherBoard().getCliComm().startInput(type, arguments);
+	parser.parseStatus = CONTROL;
 	return true;
 }
 
@@ -429,20 +425,16 @@ static void printItemMap(const map<string, set<string> >& itemMap)
 	}
 }
 
-CommandLineParser::HelpOption::HelpOption(CommandLineParser& parent_)
-	: parent(parent_)
-{
-}
-
-CommandLineParser::HelpOption::~HelpOption()
+CommandLineParser::HelpOption::HelpOption(CommandLineParser& parser_)
+	: parser(parser_)
 {
 }
 
 bool CommandLineParser::HelpOption::parseOption(const string& /*option*/,
 		list<string>& /*cmdLine*/)
 {
-	parent.issuedHelp = true;
-	if (!parent.haveSettings) {
+	parser.issuedHelp = true;
+	if (!parser.haveSettings) {
 		return false; // not parsed yet, load settings first
 	}
 	cout << Version::FULL_VERSION << endl;
@@ -454,8 +446,8 @@ bool CommandLineParser::HelpOption::parseOption(const string& /*option*/,
 	cout << "  this is the list of supported options:" << endl;
 
 	map<string, set<string> > optionMap;
-	for (map<string, OptionData>::const_iterator it = parent.optionMap.begin();
-	     it != parent.optionMap.end(); ++it) {
+	for (map<string, OptionData>::const_iterator it = parser.optionMap.begin();
+	     it != parser.optionMap.end(); ++it) {
 		optionMap[it->second.option->optionHelp()].insert(it->first);
 	}
 	printItemMap(optionMap);
@@ -464,13 +456,13 @@ bool CommandLineParser::HelpOption::parseOption(const string& /*option*/,
 	cout << "  this is the list of supported file types:" << endl;
 
 	map<string, set<string> > extMap;
-	for (FileTypeMap::const_iterator it = parent.fileTypeMap.begin();
-	     it != parent.fileTypeMap.end(); ++it) {
+	for (FileTypeMap::const_iterator it = parser.fileTypeMap.begin();
+	     it != parser.fileTypeMap.end(); ++it) {
 		extMap[it->second->fileTypeHelp()].insert(it->first);
 	}
 	printItemMap(extMap);
 
-	parent.parseStatus = EXIT;
+	parser.parseStatus = EXIT;
 	return true;
 }
 
@@ -483,21 +475,17 @@ const string& CommandLineParser::HelpOption::optionHelp() const
 
 // class VersionOption
 
-CommandLineParser::VersionOption::VersionOption(CommandLineParser& parent_)
-	: parent(parent_)
-{
-}
-
-CommandLineParser::VersionOption::~VersionOption()
+CommandLineParser::VersionOption::VersionOption(CommandLineParser& parser_)
+	: parser(parser_)
 {
 }
 
 bool CommandLineParser::VersionOption::parseOption(const string& /*option*/,
 		list<string>& /*cmdLine*/)
 {
-	parent.issuedHelp = true;
+	parser.issuedHelp = true;
 	cout << Version::FULL_VERSION << endl;
-	parent.parseStatus = EXIT;
+	parser.parseStatus = EXIT;
 	return true;
 }
 
@@ -510,28 +498,24 @@ const string& CommandLineParser::VersionOption::optionHelp() const
 
 // Machine option
 
-CommandLineParser::MachineOption::MachineOption(CommandLineParser& parent_)
-	: parent(parent_)
-{
-}
-
-CommandLineParser::MachineOption::~MachineOption()
+CommandLineParser::MachineOption::MachineOption(CommandLineParser& parser_)
+	: parser(parser_)
 {
 }
 
 bool CommandLineParser::MachineOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
-	if (parent.haveConfig) {
+	if (parser.haveConfig) {
 		throw FatalError("Only one machine option allowed");
 	}
 	string machine(getArgument(option, cmdLine));
-	if (parent.issuedHelp) {
+	if (parser.issuedHelp) {
 		return true;
 	}
-	parent.output.printInfo("Using specified machine: " + machine);
-	parent.loadMachine(machine);
-	parent.haveConfig = true;
+	parser.output.printInfo("Using specified machine: " + machine);
+	parser.loadMachine(machine);
+	parser.haveConfig = true;
 	return true;
 }
 const string& CommandLineParser::MachineOption::optionHelp() const
@@ -543,27 +527,23 @@ const string& CommandLineParser::MachineOption::optionHelp() const
 
 // Setting Option
 
-CommandLineParser::SettingOption::SettingOption(CommandLineParser& parent_)
-	: parent(parent_)
-{
-}
-
-CommandLineParser::SettingOption::~SettingOption()
+CommandLineParser::SettingOption::SettingOption(CommandLineParser& parser_)
+	: parser(parser_)
 {
 }
 
 bool CommandLineParser::SettingOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
-	if (parent.haveSettings) {
+	if (parser.haveSettings) {
 		throw FatalError("Only one setting option allowed");
 	}
 	try {
-		UserFileContext context(parent.motherBoard.getCommandController(),
+		UserFileContext context(parser.motherBoard.getCommandController(),
 		                        "", true); // skip user directories
-		parent.settingsConfig.loadSetting(
+		parser.settingsConfig.loadSetting(
 			context, getArgument(option, cmdLine));
-		parent.haveSettings = true;
+		parser.haveSettings = true;
 	} catch (FileException& e) {
 		throw FatalError(e.getMessage());
 	} catch (ConfigException& e) {
@@ -571,22 +551,15 @@ bool CommandLineParser::SettingOption::parseOption(const string &option,
 	}
 	return true;
 }
+
 const string& CommandLineParser::SettingOption::optionHelp() const
 {
 	static const string text("Load an alternative settings file");
 	return text;
 }
 
+
 // class NoMMXOption
-
-CommandLineParser::NoMMXOption::NoMMXOption(CommandLineParser& parent_)
-	: parent(parent_)
-{
-}
-
-CommandLineParser::NoMMXOption::~NoMMXOption()
-{
-}
 
 bool CommandLineParser::NoMMXOption::parseOption(const string& /*option*/,
 		list<string>& /*cmdLine*/)
@@ -598,20 +571,13 @@ bool CommandLineParser::NoMMXOption::parseOption(const string& /*option*/,
 
 const string& CommandLineParser::NoMMXOption::optionHelp() const
 {
-	static const string text("Disables usage of MMX, including extensions (for debugging)");
+	static const string text(
+		"Disables usage of MMX, including extensions (for debugging)");
 	return text;
 }
 
+
 // class NoMMXEXTOption
-
-CommandLineParser::NoMMXEXTOption::NoMMXEXTOption(CommandLineParser& parent_)
-	: parent(parent_)
-{
-}
-
-CommandLineParser::NoMMXEXTOption::~NoMMXEXTOption()
-{
-}
 
 bool CommandLineParser::NoMMXEXTOption::parseOption(const string& /*option*/,
 		list<string>& /*cmdLine*/)
@@ -623,30 +589,23 @@ bool CommandLineParser::NoMMXEXTOption::parseOption(const string& /*option*/,
 
 const string& CommandLineParser::NoMMXEXTOption::optionHelp() const
 {
-	static const string text("Disables usage of MMX extensions (for debugging)");
+	static const string text(
+		"Disables usage of MMX extensions (for debugging)");
 	return text;
 }
 
+
 // TestConfig option
 
-CommandLineParser::TestConfigOption::TestConfigOption(CommandLineParser& parent_)
-	: parent(parent_)
+CommandLineParser::TestConfigOption::TestConfigOption(CommandLineParser& parser_)
+	: parser(parser_)
 {
 }
 
-CommandLineParser::TestConfigOption::~TestConfigOption()
+bool CommandLineParser::TestConfigOption::parseOption(const string& /*option*/,
+		list<string>& /*cmdLine*/)
 {
-}
-
-bool CommandLineParser::TestConfigOption::parseOption(const string& option,
-		list<string>& cmdLine)
-{
-	/*
-	if (!parent.haveSettings) {
-		return false; // not parsed yet, load settings first
-	}
-*/
-	parent.parseStatus = TEST;
+	parser.parseStatus = TEST;
 	return true;
 }
 
@@ -655,6 +614,5 @@ const string& CommandLineParser::TestConfigOption::optionHelp() const
 	static const string text("Test if the specified config works and exit");
 	return text;
 }
-
 
 } // namespace openmsx

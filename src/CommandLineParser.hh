@@ -103,90 +103,76 @@ private:
 
 	class HelpOption : public CLIOption {
 	public:
-		HelpOption(CommandLineParser& parent);
-		virtual ~HelpOption();
+		HelpOption(CommandLineParser& parser);
 		virtual bool parseOption(const std::string& option,
 			std::list<std::string>& cmdLine);
 		virtual const std::string& optionHelp() const;
 	private:
-		CommandLineParser& parent;
+		CommandLineParser& parser;
 	} helpOption;
 
 	class VersionOption : public CLIOption {
 	public:
-		VersionOption(CommandLineParser& parent);
-		virtual ~VersionOption();
+		VersionOption(CommandLineParser& parser);
 		virtual bool parseOption(const std::string& option,
 			std::list<std::string>& cmdLine);
 		virtual const std::string& optionHelp() const;
 	private:
-		CommandLineParser& parent;
+		CommandLineParser& parser;
 	} versionOption;
 
 	class ControlOption : public CLIOption {
 	public:
-		ControlOption(CommandLineParser& parent);
-		virtual ~ControlOption();
+		ControlOption(CommandLineParser& parser);
 		virtual bool parseOption(const std::string& option,
 			std::list<std::string>& cmdLine);
 		virtual const std::string& optionHelp() const;
 	private:
-		CommandLineParser& parent;
+		CommandLineParser& parser;
 	} controlOption;
 
 	class MachineOption : public CLIOption {
 	public:
-		MachineOption(CommandLineParser& parent);
-		virtual ~MachineOption();
+		MachineOption(CommandLineParser& parser);
 		virtual bool parseOption(const std::string& option,
 			std::list<std::string>& cmdLine);
 		virtual const std::string& optionHelp() const;
 	private:
-		CommandLineParser& parent;
+		CommandLineParser& parser;
 	} machineOption;
 
 	class SettingOption : public CLIOption {
 	public:
-		SettingOption(CommandLineParser& parent);
-		virtual ~SettingOption();
+		SettingOption(CommandLineParser& parser);
 		virtual bool parseOption(const std::string& option,
 			std::list<std::string>& cmdLine);
 		virtual const std::string& optionHelp() const;
 	private:
-		CommandLineParser& parent;
+		CommandLineParser& parser;
 	} settingOption;
 
 	class NoMMXOption : public CLIOption {
 	public:
-		NoMMXOption(CommandLineParser& parent);
-		virtual ~NoMMXOption();
 		virtual bool parseOption(const std::string& option,
 			std::list<std::string>& cmdLine);
 		virtual const std::string& optionHelp() const;
-	private:
-		CommandLineParser& parent;
 	} noMMXOption;
 
 	class NoMMXEXTOption : public CLIOption {
 	public:
-		NoMMXEXTOption(CommandLineParser& parent);
-		virtual ~NoMMXEXTOption();
 		virtual bool parseOption(const std::string& option,
 			std::list<std::string>& cmdLine);
 		virtual const std::string& optionHelp() const;
-	private:
-		CommandLineParser& parent;
 	} noMMXEXTOption;
 
 	class TestConfigOption : public CLIOption {
 	public:
-		TestConfigOption(CommandLineParser& parent);
-		virtual ~TestConfigOption();
+		TestConfigOption(CommandLineParser& parser);
 		virtual bool parseOption(const std::string& option,
 			std::list<std::string>& cmdLine);
 		virtual const std::string& optionHelp() const;
 	private:
-		CommandLineParser& parent;
+		CommandLineParser& parser;
 	} testConfigOption;
 	
 	const std::auto_ptr<MSXRomCLI> msxRomCLI;
