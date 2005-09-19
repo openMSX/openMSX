@@ -5,6 +5,8 @@ $Id$
 	   - removed common code from Mixer and CassettePlayer
 	   - code should now also work on big endian machines (not tested)
 	* Enabled wav writing for CassettePlayer
+	* Clear secondary slot registers on reset(!):
+	   - fixes reset bug on Sony HB-F500P
 
 2005-09-18 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added a new -testconfig option, which just tries to load the

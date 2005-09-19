@@ -254,6 +254,9 @@ void MSXCPUInterface::updateVisible(int page)
 
 void MSXCPUInterface::reset()
 {
+	for (int i = 0; i < 4; ++i) {
+		subSlotRegister[i] = 0;
+	}
 	setPrimarySlots(0);
 }
 
