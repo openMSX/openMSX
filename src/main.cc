@@ -5,10 +5,6 @@
  *
  */
 
-#include <memory>
-#include <iostream>
-#include <exception>
-#include <SDL.h>
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "CommandLineParser.hh"
@@ -24,6 +20,11 @@
 #include "HotKey.hh"
 #include "SettingsConfig.hh"
 #include "CommandConsole.hh"
+#include <memory>
+#include <iostream>
+#include <exception>
+#include <cstdlib>
+#include <SDL.h>
 
 using std::auto_ptr;
 using std::cerr;
@@ -106,5 +107,5 @@ static int main(int argc, char **argv)
 // Enter the openMSX namespace.
 int main(int argc, char **argv)
 {
-	return openmsx::main(argc, argv);
+	exit(openmsx::main(argc, argv));
 }
