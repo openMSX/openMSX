@@ -137,10 +137,10 @@ void CassettePlayer::updatePosition(const EmuTime& time)
 void CassettePlayer::setMotor(bool status, const EmuTime& time)
 {
 	updatePosition(time);
+	setSignal(lastOutput, time);
+
 	motor = status;
 	setMute(!motor && !forcePlay);
-
-	setSignal(lastOutput, time);
 }
 
 short CassettePlayer::getSample(const EmuTime& time)
@@ -156,15 +156,15 @@ short CassettePlayer::readSample(const EmuTime& time)
 
 void CassettePlayer::setSignal(bool output, const EmuTime& time)
 {
-	lastOutput = output;
-	if (!wavWriter.get() || !motor) return; // not recording
-
-	unsigned samples = prevWavTime.getTicksTill(time);
-	unsigned char value = output ? 0 : 255;
-	while (samples--) {
-		wavWriter->write8mono(value);
+	if (wavWriter.get() && motor) {
+		unsigned samples = prevWavTime.getTicksTill(time);
+		unsigned char value = output ? 0 : 255;
+		while (samples--) {
+			wavWriter->write8mono(value);
+		}
 	}
-	prevWavTime.reset(time);
+	prevWavTime.advance(time);
+	lastOutput = output;
 }
 
 const string& CassettePlayer::getName() const
