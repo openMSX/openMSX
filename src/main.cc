@@ -107,5 +107,5 @@ static int main(int argc, char **argv)
 // Enter the openMSX namespace.
 int main(int argc, char **argv)
 {
-	exit(openmsx::main(argc, argv));
+	exit(openmsx::main(argc, argv)); // need exit() iso return on win32/SDL
 }
