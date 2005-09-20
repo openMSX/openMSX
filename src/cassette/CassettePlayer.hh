@@ -21,11 +21,11 @@ class WavWriter;
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
 public:
-    MSXCassettePlayerCLI(CommandLineParser& commandLineParser);
-    virtual bool parseOption(const std::string& option,
-							 std::list<std::string>& cmdLine);
-    virtual const std::string& optionHelp() const;
-    virtual void parseFileType(const std::string& filename,
+	MSXCassettePlayerCLI(CommandLineParser& commandLineParser);
+	virtual bool parseOption(const std::string& option,
+	                         std::list<std::string>& cmdLine);
+	virtual const std::string& optionHelp() const;
+	virtual void parseFileType(const std::string& filename,
 	                           std::list<std::string>& cmdLine);
 	virtual const std::string& fileTypeHelp() const;
 
@@ -38,8 +38,7 @@ class CassettePlayer : public CassetteDevice, public SoundDevice,
                        private SimpleCommand
 {
 public:
-	CassettePlayer(CliComm& cliComm, CommandController& commandController,
-	               Mixer& mixer);
+	CassettePlayer(CommandController& commandController, Mixer& mixer);
 	virtual ~CassettePlayer();
 
 	void insertTape(const std::string& filename, const EmuTime&);
@@ -64,11 +63,15 @@ public:
 		const EmuDuration& sampDur);
 
 private:
-	void rewind(const EmuTime&);
+	bool isPlaying() const;
+	void updateAll(const EmuTime& time);
+	void rewind(const EmuTime& time);
 	void updatePosition(const EmuTime& time);
 	short getSample(const EmuTime& time);
-	void fill_buf(size_t, int);
-	void stopRecording(const EmuTime&);
+	void fillBuf(size_t length, double x);
+	void startRecording(const std::string& filename, const EmuTime& time);
+	void reinitRecording(const EmuTime& time);
+	void stopRecording(const EmuTime& time);
 	void setForce(bool status, const EmuTime& time);
 
 	std::auto_ptr<CassetteImage> cassette;
@@ -77,12 +80,14 @@ private:
 	EmuTime recTime;
 	EmuTime prevTime;
 
-	uint32 samplesPerSecond;
-	int last_sig, last_out;
-	double part;
-	bool _output;
+	double lastX; // last unfiltered output
+	double lastY; // last filtered output
+	double partialOut;
+	double partialInterval;
+	bool lastOutput;
 	size_t sampcnt;
-	unsigned char *buf;
+	static const size_t BUF_SIZE = 1024;
+	unsigned char buf[BUF_SIZE];
 
 	std::auto_ptr<WavWriter> wavWriter;
 
