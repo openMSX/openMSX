@@ -84,7 +84,7 @@ void WavWriter::write8mono(unsigned char val)
 
 void WavWriter::write8mono(unsigned char * val, size_t len)
 {
-	bytes += fwrite(&val, 1, len, wavfp);
+	bytes += fwrite(val, 1, len, wavfp);
 }
 
 void WavWriter::write16stereo(short left, short right)
