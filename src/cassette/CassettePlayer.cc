@@ -168,7 +168,6 @@ void CassettePlayer::fill_buf(size_t length, int x)
 	size_t i;
 	unsigned char *p;
 
-	if (length>samplesPerSecond) printf("%u\n", length);
 	i=0;
 	y=last_out+(x-last_sig);
 	while (i<length) {
