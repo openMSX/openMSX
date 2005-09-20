@@ -1,5 +1,13 @@
 $Id$
 
+2005-09-20 Arnold Metselaar <arnold.metselaar@planet.nl>
+	* fix in WavWriter class; totalsize was wrong
+	* CassetteJack, CassettePlayer
+	   - simple DC removal filter for cassette out signal 
+	* CassettePlayer
+	   - setMute() when recording
+	   - stop recording on eject, insert, rewind unplug and destructor
+	
 2005-09-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made WavWriter class:
 	   - removed common code from Mixer and CassettePlayer
