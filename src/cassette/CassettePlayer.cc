@@ -150,8 +150,7 @@ void CassettePlayer::stopRecording(const EmuTime& time)
 	if (wavWriter.get()) {
 		setSignal(lastOutput, time);
 		if (sampcnt) {
-			wavWriter->write8mono(buf, sampcnt);
-			sampcnt = 0;
+			flushOutput();
 		}
 		wavWriter.reset();
 	}
@@ -203,12 +202,18 @@ void CassettePlayer::fillBuf(size_t length, double x)
 		length -= len;
 		assert(sampcnt <= BUF_SIZE);
 		if (BUF_SIZE == sampcnt) {
-			wavWriter->write8mono(buf, sampcnt);
-			sampcnt = 0;
+			flushOutput();
 		}
 	}
 	lastY = y;
 	lastX = x;
+}
+
+void CassettePlayer::flushOutput()
+{
+	wavWriter->write8mono(buf, sampcnt);
+	sampcnt = 0;
+	wavWriter->flush(); // update wav header
 }
 
 void CassettePlayer::updateAll(const EmuTime& time)
@@ -222,6 +227,7 @@ void CassettePlayer::updateAll(const EmuTime& time)
 			// (possibly) restart recording, reset parameters
 			reinitRecording(time);
 		}
+		flushOutput();
 	} else {
 		// playing
 		updatePosition(time);

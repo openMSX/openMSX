@@ -69,6 +69,7 @@ private:
 	void updatePosition(const EmuTime& time);
 	short getSample(const EmuTime& time);
 	void fillBuf(size_t length, double x);
+	void flushOutput();
 	void startRecording(const std::string& filename, const EmuTime& time);
 	void reinitRecording(const EmuTime& time);
 	void stopRecording(const EmuTime& time);

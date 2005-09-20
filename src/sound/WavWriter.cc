@@ -61,28 +61,23 @@ WavWriter::WavWriter(const std::string& filename,
 
 WavWriter::~WavWriter()
 {
-	unsigned totalsize = bytes + 44 - 8;
+	// data chunk must have an even number of bytes
 	if (bytes & 1) {
-		unsigned char pad=0;
-		totalsize += fwrite(&pad, 1, 1, wavfp);
+		unsigned char pad = 0;
+		fwrite(&pad, 1, 1, wavfp);
 	}
-	totalsize = litEnd_32(totalsize);
-	unsigned wavSize = litEnd_32(bytes);
-	
-	fseek(wavfp,  4, SEEK_SET);
-	fwrite(&totalsize, 4, 1, wavfp);
-	fseek(wavfp, 40, SEEK_SET);
-	fwrite(&wavSize,   4, 1, wavfp);
+
+	flush(); // write header
 
 	fclose(wavfp);
 }
 
 void WavWriter::write8mono(unsigned char val)
 {
-	bytes += fwrite(&val, 1, 1, wavfp);
+	write8mono(&val, 1);
 }
 
-void WavWriter::write8mono(unsigned char * val, size_t len)
+void WavWriter::write8mono(unsigned char* val, size_t len)
 {
 	bytes += fwrite(val, 1, len, wavfp);
 }
@@ -94,6 +89,21 @@ void WavWriter::write16stereo(short left, short right)
 	buf[1] = litEnd_16(right);
 	fwrite(buf, 4, 1, wavfp);
 	bytes += 4;
+}
+
+void WavWriter::flush()
+{
+	// round totalsize up to next even number
+	unsigned totalsize = litEnd_32((bytes + 44 - 8 + 1) & ~1);
+	unsigned wavSize = litEnd_32(bytes);
+
+	fseek(wavfp,  4, SEEK_SET);
+	fwrite(&totalsize, 4, 1, wavfp);
+	fseek(wavfp, 40, SEEK_SET);
+	fwrite(&wavSize,   4, 1, wavfp);
+	fseek(wavfp, 0, SEEK_END);
+
+	fflush(wavfp);
 }
 
 } // namespace openmsx
