@@ -16,6 +16,7 @@ public:
 	~WavWriter();
 
 	void write8mono(unsigned char val);
+	void write8mono(unsigned char *buf, size_t len);
 	void write16stereo(short left, short right);
 
 private:
