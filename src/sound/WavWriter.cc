@@ -61,8 +61,13 @@ WavWriter::WavWriter(const std::string& filename,
 
 WavWriter::~WavWriter()
 {
-	unsigned totalsize = litEnd_32(bytes + 44);
-	unsigned wavSize   = litEnd_32(bytes);
+	unsigned totalsize = bytes + 44 - 8;
+	if (bytes & 1) {
+		unsigned char pad=0;
+		totalsize += fwrite(&pad, 1, 1, wavfp);
+	}
+	totalsize = litEnd_32(totalsize);
+	unsigned wavSize = litEnd_32(bytes);
 	
 	fseek(wavfp,  4, SEEK_SET);
 	fwrite(&totalsize, 4, 1, wavfp);
@@ -74,8 +79,12 @@ WavWriter::~WavWriter()
 
 void WavWriter::write8mono(unsigned char val)
 {
-	fwrite(&val, 1, 1, wavfp);
-	bytes += 1;
+	bytes += fwrite(&val, 1, 1, wavfp);
+}
+
+void WavWriter::write8mono(unsigned char * val, size_t len)
+{
+	bytes += fwrite(&val, 1, len, wavfp);
 }
 
 void WavWriter::write16stereo(short left, short right)
