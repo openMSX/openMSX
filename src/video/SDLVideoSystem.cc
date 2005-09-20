@@ -8,6 +8,7 @@
 #include "Display.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
+#include "VideoSourceSetting.hh"
 #include "SDLUtil.hh"
 #include "InitException.hh"
 #include "ScreenShotSaver.hh"

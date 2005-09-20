@@ -4,6 +4,7 @@
 #define GLRASTERIZER_HH
 
 #include "Rasterizer.hh"
+#include "VideoLayer.hh"
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
 #include "SpriteConverter.hh"

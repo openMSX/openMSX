@@ -3,8 +3,8 @@
 #ifndef RASTERIZER_HH
 #define RASTERIZER_HH
 
-#include "VideoLayer.hh"
 #include "DisplayMode.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 
