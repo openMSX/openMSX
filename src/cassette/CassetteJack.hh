@@ -55,6 +55,7 @@ private:
     jack_port_t * cmtout;
     jack_port_t * cmtin;
     BlockFifo *bf_in, *bf_out;
+    jack_default_audio_sample_t last_sig, last_out;
     size_t bufsize, sampcnt;
     EmuTime basetime; // last sync with sampletime
     EmuTime prevtime; // last time of setSignal
@@ -66,3 +67,4 @@ private:
     
 } // namespace openmsx
 #endif
+

@@ -117,11 +117,39 @@ BlockFifo::advanceWr()
 
 static void 
 fill_buf(BlockFifo * bf, size_t &sampcnt, size_t bufsize,
-		 size_t length, sample_t x, bool * zombie)
+		 size_t length, sample_t x, bool * zombie, 
+		 sample_t & last_out, sample_t & last_sig)
 {
-
+	static const sample_t R=1008.0/1024.0;
 	int len,j; 
 	size_t i; 
+	sample_t *p,y;
+
+	i=0;
+	y=last_out+(x-last_sig)/R;
+	while (i<length && !*zombie) {
+		p=bf->getWrBlock()+sampcnt;
+		len=(length-i<bufsize-sampcnt)?length-i:(bufsize-sampcnt);
+		for (j=0 ; j<len ; ++j)
+			*p++=(y*=R);
+		i+=len;
+		sampcnt+=len;
+		assert(sampcnt<=bufsize);
+		if (bufsize==sampcnt) {
+			bf->advanceWr();
+			sampcnt=0;
+		}
+	}
+	last_out=y;
+	last_sig=x;
+}
+
+static void 
+fill_buf(BlockFifo * bf, size_t &sampcnt, size_t bufsize,
+		 size_t length, sample_t x, bool * zombie)
+{
+	int len,j;
+	size_t i;
 	sample_t *p;
 
 	i=0;
@@ -136,7 +164,7 @@ fill_buf(BlockFifo * bf, size_t &sampcnt, size_t bufsize,
 		if (bufsize==sampcnt) {
 			bf->advanceWr();
 			sampcnt=0;
-		}   
+		}
 	}
 }
 
@@ -178,19 +206,18 @@ CassetteJack::setSignal(bool output, const EmuTime &time)
 {
 	double samples=(time-basetime).toDouble()*samplerate;
 	size_t len = size_t(floor(samples))-sampcnt;
-	if ((time-prevtime).toDouble() < 0.75/4800.0) 
-		printf("puls: %g seconde (%f/1200)\n", 
-			   (time-prevtime).toDouble(), (time-prevtime).toDouble()*1200.0);
+
 	prevtime=time;
 	assert(len<=bufsize);
 	if (len) { // likely; we loose pulses if 0==len
 		double edge = ((part>=0.0)
 					   ? part + (_output ? 1.0-part : -1.0+part)
-					   : part + (_output ? 1.0+part : -1.0-part));
-		fill_buf(bf_out, sampcnt, bufsize, 1, edge, &zombie);
+					   : part + (_output ? 1.0+part : -1.0-part))/2;
+		fill_buf(bf_out, sampcnt, bufsize, 1, edge, 
+				 &zombie, last_out, last_sig);
 		if (--len)
 			fill_buf(bf_out, sampcnt, bufsize, 
-					 len, _output ? 1.0 : -1.0, &zombie);
+					 len, _output ? 0.5 : -0.5, &zombie, last_out, last_sig);
 	}
 	_output=output;
 	part=output ? samples-(double)sampcnt : -samples+(double)sampcnt;
@@ -213,12 +240,14 @@ void
 CassetteJack::plugHelper(Connector* connector, const EmuTime& time)
 {
 	// TODO: handle errors gracefully
-	self=jack_client_new ("openmsx");
+	char name[sizeof "omsx-12345."];
+	snprintf(name, sizeof(name), "omsx-%hu", (unsigned short) getpid());
+	self=jack_client_new (name);
 	assert(self); 
 	samplerate=jack_get_sample_rate(self);
-	cmtout=jack_port_register (self,"out",JACK_DEFAULT_AUDIO_TYPE,
+	cmtout=jack_port_register (self,"casout",JACK_DEFAULT_AUDIO_TYPE,
 							   JackPortIsOutput|JackPortIsTerminal, 0);
-	cmtin=jack_port_register (self,"in",JACK_DEFAULT_AUDIO_TYPE,
+	cmtin=jack_port_register (self,"casin",JACK_DEFAULT_AUDIO_TYPE,
 							  JackPortIsInput, 0);
 	assert(cmtin && cmtout);
 	bufsize=jack_get_buffer_size(self);
@@ -239,6 +268,8 @@ CassetteJack::plugHelper(Connector* connector, const EmuTime& time)
 	// prefill buffers to avoid glitches
 	fill_buf(bf_out, sampcnt, bufsize, bufsize*(buf_fac/2), 0.0, &zombie);
 	fill_buf(bf_in, sampcnt, bufsize, bufsize*(buf_fac/2), 0.0, &zombie);
+	last_out=0.0;
+	last_sig=_output ? 0.5 : -0.5;
 	if (0==jack_activate(self))
 		running=true;
 	else
@@ -277,21 +308,30 @@ CassetteJack::executeUntil(const EmuTime& time, int /*userData*/)
 		getConnector()->unplug(time);
 		return;
 	}
-	// ASSUMPTION (valid at time of writing): the time we get from the
-	// scheduler is the same as the one we passed to setSyncPoint, so we
-	// know we shopuld finish our bufsize samples.
+	// the time we get from the scheduler is the same as the one we
+	// passed to setSyncPoint, so we know we should finish our bufsize
+	// samples.
 	// synchronise bf_out
 	assert((time-basetime).toDouble()*samplerate > bufsize-1);
 	assert((time-basetime).toDouble()*samplerate < bufsize+1);
 	size_t len = bufsize-sampcnt;
 	if (len) { // likely
-		double edge = (part>=0.0)
-			? part + (_output ? 1.0-part : +part-1.0)
-			: part + (_output ? 1.0+part : -part-1.0) ;
-		fill_buf(bf_out, sampcnt, bufsize, 1, edge, &zombie);
-		if (--len)
+		if (len==bufsize && 0.0==part && fabs(last_out)<0.0001) { // cut-off
+			last_out=0.0;
 			fill_buf(bf_out, sampcnt, bufsize, 
-					 len, _output ? 1.0 : -1.0, &zombie);
+					 len, 0.0, &zombie);
+		}
+		else {
+			double edge = ((part>=0.0)
+						   ? part + (_output ? 1.0-part : +part-1.0)
+						   : part + (_output ? 1.0+part : -part-1.0))/2 ;
+			fill_buf(bf_out, sampcnt, bufsize, 1, edge, 
+					 &zombie, last_out, last_sig);
+			if (--len)
+				fill_buf(bf_out, sampcnt, bufsize, 
+						 len, _output ? 0.5 : -0.5, 
+						 &zombie, last_out, last_sig);
+		}
 	}
 	// synchronise bf_in 
 	bf_in->getRdBlock(); // make sure there is a block to read
@@ -307,10 +347,7 @@ CassetteJack::jackCallBack(jack_nframes_t nframes)
 	char *src,*dest;
 
 	if (0==nframes) return 0;
-	if (!running) {
-		puts("not running");
-		return 1;
-	}
+	if (!running) return 1;
 	// produce audio data for out
 	dest=(char*) jack_port_get_buffer(cmtout,nframes);
 	src=(char*) bf_out->getRdBlock();
