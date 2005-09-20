@@ -8,7 +8,6 @@
 #include "Command.hh"
 #include "CommandLineParser.hh"
 #include "SoundDevice.hh"
-#include "Clock.hh"
 #include <memory>
 
 namespace openmsx {
@@ -43,8 +42,8 @@ public:
 	               Mixer& mixer);
 	virtual ~CassettePlayer();
 
-	void insertTape(const std::string& filename);
-	void removeTape();
+	void insertTape(const std::string& filename, const EmuTime&);
+	void removeTape(const EmuTime&);
 
 	// CassetteDevice
 	virtual void setMotor(bool status, const EmuTime& time);
@@ -65,18 +64,27 @@ public:
 		const EmuDuration& sampDur);
 
 private:
-	void rewind();
+	void rewind(const EmuTime&);
 	void updatePosition(const EmuTime& time);
 	short getSample(const EmuTime& time);
+	void fill_buf(size_t, int);
+	void stopRecording(const EmuTime&);
+	void setForce(bool status, const EmuTime& time);
 
 	std::auto_ptr<CassetteImage> cassette;
 	bool motor, forcePlay;
 	EmuTime tapeTime;
+	EmuTime recTime;
 	EmuTime prevTime;
 
+	uint32 samplesPerSecond;
+	int last_sig, last_out;
+	double part;
+	bool _output;
+	size_t sampcnt;
+	unsigned char *buf;
+
 	std::auto_ptr<WavWriter> wavWriter;
-	Clock<44100> prevWavTime;
-	bool lastOutput;
 
 	// Tape Command
 	virtual std::string execute(const std::vector<std::string>& tokens);

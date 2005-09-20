@@ -1,6 +1,8 @@
 // $Id$
 
 #include "CassettePlayer.hh"
+#include "Connector.hh"
+#include "CassettePort.hh"
 #include "CommandController.hh"
 #include "GlobalSettings.hh"
 #include "XMLElement.hh"
@@ -13,6 +15,9 @@
 #include "MSXMotherBoard.hh"
 #include "Scheduler.hh"
 #include "FileOperations.hh"
+#include <cstdlib>
+#include <cmath>
+
 #include "WavWriter.hh"
 
 using std::auto_ptr;
@@ -22,6 +27,8 @@ using std::vector;
 using std::set;
 
 namespace openmsx {
+
+static const size_t bufsize=1024;
 
 MSXCassettePlayerCLI::MSXCassettePlayerCLI(CommandLineParser& commandLineParser_)
 	: commandLineParser(commandLineParser_)
@@ -67,7 +74,7 @@ CassettePlayer::CassettePlayer(
 	: SoundDevice(mixer, getName(), getDescription())
 	, SimpleCommand(commandController, "cassetteplayer")
 	, motor(false), forcePlay(false)
-	, lastOutput(false)
+	, _output(false)
 	, cliComm(cliComm_)
 {
 	XMLElement& config = commandController.getGlobalSettings().getMediaConfig();
@@ -75,12 +82,12 @@ CassettePlayer::CassettePlayer(
 	const string filename = playerElem->getData();
 	if (!filename.empty()) {
 		try {
-			insertTape(playerElem->getFileContext().resolve(filename));
+			insertTape(playerElem->getFileContext().resolve(filename), EmuTime::zero);
 		} catch (MSXException& e) {
 			throw FatalError("Couldn't load tape image: " + filename);
 		}
 	} else {
-		removeTape();
+		removeTape(EmuTime::zero);
 	}
 
 	static XMLElement cassettePlayerConfig("cassetteplayer");
@@ -92,14 +99,20 @@ CassettePlayer::CassettePlayer(
 		cassettePlayerConfig.addChild(sound);
 	}
 	registerSound(cassettePlayerConfig);
+	sampcnt = 0;
+	buf = new unsigned char[bufsize];
 }
 
 CassettePlayer::~CassettePlayer()
 {
 	unregisterSound();
+	if (getConnector())
+		getConnector()->
+			unplug(getCommandController().getScheduler().getCurrentTime());
+	delete [] buf;
 }
 
-void CassettePlayer::insertTape(const string& filename)
+void CassettePlayer::insertTape(const string& filename, const EmuTime & time)
 {
 	try {
 		// first try WAV
@@ -108,19 +121,34 @@ void CassettePlayer::insertTape(const string& filename)
 		// if that fails use CAS
 		cassette.reset(new CasImage(filename));
 	}
-	
-	rewind();
+	rewind(time);
+	setMute(!motor && !forcePlay);
 	playerElem->setData(filename);
 }
 
-void CassettePlayer::removeTape()
+void CassettePlayer::stopRecording(const EmuTime & time)
 {
+	if (wavWriter.get()) {
+		setSignal(_output, time);
+		if (sampcnt) {
+			wavWriter.get()->write8mono(buf, sampcnt);
+			sampcnt=0;
+		}
+		wavWriter.reset();
+	}
+}
+
+void CassettePlayer::removeTape(const EmuTime & time)
+{
+	stopRecording(time);
+	setMute(true);
 	cassette.reset(new DummyCassetteImage());
 	playerElem->setData("");
 }
 
-void CassettePlayer::rewind()
+void CassettePlayer::rewind(const EmuTime & time)
 {
+	stopRecording(time);
 	tapeTime = EmuTime::zero;
 	playTapeTime = EmuTime::zero;
 }
@@ -134,37 +162,109 @@ void CassettePlayer::updatePosition(const EmuTime& time)
 	prevTime = time;
 }
 
+void CassettePlayer::fill_buf(size_t length, int x)
+{
+	int len,j, y; 
+	size_t i;
+	unsigned char *p;
+
+	if (length>samplesPerSecond) printf("%u\n", length);
+	i=0;
+	y=last_out+(x-last_sig);
+	while (i<length) {
+		p=buf+sampcnt;
+		len=(length-i<bufsize-sampcnt)?length-i:(bufsize-sampcnt);
+		for (j=0 ; j<len ; ++j) {
+			*p++=y+128;
+			y=y*252/256;
+		}
+		i+=len;
+		sampcnt+=len;
+		assert(sampcnt<=bufsize);
+		if (bufsize==sampcnt) {
+			wavWriter.get()->write8mono(buf, sampcnt);
+			sampcnt=0;
+		}
+	}
+	last_out=y;
+	last_sig=x;
+}
+
 void CassettePlayer::setMotor(bool status, const EmuTime& time)
 {
-	updatePosition(time);
-	setSignal(lastOutput, time);
+	if (wavWriter.get()) {
+		if (motor || forcePlay)
+			setSignal(_output, time);
+		else if (status) {
+			recTime = time;
+			part = 0.0;
+			last_sig = _output ? 64 : -64;
+			last_out = 0;
+		}
+		motor = status;
+	}
+	else {
+		motor = status;
+		updatePosition(time);
+		setMute(!motor && !forcePlay);
+	}
+}
 
-	motor = status;
-	setMute(!motor && !forcePlay);
+void CassettePlayer::setForce(bool status, const EmuTime& time)
+{
+	if (wavWriter.get()) {
+		if (motor || forcePlay)
+			setSignal(_output, time);
+		else if (status) {
+			recTime = time;
+			part = 0.0;
+			last_sig = _output ? 64 : -64;
+			last_out = 0;
+		}
+		forcePlay = status;
+	}
+	else {
+		forcePlay = status;
+		updatePosition(time);
+		setMute(!motor && !forcePlay);
+	}
 }
 
 short CassettePlayer::getSample(const EmuTime& time)
 {
-	return (motor || forcePlay) ? cassette->getSampleAt(time) : 0;
+	return (!wavWriter.get() && (motor || forcePlay)) 
+		? cassette->getSampleAt(time) : 0;
 }
 
 short CassettePlayer::readSample(const EmuTime& time)
 {
-	updatePosition(time);
-	return getSample(tapeTime);
+	if (!wavWriter.get()) {
+		updatePosition(time);
+		return getSample(tapeTime);
+	}
+	else
+		return 0;
 }
 
 void CassettePlayer::setSignal(bool output, const EmuTime& time)
 {
-	if (wavWriter.get() && motor) {
-		unsigned samples = prevWavTime.getTicksTill(time);
-		unsigned char value = output ? 0 : 255;
-		while (samples--) {
-			wavWriter->write8mono(value);
+	if (wavWriter.get() && (motor || forcePlay)) {
+		double samples=(time-recTime).toDouble()*samplesPerSecond;
+		size_t len = size_t(floor(samples));
+
+		if (len) { // likely; we loose pulses if 0==len
+			double edge = ((part>=0.0)
+						   ? part + (_output ? 1.0-part : -1.0+part)
+						   : part + (_output ? 1.0+part : -1.0-part))/2;
+			fill_buf(1, int(floor(edge*64)));
+			if (--len)
+				fill_buf(len, _output ? 64 : -64);
 		}
+		part = output ? samples-(double)len : -samples+(double)len;
+		recTime += EmuDuration((double)len/samplesPerSecond);
 	}
-	prevWavTime.advance(time);
-	lastOutput = output;
+	_output = output;
+	prevTime = time;
 }
 
 const string& CassettePlayer::getName() const
@@ -175,24 +275,29 @@ const string& CassettePlayer::getName() const
 
 const string& CassettePlayer::getDescription() const
 {
-	static const string desc(
-		"Cassetteplayer, use to read .cas or .wav files.");
+	static const string desc("Cassetteplayer, use to read .cas or .wav files or write .wav files.\n");
 	return desc;
 }
 
-void CassettePlayer::plugHelper(
-	Connector* /*connector*/, const EmuTime& /*time*/)
+void 
+CassettePlayer::plugHelper(Connector* connector, const EmuTime& time)
 {
+	_output=((CassettePortInterface*)connector)->lastOut();
+	last_out=0;
+	last_sig=_output ? 64 : -64;
+	prevTime=time;
 }
 
-void CassettePlayer::unplugHelper(const EmuTime& /*time*/)
+void CassettePlayer::unplugHelper(const EmuTime& time)
 {
+	stopRecording(time);
 }
 
 
 string CassettePlayer::execute(const vector<string>& tokens)
 {
 	string result;
+	EmuTime now = getCommandController().getScheduler().getCurrentTime();
 	if (tokens.size() < 2) {
 		throw SyntaxError();
 	}
@@ -207,10 +312,14 @@ string CassettePlayer::execute(const vector<string>& tokens)
 				// TODO: add filename parameter and maybe also
 				//       -prefix option
 				if (!wavWriter.get()) {
-					prevWavTime.reset(getCommandController().getScheduler().getCurrentTime());
-					string filename = FileOperations::getNextNumberedFileName("taperecordings", "openmsx", ".wav");
+					string filename = FileOperations::
+					  getNextNumberedFileName("taperecordings", "openmsx", 
+											  ".wav");
+					samplesPerSecond=44100;
 					wavWriter.reset(new WavWriter(filename,
-						1, 8, 44100));
+						1, 8, samplesPerSecond));
+					setMute(true);
+					recTime=now;
 					result += "Record mode set, writing to file: " + filename;
 				} else {
 					result += "Already in recording mode.";
@@ -218,6 +327,7 @@ string CassettePlayer::execute(const vector<string>& tokens)
 			} else if (tokens[2] == "play") {
 				if (wavWriter.get()) {
 					result += "Play mode set";
+					stopRecording(now);
 					wavWriter.reset();
 				} else {
 					result += "Already in play mode.";
@@ -235,47 +345,42 @@ string CassettePlayer::execute(const vector<string>& tokens)
 
 	} else if (tokens[1] == "-eject") {
 		result += "Tape ejected";
-		removeTape();
+		removeTape(now);
 		cliComm.update(CliComm::MEDIA, "cassetteplayer", "");
 	} else if (tokens[1] == "eject") {
 		result += "Tape ejected\n"
 		          "Warning: use of 'eject' is deprecated, "
 		          "instead use '-eject'";
-		removeTape();
+		removeTape(now);
 		cliComm.update(CliComm::MEDIA, "cassetteplayer", "");
 
 	} else if (tokens[1] == "-rewind") {
 		result += "Tape rewinded";
-		rewind();
+		rewind(now);
 	} else if (tokens[1] == "rewind") {
 		result += "Tape rewinded\n"
 		          "Warning: use of 'rewind' is deprecated, "
 		          "instead use '-rewind'";
-		rewind();
+		rewind(now);
 
 	} else if (tokens[1] == "-force_play") {
-		forcePlay = true;
-		setMute(false);
+		setForce(true, now);
 	} else if (tokens[1] == "force_play") {
-		forcePlay = true;
-		setMute(false);
-		result += "Warning: use of 'force_play' is deprecated, "
-		          "instead use '-force_play'";
-
+		setForce(true, now);
+		result += "Warning: use of 'force_play' is deprecated, instead use '-force_play'\n";
 	} else if (tokens[1] == "-no_force_play") {
-		forcePlay = false;
-		setMute(!motor);
+		setForce(false, now);
 	} else if (tokens[1] == "no_force_play") {
-		forcePlay = false;
-		setMute(!motor);
+		setForce(false, now);
 		result += "Warning: use of 'no_force_play' is deprecated, "
 		          "instead use '-no_force_play'";
 
 	} else {
 		try {
+			stopRecording(now);
 			result += "Changing tape";
 			UserFileContext context(getCommandController());
-			insertTape(context.resolve(tokens[1]));
+			insertTape(context.resolve(tokens[1]), now);
 			cliComm.update(CliComm::MEDIA,
 			               "cassetteplayer", tokens[1]);
 		} catch (MSXException &e) {
@@ -327,9 +432,17 @@ void CassettePlayer::setSampleRate(int sampleRate)
 void CassettePlayer::updateBuffer(unsigned length, int* buffer,
      const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
-	while (length--) {
-		*(buffer++) = (((int)getSample(playTapeTime)) * volume) >> 15;
-		playTapeTime += delta;
+	if (!wavWriter.get()) {
+		while (length--) {
+			*(buffer++) = (((int)getSample(playTapeTime)) * volume) >> 15;
+			playTapeTime += delta;
+		}
+	}
+	else { // not reachable, mute is set
+		assert(0);
+		//while (length--) {
+		//		*(buffer++) = 0; // TODO
+		//playTapeTime += delta;
 	}
 }
 
