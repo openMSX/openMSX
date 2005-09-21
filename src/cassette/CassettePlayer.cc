@@ -1,5 +1,33 @@
 // $Id$
 
+//TODO:
+// - specify (new) file name for recording
+// - specify prefix for auto file name generation when recording
+// - append to existing wav files when recording, but this is basically a
+//   special case (pointer at the end) of: 
+// - (partly) overwrite an existing wav file from any given time index
+// - seek in cassette images for the next and previous file (using empty space?)
+// - (partly) overwrite existing wav files with new tape data
+// - handle read-only cassette images (e.g.: CAS images or WAV files with a RO
+//   flag): refuse to go to record mode when those are selected - unify record
+//   and play cassette images: just have one tape in the recorder
+//   at one time. So, this also means: 
+// - if the argument to 'cassetteplayer' is a non-existing file, create it
+//   and go to record mode automatically
+// - additionally: postpone creating the new WAV file until there's actually
+//   data written to it (better in case of typos)
+// - smartly auto-set the position of tapes: if you insert an existing WAV
+//   file, it will have the position at the start, assuming PLAY mode by
+//   default.  When specifiying record mode at insert (somehow), it should be
+//   at the back.
+//   Alternatively, we could remember the index in tape images by storing the
+//   index in some persistent data file with its SHA1 sum as it was as we last
+//   saw it. When there are write actions to the tape, the hash has to be
+//   recalculated and replaced in the data file. An optimization would be to
+//   first simply check on the length of the file and fall back to SHA1 if that
+//   results in multiple matches.
+
+
 #include "CassettePlayer.hh"
 #include "Connector.hh"
 #include "CassettePort.hh"
