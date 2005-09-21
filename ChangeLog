@@ -1,6 +1,12 @@
 $Id$
 
 2005-09-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Automatically plug in cassetteplayer when the MSX machine has a
+	  cassetteport:
+	   - done with a TCL script for the moment because the list of
+	     plugged devices is not (yet) saved by openMSX
+
+2005-09-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* CassettePlayer stuff:
 	   - cleanups (bring coding style in line with rest of openMSX)
 	   - fix wav ouput when MSX output varies very rapidly
