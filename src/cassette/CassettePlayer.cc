@@ -333,9 +333,9 @@ const string& CassettePlayer::getName() const
 
 const string& CassettePlayer::getDescription() const
 {
+	//TODO: this description is not entirely accurate, but it is used as an identifier for this device in e.g. Catapult. We should use another way to identify devices A.S.A.P.!
 	static const string desc(
-		"Cassetteplayer, use to read .cas or .wav files or "
-		"write .wav files.");
+		"Cassetteplayer, use to read .cas or .wav files.");
 	return desc;
 }
 
