@@ -184,7 +184,7 @@ SettingFileContext::SettingFileContext(const SettingFileContext& rhs)
 UserFileContext::UserFileContext(CommandController& commandController,
                                  const string& savePath, bool skipUserDirs)
 {
-	paths.push_back("./");
+	paths.push_back("");
 	if (!skipUserDirs) {
 		try {
 			vector<string> dirs;
