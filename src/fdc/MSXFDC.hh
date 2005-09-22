@@ -16,6 +16,7 @@ class MSXFDC : public MSXDevice
 public:
 	virtual void powerDown(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
+	virtual byte peekMem(word address, const EmuTime& time) const;
 	virtual const byte* getReadCacheLine(word start) const;
 
 protected:
