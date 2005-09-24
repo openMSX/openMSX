@@ -56,11 +56,13 @@ private:
     jack_port_t * cmtin;
     BlockFifo *bf_in, *bf_out;
     jack_default_audio_sample_t last_sig, last_out;
+    jack_default_audio_sample_t last_in; // for interpolation
     size_t bufsize, sampcnt;
     EmuTime basetime; // last sync with sampletime
     EmuTime prevtime; // last time of setSignal
     EmuDuration timestep; // for scheduling
-    double part; // to compute the value of samples between constant parts
+    double partialInterval; // time pas since last sample-moment
+    double partialOut; // integral of signal over that period
     uint32 samplerate;
     bool running, _output, zombie;
 } ;

@@ -171,7 +171,7 @@ fill_buf(BlockFifo * bf, size_t &sampcnt, size_t bufsize,
 CassetteJack::CassetteJack(Scheduler & scheduler)
 	: Schedulable(scheduler), bf_in(0), bf_out(0)
 {
-	running=false, zombie=false, part=0.0;
+	running=false, zombie=false, partialInterval=partialOut=0.0;
 }
 CassetteJack::~CassetteJack()
 {
@@ -188,17 +188,23 @@ CassetteJack::setMotor(bool /*status*/, const EmuTime& /*time*/)
 short
 CassetteJack::readSample(const EmuTime& time)
 {
-	double index_d;
-	size_t index_i;
-
 	if (!running || 0==jack_port_connected(cmtin)) 
 		return 0;
+	sample_t *p=bf_in->getRdBlock();
+	double res;
+
 	/* ASSUMPTION: openmsx is blocked here we need not worry about the
 	   readpointer being advanced during this function */
-	index_d=(time-basetime).toDouble()*samplerate;
-	index_i=(size_t)floor(index_d);
-	/* we use a simple piecewise constant 'interpolation' for now */
-	return short(32767*bf_in->getRdBlock()[index_i]);
+	double index_d=(time-basetime).toDouble()*samplerate;
+	size_t index_i=(size_t)floor(index_d);
+	double labda=index_d-floor(index_d);
+	/* piecewise linear interpolation */
+	if (0==index_i)
+		res=labda*(*p)+(1.0-labda)*last_in;
+	else
+		res=labda*p[index_i]+(1.0-labda)*p[index_i-1];
+	
+	return short(res*32767);
 }
 
 void 
@@ -206,21 +212,25 @@ CassetteJack::setSignal(bool output, const EmuTime &time)
 {
 	double samples=(time-basetime).toDouble()*samplerate;
 	size_t len = size_t(floor(samples))-sampcnt;
+	double out = _output ? 0.5 : -0.5;
 
 	prevtime=time;
 	assert(len<=bufsize);
-	if (len) { // likely; we loose pulses if 0==len
-		double edge = ((part>=0.0)
-					   ? part + (_output ? 1.0-part : -1.0+part)
-					   : part + (_output ? 1.0+part : -1.0-part))/2;
+	if (len) {
+		double edge = partialOut + (1.0-partialInterval) * out;
 		fill_buf(bf_out, sampcnt, bufsize, 1, edge, 
 				 &zombie, last_out, last_sig);
 		if (--len)
-			fill_buf(bf_out, sampcnt, bufsize, 
-					 len, _output ? 0.5 : -0.5, &zombie, last_out, last_sig);
+			fill_buf(bf_out, sampcnt, bufsize,
+					 len, out, &zombie, last_out, last_sig);
+		partialInterval=samples-sampcnt;
+		partialOut=partialInterval*out;
+	}
+	else {
+		partialOut += (samples-(sampcnt+partialInterval))*out;
+		partialInterval=samples-sampcnt;
 	}
 	_output=output;
-	part=output ? samples-(double)sampcnt : -samples+(double)sampcnt;
 }
 
 const std::string &
@@ -268,7 +278,7 @@ CassetteJack::plugHelper(Connector* connector, const EmuTime& time)
 	// prefill buffers to avoid glitches
 	fill_buf(bf_out, sampcnt, bufsize, bufsize*(buf_fac/2), 0.0, &zombie);
 	fill_buf(bf_in, sampcnt, bufsize, bufsize*(buf_fac/2), 0.0, &zombie);
-	last_out=0.0;
+	last_in=last_out=0.0;
 	last_sig=_output ? 0.5 : -0.5;
 	if (0==jack_activate(self))
 		running=true;
@@ -316,28 +326,22 @@ CassetteJack::executeUntil(const EmuTime& time, int /*userData*/)
 	assert((time-basetime).toDouble()*samplerate < bufsize+1);
 	size_t len = bufsize-sampcnt;
 	if (len) { // likely
-		if (len==bufsize && 0.0==part && fabs(last_out)<0.0001) { // cut-off
+		if (len==bufsize && 0.0==partialInterval 
+			&& fabs(last_out)<0.0001) { // cut-off
 			last_out=0.0;
 			fill_buf(bf_out, sampcnt, bufsize, 
 					 len, 0.0, &zombie);
 		}
 		else {
-			double edge = ((part>=0.0)
-						   ? part + (_output ? 1.0-part : +part-1.0)
-						   : part + (_output ? 1.0+part : -part-1.0))/2 ;
-			fill_buf(bf_out, sampcnt, bufsize, 1, edge, 
-					 &zombie, last_out, last_sig);
-			if (--len)
-				fill_buf(bf_out, sampcnt, bufsize, 
-						 len, _output ? 0.5 : -0.5, 
-						 &zombie, last_out, last_sig);
+			setSignal(_output,time);
 		}
 	}
-	// synchronise bf_in 
-	bf_in->getRdBlock(); // make sure there is a block to read
-	bf_in->advanceRd(); // and skip it
+	// synchronise bf_in:
+	// preserve last sample for interpolation:
+	last_in=bf_in->getRdBlock()[bufsize-1];//keep last sample for interpolation
+	bf_in->advanceRd(); // release the block for new data
 	basetime=time;
-	part=0.0;
+	partialInterval=partialOut=0.0;
 	assert(0==sampcnt);
 	setSyncPoint(time+timestep);
 }
