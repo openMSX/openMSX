@@ -1,5 +1,10 @@
 $Id$
 
+2005-09-24 Arnold Metselaar <arnold.metselaar@planet.nl>
+	* CassetteJack 
+	   - fix output when MSX output varies vbery rapidly
+	   - simple interpolation on input
+
 2005-09-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Automatically plug in cassetteplayer when the MSX machine has a
 	  cassetteport:
