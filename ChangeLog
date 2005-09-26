@@ -1,5 +1,8 @@
 $Id$
 
+2005-09-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed EmuTime parameter for ASAP sync points
+
 2005-09-24 Arnold Metselaar <arnold.metselaar@planet.nl>
 	* CassetteJack 
 	   - fix output when MSX output varies vbery rapidly

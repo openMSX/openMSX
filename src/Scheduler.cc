@@ -92,7 +92,6 @@ void Scheduler::scheduleHelper(const EmuTime& limit)
 		//		<< " " << userData << " till " << time);
 		device->executeUntil(time, userData);
 	}
-	scheduleTime = limit;
 }
 
 void Scheduler::registerPoll(PollInterface& poll)

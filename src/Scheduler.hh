@@ -73,6 +73,7 @@ public:
 		if (unlikely(limit >= syncPoints.front().getTime())) {
 			scheduleHelper(limit); // slow path not inlined
 		}
+		scheduleTime = limit;
 	}
 
 	// TODO move to reactor?
