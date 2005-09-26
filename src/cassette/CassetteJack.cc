@@ -6,6 +6,8 @@
 #include "Semaphore.hh"
 
 #include <cmath>
+#include <unistd.h> // for getpid()
+
 typedef jack_default_audio_sample_t sample_t;
 static const int buf_fac=4;
 
