@@ -22,14 +22,43 @@ protected:
 		Event(type) {}
 };
 
-class KeyEvent : public UserInputEvent
+class HostKeyEvent : public Event
 {
 public:
 	Keys::KeyCode getKeyCode() const { return keyCode; }
 	word getUnicode() const { return unicode; }
 
 protected:
-	KeyEvent(EventType type, Keys::KeyCode keyCode_, word unicode_) :
+	HostKeyEvent(EventType type, Keys::KeyCode keyCode_, word unicode_) :
+		Event(type), keyCode(keyCode_), unicode(unicode_) {}
+
+private:
+	Keys::KeyCode keyCode;
+	word unicode;
+};
+
+class HostKeyUpEvent : public HostKeyEvent
+{
+public:
+	HostKeyUpEvent(Keys::KeyCode keyCode, word unicode)
+		: HostKeyEvent(OPENMSX_HOST_KEY_UP_EVENT, keyCode, unicode) {}
+};
+
+class HostKeyDownEvent : public HostKeyEvent
+{
+public:
+	HostKeyDownEvent(Keys::KeyCode keyCode, word unicode)
+		: HostKeyEvent(OPENMSX_HOST_KEY_DOWN_EVENT, keyCode, unicode) {}
+};
+
+class EmuKeyEvent : public UserInputEvent
+{
+public:
+	Keys::KeyCode getKeyCode() const { return keyCode; }
+	word getUnicode() const { return unicode; }
+
+protected:
+	EmuKeyEvent(EventType type, Keys::KeyCode keyCode_, word unicode_) :
 		UserInputEvent(type), keyCode(keyCode_), unicode(unicode_) {}
 
 private:
@@ -37,18 +66,18 @@ private:
 	word unicode;
 };
 
-class KeyUpEvent : public KeyEvent
+class EmuKeyUpEvent : public EmuKeyEvent
 {
 public:
-	KeyUpEvent(Keys::KeyCode keyCode, word unicode)
-		: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode, unicode) {}
+	EmuKeyUpEvent(Keys::KeyCode keyCode, word unicode)
+		: EmuKeyEvent(OPENMSX_EMU_KEY_UP_EVENT, keyCode, unicode) {}
 };
 
-class KeyDownEvent : public KeyEvent
+class EmuKeyDownEvent : public EmuKeyEvent
 {
 public:
-	KeyDownEvent(Keys::KeyCode keyCode, word unicode)
-		: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode, unicode) {}
+	EmuKeyDownEvent(Keys::KeyCode keyCode, word unicode)
+		: EmuKeyEvent(OPENMSX_EMU_KEY_DOWN_EVENT, keyCode, unicode) {}
 };
 
 

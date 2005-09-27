@@ -12,6 +12,9 @@
 #include "SettingsConfig.hh"
 #include "InputEvents.hh"
 #include "Display.hh"
+#include "EventDistributor.hh"
+#include "GlobalSettings.hh"
+#include "BooleanSetting.hh"
 #include <algorithm>
 #include <fstream>
 #include <cassert>
@@ -28,8 +31,12 @@ namespace openmsx {
 const char* const PROMPT1 = "> ";
 const char* const PROMPT2 = "| ";
 
-CommandConsole::CommandConsole(CommandController& commandController_)
+CommandConsole::CommandConsole(
+		CommandController& commandController_,
+		EventDistributor& eventDistributor_)
 	: commandController(commandController_)
+	, eventDistributor(eventDistributor_)
+	, consoleSetting(commandController.getGlobalSettings().getConsoleSetting())
 	, display(NULL)
 {
 	resetScrollBack();
@@ -49,10 +56,18 @@ CommandConsole::CommandConsole(CommandController& commandController_)
 	commandController.setCommandConsole(this);
 
 	commandController.getInterpreter().setOutput(this);
+	eventDistributor.registerEventListener(
+		OPENMSX_HOST_KEY_UP_EVENT,   *this, EventDistributor::DETACHED);
+	eventDistributor.registerEventListener(
+		OPENMSX_HOST_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
 }
 
 CommandConsole::~CommandConsole()
 {
+	eventDistributor.unregisterEventListener(
+		OPENMSX_HOST_KEY_UP_EVENT,   *this, EventDistributor::DETACHED);
+	eventDistributor.unregisterEventListener(
+		OPENMSX_HOST_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
 	commandController.getInterpreter().setOutput(NULL);
 	commandController.setCommandConsole(NULL);
 	saveHistory();
@@ -130,17 +145,35 @@ string CommandConsole::getLine(unsigned line) const
 	return "";
 }
 
-bool CommandConsole::signalEvent(const UserInputEvent& event)
+void CommandConsole::signalEvent(const Event& event)
 {
 	// Note: we let OPENMSX_KEY_UP events pass to MSX-Keyboard
 	// to prevent 'hanging' keys when entering the console
 
-	if (event.getType() != OPENMSX_KEY_DOWN_EVENT) {
-		return true; // pass non-keyboard events to MSX
+	assert(dynamic_cast<const HostKeyEvent*>(&event));
+	const HostKeyEvent& keyEvent = static_cast<const HostKeyEvent&>(event);
+	if ((event.getType() == OPENMSX_HOST_KEY_DOWN_EVENT) &&
+	    consoleSetting.getValue()) {
+		handleEvent(keyEvent);
+		assert(display);
+		display->repaintDelayed(40000); // 25fps
+	} else {
+		// TODO this code does not belong here
+		// translate to emu key event
+		if (event.getType() == OPENMSX_HOST_KEY_DOWN_EVENT) {
+			eventDistributor.distributeEvent(
+				new EmuKeyDownEvent(keyEvent.getKeyCode(),
+				                    keyEvent.getUnicode()));
+		} else {
+			eventDistributor.distributeEvent(
+				new EmuKeyUpEvent(keyEvent.getKeyCode(),
+				                  keyEvent.getUnicode()));
+		}
 	}
+}
 
-	assert(dynamic_cast<const KeyEvent*>(&event));
-	const KeyEvent& keyEvent = static_cast<const KeyEvent&>(event);
+void CommandConsole::handleEvent(const HostKeyEvent& keyEvent)
+{
 	Keys::KeyCode keyCode = keyEvent.getKeyCode();
 	switch (keyCode) {
 		case (Keys::K_PAGEUP | Keys::KM_SHIFT):
@@ -203,10 +236,6 @@ bool CommandConsole::signalEvent(const UserInputEvent& event)
 				normalKey(keyEvent.getUnicode());
 			}
 	}
-
-	assert(display);
-	display->repaintDelayed(40000); // 25fps
-	return false; // don't pass event to MSX-Keyboard
 }
 
 void CommandConsole::output(const std::string& text)

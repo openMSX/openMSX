@@ -29,9 +29,9 @@ AfterCommand::AfterCommand(Scheduler& scheduler_,
 	// TODO DETACHED <-> EMU types should be cleaned up
 	//      (moved to event iso listener?)
 	eventDistributor.registerEventListener(
-		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_HOST_KEY_UP_EVENT, *this, EventDistributor::DETACHED);
 	eventDistributor.registerEventListener(
-		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_HOST_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
 	eventDistributor.registerEventListener(
 		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::EMU);
 	eventDistributor.registerEventListener(
@@ -69,9 +69,9 @@ AfterCommand::~AfterCommand()
 	eventDistributor.unregisterEventListener(
 		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::EMU);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_HOST_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_HOST_KEY_UP_EVENT, *this, EventDistributor::DETACHED);
 }
 
 string AfterCommand::execute(const vector<string>& tokens)

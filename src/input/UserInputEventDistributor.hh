@@ -29,19 +29,6 @@ class EventDistributor;
 class UserInputEventDistributor : private EventListener
 {
 public:
-	/**
-	 * This distributor has specifically allocated slots for its listeners.
-	 * This is a simple solution that works,
-	 * until we know the definitive design.
-	 * The top prioriy listener is placed first.
-	 */
-	enum ListenerSlot {
-		HOTKEY,
-		CONSOLE,
-		MSX,
-		NUM_SLOTS, // not an actual slot
-	};
-
 	UserInputEventDistributor(EventDistributor& eventDistributor);
 	virtual ~UserInputEventDistributor();
 
@@ -49,21 +36,19 @@ public:
 	 * Registers a given object to receive certain events.
 	 * @param listener Listener that will be notified when an event arrives.
 	 */
-	void registerEventListener(
-		ListenerSlot slot, UserInputEventListener& listener );
+	void registerEventListener(UserInputEventListener& listener);
 
 	/**
 	 * Unregisters a previously registered event listener.
 	 * @param listener Listener to unregister.
 	 */
-	void unregisterEventListener(
-		ListenerSlot slot, UserInputEventListener& listener );
+	void unregisterEventListener(UserInputEventListener& listener);
 
 private:
 	virtual void signalEvent(const Event& event);
 
 	typedef std::vector<UserInputEventListener*> Listeners;
-	Listeners listeners[NUM_SLOTS];
+	Listeners listeners;
 	EventDistributor& eventDistributor;
 };
 

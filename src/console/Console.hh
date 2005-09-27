@@ -3,13 +3,11 @@
 #ifndef CONSOLE_HH
 #define CONSOLE_HH
 
-#include "UserInputEventListener.hh"
 #include <string>
-
 
 namespace openmsx {
 
-class Console : public UserInputEventListener
+class Console
 {
 public:
 	void setColumns(unsigned columns);

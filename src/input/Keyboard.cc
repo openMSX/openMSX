@@ -96,8 +96,7 @@ Keyboard::Keyboard(Scheduler& scheduler, CommandController& commandController,
 		loadKeymapfile(config->getFileContext().resolve(filename));
 	}
 
-	eventDistributor.registerEventListener(
-		UserInputEventDistributor::MSX, *this );
+	eventDistributor.registerEventListener(*this);
 	// We do not listen for CONSOLE_OFF_EVENTS because rescanning the
 	// keyboard can have unwanted side effects
 
@@ -107,8 +106,7 @@ Keyboard::Keyboard(Scheduler& scheduler, CommandController& commandController,
 
 Keyboard::~Keyboard()
 {
-	eventDistributor.unregisterEventListener(
-		UserInputEventDistributor::MSX, *this );
+	eventDistributor.unregisterEventListener(*this);
 }
 
 
@@ -126,18 +124,19 @@ const byte* Keyboard::getKeys()
 	return keyMatrix;
 }
 
-bool Keyboard::signalEvent(const UserInputEvent& event)
+void Keyboard::signalEvent(const UserInputEvent& event)
 {
 	EventType type = event.getType();
-	if (type == OPENMSX_KEY_DOWN_EVENT || type == OPENMSX_KEY_UP_EVENT) {
+	if ((type == OPENMSX_EMU_KEY_DOWN_EVENT) ||
+	    (type == OPENMSX_EMU_KEY_UP_EVENT)) {
 		// Ignore possible console on/off events:
 		// we do not rescan the keyboard since this may lead to
 		// an unwanted pressing of <return> in MSX after typing
 		// "set console off" in the console.
-		assert(dynamic_cast<const KeyEvent*>(&event));
-		Keys::KeyCode key = (Keys::KeyCode)((int)((KeyEvent&)event).getKeyCode() & (int)Keys::K_MASK);
+		assert(dynamic_cast<const EmuKeyEvent*>(&event));
+		Keys::KeyCode key = (Keys::KeyCode)((int)((EmuKeyEvent&)event).getKeyCode() & (int)Keys::K_MASK);
 		if (key < MAX_KEYSYM) {
-			if (type == OPENMSX_KEY_DOWN_EVENT) {
+			if (type == OPENMSX_EMU_KEY_DOWN_EVENT) {
 				// Key pressed: reset bit in keyMatrix
 				userKeyMatrix[keyTab[key][0]] &= ~keyTab[key][1];
 			} else { // OPENMSX_KEY_UP_EVENT
@@ -147,7 +146,6 @@ bool Keyboard::signalEvent(const UserInputEvent& event)
 		}
 	}
 	keysChanged = true;	// do ghosting at next getKeys()
-	return true;
 }
 
 

@@ -19,8 +19,7 @@ KeyJoystick::KeyJoystick(CommandController& commandController,
 	: eventDistributor(eventDistributor_)
 	, name(name_)
 {
-	eventDistributor.registerEventListener(
-		UserInputEventDistributor::MSX, *this);
+	eventDistributor.registerEventListener(*this);
 
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
@@ -41,8 +40,7 @@ KeyJoystick::KeyJoystick(CommandController& commandController,
 
 KeyJoystick::~KeyJoystick()
 {
-	eventDistributor.unregisterEventListener(
-		UserInputEventDistributor::MSX, *this);
+	eventDistributor.unregisterEventListener(*this);
 }
 
 
@@ -88,38 +86,37 @@ void KeyJoystick::write(byte /*value*/, const EmuTime& /*time*/)
 
 
 // EventListener
-bool KeyJoystick::signalEvent(const UserInputEvent& event)
+void KeyJoystick::signalEvent(const UserInputEvent& event)
 {
 	switch (event.getType()) {
 	case OPENMSX_CONSOLE_ON_EVENT:
 		allUp();
 		break;
-	default: // must be keyEvent
-		assert(dynamic_cast<const KeyEvent*>(&event));
-		Keys::KeyCode key = (Keys::KeyCode)((int)((KeyEvent&)event).getKeyCode() &
+	case OPENMSX_EMU_KEY_DOWN_EVENT:
+	case OPENMSX_EMU_KEY_UP_EVENT:
+		assert(dynamic_cast<const EmuKeyEvent*>(&event));
+		Keys::KeyCode key = (Keys::KeyCode)((int)((EmuKeyEvent&)event).getKeyCode() &
 		                                    (int)Keys::K_MASK);
-		switch (event.getType()) {
-		case OPENMSX_KEY_DOWN_EVENT:
+		if (event.getType() == OPENMSX_EMU_KEY_DOWN_EVENT) {
 			if      (key == up->getValue())    status &= ~JOY_UP;
 			else if (key == down->getValue())  status &= ~JOY_DOWN;
 			else if (key == left->getValue())  status &= ~JOY_LEFT;
 			else if (key == right->getValue()) status &= ~JOY_RIGHT;
 			else if (key == trigA->getValue()) status &= ~JOY_BUTTONA;
 			else if (key == trigB->getValue()) status &= ~JOY_BUTTONB;
-			break;
-		case OPENMSX_KEY_UP_EVENT:
+		} else {
 			if      (key == up->getValue())    status |= JOY_UP;
 			else if (key == down->getValue())  status |= JOY_DOWN;
 			else if (key == left->getValue())  status |= JOY_LEFT;
 			else if (key == right->getValue()) status |= JOY_RIGHT;
 			else if (key == trigA->getValue()) status |= JOY_BUTTONA;
 			else if (key == trigB->getValue()) status |= JOY_BUTTONB;
-			break;
-		default:
-			assert(false);
 		}
+		break;
+	default:
+		// ignore
+		break;
 	}
-	return true;
 }
 
 } // namespace openmsx

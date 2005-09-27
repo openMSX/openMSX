@@ -3,7 +3,7 @@
 #ifndef HOTKEY_HH
 #define HOTKEY_HH
 
-#include "UserInputEventListener.hh"
+#include "EventListener.hh"
 #include "Keys.hh"
 #include "Command.hh"
 #include <map>
@@ -13,14 +13,14 @@
 namespace openmsx {
 
 class CommandController;
-class UserInputEventDistributor;
+class EventDistributor;
 class XMLElement;
 
-class HotKey : private UserInputEventListener
+class HotKey : private EventListener
 {
 public:
 	HotKey(CommandController& commandController,
-	       UserInputEventDistributor& userInputEventDistributor);
+	       EventDistributor& eventDistributor);
 	virtual ~HotKey();
 
 	void loadBindings(const XMLElement& config);
@@ -34,7 +34,7 @@ private:
 	void unbindDefault(Keys::KeyCode key);
 
 	// EventListener
-	virtual bool signalEvent(const UserInputEvent& event);
+	virtual void signalEvent(const Event& event);
 
 	class BindCmd : public SimpleCommand {
 	public:
@@ -79,7 +79,7 @@ private:
 	KeySet boundKeys;
 	KeySet unboundKeys;
 	CommandController& commandController;
-	UserInputEventDistributor& userInputEventDistributor;
+	EventDistributor& eventDistributor;
 	bool loading; // hack
 };
 

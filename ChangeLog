@@ -1,6 +1,14 @@
 $Id$
 
 2005-09-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed input delay for MSX keyboard:
+	   - Split keyboard events in host and emu events. In the future
+	     other events should be split as well
+	   - Currently the console code translates host keyboard events
+	     into emu keyboard events (only when console is disabled).
+	     This should change.
+
+2005-09-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed EmuTime parameter for ASAP sync points
 
 2005-09-24 Arnold Metselaar <arnold.metselaar@planet.nl>

@@ -60,7 +60,7 @@ static int main(int argc, char **argv)
 
 		// TODO cleanup once singleton mess is cleaned up
 		HotKey hotKey(motherBoard.getCommandController(),
-		              motherBoard.getUserInputEventDistributor());
+		              motherBoard.getEventDistributor());
 		motherBoard.getCommandController().getSettingsConfig().setHotKey(&hotKey);
 
 		CommandLineParser parser(motherBoard);

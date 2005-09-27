@@ -37,7 +37,7 @@ public:
 
 private:
 	// UserInputEventListener
-	virtual bool signalEvent(const UserInputEvent& event);
+	virtual void signalEvent(const UserInputEvent& event);
 
 	void doKeyGhosting();
 	void parseKeymapfile(const byte* buf, unsigned size);

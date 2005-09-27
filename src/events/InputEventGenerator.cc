@@ -114,18 +114,20 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 {
 	switch (evt.type) {
 	case SDL_KEYUP: {
-		Event* event = new KeyUpEvent(Keys::getCode(evt.key.keysym.sym,
-		                                            evt.key.keysym.mod,
-		                                            true),
-		                              evt.key.keysym.unicode);
+		Event* event = new HostKeyUpEvent(
+		        Keys::getCode(evt.key.keysym.sym,
+		                      evt.key.keysym.mod,
+		                      true),
+		        evt.key.keysym.unicode);
 		eventDistributor.distributeEvent(event);
 		break;
 	}
 	case SDL_KEYDOWN: {
-		Event* event = new KeyDownEvent(Keys::getCode(evt.key.keysym.sym,
-		                                              evt.key.keysym.mod,
-		                                              false),
-		                                evt.key.keysym.unicode);
+		Event* event = new HostKeyDownEvent(
+		        Keys::getCode(evt.key.keysym.sym,
+		                      evt.key.keysym.mod,
+		                      false),
+		        evt.key.keysym.unicode);
 		eventDistributor.distributeEvent(event);
 		break;
 	}

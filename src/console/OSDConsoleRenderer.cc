@@ -10,7 +10,6 @@
 #include "Display.hh"
 #include "Event.hh"
 #include "InputEvents.hh"
-#include "UserInputEventDistributor.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
 #include "Timer.hh"
@@ -135,13 +134,9 @@ void OSDConsoleRenderer::setActive(bool active_)
 
 	motherBoard.getInputEventGenerator().setKeyRepeat(active);
 	if (active) {
-		motherBoard.getUserInputEventDistributor().registerEventListener(
-			UserInputEventDistributor::CONSOLE, getConsole());
 		motherBoard.getEventDistributor().distributeEvent(
 			new ConsoleEvent(OPENMSX_CONSOLE_ON_EVENT));
 	} else {
-		motherBoard.getUserInputEventDistributor().unregisterEventListener(
-			UserInputEventDistributor::CONSOLE, getConsole());
 		motherBoard.getEventDistributor().distributeEvent(
 			new ConsoleEvent(OPENMSX_CONSOLE_OFF_EVENT));
 	}

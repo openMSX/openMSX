@@ -3,7 +3,7 @@
 #include "HotKey.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
-#include "UserInputEventDistributor.hh"
+#include "EventDistributor.hh"
 #include "CliComm.hh"
 #include "InputEvents.hh"
 #include "XMLElement.hh"
@@ -25,25 +25,25 @@ const bool META_HOT_KEYS =
 #endif
 
 HotKey::HotKey(CommandController& commandController_,
-               UserInputEventDistributor& userInputEventDistributor_)
+               EventDistributor& eventDistributor_)
 	: bindCmd         (commandController_, *this)
 	, unbindCmd       (commandController_, *this)
 	, bindDefaultCmd  (commandController_, *this)
 	, unbindDefaultCmd(commandController_, *this)
 	, commandController(commandController_)
-	, userInputEventDistributor(userInputEventDistributor_)
+	, eventDistributor(eventDistributor_)
 	, loading(false)
 {
 	initDefaultBindings();
 
-	userInputEventDistributor.registerEventListener(
-		UserInputEventDistributor::HOTKEY, *this);
+	eventDistributor.registerEventListener(
+		OPENMSX_HOST_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
 }
 
 HotKey::~HotKey()
 {
-	userInputEventDistributor.unregisterEventListener(
-		UserInputEventDistributor::HOTKEY, *this);
+	eventDistributor.unregisterEventListener(
+		OPENMSX_HOST_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
 }
 
 void HotKey::initDefaultBindings()
@@ -187,15 +187,12 @@ void HotKey::unbindDefault(Keys::KeyCode key)
 	defaultMap.erase(key);
 }
 
-bool HotKey::signalEvent(const UserInputEvent& event)
+void HotKey::signalEvent(const Event& event)
 {
 	// In the future we might support joystick buttons as hot keys as well.
-	if (event.getType() != OPENMSX_KEY_DOWN_EVENT) {
-		return true;
-	}
 
-	assert(dynamic_cast<const KeyEvent*>(&event));
-	Keys::KeyCode key = static_cast<const KeyEvent&>(event).getKeyCode();
+	assert(dynamic_cast<const HostKeyEvent*>(&event));
+	Keys::KeyCode key = static_cast<const HostKeyEvent&>(event).getKeyCode();
 	BindMap::iterator it = cmdMap.find(key);
 	if (it != cmdMap.end()) {
 		try {
@@ -205,9 +202,8 @@ bool HotKey::signalEvent(const UserInputEvent& event)
 			commandController.getCliComm().printWarning(
 				"Error executing hot key command: " + e.getMessage());
 		}
-		return false; // deny event to other key listeners
+		// TODO deny event to other key listeners ??
 	}
-	return true;
 }
 
 

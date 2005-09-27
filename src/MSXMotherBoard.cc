@@ -231,7 +231,9 @@ RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
 CommandConsole& MSXMotherBoard::getCommandConsole()
 {
 	if (!commandConsole.get()) {
-		commandConsole.reset(new CommandConsole(getCommandController()));
+		commandConsole.reset(new CommandConsole(
+			getCommandController(),
+			getEventDistributor()));
 	}
 	return *commandConsole;
 }

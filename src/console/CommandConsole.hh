@@ -4,6 +4,7 @@
 #define COMMANDCONSOLE_HH
 
 #include "Console.hh"
+#include "EventListener.hh"
 #include "InterpreterOutput.hh"
 #include "CircularBuffer.hh"
 #include "openmsx.hh"
@@ -13,12 +14,17 @@
 namespace openmsx {
 
 class CommandController;
+class EventDistributor;
+class HostKeyEvent;
+class BooleanSetting;
 class Display;
 
-class CommandConsole : public Console, private InterpreterOutput
+class CommandConsole : public Console, private EventListener,
+                       private InterpreterOutput
 {
 public:
-	CommandConsole(CommandController& commandController);
+	CommandConsole(CommandController& commandController,
+	               EventDistributor& eventDistributor);
 	virtual ~CommandConsole();
 
 	/** Prints a string on the console.
@@ -37,7 +43,8 @@ private:
 	
 	static const int LINESHISTORY = 1000;
 
-	virtual bool signalEvent(const UserInputEvent& event);
+	virtual void signalEvent(const Event& event);
+	void handleEvent(const HostKeyEvent& keyEvent);
 	void tabCompletion();
 	void commandExecute();
 	void scroll(int delta);
@@ -70,6 +77,8 @@ private:
 	unsigned cursorPosition;
 
 	CommandController& commandController;
+	EventDistributor& eventDistributor;
+	BooleanSetting& consoleSetting;
 	Display* display;
 };
 
