@@ -201,13 +201,8 @@ void StdioConnection::output(const string& message)
 
 void StdioConnection::close()
 {
-	if (ok) {
-		// TODO: close stdout?
-		::close(STDIN_FILENO);
-		::close(STDOUT_FILENO);
-		::close(STDERR_FILENO);
-		ok = false;
-	}
+	// don't close stdin/out/err
+	ok = false;
 }
 
 
