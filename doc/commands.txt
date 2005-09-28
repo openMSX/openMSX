@@ -55,13 +55,17 @@ cassetteplayer
   format. Don't forget to connect the cassetteplayer to the cassette port.
 
   usage:
-    cassetteplayer <tape image>    insert tape image in virtual cassette player
-    cassetteplayer eject           remove tape from virtual cassette player
-    cassetteplayer rewind          rewind the current tape
-    cassetteplayer force_play      play even when motor signal is not active 
-    cassetteplayer no_force_play   motor signal controls playing (default)
+    cassetteplayer insert <tape image>  insert tape image in virtual cassette 
+                                        player
+    cassetteplayer eject                remove tape from virtual cassette player
+    cassetteplayer rewind               rewind the current tape
+    cassetteplayer force_play           play even when motor signal is not active 
+    cassetteplayer no_force_play        motor signal controls playing (default)
+    cassetteplayer new [<tape image>]   create new tape image and go to record
+                                        mode
+    cassetteplayer play                 go to play mode (when in record mode)
+                                        and rewind the tape
 
-    
 debug
 -----
 
