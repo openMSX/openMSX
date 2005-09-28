@@ -93,10 +93,11 @@ void KeyJoystick::signalEvent(const UserInputEvent& event)
 		allUp();
 		break;
 	case OPENMSX_EMU_KEY_DOWN_EVENT:
-	case OPENMSX_EMU_KEY_UP_EVENT:
+	case OPENMSX_EMU_KEY_UP_EVENT: {
 		assert(dynamic_cast<const EmuKeyEvent*>(&event));
-		Keys::KeyCode key = (Keys::KeyCode)((int)((EmuKeyEvent&)event).getKeyCode() &
-		                                    (int)Keys::K_MASK);
+		Keys::KeyCode key = (Keys::KeyCode)(
+			(int)((EmuKeyEvent&)event).getKeyCode() & (int)Keys::K_MASK
+			);
 		if (event.getType() == OPENMSX_EMU_KEY_DOWN_EVENT) {
 			if      (key == up->getValue())    status &= ~JOY_UP;
 			else if (key == down->getValue())  status &= ~JOY_DOWN;
@@ -113,6 +114,7 @@ void KeyJoystick::signalEvent(const UserInputEvent& event)
 			else if (key == trigB->getValue()) status |= JOY_BUTTONB;
 		}
 		break;
+	}
 	default:
 		// ignore
 		break;
