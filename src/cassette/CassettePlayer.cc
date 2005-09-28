@@ -1,21 +1,15 @@
 // $Id$
 
 //TODO:
-// - specify (new) file name for recording
-// - specify prefix for auto file name generation when recording
-// - append to existing wav files when recording, but this is basically a
-//   special case (pointer at the end) of: 
+// - specify prefix for auto file name generation when recording (setting?)
+// - append to existing wav files when recording (record command), but this is
+//   basically a special case (pointer at the end) of: 
 // - (partly) overwrite an existing wav file from any given time index
 // - seek in cassette images for the next and previous file (using empty space?)
-// - (partly) overwrite existing wav files with new tape data
+// - (partly) overwrite existing wav files with new tape data (not very hi prio)
 // - handle read-only cassette images (e.g.: CAS images or WAV files with a RO
-//   flag): refuse to go to record mode when those are selected - unify record
-//   and play cassette images: just have one tape in the recorder
-//   at one time. So, this also means: 
-// - if the argument to 'cassetteplayer' is a non-existing file, create it
-//   and go to record mode automatically
-// - additionally: postpone creating the new WAV file until there's actually
-//   data written to it (better in case of typos)
+//   flag): refuse to go to record mode when those are selected 
+// - CLEAN UP! It's a bit messy now.
 // - smartly auto-set the position of tapes: if you insert an existing WAV
 //   file, it will have the position at the start, assuming PLAY mode by
 //   default.  When specifiying record mode at insert (somehow), it should be
@@ -143,6 +137,7 @@ CassettePlayer::~CassettePlayer()
 
 void CassettePlayer::insertTape(const string& filename, const EmuTime& time)
 {
+	stopRecording(getCommandController().getScheduler().getCurrentTime());
 	try {
 		// first try WAV
 		cassette.reset(new WavImage(filename));
@@ -154,7 +149,6 @@ void CassettePlayer::insertTape(const string& filename, const EmuTime& time)
 	setMute(!isPlaying());
 	playerElem->setData(filename);
 }
-
 
 void CassettePlayer::startRecording(const std::string& filename,
                                     const EmuTime& time)
@@ -355,83 +349,78 @@ string CassettePlayer::execute(const vector<string>& tokens)
 {
 	string result;
 	EmuTime now = getCommandController().getScheduler().getCurrentTime();
-	if (tokens.size() < 2) {
+	if (tokens.size() == 0) {
 		throw SyntaxError();
-	}
-	if (tokens[1] == "-mode") {
-		switch (tokens.size()) {
-		case 2:
-			result += "Mode is: ";
+	} else
+	if (tokens.size() == 1) {
+		const string filename = playerElem->getData();
+		if (filename.size() > 0)
+		{
+			result += "Current cassette image is: " + playerElem->getData() + "\n";
+			result += "Current mode is: ";
 			result += wavWriter.get() ? "record" : "play";
-			break;
-		case 3:
-			if (tokens[2] == "record") {
-				// TODO: add filename parameter and maybe also
-				//       -prefix option
-				if (!wavWriter.get()) {
-					string filename = FileOperations::
-					  getNextNumberedFileName(
-					    "taperecordings", "openmsx", ".wav");
-					startRecording(filename, now);
-					result += "Record mode set, writing to "
-					          "file: " + filename;
-				} else {
-					result += "Already in recording mode.";
-				}
-			} else if (tokens[2] == "play") {
-				if (wavWriter.get()) {
-					stopRecording(now);
-					result += "Play mode set";
-				} else {
-					result += "Already in play mode.";
-				}
-			} else {
-				throw SyntaxError();
-			}
-			break;
-		default:
-			throw SyntaxError();
+		} else {
+			result += "Cassetteplayer is empty.";
 		}
-
+	} else if (tokens[1] == "new") {
+		if (wavWriter.get()) {
+			stopRecording(now);
+			const string oldfilename = playerElem->getData();
+			result += "Stopping recording to " + oldfilename;
+		}
+		string filename;
+		if (tokens.size() == 3) {
+			filename = tokens[2];
+		} else {
+			filename = FileOperations::
+			getNextNumberedFileName(
+					"taperecordings", "openmsx", ".wav");
+		}
+		startRecording(filename, now);
+		result += "Created new cassette image "
+			"file: " + filename + ", inserted it and set recording mode.";
+		playerElem->setData(filename);
+		cliComm.update(CliComm::MEDIA, "cassetteplayer", "");
+	} else if (tokens[1] == "insert" && tokens.size() == 3) {
+		try {
+			result += "Changing tape";
+			UserFileContext context(getCommandController());
+			insertTape(context.resolve(tokens[2]), now);
+			cliComm.update(CliComm::MEDIA,
+			               "cassetteplayer", tokens[1]);
+		} catch (MSXException &e) {
+			throw CommandException(e.getMessage());
+		}
 	} else if (tokens.size() != 2) {
 		throw SyntaxError();
-
-	} else if (tokens[1] == "-eject") {
+	} else if (tokens[1] == "record") {
+			result += "TODO: implement this... (sorry)";
+	} else if (tokens[1] == "play") {
+		if (wavWriter.get()) {
+			try {
+				result += "Play mode set, rewinding tape.";
+				insertTape(playerElem->getData(), now);
+			} catch (MSXException &e) {
+				throw CommandException(e.getMessage());
+			}
+		} else {
+			result += "Already in play mode.";
+		}
+	} else if (tokens[1] == "eject") {
 		result += "Tape ejected";
 		removeTape(now);
 		cliComm.update(CliComm::MEDIA, "cassetteplayer", "");
-	} else if (tokens[1] == "eject") {
-		result += "Tape ejected\n"
-		          "Warning: use of 'eject' is deprecated, "
-		          "instead use '-eject'";
-		removeTape(now);
-		cliComm.update(CliComm::MEDIA, "cassetteplayer", "");
 
-	} else if (tokens[1] == "-rewind") {
-		result += "Tape rewinded";
-		rewind(now);
 	} else if (tokens[1] == "rewind") {
-		result += "Tape rewinded\n"
-		          "Warning: use of 'rewind' is deprecated, "
-		          "instead use '-rewind'";
+		result += "Tape rewound";
 		rewind(now);
-
-	} else if (tokens[1] == "-force_play") {
-		setForce(true, now);
 	} else if (tokens[1] == "force_play") {
 		setForce(true, now);
-		result += "Warning: use of 'force_play' is deprecated, "
-		          "instead use '-force_play'\n";
-	} else if (tokens[1] == "-no_force_play") {
-		setForce(false, now);
 	} else if (tokens[1] == "no_force_play") {
 		setForce(false, now);
-		result += "Warning: use of 'no_force_play' is deprecated, "
-		          "instead use '-no_force_play'";
-
 	} else {
+		result += "This syntax is deprecated, please use insert!\n";
 		try {
-			stopRecording(now);
 			result += "Changing tape";
 			UserFileContext context(getCommandController());
 			insertTape(context.resolve(tokens[1]), now);
@@ -444,32 +433,65 @@ string CassettePlayer::execute(const vector<string>& tokens)
 	return result;
 }
 
-string CassettePlayer::help(const vector<string>& /*tokens*/) const
+string CassettePlayer::help(const vector<string>& tokens) const
 {
-	return "cassetteplayer -eject         : remove tape from virtual player\n"
-	       "cassetteplayer -rewind        : rewind tape in virtual player\n"
-	       "cassetteplayer -force_play    : force playing of tape (no remote)\n"
-	       "cassetteplayer -no_force_play : don't force playing of tape\n"
-	       "cassetteplayer -mode          : change mode (record or play)\n"
-	       "cassetteplayer <filename>     : change the tape file\n";
+	string helptext;
+	if (tokens.size() >= 2) {
+		if (tokens[1] == "eject") {
+			helptext = "Well, just eject the cassette from the cassette player/recorder!";
+		} else if (tokens[1] == "rewind") {
+			helptext = "Indeed, rewind the tape that is currently in the cassette player/recorder...";
+		} else if (tokens[1] == "force_play") {
+			helptext = "Equivalent to unconnecting the black remote plug from the cassette player.\n"
+				"Makes the cassette player run (if in play mode); the motor signal from the MSX\n"
+				"will be ignored.";
+		} else if (tokens[1] == "no_force_play") {
+			helptext = "Replugging the black remote plug in the cassette player.\n"
+				"Makes sure the cassette only runs when the MSX says so via the motor signal.";
+		} else if (tokens[1] == "play") {
+			helptext = "Go to play mode. Only useful if you were in record mode (which is currently\n"
+				"the only other mode available).";
+		} else if (tokens[1] == "new") {
+			helptext = "Create a new cassette image. If the file name is omitted, one will be\n"
+				"generated in the default directory for tape recordings. Implies going to\n"
+				"record mode (why else do you want a new cassette image?).";
+		} else if (tokens[1] == "insert") {
+			helptext = "Inserts the specified cassette image into the cassette player, rewinds it and\n"
+				"switches to play mode.";
+		} else if (tokens[1] == "record") {
+			helptext = "Go to record mode. NOT IMPLEMENTED YET. Will be used to be able to resume\n"
+				"recording to an existing cassette image, previously inserted with the insert\n"
+				"command.";
+		}
+	} else {
+		helptext = "cassetteplayer eject             : remove tape from virtual player\n"
+	       "cassetteplayer rewind            : rewind tape in virtual player\n"
+	       "cassetteplayer force_play        : force playing of tape (no remote)\n"
+	       "cassetteplayer no_force_play     : don't force playing of tape\n"
+	       "cassetteplayer play              : change to play mode (default)\n"
+	       "cassetteplayer record            : change to record mode (NOT IMPLEMENTED YET)\n"
+	       "cassetteplayer new [<filename>]  : create and insert new tape image file and\ngo to record mode\n"
+	       "cassetteplayer insert <filename> : insert (a different) tape file\n";
+	}
+	return helptext;
 }
 
 void CassettePlayer::tabCompletion(vector<string>& tokens) const
 {
+	set<string> extra;
 	if (tokens.size() == 2) {
-		set<string> extra;
-		extra.insert("-eject");
-		extra.insert("-rewind");
-		extra.insert("-force_play");
-		extra.insert("-no_force_play");
-		extra.insert("-mode");
+		extra.insert("eject");
+		extra.insert("rewind");
+		extra.insert("force_play");
+		extra.insert("no_force_play");
+		extra.insert("insert");
+		extra.insert("new");
+		extra.insert("play");
+	//	extra.insert("record");
+		completeString(tokens, extra);
+	} else if ((tokens.size() == 3) && (tokens[1] == "insert")) {
 		UserFileContext context(getCommandController());
 		completeFileName(tokens, context, extra);
-	} else if ((tokens.size() == 3) && (tokens[1] == "-mode")) {
-		set<string> options;
-		options.insert("record");
-		options.insert("play");
-		completeString(tokens, options);
 	}
 }
 

@@ -1,5 +1,12 @@
 $Id$
 
+2005-09-28 Manuel Bilderbeek <manuel@msxnet.org>
+	* Started implementation of new cassetteplayer CLI.
+	  - needs a lot of clean ups, only the CLI part was changed
+	  - record subcommand not implemented yet. Needs modifications to
+	    WavWriter, to be able to append to existing images. Consequently,
+	    readonly-handing is not implemented yet either.
+
 2005-09-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed input delay for MSX keyboard:
 	   - Split keyboard events in host and emu events. In the future
