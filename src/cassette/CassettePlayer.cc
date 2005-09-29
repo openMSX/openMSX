@@ -412,8 +412,18 @@ string CassettePlayer::execute(const vector<string>& tokens)
 		cliComm.update(CliComm::MEDIA, "cassetteplayer", "");
 
 	} else if (tokens[1] == "rewind") {
+		if (wavWriter.get()) {
+			try {
+				result += "First stopping recording... ";
+				insertTape(playerElem->getData(), now);
+				// this also did the rewinding
+			} catch (MSXException &e) {
+				throw CommandException(e.getMessage());
+			}
+		} else {
+			rewind(now);
+		}
 		result += "Tape rewound";
-		rewind(now);
 	} else if (tokens[1] == "force_play") {
 		setForce(true, now);
 	} else if (tokens[1] == "no_force_play") {
