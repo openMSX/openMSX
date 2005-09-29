@@ -430,6 +430,12 @@ string CassettePlayer::execute(const vector<string>& tokens)
 			throw CommandException(e.getMessage());
 		}
 	}
+	if (!getConnector()) {
+		if (!result.empty() && result[result.size() - 1] != '\n') {
+			result += '\n';
+		}
+		result += "Warning: cassetteplayer not plugged in.";
+	}
 	return result;
 }
 
