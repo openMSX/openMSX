@@ -1,5 +1,8 @@
 $Id$
 
+2005-09-29 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed screenshot colours of SDL renderer on big endian machines.
+
 2005-09-28 Manuel Bilderbeek <manuel@msxnet.org>
 	* Started implementation of new cassetteplayer CLI.
 	  - needs a lot of clean ups, only the CLI part was changed

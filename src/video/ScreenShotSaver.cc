@@ -13,6 +13,7 @@
 #include "FileOperations.hh"
 #include "FileException.hh"
 #include "CommandException.hh"
+#include "build-info.hh"
 #include <SDL.h>
 
 using std::string;
@@ -96,9 +97,9 @@ void ScreenShotSaver::save(SDL_Surface* surface, const string& filename)
 	frmt24.palette = 0;
 	frmt24.BitsPerPixel = 24;
 	frmt24.BytesPerPixel = 3;
-	frmt24.Rmask = 0x0000FF;
+	frmt24.Rmask = OPENMSX_BIGENDIAN ? 0xFF0000 : 0x0000FF;
 	frmt24.Gmask = 0x00FF00;
-	frmt24.Bmask = 0xFF0000;
+	frmt24.Bmask = OPENMSX_BIGENDIAN ? 0x0000FF : 0xFF0000;
 	frmt24.Amask = 0;
 	frmt24.Rshift = 0;
 	frmt24.Gshift = 8;
