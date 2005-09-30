@@ -3,6 +3,7 @@ $Id$
 2005-09-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed help command:
 	   - info topics were visible as commands in the help command
+	* Fixed reset during pause bug
 
 2005-09-29 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed screenshot colours of SDL renderer on big endian machines.

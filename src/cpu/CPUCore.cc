@@ -509,6 +509,12 @@ template <class T> void CPUCore<T>::execute()
 {
 	assert(!breaked);
 
+	if (needReset) {
+		needReset = false;
+		motherboard.doReset(T::clock.getTime());
+		return;
+	}
+
 	exitLoop = false;
 	slowInstructions = 2;
 
@@ -557,10 +563,6 @@ template <class T> void CPUCore<T>::execute()
 				}
 			}
 		}
-	}
-	if (needReset) {
-		needReset = false;
-		motherboard.doReset(T::clock.getTime());
 	}
 }
 
