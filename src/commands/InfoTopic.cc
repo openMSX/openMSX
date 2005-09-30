@@ -10,7 +10,7 @@ using std::vector;
 namespace openmsx {
 
 InfoTopic::InfoTopic(CommandController& commandController, const string& name)
-	: CommandCompleter(commandController, name)
+	: Completer(commandController, name)
 {
 	getCommandController().getInfoCommand().registerTopic(*this, getName());
 }

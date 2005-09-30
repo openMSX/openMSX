@@ -5,6 +5,7 @@ include build/node-start.mk
 SRC_HDR:= \
 	CommandException \
 	CommandController \
+	Completer \
 	Command \
 	InfoCommand \
 	InfoTopic \

@@ -6,50 +6,25 @@
 
 using std::vector;
 using std::string;
-using std::set;
 
 namespace openmsx {
 
-CommandCompleter::CommandCompleter(CommandController& commandController_,
-                                   const string& name_)
-	: commandController(commandController_)
-	, name(name_)
+// class CommandCompleter
+
+CommandCompleter::CommandCompleter(CommandController& commandController,
+                                   const string& name)
+	: Completer(commandController, name)
 {
-	getCommandController().registerCompleter(*this, name);
+	getCommandController().registerCompleter(*this, getName());
 }
 
 CommandCompleter::~CommandCompleter()
 {
-	getCommandController().unregisterCompleter(*this, name);
+	getCommandController().unregisterCompleter(*this, getName());
 }
 
-CommandController& CommandCompleter::getCommandController() const
-{
-	return commandController;
-}
 
-const std::string& CommandCompleter::getName() const
-{
-	return name;
-}
-
-void CommandCompleter::completeString(
-	vector<string>& tokens, set<string>& set, bool caseSensitive) const
-{
-	commandController.completeString(tokens, set, caseSensitive);
-}
-
-void CommandCompleter::completeFileName(std::vector<std::string>& tokens) const
-{
-	commandController.completeFileName(tokens);
-}
-
-void CommandCompleter::completeFileName(
-	vector<string>& tokens, const FileContext& context,
-	const set<string>& extra) const
-{
-	commandController.completeFileName(tokens, context, extra);
-}
+// class Command
 
 Command::Command(CommandController& commandController, const string& name)
 	: CommandCompleter(commandController, name)
@@ -67,6 +42,8 @@ void Command::tabCompletion(vector<string>& /*tokens*/) const
 	// do nothing
 }
 
+
+// class SimpleCommand
 
 SimpleCommand::SimpleCommand(CommandController& commandController,
                              const string& name)

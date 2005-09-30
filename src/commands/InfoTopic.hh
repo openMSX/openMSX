@@ -3,7 +3,7 @@
 #ifndef INFOTOPIC_HH
 #define INFOTOPIC_HH
 
-#include "Command.hh" // TODO split
+#include "Completer.hh"
 #include <string>
 #include <vector>
 
@@ -11,7 +11,7 @@ namespace openmsx {
 
 class TclObject;
 
-class InfoTopic : public CommandCompleter
+class InfoTopic : public Completer
 {
 public:
 	/** Show info on this topic
