@@ -207,7 +207,8 @@ word IDEHD::readData(const EmuTime& /*time*/)
 		// no read in progress
 		return 0x7F7F;
 	}
-	word result = *(transferPntr++);
+	word result = transferPntr[0] + (transferPntr[1] << 8);
+	transferPntr += 2;
 	if (--transferCount == 0) {
 		// everything read
 		setTransferRead(false);
@@ -222,7 +223,9 @@ void IDEHD::writeData(word value, const EmuTime& /*time*/)
 		// no write in progress
 		return;
 	}
-	*(transferPntr++) = value;
+	transferPntr[0] = value & 0xFF;
+	transferPntr[1] = value >> 8;
+	transferPntr += 2;
 	transferCount--;
 	if ((transferCount & 255) == 0) {
 		try {
@@ -232,7 +235,7 @@ void IDEHD::writeData(word value, const EmuTime& /*time*/)
 			setTransferWrite(false);
 		}
 		transferSectorNumber++;
-		transferPntr = (word*)buffer;
+		transferPntr = buffer;
 	}
 	if (transferCount == 0) {
 		// everything written
@@ -277,7 +280,7 @@ void IDEHD::executeCommand(byte cmd)
 
 	case 0xEC: // ATA Identify Device
 		transferCount = 512/2;
-		transferPntr = (word*)(&identifyBlock);
+		transferPntr = identifyBlock;
 		setTransferRead(true);
 		statusReg |= 0x08;	// DRQ
 		break;
@@ -295,7 +298,7 @@ void IDEHD::executeCommand(byte cmd)
 		}
 		transferSectorNumber = sectorNumber;
 		transferCount = 512/2 * numSectors;
-		transferPntr = (word*)buffer;
+		transferPntr = buffer;
 		setTransferWrite(true);
 		statusReg |= 0x08;	// DRQ
 		break;
@@ -316,7 +319,7 @@ void IDEHD::executeCommand(byte cmd)
 			break;
 		}
 		transferCount = 512/2 * numSectors;
-		transferPntr = (word*)buffer;
+		transferPntr = buffer;
 		setTransferRead(true);
 		statusReg |= 0x08;	// DRQ
 		break;

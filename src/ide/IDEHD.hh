@@ -61,7 +61,7 @@ private:
 	bool transferRead;
 	bool transferWrite;
 	unsigned transferCount;
-	word* transferPntr;
+	byte* transferPntr;
 	unsigned transferSectorNumber;
 
 	byte identifyBlock[512];

@@ -1,5 +1,9 @@
 $Id$
 
+2005-10-01 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed IDE on big endian machines.
+	  Commit from Bussum MSX fair :)
+
 2005-09-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed help command:
 	   - info topics were visible as commands in the help command
