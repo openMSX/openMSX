@@ -569,8 +569,11 @@ Then type in the console:
 <div class="commandline">
      plug cassetteport cassetteplayer
 </div>
+<p>
+(if still necessary, nowadays we autoplug it)
+</p>
 <div class="commandline">
-     cassetteplayer &lt;file&gt;.wav
+     cassetteplayer insert &lt;file&gt;.wav
 </div>
 <p>
 And then in MSX Basic, type:
@@ -590,8 +593,11 @@ Note that in Linux, one should not use the special file <code>/dev/pcm</code> fo
 Other cassetteplayer related commands/settings you need to know of are:
 </p>
 <ul>
-	<li><code>cassetteplayer -rewind</code>, to rewind the tape</li>
-	<li><code>cassetteplayer -eject</code>, to eject the tape</li>
+	<li><code>cassetteplayer rewind</code>, to rewind the tape</li>
+	<li><code>cassetteplayer eject</code>, to eject the tape</li>
+	<li><code>cassetteplayer new &lt;filename&gt;</code>, to create a new WAV cassette image to record to; also sets the cassette player in record mode</li>
+	<li><code>cassetteplayer play</code>, to set the cassette player in play mode (when you've just recorded to the cassette)</li>
+	<li><code>cassetteplayer record</code>, to set the cassette player in record mode, to append to existing cassette images (NOT IMPLEMENTED YET)</li>
 	<li><code>set cassetteplayer_volume</code>, to set the volume of the cassette player sound (yeah, the screeching tape sounds!)</li>
 </ul>
 
@@ -608,14 +614,19 @@ longer this way. On the other hand, you will be able to hear the cassette
 sounds now also with the CAS files... What is using cassettes with an MSX
 without those characteristic sounds?
 </p>
+<p>
+Note that saving to CAS files is not possible; CAS files will be regarded as read-only tapes.
+</p>
 
 <h4><a id="tapejack">4.3.3 Using Jack audio connection kit</a></h4>
 
 <p>
 Using <a class="external"
 href="http://jackit.sourceforge.net/">Jack</a> is not the easiest
-option for running a tape-program, but it is currently the only way in
-which openMSX supports saving to cassette.
+option for running a tape-program, but it is an alternative way in which
+openMSX supports saving to cassette. We are planning to use it for other
+purposes as well later. This feature is not available on Windows operating
+systems.
 </p>
 
 <p>
@@ -624,12 +635,12 @@ via Jack you will need:
 </p>
 <ul>
 <li>An openMSX build compiled with Jack-support</li>
-<li>An MSX config with a cassette port (see above)</li>
+<li>An MSX hardware configuration with a cassette port (see above)</li>
 <li>A running Jack daemon</li>
 </ul>
 
 <p>
-Type the following int the console to make the cassette port available
+Type the following in the console to make the cassette port available
 to Jack:
 </p>
 <div class="commandline">
@@ -653,14 +664,13 @@ responsibility for damage caused by the usage of openMSX.
 </p>
 
 <p>
-The Jack-pluggable has been succesfully tested with
+The Jack-pluggable has been successfully tested with
 <code>timemachine</code> as recorder and <code>jack.play</code> as
-player. More conenient setups may become available as Jack is still
+player. More convenient setups may become available as Jack is still
 being developed.
 </p>
 <p>
-Note that openMSX can be compiled without Jack-support; if you use a
-build compiled without jack, you cannot save to tape.
+Note that openMSX can be compiled without Jack-support, use the normal cassetteplayer functions to save to tape in that case.
 </p>
 
 <h2><a id="input">5. Input Devices</a></h2>
