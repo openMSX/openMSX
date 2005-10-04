@@ -73,10 +73,10 @@ private:
 	void startRecording(const std::string& filename, const EmuTime& time);
 	void reinitRecording(const EmuTime& time);
 	void stopRecording(const EmuTime& time);
-	void setForce(bool status, const EmuTime& time);
+	void setMotorControl(bool status, const EmuTime& time);
 
 	std::auto_ptr<CassetteImage> cassette;
-	bool motor, forcePlay;
+	bool motor, motorControl;
 	EmuTime tapeTime;
 	EmuTime recTime;
 	EmuTime prevTime;

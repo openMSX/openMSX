@@ -96,7 +96,7 @@ CassettePlayer::CassettePlayer(
 		CommandController& commandController, Mixer& mixer)
 	: SoundDevice(mixer, getName(), getDescription())
 	, SimpleCommand(commandController, "cassetteplayer")
-	, motor(false), forcePlay(false)
+	, motor(false), motorControl(true)
 	, lastOutput(false)
 	, sampcnt(0)
 	, cliComm(commandController.getCliComm())
@@ -195,7 +195,8 @@ void CassettePlayer::rewind(const EmuTime& time)
 
 bool CassettePlayer::isPlaying() const
 {
-	return motor || forcePlay;
+	return (motor || (!motorControl) && playerElem->getData().size() > 0);
+	// we're playing if there's a cassette inserted AND when (motor is enabled by MSX OR motor control is disabled). Note that this assumes there's no STOP mode when a cassette is inserted.
 }
 
 void CassettePlayer::updatePosition(const EmuTime& time)
@@ -263,10 +264,10 @@ void CassettePlayer::setMotor(bool status, const EmuTime& time)
 	setMute(wavWriter.get() || !isPlaying());
 }
 
-void CassettePlayer::setForce(bool status, const EmuTime& time)
+void CassettePlayer::setMotorControl(bool status, const EmuTime& time)
 {
 	updateAll(time);
-	forcePlay = status;
+	motorControl = status;
 	setMute(wavWriter.get() || !isPlaying());
 }
 
@@ -349,14 +350,11 @@ string CassettePlayer::execute(const vector<string>& tokens)
 {
 	string result;
 	EmuTime now = getCommandController().getScheduler().getCurrentTime();
-	if (tokens.size() == 0) {
-		throw SyntaxError();
-	} else
 	if (tokens.size() == 1) {
 		const string filename = playerElem->getData();
 		if (filename.size() > 0)
 		{
-			result += "Current cassette image is: " + playerElem->getData() + "\n";
+			result += "Current cassette image is: " + filename + "\n";
 			result += "Current mode is: ";
 			result += wavWriter.get() ? "record" : "play";
 		} else {
@@ -365,8 +363,7 @@ string CassettePlayer::execute(const vector<string>& tokens)
 	} else if (tokens[1] == "new") {
 		if (wavWriter.get()) {
 			stopRecording(now);
-			const string oldfilename = playerElem->getData();
-			result += "Stopping recording to " + oldfilename;
+			result += "Stopping recording to " + playerElem->getData();
 		}
 		string filename;
 		if (tokens.size() == 3) {
@@ -391,8 +388,33 @@ string CassettePlayer::execute(const vector<string>& tokens)
 		} catch (MSXException &e) {
 			throw CommandException(e.getMessage());
 		}
+	} else if (tokens[1] == "motorcontrol" && tokens.size() == 3) {
+		if (tokens[2] == "on") {
+			if (!motorControl) {
+				setMotorControl(true, now);
+				result += "Motor control enabled."; 
+			} else {
+				result += "Already enabled...";
+			}
+		} else if (tokens[2] == "off") {
+			if (motorControl) {
+				setMotorControl(false, now);
+				result += "Motor control disabled.";
+				if (playerElem->getData().size() > 0) {
+					result += " Tape will run now!"; 
+				}
+			} else {
+				result += "Already disabled...";
+				if (playerElem->getData().size() > 0) {
+					result += " (tape is running!)"; 
+				}
+			}
+		} else throw SyntaxError();
 	} else if (tokens.size() != 2) {
 		throw SyntaxError();
+	} else if (tokens[1] == "motorcontrol") {
+			result += "Motor control is ";
+			result += motorControl ? "on" : "off";
 	} else if (tokens[1] == "record") {
 			result += "TODO: implement this... (sorry)";
 	} else if (tokens[1] == "play") {
@@ -424,10 +446,6 @@ string CassettePlayer::execute(const vector<string>& tokens)
 			rewind(now);
 		}
 		result += "Tape rewound";
-	} else if (tokens[1] == "force_play") {
-		setForce(true, now);
-	} else if (tokens[1] == "no_force_play") {
-		setForce(false, now);
 	} else {
 		result += "This syntax is deprecated, please use insert!\n";
 		try {
@@ -457,13 +475,11 @@ string CassettePlayer::help(const vector<string>& tokens) const
 			helptext = "Well, just eject the cassette from the cassette player/recorder!";
 		} else if (tokens[1] == "rewind") {
 			helptext = "Indeed, rewind the tape that is currently in the cassette player/recorder...";
-		} else if (tokens[1] == "force_play") {
-			helptext = "Equivalent to unconnecting the black remote plug from the cassette player.\n"
-				"Makes the cassette player run (if in play mode); the motor signal from the MSX\n"
-				"will be ignored.";
-		} else if (tokens[1] == "no_force_play") {
-			helptext = "Replugging the black remote plug in the cassette player.\n"
-				"Makes sure the cassette only runs when the MSX says so via the motor signal.";
+		} else if (tokens[1] == "motorcontrol") {
+			helptext = "Setting this to 'off' is equivalent to disconnecting the black remote plug from\n"
+				"the cassette player: it makes the cassette player run (if in play mode); the\n"
+				"motor signal from the MSX will be ignored. Normally this is set to 'on': the\n"
+				"cassetteplayer obeys the motor control signal from the MSX.";
 		} else if (tokens[1] == "play") {
 			helptext = "Go to play mode. Only useful if you were in record mode (which is currently\n"
 				"the only other mode available).";
@@ -482,8 +498,7 @@ string CassettePlayer::help(const vector<string>& tokens) const
 	} else {
 		helptext = "cassetteplayer eject             : remove tape from virtual player\n"
 	       "cassetteplayer rewind            : rewind tape in virtual player\n"
-	       "cassetteplayer force_play        : force playing of tape (no remote)\n"
-	       "cassetteplayer no_force_play     : don't force playing of tape\n"
+	       "cassetteplayer motorcontrol      : enables or disables motor control (remote)\n"
 	       "cassetteplayer play              : change to play mode (default)\n"
 	       "cassetteplayer record            : change to record mode (NOT IMPLEMENTED YET)\n"
 	       "cassetteplayer new [<filename>]  : create and insert new tape image file and\ngo to record mode\n"
@@ -498,8 +513,7 @@ void CassettePlayer::tabCompletion(vector<string>& tokens) const
 	if (tokens.size() == 2) {
 		extra.insert("eject");
 		extra.insert("rewind");
-		extra.insert("force_play");
-		extra.insert("no_force_play");
+		extra.insert("motorcontrol");
 		extra.insert("insert");
 		extra.insert("new");
 		extra.insert("play");
@@ -508,6 +522,10 @@ void CassettePlayer::tabCompletion(vector<string>& tokens) const
 	} else if ((tokens.size() == 3) && (tokens[1] == "insert")) {
 		UserFileContext context(getCommandController());
 		completeFileName(tokens, context, extra);
+	} else if ((tokens.size() == 3) && (tokens[1] == "motorcontrol")) {
+		extra.insert("on");
+		extra.insert("off");
+		completeString(tokens, extra);
 	}
 }
 

@@ -59,8 +59,8 @@ cassetteplayer
                                         player
     cassetteplayer eject                remove tape from virtual cassette player
     cassetteplayer rewind               rewind the current tape
-    cassetteplayer force_play           play even when motor signal is not active 
-    cassetteplayer no_force_play        motor signal controls playing (default)
+    cassetteplayer motorcontrol on|off  sets whether motor control signal 
+    					(remote) is obeyed (default: on)
     cassetteplayer new [<tape image>]   create new tape image and go to record
                                         mode
     cassetteplayer play                 go to play mode (when in record mode)
