@@ -32,8 +32,9 @@ proc disasm {{address -1} {num 8}} {
 # at that breakpoint.
 #
 proc run_to {address} {
-	after break "debug remove_bp $address"
-	debug set_bp $address
+#	after break "debug remove_bp $address"
+	set bp [ debug set_bp $address ]
+	after break "debug remove_bp $bp"
 	debug cont
 }
 
@@ -59,6 +60,14 @@ proc step_over {} {
 	set l [debug disasm $address]
 	if {[string match "call*" [lindex $l 0]] ||
 	    [string match "rst*"  [lindex $l 0]] ||
+	    [string match "ldir*" [lindex $l 0]] ||
+	    [string match "cpir*" [lindex $l 0]] ||
+	    [string match "inir*" [lindex $l 0]] ||
+	    [string match "otir*" [lindex $l 0]] ||
+	    [string match "lddr*" [lindex $l 0]] ||
+	    [string match "cpdr*" [lindex $l 0]] ||
+	    [string match "indr*" [lindex $l 0]] ||
+	    [string match "otdr*" [lindex $l 0]] ||
 	    [string match "halt*" [lindex $l 0]]} {
 		run_to [expr $address + [llength $l] - 1]
 	} else {
