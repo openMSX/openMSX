@@ -1,5 +1,8 @@
 $Id$
 
+2005-10-04 Manuel Bilderbeek <manuel@msxnet.org>
+	* Renamed force_play to motorcontrol and some small clean ups.
+
 2005-10-01 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed IDE on big endian machines.
 	  Commit from Bussum MSX fair :)
