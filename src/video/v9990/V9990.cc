@@ -365,7 +365,7 @@ void V9990::signalEvent(const Event& event)
 
 V9990::V9990RegDebug::V9990RegDebug(V9990& v9990_)
 	: SimpleDebuggable(v9990_.getMotherBoard(),
-	                   "V9990 regs", "V9990 registers", 0x40)
+	                   v9990_.getName() + " regs", "V9990 registers", 0x40)
 	, v9990(v9990_)
 {
 }
@@ -386,8 +386,8 @@ void V9990::V9990RegDebug::write(unsigned address, byte value, const EmuTime& ti
 
 V9990::V9990PalDebug::V9990PalDebug(V9990& v9990_)
 	: SimpleDebuggable(v9990_.getMotherBoard(),
-	                   "V9990 palette", "V9990 palette (format is R, G, B, 0).",
-	                   0x100)
+	                   v9990_.getName() + " palette",
+	                   "V9990 palette (format is R, G, B, 0).", 0x100)
 	, v9990(v9990_)
 {
 }

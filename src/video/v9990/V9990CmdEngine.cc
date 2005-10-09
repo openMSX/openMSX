@@ -4,10 +4,16 @@
 #include "V9990CmdEngine.hh"
 #include "V9990VRAM.hh"
 #include "MSXMotherBoard.hh"
+#include "BooleanSetting.hh"
 #include "openmsx.hh"
 #include <iostream>
 
 namespace openmsx {
+
+/** Only call reportV9990Command() when this setting is turned on
+  */
+static BooleanSetting* cmdTraceSetting = 0;
+static int settingRefCounter = 0;
 
 static byte bitLUT[8][16][2][2];
 static byte logOpLUT[4][16][0x100][0x100]; // 4MB !!  optimize if needed
@@ -545,9 +551,14 @@ inline void V9990CmdEngine::V9990Bpp16::psetColor(
   */
 V9990CmdEngine::V9990CmdEngine(V9990& vdp_, const EmuTime& time)
 	: vdp(vdp_)
-	, cmdTraceSetting(vdp.getMotherBoard().getCommandController(),
-	                "v9990cmdtrace", "V9990 command tracing on/off", false)
 {
+	if (settingRefCounter == 0) {
+		cmdTraceSetting = new BooleanSetting(
+			vdp.getMotherBoard().getCommandController(),
+			"v9990cmdtrace", "V9990 command tracing on/off", false);
+	}
+	++settingRefCounter;
+
 	initTabs();
 
 	CmdSTOP* stopCmd = new CmdSTOP(*this, vdp.getVRAM());
@@ -594,6 +605,11 @@ V9990CmdEngine::~V9990CmdEngine()
 		for (int mode = 0; mode < 6; ++mode) {
 			delete commands[cmd][mode];
 		}
+	}
+
+	--settingRefCounter;
+	if (settingRefCounter == 0) {
+		delete cmdTraceSetting;
 	}
 }
 
@@ -672,7 +688,7 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
 		break;
 	case 20: { // CMD
 		CMD = value;
-		if (cmdTraceSetting.getValue()) {
+		if (cmdTraceSetting->getValue()) {
 			reportV9990Command();
 		}
 		status |= CE;
