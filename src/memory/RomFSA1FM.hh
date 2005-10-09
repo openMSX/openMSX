@@ -9,22 +9,7 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class SRAM;
 class FirmwareSwitch;
-
-class FSA1FMRam
-{
-public:
-	// TODO
-	static SRAM& getSRAM(MSXMotherBoard& motherBoard,
-	                     const XMLElement& config);
-
-private:
-	FSA1FMRam(MSXMotherBoard& motherBoard, const XMLElement& config);
-	~FSA1FMRam();
-
-	const std::auto_ptr<SRAM> sram;
-};
 
 class RomFSA1FM1 : public MSXRom
 {
@@ -41,7 +26,6 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 
 private:
-	SRAM& sram;	// 8kb (shared) sram
 	const std::auto_ptr<FirmwareSwitch> firmwareSwitch;
 };
 
@@ -62,7 +46,6 @@ public:
 private:
 	void changeBank(byte region, byte bank);
 
-	SRAM& sram;	// 8kb (shared) sram
 	byte control;
 	byte bankSelect[8];
 	bool isRam[8];

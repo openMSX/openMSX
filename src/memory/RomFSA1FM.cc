@@ -46,21 +46,26 @@
 
 namespace openmsx {
 
-// common sram //
+// 8kb shared sram //
 
-FSA1FMRam::FSA1FMRam(MSXMotherBoard& motherBoard, const XMLElement& config)
-	: sram(new SRAM(motherBoard, config.getId() + " SRAM", 0x2000, config))
+static SRAM* sram = 0;
+static int sramRefCounter = 0;
+
+static void allocSRAM(MSXMotherBoard& motherBoard, const XMLElement& config)
 {
+	if (sramRefCounter == 0) {
+		sram = new SRAM(motherBoard, config.getId() + " SRAM", 0x2000,
+		                config);
+	}
+	++sramRefCounter;
 }
 
-FSA1FMRam::~FSA1FMRam()
+static void releaseSRAM()
 {
-}
-
-SRAM& FSA1FMRam::getSRAM(MSXMotherBoard& motherBoard, const XMLElement& config)
-{
-	static FSA1FMRam oneInstance(motherBoard, config);
-	return *oneInstance.sram;
+	-- sramRefCounter;
+	if (sramRefCounter == 0) {
+		delete sram;
+	}
 }
 
 
@@ -69,14 +74,15 @@ SRAM& FSA1FMRam::getSRAM(MSXMotherBoard& motherBoard, const XMLElement& config)
 RomFSA1FM1::RomFSA1FM1(MSXMotherBoard& motherBoard, const XMLElement& config,
                        const EmuTime& time, std::auto_ptr<Rom> rom)
 	: MSXRom(motherBoard, config, time, rom)
-	, sram(FSA1FMRam::getSRAM(motherBoard, config))
 	, firmwareSwitch(new FirmwareSwitch(motherBoard.getCommandController()))
 {
+	allocSRAM(motherBoard, config);
 	reset(time);
 }
 
 RomFSA1FM1::~RomFSA1FM1()
 {
+	releaseSRAM();
 }
 
 void RomFSA1FM1::reset(const EmuTime& /*time*/)
@@ -88,12 +94,12 @@ byte RomFSA1FM1::readMem(word address, const EmuTime& /*time*/)
 {
 	if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
-		return (*rom)[(0x2000 * (sram[0x1FC4] & 0x0F)) +
+		return (*rom)[(0x2000 * ((*sram)[0x1FC4] & 0x0F)) +
 		              (address & 0x1FFF)];
 	} else if ((0x7FC0 <= address) && (address < 0x7FD0)) {
 		switch (address & 0x0F) {
 		case 4:
-			return sram[address & 0x1FFF];
+			return (*sram)[address & 0x1FFF];
 		case 6:
 			return firmwareSwitch->getStatus() ? 0xFB : 0xFF;
 		default:
@@ -102,7 +108,7 @@ byte RomFSA1FM1::readMem(word address, const EmuTime& /*time*/)
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
 		// read sram
 		// TODO are there multiple sram blocks?
-		return sram[address & 0x1FFF];
+		return (*sram)[address & 0x1FFF];
 	} else {
 		return 0xFF;
 	}
@@ -115,11 +121,11 @@ const byte* RomFSA1FM1::getReadCacheLine(word address) const
 		return NULL;
 	} else if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
-		return &(*rom)[(0x2000 * (sram[0x1FC4] & 0x0F)) +
+		return &(*rom)[(0x2000 * ((*sram)[0x1FC4] & 0x0F)) +
 		               (address & 0x1FFF)];
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
 		// read sram
-		return &sram[address & 0x1FFF];
+		return &(*sram)[address & 0x1FFF];
 	} else {
 		return unmappedRead;
 	}
@@ -135,7 +141,7 @@ void RomFSA1FM1::writeMem(word address, byte value, const EmuTime& /*time*/)
 			// switch rom bank
 			cpu.invalidateMemCache(0x4000, 0x2000);
 		}
-		sram.write(address & 0x1FFF, value);
+		sram->write(address & 0x1FFF, value);
 	}
 }
 
@@ -158,13 +164,14 @@ byte* RomFSA1FM1::getWriteCacheLine(word address) const
 RomFSA1FM2::RomFSA1FM2(MSXMotherBoard& motherBoard, const XMLElement& config,
                        const EmuTime& time, std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, time, rom)
-	, sram(FSA1FMRam::getSRAM(motherBoard, config))
 {
+	allocSRAM(motherBoard, config);
 	reset(time);
 }
 
 RomFSA1FM2::~RomFSA1FM2()
 {
+	releaseSRAM();
 }
 
 void RomFSA1FM2::reset(const EmuTime& /*time*/)
@@ -186,7 +193,7 @@ byte RomFSA1FM2::readMem(word address, const EmuTime& time)
 		// read mapper state
 		result = bankSelect[address & 7];
 	} else if (isRam[address >> 13]) {
-		result = sram[address & 0x1FFF];
+		result = (*sram)[address & 0x1FFF];
 	} else if (isEmpty[address >> 13]) {
 		result = 0xFF;
 	} else {
@@ -203,7 +210,7 @@ const byte* RomFSA1FM2::getReadCacheLine(word address) const
 	} else if ((0x7FF0 & CPU::CACHE_LINE_HIGH) == address) {
 		return NULL;
 	} else if (isRam[address >> 13]) {
-		return &sram[address & 0x1FFF];
+		return &(*sram)[address & 0x1FFF];
 	} else if (isEmpty[address >> 13]) {
 		return unmappedRead;
 	} else {
@@ -248,7 +255,7 @@ void RomFSA1FM2::writeMem(word address, byte value,
 		// write control byte
 		control = value;
 	} else if (isRam[address >> 13]) {
-		sram.write(address & 0x1FFF, value);
+		sram->write(address & 0x1FFF, value);
 	}
 }
 
