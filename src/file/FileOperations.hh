@@ -82,12 +82,16 @@ namespace FileOperations {
 
 	/**
 	 * Get user's home directory.
-	 * UNI*Y: get from env-val: "HOME".
+	 * @param The name of the user
+	 * @result Home directory of the user or empty string in case of error
+	 * UNI*Y: get from env var "HOME" or from /etc/passwd
+	 *        empty string means current user 
 	 * Win32: Currently use "My Documents" as home directory.
 	 *        Not "Documents and Settings".
 	 *        This is because to support Win9x.
+	 *        Ignores the username parameter
 	 */
-	const std::string& getUserHomeDir();
+	std::string getUserHomeDir(const std::string& username = "");
 
 	/**
 	 * Get the openMSX dir in the user's home directory.

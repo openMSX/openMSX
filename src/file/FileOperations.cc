@@ -13,6 +13,9 @@
 #include <algorithm>
 #define	MAXPATHLEN	MAX_PATH
 #define	mode_t	unsigned short int
+#else
+#include <sys/types.h>
+#include <pwd.h>
 #endif
 
 #ifdef __APPLE__
@@ -27,7 +30,6 @@
 #include "CliComm.hh"
 #include <cerrno>
 #include <cstdlib>
-#include <iostream>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
@@ -135,17 +137,25 @@ std::string findShareDir() {
 
 string expandTilde(const string& path)
 {
-	if ((path.size() <= 1) || (path[0] != '~')) {
+	if (path.empty() || path[0] != '~') {
 		return path;
 	}
-	if (path[1] == '/') {
-		// current user
-		return getUserHomeDir() + path.substr(1);
-	} else {
-		// other user
-		std::cerr << "Warning: ~<user>/ not yet implemented" << std::endl;
+	string::size_type pos = path.find_first_of('/');
+	string user = ((path.size() == 1) || (pos == 1)) ? "" :
+		path.substr(1, (pos == string::npos) ? pos : pos - 1);
+	string result = getUserHomeDir(user);
+	if (result.empty()) {
+		// failed to find homedir, return the path unchanged
 		return path;
 	}
+	if (pos == string::npos) {
+		return result;
+	}
+	if (result[result.size() - 1] != '/') {
+		result += '/';
+	}
+	result += path.substr(pos + 1);
+	return result;
 }
 
 void mkdir(const string& path, mode_t mode)
@@ -239,11 +249,12 @@ bool isAbsolutePath(const string& path)
 	return !path.empty() && (path[0] == '/');
 }
 
-const string& getUserHomeDir()
+string getUserHomeDir(const string& username)
 {
+#if	defined(_WIN32)
+	if (username.empty()); // ignore parameter, avoid warning
 	static string userDir;
 	if (userDir.empty()) {
-#if	defined(_WIN32)
 		HMODULE sh32dll = LoadLibraryA("SHELL32.DLL");
 		if (sh32dll) {
 			FARPROC funcp = GetProcAddress(sh32dll, "SHGetSpecialFolderPathA");
@@ -267,11 +278,24 @@ const string& getUserHomeDir()
 				userDir.erase(2,1);  // remove the trailing slash because other functions will add it, X:// will be seen as protocol
 			}
 		}
-#else
-		userDir = getenv("HOME");
-#endif
 	}
 	return userDir;
+#else
+	const char* dir = NULL;
+	struct passwd* pw = NULL;
+	if (username.empty()) {
+		dir = getenv("HOME");
+		if (!dir) {
+			pw = getpwuid(getuid());
+		}
+	} else {
+		pw = getpwnam(username.c_str());
+	}
+	if (pw) {
+		dir = pw->pw_dir;
+	}
+	return dir ? dir : "";
+#endif
 }
 
 const string& getUserOpenMSXDir()
