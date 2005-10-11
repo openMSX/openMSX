@@ -16,7 +16,7 @@ class CommandController;
 class UserInputEventDistributor;
 class EmuTime;
 
-class Keyboard : private UserInputEventListener
+class Keyboard : private UserInputEventListener, private Schedulable
 {
 public:
 	/**
@@ -39,6 +39,11 @@ private:
 	// UserInputEventListener
 	virtual void signalEvent(const UserInputEvent& event);
 
+	// Schedulable
+	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual const std::string& schedName() const;
+
+	void processKey(bool down, int key);
 	void doKeyGhosting();
 	void parseKeymapfile(const byte* buf, unsigned size);
 	void loadKeymapfile(const std::string& filename);

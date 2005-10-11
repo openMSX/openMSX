@@ -13,7 +13,6 @@
 #include "FileException.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
-#include "Keys.hh"
 #include "InputEvents.hh"
 #include "Scheduler.hh"
 #include "Unicode.hh"
@@ -78,7 +77,8 @@ void Keyboard::loadKeymapfile(const string& filename)
 
 Keyboard::Keyboard(Scheduler& scheduler, CommandController& commandController,
                    UserInputEventDistributor& eventDistributor_, bool keyG)
-	: keyMatrixUpCmd(commandController, *this)
+	: Schedulable(scheduler)
+	, keyMatrixUpCmd(commandController, *this)
 	, keyMatrixDownCmd(commandController, *this)
 	, keyTypeCmd(scheduler, commandController, *this)
 	, eventDistributor(eventDistributor_)
@@ -134,18 +134,46 @@ void Keyboard::signalEvent(const UserInputEvent& event)
 		// an unwanted pressing of <return> in MSX after typing
 		// "set console off" in the console.
 		assert(dynamic_cast<const EmuKeyEvent*>(&event));
-		Keys::KeyCode key = (Keys::KeyCode)((int)((EmuKeyEvent&)event).getKeyCode() & (int)Keys::K_MASK);
-		if (key < MAX_KEYSYM) {
-			if (type == OPENMSX_EMU_KEY_DOWN_EVENT) {
-				// Key pressed: reset bit in keyMatrix
-				userKeyMatrix[keyTab[key][0]] &= ~keyTab[key][1];
-			} else { // OPENMSX_KEY_UP_EVENT
-				// Key released: set bit in keyMatrix
-				userKeyMatrix[keyTab[key][0]] |= keyTab[key][1];
-			}
+		Keys::KeyCode key = (Keys::KeyCode)
+			((int)((EmuKeyEvent&)event).getKeyCode() &
+			 (int)Keys::K_MASK);
+		if (key != Keys::K_CAPSLOCK) {
+			processKey(type == OPENMSX_EMU_KEY_DOWN_EVENT, key);
+		} else {
+			// This is a workaround for a SDL 'feature' (it's
+			// actually a documented bug in SDL). In a future
+			// refactoring this workaround should be moved to a
+			// higher level.
+			processKey(true, Keys::K_CAPSLOCK);
+			Clock<1000> now(getScheduler().getCurrentTime());
+			setSyncPoint(now + 100);
 		}
 	}
-	keysChanged = true;	// do ghosting at next getKeys()
+}
+
+void Keyboard::executeUntil(const EmuTime& /*time*/, int /*userData*/)
+{
+	processKey(false, Keys::K_CAPSLOCK);
+}
+
+const std::string& Keyboard::schedName() const
+{
+	static const string schedName = "Keyboard";
+	return schedName;
+}
+
+void Keyboard::processKey(bool down, int key)
+{
+	if (key < MAX_KEYSYM) {
+		if (down) {
+			// Key pressed: reset bit in keyMatrix
+			userKeyMatrix[keyTab[key][0]] &= ~keyTab[key][1];
+		} else {
+			// Key released: set bit in keyMatrix
+			userKeyMatrix[keyTab[key][0]] |= keyTab[key][1];
+		}
+		keysChanged = true; // do ghosting at next getKeys()
+	}
 }
 
 

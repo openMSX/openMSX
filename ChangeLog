@@ -1,5 +1,16 @@
 $Id$
 
+2005-10-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Worked around SDL CAPSLOCK problem:
+	   SDL doesn't send proper keyup/down events for CAPSLOCK, instead
+	   it sends keydown when key is pressed for the first time and keyup
+	   when key is pressed second time.
+	   As a workaround we must make an assumption about the duration of
+	   the key press (i took 100ms).
+
+2005-10-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented tilde expansion for ~<user> (*nix only)
+
 2005-10-04 Manuel Bilderbeek <manuel@msxnet.org>
 	* Renamed force_play to motorcontrol and some small clean ups.
 
