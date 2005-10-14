@@ -10,7 +10,6 @@
 #include <sys/types.h>
 #include <png.h>
 #include "ScreenShotSaver.hh"
-#include "FileOperations.hh"
 #include "FileException.hh"
 #include "CommandException.hh"
 #include "build-info.hh"
