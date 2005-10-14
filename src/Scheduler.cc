@@ -25,7 +25,7 @@ void Scheduler::setSyncPoint(const EmuTime& time, Schedulable& device, int userD
 
 	// Push sync point into queue.
 	SyncPoints::iterator it =
-		upper_bound(syncPoints.begin(), syncPoints.end(), time,
+		std::upper_bound(syncPoints.begin(), syncPoints.end(), time,
 		            LessSyncPoint());
 	syncPoints.insert(it, SynchronizationPoint(time, &device, userData));
 }
@@ -96,16 +96,16 @@ void Scheduler::scheduleHelper(const EmuTime& limit)
 
 void Scheduler::registerPoll(PollInterface& poll)
 {
-	assert(find(pollInterfaces.begin(), pollInterfaces.end(), &poll) ==
+	assert(std::find(pollInterfaces.begin(), pollInterfaces.end(), &poll) ==
 	       pollInterfaces.end());
 	pollInterfaces.push_back(&poll);
 }
 
 void Scheduler::unregisterPoll(PollInterface& poll)
 {
-	assert(find(pollInterfaces.begin(), pollInterfaces.end(), &poll) !=
+	assert(std::find(pollInterfaces.begin(), pollInterfaces.end(), &poll) !=
 	       pollInterfaces.end());
-	pollInterfaces.erase(find(pollInterfaces.begin(), pollInterfaces.end(), &poll));
+	pollInterfaces.erase(std::find(pollInterfaces.begin(), pollInterfaces.end(), &poll));
 }
 
 void Scheduler::doPoll()

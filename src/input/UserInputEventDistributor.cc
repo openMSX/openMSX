@@ -41,7 +41,7 @@ void UserInputEventDistributor::registerEventListener(
 	UserInputEventListener& listener)
 {
 	Listeners::iterator it =
-		find(listeners.begin(), listeners.end(), &listener);
+		std::find(listeners.begin(), listeners.end(), &listener);
 	assert(it == listeners.end());
 	listeners.push_back(&listener);
 }
@@ -50,7 +50,7 @@ void UserInputEventDistributor::unregisterEventListener(
 	UserInputEventListener& listener)
 {
 	Listeners::iterator it =
-		find(listeners.begin(), listeners.end(), &listener);
+		std::find(listeners.begin(), listeners.end(), &listener);
 	assert(it != listeners.end());
 	listeners.erase(it);
 }
