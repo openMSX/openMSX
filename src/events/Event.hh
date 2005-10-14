@@ -35,7 +35,7 @@ enum EventType
 	OPENMSX_CONSOLE_OFF_EVENT,
 
 	/** Delayed repaint */
-	OPENMSX_DELAYED_REPAINT_EVENT,
+	OPENMSX_DELAYED_REPAINT_EVENT
 };
 
 class Event

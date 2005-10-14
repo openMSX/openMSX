@@ -17,7 +17,7 @@ class Setting
 public:
 	enum SaveSetting {
 		SAVE,
-		DONT_SAVE,
+		DONT_SAVE
 	};
 
 	/** Get the name of this setting.

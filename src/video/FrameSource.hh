@@ -22,7 +22,7 @@ public:
 		FIELD_EVEN,
 		/** Interlacing is on and this is an odd frame.
 		  */
-		FIELD_ODD,
+		FIELD_ODD
 	};
 
 	virtual ~FrameSource() {};

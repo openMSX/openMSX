@@ -19,7 +19,7 @@ public:
 		DRIVE_B = 1,
 		DRIVE_C = 2,
 		DRIVE_D = 3,
-		NO_DRIVE = 4,
+		NO_DRIVE = 4
 	};
 
 	// Multiplexer interface

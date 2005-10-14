@@ -317,7 +317,7 @@ private:
 		V9990_HSCAN,
 
 		/** Change screen mode */
-		V9990_SET_MODE,
+		V9990_SET_MODE
 	};
 
 	/** IRQ types
@@ -325,7 +325,7 @@ private:
 	enum IRQType {
 		VER_IRQ = 1,
 		HOR_IRQ = 2,
-		CMD_IRQ = 4,
+		CMD_IRQ = 4
 	};
 
 	/** I/O Ports

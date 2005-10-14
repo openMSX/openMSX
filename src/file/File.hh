@@ -17,7 +17,7 @@ enum OpenMode {
 	TRUNCATE,
 	CREATE,
 	LOAD_PERSISTENT,
-	SAVE_PERSISTENT,
+	SAVE_PERSISTENT
 };
 
 class File

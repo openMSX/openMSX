@@ -182,7 +182,7 @@ public:
 
 		// Direction modifiers
 		KD_PRESS	= 0,		// key press
-		KD_RELEASE	= 0x100000,	// key release
+		KD_RELEASE	= 0x100000	// key release
 	};
 
 	/**

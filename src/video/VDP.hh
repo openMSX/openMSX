@@ -488,7 +488,7 @@ private:
 		SET_MODE,
 		/** Enable/disable screen
 		  */
-		SET_BLANK,
+		SET_BLANK
 	};
 
 	/** Gets the number of display lines per screen.

@@ -37,7 +37,7 @@ public:
 		  * time, in a separate thread.
 		  * Typically used by MSX input devices.
 		  */
-		EMU,
+		EMU
 	};
 
 	/**

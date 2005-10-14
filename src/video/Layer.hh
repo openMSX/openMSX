@@ -24,7 +24,7 @@ public:
 		Z_MSX_PASSIVE = 30,
 		Z_MSX_ACTIVE = 40,
 		Z_ICONS = 90,
-		Z_CONSOLE = 100,
+		Z_CONSOLE = 100
 	};
 
 	virtual ~Layer();
@@ -55,7 +55,7 @@ protected:
 		COVER_PARTIAL,
 		/** Layer is not visible, that is completely transparent.
 		  */
-		COVER_NONE,
+		COVER_NONE
 	};
 
 	/** Construct a layer. */

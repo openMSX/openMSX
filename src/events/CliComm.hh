@@ -69,7 +69,7 @@ private:
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
-		CliConnection& UpdateCmd::getConnection();
+		CliConnection& getConnection();
 		CliComm& cliComm;
 	} updateCmd;
 

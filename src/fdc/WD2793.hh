@@ -49,7 +49,7 @@ private:
 		FSM_TYPE2_ROTATED,
 		FSM_TYPE3_WAIT_LOAD,
 		FSM_TYPE3_LOADED,
-		FSM_IDX_IRQ,
+		FSM_IDX_IRQ
 	} fsmState;
 
 	virtual void executeUntil(const EmuTime& time, int state);
