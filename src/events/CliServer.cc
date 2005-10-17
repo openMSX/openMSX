@@ -12,6 +12,7 @@
 #include <string>
 #include <cassert>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #ifdef _WIN32
 #include <fstream>
