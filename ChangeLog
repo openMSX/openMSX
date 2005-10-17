@@ -1,5 +1,9 @@
 $Id$
 
+2005-10-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Use unix domain sockets iso internet domain sockets for
+	  communication with extrenal programs:
+
 2005-10-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Worked around SDL CAPSLOCK problem:
 	   SDL doesn't send proper keyup/down events for CAPSLOCK, instead

@@ -4,8 +4,8 @@
 #define CLISERVER_HH
 
 #include "Thread.hh"
-#include "SettingListener.hh"
 #include "Socket.hh"
+#include <string>
 #include <memory>
 
 namespace openmsx {
@@ -13,10 +13,8 @@ namespace openmsx {
 class Scheduler;
 class CommandController;
 class CliComm;
-class IntegerSetting;
-template <typename> class EnumSetting;
 
-class CliServer : private Runnable, private SettingListener
+class CliServer : private Runnable
 {
 public:
 	CliServer(Scheduler& scheduler, CommandController& commandController);
@@ -26,24 +24,15 @@ private:
 	// Runnable
 	virtual void run();
 
-	// SettingListener
-	virtual void update(const Setting* setting);
-
-	void start();
-	void stop();
 	void mainLoop();
-	int openPort(SOCKET listenSock);
+	void createSocket();
 	Thread thread;
+	std::string socketName;
 	SOCKET listenSock;
 
 	Scheduler& scheduler;
 	CommandController& commandController;
 	CliComm& cliComm;
-
-	enum ListenHost { NONE, LOCAL, ALL };
-	std::auto_ptr<IntegerSetting> listenPortMin;
-	std::auto_ptr<IntegerSetting> listenPortMax;
-	std::auto_ptr<EnumSetting<ListenHost> > listenHost;
 };
 
 } // namespace openmsx

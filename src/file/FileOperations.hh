@@ -142,7 +142,15 @@ namespace FileOperations {
 	 * @param prefix Prefix of the filename with numbers
 	 * @param extension Extension of the filename with numbers
 	 */
-	std::string getNextNumberedFileName(const std::string& directory, const std::string& prefix, const std::string& extension);
+	std::string getNextNumberedFileName(
+		const std::string& directory, const std::string& prefix,
+		const std::string& extension);
+
+	/**
+	 * Get the name of the temp directory on the system.
+	 * Typically /tmp on *nix and C:/WINDOWS/TEMP on windows
+	 */
+	std::string getTempDir();
 
 
 } // namespace FileOperations

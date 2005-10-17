@@ -394,7 +394,8 @@ bool exists(const string& filename)
 	return stat(filename.c_str(), &st) == 0;
 }
 
-static int getNextNum(dirent* d, const string& prefix, const string& extension, const unsigned int nofdigits)
+static int getNextNum(dirent* d, const string& prefix, const string& extension,
+                      const unsigned int nofdigits)
 {
 	const unsigned int extensionlen = extension.length();
 	const unsigned int prefixlen = prefix.length();
@@ -414,7 +415,8 @@ static int getNextNum(dirent* d, const string& prefix, const string& extension, 
 	return n;
 }
 
-string getNextNumberedFileName(const string& directory, const string& prefix, const string& extension)
+string getNextNumberedFileName(
+	const string& directory, const string& prefix, const string& extension)
 {
 	const unsigned int nofdigits = 4;
 
@@ -438,6 +440,22 @@ string getNextNumberedFileName(const string& directory, const string& prefix, co
 	os.fill('0');
 	os << (max_num + 1) << extension;
 	return os.str();
+}
+
+string getTempDir()
+{
+	const char* result = NULL;
+	if (!result) result = getenv("TMPDIR");
+	if (!result) result = getenv("TMP");
+	if (!result) result = getenv("TEMP");
+	if (!result) {
+#ifdef _WIN32
+		result = "C:/WINDOWS/TEMP";
+#else
+		result = "/tmp";
+#endif
+	}
+	return result;
 }
 
 } // namespace FileOperations
