@@ -488,8 +488,6 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 		pset(out1 + 1, pixel4);
 		pset(out0 + 0, pixel1);
 		pset(out0 + 1, pixel2);
-
-		c1 = c2; c2 = c3; c4 = c5; c5 = c6; c7 = c8; c8 = c9;
 		out0 += 2; out1 += 2;
 	}
 }
