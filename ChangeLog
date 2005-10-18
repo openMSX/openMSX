@@ -1,5 +1,10 @@
 $Id$
 
+2005-10-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added hq3x scaler:
+	   - is *very* slow (will try to add hq3xlite later) 
+	   - there might still be problems in combination with gfx9000
+
 2005-10-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use unix domain sockets iso internet domain sockets for
 	  communication with extrenal programs.

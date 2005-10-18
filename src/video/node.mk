@@ -16,6 +16,7 @@ SRC_HDR:= \
 	BitmapConverter CharacterConverter \
 	Scaler SimpleScaler SaI2xScaler Scale2xScaler \
 	HQ2xScaler HQ2xLiteScaler LowScaler \
+	HQ3xScaler \
 	ScreenShotSaver \
 	VideoSystem Display VideoLayer \
 	Layer \

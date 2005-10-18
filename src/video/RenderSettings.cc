@@ -51,6 +51,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	scalerMap["2xSaI"] = SCALER_SAI2X;
 	scalerMap["Scale2x"] = SCALER_SCALE2X;
 	scalerMap["hq2x"] = SCALER_HQ2X;
+	scalerMap["hq3x"] = SCALER_HQ3X;
 	scalerMap["hq2xlite"] = SCALER_HQ2XLITE;
 	scalerMap["low"] = SCALER_LOW;
 	scaler.reset(new EnumSetting<ScalerID>(commandController,
