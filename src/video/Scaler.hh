@@ -28,6 +28,8 @@ enum ScalerID {
 	SCALER_HQ3X,
 	/** HQ2xLiteScaler. */
 	SCALER_HQ2XLITE,
+	/** HQ3xLiteScaler. */
+	SCALER_HQ3XLITE,
 	/** Low resolution (320x240) scaler */
 	SCALER_LOW
 };

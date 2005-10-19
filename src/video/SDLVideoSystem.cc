@@ -88,11 +88,15 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 
 void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
 {
+	// TODO refactor
 	if (renderSettings.getVideoSource().getValue() == VIDEO_MSX) {
 		if (renderSettings.getScaler().getValue() == SCALER_LOW) {
 			width = 320;
 			height = 240;
 		} else if (renderSettings.getScaler().getValue() == SCALER_HQ3X) {
+			width = 960;
+			height = 720;
+		} else if (renderSettings.getScaler().getValue() == SCALER_HQ3XLITE) {
 			width = 960;
 			height = 720;
 		} else {

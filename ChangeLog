@@ -1,5 +1,8 @@
 $Id$
 
+2005-10-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added hq3xlite scaler
+
 2005-10-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added hq3x scaler:
 	   - is *very* slow (will try to add hq3xlite later) 
