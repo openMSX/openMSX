@@ -81,6 +81,12 @@ CommandController& MSXMotherBoard::getCommandController()
 {
 	if (!commandController.get()) {
 		commandController.reset(new CommandController(getScheduler()));
+
+		// TODO remove this hack
+		//   needed to properly initialize circular dependency between
+		//   CommandController and CliComm
+		cliComm.reset(new CliComm(getScheduler(),
+			*commandController, getEventDistributor()));
 	}
 	return *commandController;
 }
