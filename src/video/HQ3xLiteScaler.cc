@@ -188,7 +188,7 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 		case 0xF3:
 			if (c6 == c8) {
 				pixel6 = interpolate<3, 1>(c5, c6);
-				pixel7 = interpolate<3, 1>(c5, c8);
+				pixel7 = interpolate<3, 1>(c5, c6);
 				pixel8 = interpolate<1, 3>(c5, c6);
 				pixel9 = c6;
 			}
@@ -623,10 +623,8 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 			break;
 
 		case 0xF7:
-			if (c2 == c6)
-				pixel3 = interpolate<1, 1>(c5, c6);
-			if (c6 == c8)
-				pixel9 = interpolate<1, 1>(c5, c6);
+			if (c2 == c6) pixel3 = interpolate<1, 1>(c5, c6);
+			if (c6 == c8) pixel9 = interpolate<1, 1>(c5, c6);
 			break;
 
 		case 0xFF:
