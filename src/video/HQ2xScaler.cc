@@ -21,7 +21,7 @@ namespace openmsx {
 
 template <class Pixel>
 HQ2xScaler<Pixel>::HQ2xScaler(SDL_PixelFormat* format)
-	: Scaler<Pixel>(format)
+	: Scaler2<Pixel>(format)
 {
 }
 

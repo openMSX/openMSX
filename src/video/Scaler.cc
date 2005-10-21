@@ -56,6 +56,7 @@ auto_ptr<Scaler<Pixel> > Scaler<Pixel>::createScaler(
 template <class Pixel>
 Scaler<Pixel>::Scaler(SDL_PixelFormat* format_)
 	: format(*format_) // make a copy for faster access
+	, blender(Blender<Pixel>::createFromFormat(&format))
 {
 }
 
@@ -371,6 +372,247 @@ void Scaler<Pixel>::scaleLine(const Pixel* pIn, Pixel* pOut, unsigned width,
 	}
 }
 
+template <typename Pixel>
+void Scaler<Pixel>::average(const Pixel* pIn0, const Pixel* pIn1, Pixel* pOut,
+                            unsigned width)
+{
+	// TODO MMX/SSE optimizations
+	// pure C++ version
+	for (unsigned i = 0; i < width; ++i) {
+		pOut[i] = blend(pIn0[i], pIn1[i]);
+	}
+}
+
+template <typename Pixel>
+void Scaler<Pixel>::halve(const Pixel* pIn, Pixel* pOut, unsigned width)
+{
+	#ifdef ASM_X86
+	const HostCPU& cpu = HostCPU::getInstance();
+	if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
+		// extended-MMX routine, 32bpp
+		asm volatile (
+			"xorl %%eax, %%eax;"
+			".p2align 4,,15;"
+		"0:"
+			"movq	  (%0,%%eax,2), %%mm0;" // 0 = AB
+			"movq	 8(%0,%%eax,2), %%mm1;" // 1 = CD
+			"movq	16(%0,%%eax,2), %%mm2;" // 2 = EF
+			"movq	24(%0,%%eax,2), %%mm3;" // 3 = GH
+			"movq	%%mm0, %%mm4;"          // 4 = AB
+			"punpckhdq	%%mm1, %%mm0;"  // 0 = BD
+			"punpckldq	%%mm1, %%mm4;"  // 4 = AC
+			"movq	%%mm2, %%mm5;"          // 5 = EF
+			"punpckhdq	%%mm3, %%mm2;"  // 2 = FH
+			"punpckldq	%%mm3, %%mm5;"  // 5 = EG
+			"pavgb	%%mm0, %%mm4;"          // 4 = ab cd
+			"movntq	%%mm4,  (%1,%%eax);"
+			"pavgb	%%mm2, %%mm5;"          // 5 = ef gh
+			"movntq	%%mm5, 8(%1,%%eax);"
+			"addl	$16, %%eax;"
+			"cmpl	%2, %%eax;"
+			"jne	0b;"
+			"emms;"
+
+			: // no output
+			: "r" (pIn) // 0
+			, "r" (pOut) // 1
+			, "r" (width * 4) // 2
+			: "eax"
+			#ifdef __MMX__
+			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5"
+			#endif
+		);
+		return;
+	}
+	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
+		// MMX routine, 32bpp
+		asm volatile (
+			"xorl	%%eax, %%eax;"
+			"pxor	%%mm7, %%mm7;"
+			".p2align 4,,15;"
+		"0:"
+			"movq	  (%0,%%eax,2), %%mm0;" // 0 = AB
+			"movq	%%mm0, %%mm4;"          // 4 = AB
+			"punpckhbw	%%mm7, %%mm0;"  // 0 = 0B
+			"movq	 8(%0,%%eax,2), %%mm1;" // 1 = CD
+			"movq	16(%0,%%eax,2), %%mm2;" // 2 = EF
+			"punpcklbw	%%mm7, %%mm4;"  // 4 = 0A
+			"movq	%%mm1, %%mm5;"          // 5 = CD
+			"paddw	%%mm4, %%mm0;"          // 0 = A + B
+			"punpckhbw	%%mm7, %%mm1;"  // 1 = 0D
+			"punpcklbw	%%mm7, %%mm5;"  // 5 = 0C
+			"psrlw	$1, %%mm0;"             // 0 = (A + B) / 2
+			"paddw	%%mm5, %%mm1;"          // 1 = C + D
+			"movq	%%mm2, %%mm4;"          // 4 = EF
+			"punpckhbw	%%mm7, %%mm2;"  // 2 = 0F
+			"punpcklbw	%%mm7, %%mm4;"  // 4 = 0E
+			"psrlw	$1, %%mm1;"             // 1 = (C + D) / 2
+			"paddw	%%mm4, %%mm2;"          // 2 = E + F
+			"movq	24(%0,%%eax,2), %%mm3;" // 3 = GH
+			"movq	%%mm3, %%mm5;"          // 5 = GH
+			"punpckhbw	%%mm7, %%mm3;"  // 3 = 0H
+			"packuswb	%%mm1, %%mm0;"  // 0 = ab cd
+			"punpcklbw	%%mm7, %%mm5;"  // 5 = 0G
+			"psrlw	$1, %%mm2;"             // 2 = (E + F) / 2
+			"paddw	%%mm5, %%mm3;"          // 3 = G + H
+			"psrlw	$1, %%mm3;"             // 3 = (G + H) / 2
+			"packuswb	%%mm3, %%mm2;"  // 2 = ef gh
+			"movq	%%mm0,  (%1,%%eax);"
+			"movq	%%mm2, 8(%1,%%eax);"
+			"addl	$16, %%eax;"
+			"cmpl	%2, %%eax;"
+			"jne	0b;"
+			"emms;"
+
+			: // no output
+			: "r" (pIn) // 0
+			, "r" (pOut) // 1
+			, "r" (width * 4) // 2
+			: "eax"
+			#ifdef __MMX__
+			, "mm0", "mm1", "mm2", "mm3"
+			, "mm4", "mm5", "mm6", "mm7"
+			#endif
+		);
+		return;
+	}
+	if ((sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
+		// extended-MMX routine, 16bpp
+		unsigned mask = Scaler<Pixel>::blender.getMask();
+		mask = ~(mask | (mask << 16));
+		asm volatile (
+			"movd	%2, %%mm7;"
+			"xorl %%eax, %%eax;"
+			"punpckldq	%%mm7, %%mm7;"
+			".p2align 4,,15;"
+		"0:"
+			"movq	  (%0,%%eax,2), %%mm0;" // 0 = ABCD
+			"movq	 8(%0,%%eax,2), %%mm1;" // 1 = EFGH
+			"movq	%%mm0, %%mm4;"          // 4 = ABCD
+			"movq	16(%0,%%eax,2), %%mm2;" // 2 = IJKL
+			"punpcklwd	%%mm1, %%mm0;"  // 0 = AEBF
+			"punpckhwd	%%mm1, %%mm4;"  // 4 = CGDH
+			"movq	%%mm0, %%mm6;"          // 6 = AEBF
+			"movq	24(%0,%%eax,2), %%mm3;" // 3 = MNOP
+			"movq	%%mm2, %%mm5;"          // 5 = IJKL
+			"punpckhwd	%%mm4, %%mm0;"  // 0 = BDFH
+			"punpcklwd	%%mm4, %%mm6;"  // 6 = ACEG
+			"punpcklwd	%%mm3, %%mm2;"  // 2 = IMJN
+			"punpckhwd	%%mm3, %%mm5;"  // 5 = KOLP
+			"movq	%%mm2, %%mm1;"          // 1 = IMJN
+			"movq	%%mm6, %%mm3;"          // 3 = ACEG
+			"movq	%%mm7, %%mm4;"          // 4 = M
+			"punpckhwd	%%mm5, %%mm2;"  // 2 = JLNP
+			"punpcklwd	%%mm5, %%mm1;"  // 1 = IKMO
+			"pandn	%%mm6, %%mm4;"          // 4 = ACEG & ~M
+			"pand	%%mm7, %%mm3;"          // 3 = ACEG & M
+			"pand	%%mm7, %%mm2;"          // 2 = JLNP & M
+			"pand	%%mm7, %%mm0;"          // 0 = BDFH & M
+			"movq	%%mm1, %%mm6;"          // 6 = IKMO
+			"movq	%%mm7, %%mm5;"          // 5 = M
+			"psrlw	$1, %%mm3;"             // 3 = (ACEG & M) >> 1
+			"psrlw	$1, %%mm2;"             // 2 = (JLNP & M) >> 1
+			"pand	%%mm7, %%mm6;"          // 6 = IKMO & M
+			"psrlw	$1, %%mm0;"             // 0 = (BDFH & M) >> 1
+			"pandn	%%mm1, %%mm5;"          // 5 = IKMO & ~M
+			"psrlw	$1, %%mm6;"             // 6 = (IKMO & M) >> 1
+			"paddw	%%mm4, %%mm3;"          // 3 = ACEG & M  +  ACEG & ~M
+			"paddw	%%mm2, %%mm6;"          // 6 = IKMO & M  +  JLNP & M
+			"paddw	%%mm0, %%mm3;"          // 3 = ab cd ef gh
+			"paddw	%%mm5, %%mm6;"          // 6 = ij kl mn op
+			"movntq	%%mm3,  (%1,%%eax);"
+			"movntq	%%mm6, 8(%1,%%eax);"
+			"addl	$16, %%eax;"
+			"cmpl	%3, %%eax;"
+			"jne	0b;"
+			"emms;"
+
+			: // no output
+			: "r" (pIn) // 0
+			, "r" (pOut) // 1
+			, "r" (mask) // 2
+			, "r" (width * 2) // 3
+			: "eax"
+			#ifdef __MMX__
+			, "mm0", "mm1", "mm2", "mm3"
+			, "mm4", "mm5", "mm6", "mm7"
+			#endif
+		);
+		return;
+	}
+	if ((sizeof(Pixel) == 2) && cpu.hasMMX()) {
+		// MMX routine, 16bpp
+		unsigned mask = Scaler<Pixel>::blender.getMask();
+		mask = ~(mask | (mask << 16));
+		asm volatile (
+			"movd	%2, %%mm7;"
+			"xorl %%eax, %%eax;"
+			"punpckldq	%%mm7, %%mm7;"
+			".p2align 4,,15;"
+		"0:"
+			"movq	  (%0,%%eax,2), %%mm0;" // 0 = ABCD
+			"movq	 8(%0,%%eax,2), %%mm1;" // 1 = EFGH
+			"movq	%%mm0, %%mm4;"          // 4 = ABCD
+			"movq	16(%0,%%eax,2), %%mm2;" // 2 = IJKL
+			"punpcklwd	%%mm1, %%mm0;"  // 0 = AEBF
+			"punpckhwd	%%mm1, %%mm4;"  // 4 = CGDH
+			"movq	%%mm0, %%mm6;"          // 6 = AEBF
+			"movq	24(%0,%%eax,2), %%mm3;" // 3 = MNOP
+			"movq	%%mm2, %%mm5;"          // 5 = IJKL
+			"punpckhwd	%%mm4, %%mm0;"  // 0 = BDFH
+			"punpcklwd	%%mm4, %%mm6;"  // 6 = ACEG
+			"punpcklwd	%%mm3, %%mm2;"  // 2 = IMJN
+			"punpckhwd	%%mm3, %%mm5;"  // 5 = KOLP
+			"movq	%%mm2, %%mm1;"          // 1 = IMJN
+			"movq	%%mm6, %%mm3;"          // 3 = ACEG
+			"movq	%%mm7, %%mm4;"          // 4 = M
+			"punpckhwd	%%mm5, %%mm2;"  // 2 = JLNP
+			"punpcklwd	%%mm5, %%mm1;"  // 1 = IKMO
+			"pandn	%%mm6, %%mm4;"          // 4 = ACEG & ~M
+			"pand	%%mm7, %%mm3;"          // 3 = ACEG & M
+			"pand	%%mm7, %%mm2;"          // 2 = JLNP & M
+			"pand	%%mm7, %%mm0;"          // 0 = BDFH & M
+			"movq	%%mm1, %%mm6;"          // 6 = IKMO
+			"movq	%%mm7, %%mm5;"          // 5 = M
+			"psrlw	$1, %%mm3;"             // 3 = (ACEG & M) >> 1
+			"psrlw	$1, %%mm2;"             // 2 = (JLNP & M) >> 1
+			"pand	%%mm7, %%mm6;"          // 6 = IKMO & M
+			"psrlw	$1, %%mm0;"             // 0 = (BDFH & M) >> 1
+			"pandn	%%mm1, %%mm5;"          // 5 = IKMO & ~M
+			"psrlw	$1, %%mm6;"             // 6 = (IKMO & M) >> 1
+			"paddw	%%mm4, %%mm3;"          // 3 = ACEG & M  +  ACEG & ~M
+			"paddw	%%mm2, %%mm6;"          // 6 = IKMO & M  +  JLNP & M
+			"paddw	%%mm0, %%mm3;"          // 3 = ab cd ef gh
+			"paddw	%%mm5, %%mm6;"          // 6 = ij kl mn op
+			"movq	%%mm3,  (%1,%%eax);"
+			"movq	%%mm6, 8(%1,%%eax);"
+			"addl	$16, %%eax;"
+			"cmpl	%3, %%eax;"
+			"jne	0b;"
+			"emms;"
+
+			: // no output
+			: "r" (pIn) // 0
+			, "r" (pOut) // 1
+			, "r" (mask) // 2
+			, "r" (width * 2) // 3
+			: "eax"
+			#ifdef __MMX__
+			, "mm0", "mm1", "mm2", "mm3"
+			, "mm4", "mm5", "mm6", "mm7"
+			#endif
+		);
+		return;
+	}
+	#endif
+
+	// pure C++ version
+	for (unsigned i = 0; i < width; ++i) {
+		pOut[i] = blend(pIn[2 * i + 0], pIn[2 * i + 1]);
+	}
+}
+
+
 template <class Pixel>
 void Scaler<Pixel>::fillLine(Pixel* pOut, Pixel colour, unsigned width)
 {
@@ -561,9 +803,7 @@ template <class Pixel>
 void Scaler<Pixel>::scale_2on1(
 	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
 {
-	for (int p = 0; p < nrPixels; p += 2) {
-		*outPixels++ = blendPixels2<1, 1>(&inPixels[p]);
-	}
+	halve(inPixels, outPixels, nrPixels / 2);
 }
 
 template <class Pixel>
@@ -608,217 +848,54 @@ void Scaler<Pixel>::scale_8on3(
 	}
 }
 
-
 template <class Pixel>
-void Scaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
-                               unsigned startY, unsigned endY, bool lower)
+void Scaler<Pixel>::scale_2on9(
+	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
 {
-	unsigned y1 = 2 * startY + (lower ? 1 : 0);
-	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
-	y2 = std::min(480u, y2);
-	for (unsigned y = y1; y < y2; ++y) {
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
-		fillLine(dstLine, color, dst->w);
+	for (int p = 0; p < nrPixels; p += 2) {
+		*outPixels++ =                     inPixels[p + 0];
+		*outPixels++ =                     inPixels[p + 0];
+		*outPixels++ =                     inPixels[p + 0];
+		*outPixels++ =                     inPixels[p + 0];
+		*outPixels++ = blendPixels2<1, 1>(&inPixels[p + 0]);
+		*outPixels++ =                     inPixels[p + 1];
+		*outPixels++ =                     inPixels[p + 1];
+		*outPixels++ =                     inPixels[p + 1];
+		*outPixels++ =                     inPixels[p + 1];
 	}
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
-                             unsigned startY, unsigned endY, bool lower)
+void Scaler<Pixel>::scale_4on9(
+	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
 {
-	unsigned y1 = 2 * startY + (lower ? 1 : 0);
-	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
-	for (unsigned y = y1; y < y2; y += 2, ++startY) {
-		const Pixel* srcLine = src.getLinePtr(startY, (Pixel*)0);
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 0);
-		scaleLine(srcLine, dstLine1, 320);
-		if (y == (480 - 1)) break;
-		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 1);
-		scaleLine(srcLine, dstLine2, 320);
+	for (int p = 0; p < nrPixels; p += 2) {
+		*outPixels++ =                     inPixels[p + 0];
+		*outPixels++ =                     inPixels[p + 0];
+		*outPixels++ = blendPixels2<1, 3>(&inPixels[p + 0]);
+		*outPixels++ =                     inPixels[p + 1];
+		*outPixels++ = blendPixels2<1, 1>(&inPixels[p + 1]);
+		*outPixels++ =                     inPixels[p + 2];
+		*outPixels++ = blendPixels2<3, 1>(&inPixels[p + 2]);
+		*outPixels++ =                     inPixels[p + 3];
+		*outPixels++ =                     inPixels[p + 3];
 	}
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scale256(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-                             unsigned startY, unsigned endY)
+void Scaler<Pixel>::scale_8on9(
+	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
 {
-	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 2 * y + 0);
-		scaleLine(srcLine0, dstLine0, 320);
-
-		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 2 * y + 1);
-		scaleLine(srcLine1, dstLine1, 320);
-	}
-}
-
-template <class Pixel>
-void Scaler<Pixel>::scale512(FrameSource& src, SDL_Surface* dst,
-                             unsigned startY, unsigned endY, bool lower)
-{
-	unsigned y1 = 2 * startY + (lower ? 1 : 0);
-	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
-	for (unsigned y = y1; y < y2; y += 2, ++startY) {
-		const Pixel* srcLine = src.getLinePtr(startY, (Pixel*)0);
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 0);
-		copyLine(srcLine, dstLine1, 640);
-		if (y == (480 - 1)) break;
-		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 1);
-		copyLine(srcLine, dstLine2, 640);
-	}
-}
-
-template <class Pixel>
-void Scaler<Pixel>::scale512(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-                             unsigned startY, unsigned endY)
-{
-	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 2 * y + 0);
-		copyLine(srcLine0, dstLine0, 640);
-
-		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 2 * y + 1);
-		copyLine(srcLine1, dstLine1, 640);
-	}
-}
-
-template <class Pixel>
-void Scaler<Pixel>::scale192(FrameSource& src, SDL_Surface* dst,
-                             unsigned startY, unsigned endY, bool lower)
-{
-	unsigned y1 = 2 * startY + (lower ? 1 : 0);
-	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
-	for (unsigned y = y1; y < y2; y += 2, ++startY) {
-		const Pixel* srcLine = src.getLinePtr(startY, (Pixel*)0);
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 0);
-		scale_1on3(srcLine, dstLine1, 213); // TODO
-		if (y == (480 - 1)) break;
-		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 1);
-		copyLine(dstLine1, dstLine2, 640);
-	}
-}
-
-template <class Pixel>
-void Scaler<Pixel>::scale192(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-                             unsigned startY, unsigned endY)
-{
-	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 2 * y + 0);
-		scale_1on3(srcLine0, dstLine0, 213); // TODO
-
-		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 2 * y + 1);
-		scale_1on3(srcLine1, dstLine1, 213); // TODO
-	}
-}
-
-template <class Pixel>
-void Scaler<Pixel>::scale384(FrameSource& src, SDL_Surface* dst,
-                             unsigned startY, unsigned endY, bool lower)
-{
-	unsigned y1 = 2 * startY + (lower ? 1 : 0);
-	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
-	for (unsigned y = y1; y < y2; y += 2, ++startY) {
-		const Pixel* srcLine = src.getLinePtr(startY, (Pixel*)0);
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 0);
-		scale_2on3(srcLine, dstLine1, 426); // TODO
-		if (y == (480 - 1)) break;
-		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 1);
-		copyLine(dstLine1, dstLine2, 640);
-	}
-}
-
-template <class Pixel>
-void Scaler<Pixel>::scale384(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-                             unsigned startY, unsigned endY)
-{
-	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 2 * y + 0);
-		scale_2on3(srcLine0, dstLine0, 426); // TODO
-
-		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 2 * y + 1);
-		scale_2on3(srcLine1, dstLine1, 426); // TODO
-	}
-}
-
-template <class Pixel>
-void Scaler<Pixel>::scale640(FrameSource& /*src*/, SDL_Surface* /*dst*/,
-                             unsigned /*startY*/, unsigned /*endY*/, bool /*lower*/)
-{
-	// TODO
-}
-
-template <class Pixel>
-void Scaler<Pixel>::scale640(FrameSource& /*src0*/, FrameSource& /*src1*/, SDL_Surface* /*dst*/,
-                             unsigned /*startY*/, unsigned /*endY*/)
-{
-	// TODO
-}
-
-template <class Pixel>
-void Scaler<Pixel>::scale768(FrameSource& src, SDL_Surface* dst,
-                             unsigned startY, unsigned endY, bool lower)
-{
-	unsigned y1 = 2 * startY + (lower ? 1 : 0);
-	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
-	for (unsigned y = y1; y < y2; y += 2, ++startY) {
-		const Pixel* srcLine = src.getLinePtr(startY, (Pixel*)0);
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 0);
-		scale_4on3(srcLine, dstLine1, 853); // TODO
-		if (y == (480 - 1)) break;
-		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 1);
-		copyLine(dstLine1, dstLine2, 640);
-	}
-}
-
-template <class Pixel>
-void Scaler<Pixel>::scale768(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-                             unsigned startY, unsigned endY)
-{
-	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 2 * y + 0);
-		scale_4on3(srcLine0, dstLine0, 853); // TODO
-
-		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 2 * y + 1);
-		scale_4on3(srcLine1, dstLine1, 853); // TODO
-	}
-}
-
-template <class Pixel>
-void Scaler<Pixel>::scale1024(FrameSource& src, SDL_Surface* dst,
-                              unsigned startY, unsigned endY, bool lower)
-{
-	unsigned y1 = 2 * startY + (lower ? 1 : 0);
-	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
-	for (unsigned y = y1; y < y2; y += 2, ++startY) {
-		const Pixel* srcLine = src.getLinePtr(startY, (Pixel*)0);
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 0);
-		scale_2on1(srcLine, dstLine1, 1280);
-		if (y == (480 - 1)) break;
-		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 1);
-		copyLine(dstLine1, dstLine2, 640);
-	}
-}
-
-template <class Pixel>
-void Scaler<Pixel>::scale1024(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-                              unsigned startY, unsigned endY)
-{
-	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 2 * y + 0);
-		scale_2on1(srcLine0, dstLine0, 1280); // TODO
-
-		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 2 * y + 1);
-		scale_2on1(srcLine1, dstLine1, 1280); // TODO
+	for (int p = 0; p < nrPixels; p += 2) {
+		*outPixels++ =                     inPixels[p + 0];
+		*outPixels++ = blendPixels2<1, 7>(&inPixels[p + 0]);
+		*outPixels++ = blendPixels2<1, 3>(&inPixels[p + 1]);
+		*outPixels++ = blendPixels2<3, 5>(&inPixels[p + 2]);
+		*outPixels++ = blendPixels2<1, 1>(&inPixels[p + 3]);
+		*outPixels++ = blendPixels2<5, 3>(&inPixels[p + 4]);
+		*outPixels++ = blendPixels2<3, 1>(&inPixels[p + 5]);
+		*outPixels++ = blendPixels2<7, 1>(&inPixels[p + 6]);
+		*outPixels++ =                     inPixels[p + 7];
 	}
 }
 

@@ -3,14 +3,14 @@
 #ifndef HQ2XSCALER_HH
 #define HQ2XSCALER_HH
 
-#include "Scaler.hh"
+#include "Scaler2.hh"
 
 namespace openmsx {
 
 /** Runs the hq2x scaler algorithm.
   */
 template <class Pixel>
-class HQ2xScaler: public Scaler<Pixel>
+class HQ2xScaler: public Scaler2<Pixel>
 {
 public:
 	HQ2xScaler(SDL_PixelFormat* format);

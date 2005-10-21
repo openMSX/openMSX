@@ -118,12 +118,13 @@ void V9990SDLRasterizer<Pixel>::drawBorder(
 	}
 
 	static int const screenW = SCREEN_WIDTH * 8; // in ticks
-	assert((limitX - colZero) <= screenW);
-	int startX = V9990::UCtoX(max(fromX - colZero, 0), displayMode);
-	int endX = V9990::UCtoX(
+	int startX = V9990::UCtoX(fromX - colZero, displayMode);
+	int endX   = V9990::UCtoX(
 		(limitX == V9990DisplayTiming::UC_TICKS_PER_LINE) ?
 		    screenW : limitX - colZero,
 		displayMode);
+	startX = max(startX, 0);
+	endX   = min(endX, (int)SCREEN_WIDTH);
 	if (startX >= endX) return;
 
 	unsigned lineWidth = vdp.getLineWidth();

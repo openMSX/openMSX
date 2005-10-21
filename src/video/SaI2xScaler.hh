@@ -3,8 +3,7 @@
 #ifndef SAI2XSCALER_HH
 #define SAI2XSCALER_HH
 
-#include "Scaler.hh"
-#include "Blender.hh"
+#include "Scaler2.hh"
 
 namespace openmsx {
 
@@ -12,7 +11,7 @@ namespace openmsx {
   * Algorithm was developed by Derek Liauw Kie Fa.
   */
 template <class Pixel>
-class SaI2xScaler: public Scaler<Pixel>
+class SaI2xScaler: public Scaler2<Pixel>
 {
 public:
 	SaI2xScaler(SDL_PixelFormat* format);
@@ -30,7 +29,6 @@ private:
 		const Pixel* srcLine0, const Pixel* srcLine1,
 		const Pixel* srcLine2, const Pixel* srcLine3,
 		Pixel* dstUpper, Pixel* dstLower);
-	Blender<Pixel> blender;
 };
 
 } // namespace openmsx

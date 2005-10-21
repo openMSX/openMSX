@@ -21,7 +21,7 @@ namespace openmsx {
 
 template <class Pixel>
 HQ3xLiteScaler<Pixel>::HQ3xLiteScaler(SDL_PixelFormat* format)
-	: Scaler<Pixel>(format)
+	: Scaler3<Pixel>(format)
 {
 }
 
@@ -649,19 +649,6 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 }
 
 template <class Pixel>
-void HQ3xLiteScaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
-                                   unsigned startY, unsigned endY, bool lower)
-{
-	unsigned y1 = 3 * startY + (lower ? 1 : 0);
-	unsigned y2 = 3 * endY   + (lower ? 1 : 0);
-	y2 = std::min(720u, y2);
-	for (unsigned y = y1; y < y2; ++y) {
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
-		fillLine(dstLine, color, dst->w);
-	}
-}
-
-template <class Pixel>
 void HQ3xLiteScaler<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
                                  unsigned startY, unsigned endY, bool lower)
 {
@@ -683,25 +670,6 @@ void HQ3xLiteScaler<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
 		dstY += 3;
 	}
 }
-
-template <class Pixel>
-void HQ3xLiteScaler<Pixel>::scale512(FrameSource& src, SDL_Surface* dst,
-                                 unsigned startY, unsigned endY, bool lower)
-{
-	unsigned y1 = 3 * startY + (lower ? 1 : 0);
-	unsigned y2 = 3 * endY   + (lower ? 1 : 0);
-	for (unsigned y = y1; y < y2; y += 3, ++startY) {
-		const Pixel* srcLine = src.getLinePtr(startY, (Pixel*)0);
-		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, y + 0);
-		scale_2on3(srcLine, dstLine0, 640); // TODO
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 1);
-		copyLine(dstLine0, dstLine1, 960);
-		if (y == (720 - 2)) break;
-		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 2);
-		copyLine(dstLine0, dstLine2, 960);
-	}
-}
-
 
 // Force template instantiation.
 template class HQ3xLiteScaler<word>;

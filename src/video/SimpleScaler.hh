@@ -3,8 +3,7 @@
 #ifndef SIMPLESCALER_HH
 #define SIMPLESCALER_HH
 
-#include "Scaler.hh"
-#include "Blender.hh"
+#include "Scaler2.hh"
 
 namespace openmsx {
 
@@ -72,7 +71,7 @@ public:
   * perform a horizontal blur.
   */
 template <class Pixel>
-class SimpleScaler: public Scaler<Pixel>
+class SimpleScaler: public Scaler2<Pixel>
 {
 public:
 	SimpleScaler(SDL_PixelFormat* format, RenderSettings& renderSettings);
@@ -94,7 +93,6 @@ private:
 	IntegerSetting& scanlineSetting;
 	IntegerSetting& blurSetting;
 
-	Blender<Pixel> blender;
 	Multiply<Pixel> mult1;
 	Multiply<Pixel> mult2;
 	Multiply<Pixel> mult3;

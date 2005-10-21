@@ -1,5 +1,9 @@
 $Id$
 
+2005-10-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed low and hq3x scalers for v9990
+	* Cleaned up Scaler code (mostly for non 2x scale factors)
+
 2005-10-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added hq3xlite scaler
 

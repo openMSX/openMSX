@@ -3,6 +3,7 @@
 #ifndef SCALER_HH
 #define SCALER_HH
 
+#include "Blender.hh"
 #include "openmsx.hh"
 #include <SDL.h>
 #include <cassert>
@@ -60,7 +61,7 @@ public:
 	  * @param lower True iff frame must be displayed half a line lower
 	  */
 	virtual void scaleBlank(Pixel color, SDL_Surface* dst,
-	                        unsigned startY, unsigned endY, bool lower);
+	                        unsigned startY, unsigned endY, bool lower) = 0;
 
 	/** Scales the given area. Scaling factor depends on the concrete scaler
 	  * The default implementation scales each pixel to a 2x2 square.
@@ -72,9 +73,9 @@ public:
 	  * @param lower True iff frame must be displayed half a line lower
 	  */
 	virtual void scale256(FrameSource& src, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY, bool lower);
+	                      unsigned startY, unsigned endY, bool lower) = 0;
 	virtual void scale256(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY);
+	                      unsigned startY, unsigned endY) = 0;
 
 	/** Scales the given area. Scaling factor depends on the concrete scaler
 	  * The default implementation scales each pixel to a 1x2 rectangle.
@@ -86,33 +87,33 @@ public:
 	  * @param lower True iff frame must be displayed half a line lower
 	  */
 	virtual void scale512(FrameSource& src, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY, bool lower);
+	                      unsigned startY, unsigned endY, bool lower) = 0;
 	virtual void scale512(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY);
+	                      unsigned startY, unsigned endY) = 0;
 
 	virtual void scale192(FrameSource& src, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY, bool lower);
+	                      unsigned startY, unsigned endY, bool lower) = 0;
 	virtual void scale192(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY);
+	                      unsigned startY, unsigned endY) = 0;
 	virtual void scale384(FrameSource& src, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY, bool lower);
+	                      unsigned startY, unsigned endY, bool lower) = 0;
 	virtual void scale384(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY);
+	                      unsigned startY, unsigned endY) = 0;
 	virtual void scale640(FrameSource& src, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY, bool lower);
+	                      unsigned startY, unsigned endY, bool lower) = 0;
 	virtual void scale640(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY);
+	                      unsigned startY, unsigned endY) = 0;
 	virtual void scale768(FrameSource& src, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY, bool lower);
+	                      unsigned startY, unsigned endY, bool lower) = 0;
 	virtual void scale768(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY);
+	                      unsigned startY, unsigned endY) = 0;
 	virtual void scale1024(FrameSource& src, SDL_Surface* dst,
-	                       unsigned startY, unsigned endY, bool lower);
+	                       unsigned startY, unsigned endY, bool lower) = 0;
 	virtual void scale1024(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-	                       unsigned startY, unsigned endY);
+	                       unsigned startY, unsigned endY) = 0;
 
 
-	// Utility methods  (put in seperate class?)
+	// Utility methods
 
 	/** Get the start address of a line in a surface
 	 */
@@ -161,10 +162,38 @@ public:
 	void scale_2on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
 	void scale_4on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
 	void scale_8on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
+	void scale_2on9(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
+	void scale_4on9(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
+	void scale_8on9(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
 
 
 protected:
 	Scaler(SDL_PixelFormat* format);
+
+	/** Return the average of two pixels
+	  */
+	inline Pixel blend(Pixel p1, Pixel p2) {
+		return blender.blend(p1, p2);
+	}
+
+	/** Calculate the average of two input lines.
+	  * @param pIn0 First input line
+	  * @param pIn1 Second input line
+	  * @param pOut Output line
+	  * @param width Width of the lines in pixels
+	  */
+	void average(const Pixel* pIn0, const Pixel* pIn1, Pixel* pOut,
+                     unsigned width);
+	
+	/** Make the input line halve as wide
+	  * @param pIn Input line
+	  * @param pOut Output line
+	  * @param width Width of the output line in pixels
+	  */
+	void halve(const Pixel* pIn, Pixel* pOut, unsigned width);
+
+	SDL_PixelFormat format;
+	Blender<Pixel> blender;
 
 private:
 	inline unsigned red(Pixel pixel);
@@ -178,8 +207,6 @@ private:
 	inline Pixel blendPixels3(const Pixel* source);
 	template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
 	inline Pixel blendPixels4(const Pixel* source);
-
-	SDL_PixelFormat format;
 };
 
 } // namespace openmsx

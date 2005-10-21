@@ -3,14 +3,14 @@
 #ifndef SCALE2XSCALER_HH
 #define SCALE2XSCALER_HH
 
-#include "Scaler.hh"
+#include "Scaler2.hh"
 
 namespace openmsx {
 
 /** Runs the Scale2x scaler algorithm.
   */
 template <class Pixel>
-class Scale2xScaler: public Scaler<Pixel>
+class Scale2xScaler: public Scaler2<Pixel>
 {
 public:
 	Scale2xScaler(SDL_PixelFormat* format);

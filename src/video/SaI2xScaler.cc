@@ -18,8 +18,7 @@ namespace openmsx {
 
 template <class Pixel>
 SaI2xScaler<Pixel>::SaI2xScaler(SDL_PixelFormat* format)
-	: Scaler<Pixel>(format)
-	, blender(Blender<Pixel>::createFromFormat(format))
+	: Scaler2<Pixel>(format)
 {
 }
 
@@ -77,7 +76,7 @@ void SaI2xScaler<Pixel>::scaleLine256(
 				       && colorB != colorE && colorB == colorJ )
 				  )
 				? colorA
-				: blender.blend(colorA, colorB)
+				: blend(colorA, colorB)
 				);
 			product1 =
 				( ( (colorA == colorG && colorC == colorO)
@@ -85,7 +84,7 @@ void SaI2xScaler<Pixel>::scaleLine256(
 				       && colorG != colorC && colorC == colorM )
 				  )
 				? colorA
-				: blender.blend(colorA, colorC)
+				: blend(colorA, colorC)
 				);
 			product2 = colorA;
 		} else if (colorB == colorC && colorA != colorD) {
@@ -95,7 +94,7 @@ void SaI2xScaler<Pixel>::scaleLine256(
 				       && colorA != colorF && colorA == colorI )
 				  )
 				? colorB
-				: blender.blend(colorA, colorB)
+				: blend(colorA, colorB)
 				);
 			product1 =
 				( ( (colorC == colorH && colorA == colorF)
@@ -103,7 +102,7 @@ void SaI2xScaler<Pixel>::scaleLine256(
 				       && colorA != colorH && colorA == colorI )
 				  )
 				? colorC
-				: blender.blend(colorA, colorC)
+				: blend(colorA, colorC)
 				);
 			product2 = colorB;
 		} else if (colorA == colorD && colorB == colorC) {
@@ -123,7 +122,7 @@ void SaI2xScaler<Pixel>::scaleLine256(
 				if (colorL == colorO) {
 					if (colorA == colorL) r--; else if (colorB == colorL) r++;
 				}
-				product = product1 = blender.blend(colorA, colorB);
+				product = product1 = blend(colorA, colorB);
 				product2 = r > 0 ? colorA : (r < 0 ? colorB : product);
 			}
 		} else {
@@ -134,7 +133,7 @@ void SaI2xScaler<Pixel>::scaleLine256(
 				: ( colorB == colorE && colorB == colorD
 				    && colorA != colorF && colorA == colorI
 				  ? colorB
-				  : blender.blend(colorA, colorB)
+				  : blend(colorA, colorB)
 				  )
 				);
 			product1 =
@@ -144,12 +143,12 @@ void SaI2xScaler<Pixel>::scaleLine256(
 				: ( colorC == colorG && colorC == colorD
 				    && colorA != colorH && colorA == colorI
 				  ? colorC
-				  : blender.blend(colorA, colorC)
+				  : blend(colorA, colorC)
 				  )
 				);
-			product2 = blender.blend( // TODO: Quad-blend may be better?
-				blender.blend(colorA, colorB),
-				blender.blend(colorC, colorD)
+			product2 = blend( // TODO: Quad-blend may be better?
+				blend(colorA, colorB),
+				blend(colorC, colorD)
 				);
 		}
 
@@ -172,7 +171,7 @@ void SaI2xScaler<Pixel>::scaleLine512(
 	// It's not great, but at least it looks better than doubling the pixel
 	// like SimpleScaler does.
 	dstUpper[0] = srcLine1[0];
-	dstLower[0] = blender.blend(srcLine1[0], srcLine2[0]);
+	dstLower[0] = blend(srcLine1[0], srcLine2[0]);
 	for (int x = 1; x < WIDTH512 - 1; x++) {
 		// Map of the pixels:
 		//   I E F
@@ -205,7 +204,7 @@ void SaI2xScaler<Pixel>::scaleLine512(
 				       && colorG != colorC && colorC == colorM )
 				  )
 				? colorA
-				: blender.blend(colorA, colorC)
+				: blend(colorA, colorC)
 				);
 		} else if (colorB == colorC && colorA != colorD) {
 			product1 =
@@ -214,13 +213,13 @@ void SaI2xScaler<Pixel>::scaleLine512(
 				       && colorA != colorH && colorA == colorI )
 				  )
 				? colorC
-				: blender.blend(colorA, colorC)
+				: blend(colorA, colorC)
 				);
 		} else if (colorA == colorD && colorB == colorC) {
 			if (colorA == colorC) {
 				product1 = colorA;
 			} else {
-				product1 = blender.blend(colorA, colorC);
+				product1 = blend(colorA, colorC);
 			}
 		} else {
 			product1 =
@@ -230,7 +229,7 @@ void SaI2xScaler<Pixel>::scaleLine512(
 				: ( colorC == colorG && colorC == colorD
 				    && colorA != colorH && colorA == colorI
 				  ? colorC
-				  : blender.blend(colorA, colorC)
+				  : blend(colorA, colorC)
 				  )
 				);
 		}
@@ -240,7 +239,7 @@ void SaI2xScaler<Pixel>::scaleLine512(
 	}
 	dstUpper[WIDTH512 - 1] = srcLine1[WIDTH512 - 1];
 	dstLower[WIDTH512 - 1] =
-		blender.blend(srcLine1[WIDTH512 - 1], srcLine2[WIDTH512 - 1]);
+		blend(srcLine1[WIDTH512 - 1], srcLine2[WIDTH512 - 1]);
 }
 
 template <class Pixel>

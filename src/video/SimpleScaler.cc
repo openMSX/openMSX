@@ -175,10 +175,9 @@ word* Darkener<unsigned>::getTable()
 template <class Pixel>
 SimpleScaler<Pixel>::SimpleScaler(SDL_PixelFormat* format,
                                   RenderSettings& renderSettings)
-	: Scaler<Pixel>(format)
+	: Scaler2<Pixel>(format)
 	, scanlineSetting(renderSettings.getScanlineAlpha())
 	, blurSetting(renderSettings.getHorizontalBlur())
-	, blender(Blender<Pixel>::createFromFormat(format))
 	, mult1(format)
 	, mult2(format)
 	, mult3(format)
@@ -670,7 +669,7 @@ void SimpleScaler<Pixel>::average(
 
 		darkener.setFactor(alpha);
 		word* table = darkener.getTable();
-		Pixel mask = ~blender.getMask();
+		Pixel mask = ~Scaler<Pixel>::blender.getMask();
 
 		asm (
 			"movd	%4, %%mm7;"
@@ -751,8 +750,7 @@ void SimpleScaler<Pixel>::average(
 
 	// non-MMX routine, both 16bpp and 32bpp
 	for (unsigned x = 0; x < 640; ++x) {
-		dst[x] = mult1.multiply(
-			blender.blend(src1[x], src2[x]), alpha);
+		dst[x] = mult1.multiply(blend(src1[x], src2[x]), alpha);
 	}
 }
 

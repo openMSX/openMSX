@@ -1,18 +1,17 @@
 // $Id$
 
-#ifndef LOWSCALER_HH
-#define LOWSCALER_HH
+#ifndef SCALER3_HH
+#define SCALER3_HH
 
 #include "Scaler.hh"
 
 namespace openmsx {
 
-template <typename Pixel>
-class LowScaler : public Scaler<Pixel>
+/** Base class for 3x scalers
+  */
+template <class Pixel> class Scaler3 : public Scaler<Pixel>
 {
 public:
-	LowScaler(SDL_PixelFormat* format);
-
 	virtual void scaleBlank(Pixel color, SDL_Surface* dst,
 	                        unsigned startY, unsigned endY, bool lower);
 	virtual void scale256(FrameSource& src, SDL_Surface* dst,
@@ -23,7 +22,6 @@ public:
 	                      unsigned startY, unsigned endY, bool lower);
 	virtual void scale512(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY);
-
 	virtual void scale192(FrameSource& src, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY, bool lower);
 	virtual void scale192(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
@@ -45,8 +43,8 @@ public:
 	virtual void scale1024(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                       unsigned startY, unsigned endY);
 
-private:
-	void averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel* pOut);
+protected:
+	Scaler3(SDL_PixelFormat* format);
 };
 
 } // namespace openmsx
