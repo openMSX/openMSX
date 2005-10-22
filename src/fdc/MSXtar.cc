@@ -146,11 +146,10 @@ word MSXtar::sectorToCluster(int sector)
 
 /** Initialize object variables by reading info from the bootsector
   */
-void MSXtar::readBootSector(const byte* buf)
+void MSXtar::parseBootSector(const byte* buf)
 {
 	MSXBootSector* boot = (MSXBootSector*)buf;
-	nbSectors = rdsh(boot->nrsectors); // assume a DS disk is used
-	sectorsPerTrack = rdsh(boot->nrsectors);
+	nbSectors = rdsh(boot->nrsectors);
 	nbSides = rdsh(boot->nrsides);
 	nbFats = boot->nrfats[0];
 	sectorsPerFat = rdsh(boot->sectorsfat);
@@ -161,9 +160,8 @@ void MSXtar::readBootSector(const byte* buf)
 	rootDirEnd = rootDirStart + nbRootDirSectors - 1;
 	maxCluster = sectorToCluster(nbSectors);
 
-	//PRT_DEBUG("ReadBootsector info:");
+	//PRT_DEBUG("Bootsector info");
 	//PRT_DEBUG("nbSectors         :" << nbSectors);
-	//PRT_DEBUG("sectorsPerTrack   :" << sectorsPerTrack);
 	//PRT_DEBUG("nbSides           :" << nbSides);
 	//PRT_DEBUG("nbFats            :" << nbFats);
 	//PRT_DEBUG("sectorsPerFat     :" << sectorsPerFat);
@@ -174,6 +172,19 @@ void MSXtar::readBootSector(const byte* buf)
 	//PRT_DEBUG("maxCluster        :" << maxCluster);
 }
 
+void MSXtar::parseBootSectorFAT(const byte* buf)
+{
+	parseBootSector(buf);
+	
+	// cache complete FAT
+	assert(fatBuffer.empty()); // can only cache once
+	fatBuffer.resize(SECTOR_SIZE * sectorsPerFat);
+	for (int i = 0; i < sectorsPerFat; ++i) {
+		disk.readLogicalSector(partitionOffset + 1 + i,
+		                       &fatBuffer[SECTOR_SIZE * i]);
+	}
+}
+
 MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 	: disk(sectordisk)
 {
@@ -181,26 +192,16 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 	partitionNbSectors = 0;
 	partitionOffset = 0;
 	defaultBootBlock = dos2BootBlock;
-
-	//TODO : see if we can make usePartition always read the bootsector even
-	// if no partition table is given.
-	// Since Filemanipulator will always call usePartition before doing any
-	// real manipulationm this would eliminate the followin code.
-	/*
-	byte sectorbuf[SECTOR_SIZE];
-	disk.readLogicalSector(0, sectorbuf);
-	if (!isPartitionTableSector(sectorbuf)) {
-		MSXBootSector* boot = (MSXBootSector*)sectorbuf;
-		if (rdsh(boot->nrsectors)) readBootSector(sectorbuf);
-		// assuming a regular disk is used, set object variables
-		// to correct values assuming this is a "normal dsk"
-		// check for 0 value because otherwise we would perform
-		// a division by zero....
-	}
-	//readBootSector(defaultBootBlock); // set object variables to correct values
-	*/
 }
 
+MSXtar::~MSXtar()
+{
+	// write cached FAT back to disk image
+	for (unsigned i = 0; i < fatBuffer.size() / SECTOR_SIZE; ++i) {
+		disk.writeLogicalSector(partitionOffset + 1 + i,
+		                        &fatBuffer[SECTOR_SIZE * i]);
+	}
+}
 
 // Create a correct bootsector depending on the required size of the filesystem
 void MSXtar::setBootSector(byte* buf, unsigned nbSectors)
@@ -303,7 +304,7 @@ void MSXtar::format(unsigned partitionsectorsize)
 	byte sectorbuf[512];
 	memcpy(sectorbuf, defaultBootBlock, SECTOR_SIZE);
 	setBootSector(sectorbuf, partitionsectorsize);
-	readBootSector(sectorbuf); //set object variables to correct values
+	parseBootSector(sectorbuf); //set object variables to correct values
 	disk.writeLogicalSector(partitionOffset + 0, sectorbuf);
 
 	MSXBootSector* boot = (MSXBootSector*)sectorbuf;
@@ -332,17 +333,10 @@ void MSXtar::format(unsigned partitionsectorsize)
 }
 
 // Get the next clusternumber from the FAT chain
-word MSXtar::readFAT(word clnr)
+word MSXtar::readFAT(word clnr) const
 {
-	// read entire fat in a buffer, can be optimized if needed
-	vector<byte> buf(SECTOR_SIZE * sectorsPerFat);
-	byte* sectorbuf = &buf[0];
-	for (int i = 0; i < sectorsPerFat; ++i) {
-		disk.readLogicalSector(partitionOffset + 1 + i,
-		                        &sectorbuf[i * SECTOR_SIZE]);
-	}
-
-	byte* p = sectorbuf + (clnr * 3) / 2;
+	assert(!fatBuffer.empty()); // FAT must already be cached
+	const byte* p = &fatBuffer[(clnr * 3) / 2];
 	return (clnr & 1)
 	       ? (p[0] >> 4) + (p[1] << 4)
 	       : p[0] + ((p[1] & 0x0F) << 8);
@@ -351,43 +345,14 @@ word MSXtar::readFAT(word clnr)
 // Write an entry to the FAT
 void MSXtar::writeFAT(word clnr, word val)
 {
-	byte sectorbuf[SECTOR_SIZE];
-	int sectornr = ((clnr * 3) / 2) / SECTOR_SIZE;
-	disk.readLogicalSector(partitionOffset + 1 + sectornr, sectorbuf);
-	int offset = (clnr * 3) / 2 - SECTOR_SIZE * sectornr;
-
-	byte* p = &sectorbuf[offset];
-	if (offset < (SECTOR_SIZE - 1)) {
-		// all actions in same sector
-		if (clnr & 1) {
-			p[0] = (p[0] & 0x0F) + (val << 4);
-			p[1] = val >> 4;
-		} else {
-			p[0] = val;
-			p[1] = (p[1] & 0xF0) + ((val >> 8) & 0x0F);
-		}
-		disk.writeLogicalSector(partitionOffset + 1 + sectornr,
-		                         sectorbuf);
+	assert(!fatBuffer.empty()); // FAT must already be cached
+	byte* p = &fatBuffer[(clnr * 3) / 2];
+	if (clnr & 1) {
+		p[0] = (p[0] & 0x0F) + (val << 4);
+		p[1] = val >> 4;
 	} else {
-		// first byte in one sector next byte in following sector
-		if (clnr & 1) {
-			p[0] = (p[0] & 0x0F) + (val << 4);
-		} else {
-			p[0] = val;
-		}
-		disk.writeLogicalSector(partitionOffset + 1 + sectornr,
-		                         sectorbuf);
-
-		disk.readLogicalSector(partitionOffset + 2 + sectornr,
-		                        sectorbuf);
-		if (clnr & 1) {
-			sectorbuf[0] = val >> 4;
-		} else {
-			sectorbuf[0] = (sectorbuf[0] & 0xF0) +
-			               ((val >> 8) & 0x0F);
-		}
-		disk.writeLogicalSector(partitionOffset + 2 + sectornr,
-		                         sectorbuf);
+		p[0] = val;
+		p[1] = (p[1] & 0xF0) + ((val >> 8) & 0x0F);
 	}
 }
 
@@ -1034,7 +999,7 @@ bool MSXtar::usePartition(int partition)
 		partitionOffset = 0;
 		partitionNbSectors = disk.getNbSectors();
 		disk.readLogicalSector(partitionOffset, buf);
-		readBootSector(buf);
+		parseBootSectorFAT(buf);
 		return false;
 	}
 
@@ -1045,7 +1010,7 @@ bool MSXtar::usePartition(int partition)
 	partitionOffset = rdlg(p->start4);
 	partitionNbSectors = rdlg(p->size4);
 	disk.readLogicalSector(partitionOffset, buf);
-	readBootSector(buf);
+	parseBootSectorFAT(buf);
 	return true;
 }
 
@@ -1064,7 +1029,7 @@ void MSXtar::createDiskFile(vector<unsigned> sizes)
 			setlg(p->start4, startPartition);
 			setlg(p->size4, sizes[i]);
 			partitionOffset = startPartition;
-			format(sizes[i]); //does it's own setBootSector/readBootSector
+			format(sizes[i]);
 			startPartition += sizes[i];
 		}
 		disk.writeLogicalSector(0, buf);

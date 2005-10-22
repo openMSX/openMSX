@@ -21,6 +21,7 @@ class MSXtar
 {
 public:
 	MSXtar(SectorAccessibleDisk& disk);
+	~MSXtar();
 
 	void format();
 	void format(unsigned partitionsectorsize);
@@ -90,7 +91,6 @@ private:
 	int nbSectors;
 	int maxCluster;
 	int sectorsPerCluster;
-	int sectorsPerTrack;
 	int sectorsPerFat;
 	int nbFats;
 	int nbSides;
@@ -102,12 +102,14 @@ private:
 	int partitionOffset;
 	const byte* defaultBootBlock;
 	SectorAccessibleDisk& disk;
+	std::vector<byte> fatBuffer;
 
 	int clusterToSector(int cluster);
 	void setBootSector(byte* buf, unsigned nbsectors);
 	word sectorToCluster(int sector);
-	void readBootSector(const byte* buf);
-	word readFAT(word clnr);
+	void parseBootSector(const byte* buf);
+	void parseBootSectorFAT(const byte* buf);
+	word readFAT(word clnr) const;
 	void writeFAT(word clnr, word val);
 	word findFirstFreeCluster(void);
 	int findUsableIndexInSector(int sector);
