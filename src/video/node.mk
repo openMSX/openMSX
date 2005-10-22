@@ -35,7 +35,8 @@ HDR_ONLY:= \
 	SpriteConverter \
 	Blender \
 	Rasterizer \
-	FrameSource
+	FrameSource \
+	HQCommon
 
 SRC_HDR_$(COMPONENT_GL)+= \
 	SDLGLVideoSystem GLRasterizer GLSnow GLUtil GLImage

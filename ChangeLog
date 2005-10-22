@@ -1,5 +1,8 @@
 $Id$
 
+2005-10-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Put common code for HQ.x scalers in HQCommon.hh
+
 2005-10-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed low and hq3x scalers for v9990
 	* Cleaned up Scaler code (mostly for non 2x scale factors)
