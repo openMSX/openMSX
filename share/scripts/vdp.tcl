@@ -41,7 +41,7 @@ proc vdpregs { } {
 }
 
 proc v9990reg { reg } {
-	debug read "V9990 regs" $reg
+	debug read "Sunrise GFX9000 regs" $reg
 }
 proc v9990regs { } {
 	__format_table 55 5 "%2d : 0x%02x" "   " v9990reg
