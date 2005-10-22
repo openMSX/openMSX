@@ -15,6 +15,8 @@ class SDLImage
 public:
 	SDLImage(SDL_Surface* output, const std::string& filename);
 	SDLImage(SDL_Surface* output, const std::string& filename,
+	         double scaleFactor);
+	SDLImage(SDL_Surface* output, const std::string& filename,
 	         unsigned width, unsigned height);
 	SDLImage(SDL_Surface* output,
 	         unsigned width, unsigned height, byte alpha);
@@ -31,6 +33,8 @@ private:
 
 public:
 	static SDL_Surface* loadImage(const std::string& filename);
+	static SDL_Surface* loadImage(const std::string& filename,
+	                              double scaleFactor);
 	static SDL_Surface* loadImage(const std::string& filename,
 	                              unsigned width, unsigned height);
 	static SDL_Surface* readImage(const std::string& filename);

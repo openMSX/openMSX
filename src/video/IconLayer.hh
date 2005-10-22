@@ -46,6 +46,7 @@ private:
 	EventDistributor& eventDistributor;
 	Display& display;
 	SDL_Surface* outputScreen;
+	double scaleFactor;
 
 	struct LedInfo {
 		std::auto_ptr<IntegerSetting> xcoord;

@@ -31,6 +31,7 @@ IconLayer<IMAGE>::IconLayer(CommandController& commandController,
 	, eventDistributor(eventDistributor_)
 	, display(display_)
 	, outputScreen(screen)
+	, scaleFactor(outputScreen->w / 640.0)
 {
 	if (!init) {
 		init = true;
@@ -125,9 +126,11 @@ void IconLayer<IMAGE>::paint()
 		}
 		IMAGE* icon = led.icon[status].get();
 		if (icon) {
-			icon->draw(led.xcoord->getValue(),
-			           led.ycoord->getValue(),
-			           alpha);
+			unsigned x = static_cast<unsigned>(
+			                scaleFactor * led.xcoord->getValue());
+			unsigned y = static_cast<unsigned>(
+			                scaleFactor * led.ycoord->getValue());
+			icon->draw(x, y, alpha);
 		}
 	}
 }
@@ -166,7 +169,8 @@ void IconLayer<IMAGE>::check(SettingImpl<FilenameSetting::Policy>& setting,
 				} else {
 					ledInfo[i].icon[j].reset(
 					    new IMAGE(outputScreen,
-					              context.resolve(value)));
+					              context.resolve(value),
+					              scaleFactor));
 				}
 				break;
 			}

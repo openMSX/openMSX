@@ -4,6 +4,8 @@ $Id$
 	* Put common code for HQ.x scalers in HQCommon.hh
 	* Optimized MSXtar:
 	   - cache FAT in memory
+	* Implemented scaling in IconLayer:
+	   - OSD icons now have the same size/position in all scalers
 
 2005-10-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed low and hq3x scalers for v9990

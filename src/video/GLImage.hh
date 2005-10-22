@@ -14,6 +14,8 @@ class GLImage
 {
 public:
 	GLImage(SDL_Surface* output, const std::string& filename);
+	GLImage(SDL_Surface* output, const std::string& filename,
+	        double scaleFactor);
 	~GLImage();
 
 	void draw(unsigned x, unsigned y, unsigned char alpha = 255);

@@ -18,6 +18,14 @@ SDLImage::SDLImage(SDL_Surface* output, const string& filename)
 	init(filename);
 }
 
+SDLImage::SDLImage(SDL_Surface* output, const std::string& filename,
+                   double scaleFactor)
+	: outputScreen(output)
+{
+	image = loadImage(filename, scaleFactor);
+	init(filename);
+}
+
 SDLImage::SDLImage(SDL_Surface* output, const string& filename,
 	           unsigned width, unsigned height)
 	: outputScreen(output)
@@ -87,6 +95,19 @@ SDL_Surface* SDLImage::loadImage(const string& filename)
 	SDL_Surface* picture = readImage(filename);
 	SDL_Surface* result = convertToDisplayFormat(picture);
 	SDL_FreeSurface(picture);
+	return result;
+}
+
+SDL_Surface* SDLImage::loadImage(const string& filename, double scaleFactor)
+{
+	SDL_Surface* picture = readImage(filename);
+	SDL_Surface* scaled = scaleImage32(picture,
+		static_cast<unsigned>(picture->w * scaleFactor),
+		static_cast<unsigned>(picture->h * scaleFactor));
+	SDL_FreeSurface(picture);
+
+	SDL_Surface* result = convertToDisplayFormat(scaled);
+	SDL_FreeSurface(scaled);
 	return result;
 }
 

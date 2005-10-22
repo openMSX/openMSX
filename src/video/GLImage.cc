@@ -15,6 +15,14 @@ GLImage::GLImage(SDL_Surface* /*output*/, const string& filename)
 	texture = loadTexture(filename, width, height, texCoord);
 }
 
+GLImage::GLImage(SDL_Surface* /*output*/, const string& filename,
+                 double scalefactor)
+{
+	texture = loadTexture(filename, width, height, texCoord);
+	width  = static_cast<unsigned>(scalefactor * width);
+	height = static_cast<unsigned>(scalefactor * height);
+}
+
 GLImage::~GLImage()
 {
 	glDeleteTextures(1, &texture);
