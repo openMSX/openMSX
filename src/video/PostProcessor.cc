@@ -62,97 +62,111 @@ void PostProcessor<Pixel>::paint()
 	// Scale image.
 	// TODO: Check deinterlace first: now that we keep LineContent info per
 	//       frame, we should take the lineWidth of two frames into account.
-	bool lower = field == RawFrame::FIELD_ODD;
-	unsigned startY = 0;
-	while (startY < 240) {
-		unsigned lineWidth = currFrame->getLineWidth(startY);
-		unsigned endY = startY + 1;
-		while ((endY < 240) &&
-		       (currFrame->getLineWidth(endY) == lineWidth)) endY++;
+	const unsigned srcHeight = 240;
+	const unsigned dstHeight = screen->h;
+	const bool lower = field == RawFrame::FIELD_ODD;
+	const unsigned lineZoom = dstHeight / srcHeight;
+	// TODO: Store all MSX lines in RawFrame and only scale the ones that fit
+	//       on the PC screen, as a preparation for resizable output window.
+	unsigned srcStartY = 0;
+	unsigned dstStartY = lower && !deinterlace ? 1 : 0;
+	while (dstStartY < dstHeight) {
+		// Currently this is true because the source frame height
+		// is always >= dstHeight/lineZoom.
+		assert(srcStartY < srcHeight);
+
+		unsigned lineWidth = currFrame->getLineWidth(srcStartY);
+		unsigned srcEndY = srcStartY + 1;
+		unsigned dstEndY = dstStartY + lineZoom;
+		while ((srcEndY < srcHeight) && (dstEndY < dstHeight) &&
+		       (currFrame->getLineWidth(srcEndY) == lineWidth)) {
+			srcEndY++;
+			dstEndY += lineZoom;
+		}
+		if (dstEndY > dstHeight) dstEndY = dstHeight;
 
 		switch (lineWidth) {
 		case 0: { // blank line
 			// Reduce area to same-colour starting segment.
-			const Pixel colour = *currFrame->getLinePtr(startY, (Pixel*)0);
-			for (unsigned y = startY + 1; y < endY; y++) {
+			const Pixel colour = *currFrame->getLinePtr(srcStartY, (Pixel*)0);
+			for (unsigned y = srcStartY + 1; y < srcEndY; y++) {
 				const Pixel colour2 = *currFrame->getLinePtr(y, (Pixel*)0);
-				if (colour != colour2) endY = y;
+				if (colour != colour2) {
+					srcEndY = y;
+					dstEndY = dstStartY + lineZoom * (srcEndY - srcStartY);
+					if (dstEndY > dstHeight) dstEndY = dstHeight;
+					break;
+				}
 			}
 
-			if (deinterlace) {
-				// TODO: This isn't 100% accurate:
-				//       on the previous frame, this area may have contained
-				//       graphics instead of blank pixels.
-				currScaler->scaleBlank(colour, screen,
-				                       startY, endY, false);
-			} else {
-				currScaler->scaleBlank(colour, screen,
-				                       startY, endY, lower);
-			}
+			// TODO: This isn't 100% accurate in case of deinterlace:
+			//       on the previous frame, this area may have contained
+			//       graphics instead of blank pixels.
+			currScaler->scaleBlank(colour, screen, dstStartY, dstEndY);
 			break;
 		}
 		// TODO find a better way to implement this
 		case 192:
 			if (deinterlace) {
 				currScaler->scale192(*frameEven, *frameOdd,
-				                     screen, startY, endY);
+				                     screen, srcStartY, srcEndY);
 			} else {
 				currScaler->scale192(*currFrame, screen,
-				                     startY, endY, lower);
+				                     srcStartY, srcEndY, lower);
 			}
 			break;
 		case 256:
 			if (deinterlace) {
 				currScaler->scale256(*frameEven, *frameOdd,
-				                     screen, startY, endY);
+				                     screen, srcStartY, srcEndY);
 			} else {
 				currScaler->scale256(*currFrame, screen,
-				                     startY, endY, lower);
+				                     srcStartY, srcEndY, lower);
 			}
 			break;
 		case 384:
 			if (deinterlace) {
 				currScaler->scale384(*frameEven, *frameOdd,
-				                     screen, startY, endY);
+				                     screen, srcStartY, srcEndY);
 			} else {
 				currScaler->scale384(*currFrame, screen,
-				                     startY, endY, lower);
+				                     srcStartY, srcEndY, lower);
 			}
 			break;
 		case 512:
 			if (deinterlace) {
 				currScaler->scale512(*frameEven, *frameOdd,
-				                     screen, startY, endY);
+				                     screen, srcStartY, srcEndY);
 			} else {
 				currScaler->scale512(*currFrame, screen,
-				                     startY, endY, lower);
+				                     srcStartY, srcEndY, lower);
 			}
 			break;
 		case 640:
 			if (deinterlace) {
 				currScaler->scale640(*frameEven, *frameOdd,
-				                     screen, startY, endY);
+				                     screen, srcStartY, srcEndY);
 			} else {
 				currScaler->scale640(*currFrame, screen,
-				                     startY, endY, lower);
+				                     srcStartY, srcEndY, lower);
 			}
 			break;
 		case 768:
 			if (deinterlace) {
 				currScaler->scale768(*frameEven, *frameOdd,
-				                     screen, startY, endY);
+				                     screen, srcStartY, srcEndY);
 			} else {
 				currScaler->scale768(*currFrame, screen,
-				                     startY, endY, lower);
+				                     srcStartY, srcEndY, lower);
 			}
 			break;
 		case 1024:
 			if (deinterlace) {
 				currScaler->scale1024(*frameEven, *frameOdd,
-				                      screen, startY, endY);
+				                      screen, srcStartY, srcEndY);
 			} else {
 				currScaler->scale1024(*currFrame, screen,
-				                      startY, endY, lower);
+				                      srcStartY, srcEndY, lower);
 			}
 			break;
 		default:
@@ -161,8 +175,9 @@ void PostProcessor<Pixel>::paint()
 		}
 
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
-		//	startY, endY, lineWidth );
-		startY = endY;
+		//	srcStartY, srcEndY, lineWidth );
+		srcStartY = srcEndY;
+		dstStartY = dstEndY;
 	}
 }
 

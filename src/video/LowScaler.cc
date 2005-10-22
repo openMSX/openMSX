@@ -27,16 +27,6 @@ void LowScaler<Pixel>::averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel*
 }
 
 template <typename Pixel>
-void LowScaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
-                                  unsigned startY, unsigned endY, bool /*lower*/)
-{
-	for (unsigned y = startY; y < endY; ++y) {
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
-		Scaler<Pixel>::fillLine(dstLine, color, 320);
-	}
-}
-
-template <typename Pixel>
 void LowScaler<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
                                 unsigned startY, unsigned endY, bool /*lower*/)
 {

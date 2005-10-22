@@ -192,21 +192,22 @@ SimpleScaler<Pixel>::~SimpleScaler()
 
 template <class Pixel>
 void SimpleScaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
-                                     unsigned startY, unsigned endY, bool lower)
+                                     unsigned startY, unsigned endY)
 {
 	Pixel scanlineColor = scanlineSetting.getValue() == 0
 		? color
 		: mult1.multiply(color,
 		                255 - (scanlineSetting.getValue() * 255) / 100);
 
-	unsigned y1 = 2 * startY + (lower ? 1 : 0);
-	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
-	for (unsigned y = y1; y < y2; y += 2) {
-		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, y + 0);
+	unsigned y = startY;
+	while (y < endY) {
+		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, y);
 		Scaler<Pixel>::fillLine(dstUpper, color, 640);
-		if (y == (480 - 1)) break;
-		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, y + 1);
+		y++;
+		if (y == endY) break;
+		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, y);
 		Scaler<Pixel>::fillLine(dstLower, scanlineColor, 640);
+		y++;
 	}
 }
 

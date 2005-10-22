@@ -1,5 +1,10 @@
 $Id$
 
+2005-10-22 Maarten ter Huurne <maarten@treewalker.org>
+	* More preparations for cleaner deinterlacing:
+	  - PostProcessor calculates destination Y (in addition to source Y)
+	  - Scaler::scaleBlank signature changed to use destination Y
+
 2005-10-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Put common code for HQ.x scalers in HQCommon.hh
 	* Optimized MSXtar:
@@ -16,7 +21,7 @@ $Id$
 
 2005-10-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added hq3x scaler:
-	   - is *very* slow (will try to add hq3xlite later) 
+	   - is *very* slow (will try to add hq3xlite later)
 	   - there might still be problems in combination with gfx9000
 
 2005-10-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
@@ -71,8 +76,8 @@ $Id$
 	* Fixed EmuTime parameter for ASAP sync points
 
 2005-09-24 Arnold Metselaar <arnold.metselaar@planet.nl>
-	* CassetteJack 
-	   - fix output when MSX output varies vbery rapidly
+	* CassetteJack
+	   - fix output when MSX output varies very rapidly
 	   - simple interpolation on input
 
 2005-09-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
@@ -91,7 +96,7 @@ $Id$
 2005-09-20 Arnold Metselaar <arnold.metselaar@planet.nl>
 	* fix in WavWriter class; totalsize was wrong
 	* CassetteJack, CassettePlayer
-	   - simple DC removal filter for cassette out signal 
+	   - simple DC removal filter for cassette out signal
 	* CassettePlayer
 	   - setMute() when recording
 	   - stop recording on eject, insert, rewind unplug and destructor

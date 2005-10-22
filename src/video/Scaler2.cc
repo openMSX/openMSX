@@ -13,19 +13,6 @@ Scaler2<Pixel>::Scaler2(SDL_PixelFormat* format)
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
-                               unsigned startY, unsigned endY, bool lower)
-{
-	unsigned y1 = 2 * startY + (lower ? 1 : 0);
-	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
-	y2 = std::min(480u, y2);
-	for (unsigned y = y1; y < y2; ++y) {
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
-		fillLine(dstLine, color, dst->w);
-	}
-}
-
-template <class Pixel>
 void Scaler2<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
                              unsigned startY, unsigned endY, bool lower)
 {

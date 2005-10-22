@@ -13,19 +13,6 @@ Scaler3<Pixel>::Scaler3(SDL_PixelFormat* format)
 }
 
 template <class Pixel>
-void Scaler3<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
-                                   unsigned startY, unsigned endY, bool lower)
-{
-	unsigned y1 = 3 * startY + (lower ? 1 : 0);
-	unsigned y2 = 3 * endY   + (lower ? 1 : 0);
-	y2 = std::min(720u, y2);
-	for (unsigned y = y1; y < y2; ++y) {
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
-		fillLine(dstLine, color, dst->w);
-	}
-}
-
-template <class Pixel>
 void Scaler3<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
                              unsigned startY, unsigned endY, bool lower)
 {
@@ -122,7 +109,7 @@ void Scaler3<Pixel>::scale192(FrameSource& src0, FrameSource& src1, SDL_Surface*
 	for (unsigned y = startY; y < endY; ++y) {
 		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 3 * y + 0);
-		scale_2on9(srcLine0, dstLine0, 212); // 
+		scale_2on9(srcLine0, dstLine0, 212); //
 
 		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, 3 * y + 2);
@@ -158,7 +145,7 @@ void Scaler3<Pixel>::scale384(FrameSource& src0, FrameSource& src1, SDL_Surface*
 	for (unsigned y = startY; y < endY; ++y) {
 		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 3 * y + 0);
-		scale_4on9(srcLine0, dstLine0, 424); // 
+		scale_4on9(srcLine0, dstLine0, 424); //
 
 		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, 3 * y + 2);
@@ -208,7 +195,7 @@ void Scaler3<Pixel>::scale768(FrameSource& src0, FrameSource& src1, SDL_Surface*
 	for (unsigned y = startY; y < endY; ++y) {
 		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 3 * y + 0);
-		scale_8on9(srcLine0, dstLine0, 848); // 
+		scale_8on9(srcLine0, dstLine0, 848); //
 
 		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
 		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, 3 * y + 2);

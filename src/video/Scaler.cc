@@ -899,6 +899,15 @@ void Scaler<Pixel>::scale_8on9(
 	}
 }
 
+template <class Pixel>
+void Scaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
+                               unsigned startY, unsigned endY)
+{
+	for (unsigned y = startY; y < endY; ++y) {
+		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
+		fillLine(dstLine, color, dst->w);
+	}
+}
 
 // Force template instantiation.
 template class Scaler<word>;

@@ -12,8 +12,6 @@ namespace openmsx {
 template <class Pixel> class Scaler3 : public Scaler<Pixel>
 {
 public:
-	virtual void scaleBlank(Pixel color, SDL_Surface* dst,
-	                        unsigned startY, unsigned endY, bool lower);
 	virtual void scale256(FrameSource& src, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY, bool lower);
 	virtual void scale256(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,

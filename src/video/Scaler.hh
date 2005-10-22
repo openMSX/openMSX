@@ -56,12 +56,11 @@ public:
 	/** Fills the given area, which contains only a single color.
 	  * @param color Color the area should be filled with.
 	  * @param dst Destination: image to store the scaled output in.
-	  * @param startY Y-coordinate of the top line.
-	  * @param endY Y-coordinate of the bottom line (exclusive).
-	  * @param lower True iff frame must be displayed half a line lower
+	  * @param startY Destination Y-coordinate of the top line.
+	  * @param endY Destination Y-coordinate of the bottom line (exclusive).
 	  */
 	virtual void scaleBlank(Pixel color, SDL_Surface* dst,
-	                        unsigned startY, unsigned endY, bool lower) = 0;
+	                        unsigned startY, unsigned endY);
 
 	/** Scales the given area. Scaling factor depends on the concrete scaler
 	  * The default implementation scales each pixel to a 2x2 square.
@@ -184,7 +183,7 @@ protected:
 	  */
 	void average(const Pixel* pIn0, const Pixel* pIn1, Pixel* pOut,
                      unsigned width);
-	
+
 	/** Make the input line halve as wide
 	  * @param pIn Input line
 	  * @param pOut Output line
