@@ -12,7 +12,8 @@ Scaler3<Pixel>::Scaler3(SDL_PixelFormat* format)
 {
 }
 
-template <class Pixel>
+// TODO: See comment for Scaler2::scale256.
+/*template <class Pixel>
 void Scaler3<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
                              unsigned startY, unsigned endY, bool lower)
 {
@@ -28,7 +29,7 @@ void Scaler3<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
 		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 2);
 		copyLine(dstLine0, dstLine2, 960);
 	}
-}
+}*/
 
 template <class Pixel>
 void Scaler3<Pixel>::scale256(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,

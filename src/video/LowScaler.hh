@@ -13,8 +13,10 @@ class LowScaler : public Scaler<Pixel>
 public:
 	LowScaler(SDL_PixelFormat* format);
 
-	virtual void scale256(FrameSource& src, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY, bool lower);
+	virtual void scale256(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
+		);
 	virtual void scale256(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY);
 	virtual void scale512(FrameSource& src, SDL_Surface* dst,

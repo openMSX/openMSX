@@ -13,8 +13,10 @@ class HQ2xLiteScaler: public Scaler2<Pixel>
 public:
 	HQ2xLiteScaler(SDL_PixelFormat* format);
 
-	virtual void scale256(FrameSource& src, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY, bool lower);
+	virtual void scale256(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
+		);
 	virtual void scale512(FrameSource& src, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY, bool lower);
 };

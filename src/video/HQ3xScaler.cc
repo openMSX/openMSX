@@ -56,7 +56,7 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 		if (edge(c5, c7)) pattern |= 0x20;
 		if (edge(c5, c8)) pattern |= 0x40;
 		if (edge(c5, c9)) pattern |= 0x80;
-		
+
 		unsigned pixel1, pixel2, pixel3;
 		unsigned pixel4,         pixel6;
 		unsigned pixel7, pixel8, pixel9;
@@ -596,7 +596,7 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 				pixel4 = c5;
 				pixel7 = interpolate<3, 1>(c5, c8);
 			} else {
-				pixel1 = interpolate<1, 1>(c4, c2); 
+				pixel1 = interpolate<1, 1>(c4, c2);
 				pixel2 = interpolate<3, 1>(c5, c2);
 				pixel4 = interpolate<3, 1>(c4, c5);
 				pixel7 = interpolate<2, 1, 1>(c5, c8, c4);
@@ -615,7 +615,7 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 				pixel3 = interpolate<3, 1>(c5, c6);
 				pixel4 = c5;
 			} else {
-				pixel1 = interpolate<1, 1>(c4, c2); 
+				pixel1 = interpolate<1, 1>(c4, c2);
 				pixel2 = interpolate<3, 1>(c2, c5);
 				pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
 				pixel4 = interpolate<3, 1>(c5, c4);
@@ -1371,7 +1371,7 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 				pixel4 = c5;
 				pixel7 = interpolate<3, 1>(c5, c8);
 			} else {
-				pixel1 = interpolate<1, 1>(c4, c2); 
+				pixel1 = interpolate<1, 1>(c4, c2);
 				pixel2 = interpolate<3, 1>(c5, c2);
 				pixel4 = interpolate<3, 1>(c4, c5);
 				pixel7 = interpolate<2, 1, 1>(c5, c8, c4);
@@ -1390,7 +1390,7 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 				pixel3 = interpolate<3, 1>(c5, c6);
 				pixel4 = c5;
 			} else {
-				pixel1 = interpolate<1, 1>(c4, c2); 
+				pixel1 = interpolate<1, 1>(c4, c2);
 				pixel2 = interpolate<3, 1>(c2, c5);
 				pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
 				pixel4 = interpolate<3, 1>(c5, c4);
@@ -2204,7 +2204,7 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 				pixel3 = interpolate<3, 1>(c5, c6);
 				pixel4 = c5;
 			} else {
-				pixel1 = interpolate<1, 1>(c4, c2); 
+				pixel1 = interpolate<1, 1>(c4, c2);
 				pixel2 = interpolate<3, 1>(c2, c5);
 				pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
 				pixel4 = interpolate<3, 1>(c5, c4);
@@ -2258,7 +2258,7 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 				pixel4 = c5;
 				pixel7 = interpolate<3, 1>(c5, c8);
 			} else {
-				pixel1 = interpolate<1, 1>(c4, c2); 
+				pixel1 = interpolate<1, 1>(c4, c2);
 				pixel2 = interpolate<3, 1>(c5, c2);
 				pixel4 = interpolate<3, 1>(c4, c5);
 				pixel7 = interpolate<2, 1, 1>(c5, c8, c4);
@@ -2846,24 +2846,25 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 }
 
 template <class Pixel>
-void HQ3xScaler<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
-                                 unsigned startY, unsigned endY, bool lower)
-{
-	unsigned dstY = 3 * startY + (lower ? 1 : 0);
-	unsigned prevY = startY;
-	while (startY < endY) {
+void HQ3xScaler<Pixel>::scale256(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
+) {
+	unsigned dstY = dstStartY;
+	unsigned prevY = srcStartY;
+	while (srcStartY < srcEndY) {
 		Pixel* dummy = 0;
 		const Pixel* srcPrev = src.getLinePtr(prevY,  dummy);
-		const Pixel* srcCurr = src.getLinePtr(startY, dummy);
-		const Pixel* srcNext = src.getLinePtr(min(startY + 1, endY - 1), dummy);
+		const Pixel* srcCurr = src.getLinePtr(srcStartY, dummy);
+		const Pixel* srcNext = src.getLinePtr(min(srcStartY + 1, srcEndY - 1), dummy);
 		Pixel* dst0 = Scaler<Pixel>::linePtr(dst, dstY + 0);
 		Pixel* dst1 = Scaler<Pixel>::linePtr(dst, dstY + 1);
 		Pixel* dst2 = (dstY != (720 - 2))
 		            ? Scaler<Pixel>::linePtr(dst, dstY + 2)
 		            : dst1;
 		scaleLine256(srcPrev, srcCurr, srcNext, dst0, dst1, dst2);
-		prevY = startY;
-		++startY;
+		prevY = srcStartY;
+		++srcStartY;
 		dstY += 3;
 	}
 }

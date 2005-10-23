@@ -13,8 +13,10 @@ class HQ3xLiteScaler: public Scaler3<Pixel>
 public:
 	HQ3xLiteScaler(SDL_PixelFormat* format);
 
-	virtual void scale256(FrameSource& src, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY, bool lower);
+	virtual void scale256(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
+		);
 };
 
 } // namespace openmsx

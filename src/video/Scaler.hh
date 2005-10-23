@@ -68,13 +68,16 @@ public:
 	  * The default implementation scales each pixel to a 2x2 square.
 	  * @param src Source: the image to be scaled.
 	  *   It should be 320 pixels wide.
+	  * @param srcStartY Y-coordinate of the top source line (inclusive).
+	  * @param srcEndY Y-coordinate of the bottom source line (exclusive).
 	  * @param dst Destination: image to store the scaled output in.
-	  * @param startY Y-coordinate of the top source line (inclusive).
-	  * @param endY Y-coordinate of the bottom source line (exclusive).
-	  * @param lower True iff frame must be displayed half a line lower
+	  * @param dstStartY Y-coordinate of the top destination line (inclusive).
+	  * @param dstEndY Y-coordinate of the bottom destination line (exclusive).
 	  */
-	virtual void scale256(FrameSource& src, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY, bool lower) = 0;
+	virtual void scale256(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
+		) = 0;
 	virtual void scale256(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY) = 0;
 

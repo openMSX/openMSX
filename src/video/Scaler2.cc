@@ -12,21 +12,25 @@ Scaler2<Pixel>::Scaler2(SDL_PixelFormat* format)
 {
 }
 
-template <class Pixel>
-void Scaler2<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
-                             unsigned startY, unsigned endY, bool lower)
-{
-	unsigned y1 = 2 * startY + (lower ? 1 : 0);
-	unsigned y2 = 2 * endY   + (lower ? 1 : 0);
-	for (unsigned y = y1; y < y2; y += 2, ++startY) {
-		const Pixel* srcLine = src.getLinePtr(startY, (Pixel*)0);
+// TODO: In theory it's nice to have this as a fallback method, but in practice
+//       all subclasses override this method, so should we keep it or not?
+//       And if we keep it, should it be commented out like this until we
+//       need it to reduce the executable size?
+//       See also Scaler3::scale256.
+/*template <class Pixel>
+void Scaler2<Pixel>::scale256(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
+) {
+	for (unsigned y = dstStartY; y < dstEndY; y += 2, ++srcStartY) {
+		const Pixel* srcLine = src.getLinePtr(srcStartY, (Pixel*)0);
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 0);
 		scaleLine(srcLine, dstLine1, 320);
-		if (y == (480 - 1)) break;
+		if (y == (dstEndY - 1)) break;
 		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 1);
 		scaleLine(srcLine, dstLine2, 320);
 	}
-}
+}*/
 
 template <class Pixel>
 void Scaler2<Pixel>::scale256(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,

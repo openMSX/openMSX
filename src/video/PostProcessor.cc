@@ -120,8 +120,8 @@ void PostProcessor<Pixel>::paint()
 				currScaler->scale256(*frameEven, *frameOdd,
 				                     screen, srcStartY, srcEndY);
 			} else {
-				currScaler->scale256(*currFrame, screen,
-				                     srcStartY, srcEndY, lower);
+				currScaler->scale256(*currFrame, srcStartY, srcEndY,
+				                     screen, dstStartY, dstEndY);
 			}
 			break;
 		case 384:

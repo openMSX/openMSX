@@ -8,6 +8,7 @@ $Id$
 	* More preparations for cleaner deinterlacing:
 	  - PostProcessor calculates destination Y (in addition to source Y)
 	  - Scaler::scaleBlank signature changed to use destination Y
+	  - Scaler::scale256 signature changed to use source and destination Y
 
 2005-10-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Put common code for HQ.x scalers in HQCommon.hh

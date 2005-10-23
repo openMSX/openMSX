@@ -27,12 +27,13 @@ void LowScaler<Pixel>::averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel*
 }
 
 template <typename Pixel>
-void LowScaler<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
-                                unsigned startY, unsigned endY, bool /*lower*/)
-{
-	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine = src.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
+void LowScaler<Pixel>::scale256(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
+) {
+	while (dstStartY < dstEndY) {
+		const Pixel* srcLine = src.getLinePtr(srcStartY++, (Pixel*)0);
+		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstStartY++);
 		Scaler<Pixel>::copyLine(srcLine, dstLine, 320, false);
 	}
 }

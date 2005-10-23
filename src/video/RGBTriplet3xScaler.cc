@@ -16,13 +16,12 @@ RGBTriplet3xScaler<Pixel>::RGBTriplet3xScaler(SDL_PixelFormat* format)
 }
 
 template <class Pixel>
-void RGBTriplet3xScaler<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
-                                 unsigned startY, unsigned endY, bool lower)
-{
-	unsigned y1 = 3 * startY + (lower ? 1 : 0);
-	unsigned y2 = 3 * endY   + (lower ? 1 : 0);
-	for (unsigned y = y1; y < y2; y += 3, ++startY) {
-		const Pixel* srcLine = src.getLinePtr(startY, (Pixel*)0);
+void RGBTriplet3xScaler<Pixel>::scale256(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
+) {
+	for (unsigned y = dstStartY; y < dstEndY; y += 3, ++srcStartY) {
+		const Pixel* srcLine = src.getLinePtr(srcStartY, (Pixel*)0);
 		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, y + 0);
 		for (int p = 0; p < 320; ++p) {
 			Pixel pix = srcLine[p];
@@ -33,7 +32,7 @@ void RGBTriplet3xScaler<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
 		//scale_1on3(srcLine, dstLine0, 320);
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 1);
 		copyLine(dstLine0, dstLine1, 960);
-		if (y == (720 - 2)) break;
+		if (y + 2 == dstEndY) break;
 		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 2);
 		// emulate a scanline for the 3rd row
 		for (int p = 0; p < 320; ++p) {
