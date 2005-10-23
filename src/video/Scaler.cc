@@ -8,6 +8,7 @@
 #include "HQ3xScaler.hh"
 #include "HQ2xLiteScaler.hh"
 #include "HQ3xLiteScaler.hh"
+#include "RGBTriplet3xScaler.hh"
 #include "LowScaler.hh"
 #include "FrameSource.hh"
 #include "HostCPU.hh"
@@ -44,6 +45,9 @@ auto_ptr<Scaler<Pixel> > Scaler<Pixel>::createScaler(
 	case SCALER_HQ3XLITE:
 		return auto_ptr<Scaler<Pixel> >(
 			new HQ3xLiteScaler<Pixel>(format));
+	case SCALER_RGBTRIPLET3X:
+		return auto_ptr<Scaler<Pixel> >(
+			new RGBTriplet3xScaler<Pixel>(format));
 	case SCALER_LOW:
 		return auto_ptr<Scaler<Pixel> >(
 			new LowScaler<Pixel>(format));

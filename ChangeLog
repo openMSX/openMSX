@@ -1,5 +1,9 @@
 $Id$
 
+2005-10-23 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added RGBTriplet3x scaler. Emulates a Trinitron effect, including
+	  a scanline. This is still very WIP and experimental!
+
 2005-10-22 Maarten ter Huurne <maarten@treewalker.org>
 	* More preparations for cleaner deinterlacing:
 	  - PostProcessor calculates destination Y (in addition to source Y)

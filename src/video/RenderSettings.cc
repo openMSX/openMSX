@@ -54,6 +54,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	scalerMap["hq3x"] = SCALER_HQ3X;
 	scalerMap["hq2xlite"] = SCALER_HQ2XLITE;
 	scalerMap["hq3xlite"] = SCALER_HQ3XLITE;
+	scalerMap["RGBtriplet3x"] = SCALER_RGBTRIPLET3X;
 	scalerMap["low"] = SCALER_LOW;
 	scaler.reset(new EnumSetting<ScalerID>(commandController,
 		"scaler", "scaler algorithm", SCALER_SIMPLE, scalerMap));
