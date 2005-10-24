@@ -1,5 +1,8 @@
 $Id$
 
+2005-10-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Improved Manuel's RGB scaler (still WIP)
+
 2005-10-23 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added RGBTriplet3x scaler. Emulates a Trinitron effect, including
 	  a scanline. This is still very WIP and experimental!
