@@ -19,12 +19,13 @@ RGBTriplet3xScaler<Pixel>::RGBTriplet3xScaler(
 {
 }
 
-static void calcSpil(unsigned x, unsigned& r, unsigned& s)
+template <class Pixel>
+void RGBTriplet3xScaler<Pixel>::calcSpil(unsigned x, unsigned& r, unsigned& s)
 {
-	r = 3 * x;
-	s = 0;
+	r = (c2 * x) >> 8;
+	s = (c1 * x) >> 8;
 	if (r > 255) {
-		s = (r - 255) / 2;
+		s += (r - 255) / 2;
 		r = 255;
 	}
 }
@@ -61,6 +62,8 @@ void RGBTriplet3xScaler<Pixel>::scale256(
 	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
 	int scanlineFactor = settings.getScanlineFactor();
+	c1 = settings.getBlurFactor();
+	c2 = (3 * 256) - (2 * c1);
 	
 	int y = dstStartY;
 
@@ -101,6 +104,10 @@ template <class Pixel>
 void RGBTriplet3xScaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
                                unsigned startY, unsigned endY)
 {
+	//int scanlineFactor = settings.getScanlineFactor();
+	c1 = settings.getBlurFactor();
+	c2 = (3 * 256) - (2 * c1);
+
 	for (unsigned y = startY; y < endY; y += 3) {
 		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, y + 0);
 

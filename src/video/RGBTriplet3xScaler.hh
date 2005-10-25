@@ -29,8 +29,10 @@ public:
 	//   scale to 320 wide local buffer and RGBify that
 
 private:
+	inline void calcSpil(unsigned x, unsigned& r, unsigned& s);
 	void rgbify(const Pixel* in, Pixel* out);
 
+	int c1, c2;
 	Scanline<Pixel> scanline;
 	const RenderSettings& settings;
 };
