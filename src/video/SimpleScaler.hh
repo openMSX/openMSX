@@ -4,25 +4,24 @@
 #define SIMPLESCALER_HH
 
 #include "Scaler2.hh"
+#include "Scanline.hh"
 
 namespace openmsx {
 
 class RenderSettings;
-class IntegerSetting;
 
 /**
- * Helper class to perform 'pixel x scalar' calculations. This is a template
- * class with specializations for word (16bpp) and unsigned (32bpp).
+ * Helper class to perform 'pixel x scalar' calculations.
+ * Also converts the result to 32bpp.
  */
-template<typename Pixel> class Multiply;
+template<typename Pixel> class Multiply32;
 
-template<> class Multiply<word> {
+template<> class Multiply32<word> {
 public:
-	Multiply(SDL_PixelFormat* format);
-	inline word multiply(word p, unsigned factor);
-	void setFactor(unsigned factor);
-	inline unsigned mul32(word p);
-	inline word conv32(unsigned p);
+	Multiply32(SDL_PixelFormat* format);
+	void setFactor32(unsigned factor);
+	inline unsigned mul32(word p) const;
+	inline word conv32(unsigned p) const;
 private:
 	unsigned tab[0x10000];
 	unsigned factor;
@@ -33,35 +32,14 @@ private:
 	word     Rmask2,  Gmask2,  Bmask2;
 };
 
-template<> class Multiply<unsigned> {
+template<> class Multiply32<unsigned> {
 public:
-	Multiply(SDL_PixelFormat* format);
-	inline unsigned multiply(unsigned p, unsigned factor);
-	inline void setFactor(unsigned factor);
-	inline unsigned mul32(unsigned p);
-	inline unsigned conv32(unsigned p);
+	Multiply32(SDL_PixelFormat* format);
+	inline void setFactor32(unsigned factor);
+	inline unsigned mul32(unsigned p) const;
+	inline unsigned conv32(unsigned p) const;
 private:
 	unsigned factor;
-};
-
-template<typename Pixel> class Darkener;
-
-template<> class Darkener<word> {
-public:
-	Darkener(SDL_PixelFormat* format);
-	void setFactor(unsigned f);
-	word* getTable();
-private:
-	word tab[0x10000];
-	unsigned factor;
-	SDL_PixelFormat* format;
-};
-
-template<> class Darkener<unsigned> {
-public:
-	Darkener(SDL_PixelFormat* format);
-	void setFactor(unsigned f);
-	word* getTable();
 };
 
 
@@ -75,30 +53,28 @@ class SimpleScaler: public Scaler2<Pixel>
 {
 public:
 	SimpleScaler(SDL_PixelFormat* format, RenderSettings& renderSettings);
-	virtual ~SimpleScaler();
 
 	virtual void scaleBlank(Pixel color, SDL_Surface* dst,
 	                        unsigned startY, unsigned endY);
 	virtual void scale256(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
-		);
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale512(FrameSource& src, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY, bool lower);
 
 private:
+	void drawScanline(const Pixel* in1, const Pixel* in2, Pixel* out,
+	                  int factor);
 	void blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha);
 	void blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha);
-	void average(const Pixel* src1, const Pixel* src2, Pixel* dst,
-	             unsigned alpha);
 
-	IntegerSetting& scanlineSetting;
-	IntegerSetting& blurSetting;
+	RenderSettings& settings;
 
-	Multiply<Pixel> mult1;
-	Multiply<Pixel> mult2;
-	Multiply<Pixel> mult3;
-	Darkener<Pixel> darkener;
+	Multiply32<Pixel> mult1;
+	Multiply32<Pixel> mult2;
+	Multiply32<Pixel> mult3;
+
+	Scanline<Pixel> scanline;
 };
 
 } // namespace openmsx

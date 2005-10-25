@@ -14,6 +14,7 @@ SRC_HDR:= \
 	DummyRenderer \
 	XRenderer \
 	BitmapConverter CharacterConverter \
+	Scanline \
 	Scaler LowScaler Scaler2 Scaler3 \
 	SimpleScaler SaI2xScaler Scale2xScaler \
 	HQ2xScaler HQ2xLiteScaler \

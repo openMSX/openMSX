@@ -79,4 +79,14 @@ RenderSettings::~RenderSettings()
 {
 }
 
+int RenderSettings::getBlurFactor() const
+{
+	return (horizontalBlur->getValue()) * 256 / 100;
+}
+
+int RenderSettings::getScanlineFactor() const
+{
+	return 255 - ((scanlineAlpha->getValue() * 255) / 100);
+}
+
 } // namespace openmsx

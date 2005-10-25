@@ -28,9 +28,9 @@ void LowScaler<Pixel>::averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel*
 
 template <typename Pixel>
 void LowScaler<Pixel>::scale256(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
-) {
+	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+{
 	while (dstStartY < dstEndY) {
 		const Pixel* srcLine = src.getLinePtr(srcStartY++, (Pixel*)0);
 		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstStartY++);

@@ -47,7 +47,7 @@ auto_ptr<Scaler<Pixel> > Scaler<Pixel>::createScaler(
 			new HQ3xLiteScaler<Pixel>(format));
 	case SCALER_RGBTRIPLET3X:
 		return auto_ptr<Scaler<Pixel> >(
-			new RGBTriplet3xScaler<Pixel>(format));
+			new RGBTriplet3xScaler<Pixel>(format, renderSettings));
 	case SCALER_LOW:
 		return auto_ptr<Scaler<Pixel> >(
 			new LowScaler<Pixel>(format));
@@ -60,7 +60,7 @@ auto_ptr<Scaler<Pixel> > Scaler<Pixel>::createScaler(
 template <class Pixel>
 Scaler<Pixel>::Scaler(SDL_PixelFormat* format_)
 	: format(*format_) // make a copy for faster access
-	, blender(Blender<Pixel>::createFromFormat(&format))
+	, blender(&format)
 {
 }
 

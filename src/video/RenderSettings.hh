@@ -50,17 +50,17 @@ public:
 	/** The amount of glow [0..100]. */
 	IntegerSetting& getGlow() const { return *glow; }
 
-	/** The amount of horizontal blur [0..100]. */
-	IntegerSetting& getHorizontalBlur() const { return *horizontalBlur; }
+	/** The amount of horizontal blur [0..256]. */
+	int getBlurFactor() const;
+
+	/** The alpha value [0..255] of the scanlines. */
+	int getScanlineFactor() const;
 
 	/** The current renderer. */
 	RendererFactory::RendererSetting& getRenderer() const { return *renderer; }
 
 	/** The current scaling algorithm. */
 	EnumSetting<ScalerID>& getScaler() const { return *scaler; }
-
-	/** The alpha value [0..100] of the scanlines. */
-	IntegerSetting& getScanlineAlpha() const { return *scanlineAlpha; }
 
 	/** The video source to display on the screen. */
 	VideoSourceSetting& getVideoSource() const { return *videoSource; }

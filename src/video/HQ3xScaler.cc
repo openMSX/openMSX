@@ -2848,8 +2848,8 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 template <class Pixel>
 void HQ3xScaler<Pixel>::scale256(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
-) {
+	SDL_Surface* dst, unsigned dstStartY, unsigned /*dstEndY*/)
+{
 	unsigned dstY = dstStartY;
 	unsigned prevY = srcStartY;
 	while (srcStartY < srcEndY) {

@@ -1,5 +1,9 @@
 $Id$
 
+2005-10-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Moved scanline code from SimpleScaler to new class Scanline
+	* Reused scanline code in RGBTriplet3x scaler
+
 2005-10-24 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented blank() for RGBTriplet3x scaler. Still no effect for
 	  non-256-wide modes... (so still WIP)

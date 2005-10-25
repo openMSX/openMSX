@@ -577,18 +577,17 @@ void GLRasterizer::paint()
 	if (frameDirty) storedFrame.draw(0, 0);
 
 	// Determine which effects to apply.
-	int blurSetting = renderSettings.getHorizontalBlur().getValue();
-	int scanlineAlpha =
-		(renderSettings.getScanlineAlpha().getValue() * 255) / 100;
+	int blurSetting = renderSettings.getBlurFactor();
+	int scanlineAlpha = renderSettings.getScanlineFactor();
 
 	// TODO: Turn off scanlines when deinterlacing.
 	bool horizontalBlur = blurSetting != 0;
-	bool scanlines = scanlineAlpha != 0;
+	bool scanlines = scanlineAlpha != 255;
 
 	// Blur effect.
 	if (horizontalBlur || scanlines) {
 		// Settings for blur rendering.
-		double blurFactor = blurSetting / 200.0;
+		double blurFactor = blurSetting / 512.0;
 		if (!scanlines) blurFactor *= 0.5;
 		if (horizontalBlur) {
 			// Draw stored frame with 1-pixel offsets to create a
@@ -608,13 +607,13 @@ void GLRasterizer::paint()
 		// TODO: These are always the same lines: use a display list.
 		// TODO: If interlace is active, draw scanlines on even/odd lines
 		//       for odd/even frames respectively.
-		if (scanlineAlpha == 255) {
+		if (scanlineAlpha == 0) {
 			glDisable(GL_BLEND);
 		} else {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
-		glColor4ub(0, 0, 0, scanlineAlpha);
+		glColor4ub(0, 0, 0, 255 - scanlineAlpha);
 		glLineWidth(static_cast<float>(SDL_GetVideoSurface()->h) / HEIGHT);
 		glBegin(GL_LINES);
 		for (float y = 0; y < HEIGHT; y += 2.0f) {

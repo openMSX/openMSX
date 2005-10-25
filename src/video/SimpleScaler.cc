@@ -11,36 +11,30 @@
 
 namespace openmsx {
 
-// class Multiply<unsigned>
+// class Multiply32<unsigned>
 
-Multiply<unsigned>::Multiply(SDL_PixelFormat* /*format*/)
+Multiply32<unsigned>::Multiply32(SDL_PixelFormat* /*format*/)
 {
 }
 
-inline unsigned Multiply<unsigned>::multiply(unsigned p, unsigned f)
-{
-	return ((((p & 0xFF00FF) * f) & 0xFF00FF00) |
-	        (((p & 0x00FF00) * f) & 0x00FF0000)) >> 8;
-}
-
-inline void Multiply<unsigned>::setFactor(unsigned f)
+inline void Multiply32<unsigned>::setFactor32(unsigned f)
 {
 	factor = f;
 }
 
-inline unsigned Multiply<unsigned>::mul32(unsigned p)
+inline unsigned Multiply32<unsigned>::mul32(unsigned p) const
 {
 	return (((p & 0xFF00FF) * factor) & 0xFF00FF00) |
 	       (((p & 0x00FF00) * factor) & 0x00FF0000);
 }
 
-inline unsigned Multiply<unsigned>::conv32(unsigned p)
+inline unsigned Multiply32<unsigned>::conv32(unsigned p) const
 {
 	return p >> 8;
 }
 
 
-// class Multiply<word>
+// class Multiply32<word>
 
 // gcc can optimize these rotate functions to just one instruction.
 // We don't really need a rotate, but we do need a shift over a positive or
@@ -54,7 +48,7 @@ static inline unsigned rotRight(unsigned a, unsigned n)
 	return (a >> n) | (a << (32 - n));
 }
 
-Multiply<word>::Multiply(SDL_PixelFormat* format)
+Multiply32<word>::Multiply32(SDL_PixelFormat* format)
 {
 	Rmask1 = format->Rmask;;
 	Gmask1 = format->Gmask;
@@ -83,16 +77,7 @@ Multiply<word>::Multiply(SDL_PixelFormat* format)
 	memset(tab, 0, sizeof(tab));
 }
 
-inline word Multiply<word>::multiply(word p, unsigned f)
-{
-	unsigned r = (((p & Rmask1) * f) >> 8) & Rmask1;
-	unsigned g = (((p & Gmask1) * f) >> 8) & Gmask1;
-	unsigned b = (((p & Bmask1) * f) >> 8) & Bmask1;
-	return r | g | b;
-
-}
-
-void Multiply<word>::setFactor(unsigned f)
+void Multiply32<word>::setFactor32(unsigned f)
 {
 	if (factor == f) {
 		return;
@@ -112,61 +97,16 @@ void Multiply<word>::setFactor(unsigned f)
 	}
 }
 
-inline unsigned Multiply<word>::mul32(word p)
+inline unsigned Multiply32<word>::mul32(word p) const
 {
 	return tab[p];
 }
 
-inline word Multiply<word>::conv32(unsigned p)
+inline word Multiply32<word>::conv32(unsigned p) const
 {
 	return (rotRight(p, Rshift3) & Rmask1) |
 	       (rotRight(p, Gshift3) & Gmask1) |
 	       (rotRight(p, Bshift3) & Bmask1);
-}
-
-
-// class Darkener
-
-Darkener<word>::Darkener(SDL_PixelFormat* format_)
-	: format(format_)
-{
-	factor = 0;
-	memset(tab, 0, sizeof(tab));
-}
-
-void Darkener<word>::setFactor(unsigned f)
-{
-	if (f == factor) {
-		return;
-	}
-	factor = f;
-
-	for (unsigned p = 0; p < 0x10000; ++p) {
-		tab[p] = ((((p & format->Rmask) * f) >> 8) & format->Rmask) |
-		         ((((p & format->Gmask) * f) >> 8) & format->Gmask) |
-		         ((((p & format->Bmask) * f) >> 8) & format->Bmask);
-	}
-}
-
-word* Darkener<word>::getTable()
-{
-	return tab;
-}
-
-
-Darkener<unsigned>::Darkener(SDL_PixelFormat* /*format*/)
-{
-}
-
-void Darkener<unsigned>::setFactor(unsigned /*f*/)
-{
-	assert(false);
-}
-
-word* Darkener<unsigned>::getTable()
-{
-	assert(false);
-	return NULL;
 }
 
 
@@ -176,17 +116,11 @@ template <class Pixel>
 SimpleScaler<Pixel>::SimpleScaler(SDL_PixelFormat* format,
                                   RenderSettings& renderSettings)
 	: Scaler2<Pixel>(format)
-	, scanlineSetting(renderSettings.getScanlineAlpha())
-	, blurSetting(renderSettings.getHorizontalBlur())
+	, settings(renderSettings)
 	, mult1(format)
 	, mult2(format)
 	, mult3(format)
-	, darkener(format)
-{
-}
-
-template <class Pixel>
-SimpleScaler<Pixel>::~SimpleScaler()
+	, scanline(format)
 {
 }
 
@@ -194,20 +128,20 @@ template <class Pixel>
 void SimpleScaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
                                      unsigned startY, unsigned endY)
 {
-	Pixel scanlineColor = scanlineSetting.getValue() == 0
-		? color
-		: mult1.multiply(color,
-		                255 - (scanlineSetting.getValue() * 255) / 100);
-
-	unsigned y = startY;
-	while (y < endY) {
-		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, y);
+	int scanlineFactor = settings.getScanlineFactor();
+	if (scanlineFactor == 0) {
+		// no scanlines, use default routine
+		Scaler<Pixel>::scaleBlank(color, dst, startY, endY);
+		return;
+	}
+	
+	Pixel scanlineColor = scanline.darken(color, scanlineFactor);
+	for (unsigned y = startY; y < endY; y += 2) {
+		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, y + 0);
 		Scaler<Pixel>::fillLine(dstUpper, color, 640);
-		y++;
-		if (y == endY) break;
-		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, y);
+		if ((y + 1)== endY) break;
+		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, y + 1);
 		Scaler<Pixel>::fillLine(dstLower, scanlineColor, 640);
-		y++;
 	}
 }
 
@@ -345,8 +279,8 @@ void SimpleScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 	#endif
 
 	// non-MMX routine, both 16bpp and 32bpp
-	mult1.setFactor(c1);
-	mult2.setFactor(c2);
+	mult1.setFactor32(c1);
+	mult2.setFactor32(c2);
 
 	Pixel p0 = pIn[0];
 	Pixel p1;
@@ -507,8 +441,8 @@ void SimpleScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 	}
 	#endif
 
-	mult1.setFactor(c1);
-	mult3.setFactor(c2);
+	mult1.setFactor32(c1);
+	mult3.setFactor32(c2);
 
 	Pixel p0 = pIn[0];
 	Pixel p1;
@@ -536,232 +470,23 @@ void SimpleScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 }
 
 template <class Pixel>
-void SimpleScaler<Pixel>::average(
-	const Pixel* src1, const Pixel* src2, Pixel* dst, unsigned alpha)
+void SimpleScaler<Pixel>::drawScanline(
+		const Pixel* in1, const Pixel* in2, Pixel* out, int factor)
 {
-	if (alpha == 255) {
-		// no average, just copy top line
-		Scaler<Pixel>::copyLine(src1, dst, 640);
-		return;
-	}
-
-	#ifdef ASM_X86
-	const HostCPU& cpu = HostCPU::getInstance();
-	if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
-		// extended-MMX routine, 32bpp
-		asm (
-			"movd	%3, %%mm6;"
-			"pxor	%%mm7, %%mm7;"
-			"xorl	%%eax, %%eax;"
-			"pshufw $0, %%mm6, %%mm6;"
-			".p2align 4,,15;"
-		"1:"
-			"movq	(%0,%%eax), %%mm0;"
-			"pavgb	(%1,%%eax), %%mm0;"
-			"movq	%%mm0, %%mm4;"
-			"punpcklbw %%mm7, %%mm0;"
-			"punpckhbw %%mm7, %%mm4;"
-			"pmulhuw %%mm6, %%mm0;"
-			"pmulhuw %%mm6, %%mm4;"
-			"packuswb %%mm4, %%mm0;"
-
-			"movq	8(%0,%%eax), %%mm1;"
-			"pavgb	8(%1,%%eax), %%mm1;"
-			"movq	%%mm1, %%mm5;"
-			"punpcklbw %%mm7, %%mm1;"
-			"punpckhbw %%mm7, %%mm5;"
-			"pmulhuw %%mm6, %%mm1;"
-			"pmulhuw %%mm6, %%mm5;"
-			"packuswb %%mm5, %%mm1;"
-
-			"movq	16(%0,%%eax), %%mm2;"
-			"pavgb	16(%1,%%eax), %%mm2;"
-			"movq	%%mm2, %%mm4;"
-			"punpcklbw %%mm7, %%mm2;"
-			"punpckhbw %%mm7, %%mm4;"
-			"pmulhuw %%mm6, %%mm2;"
-			"pmulhuw %%mm6, %%mm4;"
-			"packuswb %%mm4, %%mm2;"
-
-			"movq	24(%0,%%eax), %%mm3;"
-			"pavgb	24(%1,%%eax), %%mm3;"
-			"movq	%%mm3, %%mm5;"
-			"punpcklbw %%mm7, %%mm3;"
-			"punpckhbw %%mm7, %%mm5;"
-			"pmulhuw %%mm6, %%mm3;"
-			"pmulhuw %%mm6, %%mm5;"
-			"packuswb %%mm5, %%mm3;"
-
-			"movntq %%mm0,   (%2,%%eax);"
-			"movntq %%mm1,  8(%2,%%eax);"
-			"movntq %%mm2, 16(%2,%%eax);"
-			"movntq %%mm3, 24(%2,%%eax);"
-
-			"addl	$32, %%eax;"
-			"cmpl	$2560, %%eax;"
-			"jl	1b;"
-
-			"emms;"
-
-			: // no output
-			: "r" (src1)  // 0
-			, "r" (src2)  // 1
-			, "r" (dst)   // 2
-			, "r" (alpha << 8) // 3
-			: "eax"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
-			#endif
-		);
-		return;
-
-	} else if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
-		// MMX routine, 32bpp
-		asm (
-			"movd	%3, %%mm6;"
-			"pxor	%%mm7, %%mm7;"
-			"punpcklwd %%mm6, %%mm6;"
-			"xorl	%%eax, %%eax;"
-			"punpckldq %%mm6, %%mm6;"
-			".p2align 4,,15;"
-		"1:"
-			// load
-			"movq	(%0,%%eax), %%mm0;"
-			"movq	%%mm0, %%mm1;"
-			"movq	(%1,%%eax), %%mm2;"
-			"movq	%%mm2, %%mm3;"
-			// unpack
-			"punpcklbw %%mm7, %%mm0;"
-			"punpckhbw %%mm7, %%mm1;"
-			"punpcklbw %%mm7, %%mm2;"
-			"punpckhbw %%mm7, %%mm3;"
-			// average
-			"paddw	%%mm2, %%mm0;"
-			"paddw	%%mm3, %%mm1;"
-			// darken
-			"pmulhw	%%mm6, %%mm0;"
-			"pmulhw	%%mm6, %%mm1;"
-			// pack
-			"packuswb %%mm1, %%mm0;"
-			// store
-			"movq %%mm0, (%2,%%eax);"
-
-			"addl	$8, %%eax;"
-			"cmpl	$2560, %%eax;"
-			"jl	1b;"
-
-			"emms;"
-
-			: // no output
-			: "r" (src1)  // 0
-			, "r" (src2)  // 1
-			, "r" (dst)   // 2
-			, "r" (alpha << 7) // 3
-			: "eax"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3", "mm6", "mm7"
-			#endif
-		);
-		return;
-	}
-
-	if ((sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
-		// extended-MMX routine, 16bpp
-
-		darkener.setFactor(alpha);
-		word* table = darkener.getTable();
-		Pixel mask = ~Scaler<Pixel>::blender.getMask();
-
-		asm (
-			"movd	%4, %%mm7;"
-			"xorl	%%ecx, %%ecx;"
-			"pshufw	$0, %%mm7, %%mm7;"
-
-			".p2align 4,,15;"
-		"1:"	"movq	 (%0,%%ecx), %%mm0;"
-			"movq	8(%0,%%ecx), %%mm1;"
-			"movq	 (%1,%%ecx), %%mm2;"
-			"movq	8(%1,%%ecx), %%mm3;"
-
-			"movq	%%mm7, %%mm4;"
-			"movq	%%mm7, %%mm5;"
-			"pand	%%mm7, %%mm0;"
-			"pand	%%mm7, %%mm1;"
-			"pandn  %%mm2, %%mm4;"
-			"pandn  %%mm3, %%mm5;"
-			"pand	%%mm7, %%mm2;"
-			"pand	%%mm7, %%mm3;"
-			"pavgw	%%mm2, %%mm0;"
-			"pavgw	%%mm3, %%mm1;"
-			"paddw	%%mm4, %%mm0;"
-			"paddw	%%mm5, %%mm1;"
-
-			"pextrw	$0, %%mm0, %%eax;"
-			"movw	(%2,%%eax,2), %%ax;"
-			"pinsrw	$0, %%eax, %%mm0;"
-			"pextrw	$0, %%mm1, %%eax;"
-			"movw	(%2,%%eax,2), %%ax;"
-			"pinsrw	$0, %%eax, %%mm1;"
-
-			"pextrw	$1, %%mm0, %%eax;"
-			"movw	(%2,%%eax,2), %%ax;"
-			"pinsrw	$1, %%eax, %%mm0;"
-			"pextrw	$1, %%mm1, %%eax;"
-			"movw	(%2,%%eax,2), %%ax;"
-			"pinsrw	$1, %%eax, %%mm1;"
-
-			"pextrw	$2, %%mm0, %%eax;"
-			"movw	(%2,%%eax,2), %%ax;"
-			"pinsrw	$2, %%eax, %%mm0;"
-			"pextrw	$2, %%mm1, %%eax;"
-			"movw	(%2,%%eax,2), %%ax;"
-			"pinsrw	$2, %%eax, %%mm1;"
-
-			"pextrw	$3, %%mm0, %%eax;"
-			"movw	(%2,%%eax,2), %%ax;"
-			"pinsrw	$3, %%eax, %%mm0;"
-			"pextrw	$3, %%mm1, %%eax;"
-			"movw	(%2,%%eax,2), %%ax;"
-			"pinsrw	$3, %%eax, %%mm1;"
-
-			"movntq	%%mm0,   (%3,%%ecx);"
-			"movntq	%%mm1,  8(%3,%%ecx);"
-
-			"addl	$16, %%ecx;"
-			"cmpl	$1280, %%ecx;"
-			"jl	1b;"
-			"emms;"
-			: // no output
-			: "r" (src1)  // 0
-			, "r" (src2)  // 1
-			, "r" (table) // 2
-			, "r" (dst)   // 3
-			, "m" (mask)   // 4
-			: "eax", "ecx"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm7"
-			#endif
-		);
-		return;
-	}
-	// MMX routine 16bpp is missing, but it's difficult to write because
-	// of the missing "pextrw" and "pinsrw" instructions
-
-	#endif
-
-	// non-MMX routine, both 16bpp and 32bpp
-	for (unsigned x = 0; x < 640; ++x) {
-		dst[x] = mult1.multiply(blend(src1[x], src2[x]), alpha);
+	if (factor != 255) {
+		scanline.draw(in1, in2, out, factor, 640);
+	} else {
+		copyLine(in1, out, 640);
 	}
 }
 
 template <class Pixel>
 void SimpleScaler<Pixel>::scale256(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
-) {
-	int blur = (blurSetting.getValue() * 256) / 100;
-	int scanline = 255 - (scanlineSetting.getValue() * 255) / 100;
+	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+{
+	int blur = settings.getBlurFactor();
+	int scanlineFactor = settings.getScanlineFactor();
 
 	unsigned dstY = dstStartY;
 	const Pixel* srcLine = src.getLinePtr(srcStartY++, (Pixel*)0);
@@ -774,16 +499,16 @@ void SimpleScaler<Pixel>::scale256(
 		blur256(srcLine, dstLine0, blur);
 
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY);
-		average(prevDstLine0, dstLine0, dstLine1, scanline);
-		prevDstLine0 = dstLine0;
+		drawScanline(prevDstLine0, dstLine0, dstLine1, scanlineFactor);
 
+		prevDstLine0 = dstLine0;
 		dstY += 2;
 	}
 
 	// When interlace is enabled, the bottom line can fall off the screen.
 	if (dstY < dstEndY) {
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY);
-		average(prevDstLine0, prevDstLine0, dstLine1, scanline);
+		drawScanline(prevDstLine0, prevDstLine0, dstLine1, scanlineFactor);
 	}
 }
 
@@ -791,8 +516,8 @@ template <class Pixel>
 void SimpleScaler<Pixel>::scale512(FrameSource& src, SDL_Surface* dst,
                                    unsigned startY, unsigned endY, bool lower)
 {
-	int blur = (blurSetting.getValue() * 256) / 100;
-	int scanline = 255 - (scanlineSetting.getValue() * 255) / 100;
+	int blur = settings.getBlurFactor();
+	int scanlineFactor = settings.getScanlineFactor();
 
 	unsigned dstY = 2 * startY + (lower ? 1 : 0);
 	const Pixel* srcLine = src.getLinePtr(startY++, (Pixel*)0);
@@ -806,16 +531,16 @@ void SimpleScaler<Pixel>::scale512(FrameSource& src, SDL_Surface* dst,
 		blur512(srcLine, dstLine0, blur);
 
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY);
-		average(prevDstLine0, dstLine0, dstLine1, scanline);
+		drawScanline(prevDstLine0, dstLine0, dstLine1, scanlineFactor);
+		
 		prevDstLine0 = dstLine0;
-
 		dstY += 2;
 	}
 
 	// When interlace is enabled, bottom line can fall off the screen.
 	if (dstY < 480) {
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY);
-		average(prevDstLine0, dstLine0, dstLine1, scanline);
+		drawScanline(prevDstLine0, dstLine0, dstLine1, scanlineFactor);
 	}
 }
 
