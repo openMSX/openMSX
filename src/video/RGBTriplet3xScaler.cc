@@ -97,6 +97,72 @@ void RGBTriplet3xScaler<Pixel>::scale256(
 	}
 }
 
+template <class Pixel>
+/*
+void RGBTriplet3xScaler<Pixel>::scale512(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+		*/
+void RGBTriplet3xScaler<Pixel>::scale512(FrameSource& src, SDL_Surface* dst,
+                                 unsigned srcStartY, unsigned srcEndY, bool lower)
+{
+	unsigned dstStartY = 3 * srcStartY + (lower ? 1 : 0);
+        unsigned dstEndY = 3 * srcEndY   + (lower ? 1 : 0);
+	int scanlineFactor = settings.getScanlineFactor();
+	c1 = settings.getBlurFactor();
+	c2 = (3 * 256) - (2 * c1);
+	
+	int y = dstStartY;
+
+	const Pixel* srcLine = src.getLinePtr(srcStartY++, (Pixel*)0);
+	Pixel* prevDstLine0 = Scaler<Pixel>::linePtr(dst, y + 0);
+	Pixel tmp[320];
+	halve(srcLine, tmp, 320);
+	rgbify(tmp, prevDstLine0);
+
+	Pixel* dstLine1     = Scaler<Pixel>::linePtr(dst, y + 1);
+	copyLine(prevDstLine0, dstLine1, 960);
+
+	for (/* */; y < ((int)dstEndY - 4); y += 3, srcStartY += 1) {
+		const Pixel* srcLine = src.getLinePtr(srcStartY, (Pixel*)0);
+		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, y + 3);
+		halve(srcLine, tmp, 320);
+		rgbify(tmp, dstLine0);
+
+		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 4);
+		copyLine(dstLine0, dstLine1, 960);
+
+		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 2);
+		scanline.draw(prevDstLine0, dstLine0, dstLine2,
+		              scanlineFactor, 960);
+
+		prevDstLine0 = dstLine0;
+	}
+
+	// When interlace is enabled, the bottom line can fall off the screen.
+	if ((y + 2) < (int)dstEndY) {
+		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 2);
+		scanline.draw(prevDstLine0, prevDstLine0, dstLine2,
+		              scanlineFactor, 960);
+	}
+
+	/*
+        for (unsigned y = startY; y < endY; ++y) {
+                const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
+                Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 3 * y + 0);
+		Pixel* tmp[320];
+                halve(srcLine0, tmp, 320);
+		rgbify(tmp, dstLine0);
+
+                Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 3 * y + 1);
+		copyLine(dstLine0, dstLine1, 960);
+                
+		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, 3 * y + 2);
+		copyLine(dstLine0, dstLine2, 960);
+        }
+	*/
+}
+
 
 // the following is mostly copied from scale256 (with some minor optimizations
 // TODO: see if we can avoid code duplication
