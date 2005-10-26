@@ -3,7 +3,7 @@
 #ifndef SCALER_HH
 #define SCALER_HH
 
-#include "Blender.hh"
+#include "PixelOperations.hh"
 #include "openmsx.hh"
 #include <SDL.h>
 #include <cassert>
@@ -177,7 +177,7 @@ protected:
 	/** Return the average of two pixels
 	  */
 	inline Pixel blend(Pixel p1, Pixel p2) {
-		return blender.blend(p1, p2);
+		return pixelOps.template blend<1, 1>(p1, p2);
 	}
 
 	/** Calculate the average of two input lines.
@@ -196,21 +196,7 @@ protected:
 	  */
 	void halve(const Pixel* pIn, Pixel* pOut, unsigned width);
 
-	SDL_PixelFormat format;
-	Blender<Pixel> blender;
-
-private:
-	inline unsigned red(Pixel pixel);
-	inline unsigned green(Pixel pixel);
-	inline unsigned blue(Pixel pixel);
-	inline Pixel combine(unsigned r, unsigned g, unsigned b);
-
-	template <unsigned w1, unsigned w2>
-	inline Pixel blendPixels2(const Pixel* source);
-	template <unsigned w1, unsigned w2, unsigned w3>
-	inline Pixel blendPixels3(const Pixel* source);
-	template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
-	inline Pixel blendPixels4(const Pixel* source);
+	PixelOperations<Pixel> pixelOps;
 };
 
 } // namespace openmsx

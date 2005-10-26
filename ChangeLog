@@ -2,6 +2,8 @@ $Id$
 
 2005-10-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Changed signature of scale512() method
+	* Replaced Blender with PixelOperations class:
+	   - puts all blend functions in one place
 
 2005-10-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Moved scanline code from SimpleScaler to new class Scanline

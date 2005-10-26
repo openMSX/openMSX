@@ -3,7 +3,7 @@
 #ifndef SCANLINE_HH
 #define SCANLINE_HH
 
-#include "Blender.hh"
+#include "PixelOperations.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
@@ -65,7 +65,7 @@ public:
 
 protected:
 	Multiply<Pixel> darkener;
-	Blender<Pixel> blender;
+	PixelOperations<Pixel> pixelOps;
 };
 
 } // namespace openmsx

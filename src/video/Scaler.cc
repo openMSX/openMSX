@@ -58,9 +58,8 @@ auto_ptr<Scaler<Pixel> > Scaler<Pixel>::createScaler(
 }
 
 template <class Pixel>
-Scaler<Pixel>::Scaler(SDL_PixelFormat* format_)
-	: format(*format_) // make a copy for faster access
-	, blender(&format)
+Scaler<Pixel>::Scaler(SDL_PixelFormat* format)
+	: pixelOps(format)
 {
 }
 
@@ -482,7 +481,7 @@ void Scaler<Pixel>::halve(const Pixel* pIn, Pixel* pOut, unsigned width)
 	}
 	if ((sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
 		// extended-MMX routine, 16bpp
-		unsigned mask = Scaler<Pixel>::blender.getMask();
+		unsigned mask = pixelOps.getBlendMask();
 		mask = ~(mask | (mask << 16));
 		asm volatile (
 			"movd	%2, %%mm7;"
@@ -546,7 +545,7 @@ void Scaler<Pixel>::halve(const Pixel* pIn, Pixel* pOut, unsigned width)
 	}
 	if ((sizeof(Pixel) == 2) && cpu.hasMMX()) {
 		// MMX routine, 16bpp
-		unsigned mask = Scaler<Pixel>::blender.getMask();
+		unsigned mask = pixelOps.getBlendMask();
 		mask = ~(mask | (mask << 16));
 		asm volatile (
 			"movd	%2, %%mm7;"
@@ -707,77 +706,6 @@ void Scaler<Pixel>::fillLine(Pixel* pOut, Pixel colour, unsigned width)
 
 
 template <class Pixel>
-inline unsigned Scaler<Pixel>::red(Pixel pix) {
-	return (pix & format.Rmask) >> format.Rshift;
-}
-
-template <class Pixel>
-inline unsigned Scaler<Pixel>::green(Pixel pix) {
-	return (pix & format.Gmask) >> format.Gshift;
-}
-
-template <class Pixel>
-inline unsigned Scaler<Pixel>::blue(Pixel pix) {
-	return (pix & format.Bmask) >> format.Bshift;
-}
-
-template <class Pixel>
-inline Pixel Scaler<Pixel>::combine(unsigned r, unsigned g, unsigned b)
-{
-	return (Pixel)(((r << format.Rshift) & format.Rmask) |
-	               ((g << format.Gshift) & format.Gmask) |
-	               ((b << format.Bshift) & format.Bmask));
-}
-
-template <class Pixel>
-template <unsigned w1, unsigned w2>
-inline Pixel Scaler<Pixel>::blendPixels2(const Pixel* source)
-{
-	unsigned total = w1 + w2;
-	unsigned r = (red  (source[0]) * w1 + red  (source[1]) * w2) / total;
-	unsigned g = (green(source[0]) * w1 + green(source[1]) * w2) / total;
-	unsigned b = (blue (source[0]) * w1 + blue (source[1]) * w2) / total;
-	return combine(r, g, b);
-}
-
-template <class Pixel>
-template <unsigned w1, unsigned w2, unsigned w3>
-inline Pixel Scaler<Pixel>::blendPixels3(const Pixel* source)
-{
-	unsigned total = w1 + w2 + w3;
-	unsigned r = (red  (source[0]) * w1 +
-	              red  (source[1]) * w2 +
-	              red  (source[2]) * w3) / total;
-	unsigned g = (green(source[0]) * w1 +
-	              green(source[1]) * w2 +
-	              green(source[2]) * w3) / total;
-	unsigned b = (blue (source[0]) * w1 +
-	              blue (source[1]) * w2 +
-	              blue (source[2]) * w3) / total;
-	return combine(r, g, b);
-}
-
-template <class Pixel>
-template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
-inline Pixel Scaler<Pixel>::blendPixels4(const Pixel* source)
-{
-	unsigned total = w1 + w2 + w3 + w4;
-	unsigned r = (red  (source[0]) * w1 +
-	              red  (source[1]) * w2 +
-	              red  (source[2]) * w3 +
-	              red  (source[3]) * w4) / total;
-	unsigned g = (green(source[0]) * w1 +
-	              green(source[1]) * w2 +
-	              green(source[2]) * w3 +
-	              green(source[3]) * w4) / total;
-	unsigned b = (blue (source[0]) * w1 +
-	              blue (source[1]) * w2 +
-	              blue (source[2]) * w3 +
-	              blue (source[3]) * w4) / total;
-	return combine(r, g, b);
-}
-
-template <class Pixel>
 void Scaler<Pixel>::scale_1on3(
 	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
 {
@@ -815,7 +743,7 @@ void Scaler<Pixel>::scale_4on1(
 	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; p += 4) {
-		*outPixels++ = blendPixels4<1, 1, 1, 1>(&inPixels[p]);
+		*outPixels++ = pixelOps.template blend4<1, 1, 1, 1>(&inPixels[p]);
 	}
 }
 
@@ -824,9 +752,9 @@ void Scaler<Pixel>::scale_2on3(
 	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; p += 2) {
-		*outPixels++ =                     inPixels[p + 0];
-		*outPixels++ = blendPixels2<1, 1>(&inPixels[p + 0]);
-		*outPixels++ =                     inPixels[p + 1];
+		*outPixels++ =                                 inPixels[p + 0];
+		*outPixels++ = pixelOps.template blend2<1, 1>(&inPixels[p + 0]);
+		*outPixels++ =                                 inPixels[p + 1];
 	}
 }
 
@@ -835,9 +763,9 @@ void Scaler<Pixel>::scale_4on3(
 	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; p += 4) {
-		*outPixels++ = blendPixels2<3, 1>(&inPixels[p + 0]);
-		*outPixels++ = blendPixels2<1, 1>(&inPixels[p + 1]);
-		*outPixels++ = blendPixels2<1, 3>(&inPixels[p + 2]);
+		*outPixels++ = pixelOps.template blend2<3, 1>(&inPixels[p + 0]);
+		*outPixels++ = pixelOps.template blend2<1, 1>(&inPixels[p + 1]);
+		*outPixels++ = pixelOps.template blend2<1, 3>(&inPixels[p + 2]);
 	}
 }
 
@@ -846,9 +774,9 @@ void Scaler<Pixel>::scale_8on3(
 	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; p += 8) {
-		*outPixels++ = blendPixels3<3, 3, 2>   (&inPixels[p + 0]);
-		*outPixels++ = blendPixels4<1, 3, 3, 1>(&inPixels[p + 2]);
-		*outPixels++ = blendPixels3<2, 3, 3>   (&inPixels[p + 5]);
+		*outPixels++ = pixelOps.template blend3<3, 3, 2>   (&inPixels[p + 0]);
+		*outPixels++ = pixelOps.template blend4<1, 3, 3, 1>(&inPixels[p + 2]);
+		*outPixels++ = pixelOps.template blend3<2, 3, 3>   (&inPixels[p + 5]);
 	}
 }
 
@@ -857,15 +785,15 @@ void Scaler<Pixel>::scale_2on9(
 	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; p += 2) {
-		*outPixels++ =                     inPixels[p + 0];
-		*outPixels++ =                     inPixels[p + 0];
-		*outPixels++ =                     inPixels[p + 0];
-		*outPixels++ =                     inPixels[p + 0];
-		*outPixels++ = blendPixels2<1, 1>(&inPixels[p + 0]);
-		*outPixels++ =                     inPixels[p + 1];
-		*outPixels++ =                     inPixels[p + 1];
-		*outPixels++ =                     inPixels[p + 1];
-		*outPixels++ =                     inPixels[p + 1];
+		*outPixels++ =                                 inPixels[p + 0];
+		*outPixels++ =                                 inPixels[p + 0];
+		*outPixels++ =                                 inPixels[p + 0];
+		*outPixels++ =                                 inPixels[p + 0];
+		*outPixels++ = pixelOps.template blend2<1, 1>(&inPixels[p + 0]);
+		*outPixels++ =                                 inPixels[p + 1];
+		*outPixels++ =                                 inPixels[p + 1];
+		*outPixels++ =                                 inPixels[p + 1];
+		*outPixels++ =                                 inPixels[p + 1];
 	}
 }
 
@@ -874,15 +802,15 @@ void Scaler<Pixel>::scale_4on9(
 	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; p += 2) {
-		*outPixels++ =                     inPixels[p + 0];
-		*outPixels++ =                     inPixels[p + 0];
-		*outPixels++ = blendPixels2<1, 3>(&inPixels[p + 0]);
-		*outPixels++ =                     inPixels[p + 1];
-		*outPixels++ = blendPixels2<1, 1>(&inPixels[p + 1]);
-		*outPixels++ =                     inPixels[p + 2];
-		*outPixels++ = blendPixels2<3, 1>(&inPixels[p + 2]);
-		*outPixels++ =                     inPixels[p + 3];
-		*outPixels++ =                     inPixels[p + 3];
+		*outPixels++ =                                 inPixels[p + 0];
+		*outPixels++ =                                 inPixels[p + 0];
+		*outPixels++ = pixelOps.template blend2<1, 3>(&inPixels[p + 0]);
+		*outPixels++ =                                 inPixels[p + 1];
+		*outPixels++ = pixelOps.template blend2<1, 1>(&inPixels[p + 1]);
+		*outPixels++ =                                 inPixels[p + 2];
+		*outPixels++ = pixelOps.template blend2<3, 1>(&inPixels[p + 2]);
+		*outPixels++ =                                 inPixels[p + 3];
+		*outPixels++ =                                 inPixels[p + 3];
 	}
 }
 
@@ -891,15 +819,15 @@ void Scaler<Pixel>::scale_8on9(
 	const Pixel* inPixels, Pixel* outPixels, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; p += 2) {
-		*outPixels++ =                     inPixels[p + 0];
-		*outPixels++ = blendPixels2<1, 7>(&inPixels[p + 0]);
-		*outPixels++ = blendPixels2<1, 3>(&inPixels[p + 1]);
-		*outPixels++ = blendPixels2<3, 5>(&inPixels[p + 2]);
-		*outPixels++ = blendPixels2<1, 1>(&inPixels[p + 3]);
-		*outPixels++ = blendPixels2<5, 3>(&inPixels[p + 4]);
-		*outPixels++ = blendPixels2<3, 1>(&inPixels[p + 5]);
-		*outPixels++ = blendPixels2<7, 1>(&inPixels[p + 6]);
-		*outPixels++ =                     inPixels[p + 7];
+		*outPixels++ =                                 inPixels[p + 0];
+		*outPixels++ = pixelOps.template blend2<1, 7>(&inPixels[p + 0]);
+		*outPixels++ = pixelOps.template blend2<1, 3>(&inPixels[p + 1]);
+		*outPixels++ = pixelOps.template blend2<3, 5>(&inPixels[p + 2]);
+		*outPixels++ = pixelOps.template blend2<1, 1>(&inPixels[p + 3]);
+		*outPixels++ = pixelOps.template blend2<5, 3>(&inPixels[p + 4]);
+		*outPixels++ = pixelOps.template blend2<3, 1>(&inPixels[p + 5]);
+		*outPixels++ = pixelOps.template blend2<7, 1>(&inPixels[p + 6]);
+		*outPixels++ =                                 inPixels[p + 7];
 	}
 }
 

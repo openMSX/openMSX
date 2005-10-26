@@ -81,7 +81,7 @@ const unsigned* Multiply<unsigned>::getTable() const
 
 template <class Pixel> Scanline<Pixel>::Scanline(SDL_PixelFormat* format)
 	: darkener(format)
-	, blender(format)
+	, pixelOps(format)
 {
 }
 
@@ -216,7 +216,7 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 
 		darkener.setFactor(factor);
 		const Pixel* table = darkener.getTable();
-		Pixel mask = ~blender.getMask();
+		Pixel mask = ~pixelOps.getBlendMask();
 		
 		unsigned width2 = width * 2;
 		asm (
@@ -300,7 +300,8 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 	// non-MMX routine, both 16bpp and 32bpp
 	darkener.setFactor(factor);
 	for (unsigned x = 0; x < width; ++x) {
-		dst[x] = darkener.multiply(blender.blend(src1[x], src2[x]));
+		dst[x] = darkener.multiply(
+			pixelOps.template blend<1, 1>(src1[x], src2[x]));
 	}
 }
 

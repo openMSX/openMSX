@@ -35,7 +35,7 @@ HDR_ONLY:= \
 	DisplayMode \
 	VRAMObserver \
 	SpriteConverter \
-	Blender \
+	PixelOperations \
 	Rasterizer \
 	FrameSource \
 	HQCommon
