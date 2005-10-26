@@ -3,6 +3,10 @@ $Id$
 2005-10-26 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented adjustable scanline in scaleBlank() for RGBTriplet3x
 	  scaler.
+	* Let rgbify (in RGBTriplet3x) use pixelOps to access RGB components.
+	  Makes it almost work in 16bpp, except for the spill threshold.
+	  TODO: fix this and implement other widths (as soon as this can be
+	  done without loads of code duplication...)
 
 2005-10-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Changed signature of scale512() method

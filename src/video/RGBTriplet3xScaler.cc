@@ -22,6 +22,7 @@ RGBTriplet3xScaler<Pixel>::RGBTriplet3xScaler(
 template <class Pixel>
 void RGBTriplet3xScaler<Pixel>::calcSpil(unsigned x, unsigned& r, unsigned& s)
 {
+	// TODO: adjust for 16bpp (spill earlier than 255)
 	r = (c2 * x) >> 8;
 	s = (c1 * x) >> 8;
 	if (r > 255) {
@@ -34,22 +35,25 @@ template <class Pixel>
 void RGBTriplet3xScaler<Pixel>::rgbify(const Pixel* in, Pixel* out, unsigned inwidth)
 {
 	unsigned r, g, b, rs, gs, bs;
-	calcSpil((in[0] >> 16) & 0xFF, r, rs);
-	calcSpil((in[0] >>  8) & 0xFF, g, gs);
-	calcSpil((in[0] >>  0) & 0xFF, b, bs);
-	/* this is old code to process the edges correctly. We're skipping it now for efficiency
+	calcSpil(Scaler<Pixel>::pixelOps.red(in[0]), r, rs);
+	calcSpil(Scaler<Pixel>::pixelOps.green(in[0]), g, gs);
+	calcSpil(Scaler<Pixel>::pixelOps.blue(in[0]), b, bs);
+	/* this is old code to process the edges correctly.
+	 * We're skipping it now for efficiency and simplicity.
+	 * Note that it is 32bpp only. It's left here in case we want to use
+	 * it after all.
 	out[0] = (r  << 16) + (gs << 8);
 	out[1] = (rs << 16) + (g  << 8) + (bs << 0);
 	calcSpil((in[1] >> 16) & 0xFF, r, rs);
 	out[2] = (rs << 16) + (gs << 8) + (b  << 0);
 	*/
 	for (unsigned i = 0; i < inwidth; ++i) {
-		calcSpil((in[i + 0] >>  8) & 0xFF, g, gs);
-		out[3 * i + 0] = (r  << 16) + (gs << 8) + (bs << 0);
-		calcSpil((in[i + 0] >>  0) & 0xFF, b, bs);
-		out[3 * i + 1] = (rs << 16) + (g  << 8) + (bs << 0);
-		calcSpil((in[(i + 1) % inwidth] >> 16) & 0xFF, r, rs);
-		out[3 * i + 2] = (rs << 16) + (gs << 8) + (b  << 0);
+		calcSpil(Scaler<Pixel>::pixelOps.green(in[i + 0]), g, gs);
+		out[3 * i + 0] = Scaler<Pixel>::pixelOps.combine(r, gs, bs);
+		calcSpil(Scaler<Pixel>::pixelOps.blue(in[i + 0]), b, bs);
+		out[3 * i + 1] = Scaler<Pixel>::pixelOps.combine(rs, g, bs);
+		calcSpil(Scaler<Pixel>::pixelOps.red(in[(i + 1) % inwidth]), r, rs);
+		out[3 * i + 2] = Scaler<Pixel>::pixelOps.combine(rs, gs, b);
 	}
 	/* see above
 	calcSpil((in[319] >>  8) & 0xFF, g, gs);
