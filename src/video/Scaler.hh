@@ -76,8 +76,7 @@ public:
 	  */
 	virtual void scale256(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
-		) = 0;
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY) = 0;
 	virtual void scale256(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY) = 0;
 
@@ -90,8 +89,9 @@ public:
 	  * @param endY Y-coordinate of the bottom source line (exclusive).
 	  * @param lower True iff frame must be displayed half a line lower
 	  */
-	virtual void scale512(FrameSource& src, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY, bool lower) = 0;
+	virtual void scale512(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY) = 0;
 	virtual void scale512(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY) = 0;
 

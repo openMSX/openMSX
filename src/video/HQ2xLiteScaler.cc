@@ -588,8 +588,8 @@ static void scaleLine512(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 template <class Pixel>
 void HQ2xLiteScaler<Pixel>::scale256(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
-) {
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+{
 	unsigned prevY = srcStartY;
 	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY += 2) {
 		Pixel* const dummy = 0;
@@ -607,24 +607,23 @@ void HQ2xLiteScaler<Pixel>::scale256(
 }
 
 template <class Pixel>
-void HQ2xLiteScaler<Pixel>::scale512(FrameSource& src, SDL_Surface* dst,
-                                     unsigned startY, unsigned endY, bool lower)
+void HQ2xLiteScaler<Pixel>::scale512(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
-	unsigned dstY = 2 * startY + (lower ? 1 : 0);
-	unsigned prevY = startY;
-	while (startY < endY) {
-		Pixel* dummy = 0;
-		const Pixel* srcPrev = src.getLinePtr(prevY,  dummy);
-		const Pixel* srcCurr = src.getLinePtr(startY, dummy);
-		const Pixel* srcNext = src.getLinePtr(min(startY + 1, endY - 1), dummy);
-		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY + 0);
-		Pixel* dstLower = (dstY != (480 - 1))
-		                ? Scaler<Pixel>::linePtr(dst, dstY + 1)
-		                : dstUpper;
+	unsigned prevY = srcStartY;
+	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY += 2) {
+		Pixel* const dummy = 0;
+		const Pixel* srcPrev = src.getLinePtr(prevY, dummy);
+		const Pixel* srcCurr = src.getLinePtr(srcStartY, dummy);
+		const Pixel* srcNext = src.getLinePtr(
+			min(srcStartY + 1, srcEndY - 1), dummy);
+		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY);
+		Pixel* dstLower = Scaler<Pixel>::linePtr(dst,
+			min(dstY + 1, dstEndY - 1));
 		scaleLine512(srcPrev, srcCurr, srcNext, dstUpper, dstLower);
-		prevY = startY;
-		++startY;
-		dstY += 2;
+		prevY = srcStartY;
+		++srcStartY;
 	}
 }
 

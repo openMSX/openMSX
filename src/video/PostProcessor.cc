@@ -138,8 +138,8 @@ void PostProcessor<Pixel>::paint()
 				currScaler->scale512(*frameEven, *frameOdd,
 				                     screen, srcStartY, srcEndY);
 			} else {
-				currScaler->scale512(*currFrame, screen,
-				                     srcStartY, srcEndY, lower);
+				currScaler->scale512(*currFrame, srcStartY, srcEndY,
+				                     screen, dstStartY, dstEndY);
 			}
 			break;
 		case 640:

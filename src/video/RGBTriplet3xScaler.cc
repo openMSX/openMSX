@@ -98,16 +98,10 @@ void RGBTriplet3xScaler<Pixel>::scale256(
 }
 
 template <class Pixel>
-/*
 void RGBTriplet3xScaler<Pixel>::scale512(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
-		*/
-void RGBTriplet3xScaler<Pixel>::scale512(FrameSource& src, SDL_Surface* dst,
-                                 unsigned srcStartY, unsigned srcEndY, bool lower)
+	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
-	unsigned dstStartY = 3 * srcStartY + (lower ? 1 : 0);
-        unsigned dstEndY = 3 * srcEndY   + (lower ? 1 : 0);
 	int scanlineFactor = settings.getScanlineFactor();
 	c1 = settings.getBlurFactor();
 	c2 = (3 * 256) - (2 * c1);
@@ -145,22 +139,6 @@ void RGBTriplet3xScaler<Pixel>::scale512(FrameSource& src, SDL_Surface* dst,
 		scanline.draw(prevDstLine0, prevDstLine0, dstLine2,
 		              scanlineFactor, 960);
 	}
-
-	/*
-        for (unsigned y = startY; y < endY; ++y) {
-                const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
-                Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 3 * y + 0);
-		Pixel* tmp[320];
-                halve(srcLine0, tmp, 320);
-		rgbify(tmp, dstLine0);
-
-                Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 3 * y + 1);
-		copyLine(dstLine0, dstLine1, 960);
-                
-		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, 3 * y + 2);
-		copyLine(dstLine0, dstLine2, 960);
-        }
-	*/
 }
 
 

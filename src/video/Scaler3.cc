@@ -14,19 +14,18 @@ Scaler3<Pixel>::Scaler3(SDL_PixelFormat* format)
 
 // TODO: See comment for Scaler2::scale256.
 /*template <class Pixel>
-void Scaler3<Pixel>::scale256(FrameSource& src, SDL_Surface* dst,
-                             unsigned startY, unsigned endY, bool lower)
+void Scaler3<Pixel>::scale256(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
-	unsigned y1 = 3 * startY + (lower ? 1 : 0);
-	unsigned y2 = 3 * endY   + (lower ? 1 : 0);
-	for (unsigned y = y1; y < y2; y += 3, ++startY) {
-		const Pixel* srcLine = src.getLinePtr(startY, (Pixel*)0);
-		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, y + 0);
+	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY += 3, ++srcStartY) {
+		const Pixel* srcLine = src.getLinePtr(srcStartY, (Pixel*)0);
+		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, dstY + 0);
 		scale_1on3(srcLine, dstLine0, 320);
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 1);
+		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY + 1);
 		copyLine(dstLine0, dstLine1, 960);
-		if (y == (720 - 2)) break;
-		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 2);
+		if ((dstY + 2) == dstEndY) break;
+		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, dstY + 2);
 		copyLine(dstLine0, dstLine2, 960);
 	}
 }*/
@@ -50,19 +49,18 @@ void Scaler3<Pixel>::scale256(FrameSource& src0, FrameSource& src1, SDL_Surface*
 }
 
 template <class Pixel>
-void Scaler3<Pixel>::scale512(FrameSource& src, SDL_Surface* dst,
-                                 unsigned startY, unsigned endY, bool lower)
+void Scaler3<Pixel>::scale512(
+		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
-	unsigned y1 = 3 * startY + (lower ? 1 : 0);
-	unsigned y2 = 3 * endY   + (lower ? 1 : 0);
-	for (unsigned y = y1; y < y2; y += 3, ++startY) {
-		const Pixel* srcLine = src.getLinePtr(startY, (Pixel*)0);
-		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, y + 0);
+	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY += 3, ++srcStartY) {
+		const Pixel* srcLine = src.getLinePtr(srcStartY, (Pixel*)0);
+		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, dstY + 0);
 		scale_2on3(srcLine, dstLine0, 640);
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 1);
+		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY + 1);
 		copyLine(dstLine0, dstLine1, 960);
-		if (y == (720 - 2)) break;
-		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 2);
+		if ((dstY + 2) == dstEndY) break;
+		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, dstY + 2);
 		copyLine(dstLine0, dstLine2, 960);
 	}
 }

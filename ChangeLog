@@ -1,5 +1,8 @@
 $Id$
 
+2005-10-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Changed signature of scale512() method
+
 2005-10-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Moved scanline code from SimpleScaler to new class Scanline
 	* Reused scanline code in RGBTriplet3x scaler

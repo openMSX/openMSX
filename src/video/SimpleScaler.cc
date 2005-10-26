@@ -513,21 +513,21 @@ void SimpleScaler<Pixel>::scale256(
 }
 
 template <class Pixel>
-void SimpleScaler<Pixel>::scale512(FrameSource& src, SDL_Surface* dst,
-                                   unsigned startY, unsigned endY, bool lower)
+void SimpleScaler<Pixel>::scale512(
+	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
 	int blur = settings.getBlurFactor();
 	int scanlineFactor = settings.getScanlineFactor();
 
-	unsigned dstY = 2 * startY + (lower ? 1 : 0);
-	const Pixel* srcLine = src.getLinePtr(startY++, (Pixel*)0);
-	Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, dstY++);
-	Pixel* prevDstLine0 = dstLine0;
-	blur512(srcLine, dstLine0, blur);
+	unsigned dstY = dstStartY;
+	const Pixel* srcLine = src.getLinePtr(srcStartY++, (Pixel*)0);
+	Pixel* prevDstLine0 = Scaler<Pixel>::linePtr(dst, dstY++);
+	blur512(srcLine, prevDstLine0, blur);
 
-	while (startY < endY) {
-		srcLine = src.getLinePtr(startY++, (Pixel*)0);
-		dstLine0 = Scaler<Pixel>::linePtr(dst, dstY + 1);
+	while (dstY < dstEndY - 1) {
+		srcLine = src.getLinePtr(srcStartY++, (Pixel*)0);
+		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, dstY + 1);
 		blur512(srcLine, dstLine0, blur);
 
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY);
@@ -538,9 +538,9 @@ void SimpleScaler<Pixel>::scale512(FrameSource& src, SDL_Surface* dst,
 	}
 
 	// When interlace is enabled, bottom line can fall off the screen.
-	if (dstY < 480) {
+	if (dstY < dstEndY) {
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY);
-		drawScanline(prevDstLine0, dstLine0, dstLine1, scanlineFactor);
+		drawScanline(prevDstLine0, prevDstLine0, dstLine1, scanlineFactor);
 	}
 }
 

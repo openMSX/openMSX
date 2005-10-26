@@ -51,12 +51,13 @@ void LowScaler<Pixel>::scale256(FrameSource& src0, FrameSource& src1, SDL_Surfac
 }
 
 template <typename Pixel>
-void LowScaler<Pixel>::scale512(FrameSource& src, SDL_Surface* dst,
-                                unsigned startY, unsigned endY, bool /*lower*/)
+void LowScaler<Pixel>::scale512(
+	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
-	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine = src.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
+	while (dstStartY < dstEndY) {
+		const Pixel* srcLine = src.getLinePtr(srcStartY++, (Pixel*)0);
+		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstStartY++);
 		halve(srcLine, dstLine, 320);
 	}
 }
