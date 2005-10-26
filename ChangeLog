@@ -1,5 +1,9 @@
 $Id$
 
+2005-10-26 Manuel Bilderbeek <manuel@msxnet.org>
+	* Implemented adjustable scanline in scaleBlank() for RGBTriplet3x
+	  scaler.
+
 2005-10-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Changed signature of scale512() method
 	* Replaced Blender with PixelOperations class:
@@ -12,7 +16,7 @@ $Id$
 	  scaler
 
 2005-10-24 Manuel Bilderbeek <manuel@msxnet.org>
-	* Implemented blank() for RGBTriplet3x scaler. Still no effect for
+	* Implemented scaleBlank() for RGBTriplet3x scaler. Still no effect for
 	  non-256-wide modes... (so still WIP)
 
 2005-10-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>

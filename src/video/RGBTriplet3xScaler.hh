@@ -33,7 +33,13 @@ public:
 
 private:
 	inline void calcSpil(unsigned x, unsigned& r, unsigned& s);
-	void rgbify(const Pixel* in, Pixel* out);
+	/**
+	 * Calculates the RGB triplets.
+	 * @param in Buffer of input pixels
+	 * @param out Buffer of output pixels, should be 3x as long as input
+	 * @param inwidth Width of the input buffer (in pixels)
+	 */
+	void rgbify(const Pixel* in, Pixel* out, unsigned inwidth);
 
 	int c1, c2;
 	Scanline<Pixel> scanline;

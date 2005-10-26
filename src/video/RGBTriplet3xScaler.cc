@@ -31,29 +31,33 @@ void RGBTriplet3xScaler<Pixel>::calcSpil(unsigned x, unsigned& r, unsigned& s)
 }
 
 template <class Pixel>
-void RGBTriplet3xScaler<Pixel>::rgbify(const Pixel* in, Pixel* out)
+void RGBTriplet3xScaler<Pixel>::rgbify(const Pixel* in, Pixel* out, unsigned inwidth)
 {
 	unsigned r, g, b, rs, gs, bs;
 	calcSpil((in[0] >> 16) & 0xFF, r, rs);
 	calcSpil((in[0] >>  8) & 0xFF, g, gs);
 	calcSpil((in[0] >>  0) & 0xFF, b, bs);
+	/* this is old code to process the edges correctly. We're skipping it now for efficiency
 	out[0] = (r  << 16) + (gs << 8);
 	out[1] = (rs << 16) + (g  << 8) + (bs << 0);
 	calcSpil((in[1] >> 16) & 0xFF, r, rs);
 	out[2] = (rs << 16) + (gs << 8) + (b  << 0);
-	for (int i = 1; i < 319; ++i) {
+	*/
+	for (unsigned i = 0; i < inwidth; ++i) {
 		calcSpil((in[i + 0] >>  8) & 0xFF, g, gs);
 		out[3 * i + 0] = (r  << 16) + (gs << 8) + (bs << 0);
 		calcSpil((in[i + 0] >>  0) & 0xFF, b, bs);
 		out[3 * i + 1] = (rs << 16) + (g  << 8) + (bs << 0);
-		calcSpil((in[i + 1] >> 16) & 0xFF, r, rs);
+		calcSpil((in[(i + 1) % inwidth] >> 16) & 0xFF, r, rs);
 		out[3 * i + 2] = (rs << 16) + (gs << 8) + (b  << 0);
 	}
+	/* see above
 	calcSpil((in[319] >>  8) & 0xFF, g, gs);
 	out[957] = (r  << 16) + (gs << 8) + (bs << 0);
 	calcSpil((in[319] >>  0) & 0xFF, b, bs);
 	out[958] = (rs << 16) + (g  << 8) + (bs << 0);
 	out[959] =              (gs << 8) + (b  << 0);
+	*/
 }
 
 template <class Pixel>
@@ -69,7 +73,7 @@ void RGBTriplet3xScaler<Pixel>::scale256(
 
 	const Pixel* srcLine = src.getLinePtr(srcStartY++, (Pixel*)0);
 	Pixel* prevDstLine0 = Scaler<Pixel>::linePtr(dst, y + 0);
-	rgbify(srcLine, prevDstLine0);
+	rgbify(srcLine, prevDstLine0, 320);
 
 	Pixel* dstLine1     = Scaler<Pixel>::linePtr(dst, y + 1);
 	copyLine(prevDstLine0, dstLine1, 960);
@@ -77,7 +81,7 @@ void RGBTriplet3xScaler<Pixel>::scale256(
 	for (/* */; y < ((int)dstEndY - 4); y += 3, srcStartY += 1) {
 		const Pixel* srcLine = src.getLinePtr(srcStartY, (Pixel*)0);
 		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, y + 3);
-		rgbify(srcLine, dstLine0);
+		rgbify(srcLine, dstLine0, 320);
 
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 4);
 		copyLine(dstLine0, dstLine1, 960);
@@ -112,7 +116,7 @@ void RGBTriplet3xScaler<Pixel>::scale512(
 	Pixel* prevDstLine0 = Scaler<Pixel>::linePtr(dst, y + 0);
 	Pixel tmp[320];
 	halve(srcLine, tmp, 320);
-	rgbify(tmp, prevDstLine0);
+	rgbify(tmp, prevDstLine0, 320);
 
 	Pixel* dstLine1     = Scaler<Pixel>::linePtr(dst, y + 1);
 	copyLine(prevDstLine0, dstLine1, 960);
@@ -121,7 +125,7 @@ void RGBTriplet3xScaler<Pixel>::scale512(
 		const Pixel* srcLine = src.getLinePtr(srcStartY, (Pixel*)0);
 		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, y + 3);
 		halve(srcLine, tmp, 320);
-		rgbify(tmp, dstLine0);
+		rgbify(tmp, dstLine0, 320);
 
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 4);
 		copyLine(dstLine0, dstLine1, 960);
@@ -148,48 +152,38 @@ template <class Pixel>
 void RGBTriplet3xScaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
                                unsigned startY, unsigned endY)
 {
-	//int scanlineFactor = settings.getScanlineFactor();
+	int scanlineFactor = settings.getScanlineFactor();
 	c1 = settings.getBlurFactor();
 	c2 = (3 * 256) - (2 * c1);
 
-	for (unsigned y = startY; y < endY; y += 3) {
-		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, y + 0);
-
-		unsigned r, g, b, rs, gs, bs;
-		calcSpil((color >> 16) & 0xFF, r, rs);
-		calcSpil((color >>  8) & 0xFF, g, gs);
-		calcSpil((color >>  0) & 0xFF, b, bs);
-		dstLine0[0] = (r  << 16) + (gs << 8);
-		dstLine0[1] = (rs << 16) + (g  << 8) + (bs << 0);
-		calcSpil((color >> 16) & 0xFF, r, rs);
-		dstLine0[2] = (rs << 16) + (gs << 8) + (b  << 0);
-
-		// calculate the first non-edge pixel
-		calcSpil((color >>  8) & 0xFF, g, gs);
-		dstLine0[3 * 1 + 0] = (r  << 16) + (gs << 8) + (bs << 0);
-		calcSpil((color >>  0) & 0xFF, b, bs);
-		dstLine0[3 * 1 + 1] = (rs << 16) + (g  << 8) + (bs << 0);
-		calcSpil((color >> 16) & 0xFF, r, rs);
-		dstLine0[3 * 1 + 2] = (rs << 16) + (gs << 8) + (b  << 0);
-		// copy this for the whole line
-		for (int i = 2; i < 319; ++i) {
-			dstLine0[3 * i + 0] = dstLine0[3 * 1 + 0];
-			dstLine0[3 * i + 1] = dstLine0[3 * 1 + 1];
-			dstLine0[3 * i + 2] = dstLine0[3 * 1 + 2];
+	Pixel outNormal[3];
+	Pixel outScanline[3];
+	
+	rgbify(&color, outNormal, 1);
+	Pixel scanlineColor = scanline.darken(color, scanlineFactor);
+	rgbify(&scanlineColor, outScanline, 1);
+	
+	for (unsigned y = startY; y < endY; y += 3)
+	{
+		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y + 0);
+		for (unsigned x = 0; x < 960; x += 3) {
+			dstLine[x + 0] = outNormal[0];
+			dstLine[x + 1] = outNormal[1];
+			dstLine[x + 2] = outNormal[2];
 		}
-		calcSpil((color >>  8) & 0xFF, g, gs);
-		dstLine0[957] = (r  << 16) + (gs << 8) + (bs << 0);
-		calcSpil((color >>  0) & 0xFF, b, bs);
-		dstLine0[958] = (rs << 16) + (g  << 8) + (bs << 0);
-		dstLine0[959] =              (gs << 8) + (b  << 0);
-
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 1);
-		copyLine(dstLine0, dstLine1, 960);
-
-		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 2);
-		// emulate a 75% scanline for the 3rd row
-		for (int i = 0; i < 960; ++i) {
-			dstLine2[i] = ((dstLine0[i] >> 1) & 0x7F7F7F) + ((dstLine0[i] >>2) & 0x3F3F3F);
+		if ((y + 1) >= endY) break;
+		dstLine = Scaler<Pixel>::linePtr(dst, y + 1);
+		for (unsigned x = 0; x < 960; x += 3) {
+			dstLine[x + 0] = outNormal[0];
+			dstLine[x + 1] = outNormal[1];
+			dstLine[x + 2] = outNormal[2];
+		} 
+		if ((y + 2) >= endY) break;
+		dstLine = Scaler<Pixel>::linePtr(dst, y + 2);
+		for (unsigned x = 0; x < 960; x += 3) {
+			dstLine[x + 0] = outScanline[0];
+			dstLine[x + 1] = outScanline[1];
+			dstLine[x + 2] = outScanline[2];
 		}
 	}
 }
