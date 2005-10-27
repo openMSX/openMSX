@@ -4,6 +4,7 @@
 #define SAI2XSCALER_HH
 
 #include "Scaler2.hh"
+#include "PixelOperations.hh"
 
 namespace openmsx {
 
@@ -31,6 +32,10 @@ private:
 		const Pixel* srcLine0, const Pixel* srcLine1,
 		const Pixel* srcLine2, const Pixel* srcLine3,
 		Pixel* dstUpper, Pixel* dstLower);
+
+	inline Pixel blend(Pixel p1, Pixel p2);
+
+	PixelOperations<Pixel> pixelOps;
 };
 
 } // namespace openmsx

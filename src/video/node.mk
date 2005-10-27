@@ -36,6 +36,7 @@ HDR_ONLY:= \
 	VRAMObserver \
 	SpriteConverter \
 	PixelOperations \
+	LineScalers \
 	Rasterizer \
 	FrameSource \
 	HQCommon

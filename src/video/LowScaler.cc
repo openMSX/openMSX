@@ -1,6 +1,7 @@
 // $Id$
 
 #include "LowScaler.hh"
+#include "LineScalers.hh"
 #include "FrameSource.hh"
 #include "HostCPU.hh"
 #include "openmsx.hh"
@@ -10,11 +11,11 @@ namespace openmsx {
 
 template <typename Pixel>
 LowScaler<Pixel>::LowScaler(SDL_PixelFormat* format)
-	: Scaler<Pixel>(format)
+	: pixelOps(format)
 {
 }
 
-template <typename Pixel>
+/*template <typename Pixel>
 void LowScaler<Pixel>::averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel* pOut)
 {
 	// TODO MMX/SSE optimizations
@@ -24,112 +25,126 @@ void LowScaler<Pixel>::averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel*
 		Pixel tmp1 = blend(pIn1[2 * i + 0], pIn1[2 * i + 1]);
 		pOut[i] = blend(tmp0, tmp1);
 	}
-}
+}*/
 
-template <typename Pixel>
-void LowScaler<Pixel>::scale256(
+template <typename Pixel, typename ScaleOp>
+static void doScale1(
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
-	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY,
+	ScaleOp scale)
 {
 	while (dstStartY < dstEndY) {
 		const Pixel* srcLine = src.getLinePtr(srcStartY++, (Pixel*)0);
 		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstStartY++);
-		Scaler<Pixel>::copyLine(srcLine, dstLine, 320, false);
+		scale(srcLine, dstLine, 320);
 	}
 }
 
-template <typename Pixel>
-void LowScaler<Pixel>::scale256(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-                                unsigned startY, unsigned endY)
+template <typename Pixel, typename ScaleOp>
+static void doScale2(
+	FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
+	unsigned startY, unsigned endY, PixelOperations<Pixel> ops,
+	ScaleOp scale)
 {
+	BlendLines<Pixel> blend(ops);
 	for (unsigned y = startY; y < endY; ++y) {
 		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
 		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
+		Pixel buf0[320], buf1[320];
+		scale(srcLine0, buf0, 320);
+		scale(srcLine1, buf1, 320);
 		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
-		average(srcLine0, srcLine1, dstLine, 320);
-	}
-}
-
-template <typename Pixel>
-void LowScaler<Pixel>::scale512(
-	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
-	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
-{
-	while (dstStartY < dstEndY) {
-		const Pixel* srcLine = src.getLinePtr(srcStartY++, (Pixel*)0);
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstStartY++);
-		halve(srcLine, dstLine, 320);
-	}
-}
-
-template <typename Pixel>
-void LowScaler<Pixel>::scale512(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-                                unsigned startY, unsigned endY)
-{
-	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
-		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
-		averageHalve(srcLine0, srcLine1, dstLine);
+		blend(buf0, buf1, dstLine, 320);
 	}
 }
 
 
 template <class Pixel>
-void LowScaler<Pixel>::scale192(FrameSource& src, SDL_Surface* dst,
-                             unsigned startY, unsigned endY, bool /*lower*/)
+void LowScaler<Pixel>::scale192(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
-	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine = src.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
-		scale_2on3(srcLine, dstLine, 213); // TODO
-	}
+	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	                Scale_2on3<Pixel>(pixelOps));
 }
 
 template <class Pixel>
 void LowScaler<Pixel>::scale192(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
                              unsigned startY, unsigned endY)
 {
+	doScale2<Pixel>(src0, src1, dst, startY, endY, pixelOps,
+	                Scale_2on3<Pixel>(pixelOps));
+}
+
+template <typename Pixel>
+void LowScaler<Pixel>::scale256(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	                Scale_1on1<Pixel>());
+}
+
+template <typename Pixel>
+void LowScaler<Pixel>::scale256(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
+                                unsigned startY, unsigned endY)
+{
+	// no need to scale to local buffer first
+	BlendLines<Pixel> blend(pixelOps);
 	for (unsigned y = startY; y < endY; ++y) {
 		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
 		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
-		Pixel buf0[320], buf1[320];
-		scale_2on3(srcLine0, buf0, 213); // TODO
-		scale_2on3(srcLine1, buf1, 213); // TODO
 		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
-		average(buf0, buf1, dstLine, 320);
+		blend(srcLine0, srcLine1, dstLine, 320);
 	}
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale384(FrameSource& src, SDL_Surface* dst,
-                             unsigned startY, unsigned endY, bool /*lower*/)
+void LowScaler<Pixel>::scale384(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
-	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine = src.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
-		scale_4on3(srcLine, dstLine, 426); // TODO
-	}
+	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	                Scale_4on3<Pixel>(pixelOps));
 }
 
 template <class Pixel>
 void LowScaler<Pixel>::scale384(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
                              unsigned startY, unsigned endY)
 {
+	doScale2<Pixel>(src0, src1, dst, startY, endY, pixelOps,
+	                Scale_4on3<Pixel>(pixelOps));
+}
+
+template <typename Pixel>
+void LowScaler<Pixel>::scale512(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	                Scale_2on1<Pixel>(pixelOps));
+}
+
+template <typename Pixel>
+void LowScaler<Pixel>::scale512(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
+                                unsigned startY, unsigned endY)
+{
+	doScale2<Pixel>(src0, src1, dst, startY, endY, pixelOps,
+	                Scale_2on1<Pixel>(pixelOps));
+	/* TODO profile this vs generic implementation
 	for (unsigned y = startY; y < endY; ++y) {
 		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
 		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
-		Pixel buf0[320], buf1[320];
-		scale_4on3(srcLine0, buf0, 426); // TODO
-		scale_4on3(srcLine1, buf1, 426); // TODO
 		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
-		average(buf0, buf1, dstLine, 320);
-	}
+		averageHalve(srcLine0, srcLine1, dstLine);
+	}*/
 }
 
+
 template <class Pixel>
-void LowScaler<Pixel>::scale640(FrameSource& /*src*/, SDL_Surface* /*dst*/,
-                             unsigned /*startY*/, unsigned /*endY*/, bool /*lower*/)
+void LowScaler<Pixel>::scale640(
+	FrameSource& /*src*/, unsigned /*srcStartY*/, unsigned /*srcEndY*/,
+	SDL_Surface* /*dst*/, unsigned /*dstStartY*/, unsigned /*dstEndY*/)
 {
 	// TODO
 }
@@ -142,55 +157,37 @@ void LowScaler<Pixel>::scale640(FrameSource& /*src0*/, FrameSource& /*src1*/, SD
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale768(FrameSource& src, SDL_Surface* dst,
-                             unsigned startY, unsigned endY, bool /*lower*/)
+void LowScaler<Pixel>::scale768(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
-	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine = src.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
-		scale_8on3(srcLine, dstLine, 853); // TODO
-	}
+	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	                Scale_8on3<Pixel>(pixelOps));
 }
 
 template <class Pixel>
 void LowScaler<Pixel>::scale768(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
                              unsigned startY, unsigned endY)
 {
-	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
-		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
-		Pixel buf0[320], buf1[320];
-		scale_8on3(srcLine0, buf0, 853); // TODO
-		scale_8on3(srcLine1, buf1, 853); // TODO
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
-		average(buf0, buf1, dstLine, 320);
-	}
+	doScale2<Pixel>(src0, src1, dst, startY, endY, pixelOps,
+	                Scale_8on3<Pixel>(pixelOps));
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale1024(FrameSource& src, SDL_Surface* dst,
-                              unsigned startY, unsigned endY, bool /*lower*/)
+void LowScaler<Pixel>::scale1024(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
-	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine = src.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
-		scale_4on1(srcLine, dstLine, 1280);
-	}
+	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	                Scale_4on1<Pixel>(pixelOps));
 }
 
 template <class Pixel>
 void LowScaler<Pixel>::scale1024(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
                               unsigned startY, unsigned endY)
 {
-	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
-		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
-		Pixel buf0[320], buf1[320];
-		scale_4on1(srcLine0, buf0, 1280);
-		scale_4on1(srcLine1, buf1, 1280);
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
-		average(buf0, buf1, dstLine, 320);
-	}
+	doScale2<Pixel>(src0, src1, dst, startY, endY, pixelOps,
+	                Scale_4on1<Pixel>(pixelOps));
 }
 
 

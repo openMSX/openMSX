@@ -1,9 +1,11 @@
 // $Id$
 
 #include "SimpleScaler.hh"
+#include "LineScalers.hh"
 #include "FrameSource.hh"
 #include "RenderSettings.hh"
 #include "IntegerSetting.hh"
+#include "MemoryOps.hh"
 #include "HostCPU.hh"
 #include "openmsx.hh"
 #include <cassert>
@@ -138,10 +140,13 @@ void SimpleScaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
 	Pixel scanlineColor = scanline.darken(color, scanlineFactor);
 	for (unsigned y = startY; y < endY; y += 2) {
 		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, y + 0);
-		Scaler<Pixel>::fillLine(dstUpper, color, 640);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstUpper, 640, color);
+
 		if ((y + 1)== endY) break;
 		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, y + 1);
-		Scaler<Pixel>::fillLine(dstLower, scanlineColor, 640);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLower, 640, scanlineColor);
 	}
 }
 
@@ -178,7 +183,8 @@ void SimpleScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 	 */
 
 	if (alpha == 0) {
-		Scaler<Pixel>::scaleLine(pIn, pOut, 320, true); // in cache
+		Scale_1on2<Pixel, true> scale; // in cache
+		scale(pIn, pOut, 320);
 		return;
 	}
 
@@ -349,7 +355,8 @@ void SimpleScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 	 */
 
 	if (alpha == 0) {
-		Scaler<Pixel>::copyLine(pIn, pOut, 640, true); // in cache
+		Scale_1on1<Pixel, true> copy; // in cache
+		copy(pIn, pOut, 320);
 		return;
 	}
 
@@ -476,7 +483,8 @@ void SimpleScaler<Pixel>::drawScanline(
 	if (factor != 255) {
 		scanline.draw(in1, in2, out, factor, 640);
 	} else {
-		copyLine(in1, out, 640);
+		Scale_1on1<Pixel> scale;
+		scale(in1, out, 640);
 	}
 }
 

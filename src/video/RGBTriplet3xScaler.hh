@@ -4,6 +4,7 @@
 #define RGBTRIPLET3XSCALER_HH
 
 #include "Scaler3.hh"
+#include "PixelOperations.hh"
 #include "Scanline.hh"
 
 namespace openmsx {
@@ -42,6 +43,7 @@ private:
 	void rgbify(const Pixel* in, Pixel* out, unsigned inwidth);
 
 	int c1, c2;
+	PixelOperations<Pixel> pixelOps;
 	Scanline<Pixel> scanline;
 	const RenderSettings& settings;
 };

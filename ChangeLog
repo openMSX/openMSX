@@ -1,5 +1,11 @@
 $Id$
 
+2005-10-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Transformed scale_XonY() methods into functors
+	* Changed signature of scale192/384/640/768/1024 methods
+	* Factored out scaling algorithm in the base Scaler classes
+	* Optimized PixelOperations for 32bpp
+
 2005-10-26 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented adjustable scanline in scaleBlank() for RGBTriplet3x
 	  scaler.

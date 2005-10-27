@@ -111,8 +111,8 @@ void PostProcessor<Pixel>::paint()
 				currScaler->scale192(*frameEven, *frameOdd,
 				                     screen, srcStartY, srcEndY);
 			} else {
-				currScaler->scale192(*currFrame, screen,
-				                     srcStartY, srcEndY, lower);
+				currScaler->scale192(*currFrame, srcStartY, srcEndY,
+				                     screen, dstStartY, dstEndY);
 			}
 			break;
 		case 256:
@@ -129,8 +129,8 @@ void PostProcessor<Pixel>::paint()
 				currScaler->scale384(*frameEven, *frameOdd,
 				                     screen, srcStartY, srcEndY);
 			} else {
-				currScaler->scale384(*currFrame, screen,
-				                     srcStartY, srcEndY, lower);
+				currScaler->scale384(*currFrame, srcStartY, srcEndY,
+				                     screen, dstStartY, dstEndY);
 			}
 			break;
 		case 512:
@@ -147,8 +147,8 @@ void PostProcessor<Pixel>::paint()
 				currScaler->scale640(*frameEven, *frameOdd,
 				                     screen, srcStartY, srcEndY);
 			} else {
-				currScaler->scale640(*currFrame, screen,
-				                     srcStartY, srcEndY, lower);
+				currScaler->scale640(*currFrame, srcStartY, srcEndY,
+				                     screen, dstStartY, dstEndY);
 			}
 			break;
 		case 768:
@@ -156,8 +156,8 @@ void PostProcessor<Pixel>::paint()
 				currScaler->scale768(*frameEven, *frameOdd,
 				                     screen, srcStartY, srcEndY);
 			} else {
-				currScaler->scale768(*currFrame, screen,
-				                     srcStartY, srcEndY, lower);
+				currScaler->scale768(*currFrame, srcStartY, srcEndY,
+				                     screen, dstStartY, dstEndY);
 			}
 			break;
 		case 1024:
@@ -165,8 +165,8 @@ void PostProcessor<Pixel>::paint()
 				currScaler->scale1024(*frameEven, *frameOdd,
 				                      screen, srcStartY, srcEndY);
 			} else {
-				currScaler->scale1024(*currFrame, screen,
-				                      srcStartY, srcEndY, lower);
+				currScaler->scale1024(*currFrame, srcStartY, srcEndY,
+				                      screen, dstStartY, dstEndY);
 			}
 			break;
 		default:

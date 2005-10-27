@@ -3,7 +3,6 @@
 #ifndef SCALER_HH
 #define SCALER_HH
 
-#include "PixelOperations.hh"
 #include "openmsx.hh"
 #include <SDL.h>
 #include <cassert>
@@ -95,108 +94,45 @@ public:
 	virtual void scale512(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY) = 0;
 
-	virtual void scale192(FrameSource& src, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY, bool lower) = 0;
+	virtual void scale192(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY) = 0;
 	virtual void scale192(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY) = 0;
-	virtual void scale384(FrameSource& src, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY, bool lower) = 0;
+
+	virtual void scale384(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY) = 0;
 	virtual void scale384(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY) = 0;
-	virtual void scale640(FrameSource& src, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY, bool lower) = 0;
+
+	virtual void scale640(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY) = 0;
 	virtual void scale640(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY) = 0;
-	virtual void scale768(FrameSource& src, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY, bool lower) = 0;
+
+	virtual void scale768(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY) = 0;
 	virtual void scale768(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY) = 0;
-	virtual void scale1024(FrameSource& src, SDL_Surface* dst,
-	                       unsigned startY, unsigned endY, bool lower) = 0;
+
+	virtual void scale1024(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY) = 0;
 	virtual void scale1024(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                       unsigned startY, unsigned endY) = 0;
 
 
-	// Utility methods
-
 	/** Get the start address of a line in a surface
-	 */
+	  *  TODO should become a method of the SDL_Surface replacement
+	  *       in the future
+	  */
 	inline static Pixel* linePtr(SDL_Surface* surface, unsigned y) {
 		assert(y < (unsigned)surface->h);
 		return (Pixel*)((byte*)surface->pixels + y * surface->pitch);
 	}
-
-	/** Copies the given line.
-	  * @param pIn ptr to start of source line
-	  * @param pOut ptr to start of destination line
-	  * @param width the width of the line
-	  * @param inCache Indicates wheter the destination line should be
-	  *                cached. Not caching is (a lot) faster when the
-	  *                destination line is no needed later in the algorithm.
-	  *                Otherwise caching is faster.
-	  */
-	static void copyLine(const Pixel* pIn, Pixel* pOut, unsigned width,
-	                     bool inCache = false);
-
-	/** Scales the given line a factor 2 horizontally.
-	  * @param pIn ptr to start of source line
-	  * @param pOut ptr to start of destination line
-	  * @param width the width of the source line
-	  * @param inCache Indicates wheter the destination line should be
-	  *                cached. Not caching is (a lot) faster when the
-	  *                destination line is no needed later in the algorithm.
-	  *                Otherwise caching is faster.
-	  */
-	static void scaleLine(const Pixel* pIn, Pixel* pOut, unsigned width,
-	                      bool inCache = false);
-
-	/** Fill a line with a constant colour
-	 *  @param pOut ptr to start of line (typically obtained from linePtr())
-	 *  @param colour the fill colour
-	 *  @param width the width of the line (typically 320 or 640)
-	 */
-	static void fillLine(Pixel* pOut, Pixel colour, unsigned width);
-
-	// TODO optimize these routines
-	void scale_1on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void scale_1on2(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void scale_1on1(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void scale_2on1(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void scale_4on1(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void scale_2on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void scale_4on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void scale_8on3(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void scale_2on9(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void scale_4on9(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-	void scale_8on9(const Pixel* inPixels, Pixel* outPixels, int nrPixels);
-
-
-protected:
-	Scaler(SDL_PixelFormat* format);
-
-	/** Return the average of two pixels
-	  */
-	inline Pixel blend(Pixel p1, Pixel p2) {
-		return pixelOps.template blend<1, 1>(p1, p2);
-	}
-
-	/** Calculate the average of two input lines.
-	  * @param pIn0 First input line
-	  * @param pIn1 Second input line
-	  * @param pOut Output line
-	  * @param width Width of the lines in pixels
-	  */
-	void average(const Pixel* pIn0, const Pixel* pIn1, Pixel* pOut,
-                     unsigned width);
-
-	/** Make the input line halve as wide
-	  * @param pIn Input line
-	  * @param pOut Output line
-	  * @param width Width of the output line in pixels
-	  */
-	void halve(const Pixel* pIn, Pixel* pOut, unsigned width);
-
-	PixelOperations<Pixel> pixelOps;
 };
 
 } // namespace openmsx

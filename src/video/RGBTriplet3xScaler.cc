@@ -1,6 +1,7 @@
 // $Id$
 
 #include "RGBTriplet3xScaler.hh"
+#include "LineScalers.hh"
 #include "FrameSource.hh"
 #include "RenderSettings.hh"
 #include <algorithm>
@@ -14,6 +15,7 @@ template <class Pixel>
 RGBTriplet3xScaler<Pixel>::RGBTriplet3xScaler(
 		SDL_PixelFormat* format, const RenderSettings& renderSettings)
 	: Scaler3<Pixel>(format)
+	, pixelOps(format)
 	, scanline(format)
 	, settings(renderSettings)
 {
@@ -35,9 +37,9 @@ template <class Pixel>
 void RGBTriplet3xScaler<Pixel>::rgbify(const Pixel* in, Pixel* out, unsigned inwidth)
 {
 	unsigned r, g, b, rs, gs, bs;
-	calcSpil(Scaler<Pixel>::pixelOps.red(in[0]), r, rs);
-	calcSpil(Scaler<Pixel>::pixelOps.green(in[0]), g, gs);
-	calcSpil(Scaler<Pixel>::pixelOps.blue(in[0]), b, bs);
+	calcSpil(pixelOps.red(in[0]), r, rs);
+	calcSpil(pixelOps.green(in[0]), g, gs);
+	calcSpil(pixelOps.blue(in[0]), b, bs);
 	/* this is old code to process the edges correctly.
 	 * We're skipping it now for efficiency and simplicity.
 	 * Note that it is 32bpp only. It's left here in case we want to use
@@ -48,12 +50,12 @@ void RGBTriplet3xScaler<Pixel>::rgbify(const Pixel* in, Pixel* out, unsigned inw
 	out[2] = (rs << 16) + (gs << 8) + (b  << 0);
 	*/
 	for (unsigned i = 0; i < inwidth; ++i) {
-		calcSpil(Scaler<Pixel>::pixelOps.green(in[i + 0]), g, gs);
-		out[3 * i + 0] = Scaler<Pixel>::pixelOps.combine(r, gs, bs);
-		calcSpil(Scaler<Pixel>::pixelOps.blue(in[i + 0]), b, bs);
-		out[3 * i + 1] = Scaler<Pixel>::pixelOps.combine(rs, g, bs);
-		calcSpil(Scaler<Pixel>::pixelOps.red(in[(i + 1) % inwidth]), r, rs);
-		out[3 * i + 2] = Scaler<Pixel>::pixelOps.combine(rs, gs, b);
+		calcSpil(pixelOps.green(in[i + 0]), g, gs);
+		out[3 * i + 0] = pixelOps.combine(r, gs, bs);
+		calcSpil(pixelOps.blue(in[i + 0]), b, bs);
+		out[3 * i + 1] = pixelOps.combine(rs, g, bs);
+		calcSpil(pixelOps.red(in[(i + 1) % inwidth]), r, rs);
+		out[3 * i + 2] = pixelOps.combine(rs, gs, b);
 	}
 	/* see above
 	calcSpil((in[319] >>  8) & 0xFF, g, gs);
@@ -69,6 +71,8 @@ void RGBTriplet3xScaler<Pixel>::scale256(
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
+	Scale_1on1<Pixel> copy;
+
 	int scanlineFactor = settings.getScanlineFactor();
 	c1 = settings.getBlurFactor();
 	c2 = (3 * 256) - (2 * c1);
@@ -80,7 +84,7 @@ void RGBTriplet3xScaler<Pixel>::scale256(
 	rgbify(srcLine, prevDstLine0, 320);
 
 	Pixel* dstLine1     = Scaler<Pixel>::linePtr(dst, y + 1);
-	copyLine(prevDstLine0, dstLine1, 960);
+	copy(prevDstLine0, dstLine1, 960);
 
 	for (/* */; y < ((int)dstEndY - 4); y += 3, srcStartY += 1) {
 		const Pixel* srcLine = src.getLinePtr(srcStartY, (Pixel*)0);
@@ -88,7 +92,7 @@ void RGBTriplet3xScaler<Pixel>::scale256(
 		rgbify(srcLine, dstLine0, 320);
 
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 4);
-		copyLine(dstLine0, dstLine1, 960);
+		copy(dstLine0, dstLine1, 960);
 
 		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 2);
 		scanline.draw(prevDstLine0, dstLine0, dstLine2,
@@ -110,6 +114,9 @@ void RGBTriplet3xScaler<Pixel>::scale512(
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
+	Scale_1on1<Pixel> copy;
+	Scale_2on1<Pixel> halve(pixelOps);
+
 	int scanlineFactor = settings.getScanlineFactor();
 	c1 = settings.getBlurFactor();
 	c2 = (3 * 256) - (2 * c1);
@@ -123,7 +130,7 @@ void RGBTriplet3xScaler<Pixel>::scale512(
 	rgbify(tmp, prevDstLine0, 320);
 
 	Pixel* dstLine1     = Scaler<Pixel>::linePtr(dst, y + 1);
-	copyLine(prevDstLine0, dstLine1, 960);
+	copy(prevDstLine0, dstLine1, 960);
 
 	for (/* */; y < ((int)dstEndY - 4); y += 3, srcStartY += 1) {
 		const Pixel* srcLine = src.getLinePtr(srcStartY, (Pixel*)0);
@@ -132,7 +139,7 @@ void RGBTriplet3xScaler<Pixel>::scale512(
 		rgbify(tmp, dstLine0, 320);
 
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 4);
-		copyLine(dstLine0, dstLine1, 960);
+		copy(dstLine0, dstLine1, 960);
 
 		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 2);
 		scanline.draw(prevDstLine0, dstLine0, dstLine2,

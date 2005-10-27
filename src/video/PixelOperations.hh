@@ -72,27 +72,51 @@ PixelOperations<Pixel>::PixelOperations(const SDL_PixelFormat* format_)
 template <typename Pixel>
 inline unsigned PixelOperations<Pixel>::red(Pixel p) const
 {
-	return (p & format->Rmask) >> format->Rshift;
+	if (sizeof(Pixel) == 4) {
+		return (p >> 16) & 0xFF;
+	} else {
+		return (p & format->Rmask) >> format->Rshift;
+	}
 }
 template <typename Pixel>
 inline unsigned PixelOperations<Pixel>::green(Pixel p) const
 {
-	return (p & format->Gmask) >> format->Gshift;
+	if (sizeof(Pixel) == 4) {
+		return (p >> 8) & 0xFF;
+	} else {
+		return (p & format->Gmask) >> format->Gshift;
+	}
 }
 template <typename Pixel>
 inline unsigned PixelOperations<Pixel>::blue(Pixel p) const
 {
-	return (p & format->Bmask) >> format->Bshift;
+	if (sizeof(Pixel) == 4) {
+		return (p >> 0) & 0xFF;
+	} else {
+		return (p & format->Bmask) >> format->Bshift;
+	}
 }
 
 template <typename Pixel>
 inline Pixel PixelOperations<Pixel>::combine(unsigned r, unsigned g, unsigned b) const
 {
-	return (Pixel)((r << format->Rshift) |
-		       (g << format->Gshift) |
-		       (b << format->Bshift));
+	if (sizeof(Pixel) == 4) {
+		return (r << 16) | (g << 8) | (b << 0);
+	} else {
+		return (Pixel)((r << format->Rshift) |
+			       (g << format->Gshift) |
+			       (b << format->Bshift));
+	}
 }
 
+template<unsigned N> struct IsPow2 {
+	static const bool result = ((N & 1) == 0) && IsPow2<N / 2>::result;
+	static const unsigned log2 = 1 + IsPow2<N / 2>::log2;
+};
+template<> struct IsPow2<1> {
+	static const bool result = true;
+	static const unsigned log2 = 0;
+};
 
 template <typename Pixel>
 template <unsigned w1, unsigned w2>
@@ -103,11 +127,20 @@ inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 		       ((p2 & ~blendMask) >> 1) +
 			(p1 &  blendMask);
 	} else {
-		unsigned total = w1 + w2;
-		unsigned r = (red  (p1) * w1 + red  (p2) * w2) / total;
-		unsigned g = (green(p1) * w1 + green(p2) * w2) / total;
-		unsigned b = (blue (p1) * w1 + blue (p2) * w2) / total;
-		return combine(r, g, b);
+		static const unsigned total = w1 + w2;
+		if ((sizeof(Pixel) == 4) && IsPow2<total>::result) {
+			unsigned l2 = IsPow2<total>::log2;
+			unsigned rb = ((p1 & 0xFF00FF) * w1 +
+			               (p2 & 0xFF00FF) * w2) & (0xFF00FF << l2);
+			unsigned g  = ((p1 & 0x00FF00) * w1 +
+			               (p2 & 0x00FF00) * w2) & (0x00FF00 << l2);
+			return (rb | g) >> l2;
+		} else {
+			unsigned r = (red  (p1) * w1 + red  (p2) * w2) / total;
+			unsigned g = (green(p1) * w1 + green(p2) * w2) / total;
+			unsigned b = (blue (p1) * w1 + blue (p2) * w2) / total;
+			return combine(r, g, b);
+		}
 	}
 }
 
@@ -115,11 +148,22 @@ template <typename Pixel>
 template <unsigned w1, unsigned w2, unsigned w3>
 inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2, Pixel p3) const
 {
-	unsigned total = w1 + w2 + w3;
-	unsigned r = (red  (p1) * w1 + red  (p2) * w2 + red  (p3) * w3) / total;
-	unsigned g = (green(p1) * w1 + green(p2) * w2 + green(p3) * w3) / total;
-	unsigned b = (blue (p1) * w1 + blue (p2) * w2 + blue (p3) * w3) / total;
-	return combine(r, g, b);
+	static const unsigned total = w1 + w2 + w3;
+	if ((sizeof(Pixel) == 4) && IsPow2<total>::result) {
+		unsigned l2 = IsPow2<total>::log2;
+		unsigned rb = ((p1 & 0xFF00FF) * w1 +
+		               (p2 & 0xFF00FF) * w2 +
+		               (p3 & 0xFF00FF) * w3) & (0xFF00FF << l2);
+		unsigned g  = ((p1 & 0x00FF00) * w1 +
+		               (p2 & 0x00FF00) * w2 +
+		               (p3 & 0x00FF00) * w3) & (0x00FF00 << l2);
+		return (rb | g) >> l2;
+	} else {
+		unsigned r = (red  (p1) * w1 + red  (p2) * w2 + red  (p3) * w3) / total;
+		unsigned g = (green(p1) * w1 + green(p2) * w2 + green(p3) * w3) / total;
+		unsigned b = (blue (p1) * w1 + blue (p2) * w2 + blue (p3) * w3) / total;
+		return combine(r, g, b);
+	}
 }
 
 template <typename Pixel>
@@ -127,14 +171,27 @@ template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
 inline Pixel PixelOperations<Pixel>::blend(
 		Pixel p1, Pixel p2, Pixel p3, Pixel p4) const
 {
-	unsigned total = w1 + w2 + w3 + w4;
-	unsigned r = (red  (p1) * w1 + red  (p2) * w2 +
-	              red  (p3) * w3 + red  (p4) * w4) / total;
-	unsigned g = (green(p1) * w1 + green(p2) * w2 +
-	              green(p3) * w3 + green(p4) * w4) / total;
-	unsigned b = (blue (p1) * w1 + blue (p2) * w2 +
-	              blue (p3) * w3 + blue (p4) * w4) / total;
-	return combine(r, g, b);
+	static const unsigned total = w1 + w2 + w3 + w4;
+	if ((sizeof(Pixel) == 4) && IsPow2<total>::result) {
+		unsigned l2 = IsPow2<total>::log2;
+		unsigned rb = ((p1 & 0xFF00FF) * w1 +
+		               (p2 & 0xFF00FF) * w2 +
+		               (p3 & 0xFF00FF) * w3 +
+		               (p4 & 0xFF00FF) * w4) & (0xFF00FF << l2);
+		unsigned g  = ((p1 & 0x00FF00) * w1 +
+		               (p2 & 0x00FF00) * w2 +
+		               (p3 & 0x00FF00) * w3 +
+		               (p4 & 0x00FF00) * w4) & (0x00FF00 << l2);
+		return (rb | g) >> l2;
+	} else {
+		unsigned r = (red  (p1) * w1 + red  (p2) * w2 +
+			      red  (p3) * w3 + red  (p4) * w4) / total;
+		unsigned g = (green(p1) * w1 + green(p2) * w2 +
+			      green(p3) * w3 + green(p4) * w4) / total;
+		unsigned b = (blue (p1) * w1 + blue (p2) * w2 +
+			      blue (p3) * w3 + blue (p4) * w4) / total;
+		return combine(r, g, b);
+	}
 }
 
 

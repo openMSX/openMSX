@@ -19,11 +19,18 @@ namespace openmsx {
 template <class Pixel>
 SaI2xScaler<Pixel>::SaI2xScaler(SDL_PixelFormat* format)
 	: Scaler2<Pixel>(format)
+	, pixelOps(format)
 {
 }
 
 const unsigned WIDTH256 = 320; // TODO: Specify this in a clean way.
 const unsigned HEIGHT = 480;
+
+template <class Pixel>
+inline Pixel SaI2xScaler<Pixel>::blend(Pixel p1, Pixel p2)
+{
+	return pixelOps.template blend<1, 1>(p1, p2);
+}
 
 template <class Pixel>
 void SaI2xScaler<Pixel>::scaleLine256(
