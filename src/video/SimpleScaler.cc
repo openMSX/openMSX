@@ -184,7 +184,7 @@ void SimpleScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 
 	if (alpha == 0) {
 		Scale_1on2<Pixel, true> scale; // in cache
-		scale(pIn, pOut, 320);
+		scale(pIn, pOut, 640);
 		return;
 	}
 
@@ -356,7 +356,7 @@ void SimpleScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 
 	if (alpha == 0) {
 		Scale_1on1<Pixel, true> copy; // in cache
-		copy(pIn, pOut, 320);
+		copy(pIn, pOut, 640);
 		return;
 	}
 
