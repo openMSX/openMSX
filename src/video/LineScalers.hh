@@ -170,7 +170,7 @@ void Scale_1on2<Pixel, InCache>::operator()(
 			: // no output
 			: "r" (in) // 0
 			, "r" (out) // 1
-			, "r" (width / 2) // 2
+			, "r" (width) // 2
 			, "r" (0) // 3
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3",
@@ -221,7 +221,7 @@ void Scale_1on2<Pixel, InCache>::operator()(
 			: // no output
 			: "r" (in) // 0
 			, "r" (out) // 1
-			, "r" (width / 2) // 2
+			, "r" (width) // 2
 			, "r" (0) // 3
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3",
@@ -272,7 +272,7 @@ void Scale_1on2<Pixel, InCache>::operator()(
 			: // no output
 			: "r" (in) // 0
 			, "r" (out) // 1
-			, "r" (width / 2) // 2
+			, "r" (width * 2) // 2
 			, "r" (0) // 3
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3",
@@ -323,7 +323,7 @@ void Scale_1on2<Pixel, InCache>::operator()(
 			: // no output
 			: "r" (in) // 0
 			, "r" (out) // 1
-			, "r" (width / 2) // 2
+			, "r" (width * 2) // 2
 			, "r" (0) // 3
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3",
