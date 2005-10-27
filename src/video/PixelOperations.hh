@@ -21,9 +21,16 @@ public:
 	inline unsigned green(Pixel p) const;
 	inline unsigned blue(Pixel p) const;
 
+	/** Same as above, but result is scaled to [0..255]
+	  */
+	inline unsigned red256(Pixel p) const;
+	inline unsigned green256(Pixel p) const;
+	inline unsigned blue256(Pixel p) const;
+
 	/** Combine RGB components to a pixel
 	  */
 	inline Pixel combine(unsigned r, unsigned g, unsigned b) const;
+	inline Pixel combine256(unsigned r, unsigned g, unsigned b) const;
 	
 	/** Blend the given colors into a single color. 
 	  * The special case for blending between two colors with
@@ -98,7 +105,36 @@ inline unsigned PixelOperations<Pixel>::blue(Pixel p) const
 }
 
 template <typename Pixel>
-inline Pixel PixelOperations<Pixel>::combine(unsigned r, unsigned g, unsigned b) const
+inline unsigned PixelOperations<Pixel>::red256(Pixel p) const
+{
+	if (sizeof(Pixel) == 4) {
+		return (p >> 16) & 0xFF;
+	} else {
+		return ((p >> format->Rshift) << format->Rloss) & 0xFF;
+	}
+}
+template <typename Pixel>
+inline unsigned PixelOperations<Pixel>::green256(Pixel p) const
+{
+	if (sizeof(Pixel) == 4) {
+		return (p >> 8) & 0xFF;
+	} else {
+		return ((p >> format->Gshift) << format->Gloss) & 0xFF;
+	}
+}
+template <typename Pixel>
+inline unsigned PixelOperations<Pixel>::blue256(Pixel p) const
+{
+	if (sizeof(Pixel) == 4) {
+		return (p >> 0) & 0xFF;
+	} else {
+		return ((p >> format->Bshift) << format->Bloss) & 0xFF;
+	}
+}
+
+template <typename Pixel>
+inline Pixel PixelOperations<Pixel>::combine(
+		unsigned r, unsigned g, unsigned b) const
 {
 	if (sizeof(Pixel) == 4) {
 		return (r << 16) | (g << 8) | (b << 0);
@@ -106,6 +142,19 @@ inline Pixel PixelOperations<Pixel>::combine(unsigned r, unsigned g, unsigned b)
 		return (Pixel)((r << format->Rshift) |
 			       (g << format->Gshift) |
 			       (b << format->Bshift));
+	}
+}
+
+template <typename Pixel>
+inline Pixel PixelOperations<Pixel>::combine256(
+		unsigned r, unsigned g, unsigned b) const
+{
+	if (sizeof(Pixel) == 4) {
+		return (r << 16) | (g << 8) | (b << 0);
+	} else {
+		return (Pixel)(((r >> format->Rloss) << format->Rshift) |
+		               ((g >> format->Gloss) << format->Gshift) |
+		               ((b >> format->Bloss) << format->Bshift));
 	}
 }
 

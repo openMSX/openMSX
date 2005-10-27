@@ -5,6 +5,7 @@ $Id$
 	* Changed signature of scale192/384/640/768/1024 methods
 	* Factored out scaling algorithm in the base Scaler classes
 	* Optimized PixelOperations for 32bpp
+	* Implemented 16bpp in RGBTriplet3x
 
 2005-10-26 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented adjustable scanline in scaleBlank() for RGBTriplet3x
