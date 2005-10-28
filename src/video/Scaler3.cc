@@ -27,7 +27,7 @@ static void doScale1(
 
 		if ((dstY + 1) == dstEndY) break;
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY + 1);
-		if (false) { // TODO
+		if (IsTagged<ScaleOp, Streaming>::result) {
 			scale(srcLine, dstLine1, 960);
 		} else {
 			copy(dstLine0, dstLine1, 960);
@@ -35,7 +35,7 @@ static void doScale1(
 
 		if ((dstY + 2) == dstEndY) break;
 		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, dstY + 2);
-		if (false) { // TODO
+		if (IsTagged<ScaleOp, Streaming>::result) {
 			scale(srcLine, dstLine2, 960);
 		} else {
 			copy(dstLine0, dstLine2, 960);

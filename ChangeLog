@@ -1,5 +1,9 @@
 $Id$
 
+2005-10-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added 'Streaming store' tags on line scalers to enable
+	  optimizations in Scaler2 and Scaler3
+
 2005-10-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Transformed scale_XonY() methods into functors
 	* Changed signature of scale192/384/640/768/1024 methods

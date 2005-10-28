@@ -5,29 +5,66 @@
 
 #include "PixelOperations.hh"
 #include "HostCPU.hh"
+#include "build-info.hh"
 #include <string.h>
 
 namespace openmsx {
 
+// Meta programming infrastructure for tagging
+
+template <typename T> struct Tag : public T {};
+template <typename T> struct NoTag          {};
+
+template <bool, typename T> struct TagIf           { typedef Tag  <T> type; };
+template <      typename T> struct TagIf<false, T> { typedef NoTag<T> type; };
+
+template <typename S, typename T> struct IsTagged 
+{
+	static char test(T*);
+	static int  test(...);
+	static const bool result = sizeof(test(static_cast<S*>(0))) == 1;
+};
+
+// Tag classes
+
+struct Streaming {};
+struct X86Streaming
+#ifdef ASM_X86 
+: Streaming
+#endif
+{};
+
+
+// Scalers
+
+/**  Scale_XonY functors
+ * Transforms an input line of pixel to an output line (possibly) with
+ * a different width. X input pixels are mapped on Y output pixels.
+ * @param in Input line
+ * @param out Output line
+ * @param width Width of the output line in pixels
+ */
 template <typename Pixel> class Scale_1on3
 {
 public:
 	void operator()(const Pixel* in, Pixel* out, unsigned width);
 };
 
-template <typename Pixel, bool InCache = false> class Scale_1on2
+template <typename Pixel, bool streaming = true> class Scale_1on2
+	: public TagIf<streaming, X86Streaming>::type
 {
 public:
 	void operator()(const Pixel* in, Pixel* out, unsigned width);
 };
 
-template <typename Pixel, bool InCache = false> class Scale_1on1
+template <typename Pixel, bool streaming = true> class Scale_1on1
+	: public TagIf<streaming, X86Streaming>::type
 {
 public:
 	void operator()(const Pixel* in, Pixel* out, unsigned width);
 };
 
-template <typename Pixel> class Scale_2on1
+template <typename Pixel> class Scale_2on1 : public Tag<X86Streaming>
 {
 public:
 	Scale_2on1(PixelOperations<Pixel> pixelOps);
@@ -99,6 +136,13 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
+/**  BlendLines functor
+ * Generate an output line that is an iterpolation of two input lines.
+ * @param in1 First input line
+ * @param in2 Second input line
+ * @param out Output line
+ * @param width Width of the lines in pixels
+ */
 template <typename Pixel, unsigned w1 = 1, unsigned w2 = 1> class BlendLines
 {
 public:
@@ -110,6 +154,8 @@ private:
 };
 
 
+
+// implementation
 
 template <typename Pixel>
 void Scale_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
@@ -123,13 +169,13 @@ void Scale_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
 }
 
 
-template <typename Pixel, bool InCache>
-void Scale_1on2<Pixel, InCache>::operator()(
+template <typename Pixel, bool streaming>
+void Scale_1on2<Pixel, streaming>::operator()(
 		const Pixel* in, Pixel* out, unsigned width)
 {
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if ((sizeof(Pixel) == 2) && !InCache && cpu.hasMMXEXT()) {
+	if ((sizeof(Pixel) == 2) && streaming && cpu.hasMMXEXT()) {
 		// extended-MMX routine 16bpp
 		asm (
 			".p2align 4,,15;"
@@ -231,7 +277,7 @@ void Scale_1on2<Pixel, InCache>::operator()(
 		return;
 	}
 
-	if ((sizeof(Pixel) == 4) && !InCache && cpu.hasMMXEXT()) {
+	if ((sizeof(Pixel) == 4) && streaming && cpu.hasMMXEXT()) {
 		// extended-MMX routine 32bpp
 		asm (
 			".p2align 4,,15;"
@@ -339,15 +385,15 @@ void Scale_1on2<Pixel, InCache>::operator()(
 	}
 }
 
-template <typename Pixel, bool InCache>
-void Scale_1on1<Pixel, InCache>::operator()(
+template <typename Pixel, bool streaming>
+void Scale_1on1<Pixel, streaming>::operator()(
 		const Pixel* in, Pixel* out, unsigned width)
 {
 	unsigned nBytes = width * sizeof(Pixel);
 
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if (!InCache && cpu.hasMMXEXT()) {
+	if (streaming && cpu.hasMMXEXT()) {
 		// extended-MMX routine (both 16bpp and 32bpp)
 		asm (
 			".p2align 4,,15;"
