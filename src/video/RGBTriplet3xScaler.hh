@@ -23,14 +23,24 @@ public:
 	virtual void scaleBlank(
 		Pixel color, SDL_Surface* dst,
 		unsigned startY, unsigned endY);
+	virtual void scale192(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale256(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
+	virtual void scale384(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale512(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
-	// TODO implement other methods:
-	//   scale to 320 wide local buffer and RGBify that
+	virtual void scale768(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
+	virtual void scale1024(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
 
 private:
 	inline void calcSpil(unsigned x, unsigned& r, unsigned& s);
@@ -41,6 +51,12 @@ private:
 	 * @param inwidth Width of the input buffer (in pixels)
 	 */
 	void rgbify(const Pixel* in, Pixel* out, unsigned inwidth);
+	
+	template <typename ScaleOp>
+	void doScale1(
+		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY,
+		ScaleOp scale);
 
 	int c1, c2;
 	PixelOperations<Pixel> pixelOps;

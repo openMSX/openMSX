@@ -66,56 +66,20 @@ void RGBTriplet3xScaler<Pixel>::rgbify(const Pixel* in, Pixel* out, unsigned inw
 	*/
 }
 
-template <class Pixel>
-void RGBTriplet3xScaler<Pixel>::scale256(
-	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
-	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
-{
-	Scale_1on1<Pixel> copy;
 
-	int scanlineFactor = settings.getScanlineFactor();
-	c1 = settings.getBlurFactor();
-	c2 = (3 * 256) - (2 * c1);
+// Note: the idea is that this method RGBifies a line that is first scaled
+// to 256 (320) width. So, when calling this, keep this in mind and pass a
+// scale functor that scales the input with to 256 (320).
+
+template <typename Pixel>
+template <typename ScaleOp>
+void RGBTriplet3xScaler<Pixel>::doScale1(
+	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY,
+	ScaleOp scale)
+{
 	
-	int y = dstStartY;
-
-	const Pixel* srcLine = src.getLinePtr(srcStartY++, (Pixel*)0);
-	Pixel* prevDstLine0 = Scaler<Pixel>::linePtr(dst, y + 0);
-	rgbify(srcLine, prevDstLine0, 320);
-
-	Pixel* dstLine1     = Scaler<Pixel>::linePtr(dst, y + 1);
-	copy(prevDstLine0, dstLine1, 960);
-
-	for (/* */; y < ((int)dstEndY - 4); y += 3, srcStartY += 1) {
-		const Pixel* srcLine = src.getLinePtr(srcStartY, (Pixel*)0);
-		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, y + 3);
-		rgbify(srcLine, dstLine0, 320);
-
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 4);
-		copy(dstLine0, dstLine1, 960);
-
-		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 2);
-		scanline.draw(prevDstLine0, dstLine0, dstLine2,
-		              scanlineFactor, 960);
-
-		prevDstLine0 = dstLine0;
-	}
-
-	// When interlace is enabled, the bottom line can fall off the screen.
-	if ((y + 2) < (int)dstEndY) {
-		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 2);
-		scanline.draw(prevDstLine0, prevDstLine0, dstLine2,
-		              scanlineFactor, 960);
-	}
-}
-
-template <class Pixel>
-void RGBTriplet3xScaler<Pixel>::scale512(
-	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
-	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
-{
 	Scale_1on1<Pixel> copy;
-	Scale_2on1<Pixel> halve(pixelOps);
 
 	int scanlineFactor = settings.getScanlineFactor();
 	c1 = settings.getBlurFactor();
@@ -126,7 +90,7 @@ void RGBTriplet3xScaler<Pixel>::scale512(
 	const Pixel* srcLine = src.getLinePtr(srcStartY++, (Pixel*)0);
 	Pixel* prevDstLine0 = Scaler<Pixel>::linePtr(dst, y + 0);
 	Pixel tmp[320];
-	halve(srcLine, tmp, 320);
+	scale(srcLine, tmp, 320);
 	rgbify(tmp, prevDstLine0, 320);
 
 	Pixel* dstLine1     = Scaler<Pixel>::linePtr(dst, y + 1);
@@ -135,7 +99,7 @@ void RGBTriplet3xScaler<Pixel>::scale512(
 	for (/* */; y < ((int)dstEndY - 4); y += 3, srcStartY += 1) {
 		const Pixel* srcLine = src.getLinePtr(srcStartY, (Pixel*)0);
 		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, y + 3);
-		halve(srcLine, tmp, 320);
+		scale(srcLine, tmp, 320);
 		rgbify(tmp, dstLine0, 320);
 
 		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 4);
@@ -156,9 +120,61 @@ void RGBTriplet3xScaler<Pixel>::scale512(
 	}
 }
 
+template <class Pixel>
+void RGBTriplet3xScaler<Pixel>::scale192(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	                Scale_2on3<Pixel>(pixelOps));
+}
 
-// the following is mostly copied from scale256 (with some minor optimizations
-// TODO: see if we can avoid code duplication
+template <class Pixel>
+void RGBTriplet3xScaler<Pixel>::scale256(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	                Scale_1on1<Pixel>());
+}
+
+template <class Pixel>
+void RGBTriplet3xScaler<Pixel>::scale384(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	                Scale_4on3<Pixel>(pixelOps));
+}
+
+template <class Pixel>
+void RGBTriplet3xScaler<Pixel>::scale512(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	                Scale_2on1<Pixel>(pixelOps));
+}
+
+template <class Pixel>
+void RGBTriplet3xScaler<Pixel>::scale768(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	                Scale_8on3<Pixel>(pixelOps));
+}
+
+template <class Pixel>
+void RGBTriplet3xScaler<Pixel>::scale1024(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	                Scale_4on1<Pixel>(pixelOps));
+}
+
+
 template <class Pixel>
 void RGBTriplet3xScaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
                                unsigned startY, unsigned endY)

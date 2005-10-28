@@ -1,5 +1,8 @@
 $Id$
 
+2005-10-28 Manuel Bilderbeek <manuel@msxnet.org>
+	* Implemented RGBTriplet3xScaler for all widths using the new functors
+
 2005-10-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added 'Streaming store' tags on line scalers to enable
 	  optimizations in Scaler2 and Scaler3
