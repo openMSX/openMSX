@@ -160,12 +160,15 @@ private:
 template <typename Pixel>
 void Scale_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
 {
-	for (unsigned i = 0; i < width / 3; ++i) {
-		Pixel pix = in[i];
-		out[3 * i + 0] = pix;
-		out[3 * i + 1] = pix;
-		out[3 * i + 2] = pix;
+	unsigned i = 0, j = 0;
+	for (/* */; i < (width - 2); i += 3, j += 1) {
+		Pixel pix = in[j];
+		out[i + 0] = pix;
+		out[i + 1] = pix;
+		out[i + 2] = pix;
 	}
+	if ((i + 0) < width) out[i + 0] = 0;
+	if ((i + 1) < width) out[i + 0] = 0;
 }
 
 
@@ -173,6 +176,7 @@ template <typename Pixel, bool streaming>
 void Scale_1on2<Pixel, streaming>::operator()(
 		const Pixel* in, Pixel* out, unsigned width)
 {
+	assert((width % 2) == 0);
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 2) && streaming && cpu.hasMMXEXT()) {
@@ -743,11 +747,14 @@ Scale_2on3<Pixel>::Scale_2on3(PixelOperations<Pixel> pixelOps_)
 template <typename Pixel>
 void Scale_2on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
 {
-	for (unsigned i = 0, j = 0; i < width; i += 3, j += 2) {
+	unsigned i = 0, j = 0;
+	for (/* */; i < (width - 2); i += 3, j += 2) {
 		out[i + 0] =                                 in[j + 0];
 		out[i + 1] = pixelOps.template blend2<1, 1>(&in[j + 0]);
 		out[i + 2] =                                 in[j + 1];
 	}
+	if ((i + 0) < width) out[i + 0] = 0;
+	if ((i + 1) < width) out[i + 1] = 0;
 }
 
 
@@ -760,11 +767,14 @@ Scale_4on3<Pixel>::Scale_4on3(PixelOperations<Pixel> pixelOps_)
 template <typename Pixel>
 void Scale_4on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
 {
-	for (unsigned i = 0, j = 0; i < width; i += 3, j += 4) {
+	unsigned i = 0, j = 0;
+	for (/* */; i < (width - 2); i += 3, j += 4) {
 		out[i + 0] = pixelOps.template blend2<3, 1>(&in[j + 0]);
 		out[i + 1] = pixelOps.template blend2<1, 1>(&in[j + 1]);
 		out[i + 2] = pixelOps.template blend2<1, 3>(&in[j + 2]);
 	}
+	if ((i + 0) < width) out[i + 0] = 0;
+	if ((i + 1) < width) out[i + 1] = 0;
 }
 
 
@@ -777,11 +787,14 @@ Scale_8on3<Pixel>::Scale_8on3(PixelOperations<Pixel> pixelOps_)
 template <typename Pixel>
 void Scale_8on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
 {
-	for (unsigned i = 0, j = 0; i < width; i += 3, j += 8) {
+	unsigned i = 0, j = 0;
+	for (/* */; i < (width - 2); i += 3, j += 8) {
 		out[i + 0] = pixelOps.template blend3<3, 3, 2>   (&in[j + 0]);
 		out[i + 1] = pixelOps.template blend4<1, 3, 3, 1>(&in[j + 2]);
 		out[i + 2] = pixelOps.template blend3<2, 3, 3>   (&in[j + 5]);
 	}
+	if ((i + 0) < width) out[i + 0] = 0;
+	if ((i + 1) < width) out[i + 1] = 0;
 }
 
 
@@ -794,7 +807,8 @@ Scale_2on9<Pixel>::Scale_2on9(PixelOperations<Pixel> pixelOps_)
 template <typename Pixel>
 void Scale_2on9<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
 {
-	for (unsigned i = 0, j = 0; i < width; i += 9, j += 2) {
+	unsigned i = 0, j = 0;
+	for (/* */; i < (width - 8); i += 9, j += 2) {
 		out[i + 0] =                                 in[j + 0];
 		out[i + 1] =                                 in[j + 0];
 		out[i + 2] =                                 in[j + 0];
@@ -805,6 +819,14 @@ void Scale_2on9<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
 		out[i + 7] =                                 in[j + 1];
 		out[i + 8] =                                 in[j + 1];
 	}
+	if ((i + 0) < width) out[i + 0] = 0;
+	if ((i + 1) < width) out[i + 1] = 0;
+	if ((i + 2) < width) out[i + 2] = 0;
+	if ((i + 3) < width) out[i + 3] = 0;
+	if ((i + 4) < width) out[i + 4] = 0;
+	if ((i + 5) < width) out[i + 5] = 0;
+	if ((i + 6) < width) out[i + 6] = 0;
+	if ((i + 7) < width) out[i + 7] = 0;
 }
 
 
@@ -817,7 +839,8 @@ Scale_4on9<Pixel>::Scale_4on9(PixelOperations<Pixel> pixelOps_)
 template <typename Pixel>
 void Scale_4on9<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
 {
-	for (unsigned i = 0, j = 0; i < width; i += 9, j += 4) {
+	unsigned i = 0, j = 0;
+	for (/* */; i < (width - 8); i += 9, j += 4) {
 		out[i + 0] =                                 in[j + 0];
 		out[i + 1] =                                 in[j + 0];
 		out[i + 2] = pixelOps.template blend2<1, 3>(&in[j + 0]);
@@ -828,6 +851,14 @@ void Scale_4on9<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
 		out[i + 7] =                                 in[j + 3];
 		out[i + 8] =                                 in[j + 3];
 	}
+	if ((i + 0) < width) out[i + 0] = 0;
+	if ((i + 1) < width) out[i + 1] = 0;
+	if ((i + 2) < width) out[i + 2] = 0;
+	if ((i + 3) < width) out[i + 3] = 0;
+	if ((i + 4) < width) out[i + 4] = 0;
+	if ((i + 5) < width) out[i + 5] = 0;
+	if ((i + 6) < width) out[i + 6] = 0;
+	if ((i + 7) < width) out[i + 7] = 0;
 }
 
 
@@ -840,7 +871,8 @@ Scale_8on9<Pixel>::Scale_8on9(PixelOperations<Pixel> pixelOps_)
 template <typename Pixel>
 void Scale_8on9<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
 {
-	for (unsigned i = 0, j = 0; i < width; i += 9, j += 8) {
+	unsigned i = 0, j = 0;
+	for (/* */; i < width; i += 9, j += 8) {
 		out[i + 0] =                                 in[j + 0];
 		out[i + 0] = pixelOps.template blend2<1, 7>(&in[j + 0]);
 		out[i + 0] = pixelOps.template blend2<1, 3>(&in[j + 1]);
@@ -851,6 +883,14 @@ void Scale_8on9<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
 		out[i + 0] = pixelOps.template blend2<7, 1>(&in[j + 6]);
 		out[i + 0] =                                 in[j + 7];
 	}
+	if ((i + 0) < width) out[i + 0] = 0;
+	if ((i + 1) < width) out[i + 1] = 0;
+	if ((i + 2) < width) out[i + 2] = 0;
+	if ((i + 3) < width) out[i + 3] = 0;
+	if ((i + 4) < width) out[i + 4] = 0;
+	if ((i + 5) < width) out[i + 5] = 0;
+	if ((i + 6) < width) out[i + 6] = 0;
+	if ((i + 7) < width) out[i + 7] = 0;
 }
 
 

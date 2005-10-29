@@ -3,6 +3,8 @@ $Id$
 2005-10-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented border effect for outer left and right border pixels
 	  in RGBTriplet3xScaler
+	* Fixed Scale_XonY line scalers for case when destination width
+	  is not an integer multiple of Y
 
 2005-10-28 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented RGBTriplet3xScaler for all widths using the new functors
