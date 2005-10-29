@@ -4,10 +4,6 @@
 #include "LineScalers.hh"
 #include "FrameSource.hh"
 #include "RenderSettings.hh"
-#include <algorithm>
-#include <cassert>
-
-using std::min;
 
 namespace openmsx {
 
@@ -22,9 +18,15 @@ RGBTriplet3xScaler<Pixel>::RGBTriplet3xScaler(
 }
 
 template <class Pixel>
+void RGBTriplet3xScaler<Pixel>::recalcBlur()
+{
+	c1 = settings.getBlurFactor();
+	c2 = (3 * 256) - (2 * c1);
+}
+
+template <class Pixel>
 void RGBTriplet3xScaler<Pixel>::calcSpil(unsigned x, unsigned& r, unsigned& s)
 {
-	// TODO: adjust for 16bpp (spill earlier than 255)
 	r = (c2 * x) >> 8;
 	s = (c1 * x) >> 8;
 	if (r > 255) {
@@ -34,43 +36,40 @@ void RGBTriplet3xScaler<Pixel>::calcSpil(unsigned x, unsigned& r, unsigned& s)
 }
 
 template <class Pixel>
-void RGBTriplet3xScaler<Pixel>::rgbify(const Pixel* in, Pixel* out, unsigned inwidth)
+void RGBTriplet3xScaler<Pixel>::rgbify(
+		const Pixel* in, Pixel* out, unsigned inwidth)
 {
 	unsigned r, g, b, rs, gs, bs;
-	calcSpil(pixelOps.red256  (in[0]), r, rs);
-	calcSpil(pixelOps.green256(in[0]), g, gs);
-	calcSpil(pixelOps.blue256 (in[0]), b, bs);
-	/* this is old code to process the edges correctly.
-	 * We're skipping it now for efficiency and simplicity.
-	 * Note that it is 32bpp only. It's left here in case we want to use
-	 * it after all.
-	out[0] = (r  << 16) + (gs << 8);
-	out[1] = (rs << 16) + (g  << 8) + (bs << 0);
-	calcSpil((in[1] >> 16) & 0xFF, r, rs);
-	out[2] = (rs << 16) + (gs << 8) + (b  << 0);
-	*/
-	for (unsigned i = 0; i < inwidth; ++i) {
+	unsigned i = 0;
+
+	calcSpil(pixelOps.red256  (in[i + 0]), r, rs);
+	calcSpil(pixelOps.green256(in[i + 0]), g, gs);
+	out[3 * i + 0] = pixelOps.combine256(r , gs, 0 );
+	calcSpil(pixelOps.blue256 (in[i + 0]), b, bs);
+	out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
+	calcSpil(pixelOps.red256  (in[i + 1]), r, rs);
+	out[3 * i + 2] = pixelOps.combine256(rs, gs, b );
+
+	for (++i; i < (inwidth - 1); ++i) {
 		calcSpil(pixelOps.green256(in[i + 0]), g, gs);
-		out[3 * i + 0] = pixelOps.combine256(r, gs, bs);
+		out[3 * i + 0] = pixelOps.combine256(r , gs, bs);
 		calcSpil(pixelOps.blue256 (in[i + 0]), b, bs);
-		out[3 * i + 1] = pixelOps.combine256(rs, g, bs);
-		calcSpil(pixelOps.red256  (in[(i + 1) % inwidth]), r, rs);
-		out[3 * i + 2] = pixelOps.combine256(rs, gs, b);
+		out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
+		calcSpil(pixelOps.red256  (in[i + 1]), r, rs);
+		out[3 * i + 2] = pixelOps.combine256(rs, gs, b );
 	}
-	/* see above
-	calcSpil((in[319] >>  8) & 0xFF, g, gs);
-	out[957] = (r  << 16) + (gs << 8) + (bs << 0);
-	calcSpil((in[319] >>  0) & 0xFF, b, bs);
-	out[958] = (rs << 16) + (g  << 8) + (bs << 0);
-	out[959] =              (gs << 8) + (b  << 0);
-	*/
+
+	calcSpil(pixelOps.green256(in[i + 0]), g, gs);
+	out[3 * i + 0] = pixelOps.combine256(r , gs, bs);
+	calcSpil(pixelOps.blue256 (in[i + 0]), b, bs);
+	out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
+	out[3 * i + 2] = pixelOps.combine256(0 , gs, b );
 }
 
 
 // Note: the idea is that this method RGBifies a line that is first scaled
 // to 256 (320) width. So, when calling this, keep this in mind and pass a
 // scale functor that scales the input with to 256 (320).
-
 template <typename Pixel>
 template <typename ScaleOp>
 void RGBTriplet3xScaler<Pixel>::doScale1(
@@ -78,25 +77,21 @@ void RGBTriplet3xScaler<Pixel>::doScale1(
 	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY,
 	ScaleOp scale)
 {
-	
-	Scale_1on1<Pixel> copy;
+	recalcBlur();
 
 	int scanlineFactor = settings.getScanlineFactor();
-	c1 = settings.getBlurFactor();
-	c2 = (3 * 256) - (2 * c1);
-	
-	int y = dstStartY;
-
+	unsigned y = dstStartY;
 	const Pixel* srcLine = src.getLinePtr(srcStartY++, (Pixel*)0);
 	Pixel* prevDstLine0 = Scaler<Pixel>::linePtr(dst, y + 0);
 	Pixel tmp[320];
 	scale(srcLine, tmp, 320);
 	rgbify(tmp, prevDstLine0, 320);
 
+	Scale_1on1<Pixel> copy;
 	Pixel* dstLine1     = Scaler<Pixel>::linePtr(dst, y + 1);
 	copy(prevDstLine0, dstLine1, 960);
 
-	for (/* */; y < ((int)dstEndY - 4); y += 3, srcStartY += 1) {
+	for (/* */; (y + 4) < dstEndY; y += 3, srcStartY += 1) {
 		const Pixel* srcLine = src.getLinePtr(srcStartY, (Pixel*)0);
 		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, y + 3);
 		scale(srcLine, tmp, 320);
@@ -113,7 +108,7 @@ void RGBTriplet3xScaler<Pixel>::doScale1(
 	}
 
 	// When interlace is enabled, the bottom line can fall off the screen.
-	if ((y + 2) < (int)dstEndY) {
+	if ((y + 2) < dstEndY) {
 		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 2);
 		scanline.draw(prevDstLine0, prevDstLine0, dstLine2,
 		              scanlineFactor, 960);
@@ -126,7 +121,7 @@ void RGBTriplet3xScaler<Pixel>::scale192(
 	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
-	                Scale_2on3<Pixel>(pixelOps));
+	         Scale_2on3<Pixel>(pixelOps));
 }
 
 template <class Pixel>
@@ -135,7 +130,7 @@ void RGBTriplet3xScaler<Pixel>::scale256(
 	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
-	                Scale_1on1<Pixel>());
+	         Scale_1on1<Pixel>());
 }
 
 template <class Pixel>
@@ -144,7 +139,7 @@ void RGBTriplet3xScaler<Pixel>::scale384(
 	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
-	                Scale_4on3<Pixel>(pixelOps));
+	         Scale_4on3<Pixel>(pixelOps));
 }
 
 template <class Pixel>
@@ -153,7 +148,7 @@ void RGBTriplet3xScaler<Pixel>::scale512(
 	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
-	                Scale_2on1<Pixel>(pixelOps));
+	         Scale_2on1<Pixel>(pixelOps));
 }
 
 template <class Pixel>
@@ -162,7 +157,7 @@ void RGBTriplet3xScaler<Pixel>::scale768(
 	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
-	                Scale_8on3<Pixel>(pixelOps));
+	         Scale_8on3<Pixel>(pixelOps));
 }
 
 template <class Pixel>
@@ -171,47 +166,48 @@ void RGBTriplet3xScaler<Pixel>::scale1024(
 	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
-	                Scale_4on1<Pixel>(pixelOps));
+	         Scale_4on1<Pixel>(pixelOps));
 }
 
+template <typename Pixel>
+static void fillLoop(const Pixel* in, Pixel* out)
+{
+	out[0] = in[0];
+	out[1] = in[1];
+	out[2] = in[2];
+	for (unsigned x = 1; x < (960 - 3); x += 3) {
+		out[x + 0] = in[3];
+		out[x + 1] = in[4];
+		out[x + 2] = in[5];
+	}
+	out[957] = in[6];
+	out[958] = in[7];
+	out[959] = in[8];
+}
 
 template <class Pixel>
 void RGBTriplet3xScaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
                                unsigned startY, unsigned endY)
 {
-	int scanlineFactor = settings.getScanlineFactor();
-	c1 = settings.getBlurFactor();
-	c2 = (3 * 256) - (2 * c1);
+	recalcBlur();
 
-	Pixel outNormal[3];
-	Pixel outScanline[3];
-	
-	rgbify(&color, outNormal, 1);
-	Pixel scanlineColor = scanline.darken(color, scanlineFactor);
-	rgbify(&scanlineColor, outScanline, 1);
-	
-	for (unsigned y = startY; y < endY; y += 3)
-	{
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y + 0);
-		for (unsigned x = 0; x < 960; x += 3) {
-			dstLine[x + 0] = outNormal[0];
-			dstLine[x + 1] = outNormal[1];
-			dstLine[x + 2] = outNormal[2];
-		}
+	Pixel inNormal   [3];
+	Pixel outNormal  [3 * 3];
+	inNormal[0] = inNormal[1] = inNormal[2] = color;
+	rgbify(inNormal, outNormal, 3);
+
+	Pixel outScanline[3 * 3];
+	int scanlineFactor = settings.getScanlineFactor();
+	for (int i = 0; i < (3 * 3); ++i) {
+		outScanline[i] = scanline.darken(outNormal[i], scanlineFactor);
+	}
+
+	for (unsigned y = startY; y < endY; y += 3) {
+		fillLoop(outNormal,   Scaler<Pixel>::linePtr(dst, y + 0));
 		if ((y + 1) >= endY) break;
-		dstLine = Scaler<Pixel>::linePtr(dst, y + 1);
-		for (unsigned x = 0; x < 960; x += 3) {
-			dstLine[x + 0] = outNormal[0];
-			dstLine[x + 1] = outNormal[1];
-			dstLine[x + 2] = outNormal[2];
-		} 
+		fillLoop(outNormal,   Scaler<Pixel>::linePtr(dst, y + 1));
 		if ((y + 2) >= endY) break;
-		dstLine = Scaler<Pixel>::linePtr(dst, y + 2);
-		for (unsigned x = 0; x < 960; x += 3) {
-			dstLine[x + 0] = outScanline[0];
-			dstLine[x + 1] = outScanline[1];
-			dstLine[x + 2] = outScanline[2];
-		}
+		fillLoop(outScanline, Scaler<Pixel>::linePtr(dst, y + 2));
 	}
 }
 

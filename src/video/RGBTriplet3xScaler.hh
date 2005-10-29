@@ -43,7 +43,9 @@ public:
 		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
 
 private:
+	void recalcBlur();
 	inline void calcSpil(unsigned x, unsigned& r, unsigned& s);
+
 	/**
 	 * Calculates the RGB triplets.
 	 * @param in Buffer of input pixels
@@ -51,12 +53,11 @@ private:
 	 * @param inwidth Width of the input buffer (in pixels)
 	 */
 	void rgbify(const Pixel* in, Pixel* out, unsigned inwidth);
-	
+
 	template <typename ScaleOp>
-	void doScale1(
-		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY,
-		ScaleOp scale);
+	void doScale1(FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	              SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY,
+	              ScaleOp scale);
 
 	int c1, c2;
 	PixelOperations<Pixel> pixelOps;
