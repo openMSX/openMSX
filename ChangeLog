@@ -1,5 +1,9 @@
 $Id$
 
+2005-10-29 Manuel Bilderbeek <manuel@msxnet.org>
+	* Implemented Simple3xScaler with scanlines. Blur is TODO for someone
+	  who is interested :P
+
 2005-10-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented border effect for outer left and right border pixels
 	  in RGBTriplet3xScaler

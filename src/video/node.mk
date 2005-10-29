@@ -20,6 +20,7 @@ SRC_HDR:= \
 	HQ2xScaler HQ2xLiteScaler \
 	HQ3xScaler HQ3xLiteScaler \
 	RGBTriplet3xScaler \
+	Simple3xScaler \
 	ScreenShotSaver \
 	VideoSystem Display VideoLayer \
 	Layer \
