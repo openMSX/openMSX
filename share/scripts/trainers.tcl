@@ -1471,8 +1471,10 @@ proc trainer_vampirekiller {} {
 	poke 0xc416 2
 	#game master combo (thanks bifi)
 	poke 0xe600 255
-	#enemy dies after 1 hit
+	#main enemy dies after 1 hit
 	poke 0xc418 0
+	#Silver cross is always active (no irregular enemies)
+	poke 0xc440 255
 	after time 2 trainer_vampirekiller
 }
 
@@ -2257,6 +2259,7 @@ proc trainer_chukataisen {} {
 }
 
 proc trainer_goemon {} {
+	#this cheat works for both players
 	#lives
 	poke 0xc260 0x99
 	#power
@@ -2345,7 +2348,8 @@ proc trainer_kingkong2 {} {
 proc trainer_ikariwarriors {} {
 	#rapid fire (set interval between shots)
 	poke 0xc418 0
-	#set kind of ammo
+	
+	#set kind of ammo for weapons 1 and 2
 	# 0 = nothing
 	# 1 = regular
 	# 2 = 3 way shot (not deadly)
@@ -2355,9 +2359,21 @@ proc trainer_ikariwarriors {} {
 	# 6 = high explosive tank bullets
 	# 7 = hand granates
 	# 8 = high explosive hand granades
+	
+	#1st weapon player 1
 	poke 0xc41d 6
-	#lives
+	#2nd weapon player 1
+	poke 0xc41e 8
+	#lives player 1
 	poke 0xc415 99
+	
+	#1st weapon player 2
+	poke 0xc43d 6
+	#2nd weapon player 2
+	poke 0xc43e 8
+	#lives player 2
+	poke 0xc435 99
+	
 	#fun with spites
 	#poke 0xc416 [sprite]
 	after time 2 trainer_ikariwarriors
@@ -4346,7 +4362,31 @@ proc trainer_breaker {} {
 	#balls
 	poke 0x953d 99
 	after time 1 trainer_breaker	
-} 
+}
+
+
+proc trainer_bosconian  {} {
+	#life bar
+	poke 0xe00d 99
+	#'attack' alarm doesn't sound (makes it harder)
+	poke 0xe810 0
+after time 1 trainer_bosconian 
+}
+
+proc trainer_pegasus  {} {
+	#damage bar
+	poke 0xe1dc 0
+	#psyco-G1 ammo
+	poke 0xe09b 255
+	#psyco-G2 ammo
+	poke 0xe09c 255	
+	#psyco-G3 ammo
+	poke 0xe09d 255	
+	#zaider damage
+	poke 0xe0b5 0
+after time 1 trainer_pegasus 
+}
+
 
 proc poke {addr val} {
 	debug write memory $addr $val
