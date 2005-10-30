@@ -50,6 +50,16 @@ public:
 	virtual void scale1024(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                       unsigned startY, unsigned endY);
 
+	virtual void scaleImage(
+		FrameSource& src, unsigned lineWidth,
+		unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
+		);
+	virtual void scaleImage(
+		FrameSource& frameEven, FrameSource& frameOdd, unsigned lineWidth,
+		SDL_Surface* dst, unsigned srcStartY, unsigned srcEndY
+		);
+
 private:
 	PixelOperations<Pixel> pixelOps;
 };

@@ -1,5 +1,9 @@
 $Id$
 
+2005-10-30 Maarten ter Huurne <maarten@treewalker.org>
+	* Moved the switch(lineWidth) statement from PostProcessor to Scaler<N>,
+	  as a preparation for renaming the line scale methods.
+
 2005-10-29 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented Simple3xScaler with scanlines. Blur is TODO for someone
 	  who is interested :P

@@ -84,14 +84,14 @@ void Scaler3<Pixel>::scale192(FrameSource& src0, FrameSource& src1, SDL_Surface*
 }
 
 // TODO: See comment for Scaler2::scale256.
-/*template <class Pixel>
+template <class Pixel>
 void Scaler3<Pixel>::scale256(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
-	                Scale_1on3<Pixel>(pixelOps));
-}*/
+	                Scale_1on3<Pixel>());
+}
 
 template <class Pixel>
 void Scaler3<Pixel>::scale256(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
@@ -182,6 +182,75 @@ void Scaler3<Pixel>::scale1024(FrameSource& src0, FrameSource& src1, SDL_Surface
 {
 	doScale2<Pixel>(src0, src1, dst, startY, endY, pixelOps,
 	                Scale_4on3<Pixel>(pixelOps));
+}
+
+// TODO: This method doesn't have any dependency on the pixel format, so is it
+//       possible to move it to a class without the Pixel template parameter?
+template <class Pixel>
+void Scaler3<Pixel>::scaleImage(
+	FrameSource& src, unsigned lineWidth,
+	unsigned srcStartY, unsigned srcEndY,
+	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
+) {
+	switch (lineWidth) {
+	case 192:
+		scale192(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+		break;
+	case 256:
+		scale256(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+		break;
+	case 384:
+		scale384(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+		break;
+	case 512:
+		scale512(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+		break;
+	case 640:
+		scale640(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+		break;
+	case 768:
+		scale768(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+		break;
+	case 1024:
+		scale1024(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+		break;
+	default:
+		assert(false);
+		break;
+	}
+}
+
+template <class Pixel>
+void Scaler3<Pixel>::scaleImage(
+	FrameSource& frameEven, FrameSource& frameOdd, unsigned lineWidth,
+	SDL_Surface* dst, unsigned srcStartY, unsigned srcEndY
+) {
+	switch (lineWidth) {
+	case 192:
+		scale192(frameEven, frameOdd, dst, srcStartY, srcEndY);
+		break;
+	case 256:
+		scale256(frameEven, frameOdd, dst, srcStartY, srcEndY);
+		break;
+	case 384:
+		scale384(frameEven, frameOdd, dst, srcStartY, srcEndY);
+		break;
+	case 512:
+		scale512(frameEven, frameOdd, dst, srcStartY, srcEndY);
+		break;
+	case 640:
+		scale640(frameEven, frameOdd, dst, srcStartY, srcEndY);
+		break;
+	case 768:
+		scale768(frameEven, frameOdd, dst, srcStartY, srcEndY);
+		break;
+	case 1024:
+		scale1024(frameEven, frameOdd, dst, srcStartY, srcEndY);
+		break;
+	default:
+		assert(false);
+		break;
+	}
 }
 
 

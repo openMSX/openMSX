@@ -19,9 +19,9 @@ public:
 	virtual void scale192(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY);
 
-	/*virtual void scale256(
+	virtual void scale256(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);*/
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale256(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                      unsigned startY, unsigned endY);
 
@@ -54,6 +54,16 @@ public:
 		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale1024(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
 	                       unsigned startY, unsigned endY);
+
+	virtual void scaleImage(
+		FrameSource& src, unsigned lineWidth,
+		unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
+		);
+	virtual void scaleImage(
+		FrameSource& frameEven, FrameSource& frameOdd, unsigned lineWidth,
+		SDL_Surface* dst, unsigned srcStartY, unsigned srcEndY
+		);
 
 protected:
 	Scaler3(SDL_PixelFormat* format);

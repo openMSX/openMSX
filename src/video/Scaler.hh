@@ -65,8 +65,31 @@ public:
 	virtual void scaleBlank(Pixel color, SDL_Surface* dst,
 	                        unsigned startY, unsigned endY);
 
-	/** Scales the given area. Scaling factor depends on the concrete scaler
-	  * The default implementation scales each pixel to a 2x2 square.
+	/** Scales the image in the given area, which must consist of lines which
+	  * are all equally wide.
+	  * Scaling factor depends on the concrete scaler.
+	  * @param src Source: the frame to be scaled.
+	  * @param lineWidth The number of pixels per line for the given area.
+	  * @param srcStartY Y-coordinate of the top source line (inclusive).
+	  * @param srcEndY Y-coordinate of the bottom source line (exclusive).
+	  * @param dst Destination: image to store the scaled output in.
+	  * @param dstStartY Y-coordinate of the top destination line (inclusive).
+	  * @param dstEndY Y-coordinate of the bottom destination line (exclusive).
+	  */
+	virtual void scaleImage(
+		FrameSource& src, unsigned lineWidth,
+		unsigned srcStartY, unsigned srcEndY,
+		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
+		) = 0;
+
+	/** Temporary handling of deinterlacing.
+	  */
+	virtual void scaleImage(
+		FrameSource& frameEven, FrameSource& frameOdd, unsigned lineWidth,
+		SDL_Surface* dst, unsigned srcStartY, unsigned srcEndY
+		) = 0;
+
+	/** Scales the given area. Scaling factor depends on the concrete scaler.
 	  * @param src Source: the image to be scaled.
 	  *   It should be 320 pixels wide.
 	  * @param srcStartY Y-coordinate of the top source line (inclusive).
@@ -82,7 +105,6 @@ public:
 	                      unsigned startY, unsigned endY) = 0;
 
 	/** Scales the given area. Scaling factor depends on the concrete scaler
-	  * The default implementation scales each pixel to a 1x2 rectangle.
 	  * @param src Source: the image to be scaled.
 	  *   It should be 640 pixels wide.
 	  * @param dst Destination: image to store the scaled output in.
