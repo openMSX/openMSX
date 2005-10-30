@@ -89,8 +89,7 @@ private:
 class LayerListener
 {
 public:
-	virtual void updateCoverage(Layer* layer, Layer::Coverage coverage) = 0;
-	virtual void updateZ(Layer* layer, Layer::ZIndex z) = 0;
+	virtual void updateZ(Layer& layer, Layer::ZIndex z) = 0;
 protected:
 	virtual ~LayerListener() {}
 };

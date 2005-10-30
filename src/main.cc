@@ -15,7 +15,6 @@
 #include "CommandController.hh"
 #include "Interpreter.hh"
 #include "Display.hh"
-#include "RendererFactory.hh"
 #include "MSXException.hh"
 #include "HotKey.hh"
 #include "SettingsConfig.hh"
@@ -75,7 +74,7 @@ static int main(int argc, char **argv)
 				motherBoard.getScheduler(),
 				motherBoard.getEventDistributor(),
 				motherBoard.getCommandController());                  
-			RendererFactory::createVideoSystem(motherBoard);
+			motherBoard.getDisplay().createVideoSystem();
 			motherBoard.readConfig();
 			Reactor reactor(motherBoard);
 			CliServer cliServer(motherBoard.getScheduler(),

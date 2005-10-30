@@ -30,18 +30,17 @@ SDLGLVideoSystem::SDLGLVideoSystem(MSXMotherBoard& motherboard_)
 	// TODO: This has to be done before every video system (re)init,
 	//       so move it to a central location.
 	Display& display = motherboard.getDisplay();
-	display.resetVideoSystem();
 
 	resize(640, 480);
 
-	new GLSnow(display);
-	new GLConsole(motherboard);
-
-	Layer* iconLayer = new GLIconLayer(motherboard.getCommandController(),
-	                                   motherboard.getEventDistributor(),
-	                                   display, screen);
-	display.addLayer(iconLayer);
-	display.setVideoSystem(this);
+	console.reset(new GLConsole(motherboard));
+	snowLayer.reset(new GLSnow());
+	iconLayer.reset(new GLIconLayer(motherboard.getCommandController(),
+	                                motherboard.getEventDistributor(),
+	                                display, screen));
+	display.addLayer(*console);
+	display.addLayer(*snowLayer);
+	display.addLayer(*iconLayer);
 
 	motherboard.getEventDistributor().registerEventListener(
 		OPENMSX_RESIZE_EVENT, *this, EventDistributor::DETACHED);
@@ -51,6 +50,11 @@ SDLGLVideoSystem::~SDLGLVideoSystem()
 {
 	motherboard.getEventDistributor().unregisterEventListener(
 		OPENMSX_RESIZE_EVENT, *this, EventDistributor::DETACHED);
+
+	Display& display = motherboard.getDisplay();
+	display.removeLayer(*iconLayer);
+	display.removeLayer(*snowLayer);
+	display.removeLayer(*console);
 
 	closeSDLVideo(screen);
 }

@@ -40,7 +40,8 @@ HDR_ONLY:= \
 	LineScalers \
 	Rasterizer \
 	FrameSource \
-	HQCommon
+	HQCommon \
+	VideoSystemChangeListener.hh
 
 SRC_HDR_$(COMPONENT_GL)+= \
 	SDLGLVideoSystem GLRasterizer GLSnow GLUtil GLImage

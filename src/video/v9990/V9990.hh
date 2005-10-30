@@ -7,7 +7,7 @@
 #include "openmsx.hh"
 #include "Clock.hh"
 #include "Schedulable.hh"
-#include "EventListener.hh"
+#include "VideoSystemChangeListener.hh"
 #include "MSXDevice.hh"
 #include "SimpleDebuggable.hh"
 #include "IRQHelper.hh"
@@ -25,7 +25,7 @@ class V9990Renderer;
   */
 class V9990 : public MSXDevice,
               private Schedulable,
-              private EventListener
+              private VideoSystemChangeListener
 {
 public:
 	V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
@@ -276,8 +276,9 @@ private:
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const std::string& schedName() const;
 
-	// EventListener interface:
-	virtual void signalEvent(const Event& event);
+	// VideoSystemChangeListener interface:
+	virtual void preVideoSystemChange();
+	virtual void postVideoSystemChange();
 
 	// Debuggable: registers
 	class V9990RegDebug : public SimpleDebuggable {

@@ -13,17 +13,17 @@ namespace openmsx {
 VideoLayer::VideoLayer(VideoSource videoSource_,
                        CommandController& commandController,
                        RenderSettings& renderSettings_,
-                       Display& display)
+                       Display& display_)
 	: videoSource(videoSource_)
 	, renderSettings(renderSettings_)
+	, display(display_)
 	, videoSourceSetting(renderSettings.getVideoSource())
 	, videoSourceActivator(videoSourceSetting, videoSource)
 	, powerSetting(commandController.getGlobalSettings().getPowerSetting())
 {
 	setCoverage(getCoverage());
 	setZ(calcZ());
-	// Register as display layer.
-	display.addLayer(this);
+	display.addLayer(*this);
 
 	videoSourceSetting.addListener(this);
 	powerSetting.addListener(this);
@@ -33,6 +33,8 @@ VideoLayer::~VideoLayer()
 {
 	powerSetting.removeListener(this);
 	videoSourceSetting.removeListener(this);
+
+	display.removeLayer(*this);
 }
 
 VideoSource VideoLayer::getVideoSource() const

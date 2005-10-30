@@ -2,14 +2,11 @@
 
 #include "DummyVideoSystem.hh"
 #include "V9990DummyRasterizer.hh"
-#include "Display.hh"
 
 namespace openmsx {
 
-DummyVideoSystem::DummyVideoSystem(Display& display)
+DummyVideoSystem::DummyVideoSystem()
 {
-	display.resetVideoSystem(); // destruct old layers
-	display.setVideoSystem(this);
 }
 
 DummyVideoSystem::~DummyVideoSystem()

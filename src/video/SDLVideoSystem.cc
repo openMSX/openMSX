@@ -25,10 +25,6 @@ SDLVideoSystem::SDLVideoSystem(MSXMotherBoard& motherboard)
 	: renderSettings(motherboard.getRenderSettings())
 	, display(motherboard.getDisplay())
 {
-	// Destruct old layers, so resources are freed before new allocations
-	// are done.
-	display.resetVideoSystem();
-
 	unsigned width, height;
 	getWindowSize(width, height);
 	screen = openSDLVideo(motherboard.getInputEventGenerator(),
@@ -36,27 +32,30 @@ SDLVideoSystem::SDLVideoSystem(MSXMotherBoard& motherboard)
 
 	switch (screen->format->BytesPerPixel) {
 	case 2:
-		new SDLSnow<Uint16>(display, screen);
+		snowLayer.reset(new SDLSnow<Uint16>(screen));
 		break;
 	case 4:
-		new SDLSnow<Uint32>(display, screen);
+		snowLayer.reset(new SDLSnow<Uint32>(screen));
 		break;
 	default:
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		throw InitException("unsupported colour depth");
 	}
-	new SDLConsole(motherboard, screen);
+	console.reset(new SDLConsole(motherboard, screen));
 
-	Layer* iconLayer = new SDLIconLayer(motherboard.getCommandController(),
-	                                    motherboard.getEventDistributor(),
-	                                    display, screen);
-	display.addLayer(iconLayer);
-
-	display.setVideoSystem(this);
+	iconLayer.reset(new SDLIconLayer(motherboard.getCommandController(),
+	                                 motherboard.getEventDistributor(),
+	                                 display, screen));
+	display.addLayer(*snowLayer);
+	display.addLayer(*console);
+	display.addLayer(*iconLayer);
 }
 
 SDLVideoSystem::~SDLVideoSystem()
 {
+	display.removeLayer(*iconLayer);
+	display.removeLayer(*console);
+	display.removeLayer(*snowLayer);
 	closeSDLVideo(screen);
 }
 

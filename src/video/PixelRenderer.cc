@@ -116,10 +116,9 @@ PixelRenderer::PixelRenderer(VDP& vdp_)
 	, realTime(vdp.getMotherBoard().getRealTime())
 	, renderSettings(vdp.getMotherBoard().getRenderSettings())
 	, spriteChecker(vdp.getSpriteChecker())
+	, rasterizer(vdp.getMotherBoard().getDisplay().getVideoSystem().
+	             createRasterizer(vdp))
 {
-	rasterizer = vdp.getMotherBoard().getDisplay().getVideoSystem().
-	                    createRasterizer(vdp);
-
 	frameSkipCounter = 999; // force drawing of frame
 	finishFrameDuration = 0;
 	prevDrawFrame = drawFrame = renderFrame = false; // don't draw before frameStart is called

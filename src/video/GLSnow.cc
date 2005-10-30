@@ -1,7 +1,7 @@
 // $Id$
 
 #include "GLSnow.hh"
-#include "Display.hh"
+#include "openmsx.hh"
 #include <cstdlib>
 
 using std::string;
@@ -12,7 +12,7 @@ namespace openmsx {
 static const int WIDTH = 640;
 static const int HEIGHT = 480;
 
-GLSnow::GLSnow(Display& display)
+GLSnow::GLSnow()
 	: Layer(COVER_FULL, Z_BACKGROUND)
 {
 	// Create noise texture.
@@ -26,9 +26,6 @@ GLSnow::GLSnow(Display& display)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8, 128, 128, 0,
 	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf);
-
-	// Register as display layer.
-	display.addLayer(this);
 }
 
 GLSnow::~GLSnow()

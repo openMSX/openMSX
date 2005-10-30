@@ -22,6 +22,7 @@ class VideoSystem;
 class MSXMotherBoard;
 class EventDistributor;
 class RenderSettings;
+class VideoSystemChangeListener;
 
 /** Represents the output window/screen of openMSX.
   * A display contains several layers.
@@ -33,18 +34,23 @@ public:
 	Display(MSXMotherBoard& motherboard);
 	virtual ~Display();
 
+	void createVideoSystem();
 	VideoSystem& getVideoSystem();
-	void resetVideoSystem();
-	void setVideoSystem(VideoSystem* videoSystem);
 
 	/** Redraw the display.
 	  */
 	void repaint();
 	void repaintDelayed(unsigned long long delta);
 
-	void addLayer(Layer* layer);
+	void addLayer(Layer& layer);
+	void removeLayer(Layer& layer);
+
+	void attach(VideoSystemChangeListener& listener);
+	void detach(VideoSystemChangeListener& listener);
 
 private:
+	void resetVideoSystem();
+
 	// EventListener interface
 	virtual void signalEvent(const Event& event);
 
@@ -60,14 +66,16 @@ private:
 	Layers::iterator baseLayer();
 
 	// LayerListener interface
-	virtual void updateCoverage(Layer* layer, Layer::Coverage coverage);
-	virtual void updateZ(Layer* layer, Layer::ZIndex z);
+	virtual void updateZ(Layer& layer, Layer::ZIndex z);
 
 	Layers layers;
 	std::auto_ptr<VideoSystem> videoSystem;
 
 	// the current renderer
 	RendererFactory::RendererID currentRenderer;
+
+	typedef std::vector<VideoSystemChangeListener*> Listeners;
+	Listeners listeners;
 
 	// fps related data
 	static const unsigned NUM_FRAME_DURATIONS = 50;

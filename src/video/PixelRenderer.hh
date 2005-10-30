@@ -8,6 +8,7 @@
 #include "RenderSettings.hh"
 #include "DisplayMode.hh"
 #include "openmsx.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -144,7 +145,7 @@ private:
 	// internal VDP counter, actually belongs in VDP
 	int textModeCounter;
 
-	Rasterizer* rasterizer;
+	const std::auto_ptr<Rasterizer> rasterizer;
 };
 
 } // namespace openmsx

@@ -7,12 +7,10 @@
 
 namespace openmsx {
 
-class Display;
-
 class DummyVideoSystem: public VideoSystem
 {
 public:
-	DummyVideoSystem(Display& display);
+	DummyVideoSystem();
 	virtual ~DummyVideoSystem();
 
 	// VideoSystem interface:

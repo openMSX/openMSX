@@ -37,7 +37,7 @@ VideoSystem* RendererFactory::createVideoSystem(MSXMotherBoard& motherboard)
 	VideoSystem* result;
 	switch (motherboard.getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
-			result = new DummyVideoSystem(motherboard.getDisplay());
+			result = new DummyVideoSystem();
 			break;
 		case SDL:
 			result = new SDLVideoSystem(motherboard);

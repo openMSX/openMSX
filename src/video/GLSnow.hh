@@ -8,14 +8,12 @@
 
 namespace openmsx {
 
-class Display;
-
 /** Snow effect for background layer.
   */
 class GLSnow: public Layer
 {
 public:
-	GLSnow(Display& display);
+	GLSnow();
 	virtual ~GLSnow();
 
 	// Layer interface:

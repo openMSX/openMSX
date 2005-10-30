@@ -23,7 +23,7 @@ TODO:
 #include "VDPVRAM.hh"
 #include "VDPCmdEngine.hh"
 #include "SpriteChecker.hh"
-#include "EventDistributor.hh"
+#include "Display.hh"
 #include "XMLElement.hh"
 #include "RendererFactory.hh"
 #include "Renderer.hh"
@@ -123,33 +123,31 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// Reset state.
 	reset(time);
 
-	getMotherBoard().getEventDistributor().registerEventListener(
-		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
+	getMotherBoard().getDisplay().attach(*this);
 }
 
 VDP::~VDP()
 {
-	getMotherBoard().getEventDistributor().unregisterEventListener(
-		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
-
-	delete renderer;
+	getMotherBoard().getDisplay().detach(*this);
 }
 
-void VDP::signalEvent(const Event& event)
+void VDP::preVideoSystemChange()
 {
-	if (&event); // avoid warning
-	assert(event.getType() == OPENMSX_RENDERER_SWITCH2_EVENT);
-	delete renderer;
+	renderer.reset();
+}
+
+void VDP::postVideoSystemChange()
+{
 	createRenderer();
 }
 
 void VDP::createRenderer()
 {
-	renderer = RendererFactory::createRenderer(*this);
+	renderer.reset(RendererFactory::createRenderer(*this));
 	// TODO: Is it safe to use frameStartTime,
 	//       which is most likely in the past?
 	//renderer->reset(frameStartTime.getTime());
-	vram->setRenderer(renderer, frameStartTime.getTime());
+	vram->setRenderer(renderer.get(), frameStartTime.getTime());
 }
 
 void VDP::resetInit(const EmuTime& /*time*/)

@@ -1,7 +1,7 @@
 // $Id$
 
 #include "SDLSnow.hh"
-#include "Display.hh"
+#include "openmsx.hh"
 #include <SDL.h>
 
 using std::string;
@@ -9,7 +9,7 @@ using std::string;
 namespace openmsx {
 
 template <class Pixel>
-SDLSnow<Pixel>::SDLSnow(Display& display, SDL_Surface* screen)
+SDLSnow<Pixel>::SDLSnow(SDL_Surface* screen)
 	: Layer(COVER_FULL, Z_BACKGROUND)
 	, screen(screen)
 {
@@ -17,9 +17,6 @@ SDLSnow<Pixel>::SDLSnow(Display& display, SDL_Surface* screen)
 	for (unsigned i = 0; i < 256; i++) {
 		gray[i] = SDL_MapRGB(screen->format, i, i, i);
 	}
-
-	// Register as display layer.
-	display.addLayer(this);
 }
 
 // random routine, less random than libc rand(), but a lot faster

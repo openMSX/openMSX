@@ -40,6 +40,7 @@ private:
 	VideoSource videoSource;
 	/** Settings shared between all renderers. */
 	RenderSettings& renderSettings;
+	Display& display;
 	/** Reference to "videosource" setting. */
 	VideoSourceSetting& videoSourceSetting;
 	/** Activate the videosource */

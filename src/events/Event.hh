@@ -22,12 +22,6 @@ enum EventType
 	OPENMSX_QUIT_EVENT,
 	OPENMSX_FINISH_FRAME_EVENT,
 	OPENMSX_LED_EVENT,
-	/** Triggers a renderer switch sequence. */
-	OPENMSX_RENDERER_SWITCH_EVENT,
-	/** Sent when video system has been switched,
-	  * to tell VDPs they can create a new renderer now.
-	  */
-	OPENMSX_RENDERER_SWITCH2_EVENT,
 	OPENMSX_BREAK_EVENT,
 	/** Console events, allow the keyboard[joystick] to avoid
             having `hanging' keys */

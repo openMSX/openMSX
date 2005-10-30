@@ -7,7 +7,7 @@
 #include <memory>
 #include "openmsx.hh"
 #include "Schedulable.hh"
-#include "EventListener.hh"
+#include "VideoSystemChangeListener.hh"
 #include "MSXDevice.hh"
 #include "IRQHelper.hh"
 #include "Clock.hh"
@@ -46,7 +46,8 @@ class SpriteChecker;
   * A note about timing: the start of a frame or line is defined as
   * the starting time of the corresponding sync (vsync, hsync).
   */
-class VDP : public MSXDevice, private Schedulable, private EventListener
+class VDP : public MSXDevice, private Schedulable,
+            private VideoSystemChangeListener
 {
 public:
 	/** VDP version: the VDP model being emulated.
@@ -514,8 +515,9 @@ private:
 			< TICKS_PER_LINE - (displayMode.isTextMode() ? 960 : 1024);
 	}
 
-	// EventListener interface:
-	virtual void signalEvent(const Event& event);
+	// VideoSystemChangeListener interface:
+	virtual void preVideoSystemChange();
+	virtual void postVideoSystemChange();
 
 	/** Called both on init and on reset.
 	  * Puts VDP into reset state.
@@ -609,7 +611,7 @@ private:
 
 	/** Renderer that converts this VDP's state into an image.
 	  */
-	Renderer* renderer;
+	std::auto_ptr<Renderer> renderer;
 
 	/** Command engine: the part of the V9938/58 that executes commands.
 	  */

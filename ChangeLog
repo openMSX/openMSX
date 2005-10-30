@@ -1,5 +1,12 @@
 $Id$
 
+2005-10-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed memory leaks in VideoSystem/Layers stuff:
+	   - simplified layer ownership rules: creator now owns the layer
+	     iso transferring ownership to Display
+	   - added Display::removeLayer(), there was only addLayer()
+	   - VideoSystem and Rasterizer objects were never deleted
+
 2005-10-30 Maarten ter Huurne <maarten@treewalker.org>
 	* Moved the switch(lineWidth) statement from PostProcessor to Scaler<N>,
 	  as a preparation for renaming the line scale methods.

@@ -18,6 +18,7 @@
 #include "BooleanSetting.hh"
 #include "VideoSourceSetting.hh"
 #include "MSXMotherBoard.hh"
+#include "VideoSystemChangeListener.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -54,8 +55,6 @@ Display::Display(MSXMotherBoard& motherboard_)
 			*this, EventDistributor::DETACHED);
 	eventDistributor.registerEventListener(OPENMSX_DELAYED_REPAINT_EVENT,
 			*this, EventDistributor::DETACHED);
-	eventDistributor.registerEventListener(OPENMSX_RENDERER_SWITCH_EVENT,
-			*this, EventDistributor::DETACHED);
 
 	renderSettings.getRenderer().addListener(this);
 	renderSettings.getFullScreen().addListener(this);
@@ -71,8 +70,6 @@ Display::~Display()
 	renderSettings.getVideoSource().removeListener(this);
 
 	EventDistributor& eventDistributor = motherboard.getEventDistributor();
-	eventDistributor.unregisterEventListener(OPENMSX_RENDERER_SWITCH_EVENT,
-			*this, EventDistributor::DETACHED);
 	eventDistributor.unregisterEventListener(OPENMSX_DELAYED_REPAINT_EVENT,
 			*this, EventDistributor::DETACHED);
 	eventDistributor.unregisterEventListener(OPENMSX_FINISH_FRAME_EVENT,
@@ -80,7 +77,14 @@ Display::~Display()
 
 	resetVideoSystem();
 
+	alarm.cancel();
 	motherboard.getCommandConsole().setDisplay(0);
+}
+
+void Display::createVideoSystem()
+{
+	assert(!videoSystem.get());
+	videoSystem.reset(RendererFactory::createVideoSystem(motherboard));
 }
 
 VideoSystem& Display::getVideoSystem()
@@ -91,25 +95,22 @@ VideoSystem& Display::getVideoSystem()
 
 void Display::resetVideoSystem()
 {
-	// Prevent callbacks first...
-	for (Layers::iterator it = layers.begin(); it != layers.end(); ++it) {
-		(*it)->display = NULL;
-	}
-	// ...then destruct layers.
-	for (Layers::iterator it = layers.begin(); it != layers.end(); ++it) {
-		delete *it;
-	}
-	layers.clear();
-
-	alarm.cancel();
-
 	videoSystem.reset();
+	assert(layers.empty());
 }
 
-void Display::setVideoSystem(VideoSystem* videoSystem_)
+void Display::attach(VideoSystemChangeListener& listener)
 {
-	assert(!videoSystem.get());
-	videoSystem.reset(videoSystem_);
+	assert(count(listeners.begin(), listeners.end(), &listener) == 0);
+	listeners.push_back(&listener);
+}
+
+void Display::detach(VideoSystemChangeListener& listener)
+{
+	Listeners::iterator it =
+		find(listeners.begin(), listeners.end(), &listener);
+	assert(it != listeners.end());
+	listeners.erase(it);
 }
 
 Display::Layers::iterator Display::baseLayer()
@@ -148,13 +149,6 @@ void Display::signalEvent(const Event& event)
 			motherboard.getScheduler().getCurrentTime(), draw);
 	} else if (event.getType() == OPENMSX_DELAYED_REPAINT_EVENT) {
 		repaint();
-	} else if (event.getType() == OPENMSX_RENDERER_SWITCH_EVENT) {
-		// Switch video system.
-		RendererFactory::createVideoSystem(motherboard);
-
-		// Tell VDPs they can update their renderer now.
-		motherboard.getEventDistributor().distributeEvent(
-			new SimpleEvent<OPENMSX_RENDERER_SWITCH2_EVENT>());
 	} else {
 		assert(false);
 	}
@@ -181,12 +175,24 @@ void Display::checkRendererSwitch()
 		return;
 	}
 	// Tell renderer to sync with render settings.
-	if ((renderSettings.getRenderer().getValue() != currentRenderer) ||
+	RendererFactory::RendererID newRenderer =
+		renderSettings.getRenderer().getValue();
+	if ((newRenderer != currentRenderer) ||
 	    !getVideoSystem().checkSettings()) {
-		currentRenderer = renderSettings.getRenderer().getValue();
-		// Renderer failed to sync; replace it.
-		motherboard.getEventDistributor().distributeEvent(
-			new SimpleEvent<OPENMSX_RENDERER_SWITCH_EVENT>());
+		currentRenderer = newRenderer;
+		
+		for (Listeners::const_iterator it = listeners.begin();
+		     it != listeners.end(); ++it) {
+			(*it)->preVideoSystemChange();
+		}
+
+		resetVideoSystem();
+		videoSystem.reset(RendererFactory::createVideoSystem(motherboard));
+
+		for (Listeners::const_iterator it = listeners.begin();
+		     it != listeners.end(); ++it) {
+			(*it)->postVideoSystemChange();
+		}
 	}
 }
 
@@ -241,25 +247,30 @@ void Display::repaintDelayed(unsigned long long delta)
 	alarm.schedule(delta);
 }
 
-void Display::addLayer(Layer* layer)
+void Display::addLayer(Layer& layer)
 {
-	const int z = layer->z;
+	int z = layer.getZ();
 	Layers::iterator it;
-	for(it = layers.begin(); it != layers.end() && (*it)->z < z; ++it)
+	for (it = layers.begin(); it != layers.end() && (*it)->getZ() < z; ++it)
 		/* do nothing */;
-	layers.insert(it, layer);
-	layer->display = this;
+	layer.display = this;
+	layers.insert(it, &layer);
 }
 
-void Display::updateCoverage(Layer* /*layer*/, Layer::Coverage /*coverage*/)
+void Display::removeLayer(Layer& layer)
 {
-	// Do nothing.
+	Layers::iterator it = find(layers.begin(), layers.end(), &layer);
+	assert(it != layers.end());
+	layers.erase(it);
 }
 
-void Display::updateZ(Layer* layer, Layer::ZIndex /*z*/)
+void Display::updateZ(Layer& layer, Layer::ZIndex /*z*/)
 {
 	// Remove at old Z-index...
-	layers.erase(std::find(layers.begin(), layers.end(), layer));
+	Layers::iterator it = std::find(layers.begin(), layers.end(), &layer);
+	assert(it != layers.end());
+	layers.erase(it);
+
 	// ...and re-insert at new Z-index.
 	addLayer(layer);
 }

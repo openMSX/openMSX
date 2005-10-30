@@ -6,6 +6,7 @@
 #include "VideoSystem.hh"
 #include "EventListener.hh"
 #include <string>
+#include <memory>
 
 struct SDL_Surface;
 
@@ -15,6 +16,7 @@ class MSXMotherBoard;
 class VDP;
 class V9990;
 class Rasterizer;
+class Layer;
 
 class SDLGLVideoSystem : public VideoSystem, private EventListener
 {
@@ -43,6 +45,9 @@ private:
 
 	MSXMotherBoard& motherboard;
 	SDL_Surface* screen;
+	std::auto_ptr<Layer> console;
+	std::auto_ptr<Layer> snowLayer;
+	std::auto_ptr<Layer> iconLayer;
 };
 
 } // namespace openmsx

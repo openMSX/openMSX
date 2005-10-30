@@ -4,6 +4,7 @@
 #define SDLVIDEOSYSTEM_HH
 
 #include "VideoSystem.hh"
+#include <memory>
 
 struct SDL_Surface;
 
@@ -16,6 +17,7 @@ class VDP;
 class Rasterizer;
 class V9990;
 class V9990Rasterizer;
+class Layer;
 
 class SDLVideoSystem: public VideoSystem
 {
@@ -37,6 +39,9 @@ private:
 	RenderSettings& renderSettings;
 	Display& display;
 	SDL_Surface* screen;
+	std::auto_ptr<Layer> snowLayer;
+	std::auto_ptr<Layer> console;
+	std::auto_ptr<Layer> iconLayer;
 };
 
 } // namespace openmsx

@@ -8,7 +8,6 @@
 
 #include "SDLConsole.hh"
 #include "MSXMotherBoard.hh"
-#include "Display.hh"
 #include "Console.hh"
 #include "SDLFont.hh"
 #include "File.hh"
@@ -27,7 +26,6 @@ SDLConsole::SDLConsole(MSXMotherBoard& motherBoard, SDL_Surface* screen)
 	lastBlinkTime = 0;
 
 	initConsole();
-	getDisplay().addLayer(this);
 }
 
 void SDLConsole::updateConsoleRect()

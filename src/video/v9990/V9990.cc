@@ -2,7 +2,7 @@
 
 #include "V9990.hh"
 #include "Scheduler.hh"
-#include "EventDistributor.hh"
+#include "Display.hh"
 #include "RendererFactory.hh"
 #include "V9990VRAM.hh"
 #include "V9990CmdEngine.hh"
@@ -86,16 +86,13 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 	createRenderer(time);
 
 	reset(time);
-	getMotherBoard().getEventDistributor().registerEventListener(
-		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
+	getMotherBoard().getDisplay().attach(*this);
 }
 
 
 V9990::~V9990()
 {
-	// Unregister everything that needs to be unregistered
-	getMotherBoard().getEventDistributor().unregisterEventListener(
-		OPENMSX_RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED);
+	getMotherBoard().getDisplay().detach(*this);
 }
 
 // -------------------------------------------------------------------------
@@ -347,13 +344,16 @@ const string& V9990::schedName() const
 }
 
 // -------------------------------------------------------------------------
-// EventListener
+// VideoSystemChangeListener
 // -------------------------------------------------------------------------
 
-void V9990::signalEvent(const Event& event)
+void V9990::preVideoSystemChange()
 {
-	if (&event); // avoid warning
-	assert(event.getType() == OPENMSX_RENDERER_SWITCH2_EVENT);
+	renderer.reset();
+}
+
+void V9990::postVideoSystemChange()
+{
 	const EmuTime& time = getMotherBoard().getScheduler().getCurrentTime();
 	createRenderer(time);
 	renderer->frameStart(time);
@@ -549,7 +549,7 @@ void V9990::getPalette(int index, byte& r, byte& g, byte& b)
 
 void V9990::createRenderer(const EmuTime& time)
 {
-	renderer.reset(); // delete old renderer before creating new one
+	assert(!renderer.get());
 	renderer.reset(RendererFactory::createV9990Renderer(*this));
 	renderer->reset(time);
 }

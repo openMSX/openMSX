@@ -2,11 +2,11 @@
 
 #include "GLConsole.hh"
 #include "MSXMotherBoard.hh"
-#include "Display.hh"
 #include "GLFont.hh"
 #include "Console.hh"
 #include "GLImage.hh"
 #include <cassert>
+#include <SDL.h> // TODO use Timer
 
 using std::string;
 
@@ -17,7 +17,6 @@ GLConsole::GLConsole(MSXMotherBoard& motherBoard)
 	, backgroundTexture(0)
 {
 	initConsole();
-	getDisplay().addLayer(this);
 }
 
 GLConsole::~GLConsole()
