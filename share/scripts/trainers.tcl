@@ -590,6 +590,116 @@ proc trainer_xak1 {} {
 	#super latok mode
 	poke 0x1fd4 1
 	poke 0x2473 0x44
+	
+	#enchanted sword 1
+	poke 0x1c13 99	
+	#enchanted sword 2
+	poke 0x1c14 99
+	#enchanted sword 3
+	poke 0x1c15 99
+	#enchanted sword 4
+	poke 0x1c16 99
+	#enchanted sword 5
+	poke 0x1c17 99
+	#enchanted sword 6
+	poke 0x1c18 99	
+	
+	#enchanted armor 1
+	poke 0x1c19 99	
+	#enchanted armor 2
+	poke 0x1c1a 99
+	#enchanted armor 3
+	poke 0x1c1b 99	
+	#enchanted armor 4
+	poke 0x1c1c 99	
+	#enchanted armor 5
+	poke 0x1c1d 99	
+	#enchanted armor 6
+	poke 0x1c1e 99	
+		
+	#enchanted armor 1
+	poke 0x1c1f 99		
+	#enchanted armor 2
+	poke 0x1c20 99		
+	#enchanted armor 3
+	poke 0x1c21 99		
+	#enchanted armor 4
+	poke 0x1c22 99		
+	#enchanted armor 5
+	poke 0x1c23 99		
+	#enchanted armor 6
+	poke 0x1c24 99		
+	
+	#bread
+	poke 0x1c25 99
+	#meat
+	poke 0x1c26 99
+	#glasses
+	poke 0x1c27 99	
+	#arm protector
+	poke 0x1c28 99		
+	#blue ring
+	poke 0x1c29 99		
+	#green (evil?) ring
+	poke 0x1c2a 99	
+	#potion
+	poke 0x1c2b 99		
+	#wheel
+	poke 0x1c2c 99	
+	#purple cape
+	poke 0x1c2d 99	
+	#feather/grass (?)
+	poke 0x1c2e 99	
+	
+	#light green scroll
+	poke 0x1c2f 99		
+	#blue scroll
+	poke 0x1c30 99				
+	#red scroll
+	poke 0x1c31 99	
+	#green scroll
+	poke 0x1c32 99	
+	#purple scroll
+	poke 0x1c33 99
+	
+	#blue ball (no fun intended)
+	poke 0x1c34 99
+	#green ball 
+	poke 0x1c35 99
+	#red ball 
+	poke 0x1c36 99	
+	
+	#red cape
+	poke 0x1c37 99		
+	#paint bucket (?)
+	poke 0x1c38 99	
+	#paint boat (?)
+	poke 0x1c39 99	
+	#water bottle (?)
+	poke 0x1c3a 99		
+	#yellow key (?)
+	poke 0x1c3b 99		
+	#blue key (?)
+	poke 0x1c3c 99	
+	#treasure box
+	poke 0x1c3d 99	
+	#bunny
+	poke 0x1c3e 99	
+	#bunny
+	poke 0x1c3e 99		
+	#necklace with stone
+	poke 0x1c3f 99	
+	#butterfly broche 
+	poke 0x1c40 99	
+	#purple bottle
+	poke 0x1c41 99	
+	#thea pot
+	poke 0x1c42 99	
+	#red key
+	poke 0x1c43 99	
+	#purple key
+	poke 0x1c44 99	
+									
 	after time 2 trainer_xak1
 }
 
