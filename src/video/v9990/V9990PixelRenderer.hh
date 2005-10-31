@@ -7,6 +7,7 @@
 #include "SettingListener.hh"
 #include "RenderSettings.hh"
 #include "openmsx.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -60,7 +61,7 @@ private:
 
 	/** The Rasterizer
 	  */
-	V9990Rasterizer* rasterizer;
+	const std::auto_ptr<V9990Rasterizer> rasterizer;
 
 	/** Accuracy setting for current frame.
 	 */

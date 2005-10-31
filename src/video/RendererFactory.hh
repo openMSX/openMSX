@@ -27,7 +27,7 @@ public:
 	/** Enumeration of Renderers known to openMSX.
 	  * This is the full list, the list of available renderers may be smaller.
 	  */
-	enum RendererID { DUMMY, SDL, SDLGL, XLIB };
+	enum RendererID { UNINITIALIZED, DUMMY, SDL, SDLGL, XLIB };
 
 	virtual ~RendererFactory() {}
 
@@ -52,14 +52,6 @@ public:
 	  */
 	static std::auto_ptr<RendererSetting> createRendererSetting(
 			CommandController& commandController);
-
-	/** TODO this is ugly, can it be done better?
-	  * Create renderer in progress?
-	  */
-	static bool isCreateInProgress();
-
-private:
-	static int createInProgress;
 };
 
 } // namespace openmsx

@@ -115,6 +115,7 @@ private:
 
 	MSXMotherBoard& motherboard;
 	RenderSettings& renderSettings;
+	unsigned switchInProgress;
 };
 
 } // namespace openmsx

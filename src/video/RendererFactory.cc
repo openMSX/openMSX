@@ -28,12 +28,8 @@ using std::auto_ptr;
 
 namespace openmsx {
 
-int RendererFactory::createInProgress = 0;
-
-
 VideoSystem* RendererFactory::createVideoSystem(MSXMotherBoard& motherboard)
 {
-	++createInProgress;
 	VideoSystem* result;
 	switch (motherboard.getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
@@ -50,14 +46,12 @@ VideoSystem* RendererFactory::createVideoSystem(MSXMotherBoard& motherboard)
 		default:
 			result = 0;
 	}
-	--createInProgress;
 	assert(result);
 	return result;
 }
 
 Renderer* RendererFactory::createRenderer(VDP& vdp)
 {
-	++createInProgress;
 	Renderer* result;
 	switch (vdp.getMotherBoard().getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
@@ -75,14 +69,12 @@ Renderer* RendererFactory::createRenderer(VDP& vdp)
 		default:
 			result = 0;
 	}
-	--createInProgress;
 	assert(result);
 	return result;
 }
 
 V9990Renderer* RendererFactory::createV9990Renderer(V9990& vdp)
 {
-	++createInProgress;
 	V9990Renderer* result;
 	switch (vdp.getMotherBoard().getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
@@ -101,7 +93,6 @@ V9990Renderer* RendererFactory::createV9990Renderer(V9990& vdp)
 		default:
 			result = 0;
 	}
-	--createInProgress;
 	assert(result);
 	return result;
 }
@@ -132,11 +123,6 @@ auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSettin
 		setting->setValue(DUMMY);
 	}
 	return setting;
-}
-
-bool RendererFactory::isCreateInProgress()
-{
-	return createInProgress;
 }
 
 } // namespace openmsx

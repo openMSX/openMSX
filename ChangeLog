@@ -1,5 +1,9 @@
 $Id$
 
+2005-10-31 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed assert when switching video system (hq2x -> hq3x)
+	  and leak when switching video system on gfx9000:
+
 2005-10-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed memory leaks in VideoSystem/Layers stuff:
 	   - simplified layer ownership rules: creator now owns the layer

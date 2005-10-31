@@ -21,6 +21,7 @@
 #include "VideoSystemChangeListener.hh"
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 
 // Needed for workaround for "black flashes" problem in SDLGL renderer:
 #include "SDLGLVideoSystem.hh"
@@ -32,11 +33,13 @@ using std::vector;
 namespace openmsx {
 
 Display::Display(MSXMotherBoard& motherboard_)
-	: alarm(motherboard_.getEventDistributor())
+	: currentRenderer(RendererFactory::UNINITIALIZED)
+	, alarm(motherboard_.getEventDistributor())
 	, screenShotCmd(motherboard_.getCommandController(), *this)
 	, fpsInfo(motherboard_.getCommandController(), *this)
 	, motherboard(motherboard_)
 	, renderSettings(motherboard.getRenderSettings())
+	, switchInProgress(0)
 {
 	// TODO clean up
 	motherboard.getCommandConsole().setDisplay(this);
@@ -47,8 +50,6 @@ Display::Display(MSXMotherBoard& motherboard_)
 		frameDurationSum += 20;
 	}
 	prevTimeStamp = Timer::getTime();
-
-	currentRenderer = renderSettings.getRenderer().getValue();
 
 	EventDistributor& eventDistributor = motherboard.getEventDistributor();
 	eventDistributor.registerEventListener(OPENMSX_FINISH_FRAME_EVENT,
@@ -79,12 +80,14 @@ Display::~Display()
 
 	alarm.cancel();
 	motherboard.getCommandConsole().setDisplay(0);
+	assert(listeners.empty());
 }
 
 void Display::createVideoSystem()
 {
 	assert(!videoSystem.get());
-	videoSystem.reset(RendererFactory::createVideoSystem(motherboard));
+	assert(currentRenderer == RendererFactory::UNINITIALIZED);
+	checkRendererSwitch();
 }
 
 VideoSystem& Display::getVideoSystem()
@@ -96,6 +99,10 @@ VideoSystem& Display::getVideoSystem()
 void Display::resetVideoSystem()
 {
 	videoSystem.reset();
+	for (Layers::const_iterator it = layers.begin();
+	     it != layers.end(); ++it) {
+		std::cerr << (*it)->getName() << std::endl;
+	}
 	assert(layers.empty());
 }
 
@@ -171,9 +178,9 @@ void Display::update(const Setting* setting)
 
 void Display::checkRendererSwitch()
 {
-	if (RendererFactory::isCreateInProgress()) {
-		return;
-	}
+	if (switchInProgress) return;
+	++switchInProgress;
+
 	// Tell renderer to sync with render settings.
 	RendererFactory::RendererID newRenderer =
 		renderSettings.getRenderer().getValue();
@@ -194,6 +201,8 @@ void Display::checkRendererSwitch()
 			(*it)->postVideoSystemChange();
 		}
 	}
+
+	--switchInProgress;
 }
 
 void Display::repaint()
