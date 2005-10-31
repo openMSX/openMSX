@@ -16,7 +16,7 @@ class Simple3xScaler : public Scaler3<Pixel>
 {
 public:
 	Simple3xScaler(SDL_PixelFormat* format,
-			const RenderSettings& renderSettings);
+	               const RenderSettings& renderSettings);
 
 	virtual void scaleBlank(
                 Pixel color, SDL_Surface* dst,
@@ -58,7 +58,6 @@ private:
 	PixelOperations<Pixel> pixelOps;
 	Scanline<Pixel> scanline;
 	const RenderSettings& settings;
-
 };
 
 } // namespace openmsx

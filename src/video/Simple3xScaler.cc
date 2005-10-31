@@ -4,6 +4,7 @@
 #include "LineScalers.hh"
 #include "FrameSource.hh"
 #include "RenderSettings.hh"
+#include "MemoryOps.hh"
 
 namespace openmsx {
 
@@ -13,8 +14,7 @@ Simple3xScaler<Pixel>::Simple3xScaler(
 	: Scaler3<Pixel>(format)
 	, pixelOps(format)
 	, scanline(format)
-        , settings(renderSettings)
-
+	, settings(renderSettings)
 {
 }
 
@@ -45,7 +45,7 @@ void Simple3xScaler<Pixel>::doScale1(
 
 		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 2);
 		scanline.draw(prevDstLine0, dstLine0, dstLine2,
-				scanlineFactor, 960);
+		              scanlineFactor, 960);
 
 		prevDstLine0 = dstLine0;
 	}
@@ -53,7 +53,7 @@ void Simple3xScaler<Pixel>::doScale1(
 	if ((y + 2) < dstEndY) {
 		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 2);
 		scanline.draw(prevDstLine0, prevDstLine0, dstLine2,
-				scanlineFactor, 960);
+		              scanlineFactor, 960);
 	}
 }
 
@@ -64,7 +64,7 @@ void Simple3xScaler<Pixel>::scale192(
 		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
-	                Scale_2on9<Pixel>(pixelOps));
+	         Scale_2on9<Pixel>(pixelOps));
 }
 
 template <class Pixel>
@@ -73,7 +73,7 @@ void Simple3xScaler<Pixel>::scale256(
 		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
-	                Scale_1on3<Pixel>());
+	         Scale_1on3<Pixel>());
 }
 
 template <class Pixel>
@@ -82,7 +82,7 @@ void Simple3xScaler<Pixel>::scale384(
 		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
-	                Scale_4on9<Pixel>(pixelOps));
+	         Scale_4on9<Pixel>(pixelOps));
 }
 
 template <class Pixel>
@@ -91,7 +91,7 @@ void Simple3xScaler<Pixel>::scale512(
 		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
-	                Scale_2on3<Pixel>(pixelOps));
+	         Scale_2on3<Pixel>(pixelOps));
 }
 
 template <class Pixel>
@@ -108,7 +108,7 @@ void Simple3xScaler<Pixel>::scale768(
 		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
-	                Scale_8on9<Pixel>(pixelOps));
+	         Scale_8on9<Pixel>(pixelOps));
 }
 
 template <class Pixel>
@@ -117,7 +117,7 @@ void Simple3xScaler<Pixel>::scale1024(
 		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
-	                Scale_4on3<Pixel>(pixelOps));
+	         Scale_4on3<Pixel>(pixelOps));
 }
 
 template <class Pixel>
@@ -128,17 +128,19 @@ void Simple3xScaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
 	Pixel scanlineColor = scanline.darken(color, scanlineFactor);
 
 	for (unsigned y = startY; y < endY; y += 3) {
-		for (unsigned x = 0; x < (960); ++x) {
-			Scaler<Pixel>::linePtr(dst, y + 0)[x] = color;
-		}
+		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, y + 0);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine0, 960, color);
+
 		if ((y + 1) >= endY) break;
-		for (unsigned x = 0; x < (960); ++x) {
-			Scaler<Pixel>::linePtr(dst, y + 1)[x] = color;
-		}
+		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, y + 1);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine1, 960, color);
+
 		if ((y + 2) >= endY) break;
-		for (unsigned x = 0; x < (960); ++x) {
-			Scaler<Pixel>::linePtr(dst, y + 2)[x] = scanlineColor;
-		}
+		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, y + 2);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine2, 960, scanlineColor);
 	}
 }
 
