@@ -86,8 +86,13 @@ void RGBTriplet3xScaler<Pixel>::doScale1(
 	const Pixel* srcLine = src.getLinePtr(srcStartY++, dummy);
 	Pixel* prevDstLine0 = dst.getLinePtr(y + 0, dummy);
 	Pixel tmp[320];
-	scale(srcLine, tmp, 320);
-	rgbify(tmp, prevDstLine0, 320);
+	if (IsTagged<ScaleOp, Copy>::result) {
+		rgbify(srcLine, prevDstLine0, 320);
+	} else {
+		scale(srcLine, tmp, 320);
+		rgbify(tmp, prevDstLine0, 320);
+	}
+	
 
 	Scale_1on1<Pixel> copy;
 	Pixel* dstLine1     = dst.getLinePtr(y + 1, dummy);
@@ -96,8 +101,12 @@ void RGBTriplet3xScaler<Pixel>::doScale1(
 	for (/* */; (y + 4) < dstEndY; y += 3, srcStartY += 1) {
 		const Pixel* srcLine = src.getLinePtr(srcStartY, dummy);
 		Pixel* dstLine0 = dst.getLinePtr(y + 3, dummy);
-		scale(srcLine, tmp, 320);
-		rgbify(tmp, dstLine0, 320);
+		if (IsTagged<ScaleOp, Copy>::result) {
+			rgbify(srcLine, dstLine0, 320);
+		} else {
+			scale(srcLine, tmp, 320);
+			rgbify(tmp, dstLine0, 320);
+		}
 
 		Pixel* dstLine1 = dst.getLinePtr(y + 4, dummy);
 		copy(dstLine0, dstLine1, 960);

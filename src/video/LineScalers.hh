@@ -33,7 +33,7 @@ struct X86Streaming
 : Streaming
 #endif
 {};
-
+struct Copy {};
 
 // Scalers
 
@@ -58,7 +58,7 @@ public:
 };
 
 template <typename Pixel, bool streaming = true> class Scale_1on1
-	: public TagIf<streaming, X86Streaming>::type
+	: public TagIf<streaming, X86Streaming>::type, public Tag<Copy>
 {
 public:
 	void operator()(const Pixel* in, Pixel* out, unsigned width);
