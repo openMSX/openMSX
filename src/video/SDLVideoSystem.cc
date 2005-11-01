@@ -5,7 +5,7 @@
 #include "V9990SDLRasterizer.hh"
 #include "Display.hh"
 #include "SDLOutputSurface.hh"
-//#include "SDLGLOutputSurface.hh"
+#include "SDLGLOutputSurface.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
 #include "VideoSourceSetting.hh"
@@ -17,7 +17,8 @@
 
 namespace openmsx {
 
-SDLVideoSystem::SDLVideoSystem(MSXMotherBoard& motherboard)
+SDLVideoSystem::SDLVideoSystem(MSXMotherBoard& motherboard,
+                               RendererFactory::RendererID rendererID)
 	: renderSettings(motherboard.getRenderSettings())
 	, display(motherboard.getDisplay())
 {
@@ -25,8 +26,21 @@ SDLVideoSystem::SDLVideoSystem(MSXMotherBoard& motherboard)
 	getWindowSize(width, height);
 	bool fullscreen = motherboard.getRenderSettings().
 		                      getFullScreen().getValue();
-	screen.reset(new SDLOutputSurface(width, height, fullscreen));
-	//screen.reset(new SDLGLOutputSurface(width, height, fullscreen));
+	switch (rendererID) {
+	case RendererFactory::SDL:
+		screen.reset(new SDLOutputSurface(width, height, fullscreen));
+		break;
+	case RendererFactory::SDLGL_FB16:
+		screen.reset(new SDLGLOutputSurface(width, height, fullscreen,
+		             SDLGLOutputSurface::FB_16BPP));
+		break;
+	case RendererFactory::SDLGL_FB32:
+		screen.reset(new SDLGLOutputSurface(width, height, fullscreen,
+		             SDLGLOutputSurface::FB_32BPP));
+		break;
+	default:
+		assert(false);
+	}
 	motherboard.getInputEventGenerator().reinit();
 
 	snowLayer = screen->createSnowLayer();

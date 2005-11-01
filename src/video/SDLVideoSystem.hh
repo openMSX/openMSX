@@ -4,6 +4,7 @@
 #define SDLVIDEOSYSTEM_HH
 
 #include "VideoSystem.hh"
+#include "RendererFactory.hh"
 #include <memory>
 
 namespace openmsx {
@@ -21,7 +22,8 @@ class Layer;
 class SDLVideoSystem: public VideoSystem
 {
 public:
-	SDLVideoSystem(MSXMotherBoard& motherboard);
+	SDLVideoSystem(MSXMotherBoard& motherboard,
+	               RendererFactory::RendererID rendererID);
 	virtual ~SDLVideoSystem();
 
 	// VideoSystem interface:

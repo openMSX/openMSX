@@ -36,11 +36,17 @@ VideoSystem* RendererFactory::createVideoSystem(MSXMotherBoard& motherboard)
 			result = new DummyVideoSystem();
 			break;
 		case SDL:
-			result = new SDLVideoSystem(motherboard);
+			result = new SDLVideoSystem(motherboard, SDL);
 			break;
 #ifdef COMPONENT_GL
 		case SDLGL:
 			result = new SDLGLVideoSystem(motherboard);
+			break;
+		case SDLGL_FB16:
+			result = new SDLVideoSystem(motherboard, SDLGL_FB16);
+			break;
+		case SDLGL_FB32:
+			result = new SDLVideoSystem(motherboard, SDLGL_FB32);
 			break;
 #endif
 		default:
@@ -59,6 +65,8 @@ Renderer* RendererFactory::createRenderer(VDP& vdp)
 			break;
 		case SDL:
 		case SDLGL:
+		case SDLGL_FB16:
+		case SDLGL_FB32:
 			result = new PixelRenderer(vdp);
 			break;
 #ifdef HAVE_X11
@@ -82,6 +90,8 @@ V9990Renderer* RendererFactory::createV9990Renderer(V9990& vdp)
 			break;
 		case SDL:
 		case SDLGL:
+		case SDLGL_FB16:
+		case SDLGL_FB32:
 			result = new V9990PixelRenderer(vdp);
 			break;
 #ifdef HAVE_X11
@@ -106,6 +116,8 @@ auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSettin
 	rendererMap["SDL"] = SDL;
 #ifdef COMPONENT_GL
 	rendererMap["SDLGL"] = SDLGL;
+	rendererMap["SDLGL-FB16"] = SDLGL_FB16;
+	rendererMap["SDLGL-FB32"] = SDLGL_FB32;
 #endif
 #ifdef HAVE_X11
 	// XRenderer is not ready for users.

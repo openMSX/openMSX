@@ -11,7 +11,10 @@ namespace openmsx {
 class SDLGLOutputSurface : public OutputSurface
 {
 public:
-	SDLGLOutputSurface(unsigned width, unsigned height, bool fullscreen);
+	enum FrameBuffer { FB_NONE, FB_16BPP, FB_32BPP };
+
+	SDLGLOutputSurface(unsigned width, unsigned height, bool fullscreen,
+	                   FrameBuffer frameBuffer = FB_NONE);
 	virtual ~SDLGLOutputSurface();
 
 	virtual bool init();
@@ -28,6 +31,7 @@ public:
 		EventDistributor& eventDistributor, Display& display);
 
 private:
+	FrameBuffer frameBuffer;
 	GLuint textureId;
 	double texCoordX, texCoordY;
 };
