@@ -17,7 +17,7 @@ public:
 
 	virtual void scale256(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 };
 
 } // namespace openmsx

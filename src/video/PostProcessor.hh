@@ -8,13 +8,12 @@
 #include "Renderer.hh"
 #include "VideoLayer.hh"
 
-struct SDL_Surface;
-
 namespace openmsx {
 
 class CommandController;
 class RenderSettings;
 class Display;
+class OutputSurface;
 
 /** Rasterizer using SDL.
   */
@@ -24,7 +23,7 @@ class PostProcessor : public VideoLayer
 public:
 	PostProcessor(CommandController& commandController,
 	              RenderSettings& renderSettings, Display& display,
-	              SDL_Surface* screen, VideoSource videoSource,
+	              OutputSurface& screen, VideoSource videoSource,
 	              unsigned maxWidth, unsigned height);
 	virtual ~PostProcessor();
 
@@ -65,7 +64,7 @@ private:
 
 	/** The surface which is visible to the user.
 	  */
-	SDL_Surface* screen;
+	OutputSurface& screen;
 
 	/** The last finished frame, ready to be displayed.
 	  */

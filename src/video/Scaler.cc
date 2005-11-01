@@ -12,6 +12,7 @@
 #include "Simple3xScaler.hh"
 #include "LowScaler.hh"
 #include "MemoryOps.hh"
+#include "OutputSurface.hh"
 
 using std::auto_ptr;
 
@@ -59,13 +60,13 @@ auto_ptr<Scaler<Pixel> > Scaler<Pixel>::createScaler(
 }
 
 template <class Pixel>
-void Scaler<Pixel>::scaleBlank(Pixel color, SDL_Surface* dst,
+void Scaler<Pixel>::scaleBlank(Pixel color, OutputSurface& dst,
                                unsigned startY, unsigned endY)
 {
 	for (unsigned y = startY; y < endY; ++y) {
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, y);
+		Pixel* dstLine = dst.getLinePtr(y, (Pixel*)0);
 		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine, dst->w, color);
+			dstLine, dst.getWidth(), color);
 	}
 }
 

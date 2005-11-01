@@ -54,14 +54,14 @@ class SimpleScaler: public Scaler2<Pixel>
 public:
 	SimpleScaler(SDL_PixelFormat* format, RenderSettings& renderSettings);
 
-	virtual void scaleBlank(Pixel color, SDL_Surface* dst,
+	virtual void scaleBlank(Pixel color, OutputSurface& dst,
 	                        unsigned startY, unsigned endY);
 	virtual void scale256(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale512(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
 private:
 	void drawScanline(const Pixel* in1, const Pixel* in2, Pixel* out,

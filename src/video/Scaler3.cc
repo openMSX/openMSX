@@ -3,6 +3,7 @@
 #include "Scaler3.hh"
 #include "LineScalers.hh"
 #include "FrameSource.hh"
+#include "OutputSurface.hh"
 #include <algorithm>
 
 namespace openmsx {
@@ -16,17 +17,18 @@ Scaler3<Pixel>::Scaler3(SDL_PixelFormat* format)
 template <typename Pixel, typename ScaleOp>
 static void doScale1(
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
-	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	ScaleOp scale)
 {
 	Scale_1on1<Pixel> copy;
 	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY += 3, ++srcStartY) {
-		const Pixel* srcLine = src.getLinePtr(srcStartY, (Pixel*)0);
-		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, dstY + 0);
+		Pixel* dummy = 0;
+		const Pixel* srcLine = src.getLinePtr(srcStartY, dummy);
+		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
 		scale(srcLine, dstLine0, 960);
 
 		if ((dstY + 1) == dstEndY) break;
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY + 1);
+		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
 		if (IsTagged<ScaleOp, Streaming>::result) {
 			scale(srcLine, dstLine1, 960);
 		} else {
@@ -34,7 +36,7 @@ static void doScale1(
 		}
 
 		if ((dstY + 2) == dstEndY) break;
-		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, dstY + 2);
+		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
 		if (IsTagged<ScaleOp, Streaming>::result) {
 			scale(srcLine, dstLine2, 960);
 		} else {
@@ -45,23 +47,24 @@ static void doScale1(
 
 template <typename Pixel, typename ScaleOp>
 static void doScale2(
-	FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
+	FrameSource& src0, FrameSource& src1, OutputSurface& dst,
 	unsigned startY, unsigned endY, PixelOperations<Pixel> ops,
 	ScaleOp scale)
 {
 	BlendLines<Pixel> blend(ops);
 	for (unsigned y = startY; y < endY; ++y) {
-		const Pixel* srcLine0 = src0.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, 3 * y + 0);
+		Pixel* dummy = 0;
+		const Pixel* srcLine0 = src0.getLinePtr(y, dummy);
+		Pixel* dstLine0 = dst.getLinePtr(3 * y + 0, dummy);
 		scale(srcLine0, dstLine0, 960);
 
 		// TODO if ((dstY + 2) == endDstY) { .. }
-		const Pixel* srcLine1 = src1.getLinePtr(y, (Pixel*)0);
-		Pixel* dstLine2 = Scaler<Pixel>::linePtr(dst, 3 * y + 2);
+		const Pixel* srcLine1 = src1.getLinePtr(y, dummy);
+		Pixel* dstLine2 = dst.getLinePtr(3 * y + 2, dummy);
 		scale(srcLine1, dstLine2, 960);
 
 		// TODO if ((dstY + 1) == endDstY) { .. }
-		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, 3 * y + 1);
+		Pixel* dstLine1 = dst.getLinePtr(3 * y + 1, dummy);
 		blend(dstLine0, dstLine2, dstLine1, 960);
 	}
 }
@@ -69,14 +72,14 @@ static void doScale2(
 template <class Pixel>
 void Scaler3<Pixel>::scale192(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
 	                Scale_2on9<Pixel>(pixelOps));
 }
 
 template <class Pixel>
-void Scaler3<Pixel>::scale192(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
+void Scaler3<Pixel>::scale192(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
                              unsigned startY, unsigned endY)
 {
 	doScale2<Pixel>(src0, src1, dst, startY, endY, pixelOps,
@@ -87,14 +90,14 @@ void Scaler3<Pixel>::scale192(FrameSource& src0, FrameSource& src1, SDL_Surface*
 template <class Pixel>
 void Scaler3<Pixel>::scale256(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
 	                Scale_1on3<Pixel>());
 }
 
 template <class Pixel>
-void Scaler3<Pixel>::scale256(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
+void Scaler3<Pixel>::scale256(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
                              unsigned startY, unsigned endY)
 {
 	doScale2<Pixel>(src0, src1, dst, startY, endY, pixelOps,
@@ -104,14 +107,14 @@ void Scaler3<Pixel>::scale256(FrameSource& src0, FrameSource& src1, SDL_Surface*
 template <class Pixel>
 void Scaler3<Pixel>::scale384(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
 	                Scale_4on9<Pixel>(pixelOps));
 }
 
 template <class Pixel>
-void Scaler3<Pixel>::scale384(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
+void Scaler3<Pixel>::scale384(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
                              unsigned startY, unsigned endY)
 {
 	doScale2<Pixel>(src0, src1, dst, startY, endY, pixelOps,
@@ -121,14 +124,14 @@ void Scaler3<Pixel>::scale384(FrameSource& src0, FrameSource& src1, SDL_Surface*
 template <class Pixel>
 void Scaler3<Pixel>::scale512(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
 	                Scale_2on3<Pixel>(pixelOps));
 }
 
 template <class Pixel>
-void Scaler3<Pixel>::scale512(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
+void Scaler3<Pixel>::scale512(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
                              unsigned startY, unsigned endY)
 {
 	doScale2<Pixel>(src0, src1, dst, startY, endY, pixelOps,
@@ -138,13 +141,13 @@ void Scaler3<Pixel>::scale512(FrameSource& src0, FrameSource& src1, SDL_Surface*
 template <class Pixel>
 void Scaler3<Pixel>::scale640(
 		FrameSource& /*src*/, unsigned /*srcStartY*/, unsigned /*srcEndY*/,
-		SDL_Surface* /*dst*/, unsigned /*dstStartY*/, unsigned /*dstEndY*/)
+		OutputSurface& /*dst*/, unsigned /*dstStartY*/, unsigned /*dstEndY*/)
 {
 	// TODO
 }
 
 template <class Pixel>
-void Scaler3<Pixel>::scale640(FrameSource& /*src0*/, FrameSource& /*src1*/, SDL_Surface* /*dst*/,
+void Scaler3<Pixel>::scale640(FrameSource& /*src0*/, FrameSource& /*src1*/, OutputSurface& /*dst*/,
                              unsigned /*startY*/, unsigned /*endY*/)
 {
 	// TODO
@@ -153,14 +156,14 @@ void Scaler3<Pixel>::scale640(FrameSource& /*src0*/, FrameSource& /*src1*/, SDL_
 template <class Pixel>
 void Scaler3<Pixel>::scale768(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
 	                Scale_8on9<Pixel>(pixelOps));
 }
 
 template <class Pixel>
-void Scaler3<Pixel>::scale768(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
+void Scaler3<Pixel>::scale768(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
                              unsigned startY, unsigned endY)
 {
 	doScale2<Pixel>(src0, src1, dst, startY, endY, pixelOps,
@@ -170,14 +173,14 @@ void Scaler3<Pixel>::scale768(FrameSource& src0, FrameSource& src1, SDL_Surface*
 template <class Pixel>
 void Scaler3<Pixel>::scale1024(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
 	                Scale_4on3<Pixel>(pixelOps));
 }
 
 template <class Pixel>
-void Scaler3<Pixel>::scale1024(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
+void Scaler3<Pixel>::scale1024(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
                               unsigned startY, unsigned endY)
 {
 	doScale2<Pixel>(src0, src1, dst, startY, endY, pixelOps,
@@ -190,8 +193,8 @@ template <class Pixel>
 void Scaler3<Pixel>::scaleImage(
 	FrameSource& src, unsigned lineWidth,
 	unsigned srcStartY, unsigned srcEndY,
-	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
-) {
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
 	switch (lineWidth) {
 	case 192:
 		scale192(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
@@ -223,8 +226,8 @@ void Scaler3<Pixel>::scaleImage(
 template <class Pixel>
 void Scaler3<Pixel>::scaleImage(
 	FrameSource& frameEven, FrameSource& frameOdd, unsigned lineWidth,
-	SDL_Surface* dst, unsigned srcStartY, unsigned srcEndY
-) {
+	OutputSurface& dst, unsigned srcStartY, unsigned srcEndY)
+{
 	switch (lineWidth) {
 	case 192:
 		scale192(frameEven, frameOdd, dst, srcStartY, srcEndY);

@@ -6,13 +6,12 @@
 #include "VideoSystem.hh"
 #include <memory>
 
-struct SDL_Surface;
-
 namespace openmsx {
 
 class MSXMotherBoard;
 class RenderSettings;
 class Display;
+class OutputSurface;
 class VDP;
 class Rasterizer;
 class V9990;
@@ -38,7 +37,7 @@ private:
 
 	RenderSettings& renderSettings;
 	Display& display;
-	SDL_Surface* screen;
+	std::auto_ptr<OutputSurface> screen;
 	std::auto_ptr<Layer> snowLayer;
 	std::auto_ptr<Layer> console;
 	std::auto_ptr<Layer> iconLayer;

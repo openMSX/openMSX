@@ -10,7 +10,6 @@ SRC_HDR:= \
 	VideoSourceSetting \
 	Renderer RendererFactory RenderSettings PixelRenderer \
 	SDLVideoSystem SDLRasterizer SDLSnow \
-	SDLUtil \
 	DummyRenderer \
 	XRenderer \
 	BitmapConverter CharacterConverter \
@@ -29,6 +28,7 @@ SRC_HDR:= \
 	SDLImage \
 	MemoryOps \
 	RawFrame PostProcessor \
+	OutputSurface SDLOutputSurface SDLGLOutputSurface \
 	Icon
 
 HDR_ONLY:= \

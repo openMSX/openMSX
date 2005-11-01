@@ -8,13 +8,13 @@
 #include "V9990P1Converter.hh"
 #include "V9990P2Converter.hh"
 #include <memory>
-#include <SDL.h>
 
 namespace openmsx {
 
 class V9990;
 class V9990VRAM;
 class RawFrame;
+class OutputSurface;
 class BooleanSetting;
 template <class Pixel> class PostProcessor;
 
@@ -24,7 +24,7 @@ template <class Pixel>
 class V9990SDLRasterizer : public V9990Rasterizer
 {
 public:
-	V9990SDLRasterizer(V9990& vdp, SDL_Surface* screen);
+	V9990SDLRasterizer(V9990& vdp, OutputSurface& screen);
 	virtual ~V9990SDLRasterizer();
 
 	// Rasterizer interface:
@@ -59,7 +59,7 @@ private:
 
 	/** The surface which is visible to the user.
 	  */
-	SDL_Surface* screen;
+	OutputSurface& screen;
 
 	/** The next frame as it is delivered by the VDP, work in progress.
 	  */

@@ -3,21 +3,17 @@
 #include "SDLVideoSystem.hh"
 #include "SDLRasterizer.hh"
 #include "V9990SDLRasterizer.hh"
-#include "SDLSnow.hh"
-#include "SDLConsole.hh"
 #include "Display.hh"
+#include "SDLOutputSurface.hh"
+//#include "SDLGLOutputSurface.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
 #include "VideoSourceSetting.hh"
-#include "SDLUtil.hh"
 #include "InitException.hh"
-#include "ScreenShotSaver.hh"
-#include "IconLayer.hh"
+#include "InputEventGenerator.hh"
 #include "MSXMotherBoard.hh"
 #include <SDL.h>
 #include <cassert>
-
-using std::string;
 
 namespace openmsx {
 
@@ -27,25 +23,17 @@ SDLVideoSystem::SDLVideoSystem(MSXMotherBoard& motherboard)
 {
 	unsigned width, height;
 	getWindowSize(width, height);
-	screen = openSDLVideo(motherboard.getInputEventGenerator(),
-	                      renderSettings, width, height, SDL_SWSURFACE);
+	bool fullscreen = motherboard.getRenderSettings().
+		                      getFullScreen().getValue();
+	screen.reset(new SDLOutputSurface(width, height, fullscreen));
+	//screen.reset(new SDLGLOutputSurface(width, height, fullscreen));
+	motherboard.getInputEventGenerator().reinit();
 
-	switch (screen->format->BytesPerPixel) {
-	case 2:
-		snowLayer.reset(new SDLSnow<Uint16>(screen));
-		break;
-	case 4:
-		snowLayer.reset(new SDLSnow<Uint32>(screen));
-		break;
-	default:
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		throw InitException("unsupported colour depth");
-	}
-	console.reset(new SDLConsole(motherboard, screen));
-
-	iconLayer.reset(new SDLIconLayer(motherboard.getCommandController(),
-	                                 motherboard.getEventDistributor(),
-	                                 display, screen));
+	snowLayer = screen->createSnowLayer();
+	console = screen->createConsoleLayer(motherboard);
+	iconLayer = screen->createIconLayer(motherboard.getCommandController(),
+	                                    motherboard.getEventDistributor(),
+	                                    display);
 	display.addLayer(*snowLayer);
 	display.addLayer(*console);
 	display.addLayer(*iconLayer);
@@ -56,16 +44,15 @@ SDLVideoSystem::~SDLVideoSystem()
 	display.removeLayer(*iconLayer);
 	display.removeLayer(*console);
 	display.removeLayer(*snowLayer);
-	closeSDLVideo(screen);
 }
 
 Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 {
-	switch (screen->format->BytesPerPixel) {
+	switch (screen->getFormat()->BytesPerPixel) {
 	case 2:
-		return new SDLRasterizer<Uint16>(vdp, screen);
+		return new SDLRasterizer<Uint16>(vdp, *screen);
 	case 4:
-		return new SDLRasterizer<Uint32>(vdp, screen);
+		return new SDLRasterizer<Uint32>(vdp, *screen);
 	default:
 		assert(false);
 		return 0;
@@ -74,11 +61,11 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 
 V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 {
-	switch (screen->format->BytesPerPixel) {
+	switch (screen->getFormat()->BytesPerPixel) {
 	case 2:
-		return new V9990SDLRasterizer<Uint16>(vdp, screen);
+		return new V9990SDLRasterizer<Uint16>(vdp, *screen);
 	case 4:
-		return new V9990SDLRasterizer<Uint32>(vdp, screen);
+		return new V9990SDLRasterizer<Uint32>(vdp, *screen);
 	default:
 		assert(false);
 		return 0;
@@ -111,58 +98,30 @@ bool SDLVideoSystem::checkSettings()
 	// Check resolution
 	unsigned width, height;
 	getWindowSize(width, height);
-	if ((width  != (unsigned)screen->w) ||
-	    (height != (unsigned)screen->h)) {
+	if ((width  != screen->getWidth()) ||
+	    (height != screen->getHeight())) {
 		return false;
 	}
 
-	// Check full screen setting.
-	bool fullScreenState = (screen->flags & SDL_FULLSCREEN) != 0;
+	// Check fullscreen
 	const bool fullScreenTarget =
 		renderSettings.getFullScreen().getValue();
-	if (fullScreenState == fullScreenTarget) return true;
-
-#ifdef _WIN32
-	// Under win32, toggling full screen requires opening a new SDL screen.
-	return false;
-#else
-	// Try to toggle full screen.
-	SDL_WM_ToggleFullScreen(screen);
-	fullScreenState =
-		(((volatile SDL_Surface*)screen)->flags & SDL_FULLSCREEN) != 0;
-	if (fullScreenState != fullScreenTarget) {
-		return false;
-	}
-	return true;
-#endif
+	return screen->setFullScreen(fullScreenTarget);
 }
 
 bool SDLVideoSystem::prepare()
 {
-	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
-		return false;
-	}
-	return true;
+	return screen->init();
 }
 
 void SDLVideoSystem::flush()
 {
-	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
-	SDL_Flip(screen);
+	screen->finish();
 }
 
-void SDLVideoSystem::takeScreenShot(const string& filename)
+void SDLVideoSystem::takeScreenShot(const std::string& filename)
 {
-	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
-		throw CommandException("Failed to lock surface.");
-	}
-	try {
-		ScreenShotSaver::save(screen, filename);
-		if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
-	} catch (CommandException& e) {
-		if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
-		throw;
-	}
+	screen->takeScreenShot(filename);
 }
 
 } // namespace openmsx

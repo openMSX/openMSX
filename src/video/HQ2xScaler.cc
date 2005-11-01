@@ -13,6 +13,7 @@ Visit the HiEnd3D site for info:
 #include "HQ2xScaler.hh"
 #include "HQCommon.hh"
 #include "FrameSource.hh"
+#include "OutputSurface.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -2567,7 +2568,7 @@ static void scaleLine512(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 template <class Pixel>
 void HQ2xScaler<Pixel>::scale256(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	unsigned prevY = srcStartY;
 	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY += 2) {
@@ -2576,9 +2577,9 @@ void HQ2xScaler<Pixel>::scale256(
 		const Pixel* srcCurr = src.getLinePtr(srcStartY, dummy);
 		const Pixel* srcNext = src.getLinePtr(
 			min(srcStartY + 1, srcEndY - 1), dummy);
-		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY);
-		Pixel* dstLower = Scaler<Pixel>::linePtr(dst,
-			min(dstY + 1, dstEndY - 1));
+		Pixel* dstUpper = dst.getLinePtr(dstY, dummy);
+		Pixel* dstLower = dst.getLinePtr(
+			min(dstY + 1, dstEndY - 1), dummy);
 		scaleLine256(srcPrev, srcCurr, srcNext, dstUpper, dstLower);
 		prevY = srcStartY;
 		++srcStartY;
@@ -2588,7 +2589,7 @@ void HQ2xScaler<Pixel>::scale256(
 template <class Pixel>
 void HQ2xScaler<Pixel>::scale512(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	unsigned prevY = srcStartY;
 	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY += 2) {
@@ -2597,9 +2598,9 @@ void HQ2xScaler<Pixel>::scale512(
 		const Pixel* srcCurr = src.getLinePtr(srcStartY, dummy);
 		const Pixel* srcNext = src.getLinePtr(
 			min(srcStartY + 1, srcEndY - 1), dummy);
-		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY);
-		Pixel* dstLower = Scaler<Pixel>::linePtr(dst,
-			min(dstY + 1, dstEndY - 1));
+		Pixel* dstUpper = dst.getLinePtr(dstY, dummy);
+		Pixel* dstLower = dst.getLinePtr(
+			min(dstY + 1, dstEndY - 1), dummy);
 		scaleLine512(srcPrev, srcCurr, srcNext, dstUpper, dstLower);
 		prevY = srcStartY;
 		++srcStartY;

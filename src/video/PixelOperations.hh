@@ -80,7 +80,7 @@ template <typename Pixel>
 inline unsigned PixelOperations<Pixel>::red(Pixel p) const
 {
 	if (sizeof(Pixel) == 4) {
-		return (p >> 16) & 0xFF;
+		return (p >> format->Rshift) & 0xFF;
 	} else {
 		return (p & format->Rmask) >> format->Rshift;
 	}
@@ -89,7 +89,7 @@ template <typename Pixel>
 inline unsigned PixelOperations<Pixel>::green(Pixel p) const
 {
 	if (sizeof(Pixel) == 4) {
-		return (p >> 8) & 0xFF;
+		return (p >> format->Gshift) & 0xFF;
 	} else {
 		return (p & format->Gmask) >> format->Gshift;
 	}
@@ -98,7 +98,7 @@ template <typename Pixel>
 inline unsigned PixelOperations<Pixel>::blue(Pixel p) const
 {
 	if (sizeof(Pixel) == 4) {
-		return (p >> 0) & 0xFF;
+		return (p >> format->Bshift) & 0xFF;
 	} else {
 		return (p & format->Bmask) >> format->Bshift;
 	}
@@ -108,7 +108,7 @@ template <typename Pixel>
 inline unsigned PixelOperations<Pixel>::red256(Pixel p) const
 {
 	if (sizeof(Pixel) == 4) {
-		return (p >> 16) & 0xFF;
+		return (p >> format->Rshift) & 0xFF;
 	} else {
 		return ((p >> format->Rshift) << format->Rloss) & 0xFF;
 	}
@@ -117,7 +117,7 @@ template <typename Pixel>
 inline unsigned PixelOperations<Pixel>::green256(Pixel p) const
 {
 	if (sizeof(Pixel) == 4) {
-		return (p >> 8) & 0xFF;
+		return (p >> format->Gshift) & 0xFF;
 	} else {
 		return ((p >> format->Gshift) << format->Gloss) & 0xFF;
 	}
@@ -126,7 +126,7 @@ template <typename Pixel>
 inline unsigned PixelOperations<Pixel>::blue256(Pixel p) const
 {
 	if (sizeof(Pixel) == 4) {
-		return (p >> 0) & 0xFF;
+		return (p >> format->Bshift) & 0xFF;
 	} else {
 		return ((p >> format->Bshift) << format->Bloss) & 0xFF;
 	}
@@ -136,13 +136,9 @@ template <typename Pixel>
 inline Pixel PixelOperations<Pixel>::combine(
 		unsigned r, unsigned g, unsigned b) const
 {
-	if (sizeof(Pixel) == 4) {
-		return (r << 16) | (g << 8) | (b << 0);
-	} else {
-		return (Pixel)((r << format->Rshift) |
-			       (g << format->Gshift) |
-			       (b << format->Bshift));
-	}
+	return (Pixel)((r << format->Rshift) |
+	               (g << format->Gshift) |
+	               (b << format->Bshift));
 }
 
 template <typename Pixel>
@@ -150,7 +146,9 @@ inline Pixel PixelOperations<Pixel>::combine256(
 		unsigned r, unsigned g, unsigned b) const
 {
 	if (sizeof(Pixel) == 4) {
-		return (r << 16) | (g << 8) | (b << 0);
+		return (Pixel)((r << format->Rshift) |
+		               (g << format->Gshift) |
+		               (b << format->Bshift));
 	} else {
 		return (Pixel)(((r >> format->Rloss) << format->Rshift) |
 		               ((g >> format->Gloss) << format->Gshift) |

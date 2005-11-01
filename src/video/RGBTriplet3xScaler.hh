@@ -21,26 +21,26 @@ public:
 	                   const RenderSettings& renderSettings);
 
 	virtual void scaleBlank(
-		Pixel color, SDL_Surface* dst,
+		Pixel color, OutputSurface& dst,
 		unsigned startY, unsigned endY);
 	virtual void scale192(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale256(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale384(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale512(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale768(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale1024(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
 private:
 	void recalcBlur();
@@ -56,7 +56,7 @@ private:
 
 	template <typename ScaleOp>
 	void doScale1(FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-	              SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY,
+	              OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	              ScaleOp scale);
 
 	int c1, c2;

@@ -13,6 +13,7 @@ Visit the HiEnd3D site for info:
 #include "HQ3xLiteScaler.hh"
 #include "HQCommon.hh"
 #include "FrameSource.hh"
+#include "OutputSurface.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -599,7 +600,7 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 template <class Pixel>
 void HQ3xLiteScaler<Pixel>::scale256(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-	SDL_Surface* dst, unsigned dstStartY, unsigned /*dstEndY*/)
+	OutputSurface& dst, unsigned dstStartY, unsigned /*dstEndY*/)
 {
 	unsigned dstY = dstStartY;
 	unsigned prevY = srcStartY;
@@ -608,10 +609,10 @@ void HQ3xLiteScaler<Pixel>::scale256(
 		const Pixel* srcPrev = src.getLinePtr(prevY,  dummy);
 		const Pixel* srcCurr = src.getLinePtr(srcStartY, dummy);
 		const Pixel* srcNext = src.getLinePtr(min(srcStartY + 1, srcEndY - 1), dummy);
-		Pixel* dst0 = Scaler<Pixel>::linePtr(dst, dstY + 0);
-		Pixel* dst1 = Scaler<Pixel>::linePtr(dst, dstY + 1);
+		Pixel* dst0 = dst.getLinePtr(dstY + 0, dummy);
+		Pixel* dst1 = dst.getLinePtr(dstY + 1, dummy);
 		Pixel* dst2 = (dstY != (720 - 2))
-		            ? Scaler<Pixel>::linePtr(dst, dstY + 2)
+		            ? dst.getLinePtr(dstY + 2, dummy)
 		            : dst1;
 		scaleLine256(srcPrev, srcCurr, srcNext, dst0, dst1, dst2);
 		prevY = srcStartY;

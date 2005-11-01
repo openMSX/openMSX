@@ -12,6 +12,7 @@ namespace openmsx {
 
 class RenderSettings;
 class FrameSource;
+class OutputSurface;
 
 /** Enumeration of Scalers known to openMSX.
   */
@@ -62,7 +63,7 @@ public:
 	  * @param startY Destination Y-coordinate of the top line.
 	  * @param endY Destination Y-coordinate of the bottom line (exclusive).
 	  */
-	virtual void scaleBlank(Pixel color, SDL_Surface* dst,
+	virtual void scaleBlank(Pixel color, OutputSurface& dst,
 	                        unsigned startY, unsigned endY);
 
 	/** Scales the image in the given area, which must consist of lines which
@@ -79,84 +80,13 @@ public:
 	virtual void scaleImage(
 		FrameSource& src, unsigned lineWidth,
 		unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY
-		) = 0;
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY) = 0;
 
 	/** Temporary handling of deinterlacing.
 	  */
 	virtual void scaleImage(
 		FrameSource& frameEven, FrameSource& frameOdd, unsigned lineWidth,
-		SDL_Surface* dst, unsigned srcStartY, unsigned srcEndY
-		) = 0;
-
-	/** Scales the given area. Scaling factor depends on the concrete scaler.
-	  * @param src Source: the image to be scaled.
-	  *   It should be 320 pixels wide.
-	  * @param srcStartY Y-coordinate of the top source line (inclusive).
-	  * @param srcEndY Y-coordinate of the bottom source line (exclusive).
-	  * @param dst Destination: image to store the scaled output in.
-	  * @param dstStartY Y-coordinate of the top destination line (inclusive).
-	  * @param dstEndY Y-coordinate of the bottom destination line (exclusive).
-	  */
-	virtual void scale256(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY) = 0;
-	virtual void scale256(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY) = 0;
-
-	/** Scales the given area. Scaling factor depends on the concrete scaler
-	  * @param src Source: the image to be scaled.
-	  *   It should be 640 pixels wide.
-	  * @param dst Destination: image to store the scaled output in.
-	  * @param startY Y-coordinate of the top source line (inclusive).
-	  * @param endY Y-coordinate of the bottom source line (exclusive).
-	  * @param lower True iff frame must be displayed half a line lower
-	  */
-	virtual void scale512(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY) = 0;
-	virtual void scale512(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY) = 0;
-
-	virtual void scale192(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY) = 0;
-	virtual void scale192(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY) = 0;
-
-	virtual void scale384(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY) = 0;
-	virtual void scale384(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY) = 0;
-
-	virtual void scale640(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY) = 0;
-	virtual void scale640(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY) = 0;
-
-	virtual void scale768(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY) = 0;
-	virtual void scale768(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-	                      unsigned startY, unsigned endY) = 0;
-
-	virtual void scale1024(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY) = 0;
-	virtual void scale1024(FrameSource& src0, FrameSource& src1, SDL_Surface* dst,
-	                       unsigned startY, unsigned endY) = 0;
-
-
-	/** Get the start address of a line in a surface
-	  *  TODO should become a method of the SDL_Surface replacement
-	  *       in the future
-	  */
-	inline static Pixel* linePtr(SDL_Surface* surface, unsigned y) {
-		assert(y < (unsigned)surface->h);
-		return (Pixel*)((byte*)surface->pixels + y * surface->pitch);
-	}
+		OutputSurface& dst, unsigned srcStartY, unsigned srcEndY) = 0;
 };
 
 } // namespace openmsx

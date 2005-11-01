@@ -8,6 +8,7 @@
 
 #include "SaI2xScaler.hh"
 #include "FrameSource.hh"
+#include "OutputSurface.hh"
 #include "openmsx.hh"
 #include <cassert>
 
@@ -166,7 +167,7 @@ void SaI2xScaler<Pixel>::scaleLine256(
 	}
 }
 
-const int WIDTH512 = 640; // TODO: Specify this in a clean way.
+const unsigned WIDTH512 = 640; // TODO: Specify this in a clean way.
 
 template <class Pixel>
 void SaI2xScaler<Pixel>::scaleLine512(
@@ -179,7 +180,7 @@ void SaI2xScaler<Pixel>::scaleLine512(
 	// like SimpleScaler does.
 	dstUpper[0] = srcLine1[0];
 	dstLower[0] = blend(srcLine1[0], srcLine2[0]);
-	for (int x = 1; x < WIDTH512 - 1; x++) {
+	for (unsigned x = 1; x < WIDTH512 - 1; x++) {
 		// Map of the pixels:
 		//   I E F
 		//   G A B
@@ -252,9 +253,9 @@ void SaI2xScaler<Pixel>::scaleLine512(
 template <class Pixel>
 void SaI2xScaler<Pixel>::scale256(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	assert(dst->w == WIDTH256 * 2);
+	assert(dst.getWidth() == WIDTH256 * 2);
 
 	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
 	     srcY += 1, dstY += 2) {
@@ -263,9 +264,9 @@ void SaI2xScaler<Pixel>::scale256(
 		const Pixel* srcLine1 = src.getLinePtr(    srcY + 0,               dummy);
 		const Pixel* srcLine2 = src.getLinePtr(min(srcY + 1, srcEndY - 1), dummy);
 		const Pixel* srcLine3 = src.getLinePtr(min(srcY + 2, srcEndY - 1), dummy);
-		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY);
-		Pixel* dstLower = Scaler<Pixel>::linePtr(
-			dst, min(dstY + 1, dstEndY - 1));
+		Pixel* dstUpper = dst.getLinePtr(dstY, dummy);
+		Pixel* dstLower = dst.getLinePtr(
+			min(dstY + 1, dstEndY - 1), dummy);
 
 		scaleLine256(srcLine0, srcLine1, srcLine2, srcLine3,
 		             dstUpper, dstLower);
@@ -275,9 +276,9 @@ void SaI2xScaler<Pixel>::scale256(
 template <class Pixel>
 void SaI2xScaler<Pixel>::scale512(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-	SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY)
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	assert(dst->w == WIDTH512);
+	assert(dst.getWidth() == WIDTH512);
 	
 	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
 	     srcY += 1, dstY += 2) {
@@ -286,9 +287,9 @@ void SaI2xScaler<Pixel>::scale512(
 		const Pixel* srcLine1 = src.getLinePtr(    srcY + 0,               dummy);
 		const Pixel* srcLine2 = src.getLinePtr(min(srcY + 1, srcEndY - 1), dummy);
 		const Pixel* srcLine3 = src.getLinePtr(min(srcY + 2, srcEndY - 1), dummy);
-		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY);
-		Pixel* dstLower = Scaler<Pixel>::linePtr(
-			dst, min(dstY + 1, dstEndY - 1));
+		Pixel* dstUpper = dst.getLinePtr(dstY, dummy);
+		Pixel* dstLower = dst.getLinePtr(
+			min(dstY + 1, dstEndY - 1), dummy);
 
 		scaleLine512(srcLine0, srcLine1, srcLine2, srcLine3,
 		             dstUpper, dstLower);

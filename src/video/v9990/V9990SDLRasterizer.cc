@@ -3,6 +3,7 @@
 #include "V9990SDLRasterizer.hh"
 #include "V9990.hh"
 #include "RawFrame.hh"
+#include "OutputSurface.hh"
 #include "PostProcessor.hh"
 #include "BooleanSetting.hh"
 #include "RenderSettings.hh"
@@ -17,7 +18,7 @@ using std::max;
 namespace openmsx {
 
 template <class Pixel>
-V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(V9990& vdp_, SDL_Surface* screen_)
+V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(V9990& vdp_, OutputSurface& screen_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
 	, postProcessor(new PostProcessor<Pixel>(
@@ -261,7 +262,7 @@ void V9990SDLRasterizer<Pixel>::precalcPalettes()
 		for (int r = 0; r < 32; ++r) {
 			for (int b = 0; b < 32; ++b) {
 				palette32768[(g << 10) + (r << 5) + b] =
-					SDL_MapRGB(screen->format,
+					SDL_MapRGB(screen.getFormat(),
 					           (int)(r * (255.0 / 31.0)),
 					           (int)(g * (255.0 / 31.0)),
 					           (int)(b * (255.0 / 31.0)));

@@ -5,6 +5,7 @@
 #include "Scaler.hh"
 #include "BooleanSetting.hh"
 #include "MemoryOps.hh"
+#include "OutputSurface.hh"
 #include <SDL.h>
 #include <cassert>
 
@@ -14,12 +15,12 @@ namespace openmsx {
 template <class Pixel>
 PostProcessor<Pixel>::PostProcessor(CommandController& commandController,
 	RenderSettings& renderSettings_, Display& display,
-	SDL_Surface* screen, VideoSource videoSource,
+	OutputSurface& screen_, VideoSource videoSource,
 	unsigned maxWidth, unsigned height)
 	: VideoLayer(videoSource, commandController, renderSettings_, display)
 	, renderSettings(renderSettings_)
+	, screen(screen_)
 {
-	this->screen = screen;
 	currScalerID = (ScalerID)-1; // not a valid scaler
 
 	currFrame = new RawFrame(sizeof(Pixel), maxWidth, height);
@@ -55,7 +56,7 @@ void PostProcessor<Pixel>::paint()
 	ScalerID scalerID = renderSettings.getScaler().getValue();
 	if (currScalerID != scalerID) {
 		currScaler = Scaler<Pixel>::createScaler(
-			scalerID, screen->format, renderSettings);
+			scalerID, screen.getFormat(), renderSettings);
 		currScalerID = scalerID;
 	}
 
@@ -63,7 +64,7 @@ void PostProcessor<Pixel>::paint()
 	// TODO: Check deinterlace first: now that we keep LineContent info per
 	//       frame, we should take the lineWidth of two frames into account.
 	const unsigned srcHeight = 240;
-	const unsigned dstHeight = screen->h;
+	const unsigned dstHeight = screen.getHeight();
 	const bool lower = field == RawFrame::FIELD_ODD;
 	const unsigned lineZoom = dstHeight / srcHeight;
 	// TODO: Store all MSX lines in RawFrame and only scale the ones that fit
@@ -105,13 +106,11 @@ void PostProcessor<Pixel>::paint()
 			if (deinterlace) {
 				currScaler->scaleImage(
 					*frameEven, *frameOdd, lineWidth,
-					screen, srcStartY, srcEndY
-					);
+					screen, srcStartY, srcEndY);
 			} else {
 				currScaler->scaleImage(
 					*currFrame, lineWidth, srcStartY, srcEndY, // source
-					screen, dstStartY, dstEndY // dest
-					);
+					screen, dstStartY, dstEndY); // dest
 			}
 		}
 
@@ -120,6 +119,7 @@ void PostProcessor<Pixel>::paint()
 		srcStartY = srcEndY;
 		dstStartY = dstEndY;
 	}
+	screen.drawFrameBuffer();
 }
 
 template <class Pixel>

@@ -56,12 +56,16 @@ void GLConsole::loadBackground(const string& filename)
 
 unsigned GLConsole::getScreenW() const
 {
-	return 640;
+	// TODO refactor
+	SDL_Surface* surface = SDL_GetVideoSurface();
+	return surface->w;
 }
 
 unsigned GLConsole::getScreenH() const
 {
-	return 480;
+	// TODO refactor
+	SDL_Surface* surface = SDL_GetVideoSurface();
+	return surface->h;
 }
 
 void GLConsole::paint()

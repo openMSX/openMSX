@@ -18,10 +18,10 @@ public:
 	SaI2xScaler(SDL_PixelFormat* format);
 	virtual void scale256(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale512(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		SDL_Surface* dst, unsigned dstStartY, unsigned dstEndY);
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
 private:
 	void scaleLine256(

@@ -10,12 +10,11 @@
 #include "openmsx.hh"
 #include <memory>
 
-struct SDL_Surface;
-
 namespace openmsx {
 
 class VDP;
 class VDPVRAM;
+class OutputSurface;
 class RawFrame;
 template <class Pixel> class PostProcessor;
 
@@ -25,7 +24,7 @@ template <class Pixel>
 class SDLRasterizer : public Rasterizer
 {
 public:
-	SDLRasterizer(VDP& vdp, SDL_Surface* screen);
+	SDLRasterizer(VDP& vdp, OutputSurface& screen);
 	virtual ~SDLRasterizer();
 
 	// Rasterizer interface:
@@ -129,14 +128,14 @@ private:
 	  */
 	Pixel V9958_COLOURS[32768];
 
+	/** The surface which is visible to the user.
+	  */
+	OutputSurface& screen;
+
 	/** The video post processor which displays the frames produced by this
 	  *  rasterizer.
 	  */
 	std::auto_ptr<PostProcessor<Pixel> > postProcessor;
-
-	/** The surface which is visible to the user.
-	  */
-	SDL_Surface* screen;
 
 	/** The next frame as it is delivered by the VDP, work in progress.
 	  */

@@ -8,11 +8,10 @@
 #include <string>
 #include <memory>
 
-struct SDL_Surface;
-
 namespace openmsx {
 
 class MSXMotherBoard;
+class OutputSurface;
 class VDP;
 class V9990;
 class Rasterizer;
@@ -44,7 +43,7 @@ private:
 	void resize(unsigned x, unsigned y);
 
 	MSXMotherBoard& motherboard;
-	SDL_Surface* screen;
+	std::auto_ptr<OutputSurface> screen;
 	std::auto_ptr<Layer> console;
 	std::auto_ptr<Layer> snowLayer;
 	std::auto_ptr<Layer> iconLayer;

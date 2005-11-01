@@ -10,6 +10,7 @@
 #include "FloatSetting.hh"
 #include "MemoryOps.hh"
 #include "MSXMotherBoard.hh"
+#include "OutputSurface.hh"
 #include <SDL.h>
 #include <algorithm>
 #include <cassert>
@@ -139,8 +140,9 @@ inline void SDLRasterizer<Pixel>::renderCharacterLines(
 }
 
 template <class Pixel>
-SDLRasterizer<Pixel>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
+SDLRasterizer<Pixel>::SDLRasterizer(VDP& vdp_, OutputSurface& screen_)
 	: vdp(vdp_), vram(vdp.getVRAM())
+	, screen(screen_)
 	, postProcessor(new PostProcessor<Pixel>(
 		vdp.getMotherBoard().getCommandController(),
 		vdp.getMotherBoard().getRenderSettings(),
@@ -150,7 +152,6 @@ SDLRasterizer<Pixel>::SDLRasterizer(VDP& vdp_, SDL_Surface* screen)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 	, spriteConverter(vdp.getSpriteChecker())
 {
-	this->screen = screen;
 	workFrame = new RawFrame(sizeof(Pixel), 640, 240);
 
 	// Create display caches.
@@ -299,11 +300,10 @@ void SDLRasterizer<Pixel>::precalcPalette(double gamma)
 		for (int i = 0; i < 16; i++) {
 			const byte* rgb = Renderer::TMS99X8A_PALETTE[i];
 			palFg[i] = palFg[i + 16] = palBg[i] = SDL_MapRGB(
-				screen->format,
+				screen.getFormat(),
 				(int)(::pow((double)rgb[0] / 255.0, gamma) * 255),
 				(int)(::pow((double)rgb[1] / 255.0, gamma) * 255),
-				(int)(::pow((double)rgb[2] / 255.0, gamma) * 255)
-				);
+				(int)(::pow((double)rgb[2] / 255.0, gamma) * 255));
 		}
 	} else {
 		// Precalculate palette for V9938 colours.
@@ -311,11 +311,10 @@ void SDLRasterizer<Pixel>::precalcPalette(double gamma)
 			for (int g = 0; g < 8; g++) {
 				for (int b = 0; b < 8; b++) {
 					V9938_COLOURS[r][g][b] = SDL_MapRGB(
-						screen->format,
+						screen.getFormat(),
 						(int)(::pow((double)r / 7.0, gamma) * 255),
 						(int)(::pow((double)g / 7.0, gamma) * 255),
-						(int)(::pow((double)b / 7.0, gamma) * 255)
-						);
+						(int)(::pow((double)b / 7.0, gamma) * 255));
 				}
 			}
 		}
@@ -324,7 +323,7 @@ void SDLRasterizer<Pixel>::precalcPalette(double gamma)
 			for (int g = 0; g < 32; g++) {
 				for (int b = 0; b < 32; b++) {
 					V9958_COLOURS[(r<<10) + (g<<5) + b] = SDL_MapRGB(
-						screen->format,
+						screen.getFormat(),
 						(int)(::pow((double)r / 31.0, gamma) * 255),
 						(int)(::pow((double)g / 31.0, gamma) * 255),
 						(int)(::pow((double)b / 31.0, gamma) * 255)

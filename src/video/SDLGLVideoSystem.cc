@@ -4,19 +4,13 @@
 #include "GLRasterizer.hh"
 #include "V9990GLRasterizer.hh"
 #include "MSXMotherBoard.hh"
-#include "GLSnow.hh"
-#include "GLConsole.hh"
-#include "GLUtil.hh"
 #include "Display.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
-#include "SDLUtil.hh"
-#include "ScreenShotSaver.hh"
-#include "IconLayer.hh"
+#include "SDLGLOutputSurface.hh"
 #include "EventDistributor.hh"
+#include "InputEventGenerator.hh"
 #include "InputEvents.hh"
-#include <SDL.h>
-#include <cstdlib>
 
 using std::string;
 
@@ -33,11 +27,11 @@ SDLGLVideoSystem::SDLGLVideoSystem(MSXMotherBoard& motherboard_)
 
 	resize(640, 480);
 
-	console.reset(new GLConsole(motherboard));
-	snowLayer.reset(new GLSnow());
-	iconLayer.reset(new GLIconLayer(motherboard.getCommandController(),
-	                                motherboard.getEventDistributor(),
-	                                display, screen));
+	console   = screen->createConsoleLayer(motherboard);
+	snowLayer = screen->createSnowLayer();
+	iconLayer = screen->createIconLayer(motherboard.getCommandController(),
+	                                    motherboard.getEventDistributor(),
+	                                    display);
 	display.addLayer(*console);
 	display.addLayer(*snowLayer);
 	display.addLayer(*iconLayer);
@@ -55,8 +49,6 @@ SDLGLVideoSystem::~SDLGLVideoSystem()
 	display.removeLayer(*iconLayer);
 	display.removeLayer(*snowLayer);
 	display.removeLayer(*console);
-
-	closeSDLVideo(screen);
 }
 
 Rasterizer* SDLGLVideoSystem::createRasterizer(VDP& vdp)
@@ -75,22 +67,9 @@ V9990Rasterizer* SDLGLVideoSystem::createV9990Rasterizer(V9990& vdp)
 //       is this polling approach necessary at all?
 bool SDLGLVideoSystem::checkSettings()
 {
-	// Check full screen setting.
-	bool fullScreenState = (screen->flags & SDL_FULLSCREEN) != 0;
-	const bool fullScreenTarget = motherboard.getRenderSettings().
+	bool fullScreenTarget = motherboard.getRenderSettings().
 		getFullScreen().getValue();
-	if (fullScreenState == fullScreenTarget) return true;
-
-#ifdef _WIN32
-	// Under win32, toggling full screen requires opening a new SDL screen.
-	return false;
-#else
-	// Try to toggle full screen.
-	SDL_WM_ToggleFullScreen(screen);
-	fullScreenState =
-		(((volatile SDL_Surface*)screen)->flags & SDL_FULLSCREEN) != 0;
-	return fullScreenState == fullScreenTarget;
-#endif
+	return screen->setFullScreen(fullScreenTarget);
 }
 
 void SDLGLVideoSystem::flush()
@@ -100,40 +79,15 @@ void SDLGLVideoSystem::flush()
 
 void SDLGLVideoSystem::takeScreenShot(const string& filename)
 {
-	unsigned width  = screen->w;
-	unsigned height = screen->h;
-	byte** row_pointers = static_cast<byte**>(
-		malloc(height * sizeof(byte*)));
-	byte* buffer = static_cast<byte*>(
-		malloc(width * height * 3 * sizeof(byte)));
-	for (unsigned i = 0; i < height; ++i) {
-		row_pointers[height - 1 - i] = &buffer[width * 3 * i];
-	}
-	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
-	try {
-		ScreenShotSaver::save(width, height, row_pointers, filename);
-	} catch(...) {
-		free(row_pointers);
-		free(buffer);
-		throw;
-	}
-	free(row_pointers);
-	free(buffer);
+	screen->takeScreenShot(filename);
 }
 
 void SDLGLVideoSystem::resize(unsigned x, unsigned y)
 {
-	int flags = SDL_OPENGL | SDL_HWSURFACE | SDL_DOUBLEBUF;
-	//flags |= SDL_RESIZABLE;
-	screen = openSDLVideo(motherboard.getInputEventGenerator(),
-	                      motherboard.getRenderSettings(),
-	                      x, y, flags);
-
-	glViewport(0, 0, x, y);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, 640, 480, 0, -1, 1); // coordinate system always 640x480
-	glMatrixMode(GL_MODELVIEW);
+	bool fullscreen = motherboard.getRenderSettings().
+		                      getFullScreen().getValue();
+	screen.reset(new SDLGLOutputSurface(x, y, fullscreen));
+	motherboard.getInputEventGenerator().reinit();
 }
 
 void SDLGLVideoSystem::signalEvent(const Event& event)
@@ -144,4 +98,3 @@ void SDLGLVideoSystem::signalEvent(const Event& event)
 }
 
 } // namespace openmsx
-
