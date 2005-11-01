@@ -115,56 +115,6 @@ static inline void memset4_2_MMX(
 	asm volatile ( "emms" );
 }
 
-static inline void memset4_2_MMX_s(
-	unsigned* p, unsigned n, unsigned val0, unsigned val1)
-{
-	if (unlikely((int)p & 4)) {
-		p[0] = val1; // start at odd pixel
-		++p; --n;
-	}
-	unsigned tmp[2] = { val0, val1 };
-	asm volatile (
-		"movq   (%0), %%mm0;"
-		: // no output
-		: "r" (tmp)
-		#ifdef __MMX__
-		: "mm0"
-		#endif
-	);
-	unsigned* e = p + n - 7;
-	for (/**/; p < e; p += 8) {
-		asm volatile (
-			"movntq %%mm0,   (%0);"
-			"movntq %%mm0,  8(%0);"
-			"movntq %%mm0, 16(%0);"
-			"movntq %%mm0, 24(%0);"
-			: // no output
-			: "r" (p)
-		);
-	}
-	if (unlikely(n & 4)) {
-		asm volatile (
-			"movntq %%mm0,  (%0);"
-			"movntq %%mm0, 8(%0);"
-			: // no output
-			: "r" (p)
-		);
-		p += 4;
-	}
-	if (unlikely(n & 2)) {
-		asm volatile (
-			"movntq %%mm0, 8(%0);"
-			: // no output
-			: "r" (p)
-		);
-		p += 2;
-	}
-	if (unlikely(n & 1)) {
-		p[0] = val0;
-	}
-	asm volatile ( "emms" );
-}
-
 static inline void memset4_2_SSE(
 	unsigned* p, unsigned n, unsigned val0, unsigned val1)
 {
@@ -292,11 +242,7 @@ template<bool STREAMING> static inline void memset_2_helper(
 		return;
 	}
 	if (cpu.hasMMX()) {
-		if (STREAMING) {
-			memset4_2_MMX_s(out, num, val0, val1);
-		} else {
-			memset4_2_MMX(out, num, val0, val1);
-		}
+		memset4_2_MMX(out, num, val0, val1);
 		return;
 	}
 	#endif
