@@ -11,8 +11,10 @@
 #include "probed_defs.hh"
 #ifdef HAVE_GL_GL_H
 #include <GL/gl.h>
+#include <GL/glext.h>
 #else // HAVE_GL_H
 #include <gl.h>
+#include <glext.h>
 #endif
 
 namespace openmsx {
