@@ -28,7 +28,7 @@ SRC_HDR:= \
 	SDLImage \
 	MemoryOps \
 	RawFrame PostProcessor \
-	OutputSurface SDLOutputSurface SDLGLOutputSurface \
+	OutputSurface SDLOutputSurface \
 	Icon
 
 HDR_ONLY:= \
@@ -44,7 +44,8 @@ HDR_ONLY:= \
 	VideoSystemChangeListener.hh
 
 SRC_HDR_$(COMPONENT_GL)+= \
-	SDLGLVideoSystem GLRasterizer GLSnow GLUtil GLImage
+	SDLGLVideoSystem GLRasterizer GLSnow GLUtil GLImage \
+	SDLGLOutputSurface
 
 include build/node-end.mk
 

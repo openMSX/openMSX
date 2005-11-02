@@ -1,5 +1,8 @@
 $Id$
 
+2005-11-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Only build SDLGLOutputSurface when openGL component is selected
+
 2005-11-01 Manuel Bilderbeek <manuel@msxnet.org>
 	* Optimization in RGBTriplet3xScaler: don't really call scale_1on1; if
 	  we already have 256 wide lines, there's no need to scale

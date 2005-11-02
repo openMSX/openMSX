@@ -5,7 +5,6 @@
 #include "V9990SDLRasterizer.hh"
 #include "Display.hh"
 #include "SDLOutputSurface.hh"
-#include "SDLGLOutputSurface.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
 #include "VideoSourceSetting.hh"
@@ -14,6 +13,11 @@
 #include "MSXMotherBoard.hh"
 #include <SDL.h>
 #include <cassert>
+
+#include "components.hh"
+#ifdef COMPONENT_GL
+#include "SDLGLOutputSurface.hh"
+#endif
 
 namespace openmsx {
 
@@ -30,6 +34,7 @@ SDLVideoSystem::SDLVideoSystem(MSXMotherBoard& motherboard,
 	case RendererFactory::SDL:
 		screen.reset(new SDLOutputSurface(width, height, fullscreen));
 		break;
+#ifdef COMPONENT_GL
 	case RendererFactory::SDLGL_FB16:
 		screen.reset(new SDLGLOutputSurface(width, height, fullscreen,
 		             SDLGLOutputSurface::FB_16BPP));
@@ -38,6 +43,7 @@ SDLVideoSystem::SDLVideoSystem(MSXMotherBoard& motherboard,
 		screen.reset(new SDLGLOutputSurface(width, height, fullscreen,
 		             SDLGLOutputSurface::FB_32BPP));
 		break;
+#endif
 	default:
 		assert(false);
 	}
