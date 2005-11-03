@@ -30,13 +30,10 @@ public:
 	MSXCPU(MSXMotherBoard& motherboard);
 	~MSXCPU();
 
-	/** 
-	 * Finish current instruction and reset MSX.
-	 *   Real hw probably does not wait for this, but aborting
-	 *   instructions does not fit well in the current emulation
-	 *   model
+	/** Reset CPU.
+	  * Requires CPU is not in the middle of an instruction,
+	  * so exitCPULoop was called and execute() method returned.
 	 */
-	void scheduleReset();
 	void doReset(const EmuTime& time);
 
 	/**

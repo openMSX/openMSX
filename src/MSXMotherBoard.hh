@@ -64,8 +64,9 @@ public:
 	void pause();
 	void unpause();
 	
-	void powerUpMSX();
-	void powerDownMSX();
+	void powerUp();
+	void schedulePowerDown();
+	void doPowerDown(const EmuTime& time);
 
 	/**
 	 * This will reset all MSXDevices (the reset() method of
@@ -119,7 +120,8 @@ private:
 	Devices availableDevices;
 
 	bool powered;
-
+	bool needReset;
+	bool needPowerDown;
 	int blockedCounter;
 
 	// order of auto_ptr's is important!

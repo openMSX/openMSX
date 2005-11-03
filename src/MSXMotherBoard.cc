@@ -41,6 +41,8 @@ namespace openmsx {
 
 MSXMotherBoard::MSXMotherBoard()
 	: powered(false)
+	, needReset(false)
+	, needPowerDown(false)
 	, blockedCounter(0)
 	, resetCommand(getCommandController(), *this)
 	, powerSetting(getCommandController().getGlobalSettings().getPowerSetting())
@@ -286,6 +288,15 @@ void MSXMotherBoard::readConfig()
 
 bool MSXMotherBoard::execute()
 {
+	if (needReset) {
+		needReset = false;
+		doReset(getScheduler().getCurrentTime());
+	}
+	if (needPowerDown) {
+		needPowerDown = false;
+		doPowerDown(getScheduler().getCurrentTime());
+	}
+
 	if (!powered || blockedCounter) {
 		return false;
 	}
@@ -327,7 +338,8 @@ void MSXMotherBoard::addDevice(std::auto_ptr<MSXDevice> device)
 
 void MSXMotherBoard::scheduleReset()
 {
-	getCPU().scheduleReset();
+	needReset = true;
+	getCPU().exitCPULoop();
 }
 
 void MSXMotherBoard::doReset(const EmuTime& time)
@@ -340,7 +352,7 @@ void MSXMotherBoard::doReset(const EmuTime& time)
 	getCPU().doReset(time);
 }
 
-void MSXMotherBoard::powerUpMSX()
+void MSXMotherBoard::powerUp()
 {
 	if (powered) return;
 
@@ -364,7 +376,13 @@ void MSXMotherBoard::powerUpMSX()
 	getMixer().unmute();
 }
 
-void MSXMotherBoard::powerDownMSX()
+void MSXMotherBoard::schedulePowerDown()
+{
+	needPowerDown = true;
+	getCPU().exitCPULoop();
+}
+
+void MSXMotherBoard::doPowerDown(const EmuTime& time)
 {
 	if (!powered) return;
 
@@ -377,10 +395,8 @@ void MSXMotherBoard::powerDownMSX()
 	getEventDistributor().distributeEvent(
 		new LedEvent(LedEvent::POWER, false));
 
-	getCPU().exitCPULoop();
 	getMixer().mute();
 
-	const EmuTime& time = getScheduler().getCurrentTime();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		(*it)->powerDown(time);
@@ -416,9 +432,9 @@ void MSXMotherBoard::update(const Setting* setting)
 {
 	if (setting == &powerSetting) {
 		if (powerSetting.getValue()) {
-			powerUpMSX();
+			powerUp();
 		} else {
-			powerDownMSX();
+			schedulePowerDown();
 		}
 	} else {
 		assert(false);

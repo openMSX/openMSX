@@ -86,11 +86,6 @@ public:
 	virtual void exitCPULoop() = 0;
 
 	/**
-	 * Finish current instruction and reset MSX
-	 */
-	virtual void scheduleReset() = 0;
-
-	/**
 	 * Sets the CPU its current time.
 	 * This is used to 'warp' a CPU when you switch between Z80/R800.
 	 */

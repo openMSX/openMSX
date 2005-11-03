@@ -29,7 +29,6 @@ template <class T> CPUCore<T>::CPUCore(
 	, nmiEdge(false)
 	, NMIStatus(0)
 	, IRQStatus(0)
-	, needReset(false)
 	, interface(NULL)
 	, motherboard(motherboard_)
 	, scheduler(motherboard.getScheduler())
@@ -92,12 +91,6 @@ template <class T> void CPUCore<T>::invalidateMemCache(word start, unsigned size
 template <class T> CPU::CPURegs& CPUCore<T>::getRegisters()
 {
 	return R;
-}
-
-template <class T> void CPUCore<T>::scheduleReset()
-{
-	needReset = true;
-	exitCPULoop();
 }
 
 template <class T> void CPUCore<T>::doReset(const EmuTime& time)
@@ -509,12 +502,6 @@ template <class T> void CPUCore<T>::execute()
 {
 	assert(!breaked);
 
-	if (needReset) {
-		needReset = false;
-		motherboard.doReset(T::clock.getTime());
-		return;
-	}
-
 	exitLoop = false;
 	slowInstructions = 2;
 
@@ -564,6 +551,7 @@ template <class T> void CPUCore<T>::execute()
 			}
 		}
 	}
+	scheduler.schedule(T::clock.getTime());
 }
 
 

@@ -48,11 +48,6 @@ void MSXCPU::setInterface(MSXCPUInterface* interface)
 	r800->setInterface(interface);
 }
 
-void MSXCPU::scheduleReset()
-{
-	activeCPU->scheduleReset();
-}
-
 void MSXCPU::doReset(const EmuTime& time)
 {
 	z80 ->doReset(time);

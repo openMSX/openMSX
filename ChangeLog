@@ -1,5 +1,9 @@
 $Id$
 
+2005-11-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed assert on 'set power off ; set power on':
+	   also cleaned up reset handling code
+
 2005-11-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Only build SDLGLOutputSurface when openGL component is selected
 

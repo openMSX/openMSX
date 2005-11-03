@@ -35,7 +35,6 @@ public:
 	/**
 	 * Reset the CPU.
 	 */
-	virtual void scheduleReset();
 	void doReset(const EmuTime& time);
 
 	virtual void execute();
@@ -112,7 +111,6 @@ private:
 	int NMIStatus;
 	int IRQStatus;
 	bool exitLoop;
-	bool needReset;
 
 	word memptr;
 	offset ofst;

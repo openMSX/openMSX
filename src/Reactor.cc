@@ -68,8 +68,7 @@ void Reactor::run(bool autoRun)
 			scheduler.schedule(scheduler.getCurrentTime());
 		}
 	}
-
-	motherBoard.powerDownMSX();
+	motherBoard.doPowerDown(scheduler.getCurrentTime());
 }
 
 void Reactor::unpause()
