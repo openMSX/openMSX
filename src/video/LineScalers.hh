@@ -18,11 +18,12 @@ template <typename T> struct NoTag          {};
 template <bool, typename T> struct TagIf           { typedef Tag  <T> type; };
 template <      typename T> struct TagIf<false, T> { typedef NoTag<T> type; };
 
-template <typename S, typename T> struct IsTagged 
-{
+template <typename T> struct IsTaggedHelper {
 	static char test(T*);
 	static int  test(...);
-	static const bool result = sizeof(test(static_cast<S*>(0))) == 1;
+};
+template <typename S, typename T> struct IsTagged {
+	enum { result = sizeof(IsTaggedHelper<T>::test(static_cast<S*>(0))) == 1 };
 };
 
 // Tag classes
