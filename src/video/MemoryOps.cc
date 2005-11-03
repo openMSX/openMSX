@@ -257,11 +257,14 @@ template<bool STREAMING> static inline void memset_2_helper(
 		out[0] = val1;
 		++out; --num;
 	}
-	unsigned val =
-		  OPENMSX_BIGENDIAN
-		? (val0 << 16) | val1
-		: val0 | (val1 << 16);
+	
+	unsigned val = OPENMSX_BIGENDIAN
+	             ? (val0 << 16) | val1
+	             : val0 | (val1 << 16);
 	memset_2<unsigned, STREAMING>((unsigned*)out, num / 2, val, val);
+	if (num & 1) {
+		out[num - 1] = val0;
+	}
 }
 
 template <typename Pixel, bool STREAMING>
