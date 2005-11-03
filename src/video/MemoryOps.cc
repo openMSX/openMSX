@@ -103,7 +103,7 @@ static inline void memset4_2_MMX(
 	}
 	if (unlikely(n & 2)) {
 		asm volatile (
-			"movq %%mm0, 8(%0);"
+			"movq %%mm0, (%0);"
 			: // no output
 			: "r" (p)
 		);
