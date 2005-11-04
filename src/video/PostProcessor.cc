@@ -6,6 +6,7 @@
 #include "BooleanSetting.hh"
 #include "MemoryOps.hh"
 #include "OutputSurface.hh"
+#include "DeinterlacedFrame.hh"
 #include <SDL.h>
 #include <cassert>
 
@@ -38,11 +39,17 @@ template <class Pixel>
 void PostProcessor<Pixel>::paint()
 {
 	const RawFrame::FieldType field = currFrame->getField();
-	const bool deinterlace = (field != RawFrame::FIELD_NONINTERLACED) &&
-                        renderSettings.getDeinterlace().getValue();
-	RawFrame* frameEven = 0;
-	RawFrame* frameOdd  = 0;
+	const bool deinterlace = field != RawFrame::FIELD_NONINTERLACED
+		&& renderSettings.getDeinterlace().getValue();
+	FrameSource* frame = 0;
 	if (deinterlace) {
+		RawFrame* frameEven = 0;
+		RawFrame* frameOdd  = 0;
+		// TODO: When frames are being skipped or if (de)interlace was just
+		//       turned on, it's not guaranteed that prevFrame is a
+		//       different field from currFrame.
+		//       Or in the case of frame skip, it might be the right field,
+		//       but from several frames ago.
 		if (field == RawFrame::FIELD_ODD) {
 			frameEven = prevFrame;
 			frameOdd  = currFrame;
@@ -50,6 +57,9 @@ void PostProcessor<Pixel>::paint()
 			frameEven = currFrame;
 			frameOdd  = prevFrame;
 		}
+		frame = new DeinterlacedFrame(frameEven, frameOdd);
+	} else {
+		frame = currFrame;
 	}
 
 	// New scaler algorithm selected?
@@ -61,11 +71,10 @@ void PostProcessor<Pixel>::paint()
 	}
 
 	// Scale image.
-	// TODO: Check deinterlace first: now that we keep LineContent info per
-	//       frame, we should take the lineWidth of two frames into account.
-	const unsigned srcHeight = 240;
+	const unsigned srcHeight = deinterlace ? 480 : 240;
 	const unsigned dstHeight = screen.getHeight();
 	const bool lower = field == RawFrame::FIELD_ODD;
+	// TODO: This fails if lineZoom is not an integer (for example, 1.5).
 	const unsigned lineZoom = dstHeight / srcHeight;
 	// TODO: Store all MSX lines in RawFrame and only scale the ones that fit
 	//       on the PC screen, as a preparation for resizable output window.
@@ -76,11 +85,11 @@ void PostProcessor<Pixel>::paint()
 		// is always >= dstHeight/lineZoom.
 		assert(srcStartY < srcHeight);
 
-		unsigned lineWidth = currFrame->getLineWidth(srcStartY);
+		unsigned lineWidth = frame->getLineWidth(srcStartY);
 		unsigned srcEndY = srcStartY + 1;
 		unsigned dstEndY = dstStartY + lineZoom;
 		while ((srcEndY < srcHeight) && (dstEndY < dstHeight) &&
-		       (currFrame->getLineWidth(srcEndY) == lineWidth)) {
+		       (frame->getLineWidth(srcEndY) == lineWidth)) {
 			srcEndY++;
 			dstEndY += lineZoom;
 		}
@@ -88,9 +97,9 @@ void PostProcessor<Pixel>::paint()
 
 		if (lineWidth == 0) {
 			// Reduce area to same-colour starting segment.
-			const Pixel colour = *currFrame->getLinePtr(srcStartY, (Pixel*)0);
+			const Pixel colour = *frame->getLinePtr(srcStartY, (Pixel*)0);
 			for (unsigned y = srcStartY + 1; y < srcEndY; y++) {
-				const Pixel colour2 = *currFrame->getLinePtr(y, (Pixel*)0);
+				const Pixel colour2 = *frame->getLinePtr(y, (Pixel*)0);
 				if (colour != colour2) {
 					srcEndY = y;
 					dstEndY = dstStartY + lineZoom * (srcEndY - srcStartY);
@@ -98,18 +107,19 @@ void PostProcessor<Pixel>::paint()
 					break;
 				}
 			}
-			// TODO: This isn't 100% accurate in case of deinterlace:
-			//       on the previous frame, this area may have contained
-			//       graphics instead of blank pixels.
 			currScaler->scaleBlank(colour, screen, dstStartY, dstEndY);
 		} else {
 			if (deinterlace) {
+				DeinterlacedFrame* deinterlacedFrame =
+					reinterpret_cast<DeinterlacedFrame*>(frame);
+				FrameSource* frameEven = deinterlacedFrame->getEven();
+				FrameSource* frameOdd = deinterlacedFrame->getOdd();
 				currScaler->scaleImage(
 					*frameEven, *frameOdd, lineWidth,
-					screen, srcStartY, srcEndY);
+					screen, srcStartY / 2, (srcEndY + 1) / 2);
 			} else {
 				currScaler->scaleImage(
-					*currFrame, lineWidth, srcStartY, srcEndY, // source
+					*frame, lineWidth, srcStartY, srcEndY, // source
 					screen, dstStartY, dstEndY); // dest
 			}
 		}

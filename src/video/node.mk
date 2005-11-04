@@ -39,7 +39,7 @@ HDR_ONLY:= \
 	PixelOperations \
 	LineScalers \
 	Rasterizer \
-	FrameSource \
+	FrameSource DeinterlacedFrame \
 	HQCommon \
 	VideoSystemChangeListener.hh
 

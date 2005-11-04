@@ -1,5 +1,11 @@
 $Id$
 
+2005-11-04 Maarten ter Huurne <maarten@treewalker.org>
+	* Renamed scale methods in LowScaler to reflect ratio i.s.o. line width.
+	* Finally introduced DeinterlacedFrame class.
+	  Right now it is only used by PostProcessor internally, but in the
+	  future the scalers will use it too, as a FrameSource.
+
 2005-11-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed assert on 'set power off ; set power on':
 	   also cleaned up reset handling code
