@@ -15,6 +15,7 @@ class XMLElement;
 class CommandController;
 class EventDistributor;
 class FileManipulator;
+class ThrottleManager;
 
 /**
  * This (abstract) class defines the DiskDrive interface
@@ -210,6 +211,7 @@ protected:
 	std::auto_ptr<DiskChanger> changer;
 
 	EventDistributor& eventDistributor;
+	ThrottleManager& throttleManager;
 };
 
 

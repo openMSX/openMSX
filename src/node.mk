@@ -10,6 +10,7 @@ SRC_HDR:= \
 	EmuTime EmuDuration \
 	MSXDevice \
 	GlobalSettings \
+	ThrottleManager \
 	MSXMotherBoard \
 	MSXPPI I8255 \
 	PlatformFactory DeviceFactory \

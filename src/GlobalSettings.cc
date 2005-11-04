@@ -7,6 +7,7 @@
 #include "BooleanSetting.hh"
 #include "StringSetting.hh"
 #include "SettingsConfig.hh"
+#include "ThrottleManager.hh"
 
 namespace openmsx {
 
@@ -18,6 +19,8 @@ GlobalSettings::GlobalSettings(CommandController& commandController_)
 	       100, 1, 1000000));
 	throttleSetting.reset(new BooleanSetting(commandController, "throttle",
 	       "controls speed throttling", true, Setting::DONT_SAVE));
+	fullSpeedLoadingSetting.reset(new BooleanSetting(commandController, "fullspeedwhenloading",
+	       "sets openMSX to full speed when the MSX is loading", false));
 	pauseSetting.reset(new BooleanSetting(commandController, "pause",
 	       "pauses the emulation", false, Setting::DONT_SAVE));
 	powerSetting.reset(new BooleanSetting(commandController, "power",
@@ -29,6 +32,7 @@ GlobalSettings::GlobalSettings(CommandController& commandController_)
 	        "turns console display on/off", false, Setting::DONT_SAVE));
 	userDirSetting.reset(new StringSetting(commandController,
 	        "user_directories", "list of user directories", ""));
+	throttleManager.reset(new ThrottleManager(*throttleSetting.get(), *fullSpeedLoadingSetting.get()));
 }
 
 GlobalSettings::~GlobalSettings()
@@ -65,6 +69,11 @@ BooleanSetting& GlobalSettings::getAutoSaveSetting()
 BooleanSetting& GlobalSettings::getConsoleSetting()
 {
 	return *consoleSetting.get();
+}
+
+ThrottleManager& GlobalSettings::getThrottleManager()
+{
+	return *throttleManager.get();
 }
 
 StringSetting& GlobalSettings::getUserDirSetting()

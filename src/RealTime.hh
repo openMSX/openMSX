@@ -14,6 +14,7 @@ class EventDistributor;
 class GlobalSettings;
 class IntegerSetting;
 class BooleanSetting;
+class ThrottleManager;
 
 class RealTime : private Schedulable, private SettingListener
 {
@@ -56,6 +57,7 @@ private:
 	void resync();
 
 	EventDistributor& eventDistributor;
+	ThrottleManager& throttleManager;
 	BooleanSetting& throttleSetting;
 	IntegerSetting& speedSetting;
 	BooleanSetting& pauseSetting;

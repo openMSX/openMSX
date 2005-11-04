@@ -17,6 +17,7 @@ class XMLElement;
 class Mixer;
 class CliComm;
 class WavWriter;
+class ThrottleManager;
 
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
@@ -64,6 +65,7 @@ public:
 
 private:
 	bool isPlaying() const;
+	void updateLoadingState();
 	void updateAll(const EmuTime& time);
 	void rewind(const EmuTime& time);
 	void updatePosition(const EmuTime& time);
@@ -77,6 +79,7 @@ private:
 
 	std::auto_ptr<CassetteImage> cassette;
 	bool motor, motorControl;
+	bool isLoading; // for the ThrottleManager
 	EmuTime tapeTime;
 	EmuTime recTime;
 	EmuTime prevTime;
@@ -104,6 +107,7 @@ private:
 	XMLElement* playerElem;
 
 	CliComm& cliComm;
+	ThrottleManager& throttleManager;
 };
 
 } // namespace openmsx

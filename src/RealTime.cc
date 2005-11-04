@@ -11,6 +11,7 @@
 #include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
+#include "ThrottleManager.hh"
 
 using std::string;
 
@@ -24,7 +25,8 @@ RealTime::RealTime(Scheduler& scheduler, EventDistributor& eventDistributor_,
                    GlobalSettings& globalSettings)
 	: Schedulable(scheduler)
 	, eventDistributor(eventDistributor_)
-	, throttleSetting(globalSettings.getThrottleSetting())
+	, throttleManager(globalSettings.getThrottleManager())
+	, throttleSetting   (globalSettings.getThrottleSetting())
 	, speedSetting   (globalSettings.getSpeedSetting())
 	, pauseSetting   (globalSettings.getPauseSetting())
 	, powerSetting   (globalSettings.getPowerSetting())
@@ -80,7 +82,7 @@ void RealTime::sync(const EmuTime& time, bool allowSleep)
 
 void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 {
-	if (throttleSetting.getValue()) {
+	if (throttleManager.isThrottled()) {
 		unsigned long long realDuration =
 		    (unsigned long long)(getRealDuration(emuTime, time) * 1000000ULL);
 		idealRealTime += realDuration;
@@ -126,6 +128,7 @@ const string& RealTime::schedName() const
 
 void RealTime::update(const Setting* /*setting*/)
 {
+	// Note: we don't get an update when the ThrottleManager changes throttle mode... (as it is not a Subject (yet), we cannot Observe it)
 	resync();
 }
 

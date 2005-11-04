@@ -38,6 +38,8 @@
 #include "Scheduler.hh"
 #include "FileOperations.hh"
 #include "WavWriter.hh"
+#include "GlobalSettings.hh"
+#include "ThrottleManager.hh"
 #include <algorithm>
 #include <cstdlib>
 
@@ -96,10 +98,11 @@ CassettePlayer::CassettePlayer(
 		CommandController& commandController, Mixer& mixer)
 	: SoundDevice(mixer, getName(), getDescription())
 	, SimpleCommand(commandController, "cassetteplayer")
-	, motor(false), motorControl(true)
+	, motor(false), motorControl(true), isLoading(false)
 	, lastOutput(false)
 	, sampcnt(0)
 	, cliComm(commandController.getCliComm())
+	, throttleManager(commandController.getGlobalSettings().getThrottleManager())
 {
 	XMLElement& config = commandController.getGlobalSettings().getMediaConfig();
 	playerElem = &config.getCreateChild("cassetteplayer");
@@ -135,6 +138,16 @@ CassettePlayer::~CassettePlayer()
 	}
 }
 
+void CassettePlayer::updateLoadingState()
+{
+
+	bool newState = (motor && playerElem->getData().size() > 0);
+	if (isLoading != newState) {
+		isLoading = newState;
+		throttleManager.indicateLoadingState(isLoading);
+	}
+}
+
 void CassettePlayer::insertTape(const string& filename, const EmuTime& time)
 {
 	stopRecording(getCommandController().getScheduler().getCurrentTime());
@@ -148,6 +161,7 @@ void CassettePlayer::insertTape(const string& filename, const EmuTime& time)
 	rewind(time);
 	setMute(!isPlaying());
 	playerElem->setData(filename);
+	updateLoadingState();
 }
 
 void CassettePlayer::startRecording(const std::string& filename,
@@ -184,6 +198,7 @@ void CassettePlayer::removeTape(const EmuTime& time)
 	setMute(true);
 	cassette.reset(new DummyCassetteImage());
 	playerElem->setData("");
+	updateLoadingState();
 }
 
 void CassettePlayer::rewind(const EmuTime& time)
@@ -259,9 +274,13 @@ void CassettePlayer::updateAll(const EmuTime& time)
 
 void CassettePlayer::setMotor(bool status, const EmuTime& time)
 {
-	updateAll(time);
-	motor = status;
-	setMute(wavWriter.get() || !isPlaying());
+	if (status!=motor)
+	{
+		updateAll(time);
+		motor = status;
+		setMute(wavWriter.get() || !isPlaying());
+		updateLoadingState();
+	}
 }
 
 void CassettePlayer::setMotorControl(bool status, const EmuTime& time)

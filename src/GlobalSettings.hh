@@ -11,6 +11,7 @@ class CommandController;
 class IntegerSetting;
 class BooleanSetting;
 class StringSetting;
+class ThrottleManager;
 class XMLElement;
 
 /**
@@ -26,11 +27,13 @@ public:
 
 	IntegerSetting& getSpeedSetting();
 	BooleanSetting& getThrottleSetting();
+	BooleanSetting& getFullSpeedLoadingSetting();
 	BooleanSetting& getPauseSetting();
 	BooleanSetting& getPowerSetting();
 	BooleanSetting& getAutoSaveSetting();
 	BooleanSetting& getConsoleSetting();
 	StringSetting&  getUserDirSetting();
+	ThrottleManager&  getThrottleManager();
 	XMLElement& getMediaConfig();
 
 private:
@@ -38,11 +41,13 @@ private:
 
 	std::auto_ptr<IntegerSetting> speedSetting;
 	std::auto_ptr<BooleanSetting> throttleSetting;
+	std::auto_ptr<BooleanSetting> fullSpeedLoadingSetting;
 	std::auto_ptr<BooleanSetting> pauseSetting;
 	std::auto_ptr<BooleanSetting> powerSetting;
 	std::auto_ptr<BooleanSetting> autoSaveSetting;
 	std::auto_ptr<BooleanSetting> consoleSetting;
 	std::auto_ptr<StringSetting>  userDirSetting;
+	std::auto_ptr<ThrottleManager>  throttleManager;
 	std::auto_ptr<XMLElement> mediaConfig;
 };
 

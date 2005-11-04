@@ -7,6 +7,8 @@
 #include "LedEvent.hh"
 #include "FileManipulator.hh"
 #include "CommandController.hh"
+#include "GlobalSettings.hh"
+#include "ThrottleManager.hh"
 #include <bitset>
 
 using std::string;
@@ -156,6 +158,7 @@ RealDrive::RealDrive(CommandController& commandController,
 	: headPos(0), motorStatus(false), motorTimer(time)
 	, headLoadStatus(false), headLoadTimer(time)
 	, eventDistributor(eventDistributor_)
+	, throttleManager(commandController.getGlobalSettings().getThrottleManager())
 {
 	int i = 0;
 	while (drivesInUse[i]) {
@@ -218,6 +221,7 @@ void RealDrive::setMotor(bool status, const EmuTime& time)
 {
 	if (motorStatus != status) {
 		motorStatus = status;
+		throttleManager.indicateLoadingState(motorStatus);
 		motorTimer.advance(time);
 		/* The following is a hack to emulate the drive LED behaviour.
 		 * This is in real life dependent on the FDC and should be
@@ -225,6 +229,7 @@ void RealDrive::setMotor(bool status, const EmuTime& time)
 		eventDistributor.distributeEvent(
 			new LedEvent(LedEvent::FDD, motorStatus));
 	}
+	
 }
 
 bool RealDrive::indexPulse(const EmuTime& time)

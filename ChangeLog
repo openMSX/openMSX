@@ -1,5 +1,15 @@
 $Id$
 
+2005-11-04 Manuel Bilderbeek <manuel@msxnet.org>
+	* Implemented an experimental "fullspeedwhenloading" setting.
+	  If you turn it on, openMSX will run at full speed when it thinks
+	  that the MSX is loading from disk or cassette. It's still a bit dumb
+	  for disk as it syncs the motor status... Also, some stuff like
+	  RealTime and sound drivers want to get informed if the speed of the
+	  emulation changes. This is not passed yet when openMSX goes to 
+	  full speed due to this new setting. Default is still 'off', of
+	  course. Please test this and improve it :P
+
 2005-11-04 Maarten ter Huurne <maarten@treewalker.org>
 	* Renamed scale methods in LowScaler to reflect ratio i.s.o. line width.
 	* Finally introduced DeinterlacedFrame class.
