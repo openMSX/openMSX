@@ -14,37 +14,37 @@ class LowScaler : public Scaler<Pixel>
 public:
 	LowScaler(SDL_PixelFormat* format);
 
-	virtual void scale192(
+	virtual void scale3x1to4x1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale192(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
 	                      unsigned startY, unsigned endY);
-	virtual void scale256(
+	virtual void scale1x1to1x1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale256(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
 	                      unsigned startY, unsigned endY);
-	virtual void scale384(
+	virtual void scale3x1to2x1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale384(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
 	                      unsigned startY, unsigned endY);
-	virtual void scale512(
+	virtual void scale2x1to1x1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale512(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
 	                      unsigned startY, unsigned endY);
-	virtual void scale640(
+	virtual void scale5x1to2x1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale640(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
 	                      unsigned startY, unsigned endY);
-	virtual void scale768(
+	virtual void scale3x1to1x1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale768(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
 	                      unsigned startY, unsigned endY);
-	virtual void scale1024(
+	virtual void scale4x1to1x1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale1024(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
