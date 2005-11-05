@@ -111,7 +111,7 @@ void LowScaler<Pixel>::scale1x1to1x1(
 
 template <typename Pixel>
 void LowScaler<Pixel>::scale1x2to1x1(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	// No need to scale to local buffer first, like doScaleDV does.

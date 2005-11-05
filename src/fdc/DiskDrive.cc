@@ -321,7 +321,7 @@ bool RealDrive::dummyDrive()
 	return false;
 }
 
-void RealDrive::executeUntil(const EmuTime& time, int userData)
+void RealDrive::executeUntil(const EmuTime& /*time*/, int /*userData*/)
 {
 	timeOut = true;
 	updateLoadingState();
