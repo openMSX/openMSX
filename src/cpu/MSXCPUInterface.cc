@@ -1,10 +1,5 @@
 // $Id$
 
-#include <cstdio>
-#include <memory> // for auto_ptr
-#include <sstream>
-#include <iomanip>
-#include <algorithm>
 #include "MSXCPUInterface.hh"
 #include "DummyDevice.hh"
 #include "CommandException.hh"
@@ -15,8 +10,14 @@
 #include "VDPIODelay.hh"
 #include "CliComm.hh"
 #include "MSXMultiIODevice.hh"
+#include "MSXMultiMemDevice.hh"
 #include "MSXException.hh"
 #include "CartridgeSlotManager.hh"
+#include <cstdio>
+#include <memory> // for auto_ptr
+#include <sstream>
+#include <iomanip>
+#include <algorithm>
 
 using std::auto_ptr;
 using std::ostringstream;
@@ -25,6 +26,7 @@ using std::setw;
 using std::uppercase;
 using std::string;
 using std::vector;
+using std::min;
 
 namespace openmsx {
 
@@ -194,45 +196,96 @@ void MSXCPUInterface::unregister_IO_Out(byte port, MSXDevice* device)
 }
 
 
-void MSXCPUInterface::registerSlot(MSXDevice* device,
-                                   int primSl, int secSl, int page)
+static void reportMemOverlap(int ps, int ss, MSXDevice& dev1, MSXDevice& dev2)
 {
-	if (!isSubSlotted[primSl] && secSl != 0) {
-		ostringstream s;
-		s << "slot " << primSl << "." << secSl
-			<< " does not exist, because slot is not expanded";
-		throw MSXException(s.str());
+	throw FatalError("Overlapping memory devices in slot " +
+	                 StringOp::toString(ps) + "." +
+	                 StringOp::toString(ss) + ": " +
+	                 dev1.getName() + " and " + dev2.getName() + ".");
+}
+
+void MSXCPUInterface::registerSlot(
+	MSXDevice& device, int ps, int ss, int base, int size)
+{
+	PRT_DEBUG(device.getName() << " registers at " <<
+	          std::dec << ps << " " << ss << " 0x" <<
+	          std::hex << base << "-0x" << (base + size - 1));
+	if (!isSubSlotted[ps] && (ss != 0)) {
+		throw MSXException(
+			"Slot " + StringOp::toString(ps) +
+			"."     + StringOp::toString(ss) +
+			" does not exist because slot is not expanded.");
 	}
-	if (slotLayout[primSl][secSl][page] == &dummyDevice) {
-		PRT_DEBUG(device->getName() << " registers at "<<primSl<<" "<<secSl<<" "<<page);
-		slotLayout[primSl][secSl][page] = device;
+	MSXDevice*& slot = slotLayout[ps][ss][base >> 14];
+	if (size == 0x4000) {
+		// full 16kb, directly register device (no multiplexer)
+		if (slot != &dummyDevice) {
+			reportMemOverlap(ps, ss, *slot, device);
+		}
+		slot = &device;
 	} else {
-		throw FatalError("Device: \"" + device->getName() +
-		                 "\" trying to register taken slot");
-	}
-}
-
-void MSXCPUInterface::registerMemDevice(MSXDevice& device,
-                                        int primSl, int secSl, int pages)
-{
-	for (int i = 0; i < 4; ++i) {
-		if (pages & (1 << i)) {
-			registerSlot(&device, primSl, secSl, i);
+		// partial page
+		if (slot == &dummyDevice) {
+			// first
+			MSXMultiMemDevice* multi = new MSXMultiMemDevice(
+			                            device.getMotherBoard());
+			multi->add(device, base, size);
+			slot = multi;
+		} else if (MSXMultiMemDevice* multi =
+		                  dynamic_cast<MSXMultiMemDevice*>(slot)) {
+			// second or more
+			if (!multi->add(device, base, size)) {
+				reportMemOverlap(ps, ss, *slot, device);
+			}
+		} else {
+			// conflict with 'full ranged' device
+			reportMemOverlap(ps, ss, *slot, device);
 		}
 	}
 }
 
-void MSXCPUInterface::unregisterMemDevice(MSXDevice& device,
-                                          int primSl, int secSl, int pages)
+void MSXCPUInterface::unregisterSlot(
+	MSXDevice& device, int ps, int ss, int base, int size)
 {
-	if (&device); // avoid warning
-	for (int i = 0; i < 4; ++i) {
-		if (pages & (1 << i)) {
-			assert(slotLayout[primSl][secSl][i] == &device);
-			slotLayout[primSl][secSl][i] = &dummyDevice;
+	MSXDevice*& slot = slotLayout[ps][ss][base >> 14];
+	if (MSXMultiMemDevice* multi = dynamic_cast<MSXMultiMemDevice*>(slot)) {
+		// partial range
+		multi->remove(device, base, size);
+		if (multi->empty()) {
+			delete multi;
+			slot = &dummyDevice;
 		}
+	} else {
+		// full 16kb range
+		assert(slot == &device);
+		slot = &dummyDevice;
 	}
 }
+
+void MSXCPUInterface::registerMemDevice(
+	MSXDevice& device, int ps, int ss, int base, int size)
+{
+	// split range on 16kb borders
+	while (size > 0) {
+		int partialSize = min(size, ((base + 0x4000) & ~0x3FFF) - base);
+		registerSlot(device, ps, ss, base, partialSize);
+		base += partialSize;
+		size -= partialSize;
+	}
+}
+
+void MSXCPUInterface::unregisterMemDevice(
+	MSXDevice& device, int ps, int ss, int base, int size)
+{
+	// split range on 16kb borders
+	while (size > 0) {
+		int partialSize = min(size, ((base + 0x4000) & ~0x3FFF) - base);
+		unregisterSlot(device, ps, ss, base, partialSize);
+		base += partialSize;
+		size -= partialSize;
+	}
+}
+
 
 void MSXCPUInterface::updateVisible(int page)
 {

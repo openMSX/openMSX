@@ -1,5 +1,12 @@
 $Id$
 
+2005-11-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Allow more general memory specifications in hardwareconfig.xml:
+	   - <mem base=".." size=".."/>
+	     base and size no longer need to be multiples of 0x4000
+	   - It's now possible to create devices that have 8kb rom and 8kb
+	     ram in the same 16kb page.
+
 2005-11-04 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented an experimental "fullspeedwhenloading" setting.
 	  If you turn it on, openMSX will run at full speed when it thinks

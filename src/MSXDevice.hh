@@ -165,7 +165,8 @@ private:
 
 	int ps;
 	int ss;
-	int pages;
+	unsigned base;
+	unsigned size;
 
 	MSXMotherBoard& motherBoard;
 };

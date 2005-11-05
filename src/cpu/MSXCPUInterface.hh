@@ -56,9 +56,9 @@ public:
 	 * get called.
 	 */
 	void registerMemDevice(MSXDevice& device,
-	                       int primSl, int secSL, int pages);
+	                       int primSl, int secSL, int base, int size);
 	void unregisterMemDevice(MSXDevice& device,
-	                         int primSl, int secSL, int pages);
+	                         int primSl, int secSL, int base, int size);
 
 	/**
 	 * Reset (the slot state)
@@ -176,8 +176,10 @@ protected:
 	friend class std::auto_ptr<MSXCPUInterface>;
 
 private:
-	void registerSlot(MSXDevice* device,
-			  int primSl, int secSL, int page);
+	void registerSlot(MSXDevice& device,
+	                  int ps, int ss, int base, int size);
+	void unregisterSlot(MSXDevice& device,
+	                    int ps, int ss, int base, int size);
 
 	class MemoryDebug : public SimpleDebuggable {
 	public:

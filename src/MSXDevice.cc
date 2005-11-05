@@ -19,7 +19,7 @@ byte MSXDevice::unmappedWrite[0x10000];
 
 MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
                      const EmuTime& /*time*/)
-	: deviceConfig(config), pages(0), motherBoard(motherBoard_)
+	: deviceConfig(config), base((unsigned)-1), motherBoard(motherBoard_)
 {
 	initMem();
 	registerSlots(config);
@@ -48,14 +48,15 @@ void MSXDevice::registerSlots(const XMLElement& config)
 	if (!mem) {
 		return;
 	}
-	unsigned base = mem->getAttributeAsInt("base");
-	unsigned size = mem->getAttributeAsInt("size");
-	if ((base & ~0xC000) || ((size - 0x4000) & ~0xC000)) {
-		throw FatalError("Invalid memory specification");
+	base = mem->getAttributeAsInt("base");
+	size = mem->getAttributeAsInt("size");
+	if ((base >= 0x10000) || (size > 0x10000)) {
+		throw FatalError("Invalid memory specification for device " +
+		            getName() + " should be in range [0x0000,0x1000).");
 	}
-	int page = base / 0x4000;
-	for (unsigned i = 0; i < (size / 0x4000); ++i, ++page) {
-		pages |= 1 << page;
+	if ((base & 0xFF) || (size & 0xFF)) {
+		throw FatalError("Invalid memory specification for device " +
+		            getName() + " should be alligned at 0x100.");
 	}
 
 	CartridgeSlotManager& slotManager = getMotherBoard().getSlotManager();
@@ -88,14 +89,14 @@ void MSXDevice::registerSlots(const XMLElement& config)
 		// numerical specified slot (0, 1, 2, 3)
 	}
 	getMotherBoard().getCPUInterface().registerMemDevice(
-		*this, ps, ss, pages);
+		*this, ps, ss, base, size);
 }
 
 void MSXDevice::unregisterSlots()
 {
-	if (pages) {
+	if (base != (unsigned)-1) {
 		getMotherBoard().getCPUInterface().unregisterMemDevice(
-			*this, ps, ss, pages);
+			*this, ps, ss, base, size);
 	}
 }
 
