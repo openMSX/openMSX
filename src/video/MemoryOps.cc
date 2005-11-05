@@ -124,7 +124,7 @@ static inline void memset4_2_SSE(
 	}
 	if (likely(n >= 4)) {
 		if (unlikely((int)p & 8)) {
-			// SSE *must* have 16-byte alligned data
+			// SSE *must* have 16-byte aligned data
 			p[0] = val0;
 			p[1] = val1;
 			p += 2; n -= 2;
@@ -179,7 +179,7 @@ static inline void memset4_2_SSE_s(
 	}
 	if (likely(n >= 4)) {
 		if (unlikely((int)p & 8)) {
-			// SSE *must* have 16-byte alligned data
+			// SSE *must* have 16-byte aligned data
 			p[0] = val0;
 			p[1] = val1;
 			p += 2; n -= 2;
@@ -229,7 +229,7 @@ static inline void memset4_2_SSE_s(
 template<bool STREAMING> static inline void memset_2_helper(
 	unsigned* out, unsigned num, unsigned val0, unsigned val1)
 {
-	assert(((int)out & 3) == 0); // must be 4-byte alligned
+	assert(((int)out & 3) == 0); // must be 4-byte aligned
 
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();

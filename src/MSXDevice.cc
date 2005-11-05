@@ -56,7 +56,7 @@ void MSXDevice::registerSlots(const XMLElement& config)
 	}
 	if ((base & 0xFF) || (size & 0xFF)) {
 		throw FatalError("Invalid memory specification for device " +
-		            getName() + " should be alligned at 0x100.");
+		            getName() + " should be aligned at 0x100.");
 	}
 
 	CartridgeSlotManager& slotManager = getMotherBoard().getSlotManager();

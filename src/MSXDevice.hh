@@ -102,7 +102,7 @@ public:
 	 * from the buffer, thus bypassing the readMem() method, and
 	 * thus also ignoring EmuTime.
 	 * The default implementation always returns a null pointer.
-	 * The start of the interval is CACHE_LINE_SIZE alligned.
+	 * The start of the interval is CACHE_LINE_SIZE aligned.
 	 */
 	virtual const byte* getReadCacheLine(word start) const;
 
@@ -115,7 +115,7 @@ public:
 	 * to the buffer, thus bypassing the writeMem() method, and
 	 * thus also ignoring EmuTime.
 	 * The default implementation always returns a null pointer.
-	 * The start of the interval is CACHE_LINE_SIZE alligned.
+	 * The start of the interval is CACHE_LINE_SIZE aligned.
 	 */
 	virtual byte* getWriteCacheLine(word start) const;
 

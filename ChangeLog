@@ -2634,7 +2634,7 @@ $Id$
 
 2004-04-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed [ 933628 ] assertion with accuracy=screen in "puyo puyo"
-	* Fixed OR-ing of unalligned sprites
+	* Fixed OR-ing of unaligned sprites
 
 2004-04-20 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Suppressed warning in windows (warning: couldn't find file: "").

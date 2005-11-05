@@ -13,11 +13,11 @@ RawFrame::RawFrame(unsigned bytesPerPixel, unsigned maxWidth_, unsigned height_)
 	lineWidth = new unsigned[height];
 
 	// Allocate memory, make sure each line begins at a 64 byte boundary
-	//  SSE instruction need 16 byte alligned data
+	//  SSE instruction need 16 byte aligned data
 	//  cache line size on athlon and P4 CPUs is 64 bytes
 	pitch = ((bytesPerPixel * maxWidth) + 63) & ~63;
-	unallignedData = malloc(pitch * height + 63);
-	data = (char*)(((unsigned)unallignedData + 63) & ~63);
+	unalignedData = malloc(pitch * height + 63);
+	data = (char*)(((unsigned)unalignedData + 63) & ~63);
 
 	// Start with a black frame.
 	init(FIELD_NONINTERLACED);
@@ -31,7 +31,7 @@ RawFrame::RawFrame(unsigned bytesPerPixel, unsigned maxWidth_, unsigned height_)
 
 RawFrame::~RawFrame()
 {
-	free(unallignedData);
+	free(unalignedData);
 	delete[] lineWidth;
 }
 

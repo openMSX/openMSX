@@ -75,7 +75,7 @@ SDLGLOutputSurface::SDLGLOutputSurface(
 			format.Amask = 0xFF000000;
 		}
 
-		// TODO 64 byte alligned (see RawFrame)
+		// TODO 64 byte aligned (see RawFrame)
 		unsigned texW = roundUpPow2(width);
 		unsigned texH = roundUpPow2(height);
 		data = (char*)malloc(format.BytesPerPixel * texW * texH);

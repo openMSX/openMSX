@@ -56,7 +56,7 @@ private:
 	unsigned maxWidth;
 	unsigned* lineWidth;
 	unsigned pitch;
-	void* unallignedData;
+	void* unalignedData;
 	char* data;
 	FieldType field;
 };
