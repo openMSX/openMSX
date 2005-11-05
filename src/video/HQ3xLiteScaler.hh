@@ -13,7 +13,7 @@ class HQ3xLiteScaler: public Scaler3<Pixel>
 public:
 	HQ3xLiteScaler(SDL_PixelFormat* format);
 
-	virtual void scale256(
+	virtual void scale1x1to3x3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 };

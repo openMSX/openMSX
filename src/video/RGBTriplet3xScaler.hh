@@ -23,22 +23,22 @@ public:
 	virtual void scaleBlank(
 		Pixel color, OutputSurface& dst,
 		unsigned startY, unsigned endY);
-	virtual void scale192(
+	virtual void scale1x1to4x3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale256(
+	virtual void scale1x1to3x3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale384(
+	virtual void scale1x1to2x3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale512(
+	virtual void scale2x1to3x3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale768(
+	virtual void scale1x1to1x3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale1024(
+	virtual void scale4x1to3x3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 

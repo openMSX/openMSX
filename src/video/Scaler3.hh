@@ -13,55 +13,59 @@ namespace openmsx {
 template <class Pixel> class Scaler3 : public Scaler<Pixel>
 {
 public:
-	virtual void scale192(
+	virtual void scale1x1to4x3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale192(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
-	                      unsigned startY, unsigned endY);
+	virtual void scale1x2to4x3(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
-	virtual void scale256(
+	virtual void scale1x1to3x3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale256(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
-	                      unsigned startY, unsigned endY);
+	virtual void scale1x2to3x3(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
-	virtual void scale384(
+	virtual void scale1x1to2x3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale384(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
-	                      unsigned startY, unsigned endY);
+	virtual void scale1x2to2x3(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
-	virtual void scale512(
+	virtual void scale2x1to3x3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale512(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
-	                      unsigned startY, unsigned endY);
+	virtual void scale2x2to3x3(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
-	virtual void scale640(
+	virtual void scale5x1to6x3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale640(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
-	                      unsigned startY, unsigned endY);
+	virtual void scale5x2to6x3(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
-	virtual void scale768(
+	virtual void scale1x1to1x3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale768(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
-	                      unsigned startY, unsigned endY);
+	virtual void scale1x2to1x3(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
-	virtual void scale1024(
+	virtual void scale4x1to3x3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale1024(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
-	                       unsigned startY, unsigned endY);
+	virtual void scale4x2to3x3(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
 	virtual void scaleImage(
 		FrameSource& src, unsigned lineWidth,
 		unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scaleImage(
-		FrameSource& frameEven, FrameSource& frameOdd, unsigned lineWidth,
-		OutputSurface& dst, unsigned srcStartY, unsigned srcEndY);
 
 protected:
 	Scaler3(SDL_PixelFormat* format);

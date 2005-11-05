@@ -598,7 +598,7 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 }
 
 template <class Pixel>
-void HQ3xLiteScaler<Pixel>::scale256(
+void HQ3xLiteScaler<Pixel>::scale1x1to3x3(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned /*dstEndY*/)
 {

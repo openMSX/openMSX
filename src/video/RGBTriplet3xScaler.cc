@@ -92,7 +92,7 @@ void RGBTriplet3xScaler<Pixel>::doScale1(
 		scale(srcLine, tmp, 320);
 		rgbify(tmp, prevDstLine0, 320);
 	}
-	
+
 
 	Scale_1on1<Pixel> copy;
 	Pixel* dstLine1     = dst.getLinePtr(y + 1, dummy);
@@ -127,7 +127,7 @@ void RGBTriplet3xScaler<Pixel>::doScale1(
 }
 
 template <class Pixel>
-void RGBTriplet3xScaler<Pixel>::scale192(
+void RGBTriplet3xScaler<Pixel>::scale1x1to4x3(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -136,7 +136,7 @@ void RGBTriplet3xScaler<Pixel>::scale192(
 }
 
 template <class Pixel>
-void RGBTriplet3xScaler<Pixel>::scale256(
+void RGBTriplet3xScaler<Pixel>::scale1x1to3x3(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -145,7 +145,7 @@ void RGBTriplet3xScaler<Pixel>::scale256(
 }
 
 template <class Pixel>
-void RGBTriplet3xScaler<Pixel>::scale384(
+void RGBTriplet3xScaler<Pixel>::scale1x1to2x3(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -154,7 +154,7 @@ void RGBTriplet3xScaler<Pixel>::scale384(
 }
 
 template <class Pixel>
-void RGBTriplet3xScaler<Pixel>::scale512(
+void RGBTriplet3xScaler<Pixel>::scale2x1to3x3(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -163,7 +163,7 @@ void RGBTriplet3xScaler<Pixel>::scale512(
 }
 
 template <class Pixel>
-void RGBTriplet3xScaler<Pixel>::scale768(
+void RGBTriplet3xScaler<Pixel>::scale1x1to1x3(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -172,7 +172,7 @@ void RGBTriplet3xScaler<Pixel>::scale768(
 }
 
 template <class Pixel>
-void RGBTriplet3xScaler<Pixel>::scale1024(
+void RGBTriplet3xScaler<Pixel>::scale4x1to3x3(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
