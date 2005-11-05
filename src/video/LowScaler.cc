@@ -62,6 +62,25 @@ static void doScale2(
 	}
 }
 
+template <typename Pixel, typename ScaleOp>
+static void doScaleDV(
+	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
+	PixelOperations<Pixel> ops, ScaleOp scale)
+{
+	BlendLines<Pixel> blend(ops);
+	while (dstStartY < dstEndY) {
+		Pixel* dummy = 0;
+		const Pixel* srcLine0 = src.getLinePtr(srcStartY++, dummy);
+		const Pixel* srcLine1 = src.getLinePtr(srcStartY++, dummy);
+		Pixel buf0[320], buf1[320];
+		scale(srcLine0, buf0, 320);
+		scale(srcLine1, buf1, 320);
+		Pixel* dstLine = dst.getLinePtr(dstStartY++, dummy);
+		blend(buf0, buf1, dstLine, 320);
+	}
+}
+
 
 template <class Pixel>
 void LowScaler<Pixel>::scale3x1to4x1(
@@ -73,11 +92,12 @@ void LowScaler<Pixel>::scale3x1to4x1(
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale192(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
-                             unsigned startY, unsigned endY)
+void LowScaler<Pixel>::scale3x2to4x1(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale2<Pixel>(src0, src1, dst, startY, endY, pixelOps,
-	                Scale_2on3<Pixel>(pixelOps));
+	doScaleDV<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	                 pixelOps, Scale_2on3<Pixel>(pixelOps));
 }
 
 template <typename Pixel>
@@ -90,16 +110,19 @@ void LowScaler<Pixel>::scale1x1to1x1(
 }
 
 template <typename Pixel>
-void LowScaler<Pixel>::scale256(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
-                                unsigned startY, unsigned endY)
+void LowScaler<Pixel>::scale1x2to1x1(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	// no need to scale to local buffer first
+	// No need to scale to local buffer first, like doScaleDV does.
+	// TODO: Even so, this scale mode is so rare, is it really worth having
+	//       optimized code for?
 	BlendLines<Pixel> blend(pixelOps);
-	for (unsigned y = startY; y < endY; ++y) {
+	while (dstStartY < dstEndY) {
 		Pixel* dummy = 0;
-		const Pixel* srcLine0 = src0.getLinePtr(y, dummy);
-		const Pixel* srcLine1 = src1.getLinePtr(y, dummy);
-		Pixel* dstLine = dst.getLinePtr(y, dummy);
+		const Pixel* srcLine0 = src.getLinePtr(srcStartY++, dummy);
+		const Pixel* srcLine1 = src.getLinePtr(srcStartY++, dummy);
+		Pixel* dstLine = dst.getLinePtr(dstStartY++, dummy);
 		blend(srcLine0, srcLine1, dstLine, 320);
 	}
 }
@@ -114,11 +137,12 @@ void LowScaler<Pixel>::scale3x1to2x1(
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale384(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
-                             unsigned startY, unsigned endY)
+void LowScaler<Pixel>::scale3x2to2x1(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale2<Pixel>(src0, src1, dst, startY, endY, pixelOps,
-	                Scale_4on3<Pixel>(pixelOps));
+	doScaleDV<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	                 pixelOps, Scale_4on3<Pixel>(pixelOps));
 }
 
 template <typename Pixel>
@@ -131,19 +155,13 @@ void LowScaler<Pixel>::scale2x1to1x1(
 }
 
 template <typename Pixel>
-void LowScaler<Pixel>::scale512(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
-                                unsigned startY, unsigned endY)
+void LowScaler<Pixel>::scale2x2to1x1(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale2<Pixel>(src0, src1, dst, startY, endY, pixelOps,
-	                Scale_2on1<Pixel>(pixelOps));
-	/* TODO profile this vs generic implementation
-	for (unsigned y = startY; y < endY; ++y) {
-		Pixel* dummy = 0;
-		const Pixel* srcLine0 = src0.getLinePtr(y, dummy);
-		const Pixel* srcLine1 = src1.getLinePtr(y, dummy);
-		Pixel* dstLine = dst.getLinePtr(y, dummy);
-		averageHalve(srcLine0, srcLine1, dstLine);
-	}*/
+	doScaleDV<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	                 pixelOps, Scale_2on1<Pixel>(pixelOps));
+	// TODO: Profile specific code vs generic implementation.
 }
 
 
@@ -156,8 +174,9 @@ void LowScaler<Pixel>::scale5x1to2x1(
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale640(FrameSource& /*src0*/, FrameSource& /*src1*/, OutputSurface& /*dst*/,
-                             unsigned /*startY*/, unsigned /*endY*/)
+void LowScaler<Pixel>::scale5x2to2x1(
+	FrameSource& /*src*/, unsigned /*srcStartY*/, unsigned /*srcEndY*/,
+	OutputSurface& /*dst*/, unsigned /*dstStartY*/, unsigned /*dstEndY*/)
 {
 	// TODO
 }
@@ -172,11 +191,12 @@ void LowScaler<Pixel>::scale3x1to1x1(
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale768(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
-                             unsigned startY, unsigned endY)
+void LowScaler<Pixel>::scale3x2to1x1(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale2<Pixel>(src0, src1, dst, startY, endY, pixelOps,
-	                Scale_8on3<Pixel>(pixelOps));
+	doScaleDV<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	                 pixelOps, Scale_8on3<Pixel>(pixelOps));
 }
 
 template <class Pixel>
@@ -189,11 +209,12 @@ void LowScaler<Pixel>::scale4x1to1x1(
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale1024(FrameSource& src0, FrameSource& src1, OutputSurface& dst,
-                              unsigned startY, unsigned endY)
+void LowScaler<Pixel>::scale4x2to1x1(
+	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale2<Pixel>(src0, src1, dst, startY, endY, pixelOps,
-	                Scale_4on1<Pixel>(pixelOps));
+	doScaleDV<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	                 pixelOps, Scale_4on1<Pixel>(pixelOps));
 }
 
 // TODO: This method doesn't have any dependency on the pixel format, so is it
@@ -204,75 +225,61 @@ void LowScaler<Pixel>::scaleImage(
 	unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	if (src.getHeight() == 480) {
-		DeinterlacedFrame& deinterlacedFrame =
-			dynamic_cast<DeinterlacedFrame&>(src);
-		scaleImage(
-			*deinterlacedFrame.getEven(), *deinterlacedFrame.getOdd(),
-			lineWidth, dst, srcStartY / 2, (srcEndY + 1) / 2
-			);
-		return;
-	}
-	assert(src.getHeight() == 240);
-
-	switch (lineWidth) {
-	case 192:
-		scale3x1to4x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
-		break;
-	case 256:
-		scale1x1to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
-		break;
-	case 384:
-		scale3x1to2x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
-		break;
-	case 512:
-		scale2x1to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
-		break;
-	case 640:
-		scale5x1to2x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
-		break;
-	case 768:
-		scale3x1to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
-		break;
-	case 1024:
-		scale4x1to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
-		break;
-	default:
-		assert(false);
-		break;
-	}
-}
-
-template <class Pixel>
-void LowScaler<Pixel>::scaleImage(
-	FrameSource& frameEven, FrameSource& frameOdd, unsigned lineWidth,
-	OutputSurface& dst, unsigned srcStartY, unsigned srcEndY)
-{
-	switch (lineWidth) {
-	case 192:
-		scale192(frameEven, frameOdd, dst, srcStartY, srcEndY);
-		break;
-	case 256:
-		scale256(frameEven, frameOdd, dst, srcStartY, srcEndY);
-		break;
-	case 384:
-		scale384(frameEven, frameOdd, dst, srcStartY, srcEndY);
-		break;
-	case 512:
-		scale512(frameEven, frameOdd, dst, srcStartY, srcEndY);
-		break;
-	case 640:
-		scale640(frameEven, frameOdd, dst, srcStartY, srcEndY);
-		break;
-	case 768:
-		scale768(frameEven, frameOdd, dst, srcStartY, srcEndY);
-		break;
-	case 1024:
-		scale1024(frameEven, frameOdd, dst, srcStartY, srcEndY);
-		break;
-	default:
-		assert(false);
-		break;
+	if (src.getHeight() == 240) {
+		switch (lineWidth) {
+		case 192:
+			scale3x1to4x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			break;
+		case 256:
+			scale1x1to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			break;
+		case 384:
+			scale3x1to2x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			break;
+		case 512:
+			scale2x1to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			break;
+		case 640:
+			scale5x1to2x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			break;
+		case 768:
+			scale3x1to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			break;
+		case 1024:
+			scale4x1to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			break;
+		default:
+			assert(false);
+			break;
+		}
+	} else {
+		assert(src.getHeight() == 480);
+		switch (lineWidth) {
+		case 192:
+			scale3x2to4x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			break;
+		case 256:
+			scale1x2to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			break;
+		case 384:
+			scale3x2to2x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			break;
+		case 512:
+			scale2x2to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			break;
+		case 640:
+			scale5x2to2x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			break;
+		case 768:
+			scale3x2to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			break;
+		case 1024:
+			scale4x2to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			break;
+		default:
+			assert(false);
+			break;
+		}
 	}
 }
 
