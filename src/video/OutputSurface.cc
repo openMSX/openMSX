@@ -103,15 +103,18 @@ bool OutputSurface::setFullScreen(bool wantedState)
 		return true;
 	}
 
-#ifdef _WIN32
-	// under win32, toggling full screen requires opening a new SDL screen
+	// in win32, toggling full screen requires opening a new SDL screen
+	// in Linux calling the SDL_WM_ToggleFullScreen usually works fine
+	// We now always create a new screen to make the code on both OSes
+	// more similar (we had a windows-only bug because of this difference)
 	return false;
-#else
+	
+	/*
 	// try to toggle full screen
 	SDL_WM_ToggleFullScreen(surface);
 	bool newState = (surface->flags & SDL_FULLSCREEN) != 0;
 	return newState == wantedState;
-#endif
+	*/
 }
 
 } // namespace openmsx

@@ -58,6 +58,7 @@ private:
 	virtual void update(const Setting* setting);
 
 	void checkRendererSwitch();
+	void doRendererSwitch();
 
 	typedef std::vector<Layer*> Layers;
 

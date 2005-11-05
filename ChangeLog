@@ -12,6 +12,7 @@ $Id$
 	     base and size no longer need to be multiples of 0x4000
 	   - It's now possible to create devices that have 8kb rom and 8kb
 	     ram in the same 16kb page.
+	* Fixed fullscreen switching in windows
 
 2005-11-04 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented an experimental "fullspeedwhenloading" setting.

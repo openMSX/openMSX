@@ -23,6 +23,7 @@ enum EventType
 	OPENMSX_FINISH_FRAME_EVENT,
 	OPENMSX_LED_EVENT,
 	OPENMSX_BREAK_EVENT,
+	OPENMSX_SWITCH_RENDERER_EVENT,
 	/** Console events, allow the keyboard[joystick] to avoid
             having `hanging' keys */
 	OPENMSX_CONSOLE_ON_EVENT,

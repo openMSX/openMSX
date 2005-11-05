@@ -56,6 +56,8 @@ Display::Display(MSXMotherBoard& motherboard_)
 			*this, EventDistributor::DETACHED);
 	eventDistributor.registerEventListener(OPENMSX_DELAYED_REPAINT_EVENT,
 			*this, EventDistributor::DETACHED);
+	eventDistributor.registerEventListener(OPENMSX_SWITCH_RENDERER_EVENT,
+			*this, EventDistributor::DETACHED);
 
 	renderSettings.getRenderer().addListener(this);
 	renderSettings.getFullScreen().addListener(this);
@@ -71,6 +73,8 @@ Display::~Display()
 	renderSettings.getVideoSource().removeListener(this);
 
 	EventDistributor& eventDistributor = motherboard.getEventDistributor();
+	eventDistributor.unregisterEventListener(OPENMSX_SWITCH_RENDERER_EVENT,
+			*this, EventDistributor::DETACHED);
 	eventDistributor.unregisterEventListener(OPENMSX_DELAYED_REPAINT_EVENT,
 			*this, EventDistributor::DETACHED);
 	eventDistributor.unregisterEventListener(OPENMSX_FINISH_FRAME_EVENT,
@@ -87,7 +91,8 @@ void Display::createVideoSystem()
 {
 	assert(!videoSystem.get());
 	assert(currentRenderer == RendererFactory::UNINITIALIZED);
-	checkRendererSwitch();
+	currentRenderer = renderSettings.getRenderer().getValue();
+	doRendererSwitch();
 }
 
 VideoSystem& Display::getVideoSystem()
@@ -156,6 +161,8 @@ void Display::signalEvent(const Event& event)
 			motherboard.getScheduler().getCurrentTime(), draw);
 	} else if (event.getType() == OPENMSX_DELAYED_REPAINT_EVENT) {
 		repaint();
+	} else if (event.getType() == OPENMSX_SWITCH_RENDERER_EVENT) {
+		doRendererSwitch();
 	} else {
 		assert(false);
 	}
@@ -178,30 +185,37 @@ void Display::update(const Setting* setting)
 
 void Display::checkRendererSwitch()
 {
-	if (switchInProgress) return;
-	++switchInProgress;
-
 	// Tell renderer to sync with render settings.
 	RendererFactory::RendererID newRenderer =
 		renderSettings.getRenderer().getValue();
 	if ((newRenderer != currentRenderer) ||
 	    !getVideoSystem().checkSettings()) {
 		currentRenderer = newRenderer;
-		
-		for (Listeners::const_iterator it = listeners.begin();
-		     it != listeners.end(); ++it) {
-			(*it)->preVideoSystemChange();
-		}
+		// don't do the actualing swithing in the TCL callback
+		// it seems creating and destroying Settings (= TCL vars)
+		// causes problems???
+		motherboard.getEventDistributor().distributeEvent(
+		      new SimpleEvent<OPENMSX_SWITCH_RENDERER_EVENT>());
+	}
+}
 
-		resetVideoSystem();
-		videoSystem.reset(RendererFactory::createVideoSystem(motherboard));
+void Display::doRendererSwitch()
+{
+	if (switchInProgress) return;
+	++switchInProgress;
 
-		for (Listeners::const_iterator it = listeners.begin();
-		     it != listeners.end(); ++it) {
-			(*it)->postVideoSystemChange();
-		}
+	for (Listeners::const_iterator it = listeners.begin();
+	     it != listeners.end(); ++it) {
+		(*it)->preVideoSystemChange();
 	}
 
+	resetVideoSystem();
+	videoSystem.reset(RendererFactory::createVideoSystem(motherboard));
+
+	for (Listeners::const_iterator it = listeners.begin();
+	     it != listeners.end(); ++it) {
+		(*it)->postVideoSystemChange();
+	}
 	--switchInProgress;
 }
 
