@@ -92,6 +92,8 @@ void Display::createVideoSystem()
 	assert(!videoSystem.get());
 	assert(currentRenderer == RendererFactory::UNINITIALIZED);
 	currentRenderer = renderSettings.getRenderer().getValue();
+	assert(!switchInProgress);
+	++switchInProgress;
 	doRendererSwitch();
 }
 
@@ -194,6 +196,8 @@ void Display::checkRendererSwitch()
 		// don't do the actualing swithing in the TCL callback
 		// it seems creating and destroying Settings (= TCL vars)
 		// causes problems???
+		if (switchInProgress) return;
+		++switchInProgress;
 		motherboard.getEventDistributor().distributeEvent(
 		      new SimpleEvent<OPENMSX_SWITCH_RENDERER_EVENT>());
 	}
@@ -201,9 +205,7 @@ void Display::checkRendererSwitch()
 
 void Display::doRendererSwitch()
 {
-	if (switchInProgress) return;
-	++switchInProgress;
-
+	assert(switchInProgress);
 	for (Listeners::const_iterator it = listeners.begin();
 	     it != listeners.end(); ++it) {
 		(*it)->preVideoSystemChange();
