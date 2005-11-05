@@ -186,7 +186,7 @@ static void fillLoop(const Pixel* in, Pixel* out)
 	out[0] = in[0];
 	out[1] = in[1];
 	out[2] = in[2];
-	for (unsigned x = 1; x < (960 - 3); x += 3) {
+	for (unsigned x = 3; x < (960 - 3); x += 3) {
 		out[x + 0] = in[3];
 		out[x + 1] = in[4];
 		out[x + 2] = in[5];
