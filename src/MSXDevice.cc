@@ -52,7 +52,7 @@ void MSXDevice::registerSlots(const XMLElement& config)
 	size = mem->getAttributeAsInt("size");
 	if ((base >= 0x10000) || (size > 0x10000)) {
 		throw FatalError("Invalid memory specification for device " +
-		            getName() + " should be in range [0x0000,0x1000).");
+		            getName() + " should be in range [0x0000,0x10000).");
 	}
 	if ((base & 0xFF) || (size & 0xFF)) {
 		throw FatalError("Invalid memory specification for device " +
