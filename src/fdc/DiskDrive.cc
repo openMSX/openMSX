@@ -9,6 +9,7 @@
 #include "CommandController.hh"
 #include "GlobalSettings.hh"
 #include "ThrottleManager.hh"
+#include "Clock.hh"
 #include <bitset>
 
 using std::string;
@@ -155,10 +156,13 @@ static std::bitset<RealDrive::MAX_DRIVES> drivesInUse;
 RealDrive::RealDrive(CommandController& commandController,
                      EventDistributor& eventDistributor_,
                      FileManipulator& fileManipulator, const EmuTime& time)
-	: headPos(0), motorStatus(false), motorTimer(time)
+	: Schedulable(commandController.getScheduler())
+	, headPos(0), motorStatus(false), motorTimer(time)
 	, headLoadStatus(false), headLoadTimer(time)
 	, eventDistributor(eventDistributor_)
 	, throttleManager(commandController.getGlobalSettings().getThrottleManager())
+	, isLoading(false)
+	, timeOut(false)
 {
 	int i = 0;
 	while (drivesInUse[i]) {
@@ -194,7 +198,7 @@ bool RealDrive::writeProtected()
 	return motorStatus && changer->getDisk().writeProtected();
 }
 
-void RealDrive::step(bool direction, const EmuTime& /*time*/)
+void RealDrive::step(bool direction, const EmuTime& time)
 {
 	if (direction) {
 		// step in
@@ -208,10 +212,12 @@ void RealDrive::step(bool direction, const EmuTime& /*time*/)
 		}
 	}
 	PRT_DEBUG("DiskDrive track " << headPos);
+	resetTimeOut(time);
 }
 
-bool RealDrive::track00(const EmuTime& /*time*/)
+bool RealDrive::track00(const EmuTime& time)
 {
+	resetTimeOut(time);
 	// track00 bit is always 0 when motor is off
 	// verified on NMS8280
 	return motorStatus && (headPos == 0);
@@ -221,13 +227,13 @@ void RealDrive::setMotor(bool status, const EmuTime& time)
 {
 	if (motorStatus != status) {
 		motorStatus = status;
-		throttleManager.indicateLoadingState(motorStatus);
 		motorTimer.advance(time);
 		/* The following is a hack to emulate the drive LED behaviour.
 		 * This is in real life dependent on the FDC and should be
 		 * investigated in detail to implement it properly... TODO */
 		eventDistributor.distributeEvent(
 			new LedEvent(LedEvent::FDD, motorStatus));
+		updateLoadingState();
 	}
 	
 }
@@ -315,6 +321,36 @@ bool RealDrive::dummyDrive()
 	return false;
 }
 
+void RealDrive::executeUntil(const EmuTime& time, int userData)
+{
+	timeOut = true;
+	updateLoadingState();
+}
+
+void RealDrive::updateLoadingState()
+{
+	bool newState = motorStatus && (!timeOut);
+        if (isLoading != newState) {
+                isLoading = newState;
+                throttleManager.indicateLoadingState(isLoading);
+        }
+}
+
+
+const std::string& RealDrive::schedName() const
+{
+        static const string schedName = "RealDrive";
+        return schedName;
+}
+
+void RealDrive::resetTimeOut(const EmuTime& time)
+{
+	timeOut = false;
+	updateLoadingState();
+	removeSyncPoint();
+	Clock<1000> now(time);
+	setSyncPoint(now + 1000);
+}
 
 /// class SingleSidedDrive ///
 

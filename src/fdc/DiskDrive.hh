@@ -4,6 +4,7 @@
 #define DISKDRIVE_HH
 
 #include "Clock.hh"
+#include "Schedulable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -16,6 +17,8 @@ class CommandController;
 class EventDistributor;
 class FileManipulator;
 class ThrottleManager;
+class Scheduler;
+class EmuTime;
 
 /**
  * This (abstract) class defines the DiskDrive interface
@@ -169,7 +172,7 @@ public:
  * This class implements a real drive, this is the parent class for both
  * sigle and double sided drives. Common methods are implemented here;
  */
-class RealDrive : public DiskDrive
+class RealDrive : public DiskDrive, public Schedulable
 {
 public:
 	static const int MAX_DRIVES = 26;	// a-z
@@ -197,6 +200,10 @@ public:
 	virtual bool peekDiskChanged() const;
 	virtual bool dummyDrive();
 
+	// Timer stuff, needed for the notification of the loading state
+	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual const std::string& schedName() const;
+
 protected:
 	static const int MAX_TRACK = 85;
 	static const int TICKS_PER_ROTATION = 6850;	// TODO
@@ -212,6 +219,11 @@ protected:
 
 	EventDistributor& eventDistributor;
 	ThrottleManager& throttleManager;
+private: 
+	// This is all for the ThrottleManager
+	void resetTimeOut(const EmuTime& time);
+	void updateLoadingState();
+	bool isLoading, timeOut;
 };
 
 

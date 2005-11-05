@@ -1,5 +1,11 @@
 $Id$
 
+2005-11-05 Manuel Bilderbeek <manuel@msxnet.org>
+	* More intelligent 'loading' check for disk drive; if there is no head
+	  movement for a while, we assume loading stopped. Works much better 
+	  for software that doesn't turn off the motor. The timeout is set to
+	  one second for now. This may need some tuning still.
+
 2005-11-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Allow more general memory specifications in hardwareconfig.xml:
 	   - <mem base=".." size=".."/>
