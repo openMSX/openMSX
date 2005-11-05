@@ -71,7 +71,7 @@ void PostProcessor<Pixel>::paint()
 	}
 
 	// Scale image.
-	const unsigned srcHeight = deinterlace ? 480 : 240;
+	const unsigned srcHeight = frame->getHeight();
 	const unsigned dstHeight = screen.getHeight();
 	const bool lower = field == RawFrame::FIELD_ODD;
 	// TODO: This fails if lineZoom is not an integer (for example, 1.5).
@@ -109,19 +109,9 @@ void PostProcessor<Pixel>::paint()
 			}
 			currScaler->scaleBlank(colour, screen, dstStartY, dstEndY);
 		} else {
-			if (deinterlace) {
-				DeinterlacedFrame* deinterlacedFrame =
-					reinterpret_cast<DeinterlacedFrame*>(frame);
-				FrameSource* frameEven = deinterlacedFrame->getEven();
-				FrameSource* frameOdd = deinterlacedFrame->getOdd();
-				currScaler->scaleImage(
-					*frameEven, *frameOdd, lineWidth,
-					screen, srcStartY / 2, (srcEndY + 1) / 2);
-			} else {
-				currScaler->scaleImage(
-					*frame, lineWidth, srcStartY, srcEndY, // source
-					screen, dstStartY, dstEndY); // dest
-			}
+			currScaler->scaleImage(
+				*frame, lineWidth, srcStartY, srcEndY, // source
+				screen, dstStartY, dstEndY); // dest
 		}
 
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",

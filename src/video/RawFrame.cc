@@ -8,10 +8,10 @@ namespace openmsx {
 
 RawFrame::RawFrame(unsigned bytesPerPixel, unsigned maxWidth_, unsigned height_)
 	: maxWidth(maxWidth_)
-	, height(height_)
 {
+	height = height_;
 	lineWidth = new unsigned[height];
-	
+
 	// Allocate memory, make sure each line begins at a 64 byte boundary
 	//  SSE instruction need 16 byte alligned data
 	//  cache line size on athlon and P4 CPUs is 64 bytes

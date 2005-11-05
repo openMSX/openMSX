@@ -81,12 +81,6 @@ public:
 		FrameSource& src, unsigned lineWidth,
 		unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY) = 0;
-
-	/** Temporary handling of deinterlacing.
-	  */
-	virtual void scaleImage(
-		FrameSource& frameEven, FrameSource& frameOdd, unsigned lineWidth,
-		OutputSurface& dst, unsigned srcStartY, unsigned srcEndY) = 0;
 };
 
 } // namespace openmsx

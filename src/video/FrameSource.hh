@@ -31,6 +31,12 @@ public:
 	  */
 	virtual FieldType getField() = 0;
 
+	/** Gets the number of lines in this frame.
+	  */
+	unsigned getHeight() {
+		return height;
+	}
+
 	/** Gets the number of display pixels on the given line.
 	  * @return line width, or 0 for a border line.
 	  */
@@ -55,6 +61,9 @@ protected:
 	//       GCC 3.3.5-pre will not compile it.
 	friend class DeinterlacedFrame;
 
+	/** Number of lines in this frame.
+	  */
+	unsigned height;
 };
 
 } // namespace openmsx

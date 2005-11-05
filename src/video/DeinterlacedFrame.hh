@@ -23,6 +23,8 @@ public:
 		//       guarantee them. See TODO in PostProcessor::paint.
 		//assert(evenField->getField() == RawFrame::FIELD_EVEN);
 		//assert(oddField->getField() == RawFrame::FIELD_ODD);
+		assert(evenField->height == oddField->height);
+		height = 2 * evenField->getHeight();
 		fields[0] = evenField;
 		fields[1] = oddField;
 	}

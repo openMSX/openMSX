@@ -54,7 +54,6 @@ protected:
 
 private:
 	unsigned maxWidth;
-	unsigned height;
 	unsigned* lineWidth;
 	unsigned pitch;
 	void* unallignedData;

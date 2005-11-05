@@ -4,6 +4,7 @@
 #include "LineScalers.hh"
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
+#include "DeinterlacedFrame.hh"
 #include <algorithm>
 
 namespace openmsx {
@@ -195,6 +196,17 @@ void Scaler3<Pixel>::scaleImage(
 	unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	if (src.getHeight() == 480) {
+		DeinterlacedFrame& deinterlacedFrame =
+			dynamic_cast<DeinterlacedFrame&>(src);
+		scaleImage(
+			*deinterlacedFrame.getEven(), *deinterlacedFrame.getOdd(),
+			lineWidth, dst, srcStartY / 2, (srcEndY + 1) / 2
+			);
+		return;
+	}
+	assert(src.getHeight() == 240);
+
 	switch (lineWidth) {
 	case 192:
 		scale192(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
