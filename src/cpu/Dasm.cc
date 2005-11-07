@@ -87,7 +87,8 @@ int dasm(const MSXCPUInterface& interf, word pc, byte buf[4], std::string& dest,
 			break;
 		case 'X':
 			buf[i] = interf.peekMem(pc + i, time);
-			dest += std::string(r) + sign(buf[i]) + "#" + StringOp::toHexString(abs(buf[i]), 2); 
+			dest += '(' + std::string(r) + sign(buf[i]) + "#"
+			     + StringOp::toHexString(abs(buf[i]), 2) + ')'; 
 			i += 1;
 			break;
 		case 'Y':
