@@ -561,8 +561,6 @@ void V9990::frameStart(const EmuTime& time)
 	setVerticalTiming();
 	status ^= 0x02; // flip EO bit
 
-	renderer->frameStart(time);
-	// Schedule next VSYNC
 	frameStartTime.advance(time);
 
 	// schedule next VSYNC
@@ -581,6 +579,8 @@ void V9990::frameStart(const EmuTime& time)
 	setSyncPoint(
 	        frameStartTime + bottomBorder * V9990DisplayTiming::UC_TICKS_PER_LINE,
 	        V9990_VSCAN);
+
+	renderer->frameStart(time);
 }
 
 void V9990::raiseIRQ(IRQType irqType)
