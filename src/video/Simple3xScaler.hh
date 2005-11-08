@@ -22,7 +22,7 @@ public:
                 Pixel color, OutputSurface& dst,
                 unsigned startY, unsigned endY);
 
-	virtual void scale1x1to4x3(
+	virtual void scale2x1to9x3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
@@ -30,7 +30,7 @@ public:
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
-	virtual void scale1x1to2x3(
+	virtual void scale4x1to9x3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
@@ -38,13 +38,7 @@ public:
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
-	/*
-	virtual void scale5x1to6x3(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	*/
-
-	virtual void scale1x1to1x3(
+	virtual void scale8x1to9x3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
