@@ -251,7 +251,7 @@ void SaI2xScaler<Pixel>::scaleLine512(
 }
 
 template <class Pixel>
-void SaI2xScaler<Pixel>::scale256(
+void SaI2xScaler<Pixel>::scale1x1to2x2(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -274,7 +274,7 @@ void SaI2xScaler<Pixel>::scale256(
 }
 
 template <class Pixel>
-void SaI2xScaler<Pixel>::scale512(
+void SaI2xScaler<Pixel>::scale1x1to1x2(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {

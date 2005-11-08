@@ -6,7 +6,6 @@
 #include "FrameSource.hh"
 #include <cassert>
 
-
 namespace openmsx {
 
 /** Produces a deinterlaced video frame based on two RawFrames containing the
@@ -16,8 +15,6 @@ namespace openmsx {
 class DeinterlacedFrame : public FrameSource
 {
 public:
-	/** Constructor.
-	  */
 	DeinterlacedFrame(FrameSource* evenField, FrameSource* oddField) {
 		// TODO: I think these assertions make sense, but we cannot currently
 		//       guarantee them. See TODO in PostProcessor::paint.
@@ -29,17 +26,10 @@ public:
 		fields[1] = oddField;
 	}
 
-	/** Destructor.
-	  */
 	virtual ~DeinterlacedFrame() {
 		// TODO: Should DeinterlacedFrame become the owner of the even/odd
 		//       frame?
 	}
-
-	// TODO: Temporary methods to ease the transition from passing
-	//       two RawFrames to passing one DeinterlacedFrame.
-	FrameSource* getEven() { return fields[0]; }
-	FrameSource* getOdd() { return fields[1]; }
 
 	virtual FieldType getField() {
 		return FIELD_NONINTERLACED;

@@ -16,10 +16,10 @@ class SaI2xScaler: public Scaler2<Pixel>
 {
 public:
 	SaI2xScaler(SDL_PixelFormat* format);
-	virtual void scale256(
+	virtual void scale1x1to2x2(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale512(
+	virtual void scale1x1to1x2(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 

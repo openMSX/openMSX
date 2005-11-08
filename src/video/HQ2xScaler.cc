@@ -2566,7 +2566,7 @@ static void scaleLine512(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 }
 
 template <class Pixel>
-void HQ2xScaler<Pixel>::scale256(
+void HQ2xScaler<Pixel>::scale1x1to2x2(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -2587,7 +2587,7 @@ void HQ2xScaler<Pixel>::scale256(
 }
 
 template <class Pixel>
-void HQ2xScaler<Pixel>::scale512(
+void HQ2xScaler<Pixel>::scale1x1to1x2(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
