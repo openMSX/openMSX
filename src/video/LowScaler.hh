@@ -14,10 +14,10 @@ class LowScaler : public Scaler<Pixel>
 public:
 	LowScaler(SDL_PixelFormat* format);
 
-	void scale3x1to4x1(
+	void scale2x1to3x1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	void scale3x2to4x1(
+	void scale2x2to3x1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	void scale1x1to1x1(
@@ -26,10 +26,10 @@ public:
 	void scale1x2to1x1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	void scale3x1to2x1(
+	void scale4x1to3x1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	void scale3x2to2x1(
+	void scale4x2to3x1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	void scale2x1to1x1(
@@ -38,16 +38,10 @@ public:
 	void scale2x2to1x1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	void scale5x1to2x1(
+	void scale8x1to3x1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	void scale5x2to2x1(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	void scale3x1to1x1(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	void scale3x2to1x1(
+	void scale8x2to3x1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	void scale4x1to1x1(

@@ -83,7 +83,7 @@ static void doScaleDV(
 
 
 template <class Pixel>
-void LowScaler<Pixel>::scale3x1to4x1(
+void LowScaler<Pixel>::scale2x1to3x1(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -92,7 +92,7 @@ void LowScaler<Pixel>::scale3x1to4x1(
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale3x2to4x1(
+void LowScaler<Pixel>::scale2x2to3x1(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -128,7 +128,7 @@ void LowScaler<Pixel>::scale1x2to1x1(
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale3x1to2x1(
+void LowScaler<Pixel>::scale4x1to3x1(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -137,7 +137,7 @@ void LowScaler<Pixel>::scale3x1to2x1(
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale3x2to2x1(
+void LowScaler<Pixel>::scale4x2to3x1(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -164,25 +164,8 @@ void LowScaler<Pixel>::scale2x2to1x1(
 	// TODO: Profile specific code vs generic implementation.
 }
 
-
 template <class Pixel>
-void LowScaler<Pixel>::scale5x1to2x1(
-	FrameSource& /*src*/, unsigned /*srcStartY*/, unsigned /*srcEndY*/,
-	OutputSurface& /*dst*/, unsigned /*dstStartY*/, unsigned /*dstEndY*/)
-{
-	// TODO
-}
-
-template <class Pixel>
-void LowScaler<Pixel>::scale5x2to2x1(
-	FrameSource& /*src*/, unsigned /*srcStartY*/, unsigned /*srcEndY*/,
-	OutputSurface& /*dst*/, unsigned /*dstStartY*/, unsigned /*dstEndY*/)
-{
-	// TODO
-}
-
-template <class Pixel>
-void LowScaler<Pixel>::scale3x1to1x1(
+void LowScaler<Pixel>::scale8x1to3x1(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -191,7 +174,7 @@ void LowScaler<Pixel>::scale3x1to1x1(
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale3x2to1x1(
+void LowScaler<Pixel>::scale8x2to3x1(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -228,22 +211,22 @@ void LowScaler<Pixel>::scaleImage(
 	if (src.getHeight() == 240) {
 		switch (lineWidth) {
 		case 192:
-			scale3x1to4x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			scale2x1to3x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
 			break;
 		case 256:
 			scale1x1to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
 			break;
 		case 384:
-			scale3x1to2x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			scale4x1to3x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
 			break;
 		case 512:
 			scale2x1to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
 			break;
 		case 640:
-			scale5x1to2x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			assert(false);
 			break;
 		case 768:
-			scale3x1to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			scale8x1to3x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
 			break;
 		case 1024:
 			scale4x1to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
@@ -256,22 +239,22 @@ void LowScaler<Pixel>::scaleImage(
 		assert(src.getHeight() == 480);
 		switch (lineWidth) {
 		case 192:
-			scale3x2to4x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			scale2x2to3x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
 			break;
 		case 256:
 			scale1x2to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
 			break;
 		case 384:
-			scale3x2to2x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			scale4x2to3x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
 			break;
 		case 512:
 			scale2x2to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
 			break;
 		case 640:
-			scale5x2to2x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			assert(false);
 			break;
 		case 768:
-			scale3x2to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+			scale8x2to3x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
 			break;
 		case 1024:
 			scale4x2to1x1(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
