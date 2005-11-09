@@ -8,8 +8,10 @@ SRC_HDR:= \
 	BreakPoint \
 	MSXCPUInterface MSXCPU \
 	MSXMultiIODevice MSXMultiMemDevice \
-	IRQHelper \
-	VDPIODelay \
+	VDPIODelay
+
+HDR_ONLY:= \
+	IRQHelper
 
 include build/node-end.mk
 

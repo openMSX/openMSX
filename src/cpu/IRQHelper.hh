@@ -13,26 +13,69 @@ namespace openmsx {
   * Calling set() in enabled state does nothing;
   * neither does calling reset() in disabled state.
   */
-class IRQHelper
+
+// policy class for IRQ source
+class IRQSource {
+protected:
+	IRQSource(MSXCPU& cpu_) : cpu(cpu_) {}
+	inline void raise() { cpu.raiseIRQ(); }
+	inline void lower() { cpu.lowerIRQ(); }
+private:
+	MSXCPU& cpu;
+};
+
+// policy class for NMI source
+class NMISource {
+protected:
+	NMISource(MSXCPU& cpu_) : cpu(cpu_) {}
+	inline void raise() { cpu.raiseNMI(); }
+	inline void lower() { cpu.lowerNMI(); }
+private:
+	MSXCPU& cpu;
+};
+
+// policy class that can dynamically switch between IRQ and NMI
+class DynamicSource {
+public:
+	enum IntType { IRQ, NMI };
+	void setIntType(IntType type_) { type = type_; }
+protected:
+	DynamicSource(MSXCPU& cpu_) : cpu(cpu_), type(IRQ) {}
+	inline void raise() {
+		if (type == IRQ) cpu.raiseIRQ(); else cpu.raiseNMI();
+	}
+	inline void lower() {
+		if (type == NMI) cpu.lowerIRQ(); else cpu.lowerNMI();
+	}
+private:
+	MSXCPU& cpu;
+	IntType type;
+};
+
+// generic implementation
+template <typename SOURCE> class IntHelper : public SOURCE
 {
 public:
-	/** Create a new IRQHelper.
+	/** Create a new IntHelper.
 	  * Initially there is no interrupt request on the bus.
-	  * @param nmi true iff non-maskable interrupts should be triggered.
 	  */
-	IRQHelper(MSXCPU& cpu, bool nmi = false);
+	IntHelper(MSXCPU& cpu)
+		: SOURCE(cpu), request(false) {
+	}
 
-	/** Destroy this IRQHelper.
+	/** Destroy this IntHelper.
 	  * Resets interrupt request if it is active.
 	  */
-	~IRQHelper();
+	~IntHelper() {
+		reset();
+	}
 
 	/** Set the interrupt request on the bus.
 	  */
 	inline void set() {
 		if (!request) {
 			request = true;
-			if (nmi) cpu.raiseNMI(); else cpu.raiseIRQ();
+			SOURCE::raise();
 		}
 	}
 
@@ -41,7 +84,7 @@ public:
 	inline void reset() {
 		if (request) {
 			request = false;
-			if (nmi) cpu.lowerNMI(); else cpu.lowerIRQ();
+			SOURCE::lower();
 		}
 	}
 
@@ -53,10 +96,13 @@ public:
 	}
 
 private:
-	bool nmi;
 	bool request;
-	MSXCPU& cpu;
 };
+
+// convenience types
+typedef IntHelper<IRQSource> IRQHelper;
+typedef IntHelper<NMISource> NMIHelper;
+typedef IntHelper<DynamicSource> IRQNMIHelper;
 
 } // namespace openmsx
 
