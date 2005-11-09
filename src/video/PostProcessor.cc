@@ -41,26 +41,18 @@ void PostProcessor<Pixel>::paint()
 	const RawFrame::FieldType field = currFrame->getField();
 	const bool deinterlace = field != RawFrame::FIELD_NONINTERLACED
 		&& renderSettings.getDeinterlace().getValue();
-	FrameSource* frame = 0;
-	if (deinterlace) {
-		RawFrame* frameEven = 0;
-		RawFrame* frameOdd  = 0;
-		// TODO: When frames are being skipped or if (de)interlace was just
-		//       turned on, it's not guaranteed that prevFrame is a
-		//       different field from currFrame.
-		//       Or in the case of frame skip, it might be the right field,
-		//       but from several frames ago.
-		if (field == RawFrame::FIELD_ODD) {
-			frameEven = prevFrame;
-			frameOdd  = currFrame;
-		} else {
-			frameEven = currFrame;
-			frameOdd  = prevFrame;
-		}
-		frame = new DeinterlacedFrame(frameEven, frameOdd);
-	} else {
-		frame = currFrame;
-	}
+		
+	// TODO: When frames are being skipped or if (de)interlace was just
+	//       turned on, it's not guaranteed that prevFrame is a
+	//       different field from currFrame.
+	//       Or in the case of frame skip, it might be the right field,
+	//       but from several frames ago.
+	DeinterlacedFrame deinterlacedFrame(
+		(field == RawFrame::FIELD_ODD) ? prevFrame : currFrame,
+		(field == RawFrame::FIELD_ODD) ? currFrame : prevFrame);
+	FrameSource* frame = deinterlace
+		? static_cast<FrameSource*>(&deinterlacedFrame)
+		: static_cast<FrameSource*>(currFrame);
 
 	// New scaler algorithm selected?
 	ScalerID scalerID = renderSettings.getScaler().getValue();
