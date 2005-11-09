@@ -4,7 +4,6 @@
 #define INITEXCEPTION_HH
 
 #include "MSXException.hh"
-#include <string>
 
 namespace openmsx {
 
@@ -14,9 +13,8 @@ namespace openmsx {
 class InitException: public MSXException
 {
 public:
-	InitException(const std::string& message_)
-		: MSXException(message_) { }
-	virtual ~InitException() { }
+	InitException(const std::string& message)
+		: MSXException(message) { }
 };
 
 } // namespace openmsx

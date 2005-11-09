@@ -5,8 +5,6 @@
 // * Only the 8255 is emulated, no surrounding hardware.
 //   Use the class I8255Interface to do that.
 // * Only mode 0 (basic input/output) is implemented
-// * For techncal details on 8255 see
-//    http://w3.qahwah.net/joost/openMSX/8255.pdf
 
 #ifndef I8255_HH
 #define I8255_HH
@@ -38,7 +36,7 @@ public:
 class I8255
 {
 public:
-	I8255(I8255Interface &interf, const EmuTime& time);
+	I8255(I8255Interface& interf, const EmuTime& time);
 	~I8255();
 
 	void reset(const EmuTime& time);
@@ -69,7 +67,7 @@ private:
 	int latchPortB;
 	int latchPortC;
 
-	I8255Interface &interface;
+	I8255Interface& interface;
 };
 
 } // namespace openmsx

@@ -18,11 +18,12 @@ const int DIRECTION_B  = 0x02;
 const int DIRECTION_C0 = 0x01;
 const int DIRECTION_C1 = 0x08;
 const int SET_MODE     = 0x80;
-const int BIT_NR       = 0x0e;
+const int BIT_NR       = 0x0E;
 const int SET_RESET    = 0x01;
 
 
-I8255::I8255(I8255Interface &interf, const EmuTime& time) : interface(interf)
+I8255::I8255(I8255Interface& interf, const EmuTime& time)
+	: interface(interf)
 {
 	reset(time);
 }
