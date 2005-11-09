@@ -1,11 +1,11 @@
 // $Id$
 
-#include <cassert>
-#include "openmsx.hh"
 #include "InputEventGenerator.hh"
 #include "EventDistributor.hh"
 #include "InputEvents.hh"
 #include "BooleanSetting.hh"
+#include "openmsx.hh"
+#include <cassert>
 
 using std::string;
 using std::vector;

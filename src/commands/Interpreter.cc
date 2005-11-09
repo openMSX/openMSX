@@ -165,9 +165,7 @@ void Interpreter::getCommandNames(set<string>& result)
 	if (Tcl_SplitList(interp, list.c_str(), &argc, &argv) != TCL_OK) {
 		return;
 	}
-	for (int i = 0; i < argc; ++i) {
-		result.insert(argv[i]);
-	}
+	result.insert(&argv[0], &argv[argc]);
 	Tcl_Free((char*)argv);
 }
 

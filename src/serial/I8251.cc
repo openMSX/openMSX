@@ -1,8 +1,8 @@
 // $Id$
 
-#include <cassert>
 #include "I8251.hh"
 #include "Scheduler.hh"
+#include <cassert>
 
 using std::string;
 
@@ -353,7 +353,7 @@ void I8251::send(byte value, const EmuTime& time)
 	}
 }
 
-void I8251::executeUntil(const EmuTime &time, int userData)
+void I8251::executeUntil(const EmuTime& time, int userData)
 {
 	switch ((SyncPointType)userData) {
 	case RECV:

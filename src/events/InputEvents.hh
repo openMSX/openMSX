@@ -18,8 +18,8 @@ namespace openmsx {
 class UserInputEvent : public Event
 {
 protected:
-	UserInputEvent(EventType type) :
-		Event(type) {}
+	UserInputEvent(EventType type)
+		: Event(type) {}
 };
 
 class HostKeyEvent : public Event
@@ -29,8 +29,8 @@ public:
 	word getUnicode() const { return unicode; }
 
 protected:
-	HostKeyEvent(EventType type, Keys::KeyCode keyCode_, word unicode_) :
-		Event(type), keyCode(keyCode_), unicode(unicode_) {}
+	HostKeyEvent(EventType type, Keys::KeyCode keyCode_, word unicode_)
+		: Event(type), keyCode(keyCode_), unicode(unicode_) {}
 
 private:
 	Keys::KeyCode keyCode;
@@ -58,8 +58,8 @@ public:
 	word getUnicode() const { return unicode; }
 
 protected:
-	EmuKeyEvent(EventType type, Keys::KeyCode keyCode_, word unicode_) :
-		UserInputEvent(type), keyCode(keyCode_), unicode(unicode_) {}
+	EmuKeyEvent(EventType type, Keys::KeyCode keyCode_, word unicode_)
+		: UserInputEvent(type), keyCode(keyCode_), unicode(unicode_) {}
 
 private:
 	Keys::KeyCode keyCode;

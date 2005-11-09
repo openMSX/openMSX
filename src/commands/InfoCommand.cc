@@ -20,6 +20,7 @@ InfoCommand::InfoCommand(CommandController& commandController)
 
 InfoCommand::~InfoCommand()
 {
+	assert(infoTopics.empty());
 }
 
 void InfoCommand::registerTopic(InfoTopic& topic, const string& name)

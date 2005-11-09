@@ -47,7 +47,7 @@ public:
 	void reinit();
 
 private:
-	void handle(const SDL_Event &event);
+	void handle(const SDL_Event& event);
 	void setGrabInput(bool grab);
 
 	// SettingListener
