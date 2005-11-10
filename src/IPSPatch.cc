@@ -10,7 +10,7 @@ using std::vector;
 
 namespace openmsx {
 
-static unsigned getStop(const IPSPatch::PatchMap::const_iterator& it)
+unsigned IPSPatch::getStop(const IPSPatch::PatchMap::const_iterator& it)
 {
 	return it->first + it->second.size();
 }

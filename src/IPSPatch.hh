@@ -23,6 +23,8 @@ public:
 private:
 	typedef std::map<unsigned, std::vector<byte> > PatchMap;
 
+	static unsigned getStop(const PatchMap::const_iterator& it);
+
 	const std::auto_ptr<const PatchInterface> parent;
 	PatchMap patchMap;
 	unsigned size;
