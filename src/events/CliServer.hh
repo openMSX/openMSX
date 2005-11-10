@@ -6,7 +6,6 @@
 #include "Thread.hh"
 #include "Socket.hh"
 #include <string>
-#include <memory>
 
 namespace openmsx {
 

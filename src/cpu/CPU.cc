@@ -1,7 +1,6 @@
 // $Id$
 
 #include "CPU.hh"
-#include "TclObject.hh"
 
 namespace openmsx {
 
