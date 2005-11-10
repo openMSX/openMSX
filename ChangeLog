@@ -1,5 +1,10 @@
 $Id$
 
+2005-11-10 Manuel Bilderbeek <manuel@msxnet.org>
+	* Introduced a generic Gamma based Observer pattern, template
+	  implementation by Wouter though. Still needs to be used more properly
+	  for Setting/SettingListener and ThrottleManager.
+
 2005-11-10 Maarten ter Huurne <maarten@treewalker.org>
 	* Map all even numbered joystick buttons to trig A and all odd numbered
 	  joystick buttons to trig B. Before, button 0 was mapped trig A and

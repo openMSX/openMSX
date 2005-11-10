@@ -15,39 +15,31 @@ namespace openmsx {
 Setting::Setting(CommandController& commandController_, const string& name_,
                  const string& description_, SaveSetting save_)
 	: commandController(commandController_), name(name_)
-	, description(description_), notifyInProgress(0)
-	, save(save_ == SAVE)
+	, description(description_), save(save_ == SAVE)
 {
 }
 
 Setting::~Setting()
 {
-	assert(listeners.empty());
 }
 
 void Setting::notify() const
 {
-	++notifyInProgress;
-	for (Listeners::const_iterator it = listeners.begin();
-	     it != listeners.end(); ++it) {
-		(*it)->update(this);
-	}
+	Subject<Setting>::notify();
 	commandController.getCliComm().update(CliComm::SETTING, getName(),
 	                           getValueString());
-	--notifyInProgress;
 }
 
 void Setting::addListener(SettingListener* listener)
 {
-	assert(!notifyInProgress);
-	listeners.push_back(listener);
+	// TODO: remove this method, it's just a wrapper for a base class method
+	Subject<Setting>::attach(*listener);
 }
 
 void Setting::removeListener(SettingListener* listener)
 {
-	assert(!notifyInProgress);
-	assert(std::count(listeners.begin(), listeners.end(), listener) == 1);
-	listeners.erase(std::find(listeners.begin(), listeners.end(), listener));
+	// TODO: remove this method, it's just a wrapper for a base class method
+	Subject<Setting>::detach(*listener);
 }
 
 bool Setting::needLoadSave() const

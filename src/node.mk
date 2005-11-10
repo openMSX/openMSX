@@ -48,11 +48,13 @@ SRC_ONLY:= \
 	main
 
 HDR_ONLY:= \
+	Subject \
 	openmsx \
 	likely \
 	Clock DynamicClock \
 	MSXException InitException \
 	PatchInterface \
+	Observer \
 
 DIST:= \
 	Doxyfile

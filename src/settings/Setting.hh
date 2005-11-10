@@ -3,6 +3,7 @@
 #ifndef SETTINGNODE_HH
 #define SETTINGNODE_HH
 
+#include "Subject.hh"
 #include <string>
 #include <vector>
 
@@ -12,7 +13,7 @@ class CommandController;
 class SettingListener;
 class XMLElement;
 
-class Setting
+class Setting : public Subject<Setting>
 {
 public:
 	enum SaveSetting {
@@ -55,10 +56,12 @@ public:
 	virtual void tabCompletion(std::vector<std::string>& tokens) const = 0;
 
 	/** Subscribes a listener to changes of this setting.
+	  * TODO: remove, it's just a wrapper for the base class method
 	  */
 	void addListener(SettingListener* listener);
 
 	/** Unsubscribes a listener to changes of this setting.
+	  * TODO: remove, it's just a wrapper for the base class method
 	  */
 	void removeListener(SettingListener* listener);
 
@@ -79,8 +82,6 @@ protected:
 	        const std::string& description, SaveSetting save);
 	virtual ~Setting();
 
-	/** Notify all listeners of a change to this setting's value.
-	  */
 	void notify() const;
 
 private:
@@ -93,12 +94,6 @@ private:
 	/** A description of this setting that can be presented to the user.
 	  */
 	std::string description;
-
-	/** Collection of all listeners
-	 */
-	typedef std::vector<SettingListener*> Listeners;
-	Listeners listeners;
-	mutable int notifyInProgress;
 
 	/** need to be saved flag
 	 */
