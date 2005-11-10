@@ -1,8 +1,6 @@
 // $Id$
 
-#include <memory>
 #include "CassettePort.hh"
-#include "CassetteDevice.hh"
 #include "CassettePlayer.hh"
 #include "components.hh"
 #ifdef COMPONENT_JACK
@@ -11,7 +9,7 @@
 #include "DummyCassetteDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "PluggingController.hh"
-#include "HardwareConfig.hh"
+#include <memory>
 
 using std::auto_ptr;
 using std::string;
@@ -36,7 +34,7 @@ const string& CassettePortInterface::getDescription() const
 	return desc;
 }
 
-const string &CassettePortInterface::getClass() const
+const string& CassettePortInterface::getClass() const
 {
 	static const string className("Cassette Port");
 	return className;
@@ -120,7 +118,7 @@ void CassettePort::cassetteOut(bool output, const EmuTime& time)
 
 bool CassettePort::lastOut() const
 {
-  return lastOutput;
+	return lastOutput;
 }
 
 bool CassettePort::cassetteIn(const EmuTime& time)
@@ -133,4 +131,5 @@ bool CassettePort::cassetteIn(const EmuTime& time)
 	//PRT_DEBUG("CassettePort:: read " << result);
 	return result;
 }
+
 } // namespace openmsx

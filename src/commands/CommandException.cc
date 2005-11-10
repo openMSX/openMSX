@@ -10,16 +10,8 @@ CommandException::CommandException(const std::string& desc)
 {
 }
 
-CommandException::~CommandException()
-{
-}
-
 SyntaxError::SyntaxError()
 	: CommandException("Syntax error")
-{
-}
-
-SyntaxError::~SyntaxError()
 {
 }
 

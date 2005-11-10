@@ -38,7 +38,6 @@
 #include "Scheduler.hh"
 #include "FileOperations.hh"
 #include "WavWriter.hh"
-#include "GlobalSettings.hh"
 #include "ThrottleManager.hh"
 #include <algorithm>
 #include <cstdlib>

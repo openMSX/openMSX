@@ -38,7 +38,6 @@ CasImage::CasImage(const string& fileName)
 	buf = file.mmap();
 	pos = 0;
 	convert();
-	file.munmap();
 }
 
 CasImage::~CasImage()

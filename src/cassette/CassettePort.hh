@@ -3,11 +3,11 @@
 #ifndef CASSETTEPORT_HH
 #define CASSETTEPORT_HH
 
-#include <memory>
-#include "EmuTime.hh"
 #include "Connector.hh"
 #include "CassetteDevice.hh"
+#include "EmuTime.hh"
 #include "components.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -38,11 +38,11 @@ public:
 	*/
 	virtual void cassetteOut(bool output, const EmuTime& time) = 0;
 
-    /**
-    * last bit written to CasOut.
-    * for use in Pluggable::plugHelper()
-    */
-    virtual bool lastOut() const = 0;
+	/**
+	 * last bit written to CasOut.
+	 * for use in Pluggable::plugHelper()
+	 */
+	virtual bool lastOut() const = 0;
 
 	/**
 	* Reads one bit from the cassette port.
