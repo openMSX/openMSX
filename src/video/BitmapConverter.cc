@@ -3,10 +3,6 @@
 #include "BitmapConverter.hh"
 #include "GLUtil.hh"
 
-// We need this for the template instantiation required by SDLRasterizer.
-#include <SDL.h>
-
-
 namespace openmsx {
 
 template <class Pixel>
@@ -143,21 +139,21 @@ void BitmapConverter<Pixel>::renderBogus(
 
 
 // Force template instantiation.
-template class BitmapConverter<Uint16>;
-template class BitmapConverter<Uint32>;
+template class BitmapConverter<word>;
+template class BitmapConverter<unsigned>;
 
 #ifdef COMPONENT_GL
-// The type "GLuint" can be either be equivalent to "Uint16", "Uint32" or still
+// The type "GLuint" can be either be equivalent to "word", "unsigned" or still
 // some completely other type. In the later case we need to expand the
 // BitmapConverter<GLuint> template, in the two former cases it is an error to
 // expand it again (it is already instantiated above).
 // The following piece of template metaprogramming takes care of this.
 
 class NoExpansion {};
-// ExpandFilter<T>::type = (T == Uint32 || T == Uint16) ? NoExpansion : T
+// ExpandFilter<T>::type = (T == word || T == unsigned) ? NoExpansion : T
 template<class T> class ExpandFilter  { typedef T           type; };
-template<> class ExpandFilter<Uint16> { typedef NoExpansion type; };
-template<> class ExpandFilter<Uint32> { typedef NoExpansion type; };
+template<> class ExpandFilter<word>     { typedef NoExpansion type; };
+template<> class ExpandFilter<unsigned> { typedef NoExpansion type; };
 
 template<> class BitmapConverter<NoExpansion> {};
 template class BitmapConverter<ExpandFilter<GLuint>::type>;

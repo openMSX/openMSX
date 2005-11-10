@@ -38,10 +38,6 @@ TODO:
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 
-// We need this for the template instantiation required by SDLRasterizer.
-#include <SDL.h>
-
-
 namespace openmsx {
 
 template <class Pixel>
@@ -332,21 +328,21 @@ void CharacterConverter<Pixel>::renderBogus(
 
 
 // Force template instantiation.
-template class CharacterConverter<Uint16>;
-template class CharacterConverter<Uint32>;
+template class CharacterConverter<word>;
+template class CharacterConverter<unsigned>;
 
 #ifdef COMPONENT_GL
-// The type "GLuint" can be either be equivalent to "Uint16", "Uint32" or still
+// The type "GLuint" can be either be equivalent to "word", "unsigned" or still
 // some completely other type. In the later case we need to expand the
 // CharacterConverter<GLuint> template, in the two former cases it is an error
 // to expand it again (it is already instantiated above).
 // The following piece of template metaprogramming takes care of this.
 
 class NoExpansion {};
-// ExpandFilter<T>::type = (T == Uint32 || T == Uint16) ? NoExpansion : T
+// ExpandFilter<T>::type = (T == unsigned || T == word) ? NoExpansion : T
 template<class T> class ExpandFilter  { typedef T           type; };
-template<> class ExpandFilter<Uint16> { typedef NoExpansion type; };
-template<> class ExpandFilter<Uint32> { typedef NoExpansion type; };
+template<> class ExpandFilter<word>     { typedef NoExpansion type; };
+template<> class ExpandFilter<unsigned> { typedef NoExpansion type; };
 
 template<> class CharacterConverter<NoExpansion> {};
 template class CharacterConverter<ExpandFilter<GLuint>::type>;

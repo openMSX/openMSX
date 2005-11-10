@@ -4,7 +4,6 @@
 #define BITMAPCONVERTER_HH
 
 #include "openmsx.hh"
-#include "Renderer.hh"
 #include "DisplayMode.hh"
 
 namespace openmsx {

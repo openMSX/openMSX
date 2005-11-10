@@ -3,11 +3,9 @@
 #ifndef CHARACTERCONVERTER_HH
 #define CHARACTERCONVERTER_HH
 
-#include <cassert>
-#include <bitset>
-#include "openmsx.hh"
-#include "Renderer.hh"
 #include "DisplayMode.hh"
+#include "openmsx.hh"
+#include <bitset>
 
 namespace openmsx {
 
@@ -137,7 +135,7 @@ public:
 
 private:
 	typedef void (CharacterConverter::*RenderMethod)
-		(Pixel *pixelPtr, int line);
+		(Pixel* pixelPtr, int line);
 
 	/** RenderMethods for each display mode.
 	  */
