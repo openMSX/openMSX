@@ -82,6 +82,11 @@ protected:
 	        const std::string& description, SaveSetting save);
 	virtual ~Setting();
 
+	/** Notify all listeners of a change to this setting's value.
+	  * Still needed, because it also informs the CliComm stuff that there
+	  * was an update, next to calling the normal notify implementation of
+	  * the Subject class.
+	  */
 	void notify() const;
 
 private:
