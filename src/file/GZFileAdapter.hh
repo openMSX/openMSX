@@ -3,7 +3,6 @@
 #ifndef GZFILEADAPTER_HH
 #define GZFILEADAPTER_HH
 
-#include <zlib.h>
 #include "CompressedFileAdapter.hh"
 
 namespace openmsx {
@@ -15,10 +14,6 @@ public:
 
 protected:
 	virtual void decompress();
-
-private:
-	bool skipHeader(z_stream& s);
-	byte getByte(z_stream &s);
 };
 
 } // namespace openmsx

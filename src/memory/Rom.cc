@@ -195,9 +195,6 @@ Rom::~Rom()
 	if (size) {
 		motherBoard.getDebugger().unregisterDebuggable(name, *this);
 	}
-	if (file.get()) {
-		file->munmap();
-	}
 	delete[] extendedRom;
 }
 

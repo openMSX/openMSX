@@ -3,8 +3,6 @@
 #include "KeyJoystick.hh"
 #include "UserInputEventDistributor.hh"
 #include "KeyCodeSetting.hh"
-#include "SettingsConfig.hh"
-#include "CliComm.hh"
 #include "InputEvents.hh"
 #include <cassert>
 #include <iostream>
@@ -96,8 +94,7 @@ void KeyJoystick::signalEvent(const UserInputEvent& event)
 	case OPENMSX_EMU_KEY_UP_EVENT: {
 		assert(dynamic_cast<const EmuKeyEvent*>(&event));
 		Keys::KeyCode key = (Keys::KeyCode)(
-			(int)((EmuKeyEvent&)event).getKeyCode() & (int)Keys::K_MASK
-			);
+			(int)((EmuKeyEvent&)event).getKeyCode() & (int)Keys::K_MASK);
 		if (event.getType() == OPENMSX_EMU_KEY_DOWN_EVENT) {
 			if      (key == up->getValue())    status &= ~JOY_UP;
 			else if (key == down->getValue())  status &= ~JOY_DOWN;

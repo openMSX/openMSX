@@ -9,7 +9,7 @@ using std::string;
 namespace openmsx {
 
 JoystickPort::JoystickPort(PluggingController& pluggingController_,
-                           const string &name)
+                           const string& name)
 	: Connector(name, std::auto_ptr<Pluggable>(new DummyJoystick()))
 	, pluggingController(pluggingController_)
 	, lastValue(255) // != 0
@@ -39,18 +39,18 @@ JoystickDevice& JoystickPort::getPlugged() const
 	return static_cast<JoystickDevice&>(*plugged);
 }
 
-void JoystickPort::plug(Pluggable *device, const EmuTime &time)
+void JoystickPort::plug(Pluggable* device, const EmuTime& time)
 {
 	Connector::plug(device, time);
 	getPlugged().write(lastValue, time);
 }
 
-byte JoystickPort::read(const EmuTime &time)
+byte JoystickPort::read(const EmuTime& time)
 {
 	return getPlugged().read(time);
 }
 
-void JoystickPort::write(byte value, const EmuTime &time)
+void JoystickPort::write(byte value, const EmuTime& time)
 {
 	if (lastValue != value) {
 		lastValue = value;

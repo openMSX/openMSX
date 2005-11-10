@@ -1,8 +1,9 @@
 // $Id$
 
-#include <cassert>
 #include "GZFileAdapter.hh"
 #include "FileException.hh"
+#include <cassert>
+#include <zlib.h>
 
 namespace openmsx {
 
@@ -19,49 +20,14 @@ GZFileAdapter::GZFileAdapter(std::auto_ptr<FileBase> file_)
 {
 }
 
-void GZFileAdapter::decompress()
+static byte getByte(z_stream &s)
 {
-	int inputSize = file->getSize();
-	byte* inputBuf = file->mmap();
-
-	z_stream s;
-	s.zalloc = 0;
-	s.zfree = 0;
-	s.opaque = 0;
-	s.next_in  = inputBuf;
-	s.avail_in = inputSize;
-	if (!skipHeader(s)) {
-		throw FileException("Not a gzip header");
-	}
-
-	inflateInit2(&s, -MAX_WBITS);
-
-	size = 64 * 1024;	// initial buffer size
-	buf = (byte*)malloc(size);
-	while (true) {
-		s.next_out = buf + s.total_out;
-		s.avail_out = size - s.total_out;
-		int err = inflate(&s, Z_NO_FLUSH);
-		if (err == Z_STREAM_END) {
-			break;
-		}
-		if (err != Z_OK) {
-			free(buf);
-			buf = 0;
-			throw FileException("Error decompressing gzip");
-		}
-		size *= 2;	// double buffer size
-		buf = (byte*)realloc(buf, size);
-	}
-	size = s.total_out;
-	buf = (byte*)realloc(buf, size);	// free unused space in buf
-
-	inflateEnd(&s);
-
-	file->munmap();
+	assert(s.avail_in);
+	--s.avail_in;
+	return *(s.next_in++);
 }
 
-bool GZFileAdapter::skipHeader(z_stream& s)
+static bool skipHeader(z_stream& s, std::string& originalName)
 {
 	// check magic bytes
 	if ((getByte(s) != 0x1F) || (getByte(s) != 0x8B)) {
@@ -105,11 +71,46 @@ bool GZFileAdapter::skipHeader(z_stream& s)
 	return true;
 }
 
-byte GZFileAdapter::getByte(z_stream &s)
+void GZFileAdapter::decompress()
 {
-	assert(s.avail_in);
-	--s.avail_in;
-	return *(s.next_in++);
+	int inputSize = file->getSize();
+	byte* inputBuf = file->mmap();
+
+	z_stream s;
+	s.zalloc = 0;
+	s.zfree = 0;
+	s.opaque = 0;
+	s.next_in  = inputBuf;
+	s.avail_in = inputSize;
+	if (!skipHeader(s, originalName)) {
+		throw FileException("Not a gzip header");
+	}
+
+	inflateInit2(&s, -MAX_WBITS);
+
+	size = 64 * 1024;	// initial buffer size
+	buf = (byte*)malloc(size);
+	while (true) {
+		s.next_out = buf + s.total_out;
+		s.avail_out = size - s.total_out;
+		int err = inflate(&s, Z_NO_FLUSH);
+		if (err == Z_STREAM_END) {
+			break;
+		}
+		if (err != Z_OK) {
+			free(buf);
+			buf = 0;
+			throw FileException("Error decompressing gzip");
+		}
+		size *= 2;	// double buffer size
+		buf = (byte*)realloc(buf, size);
+	}
+	size = s.total_out;
+	buf = (byte*)realloc(buf, size);	// free unused space in buf
+
+	inflateEnd(&s);
+
+	file->munmap();
 }
 
 } // namespace openmsx

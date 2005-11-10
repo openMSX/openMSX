@@ -69,7 +69,6 @@ void Keyboard::loadKeymapfile(const string& filename)
 		File file(filename);
 		byte* buf = file.mmap();
 		parseKeymapfile(buf, file.getSize());
-		file.munmap();
 	} catch (FileException &e) {
 		throw FatalError("Couldn't load keymap file: " + filename);
 	}
