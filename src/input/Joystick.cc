@@ -145,7 +145,7 @@ void Joystick::signalEvent(const Event& event)
 		assert(dynamic_cast<const JoystickButtonEvent*>(&event));
 		const JoystickButtonEvent& buttonEvent =
 			static_cast<const JoystickButtonEvent&>(event);
-		switch (buttonEvent.getButton()) {
+		switch (buttonEvent.getButton() % 2) {
 		case 0:
 			status &= ~JOY_BUTTONA;
 			break;
@@ -162,7 +162,7 @@ void Joystick::signalEvent(const Event& event)
 		assert(dynamic_cast<const JoystickButtonEvent*>(&event));
 		const JoystickButtonEvent& buttonEvent =
 			static_cast<const JoystickButtonEvent&>(event);
-		switch (buttonEvent.getButton()) {
+		switch (buttonEvent.getButton() % 2) {
 		case 0:
 			status |= JOY_BUTTONA;
 			break;

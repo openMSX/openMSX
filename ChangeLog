@@ -1,5 +1,11 @@
 $Id$
 
+2005-11-10 Maarten ter Huurne <maarten@treewalker.org>
+	* Map all even numbered joystick buttons to trig A and all odd numbered
+	  joystick buttons to trig B. Before, button 0 was mapped trig A and
+	  button 1 was mapped to trig B and if those buttons were not present
+	  or not easy to use on your joypad, you were out of luck.
+
 2005-11-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Renamed scaleMxNtoXxY() methods in LowSCaler and 3x Scalers:
 	   old named didn't take overscan into account
@@ -8,7 +14,7 @@ $Id$
 
 2005-11-05 Manuel Bilderbeek <manuel@msxnet.org>
 	* More intelligent 'loading' check for disk drive; if there is no head
-	  movement for a while, we assume loading stopped. Works much better 
+	  movement for a while, we assume loading stopped. Works much better
 	  for software that doesn't turn off the motor. The timeout is set to
 	  one second for now. This may need some tuning still.
 
@@ -26,7 +32,7 @@ $Id$
 	  that the MSX is loading from disk or cassette. It's still a bit dumb
 	  for disk as it syncs the motor status... Also, some stuff like
 	  RealTime and sound drivers want to get informed if the speed of the
-	  emulation changes. This is not passed yet when openMSX goes to 
+	  emulation changes. This is not passed yet when openMSX goes to
 	  full speed due to this new setting. Default is still 'off', of
 	  course. Please test this and improve it :P
 
