@@ -63,6 +63,7 @@ std::auto_ptr<Layer> SDLOutputSurface::createSnowLayer()
 		return std::auto_ptr<Layer>(new SDLSnow<Uint32>(surface));
 	default:
 		assert(false);
+		return std::auto_ptr<Layer>(); // avoid warning
 	}
 }
 
