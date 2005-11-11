@@ -30,18 +30,6 @@ void Setting::notify() const
 	                           getValueString());
 }
 
-void Setting::addListener(SettingListener* listener)
-{
-	// TODO: remove this method, it's just a wrapper for a base class method
-	Subject<Setting>::attach(*listener);
-}
-
-void Setting::removeListener(SettingListener* listener)
-{
-	// TODO: remove this method, it's just a wrapper for a base class method
-	Subject<Setting>::detach(*listener);
-}
-
 bool Setting::needLoadSave() const
 {
 	return save;

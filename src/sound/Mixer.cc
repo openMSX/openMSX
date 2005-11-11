@@ -71,12 +71,12 @@ Mixer::Mixer(Scheduler& scheduler_, CommandController& commandController_)
 		"select the sound output driver",
 		defaultSoundDriver, soundDriverMap));
 
-	muteSetting->addListener(this);
-	masterVolume->addListener(this);
-	frequencySetting->addListener(this);
-	samplesSetting->addListener(this);
-	soundDriverSetting->addListener(this);
-	pauseSetting.addListener(this);
+	muteSetting->attach(*this);
+	masterVolume->attach(*this);
+	frequencySetting->attach(*this);
+	samplesSetting->attach(*this);
+	soundDriverSetting->attach(*this);
+	pauseSetting.attach(*this);
 
 	// Set correct initial mute state.
 	if (muteSetting->getValue()) ++muteCount;
@@ -92,12 +92,12 @@ Mixer::~Mixer()
 
 	driver.reset();
 
-	pauseSetting.removeListener(this);
-	soundDriverSetting->removeListener(this);
-	samplesSetting->removeListener(this);
-	frequencySetting->removeListener(this);
-	masterVolume->removeListener(this);
-	muteSetting->removeListener(this);
+	pauseSetting.detach(*this);
+	soundDriverSetting->detach(*this);
+	samplesSetting->detach(*this);
+	frequencySetting->detach(*this);
+	masterVolume->detach(*this);
+	muteSetting->detach(*this);
 }
 
 
@@ -181,8 +181,8 @@ void Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 
 	info.mode = mode;
 	info.normalVolume = (volume * 100 * 100) / (75 * 75);
-	info.modeSetting->addListener(this);
-	info.volumeSetting->addListener(this);
+	info.modeSetting->attach(*this);
+	info.volumeSetting->attach(*this);
 	infos[&device] = info;
 
 	lock();
@@ -208,9 +208,9 @@ void Mixer::unregisterSound(SoundDevice& device)
 	ChannelMode mode = it->second.mode;
 	vector<SoundDevice*> &dev = devices[mode];
 	dev.erase(remove(dev.begin(), dev.end(), &device), dev.end());
-	it->second.volumeSetting->removeListener(this);
+	it->second.volumeSetting->detach(*this);
 	delete it->second.volumeSetting;
-	it->second.modeSetting->removeListener(this);
+	it->second.modeSetting->detach(*this);
 	delete it->second.modeSetting;
 	infos.erase(it);
 

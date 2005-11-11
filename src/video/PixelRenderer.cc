@@ -125,14 +125,14 @@ PixelRenderer::PixelRenderer(VDP& vdp_)
 	displayEnabled = vdp.isDisplayEnabled();
 	rasterizer->reset();
 
-	renderSettings.getMaxFrameSkip().addListener(this);
-	renderSettings.getMinFrameSkip().addListener(this);
+	renderSettings.getMaxFrameSkip().attach(*this);
+	renderSettings.getMinFrameSkip().attach(*this);
 }
 
 PixelRenderer::~PixelRenderer()
 {
-	renderSettings.getMinFrameSkip().removeListener(this);
-	renderSettings.getMaxFrameSkip().removeListener(this);
+	renderSettings.getMinFrameSkip().detach(*this);
+	renderSettings.getMaxFrameSkip().detach(*this);
 }
 
 void PixelRenderer::reset(const EmuTime& time)

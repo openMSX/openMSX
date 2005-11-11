@@ -55,16 +55,6 @@ public:
 	  */
 	virtual void tabCompletion(std::vector<std::string>& tokens) const = 0;
 
-	/** Subscribes a listener to changes of this setting.
-	  * TODO: remove, it's just a wrapper for the base class method
-	  */
-	void addListener(SettingListener* listener);
-
-	/** Unsubscribes a listener to changes of this setting.
-	  * TODO: remove, it's just a wrapper for the base class method
-	  */
-	void removeListener(SettingListener* listener);
-
 	/** Needs this setting to be loaded or saved
 	  */
 	bool needLoadSave() const;

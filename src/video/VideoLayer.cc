@@ -25,14 +25,14 @@ VideoLayer::VideoLayer(VideoSource videoSource_,
 	setZ(calcZ());
 	display.addLayer(*this);
 
-	videoSourceSetting.addListener(this);
-	powerSetting.addListener(this);
+	videoSourceSetting.attach(*this);
+	powerSetting.attach(*this);
 }
 
 VideoLayer::~VideoLayer()
 {
-	powerSetting.removeListener(this);
-	videoSourceSetting.removeListener(this);
+	powerSetting.detach(*this);
+	videoSourceSetting.detach(*this);
 
 	display.removeLayer(*this);
 }

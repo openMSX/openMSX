@@ -59,18 +59,18 @@ Display::Display(MSXMotherBoard& motherboard_)
 	eventDistributor.registerEventListener(OPENMSX_SWITCH_RENDERER_EVENT,
 			*this, EventDistributor::DETACHED);
 
-	renderSettings.getRenderer().addListener(this);
-	renderSettings.getFullScreen().addListener(this);
-	renderSettings.getScaler().addListener(this);
-	renderSettings.getVideoSource().addListener(this);
+	renderSettings.getRenderer().attach(*this);
+	renderSettings.getFullScreen().attach(*this);
+	renderSettings.getScaler().attach(*this);
+	renderSettings.getVideoSource().attach(*this);
 }
 
 Display::~Display()
 {
-	renderSettings.getRenderer().removeListener(this);
-	renderSettings.getFullScreen().removeListener(this);
-	renderSettings.getScaler().removeListener(this);
-	renderSettings.getVideoSource().removeListener(this);
+	renderSettings.getRenderer().detach(*this);
+	renderSettings.getFullScreen().detach(*this);
+	renderSettings.getScaler().detach(*this);
+	renderSettings.getVideoSource().detach(*this);
 
 	EventDistributor& eventDistributor = motherboard.getEventDistributor();
 	eventDistributor.unregisterEventListener(OPENMSX_SWITCH_RENDERER_EVENT,

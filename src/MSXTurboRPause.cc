@@ -17,13 +17,13 @@ MSXTurboRPause::MSXTurboRPause(MSXMotherBoard& motherBoard,
 	, turboLed(false)
 	, hwPause(false)
 {
-	pauseSetting.addListener(this);
+	pauseSetting.attach(*this);
 	reset(time);
 }
 
 MSXTurboRPause::~MSXTurboRPause()
 {
-	pauseSetting.removeListener(this);
+	pauseSetting.detach(*this);
 }
 
 void MSXTurboRPause::reset(const EmuTime& time)

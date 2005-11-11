@@ -48,12 +48,12 @@ MSXMotherBoard::MSXMotherBoard()
 	, powerSetting(getCommandController().getGlobalSettings().getPowerSetting())
 {
 	getMixer().mute(); // powered down
-	powerSetting.addListener(this);
+	powerSetting.attach(*this);
 }
 
 MSXMotherBoard::~MSXMotherBoard()
 {
-	powerSetting.removeListener(this);
+	powerSetting.detach(*this);
 
 	// Destroy emulated MSX machine.
 	for (Devices::iterator it = availableDevices.begin();

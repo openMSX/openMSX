@@ -25,7 +25,7 @@ InputEventGenerator::InputEventGenerator(Scheduler& scheduler,
 	, eventDistributor(eventDistributor_)
 {
 	setGrabInput(grabInput->getValue());
-	grabInput->addListener(this);
+	grabInput->attach(*this);
 	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this,
 	                                  EventDistributor::DETACHED);
 
@@ -36,7 +36,7 @@ InputEventGenerator::~InputEventGenerator()
 {
 	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this,
 	                                  EventDistributor::DETACHED);
-	grabInput->removeListener(this);
+	grabInput->detach(*this);
 }
 
 void InputEventGenerator::reinit()

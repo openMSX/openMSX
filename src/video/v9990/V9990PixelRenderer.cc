@@ -32,14 +32,14 @@ V9990PixelRenderer::V9990PixelRenderer(V9990& vdp_)
 
 	reset(vdp.getMotherBoard().getScheduler().getCurrentTime());
 
-	renderSettings.getMaxFrameSkip().addListener(this);
-	renderSettings.getMinFrameSkip().addListener(this);
+	renderSettings.getMaxFrameSkip().attach(*this);
+	renderSettings.getMinFrameSkip().attach(*this);
 }
 
 V9990PixelRenderer::~V9990PixelRenderer()
 {
-	renderSettings.getMaxFrameSkip().removeListener(this);
-	renderSettings.getMinFrameSkip().removeListener(this);
+	renderSettings.getMaxFrameSkip().detach(*this);
+	renderSettings.getMinFrameSkip().detach(*this);
 }
 
 void V9990PixelRenderer::reset(const EmuTime& time)

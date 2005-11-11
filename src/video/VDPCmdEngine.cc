@@ -365,12 +365,12 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_)
 	brokenTiming = false;
 	statusChangeTime = EmuTime::infinity;
 
-	vdp.getMotherBoard().getRenderSettings().getCmdTiming().addListener(this);
+	vdp.getMotherBoard().getRenderSettings().getCmdTiming().attach(*this);
 }
 
 VDPCmdEngine::~VDPCmdEngine()
 {
-	vdp.getMotherBoard().getRenderSettings().getCmdTiming().removeListener(this);
+	vdp.getMotherBoard().getRenderSettings().getCmdTiming().detach(*this);
 
 	// Abort command:
 	delete commands[0][0];

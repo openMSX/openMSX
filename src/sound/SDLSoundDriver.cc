@@ -56,14 +56,14 @@ SDLSoundDriver::SDLSoundDriver(Scheduler& scheduler, GlobalSettings& globalSetti
 	EmuDuration interval2 = interval1 * audioSpec.samples;
 	setSyncPoint(prevTime + interval2);
 
-	speedSetting.addListener(this);
-	throttleSetting.addListener(this);
+	speedSetting.attach(*this);
+	throttleSetting.attach(*this);
 }
 
 SDLSoundDriver::~SDLSoundDriver()
 {
-	throttleSetting.removeListener(this);
-	speedSetting.removeListener(this);
+	throttleSetting.detach(*this);
+	speedSetting.detach(*this);
 
 	removeSyncPoint();
 	delete[] mixBuffer;

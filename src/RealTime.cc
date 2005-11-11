@@ -31,10 +31,10 @@ RealTime::RealTime(Scheduler& scheduler, EventDistributor& eventDistributor_,
 	, pauseSetting   (globalSettings.getPauseSetting())
 	, powerSetting   (globalSettings.getPowerSetting())
 {
-	speedSetting.addListener(this);
-	throttleSetting.addListener(this);
-	pauseSetting.addListener(this);
-	powerSetting.addListener(this);
+	speedSetting.attach(*this);
+	throttleSetting.attach(*this);
+	pauseSetting.attach(*this);
+	powerSetting.attach(*this);
 
 	setSyncPoint(Scheduler::ASAP);
 
@@ -45,10 +45,10 @@ RealTime::~RealTime()
 {
 	removeSyncPoint();
 
-	powerSetting.removeListener(this);
-	pauseSetting.removeListener(this);
-	throttleSetting.removeListener(this);
-	speedSetting.removeListener(this);
+	powerSetting.detach(*this);
+	pauseSetting.detach(*this);
+	throttleSetting.detach(*this);
+	speedSetting.detach(*this);
 }
 
 double RealTime::getRealDuration(const EmuTime& time1, const EmuTime& time2)

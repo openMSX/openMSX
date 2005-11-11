@@ -41,13 +41,13 @@ OSDConsoleRenderer::OSDConsoleRenderer(MSXMotherBoard& motherBoard_)
 	active = false;
 	time = 0;
 	setCoverage(COVER_PARTIAL);
-	consoleSetting.addListener(this);
+	consoleSetting.attach(*this);
 	setActive(consoleSetting.getValue());
 }
 
 OSDConsoleRenderer::~OSDConsoleRenderer()
 {
-	consoleSetting.removeListener(this);
+	consoleSetting.detach(*this);
 	setActive(false);
 }
 

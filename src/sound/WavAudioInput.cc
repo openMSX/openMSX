@@ -18,13 +18,13 @@ WavAudioInput::WavAudioInput(CommandController& commandController)
 		"filename of the file where the sampler reads data from",
 		"audio-input.wav"))
 {
-	audioInputFilenameSetting->addListener(this);
+	audioInputFilenameSetting->attach(*this);
 }
 
 
 WavAudioInput::~WavAudioInput()
 {
-	audioInputFilenameSetting->removeListener(this);
+	audioInputFilenameSetting->detach(*this);
 	freeWave();
 }
 

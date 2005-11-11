@@ -33,12 +33,12 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	activeCPU = z80.get();	// setActiveCPU(CPU_Z80);
 
 	motherboard.getDebugger().setCPU(this);
-	traceSetting->addListener(this);
+	traceSetting->attach(*this);
 }
 
 MSXCPU::~MSXCPU()
 {
-	traceSetting->removeListener(this);
+	traceSetting->detach(*this);
 	motherboard.getDebugger().setCPU(0);
 }
 

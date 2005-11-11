@@ -22,12 +22,12 @@ Autofire::Autofire(CommandController& commandController,
 	}
 	setClock();
 
-	speedSetting->addListener(this);
+	speedSetting->attach(*this);
 }
 
 Autofire::~Autofire()
 {
-	speedSetting->removeListener(this);
+	speedSetting->detach(*this);
 }
 
 void Autofire::setClock()

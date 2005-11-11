@@ -139,14 +139,14 @@ DirectXSoundDriver::DirectXSoundDriver(Scheduler& scheduler,
 	EmuDuration interval2 = interval1 * fragmentSize;
 	setSyncPoint(prevTime + interval2);
 
-	speedSetting.addListener(this);
-	throttleSetting.addListener(this);
+	speedSetting.attach(*this);
+	throttleSetting.attach(*this);
 }
 
 DirectXSoundDriver::~DirectXSoundDriver()
 {
-	throttleSetting.removeListener(this);
-	speedSetting.removeListener(this);
+	throttleSetting.detach(*this);
+	speedSetting.detach(*this);
 
 	removeSyncPoint();
 	delete[] mixBuffer;

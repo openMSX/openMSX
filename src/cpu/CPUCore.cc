@@ -51,15 +51,15 @@ template <class T> CPUCore<T>::CPUCore(
 		T::clock.setFreq(freqValue->getValue());
 	}
 
-	freqLocked->addListener(this);
-	freqValue->addListener(this);
+	freqLocked->attach(*this);
+	freqValue->attach(*this);
 	doReset(time);
 }
 
 template <class T> CPUCore<T>::~CPUCore()
 {
-	freqValue->removeListener(this);
-	freqLocked->removeListener(this);
+	freqValue->detach(*this);
+	freqLocked->detach(*this);
 }
 
 template <class T> void CPUCore<T>::setInterface(MSXCPUInterface* interf)

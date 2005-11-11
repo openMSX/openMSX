@@ -29,7 +29,7 @@ Reactor::Reactor(MSXMotherBoard& motherBoard_)
 	, cliComm(motherBoard.getCliComm())
 	, quitCommand(motherBoard.getCommandController(), *this)
 {
-	pauseSetting.addListener(this);
+	pauseSetting.attach(*this);
 
 	motherBoard.getEventDistributor().registerEventListener(
 		OPENMSX_QUIT_EVENT, *this, EventDistributor::DETACHED);
@@ -40,7 +40,7 @@ Reactor::~Reactor()
 	motherBoard.getEventDistributor().unregisterEventListener(
 		OPENMSX_QUIT_EVENT, *this, EventDistributor::DETACHED);
 
-	pauseSetting.removeListener(this);
+	pauseSetting.detach(*this);
 }
 
 void Reactor::run(bool autoRun)
