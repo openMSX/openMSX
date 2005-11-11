@@ -352,9 +352,9 @@ const string& CassettePlayer::getDescription() const
 	return desc;
 }
 
-void CassettePlayer::plugHelper(Connector* connector, const EmuTime& time)
+void CassettePlayer::plugHelper(Connector& connector, const EmuTime& time)
 {
-	lastOutput = ((CassettePortInterface*)connector)->lastOut();
+	lastOutput = static_cast<CassettePortInterface&>(connector).lastOut();
 	updateAll(time);
 }
 

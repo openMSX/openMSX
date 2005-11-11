@@ -249,7 +249,7 @@ CassetteJack::getDescription() const
 	return desc;
 }
 void
-CassetteJack::plugHelper(Connector* connector, const EmuTime& time)
+CassetteJack::plugHelper(Connector& connector, const EmuTime& time)
 {
 	// TODO: handle errors gracefully
 	char name[sizeof "omsx-12345."];
@@ -267,7 +267,7 @@ CassetteJack::plugHelper(Connector* connector, const EmuTime& time)
 	bf_in= new BlockFifo(buf_fac,bufsize);
 	bf_out= new BlockFifo(buf_fac,bufsize);
 	assert(bf_in && bf_out);
-	_output=((CassettePortInterface*)connector)->lastOut();
+	_output = static_cast<CassettePortInterface&>(connector).lastOut();
 	basetime=prevtime=time;
 	sampcnt=0;
 	timestep=EmuDuration((double)bufsize/samplerate);

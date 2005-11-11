@@ -81,7 +81,7 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard)
 	cassettePlayer.reset(new CassettePlayer(
 		motherBoard.getCommandController(),
 		motherBoard.getMixer()));
-	pluggingController.registerConnector(this);
+	pluggingController.registerConnector(*this);
 	pluggingController.registerPluggable(cassettePlayer.get());
 #ifdef COMPONENT_JACK
 	cassetteJack.reset(new CassetteJack(motherBoard.getScheduler()));
@@ -96,7 +96,7 @@ CassettePort::~CassettePort()
 #ifdef COMPONENT_JACK
 	pluggingController.unregisterPluggable(cassetteJack.get());
 #endif
-	pluggingController.unregisterConnector(this);
+	pluggingController.unregisterConnector(*this);
 }
 
 

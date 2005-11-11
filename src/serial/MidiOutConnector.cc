@@ -13,12 +13,12 @@ MidiOutConnector::MidiOutConnector(PluggingController& pluggingController_,
 	: Connector(name, std::auto_ptr<Pluggable>(new DummyMidiOutDevice()))
 	, pluggingController(pluggingController_)
 {
-	pluggingController.registerConnector(this);
+	pluggingController.registerConnector(*this);
 }
 
 MidiOutConnector::~MidiOutConnector()
 {
-	pluggingController.unregisterConnector(this);
+	pluggingController.unregisterConnector(*this);
 }
 
 const string& MidiOutConnector::getDescription() const

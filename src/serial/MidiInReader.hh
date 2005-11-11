@@ -3,11 +3,11 @@
 #ifndef MIDIINREADER_HH
 #define MIDIINREADER_HH
 
-#include "openmsx.hh"
 #include "MidiInDevice.hh"
 #include "Thread.hh"
 #include "Schedulable.hh"
 #include "Semaphore.hh"
+#include "openmsx.hh"
 #include <cstdio>
 #include <deque>
 #include <memory>
@@ -24,7 +24,7 @@ public:
 	virtual ~MidiInReader();
 
 	// Pluggable
-	virtual void plugHelper(Connector* connector, const EmuTime& time);
+	virtual void plugHelper(Connector& connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 	virtual const std::string& getName() const;
 	virtual const std::string& getDescription() const;

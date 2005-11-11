@@ -46,20 +46,20 @@ MidiInNative::~MidiInNative()
 }
 
 // Pluggable
-void MidiInNative::plugHelper(Connector* connector_, const EmuTime& time)
+void MidiInNative::plugHelper(Connector& connector_, const EmuTime& time)
 {
 	devidx = w32_midiInOpen(name.c_str(), thrdid);
 	if (devidx == (unsigned)-1) {
 		throw PlugException("Failed to open " + name);
 	}
 
-	MidiInConnector* midiConnector = static_cast<MidiInConnector*>(connector_);
-	midiConnector->setDataBits(SerialDataInterface::DATA_8);	// 8 data bits
-	midiConnector->setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
-	midiConnector->setParityBit(false, SerialDataInterface::EVEN); // no parity
+	MidiInConnector& midiConnector = static_cast<MidiInConnector&>(connector_);
+	midiConnector.setDataBits(SerialDataInterface::DATA_8); // 8 data bits
+	midiConnector.setStopBits(SerialDataInterface::STOP_1); // 1 stop bit
+	midiConnector.setParityBit(false, SerialDataInterface::EVEN); // no parity
 
-	connector = connector_; // base class will do this in a moment,
-	                        // but thread already needs it
+	connector = &connector_; // base class will do this in a moment,
+	                         // but thread already needs it
 	thread.start();
 }
 

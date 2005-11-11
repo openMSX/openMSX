@@ -18,7 +18,7 @@ public:
 
 protected:
 	virtual const std::string& getDescription() const;
-	virtual void plugHelper(Connector* connector, const EmuTime& time);
+	virtual void plugHelper(Connector& connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 };
 
@@ -39,7 +39,7 @@ public:
 	// Connector
 	virtual const std::string& getDescription() const;
 	virtual const std::string& getClass() const;
-	virtual void plug(Pluggable* dev, const EmuTime& time);
+	virtual void plug(Pluggable& dev, const EmuTime& time);
 	virtual PrinterPortDevice& getPlugged() const;
 
 private:

@@ -5,7 +5,6 @@
 #include "KeyCodeSetting.hh"
 #include "InputEvents.hh"
 #include <cassert>
-#include <iostream>
 
 using std::string;
 
@@ -62,7 +61,7 @@ void KeyJoystick::allUp()
 	         JOY_BUTTONA | JOY_BUTTONB;
 }
 
-void KeyJoystick::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
+void KeyJoystick::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
 {
 }
 

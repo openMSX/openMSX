@@ -2,8 +2,6 @@
 
 #include "DummyJoystick.hh"
 
-using std::string;
-
 namespace openmsx {
 
 DummyJoystick::DummyJoystick()
@@ -25,13 +23,13 @@ void DummyJoystick::write(byte /*value*/, const EmuTime& /*time*/)
 	// do nothing
 }
 
-const string& DummyJoystick::getDescription() const
+const std::string& DummyJoystick::getDescription() const
 {
-	static const string EMPTY;
+	static const std::string EMPTY;
 	return EMPTY;
 }
 
-void DummyJoystick::plugHelper(Connector* /*connector*/,
+void DummyJoystick::plugHelper(Connector& /*connector*/,
                                const EmuTime& /*time*/)
 {
 }

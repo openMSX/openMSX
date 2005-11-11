@@ -45,7 +45,7 @@ const string& JoyNet::getDescription() const
 	return desc;
 }
 
-void JoyNet::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
+void JoyNet::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
 {
 }
 

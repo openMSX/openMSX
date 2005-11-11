@@ -53,20 +53,17 @@ PluggingController::~PluggingController()
 	}
 }
 
-void PluggingController::registerConnector(Connector* connector)
+void PluggingController::registerConnector(Connector& connector)
 {
-	connectors.push_back(connector);
+	connectors.push_back(&connector);
 }
 
-void PluggingController::unregisterConnector(Connector* connector)
+void PluggingController::unregisterConnector(Connector& connector)
 {
-	for (Connectors::iterator it = connectors.begin();
-	     it != connectors.end(); ++it) {
-		if ((*it) == connector) {
-			connectors.erase(it);
-			return;
-		}
-	}
+	Connectors::iterator it = find(connectors.begin(), connectors.end(),
+	                               &connector);
+	assert(it != connectors.end());
+	connectors.erase(it);
 }
 
 
@@ -99,7 +96,7 @@ PluggingController::PlugCmd::PlugCmd(CommandController& commandController,
 string PluggingController::PlugCmd::execute(const vector<string>& tokens)
 {
 	string result;
-	const EmuTime &time = pluggingController.scheduler.getCurrentTime();
+	const EmuTime& time = pluggingController.scheduler.getCurrentTime();
 	switch (tokens.size()) {
 	case 1: {
 		for (Connectors::const_iterator it =
@@ -135,7 +132,7 @@ string PluggingController::PlugCmd::execute(const vector<string>& tokens)
 		}
 		connector->unplug(time);
 		try {
-			connector->plug(pluggable, time);
+			connector->plug(*pluggable, time);
 			pluggingController.cliComm.update(
 				CliComm::PLUG, tokens[1], tokens[2]);
 		} catch (PlugException &e) {

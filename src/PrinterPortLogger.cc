@@ -1,11 +1,10 @@
 // $Id$
 
-#include <cassert>
 #include "PrinterPortLogger.hh"
-#include "FileContext.hh"
 #include "FileException.hh"
 #include "File.hh"
 #include "FilenameSetting.hh"
+#include <cassert>
 
 using std::string;
 
@@ -49,7 +48,8 @@ void PrinterPortLogger::writeData(byte data, const EmuTime& /*time*/)
 	toPrint = data;
 }
 
-void PrinterPortLogger::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
+void PrinterPortLogger::plugHelper(
+		Connector& /*connector*/, const EmuTime& /*time*/)
 {
 	try {
 		file.reset(new File(logFilenameSetting->getValue(), TRUNCATE));

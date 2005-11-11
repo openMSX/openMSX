@@ -3,8 +3,6 @@
 #include "MidiOutLogger.hh"
 #include "FilenameSetting.hh"
 
-using std::string;
-
 namespace openmsx {
 
 MidiOutLogger::MidiOutLogger(CommandController& commandController)
@@ -15,11 +13,7 @@ MidiOutLogger::MidiOutLogger(CommandController& commandController)
 {
 }
 
-MidiOutLogger::~MidiOutLogger()
-{
-}
-
-void MidiOutLogger::plugHelper(Connector* /*connector*/,
+void MidiOutLogger::plugHelper(Connector& /*connector*/,
                                const EmuTime& /*time*/)
 {
 	file.open(logFilenameSetting->getValue().c_str());
@@ -34,15 +28,15 @@ void MidiOutLogger::unplugHelper(const EmuTime& /*time*/)
 	file.close();
 }
 
-const string& MidiOutLogger::getName() const
+const std::string& MidiOutLogger::getName() const
 {
-	static const string name("midi-out-logger");
+	static const std::string name("midi-out-logger");
 	return name;
 }
 
-const string& MidiOutLogger::getDescription() const
+const std::string& MidiOutLogger::getDescription() const
 {
-	static const string desc(
+	static const std::string desc(
 		"Midi output logger. Log all data that is sent to this "
 		"pluggable to a file. The filename is set with the "
 		"'midi-out-logfilename' setting.");

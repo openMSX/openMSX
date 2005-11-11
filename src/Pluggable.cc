@@ -1,8 +1,8 @@
 // $Id$
 
-#include <cassert>
 #include "Pluggable.hh"
 #include "Connector.hh"
+#include <cassert>
 
 using std::string;
 
@@ -23,16 +23,16 @@ const string& Pluggable::getName() const
 	return name;
 }
 
-void Pluggable::plug(Connector* newConnector, const EmuTime& time)
+void Pluggable::plug(Connector& newConnector, const EmuTime& time)
 {
-	assert(getClass() == newConnector->getClass());
+	assert(getClass() == newConnector.getClass());
 
 	if (connector) {
 		throw PlugException(getName() + " already plugged in " +
 		                    connector->getName() + ".");
 	}
 	plugHelper(newConnector, time);
-	connector = newConnector;
+	connector = &newConnector;
 }
 
 void Pluggable::unplug(const EmuTime& time)

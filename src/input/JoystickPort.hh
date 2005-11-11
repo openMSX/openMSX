@@ -3,9 +3,9 @@
 #ifndef JOYSTICKPORT_HH
 #define JOYSTICKPORT_HH
 
-#include "openmsx.hh"
 #include "Connector.hh"
 #include "JoystickDevice.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 
@@ -21,7 +21,7 @@ public:
 	// Connector
 	virtual const std::string& getDescription() const;
 	virtual const std::string& getClass() const;
-	virtual void plug(Pluggable* device, const EmuTime& time);
+	virtual void plug(Pluggable& device, const EmuTime& time);
 	virtual JoystickDevice& getPlugged() const;
 
 	byte read(const EmuTime& time);

@@ -1,11 +1,10 @@
 // $Id$
 
-#include <cassert>
-#include <SDL.h>	// TODO move this
 #include "Joystick.hh"
 #include "PluggingController.hh"
 #include "EventDistributor.hh"
 #include "InputEvents.hh"
+#include <cassert>
 
 using std::string;
 
@@ -16,7 +15,7 @@ void Joystick::registerAll(EventDistributor& eventDistributor,
 {
 	if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
 		SDL_InitSubSystem(SDL_INIT_JOYSTICK);
-		SDL_JoystickEventState(SDL_ENABLE);	// joysticks generate events
+		SDL_JoystickEventState(SDL_ENABLE); // joysticks generate events
 	}
 
 	unsigned numJoysticks = SDL_NumJoysticks();
@@ -50,7 +49,7 @@ const string& Joystick::getDescription() const
 	return desc;
 }
 
-void Joystick::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
+void Joystick::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
 {
 	PRT_DEBUG("Opening joystick " << SDL_JoystickName(joyNum));
 	joystick = SDL_JoystickOpen(joyNum);

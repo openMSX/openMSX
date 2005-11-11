@@ -2,21 +2,15 @@
 
 #include "DummyAudioInputDevice.hh"
 
-using std::string;
-
 namespace openmsx {
 
-DummyAudioInputDevice::DummyAudioInputDevice()
+const std::string& DummyAudioInputDevice::getDescription() const
 {
-}
-
-const string& DummyAudioInputDevice::getDescription() const
-{
-	static const string EMPTY;
+	static const std::string EMPTY;
 	return EMPTY;
 }
 
-void DummyAudioInputDevice::plugHelper(Connector* /*connector*/,
+void DummyAudioInputDevice::plugHelper(Connector& /*connector*/,
                                        const EmuTime& /*time*/)
 {
 }
@@ -27,7 +21,7 @@ void DummyAudioInputDevice::unplugHelper(const EmuTime& /*time*/)
 
 short DummyAudioInputDevice::readSample(const EmuTime& /*time*/)
 {
-	return 0;	// silence
+	return 0; // silence
 }
 
 } // namespace openmsx

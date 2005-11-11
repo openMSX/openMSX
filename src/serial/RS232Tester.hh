@@ -3,11 +3,11 @@
 #ifndef RS232TESTER_HH
 #define RS232TESTER_HH
 
-#include "openmsx.hh"
 #include "RS232Device.hh"
 #include "Thread.hh"
 #include "Schedulable.hh"
 #include "Semaphore.hh"
+#include "openmsx.hh"
 #include <fstream>
 #include <cstdio>
 #include <deque>
@@ -25,7 +25,7 @@ public:
 	virtual ~RS232Tester();
 
 	// Pluggable
-	virtual void plugHelper(Connector* connector, const EmuTime& time);
+	virtual void plugHelper(Connector& connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 	virtual const std::string& getName() const;
 	virtual const std::string& getDescription() const;

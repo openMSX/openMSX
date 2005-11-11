@@ -47,7 +47,7 @@ public:
     void shutdownCallBack();
 protected:
     // pluggable 
-    virtual void plugHelper(Connector* newConnector, const EmuTime& time);
+    virtual void plugHelper(Connector& connector, const EmuTime& time);
     virtual void unplugHelper(const EmuTime& time);
     
 private:

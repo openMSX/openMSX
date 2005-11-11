@@ -4,32 +4,30 @@
 #include "DummyMidiInDevice.hh"
 #include "PluggingController.hh"
 
-using std::string;
-
 namespace openmsx {
 
 MidiInConnector::MidiInConnector(PluggingController& pluggingController_,
-                                 const string &name)
+                                 const std::string& name)
 	: Connector(name, std::auto_ptr<Pluggable>(new DummyMidiInDevice()))
 	, pluggingController(pluggingController_)
 {
-	pluggingController.registerConnector(this);
+	pluggingController.registerConnector(*this);
 }
 
 MidiInConnector::~MidiInConnector()
 {
-	pluggingController.unregisterConnector(this);
+	pluggingController.unregisterConnector(*this);
 }
 
-const string& MidiInConnector::getDescription() const
+const std::string& MidiInConnector::getDescription() const
 {
-	static const string desc("Midi-IN connector.");
+	static const std::string desc("Midi-IN connector.");
 	return desc;
 }
 
-const string& MidiInConnector::getClass() const
+const std::string& MidiInConnector::getClass() const
 {
-	static const string className("midi in");
+	static const std::string className("midi in");
 	return className;
 }
 

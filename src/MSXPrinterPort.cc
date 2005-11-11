@@ -1,10 +1,9 @@
 // $Id$
 
-#include <cassert>
 #include "MSXPrinterPort.hh"
-#include "PrinterPortDevice.hh"
 #include "PluggingController.hh"
 #include "MSXMotherBoard.hh"
+#include <cassert>
 
 using std::string;
 
@@ -20,12 +19,12 @@ MSXPrinterPort::MSXPrinterPort(MSXMotherBoard& motherBoard,
 	strobe = false;	// != true;
 	reset(time);
 
-	getMotherBoard().getPluggingController().registerConnector(this);
+	getMotherBoard().getPluggingController().registerConnector(*this);
 }
 
 MSXPrinterPort::~MSXPrinterPort()
 {
-	getMotherBoard().getPluggingController().unregisterConnector(this);
+	getMotherBoard().getPluggingController().unregisterConnector(*this);
 }
 
 void MSXPrinterPort::reset(const EmuTime& time)
@@ -88,7 +87,7 @@ const string& MSXPrinterPort::getClass() const
 	return className;
 }
 
-void MSXPrinterPort::plug(Pluggable* dev, const EmuTime& time)
+void MSXPrinterPort::plug(Pluggable& dev, const EmuTime& time)
 {
 	Connector::plug(dev, time);
 	getPlugged().writeData(data, time);
@@ -124,7 +123,8 @@ const string& DummyPrinterPortDevice::getDescription() const
 	return EMPTY;
 }
 
-void DummyPrinterPortDevice::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
+void DummyPrinterPortDevice::plugHelper(
+	Connector& /*connector*/, const EmuTime& /*time*/)
 {
 }
 

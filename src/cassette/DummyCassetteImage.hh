@@ -13,7 +13,7 @@ public:
 	DummyCassetteImage();
 	virtual ~DummyCassetteImage();
 
-	virtual short getSampleAt(const EmuTime &time);
+	virtual short getSampleAt(const EmuTime& time);
 };
 
 } // namespace openmsx

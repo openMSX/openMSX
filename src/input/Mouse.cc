@@ -57,7 +57,7 @@ const string& Mouse::getDescription() const
 	return desc;
 }
 
-void Mouse::plugHelper(Connector* /*connector*/, const EmuTime& time)
+void Mouse::plugHelper(Connector& /*connector*/, const EmuTime& time)
 {
 	if (status & JOY_BUTTONA) {
 		// not pressed, mouse mode

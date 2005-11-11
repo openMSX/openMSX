@@ -4,32 +4,30 @@
 #include "DummyAudioInputDevice.hh"
 #include "PluggingController.hh"
 
-using std::string;
-
 namespace openmsx {
 
 AudioInputConnector::AudioInputConnector(PluggingController& pluggingController_,
-                                         const string& name)
+                                         const std::string& name)
 	: Connector(name, std::auto_ptr<Pluggable>(new DummyAudioInputDevice()))
 	, pluggingController(pluggingController_)
 {
-	pluggingController.registerConnector(this);
+	pluggingController.registerConnector(*this);
 }
 
 AudioInputConnector::~AudioInputConnector()
 {
-	pluggingController.unregisterConnector(this);
+	pluggingController.unregisterConnector(*this);
 }
 
-const string& AudioInputConnector::getDescription() const
+const std::string& AudioInputConnector::getDescription() const
 {
-	static const string desc("Auddio input connector.");
+	static const std::string desc("Auddio input connector.");
 	return desc;
 }
 
-const string& AudioInputConnector::getClass() const
+const std::string& AudioInputConnector::getClass() const
 {
-	static const string className("Audio Input Port");
+	static const std::string className("Audio Input Port");
 	return className;
 }
 

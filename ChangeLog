@@ -1,5 +1,8 @@
 $Id$
 
+2005-11-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* PluggingController related cleanups
+
 2005-11-10 Manuel Bilderbeek <manuel@msxnet.org>
 	* Introduced a generic Gamma based Observer pattern, template
 	  implementation by Wouter though. Still needs to be used more properly

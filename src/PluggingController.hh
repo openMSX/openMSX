@@ -3,9 +3,9 @@
 #ifndef PLUGGINGCONTROLLER_HH
 #define PLUGGINGCONTROLLER_HH
 
-#include <vector>
 #include "Command.hh"
 #include "InfoTopic.hh"
+#include <vector>
 
 namespace openmsx {
 
@@ -25,14 +25,10 @@ public:
 	PluggingController(MSXMotherBoard& motherBoard);
 	~PluggingController();
 
-	/**
-	 * Connectors can be (un)registered
-	 * Note: it is not an error when you try to unregister a Connector
-	 *       that was not registered before, in this case nothing happens
-	 *
-	 */
-	void registerConnector(Connector* connector);
-	void unregisterConnector(Connector* connector);
+	/** Connectors must be (un)registered
+	  */
+	void registerConnector(Connector& connector);
+	void unregisterConnector(Connector& connector);
 
 	/**
 	 * Add a Pluggable to the registry.

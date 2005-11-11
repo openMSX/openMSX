@@ -3,11 +3,11 @@
 #ifndef CASSETTEPLAYER_HH
 #define CASSETTEPLAYER_HH
 
-#include "CassetteDevice.hh"
-#include "EmuTime.hh"
-#include "Command.hh"
 #include "CommandLineParser.hh"
+#include "CassetteDevice.hh"
 #include "SoundDevice.hh"
+#include "Command.hh"
+#include "EmuTime.hh"
 #include <memory>
 
 namespace openmsx {
@@ -42,8 +42,8 @@ public:
 	CassettePlayer(CommandController& commandController, Mixer& mixer);
 	virtual ~CassettePlayer();
 
-	void insertTape(const std::string& filename, const EmuTime&);
-	void removeTape(const EmuTime&);
+	void insertTape(const std::string& filename, const EmuTime& time);
+	void removeTape(const EmuTime& time);
 
 	// CassetteDevice
 	virtual void setMotor(bool status, const EmuTime& time);
@@ -53,7 +53,7 @@ public:
 	// Pluggable
 	virtual const std::string& getName() const;
 	virtual const std::string& getDescription() const;
-	virtual void plugHelper(Connector* connector, const EmuTime& time);
+	virtual void plugHelper(Connector& connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 
 	// SoundDevice

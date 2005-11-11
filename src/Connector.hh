@@ -41,7 +41,7 @@ public:
 	 * The default implementation is ok.
 	 * @throw PlugException
 	 */
-	virtual void plug(Pluggable* device, const EmuTime& time);
+	virtual void plug(Pluggable& device, const EmuTime& time);
 
 	/**
 	 * This unplugs the currently inserted Pluggable from this Connector.

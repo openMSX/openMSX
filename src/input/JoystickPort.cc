@@ -14,12 +14,12 @@ JoystickPort::JoystickPort(PluggingController& pluggingController_,
 	, pluggingController(pluggingController_)
 	, lastValue(255) // != 0
 {
-	pluggingController.registerConnector(this);
+	pluggingController.registerConnector(*this);
 }
 
 JoystickPort::~JoystickPort()
 {
-	pluggingController.unregisterConnector(this);
+	pluggingController.unregisterConnector(*this);
 }
 
 const string& JoystickPort::getDescription() const
@@ -39,7 +39,7 @@ JoystickDevice& JoystickPort::getPlugged() const
 	return static_cast<JoystickDevice&>(*plugged);
 }
 
-void JoystickPort::plug(Pluggable* device, const EmuTime& time)
+void JoystickPort::plug(Pluggable& device, const EmuTime& time)
 {
 	Connector::plug(device, time);
 	getPlugged().write(lastValue, time);

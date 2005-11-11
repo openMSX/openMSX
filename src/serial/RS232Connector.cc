@@ -4,32 +4,30 @@
 #include "DummyRS232Device.hh"
 #include "PluggingController.hh"
 
-using std::string;
-
 namespace openmsx {
 
 RS232Connector::RS232Connector(PluggingController& pluggingController_,
-                               const string &name)
+                               const std::string &name)
 	: Connector(name, std::auto_ptr<Pluggable>(new DummyRS232Device()))
 	, pluggingController(pluggingController_)
 {
-	pluggingController.registerConnector(this);
+	pluggingController.registerConnector(*this);
 }
 
 RS232Connector::~RS232Connector()
 {
-	pluggingController.unregisterConnector(this);
+	pluggingController.unregisterConnector(*this);
 }
 
-const string& RS232Connector::getDescription() const
+const std::string& RS232Connector::getDescription() const
 {
-	static const string desc("Serial RS232 connector.");
+	static const std::string desc("Serial RS232 connector.");
 	return desc;
 }
 
-const string& RS232Connector::getClass() const
+const std::string& RS232Connector::getClass() const
 {
-	static const string className("RS232");
+	static const std::string className("RS232");
 	return className;
 }
 

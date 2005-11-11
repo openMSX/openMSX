@@ -2,8 +2,6 @@
 
 #include "SETetrisDongle.hh"
 
-using std::string;
-
 namespace openmsx {
 
 SETetrisDongle::SETetrisDongle()
@@ -12,24 +10,21 @@ SETetrisDongle::SETetrisDongle()
 	         JOY_BUTTONA | JOY_BUTTONB;
 }
 
-SETetrisDongle::~SETetrisDongle()
-{
-}
-
 //Pluggable
-const string& SETetrisDongle::getName() const
+const std::string& SETetrisDongle::getName() const
 {
-	static const string NAME = "tetris2-protection";
+	static const std::string NAME = "tetris2-protection";
 	return NAME;
 }
 
-const string& SETetrisDongle::getDescription() const
+const std::string& SETetrisDongle::getDescription() const
 {
-	static const string DESC = "SETetrisDongledongle";
+	static const std::string DESC = "SETetrisDongledongle";
 	return DESC;
 }
 
-void SETetrisDongle::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
+void SETetrisDongle::plugHelper(
+	Connector& /*connector*/, const EmuTime& /*time*/)
 {
 }
 

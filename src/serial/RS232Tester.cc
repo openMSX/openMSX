@@ -29,7 +29,7 @@ RS232Tester::~RS232Tester()
 }
 
 // Pluggable
-void RS232Tester::plugHelper(Connector* connector_, const EmuTime& /*time*/)
+void RS232Tester::plugHelper(Connector& connector_, const EmuTime& /*time*/)
 {
 	// output
 	outFile.open(rs232OutputFilenameSetting->getValue().c_str());
@@ -44,12 +44,12 @@ void RS232Tester::plugHelper(Connector* connector_, const EmuTime& /*time*/)
 		throw PlugException("Error opening input file");
 	}
 
-	RS232Connector* rs232Connector = static_cast<RS232Connector*>(connector_);
-	rs232Connector->setDataBits(SerialDataInterface::DATA_8);	// 8 data bits
-	rs232Connector->setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
-	rs232Connector->setParityBit(false, SerialDataInterface::EVEN); // no parity
+	RS232Connector& rs232Connector = static_cast<RS232Connector&>(connector_);
+	rs232Connector.setDataBits(SerialDataInterface::DATA_8);	// 8 data bits
+	rs232Connector.setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
+	rs232Connector.setParityBit(false, SerialDataInterface::EVEN); // no parity
 
-	connector = connector_; // base class will do this in a moment,
+	connector = &connector_; // base class will do this in a moment,
 	                        // but thread already needs it
 	thread.start();
 }

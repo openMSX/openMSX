@@ -3,8 +3,6 @@
 #include "Y8950KeyboardConnector.hh"
 #include "PluggingController.hh"
 
-using std::string;
-
 namespace openmsx {
 
 Y8950KeyboardConnector::Y8950KeyboardConnector(
@@ -14,12 +12,12 @@ Y8950KeyboardConnector::Y8950KeyboardConnector(
 	, pluggingController(pluggingController_)
 	, data(255)
 {
-	pluggingController.registerConnector(this);
+	pluggingController.registerConnector(*this);
 }
 
 Y8950KeyboardConnector::~Y8950KeyboardConnector()
 {
-	pluggingController.unregisterConnector(this);
+	pluggingController.unregisterConnector(*this);
 }
 
 void Y8950KeyboardConnector::write(byte newData, const EmuTime& time)
@@ -35,19 +33,19 @@ byte Y8950KeyboardConnector::read(const EmuTime& time)
 	return getPlugged().read(time);
 }
 
-const string& Y8950KeyboardConnector::getDescription() const
+const std::string& Y8950KeyboardConnector::getDescription() const
 {
-	static const string desc("MSX-AUDIO keyboard connector.");
+	static const std::string desc("MSX-AUDIO keyboard connector.");
 	return desc;
 }
 
-const string& Y8950KeyboardConnector::getClass() const
+const std::string& Y8950KeyboardConnector::getClass() const
 {
-	static const string className("Y8950 Keyboard Port");
+	static const std::string className("Y8950 Keyboard Port");
 	return className;
 }
 
-void Y8950KeyboardConnector::plug(Pluggable* dev, const EmuTime& time)
+void Y8950KeyboardConnector::plug(Pluggable& dev, const EmuTime& time)
 {
 	Connector::plug(dev, time);
 	getPlugged().write(data, time);
@@ -71,13 +69,13 @@ byte DummyY8950KeyboardDevice::read(const EmuTime& /*time*/)
 	return 255;
 }
 
-const string& DummyY8950KeyboardDevice::getDescription() const
+const std::string& DummyY8950KeyboardDevice::getDescription() const
 {
-	static const string EMPTY;
+	static const std::string EMPTY;
 	return EMPTY;
 }
 
-void DummyY8950KeyboardDevice::plugHelper(Connector* /*connector*/,
+void DummyY8950KeyboardDevice::plugHelper(Connector& /*connector*/,
                                           const EmuTime& /*time*/)
 {
 }

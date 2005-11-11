@@ -37,7 +37,8 @@ void WavAudioInput::loadWave()
 	Uint32 wavLen;
 	if (SDL_LoadWAV(audioInputFilenameSetting->getValueString().c_str(),
 	                &wavSpec, &wavBuf, &wavLen) == NULL) {
-		throw MSXException(string("WavAudioInput error: ") + SDL_GetError());
+		throw MSXException(string("WavAudioInput error: ") +
+		                   SDL_GetError());
 	}
 
 	freq = wavSpec.freq;
@@ -86,13 +87,14 @@ const string& WavAudioInput::getDescription() const
 	return desc;
 }
 
-void WavAudioInput::plugHelper(Connector* /*connector*/, const EmuTime& time)
+void WavAudioInput::plugHelper(Connector& /*connector*/, const EmuTime& time)
 {
 	if (buffer == 0) {
 		try {
 			loadWave();
 		} catch (MSXException &e) {
-			throw PlugException("Load of wave file failed: " + e.getMessage());
+			throw PlugException("Load of wave file failed: " +
+			                    e.getMessage());
 		}
 	}
 	reference = time;

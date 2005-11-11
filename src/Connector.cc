@@ -20,10 +20,10 @@ const std::string& Connector::getName() const
 	return name;
 }
 
-void Connector::plug(Pluggable* device, const EmuTime& time)
+void Connector::plug(Pluggable& device, const EmuTime& time)
 {
-	device->plug(this, time);
-	plugged = device; // not executed if plug fails
+	device.plug(*this, time);
+	plugged = &device; // not executed if plug fails
 }
 
 void Connector::unplug(const EmuTime& time)

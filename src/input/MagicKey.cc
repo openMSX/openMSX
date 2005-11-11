@@ -18,7 +18,7 @@ const std::string& MagicKey::getDescription() const
 	return DESC;
 }
 
-void MagicKey::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
+void MagicKey::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
 {
 }
 

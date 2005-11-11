@@ -35,7 +35,7 @@ public:
 	virtual ~MidiInNative();
 
 	// Pluggable
-	virtual void plugHelper(Connector* connector, const EmuTime& time);
+	virtual void plugHelper(Connector& connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 	virtual const std::string& getName() const;
 	virtual const std::string& getDescription() const;

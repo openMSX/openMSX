@@ -43,7 +43,7 @@ public:
 	 * connector.
 	 * @throws PlugException
 	 */
-	void plug(Connector* connector, const EmuTime& time);
+	void plug(Connector& connector, const EmuTime& time);
 
 	/** This method is called when this pluggable is removed from a
 	  * conector.
@@ -56,7 +56,7 @@ public:
 	Connector* getConnector() const;
 
 protected:
-	virtual void plugHelper(Connector* newConnector, const EmuTime& time) = 0;
+	virtual void plugHelper(Connector& newConnector, const EmuTime& time) = 0;
 	virtual void unplugHelper(const EmuTime& time) = 0;
 
 	Connector* connector;

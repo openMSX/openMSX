@@ -2,13 +2,7 @@
 
 #include "DummyCassetteDevice.hh"
 
-using std::string;
-
 namespace openmsx {
-
-DummyCassetteDevice::DummyCassetteDevice()
-{
-}
 
 void DummyCassetteDevice::setMotor(bool /*status*/, const EmuTime& /*time*/)
 {
@@ -25,13 +19,13 @@ void DummyCassetteDevice::setSignal(bool /*output*/, const EmuTime& /*time*/)
 	// do nothing
 }
 
-const string& DummyCassetteDevice::getDescription() const
+const std::string& DummyCassetteDevice::getDescription() const
 {
-	static const string EMPTY;
+	static const std::string EMPTY;
 	return EMPTY;
 }
 
-void DummyCassetteDevice::plugHelper(Connector* /*connector*/,
+void DummyCassetteDevice::plugHelper(Connector& /*connector*/,
                                      const EmuTime& /*time*/)
 {
 }
