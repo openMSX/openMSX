@@ -442,8 +442,8 @@ Y8950::Y8950(MSXMotherBoard& motherBoard, const string& name,
 	: SoundDevice(motherBoard.getMixer(), name, "MSX-AUDIO")
 	, SimpleDebuggable(motherBoard, name + " regs", "MSX-AUDIO", 0x100)
 	, irq(motherBoard.getCPU())
-	, timer1(motherBoard.getScheduler(), this)
-	, timer2(motherBoard.getScheduler(), this)
+	, timer1(motherBoard.getScheduler(), *this)
+	, timer2(motherBoard.getScheduler(), *this)
 	, adpcm(new Y8950Adpcm(*this, motherBoard, name, sampleRam))
 	, connector(new Y8950KeyboardConnector(motherBoard.getPluggingController()))
 	, dac13(new DACSound16S(motherBoard.getMixer(), name + " DAC",

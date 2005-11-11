@@ -3,13 +3,11 @@
 #include "EmuTimer.hh"
 #include "Clock.hh"
 
-using std::string;
-
 namespace openmsx {
 
 template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
 EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::EmuTimer(
-		Scheduler& scheduler, EmuTimerCallback* cb_)
+		Scheduler& scheduler, EmuTimerCallback& cb_)
 	: Schedulable(scheduler), count(256), counting(false), cb(cb_)
 {
 }
@@ -58,14 +56,14 @@ template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
 void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::executeUntil(
 	const EmuTime& time, int /*userData*/)
 {
-	cb->callback(FLAG);
+	cb.callback(FLAG);
 	schedule(time);
 }
 
 template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
-const string& EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::schedName() const
+const std::string& EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::schedName() const
 {
-	static const string name("EmuTimer");
+	static const std::string name("EmuTimer");
 	return name;
 }
 

@@ -20,7 +20,7 @@ template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
 class EmuTimer : private Schedulable
 {
 public:
-	EmuTimer(Scheduler& scheduler, EmuTimerCallback* cb);
+	EmuTimer(Scheduler& scheduler, EmuTimerCallback& cb);
 	virtual ~EmuTimer();
 	void setValue(byte value);
 	void setStart(bool start, const EmuTime& time);
@@ -33,7 +33,7 @@ private:
 
 	int count;
 	bool counting;
-	EmuTimerCallback* cb;
+	EmuTimerCallback& cb;
 };
 
 typedef EmuTimer<0x40,  3579545, 72 *  4    > EmuTimerOPL3_1;
