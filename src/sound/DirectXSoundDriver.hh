@@ -6,7 +6,7 @@
 
 #include "SoundDriver.hh"
 #include "Schedulable.hh"
-#include "SettingListener.hh"
+#include "Observer.hh"
 #define DIRECTSOUND_VERSION 0x0500
 #include <windows.h>
 #include <dsound.h>
@@ -20,7 +20,7 @@ class IntegerSetting;
 class BooleanSetting;
 
 class DirectXSoundDriver : public SoundDriver, private Schedulable,
-                           private SettingListener
+                           private Observer<Setting>
 {
 public:
 	DirectXSoundDriver(Scheduler& scheduler, GlobalSettings& globalSettings,
@@ -49,8 +49,8 @@ private:
 	void executeUntil(const EmuTime& time, int userData);
 	const std::string& schedName() const;
 
-	// SettingListener
-	virtual void update(const Setting* setting);
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
 
 	enum DxState { DX_SOUND_DISABLED, DX_SOUND_ENABLED, DX_SOUND_RUNNING };
 	DxState state;

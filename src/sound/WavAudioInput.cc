@@ -107,16 +107,16 @@ void WavAudioInput::unplugHelper(const EmuTime& /*time*/)
 	plugged = false;
 }
 
-void WavAudioInput::update(const Setting* setting)
+void WavAudioInput::update(const Setting& setting)
 {
-	if (setting); // avoid warning
-	assert(setting == audioInputFilenameSetting.get());
+	if (&setting); // avoid warning
+	assert(&setting == audioInputFilenameSetting.get());
 	if (plugged) {
 		try {
 			loadWave();
 		} catch (MSXException &e) {
 			// TODO proper error handling, message should go to console
-			setting->getCommandController().getCliComm().printWarning(
+			setting.getCommandController().getCliComm().printWarning(
 				"Load of wave file failed: " + e.getMessage());
 		}
 	}

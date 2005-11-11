@@ -565,10 +565,10 @@ void PixelRenderer::renderUntil(const EmuTime& time)
 	nextY = limitY;
 }
 
-void PixelRenderer::update(const Setting* setting)
+void PixelRenderer::update(const Setting& setting)
 {
-	if (setting == &renderSettings.getMinFrameSkip()
-	|| setting == &renderSettings.getMaxFrameSkip() ) {
+	if (&setting == &renderSettings.getMinFrameSkip()
+	|| &setting == &renderSettings.getMaxFrameSkip() ) {
 		// Force drawing of frame.
 		frameSkipCounter = 999;
 	} else {

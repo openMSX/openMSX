@@ -3,7 +3,7 @@
 #ifndef INPUTEVENTGENERATOR_HH
 #define INPUTEVENTGENERATOR_HH
 
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include "EventListener.hh"
 #include "PollInterface.hh"
 #include "Command.hh"
@@ -15,8 +15,9 @@ namespace openmsx {
 class CommandController;
 class BooleanSetting;
 class EventDistributor;
+class Setting;
 
-class InputEventGenerator : private SettingListener, private EventListener,
+class InputEventGenerator : private Observer<Setting>, private EventListener,
                             private PollInterface
 {
 public:
@@ -50,8 +51,8 @@ private:
 	void handle(const SDL_Event& event);
 	void setGrabInput(bool grab);
 
-	// SettingListener
-	virtual void update(const Setting* setting);
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
 
 	// EventListener
 	virtual void signalEvent(const Event& event);

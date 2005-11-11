@@ -6,7 +6,7 @@
 #include "CPU.hh"
 #include "SimpleDebuggable.hh"
 #include "InfoTopic.hh"
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include "EmuTime.hh"
 #include <memory>
 
@@ -21,8 +21,9 @@ class BooleanSetting;
 class Z80TYPE;
 class R800TYPE;
 template <typename T> class CPUCore;
+class Setting;
 
-class MSXCPU : private SimpleDebuggable, private SettingListener
+class MSXCPU : private SimpleDebuggable, private Observer<Setting>
 {
 public:
 	enum CPUType { CPU_Z80, CPU_R800 };
@@ -146,8 +147,8 @@ private:
 	 */
 	const EmuTime& getCurrentTime() const;
 
-	// SettingListener
-	void update(const Setting* setting);
+	// Observer<Setting>
+	void update(const Setting& setting);
 
 	MSXMotherBoard& motherboard;
 	const std::auto_ptr<BooleanSetting> traceSetting;

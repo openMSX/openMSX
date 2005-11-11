@@ -4,7 +4,7 @@
 #define VIDEOLAYER_HH
 
 #include "Layer.hh"
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include "VideoSourceSetting.hh"
 
 namespace openmsx {
@@ -15,7 +15,7 @@ class Display;
 template <class T> class EnumSetting;
 class BooleanSetting;
 
-class VideoLayer: public Layer, protected SettingListener
+class VideoLayer: public Layer, protected Observer<Setting>
 {
 public:
 	virtual ~VideoLayer();
@@ -27,8 +27,8 @@ protected:
 	           RenderSettings& renderSettings,
 	           Display& display);
 
-	// SettingListener interface:
-	virtual void update(const Setting* setting);
+	// Observer<Setting> interface:
+	virtual void update(const Setting& setting);
 
 private:
 	/** Calculates the current Z coordinate of this layer. */

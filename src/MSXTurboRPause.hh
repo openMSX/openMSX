@@ -11,7 +11,7 @@
 #define TURBORPAUSE_HH
 
 #include "MSXDevice.hh"
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include "BooleanSetting.hh"
 
 namespace openmsx {
@@ -24,7 +24,7 @@ namespace openmsx {
  *   bit 0 indicates the status (1 = pause active)
  *   all other bits read 0
  */
-class MSXTurboRPause : public MSXDevice, private SettingListener
+class MSXTurboRPause : public MSXDevice, private Observer<Setting>
 {
 public:
 	MSXTurboRPause(MSXMotherBoard& motherBoard, const XMLElement& config,
@@ -39,8 +39,8 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	// SettingListener
-	void update(const Setting* setting);
+	// Observer<Setting>
+	void update(const Setting& setting);
 
 	void updatePause();
 

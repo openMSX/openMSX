@@ -4,7 +4,7 @@
 #define MSXREALTIME_HH
 
 #include "Schedulable.hh"
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include "EmuTime.hh"
 
 namespace openmsx {
@@ -15,8 +15,9 @@ class GlobalSettings;
 class IntegerSetting;
 class BooleanSetting;
 class ThrottleManager;
+class Setting;
 
-class RealTime : private Schedulable, private SettingListener
+class RealTime : private Schedulable, private Observer<Setting>
 {
 public:
 	RealTime(Scheduler& scheduler, EventDistributor& eventDistributor,
@@ -50,8 +51,8 @@ private:
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const std::string& schedName() const;
 
-	// SettingListener
-	void update(const Setting* setting);
+	// Observer<Setting>
+	void update(const Setting& setting);
 
 	void internalSync(const EmuTime& time, bool allowSleep);
 	void resync();

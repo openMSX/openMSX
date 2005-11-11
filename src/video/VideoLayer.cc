@@ -42,11 +42,11 @@ VideoSource VideoLayer::getVideoSource() const
 	return videoSource;
 }
 
-void VideoLayer::update(const Setting* setting)
+void VideoLayer::update(const Setting& setting)
 {
-	if (setting == &videoSourceSetting) {
+	if (&setting == &videoSourceSetting) {
 		setZ(calcZ());
-	} else if (setting == &powerSetting) {
+	} else if (&setting == &powerSetting) {
 		setCoverage(getCoverage());
 	} else {
 		assert(false);

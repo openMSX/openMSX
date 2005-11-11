@@ -1,5 +1,9 @@
 $Id$
 
+2005-11-11 Manuel Bilderbeek <manuel@msxnet.org>
+	* Removed old add/removeListener calls
+	* Removed SettingListener class
+
 2005-11-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* PluggingController related cleanups
 

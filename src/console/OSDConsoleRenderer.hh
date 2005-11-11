@@ -5,7 +5,7 @@
 
 #include "Layer.hh"
 #include "FilenameSetting.hh"
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include "openmsx.hh"
 #include <memory>
 #include <string>
@@ -20,7 +20,7 @@ class Display;
 class Console;
 template <typename T> class EnumSetting;
 
-class OSDConsoleRenderer : public Layer, private SettingListener,
+class OSDConsoleRenderer : public Layer, private Observer<Setting>,
                            private SettingChecker<FilenameSetting::Policy>
 {
 public:
@@ -70,7 +70,7 @@ protected:
 
 private:
 	void adjustColRow();
-	void update(const Setting* setting);
+	void update(const Setting& setting);
 	void setActive(bool active);
 
 	// SettingChecker

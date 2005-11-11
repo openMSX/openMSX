@@ -267,10 +267,10 @@ void V9990PixelRenderer::updateScrollBY(const EmuTime& time)
 	if (displayEnabled) sync(time);
 }
 
-void V9990PixelRenderer::update(const Setting* setting)
+void V9990PixelRenderer::update(const Setting& setting)
 {
-	if (setting == &renderSettings.getMinFrameSkip() ||
-	    setting == &renderSettings.getMaxFrameSkip()) {
+	if (&setting == &renderSettings.getMinFrameSkip() ||
+	    &setting == &renderSettings.getMaxFrameSkip()) {
 		// Force drawing of frame
 		frameSkipCounter = 999;
 	} else {

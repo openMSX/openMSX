@@ -149,10 +149,10 @@ void MSXCPU::wait(const EmuTime& time)
 	activeCPU->wait(time);
 }
 
-void MSXCPU::update(const Setting* setting)
+void MSXCPU::update(const Setting& setting)
 {
-	if (setting); // avoid warning
-	assert(setting == traceSetting.get());
+	if (&setting); // avoid warning
+	assert(&setting == traceSetting.get());
 	exitCPULoop();
 }
 

@@ -3,7 +3,7 @@
 #ifndef AUTOFIRE_HH
 #define AUTOFIRE_HH
 
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include "DynamicClock.hh"
 #include "openmsx.hh"
 #include <string>
@@ -13,6 +13,7 @@ namespace openmsx {
 
 class CommandController;
 class IntegerSetting;
+class Setting;
 
 /**
  * Autofire is a device that is between two other devices and outside
@@ -22,7 +23,7 @@ class IntegerSetting;
  * There can be multiple autofire circuits. For example, one used
  * by the Ren-Sha Turbo and another one built into a joystick.
  */
-class Autofire : private SettingListener
+class Autofire : private Observer<Setting>
 {
 public:
 	Autofire(CommandController& commandController,
@@ -46,7 +47,7 @@ private:
 	  */
 	void setClock();
 
-	virtual void update(const Setting* setting);
+	virtual void update(const Setting& setting);
 
 	// Following two values specify the range of the autofire
 	// as measured by the test program:

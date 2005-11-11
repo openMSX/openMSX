@@ -427,27 +427,27 @@ void Mixer::SoundlogCommand::tabCompletion(vector<string>& tokens) const
 
 // end stuff for soundlogging
 
-void Mixer::update(const Setting* setting)
+void Mixer::update(const Setting& setting)
 {
-	if (setting == muteSetting.get()) {
+	if (&setting == muteSetting.get()) {
 		if (muteSetting->getValue()) {
 			mute();
 		} else {
 			unmute();
 		}
-	} else if (setting == &pauseSetting) {
+	} else if (&setting == &pauseSetting) {
 		if (pauseSetting.getValue()) {
 			mute();
 		} else {
 			unmute();
 		}
-	} else if ((setting == samplesSetting.get()) ||
-	           (setting == soundDriverSetting.get())) {
+	} else if ((&setting == samplesSetting.get()) ||
+	           (&setting == soundDriverSetting.get())) {
 		if (handlingUpdate) return;
 		handlingUpdate = true;
 		reopenSound();
 		handlingUpdate = false;
-	} else if (setting == frequencySetting.get()) {
+	} else if (&setting == frequencySetting.get()) {
 		if (handlingUpdate) return;
 		handlingUpdate = true;
 		if (wavWriter.get()) {
@@ -466,11 +466,11 @@ void Mixer::update(const Setting* setting)
 			}
 		}
 		handlingUpdate = false;
-	} else if (setting == masterVolume.get()) {
+	} else if (&setting == masterVolume.get()) {
 		updateMasterVolume(masterVolume->getValue());
-	} else if (dynamic_cast<const EnumSetting<ChannelMode>* >(setting)) {
+	} else if (dynamic_cast<const EnumSetting<ChannelMode>* >(&setting)) {
 		map<SoundDevice*, SoundDeviceInfo>::iterator it = infos.begin();
-		while (it != infos.end() && it->second.modeSetting != setting) {
+		while (it != infos.end() && it->second.modeSetting != &setting) {
 			++it;
 		}
 		assert(it != infos.end());
@@ -482,9 +482,9 @@ void Mixer::update(const Setting* setting)
 		dev.erase(remove(dev.begin(), dev.end(), it->first), dev.end());
 		devices[info.mode].push_back(it->first);
 		unlock();
-	} else if (dynamic_cast<const IntegerSetting*>(setting)) {
+	} else if (dynamic_cast<const IntegerSetting*>(&setting)) {
 		map<SoundDevice*, SoundDeviceInfo>::iterator it = infos.begin();
-		while (it != infos.end() && it->second.volumeSetting != setting) {
+		while (it != infos.end() && it->second.volumeSetting != &setting) {
 			++it;
 		}
 		assert(it != infos.end());

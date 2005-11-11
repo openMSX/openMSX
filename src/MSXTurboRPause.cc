@@ -59,7 +59,7 @@ void MSXTurboRPause::writeIO(byte /*port*/, byte value, const EmuTime& /*time*/)
 	updatePause();
 }
 
-void MSXTurboRPause::update(const Setting* /*setting*/)
+void MSXTurboRPause::update(const Setting& /*setting*/)
 {
 	updatePause();
 }

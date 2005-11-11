@@ -326,13 +326,13 @@ const string& DirectXSoundDriver::schedName() const
 }
 
 
-// SettingListener
+// Observer<Setting>
 
-void DirectXSoundDriver::update(const Setting* setting)
+void DirectXSoundDriver::update(const Setting& setting)
 {
-	if (setting == &speedSetting) {
+	if (&setting == &speedSetting) {
 		reInit();
-	} else if (setting == &throttleSetting) {
+	} else if (&setting == &throttleSetting) {
 		if (throttleSetting.getValue()) {
 			reInit();
 		}

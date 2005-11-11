@@ -4,7 +4,7 @@
 #define WAVAUDIOINPUT_HH
 
 #include "AudioInputDevice.hh"
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include "EmuTime.hh"
 #include <memory>
 
@@ -12,8 +12,9 @@ namespace openmsx {
 
 class CommandController;
 class FilenameSetting;
+class Setting;
 
-class WavAudioInput : public AudioInputDevice, private SettingListener
+class WavAudioInput : public AudioInputDevice, private Observer<Setting>
 {
 public:
 	WavAudioInput(CommandController& commandController);
@@ -29,7 +30,7 @@ public:
 private:
 	void freeWave();
 	void loadWave();
-	void update(const Setting* setting);
+	void update(const Setting& setting);
 
 	int length;
 	byte* buffer;

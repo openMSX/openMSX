@@ -10,7 +10,6 @@
 namespace openmsx {
 
 class CommandController;
-class SettingListener;
 class XMLElement;
 
 class Setting : public Subject<Setting>

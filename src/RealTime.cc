@@ -126,7 +126,7 @@ const string& RealTime::schedName() const
 	return name;
 }
 
-void RealTime::update(const Setting* /*setting*/)
+void RealTime::update(const Setting& /*setting*/)
 {
 	// Note: we don't get an update when the ThrottleManager changes throttle mode... (as it is not a Subject (yet), we cannot Observe it)
 	resync();

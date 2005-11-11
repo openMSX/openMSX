@@ -116,10 +116,10 @@ void OSDConsoleRenderer::adjustColRow()
 	getConsole().setRows(consoleRows);
 }
 
-void OSDConsoleRenderer::update(const Setting* setting)
+void OSDConsoleRenderer::update(const Setting& setting)
 {
-	if (setting); // avoid warning
-	assert(setting == &consoleSetting);
+	if (&setting); // avoid warning
+	assert(&setting == &consoleSetting);
 	setActive(consoleSetting.getValue());
 }
 

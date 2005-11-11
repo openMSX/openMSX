@@ -5,7 +5,7 @@
 
 #include "SoundDriver.hh"
 #include "Schedulable.hh"
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include <SDL.h>
 
 namespace openmsx {
@@ -14,9 +14,10 @@ class Mixer;
 class GlobalSettings;
 class IntegerSetting;
 class BooleanSetting;
+class Setting;
 
 class SDLSoundDriver : public SoundDriver, private Schedulable,
-                       private SettingListener
+                       private Observer<Setting>
 {
 public:
 	SDLSoundDriver(Scheduler& scheduler, GlobalSettings& globalSettings,
@@ -47,8 +48,8 @@ private:
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const std::string& schedName() const;
 
-	// SettingListener
-	virtual void update(const Setting* setting);
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
 
 	Mixer& mixer;
 	SDL_AudioSpec audioSpec;

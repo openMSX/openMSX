@@ -6,7 +6,7 @@
 #include "Layer.hh"
 #include "RendererFactory.hh"
 #include "EventListener.hh"
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include "Command.hh"
 #include "InfoTopic.hh"
 #include "CircularBuffer.hh"
@@ -23,11 +23,12 @@ class MSXMotherBoard;
 class EventDistributor;
 class RenderSettings;
 class VideoSystemChangeListener;
+class Setting;
 
 /** Represents the output window/screen of openMSX.
   * A display contains several layers.
   */
-class Display : private EventListener, private SettingListener,
+class Display : private EventListener, private Observer<Setting>,
                 private LayerListener
 {
 public:
@@ -54,8 +55,8 @@ private:
 	// EventListener interface
 	virtual void signalEvent(const Event& event);
 
-	// SettingListener interface
-	virtual void update(const Setting* setting);
+	// Observer<Setting> interface
+	virtual void update(const Setting& setting);
 
 	void checkRendererSwitch();
 	void doRendererSwitch();

@@ -4,7 +4,7 @@
 #define V9990PIXELRENDERER_HH
 
 #include "V9990Renderer.hh"
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include "RenderSettings.hh"
 #include "openmsx.hh"
 #include <memory>
@@ -20,7 +20,7 @@ class V9990Rasterizer;
   *
   * @see PixelRenderer.cc
   */
-class V9990PixelRenderer : public V9990Renderer, private SettingListener
+class V9990PixelRenderer : public V9990Renderer, private Observer<Setting>
 {
 public:
 	V9990PixelRenderer(V9990& vdp);
@@ -102,8 +102,8 @@ private:
 	void subdivide(int fromX, int fromY, int toX, int toY,
 	               int clipL, int clipR, DrawType drawType);
 
-	// SettingListener
-	virtual void update(const Setting* setting);
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
 };
 
 } // namespace openmsx

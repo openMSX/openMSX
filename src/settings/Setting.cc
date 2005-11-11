@@ -1,7 +1,7 @@
 // $Id$
 
 #include "Setting.hh"
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include "CommandController.hh"
 #include "CliComm.hh"
 #include "XMLElement.hh"

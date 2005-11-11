@@ -3,7 +3,7 @@
 #ifndef MIXER_HH
 #define MIXER_HH
 
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include "InfoTopic.hh"
 #include "Command.hh"
 #include "EmuTime.hh"
@@ -22,8 +22,9 @@ class IntegerSetting;
 class BooleanSetting;
 template <typename T> class EnumSetting;
 class WavWriter;
+class Setting;
 
-class Mixer : private SettingListener
+class Mixer : private Observer<Setting>
 {
 public:
 	static const int MAX_VOLUME = 32767;
@@ -83,8 +84,8 @@ private:
 
 	void updateMasterVolume(int masterVolume);
 
-	// SettingListener
-	virtual void update(const Setting* setting);
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
 
 	SoundDevice* getSoundDevice(const std::string& name);
 

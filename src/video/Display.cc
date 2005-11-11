@@ -166,15 +166,15 @@ void Display::signalEvent(const Event& event)
 	}
 }
 
-void Display::update(const Setting* setting)
+void Display::update(const Setting& setting)
 {
-	if (setting == &renderSettings.getRenderer()) {
+	if (&setting == &renderSettings.getRenderer()) {
 		checkRendererSwitch();
-	} else if (setting == &renderSettings.getFullScreen()) {
+	} else if (&setting == &renderSettings.getFullScreen()) {
 		checkRendererSwitch();
-	} else if (setting == &renderSettings.getScaler()) {
+	} else if (&setting == &renderSettings.getScaler()) {
 		checkRendererSwitch();
-	} else if (setting == &renderSettings.getVideoSource()) {
+	} else if (&setting == &renderSettings.getVideoSource()) {
 		checkRendererSwitch();
 	} else {
 		assert(false);

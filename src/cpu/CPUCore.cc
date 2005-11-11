@@ -240,9 +240,9 @@ template <class T> void CPUCore<T>::doBreak()
 	}
 }
 
-template <class T> void CPUCore<T>::update(const Setting* setting)
+template <class T> void CPUCore<T>::update(const Setting& setting)
 {
-	if (setting == freqLocked.get()) {
+	if (&setting == freqLocked.get()) {
 		if (freqLocked->getValue()) {
 			// locked
 			T::clock.setFreq(freq);
@@ -250,7 +250,7 @@ template <class T> void CPUCore<T>::update(const Setting* setting)
 			// unlocked
 			T::clock.setFreq(freqValue->getValue());
 		}
-	} else if (setting == freqValue.get()) {
+	} else if (&setting == freqValue.get()) {
 		if (!freqLocked->getValue()) {
 			T::clock.setFreq(freqValue->getValue());
 		}

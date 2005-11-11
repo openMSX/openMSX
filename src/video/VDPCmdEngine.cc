@@ -394,9 +394,9 @@ void VDPCmdEngine::reset(const EmuTime& time)
 	updateDisplayMode(vdp.getDisplayMode(), time);
 }
 
-void VDPCmdEngine::update(const Setting* setting)
+void VDPCmdEngine::update(const Setting& setting)
 {
-	brokenTiming = static_cast<const EnumSetting<bool>*>(setting)->getValue();
+	brokenTiming = static_cast<const EnumSetting<bool>*>(&setting)->getValue();
 }
 
 void VDPCmdEngine::setCmdReg(byte index, byte value, const EmuTime& time)

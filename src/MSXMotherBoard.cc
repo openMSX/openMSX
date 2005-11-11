@@ -427,10 +427,10 @@ void MSXMotherBoard::createDevices(const XMLElement& elem)
 	}
 }
 
-// SettingListener
-void MSXMotherBoard::update(const Setting* setting)
+// Observer<Setting>
+void MSXMotherBoard::update(const Setting& setting)
 {
-	if (setting == &powerSetting) {
+	if (&setting == &powerSetting) {
 		if (powerSetting.getValue()) {
 			powerUp();
 		} else {

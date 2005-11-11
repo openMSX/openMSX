@@ -4,7 +4,7 @@
 #define CPUCORE_HH
 
 #include "openmsx.hh"
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include "CPU.hh"
 #include <string>
 #include <memory>
@@ -17,11 +17,12 @@ class MSXMotherBoard;
 class EmuTime;
 class BooleanSetting;
 class IntegerSetting;
+class Setting;
 
 typedef signed char offset;
 
 template <class CPU_POLICY>
-class CPUCore : private CPU_POLICY, public CPU, private SettingListener
+class CPUCore : private CPU_POLICY, public CPU, private Observer<Setting>
 {
 public:
 	typedef void (CPUCore::*FuncPtr)();
@@ -95,8 +96,8 @@ public:
 private:
 	void doBreak2();
 
-	// SettingListener
-	virtual void update(const Setting* setting);
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
 
 	/**
 	 * Set to true when there was a rising edge on the NMI line

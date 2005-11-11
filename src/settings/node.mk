@@ -14,7 +14,6 @@ SRC_HDR:= \
 
 HDR_ONLY:= \
 	SettingImpl \
-	SettingListener \
 	EnumSetting \
 	SettingPolicy
 

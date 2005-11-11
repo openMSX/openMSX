@@ -102,10 +102,10 @@ void Reactor::unblock()
 }
 
 
-// SettingListener
-void Reactor::update(const Setting* setting)
+// Observer<Setting>
+void Reactor::update(const Setting& setting)
 {
-	if (setting == &pauseSetting) {
+	if (&setting == &pauseSetting) {
 		if (pauseSetting.getValue()) {
 			pause();
 		} else {

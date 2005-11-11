@@ -4,7 +4,7 @@
 #define PIXELRENDERER_HH
 
 #include "Renderer.hh"
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include "RenderSettings.hh"
 #include "DisplayMode.hh"
 #include "openmsx.hh"
@@ -19,11 +19,12 @@ class Rasterizer;
 class VDP;
 class SpriteChecker;
 class VDPVRAM;
+class Setting;
 
 /** Generic implementation of a pixel-based Renderer.
   * Uses a Rasterizer to plot actual pixels for a specific video system.
   */
-class PixelRenderer : public Renderer, private SettingListener
+class PixelRenderer : public Renderer, private Observer<Setting>
 {
 public:
 	PixelRenderer(VDP& vdp);
@@ -59,8 +60,8 @@ private:
 	/** Indicates whether the area to be drawn is border or display. */
 	enum DrawType { DRAW_BORDER, DRAW_DISPLAY };
 
-	// SettingListener interface:
-	virtual void update(const Setting* setting);
+	// Observer<Setting> interface:
+	virtual void update(const Setting& setting);
 
 	/** Call the right draw method in the subclass,
 	  * depending on passed drawType.

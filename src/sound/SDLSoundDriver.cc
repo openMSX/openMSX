@@ -255,13 +255,13 @@ const string& SDLSoundDriver::schedName() const
 }
 
 
-// SettingListener
+// Observer<Setting>
 
-void SDLSoundDriver::update(const Setting* setting)
+void SDLSoundDriver::update(const Setting& setting)
 {
-	if (setting == &speedSetting) {
+	if (&setting == &speedSetting) {
 		reInit();
-	} else if (setting == &throttleSetting) {
+	} else if (&setting == &throttleSetting) {
 		if (throttleSetting.getValue()) {
 			reInit();
 		}

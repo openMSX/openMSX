@@ -4,7 +4,7 @@
 #define REACTOR_HH
 
 #include "Command.hh"
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include "EventListener.hh"
 #include <vector>
 
@@ -14,6 +14,7 @@ class CliComm;
 class BooleanSetting;
 class MSXMotherBoard;
 class CommandController;
+class Setting;
 
 /**
  * Contains the main loop of openMSX.
@@ -23,7 +24,7 @@ class CommandController;
  * This class serializes all incoming requests so they can be handled by the
  * main thread.
  */
-class Reactor : private SettingListener, private EventListener
+class Reactor : private Observer<Setting>, private EventListener
 {
 public:
 	Reactor(MSXMotherBoard& motherBoard);
@@ -37,8 +38,8 @@ public:
 
 private:
 
-	// SettingListener
-	virtual void update(const Setting* setting);
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
 
 	// EventListener
 	virtual void signalEvent(const Event& event);

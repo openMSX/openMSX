@@ -21,6 +21,7 @@ class MSXCassettePlayerCLI;
 class DiskImageCLI;
 class MSXMotherBoard;
 template <typename T> class EnumSetting;
+class Setting;
 
 class CLIOption
 {

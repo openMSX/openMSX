@@ -3,7 +3,7 @@
 #ifndef MSXMOTHERBOARD_HH
 #define MSXMOTHERBOARD_HH
 
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include "Command.hh"
 #include <memory>
 #include <vector>
@@ -37,8 +37,9 @@ class FileManipulator;
 class FilePool;
 class BooleanSetting;
 class EmuTime;
+class Setting;
 
-class MSXMotherBoard : private SettingListener
+class MSXMotherBoard : private Observer<Setting>
 {
 public:
 	MSXMotherBoard();
@@ -105,8 +106,8 @@ public:
 	FilePool& getFilePool();
 
 private:
-	// SettingListener
-	virtual void update(const Setting* setting);
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
 
 	/**
 	 * All MSXDevices should be registered by the MotherBoard.

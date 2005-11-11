@@ -6,7 +6,7 @@
 #include "openmsx.hh"
 #include "VDP.hh"
 #include "DisplayMode.hh"
-#include "SettingListener.hh"
+#include "Observer.hh"
 #include <memory>
 
 namespace openmsx {
@@ -17,7 +17,7 @@ class BooleanSetting;
 /** VDP command engine by Alex Wulms.
   * Implements command execution unit of V9938/58.
   */
-class VDPCmdEngine : private SettingListener
+class VDPCmdEngine : private Observer<Setting>
 {
 public:
 	/** Constructor.
@@ -358,7 +358,7 @@ private:
 	};
 
 
-	virtual void update(const Setting* setting);
+	virtual void update(const Setting& setting);
 
 	void executeCommand(const EmuTime& time);
 
