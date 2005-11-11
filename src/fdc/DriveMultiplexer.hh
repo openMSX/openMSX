@@ -25,29 +25,29 @@ public:
 	// Multiplexer interface
 	DriveMultiplexer(DiskDrive* drive[4]);
 	virtual ~DriveMultiplexer();
-	void selectDrive(DriveNum num, const EmuTime &time);
+	void selectDrive(DriveNum num, const EmuTime& time);
 
 	// DiskDrive interface
 	virtual bool ready();
 	virtual bool writeProtected();
 	virtual bool doubleSided();
 	virtual void setSide(bool side);
-	virtual void step(bool direction, const EmuTime &time);
-	virtual bool track00(const EmuTime &time);
-	virtual void setMotor(bool status, const EmuTime &time);
-	virtual bool indexPulse(const EmuTime &time);
-	virtual int indexPulseCount(const EmuTime &begin,
-	                            const EmuTime &end);
+	virtual void step(bool direction, const EmuTime& time);
+	virtual bool track00(const EmuTime& time);
+	virtual void setMotor(bool status, const EmuTime& time);
+	virtual bool indexPulse(const EmuTime& time);
+	virtual int indexPulseCount(const EmuTime& begin,
+	                            const EmuTime& end);
 	virtual EmuTime getTimeTillSector(byte sector, const EmuTime& time);
 	virtual EmuTime getTimeTillIndexPulse(const EmuTime& time);
-	virtual void setHeadLoaded(bool status, const EmuTime &time);
-	virtual bool headLoaded(const EmuTime &time);
+	virtual void setHeadLoaded(bool status, const EmuTime& time);
+	virtual bool headLoaded(const EmuTime& time);
 	virtual void read (byte sector, byte* buf,
-			   byte &onDiskTrack, byte &onDiskSector,
-			   byte &onDiskSide,  int  &onDiskSize);
+	                   byte& onDiskTrack, byte& onDiskSector,
+	                   byte& onDiskSide,  int&  onDiskSize);
 	virtual void write(byte sector, const byte* buf,
-			   byte &onDiskTrack, byte &onDiskSector,
-			   byte &onDiskSide,  int  &onDiskSize);
+	                   byte& onDiskTrack, byte& onDiskSector,
+	                   byte& onDiskSide,  int&  onDiskSize);
 	virtual void getSectorHeader(byte sector, byte* buf);
 	virtual void getTrackHeader(byte* buf);
 	virtual void initWriteTrack();

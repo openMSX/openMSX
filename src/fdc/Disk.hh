@@ -35,13 +35,13 @@ class Disk
 public:
 	virtual ~Disk();
 	virtual void read (byte track, byte sector,
-			   byte side, unsigned size, byte* buf) = 0;
+	                   byte side, unsigned size, byte* buf) = 0;
 	virtual void write(byte track, byte sector,
-			   byte side, unsigned size, const byte* buf) = 0;
+	                   byte side, unsigned size, const byte* buf) = 0;
 	virtual void getSectorHeader(byte track, byte sector,
-				     byte side, byte* buf);
+	                             byte side, byte* buf);
 	virtual void getTrackHeader(byte track,
-				    byte side, byte* buf);
+	                            byte side, byte* buf);
 	virtual void initWriteTrack(byte track, byte side);
 	virtual void writeTrackData(byte data);
 	virtual void initReadTrack(byte track, byte side);
@@ -58,10 +58,9 @@ protected:
 
 	Disk();
 	int physToLog(byte track, byte side, byte sector);
-	void logToPhys(int log, byte &track, byte &side, byte &sector);
+	void logToPhys(int log, byte& track, byte& side, byte& sector);
 
 	virtual void detectGeometry();
-
 	virtual int getImageSize();
 
 	int sectorsPerTrack;

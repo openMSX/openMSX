@@ -15,7 +15,6 @@ public:
 	DACSound8U(Mixer& mixer, const std::string &name,
 	           const std::string& desc, const XMLElement& config, 
 	           const EmuTime& time);
-	virtual ~DACSound8U();
 
 	void writeDAC(byte value, const EmuTime& time);
 };

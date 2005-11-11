@@ -8,12 +8,12 @@
 
 namespace openmsx {
 
-class Date
-{
-public:
-	static time_t fromString(const std::string& line);
-	static std::string toString(time_t time);
-};
+namespace Date {
+
+	time_t fromString(const std::string& line);
+	std::string toString(time_t time);
+
+} // namespace Date
 
 } // namespace openmsx
 

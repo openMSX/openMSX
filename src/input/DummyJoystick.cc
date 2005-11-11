@@ -4,15 +4,6 @@
 
 namespace openmsx {
 
-DummyJoystick::DummyJoystick()
-{
-}
-
-DummyJoystick::~DummyJoystick()
-{
-}
-
-
 byte DummyJoystick::read(const EmuTime& /*time*/)
 {
 	return 0x3F;

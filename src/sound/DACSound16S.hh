@@ -7,7 +7,6 @@
 
 #include "SoundDevice.hh"
 #include "EmuTime.hh"
-#include "openmsx.hh"
 #include <deque>
 
 namespace openmsx {

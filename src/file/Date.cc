@@ -1,16 +1,13 @@
 // $Id$
 
+#include "Date.hh"
 #include <sstream>
 #include <iomanip>
 #include <cstdio>
-#include "Date.hh"
-
-using std::ostringstream;
-using std::setfill;
-using std::setw;
-using std::string;
 
 namespace openmsx {
+
+namespace Date {
 
 const char* const days[7] = {
 	"Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ,"Sun"
@@ -21,7 +18,7 @@ const char* const months[12] = {
 	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
-time_t Date::fromString(const string& line)
+time_t fromString(const std::string& line)
 {
 	char day[4];
 	char month[4];
@@ -51,20 +48,22 @@ time_t Date::fromString(const string& line)
 	return mktime(&tm);
 }
 
-string Date::toString(time_t time)
+std::string toString(time_t time)
 {
 	struct tm* tm;
 	tm = localtime(&time);
-	ostringstream sstr;
-	sstr << setfill('0')
+	std::ostringstream sstr;
+	sstr << std::setfill('0')
 	     << days[tm->tm_wday] << " "
 	     << months[tm->tm_mon] << " "
-	     << setw(2) << tm->tm_mday << " "
-	     << setw(2) << tm->tm_hour << ":"
-	     << setw(2) << tm->tm_min << ":"
-	     << setw(2) << tm->tm_sec << " "
-	     << setw(4) << (tm->tm_year + 1900);
+	     << std::setw(2) << tm->tm_mday << " "
+	     << std::setw(2) << tm->tm_hour << ":"
+	     << std::setw(2) << tm->tm_min << ":"
+	     << std::setw(2) << tm->tm_sec << " "
+	     << std::setw(4) << (tm->tm_year + 1900);
 	return sstr.str();
 }
+
+} // namespace Date
 
 } // namespace openmsx

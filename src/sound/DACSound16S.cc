@@ -1,14 +1,12 @@
 // $Id$
 
 #include "DACSound16S.hh"
-#include "Mixer.hh"
-
-using std::string;
 
 namespace openmsx {
 
-DACSound16S::DACSound16S(Mixer& mixer, const string& name, const string& desc,
-                         const XMLElement& config, const EmuTime& /*time*/)
+DACSound16S::DACSound16S(Mixer& mixer, const std::string& name,
+                         const std::string& desc, const XMLElement& config,
+                         const EmuTime& /*time*/)
 	: SoundDevice(mixer, name, desc)
 {
 	lastWrittenValue = 0;

@@ -65,7 +65,7 @@ int Disk::physToLog(byte track, byte side, byte sector)
 	return result;
 }
 
-void Disk::logToPhys(int log, byte &track, byte &side, byte &sector)
+void Disk::logToPhys(int log, byte& track, byte& side, byte& sector)
 {
 	if (!nbSides) {
 		// try to guess values from boot sector
@@ -81,7 +81,7 @@ void Disk::detectGeometryFallback() // if all else fails, use statistics
 	// TODO maybe also check for 8*80*512 for 8 sectors per track
 	sectorsPerTrack = 9; // most of the time (sorry 5.25" disk users...)
 	// 360k disks are likely to be single sided:
-	nbSides = (getImageSize() == 720*512) ? 1 : 2;
+	nbSides = (getImageSize() == (720 * 512)) ? 1 : 2;
 }
 
 void Disk::detectGeometry()

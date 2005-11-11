@@ -2,7 +2,6 @@
 
 #include "DummyDisk.hh"
 
-
 namespace openmsx {
 
 DummyDisk::DummyDisk()

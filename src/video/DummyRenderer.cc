@@ -3,16 +3,7 @@
 #include "DummyRenderer.hh"
 #include "DisplayMode.hh"
 
-using std::string;
-
 namespace openmsx {
-
-DummyRenderer::DummyRenderer() {
-}
-
-DummyRenderer::~DummyRenderer () {
-	PRT_DEBUG ("DummyRenderer: Destructing DummyRenderer object");
-}
 
 void DummyRenderer::reset(const EmuTime& /*time*/) {
 }
@@ -89,8 +80,8 @@ void DummyRenderer::updateWindow(bool /*enabled*/, const EmuTime& /*time*/) {
 void DummyRenderer::paint() {
 }
 
-const string& DummyRenderer::getName() {
-	static const string NAME = "DummyRenderer";
+const std::string& DummyRenderer::getName() {
+	static const std::string NAME = "DummyRenderer";
 	return NAME;
 }
 

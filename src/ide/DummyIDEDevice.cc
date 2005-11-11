@@ -2,7 +2,6 @@
 
 #include "DummyIDEDevice.hh"
 
-
 namespace openmsx {
 
 void DummyIDEDevice::reset(const EmuTime& /*time*/)

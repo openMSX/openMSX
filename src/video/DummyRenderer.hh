@@ -43,17 +43,6 @@ public:
 	// Layer interface:
 	virtual void paint();
 	virtual const std::string& getName();
-
-private:
-	friend class RendererFactory;
-
-	/** Constructor, called by RendererFactory.
-	  */
-	DummyRenderer();
-
-	/** Destructor.
-	  */
-	virtual ~DummyRenderer();
 };
 
 } // namespace openmsx

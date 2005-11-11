@@ -2,17 +2,12 @@
 
 #include "DACSound8U.hh"
 
-using std::string;
-
 namespace openmsx {
 
-DACSound8U::DACSound8U(Mixer& mixer, const string& name, const string& desc,
-                       const XMLElement& config, const EmuTime& time)
+DACSound8U::DACSound8U(Mixer& mixer, const std::string& name,
+                       const std::string& desc, const XMLElement& config,
+                       const EmuTime& time)
 	: DACSound16S(mixer, name, desc, config, time)
-{
-}
-
-DACSound8U::~DACSound8U()
 {
 }
 

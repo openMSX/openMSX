@@ -10,8 +10,6 @@ namespace openmsx {
 class DummyJoystick : public JoystickDevice
 {
 public:
-	DummyJoystick();
-	virtual ~DummyJoystick();
 	virtual byte read(const EmuTime& time);
 	virtual void write(byte value, const EmuTime& time);
 	virtual const std::string& getDescription() const;

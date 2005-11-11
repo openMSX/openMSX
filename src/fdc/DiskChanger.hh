@@ -5,7 +5,6 @@
 
 #include "Command.hh"
 #include "DiskContainer.hh"
-#include "Disk.hh"
 #include <memory>
 
 namespace openmsx {
@@ -13,6 +12,7 @@ namespace openmsx {
 class XMLElement;
 class CommandController;
 class FileManipulator;
+class Disk;
 
 class DiskChanger : private Command, public DiskContainer
 {
@@ -39,7 +39,7 @@ private:
 	// Command interface
 	virtual void execute(const std::vector<TclObject*>& tokens,
 	                     TclObject& result);
-	virtual std::string help   (const std::vector<std::string>& tokens) const;
+	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 	std::string driveName;

@@ -9,15 +9,11 @@
 
 namespace openmsx {
 
-class SectorAccessibleDisk;
 class DiskChanger;
-class Disk;
-class XMLElement;
 class CommandController;
 class EventDistributor;
 class FileManipulator;
 class ThrottleManager;
-class Scheduler;
 class EmuTime;
 
 /**
@@ -109,11 +105,11 @@ public:
 	// Read / write methods, mostly copied from Disk,
 	// but needs to be reworked
 	virtual void read (byte sector, byte* buf,
-			   byte& onDiskTrack, byte& onDiskSector,
-			   byte& onDiskSide,  int& onDiskSize) = 0;
+	                   byte& onDiskTrack, byte& onDiskSector,
+	                   byte& onDiskSide,  int& onDiskSize) = 0;
 	virtual void write(byte sector, const byte* buf,
-			   byte& onDiskTrack, byte& onDiskSector,
-			   byte& onDiskSide,  int& onDiskSize) = 0;
+	                   byte& onDiskTrack, byte& onDiskSector,
+	                   byte& onDiskSide,  int& onDiskSize) = 0;
 	virtual void getSectorHeader(byte sector, byte* buf) = 0;
 	virtual void getTrackHeader(byte* buf) = 0;
 	virtual void initWriteTrack() = 0;
@@ -136,8 +132,6 @@ public:
 class DummyDrive : public DiskDrive
 {
 public:
-	DummyDrive();
-	virtual ~DummyDrive();
 	virtual bool ready();
 	virtual bool writeProtected();
 	virtual bool doubleSided();
@@ -146,18 +140,18 @@ public:
 	virtual bool track00(const EmuTime& time);
 	virtual void setMotor(bool status, const EmuTime& time);
 	virtual bool indexPulse(const EmuTime& time);
-	virtual int indexPulseCount(const EmuTime &begin,
-	                            const EmuTime &end);
+	virtual int indexPulseCount(const EmuTime& begin,
+	                            const EmuTime& end);
 	virtual EmuTime getTimeTillSector(byte sector, const EmuTime& time);
 	virtual EmuTime getTimeTillIndexPulse(const EmuTime& time);
 	virtual void setHeadLoaded(bool status, const EmuTime& time);
 	virtual bool headLoaded(const EmuTime& time);
 	virtual void read (byte sector, byte* buf,
-			   byte& onDiskTrack, byte& onDiskSector,
-			   byte& onDiskSide,  int&  onDiskSize);
+	                   byte& onDiskTrack, byte& onDiskSector,
+	                   byte& onDiskSide,  int&  onDiskSize);
 	virtual void write(byte sector, const byte* buf,
-			   byte& onDiskTrack, byte& onDiskSector,
-			   byte& onDiskSide,  int&  onDiskSize);
+	                   byte& onDiskTrack, byte& onDiskSector,
+	                   byte& onDiskSide,  int&  onDiskSize);
 	virtual void getSectorHeader(byte sector, byte* buf);
 	virtual void getTrackHeader(byte* buf);
 	virtual void initWriteTrack();
@@ -237,15 +231,14 @@ public:
 	                 EventDistributor& eventDistributor,
 	                 FileManipulator& fileManipulator,
 	                 const EmuTime& time);
-	virtual ~SingleSidedDrive();
 	virtual bool doubleSided();
 	virtual void setSide(bool side);
 	virtual void read (byte sector, byte* buf,
-			   byte& onDiskTrack, byte& onDiskSector,
-			   byte& onDiskSide,  int&  onDiskSize);
+	                   byte& onDiskTrack, byte& onDiskSector,
+	                   byte& onDiskSide,  int&  onDiskSize);
 	virtual void write(byte sector, const byte* buf,
-			   byte& onDiskTrack, byte& onDiskSector,
-			   byte& onDiskSide,  int&  onDiskSize);
+	                   byte& onDiskTrack, byte& onDiskSector,
+	                   byte& onDiskSide,  int&  onDiskSize);
 	virtual void getSectorHeader(byte sector, byte* buf);
 	virtual void getTrackHeader(byte* buf);
 	virtual void initWriteTrack();
@@ -263,15 +256,14 @@ public:
 	                 EventDistributor& eventDistributor,
 	                 FileManipulator& fileManipulator,
 	                 const EmuTime& time);
-	virtual ~DoubleSidedDrive();
 	virtual bool doubleSided();
 	virtual void setSide(bool side);
 	virtual void read (byte sector, byte* buf,
-			   byte& onDiskTrack, byte& onDiskSector,
-			   byte& onDiskSide,  int& onDiskSize);
+	                   byte& onDiskTrack, byte& onDiskSector,
+	                   byte& onDiskSide,  int& onDiskSize);
 	virtual void write(byte sector, const byte* buf,
-			   byte& onDiskTrack, byte& onDiskSector,
-			   byte& onDiskSide,  int&  onDiskSize);
+	                   byte& onDiskTrack, byte& onDiskSector,
+	                   byte& onDiskSide,  int&  onDiskSize);
 	virtual void getSectorHeader(byte sector, byte* buf);
 	virtual void getTrackHeader(byte* buf);
 	virtual void initWriteTrack();

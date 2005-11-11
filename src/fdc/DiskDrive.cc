@@ -1,15 +1,13 @@
 // $Id$
 
-#include "DiskDrive.hh"
 #include "Disk.hh"
+#include "DiskDrive.hh"
 #include "DiskChanger.hh"
 #include "EventDistributor.hh"
 #include "LedEvent.hh"
-#include "FileManipulator.hh"
 #include "CommandController.hh"
 #include "GlobalSettings.hh"
 #include "ThrottleManager.hh"
-#include "Clock.hh"
 #include <bitset>
 
 using std::string;
@@ -24,14 +22,6 @@ DiskDrive::~DiskDrive()
 }
 
 /// class DummyDrive ///
-
-DummyDrive::DummyDrive()
-{
-}
-
-DummyDrive::~DummyDrive()
-{
-}
 
 bool DummyDrive::ready()
 {
@@ -363,10 +353,6 @@ SingleSidedDrive::SingleSidedDrive(
 {
 }
 
-SingleSidedDrive::~SingleSidedDrive()
-{
-}
-
 bool SingleSidedDrive::doubleSided()
 {
 	return false;
@@ -430,10 +416,6 @@ DoubleSidedDrive::DoubleSidedDrive(
 	: RealDrive(commandController, eventDistributor, fileManipulator, time)
 {
 	side = 0;
-}
-
-DoubleSidedDrive::~DoubleSidedDrive()
-{
 }
 
 bool DoubleSidedDrive::doubleSided()
