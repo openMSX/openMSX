@@ -1142,7 +1142,7 @@ byte Y8950::peekReg(byte rg, const EmuTime &time) const
 			return adpcm->peekReg(rg);
 
 		case 0x19: // I/O DATA   TODO
-			return 0;
+			return 0xfb; // means 'switch OFF' for FS-CA1
 
 		default:
 			return 255;
