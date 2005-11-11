@@ -15,10 +15,10 @@ public:
 
 	virtual void scale1x1to2x2(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		OutputSurface* dst, unsigned dstStartY, unsigned dstEndY);
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale1x1to1x2(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		OutputSurface* dst, unsigned dstStartY, unsigned dstEndY);
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 };
 
 } // namespace openmsx
