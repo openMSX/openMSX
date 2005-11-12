@@ -4481,7 +4481,6 @@ proc trainer_breaker {} {
 	after time 1 trainer_breaker	
 }
 
-
 proc trainer_bosconian  {} {
 	#life bar
 	poke 0xe00d 99
@@ -4542,6 +4541,14 @@ proc trainer_xzr2  {} {
 	after time 1 trainer_xzr2 
 }
 
+proc trainer_robocop {} {
+	#power 
+	poke 0x75bb 100
+	poke 0x7746 255
+	#lives
+	poke 0x7752 99
+	after time 1 trainer_robocop 
+}
 
 proc trainer_fparodic2 {} {
 	poke 0xc008 9
