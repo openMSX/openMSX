@@ -4555,7 +4555,55 @@ proc trainer_fparodic2 {} {
 after time 1 trainer_fparodic2	
 }
 
+proc trainer_borfesu {} {
+	#life
+	poke 0xe37c 255
+	#staff
+	poke 0xe09f 1
+	#bow
+	poke 0xe0a0 1	
+	#whirlwind
+	poke 0xe0a1 1	
+	#boomerang
+	poke 0xe0a2 1		
+	#keltic cross
+	poke 0xe0a3 1	
+	#sword
+	poke 0xe0a4 1
+	#scepter
+	poke 0xe0a5 1	
+	#ball
+	poke 0xe0a6 1		
+	#statue
+	poke 0xe0a7 1	
+	#space suit
+	poke 0xe0a8 1
+	#key
+	poke 0xe0a9 1	
+	#pot
+	poke 0xe0aa 1		
+	#ketle
+	poke 0xe0ab 1
+	#bottle
+	poke 0xe0ac 1
+	#vase
+	poke 0xe0ad 1
+	#money
+	poke 0xe043 255
+	poke 0xe044 255
+	#exp
+	poke 0xe045 200
+	poke 0xe046 255
+	#containers
+	poke 0xe01a 250
+	after time 1 trainer_borfesu	
+}
 
+proc trainer_alcazar {} {
+	poke 0xf082 127
+	poke 0xf209 1
+after frame trainer_alcazar	
+}
 
 proc poke {addr val} {
 	debug write memory $addr $val
