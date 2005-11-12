@@ -15,9 +15,11 @@ class GlobalSettings;
 class IntegerSetting;
 class BooleanSetting;
 class Setting;
+class ThrottleManager;
 
 class SDLSoundDriver : public SoundDriver, private Schedulable,
-                       private Observer<Setting>
+                       private Observer<Setting>, 
+		       private Observer<ThrottleManager>
 {
 public:
 	SDLSoundDriver(Scheduler& scheduler, GlobalSettings& globalSettings,
@@ -50,6 +52,8 @@ private:
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
+	// Observer<ThrottleManager>
+	virtual void update(const ThrottleManager& throttleManager);
 
 	Mixer& mixer;
 	SDL_AudioSpec audioSpec;
@@ -63,7 +67,7 @@ private:
 	EmuDuration intervalAverage;
 
 	IntegerSetting& speedSetting;
-	BooleanSetting& throttleSetting;
+	ThrottleManager& throttleManager;
 };
 
 } // namespace openmsx

@@ -1,5 +1,8 @@
 $Id$
 
+2005-11-12 Manuel Bilderbeek <manuel@msxnet.org>
+	* Attach to throttleManager, not to throttleSetting.
+
 2005-11-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Allow multiple <mem base="xxx" size="yyy"/> tags per device
 	* MSXRam device is now mirrored:

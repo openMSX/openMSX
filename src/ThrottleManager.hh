@@ -1,17 +1,20 @@
 #ifndef THROTTLEMANAGER_HH
 #define THROTTLEMANAGER_HH
 
+#include "Subject.hh"
+
 namespace openmsx {
 
 class BooleanSetting;
+class Setting;
 	
 /**
  * Manages the throttle state of openMSX. It depends on the throttle setting,
  * but also on the fullspeedwhenfastloading setting and if the MSX has
- * notified us that it is loading...
- * TODO: make this class a Subject, so that we can Observe it.
+ * notified us that it is loading... If you want to know about the throttle
+ * status of openMSX, attach to me! (And not just to throttleSetting!)
  */
-class ThrottleManager
+class ThrottleManager : public Subject<ThrottleManager>, public Observer<Setting>
 {
 public:
 	ThrottleManager(BooleanSetting& throttleSetting_, BooleanSetting& fullSpeedLoadingSetting_);
@@ -33,11 +36,15 @@ public:
 	 */
 	void indicateLoadingState(bool state);
 
-private:
+	// Observer<Setting>
+	void update(const Setting& setting);
 
+private:
+	void updateStatus();
         BooleanSetting& throttleSetting;
 	BooleanSetting& fullSpeedLoadingSetting;
 	int loading;
+	bool throttle;
 };
 
 }

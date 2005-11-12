@@ -6,6 +6,7 @@
 #include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
+#include "ThrottleManager.hh"
 #include "Mixer.hh"
 #include "Scheduler.hh"
 #include "MSXException.hh"
@@ -43,7 +44,7 @@ DirectXSoundDriver::DirectXSoundDriver(Scheduler& scheduler,
 	: Schedulable(scheduler)
 	, mixer(mixer_)
 	, speedSetting(globalSettings.getSpeedSetting())
-	, throttleSetting(globalSettings.getThrottleSetting())
+	, throttleManager(globalSettings.getThrottleManager())
 {
 	if (DirectSoundCreate(NULL, &directSound, NULL) != DS_OK) {
 		throw MSXException("Couldn't initialize DirectSound driver");
@@ -140,12 +141,12 @@ DirectXSoundDriver::DirectXSoundDriver(Scheduler& scheduler,
 	setSyncPoint(prevTime + interval2);
 
 	speedSetting.attach(*this);
-	throttleSetting.attach(*this);
+	throttleManager.attach(*this);
 }
 
 DirectXSoundDriver::~DirectXSoundDriver()
 {
-	throttleSetting.detach(*this);
+	throttleManager.detach(*this);
 	speedSetting.detach(*this);
 
 	removeSyncPoint();
@@ -328,17 +329,16 @@ const string& DirectXSoundDriver::schedName() const
 
 // Observer<Setting>
 
-void DirectXSoundDriver::update(const Setting& setting)
+void DirectXSoundDriver::update(const Setting& /*setting*/)
 {
-	if (&setting == &speedSetting) {
-		reInit();
-	} else if (&setting == &throttleSetting) {
-		if (throttleSetting.getValue()) {
-			reInit();
-		}
-	} else {
-		assert(false);
-	}
+	reInit();
+}
+
+// Observer<ThrottleManager>
+
+void DirectXSoundDriver::update(const ThrottleManager& /*throttleManager*/)
+{
+	reInit();
 }
 
 } // namespace openmsx

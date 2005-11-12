@@ -13,6 +13,8 @@
 #include "BooleanSetting.hh"
 #include "ThrottleManager.hh"
 
+#include <iostream> // TODO: remove, this is debugging stuff
+
 using std::string;
 
 namespace openmsx {
@@ -26,13 +28,12 @@ RealTime::RealTime(Scheduler& scheduler, EventDistributor& eventDistributor_,
 	: Schedulable(scheduler)
 	, eventDistributor(eventDistributor_)
 	, throttleManager(globalSettings.getThrottleManager())
-	, throttleSetting   (globalSettings.getThrottleSetting())
 	, speedSetting   (globalSettings.getSpeedSetting())
 	, pauseSetting   (globalSettings.getPauseSetting())
 	, powerSetting   (globalSettings.getPowerSetting())
 {
 	speedSetting.attach(*this);
-	throttleSetting.attach(*this);
+	throttleManager.attach(*this);
 	pauseSetting.attach(*this);
 	powerSetting.attach(*this);
 
@@ -47,7 +48,7 @@ RealTime::~RealTime()
 
 	powerSetting.detach(*this);
 	pauseSetting.detach(*this);
-	throttleSetting.detach(*this);
+	throttleManager.detach(*this);
 	speedSetting.detach(*this);
 }
 
@@ -128,7 +129,11 @@ const string& RealTime::schedName() const
 
 void RealTime::update(const Setting& /*setting*/)
 {
-	// Note: we don't get an update when the ThrottleManager changes throttle mode... (as it is not a Subject (yet), we cannot Observe it)
+	resync();
+}
+
+void RealTime::update(const ThrottleManager& /*throttleManager*/)
+{
 	resync();
 }
 

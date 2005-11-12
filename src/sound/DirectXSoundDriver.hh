@@ -19,9 +19,11 @@ class Mixer;
 class IntegerSetting;
 class BooleanSetting;
 class Setting;
+class ThrottleManager;
 
 class DirectXSoundDriver : public SoundDriver, private Schedulable,
-                           private Observer<Setting>
+                           private Observer<Setting>,
+                           private Observer<ThrottleManager>
 {
 public:
 	DirectXSoundDriver(Scheduler& scheduler, GlobalSettings& globalSettings,
@@ -52,6 +54,8 @@ private:
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
+	// Observer<ThrottleManager>
+	virtual void update(const ThrottleManager& throttleManager);
 
 	enum DxState { DX_SOUND_DISABLED, DX_SOUND_ENABLED, DX_SOUND_RUNNING };
 	DxState state;
@@ -72,7 +76,7 @@ private:
 	//EmuDuration intervalAverage;
 
 	IntegerSetting& speedSetting;
-	BooleanSetting& throttleSetting;
+	ThrottleManager& throttleManager;
 };
 
 } // namespace openmsx

@@ -9,6 +9,10 @@
 
 namespace openmsx {
 
+/**
+ * Generic Gang-of-Four Subject class of the Observer pattern, templatized
+ * edition.
+ */
 template <typename T> class Subject
 {
 public:

@@ -17,7 +17,7 @@ class BooleanSetting;
 class ThrottleManager;
 class Setting;
 
-class RealTime : private Schedulable, private Observer<Setting>
+class RealTime : private Schedulable, private Observer<Setting>, private Observer<ThrottleManager>
 {
 public:
 	RealTime(Scheduler& scheduler, EventDistributor& eventDistributor,
@@ -53,13 +53,14 @@ private:
 
 	// Observer<Setting>
 	void update(const Setting& setting);
+	// Observer<ThrottleManager>
+	void update(const ThrottleManager& throttleManager);
 
 	void internalSync(const EmuTime& time, bool allowSleep);
 	void resync();
 
 	EventDistributor& eventDistributor;
 	ThrottleManager& throttleManager;
-	BooleanSetting& throttleSetting;
 	IntegerSetting& speedSetting;
 	BooleanSetting& pauseSetting;
 	BooleanSetting& powerSetting;

@@ -6,6 +6,7 @@
 #include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
+#include "ThrottleManager.hh"
 #include "MSXException.hh"
 #include "build-info.hh"
 #include <algorithm>
@@ -27,7 +28,7 @@ SDLSoundDriver::SDLSoundDriver(Scheduler& scheduler, GlobalSettings& globalSetti
 	, mixer(mixer_)
 	, muted(true)
 	, speedSetting(globalSettings.getSpeedSetting())
-	, throttleSetting(globalSettings.getThrottleSetting())
+	, throttleManager(globalSettings.getThrottleManager())
 {
 	SDL_AudioSpec desired;
 	desired.freq     = frequency;
@@ -57,12 +58,12 @@ SDLSoundDriver::SDLSoundDriver(Scheduler& scheduler, GlobalSettings& globalSetti
 	setSyncPoint(prevTime + interval2);
 
 	speedSetting.attach(*this);
-	throttleSetting.attach(*this);
+	throttleManager.attach(*this);
 }
 
 SDLSoundDriver::~SDLSoundDriver()
 {
-	throttleSetting.detach(*this);
+	throttleManager.detach(*this);
 	speedSetting.detach(*this);
 
 	removeSyncPoint();
@@ -257,17 +258,16 @@ const string& SDLSoundDriver::schedName() const
 
 // Observer<Setting>
 
-void SDLSoundDriver::update(const Setting& setting)
+void SDLSoundDriver::update(const Setting& /*setting*/)
 {
-	if (&setting == &speedSetting) {
-		reInit();
-	} else if (&setting == &throttleSetting) {
-		if (throttleSetting.getValue()) {
-			reInit();
-		}
-	} else {
-		assert(false);
-	}
+	reInit();
+}
+
+// Observer<ThrottleManager>
+
+void SDLSoundDriver::update(const ThrottleManager& /*throttleManager*/)
+{
+	reInit();
 }
 
 } // namespace openmsx

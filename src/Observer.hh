@@ -5,6 +5,9 @@
 
 namespace openmsx {
 
+/**
+ * Generic Gang-of-Four Observer class, templatized edition.
+ */
 template <typename T> class Observer
 {
 	public:
