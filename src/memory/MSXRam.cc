@@ -12,26 +12,18 @@ MSXRam::MSXRam(MSXMotherBoard& motherBoard, const XMLElement& config,
                const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
 {
-	// size / base
-	int s = config.getChildDataAsInt("size", 64);
-	int b = config.getChildDataAsInt("base", 0);
-	if ((s <= 0) || (s > 64)) {
-		throw FatalError("Wrong RAM size");
+	base = config.getChildDataAsInt("base", 0);
+	size = config.getChildDataAsInt("size", 0x10000);
+	if ((size > 0x10000) || (base >= 0x10000)) {
+		throw FatalError("Invalid base/size for " + getName() +
+		                 ", must be in range [0x0000,0x10000).");
 	}
-	if ((b < 0) || ((b + s) > 64)) {
-		throw FatalError("Wrong RAM base");
+	if ((base & CPU::CACHE_LINE_LOW) || (size & CPU::CACHE_LINE_LOW)) {
+		throw FatalError("Invalid base/size alignment for " +
+		                 getName());
 	}
-	base = b * 1024;
-	int size = s * 1024;
-	end = base + size;
-
-	assert(CPU::CACHE_LINE_SIZE <= 1024);	// size must be cache aligned
 
 	ram.reset(new Ram(motherBoard, getName(), "ram", size));
-}
-
-MSXRam::~MSXRam()
-{
 }
 
 void MSXRam::powerUp(const EmuTime& /*time*/)
@@ -39,45 +31,30 @@ void MSXRam::powerUp(const EmuTime& /*time*/)
 	ram->clear();
 }
 
-bool MSXRam::isInside(word address) const
+word MSXRam::translate(word address) const
 {
-	return ((base <= address) && (address < end));
+	word tmp = address - base;
+	return (tmp < size) ? tmp : tmp & (size - 1);
 }
 
 byte MSXRam::readMem(word address, const EmuTime& /*time*/)
 {
-	if (isInside(address)) {
-		return (*ram)[address - base];
-	} else {
-		return 0xFF;
-	}
+	return (*ram)[translate(address)];
 }
 
 void MSXRam::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
-	if (isInside(address)) {
-		(*ram)[address - base] = value;
-	} else {
-		// ignore
-	}
+	(*ram)[translate(address)] = value;
 }
 
 const byte* MSXRam::getReadCacheLine(word start) const
 {
-	if (isInside(start)) {
-		return &(*ram)[start - base];
-	} else {
-		return unmappedRead;
-	}
+	return &(*ram)[translate(start)];
 }
 
 byte* MSXRam::getWriteCacheLine(word start) const
 {
-	if (isInside(start)) {
-		return &(*ram)[start - base];
-	} else {
-		return unmappedWrite;
-	}
+	return &(*ram)[translate(start)];
 }
 
 } // namespace openmsx

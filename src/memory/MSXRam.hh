@@ -15,7 +15,6 @@ class MSXRam : public MSXDevice
 public:
 	MSXRam(MSXMotherBoard& motherBoard, const XMLElement& config,
 	       const EmuTime& time);
-	virtual ~MSXRam();
 
 	virtual void powerUp(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
@@ -24,10 +23,9 @@ public:
 	virtual byte* getWriteCacheLine(word start) const;
 
 private:
-	inline bool isInside(word address) const;
-
-	int base;
-	int end;
+	inline word translate(word address) const;
+	unsigned base;
+	unsigned size;
 	std::auto_ptr<Ram> ram;
 };
 

@@ -1,5 +1,17 @@
 $Id$
 
+2005-11-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Allow multiple <mem base="xxx" size="yyy"/> tags per device
+	* MSXRam device is now mirrored:
+	   Together with change above it's now possible to create RAM like this:
+	     <RAM id="my mirrored ram">
+	       <mem base="0x2000" size="0x2000"/>
+	       <mem base="0xA000" size="0x2000"/>
+	       <size>0x2000</size>
+	     </RAM>
+	   This represents a 8kb RAM that is visible on both 0x2000-0x3FFF and
+	   0xA000-0xBFFF
+
 2005-11-11 Manuel Bilderbeek <manuel@msxnet.org>
 	* Removed old add/removeListener calls
 	* Removed SettingListener class

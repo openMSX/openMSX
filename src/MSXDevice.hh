@@ -3,8 +3,10 @@
 #ifndef MSXDEVICE_HH
 #define MSXDEVICE_HH
 
-#include <string>
 #include "openmsx.hh"
+#include <string>
+#include <vector>
+#include <utility> // for pair
 
 namespace openmsx {
 
@@ -156,17 +158,17 @@ protected:
 	static byte unmappedWrite[0x10000];	// Write only
 
 private:
+	typedef std::vector<std::pair<unsigned, unsigned> > MemRegions;
+	void getMemRegions(const XMLElement& config, MemRegions& result);
 	void initMem();
 	void registerSlots(const XMLElement& config);
-	void unregisterSlots();
+	void unregisterSlots(const XMLElement& config);
 
 	void registerPorts(const XMLElement& config);
 	void unregisterPorts(const XMLElement& config);
 
 	int ps;
 	int ss;
-	unsigned base;
-	unsigned size;
 
 	MSXMotherBoard& motherBoard;
 };

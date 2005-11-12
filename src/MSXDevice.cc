@@ -1,11 +1,12 @@
 // $Id$
 
+#include "MSXDevice.hh"
 #include "XMLElement.hh"
-#include "StringOp.hh"
-#include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 #include "CartridgeSlotManager.hh"
-#include "MSXDevice.hh"
+#include "MSXCPUInterface.hh"
+#include "CPU.hh"
+#include "StringOp.hh"
 #include "MSXException.hh"
 
 using std::string;
@@ -19,7 +20,7 @@ byte MSXDevice::unmappedWrite[0x10000];
 
 MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
                      const EmuTime& /*time*/)
-	: deviceConfig(config), base((unsigned)-1), motherBoard(motherBoard_)
+	: deviceConfig(config), motherBoard(motherBoard_)
 {
 	initMem();
 	registerSlots(config);
@@ -29,7 +30,7 @@ MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
 MSXDevice::~MSXDevice()
 {
 	unregisterPorts(deviceConfig);
-	unregisterSlots();
+	unregisterSlots(deviceConfig);
 }
 
 void MSXDevice::initMem()
@@ -42,21 +43,37 @@ void MSXDevice::initMem()
 	memset(unmappedRead, 0xFF, 0x10000);
 }
 
+void MSXDevice::getMemRegions(const XMLElement& config, MemRegions& result)
+{
+	XMLElement::Children memConfigs;
+	config.getChildren("mem", memConfigs);
+	for (XMLElement::Children::const_iterator it = memConfigs.begin();
+	     it != memConfigs.end(); ++it) {
+		unsigned base = (*it)->getAttributeAsInt("base");
+		unsigned size = (*it)->getAttributeAsInt("size");
+		if ((base >= 0x10000) || (size > 0x10000)) {
+			throw FatalError(
+				"Invalid memory specification for device " +
+				getName() + " should be in range "
+				"[0x0000,0x10000).");
+		}
+		if ((base & CPU::CACHE_LINE_LOW) || (size & CPU::CACHE_LINE_LOW)) {
+			int tmp = CPU::CACHE_LINE_SIZE; // solves link error
+			throw FatalError(
+				"Invalid memory specification for device " +
+				getName() + " should be aligned at " +
+				StringOp::toHexString(tmp, 4) + ".");
+		}
+		result.push_back(std::make_pair(base, size));
+	}
+}
+
 void MSXDevice::registerSlots(const XMLElement& config)
 {
-	const XMLElement* mem = config.findChild("mem");
-	if (!mem) {
+	MemRegions memRegions;
+	getMemRegions(config, memRegions);
+	if (memRegions.empty()) {
 		return;
-	}
-	base = mem->getAttributeAsInt("base");
-	size = mem->getAttributeAsInt("size");
-	if ((base >= 0x10000) || (size > 0x10000)) {
-		throw FatalError("Invalid memory specification for device " +
-		            getName() + " should be in range [0x0000,0x10000).");
-	}
-	if ((base & 0xFF) || (size & 0xFF)) {
-		throw FatalError("Invalid memory specification for device " +
-		            getName() + " should be aligned at 0x100.");
 	}
 
 	CartridgeSlotManager& slotManager = getMotherBoard().getSlotManager();
@@ -88,15 +105,22 @@ void MSXDevice::registerSlots(const XMLElement& config)
 	} else {
 		// numerical specified slot (0, 1, 2, 3)
 	}
-	getMotherBoard().getCPUInterface().registerMemDevice(
-		*this, ps, ss, base, size);
+
+	for (MemRegions::const_iterator it = memRegions.begin();
+	     it != memRegions.end(); ++it) {
+		getMotherBoard().getCPUInterface().registerMemDevice(
+			*this, ps, ss, it->first, it->second);
+	}
 }
 
-void MSXDevice::unregisterSlots()
+void MSXDevice::unregisterSlots(const XMLElement& config)
 {
-	if (base != (unsigned)-1) {
+	MemRegions memRegions;
+	getMemRegions(config, memRegions);
+	for (MemRegions::const_iterator it = memRegions.begin();
+	     it != memRegions.end(); ++it) {
 		getMotherBoard().getCPUInterface().unregisterMemDevice(
-			*this, ps, ss, base, size);
+			*this, ps, ss, it->first, it->second);
 	}
 }
 
