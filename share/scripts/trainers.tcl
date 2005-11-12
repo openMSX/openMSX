@@ -294,7 +294,6 @@ proc trainer_gradius2 {} {
 	poke 0xe283 14
 	#shield 2=on 0=off
 	poke 0xe400 2
-
 	#nemesis 3 style circling options
 	#!poke 0xe439 3
 	#all combi's with konami carts 
@@ -322,7 +321,6 @@ proc trainer_golvellius1 {} {
 	#max health and full bar
 	poke 0xe022 240
 	poke 0xe03d 240
-	
 	#all items (doesn't make much sense... non logical stuff)
 	poke 0xe01d 7
 	poke 0xe01f 3
@@ -393,7 +391,6 @@ proc trainer_zombie_hunter {} {
 	poke 0xc7eb 255
 	#max level
 	poke 0xc7ee 31
-
 	after time 1 trainer_zombie_hunter 
 }
 
@@ -526,7 +523,8 @@ proc trainer_mrghost {} {
 
 proc trainer_dragonbuster {} {
 	#life and attacks
-	poke 0xc312 255 
+	poke 0xc312 0x99 
+	poke 0xc313 0x5
 	#!exp
 	#!poke 0xc2e2 0x99
 	#!poke 0xc2e3 0x99
@@ -698,13 +696,11 @@ proc trainer_xak1 {} {
 	#red key
 	poke 0x1c43 99	
 	#purple key
-	poke 0x1c44 99	
-									
+	poke 0x1c44 99									
 	after time 2 trainer_xak1
 }
 
 proc trainer_sdsnatcher {} {
-
 #max out all stats
 	poke 0xce82 255
 	poke 0xce83 255
@@ -895,13 +891,11 @@ proc trainer_sdsnatcher {} {
 	#!poke 0xc150 11
 }
 
-
 proc trainer_undeadline {} {
 	#life
 	poke 0xd2a8 255 
 	after time 2 trainer_undeadline
 }
-
 
 proc trainer_andorogynus  {} {
 	#schield always on
@@ -1621,6 +1615,12 @@ proc trainer_guardic {} {
 	poke 0xe027 255
 	#power
 	poke 0xe019 255
+	#have shield
+	poke 0xe00c 1
+	#speed
+	poke 0xe00f 6
+	#wave
+	poke 0xe00a 4
 	after time 60 trainer_guardic
 }
 
@@ -3264,7 +3264,6 @@ proc trainer_jpwinkle {} {
 	poke 0xe0ad 255
 	#cross
 	poke 0xe0ac 255	
-	
 	after time 2 trainer_jpwinkle
 }
 
@@ -3582,7 +3581,6 @@ proc trainer_deathwish3 {} {
 	poke 0xa479 99
 	#sub machine gun
 	poke 0xa47a 99
-	
 	#invincible
 	poke 0x5b91 1
 	after time 1 trainer_deathwish3 
@@ -3601,7 +3599,7 @@ proc trainer_desolator {} {
 proc trainer_guttblaster {} { 
 	#cosmic cheat
 	poke 0x4038 1
-	#2 way shot (to change choose value 0-3
+	#2 way shot (to change choose value 0-3)
 	poke 0x6a96 3
 	after time 1 trainer_guttblaster
 }
@@ -3685,6 +3683,9 @@ proc trainer_monstersfair {} {
 proc trainer_jagur {} {
 	#power
 	poke 0xec00 99
+	#money
+	poke 0xe020 255
+	poke 0xe021 127
 	after time 1 trainer_jagur
 }
 
