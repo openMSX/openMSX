@@ -12,7 +12,6 @@ class PanasonicRam : public MSXMemoryMapper
 public:
 	PanasonicRam(MSXMotherBoard& motherBoard, const XMLElement& config,
 	             const EmuTime& time);
-	virtual ~PanasonicRam();
 };
 
 } // namespace openmsx

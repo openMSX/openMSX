@@ -13,8 +13,4 @@ PanasonicRam::PanasonicRam(MSXMotherBoard& motherBoard,
 	motherBoard.getPanasonicMemory().registerRam(*ram);
 }
 
-PanasonicRam::~PanasonicRam()
-{
-}
-
 } // namespace openmsx

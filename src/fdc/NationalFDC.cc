@@ -13,10 +13,6 @@ NationalFDC::NationalFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
 {
 }
 
-NationalFDC::~NationalFDC()
-{
-}
-
 byte NationalFDC::readMem(word address, const EmuTime& time)
 {
 	byte value;

@@ -17,7 +17,6 @@
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
 #include <algorithm>
-#include <cassert>
 
 using std::min;
 

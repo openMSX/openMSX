@@ -1,7 +1,6 @@
 // $Id$
 
 #include "OSDConsoleRenderer.hh"
-#include "CommandController.hh"
 #include "CommandConsole.hh"
 #include "EnumSetting.hh"
 #include "IntegerSetting.hh"

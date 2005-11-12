@@ -15,7 +15,6 @@ Visit the HiEnd3D site for info:
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
 #include <algorithm>
-#include <cassert>
 
 using std::min;
 

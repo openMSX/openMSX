@@ -3,9 +3,9 @@
 #ifndef SOUNDDRIVER_HH
 #define SOUNDDRIVER_HH
 
-#include "EmuTime.hh"
-
 namespace openmsx {
+
+class EmuTime;
 
 class SoundDriver
 {

@@ -16,10 +16,6 @@ PhilipsFDC::PhilipsFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
 	reset(time);
 }
 
-PhilipsFDC::~PhilipsFDC()
-{
-}
-
 void PhilipsFDC::reset(const EmuTime& time)
 {
 	WD2793BasedFDC::reset(time);
@@ -63,13 +59,14 @@ byte PhilipsFDC::peekMem(word address, const EmuTime& time) const
 		value = controller->peekStatusReg(time);
 		break;
 	case 0x3FF9:
+		// TODO: check if such broken interfaces indeed return 255 or
+		// something else. Example of such machines : Sony 700 series
 		value = brokenFDCread ? 255 : controller->peekTrackReg(time);
-		//TODO: check if such broken interfaces indeed return 255 or something else
-		// example of such machines : Sony 700 series
 		break;
 	case 0x3FFA:
+		// TODO: check if such broken interfaces indeed return 255 or
+		// something else. Example of such machines : Sony 700 series
 		value = brokenFDCread ? 255 : controller->peekSectorReg(time);
-		//TODO: check if such broken interfaces indeed return 255 or something else
 		break;
 	case 0x3FFB:
 		value = controller->peekDataReg(time);
@@ -77,20 +74,22 @@ byte PhilipsFDC::peekMem(word address, const EmuTime& time) const
 	case 0x3FFC:
 		//bit 0 = side select
 		//TODO check other bits !!
-		value = sideReg;	// value = multiplexer.getSideSelect();
+		value = sideReg; // value = multiplexer.getSideSelect();
 		break;
 	case 0x3FFD:
-		//bit 1,0 -> drive number  (00 or 10: drive A, 01: drive B, 11: nothing)
+		//bit 1,0 -> drive number
+		//(00 or 10: drive A, 01: drive B, 11: nothing)
 		//bit 7 -> motor on
 		//TODO check other bits !!
-		value = driveReg;	// multiplexer.getSelectedDrive();
+		value = driveReg; // multiplexer.getSelectedDrive();
 		break;
 	case 0x3FFE:
 		//not used
 		value = 255;
 		break;
 	case 0x3FFF:
-		// Drive control IRQ and DRQ lines are not connected to Z80 interrupt request
+		// Drive control IRQ and DRQ lines are not connected to Z80
+		// interrupt request
 		// bit 6: !intrq
 		// bit 7: !dtrq
 		//TODO check other bits !!
@@ -108,16 +107,19 @@ byte PhilipsFDC::peekMem(word address, const EmuTime& time) const
 		}
 		break;
 	}
-	//PRT_DEBUG("PhilipsFDC read 0x" << hex << (int)address << " 0x" << (int)value << dec);
+	//PRT_DEBUG("PhilipsFDC read 0x" << hex << (int)address <<
+	//          " 0x" << (int)value << dec);
 	return value;
 }
 
 const byte* PhilipsFDC::getReadCacheLine(word start) const
 {
-	//if address overlap 0x7ff8-0x7ffb then return NULL, else normal ROM behaviour
-	if ((start & 0x3FF8 & CPU::CACHE_LINE_HIGH) == (0x3FF8 & CPU::CACHE_LINE_HIGH))
+	// if address overlap 0x7ff8-0x7ffb then return NULL,
+	// else normal ROM behaviour
+	if ((start & 0x3FF8 & CPU::CACHE_LINE_HIGH) ==
+	    (0x3FF8 & CPU::CACHE_LINE_HIGH)) {
 		return NULL;
-	if (start < 0x8000) {
+	} else if (start < 0x8000) {
 		// ROM visible in 0x0000-0x7FFF
 		return MSXFDC::getReadCacheLine(start);
 	} else {
@@ -127,7 +129,8 @@ const byte* PhilipsFDC::getReadCacheLine(word start) const
 
 void PhilipsFDC::writeMem(word address, byte value, const EmuTime& time)
 {
-	//PRT_DEBUG("PhilipsFDC write 0x" << hex << (int)address << " 0x" << (int)value << dec);
+	//PRT_DEBUG("PhilipsFDC write 0x" << hex << (int)address <<
+	//          " 0x" << (int)value << dec);
 	switch (address & 0x3FFF) {
 	case 0x3FF8:
 		controller->setCommandReg(value, time);
@@ -148,7 +151,8 @@ void PhilipsFDC::writeMem(word address, byte value, const EmuTime& time)
 		multiplexer->setSide(value & 1);
 		break;
 	case 0x3FFD:
-		//bit 1,0 -> drive number  (00 or 10: drive A, 01: drive B, 11: nothing)
+		//bit 1,0 -> drive number
+		//(00 or 10: drive A, 01: drive B, 11: nothing)
 		//TODO bit 6 -> drive LED (0 -> off, 1 -> on)
 		//bit 7 -> motor on
 		//TODO check other bits !!

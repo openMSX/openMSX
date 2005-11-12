@@ -2,14 +2,10 @@
 
 #include "PostProcessor.hh"
 #include "RenderSettings.hh"
-#include "Scaler.hh"
 #include "BooleanSetting.hh"
-#include "MemoryOps.hh"
 #include "OutputSurface.hh"
 #include "DeinterlacedFrame.hh"
-#include <SDL.h>
 #include <cassert>
-
 
 namespace openmsx {
 
@@ -135,7 +131,7 @@ RawFrame* PostProcessor<Pixel>::rotateFrames(
 
 
 // Force template instantiation.
-template class PostProcessor<Uint16>;
-template class PostProcessor<Uint32>;
+template class PostProcessor<word>;
+template class PostProcessor<unsigned>;
 
 } // namespace openmsx

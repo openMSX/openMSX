@@ -5,7 +5,6 @@
 
 #include <string>
 #include <memory>
-#include <cassert>
 #include <SDL.h>
 
 namespace openmsx {

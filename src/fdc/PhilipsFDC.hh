@@ -12,7 +12,6 @@ class PhilipsFDC : public WD2793BasedFDC
 public:
 	PhilipsFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
 	           const EmuTime& time);
-	virtual ~PhilipsFDC();
 
 	virtual void reset(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);

@@ -10,13 +10,13 @@ namespace openmsx {
  */
 template <typename T> class Observer
 {
-	public:
-		virtual void update(const T& subject) = 0;
+public:
+	virtual void update(const T& subject) = 0;
 
-	protected:
-		virtual ~Observer() {}
+protected:
+	virtual ~Observer() {}
 };
 
-}
+} // namespace openmsx
 
 #endif

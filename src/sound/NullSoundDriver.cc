@@ -4,14 +4,6 @@
 
 namespace openmsx {
 
-NullSoundDriver::NullSoundDriver()
-{
-}
-
-NullSoundDriver::~NullSoundDriver()
-{
-}
-
 void NullSoundDriver::lock()
 {
 }

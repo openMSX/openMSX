@@ -14,7 +14,6 @@ namespace openmsx {
 
 class EventDistributor;
 class RealTime;
-class Display;
 class Rasterizer;
 class VDP;
 class SpriteChecker;

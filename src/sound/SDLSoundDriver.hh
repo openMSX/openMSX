@@ -6,6 +6,7 @@
 #include "SoundDriver.hh"
 #include "Schedulable.hh"
 #include "Observer.hh"
+#include "EmuTime.hh"
 #include <SDL.h>
 
 namespace openmsx {

@@ -3,8 +3,8 @@
 #ifndef PRINTERPORTDEVICE_HH
 #define PRINTERPORTDEVICE_HH
 
-#include "openmsx.hh"
 #include "Pluggable.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 
@@ -16,7 +16,7 @@ public:
 	 *  false = low  = ready,
 	 *  true  = high = not ready.
 	 */
-	virtual bool getStatus(const EmuTime &time) = 0;
+	virtual bool getStatus(const EmuTime& time) = 0;
 
 	/**
 	 * Sets the strobe signal:
@@ -24,7 +24,7 @@ public:
 	 *  true  = high.
 	 * Normal high, a short pulse (low, high) means data is valid.
 	 */
-	virtual void setStrobe(bool strobe, const EmuTime &time) = 0;
+	virtual void setStrobe(bool strobe, const EmuTime& time) = 0;
 
 	/**
 	 * Sets the data signals.
@@ -32,9 +32,10 @@ public:
 	 * As an optimization, this method might not be called when the
 	 * new data is the same as the previous data.
 	 */
-	virtual void writeData(byte data, const EmuTime &time) = 0;
+	virtual void writeData(byte data, const EmuTime& time) = 0;
 
-	virtual const std::string &getClass() const;
+	// Pluggable
+	virtual const std::string& getClass() const;
 };
 
 } // namespace openmsx

@@ -6,8 +6,6 @@
 #include "FilenameSetting.hh"
 #include <cassert>
 
-using std::string;
-
 namespace openmsx {
 
 PrinterPortLogger::PrinterPortLogger(CommandController& commandController)
@@ -31,10 +29,8 @@ bool PrinterPortLogger::getStatus(const EmuTime& /*time*/)
 void PrinterPortLogger::setStrobe(bool strobe, const EmuTime& /*time*/)
 {
 	assert(file.get());
-	PRT_DEBUG("PRINTER: strobe " << strobe);
 	if (!strobe && prevStrobe) {
 		// falling edge
-		PRT_DEBUG("PRINTER: save in printlog file " << toPrint);
 		file->write(&toPrint, 1);
 		file->flush(); // optimize when it turns out flushing
 		               // every time is too slow
@@ -44,7 +40,6 @@ void PrinterPortLogger::setStrobe(bool strobe, const EmuTime& /*time*/)
 
 void PrinterPortLogger::writeData(byte data, const EmuTime& /*time*/)
 {
-	PRT_DEBUG("PRINTER: setting data " << data);
 	toPrint = data;
 }
 
@@ -65,15 +60,15 @@ void PrinterPortLogger::unplugHelper(const EmuTime& /*time*/)
 	file.reset();
 }
 
-const string& PrinterPortLogger::getName() const
+const std::string& PrinterPortLogger::getName() const
 {
-	static const string name("logger");
+	static const std::string name("logger");
 	return name;
 }
 
-const string& PrinterPortLogger::getDescription() const
+const std::string& PrinterPortLogger::getDescription() const
 {
-	static const string desc(
+	static const std::string desc(
 		"Log everything that is sent to the printer port to a "
 		"file. The filename can be set with the "
 		"'printerlogfilename' setting.");

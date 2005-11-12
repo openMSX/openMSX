@@ -13,7 +13,7 @@ SRC_HDR:= \
 	ThrottleManager \
 	MSXMotherBoard \
 	MSXPPI I8255 \
-	PlatformFactory DeviceFactory \
+	DeviceFactory \
 	Reactor Scheduler Schedulable \
 	MSXE6Timer \
 	MSXF4Device \

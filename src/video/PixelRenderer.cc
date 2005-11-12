@@ -22,7 +22,6 @@ TODO:
 #include "Timer.hh"
 #include <algorithm>
 #include <cassert>
-#include <sstream>
 
 namespace openmsx {
 
