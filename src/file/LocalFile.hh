@@ -13,7 +13,7 @@ namespace openmsx {
 class LocalFile : public FileBase
 {
 public:
-	LocalFile(const std::string& filename, OpenMode mode);
+	LocalFile(const std::string& filename, File::OpenMode mode);
 	virtual ~LocalFile();
 	virtual void read (byte* buffer, unsigned num);
 	virtual void write(const byte* buffer, unsigned num);

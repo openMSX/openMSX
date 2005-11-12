@@ -288,7 +288,7 @@ void FileManipulator::savedsk(const DriveSettings& driveData,
 	SectorAccessibleDisk& disk = getDisk(driveData);
 	unsigned nrsectors = disk.getNbSectors();
 	byte buf[SectorBasedDisk::SECTOR_SIZE];
-	File file(filename, CREATE);
+	File file(filename, File::CREATE);
 	for (unsigned i = 0; i < nrsectors; ++i) {
 		disk.readLogicalSector(i, buf);
 		file.write(buf, SectorBasedDisk::SECTOR_SIZE);
@@ -349,7 +349,7 @@ void FileManipulator::create(const vector<string>& tokens)
 
 	// create file with correct size
 	try {
-		File file(tokens[2], CREATE);
+		File file(tokens[2], File::CREATE);
 		file.truncate(totalSectors * SectorBasedDisk::SECTOR_SIZE);
 	} catch (FileException& e) {
 		throw CommandException("Couldn't create image: " + e.getMessage());

@@ -57,7 +57,8 @@ IDEHD::IDEHD(EventDistributor& eventDistributor_, const XMLElement& config,
 	buffer = new byte[512 * 256];
 
 	const string& filename = config.getChildData("filename");
-	file.reset(new File(config.getFileContext().resolveCreate(filename), CREATE));
+	file.reset(new File(config.getFileContext().resolveCreate(filename),
+	                    File::CREATE));
 
 	unsigned wantedSize = config.getChildDataAsInt("size");	// in MB
 	wantedSize *= 1024 * 1024;

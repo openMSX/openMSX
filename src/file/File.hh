@@ -3,26 +3,26 @@
 #ifndef FILE_HH
 #define FILE_HH
 
+#include "openmsx.hh"
 #include <memory>
 #include <string>
 #include <time.h>
-#include "openmsx.hh"
 
 namespace openmsx {
 
 class FileBase;
 
-enum OpenMode {
-	NORMAL,
-	TRUNCATE,
-	CREATE,
-	LOAD_PERSISTENT,
-	SAVE_PERSISTENT
-};
-
 class File
 {
 public:
+	enum OpenMode {
+		NORMAL,
+		TRUNCATE,
+		CREATE,
+		LOAD_PERSISTENT,
+		SAVE_PERSISTENT
+	};
+
 	/**
 	 * Create file object and open underlying file.
 	 * @param url Full URL or relative path of the file

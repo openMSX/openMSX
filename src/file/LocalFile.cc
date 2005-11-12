@@ -15,13 +15,13 @@ using std::string;
 
 namespace openmsx {
 
-LocalFile::LocalFile(const string& filename_, OpenMode mode)
+LocalFile::LocalFile(const string& filename_, File::OpenMode mode)
 	: filename(FileOperations::expandTilde(filename_)),
 	  readOnly(false)
 {
 	PRT_DEBUG("LocalFile: " << filename);
 
-	if (mode == SAVE_PERSISTENT) {
+	if (mode == File::SAVE_PERSISTENT) {
 		string::size_type pos = filename.find_last_of('/');
 		if (pos != string::npos) {
 			FileOperations::mkdirp(filename.substr(0, pos));
@@ -29,10 +29,10 @@ LocalFile::LocalFile(const string& filename_, OpenMode mode)
 	}
 
 	const string name = FileOperations::getNativePath(filename);
-	if ((mode == SAVE_PERSISTENT) || (mode == TRUNCATE)) {
+	if ((mode == File::SAVE_PERSISTENT) || (mode == File::TRUNCATE)) {
 		// open file read/write truncated
 		file = fopen(name.c_str(), "wb+");
-	} else if (mode == CREATE) {
+	} else if (mode == File::CREATE) {
 		// open file read/write
 		file = fopen(name.c_str(), "rb+");
 		if (!file) {

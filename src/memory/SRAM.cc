@@ -45,7 +45,7 @@ void SRAM::load()
 	try {
 		bool headerOk = true;
 		File file(config.getFileContext().resolveCreate(filename),
-			  LOAD_PERSISTENT);
+			  File::LOAD_PERSISTENT);
 		if (header) {
 			int length = strlen(header);
 			byte* temp = new byte[length];
@@ -72,7 +72,7 @@ void SRAM::save()
 	const string& filename = config.getChildData("sramname");
 	try {
 		File file(config.getFileContext().resolveCreate(filename),
-			  SAVE_PERSISTENT);
+			  File::SAVE_PERSISTENT);
 		if (header) {
 			int length = strlen(header);
 			file.write((const byte*)header, length);

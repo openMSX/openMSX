@@ -77,7 +77,7 @@ void SettingsConfig::saveSetting(const string& filename)
 	  hotKey->saveBindings(*this);
 	*/
 
-	File file(name, TRUNCATE);
+	File file(name, File::TRUNCATE);
 	string data = "<!DOCTYPE settings SYSTEM 'settings.dtd'>\n" + dump();
 	file.write((const byte*)data.c_str(), data.size());
 }

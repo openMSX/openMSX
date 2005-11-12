@@ -52,7 +52,8 @@ void PrinterPortLogger::plugHelper(
 		Connector& /*connector*/, const EmuTime& /*time*/)
 {
 	try {
-		file.reset(new File(logFilenameSetting->getValue(), TRUNCATE));
+		file.reset(new File(logFilenameSetting->getValue(),
+		                    File::TRUNCATE));
 	} catch (FileException& e) {
 		throw PlugException("Couldn't plug printer logger: " +
 		                    e.getMessage());
