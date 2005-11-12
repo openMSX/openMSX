@@ -18,6 +18,7 @@ class GlobalSettings;
 class Mixer;
 class IntegerSetting;
 class BooleanSetting;
+class Setting;
 
 class DirectXSoundDriver : public SoundDriver, private Schedulable,
                            private Observer<Setting>

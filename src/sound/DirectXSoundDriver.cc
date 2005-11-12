@@ -2,7 +2,6 @@
 
 #ifdef _WIN32
 
-#include "Setting.hh"
 #include "DirectXSoundDriver.hh"
 #include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
