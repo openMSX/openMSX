@@ -44,7 +44,7 @@ protected:
 	  * that image's alpha channel is used instead.
 	  */
 	static const int CONSOLE_ALPHA = 180;
-	static const int BLINK_RATE = 500000; // us
+	static const unsigned long long BLINK_RATE = 500000; // us
 	static const int CHAR_BORDER = 4;
 
 	enum Placement {
@@ -60,7 +60,7 @@ protected:
 	std::auto_ptr<FilenameSetting> fontSetting;
 	std::auto_ptr<Font> font;
 	bool blink;
-	unsigned lastBlinkTime;
+	unsigned long long lastBlinkTime;
 	unsigned lastCursorX;
 	unsigned lastCursorY;
 	unsigned destX;

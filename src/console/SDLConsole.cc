@@ -24,9 +24,6 @@ SDLConsole::SDLConsole(MSXMotherBoard& motherBoard, SDL_Surface* screen)
 	: OSDConsoleRenderer(motherBoard)
 	, outputScreen(screen)
 {
-	blink = false;
-	lastBlinkTime = 0;
-
 	initConsole();
 }
 
@@ -73,8 +70,9 @@ void SDLConsole::paint()
 	}
 
 	// Check if the blink period is over
-	if (Timer::getTime() > lastBlinkTime) {
-		lastBlinkTime = Timer::getTime() + BLINK_RATE;
+	unsigned long long now = Timer::getTime();
+	if (lastBlinkTime < now) {
+		lastBlinkTime = now + BLINK_RATE;
 		blink = !blink;
 	}
 
@@ -82,7 +80,7 @@ void SDLConsole::paint()
 	console.getCursorPosition(cursorX, cursorY);
 	if ((cursorX != lastCursorX) || (cursorY != lastCursorY)) {
 		blink = true; // force cursor
-		lastBlinkTime = Timer::getTime() + BLINK_RATE; // maximum time
+		lastBlinkTime = now + BLINK_RATE; // maximum time
 		lastCursorX = cursorX;
 		lastCursorY = cursorY;
 	}

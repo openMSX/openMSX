@@ -121,8 +121,9 @@ void GLConsole::paint()
 	}
 
 	// Check if the blink period is over
-	if (Timer::getTime() > lastBlinkTime) {
-		lastBlinkTime = Timer::getTime() + BLINK_RATE;
+	unsigned long long now = Timer::getTime();
+	if (lastBlinkTime < now) {
+		lastBlinkTime = now + BLINK_RATE;
 		blink = !blink;
 	}
 
@@ -130,7 +131,7 @@ void GLConsole::paint()
 	console.getCursorPosition(cursorX, cursorY);
 	if ((cursorX != lastCursorX) || (cursorY != lastCursorY)) {
 		blink = true; // force cursor
-		lastBlinkTime = Timer::getTime() + BLINK_RATE; // maximum time
+		lastBlinkTime = now + BLINK_RATE; // maximum time
 		lastCursorX = cursorX;
 		lastCursorY = cursorY;
 	}
@@ -141,7 +142,6 @@ void GLConsole::paint()
 				CHAR_BORDER + cursorX * font->getWidth(),
 				destH - (font->getHeight() * (cursorY + 1)),
 				visibility);
-
 		}
 	}
 
