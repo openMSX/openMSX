@@ -693,7 +693,7 @@ proc trainer_xak1 {} {
 	poke 0x1c40 99	
 	#purple bottle
 	poke 0x1c41 99	
-	#thea pot
+	#thee pot
 	poke 0x1c42 99	
 	#red key
 	poke 0x1c43 99	
@@ -2923,6 +2923,12 @@ proc trainer_xak2 {} {
 	after time 10 trainer_xak2 
 }
 
+proc trainer_bozos_big_adventure {} {
+	#life
+	poke 0x5544 100
+	after time 1 trainer_bozos_big_adventure 
+}
+
 proc trainer_alifem36 {} {
 	#life
 	poke 0xc527 99
@@ -4496,6 +4502,51 @@ proc trainer_pegasus  {} {
 	poke 0xe0b5 0
 after time 1 trainer_pegasus 
 }
+
+proc trainer_fray  {} {
+	#life bar full
+	poke 0x2010 255
+	#money 65535
+	poke 0x2289 255
+	poke 0x228b 255
+after time 1 trainer_fray 
+}
+
+proc trainer_xzr1  {} {
+	#exp max
+	poke 0xd000 255
+	poke 0xd001 255
+	poke 0xd002 255
+	#life
+	poke 0xd018 255
+	#invincible
+	poke 0xd0ac 255
+	#max money
+	poke 0xd035 255
+	poke 0xd036 255
+	poke 0xd037 255
+after time 1 trainer_xzr1 
+}
+
+proc trainer_xzr2  {} {
+	#max money
+	poke 0xd180 255
+	poke 0xd181 255
+	poke 0xd182 255
+	#life
+	poke 0xd0a0 255
+	#exp
+	poke 0xd0a8 255
+	poke 0xd0a9 255
+	after time 1 trainer_xzr2 
+}
+
+
+proc trainer_fparodic2 {} {
+	poke 0xc008 9
+after time 1 trainer_fparodic2	
+}
+
 
 
 proc poke {addr val} {
