@@ -6,24 +6,20 @@
 #include "ConfigException.hh"
 
 using std::string;
-using std::list;
 
 namespace openmsx {
 
-CliExtension::CliExtension(CommandLineParser& cmdLineParser)
+CliExtension::CliExtension(CommandLineParser& cmdLineParser_)
+	: cmdLineParser(cmdLineParser_)
 {
 	cmdLineParser.registerOption("-ext", this);
 }
 
-CliExtension::~CliExtension()
-{
-}
-
-bool CliExtension::parseOption(const string &option,
-                               list<string> &cmdLine)
+bool CliExtension::parseOption(const string& option,
+                               std::list<string>& cmdLine)
 {
 	string extension = getArgument(option, cmdLine);
-	HardwareConfig& hardwareConfig = HardwareConfig::instance();
+	HardwareConfig& hardwareConfig = cmdLineParser.getHardwareConfig();
 	XMLElement* devices = hardwareConfig.findChild("devices");
 	if (!devices) {
 		// TODO refactor command line parser

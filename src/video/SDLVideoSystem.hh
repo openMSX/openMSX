@@ -33,6 +33,7 @@ public:
 	virtual bool prepare();
 	virtual void flush();
 	virtual void takeScreenShot(const std::string& filename);
+	virtual void setWindowTitle(const std::string& title);
 
 private:
 	void getWindowSize(unsigned& width, unsigned& height);

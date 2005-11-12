@@ -20,7 +20,6 @@ const int PRIMARY  = 64;
 
 CartridgeSlotManager::CartridgeSlotManager(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
-	, hardwareConfig(HardwareConfig::instance())
 {
 	for (int slot = 0; slot < 16; ++slot) {
 		slots[slot] = 0;
@@ -56,7 +55,8 @@ int CartridgeSlotManager::getSlotNum(const string& slot)
 void CartridgeSlotManager::readConfig()
 {
 	XMLElement::Children primarySlots;
-	hardwareConfig.getChild("devices").getChildren("primary", primarySlots);
+	motherBoard.getHardwareConfig().getChild("devices").
+		                        getChildren("primary", primarySlots);
 	for (XMLElement::Children::const_iterator it = primarySlots.begin();
 	     it != primarySlots.end(); ++it) {
 		const string& primSlot = (*it)->getAttribute("slot");

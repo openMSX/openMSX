@@ -4,8 +4,6 @@
 #include "CommandException.hh"
 #include <cassert>
 
-using std::string;
-
 namespace openmsx {
 
 VideoSystem::~VideoSystem()
@@ -28,10 +26,15 @@ bool VideoSystem::prepare()
 	return true;
 }
 
-void VideoSystem::takeScreenShot(const string& /*filename*/)
+void VideoSystem::takeScreenShot(const std::string& /*filename*/)
 {
 	throw CommandException(
 		"Taking screenshot not possible with current renderer." );
+}
+
+void VideoSystem::setWindowTitle(const std::string& /*title*/)
+{
+	// ignore
 }
 
 } // namespace openmsx

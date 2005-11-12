@@ -144,5 +144,10 @@ void SDLVideoSystem::takeScreenShot(const std::string& filename)
 	screen->takeScreenShot(filename);
 }
 
+void SDLVideoSystem::setWindowTitle(const std::string& title)
+{
+	screen->setWindowTitle(title);
+}
+
 } // namespace openmsx
 

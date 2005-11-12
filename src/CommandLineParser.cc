@@ -60,7 +60,6 @@ bool CommandLineParser::hiddenStartup = true;
 CommandLineParser::CommandLineParser(MSXMotherBoard& motherBoard_)
 	: parseStatus(UNPARSED)
 	, motherBoard(motherBoard_)
-	, hardwareConfig(HardwareConfig::instance())
 	, settingsConfig(motherBoard.getCommandController().getSettingsConfig())
 	, output(motherBoard.getCliComm())
 	, helpOption(*this)
@@ -161,7 +160,7 @@ bool CommandLineParser::parseFileName(const string& arg, list<string>& cmdLine)
 {
 	string originalName(arg);
 	try {
-		UserFileContext context(motherBoard.getCommandController());
+		UserFileContext context(getMotherBoard().getCommandController());
 		File file(context.resolve(arg));
 		originalName = file.getOriginalName();
 	} catch (FileException& e) {
@@ -273,10 +272,16 @@ MSXMotherBoard& CommandLineParser::getMotherBoard() const
 	return motherBoard;
 }
 
+HardwareConfig& CommandLineParser::getHardwareConfig() const
+{
+	return getMotherBoard().getHardwareConfig();
+}
+
 void CommandLineParser::loadMachine(const string& machine)
 {
 	try {
-		hardwareConfig.loadHardware(hardwareConfig, "machines", machine);
+		HardwareConfig& hwConfig = getHardwareConfig();
+		hwConfig.loadHardware(hwConfig, "machines", machine);
 	} catch (FileException& e) {
 		throw FatalError("Machine \"" + machine + "\" not found (" +
 		                 e.getMessage() + ").");
@@ -319,7 +324,7 @@ void CommandLineParser::createMachineSetting()
 	machines["C-BIOS_MSX2+"] = 0; // default machine
 
 	machineSetting.reset(new EnumSetting<int>(
-		motherBoard.getCommandController(), "machine",
+		getMotherBoard().getCommandController(), "machine",
 		"default machine (takes effect next time openMSX is started)",
 		0, machines));
 }
@@ -539,8 +544,9 @@ bool CommandLineParser::SettingOption::parseOption(const string &option,
 		throw FatalError("Only one setting option allowed");
 	}
 	try {
-		UserFileContext context(parser.motherBoard.getCommandController(),
-		                        "", true); // skip user directories
+		UserFileContext context(
+			parser.getMotherBoard().getCommandController(),
+		        "", true); // skip user directories
 		parser.settingsConfig.loadSetting(
 			context, getArgument(option, cmdLine));
 		parser.haveSettings = true;

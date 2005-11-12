@@ -3,12 +3,13 @@
 #ifndef RENSHATURBO_HH
 #define RENSHATURBO_HH
 
-#include <memory>
 #include "openmsx.hh"
+#include <memory>
 
 namespace openmsx {
 
 class CommandController;
+class HardwareConfig;
 class EmuTime;
 class Autofire;
 
@@ -22,7 +23,8 @@ class Autofire;
 class RenShaTurbo
 {
 public:
-	RenShaTurbo(CommandController& commandController);
+	RenShaTurbo(CommandController& commandController,
+	            HardwareConfig& hardwareConfig);
 	~RenShaTurbo();
 
 	/**

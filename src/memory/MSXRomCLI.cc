@@ -128,7 +128,7 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 
 	secondary->addChild(device);
 	primary->addChild(secondary);
-	HardwareConfig::instance().getChild("devices").addChild(primary);
+	cmdLineParser.getHardwareConfig().getChild("devices").addChild(primary);
 }
 
 

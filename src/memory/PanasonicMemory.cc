@@ -10,14 +10,14 @@
 
 namespace openmsx {
 
-static XMLElement& getRomConfig()
+static XMLElement& getRomConfig(MSXMotherBoard& motherBoard)
 {
-	return HardwareConfig::instance().getChild("PanasonicRom");
+	return motherBoard.getHardwareConfig().getChild("PanasonicRom");
 }
 
 PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)
 	: rom(new Rom(motherBoard, "PanasonicRom", "Turbo-R main ROM",
-	              getRomConfig()))
+	              getRomConfig(motherBoard)))
 	, ram(NULL), dram(false)
 	, msxcpu(motherBoard.getCPU())
 {

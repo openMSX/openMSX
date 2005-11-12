@@ -16,6 +16,7 @@ $Id$
 	   0xA000-0xBFFF
 	* Directly using throttleSetting is wrong (should always go via
 	  ThrottleManager), so make that impossible
+	* Still found a singleton, HardwareConfig. Removed it.
 
 2005-11-11 Manuel Bilderbeek <manuel@msxnet.org>
 	* Removed old add/removeListener calls

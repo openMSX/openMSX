@@ -82,6 +82,11 @@ void SDLGLVideoSystem::takeScreenShot(const string& filename)
 	screen->takeScreenShot(filename);
 }
 
+void SDLGLVideoSystem::setWindowTitle(const std::string& title)
+{
+	screen->setWindowTitle(title);
+}
+
 void SDLGLVideoSystem::resize(unsigned x, unsigned y)
 {
 	bool fullscreen = motherboard.getRenderSettings().

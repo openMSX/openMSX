@@ -13,6 +13,7 @@ namespace openmsx {
 class MSXDevice;
 class XMLElement;
 class Scheduler;
+class HardwareConfig;
 class CartridgeSlotManager;
 class CommandController;
 class EventDistributor;
@@ -82,6 +83,7 @@ public:
 
 	// The following classes are unique per MSX machine
 	Scheduler& getScheduler();
+	HardwareConfig& getHardwareConfig();
 	CartridgeSlotManager& getSlotManager();
 	CommandController& getCommandController();
 	EventDistributor& getEventDistributor();
@@ -127,6 +129,7 @@ private:
 
 	// order of auto_ptr's is important!
 	std::auto_ptr<Scheduler> scheduler;
+	std::auto_ptr<HardwareConfig> hardwareConfig;
 	std::auto_ptr<CartridgeSlotManager> slotManager;
 	std::auto_ptr<CommandController> commandController;
 	std::auto_ptr<EventDistributor> eventDistributor;

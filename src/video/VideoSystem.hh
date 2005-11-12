@@ -64,6 +64,10 @@ public:
 	  * @throw CommandException If taking the screen shot fails.
 	  */
 	virtual void takeScreenShot(const std::string& filename);
+
+	/** Change the window title.
+	  */
+	virtual void setWindowTitle(const std::string& title);
 };
 
 } // namespace openmsx

@@ -34,9 +34,11 @@ auto_ptr<MSXCPUInterface> MSXCPUInterface::create(MSXMotherBoard& motherBoard,
                                                   HardwareConfig& config)
 {
 	if (config.getChild("devices").findChild("S1990")) {
-		return auto_ptr<MSXCPUInterface>(new TurborCPUInterface(motherBoard));
+		return auto_ptr<MSXCPUInterface>(
+			new TurborCPUInterface(motherBoard));
 	} else {
-		return auto_ptr<MSXCPUInterface>(new MSXCPUInterface(motherBoard));
+		return auto_ptr<MSXCPUInterface>(
+			new MSXCPUInterface(motherBoard));
 	}
 }
 
@@ -50,7 +52,6 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 	, slotMapCmd      (motherBoard.getCommandController(), *this)
 	, ioMapCmd        (motherBoard.getCommandController(), *this)
 	, dummyDevice(motherBoard.getDummyDevice())
-	, hardwareConfig(HardwareConfig::instance())
 	, msxcpu(motherBoard.getCPU())
 	, cliCommOutput(motherBoard.getCliComm())
 {

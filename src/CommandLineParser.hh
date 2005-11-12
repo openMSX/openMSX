@@ -69,6 +69,7 @@ public:
 	ParseStatus getParseStatus() const;
 
 	MSXMotherBoard& getMotherBoard() const;
+	HardwareConfig& getHardwareConfig() const;
 
 private:
 	struct OptionData
@@ -98,7 +99,6 @@ private:
 	ParseStatus parseStatus;
 
 	MSXMotherBoard& motherBoard;
-	HardwareConfig& hardwareConfig;
 	SettingsConfig& settingsConfig;
 	CliComm& output;
 

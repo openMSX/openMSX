@@ -3,6 +3,7 @@
 #include "MSXMotherBoard.hh"
 #include "MSXDevice.hh"
 #include "Scheduler.hh"
+#include "HardwareConfig.hh"
 #include "CartridgeSlotManager.hh"
 #include "PluggingController.hh"
 #include "Debugger.hh"
@@ -20,7 +21,6 @@
 #include "FileManipulator.hh"
 #include "FilePool.hh"
 #include "EmuTime.hh"
-#include "HardwareConfig.hh"
 #include "DeviceFactory.hh"
 #include "LedEvent.hh"
 #include "EventDistributor.hh"
@@ -69,6 +69,14 @@ Scheduler& MSXMotherBoard::getScheduler()
 		scheduler.reset(new Scheduler());
 	}
 	return *scheduler;
+}
+
+HardwareConfig& MSXMotherBoard::getHardwareConfig()
+{
+	if (!hardwareConfig.get()) {
+		hardwareConfig.reset(new HardwareConfig());
+	}
+	return *hardwareConfig;
 }
 
 CartridgeSlotManager& MSXMotherBoard::getSlotManager()
@@ -190,7 +198,7 @@ MSXCPUInterface& MSXMotherBoard::getCPUInterface()
 	if (!msxCpuInterface.get()) {
 		// TODO assert hw config already loaded
 		msxCpuInterface = MSXCPUInterface::create(
-			*this, HardwareConfig::instance());
+			*this, getHardwareConfig());
 	}
 	return *msxCpuInterface; 
 }
@@ -219,7 +227,7 @@ MSXDeviceSwitch& MSXMotherBoard::getDeviceSwitch()
 CassettePortInterface& MSXMotherBoard::getCassettePort()
 {
 	if (!cassettePort.get()) {
-		if (HardwareConfig::instance().findChild("CassettePort")) {
+		if (getHardwareConfig().findChild("CassettePort")) {
 			cassettePort.reset(new CassettePort(*this));
 		} else {
 			cassettePort.reset(new DummyCassettePort());
@@ -231,7 +239,8 @@ CassettePortInterface& MSXMotherBoard::getCassettePort()
 RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
 {
 	if (!renShaTurbo.get()) {
-		renShaTurbo.reset(new RenShaTurbo(getCommandController()));
+		renShaTurbo.reset(new RenShaTurbo(getCommandController(),
+		                                  getHardwareConfig()));
 	}
 	return *renShaTurbo;
 }
@@ -283,7 +292,7 @@ FilePool& MSXMotherBoard::getFilePool()
 void MSXMotherBoard::readConfig()
 {
 	getSlotManager().readConfig();
-	createDevices(HardwareConfig::instance().getChild("devices"));
+	createDevices(getHardwareConfig().getChild("devices"));
 }
 
 bool MSXMotherBoard::execute()

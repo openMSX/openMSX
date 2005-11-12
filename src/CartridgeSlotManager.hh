@@ -6,7 +6,6 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class HardwareConfig;
 class Setting;
 
 class CartridgeSlotManager
@@ -33,7 +32,6 @@ private:
 	int slots[16];
 	int slotCounter;
 	MSXMotherBoard& motherBoard;
-	HardwareConfig& hardwareConfig;
 };
 
 } // namespace openmsx

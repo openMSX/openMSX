@@ -6,9 +6,10 @@
 
 namespace openmsx {
 
-RenShaTurbo::RenShaTurbo(CommandController& commandController)
+RenShaTurbo::RenShaTurbo(CommandController& commandController,
+                         HardwareConfig& hardwareConfig)
 {
-	const XMLElement* config = HardwareConfig::instance().findChild("RenShaTurbo");
+	const XMLElement* config = hardwareConfig.findChild("RenShaTurbo");
 	if (config) {
 		int min_ints = config->getChildDataAsInt("min_ints", 47);
 		int max_ints = config->getChildDataAsInt("max_ints", 221);

@@ -6,7 +6,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include <cassert>
-#include <memory.h>
+#include <memory>
 
 using std::auto_ptr;
 using std::string;
@@ -19,24 +19,13 @@ HardwareConfig::HardwareConfig()
 	setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
 }
 
-HardwareConfig::~HardwareConfig()
-{
-}
-
-HardwareConfig& HardwareConfig::instance()
-{
-	static HardwareConfig oneInstance;
-	return oneInstance;
-}
-
 void HardwareConfig::loadHardware(XMLElement& root, const string& path,
                                   const string& hwName)
 {
 	SystemFileContext context;
 	string filename;
 	try {
-		filename = context.resolve(
-			path + '/' + hwName + ".xml");
+		filename = context.resolve(path + '/' + hwName + ".xml");
 	} catch (FileException& e) {
 		filename = context.resolve(
 			path + '/' + hwName + "/hardwareconfig.xml");
@@ -66,7 +55,8 @@ void HardwareConfig::loadHardware(XMLElement& root, const string& path,
 
 	} catch (XMLException& e) {
 		throw FatalError(
-			"Loading of hardware configuration failed: " + e.getMessage() );
+			"Loading of hardware configuration failed: " +
+			e.getMessage());
 	}
 }
 

@@ -30,6 +30,7 @@ public:
 		return (Pixel*)(data + y * pitch);
 	}
 
+	void setWindowTitle(const std::string& title);
 	bool setFullScreen(bool fullscreen);
 	virtual bool init() = 0;
 	virtual void drawFrameBuffer() = 0;

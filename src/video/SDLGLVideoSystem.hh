@@ -35,6 +35,7 @@ public:
 	virtual bool checkSettings();
 	virtual void flush();
 	virtual void takeScreenShot(const std::string& filename);
+	virtual void setWindowTitle(const std::string& title);
 
 	// EventListener
 	void signalEvent(const Event& event);

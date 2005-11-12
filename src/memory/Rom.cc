@@ -121,7 +121,8 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 	// TODO fix this, this is a hack that depends heavily on MSXRomCLI.cc
 	if (!info->getTitle().empty() &&
 	    ((name.size() >= 6) && (name.substr(0, 6) == "MSXRom"))) {
-		name = HardwareConfig::instance().makeUnique(info->getTitle());
+		name = motherBoard.getHardwareConfig().makeUnique(
+		                                         info->getTitle());
 	}
 
 	if (size) {

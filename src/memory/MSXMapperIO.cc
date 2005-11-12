@@ -18,8 +18,8 @@ MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, SimpleDebuggable(motherBoard, getName(),
 	                   "Memory mapper registers", 4)
 {
-	string type = HardwareConfig::instance().
-		getChildData("MapperReadBackBits", "largest");
+	string type = motherBoard.getHardwareConfig().getChildData(
+	                               "MapperReadBackBits", "largest");
 	if (type == "5") {
 		mapperMask.reset(new MSXMapperIOTurboR());
 	} else if (type == "largest") {

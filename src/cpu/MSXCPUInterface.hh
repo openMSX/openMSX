@@ -279,7 +279,6 @@ private:
 	MSXDevice* visibleDevices[4];
 
 	DummyDevice& dummyDevice;
-	HardwareConfig& hardwareConfig;
 	MSXCPU& msxcpu;
 	CliComm& cliCommOutput;
 };

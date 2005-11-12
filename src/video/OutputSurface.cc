@@ -1,10 +1,8 @@
 // $Id$
 
 #include "OutputSurface.hh"
-#include "HardwareConfig.hh"
 #include "InitException.hh"
 #include "Icon.hh"
-#include "Version.hh"
 #include "build-info.hh"
 
 #ifdef _WIN32
@@ -23,13 +21,6 @@ OutputSurface::OutputSurface()
 		throw InitException(
 		   std::string("SDL video init failed: ") + SDL_GetError());
 	}
-
-	// set window title
-	HardwareConfig& hwConfig = HardwareConfig::instance();
-	std::string title = Version::FULL_VERSION + " - " +
-		hwConfig.getChild("info").getChildData("manufacturer") + " " +
-		hwConfig.getChild("info").getChildData("code");
-	SDL_WM_SetCaption(title.c_str(), 0);
 
 	// set icon
 	SDL_Surface* iconSurf = SDL_CreateRGBSurfaceFrom(
@@ -93,6 +84,11 @@ OutputSurface::~OutputSurface()
 	}
 #endif
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+}
+
+void OutputSurface::setWindowTitle(const std::string& title)
+{
+	SDL_WM_SetCaption(title.c_str(), 0);
 }
 
 bool OutputSurface::setFullScreen(bool wantedState)
