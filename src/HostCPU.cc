@@ -2,17 +2,11 @@
 
 #include "HostCPU.hh"
 #include "openmsx.hh"
-#include <cassert>
-#include <cstdio>
-#include <iostream>
-#include <iomanip>
 
 namespace openmsx {
 
 HostCPU::HostCPU()
 {
-	PRT_DEBUG("probing host CPU...");
-
 	mmxFlag = false;
 	mmxExtFlag = false;
 	#ifdef ASM_X86
@@ -57,7 +51,6 @@ HostCPU::HostCPU()
 					: "a" (1) // 1: function
 					: "ebx", "ecx"
 					);
-				PRT_DEBUG("CPU flags: " << std::hex << std::setw(8) << std::setfill('0') << std::uppercase << features);
 				mmxFlag = features & 0x800000;
 				bool sseFlag = features & 0x2000000;
 				mmxExtFlag = mmxFlag && sseFlag;
@@ -70,10 +63,3 @@ HostCPU::HostCPU()
 }
 
 } // namespace openmsx
-
-/*
-int main(char** argv, int argc) {
-	openmsx::HostCPU::getInstance();
-	return 0;
-}
-*/

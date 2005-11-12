@@ -50,7 +50,7 @@ SRC_ONLY:= \
 HDR_ONLY:= \
 	Subject \
 	openmsx \
-	likely \
+	likely noncopyable \
 	Clock DynamicClock \
 	MSXException InitException \
 	PatchInterface \

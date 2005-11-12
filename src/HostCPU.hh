@@ -3,8 +3,8 @@
 #ifndef HOSTCPU_HH
 #define HOSTCPU_HH
 
+#include "noncopyable.hh"
 #include "build-info.hh"
-
 
 namespace openmsx {
 
@@ -17,7 +17,8 @@ namespace openmsx {
   * This makes sure instructions for a different CPU family are never fed
   * to the assembler, which may not be able to handle them.
   */
-class HostCPU {
+class HostCPU : private noncopyable
+{
 public:
 	/** Get singleton instance.
 	  * Note: even though a machine may have multiple CPUs,
@@ -40,16 +41,13 @@ public:
 	  */
 	void forceDisableMMX() { mmxFlag = false; mmxExtFlag = false; }
 
-	/** Force openMSX to not use any MMX extensions that came with SSE, if available
+	/** Force openMSX to not use any MMX extensions that came with SSE,
+	  * if available
 	  */
 	void forceDisableMMXEXT() { mmxExtFlag = false; }
 
 private:
 	HostCPU();
-
-	// disable copy constructor and assignment operator
-	HostCPU(const HostCPU& hostCPU);
-	const HostCPU& operator=(const HostCPU& hostCPU);
 
 	bool mmxFlag;
 	bool mmxExtFlag;
