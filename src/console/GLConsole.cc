@@ -1,12 +1,13 @@
 // $Id$
 
 #include "GLConsole.hh"
-#include "MSXMotherBoard.hh"
 #include "GLFont.hh"
-#include "Console.hh"
 #include "GLImage.hh"
+#include "Console.hh"
+#include "MSXMotherBoard.hh"
+#include "Timer.hh"
 #include <cassert>
-#include <SDL.h> // TODO use Timer
+#include <SDL.h>
 
 using std::string;
 
@@ -120,8 +121,8 @@ void GLConsole::paint()
 	}
 
 	// Check if the blink period is over
-	if (SDL_GetTicks() > lastBlinkTime) {
-		lastBlinkTime = SDL_GetTicks() + BLINK_RATE;
+	if (Timer::getTime() > lastBlinkTime) {
+		lastBlinkTime = Timer::getTime() + BLINK_RATE;
 		blink = !blink;
 	}
 
@@ -129,7 +130,7 @@ void GLConsole::paint()
 	console.getCursorPosition(cursorX, cursorY);
 	if ((cursorX != lastCursorX) || (cursorY != lastCursorY)) {
 		blink = true; // force cursor
-		lastBlinkTime=SDL_GetTicks() + BLINK_RATE; // maximum time
+		lastBlinkTime = Timer::getTime() + BLINK_RATE; // maximum time
 		lastCursorX = cursorX;
 		lastCursorY = cursorY;
 	}

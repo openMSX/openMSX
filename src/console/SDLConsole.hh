@@ -4,8 +4,9 @@
 #define SDLCONSOLE_HH
 
 #include "OSDConsoleRenderer.hh"
-#include <SDL.h>
 #include <memory>
+
+class SDL_Surface;
 
 namespace openmsx {
 

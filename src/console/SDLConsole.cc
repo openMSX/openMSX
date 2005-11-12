@@ -7,12 +7,14 @@
  */
 
 #include "SDLConsole.hh"
+#include "SDLImage.hh"
+#include "SDLFont.hh"
 #include "MSXMotherBoard.hh"
 #include "Console.hh"
-#include "SDLFont.hh"
 #include "File.hh"
-#include "SDLImage.hh"
+#include "Timer.hh"
 #include <cassert>
+#include <SDL.h>
 
 using std::string;
 
@@ -71,8 +73,8 @@ void SDLConsole::paint()
 	}
 
 	// Check if the blink period is over
-	if (SDL_GetTicks() > lastBlinkTime) {
-		lastBlinkTime = SDL_GetTicks() + BLINK_RATE;
+	if (Timer::getTime() > lastBlinkTime) {
+		lastBlinkTime = Timer::getTime() + BLINK_RATE;
 		blink = !blink;
 	}
 
@@ -80,7 +82,7 @@ void SDLConsole::paint()
 	console.getCursorPosition(cursorX, cursorY);
 	if ((cursorX != lastCursorX) || (cursorY != lastCursorY)) {
 		blink = true; // force cursor
-		lastBlinkTime = SDL_GetTicks() + BLINK_RATE; // maximum time
+		lastBlinkTime = Timer::getTime() + BLINK_RATE; // maximum time
 		lastCursorX = cursorX;
 		lastCursorY = cursorY;
 	}

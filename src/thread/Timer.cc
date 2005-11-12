@@ -1,8 +1,6 @@
 // $Id$
 
-#include <SDL.h>
 #include "Timer.hh"
-
 #include "probed_defs.hh"
 #ifdef HAVE_GETTIMEOFDAY
 #include <sys/time.h>
@@ -14,17 +12,18 @@
 #ifdef WIN32
 #include <windows.h>
 #endif
-
-// TODO add us precision timer routines for win32
+#include <SDL.h>
 
 namespace openmsx {
+
+namespace Timer {
 
 static inline unsigned long long getSDLTicks()
 {
 	return (unsigned long long)SDL_GetTicks() * 1000;
 }
 
-unsigned long long Timer::getTime()
+unsigned long long getTime()
 {
 #if defined (WIN32)
 	static LONGLONG hfFrequency = 0;
@@ -64,7 +63,7 @@ static void CALLBACK timerCallback(unsigned int,
 }
 #endif
 
-void Timer::sleep(unsigned long long us)
+void sleep(unsigned long long us)
 {
 #if defined (WIN32)
 	us /= 1000;
@@ -84,5 +83,7 @@ void Timer::sleep(unsigned long long us)
 	SDL_Delay(us / 1000);
 #endif
 }
+
+} // namespace Timer
 
 } // namespace openmsx

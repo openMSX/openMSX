@@ -44,7 +44,7 @@ protected:
 	  * that image's alpha channel is used instead.
 	  */
 	static const int CONSOLE_ALPHA = 180;
-	static const int BLINK_RATE = 500;
+	static const int BLINK_RATE = 500000; // us
 	static const int CHAR_BORDER = 4;
 
 	enum Placement {

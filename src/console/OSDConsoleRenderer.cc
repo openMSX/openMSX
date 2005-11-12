@@ -18,7 +18,6 @@
 #include "CliComm.hh"
 #include "MSXMotherBoard.hh"
 #include <algorithm>
-#include <SDL.h>
 
 using std::string;
 
@@ -35,7 +34,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(MSXMotherBoard& motherBoard_)
 	destX = destY = destW = destH = 0; // avoid UMR
 	font.reset(new DummyFont());
 	blink = false;
-	lastBlinkTime = 0;
+	lastBlinkTime = Timer::getTime();
 	lastCursorX = lastCursorY = 0;
 
 	active = false;
