@@ -1,10 +1,7 @@
 // $Id$
 
 #include <cassert>
-#include "Keys.hh"
 #include "RealTime.hh"
-#include "MSXCPU.hh"
-#include "CommandController.hh"
 #include "Scheduler.hh"
 #include "Timer.hh"
 #include "EventDistributor.hh"
@@ -12,10 +9,6 @@
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "ThrottleManager.hh"
-
-#include <iostream> // TODO: remove, this is debugging stuff
-
-using std::string;
 
 namespace openmsx {
 
@@ -67,7 +60,8 @@ bool RealTime::timeLeft(unsigned long long us, const EmuTime& time)
 	unsigned long long realDuration =
 	   (unsigned long long)(getRealDuration(emuTime, time) * 1000000ULL);
 	unsigned long long currentRealTime = Timer::getTime();
-	return (currentRealTime + us) < (idealRealTime + realDuration + ALLOWED_LAG);
+	return (currentRealTime + us) <
+	           (idealRealTime + realDuration + ALLOWED_LAG);
 }
 
 void RealTime::sync(const EmuTime& time, bool allowSleep)
@@ -85,7 +79,8 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 {
 	if (throttleManager.isThrottled()) {
 		unsigned long long realDuration =
-		    (unsigned long long)(getRealDuration(emuTime, time) * 1000000ULL);
+		    (unsigned long long)(getRealDuration(emuTime, time) *
+		                             1000000ULL);
 		idealRealTime += realDuration;
 		unsigned long long currentRealTime = Timer::getTime();
 		long long sleep = idealRealTime - currentRealTime;
@@ -121,9 +116,9 @@ void RealTime::executeUntil(const EmuTime& time, int /*userData*/)
 	setSyncPoint(time + getEmuDuration(SYNC_INTERVAL));
 }
 
-const string& RealTime::schedName() const
+const std::string& RealTime::schedName() const
 {
-	static const string name("RealTime");
+	static const std::string name("RealTime");
 	return name;
 }
 

@@ -18,10 +18,6 @@ RomDRAM::RomDRAM(MSXMotherBoard& motherBoard, const XMLElement& config,
 	baseAddr = first * 0x2000 - base;
 }
 
-RomDRAM::~RomDRAM()
-{
-}
-
 byte RomDRAM::readMem(word address, const EmuTime& /*time*/)
 {
 	return *getReadCacheLine(address);

@@ -12,6 +12,10 @@ FirmwareSwitch::FirmwareSwitch(CommandController& commandController)
 {
 }
 
+FirmwareSwitch::~FirmwareSwitch()
+{
+}
+
 bool FirmwareSwitch::getStatus() const
 {
 	return setting->getValue();

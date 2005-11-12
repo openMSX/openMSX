@@ -42,7 +42,6 @@
 #include "MSXMotherBoard.hh"
 #include "FirmwareSwitch.hh"
 #include "XMLElement.hh"
-#include "BooleanSetting.hh"
 
 namespace openmsx {
 

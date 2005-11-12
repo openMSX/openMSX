@@ -13,10 +13,6 @@ RomGeneric16kB::RomGeneric16kB(
 	reset(time);
 }
 
-RomGeneric16kB::~RomGeneric16kB()
-{
-}
-
 void RomGeneric16kB::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);

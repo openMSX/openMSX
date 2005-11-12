@@ -17,12 +17,13 @@ class BooleanSetting;
 class ThrottleManager;
 class Setting;
 
-class RealTime : private Schedulable, private Observer<Setting>, private Observer<ThrottleManager>
+class RealTime : private Schedulable,
+                 private Observer<Setting>, private Observer<ThrottleManager>
 {
 public:
 	RealTime(Scheduler& scheduler, EventDistributor& eventDistributor,
 	         GlobalSettings& globalSettings);
-	virtual ~RealTime();
+	~RealTime();
 
 	/** Convert EmuTime to RealTime.
 	  */

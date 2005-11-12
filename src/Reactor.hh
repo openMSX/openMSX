@@ -6,14 +6,12 @@
 #include "Command.hh"
 #include "Observer.hh"
 #include "EventListener.hh"
-#include <vector>
 
 namespace openmsx {
 
 class CliComm;
 class BooleanSetting;
 class MSXMotherBoard;
-class CommandController;
 class Setting;
 
 /**
@@ -28,7 +26,7 @@ class Reactor : private Observer<Setting>, private EventListener
 {
 public:
 	Reactor(MSXMotherBoard& motherBoard);
-	virtual ~Reactor();
+	~Reactor();
 
 	/**
 	 * Main loop.
@@ -37,7 +35,6 @@ public:
 	void run(bool autoRun);
 
 private:
-
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
 

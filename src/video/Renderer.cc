@@ -1,7 +1,6 @@
 // $Id$
 
 #include "Renderer.hh"
-#include "RenderSettings.hh"
 
 namespace openmsx {
 

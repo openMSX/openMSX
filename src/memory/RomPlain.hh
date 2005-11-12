@@ -17,7 +17,6 @@ public:
 	RomPlain(MSXMotherBoard& motherBoard, const XMLElement& config,
 	         const EmuTime& time, std::auto_ptr<Rom> rom,
 	         MirrorType mirrored, int start = -1);
-	virtual ~RomPlain();
 
 private:
 	void guessHelper(unsigned offset, int* pages);

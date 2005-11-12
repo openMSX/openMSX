@@ -13,10 +13,6 @@ RomHarryFox::RomHarryFox(MSXMotherBoard& motherBoard, const XMLElement& config,
 	reset(time);
 }
 
-RomHarryFox::~RomHarryFox()
-{
-}
-
 void RomHarryFox::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);

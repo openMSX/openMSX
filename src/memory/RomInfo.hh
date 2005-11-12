@@ -11,16 +11,14 @@
 namespace openmsx {
 
 class Rom;
-class XMLElement;
 class CliComm;
 
 class RomInfo
 {
 public:
 	RomInfo(const std::string& id,      const std::string& year,
-		const std::string& company, const std::string& country,
-		const std::string& remark,  const RomType& romType);
-	~RomInfo();
+	        const std::string& company, const std::string& country,
+	        const std::string& remark,  const RomType& romType);
 
 	const std::string& getTitle()     const { return title; }
 	const std::string& getYear()      const { return year; }

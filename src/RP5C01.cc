@@ -1,12 +1,10 @@
 // $Id$
 
 #include "RP5C01.hh"
-#include "SettingsConfig.hh"
 #include "EnumSetting.hh"
 #include "SRAM.hh"
 #include <cassert>
 #include <ctime>
-#include <string>
 
 namespace openmsx {
 

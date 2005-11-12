@@ -22,7 +22,7 @@ public:
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word address) const;
 	virtual void writeMem(word address, byte value,
-			      const EmuTime& time);
+	                      const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
 
 private:
@@ -40,7 +40,7 @@ public:
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word address) const;
 	virtual void writeMem(word address, byte value,
-			      const EmuTime& time);
+	                      const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
 
 private:

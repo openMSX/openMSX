@@ -3,19 +3,17 @@
 #include "RomInfoTopic.hh"
 #include "RomInfo.hh"
 #include "TclObject.hh"
-#include "CommandController.hh"
 #include "CommandException.hh"
 #include <map>
 #include <set>
 
-using std::map;
 using std::set;
 using std::vector;
 using std::string;
 
 namespace openmsx {
 
-typedef map<RomType, string> Description;
+typedef std::map<RomType, string> Description;
 static Description description;
 
 RomInfoTopic::RomInfoTopic(CommandController& commandController)

@@ -4,7 +4,6 @@
 #include "MSXMotherBoard.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
-#include "MSXCPUInterface.hh"
 #include "MSXCPU.hh"
 #include "CliComm.hh"
 #include "EventDistributor.hh"
@@ -151,6 +150,3 @@ string Reactor::QuitCommand::help(const vector<string>& /*tokens*/) const
 }
 
 } // namespace openmsx
-
-
-

@@ -2,13 +2,11 @@
 
 #include "RS232Device.hh"
 
-using std::string;
-
 namespace openmsx {
 
-const string& RS232Device::getClass() const
+const std::string& RS232Device::getClass() const
 {
-	static const string className("RS232");
+	static const std::string className("RS232");
 	return className;
 }
 

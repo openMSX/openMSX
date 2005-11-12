@@ -18,10 +18,6 @@ RomHolyQuran::RomHolyQuran(
 	reset(time);
 }
 
-RomHolyQuran::~RomHolyQuran()
-{
-}
-
 void RomHolyQuran::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);

@@ -23,10 +23,6 @@ RomAscii8kB::RomAscii8kB(MSXMotherBoard& motherBoard, const XMLElement& config,
 	reset(time);
 }
 
-RomAscii8kB::~RomAscii8kB()
-{
-}
-
 void RomAscii8kB::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);

@@ -16,7 +16,6 @@ public:
 protected:
 	Rom16kBBlocks(MSXMotherBoard& motherBoard, const XMLElement& config,
 	              const EmuTime& time, std::auto_ptr<Rom> rom);
-	virtual ~Rom16kBBlocks();
 
 	void setBank(byte region, const byte* adr);
 	void setRom(byte region, int block);

@@ -23,10 +23,6 @@ RomAscii16kB::RomAscii16kB(
 	reset(time);
 }
 
-RomAscii16kB::~RomAscii16kB()
-{
-}
-
 void RomAscii16kB::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);

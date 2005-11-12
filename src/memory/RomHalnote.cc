@@ -13,10 +13,6 @@ RomHalnote::RomHalnote(MSXMotherBoard& motherBoard, const XMLElement& config,
 	reset(time);
 }
 
-RomHalnote::~RomHalnote()
-{
-}
-
 void RomHalnote::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);

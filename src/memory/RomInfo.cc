@@ -1,7 +1,5 @@
 // $Id$
 
-#include <map>
-#include <string>
 #include "RomInfo.hh"
 #include "Rom.hh"
 #include "FileContext.hh"
@@ -11,6 +9,7 @@
 #include "StringOp.hh"
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
+#include <map>
 
 using std::auto_ptr;
 using std::map;
@@ -103,10 +102,6 @@ RomInfo::RomInfo(const string& ntitle,   const string& nyear,
 	country = ncountry;
 	remark = nremark;
 	romType = nromType;
-}
-
-RomInfo::~RomInfo()
-{
 }
 
 RomType RomInfo::nameToRomType(string name)

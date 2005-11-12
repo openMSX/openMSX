@@ -4,7 +4,6 @@
 #define ROMGAMEMASTER2_HH
 
 #include "Rom4kBBlocks.hh"
-#include <memory>
 
 namespace openmsx {
 

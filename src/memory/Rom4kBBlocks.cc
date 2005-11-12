@@ -16,10 +16,6 @@ Rom4kBBlocks::Rom4kBBlocks(
 	}
 }
 
-Rom4kBBlocks::~Rom4kBBlocks()
-{
-}
-
 byte Rom4kBBlocks::readMem(word address, const EmuTime& /*time*/)
 {
 	return bank[address >> 12][address & 0x0FFF];

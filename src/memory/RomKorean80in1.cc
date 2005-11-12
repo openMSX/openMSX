@@ -22,10 +22,6 @@ RomKorean80in1::RomKorean80in1(
 	reset(time);
 }
 
-RomKorean80in1::~RomKorean80in1()
-{
-}
-
 void RomKorean80in1::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);

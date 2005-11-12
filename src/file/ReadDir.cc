@@ -2,11 +2,9 @@
 
 #include "ReadDir.hh"
 
-using std::string;
-
 namespace openmsx {
 
-ReadDir::ReadDir(const string& directory)
+ReadDir::ReadDir(const std::string& directory)
 {
 	dir = opendir(directory.c_str());
 }

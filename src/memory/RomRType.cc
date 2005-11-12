@@ -21,10 +21,6 @@ RomRType::RomRType(MSXMotherBoard& motherBoard, const XMLElement& config,
 	reset(time);
 }
 
-RomRType::~RomRType()
-{
-}
-
 void RomRType::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);

@@ -22,10 +22,6 @@ RomKonami4::RomKonami4(MSXMotherBoard& motherBoard, const XMLElement& config,
 	reset(time);
 }
 
-RomKonami4::~RomKonami4()
-{
-}
-
 void RomKonami4::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);

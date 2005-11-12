@@ -5,8 +5,6 @@
 #include "Scheduler.hh"
 #include "FilenameSetting.hh"
 
-using std::string;
-
 namespace openmsx {
 
 RS232Tester::RS232Tester(Scheduler& scheduler,
@@ -65,15 +63,15 @@ void RS232Tester::unplugHelper(const EmuTime& /*time*/)
 	fclose(inFile);
 }
 
-const string& RS232Tester::getName() const
+const std::string& RS232Tester::getName() const
 {
-	static const string name("rs232-tester");
+	static const std::string name("rs232-tester");
 	return name;
 }
 
-const string& RS232Tester::getDescription() const
+const std::string& RS232Tester::getDescription() const
 {
-	static const string desc(
+	static const std::string desc(
 		"RS232 tester pluggable. Reads all data from file specified "
 		"with the 'rs-232-inputfilename' setting. Writes all data "
 		"to the file specified with the 'rs232-outputfilename' "
@@ -125,7 +123,7 @@ void RS232Tester::executeUntil(const EmuTime& time, int /*userData*/)
 	}
 }
 
-const string& RS232Tester::schedName() const
+const std::string& RS232Tester::schedName() const
 {
 	return getName();
 }

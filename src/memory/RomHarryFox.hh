@@ -12,7 +12,6 @@ class RomHarryFox : public Rom16kBBlocks
 public:
 	RomHarryFox(MSXMotherBoard& motherBoard, const XMLElement& config,
 	            const EmuTime& time, std::auto_ptr<Rom> rom);
-	virtual ~RomHarryFox();
 
 	virtual void reset(const EmuTime& time);
 	virtual void writeMem(word address, byte value, const EmuTime& time);

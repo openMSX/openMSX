@@ -72,10 +72,6 @@ RomPlain::RomPlain(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 }
 
-RomPlain::~RomPlain()
-{
-}
-
 void RomPlain::guessHelper(unsigned offset, int* pages)
 {
 	if (((*rom)[offset++] == 'A') && ((*rom)[offset++] =='B')) {

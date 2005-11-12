@@ -14,10 +14,6 @@ RomCrossBlaim::RomCrossBlaim(
 	reset(time);
 }
 
-RomCrossBlaim::~RomCrossBlaim()
-{
-}
-
 void RomCrossBlaim::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);

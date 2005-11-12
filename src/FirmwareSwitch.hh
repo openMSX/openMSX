@@ -14,6 +14,8 @@ class FirmwareSwitch
 {
 public:
 	FirmwareSwitch(CommandController& commandController);
+	~FirmwareSwitch();
+
 	bool getStatus() const;
 
 private:
