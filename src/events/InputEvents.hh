@@ -18,7 +18,7 @@ namespace openmsx {
 class UserInputEvent : public Event
 {
 protected:
-	UserInputEvent(EventType type)
+	explicit UserInputEvent(EventType type)
 		: Event(type) {}
 };
 
@@ -100,14 +100,14 @@ private:
 class MouseButtonUpEvent : public MouseButtonEvent
 {
 public:
-	MouseButtonUpEvent(MouseButtonEvent::Button button)
+	explicit MouseButtonUpEvent(MouseButtonEvent::Button button)
 		: MouseButtonEvent(OPENMSX_MOUSE_BUTTON_UP_EVENT, button) {}
 };
 
 class MouseButtonDownEvent : public MouseButtonEvent
 {
 public:
-	MouseButtonDownEvent(MouseButtonEvent::Button button)
+	explicit MouseButtonDownEvent(MouseButtonEvent::Button button)
 		: MouseButtonEvent(OPENMSX_MOUSE_BUTTON_DOWN_EVENT, button) {}
 };
 
@@ -208,7 +208,7 @@ public:
 class FocusEvent : public Event
 {
 public:
-	FocusEvent(bool gain_)
+	explicit FocusEvent(bool gain_)
 		: Event(OPENMSX_FOCUS_EVENT), gain(gain_) {}
 
 	bool getGain() const { return gain; }

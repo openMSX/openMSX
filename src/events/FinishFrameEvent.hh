@@ -11,7 +11,7 @@ namespace openmsx {
 class FinishFrameEvent: public Event
 {
 public:
-	FinishFrameEvent(VideoSource source_)
+	explicit FinishFrameEvent(VideoSource source_)
 		: Event(OPENMSX_FINISH_FRAME_EVENT)
 		, source(source_)
 	{

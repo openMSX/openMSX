@@ -2,6 +2,9 @@ $Id$
 
 2005-11-12 Manuel Bilderbeek <manuel@msxnet.org>
 	* Attach to throttleManager, not to throttleSetting.
+	* Added keyword 'explicit' to declarations of constructors with only
+	  one argument, to prevent undesired implicit conversions. Please do
+	  this everywhere applicable from now on!
 
 2005-11-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Allow multiple <mem base="xxx" size="yyy"/> tags per device

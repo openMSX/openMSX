@@ -16,7 +16,7 @@ class Connector;
 class PlugException: public MSXException
 {
 public:
-	PlugException(const std::string& message)
+	explicit PlugException(const std::string& message)
 		: MSXException(message) {}
 };
 

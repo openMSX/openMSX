@@ -22,7 +22,7 @@ class ThrottleManager;
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
 public:
-	MSXCassettePlayerCLI(CommandLineParser& commandLineParser);
+	explicit MSXCassettePlayerCLI(CommandLineParser& commandLineParser);
 	virtual bool parseOption(const std::string& option,
 	                         std::list<std::string>& cmdLine);
 	virtual const std::string& optionHelp() const;

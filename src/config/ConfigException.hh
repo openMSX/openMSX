@@ -10,7 +10,7 @@ namespace openmsx {
 class ConfigException : public MSXException
 {
 public:
-	ConfigException(const std::string& desc)
+	explicit ConfigException(const std::string& desc)
 		: MSXException(desc) {}
 };
 

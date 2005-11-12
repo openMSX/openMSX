@@ -10,22 +10,22 @@ namespace openmsx {
 
 class NoSuchSectorException : public MSXException {
 public:
-	NoSuchSectorException(const std::string &desc)
+	explicit NoSuchSectorException(const std::string &desc)
 		: MSXException(desc) {}
 };
 class DiskIOErrorException  : public MSXException {
 public:
-	DiskIOErrorException(const std::string &desc)
+	explicit DiskIOErrorException(const std::string &desc)
 		: MSXException(desc) {}
 };
 class DriveEmptyException  : public MSXException {
 public:
-	DriveEmptyException(const std::string &desc)
+	explicit DriveEmptyException(const std::string &desc)
 		: MSXException(desc) {}
 };
 class WriteProtectedException  : public MSXException {
 public:
-	WriteProtectedException(const std::string &desc)
+	explicit WriteProtectedException(const std::string &desc)
 		: MSXException(desc) {}
 };
 

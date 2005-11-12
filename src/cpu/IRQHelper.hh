@@ -59,7 +59,7 @@ public:
 	/** Create a new IntHelper.
 	  * Initially there is no interrupt request on the bus.
 	  */
-	IntHelper(MSXCPU& cpu)
+	explicit IntHelper(MSXCPU& cpu)
 		: SOURCE(cpu), request(false) {
 	}
 

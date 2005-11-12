@@ -16,7 +16,7 @@ namespace openmsx {
 class CasImage : public CassetteImage
 {
 public:
-	CasImage(const std::string& fileName);
+	explicit CasImage(const std::string& fileName);
 	virtual ~CasImage();
 
 	virtual short getSampleAt(const EmuTime& time);

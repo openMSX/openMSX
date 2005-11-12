@@ -22,7 +22,7 @@ private:
 class ScopedLock
 {
 public:
-	ScopedLock(Semaphore& lock_)
+	explicit ScopedLock(Semaphore& lock_)
 		: lock(lock_)
 	{
 		lock.down();

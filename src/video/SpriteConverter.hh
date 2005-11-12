@@ -29,7 +29,7 @@ public:
 	  * initialisation.
 	  * @param spriteChecker_ Delivers the sprite data to be rendered.
 	  */
-	SpriteConverter(SpriteChecker& spriteChecker_)
+	explicit SpriteConverter(SpriteChecker& spriteChecker_)
 		: spriteChecker(spriteChecker_)
 	{
 	}
