@@ -1,30 +1,37 @@
+// $Id$
+
 #include "ThrottleManager.hh"
-
 #include "BooleanSetting.hh"
-
 
 namespace openmsx {
 
-ThrottleManager::ThrottleManager(BooleanSetting& throttleSetting_, BooleanSetting& fullSpeedLoadingSetting_)
-	: throttleSetting(throttleSetting_)
-	, fullSpeedLoadingSetting(fullSpeedLoadingSetting_)
-	, loading(0), throttle(true)
+ThrottleManager::ThrottleManager(CommandController& commandController)
+	: loading(0), throttle(true)
 {
-	throttleSetting.attach(*this);	
-	fullSpeedLoadingSetting.attach(*this);	
+	throttleSetting.reset(new BooleanSetting(commandController, "throttle",
+		"controls speed throttling", true, Setting::DONT_SAVE));
+	fullSpeedLoadingSetting.reset(new BooleanSetting(commandController,
+		"fullspeedwhenloading",
+		"sets openMSX to full speed when the MSX is loading", false));
+
+	throttleSetting->attach(*this);
+	fullSpeedLoadingSetting->attach(*this);
 }
 
 ThrottleManager::~ThrottleManager()
 {
-	throttleSetting.detach(*this);	
-	fullSpeedLoadingSetting.detach(*this);	
+	throttleSetting->detach(*this);
+	fullSpeedLoadingSetting->detach(*this);
 }
 
 void ThrottleManager::updateStatus()
 {
-	const bool throttleOld = throttle;
-	throttle = (throttleSetting.getValue()) && (fullSpeedLoadingSetting.getValue() ? (loading == 0) : true);
-	if (throttleOld!=throttle) notify();
+	bool newThrottle = throttleSetting->getValue() &&
+	                   (!loading || !fullSpeedLoadingSetting->getValue());
+	if (throttle != newThrottle) {
+		throttle = newThrottle;
+		notify();
+	}
 }
 
 bool ThrottleManager::isThrottled() const
@@ -43,9 +50,9 @@ void ThrottleManager::indicateLoadingState(bool state)
 	updateStatus();
 }
 
-void ThrottleManager::update(const Setting& setting)
+void ThrottleManager::update(const Setting& /*setting*/)
 {
 	updateStatus();
 }
 
-}
+} // namespace openmsx

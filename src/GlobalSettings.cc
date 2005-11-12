@@ -17,10 +17,6 @@ GlobalSettings::GlobalSettings(CommandController& commandController_)
 	speedSetting.reset(new IntegerSetting(commandController, "speed",
 	       "controls the emulation speed: higher is faster, 100 is normal",
 	       100, 1, 1000000));
-	throttleSetting.reset(new BooleanSetting(commandController, "throttle",
-	       "controls speed throttling", true, Setting::DONT_SAVE));
-	fullSpeedLoadingSetting.reset(new BooleanSetting(commandController, "fullspeedwhenloading",
-	       "sets openMSX to full speed when the MSX is loading", false));
 	pauseSetting.reset(new BooleanSetting(commandController, "pause",
 	       "pauses the emulation", false, Setting::DONT_SAVE));
 	powerSetting.reset(new BooleanSetting(commandController, "power",
@@ -32,7 +28,7 @@ GlobalSettings::GlobalSettings(CommandController& commandController_)
 	        "turns console display on/off", false, Setting::DONT_SAVE));
 	userDirSetting.reset(new StringSetting(commandController,
 	        "user_directories", "list of user directories", ""));
-	throttleManager.reset(new ThrottleManager(*throttleSetting.get(), *fullSpeedLoadingSetting.get()));
+	throttleManager.reset(new ThrottleManager(commandController));
 }
 
 GlobalSettings::~GlobalSettings()
@@ -44,11 +40,6 @@ GlobalSettings::~GlobalSettings()
 IntegerSetting& GlobalSettings::getSpeedSetting()
 {
 	return *speedSetting.get();
-}
-
-BooleanSetting& GlobalSettings::getThrottleSetting()
-{
-	return *throttleSetting.get();
 }
 
 BooleanSetting& GlobalSettings::getPauseSetting()
