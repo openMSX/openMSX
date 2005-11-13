@@ -7,13 +7,14 @@
 #include "Semaphore.hh"
 #include "Schedulable.hh"
 #include "likely.hh"
+#include "noncopyable.hh"
 #include <vector>
 
 namespace openmsx {
 
 class PollInterface;
 
-class Scheduler
+class Scheduler : private noncopyable
 {
 private:
 	class SynchronizationPoint
@@ -46,7 +47,7 @@ private:
 	};
 	
 	struct FindSchedulable {
-		FindSchedulable(Schedulable& schedulable_)
+		explicit FindSchedulable(Schedulable& schedulable_)
 			: schedulable(schedulable_) {}
 		bool operator()(Scheduler::SynchronizationPoint& sp) const {
 			return sp.getDevice() == &schedulable;
@@ -56,6 +57,7 @@ private:
 
 public:
 	Scheduler();
+	~Scheduler();
 
 	/**
 	 * Get the current scheduler time.
@@ -123,11 +125,11 @@ private: // -> intended for Schedulable
 	 * If there is more than one match only one will be removed,
 	 * there is no guarantee that the earliest syncPoint is
 	 * removed.
-	 * Removing a syncPoint is a relatively expensive operation,
-	 * if possible don't remove the syncPoint but ignore it in
-	 * your executeUntil() method.
 	 */
 	void removeSyncPoint(Schedulable& device, int userdata = 0);
+
+	/** Remove all syncpoints for the given device.
+	  */
 	void removeSyncPoints(Schedulable& device);
 
 	/**

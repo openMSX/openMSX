@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef SETTING_POLICY_HH
-#define SETTING_POLICY_HH
+#ifndef SETTINGPOLICY_HH
+#define SETTINGPOLICY_HH
 
 #include <string>
 #include <vector>

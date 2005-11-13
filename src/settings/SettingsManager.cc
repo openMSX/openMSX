@@ -26,6 +26,7 @@ SettingsManager::SettingsManager(CommandController& commandController_)
 
 SettingsManager::~SettingsManager()
 {
+	assert(settingsMap.empty());
 }
 
 void SettingsManager::registerSetting(Setting& setting)

@@ -4,13 +4,14 @@
 #define SDLTEXTURE_HH
 
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <string>
 
 class SDL_Surface;
 
 namespace openmsx {
 
-class SDLImage
+class SDLImage : private noncopyable
 {
 public:
 	SDLImage(SDL_Surface* output, const std::string& filename);

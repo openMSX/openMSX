@@ -4,6 +4,7 @@
 #define SDLSNOW_HH
 
 #include "Layer.hh"
+#include "noncopyable.hh"
 
 struct SDL_Surface;
 
@@ -12,7 +13,7 @@ namespace openmsx {
 /** Snow effect for background layer.
   */
 template <class Pixel>
-class SDLSnow: public Layer
+class SDLSnow : public Layer, private noncopyable
 {
 public:
 	SDLSnow(SDL_Surface* screen);

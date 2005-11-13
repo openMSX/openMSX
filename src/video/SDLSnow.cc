@@ -4,8 +4,6 @@
 #include "openmsx.hh"
 #include <SDL.h>
 
-using std::string;
-
 namespace openmsx {
 
 template <class Pixel>
@@ -53,9 +51,9 @@ void SDLSnow<Pixel>::paint()
 }
 
 template <class Pixel>
-const string& SDLSnow<Pixel>::getName()
+const std::string& SDLSnow<Pixel>::getName()
 {
-	static const string NAME = "SDLSnow";
+	static const std::string NAME = "SDLSnow";
 	return NAME;
 }
 

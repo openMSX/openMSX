@@ -15,6 +15,11 @@ Scheduler::Scheduler()
 {
 }
 
+Scheduler::~Scheduler()
+{
+	assert(syncPoints.empty());
+}
+
 void Scheduler::setSyncPoint(const EmuTime& time, Schedulable& device, int userData)
 {
 	//PRT_DEBUG("Sched: registering " << device->schedName() <<

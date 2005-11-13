@@ -4,10 +4,10 @@
 #define SETTINGSMANAGER_HH
 
 #include "Command.hh"
+#include "noncopyable.hh"
 #include <map>
 #include <set>
 #include <string>
-#include <vector>
 
 namespace openmsx {
 
@@ -17,7 +17,7 @@ class XMLElement;
 
 /** Manages all settings.
   */
-class SettingsManager
+class SettingsManager : private noncopyable
 {
 private:
 	typedef std::map<std::string, Setting*> SettingsMap;

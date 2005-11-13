@@ -8,10 +8,9 @@ TODO:
 #ifndef SPRITECONVERTER_HH
 #define SPRITECONVERTER_HH
 
-#include "openmsx.hh"
-#include "Renderer.hh"
 #include "SpriteChecker.hh"
 #include "DisplayMode.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 
@@ -21,7 +20,6 @@ template <class Pixel>
 class SpriteConverter
 {
 public:
-
 	// TODO: Move some methods to .cc?
 
 	/** Constructor.
@@ -37,14 +35,16 @@ public:
 	/** Update the transparency setting.
 	  * @param enabled The new value.
 	  */
-	void setTransparency(bool enabled) {
+	void setTransparency(bool enabled)
+	{
 		this->transparency = enabled;
 	}
 
 	/** Notify SpriteConverter of a display mode change.
 	  * @param mode The new display mode.
 	  */
-	void setDisplayMode(DisplayMode mode) {
+	void setDisplayMode(DisplayMode mode)
+	{
 		this->mode = mode;
 	}
 
@@ -53,7 +53,8 @@ public:
 	  * will be used while drawing.
 	  * @param palette 16-entry array containing the sprite palette.
 	  */
-	void setPalette(Pixel* palette) {
+	void setPalette(Pixel* palette)
+	{
 		this->palette = palette;
 	}
 
@@ -64,9 +65,8 @@ public:
 	  * @param maxX Maximum X coordinate to draw (exclusive).
 	  * @param pixelPtr Pointer to memory to draw to.
 	  */
-	void drawMode1(
-		int absLine, int minX, int maxX, Pixel* pixelPtr
-	) {
+	void drawMode1(int absLine, int minX, int maxX, Pixel* pixelPtr)
+	{
 		// Determine sprites visible on this line.
 		SpriteChecker::SpriteInfo* visibleSprites;
 		int visibleIndex =
@@ -120,9 +120,8 @@ public:
 	  * @param maxX Maximum X coordinate to draw (exclusive).
 	  * @param pixelPtr Pointer to memory to draw to.
 	  */
-	void drawMode2(
-		int absLine, int minX, int maxX, Pixel* pixelPtr
-	) {
+	void drawMode2( int absLine, int minX, int maxX, Pixel* pixelPtr)
+	{
 		// Determine sprites visible on this line.
 		SpriteChecker::SpriteInfo* visibleSprites;
 		int visibleIndex =

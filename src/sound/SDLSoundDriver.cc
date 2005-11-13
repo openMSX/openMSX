@@ -11,8 +11,6 @@
 #include "build-info.hh"
 #include <algorithm>
 
-using std::string;
-
 namespace openmsx {
 
 static int roundUpPower2(int a)
@@ -22,8 +20,9 @@ static int roundUpPower2(int a)
 	return res;
 }
 
-SDLSoundDriver::SDLSoundDriver(Scheduler& scheduler, GlobalSettings& globalSettings,
-                               Mixer& mixer_, unsigned frequency, unsigned samples)
+SDLSoundDriver::SDLSoundDriver(
+		Scheduler& scheduler, GlobalSettings& globalSettings,
+		Mixer& mixer_, unsigned frequency, unsigned samples)
 	: Schedulable(scheduler)
 	, mixer(mixer_)
 	, muted(true)
@@ -40,12 +39,12 @@ SDLSoundDriver::SDLSoundDriver(Scheduler& scheduler, GlobalSettings& globalSetti
 
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
 		throw MSXException("Unable to initialize SDL audio subsystem: " +
-		                   string(SDL_GetError()));
+		                   std::string(SDL_GetError()));
 	}
 	if (SDL_OpenAudio(&desired, &audioSpec) != 0) {
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
 		throw MSXException("Unable to open SDL audio: " +
-		                   string(SDL_GetError()));
+		                   std::string(SDL_GetError()));
 	}
 
 	bufferSize = 4 * audioSpec.size / (2 * sizeof(short));
@@ -248,9 +247,9 @@ void SDLSoundDriver::executeUntil(const EmuTime& time, int /*userData*/)
 	setSyncPoint(time + interval2);
 }
 
-const string& SDLSoundDriver::schedName() const
+const std::string& SDLSoundDriver::schedName() const
 {
-	static const string name = "SDLSoundDriver";
+	static const std::string name = "SDLSoundDriver";
 	return name;
 }
 

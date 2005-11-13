@@ -3,6 +3,7 @@
 #ifndef SCHEDULABLE_HH
 #define SCHEDULABLE_HH
 
+#include "noncopyable.hh"
 #include <string>
 
 namespace openmsx {
@@ -14,7 +15,7 @@ class Scheduler;
  * Every class that wants to get scheduled at some point must inherit from
  * this class.
  */
-class Schedulable
+class Schedulable : private noncopyable
 {
 public:
 	/**

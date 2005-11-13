@@ -7,11 +7,8 @@
 #include "SDLOutputSurface.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
-#include "VideoSourceSetting.hh"
-#include "InitException.hh"
 #include "InputEventGenerator.hh"
 #include "MSXMotherBoard.hh"
-#include <SDL.h>
 #include <cassert>
 
 #include "components.hh"

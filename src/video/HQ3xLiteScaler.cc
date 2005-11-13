@@ -14,6 +14,7 @@ Visit the HiEnd3D site for info:
 #include "HQCommon.hh"
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
+#include "openmsx.hh"
 #include <algorithm>
 
 using std::min;

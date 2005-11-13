@@ -16,11 +16,6 @@
 #include <cassert>
 #include <cmath>
 
-using std::max;
-using std::min;
-using std::string;
-
-
 namespace openmsx {
 
 /** VDP ticks between start of line and start of left border.
@@ -49,7 +44,7 @@ inline int SDLRasterizer<Pixel>::translateX(int absoluteX, bool narrow)
 		((absoluteX & ROUND_MASK) - (TICKS_VISIBLE_MIDDLE & ROUND_MASK))
 		/ (narrow ? 2 : 4)
 		+ maxX / 2;
-	return max(screenX, 0);
+	return std::max(screenX, 0);
 }
 
 template <class Pixel>
@@ -409,8 +404,8 @@ void SDLRasterizer<Pixel>::drawBorder(
 		border0 = border1 = palBg[bgColor & 0x0F];
 	}
 
-	int startY = max(fromY - lineRenderTop, 0);
-	int endY = min(limitY - lineRenderTop, 240);
+	int startY = std::max(fromY - lineRenderTop, 0);
+	int endY = std::min(limitY - lineRenderTop, 240);
 	if ((fromX == 0) && (limitX == VDP::TICKS_PER_LINE)) {
 		for (int y = startY; y < endY; y++) {
 			workFrame->setBlank(y, border0, border1);
@@ -443,7 +438,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 	}
 
 	// Clip to screen area.
-	int screenLimitY = min(
+	int screenLimitY = std::min(
 		fromY + displayHeight - lineRenderTop,
 		240
 		);
@@ -565,7 +560,7 @@ void SDLRasterizer<Pixel>::drawSprites(
 ) {
 	// Clip to screen area.
 	// TODO: Code duplicated from drawDisplay.
-	int screenLimitY = min(
+	int screenLimitY = std::min(
 		fromY + displayHeight - lineRenderTop,
 		240
 		);
@@ -600,7 +595,7 @@ void SDLRasterizer<Pixel>::drawSprites(
 
 
 // Force template instantiation.
-template class SDLRasterizer<Uint16>;
-template class SDLRasterizer<Uint32>;
+template class SDLRasterizer<word>;
+template class SDLRasterizer<unsigned>;
 
 } // namespace openmsx

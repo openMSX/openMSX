@@ -24,6 +24,7 @@ TODO:
 #include "IntegerSetting.hh"
 #include "build-info.hh"
 #include <cmath>
+#include <SDL.h>
 
 using std::string;
 

@@ -2,12 +2,12 @@
 
 #include "SunriseIDE.hh"
 #include "DummyIDEDevice.hh"
+#include "IDEDeviceFactory.hh"
+#include "DiskContainer.hh"
+#include "FileManipulator.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
-#include "IDEDeviceFactory.hh"
 #include "Rom.hh"
-#include "FileManipulator.hh"
-#include "IDEHD.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include <bitset>

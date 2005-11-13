@@ -3,6 +3,7 @@
 #ifndef OUTPUTSURFACE_HH
 #define OUTPUTSURFACE_HH
 
+#include "noncopyable.hh"
 #include <string>
 #include <memory>
 #include <SDL.h>
@@ -15,7 +16,7 @@ class CommandController;
 class EventDistributor;
 class Display;
 
-class OutputSurface
+class OutputSurface : private noncopyable
 {
 public:
 	virtual ~OutputSurface();

@@ -5,6 +5,7 @@
 
 #include "XMLElement.hh"
 #include "Command.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -12,7 +13,7 @@ namespace openmsx {
 class SettingsManager;
 class HotKey;
 
-class SettingsConfig : public XMLElement
+class SettingsConfig : public XMLElement, private noncopyable
 {
 public:
 	SettingsConfig(CommandController& commandController);

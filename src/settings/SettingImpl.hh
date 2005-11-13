@@ -3,7 +3,6 @@
 #ifndef SETTING_HH
 #define SETTING_HH
 
-#include <cassert>
 #include "SettingsManager.hh"
 #include "Setting.hh"
 #include "SettingsConfig.hh"

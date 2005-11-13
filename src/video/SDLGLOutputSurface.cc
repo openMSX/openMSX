@@ -2,13 +2,10 @@
 
 #include "SDLGLOutputSurface.hh"
 #include "ScreenShotSaver.hh"
-#include "CommandException.hh"
 #include "GLSnow.hh"
 #include "GLConsole.hh"
 #include "IconLayer.hh"
 #include <cstdlib>
-
-#include <iostream>
 
 namespace openmsx {
 

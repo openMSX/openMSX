@@ -17,7 +17,6 @@ Visit the Scale2x site for info:
 #include "OutputSurface.hh"
 #include "HostCPU.hh"
 #include "openmsx.hh"
-#include <cassert>
 #include <algorithm>
 
 using std::min;

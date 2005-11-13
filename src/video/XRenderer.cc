@@ -6,7 +6,6 @@
 #include "XRenderer.hh"
 #include <SDL.h>
 #include <SDL_thread.h>
-#include "SDLEventInserter.hh"
 #include <X11/keysym.h>
 #include "Scheduler.hh"
 #include "CliCommOutput.hh"
@@ -101,7 +100,7 @@ void XRenderer::EventLoop()
 // Without any good reason, I assume SDL keycodes are the same as X keycodes.
 				ev.key.keysym.sym = convert(XKeycodeToKeysym (X.display, event.xkey.keycode, 0));
 				PRT_DEBUG ("XRenderer: Inserting KeyEvent in SDL queue");
-				new SDLEventInserter (ev, Scheduler::ASAP);
+				//new SDLEventInserter (ev, Scheduler::ASAP);
 				break;
 			default:
 				PRT_DEBUG("Event of type " << event.type << " not handled");

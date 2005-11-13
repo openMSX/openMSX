@@ -6,7 +6,7 @@
 #include "SDLSnow.hh"
 #include "SDLConsole.hh"
 #include "IconLayer.hh"
-#include <string.h>
+#include <cstring>
 
 namespace openmsx {
 

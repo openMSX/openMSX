@@ -108,8 +108,8 @@ static string calcDescription(SCC::ChipMode mode)
 	return (mode == SCC::SCC_Real) ? "Konami SCC" : "Konami SCC+";
 }
 
-SCC::SCC(MSXMotherBoard& motherBoard, const string& name, const XMLElement& config,
-         const EmuTime& time, ChipMode mode)
+SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
+         const XMLElement& config, const EmuTime& time, ChipMode mode)
 	: SoundDevice(motherBoard.getMixer(), name, calcDescription(mode))
 	, SimpleDebuggable(motherBoard, name + " SCC",
 	                   "SCC registers in SCC+ format", 0x100)

@@ -4,8 +4,7 @@
 #include "LineScalers.hh"
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
-#include "DeinterlacedFrame.hh"
-#include <algorithm>
+#include "openmsx.hh"
 
 namespace openmsx {
 

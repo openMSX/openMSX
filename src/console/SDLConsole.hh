@@ -4,6 +4,7 @@
 #define SDLCONSOLE_HH
 
 #include "OSDConsoleRenderer.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 class SDL_Surface;
@@ -12,7 +13,7 @@ namespace openmsx {
 
 class SDLImage;
 
-class SDLConsole : public OSDConsoleRenderer
+class SDLConsole : public OSDConsoleRenderer, private noncopyable
 {
 public:
 	SDLConsole(MSXMotherBoard& motherBoard, SDL_Surface* screen);

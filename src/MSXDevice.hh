@@ -4,6 +4,7 @@
 #define MSXDEVICE_HH
 
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <string>
 #include <vector>
 #include <utility> // for pair
@@ -18,7 +19,7 @@ class MSXMotherBoard;
   * of the emulated MSX. There is no communication among devices, only
   * between devices and the CPU.
   */
-class MSXDevice
+class MSXDevice : private noncopyable
 {
 public:
 	virtual ~MSXDevice() = 0;

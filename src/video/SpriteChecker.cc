@@ -11,13 +11,11 @@ TODO:
   For example, does it have the right value in text mode?
 */
 
-#include <cassert>
 #include "SpriteChecker.hh"
-#include "VDP.hh"
-#include "VDPVRAM.hh"
 #include "MSXMotherBoard.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -27,10 +25,6 @@ SpriteChecker::SpriteChecker(VDP& vdp_)
 {
 	vram.spriteAttribTable.setObserver(this);
 	vram.spritePatternTable.setObserver(this);
-}
-
-SpriteChecker::~SpriteChecker()
-{
 }
 
 void SpriteChecker::reset(const EmuTime& time)

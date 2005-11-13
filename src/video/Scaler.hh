@@ -3,10 +3,9 @@
 #ifndef SCALER_HH
 #define SCALER_HH
 
-#include "openmsx.hh"
-#include <SDL.h>
-#include <cassert>
 #include <memory>
+
+class SDL_PixelFormat;
 
 namespace openmsx {
 

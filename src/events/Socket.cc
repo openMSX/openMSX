@@ -1,7 +1,6 @@
 // $Id$
 
 #include "Socket.hh"
-#include "MSXException.hh"
 #include <map>
 
 namespace openmsx {

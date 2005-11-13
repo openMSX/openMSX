@@ -3,24 +3,20 @@
 /* PNG save code by Darren Grant sdl@lokigames.com */
 /* heavily modified for openMSX by Joost Damad joost@lumatec.be */
 
-#include <sstream>
-#include <algorithm>
-#include <cstdio>
-#include <cstdlib>
-#include <sys/types.h>
-#include <png.h>
 #include "ScreenShotSaver.hh"
-#include "FileException.hh"
 #include "CommandException.hh"
 #include "build-info.hh"
+#include <cstdio>
+#include <cstdlib>
+#include <png.h>
 #include <SDL.h>
-
-using std::string;
 
 namespace openmsx {
 
+namespace ScreenShotSaver {
+
 static bool IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
-                           const string& filename)
+                           const std::string& filename)
 {
 	FILE* fp = fopen(filename.c_str(), "wb");
 	if (!fp) {
@@ -90,7 +86,7 @@ error:
 	return false;
 }
 
-void ScreenShotSaver::save(SDL_Surface* surface, const string& filename)
+void save(SDL_Surface* surface, const std::string& filename)
 {
 	SDL_PixelFormat frmt24;
 	frmt24.palette = 0;
@@ -128,12 +124,14 @@ void ScreenShotSaver::save(SDL_Surface* surface, const string& filename)
 	}
 }
 
-void ScreenShotSaver::save(unsigned width, unsigned height,
-                 byte** row_pointers, const string& filename)
+void save(unsigned width, unsigned height,
+          byte** row_pointers, const std::string& filename)
 {
 	if (!IMG_SavePNG_RW(width, height, (png_bytep*)row_pointers, filename)) {
 		throw CommandException("Failed to write " + filename);
 	}
 }
+
+} // namespace ScreenShotSaver
 
 } // namespace openmsx

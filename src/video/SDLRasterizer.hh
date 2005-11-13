@@ -8,6 +8,7 @@
 #include "BitmapConverter.hh"
 #include "SpriteConverter.hh"
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -21,7 +22,7 @@ template <class Pixel> class PostProcessor;
 /** Rasterizer using SDL.
   */
 template <class Pixel>
-class SDLRasterizer : public Rasterizer
+class SDLRasterizer : public Rasterizer, private noncopyable
 {
 public:
 	SDLRasterizer(VDP& vdp, OutputSurface& screen);
@@ -41,13 +42,11 @@ public:
 	virtual void drawDisplay(
 		int fromX, int fromY,
 		int displayX, int displayY,
-		int displayWidth, int displayHeight
-		);
+		int displayWidth, int displayHeight);
 	virtual void drawSprites(
 		int fromX, int fromY,
 		int displayX, int displayY,
-		int displayWidth, int displayHeight
-		);
+		int displayWidth, int displayHeight);
 
 private:
 	/** Translate from absolute VDP coordinates to screen coordinates:

@@ -5,6 +5,7 @@
 
 #include "VideoSystem.hh"
 #include "EventListener.hh"
+#include "noncopyable.hh"
 #include <string>
 #include <memory>
 
@@ -12,12 +13,10 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class OutputSurface;
-class VDP;
-class V9990;
-class Rasterizer;
 class Layer;
 
-class SDLGLVideoSystem : public VideoSystem, private EventListener
+class SDLGLVideoSystem : public VideoSystem, private EventListener,
+                         private noncopyable
 {
 public:
 	/** Activates this video system.

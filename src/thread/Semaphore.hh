@@ -3,14 +3,15 @@
 #ifndef SEMAPHORE_HH
 #define SEMAPHORE_HH
 
+#include "noncopyable.hh"
 #include <SDL.h>
 
 namespace openmsx {
 
-class Semaphore
+class Semaphore : private noncopyable
 {
 public:
-	Semaphore(unsigned value);
+	explicit Semaphore(unsigned value);
 	~Semaphore();
 	void up();
 	void down();
@@ -19,7 +20,7 @@ private:
 	SDL_sem* semaphore;
 };
 
-class ScopedLock
+class ScopedLock : private noncopyable
 {
 public:
 	explicit ScopedLock(Semaphore& lock_)

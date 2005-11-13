@@ -5,6 +5,7 @@
 
 #include "VideoSystem.hh"
 #include "RendererFactory.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -19,7 +20,7 @@ class V9990;
 class V9990Rasterizer;
 class Layer;
 
-class SDLVideoSystem: public VideoSystem
+class SDLVideoSystem : public VideoSystem, private noncopyable
 {
 public:
 	SDLVideoSystem(MSXMotherBoard& motherboard,

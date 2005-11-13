@@ -3,9 +3,9 @@
 #ifndef SPRITECHECKER_HH
 #define SPRITECHECKER_HH
 
-#include "EmuTime.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
+#include "VRAMObserver.hh"
 #include "DisplayMode.hh"
 
 namespace openmsx {
@@ -64,8 +64,6 @@ public:
 	  * @param vdp The VDP this sprite checker is part of.
 	  */
 	SpriteChecker(VDP& vdp);
-
-	virtual ~SpriteChecker();
 
 	/** Puts the sprite checker in its initial state.
 	  * @param time The moment in time this reset occurs.

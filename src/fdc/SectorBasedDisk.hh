@@ -5,13 +5,15 @@
 
 #include "Disk.hh"
 #include "SectorAccessibleDisk.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
 
 class PatchInterface;
 
-class SectorBasedDisk : public Disk, public SectorAccessibleDisk
+class SectorBasedDisk : public Disk, public SectorAccessibleDisk,
+                        private noncopyable
 {
 public:
 	static const unsigned SECTOR_SIZE = 512;

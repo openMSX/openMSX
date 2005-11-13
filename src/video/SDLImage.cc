@@ -2,7 +2,7 @@
 
 #include "SDLImage.hh"
 #include "File.hh"
-#include "FileException.hh"
+#include "MSXException.hh"
 #include <SDL_image.h>
 #include <SDL.h>
 #include <cassert>

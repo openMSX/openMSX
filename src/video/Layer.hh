@@ -8,7 +8,6 @@
 namespace openmsx {
 
 class LayerListener;
-class VideoSystem;
 
 /** Interface for display layers.
   */

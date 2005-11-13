@@ -4,6 +4,7 @@
 #define SDLFONT_HH
 
 #include "Font.hh"
+#include "noncopyable.hh"
 
 struct SDL_Surface;
 
@@ -11,7 +12,7 @@ namespace openmsx {
 
 class File;
 
-class SDLFont : public Font
+class SDLFont : public Font, private noncopyable
 {
 public:
 	SDLFont(File* file, SDL_Surface* surface);

@@ -14,13 +14,12 @@ namespace openmsx {
 class Mixer;
 class GlobalSettings;
 class IntegerSetting;
-class BooleanSetting;
 class Setting;
 class ThrottleManager;
 
 class SDLSoundDriver : public SoundDriver, private Schedulable,
                        private Observer<Setting>, 
-		       private Observer<ThrottleManager>
+                       private Observer<ThrottleManager>
 {
 public:
 	SDLSoundDriver(Scheduler& scheduler, GlobalSettings& globalSettings,
