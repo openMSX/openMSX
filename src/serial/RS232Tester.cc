@@ -23,7 +23,6 @@ RS232Tester::RS232Tester(Scheduler& scheduler,
 
 RS232Tester::~RS232Tester()
 {
-	removeSyncPoint();
 }
 
 // Pluggable

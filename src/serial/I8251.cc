@@ -57,12 +57,6 @@ I8251::I8251(Scheduler& scheduler, I8251Interface* interf_, const EmuTime& time)
 	reset(time);
 }
 
-I8251::~I8251()
-{
-	removeSyncPoint(TRANS);
-	removeSyncPoint(RECV);
-}
-
 void I8251::reset(const EmuTime& time)
 {
 	status = STAT_TXRDY | STAT_TXEMPTY;

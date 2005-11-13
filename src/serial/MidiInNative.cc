@@ -41,7 +41,6 @@ MidiInNative::MidiInNative(Scheduler& scheduler, unsigned num)
 
 MidiInNative::~MidiInNative()
 {
-	removeSyncPoint();
 	//w32_midiInClean(); // TODO
 }
 

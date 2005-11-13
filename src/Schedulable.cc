@@ -12,17 +12,26 @@ Schedulable::Schedulable(Scheduler& scheduler_)
 
 Schedulable::~Schedulable()
 {
+	removeSyncPoints();
 }
 
-void Schedulable::setSyncPoint(const EmuTime& timestamp, int userData) {
+void Schedulable::setSyncPoint(const EmuTime& timestamp, int userData)
+{
 	scheduler.setSyncPoint(timestamp, *this, userData);
 }
 
-void Schedulable::removeSyncPoint(int userData) {
+void Schedulable::removeSyncPoint(int userData)
+{
 	scheduler.removeSyncPoint(*this, userData);
 }
 
-bool Schedulable::pendingSyncPoint(int userData) {
+void Schedulable::removeSyncPoints()
+{
+	scheduler.removeSyncPoints(*this);
+}
+
+bool Schedulable::pendingSyncPoint(int userData)
+{
 	return scheduler.pendingSyncPoint(*this, userData);
 }
 

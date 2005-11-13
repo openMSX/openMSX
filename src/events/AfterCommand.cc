@@ -286,11 +286,6 @@ AfterCommand::AfterTimedCmd::AfterTimedCmd(
 	reschedule();
 }
 
-AfterCommand::AfterTimedCmd::~AfterTimedCmd()
-{
-	removeSyncPoint();
-}
-
 double AfterCommand::AfterTimedCmd::getTime() const
 {
 	return time;

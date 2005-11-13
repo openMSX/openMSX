@@ -44,6 +44,15 @@ private:
 			return sp.getTime() < time;
 		}
 	};
+	
+	struct FindSchedulable {
+		FindSchedulable(Schedulable& schedulable_)
+			: schedulable(schedulable_) {}
+		bool operator()(Scheduler::SynchronizationPoint& sp) const {
+			return sp.getDevice() == &schedulable;
+		}
+		Schedulable& schedulable;
+	};
 
 public:
 	Scheduler();
@@ -86,6 +95,7 @@ public:
 private: // -> intended for Schedulable
 	friend void Schedulable::setSyncPoint(const EmuTime&, int);
 	friend void Schedulable::removeSyncPoint(int);
+	friend void Schedulable::removeSyncPoints();
 	friend bool Schedulable::pendingSyncPoint(int);
 
 	/**
@@ -118,6 +128,7 @@ private: // -> intended for Schedulable
 	 * your executeUntil() method.
 	 */
 	void removeSyncPoint(Schedulable& device, int userdata = 0);
+	void removeSyncPoints(Schedulable& device);
 
 	/**
 	 * Is there a pending syncPoint for this device?

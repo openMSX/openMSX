@@ -37,8 +37,6 @@ RealTime::RealTime(Scheduler& scheduler, EventDistributor& eventDistributor_,
 
 RealTime::~RealTime()
 {
-	removeSyncPoint();
-
 	powerSetting.detach(*this);
 	pauseSetting.detach(*this);
 	throttleManager.detach(*this);

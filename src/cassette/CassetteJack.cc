@@ -175,20 +175,20 @@ CassetteJack::CassetteJack(Scheduler & scheduler)
 {
 	running=false, zombie=false, partialInterval=partialOut=0.0;
 }
+
 CassetteJack::~CassetteJack()
 {
-	if (pendingSyncPoint())
-		removeSyncPoint();
-	if (getConnector())
+	if (getConnector()) {
 		getConnector()->unplug(basetime+timestep);
+	}
 }
-void
-CassetteJack::setMotor(bool /*status*/, const EmuTime& /*time*/)
+
+void CassetteJack::setMotor(bool /*status*/, const EmuTime& /*time*/)
 {
 	// TODO emit QT4-signal?
 }
-short
-CassetteJack::readSample(const EmuTime& time)
+
+short CassetteJack::readSample(const EmuTime& time)
 {
 	if (!running || 0==jack_port_connected(cmtin)) 
 		return 0;

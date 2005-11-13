@@ -30,7 +30,6 @@ class I8251 : public SerialDataInterface, private Schedulable
 {
 public:
 	I8251(Scheduler& scheduler, I8251Interface* interf, const EmuTime& time);
-	virtual ~I8251();
 
 	void reset(const EmuTime& time);
 	byte readIO(byte port, const EmuTime& time);

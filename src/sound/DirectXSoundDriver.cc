@@ -149,7 +149,6 @@ DirectXSoundDriver::~DirectXSoundDriver()
 	throttleManager.detach(*this);
 	speedSetting.detach(*this);
 
-	removeSyncPoint();
 	delete[] mixBuffer;
 
 	IDirectSoundBuffer_Stop(primaryBuffer);

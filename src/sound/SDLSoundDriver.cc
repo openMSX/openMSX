@@ -66,7 +66,6 @@ SDLSoundDriver::~SDLSoundDriver()
 	throttleManager.detach(*this);
 	speedSetting.detach(*this);
 
-	removeSyncPoint();
 	delete[] mixBuffer;
 
 	SDL_CloseAudio();

@@ -13,12 +13,6 @@ EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::EmuTimer(
 }
 
 template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
-EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::~EmuTimer()
-{
-	unschedule();
-}
-
-template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM>
 void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM>::setValue(byte value)
 {
 	count = 256 - value;

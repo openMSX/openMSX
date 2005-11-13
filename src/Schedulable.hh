@@ -39,6 +39,7 @@ protected:
 	friend class Scheduler;
 	void setSyncPoint(const EmuTime& timestamp, int userData = 0);
 	void removeSyncPoint(int userData = 0);
+	void removeSyncPoints();
 	bool pendingSyncPoint(int userData = 0);
 
 private:

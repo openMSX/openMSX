@@ -58,7 +58,6 @@ private:
 
 	class AfterTimedCmd : public AfterCmd, private Schedulable {
 	public:
-		virtual ~AfterTimedCmd();
 		double getTime() const;
 		void reschedule();
 	protected:

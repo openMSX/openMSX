@@ -43,6 +43,14 @@ void Scheduler::removeSyncPoint(Schedulable& device, int userData)
 	}
 }
 
+void Scheduler::removeSyncPoints(Schedulable& device)
+{
+	ScopedLock lock(sem);
+	syncPoints.erase(remove_if(syncPoints.begin(), syncPoints.end(),
+	                           FindSchedulable(device)),
+	                 syncPoints.end());
+}
+
 bool Scheduler::pendingSyncPoint(Schedulable& device, int userData)
 {
 	ScopedLock lock(sem);

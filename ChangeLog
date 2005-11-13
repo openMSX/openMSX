@@ -1,5 +1,10 @@
 $Id$
 
+2005-11-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Automatically unschedule SyncPoint when it is deleted:
+	   On lots of places we forgot to do this. Will become important
+	   when we allow to remove device or switch machine at run time
+
 2005-11-12 Manuel Bilderbeek <manuel@msxnet.org>
 	* Attach to throttleManager, not to throttleSetting.
 	* Added keyword 'explicit' to declarations of constructors with only

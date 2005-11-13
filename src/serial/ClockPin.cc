@@ -13,12 +13,6 @@ ClockPin::ClockPin(Scheduler& scheduler, ClockPinListener* listener_)
 {
 }
 
-ClockPin::~ClockPin()
-{
-	unschedule();
-}
-
-
 void ClockPin::setState(bool newStatus, const EmuTime& time)
 {
 	periodic = false;

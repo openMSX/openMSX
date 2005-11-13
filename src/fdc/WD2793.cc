@@ -44,13 +44,8 @@ WD2793::WD2793(Scheduler& scheduler, DiskDrive& drive_, const EmuTime& time)
 	reset(time);
 }
 
-WD2793::~WD2793()
-{
-}
-
 void WD2793::reset(const EmuTime& time)
 {
-	//PRT_DEBUG("WD2793::reset()");
 	removeSyncPoint(SCHED_FSM);
 	removeSyncPoint(SCHED_IDX_IRQ);
 	fsmState = FSM_NONE;

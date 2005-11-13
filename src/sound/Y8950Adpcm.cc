@@ -75,7 +75,6 @@ Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, MSXMotherBoard& motherBoard,
 
 Y8950Adpcm::~Y8950Adpcm()
 {
-	removeSyncPoint();
 }
 
 void Y8950Adpcm::reset(const EmuTime &time)

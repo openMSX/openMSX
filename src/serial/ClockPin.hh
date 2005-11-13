@@ -24,7 +24,6 @@ class ClockPin : private Schedulable
 {
 public:
 	ClockPin(Scheduler& scheduler, ClockPinListener* listener = NULL);
-	virtual ~ClockPin();
 
 	// input side
 	void setState(bool status, const EmuTime& time);

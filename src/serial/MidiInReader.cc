@@ -23,7 +23,6 @@ MidiInReader::MidiInReader(Scheduler& scheduler,
 
 MidiInReader::~MidiInReader()
 {
-	removeSyncPoint();
 }
 
 // Pluggable

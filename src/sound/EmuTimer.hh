@@ -21,7 +21,6 @@ class EmuTimer : private Schedulable
 {
 public:
 	EmuTimer(Scheduler& scheduler, EmuTimerCallback& cb);
-	virtual ~EmuTimer();
 	void setValue(byte value);
 	void setStart(bool start, const EmuTime& time);
 
