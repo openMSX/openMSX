@@ -7,6 +7,7 @@
 #include "HostCPU.hh"
 #include "build-info.hh"
 #include <string.h>
+#include <cassert>
 
 namespace openmsx {
 
@@ -30,7 +31,7 @@ template <typename S, typename T> struct IsTagged {
 
 struct Streaming {};
 struct X86Streaming
-#ifdef ASM_X86 
+#ifdef ASM_X86
 : Streaming
 #endif
 {};

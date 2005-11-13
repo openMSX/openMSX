@@ -5,6 +5,7 @@
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
 #include "openmsx.hh"
+#include <cassert>
 
 namespace openmsx {
 

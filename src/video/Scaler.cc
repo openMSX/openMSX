@@ -13,6 +13,7 @@
 #include "LowScaler.hh"
 #include "MemoryOps.hh"
 #include "OutputSurface.hh"
+#include <cassert>
 
 using std::auto_ptr;
 
