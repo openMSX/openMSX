@@ -17,7 +17,7 @@ class Setting;
 class WavAudioInput : public AudioInputDevice, private Observer<Setting>
 {
 public:
-	WavAudioInput(CommandController& commandController);
+	explicit WavAudioInput(CommandController& commandController);
 	virtual ~WavAudioInput();
 
 	// AudioInputDevice

@@ -15,7 +15,7 @@ class SettingsConfig;
 class FilePool
 {
 public:
-	FilePool(SettingsConfig& settingsConfig);
+	explicit FilePool(SettingsConfig& settingsConfig);
 	~FilePool();
 
 	std::string getFile(const std::string& sha1sum);

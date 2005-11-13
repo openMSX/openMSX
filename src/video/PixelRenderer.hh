@@ -26,7 +26,7 @@ class Setting;
 class PixelRenderer : public Renderer, private Observer<Setting>
 {
 public:
-	PixelRenderer(VDP& vdp);
+	explicit PixelRenderer(VDP& vdp);
 	virtual ~PixelRenderer();
 
 	// Renderer interface:

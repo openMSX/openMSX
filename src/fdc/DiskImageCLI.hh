@@ -12,7 +12,7 @@ class CommandController;
 class DiskImageCLI : public CLIOption, public CLIFileType
 {
 public:
-	DiskImageCLI(CommandLineParser& cmdLineParser);
+	explicit DiskImageCLI(CommandLineParser& cmdLineParser);
 	virtual bool parseOption(const std::string& option,
 	                         std::list<std::string>& cmdLine);
 	virtual const std::string& optionHelp() const;

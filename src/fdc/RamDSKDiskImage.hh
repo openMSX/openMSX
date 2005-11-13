@@ -10,7 +10,7 @@ namespace openmsx {
 class RamDSKDiskImage : public SectorBasedDisk
 {
 public:
-	RamDSKDiskImage(unsigned size = 720 * 1024);
+	explicit RamDSKDiskImage(unsigned size = 720 * 1024);
 	virtual ~RamDSKDiskImage();
 
 	virtual bool writeProtected();

@@ -23,7 +23,7 @@ public:
 	};
 
 	// Multiplexer interface
-	DriveMultiplexer(DiskDrive* drive[4]);
+	explicit DriveMultiplexer(DiskDrive* drive[4]);
 	virtual ~DriveMultiplexer();
 	void selectDrive(DriveNum num, const EmuTime& time);
 

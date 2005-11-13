@@ -20,7 +20,7 @@ class SectorAccessibleDisk;
 class MSXtar
 {
 public:
-	MSXtar(SectorAccessibleDisk& disk);
+	explicit MSXtar(SectorAccessibleDisk& disk);
 	~MSXtar();
 
 	void format();

@@ -9,7 +9,7 @@ namespace openmsx {
 
 class FileException : public MSXException {
 public:
-	FileException(const std::string& mes) : MSXException(mes) {}
+	explicit FileException(const std::string& mes) : MSXException(mes) {}
 };
 
 } // namespace openmsx

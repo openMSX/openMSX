@@ -34,7 +34,7 @@ public:
 	Console& getConsole() const;
 
 protected:
-	OSDConsoleRenderer(MSXMotherBoard& motherBoard);
+	explicit OSDConsoleRenderer(MSXMotherBoard& motherBoard);
 	void initConsole();
 	bool updateConsoleRect();
 	byte getVisibility() const;

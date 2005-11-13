@@ -22,7 +22,7 @@ class VDPCmdEngine : private Observer<Setting>
 public:
 	/** Constructor.
 	  */
-	VDPCmdEngine(VDP& vdp);
+	explicit VDPCmdEngine(VDP& vdp);
 
 	/** Destructor
 	  */

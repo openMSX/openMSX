@@ -28,7 +28,7 @@ class MSXCPU : private SimpleDebuggable, private Observer<Setting>
 public:
 	enum CPUType { CPU_Z80, CPU_R800 };
 
-	MSXCPU(MSXMotherBoard& motherboard);
+	explicit MSXCPU(MSXMotherBoard& motherboard);
 	~MSXCPU();
 
 	/** Reset CPU.

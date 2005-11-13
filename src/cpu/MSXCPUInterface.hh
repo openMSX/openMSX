@@ -171,7 +171,7 @@ public:
 	void setExpanded(int ps, bool expanded);
 
 protected:
-	MSXCPUInterface(MSXMotherBoard& motherBoard);
+	explicit MSXCPUInterface(MSXMotherBoard& motherBoard);
 	virtual ~MSXCPUInterface();
 	friend class std::auto_ptr<MSXCPUInterface>;
 
@@ -292,7 +292,7 @@ public:
 	virtual void unregister_IO_Out(byte port, MSXDevice* device);
 
 private:
-	TurborCPUInterface(MSXMotherBoard& motherBoard);
+	explicit TurborCPUInterface(MSXMotherBoard& motherBoard);
 	virtual ~TurborCPUInterface();
 	friend class MSXCPUInterface;
 

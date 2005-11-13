@@ -14,7 +14,7 @@ class EventDistributor;
 class Mouse : public JoystickDevice, private EventListener
 {
 public:
-	Mouse(EventDistributor& eventDistributor);
+	explicit Mouse(EventDistributor& eventDistributor);
 	virtual ~Mouse();
 
 	//Pluggable

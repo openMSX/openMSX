@@ -28,7 +28,7 @@ protected:
 class VideoSourceSetting : public SettingImpl<VideoSourceSettingPolicy>
 {
 public:
-	VideoSourceSetting(CommandController& commandController);
+	explicit VideoSourceSetting(CommandController& commandController);
 	void registerVideoSource(VideoSource source);
 	void unregisterVideoSource(VideoSource source);
 };

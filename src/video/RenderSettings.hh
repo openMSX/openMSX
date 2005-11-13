@@ -26,7 +26,7 @@ public:
 	  */
 	enum Accuracy { ACC_SCREEN, ACC_LINE, ACC_PIXEL };
 
-	RenderSettings(CommandController& commandController);
+	explicit RenderSettings(CommandController& commandController);
 	~RenderSettings();
 
 	/** Accuracy [screen, line, pixel]. */

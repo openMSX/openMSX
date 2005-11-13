@@ -20,7 +20,7 @@ class InterpreterOutput;
 class Interpreter : public PollInterface
 {
 public:
-	Interpreter(Scheduler& scheduler);
+	explicit Interpreter(Scheduler& scheduler);
 	~Interpreter();
 
 	void setOutput(InterpreterOutput* output);

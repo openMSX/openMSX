@@ -14,7 +14,7 @@ class DACSound8U;
 class PrinterPortSimpl : public PrinterPortDevice
 {
 public:
-	PrinterPortSimpl(Mixer& mixer);
+	explicit PrinterPortSimpl(Mixer& mixer);
 
 	// PrinterPortDevice
 	virtual bool getStatus(const EmuTime& time);

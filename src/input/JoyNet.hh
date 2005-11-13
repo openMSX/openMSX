@@ -54,7 +54,7 @@ class SettingsConfig;
 class JoyNet : public JoystickDevice
 {
 public:
-	JoyNet(CommandController& commandController);
+	explicit JoyNet(CommandController& commandController);
 	virtual ~JoyNet();
 
 	//Pluggable

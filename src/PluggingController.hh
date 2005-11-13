@@ -22,7 +22,7 @@ class CommandController;
 class PluggingController
 {
 public:
-	PluggingController(MSXMotherBoard& motherBoard);
+	explicit PluggingController(MSXMotherBoard& motherBoard);
 	~PluggingController();
 
 	/** Connectors must be (un)registered

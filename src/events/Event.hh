@@ -40,7 +40,7 @@ public:
 	virtual ~Event() {}
 
 protected:
-	Event(EventType type_) : type(type_) {}
+	explicit Event(EventType type_) : type(type_) {}
 
 private:
 	EventType type;

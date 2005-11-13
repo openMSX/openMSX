@@ -10,7 +10,7 @@ class Scheduler;
 class PollInterface
 {
 public:
-	PollInterface(Scheduler& scheduler);
+	explicit PollInterface(Scheduler& scheduler);
 	virtual ~PollInterface();
 
 	virtual void poll() = 0;

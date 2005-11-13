@@ -17,7 +17,7 @@ namespace openmsx {
 class ReadDir
 {
 public:
-	ReadDir(const std::string& directory);
+	explicit ReadDir(const std::string& directory);
 	~ReadDir();
 
 	struct dirent* getEntry();

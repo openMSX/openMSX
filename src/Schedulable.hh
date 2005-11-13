@@ -33,7 +33,7 @@ public:
 	Scheduler& getScheduler() const;
 
 protected:
-	Schedulable(Scheduler& scheduler);
+	explicit Schedulable(Scheduler& scheduler);
 	virtual ~Schedulable();
 
 	// Scheduler needs special permissions to declare these methods friends.

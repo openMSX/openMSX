@@ -16,7 +16,7 @@ class Rom;
 class PanasonicMemory
 {
 public:
-	PanasonicMemory(MSXMotherBoard& motherBoard);
+	explicit PanasonicMemory(MSXMotherBoard& motherBoard);
 	~PanasonicMemory();
 
 	void registerRam(Ram& ram);

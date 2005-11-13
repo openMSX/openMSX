@@ -15,7 +15,7 @@ class FilenameSetting;
 class PrinterPortLogger : public PrinterPortDevice
 {
 public:
-	PrinterPortLogger(CommandController& commandController);
+	explicit PrinterPortLogger(CommandController& commandController);
 	virtual ~PrinterPortLogger();
 
 	// PrinterPortDevice

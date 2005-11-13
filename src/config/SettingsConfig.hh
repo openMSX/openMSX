@@ -16,7 +16,7 @@ class HotKey;
 class SettingsConfig : public XMLElement, private noncopyable
 {
 public:
-	SettingsConfig(CommandController& commandController);
+	explicit SettingsConfig(CommandController& commandController);
 	~SettingsConfig();
 
 	void setHotKey(HotKey* hotKey); // TODO cleanup

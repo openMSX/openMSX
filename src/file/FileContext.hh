@@ -23,7 +23,7 @@ public:
 
 protected:
 	FileContext();
-	FileContext(const FileContext& rhs);
+	explicit FileContext(const FileContext& rhs);
 	std::string resolve(const std::vector<std::string>& pathList,
 	               const std::string& filename) const;
 
@@ -40,7 +40,7 @@ public:
 	virtual ConfigFileContext* clone() const;
 
 private:
-	ConfigFileContext(const ConfigFileContext& rhs);
+	explicit ConfigFileContext(const ConfigFileContext& rhs);
 
 	static std::map<std::string, int> nonames;
 };
@@ -48,21 +48,21 @@ private:
 class SystemFileContext : public FileContext
 {
 public:
-	SystemFileContext(bool preferSystemDir = false);
+	explicit SystemFileContext(bool preferSystemDir = false);
 	virtual SystemFileContext* clone() const;
 
 private:
-	SystemFileContext(const SystemFileContext& rhs);
+	explicit SystemFileContext(const SystemFileContext& rhs);
 };
 
 class SettingFileContext : public FileContext
 {
 public:
-	SettingFileContext(const std::string& url);
+	explicit SettingFileContext(const std::string& url);
 	virtual SettingFileContext* clone() const;
 
 private:
-	SettingFileContext(const SettingFileContext& rhs);
+	explicit SettingFileContext(const SettingFileContext& rhs);
 };
 
 class UserFileContext : public FileContext
@@ -73,7 +73,7 @@ public:
 	virtual UserFileContext* clone() const;
 
 private:
-	UserFileContext(const UserFileContext& rhs);
+	explicit UserFileContext(const UserFileContext& rhs);
 };
 
 } // namespace openmsx

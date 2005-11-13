@@ -12,7 +12,7 @@ class SectorBasedDisk;
 class EmptyDiskPatch : public PatchInterface
 {
 public:
-	EmptyDiskPatch(SectorBasedDisk& disk);
+	explicit EmptyDiskPatch(SectorBasedDisk& disk);
 
 	virtual void copyBlock(unsigned src, byte* dst, unsigned num) const;
 	virtual unsigned getSize() const;

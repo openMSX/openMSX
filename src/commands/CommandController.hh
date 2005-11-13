@@ -27,7 +27,7 @@ class RomInfoTopic;
 class CommandController
 {
 public:
-	CommandController(Scheduler& scheduler);
+	explicit CommandController(Scheduler& scheduler);
 	~CommandController();
 
 	void setCliComm(CliComm* cliComm);

@@ -24,7 +24,7 @@ private:
 	SettingsMap settingsMap;
 
 public:
-	SettingsManager(CommandController& commandController);
+	explicit SettingsManager(CommandController& commandController);
 	~SettingsManager();
 
 	/** Get a setting by specifying its name.

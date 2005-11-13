@@ -25,7 +25,7 @@ public:
 	virtual time_t getModificationDate();
 
 protected:
-	CompressedFileAdapter(std::auto_ptr<FileBase> file);
+	explicit CompressedFileAdapter(std::auto_ptr<FileBase> file);
 	virtual ~CompressedFileAdapter();
 	virtual void decompress() = 0;
 

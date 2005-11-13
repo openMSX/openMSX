@@ -32,7 +32,7 @@ class Display : private EventListener, private Observer<Setting>,
                 private LayerListener
 {
 public:
-	Display(MSXMotherBoard& motherboard);
+	explicit Display(MSXMotherBoard& motherboard);
 	virtual ~Display();
 
 	void createVideoSystem();

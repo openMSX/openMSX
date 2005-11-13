@@ -11,7 +11,7 @@ class Setting;
 class CartridgeSlotManager
 {
 public:
-	CartridgeSlotManager(MSXMotherBoard& motherBoard);
+	explicit CartridgeSlotManager(MSXMotherBoard& motherBoard);
 	~CartridgeSlotManager();
 
 	void readConfig();

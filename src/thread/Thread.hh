@@ -22,7 +22,7 @@ public:
 	  * @param runnable Object those run() method will be invoked by
 	  * 	the created thread when it starts running.
 	  */
-	Thread(Runnable* runnable);
+	explicit Thread(Runnable* runnable);
 
 	~Thread();
 

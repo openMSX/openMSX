@@ -19,7 +19,7 @@ class MSXtar;
 class FileManipulator : public SimpleCommand
 {
 public:
-	FileManipulator(CommandController& commandController);
+	explicit FileManipulator(CommandController& commandController);
 	~FileManipulator();
 
 	void registerDrive(DiskContainer& drive, const std::string& imageName);

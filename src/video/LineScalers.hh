@@ -147,7 +147,7 @@ private:
 template <typename Pixel, unsigned w1 = 1, unsigned w2 = 1> class BlendLines
 {
 public:
-	BlendLines(PixelOperations<Pixel> pixelOps);
+	explicit BlendLines(PixelOperations<Pixel> pixelOps);
 	void operator()(const Pixel* in1, const Pixel* in2,
 	                Pixel* out, unsigned width);
 private:

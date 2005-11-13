@@ -16,7 +16,7 @@ namespace openmsx {
 class DisplayMode
 {
 private:
-	DisplayMode(byte mode_) : mode(mode_) {}
+	explicit DisplayMode(byte mode_) : mode(mode_) {}
 	/** Display mode flags: YAE YJK M5..M1.
 	  * The YAE flag indicates whether YAE is active, not just the value of
 	  * the corresponding mode bit; so if YJK is 0, YAE is 0 as well.

@@ -16,7 +16,7 @@ template <class Pixel>
 class SDLSnow : public Layer, private noncopyable
 {
 public:
-	SDLSnow(SDL_Surface* screen);
+	explicit SDLSnow(SDL_Surface* screen);
 
 	// Layer interface:
 	virtual void paint();

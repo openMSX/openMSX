@@ -22,7 +22,7 @@ public:
 	/** Activates this video system.
 	  * @throw InitException If initialisation fails.
 	  */
-	SDLGLVideoSystem(MSXMotherBoard& motherboard);
+	explicit SDLGLVideoSystem(MSXMotherBoard& motherboard);
 
 	/** Deactivates this video system.
 	  */

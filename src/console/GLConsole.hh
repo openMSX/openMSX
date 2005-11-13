@@ -11,7 +11,7 @@ namespace openmsx {
 class GLConsole : public OSDConsoleRenderer
 {
 public:
-	GLConsole(MSXMotherBoard& motherBoard);
+	explicit GLConsole(MSXMotherBoard& motherBoard);
 	virtual ~GLConsole();
 
 	virtual void loadFont(const std::string& filename);

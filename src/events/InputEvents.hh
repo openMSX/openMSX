@@ -196,7 +196,7 @@ private:
 class ConsoleEvent : public UserInputEvent
 {
 public:
-	ConsoleEvent(EventType type) :
+	explicit ConsoleEvent(EventType type) :
 		UserInputEvent(type) {}
 };
 

@@ -12,7 +12,7 @@ namespace openmsx {
 class WavImage : public CassetteImage
 {
 public:
-	WavImage(const std::string& fileName);
+	explicit WavImage(const std::string& fileName);
 	virtual ~WavImage();
 
 	virtual short getSampleAt(const EmuTime& time);

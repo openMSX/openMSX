@@ -17,7 +17,7 @@ public:
 	TclObject(Tcl_Interp* interp, Tcl_Obj* object);
 	TclObject(Tcl_Interp* interp, const std::string& value);
 	explicit TclObject(Tcl_Interp* interp);
-	TclObject(const TclObject& object);
+	explicit TclObject(const TclObject& object);
 	~TclObject();
 
 	// get associated interpreter

@@ -13,7 +13,7 @@ class InfoTopic;
 class InfoCommand : public Command
 {
 public:
-	InfoCommand(CommandController& commandController);
+	explicit InfoCommand(CommandController& commandController);
 	virtual ~InfoCommand();
 
 	void   registerTopic(InfoTopic& topic, const std::string& name);

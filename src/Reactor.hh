@@ -25,7 +25,7 @@ class Setting;
 class Reactor : private Observer<Setting>, private EventListener
 {
 public:
-	Reactor(MSXMotherBoard& motherBoard);
+	explicit Reactor(MSXMotherBoard& motherBoard);
 	~Reactor();
 
 	/**

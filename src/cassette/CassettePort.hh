@@ -64,7 +64,7 @@ public:
 class CassettePort : public CassettePortInterface
 {
 public:
-	CassettePort(MSXMotherBoard& motherBoard);
+	explicit CassettePort(MSXMotherBoard& motherBoard);
 	virtual ~CassettePort();
 	virtual void setMotor(bool status, const EmuTime& time);
 	virtual void cassetteOut(bool output, const EmuTime& time);

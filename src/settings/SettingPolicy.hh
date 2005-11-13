@@ -16,7 +16,7 @@ template <typename T> class SettingPolicy
 protected:
 	typedef T Type;
 
-	SettingPolicy(CommandController& commandController);
+	explicit SettingPolicy(CommandController& commandController);
 
 	void checkSetValue(T& value) const;
 	T checkGetValue(T value) const { return value; }

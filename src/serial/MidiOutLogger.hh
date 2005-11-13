@@ -15,7 +15,7 @@ class FilenameSetting;
 class MidiOutLogger : public MidiOutDevice
 {
 public:
-	MidiOutLogger(CommandController& commandController);
+	explicit MidiOutLogger(CommandController& commandController);
 
 	// Pluggable
 	virtual void plugHelper(Connector& connector, const EmuTime& time);

@@ -17,7 +17,7 @@ namespace openmsx {
 // policy class for IRQ source
 class IRQSource {
 protected:
-	IRQSource(MSXCPU& cpu_) : cpu(cpu_) {}
+	explicit IRQSource(MSXCPU& cpu_) : cpu(cpu_) {}
 	inline void raise() { cpu.raiseIRQ(); }
 	inline void lower() { cpu.lowerIRQ(); }
 private:
@@ -27,7 +27,7 @@ private:
 // policy class for NMI source
 class NMISource {
 protected:
-	NMISource(MSXCPU& cpu_) : cpu(cpu_) {}
+	explicit NMISource(MSXCPU& cpu_) : cpu(cpu_) {}
 	inline void raise() { cpu.raiseNMI(); }
 	inline void lower() { cpu.lowerNMI(); }
 private:
@@ -40,7 +40,7 @@ public:
 	enum IntType { IRQ, NMI };
 	void setIntType(IntType type_) { type = type_; }
 protected:
-	DynamicSource(MSXCPU& cpu_) : cpu(cpu_), type(IRQ) {}
+	explicit DynamicSource(MSXCPU& cpu_) : cpu(cpu_), type(IRQ) {}
 	inline void raise() {
 		if (type == IRQ) cpu.raiseIRQ(); else cpu.raiseNMI();
 	}

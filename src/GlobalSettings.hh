@@ -22,7 +22,7 @@ class XMLElement;
 class GlobalSettings
 {
 public:
-	GlobalSettings(CommandController& commandController);
+	explicit GlobalSettings(CommandController& commandController);
 	~GlobalSettings();
 
 	IntegerSetting& getSpeedSetting();

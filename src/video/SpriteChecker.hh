@@ -63,7 +63,7 @@ public:
 	/** Create a sprite checker.
 	  * @param vdp The VDP this sprite checker is part of.
 	  */
-	SpriteChecker(VDP& vdp);
+	explicit SpriteChecker(VDP& vdp);
 
 	/** Puts the sprite checker in its initial state.
 	  * @param time The moment in time this reset occurs.

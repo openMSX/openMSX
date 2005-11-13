@@ -29,7 +29,7 @@ class EventDistributor;
 class UserInputEventDistributor : private EventListener
 {
 public:
-	UserInputEventDistributor(EventDistributor& eventDistributor);
+	explicit UserInputEventDistributor(EventDistributor& eventDistributor);
 	virtual ~UserInputEventDistributor();
 
 	/**

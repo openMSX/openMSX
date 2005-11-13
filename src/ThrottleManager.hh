@@ -22,7 +22,7 @@ class ThrottleManager : public Subject<ThrottleManager>,
                         private Observer<Setting>
 {
 public:
-	ThrottleManager(CommandController& commandController);
+	explicit ThrottleManager(CommandController& commandController);
 	~ThrottleManager();
 
 	/**

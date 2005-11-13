@@ -15,7 +15,7 @@ class XMLElement;
 class XMLException: public MSXException
 {
 public:
-	XMLException(const std::string& msg);
+	explicit XMLException(const std::string& msg);
 };
 
 class XMLLoader

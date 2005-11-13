@@ -15,7 +15,7 @@ class MidiOutNative : public MidiOutDevice
 public:
 	static void registerAll(PluggingController& controller);
 
-	MidiOutNative(unsigned num);
+	explicit MidiOutNative(unsigned num);
 	virtual ~MidiOutNative();
 
 	// Pluggable

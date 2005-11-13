@@ -11,7 +11,7 @@ namespace openmsx {
 class MSXMultiMemDevice : public MSXDevice
 {
 public:
-	MSXMultiMemDevice(MSXMotherBoard& motherboard);
+	explicit MSXMultiMemDevice(MSXMotherBoard& motherboard);
 	virtual ~MSXMultiMemDevice();
 
 	bool add(MSXDevice& device, int base, int size);

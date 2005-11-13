@@ -12,7 +12,7 @@ class FileContext;
 class FilenameSettingPolicy : public StringSettingPolicy
 {
 protected:
-	FilenameSettingPolicy(CommandController& commandController);
+	explicit FilenameSettingPolicy(CommandController& commandController);
 	void tabCompletion(std::vector<std::string>& tokens) const;
 };
 

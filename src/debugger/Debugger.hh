@@ -17,7 +17,7 @@ class MSXCPU;
 class Debugger
 {
 public:
-	Debugger(CommandController& commandController);
+	explicit Debugger(CommandController& commandController);
 	~Debugger();
 
 	void registerDebuggable  (const std::string& name, Debuggable& interface);
