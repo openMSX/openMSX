@@ -22,11 +22,14 @@ public:
 	             CommandController& commandController);
 	virtual ~AfterCommand();
 
+	CommandController& getCommandController() const;
+
 	virtual std::string execute(const std::vector<std::string>& tokens);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 private:
+	
 	std::string afterTime(const std::vector<std::string>& tokens);
 	std::string afterIdle(const std::vector<std::string>& tokens);
 	std::string afterInfo(const std::vector<std::string>& tokens);
@@ -47,10 +50,10 @@ private:
 		virtual const std::string& getType() const = 0;
 		void execute();
 	protected:
-		AfterCmd(CommandController& commandController,
+		AfterCmd(AfterCommand& afterCommand,
 		         const std::string& command);
 	private:
-		CommandController& commandController;
+		AfterCommand& afterCommand;
 		std::string command;
 		std::string id;
 		static unsigned lastAfterId;
@@ -62,7 +65,7 @@ private:
 		void reschedule();
 	protected:
 		AfterTimedCmd(Scheduler& scheduler,
-		              CommandController& commandController,
+		              AfterCommand& afterCommand,
 		              const std::string& command, double time);
 	private:
 		virtual void executeUntil(const EmuTime& time, int userData);
@@ -74,7 +77,7 @@ private:
 	class AfterTimeCmd : public AfterTimedCmd {
 	public:
 		AfterTimeCmd(Scheduler& scheduler,
-		             CommandController& commandController,
+		             AfterCommand& afterCommand,
 		             const std::string& command, double time);
 		virtual const std::string& getType() const;
 	};
@@ -82,7 +85,7 @@ private:
 	class AfterIdleCmd : public AfterTimedCmd {
 	public:
 		AfterIdleCmd(Scheduler& scheduler,
-		             CommandController& commandController,
+		             AfterCommand& afterCommand,
 		             const std::string& command, double time);
 		virtual const std::string& getType() const;
 	};
@@ -90,13 +93,13 @@ private:
 	template<EventType T>
 	class AfterEventCmd : public AfterCmd {
 	public:
-		AfterEventCmd(CommandController& commandController,
+		AfterEventCmd(AfterCommand& afterCommand,
 		              const std::string& command);
 		virtual const std::string& getType() const;
 	};
 
 	typedef std::map<std::string, AfterCmd*> AfterCmdMap;
-	static AfterCmdMap afterCmds;
+	AfterCmdMap afterCmds;
 
 	Scheduler& scheduler;
 	EventDistributor& eventDistributor;

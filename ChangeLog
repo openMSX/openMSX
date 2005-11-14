@@ -1,6 +1,9 @@
 $Id$
 
 2005-11-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Remove all pending after commands on exit
+
+2005-11-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Automatically unschedule SyncPoint when it is deleted:
 	   On lots of places we forgot to do this. Will become important
 	   when we allow to remove device or switch machine at run time

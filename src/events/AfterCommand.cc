@@ -16,8 +16,6 @@ using std::set;
 
 namespace openmsx {
 
-AfterCommand::AfterCmdMap AfterCommand::afterCmds;
-
 AfterCommand::AfterCommand(Scheduler& scheduler_,
                            EventDistributor& eventDistributor_,
                            CommandController& commandController_)
@@ -52,6 +50,10 @@ AfterCommand::AfterCommand(Scheduler& scheduler_,
 
 AfterCommand::~AfterCommand()
 {
+	while (!afterCmds.empty()) {
+		delete afterCmds.begin()->second; // removes itself from map
+	}
+	
 	eventDistributor.unregisterEventListener(
 		OPENMSX_BREAK_EVENT, *this, EventDistributor::DETACHED);
 	eventDistributor.unregisterEventListener(
@@ -72,6 +74,11 @@ AfterCommand::~AfterCommand()
 		OPENMSX_HOST_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
 	eventDistributor.unregisterEventListener(
 		OPENMSX_HOST_KEY_UP_EVENT, *this, EventDistributor::DETACHED);
+}
+
+CommandController& AfterCommand::getCommandController() const
+{
+	return commandController;
 }
 
 string AfterCommand::execute(const vector<string>& tokens)
@@ -113,8 +120,7 @@ string AfterCommand::afterTime(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	double time = getTime(tokens[2]);
-	AfterTimeCmd* cmd = new AfterTimeCmd(scheduler, commandController,
-	                                     tokens[3], time);
+	AfterTimeCmd* cmd = new AfterTimeCmd(scheduler, *this, tokens[3], time);
 	return cmd->getId();
 }
 
@@ -124,8 +130,7 @@ string AfterCommand::afterIdle(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	double time = getTime(tokens[2]);
-	AfterIdleCmd* cmd = new AfterIdleCmd(scheduler, commandController,
-	                                     tokens[3], time);
+	AfterIdleCmd* cmd = new AfterIdleCmd(scheduler, *this, tokens[3], time);
 	return cmd->getId();
 }
 
@@ -135,7 +140,7 @@ string AfterCommand::afterEvent(const vector<string>& tokens)
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	AfterEventCmd<T>* cmd = new AfterEventCmd<T>(commandController, tokens[2]);
+	AfterEventCmd<T>* cmd = new AfterEventCmd<T>(*this, tokens[2]);
 	return cmd->getId();
 }
 
@@ -234,20 +239,20 @@ template<EventType T> void AfterCommand::executeEvents()
 
 unsigned AfterCommand::AfterCmd::lastAfterId = 0;
 
-AfterCommand::AfterCmd::AfterCmd(CommandController& commandController_,
+AfterCommand::AfterCmd::AfterCmd(AfterCommand& afterCommand_,
                                  const string& command_)
-	: commandController(commandController_), command(command_)
+	: afterCommand(afterCommand_), command(command_)
 {
 	ostringstream str;
 	str << "after#" << ++lastAfterId;
 	id = str.str();
 
-	afterCmds[id] = this;
+	afterCommand.afterCmds[id] = this;
 }
 
 AfterCommand::AfterCmd::~AfterCmd()
 {
-	afterCmds.erase(id);
+	afterCommand.afterCmds.erase(id);
 }
 
 const string& AfterCommand::AfterCmd::getCommand() const
@@ -263,9 +268,9 @@ const string& AfterCommand::AfterCmd::getId() const
 void AfterCommand::AfterCmd::execute()
 {
 	try {
-		commandController.executeCommand(command);
+		afterCommand.getCommandController().executeCommand(command);
 	} catch (CommandException& e) {
-		commandController.getCliComm().printWarning(
+		afterCommand.getCommandController().getCliComm().printWarning(
 			"Error executig delayed command: " + e.getMessage());
 	}
 	delete this;
@@ -276,9 +281,9 @@ void AfterCommand::AfterCmd::execute()
 
 AfterCommand::AfterTimedCmd::AfterTimedCmd(
 		Scheduler& scheduler,
-		CommandController& commandController,
+		AfterCommand& afterCommand,
 		const string& command, double time_)
-	: AfterCmd(commandController, command)
+	: AfterCmd(afterCommand, command)
 	, Schedulable(scheduler)
 	, time(time_)
 
@@ -315,9 +320,9 @@ const string& AfterCommand::AfterTimedCmd::schedName() const
 
 AfterCommand::AfterTimeCmd::AfterTimeCmd(
 		Scheduler& scheduler,
-		CommandController& commandController,
+		AfterCommand& afterCommand,
 		const string& command, double time)
-	: AfterTimedCmd(scheduler, commandController, command, time)
+	: AfterTimedCmd(scheduler, afterCommand, command, time)
 {
 }
 
@@ -332,9 +337,9 @@ const string& AfterCommand::AfterTimeCmd::getType() const
 
 AfterCommand::AfterIdleCmd::AfterIdleCmd(
 		Scheduler& scheduler,
-		CommandController& commandController, 
+		AfterCommand& afterCommand, 
 		const string& command, double time)
-	: AfterTimedCmd(scheduler, commandController, command, time)
+	: AfterTimedCmd(scheduler, afterCommand, command, time)
 {
 }
 
@@ -349,8 +354,8 @@ const string& AfterCommand::AfterIdleCmd::getType() const
 
 template<EventType T>
 AfterCommand::AfterEventCmd<T>::AfterEventCmd(
-		CommandController& commandController, const string& command)
-	: AfterCmd(commandController, command)
+		AfterCommand& afterCommand, const string& command)
+	: AfterCmd(afterCommand, command)
 {
 }
 
