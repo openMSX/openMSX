@@ -3,6 +3,8 @@
 #ifndef THREAD_HH
 #define THREAD_HH
 
+#include "noncopyable.hh"
+
 struct SDL_Thread;
 
 namespace openmsx {
@@ -15,7 +17,7 @@ protected:
 	virtual ~Runnable() {}
 };
 
-class Thread
+class Thread : private noncopyable
 {
 public:
 	/** Create a new thread.

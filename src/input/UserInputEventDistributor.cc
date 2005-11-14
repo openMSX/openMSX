@@ -10,7 +10,8 @@
 
 namespace openmsx {
 
-UserInputEventDistributor::UserInputEventDistributor(EventDistributor& eventDistributor_)
+UserInputEventDistributor::UserInputEventDistributor(
+		EventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
 {
 	eventDistributor.registerEventListener(

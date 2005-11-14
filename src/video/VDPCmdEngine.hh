@@ -3,10 +3,11 @@
 #ifndef VDPCMDENGINE_HH
 #define VDPCMDENGINE_HH
 
-#include "openmsx.hh"
 #include "VDP.hh"
 #include "DisplayMode.hh"
 #include "Observer.hh"
+#include "openmsx.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -17,15 +18,10 @@ class BooleanSetting;
 /** VDP command engine by Alex Wulms.
   * Implements command execution unit of V9938/58.
   */
-class VDPCmdEngine : private Observer<Setting>
+class VDPCmdEngine : private Observer<Setting>, private noncopyable
 {
 public:
-	/** Constructor.
-	  */
 	explicit VDPCmdEngine(VDP& vdp);
-
-	/** Destructor
-	  */
 	virtual ~VDPCmdEngine();
 
 	/** Reinitialise Renderer state.
@@ -120,7 +116,6 @@ public:
 	};
 
 private:
-
 	/** Represents V9938 Graphic 4 mode (SCREEN5).
 	  */
 	class Graphic4Mode {

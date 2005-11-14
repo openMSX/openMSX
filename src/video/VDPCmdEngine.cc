@@ -37,16 +37,13 @@ TODO:
 
 #include "VDPCmdEngine.hh"
 #include "EmuTime.hh"
-#include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "BooleanSetting.hh"
 #include "MSXMotherBoard.hh"
 #include "RenderSettings.hh"
-#include <cstdio>
 #include <iostream>
 #include <cassert>
 #include <algorithm>
-#include <memory>
 
 using std::min;
 using std::max;

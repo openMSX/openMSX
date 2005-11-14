@@ -5,7 +5,6 @@
 
 #include "V9990Rasterizer.hh"
 #include "GLUtil.hh"
-#include "openmsx.hh"
 
 namespace openmsx {
 
@@ -30,8 +29,8 @@ public:
 	virtual void setPalette(int index, byte r, byte g, byte b);
 	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY);
 	virtual void drawDisplay(int fromX, int fromY,
-			         int displayX, int displayY,
-				 int displayWidth, int displayHeight);
+	                         int displayX, int displayY,
+	                         int displayWidth, int displayHeight);
 
 private:
 	/** The VDP of which the video output is rendered

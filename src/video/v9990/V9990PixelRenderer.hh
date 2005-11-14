@@ -7,20 +7,22 @@
 #include "Observer.hh"
 #include "RenderSettings.hh"
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
 
-class RenderSettings;
 class V9990;
 class V9990Rasterizer;
+class Setting;
 
 /** Generic pixel based renderer for the V9990.
   * Uses a rasterizer to plot actual pixels for a specific video system
   *
   * @see PixelRenderer.cc
   */
-class V9990PixelRenderer : public V9990Renderer, private Observer<Setting>
+class V9990PixelRenderer : public V9990Renderer, private Observer<Setting>,
+                           private noncopyable
 {
 public:
 	V9990PixelRenderer(V9990& vdp);

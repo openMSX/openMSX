@@ -7,6 +7,7 @@
 #include "V9990BitmapConverter.hh"
 #include "V9990P1Converter.hh"
 #include "V9990P2Converter.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -21,7 +22,7 @@ template <class Pixel> class PostProcessor;
 /** Rasterizer using SDL.
   */
 template <class Pixel>
-class V9990SDLRasterizer : public V9990Rasterizer
+class V9990SDLRasterizer : public V9990Rasterizer, private noncopyable
 {
 public:
 	V9990SDLRasterizer(V9990& vdp, OutputSurface& screen);

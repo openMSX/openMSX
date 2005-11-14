@@ -5,13 +5,6 @@
 #include "V9990.hh"
 #include "GLUtil.hh"
 
-#include <string.h>
-#include <cassert>
-#include <algorithm>
-
-using std::min;
-using std::max;
-
 namespace openmsx {
 
 #ifdef COMPONENT_GL
@@ -40,11 +33,6 @@ template class V9990P2Converter<ExpandFilter<GLuint>::ExpandType>;
 template <class Pixel>
 V9990P2Converter<Pixel>::V9990P2Converter(V9990& vdp_, Pixel* palette64_)
 	: vdp(vdp_), vram(vdp.getVRAM()), palette64(palette64_)
-{
-}
-
-template <class Pixel>
-V9990P2Converter<Pixel>::~V9990P2Converter()
 {
 }
 
@@ -80,14 +68,14 @@ byte V9990P2Converter<Pixel>::getPixel(
 	// TODO optimization: more specific readVRAMP2 methods
 	x &= 1023;
 	y &= 1023;
-	unsigned int address = nameTable + (((y/8)*128 + (x/8)) * 2);
+	unsigned int address = nameTable + (((y / 8) * 128 + (x / 8)) * 2);
 	unsigned int pattern = (vram.readVRAMP2(address + 0) +
 	                        vram.readVRAMP2(address + 1) * 256) & 0x3FFF;
-	int x2 = (pattern%64) * 8 + (x%8);
-	int y2 = (pattern/64) * 8 + (y%8);
-	address = patternTable + y2 * 256 + x2/2;
+	int x2 = (pattern % 64) * 8 + (x % 8);
+	int y2 = (pattern / 64) * 8 + (y % 8);
+	address = patternTable + y2 * 256 + x2 / 2;
 	byte dixel = vram.readVRAMP2(address);
-	if(!(x & 1)) dixel >>= 4;
+	if (!(x & 1)) dixel >>= 4;
 	return dixel & 15;
 }
 

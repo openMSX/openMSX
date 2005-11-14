@@ -6,16 +6,16 @@
 #include "Layer.hh"
 #include "Observer.hh"
 #include "VideoSourceSetting.hh"
+#include "noncopyable.hh"
 
 namespace openmsx {
 
 class CommandController;
 class RenderSettings;
 class Display;
-template <class T> class EnumSetting;
 class BooleanSetting;
 
-class VideoLayer: public Layer, protected Observer<Setting>
+class VideoLayer: public Layer, protected Observer<Setting>, private noncopyable
 {
 public:
 	virtual ~VideoLayer();

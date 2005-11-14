@@ -1,11 +1,10 @@
 // $Id$
 
-#include "V9990.hh"
 #include "V9990CmdEngine.hh"
+#include "V9990.hh"
 #include "V9990VRAM.hh"
 #include "MSXMotherBoard.hh"
 #include "BooleanSetting.hh"
-#include "openmsx.hh"
 #include <iostream>
 
 namespace openmsx {

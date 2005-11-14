@@ -9,11 +9,6 @@
 #include "V9990Renderer.hh"
 #include "MSXMotherBoard.hh"
 #include <cassert>
-#include <iomanip>
-
-using std::setw;
-using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -88,7 +83,6 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 	reset(time);
 	getMotherBoard().getDisplay().attach(*this);
 }
-
 
 V9990::~V9990()
 {
@@ -337,9 +331,9 @@ void V9990::executeUntil(const EmuTime& time, int userData)
 	}
 }
 
-const string& V9990::schedName() const
+const std::string& V9990::schedName() const
 {
-	static const string name("V9990");
+	static const std::string name("V9990");
 	return name;
 }
 

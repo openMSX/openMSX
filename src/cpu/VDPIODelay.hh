@@ -23,7 +23,6 @@ public:
 	const MSXDevice& getDevice() const;
 
 private:
-	static const XMLElement& getConfig();
 	void delay(const EmuTime& time);
 
 	MSXCPU& cpu;

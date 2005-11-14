@@ -31,7 +31,6 @@ void V9990GLRasterizer::frameStart()
 
 void V9990GLRasterizer::frameEnd()
 {
-	PRT_DEBUG("V9990GLRasterizer::frameEnd()");
 }
 
 void V9990GLRasterizer::setDisplayMode(V9990DisplayMode /*mode*/)

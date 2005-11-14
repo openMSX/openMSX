@@ -51,6 +51,8 @@ public:
 	void checkExpression() const;
 
 private:
+	TclObject& operator==(const TclObject&);
+	
 	void init(Tcl_Obj* obj_);
 	void unshare();
 	void addListElement(Tcl_Obj* element);

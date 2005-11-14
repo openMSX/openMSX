@@ -4,7 +4,6 @@
 #include "V9990VRAM.hh"
 #include "V9990.hh"
 #include "GLUtil.hh"
-#include <string.h>
 #include <cassert>
 #include <algorithm>
 

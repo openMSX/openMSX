@@ -30,20 +30,9 @@ TODO:
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
 #include <sstream>
-#include <iomanip>
 #include <cassert>
 
-using std::setw;
-using std::setfill;
-using std::string;
-using std::vector;
-
 namespace openmsx {
-
-// Inlined methods first, to make sure they are actually inlined:
-// TODO: None left?
-
-// Init and cleanup:
 
 VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
          const EmuTime& time)
@@ -55,11 +44,9 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, irqVertical(motherBoard.getCPU())
 	, irqHorizontal(motherBoard.getCPU())
 {
-	PRT_DEBUG("Creating a VDP object");
-
 	interlaced = false;
 
-	string versionString = deviceConfig.getChildData("version");
+	std::string versionString = deviceConfig.getChildData("version");
 	if (versionString == "TMS99X8A") version = TMS99X8A;
 	else if (versionString == "TMS9929A") version = TMS9929A;
 	else if (versionString == "V9938") version = V9938;
@@ -69,13 +56,13 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// Set up control register availability.
 	static const byte VALUE_MASKS_MSX1[32] = {
 		0x03, 0xFB, 0x0F, 0xFF, 0x07, 0x7F, 0x07, 0xFF  // 00..07
-		};
+	};
 	static const byte VALUE_MASKS_MSX2[32] = {
 		0x7E, 0x7B, 0x7F, 0xFF, 0x3F, 0xFF, 0x3F, 0xFF, // 00..07
 		0xFB, 0xBF, 0x07, 0x03, 0xFF, 0xFF, 0x07, 0x0F, // 08..15
 		0x0F, 0xBF, 0xFF, 0xFF, 0x3F, 0x3F, 0x3F, 0xFF, // 16..23
 		0,    0,    0,    0,    0,    0,    0,    0,    // 24..31
-		};
+	};
 	controlRegMask = (isMSX1VDP() ? 0x07 : 0x3F);
 	memcpy(controlValueMasks,
 		isMSX1VDP() ? VALUE_MASKS_MSX1 : VALUE_MASKS_MSX2, 32);
@@ -325,9 +312,9 @@ void VDP::executeUntil(const EmuTime& time, int userData)
 	}
 }
 
-const string& VDP::schedName() const
+const std::string& VDP::schedName() const
 {
-	static const string name("VDP");
+	static const std::string name("VDP");
 	return name;
 }
 

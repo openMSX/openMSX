@@ -3,12 +3,8 @@
 #include "Thread.hh"
 #include "MSXException.hh"
 #include <iostream>
-#include <cstddef>
 #include <cassert>
 #include <SDL_thread.h>
-
-using std::cerr;
-using std::endl;
 
 namespace openmsx {
 
@@ -53,12 +49,12 @@ int Thread::startThread(void* runnable)
 	try {
 		static_cast<Runnable*>(runnable)->run();
 	} catch (FatalError& e) {
-		cerr << "Fatal error in subthread: "
-		     << e.getMessage() << endl;
+		std::cerr << "Fatal error in subthread: "
+		     << e.getMessage() << std::endl;
 		assert(false);
 	} catch (MSXException& e) {
-		cerr << "Uncaught exception in subthread: "
-		     << e.getMessage() << endl;
+		std::cerr << "Uncaught exception in subthread: "
+		     << e.getMessage() << std::endl;
 		assert(false);
 	} // don't catch(..), thread cancelation seems to depend on it
 	return 0;

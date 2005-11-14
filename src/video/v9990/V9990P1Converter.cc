@@ -1,12 +1,11 @@
 // $Id$
 
-#include <cassert>
-#include <algorithm>
-
-#include "GLUtil.hh"
+#include "V9990P1Converter.hh"
 #include "V9990.hh"
 #include "V9990VRAM.hh"
-#include "V9990P1Converter.hh"
+#include "GLUtil.hh"
+#include <cassert>
+#include <algorithm>
 
 namespace openmsx {
 
@@ -37,11 +36,6 @@ template <class Pixel>
 V9990P1Converter<Pixel>::V9990P1Converter(V9990& vdp_, Pixel* palette64_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, palette64(palette64_)
-{
-}
-
-template <class Pixel>
-V9990P1Converter<Pixel>::~V9990P1Converter()
 {
 }
 

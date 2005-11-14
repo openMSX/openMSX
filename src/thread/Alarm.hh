@@ -4,10 +4,11 @@
 #define ALARM_HH
 
 #include "Semaphore.hh"
+#include "noncopyable.hh"
 
 namespace openmsx {
 
-class Alarm
+class Alarm : private noncopyable
 {
 public:
 	void schedule(unsigned us);

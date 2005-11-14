@@ -3,16 +3,15 @@
 #ifndef VDP_HH
 #define VDP_HH
 
-#include <string>
-#include <memory>
-#include "openmsx.hh"
+#include "MSXDevice.hh"
 #include "Schedulable.hh"
 #include "VideoSystemChangeListener.hh"
-#include "MSXDevice.hh"
 #include "IRQHelper.hh"
 #include "Clock.hh"
 #include "DisplayMode.hh"
 #include "SimpleDebuggable.hh"
+#include "openmsx.hh"
+#include <memory>
 
 namespace openmsx {
 

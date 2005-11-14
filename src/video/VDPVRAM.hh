@@ -9,6 +9,7 @@
 #include "DisplayMode.hh"
 #include "Ram.hh"
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -124,7 +125,8 @@ can decide for itself how many bytes to read.
   *       Maybe have two classes: "Table" for tables, using a mask,
   *       and "Window" for the command engine, using an interval.
   */
-class VRAMWindow {
+class VRAMWindow : private noncopyable
+{
 private:
 	inline bool isEnabled() {
 		return baseAddr != -1;
@@ -285,7 +287,7 @@ private:
   * VDPVRAM does not apply planar remapping to addresses, this is the
   * responsibility of the caller.
   */
-class VDPVRAM
+class VDPVRAM : private noncopyable
 {
 public:
 	VRAMWindow cmdReadWindow;

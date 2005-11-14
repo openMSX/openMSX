@@ -43,10 +43,6 @@ TC8566AF::TC8566AF(DiskDrive* drv[4], const EmuTime& time)
 	reset(time);
 }
 
-TC8566AF::~TC8566AF()
-{
-}
-
 void TC8566AF::reset(const EmuTime& time)
 {
 	// Control register 0

@@ -12,7 +12,6 @@ class V9990DummyRasterizer : public V9990Rasterizer
 public:
 	// V9990Rasterizer interface
 	virtual bool isActive();
-	virtual ~V9990DummyRasterizer();
 	virtual void reset();
 	virtual void frameStart();
 	virtual void frameEnd();
@@ -21,8 +20,8 @@ public:
 	virtual void setPalette(int index, byte r, byte g, byte b);
 	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY);
 	virtual void drawDisplay(int fromX, int fromY,
-		                 int displayX, int displayY,
-		                 int displayWidth, int displayHeight);
+	                         int displayX, int displayY,
+	                         int displayWidth, int displayHeight);
 };
 
 } // namespace openmsx

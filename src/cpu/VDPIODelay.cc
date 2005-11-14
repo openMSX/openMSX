@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-const XMLElement& VDPIODelay::getConfig()
+const XMLElement& getConfig()
 {
 	static XMLElement deviceElem("VDPIODelay");
 	static bool init = false;

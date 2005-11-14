@@ -4,7 +4,6 @@
 #define USERINPUTEVENTDISTRIBUTOR_HH
 
 #include "EventListener.hh"
-#include "Event.hh"
 #include <vector>
 
 namespace openmsx {
@@ -45,6 +44,7 @@ public:
 	void unregisterEventListener(UserInputEventListener& listener);
 
 private:
+	// EventListener
 	virtual void signalEvent(const Event& event);
 
 	typedef std::vector<UserInputEventListener*> Listeners;

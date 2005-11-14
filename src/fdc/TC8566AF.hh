@@ -7,8 +7,8 @@
 #ifndef TC8566AF_HH
 #define TC8566AF_HH
 
-#include "openmsx.hh"
 #include "Clock.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 
@@ -18,7 +18,6 @@ class TC8566AF
 {
 public:
 	TC8566AF(DiskDrive* drive[4], const EmuTime& time);
-	~TC8566AF();
 
 	void reset(const EmuTime& time);
 	byte readReg(int reg, const EmuTime& time);

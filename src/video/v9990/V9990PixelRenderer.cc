@@ -1,9 +1,9 @@
 // $Id$
 
+#include "V9990PixelRenderer.hh"
 #include "V9990.hh"
 #include "V9990VRAM.hh"
 #include "V9990DisplayTiming.hh"
-#include "V9990PixelRenderer.hh"
 #include "V9990Rasterizer.hh"
 #include "Scheduler.hh"
 #include "Display.hh"
@@ -15,8 +15,6 @@
 #include "MSXMotherBoard.hh"
 #include "RenderSettings.hh"
 #include "IntegerSetting.hh"
-#include "openmsx.hh"
-
 
 namespace openmsx {
 

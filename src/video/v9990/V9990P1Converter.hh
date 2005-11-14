@@ -4,7 +4,6 @@
 #define V9990P1CONVERTER_HH
 
 #include "openmsx.hh"
-#include "Renderer.hh"
 
 namespace openmsx {
 
@@ -16,7 +15,6 @@ class V9990P1Converter
 {
 public:
 	V9990P1Converter(V9990& vdp, Pixel* palette64);
-	~V9990P1Converter();
 
 	void convertLine(Pixel* linePtr,
 	                 int displayX, int displayWidth, int displayY);
@@ -37,6 +35,6 @@ private:
 	byte getSpritePixel(int* visibleSprites, int x, int y, bool front);
 };
 
-} // namespace
+} // namespace openmsx
 
 #endif

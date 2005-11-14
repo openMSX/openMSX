@@ -3,16 +3,16 @@
 #ifndef V9990_HH
 #define V9990_HH
 
-#include <string>
-#include "openmsx.hh"
-#include "Clock.hh"
+#include "MSXDevice.hh"
 #include "Schedulable.hh"
 #include "VideoSystemChangeListener.hh"
-#include "MSXDevice.hh"
 #include "SimpleDebuggable.hh"
 #include "IRQHelper.hh"
 #include "V9990DisplayTiming.hh"
 #include "V9990ModeEnum.hh"
+#include "Clock.hh"
+#include "openmsx.hh"
+#include <memory>
 
 namespace openmsx {
 

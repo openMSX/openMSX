@@ -3,8 +3,9 @@
 #ifndef V9990CMDENGINE_HH
 #define V9990CMDENGINE_HH
 
-#include "openmsx.hh"
 #include "V9990ModeEnum.hh"
+#include "openmsx.hh"
+#include "noncopyable.hh"
 
 namespace openmsx {
 
@@ -14,19 +15,15 @@ class EmuTime;
 
 /** Command engine.
   */
-class V9990CmdEngine {
+class V9990CmdEngine : private noncopyable
+{
 public:
 	// status bits
 	static const byte TR = 0x80;
 	static const byte BD = 0x10;
 	static const byte CE = 0x01;
 
-	/** Constructor
-	  */
 	V9990CmdEngine(V9990& vdp, const EmuTime& time);
-
-	/** Destructor
-	  */
 	~V9990CmdEngine();
 
 	/** Re-initialise the command engine's state

@@ -4,10 +4,6 @@
 
 namespace openmsx {
 
-V9990DummyRasterizer::~V9990DummyRasterizer()
-{
-}
-
 bool V9990DummyRasterizer::isActive()
 {
 	return false;
