@@ -10,7 +10,6 @@
 namespace openmsx {
 
 static const char* const PAC_Header = "PAC2 BACKUP DATA";
-//                                     1234567890123456
 
 MSXFmPac::MSXFmPac(MSXMotherBoard& motherBoard, const XMLElement& config,
                    const EmuTime& time)

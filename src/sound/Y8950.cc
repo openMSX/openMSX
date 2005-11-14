@@ -13,8 +13,6 @@
 #include "DACSound16S.hh"
 #include <cmath>
 
-using std::string;
-
 namespace openmsx {
 
 static const double PI = 3.14159265358979;
@@ -437,7 +435,7 @@ void Y8950::Channel::keyOff()
 //                                                          //
 //**********************************************************//
 
-Y8950::Y8950(MSXMotherBoard& motherBoard, const string& name,
+Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
              const XMLElement& config, unsigned sampleRam, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer(), name, "MSX-AUDIO")
 	, SimpleDebuggable(motherBoard, name + " regs", "MSX-AUDIO", 0x100)

@@ -1,7 +1,7 @@
 // $Id$
 
-#include "MSXException.hh"
 #include "WavImage.hh"
+#include "MSXException.hh"
 #include "File.hh"
 #include <SDL.h>
 

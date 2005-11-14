@@ -3,10 +3,10 @@
 #ifndef YM2413_2_HH
 #define YM2413_2_HH
 
-#include "openmsx.hh"
-#include "SoundDevice.hh"
 #include "YM2413Core.hh"
+#include "SoundDevice.hh"
 #include "SimpleDebuggable.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 

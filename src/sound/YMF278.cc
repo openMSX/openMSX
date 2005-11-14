@@ -5,8 +5,6 @@
 #include "MSXMotherBoard.hh"
 #include <cmath>
 
-using std::string;
-
 namespace openmsx {
 
 const EmuDuration YMF278::REG_SELECT_DELAY = MasterClock::duration(88);
@@ -752,7 +750,7 @@ byte YMF278::peekStatus(const EmuTime& time) const
 	return result;
 }
 
-YMF278::YMF278(MSXMotherBoard& motherBoard, const string& name, int ramSize,
+YMF278::YMF278(MSXMotherBoard& motherBoard, const std::string& name, int ramSize,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer(), name, "MoonSound wave-part")
 	, rom(new Rom(motherBoard, name + " ROM", "rom", config))

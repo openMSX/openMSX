@@ -6,8 +6,6 @@
 #include "Ram.hh"
 #include "MSXMotherBoard.hh"
 
-using std::string;
-
 namespace openmsx {
 
 // Relative volume between ADPCM part and FM part,
@@ -52,7 +50,7 @@ const unsigned int MAX_STEP   = 1<<(16+GETA_BITS);
 //                                                  //
 //**************************************************//
 
-int Y8950Adpcm::CLAP(int min, int x, int max)
+static int CLAP(int min, int x, int max)
 {
 	return (x < min) ? min : ((max < x) ? max : x);
 }
@@ -64,7 +62,7 @@ int Y8950Adpcm::CLAP(int min, int x, int max)
 //**********************************************************//
 
 Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, MSXMotherBoard& motherBoard,
-                       const string& name, unsigned sampleRam)
+                       const std::string& name, unsigned sampleRam)
 	: Schedulable(motherBoard.getScheduler())
 	, y8950(y8950_)
 	, ram(new Ram(motherBoard, name + " RAM", "Y8950 sample RAM", sampleRam))
@@ -141,9 +139,9 @@ void Y8950Adpcm::executeUntil(const EmuTime& time, int /*userData*/)
 	}
 }
 
-const string& Y8950Adpcm::schedName() const
+const std::string& Y8950Adpcm::schedName() const
 {
-	static const string name("Y8950Adpcm");
+	static const std::string name("Y8950Adpcm");
 	return name;
 }
 

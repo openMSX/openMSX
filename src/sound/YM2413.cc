@@ -6,14 +6,12 @@
  * heavily rewritten to fit openMSX structure
  */
 
-#include <cmath>
-#include <cassert>
-#include <algorithm>
 #include "YM2413.hh"
 #include "MSXMotherBoard.hh"
 #include "Mixer.hh"
-
-using std::string;
+#include <cmath>
+#include <cassert>
+#include <algorithm>
 
 namespace openmsx {
 
@@ -581,7 +579,7 @@ static byte inst_data[16 + 3][8] = {
 	{ 0x25,0x11,0x00,0x00,0xf8,0xfa,0xf8,0x55 }
 };
 
-YM2413::YM2413(MSXMotherBoard& motherBoard, const string& name,
+YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer(), name, "MSX-MUSIC")
 	, SimpleDebuggable(motherBoard, name + " regs", "MSX-MUSIC", 0x40)

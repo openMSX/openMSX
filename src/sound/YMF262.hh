@@ -42,9 +42,9 @@
 #define YMF262_HH
 
 #include "SoundDevice.hh"
+#include "EmuTimer.hh"
 #include "SimpleDebuggable.hh"
 #include "IRQHelper.hh"
-#include "EmuTimer.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
@@ -130,7 +130,8 @@ public:
 	byte extended;	// set to 1 if this channel forms up a 4op channel with another channel(only used by first of pair of channels, ie 0,1,2 and 9,10,11)
 };
 
-class YMF262 : private SoundDevice, private EmuTimerCallback, private SimpleDebuggable
+class YMF262 : private SoundDevice, private EmuTimerCallback,
+               private SimpleDebuggable
 {
 public:
 	YMF262(MSXMotherBoard& motherBoard, const std::string& name,

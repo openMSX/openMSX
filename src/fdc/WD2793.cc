@@ -4,8 +4,6 @@
 #include "DiskDrive.hh"
 #include "MSXException.hh"
 
-using std::string;
-
 namespace openmsx {
 
 // Status register
@@ -497,9 +495,9 @@ void WD2793::executeUntil(const EmuTime& time, int userData)
 	}
 }
 
-const string& WD2793::schedName() const
+const std::string& WD2793::schedName() const
 {
-	static const string name("WD2793");
+	static const std::string name("WD2793");
 	return name;
 }
 

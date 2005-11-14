@@ -5,11 +5,12 @@
 
 #include "CassetteImage.hh"
 #include "DynamicClock.hh"
+#include "noncopyable.hh"
 #include <string>
 
 namespace openmsx {
 
-class WavImage : public CassetteImage
+class WavImage : public CassetteImage, private noncopyable
 {
 public:
 	explicit WavImage(const std::string& fileName);

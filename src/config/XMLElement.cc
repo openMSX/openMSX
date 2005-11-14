@@ -1,7 +1,6 @@
 // $Id$
 
 #include "XMLElement.hh"
-#include "XMLElementListener.hh"
 #include "StringOp.hh"
 #include "FileContext.hh"
 #include "ConfigException.hh"
@@ -9,9 +8,7 @@
 #include <cassert>
 #include <algorithm>
 
-
 using std::auto_ptr;
-using std::remove;
 using std::string;
 
 namespace openmsx {

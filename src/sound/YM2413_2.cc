@@ -25,8 +25,6 @@
 #include "MSXMotherBoard.hh"
 #include <cmath>
 
-using std::string;
-
 namespace openmsx {
 
 const double PI = 3.14159265358979323846;
@@ -1351,7 +1349,7 @@ void YM2413_2::reset(const EmuTime &time)
 }
 
 
-YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const string& name,
+YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
                    const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer(), name, "MSX-MUSIC")
 	, SimpleDebuggable(motherBoard, name + " regs", "MSX-MUSIC", 0x40)

@@ -15,7 +15,6 @@ namespace openmsx {
 
 class Rom;
 class MSXMotherBoard;
-class Debugger;
 
 class YMF278Slot
 {

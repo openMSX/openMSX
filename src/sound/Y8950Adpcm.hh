@@ -34,7 +34,6 @@ private:
 	virtual const std::string& schedName() const;
 
 	void schedule(const EmuTime& time);
-	int CLAP(int min, int x, int max);
 	void restart();
 
 	bool playing() const;

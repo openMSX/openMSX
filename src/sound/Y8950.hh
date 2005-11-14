@@ -3,11 +3,11 @@
 #ifndef Y8950_HH
 #define Y8950_HH
 
-#include "openmsx.hh"
 #include "SoundDevice.hh"
-#include "IRQHelper.hh"
 #include "EmuTimer.hh"
 #include "SimpleDebuggable.hh"
+#include "IRQHelper.hh"
+#include "openmsx.hh"
 #include <memory>
 
 namespace openmsx {
@@ -17,7 +17,8 @@ class Y8950KeyboardConnector;
 class DACSound16S;
 class MSXMotherBoard;
 
-class Y8950 : private SoundDevice, private EmuTimerCallback, private SimpleDebuggable
+class Y8950 : private SoundDevice, private EmuTimerCallback,
+              private SimpleDebuggable
 {
 	class Patch {
 	public:

@@ -21,7 +21,6 @@ WavAudioInput::WavAudioInput(CommandController& commandController)
 	audioInputFilenameSetting->attach(*this);
 }
 
-
 WavAudioInput::~WavAudioInput()
 {
 	audioInputFilenameSetting->detach(*this);

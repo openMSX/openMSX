@@ -42,10 +42,7 @@
 #include "YMF262.hh"
 #include "Mixer.hh"
 #include "MSXMotherBoard.hh"
-#include "openmsx.hh"
 #include <cmath>
-
-using std::string;
 
 namespace openmsx {
 
@@ -1808,7 +1805,7 @@ void YMF262::reset(const EmuTime& time)
 	setMute(true);
 }
 
-YMF262::YMF262(MSXMotherBoard& motherBoard, const string& name,
+YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer(), name, "MoonSound FM-part")
 	, SimpleDebuggable(motherBoard, name + " regs",
