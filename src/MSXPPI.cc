@@ -1,6 +1,5 @@
 // $Id$
 
-#include <cassert>
 #include "MSXPPI.hh"
 #include "Keyboard.hh"
 #include "LedEvent.hh"
@@ -11,6 +10,7 @@
 #include "CassettePort.hh"
 #include "XMLElement.hh"
 #include "RenShaTurbo.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -115,7 +115,7 @@ byte MSXPPI::peekA(const EmuTime& /*time*/) const
 {
 	// port A is normally an output on MSX, reading from an output port
 	// is handled internally in the 8255
-	return 255;	//TODO check this
+	return 255; //TODO check this
 }
 void MSXPPI::writeA(byte value, const EmuTime& /*time*/)
 {
@@ -145,7 +145,7 @@ nibble MSXPPI::readC1(const EmuTime& time)
 }
 nibble MSXPPI::peekC1(const EmuTime& /*time*/) const
 {
-	return 15;	// TODO check this
+	return 15; // TODO check this
 }
 nibble MSXPPI::readC0(const EmuTime& time)
 {
@@ -153,7 +153,7 @@ nibble MSXPPI::readC0(const EmuTime& time)
 }
 nibble MSXPPI::peekC0(const EmuTime& /*time*/) const
 {
-	return 15;	// TODO check this
+	return 15; // TODO check this
 }
 void MSXPPI::writeC1(nibble value, const EmuTime& time)
 {

@@ -13,10 +13,6 @@ MSXF4Device::MSXF4Device(MSXMotherBoard& motherBoard, const XMLElement& config,
 	reset(time);
 }
 
-MSXF4Device::~MSXF4Device()
-{
-}
-
 void MSXF4Device::reset(const EmuTime& /*time*/)
 {
 	status = inverted ? 0xFF : 0x00;
@@ -37,7 +33,7 @@ void MSXF4Device::writeIO(byte /*port*/, byte value, const EmuTime& /*time*/)
 	if (inverted) {
 		status = value | 0x7F;
 	} else {
-		status = (status & 0x20) | (value & 0xa0);
+		status = (status & 0x20) | (value & 0xA0);
 	}
 }
 

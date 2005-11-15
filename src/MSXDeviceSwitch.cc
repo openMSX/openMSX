@@ -3,7 +3,6 @@
 #include "MSXDeviceSwitch.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
-
 #include <cassert>
 
 namespace openmsx {
@@ -52,12 +51,10 @@ MSXDeviceSwitch::~MSXDeviceSwitch()
 		interface.unregister_IO_Out(port, this);
 		interface.unregister_IO_In (port, this);
 	}
-	/*
 	for (int i = 0; i < 256; i++) {
 		// all devices must be unregistered
 		assert(devices[i] == NULL);
 	}
-	*/
 }
 
 

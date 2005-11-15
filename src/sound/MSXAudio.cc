@@ -2,7 +2,6 @@
 
 #include "MSXAudio.hh"
 #include "Y8950.hh"
-#include "MSXMotherBoard.hh"
 #include "XMLElement.hh"
 
 namespace openmsx {

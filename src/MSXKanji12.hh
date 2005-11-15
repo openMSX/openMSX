@@ -4,10 +4,12 @@
 #define MSXKANJI12_HH
 
 #include "MSXDevice.hh"
-#include "Rom.hh"
 #include "MSXDeviceSwitch.hh"
+#include <memory>
 
 namespace openmsx {
+
+class Rom;
 
 class MSXKanji12 : public MSXDevice, public MSXSwitchedDevice
 {
@@ -22,9 +24,8 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	Rom rom;
-	int adr;
-	int size;
+	const std::auto_ptr<Rom> rom;
+	unsigned adr;
 };
 
 } // namespace openmsx

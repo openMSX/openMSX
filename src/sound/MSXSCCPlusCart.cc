@@ -14,8 +14,6 @@
 #include "CPU.hh"
 #include "XMLElement.hh"
 
-using std::string;
-
 namespace openmsx {
 
 MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
@@ -26,7 +24,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
 	const XMLElement* fileElem = config.findChild("filename");
 	if (fileElem) {
 		// read the rom file
-		const string& filename = fileElem->getData();
+		const std::string& filename = fileElem->getData();
 		try {
 			File file(config.getFileContext().resolve(filename));
 			int romSize = file.getSize();
@@ -35,7 +33,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
 			throw FatalError("Error reading file: " + filename);
 		}
 	}
-	const string subtype = config.getChildData("subtype", "expanded");
+	const std::string subtype = config.getChildData("subtype", "expanded");
 	if (subtype == "Snatcher") {
 		mapperMask = 0x0F;
 		lowRAM  = true;

@@ -1,6 +1,5 @@
 // $Id$
 
-#include <cassert>
 #include "MSXE6Timer.hh"
 
 namespace openmsx {
@@ -10,10 +9,6 @@ MSXE6Timer::MSXE6Timer(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: MSXDevice(motherBoard, config, time)
 {
 	reset(time);
-}
-
-MSXE6Timer::~MSXE6Timer()
-{
 }
 
 void MSXE6Timer::reset(const EmuTime& time)
@@ -49,15 +44,7 @@ byte MSXE6Timer::readIO(byte port, const EmuTime& time)
 byte MSXE6Timer::peekIO(byte port, const EmuTime& time) const
 {
 	int counter = reference.getTicksTill(time);
-	switch (port & 0x01) {
-	case 0:
-		return counter & 0xFF;
-	case 1:
-		return (counter >> 8) & 0xFF;
-	default: // unreachable, avoid warning
-		assert(false);
-		return 0;
-	}
+	return (port & 1) ? ((counter >> 8) & 0xFF) : (counter & 0xFF);
 }
 
 } // namespace openmsx

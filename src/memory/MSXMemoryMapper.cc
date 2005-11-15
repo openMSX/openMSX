@@ -1,6 +1,5 @@
 // $Id$
 
-#include <cassert>
 #include "MSXMemoryMapper.hh"
 #include "MSXMapperIO.hh"
 #include "XMLElement.hh"
@@ -10,6 +9,7 @@
 #include "Ram.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
+#include <cassert>
 
 namespace openmsx {
 

@@ -4,8 +4,6 @@
 #include "MSXMotherBoard.hh"
 #include "Rom.hh"
 
-using std::string;
-
 namespace openmsx {
 
 MSXRom::MSXRom(MSXMotherBoard& motherBoard, const XMLElement& config,
@@ -19,7 +17,6 @@ MSXRom::~MSXRom()
 {
 }
 
-
 void MSXRom::writeMem(word /*address*/, byte /*value*/, const EmuTime& /*time*/)
 {
 	// nothing
@@ -30,7 +27,7 @@ byte* MSXRom::getWriteCacheLine(word /*address*/) const
 	return unmappedWrite;
 }
 
-const string& MSXRom::getName() const
+const std::string& MSXRom::getName() const
 {
 	return rom->getName();
 }

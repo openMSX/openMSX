@@ -3,8 +3,8 @@
 #ifndef MSXMULTIMEMDEVICE_HH
 #define MSXMULTIMEMDEVICE_HH
 
-#include <vector>
 #include "MSXDevice.hh"
+#include <vector>
 
 namespace openmsx {
 

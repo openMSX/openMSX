@@ -3,8 +3,8 @@
 #ifndef MSXMULTIIODEVICE_HH
 #define MSXMULTIIODEVICE_HH
 
-#include <vector>
 #include "MSXDevice.hh"
+#include <vector>
 
 namespace openmsx {
 
@@ -30,7 +30,6 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	static const XMLElement& getMultiConfig();
 	void preCalcName();
 
 	Devices devices;

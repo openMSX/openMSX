@@ -2,13 +2,11 @@
 
 #include "MidiInDevice.hh"
 
-using std::string;
-
 namespace openmsx {
 
-const string& MidiInDevice::getClass() const
+const std::string& MidiInDevice::getClass() const
 {
-	static const string className("midi in");
+	static const std::string className("midi in");
 	return className;
 }
 

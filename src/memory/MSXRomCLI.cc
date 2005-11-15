@@ -1,15 +1,13 @@
 // $Id$
 
+#include "MSXRomCLI.hh"
 #include "StringOp.hh"
 #include "XMLElement.hh"
-#include "MSXRomCLI.hh"
 #include "MSXMotherBoard.hh"
 #include "CartridgeSlotManager.hh"
 #include "HardwareConfig.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
-#include "RomInfo.hh"
-#include "CliComm.hh"
 #include "MSXException.hh"
 
 using std::auto_ptr;

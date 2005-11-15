@@ -1,10 +1,7 @@
 // $Id$
 
 #include "MSXCPU.hh"
-#include "CPU.hh"
 #include "MSXMotherBoard.hh"
-#include "CommandController.hh"
-#include "InfoCommand.hh"
 #include "Debugger.hh"
 #include "BooleanSetting.hh"
 #include "CPUCore.hh"

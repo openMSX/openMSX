@@ -29,12 +29,12 @@ private:
 
 	class IpsOption : public CLIOption {
 		virtual bool parseOption(const std::string& option,
-					 std::list<std::string>& cmdLine);
+		                         std::list<std::string>& cmdLine);
 		virtual const std::string& optionHelp() const;
 	} ipsOption;
 	class RomTypeOption : public CLIOption {
 		virtual bool parseOption(const std::string& option,
-					 std::list<std::string>& cmdLine);
+		                         std::list<std::string>& cmdLine);
 		virtual const std::string& optionHelp() const;
 	} romTypeOption;
 };

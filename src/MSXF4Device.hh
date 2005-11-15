@@ -18,7 +18,6 @@ class MSXF4Device : public MSXDevice
 public:
 	MSXF4Device(MSXMotherBoard& motherBoard, const XMLElement& config,
 	            const EmuTime& time);
-	virtual ~MSXF4Device();
 
 	virtual void reset(const EmuTime& time);
 	virtual byte readIO(byte port, const EmuTime& time);

@@ -4,9 +4,11 @@
 #define MSXKANJI_HH
 
 #include "MSXDevice.hh"
-#include "Rom.hh"
+#include <memory>
 
 namespace openmsx {
+
+class Rom;
 
 class MSXKanji : public MSXDevice
 {
@@ -21,8 +23,8 @@ public:
 	virtual void reset(const EmuTime& time);
 
 private:
-	Rom rom;
-	int adr1, adr2;
+	const std::auto_ptr<Rom> rom;
+	unsigned adr1, adr2;
 };
 
 } // namespace openmsx

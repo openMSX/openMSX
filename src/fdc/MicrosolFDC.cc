@@ -12,10 +12,6 @@ MicrosolFDC::MicrosolFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
 {
 }
 
-MicrosolFDC::~MicrosolFDC()
-{
-}
-
 byte MicrosolFDC::readIO(byte port, const EmuTime& time)
 {
 	byte value;

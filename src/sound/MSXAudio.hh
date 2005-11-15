@@ -3,8 +3,8 @@
 #ifndef MSXAUDIO_HH
 #define MSXAUDIO_HH
 
-#include <memory>
 #include "MSXDevice.hh"
+#include <memory>
 
 namespace openmsx {
 

@@ -27,9 +27,9 @@
 #ifndef MSXPPI_HH
 #define MSXPPI_HH
 
-#include <memory>
 #include "MSXDevice.hh"
 #include "I8255.hh"
+#include <memory>
 
 namespace openmsx {
 

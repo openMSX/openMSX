@@ -3,13 +3,13 @@
 #ifndef MSXPSG_HH
 #define MSXPSG_HH
 
-#include <memory>
 #include "MSXDevice.hh"
-#include "AY8910.hh"
 #include "AY8910Periphery.hh"
+#include <memory>
 
 namespace openmsx {
 
+class AY8910;
 class CassettePortInterface;
 class RenShaTurbo;
 class JoystickPort;

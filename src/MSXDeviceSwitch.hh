@@ -4,6 +4,7 @@
 #define MSXDEVICESWITCH_HH
 
 #include "MSXDevice.hh"
+#include "noncopyable.hh"
 
 namespace openmsx {
 
@@ -52,7 +53,7 @@ namespace openmsx {
  *  254 MPS2 (ASCII)
  */
 
-class MSXSwitchedDevice
+class MSXSwitchedDevice : private noncopyable
 {
 public:
 	MSXSwitchedDevice(MSXMotherBoard& motherBoard, byte id);

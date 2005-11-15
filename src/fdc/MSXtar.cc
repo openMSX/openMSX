@@ -12,9 +12,7 @@
 #include <algorithm>
 #include <cassert>
 
-using std::min;
 using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -652,7 +650,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxdirentry, const string& hostName)
 		int logicalSector = clusterToSector(curcl);
 		disk.readLogicalSector(partitionOffset + logicalSector, buf);
 		for (int j = 0; (j < sectorsPerCluster) && remaining; ++j) {
-			int chunkSize = min(SECTOR_SIZE, remaining);
+			int chunkSize = std::min(SECTOR_SIZE, remaining);
 			fread(buf, 1, chunkSize, file);
 			disk.writeLogicalSector(
 				partitionOffset + logicalSector + j, buf);
@@ -920,7 +918,7 @@ void MSXtar::fileExtract(string resultFile, MSXDirEntry& direntry)
 	while (size && sector) {
 		byte buf[SECTOR_SIZE];
 		disk.readLogicalSector(partitionOffset + sector, buf);
-		int savesize = min(size, SECTOR_SIZE);
+		int savesize = std::min(size, SECTOR_SIZE);
 		fwrite(buf, 1, savesize, file);
 		size -= savesize;
 		sector = getNextSector(sector);
@@ -1014,7 +1012,7 @@ bool MSXtar::usePartition(int partition)
 	return true;
 }
 
-void MSXtar::createDiskFile(vector<unsigned> sizes)
+void MSXtar::createDiskFile(std::vector<unsigned> sizes)
 {
 	byte buf[SECTOR_SIZE];
 

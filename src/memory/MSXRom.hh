@@ -4,7 +4,6 @@
 #define MSXROM_HH
 
 #include "MSXDevice.hh"
-#include <string>
 #include <memory>
 
 namespace openmsx {

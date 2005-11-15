@@ -5,14 +5,6 @@
 
 namespace openmsx {
 
-// unused bits read always "1"
-byte MSXMapperIOPhilips::calcMask(const std::multiset<unsigned>& mapperSizes)
-{
-	unsigned largest = (mapperSizes.empty()) ? 1
-	                                         : *mapperSizes.rbegin();
-	return (256 - (1 << log2RoundedUp(largest))) & 255;
-}
-
 /*
  * Returns the 2-logarithm of "num" rounded up, this is the number of bits
  * needed to represent nummers smaller than "num"
@@ -26,7 +18,7 @@ byte MSXMapperIOPhilips::calcMask(const std::multiset<unsigned>& mapperSizes)
  *   65 <= num <= 128  ==> 7
  *  129 <= num <= 256  ==> 8
  */
-byte MSXMapperIOPhilips::log2RoundedUp(unsigned num)
+byte log2RoundedUp(unsigned num)
 {
 	assert((1 <= num) && (num <= 256));
 	unsigned foo = 128; byte res = 8;
@@ -34,6 +26,14 @@ byte MSXMapperIOPhilips::log2RoundedUp(unsigned num)
 		foo /= 2; res--;
 	}
 	return res;
+}
+
+// unused bits read always "1"
+byte MSXMapperIOPhilips::calcMask(const std::multiset<unsigned>& mapperSizes)
+{
+	unsigned largest = (mapperSizes.empty()) ? 1
+	                                         : *mapperSizes.rbegin();
+	return (256 - (1 << log2RoundedUp(largest))) & 255;
 }
 
 } // namespace openmsx

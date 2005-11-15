@@ -5,7 +5,6 @@
 #include "MSXMotherBoard.hh"
 #include "FirmwareSwitch.hh"
 #include "SRAM.hh"
-#include "BooleanSetting.hh"
 
 namespace openmsx {
 
@@ -19,7 +18,6 @@ MSXMatsushita::MSXMatsushita(MSXMotherBoard& motherBoard,
 	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x800, config))
 {
 	// TODO find out what ports 0x41 0x45 0x46 are used for
-	//      (and if they belong to this device)
 
 	reset(time);
 }
@@ -30,7 +28,7 @@ MSXMatsushita::~MSXMatsushita()
 
 void MSXMatsushita::reset(const EmuTime& /*time*/)
 {
-	address = 0;	// TODO check this
+	address = 0; // TODO check this
 }
 
 byte MSXMatsushita::readIO(byte port, const EmuTime& time)

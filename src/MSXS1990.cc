@@ -4,7 +4,6 @@
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "PanasonicMemory.hh"
-#include "BooleanSetting.hh"
 #include "FirmwareSwitch.hh"
 
 namespace openmsx {

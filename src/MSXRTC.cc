@@ -3,8 +3,8 @@
 #include "MSXRTC.hh"
 #include "SRAM.hh"
 #include "RP5C01.hh"
-#include "File.hh"
 #include "MSXMotherBoard.hh"
+#include <cassert>
 
 namespace openmsx {
 

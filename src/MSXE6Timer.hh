@@ -22,10 +22,8 @@ class MSXE6Timer : public MSXDevice
 public:
 	MSXE6Timer(MSXMotherBoard& motherBoard, const XMLElement& config,
 	           const EmuTime& time);
-	virtual ~MSXE6Timer();
 
 	virtual void reset(const EmuTime& time);
-
 	virtual byte readIO(byte port, const EmuTime& time);
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 	virtual byte peekIO(byte port, const EmuTime& time) const;

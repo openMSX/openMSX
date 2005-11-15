@@ -8,14 +8,13 @@
 #include "InfoTopic.hh"
 #include "Observer.hh"
 #include "EmuTime.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
 
 class MSXMotherBoard;
 class MSXCPUInterface;
-class InfoCommand;
-class EventDistributor;
 class CommandController;
 class BooleanSetting;
 class Z80TYPE;
@@ -23,7 +22,8 @@ class R800TYPE;
 template <typename T> class CPUCore;
 class Setting;
 
-class MSXCPU : private SimpleDebuggable, private Observer<Setting>
+class MSXCPU : private SimpleDebuggable, private Observer<Setting>,
+               private noncopyable
 {
 public:
 	enum CPUType { CPU_Z80, CPU_R800 };

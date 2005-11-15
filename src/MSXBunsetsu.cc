@@ -2,15 +2,17 @@
 
 #include "MSXBunsetsu.hh"
 #include "CPU.hh"
-#include "XMLElement.hh"
+#include "Rom.hh"
 
 namespace openmsx {
 
 MSXBunsetsu::MSXBunsetsu(MSXMotherBoard& motherBoard, const XMLElement& config,
                          const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, bunsetsuRom(motherBoard, getName() + "_1", "rom", config, "bunsetsu")
-	, jisyoRom   (motherBoard, getName() + "_2", "rom", config, "jisyo")
+	, bunsetsuRom(new Rom(motherBoard, getName() + "_1", "rom",
+	                      config, "bunsetsu"))
+	, jisyoRom   (new Rom(motherBoard, getName() + "_2", "rom",
+	                      config, "jisyo"))
 {
 	reset(time);
 }
@@ -28,10 +30,10 @@ byte MSXBunsetsu::readMem(word address, const EmuTime& /*time*/)
 {
 	byte result;
 	if (address == 0xBFFF) {
-		result = jisyoRom[jisyoAddress];
+		result = (*jisyoRom)[jisyoAddress];
 		jisyoAddress = (jisyoAddress + 1) & 0x1FFFF;
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
-		result = bunsetsuRom[address - 0x4000];
+		result = (*bunsetsuRom)[address - 0x4000];
 	} else {
 		result = 0xFF;
 	}
@@ -60,7 +62,7 @@ const byte* MSXBunsetsu::getReadCacheLine(word start) const
 	    (0xBFFF & CPU::CACHE_LINE_HIGH)) {
 		return NULL;
 	} else {
-		return &bunsetsuRom[start - 0x4000];
+		return &(*bunsetsuRom)[start - 0x4000];
 	}
 }
 

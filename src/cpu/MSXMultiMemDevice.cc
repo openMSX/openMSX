@@ -9,9 +9,6 @@
 #include <algorithm>
 #include <cassert>
 
-using std::remove;
-using std::string;
-
 namespace openmsx {
 
 MSXMultiMemDevice::Range::Range(
@@ -127,7 +124,7 @@ void MSXMultiMemDevice::powerUp(const EmuTime& time)
 	}
 }
 
-const string& MSXMultiMemDevice::getName() const
+const std::string& MSXMultiMemDevice::getName() const
 {
 	return name;
 }

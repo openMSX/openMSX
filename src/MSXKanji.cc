@@ -1,7 +1,7 @@
 // $Id$
 
-#include <cassert>
 #include "MSXKanji.hh"
+#include "Rom.hh"
 #include "MSXException.hh"
 
 namespace openmsx {
@@ -9,9 +9,9 @@ namespace openmsx {
 MSXKanji::MSXKanji(MSXMotherBoard& motherBoard, const XMLElement& config,
                    const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, rom(motherBoard, getName(), "Kanji ROM", config)
+	, rom(new Rom(motherBoard, getName(), "Kanji ROM", config))
 {
-	int size = rom.getSize();
+	int size = rom->getSize();
 	if ((size != 0x20000) && (size != 0x40000)) {
 		throw FatalError("MSXKanji: wrong kanji rom");
 	}
@@ -45,8 +45,6 @@ void MSXKanji::writeIO(byte port, byte value, const EmuTime& /*time*/)
 	case 3:
 		adr2 = (adr2 & 0x207e0) | ((value & 0x3f) << 11);
 		break;
-	default:
-		assert(false);
 	}
 }
 
@@ -70,11 +68,11 @@ byte MSXKanji::peekIO(byte port, const EmuTime& /*time*/) const
 	byte result;
 	switch (port & 0x03) {
 	case 1:
-		result = rom[adr1];
+		result = (*rom)[adr1];
 		break;
 	case 3:
-		if (rom.getSize() == 0x40000) { // temp workaround
-			result = rom[adr2];
+		if (rom->getSize() == 0x40000) { // temp workaround
+			result = (*rom)[adr2];
 		} else {
 			result = 0xFF;
 		}

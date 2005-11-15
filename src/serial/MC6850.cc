@@ -1,7 +1,7 @@
 // $Id$
 
-#include <cassert>
 #include "MC6850.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -10,10 +10,6 @@ MC6850::MC6850(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: MSXDevice(motherBoard, config, time)
 {
 	reset(time);
-}
-
-MC6850::~MC6850()
-{
 }
 
 void MC6850::reset(const EmuTime& /*time*/)

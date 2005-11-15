@@ -10,6 +10,7 @@
 #define MSXTAR_HH
 
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <string>
 #include <vector>
 
@@ -17,7 +18,7 @@ namespace openmsx {
 
 class SectorAccessibleDisk;
 
-class MSXtar
+class MSXtar : private noncopyable
 {
 public:
 	explicit MSXtar(SectorAccessibleDisk& disk);

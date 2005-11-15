@@ -3,15 +3,15 @@
 #ifndef MSXCPUINTERFACE_HH
 #define MSXCPUINTERFACE_HH
 
-#include <set>
-#include <vector>
-#include <memory>
-#include "openmsx.hh"
 #include "CPU.hh"
 #include "Command.hh"
 #include "SimpleDebuggable.hh"
 #include "InfoTopic.hh"
 #include "MSXDevice.hh"
+#include "openmsx.hh"
+#include "noncopyable.hh"
+#include <set>
+#include <memory>
 
 namespace openmsx {
 
@@ -24,7 +24,7 @@ class CartridgeSlotManager;
 class MSXCPU;
 class CliComm;
 
-class MSXCPUInterface
+class MSXCPUInterface : private noncopyable
 {
 public:
 	/** Factory method for MSXCPUInterface. Depending om the machine

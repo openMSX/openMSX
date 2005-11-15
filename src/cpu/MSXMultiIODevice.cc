@@ -1,18 +1,15 @@
 // $Id$
 
-#include <algorithm>
-#include <cassert>
-#include "EmuTime.hh"
 #include "MSXMultiIODevice.hh"
+#include "EmuTime.hh"
 #include "FileContext.hh"
 #include "XMLElement.hh"
-
-using std::remove;
-using std::string;
+#include <algorithm>
+#include <cassert>
 
 namespace openmsx {
 
-const XMLElement& MSXMultiIODevice::getMultiConfig()
+const XMLElement& getMultiConfig()
 {
 	static XMLElement deviceElem("MultiIO");
 	static bool init = false;
@@ -97,7 +94,7 @@ void MSXMultiIODevice::powerUp(const EmuTime& time)
 	}
 }
 
-const string& MSXMultiIODevice::getName() const
+const std::string& MSXMultiIODevice::getName() const
 {
 	return name;
 }

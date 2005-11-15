@@ -12,7 +12,6 @@ class MicrosolFDC : public WD2793BasedFDC
 public:
 	MicrosolFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
 	            const EmuTime& time);
-	virtual ~MicrosolFDC();
 
 	virtual byte readIO(byte port, const EmuTime& time);
 	virtual byte peekIO(byte port, const EmuTime& time) const;

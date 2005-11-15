@@ -12,7 +12,6 @@ class MC6850 : public MSXDevice
 public:
 	MC6850(MSXMotherBoard& motherBoard, const XMLElement& config,
 	       const EmuTime& time);
-	virtual ~MC6850();
 
 	virtual void reset(const EmuTime& time);
 	virtual byte readIO(byte port, const EmuTime& time);

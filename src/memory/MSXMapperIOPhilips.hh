@@ -11,9 +11,6 @@ class MSXMapperIOPhilips : public MapperMask
 {
 public:
 	virtual byte calcMask(const std::multiset<unsigned>& mapperSizes);
-
-private:
-	byte log2RoundedUp(unsigned num);
 };
 
 } // namespace openmsx

@@ -4,9 +4,11 @@
 #define MSXBUNSETSU_HH
 
 #include "MSXDevice.hh"
-#include "Rom.hh"
+#include <memory>
 
 namespace openmsx {
+
+class Rom;
 
 class MSXBunsetsu : public MSXDevice
 {
@@ -23,8 +25,8 @@ public:
 	virtual byte* getWriteCacheLine(word start) const;
 
 private:
-	Rom bunsetsuRom;
-	Rom jisyoRom;
+	std::auto_ptr<Rom> bunsetsuRom;
+	std::auto_ptr<Rom> jisyoRom;
 	int jisyoAddress;
 };
 

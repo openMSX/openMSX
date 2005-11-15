@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXPSG.hh"
+#include "AY8910.hh"
 #include "LedEvent.hh"
 #include "EventDistributor.hh"
 #include "CassettePort.hh"

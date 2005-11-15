@@ -4,6 +4,7 @@
 #define MIDIOUTLOGGER_HH
 
 #include "MidiOutDevice.hh"
+#include "noncopyable.hh"
 #include <fstream>
 #include <memory>
 
@@ -12,7 +13,7 @@ namespace openmsx {
 class CommandController;
 class FilenameSetting;
 
-class MidiOutLogger : public MidiOutDevice
+class MidiOutLogger : public MidiOutDevice, private noncopyable
 {
 public:
 	explicit MidiOutLogger(CommandController& commandController);

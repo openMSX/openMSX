@@ -3,8 +3,8 @@
 #ifndef MSXRTC_HH
 #define MSXRTC_HH
 
-#include <memory>
 #include "MSXDevice.hh"
+#include <memory>
 
 namespace openmsx {
 

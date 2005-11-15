@@ -2,17 +2,15 @@
 
 #include "MidiOutDevice.hh"
 
-using std::string;
-
 namespace openmsx {
 
 MidiOutDevice::~MidiOutDevice()
 {
 }
 
-const string& MidiOutDevice::getClass() const
+const std::string& MidiOutDevice::getClass() const
 {
-	static const string className("midi out");
+	static const std::string className("midi out");
 	return className;
 }
 

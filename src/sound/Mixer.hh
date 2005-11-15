@@ -6,13 +6,15 @@
 #include "Observer.hh"
 #include "InfoTopic.hh"
 #include "Command.hh"
-#include "EmuTime.hh"
+#include "noncopyable.hh"
 #include <vector>
 #include <map>
 #include <memory>
 
 namespace openmsx {
 
+class EmuTime;
+class EmuDuration;
 class SoundDevice;
 class SoundDriver;
 class Scheduler;
@@ -24,7 +26,7 @@ template <typename T> class EnumSetting;
 class WavWriter;
 class Setting;
 
-class Mixer : private Observer<Setting>
+class Mixer : private Observer<Setting>, private noncopyable
 {
 public:
 	static const int MAX_VOLUME = 32767;
