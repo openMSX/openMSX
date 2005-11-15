@@ -1,5 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
 <!--
  The romdb.xml file contains information about rom mapper types
 																			 	
@@ -8,7 +7,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1126374788">
+<softwaredb xml:lang="en" timestamp="1132023838">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -169,6 +168,7 @@
 		<system>MSX</system>
 		<company>JAM</company>
 		<year>2002</year>
+		<country>JP</country>
 		<dump>
 			<original value="false"/>
 			<megarom>
@@ -3620,7 +3620,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>GenericKonami</type>
+				<type>ASCII8</type>
 				<hash algo="sha1">d5b164797bc969b55c1a6f4006a4535c3fb03cf0</hash>
 			</megarom>
 		</dump>
@@ -5586,13 +5586,14 @@
 		<system>MSX</system>
 		<company>Konami</company>
 		<year>1988</year>
+		<country>JP</country>
 		<dump>
 			<original value="false"/>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="crc32">61B94C59</hash>
 				<remark>
-					<text>Jp(Needs SCC in slot 2</text>
+					<text>Needs SCC in slot 2</text>
 				</remark>
 			</megarom>
 		</dump>
@@ -20266,6 +20267,7 @@
 		<system>MSX</system>
 		<company>Husnisoft</company>
 		<year>1990</year>
+		<country>GB</country>
 		<dump>
 			<original value="false"/>
 			<rom>
@@ -21555,19 +21557,6 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Empty FM-PAC</title>
-		<system>MSX</system>
-		<company>-</company>
-		<year>19xx</year>
-		<dump>
-			<original value="false"/>
-			<systemrom>
-				<type>FMPAC</type>
-				<hash algo="sha1">7b11f3332c053f1975b16c70a70cd6a42cc57959</hash>
-			</systemrom>
-		</dump>
-	</software>
-	<software>
 		<title xml:lang="en">European MSX Basic + Bios</title>
 		<system>MSX</system>
 		<company>Microsoft</company>
@@ -21693,6 +21682,20 @@
 			<original value="false"/>
 			<systemrom>
 				<hash algo="crc32">E575F905</hash>
+			</systemrom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">FM-PAC</title>
+		<system>MSX</system>
+		<company>-</company>
+		<year>19xx</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<systemrom>
+				<type>FMPAC</type>
+				<hash algo="sha1">7b11f3332c053f1975b16c70a70cd6a42cc57959</hash>
 			</systemrom>
 		</dump>
 	</software>
@@ -23313,6 +23316,7 @@
 		<system>MSX</system>
 		<company>-</company>
 		<year>19xx</year>
+		<country>JP</country>
 		<dump>
 			<original value="false"/>
 			<systemrom>
@@ -23485,6 +23489,7 @@
 		<system>MSX</system>
 		<company>Microsoft</company>
 		<year>1986</year>
+		<country>NL</country>
 		<dump>
 			<original value="false"/>
 			<systemrom>
@@ -23501,6 +23506,7 @@
 		<system>MSX</system>
 		<company>Microsoft</company>
 		<year>1986</year>
+		<country>NL</country>
 		<dump>
 			<original value="false"/>
 			<systemrom>
@@ -23517,6 +23523,7 @@
 		<system>MSX</system>
 		<company>Philips</company>
 		<year>1986</year>
+		<country>NL</country>
 		<dump>
 			<original value="false"/>
 			<systemrom>
@@ -23589,6 +23596,7 @@
 		<system>MSX</system>
 		<company>-</company>
 		<year>19xx</year>
+		<country>KR</country>
 		<dump>
 			<original value="false"/>
 			<systemrom>
@@ -23603,6 +23611,7 @@
 		<system>MSX</system>
 		<company>-</company>
 		<year>19xx</year>
+		<country>KR</country>
 		<dump>
 			<original value="false"/>
 			<systemrom>
@@ -23902,6 +23911,7 @@
 		<system>MSX</system>
 		<company>Sony</company>
 		<year>1984</year>
+		<country>JP</country>
 		<dump>
 			<original value="false"/>
 			<systemrom>
@@ -23919,6 +23929,7 @@
 		<system>MSX</system>
 		<company>Microsoft</company>
 		<year>1984</year>
+		<country>JP</country>
 		<dump>
 			<original value="false"/>
 			<systemrom>
@@ -24522,6 +24533,7 @@
 		<system>MSX</system>
 		<company>Microsoft</company>
 		<year>1985</year>
+		<country>GB</country>
 		<dump>
 			<original value="false"/>
 			<systemrom>
@@ -24694,6 +24706,7 @@
 		<system>MSX</system>
 		<company>Yamaha</company>
 		<year>1987</year>
+		<country>JP</country>
 		<dump>
 			<original value="false"/>
 			<systemrom>
@@ -24710,6 +24723,7 @@
 		<system>MSX</system>
 		<company>Yamaha</company>
 		<year>1987</year>
+		<country>JP</country>
 		<dump>
 			<original value="false"/>
 			<systemrom>
@@ -24727,6 +24741,7 @@
 		<system>MSX</system>
 		<company>Microsoft</company>
 		<year>1987</year>
+		<country>JP</country>
 		<dump>
 			<original value="false"/>
 			<systemrom>
@@ -24743,6 +24758,7 @@
 		<system>MSX</system>
 		<company>Microsoft</company>
 		<year>1987</year>
+		<country>JP</country>
 		<dump>
 			<original value="false"/>
 			<systemrom>
@@ -24759,6 +24775,7 @@
 		<system>MSX</system>
 		<company>Yamaha</company>
 		<year>1987</year>
+		<country>JP</country>
 		<dump>
 			<original value="false"/>
 			<systemrom>
@@ -24775,6 +24792,7 @@
 		<system>MSX</system>
 		<company>Yamaha</company>
 		<year>1987</year>
+		<country>JP</country>
 		<dump>
 			<original value="false"/>
 			<systemrom>
@@ -24793,5 +24811,5 @@ Roms in this database : 2350
 Good MSX entries 		: 755
 SHA1 values 			: 1771
 CRC32 values 			: 579
-Parse time 7.577 seconds on Sat Sep 10 19:53:15 CEST 2005
+Parse time 7.030 seconds on Tue Nov 15 4:04:05 CET 2005
  -->
