@@ -14,7 +14,7 @@ namespace MemoryOps {
 static inline void memset4_2_CPP(
 	unsigned* p, unsigned n, unsigned val0, unsigned val1)
 {
-	if (unlikely((int)p & 4)) {
+	if (unlikely((long)p & 4)) {
 		p[0] = val1; // start at odd pixel
 		++p; --n;
 	}
@@ -68,7 +68,7 @@ static inline void memset4_2_CPP(
 static inline void memset4_2_MMX(
 	unsigned* p, unsigned n, unsigned val0, unsigned val1)
 {
-	if (unlikely((int)p & 4)) {
+	if (unlikely((long)p & 4)) {
 		p[0] = val1; // start at odd pixel
 		++p; --n;
 	}
@@ -118,12 +118,12 @@ static inline void memset4_2_MMX(
 static inline void memset4_2_SSE(
 	unsigned* p, unsigned n, unsigned val0, unsigned val1)
 {
-	if (unlikely((int)p & 4)) {
+	if (unlikely((long)p & 4)) {
 		p[0] = val1; // start at odd pixel
 		++p; --n;
 	}
 	if (likely(n >= 4)) {
-		if (unlikely((int)p & 8)) {
+		if (unlikely((long)p & 8)) {
 			// SSE *must* have 16-byte aligned data
 			p[0] = val0;
 			p[1] = val1;
@@ -173,12 +173,12 @@ static inline void memset4_2_SSE(
 static inline void memset4_2_SSE_s(
 	unsigned* p, unsigned n, unsigned val0, unsigned val1)
 {
-	if (unlikely((int)p & 4)) {
+	if (unlikely((long)p & 4)) {
 		p[0] = val1; // start at odd pixel
 		++p; --n;
 	}
 	if (likely(n >= 4)) {
-		if (unlikely((int)p & 8)) {
+		if (unlikely((long)p & 8)) {
 			// SSE *must* have 16-byte aligned data
 			p[0] = val0;
 			p[1] = val1;
@@ -253,7 +253,7 @@ template<bool STREAMING> static inline void memset_2_helper(
 template<bool STREAMING> static inline void memset_2_helper(
 	word* out, unsigned num, word val0, word val1)
 {
-	if (unlikely((int)out & 2)) {
+	if (unlikely((long)out & 2)) {
 		out[0] = val1;
 		++out; --num;
 	}

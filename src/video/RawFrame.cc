@@ -17,7 +17,7 @@ RawFrame::RawFrame(unsigned bytesPerPixel, unsigned maxWidth_, unsigned height_)
 	//  cache line size on athlon and P4 CPUs is 64 bytes
 	pitch = ((bytesPerPixel * maxWidth) + 63) & ~63;
 	unalignedData = malloc(pitch * height + 63);
-	data = (char*)(((unsigned)unalignedData + 63) & ~63);
+	data = (char*)(((unsigned long)unalignedData + 63) & ~63);
 
 	// Start with a black frame.
 	init(FIELD_NONINTERLACED);

@@ -1,5 +1,10 @@
 $Id$
 
+2005-11-16 Joost Damad <joost@lumatec.be>
+	* yeah that was one year ago since I did an openmsx commit :)
+	* use word for casting a pointer to an integral; fixes build on 64bit
+		systems
+
 2005-11-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Remove all pending after commands on exit
 
