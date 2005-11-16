@@ -50,6 +50,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	scalerMap["simple"] = SCALER_SIMPLE;
 	scalerMap["2xSaI"] = SCALER_SAI2X;
 	scalerMap["Scale2x"] = SCALER_SCALE2X;
+	scalerMap["Scale3x"] = SCALER_SCALE3X;
 	scalerMap["hq2x"] = SCALER_HQ2X;
 	scalerMap["hq3x"] = SCALER_HQ3X;
 	scalerMap["hq2xlite"] = SCALER_HQ2XLITE;
