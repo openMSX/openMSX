@@ -50,6 +50,7 @@ time_t fromString(const std::string& line)
 
 std::string toString(time_t time)
 {
+	if (time < 0) time = 0;
 	struct tm* tm;
 	tm = localtime(&time);
 	std::ostringstream sstr;
