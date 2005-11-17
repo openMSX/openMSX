@@ -229,7 +229,7 @@ static inline void memset4_2_SSE_s(
 template<bool STREAMING> static inline void memset_2_helper(
 	unsigned* out, unsigned num, unsigned val0, unsigned val1)
 {
-	assert(((int)out & 3) == 0); // must be 4-byte aligned
+	assert(((long)out & 3) == 0); // must be 4-byte aligned
 
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
