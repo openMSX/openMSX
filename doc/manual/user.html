@@ -40,7 +40,7 @@
 			<li><a class="internal" href="#plug">3.4 Plug</a></li>
 		</ol>
 	</li>
-	<li><a class="internal" href="#media">4. Running Media</a>
+	<li><a class="internal" href="#media">4. Running MSX Software and Using Media</a>
 		<ol class="toc">
 			<li><a class="internal" href="#roms">4.1 Running ROM Software</a></li>
 			<li><a class="internal" href="#disks">4.2 Running Disk Software</a>
@@ -337,6 +337,10 @@ Some MSX machines like the Panasonic FS-A1GT have built in software (called firm
 </p>
 
 <p>
+If you're not really interested in how long a real MSX would take for loading from diskette or cassette, you could enable the full speed when loading feature: <code>set fullspeedwhenloading on</code>. It runs openMSX at maximum speed whenever it things that the MSX is loading. The drawbacks: it might detect a bit too late that the MSX isn't loading anymore, so sometimes the first notes of music played right after loading might be too fast. Also, when loading openMSX will use all CPU power it can get to get the maximum speed.
+</p>
+
+<p>
 You can save all your current settings with the <code>save_settings</code> command. If you specify a file name after this command, the settings will not be saved to the default settings file (<code>share/settings.xml</code>), but to the specified file. At start up, alternative settings files can be loaded by using the <code>-setting</code> command line option. You can also use the <code>load_settings</code> command to load settings at run time. Settings that are not mentioned in the saved settings file that you are loading will be untouched. If you want openMSX to automatically save your settings when it exits, issue the following setting: <code>set save_settings_on_exit true</code>.
 </p>
 
@@ -356,7 +360,7 @@ Add the complete list of pluggables here.
 </p>
 -->
 
-<h2><a id="media">4. Running Media</a></h2>
+<h2><a id="media">4. Running MSX Software and Using Media</a></h2>
 
 <p>
 With this information, you can run most of the existing MSX software.
@@ -610,7 +614,7 @@ You can also use the so-called CAS files. Use them exactly as you would use WAV 
 We don't support using CAS files anymore by patching a BIOS, because it is not really something you want.
 So, nowadays, the CAS files are automatically
 converted to WAV files, internally. Note that the loading time is drastically
-longer this way. On the other hand, you will be able to hear the cassette
+longer this way (but: doing a <code>set fullspeedwhenloading on</code> will help a lot). On the other hand, you will be able to hear the cassette
 sounds now also with the CAS files... What is using cassettes with an MSX
 without those characteristic sounds?
 </p>
@@ -727,10 +731,10 @@ It can be changed using the <code>bind</code> command in the console. This setti
 To connect a fake joystick (emulated with the arrow keys), you can use this <code>plug</code> command:
 </p>
 <div class="commandline">
-    plug joyporta keyjoystick
+    plug joyporta keyjoystick1
 </div>
 <p>
-will connect a fake joystick to joystick port A. Button A of the joystick is mapped to the space bar and Button B to M, when using the default configuration. For now there can be only one keyjoystick. If you insist, you can manually change these bindings in the in the <code>settings.xml</code> file that you get if you save your settings. There is no way yet to set it with the console.
+will connect a fake joystick to joystick port A. Button A of the joystick is mapped to the space bar and Button B to M, when using the default configuration. There are two keyjoysticks, 1 and 2. If you like, you can change the bindings in the console and save the settings as usual. Examples: <code>set keyjoystick2.triga LCTRL</code> or <code>set keyjoystick1.up KP8</code>.
 </p>
 
 <h3><a id="mouse">5.3 Mouse</a></h3>
@@ -819,15 +823,9 @@ just like they occur on a real MSX.
 
 </dl>
 
-<p>
-Higher accuracy creates a higher CPU load.
-However, it is not as bad as it may seem at first:
-openMSX synchronises only when it is actually needed,
-so the amount of synchronisation points depends more on the program
-you're running than on the accuracy setting.
-</p>
-
 <h3><a id="scalers">6.3 Scalers</a></h3>
+
+<p class="todo">TODO: update this for the new 3x scalers and the new zoom/scale-method settings</p>
 
 <p>
 Most MSX screen modes are only 256&times;212 pixels big. However, the SDL renderer uses a 640&times;480 screen mode to display the MSX screen. The conversion from the low resolution MSX image to the high resolution PC image is done by a <em>scaler</em>. After openMSX 0.5.2, there is also a way to force scaling to a 320&times;240 screen mode. openMSX contains several scalers:
@@ -851,7 +849,7 @@ For 512&times;212 MSX modes, two pixels will be interpolated to produce
 a single output pixel.
 This scaler is mainly useful if you have a slow computer;
 when using it full screen the low resolution is not a problem, especially
-because most MSX software uses a 256&times;212 mode.  
+because most MSX software uses a 256&times;212 mode. Because of the size and the fact that no extra effects (like scanlines) are possible, it's the fastest scaler available.
 </dd>
 
 <dt><a class="external" href="http://scale2x.sourceforge.net/">Scale2x</a></dt>
@@ -887,7 +885,7 @@ calculated a lot faster. It has probably the best quality per CPU usage ratio.
 </dl>
 
 <p>
-A small demonstration of the algorithms can be found on <a class="external" href="http://openmsx.sourceforge.net">the openMSX web site</a>.
+A small demonstration of some of the algorithms can be found on <a class="external" href="http://openmsx.sourceforge.net">the openMSX web site</a>.
 </p>
 
 <h3><a id="gamma">6.4 Gamma Correction</a></h3>
@@ -908,6 +906,8 @@ However, 0.8 is not the value I'm actually using: I prefer a brighter image than
 </p>
 
 <h3><a id="videoeffects">6.5 Special Effects</a></h3>
+
+<p class="todo">TODO: update this for the new 3x scalers and the new zoom/scale-method settings</p>
 
 <p>
 openMSX contains a couple of special effects that can be applied to the video output:

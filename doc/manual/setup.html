@@ -282,7 +282,7 @@ This way, you can emulate the MSX machines you are familiar with.
 <h4><a id="dumpromtools">3.2.1 Tools</a></h4>
 
 <p>
-The easiest way to dump system ROMs is to run special dumping tool on your
+The easiest way to dump system ROMs is to run a special dumping tool on your
 real MSX, which copies the contents of the system ROMs to disk.
 Sean Young has made such tools, you can find the
 <a class="external" href="http://www.msxnet.org/utils/saverom">tools and documentation</a>
@@ -633,17 +633,11 @@ Use 16-bit colour mode instead of 32-bit.
 openMSX uses your platform's default setting.
 </li>
 <li>
-Use line accuracy (default) instead of pixel accuracy.
-Pixel accuracy can be slow in worst-case situations, while it is only really
-needed for a couple of demos (Unknown Reality, Verti). Pixel accuracy is
-default, though, since it enables the most accurate emulation.
+Increase the number of frames that may be skipped (<code>set maxframeskip 10</code>, for example).
 </li>
 <li>
-Increase the number of frames that may be skipped ("set maxframeskip 10", for example).
-</li>
-<li>
-Use the "low" scaler with the SDL render (75% less pixels to fill). For most
-games (and any MSX1 software) it works perfectly, especially when using full screen.
+Use the "low" scaler with the SDL renderer (75% less pixels to fill). For most
+games (and any MSX1 software) it works perfectly, especially when using full screen. The drawback: no special effects at all, not even scanlines.
 </li>
 <li>
 Use a lower sound mixing frequency, for example 22050Hz instead of 44100Hz. Use
@@ -654,40 +648,6 @@ Use less sound channels, for example use MSX-MUSIC (maximum 9 channels)
 instead of MoonSound (maximum 18+24 channels).
 </li>
 </ul>
-
-<!--
-
-<h3><a id="linuxrtc">6.2 Timing using the Real Time Clock (Linux)</a></h3>
-
-<p>
-If you find the openMSX timing bad (i.e. too irregular),
-you may want to enable RealTimeClock (RTC) based timing.
-This feature is only available in the Linux version of openMSX.
-</p>
-
-<p>
-Most Linux systems need some configuration before the RTC is usable.
-You will have to have read permission to the device <code>/dev/rtc</code>
-on your system
-(which maybe a symlink to <code>/dev/misc/rtc</code> or something else).
-You should also have RTC support in your kernel or loaded as a kernel module.
-After arranging this, you will also need to type the following as root:
-</p>
-<div class="commandline">
-echo 1024 &gt; /proc/sys/dev/rtc/max-user-freq
-</div>
-<p>
-or add it to your system startup scripts.
-This line gives user processes, such as openMSX, permission to configure
-the RTC to generate interrupts at frequencies up to 1024Hz.
-</p>
-
-<p>
-openMSX will try to use RTC timing by default, but if that fails,
-it prints a warning and falls back to the less accurate SDL timing.
-</p>
-
--->
 
 <h2><a id="contact">7. Contact Info</a></h2>
 

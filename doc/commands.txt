@@ -607,6 +607,21 @@ fullscreen
     set fullscreen off  switch to normal mode
 
 
+fullspeedwhenloading
+--------------------
+
+  When enabled, openMSX will try to detect when it is loading from diskette or
+  cassette and in case it is, it will run at full speed (taking all CPU power
+  it can get). This can be convenient if you're not interested in the realistic
+  loading times on MSX. Default is off, because it is not according to the
+  behaviour of a real MSX.
+
+  usage:
+    set fullspeedwhenloading      shows the current setting
+    set fullspeedwhenloading on   enable the full speed when loading feature
+    set fullspeedwhenloading off  disable the feature
+
+
 gamma
 -----
 

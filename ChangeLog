@@ -3,12 +3,17 @@ $Id$
 2005-11-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized scale3x (c++)
 
+2005-11-18 Manuel Bilderbeek <manuel@msxnet.org>
+	* Updated the manual. Still TODO are the new zoom/scaler-method
+	  settings, which are not even programmed yet.
+
 2005-11-16 Maarten ter Huurne <maarten@treewalker.org>
 	* Added a C++ version of Scale3x.
 
 2005-11-16 Joost Damad <joost@lumatec.be>
 	* yeah that was one year ago since I did an openmsx commit :)
-	* use word for casting a pointer to an integral; fixes build on 64bit systems
+	* use word for casting a pointer to an integral; fixes build on 64bit
+	  systems
 
 2005-11-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Remove all pending after commands on exit
