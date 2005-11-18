@@ -33,18 +33,29 @@ template <class Pixel>
 void Scale3xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 	const Pixel* src0, const Pixel* src1, const Pixel* src2)
 {
+	/* A B C
+	 * D E F
+	 * G H I
+	 *
+	 * E0 =  D == B && B != F && D != H ? D : E;
+	 * E1 = (D == B && B != F && D != H && E != C) ||
+	 *      (B == F && B != D && F != H && E != A) ? B : E;
+	 * E2 = B == F && B != D && F != H ? F : E;
+	 */
+
 	// First pixel.
+	Pixel top   = src0[0];
 	Pixel mid   = src1[0];
 	Pixel right = src1[1];
-	Pixel top = src0[0];
-	Pixel bot = src2[0];
+	Pixel bot   = src2[0];
+
 	dst[0] = mid;
-	dst[1] =
-		   (top == mid && top != right && bot != mid && mid != src0[1])
-		|| (top == right && top != mid && bot != right && mid != top)
-		? top : mid;
-	dst[2] =
-		top == right && top != mid && bot != right ? right : mid;
+	dst[1] = (mid != right) && (top != bot) &&
+	         (((top == mid ) && (mid != src0[1])) ||
+	          ((top == right) && (mid != top)))
+	       ? top : mid;
+	dst[2] = (mid != right) && (top != bot) && (top == right)
+	       ? top : mid;
 
 	// Central pixels.
 	for (unsigned x = 1; x < 319; ++x) {
@@ -53,36 +64,29 @@ void Scale3xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 		right = src1[x + 1];
 		top = src0[x];
 		bot = src2[x];
-		dst[3 * x + 0] =
-			top == left && top != right && bot != left ? left : mid;
-		dst[3 * x + 1] =
-			   (top == left && top != right && bot != left && mid != src0[x+1])
-			|| (top == right && top != left && bot != right && mid != src0[x-1])
-			? top : mid;
-		dst[3 * x + 2] =
-			top == right && top != left && bot != right ? right : mid;
-/*
-E0 = D == B && B != F && D != H ? D : E;
-E1 = (D == B && B != F && D != H && E != C) || (B == F && B != D && F != H && E != A) ? B : E;
-E2 = B == F && B != D && F != H ? F : E;
-
-A B C
-D E F
-G H I
-*/
+		dst[3 * x + 0] = (left != right) && (top != bot) &&
+		                 (top == left)
+		               ? top : mid;
+		dst[3 * x + 1] = (left != right) && (top != bot) &&
+		                 (((top == left ) && (mid != src0[x + 1])) ||
+		                  ((top == right) && (mid != src0[x - 1])))
+		               ? top : mid;
+		dst[3 * x + 2] = (left != right) && (top != bot) &&
+		                 (top == right)
+		               ? top : mid;
 	}
 
 	// Last pixel.
 	Pixel left = mid;
-	mid   = right;
+	mid = right;
 	top = src0[319];
 	bot = src2[319];
-	dst[957] =
-		top == left && top != mid && bot != left ? left : mid;
-	dst[958] =
-		   (top == left && top != right && bot != left && mid != top)
-		|| (top == right && top != left && bot != right && mid != src0[318])
-		? top : mid;
+	dst[957] = (left != mid) && (top != bot) && (top ==left)
+	         ? top : mid;
+	dst[958] = (left != mid) && (top != bot) &&
+	           (((top == left) && (mid != top)) ||
+	            ((top == mid ) && (mid != src0[318])))
+	         ? top : mid;
 	dst[959] = mid;
 }
 
@@ -90,6 +94,18 @@ template <class Pixel>
 void Scale3xScaler<Pixel>::scaleLine256Mid(Pixel* dst,
 	const Pixel* src0, const Pixel* src1, const Pixel* src2)
 {
+	/*
+	 * A B C
+	 * D E F
+	 * G H I
+	 *
+	 * E3 = (D == B && B != F && D != H && E != G) ||
+	 *      (D == H && D != B && H != F && E != A) ? D : E;
+	 * E4 = E
+	 * E5 = (B == F && B != D && F != H && E != I) ||
+	 *      (H == F && D != H && B != F && E != C) ? F : E;
+	 */
+
 	// First pixel.
 	Pixel mid   = src1[0];
 	Pixel right = src1[1];
@@ -97,10 +113,10 @@ void Scale3xScaler<Pixel>::scaleLine256Mid(Pixel* dst,
 	Pixel bot = src2[0];
 	dst[0] = mid;
 	dst[1] = mid;
-	dst[2] =
-		   (top == right && top != mid && bot != right && mid != src2[1])
-		|| (bot == right && bot != mid && top != right && mid != src0[1])
-		? right : mid;
+	dst[2] = (mid != right) && (top != bot) &&
+	         (((right == top) && (mid != src2[1])) ||
+	          ((right == bot) && (mid != src0[1])))
+	       ? right : mid;
 
 	// Central pixels.
 	for (unsigned x = 1; x < 319; ++x) {
@@ -109,25 +125,15 @@ void Scale3xScaler<Pixel>::scaleLine256Mid(Pixel* dst,
 		right = src1[x + 1];
 		top = src0[x];
 		bot = src2[x];
-		//dst[3 * x + 0] = (left  == top && right != top && bot != top) ? top : mid;
-		dst[3 * x + 0] =
-			   (top == left && top != right && bot != left && mid != src2[x-1])
-			|| (bot == left && bot != right && top != left && mid != src0[x-1])
-			? left : mid;
+		dst[3 * x + 0] = (left != right) && (top != bot) &&
+		                 (((left == top) && (mid != src2[x - 1])) ||
+		                  ((left == bot) && (mid != src0[x - 1])))
+		               ? left : mid;
 		dst[3 * x + 1] = mid;
-		//dst[3 * x + 2] = (right == top && left  != top && bot != top) ? top : mid;
-		dst[3 * x + 2] =
-			   (top == right && top != left && bot != right && mid != src2[x+1])
-			|| (bot == right && bot != left && top != right && mid != src0[x+1])
-			? right : mid;
-/*
-A B C
-D E F
-G H I
-E3 = (D == B && B != F && D != H && E != G) || (D == H && D != B && H != F && E != A) ? D : E;
-E4 = E
-E5 = (B == F && B != D && F != H && E != I) || (H == F && D != H && B != F && E != C) ? F : E;
-*/
+		dst[3 * x + 2] = (left != right) && (top != bot) &&
+		                 (((right == top) && (mid != src2[x + 1])) ||
+		                  ((right == bot) && (mid != src0[x + 1])))
+		               ? right : mid;
 	}
 
 	// Last pixel.
@@ -135,13 +141,12 @@ E5 = (B == F && B != D && F != H && E != I) || (H == F && D != H && B != F && E 
 	mid   = right;
 	top = src0[319];
 	bot = src2[319];
-	dst[957] = //(mid == src0[319] && src2[319] != src0[319]) ? src0[319] : right;
-		   (top == left && top != mid && bot != left && mid != src2[318])
-		|| (bot == left && bot != mid && top != left && mid != src0[318])
-		? left : mid;
+	dst[957] = (left != mid) && (top != bot) &&
+	           (((left == top) && (mid != src2[318])) ||
+	            ((left == bot) && (mid != src0[318])))
+	         ? left : mid;
 	dst[958] = mid;
 	dst[959] = mid;
-
 }
 
 /*

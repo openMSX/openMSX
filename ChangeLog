@@ -1,5 +1,8 @@
 $Id$
 
+2005-11-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized scale3x (c++)
+
 2005-11-16 Maarten ter Huurne <maarten@treewalker.org>
 	* Added a C++ version of Scale3x.
 
