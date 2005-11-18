@@ -3,20 +3,18 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
+<!-- The info tag is mandatory; for fantasy configs, just fill in something you can think up, or make an empty tag. -->
   <info>
     <menufacturer>openMSX team</menufacturer>
     <code>EC-050</code>
     <release_year>2004</release_year>
-    <description>Example configurations</description>
+    <description>Example configuration</description>
     <type>MSX2</type>
   </info>
 
-  <MapperType>Philips</MapperType>
+<!-- MapperType: see any machine config with a mapper, e.g. Philips MSX2 -->
 
-  <RenShaTurbo>
-    <min_ints>47</min_ints>
-    <max_ints>221</max_ints>
-  </RenShaTurbo>
+<!-- RenShaTurbo: see any machine with RenSHa Turbo, e.g. Panasonic FS-A1WX -->
 
   <devices>
 
@@ -26,10 +24,10 @@
     </primary>
     <primary slot="1" external="true"/>
     <primary slot="2">
-      <secondary slot="0" external-"true"/>
-      <secondary slot="1" external-"true"/>
-      <secondary slot="2" external-"true"/>
-      <secondary slot="3" external-"true"/>
+      <secondary slot="0" external="true"/>
+      <secondary slot="1" external="true"/>
+      <secondary slot="2" external="true"/>
+      <secondary slot="3" external="true"/>
     </primary>
     <primary slot="3">
       <secondary slot="2">
@@ -49,108 +47,25 @@
     </secondary>
   </primary>
 
-<!-- BIOS + BASIC ROM in unexpanded slot 0.
-     ROM is patched for alternative tape support -->
-  <primary slot="0">
-    <Rom id="biosrom">
-      <mem base="0x0000" size="0x8000"/>
-      <rom>
-        <sha1>123456789b91a7dea3ff75f3fde76b8af22c4a3a</sha1>
-        <filename>MSX.ROM</filename>
-        <patchcode>MSXTapePatch</patchcode>
-        <patch addr="0x00E1" val="0xED"/>
-        <patch addr="0x00E2" val="0xFE"/>
-        <patch addr="0x00E3" val="0xC9"/>
-        <patch addr="0x00E4" val="0xED"/>
-        <patch addr="0x00E5" val="0xFE"/>
-        <patch addr="0x00E6" val="0xC9"/>
-        <patch addr="0x00E7" val="0xED"/>
-        <patch addr="0x00E8" val="0xFE"/>
-        <patch addr="0x00E9" val="0xC9"/>
-        <patch addr="0x00EA" val="0xED"/>
-        <patch addr="0x00EB" val="0xFE"/>
-        <patch addr="0x00EC" val="0xC9"/>
-        <patch addr="0x00ED" val="0xED"/>
-        <patch addr="0x00EE" val="0xFE"/>
-        <patch addr="0x00EF" val="0xC9"/>
-        <patch addr="0x00F0" val="0xED"/>
-        <patch addr="0x00F1" val="0xFE"/>
-        <patch addr="0x00F2" val="0xC9"/>
-        <patch addr="0x00F3" val="0xED"/>
-        <patch addr="0x00F4" val="0xFE"/>
-        <patch addr="0x00F5" val="0xC9"/>
-      </rom>
-    </ROM>
-  </primary>
+<!-- BIOS + BASIC ROM in unexpanded slot 0. See any MSX1 config -->
 
-<!-- FDC controller in slot 3-3 with one physical disk drive -->
-  <primary slot="3">
-    <secondary slot="3">
-      <WD2793 id="Memory Mapped FDC">
-        <mem base="0x4000" size="0x8000"/>
-        <rom>
-          <sha1>123456789b91a7dea3ff75f3fde76b8a98765432</sha1>
-          <filename>nms8250-disk.rom</filename>
-        </rom>
-        <brokenFDCread>false</brokenFDCread> 
-        <drives>1</drive>
-      </WD2793>
-    </secondary>
-  </primary>
+<!-- FDC controller in slot 3-3 with one physical disk drive: see e.g. the
+Philips NMS 8250 config -->
 
-  <PPI id="ppi">
-    <io base="0xA8" num="4"/>
-    <sound>
-      <volume>16000</volume>
-      <mode>mono</mode>
-    </sound>
-    <key_ghosting>true</key_ghosting>
-  </PPI>
+<!-- PPI: see any machine config -->
 
-  <VDP id="VDP">
-    <io base="0x98" num="4" type="O"/>
-    <io base="0x98" num="2" type="I"/>
-    <version>TMS99X8A</version>
-  </VDP>
+<!-- VDP: see any machine config -->
 
-  <E6Timer id="Turbo-R timer">
-    <io base="0xE6" num="2"/>
-  </E6Timer>
+<!-- E6Timer: see any turboR config -->
 
-  <PSG id="psg">
-    <io base="0xA0" num="2" type="O"/>
-    <io base="0xA2" num="1" type="I"/>
-    <sound>
-      <volume>21000</volume>
-    </sound>
-    <keyboardlayout>JIS</keyboardlayout>
-  </PSG>
-  
-  <Kanji id="Kanji ROM">
-    <io base="0xD8" num="4"/>
-    <rom>
-      <sha1>5aff2d9b6efc723bc395b0f96f0adfa83cc54a49</sha1>
-      <filename>KANJI.ROM</filename>
-    </rom>
-  </Kanji>
+<!-- PSG: see any machine config -->
 
-  <RTC id="Real time clock">
-    <io base="0xB4" num="2" type="O"/>
-    <io base="0xB5" num="1" type="I"/>
-    <sramname>RTC.SAVE</sramname>
-  </RTC>
+<!-- Kanji ROM: see many Japanese MSX2 configs -->
+
+<!-- Real time clock: see any MSX2 config -->
                       
 <!-- 2MB memory mapper that can be inserted in any slot (expanded or not),
-     usefull for extensions -->
-  <primary slot="any">
-    <secondary slot="any">
-      <MemoryMapper id="mymapper1">
-        <mem base="0x0000" size="0x10000"/>
-        <slow_drain_on_reset>false</slow_drain_on_reset>
-        <size>2048</size>
-      </MemoryMapper>
-    </secondary>
-  </primary>
+     see the ram2mb extension-->
 
 <!-- SCCPlus cartridge, starts with a preloaded NEMESIS2 -->
   <primary slot="any">
@@ -168,7 +83,7 @@
     </secondary>
   </primary>
 
-<!-- a rom with explicitly specified mappertype.
+<!-- a rom with explicitly specified mappertype can also be specified in XML.
      Note that Synthesizer also works from the command line, thanks to romdb.xml -->
   <primary slot="any">
     <secondary slot="any">
@@ -186,96 +101,22 @@
     </secondary>
   </primary>
 
-<!-- For an FM-PAC config, check out the share/extensions/fmpac dir -->
-  <primary slot="any">
-    <secondary slot="any">
-      <FMPAC id="FM PAC">
-        <io base="0x7C" num="2" type="O"/>
-        <mem base="0x4000" size="0x4000"/>
-        <rom>
-          <sha1>9d789166e3caf28e4742fe933d962e99618c633d</sha1>
-          <filename>FMPAC.ROM</filename>
-        </rom>
-        <sound>
-          <volume>13000</volume>
-          <mode>mono</mode>
-        </sound>
-        <sramname>FMPAC.PAC</sramname>
-      </FMPAC>
-    </secondary>
-  </primary>
-
-  <primary slot="any">
-    <secondary slot="any">
-      <MSX-MUSIC id="MSX Music">
-        <io base="0x7C" num="2" type="O"/>
-        <mem base="0x4000" size="0x4000"/>
-        <rom>
-          <sha1>9d789166e3caf28e4742fe933d962e99618c633d</sha1>
-          <filename>FMPAC.ROM</filename>
-        </rom>
-        <sound>
-          <volume>13000</volume>
-          <mode>mono</mode>
-        </sound>
-      </MSX-MUSIC>
-    </secondary>
-  </primary>
-
+<!-- For an FM-PAC config, check out the fmpac extension -->
+ 
 <!-- For an MSX Audio config, check out the share/extensions/audio dir -->
-  <MSX-AUDIO id="Generic MSX-Audio">
-    <io base="0xC0" num="2"/>
-    <sound>
-      <volume>12000</volume>
-      <mode>mono</mode>
-    </sound>
-    <sampleram>256</sampleram>
-  </MSX-AUDIO>
-  <MusicModuleMIDI id="Generic MSX-Audio-MIDI">
-    <io base="0x00" num="2" type="O"/>
-    <io base="0x04" num="2" type="I"/>
-  </MusicModuleMIDI>
                                           
-<!-- MSX-MIDI device, as can be found in the Turbo-R. Dummy for now. -->
-  <MSX-MIDI id="MSX-Midi">
-    <io base="0xE8" num="8"/>
-  </MSX-MIDI>
+<!-- MSX-MIDI device, can be found in the Turbo-R. -->
 
-  <PrinterPort id="Printer Port">
-    <io base="0x90" num="2"/>
-  </PrinterPort>
+<!-- For a cassetteport config, check out any MSX1 machine -->
 
-  <CassettePort/>
+<!-- For a printerport config, check out any machine -->
 
-<!-- For an SCC config, check out the share/extensions/scc dir -->
-  <primary slot="any">
-    <secondary slot="any">
-      <ROM id="Empty SCC Cartridge">
-        <mem base="0x4000" size="0x8000"/>
-        <sound>
-          <volume>11500</volume>
-          <mode>mono</mode>
-        </sound>
-        <rom>
-          <mappertype>SCC</mappertype>
-        </rom>
-      </ROM>
-    </secondary>
-  </primary>
+<!-- For an SCC config, check out the scc extension -->
   
-<!-- See the configuration of the National FS-4600 in share/machines
+<!-- See the configuration of the National FS-4600 machine for Kanji12:
      "Switched IO devices (IO region 0x40-0x4F)" don't need an <io> tag -->
-  <Kanji12 id="Kanji ROM 12x12">
-    <rom>
-      <filename>KANJI12.ROM</filename>
-    </rom>
-  </Kanji12>
 
-<!-- A debug device to be controlled from the msx -->
-  <DebugDevice id="Debug Device">
-    <io base="0x2F" num="2" type="O"/>
-    <filename>stdout</filename>
-  </DebugDevice>
+<!-- A debug device to be controlled from the MSX: see debugdevice extension -->
 
   </devices>
 
