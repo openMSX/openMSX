@@ -715,6 +715,23 @@ inputdelay
         accurate timing on the input events.
 
 
+keyjoystick<n>.<button>
+-----------------------
+
+  <n>        1, 2
+  <button>   up, down, left, right, triga, trigb
+
+  Configure the keys of the keyjoysticks. It's likely this will change in the
+  future.
+
+  usage:
+    set keyjoystick1.up W
+    set keyjoystick1.down S
+    set keyjoystick1.left A
+    set keyjoystick1.right D
+    set keyjoystick1.triga SPACE
+
+
 limitsprites
 ------------
 
