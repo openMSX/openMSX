@@ -452,17 +452,10 @@ instead of the openMSX installation directory.
 </p>
 
 <p>
-There is a special config file in the source tree that isn't usable by itself,
-but contains XML fragments of some possible devices currently implemented in
-openMSX. This file is called <code>exampleconfigs.xml</code> and is currently located in
-the directory <code>doc/</code>. It is very convenient to copy and paste
-parts of it to your own <code>mymsx/hardwareconfig.xml</code>. Of course, you can also use
+The easiest thing to do is to copy and modify
 fragments from other existing configurations that can be found in
-<code>share/machines</code> or <code>share/extensions</code>.
-</p>
-
-<p>
-To add an FMPAC to the 8250, just copy this part from the <code>exampleconfigs.xml</code> to
+<code>share/machines</code> or <code>share/extensions</code>. For example,
+to add an FMPAC to the 8250, just copy it from the <code>share/extensions/fmpac/hardwareconfig.xml</code> to
 some place in your <code>mymsx/hardwareconfig.xml</code> file (between the <code>&lt;devices&gt;</code> and
 <code>&lt;/devices&gt;</code> tags!):
 </p>
@@ -494,10 +487,10 @@ pools.
 </p>
 
 <p>
-You can of course do some things differently, if you like.
-The number in <code>slot</code> attribute of the <code>&lt;primary&gt;</code> tag indicates the
+Because we changed the FMPAC from extension to built-in device, we have to specify in which slot the FMPAC is residing inside the modified 8250. So, we should replace the <code>slot="any"</code> stuff, with a specified slot as you can see in the above fragment.
+The number in the <code>slot</code> attribute of the <code>&lt;primary&gt;</code> tag indicates the
 primary slot of the emulated MSX you're editing. In this case the second
-cartridge slot of the NMS-8250 is used. <code>&lt;secondary&gt;</code> means sub slot. If we leave it out, the slot is not expanded and the primary slot is used. If we use it like in the above example, it means that slot 1 (of the <code>&lt;primary&gt;</code> tag) will be an expanded slot. You can also use <code>slot="any"</code>, this is useful for extensions which may be in any (sub)slot. If a <code>&lt;primary&gt;</code>
+cartridge slot of the NMS-8250 is used. <code>&lt;secondary&gt;</code> means sub slot. If we leave it out, the slot is not expanded and the primary slot is used. If we use it like in the above example, it means that slot 1 (of the <code>&lt;primary&gt;</code> tag) will be an expanded slot. If a <code>&lt;primary&gt;</code>
 tag has the attribute <code>external="true"</code>, this means that the slot is visible on the outside of the machine and can thus be used for external cartridges like extensions and ROM software.
 As explained above, the parameter filename can be adjusted to the name of your (64kB!) FMPAC ROM
 file (note: if the file is not 64kB (65536 bytes) in size, it won't work).
@@ -519,7 +512,7 @@ In a similar fashion, you can also add an MSX-Audio device
 <code>MusicModuleMIDI</code> device to
 detect the Music Module; this device is at the moment not fully implemented
 though), an empty SCC cartridge (<code>&lt;SCC&gt;</code>), etc. Just
-browse the <code>exampleconfigs.xml</code> file, the Boosted_MSX2_EN
+browse the existing existing extensions, the Boosted_MSX2_EN
 configuration file or the extensions and see what you can find.
 </p>
 
@@ -540,35 +533,7 @@ Another thing you may want to change: the amount of RAM of the MSX: change the
 </p>
 
 <p>
-In principe all of the above mentioned things are also valid for extensions. There are 
-a few exceptions. Because an extension can be in any slot, this has to be
-specified in the hardware configuration file of it. Here is the example of the
-FMPAC again, but then as an extension:
-</p>
-
-<pre>
-    &lt;primary slot="any"&gt;
-      &lt;secondary slot="any"&gt;
-        &lt;FMPAC id="PanaSoft SW-M004 FMPAC"&gt;
-          &lt;io base="0x7C" num="2" type="O"/&gt;
-          &lt;mem base="0x4000" size="0x4000"/&gt;
-          &lt;sound&gt;
-            &lt;volume&gt;13000&lt;/volume&gt;
-            &lt;mode&gt;left&lt;/mode&gt;
-          &lt;/sound&gt;
-          &lt;rom&gt;
-            &lt;sha1&gt;9d789166e3caf28e4742fe933d962e99618c633d&lt;/sha1&gt;
-            &lt;filename&gt;roms/fmpac.rom&lt;/filename&gt;
-          &lt;/rom&gt;
-          &lt;sramname&gt;fmpac.pac&lt;/sramname&gt;
-        &lt;/FMPAC&gt;
-      &lt;/secondary&gt;
-    &lt;/primary&gt;
-</pre>
-
-<p>
-As you can see, it's exactly the same, except for the slot attributes, which are
-now set to "any".
+In principe all of the above mentioned things are also valid for extensions. The main difference is the fact that you should use <code>"any"</code> for the slot specification as was already mentioned above. Just compare the fragment above with the original FMAC extension we based it on.
 </p>
 
 <p>

@@ -3,6 +3,13 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
+<!-- This file contains some example XML fragments for use in
+hardwareconfig.xml files. Because this file cannot be used directly with
+openMSX, it is not testable and therefore quite a pain to maintain. Therefore,
+most parts just refer to existing real configurations which you can find in the
+share/machines and share/extensions directories. The few remaining fragments
+have some extra comments or cannot be found in existing configurations. -->
+
 <!-- The info tag is mandatory; for fantasy configs, just fill in something you can think up, or make an empty tag. -->
   <info>
     <menufacturer>openMSX team</menufacturer>
