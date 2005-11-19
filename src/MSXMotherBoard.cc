@@ -18,6 +18,7 @@
 #include "CommandConsole.hh"
 #include "RenderSettings.hh"
 #include "Display.hh"
+#include "IconStatus.hh"
 #include "FileManipulator.hh"
 #include "FilePool.hh"
 #include "EmuTime.hh"
@@ -269,6 +270,15 @@ Display& MSXMotherBoard::getDisplay()
 		display.reset(new Display(*this));
 	}
 	return *display;
+}
+
+IconStatus& MSXMotherBoard::getIconStatus()
+{
+	if (!iconStatus.get()) {
+		iconStatus.reset(new IconStatus(
+			getEventDistributor(), getDisplay()));
+	}
+	return *iconStatus;
 }
 
 FileManipulator& MSXMotherBoard::getFileManipulator()

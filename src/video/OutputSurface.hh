@@ -15,6 +15,7 @@ class MSXMotherBoard;
 class CommandController;
 class EventDistributor;
 class Display;
+class IconStatus;
 
 class OutputSurface : private noncopyable
 {
@@ -42,7 +43,7 @@ public:
 		MSXMotherBoard& motherboard) = 0;
 	virtual std::auto_ptr<Layer> createIconLayer(
 		CommandController& commandController,
-		EventDistributor& eventDistributor, Display& display) = 0;
+		Display& display, IconStatus& iconStatus) = 0;
 
 protected:
 	OutputSurface();

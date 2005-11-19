@@ -1,14 +1,14 @@
 // $Id$
 
 #include "IconLayer.hh"
-#include "EventDistributor.hh"
 #include "FileContext.hh"
 #include "Timer.hh"
 #include "SDLImage.hh"
 #include "IntegerSetting.hh"
 #include "CliComm.hh"
-#include "components.hh"
 #include "Display.hh"
+#include "IconStatus.hh"
+#include "components.hh"
 #ifdef COMPONENT_GL
 #include "GLImage.hh"
 #endif
@@ -18,39 +18,23 @@ using std::string;
 
 namespace openmsx {
 
-static bool init = false;
-static bool ledStatus[LedEvent::NUM_LEDS];
-static unsigned long long ledTime[LedEvent::NUM_LEDS];
-
 template <class IMAGE>
 IconLayer<IMAGE>::IconLayer(CommandController& commandController,
-                            EventDistributor& eventDistributor_,
-                            Display& display_, SDL_Surface* screen)
+                            Display& display_, IconStatus& iconStatus_,
+                            SDL_Surface* screen)
 	// Just assume partial coverage and let paint() sort it out.
 	: Layer(COVER_PARTIAL, Z_ICONS)
-	, eventDistributor(eventDistributor_)
 	, display(display_)
+	, iconStatus(iconStatus_)
 	, outputScreen(screen)
 	, scaleFactor(outputScreen->w / 640.0)
 {
-	if (!init) {
-		init = true;
-		unsigned long long now = Timer::getTime();
-		for (int i = 0; i < LedEvent::NUM_LEDS; ++i) {
-			ledStatus[i] = false;
-			ledTime[i] = now;
-		}
-	}
-
 	createSettings(commandController, LedEvent::POWER, "power");
 	createSettings(commandController, LedEvent::CAPS,  "caps");
 	createSettings(commandController, LedEvent::KANA,  "kana");
 	createSettings(commandController, LedEvent::PAUSE, "pause");
 	createSettings(commandController, LedEvent::TURBO, "turbo");
 	createSettings(commandController, LedEvent::FDD,   "fdd");
-
-	eventDistributor.registerEventListener(
-		OPENMSX_LED_EVENT, *this, EventDistributor::DETACHED);
 }
 
 template <class IMAGE>
@@ -92,8 +76,6 @@ void IconLayer<IMAGE>::createSettings(CommandController& commandController,
 template <class IMAGE>
 IconLayer<IMAGE>::~IconLayer()
 {
-	eventDistributor.unregisterEventListener(
-		OPENMSX_LED_EVENT, *this, EventDistributor::DETACHED);
 }
 
 template <class IMAGE>
@@ -101,13 +83,13 @@ void IconLayer<IMAGE>::paint()
 {
 	for (int i = 0; i < LedEvent::NUM_LEDS; ++i) {
 		LedInfo& led = ledInfo[i];
-		int status = ledStatus[i] ? 1 : 0;
+		int status = iconStatus.getStatus(i) ? 1 : 0;
 		unsigned long long fadeTime =
 			1000 * led.fadeTime[status]->getValue();
 		unsigned long long fadeDuration =
 			1000 * led.fadeDuration[status]->getValue();
 		unsigned long long now = Timer::getTime();
-		unsigned long long diff = now - ledTime[i];
+		unsigned long long diff = now - iconStatus.getTime(i);
 		byte alpha;
 		if (fadeTime == 0) {
 			// no fading, draw completely opaque
@@ -140,20 +122,6 @@ const string& IconLayer<IMAGE>::getName()
 {
 	static const string NAME = "icon layer";
 	return NAME;
-}
-
-template <class IMAGE>
-void IconLayer<IMAGE>::signalEvent(const Event& event)
-{
-	assert(event.getType() == OPENMSX_LED_EVENT);
-	const LedEvent& ledEvent = static_cast<const LedEvent&>(event);
-	LedEvent::Led led = ledEvent.getLed();
-	bool status = ledEvent.getStatus();
-	if (status != ledStatus[led]) {
-		ledStatus[led] = status;
-		ledTime[led] = Timer::getTime();
-		display.repaintDelayed(40000); // 25 fps
-	}
 }
 
 template <class IMAGE>

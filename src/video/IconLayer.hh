@@ -4,7 +4,6 @@
 #define ICONLAYER_HH
 
 #include "Layer.hh"
-#include "EventListener.hh"
 #include "LedEvent.hh"
 #include "FilenameSetting.hh"
 #include <memory>
@@ -14,18 +13,17 @@ class SDL_Surface;
 namespace openmsx {
 
 class CommandController;
-class EventDistributor;
 class Display;
+class IconStatus;
 class IntegerSetting;
 
 template <class IMAGE>
-class IconLayer : public Layer, private EventListener,
-                  private SettingChecker<FilenameSetting::Policy>
+class IconLayer : public Layer, private SettingChecker<FilenameSetting::Policy>
 {
 public:
 	IconLayer(CommandController& commandController,
-	          EventDistributor& eventDistributor,
-	          Display& display, SDL_Surface* screen);
+	          Display& display, IconStatus& iconStatus,
+	          SDL_Surface* screen);
 	virtual ~IconLayer();
 
 	// Layer interface:
@@ -36,15 +34,12 @@ private:
 	void createSettings(CommandController& commandController,
 	                    LedEvent::Led led, const std::string& name);
 
-	// EventListener interface:
-	virtual void signalEvent(const Event& event);
-
 	// SettingChecker
 	virtual void check(SettingImpl<FilenameSetting::Policy>& setting,
 	                   std::string& value);
 
-	EventDistributor& eventDistributor;
 	Display& display;
+	IconStatus& iconStatus;
 	SDL_Surface* outputScreen;
 	double scaleFactor;
 

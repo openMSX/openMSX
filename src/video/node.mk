@@ -24,7 +24,7 @@ SRC_HDR:= \
 	VideoSystem Display VideoLayer \
 	Layer \
 	DummyVideoSystem \
-	IconLayer \
+	IconLayer IconStatus \
 	SDLImage \
 	MemoryOps \
 	RawFrame PostProcessor \

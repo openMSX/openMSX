@@ -172,12 +172,10 @@ std::auto_ptr<Layer> SDLGLOutputSurface::createConsoleLayer(
 
 std::auto_ptr<Layer> SDLGLOutputSurface::createIconLayer(
 		CommandController& commandController,
-		EventDistributor& eventDistributor,
-		Display& display)
+		Display& display, IconStatus& iconStatus)
 {
 	return std::auto_ptr<Layer>(new GLIconLayer(
-			commandController, eventDistributor,
-			display, surface));
+			commandController, display, iconStatus, surface));
 }
 
 } // namespace openmsx

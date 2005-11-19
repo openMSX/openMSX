@@ -75,12 +75,10 @@ std::auto_ptr<Layer> SDLOutputSurface::createConsoleLayer(
 
 std::auto_ptr<Layer> SDLOutputSurface::createIconLayer(
 		CommandController& commandController,
-		EventDistributor& eventDistributor,
-		Display& display)
+		Display& display, IconStatus& iconStatus)
 {
 	return std::auto_ptr<Layer>(new SDLIconLayer(
-			commandController, eventDistributor,
-			display, surface));
+			commandController, display, iconStatus, surface));
 }
 
 } // namespace openmsx

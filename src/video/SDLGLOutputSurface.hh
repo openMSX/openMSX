@@ -28,7 +28,7 @@ public:
 		MSXMotherBoard& motherboard);
 	virtual std::auto_ptr<Layer> createIconLayer(
 		CommandController& commandController,
-		EventDistributor& eventDistributor, Display& display);
+		Display& display, IconStatus& iconStatus);
 
 private:
 	FrameBuffer frameBuffer;

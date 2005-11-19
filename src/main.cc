@@ -73,7 +73,8 @@ static int main(int argc, char **argv)
 			AfterCommand afterCommand(
 				motherBoard.getScheduler(),
 				motherBoard.getEventDistributor(),
-				motherBoard.getCommandController());                  
+				motherBoard.getCommandController());
+			motherBoard.getIconStatus();
 			motherBoard.getDisplay().createVideoSystem();
 			motherBoard.readConfig();
 			Reactor reactor(motherBoard);

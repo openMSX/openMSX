@@ -34,6 +34,7 @@ class RenShaTurbo;
 class CommandConsole;
 class RenderSettings;
 class Display;
+class IconStatus;
 class FileManipulator;
 class FilePool;
 class BooleanSetting;
@@ -104,6 +105,7 @@ public:
 	CommandConsole& getCommandConsole();
 	RenderSettings& getRenderSettings();
 	Display& getDisplay();
+	IconStatus& getIconStatus();
 	FileManipulator& getFileManipulator();
 	FilePool& getFilePool();
 
@@ -152,6 +154,7 @@ private:
 	std::auto_ptr<CommandConsole> commandConsole;
 	std::auto_ptr<RenderSettings> renderSettings;
 	std::auto_ptr<Display> display;
+	std::auto_ptr<IconStatus> iconStatus;
 	std::auto_ptr<FileManipulator> fileManipulator;
 	std::auto_ptr<FilePool> filePool;
 

@@ -1,5 +1,11 @@
 $Id$
 
+2005-11-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Keep icon status in new class (IconStatus) iso in static data of
+	  IconLayer:
+	   - fixes power led status when openmsx was started with 'none'
+	     renderer (catapult)
+
 2005-11-19 Maarten ter Huurne <maarten@treewalker.org>
 	* Added the variable zoom factor version of 2xSaI.
 	  It is being used to provide 3xSaI at the moment.

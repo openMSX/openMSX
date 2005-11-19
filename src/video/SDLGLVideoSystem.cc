@@ -30,8 +30,8 @@ SDLGLVideoSystem::SDLGLVideoSystem(MSXMotherBoard& motherboard_)
 	console   = screen->createConsoleLayer(motherboard);
 	snowLayer = screen->createSnowLayer();
 	iconLayer = screen->createIconLayer(motherboard.getCommandController(),
-	                                    motherboard.getEventDistributor(),
-	                                    display);
+	                                    display,
+	                                    motherboard.getIconStatus());
 	display.addLayer(*console);
 	display.addLayer(*snowLayer);
 	display.addLayer(*iconLayer);
