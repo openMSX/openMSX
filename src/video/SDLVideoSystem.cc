@@ -97,6 +97,7 @@ void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
 		height = 240;
 	} else if ((renderSettings.getScaler().getValue() == SCALER_HQ3X) ||
 	           (renderSettings.getScaler().getValue() == SCALER_HQ3XLITE) ||
+	           (renderSettings.getScaler().getValue() == SCALER_SAI3X) ||
 	           (renderSettings.getScaler().getValue() == SCALER_SCALE3X) ||
 	           (renderSettings.getScaler().getValue() == SCALER_SIMPLE3X) ||
 	           (renderSettings.getScaler().getValue() == SCALER_RGBTRIPLET3X )) {

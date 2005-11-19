@@ -49,6 +49,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	EnumSetting<ScalerID>::Map scalerMap;
 	scalerMap["simple"] = SCALER_SIMPLE;
 	scalerMap["2xSaI"] = SCALER_SAI2X;
+	scalerMap["3xSaI"] = SCALER_SAI3X;
 	scalerMap["Scale2x"] = SCALER_SCALE2X;
 	scalerMap["Scale3x"] = SCALER_SCALE3X;
 	scalerMap["hq2x"] = SCALER_HQ2X;

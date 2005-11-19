@@ -1,5 +1,10 @@
 $Id$
 
+2005-11-19 Maarten ter Huurne <maarten@treewalker.org>
+	* Added the variable zoom factor version of 2xSaI.
+	  It is being used to provide 3xSaI at the moment.
+	  The current version is very slow though.
+
 2005-11-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized scale3x (c++)
 

@@ -20,6 +20,8 @@ enum ScalerID {
 	SCALER_SIMPLE,
 	/** SaI2xScaler. */
 	SCALER_SAI2X,
+	/** SaI3xScaler. */
+	SCALER_SAI3X,
 	/** Scale2xScaler. */
 	SCALER_SCALE2X,
 	/** Scale3xScaler. */

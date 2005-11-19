@@ -3,6 +3,7 @@
 #include "Scaler.hh"
 #include "SimpleScaler.hh"
 #include "SaI2xScaler.hh"
+#include "SaI3xScaler.hh"
 #include "Scale2xScaler.hh"
 #include "Scale3xScaler.hh"
 #include "HQ2xScaler.hh"
@@ -31,6 +32,9 @@ auto_ptr<Scaler<Pixel> > Scaler<Pixel>::createScaler(
 	case SCALER_SAI2X:
 		return auto_ptr<Scaler<Pixel> >(
 			new SaI2xScaler<Pixel>(format));
+	case SCALER_SAI3X:
+		return auto_ptr<Scaler<Pixel> >(
+			new SaI3xScaler<Pixel>(format));
 	case SCALER_SCALE2X:
 		return auto_ptr<Scaler<Pixel> >(
 			new Scale2xScaler<Pixel>(format));
