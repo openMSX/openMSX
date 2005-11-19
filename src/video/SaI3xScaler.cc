@@ -167,7 +167,7 @@ void SaI3xScaler<Pixel>::scale1x1to3x3(
 		// Next line.
 		h += dh;
 
-		for (unsigned w = 0; w < wfinish; w += dw) {
+		for (unsigned w = 0; w < wfinish; ) {
 			// Clip source X.
 			const unsigned pos1 = w >> 16;
 			assert(pos1 < WIDTH256);
@@ -179,60 +179,68 @@ void SaI3xScaler<Pixel>::scale1x1to3x3(
 			const Pixel B = src1[pos2]; // next pixel
 			const Pixel C = src2[pos1];
 			const Pixel D = src2[pos2];
-			const Pixel E = src0[pos1];
-			const Pixel F = src0[pos2];
-			const Pixel G = src1[pos0];
-			const Pixel H = src2[pos0];
-			const Pixel I = src1[pos3];
-			const Pixel J = src2[pos3];
-			const Pixel K = src3[pos1];
-			const Pixel L = src3[pos2];
 
-			// Fractional parts of the fixed point X coordinates.
-			const unsigned x1 = w & 0xffff;
-			const unsigned x2 = 0x10000 - x1;
-
-			// Compute colour of destination pixel.
-			Pixel product1;
+			// Compute and write colour of destination pixel.
 			if (A == B && C == D && A == C) { // 0
-				product1 = A;
+				do {
+					*dp++ = A;
+					w += dw;
+				} while ((w >> 16) == pos1);
 			} else if (A == D && B != C) { // 1
-				const unsigned f1 = (x1 >> 1) + (0x10000 >> 2);
-				const unsigned f2 = (y1 >> 1) + (0x10000 >> 2);
-				if (y1 <= f1 && A == J && A != E) { // close to B
-					product1 = bilinear<Pixel>(A, B, f1 - y1);
-				} else if (y1 >= f1 && A == G && A != L) { // close to C
-					product1 = bilinear<Pixel>(A, C, y1 - f1);
-				} else if (x1 >= f2 && A == E && A != J) { // close to B
-					product1 = bilinear<Pixel>(A, B, x1 - f2);
-				} else if (x1 <= f2 && A == L && A != G) { // close to C
-					product1 = bilinear<Pixel>(A, C, f2 - x1);
-				} else if (y1 >= x1) { // close to C
-					product1 = bilinear<Pixel>(A, C, y1 - x1);
-				} else if (y1 <= x1) { // close to B
-					product1 = bilinear<Pixel>(A, B, x1 - y1);
-				}
+				do {
+					// Fractional parts of the fixed point X coordinates.
+					const unsigned x1 = w & 0xffff;
+					const unsigned f1 = (x1 >> 1) + (0x10000 >> 2);
+					const unsigned f2 = (y1 >> 1) + (0x10000 >> 2);
+					Pixel product1;
+					if (y1 <= f1 && A == src2[pos3] && A != src0[pos1]) { // close to B
+						product1 = bilinear<Pixel>(A, B, f1 - y1);
+					} else if (y1 >= f1 && A == src1[pos0] && A != src3[pos2]) { // close to C
+						product1 = bilinear<Pixel>(A, C, y1 - f1);
+					} else if (x1 >= f2 && A == src0[pos1] && A != src2[pos3]) { // close to B
+						product1 = bilinear<Pixel>(A, B, x1 - f2);
+					} else if (x1 <= f2 && A == src3[pos2] && A != src1[pos0]) { // close to C
+						product1 = bilinear<Pixel>(A, C, f2 - x1);
+					} else if (y1 >= x1) { // close to C
+						product1 = bilinear<Pixel>(A, C, y1 - x1);
+					} else if (y1 <= x1) { // close to B
+						product1 = bilinear<Pixel>(A, B, x1 - y1);
+					}
+					*dp++ = product1;
+					w += dw;
+				} while ((w >> 16) == pos1);
 			} else if (B == C && A != D) { // 2
-				const unsigned f1 = (x1 >> 1) + (0x10000 >> 2);
-				const unsigned f2 = (y1 >> 1) + (0x10000 >> 2);
-				if (y2 >= f1 && B == H && B != F) { // close to A
-					product1 = bilinear<Pixel>(B, A, y2 - f1);
-				} else if (y2 <= f1 && B == I && B != K) { // close to D
-					product1 = bilinear<Pixel>(B, D, f1 - y2);
-				} else if (x2 >= f2 && B == F && B != H) { // close to A
-					product1 = bilinear<Pixel>(B, A, x2 - f2);
-				} else if (x2 <= f2 && B == K && B != I) { // close to D
-					product1 = bilinear<Pixel>(B, D, f2 - x2);
-				} else if (y2 >= x1) { // close to A
-					product1 = bilinear<Pixel>(B, A, y2 - x1);
-				} else if (y2 <= x1) { // close to D
-					product1 = bilinear<Pixel>(B, D, x1 - y2);
-				}
+				do {
+					// Fractional parts of the fixed point X coordinates.
+					const unsigned x1 = w & 0xffff;
+					const unsigned x2 = 0x10000 - x1;
+					const unsigned f1 = (x1 >> 1) + (0x10000 >> 2);
+					const unsigned f2 = (y1 >> 1) + (0x10000 >> 2);
+					Pixel product1;
+					if (y2 >= f1 && B == src2[pos0] && B != src0[pos2]) { // close to A
+						product1 = bilinear<Pixel>(B, A, y2 - f1);
+					} else if (y2 <= f1 && B == src1[pos3] && B != src3[pos1]) { // close to D
+						product1 = bilinear<Pixel>(B, D, f1 - y2);
+					} else if (x2 >= f2 && B == src0[pos2] && B != src2[pos0]) { // close to A
+						product1 = bilinear<Pixel>(B, A, x2 - f2);
+					} else if (x2 <= f2 && B == src3[pos1] && B != src1[pos3]) { // close to D
+						product1 = bilinear<Pixel>(B, D, f2 - x2);
+					} else if (y2 >= x1) { // close to A
+						product1 = bilinear<Pixel>(B, A, y2 - x1);
+					} else if (y2 <= x1) { // close to D
+						product1 = bilinear<Pixel>(B, D, x1 - y2);
+					}
+					*dp++ = product1;
+					w += dw;
+				} while ((w >> 16) == pos1);
 			} else { // 3
-				product1 = bilinear4<Pixel>(A, B, C, D, x1, y1);
+				do {
+					// Fractional parts of the fixed point X coordinates.
+					const unsigned x1 = w & 0xffff;
+					*dp++ = bilinear4<Pixel>(A, B, C, D, x1, y1);
+					w += dw;
+				} while ((w >> 16) == pos1);
 			}
-			// Write destination pixel.
-			*dp++ = product1;
 		}
 	}
 }
