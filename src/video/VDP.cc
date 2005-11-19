@@ -74,16 +74,16 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 
 	// Video RAM.
-	int vramSize =
+	unsigned vramSize =
 		(isMSX1VDP() ? 16 : deviceConfig.getChildDataAsInt("vram"));
-	if (vramSize != 16 && vramSize != 64 && vramSize != 128) {
+	if ((vramSize !=  16) && (vramSize !=  64) &&
+	    (vramSize != 128) && (vramSize != 192)) {
 		std::ostringstream out;
 		out << "VRAM size of " << vramSize << "kB is not supported!";
 		throw FatalError(out.str());
 	}
-	vramSize *= 1024;
-	vramMask = vramSize - 1;
-	vram.reset(new VDPVRAM(*this, vramSize, time));
+	vramMask = (vramSize != 192) ? ((vramSize * 1024) - 1) : 0x1FFFF;
+	vram.reset(new VDPVRAM(*this, vramSize * 1024, time));
 
 	// Create sprite checker.
 	spriteChecker.reset(new SpriteChecker(*this));
@@ -501,8 +501,13 @@ void VDP::writeIO(byte port, byte value, const EmuTime& time)
 		if (displayMode.isPlanar()) {
 			addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
 		}
-		// TODO: Implement extended VRAM.
-		if (!cpuExtendedVram) vram->cpuWrite(addr, value, time);
+		if (!cpuExtendedVram) {
+			vram->cpuWrite(addr, value, time);
+		} else if (vram->getSize() == 192 * 1024) {
+			vram->cpuWrite(0x20000 | (addr & 0xFFFF), value, time);
+		} else {
+			// ignore
+		}
 		vramPointer = (vramPointer + 1) & 0x3FFF;
 		if (vramPointer == 0 && displayMode.isV9938Mode()) {
 			// In MSX2 video modes, pointer range is 128K.
@@ -578,22 +583,27 @@ void VDP::setPalette(int index, word grb, const EmuTime& time)
 
 byte VDP::vramRead(const EmuTime& time)
 {
-	byte ret = readAhead;
+	byte result = readAhead;
 	int addr = (controlRegs[14] << 14) | vramPointer;
 	// TODO: Is extended VRAM planar?
 	//       I don't think so, because it is limited to 64K.
 	if (displayMode.isPlanar()) {
 		addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
 	}
-	readAhead = vram->cpuRead(addr, time);
+	if (!cpuExtendedVram) {
+		readAhead = vram->cpuRead(addr, time);
+	} else if (vram->getSize() == 192 * 1024) {
+		readAhead = vram->cpuRead(0x20000 | (addr & 0xFFFF), time);
+	} else {
+		readAhead = 0xFF;
+	}
 	vramPointer = (vramPointer + 1) & 0x3FFF;
 	if (vramPointer == 0 && displayMode.isV9938Mode()) {
 		// In MSX2 video modes , pointer range is 128K.
 		controlRegs[14] = (controlRegs[14] + 1) & 0x07;
 	}
 	registerDataStored = false;
-	// TODO: Implement extended VRAM.
-	return cpuExtendedVram ? 0xFF : ret;
+	return result;
 }
 
 byte VDP::peekStatusReg(byte reg, const EmuTime& time) const

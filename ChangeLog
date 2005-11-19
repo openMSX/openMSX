@@ -5,6 +5,8 @@ $Id$
 	  IconLayer:
 	   - fixes power led status when openmsx was started with 'none'
 	     renderer (catapult)
+	* Basic 192kb VRAM support:
+	   - only CPU-VRAM interface, no command engine stuff yet
 
 2005-11-19 Maarten ter Huurne <maarten@treewalker.org>
 	* Added the variable zoom factor version of 2xSaI.

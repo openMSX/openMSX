@@ -415,6 +415,12 @@ public:
 
 	void setRenderer(Renderer* renderer, const EmuTime& time);
 
+	/** Returns the size of VRAM in bytes
+	  */
+	unsigned getSize() const {
+		return data.getSize();
+	}
+
 	/** Necessary because of circular dependencies.
 	  */
 	inline void setSpriteChecker(SpriteChecker* spriteChecker) {
