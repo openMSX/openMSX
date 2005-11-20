@@ -149,6 +149,8 @@ void SaI3xScaler<Pixel>::scale1x1to3x3(
 		// Next line.
 		h += dh;
 
+		Pixel B = src1[0];
+		Pixel D = src2[0];
 		for (unsigned w = 0; w < wfinish; ) {
 			// Clip source X.
 			const unsigned pos1 = w >> 16;
@@ -157,10 +159,10 @@ void SaI3xScaler<Pixel>::scale1x1to3x3(
 			const unsigned pos2 = min(pos1 + 1, WIDTH256 - 1);
 			const unsigned pos3 = min(pos1 + 2, WIDTH256 - 1);
 			// Get source pixels.
-			const Pixel A = src1[pos1]; // current pixel
-			const Pixel B = src1[pos2]; // next pixel
-			const Pixel C = src2[pos1];
-			const Pixel D = src2[pos2];
+			const Pixel A = B; // current pixel
+			B = src1[pos2]; // next pixel
+			const Pixel C = D;
+			D = src2[pos2];
 
 			// Compute and write colour of destination pixel.
 			if (A == B && C == D && A == C) { // 0
