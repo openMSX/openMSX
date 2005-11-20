@@ -41,7 +41,7 @@ static word bilinear<word>(unsigned a, unsigned b, unsigned x)
 {
 	if (a == b) return a;
 
-	const unsigned areaB = (x >> 11) & 0x1f; //reduce 16 bit fraction to 5 bits
+	const unsigned areaB = x >> 11; //reduce 16 bit fraction to 5 bits
 	const unsigned areaA = 0x20 - areaB;
 
 	a = (a & redblueMask) | ((a & greenMask) << 16);
@@ -55,7 +55,7 @@ static unsigned bilinear<unsigned>(unsigned a, unsigned b, unsigned x)
 {
 	if (a == b) return a;
 
-	const unsigned areaB = (x >> 8) & 0xff; //reduce 16 bit fraction to 8 bits
+	const unsigned areaB = x >> 8; //reduce 16 bit fraction to 8 bits
 	const unsigned areaA = 0x100 - areaB;
 
 	const unsigned result0 =
@@ -73,8 +73,8 @@ template <>
 static word bilinear4<word>(
 	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y
 ) {
-	x = (x >> 11) & 0x1f;
-	y = (y >> 11) & 0x1f;
+	x >>= 11;
+	y >>= 11;
 	const unsigned xy = (x * y) >> 5;
 
 	const unsigned areaA = 0x20 + xy - x - y;
@@ -96,8 +96,8 @@ template <>
 static unsigned bilinear4<unsigned>(
 	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y
 ) {
-	x = (x >> 8) & 0xff;
-	y = (y >> 8) & 0xff;
+	x >>= 8;
+	y >>= 8;
 	const unsigned xy = (x * y) >> 8;
 
 	const unsigned areaA = 0x100 + xy - x - y;
