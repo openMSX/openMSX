@@ -24,9 +24,6 @@ SaI3xScaler<Pixel>::SaI3xScaler(SDL_PixelFormat* format)
 {
 }
 
-const unsigned WIDTH256 = 320; // TODO: Specify this in a clean way.
-const unsigned HEIGHT = 480;
-
 template <class Pixel>
 inline Pixel SaI3xScaler<Pixel>::blend(Pixel p1, Pixel p2)
 {
@@ -123,7 +120,8 @@ void SaI3xScaler<Pixel>::scale1x1to3x3(
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	// Calculate fixed point end coordinates and deltas.
-	const unsigned wfinish = (320 - 1) << 16;
+	const unsigned srcWidth = 320;
+	const unsigned wfinish = (srcWidth - 1) << 16;
 	const unsigned dw = wfinish / (dst.getWidth() - 1);
 	const unsigned hfinish = (src.getHeight() - 1) << 16;
 	const unsigned dh = hfinish / (dst.getHeight() - 1);
@@ -149,15 +147,16 @@ void SaI3xScaler<Pixel>::scale1x1to3x3(
 		// Next line.
 		h += dh;
 
+		unsigned pos1 = 0;
+		unsigned pos2 = 0;
+		unsigned pos3 = 1;
 		Pixel B = src1[0];
 		Pixel D = src2[0];
 		for (unsigned w = 0; w < wfinish; ) {
-			// Clip source X.
-			const unsigned pos1 = w >> 16;
-			assert(pos1 < WIDTH256);
-			const unsigned pos0 = pos1 == 0 ? 0 : pos1 - 1;
-			const unsigned pos2 = min(pos1 + 1, WIDTH256 - 1);
-			const unsigned pos3 = min(pos1 + 2, WIDTH256 - 1);
+			const unsigned pos0 = pos1;
+			pos1 = pos2;
+			pos2 = pos3;
+			pos3 = min(pos1 + 3, srcWidth) - 1;
 			// Get source pixels.
 			const Pixel A = B; // current pixel
 			B = src1[pos2]; // next pixel
