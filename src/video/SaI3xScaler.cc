@@ -33,33 +33,14 @@ inline Pixel SaI3xScaler<Pixel>::blend(Pixel p1, Pixel p2)
 	return pixelOps.template blend<1, 1>(p1, p2);
 }
 
-static unsigned redblueMask = 0xF81F;
-static unsigned greenMask = 0x7E0;
+static const unsigned redblueMask = 0xF81F;
+static const unsigned greenMask = 0x7E0;
 
 template <class Pixel>
-static Pixel bilinear(unsigned a, unsigned b, unsigned x)
-{
-	if (a == b) return a;
+static Pixel bilinear(unsigned a, unsigned b, unsigned x);
 
-	const unsigned areaB = (x >> 11) & 0x1f; //reduce 16 bit fraction to 5 bits
-	const unsigned areaA = 0x20 - areaB;
-
-	if (sizeof(Pixel) == 2) {
-		a = (a & redblueMask) | ((a & greenMask) << 16);
-		b = (b & redblueMask) | ((b & greenMask) << 16);
-		const unsigned result = ((areaA * a) + (areaB * b)) >> 5;
-		return (result & redblueMask) | ((result >> 16) & greenMask);
-	} else {
-		const unsigned result0 =
-			((a & 0x00FF00FF) * areaA + (b & 0x00FF00FF) * areaB) >> 5;
-		const unsigned result1 =
-			((a & 0xFF00FF00) >> 5) * areaA + ((b & 0xFF00FF00) >> 5) * areaB;
-		return (result0 & 0x00FF00FF) | (result1 & 0xFF00FF00);
-	}
-}
-
-/*
-static word bilinear(unsigned a, unsigned b, unsigned x)
+template <>
+static word bilinear<word>(unsigned a, unsigned b, unsigned x)
 {
 	if (a == b) return a;
 
@@ -68,72 +49,73 @@ static word bilinear(unsigned a, unsigned b, unsigned x)
 
 	a = (a & redblueMask) | ((a & greenMask) << 16);
 	b = (b & redblueMask) | ((b & greenMask) << 16);
-
 	const unsigned result = ((areaA * a) + (areaB * b)) >> 5;
-
 	return (result & redblueMask) | ((result >> 16) & greenMask);
 }
-*/
+
+template <>
+static unsigned bilinear<unsigned>(unsigned a, unsigned b, unsigned x)
+{
+	if (a == b) return a;
+
+	const unsigned areaB = (x >> 8) & 0xff; //reduce 16 bit fraction to 8 bits
+	const unsigned areaA = 0x100 - areaB;
+
+	const unsigned result0 =
+		(a & 0x00FF00FF) * areaA + (b & 0x00FF00FF) * areaB;
+	const unsigned result1 =
+		(a & 0x0000FF00) * areaA + (b & 0x0000FF00) * areaB;
+	return ((result0 & 0xFF00FF00) | (result1 & 0x00FF0000)) >> 8;
+}
 
 template <class Pixel>
 static Pixel bilinear4(
+	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y );
+
+template <>
+static word bilinear4<word>(
 	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y
 ) {
 	x = (x >> 11) & 0x1f;
 	y = (y >> 11) & 0x1f;
-	const unsigned xy = (x*y) >> 5;
+	const unsigned xy = (x * y) >> 5;
 
 	const unsigned areaA = 0x20 + xy - x - y;
 	const unsigned areaB = x - xy;
 	const unsigned areaC = y - xy;
 	const unsigned areaD = xy;
-
-	if (sizeof(Pixel) == 2) {
-		a = (a & redblueMask) | ((a & greenMask) << 16);
-		b = (b & redblueMask) | ((b & greenMask) << 16);
-		c = (c & redblueMask) | ((c & greenMask) << 16);
-		d = (d & redblueMask) | ((d & greenMask) << 16);
-		unsigned result = (
-			(areaA * a) + (areaB * b) + (areaC * c) + (areaD * d)
-			) >> 5;
-		return (result & redblueMask) | ((result >> 16) & greenMask);
-	} else {
-		const unsigned result0 = (
-			(a & 0x00FF00FF) * areaA + (b & 0x00FF00FF) * areaB +
-			(c & 0x00FF00FF) * areaC + (d & 0x00FF00FF) * areaD
-			) >> 5;
-		const unsigned result1 =
-			((a & 0xFF00FF00) >> 5) * areaA + ((b & 0xFF00FF00) >> 5) * areaB +
-			((c & 0xFF00FF00) >> 5) * areaC + ((d & 0xFF00FF00) >> 5) * areaD;
-		return (result0 & 0x00FF00FF) | (result1 & 0xFF00FF00);
-	}
-}
-
-/*
-static word bilinear4(
-	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y
-) {
-	x = (x >> 11) & 0x1f;
-	y = (y >> 11) & 0x1f;
-	const unsigned xy = (x*y) >> 5;
 
 	a = (a & redblueMask) | ((a & greenMask) << 16);
 	b = (b & redblueMask) | ((b & greenMask) << 16);
 	c = (c & redblueMask) | ((c & greenMask) << 16);
 	d = (d & redblueMask) | ((d & greenMask) << 16);
+	unsigned result = (
+		(areaA * a) + (areaB * b) + (areaC * c) + (areaD * d)
+		) >> 5;
+	return (result & redblueMask) | ((result >> 16) & greenMask);
+}
 
-	const unsigned areaA = 0x20 + xy - x - y;
+template <>
+static unsigned bilinear4<unsigned>(
+	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y
+) {
+	x = (x >> 8) & 0xff;
+	y = (y >> 8) & 0xff;
+	const unsigned xy = (x * y) >> 8;
+
+	const unsigned areaA = 0x100 + xy - x - y;
 	const unsigned areaB = x - xy;
 	const unsigned areaC = y - xy;
 	const unsigned areaD = xy;
 
-	unsigned result = (
-		(areaA * a) + (areaB * b) + (areaC * c) + (areaD * d)
-		) >> 5;
-
-	return (result & redblueMask) | ((result >> 16) & greenMask);
+	const unsigned result0 =
+		(a & 0x00FF00FF) * areaA + (b & 0x00FF00FF) * areaB +
+		(c & 0x00FF00FF) * areaC + (d & 0x00FF00FF) * areaD;
+	const unsigned result1 =
+		(a & 0x0000FF00) * areaA + (b & 0x0000FF00) * areaB +
+		(c & 0x0000FF00) * areaC + (d & 0x0000FF00) * areaD;
+	return ((result0 & 0xFF00FF00) | (result1 & 0x00FF0000)) >> 8;
 }
-*/
 
 template <class Pixel>
 void SaI3xScaler<Pixel>::scale1x1to3x3(
