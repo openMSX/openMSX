@@ -268,25 +268,23 @@ class PixelStripRepeater<0>
 {
 public:
 	template <typename Pixel>
-	inline static void fill(Pixel* &dp, unsigned sa) { }
+	inline static void fill(Pixel*& /*dp*/, unsigned /*sa*/) { }
 
 	template <unsigned NX, unsigned y, typename Pixel>
 	inline static void blendBackslash(
-		Pixel* &dp,
-		unsigned sa, unsigned sb, unsigned sc, unsigned sd,
-		unsigned se, unsigned sg, unsigned sj, unsigned sl
-	) { }
+		Pixel*& /*dp*/, unsigned /*sa*/, unsigned /*sb*/,
+		unsigned /*sc*/, unsigned /*sd*/, unsigned /*se*/,
+		unsigned /*sg*/, unsigned /*sj*/, unsigned /*sl*/) { }
 
 	template <unsigned NX, unsigned y, typename Pixel>
 	inline static void blendSlash(
-		Pixel* &dp,
-		unsigned sa, unsigned sb, unsigned sc, unsigned sd,
-		unsigned sf, unsigned sh, unsigned si, unsigned sk
-	) { }
+		Pixel*& /*dp*/, unsigned /*sa*/, unsigned /*sb*/,
+		unsigned /*sc*/, unsigned /*sd*/, unsigned /*sf*/,
+		unsigned /*sh*/, unsigned /*si*/, unsigned /*sk*/) { }
 
 	template <unsigned NX, unsigned y, typename Pixel>
-	inline static void blend4(
-		Pixel* &dp, unsigned sa, unsigned sb, unsigned sc, unsigned sd ) { }
+	inline static void blend4(Pixel*& /*dp*/, unsigned /*sa*/,
+		unsigned /*sb*/, unsigned /*sc*/, unsigned /*sd*/) { }
 };
 
 template <unsigned i>
@@ -351,8 +349,9 @@ class LineRepeater<0>
 public:
 	template <unsigned NX, unsigned NY, typename Pixel>
 	inline static void scaleFixedLine(
-		Pixel* src0, Pixel* src1, Pixel* src2, Pixel* src3, unsigned srcWidth,
-		OutputSurface& dst, unsigned& dstY
+		Pixel* /*src0*/, Pixel* /*src1*/, Pixel* /*src2*/,
+		Pixel* /*src3*/, unsigned /*srcWidth*/,
+		OutputSurface& /*dst*/, unsigned& /*dstY*/
 	) { }
 };
 
