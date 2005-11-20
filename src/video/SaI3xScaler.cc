@@ -114,23 +114,26 @@ static unsigned bilinear4<unsigned>(
 	return ((result0 & 0xFF00FF00) | (result1 & 0x00FF0000)) >> 8;
 }
 
+template <typename Pixel>
 class Blender
 {
 public:
-	template <unsigned x, typename Pixel>
+	template <unsigned x>
 	inline static Pixel blend(unsigned a, unsigned b);
 
-	template <unsigned x, unsigned y, typename Pixel>
+	template <unsigned x, unsigned y>
 	inline static Pixel blend(unsigned a, unsigned b, unsigned c, unsigned d);
+
+private:
+	static const unsigned fpbits = sizeof(Pixel) == 2 ? 5 : 8;
 };
 
-
-template <unsigned x, typename Pixel>
-inline Pixel Blender::blend(unsigned a, unsigned b)
+template <typename Pixel>
+template <unsigned x>
+inline Pixel Blender<Pixel>::blend(unsigned a, unsigned b)
 {
 	if (a == b) return a;
 
-	const unsigned fpbits = sizeof(Pixel) == 2 ? 5 : 8;
 	const unsigned areaB = x >> (16 - fpbits);
 	const unsigned areaA = (1 << fpbits) - areaB;
 
@@ -149,12 +152,11 @@ inline Pixel Blender::blend(unsigned a, unsigned b)
 }
 
 
-template <unsigned wx, unsigned wy, typename Pixel>
-inline Pixel Blender::blend(
+template <typename Pixel>
+template <unsigned wx, unsigned wy>
+inline Pixel Blender<Pixel>::blend(
 	unsigned a, unsigned b, unsigned c, unsigned d
 ) {
-	const unsigned fpbits = sizeof(Pixel) == 2 ? 5 : 8;
-
 	const unsigned x = wx >> (16 - fpbits);
 	const unsigned y = wy >> (16 - fpbits);
 	const unsigned xy = (x * y) >> fpbits;
@@ -206,17 +208,17 @@ public:
 		const unsigned f1 = (x1 >> 1) + (0x10000 >> 2);
 		const unsigned f2 = (y1 >> 1) + (0x10000 >> 2);
 		if (y1 <= f1 && sa == sj && sa != se) {
-			*dp++ = Blender::template blend<f1 - y1, Pixel>(sa, sb);
+			*dp++ = Blender<Pixel>::template blend<f1 - y1>(sa, sb);
 		} else if (y1 >= f1 && sa == sg && sa != sl) {
-			*dp++ = Blender::template blend<y1 - f1, Pixel>(sa, sc);
+			*dp++ = Blender<Pixel>::template blend<y1 - f1>(sa, sc);
 		} else if (x1 >= f2 && sa == se && sa != sj) {
-			*dp++ = Blender::template blend<x1 - f2, Pixel>(sa, sb);
+			*dp++ = Blender<Pixel>::template blend<x1 - f2>(sa, sb);
 		} else if (x1 <= f2 && sa == sl && sa != sg) {
-			*dp++ = Blender::template blend<f2 - x1, Pixel>(sa, sc);
+			*dp++ = Blender<Pixel>::template blend<f2 - x1>(sa, sc);
 		} else if (y1 >= x1) {
-			*dp++ = Blender::template blend<y1 - x1, Pixel>(sa, sc);
+			*dp++ = Blender<Pixel>::template blend<y1 - x1>(sa, sc);
 		} else if (y1 <= x1) {
-			*dp++ = Blender::template blend<x1 - y1, Pixel>(sa, sb);
+			*dp++ = Blender<Pixel>::template blend<x1 - y1>(sa, sb);
 		}
 		PixelStripRepeater<i - 1>::template blendBackslash<NX, y, Pixel>(
 			dp, sa, sb, sc, sd, se, sg, sj, sl );
@@ -236,17 +238,17 @@ public:
 		const unsigned f1 = (x1 >> 1) + (0x10000 >> 2);
 		const unsigned f2 = (y1 >> 1) + (0x10000 >> 2);
 		if (y2 >= f1 && sb == sh && sb != sf) {
-			*dp++ = Blender::template blend<y2 - f1, Pixel>(sb, sa);
+			*dp++ = Blender<Pixel>::template blend<y2 - f1>(sb, sa);
 		} else if (y2 <= f1 && sb == si && sb != sk) {
-			*dp++ = Blender::template blend<f1 - y2, Pixel>(sb, sd);
+			*dp++ = Blender<Pixel>::template blend<f1 - y2>(sb, sd);
 		} else if (x2 >= f2 && sb == sf && sb != sh) {
-			*dp++ = Blender::template blend<x2 - f2, Pixel>(sb, sa);
+			*dp++ = Blender<Pixel>::template blend<x2 - f2>(sb, sa);
 		} else if (x2 <= f2 && sb == sk && sb != si) {
-			*dp++ = Blender::template blend<f2 - x2, Pixel>(sb, sd);
+			*dp++ = Blender<Pixel>::template blend<f2 - x2>(sb, sd);
 		} else if (y2 >= x1) {
-			*dp++ = Blender::template blend<y2 - x1, Pixel>(sb, sa);
+			*dp++ = Blender<Pixel>::template blend<y2 - x1>(sb, sa);
 		} else if (y2 <= x1) {
-			*dp++ = Blender::template blend<x1 - y2, Pixel>(sb, sd);
+			*dp++ = Blender<Pixel>::template blend<x1 - y2>(sb, sd);
 		}
 		PixelStripRepeater<i - 1>::template blendSlash<NX, y, Pixel>(
 			dp, sa, sb, sc, sd, sf, sh, si, sk );
@@ -257,7 +259,7 @@ public:
 		Pixel* &dp, unsigned sa, unsigned sb, unsigned sc, unsigned sd
 	) {
 		const unsigned x = ((NX - i) << 16) / NX;
-		*dp++ = Blender::template blend<x, y, Pixel>(sa, sb, sc, sd);
+		*dp++ = Blender<Pixel>::template blend<x, y>(sa, sb, sc, sd);
 		PixelStripRepeater<i - 1>::template blend4<NX, y, Pixel>(dp, sa, sb, sc, sd);
 	}
 };
@@ -358,7 +360,7 @@ template <typename Pixel>
 template <unsigned NX, unsigned NY>
 void SaI3xScaler<Pixel>::scaleFixed(
 	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	OutputSurface& dst, unsigned dstStartY, unsigned /*dstEndY*/)
 {
 	const unsigned srcWidth = 320; // TODO: Get width from src.
 	assert(dst.getWidth() == srcWidth * NX);
@@ -368,7 +370,7 @@ void SaI3xScaler<Pixel>::scaleFixed(
 	for (unsigned srcY = srcStartY; srcY < srcEndY; srcY++) {
 		// Get source line pointers.
 		Pixel* const dummy = 0;
-		Pixel* src0 = src.getLinePtr(max(srcY - 1, srcStartY), dummy);
+		Pixel* src0 = src.getLinePtr(srcY == 0 ? 0 : srcY - 1, dummy);
 		Pixel* src1 = src.getLinePtr(srcY, dummy);
 		Pixel* src2 = src.getLinePtr(min(srcY + 1, srcEndY - 1), dummy);
 		Pixel* src3 = src.getLinePtr(min(srcY + 2, srcEndY - 1), dummy);
@@ -398,7 +400,7 @@ void SaI3xScaler<Pixel>::scaleAny(
 		const unsigned line = srcStartY + (h >> 16);
 		assert(srcStartY <= line && line < srcEndY);
 		Pixel* const dummy = 0;
-		Pixel* src0 = src.getLinePtr(max(line - 1, srcStartY), dummy);
+		Pixel* src0 = src.getLinePtr(line == 0 ? 0 : line - 1, dummy);
 		Pixel* src1 = src.getLinePtr(line, dummy);
 		Pixel* src2 = src.getLinePtr(min(line + 1, srcEndY - 1), dummy);
 		Pixel* src3 = src.getLinePtr(min(line + 2, srcEndY - 1), dummy);
