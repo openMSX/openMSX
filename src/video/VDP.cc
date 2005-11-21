@@ -496,9 +496,10 @@ void VDP::writeIO(byte port, byte value, const EmuTime& time)
 	case 0: { // VRAM data write
 		int addr = ((controlRegs[14] << 14) | vramPointer) & vramMask;
 		//fprintf(stderr, "VRAM[%05X]=%02X\n", addr, value);
-		// TODO: Is extended VRAM planar?
-		//       I don't think so, because it is limited to 64K.
 		if (displayMode.isPlanar()) {
+			// note: also extended VRAM is interleaved,
+			//       because there is only 64kb it's interleaved
+			//       with itself (every byte repeated twice)
 			addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
 		}
 		if (!cpuExtendedVram) {
@@ -585,8 +586,6 @@ byte VDP::vramRead(const EmuTime& time)
 {
 	byte result = readAhead;
 	int addr = (controlRegs[14] << 14) | vramPointer;
-	// TODO: Is extended VRAM planar?
-	//       I don't think so, because it is limited to 64K.
 	if (displayMode.isPlanar()) {
 		addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
 	}
