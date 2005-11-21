@@ -62,7 +62,7 @@ static unsigned bilinear<unsigned>(unsigned a, unsigned b, unsigned x)
 		(a & 0x00FF00FF) * areaA + (b & 0x00FF00FF) * areaB;
 	const unsigned result1 =
 		(a & 0x0000FF00) * areaA + (b & 0x0000FF00) * areaB;
-	return ((result0 & 0xFF00FF00) | (result1 & 0x00FF0000)) >> 8;
+	return ((result0 & (0xFF00FF << 8)) | (result1 & (0x00FF00 << 8))) >> 8;
 }
 
 template <typename Pixel>
@@ -100,7 +100,7 @@ static unsigned bilinear4<unsigned>(
 	y >>= 8;
 	const unsigned xy = (x * y) >> 8;
 
-	const unsigned areaA = 0x100 + xy - x - y;
+	const unsigned areaA = (1 << 8) + xy - x - y;
 	const unsigned areaB = x - xy;
 	const unsigned areaC = y - xy;
 	const unsigned areaD = xy;
@@ -111,7 +111,7 @@ static unsigned bilinear4<unsigned>(
 	const unsigned result1 =
 		(a & 0x0000FF00) * areaA + (b & 0x0000FF00) * areaB +
 		(c & 0x0000FF00) * areaC + (d & 0x0000FF00) * areaD;
-	return ((result0 & 0xFF00FF00) | (result1 & 0x00FF0000)) >> 8;
+	return ((result0 & (0xFF00FF << 8)) | (result1 & (0x00FF00 << 8))) >> 8;
 }
 
 template <typename Pixel>
@@ -123,9 +123,13 @@ public:
 
 	template <unsigned x, unsigned y>
 	inline static Pixel blend(unsigned a, unsigned b, unsigned c, unsigned d);
+};
 
-private:
-	static const unsigned fpbits = sizeof(Pixel) == 2 ? 5 : 8;
+// require: OLD > NEW
+template <unsigned X, unsigned OLD, unsigned NEW>
+struct Round {
+	static const unsigned result =
+		(X >> (OLD - NEW)) + ((X >> (OLD - NEW - 1)) & 1);
 };
 
 template <typename Pixel>
@@ -134,37 +138,36 @@ inline Pixel Blender<Pixel>::blend(unsigned a, unsigned b)
 {
 	if (a == b) return a;
 
-	const unsigned areaB = x >> (16 - fpbits);
-	const unsigned areaA = (1 << fpbits) - areaB;
+	const unsigned bits = (sizeof(Pixel) == 2) ? 5 : 8;
+	const unsigned areaB = Round<x, 16, bits>::result;
+	const unsigned areaA = (1 << bits) - areaB;
 
 	if (sizeof(Pixel) == 2) {
 		a = (a & redblueMask) | ((a & greenMask) << 16);
 		b = (b & redblueMask) | ((b & greenMask) << 16);
-		const unsigned result = ((areaA * a) + (areaB * b)) >> 5;
+		const unsigned result = ((areaA * a) + (areaB * b)) >> bits;
 		return (result & redblueMask) | ((result >> 16) & greenMask);
 	} else {
 		const unsigned result0 =
 			(a & 0x00FF00FF) * areaA + (b & 0x00FF00FF) * areaB;
 		const unsigned result1 =
 			(a & 0x0000FF00) * areaA + (b & 0x0000FF00) * areaB;
-		return ((result0 & 0xFF00FF00) | (result1 & 0x00FF0000)) >> 8;
+		return ((result0 & (0xFF00FF << bits)) |
+		        (result1 & (0x00FF00 << bits))) >> bits;
 	}
 }
-
 
 template <typename Pixel>
 template <unsigned wx, unsigned wy>
 inline Pixel Blender<Pixel>::blend(
-	unsigned a, unsigned b, unsigned c, unsigned d
-) {
-	const unsigned x = wx >> (16 - fpbits);
-	const unsigned y = wy >> (16 - fpbits);
-	const unsigned xy = (x * y) >> fpbits;
-
-	const unsigned areaA = (1 << fpbits) + xy - x - y;
-	const unsigned areaB = x - xy;
-	const unsigned areaC = y - xy;
-	const unsigned areaD = xy;
+	unsigned a, unsigned b, unsigned c, unsigned d)
+{
+	const unsigned bits = (sizeof(Pixel) == 2) ? 5 : 8;
+	const unsigned xy = (wx * wy) >> 16;
+	const unsigned areaB = Round<wx - xy, 16, bits>::result;
+	const unsigned areaC = Round<wy - xy, 16, bits>::result;
+	const unsigned areaD = Round<xy,      16, bits>::result;
+	const unsigned areaA = (1 << bits) - areaB - areaC - areaD;
 
 	if (sizeof(Pixel) == 2) {
 		a = (a & redblueMask) | ((a & greenMask) << 16);
@@ -173,7 +176,7 @@ inline Pixel Blender<Pixel>::blend(
 		d = (d & redblueMask) | ((d & greenMask) << 16);
 		unsigned result = (
 			(areaA * a) + (areaB * b) + (areaC * c) + (areaD * d)
-			) >> 5;
+			) >> bits;
 		return (result & redblueMask) | ((result >> 16) & greenMask);
 	} else {
 		const unsigned result0 =
@@ -182,7 +185,8 @@ inline Pixel Blender<Pixel>::blend(
 		const unsigned result1 =
 			(a & 0x0000FF00) * areaA + (b & 0x0000FF00) * areaB +
 			(c & 0x0000FF00) * areaC + (d & 0x0000FF00) * areaD;
-		return ((result0 & 0xFF00FF00) | (result1 & 0x00FF0000)) >> 8;
+		return ((result0 & (0xFF00FF << bits)) |
+		        (result1 & (0x00FF00 << bits))) >> bits;
 	}
 }
 
