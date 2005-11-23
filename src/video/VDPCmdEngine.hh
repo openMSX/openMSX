@@ -124,10 +124,10 @@ private:
 		static const byte PIXELS_PER_BYTE = 2;
 		static const byte PIXELS_PER_BYTE_SHIFT = 1;
 		static const word PIXELS_PER_LINE = 256;
-		static inline int addressOf(int x, int y);
-		static inline byte point(VDPVRAM& vram, int x, int y);
+		static inline int addressOf(int x, int y, bool extVRAM);
+		static inline byte point(VDPVRAM& vram, int x, int y, bool extVRAM);
 		static inline void pset(const EmuTime& time, VDPVRAM& vram,
-			int x, int y, byte colour, LogOp& op);
+			int x, int y, bool extVRAM, byte colour, LogOp& op);
 	};
 
 	/** Represents V9938 Graphic 5 mode (SCREEN6).
@@ -138,10 +138,10 @@ private:
 		static const byte PIXELS_PER_BYTE = 4;
 		static const byte PIXELS_PER_BYTE_SHIFT = 2;
 		static const word PIXELS_PER_LINE = 512;
-		static inline int addressOf(int x, int y);
-		static inline byte point(VDPVRAM& vram, int x, int y);
+		static inline int addressOf(int x, int y, bool extVRAM);
+		static inline byte point(VDPVRAM& vram, int x, int y, bool extVRAM);
 		static inline void pset(const EmuTime& time, VDPVRAM& vram,
-			int x, int y, byte colour, LogOp& op);
+			int x, int y, bool extVRAM, byte colour, LogOp& op);
 	};
 
 	/** Represents V9938 Graphic 6 mode (SCREEN7).
@@ -152,10 +152,10 @@ private:
 		static const byte PIXELS_PER_BYTE = 2;
 		static const byte PIXELS_PER_BYTE_SHIFT = 1;
 		static const word PIXELS_PER_LINE = 512;
-		static inline int addressOf(int x, int y);
-		static inline byte point(VDPVRAM& vram, int x, int y);
+		static inline int addressOf(int x, int y, bool extVRAM);
+		static inline byte point(VDPVRAM& vram, int x, int y, bool extVRAM);
 		static inline void pset(const EmuTime& time, VDPVRAM& vram,
-			int x, int y, byte colour, LogOp& op);
+			int x, int y, bool extVRAM, byte colour, LogOp& op);
 	};
 
 	/** Represents V9938 Graphic 7 mode (SCREEN8).
@@ -166,10 +166,10 @@ private:
 		static const byte PIXELS_PER_BYTE = 1;
 		static const byte PIXELS_PER_BYTE_SHIFT = 0;
 		static const word PIXELS_PER_LINE = 256;
-		static inline int addressOf(int x, int y);
-		static inline byte point(VDPVRAM& vram, int x, int y);
+		static inline int addressOf(int x, int y, bool extVRAM);
+		static inline byte point(VDPVRAM& vram, int x, int y, bool extVRAM);
 		static inline void pset(const EmuTime& time, VDPVRAM& vram,
-			int x, int y, byte colour, LogOp& op);
+			int x, int y, bool extVRAM, byte colour, LogOp& op);
 	};
 
 	/** This is an abstract base class the VDP commands
@@ -404,6 +404,10 @@ private:
 	  * -1 -> other.
 	  */
 	int scrMode;
+
+	/** Flag that indicated whether extended VRAM is available
+	 */
+	const bool hasExtendedVRAM;
 
 	/** Real command timing or instantaneous (broken) timing
 	  */

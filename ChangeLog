@@ -1,5 +1,8 @@
 $Id$
 
+2005-11-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added 192kb VRAM support in VDPCmdEngine
+
 2005-11-20 Maarten ter Huurne <maarten@treewalker.org>
 	* Optimised variable zoom factor version of 2xSaI.
 	* Used template metaprogramming to instantiate an optimised fixed zoom

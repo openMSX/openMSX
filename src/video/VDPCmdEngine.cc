@@ -41,6 +41,7 @@ TODO:
 #include "BooleanSetting.hh"
 #include "MSXMotherBoard.hh"
 #include "RenderSettings.hh"
+#include "likely.hh"
 #include <iostream>
 #include <cassert>
 #include <algorithm>
@@ -52,6 +53,8 @@ using std::auto_ptr;
 namespace openmsx {
 
 // Constants:
+const byte MXD = 0x20;
+const byte MXS = 0x10;
 const byte DIY = 0x08;
 const byte DIX = 0x04;
 const byte EQ  = 0x02;
@@ -143,80 +146,93 @@ static inline word clipNY_2(word SY, word DY, word NY, byte ARG)
 
 // Graphic4Mode:
 
-inline int VDPCmdEngine::Graphic4Mode::addressOf(int x, int y)
+inline int VDPCmdEngine::Graphic4Mode::addressOf(int x, int y, bool extVRAM)
 {
-	return (((y & 1023) << 7) + ((x & 255) >> 1));
+	return likely(!extVRAM)
+		? (((y & 1023) << 7) | ((x & 255) >> 1))
+		: (((y &  511) << 7) | ((x & 255) >> 1)) | 0x20000;
 }
 
-inline byte VDPCmdEngine::Graphic4Mode::point(VDPVRAM& vram, int x, int y)
+inline byte VDPCmdEngine::Graphic4Mode::point(
+	VDPVRAM& vram, int x, int y, bool extVRAM)
 {
-	return ( vram.cmdReadWindow.readNP(addressOf(x, y))
+	return ( vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM))
 		>> (((~x) & 1) << 2) ) & 15;
 }
 
 inline void VDPCmdEngine::Graphic4Mode::pset(
-	const EmuTime& time, VDPVRAM& vram, int x, int y, byte colour, LogOp& op)
+	const EmuTime& time, VDPVRAM& vram, int x, int y, bool extVRAM,
+	byte colour, LogOp& op)
 {
 	byte sh = ((~x) & 1) << 2;
-	op.pset(time, vram, addressOf(x, y), colour << sh, ~(15 << sh));
+	op.pset(time, vram, addressOf(x, y, extVRAM), colour << sh, ~(15 << sh));
 }
 
 // Graphic5Mode:
 
-inline int VDPCmdEngine::Graphic5Mode::addressOf(int x, int y)
+inline int VDPCmdEngine::Graphic5Mode::addressOf(int x, int y, bool extVRAM)
 {
-	return (((y & 1023) << 7) + ((x & 511) >> 2));
+	return likely(!extVRAM)
+		? (((y & 1023) << 7) | ((x & 511) >> 2))
+		: (((y &  511) << 7) | ((x & 511) >> 2)) | 0x20000;
 }
 
-inline byte VDPCmdEngine::Graphic5Mode::point(VDPVRAM& vram, int x, int y)
+inline byte VDPCmdEngine::Graphic5Mode::point(VDPVRAM& vram, int x, int y, bool extVRAM)
 {
-	return ( vram.cmdReadWindow.readNP(addressOf(x, y))
+	return ( vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM))
 		>> (((~x) & 3) << 1) ) & 3;
 }
 
 inline void VDPCmdEngine::Graphic5Mode::pset(
-	const EmuTime& time, VDPVRAM& vram, int x, int y, byte colour, LogOp& op)
+	const EmuTime& time, VDPVRAM& vram, int x, int y, bool extVRAM,
+	byte colour, LogOp& op)
 {
 	byte sh = ((~x) & 3) << 1;
-	op.pset(time, vram, addressOf(x, y), colour << sh, ~(3 << sh));
+	op.pset(time, vram, addressOf(x, y, extVRAM), colour << sh, ~(3 << sh));
 }
 
 // Graphic6Mode:
 
-inline int VDPCmdEngine::Graphic6Mode::addressOf(int x, int y)
+inline int VDPCmdEngine::Graphic6Mode::addressOf(int x, int y, bool extVRAM)
 {
-	return (((x & 2) << 15) + ((y & 511) << 7) + ((x & 511) >> 2));
+	return likely(!extVRAM)
+		? ((x & 2) << 15) | ((y & 511) << 7) | ((x & 511) >> 2)
+		: 0x20000         | ((y & 511) << 7) | ((x & 511) >> 2);
 }
 
-inline byte VDPCmdEngine::Graphic6Mode::point(VDPVRAM& vram, int x, int y)
+inline byte VDPCmdEngine::Graphic6Mode::point(VDPVRAM& vram, int x, int y, bool extVRAM)
 {
-	return ( vram.cmdReadWindow.readNP(addressOf(x, y))
+	return ( vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM))
 		>> (((~x) & 1) << 2) ) & 15;
 }
 
 inline void VDPCmdEngine::Graphic6Mode::pset(
-	const EmuTime& time, VDPVRAM& vram, int x, int y, byte colour, LogOp& op)
+	const EmuTime& time, VDPVRAM& vram, int x, int y, bool extVRAM,
+	byte colour, LogOp& op)
 {
 	byte sh = ((~x) & 1) << 2;
-	op.pset(time, vram, addressOf(x, y), colour << sh, ~(15 << sh));
+	op.pset(time, vram, addressOf(x, y, extVRAM), colour << sh, ~(15 << sh));
 }
 
 // Graphic7Mode:
 
-inline int VDPCmdEngine::Graphic7Mode::addressOf(int x, int y)
+inline int VDPCmdEngine::Graphic7Mode::addressOf(int x, int y, bool extVRAM)
 {
-	return (((x & 1) << 16) + ((y & 511) << 7) + ((x & 255) >> 1));
+	return likely(!extVRAM)
+		? ((x & 1) << 16) | ((y & 511) << 7) | ((x & 255) >> 1)
+		: 0x20000         | ((y & 511) << 7) | ((x & 255) >> 1);
 }
 
-inline byte VDPCmdEngine::Graphic7Mode::point(VDPVRAM& vram, int x, int y)
+inline byte VDPCmdEngine::Graphic7Mode::point(VDPVRAM& vram, int x, int y, bool extVRAM)
 {
-	return vram.cmdReadWindow.readNP(addressOf(x, y));
+	return vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM));
 }
 
 inline void VDPCmdEngine::Graphic7Mode::pset(
-	const EmuTime& time, VDPVRAM& vram, int x, int y, byte colour, LogOp& op)
+	const EmuTime& time, VDPVRAM& vram, int x, int y, bool extVRAM,
+	byte colour, LogOp& op)
 {
-	op.pset(time, vram, addressOf(x, y), colour, 0);
+	op.pset(time, vram, addressOf(x, y, extVRAM), colour, 0);
 }
 
 // Logical operations:
@@ -328,6 +344,7 @@ void VDPCmdEngine::createEngines(int cmd) {
 
 VDPCmdEngine::VDPCmdEngine(VDP& vdp_)
 	: vdp(vdp_), vram(vdp.getVRAM())
+	, hasExtendedVRAM(vram.getSize() == (192 * 1024))
 	, cmdTraceSetting(new BooleanSetting(
 		vdp.getMotherBoard().getCommandController(),
 		"vdpcmdtrace", "VDP command tracing on/off", false))
@@ -671,8 +688,12 @@ void VDPCmdEngine::PointCmd<Mode>::start(const EmuTime& time)
 	clock.reset(time);
 	vram.cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	vram.cmdWriteWindow.disable(clock.getTime());
-
-	engine.COL = Mode::point(vram, engine.SX, engine.SY);
+	bool srcExt  = engine.ARG & MXS;
+	bool doPoint = !srcExt || engine.hasExtendedVRAM;
+	
+	engine.COL = likely(doPoint)
+	           ? Mode::point(vram, engine.SX, engine.SY, srcExt)
+	           : 0xFF;
 	engine.commandDone(clock.getTime());
 }
 
@@ -696,10 +717,14 @@ void VDPCmdEngine::PsetCmd<Mode>::start(const EmuTime& time)
 	clock.reset(time);
 	vram.cmdReadWindow.disable(clock.getTime());
 	vram.cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	bool dstExt = engine.ARG & MXD;
+	bool doPset = !dstExt || engine.hasExtendedVRAM;
 
-	byte col = engine.COL & Mode::COLOUR_MASK;
-	Mode::pset(clock.getTime(), vram,
-		engine.DX, engine.DY, col, *engine.currentOperation);
+	if (likely(doPset)) {
+		byte col = engine.COL & Mode::COLOUR_MASK;
+		Mode::pset(clock.getTime(), vram, engine.DX, engine.DY,
+		           dstExt, col, *engine.currentOperation);
+	}
 	engine.commandDone(clock.getTime());
 }
 
@@ -735,8 +760,16 @@ void VDPCmdEngine::SrchCmd<Mode>::execute(const EmuTime& time)
 	bool AEQ = (engine.ARG & EQ) != 0; // TODO: Do we look for "==" or "!="?
 	int delta = SRCH_TIMING[engine.getTiming()];
 
+	// TODO use MXS or MXD here?
+	//  datasheet says MXD but MXS seems more logical
+	bool srcExt  = engine.ARG & MXS;
+	bool doPoint = !srcExt || engine.hasExtendedVRAM;
+
 	while (clock.before(time)) {
-		if ((Mode::point(vram, ASX, engine.SY) == CL) ^ AEQ) {
+		byte p = likely(doPoint)
+		       ? Mode::point(vram, ASX, engine.SY, srcExt)
+		       : 0xFF;
+		if ((p == CL) ^ AEQ) {
 			clock += delta;
 			engine.status |= 0x10; // border detected
 			engine.commandDone(clock.getTime());
@@ -782,12 +815,16 @@ void VDPCmdEngine::LineCmd<Mode>::execute(const EmuTime& time)
 	char TX = (engine.ARG & DIX) ? -1 : 1;
 	char TY = (engine.ARG & DIY) ? -1 : 1;
 	int delta = LINE_TIMING[engine.getTiming()];
+	bool dstExt = engine.ARG & MXD;
+	bool doPset = !dstExt || engine.hasExtendedVRAM;
 
 	if ((engine.ARG & MAJ) == 0) {
 		// X-Axis is major direction.
 		while (clock.before(time)) {
-			Mode::pset(clock.getTime(), vram,
-				ADX, engine.DY, CL, *engine.currentOperation);
+			if (likely(doPset)) {
+				Mode::pset(clock.getTime(), vram, ADX, engine.DY,
+				           dstExt, CL, *engine.currentOperation);
+			}
 			clock += delta;
 			ADX += TX;
 			if (ASX < engine.NY) {
@@ -804,8 +841,10 @@ void VDPCmdEngine::LineCmd<Mode>::execute(const EmuTime& time)
 	} else {
 		// Y-Axis is major direction.
 		while (clock.before(time)) {
-			Mode::pset(clock.getTime(), vram,
-				ADX, engine.DY, CL, *engine.currentOperation);
+			if (likely(doPset)) {
+				Mode::pset(clock.getTime(), vram, ADX, engine.DY,
+				           dstExt, CL, *engine.currentOperation);
+			}
 			clock += delta;
 			engine.DY += TY;
 			if (ASX < engine.NY) {
@@ -873,10 +912,14 @@ void VDPCmdEngine::LmmvCmd<Mode>::execute(const EmuTime& time)
 	ANX = clipNX_1_pixel<Mode>(ADX, ANX, engine.ARG);
 	byte CL = engine.COL & Mode::COLOUR_MASK;
 	int delta = LMMV_TIMING[engine.getTiming()];
+	bool dstExt = engine.ARG & MXD;
+	bool doPset = !dstExt || engine.hasExtendedVRAM;
 
 	while (clock.before(time)) {
-		Mode::pset(clock.getTime(), vram,
-			ADX, engine.DY, CL, *engine.currentOperation);
+		if (likely(doPset)) {
+			Mode::pset(clock.getTime(), vram, ADX, engine.DY,
+			           dstExt, CL, *engine.currentOperation);
+		}
 	post_x_y()
 
 	calcFinishTime(NX, NY);
@@ -918,11 +961,19 @@ void VDPCmdEngine::LmmmCmd<Mode>::execute(const EmuTime& time)
 	char TY = (engine.ARG & DIY) ? -1 : 1;
 	ANX = clipNX_2_pixel<Mode>(ASX, ADX, ANX, engine.ARG);
 	int delta = LMMM_TIMING[engine.getTiming()];
-
+	bool srcExt  = engine.ARG & MXS;
+	bool dstExt  = engine.ARG & MXD;
+	bool doPoint = !srcExt || engine.hasExtendedVRAM;
+	bool doPset  = !dstExt || engine.hasExtendedVRAM;
+	
 	while (clock.before(time)) {
-		Mode::pset(clock.getTime(), vram,
-			ADX, engine.DY, Mode::point(vram, ASX, engine.SY),
-			*engine.currentOperation);
+		if (likely(doPset)) {
+			byte p = likely(doPoint)
+			       ? Mode::point(vram, ASX, engine.SY, srcExt)
+			       : 0xFF;
+			Mode::pset(clock.getTime(), vram, ADX, engine.DY,
+			           dstExt, p, *engine.currentOperation);
+		}
 	post_xxyy()
 
 	calcFinishTime(NX, NY);
@@ -961,9 +1012,13 @@ void VDPCmdEngine::LmcmCmd<Mode>::execute(const EmuTime& time)
 	char TX = (engine.ARG & DIX) ? -1 : 1;
 	char TY = (engine.ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1_pixel<Mode>(ASX, ANX, engine.ARG);
+	bool srcExt  = engine.ARG & MXS;
+	bool doPoint = !srcExt || engine.hasExtendedVRAM;
 
 	if (engine.transfer) {
-		engine.COL = Mode::point(vram, ASX, engine.SY);
+		engine.COL = likely(doPoint)
+		           ? Mode::point(vram, ASX, engine.SY, srcExt)
+		           : 0xFF;
 		// Execution is emulated as instantaneous, so don't bother
 		// with the timing.
 		// Note: Correct timing would require currentTime to be set
@@ -1014,13 +1069,17 @@ void VDPCmdEngine::LmmcCmd<Mode>::execute(const EmuTime& time)
 	char TX = (engine.ARG & DIX) ? -1 : 1;
 	char TY = (engine.ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1_pixel<Mode>(ADX, ANX, engine.ARG);
+	bool dstExt = engine.ARG & MXD;
+	bool doPset  = !dstExt || engine.hasExtendedVRAM;
 
 	if (engine.transfer) {
 		byte col = engine.COL & Mode::COLOUR_MASK;
 		// TODO: Write time is inaccurate.
 		clock.reset(time);
-		Mode::pset(clock.getTime(), vram,
-			ADX, engine.DY, col, *engine.currentOperation);
+		if (likely(doPset)) {
+			Mode::pset(clock.getTime(), vram, ADX, engine.DY,
+			           dstExt, col, *engine.currentOperation);
+		}
 		// Execution is emulated as instantaneous, so don't bother
 		// with the timing.
 		// Note: Correct timing would require currentTime to be set
@@ -1074,10 +1133,14 @@ void VDPCmdEngine::HmmvCmd<Mode>::execute(const EmuTime& time)
 	ANX = clipNX_1_byte<Mode>(
 		ADX, ANX << Mode::PIXELS_PER_BYTE_SHIFT, engine.ARG );
 	int delta = HMMV_TIMING[engine.getTiming()];
+	bool dstExt = engine.ARG & MXD;
+	bool doPset  = !dstExt || engine.hasExtendedVRAM;
 
 	while (clock.before(time)) {
-		vram.cmdWrite(
-			Mode::addressOf(ADX, engine.DY), engine.COL, clock.getTime());
+		if (likely(doPset)) {
+			vram.cmdWrite(Mode::addressOf(ADX, engine.DY, dstExt),
+			              engine.COL, clock.getTime());
+		}
 	post_x_y()
 
 	calcFinishTime(NX, NY);
@@ -1121,13 +1184,20 @@ void VDPCmdEngine::HmmmCmd<Mode>::execute(const EmuTime& time)
 	ANX = clipNX_2_byte<Mode>(
 		ASX, ADX, ANX << Mode::PIXELS_PER_BYTE_SHIFT, engine.ARG );
 	int delta = HMMM_TIMING[engine.getTiming()];
+	bool srcExt  = engine.ARG & MXS;
+	bool dstExt  = engine.ARG & MXD;
+	bool doPoint = !srcExt || engine.hasExtendedVRAM;
+	bool doPset  = !dstExt || engine.hasExtendedVRAM;
 
 	while (clock.before(time)) {
-		vram.cmdWrite(
-			Mode::addressOf(ADX, engine.DY),
-			vram.cmdReadWindow.readNP(Mode::addressOf(ASX, engine.SY)),
-			clock.getTime()
-			);
+		if (likely(doPset)) {
+			byte p = likely(doPoint)
+			       ? vram.cmdReadWindow.readNP(
+			               Mode::addressOf(ASX, engine.SY, srcExt))
+			       : 0xFF;
+			vram.cmdWrite(Mode::addressOf(ADX, engine.DY, dstExt),
+			              p, clock.getTime());
+		}
 	post_xxyy()
 
 	calcFinishTime(NX, NY);
@@ -1170,12 +1240,19 @@ void VDPCmdEngine::YmmmCmd<Mode>::execute(const EmuTime& time)
 	ANX = clipNX_1_byte<Mode>(ADX, 512, engine.ARG);
 	int delta = YMMM_TIMING[engine.getTiming()];
 
+	// TODO does this use MXD for both read and write?
+	//  it says so in the datasheet, but it seems unlogical
+	//  OTOH YMMM also uses DX for both read and write
+	bool dstExt = engine.ARG & MXD;
+	bool doPset  = !dstExt || engine.hasExtendedVRAM;
+
 	while (clock.before(time)) {
-		vram.cmdWrite(
-			Mode::addressOf(ADX, engine.DY),
-			vram.cmdReadWindow.readNP(Mode::addressOf(ADX, engine.SY)),
-			clock.getTime()
-			);
+		if (likely(doPset)) {
+			byte p = vram.cmdReadWindow.readNP(
+			              Mode::addressOf(ADX, engine.SY, dstExt));
+			vram.cmdWrite(Mode::addressOf(ADX, engine.DY, dstExt),
+			              p, clock.getTime());
+		}
 	post_xxyy()
 
 	calcFinishTime(NX, NY);
@@ -1216,10 +1293,15 @@ void VDPCmdEngine::HmmcCmd<Mode>::execute(const EmuTime& time)
 	char TY = (engine.ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1_byte<Mode>(
 		ADX, ANX << Mode::PIXELS_PER_BYTE_SHIFT, engine.ARG );
+	bool dstExt = engine.ARG & MXD;
+	bool doPset = !dstExt || engine.hasExtendedVRAM;
 
 	if (engine.transfer) {
 		// TODO: Write time is inaccurate.
-		vram.cmdWrite(Mode::addressOf(ADX, engine.DY), engine.COL, time);
+		if (likely(doPset)) {
+			vram.cmdWrite(Mode::addressOf(ADX, engine.DY, dstExt),
+			              engine.COL, time);
+		}
 		// Execution is emulated as instantaneous, so don't bother
 		// with the timing.
 		// Note: Correct timing would require currentTime to be set
