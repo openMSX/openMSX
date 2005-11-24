@@ -195,7 +195,6 @@ public:
 		// Reads are only allowed if window is enabled.
 		assert(isEnabled());
 		unsigned addr = baseMask & index;
-		assert(addr < (1 << 17));
 		return &data[addr];
 	}
 

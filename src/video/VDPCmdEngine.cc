@@ -150,7 +150,7 @@ inline int VDPCmdEngine::Graphic4Mode::addressOf(int x, int y, bool extVRAM)
 {
 	return likely(!extVRAM)
 		? (((y & 1023) << 7) | ((x & 255) >> 1))
-		: (((y &  511) << 7) | ((x & 255) >> 1)) | 0x20000;
+		: (((y &  511) << 7) | ((x & 255) >> 1) | 0x20000);
 }
 
 inline byte VDPCmdEngine::Graphic4Mode::point(
@@ -174,7 +174,7 @@ inline int VDPCmdEngine::Graphic5Mode::addressOf(int x, int y, bool extVRAM)
 {
 	return likely(!extVRAM)
 		? (((y & 1023) << 7) | ((x & 511) >> 2))
-		: (((y &  511) << 7) | ((x & 511) >> 2)) | 0x20000;
+		: (((y &  511) << 7) | ((x & 511) >> 2) | 0x20000);
 }
 
 inline byte VDPCmdEngine::Graphic5Mode::point(VDPVRAM& vram, int x, int y, bool extVRAM)
@@ -196,8 +196,8 @@ inline void VDPCmdEngine::Graphic5Mode::pset(
 inline int VDPCmdEngine::Graphic6Mode::addressOf(int x, int y, bool extVRAM)
 {
 	return likely(!extVRAM)
-		? ((x & 2) << 15) | ((y & 511) << 7) | ((x & 511) >> 2)
-		: 0x20000         | ((y & 511) << 7) | ((x & 511) >> 2);
+		? (((x & 2) << 15) | ((y & 511) << 7) | ((x & 511) >> 2))
+		: (0x20000         | ((y & 511) << 7) | ((x & 511) >> 2));
 }
 
 inline byte VDPCmdEngine::Graphic6Mode::point(VDPVRAM& vram, int x, int y, bool extVRAM)
@@ -219,8 +219,8 @@ inline void VDPCmdEngine::Graphic6Mode::pset(
 inline int VDPCmdEngine::Graphic7Mode::addressOf(int x, int y, bool extVRAM)
 {
 	return likely(!extVRAM)
-		? ((x & 1) << 16) | ((y & 511) << 7) | ((x & 255) >> 1)
-		: 0x20000         | ((y & 511) << 7) | ((x & 255) >> 1);
+		? (((x & 1) << 16) | ((y & 511) << 7) | ((x & 255) >> 1))
+		: (0x20000         | ((y & 511) << 7) | ((x & 255) >> 1));
 }
 
 inline byte VDPCmdEngine::Graphic7Mode::point(VDPVRAM& vram, int x, int y, bool extVRAM)
@@ -686,7 +686,7 @@ template <class Mode>
 void VDPCmdEngine::PointCmd<Mode>::start(const EmuTime& time)
 {
 	clock.reset(time);
-	vram.cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 17, clock.getTime());
 	vram.cmdWriteWindow.disable(clock.getTime());
 	bool srcExt  = engine.ARG & MXS;
 	bool doPoint = !srcExt || engine.hasExtendedVRAM;
@@ -716,7 +716,7 @@ void VDPCmdEngine::PsetCmd<Mode>::start(const EmuTime& time)
 {
 	clock.reset(time);
 	vram.cmdReadWindow.disable(clock.getTime());
-	vram.cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 17, clock.getTime());
 	bool dstExt = engine.ARG & MXD;
 	bool doPset = !dstExt || engine.hasExtendedVRAM;
 
@@ -746,7 +746,7 @@ template <class Mode>
 void VDPCmdEngine::SrchCmd<Mode>::start(const EmuTime& time)
 {
 	clock.reset(time);
-	vram.cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 17, clock.getTime());
 	vram.cmdWriteWindow.disable(clock.getTime());
 	ASX = engine.SX;
 	engine.statusChangeTime = EmuTime::zero; // we can find it any moment
@@ -800,7 +800,7 @@ void VDPCmdEngine::LineCmd<Mode>::start(const EmuTime& time)
 {
 	clock.reset(time);
 	vram.cmdReadWindow.disable(clock.getTime());
-	vram.cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 17, clock.getTime());
 	engine.NY &= 1023;
 	ASX = ((engine.NX - 1) >> 1);
 	ADX = engine.DX;
@@ -892,7 +892,7 @@ void VDPCmdEngine::LmmvCmd<Mode>::start(const EmuTime& time)
 {
 	clock.reset(time);
 	vram.cmdReadWindow.disable(clock.getTime());
-	vram.cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 17, clock.getTime());
 	engine.NY &= 1023;
 	word NX = clipNX_1_pixel<Mode>(engine.DX, engine.NX, engine.ARG);
 	word NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
@@ -938,8 +938,8 @@ template <class Mode>
 void VDPCmdEngine::LmmmCmd<Mode>::start(const EmuTime& time)
 {
 	clock.reset(time);
-	vram.cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
-	vram.cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 17, clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 17, clock.getTime());
 	engine.NY &= 1023;
 	word NX = clipNX_2_pixel<Mode>(
 		engine.SX, engine.DX, engine.NX, engine.ARG );
@@ -992,7 +992,7 @@ template <class Mode>
 void VDPCmdEngine::LmcmCmd<Mode>::start(const EmuTime& time)
 {
 	clock.reset(time);
-	vram.cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 17, clock.getTime());
 	vram.cmdWriteWindow.disable(clock.getTime());
 	engine.NY &= 1023;
 	word NX = clipNX_1_pixel<Mode>(engine.SX, engine.NX, engine.ARG);
@@ -1050,7 +1050,7 @@ void VDPCmdEngine::LmmcCmd<Mode>::start(const EmuTime& time)
 {
 	clock.reset(time);
 	vram.cmdReadWindow.disable(clock.getTime());
-	vram.cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 17, clock.getTime());
 	engine.NY &= 1023;
 	word NX = clipNX_1_pixel<Mode>(engine.DX, engine.NX, engine.ARG);
 	ADX = engine.DX;
@@ -1112,7 +1112,7 @@ void VDPCmdEngine::HmmvCmd<Mode>::start(const EmuTime& time)
 {
 	clock.reset(time);
 	vram.cmdReadWindow.disable(clock.getTime());
-	vram.cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 17, clock.getTime());
 	engine.NY &= 1023;
 	word NX = clipNX_1_byte<Mode>(engine.DX, engine.NX, engine.ARG);
 	word NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
@@ -1159,8 +1159,8 @@ template <class Mode>
 void VDPCmdEngine::HmmmCmd<Mode>::start(const EmuTime& time)
 {
 	clock.reset(time);
-	vram.cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
-	vram.cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 17, clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 17, clock.getTime());
 	engine.NY &= 1023;
 	word NX = clipNX_2_byte<Mode>(
 		engine.SX, engine.DX, engine.NX, engine.ARG );
@@ -1216,8 +1216,8 @@ template <class Mode>
 void VDPCmdEngine::YmmmCmd<Mode>::start(const EmuTime& time)
 {
 	clock.reset(time);
-	vram.cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
-	vram.cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 17, clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 17, clock.getTime());
 	engine.NY &= 1023;
 	word NX = clipNX_1_byte<Mode>(engine.DX, 512, engine.ARG);
 		// large enough so that it gets clipped
@@ -1272,7 +1272,7 @@ void VDPCmdEngine::HmmcCmd<Mode>::start(const EmuTime& time)
 {
 	clock.reset(time);
 	vram.cmdReadWindow.disable(clock.getTime());
-	vram.cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 17, clock.getTime());
 	engine.NY &= 1023;
 	word NX = clipNX_1_byte<Mode>(engine.DX, engine.NX, engine.ARG);
 	ADX = engine.DX;
