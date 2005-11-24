@@ -52,14 +52,15 @@ static void doScaleDV(
 	PixelOperations<Pixel> ops, ScaleOp scale)
 {
 	BlendLines<Pixel> blend(ops);
-	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY += 3) {
+	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
+	     srcY += 2, dstY += 3) {
 		Pixel* dummy = 0;
-		const Pixel* srcLine0 = src.getLinePtr(srcStartY++, dummy);
+		const Pixel* srcLine0 = src.getLinePtr(srcY + 0, dummy);
 		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
 		scale(srcLine0, dstLine0, 960);
 
 		// TODO if ((dstY + 2) == endDstY) { .. }
-		const Pixel* srcLine1 = src.getLinePtr(srcStartY++, dummy);
+		const Pixel* srcLine1 = src.getLinePtr(srcY + 1, dummy);
 		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
 		scale(srcLine1, dstLine2, 960);
 
