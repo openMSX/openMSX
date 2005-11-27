@@ -36,7 +36,7 @@ private:
 
 
 class CassettePlayer : public CassetteDevice, public SoundDevice,
-                       private SimpleCommand
+                       private Command
 {
 public:
 	CassettePlayer(CommandController& commandController, Mixer& mixer);
@@ -96,7 +96,8 @@ private:
 	std::auto_ptr<WavWriter> wavWriter;
 
 	// Tape Command
-	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+				TclObject& result);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
