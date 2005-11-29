@@ -1,4 +1,4 @@
-# game trainers version 1.1
+# game trainers version 1.5
 #
 # credits:
 #   copyright 2005 albert beevendorp all rights reserved
@@ -22,7 +22,7 @@ proc trainer_f1spirit {} {
 	#player 1 always first place
 	poke 0xe331 1
 	#all combi's with konami carts (thanks bifi)
-	poke  0xe1de 2
+	poke 0xe1de 2
 	#escon
 	poke 0xe1fd 1
 	#hyperoff
@@ -335,6 +335,8 @@ proc trainer_golvellius1 {} {
 	poke 0xe051 255
 	#do not get paralized when hit by an enemy (should be done every frame)
 	poke 0xd01a 0
+	#get all christals (bitmask) (NEW)
+	poke 0xe05f 255 
 	after time 1 trainer_golvellius1 
 } 
 
@@ -891,6 +893,12 @@ proc trainer_sdsnatcher {} {
 	#!poke 0xc150 11
 }
 
+proc trainer_sd-snatcher_walk_trough_walls {} { 
+	poke 0x92b6 0xc9
+	after time 1 trainer_sd-snatcher_walk_trough_walls
+} 
+
+
 proc trainer_undeadline {} {
 	#life
 	poke 0xd2a8 255 
@@ -1304,7 +1312,7 @@ proc trainer_usas {} {
 
 proc trainer_aleste1 {} {
 	#lives
-	poke 49168 98
+	poke 0xc010 98
 	#invincible
 	poke 0xc810 255
 	#maxed up normal shot
@@ -1370,9 +1378,9 @@ proc trainer_ashiguine3 {} {
 
 proc trainer_ashiguine2 {} {
 	#life
-	poke 49174 255
+	poke 0xc016 255
 	#keys
-	poke 49186 99
+	poke 0xc022 99
 	after time 2 trainer_ashiguine2
 }
 
@@ -4320,13 +4328,13 @@ proc trainer_replicart {} {
 
 proc trainer_dass {} {
 	#special power
-	poke 0aea1 162
+	poke 0xaea1 162
 	after time 1 trainer_dass
 }
 
 proc trainer_mirai {} {
 	#special power
-	poke 0aea1 162
+	poke 0xaea1 162
 	after time 1 trainer_mirai
 }
 
@@ -4600,9 +4608,48 @@ proc trainer_borfesu {} {
 }
 
 proc trainer_alcazar {} {
+	#power
 	poke 0xf082 127
 	poke 0xf209 1
 after frame trainer_alcazar	
+}
+
+proc trainer_saimazoom {} {
+	#lives
+	poke 0xd9cf 9
+	#water
+	poke 0xd9d8 0x99
+	poke 0xd9d9 0x99
+	#remove time limit
+	poke 0xd9d1 0
+	#slot 1
+	#poke 0xd9e8 102
+	#slot 2
+	poke 0xd9e9 102
+	#slot 3 
+	poke 0xd9ea 103
+	#slot 4
+	poke 0xd9eb 106
+	#items
+	# 100 = bag
+	# 101 = water bottle
+	# 102 = knife*
+	# 103 = pick axe*
+	# 104 = key*
+	# 105 = kanoo*
+	# 106 = gun*
+	# 107 = nothing		
+	if {[peek 0xd9e8] < 100} {
+	    poke 0xd9e8 100
+    }
+    
+    poke  0xd9e8 [expr [peek 0xd9e8]+1]
+    
+	if {[peek 0xd9e8] > 106} {
+	    poke 0xd9e8 100
+    }
+    
+	after time 1 trainer_saimazoom
 }
 
 proc poke {addr val} {
