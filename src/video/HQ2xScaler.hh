@@ -15,11 +15,11 @@ class HQ2xScaler: public Scaler2<Pixel>
 public:
 	HQ2xScaler(SDL_PixelFormat* format);
 
-	virtual void scale1x1to2x2(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	virtual void scale1x1to2x2(FrameSource& src, 
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale1x1to1x2(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	virtual void scale1x1to1x2(FrameSource& src, 
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 };
 

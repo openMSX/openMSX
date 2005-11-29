@@ -8,41 +8,22 @@
 
 namespace openmsx {
 
-/** Produces a deinterlaced video frame based on two RawFrames containing the
-  * even and odd field.
-  * This class does not copy the data from the RawFrames.
+/** Produces a deinterlaced video frame based on two other FrameSources
+  * (typically two RawFrames) containing the even and odd field.
+  * This class does not copy the data from the input FrameSources.
   */
 class DeinterlacedFrame : public FrameSource
 {
 public:
-	DeinterlacedFrame(FrameSource* evenField, FrameSource* oddField) {
-		// TODO: I think these assertions make sense, but we cannot currently
-		//       guarantee them. See TODO in PostProcessor::paint.
-		//assert(evenField->getField() == RawFrame::FIELD_EVEN);
-		//assert(oddField->getField() == RawFrame::FIELD_ODD);
-		assert(evenField->height == oddField->height);
-		height = 2 * evenField->getHeight();
-		fields[0] = evenField;
-		fields[1] = oddField;
-	}
+	DeinterlacedFrame(const SDL_PixelFormat* format);
 
-	virtual ~DeinterlacedFrame() {
-		// TODO: Should DeinterlacedFrame become the owner of the even/odd
-		//       frame?
-	}
+	void init(FrameSource* evenField, FrameSource* oddField);
 
-	virtual FieldType getField() {
-		return FIELD_NONINTERLACED;
-	}
-
-	virtual unsigned getLineWidth(unsigned line) {
-		return fields[line & 1]->getLineWidth(line >> 1);
-	}
+	virtual unsigned getLineBufferSize() const;
+	virtual unsigned getLineWidth(unsigned line);
 
 protected:
-	virtual void* getLinePtrImpl(unsigned line) {
-		return fields[line & 1]->getLinePtrImpl(line >> 1);
-	}
+	virtual void* getLinePtrImpl(unsigned line);
 
 private:
 	/** The original frames whose data will be deinterlaced.

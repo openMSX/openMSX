@@ -16,23 +16,20 @@ class SaI3xScaler: public Scaler3<Pixel>
 {
 public:
 	SaI3xScaler(SDL_PixelFormat* format);
-	virtual void scale1x1to3x3(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+
+	virtual void scale1x1to3x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	/*
-	virtual void scale2x1to3x3(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	*/
+
 private:
 	inline Pixel blend(Pixel p1, Pixel p2);
 
 	template <unsigned NX, unsigned NY>
-	void scaleFixed(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	void scaleFixed(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	void scaleAny(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	void scaleAny(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
 	PixelOperations<Pixel> pixelOps;

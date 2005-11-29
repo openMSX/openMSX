@@ -1,5 +1,10 @@
 $Id$
 
+2005-11-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added line scaling in FrameSource:
+	   - fixes the 'double screen' bug
+	   - improves scaler border effects (but still not completely)
+
 2005-11-27 Manuel Bilderbeek <manuel@msxnet.org>
 	* Made cassetteplayer status query machine readable. Just use
 	  'cassetteplayer' to get a TCL list, similar to the diska command.

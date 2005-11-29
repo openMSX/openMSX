@@ -5,7 +5,10 @@
 #include "likely.hh"
 #include "openmsx.hh"
 #include "build-info.hh"
+#include "probed_defs.hh"
+#include <map>
 #include <cassert>
+#include <cstdlib>
 
 namespace openmsx {
 
@@ -290,6 +293,73 @@ template void memset  <unsigned,  true>(unsigned*, unsigned, unsigned);
 template void memset  <unsigned, false>(unsigned*, unsigned, unsigned);
 template void memset  <word    ,  true>(word*,     unsigned, word    );
 template void memset  <word    , false>(word*    , unsigned, word    );
+
+
+
+/** Aligned memory (de)allocation
+ */
+
+// Helper class to keep track of aligned/unaligned pointer pairs
+class AllocMap
+{
+public:
+	static AllocMap& instance() {
+		static AllocMap oneInstance;
+		return oneInstance;
+	}
+
+	void insert(void* aligned, void* unaligned) {
+		assert(allocMap.find(aligned) == allocMap.end());
+		allocMap[aligned] = unaligned;
+	}
+
+	void* remove(void* aligned) {
+		std::map<void*, void*>::iterator it = allocMap.find(aligned);
+		assert(it != allocMap.end());
+		void* unaligned = it->second;
+		allocMap.erase(it);
+		return unaligned;
+	}
+	
+private:
+	AllocMap() {}
+	~AllocMap() {
+		assert(allocMap.empty());
+	}
+
+	std::map<void*, void*> allocMap;
+};
+
+void* mallocAligned(unsigned alignment, unsigned size)
+{
+#ifdef HAVE_POSIX_MEMALIGN
+	void* aligned;
+	posix_memalign(&aligned, alignment, size);
+	#ifdef DEBUG
+	AllocMap::instance().insert(aligned, aligned);
+	#endif
+	return aligned;
+#else
+	unsigned long t = alignment - 1;
+	void* unaligned = malloc(size + t);
+	void* aligned = (void*)(((unsigned long)unaligned + t) & ~t);
+	AllocMap::instance().insert(aligned, unaligned);
+	return aligned;
+#endif
+}
+
+void freeAligned(void* aligned)
+{
+#ifdef HAVE_POSIX_MEMALIGN
+	#ifdef DEBUG
+	AllocMap::instance().remove(aligned);
+	#endif
+	free(aligned);
+#else
+	void* unaligned = AllocMap::instance().remove(aligned);
+	free(unaligned);
+#endif
+}
 
 } // namespace MemoryOps
 

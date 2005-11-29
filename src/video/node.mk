@@ -27,7 +27,7 @@ SRC_HDR:= \
 	IconLayer IconStatus \
 	SDLImage \
 	MemoryOps \
-	RawFrame PostProcessor \
+	FrameSource RawFrame DeinterlacedFrame PostProcessor \
 	OutputSurface SDLOutputSurface \
 	Icon
 
@@ -39,7 +39,6 @@ HDR_ONLY:= \
 	PixelOperations \
 	LineScalers \
 	Rasterizer \
-	FrameSource DeinterlacedFrame \
 	HQCommon \
 	VideoSystemChangeListener.hh
 

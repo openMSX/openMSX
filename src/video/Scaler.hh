@@ -73,16 +73,15 @@ public:
 	  * are all equally wide.
 	  * Scaling factor depends on the concrete scaler.
 	  * @param src Source: the frame to be scaled.
-	  * @param lineWidth The number of pixels per line for the given area.
 	  * @param srcStartY Y-coordinate of the top source line (inclusive).
 	  * @param srcEndY Y-coordinate of the bottom source line (exclusive).
+	  * @param srcWidth The number of pixels per line for the given area.
 	  * @param dst Destination: image to store the scaled output in.
 	  * @param dstStartY Y-coordinate of the top destination line (inclusive).
 	  * @param dstEndY Y-coordinate of the bottom destination line (exclusive).
 	  */
-	virtual void scaleImage(
-		FrameSource& src, unsigned lineWidth,
-		unsigned srcStartY, unsigned srcEndY,
+	virtual void scaleImage(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY) = 0;
 };
 

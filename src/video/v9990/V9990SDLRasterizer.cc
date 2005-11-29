@@ -31,7 +31,7 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(V9990& vdp_, OutputSurface& screen
 	, p2Converter(vdp, palette64)
 	, deinterlaceSetting(vdp.getMotherBoard().getRenderSettings().getDeinterlace())
 {
-	workFrame = new RawFrame(sizeof(Pixel), 1280, 240);
+	workFrame = new RawFrame(screen.getFormat(), sizeof(Pixel), 1280, 240);
 
 	// Fill palettes
 	precalcPalettes();
@@ -194,7 +194,7 @@ void V9990SDLRasterizer<Pixel>::drawP1Mode(
 		Pixel* pixelPtr = workFrame->getLinePtr(fromY, (Pixel*)0) + fromX;
 		p1Converter.convertLine(pixelPtr, displayX, displayWidth,
 		                        displayY);
-		workFrame->setLineWidth(fromY, 256);
+		workFrame->setLineWidth(fromY, 320);
 		++fromY;
 		++displayY;
 	}
@@ -209,7 +209,7 @@ void V9990SDLRasterizer<Pixel>::drawP2Mode(
 		Pixel* pixelPtr = workFrame->getLinePtr(fromY, (Pixel*)0) + fromX;
 		p2Converter.convertLine(pixelPtr, displayX, displayWidth,
 		                        displayY);
-		workFrame->setLineWidth(fromY, 512);
+		workFrame->setLineWidth(fromY, 640);
 		++fromY;
 		++displayY;
 	}

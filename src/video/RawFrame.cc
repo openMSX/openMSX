@@ -1,54 +1,52 @@
 // $Id$
 
 #include "RawFrame.hh"
-#include <cstring>
-#include <cstdlib>
+#include "MemoryOps.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 
-RawFrame::RawFrame(unsigned bytesPerPixel, unsigned maxWidth_, unsigned height_)
-	: maxWidth(maxWidth_)
+RawFrame::RawFrame(const SDL_PixelFormat* format, unsigned bytesPerPixel,
+                   unsigned maxWidth_, unsigned height)
+	: FrameSource(format)
+	, maxWidth(maxWidth_)
 {
-	height = height_;
+	setHeight(height);
 	lineWidth = new unsigned[height];
 
 	// Allocate memory, make sure each line begins at a 64 byte boundary
 	//  SSE instruction need 16 byte aligned data
 	//  cache line size on athlon and P4 CPUs is 64 bytes
 	pitch = ((bytesPerPixel * maxWidth) + 63) & ~63;
-	unalignedData = malloc(pitch * height + 63);
-	data = (char*)(((unsigned long)unalignedData + 63) & ~63);
+	data = reinterpret_cast<char*>(
+			MemoryOps::mallocAligned(64, pitch * height));
 
 	// Start with a black frame.
 	init(FIELD_NONINTERLACED);
 	for (unsigned line = 0; line < height; line++) {
-		// Make first two pixels black.
-		memset(getLinePtrImpl(line), 0, bytesPerPixel * 2);
-		// Mark line as border.
-		lineWidth[line] = 0;
+		if (bytesPerPixel == 2) {
+			setBlank(line, static_cast<word>(0));
+		} else {
+			setBlank(line, static_cast<unsigned>(0));
+		}
 	}
 }
 
 RawFrame::~RawFrame()
 {
-	free(unalignedData);
+	MemoryOps::freeAligned(data);
 	delete[] lineWidth;
 }
 
-RawFrame::FieldType RawFrame::getField()
+unsigned RawFrame::getLineBufferSize() const
 {
-	return field;
+	return pitch;
 }
 
 unsigned RawFrame::getLineWidth(unsigned line)
 {
-	assert(line < height);
+	assert(line < getHeight());
 	return lineWidth[line];
-}
-
-void RawFrame::init(FieldType field)
-{
-	this->field = field;
 }
 
 void* RawFrame::getLinePtrImpl(unsigned line)

@@ -3,9 +3,8 @@
 #ifndef POSTPROCESSOR_HH
 #define POSTPROCESSOR_HH
 
-#include "RawFrame.hh"
+#include "FrameSource.hh"
 #include "Scaler.hh"
-#include "Renderer.hh"
 #include "VideoLayer.hh"
 
 namespace openmsx {
@@ -14,6 +13,8 @@ class CommandController;
 class RenderSettings;
 class Display;
 class OutputSurface;
+class RawFrame;
+class DeinterlacedFrame;
 
 /** Rasterizer using SDL.
   */
@@ -40,7 +41,7 @@ public:
 	  *   interlacing.
 	  * @return RawFrame object that can be used for building the next frame.
 	  */
-	RawFrame* rotateFrames(RawFrame* finishedFrame, RawFrame::FieldType field);
+	RawFrame* rotateFrames(RawFrame* finishedFrame, FrameSource::FieldType field);
 
 private:
 	/** (Re)initialize the "abcdFrame" variables.
@@ -48,6 +49,11 @@ private:
 	  *   The first call should be done by the constructor.
 	  */
 	void initFrames(bool first = false);
+
+	void paintBlank(
+		FrameSource& frame, unsigned srcStep, unsigned dstStep,
+		unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& screen, unsigned dstStartY, unsigned dstHeight);
 
 	/** Render settings
 	  */
@@ -73,6 +79,10 @@ private:
 	/** The frame before currFrame, ready to be displayed.
 	  */
 	RawFrame* prevFrame;
+
+	/** Combined currFrame and prevFrame
+	  */
+	DeinterlacedFrame* deinterlacedFrame;
 };
 
 } // namespace openmsx

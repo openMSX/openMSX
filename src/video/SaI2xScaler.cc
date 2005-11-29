@@ -12,9 +12,6 @@
 #include "openmsx.hh"
 #include <cassert>
 
-using std::min;
-using std::max;
-
 namespace openmsx {
 
 template <class Pixel>
@@ -48,8 +45,8 @@ void SaI2xScaler<Pixel>::scaleLine256(
 		//   M|N O|P
 
 		unsigned xl  = x ? x - 1 : 0;
-		unsigned xr  = min(x + 1, WIDTH256 - 1);
-		unsigned xrr = min(x + 2, WIDTH256 - 1);
+		unsigned xr  = std::min(x + 1, WIDTH256 - 1);
+		unsigned xrr = std::min(x + 2, WIDTH256 - 1);
 
 		// TODO: Possible performance improvements:
 		// - Play with order of fetching (effect on data cache).
@@ -251,48 +248,52 @@ void SaI2xScaler<Pixel>::scaleLine512(
 }
 
 template <class Pixel>
-void SaI2xScaler<Pixel>::scale1x1to2x2(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+void SaI2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
+	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	assert(dst.getWidth() == WIDTH256 * 2);
 
-	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
-	     srcY += 1, dstY += 2) {
-		Pixel* const dummy = 0;
-		const Pixel* srcLine0 = src.getLinePtr(max(srcY - 1, srcStartY),   dummy);
-		const Pixel* srcLine1 = src.getLinePtr(    srcY + 0,               dummy);
-		const Pixel* srcLine2 = src.getLinePtr(min(srcY + 1, srcEndY - 1), dummy);
-		const Pixel* srcLine3 = src.getLinePtr(min(srcY + 2, srcEndY - 1), dummy);
+	Pixel* const dummy = 0;
+	int srcY = srcStartY;
+	const Pixel* srcLine0 = src.getLinePtr(srcY - 1, srcWidth, dummy);
+	const Pixel* srcLine1 = src.getLinePtr(srcY + 0, srcWidth, dummy);
+	const Pixel* srcLine2 = src.getLinePtr(srcY + 1, srcWidth, dummy);
+	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
+		const Pixel* srcLine3 = src.getLinePtr(srcY + 2, srcWidth, dummy);
 		Pixel* dstUpper = dst.getLinePtr(dstY, dummy);
 		Pixel* dstLower = dst.getLinePtr(
-			min(dstY + 1, dstEndY - 1), dummy);
-
+			std::min(dstY + 1, dstEndY - 1), dummy);
 		scaleLine256(srcLine0, srcLine1, srcLine2, srcLine3,
 		             dstUpper, dstLower);
+		srcLine0 = srcLine1;
+		srcLine1 = srcLine2;
+		srcLine2 = srcLine3;
 	}
 }
 
 template <class Pixel>
-void SaI2xScaler<Pixel>::scale1x1to1x2(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+void SaI2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
+	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	assert(dst.getWidth() == WIDTH512);
-	
-	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
-	     srcY += 1, dstY += 2) {
-		Pixel* const dummy = 0;
-		const Pixel* srcLine0 = src.getLinePtr(max(srcY - 1, srcStartY),   dummy);
-		const Pixel* srcLine1 = src.getLinePtr(    srcY + 0,               dummy);
-		const Pixel* srcLine2 = src.getLinePtr(min(srcY + 1, srcEndY - 1), dummy);
-		const Pixel* srcLine3 = src.getLinePtr(min(srcY + 2, srcEndY - 1), dummy);
+
+	Pixel* const dummy = 0;
+	int srcY = srcStartY;
+	const Pixel* srcLine0 = src.getLinePtr(srcY - 1, srcWidth, dummy);
+	const Pixel* srcLine1 = src.getLinePtr(srcY + 0, srcWidth, dummy);
+	const Pixel* srcLine2 = src.getLinePtr(srcY + 1, srcWidth, dummy);
+	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
+		const Pixel* srcLine3 = src.getLinePtr(srcY + 2, srcWidth, dummy);
 		Pixel* dstUpper = dst.getLinePtr(dstY, dummy);
 		Pixel* dstLower = dst.getLinePtr(
-			min(dstY + 1, dstEndY - 1), dummy);
-
+			std::min(dstY + 1, dstEndY - 1), dummy);
 		scaleLine512(srcLine0, srcLine1, srcLine2, srcLine3,
 		             dstUpper, dstLower);
+		srcLine0 = srcLine1;
+		srcLine1 = srcLine2;
+		srcLine2 = srcLine3;
 	}
 }
 

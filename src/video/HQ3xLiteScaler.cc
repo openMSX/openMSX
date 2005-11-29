@@ -17,8 +17,6 @@ Visit the HiEnd3D site for info:
 #include "openmsx.hh"
 #include <algorithm>
 
-using std::min;
-
 namespace openmsx {
 
 template <class Pixel>
@@ -598,26 +596,24 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 }
 
 template <class Pixel>
-void HQ3xLiteScaler<Pixel>::scale1x1to3x3(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-	OutputSurface& dst, unsigned dstStartY, unsigned /*dstEndY*/)
+void HQ3xLiteScaler<Pixel>::scale1x1to3x3(FrameSource& src, 
+	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	unsigned dstY = dstStartY;
-	unsigned prevY = srcStartY;
-	while (srcStartY < srcEndY) {
-		Pixel* dummy = 0;
-		const Pixel* srcPrev = src.getLinePtr(prevY,  dummy);
-		const Pixel* srcCurr = src.getLinePtr(srcStartY, dummy);
-		const Pixel* srcNext = src.getLinePtr(min(srcStartY + 1, srcEndY - 1), dummy);
+	Pixel* const dummy = 0;
+	int srcY = srcStartY;
+	const Pixel* srcPrev = src.getLinePtr(srcY - 1, srcWidth, dummy);
+	const Pixel* srcCurr = src.getLinePtr(srcY + 0, srcWidth, dummy);
+	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
+		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
 		Pixel* dst0 = dst.getLinePtr(dstY + 0, dummy);
-		Pixel* dst1 = dst.getLinePtr(dstY + 1, dummy);
-		Pixel* dst2 = (dstY != (720 - 2))
-		            ? dst.getLinePtr(dstY + 2, dummy)
-		            : dst1;
+		Pixel* dst1 = dst.getLinePtr(
+			std::min(dstY + 1, dstEndY - 1), dummy);
+		Pixel* dst2 = dst.getLinePtr(
+			std::min(dstY + 2, dstEndY - 1), dummy);
 		scaleLine256(srcPrev, srcCurr, srcNext, dst0, dst1, dst2);
-		prevY = srcStartY;
-		++srcStartY;
-		dstY += 3;
+		srcPrev = srcCurr;
+		srcCurr = srcNext;
 	}
 }
 

@@ -28,8 +28,7 @@ OUTMAKE:=$(OUTDIR)/probed_defs.mk
 # Functions
 # =========
 
-CHECK_FUNCS:=FTRUNCATE GETTIMEOFDAY MMAP USLEEP
-# Disabled X11, because it is not useful yet and the link flags are not here.
+CHECK_FUNCS:=FTRUNCATE GETTIMEOFDAY MMAP USLEEP POSIX_MEMALIGN
 
 FTRUNCATE_FUNC:=ftruncate
 FTRUNCATE_HEADER:=<unistd.h>
@@ -43,6 +42,10 @@ MMAP_HEADER:=<sys/mman.h>
 USLEEP_FUNC:=usleep
 USLEEP_HEADER:=<unistd.h>
 
+POSIX_MEMALIGN_FUNC:=posix_memalign
+POSIX_MEMALIGN_HEADER:=<stdlib.h>
+
+# Disabled X11, because it is not useful yet and the link flags are not here.
 #X11_FUNC:=XtMalloc
 #X11_HEADER:=<X11/Intrinsic.h>
 

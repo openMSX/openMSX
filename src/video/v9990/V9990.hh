@@ -221,13 +221,13 @@ public:
 	  */
 	inline unsigned getLineWidth() {
 		switch (getDisplayMode()) {
-		case B0:          return  192;
-		case P1: case B1: return  256;
-		case B2:          return  384;
-		case P2: case B3: return  512;
-		case B4:          return  768;
-		case B5: case B6: return  640;
-		case B7:          return 1024;
+		case B0:          return  213;
+		case P1: case B1: return  320;
+		case B2:          return  426;
+		case P2: case B3: return  640;
+		case B4:          return  853;
+		case B5: case B6: return    1; // not supported
+		case B7:          return 1280;
 		default:
 			assert(false);
 			return 0;

@@ -56,11 +56,11 @@ public:
 
 	virtual void scaleBlank(Pixel color, OutputSurface& dst,
 	                        unsigned startY, unsigned endY);
-	virtual void scale1x1to2x2(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	virtual void scale1x1to2x2(FrameSource& src, 
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale1x1to1x2(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+	virtual void scale1x1to1x2(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
 private:

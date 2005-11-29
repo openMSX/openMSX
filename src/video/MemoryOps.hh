@@ -15,6 +15,9 @@ namespace MemoryOps {
 	template <typename Pixel, bool STREAMING> void memset_2(
 		Pixel* out, unsigned num, Pixel val0, Pixel val1);
 
+	void* mallocAligned(unsigned alignment, unsigned size);
+	void freeAligned(void* ptr);
+
 } // namespace MemoryOps
 
 } // namespace openmsx

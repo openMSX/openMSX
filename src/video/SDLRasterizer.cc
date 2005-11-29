@@ -147,14 +147,14 @@ SDLRasterizer<Pixel>::SDLRasterizer(VDP& vdp_, OutputSurface& screen_)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 	, spriteConverter(vdp.getSpriteChecker())
 {
-	workFrame = new RawFrame(sizeof(Pixel), 640, 240);
+	workFrame = new RawFrame(screen.getFormat(), sizeof(Pixel), 640, 240);
 
 	// Create display caches.
-	charDisplayCache = new RawFrame(
+	charDisplayCache = new RawFrame(screen.getFormat(),
 		sizeof(Pixel), 512, vdp.isMSX1VDP() ? 192 : 256);
 	bitmapDisplayCache = vdp.isMSX1VDP()
-	                   ? NULL
-	                   : new RawFrame(sizeof(Pixel), 512, 256 * 4);
+		? NULL
+		: new RawFrame(screen.getFormat(), sizeof(Pixel), 512, 256 * 4);
 
 	// Init the palette.
 	precalcPalette(vdp.getMotherBoard().getRenderSettings().getGamma().getValue());
@@ -201,12 +201,10 @@ void SDLRasterizer<Pixel>::resetPalette()
 template <class Pixel>
 void SDLRasterizer<Pixel>::frameStart()
 {
-	workFrame = postProcessor->rotateFrames(
-		workFrame,
-		  vdp.isInterlaced()
-		? ( vdp.getEvenOdd() ? RawFrame::FIELD_ODD : RawFrame::FIELD_EVEN )
-		: RawFrame::FIELD_NONINTERLACED
-		);
+	workFrame = postProcessor->rotateFrames(workFrame,
+	    vdp.isInterlaced()
+	    ? (vdp.getEvenOdd() ? FrameSource::FIELD_ODD : FrameSource::FIELD_EVEN)
+	    : FrameSource::FIELD_NONINTERLACED);
 
 	// Calculate line to render at top of screen.
 	// Make sure the display area is centered.
@@ -419,7 +417,7 @@ void SDLRasterizer<Pixel>::drawBorder(
 	for (int y = startY; y < endY; ++y) {
 		MemoryOps::memset_2<Pixel, MemoryOps::NO_STREAMING>(
 			workFrame->getLinePtr(y, (Pixel*)0) + x, num, border0, border1);
-		workFrame->setLineWidth(y, lineWidth);
+		workFrame->setLineWidth(y, (lineWidth == 512) ? 640 : 320);
 	}
 }
 
@@ -529,7 +527,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 					   + firstPageWidth;
 				memcpy(dst, src, num * sizeof(Pixel));
 			}
-			workFrame->setLineWidth(y, lineWidth);
+			workFrame->setLineWidth(y, (lineWidth == 512) ? 640 : 320);
 
 			displayY = (displayY + 1) & 255;
 		}
@@ -546,7 +544,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 			           + leftBackground + displayX;
 			memcpy(dst, src, displayWidth * sizeof(Pixel));
 
-			workFrame->setLineWidth(y, lineWidth);
+			workFrame->setLineWidth(y, (lineWidth == 512) ? 640 : 320);
 			displayY = (displayY + 1) & 255;
 		}
 	}

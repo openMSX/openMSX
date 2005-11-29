@@ -297,9 +297,10 @@ class LineRepeater
 public:
 	template <unsigned NX, unsigned NY, typename Pixel>
 	inline static void scaleFixedLine(
-		Pixel* src0, Pixel* src1, Pixel* src2, Pixel* src3, unsigned srcWidth,
-		OutputSurface& dst, unsigned& dstY
-	) {
+		const Pixel* src0, const Pixel* src1, const Pixel* src2,
+		const Pixel* src3, unsigned srcWidth,
+		OutputSurface& dst, unsigned& dstY)
+	{
 		Pixel* dp = dst.getLinePtr(dstY++, (Pixel*)0);
 		// Calculate fixed point coordinate.
 		const unsigned y1 = ((NY - i) << 16) / NY;
@@ -343,8 +344,7 @@ public:
 		}
 
 		LineRepeater<i - 1>::template scaleFixedLine<NX, NY, Pixel>(
-			src0, src1, src2, src3, srcWidth, dst, dstY
-			);
+			src0, src1, src2, src3, srcWidth, dst, dstY);
 	}
 };
 template <>
@@ -353,45 +353,42 @@ class LineRepeater<0>
 public:
 	template <unsigned NX, unsigned NY, typename Pixel>
 	inline static void scaleFixedLine(
-		Pixel* /*src0*/, Pixel* /*src1*/, Pixel* /*src2*/,
-		Pixel* /*src3*/, unsigned /*srcWidth*/,
-		OutputSurface& /*dst*/, unsigned& /*dstY*/
-	) { }
+		const Pixel* /*src0*/, const Pixel* /*src1*/, const Pixel* /*src2*/,
+		const Pixel* /*src3*/, unsigned /*srcWidth*/,
+		OutputSurface& /*dst*/, unsigned& /*dstY*/)
+	{ }
 };
 
 template <typename Pixel>
 template <unsigned NX, unsigned NY>
-void SaI3xScaler<Pixel>::scaleFixed(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-	OutputSurface& dst, unsigned dstStartY, unsigned /*dstEndY*/)
+void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
+	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	const unsigned srcWidth = 320; // TODO: Get width from src.
 	assert(dst.getWidth() == srcWidth * NX);
 	assert(dst.getHeight() == src.getHeight() * NY);
 
-	unsigned dstY = dstStartY;
-	for (unsigned srcY = srcStartY; srcY < srcEndY; srcY++) {
-		// Get source line pointers.
-		Pixel* const dummy = 0;
-		Pixel* src0 = src.getLinePtr(srcY == 0 ? 0 : srcY - 1, dummy);
-		Pixel* src1 = src.getLinePtr(srcY, dummy);
-		Pixel* src2 = src.getLinePtr(min(srcY + 1, srcEndY - 1), dummy);
-		Pixel* src3 = src.getLinePtr(min(srcY + 2, srcEndY - 1), dummy);
-
+	Pixel* const dummy = 0;
+	int srcY = srcStartY;
+	const Pixel* src0 = src.getLinePtr(srcY - 1, srcWidth, dummy);
+	const Pixel* src1 = src.getLinePtr(srcY + 0, srcWidth, dummy);
+	const Pixel* src2 = src.getLinePtr(srcY + 1, srcWidth, dummy);
+	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY++) {
+		const Pixel* src3 = src.getLinePtr(srcY + 2, srcWidth, dummy);
 		LineRepeater<NY>::template scaleFixedLine<NX, NY, Pixel>(
-			src0, src1, src2, src3, srcWidth,
-			dst, dstY
-			);
+			src0, src1, src2, src3, srcWidth, dst, dstY);
+		src0 = src1;
+		src1 = src2;
+		src2 = src3;
 	}
 }
 
 template <typename Pixel>
-void SaI3xScaler<Pixel>::scaleAny(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
+	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	// Calculate fixed point end coordinates and deltas.
-	const unsigned srcWidth = 320; // TODO: Get width from src.
 	const unsigned wfinish = (srcWidth - 1) << 16;
 	const unsigned dw = wfinish / (dst.getWidth() - 1);
 	const unsigned hfinish = (src.getHeight() - 1) << 16;
@@ -400,13 +397,13 @@ void SaI3xScaler<Pixel>::scaleAny(
 	unsigned h = 0;
 	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY++) {
 		// Get source line pointers.
-		const unsigned line = srcStartY + (h >> 16);
-		assert(srcStartY <= line && line < srcEndY);
+		int line = srcStartY + (h >> 16);
 		Pixel* const dummy = 0;
-		Pixel* src0 = src.getLinePtr(line == 0 ? 0 : line - 1, dummy);
-		Pixel* src1 = src.getLinePtr(line, dummy);
-		Pixel* src2 = src.getLinePtr(min(line + 1, srcEndY - 1), dummy);
-		Pixel* src3 = src.getLinePtr(min(line + 2, srcEndY - 1), dummy);
+		// TODO possible optimization: reuse srcN from previous step
+		const Pixel* src0 = src.getLinePtr(line - 1, srcWidth, dummy);
+		const Pixel* src1 = src.getLinePtr(line + 0, srcWidth, dummy);
+		const Pixel* src2 = src.getLinePtr(line + 1, srcWidth, dummy);
+		const Pixel* src3 = src.getLinePtr(line + 2, srcWidth, dummy);
 
 		// Get destination line pointer.
 		Pixel* dp = dst.getLinePtr(dstY, dummy);
@@ -499,11 +496,11 @@ void SaI3xScaler<Pixel>::scaleAny(
 }
 
 template <typename Pixel>
-void SaI3xScaler<Pixel>::scale1x1to3x3(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+void SaI3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	scaleFixed<3, 3>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+	scaleFixed<3, 3>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY);
 }
 
 

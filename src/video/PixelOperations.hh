@@ -13,7 +13,7 @@ template <typename Pixel>
 class PixelOperations
 {
 public:
-	explicit PixelOperations(const SDL_PixelFormat* format_);
+	explicit PixelOperations(const SDL_PixelFormat* format);
 
 	/** Extract RGB componts
 	  */

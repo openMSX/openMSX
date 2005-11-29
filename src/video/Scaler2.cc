@@ -16,15 +16,15 @@ Scaler2<Pixel>::Scaler2(SDL_PixelFormat* format)
 }
 
 template <typename Pixel, typename ScaleOp>
-static void doScale1(
-	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+static void doScale1(FrameSource& src, 
+	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth, 
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	ScaleOp scale)
 {
 	Scale_1on1<Pixel> copy;
 	for (unsigned y = dstStartY; y < dstEndY; y += 2, ++srcStartY) {
 		Pixel* dummy = 0;
-		const Pixel* srcLine = src.getLinePtr(srcStartY, dummy);
+		const Pixel* srcLine = src.getLinePtr(srcStartY, srcWidth, dummy);
 		Pixel* dstLine1 = dst.getLinePtr(y + 0, dummy);
 		scale(srcLine, dstLine1, 640);
 		if ((y + 1) == dstEndY) break;
@@ -38,15 +38,15 @@ static void doScale1(
 }
 
 template <typename Pixel, typename ScaleOp>
-static void doScale2(
-	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+static void doScale2(FrameSource& src, 
+	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth, 
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	ScaleOp scale)
 {
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++dstY, ++srcY) {
 		Pixel* dummy = 0;
-		const Pixel* srcLine = src.getLinePtr(srcY, dummy);
+		const Pixel* srcLine = src.getLinePtr(srcY, srcWidth, dummy);
 		Pixel*       dstLine = dst.getLinePtr(dstY, dummy);
 		scale(srcLine, dstLine, 640);
 	}
@@ -54,20 +54,20 @@ static void doScale2(
 
 
 template <class Pixel>
-void Scaler2<Pixel>::scale1x1to3x2(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+void Scaler2<Pixel>::scale1x1to3x2(FrameSource& src, 
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	                Scale_1on3<Pixel>());
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale1x2to3x2(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+void Scaler2<Pixel>::scale1x1to3x1(FrameSource& src, 
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale2<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	doScale2<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	                Scale_1on3<Pixel>());
 }
 
@@ -78,125 +78,127 @@ void Scaler2<Pixel>::scale1x2to3x2(
 //       See also Scaler3::scale256.
 // TODO: Why won't it compile anymore without this method enabled?
 template <class Pixel>
-void Scaler2<Pixel>::scale1x1to2x2(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+void Scaler2<Pixel>::scale1x1to2x2(FrameSource& src, 
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	                Scale_1on2<Pixel>());
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale1x2to2x2(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+void Scaler2<Pixel>::scale1x1to2x1(FrameSource& src, 
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale2<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	doScale2<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	                Scale_1on2<Pixel>());
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale2x1to3x2(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+void Scaler2<Pixel>::scale2x1to3x2(FrameSource& src, 
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	                Scale_2on3<Pixel>(pixelOps));
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale2x2to3x2(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+void Scaler2<Pixel>::scale2x1to3x1(FrameSource& src, 
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale2<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	doScale2<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	                Scale_2on3<Pixel>(pixelOps));
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale1x1to1x2(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+void Scaler2<Pixel>::scale1x1to1x2(FrameSource& src, 
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	                Scale_1on1<Pixel>());
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale1x2to1x2(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+void Scaler2<Pixel>::scale1x1to1x1(FrameSource& src, 
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale2<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	doScale2<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	                Scale_1on1<Pixel>());
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale4x1to3x2(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+void Scaler2<Pixel>::scale4x1to3x2(FrameSource& src, 
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	                Scale_4on3<Pixel>(pixelOps));
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale4x2to3x2(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+void Scaler2<Pixel>::scale4x1to3x1(FrameSource& src, 
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale2<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	doScale2<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	                Scale_4on3<Pixel>(pixelOps));
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale2x1to1x2(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+void Scaler2<Pixel>::scale2x1to1x2(FrameSource& src, 
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale1<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	                Scale_2on1<Pixel>(pixelOps));
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale2x2to1x2(
-	FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+void Scaler2<Pixel>::scale2x1to1x1(FrameSource& src, 
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale2<Pixel>(src, srcStartY, srcEndY, dst, dstStartY, dstEndY,
+	doScale2<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	                Scale_2on1<Pixel>(pixelOps));
 }
 
 // TODO: This method doesn't have any dependency on the pixel format, so is it
 //       possible to move it to a class without the Pixel template parameter?
 template <class Pixel>
-void Scaler2<Pixel>::scaleImage(
-	FrameSource& src, unsigned lineWidth,
-	unsigned srcStartY, unsigned srcEndY,
+void Scaler2<Pixel>::scaleImage(FrameSource& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	if (src.getHeight() == 240) {
-		switch (lineWidth) {
-		case 192:
-			scale1x1to3x2(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+		switch (srcWidth) {
+		case 213:
+			scale1x1to3x2(src, srcStartY, srcEndY, srcWidth,
+			              dst, dstStartY, dstEndY);
 			break;
-		case 256:
-			scale1x1to2x2(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+		case 320:
+			scale1x1to2x2(src, srcStartY, srcEndY, srcWidth,
+			              dst, dstStartY, dstEndY);
 			break;
-		case 384:
-			scale2x1to3x2(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
-			break;
-		case 512:
-			scale1x1to1x2(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+		case 426:
+			scale2x1to3x2(src, srcStartY, srcEndY, srcWidth,
+			              dst, dstStartY, dstEndY);
 			break;
 		case 640:
-			assert(false);
+			scale1x1to1x2(src, srcStartY, srcEndY, srcWidth,
+			              dst, dstStartY, dstEndY);
 			break;
-		case 768:
-			scale4x1to3x2(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+		case 853:
+			scale4x1to3x2(src, srcStartY, srcEndY, srcWidth,
+			              dst, dstStartY, dstEndY);
 			break;
-		case 1024:
-			scale2x1to1x2(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+		case 1280:
+			scale2x1to1x2(src, srcStartY, srcEndY, srcWidth,
+			              dst, dstStartY, dstEndY);
 			break;
 		default:
 			assert(false);
@@ -204,27 +206,30 @@ void Scaler2<Pixel>::scaleImage(
 		}
 	} else {
 		assert(src.getHeight() == 480);
-		switch (lineWidth) {
-		case 192:
-			scale1x2to3x2(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+		switch (srcWidth) {
+		case 213:
+			scale1x1to3x1(src, srcStartY, srcEndY, srcWidth,
+			              dst, dstStartY, dstEndY);
 			break;
-		case 256:
-			scale1x2to2x2(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+		case 320:
+			scale1x1to2x1(src, srcStartY, srcEndY, srcWidth,
+			              dst, dstStartY, dstEndY);
 			break;
-		case 384:
-			scale2x2to3x2(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
-			break;
-		case 512:
-			scale1x2to1x2(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+		case 426:
+			scale2x1to3x1(src, srcStartY, srcEndY, srcWidth,
+			              dst, dstStartY, dstEndY);
 			break;
 		case 640:
-			assert(false);
+			scale1x1to1x1(src, srcStartY, srcEndY, srcWidth,
+			              dst, dstStartY, dstEndY);
 			break;
-		case 768:
-			scale4x2to3x2(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+		case 853:
+			scale4x1to3x1(src, srcStartY, srcEndY, srcWidth,
+			              dst, dstStartY, dstEndY);
 			break;
-		case 1024:
-			scale2x2to1x2(src, srcStartY, srcEndY, dst, dstStartY, dstEndY);
+		case 1280:
+			scale2x1to1x1(src, srcStartY, srcEndY, srcWidth,
+			              dst, dstStartY, dstEndY);
 			break;
 		default:
 			assert(false);

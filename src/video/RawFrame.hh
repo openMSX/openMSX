@@ -6,7 +6,6 @@
 #include "FrameSource.hh"
 #include <cassert>
 
-
 namespace openmsx {
 
 /** A video frame as output by the VDP scanline conversion unit,
@@ -15,22 +14,15 @@ namespace openmsx {
 class RawFrame : public FrameSource
 {
 public:
-	RawFrame(unsigned bytesPerPixel, unsigned maxWidth, unsigned height);
+	RawFrame(const SDL_PixelFormat* format, unsigned bytesPerPixel,
+	         unsigned maxWidth, unsigned height);
 	~RawFrame();
 
-	virtual FieldType getField();
+	virtual unsigned getLineBufferSize() const;
 	virtual unsigned getLineWidth(unsigned line);
 
-	/** Call this before using the object.
-	  * It is also possible to reuse a RawFrame by calling this method.
-	  * Reusing objects instead of reallocating them is important because we use
-	  * 50 or 60 of them each second and the amount of data is rather large.
-	  * @param field Interlacing status of this frame.
-	  */
-	void init(FieldType field);
-
 	inline void setLineWidth(unsigned line, unsigned width) {
-		assert(line < height);
+		assert(line < getHeight());
 		assert(width <= maxWidth);
 		lineWidth[line] = width;
 	}
@@ -42,11 +34,11 @@ public:
 
 	template <class Pixel>
 	inline void setBlank(unsigned line, Pixel colour0, Pixel colour1) {
-		assert(line < height);
+		assert(line < getHeight());
 		Pixel* pixels = getLinePtr(line, (Pixel*)0);
 		pixels[0] = colour0;
 		pixels[1] = colour1; // TODO: We store colour1, but no-one uses it.
-		lineWidth[line] = 0;
+		lineWidth[line] = 1;
 	}
 
 protected:
@@ -56,9 +48,7 @@ private:
 	unsigned maxWidth;
 	unsigned* lineWidth;
 	unsigned pitch;
-	void* unalignedData;
 	char* data;
-	FieldType field;
 };
 
 } // namespace openmsx
