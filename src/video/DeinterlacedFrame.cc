@@ -1,6 +1,7 @@
 // $Id$
 
 #include "DeinterlacedFrame.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -18,7 +19,7 @@ void DeinterlacedFrame::init(FrameSource* evenField, FrameSource* oddField)
 	//assert(oddField->getField() == FrameSource::FIELD_ODD);
 	assert(evenField->height == oddField->height);
 	assert(evenField->getLineBufferSize() == oddField->getLineBufferSize());
-	height = 2 * evenField->getHeight();
+	setHeight(2 * evenField->getHeight());
 	fields[0] = evenField;
 	fields[1] = oddField;
 }

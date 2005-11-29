@@ -4,7 +4,6 @@
 #define DEINTERLACEDFRAME_HH
 
 #include "FrameSource.hh"
-#include <cassert>
 
 namespace openmsx {
 
