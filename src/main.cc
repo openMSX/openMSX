@@ -74,6 +74,7 @@ static int main(int argc, char **argv)
 				motherBoard.getScheduler(),
 				motherBoard.getEventDistributor(),
 				motherBoard.getCommandController());
+			motherBoard.getRealTime();
 			motherBoard.getIconStatus();
 			motherBoard.getDisplay().createVideoSystem();
 			motherBoard.readConfig();
