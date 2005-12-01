@@ -2,6 +2,7 @@ $Id$
 
 2005-12-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Also do realtime syncing when started with none renderer
+	* Fixed deinterlace in combination with frameskip
 
 2005-11-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added line scaling in FrameSource:

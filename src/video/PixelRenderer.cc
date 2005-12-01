@@ -118,9 +118,10 @@ PixelRenderer::PixelRenderer(VDP& vdp_)
 	, rasterizer(vdp.getMotherBoard().getDisplay().getVideoSystem().
 	             createRasterizer(vdp))
 {
-	frameSkipCounter = 999; // force drawing of frame
 	finishFrameDuration = 0;
-	prevDrawFrame = drawFrame = renderFrame = false; // don't draw before frameStart is called
+	frameSkipCounter = 999; // force drawing of frame
+	renderFrame = false; // don't draw before frameStart is called
+	prevRenderFrame = false;
 	displayEnabled = vdp.isDisplayEnabled();
 	rasterizer->reset();
 
@@ -149,26 +150,34 @@ void PixelRenderer::updateDisplayEnabled(bool enabled, const EmuTime& time)
 
 void PixelRenderer::frameStart(const EmuTime& time)
 {
-	bool draw = false;
 	if (!rasterizer->isActive()) {
-		frameSkipCounter = 0;
-	} else if (frameSkipCounter < renderSettings.getMinFrameSkip().getValue()) {
-		++frameSkipCounter;
-	} else if (frameSkipCounter >= renderSettings.getMaxFrameSkip().getValue()) {
-		frameSkipCounter = 0;
-		draw = true;
+		frameSkipCounter = 999;
+		renderFrame = false;
+		prevRenderFrame = false;
+		return;
+	}
+	prevRenderFrame = renderFrame;
+	if (vdp.isInterlaced() && renderSettings.getDeinterlace().getValue() &&
+	    vdp.getEvenOdd() && vdp.isEvenOddEnabled()) {
+		// deinterlaced odd frame, do same as even frame
 	} else {
-		++frameSkipCounter;
-		draw = realTime.timeLeft((unsigned)finishFrameDuration, time);
-		if (draw) {
+		if (frameSkipCounter <
+		              renderSettings.getMinFrameSkip().getValue()) {
+			++frameSkipCounter;
+			renderFrame = false;
+		} else if (frameSkipCounter >=
+		              renderSettings.getMaxFrameSkip().getValue()) {
 			frameSkipCounter = 0;
+			renderFrame = true;
+		} else {
+			++frameSkipCounter;
+			renderFrame = realTime.timeLeft(
+				(unsigned)finishFrameDuration, time);
+			if (renderFrame) {
+				frameSkipCounter = 0;
+			}
 		}
 	}
-	prevDrawFrame = drawFrame;
-	drawFrame = draw;
-	renderFrame = drawFrame ||
-	     (prevDrawFrame && vdp.isInterlaced() &&
-	      renderSettings.getDeinterlace().getValue());
 	if (!renderFrame) return;
 
 	rasterizer->frameStart();
@@ -197,7 +206,12 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 		finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
 		                      current * ALPHA;
 
-		if (drawFrame) {
+		if (vdp.isInterlaced() && vdp.isEvenOddEnabled() &&
+		    renderSettings.getDeinterlace().getValue() &&
+		    !prevRenderFrame) {
+			// dont send event in deinterlace mode when
+			// previous frame was not rendered
+		} else {
 			FinishFrameEvent* f = new FinishFrameEvent(VIDEO_MSX);
 			eventDistributor.distributeEvent(f);
 		}
