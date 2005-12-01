@@ -5,6 +5,7 @@
 #include "BooleanSetting.hh"
 #include "OutputSurface.hh"
 #include "DeinterlacedFrame.hh"
+#include "DoubledFrame.hh"
 #include "RawFrame.hh"
 #include <cassert>
 
@@ -26,6 +27,7 @@ PostProcessor<Pixel>::PostProcessor(CommandController& commandController,
 	prevFrame = new RawFrame(screen.getFormat(), sizeof(Pixel),
 	                         maxWidth, height);
 	deinterlacedFrame = new DeinterlacedFrame(screen.getFormat());
+	interlacedFrame   = new DoubledFrame     (screen.getFormat());
 }
 
 template <class Pixel>
@@ -34,6 +36,7 @@ PostProcessor<Pixel>::~PostProcessor()
 	delete currFrame;
 	delete prevFrame;
 	delete deinterlacedFrame;
+	delete interlacedFrame;
 }
 
 /** Calculate greatest common divider of two strictly positive integers.
@@ -81,23 +84,31 @@ static unsigned getLineWidth(FrameSource* frame, unsigned y, unsigned step)
 template <class Pixel>
 void PostProcessor<Pixel>::paint()
 {
-	const FrameSource::FieldType field = currFrame->getField();
-	const bool deinterlace = field != FrameSource::FIELD_NONINTERLACED
-		&& renderSettings.getDeinterlace().getValue();
-		
 	// TODO: When frames are being skipped or if (de)interlace was just
 	//       turned on, it's not guaranteed that prevFrame is a
 	//       different field from currFrame.
 	//       Or in the case of frame skip, it might be the right field,
 	//       but from several frames ago.
 	FrameSource* frame;
-	if (!deinterlace) {
-		frame = currFrame;
+	FrameSource::FieldType field = currFrame->getField();
+	if (field != FrameSource::FIELD_NONINTERLACED) {
+		if (renderSettings.getDeinterlace().getValue()) {
+			// deinterlaced
+			if (field == FrameSource::FIELD_ODD) {
+				deinterlacedFrame->init(prevFrame, currFrame);
+			} else {
+				deinterlacedFrame->init(currFrame, prevFrame);
+			}
+			frame = deinterlacedFrame;
+		} else {
+			// interlaced
+			interlacedFrame->init(currFrame,
+				(field == FrameSource::FIELD_ODD) ? 1 : 0);
+			frame = interlacedFrame;
+		}
 	} else {
-		deinterlacedFrame->init(
-		    (field == FrameSource::FIELD_ODD) ? prevFrame : currFrame,
-		    (field == FrameSource::FIELD_ODD) ? currFrame : prevFrame);
-		frame = deinterlacedFrame;
+		// non interlaced
+		frame = currFrame;
 	}
 
 	// New scaler algorithm selected?
@@ -119,9 +130,7 @@ void PostProcessor<Pixel>::paint()
 	// TODO: Store all MSX lines in RawFrame and only scale the ones that fit
 	//       on the PC screen, as a preparation for resizable output window.
 	unsigned srcStartY = 0;
-	// TODO this is only correct for scalefactor=2 
-	unsigned dstStartY = ((field == FrameSource::FIELD_ODD) && !deinterlace)
-	                   ? 1 : 0;
+	unsigned dstStartY = 0;
 	while (dstStartY < dstHeight) {
 		// Currently this is true because the source frame height
 		// is always >= dstHeight/(dstStep/srcStep).

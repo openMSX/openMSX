@@ -15,6 +15,7 @@ class Display;
 class OutputSurface;
 class RawFrame;
 class DeinterlacedFrame;
+class DoubledFrame;
 
 /** Rasterizer using SDL.
   */
@@ -83,6 +84,7 @@ private:
 	/** Combined currFrame and prevFrame
 	  */
 	DeinterlacedFrame* deinterlacedFrame;
+	DoubledFrame* interlacedFrame;
 };
 
 } // namespace openmsx

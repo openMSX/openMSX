@@ -93,6 +93,7 @@ protected:
 	//       to give it access to a protected method, but without this
 	//       GCC 3.3.5-pre will not compile it.
 	friend class DeinterlacedFrame;
+	friend class DoubledFrame;
 
 private:
 	template <typename Pixel>

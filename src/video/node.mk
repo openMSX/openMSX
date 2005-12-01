@@ -27,7 +27,7 @@ SRC_HDR:= \
 	IconLayer IconStatus \
 	SDLImage \
 	MemoryOps \
-	FrameSource RawFrame DeinterlacedFrame PostProcessor \
+	FrameSource RawFrame DeinterlacedFrame DoubledFrame PostProcessor \
 	OutputSurface SDLOutputSurface \
 	Icon
 
