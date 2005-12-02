@@ -4,6 +4,7 @@
 #include "LineScalers.hh"
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
+#include "MemoryOps.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
@@ -12,6 +13,50 @@ template <class Pixel>
 Scaler3<Pixel>::Scaler3(SDL_PixelFormat* format)
 	: pixelOps(format)
 {
+}
+
+template <class Pixel>
+void Scaler3<Pixel>::scaleBlank1to3(
+		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	for (unsigned srcY = srcStartY, dstY = dstStartY;
+	     dstY < dstEndY; srcY += 1, dstY += 3) {
+		Pixel* dummy = 0;
+		Pixel color = src.getLinePtr(srcY, dummy)[0];
+		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine0, 960, color);
+		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine1, 960, color);
+		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine2, 960, color);
+	}
+}
+
+template <class Pixel>
+void Scaler3<Pixel>::scaleBlank2to3(
+		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	for (unsigned srcY = srcStartY, dstY = dstStartY;
+	     dstY < dstEndY; srcY += 2, dstY += 3) {
+		Pixel* dummy = 0;
+		Pixel color0 = src.getLinePtr(srcY + 0, dummy)[0];
+		Pixel color1 = src.getLinePtr(srcY + 1, dummy)[0];
+		Pixel color01 = pixelOps.template blend<1, 1>(color0, color1);
+		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine0, 960, color0);
+		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine1, 960, color01);
+		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine2, 960, color1);
+	}
 }
 
 template <typename Pixel, typename ScaleOp>
@@ -188,6 +233,10 @@ void Scaler3<Pixel>::scaleImage(FrameSource& src,
 {
 	if (src.getHeight() == 240) {
 		switch (srcWidth) {
+		case 1:
+			scaleBlank1to3(src, srcStartY, srcEndY,
+			              dst, dstStartY, dstEndY);
+			break;
 		case 213:
 			scale2x1to9x3(src, srcStartY, srcEndY, srcWidth,
 			              dst, dstStartY, dstEndY);
@@ -219,6 +268,10 @@ void Scaler3<Pixel>::scaleImage(FrameSource& src,
 	} else {
 		assert(src.getHeight() == 480);
 		switch (srcWidth) {
+		case 1:
+			scaleBlank2to3(src, srcStartY, srcEndY,
+			              dst, dstStartY, dstEndY);
+			break;
 		case 213:
 			scale2x2to9x3(src, srcStartY, srcEndY, srcWidth,
 			              dst, dstStartY, dstEndY);

@@ -9,11 +9,9 @@
 #include "SaI3xScaler.hh"
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
+#include "MemoryOps.hh"
 #include "openmsx.hh"
 #include <cassert>
-
-using std::min;
-using std::max;
 
 namespace openmsx {
 
@@ -22,6 +20,36 @@ SaI3xScaler<Pixel>::SaI3xScaler(SDL_PixelFormat* format)
 	: Scaler3<Pixel>(format)
 	, pixelOps(format)
 {
+}
+
+template <class Pixel>
+void SaI3xScaler<Pixel>::scaleBlank1to3(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	unsigned stopDstY = (dstEndY == dst.getHeight())
+	                  ? dstEndY : dstEndY - 3;
+	unsigned srcY = srcStartY, dstY = dstStartY;
+	for (/* */; dstY < stopDstY; srcY += 1, dstY += 3) {
+		Pixel* dummy = 0;
+		Pixel color = src.getLinePtr(srcY, dummy)[0];
+		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine0, 960, color);
+		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine1, 960, color);
+		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine2, 960, color);
+	}
+	if (dstY != dst.getHeight()) {
+		unsigned nextLineWidth = src.getLineWidth(srcY + 1);
+		assert(src.getLineWidth(srcY) == 1);
+		assert(nextLineWidth != 1);
+		this->scaleImage(src, srcY, srcEndY, nextLineWidth,
+		                 dst, dstY, dstEndY);
+	}
 }
 
 template <typename Pixel>
@@ -314,7 +342,7 @@ public:
 			const unsigned pos0 = pos1;
 			pos1 = pos2;
 			pos2 = pos3;
-			pos3 = min(pos1 + 3, srcWidth) - 1;
+			pos3 = std::min(pos1 + 3, srcWidth) - 1;
 			// Get source pixels.
 			const Pixel sa = sb; // current pixel
 			sb = src1[pos2]; // next pixel
@@ -423,7 +451,7 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 			const unsigned pos0 = pos1;
 			pos1 = pos2;
 			pos2 = pos3;
-			pos3 = min(pos1 + 3, srcWidth) - 1;
+			pos3 = std::min(pos1 + 3, srcWidth) - 1;
 			// Get source pixels.
 			const Pixel A = B; // current pixel
 			B = src1[pos2]; // next pixel

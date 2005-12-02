@@ -16,7 +16,9 @@ class SaI3xScaler: public Scaler3<Pixel>
 {
 public:
 	SaI3xScaler(SDL_PixelFormat* format);
-
+	virtual void scaleBlank1to3(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale1x1to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);

@@ -60,15 +60,6 @@ public:
 		ScalerID id, SDL_PixelFormat* format,
 		RenderSettings& renderSettings);
 
-	/** Fills the given area, which contains only a single color.
-	  * @param color Color the area should be filled with.
-	  * @param dst Destination: image to store the scaled output in.
-	  * @param startY Destination Y-coordinate of the top line.
-	  * @param endY Destination Y-coordinate of the bottom line (exclusive).
-	  */
-	virtual void scaleBlank(Pixel color, OutputSurface& dst,
-	                        unsigned startY, unsigned endY);
-
 	/** Scales the image in the given area, which must consist of lines which
 	  * are all equally wide.
 	  * Scaling factor depends on the concrete scaler.

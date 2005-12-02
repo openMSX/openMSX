@@ -4,7 +4,7 @@
 #include "LineScalers.hh"
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
-#include "HostCPU.hh"
+#include "MemoryOps.hh"
 #include "openmsx.hh"
 #include <cassert>
 
@@ -27,6 +27,38 @@ void LowScaler<Pixel>::averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel*
 		pOut[i] = blend(tmp0, tmp1);
 	}
 }*/
+
+template <class Pixel>
+void LowScaler<Pixel>::scaleBlank1to1(
+		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	for (unsigned srcY = srcStartY, dstY = dstStartY;
+	     dstY < dstEndY; srcY += 1, dstY += 1) {
+		Pixel* dummy = 0;
+		Pixel color = src.getLinePtr(srcY, dummy)[0];
+		Pixel* dstLine = dst.getLinePtr(dstY, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine, 320, color);
+	}
+}
+
+template <class Pixel>
+void LowScaler<Pixel>::scaleBlank2to1(
+		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	for (unsigned srcY = srcStartY, dstY = dstStartY;
+	     dstY < dstEndY; srcY += 2, dstY += 1) {
+		Pixel* dummy = 0;
+		Pixel color0 = src.getLinePtr(srcY + 0, dummy)[0];
+		Pixel color1 = src.getLinePtr(srcY + 1, dummy)[0];
+		Pixel color01 = pixelOps.template blend<1, 1>(color0, color1);
+		Pixel* dstLine = dst.getLinePtr(dstY, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine, 320, color01);
+	}
+}
 
 template <typename Pixel, typename ScaleOp>
 static void doScale1(FrameSource& src,
@@ -191,6 +223,10 @@ void LowScaler<Pixel>::scaleImage(FrameSource& src,
 {
 	if (src.getHeight() == 240) {
 		switch (srcWidth) {
+		case 1:
+			scaleBlank1to1(src, srcStartY, srcEndY,
+			               dst, dstStartY, dstEndY);
+			break;
 		case 213:
 			scale2x1to3x1(src, srcStartY, srcEndY, srcWidth,
 			              dst, dstStartY, dstEndY);
@@ -222,6 +258,10 @@ void LowScaler<Pixel>::scaleImage(FrameSource& src,
 	} else {
 		assert(src.getHeight() == 480);
 		switch (srcWidth) {
+		case 1:
+			scaleBlank2to1(src, srcStartY, srcEndY,
+			               dst, dstStartY, dstEndY);
+			break;
 		case 213:
 			scale2x2to3x1(src, srcStartY, srcEndY, srcWidth,
 			              dst, dstStartY, dstEndY);

@@ -206,29 +206,40 @@ static void fillLoop(const Pixel* in, Pixel* out)
 }
 
 template <class Pixel>
-void RGBTriplet3xScaler<Pixel>::scaleBlank(Pixel color, OutputSurface& dst,
-                                           unsigned startY, unsigned endY)
+void RGBTriplet3xScaler<Pixel>::scaleBlank1to3(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	recalcBlur();
-
-	Pixel inNormal   [3];
-	Pixel outNormal  [3 * 3];
-	inNormal[0] = inNormal[1] = inNormal[2] = color;
-	rgbify(inNormal, outNormal, 3);
-
-	Pixel outScanline[3 * 3];
 	int scanlineFactor = settings.getScanlineFactor();
-	for (int i = 0; i < (3 * 3); ++i) {
-		outScanline[i] = scanline.darken(outNormal[i], scanlineFactor);
-	}
 
-	for (unsigned y = startY; y < endY; y += 3) {
+	unsigned stopDstY = (dstEndY == dst.getHeight())
+	                  ? dstEndY : dstEndY - 3;
+	unsigned srcY = srcStartY, dstY = dstStartY;
+	for (/* */; dstY < stopDstY; srcY += 1, dstY += 3) {
 		Pixel* dummy = 0;
-		fillLoop(outNormal,   dst.getLinePtr(y + 0, dummy));
-		if ((y + 1) >= endY) break;
-		fillLoop(outNormal,   dst.getLinePtr(y + 1, dummy));
-		if ((y + 2) >= endY) break;
-		fillLoop(outScanline, dst.getLinePtr(y + 2, dummy));
+		Pixel color = src.getLinePtr(srcY, dummy)[0];
+
+		Pixel inNormal [3];
+		Pixel outNormal[3 * 3];
+		inNormal[0] = inNormal[1] = inNormal[2] = color;
+		rgbify(inNormal, outNormal, 3);
+		Pixel outScanline[3 * 3];
+		for (int i = 0; i < (3 * 3); ++i) {
+			outScanline[i] = scanline.darken(
+					outNormal[i], scanlineFactor);
+		}
+
+		fillLoop(outNormal,   dst.getLinePtr(dstY + 0, dummy));
+		fillLoop(outNormal,   dst.getLinePtr(dstY + 1, dummy));
+		fillLoop(outScanline, dst.getLinePtr(dstY + 2, dummy));
+	}
+	if (dstY != dst.getHeight()) {
+		unsigned nextLineWidth = src.getLineWidth(srcY + 1);
+		assert(src.getLineWidth(srcY) == 1);
+		assert(nextLineWidth != 1);
+		this->scaleImage(src, srcY, srcEndY, nextLineWidth,
+		                 dst, dstY, dstEndY);
 	}
 }
 

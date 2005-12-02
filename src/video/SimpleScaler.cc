@@ -128,21 +128,32 @@ SimpleScaler<Pixel>::SimpleScaler(SDL_PixelFormat* format,
 }
 
 template <class Pixel>
-void SimpleScaler<Pixel>::scaleBlank(Pixel color, OutputSurface& dst,
-                                     unsigned startY, unsigned endY)
+void SimpleScaler<Pixel>::scaleBlank1to2(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	int scanlineFactor = settings.getScanlineFactor();
-	Pixel scanlineColor = scanline.darken(color, scanlineFactor);
-	for (unsigned y = startY; y < endY; y += 2) {
-		Pixel* dummy = 0;
-		Pixel* dstUpper = dst.getLinePtr(y + 0, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstUpper, 640, color);
 
-		if ((y + 1)== endY) break;
-		Pixel* dstLower = dst.getLinePtr(y + 1, dummy);
+	unsigned stopDstY = (dstEndY == dst.getHeight())
+	                  ? dstEndY : dstEndY - 2;
+	unsigned srcY = srcStartY, dstY = dstStartY;
+	for (/* */; dstY < stopDstY; srcY += 1, dstY += 2) {
+		Pixel* dummy = 0;
+		Pixel color0 = src.getLinePtr(srcY, dummy)[0];
+		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
 		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLower, 640, scanlineColor);
+			dstLine0, 640, color0);
+		Pixel color1 = scanline.darken(color0, scanlineFactor);
+		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine1, 640, color1);
+	}
+	if (dstY != dst.getHeight()) {
+		unsigned nextLineWidth = src.getLineWidth(srcY + 1);
+		assert(src.getLineWidth(srcY) == 1);
+		assert(nextLineWidth != 1);
+		this->scaleImage(src, srcY, srcEndY, nextLineWidth,
+		                 dst, dstY, dstEndY);
 	}
 }
 

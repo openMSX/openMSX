@@ -1,5 +1,12 @@
 $Id$
 
+2005-12-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Handle scaleBlank() via Scaler::scaleImage():
+	   - allows to fix the "[1057836] Infinite plasma logo" bug
+	   - also properly handle scanlines with non-black border color in
+	     deinterlace mode. Previously display area didn't had scanlines
+	     while border area had. Now none has scanlines.
+
 2005-12-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Also do realtime syncing when started with none renderer
 	* Fixed deinterlace in combination with frameskip

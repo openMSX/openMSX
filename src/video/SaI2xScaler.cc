@@ -9,10 +9,13 @@
 #include "SaI2xScaler.hh"
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
+#include "MemoryOps.hh"
 #include "openmsx.hh"
 #include <cassert>
 
 namespace openmsx {
+
+const unsigned WIDTH256 = 320; // TODO: Specify this in a clean way.
 
 template <class Pixel>
 SaI2xScaler<Pixel>::SaI2xScaler(SDL_PixelFormat* format)
@@ -21,8 +24,32 @@ SaI2xScaler<Pixel>::SaI2xScaler(SDL_PixelFormat* format)
 {
 }
 
-const unsigned WIDTH256 = 320; // TODO: Specify this in a clean way.
-const unsigned HEIGHT = 480;
+template <class Pixel>
+void SaI2xScaler<Pixel>::scaleBlank1to2(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	unsigned stopDstY = (dstEndY == dst.getHeight())
+	                  ? dstEndY : dstEndY - 2;
+	unsigned srcY = srcStartY, dstY = dstStartY;
+	for (/* */; dstY < stopDstY; srcY += 1, dstY += 2) {
+		Pixel* dummy = 0;
+		Pixel color = src.getLinePtr(srcY, dummy)[0];
+		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine0, 640, color);
+		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine1, 640, color);
+	}
+	if (dstY != dst.getHeight()) {
+		unsigned nextLineWidth = src.getLineWidth(srcY + 1);
+		assert(src.getLineWidth(srcY) == 1);
+		assert(nextLineWidth != 1);
+		this->scaleImage(src, srcY, srcEndY, nextLineWidth,
+		                 dst, dstY, dstEndY);
+	}
+}
 
 template <class Pixel>
 inline Pixel SaI2xScaler<Pixel>::blend(Pixel p1, Pixel p2)

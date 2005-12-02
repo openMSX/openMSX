@@ -149,76 +149,15 @@ void PostProcessor<Pixel>::paint()
 		// fill region
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	srcStartY, srcEndY, lineWidth );
-		if (lineWidth == 1) {
-			paintBlank(*frame, srcStep, dstStep, srcStartY, srcEndY,
-			           screen, dstStartY, dstHeight);
-		} else {
-			dstEndY = std::min(dstEndY, dstHeight);
-			currScaler->scaleImage(
-				*frame, srcStartY, srcEndY, lineWidth, // source
-				screen, dstStartY, dstEndY); // dest
-		}
+		currScaler->scaleImage(
+			*frame, srcStartY, srcEndY, lineWidth, // source
+			screen, dstStartY, dstEndY); // dest
 
 		// next region
 		srcStartY = srcEndY;
 		dstStartY = dstEndY;
 	}
 	screen.drawFrameBuffer();
-}
-
-
-template <typename Pixel>
-static unsigned allSameColor(FrameSource& frame, unsigned y, unsigned step,
-                             Pixel color)
-{
-	for (unsigned i = 0; i < step; ++i) {
-		if (*frame.getLinePtr(y + i, (Pixel*)0) != color) {
-			return false;
-		}
-	}
-	return true;
-}
-
-template <typename Pixel>
-void PostProcessor<Pixel>::paintBlank(
-		FrameSource& frame, unsigned srcStep, unsigned dstStep,
-		unsigned srcStartY, unsigned srcEndY,
-		OutputSurface& screen, unsigned dstStartY, unsigned dstHeight)
-{
-	while (srcStartY < srcEndY) {
-		Pixel color = *frame.getLinePtr(srcStartY, (Pixel*)0);
-		bool sameColor = allSameColor(frame, srcStartY + 1,
-		                              srcStep - 1, color);
-		unsigned srcY = srcStartY + srcStep;
-		unsigned dstY = dstStartY + dstStep;
-		if (sameColor) {
-			// units with all lines the same color
-			while ((srcY < srcEndY) &&
-			       allSameColor(frame, srcY, srcStep, color)) {
-				srcY += srcStep;
-				dstY += dstStep;
-			}
-			dstY = std::min(dstY, dstHeight);
-			currScaler->scaleBlank(color, screen, dstStartY, dstY);
-		} else {
-			// units with lines in different colors
-			while (srcY < srcEndY) {
-				Pixel color2 = *frame.getLinePtr(srcY, (Pixel*)0);
-				if (allSameColor(frame, srcStartY + 1,
-				                 srcStep - 1, color2)) {
-					break;
-				}
-				srcY += srcStep;
-				dstY += dstStep;
-			}
-			dstY = std::min(dstY, dstHeight);
-			// 320 because that is most likely best optimized
-			currScaler->scaleImage(frame, srcStartY, srcY, 320,
-			                       screen, dstStartY, dstY);
-		}
-		srcStartY = srcY;
-		dstStartY = dstY;
-	}
 }
 
 template <class Pixel>

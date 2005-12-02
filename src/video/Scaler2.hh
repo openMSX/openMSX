@@ -13,6 +13,12 @@ namespace openmsx {
 template <class Pixel> class Scaler2 : public Scaler<Pixel>
 {
 public:
+	virtual void scaleBlank1to2(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+	virtual void scaleBlank1to1(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale1x1to3x2(FrameSource& src, 
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);

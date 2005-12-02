@@ -20,9 +20,9 @@ public:
 	RGBTriplet3xScaler(SDL_PixelFormat* format,
 	                   const RenderSettings& renderSettings);
 
-	virtual void scaleBlank(
-		Pixel color, OutputSurface& dst,
-		unsigned startY, unsigned endY);
+	virtual void scaleBlank1to3(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale2x1to9x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);

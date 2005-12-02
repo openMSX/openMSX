@@ -51,11 +51,6 @@ private:
 	  */
 	void initFrames(bool first = false);
 
-	void paintBlank(
-		FrameSource& frame, unsigned srcStep, unsigned dstStep,
-		unsigned srcStartY, unsigned srcEndY,
-		OutputSurface& screen, unsigned dstStartY, unsigned dstHeight);
-
 	/** Render settings
 	  */
 	RenderSettings& renderSettings;

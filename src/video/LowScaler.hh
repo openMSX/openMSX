@@ -14,6 +14,12 @@ class LowScaler : public Scaler<Pixel>
 public:
 	explicit LowScaler(SDL_PixelFormat* format);
 
+	void scaleBlank1to1(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+	void scaleBlank2to1(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	void scale2x1to3x1(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);

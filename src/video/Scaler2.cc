@@ -4,6 +4,7 @@
 #include "LineScalers.hh"
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
+#include "MemoryOps.hh"
 #include "openmsx.hh"
 #include <cassert>
 
@@ -13,6 +14,39 @@ template <class Pixel>
 Scaler2<Pixel>::Scaler2(SDL_PixelFormat* format)
 	: pixelOps(format)
 {
+}
+
+template <class Pixel>
+void Scaler2<Pixel>::scaleBlank1to2(
+		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	for (unsigned srcY = srcStartY, dstY = dstStartY;
+	     dstY < dstEndY; srcY += 1, dstY += 2) {
+		Pixel* dummy = 0;
+		Pixel color = src.getLinePtr(srcY, dummy)[0];
+		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine0, 640, color);
+		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine1, 640, color);
+	}
+}
+
+template <class Pixel>
+void Scaler2<Pixel>::scaleBlank1to1(
+		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	for (unsigned srcY = srcStartY, dstY = dstStartY;
+	     dstY < dstEndY; srcY += 1, dstY += 1) {
+		Pixel* dummy = 0;
+		Pixel color = src.getLinePtr(srcY, dummy)[0];
+		Pixel* dstLine = dst.getLinePtr(dstY, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine, 640, color);
+	}
 }
 
 template <typename Pixel, typename ScaleOp>
@@ -176,6 +210,10 @@ void Scaler2<Pixel>::scaleImage(FrameSource& src,
 {
 	if (src.getHeight() == 240) {
 		switch (srcWidth) {
+		case 1:
+			scaleBlank1to2(src, srcStartY, srcEndY,
+			              dst, dstStartY, dstEndY);
+			break;
 		case 213:
 			scale1x1to3x2(src, srcStartY, srcEndY, srcWidth,
 			              dst, dstStartY, dstEndY);
@@ -207,6 +245,10 @@ void Scaler2<Pixel>::scaleImage(FrameSource& src,
 	} else {
 		assert(src.getHeight() == 480);
 		switch (srcWidth) {
+		case 1:
+			scaleBlank1to1(src, srcStartY, srcEndY,
+			              dst, dstStartY, dstEndY);
+			break;
 		case 213:
 			scale1x1to3x1(src, srcStartY, srcEndY, srcWidth,
 			              dst, dstStartY, dstEndY);
