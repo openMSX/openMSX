@@ -75,7 +75,7 @@
       <io base="0x98" num="4" type="O"/>
       <io base="0x98" num="2" type="I"/>
       <version>V9958</version>
-      <vram>128</vram>
+      <vram>192</vram>
     </VDP>
 
     <PSG id="PSG">
