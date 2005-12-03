@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <primary slot="0">
+    <secondary slot="0">
+      <ADVram id="ADVRAM">
+        <io base="0x9a" num="1" type="I"/>
+        <io base="0xfe" num="1" type="O"/>
+        <mem base="0x8000" size="0x4000"/>
+        <vdp name="VDP"/>
+      </ADVram>
+    </secondary>
+  </primary>
+</msxconfig>

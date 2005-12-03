@@ -40,6 +40,7 @@
 #include "MSXHBI55.hh"
 #include "DebugDevice.hh"
 #include "V9990.hh"
+#include "ADVram.hh"
 
 using std::auto_ptr;
 using std::string;
@@ -164,6 +165,9 @@ auto_ptr<MSXDevice> DeviceFactory::create(
 	}
 	if (type == "V9990") {
 		return auto_ptr<MSXDevice>(new V9990(motherBoard, conf, time));
+	}
+	if (type == "ADVram") {
+		return auto_ptr<MSXDevice>(new ADVram(motherBoard, conf, time));
 	}
 
 	throw FatalError("Unknown device \"" + type + "\" specified in configuration");

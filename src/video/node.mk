@@ -6,7 +6,7 @@ SUBDIRS:= \
 	v9990
 
 SRC_HDR:= \
-	VDP VDPCmdEngine VDPVRAM SpriteChecker \
+	VDP VDPCmdEngine VDPVRAM SpriteChecker ADVram \
 	VideoSourceSetting \
 	Renderer RendererFactory RenderSettings PixelRenderer \
 	SDLVideoSystem SDLRasterizer SDLSnow \
