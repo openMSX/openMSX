@@ -34,7 +34,7 @@ void MSXMusic::reset(const EmuTime& time)
 }
 
 
-void MSXMusic::writeIO(byte port, byte value, const EmuTime& time)
+void MSXMusic::writeIO(word port, byte value, const EmuTime& time)
 {
 	switch (port & 0x01) {
 		case 0:

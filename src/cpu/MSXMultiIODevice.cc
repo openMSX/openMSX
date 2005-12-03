@@ -99,7 +99,7 @@ const std::string& MSXMultiIODevice::getName() const
 	return name;
 }
 
-byte MSXMultiIODevice::readIO(byte port, const EmuTime& time)
+byte MSXMultiIODevice::readIO(word port, const EmuTime& time)
 {
 	// conflict: return the result from the first device, call readIO()
 	//           also on all other devices, but discard result
@@ -112,14 +112,14 @@ byte MSXMultiIODevice::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
-byte MSXMultiIODevice::peekIO(byte port, const EmuTime& time) const
+byte MSXMultiIODevice::peekIO(word port, const EmuTime& time) const
 {
 	// conflict: just peek first device
 	assert(!devices.empty());
 	return devices.front()->peekIO(port, time);
 }
 
-void MSXMultiIODevice::writeIO(byte port, byte value, const EmuTime& time)
+void MSXMultiIODevice::writeIO(word port, byte value, const EmuTime& time)
 {
 	for (Devices::iterator it = devices.begin();
 	     it != devices.end(); ++it) {

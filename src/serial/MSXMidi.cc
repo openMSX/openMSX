@@ -46,7 +46,7 @@ void MSXMidi::reset(const EmuTime& /*time*/)
 	rxrdyIRQ.reset();
 }
 
-byte MSXMidi::readIO(byte port, const EmuTime& time)
+byte MSXMidi::readIO(word port, const EmuTime& time)
 {
 	byte result;
 	port &= 0x07;
@@ -73,7 +73,7 @@ byte MSXMidi::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
-byte MSXMidi::peekIO(byte port, const EmuTime& time) const
+byte MSXMidi::peekIO(word port, const EmuTime& time) const
 {
 	byte result;
 	port &= 0x07;
@@ -99,7 +99,7 @@ byte MSXMidi::peekIO(byte port, const EmuTime& time) const
 	return result;
 }
 
-void MSXMidi::writeIO(byte port, byte value, const EmuTime& time)
+void MSXMidi::writeIO(word port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("MSX-Midi write " << (int)port << " " << (int)value);
 	port &= 0x07;

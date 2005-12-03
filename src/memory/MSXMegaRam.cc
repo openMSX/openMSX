@@ -120,9 +120,9 @@ byte* MSXMegaRam::getWriteCacheLine(word address) const
 	}
 }
 
-byte MSXMegaRam::readIO(byte port, const EmuTime& /*time*/)
+byte MSXMegaRam::readIO(word port, const EmuTime& /*time*/)
 {
-	switch (port) {
+	switch (port&0xFF) {
 		case 0x8E:
 			// enable writing
 			writeMode = true;
@@ -136,14 +136,14 @@ byte MSXMegaRam::readIO(byte port, const EmuTime& /*time*/)
 	return 0xFF;	// return value doesn't matter
 }
 
-byte MSXMegaRam::peekIO(byte /*port*/, const EmuTime& /*time*/) const
+byte MSXMegaRam::peekIO(word /*port*/, const EmuTime& /*time*/) const
 {
 	return 0xFF;
 }
 
-void MSXMegaRam::writeIO(byte port, byte /*value*/, const EmuTime& /*time*/)
+void MSXMegaRam::writeIO(word port, byte /*value*/, const EmuTime& /*time*/)
 {
-	switch (port) {
+	switch (port&0xFF) {
 		case 0x8E:
 			// enable switching
 			writeMode = false;

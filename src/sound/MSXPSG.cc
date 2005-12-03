@@ -47,19 +47,19 @@ void MSXPSG::powerDown(const EmuTime& /*time*/)
 		new LedEvent(LedEvent::KANA, false));
 }
 
-byte MSXPSG::readIO(byte /*port*/, const EmuTime& time)
+byte MSXPSG::readIO(word /*port*/, const EmuTime& time)
 {
 	byte result = ay8910->readRegister(registerLatch, time);
 	//PRT_DEBUG("PSG read R#"<<(int)registerLatch<<" = "<<(int)result);
 	return result;
 }
 
-byte MSXPSG::peekIO(byte /*port*/, const EmuTime& time) const
+byte MSXPSG::peekIO(word /*port*/, const EmuTime& time) const
 {
 	return ay8910->peekRegister(registerLatch, time);
 }
 
-void MSXPSG::writeIO(byte port, byte value, const EmuTime& time)
+void MSXPSG::writeIO(word port, byte value, const EmuTime& time)
 {
 	switch (port & 0x03) {
 	case 0:

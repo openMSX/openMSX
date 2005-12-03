@@ -34,11 +34,11 @@ void MSXMoonSound::reset(const EmuTime& time)
 	opl3latch = 0;
 }
 
-byte MSXMoonSound::readIO(byte port, const EmuTime& time)
+byte MSXMoonSound::readIO(word port, const EmuTime& time)
 {
 	getMotherBoard().getMixer().updateStream(time); // TODO optimize
 	byte result;
-	if (port < 0xC0) {
+	if ((port&0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
 		switch (port & 0x01) {
 		case 0: // read latch, not supported
@@ -72,10 +72,10 @@ byte MSXMoonSound::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
-byte MSXMoonSound::peekIO(byte port, const EmuTime& time) const
+byte MSXMoonSound::peekIO(word port, const EmuTime& time) const
 {
 	byte result;
-	if (port < 0xC0) {
+	if ((port&0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
 		switch (port & 0x01) {
 		case 0: // read latch, not supported
@@ -108,10 +108,10 @@ byte MSXMoonSound::peekIO(byte port, const EmuTime& time) const
 	return result;
 }
 
-void MSXMoonSound::writeIO(byte port, byte value, const EmuTime& time)
+void MSXMoonSound::writeIO(word port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("MoonSound: write "<<hex<<(int)port<<" "<<(int)value<<dec);
-	if (port < 0xC0) {
+	if ((port&0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
 		switch (port & 0x01) {
 		case 0: // select register

@@ -28,9 +28,9 @@ public:
 	virtual ~MSXS1985();
 
 	virtual void reset(const EmuTime& time);
-	virtual byte readIO(byte port, const EmuTime& time);
-	virtual byte peekIO(byte port, const EmuTime& time) const;
-	virtual void writeIO(byte port, byte value, const EmuTime& time);
+	virtual byte readIO(word port, const EmuTime& time);
+	virtual byte peekIO(word port, const EmuTime& time) const;
+	virtual void writeIO(word port, byte value, const EmuTime& time);
 
 private:
 	const std::auto_ptr<Ram> ram;

@@ -30,7 +30,7 @@ DebugDevice::~DebugDevice()
 {
 }
 
-void DebugDevice::writeIO(byte port, byte value, const EmuTime& time)
+void DebugDevice::writeIO(word port, byte value, const EmuTime& time)
 {
 	string currentName = fileNameSetting->getValueString();
 	if (currentName != fileNameString) {

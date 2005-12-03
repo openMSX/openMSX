@@ -19,7 +19,7 @@ public:
 	            const EmuTime& time);
 	virtual ~DebugDevice();
 
-	virtual void writeIO(byte port, byte value, const EmuTime& time);
+	virtual void writeIO(word port, byte value, const EmuTime& time);
 
 private:
 	enum DisplayType {HEX, BIN, DEC, ASC};

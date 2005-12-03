@@ -18,17 +18,17 @@ void MSXF4Device::reset(const EmuTime& /*time*/)
 	status = inverted ? 0xFF : 0x00;
 }
 
-byte MSXF4Device::readIO(byte port, const EmuTime& time)
+byte MSXF4Device::readIO(word port, const EmuTime& time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXF4Device::peekIO(byte /*port*/, const EmuTime& /*time*/) const
+byte MSXF4Device::peekIO(word /*port*/, const EmuTime& /*time*/) const
 {
 	return status;
 }
 
-void MSXF4Device::writeIO(byte /*port*/, byte value, const EmuTime& /*time*/)
+void MSXF4Device::writeIO(word /*port*/, byte value, const EmuTime& /*time*/)
 {
 	if (inverted) {
 		status = value | 0x7F;

@@ -50,7 +50,7 @@ void MSXPPI::powerDown(const EmuTime& /*time*/)
 		new LedEvent(LedEvent::CAPS, false));
 }
 
-byte MSXPPI::readIO(byte port, const EmuTime& time)
+byte MSXPPI::readIO(word port, const EmuTime& time)
 {
 	switch (port & 0x03) {
 	case 0:
@@ -67,7 +67,7 @@ byte MSXPPI::readIO(byte port, const EmuTime& time)
 	}
 }
 
-byte MSXPPI::peekIO(byte port, const EmuTime& time) const
+byte MSXPPI::peekIO(word port, const EmuTime& time) const
 {
 	switch (port & 0x03) {
 	case 0:
@@ -84,7 +84,7 @@ byte MSXPPI::peekIO(byte port, const EmuTime& time) const
 	}
 }
 
-void MSXPPI::writeIO(byte port, byte value, const EmuTime& time)
+void MSXPPI::writeIO(word port, byte value, const EmuTime& time)
 {
 	switch (port & 0x03) {
 	case 0:

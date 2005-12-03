@@ -12,7 +12,7 @@ MicrosolFDC::MicrosolFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
 {
 }
 
-byte MicrosolFDC::readIO(byte port, const EmuTime& time)
+byte MicrosolFDC::readIO(word port, const EmuTime& time)
 {
 	byte value;
 	switch (port & 0x07) {
@@ -40,7 +40,7 @@ byte MicrosolFDC::readIO(byte port, const EmuTime& time)
 	return value;
 }
 
-byte MicrosolFDC::peekIO(byte port, const EmuTime& time) const
+byte MicrosolFDC::peekIO(word port, const EmuTime& time) const
 {
 	byte value;
 	switch (port & 0x07) {
@@ -66,7 +66,7 @@ byte MicrosolFDC::peekIO(byte port, const EmuTime& time) const
 	return value;
 }
 
-void MicrosolFDC::writeIO(byte port, byte value, const EmuTime& time)
+void MicrosolFDC::writeIO(word port, byte value, const EmuTime& time)
 {
 	PRT_DEBUG("MicrosolFDC: write 0x" << std::hex << (int)port << " 0x"
 	          << (int)value << std::dec);

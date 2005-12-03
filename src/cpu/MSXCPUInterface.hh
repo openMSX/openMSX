@@ -91,7 +91,7 @@ public:
 	 */
 	inline byte readIO(word prt, const EmuTime& time) {
 		byte port = (byte)prt;
-		return IO_In[port]->readIO(port, time);
+		return IO_In[port]->readIO(prt, time);
 	}
 
 	/**
@@ -100,7 +100,7 @@ public:
 	 */
 	inline void writeIO(word prt, byte value, const EmuTime& time) {
 		byte port = (byte)prt;
-		IO_Out[port]->writeIO(port, value, time);
+		IO_Out[port]->writeIO(prt, value, time);
 	}
 
 	/**

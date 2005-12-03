@@ -65,7 +65,7 @@ void I8251::reset(const EmuTime& time)
 	cmdFaze = FAZE_MODE;
 }
 
-byte I8251::readIO(byte port, const EmuTime& time)
+byte I8251::readIO(word port, const EmuTime& time)
 {
 	byte result;
 	switch (port & 1) {
@@ -83,7 +83,7 @@ byte I8251::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
-byte I8251::peekIO(byte port, const EmuTime& /*time*/) const
+byte I8251::peekIO(word port, const EmuTime& /*time*/) const
 {
 	byte result;
 	switch (port & 1) {
@@ -101,7 +101,7 @@ byte I8251::peekIO(byte port, const EmuTime& /*time*/) const
 }
 
 
-void I8251::writeIO(byte port, byte value, const EmuTime& time)
+void I8251::writeIO(word port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("I8251: write " << (int)port << " " << (int)value);
 	switch (port & 1) {

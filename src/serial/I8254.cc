@@ -28,7 +28,7 @@ void I8254::reset(const EmuTime& time)
 	counter2.reset(time);
 }
 
-byte I8254::readIO(byte port, const EmuTime& time)
+byte I8254::readIO(word port, const EmuTime& time)
 {
 	port &= 3;
 	switch (port) {
@@ -46,7 +46,7 @@ byte I8254::readIO(byte port, const EmuTime& time)
 	}
 }
 
-byte I8254::peekIO(byte port, const EmuTime& time) const
+byte I8254::peekIO(word port, const EmuTime& time) const
 {
 	port &= 3;
 	switch (port) {
@@ -64,7 +64,7 @@ byte I8254::peekIO(byte port, const EmuTime& time) const
 	}
 }
 
-void I8254::writeIO(byte port, byte value, const EmuTime& time)
+void I8254::writeIO(word port, byte value, const EmuTime& time)
 {
 	port &= 3;
 	switch (port) {
@@ -217,7 +217,7 @@ byte I8254::Counter::peekIO(const EmuTime& time) const
 	}
 }
 
-void I8254::Counter::writeIO(byte value, const EmuTime& time)
+void I8254::Counter::writeIO(word value, const EmuTime& time)
 {
 	advance(time);
 	switch (control & WRT_FRMT) {

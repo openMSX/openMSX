@@ -15,7 +15,7 @@ public:
 	virtual ~RomKorean90in1();
 
 	virtual void reset(const EmuTime& time);
-	void writeIO(byte port, byte value, const EmuTime& time);
+	void writeIO(word port, byte value, const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
 };
 

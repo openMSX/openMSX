@@ -203,7 +203,7 @@ const string& MSXDevice::getName() const
 }
 
 
-byte MSXDevice::readIO(byte port, const EmuTime& /*time*/)
+byte MSXDevice::readIO(word port, const EmuTime& /*time*/)
 {
 	if (port); // avoid warning
 	PRT_DEBUG("MSXDevice::readIO (0x" << std::hex << (int)port << std::dec <<
@@ -211,7 +211,7 @@ byte MSXDevice::readIO(byte port, const EmuTime& /*time*/)
 	return 0xFF;
 }
 
-void MSXDevice::writeIO(byte port, byte value, const EmuTime& /*time*/)
+void MSXDevice::writeIO(word port, byte value, const EmuTime& /*time*/)
 {
 	if (port); // avoid warning
 	if (value); // avoid warning
@@ -220,7 +220,7 @@ void MSXDevice::writeIO(byte port, byte value, const EmuTime& /*time*/)
 	// do nothing
 }
 
-byte MSXDevice::peekIO(byte /*port*/, const EmuTime& /*time*/) const
+byte MSXDevice::peekIO(word /*port*/, const EmuTime& /*time*/) const
 {
 	return 0xFF;
 }

@@ -98,7 +98,7 @@ byte* MSXRS232::getWriteCacheLine(word start) const
 	}
 }
 
-byte MSXRS232::readIO(byte port, const EmuTime& time)
+byte MSXRS232::readIO(word port, const EmuTime& time)
 {
 	byte result;
 	port &= 0x07;
@@ -127,7 +127,7 @@ byte MSXRS232::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
-byte MSXRS232::peekIO(byte port, const EmuTime& time) const
+byte MSXRS232::peekIO(word port, const EmuTime& time) const
 {
 	byte result;
 	port &= 0x07;
@@ -155,7 +155,7 @@ byte MSXRS232::peekIO(byte port, const EmuTime& time) const
 	return result;
 }
 
-void MSXRS232::writeIO(byte port, byte value, const EmuTime& time)
+void MSXRS232::writeIO(word port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("MSXRS232 write " << (int)port << " " << (int)value);
 	port &= 0x07;

@@ -59,17 +59,17 @@ void MSXMapperIO::reset(const EmuTime& /*time*/)
 	}
 }
 
-byte MSXMapperIO::readIO(byte port, const EmuTime& time)
+byte MSXMapperIO::readIO(word port, const EmuTime& time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXMapperIO::peekIO(byte port, const EmuTime& /*time*/) const
+byte MSXMapperIO::peekIO(word port, const EmuTime& /*time*/) const
 {
 	return getSelectedPage(port & 0x03) | mask;
 }
 
-void MSXMapperIO::writeIO(byte port, byte value, const EmuTime& /*time*/)
+void MSXMapperIO::writeIO(word port, byte value, const EmuTime& /*time*/)
 {
 	write(port & 0x03, value);
 }

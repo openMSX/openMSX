@@ -34,19 +34,19 @@ void MSXPrinterPort::reset(const EmuTime& time)
 }
 
 
-byte MSXPrinterPort::readIO(byte port, const EmuTime& time)
+byte MSXPrinterPort::readIO(word port, const EmuTime& time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXPrinterPort::peekIO(byte /*port*/, const EmuTime& time) const
+byte MSXPrinterPort::peekIO(word /*port*/, const EmuTime& time) const
 {
 	// bit 1 = status / other bits always 1
 	return getPlugged().getStatus(time)
 	       ? 0xFF : 0xFD;
 }
 
-void MSXPrinterPort::writeIO(byte port, byte value, const EmuTime& time)
+void MSXPrinterPort::writeIO(word port, byte value, const EmuTime& time)
 {
 	switch (port & 0x01) {
 	case 0:

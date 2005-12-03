@@ -29,18 +29,18 @@ VDPIODelay::VDPIODelay(MSXMotherBoard& motherboard, MSXDevice& device_,
 {
 }
 
-byte VDPIODelay::readIO(byte port, const EmuTime& time)
+byte VDPIODelay::readIO(word port, const EmuTime& time)
 {
 	delay(time);
 	return device.readIO(port, lastTime.getTime());
 }
 
-byte VDPIODelay::peekIO(byte port, const EmuTime& time) const
+byte VDPIODelay::peekIO(word port, const EmuTime& time) const
 {
 	return device.peekIO(port, time);
 }
 
-void VDPIODelay::writeIO(byte port, byte value, const EmuTime& time)
+void VDPIODelay::writeIO(word port, byte value, const EmuTime& time)
 {
 	delay(time);
 	device.writeIO(port, value, lastTime.getTime());

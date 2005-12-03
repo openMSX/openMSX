@@ -489,7 +489,7 @@ void VDP::frameStart(const EmuTime& time)
 
 // The I/O functions.
 
-void VDP::writeIO(byte port, byte value, const EmuTime& time)
+void VDP::writeIO(word port, byte value, const EmuTime& time)
 {
 	assert(isInsideFrame(time));
 	switch (port & 0x03) {
@@ -681,7 +681,7 @@ byte VDP::readStatusReg(byte reg, const EmuTime& time)
 	return ret;
 }
 
-byte VDP::readIO(byte port, const EmuTime& time)
+byte VDP::readIO(word port, const EmuTime& time)
 {
 	assert(isInsideFrame(time));
 	switch (port & 0x03) {
@@ -701,7 +701,7 @@ byte VDP::readIO(byte port, const EmuTime& time)
 	}
 }
 
-byte VDP::peekIO(byte /*port*/, const EmuTime& /*time*/) const
+byte VDP::peekIO(word /*port*/, const EmuTime& /*time*/) const
 {
 	// TODO not implemented
 	return 0xFF;

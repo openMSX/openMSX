@@ -33,7 +33,7 @@ void MSXFmPac::reset(const EmuTime& time)
 	r1ffe = r1fff = 0xFF;	// TODO check
 }
 
-void MSXFmPac::writeIO(byte port, byte value, const EmuTime& time)
+void MSXFmPac::writeIO(word port, byte value, const EmuTime& time)
 {
 	if (enable & 1) {
 		MSXMusic::writeIO(port, value, time);

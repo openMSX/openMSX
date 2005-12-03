@@ -64,7 +64,7 @@ void MSXHBI55::reset(const EmuTime& time)
 	i8255->reset(time);
 }
 
-byte MSXHBI55::readIO(byte port, const EmuTime& time)
+byte MSXHBI55::readIO(word port, const EmuTime& time)
 {
 	byte result;
 	switch (port & 0x03) {
@@ -88,7 +88,7 @@ byte MSXHBI55::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
-byte MSXHBI55::peekIO(byte port, const EmuTime& time) const
+byte MSXHBI55::peekIO(word port, const EmuTime& time) const
 {
 	byte result;
 	switch (port & 0x03) {
@@ -111,7 +111,7 @@ byte MSXHBI55::peekIO(byte port, const EmuTime& time) const
 	return result;
 }
 
-void MSXHBI55::writeIO(byte port, byte value, const EmuTime& time)
+void MSXHBI55::writeIO(word port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("HBI-55 write "<<hex<<(int)port<<" "<<(int)value<<dec);
 	switch (port & 0x03) {

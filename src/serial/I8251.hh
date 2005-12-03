@@ -32,9 +32,9 @@ public:
 	I8251(Scheduler& scheduler, I8251Interface* interf, const EmuTime& time);
 
 	void reset(const EmuTime& time);
-	byte readIO(byte port, const EmuTime& time);
-	byte peekIO(byte port, const EmuTime& time) const;
-	void writeIO(byte port, byte value, const EmuTime& time);
+	byte readIO(word port, const EmuTime& time);
+	byte peekIO(word port, const EmuTime& time) const;
+	void writeIO(word port, byte value, const EmuTime& time);
 	ClockPin& getClockPin();
 	bool isRecvReady();
 	bool isRecvEnabled();

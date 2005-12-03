@@ -25,7 +25,7 @@ void MSXS1985::reset(const EmuTime& /*time*/)
 {
 }
 
-byte MSXS1985::readIO(byte port, const EmuTime& time)
+byte MSXS1985::readIO(word port, const EmuTime& time)
 {
 	byte result = peekIO(port, time);
 	switch (port & 0x0F) {
@@ -37,7 +37,7 @@ byte MSXS1985::readIO(byte port, const EmuTime& time)
 	return result;
 }
 
-byte MSXS1985::peekIO(byte port, const EmuTime& /*time*/) const
+byte MSXS1985::peekIO(word port, const EmuTime& /*time*/) const
 {
 	byte result;
 	switch (port & 0x0F) {
@@ -56,7 +56,7 @@ byte MSXS1985::peekIO(byte port, const EmuTime& /*time*/) const
 	return result;
 }
 
-void MSXS1985::writeIO(byte port, byte value, const EmuTime& /*time*/)
+void MSXS1985::writeIO(word port, byte value, const EmuTime& /*time*/)
 {
 	//PRT_DEBUG("S1985: write " << (int) port << " " << (int)value);
 	switch (port & 0x0F) {

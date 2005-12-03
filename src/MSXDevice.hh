@@ -60,14 +60,14 @@ public:
 	 * Read a byte from an IO port at a certain time from this device.
 	 * The default implementation returns 255.
 	 */
-	virtual byte readIO(byte port, const EmuTime& time);
+	virtual byte readIO(word port, const EmuTime& time);
 
 	/**
 	 * Write a byte to a given IO port at a certain time to this
 	 * device.
 	 * The default implementation ignores the write (does nothing)
 	 */
-	virtual void writeIO(byte port, byte value, const EmuTime& time);
+	virtual void writeIO(word port, byte value, const EmuTime& time);
 
 	/**
 	 * Read a byte from a given IO port. Reading via this method has no
@@ -77,7 +77,7 @@ public:
 	 * by a debugger.
 	 * The default implementation just returns 0xFF.
 	 */
-	virtual byte peekIO(byte port, const EmuTime& time) const;
+	virtual byte peekIO(word port, const EmuTime& time) const;
 
 
 	// Memory

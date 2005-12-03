@@ -31,12 +31,12 @@ void MSXTurboRPCM::reset(const EmuTime& time)
 	hardwareMute(false);
 }
 
-byte MSXTurboRPCM::readIO(byte port, const EmuTime& time)
+byte MSXTurboRPCM::readIO(word port, const EmuTime& time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXTurboRPCM::peekIO(byte port, const EmuTime& time) const
+byte MSXTurboRPCM::peekIO(word port, const EmuTime& time) const
 {
 	byte result;
 	switch (port & 0x01) {
@@ -68,7 +68,7 @@ byte MSXTurboRPCM::peekIO(byte port, const EmuTime& time) const
 	return result;
 }
 
-void MSXTurboRPCM::writeIO(byte port, byte value, const EmuTime& time)
+void MSXTurboRPCM::writeIO(word port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("PCM: write " << hex << (int)port << " " << (int)value << dec);
 	switch (port & 0x01) {

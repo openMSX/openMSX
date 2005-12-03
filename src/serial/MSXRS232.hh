@@ -24,9 +24,9 @@ public:
 	virtual ~MSXRS232();
 
 	virtual void reset(const EmuTime& time);
-	virtual byte readIO(byte port, const EmuTime& time);
-	virtual byte peekIO(byte port, const EmuTime& time) const;
-	virtual void writeIO(byte port, byte value, const EmuTime& time);
+	virtual byte readIO(word port, const EmuTime& time);
+	virtual byte peekIO(word port, const EmuTime& time) const;
+	virtual void writeIO(word port, byte value, const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte *getReadCacheLine(word start) const;
 	virtual void writeMem(word address, byte value, const EmuTime& time);
